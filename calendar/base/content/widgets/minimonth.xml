@@ -1,5 +1,4 @@
 <?xml version="1.0"?>
-
 <!-- This Source Code Form is subject to the terms of the Mozilla Public
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
@@ -27,6 +26,7 @@
        When title month or year changes, parent popup may need to be reshown.
          Use onmonthchange to reshow parent popop (hidePopup, openPopup).
 -->
+
 <!DOCTYPE bindings
 [
     <!ENTITY % dtd1 SYSTEM "chrome://calendar/locale/global.dtd" > %dtd1;
@@ -38,283 +38,286 @@
           xmlns:xbl="http://www.mozilla.org/xbl"
           xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 
-   <binding id="minimonth-header" extends="xul:box">
-     <content class="minimonth-month-box" align="center">
-         <xul:deck anonid="monthheader" xbl:inherits="selectedIndex=month" class="minimonth-month-name-readonly">
-           <xul:text value="&month.1.name;"/>
-           <xul:text value="&month.2.name;"/>
-           <xul:text value="&month.3.name;"/>
-           <xul:text value="&month.4.name;"/>
-           <xul:text value="&month.5.name;"/>
-           <xul:text value="&month.6.name;"/>
-           <xul:text value="&month.7.name;"/>
-           <xul:text value="&month.8.name;"/>
-           <xul:text value="&month.9.name;"/>
-           <xul:text value="&month.10.name;"/>
-           <xul:text value="&month.11.name;"/>
-           <xul:text value="&month.12.name;"/>
-         </xul:deck>
-         <xul:text anonid="yearcell" class="minimonth-year-name-readonly" xbl:inherits="value=year"/>
-         <xul:spacer flex="1"/>
-     </content>
-   </binding>
+  <binding id="minimonth-header" extends="xul:box">
+    <content class="minimonth-month-box" align="center">
+      <xul:deck anonid="monthheader" xbl:inherits="selectedIndex=month" class="minimonth-month-name-readonly">
+        <xul:text value="&month.1.name;"/>
+        <xul:text value="&month.2.name;"/>
+        <xul:text value="&month.3.name;"/>
+        <xul:text value="&month.4.name;"/>
+        <xul:text value="&month.5.name;"/>
+        <xul:text value="&month.6.name;"/>
+        <xul:text value="&month.7.name;"/>
+        <xul:text value="&month.8.name;"/>
+        <xul:text value="&month.9.name;"/>
+        <xul:text value="&month.10.name;"/>
+        <xul:text value="&month.11.name;"/>
+        <xul:text value="&month.12.name;"/>
+      </xul:deck>
+      <xul:text anonid="yearcell" class="minimonth-year-name-readonly" xbl:inherits="value=year"/>
+      <xul:spacer flex="1"/>
+    </content>
+  </binding>
 
-   <binding id="active-minimonth-header" extends="chrome://calendar/content/widgets/minimonth.xml#minimonth-header">
-       <content class="minimonth-month-box" align="center">
-         <xul:deck anonid="monthheader" xbl:inherits="selectedIndex=month"  class="minimonth-month-name">
-           <xul:toolbarbutton label="&month.1.name;" oncommand="showPopupList(event, 'months-popup')"/>
-           <xul:toolbarbutton label="&month.2.name;"  oncommand="showPopupList(event, 'months-popup')"/>
-           <xul:toolbarbutton label="&month.3.name;"  oncommand="showPopupList(event, 'months-popup')"/>
-           <xul:toolbarbutton label="&month.4.name;"  oncommand="showPopupList(event, 'months-popup')"/>
-           <xul:toolbarbutton label="&month.5.name;"  oncommand="showPopupList(event, 'months-popup')"/>
-           <xul:toolbarbutton label="&month.6.name;"  oncommand="showPopupList(event, 'months-popup')"/>
-           <xul:toolbarbutton label="&month.7.name;"  oncommand="showPopupList(event, 'months-popup')"/>
-           <xul:toolbarbutton label="&month.8.name;"  oncommand="showPopupList(event, 'months-popup')"/>
-           <xul:toolbarbutton label="&month.9.name;"  oncommand="showPopupList(event, 'months-popup')"/>
-           <xul:toolbarbutton label="&month.10.name;"  oncommand="showPopupList(event, 'months-popup')"/>
-           <xul:toolbarbutton label="&month.11.name;"  oncommand="showPopupList(event, 'months-popup')"/>
-           <xul:toolbarbutton label="&month.12.name;"  oncommand="showPopupList(event, 'months-popup')"/>
-         </xul:deck>
-         <xul:toolbarbutton anonid="yearcell"
-                            class="minimonth-year-name"
-                            oncommand="showPopupList(event, 'years-popup')"
-                            xbl:inherits="label=year"/>
-         <xul:spacer flex="1"/>
-         <xul:toolbarbutton anonid="back-button" class="minimonth-nav-btns" dir="-1"
-                            oncommand="this.kMinimonth.advanceMonth(parseInt(this.getAttribute('dir'), 10))"
-                            tooltiptext="&onemonthbackward.tooltip;"/>
-         <xul:toolbarbutton anonid="today-button" class="minimonth-nav-btns" dir="0"
-                            oncommand="this.kMinimonth.value = new Date();"
-                            tooltiptext="&showToday.tooltip;"/>
-         <xul:toolbarbutton anonid="forward-button" class="minimonth-nav-btns" dir="1"
-                            oncommand="this.kMinimonth.advanceMonth(parseInt(this.getAttribute('dir'), 10))"
-                            tooltiptext="&onemonthforward.tooltip;"/>
-       <xul:popupset anonid="minmonth-popupset">
-         <xul:menupopup anonid="months-popup" position="after_start"
-                        onpopupshowing="event.stopPropagation();"
-                        onpopuphidden="firePopupListHidden();">
-           <xul:vbox>
-             <xul:text class="minimonth-list" value="&month.1.name;" index="0"/>
-             <xul:text class="minimonth-list" value="&month.2.name;" index="1"/>
-             <xul:text class="minimonth-list" value="&month.3.name;" index="2"/>
-             <xul:text class="minimonth-list" value="&month.4.name;" index="3"/>
-             <xul:text class="minimonth-list" value="&month.5.name;" index="4"/>
-             <xul:text class="minimonth-list" value="&month.6.name;" index="5"/>
-             <xul:text class="minimonth-list" value="&month.7.name;" index="6"/>
-             <xul:text class="minimonth-list" value="&month.8.name;" index="7"/>
-             <xul:text class="minimonth-list" value="&month.9.name;" index="8"/>
-             <xul:text class="minimonth-list" value="&month.10.name;" index="9"/>
-             <xul:text class="minimonth-list" value="&month.11.name;" index="10"/>
-             <xul:text class="minimonth-list" value="&month.12.name;" index="11"/>
-           </xul:vbox>
-         </xul:menupopup>
-         <xul:menupopup anonid="years-popup" position="after_start"
-                        onpopupshowing="moveYears('reset', 0); event.stopPropagation();"
-                        onpopuphidden="firePopupListHidden();">
-           <xul:vbox>
-             <xul:autorepeatbutton class="autorepeatbutton-up"
-                                   orient="vertical"
-                                   oncommand="moveYears('up', 1);"/>
-             <xul:text class="minimonth-list"/>
-             <xul:text class="minimonth-list"/>
-             <xul:text class="minimonth-list"/>
-             <xul:text class="minimonth-list"/>
-             <xul:text class="minimonth-list"/>
-             <xul:text class="minimonth-list"/>
-             <xul:text class="minimonth-list"/>
-             <xul:text class="minimonth-list"/>
-             <xul:text class="minimonth-list"/>
-             <xul:autorepeatbutton class="autorepeatbutton-down"
-                                   orient="vertical"
-                                   oncommand="moveYears('down', 1);"/>
-           </xul:vbox>
-         </xul:menupopup>
-       </xul:popupset>
-     </content>
-     <implementation>
-       <field name="kMinimonth">null</field>
-       <field name="mPopup">null</field>
-       <field name="mScrollYearsHandler">null</field>
-       <field name="mPixelScrollDelta">0</field>
-       <constructor><![CDATA[
-         this.kMinimonth = getParentNodeOrThis(this, "minimonth");
-         document.getAnonymousElementByAttribute(this, "anonid", "back-button").kMinimonth = this.kMinimonth;
-         document.getAnonymousElementByAttribute(this, "anonid", "today-button").kMinimonth = this.kMinimonth;
-         document.getAnonymousElementByAttribute(this, "anonid", "forward-button").kMinimonth = this.kMinimonth;
+  <binding id="active-minimonth-header" extends="chrome://calendar/content/widgets/minimonth.xml#minimonth-header">
+    <content class="minimonth-month-box" align="center">
+      <xul:deck anonid="monthheader" xbl:inherits="selectedIndex=month"  class="minimonth-month-name">
+        <xul:toolbarbutton label="&month.1.name;" oncommand="showPopupList(event, 'months-popup')"/>
+        <xul:toolbarbutton label="&month.2.name;"  oncommand="showPopupList(event, 'months-popup')"/>
+        <xul:toolbarbutton label="&month.3.name;"  oncommand="showPopupList(event, 'months-popup')"/>
+        <xul:toolbarbutton label="&month.4.name;"  oncommand="showPopupList(event, 'months-popup')"/>
+        <xul:toolbarbutton label="&month.5.name;"  oncommand="showPopupList(event, 'months-popup')"/>
+        <xul:toolbarbutton label="&month.6.name;"  oncommand="showPopupList(event, 'months-popup')"/>
+        <xul:toolbarbutton label="&month.7.name;"  oncommand="showPopupList(event, 'months-popup')"/>
+        <xul:toolbarbutton label="&month.8.name;"  oncommand="showPopupList(event, 'months-popup')"/>
+        <xul:toolbarbutton label="&month.9.name;"  oncommand="showPopupList(event, 'months-popup')"/>
+        <xul:toolbarbutton label="&month.10.name;"  oncommand="showPopupList(event, 'months-popup')"/>
+        <xul:toolbarbutton label="&month.11.name;"  oncommand="showPopupList(event, 'months-popup')"/>
+        <xul:toolbarbutton label="&month.12.name;"  oncommand="showPopupList(event, 'months-popup')"/>
+      </xul:deck>
+      <xul:toolbarbutton anonid="yearcell"
+                         class="minimonth-year-name"
+                         oncommand="showPopupList(event, 'years-popup')"
+                         xbl:inherits="label=year"/>
+      <xul:spacer flex="1"/>
+      <xul:toolbarbutton anonid="back-button" class="minimonth-nav-btns" dir="-1"
+                         oncommand="this.kMinimonth.advanceMonth(parseInt(this.getAttribute('dir'), 10))"
+                         tooltiptext="&onemonthbackward.tooltip;"/>
+      <xul:toolbarbutton anonid="today-button" class="minimonth-nav-btns" dir="0"
+                         oncommand="this.kMinimonth.value = new Date();"
+                         tooltiptext="&showToday.tooltip;"/>
+      <xul:toolbarbutton anonid="forward-button" class="minimonth-nav-btns" dir="1"
+                         oncommand="this.kMinimonth.advanceMonth(parseInt(this.getAttribute('dir'), 10))"
+                         tooltiptext="&onemonthforward.tooltip;"/>
+      <xul:popupset anonid="minmonth-popupset">
+        <xul:menupopup anonid="months-popup" position="after_start"
+                       onpopupshowing="event.stopPropagation();"
+                       onpopuphidden="firePopupListHidden();">
+          <xul:vbox>
+            <xul:text class="minimonth-list" value="&month.1.name;" index="0"/>
+            <xul:text class="minimonth-list" value="&month.2.name;" index="1"/>
+            <xul:text class="minimonth-list" value="&month.3.name;" index="2"/>
+            <xul:text class="minimonth-list" value="&month.4.name;" index="3"/>
+            <xul:text class="minimonth-list" value="&month.5.name;" index="4"/>
+            <xul:text class="minimonth-list" value="&month.6.name;" index="5"/>
+            <xul:text class="minimonth-list" value="&month.7.name;" index="6"/>
+            <xul:text class="minimonth-list" value="&month.8.name;" index="7"/>
+            <xul:text class="minimonth-list" value="&month.9.name;" index="8"/>
+            <xul:text class="minimonth-list" value="&month.10.name;" index="9"/>
+            <xul:text class="minimonth-list" value="&month.11.name;" index="10"/>
+            <xul:text class="minimonth-list" value="&month.12.name;" index="11"/>
+          </xul:vbox>
+        </xul:menupopup>
+        <xul:menupopup anonid="years-popup" position="after_start"
+                       onpopupshowing="moveYears('reset', 0); event.stopPropagation();"
+                       onpopuphidden="firePopupListHidden();">
+          <xul:vbox>
+            <xul:autorepeatbutton class="autorepeatbutton-up"
+                                  orient="vertical"
+                                  oncommand="moveYears('up', 1);"/>
+            <xul:text class="minimonth-list"/>
+            <xul:text class="minimonth-list"/>
+            <xul:text class="minimonth-list"/>
+            <xul:text class="minimonth-list"/>
+            <xul:text class="minimonth-list"/>
+            <xul:text class="minimonth-list"/>
+            <xul:text class="minimonth-list"/>
+            <xul:text class="minimonth-list"/>
+            <xul:text class="minimonth-list"/>
+            <xul:autorepeatbutton class="autorepeatbutton-down"
+                                  orient="vertical"
+                                  oncommand="moveYears('down', 1);"/>
+          </xul:vbox>
+        </xul:menupopup>
+      </xul:popupset>
+    </content>
+    <implementation>
+      <field name="kMinimonth">null</field>
+      <field name="mPopup">null</field>
+      <field name="mScrollYearsHandler">null</field>
+      <field name="mPixelScrollDelta">0</field>
+      <constructor><![CDATA[
+        this.kMinimonth = getParentNodeOrThis(this, "minimonth");
+        document.getAnonymousElementByAttribute(this, "anonid", "back-button").kMinimonth = this.kMinimonth;
+        document.getAnonymousElementByAttribute(this, "anonid", "today-button").kMinimonth = this.kMinimonth;
+        document.getAnonymousElementByAttribute(this, "anonid", "forward-button").kMinimonth = this.kMinimonth;
 
-         this.mScrollYearsHandler = this.scrollYears.bind(this);
-         document.getAnonymousElementByAttribute(this, "anonid", "years-popup")
-                 .addEventListener("wheel", this.mScrollYearsHandler, true);
-       ]]></constructor>
-       <destructor><![CDATA[
-         document.getAnonymousElementByAttribute(this, "anonid", "years-popup")
-                 .removeEventListener("wheel", this.mScrollYearsHandler, true);
-         this.mScrollYearsHandler = null;
-       ]]></destructor>
+        this.mScrollYearsHandler = this.scrollYears.bind(this);
+        document.getAnonymousElementByAttribute(this, "anonid", "years-popup")
+                .addEventListener("wheel", this.mScrollYearsHandler, true);
+      ]]></constructor>
 
-       <method name="showPopupList">
-         <parameter name="aEvent"/>
-         <parameter name="aPopupAnonId"/>
-          <body><![CDATA[
-           // Close open popups (if any), to prevent linux crashes
-           if (this.mPopup) {
-               this.mPopup.hidePopup();
-           }
-           this.mPopup = document.getAnonymousElementByAttribute(this, "anonid", aPopupAnonId);
-           this.mPopup.openPopup(aEvent.target, "after_start");
-         ]]></body>
-       </method>
+      <destructor><![CDATA[
+        document.getAnonymousElementByAttribute(this, "anonid", "years-popup")
+                .removeEventListener("wheel", this.mScrollYearsHandler, true);
+        this.mScrollYearsHandler = null;
+      ]]></destructor>
 
-       <method name="hidePopupList">
-         <body><![CDATA[
-           // Close open popups (if any)
-           let popup = this.mPopup;
-           this.mPopup = null;
-           if (popup) {
-               popup.hidePopup();
-           }
-         ]]></body>
-       </method>
-       <method name="firePopupListHidden">
-         <body><![CDATA[
-           if (this.mPopup) {
-               this.mPopup = null;
-               this.kMinimonth.fireEvent("popuplisthidden");
-           }
-         ]]></body>
-       </method>
-       <method name="updateMonthPopup">
-         <parameter name="aDate"/>
-         <body><![CDATA[
-           let months = document.getAnonymousElementByAttribute(this, "anonid", "months-popup").firstChild.childNodes;
-           let month = aDate.getMonth();
-           for (let i = 0; i < months.length; i++) {
-               months[i].setAttribute("current", i == month ? "true" : "false");
-           }
-         ]]></body>
-       </method>
-       <method name="updateYearPopup">
-         <parameter name="aDate"/>
-         <body><![CDATA[
-           let years = document.getAnonymousElementByAttribute(this, "anonid", "years-popup").firstChild.childNodes;
-           let year = new Date(aDate);
-           let compFullYear = aDate.getFullYear();
-           year.setFullYear(Math.max(1, compFullYear - Math.trunc(years.length / 2) + 1));
-           for (let i = 1; i < years.length - 1; i++) {
-               let curfullYear = year.getFullYear();
-               years[i].setAttribute("value", curfullYear);
-               years[i].setAttribute("current", curfullYear == compFullYear ? "true" : "false");
-               year.setFullYear(curfullYear + 1);
-           }
-         ]]></body>
-       </method>
+      <method name="showPopupList">
+        <parameter name="aEvent"/>
+        <parameter name="aPopupAnonId"/>
+        <body><![CDATA[
+          // Close open popups (if any), to prevent linux crashes
+          if (this.mPopup) {
+              this.mPopup.hidePopup();
+          }
+          this.mPopup = document.getAnonymousElementByAttribute(this, "anonid", aPopupAnonId);
+          this.mPopup.openPopup(aEvent.target, "after_start");
+        ]]></body>
+      </method>
 
-       <method name="scrollYears">
-         <parameter name="event"/>
-         <body><![CDATA[
-           let yearPopup = getParentNodeOrThis(event.target, "menupopup");
-           const pixelThreshold = 75;
-           if (yearPopup) {
-               let monthList = yearPopup.getElementsByAttribute("class", "minimonth-list");
-               if (monthList && monthList.length > 0) {
-                   if (event.deltaMode == event.DOM_DELTA_PAGE) {
-                     let dir = (event.deltaY > 0 ? "up" : "down");
-                     this.moveYears(dir, Math.abs(event.deltaY) * monthList.length);
-                   } else if (event.deltaMode == event.DOM_DELTA_LINE) {
-                     let dir = (event.deltaY > 0 ? "up" : "down");
-                     this.moveYears(dir, 1);
-                   } else if (event.deltaMode == event.DOM_DELTA_PIXEL) {
-                     this.mPixelScrollDelta += event.deltaY;
-                     if (this.mPixelScrollDelta > pixelThreshold) {
-                        this.moveYears("down", 1);
-                        this.mPixelScrollDelta = 0;
-                     } else if (this.mPixelScrollDelta < -pixelThreshold) {
-                        this.moveYears("up", 1);
-                        this.mPixelScrollDelta = 0;
-                     }
-                   }
-
-                   event.stopPropagation();
-                   event.preventDefault();
-               }
-           }
-         ]]></body>
-       </method>
-
-       <method name="moveYears">
-         <parameter name="direction"/>
-         <parameter name="scrollOffset"/>
-         <body><![CDATA[
-           // Update the year popup
-           let years = document.getAnonymousElementByAttribute(this, "anonid", "years-popup").firstChild.childNodes;
-           let current = this.getAttribute("year");
-           let offset;
-           switch (direction) {
-               case "reset": {
-                   let middleyear = years[Math.floor(years.length / 2)].getAttribute("value");
-                   if (current <= (years.length / 2)) {
-                       offset = 1 - years[1].getAttribute("value");
-                   } else {
-                       offset = current - middleyear;
-                   }
-                   break;
-               }
-               case "up": {
-                   offset = -Math.abs(scrollOffset) || -1;
-                   break;
-               }
-               case "down": {
-                   offset = Math.abs(scrollOffset) || 1;
-                   break;
-               }
-           }
-
-           // Disable the up arrow when we get to the year 1.
-           years[0].disabled = (parseInt(years[1].getAttribute("value"), 10) + offset < 2);
-
-           if (!offset) {
-               // No need to loop through when the offset is zero.
-               return;
-           }
-
-           // Go through all visible years and set the new value. Be sure to
-           // skip the autorepeatbuttons.
-           for (let i = 1; i < years.length - 1; i++) {
-               let value = parseInt(years[i].getAttribute("value"), 10) + offset;
-               years[i].setAttribute("value", value);
-               years[i].setAttribute("current", value == current ? "true" : "false");
-           }
-         ]]> </body>
-       </method>
-    </implementation>
-    <!-- ::::::::::::::::: HANDLERS ::::::::::::::::::::::::: -->
-    <handlers>
-      <handler event="bindingattached" action="this.initialize();"/>
-      <!-- handle click from nested months popup and years popup -->
-      <handler event="click">
-        <![CDATA[
-          let element = event.originalTarget;
-          let popup = getParentNodeOrThis(element, "menupopup");
+      <method name="hidePopupList">
+        <body><![CDATA[
+          // Close open popups (if any)
+          let popup = this.mPopup;
+          this.mPopup = null;
           if (popup) {
-              let anonid = popup.getAttribute("anonid");
-              switch (anonid) {
-                  case "months-popup": {
-                      this.hidePopupList();
-                      this.kMinimonth.switchMonth(element.getAttribute("index"));
-                      break;
-                  }
-                  case "years-popup": {
-                      this.hidePopupList();
-                      let value = element.getAttribute("value");
-                      if (value) {
-                          this.kMinimonth.switchYear(value);
+              popup.hidePopup();
+          }
+        ]]></body>
+      </method>
+
+      <method name="firePopupListHidden">
+        <body><![CDATA[
+          if (this.mPopup) {
+              this.mPopup = null;
+              this.kMinimonth.fireEvent("popuplisthidden");
+          }
+        ]]></body>
+      </method>
+
+      <method name="updateMonthPopup">
+        <parameter name="aDate"/>
+        <body><![CDATA[
+          let months = document.getAnonymousElementByAttribute(this, "anonid", "months-popup").firstChild.childNodes;
+          let month = aDate.getMonth();
+          for (let i = 0; i < months.length; i++) {
+              months[i].setAttribute("current", i == month ? "true" : "false");
+          }
+        ]]></body>
+      </method>
+
+      <method name="updateYearPopup">
+        <parameter name="aDate"/>
+        <body><![CDATA[
+          let years = document.getAnonymousElementByAttribute(this, "anonid", "years-popup").firstChild.childNodes;
+          let year = new Date(aDate);
+          let compFullYear = aDate.getFullYear();
+          year.setFullYear(Math.max(1, compFullYear - Math.trunc(years.length / 2) + 1));
+          for (let i = 1; i < years.length - 1; i++) {
+              let curfullYear = year.getFullYear();
+              years[i].setAttribute("value", curfullYear);
+              years[i].setAttribute("current", curfullYear == compFullYear ? "true" : "false");
+              year.setFullYear(curfullYear + 1);
+          }
+        ]]></body>
+      </method>
+
+      <method name="scrollYears">
+        <parameter name="event"/>
+        <body><![CDATA[
+          let yearPopup = getParentNodeOrThis(event.target, "menupopup");
+          const pixelThreshold = 75;
+          if (yearPopup) {
+              let monthList = yearPopup.getElementsByAttribute("class", "minimonth-list");
+              if (monthList && monthList.length > 0) {
+                  if (event.deltaMode == event.DOM_DELTA_PAGE) {
+                      let dir = event.deltaY > 0 ? "up" : "down";
+                      this.moveYears(dir, Math.abs(event.deltaY) * monthList.length);
+                  } else if (event.deltaMode == event.DOM_DELTA_LINE) {
+                      let dir = event.deltaY > 0 ? "up" : "down";
+                      this.moveYears(dir, 1);
+                  } else if (event.deltaMode == event.DOM_DELTA_PIXEL) {
+                      this.mPixelScrollDelta += event.deltaY;
+                      if (this.mPixelScrollDelta > pixelThreshold) {
+                          this.moveYears("down", 1);
+                          this.mPixelScrollDelta = 0;
+                      } else if (this.mPixelScrollDelta < -pixelThreshold) {
+                          this.moveYears("up", 1);
+                          this.mPixelScrollDelta = 0;
                       }
-                      break;
                   }
+
+                  event.stopPropagation();
+                  event.preventDefault();
               }
           }
-        ]]>
-      </handler>
+        ]]></body>
+      </method>
+
+      <method name="moveYears">
+        <parameter name="direction"/>
+        <parameter name="scrollOffset"/>
+        <body><![CDATA[
+          // Update the year popup
+          let years = document.getAnonymousElementByAttribute(this, "anonid", "years-popup").firstChild.childNodes;
+          let current = this.getAttribute("year");
+          let offset;
+          switch (direction) {
+              case "reset": {
+                  let middleyear = years[Math.floor(years.length / 2)].getAttribute("value");
+                  if (current <= (years.length / 2)) {
+                      offset = 1 - years[1].getAttribute("value");
+                  } else {
+                      offset = current - middleyear;
+                  }
+                  break;
+              }
+              case "up": {
+                  offset = -Math.abs(scrollOffset) || -1;
+                  break;
+              }
+              case "down": {
+                  offset = Math.abs(scrollOffset) || 1;
+                  break;
+              }
+          }
+
+          // Disable the up arrow when we get to the year 1.
+          years[0].disabled = parseInt(years[1].getAttribute("value"), 10) + offset < 2;
+
+          if (!offset) {
+              // No need to loop through when the offset is zero.
+              return;
+          }
+
+          // Go through all visible years and set the new value. Be sure to
+          // skip the autorepeatbuttons.
+          for (let i = 1; i < years.length - 1; i++) {
+              let value = parseInt(years[i].getAttribute("value"), 10) + offset;
+              years[i].setAttribute("value", value);
+              years[i].setAttribute("current", value == current ? "true" : "false");
+          }
+        ]]></body>
+      </method>
+    </implementation>
+
+    <handlers>
+      <handler event="bindingattached" action="this.initialize();"/>
+
+      <!-- handle click from nested months popup and years popup -->
+      <handler event="click"><![CDATA[
+        let element = event.originalTarget;
+        let popup = getParentNodeOrThis(element, "menupopup");
+        if (popup) {
+            let anonid = popup.getAttribute("anonid");
+            switch (anonid) {
+                case "months-popup": {
+                    this.hidePopupList();
+                    this.kMinimonth.switchMonth(element.getAttribute("index"));
+                    break;
+                }
+                case "years-popup": {
+                    this.hidePopupList();
+                    let value = element.getAttribute("value");
+                    if (value) {
+                        this.kMinimonth.switchYear(value);
+                    }
+                    break;
+                }
+            }
+        }
+      ]]></handler>
     </handlers>
   </binding>
 
@@ -322,83 +325,83 @@
     <resources>
       <stylesheet src="chrome://calendar-common/skin/widgets/minimonth.css"/>
     </resources>
+
     <content orient="vertical" xbl:inherits="onchange,onmonthchange,onpopuplisthidden,readonly">
-        <xul:minimonth-header anonid="minimonth-header" xbl:inherits="readonly,month,year"/>
-        <xul:vbox anonid="minimonth-calendar" class="minimonth-cal-box">
-          <xul:hbox class="minimonth-row-head" anonid="minimonth-row-header" equalsize="always">
-            <xul:text class="minimonth-row-header-week" flex="1"/>
-            <xul:text class="minimonth-row-header" flex="1"/>
-            <xul:text class="minimonth-row-header" flex="1"/>
-            <xul:text class="minimonth-row-header" flex="1"/>
-            <xul:text class="minimonth-row-header" flex="1"/>
-            <xul:text class="minimonth-row-header" flex="1"/>
-            <xul:text class="minimonth-row-header" flex="1"/>
-            <xul:text class="minimonth-row-header" flex="1"/>
-          </xul:hbox>
-          <xul:hbox class="minimonth-row-body" equalsize="always" flex="1">
-            <xul:text class="minimonth-week" flex="1"/>
-            <xul:text class="minimonth-day" flex="1"/>
-            <xul:text class="minimonth-day" flex="1"/>
-            <xul:text class="minimonth-day" flex="1"/>
-            <xul:text class="minimonth-day" flex="1"/>
-            <xul:text class="minimonth-day" flex="1"/>
-            <xul:text class="minimonth-day" flex="1"/>
-            <xul:text class="minimonth-day" flex="1"/>
-          </xul:hbox>
-          <xul:hbox class="minimonth-row-body" equalsize="always" flex="1">
-            <xul:text class="minimonth-week" flex="1"/>
-            <xul:text class="minimonth-day" flex="1"/>
-            <xul:text class="minimonth-day" flex="1"/>
-            <xul:text class="minimonth-day" flex="1"/>
-            <xul:text class="minimonth-day" flex="1"/>
-            <xul:text class="minimonth-day" flex="1"/>
-            <xul:text class="minimonth-day" flex="1"/>
-            <xul:text class="minimonth-day" flex="1"/>
-          </xul:hbox>
-          <xul:hbox class="minimonth-row-body" equalsize="always" flex="1">
-            <xul:text class="minimonth-week" flex="1"/>
-            <xul:text class="minimonth-day" flex="1"/>
-            <xul:text class="minimonth-day" flex="1"/>
-            <xul:text class="minimonth-day" flex="1"/>
-            <xul:text class="minimonth-day" flex="1"/>
-            <xul:text class="minimonth-day" flex="1"/>
-            <xul:text class="minimonth-day" flex="1"/>
-            <xul:text class="minimonth-day" flex="1"/>
-          </xul:hbox>
-          <xul:hbox class="minimonth-row-body" equalsize="always" flex="1">
-            <xul:text class="minimonth-week" flex="1"/>
-            <xul:text class="minimonth-day" flex="1"/>
-            <xul:text class="minimonth-day" flex="1"/>
-            <xul:text class="minimonth-day" flex="1"/>
-            <xul:text class="minimonth-day" flex="1"/>
-            <xul:text class="minimonth-day" flex="1"/>
-            <xul:text class="minimonth-day" flex="1"/>
-            <xul:text class="minimonth-day" flex="1"/>
-          </xul:hbox>
-          <xul:hbox class="minimonth-row-body" equalsize="always" flex="1">
-            <xul:text class="minimonth-week" flex="1"/>
-            <xul:text class="minimonth-day" flex="1"/>
-            <xul:text class="minimonth-day" flex="1"/>
-            <xul:text class="minimonth-day" flex="1"/>
-            <xul:text class="minimonth-day" flex="1"/>
-            <xul:text class="minimonth-day" flex="1"/>
-            <xul:text class="minimonth-day" flex="1"/>
-            <xul:text class="minimonth-day" flex="1"/>
-          </xul:hbox>
-          <xul:hbox class="minimonth-row-body" equalsize="always" flex="1">
-            <xul:text class="minimonth-week" flex="1"/>
-            <xul:text class="minimonth-day" flex="1"/>
-            <xul:text class="minimonth-day" flex="1"/>
-            <xul:text class="minimonth-day" flex="1"/>
-            <xul:text class="minimonth-day" flex="1"/>
-            <xul:text class="minimonth-day" flex="1"/>
-            <xul:text class="minimonth-day" flex="1"/>
-            <xul:text class="minimonth-day" flex="1"/>
-          </xul:hbox>
-        </xul:vbox>
+      <xul:minimonth-header anonid="minimonth-header" xbl:inherits="readonly,month,year"/>
+      <xul:vbox anonid="minimonth-calendar" class="minimonth-cal-box">
+        <xul:hbox class="minimonth-row-head" anonid="minimonth-row-header" equalsize="always">
+          <xul:text class="minimonth-row-header-week" flex="1"/>
+          <xul:text class="minimonth-row-header" flex="1"/>
+          <xul:text class="minimonth-row-header" flex="1"/>
+          <xul:text class="minimonth-row-header" flex="1"/>
+          <xul:text class="minimonth-row-header" flex="1"/>
+          <xul:text class="minimonth-row-header" flex="1"/>
+          <xul:text class="minimonth-row-header" flex="1"/>
+          <xul:text class="minimonth-row-header" flex="1"/>
+        </xul:hbox>
+        <xul:hbox class="minimonth-row-body" equalsize="always" flex="1">
+          <xul:text class="minimonth-week" flex="1"/>
+          <xul:text class="minimonth-day" flex="1"/>
+          <xul:text class="minimonth-day" flex="1"/>
+          <xul:text class="minimonth-day" flex="1"/>
+          <xul:text class="minimonth-day" flex="1"/>
+          <xul:text class="minimonth-day" flex="1"/>
+          <xul:text class="minimonth-day" flex="1"/>
+          <xul:text class="minimonth-day" flex="1"/>
+        </xul:hbox>
+        <xul:hbox class="minimonth-row-body" equalsize="always" flex="1">
+          <xul:text class="minimonth-week" flex="1"/>
+          <xul:text class="minimonth-day" flex="1"/>
+          <xul:text class="minimonth-day" flex="1"/>
+          <xul:text class="minimonth-day" flex="1"/>
+          <xul:text class="minimonth-day" flex="1"/>
+          <xul:text class="minimonth-day" flex="1"/>
+          <xul:text class="minimonth-day" flex="1"/>
+          <xul:text class="minimonth-day" flex="1"/>
+        </xul:hbox>
+        <xul:hbox class="minimonth-row-body" equalsize="always" flex="1">
+          <xul:text class="minimonth-week" flex="1"/>
+          <xul:text class="minimonth-day" flex="1"/>
+          <xul:text class="minimonth-day" flex="1"/>
+          <xul:text class="minimonth-day" flex="1"/>
+          <xul:text class="minimonth-day" flex="1"/>
+          <xul:text class="minimonth-day" flex="1"/>
+          <xul:text class="minimonth-day" flex="1"/>
+          <xul:text class="minimonth-day" flex="1"/>
+        </xul:hbox>
+        <xul:hbox class="minimonth-row-body" equalsize="always" flex="1">
+          <xul:text class="minimonth-week" flex="1"/>
+          <xul:text class="minimonth-day" flex="1"/>
+          <xul:text class="minimonth-day" flex="1"/>
+          <xul:text class="minimonth-day" flex="1"/>
+          <xul:text class="minimonth-day" flex="1"/>
+          <xul:text class="minimonth-day" flex="1"/>
+          <xul:text class="minimonth-day" flex="1"/>
+          <xul:text class="minimonth-day" flex="1"/>
+        </xul:hbox>
+        <xul:hbox class="minimonth-row-body" equalsize="always" flex="1">
+          <xul:text class="minimonth-week" flex="1"/>
+          <xul:text class="minimonth-day" flex="1"/>
+          <xul:text class="minimonth-day" flex="1"/>
+          <xul:text class="minimonth-day" flex="1"/>
+          <xul:text class="minimonth-day" flex="1"/>
+          <xul:text class="minimonth-day" flex="1"/>
+          <xul:text class="minimonth-day" flex="1"/>
+          <xul:text class="minimonth-day" flex="1"/>
+        </xul:hbox>
+        <xul:hbox class="minimonth-row-body" equalsize="always" flex="1">
+          <xul:text class="minimonth-week" flex="1"/>
+          <xul:text class="minimonth-day" flex="1"/>
+          <xul:text class="minimonth-day" flex="1"/>
+          <xul:text class="minimonth-day" flex="1"/>
+          <xul:text class="minimonth-day" flex="1"/>
+          <xul:text class="minimonth-day" flex="1"/>
+          <xul:text class="minimonth-day" flex="1"/>
+          <xul:text class="minimonth-day" flex="1"/>
+        </xul:hbox>
+      </xul:vbox>
     </content>
 
-    <!-- ::::::::::::::::: INTERFACE ::::::::::::::::::::::::: -->
     <implementation implements="calICompositeObserver calIOperationListener nsIObserver" >
       <property name="value"
                 onget="return this.mValue"
@@ -411,22 +414,23 @@
        <!--returns the first (inclusive) date of the minimonth as a calIDateTime object-->
       <property name="firstDate" readonly="true">
         <getter><![CDATA[
-            let calbox = document.getAnonymousElementByAttribute(this, "anonid", "minimonth-calendar");
-            let date = calbox.childNodes[1].firstChild.nextSibling.date;
-            return cal.jsDateToDateTime(date);
+          let calbox = document.getAnonymousElementByAttribute(this, "anonid", "minimonth-calendar");
+          let date = calbox.childNodes[1].firstChild.nextSibling.date;
+          return cal.jsDateToDateTime(date);
         ]]></getter>
       </property>
 
        <!--returns the last (exclusive) date of the minimonth as a calIDateTime object-->
       <property name="lastDate" readonly="true">
         <getter><![CDATA[
-            let calbox = document.getAnonymousElementByAttribute(this, "anonid", "minimonth-calendar");
-            let date = calbox.lastChild.lastChild.date;
-            let lastDateTime = cal.jsDateToDateTime(date);
-            lastDateTime.day = lastDateTime.day + 1;
-            return lastDateTime;
+          let calbox = document.getAnonymousElementByAttribute(this, "anonid", "minimonth-calendar");
+          let date = calbox.lastChild.lastChild.date;
+          let lastDateTime = cal.jsDateToDateTime(date);
+          lastDateTime.day = lastDateTime.day + 1;
+          return lastDateTime;
         ]]></getter>
       </property>
+
       <field name="mDaymap">null</field>
       <field name="mValue">null</field>
       <field name="mEditorDate">null</field>
@@ -435,41 +439,43 @@
       <field name="mIsReadOnly">false</field>
       <field name="mObservesComposite">false</field>
       <field name="mShowWeekNumber">true</field>
+
       <constructor><![CDATA[
-          Components.utils.import("resource://gre/modules/Services.jsm");
-          Components.utils.import("resource://gre/modules/Preferences.jsm");
+        Components.utils.import("resource://gre/modules/Services.jsm");
+        Components.utils.import("resource://gre/modules/Preferences.jsm");
 
-          this.mToday = false;
-          this.mSelected = false;
-          this.mExtra = false;
-          this.mValue = new Date(); // Default to "today"
-          // save references for convenience
-          if (this.hasAttribute("readonly")) {
-              this.mIsReadOnly = this.getAttribute("readonly") == "true";
-          }
-          this.refreshDisplay();
-          if (this.hasAttribute("freebusy")) {
-              this._setFreeBusy(this.getAttribute("freebusy") == "true");
-          }
-          this.mShowWeekNumber = Preferences.get("calendar.view-minimonth.showWeekNumber", true);
+        this.mToday = false;
+        this.mSelected = false;
+        this.mExtra = false;
+        this.mValue = new Date(); // Default to "today"
+        // save references for convenience
+        if (this.hasAttribute("readonly")) {
+            this.mIsReadOnly = this.getAttribute("readonly") == "true";
+        }
+        this.refreshDisplay();
+        if (this.hasAttribute("freebusy")) {
+            this._setFreeBusy(this.getAttribute("freebusy") == "true");
+        }
+        this.mShowWeekNumber = Preferences.get("calendar.view-minimonth.showWeekNumber", true);
 
-          // Add pref observer
-          let branch = Services.prefs.getBranch("");
-          branch.addObserver("calendar.", this, false);
+        // Add pref observer
+        let branch = Services.prefs.getBranch("");
+        branch.addObserver("calendar.", this, false);
       ]]></constructor>
+
       <destructor><![CDATA[
-          Components.utils.import("resource://gre/modules/Services.jsm");
+        Components.utils.import("resource://gre/modules/Services.jsm");
 
-          if (this.mObservesComposite == true) {
-              getCompositeCalendar().removeObserver(this);
-          }
+        if (this.mObservesComposite == true) {
+            getCompositeCalendar().removeObserver(this);
+        }
 
-          // Remove pref observer
-          let branch = Services.prefs.getBranch("");
-          branch.removeObserver("calendar.", this, false);
+        // Remove pref observer
+        let branch = Services.prefs.getBranch("");
+        branch.removeObserver("calendar.", this, false);
       ]]></destructor>
 
-     <!-- calIOperationListener methods -->
+      <!-- calIOperationListener methods -->
       <method name="onOperationComplete">
         <parameter name="aCalendar"/>
         <parameter name="aStatus"/>
@@ -488,12 +494,12 @@
         <parameter name="aCount"/>
         <parameter name="aItems"/>
         <body><![CDATA[
-            if (!Components.isSuccessCode(aStatus)) {
-                return;
-            }
-            for (let item of aItems) {
-                this.setBusyDaysForOccurrence(item, true);
-            }
+          if (!Components.isSuccessCode(aStatus)) {
+              return;
+          }
+          for (let item of aItems) {
+              this.setBusyDaysForOccurrence(item, true);
+          }
         ]]></body>
       </method>
 
@@ -568,39 +574,39 @@
         <parameter name="aOccurrence"/>
         <parameter name="aState"/>
         <body><![CDATA[
-        if (aOccurrence.getProperty("TRANSP") == "TRANSPARENT") {
-          // Skip transparent events
-          return;
-        }
-        let start = aOccurrence[calGetStartDateProp(aOccurrence)] || aOccurrence.dueDate;
-        let end = aOccurrence[calGetEndDateProp(aOccurrence)] || start;
-        if (!start) {
-            return;
-        }
+          if (aOccurrence.getProperty("TRANSP") == "TRANSPARENT") {
+              // Skip transparent events
+              return;
+          }
+          let start = aOccurrence[calGetStartDateProp(aOccurrence)] || aOccurrence.dueDate;
+          let end = aOccurrence[calGetEndDateProp(aOccurrence)] || start;
+          if (!start) {
+              return;
+          }
 
-        // We need to compare with midnight of the current day, so reset the
-        // time here.
-        let current = start.clone().getInTimezone(cal.calendarDefaultTimezone());
-        current.hour = 0;
-        current.minute = 0;
-        current.second = 0;
+          // We need to compare with midnight of the current day, so reset the
+          // time here.
+          let current = start.clone().getInTimezone(cal.calendarDefaultTimezone());
+          current.hour = 0;
+          current.minute = 0;
+          current.second = 0;
 
-        // Cache the result so the compare isn't called in each iteration.
-        let compareResult = (start.compare(end) == 0 ? 1 : 0);
+          // Cache the result so the compare isn't called in each iteration.
+          let compareResult = (start.compare(end) == 0 ? 1 : 0);
 
-        // Setup the busy days.
-        while (current.compare(end) < compareResult) {
-            let box = this.getBoxForDate(current);
-            if (box) {
-                let busyCalendars = this.parseBoxBusy(box);
-                if (!busyCalendars[aOccurrence.calendar.id]) {
-                    busyCalendars[aOccurrence.calendar.id] = 0;
-                }
-                busyCalendars[aOccurrence.calendar.id] += (aState ? 1 : -1);
-                this.updateBoxBusy(box, busyCalendars);
-            }
-            current.day++;
-        }
+          // Setup the busy days.
+          while (current.compare(end) < compareResult) {
+              let box = this.getBoxForDate(current);
+              if (box) {
+                  let busyCalendars = this.parseBoxBusy(box);
+                  if (!busyCalendars[aOccurrence.calendar.id]) {
+                      busyCalendars[aOccurrence.calendar.id] = 0;
+                  }
+                  busyCalendars[aOccurrence.calendar.id] += (aState ? 1 : -1);
+                  this.updateBoxBusy(box, busyCalendars);
+              }
+              current.day++;
+          }
         ]]></body>
       </method>
 
@@ -626,14 +632,14 @@
       <method name="onAddItem">
         <parameter name="aItem"/>
         <body><![CDATA[
-            this.setBusyDaysForItem(aItem, true);
+          this.setBusyDaysForItem(aItem, true);
         ]]></body>
       </method>
 
       <method name="onDeleteItem">
         <parameter name="aItem"/>
         <body><![CDATA[
-            this.setBusyDaysForItem(aItem, false);
+          this.setBusyDaysForItem(aItem, false);
         ]]></body>
       </method>
 
@@ -641,8 +647,8 @@
         <parameter name="aNewItem"/>
         <parameter name="aOldItem"/>
         <body><![CDATA[
-            this.setBusyDaysForItem(aOldItem, false);
-            this.setBusyDaysForItem(aNewItem, true);
+          this.setBusyDaysForItem(aOldItem, false);
+          this.setBusyDaysForItem(aNewItem, true);
         ]]></body>
       </method>
 
@@ -660,12 +666,12 @@
         <parameter name="aValue"/>
         <parameter name="aOldValue"/>
         <body><![CDATA[
-            switch (aName) {
-                case "disabled":
-                    this.resetAttributesForDate();
-                    this.getItems();
-                    break;
-            }
+          switch (aName) {
+              case "disabled":
+                  this.resetAttributesForDate();
+                  this.getItems();
+                  break;
+          }
         ]]></body>
       </method>
 
@@ -673,7 +679,7 @@
         <parameter name="aCalendar"/>
         <parameter name="aName"/>
         <body><![CDATA[
-            this.onPropertyChanged(aCalendar, aName, null, null);
+          this.onPropertyChanged(aCalendar, aName, null, null);
         ]]></body>
       </method>
 
@@ -684,12 +690,13 @@
             this.getItems(aCalendar);
         ]]></body>
       </method>
+
       <method name="onCalendarRemoved">
         <parameter name="aCalendar"/>
         <body><![CDATA[
-            for (let day in this.mDayMap) {
-                this.removeCalendarFromBoxBusy(this.mDayMap[day], aCalendar);
-            }
+          for (let day in this.mDayMap) {
+              this.removeCalendarFromBoxBusy(this.mDayMap[day], aCalendar);
+          }
         ]]></body>
       </method>
 
@@ -726,6 +733,7 @@
           this.showMonth(this.mValue);
         ]]></body>
       </method>
+
       <method name="setHeader">
         <body><![CDATA[
           // Reset the headers
@@ -794,196 +802,200 @@
           }
         ]]></body>
       </method>
+
       <method name="showMonth">
         <parameter name="aDate"/>
         <body><![CDATA[
-            // Use mExtraDate if aDate is null.
-            aDate = new Date(aDate || this.mExtraDate);
+          // Use mExtraDate if aDate is null.
+          aDate = new Date(aDate || this.mExtraDate);
 
-            aDate.setDate(1);
-            // We set the hour and minute to something highly unlikely to be the
-            // exact change point of DST, so timezones like America/Sao Paulo
-            // don't display some days twice.
-            aDate.setHours(12);
-            aDate.setMinutes(34);
-            aDate.setSeconds(0);
-            aDate.setMilliseconds(0);
-            // Don't fire onmonthchange event upon initialization
-            let monthChanged = this.mEditorDate && (this.mEditorDate.valueOf() != aDate.valueOf());
-            this.mEditorDate = aDate; // only place mEditorDate is set.
+          aDate.setDate(1);
+          // We set the hour and minute to something highly unlikely to be the
+          // exact change point of DST, so timezones like America/Sao Paulo
+          // don't display some days twice.
+          aDate.setHours(12);
+          aDate.setMinutes(34);
+          aDate.setSeconds(0);
+          aDate.setMilliseconds(0);
+          // Don't fire onmonthchange event upon initialization
+          let monthChanged = this.mEditorDate && (this.mEditorDate.valueOf() != aDate.valueOf());
+          this.mEditorDate = aDate; // only place mEditorDate is set.
 
-            if (this.mToday) {
+          if (this.mToday) {
               this.mToday.removeAttribute("today");
               this.mToday = null;
-            }
+          }
 
-            if (this.mSelected) {
+          if (this.mSelected) {
               this.mSelected.removeAttribute("selected");
               this.mSelected = null;
-            }
+          }
 
-            if (this.mExtra) {
+          if (this.mExtra) {
               this.mExtra.removeAttribute("extra");
               this.mExtra = null;
-            }
+          }
 
-            // Update the month and year title
-            this.setAttribute("month", aDate.getMonth());
-            this.setAttribute("year", aDate.getFullYear());
-            if (!this.mIsReadOnly) {
-                // Update the month popup
-                let header = document.getAnonymousElementByAttribute(this, "anonid", "minimonth-header");
-                header.updateYearPopup(aDate);
-                header.updateMonthPopup(aDate);
-            }
-            // Update the calendar
-            let calbox = document.getAnonymousElementByAttribute(this, "anonid", "minimonth-calendar");
-            let date = this._getStartDate(aDate);
+          // Update the month and year title
+          this.setAttribute("month", aDate.getMonth());
+          this.setAttribute("year", aDate.getFullYear());
+          if (!this.mIsReadOnly) {
+              // Update the month popup
+              let header = document.getAnonymousElementByAttribute(this, "anonid", "minimonth-header");
+              header.updateYearPopup(aDate);
+              header.updateMonthPopup(aDate);
+          }
+          // Update the calendar
+          let calbox = document.getAnonymousElementByAttribute(this, "anonid", "minimonth-calendar");
+          let date = this._getStartDate(aDate);
 
-            // get today's date
-            let today = new Date();
+          // get today's date
+          let today = new Date();
 
-            this.mDayMap = {};
-            for (let k = 1; k < calbox.childNodes.length; k++) {
-                let row = calbox.childNodes[k];
+          this.mDayMap = {};
+          for (let k = 1; k < calbox.childNodes.length; k++) {
+              let row = calbox.childNodes[k];
 
-                // Set the week number.
-                let firstElement = row.childNodes[0];
-                setBooleanAttribute(firstElement, "hidden", !this.mShowWeekNumber);
-                if (this.mShowWeekNumber) {
-                    let weekNumber = cal.getWeekInfoService().getWeekTitle(cal.jsDateToDateTime(date));
-                    firstElement.setAttribute("value", weekNumber);
-                }
+              // Set the week number.
+              let firstElement = row.childNodes[0];
+              setBooleanAttribute(firstElement, "hidden", !this.mShowWeekNumber);
+              if (this.mShowWeekNumber) {
+                  let weekNumber = cal.getWeekInfoService().getWeekTitle(cal.jsDateToDateTime(date));
+                  firstElement.setAttribute("value", weekNumber);
+              }
 
-                for (let i = 1; i < 8; i++) {
-                    let day = row.childNodes[i];
-                    let ymd = date.getFullYear() + "-" +
-                              date.getMonth() + "-" +
-                              date.getDate();
-                    this.mDayMap[ymd] = day;
+              for (let i = 1; i < 8; i++) {
+                  let day = row.childNodes[i];
+                  let ymd = date.getFullYear() + "-" +
+                            date.getMonth() + "-" +
+                            date.getDate();
+                  this.mDayMap[ymd] = day;
 
-                    if (!this.mIsReadOnly) {
-                        day.setAttribute("interactive", "true");
-                    }
+                  if (!this.mIsReadOnly) {
+                      day.setAttribute("interactive", "true");
+                  }
 
-                    if (aDate.getMonth() == date.getMonth()) {
-                        day.removeAttribute("othermonth");
-                    } else {
-                        day.setAttribute("othermonth", "true");
-                    }
+                  if (aDate.getMonth() == date.getMonth()) {
+                      day.removeAttribute("othermonth");
+                  } else {
+                      day.setAttribute("othermonth", "true");
+                  }
 
-                    // highlight today
-                    if (this._sameDay(today, date)) {
-                        this.mToday = day;
-                        day.setAttribute("today", "true");
-                    }
+                  // highlight today
+                  if (this._sameDay(today, date)) {
+                      this.mToday = day;
+                      day.setAttribute("today", "true");
+                  }
 
-                    // highlight the current date
-                    let val = this.value;
-                    if (this._sameDay(val, date)) {
-                        this.mSelected = day;
-                        day.setAttribute("selected", "true");
-                    }
+                  // highlight the current date
+                  let val = this.value;
+                  if (this._sameDay(val, date)) {
+                      this.mSelected = day;
+                      day.setAttribute("selected", "true");
+                  }
 
-                    // highlight the extra date
-                    if (this._sameDay(this.mExtraDate, date)) {
-                        this.mExtra = day;
-                        day.setAttribute("extra", "true");
-                    }
+                  // highlight the extra date
+                  if (this._sameDay(this.mExtraDate, date)) {
+                      this.mExtra = day;
+                      day.setAttribute("extra", "true");
+                  }
 
-                    day.date = new Date(date);
-                    day.minimonthParent = this;
-                    day.setAttribute("value", date.getDate());
-                    date.setDate(date.getDate() + 1);
+                  day.date = new Date(date);
+                  day.minimonthParent = this;
+                  day.setAttribute("value", date.getDate());
+                  date.setDate(date.getDate() + 1);
 
-                    if (monthChanged) {
-                        this.resetAttributesForDate(day.date);
-                    }
-                }
-            }
+                  if (monthChanged) {
+                      this.resetAttributesForDate(day.date);
+                  }
+              }
+          }
 
-            if (monthChanged) {
-                this.fireEvent("monthchange");
-            }
+          if (monthChanged) {
+              this.fireEvent("monthchange");
+          }
 
-            if (this.getAttribute("freebusy") == "true") {
-                this.getItems();
-            }
+          if (this.getAttribute("freebusy") == "true") {
+              this.getItems();
+          }
         ]]></body>
       </method>
+
       <!--Attention - duplicate!!!!-->
       <method name="fireEvent">
         <parameter name="aEventName"/>
         <body><![CDATA[
-            let event = document.createEvent("Events");
-            event.initEvent(aEventName, true, true);
-            this.dispatchEvent(event);
+          let event = document.createEvent("Events");
+          event.initEvent(aEventName, true, true);
+          this.dispatchEvent(event);
         ]]></body>
       </method>
 
       <method name="getBoxForDate">
         <parameter name="aDate"/>
         <body><![CDATA[
-            // aDate is a calIDateTime
-            let ymd = [aDate.year, aDate.month, aDate.day].join("-");
-            return (ymd in this.mDayMap ? this.mDayMap[ymd] : null);
+          // aDate is a calIDateTime
+          let ymd = [aDate.year, aDate.month, aDate.day].join("-");
+          return (ymd in this.mDayMap ? this.mDayMap[ymd] : null);
         ]]></body>
       </method>
 
       <method name="resetAttributesForDate">
         <parameter name="aDate"/>
         <body><![CDATA[
-            function removeForBox(aBox) {
+          function removeForBox(aBox) {
               let allowedAttributes = 0;
               while (aBox.attributes.length > allowedAttributes) {
-                switch (aBox.attributes[allowedAttributes].nodeName) {
-                  case "selected":
-                  case "othermonth":
-                  case "today":
-                  case "extra":
-                  case "interactive":
-                  case "value":
-                  case "class":
-                  case "flex":
-                    allowedAttributes++;
-                    break;
-                  default:
-                    aBox.removeAttribute(aBox.attributes[allowedAttributes].nodeName);
-                    break;
-                }
+                  switch (aBox.attributes[allowedAttributes].nodeName) {
+                      case "selected":
+                      case "othermonth":
+                      case "today":
+                      case "extra":
+                      case "interactive":
+                      case "value":
+                      case "class":
+                      case "flex":
+                          allowedAttributes++;
+                          break;
+                      default:
+                          aBox.removeAttribute(aBox.attributes[allowedAttributes].nodeName);
+                          break;
+                  }
               }
-            }
+          }
 
-            if (aDate) {
+          if (aDate) {
               let box = this.getBoxForDate(cal.jsDateToDateTime(aDate, cal.calendarDefaultTimezone()));
               if (box) {
                   removeForBox(box);
               }
-            } else {
+          } else {
               let calbox = document.getAnonymousElementByAttribute(this, "anonid", "minimonth-calendar");
               for (let k = 1; k < calbox.childNodes.length; k++) {
-                for (let i = 1; i < 8; i++) {
-                    removeForBox(calbox.childNodes[k].childNodes[i]);
-                }
+                  for (let i = 1; i < 8; i++) {
+                      removeForBox(calbox.childNodes[k].childNodes[i]);
+                  }
               }
-            }
-          ]]></body>
+          }
+        ]]></body>
       </method>
+
       <method name="_setFreeBusy">
         <parameter name="aFreeBusy"/>
         <body><![CDATA[
-            if (aFreeBusy == true) {
-                if (this.mObservesComposite == false) {
-                    getCompositeCalendar().addObserver(this);
-                    this.mObservesComposite = true;
-                    this.getItems();
-                 }
-            } else if (this.mObservesComposite == true) {
-                getCompositeCalendar().removeObserver(this);
-                this.mObservesComposite = false;
-            }
+          if (aFreeBusy == true) {
+              if (this.mObservesComposite == false) {
+                  getCompositeCalendar().addObserver(this);
+                  this.mObservesComposite = true;
+                  this.getItems();
+              }
+          } else if (this.mObservesComposite == true) {
+              getCompositeCalendar().removeObserver(this);
+              this.mObservesComposite = false;
+          }
         ]]></body>
       </method>
+
       <method name="removeAttribute">
         <parameter name="aAttr"/>
         <body><![CDATA[
@@ -995,6 +1007,7 @@
           return ret;
         ]]></body>
       </method>
+
       <method name="setAttribute">
         <parameter name="aAttr"/>
         <parameter name="aVal"/>
@@ -1007,6 +1020,7 @@
           return ret;
         ]]></body>
       </method>
+
       <method name="getItems">
         <parameter name="aCalendar"/>
         <body><![CDATA[
@@ -1030,16 +1044,16 @@
       <method name="onSelectDay">
         <parameter name="aDayBox"/>
         <body><![CDATA[
-            if (this.mIsReadOnly) {
-               return;
-            }
-            if (this.mSelected) {
+          if (this.mIsReadOnly) {
+              return;
+          }
+          if (this.mSelected) {
               this.mSelected.removeAttribute("selected");
-            }
-            this.mSelected = aDayBox;
-            this.value = aDayBox.date;
-            this.fireEvent("select");
-          ]]></body>
+          }
+          this.mSelected = aDayBox;
+          this.value = aDayBox.date;
+          this.fireEvent("select");
+        ]]></body>
       </method>
 
       <method name="update">
@@ -1047,7 +1061,7 @@
         <body><![CDATA[
           this.mValue = aValue;
           if (this.mValue) {
-            this.fireEvent("change");
+              this.fireEvent("change");
           }
           this.showMonth(aValue);
         ]]></body>
@@ -1056,8 +1070,8 @@
       <method name="hidePopupList">
         <body><![CDATA[
           if (!this.mIsReadOnly) {
-             let header = document.getAnonymousElementByAttribute(this, "anonid", "minimonth-header");
-             header.hidePopupList();
+              let header = document.getAnonymousElementByAttribute(this, "anonid", "minimonth-header");
+              header.hidePopupList();
           }
         ]]></body>
       </method>
@@ -1065,18 +1079,18 @@
       <method name="switchMonth">
         <parameter name="aMonth"/>
         <body><![CDATA[
-            let newMonth = new Date(this.mEditorDate);
-            newMonth.setMonth(aMonth);
-            this.showMonth(newMonth);
+          let newMonth = new Date(this.mEditorDate);
+          newMonth.setMonth(aMonth);
+          this.showMonth(newMonth);
         ]]></body>
       </method>
 
       <method name="switchYear">
         <parameter name="aYear"/>
         <body><![CDATA[
-            let newMonth = new Date(this.mEditorDate);
-            newMonth.setFullYear(aYear);
-            this.showMonth(newMonth);
+          let newMonth = new Date(this.mEditorDate);
+          newMonth.setFullYear(aYear);
+          this.showMonth(newMonth);
         ]]></body>
       </method>
 
@@ -1084,31 +1098,31 @@
         <parameter name="aDate"/>
         <parameter name="aMainDate"/>
         <body><![CDATA[
-            if (!aMainDate || (aDate < this._getStartDate(aMainDate) || aDate > this._getEndDate(aMainDate))) {
-                aMainDate = new Date(aDate);
-                aMainDate.setDate(1);
-            }
-            // note, that aMainDate and this.mEditorDate refer to the first day
-            // of the corresponding month
-            let sameMonth = this._sameDay(aMainDate, this.mEditorDate);
-            let sameDate = this._sameDay(aDate, this.mValue);
-            if (!sameMonth && !sameDate) {
-                // change month and select day
-                this.mValue = aDate;
-                this.showMonth(aMainDate);
-            } else if (!sameMonth) {
-                // change month only
-                this.showMonth(aMainDate);
-            } else if (!sameDate) {
-                // select day only
-                let day = this.getBoxForDate(cal.jsDateToDateTime(aDate, cal.calendarDefaultTimezone()));
-                if (this.mSelected) {
-                    this.mSelected.removeAttribute("selected");
-                }
-                this.mSelected = day;
-                day.setAttribute("selected", "true");
-                this.mValue = aDate;
-            }
+          if (!aMainDate || aDate < this._getStartDate(aMainDate) || aDate > this._getEndDate(aMainDate)) {
+              aMainDate = new Date(aDate);
+              aMainDate.setDate(1);
+          }
+          // note, that aMainDate and this.mEditorDate refer to the first day
+          // of the corresponding month
+          let sameMonth = this._sameDay(aMainDate, this.mEditorDate);
+          let sameDate = this._sameDay(aDate, this.mValue);
+          if (!sameMonth && !sameDate) {
+              // change month and select day
+              this.mValue = aDate;
+              this.showMonth(aMainDate);
+          } else if (!sameMonth) {
+              // change month only
+              this.showMonth(aMainDate);
+          } else if (!sameDate) {
+              // select day only
+              let day = this.getBoxForDate(cal.jsDateToDateTime(aDate, cal.calendarDefaultTimezone()));
+              if (this.mSelected) {
+                  this.mSelected.removeAttribute("selected");
+              }
+              this.mSelected = day;
+              day.setAttribute("selected", "true");
+              this.mValue = aDate;
+          }
          ]]></body>
       </method>
 
@@ -1141,11 +1155,12 @@
              (aDate1.getDate() == aDate2.getDate()) &&
              (aDate1.getMonth() == aDate2.getMonth()) &&
              (aDate1.getFullYear() == aDate2.getFullYear())) {
-             return true;
+              return true;
           }
           return false;
         ]]></body>
       </method>
+
       <method name="advanceMonth">
         <parameter name="aDir"/>
         <body><![CDATA[
@@ -1156,39 +1171,38 @@
         ]]></body>
       </method>
     </implementation>
+
     <handlers>
-      <handler event="wheel">
-        <![CDATA[
-          const pixelThreshold = 150;
-          let deltaView = 0;
-          if (this.mIsReadOnly) {
+      <handler event="wheel"><![CDATA[
+        const pixelThreshold = 150;
+        let deltaView = 0;
+        if (this.mIsReadOnly) {
             // No scrolling on readonly months
             return;
-          }
-          if (event.deltaMode == event.DOM_DELTA_LINE ||
-              event.deltaMode == event.DOM_DELTA_PAGE) {
-              if (event.deltaY != 0) {
-                  deltaView = event.deltaY > 0 ? 1 : -1;
-              }
-          } else if (event.deltaMode == event.DOM_DELTA_PIXEL) {
-              this.mPixelScrollDelta += event.deltaY;
-              if (this.mPixelScrollDelta > pixelThreshold) {
-                  deltaView = 1;
-                  this.mPixelScrollDelta = 0;
-              } else if (this.mPixelScrollDelta < -pixelThreshold) {
-                  deltaView = -1;
-                  this.mPixelScrollDelta = 0;
-              }
-          }
+        }
+        if (event.deltaMode == event.DOM_DELTA_LINE ||
+            event.deltaMode == event.DOM_DELTA_PAGE) {
+            if (event.deltaY != 0) {
+                deltaView = event.deltaY > 0 ? 1 : -1;
+            }
+        } else if (event.deltaMode == event.DOM_DELTA_PIXEL) {
+            this.mPixelScrollDelta += event.deltaY;
+            if (this.mPixelScrollDelta > pixelThreshold) {
+                deltaView = 1;
+                this.mPixelScrollDelta = 0;
+            } else if (this.mPixelScrollDelta < -pixelThreshold) {
+                deltaView = -1;
+                this.mPixelScrollDelta = 0;
+            }
+        }
 
-          if (deltaView != 0) {
-              this.advanceMonth(deltaView);
-          }
+        if (deltaView != 0) {
+            this.advanceMonth(deltaView);
+        }
 
-          event.stopPropagation();
-          event.preventDefault();
-        ]]>
-      </handler>
+        event.stopPropagation();
+        event.preventDefault();
+      ]]></handler>
     </handlers>
   </binding>
 

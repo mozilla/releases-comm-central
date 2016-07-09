@@ -229,7 +229,7 @@ calMemoryCalendar.prototype = {
             if (!cal.compareItemContent(storedOldItem, aOldItem)) {
                 return reportError("old item mismatch in modifyItem. storedId:" + storedOldItem.icalComponent + " old item:" + aOldItem.icalComponent);
             }
-           // offline bug
+            // offline bug
 
             if (aOldItem.generation != storedOldItem.generation) {
                 return reportError("generation mismatch in modifyItem");

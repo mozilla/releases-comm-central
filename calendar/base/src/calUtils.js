@@ -1362,7 +1362,7 @@ function sameDay(date1, date2) {
         if ((date1.day == date2.day) &&
             (date1.month == date2.month) &&
             (date1.year == date2.year)) {
-              return true;
+            return true;
         }
     }
     return false;
@@ -1412,25 +1412,25 @@ function calSetProdidVersion(aIcalComponent) {
  * @param aValue The value of the attribute
  */
 function applyAttributeToMenuChildren(aElement, aAttributeName, aValue) {
-   let sibling = aElement.firstChild;
-   do {
-       if (sibling) {
-           let domObject = sibling;
-           let commandName = null;
-           if (sibling.hasAttribute("command")) {
-               commandName = sibling.getAttribute("command");
-           }
-           if (commandName) {
-               let command = document.getElementById(commandName);
-               if (command) {
-                   domObject = command;
-               }
-           }
-           domObject.setAttribute(aAttributeName, aValue);
-       sibling = sibling.nextSibling;
-       }
+    let sibling = aElement.firstChild;
+    do {
+        if (sibling) {
+            let domObject = sibling;
+            let commandName = null;
+            if (sibling.hasAttribute("command")) {
+                commandName = sibling.getAttribute("command");
+            }
+            if (commandName) {
+                let command = document.getElementById(commandName);
+                if (command) {
+                    domObject = command;
+                }
+            }
+            domObject.setAttribute(aAttributeName, aValue);
+            sibling = sibling.nextSibling;
+        }
     } while (sibling);
-  }
+}
 
 
 /**

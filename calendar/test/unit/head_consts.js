@@ -18,12 +18,12 @@ updateAppInfo();
 var { classes: Cc, interfaces: Ci, results: Cr, utils: Cu } = Components;
 
 (function() {
-  let bindir = Services.dirsvc.get("CurProcD", Components.interfaces.nsIFile);
-  bindir.append("extensions");
-  bindir.append("{e2fda1a4-762b-4020-b5ad-a41df1933103}");
-  bindir.append("chrome.manifest");
-  dump("Loading" + bindir.path + "\n");
-  Components.manager.autoRegister(bindir);
+    let bindir = Services.dirsvc.get("CurProcD", Components.interfaces.nsIFile);
+    bindir.append("extensions");
+    bindir.append("{e2fda1a4-762b-4020-b5ad-a41df1933103}");
+    bindir.append("chrome.manifest");
+    dump("Loading" + bindir.path + "\n");
+    Components.manager.autoRegister(bindir);
 })();
 
 Components.utils.import("resource://calendar/modules/calUtils.jsm");
@@ -189,7 +189,7 @@ function compareItemsSpecific(aLeftItem, aRightItem, aPropArray) {
  * @return          The unfolded line
  */
 function ics_unfoldline(aLine) {
-  return aLine.replace(/\r?\n[ \t]/g, "");
+    return aLine.replace(/\r?\n[ \t]/g, "");
 }
 
 /**
@@ -197,17 +197,17 @@ function ics_unfoldline(aLine) {
  */
 function readJSONFile(aFile) {
     let stream = Cc["@mozilla.org/network/file-input-stream;1"].createInstance(Ci.nsIFileInputStream);
-  try {
-      stream.init(aFile, FileUtils.MODE_RDONLY, FileUtils.PERMS_FILE, 0);
-      let json = Cc["@mozilla.org/dom/json;1"].createInstance(Components.interfaces.nsIJSON);
-      let data = json.decodeFromStream(stream, stream.available());
-      return data;
-  } catch (ex) {
-      dump("readJSONFile: Error reading JSON file: " + ex);
-  } finally {
-      stream.close();
-  }
-  return false;
+    try {
+        stream.init(aFile, FileUtils.MODE_RDONLY, FileUtils.PERMS_FILE, 0);
+        let json = Cc["@mozilla.org/dom/json;1"].createInstance(Components.interfaces.nsIJSON);
+        let data = json.decodeFromStream(stream, stream.available());
+        return data;
+    } catch (ex) {
+        dump("readJSONFile: Error reading JSON file: " + ex);
+    } finally {
+        stream.close();
+    }
+    return false;
 }
 
 function do_load_timezoneservice(callback) {
@@ -232,11 +232,11 @@ function do_load_calmgr(callback) {
 
 function do_calendar_startup(callback) {
     let obs = {
-      observe: function() {
-        Services.obs.removeObserver(this, "calendar-startup-done");
-        do_test_finished();
-        do_execute_soon(callback);
-      }
+        observe: function() {
+            Services.obs.removeObserver(this, "calendar-startup-done");
+            do_test_finished();
+            do_execute_soon(callback);
+        }
     };
 
     let startupService = Components.classes["@mozilla.org/calendar/startup-service;1"]

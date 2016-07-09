@@ -43,32 +43,36 @@ function test_icalstring() {
     }
 
     let attach = checkComp(cal.createAttachment.bind(cal),
-                           "ATTACH;ENCODING=BASE64;FMTTYPE=text/calendar;FILENAME=test.ics:http://example.com/test.ics",
-                           { formatType: "text/calendar", encoding: "BASE64" },
-                           { FILENAME: "test.ics" });
+        "ATTACH;ENCODING=BASE64;FMTTYPE=text/calendar;FILENAME=test.ics:http://example.com/test.ics",
+        { formatType: "text/calendar", encoding: "BASE64" },
+        { FILENAME: "test.ics" }
+    );
     equal(attach.uri.spec, "http://example.com/test.ics");
 
     checkComp(cal.createAttendee.bind(cal),
-              "ATTENDEE;RSVP=TRUE;CN=Name;PARTSTAT=ACCEPTED;CUTYPE=RESOURCE;ROLE=REQ-PARTICIPANT;X-THING=BAR:mailto:test@example.com",
-              {
-                  id: "mailto:test@example.com",
-                  commonName: "Name",
-                  rsvp: "TRUE",
-                  isOrganizer: false,
-                  role: "REQ-PARTICIPANT",
-                  participationStatus: "ACCEPTED",
-                  userType: "RESOURCE"
-              },
-              { "X-THING": "BAR" });
+        "ATTENDEE;RSVP=TRUE;CN=Name;PARTSTAT=ACCEPTED;CUTYPE=RESOURCE;ROLE=REQ-PARTICIPANT;X-THING=BAR:mailto:test@example.com",
+        {
+            id: "mailto:test@example.com",
+            commonName: "Name",
+            rsvp: "TRUE",
+            isOrganizer: false,
+            role: "REQ-PARTICIPANT",
+            participationStatus: "ACCEPTED",
+            userType: "RESOURCE"
+        },
+        { "X-THING": "BAR" }
+    );
 
     checkComp(cal.createRelation.bind(cal),
-              "RELATED-TO;RELTYPE=SIBLING;FOO=BAR:VALUE",
-              { relType: "SIBLING", relId: "VALUE" },
-              { FOO: "BAR" });
+        "RELATED-TO;RELTYPE=SIBLING;FOO=BAR:VALUE",
+        { relType: "SIBLING", relId: "VALUE" },
+        { FOO: "BAR" }
+    );
 
     let rrule = checkComp(cal.createRecurrenceRule.bind(cal),
-                          "RRULE:FREQ=WEEKLY;COUNT=5;INTERVAL=2;BYDAY=MO",
-                          { count: 5, isByCount: true, type: "WEEKLY", interval: 2 });
+        "RRULE:FREQ=WEEKLY;COUNT=5;INTERVAL=2;BYDAY=MO",
+        { count: 5, isByCount: true, type: "WEEKLY", interval: 2 }
+    );
     equal(rrule.getComponent("BYDAY", {}).toString(), [2].toString());
 
     if (Preferences.get("calendar.icaljs", false)) {
@@ -114,16 +118,19 @@ function test_icsservice() {
 
     // Test ::createIcalPropertyFromString
     checkProp(svc.createIcalPropertyFromString.bind(svc),
-              "ATTACH;ENCODING=BASE64;FMTTYPE=text/calendar;FILENAME=test.ics:http://example.com/test.ics",
-              { value: "http://example.com/test.ics", propertyName: "ATTACH" },
-              { ENCODING: "BASE64", FMTTYPE: "text/calendar", FILENAME: "test.ics" });
+        "ATTACH;ENCODING=BASE64;FMTTYPE=text/calendar;FILENAME=test.ics:http://example.com/test.ics",
+        { value: "http://example.com/test.ics", propertyName: "ATTACH" },
+        { ENCODING: "BASE64", FMTTYPE: "text/calendar", FILENAME: "test.ics" }
+    );
 
     checkProp(svc.createIcalPropertyFromString.bind(svc),
-              "DESCRIPTION:new\\nlines\\nare\\ngreat\\,eh?",
-              {
-                  value: "new\nlines\nare\ngreat,eh?",
-                  valueAsIcalString: "new\\nlines\\nare\\ngreat\\,eh?"
-              }, {});
+        "DESCRIPTION:new\\nlines\\nare\\ngreat\\,eh?",
+        {
+            value: "new\nlines\nare\ngreat,eh?",
+            valueAsIcalString: "new\\nlines\\nare\\ngreat\\,eh?"
+        },
+        {}
+    );
 
     // Test ::createIcalProperty
     let attach2 = svc.createIcalProperty("ATTACH");

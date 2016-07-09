@@ -10,8 +10,8 @@ function run_test() {
     let httpserv = new HttpServer();
     httpserv.registerPrefixHandler("/", {
         handle: function(request, response) {
-          response.setStatusLine(request.httpVersion, 200, "OK");
-          equal(request.path, "/test_webcal");
+            response.setStatusLine(request.httpVersion, 200, "OK");
+            equal(request.path, "/test_webcal");
         }
     });
     httpserv.start(-1);

@@ -93,7 +93,7 @@ InvitationsManager.prototype = {
             if (Preferences.get("calendar.invitations.autorefresh.enabled", true)) {
                 this.mTimer = setInterval(() => {
                     this.getInvitations(operationListener);
-                    }, Preferences.get("calendar.invitations.autorefresh.timeout", 3) * 60000);
+                }, Preferences.get("calendar.invitations.autorefresh.timeout", 3) * 60000);
             }
             this.getInvitations(operationListener);
         }, firstDelay);

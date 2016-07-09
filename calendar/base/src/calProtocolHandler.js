@@ -39,7 +39,7 @@ calProtocolHandler.prototype = {
     },
 
     newChannel: function(aUri) {
-      return this.newChannel2(aUri, null);
+        return this.newChannel2(aUri, null);
     },
 
     newChannel2: function(aUri, aLoadInfo) {

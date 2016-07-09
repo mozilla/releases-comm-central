@@ -227,7 +227,7 @@ calICSCalendar.prototype = {
             return;
         }
 
-         // Clear any existing events if there was no result
+        // Clear any existing events if there was no result
         if (!resultLength) {
             this.createMemoryCalendar();
             this.mMemoryCalendar.addObserver(this.mObserver);
@@ -309,8 +309,7 @@ calICSCalendar.prototype = {
     doWriteICS: function() {
         cal.LOG("[calICSCalendar] Writing ICS File " + this.uri.spec);
         let self = this;
-        let listener =
-        {
+        let listener = {
             serializer: null,
             QueryInterface: XPCOMUtils.generateQI([Components.interfaces.calIOperationListener]),
             onOperationComplete: function(aCalendar, aStatus, aOperationType, aId, aDetail) {
@@ -401,13 +400,13 @@ calICSCalendar.prototype = {
     // For after publishing. Do error checks here
     onStartRequest: function(request, ctxt) {},
     onDataAvailable: function(request, ctxt, inStream, sourceOffset, count) {
-         // All data must be consumed. For an upload channel, there is
-         // no meaningfull data. So it gets read and then ignored
-         let scriptableInputStream =
-             Components.classes["@mozilla.org/scriptableinputstream;1"]
-                       .createInstance(Components.interfaces.nsIScriptableInputStream);
-         scriptableInputStream.init(inStream);
-         scriptableInputStream.read(-1);
+        // All data must be consumed. For an upload channel, there is
+        // no meaningfull data. So it gets read and then ignored
+        let scriptableInputStream =
+            Components.classes["@mozilla.org/scriptableinputstream;1"]
+                      .createInstance(Components.interfaces.nsIScriptableInputStream);
+        scriptableInputStream.init(inStream);
+        scriptableInputStream.read(-1);
     },
     onStopRequest: function(request, ctxt, status, errorMsg) {
         ctxt = ctxt.wrappedJSObject;
@@ -1091,7 +1090,7 @@ fileHooks.prototype = {
             }
         } else {
             this.mtime = filechannel.file.lastModifiedTime;
-        return true;
+            return true;
         }
     },
 

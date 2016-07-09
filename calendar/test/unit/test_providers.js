@@ -3,195 +3,195 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var icalStringArray = [
-                // Comments refer to the range defined in testGetItems().
-                // 1: one-hour event
-                "BEGIN:VEVENT\n" +
-                "DTSTART:20020402T114500Z\n" +
-                "DTEND:20020402T124500Z\n" +
-                "END:VEVENT\n",
-                // 2: Test a zero-length event with DTSTART and DTEND
-                "BEGIN:VEVENT\n" +
-                "DTSTART:20020402T000000Z\n" +
-                "DTEND:20020402T000000Z\n" +
-                "END:VEVENT\n",
-                // 3: Test a zero-length event with DTSTART and no DTEND
-                "BEGIN:VEVENT\n" +
-                "DTSTART:20020402T000000Z\n" +
-                "END:VEVENT\n",
-                // 4: Test a zero-length event with DTEND set and no  DTSTART. Invalid!
-                "BEGIN:VEVENT\n" +
-                "DTEND:20020402T000000Z\n" +
-                "END:VEVENT\n",
-                // 5: one-hour event that is outside the range
-                "BEGIN:VEVENT\n" +
-                "DTSTART:20020401T114500Z\n" +
-                "DTEND:20020401T124500Z\n" +
-                "END:VEVENT\n",
-                // 6: one-hour event that starts outside the range and ends inside.
-                "BEGIN:VEVENT\n" +
-                "DTSTART:20020401T114500Z\n" +
-                "DTEND:20020402T124500Z\n" +
-                "END:VEVENT\n",
-                // 7:  one-hour event that starts inside the range and ends outside.
-                "BEGIN:VEVENT\n" +
-                "DTSTART:20020402T114500Z\n" +
-                "DTEND:20020403T124500Z\n" +
-                "END:VEVENT\n",
-                // 8: one-hour event that starts at the end of the range.
-                "BEGIN:VEVENT\n" +
-                "DTSTART:20020403T000000Z\n" +
-                "DTEND:20020403T124500Z\n" +
-                "END:VEVENT\n",
-                // 9: allday event that starts at start of range and ends at end of range.
-                "BEGIN:VEVENT\n" +
-                "DTSTART;VALUE=DATE:20020402\n" +
-                "DTEND;VALUE=DATE:20020403\n" +
-                "END:VEVENT\n",
-                // 10: allday event that starts at end of range.
-                "BEGIN:VEVENT\n" +
-                "DTSTART;VALUE=DATE:20020403\n" +
-                "DTEND;VALUE=DATE:20020404\n" +
-                "END:VEVENT\n",
-                // 11: allday event that ends at start of range. See bug 333363.
-                "BEGIN:VEVENT\n" +
-                "DTSTART;VALUE=DATE:20020401\n" +
-                "DTEND;VALUE=DATE:20020402\n" +
-                "END:VEVENT\n",
-                // 12: daily recurring allday event. parent item in the range.
-                "BEGIN:VEVENT\n" +
-                "DTSTART;VALUE=DATE:20020402\n" +
-                "DTEND;VALUE=DATE:20020403\n" +
-                "RRULE:FREQ=DAILY;INTERVAL=1;COUNT=10\n" +
-                "END:VEVENT\n",
-                // 13: daily recurring allday event. First occurence in the range.
-                "BEGIN:VEVENT\n" +
-                "DTSTART;VALUE=DATE:20020401\n" +
-                "DTEND;VALUE=DATE:20020402\n" +
-                "RRULE:FREQ=DAILY;COUNT=10\n" +
-                "END:VEVENT\n",
-                // 14: two-daily recurring allday event. Not in the range.
-                "BEGIN:VEVENT\n" +
-                "DTSTART;VALUE=DATE:20020401\n" +
-                "DTEND;VALUE=DATE:20020402\n" +
-                "RRULE:FREQ=DAILY;INTERVAL=2;COUNT=10\n" +
-                "END:VEVENT\n",
-                // 15: daily recurring one-hour event. Parent in the range.
-                "BEGIN:VEVENT\n" +
-                "DTSTART:20020402T100000Z\n" +
-                "DTEND:20020402T110000Z\n" +
-                "RRULE:FREQ=DAILY;COUNT=10\n" +
-                "END:VEVENT\n",
-                // 16: daily recurring one-hour event. Occurrence in the range.
-                "BEGIN:VEVENT\n" +
-                "DTSTART:20020401T100000Z\n" +
-                "DTEND:20020401T110000Z\n" +
-                "RRULE:FREQ=DAILY;COUNT=10\n" +
-                "END:VEVENT\n",
-                // 17: zero-length task with DTSTART and DUE set at start of range.
-                "BEGIN:VTODO\n" +
-                "DTSTART:20020402T000000Z\n" +
-                "DUE:20020402T000000Z\n" +
-                "END:VTODO\n",
-                // 18: zero-length event with only DTSTART set at start of range.
-                "BEGIN:VTODO\n" +
-                "DTSTART:20020402T000000Z\n" +
-                "END:VTODO\n",
-                // 19: zero-length event with only DUE set at start of range.
-                "BEGIN:VTODO\n" +
-                "DUE:20020402T000000Z\n" +
-                "END:VTODO\n",
-                // 20: one-hour todo within the range.
-                "BEGIN:VTODO\n" +
-                "DTSTART:20020402T110000Z\n" +
-                "DUE:20020402T120000Z\n" +
-                "END:VTODO\n",
-                // 21: zero-length todo that starts at end of range.
-                "BEGIN:VTODO\n" +
-                "DTSTART:20020403T000000Z\n" +
-                "DUE:20020403T010000Z\n" +
-                "END:VTODO\n",
-                // 22: one-hour todo that ends at start of range.
-                "BEGIN:VTODO\n" +
-                "DTSTART:20020401T230000Z\n" +
-                "DUE:20020402T000000Z\n" +
-                "END:VTODO\n",
-                // 23: daily recurring one-hour event. Parent in the range.
-                "BEGIN:VEVENT\n" +
-                "DTSTART:20020402T000000\n" +
-                "DTEND:20020402T010000\n" +
-                "RRULE:FREQ=DAILY;COUNT=10\n" +
-                "END:VEVENT\n",
-                // 24: daily recurring 24-hour event. Parent in the range.
-                "BEGIN:VEVENT\n" +
-                "DTSTART:20020402T000000\n" +
-                "DTEND:20020403T000000\n" +
-                "RRULE:FREQ=DAILY;COUNT=10\n" +
-                "END:VEVENT\n",
-                // 25: todo that has neither start nor due date set.
-                // Should be returned on every getItems() call. See bug 405459.
-                "BEGIN:VTODO\n" +
-                "SUMMARY:Todo\n" +
-                "END:VTODO\n",
-                // 26: todo that has neither start nor due date but
-                // a completion time set after range. See bug 405459.
-                "BEGIN:VTODO\n" +
-                "SUMMARY:Todo\n" +
-                "COMPLETED:20030404T000001\n" +
-                "END:VTODO\n",
-                // 27: todo that has neither start nor due date but a
-                // completion time set in the range. See bug 405459.
-                "BEGIN:VTODO\n" +
-                "SUMMARY:Todo\n" +
-                "COMPLETED:20020402T120001\n" +
-                "END:VTODO\n",
-                // 28: todo that has neither start nor due date but a
-                // completion time set before the range. See bug 405459.
-                "BEGIN:VTODO\n" +
-                "SUMMARY:Todo\n" +
-                "COMPLETED:20020402T000000\n" +
-                "END:VTODO\n",
-                // 29: todo that has neither start nor due date set,
-                // has the status "COMPLETED" but no completion time. See bug 405459.
-                "BEGIN:VTODO\n" +
-                "SUMMARY:Todo\n" +
-                "STATUS:COMPLETED\n" +
-                "END:VTODO\n",
-                // 30: one-hour event with duration (in the range). See bug 390492.
-                "BEGIN:VEVENT\n" +
-                "DTSTART:20020402T114500Z\n" +
-                "DURATION:PT1H\n" +
-                "END:VEVENT\n",
-                // 31: one-hour event with duration (after the range). See bug 390492.
-                "BEGIN:VEVENT\n" +
-                "DTSTART:20020403T000000Z\n" +
-                "DURATION:PT1H\n" +
-                "END:VEVENT\n",
-                // 32: one-hour event with duration (before the range). See bug 390492.
-                "BEGIN:VEVENT\n" +
-                "DTSTART:20020401T230000Z\n" +
-                "DURATION:PT1H\n" +
-                "END:VEVENT\n",
-                // 33: one-day event with duration. Starts in the range, Ends outside. See bug 390492.
-                "BEGIN:VEVENT\n" +
-                "DTSTART:20020402T120000Z\n" +
-                "DURATION:P1D\n" +
-                "END:VEVENT\n",
-                // 34: one-day event with duration. Starts before the range. Ends inside. See bug 390492.
-                "BEGIN:VEVENT\n" +
-                "DTSTART:20020401T120000Z\n" +
-                "DURATION:P1D\n" +
-                "END:VEVENT\n",
-                // 35: one-day event with duration (before the range). See bug 390492.
-                "BEGIN:VEVENT\n" +
-                "DTSTART:20020401T000000Z\n" +
-                "DURATION:P1D\n" +
-                "END:VEVENT\n",
-                // 36: one-day event with duration (after the range). See bug 390492.
-                "BEGIN:VEVENT\n" +
-                "DTSTART:20020403T000000Z\n" +
-                "DURATION:P1D\n" +
-                "END:VEVENT\n"
-                ];
+    // Comments refer to the range defined in testGetItems().
+    // 1: one-hour event
+    "BEGIN:VEVENT\n" +
+    "DTSTART:20020402T114500Z\n" +
+    "DTEND:20020402T124500Z\n" +
+    "END:VEVENT\n",
+    // 2: Test a zero-length event with DTSTART and DTEND
+    "BEGIN:VEVENT\n" +
+    "DTSTART:20020402T000000Z\n" +
+    "DTEND:20020402T000000Z\n" +
+    "END:VEVENT\n",
+    // 3: Test a zero-length event with DTSTART and no DTEND
+    "BEGIN:VEVENT\n" +
+    "DTSTART:20020402T000000Z\n" +
+    "END:VEVENT\n",
+    // 4: Test a zero-length event with DTEND set and no  DTSTART. Invalid!
+    "BEGIN:VEVENT\n" +
+    "DTEND:20020402T000000Z\n" +
+    "END:VEVENT\n",
+    // 5: one-hour event that is outside the range
+    "BEGIN:VEVENT\n" +
+    "DTSTART:20020401T114500Z\n" +
+    "DTEND:20020401T124500Z\n" +
+    "END:VEVENT\n",
+    // 6: one-hour event that starts outside the range and ends inside.
+    "BEGIN:VEVENT\n" +
+    "DTSTART:20020401T114500Z\n" +
+    "DTEND:20020402T124500Z\n" +
+    "END:VEVENT\n",
+    // 7:  one-hour event that starts inside the range and ends outside.
+    "BEGIN:VEVENT\n" +
+    "DTSTART:20020402T114500Z\n" +
+    "DTEND:20020403T124500Z\n" +
+    "END:VEVENT\n",
+    // 8: one-hour event that starts at the end of the range.
+    "BEGIN:VEVENT\n" +
+    "DTSTART:20020403T000000Z\n" +
+    "DTEND:20020403T124500Z\n" +
+    "END:VEVENT\n",
+    // 9: allday event that starts at start of range and ends at end of range.
+    "BEGIN:VEVENT\n" +
+    "DTSTART;VALUE=DATE:20020402\n" +
+    "DTEND;VALUE=DATE:20020403\n" +
+    "END:VEVENT\n",
+    // 10: allday event that starts at end of range.
+    "BEGIN:VEVENT\n" +
+    "DTSTART;VALUE=DATE:20020403\n" +
+    "DTEND;VALUE=DATE:20020404\n" +
+    "END:VEVENT\n",
+    // 11: allday event that ends at start of range. See bug 333363.
+    "BEGIN:VEVENT\n" +
+    "DTSTART;VALUE=DATE:20020401\n" +
+    "DTEND;VALUE=DATE:20020402\n" +
+    "END:VEVENT\n",
+    // 12: daily recurring allday event. parent item in the range.
+    "BEGIN:VEVENT\n" +
+    "DTSTART;VALUE=DATE:20020402\n" +
+    "DTEND;VALUE=DATE:20020403\n" +
+    "RRULE:FREQ=DAILY;INTERVAL=1;COUNT=10\n" +
+    "END:VEVENT\n",
+    // 13: daily recurring allday event. First occurence in the range.
+    "BEGIN:VEVENT\n" +
+    "DTSTART;VALUE=DATE:20020401\n" +
+    "DTEND;VALUE=DATE:20020402\n" +
+    "RRULE:FREQ=DAILY;COUNT=10\n" +
+    "END:VEVENT\n",
+    // 14: two-daily recurring allday event. Not in the range.
+    "BEGIN:VEVENT\n" +
+    "DTSTART;VALUE=DATE:20020401\n" +
+    "DTEND;VALUE=DATE:20020402\n" +
+    "RRULE:FREQ=DAILY;INTERVAL=2;COUNT=10\n" +
+    "END:VEVENT\n",
+    // 15: daily recurring one-hour event. Parent in the range.
+    "BEGIN:VEVENT\n" +
+    "DTSTART:20020402T100000Z\n" +
+    "DTEND:20020402T110000Z\n" +
+    "RRULE:FREQ=DAILY;COUNT=10\n" +
+    "END:VEVENT\n",
+    // 16: daily recurring one-hour event. Occurrence in the range.
+    "BEGIN:VEVENT\n" +
+    "DTSTART:20020401T100000Z\n" +
+    "DTEND:20020401T110000Z\n" +
+    "RRULE:FREQ=DAILY;COUNT=10\n" +
+    "END:VEVENT\n",
+    // 17: zero-length task with DTSTART and DUE set at start of range.
+    "BEGIN:VTODO\n" +
+    "DTSTART:20020402T000000Z\n" +
+    "DUE:20020402T000000Z\n" +
+    "END:VTODO\n",
+    // 18: zero-length event with only DTSTART set at start of range.
+    "BEGIN:VTODO\n" +
+    "DTSTART:20020402T000000Z\n" +
+    "END:VTODO\n",
+    // 19: zero-length event with only DUE set at start of range.
+    "BEGIN:VTODO\n" +
+    "DUE:20020402T000000Z\n" +
+    "END:VTODO\n",
+    // 20: one-hour todo within the range.
+    "BEGIN:VTODO\n" +
+    "DTSTART:20020402T110000Z\n" +
+    "DUE:20020402T120000Z\n" +
+    "END:VTODO\n",
+    // 21: zero-length todo that starts at end of range.
+    "BEGIN:VTODO\n" +
+    "DTSTART:20020403T000000Z\n" +
+    "DUE:20020403T010000Z\n" +
+    "END:VTODO\n",
+    // 22: one-hour todo that ends at start of range.
+    "BEGIN:VTODO\n" +
+    "DTSTART:20020401T230000Z\n" +
+    "DUE:20020402T000000Z\n" +
+    "END:VTODO\n",
+    // 23: daily recurring one-hour event. Parent in the range.
+    "BEGIN:VEVENT\n" +
+    "DTSTART:20020402T000000\n" +
+    "DTEND:20020402T010000\n" +
+    "RRULE:FREQ=DAILY;COUNT=10\n" +
+    "END:VEVENT\n",
+    // 24: daily recurring 24-hour event. Parent in the range.
+    "BEGIN:VEVENT\n" +
+    "DTSTART:20020402T000000\n" +
+    "DTEND:20020403T000000\n" +
+    "RRULE:FREQ=DAILY;COUNT=10\n" +
+    "END:VEVENT\n",
+    // 25: todo that has neither start nor due date set.
+    // Should be returned on every getItems() call. See bug 405459.
+    "BEGIN:VTODO\n" +
+    "SUMMARY:Todo\n" +
+    "END:VTODO\n",
+    // 26: todo that has neither start nor due date but
+    // a completion time set after range. See bug 405459.
+    "BEGIN:VTODO\n" +
+    "SUMMARY:Todo\n" +
+    "COMPLETED:20030404T000001\n" +
+    "END:VTODO\n",
+    // 27: todo that has neither start nor due date but a
+    // completion time set in the range. See bug 405459.
+    "BEGIN:VTODO\n" +
+    "SUMMARY:Todo\n" +
+    "COMPLETED:20020402T120001\n" +
+    "END:VTODO\n",
+    // 28: todo that has neither start nor due date but a
+    // completion time set before the range. See bug 405459.
+    "BEGIN:VTODO\n" +
+    "SUMMARY:Todo\n" +
+    "COMPLETED:20020402T000000\n" +
+    "END:VTODO\n",
+    // 29: todo that has neither start nor due date set,
+    // has the status "COMPLETED" but no completion time. See bug 405459.
+    "BEGIN:VTODO\n" +
+    "SUMMARY:Todo\n" +
+    "STATUS:COMPLETED\n" +
+    "END:VTODO\n",
+    // 30: one-hour event with duration (in the range). See bug 390492.
+    "BEGIN:VEVENT\n" +
+    "DTSTART:20020402T114500Z\n" +
+    "DURATION:PT1H\n" +
+    "END:VEVENT\n",
+    // 31: one-hour event with duration (after the range). See bug 390492.
+    "BEGIN:VEVENT\n" +
+    "DTSTART:20020403T000000Z\n" +
+    "DURATION:PT1H\n" +
+    "END:VEVENT\n",
+    // 32: one-hour event with duration (before the range). See bug 390492.
+    "BEGIN:VEVENT\n" +
+    "DTSTART:20020401T230000Z\n" +
+    "DURATION:PT1H\n" +
+    "END:VEVENT\n",
+    // 33: one-day event with duration. Starts in the range, Ends outside. See bug 390492.
+    "BEGIN:VEVENT\n" +
+    "DTSTART:20020402T120000Z\n" +
+    "DURATION:P1D\n" +
+    "END:VEVENT\n",
+    // 34: one-day event with duration. Starts before the range. Ends inside. See bug 390492.
+    "BEGIN:VEVENT\n" +
+    "DTSTART:20020401T120000Z\n" +
+    "DURATION:P1D\n" +
+    "END:VEVENT\n",
+    // 35: one-day event with duration (before the range). See bug 390492.
+    "BEGIN:VEVENT\n" +
+    "DTSTART:20020401T000000Z\n" +
+    "DURATION:P1D\n" +
+    "END:VEVENT\n",
+    // 36: one-day event with duration (after the range). See bug 390492.
+    "BEGIN:VEVENT\n" +
+    "DTSTART:20020403T000000Z\n" +
+    "DURATION:P1D\n" +
+    "END:VEVENT\n"
+];
 
 function run_test() {
     // First entry is test number, second item is expected result for testGetItems().
@@ -248,13 +248,13 @@ function run_test() {
         testGetItem(item);
     }
 
-   /**
-    * Adds aItem to a calendar and performs a getItems() call using the
-    * following range:
-    *   2002/04/02 0:00 - 2002/04/03 0:00
-    * The amount of returned items is compared with expected amount (aResult).
-    * Additionally, the properties of the returned item are compared with aItem.
-    */
+    /**
+     * Adds aItem to a calendar and performs a getItems() call using the
+     * following range:
+     *   2002/04/02 0:00 - 2002/04/03 0:00
+     * The amount of returned items is compared with expected amount (aResult).
+     * Additionally, the properties of the returned item are compared with aItem.
+     */
     function testGetItems(aItem, aResult) {
         for (let calendar of [getStorageCal(), getMemoryCal()]) {
             checkCalendar(calendar, aItem, aResult);
@@ -309,12 +309,12 @@ function run_test() {
         calendar.addItem(aItem, listener);
     }
 
-   /**
-    * (1) Add aItem to a calendar.
-    * The properties of the added item are compared with the passed item.
-    * (2) Perform a getItem() call.
-    * The properties of the returned item are compared with the passed item.
-    */
+    /**
+     * (1) Add aItem to a calendar.
+     * The properties of the added item are compared with the passed item.
+     * (2) Perform a getItem() call.
+     * The properties of the returned item are compared with the passed item.
+     */
     function testGetItem(aItem) {
         // get calendars
         let calArray = [];

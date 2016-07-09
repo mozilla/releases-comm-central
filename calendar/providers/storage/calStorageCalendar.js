@@ -78,7 +78,7 @@ calStorageCalendar.prototype = {
                     this.prepareStatement(stmt);
                     stmt.executeStep();
                 } finally {
-                stmt.reset();
+                    stmt.reset();
                 }
             }
         }
@@ -947,8 +947,8 @@ calStorageCalendar.prototype = {
             let self = this;
             let listener = {
                 handleResult: function(aResultSet) {
-                        let row = aResultSet.getNextRow();
-                        flag = row.getResultByName("offline_journal") || null;
+                    let row = aResultSet.getNextRow();
+                    flag = row.getResultByName("offline_journal") || null;
                 },
                 handleError: function(aError) {
                     self.logError("Error getting offline flag", aError);
@@ -2406,22 +2406,22 @@ calStorageCalendar.prototype = {
         let logMessage = "Message: " + message;
         if (this.mDB) {
             if (this.mDB.connectionReady) {
-              logMessage += "\nConnection Ready: " + this.mDB.connectionReady;
+                logMessage += "\nConnection Ready: " + this.mDB.connectionReady;
             }
             if (this.mDB.lastError) {
-              logMessage += "\nLast DB Error Number: " + this.mDB.lastError;
+                logMessage += "\nLast DB Error Number: " + this.mDB.lastError;
             }
             if (this.mDB.lastErrorString) {
-              logMessage += "\nLast DB Error Message: " + this.mDB.lastErrorString;
+                logMessage += "\nLast DB Error Message: " + this.mDB.lastErrorString;
             }
             if (this.mDB.databaseFile) {
-              logMessage += "\nDatabase File: " + this.mDB.databaseFile.path;
+                logMessage += "\nDatabase File: " + this.mDB.databaseFile.path;
             }
             if (this.mDB.lastInsertRowId) {
-              logMessage += "\nLast Insert Row Id: " + this.mDB.lastInsertRowId;
+                logMessage += "\nLast Insert Row Id: " + this.mDB.lastInsertRowId;
             }
             if (this.mDB.transactionInProgress) {
-              logMessage += "\nTransaction In Progress: " + this.mDB.transactionInProgress;
+                logMessage += "\nTransaction In Progress: " + this.mDB.transactionInProgress;
             }
         }
 

@@ -21,17 +21,17 @@ var times = [[[13, 45], [14, 45], [15, 45], [16, 45], [17, 45], [18, 45], [19, 4
              [[13, 45], [14, 45], [15, 45], [16, 45], [17, 45], [18, 45], [19, 45], [20, 45]]];
 
 var setupModule = function(module) {
-  controller = mozmill.getMail3PaneController();
+    controller = mozmill.getMail3PaneController();
 };
 
 var testTimezones9_checkKathmandu = function() {
-  controller.click(new elementslib.ID(controller.window.document, "calendar-tab-button"));
-  calUtils.switchToView(controller, "day");
-  calUtils.goToDate(controller, 2009, 1, 1);
+    controller.click(new elementslib.ID(controller.window.document, "calendar-tab-button"));
+    calUtils.switchToView(controller, "day");
+    calUtils.goToDate(controller, 2009, 1, 1);
 
-  timezoneUtils.verify(controller, dates, timezones, times);
+    timezoneUtils.verify(controller, dates, timezones, times);
 };
 
 var teardownTest = function(module) {
-  timezoneUtils.switchAppTimezone(timezones[7]);
+    timezoneUtils.switchAppTimezone(timezones[7]);
 };

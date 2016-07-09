@@ -233,20 +233,20 @@ function updateInvitationStatus() {
  * user's invitation status from the value chosen in the dialog.
  */
 function updatePartStat() {
-  let statusElement = document.getElementById("item-participation");
-  if (window.attendee) {
-      let item = window.arguments[0];
-      let aclEntry = item.calendar.aclEntry;
-      if (aclEntry) {
-          let userAddresses = aclEntry.getUserAddresses({});
-          if (userAddresses.length > 0 &&
-              !cal.attendeeMatchesAddresses(window.attendee, userAddresses)) {
-              window.attendee.setProperty("SENT-BY", "mailto:" + userAddresses[0]);
-          }
-      }
+    let statusElement = document.getElementById("item-participation");
+    if (window.attendee) {
+        let item = window.arguments[0];
+        let aclEntry = item.calendar.aclEntry;
+        if (aclEntry) {
+            let userAddresses = aclEntry.getUserAddresses({});
+            if (userAddresses.length > 0 &&
+                !cal.attendeeMatchesAddresses(window.attendee, userAddresses)) {
+                window.attendee.setProperty("SENT-BY", "mailto:" + userAddresses[0]);
+            }
+        }
 
-      window.attendee.participationStatus = statusElement.value;
-  }
+        window.attendee.participationStatus = statusElement.value;
+    }
 }
 
 /**

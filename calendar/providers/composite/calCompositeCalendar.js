@@ -123,7 +123,7 @@ calCompositeCalendar.prototype = {
     mActivePref: null,
 
     get enabledCalendars() {
-      return this.mCalendars.filter(e => !e.getProperty("disabled"));
+        return this.mCalendars.filter(e => !e.getProperty("disabled"));
     },
 
     set prefPrefix(aPrefPrefix) {

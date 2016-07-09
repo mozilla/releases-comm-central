@@ -21,17 +21,17 @@ var times = [[[9, 0], [10, 0], [11, 0], [12, 0], [13, 0], [14, 0], [15, 0], [16,
              [[9, 0], [10, 0], [11, 0], [12, 0], [13, 0], [14, 0], [15, 0], [16, 0]]];
 
 var setupModule = function(module) {
-  controller = mozmill.getMail3PaneController();
+    controller = mozmill.getMail3PaneController();
 };
 
 var testTimezones8_checkParis = function() {
-  controller.click(new elementslib.ID(controller.window.document, "calendar-tab-button"));
-  calUtils.switchToView(controller, "day");
-  calUtils.goToDate(controller, 2009, 1, 1);
+    controller.click(new elementslib.ID(controller.window.document, "calendar-tab-button"));
+    calUtils.switchToView(controller, "day");
+    calUtils.goToDate(controller, 2009, 1, 1);
 
-  timezoneUtils.verify(controller, dates, timezones, times);
+    timezoneUtils.verify(controller, dates, timezones, times);
 };
 
 var teardownTest = function(module) {
-  timezoneUtils.switchAppTimezone(timezones[6]);
+    timezoneUtils.switchAppTimezone(timezones[6]);
 };

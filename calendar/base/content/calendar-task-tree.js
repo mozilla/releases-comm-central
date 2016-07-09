@@ -160,12 +160,12 @@ function contextChangeTaskProgress(aEvent, aProgress) {
  * @param aEvent      The DOM event that triggered this command.
  */
 function contextChangeTaskCalendar(aEvent) {
-   startBatchTransaction();
-   let tasks = getSelectedTasks(aEvent);
-   for (let task of tasks) {
-       let newTask = task.clone();
-       newTask.calendar = aEvent.target.calendar;
-       doTransaction("modify", newTask, newTask.calendar, task, null);
+    startBatchTransaction();
+    let tasks = getSelectedTasks(aEvent);
+    for (let task of tasks) {
+        let newTask = task.clone();
+        newTask.calendar = aEvent.target.calendar;
+        doTransaction("modify", newTask, newTask.calendar, task, null);
     }
     endBatchTransaction();
 }
@@ -239,7 +239,7 @@ function modifyTaskFromContext(aEvent, initialDate) {
     for (let task of tasks) {
         modifyEventWithDialog(task, null, true, initialDate);
     }
- }
+}
 
 /**
  *  Delete the current selected item with focus from the task tree

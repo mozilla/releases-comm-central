@@ -773,7 +773,7 @@ calFilter.prototype = {
             while (count++ < this.mMaxIterations) {
                 let next = aItem.recurrenceInfo.getNextOccurrence(start);
                 if (!next) {
-                   // there are no more occurrences
+                    // there are no more occurrences
                     return null;
                 }
                 if (this.isItemInFilters(next)) {

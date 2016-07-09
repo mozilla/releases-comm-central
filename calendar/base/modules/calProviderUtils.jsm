@@ -162,10 +162,10 @@ cal.BadCertHandler.prototype = {
             thisProvider: this.thisProvider,
             notify: function(timer) {
                 let params = {
-                  exceptionAdded: false,
-                  sslStatus: status,
-                  prefetchCert: true,
-                  location: targetSite
+                    exceptionAdded: false,
+                    sslStatus: status,
+                    prefetchCert: true,
+                    location: targetSite
                 };
                 calWindow.openDialog("chrome://pippki/content/exceptionDialog.xul",
                                      "",
@@ -374,7 +374,7 @@ cal.fromRFC3339 = function(aStr, aTimezone) {
             if (!dateTime.isDate) {
                 dateTime.hour += (matches[11] == "-" ? -1 : 1) * matches[12];
                 dateTime.minute += (matches[11] == "-" ? -1 : 1) * matches[13];
-             }
+            }
         }
     }
     return dateTime;
@@ -452,11 +452,11 @@ cal.ObserverBag.prototype = {
     notify: function(func, args) {
         switch (func) {
             case "onStartBatch":
-                 ++this.mBatchCount;
-                 break;
+                ++this.mBatchCount;
+                break;
             case "onEndBatch":
-                 --this.mBatchCount;
-                 break;
+                --this.mBatchCount;
+                break;
         }
         return this.__proto__.__proto__.notify.apply(this, arguments);
     },
@@ -686,7 +686,7 @@ cal.ProviderBase.prototype = {
             case "itip.transport": // iTIP/iMIP default:
                 return cal.getImipTransport(this);
             case "itip.notify-replies": // iTIP/iMIP default:
-                 return Preferences.get("calendar.itip.notify-replies", false);
+                return Preferences.get("calendar.itip.notify-replies", false);
             // temporary hack to get the uncached calendar instance:
             case "cache.uncachedCalendar":
                 return this;

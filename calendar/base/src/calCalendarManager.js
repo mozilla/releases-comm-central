@@ -885,8 +885,7 @@ calMgrCalendarObserver.prototype = {
                 "imip.identity.key"
             ];
             for (let prop of propsToCopy) {
-              newCal.setProperty(prop,
-                                 aCalendar.getProperty(prop));
+                newCal.setProperty(prop, aCalendar.getProperty(prop));
             }
 
             if (initialSortOrderPos != null) {
@@ -947,9 +946,9 @@ calMgrCalendarObserver.prototype = {
             case calIErrors.MODIFICATION_FAILED:
                 errMsg = calGetString("calendar", "errorWriting", [aCalendar.name]);
                 // falls through
-             default:
+            default:
                 message = aMessage;
-         }
+        }
 
 
         paramBlock.SetString(0, errMsg);

@@ -240,9 +240,9 @@ function matchCustomReminderToMenuitem(reminder) {
         }
 
         let unitMap = {
-          days: 86400,
-          hours: 3600,
-          minutes: 60
+            days: 86400,
+            hours: 3600,
+            minutes: 60
         };
 
         for (let menuitem of reminderPopup.childNodes) {
@@ -352,7 +352,7 @@ function saveReminder(item) {
             // differ and we can break out.
             oldAlarmMap[ics] = true;
             break;
-       }
+        }
     }
 
     // If the alarms differ, clear the snooze/dismiss properties

@@ -424,8 +424,9 @@ calWcapSession.prototype = {
                     if (err) {
                         if (checkErrorCode(err, calIErrors.OPERATION_CANCELLED)) {
                             throw err;
-                        } else { // soft error; request denied etc.
-                                 // map into localized message:
+                        } else {
+                            // soft error; request denied etc.
+                            // map into localized message:
                             throw new Components.Exception(cal.calGetString("wcap", "accessingServerFailedError.text",
                                                                             [this.sessionUri.hostPort]),
                                                            calIWcapErrors.WCAP_LOGIN_FAILED);

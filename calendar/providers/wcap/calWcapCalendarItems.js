@@ -1099,22 +1099,22 @@ function getItemFilterParams(itemFilter) {
     }
 
     let compstate = "";
-//     if (itemFilter & calIWcapCalendar.ITEM_FILTER_REPLY_DECLINED)
-//         compstate += ";REPLY-DECLINED";
-//     if (itemFilter & calIWcapCalendar.ITEM_FILTER_REPLY_ACCEPTED)
-//         compstate += ";REPLY-ACCEPTED";
-//     if (itemFilter & calIWcapCalendar.ITEM_FILTER_REQUEST_COMPLETED)
-//         compstate += ";REQUEST-COMPLETED";
+    //     if (itemFilter & calIWcapCalendar.ITEM_FILTER_REPLY_DECLINED)
+    //         compstate += ";REPLY-DECLINED";
+    //     if (itemFilter & calIWcapCalendar.ITEM_FILTER_REPLY_ACCEPTED)
+    //         compstate += ";REPLY-ACCEPTED";
+    //     if (itemFilter & calIWcapCalendar.ITEM_FILTER_REQUEST_COMPLETED)
+    //         compstate += ";REQUEST-COMPLETED";
     if (itemFilter & calICalendar.ITEM_FILTER_REQUEST_NEEDS_ACTION) {
         compstate += ";REQUEST-NEEDS-ACTION";
     }
-//     if (itemFilter & calIWcapCalendar.ITEM_FILTER_REQUEST_NEEDSNOACTION) {
-//         compstate += ";REQUEST-NEEDSNOACTION";
-//     }
-//     if (itemFilter & calIWcapCalendar.ITEM_FILTER_REQUEST_PENDING)
-//         compstate += ";REQUEST-PENDING";
-//     if (itemFilter & calIWcapCalendar.ITEM_FILTER_REQUEST_WAITFORREPLY)
-//         compstate += ";REQUEST-WAITFORREPLY";
+    //     if (itemFilter & calIWcapCalendar.ITEM_FILTER_REQUEST_NEEDSNOACTION) {
+    //         compstate += ";REQUEST-NEEDSNOACTION";
+    //     }
+    //     if (itemFilter & calIWcapCalendar.ITEM_FILTER_REQUEST_PENDING)
+    //         compstate += ";REQUEST-PENDING";
+    //     if (itemFilter & calIWcapCalendar.ITEM_FILTER_REQUEST_WAITFORREPLY)
+    //         compstate += ";REQUEST-WAITFORREPLY";
     if (compstate.length > 0) {
         params += "&compstate=" + compstate.substr(1);
     }
@@ -1349,8 +1349,9 @@ calWcapCalendar.prototype.replayChangesOn = function(listener) {
                         if (this.offlineStorage) {
                             this.offlineStorage.deleteItem(item, writeListener);
                         }
-                    } else { // modify parent instead of
-                             // straight-forward deleteItem(). WTF.
+                    } else {
+                        // modify parent instead of
+                        // straight-forward deleteItem(). WTF.
                         let parent = item.parentItem.clone();
                         parent.recurrenceInfo.removeOccurrenceAt(item.recurrenceId);
                         log("replayChangesOn(): modified parent " + parent.id, this);

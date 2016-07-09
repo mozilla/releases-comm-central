@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
- Components.utils.import("resource:///modules/iteratorUtils.jsm");
+Components.utils.import("resource:///modules/iteratorUtils.jsm");
 
 function run_test() {
     test_values();
@@ -35,7 +35,7 @@ function test_values() {
         equal(foundAttendee, a);
     }
     function testImmutability(a, properties) {
-         ok(!a.isMutable);
+        ok(!a.isMutable);
         // Check if setting a property throws. It should.
         for (let i = 0; i < properties.length; i++) {
             let old = a[properties[i]];

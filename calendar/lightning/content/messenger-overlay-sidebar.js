@@ -41,111 +41,112 @@ var calendarTabMonitor = {
 };
 
 var calendarTabType = {
-  name: "calendar",
-  panelId: "calendarTabPanel",
-  modes: {
-    calendar: {
-      type: "calendar",
-      maxTabs: 1,
-      openTab: function(aTab, aArgs) {
-        aTab.title = aArgs.title;
-        if (!("background" in aArgs) || !aArgs.background) {
-            // Only do calendar mode switching if the tab is opened in
-            // foreground.
-            ltnSwitch2Calendar();
+    name: "calendar",
+    panelId: "calendarTabPanel",
+    modes: {
+        calendar: {
+            type: "calendar",
+            maxTabs: 1,
+            openTab: function(aTab, aArgs) {
+                aTab.title = aArgs.title;
+                if (!("background" in aArgs) || !aArgs.background) {
+                    // Only do calendar mode switching if the tab is opened in
+                    // foreground.
+                    ltnSwitch2Calendar();
+                }
+            },
+
+            showTab: function(aTab) {
+                ltnSwitch2Calendar();
+            },
+            closeTab: function(aTab) {
+                if (gCurrentMode == "calendar") {
+                    // Only revert menu hacks if closing the active tab, otherwise we
+                    // would switch to mail mode even if in task mode and closing the
+                    // calendar tab.
+                    ltnSwitch2Mail();
+                }
+            },
+
+            persistTab: function(aTab) {
+                let tabmail = document.getElementById("tabmail");
+                return {
+                    // Since we do strange tab switching logic in ltnSwitch2Calendar,
+                    // we should store the current tab state ourselves.
+                    background: (aTab != tabmail.currentTabInfo)
+                };
+            },
+
+            restoreTab: function(aTabmail, aState) {
+                aState.title = ltnGetString("lightning", "tabTitleCalendar");
+                aTabmail.openTab("calendar", aState);
+            },
+
+            onTitleChanged: function(aTab) {
+                aTab.title = ltnGetString("lightning", "tabTitleCalendar");
+            },
+
+            supportsCommand: (aCommand, aTab) => calendarController2.supportsCommand(aCommand),
+            isCommandEnabled: (aCommand, aTab) => calendarController2.isCommandEnabled(aCommand),
+            doCommand: (aCommand, aTab) => calendarController2.doCommand(aCommand),
+            onEvent: (aEvent, aTab) => calendarController2.onEvent(aEvent)
+        },
+
+        tasks: {
+            type: "tasks",
+            maxTabs: 1,
+            openTab: function(aTab, aArgs) {
+                aTab.title = aArgs.title;
+                if (!("background" in aArgs) || !aArgs.background) {
+                    ltnSwitch2Task();
+                }
+            },
+            showTab: function(aTab) {
+                ltnSwitch2Task();
+            },
+            closeTab: function(aTab) {
+                if (gCurrentMode == "task") {
+                    // Only revert menu hacks if closing the active tab, otherwise we
+                    // would switch to mail mode even if in calendar mode and closing the
+                    // tasks tab.
+                    ltnSwitch2Mail();
+                }
+            },
+
+            persistTab: function(aTab) {
+                let tabmail = document.getElementById("tabmail");
+                return {
+                    // Since we do strange tab switching logic in ltnSwitch2Task,
+                    // we should store the current tab state ourselves.
+                    background: (aTab != tabmail.currentTabInfo)
+                };
+            },
+
+            restoreTab: function(aTabmail, aState) {
+                aState.title = ltnGetString("lightning", "tabTitleTasks");
+                aTabmail.openTab("tasks", aState);
+            },
+
+            onTitleChanged: function(aTab) {
+                aTab.title = ltnGetString("lightning", "tabTitleTasks");
+            },
+
+            supportsCommand: (aCommand, aTab) => calendarController2.supportsCommand(aCommand),
+            isCommandEnabled: (aCommand, aTab) => calendarController2.isCommandEnabled(aCommand),
+            doCommand: (aCommand, aTab) => calendarController2.doCommand(aCommand),
+            onEvent: (aEvent, aTab) => calendarController2.onEvent(aEvent)
         }
-      },
-
-      showTab: function(aTab) {
-        ltnSwitch2Calendar();
-      },
-      closeTab: function(aTab) {
-        if (gCurrentMode == "calendar") {
-          // Only revert menu hacks if closing the active tab, otherwise we
-          // would switch to mail mode even if in task mode and closing the
-          // calendar tab.
-          ltnSwitch2Mail();
-        }
-      },
-
-      persistTab: function(aTab) {
-        let tabmail = document.getElementById("tabmail");
-        return {
-            // Since we do strange tab switching logic in ltnSwitch2Calendar,
-            // we should store the current tab state ourselves.
-            background: (aTab != tabmail.currentTabInfo)
-        };
-      },
-
-      restoreTab: function(aTabmail, aState) {
-        aState.title = ltnGetString("lightning", "tabTitleCalendar");
-        aTabmail.openTab("calendar", aState);
-      },
-
-      onTitleChanged: function(aTab) {
-        aTab.title = ltnGetString("lightning", "tabTitleCalendar");
-      },
-
-      supportsCommand: (aCommand, aTab) => calendarController2.supportsCommand(aCommand),
-      isCommandEnabled: (aCommand, aTab) => calendarController2.isCommandEnabled(aCommand),
-      doCommand: (aCommand, aTab) => calendarController2.doCommand(aCommand),
-      onEvent: (aEvent, aTab) => calendarController2.onEvent(aEvent)
     },
 
-    tasks: {
-      type: "tasks",
-      maxTabs: 1,
-      openTab: function(aTab, aArgs) {
-        aTab.title = aArgs.title;
-        if (!("background" in aArgs) || !aArgs.background) {
-            ltnSwitch2Task();
-        }
-      },
-      showTab: function(aTab) {
-        ltnSwitch2Task();
-      },
-      closeTab: function(aTab) {
-        if (gCurrentMode == "task") {
-          // Only revert menu hacks if closing the active tab, otherwise we
-          // would switch to mail mode even if in calendar mode and closing the
-          // tasks tab.
-          ltnSwitch2Mail();
-        }
-      },
-
-      persistTab: function(aTab) {
-        let tabmail = document.getElementById("tabmail");
-        return {
-            // Since we do strange tab switching logic in ltnSwitch2Task,
-            // we should store the current tab state ourselves.
-            background: (aTab != tabmail.currentTabInfo)
-        };
-      },
-
-      restoreTab: function(aTabmail, aState) {
-        aState.title = ltnGetString("lightning", "tabTitleTasks");
-        aTabmail.openTab("tasks", aState);
-      },
-
-      onTitleChanged: function(aTab) {
-        aTab.title = ltnGetString("lightning", "tabTitleTasks");
-      },
-
-      supportsCommand: (aCommand, aTab) => calendarController2.supportsCommand(aCommand),
-      isCommandEnabled: (aCommand, aTab) => calendarController2.isCommandEnabled(aCommand),
-      doCommand: (aCommand, aTab) => calendarController2.doCommand(aCommand),
-      onEvent: (aEvent, aTab) => calendarController2.onEvent(aEvent)
+    /**
+     * Because calendar does some direct menu manipulation, we need to
+     * change to the mail mode to clean up after those hacks.
+     *
+     * @param {Object} aTab  A tab info object
+     */
+    saveTabState: function(aTab) {
+        ltnSwitch2Mail();
     }
-  },
-  /**
-   * Because calendar does some direct menu manipulation, we need to
-   * change to the mail mode to clean up after those hacks.
-   *
-   * @param {Object} aTab  A tab info object
-   */
-  saveTabState: function(aTab) {
-    ltnSwitch2Mail();
-  }
 };
 
 /**
@@ -385,8 +386,8 @@ function ltnOnLoad(event) {
 
     let mailContextPopup = document.getElementById("mailContext");
     if (mailContextPopup) {
-      mailContextPopup.addEventListener("popupshowing",
-                                        gCalSetupMailContext.popup, false);
+        mailContextPopup.addEventListener("popupshowing",
+                                          gCalSetupMailContext.popup, false);
     }
 
     // Setup customizeDone handlers for our toolbars
@@ -462,28 +463,28 @@ function ltnIntegrationNotification() {
         // let the user know that removal will be applied after restart
         let restartLabel = ltnGetString("lightning", "integrationRestartLabel", [ltnBrand, appBrand]);
         let button = [{
-             label:     ltnGetString("lightning", "integrationUndoButton"),
-             accessKey: ltnGetString("lightning", "integrationUndoAccessKey"),
-             popup:     null,
-             callback:  cbUndoOptOut
-         }, {
-             label:     ltnGetString("lightning", "integrationRestartButton"),
-             accessKey: ltnGetString("lightning", "integrationRestartAccessKey"),
-             popup:     null,
-             callback:  cbRestartNow
-         }];
-         notifyBox.appendNotification(restartLabel,
-                                      "restart-required",
-                                      null,
-                                      notifyBox.PRIORITY_INFO_MEDIUM,
-                                      button);
+            label:     ltnGetString("lightning", "integrationUndoButton"),
+            accessKey: ltnGetString("lightning", "integrationUndoAccessKey"),
+            popup:     null,
+            callback:  cbUndoOptOut
+        }, {
+            label:     ltnGetString("lightning", "integrationRestartButton"),
+            accessKey: ltnGetString("lightning", "integrationRestartAccessKey"),
+            popup:     null,
+            callback:  cbRestartNow
+        }];
+        notifyBox.appendNotification(restartLabel,
+                                     "restart-required",
+                                     null,
+                                     notifyBox.PRIORITY_INFO_MEDIUM,
+                                     button);
     };
 
     let buttons = [{
-         label:     ltnGetString("lightning", "integrationLearnMoreButton"),
-         accessKey: ltnGetString("lightning", "integrationLearnMoreAccessKey"),
-         popup:     null,
-         callback:  cbLearnMore
+        label:     ltnGetString("lightning", "integrationLearnMoreButton"),
+        accessKey: ltnGetString("lightning", "integrationLearnMoreAccessKey"),
+        popup:     null,
+        callback:  cbLearnMore
     }, {
         label:     ltnGetString("lightning", "integrationOptOutButton"),
         accessKey: ltnGetString("lightning", "integrationOptOutAccessKey"),
@@ -548,10 +549,10 @@ function refreshUIBits() {
          "week-view",
          "multiweek-view",
          "month-view"].forEach((view) => {
-            if (view != currView.id) {
-                document.getElementById(view).mToggleStatus = -1;
-            }
-        });
+             if (view != currView.id) {
+                 document.getElementById(view).mToggleStatus = -1;
+             }
+         });
 
         if (!TodayPane.showsToday()) {
             TodayPane.setDay(now());
@@ -718,13 +719,13 @@ var gCurrentMode = "mail";
  */
 
 function ltnSwitch2Mail() {
-  if (gCurrentMode != "mail") {
-    gCurrentMode = "mail";
-    document.getElementById("modeBroadcaster").setAttribute("mode", gCurrentMode);
+    if (gCurrentMode != "mail") {
+        gCurrentMode = "mail";
+        document.getElementById("modeBroadcaster").setAttribute("mode", gCurrentMode);
 
-    document.commandDispatcher.updateCommands("calendar_commands");
-    window.setCursor("auto");
-  }
+        document.commandDispatcher.updateCommands("calendar_commands");
+        window.setCursor("auto");
+    }
 }
 
 /**
@@ -732,23 +733,23 @@ function ltnSwitch2Mail() {
  */
 
 function ltnSwitch2Calendar() {
-  if (gCurrentMode != "calendar") {
-    gCurrentMode = "calendar";
-    document.getElementById("modeBroadcaster").setAttribute("mode", gCurrentMode);
+    if (gCurrentMode != "calendar") {
+        gCurrentMode = "calendar";
+        document.getElementById("modeBroadcaster").setAttribute("mode", gCurrentMode);
 
-    // display the calendar panel on the display deck
-    let deck = document.getElementById("calendarDisplayDeck");
-    deck.selectedPanel = document.getElementById("calendar-view-box");
+        // display the calendar panel on the display deck
+        let deck = document.getElementById("calendarDisplayDeck");
+        deck.selectedPanel = document.getElementById("calendar-view-box");
 
-    // show the last displayed type of calendar view
-    switchToView(gLastShownCalendarView);
+        // show the last displayed type of calendar view
+        switchToView(gLastShownCalendarView);
 
-    document.commandDispatcher.updateCommands("calendar_commands");
-    window.setCursor("auto");
+        document.commandDispatcher.updateCommands("calendar_commands");
+        window.setCursor("auto");
 
-    // make sure the view is sized correctly
-    onCalendarViewResize();
-  }
+        // make sure the view is sized correctly
+        onCalendarViewResize();
+    }
 }
 
 /**
@@ -756,17 +757,17 @@ function ltnSwitch2Calendar() {
  */
 
 function ltnSwitch2Task() {
-  if (gCurrentMode != "task") {
-    gCurrentMode = "task";
-    document.getElementById("modeBroadcaster").setAttribute("mode", gCurrentMode);
+    if (gCurrentMode != "task") {
+        gCurrentMode = "task";
+        document.getElementById("modeBroadcaster").setAttribute("mode", gCurrentMode);
 
-    // display the task panel on the display deck
-    let deck = document.getElementById("calendarDisplayDeck");
-    deck.selectedPanel = document.getElementById("calendar-task-box");
+        // display the task panel on the display deck
+        let deck = document.getElementById("calendarDisplayDeck");
+        deck.selectedPanel = document.getElementById("calendar-task-box");
 
-    document.commandDispatcher.updateCommands("calendar_commands");
-    window.setCursor("auto");
-  }
+        document.commandDispatcher.updateCommands("calendar_commands");
+        window.setCursor("auto");
+    }
 }
 
 var gCalSetupMailContext = {

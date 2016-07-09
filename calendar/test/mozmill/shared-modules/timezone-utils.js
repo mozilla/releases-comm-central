@@ -6,83 +6,83 @@ var calUtils = require("calendar-utils");
 var prefs = require("prefs");
 
 function switchAppTimezone(timezone) {
-  // change directly as Mac has different Lookup & XPath than Windows & Linux, bug 536605
-  prefs.preferences.setPref("calendar.timezone.local", timezone);
+    // change directly as Mac has different Lookup & XPath than Windows & Linux, bug 536605
+    prefs.preferences.setPref("calendar.timezone.local", timezone);
 }
 
 function verify(controller, dates, timezones, times) {
-  let dayView = '/id("messengerWindow")/id("tabmail-container")/id("tabmail")/' +
-    'id("tabpanelcontainer")/id("calendarTabPanel")/id("calendarContent")/' +
-    'id("calendarDisplayDeck")/id("calendar-view-box")/id("view-deck")/id("day-view")';
-  let dayStack = dayView + '/anon({"anonid":"mainbox"})/anon({"anonid":"scrollbox"})/' +
-    'anon({"anonid":"daybox"})/[0]/anon({"anonid":"boxstack"})/anon({"anonid":"topbox"})/' +
-    '{"flex":"1"}';
-  let timeLine = dayView + '/anon({"anonid":"mainbox"})/anon({"anonid":"scrollbox"})/anon({"anonid":"timebar"})/' +
-    'anon({"anonid":"topbox"})/';
-  let allowedDifference = 3;
+    let dayView = '/id("messengerWindow")/id("tabmail-container")/id("tabmail")/' +
+      'id("tabpanelcontainer")/id("calendarTabPanel")/id("calendarContent")/' +
+      'id("calendarDisplayDeck")/id("calendar-view-box")/id("view-deck")/id("day-view")';
+    let dayStack = dayView + '/anon({"anonid":"mainbox"})/anon({"anonid":"scrollbox"})/' +
+      'anon({"anonid":"daybox"})/[0]/anon({"anonid":"boxstack"})/anon({"anonid":"topbox"})/' +
+      '{"flex":"1"}';
+    let timeLine = dayView + '/anon({"anonid":"mainbox"})/anon({"anonid":"scrollbox"})/anon({"anonid":"timebar"})/' +
+      'anon({"anonid":"topbox"})/';
+    let allowedDifference = 3;
 
-  /* Event box' time can't be deduced from it's position in                    ----------------
-     xul element tree because for each event a box is laid over whole day and  |___spacer_____|
-     a spacer is added to push the event to it's correct location.             |__event_box___|
-     But timeline can be used to retrieve the position of a particular hour    |day continues |
-     on screen and it can be compared against the position of the event.       ----------------
-  */
-  for (let date = 0; date < dates.length; date++) {
-    calUtils.goToDate(controller, dates[date][0], dates[date][1], dates[date][2]);
+    /* Event box' time can't be deduced from it's position in                    ----------------
+       xul element tree because for each event a box is laid over whole day and  |___spacer_____|
+       a spacer is added to push the event to it's correct location.             |__event_box___|
+       But timeline can be used to retrieve the position of a particular hour    |day continues |
+       on screen and it can be compared against the position of the event.       ----------------
+    */
+    for (let date = 0; date < dates.length; date++) {
+        calUtils.goToDate(controller, dates[date][0], dates[date][1], dates[date][2]);
 
-    // find event with timezone tz
-    for (let tzIdx = 0; tzIdx < timezones.length; tzIdx++) {
-      let found = false;
+        // find event with timezone tz
+        for (let tzIdx = 0; tzIdx < timezones.length; tzIdx++) {
+            let found = false;
 
-      let correctHour = times[date][tzIdx][0];
-      let minutes = times[date][tzIdx][1];
-      let day = times[date][tzIdx][2];
+            let correctHour = times[date][tzIdx][0];
+            let minutes = times[date][tzIdx][1];
+            let day = times[date][tzIdx][2];
 
-      let timeNode = (new elementslib.Lookup(controller.window.document,
-                                             timeLine + "[" + correctHour + "]")).getNode();
-      let timeY = timeNode.boxObject.y;
-      timeY += timeNode.boxObject.height * (minutes / 60);
+            let timeNode = (new elementslib.Lookup(controller.window.document,
+                                                   timeLine + "[" + correctHour + "]")).getNode();
+            let timeY = timeNode.boxObject.y;
+            timeY += timeNode.boxObject.height * (minutes / 60);
 
-      let stackNode;
-      let eventNodes = [];
+            let stackNode;
+            let eventNodes = [];
 
-      // same day
-      if (day == undefined) {
-        stackNode = (new elementslib.Lookup(controller.window.document, dayStack)).getNode();
-      }
+            // same day
+            if (day == undefined) {
+                stackNode = (new elementslib.Lookup(controller.window.document, dayStack)).getNode();
+            }
 
-      // following day
-      if (day != undefined && day == 1) {
-        calUtils.forward(controller, 1);
-        stackNode = (new elementslib.Lookup(controller.window.document, dayStack)).getNode();
-      }
+            // following day
+            if (day != undefined && day == 1) {
+                calUtils.forward(controller, 1);
+                stackNode = (new elementslib.Lookup(controller.window.document, dayStack)).getNode();
+            }
 
-      // previous day
-      if (day != undefined && day == -1) {
-        calUtils.back(controller, 1);
-        stackNode = (new elementslib.Lookup(controller.window.document, dayStack)).getNode();
-      }
+            // previous day
+            if (day != undefined && day == -1) {
+                calUtils.back(controller, 1);
+                stackNode = (new elementslib.Lookup(controller.window.document, dayStack)).getNode();
+            }
 
-      calUtils.findEventsInNode(stackNode, eventNodes);
+            calUtils.findEventsInNode(stackNode, eventNodes);
 
-      for (let node of eventNodes) {
-        if (Math.abs(timeY - node.boxObject.y) < allowedDifference &&
-                     timezones[tzIdx] == node.mOccurrence.title) {
-          found = true;
-          break;
+            for (let node of eventNodes) {
+                if (Math.abs(timeY - node.boxObject.y) < allowedDifference &&
+                             timezones[tzIdx] == node.mOccurrence.title) {
+                    found = true;
+                    break;
+                }
+            }
+
+            if (day != undefined && day == 1) {
+                calUtils.back(controller, 1);
+            }
+
+            if (day != undefined && day == -1) {
+                calUtils.forward(controller, 1);
+            }
+            controller.assertJS(found == true);
         }
-      }
-
-      if (day != undefined && day == 1) {
-        calUtils.back(controller, 1);
-      }
-
-      if (day != undefined && day == -1) {
-        calUtils.forward(controller, 1);
-      }
-      controller.assertJS(found == true);
     }
-  }
 }
 
 // Export of functions

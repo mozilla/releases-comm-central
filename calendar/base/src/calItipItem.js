@@ -85,7 +85,7 @@ calItipItem.prototype = {
     },
     set localStatus(aValue) {
         return (this.mLocalStatus = aValue);
-     },
+    },
 
     mItemList: {},
 

@@ -40,17 +40,17 @@ add_test(function test_registration() {
     let mgrobs = cal.createAdapter(Components.interfaces.calICalendarManagerObserver, {
         onCalendarRegistered: function(aCalendar) {
             if (aCalendar.id == memory.id) {
-              registered = true;
+                registered = true;
             }
         },
         onCalendarUnregistering: function(aCalendar) {
             if (aCalendar.id == memory.id) {
-              unregistered = true;
+                unregistered = true;
             }
         },
         onCalendarDeleting: function(aCalendar) {
             if (aCalendar.id == memory.id) {
-              deleted = true;
+                deleted = true;
             }
         }
     });

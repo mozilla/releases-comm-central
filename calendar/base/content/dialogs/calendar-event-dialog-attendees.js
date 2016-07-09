@@ -793,7 +793,7 @@ function applyCurrentZoomFactor() {
  */
 function setForce24Hours(aValue) {
     if (gForce24Hours == aValue) {
-      return aValue;
+        return aValue;
     }
 
     gForce24Hours = aValue;

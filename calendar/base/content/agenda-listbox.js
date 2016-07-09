@@ -705,7 +705,7 @@ agendaListbox.setupCalendar = function() {
  *                        today.
  */
 agendaListbox.refreshPeriodDates = function(newDate) {
-     this.kDefaultTimezone = calendarDefaultTimezone();
+    this.kDefaultTimezone = calendarDefaultTimezone();
     // Today: now until midnight of tonight
     let oldshowstoday = this.showstoday;
     this.showstoday = this.showsToday(newDate);
@@ -915,7 +915,7 @@ agendaListbox.calendarObserver.onLocalDeleteItem = function(item, moveSelection)
         return false;
     }
     let selectedItemHashId = -1;
-// get all sub items if it is a recurring item
+    // get all sub items if it is a recurring item
     let occs = this.getOccurrencesBetween(item);
     for (let i = 0; i < occs.length; i++) {
         let isSelected = this.agendaListbox.deleteItem(occs[i], moveSelection);
@@ -1033,7 +1033,7 @@ function setCurrentEvent() {
                         msScheduleTime = msuntillend;
                     }
                 } else {
-                     removelist.push(complistItem);
+                    removelist.push(complistItem);
                 }
             } else {
                 complistItem.removeAttribute("current");
@@ -1054,11 +1054,11 @@ function setCurrentEvent() {
     }
 
     if (removelist) {
-      if (removelist.length > 0) {
-          for (let i = 0; i < removelist.length; i++) {
-              removelist[i].remove();
-          }
-      }
+        if (removelist.length > 0) {
+            for (let i = 0; i < removelist.length; i++) {
+                removelist[i].remove();
+            }
+        }
     }
 }
 
@@ -1088,11 +1088,11 @@ function scheduleNextCurrentEventUpdate(aRefreshCallback, aMsUntil) {
     } else {
         // Observer for wake after sleep/hibernate/standby to create new timers and refresh UI
         let wakeObserver = {
-           observe: function(aSubject, aTopic, aData) {
-               if (aTopic == "wake_notification") {
-                   aRefreshCallback();
-               }
-           }
+            observe: function(aSubject, aTopic, aData) {
+                if (aTopic == "wake_notification") {
+                    aRefreshCallback();
+                }
+            }
         };
         // Add observer
         Services.obs.addObserver(wakeObserver, "wake_notification", false);

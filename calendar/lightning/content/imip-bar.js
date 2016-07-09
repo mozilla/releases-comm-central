@@ -24,7 +24,7 @@ var ltnImipBar = {
      * Thunderbird Message listener interface, hide the bar before we begin
      */
     onStartHeaders: function() {
-      ltnImipBar.resetBar();
+        ltnImipBar.resetBar();
     },
 
     /**
@@ -170,8 +170,8 @@ var ltnImipBar = {
                      items[0].hasAttribute("oncommand") &&
                      button.getAttribute("oncommand")
                            .endsWith(items[0].getAttribute("oncommand")))) {
-                   // convert to simple button
-                   button.removeAttribute("type");
+                    // convert to simple button
+                    button.removeAttribute("type");
                 }
             }
         }

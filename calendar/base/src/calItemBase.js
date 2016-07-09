@@ -227,7 +227,7 @@ calItemBase.prototype = {
         this.mImmutable = true;
     },
 
-     // boolean hasSameIds(in calIItemBase aItem);
+    // boolean hasSameIds(in calIItemBase aItem);
     hasSameIds: function(that) {
         return that && this.id == that.id &&
                (this.recurrenceId == that.recurrenceId || // both null

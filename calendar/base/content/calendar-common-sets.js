@@ -128,10 +128,10 @@ var calendarController = {
                 return CalendarNewTasksCommandEnabled;
             case "calendar_modify_todo_command":
             case "calendar_modify_todo_todaypane_command":
-                 return this.todo_items_selected;
-                 // This code is temporarily commented out due to
-                 // bug 469684 Unifinder-todo: raising of the context menu fires blur-event
-                 // this.todo_tasktree_focused;
+                return this.todo_items_selected;
+                // This code is temporarily commented out due to
+                // bug 469684 Unifinder-todo: raising of the context menu fires blur-event
+                // this.todo_tasktree_focused;
             case "calendar_edit_calendar_command":
                 return this.isCalendarInForeground();
             case "calendar_task_filter_command":
@@ -236,11 +236,11 @@ var calendarController = {
                         let focusedElement = document.commandDispatcher.focusedElement;
                         if (focusedElement) {
                             if (focusedElement.getAttribute("id") == "agenda-listbox") {
-                                 return agendaListbox.isEventSelected();
+                                return agendaListbox.isEventSelected();
                             } else if (focusedElement.className == "calendar-task-tree") {
-                                 return this.writable &&
-                                        this.todo_items_selected &&
-                                        this.todo_items_writable;
+                                return this.writable &&
+                                       this.todo_items_selected &&
+                                       this.todo_items_writable;
                             }
                         }
                     }
@@ -695,8 +695,8 @@ var calendarController2 = {
             case "cmd_fullZoomReduce":
             case "cmd_fullZoomEnlarge":
             case "cmd_fullZoomReset":
-              return calendarController.isInMode("calendar") &&
-                     currentView().supportsZoom;
+                return calendarController.isInMode("calendar") &&
+                       currentView().supportsZoom;
             case "cmd_properties":
             case "cmd_printpreview":
                 return false;
@@ -837,26 +837,26 @@ function setupContextItemType(event, items) {
  * @param aNewDate      The new date as a JSDate.
  */
 function minimonthPick(aNewDate) {
-  if (gCurrentMode == "calendar" || gCurrentMode == "task") {
-      let cdt = cal.jsDateToDateTime(aNewDate, currentView().timezone);
-      cdt.isDate = true;
-      currentView().goToDay(cdt);
+    if (gCurrentMode == "calendar" || gCurrentMode == "task") {
+        let cdt = cal.jsDateToDateTime(aNewDate, currentView().timezone);
+        cdt.isDate = true;
+        currentView().goToDay(cdt);
 
-      // update date filter for task tree
-      let tree = document.getElementById("calendar-task-tree");
-      tree.updateFilter();
-  }
+        // update date filter for task tree
+        let tree = document.getElementById("calendar-task-tree");
+        tree.updateFilter();
+    }
 }
 
 /**
  * Selects all items, based on which mode we are currently in and what task tree is focused
  */
 function selectAllItems() {
-  if (calendarController.todo_tasktree_focused) {
-    getTaskTree().selectAll();
-  } else if (calendarController.isInMode("calendar")) {
-    selectAllEvents();
-  }
+    if (calendarController.todo_tasktree_focused) {
+        getTaskTree().selectAll();
+    } else if (calendarController.isInMode("calendar")) {
+        selectAllEvents();
+    }
 }
 
 /**

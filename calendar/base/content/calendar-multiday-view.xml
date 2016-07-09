@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- This Source Code Form is subject to the terms of the Mozilla Public
    - License, v. 2.0. If a copy of the MPL was not distributed with this
-   - file, You can obtain one at http://mozilla.org/MPL/2.0/.
--->
+   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
 <!-- Note that this file depends on helper functions in calUtils.js-->
 
@@ -90,8 +89,8 @@
       </method>
 
       <property name="pixelsPerMinute"
-        onget="return this.mPixPerMin"
-        onset="if (this.mPixPerMin != val) { this.mPixPerMin = val; this.relayout(); } return val;"/>
+                onget="return this.mPixPerMin"
+                onset="if (this.mPixPerMin != val) { this.mPixPerMin = val; this.relayout(); } return val;"/>
 
       <method name="relayout">
         <body><![CDATA[
@@ -179,14 +178,14 @@
      - event, thus changing its start/end time.
     -->
   <binding id="calendar-event-gripbar">
-     <content>
-       <xul:box anonid="thebox"
-                flex="1"
-                pack="center"
-                xbl:inherits="align=whichside">
-         <xul:image xbl:inherits="class"/>
-       </xul:box>
-     </content>
+    <content>
+      <xul:box anonid="thebox"
+               flex="1"
+               pack="center"
+               xbl:inherits="align=whichside">
+        <xul:image xbl:inherits="class"/>
+      </xul:box>
+    </content>
 
     <implementation>
       <property name="parentorient">
@@ -313,15 +312,15 @@
         <setter><![CDATA[
           this.mSelected = val;
           if (this.bgbox && this.bgbox.hasChildNodes()) {
-            let child = this.bgbox.firstChild;
-            while (child) {
-              if (val) {
-                child.setAttribute("selected", "true");
-              } else {
-                child.removeAttribute("selected");
+              let child = this.bgbox.firstChild;
+              while (child) {
+                  if (val) {
+                      child.setAttribute("selected", "true");
+                  } else {
+                      child.removeAttribute("selected");
+                  }
+                  child = child.nextSibling;
               }
-              child = child.nextSibling;
-            }
           }
           return val;
         ]]></setter>
@@ -346,20 +345,16 @@
       </property>
 
       <property name="calendarView"
-        onget="return this.mCalendarView;"
-        onset="return (this.mCalendarView = val);" />
+                onget="return this.mCalendarView;"
+                onset="return (this.mCalendarView = val);" />
 
-      <property
-        name="topbox"
-        readonly="true">
+      <property name="topbox" readonly="true">
         <getter><![CDATA[
           return document.getAnonymousElementByAttribute(this, "anonid", "topbox");
         ]]></getter>
       </property>
 
-      <property
-        name="bgbox"
-        readonly="true">
+      <property name="bgbox" readonly="true">
         <getter><![CDATA[
           return document.getAnonymousElementByAttribute(this, "anonid", "bgbox");
         ]]></getter>
@@ -367,9 +362,7 @@
 
       <field name="mFgboxes">null</field>
       <field name="mMinDuration">null</field>
-      <property
-        name="fgboxes"
-        readonly="true">
+      <property name="fgboxes" readonly="true">
         <getter><![CDATA[
           if (this.mFgboxes == null) {
               this.mFgboxes = {
@@ -391,10 +384,7 @@
         ]]></getter>
       </property>
 
-      <property
-        name="events"
-        readonly="true"
-        onget="return this.methods"/>
+      <property name="events" readonly="true" onget="return this.methods"/>
 
       <field name="mDayOff">false</field>
       <property name="dayOff">
@@ -486,26 +476,26 @@
       <method name="internalDeleteEvent">
         <parameter name="aOccurrence"/>
         <body><![CDATA[
-           let itemIndex = -1;
-           let occ;
-           for (let i in this.mEventInfos) {
-               occ = this.mEventInfos[i].event;
-               if (occ.hashId == aOccurrence.hashId) {
-                   itemIndex = i;
-                   break;
-               }
-           }
+          let itemIndex = -1;
+          let occ;
+          for (let i in this.mEventInfos) {
+              occ = this.mEventInfos[i].event;
+              if (occ.hashId == aOccurrence.hashId) {
+                  itemIndex = i;
+                  break;
+              }
+          }
 
-           if (itemIndex == -1) {
-               return false;
-           } else {
-               delete this.mSelectedItemIds[occ.hashId];
-               this.mSelectedChunks = this.mSelectedChunks.filter((item) => {
-                   return !item.occurrence || (item.occurrence.hashId != aOccurrence.hashId);
-               });
-               this.mEventInfos.splice(itemIndex, 1);
-               return true;
-           }
+          if (itemIndex == -1) {
+              return false;
+          } else {
+              delete this.mSelectedItemIds[occ.hashId];
+              this.mSelectedChunks = this.mSelectedChunks.filter((item) => {
+                  return !item.occurrence || (item.occurrence.hashId != aOccurrence.hashId);
+              });
+              this.mEventInfos.splice(itemIndex, 1);
+              return true;
+          }
         ]]></body>
       </method>
 
@@ -528,91 +518,91 @@
       <method name="getStartEndMinutesForOccurrence">
         <parameter name="aOccurrence"/>
         <body><![CDATA[
-           let stdate = aOccurrence.startDate || aOccurrence.entryDate || aOccurrence.dueDate;
-           let enddate = aOccurrence.endDate || aOccurrence.dueDate || aOccurrence.entryDate;
+          let stdate = aOccurrence.startDate || aOccurrence.entryDate || aOccurrence.dueDate;
+          let enddate = aOccurrence.endDate || aOccurrence.dueDate || aOccurrence.entryDate;
 
-           if (!compareObjects(stdate.timezone, this.mTimezone)) {
-               stdate = stdate.getInTimezone(this.mTimezone);
-           }
+          if (!compareObjects(stdate.timezone, this.mTimezone)) {
+              stdate = stdate.getInTimezone(this.mTimezone);
+          }
 
-           if (!compareObjects(enddate.timezone, this.mTimezone)) {
-               enddate = enddate.getInTimezone(this.mTimezone);
-           }
+          if (!compareObjects(enddate.timezone, this.mTimezone)) {
+              enddate = enddate.getInTimezone(this.mTimezone);
+          }
 
-           let startHour = stdate.hour;
-           let startMinute = stdate.minute;
-           let endHour = enddate.hour;
-           let endMinute = enddate.minute;
+          let startHour = stdate.hour;
+          let startMinute = stdate.minute;
+          let endHour = enddate.hour;
+          let endMinute = enddate.minute;
 
-           // Handle cases where an event begins or ends on a day other than this
-           if (stdate.compare(this.mDate) == -1) {
-               startHour = 0;
-               startMinute = 0;
-           }
-           if (enddate.compare(this.mDate) == 1) {
-               endHour = 24;
-               endMinute = 0;
-           }
+          // Handle cases where an event begins or ends on a day other than this
+          if (stdate.compare(this.mDate) == -1) {
+              startHour = 0;
+              startMinute = 0;
+          }
+          if (enddate.compare(this.mDate) == 1) {
+              endHour = 24;
+              endMinute = 0;
+          }
 
-           // For occurrences that span multiple days, we figure out the real
-           // occurrence start and end minutes relative to the date of this
-           // column and time 0:00
-           let durend = enddate.subtractDate(this.mDate);
-           let durstart = stdate.subtractDate(this.mDate);
-           // 'durend' is always positive, instead 'durstart' might be negative
-           // if the event starts one or more days before the date of this column
-           let realStart_ = (durstart.days * 24 + durstart.hours) * 60 + durstart.minutes;
-           realStart_ = durstart.isNegative ? -1 * realStart_ : realStart_;
-           let realEnd_ = (durend.days * 24 + durend.hours) * 60 + durend.minutes;
+          // For occurrences that span multiple days, we figure out the real
+          // occurrence start and end minutes relative to the date of this
+          // column and time 0:00
+          let durend = enddate.subtractDate(this.mDate);
+          let durstart = stdate.subtractDate(this.mDate);
+          // 'durend' is always positive, instead 'durstart' might be negative
+          // if the event starts one or more days before the date of this column
+          let realStart_ = (durstart.days * 24 + durstart.hours) * 60 + durstart.minutes;
+          realStart_ = durstart.isNegative ? -1 * realStart_ : realStart_;
+          let realEnd_ = (durend.days * 24 + durend.hours) * 60 + durend.minutes;
 
-           return {
-               start: startHour * 60 + startMinute,
-               end: endHour * 60 + endMinute,
-               realStart: realStart_,
-               realEnd: realEnd_
-           };
+          return {
+              start: startHour * 60 + startMinute,
+              end: endHour * 60 + endMinute,
+              realStart: realStart_,
+              realEnd: realEnd_
+          };
         ]]></body>
       </method>
 
       <method name="createChunk">
         <parameter name="aOccurrence"/>
         <body><![CDATA[
-           let mins = this.getStartEndMinutesForOccurrence(aOccurrence);
+          let mins = this.getStartEndMinutesForOccurrence(aOccurrence);
 
-           let chunk = {
-               startMinute: mins.start,
-               endMinute: mins.end,
-               event: aOccurrence
-           };
-           return chunk;
+          let chunk = {
+              startMinute: mins.start,
+              endMinute: mins.end,
+              event: aOccurrence
+          };
+          return chunk;
         ]]></body>
       </method>
 
       <method name="addEvent">
         <parameter name="aOccurrence"/>
         <body><![CDATA[
-           this.internalDeleteEvent(aOccurrence);
+          this.internalDeleteEvent(aOccurrence);
 
-           let chunk = this.createChunk(aOccurrence);
-           this.mEventInfos.push(chunk);
-           if (this.mEventMapTimeout) {
-               clearTimeout(this.mEventMapTimeout);
-           }
+          let chunk = this.createChunk(aOccurrence);
+          this.mEventInfos.push(chunk);
+          if (this.mEventMapTimeout) {
+              clearTimeout(this.mEventMapTimeout);
+          }
 
-           if (this.mCreatedNewEvent) {
-               this.mEventToEdit = aOccurrence;
-           }
+          if (this.mCreatedNewEvent) {
+              this.mEventToEdit = aOccurrence;
+          }
 
-           this.mEventMapTimeout = setTimeout(() => this.relayout(), 5);
+          this.mEventMapTimeout = setTimeout(() => this.relayout(), 5);
         ]]></body>
       </method>
 
       <method name="deleteEvent">
         <parameter name="aOccurrence"/>
         <body><![CDATA[
-           if (this.internalDeleteEvent(aOccurrence)) {
-               this.relayout();
-           }
+          if (this.internalDeleteEvent(aOccurrence)) {
+              this.relayout();
+          }
         ]]></body>
       </method>
 
@@ -634,7 +624,6 @@
 
       <method name="relayout">
         <body><![CDATA[
-
           if (this.mLayoutBatchCount > 0) {
               return;
           }
@@ -899,9 +888,9 @@
               let secEnd = start.clone();
               secEnd.addDuration(this.mMinDuration);
               if (secEnd.nativeTime > end.nativeTime) {
-                   aEventInfo.layoutEnd = secEnd;
+                  aEventInfo.layoutEnd = secEnd;
               } else {
-                   aEventInfo.layoutEnd = end;
+                  aEventInfo.layoutEnd = end;
               }
               return aEventInfo;
           });
@@ -931,7 +920,7 @@
                   layoutEnd: this.mEventInfos[i].layoutEnd
               };
               if (!latestItemEnd) {
-                 latestItemEnd = curItemInfo.layoutEnd;
+                  latestItemEnd = curItemInfo.layoutEnd;
               }
               if (currentBlob.length && latestItemEnd &&
                   curItemInfo.layoutStart.compare(latestItemEnd) != -1) {
@@ -1107,6 +1096,7 @@
           return this.setupBoxStructure(blobs);
         ]]></body>
       </method>
+
       <method name="setupBoxStructure">
         <parameter name="aBlobs"/>
         <body><![CDATA[
@@ -1247,28 +1237,28 @@
         <parameter name="aStart"/>
         <parameter name="aEnd"/>
         <body><![CDATA[
-            // aStart and aEnd are start and end minutes of the occurrence
-            // from time 0:00 of the dragging column
-            let shadows = 1;
-            let offset = 0;
-            let startMin;
-            if (aStart < 0) {
-                shadows += Math.ceil(Math.abs(aStart) / this.mEndMin);
-                offset = shadows - 1;
-                let reminder = Math.abs(aStart) % this.mEndMin;
-                startMin = this.mEndMin - (reminder ? reminder : this.mEndMin);
-            } else {
-                startMin = aStart;
-            }
-            shadows += Math.floor(aEnd / this.mEndMin);
+          // aStart and aEnd are start and end minutes of the occurrence
+          // from time 0:00 of the dragging column
+          let shadows = 1;
+          let offset = 0;
+          let startMin;
+          if (aStart < 0) {
+              shadows += Math.ceil(Math.abs(aStart) / this.mEndMin);
+              offset = shadows - 1;
+              let reminder = Math.abs(aStart) % this.mEndMin;
+              startMin = this.mEndMin - (reminder ? reminder : this.mEndMin);
+          } else {
+              startMin = aStart;
+          }
+          shadows += Math.floor(aEnd / this.mEndMin);
 
-            // return values needed to build the shadows while dragging
-            return {
-                shadows: shadows,             // number of shadows
-                offset: offset,               // Offset first<->selected shadows
-                startMin: startMin,           // First shadow start minute
-                endMin: aEnd % this.mEndMin   // Last shadow end minute
-            };
+          // return values needed to build the shadows while dragging
+          return {
+              shadows: shadows,             // number of shadows
+              offset: offset,               // Offset first<->selected shadows
+              startMin: startMin,           // First shadow start minute
+              endMin: aEnd % this.mEndMin   // Last shadow end minute
+          };
         ]]></body>
       </method>
 
@@ -1410,8 +1400,8 @@
           }
 
           const SCROLLZONE = 55;     // Size (pixels) of the top/bottom view where the scroll starts.
-          const MAXTIMEOUT = 250,    // Max and min time interval (ms) between
-                MINTIMEOUT = 30;     // two consecutive scrolls.
+          const MAXTIMEOUT = 250;    // Max and min time interval (ms) between
+          const MINTIMEOUT = 30;     // two consecutive scrolls.
           const SCROLLBYHOUR = 0.33; // Part of hour to move for each scroll.
           let insideScrollZone = 0;
           let pxPerHr = event.target.mPixPerMin * 60;
@@ -1997,13 +1987,12 @@
         <parameter name="aDayEndMin"/>
         <body><![CDATA[
           if (aDayStartMin < this.mStartMin || aDayStartMin > aDayEndMin ||
-            aDayEndMin > this.mEndMin) {
-            throw Components.results.NS_ERROR_INVALID_ARG;
+              aDayEndMin > this.mEndMin) {
+              throw Components.results.NS_ERROR_INVALID_ARG;
           }
-          if (this.mDayStartMin != aDayStartMin ||
-              this.mDayEndMin != aDayEndMin) {
-            this.mDayStartMin = aDayStartMin;
-            this.mDayEndMin = aDayEndMin;
+          if (this.mDayStartMin != aDayStartMin || this.mDayEndMin != aDayEndMin) {
+              this.mDayStartMin = aDayStartMin;
+              this.mDayEndMin = aDayEndMin;
           }
         ]]></body>
       </method>
@@ -2041,8 +2030,8 @@
 
       <handler event="click" button="0"><![CDATA[
         if (!(event.ctrlKey || event.metaKey)) {
-          this.calendarView.setSelectedItems(0, []);
-          this.focus();
+            this.calendarView.setSelectedItems(0, []);
+            this.focus();
         }
       ]]></handler>
 
@@ -2111,7 +2100,7 @@
 
   <binding id="calendar-header-container" extends="chrome://calendar/content/widgets/calendar-widgets.xml#dragndropContainer">
     <content xbl:inherits="selected" flex="1" class="calendar-event-column-header">
-        <children/>
+      <children/>
     </content>
 
     <implementation>
@@ -2148,7 +2137,7 @@
         <body><![CDATA[
           // prevent same items being added
           if (this.mItemBoxes.some(itemBox => itemBox.occurrence.hashId == aItem.hashId)) {
-            return;
+              return;
           }
 
           let itemBox = createXULElement("calendar-editable-item");
@@ -2160,7 +2149,7 @@
           itemBox.setAttribute("context", ctxt);
 
           if (aItem.hashId in this.calendarView.mFlashingEvents) {
-            itemBox.setAttribute("flashing", "true");
+              itemBox.setAttribute("flashing", "true");
           }
 
           this.mItemBoxes.push(itemBox);
@@ -2172,11 +2161,11 @@
         <parameter name="aItem"/>
         <body><![CDATA[
           for (let i in this.mItemBoxes) {
-            if (this.mItemBoxes[i].occurrence.hashId == aItem.hashId) {
-              this.mItemBoxes[i].remove();
-              this.mItemBoxes.splice(i, 1);
-              break;
-            }
+              if (this.mItemBoxes[i].occurrence.hashId == aItem.hashId) {
+                  this.mItemBoxes[i].remove();
+                  this.mItemBoxes.splice(i, 1);
+                  break;
+              }
           }
         ]]></body>
       </method>
@@ -2194,9 +2183,9 @@
         <parameter name="aItem"/>
         <body><![CDATA[
           for (let itemBox of this.mItemBoxes) {
-            if (aItem && (itemBox.occurrence.hashId == aItem.hashId)) {
-              itemBox.selected = true;
-            }
+              if (aItem && (itemBox.occurrence.hashId == aItem.hashId)) {
+                  itemBox.selected = true;
+              }
           }
         ]]></body>
       </method>
@@ -2204,9 +2193,9 @@
         <parameter name="aItem"/>
         <body><![CDATA[
           for (let itemBox of this.mItemBoxes) {
-            if (aItem && (itemBox.occurrence.hashId == aItem.hashId)) {
-              itemBox.selected = false;
-            }
+              if (aItem && (itemBox.occurrence.hashId == aItem.hashId)) {
+                  itemBox.selected = false;
+              }
           }
         ]]></body>
       </method>
@@ -2222,7 +2211,7 @@
       ]]></handler>
       <handler event="click" button="0"><![CDATA[
         if (!(event.ctrlKey || event.metaKey)) {
-          this.calendarView.setSelectedItems(0, []);
+            this.calendarView.setSelectedItems(0, []);
         }
       ]]></handler>
       <handler event="click" button="2"><![CDATA[
@@ -2254,63 +2243,63 @@
     -->
   <binding id="calendar-event-box" extends="chrome://calendar/content/calendar-view-core.xml#calendar-editable-item">
     <content mousethrough="never" tooltip="itemTooltip">
-        <xul:box xbl:inherits="orient,width,height" flex="1">
-          <xul:box anonid="event-container"
-                   class="calendar-color-box"
-                   xbl:inherits="orient,readonly,flashing,alarm,allday,priority,progress,
-                                 status,calendar,categories,calendar-uri,calendar-id,todoType"
-                   flex="1">
-            <xul:box class="calendar-event-selection" orient="horizontal" flex="1">
-              <xul:stack anonid="eventbox"
-                         align="stretch"
-                         class="calendar-event-box-container"
-                         flex="1"
-                         xbl:inherits="context,parentorient=orient,readonly,flashing,alarm,allday,priority,progress,status,calendar,categories">
-                <xul:hbox class="calendar-event-details"
-                          anonid="calendar-event-details"
-                          align="start">
-                  <xul:image anonid="item-icon"
-                             class="calendar-item-image"
-                             xbl:inherits="progress,allday,itemType,todoType"/>
-                  <xul:description anonid="event-name" class="calendar-event-details-core" flex="1"/>
-                  <xul:textbox anonid="event-name-textbox"
-                               class="plain calendar-event-details-core calendar-event-name-textbox"
-                               flex="1"
-                               hidden="true"
-                               wrap="true"/>
+      <xul:box xbl:inherits="orient,width,height" flex="1">
+        <xul:box anonid="event-container"
+                 class="calendar-color-box"
+                 xbl:inherits="orient,readonly,flashing,alarm,allday,priority,progress,
+                               status,calendar,categories,calendar-uri,calendar-id,todoType"
+                 flex="1">
+          <xul:box class="calendar-event-selection" orient="horizontal" flex="1">
+            <xul:stack anonid="eventbox"
+                       align="stretch"
+                       class="calendar-event-box-container"
+                       flex="1"
+                       xbl:inherits="context,parentorient=orient,readonly,flashing,alarm,allday,priority,progress,status,calendar,categories">
+              <xul:hbox class="calendar-event-details"
+                        anonid="calendar-event-details"
+                        align="start">
+                <xul:image anonid="item-icon"
+                           class="calendar-item-image"
+                           xbl:inherits="progress,allday,itemType,todoType"/>
+                <xul:description anonid="event-name" class="calendar-event-details-core" flex="1"/>
+                <xul:textbox anonid="event-name-textbox"
+                             class="plain calendar-event-details-core calendar-event-name-textbox"
+                             flex="1"
+                             hidden="true"
+                             wrap="true"/>
+              </xul:hbox>
+              <xul:stack mousethrough="always">
+                <xul:calendar-category-box anonid="category-box" xbl:inherits="categories" pack="end" />
+                <xul:hbox align="right">
+                  <xul:hbox anonid="alarm-icons-box"
+                            class="alarm-icons-box"
+                            pack="end"
+                            align="top"
+                            xbl:inherits="flashing"/>
+                  <xul:image anonid="item-classification-box"
+                             class="item-classification-box"
+                             pack="end"/>
                 </xul:hbox>
-                <xul:stack mousethrough="always">
-                  <xul:calendar-category-box anonid="category-box" xbl:inherits="categories" pack="end" />
-                  <xul:hbox align="right">
-                    <xul:hbox anonid="alarm-icons-box"
-                              class="alarm-icons-box"
-                              pack="end"
-                              align="top"
-                              xbl:inherits="flashing"/>
-                    <xul:image anonid="item-classification-box"
-                               class="item-classification-box"
-                               pack="end"/>
-                  </xul:hbox>
-                </xul:stack>
-                <xul:box xbl:inherits="orient">
-                  <xul:calendar-event-gripbar anonid="gripbar1"
-                                              class="calendar-event-box-grippy-top"
-                                              mousethrough="never"
-                                              whichside="start"
-                                              xbl:inherits="parentorient=orient"/>
-                  <xul:spacer mousethrough="always" flex="1"/>
-                  <xul:calendar-event-gripbar anonid="gripbar2"
-                                              class="calendar-event-box-grippy-bottom"
-                                              mousethrough="never"
-                                              whichside="end"
-                                              xbl:inherits="parentorient=orient"/>
-                </xul:box>
-                <!-- Do not insert anything here, otherwise the event boxes will
-                     not be resizable using the gripbars. If you want to insert
-                     additional elements, do so above the box with the gripbars. -->
               </xul:stack>
-            </xul:box>
+              <xul:box xbl:inherits="orient">
+                <xul:calendar-event-gripbar anonid="gripbar1"
+                                            class="calendar-event-box-grippy-top"
+                                            mousethrough="never"
+                                            whichside="start"
+                                            xbl:inherits="parentorient=orient"/>
+                <xul:spacer mousethrough="always" flex="1"/>
+                <xul:calendar-event-gripbar anonid="gripbar2"
+                                            class="calendar-event-box-grippy-bottom"
+                                            mousethrough="never"
+                                            whichside="end"
+                                            xbl:inherits="parentorient=orient"/>
+              </xul:box>
+              <!-- Do not insert anything here, otherwise the event boxes will
+                   not be resizable using the gripbars. If you want to insert
+                   additional elements, do so above the box with the gripbars. -->
+            </xul:stack>
           </xul:box>
+        </xul:box>
       </xul:box>
     </content>
 
@@ -2375,21 +2364,21 @@
 
       <property name="startMinute" readonly="true">
         <getter><![CDATA[
-            if (!this.mOccurrence) {
-                return 0;
-            }
-            let startDate = this.mOccurrence.startDate || this.mOccurrence.entryDate;
-            return startDate.hour * 60 + startDate.minute;
+          if (!this.mOccurrence) {
+              return 0;
+          }
+          let startDate = this.mOccurrence.startDate || this.mOccurrence.entryDate;
+          return startDate.hour * 60 + startDate.minute;
         ]]></getter>
       </property>
 
       <property name="endMinute" readonly="true">
         <getter><![CDATA[
-            if (!this.mOccurrence) {
-                return 0;
-            }
-            let endDate = this.mOccurrence.endDate || this.mOccurrence.dueDate;
-            return endDate.hour * 60 + endDate.minute;
+          if (!this.mOccurrence) {
+              return 0;
+          }
+          let endDate = this.mOccurrence.endDate || this.mOccurrence.dueDate;
+          return endDate.hour * 60 + endDate.minute;
         ]]></getter>
       </property>
 
@@ -2399,10 +2388,10 @@
           let item = this.mOccurrence;
 
           if (item.title && item.title != "") {
-            // Use <description> textContent so it can wrap.
-            evl.textContent = item.title;
+              // Use <description> textContent so it can wrap.
+              evl.textContent = item.title;
           } else {
-            evl.textContent = calGetString("calendar", "eventUntitled");
+              evl.textContent = calGetString("calendar", "eventUntitled");
           }
 
           let gripbar = document.getAnonymousElementByAttribute(this, "anonid", "gripbar1").boxObject.height;
@@ -2756,44 +2745,45 @@
         <parameter name="aAlarmItem"/>
         <parameter name="aStop"/>
         <body><![CDATA[
+          // Helper function to save some duplicate code
+          function setFlashingAttribute(aBox) {
+              if (aStop) {
+                  aBox.removeAttribute("flashing");
+              } else {
+                  aBox.setAttribute("flashing", "true");
+              }
+          }
+
           let showIndicator = Preferences.get("calendar.alarms.indicator.show", true);
           let totaltime = Preferences.get("calendar.alarms.indicator.totaltime", 3600);
 
           if (!aStop && (!showIndicator || totaltime < 1)) {
-            // No need to animate if the indicator should not be shown.
-            return;
+              // No need to animate if the indicator should not be shown.
+              return;
           }
 
-          // Helper function to save some duplicate code
-          function setFlashingAttribute(aBox) {
-            if (aStop) {
-              aBox.removeAttribute("flashing");
-            } else {
-              aBox.setAttribute("flashing", "true");
-            }
-          }
 
           // Make sure the flashing attribute is set or reset on all visible
           // boxes.
           let columns = this.findColumnsForItem(aAlarmItem);
           for (let col of columns) {
-            let box = col.column.findChunkForOccurrence(aAlarmItem);
-            if (box && box.eventbox) {
-              setFlashingAttribute(box.eventbox);
-            }
-            box = col.header.findBoxForItem(aAlarmItem);
-            if (box) {
-              setFlashingAttribute(box);
-            }
+              let box = col.column.findChunkForOccurrence(aAlarmItem);
+              if (box && box.eventbox) {
+                  setFlashingAttribute(box.eventbox);
+              }
+              box = col.header.findBoxForItem(aAlarmItem);
+              if (box) {
+                  setFlashingAttribute(box);
+              }
           }
 
           if (aStop) {
-            // We are done flashing, prevent newly created event boxes from flashing.
-            delete this.mFlashingEvents[aAlarmItem.hashId];
+              // We are done flashing, prevent newly created event boxes from flashing.
+              delete this.mFlashingEvents[aAlarmItem.hashId];
           } else {
-            // Set up a timer to stop the flashing after the total time.
-            this.mFlashingEvents[aAlarmItem.hashId] = aAlarmItem;
-            setTimeout(() => this.flashAlarm(aAlarmItem, true), totaltime);
+              // Set up a timer to stop the flashing after the total time.
+              this.mFlashingEvents[aAlarmItem.hashId] = aAlarmItem;
+              setTimeout(() => this.flashAlarm(aAlarmItem, true), totaltime);
           }
         ]]></body>
       </method>
@@ -2851,9 +2841,9 @@
           // if we're only showing one date, then continue
           // to only show one date; otherwise, show the week.
           if (this.numVisibleDates == 1) {
-            this.setDateRange(aDate, aDate);
+              this.setDateRange(aDate, aDate);
           } else {
-            this.setDateRange(aDate.startOfWeek, aDate.endOfWeek);
+              this.setDateRange(aDate.startOfWeek, aDate.endOfWeek);
           }
 
           this.selectedDay = targetDate;
@@ -2917,30 +2907,30 @@
       <method name="getDateList">
         <parameter name="aCount"/>
         <body><![CDATA[
-           let dates = [];
-           if (this.mStartDate && this.mEndDate) {
-               let date = this.mStartDate.clone();
-               while (date.compare(this.mEndDate) <= 0) {
-                   dates.push(d.clone());
-                   date.day += 1;
-               }
-           } else if (this.mDateList) {
-               for (let date of this.mDateList) {
-                   dates.push(date.clone());
-               }
-           }
+          let dates = [];
+          if (this.mStartDate && this.mEndDate) {
+              let date = this.mStartDate.clone();
+              while (date.compare(this.mEndDate) <= 0) {
+                  dates.push(d.clone());
+                  date.day += 1;
+              }
+          } else if (this.mDateList) {
+              for (let date of this.mDateList) {
+                  dates.push(date.clone());
+              }
+          }
 
-           aCount.value = dates.length;
-           return dates;
+          aCount.value = dates.length;
+          return dates;
         ]]></body>
       </method>
 
       <property name="selectedDateTime">
         <getter><![CDATA[
-            return this.mClickedTime;
+          return this.mClickedTime;
         ]]></getter>
         <setter><![CDATA[
-            this.mClickedTime = val;
+          this.mClickedTime = val;
         ]]></setter>
       </property>
 
@@ -2963,24 +2953,24 @@
           // ignore if just 1 visible, it's always selected,
           // but we don't indicate it
           if (this.numVisibleDates == 1) {
-            this.fireEvent("dayselect", val);
-            return val;
+              this.fireEvent("dayselect", val);
+              return val;
           }
 
           if (this.mSelectedDayCol) {
-            this.mSelectedDayCol.column.selected = false;
-            this.mSelectedDayCol.header.removeAttribute("selected");
+              this.mSelectedDayCol.column.selected = false;
+              this.mSelectedDayCol.header.removeAttribute("selected");
           }
 
           if (val) {
-            this.mSelectedDayCol = this.findColumnForDate(val);
-            if (this.mSelectedDayCol) {
-              this.mSelectedDay = this.mSelectedDayCol.date;
-              this.mSelectedDayCol.column.selected = true;
-              this.mSelectedDayCol.header.setAttribute("selected", "true");
-            } else {
-              this.mSelectedDay = val;
-            }
+              this.mSelectedDayCol = this.findColumnForDate(val);
+              if (this.mSelectedDayCol) {
+                  this.mSelectedDay = this.mSelectedDayCol.date;
+                  this.mSelectedDayCol.column.selected = true;
+                  this.mSelectedDayCol.header.setAttribute("selected", "true");
+              } else {
+                  this.mSelectedDay = val;
+              }
           }
           this.fireEvent("dayselect", val);
           return val;
@@ -3082,7 +3072,7 @@
 
                   // skip occurrence if all-day: it won't show in time view.
                   if (occStart.isDate || occEnd.isDate) {
-                     continue;
+                      continue;
                   }
 
                   // Trim dates to view.  (Not mutated so just reuse view dates)
@@ -3160,20 +3150,20 @@
       <property name="numVisibleDates" readonly="true">
         <getter><![CDATA[
           if (this.mDateList) {
-            return this.mDateList.length;
+              return this.mDateList.length;
           }
 
           let count = 0;
 
           if (!this.mStartDate || !this.mEndDate) {
-            // The view has not been initialized, so there are 0 visible dates.
-            return count;
+              // The view has not been initialized, so there are 0 visible dates.
+              return count;
           }
 
           let date = this.mStartDate.clone();
           while (date.compare(this.mEndDate) <= 0) {
-            count++;
-            date.day += 1;
+              count++;
+              date.day += 1;
           }
 
           return count;
@@ -3181,8 +3171,13 @@
       </property>
 
       <property name="orient">
-        <getter><![CDATA[return this.getAttribute("orient") || "vertical";]]></getter>
-        <setter><![CDATA[this.setAttribute("orient", val); return val;]]></setter>
+        <getter><![CDATA[
+          return this.getAttribute("orient") || "vertical";
+        ]]></getter>
+        <setter><![CDATA[
+          this.setAttribute("orient", val);
+          return val;
+        ]]></setter>
       </property>
 
       <property name="timeBarTimeIndicator" readonly="true">
@@ -3498,8 +3493,8 @@
       <method name="findDayBoxForDate">
         <parameter name="aDate"/>
         <body><![CDATA[
-            let col = this.findColumnForDate(aDate);
-            return (col && col.header);
+          let col = this.findColumnForDate(aDate);
+          return (col && col.header);
         ]]></body>
       </method>
 
@@ -3514,7 +3509,7 @@
                   child.removeAttribute("selected");
               }
               child = child.nextSibling;
-            }
+          }
         ]]></body>
       </method>
 
@@ -3522,7 +3517,7 @@
         <parameter name="aOccurrences"/>
         <body><![CDATA[
           if (!this.mDateColumns || !this.mDateColumns.length) {
-            return [];
+              return [];
           }
 
           let occMap = {};
@@ -3549,7 +3544,7 @@
           let columns = [];
 
           if (!this.mDateColumns) {
-            return columns;
+              return columns;
           }
 
           // Note that these may be dates or datetimes
@@ -3563,10 +3558,10 @@
                                .getInTimezone(timezone);
 
           if (!targetDate.isDate) {
-            // Set the time to 00:00 so that we get all the boxes
-            targetDate.hour = 0;
-            targetDate.minute = 0;
-            targetDate.second = 0;
+              // Set the time to 00:00 so that we get all the boxes
+              targetDate.hour = 0;
+              targetDate.minute = 0;
+              targetDate.second = 0;
           }
 
           if (targetDate.compare(finishDate) == 0) {
@@ -3579,13 +3574,13 @@
           }
 
           while (targetDate.compare(finishDate) == -1) {
-            let col = this.findColumnForDate(targetDate);
+              let col = this.findColumnForDate(targetDate);
 
-            // This might not exist if the event spans the view start or end
-            if (col) {
-                columns.push(col);
-            }
-            targetDate.day += 1;
+              // This might not exist if the event spans the view start or end
+              if (col) {
+                  columns.push(col);
+              }
+              targetDate.day += 1;
           }
 
           return columns;
@@ -3722,24 +3717,23 @@
           // get the width/height of the scrollbox scrollbar
           let scrollbox = document.getAnonymousElementByAttribute(
                          this, "anonid", "scrollbox");
-          let propertyValue = scrollbox.boxObject.firstChild
-                              .boxObject[propertyName];
+          let propertyValue = scrollbox.boxObject.firstChild.boxObject[propertyName];
           // Check if we need to show the headerScrollbarSpacer at all
           let headerPropertyValue = propertyValue;
           let headerDayBox = document.getAnonymousElementByAttribute(
                              this, "anonid", "headerdaybox");
           if (headerDayBox) {
-            // Only do this when there are multiple days
-            let headerDayBoxMaxHeight = parseInt(document.defaultView.getComputedStyle(headerDayBox, null)
-                                                         .getPropertyValue("max-height"), 10);
-            if (this.getAttribute("orient") == "vertical" &&
-                headerDayBox.boxObject.height >= headerDayBoxMaxHeight) {
-                // If the headerDayBox is just as high as the max-height, then
-                // there is already a scrollbar and we don't need to show the
-                // headerScrollbarSpacer. This is only valid for the non-rotated
-                // view.
-                headerPropertyValue = 0;
-            }
+              // Only do this when there are multiple days
+              let headerDayBoxMaxHeight = parseInt(document.defaultView.getComputedStyle(headerDayBox, null)
+                                                           .getPropertyValue("max-height"), 10);
+              if (this.getAttribute("orient") == "vertical" &&
+                  headerDayBox.boxObject.height >= headerDayBoxMaxHeight) {
+                  // If the headerDayBox is just as high as the max-height, then
+                  // there is already a scrollbar and we don't need to show the
+                  // headerScrollbarSpacer. This is only valid for the non-rotated
+                  // view.
+                  headerPropertyValue = 0;
+              }
           }
 
           // set the same width/height for the label and header box spacers
@@ -3766,14 +3760,14 @@
           aMinute = Math.min(maxFirstMin, Math.max(0, aMinute));
 
           if (scrollBoxObject && scrollbox.scrollHeight > 0) {
-            let x = {}, y = {};
-            scrollBoxObject.getPosition(x, y);
-            let pos = Math.round(aMinute * this.mPixPerMin);
-            if (scrollbox.getAttribute("orient") == "horizontal") {
-              scrollBoxObject.scrollTo(x.value, pos);
-            } else {
-              scrollBoxObject.scrollTo(pos, y.value);
-            }
+              let x = {}, y = {};
+              scrollBoxObject.getPosition(x, y);
+              let pos = Math.round(aMinute * this.mPixPerMin);
+              if (scrollbox.getAttribute("orient") == "horizontal") {
+                  scrollBoxObject.scrollTo(x.value, pos);
+              } else {
+                  scrollBoxObject.scrollTo(pos, y.value);
+              }
           }
 
           // Set the first visible minute in any case, we want to move to the
@@ -3787,18 +3781,18 @@
         <parameter name="aDayEndMin"/>
         <body><![CDATA[
           if (aDayStartMin < this.mStartMin || aDayStartMin > aDayEndMin ||
-            aDayEndMin > this.mEndMin) {
-            throw Components.results.NS_ERROR_INVALID_ARG;
+              aDayEndMin > this.mEndMin) {
+              throw Components.results.NS_ERROR_INVALID_ARG;
           }
           if (this.mDayStartMin != aDayStartMin ||
               this.mDayEndMin != aDayEndMin) {
-            this.mDayStartMin = aDayStartMin;
-            this.mDayEndMin = aDayEndMin;
+              this.mDayStartMin = aDayStartMin;
+              this.mDayEndMin = aDayEndMin;
 
-            // Also update on the time-bar
-            document.getAnonymousElementByAttribute(this, "anonid", "timebar")
-                    .setDayStartEndHours(this.mDayStartMin / 60,
-                                         this.mDayEndMin / 60);
+              // Also update on the time-bar
+              document.getAnonymousElementByAttribute(this, "anonid", "timebar")
+                      .setDayStartEndHours(this.mDayStartMin / 60,
+                                           this.mDayEndMin / 60);
           }
 
         ]]></body>
@@ -3808,11 +3802,11 @@
         <parameter name="aVisibleMinutes"/>
         <body><![CDATA[
           if (aVisibleMinutes <= 0 ||
-            aVisibleMinutes > (this.mEndMin - this.mStartMin)) {
-            throw Components.results.NS_ERROR_INVALID_ARG;
+              aVisibleMinutes > (this.mEndMin - this.mStartMin)) {
+              throw Components.results.NS_ERROR_INVALID_ARG;
           }
           if (this.mVisibleMinutes != aVisibleMinutes) {
-            this.mVisibleMinutes = aVisibleMinutes;
+              this.mVisibleMinutes = aVisibleMinutes;
           }
           return this.mVisibleMinutes;
         ]]></body>
@@ -3861,9 +3855,9 @@
                 }
             } else if (event.deltaMode == event.DOM_DELTA_PIXEL) {
                 if (this.rotated && event.deltaX != 0) {
-                   minute += Math.ceil(event.deltaX / this.mPixPerMin);
+                    minute += Math.ceil(event.deltaX / this.mPixPerMin);
                 } else if (!this.rotated && event.deltaY != 0) {
-                   minute += Math.ceil(event.deltaY / this.mPixPerMin);
+                    minute += Math.ceil(event.deltaY / this.mPixPerMin);
                 }
             }
             this.scrollToMinute(minute);

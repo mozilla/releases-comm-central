@@ -245,5 +245,5 @@ function parseUri(aUri) {
  * undo.
  */
 function setCanRewindFalse() {
-   document.getElementById("calendar-wizard").canRewind = false;
+    document.getElementById("calendar-wizard").canRewind = false;
 }

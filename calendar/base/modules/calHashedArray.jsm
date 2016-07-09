@@ -113,12 +113,12 @@ cal.HashedArray.prototype = {
     /**
      * Clear the whole array, removing all items. This also resets batch mode.
      */
-     clear: function() {
+    clear: function() {
         this.mHash = {};
         this.mArray = [];
         this.mFirstDirty = -1;
         this.mBatch = 0;
-     },
+    },
 
     /**
      * Add the item to the array

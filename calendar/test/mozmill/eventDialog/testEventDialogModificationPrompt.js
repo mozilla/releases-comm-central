@@ -54,95 +54,35 @@ var newlines = [{ title: "title", description: "  test spaces  " },
                 { title: "title", description: "\ttest \\t\t" }];
 
 var setupModule = function(module) {
-  controller = mozmill.getMail3PaneController();
-  calUtils.createCalendar(controller, calendar);
+    controller = mozmill.getMail3PaneController();
+    calUtils.createCalendar(controller, calendar);
 
-  let categories = prefs.preferences.getPref("calendar.categories.names", "string").split(",");
-  data[0].category = categories[0];
-  data[1].category = categories[1];
+    let categories = prefs.preferences.getPref("calendar.categories.names", "string").split(",");
+    data[0].category = categories[0];
+    data[1].category = categories[1];
 };
 
 // Test that closing an event dialog with no changes does not prompt for save
 var testEventDialogModificationPrompt = function() {
-  controller.click(new elementslib.ID(controller.window.document, "calendar-tab-button"));
-  calUtils.switchToView(controller, "day");
-  calUtils.goToDate(controller, 2009, 1, 1);
+    controller.click(new elementslib.ID(controller.window.document, "calendar-tab-button"));
+    calUtils.switchToView(controller, "day");
+    calUtils.goToDate(controller, 2009, 1, 1);
 
-  // create new event
-  controller.doubleClick(new elementslib.Lookup(controller.window.document,
-    calUtils.getEventBoxPath(controller, "day", calUtils.CANVAS_BOX, undefined, 1, 8)), 1, 1);
-  controller.waitFor(() => mozmill.utils.getWindows("Calendar:EventDialog").length > 0, sleep);
-  let event = new mozmill.controller.MozMillController(mozmill.utils
-    .getWindows("Calendar:EventDialog")[0]);
-
-  // enter first set of data
-  calUtils.setData(event, data[0]);
-
-  // save
-  event.click(new elementslib.ID(event.window.document, "button-save"));
-
-  // open, but change nothing
-  let eventBox = new elementslib.Lookup(controller.window.document,
-    calUtils.getEventBoxPath(controller, "day", calUtils.EVENT_BOX, undefined, 1, 8) +
-    '/{"tooltip":"itemTooltip"}');
-  controller.waitForElement(eventBox);
-  controller.doubleClick(eventBox);
-  controller.waitFor(() => mozmill.utils.getWindows("Calendar:EventDialog").length > 0, sleep);
-  event = new mozmill.controller.MozMillController(mozmill.utils
-    .getWindows("Calendar:EventDialog")[0]);
-
-  // modal dialog setup
-  let dialog = new modalDialog.modalDialog(event.window);
-  dialog.start(handleSavePrompt);
-
-  // escape the event window, there should be no prompt to save event
-  event.keypress(undefined, "VK_ESCAPE", {});
-  controller.sleep(sleep);
-  dialog.stop();
-
-  // open
-  controller.doubleClick(new elementslib.Lookup(controller.window.document,
-    calUtils.getEventBoxPath(controller, "day", calUtils.EVENT_BOX, undefined, 1, 8) +
-    '/{"tooltip":"itemTooltip"}'));
-  controller.waitFor(() => mozmill.utils.getWindows("Calendar:EventDialog").length > 0, sleep);
-  event = new mozmill.controller.MozMillController(mozmill.utils
-    .getWindows("Calendar:EventDialog")[0]);
-
-  // change all values
-  calUtils.setData(event, data[1]);
-
-  // edit all values back to original
-  calUtils.setData(event, data[0]);
-
-  // this is set up after data entry because otherwise it tries to handle attachment dialog
-  dialog = new modalDialog.modalDialog(event.window);
-  dialog.start(handleSavePrompt);
-
-  // escape the event window, there should be no prompt to save event
-  event.keypress(undefined, "VK_ESCAPE", {});
-  controller.sleep(sleep);
-  dialog.stop();
-
-  // delete event
-  controller.click(new elementslib.Lookup(controller.window.document,
-    calUtils.getEventBoxPath(controller, "day", calUtils.EVENT_BOX, undefined, 1, 8)));
-  controller.keypress(new elementslib.ID(controller.window.document, "day-view"),
-    "VK_DELETE", {});
-  controller.waitForElementNotPresent(new elementslib.Lookup(controller.window.document,
-    calUtils.getEventBoxPath(controller, "day", calUtils.EVENT_BOX, undefined, 1, 8)));
-
-  for (let i = 0; i < newlines.length; i++) {
-    // test set i
+    // create new event
     controller.doubleClick(new elementslib.Lookup(controller.window.document,
       calUtils.getEventBoxPath(controller, "day", calUtils.CANVAS_BOX, undefined, 1, 8)), 1, 1);
     controller.waitFor(() => mozmill.utils.getWindows("Calendar:EventDialog").length > 0, sleep);
-    event = new mozmill.controller.MozMillController(mozmill.utils
+    let event = new mozmill.controller.MozMillController(mozmill.utils
       .getWindows("Calendar:EventDialog")[0]);
-    calUtils.setData(event, newlines[i]);
+
+    // enter first set of data
+    calUtils.setData(event, data[0]);
+
+    // save
     event.click(new elementslib.ID(event.window.document, "button-save"));
 
-    // open and close
-    eventBox = new elementslib.Lookup(controller.window.document,
+    // open, but change nothing
+    let eventBox = new elementslib.Lookup(controller.window.document,
       calUtils.getEventBoxPath(controller, "day", calUtils.EVENT_BOX, undefined, 1, 8) +
       '/{"tooltip":"itemTooltip"}');
     controller.waitForElement(eventBox);
@@ -150,35 +90,95 @@ var testEventDialogModificationPrompt = function() {
     controller.waitFor(() => mozmill.utils.getWindows("Calendar:EventDialog").length > 0, sleep);
     event = new mozmill.controller.MozMillController(mozmill.utils
       .getWindows("Calendar:EventDialog")[0]);
-    dialog = new modalDialog.modalDialog(event.window);
+
+    // modal dialog setup
+    let dialog = new modalDialog.modalDialog(event.window);
     dialog.start(handleSavePrompt);
+
+    // escape the event window, there should be no prompt to save event
     event.keypress(undefined, "VK_ESCAPE", {});
     controller.sleep(sleep);
     dialog.stop();
 
-    // delete it
-    // XXX somehow the event is selected at this point, this didn't use to be the case
-    // and can't be reproduced manually
+    // open
+    controller.doubleClick(new elementslib.Lookup(controller.window.document,
+      calUtils.getEventBoxPath(controller, "day", calUtils.EVENT_BOX, undefined, 1, 8) +
+      '/{"tooltip":"itemTooltip"}'));
+    controller.waitFor(() => mozmill.utils.getWindows("Calendar:EventDialog").length > 0, sleep);
+    event = new mozmill.controller.MozMillController(mozmill.utils
+      .getWindows("Calendar:EventDialog")[0]);
+
+    // change all values
+    calUtils.setData(event, data[1]);
+
+    // edit all values back to original
+    calUtils.setData(event, data[0]);
+
+    // this is set up after data entry because otherwise it tries to handle attachment dialog
+    dialog = new modalDialog.modalDialog(event.window);
+    dialog.start(handleSavePrompt);
+
+    // escape the event window, there should be no prompt to save event
+    event.keypress(undefined, "VK_ESCAPE", {});
+    controller.sleep(sleep);
+    dialog.stop();
+
+    // delete event
+    controller.click(new elementslib.Lookup(controller.window.document,
+      calUtils.getEventBoxPath(controller, "day", calUtils.EVENT_BOX, undefined, 1, 8)));
     controller.keypress(new elementslib.ID(controller.window.document, "day-view"),
       "VK_DELETE", {});
     controller.waitForElementNotPresent(new elementslib.Lookup(controller.window.document,
       calUtils.getEventBoxPath(controller, "day", calUtils.EVENT_BOX, undefined, 1, 8)));
-  }
+
+    for (let i = 0; i < newlines.length; i++) {
+        // test set i
+        controller.doubleClick(new elementslib.Lookup(controller.window.document,
+          calUtils.getEventBoxPath(controller, "day", calUtils.CANVAS_BOX, undefined, 1, 8)), 1, 1);
+        controller.waitFor(() => mozmill.utils.getWindows("Calendar:EventDialog").length > 0, sleep);
+        event = new mozmill.controller.MozMillController(mozmill.utils
+          .getWindows("Calendar:EventDialog")[0]);
+        calUtils.setData(event, newlines[i]);
+        event.click(new elementslib.ID(event.window.document, "button-save"));
+
+        // open and close
+        eventBox = new elementslib.Lookup(controller.window.document,
+          calUtils.getEventBoxPath(controller, "day", calUtils.EVENT_BOX, undefined, 1, 8) +
+          '/{"tooltip":"itemTooltip"}');
+        controller.waitForElement(eventBox);
+        controller.doubleClick(eventBox);
+        controller.waitFor(() => mozmill.utils.getWindows("Calendar:EventDialog").length > 0, sleep);
+        event = new mozmill.controller.MozMillController(mozmill.utils
+          .getWindows("Calendar:EventDialog")[0]);
+        dialog = new modalDialog.modalDialog(event.window);
+        dialog.start(handleSavePrompt);
+        event.keypress(undefined, "VK_ESCAPE", {});
+        controller.sleep(sleep);
+        dialog.stop();
+
+        // delete it
+        // XXX somehow the event is selected at this point, this didn't use to be the case
+        // and can't be reproduced manually
+        controller.keypress(new elementslib.ID(controller.window.document, "day-view"),
+          "VK_DELETE", {});
+        controller.waitForElementNotPresent(new elementslib.Lookup(controller.window.document,
+          calUtils.getEventBoxPath(controller, "day", calUtils.EVENT_BOX, undefined, 1, 8)));
+    }
 };
 
 var teardownTest = function(module) {
-  calUtils.deleteCalendars(controller, calendar);
-  if (pass != undefined && pass == false) {
-    controller.assertJS('"Prompt appeared" == "Prompt didn\'t appear."');
-  }
+    calUtils.deleteCalendars(controller, calendar);
+    if (pass != undefined && pass == false) {
+        controller.assertJS('"Prompt appeared" == "Prompt didn\'t appear."');
+    }
 };
 
 function handleSavePrompt(controller) {
-  // unexpected prompt, thus the test has already failed
-  // can't trigger a failure though, because the following click wouldn't be executed
-  // so remembering it
-  pass = false;
-  // application close is blocked without it
-  controller.click(new elementslib.Lookup(controller.window.document,
-    '/id("commonDialog")/anon({"anonid":"buttons"})/{"dlgtype":"extra1"}'));
+    // unexpected prompt, thus the test has already failed
+    // can't trigger a failure though, because the following click wouldn't be executed
+    // so remembering it
+    pass = false;
+    // application close is blocked without it
+    controller.click(new elementslib.Lookup(controller.window.document,
+      '/id("commonDialog")/anon({"anonid":"buttons"})/{"dlgtype":"extra1"}'));
 }

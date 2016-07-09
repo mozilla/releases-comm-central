@@ -202,49 +202,49 @@ function getFilter(settings) {
  */
 function refreshHtml(finishFunc) {
     getPrintSettings((settings) => {
-            document.title = calGetString("calendar", "PrintPreviewWindowTitle", [settings.title]);
+        document.title = calGetString("calendar", "PrintPreviewWindowTitle", [settings.title]);
 
-            let printformatter = Components.classes[settings.layoutCId]
-                                           .createInstance(Components.interfaces.calIPrintFormatter);
-            let html = "";
+        let printformatter = Components.classes[settings.layoutCId]
+                                       .createInstance(Components.interfaces.calIPrintFormatter);
+        let html = "";
+        try {
+            let pipe = Components.classes["@mozilla.org/pipe;1"]
+                                 .createInstance(Components.interfaces.nsIPipe);
+            const PR_UINT32_MAX = 4294967295; // signals "infinite-length"
+            pipe.init(true, true, 0, PR_UINT32_MAX, null);
+            printformatter.formatToHtml(pipe.outputStream,
+                                        settings.start,
+                                        settings.end,
+                                        settings.eventList.length,
+                                        settings.eventList,
+                                        settings.title);
+            pipe.outputStream.close();
+            // convert byte-array to UTF-8 string:
+            let convStream = Components.classes["@mozilla.org/intl/converter-input-stream;1"]
+                                       .createInstance(Components.interfaces.nsIConverterInputStream);
+            convStream.init(pipe.inputStream, "UTF-8", 0,
+                            Components.interfaces.nsIConverterInputStream.DEFAULT_REPLACEMENT_CHARACTER);
             try {
-                let pipe = Components.classes["@mozilla.org/pipe;1"]
-                                     .createInstance(Components.interfaces.nsIPipe);
-                const PR_UINT32_MAX = 4294967295; // signals "infinite-length"
-                pipe.init(true, true, 0, PR_UINT32_MAX, null);
-                printformatter.formatToHtml(pipe.outputStream,
-                                            settings.start,
-                                            settings.end,
-                                            settings.eventList.length,
-                                            settings.eventList,
-                                            settings.title);
-                pipe.outputStream.close();
-                // convert byte-array to UTF-8 string:
-                let convStream = Components.classes["@mozilla.org/intl/converter-input-stream;1"]
-                                           .createInstance(Components.interfaces.nsIConverterInputStream);
-                convStream.init(pipe.inputStream, "UTF-8", 0,
-                                Components.interfaces.nsIConverterInputStream.DEFAULT_REPLACEMENT_CHARACTER);
-                try {
-                    let portion = {};
-                    while (convStream.readString(-1, portion)) {
-                        html += portion.value;
-                    }
-                } finally {
-                    convStream.close();
+                let portion = {};
+                while (convStream.readString(-1, portion)) {
+                    html += portion.value;
                 }
-            } catch (e) {
-                Components.utils.reportError("Calendar print dialog:refreshHtml: " + e);
+            } finally {
+                convStream.close();
             }
-
-            let iframeDoc = document.getElementById("content").contentDocument;
-            iframeDoc.documentElement.innerHTML = html;
-            iframeDoc.title = settings.title;
-
-            if (finishFunc) {
-                finishFunc();
-            }
+        } catch (e) {
+            Components.utils.reportError("Calendar print dialog:refreshHtml: " + e);
         }
-    );
+
+        let iframeDoc = document.getElementById("content").contentDocument;
+        iframeDoc.documentElement.innerHTML = html;
+        iframeDoc.title = settings.title;
+
+        if (finishFunc) {
+            finishFunc();
+        }
+    }
+);
 }
 
 /**

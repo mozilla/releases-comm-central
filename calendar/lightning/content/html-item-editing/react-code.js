@@ -22,14 +22,11 @@ var Tabstrip = React.createClass({
                 // The bind() method makes the index
                 // available to the handleChange function:
                 return React.DOM.li({
-                        className: style + " tab",
-                        key: "tabkey" + index,
-                        onClick: this.handleChange.bind(this, index)
-                    },
-                    tab
-                    );
-                }
-            )
+                    className: style + " tab",
+                    key: "tabkey" + index,
+                    onClick: this.handleChange.bind(this, index)
+                }, tab);
+            })
         );
     }
 });
@@ -86,20 +83,15 @@ var Dropdown = React.createClass({
         return React.DOM.select({
             value: this.props.value,
             onChange: this.handleChange
-            },
-            this.props.options.map((option, index) => {
-                return React.DOM.option({
-                        // could use option[0] here instead of index...
-                        key: this.props.keyprop + "Option" + index,
-                        onChange: this.handleChange,
-                        value: option[0],
-                        disabled: this.props.disabled || false
-                    },
-                    option[1]
-                    );
-                }
-            )
-        );
+        }, this.props.options.map((option, index) => {
+            return React.DOM.option({
+                // could use option[0] here instead of index...
+                key: this.props.keyprop + "Option" + index,
+                onChange: this.handleChange,
+                value: option[0],
+                disabled: this.props.disabled || false
+            }, option[1]);
+        }));
     }
 });
 
@@ -533,24 +525,18 @@ var TopComponent = React.createClass({
             let tabpanelChildren = [
                 descriptionDiv,
                 React.DOM.div({
-                        className: "wrapper",
-                        style: { flexDirection: "column" },
-                    },
-                    statusDiv,
-                    priorityDiv,
-                    showTimeAsDiv
-                ),
+                    className: "wrapper",
+                    style: { flexDirection: "column" },
+                }, statusDiv, priorityDiv, showTimeAsDiv),
                 remindersDiv,
                 attachmentsDiv,
                 attendeesDiv
             ];
             let tabpanels = this.props.tabs.map((elem, index) => {
                 return React.DOM.div({
-                        className: "box tabpanel " + (this.state.activeTab == index ? "" : "hidden"),
-                        key: "tabpanelkey " + index
-                    },
-                    tabpanelChildren[index]
-                );
+                    className: "box tabpanel " + (this.state.activeTab == index ? "" : "hidden"),
+                    key: "tabpanelkey " + index
+                }, tabpanelChildren[index]);
             });
             return React.DOM.div({ id: "topwrapper" },
                 React.DOM.div({ className: "wrapper" },

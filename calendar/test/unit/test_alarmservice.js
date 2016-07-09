@@ -197,8 +197,12 @@ function addTestItems(aCalendar) {
 
     // test multiple alarms on an item
     [item, alarm] = createEventWithAlarm(aCalendar, date, date);
-    [["-PT1H", EXPECT_FIRED], ["-PT15M", EXPECT_FIRED], ["PT1H", EXPECT_TIMER],
-     ["PT7H", EXPECT_NONE], ["P7D", EXPECT_NONE]].forEach(([offset, expected]) => {
+    const firedOffsets = [
+        ["-PT1H", EXPECT_FIRED], ["-PT15M", EXPECT_FIRED], ["PT1H", EXPECT_TIMER],
+        ["PT7H", EXPECT_NONE], ["P7D", EXPECT_NONE]
+    ];
+
+    firedOffsets.forEach(([offset, expected]) => {
         alarm = createAlarmFromDuration(offset);
         item.addAlarm(alarm);
         alarmObserver.expectResult(aCalendar, item, alarm, expected);

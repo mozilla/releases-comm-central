@@ -29,20 +29,20 @@
       <xul:label anonid="item-datetime-value"/>
     </content>
     <implementation>
-      <field name="mItem">null</field>  
+      <field name="mItem">null</field>
       <property name="mode"
                 readonly="true">
         <getter><![CDATA[
-            if (this.hasAttribute("mode")) {
-                return this.getAttribute("mode");
-            } else {
-                return "start";
-            }
+          if (this.hasAttribute("mode")) {
+              return this.getAttribute("mode");
+          } else {
+              return "start";
+          }
         ]]></getter>
       </property>
       <property name="Item">
         <getter><![CDATA[
-            return mItem;
+          return mItem;
         ]]></getter>
         <setter><![CDATA[
           this.mItem = val;
@@ -65,7 +65,7 @@
               if (date) {
                   let label;
                   if (isToDo(this.mItem)) {
-                          label = this.getAttribute("taskDueLabel");
+                      label = this.getAttribute("taskDueLabel");
                   } else {
                       label = this.getAttribute("eventEndLabel");
                   }

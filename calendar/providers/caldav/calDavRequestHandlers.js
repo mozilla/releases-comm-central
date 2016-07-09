@@ -543,11 +543,11 @@ webDavSyncHandler.prototype = {
                 if ((!resp.getcontenttype || resp.getcontenttype == "text/plain") &&
                     resp.href &&
                     resp.href.endsWith(".ics")) {
-                  // If there is no content-type (iCloud) or text/plain was passed
-                  // (iCal Server) for the resource but its name ends with ".ics"
-                  // assume the content type to be text/calendar. Apple
-                  // iCloud/iCal Server interoperability fix.
-                  resp.getcontenttype = "text/calendar";
+                    // If there is no content-type (iCloud) or text/plain was passed
+                    // (iCal Server) for the resource but its name ends with ".ics"
+                    // assume the content type to be text/calendar. Apple
+                    // iCloud/iCal Server interoperability fix.
+                    resp.getcontenttype = "text/calendar";
                 }
 
                 // Deleted item
@@ -770,7 +770,7 @@ multigetSyncHandler.prototype = {
             if (this.newSyncToken) {
                 this.calendar.mWebdavSyncToken = this.newSyncToken;
                 this.calendar.saveCalendarProperties();
-              cal.LOG("CalDAV: New webdav-sync Token: " + this.calendar.mWebdavSyncToken);
+                cal.LOG("CalDAV: New webdav-sync Token: " + this.calendar.mWebdavSyncToken);
             }
 
             if (this.additionalSyncNeeded) {

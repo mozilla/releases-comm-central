@@ -29,23 +29,19 @@
     <implementation>
       <method name="onmodified">
         <parameter name="aEvent"/>
-        <body>
-          <![CDATA[
-            if (aEvent.attrName == "checked") {
-                let event = document.createEvent("Events");
-                event.initEvent("select", true, true);
-                this.calendar.dispatchEvent(event);
-            }
-          ]]>
-        </body>
+        <body><![CDATA[
+          if (aEvent.attrName == "checked") {
+              let event = document.createEvent("Events");
+              event.initEvent("select", true, true);
+              this.calendar.dispatchEvent(event);
+          }
+        ]]></body>
       </method>
-      <constructor>
-        <![CDATA[
-          this.setAttribute("autoCheck", "true");
-          this.setAttribute("type", "checkbox");
-          this.addEventListener("DOMAttrModified", this.onmodified, false);
-        ]]>
-      </constructor>
+      <constructor><![CDATA[
+        this.setAttribute("autoCheck", "true");
+        this.setAttribute("type", "checkbox");
+        this.addEventListener("DOMAttrModified", this.onmodified, false);
+      ]]></constructor>
     </implementation>
   </binding>
 
@@ -142,7 +138,6 @@
             child.calendar = this;
         }
       ]]></constructor>
-
     </implementation>
   </binding>
 
@@ -158,51 +153,51 @@
     </resources>
 
     <content>
-          <xul:vbox anonid="mainbox" class="daypicker-monthday-mainbox" flex="1" >
-            <xul:hbox class="daypicker-row" flex="1">
-              <daypicker label="1" xbl:inherits="disabled, mode=id"/>
-              <daypicker label="2" xbl:inherits="disabled, mode=id"/>
-              <daypicker label="3" xbl:inherits="disabled, mode=id"/>
-              <daypicker label="4" xbl:inherits="disabled, mode=id"/>
-              <daypicker label="5" xbl:inherits="disabled, mode=id"/>
-              <daypicker label="6" xbl:inherits="disabled, mode=id"/>
-              <daypicker label="7" right="true" xbl:inherits="disabled, mode=id"/>
-            </xul:hbox>
-            <xul:hbox class="daypicker-row" flex="1">
-              <daypicker label="8" xbl:inherits="disabled, mode=id"/>
-              <daypicker label="9" xbl:inherits="disabled, mode=id"/>
-              <daypicker label="10" xbl:inherits="disabled, mode=id"/>
-              <daypicker label="11" xbl:inherits="disabled, mode=id"/>
-              <daypicker label="12" xbl:inherits="disabled, mode=id"/>
-              <daypicker label="13" xbl:inherits="disabled, mode=id"/>
-              <daypicker label="14" right="true" xbl:inherits="disabled, mode=id"/>
-            </xul:hbox>
-            <xul:hbox class="daypicker-row" flex="1">
-              <daypicker label="15" xbl:inherits="disabled, mode=id"/>
-              <daypicker label="16" xbl:inherits="disabled, mode=id"/>
-              <daypicker label="17" xbl:inherits="disabled, mode=id"/>
-              <daypicker label="18" xbl:inherits="disabled, mode=id"/>
-              <daypicker label="19" xbl:inherits="disabled, mode=id"/>
-              <daypicker label="20" xbl:inherits="disabled, mode=id"/>
-              <daypicker label="21" right="true" xbl:inherits="disabled, mode=id"/>
-            </xul:hbox>
-            <xul:hbox class="daypicker-row" flex="1">
-              <daypicker label="22" xbl:inherits="disabled, mode=id"/>
-              <daypicker label="23" xbl:inherits="disabled, mode=id"/>
-              <daypicker label="24" xbl:inherits="disabled, mode=id"/>
-              <daypicker label="25" xbl:inherits="disabled, mode=id"/>
-              <daypicker label="26" xbl:inherits="disabled, mode=id"/>
-              <daypicker label="27" xbl:inherits="disabled, mode=id"/>
-              <daypicker label="28" right="true" xbl:inherits="disabled, mode=id"/>
-            </xul:hbox>
-            <xul:hbox class="daypicker-row" flex="1">
-              <daypicker bottom="true" label="29" xbl:inherits="disabled, mode=id"/>
-              <daypicker bottom="true" label="30" xbl:inherits="disabled, mode=id"/>
-              <daypicker bottom="true" label="31" xbl:inherits="disabled, mode=id"/>
-              <daypicker bottom="true" right="true" label="" xbl:inherits="disabled, mode=id"/>
-            </xul:hbox>
-          </xul:vbox>
-        </content>
+      <xul:vbox anonid="mainbox" class="daypicker-monthday-mainbox" flex="1" >
+        <xul:hbox class="daypicker-row" flex="1">
+          <daypicker label="1" xbl:inherits="disabled, mode=id"/>
+          <daypicker label="2" xbl:inherits="disabled, mode=id"/>
+          <daypicker label="3" xbl:inherits="disabled, mode=id"/>
+          <daypicker label="4" xbl:inherits="disabled, mode=id"/>
+          <daypicker label="5" xbl:inherits="disabled, mode=id"/>
+          <daypicker label="6" xbl:inherits="disabled, mode=id"/>
+          <daypicker label="7" right="true" xbl:inherits="disabled, mode=id"/>
+        </xul:hbox>
+        <xul:hbox class="daypicker-row" flex="1">
+          <daypicker label="8" xbl:inherits="disabled, mode=id"/>
+          <daypicker label="9" xbl:inherits="disabled, mode=id"/>
+          <daypicker label="10" xbl:inherits="disabled, mode=id"/>
+          <daypicker label="11" xbl:inherits="disabled, mode=id"/>
+          <daypicker label="12" xbl:inherits="disabled, mode=id"/>
+          <daypicker label="13" xbl:inherits="disabled, mode=id"/>
+          <daypicker label="14" right="true" xbl:inherits="disabled, mode=id"/>
+        </xul:hbox>
+        <xul:hbox class="daypicker-row" flex="1">
+          <daypicker label="15" xbl:inherits="disabled, mode=id"/>
+          <daypicker label="16" xbl:inherits="disabled, mode=id"/>
+          <daypicker label="17" xbl:inherits="disabled, mode=id"/>
+          <daypicker label="18" xbl:inherits="disabled, mode=id"/>
+          <daypicker label="19" xbl:inherits="disabled, mode=id"/>
+          <daypicker label="20" xbl:inherits="disabled, mode=id"/>
+          <daypicker label="21" right="true" xbl:inherits="disabled, mode=id"/>
+        </xul:hbox>
+        <xul:hbox class="daypicker-row" flex="1">
+          <daypicker label="22" xbl:inherits="disabled, mode=id"/>
+          <daypicker label="23" xbl:inherits="disabled, mode=id"/>
+          <daypicker label="24" xbl:inherits="disabled, mode=id"/>
+          <daypicker label="25" xbl:inherits="disabled, mode=id"/>
+          <daypicker label="26" xbl:inherits="disabled, mode=id"/>
+          <daypicker label="27" xbl:inherits="disabled, mode=id"/>
+          <daypicker label="28" right="true" xbl:inherits="disabled, mode=id"/>
+        </xul:hbox>
+        <xul:hbox class="daypicker-row" flex="1">
+          <daypicker bottom="true" label="29" xbl:inherits="disabled, mode=id"/>
+          <daypicker bottom="true" label="30" xbl:inherits="disabled, mode=id"/>
+          <daypicker bottom="true" label="31" xbl:inherits="disabled, mode=id"/>
+          <daypicker bottom="true" right="true" label="" xbl:inherits="disabled, mode=id"/>
+        </xul:hbox>
+      </xul:vbox>
+    </content>
     <implementation>
       <property name="days">
         <setter><![CDATA[

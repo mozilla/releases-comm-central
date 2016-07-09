@@ -398,8 +398,8 @@ calOutlookCSVImporter.prototype = {
                 date.hour = 0;
             }
         } else if (date.hour < 12) {
-           // PM
-           date.hour += 12;
+            // PM
+            date.hour += 12;
         }
         return date;
     },

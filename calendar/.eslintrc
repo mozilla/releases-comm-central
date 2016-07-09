@@ -462,6 +462,9 @@
     // Disallow lexical declarations in case/default clauses
     "no-case-declarations": 2,
 
+    // Enforce consistent indentation (4-space)
+    "indent": [2, 4, { "SwitchCase": 1 }],
+
     // The following rules will not be enabled currently, but are kept here for
     // easier updates in the future.
     "no-else-return": 0,

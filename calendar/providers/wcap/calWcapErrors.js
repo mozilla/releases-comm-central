@@ -101,7 +101,7 @@ var g_nsNetErrorCodes = [
     "The specified socket type does not exist.",
     /* NS_ERROR_SOCKET_CREATE_FAILED */ generateNetFailure(52),
     "The specified socket type could not be created."
-    ];
+];
 
 function netErrorToString(rc) {
     if (!isNaN(rc) && getErrorModule(rc) == NS_ERROR_MODULE_NETWORK) {
@@ -242,7 +242,7 @@ var g_wcapErrorCodes = [
     /* 11006 */ calIWcapErrors.WCAP_CDWP_ERR_NO_DATA, "No data was received from reading the calendar properties from the DWP connection.",
     /* 11007 */ calIWcapErrors.WCAP_CDWP_ERR_AUTH_FAILED, "DWP authentication failed.",
     /* 11008 */ calIWcapErrors.WCAP_CDWP_ERR_CHECKVERSION_FAILED, "DWP version check failed."
-    ];
+];
 
 function wcapErrorToString(rc) {
     if (isNaN(rc)) {

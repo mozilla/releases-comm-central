@@ -9,9 +9,9 @@
 ]>
 
 <bindings id="calendar-task-tree-bindings"
-  xmlns="http://www.mozilla.org/xbl"
-  xmlns:xbl="http://www.mozilla.org/xbl"
-  xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+          xmlns="http://www.mozilla.org/xbl"
+          xmlns:xbl="http://www.mozilla.org/xbl"
+          xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 
   <binding id="calendar-task-tree">
     <resources>
@@ -156,10 +156,10 @@
                 treecols[i].setAttribute("hidden", "true");
             }
             if (ordinals && ordinals.length > 0) {
-               treecols[i].ordinal = Number(ordinals.shift());
+                treecols[i].ordinal = Number(ordinals.shift());
             }
             if (widths && widths.length > 0) {
-               treecols[i].width = Number(widths.shift());
+                treecols[i].width = Number(widths.shift());
             }
             if (sorted && sorted.length > 0) {
                 if (sorted == content) {
@@ -170,46 +170,46 @@
         }
       ]]></constructor>
       <destructor><![CDATA[
-          Components.utils.import("resource://gre/modules/Services.jsm");
+        Components.utils.import("resource://gre/modules/Services.jsm");
 
-          // remove composite calendar observer
-          let composite = getCompositeCalendar();
-          composite.removeObserver(this.mTaskTreeObserver);
+        // remove composite calendar observer
+        let composite = getCompositeCalendar();
+        composite.removeObserver(this.mTaskTreeObserver);
 
-          // remove the preference observer
-          let branch = Services.prefs.getBranch("");
-          branch.removeObserver("calendar.", this, false);
+        // remove the preference observer
+        let branch = Services.prefs.getBranch("");
+        branch.removeObserver("calendar.", this, false);
 
-          let widths = "";
-          let ordinals = "";
-          let visible = "";
-          let sorted = this.mTreeView.selectedColumn;
-          let tree = document.getAnonymousNodes(this)[0];
-          let treecols = tree.getElementsByTagNameNS(tree.namespaceURI, "treecol");
-          for (let i = 0; i < treecols.length; i++) {
-              if (treecols[i].getAttribute("hidden") != "true") {
+        let widths = "";
+        let ordinals = "";
+        let visible = "";
+        let sorted = this.mTreeView.selectedColumn;
+        let tree = document.getAnonymousNodes(this)[0];
+        let treecols = tree.getElementsByTagNameNS(tree.namespaceURI, "treecol");
+        for (let i = 0; i < treecols.length; i++) {
+            if (treecols[i].getAttribute("hidden") != "true") {
                 let content = treecols[i].getAttribute("itemproperty");
                 visible += visible.length > 0 ? " " + content : content;
-              }
-              if (ordinals.length > 0) {
-                  ordinals += " ";
-              }
-              ordinals += treecols[i].ordinal;
-              if (widths.length > 0) {
-                  widths += " ";
-              }
-              widths += treecols[i].width || 0;
-          }
-          this.setAttribute("visible-columns", visible);
-          this.setAttribute("ordinals", ordinals);
-          this.setAttribute("widths", widths);
-          if (sorted) {
-              this.setAttribute("sort-active", sorted.getAttribute("itemproperty"));
-              this.setAttribute("sort-direction", this.mTreeView.sortDirection);
-          } else {
-              this.removeAttribute("sort-active");
-              this.removeAttribute("sort-direction");
-          }
+            }
+            if (ordinals.length > 0) {
+                ordinals += " ";
+            }
+            ordinals += treecols[i].ordinal;
+            if (widths.length > 0) {
+                widths += " ";
+            }
+            widths += treecols[i].width || 0;
+        }
+        this.setAttribute("visible-columns", visible);
+        this.setAttribute("ordinals", ordinals);
+        this.setAttribute("widths", widths);
+        if (sorted) {
+            this.setAttribute("sort-active", sorted.getAttribute("itemproperty"));
+            this.setAttribute("sort-direction", this.mTreeView.sortDirection);
+        } else {
+            this.removeAttribute("sort-active");
+            this.removeAttribute("sort-direction");
+        }
       ]]></destructor>
 
       <field name="mTaskArray">[]</field>
@@ -635,10 +635,10 @@
           // The image path for a given cell. For defining an icon for a cell.
           // If the empty string is returned, the :moz-tree-image pseudoelement will be used.
           getImageSrc: function(aRow, aCol) {
-             // Return the empty string in order
-             // to use moz-tree-image pseudoelement :
-             // it is mandatory to return "" and not false :-(
-             return "";
+              // Return the empty string in order
+              // to use moz-tree-image pseudoelement :
+              // it is mandatory to return "" and not false :-(
+              return "";
           },
 
           // IsEditable is called to ask the view if the cell contents are editable.
@@ -650,7 +650,7 @@
 
           // Called during initialization to link the view to the front end box object.
           setTree: function(aTreeBox) {
-            this.treebox = aTreeBox;
+              this.treebox = aTreeBox;
           },
 
           // Methods that can be used to test whether or not a twisty should
@@ -790,13 +790,13 @@
            */
 
           _getItemFromEvent: function(event, aCol, aRow) {
-            aRow = aRow || {};
-            let childElt = {};
-            this.treebox.getCellAt(event.clientX, event.clientY, aRow, aCol || {}, childElt);
-            if (!childElt.value) {
-                return false;
-            }
-            return aRow && aRow.value > -1 && this.binding.mTaskArray[aRow.value];
+              aRow = aRow || {};
+              let childElt = {};
+              this.treebox.getCellAt(event.clientX, event.clientY, aRow, aCol || {}, childElt);
+              if (!childElt.value) {
+                  return false;
+              }
+              return aRow && aRow.value > -1 && this.binding.mTaskArray[aRow.value];
           },
 
           // Helper function to display datetimes
@@ -968,7 +968,7 @@
       <method name="selectAll">
         <body><![CDATA[
           if (this.mTreeView.selection) {
-            this.mTreeView.selection.selectAll();
+              this.mTreeView.selection.selectAll();
           }
         ]]></body>
       </method>
@@ -990,17 +990,17 @@
         <parameter name="aCalendar"/>
         <parameter name="aFilter"/>
         <body><![CDATA[
-            if (!aCalendar.getProperty("disabled")) {
-                this.refreshFromCalendar(aCalendar, aFilter);
-            }
+          if (!aCalendar.getProperty("disabled")) {
+              this.refreshFromCalendar(aCalendar, aFilter);
+          }
         ]]></body>
       </method>
 
       <method name="onCalendarRemoved">
         <parameter name="aCalendar"/>
         <body><![CDATA[
-            let tasks = this.mTaskArray.filter(task => task.calendar.id == aCalendar.id);
-            this.mTreeView.removeItems(tasks);
+          let tasks = this.mTaskArray.filter(task => task.calendar.id == aCalendar.id);
+          this.mTreeView.removeItems(tasks);
         ]]></body>
       </method>
 
@@ -1033,7 +1033,7 @@
               this.mHash2Index[item.hashId] = i;
           }
           if (this.mTreeView.treebox) {
-            this.mTreeView.treebox.invalidate();
+              this.mTreeView.treebox.invalidate();
           }
         ]]></body>
       </method>
@@ -1048,72 +1048,71 @@
       <method name="doUpdateFilter">
         <parameter name="aFilter"/>
         <body><![CDATA[
-            let needsRefresh = false;
-            let oldStart = this.mFilter.mStartDate;
-            let oldEnd = this.mFilter.mEndDate;
-            let filterText = this.mFilter.filterText || "";
+          let needsRefresh = false;
+          let oldStart = this.mFilter.mStartDate;
+          let oldEnd = this.mFilter.mEndDate;
+          let filterText = this.mFilter.filterText || "";
 
-            if (aFilter) {
-                let props = this.mFilter.filterProperties;
-                this.mFilter.applyFilter(aFilter);
-                needsRefresh = !props || !props.equals(this.mFilter.filterProperties);
-            } else {
-                this.mFilter.updateFilterDates();
-            }
+          if (aFilter) {
+              let props = this.mFilter.filterProperties;
+              this.mFilter.applyFilter(aFilter);
+              needsRefresh = !props || !props.equals(this.mFilter.filterProperties);
+          } else {
+              this.mFilter.updateFilterDates();
+          }
 
-            if (this.mTextFilterField) {
-                let field = document.getElementById(this.mTextFilterField);
-                if (field) {
-                    this.mFilter.filterText = field.value;
-                    needsRefresh = needsRefresh || filterText.toLowerCase() != this.mFilter.filterText.toLowerCase();
-                }
-            }
+          if (this.mTextFilterField) {
+              let field = document.getElementById(this.mTextFilterField);
+              if (field) {
+                  this.mFilter.filterText = field.value;
+                  needsRefresh = needsRefresh || filterText.toLowerCase() != this.mFilter.filterText.toLowerCase();
+              }
+          }
 
-            // we only need to refresh the tree if the filter properties or date range changed
-            if (needsRefresh ||
-                !((!oldStart && !this.mFilter.mStartDate) ||
-                  (oldStart && this.mFilter.mStartDate && oldStart.compare(this.mFilter.mStartDate) == 0)) ||
-                !((!oldEnd && !this.mFilter.mEndDate) ||
-                  (oldEnd && this.mFilter.mEndDate && oldEnd.compare(this.mFilter.mEndDate) == 0))) {
-                this.refresh();
-            }
+          // we only need to refresh the tree if the filter properties or date range changed
+          if (needsRefresh ||
+              !((!oldStart && !this.mFilter.mStartDate) ||
+                (oldStart && this.mFilter.mStartDate && oldStart.compare(this.mFilter.mStartDate) == 0)) ||
+              !((!oldEnd && !this.mFilter.mEndDate) ||
+                (oldEnd && this.mFilter.mEndDate && oldEnd.compare(this.mFilter.mEndDate) == 0))) {
+              this.refresh();
+          }
         ]]></body>
       </method>
 
       <method name="updateFilter">
         <parameter name="aFilter"/>
         <body><![CDATA[
-            this.doUpdateFilter(aFilter);
+          this.doUpdateFilter(aFilter);
         ]]></body>
       </method>
 
       <method name="updateFocus">
         <body><![CDATA[
-            let tree = document.getAnonymousElementByAttribute(this, "anonid", "calendar-task-tree");
-            let menuOpen = false;
+          let tree = document.getAnonymousElementByAttribute(this, "anonid", "calendar-task-tree");
+          let menuOpen = false;
 
-            // we need to consider the tree focused if the context menu is open.
-            if (this.hasAttribute("context")) {
-                let context = document.getElementById(this.getAttribute("context"));
-                if (context && context.state) {
-                    menuOpen = (context.state == "open") || (context.state == "showing");
-                }
-            }
+          // we need to consider the tree focused if the context menu is open.
+          if (this.hasAttribute("context")) {
+              let context = document.getElementById(this.getAttribute("context"));
+              if (context && context.state) {
+                  menuOpen = (context.state == "open") || (context.state == "showing");
+              }
+          }
 
-            let focused = (document.activeElement == tree) || menuOpen;
+          let focused = (document.activeElement == tree) || menuOpen;
 
-            calendarController.onSelectionChanged({ detail: focused ? this.selectedTasks : [] });
-            calendarController.todo_tasktree_focused = focused;
+          calendarController.onSelectionChanged({ detail: focused ? this.selectedTasks : [] });
+          calendarController.todo_tasktree_focused = focused;
         ]]></body>
       </method>
-
     </implementation>
 
     <handlers>
       <handler event="select"><![CDATA[
         this.mTreeView.onSelect(event);
         if (calendarController.todo_tasktree_focused) {
-          calendarController.onSelectionChanged({ detail: this.selectedTasks });
+            calendarController.onSelectionChanged({ detail: this.selectedTasks });
         }
       ]]></handler>
       <handler event="focus"><![CDATA[
@@ -1143,32 +1142,32 @@
         // let's build the drag region
         let region = null;
         try {
-          region = Components.classes["@mozilla.org/gfx/region;1"].createInstance(Components.interfaces.nsIScriptableRegion);
-          region.init();
-          let treeBox = tree.treeBox;
-          let bodyBox = treeBox.treeBody.boxObject;
-          let sel = tree.view.selection;
+            region = Components.classes["@mozilla.org/gfx/region;1"].createInstance(Components.interfaces.nsIScriptableRegion);
+            region.init();
+            let treeBox = tree.treeBox;
+            let bodyBox = treeBox.treeBody.boxObject;
+            let sel = tree.view.selection;
 
-          let rowX = bodyBox.x;
-          let rowY = bodyBox.y;
-          let rowHeight = treeBox.rowHeight;
-          let rowWidth = bodyBox.width;
+            let rowX = bodyBox.x;
+            let rowY = bodyBox.y;
+            let rowHeight = treeBox.rowHeight;
+            let rowWidth = bodyBox.width;
 
-          // add a rectangle for each visible selected row
-          for (let i = treeBox.getFirstVisibleRow(); i <= treeBox.getLastVisibleRow(); i++) {
-            if (sel.isSelected(i)) {
-              region.unionRect(rowX, rowY, rowWidth, rowHeight);
+            // add a rectangle for each visible selected row
+            for (let i = treeBox.getFirstVisibleRow(); i <= treeBox.getLastVisibleRow(); i++) {
+                if (sel.isSelected(i)) {
+                    region.unionRect(rowX, rowY, rowWidth, rowHeight);
+                }
+                rowY = rowY + rowHeight;
             }
-            rowY = rowY + rowHeight;
-          }
 
-          // and finally, clip the result to be sure we don't spill over...
-          if (!region.isEmpty()) {
-            region.intersectRect(bodyBox.x, bodyBox.y, bodyBox.width, bodyBox.height);
-          }
+            // and finally, clip the result to be sure we don't spill over...
+            if (!region.isEmpty()) {
+                region.intersectRect(bodyBox.x, bodyBox.y, bodyBox.width, bodyBox.height);
+            }
         } catch (ex) {
-          ASSERT(false, "Error while building selection region: " + ex + "\n");
-          region = null;
+            ASSERT(false, "Error while building selection region: " + ex + "\n");
+            region = null;
         }
         invokeEventDragSession(item, event.target);
       ]]></handler>
@@ -1179,18 +1178,17 @@
   <binding id="calendar-task-tree-todaypane" extends="chrome://calendar/content/calendar-task-tree.xml#calendar-task-tree">
     <implementation>
       <method name="getInitialDate">
-            <body><![CDATA[
-              let initialDate = agendaListbox.today ? agendaListbox.today.start : now();
-              return initialDate ? initialDate : now();
-            ]]></body>
+        <body><![CDATA[
+          let initialDate = agendaListbox.today ? agendaListbox.today.start : now();
+          return initialDate ? initialDate : now();
+        ]]></body>
       </method>
       <method name="updateFilter">
         <parameter name="aFilter"/>
         <body><![CDATA[
-            this.mFilter.selectedDate = agendaListbox.today && agendaListbox.today.start ?
-                                        agendaListbox.today.start : now();
-
-            this.doUpdateFilter(aFilter);
+          this.mFilter.selectedDate = agendaListbox.today && agendaListbox.today.start ?
+                                      agendaListbox.today.start : now();
+          this.doUpdateFilter(aFilter);
         ]]></body>
       </method>
     </implementation>

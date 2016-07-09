@@ -104,7 +104,7 @@ function clickColor() {
  */
 function delay(timeout, func) {
     if (func.timer) {
-      clearTimeout(func.timer);
+        clearTimeout(func.timer);
     }
     func.timer = setTimeout(func, timeout);
 }

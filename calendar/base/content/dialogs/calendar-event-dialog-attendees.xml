@@ -248,8 +248,8 @@
           // don't set value with null, otherwise autocomplete stops working,
           // but make sure attendee and dirty are set
           if (inputValue.length) {
-	          input.setAttribute("value", inputValue);
-	          input.value = inputValue;
+              input.setAttribute("value", inputValue);
+              input.value = inputValue;
           }
           input.attendee = aAttendee;
           input.setAttribute("dirty", "true");
@@ -460,29 +460,29 @@
             let allAddressBooks = MailServices.ab.directories;
 
             while (allAddressBooks.hasMoreElements()) {
-              let abDir = null;
-              try {
-                abDir = allAddressBooks.getNext()
-                                  .QueryInterface(Components.interfaces.nsIAbDirectory);
-              } catch (ex) {
-                cal.WARN("[eventDialog] Error Encountered" + ex);
-              }
-
-              if (abDir != null && abDir.supportsMailingLists) {
-                let childNodes = abDir.childNodes;
-                while (childNodes.hasMoreElements()) {
-                  let dir = null;
-                  try {
-                    dir = childNodes.getNext().QueryInterface(Components.interfaces.nsIAbDirectory);
-                  } catch (ex) {
+                let abDir = null;
+                try {
+                    abDir = allAddressBooks.getNext()
+                                           .QueryInterface(Components.interfaces.nsIAbDirectory);
+                } catch (ex) {
                     cal.WARN("[eventDialog] Error Encountered" + ex);
-                  }
-
-                  if (dir && dir.isMailList && (dir.dirName == entryname)) {
-                    return dir;
-                  }
                 }
-              }
+
+                if (abDir != null && abDir.supportsMailingLists) {
+                    let childNodes = abDir.childNodes;
+                    while (childNodes.hasMoreElements()) {
+                        let dir = null;
+                        try {
+                            dir = childNodes.getNext().QueryInterface(Components.interfaces.nsIAbDirectory);
+                        } catch (ex) {
+                            cal.WARN("[eventDialog] Error Encountered" + ex);
+                        }
+
+                        if (dir && dir.isMailList && (dir.dirName == entryname)) {
+                            return dir;
+                        }
+                    }
+                }
             }
             return null;
         ]]></body>
@@ -495,34 +495,34 @@
         <body><![CDATA[
             let addressLists = mailingList.addressLists;
             for (let i = 0; i < addressLists.length; i++) {
-              let abCard = addressLists.queryElementAt(i, Components.interfaces.nsIAbCard);
-              let thisId = abCard.primaryEmail;
-              if (abCard.displayName.length > 0) {
-                  let rCn = abCard.displayName;
-                  if (rCn.includes(",")) {
-                      rCn = '"' + rCn + '"';
-                  }
-                  thisId = rCn + " <" + thisId + ">";
-              }
-              if (attendees.some(att => att == thisId)) {
-                continue;
-              }
-
-              if (abCard.displayName.length > 0) {
-                let list = this._findListInAddrBooks(abCard.displayName);
-                if (list) {
-                  if (allListsUri.some(uri => uri == list.URI)) {
-                    continue;
-                  }
-                  allListsUri.push(list.URI);
-
-                  this._getListEntriesInt(list, attendees, allListsUri);
-
-                  continue;
+                let abCard = addressLists.queryElementAt(i, Components.interfaces.nsIAbCard);
+                let thisId = abCard.primaryEmail;
+                if (abCard.displayName.length > 0) {
+                    let rCn = abCard.displayName;
+                    if (rCn.includes(",")) {
+                        rCn = '"' + rCn + '"';
+                    }
+                    thisId = rCn + " <" + thisId + ">";
                 }
-              }
+                if (attendees.some(att => att == thisId)) {
+                    continue;
+                }
 
-              attendees.push(thisId);
+                if (abCard.displayName.length > 0) {
+                    let list = this._findListInAddrBooks(abCard.displayName);
+                    if (list) {
+                        if (allListsUri.some(uri => uri == list.URI)) {
+                            continue;
+                        }
+                        allListsUri.push(list.URI);
+
+                        this._getListEntriesInt(list, attendees, allListsUri);
+
+                        continue;
+                    }
+                }
+
+                attendees.push(thisId);
             }
 
             return attendees;
@@ -577,44 +577,44 @@
     </method>
 
     <method name="resolvePotentialList">
-        <parameter name="aInput"/>
-        <body><![CDATA[
-            let fieldValue = aInput.value;
-            if (aInput.id.length > 0 && fieldValue.length > 0) {
-                let mailingList = this._resolveListByName(fieldValue);
-                if (mailingList) {
-                    let entries = this._getListEntries(mailingList);
-                      if (entries.length > 0) {
-                          let currentIndex = parseInt(aInput.id.substr(13), 10);
-                          let template = document.getAnonymousElementByAttribute(this, "anonid", "item");
-                          let currentNode = template.parentNode.childNodes[currentIndex];
-                          this._fillListItemWithEntry(currentNode, entries[0], currentIndex);
-                          entries.shift();
-                          let nextNode = template.parentNode.childNodes[currentIndex + 1];
+      <parameter name="aInput"/>
+      <body><![CDATA[
+          let fieldValue = aInput.value;
+          if (aInput.id.length > 0 && fieldValue.length > 0) {
+              let mailingList = this._resolveListByName(fieldValue);
+              if (mailingList) {
+                  let entries = this._getListEntries(mailingList);
+                  if (entries.length > 0) {
+                      let currentIndex = parseInt(aInput.id.substr(13), 10);
+                      let template = document.getAnonymousElementByAttribute(this, "anonid", "item");
+                      let currentNode = template.parentNode.childNodes[currentIndex];
+                      this._fillListItemWithEntry(currentNode, entries[0], currentIndex);
+                      entries.shift();
+                      let nextNode = template.parentNode.childNodes[currentIndex + 1];
+                      currentIndex++;
+                      for (let entry of entries) {
+                          currentNode = template.cloneNode(true);
+                          template.parentNode.insertBefore(currentNode, nextNode);
+                          this._fillListItemWithEntry(currentNode, entry, currentIndex);
                           currentIndex++;
-                          for (let entry of entries) {
-                              currentNode = template.cloneNode(true);
-                              template.parentNode.insertBefore(currentNode, nextNode);
-                              this._fillListItemWithEntry(currentNode, entry, currentIndex);
-                              currentIndex++;
-                          }
-                          this.mMaxAttendees += entries.length;
-                          for (let i = currentIndex; i <= this.mMaxAttendees; i++) {
-                              let row = template.parentNode.childNodes[i];
-                              let roleStatusIcon = document.getAnonymousElementByAttribute(row, "anonid", "rolestatus-icon");
-                              roleStatusIcon.setAttribute("id", "attendeeCol1#" + i);
+                      }
+                      this.mMaxAttendees += entries.length;
+                      for (let i = currentIndex; i <= this.mMaxAttendees; i++) {
+                          let row = template.parentNode.childNodes[i];
+                          let roleStatusIcon = document.getAnonymousElementByAttribute(row, "anonid", "rolestatus-icon");
+                          roleStatusIcon.setAttribute("id", "attendeeCol1#" + i);
 
-                              let userTypeIcon = document.getAnonymousElementByAttribute(row, "anonid", "usertype-icon");
-                              userTypeIcon.setAttribute("id", "attendeeCol2#" + i);
+                          let userTypeIcon = document.getAnonymousElementByAttribute(row, "anonid", "usertype-icon");
+                          userTypeIcon.setAttribute("id", "attendeeCol2#" + i);
 
-                              let input = document.getAnonymousElementByAttribute(row, "anonid", "input");
-                              input.setAttribute("id", "attendeeCol3#" + i);
-                              input.setAttribute("dirty", "true");
-                          }
+                          let input = document.getAnonymousElementByAttribute(row, "anonid", "input");
+                          input.setAttribute("id", "attendeeCol3#" + i);
+                          input.setAttribute("dirty", "true");
                       }
                   }
               }
-            ]]></body>
+          }
+        ]]></body>
       </method>
 
       <method name="onModify">
@@ -657,10 +657,10 @@
             // Set tooltip for rolenames
 
             const roleMap = {
-              "REQ-PARTICIPANT": "required",
-              "OPT-PARTICIPANT": "optional",
-              "NON-PARTICIPANT": "nonparticipant",
-              "CHAIR": "chair"
+                "REQ-PARTICIPANT": "required",
+                "OPT-PARTICIPANT": "optional",
+                "NON-PARTICIPANT": "nonparticipant",
+                "CHAIR": "chair"
             };
 
             let roleNameString = "event.attendee.role." + (role in roleMap ? roleMap[role] : "unknown");
@@ -870,9 +870,9 @@
           let set_focus = function() {
               let node;
               if (typeof aRow == "number") {
-                node = self.getListItem(aRow);
+                  node = self.getListItem(aRow);
               } else {
-                node = aRow;
+                  node = aRow;
               }
 
               // do we need to scroll in order to see the selected row?
@@ -1326,9 +1326,9 @@
       <property name="leftdragWidth">
         <getter><![CDATA[
           if (!this.mLeftBox) {
-            this.mLeftBox =
-                document.getAnonymousElementByAttribute(
-                    this, "anonid", "leftbox");
+              this.mLeftBox =
+                  document.getAnonymousElementByAttribute(
+                      this, "anonid", "leftbox");
           }
           return this.mLeftBox.boxObject.width;
         ]]></getter>
@@ -1600,5 +1600,4 @@
       ]]></handler>
     </handlers>
   </binding>
-
 </bindings>

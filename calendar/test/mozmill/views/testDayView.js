@@ -11,135 +11,135 @@ var title2 = "Day View Event Changed";
 var desc = "Day View Event Description";
 
 var setupModule = function(module) {
-  controller = mozmill.getMail3PaneController();
-  calUtils.createCalendar(controller, calendar);
+    controller = mozmill.getMail3PaneController();
+    calUtils.createCalendar(controller, calendar);
 };
 
 var testDayView = function() {
-  let dateService = Components.classes["@mozilla.org/intl/scriptabledateformat;1"]
-                              .getService(Components.interfaces.nsIScriptableDateFormat);
-  // paths
-  let miniMonth = '/id("messengerWindow")/id("tabmail-container")/id("tabmail")/' +
-    'id("tabpanelcontainer")/id("calendarTabPanel")/id("calendarContent")/id("ltnSidebar")/' +
-    'id("minimonth-pane")/{"align":"center"}/id("calMinimonthBox")/id("calMinimonth")/';
-  let dayView = '/id("messengerWindow")/id("tabmail-container")/id("tabmail")/' +
-    'id("tabpanelcontainer")/id("calendarTabPanel")/id("calendarContent")/' +
-    'id("calendarDisplayDeck")/id("calendar-view-box")/id("view-deck")/id("day-view")/';
-  let day = new elementslib.Lookup(controller.window.document, dayView +
-    'anon({"anonid":"mainbox"})/anon({"anonid":"labelbox"})/anon({"anonid":"labeldaybox"})/' +
-    '{"flex":"1"}');
-  let eventDialog = '/id("calendar-event-dialog")/id("event-grid")/id("event-grid-rows")/';
+    let dateService = Components.classes["@mozilla.org/intl/scriptabledateformat;1"]
+                                .getService(Components.interfaces.nsIScriptableDateFormat);
+    // paths
+    let miniMonth = '/id("messengerWindow")/id("tabmail-container")/id("tabmail")/' +
+      'id("tabpanelcontainer")/id("calendarTabPanel")/id("calendarContent")/id("ltnSidebar")/' +
+      'id("minimonth-pane")/{"align":"center"}/id("calMinimonthBox")/id("calMinimonth")/';
+    let dayView = '/id("messengerWindow")/id("tabmail-container")/id("tabmail")/' +
+      'id("tabpanelcontainer")/id("calendarTabPanel")/id("calendarContent")/' +
+      'id("calendarDisplayDeck")/id("calendar-view-box")/id("view-deck")/id("day-view")/';
+    let day = new elementslib.Lookup(controller.window.document, dayView +
+      'anon({"anonid":"mainbox"})/anon({"anonid":"labelbox"})/anon({"anonid":"labeldaybox"})/' +
+      '{"flex":"1"}');
+    let eventDialog = '/id("calendar-event-dialog")/id("event-grid")/id("event-grid-rows")/';
 
-  // open day view
-  controller.click(new elementslib.ID(controller.window.document, "calendar-tab-button"));
-  controller.waitThenClick(new elementslib.ID(controller.window.document, "calendar-day-view-button"));
+    // open day view
+    controller.click(new elementslib.ID(controller.window.document, "calendar-tab-button"));
+    controller.waitThenClick(new elementslib.ID(controller.window.document, "calendar-day-view-button"));
 
-  // pick year
-  controller.click(new elementslib.Lookup(controller.window.document, miniMonth +
-    'anon({"anonid":"minimonth-header"})/anon({"anonid":"yearcell"})'));
-  controller.click(new elementslib.Lookup(controller.window.document, miniMonth +
-    'anon({"anonid":"minimonth-header"})/anon({"anonid":"minmonth-popupset"})/' +
-    'anon({"anonid":"years-popup"})/[0]/{"value":"2009"}'));
+    // pick year
+    controller.click(new elementslib.Lookup(controller.window.document, miniMonth +
+      'anon({"anonid":"minimonth-header"})/anon({"anonid":"yearcell"})'));
+    controller.click(new elementslib.Lookup(controller.window.document, miniMonth +
+      'anon({"anonid":"minimonth-header"})/anon({"anonid":"minmonth-popupset"})/' +
+      'anon({"anonid":"years-popup"})/[0]/{"value":"2009"}'));
 
-  // pick month
-  controller.waitThenClick(new elementslib.Lookup(controller.window.document, miniMonth +
-    'anon({"anonid":"minimonth-header"})/anon({"anonid":"monthheader"})'));
-  controller.click(new elementslib.Lookup(controller.window.document, miniMonth +
-    'anon({"anonid":"minimonth-header"})/anon({"anonid":"minmonth-popupset"})/' +
-    'anon({"anonid":"months-popup"})/[0]/{"index":"0"}'));
+    // pick month
+    controller.waitThenClick(new elementslib.Lookup(controller.window.document, miniMonth +
+      'anon({"anonid":"minimonth-header"})/anon({"anonid":"monthheader"})'));
+    controller.click(new elementslib.Lookup(controller.window.document, miniMonth +
+      'anon({"anonid":"minimonth-header"})/anon({"anonid":"minmonth-popupset"})/' +
+      'anon({"anonid":"months-popup"})/[0]/{"index":"0"}'));
 
-  // pick day
-  controller.waitThenClick(new elementslib.Lookup(controller.window.document, miniMonth +
-    'anon({"anonid":"minimonth-calendar"})/[1]/{"value":"1"}'));
+    // pick day
+    controller.waitThenClick(new elementslib.Lookup(controller.window.document, miniMonth +
+      'anon({"anonid":"minimonth-calendar"})/[1]/{"value":"1"}'));
 
-  // verify date in view
-  controller.waitFor(() => day.getNode().mDate.icalString == "20090101");
+    // verify date in view
+    controller.waitFor(() => day.getNode().mDate.icalString == "20090101");
 
-  // create event at 8 AM
-  controller.doubleClick(new elementslib.Lookup(controller.window.document, dayView +
-    'anon({"anonid":"mainbox"})/anon({"anonid":"scrollbox"})/anon({"anonid":"daybox"})/' +
-    '{"class":"calendar-event-column-even"}/anon({"anonid":"boxstack"})/' +
-    'anon({"anonid":"bgbox"})/[8]'), 1, 1);
-  controller.waitFor(() => mozmill.utils.getWindows("Calendar:EventDialog").length > 0, sleep);
-  let event = new mozmill.controller.MozMillController(mozmill.utils.getWindows("Calendar:EventDialog")[0]);
+    // create event at 8 AM
+    controller.doubleClick(new elementslib.Lookup(controller.window.document, dayView +
+      'anon({"anonid":"mainbox"})/anon({"anonid":"scrollbox"})/anon({"anonid":"daybox"})/' +
+      '{"class":"calendar-event-column-even"}/anon({"anonid":"boxstack"})/' +
+      'anon({"anonid":"bgbox"})/[8]'), 1, 1);
+    controller.waitFor(() => mozmill.utils.getWindows("Calendar:EventDialog").length > 0, sleep);
+    let event = new mozmill.controller.MozMillController(mozmill.utils.getWindows("Calendar:EventDialog")[0]);
 
-  // check that the start time is correct
-  let startTimeInput = new elementslib.Lookup(event.window.document, eventDialog +
-    'id("event-grid-startdate-row")/id("event-grid-startdate-picker-box")/' +
-    'id("event-starttime")/anon({"anonid":"hbox"})/anon({"anonid":"time-picker"})/' +
-    'anon({"class":"timepicker-box-class"})/anon({"class":"timepicker-text-class"})/' +
-    'anon({"flex":"1"})/anon({"anonid":"input"})');
-  event.waitForElement(startTimeInput);
-  event.assertValue(startTimeInput, "8:00");
-  let date = startdate = dateService.FormatDate("", dateService.dateFormatShort,
-    2009, 1, 1);
-  event.assertValue(new elementslib.Lookup(event.window.document, eventDialog +
-    'id("event-grid-startdate-row")/id("event-grid-startdate-picker-box")/' +
-    'id("event-starttime")/anon({"anonid":"hbox"})/anon({"anonid":"date-picker"})/' +
-    'anon({"flex":"1","id":"hbox","class":"datepicker-box-class"})/' +
-    '{"class":"datepicker-text-class"}/anon({"class":"menulist-editable-box textbox-input-box"})/' +
-    'anon({"anonid":"input"})'),
-    date);
+    // check that the start time is correct
+    let startTimeInput = new elementslib.Lookup(event.window.document, eventDialog +
+      'id("event-grid-startdate-row")/id("event-grid-startdate-picker-box")/' +
+      'id("event-starttime")/anon({"anonid":"hbox"})/anon({"anonid":"time-picker"})/' +
+      'anon({"class":"timepicker-box-class"})/anon({"class":"timepicker-text-class"})/' +
+      'anon({"flex":"1"})/anon({"anonid":"input"})');
+    event.waitForElement(startTimeInput);
+    event.assertValue(startTimeInput, "8:00");
+    let date = startdate = dateService.FormatDate("", dateService.dateFormatShort,
+      2009, 1, 1);
+    event.assertValue(new elementslib.Lookup(event.window.document, eventDialog +
+      'id("event-grid-startdate-row")/id("event-grid-startdate-picker-box")/' +
+      'id("event-starttime")/anon({"anonid":"hbox"})/anon({"anonid":"date-picker"})/' +
+      'anon({"flex":"1","id":"hbox","class":"datepicker-box-class"})/' +
+      '{"class":"datepicker-text-class"}/anon({"class":"menulist-editable-box textbox-input-box"})/' +
+      'anon({"anonid":"input"})'),
+      date);
 
-  // fill in title, description and calendar
-  event.type(new elementslib.Lookup(event.window.document, eventDialog +
-    'id("event-grid-title-row")/id("item-title")/anon({"class":"textbox-input-box"})/' +
-    'anon({"anonid":"input"})'),
-    title1);
-  event.type(new elementslib.Lookup(event.window.document, eventDialog +
-    'id("event-grid-description-row")/id("item-description")/' +
-    'anon({"class":"textbox-input-box"})/anon({"anonid":"input"})'),
-    desc);
-  event.select(new elementslib.ID(event.window.document, "item-calendar"), null, calendar);
+    // fill in title, description and calendar
+    event.type(new elementslib.Lookup(event.window.document, eventDialog +
+      'id("event-grid-title-row")/id("item-title")/anon({"class":"textbox-input-box"})/' +
+      'anon({"anonid":"input"})'),
+      title1);
+    event.type(new elementslib.Lookup(event.window.document, eventDialog +
+      'id("event-grid-description-row")/id("item-description")/' +
+      'anon({"class":"textbox-input-box"})/anon({"anonid":"input"})'),
+      desc);
+    event.select(new elementslib.ID(event.window.document, "item-calendar"), null, calendar);
 
-  // save
-  event.click(new elementslib.ID(event.window.document, "button-save"));
+    // save
+    event.click(new elementslib.ID(event.window.document, "button-save"));
 
-  // if it was created successfully, it can be opened
-  let eventBox = new elementslib.Lookup(controller.window.document, dayView +
-    'anon({"anonid":"mainbox"})/anon({"anonid":"scrollbox"})/anon({"anonid":"daybox"})/' +
-    '{"class":"calendar-event-column-even"}/anon({"anonid":"boxstack"})/' +
-    'anon({"anonid":"topbox"})/{"flex":"1"}/{"flex":"1"}/[0]/' +
-    '{"tooltip":"itemTooltip","calendar":"' + calendar.toLowerCase() + '"}');
-  controller.waitForElement(eventBox);
-  controller.doubleClick(eventBox);
-  controller.waitFor(() => mozmill.utils.getWindows("Calendar:EventDialog").length > 0, sleep);
-  event = new mozmill.controller.MozMillController(mozmill.utils.getWindows("Calendar:EventDialog")[0]);
+    // if it was created successfully, it can be opened
+    let eventBox = new elementslib.Lookup(controller.window.document, dayView +
+      'anon({"anonid":"mainbox"})/anon({"anonid":"scrollbox"})/anon({"anonid":"daybox"})/' +
+      '{"class":"calendar-event-column-even"}/anon({"anonid":"boxstack"})/' +
+      'anon({"anonid":"topbox"})/{"flex":"1"}/{"flex":"1"}/[0]/' +
+      '{"tooltip":"itemTooltip","calendar":"' + calendar.toLowerCase() + '"}');
+    controller.waitForElement(eventBox);
+    controller.doubleClick(eventBox);
+    controller.waitFor(() => mozmill.utils.getWindows("Calendar:EventDialog").length > 0, sleep);
+    event = new mozmill.controller.MozMillController(mozmill.utils.getWindows("Calendar:EventDialog")[0]);
 
-  // change title and save changes
-  let titleTextBox = new elementslib.Lookup(event.window.document, eventDialog +
-    'id("event-grid-title-row")/id("item-title")/anon({"class":"textbox-input-box"})/' +
-    'anon({"anonid":"input"})');
-  event.waitForElement(titleTextBox);
-  event.type(titleTextBox, title2);
-  event.click(new elementslib.ID(event.window.document, "button-save"));
+    // change title and save changes
+    let titleTextBox = new elementslib.Lookup(event.window.document, eventDialog +
+      'id("event-grid-title-row")/id("item-title")/anon({"class":"textbox-input-box"})/' +
+      'anon({"anonid":"input"})');
+    event.waitForElement(titleTextBox);
+    event.type(titleTextBox, title2);
+    event.click(new elementslib.ID(event.window.document, "button-save"));
 
-  // check if name was saved
-  let eventName = new elementslib.Lookup(controller.window.document, dayView +
-    'anon({"anonid":"mainbox"})/anon({"anonid":"scrollbox"})/anon({"anonid":"daybox"})/' +
-    '{"class":"calendar-event-column-even"}/anon({"anonid":"boxstack"})/' +
-    'anon({"anonid":"topbox"})/{"flex":"1"}/{"flex":"1"}/{"flex":"1"}/' +
-    '{"tooltip":"itemTooltip","calendar":"' + calendar.toLowerCase() + '"}/anon({"flex":"1"})/' +
-    'anon({"anonid":"event-container"})/{"class":"calendar-event-selection"}/' +
-    'anon({"anonid":"eventbox"})/{"class":"calendar-event-details"}/anon({"anonid":"event-name"})');
-  controller.waitForElement(eventName);
-  controller.assertJSProperty(eventName, "textContent", title2);
+    // check if name was saved
+    let eventName = new elementslib.Lookup(controller.window.document, dayView +
+      'anon({"anonid":"mainbox"})/anon({"anonid":"scrollbox"})/anon({"anonid":"daybox"})/' +
+      '{"class":"calendar-event-column-even"}/anon({"anonid":"boxstack"})/' +
+      'anon({"anonid":"topbox"})/{"flex":"1"}/{"flex":"1"}/{"flex":"1"}/' +
+      '{"tooltip":"itemTooltip","calendar":"' + calendar.toLowerCase() + '"}/anon({"flex":"1"})/' +
+      'anon({"anonid":"event-container"})/{"class":"calendar-event-selection"}/' +
+      'anon({"anonid":"eventbox"})/{"class":"calendar-event-details"}/anon({"anonid":"event-name"})');
+    controller.waitForElement(eventName);
+    controller.assertJSProperty(eventName, "textContent", title2);
 
-  // delete event
-  controller.click(new elementslib.Lookup(controller.window.document, dayView +
-    'anon({"anonid":"mainbox"})/anon({"anonid":"scrollbox"})/anon({"anonid":"daybox"})/' +
-    '{"class":"calendar-event-column-even"}/anon({"anonid":"boxstack"})/' +
-    'anon({"anonid":"topbox"})/{"flex":"1"}/{"flex":"1"}/{"flex":"1"}/' +
-    '{"tooltip":"itemTooltip","calendar":"' + calendar.toLowerCase() + '"}'));
-  controller.keypress(new elementslib.ID(controller.window.document, "day-view"),
-    "VK_DELETE", {});
-  controller.waitForElementNotPresent(new elementslib.Lookup(controller.window.document, dayView +
-    'anon({"anonid":"mainbox"})/anon({"anonid":"scrollbox"})/anon({"anonid":"daybox"})/' +
-    '{"class":"calendar-event-column-even"}/anon({"anonid":"boxstack"})/' +
-    'anon({"anonid":"topbox"})/{"flex":"1"}/{"flex":"1"}/{"flex":"1"}/' +
-    '{"tooltip":"itemTooltip","calendar":"' + calendar.toLowerCase() + '"}'));
+    // delete event
+    controller.click(new elementslib.Lookup(controller.window.document, dayView +
+      'anon({"anonid":"mainbox"})/anon({"anonid":"scrollbox"})/anon({"anonid":"daybox"})/' +
+      '{"class":"calendar-event-column-even"}/anon({"anonid":"boxstack"})/' +
+      'anon({"anonid":"topbox"})/{"flex":"1"}/{"flex":"1"}/{"flex":"1"}/' +
+      '{"tooltip":"itemTooltip","calendar":"' + calendar.toLowerCase() + '"}'));
+    controller.keypress(new elementslib.ID(controller.window.document, "day-view"),
+      "VK_DELETE", {});
+    controller.waitForElementNotPresent(new elementslib.Lookup(controller.window.document, dayView +
+      'anon({"anonid":"mainbox"})/anon({"anonid":"scrollbox"})/anon({"anonid":"daybox"})/' +
+      '{"class":"calendar-event-column-even"}/anon({"anonid":"boxstack"})/' +
+      'anon({"anonid":"topbox"})/{"flex":"1"}/{"flex":"1"}/{"flex":"1"}/' +
+      '{"tooltip":"itemTooltip","calendar":"' + calendar.toLowerCase() + '"}'));
 };
 
 var teardownTest = function(module) {
-  calUtils.deleteCalendars(controller, calendar);
+    calUtils.deleteCalendars(controller, calendar);
 };

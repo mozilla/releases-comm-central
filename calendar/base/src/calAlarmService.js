@@ -438,7 +438,7 @@ calAlarmService.prototype = {
     },
 
     removeTimer: function(aItem, aAlarm) {
-            /* Is the calendar in the timer map */
+        /* Is the calendar in the timer map */
         if (aItem.calendar.id in this.mTimerMap &&
             /* ...and is the item in the calendar map */
             aItem.hashId in this.mTimerMap[aItem.calendar.id] &&

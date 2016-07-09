@@ -55,8 +55,8 @@ function setElementValue(aElement, aNewValue, aPropertyName) {
         } else {
             aElement.value = aNewValue;
         }
-     }
- }
+    }
+}
 
 /**
  * Helper function for getting data from the form,
@@ -591,7 +591,7 @@ function getOptimalMinimumHeight(aXULElement) {
  * @return                The opposite orientation value.
  */
 function getOtherOrientation(aOrientation) {
-     return (aOrientation == "horizontal" ? "vertical" : "horizontal");
+    return (aOrientation == "horizontal" ? "vertical" : "horizontal");
 }
 
 /**

@@ -219,8 +219,8 @@ function switchToView(aViewType) {
      "calendar-go-menu-previous",
      "appmenu_calendar-go-menu-next",
      "appmenu_calendar-go-menu-previous"].forEach((x) => {
-            setupViewNode(x, "label");
-            setupViewNode(x, "accesskey");
+         setupViewNode(x, "label");
+         setupViewNode(x, "accesskey");
      });
 
     // Set up the labels for the view navigation
@@ -319,19 +319,19 @@ function scheduleMidnightUpdate(aRefreshCallback) {
     } else {
         // Observer for wake after sleep/hibernate/standby to create new timers and refresh UI
         let wakeObserver = {
-           observe: function(aSubject, aTopic, aData) {
-               if (aTopic == "wake_notification") {
-                   // postpone refresh for another couple of seconds to get netwerk ready:
-                   if (this.mTimer) {
-                       this.mTimer.cancel();
-                   } else {
-                       this.mTimer = Components.classes["@mozilla.org/timer;1"]
-                                               .createInstance(Components.interfaces.nsITimer);
-                   }
-                   this.mTimer.initWithCallback(udCallback, 10 * 1000,
-                                                Components.interfaces.nsITimer.TYPE_ONE_SHOT);
-               }
-           }
+            observe: function(aSubject, aTopic, aData) {
+                if (aTopic == "wake_notification") {
+                    // postpone refresh for another couple of seconds to get netwerk ready:
+                    if (this.mTimer) {
+                        this.mTimer.cancel();
+                    } else {
+                        this.mTimer = Components.classes["@mozilla.org/timer;1"]
+                                                .createInstance(Components.interfaces.nsITimer);
+                    }
+                    this.mTimer.initWithCallback(udCallback, 10 * 1000,
+                                                 Components.interfaces.nsITimer.TYPE_ONE_SHOT);
+                }
+            }
         };
 
         // Add observer
@@ -353,16 +353,16 @@ function scheduleMidnightUpdate(aRefreshCallback) {
  * @return      The view stylesheet object.
  */
 function getViewStyleSheet() {
-  if (!getViewStyleSheet.sheet) {
-      const cssUri = "chrome://calendar/content/calendar-view-bindings.css";
-      for (let sheet of document.styleSheets) {
-          if (sheet.href == cssUri) {
-              getViewStyleSheet.sheet = sheet;
-              break;
-          }
-      }
-  }
-  return getViewStyleSheet.sheet;
+    if (!getViewStyleSheet.sheet) {
+        const cssUri = "chrome://calendar/content/calendar-view-bindings.css";
+        for (let sheet of document.styleSheets) {
+            if (sheet.href == cssUri) {
+                getViewStyleSheet.sheet = sheet;
+                break;
+            }
+        }
+    }
+    return getViewStyleSheet.sheet;
 }
 
 /**
@@ -405,34 +405,34 @@ var categoryManagement = {
     QueryInterface: XPCOMUtils.generateQI([Components.interfaces.nsIObserver]),
 
     initCategories: function() {
-      categoryPrefBranch = Services.prefs.getBranch("calendar.category.color.");
-      let categories = categoryPrefBranch.getChildList("");
+        categoryPrefBranch = Services.prefs.getBranch("calendar.category.color.");
+        let categories = categoryPrefBranch.getChildList("");
 
-      // Fix illegally formatted category prefs.
-      for (let i in categories) {
-          let category = categories[i];
-          if (category.search(/[^_0-9a-z-]/) != -1) {
-              let categoryFix = formatStringForCSSRule(category);
-              if (categoryPrefBranch.prefHasUserValue(categoryFix)) {
-                  categories.splice(i, 1); // remove illegal name
-              } else {
-                  let color = categoryPrefBranch.getCharPref(category);
-                  categoryPrefBranch.setCharPref(categoryFix, color);
-                  categoryPrefBranch.clearUserPref(category); // not usable
-                  categories[i] = categoryFix;  // replace illegal name
-              }
-          }
-      }
+        // Fix illegally formatted category prefs.
+        for (let i in categories) {
+            let category = categories[i];
+            if (category.search(/[^_0-9a-z-]/) != -1) {
+                let categoryFix = formatStringForCSSRule(category);
+                if (categoryPrefBranch.prefHasUserValue(categoryFix)) {
+                    categories.splice(i, 1); // remove illegal name
+                } else {
+                    let color = categoryPrefBranch.getCharPref(category);
+                    categoryPrefBranch.setCharPref(categoryFix, color);
+                    categoryPrefBranch.clearUserPref(category); // not usable
+                    categories[i] = categoryFix;  // replace illegal name
+                }
+            }
+        }
 
-      // Add color information to the stylesheets.
-      categories.forEach(categoryManagement.updateStyleSheetForCategory,
-                         categoryManagement);
-      categoryPrefBranch.addObserver("", categoryManagement, false);
+        // Add color information to the stylesheets.
+        categories.forEach(categoryManagement.updateStyleSheetForCategory,
+                           categoryManagement);
+        categoryPrefBranch.addObserver("", categoryManagement, false);
     },
 
     cleanupCategories: function() {
-      categoryPrefBranch = Services.prefs.getBranch("calendar.category.color.");
-      categoryPrefBranch.removeObserver("", categoryManagement);
+        categoryPrefBranch = Services.prefs.getBranch("calendar.category.color.");
+        categoryPrefBranch.removeObserver("", categoryManagement);
     },
 
     observe: function(aSubject, aTopic, aPrefName) {

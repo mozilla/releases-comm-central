@@ -37,14 +37,14 @@ var taskDetailsView = {
             if (displayElement("calendar-task-details-organizer-row", organizer != null)) {
                 let name = organizer.commonName;
                 if (!name || name.length <= 0) {
-                  if (organizer.id && organizer.id.length) {
-                      name = organizer.id;
-                      let re = new RegExp("^mailto:(.*)", "i");
-                      let matches = re.exec(name);
-                      if (matches) {
-                          name = matches[1];
-                      }
-                  }
+                    if (organizer.id && organizer.id.length) {
+                        name = organizer.id;
+                        let re = new RegExp("^mailto:(.*)", "i");
+                        let matches = re.exec(name);
+                        if (matches) {
+                            name = matches[1];
+                        }
+                    }
                 }
                 if (displayElement("calendar-task-details-organizer-row", name && name.length)) {
                     document.getElementById("calendar-task-details-organizer").value = name;

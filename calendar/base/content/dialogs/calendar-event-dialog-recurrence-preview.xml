@@ -31,7 +31,6 @@
     </content>
 
     <implementation>
-
       <field name="mRecurrenceInfo">null</field>
       <field name="mResizeHandler">null</field>
       <field name="mDateTime">null</field>
@@ -206,32 +205,32 @@
                       }
                       let current = start.clone();
                       while (current.compare(end) < 0) {
-                        let box = minimonth.getBoxForDate(current);
-                        if (box) {
-                            if (occurrence &&
-                                occurrence.day == current.day &&
-                                occurrence.month == current.month &&
-                                occurrence.year == current.year) {
-                                box.setAttribute("busy", 1);
-                                if (index < dates.length) {
-                                    occurrence =
-                                        dates[index++]
-                                            .getInTimezone(start.timezone);
-                                    // take into account that the very next occurrence
-                                    // can happen at the same day as the previous one.
-                                    if (occurrence.day == current.day &&
-                                        occurrence.month == current.month &&
-                                        occurrence.year == current.year) {
-                                        continue;
-                                    }
-                                } else {
-                                    occurrence = null;
-                                }
-                            } else {
-                                box.removeAttribute("busy");
-                            }
-                        }
-                        current.day++;
+                          let box = minimonth.getBoxForDate(current);
+                          if (box) {
+                              if (occurrence &&
+                                  occurrence.day == current.day &&
+                                  occurrence.month == current.month &&
+                                  occurrence.year == current.year) {
+                                  box.setAttribute("busy", 1);
+                                  if (index < dates.length) {
+                                      occurrence =
+                                          dates[index++]
+                                              .getInTimezone(start.timezone);
+                                      // take into account that the very next occurrence
+                                      // can happen at the same day as the previous one.
+                                      if (occurrence.day == current.day &&
+                                          occurrence.month == current.month &&
+                                          occurrence.year == current.year) {
+                                          continue;
+                                      }
+                                  } else {
+                                      occurrence = null;
+                                  }
+                              } else {
+                                  box.removeAttribute("busy");
+                              }
+                          }
+                          current.day++;
                       }
                   }
                   start.month++;

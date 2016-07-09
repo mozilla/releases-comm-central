@@ -1,16 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- This Source Code Form is subject to the terms of the Mozilla Public
    - License, v. 2.0. If a copy of the MPL was not distributed with this
-   - file, You can obtain one at http://mozilla.org/MPL/2.0/.
--->
+   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
 <!-- Note that this file depends on helper functions in calUtils.js-->
 
 <bindings id="calendar-core-view-bindings"
-    xmlns="http://www.mozilla.org/xbl"
-    xmlns:html="http://www.w3.org/1999/xhtml"
-    xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-    xmlns:xbl="http://www.mozilla.org/xbl">
+          xmlns="http://www.mozilla.org/xbl"
+          xmlns:html="http://www.w3.org/1999/xhtml"
+          xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+          xmlns:xbl="http://www.mozilla.org/xbl">
 
   <binding id="calendar-editable-item">
     <content mousethrough="never"
@@ -67,34 +66,34 @@
 
     <implementation>
       <constructor><![CDATA[
-         Components.utils.import("resource://calendar/modules/calAlarmUtils.jsm");
-         Components.utils.import("resource://calendar/modules/calUtils.jsm");
-         Components.utils.import("resource://gre/modules/Preferences.jsm");
+        Components.utils.import("resource://calendar/modules/calAlarmUtils.jsm");
+        Components.utils.import("resource://calendar/modules/calUtils.jsm");
+        Components.utils.import("resource://gre/modules/Preferences.jsm");
 
-         this.eventNameTextbox.onblur = () => {
-             this.stopEditing(true);
-         };
-         this.eventNameTextbox.onkeypress = (event) => {
-             // save on enter
-             if (event.keyCode == 13) {
-                 this.stopEditing(true);
-             // abort on escape
-             } else if (event.keyCode == 27) {
-                 this.stopEditing(false);
-             }
-         };
-         let stopPropagationIfEditing = (event) => {
-           if (this.mEditing) {
-             event.stopPropagation();
-           }
-         };
-         // while editing, single click positions cursor, so don't propagate.
-         this.eventNameTextbox.onclick = stopPropagationIfEditing;
-         // while editing, double click selects words, so don't propagate.
-         this.eventNameTextbox.ondblclick = stopPropagationIfEditing;
-         // while editing, don't propagate mousedown/up (selects calEvent).
-         this.eventNameTextbox.onmousedown = stopPropagationIfEditing;
-         this.eventNameTextbox.onmouseup = stopPropagationIfEditing;
+        this.eventNameTextbox.onblur = () => {
+            this.stopEditing(true);
+        };
+        this.eventNameTextbox.onkeypress = (event) => {
+            // save on enter
+            if (event.keyCode == 13) {
+                this.stopEditing(true);
+            // abort on escape
+            } else if (event.keyCode == 27) {
+                this.stopEditing(false);
+            }
+        };
+        let stopPropagationIfEditing = (event) => {
+            if (this.mEditing) {
+                event.stopPropagation();
+            }
+        };
+        // while editing, single click positions cursor, so don't propagate.
+        this.eventNameTextbox.onclick = stopPropagationIfEditing;
+        // while editing, double click selects words, so don't propagate.
+        this.eventNameTextbox.ondblclick = stopPropagationIfEditing;
+        // while editing, don't propagate mousedown/up (selects calEvent).
+        this.eventNameTextbox.onmousedown = stopPropagationIfEditing;
+        this.eventNameTextbox.onmouseup = stopPropagationIfEditing;
       ]]></constructor>
 
       <field name="mOccurrence">null</field>
@@ -163,8 +162,8 @@
           this.setAttribute("calendar-id", item.calendar.id);
           let categoriesArray = item.getCategories({});
           if (categoriesArray.length > 0) {
-            let cssClassesArray = categoriesArray.map(formatStringForCSSRule);
-            this.setAttribute("categories", cssClassesArray.join(" "));
+              let cssClassesArray = categoriesArray.map(formatStringForCSSRule);
+              this.setAttribute("categories", cssClassesArray.join(" "));
           }
 
           // Add alarm icons as needed.
@@ -263,21 +262,21 @@
       <method name="select">
         <parameter name="event"/>
         <body><![CDATA[
-            if (!this.calendarView) {
-                return;
-            }
-            let items = this.calendarView.mSelectedItems.slice();
-            if (event.ctrlKey || event.metaKey) {
-                if (this.selected) {
-                    let pos = items.indexOf(this.mOccurrence);
-                    items.splice(pos, 1);
-                } else {
-                    items.push(this.mOccurrence);
-                }
-            } else {
-                items = [this.mOccurrence];
-            }
-            this.calendarView.setSelectedItems(items.length, items);
+          if (!this.calendarView) {
+              return;
+          }
+          let items = this.calendarView.mSelectedItems.slice();
+          if (event.ctrlKey || event.metaKey) {
+              if (this.selected) {
+                  let pos = items.indexOf(this.mOccurrence);
+                  items.splice(pos, 1);
+              } else {
+                  items.push(this.mOccurrence);
+              }
+          } else {
+              items = [this.mOccurrence];
+          }
+          this.calendarView.setSelectedItems(items.length, items);
         ]]></body>
       </method>
       <method name="stopEditing">
@@ -309,10 +308,10 @@
 
     <handlers>
       <handler event="contextmenu" phase="capturing"><![CDATA[
-       // If the middle/right button was used for click just select the item.
-       if (!this.selected) {
-         this.select(event);
-       }
+        // If the middle/right button was used for click just select the item.
+        if (!this.selected) {
+            this.select(event);
+        }
       ]]></handler>
       <handler event="click" button="0"><![CDATA[
         if (this.mEditing) {
@@ -387,5 +386,4 @@
       </xul:vbox>
     </content>
   </binding>
-
 </bindings>

@@ -21,17 +21,17 @@ var times = [[[4, 30], [5, 30], [6, 30], [7, 30], [8, 30], [9, 30], [10, 30], [1
              [[4, 30], [5, 30], [6, 30], [7, 30], [8, 30], [9, 30], [10, 30], [11, 30]]];
 
 var setupModule = function(module) {
-  controller = mozmill.getMail3PaneController();
+    controller = mozmill.getMail3PaneController();
 };
 
 var testTimezones3_checkStJohns = function() {
-  controller.click(new elementslib.ID(controller.window.document, "calendar-tab-button"));
-  calUtils.switchToView(controller, "day");
-  calUtils.goToDate(controller, 2009, 1, 1);
+    controller.click(new elementslib.ID(controller.window.document, "calendar-tab-button"));
+    calUtils.switchToView(controller, "day");
+    calUtils.goToDate(controller, 2009, 1, 1);
 
-  timezoneUtils.verify(controller, dates, timezones, times);
+    timezoneUtils.verify(controller, dates, timezones, times);
 };
 
 var teardownTest = function(module) {
-  timezoneUtils.switchAppTimezone(timezones[1]);
+    timezoneUtils.switchAppTimezone(timezones[1]);
 };

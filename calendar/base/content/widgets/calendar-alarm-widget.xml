@@ -10,9 +10,9 @@
 ]>
 
 <bindings id="calendar-alarms"
-   xmlns="http://www.mozilla.org/xbl"
-   xmlns:xbl="http://www.mozilla.org/xbl"
-   xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+          xmlns="http://www.mozilla.org/xbl"
+          xmlns:xbl="http://www.mozilla.org/xbl"
+          xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 
   <binding id="calendar-alarm-widget" extends="chrome://global/content/bindings/richlistbox.xml#richlistitem">
     <resources>
@@ -247,7 +247,7 @@
 
         let snoozePref = Preferences.get("calendar.alarms.defaultsnoozelength", 0);
         if (snoozePref <= 0) {
-          snoozePref = 5;
+            snoozePref = 5;
         }
 
         let unitList = document.getAnonymousElementByAttribute(this, "anonid", "snooze-unit-menulist");

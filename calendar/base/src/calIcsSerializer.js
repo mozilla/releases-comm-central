@@ -30,11 +30,11 @@ calIcsSerializer.prototype = {
     },
 
     addProperty: function(aProperty) {
-       this.mProperties.push(aProperty);
+        this.mProperties.push(aProperty);
     },
 
     addComponent: function(aComponent) {
-       this.mComponents.push(aComponent);
+        this.mComponents.push(aComponent);
     },
 
     serializeToString: function() {

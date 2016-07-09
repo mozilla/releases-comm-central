@@ -148,14 +148,17 @@ function recurrenceRule2String(recurrenceInfo, startDate, endDate, allDay) {
                                     // position ('THE LAST ...').
                                     return null;
                                 }
-                                if (byday.some((element) => {
-                                                return (day_position(element) == 0 &&
-                                                        day_of_week(byday[i]) == day_of_week(element));
-                                                })) {
+
+                                let duplicateWeekday = byday.some((element) => {
+                                    return (day_position(element) == 0 &&
+                                            day_of_week(byday[i]) == day_of_week(element));
+                                });
+                                if (duplicateWeekday) {
                                     // Prevent to build strings such as for example:
                                     // "every Monday and the second Monday...".
                                     continue;
                                 }
+
                                 let ordinalString = "repeatOrdinal" + day_position(byday[i]);
                                 let dayString = "repeatDetailsDay" + day_of_week(byday[i]);
                                 ordinalString = nounClass(dayString, ordinalString);

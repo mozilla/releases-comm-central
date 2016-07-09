@@ -784,8 +784,8 @@ calDavCalendar.prototype = {
                     responseStatus = request.responseStatus;
 
                     if (self.verboseLogging()) {
-                       let str = cal.convertByteArray(aResult, aResultLength);
-                       cal.LOG("CalDAV: recv: " + (str || ""));
+                        let str = cal.convertByteArray(aResult, aResultLength);
+                        cal.LOG("CalDAV: recv: " + (str || ""));
                     }
                 } catch (ex) {
                     listenerStatus = ex.result;
@@ -1220,35 +1220,35 @@ calDavCalendar.prototype = {
      * @param aChangeLogListener (optional)Listener for cached calendars
      */
     notifyGetFailed: function(errorMsg, aListener, aChangeLogListener) {
-         cal.WARN("CalDAV: Get failed: " + errorMsg);
+        cal.WARN("CalDAV: Get failed: " + errorMsg);
 
-         // Notify changelog listener
-         if (this.isCached && aChangeLogListener) {
-             aChangeLogListener.onResult({ status: Components.results.NS_ERROR_FAILURE },
-                                         Components.results.NS_ERROR_FAILURE);
-         }
+        // Notify changelog listener
+        if (this.isCached && aChangeLogListener) {
+            aChangeLogListener.onResult({ status: Components.results.NS_ERROR_FAILURE },
+                                        Components.results.NS_ERROR_FAILURE);
+        }
 
-         // Notify operation listener
-         this.notifyOperationComplete(aListener,
-                                      Components.results.NS_ERROR_FAILURE,
-                                      cIOL.GET,
-                                      null,
-                                      errorMsg);
-         // If an error occurrs here, we also need to unqueue the
-         // requests previously queued.
-         while (this.mQueuedQueries.length) {
-             let [, , , , listener] = this.mQueuedQueries.pop();
-             try {
-                 listener.onOperationComplete(this.superCalendar,
-                                              Components.results.NS_ERROR_FAILURE,
-                                              cIOL.GET,
-                                              null,
-                                              errorMsg);
-             } catch (e) {
-                 cal.ERROR(e);
-             }
-         }
-     },
+        // Notify operation listener
+        this.notifyOperationComplete(aListener,
+                                     Components.results.NS_ERROR_FAILURE,
+                                     cIOL.GET,
+                                     null,
+                                     errorMsg);
+        // If an error occurrs here, we also need to unqueue the
+        // requests previously queued.
+        while (this.mQueuedQueries.length) {
+            let [, , , , listener] = this.mQueuedQueries.pop();
+            try {
+                listener.onOperationComplete(this.superCalendar,
+                                             Components.results.NS_ERROR_FAILURE,
+                                             cIOL.GET,
+                                             null,
+                                             errorMsg);
+            } catch (e) {
+                cal.ERROR(e);
+            }
+        }
+    },
 
     /**
      * Retrieves a specific item from the CalDAV store.
@@ -1360,9 +1360,9 @@ calDavCalendar.prototype = {
             headchannel.open();
             headchannel.QueryInterface(Components.interfaces.nsIHttpChannel);
             try {
-              if (headchannel.responseStatus != 200) {
-                throw "OPTIONS returned unexpected status code: " + headchannel.responseStatus;
-              }
+                if (headchannel.responseStatus != 200) {
+                    throw "OPTIONS returned unexpected status code: " + headchannel.responseStatus;
+                }
             } catch (e) {
                 cal.WARN("CalDAV: Exception: " + e);
                 notifyListener(Components.results.NS_ERROR_FAILURE);
@@ -1392,8 +1392,7 @@ calDavCalendar.prototype = {
         }
 
         let streamListener = {};
-        streamListener.onStreamComplete =
-            function(aLoader, aContext, aStatus, aResultLength, aResult) {
+        streamListener.onStreamComplete = function(aLoader, aContext, aStatus, aResultLength, aResult) {
             let request = aLoader.request.QueryInterface(Components.interfaces.nsIHttpChannel);
             try {
                 cal.LOG("CalDAV: Status " + request.responseStatus +
@@ -1415,7 +1414,7 @@ calDavCalendar.prototype = {
                 // type first.
                 self.setupAuthentication(aChangeLogListener);
                 return;
-             }
+            }
 
             let str = cal.convertByteArray(aResult, aResultLength);
             if (!str) {
@@ -2563,7 +2562,7 @@ calDavCalendar.prototype = {
         // a[3] = extracted path
         let a = aSpec.match("(https?)(://[^/]*)([^#?]*)");
         if (a && a[3]) {
-          return a[3];
+            return a[3];
         }
         cal.WARN("CalDAV: Spec could not be parsed, returning as-is: " + aSpec);
         return aSpec;
@@ -2898,7 +2897,7 @@ calDavCalendar.prototype = {
                     // The header could possibly not be availible, ignore that
                     // case but throw otherwise
                     throw e;
-               }
+                }
             }
         }
 

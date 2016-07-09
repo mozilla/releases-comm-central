@@ -60,15 +60,15 @@ var gConfig = {
 //   - gShowLink
 
 var eventDialogQuitObserver = {
-  observe: function(aSubject, aTopic, aData) {
-    // Check whether or not we want to veto the quit request (unless another
-    // observer already did.
-    if (aTopic == "quit-application-requested" &&
-        (aSubject instanceof Components.interfaces.nsISupportsPRBool) &&
-        !aSubject.data) {
-      aSubject.data = !onCancel();
+    observe: function(aSubject, aTopic, aData) {
+        // Check whether or not we want to veto the quit request (unless another
+        // observer already did.
+        if (aTopic == "quit-application-requested" &&
+            (aSubject instanceof Components.interfaces.nsISupportsPRBool) &&
+            !aSubject.data) {
+            aSubject.data = !onCancel();
+        }
     }
-  }
 };
 
 var eventDialogCalendarObserver = {
@@ -2699,25 +2699,25 @@ function updateRepeat(aSuppressDialogs, aItemRepeatCall) {
         recRule.interval = 1;
         switch (repeatValue) {
             case "daily":
-              recRule.type = "DAILY";
-              break;
+                recRule.type = "DAILY";
+                break;
             case "weekly":
-              recRule.type = "WEEKLY";
-              break;
+                recRule.type = "WEEKLY";
+                break;
             case "every.weekday":
-              recRule.type = "DAILY";
-              recRule.setComponent("BYDAY", onDays.length, [2, 3, 4, 5, 6]);
-              break;
+                recRule.type = "DAILY";
+                recRule.setComponent("BYDAY", onDays.length, [2, 3, 4, 5, 6]);
+                break;
             case "bi.weekly":
-              recRule.type = "WEEKLY";
-              recRule.interval = 2;
-              break;
+                recRule.type = "WEEKLY";
+                recRule.interval = 2;
+                break;
             case "monthly":
-              recRule.type = "MONTHLY";
-              break;
+                recRule.type = "MONTHLY";
+                break;
             case "yearly":
-              recRule.type = "YEARLY";
-              break;
+                recRule.type = "YEARLY";
+                break;
         }
 
         setUpEntrydateForTask(item);
@@ -2804,89 +2804,89 @@ function updateUntildateRecRule(recRule) {
  * @param {Date} aCompletedDate  The item's completed date (as a JSDate).
  */
 function updateToDoStatus(aStatus, aCompletedDate=null) {
-  // RFC2445 doesn't support completedDates without the todo's status
-  // being "COMPLETED", however twiddling the status menulist shouldn't
-  // destroy that information at this point (in case you change status
-  // back to COMPLETED). When we go to store this VTODO as .ics the
-  // date will get lost.
+    // RFC2445 doesn't support completedDates without the todo's status
+    // being "COMPLETED", however twiddling the status menulist shouldn't
+    // destroy that information at this point (in case you change status
+    // back to COMPLETED). When we go to store this VTODO as .ics the
+    // date will get lost.
 
-  // remember the original values
-  let oldPercentComplete = parseInt(getElementValue("percent-complete-textbox"), 10);
-  let oldCompletedDate = getElementValue("completed-date-picker");
+    // remember the original values
+    let oldPercentComplete = parseInt(getElementValue("percent-complete-textbox"), 10);
+    let oldCompletedDate = getElementValue("completed-date-picker");
 
-  // If the percent completed has changed to 100 or from 100 to another
-  // value, the status must change.
-  if (aStatus == "percent-changed") {
-      let selectedIndex = document.getElementById("todo-status").selectedIndex;
-      let menuItemCompleted = selectedIndex == 3;
-      let menuItemNotSpecified = selectedIndex == 0;
-      if (oldPercentComplete == 100) {
-          aStatus = "COMPLETED";
-      } else if (menuItemCompleted || menuItemNotSpecified) {
-          aStatus = "IN-PROCESS";
-      }
-  }
+    // If the percent completed has changed to 100 or from 100 to another
+    // value, the status must change.
+    if (aStatus == "percent-changed") {
+        let selectedIndex = document.getElementById("todo-status").selectedIndex;
+        let menuItemCompleted = selectedIndex == 3;
+        let menuItemNotSpecified = selectedIndex == 0;
+        if (oldPercentComplete == 100) {
+            aStatus = "COMPLETED";
+        } else if (menuItemCompleted || menuItemNotSpecified) {
+            aStatus = "IN-PROCESS";
+        }
+    }
 
-  switch (aStatus) {
-      case null:
-      case "":
-      case "NONE":
-          oldPercentComplete = 0;
-          document.getElementById("todo-status").selectedIndex = 0;
-          disableElement("percent-complete-textbox");
-          disableElement("percent-complete-label");
-          break;
-      case "CANCELLED":
-          document.getElementById("todo-status").selectedIndex = 4;
-          disableElement("percent-complete-textbox");
-          disableElement("percent-complete-label");
-          break;
-      case "COMPLETED":
-          document.getElementById("todo-status").selectedIndex = 3;
-          enableElement("percent-complete-textbox");
-          enableElement("percent-complete-label");
-          // if there is no aCompletedDate, set it to the previous value
-          if (!aCompletedDate) {
-              aCompletedDate = oldCompletedDate;
-          }
-          break;
-      case "IN-PROCESS":
-          document.getElementById("todo-status").selectedIndex = 2;
-          disableElement("completed-date-picker");
-          enableElement("percent-complete-textbox");
-          enableElement("percent-complete-label");
-          break;
-      case "NEEDS-ACTION":
-          document.getElementById("todo-status").selectedIndex = 1;
-          enableElement("percent-complete-textbox");
-          enableElement("percent-complete-label");
-          break;
-  }
+    switch (aStatus) {
+        case null:
+        case "":
+        case "NONE":
+            oldPercentComplete = 0;
+            document.getElementById("todo-status").selectedIndex = 0;
+            disableElement("percent-complete-textbox");
+            disableElement("percent-complete-label");
+            break;
+        case "CANCELLED":
+            document.getElementById("todo-status").selectedIndex = 4;
+            disableElement("percent-complete-textbox");
+            disableElement("percent-complete-label");
+            break;
+        case "COMPLETED":
+            document.getElementById("todo-status").selectedIndex = 3;
+            enableElement("percent-complete-textbox");
+            enableElement("percent-complete-label");
+            // if there is no aCompletedDate, set it to the previous value
+            if (!aCompletedDate) {
+                aCompletedDate = oldCompletedDate;
+            }
+            break;
+        case "IN-PROCESS":
+            document.getElementById("todo-status").selectedIndex = 2;
+            disableElement("completed-date-picker");
+            enableElement("percent-complete-textbox");
+            enableElement("percent-complete-label");
+            break;
+        case "NEEDS-ACTION":
+            document.getElementById("todo-status").selectedIndex = 1;
+            enableElement("percent-complete-textbox");
+            enableElement("percent-complete-label");
+            break;
+    }
 
-  let newPercentComplete;
-  if ((aStatus == "IN-PROCESS" || aStatus == "NEEDS-ACTION") &&
-      oldPercentComplete == 100) {
-      newPercentComplete = 0;
-      setElementValue("completed-date-picker", oldCompletedDate);
-      disableElement("completed-date-picker");
-  } else if (aStatus == "COMPLETED") {
-      newPercentComplete = 100;
-      setElementValue("completed-date-picker", aCompletedDate);
-      enableElement("completed-date-picker");
-  } else {
-      newPercentComplete = oldPercentComplete;
-      setElementValue("completed-date-picker", oldCompletedDate);
-      disableElement("completed-date-picker");
-  }
+    let newPercentComplete;
+    if ((aStatus == "IN-PROCESS" || aStatus == "NEEDS-ACTION") &&
+        oldPercentComplete == 100) {
+        newPercentComplete = 0;
+        setElementValue("completed-date-picker", oldCompletedDate);
+        disableElement("completed-date-picker");
+    } else if (aStatus == "COMPLETED") {
+        newPercentComplete = 100;
+        setElementValue("completed-date-picker", aCompletedDate);
+        enableElement("completed-date-picker");
+    } else {
+        newPercentComplete = oldPercentComplete;
+        setElementValue("completed-date-picker", oldCompletedDate);
+        disableElement("completed-date-picker");
+    }
 
-  gConfig.percentComplete = newPercentComplete;
-  setElementValue("percent-complete-textbox", newPercentComplete);
-  if (gInTab) {
-      sendMessage({
-          command: "updateConfigState",
-          argument: { percentComplete: newPercentComplete }
-      });
-  }
+    gConfig.percentComplete = newPercentComplete;
+    setElementValue("percent-complete-textbox", newPercentComplete);
+    if (gInTab) {
+        sendMessage({
+            command: "updateConfigState",
+            argument: { percentComplete: newPercentComplete }
+        });
+    }
 }
 
 /**
@@ -2916,7 +2916,7 @@ function saveItem() {
     item.removeAllAttendees();
     if (window.attendees && (window.attendees.length > 0)) {
         for (let attendee of window.attendees) {
-           item.addAttendee(attendee);
+            item.addAttendee(attendee);
         }
 
         let notifyCheckbox = document.getElementById("notify-attendees-checkbox");
@@ -3125,7 +3125,7 @@ editStartTimezone.complete = function(datetime) {
     }
     gStartTimezone = datetime.timezone;
     if (equalTimezones) {
-      gEndTimezone = datetime.timezone;
+        gEndTimezone = datetime.timezone;
     }
     updateDateTime();
 };
@@ -3263,68 +3263,68 @@ function updateDateTime() {
     // and display the labels in order to modify the timezone.
     if (gTimezonesEnabled) {
         if (isEvent(item)) {
-          let startTime = gStartTime.getInTimezone(gStartTimezone);
-          let endTime = gEndTime.getInTimezone(gEndTimezone);
+            let startTime = gStartTime.getInTimezone(gStartTimezone);
+            let endTime = gEndTime.getInTimezone(gEndTimezone);
 
-          setElementValue("event-all-day", startTime.isDate, "checked");
+            setElementValue("event-all-day", startTime.isDate, "checked");
 
-          // In the case where the timezones are different but
-          // the timezone of the endtime is "UTC", we convert
-          // the endtime into the timezone of the starttime.
-          if (startTime && endTime) {
-            if (!compareObjects(startTime.timezone, endTime.timezone)) {
-              if (endTime.timezone.isUTC) {
-                endTime = endTime.getInTimezone(startTime.timezone);
-              }
+            // In the case where the timezones are different but
+            // the timezone of the endtime is "UTC", we convert
+            // the endtime into the timezone of the starttime.
+            if (startTime && endTime) {
+                if (!compareObjects(startTime.timezone, endTime.timezone)) {
+                    if (endTime.timezone.isUTC) {
+                        endTime = endTime.getInTimezone(startTime.timezone);
+                    }
+                }
             }
-          }
 
-          // before feeding the date/time value into the control we need
-          // to set the timezone to 'floating' in order to avoid the
-          // automatic conversion back into the OS timezone.
-          startTime.timezone = floating();
-          endTime.timezone = floating();
+            // before feeding the date/time value into the control we need
+            // to set the timezone to 'floating' in order to avoid the
+            // automatic conversion back into the OS timezone.
+            startTime.timezone = floating();
+            endTime.timezone = floating();
 
-          setElementValue("event-starttime", cal.dateTimeToJsDate(startTime));
-          setElementValue("event-endtime", cal.dateTimeToJsDate(endTime));
+            setElementValue("event-starttime", cal.dateTimeToJsDate(startTime));
+            setElementValue("event-endtime", cal.dateTimeToJsDate(endTime));
         }
 
         if (isToDo(item)) {
-          let startTime = gStartTime && gStartTime.getInTimezone(gStartTimezone);
-          let endTime = gEndTime && gEndTime.getInTimezone(gEndTimezone);
-          let hasEntryDate = (startTime != null);
-          let hasDueDate = (endTime != null);
+            let startTime = gStartTime && gStartTime.getInTimezone(gStartTimezone);
+            let endTime = gEndTime && gEndTime.getInTimezone(gEndTimezone);
+            let hasEntryDate = (startTime != null);
+            let hasDueDate = (endTime != null);
 
-          if (hasEntryDate && hasDueDate) {
-              setElementValue("todo-has-entrydate", hasEntryDate, "checked");
-              startTime.timezone = floating();
-              setElementValue("todo-entrydate", cal.dateTimeToJsDate(startTime));
+            if (hasEntryDate && hasDueDate) {
+                setElementValue("todo-has-entrydate", hasEntryDate, "checked");
+                startTime.timezone = floating();
+                setElementValue("todo-entrydate", cal.dateTimeToJsDate(startTime));
 
-              setElementValue("todo-has-duedate", hasDueDate, "checked");
-              endTime.timezone = floating();
-              setElementValue("todo-duedate", cal.dateTimeToJsDate(endTime));
-          } else if (hasEntryDate) {
-              setElementValue("todo-has-entrydate", hasEntryDate, "checked");
-              startTime.timezone = floating();
-              setElementValue("todo-entrydate", cal.dateTimeToJsDate(startTime));
+                setElementValue("todo-has-duedate", hasDueDate, "checked");
+                endTime.timezone = floating();
+                setElementValue("todo-duedate", cal.dateTimeToJsDate(endTime));
+            } else if (hasEntryDate) {
+                setElementValue("todo-has-entrydate", hasEntryDate, "checked");
+                startTime.timezone = floating();
+                setElementValue("todo-entrydate", cal.dateTimeToJsDate(startTime));
 
-              startTime.timezone = floating();
-              setElementValue("todo-duedate", cal.dateTimeToJsDate(startTime));
-          } else if (hasDueDate) {
-              endTime.timezone = floating();
-              setElementValue("todo-entrydate", cal.dateTimeToJsDate(endTime));
+                startTime.timezone = floating();
+                setElementValue("todo-duedate", cal.dateTimeToJsDate(startTime));
+            } else if (hasDueDate) {
+                endTime.timezone = floating();
+                setElementValue("todo-entrydate", cal.dateTimeToJsDate(endTime));
 
-              setElementValue("todo-has-duedate", hasDueDate, "checked");
-              endTime.timezone = floating();
-              setElementValue("todo-duedate", cal.dateTimeToJsDate(endTime));
-          } else {
-              startTime = window.initialStartDateValue;
-              startTime.timezone = floating();
-              endTime = startTime.clone();
+                setElementValue("todo-has-duedate", hasDueDate, "checked");
+                endTime.timezone = floating();
+                setElementValue("todo-duedate", cal.dateTimeToJsDate(endTime));
+            } else {
+                startTime = window.initialStartDateValue;
+                startTime.timezone = floating();
+                endTime = startTime.clone();
 
-              setElementValue("todo-entrydate", cal.dateTimeToJsDate(startTime));
-              setElementValue("todo-duedate", cal.dateTimeToJsDate(endTime));
-          }
+                setElementValue("todo-entrydate", cal.dateTimeToJsDate(startTime));
+                setElementValue("todo-duedate", cal.dateTimeToJsDate(endTime));
+            }
         }
     } else {
         let kDefaultTimezone = calendarDefaultTimezone();
@@ -3520,9 +3520,9 @@ function updateItemURL(aShow, aUrl) {
     // Set the url for the link
     if (aShow && aUrl.length) {
         setTimeout(() => {
-          // HACK the url-link doesn't crop when setting the value in onLoad
-          setElementValue("url-link", aUrl);
-          setElementValue("url-link", aUrl, "href");
+            // HACK the url-link doesn't crop when setting the value in onLoad
+            setElementValue("url-link", aUrl);
+            setElementValue("url-link", aUrl, "href");
         }, 0);
     }
 }

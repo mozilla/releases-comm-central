@@ -21,17 +21,17 @@ var times = [[[1, 0], [2, 0], [3, 0], [4, 0], [5, 0], [6, 0], [7, 0], [8, 0]],
              [[1, 0], [2, 0], [3, 0], [4, 0], [5, 0], [6, 0], [7, 0], [8, 0]]];
 
 var setupModule = function(module) {
-  controller = mozmill.getMail3PaneController();
+    controller = mozmill.getMail3PaneController();
 };
 
 var testTimezones5_checkPhoenix = function() {
-  controller.click(new elementslib.ID(controller.window.document, "calendar-tab-button"));
-  calUtils.switchToView(controller, "day");
-  calUtils.goToDate(controller, 2009, 1, 1);
+    controller.click(new elementslib.ID(controller.window.document, "calendar-tab-button"));
+    calUtils.switchToView(controller, "day");
+    calUtils.goToDate(controller, 2009, 1, 1);
 
-  timezoneUtils.verify(controller, dates, timezones, times);
+    timezoneUtils.verify(controller, dates, timezones, times);
 };
 
 var teardownTest = function(module) {
-  timezoneUtils.switchAppTimezone(timezones[3]);
+    timezoneUtils.switchAppTimezone(timezones[3]);
 };

@@ -464,173 +464,173 @@ var cal = {
     // unifinder tress are consolidated.
 
     compareNativeTime: function(a, b) {
-      if (a < b) {
-        return -1;
-      } else if (a > b) {
-        return 1;
-      } else {
-        return 0;
-      }
+        if (a < b) {
+            return -1;
+        } else if (a > b) {
+            return 1;
+        } else {
+            return 0;
+        }
     },
 
     compareNativeTimeFilledAsc: function(a, b) {
-      if (a == b) {
-        return 0;
-      }
+        if (a == b) {
+            return 0;
+        }
 
-      // In this filter, a zero time (not set) is always at the end.
-      if (a == -62168601600000000) { // value for (0000/00/00 00:00:00)
-        return 1;
-      }
-      if (b == -62168601600000000) { // value for (0000/00/00 00:00:00)
-        return -1;
-      }
+        // In this filter, a zero time (not set) is always at the end.
+        if (a == -62168601600000000) { // value for (0000/00/00 00:00:00)
+            return 1;
+        }
+        if (b == -62168601600000000) { // value for (0000/00/00 00:00:00)
+            return -1;
+        }
 
-      return (a < b ? -1 : 1);
+        return (a < b ? -1 : 1);
     },
 
     compareNativeTimeFilledDesc: function(a, b) {
-      if (a == b) {
-        return 0;
-      }
+        if (a == b) {
+            return 0;
+        }
 
-      // In this filter, a zero time (not set) is always at the end.
-      if (a == -62168601600000000) { // value for (0000/00/00 00:00:00)
-        return 1;
-      }
-      if (b == -62168601600000000) { // value for (0000/00/00 00:00:00)
-        return -1;
-      }
+        // In this filter, a zero time (not set) is always at the end.
+        if (a == -62168601600000000) { // value for (0000/00/00 00:00:00)
+            return 1;
+        }
+        if (b == -62168601600000000) { // value for (0000/00/00 00:00:00)
+            return -1;
+        }
 
-      return (a < b ? 1 : -1);
+        return (a < b ? 1 : -1);
     },
 
     compareNumber: function(a, b) {
-      a = Number(a);
-      b = Number(b);
-      if (a < b) {
-        return -1;
-      } else if (a > b) {
-        return 1;
-      } else {
-        return 0;
-      }
+        a = Number(a);
+        b = Number(b);
+        if (a < b) {
+            return -1;
+        } else if (a > b) {
+            return 1;
+        } else {
+            return 0;
+        }
     },
 
     sortEntryComparer: function(sortType, modifier) {
-      switch (sortType) {
-        case "number":
-          return function(sortEntryA, sortEntryB) {
-            let nsA = cal.sortEntryKey(sortEntryA);
-            let nsB = cal.sortEntryKey(sortEntryB);
-            return cal.compareNumber(nsA, nsB) * modifier;
-          };
-        case "date":
-          return function(sortEntryA, sortEntryB) {
-            let nsA = cal.sortEntryKey(sortEntryA);
-            let nsB = cal.sortEntryKey(sortEntryB);
-            return cal.compareNativeTime(nsA, nsB) * modifier;
-          };
-        case "date_filled":
-          return function(sortEntryA, sortEntryB) {
-            let nsA = cal.sortEntryKey(sortEntryA);
-            let nsB = cal.sortEntryKey(sortEntryB);
-            if (modifier == 1) {
-              return cal.compareNativeTimeFilledAsc(nsA, nsB);
-            } else {
-              return cal.compareNativeTimeFilledDesc(nsA, nsB);
-            }
-          };
-        case "string":
-          return function(sortEntryA, sortEntryB) {
-            let seA = cal.sortEntryKey(sortEntryA);
-            let seB = cal.sortEntryKey(sortEntryB);
-            if (seA.length == 0 || seB.length == 0) {
-              // sort empty values to end (so when users first sort by a
-              // column, they can see and find the desired values in that
-              // column without scrolling past all the empty values).
-              return -(seA.length - seB.length) * modifier;
-            }
-            let collator = cal.createLocaleCollator();
-            let comparison = collator.compareString(0, seA, seB);
-            return comparison * modifier;
-          };
-        default:
-          return function(sortEntryA, sortEntryB) {
-            return 0;
-          };
-      }
+        switch (sortType) {
+            case "number":
+                return function(sortEntryA, sortEntryB) {
+                    let nsA = cal.sortEntryKey(sortEntryA);
+                    let nsB = cal.sortEntryKey(sortEntryB);
+                    return cal.compareNumber(nsA, nsB) * modifier;
+                };
+            case "date":
+                return function(sortEntryA, sortEntryB) {
+                    let nsA = cal.sortEntryKey(sortEntryA);
+                    let nsB = cal.sortEntryKey(sortEntryB);
+                    return cal.compareNativeTime(nsA, nsB) * modifier;
+                };
+            case "date_filled":
+                return function(sortEntryA, sortEntryB) {
+                    let nsA = cal.sortEntryKey(sortEntryA);
+                    let nsB = cal.sortEntryKey(sortEntryB);
+                    if (modifier == 1) {
+                        return cal.compareNativeTimeFilledAsc(nsA, nsB);
+                    } else {
+                        return cal.compareNativeTimeFilledDesc(nsA, nsB);
+                    }
+                };
+            case "string":
+                return function(sortEntryA, sortEntryB) {
+                    let seA = cal.sortEntryKey(sortEntryA);
+                    let seB = cal.sortEntryKey(sortEntryB);
+                    if (seA.length == 0 || seB.length == 0) {
+                        // sort empty values to end (so when users first sort by a
+                        // column, they can see and find the desired values in that
+                        // column without scrolling past all the empty values).
+                        return -(seA.length - seB.length) * modifier;
+                    }
+                    let collator = cal.createLocaleCollator();
+                    let comparison = collator.compareString(0, seA, seB);
+                    return comparison * modifier;
+                };
+            default:
+                return function(sortEntryA, sortEntryB) {
+                    return 0;
+                };
+        }
     },
 
     getItemSortKey: function(aItem, aKey, aStartTime) {
-      switch (aKey) {
-        case "priority":
-          return aItem.priority || 5;
+        switch (aKey) {
+            case "priority":
+                return aItem.priority || 5;
 
-        case "title":
-          return aItem.title || "";
+            case "title":
+                return aItem.title || "";
 
-        case "entryDate":
-            return cal.nativeTime(aItem.entryDate);
+            case "entryDate":
+                return cal.nativeTime(aItem.entryDate);
 
-        case "startDate":
-            return cal.nativeTime(aItem.startDate);
+            case "startDate":
+                return cal.nativeTime(aItem.startDate);
 
-        case "dueDate":
-          return cal.nativeTime(aItem.dueDate);
+            case "dueDate":
+                return cal.nativeTime(aItem.dueDate);
 
-        case "endDate":
-          return cal.nativeTime(aItem.endDate);
+            case "endDate":
+                return cal.nativeTime(aItem.endDate);
 
-        case "completedDate":
-          return cal.nativeTime(aItem.completedDate);
+            case "completedDate":
+                return cal.nativeTime(aItem.completedDate);
 
-        case "percentComplete":
-          return aItem.percentComplete;
+            case "percentComplete":
+                return aItem.percentComplete;
 
-        case "categories":
-          return aItem.getCategories({}).join(", ");
+            case "categories":
+                return aItem.getCategories({}).join(", ");
 
-        case "location":
-          return aItem.getProperty("LOCATION") || "";
+            case "location":
+                return aItem.getProperty("LOCATION") || "";
 
-        case "status":
-          if (cal.isToDo(aItem)) {
-            return ["NEEDS-ACTION", "IN-PROCESS", "COMPLETED", "CANCELLED"].indexOf(aItem.status);
-          } else {
-            return ["TENTATIVE", "CONFIRMED", "CANCELLED"].indexOf(aItem.status);
-          }
-        case "calendar":
-          return aItem.calendar.name || "";
+            case "status":
+                if (cal.isToDo(aItem)) {
+                    return ["NEEDS-ACTION", "IN-PROCESS", "COMPLETED", "CANCELLED"].indexOf(aItem.status);
+                } else {
+                    return ["TENTATIVE", "CONFIRMED", "CANCELLED"].indexOf(aItem.status);
+                }
+            case "calendar":
+                return aItem.calendar.name || "";
 
-        default:
-          return null;
-      }
+            default:
+                return null;
+        }
     },
 
     getSortTypeForSortKey: function(aSortKey) {
-      switch (aSortKey) {
-        case "title":
-        case "categories":
-        case "location":
-        case "calendar":
-          return "string";
+        switch (aSortKey) {
+            case "title":
+            case "categories":
+            case "location":
+            case "calendar":
+                return "string";
 
-        // All dates use "date_filled"
-        case "completedDate":
-        case "startDate":
-        case "endDate":
-        case "dueDate":
-        case "entryDate":
-          return "date_filled";
+            // All dates use "date_filled"
+            case "completedDate":
+            case "startDate":
+            case "endDate":
+            case "dueDate":
+            case "entryDate":
+                return "date_filled";
 
-        case "priority":
-        case "percentComplete":
-        case "status":
-          return "number";
-        default:
-          return "unknown";
-      }
+            case "priority":
+            case "percentComplete":
+            case "status":
+                return "number";
+            default:
+                return "unknown";
+        }
     },
 
     nativeTimeOrNow: function(calDateTime, sortStartedTime) {
@@ -714,7 +714,7 @@ var cal = {
         return Components.classes["@mozilla.org/intl/collation-factory;1"]
                          .getService(Components.interfaces.nsICollationFactory)
                          .CreateCollation(Services.locale.getApplicationLocale());
-     },
+    },
 
     /**
      * Sort an array of strings according to the current locale.
@@ -790,14 +790,14 @@ var cal = {
         if (start || end) {
             let item = aItem.clone();
             if (start && (start.isDate != aIsDate)) {
-               start = start.clone();
-               start.isDate = aIsDate;
-               item[calGetStartDateProp(item)] = start;
+                start = start.clone();
+                start.isDate = aIsDate;
+                item[calGetStartDateProp(item)] = start;
             }
             if (end && (end.isDate != aIsDate)) {
-               end = end.clone();
-               end.isDate = aIsDate;
-               item[calGetEndDateProp(item)] = end;
+                end = end.clone();
+                end.isDate = aIsDate;
+                item[calGetEndDateProp(item)] = end;
             }
             return item;
         } else {
@@ -841,7 +841,7 @@ var cal = {
             let prevChildNode = childNode.previousSibling;
             if (!aAttribute || aAttribute === undefined) {
                 childNode.remove();
-             } else if (!aValue || aValue === undefined) {
+            } else if (!aValue || aValue === undefined) {
                 childNode.remove();
             } else if (childNode && childNode.hasAttribute(aAttribute) &&
                        childNode.getAttribute(aAttribute) == aValue) {

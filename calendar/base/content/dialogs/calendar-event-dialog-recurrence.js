@@ -465,7 +465,7 @@ function onChangeCalendar(calendar) {
  */
 function disableOrEnable(item) {
     if (item.parentItem != item) {
-       disableRecurrenceFields("disable-on-occurrence");
+        disableRecurrenceFields("disable-on-occurrence");
     } else if (gIsReadOnly) {
         disableRecurrenceFields("disable-on-readonly");
     } else if (isToDo(item) && !gStartTime) {

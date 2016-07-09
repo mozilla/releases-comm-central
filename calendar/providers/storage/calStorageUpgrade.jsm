@@ -644,81 +644,81 @@ var upgrade = {};
 upgrade.v2 = upgrade.v1 = function(db, version) { // eslint-disable-line id-length
     LOGdb(db, "Storage: Upgrading to v1/v2");
     let tblData = {
-      cal_calendar_schema_version: { version: "INTEGER" },
+        cal_calendar_schema_version: { version: "INTEGER" },
 
-    /* While this table is in v1, actually keeping it in the sql object will
-     * cause problems when migrating from storage.sdb to local.sqlite. There,
-     * all tables from storage.sdb will be moved to local.sqlite and so starting
-     * sunbird again afterwards causes a borked upgrade since its missing tables
-     * it expects.
-     *
-     *  cal_calendars: {
-     *   id:  "INTEGER PRIMARY KEY",
-     *   name: "STRING"
-     * },
-     */
+        /* While this table is in v1, actually keeping it in the sql object will
+         * cause problems when migrating from storage.sdb to local.sqlite. There,
+         * all tables from storage.sdb will be moved to local.sqlite and so starting
+         * sunbird again afterwards causes a borked upgrade since its missing tables
+         * it expects.
+         *
+         *  cal_calendars: {
+         *   id:  "INTEGER PRIMARY KEY",
+         *   name: "STRING"
+         * },
+         */
 
-      cal_items: {
-        cal_id: "INTEGER",
-        item_type: "INTEGER",
-        id: "STRING",
-        time_created: "INTEGER",
-        last_modified: "INTEGER",
-        title: "STRING",
-        priority: "INTEGER",
-        privacy: "STRING",
-        ical_status: "STRING",
-        flags: "INTEGER",
-        event_start: "INTEGER",
-        event_end: "INTEGER",
-        event_stamp: "INTEGER",
-        todo_entry: "INTEGER",
-        todo_due: "INTEGER",
-        todo_completed: "INTEGER",
-        todo_complete: "INTEGER",
-        alarm_id: "INTEGER"
-      },
+        cal_items: {
+            cal_id: "INTEGER",
+            item_type: "INTEGER",
+            id: "STRING",
+            time_created: "INTEGER",
+            last_modified: "INTEGER",
+            title: "STRING",
+            priority: "INTEGER",
+            privacy: "STRING",
+            ical_status: "STRING",
+            flags: "INTEGER",
+            event_start: "INTEGER",
+            event_end: "INTEGER",
+            event_stamp: "INTEGER",
+            todo_entry: "INTEGER",
+            todo_due: "INTEGER",
+            todo_completed: "INTEGER",
+            todo_complete: "INTEGER",
+            alarm_id: "INTEGER"
+        },
 
-      cal_attendees: {
-        item_id: "STRING",
-        attendee_id: "STRING",
-        common_name: "STRING",
-        rsvp: "INTEGER",
-        role: "STRING",
-        status: "STRING",
-        type: "STRING"
-      },
+        cal_attendees: {
+            item_id: "STRING",
+            attendee_id: "STRING",
+            common_name: "STRING",
+            rsvp: "INTEGER",
+            role: "STRING",
+            status: "STRING",
+            type: "STRING"
+        },
 
-      cal_alarms: {
-        id: "INTEGER PRIMARY KEY",
-        alarm_data: "BLOB"
-      },
+        cal_alarms: {
+            id: "INTEGER PRIMARY KEY",
+            alarm_data: "BLOB"
+        },
 
-      cal_recurrence: {
-        item_id: "STRING",
-        recur_type: "INTEGER",
-        recur_index: "INTEGER",
-        is_negative: "BOOLEAN",
-        dates: "STRING",
-        end_date: "INTEGER",
-        count: "INTEGER",
-        interval: "INTEGER",
-        second: "STRING",
-        minute: "STRING",
-        hour: "STRING",
-        day: "STRING",
-        monthday: "STRING",
-        yearday: "STRING",
-        weekno: "STRING",
-        month: "STRING",
-        setpos: "STRING"
-      },
+        cal_recurrence: {
+            item_id: "STRING",
+            recur_type: "INTEGER",
+            recur_index: "INTEGER",
+            is_negative: "BOOLEAN",
+            dates: "STRING",
+            end_date: "INTEGER",
+            count: "INTEGER",
+            interval: "INTEGER",
+            second: "STRING",
+            minute: "STRING",
+            hour: "STRING",
+            day: "STRING",
+            monthday: "STRING",
+            yearday: "STRING",
+            weekno: "STRING",
+            month: "STRING",
+            setpos: "STRING"
+        },
 
-      cal_properties: {
-        item_id: "STRING",
-        key: "STRING",
-        value: "BLOB"
-      }
+        cal_properties: {
+            item_id: "STRING",
+            key: "STRING",
+            value: "BLOB"
+        }
     };
 
     for (let tbl in tblData) {
@@ -1396,7 +1396,7 @@ upgrade.v21 = function(db, version) {
                             '      WHERE recur_type = "x-dateset" ' +
                             // ... and are not already empty.
                             '        AND dates != ""';
-                            dump(insertSQL + "\n");
+            dump(insertSQL + "\n");
 
             // Now we need to remove the first segment from the dates field
             let updateSQL = "UPDATE cal_recurrence" +

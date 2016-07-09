@@ -1,24 +1,20 @@
 <?xml version="1.0"?>
-
 <!-- This Source Code Form is subject to the terms of the Mozilla Public
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/.
 -->
 
 <bindings id="calendar-subscriptions-list-bindings"
-  xmlns="http://www.mozilla.org/xbl"
-  xmlns:html="http://www.w3.org/1999/xhtml"
-  xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-  xmlns:xbl="http://www.mozilla.org/xbl">
+          xmlns="http://www.mozilla.org/xbl"
+          xmlns:html="http://www.w3.org/1999/xhtml"
+          xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+          xmlns:xbl="http://www.mozilla.org/xbl">
 
   <binding id="calendar-subscriptions-richlistbox"
            extends="chrome://global/content/bindings/richlistbox.xml#richlistbox"
            xbl:inherits="flex">
 
     <implementation>
-
-      <!-- methods -->
-
       <method name="addCalendar">
         <parameter name="aCalendar"/>
         <parameter name="bSubscribed"/>
@@ -34,11 +30,10 @@
       <method name="clear">
         <body><![CDATA[
           while (this.hasChildNodes()) {
-            this.lastChild.remove();
+              this.lastChild.remove();
           }
         ]]></body>
       </method>
-
     </implementation>
   </binding>
 
@@ -52,13 +47,8 @@
     </content>
 
     <implementation>
-
-      <!-- fields -->
-
       <field name="mCalendar">null</field>
       <field name="mSubscribed">false</field>
-
-      <!-- properties -->
 
       <property name="calendar">
         <getter><![CDATA[
@@ -86,18 +76,18 @@
           let checkbox = document.getAnonymousElementByAttribute(
             this, "anonid", "subscription-checkbox");
           if (checkbox.getAttribute("checked") == "true") {
-            return true;
+              return true;
           } else {
-            return false;
+              return false;
           }
         ]]></getter>
         <setter><![CDATA[
           let checkbox = document.getAnonymousElementByAttribute(
             this, "anonid", "subscription-checkbox");
           if (val) {
-            checkbox.setAttribute("checked", "true");
+              checkbox.setAttribute("checked", "true");
           } else {
-            checkbox.removeAttribute("checked");
+              checkbox.removeAttribute("checked");
           }
           return val;
         ]]></setter>
@@ -108,39 +98,32 @@
           let checkbox = document.getAnonymousElementByAttribute(
             this, "anonid", "subscription-checkbox");
           if (checkbox.getAttribute("disabled") == "true") {
-            return true;
+              return true;
           } else {
-            return false;
+              return false;
           }
         ]]></getter>
         <setter><![CDATA[
           let checkbox = document.getAnonymousElementByAttribute(
             this, "anonid", "subscription-checkbox");
           if (val) {
-            checkbox.setAttribute("disabled", "true");
+              checkbox.setAttribute("disabled", "true");
           } else {
-            checkbox.removeAttribute("disabled");
+              checkbox.removeAttribute("disabled");
           }
           return val;
         ]]></setter>
       </property>
 
-      <!-- methods -->
-
       <method name="setCalendar">
         <parameter name="aCalendar"/>
-        <body>
-          <![CDATA[
-            this.mCalendar = aCalendar;
-            let label = document.getAnonymousElementByAttribute(
-                this, "anonid", "subscription-name");
-            label.setAttribute("value", aCalendar.name);
-          ]]>
-        </body>
+        <body><![CDATA[
+          this.mCalendar = aCalendar;
+          let label = document.getAnonymousElementByAttribute(
+              this, "anonid", "subscription-name");
+          label.setAttribute("value", aCalendar.name);
+        ]]></body>
       </method>
-
     </implementation>
-
   </binding>
-
 </bindings>

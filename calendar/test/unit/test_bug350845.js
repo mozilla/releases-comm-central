@@ -17,7 +17,7 @@ function run_test() {
 
     // Test setters
     throws(() => {
-      event.setPropertyParameter("X-UNKNOWN", "UNKNOWN", "VALUE");
+        event.setPropertyParameter("X-UNKNOWN", "UNKNOWN", "VALUE");
     }, /Property X-UNKNOWN not set/);
 
     // More setters
@@ -27,7 +27,7 @@ function run_test() {
 
     // Enumerator
     throws(() => {
-      event.getParameterEnumerator("X-UNKNOWN");
+        event.getParameterEnumerator("X-UNKNOWN");
     }, /Property X-UNKNOWN not set/);
 
     // More enumerator

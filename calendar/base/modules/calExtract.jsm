@@ -710,9 +710,9 @@ Extractor.prototype = {
                     this.collected[inner].start >= this.collected[outer].start &&
                     this.collected[inner].end <= this.collected[outer].end &&
                     !(this.collected[inner].start == this.collected[outer].start &&
-                        this.collected[inner].end == this.collected[outer].end)) {
-                        cal.LOG("[calExtract] " + this.collected[outer].str + " found as well, disgarding " + this.collected[inner].str);
-                        this.collected[inner].relation = "notadatetime";
+                      this.collected[inner].end == this.collected[outer].end)) {
+                    cal.LOG("[calExtract] " + this.collected[outer].str + " found as well, disgarding " + this.collected[inner].str);
+                    this.collected[inner].relation = "notadatetime";
                 }
             }
         }

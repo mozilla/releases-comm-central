@@ -112,7 +112,7 @@ var unifinderObserver = {
     },
 
     onPropertyDeleting: function(aCalendar, aName) {
-      this.onPropertyChanged(aCalendar, aName, null, null);
+        this.onPropertyChanged(aCalendar, aName, null, null);
     },
 
     // calICompositeObserver:
@@ -343,7 +343,7 @@ function unifinderSelect(event) {
             try {
                 selectedItems.push(unifinderTreeView.getItemAt(i));
             } catch (e) {
-               WARN("Error getting Event from row: " + e + "\n");
+                WARN("Error getting Event from row: " + e + "\n");
             }
         }
     }
@@ -420,8 +420,8 @@ var unifinderTreeView = {
         let treecols = tree.getElementsByTagName("treecol");
         for (let col of treecols) {
             if (col.getAttribute("sortActive")) {
-                  col.removeAttribute("sortActive");
-                  col.removeAttribute("sortDirection");
+                col.removeAttribute("sortActive");
+                col.removeAttribute("sortDirection");
             }
             if (aCol.getAttribute("itemproperty") == col.getAttribute("itemproperty")) {
                 col.setAttribute("sortActive", "true");
@@ -632,8 +632,8 @@ var unifinderTreeView = {
             // If only one item is selected, scroll to it
             let rowToScrollTo = this.getItemRow(aItemArray[0]);
             if (rowToScrollTo > -1) {
-               this.tree.ensureRowIsVisible(rowToScrollTo);
-               this.tree.view.selection.select(rowToScrollTo);
+                this.tree.ensureRowIsVisible(rowToScrollTo);
+                this.tree.view.selection.select(rowToScrollTo);
             }
         } else if (aItemArray && aItemArray.length > 1) {
             // If there is more than one item, just select them all.

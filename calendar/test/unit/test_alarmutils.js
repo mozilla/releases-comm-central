@@ -42,9 +42,9 @@ add_task(function* test_setDefaultValues_events() {
     equal(item.getAlarms({}).length, 0);
 
     let mockCalendar = {
-      getProperty: function() {
-        return ["SHOUT"];
-      }
+        getProperty: function() {
+            return ["SHOUT"];
+        }
     };
 
     Preferences.set("calendar.alarms.onforevents", 1);
@@ -69,7 +69,7 @@ add_task(function* test_setDefaultValues_tasks() {
     let calnow = cal.now;
     let nowDate = cal.createDateTime("20150815T120000");
     cal.now = function() {
-      return nowDate;
+        return nowDate;
     };
 
     Preferences.set("calendar.alarms.onfortodos", 1);
@@ -102,9 +102,9 @@ add_task(function* test_setDefaultValues_tasks() {
     equal(item.getAlarms({}).length, 0);
 
     let mockCalendar = {
-      getProperty: function() {
-        return ["SHOUT"];
-      }
+        getProperty: function() {
+            return ["SHOUT"];
+        }
     };
 
     Preferences.set("calendar.alarms.onfortodos", 1);

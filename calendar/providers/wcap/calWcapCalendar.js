@@ -134,9 +134,10 @@ calWcapCalendar.prototype = {
             case "capabilities.timezones.floating.supported":
             case "capabilities.timezones.UTC.supported":
             case "capabilities.attachments.supported":
-            case "capabilities.alarms.popup.supported": // CS cannot store X-props reliably
-                                                        // (thus writing X-MOZ stamps etc is not possible).
-                                                        // Popup alarms not available no matter what; wtf.
+            case "capabilities.alarms.popup.supported":
+                // CS cannot store X-props reliably
+                // (thus writing X-MOZ stamps etc is not possible).
+                // Popup alarms not available no matter what; wtf.
                 return false;
             case "capabilities.alarms.actionValues":
                 return ["EMAIL"];

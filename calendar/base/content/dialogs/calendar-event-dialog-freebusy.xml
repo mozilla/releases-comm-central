@@ -303,7 +303,7 @@
 
           let parent = template.parentNode;
           while (parent.childNodes.length > 1) {
-            parent.lastChild.remove();
+              parent.lastChild.remove();
           }
 
           template.force24Hours = this.mForce24Hours;
@@ -918,37 +918,37 @@
 
           if (this.mEntries) {
               for (let entry of this.mEntries) {
-                let rangeStart =
-                    entry.interval.start.getInTimezone(kDefaultTimezone);
-                let rangeEnd =
-                    entry.interval.end.getInTimezone(kDefaultTimezone);
+                  let rangeStart =
+                      entry.interval.start.getInTimezone(kDefaultTimezone);
+                  let rangeEnd =
+                      entry.interval.end.getInTimezone(kDefaultTimezone);
 
-                let isZeroLength = !newTime.compare(newEndTime);
-                if ((isZeroLength &&
-                     newTime.compare(rangeStart) >= 0 &&
-                     newTime.compare(rangeEnd) < 0) ||
-                    (!isZeroLength &&
-                     newTime.compare(rangeEnd) < 0 &&
-                     newEndTime.compare(rangeStart) > 0)) {
-                    // Current range of event conflicts with another event.
-                    // we need to find a new time for this event. A trivial approach
-                    // is to set the new start-time of the event equal to the end-time
-                    // of the conflict-range. All-day events need to be considered
-                    // separately, in which case we skip to the next day.
-                    newTime = rangeEnd.clone();
-                    if (allDay) {
-                        if (!((newTime.hour == 0) &&
-                             (newTime.minute == 0) &&
-                             (newTime.second == 0))) {
-                            newTime.day++;
-                            newTime.hour = 0;
-                            newTime.minute = 0;
-                            newTime.second = 0;
-                        }
-                    }
-                    newEndTime = newTime.clone();
-                    newEndTime.addDuration(duration);
-                }
+                  let isZeroLength = !newTime.compare(newEndTime);
+                  if ((isZeroLength &&
+                       newTime.compare(rangeStart) >= 0 &&
+                       newTime.compare(rangeEnd) < 0) ||
+                      (!isZeroLength &&
+                       newTime.compare(rangeEnd) < 0 &&
+                       newEndTime.compare(rangeStart) > 0)) {
+                      // Current range of event conflicts with another event.
+                      // we need to find a new time for this event. A trivial approach
+                      // is to set the new start-time of the event equal to the end-time
+                      // of the conflict-range. All-day events need to be considered
+                      // separately, in which case we skip to the next day.
+                      newTime = rangeEnd.clone();
+                      if (allDay) {
+                          if (!((newTime.hour == 0) &&
+                               (newTime.minute == 0) &&
+                               (newTime.second == 0))) {
+                              newTime.day++;
+                              newTime.hour = 0;
+                              newTime.minute = 0;
+                              newTime.second = 0;
+                          }
+                      }
+                      newEndTime = newTime.clone();
+                      newEndTime.addDuration(duration);
+                  }
               }
           }
 
@@ -1349,32 +1349,32 @@
                   let row = this.getFreeBusyElement(i);
                   let newTime = row.nextSlot(startTime, endTime, allDay);
                   if (newTime) {
-                    if (newTime.compare(startTime) != 0) {
-                        startTime = newTime;
+                      if (newTime.compare(startTime) != 0) {
+                          startTime = newTime;
 
-                        if (startTime.hour < this.mStartHour) {
-                            startTime.hour = this.mStartHour;
-                            startTime.minute = 0;
-                        }
+                          if (startTime.hour < this.mStartHour) {
+                              startTime.hour = this.mStartHour;
+                              startTime.minute = 0;
+                          }
 
-                        endTime = startTime.clone();
-                        endTime.addDuration(duration);
+                          endTime = startTime.clone();
+                          endTime.addDuration(duration);
 
-                        if (endTime.hour > this.mEndHour) {
-                            startTime.day++;
-                            startTime.hour = this.mStartHour;
-                            startTime.minute = 0;
-                            endTime = startTime.clone();
-                            endTime.addDuration(duration);
-                        }
+                          if (endTime.hour > this.mEndHour) {
+                              startTime.day++;
+                              startTime.hour = this.mStartHour;
+                              startTime.minute = 0;
+                              endTime = startTime.clone();
+                              endTime.addDuration(duration);
+                          }
 
-                        recheck = true;
-                    }
-                } else {
-                    // A new slot could not be found
-                    // and the given time was also invalid.
-                    return this.mStartDate.clone();
-                }
+                          recheck = true;
+                      }
+                  } else {
+                      // A new slot could not be found
+                      // and the given time was also invalid.
+                      return this.mStartDate.clone();
+                  }
               }
           } while (recheck);
 

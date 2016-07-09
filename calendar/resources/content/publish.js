@@ -15,12 +15,12 @@ Components.utils.import("resource://gre/modules/Services.jsm");
  * Show publish dialog, ask for URL and publish all selected items.
  */
 function publishCalendarData() {
-   let args = {};
+    let args = {};
 
-   args.onOk = self.publishCalendarDataDialogResponse;
+    args.onOk = self.publishCalendarDataDialogResponse;
 
-   openDialog("chrome://calendar/content/publishDialog.xul", "caPublishEvents",
-              "chrome,titlebar,modal,resizable", args);
+    openDialog("chrome://calendar/content/publishDialog.xul", "caPublishEvents",
+               "chrome,titlebar,modal,resizable", args);
 }
 
 /**
@@ -186,8 +186,7 @@ function publishItemArray(aItemArray, aPath, aProgressDialog) {
 }
 
 
-var notificationCallbacks =
-{
+var notificationCallbacks = {
     // nsIInterfaceRequestor interface
     getInterface: function(iid, instance) {
         if (iid.equals(Components.interfaces.nsIAuthPrompt)) {

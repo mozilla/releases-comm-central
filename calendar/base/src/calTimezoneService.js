@@ -667,29 +667,29 @@ function guessSystemTimezone() {
             let tzId = zoneInfoIdFromOSUserTimeZone;
             let score = checkTZ(tzId);
             switch (score) {
-            case 0:
-                // Did not match.
-                // Maybe OS or Application is old, and the timezone changed.
-                // Or maybe user turned off DST in Date/Time control panel.
-                // Will look for a better matching tz, or fallback to floating.
-                // (Match OS so alarms go off at time indicated by OS clock.)
-                cal.WARN(calProperties.formatStringFromName(
-                         "WarningOSTZNoMatch", [osUserTimeZone, zoneInfoIdFromOSUserTimeZone], 2));
-                break;
-            case 1: case 2:
-                // inexact match: OS TZ and our ZoneInfo TZ matched imperfectly.
-                // Will keep looking, will use tzId unless another is better.
-                // (maybe OS TZ has changed to match a nearby TZ, so maybe
-                // another ZoneInfo TZ matches it better).
-                probableTZId = tzId;
-                probableTZScore = score;
-                probableTZSource = calProperties.formatStringFromName(
-                    "TZFromOS", [osUserTimeZone], 1);
+                case 0:
+                    // Did not match.
+                    // Maybe OS or Application is old, and the timezone changed.
+                    // Or maybe user turned off DST in Date/Time control panel.
+                    // Will look for a better matching tz, or fallback to floating.
+                    // (Match OS so alarms go off at time indicated by OS clock.)
+                    cal.WARN(calProperties.formatStringFromName(
+                             "WarningOSTZNoMatch", [osUserTimeZone, zoneInfoIdFromOSUserTimeZone], 2));
+                    break;
+                case 1: case 2:
+                    // inexact match: OS TZ and our ZoneInfo TZ matched imperfectly.
+                    // Will keep looking, will use tzId unless another is better.
+                    // (maybe OS TZ has changed to match a nearby TZ, so maybe
+                    // another ZoneInfo TZ matches it better).
+                    probableTZId = tzId;
+                    probableTZScore = score;
+                    probableTZSource = calProperties.formatStringFromName(
+                        "TZFromOS", [osUserTimeZone], 1);
 
-                break;
-            case 3:
-                // exact match
-                return tzId;
+                    break;
+                case 3:
+                    // exact match
+                    return tzId;
             }
         }
     } catch (ex) {
@@ -712,17 +712,17 @@ function guessSystemTimezone() {
                 let score = checkTZ(tzId);
 
                 switch (score) {
-                case 0:
-                    break;
-                case 1: case 2:
-                    if (score > probableTZScore) {
-                        probableTZId = tzId;
-                        probableTZScore = score;
-                        probableTZSource = calProperties.GetStringFromName("TZFromLocale");
-                    }
-                    break;
-                case 3:
-                    return tzId;
+                    case 0:
+                        break;
+                    case 1: case 2:
+                        if (score > probableTZScore) {
+                            probableTZId = tzId;
+                            probableTZScore = score;
+                            probableTZSource = calProperties.GetStringFromName("TZFromLocale");
+                        }
+                        break;
+                    case 3:
+                        return tzId;
                 }
             } catch (ex) {
                 let errMsg = calProperties.formatStringFromName(
@@ -741,16 +741,16 @@ function guessSystemTimezone() {
         try {
             let score = checkTZ(tzId);
             switch (score) {
-            case 0: break;
-            case 1: case 2:
-                if (score > probableTZScore) {
-                    probableTZId = tzId;
-                    probableTZScore = score;
-                    probableTZSource = calProperties.GetStringFromName("TZFromKnownTimezones");
-                }
-                break;
-            case 3:
-                return tzId;
+                case 0: break;
+                case 1: case 2:
+                    if (score > probableTZScore) {
+                        probableTZId = tzId;
+                        probableTZScore = score;
+                        probableTZSource = calProperties.GetStringFromName("TZFromKnownTimezones");
+                    }
+                    break;
+                case 3:
+                    return tzId;
             }
         } catch (ex) { // bug if ics service doesn't recognize own tzid!
             let msg = "ics-service doesn't recognize own tzid: " + tzId + "\n" + ex;

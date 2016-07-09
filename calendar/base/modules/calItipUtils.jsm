@@ -19,7 +19,7 @@ cal.itip = {
      * the last received one of an attendee; see
      * <http://tools.ietf.org/html/draft-desruisseaux-caldav-sched-04#section-7.1>.
      */
-     getSequence: function(item) {
+    getSequence: function(item) {
         let seq = null;
 
         let wrappedItem = cal.wrapInstance(item, Components.interfaces.calIAttendee);
@@ -1099,11 +1099,11 @@ ItipOpListener.prototype = {
  * @param calendar calendar into which the item is about to be added or updated
  */
 function addScheduleAgentClient(item, calendar) {
-     if (calendar.getProperty("capabilities.autoschedule.supported") === true) {
-          if (item.organizer) {
-             item.organizer.setProperty("SCHEDULE-AGENT", "CLIENT");
-          }
-     }
+    if (calendar.getProperty("capabilities.autoschedule.supported") === true) {
+        if (item.organizer) {
+            item.organizer.setProperty("SCHEDULE-AGENT", "CLIENT");
+        }
+    }
 }
 
 var ItipItemFinderFactory = {
@@ -1310,64 +1310,64 @@ ItipItemFinder.prototype = {
                                     }
                                     break;
                                 case "REQUEST": {
-                                        let newItem = updateItem(item, itipItemItem);
-                                        let att = cal.getInvitedAttendee(newItem);
-                                        if (!att) { // fall back to using configured organizer
-                                            att = createOrganizer(newItem.calendar);
-                                            if (att) {
-                                                att.isOrganizer = false;
-                                            }
-                                        }
+                                    let newItem = updateItem(item, itipItemItem);
+                                    let att = cal.getInvitedAttendee(newItem);
+                                    if (!att) { // fall back to using configured organizer
+                                        att = createOrganizer(newItem.calendar);
                                         if (att) {
-                                            let firstFoundItem = this.mFoundItems[0];
-                                            // again, fall back to using configured organizer if not found
-                                            let foundAttendee = firstFoundItem.getAttendeeById(att.id) || att;
+                                            att.isOrganizer = false;
+                                        }
+                                    }
+                                    if (att) {
+                                        let firstFoundItem = this.mFoundItems[0];
+                                        // again, fall back to using configured organizer if not found
+                                        let foundAttendee = firstFoundItem.getAttendeeById(att.id) || att;
 
-                                            // If the the user hasn't responded to the invitation yet and we
-                                            // are viewing the current representation of the item, show the
-                                            // accept/decline buttons. This means newer events will show the
-                                            // "Update" button and older events will show the "already
-                                            // processed" text.
-                                            if (foundAttendee.participationStatus == "NEEDS-ACTION" &&
-                                                (item.calendar.getProperty("itip.disableRevisionChecks") ||
-                                                 cal.itip.compare(itipItemItem, item) == 0)) {
-                                                actionMethod = "REQUEST:NEEDS-ACTION";
-                                                operations.push((opListener, partStat) => {
-                                                    let changedItem = firstFoundItem.clone();
-                                                    changedItem.removeAttendee(foundAttendee);
-                                                    foundAttendee = foundAttendee.clone();
-                                                    if (partStat) {
-                                                        foundAttendee.participationStatus = partStat;
-                                                    }
-                                                    changedItem.addAttendee(foundAttendee);
+                                        // If the the user hasn't responded to the invitation yet and we
+                                        // are viewing the current representation of the item, show the
+                                        // accept/decline buttons. This means newer events will show the
+                                        // "Update" button and older events will show the "already
+                                        // processed" text.
+                                        if (foundAttendee.participationStatus == "NEEDS-ACTION" &&
+                                            (item.calendar.getProperty("itip.disableRevisionChecks") ||
+                                             cal.itip.compare(itipItemItem, item) == 0)) {
+                                            actionMethod = "REQUEST:NEEDS-ACTION";
+                                            operations.push((opListener, partStat) => {
+                                                let changedItem = firstFoundItem.clone();
+                                                changedItem.removeAttendee(foundAttendee);
+                                                foundAttendee = foundAttendee.clone();
+                                                if (partStat) {
+                                                    foundAttendee.participationStatus = partStat;
+                                                }
+                                                changedItem.addAttendee(foundAttendee);
 
-                                                    return changedItem.calendar.modifyItem(
-                                                        changedItem, firstFoundItem, new ItipOpListener(opListener, firstFoundItem));
-                                                });
-                                            } else if (item.calendar.getProperty("itip.disableRevisionChecks") ||
-                                                       cal.itip.compare(itipItemItem, item) > 0) {
-                                                addScheduleAgentClient(newItem, item.calendar);
+                                                return changedItem.calendar.modifyItem(
+                                                    changedItem, firstFoundItem, new ItipOpListener(opListener, firstFoundItem));
+                                            });
+                                        } else if (item.calendar.getProperty("itip.disableRevisionChecks") ||
+                                                   cal.itip.compare(itipItemItem, item) > 0) {
+                                            addScheduleAgentClient(newItem, item.calendar);
 
-                                                let isMinorUpdate = (cal.itip.getSequence(newItem) ==
-                                                                     cal.itip.getSequence(item));
-                                                actionMethod = (isMinorUpdate ? method + ":UPDATE-MINOR"
-                                                                              : method + ":UPDATE");
-                                                operations.push((opListener, partStat) => {
-                                                    if (!partStat) { // keep PARTSTAT
-                                                        let att_ = cal.getInvitedAttendee(item);
-                                                        partStat = (att_ ? att_.participationStatus : "NEEDS-ACTION");
-                                                    }
-                                                    newItem.removeAttendee(att);
-                                                    att = att.clone();
-                                                    att.participationStatus = partStat;
-                                                    newItem.addAttendee(att);
-                                                    return newItem.calendar.modifyItem(
-                                                        newItem, item, new ItipOpListener(opListener, item));
-                                                });
-                                            }
+                                            let isMinorUpdate = cal.itip.getSequence(newItem) ==
+                                                                cal.itip.getSequence(item);
+                                            actionMethod = (isMinorUpdate ? method + ":UPDATE-MINOR"
+                                                                          : method + ":UPDATE");
+                                            operations.push((opListener, partStat) => {
+                                                if (!partStat) { // keep PARTSTAT
+                                                    let att_ = cal.getInvitedAttendee(item);
+                                                    partStat = att_ ? att_.participationStatus : "NEEDS-ACTION";
+                                                }
+                                                newItem.removeAttendee(att);
+                                                att = att.clone();
+                                                att.participationStatus = partStat;
+                                                newItem.addAttendee(att);
+                                                return newItem.calendar.modifyItem(
+                                                    newItem, item, new ItipOpListener(opListener, item));
+                                            });
                                         }
                                     }
                                     break;
+                                }
                                 case "REPLY": {
                                     let attendees = itipItemItem.getAttendees({});
                                     cal.ASSERT(attendees.length == 1, "invalid number of attendees in REPLY!");

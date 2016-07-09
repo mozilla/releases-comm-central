@@ -301,7 +301,7 @@ var gCategoriesPane = {
         for (let i = 0; i < parent.backupPrefList.length; i++) {
             if (parent.backupPrefList[i].color == "##NEW") {
                 try {
-                   categoryPrefBranch.clearUserPref(parent.backupPrefList[i].name);
+                    categoryPrefBranch.clearUserPref(parent.backupPrefList[i].name);
                 } catch (ex) {
                     dump("Exception caught in 'panelOnCancel': " + ex + "\n");
                 }

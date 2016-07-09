@@ -17,7 +17,7 @@ function NYI() {
 }
 
 function ItipChannel(URI) {
-   this.URI = this.originalURI = URI;
+    this.URI = this.originalURI = URI;
 }
 var ItipChannelClassID = Components.ID("{643e0328-36f6-411d-a107-16238dff9cd7}");
 var ItipChannelInterfaces = [

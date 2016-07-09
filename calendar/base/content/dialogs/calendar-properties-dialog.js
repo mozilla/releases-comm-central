@@ -169,10 +169,10 @@ function initRefreshInterval() {
         }
 
         if (!foundValue) {
-          // Special menuitem in case the user changed the value in the config editor.
-          let menuitem = createMenuItem(refreshInterval);
-          separator.parentNode.insertBefore(menuitem, separator.nextSibling);
-          menulist.selectedItem = menuitem;
+            // Special menuitem in case the user changed the value in the config editor.
+            let menuitem = createMenuItem(refreshInterval);
+            separator.parentNode.insertBefore(menuitem, separator.nextSibling);
+            menulist.selectedItem = menuitem;
         }
     }
 }

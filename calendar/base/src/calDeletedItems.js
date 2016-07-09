@@ -17,9 +17,9 @@ function calDeletedItems() {
     this.wrappedJSObject = this;
 
     this.completedNotifier = {
-      handleResult: function() {},
-      handleError: function() {},
-      handleCompletion: function() {},
+        handleResult: function() {},
+        handleError: function() {},
+        handleCompletion: function() {},
     };
 }
 
