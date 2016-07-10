@@ -49,20 +49,40 @@ nsBeckyFilters::~nsBeckyFilters()
 }
 
 nsresult
-nsBeckyFilters::GetDefaultFilterFile(nsIFile **aFile)
+nsBeckyFilters::GetDefaultFilterLocation(nsIFile **aFile)
 {
+  NS_ENSURE_ARG_POINTER(aFile);
+
+  nsresult rv;
+  nsCOMPtr<nsIFile> filterDir;
+  rv = nsBeckyUtils::GetDefaultMailboxDirectory(getter_AddRefs(filterDir));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  filterDir.forget(aFile);
+  return NS_OK;
+}
+
+nsresult
+nsBeckyFilters::GetFilterFile(bool aIncoming, nsIFile *aLocation, nsIFile **aFile)
+{
+  NS_ENSURE_ARG_POINTER(aLocation);
+  NS_ENSURE_ARG_POINTER(aFile);
+
+  // We assume the caller has already checked that aLocation is a directory,
+  // otherwise it would not make sense to call us.
+
   nsresult rv;
   nsCOMPtr<nsIFile> filter;
-  rv = nsBeckyUtils::GetDefaultMailboxDirectory(getter_AddRefs(filter));
+  aLocation->Clone(getter_AddRefs(filter));
+  if (aIncoming)
+    rv = filter->Append(NS_LITERAL_STRING("IFilter.def"));
+  else
+    rv = filter->Append(NS_LITERAL_STRING("OFilter.def"));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  rv = filter->Append(NS_LITERAL_STRING("IFilter.def"));
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  bool exists;
+  bool exists = false;
   rv = filter->Exists(&exists);
   NS_ENSURE_SUCCESS(rv, rv);
-
   if (!exists)
     return NS_ERROR_FILE_NOT_FOUND;
 
@@ -75,18 +95,19 @@ nsBeckyFilters::AutoLocate(char16_t **aDescription,
                            nsIFile **aLocation,
                            bool *_retval)
 {
-  NS_ENSURE_ARG_POINTER(aDescription);
   NS_ENSURE_ARG_POINTER(aLocation);
   NS_ENSURE_ARG_POINTER(_retval);
 
-  *aDescription =
-    nsBeckyStringBundle::GetStringByName(MOZ_UTF16("BeckyImportDescription"));
+  if (aDescription) {
+    *aDescription =
+      nsBeckyStringBundle::GetStringByName(MOZ_UTF16("BeckyImportDescription"));
+  }
   *aLocation = nullptr;
   *_retval = false;
 
   nsresult rv;
   nsCOMPtr<nsIFile> location;
-  rv = GetDefaultFilterFile(getter_AddRefs(location));
+  rv = GetDefaultFilterLocation(getter_AddRefs(location));
   if (NS_FAILED(rv))
     location = do_CreateInstance(NS_LOCAL_FILE_CONTRACTID, &rv);
   else
@@ -99,6 +120,14 @@ nsBeckyFilters::AutoLocate(char16_t **aDescription,
 NS_IMETHODIMP
 nsBeckyFilters::SetLocation(nsIFile *aLocation)
 {
+  NS_ENSURE_ARG_POINTER(aLocation);
+
+  bool exists = false;
+  nsresult rv = aLocation->Exists(&exists);
+  NS_ENSURE_SUCCESS(rv, rv);
+  if (!exists)
+    return NS_ERROR_FILE_NOT_FOUND;
+
   mLocation = aLocation;
   return NS_OK;
 }
@@ -455,7 +484,7 @@ nsBeckyFilters::SetRuleAction(const nsCString &aLine, nsIMsgFilter *aFilter)
 }
 
 nsresult
-nsBeckyFilters::CreateFilter(nsIMsgFilter **_retval)
+nsBeckyFilters::CreateFilter(bool aIncoming, nsIMsgFilter **_retval)
 {
   NS_ENSURE_STATE(mServer);
 
@@ -466,6 +495,11 @@ nsBeckyFilters::CreateFilter(nsIMsgFilter **_retval)
   nsCOMPtr<nsIMsgFilter> filter;
   rv = filterList->CreateFilter(EmptyString(), getter_AddRefs(filter));
   NS_ENSURE_SUCCESS(rv, rv);
+
+  if (aIncoming)
+    filter->SetFilterType(nsMsgFilterType::InboxRule | nsMsgFilterType::Manual);
+  else
+    filter->SetFilterType(nsMsgFilterType::PostOutgoing | nsMsgFilterType::Manual);
 
   filter->SetEnabled(true);
   filter.forget(_retval);
@@ -490,7 +524,7 @@ nsBeckyFilters::AppendFilter(nsIMsgFilter *aFilter)
 }
 
 nsresult
-nsBeckyFilters::ParseFilterFile(nsIFile *aFile)
+nsBeckyFilters::ParseFilterFile(nsIFile *aFile, bool aIncoming)
 {
   nsresult rv;
   nsCOMPtr<nsILineInputStream> lineStream;
@@ -507,7 +541,7 @@ nsBeckyFilters::ParseFilterFile(nsIFile *aFile)
     switch (line.CharAt(0)) {
       case ':':
         if (line.EqualsLiteral(":Begin \"\"")) {
-          CreateFilter(getter_AddRefs(filter));
+          CreateFilter(aIncoming, getter_AddRefs(filter));
         } else if (line.EqualsLiteral(":End \"\"")) {
           if (filter)
             AppendFilter(filter);
@@ -540,23 +574,88 @@ nsBeckyFilters::Import(char16_t **aError,
   NS_ENSURE_ARG_POINTER(aError);
   NS_ENSURE_ARG_POINTER(_retval);
 
+  // If mLocation is null, set it to the default filter directory.
+  // If mLocation is a file, we import it as incoming folder.
+  // If mLocation is a directory, we try to import incoming and outgoing folders
+  // from it (in default files).
+
   *_retval = false;
-
   nsresult rv;
-  if (!mLocation && NS_FAILED(GetDefaultFilterFile(getter_AddRefs(mLocation))))
-    return NS_ERROR_FILE_NOT_FOUND;
+  nsCOMPtr<nsIFile> filterFile;
 
-  rv = CollectServers();
+  bool haveFile = false;
+
+  if (!mLocation) {
+    bool retval = false;
+    rv = AutoLocate(nullptr, getter_AddRefs(mLocation), &retval);
+    NS_ENSURE_SUCCESS(rv, rv);
+    if (!retval)
+      return NS_ERROR_FILE_NOT_FOUND;
+  }
+
+  // What type of location do we have?
+  bool isDirectory = false;
+  rv = mLocation->IsDirectory(&isDirectory);
   NS_ENSURE_SUCCESS(rv, rv);
+  if (isDirectory) {
+    haveFile = false;
+  } else {
+    bool isFile = false;
+    rv = mLocation->IsFile(&isFile);
+    NS_ENSURE_SUCCESS(rv, rv);
+    if (isFile) {
+      haveFile = true;
+      mLocation->Clone(getter_AddRefs(filterFile));
+    } else {
+      // mLocation is neither file nor directory.
+      return NS_ERROR_UNEXPECTED;
+    }
+  }
 
-  rv = nsBeckyUtils::ConvertToUTF8File(mLocation, getter_AddRefs(mConvertedFile));
-  NS_ENSURE_SUCCESS(rv, rv);
+  bool haveIncoming = true;
+  if (haveFile) {
+    // If the passed filename equals OFilter.def, import as outgoing filters.
+    // Everything else is considered incoming.
+    nsAutoString fileName;
+    rv = mLocation->GetLeafName(fileName);
+    NS_ENSURE_SUCCESS(rv, rv);
+    if (fileName.EqualsLiteral("OFilter.def"))
+      haveIncoming = false;
+  }
 
-  rv = ParseFilterFile(mConvertedFile);
-  if (NS_SUCCEEDED(rv))
-    *_retval = true;
+  // Try importing from the passed in file or the default incoming filters file.
+  if ((haveFile && haveIncoming) || (!haveFile &&
+      NS_SUCCEEDED(GetFilterFile(true, mLocation, getter_AddRefs(filterFile)))))
+  {
+    rv = CollectServers();
+    NS_ENSURE_SUCCESS(rv, rv);
 
-  RemoveConvertedFile();
+    rv = nsBeckyUtils::ConvertToUTF8File(filterFile, getter_AddRefs(mConvertedFile));
+    NS_ENSURE_SUCCESS(rv, rv);
+
+    rv = ParseFilterFile(mConvertedFile, true);
+    if (NS_SUCCEEDED(rv))
+      *_retval = true;
+
+    (void)RemoveConvertedFile();
+  }
+
+  // If we didn't have a file passed (but a directory), try finding also outgoing filters.
+  if ((haveFile && !haveIncoming) || (!haveFile &&
+      NS_SUCCEEDED(GetFilterFile(false, mLocation, getter_AddRefs(filterFile)))))
+  {
+    rv = CollectServers();
+    NS_ENSURE_SUCCESS(rv, rv);
+
+    rv = nsBeckyUtils::ConvertToUTF8File(filterFile, getter_AddRefs(mConvertedFile));
+    NS_ENSURE_SUCCESS(rv, rv);
+
+    rv = ParseFilterFile(mConvertedFile, false);
+    if (NS_SUCCEEDED(rv))
+      *_retval = true;
+
+    (void)RemoveConvertedFile();
+  }
 
   return rv;
 }
@@ -679,13 +778,16 @@ nsBeckyFilters::CollectServers()
 nsresult
 nsBeckyFilters::RemoveConvertedFile()
 {
+  nsresult rv = NS_OK;
   if (mConvertedFile) {
-    bool exists;
+    bool exists = false;
     mConvertedFile->Exists(&exists);
-    if (exists)
-      mConvertedFile->Remove(false);
-    mConvertedFile = nullptr;
+    if (exists) {
+      rv = mConvertedFile->Remove(false);
+      if (NS_SUCCEEDED(rv))
+        mConvertedFile = nullptr;
+    }
   }
-  return NS_OK;
+  return rv;
 }
 

@@ -31,8 +31,9 @@ private:
   nsCOMPtr<nsIMsgIncomingServer> mServer;
   nsCOMPtr<nsIFile> mConvertedFile;
 
-  nsresult GetDefaultFilterFile(nsIFile **aFile);
-  nsresult ParseFilterFile(nsIFile *aFile);
+  nsresult GetDefaultFilterLocation(nsIFile **aFile);
+  nsresult GetFilterFile(bool aIncoming, nsIFile *aLocation, nsIFile **aFile);
+  nsresult ParseFilterFile(nsIFile *aFile, bool aIncoming);
   nsresult ParseRuleLine(const nsCString &aLine,
                          nsMsgSearchAttribValue *aSearchAttribute,
                          nsMsgSearchOpValue *aSearchOperator,
@@ -66,7 +67,7 @@ private:
                               nsIMsgFilter *aFilter,
                               const nsMsgRuleActionType &aActionType,
                               nsIMsgRuleAction **_retval);
-  nsresult CreateFilter(nsIMsgFilter **_retval);
+  nsresult CreateFilter(bool aIncoming, nsIMsgFilter **_retval);
   nsresult AppendFilter(nsIMsgFilter *aFilter);
   nsresult SetRuleAction(const nsCString &aLine, nsIMsgFilter *aFilter);
   nsresult SetSearchTerm(const nsCString &aLine, nsIMsgFilter *aFilter);

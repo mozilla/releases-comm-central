@@ -28,11 +28,12 @@
 #include "nsThreadUtils.h"
 
 #include "nsBeckyUtils.h"
-#include <windows.h>
 
 nsresult
 nsBeckyUtils::FindUserDirectoryOnWindows7(nsIFile **aLocation)
 {
+  NS_ENSURE_ARG_POINTER(aLocation);
+
   nsresult rv;
   nsCOMPtr<nsIFile> directory;
   rv = GetSpecialDirectoryWithFileName(NS_WIN_DOCUMENTS_DIR,
@@ -43,8 +44,13 @@ nsBeckyUtils::FindUserDirectoryOnWindows7(nsIFile **aLocation)
   bool exists = false;
   rv = directory->Exists(&exists);
   NS_ENSURE_SUCCESS(rv, rv);
-
   if (!exists)
+    return NS_ERROR_FILE_NOT_FOUND;
+
+  bool isDirectory = false;
+  rv = directory->IsDirectory(&isDirectory);
+  NS_ENSURE_SUCCESS(rv, rv);
+  if (!isDirectory)
     return NS_ERROR_FILE_NOT_FOUND;
 
   directory.forget(aLocation);
@@ -54,8 +60,9 @@ nsBeckyUtils::FindUserDirectoryOnWindows7(nsIFile **aLocation)
 nsresult
 nsBeckyUtils::FindUserDirectoryOnWindowsXP(nsIFile **aLocation)
 {
-  nsresult rv;
+  NS_ENSURE_ARG_POINTER(aLocation);
 
+  nsresult rv;
   nsCOMPtr<nsIFile> directory = do_CreateInstance(NS_LOCAL_FILE_CONTRACTID, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
@@ -65,8 +72,13 @@ nsBeckyUtils::FindUserDirectoryOnWindowsXP(nsIFile **aLocation)
   bool exists = false;
   rv = directory->Exists(&exists);
   NS_ENSURE_SUCCESS(rv, rv);
-
   if (!exists)
+    return NS_ERROR_FILE_NOT_FOUND;
+
+  bool isDirectory = false;
+  rv = directory->IsDirectory(&isDirectory);
+  NS_ENSURE_SUCCESS(rv, rv);
+  if (!isDirectory)
     return NS_ERROR_FILE_NOT_FOUND;
 
   nsCOMPtr<nsISimpleEnumerator> entries;
@@ -189,8 +201,13 @@ nsBeckyUtils::GetDefaultMailboxDirectory(nsIFile **_retval)
   bool exists;
   rv = userDirectory->Exists(&exists);
   NS_ENSURE_SUCCESS(rv, rv);
-
   if (!exists)
+    return NS_ERROR_FILE_NOT_FOUND;
+
+  bool isDirectory = false;
+  rv = userDirectory->IsDirectory(&isDirectory);
+  NS_ENSURE_SUCCESS(rv, rv);
+  if (!isDirectory)
     return NS_ERROR_FILE_NOT_FOUND;
 
   userDirectory.forget(_retval);

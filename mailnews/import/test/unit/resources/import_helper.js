@@ -5,7 +5,8 @@ Components.utils.import("resource:///modules/mailServices.js");
 var gGenericImportHelper;
 /**
  * GenericImportHelper
- * The parent class of AbImportHelper and MailImportHelper.
+ * The parent class of AbImportHelper, MailImportHelper, SettingsImportHelper
+ *                     and FiltersImportHelper.
  *
  * @param aModuleType The type of import module. Should be addressbook or mail.
  * @param aModuleSearchString
@@ -20,7 +21,7 @@ var gGenericImportHelper;
 function GenericImportHelper(aModuleType, aModuleSearchString, aFile)
 {
   gGenericImportHelper = null;
-  if (["addressbook", "mail", "settings"].indexOf(aModuleType) == -1)
+  if (!["addressbook", "mail", "settings", "filters"].includes(aModuleType))
     do_throw("Unexpected type passed to the GenericImportHelper constructor");
   this.mModuleType = aModuleType;
   this.mModuleSearchString = aModuleSearchString;
@@ -402,10 +403,6 @@ function SettingsImportHelper(aFile, aModuleSearchString, aExpected)
 {
   GenericImportHelper.call(this, "settings", aModuleSearchString, aFile);
   this.mExpected = aExpected;
-  this.mInterface = this._findInterface();
-  do_check_neq(this.mInterface, null);
-
-  this.mFile = aFile;
 }
 
 SettingsImportHelper.prototype =
@@ -420,7 +417,7 @@ SettingsImportHelper.prototype =
   beginImport: function() {
     this._ensureNoAccounts();
     if (this.mFile)
-      this.mInterface.SetLocation(this.mFile)
+      this.mInterface.SetLocation(this.mFile);
     else
       do_check_eq(true, this.mInterface.AutoLocate({}, {}));
     do_check_eq(true, this.mInterface.Import({}));
@@ -513,5 +510,75 @@ SettingsImportHelper.prototype =
     }
   }
 }
+
+/**
+ * FiltersImportHelper
+ * A helper for filter imports.
+ *
+ * @param aFile      An instance of nsIFile to import.
+ * @param aModuleSearchString
+ *                   The string to search the module names for, such as
+ *                   "Outlook Express", etc.
+ * @param aExpected  The number of filters that should exists after import.
+ *
+ * @constructor
+ * @class
+ */
+function FiltersImportHelper(aFile, aModuleSearchString, aExpected)
+{
+  GenericImportHelper.call(this, "filters", aModuleSearchString, aFile);
+  this.mExpected = aExpected;
+}
+
+FiltersImportHelper.prototype =
+{
+  __proto__: GenericImportHelper.prototype,
+  interfaceType: Ci.nsIImportFilters,
+
+  /**
+   * FiltersImportHelper.beginImport
+   * Imports filters from a specific file/folder or auto-located if the file is null,
+   * and compare the import results with the expected array.
+   */
+  beginImport: function() {
+    if (this.mFile)
+      this.mInterface.SetLocation(this.mFile);
+    else
+      do_check_eq(true, this.mInterface.AutoLocate({}, {}));
+    do_check_eq(true, this.mInterface.Import({}));
+    this.checkResults();
+  },
+
+  _loopOverFilters: function(aFilterList, aCondition) {
+    let result = 0;
+    for (let i = 0; i < aFilterList.filterCount; i++) {
+      let filter = aFilterList.getFilterAt(i);
+      if (aCondition(filter))
+        result++;
+    }
+    return result;
+  },
+
+  checkResults: function() {
+    let expected = this.mExpected;
+    let server = MailServices.accounts.localFoldersServer;
+    let filterList = server.getFilterList(null);
+    if ("count" in expected)
+      do_check_eq(filterList.filterCount, expected.count);
+    if ("enabled" in expected)
+      do_check_eq(this._loopOverFilters(filterList, f => f.enabled), expected.enabled);
+    if ("incoming" in expected) {
+      do_check_eq(this._loopOverFilters(filterList,
+                                        f => (f.filterType & Ci.nsMsgFilterType.InboxRule)),
+                                        expected.incoming);
+    }
+    if ("outgoing" in expected) {
+      do_check_eq(this._loopOverFilters(filterList,
+                                        f => (f.filterType & Ci.nsMsgFilterType.PostOutgoing)),
+                                        expected.outgoing);
+    }
+  }
+}
+
 
 do_load_manifest("resources/TestMailImporter.manifest");

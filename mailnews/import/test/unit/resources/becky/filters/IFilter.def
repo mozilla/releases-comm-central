@@ -1,0 +1,23 @@
+Version=1
+AutoSorting=1
+OnlyRead=0
+OnlyOneFolder=1
+:Begin ""
+!M:11111111.mb\!!!!Inbox\Sub11_OR_12\
+@0:Subject:Subject11	O	I
+@0:Subject:Subject12	O	I
+$O:Sort=1
+:End ""
+:Begin ""
+!M:11111111.mb\!!!!Inbox\From11_OR_12\
+@0:From:From11@example.com	O	I
+@0:From:From12@example.com	O	I
+$O:Sort=1
+:End ""
+:Begin ""
+!M:11111111.mb\!!!!Inbox\Sub12+From11\
+@0:Subject:Subject12	O	I
+@1:From:From11@example.com	O	I
+$O:Sort=1
+$X:disabled
+:End ""
