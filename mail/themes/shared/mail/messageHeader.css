@@ -133,7 +133,7 @@ toolbarpaletteitem #hdrDummyReplyButton {
 }
 
 .emailStar:focus {
-  border: 1px dotted;
+  outline: 1px dotted;
 }
 
 .emaillabel {

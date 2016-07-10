@@ -483,10 +483,8 @@ mail-emailaddress[selected="true"] .emailDisplayButton{
 }
 
 .emailDisplayButton:focus {
-  border-top: 1px dotted #F6A942; /* Lightest hue from orange gradient */
-  border-bottom: 1px dotted #F9CE90; /* Darkest hue from orange gradient */
-  border-left: 1px dotted #F8BA67; /* Middle hue from orange gradient */
-  border-right: 1px dotted #F8BA67; /* Middle hue from orange gradient */
+  outline: 1px dotted #F8BA67; /* Middle hue from orange gradient */
+  outline-offset: -1px;
 }
 
 .emailStar {
@@ -494,9 +492,9 @@ mail-emailaddress[selected="true"] .emailDisplayButton{
   max-height: 1em;
   -moz-appearance: none;
   -moz-box-orient: vertical;
-  margin-inline-start: -1px !important;
-  padding: 0px;
-  margin: 0px 2px;
+  margin: 0 2px;
+  margin-inline-start: -1px;
+  padding: 0;
   list-style-image: url("chrome://messenger/skin/starIcons.png");
   -moz-image-region: rect(0px, 16px, 16px, 0px);
 }
