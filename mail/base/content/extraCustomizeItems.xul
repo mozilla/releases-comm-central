@@ -79,8 +79,9 @@
                    class="menulist-menupopup"
                    type="folder"
                    flex="1"
+                   mode="notDeferred"
                    showFileHereLabel="true"
-                   oncommand="gFolderTreeView.selectFolder(event.target._folder);"/>
+                   oncommand="gFolderTreeView.selectFolder(event.target._folder, true);"/>
       </menulist>
     </toolbaritem>
     <toolbaritem id="mailviews-container"

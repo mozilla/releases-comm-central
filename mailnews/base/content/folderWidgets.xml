@@ -147,6 +147,13 @@
                  !aFolder.supportsOffline;
         },
 
+        // Folders that are not in a deferred account
+        notDeferred: function(aFolder) {
+          let server = aFolder.server;
+          return !(server instanceof Components.interfaces.nsIPop3IncomingServer &&
+                   server.deferredToAccount);
+        },
+
         // Folders that can be searched.
         search: function filter_search(aFolder) {
           if (!aFolder.server.canSearchMessages ||

@@ -508,7 +508,7 @@ var gFolderTreeView = {
    * @returns true if the folder selection was successful, false if it failed
    *     (probably because the folder isn't in the view at all)
    */
-  selectFolder: function ftv_selectFolder(aFolder, aForceSelect) {
+  selectFolder: function ftv_selectFolder(aFolder, aForceSelect = false) {
     // "this" inside the nested function refers to the function...
     // Also note that openIfNot is recursive.
     let tree = this;
