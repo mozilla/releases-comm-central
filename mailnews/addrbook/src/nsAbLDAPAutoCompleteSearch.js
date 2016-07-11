@@ -167,8 +167,8 @@ nsAbLDAPAutoCompleteSearch.prototype = {
 
   startSearch: function startSearch(aSearchString, aParam,
                                     aPreviousResult, aListener) {
-    let params = JSON.parse(aParam);
-    let applicable = !params.type || this.applicableHeaders.has(params.type);
+    let params = JSON.parse(aParam) || {};
+    let applicable = !("type" in params) || this.applicableHeaders.has(params.type);
 
     this._result = new nsAbLDAPAutoCompleteResult(aSearchString);
     aSearchString = aSearchString.toLocaleLowerCase();
@@ -189,7 +189,7 @@ nsAbLDAPAutoCompleteSearch.prototype = {
     var acDirURI = null;
     var identity;
 
-    if (params.idKey) {
+    if ("idKey" in params) {
       try {
         identity = MailServices.accounts.getIdentity(params.idKey);
       }

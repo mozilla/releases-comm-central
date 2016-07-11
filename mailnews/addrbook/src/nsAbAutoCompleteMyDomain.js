@@ -18,12 +18,12 @@ nsAbAutoCompleteMyDomain.prototype = {
   applicableHeaders: new Set(["addr_to", "addr_cc", "addr_bcc", "addr_reply"]),
 
   startSearch: function(aString, aSearchParam, aResult, aListener) {
-    let params = JSON.parse(aSearchParam);
-    let applicable = this.applicableHeaders.has(params.type);
+    let params = aSearchParam ? JSON.parse(aSearchParam) : {};
+    let applicable = ("type" in params) && this.applicableHeaders.has(params.type);
     const ACR = Components.interfaces.nsIAutoCompleteResult;
     var address = null;
     if (applicable && aString && !aString.includes(",")) {
-      if (params.idKey != this.cachedIdKey) {
+      if (("idKey" in params) && (params.idKey != this.cachedIdKey)) {
         this.cachedIdentity = MailServices.accounts.getIdentity(params.idKey);
         this.cachedIdKey = params.idKey;
       }

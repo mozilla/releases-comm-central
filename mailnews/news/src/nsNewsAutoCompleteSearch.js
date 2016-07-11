@@ -94,16 +94,16 @@ nsNewsAutoCompleteSearch.prototype = {
   // nsIAutoCompleteSearch
   startSearch: function startSearch(aSearchString, aSearchParam,
                                     aPreviousResult, aListener) {
-    let params = JSON.parse(aSearchParam);
+    let params = aSearchParam ? JSON.parse(aSearchParam) : {};
     let result = new nsNewsAutoCompleteResult(aSearchString);
-    if (!params.type || !params.accountKey ||
+    if (!("type" in params) || !("accountKey" in params) ||
         !kSupportedTypes.has(params.type)) {
       result.searchResult = kACR.RESULT_IGNORED;
       aListener.onSearchResult(this, result);
       return;
     }
 
-    if (params.accountKey != this.cachedAccountKey) {
+    if (("accountKey" in params) && (params.accountKey != this.cachedAccountKey)) {
       this.cachedAccountKey  = params.accountKey;
       this.cachedServer = this._findServer(params.accountKey);
     }
