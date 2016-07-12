@@ -400,8 +400,6 @@
 @RESPATH@/components/FormAutofillStartup.js
 @RESPATH@/components/htmlMenuBuilder.js
 @RESPATH@/components/htmlMenuBuilder.manifest
-@RESPATH@/components/jsconsole-clhandler.js
-@RESPATH@/components/jsconsole-clhandler.manifest
 @RESPATH@/components/messageWakeupService.js
 @RESPATH@/components/messageWakeupService.manifest
 @RESPATH@/components/NetworkGeolocationProvider.js
