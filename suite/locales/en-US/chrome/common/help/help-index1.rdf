@@ -1003,6 +1003,11 @@
          nc:link="mailnews_addressbooks.xhtml#adding_and_removing_ldap_directories"/>
      </rdf:li>
      <rdf:li>
+       <rdf:Description ID="location_aware_browsing"
+         nc:name="location aware browsing preferences"
+         nc:link="privsec_help.xhtml#location_aware_browsing"/>
+     </rdf:li>
+     <rdf:li>
        <rdf:Description ID="lock_icon"
          nc:name="lock icon"
          nc:link="using_certs_help.xhtml#checking_security_for_a_web_page"/>

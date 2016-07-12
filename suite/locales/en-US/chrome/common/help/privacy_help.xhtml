@@ -223,6 +223,12 @@
     serve as a reference to your geographical location. Even without cookies,
     multiple accesses to one or more websites from the same location can be
     associated with each other in this way.</li>
+  <li><a href="privsec_help.xhtml#location_aware_browsing">Geolocation</a>:
+    Much more detailed information about the user&apos;s location can be
+    obtained with location aware browsing services. Based on additional
+    information gathered by the browser, such as wireless access points,
+    a user&apos;s position and (in certain situations) heading and speed can
+    be determined and used by the website to track the user.</li>
   <li><a href="#what_information_does_my_browser_give_to_a_website">Browser
     Fingerprinting</a>: This method attempts to identify specific users based
     on the characteristics of the browser that they are using. Such
@@ -247,6 +253,13 @@
     the purpose of user tracking based on a list downloaded periodically
     from a server. In this way, connections to such <em>known</em> tracking
     sites can be prevented upfront.</li>
+  <!-- NOTE: link "Data Manager" below once bug 599097 has been fixed -->
+  <li><a href="privsec_help.xhtml#location_aware_browsing">Location Aware
+    Browsing</a>: Disabling geolocation services prevents a website from
+    obtaining location information beyond what can be derived from the IP
+    address of the access alone. Note though that this is always an opt-in
+    service, thus you will get a notification for each request unless you
+    gave a website permanent permission to use geolocation services.</li>
   <!-- NOTE: link "Data Manager" below once bug 599097 has been fixed -->
   <li><a href="using_priv_help.xhtml#cookies">Cookies</a>: The power of
     tracking cookies is their persistence across sessions. Thus, when you

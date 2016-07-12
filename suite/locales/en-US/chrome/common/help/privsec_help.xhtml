@@ -123,6 +123,59 @@
     window</a>, these options aren&apos;t present in the notification bar.</li>
 </ul>
 
+<h3 id="location_aware_browsing">Location Aware Browsing</h3>
+
+<p>Websites may want to obtain more detailed information about the user&apos;s
+  location, e.g., to offer specific services close to the current position. For
+  that purpose, they can request the longitude and latitude (along with other
+  information like altitude and heading, as available) from a browser.
+  &brandShortName; will never provide that information without the user&apos;s
+  consent. However, a notification is displayed for a page that requests the
+  location at least the first time that this site is visited. The preferences
+  located in the center section of the <a href="#privacy_and_security">Privacy
+  &amp; Security panel</a> allow you to disable this feature entirely:</p>
+
+<ul>
+  <li><strong>Prompt me for permission if a request is made</strong>: Select
+    this if you want &brandShortName; to prompt you if the website you are
+    visiting is requesting geolocation information. The notification provides
+    the following options:
+    <ul>
+      <li><strong>Share location</strong>: Select this option if you want the
+        current location to be determined and forwarded to the requesting site,
+        for <em>this</em> request only.</li>
+      <li><strong>Not for this request</strong>: Select this option if you do
+        <em>not</em> want the current location to be determined and forwarded
+        to the requesting site, prompt again for the next request.</li>
+      <li><strong>Always for this site</strong>: Select this option if you
+        want the current location to be determined and forwarded to the
+        requesting site, also for all <em>future</em> requests.</li>
+      <li><strong>Never for this site</strong>: Select this option if you do
+        <em>not</em> want the current location to be determined and forwarded
+        to the requesting site, also for all <em>future</em> requests.</li>
+    </ul>
+    Closing or dismissing the notification will not give any response to the
+    requesting page at all.</li>
+  <li><strong>Disable this feature and deny all requests</strong>: Select this
+    option for not being prompted for geolocation requests. &brandShortName;
+    will appear to a website as if it doesn&apos;t support this feature.</li>
+</ul>
+
+<p><strong>Notes</strong>:</p>
+
+<ul>
+  <li>Geolocation is a third-party web-based service. &brandShortName; collects
+    certain information about your internet access (e.g., wireless access
+    points) and sends those to this service.</li>
+  <li>The accuracy of the response varies and may range from city level to
+    within a few meters of your actual location.</li>
+  <li>No information about the requesting site itself is provided to the
+    geolocation service. The information returned by that service is provided
+    to the website by &brandShortName; in response to its request.</li>
+  <li>The requesting site receives an identification token that allows it to
+    track your movement for a limited time using the geolocation service.</li>
+</ul>
+
 <h3 id="safe_browsing">Safe Browsing</h3>
 
 <p>Some websites contain potentially dangerous content and may have been

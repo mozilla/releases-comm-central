@@ -57,6 +57,7 @@
         <rdf:li> <rdf:Description nc:name="foreign cookie" nc:link="glossary.xhtml#foreign_cookie"/> </rdf:li>
         <rdf:li> <rdf:Description nc:name="frame" nc:link="glossary.xhtml#frame"/> </rdf:li>
         <rdf:li> <rdf:Description nc:name="FTP" nc:link="glossary.xhtml#ftp"/> </rdf:li>
+        <rdf:li> <rdf:Description nc:name="geolocation service" nc:link="glossary.xhtml#geolocation_service"/> </rdf:li>
         <rdf:li> <rdf:Description nc:name="GSSAPI" nc:link="glossary.xhtml#gssapi"/> </rdf:li>
         <rdf:li> <rdf:Description nc:name="helper application" nc:link="glossary.xhtml#helper_application"/> </rdf:li>
         <rdf:li> <rdf:Description nc:name="home page" nc:link="glossary.xhtml#home_page"/> </rdf:li>
@@ -76,6 +77,7 @@
         <rdf:li> <rdf:Description nc:name="LaTeX" nc:link="glossary.xhtml#latex"/> </rdf:li>
         <rdf:li> <rdf:Description nc:name="LDAP" nc:link="glossary.xhtml#ldap"/> </rdf:li>
         <rdf:li> <rdf:Description nc:name="language pack" nc:link="glossary.xhtml#language_pack"/> </rdf:li>
+        <rdf:li> <rdf:Description nc:name="location aware browsing" nc:link="glossary.xhtml#location_aware_browsing"/> </rdf:li>
         <rdf:li> <rdf:Description nc:name="Location Bar" nc:link="glossary.xhtml#location_bar"/> </rdf:li>
         <rdf:li> <rdf:Description nc:name="Malware" nc:link="glossary.xhtml#malware"/> </rdf:li>
         <rdf:li> <rdf:Description nc:name="master key" nc:link="glossary.xhtml#master_key"/> </rdf:li>
