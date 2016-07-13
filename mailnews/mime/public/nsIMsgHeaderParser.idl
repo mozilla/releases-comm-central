@@ -178,6 +178,9 @@ interface nsIMsgHeaderParser : nsISupports {
    * "Bond, James <agent007@mi5.invalid>" would produce one address object,
    * while the string "webmaster@nowhere.invalid, child@nowhere.invalid" would
    * produce two address objects.
+   *
+   * Note that the input string is RFC 2231 and RFC 2047 decoded but no UTF-8
+   * decoding takes place.
    */
   void makeFromDisplayAddress(in AString aDisplayAddresses,
                               [optional] out unsigned long count,

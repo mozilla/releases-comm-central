@@ -387,7 +387,14 @@ MimeAddressParser.prototype = {
 
   parseHeadersWithArray: function (aHeader, aAddrs, aNames, aFullNames) {
     let addrs = [], names = [], fullNames = [];
-    let allAddresses = this.parseEncodedHeader(aHeader, undefined, false);
+    // Parse header, but without HEADER_OPTION_ALLOW_RAW.
+    let value = MimeParser.parseHeaderField(aHeader || "",
+                                            MimeParser.HEADER_ADDRESS |
+                                            MimeParser.HEADER_OPTION_DECODE_2231 |
+                                            MimeParser.HEADER_OPTION_DECODE_2047,
+                                            undefined);
+    let allAddresses = fixArray(value, false);
+
     // Don't index the dummy empty address.
     if (aHeader.trim() == "")
       allAddresses = [];
