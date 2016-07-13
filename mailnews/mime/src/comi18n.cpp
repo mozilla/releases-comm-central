@@ -8,9 +8,10 @@
 #include "nsMsgUtils.h"
 #include "nsICharsetConverterManager.h"
 #include "nsIMIMEHeaderParam.h"
-#include "nsNetCID.h"
 #include "nsServiceManagerUtils.h"
 #include "nsComponentManagerUtils.h"
+#include "nsMsgMimeCID.h"
+#include "nsIMimeConverter.h"
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -23,14 +24,15 @@ void MIME_DecodeMimeHeader(const char *header, const char *default_charset,
                            nsACString &result)
 {
   nsresult rv;
-  nsCOMPtr <nsIMIMEHeaderParam> mimehdrpar = do_GetService(NS_MIMEHEADERPARAM_CONTRACTID, &rv);
-  if (NS_FAILED(rv))
-  {
+  nsCOMPtr <nsIMimeConverter> mimeConverter =
+    do_GetService(NS_MIME_CONVERTER_CONTRACTID, &rv);
+  if (NS_FAILED(rv)) {
     result.Truncate();
     return;
   }
-  mimehdrpar->DecodeRFC2047Header(header, default_charset, override_charset,
-                                  eatContinuations, result);
+  mimeConverter->DecodeMimeHeaderToUTF8(nsDependentCString(header),
+                                        default_charset, override_charset,
+                                        eatContinuations, result);
 }
 
 // UTF-8 utility functions.
