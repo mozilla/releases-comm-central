@@ -2361,7 +2361,10 @@ function ComposeStartup(aParams)
 
   identityList.selectedItem =
     identityList.getElementsByAttribute("identitykey", params.identity.key)[0];
-  if (params.composeFields.from)
+
+  // Here we set the From from the original message, be it a draft or another
+  // message we want to "edit as new". Only do this for drafts.
+  if (gComposeType == nsIMsgCompType.Draft && params.composeFields.from)
   {
     let from = MailServices.headerParser.parseEncodedHeader(params.composeFields.from, null).join(", ");
     if (from != identityList.value)
