@@ -17,10 +17,6 @@
 #include <unistd.h>
 #endif
 
-#ifdef XP_MACOSX
-#include "MacQuirks.h"
-#endif
-
 #include <stdio.h>
 #include <stdarg.h>
 #include <time.h>
@@ -315,10 +311,6 @@ sizeof(XPCOM_DLL) - 1))
 int main(int argc, char* argv[], char* envp[])
 {
   mozilla::TimeStamp start = mozilla::TimeStamp::Now();
-
-#ifdef XP_MACOSX
-  TriggerQuirks();
-#endif
 
   nsIFile *xreDirectory;
 
