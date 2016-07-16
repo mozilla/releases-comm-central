@@ -570,11 +570,11 @@ function loadDialog(aItem) {
               (calendar == aItem.calendar && userCanModifyItem(aItem))) &&
              isItemSupported(aItem, calendar))));
 
-        itemProps.calendarList = calendarList.map((c) => [c.id, c.name]);
+        itemProps.calendarList = calendarList.map(calendar => [calendar.id, calendar.name]);
 
         if (calendarToUse && calendarToUse.id) {
             let index = itemProps.calendarList.findIndex(
-                (c) => (c[0] == calendarToUse.id));
+                calendar => (calendar[0] == calendarToUse.id));
             if (index != -1) {
                 itemProps.initialCalendarId = calendarToUse.id;
             }
@@ -1133,8 +1133,8 @@ function updateEntryDate() {
             isValid: function() {
                 return gStartTime != null;
             },
-            setDateTime: function(dt) {
-                gStartTime = dt;
+            setDateTime: function(date) {
+                gStartTime = date;
             }
         });
 }
@@ -1150,8 +1150,8 @@ function updateDueDate() {
             isValid: function() {
                 return gEndTime != null;
             },
-            setDateTime: function(dt) {
-                gEndTime = dt;
+            setDateTime: function(date) {
+                gEndTime = date;
             }
         });
 }
@@ -1183,8 +1183,8 @@ function updateDateCheckboxes(aDatePickerId, aCheckboxId, aDateTime) {
 
     // create a new datetime object if date is now checked for the first time
     if (hasDate && !aDateTime.isValid()) {
-        let dt = cal.jsDateToDateTime(getElementValue(aDatePickerId), cal.calendarDefaultTimezone());
-        aDateTime.setDateTime(dt);
+        let date = cal.jsDateToDateTime(getElementValue(aDatePickerId), cal.calendarDefaultTimezone());
+        aDateTime.setDateTime(date);
     } else if (!hasDate && aDateTime.isValid()) {
         aDateTime.setDateTime(null);
     }
@@ -1236,11 +1236,11 @@ function getRepeatTypeAndUntilDate(aItem) {
         let ritems = recurrenceInfo.getRecurrenceItems({});
         let rules = [];
         let exceptions = [];
-        for (let r of ritems) {
-            if (r.isNegative) {
-                exceptions.push(r);
+        for (let ritem of ritems) {
+            if (ritem.isNegative) {
+                exceptions.push(ritem);
             } else {
-                rules.push(r);
+                rules.push(ritem);
             }
         }
         if (rules.length == 1) {
@@ -2011,21 +2011,21 @@ function attachFile(cloudProvider) {
     let files;
     try {
         const nsIFilePicker = Components.interfaces.nsIFilePicker;
-        let fp = Components.classes["@mozilla.org/filepicker;1"]
-                           .createInstance(nsIFilePicker);
-        fp.init(window,
-                calGetString("calendar-event-dialog", "selectAFile"),
-                nsIFilePicker.modeOpenMultiple);
+        let filePicker = Components.classes["@mozilla.org/filepicker;1"]
+                                   .createInstance(nsIFilePicker);
+        filePicker.init(window,
+                        calGetString("calendar-event-dialog", "selectAFile"),
+                        nsIFilePicker.modeOpenMultiple);
 
         // Check for the last directory
         let lastDir = lastDirectory();
         if (lastDir) {
-            fp.displayDirectory = lastDir;
+            filePicker.displayDirectory = lastDir;
         }
 
         // Get the attachment
-        if (fp.show() == nsIFilePicker.returnOK) {
-            files = fp.files;
+        if (filePicker.show() == nsIFilePicker.returnOK) {
+            files = filePicker.files;
         }
     } catch (ex) {
         dump("failed to get attachments: " +ex+ "\n");
@@ -2257,15 +2257,15 @@ function deleteAttachment() {
 function deleteAllAttachments() {
     let documentLink = document.getElementById("attachment-link");
     let itemCount = documentLink.getRowCount();
-    let ok = (itemCount < 2);
+    let canRemove = (itemCount < 2);
 
     if (itemCount > 1) {
         let removeText = PluralForm.get(itemCount, cal.calGetString("calendar-event-dialog", "removeAttachmentsText"));
         let removeTitle = cal.calGetString("calendar-event-dialog", "removeCalendarsTitle");
-        ok = Services.prompt.confirm(window, removeTitle, removeText.replace("#1", itemCount), {});
+        canRemove = Services.prompt.confirm(window, removeTitle, removeText.replace("#1", itemCount), {});
     }
 
-    if (ok) {
+    if (canRemove) {
         let child;
         while (documentLink.hasChildNodes()) {
             child = documentLink.lastChild;
@@ -3192,10 +3192,10 @@ function showTimezonePopup(event, dateTime, editFunc) {
     }
 
     // Fill in the new recent timezones
-    for (let tz of recentTimezones) {
+    for (let timezone of recentTimezones) {
         let menuItem = createXULElement("menuitem");
-        menuItem.setAttribute("value", tz.tzid);
-        menuItem.setAttribute("label", tz.displayName);
+        menuItem.setAttribute("value", timezone.tzid);
+        menuItem.setAttribute("label", timezone.displayName);
         timezonePopup.insertBefore(menuItem, timezoneDefaultItem.nextSibling);
     }
 
@@ -3543,24 +3543,24 @@ function updateAttendees() {
             let text = cell.querySelector("label:nth-of-type(1)");
 
             let role = organizer.role || "REQ-PARTICIPANT";
-            let ut = organizer.userType || "INDIVIDUAL";
-            let ps = organizer.participationStatus || "NEEDS-ACTION";
+            let userType = organizer.userType || "INDIVIDUAL";
+            let partStat = organizer.participationStatus || "NEEDS-ACTION";
 
             let orgName = (organizer.commonName && organizer.commonName.length)
                           ? organizer.commonName : organizer.toString();
-            let utString = cal.calGetString("calendar", "dialog.tooltip.attendeeUserType2." + ut,
+            let userTypeString = cal.calGetString("calendar", "dialog.tooltip.attendeeUserType2." + userType,
                                             [organizer.toString()]);
             let roleString = cal.calGetString("calendar", "dialog.tooltip.attendeeRole2." + role,
-                                              [utString]);
-            let psString = cal.calGetString("calendar", "dialog.tooltip.attendeePartStat2." + ps,
+                                              [userTypeString]);
+            let partStatString = cal.calGetString("calendar", "dialog.tooltip.attendeePartStat2." + partStat,
                                             [orgName]);
-            let tt = cal.calGetString("calendar", "dialog.tooltip.attendee.combined",
-                                      [roleString, psString]);
+            let tooltip = cal.calGetString("calendar", "dialog.tooltip.attendee.combined",
+                                           [roleString, partStatString]);
 
             text.setAttribute("value", orgName);
-            cell.setAttribute("tooltiptext", tt);
-            icon.setAttribute("partstat", ps);
-            icon.setAttribute("usertype", ut);
+            cell.setAttribute("tooltiptext", tooltip);
+            icon.setAttribute("partstat", partStat);
+            icon.setAttribute("usertype", userType);
             icon.setAttribute("role", role);
         } else {
             setBooleanAttribute("item-organizer-row", "collapsed", true);

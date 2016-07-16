@@ -52,13 +52,13 @@ function titleComptor(a, b) {
  * @throws Exception    If the arrays are not the same.
  */
 function checkConsistancy(har, testItems, itemAccessor) {
-    itemAccessor = itemAccessor || function(o) { return o; };
+    itemAccessor = itemAccessor || function(item) { return item; };
     for (let idx in testItems) {
-        let ti = itemAccessor(testItems[idx]);
+        let testItem = itemAccessor(testItems[idx]);
         equal(itemAccessor(har.itemByIndex(idx)).title,
-                    ti.title);
-        equal(itemAccessor(har.itemById(ti.hashId)).title,
-                    ti.title);
+                    testItem.title);
+        equal(itemAccessor(har.itemById(testItem.hashId)).title,
+                    testItem.title);
         equal(har.indexOf(testItems[idx]), idx);
     }
 }
@@ -80,7 +80,7 @@ function checkConsistancy(har, testItems, itemAccessor) {
 function testRemoveModify(har, testItems, postprocessFunc, itemAccessor, itemCreator) {
     postprocessFunc = postprocessFunc || function(a, b) { return [a, b]; };
     itemCreator = itemCreator || (title => hashedCreateItem(title));
-    itemAccessor = itemAccessor || function(o) { return o; };
+    itemAccessor = itemAccessor || function(item) { return item; };
 
     // Now, delete the second item and check again
     har.removeById(itemAccessor(testItems[1]).hashId);

@@ -21,12 +21,12 @@ var MODE_TRUNCATE = 0x20;
 function loadEventsFromFile(aCalendar) {
     const nsIFilePicker = Components.interfaces.nsIFilePicker;
 
-    let fp = Components.classes["@mozilla.org/filepicker;1"]
-                       .createInstance(nsIFilePicker);
-    fp.init(window,
-            calGetString("calendar", "filepickerTitleImport"),
-            nsIFilePicker.modeOpen);
-    fp.defaultExtension = "ics";
+    let picker = Components.classes["@mozilla.org/filepicker;1"]
+                           .createInstance(nsIFilePicker);
+    picker.init(window,
+                calGetString("calendar", "filepickerTitleImport"),
+                nsIFilePicker.modeOpen);
+    picker.defaultExtension = "ics";
 
     // Get a list of importers
     let contractids = [];
@@ -49,9 +49,9 @@ function loadEventsFromFile(aCalendar) {
         }
         let types = importer.getFileTypes({});
         for (let type of types) {
-            fp.appendFilter(type.description, type.extensionFilter);
-            if (type.extensionFilter == "*." + fp.defaultExtension) {
-                fp.filterIndex = currentListLength;
+            picker.appendFilter(type.description, type.extensionFilter);
+            if (type.extensionFilter == "*." + picker.defaultExtension) {
+                picker.filterIndex = currentListLength;
                 defaultCIDIndex = currentListLength;
             }
             contractids.push(contractid);
@@ -59,17 +59,17 @@ function loadEventsFromFile(aCalendar) {
         }
     }
 
-    let rv = fp.show();
+    let rv = picker.show();
 
     if (rv != nsIFilePicker.returnCancel &&
-        fp.file && fp.file.path && fp.file.path.length > 0) {
-        let filterIndex = fp.filterIndex;
-        if (fp.filterIndex < 0 || fp.filterIndex > contractids.length) {
+        picker.file && picker.file.path && picker.file.path.length > 0) {
+        let filterIndex = picker.filterIndex;
+        if (picker.filterIndex < 0 || picker.filterIndex > contractids.length) {
             // For some reason the wrong filter was selected, assume default extension
             filterIndex = defaultCIDIndex;
         }
 
-        let filePath = fp.file.path;
+        let filePath = picker.file.path;
         let importer = Components.classes[contractids[filterIndex]]
                                  .getService(Components.interfaces.calIImporter);
 
@@ -80,7 +80,7 @@ function loadEventsFromFile(aCalendar) {
         let items = [];
 
         try {
-            inputStream.init(fp.file, MODE_RDONLY, parseInt("0444", 8), {});
+            inputStream.init(picker.file, MODE_RDONLY, parseInt("0444", 8), {});
             items = importer.importFromStream(inputStream, {});
         } catch (ex) {
             switch (ex.result) {
@@ -207,22 +207,22 @@ function saveEventsToFile(calendarEventArray, aDefaultFileName) {
     // Show the 'Save As' dialog and ask for a filename to save to
     const nsIFilePicker = Components.interfaces.nsIFilePicker;
 
-    let fp = Components.classes["@mozilla.org/filepicker;1"]
+    let picker = Components.classes["@mozilla.org/filepicker;1"]
                        .createInstance(nsIFilePicker);
 
-    fp.init(window,
-            calGetString("calendar", "filepickerTitleExport"),
-            nsIFilePicker.modeSave);
+    picker.init(window,
+                calGetString("calendar", "filepickerTitleExport"),
+                nsIFilePicker.modeSave);
 
     if (aDefaultFileName && aDefaultFileName.length && aDefaultFileName.length > 0) {
-        fp.defaultString = aDefaultFileName;
+        picker.defaultString = aDefaultFileName;
     } else if (calendarEventArray.length == 1 && calendarEventArray[0].title) {
-        fp.defaultString = calendarEventArray[0].title;
+        picker.defaultString = calendarEventArray[0].title;
     } else {
-        fp.defaultString = calGetString("calendar", "defaultFileName");
+        picker.defaultString = calGetString("calendar", "defaultFileName");
     }
 
-    fp.defaultExtension = "ics";
+    picker.defaultExtension = "ics";
 
     // Get a list of exporters
     let contractids = [];
@@ -245,9 +245,9 @@ function saveEventsToFile(calendarEventArray, aDefaultFileName) {
         }
         let types = exporter.getFileTypes({});
         for (let type of types) {
-            fp.appendFilter(type.description, type.extensionFilter);
-            if (type.extensionFilter == "*." + fp.defaultExtension) {
-                fp.filterIndex = currentListLength;
+            picker.appendFilter(type.description, type.extensionFilter);
+            if (type.extensionFilter == "*." + picker.defaultExtension) {
+                picker.filterIndex = currentListLength;
                 defaultCIDIndex = currentListLength;
             }
             contractids.push(contractid);
@@ -255,12 +255,12 @@ function saveEventsToFile(calendarEventArray, aDefaultFileName) {
         }
     }
 
-    let rv = fp.show();
+    let rv = picker.show();
 
     // Now find out as what to save, convert the events and save to file.
-    if (rv != nsIFilePicker.returnCancel && fp.file && fp.file.path.length > 0) {
-        let filterIndex = fp.filterIndex;
-        if (fp.filterIndex < 0 || fp.filterIndex > contractids.length) {
+    if (rv != nsIFilePicker.returnCancel && picker.file && picker.file.path.length > 0) {
+        let filterIndex = picker.filterIndex;
+        if (picker.filterIndex < 0 || picker.filterIndex > contractids.length) {
             // For some reason the wrong filter was selected, assume default extension
             filterIndex = defaultCIDIndex;
         }
@@ -268,7 +268,7 @@ function saveEventsToFile(calendarEventArray, aDefaultFileName) {
         let exporter = Components.classes[contractids[filterIndex]]
                                  .getService(Components.interfaces.calIExporter);
 
-        let filePath = fp.file.path;
+        let filePath = picker.file.path;
         if (!filePath.includes(".")) {
             filePath += "." + exporter.getFileTypes({})[0].defaultExtension;
         }

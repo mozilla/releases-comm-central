@@ -68,9 +68,9 @@ calDeletedItems.prototype = {
         stmt.params.id = aId;
         try {
             if (stmt.executeStep()) {
-                let dt = cal.createDateTime();
-                dt.nativeTime = stmt.row.time_deleted;
-                return dt.getInTimezone(cal.calendarDefaultTimezone());
+                let date = cal.createDateTime();
+                date.nativeTime = stmt.row.time_deleted;
+                return date.getInTimezone(cal.calendarDefaultTimezone());
             }
         } catch (e) {
             cal.ERROR(e);

@@ -26,12 +26,12 @@ var taskEdit = {
      * Set the currently observed calendar, removing listeners to any old
      * calendar set and adding listeners to the new one.
      */
-    set observedCalendar(v) {
+    set observedCalendar(aCalendar) {
         if (this.mObservedCalendar) {
             this.mObservedCalendar.removeObserver(this.calendarObserver);
         }
 
-        this.mObservedCalendar = v;
+        this.mObservedCalendar = aCalendar;
 
         if (this.mObservedCalendar) {
             this.mObservedCalendar.addObserver(this.calendarObserver);

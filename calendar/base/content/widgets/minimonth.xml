@@ -407,8 +407,8 @@
       <property name="firstDate" readonly="true">
         <getter><![CDATA[
             let calbox = document.getAnonymousElementByAttribute(this, "anonid", "minimonth-calendar");
-            let dt = calbox.childNodes[1].firstChild.nextSibling.date;
-            return cal.jsDateToDateTime(dt);
+            let date = calbox.childNodes[1].firstChild.nextSibling.date;
+            return cal.jsDateToDateTime(date);
         ]]></getter>
       </property>
 
@@ -416,8 +416,8 @@
       <property name="lastDate" readonly="true">
         <getter><![CDATA[
             let calbox = document.getAnonymousElementByAttribute(this, "anonid", "minimonth-calendar");
-            let dt = calbox.lastChild.lastChild.date;
-            let lastDateTime = cal.jsDateToDateTime(dt);
+            let date = calbox.lastChild.lastChild.date;
+            let lastDateTime = cal.jsDateToDateTime(date);
             lastDateTime.day = lastDateTime.day + 1;
             return lastDateTime;
         ]]></getter>
@@ -757,8 +757,8 @@
               //    then trim shared "day-" prefix.
               if (dayList.some(dayAbbr => dayAbbr.length > 2)) {
                   for (let endPrefix = 0; endPrefix < minLength; endPrefix++) {
-                      let c = dayList[0][endPrefix];
-                      if (dayList.some(dayAbbr => dayAbbr[endPrefix] != c)) {
+                      let suffix = dayList[0][endPrefix];
+                      if (dayList.some(dayAbbr => dayAbbr[endPrefix] != suffix)) {
                           if (endPrefix > 0) {
                               for (i = 0; i < dayList.length; i++) { // trim prefix chars.
                                   dayList[i] = dayList[i].substring(endPrefix);

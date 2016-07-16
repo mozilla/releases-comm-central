@@ -285,8 +285,8 @@
           let handler = this.parentNode.getAttribute("onsnooze");
           let cancel = false;
           if (handler) {
-              let fn = new Function("event", handler);
-              cancel = (fn.call(this, snoozeEvent) === false);
+              let func = new Function("event", handler);
+              cancel = (func.call(this, snoozeEvent) === false);
           }
 
           if (!cancel) {

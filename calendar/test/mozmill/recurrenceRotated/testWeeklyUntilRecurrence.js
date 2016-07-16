@@ -35,8 +35,8 @@ var testWeeklyUntilRecurrence = function() {
   controller.waitFor(() => mozmill.utils.getWindows("Calendar:EventDialog").length > 0, sleep);
   let event = new mozmill.controller.MozMillController(mozmill.utils.getWindows("Calendar:EventDialog")[0]);
 
-  let md = new modalDialog.modalDialog(event.window);
-  md.start(setRecurrence);
+  let dialog = new modalDialog.modalDialog(event.window);
+  dialog.start(setRecurrence);
   event.waitForElement(new elementslib.ID(event.window.document, "item-repeat"));
   event.select(new elementslib.ID(event.window.document, "item-repeat"), undefined, undefined, "custom");
 

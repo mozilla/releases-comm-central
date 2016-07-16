@@ -5,15 +5,15 @@
 Components.utils.import("resource://calendar/modules/calUtils.jsm");
 Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 
-function getRidKey(dt) {
-    if (!dt) {
+function getRidKey(date) {
+    if (!date) {
         return null;
     }
-    let tz = dt.timezone;
-    if (!tz.isUTC && !tz.isFloating) {
-        dt = dt.getInTimezone(UTC());
+    let timezone = date.timezone;
+    if (!timezone.isUTC && !timezone.isFloating) {
+        date = date.getInTimezone(UTC());
     }
-    return dt.icalString;
+    return date.icalString;
 }
 
 function calRecurrenceInfo() {
@@ -282,8 +282,8 @@ calRecurrenceInfo.prototype = {
                                                   0,
                                                   {});
                 // Map all negative dates.
-                for (let r of rdates) {
-                    negMap[getRidKey(r)] = true;
+                for (let rdate of rdates) {
+                    negMap[getRidKey(rdate)] = true;
                 }
             } else {
                 WARN("Item '" + this.mBaseItem.title + "'" +
@@ -547,7 +547,7 @@ calRecurrenceInfo.prototype = {
                     let toRemove = [];
                     for (let occurenceKey in occurrenceMap) {
                         if (occurrenceMap[occurenceKey] && occurenceKey.substring(0, 8) == dateToRemoveKey) {
-                            dates = dates.filter(d => d.id.compare(dateToRemove) != 0);
+                            dates = dates.filter(date => date.id.compare(dateToRemove) != 0);
                             toRemove.push(occurenceKey);
                         }
                     }
@@ -559,7 +559,7 @@ calRecurrenceInfo.prototype = {
                     // to construct the array of occurrences. Right now I'm
                     // just using the occurrence map to skip the filter
                     // action if the occurrence isn't there anyway.
-                    dates = dates.filter(d => d.id.compare(dateToRemove) != 0);
+                    dates = dates.filter(date => date.id.compare(dateToRemove) != 0);
                     delete occurrenceMap[dateToRemoveKey];
                 }
             }
@@ -576,7 +576,7 @@ calRecurrenceInfo.prototype = {
 
     getOccurrenceDates: function(aRangeStart, aRangeEnd, aMaxCount, aCount) {
         let dates = this.calculateDates(aRangeStart, aRangeEnd, aMaxCount);
-        dates = dates.map(d => d.rstart);
+        dates = dates.map(date => date.rstart);
         aCount.value = dates.length;
         return dates;
     },
@@ -613,14 +613,14 @@ calRecurrenceInfo.prototype = {
         this.ensureBaseItem();
         this.ensureMutable();
 
-        let d = Components.classes["@mozilla.org/calendar/recurrence-date;1"]
-                          .createInstance(Components.interfaces.calIRecurrenceDate);
-        d.isNegative = true;
-        d.date = aRecurrenceId.clone();
+        let rdate = Components.classes["@mozilla.org/calendar/recurrence-date;1"]
+                              .createInstance(Components.interfaces.calIRecurrenceDate);
+        rdate.isNegative = true;
+        rdate.date = aRecurrenceId.clone();
 
-        this.removeExceptionFor(d.date);
+        this.removeExceptionFor(rdate.date);
 
-        this.appendRecurrenceItem(d);
+        this.appendRecurrenceItem(rdate);
     },
 
     restoreOccurrenceAt: function(aRecurrenceId) {
@@ -629,10 +629,9 @@ calRecurrenceInfo.prototype = {
         this.ensureSortedRecurrenceRules();
 
         for (let i = 0; i < this.mRecurrenceItems.length; i++) {
-            let wrappedItem = cal.wrapInstance(this.mRecurrenceItems[i], Components.interfaces.calIRecurrenceDate);
-            if (wrappedItem) {
-                let rd = wrappedItem;
-                if (rd.isNegative && rd.date.compare(aRecurrenceId) == 0) {
+            let rdate = cal.wrapInstance(this.mRecurrenceItems[i], Components.interfaces.calIRecurrenceDate);
+            if (rdate) {
+                if (rdate.isNegative && rdate.date.compare(aRecurrenceId) == 0) {
                     return this.deleteRecurrenceItemAt(i);
                 }
             }

@@ -24,12 +24,12 @@ add_task(function* version_test() {
 // check whether all tz definitions have all properties
 add_task(function* zone_test() {
     function resolveZone(aZoneId) {
-        let tz = tzs.getTimezone(aZoneId);
-        equal(aZoneId, tz.tzid, "Zone test " + aZoneId);
-        ok(tz.icalComponent.serializeToICS().startsWith("BEGIN:VTIMEZONE"),
+        let timezone = tzs.getTimezone(aZoneId);
+        equal(aZoneId, timezone.tzid, "Zone test " + aZoneId);
+        ok(timezone.icalComponent.serializeToICS().startsWith("BEGIN:VTIMEZONE"),
            "VTIMEZONE test " + aZoneId);
-        ok(tz.latitude && !!tz.latitude.match(/^[+-]\d{7}$/), "Latitude test " + aZoneId);
-        ok(tz.longitude && !!tz.longitude.match(/^[+-]\d{7}$/), "Longitude test " + aZoneId);
+        ok(timezone.latitude && !!timezone.latitude.match(/^[+-]\d{7}$/), "Latitude test " + aZoneId);
+        ok(timezone.longitude && !!timezone.longitude.match(/^[+-]\d{7}$/), "Longitude test " + aZoneId);
     }
 
     let tzs = cal.getTimezoneService();
@@ -46,8 +46,8 @@ add_task(function* zone_test() {
 // check whether all tz aliases resolve to a tz definition
 add_task(function* alias_test() {
     function resolveAlias(aAliasId) {
-        let tz = tzs.getTimezone(aAliasId);
-        let tzid = tz && tz.tzid ? tz.tzid : "";
+        let timezone = tzs.getTimezone(aAliasId);
+        let tzid = timezone && timezone.tzid ? timezone.tzid : "";
         notEqual(tzid, "", "Alias resolution " + aAliasId + " -> " + tzid);
     }
 

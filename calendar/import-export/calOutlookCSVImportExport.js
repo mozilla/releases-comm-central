@@ -368,40 +368,40 @@ calOutlookCSVImporter.prototype = {
     },
 
     parseDateTime: function(aDate, aTime, aLocale) {
-        let dt = cal.createDateTime();
+        let date = cal.createDateTime();
 
         // XXX Can we do better?
-        dt.timezone = cal.floating();
+        date.timezone = cal.floating();
 
-        let rd = aLocale.dateRe.exec(aDate);
-        let rt = aLocale.timeRe.exec(aTime);
+        let datepart = aLocale.dateRe.exec(aDate);
+        let timepart = aLocale.timeRe.exec(aTime);
 
-        if (!rd || !rt) {
+        if (!datepart || !timepart) {
             return null;
         }
 
-        dt.year = rd[aLocale.dateYearIndex];
-        dt.month = rd[aLocale.dateMonthIndex] - 1;
-        dt.day = rd[aLocale.dateDayIndex];
-        if (rt) {
-            dt.hour = Number(rt[aLocale.timeHourIndex]);
-            dt.minute = rt[aLocale.timeMinuteIndex];
-            dt.second = rt[aLocale.timeSecondIndex];
+        date.year = datepart[aLocale.dateYearIndex];
+        date.month = datepart[aLocale.dateMonthIndex] - 1;
+        date.day = datepart[aLocale.dateDayIndex];
+        if (timepart) {
+            date.hour = Number(timepart[aLocale.timeHourIndex]);
+            date.minute = timepart[aLocale.timeMinuteIndex];
+            date.second = timepart[aLocale.timeSecondIndex];
         } else {
-            dt.isDate = true;
+            date.isDate = true;
         }
 
-        if (rt && aLocale.timeAmPmIndex &&
-            rt[aLocale.timeAmPmIndex] != aLocale.timePmString) {
+        if (timepart && aLocale.timeAmPmIndex &&
+            timepart[aLocale.timeAmPmIndex] != aLocale.timePmString) {
             // AM
-            if (dt.hour == 12) {
-                dt.hour = 0;
+            if (date.hour == 12) {
+                date.hour = 0;
             }
-        } else if (dt.hour < 12) {
+        } else if (date.hour < 12) {
            // PM
-           dt.hour += 12;
+           date.hour += 12;
         }
-        return dt;
+        return date;
     },
 
     parseTextField: function(aTextField) {
@@ -449,7 +449,7 @@ calOutlookCSVExporter.prototype = {
         headers.push(localeEn.headDescription);
         headers.push(localeEn.headLocation);
         headers.push(localeEn.headPrivate);
-        headers = headers.map(v => '"' + v + '"');
+        headers = headers.map(hdr => '"' + hdr + '"');
         str = headers.join(",");
         str += exportLineEnding;
         aStream.write(str, str.length);
@@ -480,7 +480,7 @@ calOutlookCSVExporter.prototype = {
             line.push(txtString(item.getProperty("LOCATION")));
             line.push(item.privacy == "PRIVATE" ? localeEn.valueTrue : localeEn.valueFalse);
 
-            line = line.map(v => `"${String(v).replace(/"/g, '""')}"`);
+            line = line.map(value => `"${String(value).replace(/"/g, '""')}"`);
             str = line.join(",") + exportLineEnding;
             aStream.write(str, str.length);
         }

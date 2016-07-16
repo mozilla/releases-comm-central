@@ -27,7 +27,7 @@ function run_test() {
     do_test_pending();
     storage.addItem(item, { onOperationComplete: checkAddedItem });
 
-    function checkAddedItem(c, s, o, i, addedItem) {
+    function checkAddedItem(calendar, status, opType, id, addedItem) {
         let seq = addedItem.getProperty("SEQUENCE");
         let occ = addedItem.recurrenceInfo.getOccurrenceFor(rid);
 
@@ -40,7 +40,7 @@ function run_test() {
         storage.modifyItem(changedItem, addedItem, { onOperationComplete: checkModifiedItem });
     }
 
-    function checkModifiedItem(c, s, o, i, changedItem) {
+    function checkModifiedItem(calendar, status, opType, id, changedItem) {
         let seq = changedItem.getProperty("SEQUENCE");
         let occ = changedItem.recurrenceInfo.getOccurrenceFor(rid);
 
@@ -56,7 +56,7 @@ function run_test() {
         storage.modifyItem(changedItem2, changedItem, { onOperationComplete: checkNormalItem });
     }
 
-    function checkNormalItem(c, s, o, i, changedItem) {
+    function checkNormalItem(calendar, status, opType, id, changedItem) {
         let seq = changedItem.getProperty("SEQUENCE");
         let occ = changedItem.recurrenceInfo.getOccurrenceFor(rid);
 

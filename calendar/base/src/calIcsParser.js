@@ -229,9 +229,9 @@ parserState.prototype = {
      * @param item      The item to check for
      * @param dt        The datetime object to check with
      */
-    checkTimezone: function(item, dt) {
-        if (dt && cal.isPhantomTimezone(dt.timezone)) {
-            let tzid = dt.timezone.tzid;
+    checkTimezone: function(item, date) {
+        if (date && cal.isPhantomTimezone(date.timezone)) {
+            let tzid = date.timezone.tzid;
             let hid = item.hashId + "#" + tzid;
             if (!(hid in this.tzErrors)) {
                 // For now, publish errors to console and alert user.

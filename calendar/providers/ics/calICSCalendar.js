@@ -19,12 +19,12 @@ Components.utils.import("resource://calendar/modules/calProviderUtils.jsm");
 //
 // XXX Should do locks, so that external changes are not overwritten.
 
-var CI = Components.interfaces;
+var Ci = Components.interfaces;
 var calICalendar = Components.interfaces.calICalendar;
 var calIErrors = Components.interfaces.calIErrors;
 
 function icsNSResolver(prefix) {
-    const ns = { D: "DAV:" };
+    const ns = { D: "DAV:" }; // eslint-disable-line id-length
     return ns[prefix] || null;
 }
 
@@ -652,7 +652,7 @@ calICSCalendar.prototype = {
         function makeDailyFileName() {
             let dailyBackupFile = backupDir.clone();
             dailyBackupFile.append(makeName("day"));
-            dailyBackupFile.createUnique(CI.nsIFile.NORMAL_FILE_TYPE,
+            dailyBackupFile.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE,
                                          parseInt("0600", 8));
             dailyBackupFileName = dailyBackupFile.leafName;
 
@@ -669,7 +669,7 @@ calICSCalendar.prototype = {
         function purgeBackupsByType(files, type) {
             // filter out backups of the type we care about.
             let filteredFiles = files.filter(
-                v => v.name.includes("calBackupData_" + pseudoID + "_" + type)
+                file => file.name.includes("calBackupData_" + pseudoID + "_" + type)
             );
             // Sort by lastmodifed
             filteredFiles.sort((a, b) => a.lastmodified - b.lastmodified);
@@ -695,7 +695,7 @@ calICSCalendar.prototype = {
             let dirEnum = backupDir.directoryEntries;
             let files = [];
             while (dirEnum.hasMoreElements()) {
-                let file = dirEnum.getNext().QueryInterface(CI.nsIFile);
+                let file = dirEnum.getNext().QueryInterface(Ci.nsIFile);
                 if (file.isFile()) {
                     files.push({ name: file.leafName, lastmodified: file.lastModifiedTime });
                 }
@@ -734,7 +734,7 @@ calICSCalendar.prototype = {
             backupDir = cal.getCalendarDirectory();
             backupDir.append("backup");
             if (!backupDir.exists()) {
-                backupDir.create(CI.nsIFile.DIRECTORY_TYPE, parseInt("0755", 8));
+                backupDir.create(Ci.nsIFile.DIRECTORY_TYPE, parseInt("0755", 8));
             }
         } catch (e) {
             // Backup dir wasn't found. Likely because we are running in
@@ -782,7 +782,7 @@ calICSCalendar.prototype = {
 
         let backupFile = backupDir.clone();
         backupFile.append(makeName("edit"));
-        backupFile.createUnique(CI.nsIFile.NORMAL_FILE_TYPE, parseInt("0600", 8));
+        backupFile.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, parseInt("0600", 8));
 
         purgeOldBackups();
 
@@ -797,7 +797,7 @@ calICSCalendar.prototype = {
         channel.notificationCallbacks = this;
 
         let downloader = Components.classes["@mozilla.org/network/downloader;1"]
-                                   .createInstance(CI.nsIDownloader);
+                                   .createInstance(Ci.nsIDownloader);
 
         let self = this;
         let listener = {

@@ -106,13 +106,13 @@ function onSearch() {
     }
 
     let opListener = {
-        onResult: function(op, result) {
+        onResult: function(operation, result) {
             if (result) {
                 for (let calendar of result) {
                     richListBox.addCalendar(calendar, registeredCals[calendar.id]);
                 }
             }
-            if (!op.isPending) {
+            if (!operation.isPending) {
                 let statusDeck = document.getElementById("status-deck");
                 if (richListBox.getRowCount() > 0) {
                     statusDeck.selectedIndex = 0;
@@ -123,9 +123,9 @@ function onSearch() {
         }
     };
 
-    let op = getCalendarSearchService().searchForCalendars(document.getElementById("search-textbox").value,
+    let operation = getCalendarSearchService().searchForCalendars(document.getElementById("search-textbox").value,
                                                            0 /* hints */, 50, opListener);
-    if (op && op.isPending) {
+    if (operation && operation.isPending) {
         gCurrentSearchOperation = op;
         document.getElementById("status-deck").selectedIndex = 1;
     }

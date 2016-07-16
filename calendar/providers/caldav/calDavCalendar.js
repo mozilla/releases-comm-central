@@ -33,13 +33,15 @@ var MIME_TEXT_XML = "text/xml; charset=utf-8";
 var cIOL = Components.interfaces.calIOperationListener;
 
 function caldavNSResolver(prefix) {
-    const ns = {
+    /* eslint-disable id-length */
+    const namespaces = {
         D: davNS,
         C: caldavNS,
         CS: calservNS
     };
+    /* eslint-enable id-length */
 
-    return ns[prefix] || null;
+    return namespaces[prefix] || null;
 }
 
 function caldavXPath(aNode, aExpr, aType) {

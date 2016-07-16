@@ -601,24 +601,24 @@ function setupAttendees() {
 
                 let label = (attendee.commonName && attendee.commonName.length)
                             ? attendee.commonName : attendee.toString();
-                let ut = attendee.userType || "INDIVIDUAL";
+                let userType = attendee.userType || "INDIVIDUAL";
                 let role = attendee.role || "REQ-PARTICIPANT";
-                let ps = attendee.participationStatus || "NEEDS-ACTION";
+                let partstat = attendee.participationStatus || "NEEDS-ACTION";
 
-                icon.setAttribute("partstat", ps);
-                icon.setAttribute("usertype", ut);
+                icon.setAttribute("partstat", partstat);
+                icon.setAttribute("usertype", userType);
                 icon.setAttribute("role", role);
                 cell.setAttribute("attendeeid", attendee.id);
                 cell.removeAttribute("hidden");
 
-                let utString = cal.calGetString("calendar", "dialog.tooltip.attendeeUserType2." + ut,
-                                                [attendee.toString()]);
+                let userTypeString = cal.calGetString("calendar", "dialog.tooltip.attendeeUserType2." + userType,
+                                                      [attendee.toString()]);
                 let roleString = cal.calGetString("calendar", "dialog.tooltip.attendeeRole2." + role,
-                                                  [utString]);
-                let psString = cal.calGetString("calendar", "dialog.tooltip.attendeePartStat2." + ps,
-                                                [label]);
+                                                  [userTypeString]);
+                let partstatString = cal.calGetString("calendar", "dialog.tooltip.attendeePartStat2." + partstat,
+                                                      [label]);
                 let tooltip = cal.calGetString("calendar", "dialog.tooltip.attendee.combined",
-                                               [roleString, psString]);
+                                               [roleString, partstatString]);
 
                 let del = cal.resolveDelegation(attendee, window.attendees);
                 if (del.delegators != "") {

@@ -222,32 +222,32 @@ etagsHandler.prototype = {
         switch (aLocalName) {
             case "response":
                 this.tag = null;
-                let r = this.currentResponse;
-                if (r.getetag && r.getetag.length &&
-                    r.href && r.href.length &&
-                    r.getcontenttype && r.getcontenttype.length &&
-                    !r.isCollection) {
-                    r.href = this.calendar.ensureDecodedPath(r.href);
+                let resp = this.currentResponse;
+                if (resp.getetag && resp.getetag.length &&
+                    resp.href && resp.href.length &&
+                    resp.getcontenttype && resp.getcontenttype.length &&
+                    !resp.isCollection) {
+                    resp.href = this.calendar.ensureDecodedPath(resp.href);
 
-                    if (r.getcontenttype.substr(0, 14) == "message/rfc822") {
+                    if (resp.getcontenttype.substr(0, 14) == "message/rfc822") {
                         // workaround for a Scalix bug which causes incorrect
                         // contenttype to be returned.
-                        r.getcontenttype = "text/calendar";
+                        resp.getcontenttype = "text/calendar";
                     }
-                    if (r.getcontenttype == "text/vtodo") {
+                    if (resp.getcontenttype == "text/vtodo") {
                         // workaround Kerio wierdness
-                        r.getcontenttype = "text/calendar";
+                        resp.getcontenttype = "text/calendar";
                     }
 
                     // Only handle calendar items
-                    if (r.getcontenttype.substr(0, 13) == "text/calendar") {
-                        if (r.href && r.href.length) {
-                            this.itemsReported[r.href] = r.getetag;
+                    if (resp.getcontenttype.substr(0, 13) == "text/calendar") {
+                        if (resp.href && resp.href.length) {
+                            this.itemsReported[resp.href] = resp.getetag;
 
-                            let itemUid = this.calendar.mHrefIndex[r.href];
+                            let itemUid = this.calendar.mHrefIndex[resp.href];
                             if (!itemUid ||
-                                r.getetag != this.calendar.mItemInfoCache[itemUid].etag) {
-                                this.itemsNeedFetching.push(r.href);
+                                resp.getetag != this.calendar.mItemInfoCache[itemUid].etag) {
+                                this.itemsNeedFetching.push(resp.href);
                             }
                         }
                     }
@@ -533,52 +533,52 @@ webDavSyncHandler.prototype = {
         switch (aLocalName) {
             case "response": // WebDAV Sync draft 3
             case "sync-response": // WebDAV Sync draft 0,1,2
-                let r = this.currentResponse;
-                if (r.href && r.href.length) {
-                    r.href = this.calendar.ensureDecodedPath(r.href);
+                let resp = this.currentResponse;
+                if (resp.href && resp.href.length) {
+                    resp.href = this.calendar.ensureDecodedPath(resp.href);
                 }
 
-                if ((!r.getcontenttype || r.getcontenttype == "text/plain") &&
-                    r.href &&
-                    r.href.endsWith(".ics")) {
+                if ((!resp.getcontenttype || resp.getcontenttype == "text/plain") &&
+                    resp.href &&
+                    resp.href.endsWith(".ics")) {
                   // If there is no content-type (iCloud) or text/plain was passed
                   // (iCal Server) for the resource but its name ends with ".ics"
                   // assume the content type to be text/calendar. Apple
                   // iCloud/iCal Server interoperability fix.
-                  r.getcontenttype = "text/calendar";
+                  resp.getcontenttype = "text/calendar";
                 }
 
                 // Deleted item
-                if (r.href && r.href.length &&
-                    r.status &&
-                    r.status.length &&
-                    r.status.indexOf(" 404") > 0) {
-                    if (this.calendar.mHrefIndex[r.href]) {
+                if (resp.href && resp.href.length &&
+                    resp.status &&
+                    resp.status.length &&
+                    resp.status.indexOf(" 404") > 0) {
+                    if (this.calendar.mHrefIndex[resp.href]) {
                         this.changeCount++;
-                        this.calendar.deleteTargetCalendarItem(r.href);
+                        this.calendar.deleteTargetCalendarItem(resp.href);
                     } else {
-                        cal.LOG("CalDAV: skipping unfound deleted item : " + r.href);
+                        cal.LOG("CalDAV: skipping unfound deleted item : " + resp.href);
                     }
                 // Only handle Created or Updated calendar items
-                } else if (r.getcontenttype &&
-                           r.getcontenttype.substr(0, 13) == "text/calendar" &&
-                           r.getetag && r.getetag.length &&
-                           r.href && r.href.length &&
-                           (!r.status ||                 // Draft 3 does not require
-                            r.status.length == 0 ||      // a status for created or updated items but
-                            r.status.indexOf(" 204") ||  // draft 0, 1 and 2 needed it so treat no status
-                            r.status.indexOf(" 200") ||  // Apple iCloud returns 200 status for each item
-                            r.status.indexOf(" 201"))) { // and status 201 and 204 the same
-                    this.itemsReported[r.href] = r.getetag;
-                    let itemId = this.calendar.mHrefIndex[r.href];
+                } else if (resp.getcontenttype &&
+                           resp.getcontenttype.substr(0, 13) == "text/calendar" &&
+                           resp.getetag && resp.getetag.length &&
+                           resp.href && resp.href.length &&
+                           (!resp.status ||                 // Draft 3 does not require
+                            resp.status.length == 0 ||      // a status for created or updated items but
+                            resp.status.indexOf(" 204") ||  // draft 0, 1 and 2 needed it so treat no status
+                            resp.status.indexOf(" 200") ||  // Apple iCloud returns 200 status for each item
+                            resp.status.indexOf(" 201"))) { // and status 201 and 204 the same
+                    this.itemsReported[resp.href] = resp.getetag;
+                    let itemId = this.calendar.mHrefIndex[resp.href];
                     let oldEtag = itemId && this.calendar.mItemInfoCache[itemId].etag;
 
-                    if (!oldEtag || oldEtag != r.getetag) {
+                    if (!oldEtag || oldEtag != resp.getetag) {
                         // Etag mismatch, getting new/updated item.
-                        this.itemsNeedFetching.push(r.href);
+                        this.itemsNeedFetching.push(resp.href);
                     }
-                } else if (r.status &&
-                           r.status.includes(" 507")) {
+                } else if (resp.status &&
+                           resp.status.includes(" 507")) {
                     // webdav-sync says that if a 507 is encountered and the
                     // url matches the request, the current token should be
                     // saved and another request should be made. We don't
@@ -588,28 +588,28 @@ webDavSyncHandler.prototype = {
                     // The 507 doesn't mean the data received is invalid, so
                     // continue processing.
                     this.additionalSyncNeeded = true;
-                } else if (r.status &&
-                           r.status.indexOf(" 200") &&
-                           r.href &&
-                           r.href.endsWith("/")) {
+                } else if (resp.status &&
+                           resp.status.indexOf(" 200") &&
+                           resp.href &&
+                           resp.href.endsWith("/")) {
                     // iCloud returns status responses for directories too
                     // so we just ignore them if they have status code 200. We
                     // want to make sure these are not counted as unhandled
                     // errors in the next block
-                } else if ((r.getcontenttype &&
-                            r.getcontenttype.startsWith("text/calendar")) ||
-                           (r.status &&
-                            !r.status.includes(" 404"))) {
+                } else if ((resp.getcontenttype &&
+                            resp.getcontenttype.startsWith("text/calendar")) ||
+                           (resp.status &&
+                            !resp.status.includes(" 404"))) {
                     // If the response element is still not handled, log an
                     // error only if the content-type is text/calendar or the
                     // response status is different than 404 not found.  We
                     // don't care about response elements on non-calendar
                     // resources or whose status is not indicating a deleted
                     // resource.
-                    cal.WARN("CalDAV: Unexpected response, status: " + r.status + ", href: " + r.href);
+                    cal.WARN("CalDAV: Unexpected response, status: " + resp.status + ", href: " + resp.href);
                     this.unhandledErrors++;
                 } else {
-                    cal.LOG("CalDAV: Unhandled response element, status: " + r.status + ", href: " + r.href + " contenttype:" + r.getcontenttype);
+                    cal.LOG("CalDAV: Unhandled response element, status: " + resp.status + ", href: " + resp.href + " contenttype:" + resp.getcontenttype);
                 }
                 break;
             case "sync-token":
@@ -886,45 +886,45 @@ multigetSyncHandler.prototype = {
     endElement: function(aUri, aLocalName, aQName) {
         switch (aLocalName) {
             case "response":
-                let r = this.currentResponse;
-                if (r.href &&
-                    r.href.length) {
-                    r.href = this.calendar.ensureDecodedPath(r.href);
+                let resp = this.currentResponse;
+                if (resp.href &&
+                    resp.href.length) {
+                    resp.href = this.calendar.ensureDecodedPath(resp.href);
                 }
-                if (r.href && r.href.length &&
-                    r.status &&
-                    r.status.length &&
-                    r.status.indexOf(" 404") > 0) {
-                    if (this.calendar.mHrefIndex[r.href]) {
+                if (resp.href && resp.href.length &&
+                    resp.status &&
+                    resp.status.length &&
+                    resp.status.indexOf(" 404") > 0) {
+                    if (this.calendar.mHrefIndex[resp.href]) {
                         this.changeCount++;
-                        this.calendar.deleteTargetCalendarItem(r.href);
+                        this.calendar.deleteTargetCalendarItem(resp.href);
                     } else {
-                        cal.LOG("CalDAV: skipping unfound deleted item : " + r.href);
+                        cal.LOG("CalDAV: skipping unfound deleted item : " + resp.href);
                     }
                 // Created or Updated item
-                } else if (r.getetag && r.getetag.length &&
-                           r.href && r.href.length &&
-                           r.calendardata && r.calendardata.length) {
+                } else if (resp.getetag && resp.getetag.length &&
+                           resp.href && resp.href.length &&
+                           resp.calendardata && resp.calendardata.length) {
                     let oldEtag;
-                    let itemId = this.calendar.mHrefIndex[r.href];
+                    let itemId = this.calendar.mHrefIndex[resp.href];
                     if (itemId) {
                         oldEtag = this.calendar.mItemInfoCache[itemId].etag;
                     } else {
                         oldEtag = null;
                     }
-                    if (!oldEtag || oldEtag != r.getetag) {
+                    if (!oldEtag || oldEtag != resp.getetag) {
                         this.changeCount++;
-                        this.calendar.addTargetCalendarItem(r.href,
-                                                            r.calendardata,
+                        this.calendar.addTargetCalendarItem(resp.href,
+                                                            resp.calendardata,
                                                             this.baseUri,
-                                                            r.getetag,
+                                                            resp.getetag,
                                                             this.listener);
                     } else {
                         cal.LOG("CalDAV: skipping item with unmodified etag : " + oldEtag);
                     }
                 } else {
                     cal.WARN("CalDAV: Unexpected response, status: " +
-                             r.status + ", href: " + r.href + " calendar-data:\n" + r.calendardata);
+                             resp.status + ", href: " + resp.href + " calendar-data:\n" + resp.calendardata);
                     this.unhandledErrors++;
                 }
                 break;

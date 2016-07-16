@@ -231,15 +231,15 @@
           }
 
           // construct the display string from common name and/or email address.
-          let cn = aAttendee.commonName || "";
+          let commonName = aAttendee.commonName || "";
           let inputValue = cal.removeMailTo(aAttendee.id || "");
-          if (cn.length) {
+          if (commonName.length) {
               // Make the commonName appear in quotes if it contains a
               // character that could confuse the header parser
-              if (cn.search(/[,;<>@]/) != -1) {
-                  cn = '"' + cn + '"';
+              if (commonName.search(/[,;<>@]/) != -1) {
+                  commonName = '"' + commonName + '"';
               }
-              inputValue = inputValue.length ? cn + " <" + inputValue + ">" : cn;
+              inputValue = inputValue.length ? commonName + " <" + inputValue + ">" : commonName;
           }
 
           // trim spaces if any
@@ -493,15 +493,6 @@
         <parameter name="attendees"/>
         <parameter name="allListsUri"/>
         <body><![CDATA[
-            function in_list(aList, listid) {
-              for (let l = 0; l < aList.length; l++) {
-                if (aList[l] === listid) {
-                  return true;
-                }
-              }
-              return false;
-            }
-
             let addressLists = mailingList.addressLists;
             for (let i = 0; i < addressLists.length; i++) {
               let abCard = addressLists.queryElementAt(i, Components.interfaces.nsIAbCard);
@@ -513,19 +504,19 @@
                   }
                   thisId = rCn + " <" + thisId + ">";
               }
-              if (in_list(attendees, thisId)) {
+              if (attendees.some(att => att == thisId)) {
                 continue;
               }
 
               if (abCard.displayName.length > 0) {
-                let ml = this._findListInAddrBooks(abCard.displayName);
-                if (ml) {
-                  if (in_list(allListsUri, ml.URI)) {
+                let list = this._findListInAddrBooks(abCard.displayName);
+                if (list) {
+                  if (allListsUri.some(uri => uri == list.URI)) {
                     continue;
                   }
-                  allListsUri.push(ml.URI);
+                  allListsUri.push(list.URI);
 
-                  this._getListEntriesInt(ml, attendees, allListsUri);
+                  this._getListEntriesInt(list, attendees, allListsUri);
 
                   continue;
                 }

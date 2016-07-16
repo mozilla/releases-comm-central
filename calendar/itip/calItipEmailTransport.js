@@ -257,7 +257,7 @@ calItipEmailTransport.prototype = {
                     }
                     return email;
                 };
-                let toMap = aToList.map(cbEmail).filter(v => v.length);
+                let toMap = aToList.map(cbEmail).filter(value => value.length);
                 if (toMap.length < aToList.length) {
                     // at least one invalid recipient, so we skip sending for this message
                     return false;
@@ -282,6 +282,7 @@ calItipEmailTransport.prototype = {
                     if (identity.doCc) {
                         validRecipients = cal.validateRecipientList(identity.doCcList);
                         if (validRecipients != "") {
+                            // eslint-disable-next-line id-length
                             composeFields.cc = validRecipients;
                         }
                     }

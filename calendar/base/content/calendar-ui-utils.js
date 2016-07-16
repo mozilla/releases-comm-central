@@ -248,12 +248,12 @@ function sortCalendarArray(calendars) {
         sortOrder[sortOrderPref[i]] = i;
     }
     function sortFunc(cal1, cal2) {
-        let i1 = sortOrder[cal1.id] || -1;
-        let i2 = sortOrder[cal2.id] || -1;
-        if (i1 < i2) {
+        let orderIdx1 = sortOrder[cal1.id] || -1;
+        let orderIdx2 = sortOrder[cal2.id] || -1;
+        if (orderIdx1 < orderIdx2) {
             return -1;
         }
-        if (i1 > i2) {
+        if (orderIdx1 > orderIdx2) {
             return 1;
         }
         return 0;
@@ -262,7 +262,7 @@ function sortCalendarArray(calendars) {
 
     // check and repair pref:
     let sortOrderString = Preferences.get("calendar.list.sortOrder", "");
-    let wantedOrderString = ret.map(c => c.id).join(" ");
+    let wantedOrderString = ret.map(calendar => calendar.id).join(" ");
     if (wantedOrderString != sortOrderString) {
         Preferences.set("calendar.list.sortOrder", wantedOrderString);
     }
@@ -522,11 +522,11 @@ function menuListIndexOf(menuList, value) {
 /**
  * Creates the given element in the XUL namespace.
  *
- * @param el    The local name of the element to create.
- * @return      The XUL element requested.
+ * @param elem      The local name of the element to create.
+ * @return          The XUL element requested.
  */
-function createXULElement(el) {
-    return document.createElementNS("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul", el);
+function createXULElement(elem) {
+    return document.createElementNS("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul", elem);
 }
 
 /**

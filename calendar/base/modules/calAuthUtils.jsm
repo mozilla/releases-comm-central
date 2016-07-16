@@ -241,10 +241,10 @@ cal.auth.Prompt.prototype = {
         }
         hostRealm.passwordRealm = aChannel.URI.host + ":" + port + " (" + aAuthInfo.realm + ")";
 
-        let pw = this.getPasswordInfo(hostRealm);
-        aAuthInfo.username = pw.username;
-        if (pw && pw.found) {
-            aAuthInfo.password = pw.password;
+        let pwInfo = this.getPasswordInfo(hostRealm);
+        aAuthInfo.username = pwInfo.username;
+        if (pwInfo && pwInfo.found) {
+            aAuthInfo.password = pwInfo.password;
             return true;
         } else {
             let prompter2 = Components.classes["@mozilla.org/embedcomp/window-watcher;1"]

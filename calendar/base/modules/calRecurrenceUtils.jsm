@@ -41,7 +41,7 @@ function recurrenceRule2String(recurrenceInfo, startDate, endDate, allDay) {
     }
     function everyWeekDay(aByDay) {
         // Checks if aByDay contains only values from 1 to 7 with any order.
-        let mask = aByDay.reduce((v, c) => v | (1 << c), 1);
+        let mask = aByDay.reduce((value, item) => value | (1 << item), 1);
         return aByDay.length == 7 && mask == Math.pow(2, 8) - 1;
     }
 
@@ -373,11 +373,11 @@ function splitRecurrenceRules(recurrenceInfo) {
     let ritems = recurrenceInfo.getRecurrenceItems({});
     let rules = [];
     let exceptions = [];
-    for (let r of ritems) {
-        if (r.isNegative) {
-            exceptions.push(r);
+    for (let ritem of ritems) {
+        if (ritem.isNegative) {
+            exceptions.push(ritem);
         } else {
-            rules.push(r);
+            rules.push(ritem);
         }
     }
     return [rules, exceptions];

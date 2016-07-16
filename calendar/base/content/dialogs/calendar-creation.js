@@ -10,32 +10,32 @@
  */
 function openLocalCalendar() {
     const nsIFilePicker = Components.interfaces.nsIFilePicker;
-    let fp = Components.classes["@mozilla.org/filepicker;1"].createInstance(nsIFilePicker);
-    fp.init(window, calGetString("calendar", "Open"), nsIFilePicker.modeOpen);
+    let picker = Components.classes["@mozilla.org/filepicker;1"].createInstance(nsIFilePicker);
+    picker.init(window, calGetString("calendar", "Open"), nsIFilePicker.modeOpen);
     let wildmat = "*.ics";
     let description = calGetString("calendar", "filterIcs", [wildmat]);
-    fp.appendFilter(description, wildmat);
-    fp.appendFilters(nsIFilePicker.filterAll);
+    picker.appendFilter(description, wildmat);
+    picker.appendFilters(nsIFilePicker.filterAll);
 
-    if (fp.show() != nsIFilePicker.returnOK) {
+    if (picker.show() != nsIFilePicker.returnOK) {
         return;
     }
 
     let calMgr = getCalendarManager();
     let calendars = calMgr.getCalendars({});
-    if (calendars.some(x => x.uri == fp.fileURL)) {
+    if (calendars.some(x => x.uri == picker.fileURL)) {
         // The calendar already exists, select it and return.
         document.getElementById("calendar-list-tree-widget")
                 .tree.view.selection.select(index);
         return;
     }
 
-    let openCalendar = calMgr.createCalendar("ics", fp.fileURL);
+    let openCalendar = calMgr.createCalendar("ics", picker.fileURL);
 
     // Strip ".ics" from filename for use as calendar name, taken from
     // calendarCreation.js
     let fullPathRegex = new RegExp("([^/:]+)[.]ics$");
-    let prettyName = fp.fileURL.spec.match(fullPathRegex);
+    let prettyName = picker.fileURL.spec.match(fullPathRegex);
     let name;
 
     if (prettyName && prettyName.length >= 1) {

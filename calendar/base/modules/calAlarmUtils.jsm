@@ -70,9 +70,9 @@ cal.alarms = {
                 // have a well defined startTime.  We just consider the start/end
                 // to be midnight in the user's timezone.
                 if (returnDate.isDate) {
-                    let tz = cal.calendarDefaultTimezone();
+                    let timezone = cal.calendarDefaultTimezone();
                     // This returns a copy, so no extra cloning needed.
-                    returnDate = returnDate.getInTimezone(tz);
+                    returnDate = returnDate.getInTimezone(timezone);
                     returnDate.isDate = false;
                 } else {
                     // Clone the date to correctly add the duration.
@@ -122,9 +122,9 @@ cal.alarms = {
      * @param aReminders  The set of reminders to add images for.
      */
     addReminderImages: function(aElement, aReminders) {
-        function createOwnedXULNode(el) {
+        function createOwnedXULNode(elem) {
             const XUL_NS = "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul";
-            return aElement.ownerDocument.createElementNS(XUL_NS, el);
+            return aElement.ownerDocument.createElementNS(XUL_NS, elem);
         }
 
         function setupActionImage(node, reminder) {

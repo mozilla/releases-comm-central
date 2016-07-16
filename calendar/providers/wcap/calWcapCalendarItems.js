@@ -25,9 +25,9 @@ calWcapCalendar.prototype.encodeAttendee = function(att) {
     let params = encodeAttr(att.rsvp, "RSVP", "");
     params = encodeAttr(att.participationStatus, "PARTSTAT", params);
     params = encodeAttr(att.role, "ROLE", params);
-    let cn = att.commonName;
-    if (cn) {
-        params = encodeAttr(cn.replace(/[;:]/g, " "), "CN", params); // remove ';' and ':' from CN
+    let commonName = att.commonName;
+    if (commonName) {
+        params = encodeAttr(commonName.replace(/[;:]/g, " "), "CN", params); // remove ';' and ':' from CN
     }
     return encodeAttr(att.id, null, params);
 };
@@ -200,9 +200,9 @@ calWcapCalendar.prototype.isInvitation = function(item) {
 calWcapCalendar.prototype.getInvitedAttendee = function(item) {
     let att = getAttendeeByCalId(item.getAttendees({}), this.calId);
     if (!att) { // try to find mail address
-        let ar = this.session.getUserPreferences("X-NSCP-WCAP-PREF-mail");
-        if (ar.length > 0 && ar[0].length > 0) {
-            att = item.getAttendeeById("mailto:" + ar[0]);
+        let prefMail = this.session.getUserPreferences("X-NSCP-WCAP-PREF-mail");
+        if (prefMail.length > 0 && prefMail[0].length > 0) {
+            att = item.getAttendeeById("mailto:" + prefMail[0]);
         }
     }
     return att;
@@ -782,32 +782,32 @@ calWcapCalendar.prototype.deleteItem = function(item, listener) {
 };
 
 calWcapCalendar.prototype.patchTimezone = function(subComp, attr, xpropOrTz) {
-    let dt = subComp[attr];
+    let date = subComp[attr];
     // if TZID parameter present (all-day items), it takes precedence:
-    if (dt && (dt.timezone.isUTC || dt.timezone.isFloating)) {
+    if (date && (date.timezone.isUTC || date.timezone.isFloating)) {
         if (LOG_LEVEL > 2) {
-            log(attr + " is " + dt, this);
+            log(attr + " is " + date, this);
         }
-        let tz;
+        let timezone;
         if (typeof xpropOrTz == "string") {
             let tzid = subComp.getFirstProperty(xpropOrTz);
             if (tzid) {
-                tz = this.session.getTimezone(tzid.value);
-                ASSERT(tz, "timezone not found: " + tzid);
+                timezone = this.session.getTimezone(tzid.value);
+                ASSERT(timezone, "timezone not found: " + tzid);
             }
         } else {
-            tz = xpropOrTz;
+            timezone = xpropOrTz;
         }
-        if (tz) {
+        if (timezone) {
             if (LOG_LEVEL > 2) {
                 log("patching " + xpropOrTz + ": from " +
-                    dt + " to " + dt.getInTimezone(tz), this);
+                    date + " to " + date.getInTimezone(timezone), this);
             }
-            dt = dt.getInTimezone(tz);
-            subComp[attr] = dt;
+            date = date.getInTimezone(timezone);
+            subComp[attr] = date;
         }
     }
-    return dt;
+    return date;
 };
 
 calWcapCalendar.prototype.parseItems = function(

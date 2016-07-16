@@ -31,17 +31,17 @@ calAttachment.prototype = {
 
     get hashId() {
         if (!this.mHashId) {
-            let ch = Components.classes["@mozilla.org/security/hash;1"]
-                               .createInstance(Components.interfaces.nsICryptoHash);
+            let cryptoHash = Components.classes["@mozilla.org/security/hash;1"]
+                                       .createInstance(Components.interfaces.nsICryptoHash);
 
             let converter = Components.classes["@mozilla.org/intl/scriptableunicodeconverter"]
                                       .createInstance(Components.interfaces.nsIScriptableUnicodeConverter);
             converter.charset = "UTF-8";
             let data = converter.convertToByteArray(this.rawData, {});
 
-            ch.init(ch.MD5);
-            ch.update(data, data.length);
-            this.mHashId = ch.finish(true);
+            cryptoHash.init(cryptoHash.MD5);
+            cryptoHash.update(data, data.length);
+            this.mHashId = cryptoHash.finish(true);
         }
         return this.mHashId;
     },

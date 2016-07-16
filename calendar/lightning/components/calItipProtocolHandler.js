@@ -5,7 +5,7 @@
 Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 Components.utils.import("resource://calendar/modules/calUtils.jsm");
 
-var CI = Components.interfaces;
+var Ci = Components.interfaces;
 
 var ITIP_HANDLER_MIMETYPE = "application/x-itip-internal";
 var ITIP_HANDLER_PROTOCOL = "moz-cal-handle-itip";
@@ -72,15 +72,15 @@ ItipProtocolHandler.prototype = {
         interfaces: ItipProtocolHandlerInterfaces
     }),
 
-    protocolFlags: CI.nsIProtocolHandler.URI_NORELATIVE | CI.nsIProtocolHandler.URI_DANGEROUS_TO_LOAD,
+    protocolFlags: Ci.nsIProtocolHandler.URI_NORELATIVE | Ci.nsIProtocolHandler.URI_DANGEROUS_TO_LOAD,
     allowPort: () => false,
     isSecure: false,
     newURI: function(spec, charSet, baseURI) {
         let cls = Components.classes["@mozilla.org/network/standard-url;1"];
-        let url = cls.createInstance(CI.nsIStandardURL);
-        url.init(CI.nsIStandardURL.URLTYPE_STANDARD, 0, spec, charSet, baseURI);
+        let url = cls.createInstance(Ci.nsIStandardURL);
+        url.init(Ci.nsIStandardURL.URLTYPE_STANDARD, 0, spec, charSet, baseURI);
         dump("Creating new URI for " + spec + "\n");
-        return url.QueryInterface(CI.nsIURI);
+        return url.QueryInterface(Ci.nsIURI);
     },
 
     newChannel: function(URI) {
@@ -109,7 +109,7 @@ ItipContentHandler.prototype = {
     }),
 
     handleContent: function(contentType, windowTarget, request) {
-        let channel = request.QueryInterface(CI.nsIChannel);
+        let channel = request.QueryInterface(Ci.nsIChannel);
         let uri = channel.URI.spec;
         if (!uri.startsWith(ITIP_HANDLER_PROTOCOL + ":")) {
             cal.ERROR("Unexpected iTIP uri: " + uri + "\n");
@@ -119,8 +119,8 @@ ItipContentHandler.prototype = {
         let paramString = uri.substring(ITIP_HANDLER_PROTOCOL.length + 4);
         let paramArray = paramString.split("&");
         let paramBlock = { };
-        paramArray.forEach((v) => {
-            let parts = v.split("=");
+        paramArray.forEach((value) => {
+            let parts = value.split("=");
             paramBlock[parts[0]] = unescape(unescape(parts[1]));
         });
         // dump("content-handler: have params " + paramBlock.toSource() + "\n");

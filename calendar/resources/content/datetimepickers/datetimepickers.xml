@@ -1635,9 +1635,9 @@
               if (datePartsArray != null) {
                 year = Number(datePartsArray[this.yearIndex]);
                 let monthString = datePartsArray[this.monthIndex].toUpperCase();
-                for (let m = 0; m < this.alphaMonths.length; m++) {
-                  if (monthString == this.alphaMonths[m]) {
-                    month = m;
+                for (let monthIdx = 0; monthIdx < this.alphaMonths.length; monthIdx++) {
+                  if (monthString == this.alphaMonths[monthIdx]) {
+                    month = monthIdx;
                     break;
                   }
                 }
@@ -1834,12 +1834,12 @@
                   this.probeSucceeded = true;
                   // Fill this.alphaMonths with month names.
                   this.alphaMonths = new Array(12);
-                  for (let m = 0; m < 12; m++) {
-                    probeDate.setMonth(m);
+                  for (let monthIdx = 0; monthIdx < 12; monthIdx++) {
+                    probeDate.setMonth(monthIdx);
                     probeString = this.formatDate(probeDate);
                     probeArray = this.parseShortDateRegex.exec(probeString);
                     if (probeArray) {
-                      this.alphaMonths[m] = probeArray[this.monthIndex].toUpperCase();
+                      this.alphaMonths[monthIdx] = probeArray[this.monthIndex].toUpperCase();
                     } else {
                       this.probeSucceeded = false;
                     }

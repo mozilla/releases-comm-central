@@ -807,26 +807,26 @@ calStorageCalendar.prototype = {
 
         // First fetch all the events
         if (wantEvents) {
-            let sp;             // stmt params
+            let params;             // stmt params
             let resultItems = [];
 
             // first get non-recurring events that happen to fall within the range
             //
             try {
                 this.prepareStatement(this.mSelectNonRecurringEventsByRange);
-                sp = this.mSelectNonRecurringEventsByRange.params;
-                sp.range_start = startTime;
-                sp.range_end = endTime;
-                sp.start_offset = aRangeStart ? aRangeStart.timezoneOffset * USECS_PER_SECOND : 0;
-                sp.end_offset = aRangeEnd ? aRangeEnd.timezoneOffset * USECS_PER_SECOND : 0;
-                sp.offline_journal = null;
+                params = this.mSelectNonRecurringEventsByRange.params;
+                params.range_start = startTime;
+                params.range_end = endTime;
+                params.start_offset = aRangeStart ? aRangeStart.timezoneOffset * USECS_PER_SECOND : 0;
+                params.end_offset = aRangeEnd ? aRangeEnd.timezoneOffset * USECS_PER_SECOND : 0;
+                params.offline_journal = null;
 
                 if (wantOfflineDeletedItems) {
-                    sp.offline_journal = cICL.OFFLINE_FLAG_DELETED_RECORD;
+                    params.offline_journal = cICL.OFFLINE_FLAG_DELETED_RECORD;
                 } else if (wantOfflineCreatedItems) {
-                    sp.offline_journal = cICL.OFFLINE_FLAG_CREATED_RECORD;
+                    params.offline_journal = cICL.OFFLINE_FLAG_CREATED_RECORD;
                 } else if (wantOfflineModifiedItems) {
-                    sp.offline_journal = cICL.OFFLINE_FLAG_MODIFIED_RECORD;
+                    params.offline_journal = cICL.OFFLINE_FLAG_MODIFIED_RECORD;
                 }
 
                 while (this.mSelectNonRecurringEventsByRange.executeStep()) {
@@ -851,10 +851,10 @@ calStorageCalendar.prototype = {
             for (let id in this.mRecEventCache) {
                 let evitem = this.mRecEventCache[id];
                 let offline_journal_flag = this.mRecEventCacheOfflineFlags[evitem.id] || null;
-                // No need to return flagged unless asked i.e. sp.offline_journal == offline_journal_flag
-                // Return created and modified offline records if sp.offline_journal is null alongwith events that have no flag
-                if ((sp.offline_journal == null && offline_journal_flag != cICL.OFFLINE_FLAG_DELETED_RECORD) ||
-                    (sp.offline_journal != null && offline_journal_flag == sp.offline_journal)) {
+                // No need to return flagged unless asked i.e. params.offline_journal == offline_journal_flag
+                // Return created and modified offline records if params.offline_journal is null alongwith events that have no flag
+                if ((params.offline_journal == null && offline_journal_flag != cICL.OFFLINE_FLAG_DELETED_RECORD) ||
+                    (params.offline_journal != null && offline_journal_flag == params.offline_journal)) {
                     count += handleResultItem(evitem, Components.interfaces.calIEvent);
                     if (checkCount()) {
                         return;
@@ -865,26 +865,26 @@ calStorageCalendar.prototype = {
 
         // if todos are wanted, do them next
         if (wantTodos) {
-            let sp;             // stmt params
+            let params;             // stmt params
             let resultItems = [];
 
             // first get non-recurring todos that happen to fall within the range
             try {
                 this.prepareStatement(this.mSelectNonRecurringTodosByRange);
-                sp = this.mSelectNonRecurringTodosByRange.params;
-                sp.range_start = startTime;
-                sp.range_end = endTime;
-                sp.start_offset = aRangeStart ? aRangeStart.timezoneOffset * USECS_PER_SECOND : 0;
-                sp.end_offset = aRangeEnd ? aRangeEnd.timezoneOffset * USECS_PER_SECOND : 0;
-                sp.offline_journal = null;
+                params = this.mSelectNonRecurringTodosByRange.params;
+                params.range_start = startTime;
+                params.range_end = endTime;
+                params.start_offset = aRangeStart ? aRangeStart.timezoneOffset * USECS_PER_SECOND : 0;
+                params.end_offset = aRangeEnd ? aRangeEnd.timezoneOffset * USECS_PER_SECOND : 0;
+                params.offline_journal = null;
                 if (wantOfflineCreatedItems) {
-                    sp.offline_journal = cICL.OFFLINE_FLAG_CREATED_RECORD;
+                    params.offline_journal = cICL.OFFLINE_FLAG_CREATED_RECORD;
                 }
                 if (wantOfflineDeletedItems) {
-                    sp.offline_journal = cICL.OFFLINE_FLAG_DELETED_RECORD;
+                    params.offline_journal = cICL.OFFLINE_FLAG_DELETED_RECORD;
                 }
                 if (wantOfflineModifiedItems) {
-                    sp.offline_journal = cICL.OFFLINE_FLAG_MODIFIED_RECORD;
+                    params.offline_journal = cICL.OFFLINE_FLAG_MODIFIED_RECORD;
                 }
 
                 while (this.mSelectNonRecurringTodosByRange.executeStep()) {
@@ -913,12 +913,12 @@ calStorageCalendar.prototype = {
             for (let id in this.mRecTodoCache) {
                 let todoitem = this.mRecTodoCache[id];
                 let offline_journal_flag = this.mRecTodoCacheOfflineFlags[todoitem.id] || null;
-                if ((sp.offline_journal == null &&
+                if ((params.offline_journal == null &&
                      (offline_journal_flag == cICL.OFFLINE_FLAG_MODIFIED_RECORD ||
                       offline_journal_flag == cICL.OFFLINE_FLAG_CREATED_RECORD ||
                       offline_journal_flag == null)) ||
-                    (sp.offline_journal != null &&
-                     (offline_journal_flag == sp.offline_journal))) {
+                    (params.offline_journal != null &&
+                     (offline_journal_flag == params.offline_journal))) {
                     count += handleResultItem(todoitem,
                                               Components.interfaces.calITodo,
                                               checkCompleted);
@@ -1953,12 +1953,12 @@ calStorageCalendar.prototype = {
     setDateParamHelper: function(params, entryname, cdt) {
         if (cdt) {
             params[entryname] = cdt.nativeTime;
-            let tz = cdt.timezone;
-            let ownTz = cal.getTimezoneService().getTimezone(tz.tzid);
+            let timezone = cdt.timezone;
+            let ownTz = cal.getTimezoneService().getTimezone(timezone.tzid);
             if (ownTz) { // if we know that TZID, we use it
                 params[entryname + "_tz"] = ownTz.tzid;
-            } else if (tz.icalComponent) { // foreign one
-                params[entryname + "_tz"] = tz.icalComponent.serializeToICS();
+            } else if (timezone.icalComponent) { // foreign one
+                params[entryname + "_tz"] = timezone.icalComponent.serializeToICS();
             } else { // timezone component missing
                 params[entryname + "_tz"] = "floating";
             }
@@ -2013,21 +2013,21 @@ calStorageCalendar.prototype = {
     writeEvent: function(item, olditem, flags) {
         try {
             this.prepareStatement(this.mInsertEvent);
-            let ip = this.mInsertEvent.params;
-            this.setupItemBaseParams(item, olditem, ip);
+            let params = this.mInsertEvent.params;
+            this.setupItemBaseParams(item, olditem, params);
 
-            this.setDateParamHelper(ip, "event_start", item.startDate);
-            this.setDateParamHelper(ip, "event_end", item.endDate);
+            this.setDateParamHelper(params, "event_start", item.startDate);
+            this.setDateParamHelper(params, "event_end", item.endDate);
             let dtstamp = item.stampTime;
             if (dtstamp) {
-                ip.event_stamp = dtstamp.nativeTime;
+                params.event_stamp = dtstamp.nativeTime;
             }
 
             if (item.startDate.isDate) {
                 flags |= CAL_ITEM_FLAG.EVENT_ALLDAY;
             }
 
-            ip.flags = flags;
+            params.flags = flags;
 
             this.mInsertEvent.executeStep();
         } finally {
@@ -2038,26 +2038,26 @@ calStorageCalendar.prototype = {
     writeTodo: function(item, olditem, flags) {
         try {
             this.prepareStatement(this.mInsertTodo);
-            let ip = this.mInsertTodo.params;
+            let params = this.mInsertTodo.params;
 
-            this.setupItemBaseParams(item, olditem, ip);
+            this.setupItemBaseParams(item, olditem, params);
 
-            this.setDateParamHelper(ip, "todo_entry", item.entryDate);
-            this.setDateParamHelper(ip, "todo_due", item.dueDate);
+            this.setDateParamHelper(params, "todo_entry", item.entryDate);
+            this.setDateParamHelper(params, "todo_due", item.dueDate);
             let dtstamp = item.stampTime;
             if (dtstamp) {
-                ip.todo_stamp = dtstamp.nativeTime;
+                params.todo_stamp = dtstamp.nativeTime;
             }
-            this.setDateParamHelper(ip, "todo_completed", item.getProperty("COMPLETED"));
+            this.setDateParamHelper(params, "todo_completed", item.getProperty("COMPLETED"));
 
-            ip.todo_complete = item.getProperty("PERCENT-COMPLETED");
+            params.todo_complete = item.getProperty("PERCENT-COMPLETED");
 
             let someDate = item.entryDate || item.dueDate;
             if (someDate && someDate.isDate) {
                 flags |= CAL_ITEM_FLAG.EVENT_ALLDAY;
             }
 
-            ip.flags = flags;
+            params.flags = flags;
 
             this.mInsertTodo.executeStep();
         } finally {
@@ -2065,29 +2065,29 @@ calStorageCalendar.prototype = {
         }
     },
 
-    setupItemBaseParams: function(item, olditem, ip) {
-        ip.id = item.id;
+    setupItemBaseParams: function(item, olditem, params) {
+        params.id = item.id;
 
         if (item.recurrenceId) {
-            this.setDateParamHelper(ip, "recurrence_id", item.recurrenceId);
+            this.setDateParamHelper(params, "recurrence_id", item.recurrenceId);
         }
 
         let tmp;
 
         if ((tmp = item.getProperty("CREATED"))) {
-            ip.time_created = tmp.nativeTime;
+            params.time_created = tmp.nativeTime;
         }
         if ((tmp = item.getProperty("LAST-MODIFIED"))) {
-            ip.last_modified = tmp.nativeTime;
+            params.last_modified = tmp.nativeTime;
         }
 
-        ip.title = item.getProperty("SUMMARY");
-        ip.priority = item.getProperty("PRIORITY");
-        ip.privacy = item.getProperty("CLASS");
-        ip.ical_status = item.getProperty("STATUS");
+        params.title = item.getProperty("SUMMARY");
+        params.priority = item.getProperty("PRIORITY");
+        params.privacy = item.getProperty("CLASS");
+        params.ical_status = item.getProperty("STATUS");
 
         if (item.alarmLastAck) {
-            ip.alarm_last_ack = item.alarmLastAck.nativeTime;
+            params.alarm_last_ack = item.alarmLastAck.nativeTime;
         }
     },
 
@@ -2099,12 +2099,12 @@ calStorageCalendar.prototype = {
         }
         if (attendees.length > 0) {
             for (let att of attendees) {
-                let ap = this.mInsertAttendee.params;
-                ap.item_id = item.id;
+                let params = this.mInsertAttendee.params;
+                params.item_id = item.id;
                 try {
                     this.prepareStatement(this.mInsertAttendee);
-                    this.setDateParamHelper(ap, "recurrence_id", item.recurrenceId);
-                    ap.icalString = att.icalString;
+                    this.setDateParamHelper(params, "recurrence_id", item.recurrenceId);
+                    params.icalString = att.icalString;
                     this.mInsertAttendee.executeStep();
                 } finally {
                     this.mInsertAttendee.reset();
@@ -2120,14 +2120,14 @@ calStorageCalendar.prototype = {
     writeProperty: function(item, propName, propValue) {
         try {
             this.prepareStatement(this.mInsertProperty);
-            let pp = this.mInsertProperty.params;
-            pp.key = propName;
+            let params = this.mInsertProperty.params;
+            params.key = propName;
             let wPropValue = cal.wrapInstance(propValue, Components.interfaces.calIDateTime);
             if (wPropValue) {
-                pp.value = wPropValue.nativeTime;
+                params.value = wPropValue.nativeTime;
             } else {
                 try {
-                    pp.value = propValue;
+                    params.value = propValue;
                 } catch (e) {
                     // The storage service throws an NS_ERROR_ILLEGAL_VALUE in
                     // case pval is something complex (i.e not a string or
@@ -2137,8 +2137,8 @@ calStorageCalendar.prototype = {
                     }
                 }
             }
-            pp.item_id = item.id;
-            this.setDateParamHelper(pp, "recurrence_id", item.recurrenceId);
+            params.item_id = item.id;
+            this.setDateParamHelper(params, "recurrence_id", item.recurrenceId);
             this.mInsertProperty.executeStep();
         } finally {
             this.mInsertProperty.reset();
@@ -2174,11 +2174,11 @@ calStorageCalendar.prototype = {
             flags = CAL_ITEM_FLAG.HAS_RECURRENCE;
             let ritems = rec.getRecurrenceItems({});
             for (let ritem of ritems) {
-                let ap = this.mInsertRecurrence.params;
+                let params = this.mInsertRecurrence.params;
                 try {
                     this.prepareStatement(this.mInsertRecurrence);
-                    ap.item_id = item.id;
-                    ap.icalString = ritem.icalString;
+                    params.item_id = item.id;
+                    params.icalString = ritem.icalString;
                     this.mInsertRecurrence.executeStep();
                 } finally {
                     this.mInsertRecurrence.reset();
@@ -2211,12 +2211,12 @@ calStorageCalendar.prototype = {
         let attachments = item.getAttachments({});
         if (attachments && attachments.length > 0) {
             for (let att of attachments) {
-                let ap = this.mInsertAttachment.params;
+                let params = this.mInsertAttachment.params;
                 try {
                     this.prepareStatement(this.mInsertAttachment);
-                    this.setDateParamHelper(ap, "recurrence_id", item.recurrenceId);
-                    ap.item_id = item.id;
-                    ap.icalString = att.icalString;
+                    this.setDateParamHelper(params, "recurrence_id", item.recurrenceId);
+                    params.item_id = item.id;
+                    params.icalString = att.icalString;
 
                     this.mInsertAttachment.executeStep();
                 } finally {
@@ -2232,12 +2232,12 @@ calStorageCalendar.prototype = {
         let relations = item.getRelations({});
         if (relations && relations.length > 0) {
             for (let rel of relations) {
-                let rp = this.mInsertRelation.params;
+                let params = this.mInsertRelation.params;
                 try {
                     this.prepareStatement(this.mInsertRelation);
-                    this.setDateParamHelper(rp, "recurrence_id", item.recurrenceId);
-                    rp.item_id = item.id;
-                    rp.icalString = rel.icalString;
+                    this.setDateParamHelper(params, "recurrence_id", item.recurrenceId);
+                    params.item_id = item.id;
+                    params.icalString = rel.icalString;
 
                     this.mInsertRelation.executeStep();
                 } finally {
@@ -2256,12 +2256,12 @@ calStorageCalendar.prototype = {
         }
 
         for (let alarm of alarms) {
-            let pp = this.mInsertAlarm.params;
+            let params = this.mInsertAlarm.params;
             try {
                 this.prepareStatement(this.mInsertAlarm);
-                this.setDateParamHelper(pp, "recurrence_id", item.recurrenceId);
-                pp.item_id = item.id;
-                pp.icalString = alarm.icalString;
+                this.setDateParamHelper(params, "recurrence_id", item.recurrenceId);
+                params.item_id = item.id;
+                params.icalString = alarm.icalString;
                 this.mInsertAlarm.executeStep();
             } catch (e) {
                 this.logError("Error writing alarm for item " + item.title + " (" + item.id + ")", e);
@@ -2334,9 +2334,9 @@ calStorageCalendar.prototype = {
         this.executeItemStatement(this.mDeleteMetaData, "item_id", id);
         try {
             this.prepareStatement(this.mInsertMetaData);
-            let sp = this.mInsertMetaData.params;
-            sp.item_id = id;
-            sp.value = value;
+            let params = this.mInsertMetaData.params;
+            params.item_id = id;
+            params.value = value;
             this.mInsertMetaData.executeStep();
         } catch (e) {
             if (e.result == Components.results.NS_ERROR_ILLEGAL_VALUE) {

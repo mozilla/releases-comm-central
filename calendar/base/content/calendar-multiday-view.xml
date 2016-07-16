@@ -963,15 +963,15 @@
               //
               // Remember that any time we're starting a new blob, colEndArray
               // will be empty, but that's ok.
-              for (let ii = 0; ii < colEndArray.length; ++ii) {
-                  let colEnd = colEndArray[ii].layoutEnd;
+              for (let j = 0; j < colEndArray.length; ++j) {
+                  let colEnd = colEndArray[j].layoutEnd;
                   if (colEnd.compare(curItemInfo.layoutStart) != 1) {
                       // Yay, we can jump into this column
-                      colEndArray[ii] = curItemInfo;
+                      colEndArray[j] = curItemInfo;
 
                       // Check and see if there are any adjacent columns we can
                       // jump into as well.
-                      let lastCol = Number(ii) + 1;
+                      let lastCol = Number(j) + 1;
                       while (lastCol < colEndArray.length) {
                           let nextColEnd = colEndArray[lastCol].layoutEnd;
                           // If the next column's item ends after we start, we
@@ -985,8 +985,8 @@
                       // Now construct the info we need to push into the blob
                       currentBlob.push({
                           itemInfo: curItemInfo,
-                          startCol: ii,
-                          colSpan: lastCol - ii
+                          startCol: j,
+                          colSpan: lastCol - j
                       });
 
                       // Update latestItemEnd
@@ -1020,29 +1020,29 @@
               //       |      |_____________|   here, we can shrink ev2 and jump
               //       |      |      |      |   in column #3
               //
-              for (let jj = 1; jj < colEndArray.length; ++jj) {
-                  if (colEndArray[jj].event.hashId == colEndArray[jj - 1].event.hashId) {
+              for (let j = 1; j < colEndArray.length; ++j) {
+                  if (colEndArray[j].event.hashId == colEndArray[j - 1].event.hashId) {
                       // Good we found a item that spanned multiple columns.
                       // Find it in the blob so we can modify its properties
-                      for (let kk in currentBlob) {
-                          if (currentBlob[kk].itemInfo.event.hashId == colEndArray[jj].event.hashId) {
+                      for (let blobKey in currentBlob) {
+                          if (currentBlob[blobKey].itemInfo.event.hashId == colEndArray[j].event.hashId) {
                               // Take all but the first spot that the item spanned
-                              let spanOfShrunkItem = currentBlob[kk].colSpan;
+                              let spanOfShrunkItem = currentBlob[blobKey].colSpan;
                               currentBlob.push({
                                   itemInfo: curItemInfo,
-                                  startCol: Number(currentBlob[kk].startCol) + 1,
+                                  startCol: Number(currentBlob[blobKey].startCol) + 1,
                                   colSpan: spanOfShrunkItem - 1
                               });
 
                               // Update colEndArray
-                              for (let ll = jj; ll < jj + spanOfShrunkItem - 1; ll++) {
-                                  colEndArray[ll] = curItemInfo;
+                              for (let k = j; k < j + spanOfShrunkItem - 1; k++) {
+                                  colEndArray[k] = curItemInfo;
                               }
 
                               // Modify the data on the old item
-                              currentBlob[kk] = {
-                                  itemInfo: currentBlob[kk].itemInfo,
-                                  startCol: currentBlob[kk].startCol,
+                              currentBlob[blobKey] = {
+                                  itemInfo: currentBlob[blobKey].itemInfo,
+                                  startCol: currentBlob[blobKey].startCol,
                                   colSpan: 1
                               };
                               // Update latestItemEnd
@@ -1075,14 +1075,14 @@
               //   events by start time, so this event must start later than
               //   the start of any possible conflicts.
               let lastColNum = colEndArray.length;
-              for (let mm in currentBlob) {
-                  let mmEnd = currentBlob[mm].itemInfo.layoutEnd;
-                  if (currentBlob[mm].startCol + currentBlob[mm].colSpan == lastColNum &&
-                      mmEnd.compare(curItemInfo.layoutStart) != 1) {
-                      currentBlob[mm] = {
-                          itemInfo: currentBlob[mm].itemInfo,
-                          startCol: currentBlob[mm].startCol,
-                          colSpan: currentBlob[mm].colSpan + 1
+              for (let blobKey in currentBlob) {
+                  let blobKeyEnd = currentBlob[blobKey].itemInfo.layoutEnd;
+                  if (currentBlob[blobKey].startCol + currentBlob[blobKey].colSpan == lastColNum &&
+                      blobKeyEnd.compare(curItemInfo.layoutStart) != 1) {
+                      currentBlob[blobKey] = {
+                          itemInfo: currentBlob[blobKey].itemInfo,
+                          startCol: currentBlob[blobKey].startCol,
+                          colSpan: currentBlob[blobKey].colSpan + 1
                       };
                   }
               }
@@ -2450,10 +2450,10 @@
             return;
         }
 
-        let dx = Math.abs(event.screenX - this.mMouseX);
-        let dy = Math.abs(event.screenY - this.mMouseY);
+        let deltaX = Math.abs(event.screenX - this.mMouseX);
+        let deltaY = Math.abs(event.screenY - this.mMouseY);
         // more than a 3 pixel move?
-        if ((dx * dx + dy * dy) > 9) {
+        if ((deltaX * deltaX + deltaY * deltaY) > 9) {
             if (this.parentColumn) {
                 if (this.editingTimer) {
                     clearTimeout(this.editingTimer);
@@ -2840,9 +2840,9 @@
                   return;
               }
           } else if (this.mDateList) {
-              for (let d of this.mDateList) {
+              for (let date of this.mDateList) {
                   // if date is already visible, nothing to do
-                  if (d.compare(targetDate) == 0) {
+                  if (date.compare(targetDate) == 0) {
                       return;
                   }
               }
@@ -2919,14 +2919,14 @@
         <body><![CDATA[
            let dates = [];
            if (this.mStartDate && this.mEndDate) {
-               let d = this.mStartDate.clone();
-               while (d.compare(this.mEndDate) <= 0) {
+               let date = this.mStartDate.clone();
+               while (date.compare(this.mEndDate) <= 0) {
                    dates.push(d.clone());
-                   d.day += 1;
+                   date.day += 1;
                }
            } else if (this.mDateList) {
-               for (let d of this.mDateList) {
-                   dates.push(d.clone());
+               for (let date of this.mDateList) {
+                   dates.push(date.clone());
                }
            }
 
@@ -3170,10 +3170,10 @@
             return count;
           }
 
-          let d = this.mStartDate.clone();
-          while (d.compare(this.mEndDate) <= 0) {
+          let date = this.mStartDate.clone();
+          while (date.compare(this.mEndDate) <= 0) {
             count++;
-            d.day += 1;
+            date.day += 1;
           }
 
           return count;
@@ -3340,7 +3340,7 @@
           let labelboxkids = this.labeldaybox.childNodes;
           let updateTimeIndicator = false;
 
-          for (let d of computedDateList) {
+          for (let date of computedDateList) {
               let dayEventsBox;
               if (counter < dayboxkids.length) {
                   dayEventsBox = dayboxkids[counter];
@@ -3351,7 +3351,7 @@
                   dayEventsBox.setAttribute("flex", "1");
                   daybox.appendChild(dayEventsBox);
               }
-              setUpDayEventsBox(dayEventsBox, d);
+              setUpDayEventsBox(dayEventsBox, date);
 
               let dayHeaderBox;
               if (counter < headerboxkids.length) {
@@ -3367,9 +3367,9 @@
                   dayHeaderBox.setAttribute("flex", "1");
                   headerdaybox.appendChild(dayHeaderBox);
               }
-              setUpDayHeaderBox(dayHeaderBox, d);
+              setUpDayHeaderBox(dayHeaderBox, date);
 
-              if (this.mDaysOffArray.indexOf(d.weekday) >= 0) {
+              if (this.mDaysOffArray.indexOf(date.weekday) >= 0) {
                   dayEventsBox.dayOff = true;
                   dayHeaderBox.setAttribute("weekend", "true");
               } else {
@@ -3379,19 +3379,19 @@
               let labelbox;
               if (counter < labelboxkids.length) {
                   labelbox = labelboxkids[counter];
-                  labelbox.date = d;
+                  labelbox.date = date;
               } else {
                   labelbox = createXULElement("calendar-day-label");
                   labelbox.setAttribute("orient", otherorient);
                   this.labeldaybox.appendChild(labelbox);
-                  labelbox.date = d;
+                  labelbox.date = date;
               }
               // Set attributes for date relations and for the time indicator.
               let headerDayBox = document.getAnonymousElementByAttribute(
                                      this, "anonid", "headerdaybox");
               headerDayBox.removeAttribute("todaylastinview");
               dayEventsBox.timeIndicatorBox.setAttribute("hidden", "true");
-              switch (d.compare(today)) {
+              switch (date.compare(today)) {
                   case -1:
                       dayHeaderBox.setAttribute("relation", "past");
                       dayEventsBox.setAttribute("relation", "past");
@@ -3423,10 +3423,10 @@
               }
               // We don't want to actually mess with our original dates, plus
               // they're likely to be immutable.
-              let d2 = d.clone();
-              d2.isDate = true;
-              d2.makeImmutable();
-              this.mDateColumns.push({ date: d2, column: dayEventsBox, header: dayHeaderBox });
+              let date2 = date.clone();
+              date2.isDate = true;
+              date2.makeImmutable();
+              this.mDateColumns.push({ date: date2, column: dayEventsBox, header: dayHeaderBox });
               counter++;
           }
 
@@ -3554,10 +3554,10 @@
           if (!startDate) {
               return columns;
           }
-          let tz = this.mDateColumns[0].date.timezone;
-          let targetDate = startDate.getInTimezone(tz);
+          let timezone = this.mDateColumns[0].date.timezone;
+          let targetDate = startDate.getInTimezone(timezone);
           let finishDate = (aItem.endDate || aItem.dueDate || aItem.entryDate || startDate)
-                               .getInTimezone(tz);
+                               .getInTimezone(timezone);
 
           if (!targetDate.isDate) {
             // Set the time to 00:00 so that we get all the boxes
@@ -3601,9 +3601,11 @@
               return null;
           }
           for (let col of this.mDateColumns) {
-              let bo = document.getAnonymousElementByAttribute(col.column, "anonid", "boxstack").boxObject;
-              if ((aClientX >= bo.screenX) && (aClientX <= (bo.screenX + bo.width)) &&
-                  (aClientY >= bo.screenY) && (aClientY <= (bo.screenY + bo.height))) {
+              let boxObject = document.getAnonymousElementByAttribute(col.column, "anonid", "boxstack").boxObject;
+              if (aClientX >= boxObject.screenX &&
+                  aClientX <= (boxObject.screenX + boxObject.width) &&
+                  aClientY >= boxObject.screenY &&
+                  aClientY <= (boxObject.screenY + boxObject.height)) {
                   return col.column;
               }
           }

@@ -444,6 +444,21 @@
     // Disallow Unnecessary Nested Blocks
     "no-lone-blocks": 2,
 
+    // Enforce minimum identifier length
+    "id-length": [2, {
+      "min": 3,
+      "exceptions": [
+        /* sorting */ "a", "b",
+        /* exceptions */ "e", "ex",
+        /* loop indices */ "i", "j", "k", "n",
+        /* coordinates */ "x", "y",
+        /* regexes */ "re",
+        /* known words */ "rc", "rv", "id", "OS", "os", "db",
+        /* mail/calendar words */ "to", "cc",
+        /* Components */ "Ci", "Cc", "Cu", "Cr",
+      ]
+    }],
+
     // The following rules will not be enabled currently, but are kept here for
     // easier updates in the future.
     "no-else-return": 0,

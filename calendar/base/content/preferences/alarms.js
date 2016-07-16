@@ -74,22 +74,22 @@ var gAlarmsPane = {
      */
     browseAlarm: function() {
         const nsIFilePicker = Components.interfaces.nsIFilePicker;
-        let fp = Components.classes["@mozilla.org/filepicker;1"]
-                    .createInstance(nsIFilePicker);
+        let picker = Components.classes["@mozilla.org/filepicker;1"]
+                               .createInstance(nsIFilePicker);
 
         let bundlePreferences = document.getElementById("bundleCalendarPreferences");
         let title = bundlePreferences.getString("Open");
         let wildmat = "*.wav";
         let label = bundlePreferences.getFormattedString("filterWav", [wildmat], 1);
 
-        fp.init(window, title, nsIFilePicker.modeOpen);
-        fp.appendFilter(label, wildmat);
-        fp.appendFilters(nsIFilePicker.filterAll);
+        picker.init(window, title, nsIFilePicker.modeOpen);
+        picker.appendFilter(label, wildmat);
+        picker.appendFilters(nsIFilePicker.filterAll);
 
-        let ret = fp.show();
+        let ret = picker.show();
 
         if (ret == nsIFilePicker.returnOK) {
-            document.getElementById("calendar.alarms.soundURL").value = fp.fileURL.spec;
+            document.getElementById("calendar.alarms.soundURL").value = picker.fileURL.spec;
             document.getElementById("alarmSoundCheckbox").checked = true;
             this.readSoundLocation();
         }

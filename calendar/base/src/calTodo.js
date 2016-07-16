@@ -39,15 +39,15 @@ calTodo.prototype = {
     }),
 
     cloneShallow: function(aNewParent) {
-        let m = new calTodo();
-        this.cloneItemBaseInto(m, aNewParent);
-        return m;
+        let cloned = new calTodo();
+        this.cloneItemBaseInto(cloned, aNewParent);
+        return cloned;
     },
 
     createProxy: function(aRecurrenceId) {
         cal.ASSERT(!this.mIsProxy, "Tried to create a proxy for an existing proxy!", true);
 
-        let m = new calTodo();
+        let proxy = new calTodo();
 
         // override proxy's DTSTART/DUE/RECURRENCE-ID
         // before master is set (and item might get immutable):
@@ -55,14 +55,14 @@ calTodo.prototype = {
         if (duration) {
             let dueDate = aRecurrenceId.clone();
             dueDate.addDuration(duration);
-            m.dueDate = dueDate;
+            proxy.dueDate = dueDate;
         }
-        m.entryDate = aRecurrenceId;
+        proxy.entryDate = aRecurrenceId;
 
-        m.initializeProxy(this, aRecurrenceId);
-        m.mDirty = false;
+        proxy.initializeProxy(this, aRecurrenceId);
+        proxy.mDirty = false;
 
-        return m;
+        return proxy;
     },
 
     makeImmutable: function() {
@@ -75,8 +75,8 @@ calTodo.prototype = {
                this.status == "COMPLETED";
     },
 
-    set isCompleted(v) {
-        if (v) {
+    set isCompleted(completed) {
+        if (completed) {
             if (!this.completedDate) {
                 this.completedDate = cal.jsDateToDateTime(new Date());
             }

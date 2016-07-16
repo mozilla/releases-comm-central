@@ -183,15 +183,15 @@ function getTime() {
     return cal.jsDateToDateTime(new Date());
 }
 
-function getIcalUTC(dt) {
-    if (!dt || !dt.isValid) {
+function getIcalUTC(date) {
+    if (!date || !date.isValid) {
         return "0";
     } else {
-        let dtz = dt.timezone;
+        let dtz = date.timezone;
         if (dtz.isUTC || dtz.isFloating) {
-            return dt.icalString;
+            return date.icalString;
         } else {
-            return dt.getInTimezone(UTC()).icalString;
+            return date.getInTimezone(UTC()).icalString;
         }
     }
 }
@@ -201,9 +201,9 @@ function getDatetimeFromIcalString(val) {
         return null;
     }
     // assuming timezone is known:
-    let dt = createDateTime();
-    dt.icalString = val;
-    return dt;
+    let date = createDateTime();
+    date.icalString = val;
+    return date;
 }
 
 function getDatetimeFromIcalProp(prop) {

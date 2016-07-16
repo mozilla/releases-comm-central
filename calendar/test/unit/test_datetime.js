@@ -11,45 +11,45 @@ function really_run_test() {
         return cal.getTimezoneService().getTimezone(tzid);
     }
 
-    let cd = cal.createDateTime();
-    cd.resetTo(2005, 10, 13,
-               10, 0, 0,
-               getMozTimezone("/mozilla.org/20050126_1/America/Bogota"));
+    let date = cal.createDateTime();
+    date.resetTo(2005, 10, 13,
+                 10, 0, 0,
+                 getMozTimezone("/mozilla.org/20050126_1/America/Bogota"));
 
-    equal(cd.hour, 10);
-    equal(cd.icalString, "20051113T100000");
+    equal(date.hour, 10);
+    equal(date.icalString, "20051113T100000");
 
-    let cd_floating = cd.getInTimezone(cal.floating());
-    equal(cd_floating.hour, 10);
+    let date_floating = date.getInTimezone(cal.floating());
+    equal(date_floating.hour, 10);
 
 
-    let cd_utc = cd.getInTimezone(cal.UTC());
-    equal(cd_utc.hour, 15);
-    equal(cd_utc.icalString, "20051113T150000Z");
+    let date_utc = date.getInTimezone(cal.UTC());
+    equal(date_utc.hour, 15);
+    equal(date_utc.icalString, "20051113T150000Z");
 
-    cd.hour = 25;
-    equal(cd.hour, 1);
-    equal(cd.day, 14);
+    date.hour = 25;
+    equal(date.hour, 1);
+    equal(date.day, 14);
 
 
     // Test nativeTime on dates
     // setting .isDate to be true on a date should not change its nativeTime
     // bug 315954,
-    cd.hour = 0;
-    let cd_allday = cd.clone();
-    cd_allday.isDate = true;
-    equal(cd.nativeTime, cd_allday.nativeTime);
+    date.hour = 0;
+    let date_allday = date.clone();
+    date_allday.isDate = true;
+    equal(date.nativeTime, date_allday.nativeTime);
 
     // Daylight savings test
-    cd.resetTo(2006, 2, 26,
+    date.resetTo(2006, 2, 26,
                1, 0, 0,
                getMozTimezone("/mozilla.org/20050126_1/Europe/Amsterdam"));
 
-    equal(cd.weekday, 0);
-    equal(cd.timezoneOffset, 1 * 3600);
+    equal(date.weekday, 0);
+    equal(date.timezoneOffset, 1 * 3600);
 
-    cd.day += 1;
-    equal(cd.timezoneOffset, 2 * 3600);
+    date.day += 1;
+    equal(date.timezoneOffset, 2 * 3600);
 
     // Bug 398724 - Problems with floating all-day items
     let event = cal.createEvent("BEGIN:VEVENT\nUID:45674d53-229f-48c6-9f3b-f2b601e7ae4d\nSUMMARY:New Event\nDTSTART;VALUE=DATE:20071003\nDTEND;VALUE=DATE:20071004\nEND:VEVENT");

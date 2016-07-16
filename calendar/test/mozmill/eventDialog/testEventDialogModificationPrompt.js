@@ -92,13 +92,13 @@ var testEventDialogModificationPrompt = function() {
     .getWindows("Calendar:EventDialog")[0]);
 
   // modal dialog setup
-  let md = new modalDialog.modalDialog(event.window);
-  md.start(handleSavePrompt);
+  let dialog = new modalDialog.modalDialog(event.window);
+  dialog.start(handleSavePrompt);
 
   // escape the event window, there should be no prompt to save event
   event.keypress(undefined, "VK_ESCAPE", {});
   controller.sleep(sleep);
-  md.stop();
+  dialog.stop();
 
   // open
   controller.doubleClick(new elementslib.Lookup(controller.window.document,
@@ -115,13 +115,13 @@ var testEventDialogModificationPrompt = function() {
   calUtils.setData(event, data[0]);
 
   // this is set up after data entry because otherwise it tries to handle attachment dialog
-  md = new modalDialog.modalDialog(event.window);
-  md.start(handleSavePrompt);
+  dialog = new modalDialog.modalDialog(event.window);
+  dialog.start(handleSavePrompt);
 
   // escape the event window, there should be no prompt to save event
   event.keypress(undefined, "VK_ESCAPE", {});
   controller.sleep(sleep);
-  md.stop();
+  dialog.stop();
 
   // delete event
   controller.click(new elementslib.Lookup(controller.window.document,
@@ -150,11 +150,11 @@ var testEventDialogModificationPrompt = function() {
     controller.waitFor(() => mozmill.utils.getWindows("Calendar:EventDialog").length > 0, sleep);
     event = new mozmill.controller.MozMillController(mozmill.utils
       .getWindows("Calendar:EventDialog")[0]);
-    md = new modalDialog.modalDialog(event.window);
-    md.start(handleSavePrompt);
+    dialog = new modalDialog.modalDialog(event.window);
+    dialog.start(handleSavePrompt);
     event.keypress(undefined, "VK_ESCAPE", {});
     controller.sleep(sleep);
-    md.stop();
+    dialog.stop();
 
     // delete it
     // XXX somehow the event is selected at this point, this didn't use to be the case

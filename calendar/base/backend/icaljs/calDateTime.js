@@ -61,16 +61,16 @@ calDateTime.prototype = {
         }, this);
     },
 
-    resetTo: function(yr, mo, dy, hr, mi, sc, tz) {
+    resetTo: function(year, month, day, hour, minute, second, timezone) {
         this.innerObject.fromData({
-            year: yr,
-            month: mo + 1,
-            day: dy,
-            hour: hr,
-            minute: mi,
-            second: sc,
+            year: year,
+            month: month + 1,
+            day: day,
+            hour: hour,
+            minute: minute,
+            second: second,
         });
-        this.timezone = tz;
+        this.timezone = timezone;
     },
 
     reset: function() { this.innerObject.reset(); },

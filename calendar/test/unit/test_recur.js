@@ -39,8 +39,8 @@ function test_rules() {
 
         for (let i = 0; i < expected.length; i++) {
             // Check each date
-            let ed = cal.createDateTime(expected[i]);
-            dump("Expecting instance at " + ed + "(" + fmt.dayName(ed.weekday) + ")\n");
+            let expectedDate = cal.createDateTime(expected[i]);
+            dump("Expecting instance at " + expectedDate + "(" + fmt.dayName(expectedDate.weekday) + ")\n");
             dump("Recdate:");
             equal(recdates[i].icalString, expected[i]);
 
@@ -516,7 +516,7 @@ function test_interface() {
     equal(ritems.length, 3);
 
     let checkritems = new Map(ritems.map(ritem => [ritem.icalProperty.propertyName, ritem.icalProperty]));
-    let rparts = new Map(checkritems.get("RRULE").value.split(";").map(v => v.split("=", 2)));
+    let rparts = new Map(checkritems.get("RRULE").value.split(";").map(value => value.split("=", 2)));
     equal(rparts.size, 3);
     equal(rparts.get("FREQ"), "WEEKLY");
     equal(rparts.get("COUNT"), "6");

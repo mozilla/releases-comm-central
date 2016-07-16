@@ -59,17 +59,17 @@ cal.itip = {
 
         let wrappedItem = cal.wrapInstance(item, Components.interfaces.calIAttendee);
         if (wrappedItem) {
-            let st = wrappedItem.getProperty("RECEIVED-DTSTAMP");
-            if (st) {
-                dtstamp = cal.createDateTime(st);
+            let stamp = wrappedItem.getProperty("RECEIVED-DTSTAMP");
+            if (stamp) {
+                dtstamp = cal.createDateTime(stamp);
             }
         } else if (item) {
             // Unless the below is standardized, we store the last original
             // REQUEST/PUBLISH DTSTAMP in X-MOZ-RECEIVED-DTSTAMP to test against it
             // when updates come in:
-            let st = item.getProperty("X-MOZ-RECEIVED-DTSTAMP");
-            if (st) {
-                dtstamp = cal.createDateTime(st);
+            let stamp = item.getProperty("X-MOZ-RECEIVED-DTSTAMP");
+            if (stamp) {
+                dtstamp = cal.createDateTime(stamp);
             } else {
                 // xxx todo: are there similar X-MICROSOFT-CDO properties to be considered here?
                 dtstamp = item.stampTime;
@@ -562,9 +562,9 @@ cal.itip = {
                     let wrappedRItem = cal.wrapInstance(ritem, Components.interfaces.calIRecurrenceDate);
                     if (ritem.isNegative &&
                         wrappedRItem &&
-                        !aOriginalItem.recurrenceInfo.getRecurrenceItems({}).some((r) => {
-                            let wrappedR = cal.wrapInstance(r, Components.interfaces.calIRecurrenceDate);
-                            return r.isNegative &&
+                        !aOriginalItem.recurrenceInfo.getRecurrenceItems({}).some((recitem) => {
+                            let wrappedR = cal.wrapInstance(recitem, Components.interfaces.calIRecurrenceDate);
+                            return recitem.isNegative &&
                                    wrappedR &&
                                    wrappedR.date.compare(wrappedRItem.date) == 0;
                         })) {
@@ -814,9 +814,9 @@ cal.itip = {
             return propStrings.join("");
         };
 
-        let h1 = hashMajorProps(newItem);
-        let h2 = hashMajorProps(oldItem);
-        if (h1 != h2) {
+        let hash1 = hashMajorProps(newItem);
+        let hash2 = hashMajorProps(oldItem);
+        if (hash1 != hash2) {
             newItem = newItem.clone();
             // bump SEQUENCE, it never decreases (mind undo scenario here)
             newItem.setProperty("SEQUENCE",
@@ -1496,9 +1496,9 @@ ItipItemFinder.prototype = {
         let actionFunc = null;
         if (operations.length > 0) {
             actionFunc = function(opListener, partStat) {
-                for (let op of operations) {
+                for (let operation of operations) {
                     try {
-                        op(opListener, partStat);
+                        operation(opListener, partStat);
                     } catch (exc) {
                         cal.ERROR(exc);
                     }

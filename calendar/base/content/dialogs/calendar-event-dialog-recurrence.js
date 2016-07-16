@@ -102,7 +102,7 @@ function initializeControls(rule) {
 
     function everyWeekDay(aByDay) {
         // Checks if aByDay contains only values from 1 to 7 with any order.
-        let mask = aByDay.reduce((v, c) => v | (1 << c), 1);
+        let mask = aByDay.reduce((value, item) => value | (1 << item), 1);
         return aByDay.length == 7 && mask == Math.pow(2, 8) - 1;
     }
 
@@ -507,14 +507,14 @@ function enableRecurrenceFields(aAttributeName) {
  *                            rules and an array of negative rules.
  */
 function splitRecurrenceRules(recurrenceInfo) {
-    let ritems = recurrenceInfo.getRecurrenceItems({});
+    let recItems = recurrenceInfo.getRecurrenceItems({});
     let rules = [];
     let exceptions = [];
-    for (let r of ritems) {
-        if (r.isNegative) {
-            exceptions.push(r);
+    for (let recItem of recItems) {
+        if (recItem.isNegative) {
+            exceptions.push(recItem);
         } else {
-            rules.push(r);
+            rules.push(recItem);
         }
     }
     return [rules, exceptions];
@@ -758,10 +758,10 @@ function changeOrderForElements(aPropKey, aPropParams) {
 
         localeOrder = localeOrder.split(" ");
     } catch (ex) {
-        let s = "The key " + aPropKey + " in calendar-event-dialog.prop" +
-                "erties has incorrect number of params. Expected " +
-                aPropParams.length + " params.";
-        Components.utils.reportError(s + " " + ex);
+        let msg = "The key " + aPropKey + " in calendar-event-dialog.prop" +
+                  "erties has incorrect number of params. Expected " +
+                  aPropParams.length + " params.";
+        Components.utils.reportError(msg + " " + ex);
         return;
     }
 

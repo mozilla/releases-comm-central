@@ -114,7 +114,7 @@ function test_cancel() {
             Services.tm.currentThread.dispatch({
                 run: function() {
                     dump("Cancelling freebusy query...");
-                    op.cancel();
+                    operation.cancel();
                 }
             }, Components.interfaces.nsIEventTarget.DISPATCH_NORMAL);
 
@@ -145,11 +145,11 @@ function test_cancel() {
     freebusy.addProvider(provider);
 
     do_test_pending();
-    let op = freebusy.getFreeBusyIntervals("email",
-                                           cal.createDateTime("20120101T010101"),
-                                           cal.createDateTime("20120102T010101"),
-                                           cIFI.BUSY_ALL,
-                                           listener);
+    let operation = freebusy.getFreeBusyIntervals("email",
+                                                  cal.createDateTime("20120101T010101"),
+                                                  cal.createDateTime("20120102T010101"),
+                                                  cIFI.BUSY_ALL,
+                                                  listener);
 }
 
 // The following functions are not in the interface description and probably

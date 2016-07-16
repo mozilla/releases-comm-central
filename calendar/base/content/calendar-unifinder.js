@@ -336,12 +336,12 @@ function unifinderSelect(event) {
     let end = {};
     let numRanges = tree.view.selection.getRangeCount();
 
-    for (let t = 0; t < numRanges; t++) {
-        tree.view.selection.getRangeAt(t, start, end);
+    for (let range = 0; range < numRanges; range++) {
+        tree.view.selection.getRangeAt(range, start, end);
 
-        for (let v = start.value; v <= end.value; v++) {
+        for (let i = start.value; i <= end.value; i++) {
             try {
-                selectedItems.push(unifinderTreeView.getItemAt(v));
+                selectedItems.push(unifinderTreeView.getItemAt(i));
             } catch (e) {
                WARN("Error getting Event from row: " + e + "\n");
             }

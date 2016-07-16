@@ -147,15 +147,15 @@
 
       <method name="updateContent">
         <body><![CDATA[
-          let dt = cal.dateTimeToJsDate(this.dateTime);
+          let date = cal.dateTimeToJsDate(this.dateTime);
           let row = document.getAnonymousElementByAttribute(
                         this, "anonid", "row");
           while (row) {
               let numChilds = row.childNodes.length - 1;
               for (let i = 0; i < numChilds; i++) {
                   let minimonth = row.childNodes[i];
-                  minimonth.showMonth(dt);
-                  dt.setMonth(dt.getMonth() + 1);
+                  minimonth.showMonth(date);
+                  date.setMonth(date.getMonth() + 1);
               }
               row = row.nextSibling;
           }

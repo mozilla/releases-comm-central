@@ -1057,18 +1057,18 @@
           return;
         }
 
-        let ci = this.tree.currentIndex;
+        let idx = this.tree.currentIndex;
 
-        if (ci < this.mCalendarList.length - 1) {
-            this.mCalendarList.splice(ci + 1, 0, this.mCalendarList.splice(ci, 1)[0]);
-            this.treebox.invalidateRange(ci, ci + 1);
+        if (idx < this.mCalendarList.length - 1) {
+            this.mCalendarList.splice(idx + 1, 0, this.mCalendarList.splice(idx, 1)[0]);
+            this.treebox.invalidateRange(idx, idx + 1);
 
-            if (this.tree.view.selection.isSelected(ci)) {
-                this.tree.view.selection.toggleSelect(ci);
-                this.tree.view.selection.toggleSelect(ci + 1);
+            if (this.tree.view.selection.isSelected(idx)) {
+                this.tree.view.selection.toggleSelect(idx);
+                this.tree.view.selection.toggleSelect(idx + 1);
             }
-            if (this.tree.view.selection.currentIndex == ci) {
-                this.tree.view.selection.currentIndex = ci + 1;
+            if (this.tree.view.selection.currentIndex == idx) {
+                this.tree.view.selection.currentIndex = idx + 1;
             }
 
             // Fire event
@@ -1082,17 +1082,17 @@
           return;
         }
 
-        let ci = this.tree.currentIndex;
-        if (ci > 0) {
-            this.mCalendarList.splice(ci - 1, 0, this.mCalendarList.splice(ci, 1)[0]);
-            this.treebox.invalidateRange(ci - 1, ci);
+        let idx = this.tree.currentIndex;
+        if (idx > 0) {
+            this.mCalendarList.splice(idx - 1, 0, this.mCalendarList.splice(idx, 1)[0]);
+            this.treebox.invalidateRange(idx - 1, idx);
 
-            if (this.tree.view.selection.isSelected(ci)) {
-                this.tree.view.selection.toggleSelect(ci);
-                this.tree.view.selection.toggleSelect(ci - 1);
+            if (this.tree.view.selection.isSelected(idx)) {
+                this.tree.view.selection.toggleSelect(idx);
+                this.tree.view.selection.toggleSelect(idx - 1);
             }
-            if (this.tree.view.selection.currentIndex == ci) {
-                this.tree.view.selection.currentIndex = ci - 1;
+            if (this.tree.view.selection.currentIndex == idx) {
+                this.tree.view.selection.currentIndex = idx - 1;
             }
 
             // Fire event

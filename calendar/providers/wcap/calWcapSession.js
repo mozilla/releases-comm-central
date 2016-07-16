@@ -24,8 +24,8 @@ calWcapTimezone.prototype = {
     get displayName() {
         if (this.mDisplayName === undefined) {
             // used l10n'ed display name if available:
-            let tz = cal.getTimezoneService().getTimezone(this.tzid);
-            this.mDisplayName = (tz ? tz.displayName : this.tzid);
+            let timezone = cal.getTimezoneService().getTimezone(this.tzid);
+            this.mDisplayName = (timezone ? timezone.displayName : this.tzid);
         }
         return this.mDisplayName;
     },
@@ -307,7 +307,7 @@ calWcapSession.prototype = {
                             cal.auth.passwordManagerSave(outUser.value, outPW.value, this.uri.spec, "wcap login");
                         }
                         this.credentials.userId = outUser.value;
-                        this.credentials.pw = outPW.value;
+                        this.credentials.pw = outPW.value; // eslint-disable-line id-length
                         this.setupSession(sessionId, request, (setuperr) => respFunc(setuperr, sessionId));
                     }
                 };
@@ -320,7 +320,7 @@ calWcapSession.prototype = {
             });
     },
 
-    login: function(request, respFunc, user, pw) {
+    login: function(request, respFunc, user, password) {
         issueNetworkRequest(
             request,
             (err, str) => {
@@ -360,7 +360,7 @@ calWcapSession.prototype = {
                 respFunc(err, sessionId);
             },
             this.sessionUri.spec + "login.wcap?fmt-out=text%2Fcalendar&user=" +
-            encodeURIComponent(user) + "&password=" + encodeURIComponent(pw),
+            encodeURIComponent(user) + "&password=" + encodeURIComponent(password),
             false /* no logging */);
     },
 
@@ -494,12 +494,12 @@ calWcapSession.prototype = {
                         // post register subscribed calendars:
                         let list = this.getUserPreferences("X-NSCP-WCAP-PREF-icsSubscribed");
                         for (let item of list) {
-                            let ar = item.split(",");
+                            let itemparts = item.split(",");
                             // ',', '$' are not encoded. ',' can be handled here. WTF.
-                            for (let a of ar) {
-                                let dollar = a.indexOf("$");
+                            for (let part of itemparts) {
+                                let dollar = part.indexOf("$");
                                 if (dollar >= 0) {
-                                    let calId = a.substring(0, dollar);
+                                    let calId = part.substring(0, dollar);
                                     if (calId != this.defaultCalId) {
                                         cals[calId] = null;
                                         hasSubscriptions = true;
@@ -560,9 +560,9 @@ calWcapSession.prototype = {
                 try {
                     let node = nodeList.item(i);
                     checkWcapXmlErrno(node);
-                    let ar = filterXmlNodes("X-NSCP-CALPROPS-RELATIVE-CALID", node);
-                    if (ar.length > 0) {
-                        let calId = ar[0];
+                    let calid = filterXmlNodes("X-NSCP-CALPROPS-RELATIVE-CALID", node);
+                    if (calid.length > 0) {
+                        let calId = calid[0];
                         let calendar = cals[calId];
                         if (calendar === null) {
                             calendar = new calWcapCalendar(this);
@@ -823,10 +823,10 @@ calWcapSession.prototype = {
 
     get defaultAlarmStart() {
         let alarmStart = null;
-        let ar = this.getUserPreferences("X-NSCP-WCAP-PREF-ceDefaultAlarmStart");
-        if (ar.length > 0 && ar[0].length > 0) {
+        let alarmStartPref = this.getUserPreferences("X-NSCP-WCAP-PREF-ceDefaultAlarmStart");
+        if (alarmStartPref.length > 0 && alarmStartPref[0].length > 0) {
             // workarounding cs duration bug, missing "T":
-            let dur = ar[0].replace(/(^P)(\d+[HMS]$)/, "$1T$2");
+            let dur = alarmStartPref[0].replace(/(^P)(\d+[HMS]$)/, "$1T$2");
             alarmStart = cal.createDuration(dur);
             alarmStart.isNegative = !alarmStart.isNegative;
         }
@@ -835,10 +835,10 @@ calWcapSession.prototype = {
 
     getDefaultAlarmEmails: function(out_count) {
         let ret = [];
-        let ar = this.getUserPreferences("X-NSCP-WCAP-PREF-ceDefaultAlarmEmail");
-        if (ar.length > 0 && ar[0].length > 0) {
-            for (let i of ar) {
-                ret = ret.concat(i.split(/[;,]/).map(String.trim));
+        let alarmEmails = this.getUserPreferences("X-NSCP-WCAP-PREF-ceDefaultAlarmEmail");
+        if (alarmEmails.length > 0 && alarmEmails[0].length > 0) {
+            for (let email of alarmEmails) {
+                ret = ret.concat(email.split(/[;,]/).map(String.trim));
             }
         }
         out_count.value = ret.length;
@@ -886,9 +886,9 @@ calWcapSession.prototype = {
                         let node = nodeList.item(i);
                         try {
                             checkWcapXmlErrno(node);
-                            let ar = filterXmlNodes("X-NSCP-CALPROPS-RELATIVE-CALID", node);
-                            if (ar.length > 0) {
-                                let calId = ar[0];
+                            let calIdNodes = filterXmlNodes("X-NSCP-CALPROPS-RELATIVE-CALID", node);
+                            if (calIdNodes.length > 0) {
+                                let calId = calIdNodes[0];
                                 let calendar = registeredCalendars[calId];
                                 if (calendar) {
                                     calendar.m_calProps = node; // update calprops
@@ -1097,8 +1097,8 @@ function confirmInsecureLogin(uri) {
         let confirmedHttpLogins = getPref("calendar.wcap.confirmed_http_logins", "");
         let tuples = confirmedHttpLogins.split(",");
         for (let tuple of tuples) {
-            let ar = tuple.split(":");
-            confirmInsecureLogin.m_confirmedHttpLogins[ar[0]] = ar[1];
+            let part = tuple.split(":");
+            confirmInsecureLogin.m_confirmedHttpLogins[part[0]] = part[1];
         }
     }
 

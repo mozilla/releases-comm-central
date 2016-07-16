@@ -23,7 +23,7 @@ function testAttachRoundtrip() {
 
     do_test_pending();
     storage.addItem(storageItem, {
-        onOperationComplete: function(c, s, o, i, addedItem) {
+        onOperationComplete: function(calendar, status, opType, id, addedItem) {
             do_execute_soon(() => {
                 // Make sure the cache is cleared, otherwise we'll get the cached item.
                 delete storage.wrappedJSObject.mItemCache[addedItem.id];
@@ -34,7 +34,7 @@ function testAttachRoundtrip() {
 
     let retrieveItem = {
         found: false,
-        onGetResult: function(ca, st, ty, de, co, items) {
+        onGetResult: function(calendar, status, type, detail, count, items) {
             let item = items[0];
 
             // Check start date

@@ -947,11 +947,11 @@
                   this.calendar = aCalendar;
                   this.items = [];
 
-                  let op = this.binding.mFilter.getItems(aCalendar,
-                                                         aCalendar.ITEM_FILTER_TYPE_TODO,
-                                                         this);
-                  if (op && op.isPending) {
-                      this.operation = op;
+                  let operation = this.binding.mFilter.getItems(aCalendar,
+                                                                aCalendar.ITEM_FILTER_TYPE_TODO,
+                                                                this);
+                  if (operation && operation.isPending) {
+                      this.operation = operation;
                       this.binding.mPendingRefreshJobs[aCalendar.id] = this;
                   }
               }
@@ -1141,17 +1141,17 @@
         try {
           region = Components.classes["@mozilla.org/gfx/region;1"].createInstance(Components.interfaces.nsIScriptableRegion);
           region.init();
-          let obo = tree.treeBoxObject;
-          let bo = obo.treeBody.boxObject;
+          let treeBox = tree.treeBox;
+          let bodyBox = treeBox.treeBody.boxObject;
           let sel = tree.view.selection;
 
-          let rowX = bo.x;
-          let rowY = bo.y;
-          let rowHeight = obo.rowHeight;
-          let rowWidth = bo.width;
+          let rowX = bodyBox.x;
+          let rowY = bodyBox.y;
+          let rowHeight = treeBox.rowHeight;
+          let rowWidth = bodyBox.width;
 
           // add a rectangle for each visible selected row
-          for (let i = obo.getFirstVisibleRow(); i <= obo.getLastVisibleRow(); i++) {
+          for (let i = treeBox.getFirstVisibleRow(); i <= treeBox.getLastVisibleRow(); i++) {
             if (sel.isSelected(i)) {
               region.unionRect(rowX, rowY, rowWidth, rowHeight);
             }
@@ -1160,7 +1160,7 @@
 
           // and finally, clip the result to be sure we don't spill over...
           if (!region.isEmpty()) {
-            region.intersectRect(bo.x, bo.y, bo.width, bo.height);
+            region.intersectRect(bodyBox.x, bodyBox.y, bodyBox.width, bodyBox.height);
           }
         } catch (ex) {
           ASSERT(false, "Error while building selection region: " + ex + "\n");

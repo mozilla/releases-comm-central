@@ -13,40 +13,40 @@ function run_test() {
 function test_newAttendee() {
     let data = [{
         input: [
-            { id: "user2@example.net", partstat: "NEEDS-ACTION", cn: "NOT PREFIXED" },
-            { id: "mailto:user2@example.net", partstat: "NEEDS-ACTION", cn: "PREFIXED" }
+            { id: "user2@example.net", partstat: "NEEDS-ACTION", cname: "NOT PREFIXED" },
+            { id: "mailto:user2@example.net", partstat: "NEEDS-ACTION", cname: "PREFIXED" }
         ],
-        expected: { id: "mailto:user2@example.net", partstat: "NEEDS-ACTION", cn: "PREFIXED" }
+        expected: { id: "mailto:user2@example.net", partstat: "NEEDS-ACTION", cname: "PREFIXED" }
     }, {
         input: [
-            { id: "mailto:user3@example.net", partstat: "NEEDS-ACTION", cn: "PREFIXED" },
-            { id: "user3@example.net", partstat: "NEEDS-ACTION", cn: "NOT PREFIXED" }
+            { id: "mailto:user3@example.net", partstat: "NEEDS-ACTION", cname: "PREFIXED" },
+            { id: "user3@example.net", partstat: "NEEDS-ACTION", cname: "NOT PREFIXED" }
         ],
-        expected: { id: "mailto:user3@example.net", partstat: "NEEDS-ACTION", cn: "NOT PREFIXED" }
+        expected: { id: "mailto:user3@example.net", partstat: "NEEDS-ACTION", cname: "NOT PREFIXED" }
     }, {
         input: [
-            { id: "mailto:user4@example.net", partstat: "ACCEPTED", cn: "PREFIXED" },
-            { id: "user4@example.net", partstat: "TENTATIVE", cn: "NOT PREFIXED" }
+            { id: "mailto:user4@example.net", partstat: "ACCEPTED", cname: "PREFIXED" },
+            { id: "user4@example.net", partstat: "TENTATIVE", cname: "NOT PREFIXED" }
         ],
-        expected: { id: "mailto:user4@example.net", partstat: "ACCEPTED", cn: "PREFIXED" }
+        expected: { id: "mailto:user4@example.net", partstat: "ACCEPTED", cname: "PREFIXED" }
     }, {
         input: [
-            { id: "user5@example.net", partstat: "TENTATIVE", cn: "NOT PREFIXED" },
-            { id: "mailto:user5@example.net", partstat: "ACCEPTED", cn: "PREFIXED" }
+            { id: "user5@example.net", partstat: "TENTATIVE", cname: "NOT PREFIXED" },
+            { id: "mailto:user5@example.net", partstat: "ACCEPTED", cname: "PREFIXED" }
         ],
-        expected: { id: "mailto:user5@example.net", partstat: "TENTATIVE", cn: "NOT PREFIXED" }
+        expected: { id: "mailto:user5@example.net", partstat: "TENTATIVE", cname: "NOT PREFIXED" }
     }, {
         input: [
-            { id: "user6@example.net", partstat: "DECLINED", cn: "NOT PREFIXED" },
-            { id: "mailto:user6@example.net", partstat: "TENTATIVE", cn: "PREFIXED" }
+            { id: "user6@example.net", partstat: "DECLINED", cname: "NOT PREFIXED" },
+            { id: "mailto:user6@example.net", partstat: "TENTATIVE", cname: "PREFIXED" }
         ],
-        expected: { id: "mailto:user6@example.net", partstat: "DECLINED", cn: "NOT PREFIXED" }
+        expected: { id: "mailto:user6@example.net", partstat: "DECLINED", cname: "NOT PREFIXED" }
     }, {
         input: [
-            { id: "user7@example.net", partstat: "TENTATIVE", cn: "NOT PREFIXED" },
-            { id: "mailto:user7@example.net", partstat: "DECLINED", cn: "PREFIXED" }
+            { id: "user7@example.net", partstat: "TENTATIVE", cname: "NOT PREFIXED" },
+            { id: "mailto:user7@example.net", partstat: "DECLINED", cname: "PREFIXED" }
         ],
-        expected: { id: "mailto:user7@example.net", partstat: "DECLINED", cn: "PREFIXED" }
+        expected: { id: "mailto:user7@example.net", partstat: "DECLINED", cname: "PREFIXED" }
     }];
 
     let event = cal.createEvent();
@@ -55,13 +55,13 @@ function test_newAttendee() {
             let attendee = cal.createAttendee();
             attendee.id = input.id;
             attendee.participationStatus = input.partstat;
-            attendee.commonName = input.cn;
+            attendee.commonName = input.cname;
             event.addAttendee(attendee);
         }
         let readAttendee = event.getAttendeeById(cal.prependMailTo(test.expected.id));
         equal(readAttendee.id, test.expected.id);
         equal(readAttendee.participationStatus, test.expected.partstat, "partstat matches for " + test.expected.id);
-        equal(readAttendee.commonName, test.expected.cn, "cn matches for " + test.expected.id);
+        equal(readAttendee.commonName, test.expected.cname, "commonName matches for " + test.expected.id);
     }
 }
 
@@ -99,12 +99,12 @@ function test_fromICS() {
     ].join("\n");
 
     let expected = [
-        { id: "mailto:user2@example.net", partstat: "NEEDS-ACTION", cn: "PREFIXED" },
-        { id: "mailto:user3@example.net", partstat: "NEEDS-ACTION", cn: "NOT PREFIXED" },
-        { id: "mailto:user4@example.net", partstat: "ACCEPTED", cn: "PREFIXED" },
-        { id: "mailto:user5@example.net", partstat: "TENTATIVE", cn: "NOT PREFIXED" },
-        { id: "mailto:user6@example.net", partstat: "DECLINED", cn: "NOT PREFIXED" },
-        { id: "mailto:user7@example.net", partstat: "DECLINED", cn: "PREFIXED" }
+        { id: "mailto:user2@example.net", partstat: "NEEDS-ACTION", cname: "PREFIXED" },
+        { id: "mailto:user3@example.net", partstat: "NEEDS-ACTION", cname: "NOT PREFIXED" },
+        { id: "mailto:user4@example.net", partstat: "ACCEPTED", cname: "PREFIXED" },
+        { id: "mailto:user5@example.net", partstat: "TENTATIVE", cname: "NOT PREFIXED" },
+        { id: "mailto:user6@example.net", partstat: "DECLINED", cname: "NOT PREFIXED" },
+        { id: "mailto:user7@example.net", partstat: "DECLINED", cname: "PREFIXED" }
     ];
     let event = createEventFromIcalString(ics);
     let attendees = event.getAttendees({});
@@ -116,7 +116,7 @@ function test_fromICS() {
         for (let exp of expected) {
             if (attendee.id == exp.id) {
                 equal(attendee.participationStatus, exp.partstat, "partstat matches for " + exp.id);
-                equal(attendee.commonName, exp.cn, "cn matches for " + exp.id);
+                equal(attendee.commonName, exp.cname, "commonName matches for " + exp.id);
                 count++;
             }
         }

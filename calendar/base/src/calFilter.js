@@ -134,13 +134,13 @@ calFilterProperties.prototype = {
     },
 
     clone: function() {
-        let cl = new calFilterProperties();
+        let cloned = new calFilterProperties();
         let props = ["start", "end", "due", "status", "category", "occurrences", "onfilter"];
         props.forEach(function(prop) {
-            cl[prop] = this[prop];
+            cloned[prop] = this[prop];
         }, this);
 
-        return cl;
+        return cloned;
     },
 
     LOG: function(aString) {

@@ -15,11 +15,11 @@ var gCalendarGeneralPane = {
      * values set in prefs.
      */
     init: function() {
-        let df = Components.classes["@mozilla.org/calendar/datetime-formatter;1"]
-                    .getService(Components.interfaces.calIDateTimeFormatter);
+        let formatter = Components.classes["@mozilla.org/calendar/datetime-formatter;1"]
+                                  .getService(Components.interfaces.calIDateTimeFormatter);
 
-        let dateFormattedLong = df.formatDateLong(now());
-        let dateFormattedShort = df.formatDateShort(now());
+        let dateFormattedLong = formatter.formatDateLong(now());
+        let dateFormattedShort = formatter.formatDateShort(now());
 
         // menu items include examples of current date formats.
         document.getElementById("dateformat-long-menuitem")
@@ -41,11 +41,11 @@ var gCalendarGeneralPane = {
         let displayNames = [];
         // don't rely on what order the timezone-service gives you
         while (enumerator.hasMore()) {
-            let tz = tzService.getTimezone(enumerator.getNext());
-            if (tz && !tz.isFloating && !tz.isUTC) {
-                let displayName = tz.displayName;
+            let timezone = tzService.getTimezone(enumerator.getNext());
+            if (timezone && !timezone.isFloating && !timezone.isUTC) {
+                let displayName = timezone.displayName;
                 displayNames.push(displayName);
-                tzids[displayName] = tz.tzid;
+                tzids[displayName] = timezone.tzid;
             }
         }
         // the display names need to be sorted

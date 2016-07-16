@@ -91,9 +91,9 @@ calAlarm.prototype = {
     },
 
     clone: function() {
-        let m = new calAlarm();
+        let cloned = new calAlarm();
 
-        m.mImmutable = false;
+        cloned.mImmutable = false;
 
         const simpleMembers = ["mAction",
                                "mSummary",
@@ -110,7 +110,7 @@ calAlarm.prototype = {
                                "mLastAck"];
 
         for (let member of simpleMembers) {
-            m[member] = this[member];
+            cloned[member] = this[member];
         }
 
         for (let member of arrayMembers) {
@@ -118,25 +118,25 @@ calAlarm.prototype = {
             for (let oldElem of this[member]) {
                 newArray.push(oldElem.clone());
             }
-            m[member] = newArray;
+            cloned[member] = newArray;
         }
 
         for (let member of objectMembers) {
             if (this[member] && this[member].clone) {
-                m[member] = this[member].clone();
+                cloned[member] = this[member].clone();
             } else {
-                m[member] = this[member];
+                cloned[member] = this[member];
             }
         }
 
         // X-Props
-        m.mProperties = new calPropertyBag();
+        cloned.mProperties = new calPropertyBag();
         for (let [name, value] of this.mProperties) {
             if (value instanceof Components.interfaces.calIDateTime) {
                 value = value.clone();
             }
 
-            m.mProperties.setProperty(name, value);
+            cloned.mProperties.setProperty(name, value);
 
             let propBucket = this.mPropertyParams[name];
             if (propBucket) {
@@ -144,10 +144,10 @@ calAlarm.prototype = {
                 for (let param in propBucket) {
                     newBucket[param] = propBucket[param];
                 }
-                m.mPropertyParams[name] = newBucket;
+                cloned.mPropertyParams[name] = newBucket;
             }
         }
-        return m;
+        return cloned;
     },
 
 

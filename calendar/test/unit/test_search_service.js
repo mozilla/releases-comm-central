@@ -99,7 +99,7 @@ function test_cancel() {
             Services.tm.currentThread.dispatch({
                 run: function() {
                     dump("Cancelling search...");
-                    op.cancel();
+                    operation.cancel();
                 }
             }, Components.interfaces.nsIEventTarget.DISPATCH_NORMAL);
 
@@ -130,5 +130,5 @@ function test_cancel() {
     search.addProvider(provider);
 
     do_test_pending();
-    let op = search.searchForCalendars("str", HINT_EXACT_MATCH, 0, listener);
+    let operation = search.searchForCalendars("str", HINT_EXACT_MATCH, 0, listener);
 }

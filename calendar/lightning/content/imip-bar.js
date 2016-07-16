@@ -127,15 +127,9 @@ var ltnImipBar = {
      * Provides a list of all available buttons
      */
     getButtons: function() {
-        let buttons = [];
-        let nl = document.getElementById("imip-view-toolbar")
-                         .getElementsByTagName("toolbarbutton");
-        if (nl != null && nl.length > 0) {
-            for (let button of nl) {
-                buttons.push(button);
-            }
-        }
-        return buttons;
+        let toolbarbuttons = document.getElementById("imip-view-toolbar")
+                                     .getElementsByTagName("toolbarbutton");
+        return Array.from(toolbarbuttons);
     },
 
     /**
@@ -213,8 +207,8 @@ var ltnImipBar = {
             let author = aMsgHdr.mime2DecodedAuthor;
             let isSentFolder = aMsgHdr.folder.flags & nsMsgFolderFlags.SentMail;
             if (author && isSentFolder) {
-                let am = MailServices.accounts;
-                for (let identity in fixIterator(am.allIdentities,
+                let accounts = MailServices.accounts;
+                for (let identity in fixIterator(accounts.allIdentities,
                                                  Components.interfaces.nsIMsgIdentity)) {
                     if (author.includes(identity.email) && !identity.fccReplyFollowParent) {
                         return true;

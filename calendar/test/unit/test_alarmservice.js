@@ -64,12 +64,12 @@ var alarmObserver = {
 
     expectOccurrences: function(aCalendar, aItem, aAlarm, aExpectedArray) {
         // we need to be earlier than the first occurrence
-        let dt = aItem.startDate.clone();
-        dt.second -= 1;
+        let date = aItem.startDate.clone();
+        date.second -= 1;
 
         for (let expected of aExpectedArray) {
-            let occ = aItem.recurrenceInfo.getNextOccurrence(dt);
-            dt = occ.startDate;
+            let occ = aItem.recurrenceInfo.getNextOccurrence(date);
+            date = occ.startDate;
             this.expectResult(aCalendar, occ, aAlarm, expected);
         }
     },
@@ -173,30 +173,30 @@ function addTestItems(aCalendar) {
     let item, alarm;
 
     // alarm on an item starting more than a month in the past should not fire
-    let dt = cal.now();
-    dt.day -= 32;
-    [item, alarm] = createEventWithAlarm(aCalendar, dt, dt, "P7D");
+    let date = cal.now();
+    date.day -= 32;
+    [item, alarm] = createEventWithAlarm(aCalendar, date, date, "P7D");
     alarmObserver.expectResult(aCalendar, item, alarm, EXPECT_NONE);
     aCalendar.addItem(item, null);
 
     // alarm 15 minutes ago should fire
-    dt = cal.now();
-    [item, alarm] = createEventWithAlarm(aCalendar, dt, dt, "-PT15M");
+    date = cal.now();
+    [item, alarm] = createEventWithAlarm(aCalendar, date, date, "-PT15M");
     alarmObserver.expectResult(aCalendar, item, alarm, EXPECT_FIRED);
     aCalendar.addItem(item, null);
 
     // alarm within 6 hours should have a timer set
-    [item, alarm] = createEventWithAlarm(aCalendar, dt, dt, "PT1H");
+    [item, alarm] = createEventWithAlarm(aCalendar, date, date, "PT1H");
     alarmObserver.expectResult(aCalendar, item, alarm, EXPECT_TIMER);
     aCalendar.addItem(item, null);
 
     // alarm more than 6 hours in the future should not have a timer set
-    [item, alarm] = createEventWithAlarm(aCalendar, dt, dt, "PT7H");
+    [item, alarm] = createEventWithAlarm(aCalendar, date, date, "PT7H");
     alarmObserver.expectResult(aCalendar, item, alarm, EXPECT_NONE);
     aCalendar.addItem(item, null);
 
     // test multiple alarms on an item
-    [item, alarm] = createEventWithAlarm(aCalendar, dt, dt);
+    [item, alarm] = createEventWithAlarm(aCalendar, date, date);
     [["-PT1H", EXPECT_FIRED], ["-PT15M", EXPECT_FIRED], ["PT1H", EXPECT_TIMER],
      ["PT7H", EXPECT_NONE], ["P7D", EXPECT_NONE]].forEach(([offset, expected]) => {
         alarm = createAlarmFromDuration(offset);
@@ -207,9 +207,9 @@ function addTestItems(aCalendar) {
 
     // daily repeating event starting almost 2 full days ago. The alarms on the first 2 occurrences
     // should fire, and a timer should be set for the next occurrence only
-    dt = cal.now();
-    dt.hour -= 47;
-    [item, alarm] = createEventWithAlarm(aCalendar, dt, dt, "-PT15M", "RRULE:FREQ=DAILY");
+    date = cal.now();
+    date.hour -= 47;
+    [item, alarm] = createEventWithAlarm(aCalendar, date, date, "-PT15M", "RRULE:FREQ=DAILY");
     alarmObserver.expectOccurrences(aCalendar, item, alarm,
                                    [EXPECT_FIRED, EXPECT_FIRED, EXPECT_TIMER,
                                     EXPECT_NONE, EXPECT_NONE]);
@@ -217,10 +217,10 @@ function addTestItems(aCalendar) {
 
     // monthly repeating event starting 2 months and a day ago. The alarms on the first 2 occurrences
     // should be ignored, the alarm on the next occurrence only should fire
-    dt = cal.now();
-    dt.month -= 2;
-    dt.day -= 1;
-    [item, alarm] = createEventWithAlarm(aCalendar, dt, dt, "-PT15M", "RRULE:FREQ=MONTHLY");
+    date = cal.now();
+    date.month -= 2;
+    date.day -= 1;
+    [item, alarm] = createEventWithAlarm(aCalendar, date, date, "-PT15M", "RRULE:FREQ=MONTHLY");
     alarmObserver.expectOccurrences(aCalendar, item, alarm,
                                    [EXPECT_NONE, EXPECT_NONE, EXPECT_FIRED,
                                     EXPECT_NONE, EXPECT_NONE]);
@@ -231,17 +231,17 @@ function doModifyItemTest(aCalendar) {
     let item, alarm;
 
     // begin with item starting before the alarm date range
-    let dt = cal.now();
-    dt.day -= 32;
-    [item, alarm] = createEventWithAlarm(aCalendar, dt, dt, "PT0S");
+    let date = cal.now();
+    date.day -= 32;
+    [item, alarm] = createEventWithAlarm(aCalendar, date, date, "PT0S");
     aCalendar.addItem(item, null);
     alarmObserver.expectResult(aCalendar, item, alarm, EXPECT_NONE);
     alarmObserver.checkExpected();
 
     // move event into the fired range
     let oldItem = item.clone();
-    dt.day += 31;
-    item.startDate = dt.clone();
+    date.day += 31;
+    item.startDate = date.clone();
     item.generation++;
     aCalendar.modifyItem(item, oldItem, null);
     alarmObserver.expectResult(aCalendar, item, alarm, EXPECT_FIRED);
@@ -249,8 +249,8 @@ function doModifyItemTest(aCalendar) {
 
     // move event into the timer range
     oldItem = item.clone();
-    dt.hour += 25;
-    item.startDate = dt.clone();
+    date.hour += 25;
+    item.startDate = date.clone();
     item.generation++;
     aCalendar.modifyItem(item, oldItem, null);
     alarmObserver.expectResult(aCalendar, item, alarm, EXPECT_TIMER);
@@ -258,8 +258,8 @@ function doModifyItemTest(aCalendar) {
 
     // move event past the timer range
     oldItem = item.clone();
-    dt.hour += 6;
-    item.startDate = dt.clone();
+    date.hour += 6;
+    item.startDate = date.clone();
     item.generation++;
     aCalendar.modifyItem(item, oldItem, null);
     alarmObserver.expectResult(aCalendar, item, alarm, EXPECT_NONE);
@@ -271,9 +271,9 @@ function doDeleteItemTest(aCalendar) {
     let item2, alarm2;
 
     // create a fired alarm and a timer
-    let dt = cal.now();
-    [item, alarm] = createEventWithAlarm(aCalendar, dt, dt, "-PT5M");
-    [item2, alarm2] = createEventWithAlarm(aCalendar, dt, dt, "PT1H");
+    let date = cal.now();
+    [item, alarm] = createEventWithAlarm(aCalendar, date, date, "-PT5M");
+    [item2, alarm2] = createEventWithAlarm(aCalendar, date, date, "PT1H");
     aCalendar.addItem(item, null);
     aCalendar.addItem(item2, null);
     alarmObserver.expectResult(aCalendar, item, alarm, EXPECT_FIRED);
@@ -293,9 +293,9 @@ function doAcknowledgeTest(aCalendar) {
     let item2, alarm2;
 
     // create the fired alarms
-    let dt = cal.now();
-    [item, alarm] = createEventWithAlarm(aCalendar, dt, dt, "-PT5M");
-    [item2, alarm2] = createEventWithAlarm(aCalendar, dt, dt, "-PT5M");
+    let date = cal.now();
+    [item, alarm] = createEventWithAlarm(aCalendar, date, date, "-PT5M");
+    [item2, alarm2] = createEventWithAlarm(aCalendar, date, date, "-PT5M");
     aCalendar.addItem(item, null);
     aCalendar.addItem(item2, null);
     alarmObserver.expectResult(aCalendar, item, alarm, EXPECT_FIRED);

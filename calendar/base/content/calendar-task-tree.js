@@ -162,9 +162,8 @@ function contextChangeTaskProgress(aEvent, aProgress) {
 function contextChangeTaskCalendar(aEvent) {
    startBatchTransaction();
    let tasks = getSelectedTasks(aEvent);
-   for (let t = 0; t < tasks.length; t++) {
-       let task = tasks[t];
-       let newTask = task.clone().QueryInterface(Components.interfaces.calITodo);
+   for (let task of tasks) {
+       let newTask = task.clone();
        newTask.calendar = aEvent.target.calendar;
        doTransaction("modify", newTask, newTask.calendar, task, null);
     }
@@ -237,8 +236,8 @@ function contextPostponeTask(aEvent, aDuration) {
  */
 function modifyTaskFromContext(aEvent, initialDate) {
     let tasks = getSelectedTasks(aEvent);
-    for (let t = 0; t < tasks.length; t++) {
-        modifyEventWithDialog(tasks[t], null, true, initialDate);
+    for (let task of tasks) {
+        modifyEventWithDialog(task, null, true, initialDate);
     }
  }
 

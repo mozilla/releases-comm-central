@@ -118,8 +118,8 @@ var testEventDialog = function() {
   event.click(new elementslib.ID(event.window.document, "reminder-5minutes-menuitem"));
 
   // add an attendee and verify added
-  let md = new modalDialog.modalDialog(event.window);
-  md.start(handleAttendees);
+  let dialog = new modalDialog.modalDialog(event.window);
+  dialog.start(handleAttendees);
   event.click(new elementslib.ID(event.window.document, "button-attendees"));
   event.assertValue(new elementslib.ID(event.window.document, "attendee-list"),
     attendee);

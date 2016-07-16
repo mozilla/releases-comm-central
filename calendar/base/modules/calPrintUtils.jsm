@@ -15,8 +15,8 @@ cal.print = {
      * @param dt    The date to translate
      * @return      YYYY-MM-DD
      */
-    getDateKey: function(dt) {
-        return dt.year + "-" + dt.month + "-" + dt.day;
+    getDateKey: function(date) {
+        return date.year + "-" + date.month + "-" + date.day;
     },
 
     /**

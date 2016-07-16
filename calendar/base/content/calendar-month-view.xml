@@ -82,8 +82,8 @@
           if (cal.isEvent(val)) {
             if (!val.startDate.isDate) {
               let label = document.getAnonymousElementByAttribute(this, "anonid", "item-label");
-              let df = Components.classes["@mozilla.org/calendar/datetime-formatter;1"]
-                                 .getService(Components.interfaces.calIDateTimeFormatter);
+              let formatter = Components.classes["@mozilla.org/calendar/datetime-formatter;1"]
+                                        .getService(Components.interfaces.calIDateTimeFormatter);
               let timezone = this.calendarView ? this.calendarView.mTimezone
                                                : calendarDefaultTimezone();
               let parentDate = ensureDateTime(this.parentBox.date);
@@ -98,12 +98,12 @@
                 } else if (comp == 0) {
                   label.value = "↤";
                 } else {
-                  label.value = "⇥ " + df.formatTime(endTime);
+                  label.value = "⇥ " + formatter.formatTime(endTime);
                 }
               } else if (comp == 1) {
-                label.value = "⇤ " + df.formatTime(startTime);
+                label.value = "⇤ " + formatter.formatTime(startTime);
               } else {
-                label.value = df.formatTime(startTime);
+                label.value = formatter.formatTime(startTime);
               }
               label.setAttribute("time", "true");
             }
@@ -788,7 +788,7 @@
             }
             for (let j = 0; j < row.childNodes.length; j++) {
               let daybox = row.childNodes[j];
-              let dt = dateList[dateBoxes.length];
+              let date = dateList[dateBoxes.length];
 
               // Remove the attribute "relation" for all the column headers.
               // Consider only the first row index otherwise it will be
@@ -805,16 +805,16 @@
               let boxClass;
               if (this.showFullMonth) {
                   boxClass = "calendar-month-day-box-" +
-                             (mainMonth == dt.month ? "current-month" : "other-month");
+                             (mainMonth == date.month ? "current-month" : "other-month");
               } else {
                   boxClass = "calendar-month-day-box-current-month";
               }
-              if (this.mDaysOffArray.some(dayOffNum => dayOffNum == dt.weekday)) {
+              if (this.mDaysOffArray.some(dayOffNum => dayOffNum == date.weekday)) {
                 boxClass = "calendar-month-day-box-day-off " + boxClass;
               }
 
               // Set up date relations
-              switch (dt.compare(today)) {
+              switch (date.compare(today)) {
                   case -1:
                       daybox.setAttribute("relation", "past");
                       break;
@@ -839,7 +839,7 @@
                 // Build and set the label.
                 if (j == weekLabelColumnPos) {
                   weekLabel.removeAttribute("hidden");
-                  let weekNumber = cal.getWeekInfoService().getWeekTitle(dt);
+                  let weekNumber = cal.getWeekInfoService().getWeekTitle(date);
                   let weekString = cal.calGetString("calendar", "abbreviationOfWeek", [weekNumber]);
                   weekLabel.value = weekString;
                 } else {
@@ -849,14 +849,14 @@
 
               daybox.setAttribute("class", boxClass);
 
-              daybox.setDate(dt);
-              if (dt.day == 1 || dt.day == dt.endOfMonth.day) {
+              daybox.setDate(date);
+              if (date.day == 1 || date.day == date.endOfMonth.day) {
                 daybox.showMonthLabel = true;
               } else {
                 daybox.showMonthLabel = false;
               }
               daybox.calendarView = this;
-              daybox.date = dt;
+              daybox.date = date;
               dateBoxes.push(daybox);
 
               // If we've now assigned all of our dates, set this to true so we

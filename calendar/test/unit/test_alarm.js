@@ -290,9 +290,9 @@ function test_repeat() {
     alarm.repeatOffset = cal.createDuration();
     alarm.repeatOffset.inSeconds = 3600;
 
-    let dt = alarm.alarmDate.clone();
-    dt.second += 3600;
-    equal(alarm.repeatDate.icalString, dt.icalString);
+    let date = alarm.alarmDate.clone();
+    date.second += 3600;
+    equal(alarm.repeatDate.icalString, date.icalString);
 
     dump("Done\n");
 }
@@ -308,16 +308,16 @@ function test_xprop() {
     equal(alarm.getProperty("X-PROP"), null);
 
     // also check X-MOZ-LASTACK prop
-    let dt = cal.createDateTime();
-    alarm.setProperty("X-MOZ-LASTACK", dt.icalString);
+    let date = cal.createDateTime();
+    alarm.setProperty("X-MOZ-LASTACK", date.icalString);
     alarm.action = "DISPLAY";
     alarm.description = "test";
     alarm.related = Ci.calIAlarm.ALARM_RELATED_START;
     alarm.offset = createDuration("-PT5M");
-    ok(alarm.icalComponent.serializeToICS().includes(dt.icalString));
+    ok(alarm.icalComponent.serializeToICS().includes(date.icalString));
 
     alarm.deleteProperty("X-MOZ-LASTACK");
-    ok(!alarm.icalComponent.serializeToICS().includes(dt.icalString));
+    ok(!alarm.icalComponent.serializeToICS().includes(date.icalString));
     dump("Done\n");
 }
 
@@ -473,8 +473,8 @@ function test_clone() {
     // Check x props
     alarm.setProperty("X-FOO", "BAR");
     equal(alarm.getProperty("X-FOO"), "BAR");
-    let dt = alarm.getProperty("X-DATEPROP");
-    equal(dt.isMutable, true);
+    let date = alarm.getProperty("X-DATEPROP");
+    equal(date.isMutable, true);
 
     // Test xprop params
     alarm.icalString =
@@ -500,10 +500,10 @@ function test_serialize() {
         alarm.icalComponent = srv.createIcalComponent("BARF");
     }, /0x80070057/, "Invalid Argument");
 
-    function addProp(k, v) {
-        let p = srv.createIcalProperty(k);
-        p.value = v;
-        comp.addProperty(p);
+    function addProp(name, value) {
+        let prop = srv.createIcalProperty(name);
+        prop.value = value;
+        comp.addProperty(prop);
     }
     function addActionDisplay() { addProp("ACTION", "DISPLAY"); }
     function addActionEmail() { addProp("ACTION", "EMAIL"); }

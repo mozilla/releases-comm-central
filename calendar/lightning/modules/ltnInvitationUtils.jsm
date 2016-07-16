@@ -224,22 +224,22 @@ ltn.invitation = {
 
             // display itip icon
             let role = aAttendee.role || "REQ-PARTICIPANT";
-            let ps = aAttendee.participationStatus || "NEEDS-ACTION";
-            let ut = aAttendee.userType || "INDIVIDUAL";
+            let partstat = aAttendee.participationStatus || "NEEDS-ACTION";
+            let userType = aAttendee.userType || "INDIVIDUAL";
             let itipIcon = row.getElementsByClassName("itip-icon")[0];
             itipIcon.setAttribute("role", role);
-            itipIcon.setAttribute("usertype", ut);
-            itipIcon.setAttribute("partstat", ps);
+            itipIcon.setAttribute("usertype", userType);
+            itipIcon.setAttribute("partstat", partstat);
             let attName = aAttendee.commonName && aAttendee.commonName.length
                           ? aAttendee.commonName : aAttendee.toString();
-            let utString = ltn.getString("lightning", "imipHtml.attendeeUserType2." + ut,
-                                         [aAttendee.toString()]);
+            let userTypeString = ltn.getString("lightning", "imipHtml.attendeeUserType2." + userType,
+                                               [aAttendee.toString()]);
             let roleString = ltn.getString("lightning", "imipHtml.attendeeRole2." + role,
-                                           [utString]);
-            let psString = ltn.getString("lightning", "imipHtml.attendeePartStat2." + ps,
-                                         [attName, del.delegatees]);
+                                           [userTypeString]);
+            let partstatString = ltn.getString("lightning", "imipHtml.attendeePartStat2." + partstat,
+                                               [attName, del.delegatees]);
             let itipTooltip = ltn.getString("lightning", "imipHtml.attendee.combined",
-                                            [roleString, psString]);
+                                            [roleString, partstatString]);
             row.setAttribute("title", itipTooltip);
             // display attendee
             row.getElementsByClassName("attendee-name")[0].textContent = aAttendee.toString() +
@@ -451,8 +451,8 @@ ltn.invitation = {
                                "$1, $3 $2 $4 $5 $6$7");
         // according to section 3.3 of RfC5322, +0000 should be used for defined timezones using
         // UTC time, while -0000 should indicate a floating time instead
-        let tz = cal.calendarDefaultTimezone();
-        if (tz && tz.isFloating) {
+        let timezone = cal.calendarDefaultTimezone();
+        if (timezone && timezone.isFloating) {
             str.replace(/\+0000$/, "-0000");
         }
         return str;

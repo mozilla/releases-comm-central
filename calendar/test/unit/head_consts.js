@@ -33,17 +33,17 @@ Components.utils.import("resource://calendar/modules/calUtils.jsm");
 cal.loadScripts(["calUtils.js"], Components.utils.getGlobalForObject(Cc));
 
 function createDate(aYear, aMonth, aDay, aHasTime, aHour, aMinute, aSecond, aTimezone) {
-    let cd = Cc["@mozilla.org/calendar/datetime;1"]
-             .createInstance(Ci.calIDateTime);
-    cd.resetTo(aYear,
+    let date = Cc["@mozilla.org/calendar/datetime;1"]
+               .createInstance(Ci.calIDateTime);
+    date.resetTo(aYear,
                aMonth,
                aDay,
                aHour || 0,
                aMinute || 0,
                aSecond || 0,
                aTimezone || UTC());
-    cd.isDate = !aHasTime;
-    return cd;
+    date.isDate = !aHasTime;
+    return date;
 }
 
 function createEventFromIcalString(icalString) {
@@ -239,10 +239,10 @@ function do_calendar_startup(callback) {
       }
     };
 
-    let ss = Components.classes["@mozilla.org/calendar/startup-service;1"]
-                       .getService(Components.interfaces.nsISupports).wrappedJSObject;
+    let startupService = Components.classes["@mozilla.org/calendar/startup-service;1"]
+                                   .getService(Components.interfaces.nsISupports).wrappedJSObject;
 
-    if (ss.started) {
+    if (startupService.started) {
         callback();
     } else {
         do_test_pending();

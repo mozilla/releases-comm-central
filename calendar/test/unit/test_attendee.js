@@ -48,7 +48,7 @@ function test_values() {
     }
 
     // Create Attendee
-    let a1 = cal.createAttendee();
+    let attendee1 = cal.createAttendee();
     // Testing attendee set/get.
     let properties = ["id", "commonName", "rsvp", "role", "participationStatus",
                       "userType"];
@@ -57,37 +57,37 @@ function test_values() {
     equal(properties.length, values.length);
 
     for (let i = 0; i < properties.length; i++) {
-        a1[properties[i]] = values[i];
-        equal(a1[properties[i]], values[i]);
+        attendee1[properties[i]] = values[i];
+        equal(attendee1[properties[i]], values[i]);
     }
 
     // Create event
     let event = cal.createEvent();
 
     // Add attendee to event
-    event.addAttendee(a1);
+    event.addAttendee(attendee1);
 
     // Add 2nd attendee to event.
-    let a2 = cal.createAttendee();
-    a2.id = "myid2";
-    event.addAttendee(a2);
+    let attendee2 = cal.createAttendee();
+    attendee2.id = "myid2";
+    event.addAttendee(attendee2);
 
     // Finding by ID
-    findById(event, "myid", a1);
-    findById(event, "myid2", a2);
+    findById(event, "myid", attendee1);
+    findById(event, "myid2", attendee2);
 
-    findAttendeesInResults(event, [a1, a2]);
+    findAttendeesInResults(event, [attendee1, attendee2]);
 
     // Making attendee immutable
-    a1.makeImmutable();
-    testImmutability(a1, properties);
+    attendee1.makeImmutable();
+    testImmutability(attendee1, properties);
     // Testing cascaded immutability (event -> attendee)
     event.makeImmutable();
-    testImmutability(a2, properties);
+    testImmutability(attendee2, properties);
 
     // Testing cloning
-    let ec = event.clone();
-    let clonedatts = ec.getAttendees({});
+    let eventClone = event.clone();
+    let clonedatts = eventClone.getAttendees({});
     let atts = event.getAttendees({});
     equal(atts.length, clonedatts.length);
 
@@ -99,14 +99,14 @@ function test_values() {
     }
 
     // Make sure organizers are also cloned correctly
-    let a3 = cal.createAttendee();
-    a3.id = "horst";
-    a3.isOrganizer = true;
-    let a4 = a3.clone();
+    let attendee3 = cal.createAttendee();
+    attendee3.id = "horst";
+    attendee3.isOrganizer = true;
+    let attendee4 = attendee3.clone();
 
-    ok(a4.isOrganizer);
-    a3.isOrganizer = false;
-    ok(a4.isOrganizer);
+    ok(attendee4.isOrganizer);
+    attendee3.isOrganizer = false;
+    ok(attendee4.isOrganizer);
 }
 
 function test_serialize() {

@@ -100,9 +100,9 @@ Extractor.prototype = {
         let cnt = 0;
 
         for (let i = 0; i < this.email.length; i++) {
-            let ch = this.email.charCodeAt(i);
-            if (ch > 128) {
-                sum += ch;
+            let char = this.email.charCodeAt(i);
+            if (char > 128) {
+                sum += char;
                 cnt++;
             }
         }
@@ -144,12 +144,12 @@ Extractor.prototype = {
         } else {
             let spellclass = "@mozilla.org/spellchecker/engine;1";
             let mozISpellCheckingEngine = Components.interfaces.mozISpellCheckingEngine;
-            let sp = Components.classes[spellclass]
-                               .getService(mozISpellCheckingEngine);
+            let spellchecker = Components.classes[spellclass]
+                                         .getService(mozISpellCheckingEngine);
 
             let arr = {};
             let cnt = {};
-            sp.getDictionaryList(arr, cnt);
+            spellchecker.getDictionaryList(arr, cnt);
             let dicts = arr.value;
 
             if (dicts.length == 0) {
@@ -165,17 +165,17 @@ Extractor.prototype = {
             for (let dict in dicts) {
                 // dictionary locale and patterns locale match
                 if (this.checkBundle(dicts[dict])) {
-                    let t1 = (new Date()).getTime();
-                    sp.dictionary = dicts[dict];
-                    let dur = (new Date()).getTime() - t1;
+                    let time1 = (new Date()).getTime();
+                    spellchecker.dictionary = dicts[dict];
+                    let dur = (new Date()).getTime() - time1;
                     cal.LOG("[calExtract] Loading " + dicts[dict] +
                             " dictionary took " + dur + "ms");
                     patterns = dicts[dict];
                 // beginning of dictionary locale matches patterns locale
                 } else if (this.checkBundle(dicts[dict].substring(0, 2))) {
-                    let t1 = (new Date()).getTime();
-                    sp.dictionary = dicts[dict];
-                    let dur = (new Date()).getTime() - t1;
+                    let time1 = (new Date()).getTime();
+                    spellchecker.dictionary = dicts[dict];
+                    let dur = (new Date()).getTime() - time1;
                     cal.LOG("[calExtract] Loading " + dicts[dict] +
                             " dictionary took " + dur + "ms");
                     patterns = dicts[dict].substring(0, 2);
@@ -191,7 +191,7 @@ Extractor.prototype = {
                     words[word] = words[word].replace(/[()\d,;:?!#\.]/g, "");
                     if (words[word].length >= 2) {
                         total++;
-                        if (sp.check(words[word])) {
+                        if (spellchecker.check(words[word])) {
                             correct++;
                         }
                     }
@@ -447,8 +447,8 @@ Extractor.prototype = {
 
                     if (this.isValidDay(day)) {
                         for (let i = 0; i < 12; i++) {
-                            let ms = this.unescape(this.months[i]).split("|");
-                            if (ms.includes(month.toLowerCase())) {
+                            let months = this.unescape(this.months[i]).split("|");
+                            if (months.includes(month.toLowerCase())) {
                                 let date = { year: this.now.getFullYear(), month: i + 1, day: day };
                                 if (this.isPastDate(date, this.now)) {
                                     // find next such date
@@ -1092,12 +1092,12 @@ Extractor.prototype = {
         return alts;
     },
 
-    getPositionsFor: function(s, name, count) {
+    getPositionsFor: function(str, name, count) {
         let positions = [];
         let re = /#(\d)/g;
         let match;
         let i = 0;
-        while ((match = re.exec(s))) {
+        while ((match = re.exec(str))) {
             i++;
             positions[parseInt(match[1], 10)] = i;
         }
@@ -1184,9 +1184,9 @@ Extractor.prototype = {
         let before = email.charAt(res.index - 1);
         let after = email.charAt(res.index + res[0].length);
 
-        let w = new RegExp("[" + alphabet + "]");
-        let result = (w.exec(before) && w.exec(pattern.charAt(0))) ||
-                     (w.exec(pattern.charAt(pattern.length - 1)) && w.exec(after));
+        let re = new RegExp("[" + alphabet + "]");
+        let result = (re.exec(before) && re.exec(pattern.charAt(0))) ||
+                     (re.exec(pattern.charAt(pattern.length - 1)) && re.exec(after));
         return result != null;
     },
 
@@ -1200,44 +1200,44 @@ Extractor.prototype = {
             pattern: pattern,
             relation: relation
         };
-        let ch = "\\s*";
+        let char = "\\s*";
         let psres;
 
-        let re = new RegExp("(" + this.getPatterns("end.prefix") + ")" + ch + "$", "ig");
+        let re = new RegExp("(" + this.getPatterns("end.prefix") + ")" + char + "$", "ig");
         if ((psres = re.exec(prev)) != null) {
             prefixSuffix.relation = "end";
             prefixSuffix.start = psres.index;
             prefixSuffix.pattern = psres[0] + pattern;
         }
 
-        re = new RegExp("^" + ch + "(" + this.getPatterns("end.suffix") + ")", "ig");
+        re = new RegExp("^" + char + "(" + this.getPatterns("end.suffix") + ")", "ig");
         if ((psres = re.exec(next)) != null) {
             prefixSuffix.relation = "end";
             prefixSuffix.end = prefixSuffix.end + psres[0].length;
             prefixSuffix.pattern = pattern + psres[0];
         }
 
-        re = new RegExp("(" + this.getPatterns("start.prefix") + ")" + ch + "$", "ig");
+        re = new RegExp("(" + this.getPatterns("start.prefix") + ")" + char + "$", "ig");
         if ((psres = re.exec(prev)) != null) {
             prefixSuffix.relation = "start";
             prefixSuffix.start = psres.index;
             prefixSuffix.pattern = psres[0] + pattern;
         }
 
-        re = new RegExp("^" + ch + "(" + this.getPatterns("start.suffix") + ")", "ig");
+        re = new RegExp("^" + char + "(" + this.getPatterns("start.suffix") + ")", "ig");
         if ((psres = re.exec(next)) != null) {
             prefixSuffix.relation = "start";
             prefixSuffix.end = prefixSuffix.end + psres[0].length;
             prefixSuffix.pattern = pattern + psres[0];
         }
 
-        re = new RegExp("\\s(" + this.getPatterns("no.datetime.prefix") + ")" + ch + "$", "ig");
+        re = new RegExp("\\s(" + this.getPatterns("no.datetime.prefix") + ")" + char + "$", "ig");
 
         if ((psres = re.exec(prev)) != null) {
             prefixSuffix.relation = "notadatetime";
         }
 
-        re = new RegExp("^" + ch + "(" + this.getPatterns("no.datetime.suffix") + ")", "ig");
+        re = new RegExp("^" + char + "(" + this.getPatterns("no.datetime.suffix") + ")", "ig");
         if ((psres = re.exec(next)) != null) {
             prefixSuffix.relation = "notadatetime";
         }
@@ -1245,21 +1245,21 @@ Extractor.prototype = {
         return prefixSuffix;
     },
 
-    parseNumber: function(number, numbers) {
-        let r = parseInt(number, 10);
+    parseNumber: function(numberString, numbers) {
+        let number = parseInt(numberString, 10);
         // number comes in as plain text, numbers are already adjusted for usage
         // in regular expression
-        number = this.cleanPatterns(number);
-        if (isNaN(r)) {
+        let cleanNumberString = this.cleanPatterns(numberString);
+        if (isNaN(number)) {
             for (let i = 0; i <= 31; i++) {
-                let ns = numbers[i].split("|");
-                if (ns.includes(number.toLowerCase())) {
+                let numberparts = numbers[i].split("|");
+                if (numberparts.includes(cleanNumberString.toLowerCase())) {
                     return i;
                 }
             }
             return -1;
         } else {
-            return r;
+            return number;
         }
     },
 

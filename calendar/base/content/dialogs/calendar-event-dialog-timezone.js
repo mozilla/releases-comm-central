@@ -34,11 +34,11 @@ function onLoad() {
     let tzids = {};
     let displayNames = [];
     while (enumerator.hasMore()) {
-        let tz = tzProvider.getTimezone(enumerator.getNext());
-        if (tz && !tz.isFloating && !tz.isUTC) {
-            let displayName = tz.displayName;
+        let timezone = tzProvider.getTimezone(enumerator.getNext());
+        if (timezone && !timezone.isFloating && !timezone.isUTC) {
+            let displayName = timezone.displayName;
             displayNames.push(displayName);
-            tzids[displayName] = tz.tzid;
+            tzids[displayName] = timezone.tzid;
         }
     }
     // the display names need to be sorted
@@ -90,7 +90,7 @@ function findTimezone(timezone) {
 function updateTimezone() {
     let menulist = document.getElementById("timezone-menulist");
     let menuitem = menulist.selectedItem;
-    let tz = window.tzProvider.getTimezone(menuitem.getAttribute("value"));
+    let timezone = window.tzProvider.getTimezone(menuitem.getAttribute("value"));
 
     // convert the date/time to the currently selected timezone
     // and display the result in the appropriate control.
@@ -98,16 +98,16 @@ function updateTimezone() {
     // to set the timezone to 'floating' in order to avoid the
     // automatic conversion back into the OS timezone.
     let datetime = document.getElementById("timezone-time");
-    let time = window.time.getInTimezone(tz);
+    let time = window.time.getInTimezone(timezone);
     time.timezone = cal.floating();
     datetime.value = cal.dateTimeToJsDate(time);
 
     // don't highlight any timezone in the map by default
     let standardTZOffset = "none";
-    if (tz.isUTC) {
+    if (timezone.isUTC) {
         standardTZOffset = "+0000";
-    } else if (!tz.isFloating) {
-        let standard = tz.icalComponent.getFirstSubcomponent("STANDARD");
+    } else if (!timezone.isFloating) {
+        let standard = timezone.icalComponent.getFirstSubcomponent("STANDARD");
         // any reason why valueAsIcalString is used instead of plain value? xxx todo: ask mickey
         standardTZOffset = standard.getFirstProperty("TZOFFSETTO").valueAsIcalString;
     }
@@ -123,9 +123,9 @@ function updateTimezone() {
 function onAccept() {
     let menulist = document.getElementById("timezone-menulist");
     let menuitem = menulist.selectedItem;
-    let timezone = menuitem.getAttribute("value");
-    let tz = window.tzProvider.getTimezone(timezone);
-    let datetime = window.time.getInTimezone(tz);
+    let timezoneString = menuitem.getAttribute("value");
+    let timezone = window.tzProvider.getTimezone(timezoneString);
+    let datetime = window.time.getInTimezone(timezone);
     window.onAcceptCallback(datetime);
     return true;
 }

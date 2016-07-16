@@ -702,45 +702,45 @@ add_task(function* encodeMimeHeader_test() {
 add_task(function* getRfc5322FormattedDate_test() {
     let data = {
         input: [{
-            dt: null,
-            dtz: "America/New_York"
+            date: null,
+            timezone: "America/New_York"
         }, {
-            dt: "Sat, 24 Jan 2015 09:24:49 +0100",
-            dtz: "America/New_York"
+            date: "Sat, 24 Jan 2015 09:24:49 +0100",
+            timezone: "America/New_York"
         }, {
-            dt: "Sat, 24 Jan 2015 09:24:49 GMT+0100",
-            dtz: "America/New_York"
+            date: "Sat, 24 Jan 2015 09:24:49 GMT+0100",
+            timezone: "America/New_York"
         }, {
-            dt: "Sat, 24 Jan 2015 09:24:49 GMT",
-            dtz: "America/New_York"
+            date: "Sat, 24 Jan 2015 09:24:49 GMT",
+            timezone: "America/New_York"
         }, {
-            dt: "Sat, 24 Jan 2015 09:24:49",
-            dtz: "America/New_York"
+            date: "Sat, 24 Jan 2015 09:24:49",
+            timezone: "America/New_York"
         }, {
-            dt: "Sat, 24 Jan 2015 09:24:49",
-            dtz: null
+            date: "Sat, 24 Jan 2015 09:24:49",
+            timezone: null
         }, {
-            dt: "Sat, 24 Jan 2015 09:24:49",
-            dtz: "UTC"
+            date: "Sat, 24 Jan 2015 09:24:49",
+            timezone: "UTC"
         }, {
-            dt: "Sat, 24 Jan 2015 09:24:49",
-            dtz: "floating"
+            date: "Sat, 24 Jan 2015 09:24:49",
+            timezone: "floating"
         }],
         expected: /^\w{3}, \d{2} \w{3} \d{4} \d{2}:\d{2}:\d{2} [+-]\d{4}$/
     };
 
     let i = 0;
-    let dtz = Preferences.get("calendar.timezone.local", null);
+    let timezone = Preferences.get("calendar.timezone.local", null);
     for (let test of data.input) {
         i++;
-        if (test.dtz) {
-            Preferences.set("calendar.timezone.local", test.dtz);
+        if (test.timezone) {
+            Preferences.set("calendar.timezone.local", test.timezone);
         } else {
             Preferences.reset("calendar.timezone.local");
         }
-        let dt = test.dt ? new Date(test.dt) : null;
-        let r = new RegExp(data.expected);
-        ok(r.test(ltn.invitation.getRfc5322FormattedDate(dt)), "(test #" + i + ")");
+        let date = test.date ? new Date(test.date) : null;
+        let re = new RegExp(data.expected);
+        ok(re.test(ltn.invitation.getRfc5322FormattedDate(date)), "(test #" + i + ")");
     }
-    Preferences.set("calendar.timezone.local", dtz);
+    Preferences.set("calendar.timezone.local", timezone);
 });

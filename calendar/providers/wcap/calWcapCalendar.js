@@ -248,8 +248,8 @@ calWcapCalendar.prototype = {
     },
 
     get ownerId() {
-        let ar = this.getCalendarProperties("X-NSCP-CALPROPS-PRIMARY-OWNER");
-        if (ar.length == 0) {
+        let owner = this.getCalendarProperties("X-NSCP-CALPROPS-PRIMARY-OWNER");
+        if (owner.length == 0) {
             let calId = this.calId;
             log("cannot determine primary owner of calendar " + calId, this);
             // fallback to calId prefix:
@@ -259,28 +259,28 @@ calWcapCalendar.prototype = {
             }
             return calId;
         }
-        return ar[0];
+        return owner[0];
     },
 
     get description() {
-        let ar = this.getCalendarProperties("X-NSCP-CALPROPS-DESCRIPTION");
-        if (ar.length == 0) {
+        let descr = this.getCalendarProperties("X-NSCP-CALPROPS-DESCRIPTION");
+        if (descr.length == 0) {
             // fallback to display name:
             return this.displayName;
         }
-        return ar[0];
+        return descr[0];
     },
 
     get displayName() {
-        let ar = this.getCalendarProperties("X-NSCP-CALPROPS-NAME");
-        if (ar.length == 0) {
+        let displayName = this.getCalendarProperties("X-NSCP-CALPROPS-NAME");
+        if (displayName.length == 0) {
             // fallback to common name:
-            ar = this.getCalendarProperties("X-S1CS-CALPROPS-COMMON-NAME");
-            if (ar.length == 0) {
-                ar = [this.calId];
+            displayName = this.getCalendarProperties("X-S1CS-CALPROPS-COMMON-NAME");
+            if (displayName.length == 0) {
+                displayName = [this.calId];
             }
         }
-        return ar[0];
+        return displayName[0];
     },
 
     get isOwnedCalendar() {
@@ -318,10 +318,10 @@ calWcapCalendar.prototype = {
         }
     },
 
-    getAlignedTzid: function(tz) {
-        let tzid = tz.tzid;
+    getAlignedTzid: function(timezone) {
+        let tzid = timezone.tzid;
         // check whether it is one cs supports:
-        if (tz.isFloating || !this.session.getTimezone(tzid)) {
+        if (timezone.isFloating || !this.session.getTimezone(tzid)) {
             log("not a supported timezone: " + tzid);
             // bug 435436:
             // xxx todo: we could further on search for a matching region,

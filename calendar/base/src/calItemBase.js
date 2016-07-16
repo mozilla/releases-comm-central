@@ -247,36 +247,36 @@ calItemBase.prototype = {
      * @param m     The item to clone this item into
      * @param aNewParent    (optional) The new parent item to set on m.
      */
-    cloneItemBaseInto: function(m, aNewParent) {
-        m.mImmutable = false;
-        m.mACLEntry = this.mACLEntry;
-        m.mIsProxy = this.mIsProxy;
-        m.mParentItem = calTryWrappedJSObject(aNewParent) || this.mParentItem;
-        m.mHashId = this.mHashId;
-        m.mCalendar = this.mCalendar;
+    cloneItemBaseInto: function(cloned, aNewParent) {
+        cloned.mImmutable = false;
+        cloned.mACLEntry = this.mACLEntry;
+        cloned.mIsProxy = this.mIsProxy;
+        cloned.mParentItem = calTryWrappedJSObject(aNewParent) || this.mParentItem;
+        cloned.mHashId = this.mHashId;
+        cloned.mCalendar = this.mCalendar;
         if (this.mRecurrenceInfo) {
-            m.mRecurrenceInfo = calTryWrappedJSObject(this.mRecurrenceInfo.clone());
-            m.mRecurrenceInfo.item = m;
+            cloned.mRecurrenceInfo = calTryWrappedJSObject(this.mRecurrenceInfo.clone());
+            cloned.mRecurrenceInfo.item = cloned;
         }
 
         let org = this.organizer;
         if (org) {
             org = org.clone();
         }
-        m.mOrganizer = org;
+        cloned.mOrganizer = org;
 
-        m.mAttendees = [];
+        cloned.mAttendees = [];
         for (let att of this.getAttendees({})) {
-            m.mAttendees.push(att.clone());
+            cloned.mAttendees.push(att.clone());
         }
 
-        m.mProperties = new calPropertyBag();
+        cloned.mProperties = new calPropertyBag();
         for (let [name, value] of this.mProperties) {
             if (value instanceof Components.interfaces.calIDateTime) {
                 value = value.clone();
             }
 
-            m.mProperties.setProperty(name, value);
+            cloned.mProperties.setProperty(name, value);
 
             let propBucket = this.mPropertyParams[name];
             if (propBucket) {
@@ -284,38 +284,38 @@ calItemBase.prototype = {
                 for (let param in propBucket) {
                     newBucket[param] = propBucket[param];
                 }
-                m.mPropertyParams[name] = newBucket;
+                cloned.mPropertyParams[name] = newBucket;
             }
         }
 
-        m.mAttachments = [];
+        cloned.mAttachments = [];
         for (let att of this.getAttachments({})) {
-            m.mAttachments.push(att.clone());
+            cloned.mAttachments.push(att.clone());
         }
 
-        m.mRelations = [];
+        cloned.mRelations = [];
         for (let rel of this.getRelations({})) {
-            m.mRelations.push(rel.clone());
+            cloned.mRelations.push(rel.clone());
         }
 
-        m.mCategories = this.getCategories({});
+        cloned.mCategories = this.getCategories({});
 
-        m.mAlarms = [];
+        cloned.mAlarms = [];
         for (let alarm of this.getAlarms({})) {
             // Clone alarms into new item, assume the alarms from the old item
             // are valid and don't need validation.
-            m.mAlarms.push(alarm.clone());
+            cloned.mAlarms.push(alarm.clone());
         }
 
         let alarmLastAck = this.alarmLastAck;
         if (alarmLastAck) {
             alarmLastAck = alarmLastAck.clone();
         }
-        m.mAlarmLastAck = alarmLastAck;
+        cloned.mAlarmLastAck = alarmLastAck;
 
-        m.mDirty = this.mDirty;
+        cloned.mDirty = this.mDirty;
 
-        return m;
+        return cloned;
     },
 
     // attribute calIDateTime alarmLastAck;
@@ -575,13 +575,13 @@ calItemBase.prototype = {
         if (attendee) {
             if (attendee.commonName) {
                 // migration code for bug 1209399 to remove leading/training double quotes in
-                let cn = attendee.commonName.replace(/^["]*([^"]*)["]*$/, "$1");
-                if (cn.length == 0) {
-                    cn = null;
+                let commonName = attendee.commonName.replace(/^["]*([^"]*)["]*$/, "$1");
+                if (commonName.length == 0) {
+                    commonName = null;
                 }
-                if (cn != attendee.commonName) {
+                if (commonName != attendee.commonName) {
                     if (attendee.isMutable) {
-                        attendee.commonName = cn;
+                        attendee.commonName = commonName;
                     } else {
                         cal.LOG("Failed to cleanup malformed commonName for immutable attendee " +
                                 attendee.toString() + "\n" + cal.STACK(20));
@@ -687,12 +687,12 @@ calItemBase.prototype = {
             return this.mCalendar;
         }
     },
-    set calendar(v) {
+    set calendar(calendar) {
         if (this.mImmutable) {
             throw Components.results.NS_ERROR_OBJECT_IS_IMMUTABLE;
         }
         this.mHashId = null; // recompute hashId
-        this.mCalendar = v;
+        this.mCalendar = calendar;
     },
 
     // attribute calIAttendee organizer;
@@ -703,9 +703,9 @@ calItemBase.prototype = {
             return this.mOrganizer;
         }
     },
-    set organizer(v) {
+    set organizer(organizer) {
         this.modify();
-        this.mOrganizer = v;
+        this.mOrganizer = organizer;
     },
 
     // void getCategories(out PRUint32 aCount,
@@ -1122,12 +1122,12 @@ function makeMemberAttr(ctor, varname, dflt, attr, asProperty) {
             return (varname in this ? this[varname] : undefined);
         }
     };
-    let setter = function(v) {
+    let setter = function(value) {
         this.modify();
         if (asProperty) {
-            return this.setProperty(varname, v);
+            return this.setProperty(varname, value);
         } else {
-            return (this[varname] = v);
+            return (this[varname] = value);
         }
     };
     ctor.prototype.__defineGetter__(attr, getter);

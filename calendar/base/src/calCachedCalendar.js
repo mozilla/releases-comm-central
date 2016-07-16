@@ -308,9 +308,9 @@ calCachedCalendar.prototype = {
             }
             queue.forEach(execResponseFunc);
             cal.LOG("[calCachedCalendar] sync queue empty.");
-            let op = self.mPendingSync;
+            let operation = self.mPendingSync;
             self.mPendingSync = null;
-            return op;
+            return operation;
         }
 
         if (this.offline) {
@@ -320,14 +320,14 @@ calCachedCalendar.prototype = {
         if (this.supportsChangeLog) {
             cal.LOG("[calCachedCalendar] Doing changelog based sync for calendar " + this.uri.spec);
             let opListener = {
-                onResult: function(op, result) {
-                    if (!op || !op.isPending) {
-                        let status = (op ? op.status : Components.results.NS_OK);
+                onResult: function(operation, result) {
+                    if (!operation || !operation.isPending) {
+                        let status = (operation ? operation.status : Components.results.NS_OK);
                         if (!Components.isSuccessCode(status)) {
                             cal.ERROR("[calCachedCalendar] replay action failed: " +
-                                      (op ? op.id : "<unknown>") + ", uri=" +
+                                      (operation ? operation.id : "<unknown>") + ", uri=" +
                                       self.uri.spec + ", result=" +
-                                      result + ", op=" + op);
+                                      result + ", operation=" + operation);
                         }
                         cal.LOG("[calCachedCalendar] replayChangesOn finished.");
                         emptyQueue(status);
@@ -706,7 +706,7 @@ calCachedCalendar.prototype = {
         // already an offline item or not.
         let flagListener = {
             onGetResult: function() {},
-            onOperationComplete: function(c, s, o, i, offline_flag) {
+            onOperationComplete: function(calendar, status, opType, id, offline_flag) {
                 if (offline_flag == cICL.OFFLINE_FLAG_CREATED_RECORD ||
                     offline_flag == cICL.OFFLINE_FLAG_MODIFIED_RECORD) {
                     // The item is already offline, just modify it in the cache
@@ -787,7 +787,7 @@ calCachedCalendar.prototype = {
         // already an offline item or not.
         let flagListener = {
             onGetResult: function() {},
-            onOperationComplete: function(c, s, o, i, offline_flag) {
+            onOperationComplete: function(calendar, status, opType, id, offline_flag) {
                 if (offline_flag == cICL.OFFLINE_FLAG_CREATED_RECORD ||
                     offline_flag == cICL.OFFLINE_FLAG_MODIFIED_RECORD) {
                     // The item is already offline, just mark it deleted it in

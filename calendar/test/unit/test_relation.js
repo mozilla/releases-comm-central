@@ -4,40 +4,40 @@
 
 function run_test() {
     // Create Relation
-    let r1 = cal.createRelation();
+    let relation1 = cal.createRelation();
 
     // Create Items
-    let e1 = cal.createEvent();
-    let e2 = cal.createEvent();
+    let event1 = cal.createEvent();
+    let event2 = cal.createEvent();
 
     // Testing relation set/get.
     let properties = {
         relType: "PARENT",
-        relId: e2.id
+        relId: event2.id
     };
 
     for (let [property, value] in Iterator(properties)) {
-        r1[property] = value;
-        equal(r1[property], value);
+        relation1[property] = value;
+        equal(relation1[property], value);
     }
 
     // Add relation to event
-    e1.addRelation(r1);
+    event1.addRelation(relation1);
 
     // Add 2nd relation to event.
-    let r2 = cal.createRelation();
-    r2.relId = "myid2";
-    e1.addRelation(r2);
+    let relation2 = cal.createRelation();
+    relation2.relId = "myid2";
+    event1.addRelation(relation2);
 
     // Check the item functions
-    checkRelations(e1, [r1, r2]);
+    checkRelations(event1, [relation1, relation2]);
 
     // modify the Relations
-    modifyRelations(e1, [r1, r2]);
+    modifyRelations(event1, [relation1, relation2]);
 
     // test icalproperty
     // eslint-disable-next-line no-unused-expressions
-    r2.icalProperty;
+    relation2.icalProperty;
 
     test_icalprop();
 }

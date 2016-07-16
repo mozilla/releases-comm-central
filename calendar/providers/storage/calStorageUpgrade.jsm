@@ -391,9 +391,9 @@ function ensureUpdatedTimezones(db) {
             while (getZones.executeStep()) {
                 let zone = getZones.row.zone;
                 // Send the timezones off to the timezone service to attempt conversion:
-                let tz = getTimezone(zone);
-                if (tz) {
-                    let refTz = cal.getTimezoneService().getTimezone(tz.tzid);
+                let timezone = getTimezone(zone);
+                if (timezone) {
+                    let refTz = cal.getTimezoneService().getTimezone(timezone.tzid);
                     if (refTz && refTz.tzid != zone) {
                         zonesToUpdate.push({ oldTzId: zone, newTzId: refTz.tzid });
                     }
@@ -641,7 +641,7 @@ var upgrade = {};
  * everything else ical can throw at us. I hope.
  * p=vlad
  */
-upgrade.v2 = upgrade.v1 = function(db, version) {
+upgrade.v2 = upgrade.v1 = function(db, version) { // eslint-disable-line id-length
     LOGdb(db, "Storage: Upgrading to v1/v2");
     let tblData = {
       cal_calendar_schema_version: { version: "INTEGER" },
@@ -733,7 +733,7 @@ upgrade.v2 = upgrade.v1 = function(db, version) {
  * fix, r=shaver, p=vlad
  * p=vlad
  */
-upgrade.v3 = function(db, version) {
+upgrade.v3 = function(db, version) { // eslint-disable-line id-length
     function updateSql(tbl, field) {
         executeSimpleSQL(db, "UPDATE " + tbl + " SET " + field + "_tz='UTC'" +
                              " WHERE " + field + " IS NOT NULL");
@@ -803,7 +803,7 @@ upgrade.v3 = function(db, version) {
  * Bug 293183 - implement exception support for recurrence.
  * r=shaver,p=vlad
  */
-upgrade.v4 = function(db, version) {
+upgrade.v4 = function(db, version) { // eslint-disable-line id-length
     let tbl = upgrade.v3(version < 3 && db, version);
     LOGdb(db, "Storage: Upgrading to v4");
 
@@ -826,7 +826,7 @@ upgrade.v4 = function(db, version) {
  * rather than as absolute times. Ensure that missed alarms are fired.
  * r=dmose, p=jminta
  */
-upgrade.v5 = function(db, version) {
+upgrade.v5 = function(db, version) { // eslint-disable-line id-length
     let tbl = upgrade.v4(version < 4 && db, version);
     LOGdb(db, "Storage: Upgrading to v5");
 
@@ -850,7 +850,7 @@ upgrade.v5 = function(db, version) {
  * auto-conversion of strings to numbers (10e4 to 10000)
  * r=ctalbert,jminta p=lilmatt
  */
-upgrade.v6 = function(db, version) {
+upgrade.v6 = function(db, version) { // eslint-disable-line id-length
     let tbl = upgrade.v5(version < 5 && db, version);
     LOGdb(db, "Storage: Upgrading to v6");
 
@@ -890,7 +890,7 @@ upgrade.v6 = function(db, version) {
  * Bug 369010: Migrate all old tzids in storage to new one.
  * r=ctalbert,dmose p=lilmatt
  */
-upgrade.v7 = function(db, version) {
+upgrade.v7 = function(db, version) { // eslint-disable-line id-length
     // No schema changes in v7
     let tbl = upgrade.v6(db, version);
     LOGdb(db, "Storage: Upgrading to v7");
@@ -901,7 +901,7 @@ upgrade.v7 = function(db, version) {
  * Bug 410931 - Update internal timezone definitions
  * r=ctalbert, p=dbo,nth10sd,hb
  */
-upgrade.v8 = function(db, version) {
+upgrade.v8 = function(db, version) { // eslint-disable-line id-length
     // No schema changes in v8
     let tbl = upgrade.v7(db, version);
     LOGdb(db, "Storage: Upgrading to v8");
@@ -912,7 +912,7 @@ upgrade.v8 = function(db, version) {
  * Bug 363191 - Handle Timezones more efficiently (Timezone Database)
  * r=philipp,ctalbert, p=dbo
  */
-upgrade.v9 = function(db, version) {
+upgrade.v9 = function(db, version) { // eslint-disable-line id-length
     // No schema changes in v9
     let tbl = upgrade.v8(db, version);
     LOGdb(db, "Storage: Upgrading to v9");

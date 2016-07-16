@@ -254,9 +254,9 @@ var TopComponent = React.createClass({
         };
     },
     updateWideview: function() {
-        let wv = (window.innerWidth > 750);
-        if (wv != this.state.isWideview) {
-            this.setState({ isWideview: wv });
+        let wideview = (window.innerWidth > 750);
+        if (wideview != this.state.isWideview) {
+            this.setState({ isWideview: wideview });
         }
     },
     componentWillMount: function() {
@@ -286,7 +286,7 @@ var TopComponent = React.createClass({
     handleShowTimeAsChange: function(aKey, aValue) {
         // convert from true/false to OPAQUE/TRANSPARENT
         let list = this.props.showTimeAsList;
-        let index = list.findIndex((t) => (t[1] == aValue));
+        let index = list.findIndex(i => (i[1] == aValue));
         let newValue = list[index][0];
         this.handleSimpleChange(aKey, newValue);
     },
@@ -480,8 +480,7 @@ var TopComponent = React.createClass({
             })
         );
 
-        let tIndex = this.props.showTimeAsList.findIndex(
-            (t) => (t[0] == this.state.showTimeAs));
+        let tIndex = this.props.showTimeAsList.findIndex(i => (i[0] == this.state.showTimeAs));
         let showTimeAsDiv = React.DOM.div(
             { id: "showTimeAsDiv", className: "box" },
             React.createElement(Checkbox, {
@@ -545,7 +544,7 @@ var TopComponent = React.createClass({
                 attachmentsDiv,
                 attendeesDiv
             ];
-            let tabpanels = this.props.tabs.map((m, index) => {
+            let tabpanels = this.props.tabs.map((elem, index) => {
                 return React.DOM.div({
                         className: "box tabpanel " + (this.state.activeTab == index ? "" : "hidden"),
                         key: "tabpanelkey " + index

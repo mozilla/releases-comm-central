@@ -36,27 +36,27 @@ calEvent.prototype = {
     }),
 
     cloneShallow: function(aNewParent) {
-        let m = new calEvent();
-        this.cloneItemBaseInto(m, aNewParent);
-        return m;
+        let cloned = new calEvent();
+        this.cloneItemBaseInto(cloned, aNewParent);
+        return cloned;
     },
 
     createProxy: function(aRecurrenceId) {
         cal.ASSERT(!this.mIsProxy, "Tried to create a proxy for an existing proxy!", true);
 
-        let m = new calEvent();
+        let proxy = new calEvent();
 
         // override proxy's DTSTART/DTEND/RECURRENCE-ID
         // before master is set (and item might get immutable):
         let endDate = aRecurrenceId.clone();
         endDate.addDuration(this.duration);
-        m.endDate = endDate;
-        m.startDate = aRecurrenceId;
+        proxy.endDate = endDate;
+        proxy.startDate = aRecurrenceId;
 
-        m.initializeProxy(this, aRecurrenceId);
-        m.mDirty = false;
+        proxy.initializeProxy(this, aRecurrenceId);
+        proxy.mDirty = false;
 
-        return m;
+        return proxy;
     },
 
     makeImmutable: function() {

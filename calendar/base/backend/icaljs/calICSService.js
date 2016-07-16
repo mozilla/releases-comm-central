@@ -49,15 +49,15 @@ calIcalProperty.prototype = {
 
     get valueAsIcalString() {
         let type = this.innerObject.type;
-        return this.innerObject.getValues().map(v => {
+        return this.innerObject.getValues().map(val => {
             if (type == "text") {
-                return ICAL.stringify.value(v, type, ICAL.design.icalendar);
-            } else if (typeof v == "number" || typeof v == "string") {
-                return v;
-            } else if ("toICALString" in v) {
-                return v.toICALString();
+                return ICAL.stringify.value(val, type, ICAL.design.icalendar);
+            } else if (typeof val == "number" || typeof val == "string") {
+                return val;
+            } else if ("toICALString" in val) {
+                return val.toICALString();
             } else {
-                return v.toString();
+                return val.toString();
             }
         }).join(",");
     },
@@ -112,13 +112,13 @@ calIcalProperty.prototype = {
 
         return this.innerObject.getParameter(name.toLowerCase());
     },
-    setParameter: function(n, v) {
+    setParameter: function(name, value) {
         // Similar problems for setting the value parameter. Lightning code
         // expects setting the value parameter to just change the value type
         // and attempt to use the previous value as the new one. To do this in
         // ICAL.js we need to save the value, reset the type and then try to
         // set the value again.
-        if (n == "VALUE") {
+        if (name == "VALUE") {
             let oldValues;
             let type = this.innerObject.type;
             let designSet = this.innerObject._designSet;
@@ -131,11 +131,11 @@ calIcalProperty.prototype = {
                 oldValues = oldValue ? [oldValue] : [];
             }
 
-            this.innerObject.resetType(v.toLowerCase());
+            this.innerObject.resetType(value.toLowerCase());
             try {
                 oldValues = oldValues.map(oldValue => {
                     let strvalue = ICAL.stringify.value(oldValue.toString(), type, designSet);
-                    return ICAL.parse._parseValue(strvalue, v, designSet);
+                    return ICAL.parse._parseValue(strvalue, value, designSet);
                 });
             } catch (e) {
                 // If there was an error reparsing the value, then just keep it
@@ -151,14 +151,14 @@ calIcalProperty.prototype = {
                 }
             }
         } else {
-            this.innerObject.setParameter(n.toLowerCase(), v);
+            this.innerObject.setParameter(name.toLowerCase(), value);
         }
     },
-    removeParameter: function(n) {
+    removeParameter: function(name) {
         // Again, VALUE needs special handling. Removing the value parameter is
         // kind of like resetting it to the default type. So find out the
         // default type and then set the value parameter to it.
-        if (n == "VALUE") {
+        if (name == "VALUE") {
             let propname = this.innerObject.name.toLowerCase();
             if (propname in ICAL.design.icalendar.property) {
                 let details = ICAL.design.icalendar.property[propname];
@@ -167,7 +167,7 @@ calIcalProperty.prototype = {
                 }
             }
         } else {
-            this.innerObject.removeParameter(n.toLowerCase());
+            this.innerObject.removeParameter(name.toLowerCase());
         }
     },
 
@@ -410,9 +410,9 @@ calIcalComponent.prototype = {
 
     addProperty: function(prop) {
         try {
-            let dt = prop.valueAsDatetime;
-            if (dt && dt.timezone) {
-                this._getNextParentVCalendar().addTimezoneReference(dt.timezone);
+            let datetime = prop.valueAsDatetime;
+            if (datetime && datetime.timezone) {
+                this._getNextParentVCalendar().addTimezoneReference(datetime.timezone);
             }
         } catch (e) {
             // If there is an issue adding the timezone reference, don't make
@@ -423,22 +423,22 @@ calIcalComponent.prototype = {
         this.innerObject.addProperty(jsprop);
     },
 
-    addTimezoneReference: function(tz) {
-        if (tz) {
-            if (!(tz.tzid in this.mReferencedZones) &&
+    addTimezoneReference: function(timezone) {
+        if (timezone) {
+            if (!(timezone.tzid in this.mReferencedZones) &&
                 this.componentType == "VCALENDAR") {
-                let comp = tz.icalComponent;
+                let comp = timezone.icalComponent;
                 if (comp) {
                     this.addSubcomponent(comp);
                 }
             }
 
-            this.mReferencedZones[tz.tzid] = tz;
+            this.mReferencedZones[timezone.tzid] = timezone;
         }
     },
 
     getReferencedTimezones: function(aCount) {
-        let vals = Object.keys(this.mReferencedZones).map(tz => this.mReferencedZones[tz]);
+        let vals = Object.keys(this.mReferencedZones).map(timezone => this.mReferencedZones[timezone]);
         aCount.value = vals.length;
         return vals;
     },

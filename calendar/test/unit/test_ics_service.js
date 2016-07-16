@@ -172,14 +172,14 @@ function test_icalcomponent() {
     equal(alarm.parent.toString(), event.toString());
     equal(alarm2.parent, null);
 
-    function check_getset(k, v) {
-        dump("Checking " + k + " = " + v + "\n");
-        event[k] = v;
-        let vstring = v.icalString || v;
-        equal(event[k].icalString || event[k], vstring);
-        equal(event.serializeToICS().match(new RegExp(vstring, "g")).length, 1);
-        event[k] = v;
-        equal(event.serializeToICS().match(new RegExp(vstring, "g")).length, 1);
+    function check_getset(key, value) {
+        dump("Checking " + key + " = " + value + "\n");
+        event[key] = value;
+        let valuestring = value.icalString || value;
+        equal(event[key].icalString || event[key], valuestring);
+        equal(event.serializeToICS().match(new RegExp(valuestring, "g")).length, 1);
+        event[key] = value;
+        equal(event.serializeToICS().match(new RegExp(valuestring, "g")).length, 1);
     }
 
     let props = [
@@ -238,18 +238,18 @@ function test_iterator() {
         comp.addProperty(prop);
     }
 
-    for (let p = comp.getFirstProperty("ANY");
-         p;
-         p = comp.getNextProperty("ANY")) {
-        equal(p.propertyName, propNames.shift());
-        equal(p.parent.toString(), comp.toString());
+    for (let prop = comp.getFirstProperty("ANY");
+         prop;
+         prop = comp.getNextProperty("ANY")) {
+        equal(prop.propertyName, propNames.shift());
+        equal(prop.parent.toString(), comp.toString());
     }
     propNames = ["X-ONE", "X-TWO"];
-    for (let p = comp.getNextProperty("ANY");
-         p;
-         p = comp.getNextProperty("ANY")) {
-        equal(p.propertyName, propNames.shift());
-        equal(p.parent.toString(), comp.toString());
+    for (let prop = comp.getNextProperty("ANY");
+         prop;
+         prop = comp.getNextProperty("ANY")) {
+        equal(prop.propertyName, propNames.shift());
+        equal(prop.parent.toString(), comp.toString());
     }
 
     // Property iterator with multiple values
@@ -257,32 +257,32 @@ function test_iterator() {
                         "CATEGORIES:a,b,c\r\n" +
                         "END:VEVENT", null);
     let propValues = ["a", "b", "c"];
-    for (let p = comp.getFirstProperty("CATEGORIES");
-         p;
-         p = comp.getNextProperty("CATEGORIES")) {
-        equal(p.propertyName, "CATEGORIES");
-        equal(p.value, propValues.shift());
-        equal(p.parent.toString(), comp.toString());
+    for (let prop = comp.getFirstProperty("CATEGORIES");
+         prop;
+         prop = comp.getNextProperty("CATEGORIES")) {
+        equal(prop.propertyName, "CATEGORIES");
+        equal(prop.value, propValues.shift());
+        equal(prop.parent.toString(), comp.toString());
     }
 
     // Param iterator
-    let prop = svc.createIcalProperty("DTSTART");
+    let dtstart = svc.createIcalProperty("DTSTART");
     let params = ["X-ONE", "X-TWO"];
     for (let i = 0; i < params.length; i++) {
-        prop.setParameter(params[i], "" + (i + 1));
+        dtstart.setParameter(params[i], "" + (i + 1));
     }
 
-    for (let p = prop.getFirstParameterName();
-         p;
-         p = prop.getNextParameterName()) {
-        equal(p, params.shift());
+    for (let prop = dtstart.getFirstParameterName();
+         prop;
+         prop = dtstart.getNextParameterName()) {
+        equal(prop, params.shift());
     }
 
     // Now try again, but start with next. Should act like first
     params = ["X-ONE", "X-TWO"];
-    for (let p = prop.getNextParameterName();
-         p;
-         p = prop.getNextParameterName()) {
-        equal(p, params.shift());
+    for (let param = dtstart.getNextParameterName();
+         param;
+         param = dtstart.getNextParameterName()) {
+        equal(param, params.shift());
     }
 }

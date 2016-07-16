@@ -31,12 +31,12 @@ function verify(controller, dates, timezones, times) {
     calUtils.goToDate(controller, dates[date][0], dates[date][1], dates[date][2]);
 
     // find event with timezone tz
-    for (let tz = 0; tz < timezones.length; tz++) {
+    for (let tzIdx = 0; tzIdx < timezones.length; tzIdx++) {
       let found = false;
 
-      let correctHour = times[date][tz][0];
-      let minutes = times[date][tz][1];
-      let day = times[date][tz][2];
+      let correctHour = times[date][tzIdx][0];
+      let minutes = times[date][tzIdx][1];
+      let day = times[date][tzIdx][2];
 
       let timeNode = (new elementslib.Lookup(controller.window.document,
                                              timeLine + "[" + correctHour + "]")).getNode();
@@ -67,7 +67,7 @@ function verify(controller, dates, timezones, times) {
 
       for (let node of eventNodes) {
         if (Math.abs(timeY - node.boxObject.y) < allowedDifference &&
-                     timezones[tz] == node.mOccurrence.title) {
+                     timezones[tzIdx] == node.mOccurrence.title) {
           found = true;
           break;
         }

@@ -138,12 +138,12 @@ calCompositeCalendar.prototype = {
         let mgr = cal.getCalendarManager();
         let cals = mgr.getCalendars({});
 
-        cals.forEach(function(c) {
-            if (c.getProperty(this.mActivePref)) {
-                this.addCalendar(c);
+        cals.forEach(function(calendar) {
+            if (calendar.getProperty(this.mActivePref)) {
+                this.addCalendar(calendar);
             }
-            if (c.getProperty(this.mDefaultPref)) {
-                this.setDefaultCalendar(c, false);
+            if (calendar.getProperty(this.mDefaultPref)) {
+                this.setDefaultCalendar(calendar, false);
             }
         }, this);
     },
@@ -225,8 +225,8 @@ calCompositeCalendar.prototype = {
         this.mCompositeObservers.notify("onDefaultCalendarChanged", [calendar]);
     },
 
-    set defaultCalendar(v) {
-        this.setDefaultCalendar(v, true);
+    set defaultCalendar(calendar) {
+        this.setDefaultCalendar(calendar, true);
     },
 
     //
@@ -258,7 +258,7 @@ calCompositeCalendar.prototype = {
     get uri() {
         throw Components.results.NS_ERROR_NOT_IMPLEMENTED;
     },
-    set uri(v) {
+    set uri(val) {
         throw Components.results.NS_ERROR_NOT_IMPLEMENTED;
     },
 
@@ -276,7 +276,7 @@ calCompositeCalendar.prototype = {
     get name() {
         throw Components.results.NS_ERROR_NOT_IMPLEMENTED;
     },
-    set name(v) {
+    set name(val) {
         throw Components.results.NS_ERROR_NOT_IMPLEMENTED;
     },
 

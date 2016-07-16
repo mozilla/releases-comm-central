@@ -123,23 +123,23 @@ function onLoad() {
         let icon = cell.getElementsByTagName("img")[0];
 
         let role = organizer.role || "REQ-PARTICIPANT";
-        let ut = organizer.userType || "INDIVIDUAL";
-        let ps = organizer.participationStatus || "NEEDS-ACTION";
+        let userType = organizer.userType || "INDIVIDUAL";
+        let partstat = organizer.participationStatus || "NEEDS-ACTION";
         let orgName = (organizer.commonName && organizer.commonName.length)
-                      ? organizer.commonName : organizer.toString();
-        let utString = cal.calGetString("calendar", "dialog.tooltip.attendeeUserType2." + ut,
-                                        [organizer.toString()]);
+                       ? organizer.commonName : organizer.toString();
+        let userTypeString = cal.calGetString("calendar", "dialog.tooltip.attendeeUserType2." + userType,
+                                              [organizer.toString()]);
         let roleString = cal.calGetString("calendar", "dialog.tooltip.attendeeRole2." + role,
-                                          [utString]);
-        let psString = cal.calGetString("calendar", "dialog.tooltip.attendeePartStat2." + ps,
-                                       [orgName]);
-        let tt = cal.calGetString("calendar", "dialog.tooltip.attendee.combined",
-                                  [roleString, psString]);
+                                          [userTypeString]);
+        let partstatString = cal.calGetString("calendar", "dialog.tooltip.attendeePartStat2." + partstat,
+                                             [orgName]);
+        let tooltip = cal.calGetString("calendar", "dialog.tooltip.attendee.combined",
+                                       [roleString, partstatString]);
 
         text.setAttribute("value", orgName);
-        cell.setAttribute("tooltiptext", tt);
-        icon.setAttribute("partstat", ps);
-        icon.setAttribute("usertype", ut);
+        cell.setAttribute("tooltiptext", tooltip);
+        icon.setAttribute("partstat", partstat);
+        icon.setAttribute("usertype", userType);
         icon.setAttribute("role", role);
     }
 

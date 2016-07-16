@@ -420,9 +420,9 @@
 
       <method name="today">
         <body><![CDATA[
-          let d = cal.jsDateToDateTime(new Date()).getInTimezone(this.mTimezone);
-          d.isDate = true;
-          return d;
+          let date = cal.jsDateToDateTime(new Date()).getInTimezone(this.mTimezone);
+          date.isDate = true;
+          return date;
         ]]></body>
       </method>
 
@@ -488,9 +488,9 @@
               cancel: function() {
                   this.calView.mLog.info("Refresh cancelled for calendar " + this.calId);
                   this.cancelled = true;
-                  let op = cal.wrapInstance(this.operation, Components.interfaces.calIOperation);
-                  if (op && op.isPending) {
-                      op.cancel();
+                  let operation = cal.wrapInstance(this.operation, Components.interfaces.calIOperation);
+                  if (operation && operation.isPending) {
+                      operation.cancel();
                       this.operation = null;
                   }
               },
@@ -535,14 +535,14 @@
                       filter |= this.calendar.ITEM_FILTER_TYPE_EVENT;
                   }
 
-                  let op = this.calendar.getItems(filter,
-                                                  0,
-                                                  this.calView.startDate,
-                                                  this.calView.queryEndDate,
-                                                  this);
-                  op = cal.wrapInstance(op, Components.interfaces.calIOperation);
-                  if (op && op.isPending) {
-                      this.operation = op;
+                  let operation = this.calendar.getItems(filter,
+                                                         0,
+                                                         this.calView.startDate,
+                                                         this.calView.queryEndDate,
+                                                         this);
+                  operation = cal.wrapInstance(operation, Components.interfaces.calIOperation);
+                  if (operation && operation.isPending) {
+                      this.operation = operation;
                       this.calView.mPendingRefreshJobs.set(this.calId, this);
                   }
               }

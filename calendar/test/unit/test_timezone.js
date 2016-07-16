@@ -13,7 +13,7 @@ function run_test() {
 }
 
 function really_run_test() {
-    let f = cal.createEvent();
+    let event = cal.createEvent();
 
     let str =
          ["BEGIN:VCALENDAR",
@@ -72,12 +72,12 @@ function really_run_test() {
 
     let tzs = cal.getTimezoneService();
 
-    f.icalString = str;
+    event.icalString = str;
 
-    let g = f.startDate;
-    let h = f.endDate;
+    let startDate = event.startDate;
+    let endDate = event.endDate;
 
-    g.timezone = tzs.getTimezone(g.timezone.tzid);
-    h.timezone = tzs.getTimezone(h.timezone.tzid);
-    notEqual(strTz, g.timezone.toString());
+    startDate.timezone = tzs.getTimezone(startDate.timezone.tzid);
+    endDate.timezone = tzs.getTimezone(endDate.timezone.tzid);
+    notEqual(strTz, startDate.timezone.toString());
 }

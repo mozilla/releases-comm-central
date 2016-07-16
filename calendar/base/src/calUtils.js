@@ -178,10 +178,10 @@ function getRecentTimezones(aConvertZones) {
     if (aConvertZones) {
         let oldZonesLength = recentTimezones.length;
         for (let i = 0; i < recentTimezones.length; i++) {
-            let tz = tzService.getTimezone(recentTimezones[i]);
-            if (tz) {
+            let timezone = tzService.getTimezone(recentTimezones[i]);
+            if (timezone) {
                 // Replace id with found timezone
-                recentTimezones[i] = tz;
+                recentTimezones[i] = timezone;
             } else {
                 // Looks like the timezone doesn't longer exist, remove it
                 recentTimezones.splice(i, 1);
@@ -222,9 +222,9 @@ function getRecentTimezones(aConvertZones) {
  * @return              The formatted string using only chars [_a-zA-Z0-9-]
  */
 function formatStringForCSSRule(aString) {
-    function toReplacement(ch) {
+    function toReplacement(char) {
         // char code is natural number (positive integer)
-        let nat = ch.charCodeAt(0);
+        let nat = char.charCodeAt(0);
         switch (nat) {
             case 0x20: // space
                 return "_";
@@ -411,8 +411,8 @@ function makeURL(aUriString) {
  * default timezone.
  */
 function now() {
-    let d = cal.jsDateToDateTime(new Date());
-    return d.getInTimezone(calendarDefaultTimezone());
+    let date = cal.jsDateToDateTime(new Date());
+    return date.getInTimezone(calendarDefaultTimezone());
 }
 
 /**
@@ -701,9 +701,9 @@ function calGetString(aBundleName, aStringName, aParams, aComponent="calendar") 
             return props.GetStringFromName(aStringName);
         }
     } catch (ex) {
-        let s = "Failed to read '" + aStringName + "' from " + propName + ".";
-        Components.utils.reportError(s + " Error: " + ex);
-        return s;
+        let msg = "Failed to read '" + aStringName + "' from " + propName + ".";
+        Components.utils.reportError(msg + " Error: " + ex);
+        return msg;
     }
 }
 
@@ -1294,15 +1294,15 @@ calOperationGroup.prototype = {
     mStatus: Components.results.NS_OK,
     mSubOperations: null,
 
-    add: function(op) {
-        if (op && op.isPending) {
-            this.mSubOperations.push(op);
+    add: function(aOperation) {
+        if (aOperation && aOperation.isPending) {
+            this.mSubOperations.push(aOperation);
         }
     },
 
-    remove: function(op) {
-        if (op) {
-            this.mSubOperations = this.mSubOperations.filter(op_ => op.id != op_.id);
+    remove: function(aOperation) {
+        if (aOperation) {
+            this.mSubOperations = this.mSubOperations.filter(operation => aOperation.id != operation.id);
         }
     },
 
@@ -1350,8 +1350,8 @@ calOperationGroup.prototype = {
             }
             let subOperations = this.mSubOperations;
             this.mSubOperations = [];
-            for (let op of subOperations) {
-                op.cancel(Components.interfaces.calIErrors.OPERATION_CANCELLED);
+            for (let operation of subOperations) {
+                operation.cancel(Components.interfaces.calIErrors.OPERATION_CANCELLED);
             }
         }
     }
@@ -1774,10 +1774,10 @@ function binarySearch(itemArray, newItem, comptor) {
         }
 
         let mid = Math.floor(low + ((high - low) / 2));
-        let q = comptor(newItem, itemArray[mid]);
-        if (q > 0) {
+        let cmp = comptor(newItem, itemArray[mid]);
+        if (cmp > 0) {
             return binarySearchInternal(mid + 1, high);
-        } else if (q < 0) {
+        } else if (cmp < 0) {
             return binarySearchInternal(low, mid);
         } else {
             return mid;

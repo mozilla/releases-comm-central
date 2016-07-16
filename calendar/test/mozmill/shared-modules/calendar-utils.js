@@ -53,12 +53,12 @@ function handleAddingAttachment(controller, url) {
  *  @param attendees - whether there are attendees that can be notified or not
  */
 function handleOccurrenceDeletion(controller, attendees) {
-  let md = new modalDialog.modalDialog(controller.window);
-  md.start((dialog) => {
+  let dialog = new modalDialog.modalDialog(controller.window);
+  dialog.start((dialogController) => {
     if (attendees) {
       acceptSendingNotificationMail();
     }
-    dialog.waitThenClick(new elementslib.ID(dialog.window.document, "accept-occurrence-button"));
+    dialogController.waitThenClick(new elementslib.ID(dialog.window.document, "accept-occurrence-button"));
   });
 }
 
@@ -68,12 +68,12 @@ function handleOccurrenceDeletion(controller, attendees) {
  *  @param attendees - whether there are attendees that can be notified or not
  */
 function handleParentDeletion(controller, attendees) {
-  let md = new modalDialog.modalDialog(controller.window);
-  md.start((dialog) => {
+  let dialog = new modalDialog.modalDialog(controller.window);
+  dialog.start((dialogController) => {
     if (attendees) {
       acceptSendingNotificationMail();
     }
-    dialog.waitThenClick(new elementslib.ID(dialog.window.document, "accept-parent-button"));
+    dialogController.waitThenClick(new elementslib.ID(dialog.window.document, "accept-parent-button"));
   });
 }
 

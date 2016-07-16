@@ -158,8 +158,8 @@ var cal = {
     /**
      * Checks whether a timezone lacks a definition.
      */
-    isPhantomTimezone: function(tz) {
-        return (!tz.icalComponent && !tz.isUTC && !tz.isFloating);
+    isPhantomTimezone: function(timezone) {
+        return (!timezone.icalComponent && !timezone.isUTC && !timezone.isFloating);
     },
 
     /**
@@ -282,13 +282,13 @@ var cal = {
                     prefix = parts[1];
                 } else {
                     // CN with email address
-                    let cn = parts[1].trim();
+                    let commonName = parts[1].trim();
                     // in case of any special characters in the CN string, we make sure to enclose
                     // it with dquotes - simple spaces don't require dquotes
-                    if (cn.match(/[\-\[\]{}()*+?.,;\\\^$|#\f\n\r\t\v]/)) {
-                        cn = '"' + cn.replace(/\\"|"/, "").trim() + '"';
+                    if (commonName.match(/[\-\[\]{}()*+?.,;\\\^$|#\f\n\r\t\v]/)) {
+                        commonName = '"' + commonName.replace(/\\"|"/, "").trim() + '"';
                     }
-                    list.push(cn + parts[2]);
+                    list.push(commonName + parts[2]);
                     prefix = "";
                 }
             } else if (member.length) {
@@ -409,14 +409,14 @@ var cal = {
         // Strip leading "mailto:" if it exists.
         email = email.replace(/^mailto:/i, "");
         // We add the CN if requested and available
-        let cn = aAttendee.commonName;
-        if (aIncludeCn && email.length > 0 && cn && cn.length > 0) {
-            if (cn.match(/[,;]/)) {
-                cn = '"' + cn + '"';
+        let commonName = aAttendee.commonName;
+        if (aIncludeCn && email.length > 0 && commonName && commonName.length > 0) {
+            if (commonName.match(/[,;]/)) {
+                commonName = '"' + commonName + '"';
             }
-            cn = cn + " <" + email + ">";
-            if (cal.validateRecipientList(cn) == cn) {
-                email = cn;
+            commonName = commonName + " <" + email + ">";
+            if (cal.validateRecipientList(commonName) == commonName) {
+                email = commonName;
             }
         }
         return email;
@@ -543,16 +543,16 @@ var cal = {
           };
         case "string":
           return function(sortEntryA, sortEntryB) {
-            let sA = cal.sortEntryKey(sortEntryA);
-            let sB = cal.sortEntryKey(sortEntryB);
-            if (sA.length == 0 || sB.length == 0) {
+            let seA = cal.sortEntryKey(sortEntryA);
+            let seB = cal.sortEntryKey(sortEntryB);
+            if (seA.length == 0 || seB.length == 0) {
               // sort empty values to end (so when users first sort by a
               // column, they can see and find the desired values in that
               // column without scrolling past all the empty values).
-              return -(sA.length - sB.length) * modifier;
+              return -(seA.length - seB.length) * modifier;
             }
             let collator = cal.createLocaleCollator();
-            let comparison = collator.compareString(0, sA, sB);
+            let comparison = collator.compareString(0, seA, seB);
             return comparison * modifier;
           };
         default:
@@ -639,11 +639,11 @@ var cal = {
         if (calDateTime == null) {
             return sortStartedTime.nativeTime;
         }
-        let ns = calDateTime.nativeTime;
-        if (ns == -62168601600000000) { // ns value for (0000/00/00 00:00:00)
+        let nativeTime = calDateTime.nativeTime;
+        if (nativeTime == -62168601600000000) { // nativeTime value for (0000/00/00 00:00:00)
             return sortStartedTime;
         }
-        return ns;
+        return nativeTime;
     },
 
     nativeTime: function(calDateTime) {

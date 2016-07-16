@@ -21,9 +21,9 @@ var gInvitationsRequestManager = {
      * @param calendar    The calendar to add for.
      * @param op          The operation to add
      */
-    addRequestStatus: function(calendar, op) {
-        if (op) {
-            this.mRequestStatusList[calendar.id] = op;
+    addRequestStatus: function(calendar, operation) {
+        if (operation) {
+            this.mRequestStatusList[calendar.id] = operation;
         }
     },
 
@@ -207,15 +207,15 @@ InvitationsManager.prototype = {
                 calendar = calendar.QueryInterface(Components.interfaces.calICalendar);
                 let endDate = this.mStartDate.clone();
                 endDate.year += 1;
-                let op = calendar.getItems(Components.interfaces.calICalendar.ITEM_FILTER_REQUEST_NEEDS_ACTION |
-                                           Components.interfaces.calICalendar.ITEM_FILTER_TYPE_ALL |
-                                           // we need to retrieve by occurrence to properly filter exceptions,
-                                           // should be fixed with bug 416975
-                                           Components.interfaces.calICalendar.ITEM_FILTER_CLASS_OCCURRENCES,
-                                           0, this.mStartDate,
-                                           endDate /* we currently cannot pass null here, because of bug 416975 */,
-                                           opListener);
-                gInvitationsRequestManager.addRequestStatus(calendar, op);
+                let operation = calendar.getItems(Components.interfaces.calICalendar.ITEM_FILTER_REQUEST_NEEDS_ACTION |
+                                                  Components.interfaces.calICalendar.ITEM_FILTER_TYPE_ALL |
+                                                  // we need to retrieve by occurrence to properly filter exceptions,
+                                                  // should be fixed with bug 416975
+                                                  Components.interfaces.calICalendar.ITEM_FILTER_CLASS_OCCURRENCES,
+                                                  0, this.mStartDate,
+                                                  endDate /* we currently cannot pass null here, because of bug 416975 */,
+                                                  opListener);
+                gInvitationsRequestManager.addRequestStatus(calendar, operation);
             } catch (exc) {
                 opListener.onOperationComplete();
                 ERROR(exc);

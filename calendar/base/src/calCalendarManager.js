@@ -152,15 +152,15 @@ calCalendarManager.prototype = {
                 try {
                     // NOTE: For some reason, this observer call doesn't have
                     // the "cal" namespace defined
-                    let ua = httpChannel.getRequestHeader("User-Agent");
+                    let userAgent = httpChannel.getRequestHeader("User-Agent");
                     let calUAString = Preferences.get("calendar.useragent.extra", "").trim();
 
                     // Don't add an empty string or an already included token.
-                    if (calUAString && !ua.includes(calUAString)) {
+                    if (calUAString && !userAgent.includes(calUAString)) {
                         // User-Agent is not a mergeable header. We need to
                         // merge the user agent ourselves.
                         httpChannel.setRequestHeader("User-Agent",
-                                                     ua + " " + calUAString,
+                                                     userAgent + " " + calUAString,
                                                      false);
                     }
                 } catch (e) {
@@ -304,8 +304,7 @@ calCalendarManager.prototype = {
 
             let sortOrderAr = [];
             for (let id in sortOrder) {
-                let s = sortOrder[id];
-                sortOrderAr.push(s);
+                sortOrderAr.push(sortOrder[id]);
             }
             Preferences.set("calendar.list.sortOrder", sortOrderAr.join(" "));
             flushPrefs();
@@ -1105,12 +1104,12 @@ function appendToRealm(authHeader, appendStr) {
     if (idx > -1) {
         let remain = authHeader.substr(idx + 7); idx += 7;
         while (remain.length && !isEscaped) {
-            let m = remain.match(/(.*?)(\\*)"/);
-            idx += m[0].length;
+            let match = remain.match(/(.*?)(\\*)"/);
+            idx += match[0].length;
 
-            isEscaped = ((m[2].length % 2) == 0);
+            isEscaped = ((match[2].length % 2) == 0);
             if (!isEscaped) {
-                remain = remain.substr(m[0].length);
+                remain = remain.substr(match[0].length);
             }
         }
         return authHeader.substr(0, idx - 1) + " " +

@@ -194,30 +194,30 @@ calTimezoneService.prototype = {
             tzid = tzid.substring(tzid.indexOf("/", 13) + 1);
         }
 
-        let tz = this.mZones.get(tzid);
-        if (!tz) {
+        let timezone = this.mZones.get(tzid);
+        if (!timezone) {
             cal.ERROR("Couldn't find " + tzid);
             return null;
         }
-        if (!tz.zone) {
-            if (tz.aliasTo) {
+        if (!timezone.zone) {
+            if (timezone.aliasTo) {
                 // This zone is an alias.
-                tz.zone = this.getTimezone(tz.aliasTo);
+                timezone.zone = this.getTimezone(timezone.aliasTo);
             } else if (Preferences.get("calendar.icaljs", false)) {
-                let parsedComp = ICAL.parse("BEGIN:VCALENDAR\r\n" + tz.ics + "\r\nEND:VCALENDAR");
+                let parsedComp = ICAL.parse("BEGIN:VCALENDAR\r\n" + timezone.ics + "\r\nEND:VCALENDAR");
                 let icalComp = new ICAL.Component(parsedComp);
                 let tzComp = icalComp.getFirstSubcomponent("vtimezone");
-                tz.zone = new calICALJSTimezone(ICAL.Timezone.fromData({
+                timezone.zone = new calICALJSTimezone(ICAL.Timezone.fromData({
                     tzid: tzid,
                     component: tzComp,
-                    latitude: tz.latitude,
-                    longitude: tz.longitude
+                    latitude: timezone.latitude,
+                    longitude: timezone.longitude
                 }));
             } else {
-                tz.zone = new calLibicalTimezone(tzid, tz.ics, tz.latitude, tz.longitude);
+                timezone.zone = new calLibicalTimezone(tzid, timezone.ics, timezone.latitude, timezone.longitude);
             }
         }
-        return tz.zone;
+        return timezone.zone;
     },
 
     get timezoneIds() {
@@ -232,9 +232,9 @@ calTimezoneService.prototype = {
 
     get aliasIds() {
         let zones = [];
-        for (let [k, v] of this.mZones.entries()) {
-            if (v.aliasTo && k != "UTC" && k != "floating") {
-                zones.push(k);
+        for (let [key, value] of this.mZones.entries()) {
+            if (value.aliasTo && key != "UTC" && key != "floating") {
+                zones.push(key);
             }
         }
         return new calStringEnumerator(zones);
@@ -330,10 +330,10 @@ function guessSystemTimezone() {
     // 1 if matches dates within a week (so changes on different weekday),
     // otherwise 0 if no match.
     function checkTZ(tzId) {
-        let tz = tzSvc.getTimezone(tzId);
+        let timezone = tzSvc.getTimezone(tzId);
 
         // Have to handle UTC separately because it has no .icalComponent.
-        if (tz.isUTC) {
+        if (timezone.isUTC) {
             if (offsetDec == 0 && offsetJun == 0) {
                 if (tzNameJun == "UTC" && tzNameDec == "UTC") {
                     return 3;
@@ -345,13 +345,13 @@ function guessSystemTimezone() {
             }
         }
 
-        let subComp = tz.icalComponent;
+        let subComp = timezone.icalComponent;
         // find currently applicable time period, not just first,
         // because offsets of timezone may be changed over the years.
-        let standard = findCurrentTimePeriod(tz, subComp, "STANDARD");
+        let standard = findCurrentTimePeriod(timezone, subComp, "STANDARD");
         let standardTZOffset = getIcalString(standard, "TZOFFSETTO");
         let standardName = getIcalString(standard, "TZNAME");
-        let daylight = findCurrentTimePeriod(tz, subComp, "DAYLIGHT");
+        let daylight = findCurrentTimePeriod(timezone, subComp, "DAYLIGHT");
         let daylightTZOffset = getIcalString(daylight, "TZOFFSETTO");
         let daylightName = getIcalString(daylight, "TZNAME");
 
@@ -367,7 +367,7 @@ function guessSystemTimezone() {
 
         if (offsetDec == standardTZOffset && offsetJun == daylightTZOffset &&
             daylight) {
-            let dateMatchWt = systemTZMatchesTimeShiftDates(tz, subComp);
+            let dateMatchWt = systemTZMatchesTimeShiftDates(timezone, subComp);
             if (dateMatchWt > 0) {
                 if (standardName && standardName == tzNameJun &&
                     daylightName && daylightName == tzNameDec) {
@@ -390,7 +390,7 @@ function guessSystemTimezone() {
 
         if (offsetJun == standardTZOffset && offsetDec == daylightTZOffset &&
             daylight) {
-            let dateMatchWt = systemTZMatchesTimeShiftDates(tz, subComp);
+            let dateMatchWt = systemTZMatchesTimeShiftDates(timezone, subComp);
             if (dateMatchWt > 0) {
                 if (standardName && standardName == tzNameJun &&
                     daylightName && daylightName == tzNameDec) {
@@ -404,18 +404,18 @@ function guessSystemTimezone() {
     }
 
     // returns 2=match-within-hours, 1=match-within-week, 0=no-match
-    function systemTZMatchesTimeShiftDates(tz, subComp) {
+    function systemTZMatchesTimeShiftDates(timezone, subComp) {
         // Verify local autumn and spring shifts also occur in system timezone
         // (jsDate) on correct date in correct direction.
         // (Differs for northern/southern hemisphere.
         //  Local autumn shift is to local winter STANDARD time.
         //  Local spring shift is to local summer DAYLIGHT time.)
         const autumnShiftJSDate =
-            findCurrentTimePeriod(tz, subComp, "STANDARD", true);
+            findCurrentTimePeriod(timezone, subComp, "STANDARD", true);
         const afterAutumnShiftJSDate = new Date(autumnShiftJSDate);
         const beforeAutumnShiftJSDate = new Date(autumnShiftJSDate);
         const springShiftJSDate =
-            findCurrentTimePeriod(tz, subComp, "DAYLIGHT", true);
+            findCurrentTimePeriod(timezone, subComp, "DAYLIGHT", true);
         const beforeSpringShiftJSDate = new Date(springShiftJSDate);
         const afterSpringShiftJSDate = new Date(springShiftJSDate);
         // Try with 6 HOURS fuzz in either direction, since OS and ZoneInfo
@@ -430,10 +430,11 @@ function guessSystemTimezone() {
              afterSpringShiftJSDate.getTimezoneOffset())) {
             return 2;
         }
-        // Try with 7 DAYS fuzz in either direction, so if no other tz found,
-        // will have a nearby tz that disagrees only on the weekday of shift
-        // (sunday vs. friday vs. calendar day), or off by exactly one week,
-        // (e.g., needed to guess Africa/Cairo on w2k in 2006).
+        // Try with 7 DAYS fuzz in either direction, so if no other timezone
+        // found, will have a nearby timezone that disagrees only on the
+        // weekday of shift (sunday vs. friday vs. calendar day), or off by
+        // exactly one week, (e.g., needed to guess Africa/Cairo on w2k in
+        // 2006).
         beforeAutumnShiftJSDate.setDate(autumnShiftJSDate.getDate() - 7);
         afterAutumnShiftJSDate.setDate(autumnShiftJSDate.getDate() + 7);
         afterSpringShiftJSDate.setDate(afterSpringShiftJSDate.getDate() + 7);
@@ -455,7 +456,7 @@ function guessSystemTimezone() {
     const periodCalRule = cal.createRecurrenceRule();
     const untilRegex = /UNTIL=(\d{8}T\d{6}Z)/;
 
-    function findCurrentTimePeriod(tz, subComp, standardOrDaylight,
+    function findCurrentTimePeriod(timezone, subComp, standardOrDaylight,
                                    isForNextTransitionDate) {
         // Iterate through 'STANDARD' declarations or 'DAYLIGHT' declarations
         // (periods in history with different settings.
@@ -465,7 +466,7 @@ function guessSystemTimezone() {
         // not later than today and no UNTIL, or UNTIL is greater than today.
         for (let period of cal.ical.subcomponentIterator(subComp, standardOrDaylight)) {
             periodStartCalDate.icalString = getIcalString(period, "DTSTART");
-            periodStartCalDate.timezone = tz;
+            periodStartCalDate.timezone = timezone;
             if (oneYrUTC.nativeTime < periodStartCalDate.nativeTime) {
                 continue; // period starts too far in future
             }
@@ -567,9 +568,9 @@ function guessSystemTimezone() {
         }
     }
 
-    function weekday(icsDate, tz) {
+    function weekday(icsDate, timezone) {
         let calDate = cal.createDateTime(icsDate);
-        calDate.timezone = tz;
+        calDate.timezone = timezone;
         return cal.dateTimeToJsDate(calDate).toLocaleFormat("%a");
     }
 
@@ -765,24 +766,24 @@ function guessSystemTimezone() {
             break;
         case 1: case 2:
             let tzId = probableTZId;
-            let tz = tzSvc.getTimezone(tzId);
-            let subComp = tz.icalComponent;
-            let standard = findCurrentTimePeriod(tz, subComp, "STANDARD");
+            let timezone = tzSvc.getTimezone(tzId);
+            let subComp = timezone.icalComponent;
+            let standard = findCurrentTimePeriod(timezone, subComp, "STANDARD");
             let standardTZOffset = getIcalString(standard, "TZOFFSETTO");
-            let daylight = findCurrentTimePeriod(tz, subComp, "DAYLIGHT");
+            let daylight = findCurrentTimePeriod(timezone, subComp, "DAYLIGHT");
             let daylightTZOffset = getIcalString(daylight, "TZOFFSETTO");
             let warningDetail;
             if (probableTZScore == 1) {
                 // score 1 means has daylight time,
                 // but transitions start on different weekday from os timezone.
                 let standardStart = getIcalString(standard, "DTSTART");
-                let standardStartWeekday = weekday(standardStart, tz);
+                let standardStartWeekday = weekday(standardStart, timezone);
                 let standardRule = getIcalString(standard, "RRULE");
                 let standardText =
                     "  Standard: " + standardStart + " " + standardStartWeekday + "\n" +
                     "            " + standardRule + "\n";
                 let daylightStart = getIcalString(daylight, "DTSTART");
-                let daylightStartWeekday = weekday(daylightStart, tz);
+                let daylightStartWeekday = weekday(daylightStart, timezone);
                 let daylightRule = getIcalString(daylight, "RRULE");
                 let daylightText =
                     "  Daylight: " + daylightStart + " " + daylightStartWeekday + "\n" +
