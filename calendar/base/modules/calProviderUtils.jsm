@@ -8,6 +8,7 @@ Components.utils.import("resource://calendar/modules/calAuthUtils.jsm");
 Components.utils.import("resource://gre/modules/Services.jsm");
 Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 Components.utils.import("resource://gre/modules/Preferences.jsm");
+Components.utils.import("resource:///modules/iteratorUtils.jsm");
 
 /*
  * Provider helper code
@@ -255,43 +256,40 @@ cal.getEmailIdentityOfCalendar = function(aCalendar, outAccount) {
         }
         return identity;
     } else { // take default account/identity:
-        let accounts = MailServices.accounts.accounts;
-        let account = null;
-        let identity = null;
-        try {
-            account = MailServices.accounts.defaultAccount;
-        } catch (exc) {
-            // If no default account can be found that is fine
-        }
+        let findIdentity = function(account) {
+            if (account && account.identities.length) {
+                return account.defaultIdentity ||
+                       account.identities.queryElementAt(0, Components.interfaces.nsIMsgIdentity);
+            }
+            return null;
+        };
 
-        for (let i = 0; accounts && (i < accounts.length) && (!account || !identity); ++i) {
-            if (!account) { // Pick an account only if none was set (i.e there is no default account)
-                try {
-                  account = accounts.queryElementAt(i, Components.interfaces.nsIMsgAccount);
-                } catch (exc) {
-                  account = null;
+        let foundAccount = (function() {
+            try {
+                return MailServices.accounts.defaultAccount;
+            } catch (e) {
+                return null;
+            }
+        })();
+        let foundIdentity = findIdentity(foundAccount);
+
+        if (!foundAccount || !foundIdentity) {
+            let accounts = MailServices.accounts.accounts;
+            for (let account of fixIterator(accounts, Components.interfaces.nsIMsgAccount)) {
+                let identity = findIdentity(account);
+
+                if (account && identity) {
+                    foundAccount = account;
+                    foundIdentity = identity;
+                    break;
                 }
             }
-
-            if (account && account.identities.length) { // Pick an identity
-                identity = account.defaultIdentity;
-                if (!identity) { // there is no default identity, use the first
-                    identity = account.identities.queryElementAt(0, Components.interfaces.nsIMsgIdentity);
-                }
-            } else { // If this account has no identities, continue to the next account.
-                account = null;
-            }
         }
 
-        if (identity) {
-            // If an identity was set above, set the account out parameter
-            // and return the identity
-            if (outAccount) {
-                outAccount.value = account;
-            }
-            return identity;
+        if (outAccount) {
+            outAccount.value = foundIdentity ? foundAccount : null;
         }
-        return null;
+        return foundIdentity;
     }
 };
 
