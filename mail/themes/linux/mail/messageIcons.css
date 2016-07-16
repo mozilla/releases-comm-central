@@ -1,0 +1,146 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+/* ::::: message column icons ::::: */
+
+treecol.treecol-image:hover:active {
+  padding-inline-start: 1px;
+}
+
+/* ..... column picker ..... */
+
+.tree-columnpicker-icon  {
+  list-style-image: url(chrome://messenger/skin/icons/columnpicker.svg);
+}
+
+/* ..... thread column ..... */
+
+.threadColumnHeader {
+  list-style-image: url(chrome://messenger/skin/icons/thread-col.svg);
+  padding-inline-end: 1px;
+}
+
+treechildren::-moz-tree-image(threadCol, container) {
+  list-style-image: url(chrome://messenger/skin/icons/thread.png);
+}
+
+treechildren::-moz-tree-image(threadCol, watch) {
+  list-style-image: url(chrome://messenger/skin/icons/thread-watched.png);
+}
+
+treechildren::-moz-tree-image(threadCol, ignore) {
+  list-style-image: url(chrome://messenger/skin/icons/thread-ignored.png);
+}
+
+treechildren::-moz-tree-image(threadCol, ignoreSubthread) {
+  list-style-image: url(chrome://messenger/skin/icons/message-ignored.png);
+}
+
+/* ..... read column ..... */
+
+.readColumnHeader {
+  list-style-image: url(chrome://messenger/skin/icons/readcol.svg);
+  padding-inline-end: 3px;
+}
+
+treechildren::-moz-tree-image(unreadButtonColHeader) {
+  list-style-image: url(chrome://messenger/skin/icons/message-list.png);
+  -moz-image-region: rect(0 16px 16px 0);
+}
+
+treechildren::-moz-tree-image(unreadButtonColHeader, unread) {
+  -moz-image-region: rect(16px 16px 32px 0);
+}
+
+/* ..... attachment column ..... */
+
+.attachmentColumnHeader {
+  list-style-image: url(chrome://messenger/skin/icons/attachment-col.svg);
+  padding-inline-end: 3px;
+}
+
+treechildren::-moz-tree-image(attachmentCol, attach) {
+  list-style-image: url(chrome://messenger/skin/icons/message-list.png);
+  -moz-image-region: rect(160px 16px 176px 0);
+  padding-inline-start: 2px;
+}
+
+/* ..... flag column ..... */
+
+.flagColumnHeader {
+  list-style-image: url(chrome://messenger/skin/icons/flag-col.svg);
+  padding-inline-end: 3px;
+}
+
+treechildren::-moz-tree-image(flaggedCol) {
+  list-style-image: url(chrome://messenger/skin/icons/message-list.png);
+  -moz-image-region: rect(96px 16px 112px 0);
+  padding-inline-end: 3px;
+}
+
+treechildren::-moz-tree-image(flaggedCol, flagged) {
+  -moz-image-region: rect(80px 16px 96px 0);
+  padding-inline-end: 3px;
+}
+
+/* ..... junkStatus column ..... */
+
+.junkStatusHeader {
+  list-style-image: url(chrome://messenger/skin/icons/junk-col.svg);
+}
+
+/* "unknown" now looks like "not junk".  see bug #182386 */
+treechildren::-moz-tree-image(junkStatusCol) {
+  list-style-image: url(chrome://messenger/skin/icons/message-list.png);
+  -moz-image-region: rect(48px 16px 64px 0);
+  padding-inline-start: 0;
+}
+
+treechildren::-moz-tree-image(junkStatusCol, junk) {
+  -moz-image-region: rect(32px 16px 48px 0);
+}
+
+treechildren::-moz-tree-image(junkStatusCol, notjunk) {
+  -moz-image-region: rect(48px 16px 64px 0);
+}
+
+/* ..... subject column ..... */
+
+#subjectCol {
+  padding-inline-start: 16px;
+}
+
+#subjectCol[primary="true"] {
+  padding-inline-start: 26px;
+}
+
+treechildren::-moz-tree-image(subjectCol) {
+  margin-inline-end: 2px;
+  list-style-image: url(chrome://messenger/skin/icons/message-list.png);
+  -moz-image-region: rect(176px 16px 192px 0);
+}
+
+treechildren::-moz-tree-image(subjectCol, forwarded) {
+  -moz-image-region: rect(128px 16px 144px 0);
+}
+
+treechildren::-moz-tree-image(subjectCol, replied) {
+  -moz-image-region: rect(112px 16px 128px 0);
+}
+
+treechildren::-moz-tree-image(subjectCol, replied, forwarded) {
+  -moz-image-region: rect(144px 16px 160px 0);
+}
+
+treechildren::-moz-tree-image(subjectCol, new) {
+  -moz-image-region: rect(64px 16px 80px 0);
+}
+
+/* IMPORTANT: make sure the imap-deleted column always comes after the replied/forwarded style rules.
+   This ensures that we show that the message is marked as deleted over status information. */
+
+treechildren::-moz-tree-image(subjectCol, imapdeleted) {
+  list-style-image: url(chrome://messenger/skin/icons/message.png);
+  -moz-image-region: rect(0 80px 16px 64px);
+}
