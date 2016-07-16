@@ -744,7 +744,7 @@
 <rdf:Description about="#cust-toolbar">
     <nc:subheadings>
       <rdf:Seq>
-        <rdf:li> <rdf:Description ID="cust-main" nc:name="Menu Bar"  nc:link="customize_help.xhtml#menu_bar"/> </rdf:li>
+        <rdf:li> <rdf:Description ID="cust-menu" nc:name="Menu Bar"  nc:link="customize_help.xhtml#menu_bar"/> </rdf:li>
         <rdf:li> <rdf:Description ID="cust-main" nc:name="Navigation Toolbar"  nc:link="customize_help.xhtml#navigation_toolbar"/> </rdf:li>
         <rdf:li> <rdf:Description ID="cust-personal" nc:name="Personal Toolbar"  nc:link="customize_help.xhtml#personal_toolbar"/> </rdf:li>
         <rdf:li> <rdf:Description ID="cust-status" nc:name="Status Bar"  nc:link="customize_help.xhtml#status_bar"/> </rdf:li>
