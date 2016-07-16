@@ -35,8 +35,7 @@ XMPPProtocol.prototype = {
   ],
 
   options: {
-    resource: {get label() { return _("options.resource"); },
-               get default() { return XMPPDefaultResource; }},
+    resource: {get label() { return _("options.resource"); }, default: ""},
     priority: {get label() { return _("options.priority"); }, default: 0},
     connection_security: {
       get label() { return _("options.connectionSecurity"); },

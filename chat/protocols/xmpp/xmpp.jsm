@@ -1229,12 +1229,14 @@ var XMPPAccountPrototype = {
     this._jid = this._parseJID(this.name);
 
     // For the resource, if the user has edited the option, always use that.
-    // If that would set an empty resource, XMPPSession will fallback to
-    // XMPPDefaultResource (set to brandShortName).
-    // If no resource is set by the user, the pref getter will return a
-    // default value.
-    if (this.prefs.prefHasUserValue("resource") || !this._jid.resource)
-      this._jid.resource = this.getString("resource");
+    if (this.prefs.prefHasUserValue("resource")) {
+      let resource = this.getString("resource");
+
+      // this._jid needs to be updated. This value is however never used
+      // because while connected it's the jid of the session that's
+      // interesting.
+      this._jid = this._setJID(this._jid.domain, this._jid.node, resource);
+    }
     else if (this._jid.resource) {
       // If there is a resource in the account name (inherited from libpurple),
       // migrate it to the pref so it appears correctly in the advanced account
@@ -1244,10 +1246,6 @@ var XMPPAccountPrototype = {
       str.data = this._jid.resource;
       this.prefs.setComplexValue("resource", Ci.nsISupportsString, str);
     }
-
-    //FIXME if we have changed this._jid.resource, then this._jid.jid
-    // needs to be updated. This value is however never used because
-    // while connected it's the jid of the session that's interesting.
 
     this._connection =
       new XMPPSession(this.getString("server") || this._jid.domain,
@@ -2076,6 +2074,21 @@ var XMPPAccountPrototype = {
       node: match[1],
       domain: match[2].toLowerCase(),
       resource: match[3]
+    };
+    return this._setJID(result.domain, result.node, result.resource);
+  },
+
+  // Constructs jid as an object from domain, node and resource parts.
+  // The object has properties (node, domain, resource and jid).
+  // aDomain is required, but aNode and aResource are optional.
+  _setJID: function(aDomain, aNode = null, aResource = null) {
+    if (!aDomain)
+      throw "aDomain must have a vaule";
+
+    let result = {
+      node: aNode,
+      domain: aDomain.toLowerCase(),
+      resource: aResource
     };
     let jid = result.domain;
     if (result.node) {

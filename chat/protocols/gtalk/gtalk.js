@@ -55,24 +55,11 @@ GTalkAccount.prototype = {
       this.authMechanisms = {PLAIN: PlainFullBindAuth};
     }
 
-    // For the resource, if the user has edited the option to a non
-    // empty value, use that.
+    // For the resource, if the user has edited the option, always use that.
     if (this.prefs.prefHasUserValue("resource")) {
       let resource = this.getString("resource");
-      if (resource)
-        this._jid.resource = resource;
+      this._jid = this._setJID(this._jid.domain, this._jid.node, resource);
     }
-    // Otherwise, if the username doesn't contain a resource, use the
-    // value of the resource option (it will be the default value).
-    // If we set an empty resource, XMPPSession will fallback to
-    // XMPPDefaultResource (set to brandShortName).
-    if (!this._jid.resource)
-      this._jid.resource = this.getString("resource");
-
-    let jid = this._jid.node + "@" + this._jid.domain;
-    if (this._jid.resource)
-      jid += "/" + this._jid.resource;
-    this._jid.jid = jid;
 
     this._connection =
       new XMPPSession("talk.google.com", 443,
@@ -93,8 +80,7 @@ GTalkProtocol.prototype = {
   get usernameEmptyText() { return _("gtalk.usernameHint"); },
   getAccount: function(aImAccount) { return new GTalkAccount(this, aImAccount); },
   options: {
-    resource: {get label() { return _("options.resource"); },
-               get default() { return XMPPDefaultResource; }}
+    resource: {get label() { return _("options.resource"); }, default: ""}
   },
   get chatHasTopic() { return true; },
   classID: Components.ID("{38a224c1-6748-49a9-8ab2-efc362b1000d}")

@@ -43,8 +43,7 @@ function XMPPSession(aHost, aPort, aSecurity, aJID, aPassword, aAccount) {
   this._domain = aJID.domain;
   this._password = aPassword;
   this._account = aAccount;
-
-  this._resource = aJID.resource || XMPPDefaultResource;
+  this._resource = aJID.resource;
   this._handlers = new Map();
   this._account.reportConnecting();
 
@@ -266,6 +265,16 @@ XMPPSession.prototype = {
     this.sendStanza(s);
   },
 
+  // If aResource is null, it will request to bind a server-generated
+  // resourcepart, otherwise request to bind a client-submitted resourcepart.
+  _requestBind: function(aResource) {
+    let resourceNode =
+      aResource ? Stanza.node("resource", null, null, aResource) : null;
+    this.sendStanza(Stanza.iq("set", null, null,
+                              Stanza.node("bind", Stanza.NS.bind, null,
+                                          resourceNode)));
+  },
+
   /* Socket events */
   /* The connection is established */
   onConnection: function() {
@@ -471,13 +480,39 @@ XMPPSession.prototype = {
       }
 
       this._account.reportConnecting(_("connection.gettingResource"));
-      this.sendStanza(Stanza.iq("set", null, null,
-                                Stanza.node("bind", Stanza.NS.bind, null,
-                                            Stanza.node("resource", null, null,
-                                                        this._resource))));
+      this._requestBind(this._resource);
       this.onXmppStanza = this.stanzaListeners.bindResult;
     },
     bindResult: function(aStanza) {
+      if (aStanza.attributes["type"] == "error") {
+        let error = this._account.parseError(aStanza);
+        let message;
+        switch (error.condition) {
+          case "resource-constraint":
+            // RFC 6120 (7.6.2.1): Resource Constraint.
+            // The account has reached a limit on the number of simultaneous
+            // connected resources allowed.
+            message = "connection.error.failedMaxResourceLimit";
+            break;
+          case "bad-request":
+            // RFC 6120 (7.7.2.1): Bad Request.
+            // The provided resourcepart cannot be processed by the server.
+            message = "connection.error.failedResourceNotValid";
+            break;
+          case "conflict":
+            // RFC 6120 (7.7.2.2): Conflict.
+            // The provided resourcepart is already in use and the server
+            // disallowed the resource binding attempt.
+            this._requestBind();
+            return;
+          default:
+            this.WARN(`Unhandled bind result error ${error.condition}.`);
+            message = "connection.error.failedToGetAResource";
+        }
+        this._networkError(_(message));
+        return;
+      }
+
       let jid = aStanza.getElement(["bind", "jid"]);
       if (!jid) {
         this._networkError(_("connection.error.failedToGetAResource"));
@@ -486,6 +521,7 @@ XMPPSession.prototype = {
       jid = jid.innerText;
       this.DEBUG("jid = " + jid);
       this._jid = this._account._parseJID(jid);
+      this._resource = this._jid.resource;
       this.startSession();
     },
     legacyAuth: function(aStanza) {
@@ -539,6 +575,15 @@ XMPPSession.prototype = {
       if (!("username" in values) || !("resource" in values)) {
         this._networkError(_("connection.error.incorrectResponse"));
         return;
+      }
+
+
+      // If the resource is empty, we will fallback to XMPPDefaultResource
+      // (set to brandShortName) as resource is REQUIRED.
+      if (!this._resource) {
+        this._resource = XMPPDefaultResource;
+        this._jid =
+          this._setJID(this._jid.domain, this._jid.node, this._resource);
       }
 
       let children = [

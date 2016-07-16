@@ -21,6 +21,8 @@ OdnoklassnikiAccount.prototype = {
   get canJoinChat() { return false; },
   connect: function() {
     if (!this.name.includes("@")) {
+      // TODO: Do not use the default resource value if the user has not
+      // specified it and let the service generate it.
       let jid = this.name + "@odnoklassniki.ru/" + XMPPDefaultResource;
       this._jid = this._parseJID(jid);
     }
