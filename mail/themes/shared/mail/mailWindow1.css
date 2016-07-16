@@ -25,6 +25,12 @@
   text-align: right;
 }
 
+#folderUnreadCol:-moz-locale-dir(rtl),
+#folderTotalCol:-moz-locale-dir(rtl),
+#folderSizeCol:-moz-locale-dir(rtl) {
+  text-align: left;
+}
+
 #folderNameCol [sortDirection="ascending"],
 #folderNameCol [sortDirection="descending"] {
   list-style-image: none;
@@ -87,6 +93,12 @@ treechildren::-moz-tree-image(correspondentCol) {
 #unreadCol,
 #totalCol {
   text-align: right;
+}
+
+#sizeCol:-moz-locale-dir(rtl),
+#unreadCol:-moz-locale-dir(rtl),
+#totalCol:-moz-locale-dir(rtl) {
+  text-align: left;
 }
 
 /* ..... message pane adjustments ..... */

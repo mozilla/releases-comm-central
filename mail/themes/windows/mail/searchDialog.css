@@ -8,6 +8,7 @@
 
 @import url("chrome://messenger/skin/");
 @import url("chrome://messenger/skin/tagColors.css");
+@import url("chrome://messenger/skin/messageIcons.css");
 
 @namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
 
@@ -48,8 +49,8 @@ textbox {
 
 .small-button {
   min-width: 3em;
-  padding: 0px;
-  margin: 0px 1px;
+  padding: 0;
+  margin: 0 1px;
 }
 
 /* ::::: thread decoration ::::: */
@@ -67,183 +68,4 @@ treechildren::-moz-tree-cell-text(unread) {
  */
 treechildren::-moz-tree-cell-text(container, closed, hasUnread, read) {
   text-decoration: underline;
-}
-
-/* ::::: message column icons ::::: */
-
-/* ..... column picker ..... */
-
-.tree-columnpicker-icon  {
-  list-style-image: url("chrome://messenger/skin/icons/columnpicker.svg");
-}
-
-/* ..... thread column ..... */
-
-.threadColumnHeader {
-  list-style-image: url("chrome://messenger/skin/icons/thread-col.svg");
-  padding-inline-end: 3px;
-}
-
-.threadColumnHeader[sortDirection="ascending"]  {
-  list-style-image: url("chrome://messenger/skin/icons/thread-col-sorta.png");
-}
-
-.threadColumnHeader[sortDirection="descending"] {
-  list-style-image: url("chrome://messenger/skin/icons/thread-col-sortd.png");
-}
-
-treechildren::-moz-tree-image(threadCol, container) {
-  list-style-image: url("chrome://messenger/skin/icons/thread.png");
-}
-
-/* ..... read column ..... */
-
-.readColumnHeader {
-  list-style-image: url("chrome://messenger/skin/icons/readcol.svg");
-  padding-inline-end: 5px;
-  padding-bottom: 5px;
-}
-
-treechildren::-moz-tree-image(unreadButtonColHeader) {
-  list-style-image: url("chrome://messenger/skin/icons/readmail.png");
-}
-
-treechildren::-moz-tree-image(unreadButtonColHeader, unread) {
-  list-style-image: url("chrome://messenger/skin/icons/unreadmail.png");
-}
-
-/* ..... attachment column ..... */
-
-.attachmentColumnHeader {
-  list-style-image: url("chrome://messenger/skin/icons/attachment-col.svg");
-  padding-inline-end: 5px;
-}
-
-/* ..... flag column ..... */
-
-.flagColumnHeader {
-  list-style-image: url("chrome://messenger/skin/icons/flag-col.svg");
-  padding-inline-end: 5px;
-}
-
-treechildren::-moz-tree-image(flaggedCol) {
-  list-style-image: url("chrome://messenger/skin/icons/readmail.png");
-}
-
-treechildren::-moz-tree-image(flaggedCol, flagged) {
-  list-style-image: url("chrome://messenger/skin/icons/flag.png");
-}
-
-
-/* ..... junkStatus column ..... */
-
-.junkStatusHeader {
-  list-style-image: url("chrome://messenger/skin/icons/junk-col.svg");
-  padding-inline-end: 5px;
-}
-
-/* "unknown" now looks like "not junk".  see bug #182386 */
-treechildren::-moz-tree-image(junkStatusCol) {
-  list-style-image: url("chrome://messenger/skin/icons/readmail.png");
-  padding-inline-start: 0px;
-}
-
-treechildren::-moz-tree-image(junkStatusCol, junk) {
-  -moz-image-region: rect(0 128px 16px 112px);
-}
-
-treechildren::-moz-tree-image(junkStatusCol, notjunk) {
-  list-style-image: url("chrome://messenger/skin/icons/readmail.png");
-  padding-inline-start: 0px;
-}
-
-/* ..... subject column ..... */
-
-@media (-moz-os-version: windows-xp) {
-  #subjectCol {
-    padding-inline-start: 17px;
-  }
-
-  #subjectCol[primary="true"] {
-    padding-inline-start: 30px;
-  }
-
-  treechildren::-moz-tree-image(subjectCol) {
-    list-style-image: url("chrome://messenger/skin/icons/message-XP.png");
-  }
-
-  treechildren::-moz-tree-image(junkStatusCol, junk) {
-    list-style-image: url("chrome://messenger/skin/icons/folder-XP.png");
-  }
-
-  treechildren::-moz-tree-image(attachmentCol, attach) {
-    list-style-image: url("chrome://messenger/skin/icons/attachment-col-XP.png");
-  }
-}
-
-@media not all and (-moz-os-version: windows-xp) {
-  #subjectCol {
-    padding-inline-start: 20px;
-  }
-
-  #subjectCol[primary="true"] {
-    padding-inline-start: 30px;
-  }
-
-  @media not all and (-moz-windows-default-theme) {
-    #subjectCol {
-      padding-inline-start: 17px;
-    }
-
-    #subjectCol[primary="true"] {
-      padding-inline-start: 27px;
-    }
-  }
-
-  treechildren::-moz-tree-image(subjectCol) {
-    list-style-image: url("chrome://messenger/skin/icons/message.png");
-  }
-
-  treechildren::-moz-tree-image(junkStatusCol, junk) {
-    list-style-image: url("chrome://messenger/skin/icons/folder.png");
-  }
-
-  treechildren::-moz-tree-image(attachmentCol, attach) {
-    list-style-image: url("chrome://messenger/skin/icons/attachment-col.png");
-  }
-}
-
-treechildren::-moz-tree-image(subjectCol) {
-  margin-inline-end: 2px;
-  -moz-image-region: rect(0 16px 16px 0);
-}
-
-treechildren::-moz-tree-image(subjectCol, forwarded) {
-  -moz-image-region: rect(0 48px 16px 32px);
-}
-
-treechildren::-moz-tree-image(subjectCol, replied) {
-  -moz-image-region: rect(0 32px 16px 16px);
-}
-
-treechildren::-moz-tree-image(subjectCol, replied, forwarded) {
-  -moz-image-region: rect(0 64px 16px 48px);
-}
-
-treechildren::-moz-tree-image(subjectCol, new) {
-  -moz-image-region: rect(0 96px 16px 80px);
-}
-
-treechildren::-moz-tree-image(subjectCol, imapdeleted) {
-  -moz-image-region: rect(0 80px 16px 64px);
-}
-
-treechildren::-moz-tree-cell-text(subjectCol) {
-  padding-inline-start: 0 !important;
-}
-
-#sizeCol,
-#unreadCol,
-#totalCol {
-  text-align: right;
 }
