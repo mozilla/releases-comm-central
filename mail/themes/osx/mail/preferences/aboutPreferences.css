@@ -75,3 +75,8 @@ filefield + button {
 #CookiesDialog > hbox > .actionButtons {
   padding-bottom: 10px;
 }
+
+#defaultWebSearchPopup > menuitem > .menu-iconic-left {
+  margin-inline-start: 5px;
+  margin-inline-end: 3px;
+}

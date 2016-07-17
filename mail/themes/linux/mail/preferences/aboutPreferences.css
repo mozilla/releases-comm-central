@@ -54,3 +54,7 @@ filefield + button {
 #dialogTitle {
   font-size: 1.05em;
 }
+
+#defaultWebSearchPopup > menuitem > .menu-iconic-left {
+  margin-inline-start: 5px !important;
+}

@@ -44,6 +44,13 @@
     padding-top: 5px;
     min-width: 80px;
   }
+
+  @media (-moz-windows-default-theme) {
+    menulist > .menulist-label-box > .menulist-icon[src] {
+      margin-inline-start: 7px;
+      margin-inline-end: 10px;
+    }
+  }
 }
 
 @media (-moz-os-version: windows-xp) {

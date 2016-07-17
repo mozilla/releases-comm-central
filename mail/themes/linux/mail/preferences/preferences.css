@@ -32,6 +32,15 @@ radio[pane=paneAdvanced] {
   list-style-image: url("chrome://messenger/skin/preferences/advanced.png");
 }
 
+menulist > .menulist-label-box > .menulist-icon[src] {
+  margin-inline-start: 5px;
+  margin-inline-end: 5px;
+}
+
+menulist > menupopup > menuitem > .menu-iconic-left {
+  margin-inline-end: 5px !important;
+}
+
 /* Attachments Pane */
 #MailPreferences[animated="true"] #handlersView {
   height: 25em;

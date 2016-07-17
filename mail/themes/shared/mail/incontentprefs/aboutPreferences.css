@@ -45,6 +45,12 @@ caption > label {
   line-height: 22px;
 }
 
+/* Web search menulist */
+#defaultWebSearch > .menulist-label-box > .menulist-icon[src] {
+  margin-inline-start: 5px;
+  margin-inline-end: 8px;
+}
+
 /* Category List */
 
 .paneSelector {
