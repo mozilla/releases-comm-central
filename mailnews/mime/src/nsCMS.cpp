@@ -9,7 +9,6 @@
 #include "cms.h"
 #include "CryptoTask.h"
 #include "nsArrayUtils.h"
-#include "nsCertVerificationThread.h"
 #include "nsIArray.h"
 #include "nsICMSMessageErrors.h"
 #include "nsICryptoHash.h"
