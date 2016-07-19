@@ -37,8 +37,8 @@ static HeaderInfo kHeaders[] = {
   { "To", true },
   { "Cc", true },
   { "Bcc", true },
-  { nullptr, false },
-  { nullptr, false },
+  { nullptr, false }, // FCC
+  { nullptr, false }, // FCC2
   { "Newsgroups", true },
   { "Followup-To", true },
   { "Subject", false },
@@ -46,10 +46,11 @@ static HeaderInfo kHeaders[] = {
   { "References", true },
   { "X-Mozilla-News-Host", false },
   { "X-Priority", false },
-  { nullptr, false },
+  { nullptr, false }, // CHARACTER_SET
   { "Message-Id", true },
   { "X-Template", true },
-  { nullptr, false }
+  { nullptr, false }, // DRAFT_ID
+  { "Content-Language", true }
 };
 
 static_assert(MOZ_ARRAY_LENGTH(kHeaders) ==
@@ -428,6 +429,18 @@ NS_IMETHODIMP nsMsgCompFields::GetDeliveryFormat(int32_t *_retval)
   NS_ENSURE_ARG_POINTER(_retval);
   *_retval = m_deliveryFormat;
   return NS_OK;
+}
+
+NS_IMETHODIMP nsMsgCompFields::SetContentLanguage(const char *value)
+{
+  return SetAsciiHeader(MSG_CONTENT_LANGUAGE_ID, value);
+}
+
+NS_IMETHODIMP nsMsgCompFields::GetContentLanguage(char **_retval)
+{
+  NS_ENSURE_ARG_POINTER(_retval);
+  *_retval = strdup(GetAsciiHeader(MSG_CONTENT_LANGUAGE_ID));
+  return *_retval ? NS_OK : NS_ERROR_OUT_OF_MEMORY;
 }
 
 NS_IMETHODIMP nsMsgCompFields::SetForcePlainText(bool value)

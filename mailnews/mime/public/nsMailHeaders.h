@@ -22,6 +22,7 @@
 #define HEADER_CONTENT_DESCRIPTION          "Content-Description"
 #define HEADER_CONTENT_DISPOSITION          "Content-Disposition"
 #define HEADER_CONTENT_ENCODING              "Content-Encoding"
+#define HEADER_CONTENT_LANGUAGE              "Content-Language"
 #define HEADER_CONTENT_LENGTH                "Content-Length"
 #define HEADER_CONTENT_NAME                  "Content-Name"
 #define HEADER_CONTENT_TRANSFER_ENCODING    "Content-Transfer-Encoding"

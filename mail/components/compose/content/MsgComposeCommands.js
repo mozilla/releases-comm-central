@@ -2106,8 +2106,9 @@ function AttachmentsChanged() {
 }
 
 /**
- * This functions retrieves the spellchecker dictionary from the corresponding
- * preference and ensures that such a dictionary in fact exists. If not, it
+ * This functions returns a valid spellcheck language. It checks that a
+ * dictionary exists for the language passed in, if any. It also retrieves the
+ * corresponding preference and ensures that a dictionary exists. If not, it
  * adjusts the preference accordingly.
  * When the nominated dictionary does not exist, the effects are very confusing
  * to the user: Inline spell checking does not work, although the option is
@@ -2120,7 +2121,7 @@ function AttachmentsChanged() {
  *    so for example "it_IT" changes to "it-IT" and the previously stored
  *    preference value doesn't apply any more.
  */
-function getValidSpellcheckerDictionary() {
+function getValidSpellcheckerDictionary(draftLanguage) {
   let prefValue = Services.prefs.getCharPref("spellchecker.dictionary");
   let spellChecker = Components.classes["@mozilla.org/spellchecker/engine;1"]
                                .getService(mozISpellCheckingEngine);
@@ -2133,6 +2134,11 @@ function getValidSpellcheckerDictionary() {
   if (count == 0) {
     // If there are no dictionaries, we can't check the value, so return it.
     return prefValue;
+  }
+
+  // Make sure that the draft language contains a valid value.
+  if (draftLanguage && dictList.includes(draftLanguage)) {
+    return draftLanguage;
   }
 
   // Make sure preference contains a valid value.
@@ -2258,6 +2264,13 @@ function ComposeStartup(aParams)
     mutations.forEach(function(mutation) {
       if (mutation.type == "attributes" && mutation.attributeName == "lang") {
         updateLanguageInStatusBar();
+
+        // Update the language in the composition fields, so we can save it
+        // to the draft next time.
+        if (gMsgCompose && gMsgCompose.compFields) {
+          gMsgCompose.compFields.contentLanguage =
+            document.documentElement.getAttribute("lang");
+        }
       }
     });
   });
@@ -2265,10 +2278,6 @@ function ComposeStartup(aParams)
 
   // Observe dictionary removals.
   dictionaryRemovalObserver.addObserver();
-
-  // Set document language to the preference as early as possible.
-  let languageToSet = getValidSpellcheckerDictionary();
-  document.documentElement.setAttribute("lang", languageToSet);
 
   var identityList = document.getElementById("msgIdentity");
 
@@ -2391,6 +2400,15 @@ function ComposeStartup(aParams)
   gSendFormat = gMsgCompose.compFields.deliveryFormat;
   SetCompositionAsPerDeliveryFormat(gSendFormat);
   SelectDeliveryFormatMenuOption(gSendFormat);
+
+  // Set document language to the draft language or the preference.
+  let draftLanguage = null;
+  if (gComposeType == nsIMsgCompType.Draft && gMsgCompose.compFields.contentLanguage) {
+    draftLanguage = gMsgCompose.compFields.contentLanguage;
+  }
+
+  let languageToSet = getValidSpellcheckerDictionary(draftLanguage);
+  document.documentElement.setAttribute("lang", languageToSet);
 
   let editortype = gMsgCompose.composeHTML ? "htmlmail" : "textmail";
   editorElement.makeEditable(editortype, true);

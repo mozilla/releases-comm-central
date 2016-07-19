@@ -1115,6 +1115,7 @@ mime_parse_stream_complete (nsMIMESession *stream)
   char *foll = 0;
   char *priority = 0;
   char *draftInfo = 0;
+  char *contentLanguage = 0;
   char *identityKey = 0;
 
   bool forward_inline = false;
@@ -1240,6 +1241,11 @@ mime_parse_stream_complete (nsMIMESession *stream)
       org, subj, refs, priority, news_host,
       mdd->mailcharset,
       getter_AddRefs(fields));
+
+    contentLanguage = MimeHeaders_get(mdd->headers, HEADER_CONTENT_LANGUAGE, false, false);
+    if (contentLanguage) {
+      fields->SetContentLanguage(contentLanguage);
+    }
 
     draftInfo = MimeHeaders_get(mdd->headers, HEADER_X_MOZILLA_DRAFT_INFO, false, false);
 

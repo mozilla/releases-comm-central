@@ -62,6 +62,7 @@ public:
     MSG_MESSAGE_ID_HEADER_ID,
     MSG_X_TEMPLATE_HEADER_ID,
     MSG_DRAFT_ID_HEADER_ID,
+    MSG_CONTENT_LANGUAGE_ID,
 
     MSG_MAX_HEADERS   //Must be the last one.
   } MsgHeaderID;
@@ -125,6 +126,8 @@ public:
   const char* GetTemplateName() {return GetAsciiHeader(MSG_X_TEMPLATE_HEADER_ID);}
 
   const char* GetDraftId() {return GetAsciiHeader(MSG_DRAFT_ID_HEADER_ID);}
+
+  const char* GetContentLanguage() {return GetAsciiHeader(MSG_CONTENT_LANGUAGE_ID);}
 
   bool GetReturnReceipt() {return m_returnReceipt;}
   bool GetDSN() {return m_DSN;}

@@ -53,6 +53,7 @@ interface nsIMsgCompFields : msgIWritableStructuredHeaders {
   /// Delivery format for the mail being composed
   /// (auto = 4, text = 1, html = 2, text and html = 3).
   attribute long deliveryFormat;
+  attribute string contentLanguage;
 
   /**
    * Beware that when setting this property, your body must be properly wrapped,
