@@ -3084,8 +3084,22 @@ function SaveAsTemplate()
   gAutoSaveKickedIn = false;
   gEditingDraft = false;
 
+  let savedPreferences = null;
+  if (gMsgCompose && gMsgCompose.compFields) {
+    // Clear References header. When we use the template, we don't want that
+    // header, yet, "edit as new message" maintains it. So we need to clear
+    // it when saving the template.
+    // Note: The In-Reply-To header is the last entry in the references header,
+    // so it will get cleared as well.
+    savedPreferences = gMsgCompose.compFields.references;
+    gMsgCompose.compFields.references = null;
+  }
+
   GenericSendMessage(nsIMsgCompDeliverMode.SaveAsTemplate);
   defaultSaveOperation = "template";
+
+  if (savedPreferences)
+    gMsgCompose.compFields.references = savedPreferences;
 }
 
 // Sets the additional FCC, in addition to the default FCC.
