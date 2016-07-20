@@ -637,9 +637,19 @@ var messageHeaderSink = {
         return;
 
       let last = currentAttachments[currentAttachments.length - 1];
-      if (field == "X-Mozilla-PartSize" && !last.isExternalAttachment &&
+      if (field == "X-Mozilla-PartSize" && !last.url.startsWith("file") &&
           !last.isDeleted) {
         let size = parseInt(value);
+
+        if (last.isExternalAttachment && last.url.startsWith("http")) {
+          // Check if an external link attachment's reported size is sane.
+          // A size of < 2 isn't sensical so ignore such placeholder values.
+          // Don't accept a size with any non numerics. Also cap the number.
+          if (isNaN(size) || size.toString().length != value.length || size < 2)
+            size = -1;
+          if (size > Number.MAX_SAFE_INTEGER)
+            size = Number.MAX_SAFE_INTEGER;
+        }
 
         // libmime returns -1 if it never managed to figure out the size.
         if (size != -1)
