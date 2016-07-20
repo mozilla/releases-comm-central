@@ -335,6 +335,9 @@ void AllocateImapUidString(uint32_t *msgUids, uint32_t &msgCount,
 void ParseUidString(const char *uidString, nsTArray<nsMsgKey> &keys)
 {
   // This is in the form <id>,<id>, or <id1>:<id2>
+  if (!uidString)
+    return;
+
   char curChar = *uidString;
   bool isRange = false;
   uint32_t curToken;

@@ -4974,10 +4974,13 @@ nsImapMailFolder::NotifyMessageDeleted(const char * onlineFolderName, bool delet
   if (deleteAllMsgs)
     return NS_OK;
 
+  if (!msgIdString)
+    return NS_OK;
+
   nsTArray<nsMsgKey> affectedMessages;
   ParseUidString(msgIdString, affectedMessages);
 
-  if (msgIdString && !ShowDeletedMessages())
+  if (!ShowDeletedMessages())
   {
     GetDatabase();
     NS_ENSURE_TRUE(mDatabase, NS_OK);
@@ -4989,7 +4992,7 @@ nsImapMailFolder::NotifyMessageDeleted(const char * onlineFolderName, bool delet
         mDatabase->DeleteMessages(affectedMessages.Length(), affectedMessages.Elements(), nullptr);
       }
     }
-    else // && !imapDeleteIsMoveToTrash
+    else // && !imapDeleteIsMoveToTrash // TODO: can this ever be executed?
       SetIMAPDeletedFlag(mDatabase, affectedMessages, false);
   }
   return NS_OK;
