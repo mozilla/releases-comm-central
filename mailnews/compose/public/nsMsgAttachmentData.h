@@ -53,7 +53,9 @@ public:
   nsCString m_xMacCreator;
 
   int32_t m_size;                  // The size of the attachment. May be 0.
+  nsCString m_sizeExternalStr;     // The reported size of an external attachment. Originally set at "-1" to mean an unknown value.
   bool    m_isExternalAttachment;  // Flag for determining if the attachment is external
+  bool    m_isExternalLinkAttachment;  // Flag for determining if the attachment is external and an http link.
   bool    m_isDownloaded;          // Flag for determining if the attachment has already been downloaded
   bool    m_hasFilename;           // Tells whether the name is provided by us or if it's a Part 1.2-like attachment
   bool    m_displayableInline;     // Tells whether the attachment could be displayed inline
