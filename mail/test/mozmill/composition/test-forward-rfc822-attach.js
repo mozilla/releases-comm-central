@@ -38,36 +38,6 @@ function setupModule(module) {
                              .getChildNamed("Drafts");
 }
 
-/**
- * Helper to get the full message content.
- *
- * @param aMsgHdr: nsIMsgDBHdr object whose text body will be read
- * @return string with full message source
- */
-function getMsgSource(aMsgHdr) {
-  let msgFolder = aMsgHdr.folder;
-  let msgUri = msgFolder.getUriForMsg(aMsgHdr);
-
-  let messenger = Cc["@mozilla.org/messenger;1"]
-                    .createInstance(Ci.nsIMessenger);
-  let streamListener = Cc["@mozilla.org/network/sync-stream-listener;1"]
-                         .createInstance(Ci.nsISyncStreamListener);
-  messenger.messageServiceFromURI(msgUri).streamMessage(msgUri,
-                                                        streamListener,
-                                                        null,
-                                                        null,
-                                                        false,
-                                                        "",
-                                                        false);
-  let sis = Cc["@mozilla.org/scriptableinputstream;1"]
-              .createInstance(Ci.nsIScriptableInputStream);
-  sis.init(streamListener.inputStream);
-  const MAX_MESSAGE_LENGTH = 65536;
-  let content = sis.read(MAX_MESSAGE_LENGTH);
-  sis.close();
-  return content;
-}
-
 function forwardDirect(aFilePath) {
   let file = os.getFileForPath(os.abspath(aFilePath,
                                os.getFileForPath(__file__)));
@@ -84,7 +54,7 @@ function forwardDirect(aFilePath) {
   be_in_folder(draftsFolder);
   let draftMsg = select_click_row(0);
 
-  let draftMsgContent = getMsgSource(draftMsg);
+  let draftMsgContent = get_msg_source(draftMsg);
 
   if (!draftMsgContent.includes("We like writing long lines.")) {
     assert_true(false, "Failed to find expected text");

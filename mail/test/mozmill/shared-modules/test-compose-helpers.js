@@ -49,6 +49,7 @@ function installInto(module) {
   module.get_compose_body = get_compose_body;
   module.type_in_composer = type_in_composer;
   module.assert_previous_text = assert_previous_text;
+  module.get_msg_source = get_msg_source;
 }
 
 /**
@@ -382,4 +383,42 @@ function assert_previous_text(aStart, aText) {
     }
   }
   return textNode;
+}
+
+/**
+ * Helper to get the raw contents of a message. It only reads the first 64KiB.
+ *
+ * @param aMsgHdr  nsIMsgDBHdr addressing a message which will be returned as text.
+ * @param aUTF8    True if the contents should be returned in UTF-8.
+ *
+ * @return         String with the message source.
+ */
+function get_msg_source(aMsgHdr, aUTF8 = false) {
+  let msgUri = aMsgHdr.folder.getUriForMsg(aMsgHdr);
+
+  let messenger = Cc["@mozilla.org/messenger;1"]
+                    .createInstance(Ci.nsIMessenger);
+  let streamListener = Cc["@mozilla.org/network/sync-stream-listener;1"]
+                         .createInstance(Ci.nsISyncStreamListener);
+  messenger.messageServiceFromURI(msgUri).streamMessage(msgUri,
+                                                        streamListener,
+                                                        null,
+                                                        null,
+                                                        false,
+                                                        "",
+                                                        false);
+
+  let sis = Cc["@mozilla.org/scriptableinputstream;1"]
+              .createInstance(Ci.nsIScriptableInputStream);
+  sis.init(streamListener.inputStream);
+  const MAX_MESSAGE_LENGTH = 65536;
+  let content = sis.read(MAX_MESSAGE_LENGTH);
+  sis.close();
+
+  if (!aUTF8)
+    return content;
+
+  return Cc["@mozilla.org/intl/utf8converterservice;1"]
+           .getService(Ci.nsIUTF8ConverterService)
+           .convertURISpecToUTF8(content, "UTF-8");
 }

@@ -74,39 +74,6 @@ function teardownModule(module) {
 }
 
 /**
- * Helper to get the full message content.
- *
- * @param aMsgHdr: nsIMsgDBHdr object whose text body will be read
- * @return string with full message source
- */
-function getMsgSource(aMsgHdr) {
-  let msgFolder = aMsgHdr.folder;
-  let msgUri = msgFolder.getUriForMsg(aMsgHdr);
-
-  let messenger = Cc["@mozilla.org/messenger;1"]
-                    .createInstance(Ci.nsIMessenger);
-  let streamListener = Cc["@mozilla.org/network/sync-stream-listener;1"]
-                         .createInstance(Ci.nsISyncStreamListener);
-  messenger.messageServiceFromURI(msgUri).streamMessage(msgUri,
-                                                        streamListener,
-                                                        null,
-                                                        null,
-                                                        false,
-                                                        "",
-                                                        false);
-  let sis = Cc["@mozilla.org/scriptableinputstream;1"]
-              .createInstance(Ci.nsIScriptableInputStream);
-  sis.init(streamListener.inputStream);
-  const MAX_MESSAGE_LENGTH = 65536;
-  let content = sis.read(MAX_MESSAGE_LENGTH);
-  sis.close();
-
-  return Cc["@mozilla.org/intl/utf8converterservice;1"]
-           .getService(Ci.nsIUTF8ConverterService)
-           .convertURISpecToUTF8(content, "UTF-8");
-}
-
-/**
  * Test that if all characters don't fit the current charset selection,
  * we upgrade properly to UTF-8. In HTML composition.
  */
@@ -126,7 +93,7 @@ function test_encoding_upgrade_html_compose() {
   // Charset should still be the default.
   assert_equals(draftMsg.Charset, "windows-1252");
 
-  let draftMsgContent = getMsgSource(draftMsg);
+  let draftMsgContent = get_msg_source(draftMsg, true);
   if (!draftMsgContent.includes('content="text/html; charset=windows-1252"'))
     throw new Error("Expected content type not in msg; draftMsgContent=" +
                     draftMsgContent);
@@ -150,7 +117,7 @@ function test_encoding_upgrade_html_compose() {
   // Charset should have be upgraded to UTF-8.
   assert_equals(draftMsg2.Charset, "UTF-8");
 
-  let draftMsg2Content = getMsgSource(draftMsg2);
+  let draftMsg2Content = get_msg_source(draftMsg2, true);
   if (!draftMsg2Content.includes('content="text/html; charset=UTF-8"'))
     throw new Error("Expected content type not in msg; draftMsg2Content=" +
                     draftMsg2Content);
@@ -166,7 +133,7 @@ function test_encoding_upgrade_html_compose() {
 
   be_in_folder(outboxFolder);
   let outMsg = select_click_row(0);
-  let outMsgContent = getMsgSource(outMsg);
+  let outMsgContent = get_msg_source(outMsg, true);
 
   // This message should be multipart/alternative.
   if (!outMsgContent.includes("Content-Type: multipart/alternative"))
@@ -225,7 +192,7 @@ function test_encoding_upgrade_plaintext_compose() {
   // Charset should have be upgraded to UTF-8.
   assert_equals(draftMsg2.Charset, "UTF-8");
 
-  let draftMsg2Content = getMsgSource(draftMsg2);
+  let draftMsg2Content = get_msg_source(draftMsg2, true);
   if (draftMsg2Content.includes("<html>"))
     throw new Error("Plaintext draft contained <html>; "+
                     "draftMsg2Content=" + draftMsg2Content);
@@ -241,7 +208,7 @@ function test_encoding_upgrade_plaintext_compose() {
 
   be_in_folder(outboxFolder);
   let outMsg = select_click_row(0);
-  let outMsgContent = getMsgSource(outMsg);
+  let outMsgContent = get_msg_source(outMsg, true);
 
   // This message should be text/plain;
   if (!outMsgContent.includes("Content-Type: text/plain"))
