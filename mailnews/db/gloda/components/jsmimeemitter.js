@@ -392,8 +392,18 @@ MimeMessageEmitter.prototype = {
     // the url should contain a part= piece that tells us the part name, which
     // we then use to figure out where to place that part if it's a real
     // attachment.
-    let partMatch = this._partRE.exec(aUrl);
-    let partName = partMatch && partMatch[1];
+    let partMatch, partName;
+    if (aUrl.startsWith("http") || aUrl.startsWith("file")) {
+      // if we have a remote url, unlike non external mail part urls, it may also
+      // contain query strings starting with ?; PART_RE does not handle this.
+      partMatch = aUrl.match(/[?&]part=[^&]+$/);
+      partMatch = partMatch && partMatch[0];
+      partName = partMatch && partMatch.split("part=")[1];
+    }
+    else {
+      partMatch = this._partRE.exec(aUrl);
+      partName = partMatch && partMatch[1];
+    }
     this._curAttachment = partName;
 
     if (aContentType == "message/rfc822") {
