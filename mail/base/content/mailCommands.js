@@ -10,8 +10,12 @@ Components.utils.import("resource:///modules/MailUtils.js");
  * Get the identity that most likely is the best one to use, given the hint.
  * @param identities    nsIArray<nsIMsgIdentity> of identities
  * @param optionalHint  string containing comma separated mailboxes
+ * @param useDefault    If true, use the default identity of the default
+ *                      account as last choice. This is useful when all
+ *                      identities are passed in. Otherwise, use the first
+ *                      entity in the list.
  */
-function getBestIdentity(identities, optionalHint)
+function getBestIdentity(identities, optionalHint, useDefault = false)
 {
   let identityCount = identities.length;
   if (identityCount < 1)
@@ -36,7 +40,16 @@ function getBestIdentity(identities, optionalHint)
     }
   }
 
-  // Still no matches? Give up and pick the first one.
+  // Still no matches? Give up and pick the default or the first one.
+  if (useDefault) {
+    let defaultAccount = null;
+    try {
+      defaultAccount = accountManager.defaultAccount;
+    } catch (ex) {}
+    if (defaultAccount && defaultAccount.defaultIdentity)
+      return defaultAccount.defaultIdentity;
+  }
+
   return identities.queryElementAt(0, Components.interfaces.nsIMsgIdentity);
 }
 
@@ -119,7 +132,8 @@ function getIdentityForHeader(hdr, type)
     identity = getIdentityForServer(server, hintForIdentity);
 
   if (!identity)
-    identity = getBestIdentity(accountManager.allIdentities, hintForIdentity);
+    identity = getBestIdentity(accountManager.allIdentities,
+                               hintForIdentity, true);
 
   return identity;
 }
