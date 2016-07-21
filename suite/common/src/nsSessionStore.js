@@ -2505,7 +2505,16 @@ SessionStoreService.prototype = {
       let activeIndex = (tabData.index || tabData.entries.length) - 1;
       let activePageData = tabData.entries[activeIndex] || null;
       let uri = activePageData ? activePageData.url || null : null;
-      browser.userTypedValue = uri;
+
+      // NB: we won't set initial URIs (about:blank, about:privatebrowsing, etc.)
+      // here because their load will not normally trigger a location bar clearing
+      // when they finish loading (to avoid race conditions where we then
+      // clear user input instead), so we shouldn't set them here either.
+      // They also don't fall under the issues in bug 439675 where user input
+      // needs to be preserved if the load doesn't succeed.
+      if (!browser.userTypedValue && uri && !aWindow.gInitialPages.has(uri)) {
+        browser.userTypedValue = uri;
+      }
 
       // Also make sure currentURI is set so that switch-to-tab works before
       // the tab is restored. We'll reset this to about:blank when we try to

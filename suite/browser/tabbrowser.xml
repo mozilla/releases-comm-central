@@ -418,6 +418,31 @@
             mCurProgress: 0,
             mMaxProgress: 0,
 
+            // cache flags for correct status UI update after tab switching
+            mTotalProgress: 0,
+
+            // count of open requests (should always be 0 or 1)
+            mRequestCount: 0,
+
+            _callProgressListeners: function () {
+              Array.unshift(arguments, this.mBrowser);
+              return this.mTabBrowser._callProgressListeners.apply(this.mTabBrowser, arguments);
+            },
+
+            _shouldShowProgress: function (aRequest) {
+              if (this.mBlank)
+                return false;
+
+              // Don't show progress indicators in tabs for about: URIs
+              // pointing to local resources.
+              if ((aRequest instanceof Components.interfaces.nsIChannel) &&
+                  aRequest.originalURI.schemeIs("about") &&
+                  (aRequest.URI.schemeIs("jar") || aRequest.URI.schemeIs("file")))
+                return false;
+
+              return true;
+            },
+
             onProgressChange: function (aWebProgress, aRequest,
                                         aCurSelfProgress, aMaxSelfProgress,
                                         aCurTotalProgress, aMaxTotalProgress) {
@@ -452,138 +477,169 @@
 
               const nsIWebProgressListener = Components.interfaces.nsIWebProgressListener;
               const nsIChannel = Components.interfaces.nsIChannel;
+              let location, originalLocation;
+              try {
+                aRequest.QueryInterface(nsIChannel)
+                location = aRequest.URI;
+                originalLocation = aRequest.originalURI;
+              } catch (ex) {}
+
+              if (aStateFlags & nsIWebProgressListener.STATE_START) {
+                this.mRequestCount++;
+              }
+              else if (aStateFlags & nsIWebProgressListener.STATE_STOP) {
+                const NS_ERROR_UNKNOWN_HOST = 2152398878;
+                if (--this.mRequestCount > 0 && aStatus == NS_ERROR_UNKNOWN_HOST) {
+                  // to prevent bug 235825: wait for the request handled
+                  // by the automatic keyword resolver
+                  return;
+                }
+                // since we (try to) only handle STATE_STOP of the last request,
+                // the count of open requests should now be 0
+                this.mRequestCount = 0;
+              }
 
               if (aStateFlags & nsIWebProgressListener.STATE_START &&
                   aStateFlags & nsIWebProgressListener.STATE_IS_NETWORK) {
-                // It's okay to clear what the user typed when we start
-                // loading a document. If the user types, this flag gets
-                // set to false, if the document load ends without an
-                // onLocationChange, this flag also gets set to false
-                // (so we keep it while switching tabs after a failed load).
-                // We need to add 2 because loadURIWithFlags may have
-                // cancelled a pending load which would have cleared
-                // its anchor scroll detection temporary increment.
-                if (aWebProgress.isTopLevel)
-                  this.mBrowser.userTypedClear += 2;
+                if (aWebProgress.isTopLevel) {
+                  // Need to use originalLocation rather than location because things
+                  // like about:privatebrowsing arrive with nsIRequest pointing to
+                  // their resolved jar: or file: URIs.
+                  if (!(originalLocation && gInitialPages.has(originalLocation.spec) &&
+                        originalLocation != "about:blank" &&
+                        this.mBrowser.currentURI && this.mBrowser.currentURI.spec == "about:blank")) {
+                    // This will trigger clearing the location bar. Don't do it if
+                    // we loaded off a blank browser and this is an initial page load
+                    // (e.g. about:privatebrowsing, etc.) so we avoid clearing the
+                    // location bar in case the user is typing in it.
+                    // Loading about:blank shouldn't trigger this, either, because its
+                    // loads are "special".
+                    this.mBrowser.urlbarChangeTracker.startedLoad();
+                  }
+                  // If the browser is loading it must not be crashed anymore.
+                  this.mTab.removeAttribute("crashed");
+                }
 
-                if (!this.mBlank && !(aStateFlags & nsIWebProgressListener.STATE_RESTORING)) {
-                  this.mTab.removeAttribute("progress");
-                  this.mTab.setAttribute("busy", "true");
-                  this.mTab.label = this.mTabBrowser.mStringBundle.getString("tabs.loading");
-                  this.mTab.removeAttribute("image");
+                if (this._shouldShowProgress(aRequest)) {
+                  if (!(aStateFlags & nsIWebProgressListener.STATE_RESTORING)) {
+                    this.mTab.setAttribute("busy", "true");
+
+                    if (aWebProgress.isTopLevel &&
+                        !(aWebProgress.loadType & Components.interfaces.nsIDocShell.LOAD_CMD_RELOAD))
+                      this.mTabBrowser.setTabTitleLoading(this.mTab);
+                  }
+
+                  if (this.mTab.selected)
+                    this.mTabBrowser.mIsBusy = true;
                 }
               }
               else if (aStateFlags & nsIWebProgressListener.STATE_STOP &&
                        aStateFlags & nsIWebProgressListener.STATE_IS_NETWORK) {
-                // The document is done loading, it's okay to clear
-                // the value again.
-                if (aWebProgress.isTopLevel)
-                  if (this.mBrowser.userTypedClear > 1)
-                    this.mBrowser.userTypedClear -= 2;
-                  else if (this.mBrowser.userTypedClear > 0)
-                    this.mBrowser.userTypedClear--;
+
+                if (this.mTab.hasAttribute("busy")) {
+                  this.mTab.removeAttribute("busy");
+                  this.mTabBrowser._tabAttrModified(this.mTab, ["busy"]);
+                  if (!this.mTab.selected)
+                    this.mTab.setAttribute("unread", "true");
+                }
+                this.mTab.removeAttribute("progress");
+
+                if (aWebProgress.isTopLevel) {
+                  let isSuccessful = Components.isSuccessCode(aStatus);
+                  if (!isSuccessful && !isTabEmpty(this.mTab)) {
+                    // Restore the current document's location in case the
+                    // request was stopped (possibly from a content script)
+                    // before the location changed.
+
+                    this.mBrowser.userTypedValue = null;
+
+                    let inLoadURI = this.mBrowser.inLoadURI;
+                    if (this.mTab.selected && gURLBar && !inLoadURI) {
+                      URLBarSetURI();
+                    }
+                  } else if (isSuccessful) {
+                    this.mBrowser.urlbarChangeTracker.finishedLoad();
+                  }
+
+                  if (!this.mBrowser.mIconURL)
+                    this.mTabBrowser.useDefaultIcon(this.mTab);
+                }
 
                 if (this.mBlank)
                   this.mBlank = false;
 
-                if (this.mTab.hasAttribute("busy")) {
-                  this.mTab.removeAttribute("busy");
-                  this.mTabBrowser._tabAttrModified(this.mTab);
-                  if (!this.mTab.selected)
-                    this.mTab.setAttribute("unread", "true");
-                }
-
-                var location = this.mBrowser.currentURI;
-                if (this.mBrowser.mIconURL) {
-                  this.mTab.setAttribute("image", this.mBrowser.mIconURL);
-                }
-                else if (this.mBrowser.contentDocument instanceof ImageDocument &&
-                         this.mTabBrowser.mPrefs.getBoolPref("browser.chrome.site_icons")) {
-                  var req = this.mBrowser.contentDocument.imageRequest;
-                  if (req && !(req.imageStatus & Components.interfaces.imgIRequest.STATUS_ERROR)) {
-                    try {
-                      var canvas = document.createElementNS("http://www.w3.org/1999/xhtml", "canvas");
-                      var tabImg = document.getAnonymousElementByAttribute(this.mTab, "anonid", "tab-icon");
-                      var w = tabImg.boxObject.width;
-                      var h = tabImg.boxObject.height;
-                      canvas.width = w;
-                      canvas.height = h;
-                      var ctx = canvas.getContext('2d');
-                      ctx.drawImage(this.mBrowser.contentDocument.body.firstChild, 0, 0, w, h);
-                      this.mTab.setAttribute("image", canvas.toDataURL());
-                    } catch (e) { // non-canvas build, fall back to the old method
-                      var sz = this.mTabBrowser.mPrefs.getIntPref("browser.chrome.image_icons.max_size");
-                      if (req.image.width <= sz && req.image.height <= sz)
-                        this.mTab.setAttribute("image", this.mBrowser.currentURI.spec);
-                    }
-                  }
-                }
-                else if (this.mTabBrowser.shouldLoadFavIcon(location))
-                  this.mTabBrowser.loadFavIcon(location, "image", this.mTab,
-                                               this.mBrowser.contentPrincipal);
-                else
-                  this.mTab.removeAttribute("image");
+                // For keyword URIs clear the user typed value since they will be changed into real URIs.
+                if (location.scheme == "keyword")
+                  this.mBrowser.userTypedValue = null;
 
                 if (this.mTab.label == this.mTabBrowser.mStringBundle.getString("tabs.loading"))
                   this.mTabBrowser.setTabTitle(this.mTab);
+
+                if (this.mTab.selected)
+                  this.mTabBrowser.mIsBusy = false;
               }
 
-              if (oldBlank)
-                return;
+              if (oldBlank) {
+                this._callProgressListeners("onUpdateCurrentBrowser",
+                                            [aStateFlags, aStatus, "", 0],
+                                            true, false);
+              } else {
+                this._callProgressListeners("onStateChange",
+                                            [aWebProgress, aRequest, aStateFlags, aStatus],
+                                            true, false);
+              }
 
-              this.mRequest = aRequest;
+              this._callProgressListeners("onStateChange",
+                                          [aWebProgress, aRequest, aStateFlags, aStatus],
+                                          false);
+
+              if (aStateFlags & (nsIWebProgressListener.STATE_START |
+                                 nsIWebProgressListener.STATE_STOP)) {
+                // reset cached temporary values at beginning and end
+                this.mMessage = "";
+                this.mTotalProgress = 0;
+              }
               this.mStateFlags = aStateFlags;
               this.mStatus = aStatus;
-              this.mMessage = "";
-
-              this.mTabBrowser._callProgressListeners(this.mBrowser, "onStateChange",
-                                                      [aWebProgress, aRequest, aStateFlags, aStatus]);
             },
 
-            // The first location change is gotoIndex called from mInstallSH,
-            // the second one is considered a user action.
-            mLocationChangeCount : 0,
+            onLocationChange: function (aWebProgress, aRequest, aLocation, aFlags) {
+              // OnLocationChange is called for both the top-level content
+              // and the subframes.
+              let topLevel = aWebProgress.isTopLevel;
 
-            onLocationChange: function(aWebProgress, aRequest, aLocation, aFlags) {
-              const nsIWebProgressListener = Components.interfaces.nsIWebProgressListener;
-              if (aWebProgress.isTopLevel) {
-                if (!(aFlags & nsIWebProgressListener.LOCATION_CHANGE_SAME_DOCUMENT)) {
-                  this.mTabBrowser.setIcon(this.mTab);
-                  this.mFeeds = [];
-                }
-
-                if (this.mLocationChangeCount > 0 ||
-                    aLocation.spec != "about:blank")
-                  ++this.mLocationChangeCount;
-
-                if (this.mLocationChangeCount == 2) {
-                  this.mTabBrowser.backBrowserGroup = [];
-                  this.mTabBrowser.forwardBrowserGroup = [];
-                }
-
-                // If userTypedClear > 0, the document loaded correctly and we should be
-                // clearing the user typed value. We also need to clear the typed value
+              if (topLevel) {
+                let isSameDocument =
+                  !!(aFlags & Components.interfaces.nsIWebProgressListener.LOCATION_CHANGE_SAME_DOCUMENT);
+                // We need to clear the typed value
                 // if the document failed to load, to make sure the urlbar reflects the
                 // failed URI (particularly for SSL errors). However, don't clear the value
                 // if the error page's URI is about:blank, because that causes complete
                 // loss of urlbar contents for invalid URI errors (see bug 867957).
-                if (this.mBrowser.userTypedClear > 0 ||
-                    (aFlags & nsIWebProgressListener.LOCATION_CHANGE_ERROR_PAGE &&
-                     aLocation.spec != "about:blank"))
+                // Another reason to clear the userTypedValue is if this was an anchor
+                // navigation initiated by the user.
+                if (this.mBrowser.didStartLoadSinceLastUserTyping() ||
+                    ((aFlags & Components.interfaces.nsIWebProgressListener.LOCATION_CHANGE_ERROR_PAGE) &&
+                     aLocation.spec != "about:blank") ||
+                    (isSameDocument && this.mBrowser.inLoadURI))
                   this.mBrowser.userTypedValue = null;
+
+                // Don't clear the favicon if this onLocationChange was
+                // triggered by a pushState or a replaceState (bug 550565) or
+                // a hash change (bug 408415).
+                if (aWebProgress.isLoadingDocument && !isSameDocument)
+                  this.mBrowser.mIconURL = null;
               }
 
-              if (this.mBlank)
-                return;
+              if (!this.mBlank)
+                this._callProgressListeners("onLocationChange",
+                                            [aWebProgress, aRequest, aLocation,
+                                             aFlags]);
 
-              if (this.mTabBrowser.mCurrentTab == this.mTab)
-                this.mTabBrowser.updateUrlBar(aWebProgress, aRequest, aLocation,
-                                              aFlags, null, this.mBrowser,
-                                              this.mFeeds);
-
-              this.mTabBrowser._callProgressListeners(this.mBrowser, "onLocationChange",
-                                                      [aWebProgress, aRequest, aLocation, aFlags],
-                                                      false);
+              if (topLevel) {
+                this.mBrowser.lastURI = aLocation;
+                this.mBrowser.lastLocationChange = Date.now();
+              }
             },
 
             onStatusChange: function(aWebProgress, aRequest, aStatus, aMessage) {
@@ -714,37 +770,37 @@
         <parameter name="aLoadingPrincipal"/>
         <body>
           <![CDATA[
-            var browser = aTab.linkedBrowser;
-            if (!aURI)
-              browser.mIconURL = "";
-            else {
-              if (!(aURI instanceof Components.interfaces.nsIURI))
-                aURI = this.mIOService.newURI(aURI, null, null);
-              browser.mIconURL = aURI.spec;
-            }
+            let browser = this.getBrowserForTab(aTab);
+            browser.mIconURL = aURI instanceof Components.interfaces.nsIURI ? aURI.spec : aURI;
 
             if (aURI && this.mFaviconService) {
-              var faviconFlags = this.usePrivateBrowsing ?
-                  this.mFaviconService.FAVICON_LOAD_PRIVATE :
-                  this.mFaviconService.FAVICON_LOAD_NON_PRIVATE;
-              var loadingPrincipal = aLoadingPrincipal ||
-                                     this.mSecMan.getSystemPrincipal();
+              if (!(aURI instanceof Components.interfaces.nsIURI))
+                aURI = makeURI(aURI);
 
-              this.mFaviconService
-                  .setAndFetchFaviconForPage(browser.currentURI,
-                                             aURI, false,
-                                             faviconFlags, null,
-                                             loadingPrincipal);
+              // We do not serialize the principal from within nsSessionStore.js,
+              // hence if aLoadingPrincipal is null we default to the
+              // systemPrincipal which will allow the favicon to load.
+              let loadingPrincipal = aLoadingPrincipal
+                ? aLoadingPrincipal
+                : Services.scriptSecurityManager.getSystemPrincipal();
+              let loadType = PrivateBrowsingUtils.isWindowPrivate(window)
+                ? this.mFaviconService.FAVICON_LOAD_PRIVATE
+                : this.mFaviconService.FAVICON_LOAD_NON_PRIVATE;
+
+              this.mFaviconService.setAndFetchFaviconForPage(
+                browser.currentURI, aURI, false, loadType, null, loadingPrincipal);
             }
 
-            if (!aTab.hasAttribute("busy") && browser.mIconURL)
-              aTab.setAttribute("image", browser.mIconURL);
-            else
-              aTab.removeAttribute("image");
-            this._tabAttrModified(aTab);
+            let sizedIconUrl = browser.mIconURL || "";
+            if (sizedIconUrl != aTab.getAttribute("image")) {
+              if (sizedIconUrl)
+                aTab.setAttribute("image", sizedIconUrl);
+              else
+                aTab.removeAttribute("image");
+              this._tabAttrModified(aTab, ["image"]);
+            }
 
-            this._callProgressListeners(browser, "onLinkIconAvailable",
-                                        [browser.mIconURL]);
+            this._callProgressListeners(browser, "onLinkIconAvailable", [browser.mIconURL]);
           ]]>
         </body>
       </method>
@@ -787,7 +843,51 @@
         </body>
       </method>
 
-      <method name="loadFavIcon">
+      <method name="useDefaultIcon">
+        <parameter name="aTab"/>
+        <body>
+          <![CDATA[
+            var browser = this.getBrowserForTab(aTab);
+            var documentURI = browser.documentURI;
+            var icon = null;
+
+            if (browser.imageDocument) {
+              if (Services.prefs.getBoolPref("browser.chrome.site_icons")) {
+                let sz = Services.prefs.getIntPref("browser.chrome.image_icons.max_size");
+                if (browser.imageDocument.width <= sz &&
+                    browser.imageDocument.height <= sz) {
+                  icon = browser.currentURI;
+                }
+              }
+            }
+
+            // Use documentURIObject in the check for shouldLoadFavIcon so that we
+            // do the right thing with about:-style error pages.  Bug 453442
+            if (!icon && this.shouldLoadFavIcon(documentURI)) {
+              let url = documentURI.prePath + "/favicon.ico";
+              if (!this.isFailedIcon(url))
+                icon = url;
+            }
+            this.setIcon(aTab, icon, browser.contentPrincipal);
+          ]]>
+        </body>
+      </method>
+
+      <method name="isFailedIcon">
+        <parameter name="aURI"/>
+        <body>
+          <![CDATA[
+            if (this.mFaviconService) {
+              if (!(aURI instanceof Components.interfaces.nsIURI))
+                aURI = makeURI(aURI);
+              return this.mFaviconService.isFailedFavicon(aURI);
+            }
+            return null;
+          ]]>
+        </body>
+      </method>
+
+     <method name="loadFavIcon">
         <parameter name="aURI"/>
         <parameter name="aAttr"/>
         <parameter name="aElt"/>
@@ -807,7 +907,7 @@
                   .setAndFetchFaviconForPage(aURI, iconURI, false,
                                              faviconFlags, null,
                                              loadingPrincipal);
-              if (this.mFaviconService.isFailedFavicon(uri))
+              if (this.mFaviconService.isFailedFavicon(aURI))
                 return;
             }
             aElt.setAttribute(aAttr, iconURL);
@@ -1210,14 +1310,32 @@
 
       <method name="_tabAttrModified">
         <parameter name="aTab"/>
+        <parameter name="aChanged"/>
         <body><![CDATA[
-          // This event should be dispatched when any of these attributes change:
-          // label, crop, busy, image, selected
-          aTab.dispatchEvent(new Event("TabAttrModified",
-            { bubbles: true, cancelable: false }));
+          if (aTab.closing)
+            return;
+
+          let event = new CustomEvent("TabAttrModified", {
+            bubbles: true,
+            cancelable: false,
+            detail: {
+              changed: aChanged,
+            }
+          });
+          aTab.dispatchEvent(event);
         ]]></body>
       </method>
 
+      <method name="setTabTitleLoading">
+        <parameter name="aTab"/>
+        <body>
+          <![CDATA[
+            aTab.label = this.mStringBundle.getString("tabs.loading");
+            aTab.crop = "end";
+            this._tabAttrModified(aTab, ["label", "crop"]);
+          ]]>
+        </body>
+      </method>
       <method name="onTitleChanged">
         <parameter name="evt"/>
         <body>
@@ -2721,10 +2839,6 @@
       <property name="securityUI"
                 onget="return this.mCurrentBrowser.securityUI;"
                 readonly="true"/>
-
-      <property name="userTypedClear"
-                onget="return this.mCurrentBrowser.userTypedClear;"
-                onset="return this.mCurrentBrowser.userTypedClear = val;"/>
 
       <property name="userTypedValue"
                 onget="return this.mCurrentBrowser.userTypedValue;"
