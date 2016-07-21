@@ -103,20 +103,24 @@
 @BINPATH@/@MOZ_D3DCOMPILER_XP_DLL@
 #endif
 #endif # MOZ_ANGLE_RENDERER
-#ifdef XP_WIN32
+
+#ifdef XP_WIN
 @BINPATH@/plugin-hang-ui@BIN_SUFFIX@
 #if MOZ_PACKAGE_MSVC_DLLS
 @BINPATH@/@MSVC_C_RUNTIME_DLL@
 @BINPATH@/@MSVC_CXX_RUNTIME_DLL@
+@BINPATH@/api-ms-win-*.dll
+@BINPATH@/ucrtbase.dll
 #endif
 #endif
+
 #ifndef MOZ_SYSTEM_ICU
 @RESPATH@/@ICU_DATA_FILE@
 #endif
 
 [browser]
 ; [Base Browser Files]
-#ifdef XP_WIN32
+#ifdef XP_WIN
 @BINPATH@/@MOZ_APP_NAME@.exe
 #else
 @BINPATH@/@MOZ_APP_NAME@-bin

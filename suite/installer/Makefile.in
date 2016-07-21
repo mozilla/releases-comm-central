@@ -103,11 +103,16 @@ DEFINES += -DNECKO_WIFI=1
 endif
 
 # Set MSVC dlls version to package, if any.
-ifdef WIN32_REDIST_DIR
+# With VS2015+ it does not make sense to define the ucrt libs without
+# the base c++ libs and vice versa. 
 ifdef MOZ_NO_DEBUG_RTL
+ifdef WIN32_REDIST_DIR
+ifdef WIN_UCRT_REDIST_DIR
 DEFINES += -DMOZ_PACKAGE_MSVC_DLLS=1
 DEFINES += -DMSVC_C_RUNTIME_DLL=$(MSVC_C_RUNTIME_DLL)
 DEFINES += -DMSVC_CXX_RUNTIME_DLL=$(MSVC_CXX_RUNTIME_DLL)
+DEFINES += -DMOZ_PACKAGE_WIN_UCRT_DLLS=1
+endif
 endif
 endif
 
