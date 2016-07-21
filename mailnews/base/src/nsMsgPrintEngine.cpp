@@ -78,7 +78,7 @@ nsMsgPrintEngine::OnStateChange(nsIWebProgress* aWebProgress,
     if (progressStateFlags & nsIWebProgressListener::STATE_START) {
       // Tell the user we are loading...
       nsString msg;
-      GetString(MOZ_UTF16("LoadingMessageToPrint"), msg);
+      GetString(u"LoadingMessageToPrint", msg);
       SetStatusMessage(msg);
     }
 
@@ -121,7 +121,7 @@ nsMsgPrintEngine::OnStateChange(nsIWebProgress* aWebProgress,
 
           // Tell the user the message is loaded...
           nsString msg;
-          GetString(MOZ_UTF16("MessageLoaded"), msg);
+          GetString(u"MessageLoaded", msg);
           SetStatusMessage(msg);
 
           NS_ASSERTION(mDocShell,"can't print, there is no docshell");
@@ -237,7 +237,7 @@ nsMsgPrintEngine::SetWindow(mozIDOMWindowProxy *aWin)
   docShellAsItem->GetSameTypeRootTreeItem(getter_AddRefs(rootAsItem));
 
   nsCOMPtr<nsIDocShellTreeItem> childItem;
-  rootAsItem->FindChildWithName(MOZ_UTF16("content"), true,
+  rootAsItem->FindChildWithName(u"content", true,
 				false, nullptr, nullptr,
 				getter_AddRefs(childItem));
 
@@ -311,7 +311,7 @@ nsMsgPrintEngine::StartPrintOperation(nsIPrintSettings* aPS)
   mPrintSettings = aPS;
 
   // Load the about:blank on the tail end...
-  nsresult rv = AddPrintURI(MOZ_UTF16("about:blank")); 
+  nsresult rv = AddPrintURI(u"about:blank"); 
   if (NS_FAILED(rv)) return rv; 
   return StartNextPrintOperation();
 }
@@ -377,9 +377,9 @@ nsMsgPrintEngine::ShowProgressDialog(bool aIsForPrinting, bool& aDoNotify)
           NS_ADDREF(wpl);
           nsString msg;
           if (mIsDoingPrintPreview) {
-            GetString(MOZ_UTF16("LoadingMailMsgForPrintPreview"), msg);
+            GetString(u"LoadingMailMsgForPrintPreview", msg);
           } else {
-            GetString(MOZ_UTF16("LoadingMailMsgForPrint"), msg);
+            GetString(u"LoadingMailMsgForPrint", msg);
           }
           if (!msg.IsEmpty()) 
             mPrintProgressParams->SetDocTitle(msg.get());
@@ -411,7 +411,7 @@ nsMsgPrintEngine::StartNextPrintOperation()
 
     // Tell the user we are done...
     nsString msg;
-    GetString(MOZ_UTF16("PrintingComplete"), msg);
+    GetString(u"PrintingComplete", msg);
     SetStatusMessage(msg);
     return NS_OK;
   }
@@ -599,7 +599,7 @@ nsMsgPrintEngine::PrintMsgWindow()
       // for mail, it can review the salt.  for addrbook, it's a data:// url, which
       // means nothing to the end user.
       // needs to be " " and not "" or nullptr, otherwise, we'll still print the url
-      mPrintSettings->SetDocURL(MOZ_UTF16(" "));
+      mPrintSettings->SetDocURL(u" ");
 
       nsresult rv = NS_ERROR_FAILURE;
       if (mIsDoingPrintPreview) 

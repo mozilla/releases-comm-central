@@ -154,7 +154,7 @@ nsMsgSearchAdapter::GetImapCharsetParam(const char16_t *destCharset)
   char *result = nullptr;
 
   // Specify a character set unless we happen to be US-ASCII.
-  if (NS_strcmp(destCharset, MOZ_UTF16("us-ascii")))
+  if (NS_strcmp(destCharset, u"us-ascii"))
       result = PR_smprintf("%s%s", nsMsgSearchAdapter::m_kImapCharset, NS_ConvertUTF16toUTF8(destCharset).get());
 
   return result;

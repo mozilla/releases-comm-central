@@ -356,14 +356,14 @@ NS_IMETHODIMP nsMsgProtocol::OnStopRequest(nsIRequest *request, nsISupports *ctx
       {
           case NS_ERROR_UNKNOWN_HOST:
           case NS_ERROR_UNKNOWN_PROXY_HOST:
-             errorString = MOZ_UTF16("unknownHostError");
+             errorString = u"unknownHostError";
              break;
           case NS_ERROR_CONNECTION_REFUSED:
           case NS_ERROR_PROXY_CONNECTION_REFUSED:
-             errorString = MOZ_UTF16("connectionRefusedError");
+             errorString = u"connectionRefusedError";
              break;
           case NS_ERROR_NET_TIMEOUT:
-             errorString = MOZ_UTF16("netTimeoutError");
+             errorString = u"netTimeoutError";
              break;
           default:
              // Leave the string as nullptr.

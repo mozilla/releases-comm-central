@@ -54,13 +54,13 @@ nsMsgBuildMessageByName(const char16_t *aName, nsIFile *aFile, nsString& aResult
 nsresult
 nsMsgBuildMessageWithFile(nsIFile *aFile, nsString& aResult)
 {
-  return nsMsgBuildMessageByName(MOZ_UTF16("unableToOpenFile"), aFile, aResult);
+  return nsMsgBuildMessageByName(u"unableToOpenFile", aFile, aResult);
 }
 
 nsresult
 nsMsgBuildMessageWithTmpFile(nsIFile *aFile, nsString& aResult)
 {
-  return nsMsgBuildMessageByName(MOZ_UTF16("unableToOpenTmpFile"), aFile, aResult);
+  return nsMsgBuildMessageByName(u"unableToOpenTmpFile", aFile, aResult);
 }
 
 nsresult

@@ -100,7 +100,7 @@ nsBeckyFilters::AutoLocate(char16_t **aDescription,
 
   if (aDescription) {
     *aDescription =
-      nsBeckyStringBundle::GetStringByName(MOZ_UTF16("BeckyImportDescription"));
+      nsBeckyStringBundle::GetStringByName(u"BeckyImportDescription");
   }
   *aLocation = nullptr;
   *_retval = false;

@@ -281,9 +281,9 @@ nsMsgFolderDataSource::~nsMsgFolderDataSource (void)
 
 nsresult nsMsgFolderDataSource::CreateLiterals(nsIRDFService *rdf)
 {
-  createNode(MOZ_UTF16("true"),
+  createNode(u"true",
     getter_AddRefs(kTrueLiteral), rdf);
-  createNode(MOZ_UTF16("false"),
+  createNode(u"false",
     getter_AddRefs(kFalseLiteral), rdf);
 
   return NS_OK;
@@ -1041,7 +1041,7 @@ nsresult nsMsgFolderDataSource::CreateUnreadMessagesNameString(int32_t unreadMes
   {
     nameString.Append(NS_LITERAL_STRING(" ("));
     nameString.AppendInt(unreadMessages);
-    nameString.Append(MOZ_UTF16(')'));
+    nameString.Append(u')');
   }
   return NS_OK;
 }
@@ -1503,13 +1503,13 @@ nsMsgFolderDataSource::createBiffStateNodeFromFlag(uint32_t flag, nsIRDFNode **t
 
   switch (flag) {
     case nsIMsgFolder::nsMsgBiffState_NewMail:
-      biffStateStr = MOZ_UTF16("NewMail");
+      biffStateStr = u"NewMail";
       break;
     case nsIMsgFolder::nsMsgBiffState_NoMail:
-      biffStateStr = MOZ_UTF16("NoMail");
+      biffStateStr = u"NoMail";
       break;
     default:
-      biffStateStr = MOZ_UTF16("UnknownMail");
+      biffStateStr = u"UnknownMail";
       break;
   }
 
@@ -1782,7 +1782,7 @@ nsMsgFolderDataSource::GetNumMessagesNode(int32_t aNumMessages, nsIRDFNode **nod
 {
   uint32_t numMessages = aNumMessages;
   if(numMessages == kDisplayQuestionCount)
-    createNode(MOZ_UTF16("???"), node, getRDFService());
+    createNode(u"???", node, getRDFService());
   else if (numMessages == kDisplayBlankCount || numMessages == 0)
     createNode(EmptyString().get(), node, getRDFService());
   else
@@ -1797,7 +1797,7 @@ nsMsgFolderDataSource::GetFolderSizeNode(int64_t aFolderSize, nsIRDFNode **aNode
   if (aFolderSize == kDisplayBlankCount64 || aFolderSize == 0)
     createNode(EmptyString().get(), aNode, getRDFService());
   else if (aFolderSize == kDisplayQuestionCount64)
-    createNode(MOZ_UTF16("???"), aNode, getRDFService());
+    createNode(u"???", aNode, getRDFService());
   else
   {
     nsAutoString sizeString;
@@ -1972,7 +1972,7 @@ nsresult nsMsgFolderDataSource::DoDeleteFromFolder(nsIMsgFolder *folder, nsISupp
         nsString confirmMsg;
         rv = sBundleService->CreateBundle(MESSENGER_STRING_URL, getter_AddRefs(sMessengerStringBundle));
         NS_ENSURE_SUCCESS(rv, rv);
-        sMessengerStringBundle->GetStringFromName(MOZ_UTF16("confirmSavedSearchDeleteMessage"), getter_Copies(confirmMsg));
+        sMessengerStringBundle->GetStringFromName(u"confirmSavedSearchDeleteMessage", getter_Copies(confirmMsg));
 
         nsCOMPtr<nsIPrompt> dialog;
         rv = msgWindow->GetPromptDialog(getter_AddRefs(dialog));

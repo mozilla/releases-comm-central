@@ -475,7 +475,7 @@ nsresult nsAbView::GetCardValue(nsIAbCard *card, const char16_t *colID,
     // Use LN/FN order for the phonetic name
     return card->GeneratePhoneticName(true, _retval);
 
-  if (!NS_strcmp(colID, MOZ_UTF16("ChatName")))
+  if (!NS_strcmp(colID, u"ChatName"))
     return card->GenerateChatName(_retval);
 
   nsresult rv = card->GetPropertyAsAString(NS_ConvertUTF16toUTF8(colID).get(), _retval);
@@ -664,7 +664,7 @@ static void SetSortClosure(const char16_t *sortColumn, const char16_t *sortDirec
 {
   closure->colID = sortColumn;
   
-  if (sortDirection && !NS_strcmp(sortDirection, MOZ_UTF16("descending")))
+  if (sortDirection && !NS_strcmp(sortDirection, u"descending"))
     closure->factor = DESCENDING_SORT_FACTOR;
   else 
     closure->factor = ASCENDING_SORT_FACTOR;
@@ -1319,8 +1319,8 @@ NS_IMETHODIMP nsAbView::SwapFirstNameLastName()
 
             // The format should stays the same before/after we swap the names
             formatString = displayNameLastnamefirst ?
-                              MOZ_UTF16("lastFirstFormat") :
-                              MOZ_UTF16("firstLastFormat");
+                              u"lastFirstFormat" :
+                              u"firstLastFormat";
 
             // Generate both ln/fn and fn/ln combination since we need both later
             // to check to see if the current display name was edited

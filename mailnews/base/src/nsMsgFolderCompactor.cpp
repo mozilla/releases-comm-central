@@ -661,7 +661,7 @@ void nsFolderCompactState::ShowDoneStatus()
     nsAutoString expungedAmount;
     FormatFileSize(m_totalExpungedBytes, true, expungedAmount);
     const char16_t* params[] = { expungedAmount.get() };
-    rv = bundle->FormatStringFromName(MOZ_UTF16("compactingDone"),
+    rv = bundle->FormatStringFromName(u"compactingDone",
                                       params, 1, getter_Copies(statusString));
 
     if (!statusString.IsEmpty() && NS_SUCCEEDED(rv))

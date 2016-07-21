@@ -1857,7 +1857,7 @@ nsImapIncomingServer::FEAlert(const nsAString& aAlertString,
       const char16_t *params[] = { hostName.get(), tempString.get() };
 
       rv = m_stringBundle->FormatStringFromName(
-        MOZ_UTF16("imapServerAlert"),
+        u"imapServerAlert",
         params, 2, getter_Copies(message));
       if (NS_SUCCEEDED(rv))
         return AlertUser(message, aUrl);
@@ -2198,7 +2198,7 @@ nsImapIncomingServer::PromptPassword(nsIMsgWindow *aMsgWindow,
 
   nsString passwordText;
   rv = m_stringBundle->FormatStringFromName(
-    MOZ_UTF16("imapEnterServerPasswordPrompt"),
+    u"imapEnterServerPasswordPrompt",
     formatStrings, 2, getter_Copies(passwordText));
   NS_ENSURE_SUCCESS(rv, rv);
 

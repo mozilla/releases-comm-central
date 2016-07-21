@@ -269,7 +269,7 @@ nsMsgComposeService::GetOrigWindowSelection(MSG_ComposeType type, nsIMsgWindow *
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsIDocShellTreeItem> childAsItem;
-  rv = rootDocShell->FindChildWithName(MOZ_UTF16("messagepane"),
+  rv = rootDocShell->FindChildWithName(u"messagepane",
                                        true, false, nullptr, nullptr, getter_AddRefs(childAsItem));
   NS_ENSURE_SUCCESS(rv, rv);
 

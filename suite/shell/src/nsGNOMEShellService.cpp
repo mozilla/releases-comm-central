@@ -86,7 +86,7 @@ GetBrandName(nsACString& aBrandName)
   NS_ENSURE_TRUE(brandBundle, rv);
 
   nsString brandName;
-  rv = brandBundle->GetStringFromName(MOZ_UTF16("brandShortName"),
+  rv = brandBundle->GetStringFromName(u"brandShortName",
                                       getter_Copies(brandName));
   NS_ENSURE_SUCCESS(rv, rv);
 

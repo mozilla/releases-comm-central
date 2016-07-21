@@ -690,7 +690,7 @@ nsresult nsPop3Sink::HandleTempDownloadFailed(nsIMsgWindow *msgWindow)
   m_newMailParser->m_newMsgHdr->GetMime2DecodedAuthor(fromStr);
   const char16_t *params[] = { fromStr.get(), subjectStr.get() };
   bundle->FormatStringFromName(
-    MOZ_UTF16("pop3TmpDownloadError"),
+    u"pop3TmpDownloadError",
     params, 2, getter_Copies(confirmString));
   nsCOMPtr<mozIDOMWindowProxy> parentWindow;
   nsCOMPtr<nsIPromptService> promptService = do_GetService(NS_PROMPTSERVICE_CONTRACTID);

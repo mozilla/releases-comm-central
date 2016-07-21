@@ -61,7 +61,7 @@ nsBeckyAddressBooks::GetAutoFind(char16_t **aDescription,
   NS_ENSURE_ARG_POINTER(_retval);
 
   *aDescription =
-    nsBeckyStringBundle::GetStringByName(MOZ_UTF16("BeckyImportDescription"));
+    nsBeckyStringBundle::GetStringByName(u"BeckyImportDescription");
   *_retval = false;
 
   return NS_OK;
@@ -354,7 +354,7 @@ nsBeckyAddressBooks::ImportAddressBook(nsIImportABDescriptor *aSource,
   if (!error.IsEmpty())
     *aErrorLog = ToNewUnicode(error);
   else
-    *aSuccessLog = nsBeckyStringBundle::GetStringByName(MOZ_UTF16("BeckyImportAddressSuccess"));
+    *aSuccessLog = nsBeckyStringBundle::GetStringByName(u"BeckyImportAddressSuccess");
 
   return rv;
 }

@@ -253,7 +253,7 @@ NS_IMETHODIMP nsMessenger::SetWindow(mozIDOMWindowProxy *aWin, nsIMsgWindow *aMs
     docShellAsItem->GetSameTypeRootTreeItem(getter_AddRefs(rootDocShellAsItem));
 
     nsCOMPtr<nsIDocShellTreeItem> childAsItem;
-    rv = rootDocShellAsItem->FindChildWithName(MOZ_UTF16("messagepane"), true, false,
+    rv = rootDocShellAsItem->FindChildWithName(u"messagepane", true, false,
                                                nullptr, nullptr, getter_AddRefs(childAsItem));
 
     mDocShell = do_QueryInterface(childAsItem);
@@ -326,7 +326,7 @@ nsMessenger::PromptIfFileExists(nsIFile *file)
       rv = InitStringBundle();
       NS_ENSURE_SUCCESS(rv, rv);
     }
-    rv = mStringBundle->FormatStringFromName(MOZ_UTF16("fileExists"),
+    rv = mStringBundle->FormatStringFromName(u"fileExists",
                                              pathFormatStrings, 1,
                                              getter_Copies(errorMessage));
     NS_ENSURE_SUCCESS(rv, rv);
@@ -837,7 +837,7 @@ nsMessenger::SaveOneAttachment(const char * aContentType, const char * aURL,
     nsString filterName;
     const char16_t *extensionParam[] = { extension.get() };
     rv = mStringBundle->FormatStringFromName(
-      MOZ_UTF16("saveAsType"), extensionParam, 1, getter_Copies(filterName));
+      u"saveAsType", extensionParam, 1, getter_Copies(filterName));
     NS_ENSURE_SUCCESS(rv, rv);
 
     extension.Insert(NS_LITERAL_STRING("*."), 0);
@@ -3053,7 +3053,7 @@ nsMessenger::PromptIfDeleteAttachments(bool aSaveFirst,
   // format the message and display
   nsString promptMessage;
   const char16_t * propertyName = aSaveFirst ?
-    MOZ_UTF16("detachAttachments") : MOZ_UTF16("deleteAttachments");
+    u"detachAttachments" : u"deleteAttachments";
   rv = mStringBundle->FormatStringFromName(propertyName, formatStrings, 1,getter_Copies(promptMessage));
   NS_ENSURE_SUCCESS(rv, rv);
 

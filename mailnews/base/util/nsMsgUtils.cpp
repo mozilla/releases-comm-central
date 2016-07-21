@@ -2163,25 +2163,25 @@ NS_MSG_BASE nsresult MsgPromptLoginFailed(nsIMsgWindow *aMsgWindow,
   NS_ConvertUTF8toUTF16 hostNameUTF16(aHostname);
   const char16_t *formatStrings[] = { hostNameUTF16.get() };
 
-  rv = bundle->FormatStringFromName(MOZ_UTF16("mailServerLoginFailed"),
+  rv = bundle->FormatStringFromName(u"mailServerLoginFailed",
                                     formatStrings, 1,
                                     getter_Copies(message));
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsString title;
   rv = bundle->GetStringFromName(
-    MOZ_UTF16("mailServerLoginFailedTitle"), getter_Copies(title));
+    u"mailServerLoginFailedTitle", getter_Copies(title));
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsString button0;
   rv = bundle->GetStringFromName(
-    MOZ_UTF16("mailServerLoginFailedRetryButton"),
+    u"mailServerLoginFailedRetryButton",
     getter_Copies(button0));
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsString button2;
   rv = bundle->GetStringFromName(
-    MOZ_UTF16("mailServerLoginFailedEnterNewPasswordButton"),
+    u"mailServerLoginFailedEnterNewPasswordButton",
     getter_Copies(button2));
   NS_ENSURE_SUCCESS(rv, rv);
 

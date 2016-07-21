@@ -58,7 +58,7 @@ static nsCString determineMimePart(MimeObject* obj);
 
 
 #define PGPMIME_PROPERTIES_URL        "chrome://messenger/locale/pgpmime.properties"
-#define PGPMIME_STR_NOT_SUPPORTED_ID  "pgpMimeNeedsAddon"
+#define PGPMIME_STR_NOT_SUPPORTED_ID  u"pgpMimeNeedsAddon"
 #define PGPMIME_URL_PREF              "mail.pgpmime.addon_url"
 
 static void PgpMimeGetNeedsAddonString(nsCString &aResult)
@@ -87,7 +87,7 @@ static void PgpMimeGetNeedsAddonString(nsCString &aResult)
   const char16_t *formatStrings[] = { url16.get() };
 
   nsString result;
-  rv = stringBundle->FormatStringFromName(MOZ_UTF16(PGPMIME_STR_NOT_SUPPORTED_ID),
+  rv = stringBundle->FormatStringFromName(PGPMIME_STR_NOT_SUPPORTED_ID,
                                           formatStrings, 1, getter_Copies(result));
   if (NS_FAILED(rv))
     return;

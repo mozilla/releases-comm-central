@@ -1927,15 +1927,15 @@ nsresult nsMsgDBFolder::HandleAutoCompactEvent(nsIMsgWindow *aWindow)
           nsAutoString compactSize;
           FormatFileSize(totalExpungedBytes, true, compactSize);
           const char16_t* params[] = { compactSize.get() };
-          rv = bundle->GetStringFromName(MOZ_UTF16("autoCompactAllFoldersTitle"), getter_Copies(dialogTitle));
+          rv = bundle->GetStringFromName(u"autoCompactAllFoldersTitle", getter_Copies(dialogTitle));
           NS_ENSURE_SUCCESS(rv, rv);
-          rv = bundle->FormatStringFromName(MOZ_UTF16("autoCompactAllFoldersText"),
+          rv = bundle->FormatStringFromName(u"autoCompactAllFoldersText",
                                             params, 1, getter_Copies(confirmString));
           NS_ENSURE_SUCCESS(rv, rv);
-          rv = bundle->GetStringFromName(MOZ_UTF16("autoCompactAlwaysAskCheckbox"),
+          rv = bundle->GetStringFromName(u"autoCompactAlwaysAskCheckbox",
                                          getter_Copies(checkboxText));
           NS_ENSURE_SUCCESS(rv, rv);
-          rv = bundle->GetStringFromName(MOZ_UTF16("compactNowButton"),
+          rv = bundle->GetStringFromName(u"compactNowButton",
                                          getter_Copies(buttonCompactNowText));
           NS_ENSURE_SUCCESS(rv, rv);
           bool alwaysAsk = true; // "Always ask..." - checked by default.
@@ -2931,27 +2931,27 @@ nsMsgDBFolder::initializeStrings()
                                    getter_AddRefs(bundle));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  bundle->GetStringFromName(MOZ_UTF16("inboxFolderName"),
+  bundle->GetStringFromName(u"inboxFolderName",
                             &kLocalizedInboxName);
-  bundle->GetStringFromName(MOZ_UTF16("trashFolderName"),
+  bundle->GetStringFromName(u"trashFolderName",
                             &kLocalizedTrashName);
-  bundle->GetStringFromName(MOZ_UTF16("sentFolderName"),
+  bundle->GetStringFromName(u"sentFolderName",
                             &kLocalizedSentName);
-  bundle->GetStringFromName(MOZ_UTF16("draftsFolderName"),
+  bundle->GetStringFromName(u"draftsFolderName",
                             &kLocalizedDraftsName);
-  bundle->GetStringFromName(MOZ_UTF16("templatesFolderName"),
+  bundle->GetStringFromName(u"templatesFolderName",
                             &kLocalizedTemplatesName);
-  bundle->GetStringFromName(MOZ_UTF16("junkFolderName"),
+  bundle->GetStringFromName(u"junkFolderName",
                             &kLocalizedJunkName);
-  bundle->GetStringFromName(MOZ_UTF16("outboxFolderName"),
+  bundle->GetStringFromName(u"outboxFolderName",
                             &kLocalizedUnsentName);
-  bundle->GetStringFromName(MOZ_UTF16("archivesFolderName"),
+  bundle->GetStringFromName(u"archivesFolderName",
                             &kLocalizedArchivesName);
 
   nsCOMPtr<nsIStringBundle> brandBundle;
   rv = bundleService->CreateBundle("chrome://branding/locale/brand.properties", getter_AddRefs(bundle));
   NS_ENSURE_SUCCESS(rv, rv);
-  bundle->GetStringFromName(MOZ_UTF16("brandShortName"),
+  bundle->GetStringFromName(u"brandShortName",
                             &kLocalizedBrandShortName);
   return NS_OK;
 }
@@ -3851,7 +3851,7 @@ nsMsgDBFolder::ConfirmAutoFolderRename(nsIMsgWindow *msgWindow,
   };
 
   nsString confirmString;
-  rv = bundle->FormatStringFromName(MOZ_UTF16("confirmDuplicateFolderRename"),
+  rv = bundle->FormatStringFromName(u"confirmDuplicateFolderRename",
                                     formatStrings, 3, getter_Copies(confirmString));
   if (NS_WARN_IF(NS_FAILED(rv))) {
     return false;

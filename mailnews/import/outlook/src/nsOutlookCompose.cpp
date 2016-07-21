@@ -179,13 +179,13 @@ nsresult OutlookSendListener::CreateSendListener(nsIMsgSendListener **ppListener
 /////////////////////////////////////////////////////////////////////////////////
 
 #define hackBeginA "begin"
-#define hackBeginW MOZ_UTF16(hackBeginA)
+#define hackBeginW u"begin"
 #define hackEndA "\015\012end"
-#define hackEndW MOZ_UTF16(hackEndA)
+#define hackEndW u"\015\012end"
 #define hackCRLFA "crlf"
-#define hackCRLFW MOZ_UTF16(hackCRLFA)
+#define hackCRLFW u"crlf"
 #define hackAmpersandA "amp"
-#define hackAmpersandW MOZ_UTF16(hackAmpersandA)
+#define hackAmpersandW u"amp"
 
 nsOutlookCompose::nsOutlookCompose()
 {

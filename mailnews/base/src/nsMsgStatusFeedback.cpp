@@ -87,7 +87,7 @@ nsMsgStatusFeedback::OnStateChange(nsIWebProgress* aWebProgress,
       m_lastPercent = 0;
       StartMeteors();
       nsString loadingDocument;
-      rv = mBundle->GetStringFromName(MOZ_UTF16("documentLoading"),
+      rv = mBundle->GetStringFromName(u"documentLoading",
                                       getter_Copies(loadingDocument));
       if (NS_SUCCEEDED(rv))
         ShowStatusString(loadingDocument);
@@ -141,7 +141,7 @@ nsMsgStatusFeedback::OnStateChange(nsIWebProgress* aWebProgress,
       }
       StopMeteors();
       nsString documentDone;
-      rv = mBundle->GetStringFromName(MOZ_UTF16("documentDone"),
+      rv = mBundle->GetStringFromName(u"documentDone",
                                       getter_Copies(documentDone));
       if (NS_SUCCEEDED(rv))
         ShowStatusString(documentDone);
@@ -291,7 +291,7 @@ NS_IMETHODIMP nsMsgStatusFeedback::OnStatus(nsIRequest *request, nsISupports* ct
     const char16_t *params[] = { accountName.get(),
                                   str.get() };
     rv = bundle->FormatStringFromName(
-      MOZ_UTF16("statusMessage"),
+      u"statusMessage",
       params, 2, getter_Copies(statusMessage));
     NS_ENSURE_SUCCESS(rv, rv);
   }

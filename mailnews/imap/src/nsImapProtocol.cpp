@@ -551,7 +551,7 @@ nsImapProtocol::Initialize(nsIImapHostSessionList * aHostSessionList,
   rv = IMAPGetStringBundle(getter_AddRefs(bundle));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  rv = bundle->GetStringFromName(MOZ_UTF16("imapEmptyMimePart"),
+  rv = bundle->GetStringFromName(u"imapEmptyMimePart",
     getter_Copies(m_emptyMimePartString));
   NS_ENSURE_SUCCESS(rv, rv);
 

@@ -681,10 +681,10 @@ nsresult nsAbCardProperty::ConvertToEscapedVCard(nsACString &aResult)
     uint32_t format;
     rv = GetPropertyAsUint32(kPreferMailFormatProperty, &format);
     if (NS_SUCCEEDED(rv) && format == nsIAbPreferMailFormat::html) {
-        myAddPropValue(vObj, VCUseHTML, MOZ_UTF16("TRUE"), &vCardHasData);
+        myAddPropValue(vObj, VCUseHTML, u"TRUE", &vCardHasData);
     }
     else if (NS_SUCCEEDED(rv) && format == nsIAbPreferMailFormat::plaintext) {
-        myAddPropValue(vObj, VCUseHTML, MOZ_UTF16("FALSE"), &vCardHasData);
+        myAddPropValue(vObj, VCUseHTML, u"FALSE", &vCardHasData);
     }
 
     rv = GetPropertyAsAString(kWorkWebPageProperty, str);
@@ -693,7 +693,7 @@ nsresult nsAbCardProperty::ConvertToEscapedVCard(nsACString &aResult)
         myAddPropValue(vObj, VCURLProp, str.get(), &vCardHasData);
     }
 
-    myAddPropValue(vObj, VCVersionProp, MOZ_UTF16("2.1"), nullptr);
+    myAddPropValue(vObj, VCVersionProp, u"2.1", nullptr);
 
     if (!vCardHasData) {
         aResult.Truncate();
@@ -729,7 +729,7 @@ nsresult nsAbCardProperty::ConvertToBase64EncodedXML(nsACString &result)
     rv = stringBundleService->CreateBundle(sAddrbookProperties, getter_AddRefs(bundle));
     if (NS_SUCCEEDED(rv)) {
       nsString addrBook;
-      rv = bundle->GetStringFromName(MOZ_UTF16("addressBook"), getter_Copies(addrBook));
+      rv = bundle->GetStringFromName(u"addressBook", getter_Copies(addrBook));
       if (NS_SUCCEEDED(rv)) {
         xmlStr.AppendLiteral("<title xmlns=\"http://www.w3.org/1999/xhtml\">");
         xmlStr.Append(addrBook);
@@ -821,7 +821,7 @@ nsresult nsAbCardProperty::ConvertToXMLPrintData(nsAString &aXMLSubstr)
     xmlStr.AppendLiteral("<section><sectiontitle>");
 
     nsString headingAddresses;
-    rv = bundle->GetStringFromName(MOZ_UTF16("headingAddresses"), getter_Copies(headingAddresses));
+    rv = bundle->GetStringFromName(u"headingAddresses", getter_Copies(headingAddresses));
     NS_ENSURE_SUCCESS(rv, rv);
 
     xmlStr.Append(headingAddresses);
@@ -1043,18 +1043,18 @@ nsresult nsAbCardProperty::AppendCityStateZip(const AppendItem &aItem,
 
   if (!cityResult.IsEmpty() && !stateResult.IsEmpty() && !zipResult.IsEmpty()) {
     const char16_t *formatStrings[] = { cityResult.get(), stateResult.get(), zipResult.get() };
-    rv = aBundle->FormatStringFromName(MOZ_UTF16("cityAndStateAndZip"), formatStrings, ArrayLength(formatStrings), getter_Copies(formattedString));
+    rv = aBundle->FormatStringFromName(u"cityAndStateAndZip", formatStrings, ArrayLength(formatStrings), getter_Copies(formattedString));
     NS_ENSURE_SUCCESS(rv,rv);
   }
   else if (!cityResult.IsEmpty() && !stateResult.IsEmpty() && zipResult.IsEmpty()) {
     const char16_t *formatStrings[] = { cityResult.get(), stateResult.get() };
-    rv = aBundle->FormatStringFromName(MOZ_UTF16("cityAndStateNoZip"), formatStrings, ArrayLength(formatStrings), getter_Copies(formattedString));
+    rv = aBundle->FormatStringFromName(u"cityAndStateNoZip", formatStrings, ArrayLength(formatStrings), getter_Copies(formattedString));
     NS_ENSURE_SUCCESS(rv,rv);
   }
   else if ((!cityResult.IsEmpty() && stateResult.IsEmpty() && !zipResult.IsEmpty()) ||
           (cityResult.IsEmpty() && !stateResult.IsEmpty() && !zipResult.IsEmpty())) {
     const char16_t *formatStrings[] = { cityResult.IsEmpty() ? stateResult.get() : cityResult.get(), zipResult.get() };
-    rv = aBundle->FormatStringFromName(MOZ_UTF16("cityOrStateAndZip"), formatStrings, ArrayLength(formatStrings), getter_Copies(formattedString));
+    rv = aBundle->FormatStringFromName(u"cityOrStateAndZip", formatStrings, ArrayLength(formatStrings), getter_Copies(formattedString));
     NS_ENSURE_SUCCESS(rv,rv);
   }
   else {
@@ -1108,13 +1108,13 @@ NS_IMETHODIMP nsAbCardProperty::GenerateName(int32_t aGenerateFormat,
     if (aGenerateFormat == GENERATE_LAST_FIRST_ORDER) {
       const char16_t *stringParams[2] = {lastName.get(), firstName.get()};
 
-      rv = bundle->FormatStringFromName(MOZ_UTF16("lastFirstFormat"),
+      rv = bundle->FormatStringFromName(u"lastFirstFormat",
                                         stringParams, 2, getter_Copies(result));
     }
     else {
       const char16_t *stringParams[2] = {firstName.get(), lastName.get()};
 
-      rv = bundle->FormatStringFromName(MOZ_UTF16("firstLastFormat"),
+      rv = bundle->FormatStringFromName(u"firstLastFormat",
                                         stringParams, 2, getter_Copies(result));
     }
     NS_ENSURE_SUCCESS(rv, rv); 

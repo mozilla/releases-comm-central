@@ -96,7 +96,7 @@ nsresult nsExplainErrorDetails(nsISmtpUrl * aSmtpUrl, nsresult aCode, ...)
   switch (aCode)
   {
     case NS_ERROR_ILLEGAL_LOCALPART:
-      bundle->GetStringFromName(MOZ_UTF16("errorIllegalLocalPart"),
+      bundle->GetStringFromName(u"errorIllegalLocalPart",
                                 getter_Copies(eMsg));
       msg = nsTextFormatter::vsmprintf(eMsg.get(), args);
       break;
@@ -116,7 +116,7 @@ nsresult nsExplainErrorDetails(nsISmtpUrl * aSmtpUrl, nsresult aCode, ...)
       break;
     default:
       NS_WARNING("falling to default error code");
-      bundle->GetStringFromName(MOZ_UTF16("communicationsError"), getter_Copies(eMsg));
+      bundle->GetStringFromName(u"communicationsError", getter_Copies(eMsg));
       msg = nsTextFormatter::smprintf(eMsg.get(), aCode);
       break;
   }
@@ -1711,7 +1711,7 @@ nsresult nsSmtpProtocol::SendDataResponse()
   m_nextState = SMTP_SEND_POST_DATA;
   ClearFlag(SMTP_PAUSE_FOR_READ);   /* send data directly */
 
-  UpdateStatus(MOZ_UTF16("smtpDeliveringMail"));
+  UpdateStatus(u"smtpDeliveringMail");
 
   {
 //      m_runningURL->GetBodySize(&m_totalMessageSize);
@@ -1734,7 +1734,7 @@ void nsSmtpProtocol::SendMessageInFile()
   // for now, we are always done at this point..we aren't making multiple calls
   // to post data...
 
-  UpdateStatus(MOZ_UTF16("smtpDeliveringMail"));
+  UpdateStatus(u"smtpDeliveringMail");
   m_nextState = SMTP_RESPONSE;
   m_nextStateAfterResponse = SMTP_SEND_MESSAGE_RESPONSE;
 }
@@ -1779,7 +1779,7 @@ nsresult nsSmtpProtocol::SendMessageResponse()
     return(NS_ERROR_SENDING_MESSAGE);
   }
 
-  UpdateStatus(MOZ_UTF16("smtpMailSent"));
+  UpdateStatus(u"smtpMailSent");
 
   /* else */
   return SendQuit();
@@ -2167,11 +2167,11 @@ nsSmtpProtocol::PromptForPassword(nsISmtpServer *aSmtpServer, nsISmtpUrl *aSmtpU
   nsString passwordPromptString;
   if(formatStrings[1])
     rv = composeStringBundle->FormatStringFromName(
-      MOZ_UTF16("smtpEnterPasswordPromptWithUsername"),
+      u"smtpEnterPasswordPromptWithUsername",
       formatStrings, 2, getter_Copies(passwordPromptString));
   else
     rv = composeStringBundle->FormatStringFromName(
-      MOZ_UTF16("smtpEnterPasswordPrompt"),
+      u"smtpEnterPasswordPrompt",
       formatStrings, 1, getter_Copies(passwordPromptString));
   NS_ENSURE_SUCCESS(rv, rv);
 
@@ -2181,7 +2181,7 @@ nsSmtpProtocol::PromptForPassword(nsISmtpServer *aSmtpServer, nsISmtpUrl *aSmtpU
 
   nsString passwordTitle;
   rv = composeStringBundle->GetStringFromName(
-    MOZ_UTF16("smtpEnterPasswordPromptTitle"),
+    u"smtpEnterPasswordPromptTitle",
     getter_Copies(passwordTitle));
   NS_ENSURE_SUCCESS(rv,rv);
 

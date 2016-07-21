@@ -71,15 +71,15 @@ NS_IMETHODIMP nsMsgMailView::GetPrettyName(char16_t ** aMailViewName)
     // see if mName has an associated pretty name inside our string bundle and if so, use that as the pretty name
     // otherwise just return mName
     if (mName.EqualsLiteral(kDefaultViewPeopleIKnow))
-        rv = mBundle->GetStringFromName(MOZ_UTF16("mailViewPeopleIKnow"), aMailViewName);
+        rv = mBundle->GetStringFromName(u"mailViewPeopleIKnow", aMailViewName);
     else if (mName.EqualsLiteral(kDefaultViewRecent))
-        rv = mBundle->GetStringFromName(MOZ_UTF16("mailViewRecentMail"), aMailViewName);
+        rv = mBundle->GetStringFromName(u"mailViewRecentMail", aMailViewName);
     else if (mName.EqualsLiteral(kDefaultViewFiveDays))
-        rv = mBundle->GetStringFromName(MOZ_UTF16("mailViewLastFiveDays"), aMailViewName);
+        rv = mBundle->GetStringFromName(u"mailViewLastFiveDays", aMailViewName);
     else if (mName.EqualsLiteral(kDefaultViewNotJunk))
-        rv = mBundle->GetStringFromName(MOZ_UTF16("mailViewNotJunk"), aMailViewName);
+        rv = mBundle->GetStringFromName(u"mailViewNotJunk", aMailViewName);
     else if (mName.EqualsLiteral(kDefaultViewHasAttachments))
-        rv = mBundle->GetStringFromName(MOZ_UTF16("mailViewHasAttachments"), aMailViewName);
+        rv = mBundle->GetStringFromName(u"mailViewHasAttachments", aMailViewName);
     else
         *aMailViewName = ToNewUnicode(mName);
 

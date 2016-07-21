@@ -429,15 +429,15 @@ nsresult nsAddrDatabase::DisplayAlert(const char16_t *titleName, const char16_t 
 nsresult nsAddrDatabase::AlertAboutCorruptMabFile(const char16_t *aOldFileName, const char16_t *aNewFileName)
 {
   const char16_t *formatStrings[] = { aOldFileName, aOldFileName, aNewFileName };
-  return DisplayAlert(MOZ_UTF16("corruptMabFileTitle"),
-    MOZ_UTF16("corruptMabFileAlert"), formatStrings, 3);
+  return DisplayAlert(u"corruptMabFileTitle",
+    u"corruptMabFileAlert", formatStrings, 3);
 }
 
 nsresult nsAddrDatabase::AlertAboutLockedMabFile(const char16_t *aFileName)
 {
   const char16_t *formatStrings[] = { aFileName };
-  return DisplayAlert(MOZ_UTF16("lockedMabFileTitle"),
-    MOZ_UTF16("lockedMabFileAlert"), formatStrings, 1);
+  return DisplayAlert(u"lockedMabFileTitle",
+    u"lockedMabFileAlert", formatStrings, 1);
 }
 
 nsresult

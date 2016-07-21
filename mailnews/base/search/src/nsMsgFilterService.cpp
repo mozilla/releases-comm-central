@@ -1180,7 +1180,7 @@ bool nsMsgFilterAfterTheFact::ContinueExecutionPrompt()
   {
     filterName.get()
   };
-  nsresult rv = bundle->FormatStringFromName(MOZ_UTF16("continueFilterExecution"),
+  nsresult rv = bundle->FormatStringFromName(u"continueFilterExecution",
                                              formatStrings, 1, getter_Copies(confirmText));
   if (NS_FAILED(rv))
     return false;

@@ -1614,7 +1614,7 @@ NS_IMETHODIMP nsImapMailFolder::Rename (const nsAString& newName, nsIMsgWindow *
         };
         nsString alertString;
         rv = bundle->FormatStringFromName(
-          MOZ_UTF16("imapSpecialChar"),
+          u"imapSpecialChar",
           formatStrings, 1, getter_Copies(alertString));
         nsCOMPtr<nsIPrompt> dialog(do_GetInterface(docShell));
         // setting up the dialog title
@@ -1627,7 +1627,7 @@ NS_IMETHODIMP nsImapMailFolder::Rename (const nsAString& newName, nsIMsgWindow *
         NS_ENSURE_SUCCESS(rv, rv);
         const char16_t *titleParams[] = { accountName.get() };
         rv = bundle->FormatStringFromName(
-          MOZ_UTF16("imapAlertDialogTitle"),
+          u"imapAlertDialogTitle",
           titleParams, 1, getter_Copies(dialogTitle));
 
         if (dialog && !alertString.IsEmpty())
@@ -2434,20 +2434,20 @@ nsImapMailFolder::DeleteSubFolders(nsIArray* folders, nsIMsgWindow *msgWindow)
 
     nsAutoString deleteFolderDialogTitle;
     rv = bundle->GetStringFromName(
-      MOZ_UTF16("imapDeleteFolderDialogTitle"),
+      u"imapDeleteFolderDialogTitle",
       getter_Copies(deleteFolderDialogTitle));
     NS_ENSURE_SUCCESS(rv, rv);
 
     nsAutoString deleteFolderButtonLabel;
     rv = bundle->GetStringFromName(
-      MOZ_UTF16("imapDeleteFolderButtonLabel"),
+      u"imapDeleteFolderButtonLabel",
       getter_Copies(deleteFolderButtonLabel));
     NS_ENSURE_SUCCESS(rv, rv);
 
     nsAutoString confirmationStr;
     rv = bundle->FormatStringFromName((deleteNoTrash) ?
-        MOZ_UTF16("imapDeleteNoTrash") :
-        MOZ_UTF16("imapMoveFolderToTrash"),
+        u"imapDeleteNoTrash" :
+        u"imapMoveFolderToTrash",
       formatStrings, 1, getter_Copies(confirmationStr));
     NS_ENSURE_SUCCESS(rv, rv);
     if (!msgWindow)
@@ -6068,7 +6068,7 @@ nsImapMailFolder::FillInFolderProps(nsIMsgImapFolderProps *aFolderProps)
     }
     const char16_t *params[] = { uniOwner.get() };
     rv = bundle->FormatStringFromName(
-      MOZ_UTF16("imapOtherUsersFolderTypeDescription"),
+      u"imapOtherUsersFolderTypeDescription",
       params, 1, getter_Copies(folderTypeDesc));
   }
   else if (GetFolderACL()->GetIsFolderShared())
@@ -6599,7 +6599,7 @@ nsresult nsMsgIMAPFolderACL::CreateACLRightsString(nsAString& aRightsString)
 
   if (GetDoIHaveFullRightsForFolder()) {
     nsAutoString result;
-    rv = bundle->GetStringFromName(MOZ_UTF16("imapAclFullRights"),
+    rv = bundle->GetStringFromName(u"imapAclFullRights",
                                    getter_Copies(result));
     aRightsString.Assign(result);
     return rv;
@@ -6608,42 +6608,42 @@ nsresult nsMsgIMAPFolderACL::CreateACLRightsString(nsAString& aRightsString)
   {
     if (GetCanIReadFolder())
     {
-      bundle->GetStringFromName(MOZ_UTF16("imapAclReadRight"),
+      bundle->GetStringFromName(u"imapAclReadRight",
                                 getter_Copies(curRight));
       aRightsString.Append(curRight);
     }
     if (GetCanIWriteFolder())
     {
       if (!aRightsString.IsEmpty()) aRightsString.AppendLiteral(", ");
-      bundle->GetStringFromName(MOZ_UTF16("imapAclWriteRight"),
+      bundle->GetStringFromName(u"imapAclWriteRight",
                                 getter_Copies(curRight));
       aRightsString.Append(curRight);
     }
     if (GetCanIInsertInFolder())
     {
       if (!aRightsString.IsEmpty()) aRightsString.AppendLiteral(", ");
-      bundle->GetStringFromName(MOZ_UTF16("imapAclInsertRight"),
+      bundle->GetStringFromName(u"imapAclInsertRight",
                                 getter_Copies(curRight));
       aRightsString.Append(curRight);
     }
     if (GetCanILookupFolder())
     {
       if (!aRightsString.IsEmpty()) aRightsString.AppendLiteral(", ");
-      bundle->GetStringFromName(MOZ_UTF16("imapAclLookupRight"),
+      bundle->GetStringFromName(u"imapAclLookupRight",
                                 getter_Copies(curRight));
       aRightsString.Append(curRight);
     }
     if (GetCanIStoreSeenInFolder())
     {
       if (!aRightsString.IsEmpty()) aRightsString.AppendLiteral(", ");
-      bundle->GetStringFromName(MOZ_UTF16("imapAclSeenRight"),
+      bundle->GetStringFromName(u"imapAclSeenRight",
                                 getter_Copies(curRight));
       aRightsString.Append(curRight);
     }
     if (GetCanIDeleteInFolder())
     {
       if (!aRightsString.IsEmpty()) aRightsString.AppendLiteral(", ");
-      bundle->GetStringFromName(MOZ_UTF16("imapAclDeleteRight"),
+      bundle->GetStringFromName(u"imapAclDeleteRight",
                                 getter_Copies(curRight));
       aRightsString.Append(curRight);
     }
@@ -6651,28 +6651,28 @@ nsresult nsMsgIMAPFolderACL::CreateACLRightsString(nsAString& aRightsString)
     {
       if (!aRightsString.IsEmpty())
         aRightsString.AppendLiteral(", ");
-      bundle->GetStringFromName(MOZ_UTF16("imapAclExpungeRight"),
+      bundle->GetStringFromName(u"imapAclExpungeRight",
                                 getter_Copies(curRight));
       aRightsString.Append(curRight);
     }
     if (GetCanICreateSubfolder())
     {
       if (!aRightsString.IsEmpty()) aRightsString.AppendLiteral(", ");
-      bundle->GetStringFromName(MOZ_UTF16("imapAclCreateRight"),
+      bundle->GetStringFromName(u"imapAclCreateRight",
                                 getter_Copies(curRight));
       aRightsString.Append(curRight);
     }
     if (GetCanIPostToFolder())
     {
       if (!aRightsString.IsEmpty()) aRightsString.AppendLiteral(", ");
-      bundle->GetStringFromName(MOZ_UTF16("imapAclPostRight"),
+      bundle->GetStringFromName(u"imapAclPostRight",
                                 getter_Copies(curRight));
       aRightsString.Append(curRight);
     }
     if (GetCanIAdministerFolder())
     {
       if (!aRightsString.IsEmpty()) aRightsString.AppendLiteral(", ");
-      bundle->GetStringFromName(MOZ_UTF16("imapAclAdministerRight"),
+      bundle->GetStringFromName(u"imapAclAdministerRight",
                                 getter_Copies(curRight));
       aRightsString.Append(curRight);
     }
@@ -8217,7 +8217,7 @@ nsImapMailFolder::CopyStreamMessage(nsIMsgDBHdr* message,
       rv = IMAPGetStringBundle(getter_AddRefs(bundle));
       NS_ENSURE_SUCCESS(rv, rv);
       rv = bundle->FormatStringFromName(
-        MOZ_UTF16("imapCopyingMessageOf2"),
+        u"imapCopyingMessageOf2",
         formatStrings, 3, getter_Copies(progressText));
       nsCOMPtr <nsIMsgStatusFeedback> statusFeedback;
       if (m_copyState->m_msgWindow)

@@ -9,100 +9,100 @@ const char16_t* errorStringNameForErrorCode(nsresult aCode)
   switch(aCode)
   {
     case NS_MSG_UNABLE_TO_OPEN_FILE:
-      return MOZ_UTF16("unableToOpenFile");
+      return u"unableToOpenFile";
     case NS_MSG_UNABLE_TO_OPEN_TMP_FILE:
-      return MOZ_UTF16("unableToOpenTmpFile");
+      return u"unableToOpenTmpFile";
     case NS_MSG_UNABLE_TO_SAVE_TEMPLATE:
-      return MOZ_UTF16("unableToSaveTemplate");
+      return u"unableToSaveTemplate";
     case NS_MSG_UNABLE_TO_SAVE_DRAFT:
-      return MOZ_UTF16("unableToSaveDraft");
+      return u"unableToSaveDraft";
     case NS_MSG_COULDNT_OPEN_FCC_FOLDER:
-      return MOZ_UTF16("couldntOpenFccFolder");
+      return u"couldntOpenFccFolder";
     case NS_MSG_NO_SENDER:
-      return MOZ_UTF16("noSender");
+      return u"noSender";
     case NS_MSG_NO_RECIPIENTS:
-      return MOZ_UTF16("noRecipients");
+      return u"noRecipients";
     case NS_MSG_ERROR_WRITING_FILE:
-      return MOZ_UTF16("errorWritingFile");
+      return u"errorWritingFile";
     case NS_ERROR_SENDING_FROM_COMMAND:
-      return MOZ_UTF16("errorSendingFromCommand");
+      return u"errorSendingFromCommand";
     case NS_ERROR_SENDING_DATA_COMMAND:
-      return MOZ_UTF16("errorSendingDataCommand");
+      return u"errorSendingDataCommand";
     case NS_ERROR_SENDING_MESSAGE:
-      return MOZ_UTF16("errorSendingMessage");
+      return u"errorSendingMessage";
     case NS_ERROR_POST_FAILED:
-      return MOZ_UTF16("postFailed");
+      return u"postFailed";
     case NS_ERROR_QUEUED_DELIVERY_FAILED:
-      return MOZ_UTF16("errorQueuedDeliveryFailed");
+      return u"errorQueuedDeliveryFailed";
     case NS_ERROR_SEND_FAILED:
-      return MOZ_UTF16("sendFailed");
+      return u"sendFailed";
     case NS_ERROR_SMTP_SERVER_ERROR:
-      return MOZ_UTF16("smtpServerError");
+      return u"smtpServerError";
     case NS_MSG_UNABLE_TO_SEND_LATER:
-      return MOZ_UTF16("unableToSendLater");
+      return u"unableToSendLater";
     case NS_ERROR_COMMUNICATIONS_ERROR:
-      return MOZ_UTF16("communicationsError");
+      return u"communicationsError";
     case NS_ERROR_BUT_DONT_SHOW_ALERT:
-      return MOZ_UTF16("dontShowAlert");
+      return u"dontShowAlert";
     case NS_ERROR_TCP_READ_ERROR:
-      return MOZ_UTF16("tcpReadError");
+      return u"tcpReadError";
     case NS_ERROR_COULD_NOT_GET_USERS_MAIL_ADDRESS:
-      return MOZ_UTF16("couldNotGetUsersMailAddress");
+      return u"couldNotGetUsersMailAddress";
     case NS_ERROR_MIME_MPART_ATTACHMENT_ERROR:
-      return MOZ_UTF16("mimeMpartAttachmentError");
+      return u"mimeMpartAttachmentError";
     case NS_MSG_FAILED_COPY_OPERATION:
-      return MOZ_UTF16("failedCopyOperation");
+      return u"failedCopyOperation";
     case NS_ERROR_NNTP_NO_CROSS_POSTING:
-      return MOZ_UTF16("nntpNoCrossPosting");
+      return u"nntpNoCrossPosting";
     case NS_MSG_CANCELLING:
-      return MOZ_UTF16("msgCancelling");
+      return u"msgCancelling";
     case NS_ERROR_SEND_FAILED_BUT_NNTP_OK:
-      return MOZ_UTF16("sendFailedButNntpOk");
+      return u"sendFailedButNntpOk";
     case NS_MSG_ERROR_READING_FILE:
-      return MOZ_UTF16("errorReadingFile");
+      return u"errorReadingFile";
     case NS_MSG_ERROR_ATTACHING_FILE:
-      return MOZ_UTF16("errorAttachingFile");
+      return u"errorAttachingFile";
     case NS_ERROR_SMTP_GREETING:
-      return MOZ_UTF16("incorrectSmtpGreeting");
+      return u"incorrectSmtpGreeting";
     case NS_ERROR_SENDING_RCPT_COMMAND:
-      return MOZ_UTF16("errorSendingRcptCommand");
+      return u"errorSendingRcptCommand";
     case NS_ERROR_STARTTLS_FAILED_EHLO_STARTTLS:
-      return MOZ_UTF16("startTlsFailed");
+      return u"startTlsFailed";
     case NS_ERROR_SMTP_PASSWORD_UNDEFINED:
-      return MOZ_UTF16("smtpPasswordUndefined");
+      return u"smtpPasswordUndefined";
     case NS_ERROR_SMTP_TEMP_SIZE_EXCEEDED:
-      return MOZ_UTF16("smtpTempSizeExceeded");
+      return u"smtpTempSizeExceeded";
     case NS_ERROR_SMTP_PERM_SIZE_EXCEEDED_1:
-      return MOZ_UTF16("smtpPermSizeExceeded1");
+      return u"smtpPermSizeExceeded1";
     case NS_ERROR_SMTP_PERM_SIZE_EXCEEDED_2:
-      return MOZ_UTF16("smtpPermSizeExceeded2");
+      return u"smtpPermSizeExceeded2";
     case NS_ERROR_SMTP_SEND_FAILED_UNKNOWN_SERVER:
-      return MOZ_UTF16("smtpSendFailedUnknownServer");
+      return u"smtpSendFailedUnknownServer";
     case NS_ERROR_SMTP_SEND_FAILED_REFUSED:
-      return MOZ_UTF16("smtpSendRequestRefused");
+      return u"smtpSendRequestRefused";
     case NS_ERROR_SMTP_SEND_FAILED_INTERRUPTED:
-      return MOZ_UTF16("smtpSendInterrupted");
+      return u"smtpSendInterrupted";
     case NS_ERROR_SMTP_SEND_FAILED_TIMEOUT:
-      return MOZ_UTF16("smtpSendTimeout");
+      return u"smtpSendTimeout";
     case NS_ERROR_SMTP_SEND_FAILED_UNKNOWN_REASON:
-      return MOZ_UTF16("smtpSendFailedUnknownReason");
+      return u"smtpSendFailedUnknownReason";
     case NS_ERROR_SMTP_AUTH_CHANGE_ENCRYPT_TO_PLAIN_NO_SSL:
-      return MOZ_UTF16("smtpHintAuthEncryptToPlainNoSsl");
+      return u"smtpHintAuthEncryptToPlainNoSsl";
     case NS_ERROR_SMTP_AUTH_CHANGE_ENCRYPT_TO_PLAIN_SSL:
-      return MOZ_UTF16("smtpHintAuthEncryptToPlainSsl");
+      return u"smtpHintAuthEncryptToPlainSsl";
     case NS_ERROR_SMTP_AUTH_CHANGE_PLAIN_TO_ENCRYPT:
-      return MOZ_UTF16("smtpHintAuthPlainToEncrypt");
+      return u"smtpHintAuthPlainToEncrypt";
     case NS_ERROR_SMTP_AUTH_FAILURE:
-      return MOZ_UTF16("smtpAuthFailure");
+      return u"smtpAuthFailure";
     case NS_ERROR_SMTP_AUTH_GSSAPI:
-      return MOZ_UTF16("smtpAuthGssapi");
+      return u"smtpAuthGssapi";
     case NS_ERROR_SMTP_AUTH_MECH_NOT_SUPPORTED:
-      return MOZ_UTF16("smtpAuthMechNotSupported");
+      return u"smtpAuthMechNotSupported";
     case NS_ERROR_SMTP_AUTH_NOT_SUPPORTED:
-      return MOZ_UTF16("smtpAuthenticationNotSupported");
+      return u"smtpAuthenticationNotSupported";
     case NS_ERROR_ILLEGAL_LOCALPART:
-      return MOZ_UTF16("illegalLocalPart");
+      return u"illegalLocalPart";
     default:
-      return MOZ_UTF16("sendFailed");
+      return u"sendFailed";
   }
 }

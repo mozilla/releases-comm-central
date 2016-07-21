@@ -735,9 +735,9 @@ void nsMessengerWinIntegration::FillToolTipInfo()
 
         nsString finalText;
         if (numNewMessages == 1)
-          bundle->FormatStringFromName(MOZ_UTF16("biffNotification_message"), formatStrings, 1, getter_Copies(finalText));
+          bundle->FormatStringFromName(u"biffNotification_message", formatStrings, 1, getter_Copies(finalText));
         else
-          bundle->FormatStringFromName(MOZ_UTF16("biffNotification_messages"), formatStrings, 1, getter_Copies(finalText));
+          bundle->FormatStringFromName(u"biffNotification_messages", formatStrings, 1, getter_Copies(finalText));
 
         // the alert message is special...we actually only want to show the first account with
         // new mail in the alert.

@@ -249,7 +249,7 @@ nsMsgSendLater::OnStopRequest(nsIRequest *request, nsISupports *ctxt, nsresult s
       if (smtpUrl)
         smtpUrl->GetPrompt(getter_AddRefs(promptObject));
     }
-    nsMsgDisplayMessageByName(promptObject, MOZ_UTF16("errorQueuedDeliveryFailed"));
+    nsMsgDisplayMessageByName(promptObject, u"errorQueuedDeliveryFailed");
 
     // Getting the data failed, but we will still keep trying to send the rest...
     rv = StartNextMailFileSend(status);

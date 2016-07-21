@@ -258,7 +258,7 @@ bool nsMsgI18Nmultibyte_charset(const char *charset)
 
   if (NS_SUCCEEDED(res)) {
     nsAutoString charsetData;
-    res = ccm->GetCharsetData(charset, MOZ_UTF16(".isMultibyte"), charsetData);
+    res = ccm->GetCharsetData(charset, u".isMultibyte", charsetData);
     if (NS_SUCCEEDED(res)) {
       result = charsetData.LowerCaseEqualsLiteral("true");
     }

@@ -866,16 +866,16 @@ MimeMessage_partial_message_html(const char *data, void *closure,
 
   partialMsgHtml.AppendLiteral("<span style=\"font-size: 120%;\">");
   if (msgBaseTruncated)
-    item.Adopt(MimeGetStringByName(MOZ_UTF16("MIME_MSG_PARTIAL_TRUNCATED")));
+    item.Adopt(MimeGetStringByName(u"MIME_MSG_PARTIAL_TRUNCATED"));
   else
-    item.Adopt(MimeGetStringByName(MOZ_UTF16("MIME_MSG_PARTIAL_NOT_DOWNLOADED")));
+    item.Adopt(MimeGetStringByName(u"MIME_MSG_PARTIAL_NOT_DOWNLOADED"));
   partialMsgHtml += item;
   partialMsgHtml.AppendLiteral("</span><hr>");
 
   if (msgBaseTruncated)
-    item.Adopt(MimeGetStringByName(MOZ_UTF16("MIME_MSG_PARTIAL_TRUNCATED_EXPLANATION")));
+    item.Adopt(MimeGetStringByName(u"MIME_MSG_PARTIAL_TRUNCATED_EXPLANATION"));
   else
-    item.Adopt(MimeGetStringByName(MOZ_UTF16("MIME_MSG_PARTIAL_NOT_DOWNLOADED_EXPLANATION")));
+    item.Adopt(MimeGetStringByName(u"MIME_MSG_PARTIAL_NOT_DOWNLOADED_EXPLANATION"));
   partialMsgHtml += item;
   partialMsgHtml.AppendLiteral("<br><br>");
 
@@ -901,7 +901,7 @@ MimeMessage_partial_message_html(const char *data, void *closure,
   }
 
   partialMsgHtml.AppendLiteral("\">");
-  item.Adopt(MimeGetStringByName(MOZ_UTF16("MIME_MSG_PARTIAL_CLICK_FOR_REST")));
+  item.Adopt(MimeGetStringByName(u"MIME_MSG_PARTIAL_CLICK_FOR_REST"));
   partialMsgHtml += item;
   partialMsgHtml.AppendLiteral("</a>");
 

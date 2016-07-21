@@ -1238,7 +1238,7 @@ nsMsgNewsFolder::GetAuthenticationCredentials(nsIMsgWindow *aMsgWindow,
     {
       // Format the prompt text strings
       nsString promptTitle, promptText;
-      bundle->GetStringFromName(MOZ_UTF16("enterUserPassTitle"),
+      bundle->GetStringFromName(u"enterUserPassTitle",
         getter_Copies(promptTitle));
 
       nsString serverName;
@@ -1260,11 +1260,11 @@ nsMsgNewsFolder::GetAuthenticationCredentials(nsIMsgWindow *aMsgWindow,
       params[1] = serverName.get();
       if (singleSignon)
         bundle->FormatStringFromName(
-          MOZ_UTF16("enterUserPassServer"),
+          u"enterUserPassServer",
           &params[1], 1, getter_Copies(promptText));
       else
         bundle->FormatStringFromName(
-          MOZ_UTF16("enterUserPassGroup"),
+          u"enterUserPassGroup",
           params, 2, getter_Copies(promptText));
 
       // Fill the signon url for the dialog

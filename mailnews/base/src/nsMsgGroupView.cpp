@@ -805,33 +805,33 @@ NS_IMETHODIMP nsMsgGroupView::CellTextForColumn(int32_t aRow,
           {
           case 1:
             if (m_kTodayString.IsEmpty())
-              m_kTodayString.Adopt(GetString(MOZ_UTF16("today")));
+              m_kTodayString.Adopt(GetString(u"today"));
             aValue.Assign(m_kTodayString);
             break;
           case 2:
             if (m_kYesterdayString.IsEmpty())
-              m_kYesterdayString.Adopt(GetString(MOZ_UTF16("yesterday")));
+              m_kYesterdayString.Adopt(GetString(u"yesterday"));
             aValue.Assign(m_kYesterdayString);
             break;
           case 3:
             if (m_kLastWeekString.IsEmpty())
-              m_kLastWeekString.Adopt(GetString(MOZ_UTF16("lastWeek")));
+              m_kLastWeekString.Adopt(GetString(u"lastWeek"));
             aValue.Assign(m_kLastWeekString);
             break;
           case 4:
             if (m_kTwoWeeksAgoString.IsEmpty())
-              m_kTwoWeeksAgoString.Adopt(GetString(MOZ_UTF16("twoWeeksAgo")));
+              m_kTwoWeeksAgoString.Adopt(GetString(u"twoWeeksAgo"));
             aValue.Assign(m_kTwoWeeksAgoString);
             break;
           case 5:
             if (m_kOldMailString.IsEmpty())
-              m_kOldMailString.Adopt(GetString(MOZ_UTF16("older")));
+              m_kOldMailString.Adopt(GetString(u"older"));
             aValue.Assign(m_kOldMailString);
             break;
           default:
             // Future date, error/spoofed.
             if (m_kFutureDateString.IsEmpty())
-              m_kFutureDateString.Adopt(GetString(MOZ_UTF16("futureDate")));
+              m_kFutureDateString.Adopt(GetString(u"futureDate"));
             aValue.Assign(m_kFutureDateString);
             break;
           }
@@ -846,21 +846,21 @@ NS_IMETHODIMP nsMsgGroupView::CellTextForColumn(int32_t aRow,
         case nsMsgViewSortType::byStatus:
           rv = FetchStatus(m_flags[aRow], aValue);
           if (aValue.IsEmpty()) {
-            tmp_str.Adopt(GetString(MOZ_UTF16("messagesWithNoStatus")));
+            tmp_str.Adopt(GetString(u"messagesWithNoStatus"));
             aValue.Assign(tmp_str);
           }
           break;
         case nsMsgViewSortType::byTags:
           rv = FetchTags(msgHdr, aValue);
           if (aValue.IsEmpty()) {
-            tmp_str.Adopt(GetString(MOZ_UTF16("untaggedMessages")));
+            tmp_str.Adopt(GetString(u"untaggedMessages"));
             aValue.Assign(tmp_str);
           }
           break;
         case nsMsgViewSortType::byPriority:
           FetchPriority(msgHdr, aValue);
           if (aValue.IsEmpty()) {
-            tmp_str.Adopt(GetString(MOZ_UTF16("noPriority")));
+            tmp_str.Adopt(GetString(u"noPriority"));
             aValue.Assign(tmp_str);
           }
           break;
@@ -872,12 +872,12 @@ NS_IMETHODIMP nsMsgGroupView::CellTextForColumn(int32_t aRow,
           break;
         case nsMsgViewSortType::byAttachments:
           tmp_str.Adopt(GetString(flags & nsMsgMessageFlags::Attachment ?
-            MOZ_UTF16("attachments") : MOZ_UTF16("noAttachments")));
+            u"attachments" : u"noAttachments"));
           aValue.Assign(tmp_str);
           break;
         case nsMsgViewSortType::byFlagged:
           tmp_str.Adopt(GetString(flags & nsMsgMessageFlags::Marked ?
-            MOZ_UTF16("groupFlagged") : MOZ_UTF16("notFlagged")));
+            u"groupFlagged" : u"notFlagged"));
           aValue.Assign(tmp_str);
           break;
         // byLocation is a special case; we don't want to have duplicate

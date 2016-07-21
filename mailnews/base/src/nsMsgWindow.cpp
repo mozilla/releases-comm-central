@@ -86,7 +86,7 @@ NS_IMETHODIMP nsMsgWindow::GetMessageWindowDocShell(nsIDocShell ** aDocShell)
     {
       nsCOMPtr<nsIDocShellTreeItem> msgDocShellItem;
       if(rootShell)
-         rootShell->FindChildWithName(MOZ_UTF16("messagepane"),
+         rootShell->FindChildWithName(u"messagepane",
                                       true, false, nullptr, nullptr,
                                       getter_AddRefs(msgDocShellItem));
       NS_ENSURE_TRUE(msgDocShellItem, NS_ERROR_FAILURE);

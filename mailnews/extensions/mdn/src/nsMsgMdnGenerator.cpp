@@ -471,7 +471,7 @@ nsresult nsMsgMdnGenerator::CreateFirstPart()
 
     parm = PR_smprintf("From: %s" CRLF, convbuf ? convbuf : m_email.get());
 
-    rv = FormatStringFromName(MOZ_UTF16("MsgMdnMsgSentTo"), NS_ConvertASCIItoUTF16(m_email).get(),
+    rv = FormatStringFromName(u"MsgMdnMsgSentTo", NS_ConvertASCIItoUTF16(m_email).get(),
                             getter_Copies(firstPart1));
     if (NS_FAILED(rv))
         return rv;
@@ -493,32 +493,32 @@ nsresult nsMsgMdnGenerator::CreateFirstPart()
     {
     case nsIMsgMdnGenerator::eDisplayed:
         rv = GetStringFromName(
-            MOZ_UTF16("MdnDisplayedReceipt"),
+            u"MdnDisplayedReceipt",
             getter_Copies(receipt_string));
         break;
     case nsIMsgMdnGenerator::eDispatched:
         rv = GetStringFromName(
-            MOZ_UTF16("MdnDispatchedReceipt"),
+            u"MdnDispatchedReceipt",
             getter_Copies(receipt_string));
         break;
     case nsIMsgMdnGenerator::eProcessed:
         rv = GetStringFromName(
-            MOZ_UTF16("MdnProcessedReceipt"),
+            u"MdnProcessedReceipt",
             getter_Copies(receipt_string));
         break;
     case nsIMsgMdnGenerator::eDeleted:
         rv = GetStringFromName(
-            MOZ_UTF16("MdnDeletedReceipt"),
+            u"MdnDeletedReceipt",
             getter_Copies(receipt_string));
         break;
     case nsIMsgMdnGenerator::eDenied:
         rv = GetStringFromName(
-            MOZ_UTF16("MdnDeniedReceipt"),
+            u"MdnDeniedReceipt",
             getter_Copies(receipt_string));
         break;
     case nsIMsgMdnGenerator::eFailed:
         rv = GetStringFromName(
-            MOZ_UTF16("MdnFailedReceipt"),
+            u"MdnFailedReceipt",
             getter_Copies(receipt_string));
         break;
     default:
@@ -594,32 +594,32 @@ report-type=disposition-notification;\r\n\tboundary=\"%s\"" CRLF CRLF,
     {
     case nsIMsgMdnGenerator::eDisplayed:
         rv = GetStringFromName(
-            MOZ_UTF16("MsgMdnDisplayed"),
+            u"MsgMdnDisplayed",
             getter_Copies(firstPart2));
         break;
     case nsIMsgMdnGenerator::eDispatched:
         rv = GetStringFromName(
-            MOZ_UTF16("MsgMdnDispatched"),
+            u"MsgMdnDispatched",
             getter_Copies(firstPart2));
         break;
     case nsIMsgMdnGenerator::eProcessed:
         rv = GetStringFromName(
-            MOZ_UTF16("MsgMdnProcessed"),
+            u"MsgMdnProcessed",
             getter_Copies(firstPart2));
         break;
     case nsIMsgMdnGenerator::eDeleted:
         rv = GetStringFromName(
-            MOZ_UTF16("MsgMdnDeleted"),
+            u"MsgMdnDeleted",
             getter_Copies(firstPart2));
         break;
     case nsIMsgMdnGenerator::eDenied:
         rv = GetStringFromName(
-            MOZ_UTF16("MsgMdnDenied"),
+            u"MsgMdnDenied",
             getter_Copies(firstPart2));
         break;
     case nsIMsgMdnGenerator::eFailed:
         rv = GetStringFromName(
-            MOZ_UTF16("MsgMdnFailed"),
+            u"MsgMdnFailed",
             getter_Copies(firstPart2));
         break;
     default:
@@ -1082,19 +1082,19 @@ NS_IMETHODIMP nsMsgMdnGenerator::OnStopRunningUrl(nsIURI *url,
     {
       case NS_ERROR_UNKNOWN_HOST:
       case NS_ERROR_UNKNOWN_PROXY_HOST:
-        exitString = MOZ_UTF16("smtpSendFailedUnknownServer");
+        exitString = u"smtpSendFailedUnknownServer";
         break;
       case NS_ERROR_CONNECTION_REFUSED:
       case NS_ERROR_PROXY_CONNECTION_REFUSED:
-        exitString = MOZ_UTF16("smtpSendRequestRefused");
+        exitString = u"smtpSendRequestRefused";
         break;
       case NS_ERROR_NET_INTERRUPT:
       case NS_ERROR_ABORT: // we have no proper string for error code NS_ERROR_ABORT in compose bundle
-        exitString = MOZ_UTF16("smtpSendInterrupted");
+        exitString = u"smtpSendInterrupted";
         break;
       case NS_ERROR_NET_TIMEOUT:
       case NS_ERROR_NET_RESET:
-        exitString = MOZ_UTF16("smtpSendTimeout");
+        exitString = u"smtpSendTimeout";
         break;
       default:
         exitString = errorStringNameForErrorCode(aExitCode);
@@ -1128,7 +1128,7 @@ NS_IMETHODIMP nsMsgMdnGenerator::OnStopRunningUrl(nsIURI *url,
     nsString failed_msg, dialogTitle;
 
     bundle->FormatStringFromName(exitString, params, 1, getter_Copies(failed_msg));
-    bundle->GetStringFromName(MOZ_UTF16("sendMessageErrorTitle"), getter_Copies(dialogTitle));
+    bundle->GetStringFromName(u"sendMessageErrorTitle", getter_Copies(dialogTitle));
 
     nsCOMPtr<nsIPrompt> dialog;
     rv = m_window->GetPromptDialog(getter_AddRefs(dialog));

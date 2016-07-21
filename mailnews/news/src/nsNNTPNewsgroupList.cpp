@@ -316,7 +316,7 @@ nsNNTPNewsgroupList::GetRangeOfArtsToDownload(nsIMsgWindow *aMsgWindow,
     rv = bundleService->CreateBundle(NEWS_MSGS_URL, getter_AddRefs(bundle));
     NS_ENSURE_SUCCESS(rv, rv);
 
-    rv = bundle->GetStringFromName(MOZ_UTF16("noNewMessages"), getter_Copies(statusString));
+    rv = bundle->GetStringFromName(u"noNewMessages", getter_Copies(statusString));
     NS_ENSURE_SUCCESS(rv, rv);
 
     SetProgressStatus(statusString.get());
@@ -886,7 +886,7 @@ nsNNTPNewsgroupList::FinishXOVERLINE(int status, int *newstatus)
       NS_ENSURE_SUCCESS(rv, rv);
 
       const char16_t *formatStrings[2] = { firstStr.get(), lastStr.get() };
-      rv = bundle->FormatStringFromName(MOZ_UTF16("downloadingArticles"), formatStrings, 2, getter_Copies(statusString));
+      rv = bundle->FormatStringFromName(u"downloadingArticles", formatStrings, 2, getter_Copies(statusString));
       NS_ENSURE_SUCCESS(rv, rv);
 
       SetProgressStatus(statusString.get());
@@ -1253,7 +1253,7 @@ nsNNTPNewsgroupList::SetProgressStatus(const char16_t *aMessage)
                              getter_AddRefs(bundle));
       NS_ENSURE_SUCCESS_VOID(rv);
       const char16_t *params[] = { accountName.get(), aMessage };
-      bundle->FormatStringFromName(MOZ_UTF16("statusMessage"),
+      bundle->FormatStringFromName(u"statusMessage",
                                    params, 2, getter_Copies(statusMessage));
 
       feedback->ShowStatusString(statusMessage);
@@ -1295,14 +1295,14 @@ nsNNTPNewsgroupList::UpdateStatus(bool filtering, int32_t numDLed, int32_t totTo
     NS_ConvertUTF8toUTF16 header(m_filterHeaders[m_currentXHDRIndex]);
     const char16_t *formatStrings[4] = { header.get(),
       numDownloadedStr.get(), totalToDownloadStr.get(), newsgroupName.get() };
-    rv = bundle->FormatStringFromName(MOZ_UTF16("newNewsgroupFilteringHeaders"),
+    rv = bundle->FormatStringFromName(u"newNewsgroupFilteringHeaders",
       formatStrings, 4, getter_Copies(statusString));
   }
   else
   {
     const char16_t *formatStrings[3] = { numDownloadedStr.get(),
       totalToDownloadStr.get(), newsgroupName.get() };
-    rv = bundle->FormatStringFromName(MOZ_UTF16("newNewsgroupHeaders"),
+    rv = bundle->FormatStringFromName(u"newNewsgroupHeaders",
       formatStrings, 3, getter_Copies(statusString));
   }
   if (!NS_SUCCEEDED(rv))
