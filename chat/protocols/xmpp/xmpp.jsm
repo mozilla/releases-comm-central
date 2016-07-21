@@ -674,6 +674,53 @@ var XMPPConversationPrototype = {
     this._account.sendStanza(Stanza.node("message", null, {to: this.to}, x));
   },
 
+  // Query the user for its Software Version.
+  // XEP-0092: Software Version.
+  getVersion: function() {
+    // TODO: Use Service Discovery to determine if the user's client supports
+    // jabber:iq:version protocol.
+
+    let s = Stanza.iq("get", null, this.to,
+                      Stanza.node("query", Stanza.NS.version));
+    this._account.sendStanza(s, aStanza => {
+      // TODO: handle other errors that can result from querying
+      // user for its software version.
+      if (this._account.handleErrors({
+            default: _("conversation.error.version.unknown")
+          }, this)(aStanza)) {
+        return;
+      }
+
+      let query = aStanza.getElement(["query"]);
+      if (!query || query.uri != Stanza.NS.version) {
+        this.WARN("Received a response to version query which does not " +
+                  "contain query element or 'jabber:iq:version' namespace.");
+        return;
+      }
+
+      let name = query.getElement(["name"]);
+      let version = query.getElement(["version"]);
+      if (!name || !version) {
+        // XEP-0092: name and version elements are REQUIRED.
+        this.WARN("Received a response to version query which does not " +
+                  "contain name or version.");
+        return;
+      }
+
+      let messageID = "conversation.message.version";
+      let params = [this.shortName, name.innerText, version.innerText];
+
+      // XEP-0092: os is OPTIONAL.
+      let os = query.getElement(["os"]);
+      if (os) {
+        params.push(os.innerText);
+        messageID += "WithOS";
+      }
+
+      this.writeMessage(this.name, _(messageID, ...params), {system: true});
+    });
+  },
+
   /* Perform entity escaping before displaying the message. We assume incoming
      messages have already been escaped, and will otherwise be filtered. */
   prepareForDisplaying: function(aMsg) {
@@ -1532,11 +1579,17 @@ var XMPPAccountPrototype = {
         return uncapitalize(aStr.split("-").map(capitalize).join(""));
       }
       let condition = toCamelCase(error.condition);
-      // Check if we have a handler property for this kind of error.
-      if (!(condition in aHandlers))
+      // Check if we have a handler property for this kind of error or a
+      // default handler.
+      if (!(condition in aHandlers) && !("default" in aHandlers))
         return false;
 
+      // Try to get the handler for condition, if we cannot get it, try to get
+      // the default handler.
       let handler = aHandlers[condition];
+      if (!handler)
+        handler = aHandlers["default"];
+
       if (typeof handler == "string") {
         // The string is an error message to be displayed in the conversation.
         if (!aThis || !aThis.writeMessage) {

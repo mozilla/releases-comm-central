@@ -269,5 +269,26 @@ var commands = [
         aReturnedConv.value = privateConv;
       return true;
     }
+  },
+  {
+    name: "version",
+    get helpString() { return _("command.version", "version"); },
+    usageContext: Ci.imICommand.CMD_CONTEXT_IM,
+    run: function(aMsg, aConv, aReturnedConv) {
+      let conv = getConv(aConv);
+      if (conv.left)
+        return true;
+
+      // We do not have user's resource.
+      if (!conv._targetResource) {
+        conv.writeMessage(conv.name,
+                          _("conversation.error.resourceNotAvailable", conv.shortName),
+                          {system: true});
+        return true;
+      }
+
+      conv.getVersion();
+      return true;
+    }
   }
 ];
