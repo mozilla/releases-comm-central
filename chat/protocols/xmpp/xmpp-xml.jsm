@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-this.EXPORTED_SYMBOLS = ["Stanza", "XMPPParser"];
+this.EXPORTED_SYMBOLS = ["Stanza", "XMPPParser", "SupportedFeatures"];
 
 var {classes: Cc, interfaces: Ci, results: Cr, utils: Cu} = Components;
 
@@ -47,6 +47,7 @@ var NS = {
   muc_user                  : "http://jabber.org/protocol/muc#user",
   muc_owner                 : "http://jabber.org/protocol/muc#owner",
   muc_admin                 : "http://jabber.org/protocol/muc#admin",
+  muc_rooms                 : "http://jabber.org/protocol/muc#rooms",
   conference                : "jabber:x:conference",
   muc                       : "http://jabber.org/protocol/muc",
   register                  : "jabber:iq:register",
@@ -90,6 +91,19 @@ var TOP_LEVEL_ELEMENTS = {
   "challenge"           : "urn:ietf:params:xml:ns:xmpp-sasl",
   "error"               : "urn:ietf:params:xml:ns:xmpp-streams"
 };
+
+// Features that we support in XMPP.
+// Don't forget to add your new features here.
+var SupportedFeatures = [
+  NS.chatstates,
+  NS.conference,
+  NS.disco_info,
+  NS.last,
+  NS.muc,
+  NS.ping,
+  NS.vcard,
+  NS.version
+];
 
 /* Stanza Builder */
 var Stanza = {

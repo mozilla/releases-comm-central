@@ -1703,6 +1703,27 @@ var XMPPAccountPrototype = {
         this.sendStanza(Stanza.iq("result", id, from, versionQuery));
         return;
       }
+      if (query && query.uri == Stanza.NS.disco_info) {
+        // XEP-0030: Service Discovery.
+        let children = [];
+        if (aStanza.attributes["node"] == Stanza.NS.muc_rooms) {
+          // XEP-0045 (6.7): Room query.
+          // TODO: Currently, we return an empty <query/> element, but we
+          // should return non-private rooms.
+        }
+        else {
+          children = SupportedFeatures.map(feature =>
+            Stanza.node("feature", null, {var: feature})
+          );
+          children.unshift(Stanza.node("identity", null,
+                                       {category: "client", type: "pc",
+                                        name: Services.appinfo.name}));
+        }
+        let discoveryQuery =
+          Stanza.node("query", Stanza.NS.disco_info, null, children);
+        this.sendStanza(Stanza.iq("result", id, from, discoveryQuery));
+        return;
+      }
     }
     this.WARN(`Unhandled IQ ${type} stanza.`);
   },
