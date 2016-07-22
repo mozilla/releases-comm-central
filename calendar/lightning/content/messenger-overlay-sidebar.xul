@@ -10,13 +10,18 @@
   <!ENTITY % dtd2 SYSTEM "chrome://calendar/locale/menuOverlay.dtd" > %dtd2;
   <!ENTITY % dtd3 SYSTEM "chrome://calendar/locale/calendar.dtd" > %dtd3;
   <!ENTITY % dtd4 SYSTEM "chrome://lightning/locale/lightning-toolbar.dtd" > %dtd4;
-  <!ENTITY % messengerDTD SYSTEM "chrome://messenger/locale/messenger.dtd"> %messengerDTD;
+  <!ENTITY % messengerDTD SYSTEM "chrome://messenger/locale/messenger.dtd" > %messengerDTD;
+  <!ENTITY % eventDialogDTD SYSTEM "chrome://calendar/locale/calendar-event-dialog.dtd" > %eventDialogDTD;
 ]>
 
 <?xml-stylesheet href="chrome://lightning/skin/lightning.css" type="text/css"?>
 
 <?xml-stylesheet href="chrome://calendar/content/calendar-view-bindings.css" type="text/css"?>
 <?xml-stylesheet href="chrome://calendar/content/datetimepickers/datetimepickers.css" type="text/css"?>
+
+<?xml-stylesheet href="chrome://calendar/skin/calendar-event-dialog.css" type="text/css"?>
+<?xml-stylesheet href="chrome://calendar/content/calendar-event-dialog.css" type="text/css"?>
+<?xml-stylesheet href="chrome://calendar-common/skin/dialogs/calendar-event-dialog.css" type="text/css"?>
 
 <?xul-overlay href="chrome://calendar/content/calendar-calendars-list.xul"?>
 <?xul-overlay href="chrome://calendar/content/calendar-common-sets.xul"?>
@@ -59,6 +64,9 @@
   <script type="application/javascript" src="chrome://lightning/content/lightning-utils.js"/>
   <script type="application/javascript" src="chrome://lightning/content/messenger-overlay-sidebar.js"/>
   <script type="application/javascript" src="chrome://calendar/content/calendar-invitations-manager.js"/>
+
+  <!-- NEEDED FOR EVENT/TASK IN A TAB -->
+  <script type="application/javascript" src="chrome://lightning/content/lightning-item-panel.js"/>
 
   <window id="messengerWindow">
     <!-- Be sure to keep these sets, since they will be overlayed by
@@ -210,6 +218,79 @@
   </hbox>
 
   <statusbar id="status-bar">
+    <!-- event/task in tab statusbarpanels -->
+    <statusbarpanel id="status-text"
+                    class="event-dialog"
+                    flex="1"/>
+    <statusbarpanel id="status-privacy"
+                    class="event-dialog"
+                    align="center"
+                    flex="1"
+                    collapsed="true"
+                    pack="start">
+      <label value="&event.statusbarpanel.privacy.label;"/>
+      <hbox id="status-privacy-public-box" privacy="PUBLIC">
+        <label value="&event.menu.options.privacy.public.label;"/>
+      </hbox>
+      <hbox id="status-privacy-confidential-box" privacy="CONFIDENTIAL">
+        <label value="&event.menu.options.privacy.confidential.label;"/>
+      </hbox>
+      <hbox id="status-privacy-private-box" privacy="PRIVATE">
+        <label value="&event.menu.options.privacy.private.label;"/>
+      </hbox>
+    </statusbarpanel>
+    <statusbarpanel id="status-priority"
+                    class="event-dialog"
+                    align="center"
+                    flex="1"
+                    collapsed="true"
+                    pack="start">
+      <label value="&event.priority2.label;"/>
+      <image id="image-priority-low"
+             class="cal-statusbar-1"
+             collapsed="true"
+             value="low"/>
+      <image id="image-priority-normal"
+             class="cal-statusbar-1"
+             collapsed="true"
+             value="normal"/>
+      <image id="image-priority-high"
+             class="cal-statusbar-1"
+             collapsed="true"
+             value="high"/>
+    </statusbarpanel>
+    <statusbarpanel id="status-status"
+                    class="event-dialog"
+                    align="center"
+                    flex="1"
+                    collapsed="true"
+                    pack="start">
+      <label value="&task.status.label;"/>
+      <label id="status-status-tentative-label"
+             value="&newevent.status.tentative.label;"
+             hidden="true"/>
+      <label id="status-status-confirmed-label"
+             value="&newevent.status.confirmed.label;"
+             hidden="true"/>
+      <label id="status-status-cancelled-label"
+             value="&newevent.eventStatus.cancelled.label;"
+             hidden="true"/>
+    </statusbarpanel>
+    <statusbarpanel id="status-freebusy"
+                    class="event-only event-dialog"
+                    align="center"
+                    flex="1"
+                    collapsed="true"
+                    pack="start">
+      <label value="&event.statusbarpanel.freebusy.label;"/>
+      <label id="status-freebusy-free-label"
+             value="&event.freebusy.legend.free;"
+             hidden="true"/>
+      <label id="status-freebusy-busy-label"
+             value="&event.freebusy.legend.busy;"
+             hidden="true"/>
+    </statusbarpanel>
+    <!-- end event/task in tab statusbarpanels -->
     <statusbarpanel id="calendar-show-todaypane-panel"
                     pack="center">
       <toolbarbutton id="calendar-status-todaypane-button"

@@ -105,7 +105,6 @@ radio[pane=paneLightning] {
     -moz-image-region: rect(16px 80px 32px 64px);
 }
 
-
 /* Lightning sidebar in calendar and task mode */
 #ltnSidebar {
   background-color: -moz-field;

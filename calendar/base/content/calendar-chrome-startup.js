@@ -148,9 +148,8 @@ var calendarWindowPrefs = {
  * to change UI items that require js code intervention
  */
 function migrateCalendarUI() {
-    const UI_VERSION = 1;
+    const UI_VERSION = 2;
     let currentUIVersion = Preferences.get("calendar.ui.version");
-
     if (currentUIVersion >= UI_VERSION) {
         return;
     }
@@ -162,7 +161,32 @@ function migrateCalendarUI() {
             let taskbar = document.getElementById("task-toolbar2");
             taskbar.insertItem("task-appmenu-button");
         }
+        if (currentUIVersion < 2) {
+            // If the user has customized the event/task window dialog toolbar,
+            // we copy that custom set of toolbar items to the event/task tab
+            // toolbar and add the app menu button and a spring for alignment.
+            let xulStore = Components.classes["@mozilla.org/xul/xulstore;1"]
+                                     .getService(Components.interfaces.nsIXULStore);
+            let uri = "chrome://calendar/content/calendar-event-dialog.xul";
 
+            if (xulStore.hasValue(uri, "event-toolbar", "currentset")) {
+                let windowSet = xulStore.getValue(uri, "event-toolbar", "currentset");
+                let items = "calendar-item-appmenu-button";
+                if (!windowSet.includes("spring")) {
+                    items = "spring," + items;
+                }
+                let previousSet = windowSet == "__empty" ? "" : windowSet + ",";
+                let tabSet = previousSet + items;
+                let tabBar = document.getElementById("event-tab-toolbar");
+
+                tabBar.currentSet = tabSet;
+                // For some reason we also have to do the following,
+                // presumably because the toolbar has already been
+                // loaded into the DOM so the toolbar's currentset
+                // attribute does not yet match the new currentSet.
+                tabBar.setAttribute("currentset", tabSet);
+            }
+        }
         Preferences.set("calendar.ui.version", UI_VERSION);
     } catch (e) {
         cal.ERROR("Error upgrading UI from " + currentUIVersion + " to " +

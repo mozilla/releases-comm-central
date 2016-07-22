@@ -27,16 +27,20 @@ var gStartTimezone = null;
 var gEndTimezone = null;
 var gUntilDate = null;
 var gIsReadOnly = false;
-var gPrivacy = null;
 var gAttachMap = {};
-var gPriority = 0;
-var gStatus = "NONE";
 var gConfirmCancel = true;
 var gLastRepeatSelection = 0;
 var gIgnoreUpdate = false;
-var gShowTimeAs = null;
 var gWarning = false;
 var gPreviousCalendarId = null;
+var gTimezonesEnabled = null;
+var gTabInfoObject;
+var gConfig = {
+    priority: 0,
+    privacy: null,
+    status: "NONE",
+    showTimeAs: null
+}
 
 var eventDialogQuitObserver = {
   observe: function(aSubject, aTopic, aData) {
@@ -94,8 +98,7 @@ var eventDialogCalendarObserver = {
     onDeleteItem: function(aDeletedItem) {
         if (this.isObserving && "calendarItem" in window &&
             window.calendarItem && window.calendarItem.id == aDeletedItem.id) {
-            gConfirmCancel = false;
-            document.documentElement.cancelDialog();
+            cancelItem();
         }
     },
 
@@ -129,53 +132,98 @@ var eventDialogCalendarObserver = {
  * Checks if the given calendar supports notifying attendees. The item is needed
  * since calendars may support notifications for only some types of items.
  *
- * @param aCalendar   The calendar to check
- * @param item        The item to check support for.
+ * @param {calICalendar} aCalendar  The calendar to check
+ * @param {calIItemBase} aItem      The item to check support for
  */
-function canNotifyAttendees(aCalendar, item) {
+function canNotifyAttendees(aCalendar, aItem) {
     try {
         var calendar = aCalendar.QueryInterface(Components.interfaces.calISchedulingSupport);
-        return (calendar.canNotify("REQUEST", item) && calendar.canNotify("CANCEL", item));
+        return (calendar.canNotify("REQUEST", aItem) && calendar.canNotify("CANCEL", aItem));
     } catch (exc) {
         return false;
     }
 }
 
 /**
- * Update menu items that rely on focus
+ * Sends an asynchronous message to the parent context that contains the
+ * iframe. Additional properties of aMessage are generally arguments
+ * that will be passed to the function named in aMessage.command.
+ *
+ * @param {Object} aMessage           The message to pass to the parent context
+ * @param {string} aMessage.command   The name of a function to call
  */
-function goUpdateGlobalEditMenuItems() {
-    goUpdateCommand('cmd_undo');
-    goUpdateCommand('cmd_redo');
-    goUpdateCommand('cmd_cut');
-    goUpdateCommand('cmd_copy');
-    goUpdateCommand('cmd_paste');
-    goUpdateCommand('cmd_selectAll');
+function sendMessage(aMessage) {
+    parent.postMessage(aMessage, "*");
 }
 
 /**
- * Update menu items that rely on the current selection
+ * Receives asynchronous messages from the parent context that contains the iframe.
+ *
+ * @param {MessageEvent} aEvent  Contains the message being received
  */
-function goUpdateSelectEditMenuItems() {
-    goUpdateCommand('cmd_cut');
-    goUpdateCommand('cmd_copy');
-    goUpdateCommand('cmd_delete');
-    goUpdateCommand('cmd_selectAll');
-}
-
-/**
- * Update menu items that relate to undo/redo
- */
-function goUpdateUndoEditMenuItems() {
-    goUpdateCommand('cmd_undo');
-    goUpdateCommand('cmd_redo');
-}
-
-/**
- * Update menu items that depend on clipboard contents
- */
-function goUpdatePasteMenuItems() {
-    goUpdateCommand('cmd_paste');
+function receiveMessage(aEvent) {
+    let validOrigin = gTabmail ? "chrome://messenger" : "chrome://calendar";
+    if (aEvent.origin !== validOrigin) {
+        return;
+    }
+    switch (aEvent.data.command) {
+        case "editAttendees": editAttendees(); break;
+        case "attachURL": attachURL(); break;
+        case "onCommandDeleteItem": onCommandDeleteItem(); break;
+        case "onCommandSave": onCommandSave(aEvent.data.isClosing); break;
+        case "onAccept": onAccept(); break;
+        case "onCancel": onCancel(aEvent.data.iframeId); break;
+        case "editStatus":
+            gConfig.status = aEvent.data.value;
+            updateStatus(gConfig.status);
+            break;
+        case "editShowTimeAs":
+            gConfig.showTimeAs = aEvent.data.value;
+            updateShowTimeAs(gConfig.showTimeAs);
+            break;
+        case "editPriority":
+            gConfig.priority = aEvent.data.value;
+            updatePriority(gConfig.priority);
+            break;
+        case "editPrivacy":
+            gConfig.privacy = aEvent.data.value;
+            updatePrivacy(gConfig.privacy);
+            break;
+        case "rotatePrivacy":
+            gConfig.privacy = rotatePrivacy(gConfig.privacy);
+            updatePrivacy(gConfig.privacy);
+            break;
+        case "rotateStatus":
+            gConfig.status = rotateStatus(gConfig.status,
+                                          cal.isEvent(window.calendarItem),
+                                          aEvent.data.noneCommandIsVisible);
+            updateStatus(gConfig.status);
+            break;
+        case "rotatePriority":
+            if (capSupported("priority")) {
+                gConfig.priority = rotatePriority(gConfig.priority);
+                updatePriority(gConfig.priority);
+            }
+            break;
+        case "rotateShowTimeAs":
+            gConfig.showTimeAs = rotateShowTimeAs(gConfig.showTimeAs);
+            updateShowTimeAs(gConfig.showTimeAs);
+            break;
+        case "toggleTimezoneLinks":
+            gTimezonesEnabled = aEvent.data.checked;
+            updateDateTime();
+            break;
+        case "toggleLink":
+            updateItemURL(aEvent.data.checked);
+            break;
+        case "closingWindowWithTabs":
+            let response = onCancel(aEvent.data.id, true);
+            sendMessage({
+                command: "replyToClosingWindowWithTabs",
+                response: response
+            });
+            break;
+    }
 }
 
 /**
@@ -186,9 +234,37 @@ function onLoad() {
     // Set a variable to allow/prevent actions when the dialog is loading.
     onLoad.isLoading = true;
 
+    window.addEventListener("message", receiveMessage, false);
+
+    // Move the args for the window dialog so they are positioned
+    // relative to the iframe, like in the tab.
+    if (!window.arguments) {
+        window.arguments = [parent.arguments[0]];
+        // XXX Should we delete the arguments in the parent context so
+        // they are only accessible in one place?  But they are needed for onLoad there.
+    }
+
     // first of all retrieve the array of
     // arguments this window has been called with.
-    var args = window.arguments[0];
+    let args = window.arguments[0];
+
+    intializeTabOrWindowVariables();
+
+    // Calling onLoad in the outer context is handled in calendar-event-dialog.xul
+    // for the window case, and here for the tab case because there is no onload
+    // event fired for the outer context for tabs.
+    if (gInTab) {
+        sendMessage({ command: "onLoad" });
+    }
+
+    // Needed so we can call switchToTab for the prompt about saving
+    // unsaved changes, to show the tab that the prompt is for.
+    if (gInTab) {
+        gTabInfoObject = gTabmail.currentTabInfo;
+    }
+
+    let cmdTimezone = parent.document.getElementById("cmd_timezone");
+    gTimezonesEnabled = cmdTimezone.getAttribute("checked") == "true";
 
     // The calling entity provides us with an object that is responsible
     // for recording details about the initiated modification. the 'finalize'
@@ -197,18 +273,18 @@ function onLoad() {
     // called if the calling entity needs to immediately terminate the pending
     // modification. In this case we serialize the item and close the window.
     if (args.job) {
-        // keep this context...
-        var self = this;
+        // keep the iframe id so we can close the right tab...
+        let iframeId = window.frameElement.id;
 
         // store the 'finalize'-functor in the provided job-object.
-        args.job.finalize = function() {
+        args.job.finalize = () => {
             // store any pending modifications...
-            self.onAccept();
+            this.onAccept();
 
-            var item = window.calendarItem;
+            let item = window.calendarItem;
 
             // ...and close the window.
-            window.close();
+            sendMessage({ command: "closeWindowOrTab", iframeId: iframeId });
 
             return item;
         }
@@ -218,17 +294,17 @@ function onLoad() {
 
     // the most important attribute we expect from the
     // arguments is the item we'll edit in the dialog.
-    var item = args.calendarEvent;
+    let item = args.calendarEvent;
 
-    // set the dialog-id to enable the right window-icon to be loaded.
+    // set the iframe's top level id for event vs task
     if (!cal.isEvent(item)) {
-        setDialogId(document.documentElement, "calendar-task-dialog");
+        setDialogId(document.documentElement, "calendar-task-dialog-inner");
     }
 
     // new items should have a non-empty title.
     if (item.isMutable && (!item.title || item.title.length <= 0)) {
-        item.title = calGetString("calendar-event-dialog",
-                                  isEvent(item) ? "newEvent" : "newTask");
+        item.title = cal.calGetString("calendar-event-dialog",
+                                      isEvent(item) ? "newEvent" : "newTask");
     }
 
     window.onAcceptCallback = args.onOk;
@@ -246,9 +322,9 @@ function onLoad() {
     // clone each existing attendee since we still suffer
     // from the 'lost x-properties'-bug.
     window.attendees = [];
-    var attendees = item.getAttendees({});
+    let attendees = item.getAttendees({});
     if (attendees && attendees.length) {
-        for (var attendee of attendees) {
+        for (let attendee of attendees) {
             window.attendees.push(attendee.clone());
         }
     }
@@ -274,7 +350,7 @@ function onLoad() {
     // can be accessed from any location. since the recurrence
     // info is a property of the parent item we need to check
     // whether or not this item is a proxy or a parent.
-    var parentItem = item;
+    let parentItem = item;
     if (parentItem.parentItem != parentItem) {
         parentItem = parentItem.parentItem;
     }
@@ -283,13 +359,6 @@ function onLoad() {
     if (parentItem.recurrenceInfo) {
         window.recurrenceInfo = parentItem.recurrenceInfo.clone();
     }
-
-    document.documentElement.getButton("accept")
-            .setAttribute("collapsed", "true");
-    document.documentElement.getButton("cancel")
-            .setAttribute("collapsed", "true");
-    document.documentElement.getButton("cancel")
-            .parentNode.setAttribute("collapsed", "true");
 
     // Set initial values for datepickers in New Tasks dialog
     if (isToDo(item)) {
@@ -300,9 +369,9 @@ function onLoad() {
     }
     loadDialog(window.calendarItem);
 
-    opener.setCursor("auto");
+    gMainWindow.setCursor("auto");
 
-    if (typeof ToolbarIconColor !== 'undefined') {
+    if (typeof ToolbarIconColor !== "undefined") {
         ToolbarIconColor.init();
     }
 
@@ -317,7 +386,9 @@ function onLoad() {
     // Normally, Enter closes a <dialog>. We want this to rather on Ctrl+Enter.
     // Stopping event propagation doesn't seem to work, so just overwrite the
     // function that does this.
-    document.documentElement._hitEnter = function() {};
+    if (!gInTab) {
+        document.documentElement._hitEnter = function() {};
+    }
 
     // set up our calendar event observer
     eventDialogCalendarObserver.observe(item.calendar);
@@ -342,6 +413,9 @@ function onEventDialogUnload() {
 function onAccept() {
     dispose();
     onCommandSave(true);
+    if (!gWarning) {
+        sendMessage({ command: "closeWindowOrTab" });
+    }
     return !gWarning;
 }
 
@@ -359,16 +433,21 @@ function onCommandCancel() {
         return true;
     }
 
+    if (gInTab && gTabInfoObject) {
+        // Switch to the tab that the prompt refers to.
+        gTabmail.switchToTab(gTabInfoObject);
+    }
+
     var promptService = Components.interfaces.nsIPromptService;
 
-    var promptTitle = calGetString("calendar",
-                                   isEvent(window.calendarItem) ?
-                                      "askSaveTitleEvent" :
-                                      "askSaveTitleTask");
-    var promptMessage = calGetString("calendar",
-                                     isEvent(window.calendarItem) ?
-                                        "askSaveMessageEvent" :
-                                        "askSaveMessageTask");
+    var promptTitle = cal.calGetString("calendar",
+                                       isEvent(window.calendarItem) ?
+                                          "askSaveTitleEvent" :
+                                          "askSaveTitleTask");
+    var promptMessage = cal.calGetString("calendar",
+                                         isEvent(window.calendarItem) ?
+                                            "askSaveMessageEvent" :
+                                            "askSaveMessageTask");
 
     var flags = promptService.BUTTON_TITLE_SAVE *
                 promptService.BUTTON_POS_0 +
@@ -401,10 +480,13 @@ function onCommandCancel() {
 
 /**
  * Handler function to be called when the cancel button is pressed.
+ * aPreventClose is true when closing the main window but leaving the tab open.
  *
- * @return    Returns true if the window should be closed.
+ * @param  {string}  aIframeId      (optional) iframe id of the tab to be closed
+ * @param  {boolean} aPreventClose  (optional) True means don't close, just ask about saving
+ * @return {boolean}                True if the tab or window should be closed
  */
-function onCancel() {
+function onCancel(aIframeId, aPreventClose) {
     // The datepickers need to remove the focus in order to trigger the
     // validation of the values just edited, with the keyboard, but not yet
     // confirmed (i.e. not followed by a click, a tab or enter keys pressure).
@@ -414,10 +496,28 @@ function onCancel() {
         dispose();
         // Don't allow closing the dialog when the user inputs a wrong
         // date then closes the dialog and answers with "Save" in
-        // the "Save Event" dialog.
+        // the "Save Event" dialog.  Don't allow closing the dialog if
+        // the main window is being closed but the tabs in it are not.
+
+        if (!gWarning && aPreventClose != true) {
+            sendMessage({ command: "closeWindowOrTab", iframeId: aIframeId });
+        }
         return !gWarning;
     }
     return false;
+}
+
+/**
+ * Cancels (closes) either the window or the tab, for example when the
+ * item is being deleted.
+ */
+function cancelItem() {
+    gConfirmCancel = false;
+    if (gInTab) {
+        onCancel();
+    } else {
+        sendMessage({ command: "cancelDialog" });
+    }
 }
 
 /**
@@ -455,19 +555,26 @@ function loadDialog(item) {
     }
 
     // URL link
-    updateLink();
+    let cmdToggleLink = parent.document.getElementById("cmd_toggle_link");
+    let showLink = cmdToggleLink.getAttribute("checked") == "true";
+    // currently we always show the link for the tab case (if the link
+    // exists), since there is no menu item or toolbar item to show/hide it.
+    if (gInTab) {
+        showLink = true;
+    }
+    updateItemURL(showLink);
 
     // Description
     setElementValue("item-description", item.getProperty("DESCRIPTION"));
 
     // Status
     if (cal.isEvent(item)) {
-        gStatus = item.hasProperty("STATUS") ?
+        gConfig.status = item.hasProperty("STATUS") ?
             item.getProperty("STATUS") : "NONE";
-        if (gStatus == "NONE") {
-            document.getElementById("cmd_status_none").removeAttribute("hidden");
+        if (gConfig.status == "NONE") {
+            sendMessage({ command: "showCmdStatusNone" });
         }
-        updateStatus();
+        updateStatus(gConfig.status);
     } else {
         let todoStatus = document.getElementById("todo-status");
         setElementValue(todoStatus, item.getProperty("STATUS"));
@@ -500,20 +607,29 @@ function loadDialog(item) {
         setElementValue("percent-complete-textbox", percentCompleteInteger);
     }
 
-    // Set Item-Menu label to Event or Task
-    let menuItem = document.getElementById("item-menu");
-    menuItem.setAttribute("label", calGetString("calendar-event-dialog",
-                                          cal.isEvent(item) ? "itemMenuLabelEvent" : "itemMenuLabelTask"));
-    menuItem.setAttribute("accesskey", calGetString("calendar-event-dialog",
-                                          cal.isEvent(item) ? "itemMenuAccesskeyEvent2" : "itemMenuAccesskeyTask2"));
+    // When in a window, set Item-Menu label to Event or Task
+    if (!gInTab) {
+        let isEvent = cal.isEvent(item);
+
+        let labelString = isEvent ? "itemMenuLabelEvent" : "itemMenuLabelTask";
+        let label = cal.calGetString("calendar-event-dialog", labelString);
+
+        let accessKeyString = isEvent ? "itemMenuAccesskeyEvent2" : "itemMenuAccesskeyTask2";
+        let accessKey = cal.calGetString("calendar-event-dialog", accessKeyString);
+        sendMessage({
+            command: "initializeItemMenu",
+            label: label,
+            accessKey: accessKey
+        });
+    }
 
     // Priority
-    gPriority = parseInt(item.priority);
-    updatePriority();
+    gConfig.priority = parseInt(item.priority);
+    updatePriority(gConfig.priority);
 
     // Privacy
-    gPrivacy = item.privacy;
-    updatePrivacy();
+    gConfig.privacy = item.privacy;
+    updatePrivacy(gConfig.privacy);
 
     // load repeat details
     loadRepeat(item);
@@ -530,7 +646,10 @@ function loadDialog(item) {
     updateCalendar();
 
     // figure out what the title of the dialog should be and set it
-    updateTitle();
+    // tabs already have their title set
+    if (!gInTab) {
+        updateTitle();
+    }
 
     let notifyCheckbox = document.getElementById("notify-attendees-checkbox");
     let undiscloseCheckbox = document.getElementById("undisclose-attendees-checkbox");
@@ -557,8 +676,8 @@ function loadDialog(item) {
     updateRepeat(true);
     updateReminder(true);
 
-    gShowTimeAs = item.getProperty("TRANSP");
-    updateShowTimeAs();
+    gConfig.showTimeAs = item.getProperty("TRANSP");
+    updateShowTimeAs(gConfig.showTimeAs);
 }
 
 /**
@@ -680,10 +799,19 @@ function loadDateTime(item) {
             duration = endTime.subtractDate(startTime);
         }
         setElementValue("cmd_attendees", true, "disabled");
+        sendMessage({
+            command: "updatePanelState",
+            argument: {attendeesCommand: false}
+        });
         setBooleanAttribute("keepduration-button", "disabled", !(hasEntryDate && hasDueDate));
         gStartTime = startTime;
         gEndTime = endTime;
         gItemDuration = duration;
+    } else {
+        sendMessage({
+            command: "updatePanelState",
+            argument: {attendeesCommand: true}
+        });
     }
 }
 
@@ -738,16 +866,15 @@ function dateTimeControls2State(aStartDatepicker) {
     var saveEndTime = gEndTime;
     var kDefaultTimezone = calendarDefaultTimezone();
 
-    let timezonesEnabled = document.getElementById('cmd_timezone')
-                                   .getAttribute('checked') == 'true';
     if (gStartTime) {
         // jsDate is always in OS timezone, thus we create a calIDateTime
         // object from the jsDate representation then we convert the timezone
         // in order to keep gStartTime in default timezone.
-        gStartTime = cal.jsDateToDateTime(getElementValue(startWidgetId),
-                                          (timezonesEnabled || allDay) ? gStartTimezone : kDefaultTimezone);
-        if (timezonesEnabled || allDay) {
+        if (gTimezonesEnabled || allDay) {
+            gStartTime = cal.jsDateToDateTime(getElementValue(startWidgetId), gStartTimezone);
             gStartTime = gStartTime.getInTimezone(kDefaultTimezone);
+        } else {
+            gStartTime = cal.jsDateToDateTime(getElementValue(startWidgetId), kDefaultTimezone);
         }
         gStartTime.isDate = allDay;
     }
@@ -765,12 +892,12 @@ function dateTimeControls2State(aStartDatepicker) {
                     timezone = gStartTimezone;
                 }
             }
-            gEndTime = cal.jsDateToDateTime(getElementValue(endWidgetId),
-                                            (timezonesEnabled || allDay) ? timezone : kDefaultTimezone);
-            if (timezonesEnabled || allDay) {
+            if (gTimezonesEnabled || allDay) {
+                gEndTime = cal.jsDateToDateTime(getElementValue(endWidgetId), timezone);
                 gEndTime = gEndTime.getInTimezone(kDefaultTimezone);
+            } else {
+                gEndTime = cal.jsDateToDateTime(getElementValue(endWidgetId), kDefaultTimezone);
             }
-
             gEndTime.isDate = allDay;
             if (keepAttribute && gItemDuration) {
                 // Keepduration-button links the the Start to the End date. We
@@ -1143,8 +1270,8 @@ function saveDialog(item) {
 
     // Event Status
     if (isEvent(item)) {
-        if(gStatus && gStatus != "NONE") {
-            item.setProperty("STATUS", gStatus);
+        if (gConfig.status && gConfig.status != "NONE") {
+            item.setProperty("STATUS", gConfig.status);
         } else {
             item.deleteProperty("STATUS");
         }
@@ -1164,21 +1291,21 @@ function saveDialog(item) {
     // with value *null* and we don't detect changes to this item if
     // we delete this property.
     if (capSupported("priority") &&
-        (gPriority || item.hasProperty("PRIORITY"))) {
-        item.setProperty("PRIORITY", gPriority);
+        (gConfig.priority || item.hasProperty("PRIORITY"))) {
+        item.setProperty("PRIORITY", gConfig.priority);
     } else {
         item.deleteProperty("PRIORITY");
     }
 
     // Transparency
-    if (gShowTimeAs) {
-        item.setProperty("TRANSP", gShowTimeAs);
+    if (gConfig.showTimeAs) {
+        item.setProperty("TRANSP", gConfig.showTimeAs);
     } else {
         item.deleteProperty("TRANSP");
     }
 
     // Privacy
-    setItemProperty(item, "CLASS", gPrivacy, "privacy");
+    setItemProperty(item, "CLASS", gConfig.privacy, "privacy");
 
     if (item.status == "COMPLETED" && isToDo(item)) {
         var elementValue = getElementValue("completed-date-picker");
@@ -1265,8 +1392,9 @@ function updateTitle() {
     } else {
         throw Components.results.NS_ERROR_NOT_IMPLEMENTED;
     }
-    document.title = cal.calGetString("calendar", strName) + ": " +
-                        getElementValue("item-title");
+    let newTitle = cal.calGetString("calendar", strName) + ": " +
+                      getElementValue("item-title");
+    sendMessage({ command: "updateTitle", argument: newTitle });
 }
 
 /**
@@ -1293,9 +1421,7 @@ function updateAccept() {
     }
 
     if (startDate && endDate) {
-        let timezonesEnabled = document.getElementById('cmd_timezone')
-                                       .getAttribute('checked') == 'true';
-        if (timezonesEnabled) {
+        if (gTimezonesEnabled) {
             var startTimezone = gStartTimezone;
             var endTimezone = gEndTimezone;
             if (endTimezone.isUTC) {
@@ -1348,8 +1474,7 @@ function updateAccept() {
  * @param aEnable           true: enables the command
  */
 function enableAcceptCommand(aEnable) {
-    setElementValue("cmd_accept", !aEnable, "disabled");
-    setElementValue("cmd_save", !aEnable, "disabled");
+    sendMessage({ command: "enableAcceptCommand", argument: aEnable });
 }
 
 // Global variables used to restore start and end date-time when changing the
@@ -1502,8 +1627,8 @@ function openNewCardDialog() {
  * @param allDay    If true, the event is all-day
  */
 function setShowTimeAs(allDay) {
-    gShowTimeAs = cal.getEventDefaultTransparency(allDay);
-    updateShowTimeAs();
+    gConfig.showTimeAs = cal.getEventDefaultTransparency(allDay);
+    updateShowTimeAs(gConfig.showTimeAs);
 }
 
 function editAttendees() {
@@ -1566,14 +1691,10 @@ function editAttendees() {
         startTime.isDate = false;
         endTime.isDate = false;
     }
-
-    let displayTimezone = document.getElementById('cmd_timezone')
-                                  .getAttribute('checked') == 'true';
-
     var args = new Object();
     args.startTime = startTime;
     args.endTime = endTime;
-    args.displayTimezone = displayTimezone;
+    args.displayTimezone = gTimezonesEnabled;
     args.attendees = window.attendees;
     args.organizer = window.organizer && window.organizer.clone();
     args.calendar = calendar;
@@ -1590,346 +1711,121 @@ function editAttendees() {
 }
 
 /**
- * This function rotates the Privacy of an item to the next value
+ * Rotates the Privacy of an item to the next value
  * following the sequence  -> PUBLIC -> CONFIDENTIAL -> PRIVATE ->.
- */
-function rotatePrivacy() {
-    const states = ["PUBLIC","CONFIDENTIAL","PRIVATE"];
-    gPrivacy = states[(states.indexOf(gPrivacy) + 1) % states.length];
-    updatePrivacy();
-}
-
-/**
- * This function sets the privacy of an item to the value specified by
- * the attribute "privacy" of the UI-element "target".
  *
- * @param target    the calling UI-element;
- * @param event     the UI-element selection event (only for the popup menu
- *                  event-privacy-menupopup in the Privacy toolbar button).
+ * @param  {string} aPrivacy  The current/old privacy value
+ * @return {string}           The new privacy value
  */
-function editPrivacy(target, event) {
-    gPrivacy = target.getAttribute("privacy");
-    if (event) {
-        event.stopPropagation();
-    }
-    updatePrivacy();
+function rotatePrivacy(aPrivacy) {
+    const states = ["PUBLIC","CONFIDENTIAL","PRIVATE"];
+    return states[(states.indexOf(aPrivacy) + 1) % states.length];
 }
 
 /**
- * This function updates the UI according to the global field 'gPrivacy' and the
+ * Updates privacy in the UI according to the aValue argument and the
  * selected calendar. If the selected calendar does not support privacy or only
  * certain values, these are removed from the UI. This function should be called
- * any time that gPrivacy is updated.
- */
-function updatePrivacy() {
-    let calendar = getCurrentCalendar();
-    let hasPrivacy = capSupported("privacy");
-
-    if (hasPrivacy) {
-        var numChilds;
-        var privacyValues = capValues("privacy",
-                                      ["PUBLIC", "CONFIDENTIAL", "PRIVATE"]);
-
-        // Update privacy capabilities (toolbar)
-        var menupopup = document.getElementById("event-privacy-menupopup");
-        if (menupopup) {
-            // Only update the toolbar if the button is actually there
-            numChilds = menupopup.childNodes.length;
-            for (var i = 0; i < numChilds; i++) {
-                var node = menupopup.childNodes[i];
-                if (node.hasAttribute("privacy")) {
-                    var currentPrivacyValue = node.getAttribute("privacy");
-                    // Collapsed state
-
-                    // Hide the toolbar if the value is unsupported or is for a
-                    // specific provider and doesn't belong to the current provider.
-                    if (!privacyValues.includes(currentPrivacyValue) ||
-                        (currentProvider && currentProvider != calendar.type)) {
-                        node.setAttribute("collapsed", "true");
-                    } else {
-                        node.removeAttribute("collapsed");
-                    }
-
-                    // Checked state
-                    if (gPrivacy == currentPrivacyValue) {
-                        node.setAttribute("checked", "true");
-                    } else {
-                        node.removeAttribute("checked");
-                    }
-                }
-            }
-        }
-
-        // Update privacy capabilities (menu)
-        menupopup = document.getElementById("options-privacy-menupopup");
-        numChilds = menupopup.childNodes.length;
-        for (var i = 0; i < numChilds; i++) {
-            var node = menupopup.childNodes[i];
-            var currentProvider = node.getAttribute("provider");
-            if (node.hasAttribute("privacy")) {
-                var currentPrivacyValue = node.getAttribute("privacy");
-                // Collapsed state
-
-                // Hide the menu if the value is unsupported or is for a
-                // specific provider and doesn't belong to the current provider.
-                if (!privacyValues.includes(currentPrivacyValue) ||
-                    (currentProvider && currentProvider != calendar.type)) {
-                    node.setAttribute("collapsed", "true");
-                } else {
-                    node.removeAttribute("collapsed");
-                }
-
-                // Checked state
-                if (gPrivacy == currentPrivacyValue) {
-                    node.setAttribute("checked", "true");
-                } else {
-                    node.removeAttribute("checked");
-                }
-            }
-        }
-
-        // Update privacy capabilities (statusbar)
-        var privacyPanel = document.getElementById("status-privacy");
-        var hasAnyPrivacyValue = false;
-        numChilds = privacyPanel.childNodes.length;
-        for (var i = 0; i < numChilds; i++) {
-            var node = privacyPanel.childNodes[i];
-            var currentProvider = node.getAttribute("provider");
-            if (node.hasAttribute("privacy")) {
-                var currentPrivacyValue = node.getAttribute("privacy");
-
-                // Hide the panel if the value is unsupported or is for a
-                // specific provider and doesn't belong to the current provider,
-                // or is not the items privacy value
-                if (!privacyValues.includes(currentPrivacyValue) ||
-                    (currentProvider && currentProvider != calendar.type) ||
-                    gPrivacy != currentPrivacyValue) {
-                    node.setAttribute("collapsed", "true");
-                } else {
-                    node.removeAttribute("collapsed");
-                    hasAnyPrivacyValue = true;
-                }
-            }
-        }
-
-        // Don't show the status panel if no valid privacy value is selected
-        if (!hasAnyPrivacyValue) {
-            privacyPanel.setAttribute("collapsed", "true");
-        } else {
-            privacyPanel.removeAttribute("collapsed");
-        }
-
-    } else {
-        setElementValue("button-privacy", !hasPrivacy && "true", "disabled");
-        setElementValue("options-privacy-menu", !hasPrivacy && "true", "disabled");
-        setElementValue("status-privacy", !hasPrivacy && "true", "collapsed");
-    }
-}
-
-/**
- * This function rotates the Priority of an item to the next value
- * following the sequence -> Not specified -> Low -> Normal -> High ->.
- */
-function rotatePriority() {
-    let hasPriority = capSupported("priority");
-    if (hasPriority) {
-        if (gPriority <= 0 || gPriority > 9) {         // not specified
-            gPriority = 9;
-        } else if (gPriority >= 1 && gPriority <= 4) { // high
-            gPriority = 0;
-        } else if (gPriority == 5) {                   // normal
-            gPriority = 1;
-        } else if (gPriority >= 6 && gPriority <= 9) { // low
-            gPriority = 5;
-        }
-        updatePriority();
-    }
-}
-
-/**
- * Handler function to change the priority from the dialog elements
+ * any time that gConfig.privacy is updated, passing the new value as an argument.
  *
- * @param target    A XUL node with a value attribute which should be the new
- *                    priority.
+ * @param {string} aValue  The new privacy value
  */
-function editPriority(target) {
-    gPriority = parseInt(target.getAttribute("value"));
-    updatePriority();
+function updatePrivacy(aValue) {
+    sendMessage({
+        command: "updatePanelState",
+        argument: {
+            privacy: aValue,
+            hasPrivacy: capSupported("privacy"),
+            calendarType: getCurrentCalendar().type,
+            privacyValues: capValues("privacy",
+                            ["PUBLIC", "CONFIDENTIAL", "PRIVATE"])
+        }
+    });
+}
+
+/**
+ * Rotates the Priority of an item to the next value
+ * following the sequence -> Not specified -> Low -> Normal -> High ->.
+ *
+ * @param  {number} aPriority  The current/old priority
+ * @return {number}            The new priority
+ */
+function rotatePriority(aPriority) {
+    if (aPriority <= 0 || aPriority > 9) { // not specified
+        return 9;
+    } else if (aPriority >= 1 && aPriority <= 4) { // high
+        return 0;
+    } else if (aPriority == 5) {                   // normal
+        return 1;
+    } else if (aPriority >= 6 && aPriority <= 9) { // low
+        return 5;
+    }
 }
 
 /**
  * Update the dialog controls related to priority.
+ *
+ * @param {string} aValue  The new priority value
  */
-function updatePriority() {
-    // Set up capabilities
-    var hasPriority = capSupported("priority");
-    if (document.getElementById("button-priority")) {
-        setElementValue("button-priority", !hasPriority && "true", "disabled");
-    }
-    setElementValue("options-priority-menu", !hasPriority && "true", "disabled");
-    setElementValue("status-priority", !hasPriority && "true", "collapsed");
-
-    if (hasPriority) {
-        var priorityLevel = "none";
-        if (gPriority >= 1 && gPriority <= 4) {
-            priorityLevel = "high";
-        } else if (gPriority == 5) {
-            priorityLevel = "normal";
-        } else if (gPriority >= 6 && gPriority <= 9) {
-            priorityLevel = "low";
+ function updatePriority(aValue) {
+    sendMessage({
+        command: "updatePanelState",
+        argument: {
+            priority: aValue,
+            hasPriority: capSupported("priority")
         }
-
-        var priorityNone = document.getElementById("cmd_priority_none");
-        var priorityLow = document.getElementById("cmd_priority_low");
-        var priorityNormal = document.getElementById("cmd_priority_normal");
-        var priorityHigh = document.getElementById("cmd_priority_high");
-
-        priorityNone.setAttribute("checked",
-                                  priorityLevel == "none" ? "true" : "false");
-        priorityLow.setAttribute("checked",
-                                 priorityLevel == "low" ? "true" : "false");
-        priorityNormal.setAttribute("checked",
-                                    priorityLevel == "normal" ? "true" : "false");
-        priorityHigh.setAttribute("checked",
-                                  priorityLevel == "high" ? "true" : "false");
-
-        // Status bar panel
-        var priorityPanel = document.getElementById("status-priority");
-        if (priorityLevel == "none") {
-            // If the priority is none, don't show the status bar panel
-            priorityPanel.setAttribute("collapsed", "true");
-        } else {
-            priorityPanel.removeAttribute("collapsed");
-            var numChilds = priorityPanel.childNodes.length;
-            var foundPriority = false;
-            for (var i = 0; i < numChilds; i++) {
-                var node = priorityPanel.childNodes[i];
-                if (foundPriority) {
-                    node.setAttribute("collapsed", "true");
-                } else {
-                    node.removeAttribute("collapsed");
-                }
-                if (node.getAttribute("value") == priorityLevel) {
-                    foundPriority = true;
-                }
-            }
-        }
-    }
+    });
 }
 
 /**
  * Rotate the Status of an item to the next value following
  * the sequence -> NONE -> TENTATIVE -> CONFIRMED -> CANCELLED ->.
+ *
+ * @param  {string}  aStatus                The current/old status
+ * @param  {boolean} aIsEvent               Is the item an event (not a task)
+ * @param  {boolean} aNoneCommandIsVisible  Is the "none" command visible
+ * @return {number}                         The new priority
  */
-function rotateStatus() {
+function rotateStatus(aStatus, aIsEvent, aNoneCommandIsVisible) {
     let states = ["TENTATIVE","CONFIRMED","CANCELLED"];
-    let noneCmd = document.getElementById("cmd_status_none");
-    // If control for status "NONE" is visible, allow rotating to it.
-    if (cal.isEvent(window.calendarItem) && !noneCmd.hasAttribute("hidden")) {
+    // If control for status "NONE" ("cmd_status_none") is visible,
+    // allow rotating to it.
+    if (aIsEvent && aNoneCommandIsVisible) {
         states.unshift("NONE");
     }
-    gStatus = states[(states.indexOf(gStatus) + 1) % states.length];
-    updateStatus();
-}
-
-/**
- * Handler function to change the status from the dialog elements
- *
- * @param target    A XUL node with a value attribute which should be the new
- *                    status.
- */
-function editStatus(target) {
-    gStatus = target.getAttribute("value");
-    updateStatus();
+    return states[(states.indexOf(aStatus) + 1) % states.length];
 }
 
 /**
  * Update the dialog controls related to status.
- */
-function updateStatus() {
-    let found = false;
-    const statusLabels = ["status-status-tentative-label",
-                          "status-status-confirmed-label",
-                          "status-status-cancelled-label"];
-    setBooleanAttribute("status-status", "collapsed", true);
-    [ "cmd_status_none",
-      "cmd_status_tentative",
-      "cmd_status_confirmed",
-      "cmd_status_cancelled" ].forEach(
-          function(element, index, array) {
-              let node = document.getElementById(element);
-              let matches = (node.getAttribute("value") == gStatus);
-              found = found || matches;
-
-              node.setAttribute("checked", matches ? "true" : "false");
-
-              if (index > 0) {
-                  setBooleanAttribute(statusLabels[index-1], "hidden", !matches);
-                  if (matches) {
-                      setBooleanAttribute("status-status", "collapsed", false);
-                  }
-              }
-          }
-      );
-    if (!found) {
-        // The current Status value is invalid. Change the status to not
-        // specified and update the status again.
-        gStatus = "NONE";
-        updateStatus();
-    }
-}
-
-/**
- * Toggles the transparency (Show Time As property) of an item
- * from BUSY (Opaque) to FREE (Transparent).
- */
-function rotateShowTimeAs() {
-    const states = ["OPAQUE", "TRANSPARENT"];
-    gShowTimeAs = states[(states.indexOf(gShowTimeAs) + 1) % states.length];
-    updateShowTimeAs();
-}
-
-/**
- * Handler function to change the transparency from the dialog elements
  *
- * @param target    A XUL node with a value attribute which should be the new
- *                    transparency.
+ * @param {string} aValue  The new status value
  */
-function editShowTimeAs(target) {
-    gShowTimeAs = target.getAttribute("value");
-    updateShowTimeAs();
+function updateStatus(aValue) {
+    sendMessage({ command: "updatePanelState", argument: { status: aValue } });
+}
+
+/**
+ * Toggles the transparency ("Show Time As" property) of an item
+ * from BUSY (Opaque) to FREE (Transparent).
+ *
+ * @param  {string} aShowTimeAs  The current/old value
+ * @return {string}              The new value
+ */
+function rotateShowTimeAs(aShowTimeAs) {
+    const states = ["OPAQUE", "TRANSPARENT"];
+    return states[(states.indexOf(aShowTimeAs) + 1) % states.length];
 }
 
 /**
  * Update the dialog controls related to transparency.
+ *
+ * @param {string} aValue  The new transparency value
  */
-function updateShowTimeAs() {
+function updateShowTimeAs(aValue) {
     if (cal.isEvent(window.calendarItem)) {
-        var showAsBusy = document.getElementById("cmd_showtimeas_busy");
-        var showAsFree = document.getElementById("cmd_showtimeas_free");
-
-        showAsBusy.setAttribute("checked",
-                                gShowTimeAs == "OPAQUE" ? "true" : "false");
-        showAsFree.setAttribute("checked",
-                                gShowTimeAs == "TRANSPARENT" ? "true" : "false");
-
-        setBooleanAttribute("status-freebusy",
-                            "collapsed",
-                            gShowTimeAs != "OPAQUE" && gShowTimeAs != "TRANSPARENT");
-        setBooleanAttribute("status-freebusy-free-label", "hidden", gShowTimeAs == "OPAQUE");
-        setBooleanAttribute("status-freebusy-busy-label", "hidden", gShowTimeAs == "TRANSPARENT");
+        sendMessage({ command: "updatePanelState", argument: { showTimeAs: aValue } });
     }
-}
-
-/**
- * Toggles the command that allows to enable the timezone
- * links in the dialog.
- */
-function toggleTimezoneLinks() {
-    let cmdTimezone = document.getElementById('cmd_timezone');
-    let isChecked = cmdTimezone.getAttribute("checked") == "true";
-    cmdTimezone.setAttribute("checked", isChecked ? "false" : "true");
-    updateDateTime();
 }
 
 function loadCloudProviders() {
@@ -2437,36 +2333,38 @@ function updateCalendar() {
     // them again based on the specific logic build into those function. is this
     // really a good idea?
     if (gIsReadOnly) {
-        var disableElements = document.getElementsByAttribute("disable-on-readonly", "true");
-        for (var i = 0; i < disableElements.length; i++) {
-            disableElements[i].setAttribute('disabled', 'true');
+        let disableElements = document.getElementsByAttribute("disable-on-readonly", "true");
+        for (let element of disableElements) {
+            element.setAttribute("disabled", "true");
 
             // we mark link-labels with the hyperlink attribute, since we need
             // to remove their class in case they get disabled. TODO: it would
             // be better to create a small binding for those link-labels
             // instead of adding those special stuff.
-            if (disableElements[i].hasAttribute('hyperlink')) {
-                disableElements[i].removeAttribute('class');
-                disableElements[i].removeAttribute('onclick');
+            if (element.hasAttribute("hyperlink")) {
+                element.removeAttribute("class");
+                element.removeAttribute("onclick");
             }
         }
 
-        var collapseElements = document.getElementsByAttribute("collapse-on-readonly", "true");
-        for (var i = 0; i < collapseElements.length; i++) {
-            collapseElements[i].setAttribute('collapsed', 'true');
+        let collapseElements = document.getElementsByAttribute("collapse-on-readonly", "true");
+        for (let element of collapseElements) {
+            element.setAttribute("collapsed", "true");
         }
     } else {
-        var enableElements = document.getElementsByAttribute("disable-on-readonly", "true");
-        for (var i = 0; i < enableElements.length; i++) {
-            enableElements[i].removeAttribute('disabled');
-            if (enableElements[i].hasAttribute('hyperlink')) {
-                enableElements[i].setAttribute('class', 'text-link');
+        sendMessage({ command: "removeDisableAndCollapseOnReadonly" });
+
+        let enableElements = document.getElementsByAttribute("disable-on-readonly", "true");
+        for (let element of enableElements) {
+            element.removeAttribute("disabled");
+            if (element.hasAttribute("hyperlink")) {
+                element.setAttribute("class", "text-link");
             }
         }
 
-        var collapseElements = document.getElementsByAttribute("collapse-on-readonly", "true");
-        for (var i = 0; i < collapseElements.length; i++) {
-            collapseElements[i].removeAttribute('collapsed');
+        let collapseElements = document.getElementsByAttribute("collapse-on-readonly", "true");
+        for (let element of collapseElements) {
+            element.removeAttribute("collapsed");
         }
 
         // Task completed date
@@ -2485,9 +2383,9 @@ function updateCalendar() {
             var numChilds = repeatDetails.childNodes.length;
             for (var i = 0; i < numChilds; i++) {
                 var node = repeatDetails.childNodes[i];
-                node.setAttribute('disabled', 'true');
-                node.removeAttribute('class');
-                node.removeAttribute('onclick');
+                node.setAttribute("disabled", "true");
+                node.removeAttribute("class");
+                node.removeAttribute("onclick");
             }
         }
 
@@ -3041,7 +2939,9 @@ function onCommandDeleteItem() {
         }
     }
 
-    if (window.mode != "new") {
+    if (window.mode == "new") {
+        cancelItem();
+    } else {
         let deleteListener = {
             // when deletion of item is complete, close the dialog
             onOperationComplete: function(aCalendar, aStatus, aOperationType, aId, aDetail) {
@@ -3049,8 +2949,7 @@ function onCommandDeleteItem() {
                 // window refers to the main window and we would get a 'calendarItem is undefined' warning.
                 if ("calendarItem" in window) {
                     if (aId == window.calendarItem.id && Components.isSuccessCode(aStatus)) {
-                        gConfirmCancel = false;
-                        document.documentElement.cancelDialog();
+                        cancelItem();
                     } else {
                         eventDialogCalendarObserver.observe(window.calendarItem.calendar);
                     }
@@ -3064,98 +2963,13 @@ function onCommandDeleteItem() {
             let newItem = window.calendarItem.parentItem.clone();
             newItem.recurrenceInfo.removeOccurrenceAt(window.calendarItem.recurrenceId);
 
-            window.opener.doTransaction("modify", newItem, newItem.calendar,
-                                        window.calendarItem.parentItem, deleteListener);
+            gMainWindow.doTransaction("modify", newItem, newItem.calendar,
+                                      window.calendarItem.parentItem, deleteListener);
         } else {
-            window.opener.doTransaction("delete", window.calendarItem, window.calendarItem.calendar,
-                                        null, deleteListener);
+            gMainWindow.doTransaction("delete", window.calendarItem, window.calendarItem.calendar,
+                                      null, deleteListener);
         }
-    } else {
-        gConfirmCancel = false;
-        document.documentElement.cancelDialog();
     }
-}
-
-/**
- * Handler function to toggle toolbar visibility.
- *
- * @param aToolbarId        The id of the XUL toolbar node to toggle.
- * @param aMenuitemId       The corresponding menuitem in the view menu.
- */
-function onCommandViewToolbar(aToolbarId, aMenuItemId) {
-    var toolbar = document.getElementById(aToolbarId);
-    var menuItem = document.getElementById(aMenuItemId);
-
-    if (!toolbar || !menuItem) {
-        return;
-    }
-
-    var toolbarCollapsed = toolbar.collapsed;
-
-    // toggle the checkbox
-    menuItem.setAttribute('checked', toolbarCollapsed);
-
-    // toggle visibility of the toolbar
-    toolbar.collapsed = !toolbarCollapsed;
-
-    document.persist(aToolbarId, 'collapsed');
-    document.persist(aMenuItemId, 'checked');
-}
-
-/**
- * DialogToolboxCustomizeDone() is called after the customize toolbar dialog
- * has been closed by the user. We need to restore the state of all buttons
- * and commands of all customizable toolbars.
- *
- * @param aToolboxChanged       If true, the toolbox has changed.
- */
-function DialogToolboxCustomizeDone(aToolboxChanged) {
-
-    var menubar = document.getElementById("event-menubar");
-    for (var i = 0; i < menubar.childNodes.length; ++i) {
-        menubar.childNodes[i].removeAttribute("disabled");
-    }
-
-    // make sure our toolbar buttons have the correct enabled state restored to them...
-    document.commandDispatcher.updateCommands('itemCommands');
-
-    // Enable the toolbar context menu items
-    document.getElementById("cmd_customize").removeAttribute("disabled");
-
-    // Update privacy items to make sure the toolbarbutton's menupopup is set
-    // correctly
-    updatePrivacy();
-}
-
-/**
- * Handler function to start the customize toolbar dialog for the event dialog's
- * toolbar.
- */
-function onCommandCustomize() {
-    // install the callback that handles what needs to be
-    // done after a toolbar has been customized.
-    var toolbox = document.getElementById("event-toolbox");
-    toolbox.customizeDone = DialogToolboxCustomizeDone;
-
-    var menubar = document.getElementById("event-menubar");
-    for (var i = 0; i < menubar.childNodes.length; ++i) {
-        menubar.childNodes[i].setAttribute("disabled", true);
-    }
-
-    // Disable the toolbar context menu items
-    document.getElementById("cmd_customize").setAttribute("disabled", "true");
-
-    var id = "event-toolbox";
-    var wintype = document.documentElement.getAttribute("windowtype");
-    wintype = wintype.replace(/:/g, "");
-
-    window.openDialog("chrome://global/content/customizeToolbar.xul",
-                      "CustomizeToolbar" + wintype,
-                      "chrome,all,dependent",
-                      document.getElementById(id), // toolbar dom node
-                      false,                       // is mode toolbar yes/no?
-                      null,                        // callback function
-                      "dialog");                   // name of this mode
 }
 
 /**
@@ -3308,13 +3122,10 @@ function updateDateTime() {
     gIgnoreUpdate = true;
 
     let item = window.calendarItem;
-    let timezonesEnabled = document.getElementById('cmd_timezone')
-                                   .getAttribute('checked') == 'true';
-
     // Convert to default timezone if the timezone option
     // is *not* checked, otherwise keep the specific timezone
     // and display the labels in order to modify the timezone.
-    if (timezonesEnabled) {
+    if (gTimezonesEnabled) {
         if (isEvent(item)) {
           var startTime = gStartTime.getInTimezone(gStartTimezone);
           var endTime = gEndTime.getInTimezone(gEndTimezone);
@@ -3491,12 +3302,10 @@ function updateTimezone() {
         }
     }
 
-    let timezonesEnabled = document.getElementById('cmd_timezone')
-                                   .getAttribute('checked') == 'true';
     // convert to default timezone if the timezone option
     // is *not* checked, otherwise keep the specific timezone
     // and display the labels in order to modify the timezone.
-    if (timezonesEnabled) {
+    if (gTimezonesEnabled) {
         updateTimezoneElement(gStartTimezone,
                               'timezone-starttime',
                               gStartTime);
@@ -3512,28 +3321,71 @@ function updateTimezone() {
 }
 
 /**
- * This function updates dialog controls related to item attachments
+ * Updates dialog controls related to item attachments
  */
 function updateAttachment() {
-    var hasAttachments = capSupported("attachments");
+    let hasAttachments = capSupported("attachments");
     setElementValue("cmd_attach_url", !hasAttachments && "true", "disabled");
+    sendMessage({
+        command: "updatePanelState",
+        argument: { attachUrlCommand: hasAttachments }
+    });
 }
 
 /**
- * Toggles the visibility of the related link (rfc2445 URL property)
+ * Updates the related link on the dialog (rfc2445 URL property).  The
+ * argument passed in may be overridden for various reasons.
+ *
+ * @param {boolean} aShowLink  Show the link (true) or not (false)
  */
-function toggleLink() {
-    var linkCommand = document.getElementById("cmd_toggle_link");
-    var row = document.getElementById("event-grid-link-row");
-    var separator = document.getElementById("event-grid-link-separator");
+function updateItemURL(aShowLink) {
+    /**
+     * Hides or shows the related link.
+     *
+     * @param {boolean} aShow  To show (true) or to hide (false) the link
+     */
+    function hideOrShow(aShow) {
+        setElementValue("event-grid-link-row", !aShow && "true", "hidden");
+        let separator = document.getElementById("event-grid-link-separator");
+        if (separator) {
+            // The separator is not there in the summary dialog
+            setElementValue("event-grid-link-separator", !aShow && "true", "hidden");
+        }
+    }
+    let itemUrlString = window.calendarItem.getProperty("URL") || "";
+    if (!itemUrlString.length) {
+        // Disable if there is no url
+        sendMessage({ command: "disableLinkCommand" });
+    }
 
-    var isHidden = row.hidden;
-    row.hidden = !isHidden;
-    separator.hidden = !isHidden;
+    if (aShowLink && itemUrlString.length) {
+        let handler;
+        let uri;
+        try {
+            uri = makeURL(itemUrlString);
+            handler = Services.io.getProtocolHandler(uri.scheme);
+        } catch (e) {
+            // No protocol handler for the given protocol, or invalid uri
+            hideOrShow(false);
+            return;
+        }
 
-    linkCommand.setAttribute("checked", isHidden ? "true" : "false");
+        // Only show if its either an internal protcol handler, or its external
+        // and there is an external app for the scheme
+        handler = cal.wrapInstance(handler, Components.interfaces.nsIExternalProtocolHandler);
+        hideOrShow(!handler ||
+                   handler.externalAppExistsForScheme(uri.scheme));
 
-    updateLink();
+        setTimeout(() => {
+          // HACK the url-link doesn't crop when setting the value in onLoad
+          setElementValue("url-link", itemUrlString);
+          setElementValue("url-link", itemUrlString, "href");
+        }, 0);
+    } else {
+        // Hide if there is no url, or the menuitem was chosen so that the url
+        // should be hidden.
+        hideOrShow(false);
+    }
 }
 
 /**
@@ -3769,8 +3621,8 @@ function sendMailToAttendees(aAttendees) {
  */
 function updateCapabilities() {
     updateAttachment();
-    updatePriority();
-    updatePrivacy();
+    updatePriority(gConfig.priority);
+    updatePrivacy(gConfig.privacy);
     updateReminderDetails();
     updateCategoryMenulist();
 }

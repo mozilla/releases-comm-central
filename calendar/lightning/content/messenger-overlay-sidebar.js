@@ -131,18 +131,217 @@ var calendarTabType = {
       onEvent: (aEvent, aTab) => calendarController2.onEvent(aEvent)
     }
   },
-
-  /* because calendar does some direct menu manipulation, we need to change
-   *  to the mail mode to clean up after those hacks.
+  /**
+   * Because calendar does some direct menu manipulation, we need to
+   * change to the mail mode to clean up after those hacks.
+   *
+   * @param {Object} aTab  A tab info object
    */
   saveTabState: function(aTab) {
     ltnSwitch2Mail();
   }
 };
 
+/**
+ * For details about tab info objects and the tabmail interface see:
+ * comm-central/mail/base/content/mailTabs.js
+ * comm-central/mail/base/content/tabmail.xml
+ */
+var calendarItemTabType = {
+    name: "calendarItem",
+    perTabPanel: "vbox",
+    idNumber: 0,
+    modes: {
+        calendarEvent: {
+            type: "calendarEvent"
+        },
+        calendarTask: {
+            type: "calendarTask"
+        }
+    },
+    /**
+     * Opens an event tab or a task tab.
+     *
+     * @param {Object} aTab   A tab info object
+     * @param {Object} aArgs  Contains data about the event/task
+     */
+    openTab: function(aTab, aArgs) {
+        // Create a clone to use for this tab. Remove the cloned toolbox
+        // and move the original toolbox into its place. There is only
+        // one toolbox/toolbar so its settings are the same for all item tabs.
+        let original = document.getElementById("lightningItemPanel").firstChild;
+        let clone = original.cloneNode(true);
+
+        clone.querySelector("toolbox").remove();
+        moveEventToolbox(clone);
+        clone.setAttribute("id", "calendarItemTab" + this.idNumber);
+
+        if (aTab.mode.type == "calendarTask") {
+            // For task tabs, css class hides event-specific toolbar buttons.
+            clone.setAttribute("class", "calendar-task-dialog-tab");
+        }
+
+        aTab.panel.appendChild(clone);
+
+        // Set up the iframe and store the iframe's id.
+        aTab.iframe = aTab.panel.querySelector("iframe");
+        let iframeId = "calendarItemTabIframe" + this.idNumber;
+        aTab.iframe.setAttribute("id", iframeId);
+        aTab.iframe.setAttribute("src", aArgs.url);
+        gItemTabIds.push(iframeId);
+
+        // Generate and set the tab title.
+        let strName;
+        if (aTab.mode.type == "calendarEvent") {
+            strName = aArgs.calendarEvent.title ? "editEventDialog" : "newEventDialog";
+        } else if (aTab.mode.type == "calendarTask") {
+            strName = aArgs.calendarEvent.title ? "editTaskDialog" : "newTaskDialog";
+        } else {
+            throw Components.results.NS_ERROR_NOT_IMPLEMENTED;
+        }
+        // name is "New Event", "Edit Task", etc.
+        let name = cal.calGetString("calendar", strName);
+        aTab.title = name + ": " + (aArgs.calendarEvent.title || name);
+
+        // allowTabClose prevents the tab from being closed until we ask
+        // the user if they want to save any unsaved changes.
+        aTab.allowTabClose = false;
+
+        // Put the arguments where they can be accessed easily
+        // from the iframe. (window.arguments[0])
+        aTab.iframe.contentWindow.arguments = [aArgs];
+
+        this.idNumber += 1;
+    },
+    /**
+     * Saves a tab's state when it is deactivated / hidden.  The opposite of showTab.
+     *
+     * @param {Object} aTab  A tab info object
+     */
+    saveTabState: function(aTab) {
+        // save state
+        aTab.itemTabConfig = {};
+        Object.assign(aTab.itemTabConfig, gConfig);
+
+        // clear statusbar
+        let statusbar = document.getElementById("status-bar");
+        let items = statusbar.getElementsByClassName("event-dialog");
+        for (let item of items) {
+            item.setAttribute("collapsed", true);
+        }
+        // move toolbox to the place where it can be accessed later
+        let to = document.getElementById("lightningItemPanel").firstChild;
+        moveEventToolbox(to);
+    },
+    /**
+     * Called when a tab is activated / shown.  The opposite of saveTabState.
+     *
+     * @param {Object} aTab  A tab info object
+     */
+    showTab: function(aTab) {
+        // move toolbox into place then load state
+        moveEventToolbox(aTab.panel.firstChild);
+        Object.assign(gConfig, aTab.itemTabConfig);
+        updateItemTabState(gConfig);
+    },
+    /**
+     * Called when there is a request to close a tab.  Using aTab.allowTabClose
+     * we first prevent the tab from closing so we can prompt the user
+     * about saving changes, then we allow the tab to close.
+     *
+     * @param {Object} aTab  A tab info object
+     */
+    tryCloseTab: function(aTab) {
+        if (aTab.allowTabClose) {
+            return true;
+        } else {
+            onCancel(aTab.iframe.id);
+            return false;
+        }
+    },
+    /**
+     * Closes a tab.
+     *
+     * @param {Object} aTab  A tab info object
+     */
+    closeTab: function(aTab) {
+        // Remove the iframe id from the array where they are stored.
+        let index = gItemTabIds.indexOf(aTab.iframe.id);
+        if (index != -1) {
+            gItemTabIds.splice(index, 1);
+        }
+        aTab.itemTabConfig = null;
+    },
+    /**
+     * Called when quitting the application (and/or closing the window).
+     * Saves an open tab's state to be able to restore it later.
+     *
+     * @param {Object} aTab  A tab info object
+     */
+    persistTab: function(aTab) {
+        let args = aTab.iframe.contentWindow.arguments[0];
+        // Serialize args, with manual handling of some properties.
+        // persistTab is called even for new events/tasks in tabs that
+        // were closed and never saved (for 'undo close tab'
+        // functionality), thus we confirm we have the expected values.
+        if (args && args.calendar && args.calendar.id &&
+            args.calendarEvent && args.calendarEvent.id) {
+
+            let calendarId = args.calendar.id;
+            let itemId = args.calendarEvent.id;
+            // Handle null args.initialStartDateValue, just for good measure.
+            // Note that this is not the start date for the event or task.
+            let hasDateValue = args.initialStartDateValue &&
+                               args.initialStartDateValue.icalString;
+            let initialStartDate = hasDateValue
+                ? args.initialStartDateValue.icalString : null;
+
+            args.calendar = null;
+            args.calendarEvent = null;
+            args.initialStartDateValue = null;
+
+            return {
+                calendarId: calendarId,
+                itemId: itemId,
+                initialStartDate: initialStartDate,
+                args: args,
+                tabType: aTab.mode.type
+            };
+        }
+    },
+    /**
+     * Called when starting the application (and/or opening the window).
+     * Restores a tab that was open when the application was quit previously.
+     *
+     * @param {Object} aTabmail  The tabmail interface
+     * @param {Object} aState    The state of the tab to restore
+     */
+    restoreTab: function(aTabmail, aState) {
+        // Sometimes restoreTab is called for tabs that were never saved
+        // and never meant to be persisted or restored. See persistTab.
+        if (aState.args && aState.calendarId && aState.itemId) {
+            aState.args.initialStartDateValue = aState.initialStartDate
+                ? cal.createDateTime(aState.initialStartDate) : getDefaultStartDate();
+
+            aState.args.calendar = getCalendarManager().getCalendarById(aState.calendarId);
+            if (aState.args.calendar) {
+                // using wrappedJSObject is a hack that is needed to prevent a proxy error
+                let pcal = cal.async.promisifyCalendar(aState.args.calendar.wrappedJSObject);
+                pcal.getItem(aState.itemId).then((item) => {
+                    if (item[0]) {
+                        aState.args.calendarEvent = item[0];
+                        aTabmail.openTab(aState.tabType, aState.args);
+                    }
+                });
+            }
+        }
+    }
+};
+
 window.addEventListener("load", function(e) {
     let tabmail = document.getElementById('tabmail');
     tabmail.registerTabType(calendarTabType);
+    tabmail.registerTabType(calendarItemTabType);
     tabmail.registerTabMonitor(calendarTabMonitor);
 }, false);
 
@@ -623,6 +822,22 @@ function InitViewCalendarPaneMenu() {
     }
 }
 
+
+/**
+ * Move the event toolbox, containing the toolbar, into view for a tab
+ * or back to its hiding place where it is accessed again for other tabs.
+ *
+ * @param {nsIDOMNode} aDestination  Destination where the toolbox will be moved
+ */
+function moveEventToolbox(aDestination) {
+    let toolbox = document.getElementById("event-toolbox");
+    // the <toolbarpalette> has to be copied manually
+    let palette = toolbox.palette;
+    let iframe = aDestination.querySelector("iframe");
+    aDestination.insertBefore(toolbox, iframe);
+    toolbox.palette = palette;
+}
+
 /**
  * Checks if Lightning's binary component was successfully loaded.
  */
@@ -672,3 +887,4 @@ function checkCalendarBinaryComponent() {
         Services.prompt.alert(window, title, text);
     });
 }
+

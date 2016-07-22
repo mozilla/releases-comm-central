@@ -49,14 +49,15 @@ var testLocalICS = function () {
   controller.waitFor(function() {return mozmill.utils.getWindows("Calendar:EventDialog").length > 0}, sleep);
   let event = new mozmill.controller.MozMillController(mozmill.utils
     .getWindows("Calendar:EventDialog")[0]);
-  
+
   // title
-  let titleTextBox = new elementslib.Lookup(event.window.document, '/id("calendar-event-dialog")/'
+  let iframe = event.window.document.getElementById("lightning-item-panel-iframe");
+  let titleTextBox = new elementslib.Lookup(iframe.contentDocument, '/id("calendar-event-dialog-inner")/'
     + 'id("event-grid")/id("event-grid-rows")/id("event-grid-title-row")/'
     + 'id("item-title")/anon({"class":"textbox-input-box"})/anon({"anonid":"input"})');
   event.waitForElement(titleTextBox);
   event.type(titleTextBox, title);
-  
+
   // set calendar
   let itemCalendar = new elementslib.ID(event.window.document, "item-calendar")
   event.select(itemCalendar, undefined, calendar);

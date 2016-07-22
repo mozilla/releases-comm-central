@@ -16,11 +16,21 @@ dialog[systemcolors] {
 
 #calendar-event-dialog,
 #calendar-task-dialog {
+    min-width: 444px;
+    min-height: 476px;
+}
+
+#calendar-event-dialog,
+#calendar-task-dialog,
+#calendar-event-dialog-inner,
+#calendar-task-dialog-inner {
     padding: 0px;
 }
 
 #calendar-event-dialog .todo-only,
-#calendar-task-dialog  .event-only {
+#calendar-task-dialog .event-only,
+#calendar-event-dialog-inner .todo-only,
+#calendar-task-dialog-inner .event-only {
     display: none;
 }
 
@@ -42,6 +52,18 @@ label.label {
     width: 18px;
     height: 18px;
   }
+}
+
+.icon-holder[type="calendarEvent"],
+.tabmail-tab[type="calendarEvent"] {
+    list-style-image: url(chrome://calendar-common/skin/calendar-event-tab.png);
+    -moz-image-region: auto;
+}
+
+.icon-holder[type="calendarTask"],
+.tabmail-tab[type="calendarTask"] {
+    list-style-image: url(chrome://calendar-common/skin/calendar-task-tab.png);
+    -moz-image-region: auto;
 }
 
 /*--------------------------------------------------------------------

@@ -51,7 +51,6 @@ calendar.jar:
     content/calendar/calendar-dialog-utils.js              (content/dialogs/calendar-dialog-utils.js)
     content/calendar/calendar-error-prompt.xul             (content/dialogs/calendar-error-prompt.xul)
     content/calendar/calendar-event-dialog.css             (content/dialogs/calendar-event-dialog.css)
-    content/calendar/calendar-event-dialog.js              (content/dialogs/calendar-event-dialog.js)
 *   content/calendar/calendar-event-dialog.xul             (content/dialogs/calendar-event-dialog.xul)
     content/calendar/calendar-event-dialog-attendees.xml   (content/dialogs/calendar-event-dialog-attendees.xml)
     content/calendar/calendar-event-dialog-freebusy.xml    (content/dialogs/calendar-event-dialog-freebusy.xml)
@@ -110,6 +109,7 @@ calendar.jar:
 % style chrome://global/content/customizeToolbar.xul chrome://calendar/skin/calendar-task-view.css
 % style chrome://global/content/customizeToolbar.xul chrome://calendar/skin/calendar-event-dialog.css
 % style chrome://calendar/content/calendar-event-dialog.xul chrome://calendar-common/skin/dialogs/calendar-event-dialog.css
+% style chrome://lightning/content/lightning-item-iframe.xul chrome://calendar-common/skin/dialogs/calendar-event-dialog.css
 % style chrome://calendar/content/calendar-event-dialog-attendees.xul chrome://calendar-common/skin/dialogs/calendar-event-dialog.css
     ../skin/common/alarm-flashing.png                 (themes/common/images/alarm-flashing.png)
     ../skin/common/alarm-icons.png                    (themes/common/images/alarm-icons.png)
@@ -126,6 +126,8 @@ calendar.jar:
     ../skin/common/timezone_map.png                   (themes/common/images/timezone_map.png)
     ../skin/common/timezones.png                      (themes/common/images/timezones.png)
     ../skin/common/calendar-event-dialog.png          (themes/common/dialogs/images/calendar-event-dialog.png)
+    ../skin/common/calendar-event-tab.png             (themes/common/dialogs/images/calendar-event-tab.png)
+    ../skin/common/calendar-task-tab.png              (themes/common/dialogs/images/calendar-task-tab.png)
     ../skin/common/widgets/nav-arrow.svg              (themes/common/widgets/images/nav-arrow.svg)
     ../skin/common/widgets/nav-today.svg              (themes/common/widgets/images/nav-today.svg)
     ../skin/common/widgets/nav-today-hov.svg          (themes/common/widgets/images/nav-today-hov.svg)
@@ -177,6 +179,8 @@ calendar.jar:
     ../skin/linux/calendar/today-pane.css                                 (themes/linux/today-pane.css)
     ../skin/linux/calendar/widgets/calendar-widgets.css                   (themes/linux/widgets/calendar-widgets.css)
     ../skin/linux/calendar/calendar-occurrence-prompt.png                 (themes/linux/images/calendar-occurrence-prompt.png)
+    ../skin/linux/calendar/calendar-event-dialog.png                      (themes/linux/icons/calendar-event-dialog.png)
+    ../skin/linux/calendar/calendar-task-dialog.png                       (themes/linux/icons/calendar-task-dialog.png)
 
 # OS X theme files
     ../skin/osx/calendar/cal-icon32.png                                 (themes/osx/images/cal-icon32.png)
@@ -229,3 +233,5 @@ calendar.jar:
     ../skin/windows/calendar/toolbar-large.png                              (themes/windows/images/toolbar-large.png)
     ../skin/windows/calendar/toolbar-small.png                              (themes/windows/images/toolbar-small.png)
     ../skin/windows/calendar/calendar-occurrence-prompt-aero.png            (themes/windows/images/calendar-occurrence-prompt-aero.png)
+    ../skin/windows/calendar/calendar-event-dialog.png                      (themes/windows/icons/calendar-event-dialog.png)
+    ../skin/windows/calendar/calendar-task-dialog.png                       (themes/windows/icons/calendar-task-dialog.png)
