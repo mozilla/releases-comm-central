@@ -114,7 +114,7 @@
 #endif
 #endif
 
-#ifndef MOZ_SYSTEM_ICU
+#ifdef MOZ_ICU_DATA_ARCHIVE
 @RESPATH@/@ICU_DATA_FILE@
 #endif
 
