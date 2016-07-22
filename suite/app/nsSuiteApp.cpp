@@ -16,10 +16,6 @@
 #include <unistd.h>
 #endif
 
-#ifdef XP_MACOSX
-#include "MacQuirks.h"
-#endif
-
 #include <stdio.h>
 #include <stdarg.h>
 #include <string.h>
@@ -301,10 +297,6 @@ InitXPCOMGlue(const char *argv0, nsIFile **xreDirectory)
 
 int main(int argc, char* argv[], char* envp[])
 {
-#ifdef XP_MACOSX
-  TriggerQuirks();
-#endif
-
   nsIFile *xreDirectory;
 
 #ifdef HAS_DLL_BLOCKLIST
