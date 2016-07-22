@@ -126,13 +126,17 @@ radio[pane=paneLightning] {
 
   /* ::: tab icons ::: */
   .icon-holder[type="calendar"],
-  .tabmail-tab[type="calendar"] {
+  .tabmail-tab[type="calendar"],
+  .icon-holder[type="calendarEvent"],
+  .tabmail-tab[type="calendarEvent"] {
     list-style-image: url(chrome://lightning-common/skin/mode-switch-icons.png);
     -moz-image-region: rect(0 64px 16px 48px);
   }
 
   .icon-holder[type="tasks"],
-  .tabmail-tab[type="tasks"] {
+  .tabmail-tab[type="tasks"],
+  .icon-holder[type="calendarTask"],
+  .tabmail-tab[type="calendarTask"] {
     list-style-image: url(chrome://lightning-common/skin/mode-switch-icons.png);
     -moz-image-region: rect(0 80px 16px 64px);
   }
@@ -223,13 +227,17 @@ radio[pane=paneLightning] {
   }
 
   .icon-holder[type="calendar"],
-  .tabmail-tab[type="calendar"] {
+  .tabmail-tab[type="calendar"],
+  .icon-holder[type="calendarEvent"],
+  .tabmail-tab[type="calendarEvent"] {
     list-style-image: url(chrome://lightning/skin/mode-switch-icons-aero.png);
     -moz-image-region: rect(16px 16px 32px 0);
   }
 
   .icon-holder[type="tasks"],
-  .tabmail-tab[type="tasks"] {
+  .tabmail-tab[type="tasks"],
+  .icon-holder[type="calendarTask"],
+  .tabmail-tab[type="calendarTask"] {
     list-style-image: url(chrome://lightning/skin/mode-switch-icons-aero.png);
     -moz-image-region: rect(16px 32px 32px 16px);
   }

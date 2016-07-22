@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+
+<!DOCTYPE overlay [
+    <!ENTITY % brandDTD SYSTEM "chrome://branding/locale/brand.dtd">
+    <!ENTITY % globalDTD SYSTEM "chrome://calendar/locale/global.dtd">
+    <!ENTITY % calendarDTD SYSTEM "chrome://calendar/locale/calendar.dtd">
+    <!ENTITY % eventDialogDTD SYSTEM "chrome://calendar/locale/calendar-event-dialog.dtd">
+    %brandDTD;
+    %globalDTD;
+    %calendarDTD;
+    %eventDialogDTD;
+]>
+
+<overlay id="ltnCalendarItemPanelContentOverlay"
+         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+  <!-- Toolbox contains the toolbar class="toolbox-top" -->
+  <toolbox id="event-toolbox"
+           class="mail-toolbox"
+           mode="full"
+           defaultmode="full"
+#ifdef XP_MACOSX
+           iconsize="small"
+           defaulticonsize="small"
+#endif
+           labelalign="end"
+           defaultlabelalign="end">
+
+    <!-- Toolbar -->
+    <toolbarpalette id="event-toolbarpalette">
+      <!-- this is "save and close" -->
+      <toolbarbutton id="button-save"
+                     mode="dialog"
+                     class="cal-event-toolbarbutton toolbarbutton-1"
+                     label="&event.toolbar.save.label;"
+                     tooltiptext="&event.toolbar.save.tooltip;"
+                     command="cmd_accept"/>
+      <toolbarbutton id="button-attendees"
+                     mode="dialog"
+                     class="cal-event-toolbarbutton toolbarbutton-1 event-only"
+                     disable-on-readonly="true"
+                     label="&event.toolbar.attendees.label;"
+                     tooltiptext="&event.toolbar.attendees.tooltip;"
+                     command="cmd_attendees"/>
+      <toolbarbutton id="button-privacy"
+                     mode="dialog"
+                     class="cal-event-toolbarbutton toolbarbutton-1"
+                     type="menu-button"
+                     disable-on-readonly="true"
+                     label="&event.toolbar.privacy.label;"
+                     tooltiptext="&event.toolbar.privacy.tooltip;"
+                     oncommand="rotatePrivacy()">
+        <menupopup id="event-privacy-menupopup">
+          <menuitem id="event-privacy-public-menuitem"
+                    name="event-privacy-group"
+                    label="&event.menu.options.privacy.public.label;"
+                    type="radio"
+                    privacy="PUBLIC"
+                    oncommand="editPrivacy(this, event)"/>
+          <menuitem id="event-privacy-confidential-menuitem"
+                    name="event-privacy-group"
+                    label="&event.menu.options.privacy.confidential.label;"
+                    type="radio"
+                    privacy="CONFIDENTIAL"
+                    oncommand="editPrivacy(this, event)"/>
+          <menuitem id="event-privacy-private-menuitem"
+                    name="event-privacy-group"
+                    label="&event.menu.options.privacy.private.label;"
+                    type="radio"
+                    privacy="PRIVATE"
+                    oncommand="editPrivacy(this, event)"/>
+        </menupopup>
+      </toolbarbutton>
+      <toolbarbutton id="button-url"
+                     type="menu-button"
+                     mode="dialog"
+                     class="cal-event-toolbarbutton toolbarbutton-1"
+                     label="&event.attachments.menubutton.label;"
+                     tooltiptext="&event.toolbar.attachments.tooltip;"
+                     command="cmd_attach_url"
+                     disable-on-readonly="true">
+        <menupopup id="button-attach-menupopup">
+          <menuitem id="button-attach-url"
+                    label="&event.attachments.url.label;"
+                    command="cmd_attach_url"/>
+        </menupopup>
+      </toolbarbutton>
+      <toolbarbutton id="button-delete"
+                     mode="dialog"
+                     class="cal-event-toolbarbutton toolbarbutton-1"
+                     label="&event.toolbar.delete.label;"
+                     tooltiptext="&event.toolbar.delete.tooltip;"
+                     command="cmd_item_delete"
+                     disable-on-readonly="true"/>
+      <toolbarbutton id="button-priority"
+                     mode="dialog"
+                     class="cal-event-toolbarbutton toolbarbutton-1"
+                     type="menu-button"
+                     disable-on-readonly="true"
+                     label="&event.menu.options.priority2.label;"
+                     tooltiptext="&event.toolbar.priority.tooltip;"
+                     oncommand="rotatePriority()">
+        <menupopup id="event-priority-menupopup">
+          <menuitem id="event-priority-none-menuitem"
+                    name="event-priority-group"
+                    label="&event.menu.options.priority.notspecified.label;"
+                    type="radio"
+                    command="cmd_priority_none"/>
+          <menuitem id="event-priority-low-menuitem"
+                    name="event-priority-group"
+                    label="&event.menu.options.priority.low.label;"
+                    type="radio"
+                    command="cmd_priority_low"/>
+          <menuitem id="event-priority-normal-menuitem"
+                    name="event-priority-group"
+                    label="&event.menu.options.priority.normal.label;"
+                    type="radio"
+                    command="cmd_priority_normal"/>
+          <menuitem id="event-priority-high-menuitem"
+                    name="event-priority-group"
+                    label="&event.menu.options.priority.high.label;"
+                    type="radio"
+                    command="cmd_priority_high"/>
+        </menupopup>
+      </toolbarbutton>
+      <toolbarbutton id="button-status"
+                     mode="dialog"
+                     class="cal-event-toolbarbutton toolbarbutton-1 event-only"
+                     type="menu-button"
+                     disable-on-readonly="true"
+                     label="&newevent.status.label;"
+                     tooltiptext="&event.toolbar.status.tooltip;"
+                     oncommand="rotateStatus()">
+        <menupopup id="event-status-menupopup">
+          <menuitem id="event-status-none-menuitem"
+                    name="event-status-group"
+                    label="&newevent.eventStatus.none.label;"
+                    type="radio"
+                    command="cmd_status_none"/>
+          <menuitem id="event-status-tentative-menuitem"
+                    name="event-status-group"
+                    label="&newevent.status.tentative.label;"
+                    type="radio"
+                    command="cmd_status_tentative"/>
+          <menuitem id="event-status-confirmed-menuitem"
+                    name="event-status-group"
+                    label="&newevent.status.confirmed.label;"
+                    type="radio"
+                    command="cmd_status_confirmed"/>
+          <menuitem id="event-status-cancelled-menuitem"
+                    name="event-status-group"
+                    label="&newevent.eventStatus.cancelled.label;"
+                    type="radio"
+                    command="cmd_status_cancelled"/>
+        </menupopup>
+      </toolbarbutton>
+      <toolbarbutton id="button-freebusy"
+                     mode="dialog"
+                     class="cal-event-toolbarbutton toolbarbutton-1 event-only"
+                     type="menu-button"
+                     disable-on-readonly="true"
+                     label="&event.menu.options.show.time.label;"
+                     tooltiptext="&event.toolbar.freebusy.tooltip;"
+                     oncommand="rotateShowTimeAs()">
+        <menupopup id="event-freebusy-menupopup">
+          <menuitem id="event-freebusy-busy-menuitem"
+                    name="event-freebusy-group"
+                    label="&event.menu.options.show.time.busy.label;"
+                    type="radio"
+                    command="cmd_showtimeas_busy"/>
+          <menuitem id="event-freebusy-free-menuitem"
+                    name="event-freebusy-group"
+                    label="&event.menu.options.show.time.free.label;"
+                    type="radio"
+                    command="cmd_showtimeas_free"/>
+        </menupopup>
+      </toolbarbutton>
+      <toolbarbutton id="button-timezones"
+                     mode="dialog"
+                     type="checkbox"
+                     class="cal-event-toolbarbutton toolbarbutton-1"
+                     label="&event.menu.options.timezone2.label;"
+                     tooltiptext="&event.menu.options.timezone2.label;"
+                     command="cmd_timezone"/>
+    </toolbarpalette>
+
+    <toolbarset id="custom-toolbars"/>
+  </toolbox>
+</overlay>

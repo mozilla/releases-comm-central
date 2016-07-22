@@ -442,6 +442,7 @@ function openEventDialog(calendarItem, calendar, mode, callback, job, initialDat
     args.onOk = callback;
     args.job = job;
     args.initialStartDateValue = (initialDate || getDefaultStartDate());
+    args.inTab = Preferences.get("calendar.item.editInTab", false);
 
     // this will be called if file->new has been selected from within the dialog
     args.onNewEvent = function(calendar) {
@@ -465,24 +466,38 @@ function openEventDialog(calendarItem, calendar, mode, callback, job, initialDat
     if (isCalendarWritable(calendar)
         && (mode == "new"
             || (mode == "modify" && !isInvitation && userCanModifyItem((calendarItem))))) {
-        url = "chrome://calendar/content/calendar-event-dialog.xul";
+        if (args.inTab) {
+            url = "chrome://lightning/content/lightning-item-iframe.xul";
+        } else {
+            url = "chrome://calendar/content/calendar-event-dialog.xul";
+        }
     } else {
         url = "chrome://calendar/content/calendar-summary-dialog.xul";
     }
 
-    // reminder: event dialog should not be modal (cf bug 122671)
-    var features;
-    // keyword "dependent" should not be used (cf bug 752206)
-    if (Services.appinfo.OS == "WINNT") {
-        features = "chrome,titlebar,resizable";
-    } else if (Services.appinfo.OS == "Darwin") {
-        features = "chrome,titlebar,resizable,minimizable=no";
+    if (args.inTab && isCalendarWritable(calendar)) {
+        // open in a tab, currently the read-only summary dialog is
+        // never opened in a tab
+        args.url = url;
+        let tabmail = document.getElementById('tabmail');
+        let tabtype = cal.isEvent(args.calendarEvent) ? 'calendarEvent' : 'calendarTask';
+        tabmail.openTab(tabtype, args);
     } else {
-        // All other targets, mostly Linux flavors using gnome.
-        features = "chrome,titlebar,resizable,minimizable=no,dialog=no";
-    }
+        // open in a window
 
-    openDialog(url, "_blank", features, args);
+        // reminder: event dialog should not be modal (cf bug 122671)
+        let features;
+        // keyword "dependent" should not be used (cf bug 752206)
+        if (Services.appinfo.OS == "WINNT") {
+            features = "chrome,titlebar,resizable";
+        } else if (Services.appinfo.OS == "Darwin") {
+            features = "chrome,titlebar,resizable,minimizable=no";
+        } else {
+            // All other targets, mostly Linux flavors using gnome.
+            features = "chrome,titlebar,resizable,minimizable=no,dialog=no";
+        }
+        openDialog(url, "_blank", features, args);
+    }
 }
 
 /**
