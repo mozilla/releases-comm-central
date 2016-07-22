@@ -182,6 +182,12 @@ MimeMessage_parse_line (const char *aLine, int32_t aLength, MimeObject *obj)
       // line in mimeInlineTextPlainFlowedClass.
       if (mime_typep(kid, (MimeObjectClass *)&mimeInlineTextPlainFlowedClass))
       {
+        // Remove any stuffed space.
+        if (length > 0 && ' ' == *line)
+        {
+          line++;
+          length--;
+        }
         return kid->clazz->parse_line (line, length, kid);
       }
       else
