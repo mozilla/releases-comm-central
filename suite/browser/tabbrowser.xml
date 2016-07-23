@@ -550,13 +550,11 @@
                     // Restore the current document's location in case the
                     // request was stopped (possibly from a content script)
                     // before the location changed.
-
                     this.mBrowser.userTypedValue = null;
 
                     let inLoadURI = this.mBrowser.inLoadURI;
-                    if (this.mTab.selected && gURLBar && !inLoadURI) {
+                    if (this.mTab.selected && gURLBar && !inLoadURI)
                       URLBarSetURI();
-                    }
                   } else if (isSuccessful) {
                     this.mBrowser.urlbarChangeTracker.finishedLoad();
                   }
