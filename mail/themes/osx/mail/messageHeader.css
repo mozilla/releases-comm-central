@@ -454,27 +454,34 @@ toolbar[mode="icons"] > #otherActionsButton > .toolbarbutton-menu-dropmarker >
 /* ::::: msg header email addresses ::::: */
 
 .emailDisplayButton {
-  margin: 0;
-  padding-inline-start: 2px !important;
-  padding-inline-end: 2px !important;
+  margin: 0 -1px;
+  padding-inline-start: 3px !important;
+  padding-inline-end: 3px !important;
   background-color: transparent;
-  border-radius: 2px;
+  border-radius: 4px;
 }
 
 .emailDisplayButton:hover {
   cursor: pointer;
-  background: linear-gradient(#F9CE90, #F6A942); /* orange gradient */
+  color: HighlightText;
+  background-color: Highlight;
+  background: linear-gradient(#6bb0fa, #167bff);
 }
 
-mail-emailaddress[selected="true"] .emailDisplayButton{
+mail-emailaddress[selected="true"] .emailDisplayButton {
   /* when an email address context menu is selected,
     make sure that the email bubble stays displayed, and
     tweak the bottom to blend in more w/ the menu */
   cursor: pointer;
-  border-radius: 3px;
-  background: linear-gradient(#F9CE90, #F6A942); /* orange gradient */
+  color: HighlightText;
+  background: linear-gradient(#6bb0fa, #167bff);
   border-bottom-left-radius: 0;
   border-bottom-right-radius: 0;
+}
+
+.emailDisplayButton:-moz-system-metric(mac-graphite-theme):hover,
+mail-emailaddress[selected="true"] .emailDisplayButton:-moz-system-metric(mac-graphite-theme) {
+  background: linear-gradient(#b1b1b6, #929297);
 }
 
 /* this is for the comma in between email addresses */
@@ -483,8 +490,8 @@ mail-emailaddress[selected="true"] .emailDisplayButton{
 }
 
 .emailDisplayButton:focus {
-  outline: 1px dotted #F8BA67; /* Middle hue from orange gradient */
-  outline-offset: -1px;
+  outline: 1px dotted;
+  outline-offset: -2px;
 }
 
 .emailStar {
@@ -496,27 +503,19 @@ mail-emailaddress[selected="true"] .emailDisplayButton{
   margin-inline-start: -1px;
   padding: 0;
   list-style-image: url("chrome://messenger/skin/starIcons.png");
-  -moz-image-region: rect(0px, 16px, 16px, 0px);
+  -moz-image-region: rect(0, 16px, 16px, 0);
 }
 
-.emailStar:hover {
-  -moz-image-region: rect(0px, 32px, 16px, 16px);
-}
-
-.emailStar:hover:active {
-  -moz-image-region: rect(0px, 48px, 16px, 32px);
+.emailDisplayButton:hover .emailStar {
+  -moz-image-region: rect(0, 32px, 16px, 16px);
 }
 
 .emailStar[hascard="true"] {
-  -moz-image-region: rect(16px, 16px, 32px, 0px);
+  -moz-image-region: rect(16px, 16px, 32px, 0);
 }
 
-.emailStar:hover[hascard="true"] {
+.emailDisplayButton:hover .emailStar[hascard="true"] {
   -moz-image-region: rect(16px, 32px, 32px, 16px);
-}
-
-.emailStar:hover:active[hascard="true"] {
-  -moz-image-region: rect(16px, 48px, 32px, 32px);
 }
 
 .emailPresence {
@@ -533,24 +532,16 @@ mail-emailaddress[selected="true"] .emailDisplayButton{
     -moz-image-region: rect(0px 32px 32px 0px);
   }
 
-  .emailStar:hover {
+  .emailDisplayButton:hover .emailStar {
     -moz-image-region: rect(0px 64px 32px 32px);
-  }
-
-  .emailStar:hover:active {
-    -moz-image-region: rect(0px 96px 32px 64px);
   }
 
   .emailStar[hascard="true"] {
     -moz-image-region: rect(32px 32px 64px 0px);
   }
 
-  .emailStar:hover[hascard="true"] {
+  .emailDisplayButton:hover .emailStar[hascard="true"] {
     -moz-image-region: rect(32px 64px 64px 32px);
-  }
-
-  .emailStar:hover:active[hascard="true"] {
-    -moz-image-region: rect(32px 96px 64px 64px);
   }
 
   .emailPresence {
