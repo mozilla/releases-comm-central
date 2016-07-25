@@ -1602,10 +1602,11 @@ function EditorDblClick(event)
         element = GetCurrentEditor().getSelectedElement("href");
       } catch (e) {}
 
-    // Don't fire for body/p. It's common that people try to double-click
+    // Don't fire for body/p and other block elements.
+    // It's common that people try to double-click
     // to select a word, but the click hits an empty area.
-    if (element && element.nodeName.toLowerCase() != "body" &&
-        element.nodeName.toLowerCase() != "p")
+    if (element &&
+        !["body","p","blockquote","div"].includes(element.nodeName.toLowerCase()))
     {
       goDoCommand("cmd_objectProperties");  
       event.preventDefault();
