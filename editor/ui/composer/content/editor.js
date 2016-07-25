@@ -1606,7 +1606,8 @@ function EditorDblClick(event)
     // It's common that people try to double-click
     // to select a word, but the click hits an empty area.
     if (element &&
-        !["body","p","blockquote","div"].includes(element.nodeName.toLowerCase()))
+        !["body","p","h1","h2","h3","h4","h5","h6","blockquote","div","pre"]
+         .includes(element.nodeName.toLowerCase()))
     {
       goDoCommand("cmd_objectProperties");  
       event.preventDefault();
