@@ -24,6 +24,9 @@
 <!ENTITY rights.intro-point2b "here">
 <!ENTITY rights.intro-point2c ".">
 
+<!-- point 2d is technically point 3. in the list -->
+<!ENTITY rights.intro-point2d "Some features in &brandShortName;, such as the Crash Reporter, give you the option to provide feedback to &vendorShortName;. By choosing to submit feedback, you give &vendorShortName; and Mozilla permission to use the feedback to improve their applications, to publish the feedback on their websites, and to distribute the feedback.">
+
 <!-- point 3 text for official branded builds -->
 <!ENTITY rights.intro-point3a "Privacy policies for &vendorShortName;'s products may be found ">
 <!ENTITY rights.intro-point3b "here">
@@ -41,9 +44,9 @@
      so that we can refer to text the user sees in the UI, without
      this page being forgotten every time those strings are updated.  -->
 <!-- intro paragraph for branded builds -->
-<!ENTITY rights2.webservices-a "&brandFullName; offers optional services (&quot;Services&quot;), such as the Add-on suggestion and update services or the Safe Browsing feature, that are available for your use with this binary version of &brandShortName; as described below.  These services are enabled by default.  If you do not want to use the Services or the terms below are unacceptable, instructions on how to disable a particular feature or Service may be found ">
-<!ENTITY rights2.webservices-b "here">
-<!ENTITY rights2.webservices-c ". Other features and Services can be disabled in the application preferences.">
+<!ENTITY rights3.webservices-a "&brandFullName; offers optional web-based services (&quot;Services&quot;) that are available for your use with this binary version of &brandShortName; as described below.  Some of these services (such as Add-on suggestion and update services, the Safe Browsing service, or the Location Aware Browsing notification feature) are enabled by default.  If you do not want to use any of these Services or the terms below are unacceptable, instructions on how to disable a particular feature or Service may be found ">
+<!ENTITY rights3.webservices-b "here">
+<!ENTITY rights3.webservices-c ". Other features and Services can be enabled or disabled in the application preferences.">
 
 <!-- add-on related points for branded builds -->
 <!ENTITY rights.addons-a "Add-on Services: ">
@@ -53,7 +56,6 @@
 <!ENTITY rights.addons-term3 "Uncheck the options to &quot;&autoAddOnsUpdates.label;&quot; and &quot;&enablePersonalized.label;&quot;">
 <!ENTITY rights.addons-term4 "The Add-on Services are now disabled">
 
-
 <!-- safe browsing points for branded builds -->
 <!ENTITY rights.safebrowsing-a "Safe Browsing: ">
 <!ENTITY rights.safebrowsing-b "Disabling the Safe Browsing feature is not recommended as it may result in you going to unsafe sites.  If you wish to disable the feature completely, follow these steps:">
@@ -62,8 +64,16 @@
 <!ENTITY rights.safebrowsing-term3 "Uncheck the options to &quot;&blockAttackSites.label;&quot; and &quot;&blockWebForgeries.label;&quot;">
 <!ENTITY rights.safebrowsing-term4 "Safe Browsing is now disabled">
 
+<!-- location aware browsing points for branded builds -->
+<!ENTITY rights.locationawarebrowsing-a "Location Aware Browsing: ">
+<!ENTITY rights.locationawarebrowsing-b "is always opt-in.  No location information is ever sent without your permission.  If you wish to disable the feature completely, follow these steps:">
+<!ENTITY rights.locationawarebrowsing-term1 "Open the application preferences">
+<!ENTITY rights.locationawarebrowsing-term2 "Select the main &security.label; panel">
+<!ENTITY rights.locationawarebrowsing-term3 "Select the option to &quot;&geoDisabled.label;&quot;">
+<!ENTITY rights.locationawarebrowsing-term4 "Location Aware Browsing is now disabled">
 
-<!-- points 1-6 text for branded builds -->
+<!-- points 0-6 text for branded builds -->
+<!ENTITY rights.webservices-term0 "&vendorShortName; and Mozilla along with their contributors, licensors, and partners work to provide the most accurate and up-to-date Services.  However, we cannot guarantee that this information is comprehensive and error-free.  For example, the Safe Browsing Service may not identify some risky sites and may identify some safe sites in error and the Location Aware Service all locations returned by our service providers are estimates only. Neither we nor our service providers guarantee the accuracy of the locations provided.">
 <!ENTITY rights.webservices-term1 "&vendorShortName; may discontinue or change the Services at its discretion.">
 <!ENTITY rights.webservices-term2 "You are welcome to use these Services with the accompanying version of &brandShortName;, and you have all the rights necessary to do so. &vendorShortName; and its licensors reserve all other rights in the Services. These terms are not intended to limit any rights granted under open source licenses applicable to &brandShortName; and to corresponding source code versions of &brandShortName;.">
 <!ENTITY rights.webservices-term3 "The Services are provided &quot;as-is.&quot;  &vendorShortName;, its contributors, licensors, and distributors, disclaim all warranties, whether express or implied, including without limitation, warranties that the Services are merchantable and fit for your particular purposes.  You bear the entire risk as to selecting the Services for your purposes and as to the quality and performance of the Services. Some jurisdictions do not allow the exclusion or limitation of implied warranties, so this disclaimer may not apply to you.">
