@@ -60,6 +60,10 @@ function parseStatus(aStanza) {
   }
 
   let idleSince = 0;
+  let date = _getDelay(aStanza);
+  if (date)
+    idleSince = date.getTime();
+
   let query = aStanza.getElement(["query"]);
   if (query && query.uri == Stanza.NS.last) {
     let now = Math.floor(Date.now() / 1000);
@@ -79,6 +83,22 @@ function parseStatus(aStanza) {
 
   return {statusType: statusType, statusText: status, idleSince: idleSince};
 };
+
+// Returns a Date object for the delay value (stamp) in aStanza if it exists,
+// otherwise returns undefined.
+function _getDelay(aStanza) {
+  // XEP-0203: Delayed Delivery.
+  let date;
+  let delay = aStanza.getElement(["delay"]);
+  if (delay && delay.uri == Stanza.NS.delay) {
+    if (delay.attributes["stamp"])
+      date = new Date(delay.attributes["stamp"]);
+  }
+  if (date && isNaN(date.getTime()))
+    return undefined;
+
+  return date;
+}
 
 // The timespan after which we consider roomInfo to be stale.
 var kListRefreshInterval = 12 * 60 * 60 * 1000; // 12 hours.
@@ -1988,14 +2008,7 @@ var XMPPAccountPrototype = {
     }
 
     if (body) {
-      let date;
-      let delay = aStanza.getElement(["delay"]);
-      if (delay && delay.uri == Stanza.NS.delay) {
-        if (delay.attributes["stamp"])
-          date = new Date(delay.attributes["stamp"]);
-      }
-      if (date && isNaN(date))
-        date = undefined;
+      let date = _getDelay(aStanza);
       if (type == "groupchat" ||
           (type == "error" && isMuc && !this._conv.has(from))) {
         if (!isMuc) {
