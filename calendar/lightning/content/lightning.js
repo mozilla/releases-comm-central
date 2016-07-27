@@ -150,9 +150,6 @@ pref("calendar.view.useSystemColors", false);
 // occurrence of a repeating item in calFilter
 pref("calendar.filter.maxiterations", 50);
 
-// Edit events and tasks in a tab (by default) rather than a window
-pref("calendar.item.editInTab", false);
-
 // Backend to use. false: libical, true: ical.js
 #ifdef NIGHTLY_BUILD
 pref("calendar.icaljs", true);

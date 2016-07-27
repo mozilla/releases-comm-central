@@ -21,13 +21,13 @@
     padding: 3px 0px;
 }
 
-#calendar-event-dialog-inner .item-attendees-cell {
+#calendar-event-dialog .item-attendees-cell {
     -moz-user-focus: normal;
     margin-bottom: 1px;
     margin-inline-end: 1px;
 }
 
-#calendar-event-dialog-inner .item-attendees-cell:focus {
+#calendar-event-dialog .item-attendees-cell:focus {
     background-color: Highlight;
     color: Highlighttext;
 }
@@ -217,13 +217,13 @@
        (-moz-windows-default-theme) and (-moz-os-version: windows-win7),
        (-moz-windows-default-theme) and (-moz-os-version: windows-win8),
        (-moz-windows-default-theme) and (-moz-os-version: windows-win10) {
-    #calendar-event-dialog-inner .item-attendees-cell {
+    #calendar-event-dialog .item-attendees-cell {
         background-repeat: no-repeat;
         background-size: 100% 100%;
         --attendees-currentColor: rgb(125, 162, 206);
     }
 
-    #calendar-event-dialog-inner .item-attendees-cell:focus {
+    #calendar-event-dialog .item-attendees-cell:focus {
         color: -moz-FieldText;
         background-color: transparent;
         -moz-border-top-colors: var(--attendees-focusBorder);
@@ -252,7 +252,7 @@
 
 @media (-moz-windows-default-theme) and (-moz-os-version: windows-win8),
        (-moz-windows-default-theme) and (-moz-os-version: windows-win10) {
-    #calendar-event-dialog-inner .item-attendees-cell {
+    #calendar-event-dialog .item-attendees-cell {
         padding: 1px;
         border: 1px solid transparent;
         --attendees-focusColor: rgb(123, 195, 255);

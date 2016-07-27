@@ -84,32 +84,24 @@ radio[pane=paneLightning] {
 
 /* ::: tab icons ::: */
 .icon-holder[type="calendar"],
-.tabmail-tab[type="calendar"],
-.icon-holder[type="calendarEvent"],
-.tabmail-tab[type="calendarEvent"] {
+.tabmail-tab[type="calendar"] {
     list-style-image: url(chrome://lightning-common/skin/mode-switch-icons.png);
     -moz-image-region: rect(0px 64px 16px 48px);
 }
 
 .icon-holder[type="calendar"][selected="true"],
-.tabmail-tab[type="calendar"][selected="true"],
-.icon-holder[type="calendarEvent"][selected="true"],
-.tabmail-tab[type="calendarEvent"][selected="true"] {
+.tabmail-tab[type="calendar"][selected="true"] {
     -moz-image-region: rect(16px 64px 32px 48px);
 }
 
 .icon-holder[type="tasks"],
-.tabmail-tab[type="tasks"],
-.icon-holder[type="calendarTask"],
-.tabmail-tab[type="calendarTask"] {
+.tabmail-tab[type="tasks"] {
     list-style-image: url(chrome://lightning-common/skin/mode-switch-icons.png);
     -moz-image-region: rect(0px 80px 16px 64px);
 }
 
 .icon-holder[type="tasks"][selected="true"],
-.tabmail-tab[type="tasks"][selected="true"],
-.icon-holder[type="calendarTask"][selected="true"],
-.tabmail-tab[type="calendarTask"][selected="true"] {
+.tabmail-tab[type="tasks"][selected="true"] {
     -moz-image-region: rect(16px 80px 32px 64px);
 }
 

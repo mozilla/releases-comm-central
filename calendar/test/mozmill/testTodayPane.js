@@ -29,7 +29,7 @@ var testTodayPane = function () {
     + 'id("calendar-view-box")/id("view-deck")/id("day-view")/';
   let dayPath = dayView + 'anon({"anonid":"mainbox"})/anon({"anonid":"labelbox"})/'
     + 'anon({"anonid":"labeldaybox"})/{"flex":"1"}';
-  let eventName = '/id("calendar-event-dialog-inner")/id("event-grid")/id("event-grid-rows")/'
+  let eventName = '/id("calendar-event-dialog")/id("event-grid")/id("event-grid-rows")/'
     + 'id("event-grid-title-row")/id("item-title")/anon({"class":"textbox-input-box"})/'
     + 'anon({"anonid":"input"})';
 
@@ -60,10 +60,9 @@ var testTodayPane = function () {
     + 'anon({"anonid":"bgbox"})/[' + startHour + ']'), 1, 1);
   controller.waitFor(function() {return mozmill.utils.getWindows("Calendar:EventDialog").length > 0}, WAIT_FOR_WINDOW_TIMEOUT);
   let event = new mozmill.controller.MozMillController(mozmill.utils.getWindows("Calendar:EventDialog")[0]);
-  let iframe = event.window.document.getElementById("lightning-item-panel-iframe");
 
-  event.waitForElement(new elementslib.Lookup(iframe.contentDocument, eventName));
-  event.type(new elementslib.Lookup(iframe.contentDocument, eventName),"Today's Event");
+  event.waitForElement(new elementslib.Lookup(event.window.document, eventName));
+  event.type(new elementslib.Lookup(event.window.document, eventName),"Today's Event");
   event.click(new elementslib.ID(event.window.document, "button-save"));
   controller.waitFor(function() {return mozmill.utils.getWindows("Calendar:EventDialog").length == 0});
 
@@ -78,10 +77,9 @@ var testTodayPane = function () {
     + 'anon({"anonid":"bgbox"})/[9]'), 1, 1);
   controller.waitFor(function() {return mozmill.utils.getWindows("Calendar:EventDialog").length > 0}, WAIT_FOR_WINDOW_TIMEOUT);
   event = new mozmill.controller.MozMillController(mozmill.utils.getWindows("Calendar:EventDialog")[0]);
-  iframe = event.window.document.getElementById("lightning-item-panel-iframe");
 
-  event.waitForElement(new elementslib.Lookup(iframe.contentDocument, eventName));
-  event.type(new elementslib.Lookup(iframe.contentDocument, eventName),"Tomorrow's Event");
+  event.waitForElement(new elementslib.Lookup(event.window.document, eventName));
+  event.type(new elementslib.Lookup(event.window.document, eventName),"Tomorrow's Event");
   event.click(new elementslib.ID(event.window.document, "button-save"));
   controller.waitFor(function() {return mozmill.utils.getWindows("Calendar:EventDialog").length == 0});
 
@@ -96,10 +94,9 @@ var testTodayPane = function () {
     + 'anon({"anonid":"bgbox"})/[9]'), 1, 1);
   controller.waitFor(function() {return mozmill.utils.getWindows("Calendar:EventDialog").length > 0}, WAIT_FOR_WINDOW_TIMEOUT);
   event = new mozmill.controller.MozMillController(mozmill.utils.getWindows("Calendar:EventDialog")[0]);
-  iframe = event.window.document.getElementById("lightning-item-panel-iframe");
 
-  event.waitForElement(new elementslib.Lookup(iframe.contentDocument, eventName));
-  event.type(new elementslib.Lookup(iframe.contentDocument, eventName),"Future's Event");
+  event.waitForElement(new elementslib.Lookup(event.window.document, eventName));
+  event.type(new elementslib.Lookup(event.window.document, eventName),"Future's Event");
   event.click(new elementslib.ID(event.window.document, "button-save"));
   controller.waitFor(function() {return mozmill.utils.getWindows("Calendar:EventDialog").length == 0});
 

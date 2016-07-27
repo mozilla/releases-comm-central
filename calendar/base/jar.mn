@@ -51,7 +51,8 @@ calendar.jar:
     content/calendar/calendar-dialog-utils.js              (content/dialogs/calendar-dialog-utils.js)
     content/calendar/calendar-error-prompt.xul             (content/dialogs/calendar-error-prompt.xul)
     content/calendar/calendar-event-dialog.css             (content/dialogs/calendar-event-dialog.css)
-    content/calendar/calendar-event-dialog.xul             (content/dialogs/calendar-event-dialog.xul)
+    content/calendar/calendar-event-dialog.js              (content/dialogs/calendar-event-dialog.js)
+*   content/calendar/calendar-event-dialog.xul             (content/dialogs/calendar-event-dialog.xul)
     content/calendar/calendar-event-dialog-attendees.xml   (content/dialogs/calendar-event-dialog-attendees.xml)
     content/calendar/calendar-event-dialog-freebusy.xml    (content/dialogs/calendar-event-dialog-freebusy.xml)
     content/calendar/calendar-event-dialog-recurrence.xul  (content/dialogs/calendar-event-dialog-recurrence.xul)
@@ -109,7 +110,6 @@ calendar.jar:
 % style chrome://global/content/customizeToolbar.xul chrome://calendar/skin/calendar-task-view.css
 % style chrome://global/content/customizeToolbar.xul chrome://calendar/skin/calendar-event-dialog.css
 % style chrome://calendar/content/calendar-event-dialog.xul chrome://calendar-common/skin/dialogs/calendar-event-dialog.css
-% style chrome://lightning/content/lightning-item-iframe.xul chrome://calendar-common/skin/dialogs/calendar-event-dialog.css
 % style chrome://calendar/content/calendar-event-dialog-attendees.xul chrome://calendar-common/skin/dialogs/calendar-event-dialog.css
     ../skin/common/alarm-flashing.png                 (themes/common/images/alarm-flashing.png)
     ../skin/common/alarm-icons.png                    (themes/common/images/alarm-icons.png)

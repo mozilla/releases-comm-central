@@ -10,25 +10,6 @@ Components.utils.import("resource://calendar/modules/calAlarmUtils.jsm");
 Components.utils.import("resource://calendar/modules/calIteratorUtils.jsm");
 Components.utils.import("resource://calendar/modules/calRecurrenceUtils.jsm");
 
-// Variables related to whether we are in a tab or a window dialog.
-var gInTab = false;
-var gMainWindow = null;
-var gTabmail = null;
-
-/**
- * Initialize variables for tab vs window.
- */
-function intializeTabOrWindowVariables() {
-    let args = window.arguments[0];
-    gInTab = args.inTab;
-    if (gInTab) {
-        gTabmail = parent.document.getElementById("tabmail");
-        gMainWindow = parent;
-    } else {
-        gMainWindow = parent.opener;
-    }
-}
-
 /**
  * Dispose of controlling operations of this event dialog. Uses
  * window.arguments[0].job.dispose()
@@ -499,8 +480,7 @@ function commonUpdateReminder(aSuppressDialogs) {
 }
 
 /**
- * Updates the related link on the dialog.  Currently only used by the
- * read-only summary dialog.
+ * Updates the related link on the dialog
  */
 function updateLink() {
     var itemUrlString = window.calendarItem.getProperty("URL") || "";

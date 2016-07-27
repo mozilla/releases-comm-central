@@ -51,8 +51,7 @@ var testLocalICS = function () {
     .getWindows("Calendar:EventDialog")[0]);
   
   // title
-  let iframe = event.window.document.getElementById("lightning-item-panel-iframe");
-  let titleTextBox = new elementslib.Lookup(iframe.contentDocument, '/id("calendar-event-dialog-inner")/'
+  let titleTextBox = new elementslib.Lookup(event.window.document, '/id("calendar-event-dialog")/'
     + 'id("event-grid")/id("event-grid-rows")/id("event-grid-title-row")/'
     + 'id("item-title")/anon({"class":"textbox-input-box"})/anon({"anonid":"input"})');
   event.waitForElement(titleTextBox);
