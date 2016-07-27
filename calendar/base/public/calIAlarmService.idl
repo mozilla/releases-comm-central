@@ -45,6 +45,12 @@ interface calIAlarmServiceObserver : nsISupports
 interface calIAlarmService : nsISupports
 {
   /**
+   * Upper limit for the snooze period for an alarm. To avoid performance issues, don't change this
+   * to a value larger then 1 at least until bug 861594 or a similar concept is implemented.
+   */
+  const unsigned long MAX_SNOOZE_MONTHS = 1;
+
+  /**
    * This is the timezone that all-day events will be converted to in order to
    * determine when their alarms should fire.
    */

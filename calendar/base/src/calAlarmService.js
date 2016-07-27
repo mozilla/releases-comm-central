@@ -241,14 +241,14 @@ calAlarmService.prototype = {
                     // a month ahead of an event, or doesn't start Lightning
                     // for a month, they'll miss some, but that's a slim chance
                     start = now.clone();
-                    start.month -= 1;
+                    start.month -= Components.interfaces.calIAlarmService.MAX_SNOOZE_MONTHS;
                     this.alarmService.mRangeStart = start.clone();
                 } else {
                     // This is a subsequent search, so we got all the past alarms before
                     start = this.alarmService.mRangeEnd.clone();
                 }
                 let until = now.clone();
-                until.month += 1;
+                until.month += Components.interfaces.calIAlarmService.MAX_SNOOZE_MONTHS;
 
                 // We don't set timers for every future alarm, only those within 6 hours
                 let end = now.clone();
@@ -569,8 +569,8 @@ calAlarmService.prototype = {
         // for a month, they'll miss some, but that's a slim chance
         let start = nowUTC();
         let until = start.clone();
-        start.month -= 1;
-        until.month += 1;
+        start.month -= Components.interfaces.calIAlarmService.MAX_SNOOZE_MONTHS;
+        until.month += Components.interfaces.calIAlarmService.MAX_SNOOZE_MONTHS;
         this.findAlarms(aCalendars, start, until);
     },
 
