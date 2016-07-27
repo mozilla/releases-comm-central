@@ -27,10 +27,17 @@ public:
     nsMailtoUrl();
 
 protected:
+  enum RefHandlingEnum {
+    eIgnoreRef,
+    eHonorRef,
+    eReplaceRef
+  };
   virtual ~nsMailtoUrl();
   nsresult ParseUrl();
   nsresult CleanupMailtoState();
   nsresult ParseMailtoUrl(char * searchPart);
+  nsresult CloneInternal(RefHandlingEnum aRefHandlingMode,
+                         const nsACString& newRef, nsIURI** _retval);
 
   nsCOMPtr<nsIURI> m_baseURL;
     

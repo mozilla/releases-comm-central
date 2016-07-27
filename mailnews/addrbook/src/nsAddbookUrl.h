@@ -20,8 +20,17 @@ public:
     nsAddbookUrl();
 
 protected:
+  enum RefHandlingEnum {
+    eIgnoreRef,
+    eHonorRef,
+    eReplaceRef
+  };
   virtual ~nsAddbookUrl();
-  nsresult                      ParseUrl();         
+  nsresult
+  CloneInternal(RefHandlingEnum aRefHandlingMode,
+                const nsACString& newRef, nsIURI** _retval);
+
+  nsresult                      ParseUrl();
   int32_t                       mOperationType;     // the internal ID for the operation
 
   nsCOMPtr<nsIURI>              m_baseURL;          // the base URL for the object

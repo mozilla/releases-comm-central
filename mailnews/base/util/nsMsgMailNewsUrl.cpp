@@ -501,20 +501,6 @@ NS_IMETHODIMP nsMsgMailNewsUrl::EqualsExceptRef(nsIURI *other, bool *result)
 }
 
 NS_IMETHODIMP
-nsMsgMailNewsUrl::CloneIgnoringRef(nsIURI** result)
-{
-  nsCOMPtr<nsIURI> clone;
-  nsresult rv = Clone(getter_AddRefs(clone));
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  rv = clone->SetRef(EmptyCString());
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  clone.forget(result);
-  return NS_OK;
-}
-
-NS_IMETHODIMP
 nsMsgMailNewsUrl::GetSpecIgnoringRef(nsACString &result)
 {
   return m_baseURL->GetSpecIgnoringRef(result);
@@ -531,7 +517,9 @@ NS_IMETHODIMP nsMsgMailNewsUrl::SchemeIs(const char *aScheme, bool *_retval)
   return m_baseURL->SchemeIs(aScheme, _retval);
 }
 
-NS_IMETHODIMP nsMsgMailNewsUrl::Clone(nsIURI **_retval)
+nsresult
+nsMsgMailNewsUrl::CloneInternal(RefHandlingEnum aRefHandlingMode,
+                                const nsACString& newRef, nsIURI** _retval)
 {
   nsresult rv;
   nsAutoCString urlSpec;
@@ -552,8 +540,33 @@ NS_IMETHODIMP nsMsgMailNewsUrl::Clone(nsIURI **_retval)
     msgMailNewsUrl->SetMsgWindow(msgWindow);
   }
 
+  if (aRefHandlingMode == eReplaceRef) {
+    rv = (*_retval)->SetRef(newRef);
+    NS_ENSURE_SUCCESS(rv, rv);
+  } else if (aRefHandlingMode == eIgnoreRef) {
+    rv = (*_retval)->SetRef(EmptyCString());
+    NS_ENSURE_SUCCESS(rv, rv);
+  }
+
   return rv;
-} 
+}
+
+NS_IMETHODIMP nsMsgMailNewsUrl::Clone(nsIURI **_retval)
+{
+  return CloneInternal(eHonorRef, EmptyCString(), _retval);
+}
+
+NS_IMETHODIMP
+nsMsgMailNewsUrl::CloneIgnoringRef(nsIURI** _retval)
+{
+  return CloneInternal(eIgnoreRef, EmptyCString(), _retval);
+}
+
+NS_IMETHODIMP
+nsMsgMailNewsUrl::CloneWithNewRef(const nsACString& newRef, nsIURI** _retval)
+{
+  return CloneInternal(eReplaceRef, newRef, _retval);
+}
 
 NS_IMETHODIMP nsMsgMailNewsUrl::Resolve(const nsACString &relativePath, nsACString &result) 
 {
