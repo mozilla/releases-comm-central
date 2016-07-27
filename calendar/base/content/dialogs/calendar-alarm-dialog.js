@@ -27,9 +27,11 @@ function getAlarmService() {
  */
 function onSnoozeAlarm(event) {
     // reschedule alarm:
-    let duration = cal.createDuration();
-    duration.minutes = event.detail;
-    duration.normalize();
+    let duration = getDuration(event.detail);
+    if (aboveSnoozeLimit(duration)) {
+        // we prevent snoozing too far if the alarm wouldn't be displayed
+        return;
+    }
     getAlarmService().snoozeAlarm(event.target.item, event.target.alarm, duration);
 }
 
@@ -153,9 +155,11 @@ function updateRelativeDates() {
  * @param aDurationMinutes    The duration in minutes
  */
 function snoozeAllItems(aDurationMinutes) {
-    let duration = cal.createDuration();
-    duration.minutes = aDurationMinutes;
-    duration.normalize();
+    let duration = getDuration(aDurationMinutes);
+    if (aboveSnoozeLimit(duration)) {
+        // we prevent snoozing too far if the alarm wouldn't be displayed
+        return;
+    }
 
     let alarmRichlist = document.getElementById("alarm-richlist");
     let parentItems = {};
@@ -170,6 +174,49 @@ function snoozeAllItems(aDurationMinutes) {
             getAlarmService().snoozeAlarm(node.item, node.alarm, duration);
         }
     }
+}
+
+/**
+ * Receive a calIDuration object for a given number of minutes
+ *
+ * @param  {long}           aMinutes     The number of minutes
+ * @return {calIDuration}
+ */
+function getDuration(aMinutes) {
+    const MINUTESINWEEK = 7 * 24 * 60;
+
+    // converting to weeks if any is required to avoid an integer overflow of duration.minutes as
+    // this is of type short
+    let weeks = Math.floor(aMinutes / MINUTESINWEEK);
+    aMinutes -= weeks * MINUTESINWEEK;
+
+    let duration = cal.createDuration();
+    duration.minutes = aMinutes;
+    duration.weeks = weeks;
+    duration.normalize();
+    return duration;
+}
+
+/**
+ * Check whether the snooze period exceeds the current limitation of the AlarmService and prompt
+ * the user with a message if so
+ * @param   {calIDuration}   aDuration   The duration to snooze
+ * @returns {Boolean}
+ */
+function aboveSnoozeLimit(aDuration) {
+    const LIMIT = Components.interfaces.calIAlarmService.MAX_SNOOZE_MONTHS;
+
+    let currentTime = cal.now().getInTimezone(cal.UTC());
+    let limitTime = currentTime.clone();
+    limitTime.month += LIMIT;
+
+    let durationUntilLimit = limitTime.subtractDate(currentTime);
+    if (aDuration.compare(durationUntilLimit) > 0) {
+        let msg = PluralForm.get(LIMIT, cal.calGetString("calendar", "alarmSnoozeLimitExceeded"));
+        showError(msg.replace("#1", LIMIT));
+        return true;
+    }
+    return false;
 }
 
 /**
