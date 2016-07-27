@@ -272,7 +272,7 @@
           ],
 
         // Error Console
-        "chrome://global/content/console.xul":
+        "chrome://communicator/content/console/console.xul":
           [
             window.CheckGenerics,
             []

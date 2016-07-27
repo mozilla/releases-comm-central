@@ -12,7 +12,7 @@
   background-color: #FFFFFF;
   color: #000000;
 }
- 
+
 /* ::::: console rows ::::: */
 
 .console-row {
@@ -42,25 +42,25 @@
   font-size: 120%;
 }
 
-.console-dots, 
+.console-dots,
 .console-caret {
   height: 9px;
 }
 
 .console-dots {
-  background: url("chrome://global/skin/console/error-dash.gif") repeat-x top;
+  background: url("chrome://communicator/skin/console/console-error-dash.gif") repeat-x top;
 }
 
 .console-caret {
   width: 7px;
-  background: url("chrome://global/skin/console/error-caret.gif") no-repeat top;
+  background: url("chrome://communicator/skin/console/console-error-caret.gif") no-repeat top;
 }
 
 /* ..... message rows ..... */
 
 .console-row[type="message"] {
   font-family: monospace;
-} 
+}
 
 /* ..... selected state ..... */
 
@@ -70,7 +70,7 @@
 
 .console-row-code[selected="true"],
 .console-row-content[selected="true"] > .console-row-file > .console-error-source > .text-link {
-  color: inherit !important;  
+  color: inherit !important;
 }
 
 /* ::::: icons ::::: */

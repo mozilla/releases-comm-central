@@ -3,7 +3,7 @@ comm.jar:
 % content help %content/communicator/helpviewer/
 % override chrome://global/content/license.html chrome://communicator/content/license.html
 % override chrome://mozapps/content/profile/profileSelection.xul chrome://communicator/content/profile/profileSelection.xul
-% overlay chrome://global/content/console.xul chrome://communicator/content/consoleOverlay.xul
+% overlay chrome://communicator/content/console/console.xul chrome://communicator/content/consoleOverlay.xul
 % overlay chrome://global/content/viewSource.xul chrome://communicator/content/viewSourceOverlay.xul
 % overlay chrome://global/content/viewPartialSource.xul chrome://communicator/content/viewSourceOverlay.xul
 % overlay chrome://help/content/help.xul chrome://communicator/content/helpOverlay.xul
@@ -128,6 +128,10 @@ comm.jar:
    content/communicator/bookmarks/moveBookmarks.js                  (bookmarks/moveBookmarks.js)
    content/communicator/bookmarks/moveBookmarks.xul                 (bookmarks/moveBookmarks.xul)
    content/communicator/bookmarks/placesOverlay.xul                 (bookmarks/placesOverlay.xul)
+   content/communicator/console/consoleBindings.xml                 (console/consoleBindings.xml)
+   content/communicator/console/console.css                         (console/console.css)
+   content/communicator/console/console.js                          (console/console.js)
+   content/communicator/console/console.xul                         (console/console.xul)
    content/communicator/dataman/dataman.css                         (dataman/dataman.css)
    content/communicator/dataman/dataman.js                          (dataman/dataman.js)
    content/communicator/dataman/dataman.xml                         (dataman/dataman.xml)

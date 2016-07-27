@@ -60,12 +60,12 @@
 }
 
 .console-dots {
-  background: url("chrome://global/skin/console/console-error-dash.gif") repeat-x top;
+  background: url("chrome://communicator/skin/console/console-error-dash.gif") repeat-x top;
 }
 
 .console-caret {
   width: 7px;
-  background: url("chrome://global/skin/console/console-error-caret.gif") no-repeat top;
+  background: url("chrome://communicator/skin/console/console-error-caret.gif") no-repeat top;
 }
 
 /* ..... message rows ..... */
@@ -77,7 +77,7 @@
 /* ..... selected state ..... */
 
 .console-row[selected="true"] {
-    background-image: url("chrome://global/skin/console/itemSelected.png");
+    background-image: url("chrome://communicator/skin/console/itemSelected.png");
 }
 
 .console-row-code[selected="true"],
@@ -137,7 +137,7 @@ toolbar#ToolbarMode toolbarbutton[checked="true"] {
 
 
 toolbar#ToolbarMode toolbarbutton {
-  list-style-image: url("chrome://global/skin/console/console-toolbar.png");
+  list-style-image: url("chrome://communicator/skin/console/console-toolbar.png");
   -moz-box-orient: horizontal;
   padding: 4px !important;
 }

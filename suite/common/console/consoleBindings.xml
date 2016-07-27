@@ -3,8 +3,7 @@
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
-
-<!DOCTYPE bindings SYSTEM "chrome://global/locale/console.dtd">
+<!DOCTYPE bindings SYSTEM "chrome://communicator/locale/console/console.dtd">
 
 <bindings id="consoleBindings"
           xmlns="http://www.mozilla.org/xbl"
@@ -13,7 +12,7 @@
 
   <binding id="console-box" extends="xul:box">
     <content>
-      <xul:stringbundle src="chrome://global/locale/console.properties" role="string-bundle"/>
+      <xul:stringbundle src="chrome://communicator/locale/console/console.properties" role="string-bundle"/>
       <xul:vbox class="console-box-internal">
         <xul:vbox class="console-rows" role="console-rows" xbl:inherits="dir=sortOrder"/>
       </xul:vbox>

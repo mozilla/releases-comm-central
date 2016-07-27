@@ -32,6 +32,9 @@ classic.jar:
   skin/classic/communicator/bookmarks/livemark-folder.png               (mac/communicator/bookmarks/livemark-folder.png)
   skin/classic/communicator/bookmarks/query.png                         (mac/communicator/bookmarks/query.png)
   skin/classic/communicator/bookmarks/toolbarDropMarker.png             (mac/communicator/bookmarks/toolbarDropMarker.png)
+  skin/classic/communicator/console/console-error-caret.gif             (mac/communicator/console/console-error-caret.gif)
+  skin/classic/communicator/console/console-error-dash.gif              (mac/communicator/console/console-error-dash.gif)
+  skin/classic/communicator/console/console.css                         (mac/communicator/console/console.css)
   skin/classic/communicator/directory/directory.css                     (mac/communicator/directory/directory.css)
   skin/classic/communicator/downloads/downloadButtons.png               (mac/communicator/downloads/downloadButtons.png)
   skin/classic/communicator/downloads/progressBg.png                    (mac/communicator/downloads/progressBg.png)
@@ -79,6 +82,12 @@ classic.jar:
   skin/classic/communicator/bookmarks/livemark-folder.png               (communicator/bookmarks/livemark-folder.png)
   skin/classic/communicator/bookmarks/query.png                         (communicator/bookmarks/query.png)
   skin/classic/communicator/bookmarks/toolbarDropMarker.png             (communicator/bookmarks/toolbarDropMarker.png)
+* skin/classic/communicator/console/console.css                         (communicator/console/console.css)
+  skin/classic/communicator/console/console-error-caret.gif             (communicator/console/console-error-caret.gif)
+  skin/classic/communicator/console/console-error-dash.gif              (communicator/console/console-error-dash.gif)
+  skin/classic/communicator/console/console-toolbar.png                 (communicator/console/console-toolbar.png)
+  skin/classic/communicator/console/console-toolbar-XP.png              (communicator/console/console-toolbar-XP.png)
+  skin/classic/communicator/console/itemSelected.png                    (communicator/console/itemSelected.png)
   skin/classic/communicator/directory/directory.css                     (communicator/directory/directory.css)
   skin/classic/communicator/directory/file.gif                          (communicator/directory/file.gif)
   skin/classic/communicator/directory/folder-clsd.gif                   (communicator/directory/folder-clsd.gif)
@@ -492,3 +501,7 @@ classic.jar:
 % override chrome://global/skin/config.css                        chrome://communicator/skin/config.css
 % override chrome://global/skin/in-content/info-pages.css         chrome://communicator/skin/communicator.css
 % override chrome://mozapps/skin/places/defaultFavicon.png        chrome://communicator/skin/bookmarks/bookmark-item.png
+
+#ifdef XP_WIN
+% override chrome://communicator/skin/console/console-toolbar.png   chrome://communicator/skin/console/console-toolbar-XP.png      osversion<6
+#endif

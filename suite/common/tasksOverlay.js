@@ -84,7 +84,7 @@ function toBookmarksManager()
 
 function toJavaScriptConsole()
 {
-    toOpenWindowByType("global:console", "chrome://global/content/console.xul");
+    toOpenWindowByType("suite:console", "chrome://communicator/content/console/console.xul");
 }
 
 function toOpenWindow( aWindow )
