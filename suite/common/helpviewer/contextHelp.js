@@ -53,7 +53,7 @@ function locateHelpWindow(contentPack) {
     const windowManagerInterface = Components
         .classes['@mozilla.org/appshell/window-mediator;1'].getService()
         .QueryInterface(Components.interfaces.nsIWindowMediator);
-    const iterator = windowManagerInterface.getEnumerator("mozilla:help");
+    const iterator = windowManagerInterface.getEnumerator("suite:help");
     var topWindow = null;
     var aWindow;
 

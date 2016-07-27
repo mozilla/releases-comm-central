@@ -396,7 +396,7 @@
         <![CDATA[
           const wm = Components.classes['@mozilla.org/appshell/window-mediator;1']
                                .getService(Components.interfaces.nsIWindowMediator);
-          const iterator = wm.getEnumerator("mozilla:help");
+          const iterator = wm.getEnumerator("suite:help");
           var topWindow = null;
           var aWindow;
 

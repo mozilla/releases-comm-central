@@ -1,5 +1,6 @@
 comm.jar:
 % content communicator %content/communicator/ contentaccessible=yes
+% content help %content/communicator/helpviewer/
 % override chrome://global/content/license.html chrome://communicator/content/license.html
 % override chrome://mozapps/content/profile/profileSelection.xul chrome://communicator/content/profile/profileSelection.xul
 % overlay chrome://global/content/console.xul chrome://communicator/content/consoleOverlay.xul
@@ -131,6 +132,11 @@ comm.jar:
    content/communicator/dataman/dataman.js                          (dataman/dataman.js)
    content/communicator/dataman/dataman.xml                         (dataman/dataman.xml)
    content/communicator/dataman/dataman.xul                         (dataman/dataman.xul)
+*  content/communicator/helpviewer/help.xul                         (helpviewer/help.xul)
+*  content/communicator/helpviewer/contextHelp.js                   (helpviewer/contextHelp.js)
+*  content/communicator/helpviewer/help.js                          (helpviewer/help.js)
+*  content/communicator/helpviewer/helpContextOverlay.xul           (helpviewer/helpContextOverlay.xul)
+*  content/communicator/helpviewer/platformClasses.css              (helpviewer/platformClasses.css)
    content/communicator/directory/directory.html                    (directory/directory.html)
    content/communicator/directory/directory.js                      (directory/directory.js)
    content/communicator/directory/directory.xul                     (directory/directory.xul)

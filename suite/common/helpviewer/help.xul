@@ -14,7 +14,7 @@
 ]>
 
 <window id="help"
-        windowtype="mozilla:help"
+        windowtype="suite:help"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
         width="700"
         height="550"

@@ -8,7 +8,7 @@ modern.jar:
 % skin editor modern/1.0 %skin/modern/editor/
 % skin global modern/1.0 %skin/modern/global/
 % skin global-platform modern/1.0 %skin/modern/global/
-% skin help modern/1.0 %skin/modern/help/
+% skin help modern/1.0 %skin/modern/helpviewer/
 % skin messenger modern/1.0 %skin/modern/messenger/
 % skin mozapps modern/1.0 %skin/modern/mozapps/
 % skin navigator modern/1.0 %skin/modern/navigator/
@@ -392,8 +392,8 @@ modern.jar:
   skin/modern/global/tree/twisty-clsd.gif                          (global/tree/twisty-clsd.gif)
   skin/modern/global/tree/twisty-open.gif                          (global/tree/twisty-open.gif)
   skin/modern/global/tree/columnpicker.gif                         (global/tree/columnpicker.gif)
-  skin/modern/help/help.css                                        (help/help.css)
-  skin/modern/help/helpFileLayout.css                              (/mozilla/toolkit/themes/windows/help/helpFileLayout.css)
+  skin/modern/helpviewer/help.css                                  (helpviewer/help.css)
+  skin/modern/helpviewer/helpFileLayout.css                        (helpviewer/helpFileLayout.css)
   skin/modern/messenger/threadPaneLabels.css                       (messenger/threadPaneLabels.css)
   skin/modern/messenger/accountCentral.css                         (messenger/accountCentral.css)
   skin/modern/messenger/accountManage.css                          (messenger/accountManage.css)
