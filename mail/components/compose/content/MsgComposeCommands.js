@@ -3164,12 +3164,11 @@ function SetCompositionAsPerDeliveryFormat(aDeliveryFormat)
   let insert_menu = document.getElementById("insertMenu");
   let view_menuitem = document.getElementById("menu_showFormatToolbar");
 
-  let hideMenus = !gMsgCompose.composeHTML ||
-                  (aDeliveryFormat == nsIMsgCompSendFormat.PlainText);
+  let hideMenus = !gMsgCompose.composeHTML;
   format_menu.hidden = hideMenus;
   insert_menu.hidden = hideMenus;
   view_menuitem.hidden = hideMenus;
-  // Hide the HTML toolbar if the output format is plain text
+  // Hide the HTML toolbar for a plain text composition
   // or the user manually hid the toolbar on the view menu.
   format_toolbar.hidden = hideMenus ||
     (view_menuitem.getAttribute("checked") == "false");
