@@ -193,8 +193,8 @@
 
         <button id="editFeed"
                 disabled="true"
-                label="&button.editFeed.label;"
-                accesskey="&button.editFeed.accesskey;"
+                label="&button.updateFeed.label;"
+                accesskey="&button.updateFeed.accesskey;"
                 oncommand="FeedSubscriptions.editFeed();"/>
 
         <button id="removeFeed"
