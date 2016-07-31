@@ -22,3 +22,59 @@
     list-style-image: url(chrome://calendar/skin/checkbox-images.png);
     -moz-image-region: rect(0 39px 13px 26px);
 }
+
+/* Use on Vista and up default theme a dark text color when selected focus */
+@media not all and (-moz-os-version: windows-xp) {
+    @media (-moz-windows-default-theme) {
+        .calendar-task-tree > treechildren::-moz-tree-cell-text(selected, focus),
+        .calendar-task-tree > treechildren::-moz-tree-cell-text(duetoday, selected, focus),
+        .calendar-task-tree > treechildren::-moz-tree-cell-text(future, selected, focus),
+        .calendar-task-tree > treechildren::-moz-tree-cell-text(completed, selected, focus) {
+            color: -moz-FieldText;
+        }
+
+        .calendar-task-tree > treechildren::-moz-tree-row(inprogress, selected, focus) {
+            -moz-border-top-colors: green rgba(255, 255, 255, .4);
+            -moz-border-right-colors: green rgba(255, 255, 255, .4);
+            -moz-border-left-colors: green rgba(255, 255, 255, .4);
+            -moz-border-bottom-colors: green rgba(255, 255, 255, .6);
+        }
+
+        .calendar-task-tree > treechildren::-moz-tree-cell-text(inprogress, selected, focus) {
+            color: white;
+        }
+
+        .calendar-task-tree > treechildren::-moz-tree-row(overdue, selected, focus) {
+            -moz-border-top-colors: red rgba(255, 255, 255, .4);
+            -moz-border-right-colors: red rgba(255, 255, 255, .4);
+            -moz-border-left-colors: red rgba(255, 255, 255, .4);
+            -moz-border-bottom-colors: red rgba(255, 255, 255, .6);
+        }
+
+        .calendar-task-tree > treechildren::-moz-tree-cell-text(overdue, selected, focus) {
+            color: white;
+        }
+
+        @media (-moz-os-version: windows-vista),
+               (-moz-os-version: windows-win7) {
+            .calendar-task-tree > treechildren::-moz-tree-row(inprogress, selected, focus) {
+                background: linear-gradient(rgba(0, 128, 0, .28), rgba(0, 128, 0, .5));
+            }
+
+            .calendar-task-tree > treechildren::-moz-tree-row(overdue, selected, focus) {
+                background: linear-gradient(rgba(255, 0, 0, .28), rgba(255, 0, 0, .5));
+            }
+        }
+
+        @media (-moz-os-version: windows-win8),
+               (-moz-os-version: windows-win10) {
+            .calendar-task-tree > treechildren::-moz-tree-row(inprogress, selected, focus) {
+                background: linear-gradient(rgba(0, 128, 0, .5), rgba(0, 128, 0, .5));
+            }
+
+            .calendar-task-tree > treechildren::-moz-tree-row(overdue, selected, focus) {
+                background: linear-gradient(rgba(255, 0, 0, .5), rgba(255, 0, 0, .5));
+            }
+        }
+    }
+}
