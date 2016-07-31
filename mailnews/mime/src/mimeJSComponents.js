@@ -373,10 +373,8 @@ MimeAddressParser.prototype = {
     if (aDisplayName.includes('<')) {
       let lbracket = aDisplayName.lastIndexOf('<');
       let rbracket = aDisplayName.lastIndexOf('>');
-      // If there are multiple spaces between the display name and the bracket,
-      // strip off only a single space.
       return this.makeMailboxObject(
-        lbracket == 0 ? '' : aDisplayName.slice(0, lbracket - 1),
+        lbracket == 0 ? '' : aDisplayName.slice(0, lbracket).trim(),
         aDisplayName.slice(lbracket + 1, rbracket));
     } else {
       return this.makeMailboxObject('', aDisplayName);
