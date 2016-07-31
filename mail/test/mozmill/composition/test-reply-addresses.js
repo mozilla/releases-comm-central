@@ -167,6 +167,54 @@ function ensureNoAutoBcc(aIdentity) {
 }
 
 /**
+ * Tests that for a list post with munged Reply-To:
+ * - reply: goes to From
+ * - reply all: includes From + the usual thing
+ * - reply list: goes to the list
+ */
+function testReplyToMungedReplyToList() {
+  let msg0 = create_message({
+    from: "Tester <test@example.com>",
+    to: "munged.list@example.com, someone.else@example.com",
+    subject: "testReplyToMungedReplyToList",
+    clobberHeaders: {
+      "Reply-To": "Munged List <munged.list@example.com>",
+      "List-Post": "<mailto:munged.list@example.com>",
+    }
+  });
+  add_message_to_folder(folder, msg0);
+
+  be_in_folder(folder);
+  let msg = select_click_row(i++);
+  assert_selected_and_displayed(mc, msg);
+
+  ensureNoAutoCc(identity);
+
+  checkReply(
+    open_compose_with_reply,
+    {"addr_to": ["Tester <test@example.com>"]}
+  );
+
+  checkReply(
+    open_compose_with_reply_to_all,
+    {
+      "addr_to": [
+        "Munged List <munged.list@example.com>",
+        "someone.else@example.com",
+        "Tester <test@example.com>"
+       ]
+    }
+  );
+
+  checkReply(
+    open_compose_with_reply_to_list,
+    {
+      "addr_to": ["munged.list@example.com"]
+    }
+  );
+}
+
+/**
  * Tests that addresses get set properly when doing a normal reply.
  */
 function testToCcReply() {

@@ -2524,6 +2524,22 @@ NS_IMETHODIMP QuotingOutputStreamListener::OnStopRequest(nsIRequest *request, ns
         mMimeConverter->DecodeMimeHeader(outCString.get(), charset.get(),
                                          false, true, references);
 
+      mHeaders->ExtractHeader(HEADER_LIST_POST, true, outCString);
+      if (!outCString.IsEmpty())
+        mMimeConverter->DecodeMimeHeader(outCString.get(), charset.get(),
+                                         false, true, listPost);
+      if (!listPost.IsEmpty())
+      {
+        int32_t startPos = listPost.Find("<mailto:");
+        int32_t endPos = listPost.FindChar('>', startPos);
+        // Extract the e-mail address.
+        if (endPos > startPos)
+        {
+          const uint32_t mailtoLen = strlen("<mailto:");
+          listPost = Substring(listPost, startPos + mailtoLen, endPos - (startPos + mailtoLen));
+        }
+      }
+
       nsCString fromEmailAddress;
       ExtractEmail(EncodedHeader(NS_ConvertUTF16toUTF8(from)), fromEmailAddress);
 
@@ -2663,8 +2679,18 @@ NS_IMETHODIMP QuotingOutputStreamListener::OnStopRequest(nsIRequest *request, ns
         }
         else if (!replyTo.IsEmpty())
         {
-          // default behaviour for messages without Mail-Reply-To
-          compFields->SetTo(replyTo);
+          // default reply behaviour then
+
+          if (!listPost.IsEmpty() && replyTo.Find(listPost) != kNotFound)
+          {
+            // Reply-To munging in this list post. Reply to From instead,
+            // as the user can choose Reply List if that's what he wants.
+            compFields->SetTo(from);
+          }
+          else
+          {
+            compFields->SetTo(replyTo);
+          }
           needToRemoveDup = true;
         }
         else {
@@ -2693,14 +2719,20 @@ NS_IMETHODIMP QuotingOutputStreamListener::OnStopRequest(nsIRequest *request, ns
           needToRemoveDup = true;
         }
         else if (mailFollowupTo.IsEmpty()) {
-          // default behaviour for messages without Mail-Followup-To
+          // default reply-all behaviour then
 
           nsAutoString allTo;
           if (!replyTo.IsEmpty())
           {
-            // default behaviour for messages without Mail-Reply-To
             allTo.Assign(replyTo);
             needToRemoveDup = true;
+            if (!listPost.IsEmpty() && replyTo.Find(listPost) != kNotFound)
+            {
+              // Reply-To munging in this list. Add From to recipients, it's the
+              // lesser evil...
+              allTo.AppendLiteral(", ");
+              allTo.Append(from);
+            }
           }
           else
           {
@@ -2731,23 +2763,7 @@ NS_IMETHODIMP QuotingOutputStreamListener::OnStopRequest(nsIRequest *request, ns
       }
       else if (type == nsIMsgCompType::ReplyToList)
       {
-        mHeaders->ExtractHeader(HEADER_LIST_POST, true, outCString);
-        if (!outCString.IsEmpty())
-          mMimeConverter->DecodeMimeHeader(outCString.get(), charset.get(),
-                                           false, true, listPost);
-
-        if (!listPost.IsEmpty())
-        {
-          int32_t startPos = listPost.Find("<mailto:");
-          int32_t endPos = listPost.FindChar('>', startPos);
-          // Extract the e-mail address.
-          if (endPos > startPos)
-          {
-            const uint32_t mailtoLen = strlen("<mailto:");
-            listPost = Substring(listPost, startPos + mailtoLen, endPos - (startPos + mailtoLen));
-            compFields->SetTo(listPost);
-          }
-        }
+        compFields->SetTo(listPost);
       }
 
       if (!newgroups.IsEmpty())
