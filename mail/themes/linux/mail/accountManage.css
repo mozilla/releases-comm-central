@@ -33,9 +33,25 @@
 }
 
 listitem[default="true"],
-#identitiesList > listitem:first-child,
-treechildren::-moz-tree-cell-text(isDefaultServer-true) {
+#identitiesList > listitem:first-child {
   font-weight: bold;
+}
+
+treechildren::-moz-tree-cell-text(isDefaultServer-true) {
+  text-decoration: underline;
+}
+
+treechildren::-moz-tree-image(folderNameCol, isServer-true, serverType-smtp) {
+  list-style-image: url("chrome://messenger/skin/icons/server.png");
+  -moz-image-region: rect(16px 64px 32px 48px);
+}
+
+treechildren::-moz-tree-image(folderNameCol, isServer-true, serverType-im) {
+  list-style-image: url("chrome://chat/skin/prpl-generic/icon.png");
+}
+
+#accounttree treechildren::-moz-tree-indentation {
+  width: 1ch;
 }
 
 #accountActionsDropdown {

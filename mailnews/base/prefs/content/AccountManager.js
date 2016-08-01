@@ -686,14 +686,14 @@ function markDefaultServer(newDefault, oldDefault) {
   for (let i = 0; i < accountTreeNodes.length; i++) {
     let accountNode = accountTreeNodes[i];
     if (newDefault && newDefault == accountNode._account) {
-      accountNode.firstChild
-                 .firstChild
-                 .setAttribute("properties", "isDefaultServer-true");
+      let props = accountNode.firstChild.firstChild.getAttribute("properties");
+      accountNode.firstChild.firstChild
+                            .setAttribute("properties", props + " isDefaultServer-true");
     }
     if (oldDefault && oldDefault == accountNode._account) {
-      accountNode.firstChild
-                 .firstChild
-                 .removeAttribute("properties");
+      let props = accountNode.firstChild.firstChild.getAttribute("properties");
+      props = props.replace(/isDefaultServer-true/, "");
+      accountNode.firstChild.firstChild.setAttribute("properties", props);
     }
   }
 }
@@ -1508,13 +1508,14 @@ var gAccountTree = {
       let accountKey = account.key;
       let amChrome = "about:blank";
       let panelsToKeep = [];
+      let server = null;
 
       // This "try {} catch {}" block is intentionally very long to catch
       // unknown exceptions and confine them to this single account.
       // This may happen from broken accounts. See e.g. bug 813929.
       // Other accounts can still be shown properly if they are valid.
       try {
-        let server = account.incomingServer;
+        server = account.incomingServer;
 
         if (server.type == "im" && !Services.prefs.getBoolPref("mail.chat.enabled"))
           continue;
@@ -1587,6 +1588,16 @@ var gAccountTree = {
       treerow.appendChild(treecell);
       treecell.setAttribute("label", accountName);
       treeitem.setAttribute("PageTag", amChrome);
+      // Add icons based on account type.
+      if (server) {
+        treecell.setAttribute("properties", "folderNameCol isServer-true" +
+                              " serverType-" + server.type);
+        // For IM accounts, we can try to fetch a protocol specific icon.
+        if (server.type == "im") {
+          treecell.setAttribute("src", server.wrappedJSObject.imAccount
+                                             .protocol.iconBaseURI + "icon.png");
+        }
+      }
 
       if (panelsToKeep.length > 0) {
         var treekids = document.createElement("treechildren");
@@ -1624,5 +1635,7 @@ var gAccountTree = {
     treerow.appendChild(treecell);
     treecell.setAttribute("label", getString("prefPanel-smtp"));
     treeitem.setAttribute("PageTag", "am-smtp.xul");
+    treecell.setAttribute("properties",
+                          "folderNameCol isServer-true serverType-smtp");
   }
 };

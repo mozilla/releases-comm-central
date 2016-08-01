@@ -42,8 +42,38 @@
 
 listitem[default="true"],
 #identitiesList > listitem:first-child,
-treechildren::-moz-tree-cell-text(isDefaultServer-true) {
+treechildren::-moz-tree-cell-text(folderNameCol, isServer-true) {
   font-weight: bold;
+}
+
+treechildren::-moz-tree-cell-text(isDefaultServer-true) {
+  text-decoration: underline;
+}
+
+treechildren::-moz-tree-image(folderNameCol, isServer-true, serverType-smtp) {
+  list-style-image: url("chrome://messenger/skin/icons/server.png");
+  -moz-image-region: rect(0 112px 16px 96px);
+}
+
+@media (min-resolution: 2dppx) {
+  treechildren::-moz-tree-image(folderNameCol, isServer-true, serverType-smtp) {
+    list-style-image: url("chrome://messenger/skin/icons/server@2x.png");
+    -moz-image-region: rect(0 224px 32px 192px);
+  }
+}
+
+treechildren::-moz-tree-image(folderNameCol, isServer-true, serverType-im) {
+  list-style-image: url("chrome://chat/skin/prpl-generic/icon.png");
+}
+
+@media (min-resolution: 2dppx) {
+  treechildren::-moz-tree-image(folderNameCol, isServer-true, serverType-im) {
+    list-style-image: url("chrome://chat/skin/prpl-generic/icon32.png");
+  }
+}
+
+#accounttree treechildren::-moz-tree-indentation {
+  width: 1ch;
 }
 
 button:not(.spinbuttons-button):not(.dialog-button) {

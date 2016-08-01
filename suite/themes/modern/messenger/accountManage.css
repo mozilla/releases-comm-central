@@ -34,9 +34,16 @@
 }
 
 listitem[default="true"],
-#identitiesList > listitem:first-child,
-treechildren::-moz-tree-cell-text(isDefaultServer-true) {
+#identitiesList > listitem:first-child {
   font-weight: bold;
+}
+
+treechildren::-moz-tree-cell-text(isDefaultServer-true) {
+  text-decoration: underline;
+}
+
+#accounttree treechildren::-moz-tree-indentation {
+  width: 1ch;
 }
 
 /* ::::: SMTP Server Panel :::::: */
