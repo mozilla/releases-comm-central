@@ -90,7 +90,7 @@ var account = {
       // Force textbox XBL binding attachment by forcing layout,
       // otherwise setFormElementValue from AccountManager.js sets
       // properties that don't exist when restoring values.
-      gbox.getBoundingClientRect();
+      document.getElementById("protoSpecific").getBoundingClientRect();
     }
     else if (!haveOptions)
       advanced.hidden = true;
