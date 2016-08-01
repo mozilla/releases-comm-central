@@ -36,8 +36,11 @@ ChatBuddy.prototype = {
   set buddyIconFilename(aName) {
     // Prevent accidental removal of the getter.
     throw("Don't set chatBuddy.buddyIconFilename directly for Twitter.");
+  },
+  createConversation: function() {
+    return this._account.createConversation(this._name);
   }
-}
+};
 
 function Tweet(aTweet, aWho, aMessage, aObject)
 {
@@ -48,6 +51,13 @@ Tweet.prototype = {
   __proto__: GenericMessagePrototype,
   _deleted: false,
   getActions: function(aCount) {
+    // Direct messages have no actions.
+    if (!this.conversation.isChat) {
+      if (aCount)
+        aCount.value = 0;
+      return [];
+    }
+
     let account = this.conversation._account;
     let actions = [];
 
@@ -140,8 +150,6 @@ var GenericTwitterConversation = {
   },
   onSentCallback: function(aData) {
     let tweet = JSON.parse(aData);
-    if (tweet.user.screen_name != this._account.name)
-      throw "Wrong screen_name... Uh?";
     this.displayMessages([tweet]);
   },
   parseTweet: function(aTweet) {
@@ -257,15 +265,13 @@ var GenericTwitterConversation = {
 
     return text;
   },
-  displayTweet: function(aTweet) {
-    let name = aTweet.user.screen_name;
-    this._ensureParticipantExists(name);
+  displayTweet: function(aTweet, aUser) {
+    let name = aUser.screen_name;
     let text = this.parseTweet(aTweet);
 
-    let flags =
-      name == this._account.name ? {outgoing: true} : {incoming: true};
+    let flags = name == this.nick ? {outgoing: true} : {incoming: true};
     flags.time = Math.round(new Date(aTweet.created_at) / 1000);
-    flags._iconURL = aTweet.user.profile_image_url;
+    flags._iconURL = aUser.profile_image_url;
     if (aTweet.delayed)
       flags.delayed = true;
     if (aTweet.entities && aTweet.entities.user_mentions &&
@@ -347,7 +353,7 @@ TimelineConversation.prototype = {
                            aTweet.text), true);
     }, this);
   },
-  sendMsg: function (aMsg) {
+  sendMsg: function(aMsg) {
     if (this.getTweetLength(aMsg) > kMaxMessageLength) {
       this.systemMessage(_("error.tooLong"), true);
       throw Cr.NS_ERROR_INVALID_ARG;
@@ -383,7 +389,8 @@ TimelineConversation.prototype = {
         lastMsgId = id;
       account._knownMessageIds.add(id);
       account.setUserInfo(tweet.user);
-      this.displayTweet(tweet);
+      this._ensureParticipantExists(tweet.user.screen_name);
+      this.displayTweet(tweet, tweet.user);
     }
     if (lastMsgId != account._lastMsgId) {
       account._lastMsgId = lastMsgId;
@@ -412,12 +419,47 @@ TimelineConversation.prototype = {
 };
 Object.assign(TimelineConversation.prototype, GenericTwitterConversation);
 
+function DirectMessageConversation(aAccount, aName)
+{
+  this._init(aAccount, aName);
+}
+DirectMessageConversation.prototype = {
+  __proto__: GenericConvIMPrototype,
+  sendMsg: function(aMsg) {
+    this._account.directMessage(aMsg, this.name, this.onSentCallback,
+                                function(aException, aData) {
+      let error = this._parseError(aData);
+      this.systemMessage(_("error.general", error, aMsg), true);
+    }, this);
+  },
+  displayMessages: function(aMessages) {
+    let account = this._account;
+    for (let tweet of aMessages) {
+      if (!("sender" in tweet) || !("recipient" in tweet) ||
+          !("text" in tweet) || !("id_str" in tweet))
+        continue;
+      account.setUserInfo(tweet.sender);
+      account.setUserInfo(tweet.recipient);
+      this.displayTweet(tweet, tweet.sender);
+    }
+  },
+  unInit: function() {
+    this._account.removeConversation(this.name);
+    GenericConvIMPrototype.unInit.call(this);
+  },
+  get nick() { return this._account.name; },
+  set nick(aNick) {}
+}
+Object.assign(DirectMessageConversation.prototype, GenericTwitterConversation);
+
 function Account(aProtocol, aImAccount)
 {
   this._init(aProtocol, aImAccount);
   this._knownMessageIds = new Set();
   this._userInfo = new Map();
   this._friends = new Set();
+  // Contains just `DirectMessageConversation`s
+  this._conversations = new Map();
 }
 Account.prototype = {
   __proto__: GenericAccountPrototype,
@@ -587,6 +629,11 @@ Account.prototype = {
   destroy: function(aTweet, aOnSent, aOnError, aThis) {
     let url = "1.1/statuses/destroy/" + aTweet.id_str + ".json";
     this.signAndSend(url, null, [], aOnSent, aOnError, aThis);
+  },
+  directMessage: function(aMsg, aName, aOnSent, aOnError, aThis) {
+    let POSTData = [["text", aMsg], ["screen_name", aName]];
+    this.signAndSend("1.1/direct_messages/new.json", null, POSTData, aOnSent,
+                     aOnError, aThis);
   },
 
   _friends: null,
@@ -760,7 +807,12 @@ Account.prototype = {
         this.ERROR(e + " while parsing " + message);
         continue;
       }
-      if ("text" in msg)
+      if ("direct_message" in msg) {
+        let dm = msg["direct_message"];
+        if (dm.sender_screen_name !== this.name)  // These are displayed on send.
+          this.getConversation(dm.sender_screen_name).displayMessages([dm]);
+      }
+      else if ("text" in msg)
         this.timeline.displayMessages([msg]);
       else if ("friends" in msg) {
         // Filter out the IDs that info has already been received from (e.g. a
@@ -1115,6 +1167,19 @@ Account.prototype = {
   joinChat: function(aComponents) {
     // The 'timeline' getter opens a timeline conversation if none exists.
     this.timeline;
+  },
+
+  getConversation: function(aName) {
+    if (!this._conversations.has(aName))
+      this._conversations.set(aName, new DirectMessageConversation(this, aName));
+    return this._conversations.get(aName);
+  },
+  removeConversation: function(aName) {
+    if (this._conversations.has(aName))
+      this._conversations.delete(aName);
+  },
+  createConversation: function(aName) {
+    return this.getConversation(aName);
   }
 };
 
