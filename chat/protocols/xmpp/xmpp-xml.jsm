@@ -271,7 +271,7 @@ XMLNode.prototype = {
     return this.children.filter((c) => (c.type != "text" && c.localName == aName));
   },
 
-  /* Test if the node is a stanza */
+  // Test if the node is a stanza and its namespace is valid.
   isXmppStanza: function() {
     if (!TOP_LEVEL_ELEMENTS.hasOwnProperty(this.qName))
       return false;
@@ -415,13 +415,21 @@ XMPPParser.prototype = {
       return;
     }
 
-    if (this._node.isXmppStanza()) {
-      this._logReceivedData(this._node.convertToString());
-      try {
-        this._listener.onXmppStanza(this._node);
-      } catch (e) {
-        Cu.reportError(e);
-        dump(e + "\n");
+    // RFC 6120 (8): XML Stanzas.
+    // Checks if the node is the root and it's valid.
+    if (!this._node._parentNode) {
+      if (this._node.isXmppStanza()) {
+        this._logReceivedData(this._node.convertToString());
+        try {
+          this._listener.onXmppStanza(this._node);
+        } catch (e) {
+          Cu.reportError(e);
+          dump(e + "\n");
+        }
+      }
+      else {
+        this._listener.onXMLError("parsing-node",
+                                  "Root node " + aLocalName + " is not valid.");
       }
     }
 
