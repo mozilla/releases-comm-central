@@ -27,6 +27,8 @@ Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 Services.prefs.setCharPref("mail.serverDefaultStoreContractID",
                            "@mozilla.org/msgstore/berkeleystore;1");
 
+Services.prefs.setBoolPref("mailnews.allowMboxOver4GB", false);
+
 // If we're running out of memory parsing the folder, lowering the
 // block size might help, though it will slow the test down and consume
 // more disk space.
@@ -269,7 +271,7 @@ function growOver4GiB()
   } catch (ex) {
     do_check_eq(ex.result, Cr.NS_ERROR_NOT_INITIALIZED);
   }
-  // Execution continues in copyOver4GiB() when done.
+  // Execution continues in copyIntoOver4GiB() when done.
 }
 
 /**
@@ -502,6 +504,7 @@ function endTest()
   // Free up disk space - if you want to look at the file after running
   // this test, comment out this line.
   gInbox.filePath.remove(false);
+  Services.prefs.clearUserPref("mailnews.allowMboxOver4GB");
 
   do_test_finished();
 }

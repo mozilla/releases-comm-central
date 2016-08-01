@@ -34,6 +34,7 @@
 #include "nsIMsgFolderCompactor.h"
 #include "nsIPrefService.h"
 #include "nsIPrefBranch.h"
+#include "mozilla/Preferences.h"
 #include "prprf.h"
 #include <cstdlib> // for std::abs(int/long)
 #include <cmath> // for std::abs(float/double)
@@ -172,14 +173,18 @@ NS_IMETHODIMP nsMsgBrkMBoxStore::HasSpaceAvailable(nsIMsgFolder *aFolder,
   nsresult rv = aFolder->GetFilePath(getter_AddRefs(pathFile));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  // Allow the mbox to only reach 0xFFC00000 = 4 GiB - 4 MiB for now.
-  // This limit can be increased after bug 789679 is fixed.
-  int64_t fileSize;
-  rv = pathFile->GetFileSize(&fileSize);
-  NS_ENSURE_SUCCESS(rv, rv);
-  *aResult = ((fileSize + aSpaceRequested) < 0xFFC00000LL);
-  if (!*aResult)
-    return NS_ERROR_FILE_TOO_BIG;
+  bool allow4GBfolders = mozilla::Preferences::GetBool("mailnews.allowMboxOver4GB", true);
+
+  if (!allow4GBfolders) {
+    // Allow the mbox to only reach 0xFFC00000 = 4 GiB - 4 MiB.
+    int64_t fileSize;
+    rv = pathFile->GetFileSize(&fileSize);
+    NS_ENSURE_SUCCESS(rv, rv);
+
+    *aResult = ((fileSize + aSpaceRequested) < 0xFFC00000LL);
+    if (!*aResult)
+      return NS_ERROR_FILE_TOO_BIG;
+  }
 
   *aResult = DiskSpaceAvailableInStore(pathFile, aSpaceRequested);
   if (!*aResult)

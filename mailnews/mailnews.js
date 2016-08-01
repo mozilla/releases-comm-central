@@ -87,6 +87,9 @@ pref("mail.db.idle_limit", 300000);
 // How many db's should we leave open? LRU db's will be closed first
 pref("mail.db.max_open", 30);
 
+// Should we allow folders over 4GB in size?
+pref("mailnews.allowMboxOver4GB", true);
+
 pref("mail.imap.chunk_size",                65536);
 pref("mail.imap.min_chunk_size_threshold",  98304);
 pref("mail.imap.chunk_fast",                2);
