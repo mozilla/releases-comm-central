@@ -278,7 +278,7 @@ function setupFixedUI()
 function BrowseForNewsrc()
 {
   const nsIFilePicker = Components.interfaces.nsIFilePicker;
-  const nsILocalFile = Components.interfaces.nsILocalFile;
+  const nsIFile = Components.interfaces.nsIFile;
 
   var newsrcTextBox = document.getElementById("nntp.newsrcFilePath");
   var fp = Components.classes["@mozilla.org/filepicker;1"].createInstance(nsIFilePicker);
@@ -289,10 +289,10 @@ function BrowseForNewsrc()
   var currentNewsrcFile;
   try {
     currentNewsrcFile = Components.classes["@mozilla.org/file/local;1"]
-                                  .createInstance(nsILocalFile);
+                                  .createInstance(nsIFile);
     currentNewsrcFile.initWithPath(newsrcTextBox.value);
   } catch (e) {
-    dump("Failed to create nsILocalFile instance for the current newsrc file.\n");
+    dump("Failed to create nsIFile instance for the current newsrc file.\n");
   }
 
   if (currentNewsrcFile) {

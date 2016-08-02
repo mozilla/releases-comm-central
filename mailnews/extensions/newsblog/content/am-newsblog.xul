@@ -130,7 +130,7 @@
                    wsm_persist="true"
                    flex="1"
                    id="server.localPath"
-                   datatype="nsILocalFile"
+                   datatype="nsIFile"
                    prefstring="mail.server.%serverkey%.directory"
                    class="uri-element"/>
           <button id="browseForLocalFolder"

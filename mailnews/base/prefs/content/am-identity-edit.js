@@ -196,7 +196,7 @@ function saveIdentitySettings(identity)
     {
       // convert signature path back into a nsIFile
       var sfile = Components.classes["@mozilla.org/file/local;1"]
-                  .createInstance(Components.interfaces.nsILocalFile);
+                  .createInstance(Components.interfaces.nsIFile);
       sfile.initWithPath(attachSignaturePath);
       if (sfile.exists())
         identity.signature = sfile;
@@ -278,7 +278,7 @@ function GetSigFolder()
 
     if (signatureFile) 
     {
-      signatureFile = signatureFile.QueryInterface( Components.interfaces.nsILocalFile );
+      signatureFile = signatureFile.QueryInterface(Components.interfaces.nsIFile);
       sigFolder = signatureFile.parent;
 
       if (!sigFolder.exists()) 

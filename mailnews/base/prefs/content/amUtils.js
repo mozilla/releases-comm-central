@@ -11,7 +11,7 @@ Components.utils.import("resource:///modules/iteratorUtils.jsm");
 function BrowseForLocalFolders()
 {
   const nsIFilePicker = Components.interfaces.nsIFilePicker;
-  const nsILocalFile = Components.interfaces.nsILocalFile;
+  const nsIFile = Components.interfaces.nsIFile;
 
   var currentFolderTextBox = document.getElementById("server.localPath");
   var fp = Components.classes["@mozilla.org/filepicker;1"]
@@ -23,7 +23,7 @@ function BrowseForLocalFolders()
           nsIFilePicker.modeGetFolder);
 
   var currentFolder = Components.classes["@mozilla.org/file/local;1"]
-                                .createInstance(nsILocalFile);
+                                .createInstance(nsIFile);
   currentFolder.initWithPath(currentFolderTextBox.value);
   fp.displayDirectory = currentFolder;
 

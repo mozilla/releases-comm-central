@@ -1327,19 +1327,25 @@ function restorePage(pageId, account)
   currentAccount = account;
 }
 
-// gets the value of a widget
+/**
+ * Gets the value of a widget in current the account settings page,
+ * automatically setting the right property of it depending on element type.
+ *
+ * @param formElement  A XUL input element.
+ */
 function getFormElementValue(formElement) {
   try {
     var type = formElement.localName;
-    if (type=="checkbox") {
+    if (type == "checkbox") {
       if (formElement.getAttribute("reversed"))
         return !formElement.checked;
       return formElement.checked;
     }
     if (type == "textbox" &&
-        formElement.getAttribute("datatype") == "nsILocalFile") {
+        formElement.getAttribute("datatype") == "nsIFile") {
       if (formElement.value) {
-        var localfile = Components.classes["@mozilla.org/file/local;1"].createInstance(Components.interfaces.nsILocalFile);
+        let localfile = Components.classes["@mozilla.org/file/local;1"]
+                                  .createInstance(Components.interfaces.nsIFile);
 
         localfile.initWithPath(formElement.value);
         return localfile;
@@ -1352,20 +1358,23 @@ function getFormElementValue(formElement) {
     return null;
   }
   catch (ex) {
-    dump("getFormElementValue failed, ex="+ex+"\n");
+    Components.utils.reportError("getFormElementValue failed, ex=" + ex + "\n");
   }
   return null;
 }
 
-// sets the value of a widget
+/**
+ * Sets the value of a widget in current the account settings page,
+ * automatically setting the right property of it depending on element type.
+ *
+ * @param formElement  A XUL input element.
+ * @param value        The value to store in the element.
+ */
 function setFormElementValue(formElement, value) {
   var type = formElement.localName;
   if (type == "checkbox") {
-    if (value == undefined) {
-      if ("defaultChecked" in formElement && formElement.defaultChecked)
-        formElement.checked = formElement.defaultChecked;
-      else
-        formElement.checked = false;
+    if (value == null) {
+      formElement.checked = false;
     } else {
       if (formElement.getAttribute("reversed"))
         formElement.checked = !value;
@@ -1373,51 +1382,39 @@ function setFormElementValue(formElement, value) {
         formElement.checked = value;
     }
   }
-  else if (type == "radiogroup" || type =="menulist") {
-    if (value == undefined)
+  else if (type == "radiogroup" || type == "menulist") {
+    if (value == null)
       formElement.selectedIndex = 0;
     else
       formElement.value = value;
   }
-  // handle nsILocalFile
+  // handle nsIFile
   else if (type == "textbox" &&
-           formElement.getAttribute("datatype") == "nsILocalFile") {
+           formElement.getAttribute("datatype") == "nsIFile") {
     if (value) {
-      var localfile = value.QueryInterface(Components.interfaces.nsILocalFile);
+      let localfile = value.QueryInterface(Components.interfaces.nsIFile);
       try {
         formElement.value = localfile.path;
       } catch (ex) {
         dump("Still need to fix uninitialized nsIFile problem!\n");
       }
-
     } else {
-      if ("defaultValue" in formElement)
-        formElement.value = formElement.defaultValue;
-      else
-        formElement.value = "";
+      formElement.value = "";
     }
   }
   else if (type == "textbox") {
-    if (value == null || value == undefined) {
+    if (value == null)
       formElement.value = null;
-    } else {
+    else
       formElement.value = value;
-    }
   }
   else if (type == "label") {
-    if (value == null || value == undefined) {
-      formElement.value = "";
-    } else {
-      formElement.value = value;
-    }
+    formElement.value = value || "";
   }
-
   // let the form figure out what to do with it
   else {
-    if (value == undefined) {
-      if ("defaultValue" in formElement && formElement.defaultValue)
-        formElement.value = formElement.defaultValue;
-    }
+    if (value == null)
+      formElement.value = null;
     else
       formElement.value = value;
   }

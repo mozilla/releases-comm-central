@@ -1,8 +1,5 @@
 <?xml version="1.0"?>
-
-<!--
-
- This Source Code Form is subject to the terms of the Mozilla Public
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
@@ -57,11 +54,11 @@
     <description hidefor="imap,nntp,none,rss">&doNotDownloadPop3Movemail.label;</description>
 
     <!-- IMAP Autosync Preference -->
-    <radiogroup wsm_persist="true" hidefor="pop3,nntp,movemail,none,rss" id="autosyncSelect" class="indent">
-      <radio wsm_persist="true" id="useAutosync.AllMsg" value="0" accesskey="&allAutosync.accesskey;"
+    <radiogroup hidefor="pop3,nntp,movemail,none,rss" id="autosyncSelect" class="indent">
+      <radio id="useAutosync.AllMsg" value="0" accesskey="&allAutosync.accesskey;"
              label="&allAutosync.label;" oncommand="onAutosyncChange();"/>
       <hbox flex="1" align="center">
-        <radio wsm_persist="true" id="useAutosync.ByAge" accesskey="&ageAutosync.accesskey;" 
+        <radio id="useAutosync.ByAge" accesskey="&ageAutosync.accesskey;"
                value="1" label="&ageAutosyncBefore.label;" oncommand="onAutosyncChange();"/>
         <textbox id="autosyncValue" type="number" size="4" min="1"
                  class="autosync" onchange="onAutosyncChange();"
@@ -119,22 +116,22 @@
     <label id="retentionDescriptionImap" hidefor="movemail,pop3,nntp,none,rss" class="desc" control="retention.keepMsg">&retentionCleanupImap.label;</label>
     <label id="retentionDescriptionPop" hidefor="movemail,imap,nntp,none,rss" class="desc" control="retention.keepMsg">&retentionCleanupPop.label;</label>
 
-    <radiogroup wsm_persist="true" hidefor="" confirmfor="imap,pop3" id="retention.keepMsg" class="indent"
+    <radiogroup hidefor="" confirmfor="imap,pop3" id="retention.keepMsg" class="indent"
                 oncommand="warnServerRemove(this);">
-        <radio wsm_persist="true" id="retention.keepAllMsg" value="1" accesskey="&retentionKeepAll.accesskey;"
+        <radio id="retention.keepAllMsg" value="1" accesskey="&retentionKeepAll.accesskey;"
             label="&retentionKeepAll.label;" oncommand="onCheckKeepMsg();"/>
         <hbox flex="1" align="center">
-            <radio wsm_persist="true" id="retention.keepNewMsg" accesskey="&retentionKeepRecent.accesskey;" 
+            <radio id="retention.keepNewMsg" accesskey="&retentionKeepRecent.accesskey;"
                 value="3" label="&retentionKeepRecent.label;" oncommand="onCheckKeepMsg();"/>
-            <textbox wsm_persist="true" id="retention.keepNewMsgMin"
+            <textbox id="retention.keepNewMsgMin"
                      type="number" min="1" increment="10" size="4" value="2000"
                      aria-labelledby="retention.keepNewMsg retention.keepNewMsgMin newMsgLabel"/>
             <label value="&message.label;" control="retention.keepNewMsgMin" id="newMsgLabel"/>
         </hbox>
         <hbox flex="1" align="center">
-            <radio wsm_persist="true" id="retention.keepOldMsg" accesskey="&retentionKeepMsg.accesskey;"
+            <radio id="retention.keepOldMsg" accesskey="&retentionKeepMsg.accesskey;"
                 value="2" label="&retentionKeepMsg.label;" oncommand="onCheckKeepMsg();"/>
-            <textbox wsm_persist="true" id="retention.keepOldMsgMin"
+            <textbox id="retention.keepOldMsgMin"
                      type="number" min="1" size="4" value="30"
                      aria-labelledby="retention.keepOldMsg retention.keepOldMsgMin oldMsgLabel"/>
             <label value="&daysOld.label;" control="retention.keepOldMsgMin" id="oldMsgLabel"/>
@@ -142,15 +139,15 @@
     </radiogroup>
 
     <hbox align="center" class="indent">
-      <checkbox id="retention.applyToFlagged" wsm_persist="true"
+      <checkbox id="retention.applyToFlagged"
                 label="&retentionApplyToFlagged.label;" hidefor=""
                 accesskey="&retentionApplyToFlagged.accesskey;"
                 checked="true"/>
     </hbox>
     <hbox align="center" class="indent" hidefor="movemail,pop3,imap,none,rss">
-        <checkbox wsm_persist="true" id="nntp.removeBody" accesskey="&nntpRemoveMsgBody.accesskey;"
+        <checkbox id="nntp.removeBody" accesskey="&nntpRemoveMsgBody.accesskey;"
                   label="&nntpRemoveMsgBody.label;" oncommand="onCheckItem('nntp.removeBodyMin','nntp.removeBody');"/>
-        <textbox wsm_persist="true" id="nntp.removeBodyMin" size="2" value="30"
+        <textbox id="nntp.removeBodyMin" size="2" value="30"
                  type="number" min="1"
                  aria-labelledby="nntp.removeBody nntp.removeBodyMin daysOldMsg"/>
         <label value="&daysOld.label;" control="nntp.removeBodyMin" id="daysOldMsg"/>

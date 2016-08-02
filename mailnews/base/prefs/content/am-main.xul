@@ -91,7 +91,7 @@
       </hbox>
 
       <hbox align="center" class="indent">
-        <textbox wsm_persist="true" id="identity.signature" datatype="nsILocalFile" flex="1" name="identity.signature"
+        <textbox wsm_persist="true" id="identity.signature" datatype="nsIFile" flex="1" name="identity.signature"
                  aria-labelledby="identity.attachSignature"
                  observes="broadcaster_attachSignature"
                  prefstring="mail.identity.%identitykey%.sig_file" class="uri-element"/>
