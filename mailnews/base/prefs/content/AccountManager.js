@@ -491,41 +491,24 @@ function checkUserServerChanges(showAlert) {
   if (!accountValues)
     return true;
 
-  var pageElements = getPageFormElements();
-  if (!pageElements)
-    return true;
-
   let currentServer = currentAccount ? currentAccount.incomingServer : null;
 
-  // Get the new username, hostname and type from the page
-  var newUser, newHost, newType, oldUser, oldHost;
-  var uIndx, hIndx;
-  for (let i = 0; i < pageElements.length; i++) {
-    if (pageElements[i].id) {
-      let vals = pageElements[i].id.split(".");
-      if (vals.length >= 2) {
-        let type = vals[0];
-        let slot = pageElements[i].id.slice(type.length + 1);
+  // If this type doesn't exist (just removed) then return.
+  if (!("server" in accountValues) || !accountValues["server"])
+    return true;
 
-        // if this type doesn't exist (just removed) then return.
-        if (!(type in accountValues) || !accountValues[type]) return true;
+  // Get the new username, hostname and type from the page.
+  var newType = getFormElementValue(getPageFormElement("server.type"));
+  var oldHost = getAccountValue(currentAccount, accountValues, "server", "realHostName",
+                                null, false);
+  var hostElem = getPageFormElement("server.realHostName");
+  var newHost = getFormElementValue(hostElem);
+  var oldUser = getAccountValue(currentAccount, accountValues, "server", "realUsername",
+                                null, false);
+  var userElem = getPageFormElement("server.realUsername");
+  var newUser = getFormElementValue(userElem);
 
-        if (slot == "realHostName") {
-          oldHost = accountValues[type][slot];
-          newHost = getFormElementValue(pageElements[i]);
-          hIndx = i;
-        }
-        else if (slot == "realUsername") {
-          oldUser = accountValues[type][slot];
-          newUser = getFormElementValue(pageElements[i]);
-          uIndx = i;
-        }
-        else if (slot == "type")
-          newType = getFormElementValue(pageElements[i]);
-      }
-    }
-  }
-
+  if (userElem && hostElem) {
   var checkUser = true;
   // There is no username needed for e.g. news so reset it.
   if (currentServer && !currentServer.protocolInfo.requiresUsername) {
@@ -551,7 +534,7 @@ function checkUserServerChanges(showAlert) {
       } else {
         // New hostname passed all checks. We may have cleaned it up so set
         // the new value back into the input element.
-        setFormElementValue(pageElements[hIndx], newHost);
+        setFormElementValue(hostElem, newHost);
       }
     }
 
@@ -560,8 +543,8 @@ function checkUserServerChanges(showAlert) {
         Services.prompt.alert(window, alertTitle, alertText);
       // Restore the old values before return
       if (checkUser)
-        setFormElementValue(pageElements[uIndx], oldUser);
-      setFormElementValue(pageElements[hIndx], oldHost);
+        setFormElementValue(userElem, oldUser);
+      setFormElementValue(hostElem, oldHost);
       // If no message is shown to the user, silently revert the values
       // and consider the check a success.
       return !showAlert;
@@ -588,37 +571,25 @@ function checkUserServerChanges(showAlert) {
         Services.prompt.alert(window, alertTitle, changeText.trim());
     }
   }
+  }
 
   // Check the new value of the server.localPath field for validity.
-  for (let i = 0; i < pageElements.length; i++) {
-    if (pageElements[i].id) {
-      if (pageElements[i].id == "server.localPath") {
-        if (!checkDirectoryIsUsable(getFormElementValue(pageElements[i]))) {
+  var pathElem = getPageFormElement("server.localPath");
+  if (!pathElem)
+    return true;
+
+  if (!checkDirectoryIsUsable(getFormElementValue(pathElem))) {
 //          return false; // Temporarily disable this. Just show warning but do not block. See bug 921371.
           Components.utils.reportError("Local directory '" +
-            getFormElementValue(pageElements[i]).path + "' of account " +
+            getFormElementValue(pathElem).path + "' of account " +
             currentAccount.key + " is not safe to use. Consider changing it.");
-        }
-        break;
-      }
-    }
   }
 
   // Warn if the Local directory path was changed.
   // This can be removed once bug 2654 is fixed.
-  let oldLocalDir = null;
-  let newLocalDir = null;
-  let pIndx;
-  for (let i = 0; i < pageElements.length; i++) {
-    if (pageElements[i].id) {
-      if (pageElements[i].id == "server.localPath") {
-        oldLocalDir = accountValues["server"]["localPath"]; // both return nsILocalFile
-        newLocalDir = getFormElementValue(pageElements[i]);
-        pIndx = i;
-        break;
-      }
-    }
-  }
+  let oldLocalDir = getAccountValue(currentAccount, accountValues, "server", "localPath",
+                                    null, false); // both return nsIFile
+  let newLocalDir = getFormElementValue(pathElem);
   if (oldLocalDir && newLocalDir && (oldLocalDir.path != newLocalDir.path)) {
     let brandName = document.getElementById("bundle_brand").getString("brandShortName");
     alertText = prefBundle.getFormattedString("localDirectoryChanged", [brandName]);
@@ -628,7 +599,7 @@ function checkUserServerChanges(showAlert) {
       (Services.prompt.BUTTON_POS_1 * Services.prompt.BUTTON_TITLE_CANCEL),
       prefBundle.getString("localDirectoryRestart"), null, null, null, {});
     if (cancel) {
-      setFormElementValue(pageElements[pIndx], oldLocalDir);
+      setFormElementValue(pathElem, oldLocalDir);
       return false;
     }
     gRestartNeeded = true;
@@ -644,18 +615,13 @@ function checkAccountNameIsValid() {
   if (!currentAccount)
     return true;
 
-  let pageElements = getPageFormElements();
-  if (!pageElements)
-    return true;
-
   const prefBundle = document.getElementById("bundle_prefs");
   let alertText = null;
 
-  for (let i = 0; i < pageElements.length; i++) {
-    if (!pageElements[i].id || pageElements[i].id != "server.prettyName")
-      continue;
+  let serverNameElem = getPageFormElement("server.prettyName");
+  if (serverNameElem) {
+    let accountName = getFormElementValue(serverNameElem);
 
-    let accountName = getFormElementValue(pageElements[i]);
     if (!accountName)
       alertText = prefBundle.getString("accountNameEmpty");
     else if (accountNameExists(accountName, currentAccount.key))
@@ -1443,11 +1409,28 @@ function getDefaultAccount() {
   }
 }
 
-// get the array of form elements for the given page
+/**
+ * Get the array of persisted form elements for the given page.
+ */
 function getPageFormElements() {
+  // Uses getElementsByAttribute() which returns a live NodeList which is usually
+  // faster than e.g. querySelector().
   if ("getElementsByAttribute" in top.frames["contentFrame"].document)
     return top.frames["contentFrame"].document
               .getElementsByAttribute("wsm_persist", "true");
+
+  return null;
+}
+
+/**
+ * Get a single persisted form element in the current page.
+ *
+ * @param aId  ID of the element requested.
+ */
+function getPageFormElement(aId) {
+  let elem = top.frames["contentFrame"].document.getElementById(aId);
+  if (elem && (elem.getAttribute("wsm_persist") == "true"))
+    return elem;
 
   return null;
 }
