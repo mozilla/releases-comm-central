@@ -48,19 +48,18 @@ function contactsListOnKeyPress(aEvent)
   }
 }
 
-function addSelectedAddresses(recipientType)
+/**
+ * Appends the currently selected cards as new recipients in the composed message.
+ *
+ * @param aRecipientType  Type of recipient, e.g. "addr_to".
+ */
+function addSelectedAddresses(aRecipientType)
 {
   var cards = GetSelectedAbCards();
-  var count = cards.length;
 
-
-  for (let i = 0; i < count; i++)
-  {
-    // turn each card into a properly formatted address
-    var address = GenerateAddressFromCard(cards[i]);
-    if (address != "")
-      parent.AddRecipient(recipientType, address);
-  }
+  // Turn each card into a properly formatted address.
+  var addressArray = cards.map(GenerateAddressFromCard).filter(addr => (addr != ""));
+  parent.AddRecipientsArray(aRecipientType, addressArray);
 }
 
 function AddressBookMenuListChange()

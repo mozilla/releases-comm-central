@@ -4838,10 +4838,16 @@ function toggleAddressPicker()
   }
 }
 
-// public method called by the address picker sidebar
-function AddRecipient(recipientType, address)
+// Public method called by addons.
+function AddRecipient(aRecipientType, aAddress)
 {
-  awAddRecipient(recipientType, address);
+  awAddRecipientsArray(aRecipientType, [aAddress]);
+}
+
+// Public method called by the contants sidebar.
+function AddRecipientsArray(aRecipientType, aAddressArray)
+{
+  awAddRecipientsArray(aRecipientType, aAddressArray);
 }
 
 function loadHTMLMsgPrefs()

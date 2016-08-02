@@ -251,21 +251,34 @@ function awSetInputAndPopupId(inputElem, popupElem, rowNumber)
   inputElem.setAttribute("aria-labelledby", popupElem.id);
 }
 
-function awSetInputAndPopupValue(inputElem, inputValue, popupElem, popupValue, rowNumber)
+/**
+ * Set value of the recipient input field at row rowNumber and set up
+ * the recipient type menulist.
+ *
+ * @param inputElem                 recipient input element
+ * @param inputValue                recipient value (address)
+ * @param popupElem                 recipient type menulist element
+ * @param popupValue
+ * @param aNotifyRecipientsChanged  Notify that the recipients have changed.
+ *                                  Generally we notify unless recipients are
+ *                                  added in batch when the caller takes care
+ *                                  of the notification.
+ */
+function awSetInputAndPopupValue(inputElem, inputValue, popupElem, popupValue, rowNumber, aNotifyRecipientsChanged = true)
 {
   inputValue = inputValue.trimLeft();
-
   inputElem.setAttribute("value", inputValue);
   inputElem.value = inputValue;
 
   popupElem.selectedItem = popupElem.childNodes[0].childNodes[awGetSelectItemIndex(popupValue)];
-
+  // TODO: can there be a row without ID yet?
   if (rowNumber >= 0)
     awSetInputAndPopupId(inputElem, popupElem, rowNumber);
 
   _awSetAutoComplete(popupElem, inputElem);
 
-  onRecipientsChanged(true);
+  if (aNotifyRecipientsChanged)
+    onRecipientsChanged(true);
 }
 
 function _awSetInputAndPopup(inputValue, popupValue, parentNode, templateNode)
@@ -325,40 +338,89 @@ function awRemoveRecipients(msgCompFields, recipientType, recipientsList)
     }
 }
 
+/**
+ * Adds a batch of new rows matching recipientType and drops in the list of addresses.
+ *
+ * @param msgCompFields  A nsIMsgCompFields object that is only used as a helper,
+ *                       it will not get the addresses appended.
+ * @param recipientType  Type of recipient, e.g. "addr_to".
+ * @param recipientList  A string of addresses to add.
+ */
 function awAddRecipients(msgCompFields, recipientType, recipientsList)
 {
   if (!msgCompFields || !recipientsList)
     return;
-  var recipientArray = msgCompFields.splitRecipients(recipientsList, false, {});
 
-  for (var index = 0; index < recipientArray.length; index++)
-    awAddRecipient(recipientType, recipientArray[index]);
+  var recipientArray = msgCompFields.splitRecipients(recipientsList, false, {});
+  awAddRecipientsArray(recipientType, recipientArray);
 }
 
-// this was broken out of awAddRecipients so it can be re-used...adds a new row matching recipientType and
-// drops in the single address.
-function awAddRecipient(recipientType, address)
+/**
+ * Adds a batch of new rows matching recipientType and drops in the array of addresses.
+ *
+ * @param aRecipientType  Type of recipient, e.g. "addr_to".
+ * @param aAddressArray   An array of recipient addresses (strings) to add.
+ */
+function awAddRecipientsArray(aRecipientType, aAddressArray)
 {
-  for (var row = 1; row <= top.MAX_RECIPIENTS; row ++)
+  // Find rows that are empty so that we can fill them.
+  let emptyRows = [];
+  for (let row = 1; row <= top.MAX_RECIPIENTS; row ++)
   {
     if (awGetInputElement(row).value == "")
-      break;
+      emptyRows.push(row);
   }
 
-  if (row > top.MAX_RECIPIENTS)
-    awAppendNewRow(false);
-
-  awSetInputAndPopupValue(awGetInputElement(row), address, awGetPopupElement(row), recipientType, row);
-
-  /* be sure we still have an empty row left at the end */
-  if (row == top.MAX_RECIPIENTS)
+  // Push the new recipients into the found empty rows or append new rows when needed.
+  let row = 1;
+  for (let address of aAddressArray)
   {
-    awAppendNewRow(true);
-    awSetInputAndPopupValue(awGetInputElement(top.MAX_RECIPIENTS), "", awGetPopupElement(top.MAX_RECIPIENTS), "addr_to", top.MAX_RECIPIENTS);
+    if (emptyRows.length > 0)
+    {
+      row = emptyRows.shift();
+    }
+    else
+    {
+      awAppendNewRow(false);
+      row = top.MAX_RECIPIENTS;
+    }
+
+    awSetInputAndPopupValue(awGetInputElement(row), address,
+                            awGetPopupElement(row), aRecipientType,
+                            row, false);
   }
 
-  // add the recipient to our spell check ignore list
-  addRecipientsToIgnoreList(address);
+  // Be sure we still have an empty row left.
+  if ((emptyRows.length == 0) && (awGetInputElement(top.MAX_RECIPIENTS).value != ""))
+  {
+    // Insert empty row at the end and focus.
+    awAppendNewRow(true);
+    awSetInputAndPopupValue(awGetInputElement(top.MAX_RECIPIENTS), "",
+                            awGetPopupElement(top.MAX_RECIPIENTS), "addr_to",
+                            top.MAX_RECIPIENTS, false);
+  } else {
+    // Focus the next empty row, if any, or the pre-existing empty last row.
+    row = (emptyRows.length > 0) ? emptyRows.shift() : top.MAX_RECIPIENTS;
+    awSetFocus(row, awGetInputElement(row));
+  }
+
+  onRecipientsChanged(true);
+
+  // Add the recipients to our spell check ignore list.
+  addRecipientsToIgnoreList(aAddressArray.join(", "));
+}
+
+/**
+ * Adds a new row matching recipientType and drops in the single address.
+ *
+ * This is mostly used by addons, even though they should use AddRecipient().
+ *
+ * @param aRecipientType  Type of recipient, e.g. addr_to.
+ * @param aAddress        A string with recipient address.
+ */
+function awAddRecipient(aRecipientType, aAddress)
+{
+  awAddRecipientsArray(aRecipientType, [aAddress]);
 }
 
 function awTestRowSequence()
@@ -423,7 +485,7 @@ function awCleanupRows()
 
 function awDeleteRow(rowToDelete)
 {
-  /* When we delete a row, we must reset the id of others row in order to not break the sequence */
+  // When we delete a row, we must reset the id of other rows in order to not break the sequence.
   var maxRecipients = top.MAX_RECIPIENTS;
   awRemoveRow(rowToDelete);
 
