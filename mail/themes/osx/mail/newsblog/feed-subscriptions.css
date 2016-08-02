@@ -23,7 +23,7 @@
 }
 
 #autotagPrefix {
-  width: 300px;
+  width: 35ch;
 }
 
 treechildren::-moz-tree-image(folderNameCol, isFeed-true) {
