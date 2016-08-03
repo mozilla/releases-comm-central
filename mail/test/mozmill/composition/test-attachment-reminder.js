@@ -598,6 +598,72 @@ function test_reminder_in_draft() {
   press_delete();
 }
 
+/**
+ * Bug 942436
+ * Test that the reminder can be turned off for the current message.
+ */
+function test_disabling_attachment_reminder() {
+  // Open a sample message with attachment keywords.
+  let cwc = open_compose_new_mail();
+  setup_msg_contents(cwc, "test@example.invalid", "Testing turning off the reminder",
+                     "Some attachment keywords here...");
+
+  // This one should have the manual reminder disabled.
+  assert_manual_reminder_state(cwc, false);
+  // There should be an attachment reminder.
+  wait_for_reminder_state(cwc, true);
+
+  // Disable the reminder (not just dismiss).
+  cwc.click_menus_in_sequence(cwc.e("reminderBarPopup"),
+                              [ {id: "disableReminder"} ]);
+
+  wait_for_reminder_state(cwc, false);
+
+  // Add more keywords.
+  setup_msg_contents(cwc, "", "", "... and another file attached.");
+  // Give the notification time to appear. It shouldn't.
+  wait_for_reminder_state(cwc, false);
+
+  // Enable the manual reminder.
+  // This overrides the previous explicit disabling of any reminder.
+  click_manual_reminder(cwc, true);
+  assert_automatic_reminder_state(cwc, false);
+
+  // Disable the manual reminder and the notification should still be hidden
+  // even when there are still keywords in the body.
+  click_manual_reminder(cwc, false);
+  assert_automatic_reminder_state(cwc, false);
+
+  // Add more keywords to trigger automatic reminder.
+  setup_msg_contents(cwc, "", "", "I enclosed another file.");
+  // Give the notification time to appear. It should now.
+  wait_for_reminder_state(cwc, true);
+
+  // Disable the reminder again.
+  cwc.click_menus_in_sequence(cwc.e("reminderBarPopup"),
+                              [ {id: "disableReminder"} ]);
+  wait_for_reminder_state(cwc, false);
+
+  // Now send the message.
+  plan_for_window_close(cwc);
+  cwc.window.goDoCommand("cmd_sendLater");
+  wait_for_window_close();
+
+  // There should be no alert so it is saved in Outbox.
+  let outbox = MailServices.accounts.localFoldersServer.rootFolder
+                           .getChildNamed("Outbox");
+  be_in_folder(outbox);
+
+  select_click_row(0);
+  // Delete the leftover outgoing message.
+  press_delete();
+
+  // Get back to the mail account for other tests.
+  let mail = MailServices.accounts.defaultAccount.incomingServer
+                                  .rootFolder;
+  be_in_folder(mail);
+}
+
 
 /**
  * Click the send button and handle the send error dialog popping up.
