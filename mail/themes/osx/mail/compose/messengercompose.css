@@ -318,6 +318,19 @@ toolbar[brighttext] #button-print {
   cursor: pointer;
 }
 
+.notification-button[type="menu-button"] {
+  padding-top: 0;
+}
+
+.notification-button[type="menu-button"] > button {
+  -moz-appearance: none;
+  margin-bottom: -1px;
+  margin-inline-start: -3px;
+  margin-inline-end: 3px;
+  padding-inline-end: 5px;
+  border-inline-end: 1px solid #9b9b9b;
+}
+
 /* XXX I should really have a selector rule here to select just .listcell-icon objects underneath the attachmentList listbox */
 
 .listcell-icon {

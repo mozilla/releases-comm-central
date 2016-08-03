@@ -175,6 +175,8 @@
            checked="false" label="&customizeFromAddress.label;"/>
 </commandset>
 
+  <command id="cmd_doNotRemindForAttachments" oncommand="disableAttachmentReminder();"/>
+
 <broadcasterset id="composeBroadcasters">
   <broadcaster id="args" value="editorType=default"/>
   <broadcaster id="viewAddressPicker" autoCheck="false" type="checkbox" oncommand="toggleAddressPicker();"/>

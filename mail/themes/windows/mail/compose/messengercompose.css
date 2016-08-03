@@ -1618,6 +1618,11 @@
   }
 }
 
+.notification-button {
+  margin-top: 2px;
+  margin-bottom: 2px;
+}
+
 @media (-moz-windows-default-theme) and (-moz-os-version: windows-win8),
        (-moz-windows-default-theme) and (-moz-os-version: windows-win10) {
   #button-send {

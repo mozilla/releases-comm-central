@@ -71,7 +71,9 @@ var gMsgAddressingWidgetTreeElement;
 var gMsgSubjectElement;
 var gMsgAttachmentElement;
 var gMsgHeadersToolbarElement;
+// TODO: Maybe the following two variables can be combined.
 var gManualAttachmentReminder;
+var gDisableAttachmentReminder;
 var gComposeType;
 var gLanguageObserver;
 
@@ -124,6 +126,7 @@ function InitializeGlobalVariables()
   gSendFormat = nsIMsgCompSendFormat.AskUser;
   gCharsetConvertManager = Components.classes['@mozilla.org/charset-converter-manager;1'].getService(Components.interfaces.nsICharsetConverterManager);
   gManualAttachmentReminder = false;
+  gDisableAttachmentReminder = false;
   gLanguageObserver = null;
 
   gLastWindowToHaveFocus = null;
@@ -144,6 +147,7 @@ function ReleaseGlobalVariables()
   gCharsetConvertManager = null;
   gMsgCompose = null;
   gMessenger = null;
+  gDisableAttachmentReminder = false;
   _gComposeBundle = null;
   MailServices.mailSession.RemoveMsgWindow(msgWindow);
   msgWindow = null;
@@ -1933,6 +1937,12 @@ function handleEsc()
   }
 }
 
+function disableAttachmentReminder()
+{
+  gDisableAttachmentReminder = true;
+  toggleAttachmentReminder(false);
+}
+
 /**
  * This state machine manages all showing and hiding of the attachment
  * notification bar. It is only called if any change happened so that
@@ -1940,6 +1950,7 @@ function handleEsc()
  * - keywords changed
  * - manual reminder was toggled
  * - attachments changed
+ * - manual reminder is disabled
  *
  * It does not track whether the notification is still up when it should be.
  * That allows the user to close it any time without this function showing
@@ -2037,9 +2048,20 @@ function manageAttachmentNotification(aForce = false)
     }
   };
 
+  let remindLaterMenuPopup = document.createElement("menupopup");
+  remindLaterMenuPopup.id = "reminderBarPopup";
+  let disableAttachmentReminder = document.createElement("menuitem");
+  disableAttachmentReminder.id = "disableReminder";
+  disableAttachmentReminder.setAttribute("label",
+    getComposeBundle().getString("disableAttachmentReminderButton"));
+  disableAttachmentReminder.setAttribute("command", "cmd_doNotRemindForAttachments");
+  remindLaterMenuPopup.appendChild(disableAttachmentReminder);
+
   let remindButton = {
+    type: "menu-button",
     accessKey : getComposeBundle().getString("remindLaterButton.accesskey"),
     label: getComposeBundle().getString("remindLaterButton"),
+    popup: remindLaterMenuPopup,
     callback: function (aNotificationBar, aButton) {
       toggleAttachmentReminder(true);
     }
@@ -2059,7 +2081,8 @@ function manageAttachmentNotification(aForce = false)
  * the state of keywords.
  */
 function attachmentNotificationSupressed() {
-  return (gManualAttachmentReminder || AttachmentElementHasItems());
+  return (gDisableAttachmentReminder || gManualAttachmentReminder ||
+          AttachmentElementHasItems());
 }
 
 var attachmentWorker = new Worker("resource:///modules/attachmentChecker.js");
@@ -3466,6 +3489,11 @@ function toggleAttachmentReminder(aState = !gManualAttachmentReminder)
   document.getElementById("cmd_remindLater")
           .setAttribute("checked", aState);
   gMsgCompose.compFields.attachmentReminder = aState;
+
+  // If we enabled manual reminder, the reminder can't be turned off.
+  if (aState)
+    gDisableAttachmentReminder = false;
+
   manageAttachmentNotification(false);
 }
 
