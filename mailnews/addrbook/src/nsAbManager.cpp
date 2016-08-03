@@ -557,6 +557,8 @@ NS_IMETHODIMP nsAbManager::ExportAddressBook(mozIDOMWindowProxy *aParentWin, nsI
   rv = filePicker->Init(aParentWin, title, nsIFilePicker::modeSave);
   NS_ENSURE_SUCCESS(rv, rv);
 
+  filePicker->SetDefaultString(dirName);
+
   nsString filterString;
 
   // CSV: System charset and UTF-8.
