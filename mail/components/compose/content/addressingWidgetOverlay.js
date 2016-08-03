@@ -110,8 +110,10 @@ function awGetSelectItemIndex(itemData)
 
 function Recipients2CompFields(msgCompFields)
 {
-  if (msgCompFields)
-  {
+  if (!msgCompFields) {
+    throw new Error("Message Compose Error: msgCompFields is null (ExtractRecipients)");
+    return;
+  }
     var i = 1;
     var addrTo = "";
     var addrCc = "";
@@ -133,13 +135,9 @@ function Recipients2CompFields(msgCompFields)
     while ((inputField = awGetInputElement(i)))
     {
       fieldValue = inputField.value;
-
-      if (fieldValue == null)
-        fieldValue = inputField.getAttribute("value");
-
       if (fieldValue != "")
       {
-        recipientType = awGetPopupElement(i).selectedItem.getAttribute("value");
+        recipientType = awGetPopupElement(i).value;
         recipient = null;
 
         switch (recipientType)
@@ -151,10 +149,13 @@ function Recipients2CompFields(msgCompFields)
             try {
               let headerParser = MailServices.headerParser;
               recipient =
-                headerParser.makeFromDisplayAddress(fieldValue, {}).map(fullValue =>
-                  headerParser.makeMimeAddress(fullValue.name, fullValue.email)
-              ).join(", ");
-            } catch (ex) {recipient = fieldValue;}
+                headerParser.makeFromDisplayAddress(fieldValue, {})
+                            .map(fullValue => headerParser.makeMimeAddress(fullValue.name,
+                                                                           fullValue.email))
+                            .join(", ");
+            } catch (ex) {
+              recipient = fieldValue;
+            }
             break;
         }
 
@@ -167,8 +168,7 @@ function Recipients2CompFields(msgCompFields)
           case "addr_newsgroups"  : addrNg += ng_Sep + fieldValue; ng_Sep = ",";              break;
           case "addr_followup"    : addrFollow += follow_Sep + fieldValue; follow_Sep = ",";  break;
           case "addr_other":
-            let headerName =
-              awGetPopupElement(i).selectedItem.getAttribute("label");
+            let headerName = awGetPopupElement(i).label;
             headerName = headerName.substring(0, headerName.indexOf(':'));
             msgCompFields.setRawHeader(headerName, fieldValue, null);
             break;
@@ -183,9 +183,6 @@ function Recipients2CompFields(msgCompFields)
     msgCompFields.replyTo = addrReply;
     msgCompFields.newsgroups = addrNg;
     msgCompFields.followupTo = addrFollow;
-  }
-  else
-    dump("Message Compose Error: msgCompFields is null (ExtractRecipients)");
 }
 
 function CompFields2Recipients(msgCompFields)
@@ -266,9 +263,7 @@ function awSetInputAndPopupId(inputElem, popupElem, rowNumber)
  */
 function awSetInputAndPopupValue(inputElem, inputValue, popupElem, popupValue, rowNumber, aNotifyRecipientsChanged = true)
 {
-  inputValue = inputValue.trimLeft();
-  inputElem.setAttribute("value", inputValue);
-  inputElem.value = inputValue;
+  inputElem.value = inputValue.trimLeft();
 
   popupElem.selectedItem = popupElem.childNodes[0].childNodes[awGetSelectItemIndex(popupValue)];
   // TODO: can there be a row without ID yet?
@@ -326,7 +321,7 @@ function awRemoveRecipients(msgCompFields, recipientType, recipientsList)
     for (var row = 1; row <= top.MAX_RECIPIENTS; row ++)
     {
       var popup = awGetPopupElement(row);
-      if (popup.selectedItem.getAttribute("value") == recipientType)
+      if (popup.value == recipientType)
       {
         var input = awGetInputElement(row);
         if (input.value == recipientArray[index])
@@ -579,7 +574,7 @@ function awAppendNewRow(setFocus)
 
   if ( listbox && listitem1 )
   {
-    var lastRecipientType = awGetPopupElement(top.MAX_RECIPIENTS).selectedItem.getAttribute("value");
+    var lastRecipientType = awGetPopupElement(top.MAX_RECIPIENTS).value;
 
     var nextDummy = awGetNextDummyRow();
     var newNode = listitem1.cloneNode(true);
@@ -593,7 +588,7 @@ function awAppendNewRow(setFocus)
     var input = newNode.getElementsByTagName(awInputElementName());
     if ( input && input.length == 1 )
     {
-      input[0].setAttribute("value", "");
+      input[0].value = "";
 
       // We always clone the first row.  The problem is that the first row
       // could be focused.  When we clone that row, we end up with a cloned
@@ -647,11 +642,24 @@ function awAppendNewRow(setFocus)
 
 // functions for accessing the elements in the addressing widget
 
+/**
+ * Returns the recipient type popup for a row.
+ *
+ * @param row  Index of the recipient row to return. Starts at 1.
+ * @return     This returns the menulist (not its child menupopup), despite the function name.
+ */
 function awGetPopupElement(row)
 {
+
     return document.getElementById("addressCol1#" + row);
 }
 
+/**
+ * Returns the recipient inputbox for a row.
+ *
+ * @param row  Index of the recipient row to return. Starts at 1.
+ * @return     This returns the textbox element.
+ */
 function awGetInputElement(row)
 {
     return document.getElementById("addressCol2#" + row);
@@ -817,7 +825,7 @@ function DropOnAddressingWidget(event)
 function DropRecipient(target, recipient)
 {
   // break down and add each address
-  return parseAndAddAddresses(recipient, awGetPopupElement(top.MAX_RECIPIENTS).selectedItem.getAttribute("value"));
+  return parseAndAddAddresses(recipient, awGetPopupElement(top.MAX_RECIPIENTS).value);
 }
 
 function _awSetAutoComplete(selectElem, inputElem)
@@ -851,7 +859,7 @@ function awRecipientKeyPress(event, element)
     {
       var addresses = element.value;
       element.value = ""; // clear out the current line so we don't try to autocomplete it..
-      parseAndAddAddresses(addresses, awGetPopupElement(awGetRowByInputElement(element)).selectedItem.getAttribute("value"));
+      parseAndAddAddresses(addresses, awGetPopupElement(awGetRowByInputElement(element)).value);
     }
     else if (event.keyCode == KeyEvent.DOM_VK_TAB)
       awTabFromRecipient(element, event);
@@ -881,9 +889,9 @@ function awKeyDown(event, listboxElement)
   case KeyEvent.DOM_VK_DELETE:
   case KeyEvent.DOM_VK_BACK_SPACE:
     /* Warning, the listboxElement.selectedItems will change everytime we delete a row */
-    var length = listboxElement.selectedItems.length;
+    var length = listboxElement.selectedCount;
     for (var i = 1; i <= length; i++) {
-      var inputs = listboxElement.selectedItems[0].getElementsByTagName(awInputElementName());
+      var inputs = listboxElement.selectedItem.getElementsByTagName(awInputElementName());
       if (inputs && inputs.length == 1)
         awDeleteHit(inputs[0]);
     }
