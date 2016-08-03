@@ -2,8 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-@import url("chrome://global/skin/plugins.css");
-@import url("chrome://global/skin/button.css");
+@import url("chrome://communicator/skin/common.css");
+
+html {
+  background-color: var(--in-content-page-background);
+  color: -moz-FieldText;
+  font: message-box;
+}
 
 body {
   width: 90%;
@@ -18,12 +23,40 @@ body {
 .major-section {
   margin-top: 2em;
   margin-bottom: 1em;
+  font-size: large;
   text-align: start;
+  font-weight: bold;
 }
 
 button {
   margin-inline-start: 0;
   margin-inline-end: 8px;
+  border-radius: 3px;
+}
+
+table {
+  background-color: var(--in-content-table-background);
+  color: var(--in-content-text-color);
+  font: message-box;
+  text-align: start;
+  width: 100%;
+  border: 1px solid var(--in-content-border-color);
+  border-spacing: 0px;
+}
+
+th, td {
+  border: var(--in-content-border-dotted-color);
+  padding: 3px;
+}
+
+thead th {
+  text-align: center;
+}
+
+th {
+  text-align: start;
+  background-color: var(--in-content-table-header-background);
+  color: var(--in-content-selected-text);
 }
 
 th.title-column {
@@ -33,15 +66,13 @@ th.title-column {
 }
 
 th.column {
-  text-align: start;
-  border-top: 1px dotted #2D3B49;
   white-space: nowrap;
   width: 0px;
 }
 
-tr:first-child > th,
-tr:first-child > td {
-  border-top: 0;
+td {
+  text-align: start;
+  border-top: var(--in-content-border-dotted-color);
 }
 
 .prefs-table {
@@ -63,10 +94,10 @@ tr:first-child > td {
 }
 
 #action-box {
-  background-color: #C7D0D9;
-  border: 1px solid #2D3B49;
+  background-color: var(--in-content-table-background);
+  border: 1px solid var(--in-content-border-color);
   border-radius: 6px;
-  color: #22262F;
+  color: var(--in-content-text-color);
   float: right;
   margin-top: 2em;
   margin-bottom: 20px;

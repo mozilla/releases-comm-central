@@ -1,0 +1,66 @@
+/* - This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this file,
+   - You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+@import url("resource://gre-resources/forms.css");
+@import url("resource://gre-resources/html.css");
+@import url("chrome://communicator/skin/communicator.css");
+
+@namespace html "http://www.w3.org/1999/xhtml";
+@namespace xul "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul";
+
+*|*:root {
+  --in-content-page-color: -moz-DialogText;
+  --in-content-page-background: -moz-Field;
+  --in-content-text-color: -moz-DialogText;
+  --in-content-selected-text: HighlightText;
+  --in-content-header-border-color: #c8c8c8;
+  --in-content-box-background: #fff;
+  --in-content-box-background-odd: #f3f6fa;
+  --in-content-box-background-hover: #ebebeb;
+  --in-content-box-background-active: #dadada;
+  --in-content-box-border-color: #c1c1c1;
+  --in-content-button-background-hover: -moz-buttonhoverface;
+  --in-content-button-color-hover: -moz-buttonhovertext;
+  --in-content-button-background-hover-active: ButtonFace;
+  --in-content-button-color-hover-active: ButtonText;
+  --in-content-item-hover: rgba(0,149,221,0.25);
+  --in-content-item-selected: #0095dd;
+  --in-content-border-highlight: #ff9500;
+  --in-content-border-focus: #0095dd;
+  --in-content-border-color: ThreeDShadow;
+  --in-content-border-dotted-color: 1px dotted ThreeDShadow;
+  --in-content-category-text: #c1c1c1;
+  --in-content-category-border-focus: 1px dotted #fff;
+  --in-content-category-text-selected: #f2f2f2;
+  --in-content-category-background: #424f5a;
+  --in-content-category-background-hover: #5e6972;
+  --in-content-category-background-active: #343f48;
+  --in-content-tab-color: -moz-DialogText;
+  --in-content-link-color: #0095dd;
+  --in-content-link-color-hover: #178ce5;
+  --in-content-link-color-active: #ff9500;
+  --in-content-link-color-visited: #551a8b;
+  --in-content-primary-button-background: #0095dd;
+  --in-content-primary-button-background-hover: #008acb;
+  --in-content-primary-button-background-active: #006b9d;
+  --in-content-table-background: -moz-Dialog;
+  --in-content-table-border-dark-color: #d1d1d1;
+  --in-content-table-header-background: Highlight;
+}
+
+html|html,
+xul|page,
+xul|window {
+  font: message-box;
+  background-color: var(--in-content-page-background);
+  color: var(--in-content-page-color);
+}
+
+html|body {
+  font-size: inherit;
+}
+
+*|button {
+  min-height: 0px;
+}

@@ -10,7 +10,7 @@ body {
   background-color: #FFFFFF;
   color: #22262F;
   font: message-box;
-  text-align: center;
+  text-align: start;
 }
 
 a:link, a:visited, a:active {
