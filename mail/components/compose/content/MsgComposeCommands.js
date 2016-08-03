@@ -2566,16 +2566,7 @@ function ComposeLoad()
 
   AddMessageComposeOfflineQuitObserver();
 
-  try {
-    // XXX: We used to set commentColumn on the initial auto complete column after the document has loaded
-    // inside of setupAutocomplete. But this happens too late for the first widget and it was never showing
-    // the comment field. Try to set it before the document finishes loading:
-    if (getPref("mail.autoComplete.commentColumn"))
-      document.getElementById('addressCol2#1').showCommentColumn = true;
-  }
-  catch (ex) {
-    // do nothing...
-  }
+  setupAutocomplete();
 
   try {
     SetupCommandUpdateHandlers();
@@ -3316,7 +3307,6 @@ function onRecipientsChanged(aAutomatic)
 {
   if (!aAutomatic) {
     gContentChanged = true;
-    setupAutocomplete();
   }
   updateSendCommands(true);
 }

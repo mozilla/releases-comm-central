@@ -1017,12 +1017,6 @@ function awDocumentKeyPress(event)
   } catch (e) { }
 }
 
-function awRecipientInputCommand(event, inputElement)
-{
-  gContentChanged=true;
-  setupAutocomplete();
-}
-
 // Given an arbitrary block of text like a comma delimited list of names or a names separated by spaces,
 // we will try to autocomplete each of the names and then take the FIRST match for each name, adding it the
 // addressing widget on the compose window.
@@ -1040,8 +1034,6 @@ function parseAndAddAddresses(addressText, recipientType)
   if (addresses.length > 0)
   {
     // we need to set up our own autocomplete session and search for results
-
-    setupAutocomplete(); // be safe, make sure we are setup
     if (!gAutomatedAutoCompleteListener)
       gAutomatedAutoCompleteListener = new AutomatedAutoCompleteHandler();
 
@@ -1080,7 +1072,6 @@ AutomatedAutoCompleteHandler.prototype =
     this.recipientType = recipientType;
 
     // set up the auto complete sessions to use
-    setupAutocomplete();
     this.autoCompleteNextAddress();
   },
 
