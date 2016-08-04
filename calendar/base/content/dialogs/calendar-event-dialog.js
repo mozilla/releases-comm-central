@@ -3691,19 +3691,24 @@ function attendeeClick(aEvent) {
             let removeall = document.getElementById("attendee-popup-removeallattendees-menuitem");
             showElement(removeall);
         }
-        // setup attendee specific menu items if appropriate otherwise hide respective  menu items
+        let sendEmail = document.getElementById("attendee-popup-sendemail-menuitem");
+        let sendTentativeEmail = document.getElementById("attendee-popup-sendtentativeemail-menuitem");
+        let firstSeparator = document.getElementById("attendee-popup-first-separator");
+        [sendEmail, sendTentativeEmail, firstSeparator].forEach(showElement);
+
+        // setup attendee specific menu items if appropriate otherwise hide respective menu items
         let mailto = document.getElementById("attendee-popup-emailattendee-menuitem");
         let remove = document.getElementById("attendee-popup-removeattendee-menuitem");
-        let separator = document.getElementById("attendee-popup-second-separator");
+        let secondSeparator = document.getElementById("attendee-popup-second-separator");
         let attId = aEvent.target.parentNode.getAttribute("attendeeid");
         let attendee = window.attendees.find(aAtt => aAtt.id == attId);
         if (attendee) {
-            [mailto, remove, separator].forEach(showElement);
+            [mailto, remove, secondSeparator].forEach(showElement);
             mailto.setAttribute("label", attendee.toString());
             mailto.attendee = attendee;
             remove.attendee = attendee;
         } else {
-            [mailto, remove, separator].forEach(hideElement);
+            [mailto, remove, secondSeparator].forEach(hideElement);
         }
 
         if (window.attendees.some(isAttendeeUndecided)) {
