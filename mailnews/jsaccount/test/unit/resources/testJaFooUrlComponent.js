@@ -78,19 +78,17 @@ FooUrl.prototype = {
     return this.delegator.QueryInterface(iid);
   },
 
-    // nsIURI overrides
+    // nsIMsgMailNewsUrl overrides
 
-  // Override clone() to always make the pathname capitalized. This is useful
+  // Override cloneInternal() to always make the pathname capitalized. This is useful
   // to test that a method called from C++, but overridden in JS, gets the JS
-  // method, since nsMsgMailNewsUrl::CloneIgnoringRef calls Clone().
-  clone: function()
+  // method, since nsMsgMailNewsUrl::CloneIgnoringRef calls CloneInternal().
+  cloneInternal: function(aRefHandle, aRef)
   {
-    let uriClone = this.cppBase.clone();
+    let uriClone = this.cppBase.cloneInternal(aRefHandle, aRef);
     uriClone.path = uriClone.path.toUpperCase();
     return uriClone;
   },
-
-    // nsIMsgMailNewsUrl overrides
 
   // Override to allow setting from a JS variable.
   IsUrlType(aType) { return aType == this._urlType;},

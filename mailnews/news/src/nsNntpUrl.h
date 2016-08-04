@@ -26,7 +26,8 @@ public:
   // nsIMsgMailNewsUrl overrides
   NS_IMETHOD GetServer(nsIMsgIncomingServer **server);
   NS_IMETHOD GetFolder(nsIMsgFolder **msgFolder);
-  NS_IMETHOD Clone(nsIURI **_retval);
+  NS_IMETHOD CloneInternal(uint32_t aRefHandlingMode,
+                           const nsACString& newRef,nsIURI **_retval);
 
   // nsNntpUrl
   nsNntpUrl();

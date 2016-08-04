@@ -47,14 +47,7 @@ public:
     NS_DECL_NSIURL
 
 protected:
-  enum RefHandlingEnum {
-    eIgnoreRef,
-    eHonorRef,
-    eReplaceRef
-  };
   virtual ~nsMsgMailNewsUrl();
-  nsresult CloneInternal(RefHandlingEnum aRefHandlingMode,
-                         const nsACString& newRef, nsIURI** _retval);
 
   nsCOMPtr<nsIURL> m_baseURL;
   nsWeakPtr m_statusFeedbackWeak;

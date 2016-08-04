@@ -33,54 +33,78 @@ var tests = [
   },
   function test_msgIOverride() {
     let url = newURL().QueryInterface(Ci.msgIOverride);
-    // test of access to wrapped JS object
+
+    // test of access to wrapped JS object.
+
+    // Access the ._hidden attribute using the XPCOM interface,
+    // where it is not defined.
     Assert.equal(typeof url.jsDelegate._hidden, "undefined");
+
+    // Get the JS object, where _hidden IS defined.
     Assert.equal(url.jsDelegate.wrappedJSObject._hidden, "IAmHidden");
   },
   function test_nsIURI() {
     let url = newURL().QueryInterface(Ci.nsIURI);
+    url instanceof Ci.nsIMsgMailNewsUrl; // so we see cloneInternal
 
-    // test attributes
+    // test methods that mostly use the baseURL in nsMsgMailNewsUrl
     Assert.ok("spec" in url);
     url.spec = "https://test.invalid/folder?isFoo=true&someBar=theBar";
     Assert.equal(url.host, "test.invalid");
 
-    // test non-attributes
+    // test another method from nsMsgMailNewsUrl.
     // url.resolve is overridden in nsMsgMailNewsUrl to only work if starts with "#"
     Assert.equal("https://test.invalid/folder?isFoo=true&someBar=theBar#modules",
                  url.resolve("#modules"));
 
     // Test JS override of method called virtually in C++.
-    // nsMsgMailNewsUrl::CloneIgnoringRef calls Clone(). We overrode the JS to
-    // capitalize the path.
+    // We overrode cloneInteral in JS to capitalize the path.
     url.spec = "https://test.invalid/folder#modules";
-    Assert.equal(url.clone().spec, "https://test.invalid/FOLDER#MODULES");
+    Assert.equal(url.cloneInternal(Ci.nsIMsgMailNewsUrl.HONOR_REF, null).spec,
+                 "https://test.invalid/FOLDER#MODULES");
+
+    // But then it gets tricky.
+    // This is not overridden, so you are calling JaBaseCppUrl::CloneIgnoringRef
+    // which inherits from nsMsgMailNewsUrl::CloneIgnoringRef(). So why is the path
+    // capitalized? Because nsMsgMailNewsUrl::CloneIgnoringRef calls the virtual
+    // method CloneInternal(), which IS overridden to give the capitalized value,
+    // showing polymorphic behavior.
     Assert.equal(url.cloneIgnoringRef().spec, "https://test.invalid/FOLDER");
 
     // Demo of differences between the various versions of the object. The
     // standard XPCOM constructor returns the JS implementation, as was tested
-    // above. Try the same tests using the JS delegate, which should give the
-    // same (overridden) results (overridden for clone, C++ class
-    // for cloneIgnoringRef.
+    // above. Try the same tests using the wrapped JS delegate, which should give
+    // the same (overridden) results (overridden for cloneInternal, C++ class
+    // for cloneIgnoringRef with polymorphic override).
     let jsDelegate = url.QueryInterface(Ci.msgIOverride).jsDelegate.wrappedJSObject;
-    Assert.equal(jsDelegate.clone().spec, "https://test.invalid/FOLDER#MODULES");
+    Assert.equal(jsDelegate.cloneInternal(Ci.nsIMsgMailNewsUrl.HONOR_REF, null).spec,
+                                          "https://test.invalid/FOLDER#MODULES");
     Assert.equal(jsDelegate.cloneIgnoringRef().spec, "https://test.invalid/FOLDER");
 
-    // Not sure why you would want to do this, but you call also call the C++
-    // object that does delegation, and get the same result. This is actually
-    // what we expect C++ callers to see.
-    let cppDelegator = jsDelegate.delegator.QueryInterface(Ci.nsIURI);
-    Assert.equal(cppDelegator.clone().spec, "https://test.invalid/FOLDER#MODULES");
-    Assert.equal(cppDelegator.cloneIgnoringRef().spec, "https://test.invalid/FOLDER");
+    // The cppBase object will not have the overrides. cppBase is from
+    // JaCppUrlDelegator::GetCppBase which returns an instance of the Super()
+    // object. This instance will always call the C++ objects and never the
+    // JS objects.
+    let cppBase = url.QueryInterface(Ci.msgIOverride).cppBase.QueryInterface(Ci.nsIURI);
+    cppBase instanceof Ci.nsIMsgMailNewsUrl; // so it sees cloneInternal
 
-    // The cppBase object will not have the overrides.
-    let cppBase = url.QueryInterface(Ci.msgIOverride).cppBase.QueryInterface(Ci.nsIURI); 
-    Assert.equal(cppBase.clone().spec, "https://test.invalid/folder#modules");
+    // nsMsgMailNewsUrl::CloneInternal does gives the normal, lower-case spec.
+    Assert.equal(cppBase.cloneInternal(Ci.nsIMsgMailNewsUrl.HONOR_REF, null).spec,
+                 "https://test.invalid/folder#modules");
 
-    // But then it gets tricky. We can call cloneIgnoringRef in the C++ base
-    // but it will use the virtual clone which is overridden.
+    // But again, when calling a C++ class we get the polymorphic behavior.
     Assert.equal(cppBase.cloneIgnoringRef().spec, "https://test.invalid/FOLDER");
 
+    // Not sure why you would want to do this, but you could also call the C++
+    // object that does delegation, and get the same result. That is, call
+    // JaCppUrlDelegator:: classes using the forwarding macros to either a JS
+    // class or a C++ class. This is actually what we expect C++ callers to see,
+    // so this matches what we see above.
+    let cppDelegator = jsDelegate.delegator.QueryInterface(Ci.nsIURI);
+
+    Assert.equal(cppDelegator.cloneInternal(Ci.nsIMsgMailNewsUrl.HONOR_REF, null).spec,
+                                            "https://test.invalid/FOLDER#MODULES");
+    Assert.equal(cppDelegator.cloneIgnoringRef().spec, "https://test.invalid/FOLDER");
   },
   function test_nsIURL() {
     let url = newURL().QueryInterface(Ci.nsIURL);

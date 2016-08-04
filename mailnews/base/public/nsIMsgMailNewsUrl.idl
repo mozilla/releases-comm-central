@@ -40,6 +40,31 @@ interface nsIMsgMailNewsUrl : nsIURL {
   void SetUrlState(in boolean runningUrl, in nsresult aStatusCode);
   void GetUrlState(out boolean runningUrl);
 
+  // These are used by cloneInternal to determine the disposition of the uri
+  // ref when cloning. They should match the RefHandlingEnum enums defined,
+  // for example, in nsStandardURI.h but are not strictly required to do so.
+
+  /// Ignore the ref field, replacing with blank.
+  const unsigned long IGNORE_REF = 0;
+
+  /// Keep the existing ref field.
+  const unsigned long HONOR_REF = 1;
+
+  /// Replace the ref field with a new value.
+  const unsigned long REPLACE_REF = 2;
+
+  /**
+   * The general clone method that other clone methods use.
+   *
+   * This class should NOT be called except from classes that override
+   * a base class.
+   *
+   * @param aRefHandlingMode  one of the Ref constants defined above.
+   * @param aNewRef           the new reference, if needed.
+   * @return                  a cloned version of the current object.
+   */
+  nsIURI cloneInternal(in unsigned long aRefHandlingMode, in AUTF8String aNewRef);
+
   readonly attribute nsIMsgIncomingServer server;
 
   /**

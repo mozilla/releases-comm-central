@@ -553,10 +553,12 @@ NS_IMETHODIMP nsNntpUrl::SetCharsetOverRide(const char * aCharacterSet)
   return NS_OK;
 }
 
-NS_IMETHODIMP nsNntpUrl::Clone(nsIURI **_retval)
+NS_IMETHODIMP nsNntpUrl::CloneInternal(uint32_t aRefHandlingMode,
+                                       const nsACString& newRef,
+                                       nsIURI **_retval)
 {
   nsresult rv;
-  rv = nsMsgMailNewsUrl::Clone(_retval);
+  rv = nsMsgMailNewsUrl::CloneInternal(aRefHandlingMode, newRef, _retval);
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsIMsgMessageUrl> newsurl = do_QueryInterface(*_retval, &rv);
