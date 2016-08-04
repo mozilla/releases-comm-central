@@ -808,12 +808,6 @@ pref("browser.search.order.US.1", "data:text/plain,browser.search.defaultenginen
 pref("browser.search.order.US.2", "data:text/plain,browser.search.defaultenginename.US=Yahoo");
 pref("browser.search.order.US.3", "data:text/plain,browser.search.defaultenginename.US=");
 
-// XXX Don't update yet, until we've verified how that affects us.
-pref("browser.search.update", false);
-
-// Check whether we need to perform engine updates every 6 hours
-pref("browser.search.update.interval", 21600);
-
 // Developer Tools related preferences
 pref("devtools.debugger.log", false);
 pref("devtools.chrome.enabled", true);
