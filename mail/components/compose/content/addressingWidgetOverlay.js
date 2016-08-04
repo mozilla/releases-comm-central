@@ -1038,7 +1038,7 @@ function parseAndAddAddresses(addressText, recipientType)
       gAutomatedAutoCompleteListener = new AutomatedAutoCompleteHandler();
 
     gAutomatedAutoCompleteListener.init(addresses.map(addr => addr.toString()),
-      addresses.length, recipientType);
+                                        recipientType);
   }
 }
 
@@ -1054,22 +1054,24 @@ AutomatedAutoCompleteHandler.prototype =
 {
   param: this,
   sessionName: null,
-  namesToComplete: {},
+  namesToComplete: null,
   numNamesToComplete: 0,
   indexIntoNames: 0,
+  finalAddresses: null,
 
   numSessionsToSearch: 0,
   numSessionsSearched: 0,
   recipientType: null,
   searchResults: null,
 
-  init:function(namesToComplete, numNamesToComplete, recipientType)
+  init:function(namesToComplete, recipientType)
   {
     this.indexIntoNames = 0;
-    this.numNamesToComplete = numNamesToComplete;
+    this.numNamesToComplete = namesToComplete.length;
     this.namesToComplete = namesToComplete;
+    this.finalAddresses = [];
 
-    this.recipientType = recipientType;
+    this.recipientType = recipientType ? recipientType : "addr_to";
 
     // set up the auto complete sessions to use
     this.autoCompleteNextAddress();
@@ -1079,10 +1081,12 @@ AutomatedAutoCompleteHandler.prototype =
   {
     this.numSessionsToSearch = 0;
     this.numSessionsSearched = 0;
-    this.searchResults = new Array;
+    this.searchResults = [];
 
-    if (this.indexIntoNames < this.numNamesToComplete && this.namesToComplete[this.indexIntoNames])
+    if (this.indexIntoNames < this.numNamesToComplete)
     {
+      if (this.namesToComplete[this.indexIntoNames])
+      {
       /* XXX This is used to work, until switching to the new toolkit broke it
          We should fix it see bug 456550.
       if (!this.namesToComplete[this.indexIntoNames].includes('@')) // don't autocomplete if address has an @ sign in it
@@ -1114,8 +1118,13 @@ AutomatedAutoCompleteHandler.prototype =
       }
       */
 
-      if (!this.numSessionsToSearch)
-        this.processAllResults(); // ldap and ab are turned off, so leave text alone
+        if (!this.numSessionsToSearch)
+          this.processAllResults(); // ldap and ab are turned off, so leave text alone.
+      }
+    }
+    else
+    {
+      this.finish();
     }
   },
 
@@ -1133,7 +1142,7 @@ AutomatedAutoCompleteHandler.prototype =
     this.numSessionsSearched++; // bump our counter
 
     if (this.numSessionsToSearch <= this.numSessionsSearched)
-      setTimeout('gAutomatedAutoCompleteListener.processAllResults()', 0); // we are all done
+      setTimeout(gAutomatedAutoCompleteListener.processAllResults, 0); // we are all done
   },
 
   processAllResults: function()
@@ -1174,11 +1183,17 @@ AutomatedAutoCompleteHandler.prototype =
     if (!addressToAdd)
       addressToAdd = this.namesToComplete[this.indexIntoNames];
 
-    // that will automatically set the focus on a new available row, and make sure it is visible
-    awAddRecipient(this.recipientType ? this.recipientType : "addr_to", addressToAdd);
+    this.finalAddresses.push(addressToAdd);
 
     this.indexIntoNames++;
     this.autoCompleteNextAddress();
+  },
+
+  finish: function()
+  {
+    // This will now append all the recipients, set the focus on a new
+    // available row, and make sure it is visible.
+    awAddRecipientsArray(this.recipientType, this.finalAddresses);
   },
 
   QueryInterface : function(iid)
