@@ -136,7 +136,7 @@ function Recipients2CompFields(msgCompFields)
           case "addr_other":
             let headerName = awGetPopupElement(i).selectedItem.getAttribute("label");
             headerName = headerName.substring(0, headerName.indexOf(':'));
-            msgCompFields.setHeader(headerName, fieldValue);
+            msgCompFields.setRawHeader(headerName, fieldValue, null);
             break;
         }
       }
