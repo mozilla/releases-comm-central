@@ -444,8 +444,7 @@ FeedItem.prototype =
 function FeedEnclosure(aURL, aContentType, aLength, aTitle)
 {
   this.mURL = aURL;
-  // Store a reasonable mimetype if content-type is not present.
-  this.mContentType = aContentType || "application/unknown";
+  this.mContentType = aContentType;
   this.mLength = aLength;
   this.mTitle = aTitle;
 

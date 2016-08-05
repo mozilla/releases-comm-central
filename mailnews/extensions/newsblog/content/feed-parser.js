@@ -288,7 +288,7 @@ FeedParser.prototype =
         for (let tag of tags)
         {
           let term = this.getNodeValue(tag);
-          term = term ? this.xmlUnescape(term.replace(/,/g, ";")) : null;
+          term = term ? this.xmlUnescape(term.replace(",", ";")) : null;
           if (term && item.keywords.indexOf(term) == -1)
             item.keywords.push(term);
         }
@@ -689,7 +689,7 @@ FeedParser.prototype =
         for (let tag of tags)
         {
           let term = tag.getAttribute("term");
-          term = term ? this.xmlUnescape(term.replace(/,/g, ";")).trim() : null;
+          term = term ? this.xmlUnescape(term.replace(",", ";")).trim() : null;
           if (term && item.keywords.indexOf(term) == -1)
             item.keywords.push(term);
         }
