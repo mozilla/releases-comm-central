@@ -60,6 +60,7 @@ var NS = {
   vcard                     : "vcard-temp",
   vcard_update              : "vcard-temp:x:update",
   ping                      : "urn:xmpp:ping",
+  carbons                   : "urn:xmpp:carbons:2",
 
   geoloc                    : "http://jabber.org/protocol/geoloc",
   geoloc_notify             : "http://jabber.org/protocol/geoloc+notify",

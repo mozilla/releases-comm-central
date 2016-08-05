@@ -100,6 +100,25 @@ function _getDelay(aStanza) {
   return date;
 }
 
+// Writes aMsg in aConv as an outgoing message with optional date as the
+// message may be sent from another client.
+function _displaySentMsg(aConv, aMsg, aDate) {
+  let who;
+  if (aConv._account._connection)
+    who = aConv._account._connection._jid.jid;
+  if (!who)
+    who = aConv._account.name;
+
+  let flags = {outgoing: true};
+  flags._alias = aConv.account.alias || aConv.account.statusInfo.displayName;
+
+  if (aDate) {
+    flags.time = aDate / 1000;
+    flags.delayed = true;
+  }
+  aConv.writeMessage(who, aMsg, flags);
+}
+
 // The timespan after which we consider roomInfo to be stale.
 var kListRefreshInterval = 12 * 60 * 60 * 1000; // 12 hours.
 
@@ -675,13 +694,7 @@ var XMPPConversationPrototype = {
     let cs = this.shouldSendTypingNotifications ? "active" : null;
     let s = Stanza.message(this.to, aMsg, cs);
     this._account.sendStanza(s);
-    let who;
-    if (this._account._connection)
-      who = this._account._connection._jid.jid;
-    if (!who)
-      who = this._account.name;
-    let alias = this.account.alias || this.account.statusInfo.displayName;
-    this.writeMessage(who, aMsg, {outgoing: true, _alias: alias});
+    _displaySentMsg(this, aMsg);
     delete this._typingState;
   },
 
@@ -1165,6 +1178,10 @@ var XMPPAccountPrototype = {
 
   // An array of jids for which we still need to request vCards.
   _pendingVCardRequests: [],
+
+  // XEP-0280: Message Carbons.
+  // If true, message carbons are currently enabled.
+  _isCarbonsEnabled: false,
 
   /* Generate unique id for a stanza. Using id and unique sid is defined in
    * RFC 6120 (Section 8.2.3, 4.7.3).
@@ -1669,6 +1686,11 @@ var XMPPAccountPrototype = {
     let iq = Stanza.iq("get", null, this._jid.domain,
                        Stanza.node("query", Stanza.NS.disco_items));
     this.sendStanza(iq, this.onServiceDiscovery, this);
+
+    // XEP-0030: Service Discovery Information Features.
+    iq = Stanza.iq("get", null, this._jid.domain,
+                       Stanza.node("query", Stanza.NS.disco_info));
+    this.sendStanza(iq, this.onServiceDiscoveryInfo, this);
   },
 
   /* Called whenever a stanza is received */
@@ -1803,7 +1825,7 @@ var XMPPAccountPrototype = {
         }
         let features = query.getElements(["feature"])
                             .map(elt => elt.attributes["var"]);
-        if (features.indexOf(Stanza.NS.muc) != -1) {
+        if (features.includes(Stanza.NS.muc)) {
           // XEP-0045 (6.2): this feature is for a MUC Service.
           this._mucService = from;
         }
@@ -1813,6 +1835,50 @@ var XMPPAccountPrototype = {
         return true;
       });
     });
+    return true;
+  },
+
+  // XEP-0030: Discovering Service Information and its features that are
+  // supported by the server.
+  onServiceDiscoveryInfo: function(aStanza) {
+    let query = aStanza.getElement(["query"]);
+    if (aStanza.attributes["type"] != "result" || !query ||
+        query.uri != Stanza.NS.disco_info) {
+      this.LOG("Could not get features for this server: " + this._jid.domain);
+      return true;
+    }
+
+    let features = query.getElements(["feature"])
+                        .map(elt => elt.attributes["var"]);
+    if (features.includes(Stanza.NS.carbons)) {
+      // XEP-0280: Message Carbons.
+      // Enabling Carbons on server, as it's disabled by default on server.
+      if (Services.prefs.getBoolPref("chat.xmpp.messageCarbons")) {
+        let iqStanza = Stanza.iq("set", null, null,
+                                 Stanza.node("enable", Stanza.NS.carbons));
+        this.sendStanza(iqStanza, aStanza => {
+          let error = this.parseError(aStanza);
+          if (error) {
+            this.WARN("Unable to enable message carbons due to " +
+                      error.condition + " error.");
+            return true;
+          }
+
+          let type = aStanza.attributes["type"];
+          if (type != "result") {
+            this.WARN("Received unexpected stanza with " + type + " type " +
+                      "while enabling message carbons.");
+            return true;
+          }
+
+          this.LOG("Message carbons enabled.");
+          this._isCarbonsEnabled = true;
+          return true;
+        });
+      }
+    }
+    // TODO: Handle other features that are supported by the server.
+    return true;
   },
 
   requestRoomInfo: function(aCallback) {
@@ -1935,9 +2001,36 @@ var XMPPAccountPrototype = {
 
   /* Called when a message stanza is received */
   onMessageStanza: function(aStanza) {
-    let from = aStanza.attributes["from"];
-    let norm = this.normalize(from);
-    let isMuc = this._mucs.has(norm);
+    // XEP-0280: Message Carbons.
+    // Sending and Receiving Messages.
+    // Indicates that the forwarded message was sent or received.
+    let isSent = false;
+    let carbonStanza =
+      aStanza.getElement(["sent"]) || aStanza.getElement(["received"]);
+    if (carbonStanza) {
+      if (carbonStanza.uri != Stanza.NS.carbons) {
+        this.WARN("Received a forwarded message which does not '" +
+                  Stanza.NS.carbons + "' namespace.");
+        return;
+      }
+
+      isSent = carbonStanza.localName == "sent";
+      carbonStanza = carbonStanza.getElement(["forwarded", "message"]);
+      if (this._isCarbonsEnabled)
+        aStanza = carbonStanza;
+      else {
+        this.WARN("Received an unexpected forwarded message while message " +
+                  "carbons are not enabled.");
+        return;
+      }
+    }
+
+    // For forwarded sent messages, we need to use "to" attribute to
+    // get the right conversation as from in this case is this account.
+    let convJid = isSent ? aStanza.attributes["to"] : aStanza.attributes["from"];
+
+    let normConvJid = this.normalize(convJid);
+    let isMuc = this._mucs.has(normConvJid);
 
     let type = aStanza.attributes["type"];
     let x = aStanza.getElement(["x"]);
@@ -1969,8 +2062,8 @@ var XMPPAccountPrototype = {
       // <subject/> but no <body/> element shall be considered a subject change
       // for MUC, but we ignore that to be compatible with ejabberd versions
       // before 15.06.
-      let muc = this._mucs.get(norm);
-      let nick = this._parseJID(from).resource;
+      let muc = this._mucs.get(normConvJid);
+      let nick = this._parseJID(convJid).resource;
       // TODO There can be multiple subject elements with different xml:lang
       // attributes.
       muc.setTopic(subject.innerText, nick);
@@ -2010,38 +2103,47 @@ var XMPPAccountPrototype = {
     if (body) {
       let date = _getDelay(aStanza);
       if (type == "groupchat" ||
-          (type == "error" && isMuc && !this._conv.has(from))) {
+          (type == "error" && isMuc && !this._conv.has(convJid))) {
         if (!isMuc) {
-          this.WARN("Received a groupchat message for unknown MUC " + norm);
+          this.WARN("Received a groupchat message for unknown MUC " + normConvJid);
           return;
         }
-        let muc = this._mucs.get(norm);
+        let muc = this._mucs.get(normConvJid);
         muc.incomingMessage(body, aStanza, date);
         return;
       }
 
-      let conv = this.createConversation(from);
+      let conv = this.createConversation(convJid);
       if (!conv)
         return;
+
+      if (isSent) {
+        _displaySentMsg(conv, body, date);
+        return;
+      }
       conv.incomingMessage(body, aStanza, date);
     }
     else if (type == "error") {
-      let conv = this.createConversation(from);
+      let conv = this.createConversation(convJid);
       if (conv)
         conv.incomingMessage(null, aStanza);
     }
     else if (x && x.uri == Stanza.NS.muc_user) {
-      let muc = this._mucs.get(norm);
+      let muc = this._mucs.get(normConvJid);
       if (!muc) {
-        this.WARN("Received a groupchat message for unknown MUC " + norm);
+        this.WARN("Received a groupchat message for unknown MUC " + normConvJid);
         return;
       }
       muc.onMessageStanza(aStanza);
       return;
     }
 
+    // If this is a sent message carbon, the user is typing on another client.
+    if (isSent)
+      return;
+
     // Don't create a conversation to only display the typing notifications.
-    if (!this._conv.has(norm) && !this._conv.has(from))
+    if (!this._conv.has(normConvJid) && !this._conv.has(convJid))
       return;
 
     // Ignore errors while delivering typing notifications.
@@ -2060,9 +2162,13 @@ var XMPPAccountPrototype = {
       else if (state == "paused")
         typingState = Ci.prplIConvIM.TYPED;
     }
-    let convName = norm;
+    let convName = normConvJid;
+
+    // If the bare JID is a MUC that we have joined, use the full JID as this
+    // is a private message to a MUC participant.
     if (isMuc)
-      convName = from;
+      convName = convJid;
+
     let conv = this._conv.get(convName);
     if (!conv)
       return;

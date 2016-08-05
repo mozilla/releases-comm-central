@@ -80,6 +80,8 @@ pref("chat.irc.defaultQuitMessage", "");
 // called automatically by the awesometab. Otherwise, requestRoomInfo will
 // only do so when explicitly requested by the user, e.g. via the /list command.
 pref("chat.irc.automaticList", true);
+// Whether to enable or disable message carbons protocol (XEP-0280).
+pref("chat.xmpp.messageCarbons", true);
 // Disable Skype until it can be tested further.
 pref("chat.prpls.prpl-skype.disable", true);
 // Disable Facebook as the XMPP gateway no longer exists.
