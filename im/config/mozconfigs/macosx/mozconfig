@@ -28,9 +28,6 @@ ac_add_options --enable-update-channel=nightly
 ac_add_options --enable-optimize
 ac_add_options --disable-debug
 
-# Temporarily disabled due to bug 1269878, bug 1270018 (only affects nightlies).
-ac_add_options --disable-content-sandbox
-
 if [ `date +%m%d` = 1031 -o `date +%m%d` = 1101 ]; then
 ac_add_options --with-branding=im/branding/halloween
 fi

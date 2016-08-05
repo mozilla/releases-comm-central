@@ -8,9 +8,6 @@ ac_add_options --enable-require-all-d3dc-versions
 ac_add_options --enable-profiling
 ac_add_options --enable-calendar
 
-# Temporarily disabled due to bug 1269878, bug 1270018 (only affects nightlies).
-ac_add_options --disable-content-sandbox
-
 # For NSS symbols
 export MOZ_DEBUG_SYMBOLS=1
 

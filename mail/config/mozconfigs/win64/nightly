@@ -10,9 +10,6 @@ ac_add_options --enable-jemalloc
 ac_add_options --enable-profiling
 ac_add_options --enable-calendar
 
-# Temporarily disabled due to bug 1269878, bug 1270018 (only affects nightlies).
-ac_add_options --disable-content-sandbox
-
 # Needed to enable breakpad in application.ini
 export MOZILLA_OFFICIAL=1
 
