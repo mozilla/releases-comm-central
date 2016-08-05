@@ -322,19 +322,12 @@ GenerateAttachmentData(MimeObject *object, const char *aMessageURL, MimeDisplayO
   if ((options->format_out == nsMimeOutput::nsMimeMessageBodyDisplay) && (PL_strncasecmp(aMessageURL, urlSpec, strlen(urlSpec)) == 0))
     return NS_OK;
 
-  nsCString urlString(urlSpec);
-
   nsMsgAttachmentData *tmp = &(aAttachData[attIndex++]);
 
   tmp->m_realType = object->content_type;
   tmp->m_realEncoding = object->encoding;
   tmp->m_isExternalAttachment = isExternalAttachment;
-  tmp->m_isExternalLinkAttachment =
-    (isExternalAttachment &&
-     StringBeginsWith(urlString, NS_LITERAL_CSTRING("http"),
-                      nsCaseInsensitiveCStringComparator()));
   tmp->m_size = attSize;
-  tmp->m_sizeExternalStr = "-1";
   tmp->m_disposition.Adopt(MimeHeaders_get(object->headers, HEADER_CONTENT_DISPOSITION, true, false));
   tmp->m_displayableInline = object->clazz->displayable_inline_p(object->clazz, object->headers);
 
@@ -414,18 +407,6 @@ GenerateAttachmentData(MimeObject *object, const char *aMessageURL, MimeDisplayO
           tmp->m_realName.Adopt(fname);
       }
     }
-
-    if (tmp->m_isExternalLinkAttachment)
-    {
-      // If an external link attachment part's Content-Type contains a
-      // |size| parm, store it in m_sizeExternalStr. Let the msgHeaderSink
-      // addAttachmentField() figure out if it's sane, and don't bother
-      // strtol'ing it to an int only to emit it as a string.
-      char* sizeStr = MimeHeaders_get_parameter(disp, "size", nullptr, nullptr);
-      if (sizeStr)
-        tmp->m_sizeExternalStr = sizeStr;
-    }
-
     PR_FREEIF(disp);
   }
 
@@ -451,6 +432,7 @@ GenerateAttachmentData(MimeObject *object, const char *aMessageURL, MimeDisplayO
   } else {
     tmp->m_hasFilename = true;
   }
+  nsCString urlString(urlSpec);
 
   if (!tmp->m_realName.IsEmpty() && !tmp->m_isExternalAttachment)
   {
@@ -688,10 +670,7 @@ NotifyEmittersOfAttachmentList(MimeDisplayOptions     *opt,
       tmp->m_url->GetSpec(spec);
 
     nsAutoCString sizeStr;
-    if (tmp->m_isExternalLinkAttachment)
-      sizeStr.Append(tmp->m_sizeExternalStr);
-    else
-      sizeStr.AppendInt(tmp->m_size);
+    sizeStr.AppendInt(tmp->m_size);
     nsAutoCString downloadedStr;
     downloadedStr.AppendInt(tmp->m_isDownloaded);
 
