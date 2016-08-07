@@ -38,7 +38,7 @@
     <key                           key="&incrementFontSize.key;"    observes="cmd_increaseFontStep"  modifiers="accel, shift"/>
     <key                           key="&incrementFontSize.key2;"   observes="cmd_increaseFontStep"  modifiers="accel"/>
 
-    <key id="insertlinkkb"         key="&insertLinkCmd.key;"           observes="cmd_link"          modifiers="accel"/>
+    <key id="insertlinkkb"         key="&insertLinkCmd2.key;"       observes="cmd_link"              modifiers="accel"/>
   </keyset>
 
   <!-- commands updated when the editor gets created -->
@@ -218,8 +218,8 @@
                 accesskey="&insertTableCmd.accesskey;"
                 observes="cmd_InsertTable"/>
       <menuitem id="insertLink"
-                label="&insertLinkCmd.label;"
-                accesskey="&insertLinkCmd.accesskey;"
+                label="&insertLinkCmd2.label;"
+                accesskey="&insertLinkCmd2.accesskey;"
                 key="insertlinkkb"
                 observes="cmd_link"/>
       <menuitem id="insertAnchor"

@@ -1,4 +1,4 @@
-<?xml version="1.0"?> 
+<?xml version="1.0"?>
 <!-- This Source Code Form is subject to the terms of the Mozilla Public
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
@@ -108,7 +108,7 @@
          modifiers="accel"/>
 
     <key id="insertlinkkb"
-         key="&insertLinkCmd.key;"
+         key="&insertLinkCmd2.key;"
          command="cmd_link"
          modifiers="accel"/>
   </keyset>
@@ -159,7 +159,7 @@
     <!-- dummy command used just to disable things in non-HTML modes -->
     <command id="cmd_renderedHTMLEnabler"/>
   </commandset>
-  
+
   <!-- edit menu commands. These get updated by code in globalOverlay.js -->
   <commandset id="composerEditMenuItems"
           commandupdater="true"
@@ -169,7 +169,7 @@
     <command id="cmd_redo"/>
     <command id="cmd_cut"/>
     <command id="cmd_copy"/>
-    <command id="cmd_paste"/>  
+    <command id="cmd_paste"/>
     <command id="cmd_pasteNoFormatting" oncommand="goDoCommand('cmd_pasteNoFormatting')"
              label="&pasteNoFormatting.label;" accesskey="&pasteNoFormatting.accesskey;"/>
     <command id="cmd_delete"/>
@@ -346,8 +346,8 @@
                 accesskey="&insertTableCmd.accesskey;"
                 command="cmd_InsertTable"/>
       <menuitem id="insertLink"
-                label="&insertLinkCmd.label;"
-                accesskey="&insertLinkCmd.accesskey;"
+                label="&insertLinkCmd2.label;"
+                accesskey="&insertLinkCmd2.accesskey;"
                 command="cmd_link"
                 key="insertlinkkb"/>
       <menuitem id="insertAnchor"
@@ -507,7 +507,7 @@
     </menu>
 
     <!-- Font style submenu -->
-    <menu id="fontStyleMenu" label="&fontStyleMenu.label;" 
+    <menu id="fontStyleMenu" label="&fontStyleMenu.label;"
           accesskey="&fontStyleMenu.accesskey;"
           position="3">
     <menupopup id="fontStyleMenuPopup" onpopupshowing="initFontStyleMenu(this)">
@@ -598,11 +598,11 @@
                 type="checkbox"/>
     </menupopup>
     </menu>
-    
+
     <!-- Note: "cmd_fontColor" only monitors color state, it doesn't execute the command
          (We should use "cmd_fontColorState" and "cmd_backgroundColorState" ?) -->
     <menuitem id="fontColor"
-              label="&formatFontColor.label;" 
+              label="&formatFontColor.label;"
               accesskey="&formatFontColor.accesskey;"
               observes="cmd_fontColor"
               oncommand="EditorSelectColor('Text', null);"
@@ -1242,7 +1242,7 @@
                  group="align"
                  autoCheck="false"
                  oncommand="doStatefulCommand('cmd_align', 'left')">
-    <observes element="cmd_align" attribute="state" 
+    <observes element="cmd_align" attribute="state"
               onbroadcast="onStateButtonUpdate(this.parentNode, 'cmd_align', 'left')" />
   </toolbarbutton>
   <toolbarbutton id="align-center-button"
@@ -1252,7 +1252,7 @@
                  group="align"
                  autoCheck="false"
                  oncommand="doStatefulCommand('cmd_align', 'center')">
-    <observes element="cmd_align" attribute="state" 
+    <observes element="cmd_align" attribute="state"
               onbroadcast="onStateButtonUpdate(this.parentNode, 'cmd_align', 'center')"/>
   </toolbarbutton>
   <toolbarbutton id="align-right-button"
@@ -1275,7 +1275,7 @@
     <observes element="cmd_align" attribute="state"
               onbroadcast="onStateButtonUpdate(this.parentNode, 'cmd_align', 'justify')"/>
   </toolbarbutton>
- 
+
   <toolbarbutton id="absolutePositionButton"
                  class="formatting-button"
                  tooltiptext="&layer.tooltip;"
