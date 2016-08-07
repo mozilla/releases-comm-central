@@ -134,8 +134,8 @@ var GlodaExplicitAttr = {
     }); // tested-by: test_attributes_explicit
   },
 
-  process: function Gloda_explattr_process(aGlodaMessage, aRawReps, aIsNew,
-                                           aCallbackHandle) {
+  process: function* Gloda_explattr_process(aGlodaMessage, aRawReps, aIsNew,
+                                            aCallbackHandle) {
     let aMsgHdr = aRawReps.header;
 
     aGlodaMessage.starred = aMsgHdr.isFlagged;

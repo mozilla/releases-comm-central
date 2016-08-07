@@ -3164,8 +3164,8 @@ var GlodaDatastore = {
   },
 
   _convertToDBValuesAndGroupByAttributeID:
-    function gloda_ds__convertToDBValuesAndGroupByAttributeID(aAttrDef,
-                                                              aValues) {
+    function* gloda_ds__convertToDBValuesAndGroupByAttributeID(aAttrDef,
+                                                               aValues) {
     let objectNounDef = aAttrDef.objectNounDef;
     if (!objectNounDef.usesParameter) {
       let dbValues = [];
@@ -3231,7 +3231,7 @@ var GlodaDatastore = {
   },
 
   _convertRangesToDBStringsAndGroupByAttributeID:
-    function gloda_ds__convertRangesToDBStringsAndGroupByAttributeID(aAttrDef,
+    function* gloda_ds__convertRangesToDBStringsAndGroupByAttributeID(aAttrDef,
       aValues, aValueColumnName) {
     let objectNounDef = aAttrDef.objectNounDef;
     if (!objectNounDef.usesParameter) {

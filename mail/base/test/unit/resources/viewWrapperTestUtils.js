@@ -386,7 +386,7 @@ function verify_messages_in_view(aSynSets, aViewWrapper) {
   //  this to construct a URI to populate a dictionary mapping.
   let synMessageURIs = {}; // map URI to message header
   for (let messageSet of aSynSets) {
-    for (let msgHdr of messageSet.msgHdrs) {
+    for (let msgHdr of messageSet.msgHdrs()) {
       synMessageURIs[msgHdr.folder.getUriForMsg(msgHdr)] = msgHdr;
     }
   }

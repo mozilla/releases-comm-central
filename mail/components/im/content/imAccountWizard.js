@@ -349,7 +349,7 @@ var accountWizard = {
     return undefined;
   },
 
-  getIter: function(aEnumerator) {
+  getIter: function*(aEnumerator) {
     while (aEnumerator.hasMoreElements())
       yield aEnumerator.getNext();
   },

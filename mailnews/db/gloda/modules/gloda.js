@@ -381,7 +381,7 @@ var Gloda = {
    *   GlodaIdentity instances corresponding to the addresses provided.
    */
   getOrCreateMailIdentities:
-      function gloda_ns_getOrCreateMailIdentities(aCallbackHandle) {
+      function* gloda_ns_getOrCreateMailIdentities(aCallbackHandle) {
     let addresses = {};
     let resultLists = [];
 
@@ -1983,7 +1983,7 @@ var Gloda = {
    * @param aDoCache Should we allow this item to be contributed to its noun
    *     cache?
    */
-  grokNounItem: function gloda_ns_grokNounItem(aItem, aRawReps,
+  grokNounItem: function* gloda_ns_grokNounItem(aItem, aRawReps,
       aIsConceptuallyNew, aIsRecordNew, aCallbackHandle, aDoCache) {
     let itemNounDef = aItem.NOUN_DEF;
     let attribsByBoundName = itemNounDef.attribsByBoundName;

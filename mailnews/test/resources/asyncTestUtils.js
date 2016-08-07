@@ -254,7 +254,7 @@ function async_run_tests(aTests, aLongestTestRunTimeConceivableInSecs) {
   async_run({func: _async_test_runner, args: [aTests]});
 }
 
-function _async_test_runner(aTests) {
+function* _async_test_runner(aTests) {
   for (let test of aTests) {
     // parameterized?
     if (test.length) {

@@ -351,7 +351,7 @@ var MailUtils =
     aFolder.ListDescendants(allFolders);
 
     // - worker function
-    function folder_string_setter_worker() {
+    function* folder_string_setter_worker() {
       for (let folder in fixIterator(allFolders, Ci.nsIMsgFolder)) {
         // set the property; this may open the database...
         let value = (typeof aPropertyValue == "function" ?
@@ -368,14 +368,17 @@ var MailUtils =
     let timer = Cc["@mozilla.org/timer;1"].createInstance(Ci.nsITimer);
     function folder_string_setter_driver() {
       try {
-        worker.next();
+        if (worker.next().done) {
+          timer.cancel();
+          if (aCallback)
+            aCallback(true);
+        }
       }
       catch (ex) {
-        // Any type of exception kills the generator, but only StopIteration
-        // indicates success.
+        // Any type of exception kills the generator.
         timer.cancel();
         if (aCallback)
-          aCallback(ex == StopIteration);
+          aCallback(false);
       }
     }
     // make sure there is at least 100 ms of not us between doing things.

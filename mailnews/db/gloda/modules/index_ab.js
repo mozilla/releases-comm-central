@@ -254,7 +254,7 @@ var GlodaABAttrs = {
     }
   },
 
-  process: function(aContact, aRawReps, aIsNew, aCallbackHandle) {
+  process: function*(aContact, aRawReps, aIsNew, aCallbackHandle) {
     let card = aRawReps.card;
     if (aContact.NOUN_ID != Gloda.NOUN_CONTACT) {
       this._log.warn("Somehow got a non-contact: " + aContact);

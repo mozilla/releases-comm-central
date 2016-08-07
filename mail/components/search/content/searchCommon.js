@@ -300,7 +300,7 @@ var SearchSupport =
    * It resets lastFolderIndexedUri to an empty string, then yield returns null
    * once iteration across all folders is complete.
    */
-  _foldersToIndexGenerator: function search_find_next_folder()
+  _foldersToIndexGenerator: function* search_find_next_folder()
   {
     let servers = MailServices.accounts.allServers;
 
@@ -480,7 +480,7 @@ var SearchSupport =
 
     // find the current folder we're working on
     if (!this._currentFolderToIndex)
-      this._currentFolderToIndex = this._foldersToIndex.next();
+      this._currentFolderToIndex = this._foldersToIndex.next().value;
 
     // we'd like to index more than one message on each timer fire,
     // but since streaming is async, it's hard to know how long

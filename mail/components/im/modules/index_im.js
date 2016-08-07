@@ -115,7 +115,7 @@ GlodaIMConversation.prototype = {
 // FIXME
 var WidgetProvider = {
   providerName: "widget",
-  process: function () {
+  process: function*() {
     //XXX What is this supposed to do?
     yield Gloda.kWorkDone;
   }
@@ -615,7 +615,7 @@ var GlodaIMIndexer = {
     return rv;
   }),
 
-  _worker_indexIMConversation: function(aJob, aCallbackHandle) {
+  _worker_indexIMConversation: function*(aJob, aCallbackHandle) {
     let glodaConv = {};
     let existingGlodaConv = aJob.conversation.glodaConv;
     if (existingGlodaConv &&
@@ -681,7 +681,7 @@ var GlodaIMIndexer = {
     }
   },
 
-  _worker_convFolderSweep: function(aJob, aCallbackHandle) {
+  _worker_convFolderSweep: function*(aJob, aCallbackHandle) {
     let folder = aJob.folder;
 
     let sessions = folder.directoryEntries;

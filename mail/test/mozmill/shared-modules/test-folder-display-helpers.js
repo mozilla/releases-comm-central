@@ -890,9 +890,7 @@ function _normalize_view_index(aViewIndex, aController) {
     aController = mc;
   // SyntheticMessageSet special-case
   if (typeof(aViewIndex) != "number") {
-    let msgHdrIter = aViewIndex.msgHdrs;
-    let msgHdr = msgHdrIter.next();
-    msgHdrIter.close();
+    let msgHdr = aViewIndex.msgHdrs().next().value;
     // do not expand
     aViewIndex = aController.dbView.findIndexOfMsgHdr(msgHdr, false);
   }
@@ -1889,7 +1887,7 @@ function _process_row_message_arguments() {
     }
     // SyntheticMessageSet
     else if (arg.synMessages) {
-      for (let msgHdr of arg.msgHdrs) {
+      for (let msgHdr of arg.msgHdrs()) {
         let viewIndex = troller.dbView.findIndexOfMsgHdr(msgHdr, false);
         if (viewIndex == nsMsgViewIndex_None)
           throw_and_dump_view_state(
@@ -2131,7 +2129,7 @@ function assert_messages_summarized(aController, aSelectedMessages) {
     aSelectedMessages = aController.folderDisplay.selectedMessages;
   // if it's a synthetic message set, we want the headers...
   if (aSelectedMessages.synMessages)
-    aSelectedMessages = Array.from(aSelectedMessages.msgHdrs);
+    aSelectedMessages = Array.from(aSelectedMessages.msgHdrs());
 
   let summaryFrame = aController.window.gSummaryFrameManager.iframe;
   let summary = summaryFrame.contentWindow.gMessageSummary;

@@ -817,7 +817,7 @@ var GlodaIndexer = {
 
       let result;
       if (args.length == 0)
-        result = this._batch.next();
+        result = this._batch.next().value;
       else if (args.length == 1)
         result = this._batch.send(args[0]);
       else // arguments works with destructuring assignment
@@ -963,7 +963,7 @@ var GlodaIndexer = {
    *  encounters a kWorkAsync (which workBatch will yield to callbackDriver), or
    *  it runs out of tokens and yields a kWorkPause or kWorkDone.
    */
-  workBatch: function gloda_index_workBatch() {
+  workBatch: function* gloda_index_workBatch() {
 
     // Do we still have an open transaction? If not, start a new one.
     if (!this._idleToCommit)

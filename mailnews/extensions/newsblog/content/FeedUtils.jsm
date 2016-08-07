@@ -236,7 +236,7 @@ var FeedUtils = {
 
     aFolder.ListDescendants(allFolders);
 
-    function feeder() {
+    function* feeder() {
       let folder;
       let numFolders = allFolders.length;
       for (let i = 0; i < numFolders; i++) {
@@ -278,22 +278,18 @@ var FeedUtils = {
 
           Services.tm.mainThread.dispatch(function() {
             try {
-              getFeed.next();
-            }
-            catch (ex) {
-              if (ex instanceof StopIteration)
-              {
+              let done = getFeed.next().done;
+              if (done) {
                 // Finished with all feeds in base folder and its subfolders.
                 FeedUtils.log.debug("downloadFeed: Finished with folder - " +
                                     aFolder.name);
                 folder = null;
                 allFolders = null;
               }
-              else
-              {
-                FeedUtils.log.error("downloadFeed: error - " + ex);
-                FeedUtils.progressNotifier.downloaded({name: folder.name}, 0);
-              }
+            }
+            catch (ex) {
+              FeedUtils.log.error("downloadFeed: error - " + ex);
+              FeedUtils.progressNotifier.downloaded({name: folder.name}, 0);
             }
           }, Ci.nsIThread.DISPATCH_NORMAL);
 
@@ -304,22 +300,18 @@ var FeedUtils = {
 
     let getFeed = feeder();
     try {
-      getFeed.next();
-    }
-    catch (ex) {
-      if (ex instanceof StopIteration)
-      {
+      let done = getFeed.next().done;
+      if (done) {
         // Nothing to do.
         FeedUtils.log.debug("downloadFeed: Nothing to do in folder - " +
                             aFolder.name);
         folder = null;
         allFolders = null;
       }
-      else
-      {
-        FeedUtils.log.error("downloadFeed: error - " + ex);
-        FeedUtils.progressNotifier.downloaded({name: aFolder.name}, 0);
-      }
+    }
+    catch (ex) {
+      FeedUtils.log.error("downloadFeed: error - " + ex);
+      FeedUtils.progressNotifier.downloaded({name: aFolder.name}, 0);
     }
   },
 

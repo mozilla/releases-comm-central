@@ -58,7 +58,7 @@ var account = {
     this.populateProtoSpecificBox();
   },
 
-  getProtoOptions: function account_getProtoOptions() {
+  getProtoOptions: function* account_getProtoOptions() {
     let options = this.proto.getOptions();
     while (options.hasMoreElements())
       yield options.getNext();

@@ -163,7 +163,7 @@ var addAccountDialog = {
   },
 
   addAccountTypes: function AAD_addAccountTypes() {
-    for (let [key, provider] in cloudFileAccounts.enumerateProviders()) {
+    for (let [key, provider] of cloudFileAccounts.enumerateProviders()) {
       // If we already have an account for this type, don't add it to the list.
       // This limitation will hopefully be removed in the future.
       if (cloudFileAccounts.getAccountsForType(key).length > 0)

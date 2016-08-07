@@ -94,7 +94,7 @@ var NOT_YET_REPORTED_PROCESSING_FLAGS =
   nsMsgProcessingFlags.ClassifyJunk;
 
 // for list comprehension fun
-function range(begin, end) {
+function* range(begin, end) {
   for (let i = begin; i < end; ++i) {
     yield i;
   }
@@ -989,7 +989,7 @@ var GlodaMsgIndexer = {
    *  we do so to avoid getting 'trapped' in a folder with a high rate of
    *  changes.
    */
-  _worker_indexingSweep: function gloda_worker_indexingSweep(aJob) {
+  _worker_indexingSweep: function* gloda_worker_indexingSweep(aJob) {
     if (!aJob.mappedFolders) {
       // Walk the folders and make sure all the folders we would want to index
       //  are mapped.  Build up a list of GlodaFolders as we go, so that we can
@@ -1128,7 +1128,7 @@ var GlodaMsgIndexer = {
    *  hot at that point.
    */
   _worker_folderCompactionPass:
-      function gloda_worker_folderCompactionPass(aJob, aCallbackHandle) {
+      function* gloda_worker_folderCompactionPass(aJob, aCallbackHandle) {
     yield this._indexerEnterFolder(aJob.id);
 
     // It's conceivable that with a folder sweep we might end up trying to
@@ -1329,7 +1329,7 @@ var GlodaMsgIndexer = {
    * Index the contents of a folder.
    */
   _worker_folderIndex:
-      function gloda_worker_folderIndex(aJob, aCallbackHandle) {
+      function* gloda_worker_folderIndex(aJob, aCallbackHandle) {
     let logDebug = this._log.level <= Log4Moz.Level.Debug;
     yield this._indexerEnterFolder(aJob.id);
 
@@ -1506,7 +1506,7 @@ var GlodaMsgIndexer = {
    *  event-notification hints.
    */
   _worker_messageIndex:
-      function gloda_worker_messageIndex(aJob, aCallbackHandle) {
+      function* gloda_worker_messageIndex(aJob, aCallbackHandle) {
     // if we are already in the correct folder, our "get in the folder" clause
     //  will not execute, so we need to make sure this value is accurate in
     //  that case.  (and we want to avoid multiple checks...)
@@ -1642,7 +1642,7 @@ var GlodaMsgIndexer = {
   /**
    * Process pending deletes...
    */
-  _worker_processDeletes: function gloda_worker_processDeletes(aJob,
+  _worker_processDeletes: function* gloda_worker_processDeletes(aJob,
       aCallbackHandle) {
 
     // Count the number of messages we will eventually process.  People freak
@@ -1687,7 +1687,7 @@ var GlodaMsgIndexer = {
     yield this.kWorkDone;
   },
 
-  _worker_fixMissingContacts: function(aJob, aCallbackHandle) {
+  _worker_fixMissingContacts: function*(aJob, aCallbackHandle) {
     let identityContactInfos = [], fixedContacts = {};
 
     // -- asynchronously get a list of all identities without contacts
@@ -2963,7 +2963,7 @@ var GlodaMsgIndexer = {
    * @pre aMsgHdr.folder == this._indexingFolder
    * @pre aMsgHdr.folder.msgDatabase == this._indexingDatabase
    */
-  _indexMessage: function gloda_indexMessage(aMsgHdr, aCallbackHandle) {
+  _indexMessage: function* gloda_indexMessage(aMsgHdr, aCallbackHandle) {
     let logDebug = this._log.level <= Log4Moz.Level.Debug;
     if (logDebug)
       this._log.debug("*** Indexing message: " + aMsgHdr.messageKey + " : " +
@@ -3230,8 +3230,8 @@ var GlodaMsgIndexer = {
    *
    * @TODO: implement deletion of attributes that reference (deleted) messages
    */
-  _deleteMessage: function gloda_index_deleteMessage(aMessage,
-                                                     aCallbackHandle) {
+  _deleteMessage: function* gloda_index_deleteMessage(aMessage,
+                                                      aCallbackHandle) {
     let logDebug = this._log.level <= Log4Moz.Level.Debug;
     if (logDebug)
       this._log.debug("*** Deleting message: " + aMessage);

@@ -124,7 +124,7 @@ SyntheticMessageSet.prototype = {
    * @return a JS iterator of the message headers for all messages inserted into
    *     a folder.
    */
-  get msgHdrs() {
+  msgHdrs: function*() {
     // get the databases
     let msgDatabases = this.msgFolders.map(folder => folder.msgDatabase);
     for (let [iMsg, synMsg] in Iterator(this.synMessages)) {
@@ -138,14 +138,14 @@ SyntheticMessageSet.prototype = {
    *     folder.
    */
   get msgHdrList() {
-    return Array.from(this.msgHdrs);
+    return Array.from(this.msgHdrs());
   },
   /**
    * @return an nsIMutableArray of the message headers for all messages inserted
    *     into a folder.
    */
   get xpcomHdrArray() {
-    return toXPCOMArray(this.msgHdrs,
+    return toXPCOMArray(this.msgHdrs(),
                         Components.interfaces.nsIMutableArray);
   },
   /**
@@ -168,8 +168,8 @@ SyntheticMessageSet.prototype = {
    * @return a generator that yields [nsIMsgFolder, nsIMutableArray of the
    *     messages from the set in that folder].
    */
-  get foldersWithXpcomHdrArrays() {
-    for (let [, [folder, msgHdrs]] in Iterator(this.foldersWithMsgHdrs)) {
+  foldersWithXpcomHdrArrays: function*() {
+    for (let [folder, msgHdrs] of this.foldersWithMsgHdrs) {
       yield [folder, toXPCOMArray(msgHdrs,
                                   Components.interfaces.nsIMutableArray)];
     }
@@ -188,17 +188,17 @@ SyntheticMessageSet.prototype = {
     }
   },
   setStarred: function(aStarred) {
-    for (let msgHdr of this.msgHdrs) {
+    for (let msgHdr of this.msgHdrs()) {
       msgHdr.markFlagged(aStarred);
     }
   },
   addTag: function(aTagName) {
-    for (let [folder, xpcomHdrArray] in this.foldersWithXpcomHdrArrays) {
+    for (let [folder, xpcomHdrArray] of this.foldersWithXpcomHdrArrays()) {
       folder.addKeywordsToMessages(xpcomHdrArray, aTagName);
     }
   },
   removeTag: function(aTagName) {
-    for (let [folder, xpcomHdrArray] in this.foldersWithXpcomHdrArrays) {
+    for (let [folder, xpcomHdrArray] of this.foldersWithXpcomHdrArrays()) {
       folder.removeKeywordsFromMessages(xpcomHdrArray, aTagName);
     }
   },

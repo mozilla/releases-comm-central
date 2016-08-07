@@ -464,7 +464,7 @@ var gAccountManager = {
     Services.prefs.setCharPref("messenger.accounts", array.join(","));
   },
 
-  getAccounts: function am_getAccounts() {
+  getAccounts: function* am_getAccounts() {
     let accounts = Services.accounts.getAccounts();
     while (accounts.hasMoreElements())
       yield accounts.getNext();

@@ -569,7 +569,7 @@ var make_new_sets_in_folder = make_new_sets_in_folders;
  *  _looperator(1, 2, 3) will generate the iteration stream: [1, 2, 3, 1, 2, 3,
  *  1, 2, 3, ...].  For use by add_sets_across_folders.
  */
-function _looperator(aList) {
+function* _looperator(aList) {
   if (aList.length == 0)
     throw Exception("aList must have at least one item!");
 
@@ -659,9 +659,9 @@ function add_sets_to_folders(aMsgFolders, aMessageSets, aDoNotForceUpdate) {
     //  we are going to insert them into.  In the second pass we insert the
     //  messages into folders in batches and perform any mutations.
     let folderBatches = aMsgFolders.map(folder =>
-                         new Object({folder: folder, messages: []}));
-    iterFolders = _looperator(folderBatches);
-    let iPerSet = 0, folderBatch = iterFolders.next();
+                                        new Object({folder: folder, messages: []}));
+    iterFolders = _looperator([...folderBatches.keys()]);
+    let iPerSet = 0, folderNext = iterFolders.next();
 
     // - allocate messages to folders
     // loop, incrementing our subscript until all message sets are out of messages
@@ -671,19 +671,19 @@ function add_sets_to_folders(aMsgFolders, aMessageSets, aDoNotForceUpdate) {
       // for each message set, if it is not out of messages, add the message
       for (let messageSet of aMessageSets) {
         if (iPerSet < messageSet.synMessages.length) {
-          let synMsg = messageSet._trackMessageAddition(folderBatch.folder,
+          let synMsg = messageSet._trackMessageAddition(folderBatches[folderNext.value].folder,
                                                         iPerSet);
-          folderBatch.messages.push({ messageSet: messageSet, synMsg: synMsg,
-                                      index: iPerSet });
+          folderBatches[folderNext.value].messages.push({ messageSet: messageSet, synMsg: synMsg,
+                                    index: iPerSet });
           didSomething = true;
         }
       }
       iPerSet++;
-      folderBatch = iterFolders.next();
+      folderNext = iterFolders.next();
     } while (didSomething);
 
     // - inject messages
-    for (folderBatch of folderBatches) {
+    for (let folderBatch of folderBatches) {
       // it is conceivable some folders might not get any messages, skip them.
       if (!folderBatch.messages.length)
         continue;
@@ -734,7 +734,7 @@ function add_sets_to_folders(aMsgFolders, aMessageSets, aDoNotForceUpdate) {
     iterFolders = _looperator(aMsgFolders);
     // we need to call updateFolder on all the folders, not just the first
     //  one...
-    return async_run({func: function() {
+    return async_run({func: function*() {
       yield wait_for_async_promises();
 
       let iPerSet = 0, folder = iterFolders.next();
@@ -745,8 +745,8 @@ function add_sets_to_folders(aMsgFolders, aMessageSets, aDoNotForceUpdate) {
           if (iPerSet < messageSet.synMessages.length) {
             didSomething = true;
 
-            let realFolder = mis.handleUriToRealFolder[folder];
-            let fakeFolder = mis.handleUriToFakeFolder[folder];
+            let realFolder = mis.handleUriToRealFolder[folder.value];
+            let fakeFolder = mis.handleUriToFakeFolder[folder.value];
             let synMsg = messageSet._trackMessageAddition(realFolder, iPerSet);
             let msgURI =
               Services.io.newURI("data:text/plain;base64," +
@@ -800,7 +800,7 @@ function add_sets_to_folders(aMsgFolders, aMessageSets, aDoNotForceUpdate) {
       // for each message set, if it is not out of messages, add the message
       for (let messageSet of aMessageSets) {
         if (iPerSet < messageSet.synMessages.length) {
-          popMessages.push(messageSet._trackMessageAddition(folder, iPerSet));
+          popMessages.push(messageSet._trackMessageAddition(folder.value, iPerSet));
           didSomething = true;
         }
       }
@@ -867,14 +867,14 @@ function wait_for_message_injection() {
  */
 function async_move_messages(aSynMessageSet, aDestFolder, aAllowUndo) {
   mark_action("messageInjection", "moving messages", aSynMessageSet.msgHdrList);
-  return async_run({func: function () {
+  return async_run({func: function*() {
       // we need to make sure all folder promises are fulfilled
       yield wait_for_async_promises();
       // and then we can make sure we have the actual folder
       let realDestFolder = get_real_injection_folder(aDestFolder);
 
-      for (let [folder, xpcomHdrArray] in
-           aSynMessageSet.foldersWithXpcomHdrArrays) {
+      for (let [folder, xpcomHdrArray] of
+           aSynMessageSet.foldersWithXpcomHdrArrays()) {
         mark_action("messageInjection",
                     "moving messages",
                     ["from", folder, "to", realDestFolder]);
@@ -933,9 +933,9 @@ function async_move_messages(aSynMessageSet, aDestFolder, aAllowUndo) {
 function async_trash_messages(aSynMessageSet) {
   mark_action("messageInjection", "trashing messages",
               aSynMessageSet.msgHdrList);
-  return async_run({func: function () {
-      for (let [folder, xpcomHdrArray] in
-           aSynMessageSet.foldersWithXpcomHdrArrays) {
+  return async_run({func: function*() {
+      for (let [folder, xpcomHdrArray] of
+           aSynMessageSet.foldersWithXpcomHdrArrays()) {
         mark_action("messageInjection", "trashing messages in folder",
                     [folder]);
         // In the IMAP case tell listeners we are moving messages without
@@ -994,8 +994,8 @@ function async_trash_messages(aSynMessageSet) {
 function async_delete_messages(aSynMessageSet) {
   mark_action("messageInjection", "deleting messages",
               aSynMessageSet.msgHdrList);
-  for (let [folder, xpcomHdrArray] in
-       aSynMessageSet.foldersWithXpcomHdrArrays) {
+  for (let [folder, xpcomHdrArray] of
+       aSynMessageSet.foldersWithXpcomHdrArrays()) {
     mark_action("messageInjection", "deleting messages in folder",
                 [folder]);
     folder.deleteMessages(xpcomHdrArray, null,
@@ -1011,7 +1011,7 @@ function async_delete_messages(aSynMessageSet) {
  * Empty the trash.
  */
 function async_empty_trash() {
-  return async_run({func: function() {
+  return async_run({func: function*() {
     let trashHandle = get_trash_folder();
     yield wait_for_async_promises();
     let trashFolder = get_real_injection_folder(trashHandle);

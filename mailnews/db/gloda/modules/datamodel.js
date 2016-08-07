@@ -118,7 +118,7 @@ GlodaAttributeDBDef.prototype = {
 };
 
 var GlodaHasAttributesMixIn = {
-  enumerateAttributes: function gloda_attrix_enumerateAttributes() {
+  enumerateAttributes: function* gloda_attrix_enumerateAttributes() {
     let nounDef = this.NOUN_DEF;
     for (let key in this) {
       let value = this[key];

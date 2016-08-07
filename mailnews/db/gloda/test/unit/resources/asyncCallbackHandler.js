@@ -22,9 +22,9 @@ var asyncCallbackHandle = {
   }
 };
 
-function _asyncCallbackHandle_glodaWorkerAdapter(aIter) {
+function* _asyncCallbackHandle_glodaWorkerAdapter(aIter) {
   while(true) {
-    switch(aIter.next()) {
+    switch(aIter.next().value) {
       case GlodaIndexer.kWorkSync:
         yield true;
         break;

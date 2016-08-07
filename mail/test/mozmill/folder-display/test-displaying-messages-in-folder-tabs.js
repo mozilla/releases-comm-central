@@ -27,7 +27,7 @@ var msgHdrsInFolderA = [], msgHdrsInFolderB = [];
 var NUM_MESSAGES_IN_FOLDER = 10;
 
 // A generator for indexes to load test.
-function _generateIndexes() {
+function* _generateIndexes() {
   let index = 0;
   while (true) {
     yield index;
@@ -144,7 +144,7 @@ function test_display_message_in_same_folder() {
   be_in_folder(folderA);
   let preCount = mc.tabmail.tabContainer.childNodes.length;
 
-  let msgHdr = msgHdrsInFolderA[indexes.next()];
+  let msgHdr = msgHdrsInFolderA[indexes.next().value];
 
   display_message_in_folder_tab(msgHdr);
   // Verify
@@ -158,7 +158,7 @@ function test_display_message_in_different_folder() {
   be_in_folder(folderB);
   let preCount = mc.tabmail.tabContainer.childNodes.length;
 
-  let msgHdr = msgHdrsInFolderA[indexes.next()];
+  let msgHdr = msgHdrsInFolderA[indexes.next().value];
 
   display_message_in_folder_tab(msgHdr);
   // Verify
@@ -171,12 +171,12 @@ function test_display_message_in_different_folder() {
 function test_display_message_in_same_folder_with_message_tab_active() {
   be_in_folder(folderA);
 
-  let indexToOpen = indexes.next();
+  let indexToOpen = indexes.next().value;
   select_click_row(indexToOpen);
   let messageTab = open_selected_message_in_new_tab(false);
 
   let preCount = mc.tabmail.tabContainer.childNodes.length;
-  let msgHdr = msgHdrsInFolderA[indexes.next()];
+  let msgHdr = msgHdrsInFolderA[indexes.next().value];
   display_message_in_folder_tab(msgHdr);
   // Verify
   _verify_display_in_existing_tab(preCount, folderA, msgHdr);
@@ -192,12 +192,12 @@ function test_display_message_in_same_folder_with_message_tab_active() {
 function test_display_message_in_different_folder_with_message_tab_active() {
   be_in_folder(folderA);
 
-  let indexToOpen = indexes.next();
+  let indexToOpen = indexes.next().value;
   select_click_row(indexToOpen);
   let messageTab = open_selected_message_in_new_tab(false);
 
   let preCount = mc.tabmail.tabContainer.childNodes.length;
-  let msgHdr = msgHdrsInFolderB[indexes.next()];
+  let msgHdr = msgHdrsInFolderB[indexes.next().value];
   display_message_in_folder_tab(msgHdr);
   // Verify
   _verify_display_in_existing_tab(preCount, folderB, msgHdr);
@@ -216,7 +216,7 @@ function test_display_message_in_same_folder_filtered() {
   assert_messages_not_in_view(msgHdrsInFolderA);
 
   let preCount = mc.tabmail.tabContainer.childNodes.length;
-  let msgHdr = msgHdrsInFolderA[indexes.next()];
+  let msgHdr = msgHdrsInFolderA[indexes.next().value];
   display_message_in_folder_tab(msgHdr);
   // Verify
   _verify_display_in_existing_tab(preCount, folderA, msgHdr);
@@ -240,7 +240,7 @@ function test_display_message_in_different_folder_filtered() {
   assert_messages_not_in_view(msgHdrsInFolderA);
 
   let preCount = mc.tabmail.tabContainer.childNodes.length;
-  let msgHdr = msgHdrsInFolderB[indexes.next()];
+  let msgHdr = msgHdrsInFolderB[indexes.next().value];
   display_message_in_folder_tab(msgHdr);
   // Verify
   _verify_display_in_existing_tab(preCount, folderB, msgHdr);
@@ -261,7 +261,7 @@ function test_display_message_in_different_folder_filtered() {
 function test_display_message_in_same_folder_filtered_with_message_tab_active() {
   be_in_folder(folderB);
 
-  let indexToOpen = indexes.next();
+  let indexToOpen = indexes.next().value;
   select_click_row(indexToOpen);
   let messageTab = open_selected_message_in_new_tab(false);
 
@@ -272,7 +272,7 @@ function test_display_message_in_same_folder_filtered_with_message_tab_active() 
   switch_tab(messageTab);
 
   let preCount = mc.tabmail.tabContainer.childNodes.length;
-  let msgHdr = msgHdrsInFolderB[indexes.next()];
+  let msgHdr = msgHdrsInFolderB[indexes.next().value];
   display_message_in_folder_tab(msgHdr);
   // Verify
   _verify_display_in_existing_tab(preCount, folderB, msgHdr);
@@ -300,7 +300,7 @@ function
   let messageTab = open_selected_message_in_new_tab(false);
 
   let preCount = mc.tabmail.tabContainer.childNodes.length;
-  let msgHdr = msgHdrsInFolderA[indexes.next()];
+  let msgHdr = msgHdrsInFolderA[indexes.next().value];
   display_message_in_folder_tab(msgHdr);
   // Verify
   _verify_display_in_existing_tab(preCount, folderA, msgHdr);
@@ -327,7 +327,7 @@ function test_display_message_in_same_folder_unread() {
   assert_messages_not_in_view(msgHdrsInFolderB);
 
   let preCount = mc.tabmail.tabContainer.childNodes.length;
-  let msgHdr = msgHdrsInFolderB[indexes.next()];
+  let msgHdr = msgHdrsInFolderB[indexes.next().value];
   display_message_in_folder_tab(msgHdr);
   // Verify
   _verify_display_in_existing_tab(preCount, folderB, msgHdr);
@@ -352,7 +352,7 @@ function test_display_message_in_different_folder_unread() {
   assert_messages_not_in_view(msgHdrsInFolderB);
 
   let preCount = mc.tabmail.tabContainer.childNodes.length;
-  let msgHdr = msgHdrsInFolderA[indexes.next()];
+  let msgHdr = msgHdrsInFolderA[indexes.next().value];
   display_message_in_folder_tab(msgHdr);
   // Verify
   _verify_display_in_existing_tab(preCount, folderA, msgHdr);

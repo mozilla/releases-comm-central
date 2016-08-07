@@ -52,7 +52,7 @@ var downloadsView = {
     this.items.delete(aDownload);
   },
 
-  waitForFinish() {
+  waitForFinish: function*() {
     for (let download of this.items.keys()) {
       let succeededPromise = download.whenSucceeded();
       yield succeededPromise;
