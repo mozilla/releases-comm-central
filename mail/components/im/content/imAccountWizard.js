@@ -17,7 +17,7 @@ var accountWizard = {
 
     var protoList = document.getElementById("protolist");
     var protos = [];
-    for (let proto in this.getProtocols())
+    for (let proto of this.getProtocols())
       protos.push(proto);
     protos.sort((a, b) => a.name < b.name ? -1 : a.name > b.name ? 1 : 0);
     protos.forEach(function(proto) {
@@ -131,7 +131,7 @@ var accountWizard = {
       vbox.lastChild.remove();
 
     var splits = [];
-    for (let split in this.getProtoUserSplits())
+    for (let split of this.getProtoUserSplits())
       splits.push(split);
 
     var label = bundle.getString("accountUsername");
@@ -239,7 +239,7 @@ var accountWizard = {
 
     var id = this.proto.id;
     this.prefs = [ ];
-    for (let opt in this.getProtoOptions()) {
+    for (let opt of this.getProtoOptions()) {
       let name = opt.name;
       let eltName = id + "-" + name;
       let val = this.getValue(eltName);

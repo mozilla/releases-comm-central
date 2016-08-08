@@ -65,7 +65,7 @@ var accountOptionsHelper = {
       containerType = "vbox";
 
     let haveOptions = false;
-    for (let opt in aOptions) {
+    for (let opt of aOptions) {
       let text = opt.label;
       let name = aIdPrefix + opt.name;
       switch (opt.type) {

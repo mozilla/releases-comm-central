@@ -38,7 +38,7 @@ var gAccountManager = {
       this.accountList = document.getElementById("accountlist");
       let defaultID;
       Services.core.init(); // ensure the imCore is initialized.
-      for (let acc in this.getAccounts()) {
+      for (let acc of this.getAccounts()) {
         var elt = document.createElement("richlistitem");
         this.accountList.appendChild(elt);
         elt.build(acc);
@@ -80,7 +80,7 @@ var gAccountManager = {
   _updateAccountList: function am__updateAccountList() {
     let accountList = this.accountList;
     let i = 0;
-    for (let acc in this.getAccounts()) {
+    for (let acc of this.getAccounts()) {
       let oldItem = accountList.getItemAtIndex(i);
       if (oldItem.id != acc.id) {
         let accElt = document.getElementById(acc.id);
@@ -480,7 +480,7 @@ var gAccountManager = {
     var autoLoginStatus = as.autoLoginStatus;
     let isOffline = false;
     let crashCount = 0;
-    for (let acc in this.getAccounts())
+    for (let acc of this.getAccounts())
       if (acc.autoLogin && acc.firstConnectionState == acc.FIRST_CONNECTION_CRASHED)
         ++crashCount;
 
