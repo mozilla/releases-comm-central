@@ -28,7 +28,7 @@ function run_test()
 }
 
 var gHdr;
-function loadMessages()
+function* loadMessages()
 {
   gPOP3Pump.files = ["../../../data/draft1"];
   gPOP3Pump.onDone = async_driver;
@@ -48,7 +48,7 @@ function loadMessages()
   gPOP3Pump = null;
 }
 
-function goodStreaming()
+function* goodStreaming()
 {
   // try to stream the headers of the last message
   let uri = gHdr.folder.getUriForMsg(gHdr);

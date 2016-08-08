@@ -289,7 +289,7 @@ var messageInfos = [
 ];
 
 
-function test_stream_message(info) {
+function* test_stream_message(info) {
   let synMsg = gMessageGenerator.makeMessage(info);
   let synSet = new SyntheticMessageSet([synMsg]);
   yield add_sets_to_folder(gInbox, [synSet]);
@@ -401,7 +401,7 @@ function verify_stream_message(aInfo, aSynMsg, aMsgHdr, aMimeMsg) {
 /**
  * Stream
  */
-function test_sane_bodies() {
+function* test_sane_bodies() {
   // 60 bytes long... (becomes 59 on the other side when \r is dropped)
   let hugeString =
     "don't know what you want but I can't  stream it anymore...\r\n";
@@ -503,7 +503,7 @@ var expectedAttachmentsInfo = [
   },
 ];
 
-function test_attachments_correctness () {
+function* test_attachments_correctness () {
   for (let [i, params] of attMessagesParams.entries()) {
     let synMsg = gMessageGenerator.makeMessage(params);
     let synSet = new SyntheticMessageSet([synMsg]);
@@ -569,7 +569,7 @@ var weirdMessageInfos = [
   },
 ];
 
-function test_part12_not_an_attachment() {
+function* test_part12_not_an_attachment() {
   let synMsg = gMessageGenerator.makeMessage(weirdMessageInfos[0]);
   let synSet = new SyntheticMessageSet([synMsg]);
   yield add_sets_to_folder(gInbox, [synSet]);

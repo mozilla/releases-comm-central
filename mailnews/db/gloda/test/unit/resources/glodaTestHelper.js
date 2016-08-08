@@ -647,7 +647,7 @@ var _indexMessageState = {
    * Fake attribute provider processing function so we can distinguish
    *  between fully reindexed messages and fast-path modified messages.
    */
-  process: function(aItem, aRawReps, aIsConceptuallyNew, aCallbackHandle) {
+  process: function*(aItem, aRawReps, aIsConceptuallyNew, aCallbackHandle) {
     this._numFullIndexed++;
 
     yield Gloda.kWorkDone;
@@ -736,7 +736,7 @@ function indexAndPermuteMessages(aScenarioMaker, aVerifier) {
  *  |indexAndPermuteMessages| can't be a generator itself, so it just shims to
  *  us.
  */
-function _runPermutations(aScenarioMaker, aVerifier) {
+function* _runPermutations(aScenarioMaker, aVerifier) {
   let folder = make_empty_folder();
 
   // To calculate the permutations, we need to actually see what gets produced.

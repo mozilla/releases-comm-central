@@ -37,7 +37,7 @@ var goOffline = false;
  *  set correctly.  Then modify the message, verify the dirty property shows
  *  up, flush again, and make sure the dirty property goes clean again.
  */
-function test_pending_commit_tracker_flushes_correctly() {
+function* test_pending_commit_tracker_flushes_correctly() {
   let [folder, msgSet] = make_folder_with_sets([{count: 1}]);
   yield wait_for_message_injection();
   yield wait_for_gloda_indexer(msgSet, {augment: true});
@@ -80,7 +80,7 @@ function test_pending_commit_tracker_flushes_correctly() {
  *  (which is normally how we force a msgdb commit), that the changes to the
  *  header actually hit the disk.
  */
-function test_pending_commit_causes_msgdb_commit() {
+function* test_pending_commit_causes_msgdb_commit() {
   // new message, index it
   let [folder, msgSet] = make_folder_with_sets([{count: 1}]);
   yield wait_for_message_injection();
@@ -107,7 +107,7 @@ function test_pending_commit_causes_msgdb_commit() {
  * - Indexing sweep across folders with just some changes.
  * - Filthy pass.
  */
-function test_indexing_sweep() {
+function* test_indexing_sweep() {
   // -- Never-before-indexed folders
   mark_sub_test_start("never before indexed folders");
   // turn off event-driven indexing
@@ -199,7 +199,7 @@ function test_indexing_sweep() {
  *  happen in the folder before we got to the folder; this tests that we no
  *  longer do that.
  */
-function test_event_driven_indexing_does_not_mess_with_filthy_folders() {
+function* test_event_driven_indexing_does_not_mess_with_filthy_folders() {
   // add a folder with a message.
   let [folder, msgSet] = make_folder_with_sets([{count: 1}]);
   yield wait_for_message_injection();
@@ -227,7 +227,7 @@ function test_event_driven_indexing_does_not_mess_with_filthy_folders() {
   yield wait_for_gloda_indexer([]);
 }
 
-function test_indexing_never_priority() {
+function* test_indexing_never_priority() {
 
   // add a folder with a bunch of messages
   let [folder, msgSet] = make_folder_with_sets([{count: 1}]);
@@ -263,7 +263,7 @@ function test_indexing_never_priority() {
   yield wait_for_gloda_indexer([]);
 }
 
-function test_setting_indexing_priority_never_while_indexing() {
+function* test_setting_indexing_priority_never_while_indexing() {
 
   if (!message_injection_is_local())
     return;
@@ -314,7 +314,7 @@ function allMessageInSameConversation(aSynthMessage, aGlodaMessage, aConvID) {
  *  parent case.  We also test all permutations of receipt of those messages.
  * (Also tests that we index new messages.)
  */
-function test_threading() {
+function* test_threading() {
   mark_sub_test_start("direct reply");
   yield indexAndPermuteMessages(scenarios.directReply,
                                 allMessageInSameConversation);
@@ -331,7 +331,7 @@ function test_threading() {
  *  discover it didn't have any attachments, clear the attachment bit from the
  *  message header".
  */
-function test_attachment_flag() {
+function* test_attachment_flag() {
   // create a synthetic message with an attachment that won't normally be listed
   // in the attachment pane (Content-Disposition: inline, no filename, and
   // displayable inline)
@@ -392,7 +392,7 @@ var fundamentalGlodaMessageId;
  *  by gloda's fundattr.js and perhaps the core message indexing logic itself
  *  (which show up as kSpecial* attributes in fundattr.js anyways.)
  */
-function test_attributes_fundamental() {
+function* test_attributes_fundamental() {
   // create a synthetic message with attachment
   let smsg = msgGen.makeMessage({
     name: 'test message',
@@ -504,7 +504,7 @@ function verify_attributes_fundamental(smsg, gmsg) {
  * and make sure the magic url getter for GlodaAttachment returns a proper
  * URL.
  */
-function test_moved_message_attributes() {
+function* test_moved_message_attributes() {
   if (!expectFulltextResults)
     return;
 
@@ -579,7 +579,7 @@ function verify_attributes_fundamental_from_disk(aGlodaMessage) {
 /**
  * Test the attributes defined by explattr.js.
  */
-function test_attributes_explicit() {
+function* test_attributes_explicit() {
   let [folder, msgSet] = make_folder_with_sets([{count: 1}]);
   yield wait_for_message_injection();
   yield wait_for_gloda_indexer(msgSet, {augment: true});
@@ -642,7 +642,7 @@ function test_attributes_explicit() {
 /**
  * Test non-query-able attributes
  */
-function test_attributes_cant_query() {
+function* test_attributes_cant_query() {
   let [folder, msgSet] = make_folder_with_sets([{count: 1}]);
   yield wait_for_message_injection();
   yield wait_for_gloda_indexer(msgSet, {augment: true});
@@ -683,7 +683,7 @@ function test_attributes_cant_query() {
  * Have the participants be in our addressbook prior to indexing so that we can
  *  verify that the hand-off to the addressbook indexer does not cause breakage.
  */
-function test_people_in_addressbook() {
+function* test_people_in_addressbook() {
   var senderPair = msgGen.makeNameAndAddress(),
       recipPair = msgGen.makeNameAndAddress();
   
@@ -714,7 +714,7 @@ function test_people_in_addressbook() {
  *  off the message to check and also make sure that the text contents slice
  *  off the end rather than the beginning.
  */
-function test_streamed_bodies_are_size_capped() {
+function* test_streamed_bodies_are_size_capped() {
   if (!expectFulltextResults)
     return;
 
@@ -758,7 +758,7 @@ function test_streamed_bodies_are_size_capped() {
  * - Non-last message in a conversation, not a twin.
  * - Last message in a conversation
  */
-function test_message_deletion() {
+function* test_message_deletion() {
   mark_sub_test_start("non-last message in conv, twin");
   // create and index two messages in a conversation
   let [folder, convSet] = make_folder_with_sets([{count: 2, msgsPerThread: 2}]);
@@ -923,7 +923,7 @@ function test_message_deletion() {
 
 }
 
-function test_moving_to_trash_marks_deletion() {
+function* test_moving_to_trash_marks_deletion() {
   // create and index two messages in a conversation
   let [folder, msgSet] = make_folder_with_sets([{count: 2, msgsPerThread: 2}]);
   yield wait_for_message_injection();
@@ -971,7 +971,7 @@ function test_moving_to_trash_marks_deletion() {
  * Deletion that occurs because a folder got deleted.
  *  There is no hand-holding involving the headers that were in the folder.
  */
-function test_folder_nuking_message_deletion() {
+function* test_folder_nuking_message_deletion() {
   // create and index two messages in a conversation
   let [folder, msgSet] = make_folder_with_sets([{count: 2, msgsPerThread: 2}]);
   yield wait_for_message_injection();
@@ -1031,7 +1031,7 @@ function get_testFolder(aFolder) {
     return aFolder;
 }
 
-function test_folder_deletion_nested() {
+function* test_folder_deletion_nested() {
   // add a folder with a bunch of messages
   let [folder1, msgSet1] = make_folder_with_sets([{count: 1}]);
   yield wait_for_message_injection();
@@ -1092,7 +1092,7 @@ function test_folder_deletion_nested() {
  * Verify that for IMAP folders we still see an index a message that is added
  *  as read.
  */
-function test_imap_add_unread_to_folder() {
+function* test_imap_add_unread_to_folder() {
   if (message_injection_is_local())
     return;
 
@@ -1107,7 +1107,7 @@ function test_imap_add_unread_to_folder() {
  * Moving a message between folders should result in us knowing that the message
  *  is in the target location.
  */
-function test_message_moving() {
+function* test_message_moving() {
   // - inject and insert
   // source folder with the message we care about
   let [srcFolder, msgSet] = make_folder_with_sets([{count: 1}]);
@@ -1175,7 +1175,7 @@ function test_message_moving() {
  * Make sure that a message indexed by event-driven indexing does not
  *  get reindexed by sweep indexing that follows.
  */
-function test_sweep_indexing_does_not_reindex_event_indexed() {
+function* test_sweep_indexing_does_not_reindex_event_indexed() {
   let [folder, msgSet] = make_folder_with_sets([{count: 1}]);
   yield wait_for_message_injection();
 
@@ -1196,7 +1196,7 @@ function test_sweep_indexing_does_not_reindex_event_indexed() {
  *  filthy gloda-id off of it given that it is moving from a folder that is not
  *  indexed to one that is indexed.
  */
-function test_filthy_moves_slash_move_from_unindexed_to_indexed() {
+function* test_filthy_moves_slash_move_from_unindexed_to_indexed() {
   // - inject
   // the source folder needs a flag so we don't index it
   let srcFolder = make_empty_folder(null, [Ci.nsMsgFolderFlags.Junk]);

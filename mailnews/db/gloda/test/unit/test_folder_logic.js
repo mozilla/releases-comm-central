@@ -21,7 +21,7 @@ function test_newly_created_folders_start_clean() {
  *  definitely should not interfere with a newly created folder of the same
  *  name.
  */
-function test_deleted_folder_tombstones_get_forgotten() {
+function* test_deleted_folder_tombstones_get_forgotten() {
   let oldFolder = make_empty_folder("volver");
   let oldGlodaFolder = Gloda.getFolderForFolder(oldFolder);
   yield async_delete_folder(oldFolder);

@@ -20,7 +20,7 @@ var HAM_BODY = {body: "ham ham ham nice nice nice happy happy happy"};
 /**
  * Make SPAM_BODY be known as spammy and HAM_BODY be known as hammy.
  */
-function setup_spam_filter() {
+function* setup_spam_filter() {
   let [folder, spamSet, hamSet] = make_folder_with_sets([
     {count: 1, body: SPAM_BODY}, {count: 1, body: HAM_BODY}]);
   yield wait_for_message_injection();
@@ -59,7 +59,7 @@ function setup_spam_filter() {
  *
  * ONLY THIS TEST ACTUALLY RELIES ON THE BAYESIAN CLASSIFIER.
  */
-function test_never_indexes_a_message_marked_as_junk() {
+function* test_never_indexes_a_message_marked_as_junk() {
   mark_sub_test_start("event-driven does not index junk");
 
   // make a message that will be marked as junk from the get-go
@@ -86,7 +86,7 @@ function reset_spam_filter() {
  *
  * THIS TEST DOES NOT RELY ON THE BAYESIAN CLASSIFIER.
  */
-function test_mark_as_junk_is_deletion_mark_as_not_junk_is_exposure() {
+function* test_mark_as_junk_is_deletion_mark_as_not_junk_is_exposure() {
   mark_sub_test_start("mark as junk is deletion");
   // create a message; it should get indexed
   let [folder, msgSet] = make_folder_with_sets([{count: 1}]);
@@ -119,7 +119,7 @@ function test_mark_as_junk_is_deletion_mark_as_not_junk_is_exposure() {
  *  support code.  This ends up being effectively the same underlying logic test
  *  as base_index_messages' test of moving a message to the trash folder.
  */
-function test_message_moving_to_junk_folder_is_deletion() {
+function* test_message_moving_to_junk_folder_is_deletion() {
   // create and index two messages in a conversation
   let [folder, msgSet] = make_folder_with_sets([{count: 2, msgsPerThread: 2}]);
   yield wait_for_message_injection();

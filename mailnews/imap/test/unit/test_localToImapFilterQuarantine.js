@@ -39,7 +39,7 @@ var quarantineTests = [
   endTest
 ];
 
-function createSubfolder()
+function* createSubfolder()
 {
   IMAPPump.incomingServer.rootFolder.createSubfolder("subfolder", null);
   dl('wait for folderAdded notification');
@@ -51,7 +51,7 @@ function createSubfolder()
   yield false;
 }
 
-function getLocalMessages() {
+function* getLocalMessages() {
   // setup copy then move mail filters on the inbox
   let filterList = gPOP3Pump.fakeServer.getFilterList(null);
   let filter = filterList.createFilter("copyThenMoveAll");
@@ -86,7 +86,7 @@ function checkResult() {
   // Else just ignore it.
 }
 
-function updateSubfolderAndTest() {
+function* updateSubfolderAndTest() {
   // The previous function does an append, which may take a bit of time to
   // complete. Unfortunately updateFolderWithListener succeeds successfully
   // if there is a url running, but doesn't tell us that is the case. So we
@@ -109,7 +109,7 @@ function updateSubfolderAndTest() {
   do_check_eq(folderCount(localAccountUtils.inboxFolder), 1);
 }
 
-function get2Messages()
+function* get2Messages()
 {
   gPOP3Pump.files = ["../../../data/bugmail10",
                      "../../../data/draft1"];
@@ -119,7 +119,7 @@ function get2Messages()
   yield false;
 }
 
-function updateSubfolderAndTest2() {
+function* updateSubfolderAndTest2() {
   // The previous function does an append, which may take a bit of time to
   // complete. Unfortunately updateFolderWithListener succeeds successfully
   // if there is a url running, but doesn't tell us that is the case. So we

@@ -36,7 +36,7 @@ var tests = [
 ]
 
 // load and update a message in the imap fake server
-function loadImapMessage()
+function* loadImapMessage()
 {
   let message = new imapMessage(specForFileName(gMessage),
                           IMAPPump.mailbox.uidnext++, []);
@@ -49,7 +49,7 @@ function loadImapMessage()
 
 // Used to verify that nsIServerResponseParser.msg_fetch() can handle
 // not in a parenthesis group - Bug 750012
-function testFetchCustomValue()
+function* testFetchCustomValue()
 {
   let msgHdr = mailTestUtils.firstMsgHdr(IMAPPump.inbox);
   let uri = IMAPPump.inbox.fetchCustomMsgAttribute("X-CUSTOM-VALUE", msgHdr.messageKey, gMsgWindow);
@@ -70,7 +70,7 @@ var fetchCustomValueListener = {
 };
 
 // Used to verify that nsIServerResponseParser.msg_fetch() can handle a parenthesis group - Bug 735542
-function testFetchCustomList()
+function* testFetchCustomList()
 {
   let msgHdr = mailTestUtils.firstMsgHdr(IMAPPump.inbox);
   let uri = IMAPPump.inbox.fetchCustomMsgAttribute("X-CUSTOM-LIST", msgHdr.messageKey, gMsgWindow);

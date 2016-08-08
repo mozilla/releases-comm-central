@@ -153,14 +153,21 @@ function _async_driver() {
   while (asyncGeneratorStack.length) {
     curGenerator = asyncGeneratorStack[asyncGeneratorStack.length-1][0];
     try {
-      while (curGenerator.send(asyncGeneratorSendValue)) {
+      let nextItem = true;
+      while (nextItem) {
+        nextItem = curGenerator.next(asyncGeneratorSendValue);
+        if (!nextItem.value || nextItem.done)
+          break;
         asyncGeneratorSendValue = undefined;
       }
       asyncGeneratorSendValue = undefined;
-      return false;
+      if (nextItem.done)
+        asyncGeneratorStack.pop();
+      else
+        return false;
     }
     catch (ex) {
-      if (ex != StopIteration && ex != asyncExpectedEarlyAbort) {
+      if (ex != asyncExpectedEarlyAbort) {
         let asyncStack = [];
         dump("*******************************************\n");
         dump("Generator explosion!\n");

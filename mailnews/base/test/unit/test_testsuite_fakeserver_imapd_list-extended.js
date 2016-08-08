@@ -36,7 +36,7 @@ var tests = [
 
 // mbox mailboxes cannot contain both child mailboxes and messages, so this will
 // be one test case.
-function setupMailboxes()
+function* setupMailboxes()
 {
   IMAPPump.mailbox.flags = ["\\Marked", "\\NoInferiors"];
   IMAPPump.mailbox.subscribed = true;
@@ -59,7 +59,7 @@ function setupMailboxes()
 }
 
 // test that 'LIST "" "*"' returns the proper responses (standard LIST usage)
-function testList()
+function* testList()
 {
   let response = handler.onError('2', 'LIST "" "*"');
 
@@ -77,7 +77,7 @@ function testList()
 }
 
 // test that 'LIST (SUBSCRIBED) "" "*"' returns the proper responses
-function testListSelectSubscribed()
+function* testListSelectSubscribed()
 {
   let response = handler.onError('3', 'LIST (SUBSCRIBED) "" "*"');
 
@@ -95,7 +95,7 @@ function testListSelectSubscribed()
 }
 
 // test that 'LIST "" "%" RETURN (CHILDEREN)' returns the proper responses
-function testListReturnChilderen()
+function* testListReturnChilderen()
 {
   let response = handler.onError('4', 'LIST "" "%" RETURN (CHILDREN)');
 
@@ -113,7 +113,7 @@ function testListReturnChilderen()
 }
 
 // test that 'LIST "" "*" RETURN (SUBSCRIBED)' returns the proper responses
-function testListReturnSubscribed()
+function* testListReturnSubscribed()
 {
   let response = handler.onError('5', 'LIST "" "*" RETURN (SUBSCRIBED)');
 
@@ -131,7 +131,7 @@ function testListReturnSubscribed()
 }
 
 // test that 'LIST "" ("INBOX" "Tofu" "Vegetable/%")' returns the proper responses
-function testListSelectMultiple()
+function* testListSelectMultiple()
 {
   let response = handler._dispatchCommand('LIST', ['', '("INBOX" "Tofu" "Vegetable/%")']);
 

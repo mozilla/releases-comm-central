@@ -113,7 +113,7 @@ function addMessages() {
   return add_sets_to_folders(gLocalInboxFolder, [msgSet]);
 }
 
-function junkMessages() {
+function* junkMessages() {
 
   // select and junk all messages
   gDBView.doCommand(Ci.nsMsgViewCommandType.selectAll);
@@ -174,7 +174,7 @@ var view_types = [
   ["threaded", ViewFlags.kThreadedDisplay],
 ];
 
-function actually_run_test() {
+function* actually_run_test() {
   yield async_run({func: setup_globals});
   dump("Num Messages: " + gLocalInboxFolder.msgDatabase.dBFolderInfo.numMessages + "\n");
 

@@ -819,14 +819,14 @@ var GlodaIndexer = {
       if (args.length == 0)
         result = this._batch.next().value;
       else if (args.length == 1)
-        result = this._batch.send(args[0]);
+        result = this._batch.next(args[0]).value;
       else // arguments works with destructuring assignment
-        result = this._batch.send(args);
+        result = this._batch.next(args).value;
       switch (result) {
         // job's done, close the batch and re-schedule ourselves if there's more
         //  to do.
         case this.kWorkDone:
-          this._batch.close();
+          this._batch.return();
           this._batch = null;
           // (intentional fall-through to re-scheduling logic)
         // the batch wants to get re-scheduled, do so.
@@ -891,10 +891,10 @@ var GlodaIndexer = {
       return GlodaIndexer.kWorkSync;
     },
     /**
-     * Pop the active generator off the stack and close it.
+     * Pop the active generator off the stack.
      */
     pop: function gloda_index_callbackhandle_pop() {
-      this.activeIterator.close();
+      this.activeIterator.return();
       this.activeStack.pop();
       this.contextStack.pop();
       if (this.activeStack.length)
@@ -1012,7 +1012,6 @@ var GlodaIndexer = {
       this._indexedMessageCount = 0;
       batchCount = 0;
       while (batchCount < this._indexTokens) {
-
         if ((this._callbackHandle.activeIterator === null) &&
             !this._hireJobWorker()) {
           haveMoreWork = false;
@@ -1025,8 +1024,8 @@ var GlodaIndexer = {
         //  if we left the loop due to an exception (without consuming all the
         //  tokens.)
         try {
-          switch (this._callbackHandle.activeIterator.send(
-                    this._workBatchData)) {
+          switch (this._callbackHandle
+                      .activeIterator.next(this._workBatchData).value) {
             case this.kWorkSync:
               this._workBatchData = undefined;
               break;

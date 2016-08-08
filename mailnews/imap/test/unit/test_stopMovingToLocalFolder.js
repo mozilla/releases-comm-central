@@ -41,7 +41,7 @@ var tests = [
   check_messages
 ];
 
-function setup_messages() {
+function* setup_messages() {
   Services.prefs.setBoolPref("mail.server.default.autosync_offline_stores", false);
 
   let messageGenerator = new MessageGenerator();
@@ -55,7 +55,7 @@ function setup_messages() {
   yield false;
 }
 
-function move_messages() {
+function* move_messages() {
   let messages = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
   let msg = IMAPPump.inbox.msgDatabase.GetMsgHdrForKey(IMAPPump.mailbox.uidnext - 1);
   messages.appendElement(msg, false);
@@ -64,7 +64,7 @@ function move_messages() {
   yield false;
 }
 
-function check_messages() {
+function* check_messages() {
   do_check_eq(IMAPPump.inbox.getTotalMessages(false), 1);
   do_check_eq(localAccountUtils.inboxFolder.getTotalMessages(false), 0);
   yield true;

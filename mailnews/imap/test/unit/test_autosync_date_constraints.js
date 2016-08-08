@@ -24,7 +24,7 @@ function addMessagesToServer(messages, mailbox, localFolder)
 
 var tests = [
   setup,
-  function downloadForOffline() {
+  function* downloadForOffline() {
     // ...and download for offline use.
     // This downloads all messages, ignoring the autosync age constraints.
     IMAPPump.inbox.downloadAllForOffline(asyncUrlListener, null);

@@ -88,17 +88,17 @@ var tests = [
   endTest
 ]
 
-function test_updateFolder() {
+function* test_updateFolder() {
   IMAPPump.inbox.updateFolderWithListener(null, asyncUrlListener);
   yield false;
 }
 
-function test_downloadForOffline() {
+function* test_downloadForOffline() {
   IMAPPump.inbox.downloadAllForOffline(asyncUrlListener, null);
   yield false;
 }
 
-function test_streamHeaders()
+function* test_streamHeaders()
 {
   let newMsgHdr = IMAPPump.inbox.GetMessageHeader(1);
   let msgURI = newMsgHdr.folder.getUriForMsg(newMsgHdr);

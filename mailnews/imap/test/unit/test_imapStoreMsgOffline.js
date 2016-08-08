@@ -111,16 +111,15 @@ var gIMAPService;
 
 var tests = [
   setup,
-  function updateFolder() {
+  function* updateFolder() {
     IMAPPump.inbox.updateFolderWithListener(null, asyncUrlListener);
     yield false;
   },
-  function selectFirstMsg() {
-
-  // We postpone creating the imap service until after we've set the prefs
-  // that it reads on its startup.
-  gIMAPService = Cc["@mozilla.org/messenger/messageservice;1?type=imap"]
-                       .getService(Ci.nsIMsgMessageService);
+  function* selectFirstMsg() {
+    // We postpone creating the imap service until after we've set the prefs
+    // that it reads on its startup.
+    gIMAPService = Cc["@mozilla.org/messenger/messageservice;1?type=imap"]
+                     .getService(Ci.nsIMsgMessageService);
 
     let db = IMAPPump.inbox.msgDatabase;
     let msg1 = db.getMsgHdrForMessageID(gMsgId1);
@@ -133,7 +132,7 @@ var tests = [
                                             url);
     yield false;
   },
-  function select2ndMsg() {
+  function* select2ndMsg() {
     let msg1 = IMAPPump.inbox.msgDatabase.getMsgHdrForMessageID(gMsgId1);
     do_check_neq(msg1.flags & nsMsgMessageFlags.Offline, 0);
     let db = IMAPPump.inbox.msgDatabase;
@@ -147,7 +146,7 @@ var tests = [
                                             url);
     yield false;
   },
-  function select3rdMsg() {
+  function* select3rdMsg() {
     let msg2 = IMAPPump.inbox.msgDatabase.getMsgHdrForMessageID(gMsgId2);
     do_check_neq(msg2.flags & nsMsgMessageFlags.Offline, 0);
     let db = IMAPPump.inbox.msgDatabase;
@@ -166,7 +165,7 @@ var tests = [
     // can't turn this on because our fake server doesn't support body structure.
 //    do_check_eq(msg3.flags & nsMsgMessageFlags.Offline, 0);
   },
-  function addNewMsgs() {
+  function* addNewMsgs() {
     let mbox = IMAPPump.daemon.getMailbox("INBOX")
     // make a couple messges
     let messages = [];
@@ -191,7 +190,7 @@ var tests = [
     IMAPPump.inbox.updateFolderWithListener(null, asyncUrlListener);
     yield false;
   },
-  function testQueuedOfflineDownload()
+  function* testQueuedOfflineDownload()
   {
     // Make sure that streaming the same message and then trying to download
     // it for offline use doesn't end up in it getting added to the offline 
@@ -204,7 +203,7 @@ var tests = [
     msgServ.streamMessage(msgURI, gStreamListener, null, null, false, "", false);
     yield false;
   },
-  function firstStreamFinished()
+  function* firstStreamFinished()
   {
     // nsIMsgFolder.DownloadMessagesForOffline does not take a listener, so
     // we invoke nsIImapService.downloadMessagesForOffline directly with a 

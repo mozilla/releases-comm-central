@@ -29,7 +29,7 @@ var tests = [
 ]
 
 // setup the mailboxes that will be used for this test
-function setupMailboxes()
+function* setupMailboxes()
 {
   IMAPPump.mailbox.subscribed = true;
   IMAPPump.daemon.createMailbox("folder1", {subscribed : true, flags : ["\\Noselect"]});
@@ -43,7 +43,7 @@ function setupMailboxes()
 }
 
 // tests that LSUB returns the proper response
-function testLsub()
+function* testLsub()
 {
   let nsMsgFolderFlags = Ci.nsMsgFolderFlags;
 

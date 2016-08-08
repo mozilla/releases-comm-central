@@ -34,7 +34,7 @@ function run_test() {
   async_run({func: actually_run_test});
 }
 
-function actually_run_test() {
+function* actually_run_test() {
   yield async_run({func: setup_globals});
   let numMessages = 10;
   gTestFolder.msgDatabase = null;

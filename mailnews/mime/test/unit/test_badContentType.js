@@ -101,7 +101,7 @@ var msgWindow = Cc["@mozilla.org/messenger/msgwindow;1"]
                   .createInstance(Ci.nsIMsgWindow);
 msgWindow.msgHeaderSink = gMessageHeaderSink;
 
-function test_message_attachments(info) {
+function* test_message_attachments(info) {
   let synMsg = gMessageGenerator.makeMessage(info);
   let synSet = new SyntheticMessageSet([synMsg]);
   yield add_sets_to_folder(gInbox, [synSet]);

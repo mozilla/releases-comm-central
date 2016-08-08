@@ -50,7 +50,7 @@ function run_test()
   async_run_tests(tests);
 }
 
-function setupTest() {
+function* setupTest() {
   Services.prefs.setBoolPref("mail.server.default.autosync_offline_stores", false);
   let file = do_get_file("../../../data/bugmail19");
   let msgfileuri = Services.io.newFileURI(file).QueryInterface(Ci.nsIFileURL);
@@ -61,7 +61,7 @@ function setupTest() {
   yield false;
 }
 
-function checkFilterResults() {
+function* checkFilterResults() {
   let msgHdr = mailTestUtils.firstMsgHdr(IMAPPump.inbox);
   do_check_true(msgHdr.isRead);
   yield true;

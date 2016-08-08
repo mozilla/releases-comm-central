@@ -182,7 +182,7 @@ function runServerTest()
   server.performTest();
 }
 
-function actually_run_test() {
+function* actually_run_test() {
   dump("in actually_run_test\n");
 
   dump("Copy Mesage from file to folder\n");

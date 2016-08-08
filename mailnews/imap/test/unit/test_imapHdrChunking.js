@@ -48,7 +48,7 @@ var tests = [
 ]
 
 // upload messages to the imap fake server Inbox
-function uploadImapMessages()
+function* uploadImapMessages()
 {
   // make 10 messges
   let messageGenerator = new MessageGenerator();
@@ -73,7 +73,7 @@ function uploadImapMessages()
   yield false;
 }
 
-function testMessageFetched() {
+function* testMessageFetched() {
   // If we're really chunking, then the message fetch should have started before
   // we finished the updateFolder URL.
   do_check_true(gFolderListener._gotNewMailBiff);
@@ -83,7 +83,7 @@ function testMessageFetched() {
   yield false;
 }
 
-function testHdrsDownloaded() {
+function* testHdrsDownloaded() {
   // Make sure we got all 10 headers.
   do_check_eq(IMAPPump.inbox.msgDatabase.dBFolderInfo.numMessages, 10);
   yield true;

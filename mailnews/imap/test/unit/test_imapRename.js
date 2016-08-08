@@ -17,7 +17,7 @@ var tests = [
   test_rename,
 ];
 
-function setup() {
+function* setup() {
   Services.prefs.setBoolPref("mail.server.default.autosync_offline_stores", false);
   // Add folder listeners that will capture async events
   MailServices.mfn.addListener(mfnListener, MailServices.mfn.folderAdded);
@@ -29,7 +29,7 @@ function setup() {
   yield false;
 }
 
-function test_rename() {
+function* test_rename() {
   let rootFolder = IMAPPump.incomingServer.rootFolder;
   let targetFolder = rootFolder.getChildNamed("folder 1");
 

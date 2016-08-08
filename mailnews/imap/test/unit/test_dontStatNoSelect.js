@@ -71,7 +71,7 @@ function run_test() {
   async_run_tests(tests);
 }
 
-function checkStatSelect() {
+function* checkStatSelect() {
   // imap fake server's resetTest resets the authentication state - charming.
   // So poke the _test member directly.
   gServer._test = true;
@@ -87,7 +87,7 @@ function checkStatSelect() {
   yield true;
 }
 
-function checkStatNoSelect() {
+function* checkStatNoSelect() {
   // folder 2 should have been stat'd, but not folder 1. All we can really check
   // is that folder 2 was stat'd and that its unread msg count is 1
   do_check_eq(gFolder2.getNumUnread(false), 1);
@@ -118,7 +118,7 @@ function addMessageToFolder(mbox) {
   mbox.addMessage(message);
 }
 
-function endTest()
+function* endTest()
 {
   do_check_eq(gFolder2.getNumUnread(false), 2);
   // Clean up the server in preparation

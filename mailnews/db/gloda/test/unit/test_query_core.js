@@ -107,7 +107,7 @@ Widget.prototype = {
 
 var WidgetProvider = {
   providerName: "widget",
-  process: function () {
+  process: function*() {
     yield Gloda.kWorkDone;
   }
 };
@@ -279,7 +279,7 @@ var nonSingularWidgets;
  */
 var singularWidgets;
 
-function setup_non_singular_values() {
+function* setup_non_singular_values() {
   testUnique++;
   let origin = new Date("2007/01/01");
   nonSingularWidgets = [
@@ -317,7 +317,7 @@ function test_query_has_value_for_non_singular() {
  * @tests gloda.datastore.sqlgen.kConstraintIn.emptySet
  * @tests gloda.query.test.kConstraintIn.emptySet
  */
-function test_empty_set_logic() {
+function* test_empty_set_logic() {
   // - initial query based on the setup previously
   mark_sub_test_start("initial index case");
   let query = Gloda.newQuery(WidgetNoun.id);
@@ -381,7 +381,7 @@ var OFFSET_CHARS_PER_FULLTEXT_MATCH = 8;
 var fooWidgets = null;
 var barBazWidgets = null;
 
-function setup_search_ranking_idiom() {
+function* setup_search_ranking_idiom() {
   // --- build some widgets for testing.  use inum to represent the expected
   //  result sequence
   // setup a base date...

@@ -14,7 +14,7 @@ Components.utils.import("resource:///modules/mailServices.js");
 
 var tests = [
   setup,
-  function copyFolder1() {
+  function* copyFolder1() {
     dump("gEmpty1 " + gEmptyLocal1.URI + "\n");
     let folders = new Array;
     folders.push(gEmptyLocal1.QueryInterface(Ci.nsIMsgFolder));
@@ -22,7 +22,7 @@ var tests = [
     MailServices.copy.CopyFolders(array, IMAPPump.inbox, false, CopyListener, null);
     yield false;
   },
-  function copyFolder2() {
+  function* copyFolder2() {
     dump("gEmpty2 " + gEmptyLocal2.URI + "\n");
     let folders = new Array;
     folders.push(gEmptyLocal2);
@@ -30,7 +30,7 @@ var tests = [
     MailServices.copy.CopyFolders(array, IMAPPump.inbox, false, CopyListener, null);
     yield false;
   },
-  function copyFolder3() {
+  function* copyFolder3() {
     dump("gEmpty3 " + gEmptyLocal3.URI + "\n");
     let folders = new Array;
     folders.push(gEmptyLocal3);
@@ -49,7 +49,7 @@ var tests = [
     do_check_neq(folder2, null);
     do_check_neq(folder3, null);
   },
-  function moveImapFolder1() {
+  function* moveImapFolder1() {
     let folders = new Array;
     let folder1 = IMAPPump.inbox.getChildNamed("empty 1");
     let folder2 = IMAPPump.inbox.getChildNamed("empty 2");
@@ -58,7 +58,7 @@ var tests = [
     MailServices.copy.CopyFolders(array, folder1, true, CopyListener, null);
     yield false;
   },
-  function moveImapFolder2() {
+  function* moveImapFolder2() {
     let folders = new Array;
     let folder1 = IMAPPump.inbox.getChildNamed("empty 1");
     let folder3 = IMAPPump.inbox.getChildNamed("empty 3");
@@ -78,7 +78,7 @@ var tests = [
     do_check_neq(folder2, null);
     do_check_neq(folder3, null);
   },
-  function testImapFolderCopyFailure() {
+  function* testImapFolderCopyFailure() {
     let folders = new Array;
     folders.push(gNotEmptyLocal4.QueryInterface(Ci.nsIMsgFolder));
     let array = toXPCOMArray(folders, Ci.nsIMutableArray);

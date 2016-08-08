@@ -31,7 +31,7 @@ var illegalMessageTemplates = [
  * Using exciting templates from |illegalMessageTemplates|, verify that gloda
  *  fails to index them and marks the messages bad.
  */
-function test_illegal_message(aInfo) {
+function* test_illegal_message(aInfo) {
   // Inject the messages.
   let [msgSet] = make_new_sets_in_folder(gInbox, [
                    {count: 1, clobberHeaders: aInfo.clobberHeaders}]);
@@ -52,7 +52,7 @@ function test_illegal_message(aInfo) {
 /**
  * A byzantine failure to stream should not sink us.  Fake a failure.
  */
-function test_streaming_failure() {
+function* test_streaming_failure() {
   configure_gloda_indexing({injectFaultIn: "streaming"});
 
   // Inject the messages.
@@ -78,7 +78,7 @@ function test_streaming_failure() {
  *  should still get indexed.  Additionally, if we do a sweep on the folder,
  *  we should not attempt to index the message again.
  */
-function test_recovery_and_no_second_attempts() {
+function* test_recovery_and_no_second_attempts() {
   let [badSet, goodSet] = make_new_sets_in_folder(gInbox, [
                    {count: 1, clobberHeaders: {From: ""}},
                    {count: 1}]);
@@ -97,7 +97,7 @@ function test_recovery_and_no_second_attempts() {
  * Make sure that we attempt to reindex a dirty bad message and that when we
  *  fail that we clear the dirty bit.
  */
-function test_reindex_on_dirty_clear_dirty_on_fail() {
+function* test_reindex_on_dirty_clear_dirty_on_fail() {
   // Inject a new illegal message
   let [msgSet] = make_new_sets_in_folder(gInbox, [{
                    count: 1,

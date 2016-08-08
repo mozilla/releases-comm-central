@@ -66,24 +66,24 @@ alertListener.prototype = {
 
 var tests = [
   setup,
-  function updateFolder() {
+  function* updateFolder() {
     IMAPPump.inbox.updateFolderWithListener(null, asyncUrlListener);
     yield false;
   },
-  function deleteMessage() {
+  function* deleteMessage() {
     let msgToDelete = IMAPPump.inbox.msgDatabase.getMsgHdrForMessageID(gMsgId1);
     gMessages.appendElement(msgToDelete, false);
     IMAPPump.inbox.deleteMessages(gMessages, gMsgWindow, false, true, asyncCopyListener, true);
     yield false;
   },
-  function expunge() {
+  function* expunge() {
     IMAPPump.inbox.expunge(asyncUrlListener, gMsgWindow);
     yield false;
 
     // Ensure that the message has been surely deleted.
     do_check_eq(IMAPPump.inbox.msgDatabase.dBFolderInfo.numMessages, 3);
   },
-  function undoDelete() {
+  function* undoDelete() {
     gMsgWindow.transactionManager.undoTransaction();
     // after undo, we select the trash and then the inbox, so that we sync
     // up with the server, and clear out the effects of having done the
@@ -93,7 +93,7 @@ var tests = [
          .updateFolderWithListener(null, asyncUrlListener);
     yield false;
   },
-  function goBackToInbox() {
+  function* goBackToInbox() {
     IMAPPump.inbox.updateFolderWithListener(gMsgWindow, asyncUrlListener);
     yield false;
   },

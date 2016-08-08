@@ -29,7 +29,7 @@ var tests = [
 ];
 
 var gDraftsFolder;
-function createDraftsFolder()
+function* createDraftsFolder()
 {
   IMAPPump.incomingServer.rootFolder.createSubfolder("Drafts", null);
   dl('wait for folderAdded');
@@ -41,7 +41,7 @@ function createDraftsFolder()
   yield false;
 }
 
-function saveDraft()
+function* saveDraft()
 {
   var msgCompose = Cc["@mozilla.org/messengercompose/compose;1"]
                      .createInstance(Ci.nsIMsgCompose);
@@ -64,14 +64,14 @@ function saveDraft()
   yield false;
 }
 
-function updateDrafts()
+function* updateDrafts()
 {
   dump("updating drafts\n");
   gDraftsFolder.updateFolderWithListener(null, asyncUrlListener);
   yield false;
 }
 
-function checkResult()
+function* checkResult()
 {
   dump("checking result\n");
   do_check_eq(gDraftsFolder.getTotalMessages(false), 1);
@@ -79,7 +79,7 @@ function checkResult()
   yield true;
 }
 
-function endTest()
+function* endTest()
 {
   teardownIMAPPump();
   yield true;

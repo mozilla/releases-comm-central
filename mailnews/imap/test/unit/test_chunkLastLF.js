@@ -56,7 +56,7 @@ function run_test()
   async_run_tests([verifyContentLength, endTest]);
 }
 
-function verifyContentLength()
+function* verifyContentLength()
 {
   dump("adding message to server\n");
   // Add a message to the IMAP server
@@ -105,7 +105,7 @@ function verifyContentLength()
   yield true;
 }
 
-function endTest()
+function* endTest()
 {
   gIMAPIncomingServer.closeCachedConnections();
   gIMAPServer.stop();

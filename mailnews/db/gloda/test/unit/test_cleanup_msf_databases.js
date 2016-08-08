@@ -25,7 +25,7 @@ function getLiveFolderCount() {
  *  index it. We do the actual work involving the headers and folders in
  *  poke_and_verify_msf_closure.
  */
-function test_msf_closure() {
+function* test_msf_closure() {
   // before doing anything, the indexer should not be tracking any live folders
   do_check_false(GlodaDatastore._folderCleanupActive);
   do_check_eq(0, getLiveFolderCount());

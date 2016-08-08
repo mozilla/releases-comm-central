@@ -37,7 +37,7 @@ var tests = [
 ]
 
 // setup the mailboxes that will be used for this test
-function setupMailboxes()
+function* setupMailboxes()
 {
   IMAPPump.mailbox.subscribed = true;
   IMAPPump.daemon.createMailbox("folder1", {subscribed : true, flags : ["\\Noselect"]});
@@ -51,7 +51,7 @@ function setupMailboxes()
 }
 
 // tests that LIST (SUBSCRIBED) returns the proper response
-function testListSubscribed()
+function* testListSubscribed()
 {
   // check that we have \Noselect and \Noinferiors flags - these would not have
   // been returned if we had used LSUB instead of LIST(SUBSCRIBED)
@@ -80,7 +80,7 @@ function testListSubscribed()
   yield true;
 }
 
-function testZimbraServerVersions() {
+function* testZimbraServerVersions() {
   // older versions of Zimbra can crash if we send LIST (SUBSCRIBED) so we want
   // to make sure that we are checking for versions
 

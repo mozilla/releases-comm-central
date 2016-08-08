@@ -14,7 +14,7 @@ var tests = [
   teardown
 ];
 
-function setup() {
+function* setup() {
   setupIMAPPump();
 
   IMAPPump.daemon.createMailbox("folder1", {subscribed : true});
@@ -37,7 +37,7 @@ function setup() {
   yield false;
 }
 
-function updateInbox() {
+function* updateInbox() {
   IMAPPump.inbox.updateFolderWithListener(null, asyncUrlListener);
   yield false;
 }

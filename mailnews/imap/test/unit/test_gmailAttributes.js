@@ -49,7 +49,7 @@ var tests = [
 ]
 
 // load and update a message in the imap fake server
-function loadImapMessage()
+function* loadImapMessage()
 {
   let message = new imapMessage(specForFileName(gMessage),
                                 IMAPPump.mailbox.uidnext++, []);

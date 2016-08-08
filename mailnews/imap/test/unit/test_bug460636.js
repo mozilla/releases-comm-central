@@ -19,7 +19,7 @@ var tests = [
   teardown
 ];
 
-function setup() {
+function* setup() {
   setupIMAPPump();
 
   /*

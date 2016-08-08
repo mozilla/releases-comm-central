@@ -21,7 +21,7 @@ Components.utils.import("resource://gre/modules/Services.jsm");
 /**
  * Open a pre-populated real folder, make sure all the messages show up.
  */
-function test_real_folder_load() {
+function* test_real_folder_load() {
   let viewWrapper = make_view_wrapper();
   let [msgFolder, msgSet] = make_folder_with_sets(1);
   yield async_view_open(viewWrapper, msgFolder);
@@ -32,7 +32,7 @@ function test_real_folder_load() {
  * Open a real folder, add some messages, make sure they show up, remove some
  *  messages, make sure they go away.
  */
-function test_real_folder_update() {
+function* test_real_folder_update() {
   let viewWrapper = make_view_wrapper();
 
   // start with an empty folder
@@ -62,7 +62,7 @@ function test_real_folder_update() {
  * Open a real folder, verify, open another folder, verify.  We are testing
  *  ability to change folders without exploding.
  */
-function test_real_folder_load_after_real_folder_load() {
+function* test_real_folder_load_after_real_folder_load() {
   let viewWrapper = make_view_wrapper();
 
   let [folderOne, setOne] = make_folder_with_sets(1);
@@ -85,7 +85,7 @@ function test_real_folder_load_after_real_folder_load() {
  *  thing.
  */
 
-function test_real_folder_threading_unthreaded() {
+function* test_real_folder_threading_unthreaded() {
   let viewWrapper = make_view_wrapper();
   let folder = make_empty_folder();
 
@@ -110,7 +110,7 @@ function test_real_folder_threading_unthreaded() {
   verify_view_level_histogram({0: count}, viewWrapper);
 }
 
-function test_real_folder_threading_threaded() {
+function* test_real_folder_threading_threaded() {
   let viewWrapper = make_view_wrapper();
   let folder = make_empty_folder();
 
@@ -143,7 +143,7 @@ function test_real_folder_threading_threaded() {
   verify_view_level_histogram(expectedHisto, viewWrapper);
 }
 
-function test_real_folder_threading_grouped_by_sort() {
+function* test_real_folder_threading_grouped_by_sort() {
   let viewWrapper = make_view_wrapper();
 
   // create some messages that belong to the 'in this week' bucket when sorting
@@ -179,7 +179,7 @@ function test_real_folder_threading_grouped_by_sort() {
  * Verify that we the threading modes are persisted.  We are only checking
  *  flags here; we trust the previous tests to have done their job.
  */
-function test_real_folder_threading_persistence() {
+function* test_real_folder_threading_persistence() {
   let viewWrapper = make_view_wrapper();
   let folder = make_empty_folder();
 
@@ -268,7 +268,7 @@ function test_real_folder_threading_persistence() {
  *  mailview kViewItemUnread case, so it uses roughly the same test as
  *  test_real_folder_mail_views_unread.
  */
-function test_real_folder_flags_show_unread() {
+function* test_real_folder_flags_show_unread() {
   let viewWrapper = make_view_wrapper();
 
   let [folder, setOne, setTwo] = make_folder_with_sets(2);
@@ -314,7 +314,7 @@ function test_real_folder_flags_show_unread() {
  *  to the kUnreadOnly view flag case, so it uses roughly the same test as
  *  test_real_folder_flags_show_unread.
  */
-function test_real_folder_mail_views_unread() {
+function* test_real_folder_mail_views_unread() {
   let viewWrapper = make_view_wrapper();
 
   let [folder, setOne, setTwo] = make_folder_with_sets(2);
@@ -339,7 +339,7 @@ function test_real_folder_mail_views_unread() {
   verify_messages_in_view([setOne, setTwo, setThree], viewWrapper);
 }
 
-function test_real_folder_mail_views_tags() {
+function* test_real_folder_mail_views_tags() {
   let viewWrapper = make_view_wrapper();
 
   // setup the initial set with the tag
@@ -379,7 +379,7 @@ function test_real_folder_mail_views_custom_people_i_know() {
 }
 
 // recent mail = less than 1 day
-function test_real_folder_mail_views_custom_recent_mail() {
+function* test_real_folder_mail_views_custom_recent_mail() {
   let viewWrapper = make_view_wrapper();
 
   // create a set that meets the threshold and a set that does not
@@ -406,7 +406,7 @@ function test_real_folder_mail_views_custom_recent_mail() {
   //  we are taking the position that message timestamps should not change.)
 }
 
-function test_real_folder_mail_views_custom_last_5_days() {
+function* test_real_folder_mail_views_custom_last_5_days() {
   let viewWrapper = make_view_wrapper();
 
   // create a set that meets the threshold and a set that does not
@@ -433,7 +433,7 @@ function test_real_folder_mail_views_custom_last_5_days() {
   //  we are taking the position that message timestamps should not change.)
 }
 
-function test_real_folder_mail_views_custom_not_junk() {
+function* test_real_folder_mail_views_custom_not_junk() {
   let viewWrapper = make_view_wrapper();
 
   let [folder, setJunk, setNotJunk] = make_folder_with_sets(2);
@@ -457,7 +457,7 @@ function test_real_folder_mail_views_custom_not_junk() {
   verify_messages_in_view(setNotJunk, viewWrapper);
 }
 
-function test_real_folder_mail_views_custom_has_attachments() {
+function* test_real_folder_mail_views_custom_has_attachments() {
   let viewWrapper = make_view_wrapper();
 
   let attachSetDef = {attachments: [{filename: 'foo.png',
@@ -479,7 +479,7 @@ function test_real_folder_mail_views_custom_has_attachments() {
 
 /* ===== Real Folder, Special Views ===== */
 
-function test_real_folder_special_views_threads_with_unread() {
+function* test_real_folder_special_views_threads_with_unread() {
   let viewWrapper = make_view_wrapper();
   let folder = make_empty_folder();
 
@@ -525,7 +525,7 @@ function test_real_folder_special_views_threads_with_unread() {
  * Make sure that we restore special views from their persisted state when
  *  opening the view.
  */
-function test_real_folder_special_views_persist() {
+function* test_real_folder_special_views_persist() {
   let viewWrapper = make_view_wrapper();
   let folder = make_empty_folder();
 
@@ -540,7 +540,7 @@ function test_real_folder_special_views_persist() {
               "We should be in threads-with-unread special view mode.");
 }
 
-function test_real_folder_mark_read_on_exit() {
+function* test_real_folder_mark_read_on_exit() {
   // set a pref so that the local folders account will think we should
   // mark messages read when leaving the folder.
   Services.prefs.setBoolPref("mailnews.mark_message_read.none", true);

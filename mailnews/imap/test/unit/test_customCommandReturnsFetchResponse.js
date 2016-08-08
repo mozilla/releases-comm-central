@@ -38,7 +38,7 @@ var tests = [
 ]
 
 // load and update a message in the imap fake server
-function loadImapMessage()
+function* loadImapMessage()
 {
   gMessage = new imapMessage(specForFileName(gMessageFileName),
     IMAPPump.mailbox.uidnext++, []);
@@ -48,7 +48,7 @@ function loadImapMessage()
   yield false;
 }
 
-function testStoreCustomList()
+function* testStoreCustomList()
 {
   let msgHdr = mailTestUtils.firstMsgHdr(IMAPPump.inbox);
   gExpectedLength = gCustomList.length;
@@ -72,7 +72,7 @@ var storeCustomListSetListener = {
   }
 };
 
-function testStoreMinusCustomList()
+function* testStoreMinusCustomList()
 {
   let msgHdr = mailTestUtils.firstMsgHdr(IMAPPump.inbox);
   gExpectedLength--;
@@ -96,7 +96,7 @@ var storeCustomListRemovedListener = {
   }
 };
 
-function testStorePlusCustomList()
+function* testStorePlusCustomList()
 {
   let msgHdr = mailTestUtils.firstMsgHdr(IMAPPump.inbox);
   gExpectedLength++;

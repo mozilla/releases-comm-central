@@ -50,7 +50,7 @@ var tests = [
 
 var gTargetFolder;
 
-function test_createTargetFolder()
+function* test_createTargetFolder()
 {
   gAutoSyncManager.addListener(gAutoSyncListener);
 
@@ -62,7 +62,7 @@ function test_createTargetFolder()
   gTargetFolder.setFlag(Ci.nsMsgFolderFlags.CheckNew);
 }
 
-function test_checkForNewMessages()
+function* test_checkForNewMessages()
 {
   addMessageToFolder(gTargetFolder);
   // This will update the INBOX and STATUS targetFolder. We only care about
@@ -86,7 +86,7 @@ function test_triggerAutoSyncIdle()
 }
 
 // move the message to a diffent folder
-function test_moveMessageToTargetFolder()
+function* test_moveMessageToTargetFolder()
 {
   let observer = gAutoSyncManager.QueryInterface(Ci.nsIObserver);
   observer.observe(null, "mail:appIdle", "back");
@@ -102,7 +102,7 @@ function test_moveMessageToTargetFolder()
   yield false;
 }
 
-function test_waitForTargetUpdate()
+function* test_waitForTargetUpdate()
 {
   // After the copy, now we expect to get notified of the gTargetFolder
   // getting updated, after we simulate going idle.

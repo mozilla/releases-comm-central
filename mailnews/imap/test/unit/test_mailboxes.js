@@ -6,7 +6,7 @@ load("../../../resources/logHelper.js");
 load("../../../resources/asyncTestUtils.js");
 load("../../../resources/messageGenerator.js");
 
-function setup() {
+function* setup() {
   setupIMAPPump();
 
   IMAPPump.daemon.createMailbox("I18N box\u00E1", {subscribed : true});
@@ -24,7 +24,7 @@ function setup() {
 
 var tests = [
   setup,
-  function checkDiscovery() {
+  function* checkDiscovery() {
     dump("in check discovery\n");
     let rootFolder = IMAPPump.incomingServer.rootFolder;
     // Check that we've subscribed to the boxes returned by LSUB. We also get
@@ -47,7 +47,7 @@ var tests = [
                                  null);
     yield false;
   },
-  function checkRename() {
+  function* checkRename() {
     let rootFolder = IMAPPump.incomingServer.rootFolder;
     do_check_true(rootFolder.containsChildNamed("test \u00E4"));
     let newChild = rootFolder.getChildNamed("test \u00E4").

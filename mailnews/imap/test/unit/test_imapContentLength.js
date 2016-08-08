@@ -29,7 +29,7 @@ var tests = [
 ];
 
 // Adds some messages directly to a mailbox (eg new mail)
-function addMessageToServer() {
+function* addMessageToServer() {
   let URI = Services.io.newFileURI(gFile).QueryInterface(Ci.nsIFileURL);
   IMAPPump.mailbox.addMessage(new imapMessage(URI.spec, IMAPPump.mailbox.uidnext++, []));
 

@@ -8,7 +8,7 @@ load("base_index_messages.js");
  * Make sure that if we have to reparse a local folder we do not hang or
  *  anything.  (We had a regression where we would hang.)
  */
-function test_reparse_of_local_folder_works() {
+function* test_reparse_of_local_folder_works() {
   // index a folder
   let [folder, msgSet] = make_folder_with_sets([{count: 1}]);
   yield wait_for_message_injection();
@@ -38,7 +38,7 @@ tests.unshift(test_reparse_of_local_folder_works);
  * We directly monkey with the state of NounTag for no really good reason, but
  *  maybe it cuts down on disk I/O because we don't have to touch prefs.
  */
-function test_fromjson_of_removed_tag() {
+function* test_fromjson_of_removed_tag() {
   // -- inject
   let [folder, msgSet] = make_folder_with_sets([{count: 1}]);
   yield wait_for_message_injection();

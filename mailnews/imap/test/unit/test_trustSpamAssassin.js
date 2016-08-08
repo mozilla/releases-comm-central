@@ -36,7 +36,7 @@ var tests = [
 ]
 
 var gJunkFolder;
-function createJunkFolder()
+function* createJunkFolder()
 {
   IMAPPump.incomingServer.rootFolder.createSubfolder("Junk", null);
   dl('wait for folderAdded');
@@ -52,7 +52,7 @@ function createJunkFolder()
  * Load and update a message in the imap fake server, should move
  *  SpamAssassin-marked junk message to junk folder
  */
-function loadImapMessage()
+function* loadImapMessage()
 {
   IMAPPump.mailbox.addMessage(new imapMessage(specForFileName(gMessage),
                           IMAPPump.mailbox.uidnext++, []));
@@ -68,14 +68,14 @@ function loadImapMessage()
   yield false;
 }
 
-function testMessageInJunk()
+function* testMessageInJunk()
 {
   do_check_eq(0, IMAPPump.inbox.getTotalMessages(false));
   do_check_eq(1, gJunkFolder.getTotalMessages(false));
   yield true;
 }
 
-function markMessageAsGood()
+function* markMessageAsGood()
 {
   /*
    * This is done in the application in nsMsgDBView, which is difficult
@@ -113,7 +113,7 @@ function markMessageAsGood()
   yield false;
 }
 
-function updateFoldersAndCheck()
+function* updateFoldersAndCheck()
 {
   IMAPPump.inbox.updateFolderWithListener(null, asyncUrlListener);
   dl('wait for OnStopRunningURL');

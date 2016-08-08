@@ -33,7 +33,7 @@ var GenericIndexer = {
                                           aObjects.concat()));
   },
   /* implementation */
-  _worker_index_generic: function(aJob, aCallbackHandle) {
+  _worker_index_generic: function*(aJob, aCallbackHandle) {
     this._log.debug("Beginning indexing " + aJob.items.length +
                     " generic items");
     for (let [, item] in Iterator(aJob.items)) {

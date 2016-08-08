@@ -241,7 +241,7 @@ var searchTests =
 ];
 
 // load and update a message in the imap fake server
-function loadImapMessage()
+function* loadImapMessage()
 {
   IMAPPump.mailbox.addMessage(new imapMessage(specForFileName(gMessage),
                           IMAPPump.mailbox.uidnext++, []));
@@ -254,7 +254,7 @@ function loadImapMessage()
 
 // process each test from queue, calls itself upon completion of each search
 var testObject;
-function testSearch()
+function* testSearch()
 {
   while (searchTests.length)
   {

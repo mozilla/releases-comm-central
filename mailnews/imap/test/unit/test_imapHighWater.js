@@ -68,7 +68,7 @@ function run_test()
   actually_run_test();
 }
 
-function setupFolders() {
+function* setupFolders() {
   // make 10 messges
   let messageGenerator = new MessageGenerator();
   let scenarioFactory = new MessageScenarioFactory(messageGenerator);
@@ -92,7 +92,7 @@ function setupFolders() {
   yield true;
 }
 
-function doMoves() {
+function* doMoves() {
   // update folders to download headers.
   gIMAPInbox.updateFolderWithListener(null, UrlListener);
   yield false;
@@ -185,7 +185,7 @@ function actually_run_test() {
   async_run_tests(tests);
 }
 
-function endTest()
+function* endTest()
 {
   Services.io.offline = true;
   gServer.performTest("LOGOUT");

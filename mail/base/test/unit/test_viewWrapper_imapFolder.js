@@ -22,7 +22,7 @@ initViewWrapperTestUtils({mode: "imap", offline: false});
  * (It will fail to update if the db change listener ended up detaching itself
  *  and not reattaching correctly when the updateFolder completes.)
  */
-function test_enter_imap_folder_requiring_update_folder_immediately() {
+function* test_enter_imap_folder_requiring_update_folder_immediately() {
   // - create the folder and wait for the IMAP op to complete
   let folderHandle = make_empty_folder();
   yield wait_for_async_promises();

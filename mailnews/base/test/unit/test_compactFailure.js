@@ -88,7 +88,7 @@ function generate_messages() {
   return messages;
 }
 
-function setup_target_folder() {
+function* setup_target_folder() {
   gTargetFolder = localAccountUtils.rootFolder.createLocalSubfolder("Target");
   addMessagesToFolder(generate_messages(), gTargetFolder);
 
@@ -96,7 +96,7 @@ function setup_target_folder() {
   yield false;
 }
 
-function setup_open_failure_folder() {
+function* setup_open_failure_folder() {
   gTargetFolder = localAccountUtils.rootFolder.createLocalSubfolder("ShouldFail");
   addMessagesToFolder(generate_messages(), gTargetFolder);
 
@@ -104,7 +104,7 @@ function setup_open_failure_folder() {
   yield false;
 }
 
-function delete_all_messages() {
+function* delete_all_messages() {
   let enumerator = gTargetFolder.messages;
   let headers = [];
   while (enumerator.hasMoreElements())

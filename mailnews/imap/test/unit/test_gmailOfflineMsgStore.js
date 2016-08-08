@@ -95,12 +95,12 @@ function setup() {
   IMAPPump.mailbox.addMessage(message);
 }
 
-function updateFolder() {
+function* updateFolder() {
   IMAPPump.inbox.updateFolderWithListener(null, asyncUrlListener);
   yield false;
 }
 
-function selectInboxMsg() {
+function* selectInboxMsg() {
   // Select mesasage1 from inbox which makes message1 available in offline store.
   let imapService = Cc["@mozilla.org/messenger/messageservice;1?type=imap"]
                         .getService(Ci.nsIMsgMessageService);
@@ -112,7 +112,7 @@ function selectInboxMsg() {
   yield false;
 }
 
-function StreamMessageInbox() {
+function* StreamMessageInbox() {
   // Stream message1 from inbox
   let newMsgHdr = IMAPPump.inbox.msgDatabase.getMsgHdrForMessageID(gMsgId1);
   let msgURI = newMsgHdr.folder.getUriForMsg(newMsgHdr);
@@ -123,7 +123,7 @@ function StreamMessageInbox() {
   yield false;
 }
 
-function createAndUpdate() {
+function* createAndUpdate() {
   let rootFolder = IMAPPump.incomingServer.rootFolder;
   fooFolder =  rootFolder.getChildNamed("foo").QueryInterface(Ci.nsIMsgImapMailFolder); // We have created the mailbox earlier.
   fooFolder.updateFolderWithListener(null, asyncUrlListener);
@@ -149,12 +149,12 @@ function addFoo() {
   fooBox.addMessage(message1);
 }
 
-function updateFoo() {
+function* updateFoo() {
   fooFolder.updateFolderWithListener(null, asyncUrlListener);
   yield false;
 }
 
-function selectFooMsg() {
+function* selectFooMsg() {
   // Select message2 from fooFolder, which makes fooFolder a local folder.
   let imapService = Cc["@mozilla.org/messenger/messageservice;1?type=imap"]
                        .getService(Ci.nsIMsgMessageService);
@@ -165,7 +165,7 @@ function selectFooMsg() {
   yield false;
 }
 
-function StreamMessageFoo() {
+function* StreamMessageFoo() {
   // Stream message2 from fooFolder
   let newMsgHdr = fooFolder.msgDatabase.getMsgHdrForMessageID(gMsgId2);
   let msgURI = newMsgHdr.folder.getUriForMsg(newMsgHdr);
@@ -176,7 +176,7 @@ function StreamMessageFoo() {
   yield false;
 }
 
-function crossStreaming() {
+function* crossStreaming() {
   /**
    * Streaming message1 from fooFolder. message1 is present in
    * offline store of inbox. We now test that streaming the message1

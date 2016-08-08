@@ -761,7 +761,7 @@ function test_group_sort_collapseAll_expandAll_threading() {
     view_throw("Expected grouped by custom column, ZA sortOrder smsg2 value to be A");
 }
 
-function test_group_dummies_under_mutation_by_date() {
+function* test_group_dummies_under_mutation_by_date() {
   // - start with an empty folder
   let save_gTestFolder = gTestFolder;
   gTestFolder = make_empty_folder();
@@ -967,7 +967,7 @@ function run_test() {
   async_run({func: actually_run_test});
 }
 
-function actually_run_test() {
+function* actually_run_test() {
   dump("in actually_run_test\n");
   yield async_run({func: setup_globals});
   dump("Num Messages: " + gTestFolder.msgDatabase.dBFolderInfo.numMessages + "\n");

@@ -45,7 +45,7 @@ Services.prefs.setCharPref("mail.serverDefaultStoreContractID",
  */
 function verify_message_keys(aSynSet) {
   let iMsg = 0;
-  for (let msgHdr of aSynSet.msgHdrs) {
+  for (let msgHdr of aSynSet.msgHdrs()) {
     let glodaMsg = aSynSet.glodaMessages[iMsg++];
     if (msgHdr.messageKey != glodaMsg.messageKey)
       mark_failure(["Message header", msgHdr,
@@ -74,7 +74,7 @@ var indexingPassPermutations = [
  * This is parameterized because the logic has special cases to deal with
  *  messages that were pending commit that got blown away.
  */
-function test_compaction_indexing_pass(aParam) {
+function* test_compaction_indexing_pass(aParam) {
   // Create 5 messages.  We will move just the third message so the first two
   //  message keep their keys and the last two change.  (We want 2 for both
   //  cases to avoid edge cases.)
@@ -110,7 +110,7 @@ function test_compaction_indexing_pass(aParam) {
  *  compaction job automatically scheduled by the conclusion of the compaction.
  *  (Simulating the user quitting before all compactions have been processed.)
  */
-function test_sweep_performs_compaction() {
+function* test_sweep_performs_compaction() {
   let [folder, moveSet, staySet] = make_folder_with_sets([
     {count: 1}, {count: 1}]);
   yield wait_for_message_injection();
@@ -154,7 +154,7 @@ function test_sweep_performs_compaction() {
  *  delete messages from it before its compaction pass happens that the
  *  compaction pass properly marks the messages deleted.
  */
-function test_moves_and_deletions_on_compacted_folder_edge_case() {
+function* test_moves_and_deletions_on_compacted_folder_edge_case() {
   let [folder, compactMoveSet, moveSet, delSet, staySet] =
     make_folder_with_sets([{count: 1}, {count: 1}, {count: 1}, {count: 1}]);
   yield wait_for_message_injection();
@@ -218,7 +218,7 @@ function test_moves_and_deletions_on_compacted_folder_edge_case() {
  *  (Deletion actually produces more legwork for gloda whereas a local move is
  *  almost entirely free.)
  */
-function test_compaction_interrupting_indexing() {
+function* test_compaction_interrupting_indexing() {
   // create a folder with a message inside.
   let [folder, compactionFodderSet] = make_folder_with_sets([{count: 1}]);
   yield wait_for_message_injection();
@@ -259,7 +259,7 @@ function test_compaction_interrupting_indexing() {
 /**
  *
  */
-function test_do_not_enter_compacting_folders() {
+function* test_do_not_enter_compacting_folders() {
   // turn off indexing...
   configure_gloda_indexing({event: false});
 

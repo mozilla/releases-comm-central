@@ -39,7 +39,7 @@ var tests = [
 ]
 
 // load and update a message in the imap fake server
-function loadImapMessage()
+function* loadImapMessage()
 {
   let gMessageGenerator = new MessageGenerator();
   // create a synthetic message with attachment
@@ -66,7 +66,7 @@ function loadImapMessage()
 }
 
 // process the message through mime
-function startMime()
+function* startMime()
 {
   let msgHdr = mailTestUtils.firstMsgHdr(IMAPPump.inbox);
 
@@ -76,7 +76,7 @@ function startMime()
 }
 
 // detach any found attachments
-function startDetach()
+function* startDetach()
 {
   let msgHdr = mailTestUtils.firstMsgHdr(IMAPPump.inbox);
   let msgURI = msgHdr.folder.generateMessageURI(msgHdr.messageKey);
@@ -92,7 +92,7 @@ function startDetach()
 }
 
 // test that the detachment was successful
-function testDetach()
+function* testDetach()
 {
   // This test seems to fail on Linux without the following delay.
   mailTestUtils.do_timeout_function(200, async_driver);

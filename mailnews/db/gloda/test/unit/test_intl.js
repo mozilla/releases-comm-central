@@ -194,7 +194,7 @@ var intlPhrases = [
  *  that we can use them as expected query results in
  *  |test_fulltextsearch|.
  */
-function test_index(aPhrase) {
+function* test_index(aPhrase) {
   // create a synthetic message for each of the delightful encoding types
   let messages = [];
   aPhrase.resultList = [];
@@ -244,7 +244,7 @@ function verify_index(smsg, gmsg) {
  * For each phrase, make sure that all of the searchPhrases either match or fail
  *  to match as appropriate.
  */
-function test_fulltextsearch(aPhrase)
+function* test_fulltextsearch(aPhrase)
 {
   for (let searchPhrase of aPhrase.searchPhrases) {
     let query = Gloda.newQuery(Gloda.NOUN_MESSAGE);
@@ -260,7 +260,7 @@ function test_fulltextsearch(aPhrase)
  *  we perform the mime decoding prior to handing the mail address off for
  *  parsing.
  */
-function test_encoding_complications_with_mail_addresses() {
+function* test_encoding_complications_with_mail_addresses() {
   let basePair = gMessageGenerator.makeNameAndAddress();
   // The =2C encodes a comma!
   let encodedCommaPair = ["=?iso-8859-1?Q?=DFnake=2C_=DFammy?=",

@@ -25,7 +25,7 @@ initViewWrapperTestUtils();
  * Make sure we open a virtual folder backed by a single underlying folder
  *  correctly; no constraints.
  */
-function test_virtual_folder_single_load_no_pred() {
+function* test_virtual_folder_single_load_no_pred() {
   let viewWrapper = make_view_wrapper();
 
   let [folderOne, setOne] = make_folder_with_sets(1);
@@ -47,7 +47,7 @@ function test_virtual_folder_single_load_no_pred() {
  * Make sure we open a virtual folder backed by a single underlying folder
  *  correctly; one constraint.
  */
-function test_virtual_folder_single_load_simple_pred() {
+function* test_virtual_folder_single_load_simple_pred() {
   let viewWrapper = make_view_wrapper();
 
   let [folderOne, oneSubjFoo, oneNopers] = make_folder_with_sets([
@@ -65,7 +65,7 @@ function test_virtual_folder_single_load_simple_pred() {
  * Make sure we open a virtual folder backed by a single underlying folder
  *  correctly; two constraints ANDed together.
  */
-function test_virtual_folder_single_load_complex_pred() {
+function* test_virtual_folder_single_load_complex_pred() {
   let viewWrapper = make_view_wrapper();
 
   let whoBar = make_person_with_word_in_name("bar");
@@ -88,7 +88,7 @@ function test_virtual_folder_single_load_complex_pred() {
  *  virtual folder, verify.  We are testing our ability to change folders
  *  without exploding.
  */
-function test_virtual_folder_single_load_after_load() {
+function* test_virtual_folder_single_load_after_load() {
   let viewWrapper = make_view_wrapper();
 
   let [folderOne, oneSubjFoo, oneNopers] = make_folder_with_sets([
@@ -113,7 +113,7 @@ function test_virtual_folder_single_load_after_load() {
  * Make sure we open a virtual folder backed by multiple underlying folders
  *  correctly; no constraints.
  */
-function test_virtual_folder_multi_load_no_pred() {
+function* test_virtual_folder_multi_load_no_pred() {
   let viewWrapper = make_view_wrapper();
 
   let [folderOne, setOne] = make_folder_with_sets(1);
@@ -130,7 +130,7 @@ function test_virtual_folder_multi_load_no_pred() {
  * Make sure the sort order of a virtual folder backed by multiple underlying
  * folders is persistent.
  */
-function test_virtual_folder_multi_sortorder_persistence() {
+function* test_virtual_folder_multi_sortorder_persistence() {
   let viewWrapper = make_view_wrapper();
 
   let [folderOne, setOne] = make_folder_with_sets(1);
@@ -157,7 +157,7 @@ function test_virtual_folder_multi_sortorder_persistence() {
  * Make sure we open a virtual folder backed by multiple underlying folders
  *  correctly; one constraint.
  */
-function test_virtual_folder_multi_load_simple_pred() {
+function* test_virtual_folder_multi_load_simple_pred() {
   let viewWrapper = make_view_wrapper();
 
   let [folderOne, oneSubjFoo, oneNopers] = make_folder_with_sets([
@@ -177,7 +177,7 @@ function test_virtual_folder_multi_load_simple_pred() {
  * Make sure we open a virtual folder backed by multiple underlying folders
  *  correctly; two constraints ANDed together.
  */
-function test_virtual_folder_multi_load_complex_pred() {
+function* test_virtual_folder_multi_load_complex_pred() {
   let viewWrapper = make_view_wrapper();
 
   let whoBar = make_person_with_word_in_name("bar");
@@ -198,7 +198,7 @@ function test_virtual_folder_multi_load_complex_pred() {
   virtFolder.parent.propagateDelete(virtFolder, true, null);
 }
 
-function test_virtual_folder_multi_load_alotta_folders_no_pred() {
+function* test_virtual_folder_multi_load_alotta_folders_no_pred() {
   let viewWrapper = make_view_wrapper();
 
   const folderCount = 4;
@@ -214,7 +214,7 @@ function test_virtual_folder_multi_load_alotta_folders_no_pred() {
   virtFolder.parent.propagateDelete(virtFolder, true, null);
 }
 
-function test_virtual_folder_multi_load_alotta_folders_simple_pred() {
+function* test_virtual_folder_multi_load_alotta_folders_simple_pred() {
   let viewWrapper = make_view_wrapper();
 
   const folderCount = 16;
@@ -234,7 +234,7 @@ function test_virtual_folder_multi_load_alotta_folders_simple_pred() {
  * Make sure that opening a virtual folder backed by multiple real folders, then
  *  opening another virtual folder of the same variety works without explosions.
  */
-function test_virtual_folder_multi_load_after_load() {
+function* test_virtual_folder_multi_load_after_load() {
   let viewWrapper = make_view_wrapper();
 
   let [foldersOne, oneSubjFoo, oneNopers] = make_folders_with_sets(2, [
@@ -264,7 +264,7 @@ function test_virtual_folder_multi_load_after_load() {
  * This is just test_virtual_folder_multi_load_after_load with foldersOne told
  *  to create just a single folder.
  */
-function test_virtual_folder_combo_load_after_load() {
+function* test_virtual_folder_combo_load_after_load() {
   let viewWrapper = make_view_wrapper();
 
   let [foldersOne, oneSubjFoo, oneNopers] = make_folders_with_sets(1, [
@@ -291,7 +291,7 @@ function test_virtual_folder_combo_load_after_load() {
  * Make sure that if a server is listed in a virtual folder's search Uris that
  *  it does not get into our list of _underlyingFolders.
  */
-function test_virtual_folder_filters_out_servers() {
+function* test_virtual_folder_filters_out_servers() {
   let viewWrapper = make_view_wrapper();
 
   let [folders] = make_folders_with_sets(2, []);
@@ -309,7 +309,7 @@ function test_virtual_folder_filters_out_servers() {
  *  we do not explode.  Then verify that if we remove the rest of them that the
  *  view wrapper closes itself.
  */
-function test_virtual_folder_underlying_folder_deleted() {
+function* test_virtual_folder_underlying_folder_deleted() {
   let viewWrapper = make_view_wrapper();
 
   let [folderOne, oneSubjFoo, oneNopers] = make_folder_with_sets([
@@ -344,7 +344,7 @@ function test_virtual_folder_underlying_folder_deleted() {
  *  already did that.  We just need to make sure it works at all.
  */
 
-function test_virtual_folder_mail_views_unread(aNumFolders) {
+function* test_virtual_folder_mail_views_unread(aNumFolders) {
   let viewWrapper = make_view_wrapper();
 
   let [folders, fooOne, fooTwo, nopeOne, nopeTwo] = make_folders_with_sets(
@@ -379,7 +379,7 @@ function test_virtual_folder_mail_views_unread(aNumFolders) {
 // new flag on saved search folders based on the real folder. This could be a
 // core view test, or a mozmill test, but I think the view wrapper stuff
 // is involved in some of the issues here, so this is a compromise.
-function test_virtual_folder_mail_new_handling() {
+function* test_virtual_folder_mail_new_handling() {
   let viewWrapper = make_view_wrapper();
 
   let [folders, fooOne, fooTwo] = make_folders_with_sets(

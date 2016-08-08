@@ -38,7 +38,7 @@ var tests = [
   cleanUp
 ];
 
-function test_newMsgs() {
+function* test_newMsgs() {
   // This tests nsMsgNewsFolder::GetNewsMessages via getNewMessages
   let folder = localserver.rootFolder.getChildNamed("test.filter");
   do_check_eq(folder.getTotalMessages(false), 0);
@@ -52,7 +52,7 @@ function test_newMsgs() {
 function alert(title, text) {}
 function confirmEx(title, text, flags) {  return 0; }
 
-function test_cancel() {
+function* test_cancel() {
   // This tests nsMsgNewsFolder::CancelMessage
   let folder = localserver.rootFolder.getChildNamed("test.filter");
   let db = folder.msgDatabase;
@@ -77,7 +77,7 @@ function test_cancel() {
   yield true;
 }
 
-function test_fetchMessage() {
+function* test_fetchMessage() {
   // Tests nsNntpService::CreateMessageIDURL via FetchMessage
   var statuscode = -1;
   let streamlistener = {
@@ -97,7 +97,7 @@ function test_fetchMessage() {
   yield true;
 }
 
-function test_search() {
+function* test_search() {
   // This tests nsNntpService::Search
   let folder = localserver.rootFolder.getChildNamed("test.filter");
   var searchSession = Cc["@mozilla.org/messenger/searchSession;1"]
@@ -131,7 +131,7 @@ function test_search() {
   yield true;
 }
 
-function test_grouplist() {
+function* test_grouplist() {
   // This tests nsNntpService::GetListOfGroupsOnServer
   let subserver = localserver.QueryInterface(Ci.nsISubscribableServer);
   let subscribeListener = {
@@ -163,7 +163,7 @@ function test_grouplist() {
   yield true;
 }
 
-function test_postMessage() {
+function* test_postMessage() {
   // This tests nsNntpService::SetUpNntpUrlForPosting via PostMessage
   MailServices.nntp.postMessage(do_get_file("postings/post2.eml"), "misc.test",
     localserver.key, asyncUrlListener, null);
@@ -181,7 +181,7 @@ function test_forwardInline() {
     localserver, Ci.nsIMsgComposeService.kForwardInline);
 }
 
-function test_escapedName() {
+function* test_escapedName() {
   // This does a few tests to make sure our internal URIs work for newsgroups
   // with names that need escaping
   let evilName = "test.malformed&name";

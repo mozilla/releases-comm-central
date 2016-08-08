@@ -30,7 +30,7 @@ var tests = [
 
 // mbox mailboxes cannot contain both child mailboxes and messages, so this will
 // be one test case.
-function setupMailboxes()
+function* setupMailboxes()
 {
   IMAPPump.mailbox.specialUseFlag = "\\Inbox";
   IMAPPump.daemon.createMailbox("[Gmail]", {flags : ["\\Noselect"]});
@@ -51,7 +51,7 @@ function setupMailboxes()
 }
 
 // test that 'XLIST "" "*"' returns the proper responses
-function testXlist()
+function* testXlist()
 {
   let response = handler.onError('2', 'XLIST "" "*"');
 

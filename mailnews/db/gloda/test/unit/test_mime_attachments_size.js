@@ -223,7 +223,7 @@ function check_attachments(aMimeMsg, epsilon, checkTotalSize) {
   async_driver();
 }
 
-function test_message_attachments(info) {
+function* test_message_attachments(info) {
   let synMsg = gMessageGenerator.makeMessage(info);
   let synSet = new SyntheticMessageSet([synMsg]);
   yield add_sets_to_folder(gInbox, [synSet]);
@@ -309,7 +309,7 @@ function check_bogus_parts(aMimeMsg, { epsilon, checkSize }) {
   async_driver();
 }
 
-function test_bogus_messages(info) {
+function* test_bogus_messages(info) {
   let synMsg = gMessageGenerator.makeMessage(info);
   let synSet = new SyntheticMessageSet([synMsg]);
   yield add_sets_to_folder(gInbox, [synSet]);
@@ -337,7 +337,7 @@ var messageHaveAttachmentsInfos = [
   },
 ];
 
-function test_have_attachments(info) {
+function* test_have_attachments(info) {
   let synMsg = gMessageGenerator.makeMessage(info);
   let synSet = new SyntheticMessageSet([synMsg]);
   yield add_sets_to_folder(gInbox, [synSet]);

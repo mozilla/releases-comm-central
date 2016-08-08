@@ -28,20 +28,20 @@ var tests = [
 ]
 
 var gSubfolder;
-function createSubfolder()
+function* createSubfolder()
 {
   IMAPPump.incomingServer.rootFolder.createSubfolder("Subfolder", null);
   dl('wait for folderAdded notification');
-  yield false; 
+  yield false;
   gSubfolder = IMAPPump.incomingServer.rootFolder.getChildNamed("Subfolder");
   do_check_true(gSubfolder instanceof Ci.nsIMsgImapMailFolder);
   gSubfolder.updateFolderWithListener(null, asyncUrlListener);
   dl('wait for OnStopRunningURL');
   yield false;
-}  
+}
 
 // load and update a message in the imap fake server
-function loadImapMessage()
+function* loadImapMessage()
 {
   IMAPPump.mailbox.addMessage(new imapMessage(specForFileName(gMessage),
                           IMAPPump.mailbox.uidnext++, []));
@@ -58,7 +58,7 @@ function loadImapMessage()
 }
 
 // move the message to a subfolder
-function moveMessageToSubfolder()
+function* moveMessageToSubfolder()
 {
   let msgHdr = mailTestUtils.firstMsgHdr(IMAPPump.inbox);
 
@@ -82,7 +82,7 @@ function moveMessageToSubfolder()
   yield false;
 }
 
-function testPropertyOnMove()
+function* testPropertyOnMove()
 {
   gSubfolder.updateFolderWithListener(null, asyncUrlListener);
   dl('wait for msgAdded');

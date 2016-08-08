@@ -32,7 +32,7 @@ var tests = [
   cleanUp
 ];
 
-function test_newMsgs() {
+function* test_newMsgs() {
   // Start by initializing the folder, and mark some messages as read.
   let folder = localserver.rootFolder.getChildNamed("test.filter");
   do_check_eq(folder.getTotalMessages(false), 0);
@@ -50,7 +50,7 @@ function test_newMsgs() {
   do_check_eq(folder.msgDatabase.dBFolderInfo.highWater, highWater);
 }
 
-function trigger_bug() {
+function* trigger_bug() {
   // Kill the connection and start it up again.
   dump("Stopping server!\n");
   server.stop();

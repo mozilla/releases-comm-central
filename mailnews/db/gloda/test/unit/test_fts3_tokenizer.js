@@ -69,7 +69,7 @@ var intlPhrases = [
  *  that we can use them as expected query results in
  *  |test_fulltextsearch|.
  */
-function test_index(aPhrase) {
+function* test_index(aPhrase) {
   // create a synthetic message for each of the delightful encoding types
   let messages = [];
   aPhrase.resultList = [];
@@ -122,7 +122,7 @@ function verify_index(smsg, gmsg) {
  * - Check that the 'bbb' token was duly emitted (three letters is more than two
  *   letters so it's tokenized).
  */
-function test_token_count() {
+function* test_token_count() {
   yield sqlExpectCount(0,
     "SELECT COUNT(*) FROM messagesText where messagesText MATCH 'aa'");
   yield sqlExpectCount(1,
@@ -135,7 +135,7 @@ function test_token_count() {
  * For each phrase, make sure that all of the searchPhrases either match or fail
  *  to match as appropriate.
  */
-function test_fulltextsearch(aPhrase)
+function* test_fulltextsearch(aPhrase)
 {
   for (let searchPhrase of aPhrase.searchPhrases) {
     let query = Gloda.newQuery(Gloda.NOUN_MESSAGE);
@@ -213,7 +213,7 @@ function msgSearchExpectCount(aCount, aFulltextStr) {
  * tokens, otherwise this would result in an empty search (no matches for
  * two-letter tokens).
  */
-function test_query_builder() {
+function* test_query_builder() {
   // aa should be dropped, and we have one message containing the bbb token.
   yield msgSearchExpectCount(1, "aa bbb");
   // the CJK part should not be dropped, and match message 1; the bbb token

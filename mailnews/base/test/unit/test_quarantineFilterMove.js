@@ -56,7 +56,7 @@ var gTestArray =
     messageContent = getContentFromMessage(secondMsgHdr);
     do_check_true(messageContent.includes("https://bugzilla.mozilla.org/show_bug.cgi?id=436880"));
   },
-  function copyMovedMessages() {
+  function* copyMovedMessages() {
     let messages = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
     let enumerator = gMoveFolder.msgDatabase.EnumerateMessages();
     let firstMsgHdr = enumerator.getNext().QueryInterface(Ci.nsIMsgDBHdr);

@@ -41,7 +41,7 @@ function spin_folder_indexer() {
   return async_run({func: _spin_folder_indexer_gen,
                     args: arguments});
 }
-function _spin_folder_indexer_gen(aFolderHandle, aExpectedJobGoal) {
+function* _spin_folder_indexer_gen(aFolderHandle, aExpectedJobGoal) {
   let msgFolder = get_real_injection_folder(aFolderHandle);
 
   // cheat and use indexFolder to build the job for us
@@ -75,14 +75,14 @@ var arbitraryGlodaId = 4096;
  * When we enter a filthy folder we should be marking all the messages as filthy
  *  that have gloda-id's and committing.
  */
-function test_propagate_filthy_from_folder_to_messages() {
+function* test_propagate_filthy_from_folder_to_messages() {
   // mark the folder as filthy
   let [folder, msgSet] = make_folder_with_sets([{count: 3}]);
   let glodaFolder = Gloda.getFolderForFolder(folder);
   glodaFolder._dirtyStatus = glodaFolder.kFolderFilthy;
 
   // mark each header with a gloda-id so they can get marked filthy
-  for (let msgHdr of msgSet.msgHdrs) {
+  for (let msgHdr of msgSet.msgHdrs()) {
     msgHdr.setUint32Property("gloda-id", arbitraryGlodaId);
   }
 
@@ -105,7 +105,7 @@ function test_propagate_filthy_from_folder_to_messages() {
 
   // The messages should be filthy per the headers (we force a commit of the
   //  database.)
-  for (let msgHdr of msgSet.msgHdrs) {
+  for (let msgHdr of msgSet.msgHdrs()) {
     do_check_eq(msgHdr.getUint32Property("gloda-dirty"),
                 GlodaMsgIndexer.kMessageFilthy);
   }
@@ -116,7 +116,7 @@ function test_propagate_filthy_from_folder_to_messages() {
  * Make sure our counting pass and our indexing passes gets it right.  We test
  *  with 0,1,2 messages matching.
  */
-function test_count_pass() {
+function* test_count_pass() {
   let [folder, msgSet] = make_folder_with_sets([{count: 2}]);
   yield wait_for_message_injection();
 

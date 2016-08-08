@@ -66,7 +66,7 @@ function asyncMsgSearcherExpect(aFulltextStr, aExpectedSet, aLimit) {
  * Verify that the ranking function is using the weights as expected.  We do not
  *  need to test all the permutations
  */
-function test_fulltext_weighting_by_column() {
+function* test_fulltext_weighting_by_column() {
   let ustr = unique_string();
   let [folder, subjSet, bodySet] = make_folder_with_sets(
     [{count: 1, subject: ustr}, {count: 1, body: {body: ustr}}]);
@@ -79,7 +79,7 @@ function test_fulltext_weighting_by_column() {
  * (This is because the subject saturates at one occurrence worth 2.0 and the
  * body does not saturate until 10, each worth 1.0.)
  */
-function test_fulltext_weighting_saturation() {
+function* test_fulltext_weighting_saturation() {
   let ustr = unique_string();
   let double_ustr = ustr + " " + ustr;
   let thrice_ustr = ustr + " " + ustr + " " + ustr;
@@ -94,7 +94,7 @@ function test_fulltext_weighting_saturation() {
  * message to verify the preference goes the right way.  Have the starred
  * message be the older message for safety.
  */
-function test_static_interestingness_boost_works() {
+function* test_static_interestingness_boost_works() {
   let ustr = unique_string();
   let [folder, starred, notStarred] = make_folder_with_sets(
     [{count: 1, subject: ustr}, {count: 1, subject: ustr}]);
@@ -110,7 +110,7 @@ function test_static_interestingness_boost_works() {
 /**
  * Make sure that the query does not retrieve more than actually matches.
  */
-function test_joins_do_not_return_everybody() {
+function* test_joins_do_not_return_everybody() {
   let ustr = unique_string();
   let [folder, subjSet] = make_folder_with_sets([{count: 1, subject: ustr}]);
   yield wait_for_gloda_indexer([subjSet]);

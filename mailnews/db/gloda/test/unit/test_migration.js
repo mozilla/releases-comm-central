@@ -17,7 +17,7 @@ load("resources/glodaTestHelper.js");
  *  identities whose e-mails were in the address book without contacts and then
  *  broke messages involving them.
  */
-function test_fix_missing_contacts_and_fallout() {
+function* test_fix_missing_contacts_and_fallout() {
   // -- setup
 
   // - Create 4 e-mail addresses, 2 of which are in the address book.  (We want
@@ -65,7 +65,7 @@ function test_fix_missing_contacts_and_fallout() {
 
   // - Manually mark the messages involving the inAB people with the _old_ bad
   //    id marker so that our scan will see them.
-  for (let msgHdr of yesMsgSet.msgHdrs) {
+  for (let msgHdr of yesMsgSet.msgHdrs()) {
     msgHdr.setUint32Property("gloda-id", GLODA_OLD_BAD_MESSAGE_ID);
   }
 

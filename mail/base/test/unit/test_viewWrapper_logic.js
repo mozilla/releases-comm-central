@@ -13,7 +13,7 @@ initViewWrapperTestUtils();
  * Verify that flipping between threading and grouped by sort settings properly
  *  clears the other flag.  (Because they're mutually exclusive, you see.)
  */
-function test_threading_grouping_mutual_exclusion () {
+function* test_threading_grouping_mutual_exclusion () {
   let viewWrapper = make_view_wrapper();
   let folder = make_empty_folder();
 
@@ -38,7 +38,7 @@ function test_threading_grouping_mutual_exclusion () {
  *  |showUnreadOnly| / |specialViewThreadsWithUnread| /
  *  |specialViewThreadsWithUnread| has them all be properly mutually exclusive.
  */
-function test_threads_special_views_mutual_exclusion() {
+function* test_threads_special_views_mutual_exclusion() {
   let viewWrapper = make_view_wrapper();
   let folder = make_empty_folder();
 
@@ -81,7 +81,7 @@ function test_threads_special_views_mutual_exclusion() {
  *  sort order.  (However, we are not responsible for verifying correctness of
  *  the sort.)
  */
-function test_sort_primary() {
+function* test_sort_primary() {
   let viewWrapper = make_view_wrapper();
   // we need to put messages in the folder or the sort logic doesn't actually
   //  save the sort state. (this is the C++ view's fault.)
@@ -106,7 +106,7 @@ function test_sort_primary() {
 /**
  * Verify that we handle explicit secondary sorts correctly.
  */
-function test_sort_secondary_explicit() {
+function* test_sort_secondary_explicit() {
   let viewWrapper = make_view_wrapper();
   // we need to put messages in the folder or the sort logic doesn't actually
   //  save the sort state. (this is the C++ view's fault.)
@@ -144,7 +144,7 @@ function test_sort_secondary_explicit() {
  *  be explicit about these things.  We can't simply depend on the view to do
  *  this for us.  Why?  Because we re-create the view all the bloody time.
  */
-function test_sort_secondary_implicit() {
+function* test_sort_secondary_implicit() {
   let viewWrapper = make_view_wrapper();
   // we need to put messages in the folder or the sort logic doesn't actually
   //  save the sort state. (this is the C++ view's fault.)
@@ -181,7 +181,7 @@ function test_sort_secondary_implicit() {
  * Note: Sorting changes are synchronous, but toggling grouped by sort requries
  *  a view rebuild.
  */
-function test_sort_group_by_sort() {
+function* test_sort_group_by_sort() {
   let viewWrapper = make_view_wrapper();
   // we need to put messages in the folder or the sort logic doesn't actually
   //  save the sort state. (this is the C++ view's fault.)
@@ -227,7 +227,7 @@ function test_sort_group_by_sort() {
  *  when the listener indicates we should use them (because the widget is
  *  presumably visible).
  */
-function test_mailviews_persistence() {
+function* test_mailviews_persistence() {
   let viewWrapper = make_view_wrapper();
   let folder = make_empty_folder();
 

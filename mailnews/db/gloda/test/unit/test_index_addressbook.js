@@ -56,7 +56,7 @@ var identityCollection;
 /**
  * Create an e-mail so the identity can exist.
  */
-function setup_create_identity() {
+function* setup_create_identity() {
   let [msgSet] = make_new_sets_in_folder(gInbox, [
                    {count: 1, from: [DISPLAY_NAME, EMAIL_ADDRESS]}]);
   yield wait_for_message_injection();

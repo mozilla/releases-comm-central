@@ -86,13 +86,13 @@ function checkOfflineStore(prevOfflineStoreSize) {
 
 var tests = [
   setup,
-  function downloadForOffline() {
+  function* downloadForOffline() {
     // ...and download for offline use.
     dump("Downloading for offline use\n");
     IMAPPump.inbox.downloadAllForOffline(asyncUrlListener, null);
     yield false;
   },
-  function markOneMsgDeleted() {
+  function* markOneMsgDeleted() {
     // mark a message deleted, and then do a compact of just
     // that folder.
     let msgHdr = IMAPPump.inbox.msgDatabase.getMsgHdrForMessageID(gMsgId5);
@@ -102,7 +102,7 @@ var tests = [
     IMAPPump.inbox.storeImapFlags(0x0008, true, [msgHdr.messageKey], 1, asyncUrlListener);
     yield false;
   },
-  function compactOneFolder() {
+  function* compactOneFolder() {
     IMAPPump.incomingServer.deleteModel = Ci.nsMsgImapDeleteModels.IMAPDelete;
     // asyncUrlListener will get called when both expunge and offline store
     // compaction are finished. dummyMsgWindow is required to make the backend
@@ -110,7 +110,7 @@ var tests = [
     IMAPPump.inbox.compact(asyncUrlListener, gDummyMsgWindow);
     yield false;
   },
-  function deleteOneMessage() {
+  function* deleteOneMessage() {
     // check that nstmp file has been cleaned up.
     let tmpFile = gRootFolder.filePath;
     tmpFile.append("nstmp");
@@ -126,25 +126,25 @@ var tests = [
     trashFolder.updateFolder(null);
     yield false;
   },
-  function compactOfflineStore() {
+  function* compactOfflineStore() {
     dump("compacting offline store\n");
     gImapInboxOfflineStoreSize = IMAPPump.inbox.filePath.fileSize;
     gRootFolder.compactAll(asyncUrlListener, null, true);
     yield false;
   },
-  function checkCompactionResult() {
+  function* checkCompactionResult() {
     checkOfflineStore(gImapInboxOfflineStoreSize);
     asyncUrlListener.OnStopRunningUrl(null, 0);
     yield false;
   },
-  function testPendingRemoval() {
+  function* testPendingRemoval() {
     let msgHdr = IMAPPump.inbox.msgDatabase.getMsgHdrForMessageID(gMsgId2);
     IMAPPump.inbox.markPendingRemoval(msgHdr, true);
     gImapInboxOfflineStoreSize = IMAPPump.inbox.filePath.fileSize;
     gRootFolder.compactAll(asyncUrlListener, null, true);
     yield false;
   },
-  function checkCompactionResult() {
+  function* checkCompactionResult() {
     let tmpFile = gRootFolder.filePath;
     tmpFile.append("nstmp");
     do_check_false(tmpFile.exists());

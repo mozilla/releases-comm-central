@@ -55,7 +55,7 @@ function run_test() {
   async_run_tests(tests);
 }
 
-function setup() {
+function* setup() {
   // Create a couple test messages on the IMAP server.
   let messages = [];
   let messageGenerator = new MessageGenerator();
@@ -96,7 +96,7 @@ function setup() {
   yield false;
 }
 
-function check_result() {
+function* check_result() {
   // Call downloadAllForOffline() a second time.
   IMAPPump.inbox.downloadAllForOffline(asyncUrlListener, null);
   yield false;

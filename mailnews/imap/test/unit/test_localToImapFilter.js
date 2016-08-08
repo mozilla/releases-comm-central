@@ -23,7 +23,7 @@ var gFiles = ["../../../data/bugmail1",
 
 var tests = [
   setup,
-  function copyFolder1() {
+  function* copyFolder1() {
     dump("gEmpty1 " + gEmptyLocal1.URI + "\n");
     let folders = new Array;
     folders.push(gEmptyLocal1.QueryInterface(Ci.nsIMsgFolder));
@@ -31,7 +31,7 @@ var tests = [
     MailServices.copy.CopyFolders(array, IMAPPump.inbox, false, CopyListener, null);
     yield false;
   },
-  function copyFolder2() {
+  function* copyFolder2() {
     dump("gEmpty2 " + gEmptyLocal2.URI + "\n");
     let folders = new Array;
     folders.push(gEmptyLocal2);
@@ -39,7 +39,7 @@ var tests = [
     MailServices.copy.CopyFolders(array, IMAPPump.inbox, false, CopyListener, null);
     yield false;
   },
-  function getLocalMessages() {
+  function* getLocalMessages() {
     // setup copy then move mail filters on the inbox
     let filterList = gPOP3Pump.fakeServer.getFilterList(null);
     let filter = filterList.createFilter("copyThenMoveAll");
@@ -62,12 +62,12 @@ var tests = [
     gPOP3Pump.run();
     yield false;
   },
-  function update1() {
+  function* update1() {
     let folder1 = IMAPPump.inbox.getChildNamed("empty 1").QueryInterface(Ci.nsIMsgImapMailFolder);
     folder1.updateFolderWithListener(null, asyncUrlListener);
     yield false;
   },
-  function update2() {
+  function* update2() {
     let folder2 = IMAPPump.inbox.getChildNamed("empty 2").QueryInterface(Ci.nsIMsgImapMailFolder);
     folder2.updateFolderWithListener(null, asyncUrlListener);
     yield false;

@@ -30,7 +30,7 @@ var tests = [
 /**
  * Setup the mailboxes that will be used for this test.
  */
-function setup() {
+function* setup() {
   setupIMAPPump("GMail");
 
   IMAPPump.mailbox.subscribed = true;
@@ -54,7 +54,7 @@ function setup() {
 /**
  * Test that folders generally are marked for offline use by default.
  */
-function testGeneralFoldersOffline() {
+function* testGeneralFoldersOffline() {
   do_check_true(IMAPPump.inbox.getFlag(Ci.nsMsgFolderFlags.Offline));
 
   let gmail = IMAPPump.incomingServer.rootFolder.getChildNamed("[Gmail]");
@@ -82,7 +82,7 @@ function testGeneralFoldersOffline() {
 /**
  * Test that Trash isn't flagged for offline use by default.
  */
-function testTrashNotOffline() {
+function* testTrashNotOffline() {
   let gmail = IMAPPump.incomingServer.rootFolder.getChildNamed("[Gmail]");
   let trash = gmail.getFolderWithFlags(Ci.nsMsgFolderFlags.Trash);
   do_check_false(trash.getFlag(Ci.nsMsgFolderFlags.Offline));
@@ -92,7 +92,7 @@ function testTrashNotOffline() {
 /**
  * Test that Junk isn't flagged for offline use by default.
  */
-function testJunkNotOffline() {
+function* testJunkNotOffline() {
   let gmail = IMAPPump.incomingServer.rootFolder.getChildNamed("[Gmail]");
   let spam = gmail.getFolderWithFlags(Ci.nsMsgFolderFlags.Junk);
   do_check_false(spam.getFlag(Ci.nsMsgFolderFlags.Offline));

@@ -20,7 +20,7 @@ var tests = [
   teardown
 ];
 
-function setup() {
+function* setup() {
   setupIMAPPump();
 
   /*
@@ -38,7 +38,7 @@ function setup() {
   yield false;
 }
 
-function downloadAllForOffline() {
+function* downloadAllForOffline() {
   IMAPPump.inbox.downloadAllForOffline(asyncUrlListener, null);
   yield false;
 }

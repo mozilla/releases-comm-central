@@ -22,7 +22,7 @@ var gMsgFile2 = do_get_file("../../../data/draft1");
 var gTargetFolder = null;
 
 var tests = [
-  function setup()
+  function* setup()
   {
     do_timeout(5000, function() {
       // should be done by now
@@ -44,7 +44,7 @@ var tests = [
 
   },
 
-  function firstUpdate()
+  function* firstUpdate()
   {
     // get message headers for the target folder
     let enumerator = gTargetFolder.msgDatabase.EnumerateMessages();
@@ -65,7 +65,7 @@ var tests = [
     yield false;
   },
 
-  function secondUpdate()
+  function* secondUpdate()
   {
     // If the following executes, the test hangs in bug 787557.
     gTargetFolder.msgDatabase = null;

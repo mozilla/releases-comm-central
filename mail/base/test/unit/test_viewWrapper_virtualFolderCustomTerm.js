@@ -48,7 +48,7 @@ MailServices.filters.addCustomTerm(gCustomSearchTermSubject);
  * Make sure we open a virtual folder backed by a single underlying folder
  *  correctly, with a custom search term.
  */
-function test_virtual_folder_single_load_custom_pred() {
+function* test_virtual_folder_single_load_custom_pred() {
   let viewWrapper = make_view_wrapper();
 
   let [folderOne, oneSubjFoo, oneNopers] = make_folder_with_sets([

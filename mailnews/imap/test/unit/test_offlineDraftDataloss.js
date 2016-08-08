@@ -32,7 +32,7 @@ var tests = [
 
 var gDraftsFolder;
 
-function createDraftsFolder()
+function* createDraftsFolder()
 {
   IMAPPump.incomingServer.rootFolder.createSubfolder("Drafts", null);
   yield false;
@@ -41,7 +41,7 @@ function createDraftsFolder()
   gDraftsFolder.updateFolderWithListener(null, asyncUrlListener);
   yield false;
 }
-function goOffline()
+function* goOffline()
 {
   // Don't prompt about offline download when going offline
   Services.prefs.setIntPref("offline.download.download_messages", 2);
@@ -58,7 +58,7 @@ function goOffline()
   Services.io.offline = true;
 }
 
-function saveDraft()
+function* saveDraft()
 {
   let msgCompose = Cc["@mozilla.org/messengercompose/compose;1"]
                      .createInstance(Ci.nsIMsgCompose);
@@ -83,7 +83,7 @@ function saveDraft()
   do_check_eq(IMAPPump.daemon.getMailbox("Drafts")._messages.length, 0);
 }
 
-function goOnline()
+function* goOnline()
 {
   let offlineManager = Cc["@mozilla.org/messenger/offline-manager;1"]
                        .getService(Ci.nsIMsgOfflineManager);
@@ -103,14 +103,14 @@ function goOnline()
   yield false;
 }
 
-function checkResult()
+function* checkResult()
 {
   // verify that message is now on the server
   do_check_eq(IMAPPump.daemon.getMailbox("Drafts")._messages.length, 1);
   yield true;
 }
 
-function endTest()
+function* endTest()
 {
   teardownIMAPPump();
   yield true;

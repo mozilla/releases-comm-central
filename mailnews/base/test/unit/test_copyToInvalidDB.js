@@ -19,7 +19,7 @@ var gMsgId1;
 
 var gTestFolder, gTestFolder2;
 
-function setup_globals(aNextFunc) {
+function* setup_globals(aNextFunc) {
   var messageGenerator = new MessageGenerator();
   gMsg1 = messageGenerator.makeMessage();
   let msg2 = messageGenerator.makeMessage({inReplyTo: gMsg1});
@@ -43,7 +43,7 @@ function run_test() {
   async_run({func: actually_run_test});
 }
 
-function actually_run_test() {
+function* actually_run_test() {
   yield async_run({func: setup_globals});
   gTestFolder2.msgDatabase.summaryValid = false;
   gTestFolder2.msgDatabase = null;

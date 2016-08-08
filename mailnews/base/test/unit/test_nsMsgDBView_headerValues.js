@@ -36,7 +36,7 @@ var tests = [
     {sender: "Håsäther, David"}],
 ];
 
-function real_test() {
+function* real_test() {
   // Add the messages to the folder
   let msgGenerator = new MessageGenerator();
   let genMessages = tests.map(data => msgGenerator.makeMessage(data[0]));

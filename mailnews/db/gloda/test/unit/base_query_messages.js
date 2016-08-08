@@ -218,7 +218,7 @@ var post_setup_populate_hook = function default_post_setup_populate_hook() {
 };
 
 // first, we must populate our message store with delicious messages.
-function setup_populate() {
+function* setup_populate() {
   world.glodaHolderCollection = Gloda.explicitCollection(Gloda.NOUN_MESSAGE,
     []);
 

@@ -61,13 +61,13 @@ function checkOfflineStore(prevOfflineStoreSize) {
 
 var tests = [
   setup,
-  function downloadForOffline() {
+  function* downloadForOffline() {
     // ...and download for offline use.
     dump("Downloading for offline use\n");
     IMAPPump.inbox.downloadAllForOffline(asyncUrlListener, null);
     yield false;
   },
-  function deleteOneMsg() {
+  function* deleteOneMsg() {
     let enumerator = IMAPPump.inbox.msgDatabase.EnumerateMessages();
     let msgHdr = enumerator.getNext().QueryInterface(Ci.nsIMsgDBHdr);
     let array = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
@@ -75,7 +75,7 @@ var tests = [
     IMAPPump.inbox.deleteMessages(array, null, false, true, CopyListener, false);
     yield false;
   },
-  function compactOneFolder() {
+  function* compactOneFolder() {
     let enumerator = IMAPPump.inbox.msgDatabase.EnumerateMessages();
     let msgHdr = enumerator.getNext().QueryInterface(Ci.nsIMsgDBHdr);
     gStreamedHdr = msgHdr;
@@ -103,7 +103,7 @@ var tests = [
 
     yield false;
   },
-  function deleteAnOtherMsg() {
+  function* deleteAnOtherMsg() {
     let enumerator = IMAPPump.inbox.msgDatabase.EnumerateMessages();
     let msgHdr = enumerator.getNext();
     let array = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
@@ -111,14 +111,14 @@ var tests = [
     IMAPPump.inbox.deleteMessages(array, null, false, true, CopyListener, false);
     yield false;
   },
-  function updateTrash() {
+  function* updateTrash() {
     gIMAPTrashFolder = IMAPPump.incomingServer.rootFolder.getChildNamed("Trash")
                          .QueryInterface(Ci.nsIMsgImapMailFolder);
     // hack to force uid validity to get initialized for trash.
     gIMAPTrashFolder.updateFolderWithListener(null, asyncUrlListener);
     yield false;
   },
-  function downloadTrashForOffline() {
+  function* downloadTrashForOffline() {
     // ...and download for offline use.
     dump("Downloading for offline use\n");
     gIMAPTrashFolder.downloadAllForOffline(asyncUrlListener, null);
@@ -141,7 +141,7 @@ var tests = [
     MailServices.copy.CopyMessages(gIMAPTrashFolder, array, IMAPPump.inbox, true,
                                    CopyListener, null, true);
   },
-  function verifyNoOfflineMsg() {
+  function* verifyNoOfflineMsg() {
     try {
     let movedMsg = IMAPPump.inbox.msgDatabase.getMsgHdrForMessageID(gMovedMsgId);
     do_check_false(movedMsg.flags & Ci.nsMsgMessageFlags.Offline);

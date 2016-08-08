@@ -23,7 +23,7 @@ var curPassResults;
  *  and we can only do that if we convince it to nuke its authoritative 'cache'
  *  and grab a new copy.
  */
-function new_pass() {
+function* new_pass() {
   // we have to nuke if it has already happened...
   if (passResults.length) {
     MimeTypeNoun._mimeTypes = {};

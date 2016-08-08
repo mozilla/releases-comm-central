@@ -24,7 +24,7 @@ var tests = [
   teardown
 ];
 
-function setup() {
+function* setup() {
   // set up IMAP fakeserver and incoming server
   IMAPPump.daemon = new imapDaemon();
   IMAPPump.server = makeServer(IMAPPump.daemon, "", {dropOnStartTLS: true});

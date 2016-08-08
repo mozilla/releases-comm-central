@@ -121,7 +121,7 @@ function actually_run_test() {
   async_run_tests(tests);
 }
 
-function getMail1() {
+function* getMail1() {
   dump("\nGet Mail 1\n");
 
   // Now get mail
@@ -144,7 +144,7 @@ function getMail1() {
   yield true;
 }
 
-function getMail2() {
+function* getMail2() {
   dump("\nGet Mail 2\n");
 
   // Now get the mail
@@ -153,7 +153,7 @@ function getMail2() {
   dump("\nGot Mail 2\n");
 }
 
-function endTest() {
+function* endTest() {
   // Now check the new one has been saved.
   logins = Services.logins.findLogins(count, "mailbox://localhost", null,
                                       "mailbox://localhost");

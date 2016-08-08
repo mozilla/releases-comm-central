@@ -86,7 +86,7 @@ var msgWindow = Cc["@mozilla.org/messenger/msgwindow;1"]
                   .createInstance(Ci.nsIMsgWindow);
 msgWindow.msgHeaderSink = gMessageHeaderSink;
 
-function help_test_rfc822_body(info, inline) {
+function* help_test_rfc822_body(info, inline) {
   Services.prefs.setBoolPref("mail.inline_attachments", inline);
   let synMsg = gMessageGenerator.makeMessage(info);
   let synSet = new SyntheticMessageSet([synMsg]);

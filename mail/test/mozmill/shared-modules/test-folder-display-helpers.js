@@ -890,7 +890,9 @@ function _normalize_view_index(aViewIndex, aController) {
     aController = mc;
   // SyntheticMessageSet special-case
   if (typeof(aViewIndex) != "number") {
-    let msgHdr = aViewIndex.msgHdrs().next().value;
+    let msgHdrIter = aViewIndex.msgHdrs();
+    let msgHdr = msgHdrIter.next().value;
+    msgHdrIter.return();
     // do not expand
     aViewIndex = aController.dbView.findIndexOfMsgHdr(msgHdr, false);
   }

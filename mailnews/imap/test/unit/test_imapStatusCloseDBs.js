@@ -12,7 +12,7 @@ var tests = [
   teardown
 ];
 
-function setup() {
+function* setup() {
   Services.prefs.setBoolPref("mail.check_all_imap_folders_for_new", true);
 
   setupIMAPPump();

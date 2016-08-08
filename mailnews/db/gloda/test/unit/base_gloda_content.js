@@ -124,7 +124,7 @@ function glodaInfoStasher(aSynthMessage, aGlodaMessage) {
 /**
  * Actually inject all the messages we created above.
  */
-function setup_inject_messages() {
+function* setup_inject_messages() {
   let msgSet = new SyntheticMessageSet(messageInfos.map(info => info._synMsg));
   let folder = make_empty_folder();
   yield add_sets_to_folders(folder, [msgSet]);

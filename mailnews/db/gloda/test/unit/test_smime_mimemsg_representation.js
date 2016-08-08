@@ -34,7 +34,7 @@ function initNSS() {
 }
 
 var gInbox;
-function test_smime_mimemsg() {
+function* test_smime_mimemsg() {
   let msg = msgGen.makeEncryptedSMimeMessage({
     from: ["Tinderbox", "tinderbox@foo.invalid"],
     to: [["Tinderbox", "tinderbox@foo.invalid"]],

@@ -19,7 +19,7 @@ load("resources/glodaTestHelper.js");
  * Make sure that if we have to reparse a local folder we do not hang or
  *  anything.  (We had a regression where we would hang.)
  */
-function test_gloda_offline_startup() {
+function* test_gloda_offline_startup() {
   // Set up a folder for indexing and check the message doesn't get indexed.
   let [folder, msgSet] = make_folder_with_sets([{count: 1}]);
   yield wait_for_message_injection();

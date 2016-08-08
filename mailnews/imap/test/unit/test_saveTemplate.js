@@ -26,7 +26,7 @@ var tests = [
 ]
 
 // load and update a message in the imap fake server
-function loadImapMessage()
+function* loadImapMessage()
 {
   let gMessageGenerator = new MessageGenerator();
   // create a synthetic message with attachment
@@ -46,7 +46,7 @@ function loadImapMessage()
 }
 
 // Cleanup
-function endTest()
+function* endTest()
 {
   teardownIMAPPump();
   yield true;
@@ -69,7 +69,7 @@ saveAsUrlListener.prototype = {
 
 // This is similar to the method in mailCommands.js, to test the way that
 // it creates a new templates folder before saving the message as a template.
-function saveAsTemplate() {
+function* saveAsTemplate() {
   let hdr = mailTestUtils.firstMsgHdr(IMAPPump.inbox);
   let uri = IMAPPump.inbox.getUriForMsg(hdr);
   const Ci = Components.interfaces;

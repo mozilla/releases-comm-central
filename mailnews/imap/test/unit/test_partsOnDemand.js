@@ -37,7 +37,7 @@ var tests = [
 ]
 
 // make sure we are in the optimal conditions!
-function setPrefs() {
+function* setPrefs() {
   Services.prefs.setIntPref("mail.imap.mime_parts_on_demand_threshold", 20);
   Services.prefs.setBoolPref("mail.imap.mime_parts_on_demand", true);
   Services.prefs.setBoolPref("mail.server.server1.autosync_offline_stores", false);
@@ -49,7 +49,7 @@ function setPrefs() {
 }
 
 // load and update a message in the imap fake server
-function loadImapMessage()
+function* loadImapMessage()
 {
   let gMessageGenerator = new MessageGenerator();
 
@@ -76,7 +76,7 @@ function loadImapMessage()
 }
 
 // process the message through mime
-function startMime()
+function* startMime()
 {
   let msgHdr = mailTestUtils.firstMsgHdr(IMAPPump.inbox);
 
@@ -91,7 +91,7 @@ function startMime()
 }
 
 // test that we don't mark all inline messages as read.
-function testAllInlineMessage()
+function* testAllInlineMessage()
 {
   let enumerator = IMAPPump.inbox.msgDatabase.EnumerateMessages();
 
@@ -105,7 +105,7 @@ function testAllInlineMessage()
   }
 }
 
-function updateCounts()
+function* updateCounts()
 {
   // select the trash, then the inbox again, to force an update of the 
   // read state of messages.
@@ -117,7 +117,7 @@ function updateCounts()
   yield false;
 }
 
-function testNotRead()
+function* testNotRead()
 {
   do_check_eq(2, IMAPPump.inbox.getNumUnread(false));
   yield true;
