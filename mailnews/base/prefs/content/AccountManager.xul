@@ -11,7 +11,7 @@
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
         title="&accountManagerTitle.label;"
         style="&accountManager.size;"
-        persist="screenX screenY"
+        persist="width height screenX screenY"
         buttons="accept,cancel"
         onload="onLoad(event);"
         onunload="onUnload();"
