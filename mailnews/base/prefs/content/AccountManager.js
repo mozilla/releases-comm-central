@@ -498,17 +498,18 @@ function checkUserServerChanges(showAlert) {
     return true;
 
   // Get the new username, hostname and type from the page.
-  var newType = getFormElementValue(getPageFormElement("server.type"));
+  var typeElem = getPageFormElement("server.type");
+  var hostElem = getPageFormElement("server.realHostName");
+  var userElem = getPageFormElement("server.realUsername");
+  if (typeElem && userElem && hostElem) {
+  var newType = getFormElementValue(typeElem);
   var oldHost = getAccountValue(currentAccount, accountValues, "server", "realHostName",
                                 null, false);
-  var hostElem = getPageFormElement("server.realHostName");
   var newHost = getFormElementValue(hostElem);
   var oldUser = getAccountValue(currentAccount, accountValues, "server", "realUsername",
                                 null, false);
-  var userElem = getPageFormElement("server.realUsername");
-  var newUser = getFormElementValue(userElem);
 
-  if (userElem && hostElem) {
+  var newUser = getFormElementValue(userElem);
   var checkUser = true;
   // There is no username needed for e.g. news so reset it.
   if (currentServer && !currentServer.protocolInfo.requiresUsername) {
