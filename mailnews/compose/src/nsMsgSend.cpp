@@ -4950,7 +4950,8 @@ nsMsgComposeAndSend::GetDontDeliver(bool *aDontDeliver)
 
 NS_IMPL_ISUPPORTS(nsMsgAttachmentData, nsIMsgAttachmentData)
 
-nsMsgAttachmentData::nsMsgAttachmentData() :  m_size(0), m_isExternalAttachment(0),
+nsMsgAttachmentData::nsMsgAttachmentData() :  m_size(0), m_sizeExternalStr("-1"),
+  m_isExternalAttachment(false), m_isExternalLinkAttachment(false),
   m_isDownloaded(false), m_hasFilename(false), m_displayableInline(false)
 {
 }
