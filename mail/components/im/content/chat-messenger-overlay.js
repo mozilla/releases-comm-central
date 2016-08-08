@@ -1140,7 +1140,7 @@ var chatHandler = {
     listbox.addEventListener("select", this.onListItemSelected.bind(this));
     listbox.addEventListener("click", this.onListItemClick.bind(this));
     document.getElementById("chatTabPanel").addEventListener("keypress", function(aEvent) {
-      let accelKeyPressed = (AppContants.platform == "macosx") ? aEvent.metaKey : aEvent.ctrlKey;
+      let accelKeyPressed = (AppConstants.platform == "macosx") ? aEvent.metaKey : aEvent.ctrlKey;
       if (!accelKeyPressed ||
           (aEvent.keyCode != aEvent.DOM_VK_DOWN && aEvent.keyCode != aEvent.DOM_VK_UP))
         return;
