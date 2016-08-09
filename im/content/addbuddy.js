@@ -11,7 +11,7 @@ var addBuddy = {
 
   buildAccountList: function ab_buildAccountList() {
     var accountList = document.getElementById("accountlist");
-    for (let acc in getIter(Services.accounts.getAccounts())) {
+    for (let acc of getIter(Services.accounts.getAccounts())) {
       if (!acc.connected)
         continue;
       var proto = acc.protocol;

@@ -227,7 +227,7 @@ var Core = {
     win.addEventListener("load", showPanel.bind(null, win));
   },
 
-  getIter: function(aEnumerator) {
+  getIter: function*(aEnumerator) {
     while (aEnumerator.hasMoreElements())
       yield aEnumerator.getNext();
   },

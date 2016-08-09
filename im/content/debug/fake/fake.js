@@ -321,7 +321,7 @@ var fake = {
                          "You are about to delete your accounts. Are you sure?"))
       throw "user aborted the operation";
 
-    for (let acc in getIter(Services.accounts.getAccounts()))
+    for (let acc of getIter(Services.accounts.getAccounts()))
       Services.accounts.deleteAccount(acc.id);
   }
 };

@@ -52,7 +52,7 @@ var gProxies = {
 
     var proxies = getIter(pcs.getProxies());
     var proxyList = document.getElementById("proxylist");
-    for (let proxy in proxies) {
+    for (let proxy of proxies) {
       let item = document.createElement("richlistitem");
       item.setAttribute("proxy", "true");
       proxyList.insertBefore(item, document.getElementById("newProxy"));
@@ -139,7 +139,7 @@ var gProxies = {
       var user = this.getValue("username");
       var pass = this.getValue("password");
       var proxies = getIter(pcs.getProxies());
-      for (let proxy in proxies) {
+      for (let proxy of proxies) {
         if (proxy.type == type && proxy.port == port &&
             proxy.host == host && proxy.username == user) {
           if (proxy.password == pass) {

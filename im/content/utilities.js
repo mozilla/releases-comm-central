@@ -6,7 +6,7 @@ var Cc = Components.classes;
 var Ci = Components.interfaces;
 Components.utils.import("resource:///modules/imServices.jsm");
 
-function getIter(aEnumerator)
+function* getIter(aEnumerator)
 {
   while (aEnumerator.hasMoreElements())
     yield aEnumerator.getNext();

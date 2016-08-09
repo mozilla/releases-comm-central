@@ -140,7 +140,7 @@ var accountWizard = {
       vbox.lastChild.remove();
 
     let splits = [];
-    for (let split in this.getProtoUserSplits())
+    for (let split of this.getProtoUserSplits())
       splits.push(split);
 
     let label = bundle.getString("accountUsername");
@@ -304,7 +304,7 @@ var accountWizard = {
 
     let id = this.proto.id;
     this.prefs = [ ];
-    for (let opt in this.getProtoOptions()) {
+    for (let opt of this.getProtoOptions()) {
       let name = opt.name;
       let eltName = id + "-" + name;
       let val = this.getValue(eltName);
@@ -405,7 +405,7 @@ var accountWizard = {
     return undefined;
   },
 
-  getIter: function(aEnumerator) {
+  getIter: function*(aEnumerator) {
     while (aEnumerator.hasMoreElements())
       yield aEnumerator.getNext();
   },
@@ -504,7 +504,7 @@ var accountWizard = {
 
     accountWizard.setGetMoreProtocols();
     let protos = [];
-    for (let proto in accountWizard.getProtocols())
+    for (let proto of accountWizard.getProtocols())
       protos.push(proto);
     protos.sort((a, b) => a.name < b.name ? -1 : a.name > b.name ? 1 : 0);
 

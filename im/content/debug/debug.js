@@ -45,9 +45,9 @@ window.addEventListener("load", debug.load);
 function debug_enumerateProtocols()
 {
   dump("trying to enumerate protocols:\n");
-  for (let proto in getIter(Services.core.getProtocols())) {
+  for (let proto of getIter(Services.core.getProtocols())) {
     dump(" " + proto.name + " " + proto.id + "\n");
-    for (let opt in getIter(proto.getOptions())) {
+    for (let opt of getIter(proto.getOptions())) {
       var type = { };
       type[opt.typeBool] = ["bool", opt.getBool];
       type[opt.typeInt] = ["int", opt.getInt];

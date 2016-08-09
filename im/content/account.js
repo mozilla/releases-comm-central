@@ -187,7 +187,7 @@ var account = {
         this.account.proxyInfo.key != this.proxy.key)
       this.account.proxyInfo = this.proxy;
 
-    for (let opt in this.getProtoOptions()) {
+    for (let opt of this.getProtoOptions()) {
       var name = this.proto.id + "-" + opt.name;
       var val = this.getValue(name);
       switch (opt.type) {
@@ -213,7 +213,7 @@ var account = {
     }
   },
 
-  getProtoOptions: function account_getProtoOptions() {
+  getProtoOptions: function* account_getProtoOptions() {
     let options = this.proto.getOptions();
     while (options.hasMoreElements()) {
       let opt = options.getNext();
