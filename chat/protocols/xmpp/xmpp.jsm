@@ -1794,6 +1794,11 @@ var XMPPAccountPrototype = {
       this._mucs.get(jid).onPresenceStanza(aStanza);
     else if (jid != this.normalize(this._connection._jid.jid))
       this.WARN("received presence stanza for unknown buddy " + from);
+    else if (jid == this._jid.node + "@" + this._jid.domain &&
+             this._connection._resource != this._parseJID(from).resource) {
+      // Ignore presence stanzas for another resource.
+      return;
+    }
     else
       this.WARN("Unhandled presence stanza.");
   },
