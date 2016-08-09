@@ -406,7 +406,7 @@ XMPPSession.prototype = {
       let selectedMech = "";
       let canUsePlain = false;
       mechs = mechs.getChildren("mechanism");
-      for each (let m in mechs) {
+      for (let m of mechs) {
         let mech = m.innerText;
         if (mech == "PLAIN" && !this._encrypted) {
           // If PLAIN is proposed over an unencrypted connection,
