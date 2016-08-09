@@ -2074,7 +2074,7 @@ var XMPPAccountPrototype = {
     if (invitation) {
       let messageID;
       if (invitation.reason)
-        messageID = "conversation.muc.invitationWithReason";
+        messageID = "conversation.muc.invitationWithReason2";
       else
         messageID = "conversation.muc.invitationWithoutReason";
       if (invitation.password)
