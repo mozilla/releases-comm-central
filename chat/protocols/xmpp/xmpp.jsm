@@ -1825,8 +1825,12 @@ var XMPPAccountPrototype = {
         }
         let features = query.getElements(["feature"])
                             .map(elt => elt.attributes["var"]);
-        if (features.includes(Stanza.NS.muc)) {
+        let identity = query.getElement(["identity"]);
+        if (identity && identity.attributes["category"] == "conference" &&
+            identity.attributes["type"] == "text" &&
+            features.includes(Stanza.NS.muc)) {
           // XEP-0045 (6.2): this feature is for a MUC Service.
+          // XEP-0045 (15.2): Service Discovery Category/Type.
           this._mucService = from;
         }
         // TODO: Handle other services that are supported by XMPP through
