@@ -16,6 +16,10 @@ TOPSRCDIR="$SRCDIR"
 MOZILLA_SRCDIR="${SRCDIR}/mozilla"
 export OLD_CONFIGURE="${MOZILLA_SRCDIR}"/old-configure
 
+# Ensure the comm-* values are used.
+export MOZ_SOURCE_CHANGESET=$(hg -R "$TOPSRCDIR" parent --template="{node}" 2>/dev/null)
+export MOZ_SOURCE_REPO=$(hg -R "$TOPSRCDIR" showconfig paths.default 2>/dev/null | sed -e "s/^ssh:/https:/")
+
 # If MOZCONFIG isn't set, use the .mozconfig from the current directory. This
 # overrides the lookup in mozilla-central's configure, which looks in the wrong
 # directory for this file.
