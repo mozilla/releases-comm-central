@@ -2940,6 +2940,15 @@ function GenericSendMessage(msgType)
 }
 
 /**
+ * Check if the given address is valid (contains a @).
+ *
+ * @param aAddress  The address string to check.
+ */
+function isValidAddress(aAddress) {
+  return (aAddress.includes("@", 1) && !aAddress.endsWith("@"));
+}
+
+/**
  * Keep the Send buttons disabled until any recipient is entered.
  */
 function updateSendLock()
@@ -2948,11 +2957,21 @@ function updateSendLock()
   if (!gMsgCompose)
     return;
 
-  let msgCompFields = gMsgCompose.compFields;
-  Recipients2CompFields(msgCompFields);
-  // Enabled send buttons if anything was entered into the recipient fields.
-  // A more thorough check will be performed when a send button is actually clicked.
-  gSendLocked = !msgCompFields.hasRecipients;
+  const mailTypes = [ "addr_to", "addr_cc", "addr_bcc" ];
+
+  // Enable the send buttons if anything useable was entered into at least one
+  // recipient field.
+  for (let row = 1; row <= top.MAX_RECIPIENTS; row ++)
+  {
+    let popupValue = awGetPopupElement(row).value;
+    let inputValue = awGetInputElement(row).value.trim();
+    if ((mailTypes.includes(popupValue) && isValidAddress(inputValue)) ||
+        ((popupValue == "addr_newsgroups") && (inputValue != "")))
+    {
+      gSendLocked = false;
+      break;
+    }
+  }
 }
 
 /**
@@ -2962,27 +2981,29 @@ function updateSendLock()
  */
 function CheckValidEmailAddress(aMsgCompFields)
 {
-  if (!aMsgCompFields.hasRecipients) {
+  let invalidStr;
+  let recipientCount = 0;
+  // Check that each of the To, CC, and BCC recipients contains a '@'.
+  for (let type of ["to", "cc", "bcc"]) {
+    let recipients = aMsgCompFields.splitRecipients(aMsgCompFields[type], false, {});
+    // MsgCompFields contains only non-empty recipients.
+    recipientCount += recipients.length;
+    for (let recipient of recipients) {
+      if (!isValidAddress(recipient)) {
+        invalidStr = recipient;
+        break;
+      }
+    }
+    if (invalidStr)
+      break;
+  }
+
+  if (recipientCount == 0 && aMsgCompFields.newsgroups.trim() == "") {
     Services.prompt.alert(window, getComposeBundle().getString("addressInvalidTitle"),
                           getComposeBundle().getString("noRecipients"));
-
     return false;
   }
 
-  let invalidStr;
-   // Crude check that the to, cc, and bcc fields contain at least one '@'.
-   // We could parse each address, but that might be overkill.
-  function isInvalidAddress(aAddress) {
-    return (aAddress.length > 0 &&
-            ((!aAddress.includes("@", 1) && aAddress.toLowerCase() != "postmaster") ||
-              aAddress.endsWith("@")));
-  }
-  if (isInvalidAddress(aMsgCompFields.to))
-    invalidStr = aMsgCompFields.to;
-  else if (isInvalidAddress(aMsgCompFields.cc))
-    invalidStr = aMsgCompFields.cc;
-  else if (isInvalidAddress(aMsgCompFields.bcc))
-    invalidStr = aMsgCompFields.bcc;
   if (invalidStr)
   {
     Services.prompt.alert(window, getComposeBundle().getString("addressInvalidTitle"),
