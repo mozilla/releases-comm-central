@@ -817,13 +817,11 @@ function onCommandViewToolbar(aToolbarId, aMenuItemId) {
  */
 function dialogToolboxCustomizeDone(aToolboxChanged) {
 
-    let menubar = document.getElementById("event-menubar");
-    // XXX After we disable certain menu items in a tab (see below),
-    // we need to re-enable them.
-    if (menubar) {
-        for (let i = 0; i < menubar.childNodes.length; ++i) {
-            menubar.childNodes[i].removeAttribute("disabled");
-        }
+    // Re-enable menu items (disabled during toolbar customization).
+    let menubarId = gTabmail ? "mail-menubar" : "event-menubar";
+    let menubar = document.getElementById(menubarId);
+    for (let menuitem of menubar.childNodes) {
+        menuitem.removeAttribute("disabled");
     }
 
     // make sure our toolbar buttons have the correct enabled state restored to them...
@@ -848,12 +846,11 @@ function onCommandCustomize() {
     let toolbox = document.getElementById(toolboxId);
     toolbox.customizeDone = dialogToolboxCustomizeDone;
 
-    let menubar = document.getElementById("event-menubar");
-    // XXX We need to disable certain menu items when in a tab.
-    if (menubar) {
-        for (let i = 0; i < menubar.childNodes.length; ++i) {
-            menubar.childNodes[i].setAttribute("disabled", true);
-        }
+    // Disable menu items during toolbar customization.
+    let menubarId = gTabmail ? "mail-menubar" : "event-menubar";
+    let menubar = document.getElementById(menubarId);
+    for (let menuitem of menubar.childNodes) {
+        menuitem.setAttribute("disabled", true);
     }
 
     // Disable the toolbar context menu items
