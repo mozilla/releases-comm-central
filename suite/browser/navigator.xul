@@ -37,6 +37,7 @@
         lightweightthemesfooter="status-bar"
         windowtype="navigator:browser"
         macanimationtype="document"
+        retargetdocumentfocus="urlbar"
         drawtitle="true"
         persist="screenX screenY width height sizemode">
 
