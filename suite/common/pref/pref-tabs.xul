@@ -38,13 +38,21 @@
       <preference id="browser.tabs.opentabfor.urlbar"
                   name="browser.tabs.opentabfor.urlbar"
                   type="bool"/>
+      <preference id="suite.manager.dataman.openAsDialog"
+                  name="suite.manager.dataman.openAsDialog"
+                  inverted="true"
+                  type="bool"/>
+      <preference id="suite.manager.addons.openAsDialog"
+                  name="suite.manager.addons.openAsDialog"
+                  inverted="true"
+                  type="bool"/>
     </preferences>
 
       <groupbox id="generalTabPreferences" align="start">
         <caption label="&tabDisplay.label;"/>
         <checkbox id="tabStrip"
                   label="&autoHide.label;"
-                  accesskey="&autoHide.accesskey;"
+                  accesskey="&autoHide.accesskey2;"
                   preference="browser.tabs.autoHide"/>
         <checkbox id="tabBackground"
                   label="&background.label;"
@@ -84,6 +92,18 @@
                     label="&urlbar.label;"
                     accesskey="&urlbar.accesskey;"
                     preference="browser.tabs.opentabfor.urlbar"/>
+      </groupbox>
+
+      <groupbox id="useManagersPreferences" align="start">
+        <caption label="&openManagers.label;"/>
+          <checkbox id="openDataManager"
+                    label="&openDataManager.label;"
+                    accesskey="&openDataManager.accesskey;"
+                    preference="suite.manager.dataman.openAsDialog"/>
+          <checkbox id="openAddOnsManager"
+                    label="&openAddOnsManager.label;"
+                    accesskey="&openAddOnsManager.accesskey;"
+                    preference="suite.manager.addons.openAsDialog"/>
       </groupbox>
   </prefpane>
 </overlay>
