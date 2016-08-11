@@ -162,7 +162,7 @@ Sanitizer.prototype = {
         if (this.range)
           PlacesUtils.history.removeVisitsByTimeframe(this.range[0], this.range[1]);
         else
-          PlacesUtils.history.removeAllPages();
+          PlacesUtils.history.clear();
 
         try {
           var os = Components.classes["@mozilla.org/observer-service;1"]
