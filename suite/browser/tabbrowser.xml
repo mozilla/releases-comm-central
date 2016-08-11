@@ -313,6 +313,25 @@
         </body>
       </method>
 
+      <method name="previewTab">
+        <parameter name="aTab"/>
+        <parameter name="aCallback"/>
+        <body>
+          <![CDATA[
+            let currentTab = this.selectedTab;
+            try {
+              // Suppress focus, ownership and selected tab changes.
+              this._previewMode = true;
+              this.selectedTab = aTab;
+              aCallback();
+            } finally {
+              this.selectedTab = currentTab;
+              this._previewMode = false;
+            }
+          ]]>
+        </body>
+      </method>
+
       <method name="getBrowserAtIndex">
         <parameter name="aIndex"/>
         <body>
