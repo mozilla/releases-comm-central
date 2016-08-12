@@ -82,6 +82,7 @@
 #include "nsISelection.h"
 #include "nsJSEnvironment.h"
 #include "nsIObserverService.h"
+#include "nsIProtocolHandler.h"
 
 using namespace mozilla;
 using namespace mozilla::mailnews;
@@ -384,6 +385,24 @@ nsresult nsMsgCompose::ResetUrisForEmbeddedObjects()
         // do we care about anything besides images?
         nsAutoString objURL;
         image->GetSrc(objURL);
+
+        // First we need to make sure that the URL is associated with a message
+        // protocol so we don't accidentally manipulate a URL like:
+        // http://www.site.com/retrieve.html?C=image.jpg.
+        nsCOMPtr<nsIIOService> ioService = do_GetService(NS_IOSERVICE_CONTRACTID, &rv);
+        NS_ENSURE_SUCCESS(rv, rv);
+        nsAutoCString scheme;
+        ioService->ExtractScheme(NS_ConvertUTF16toUTF8(objURL), scheme);
+
+        // Detect message protocols where attachments can occur.
+        nsCOMPtr<nsIProtocolHandler> handler;
+        ioService->GetProtocolHandler(scheme.get(), getter_AddRefs(handler));
+        if (!handler)
+          continue;
+        nsCOMPtr<nsIMsgMessageFetchPartService> mailHandler = do_QueryInterface(handler);
+        if (!mailHandler)
+          continue;
+
         // the objURL is the full path to the embedded content. We need
         // to update it with uri for the folder we just saved to, and the new
         // msg key.
