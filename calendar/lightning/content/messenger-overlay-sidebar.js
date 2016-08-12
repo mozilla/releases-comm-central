@@ -792,21 +792,75 @@ InitMessageMenu = calInitMessageMenu;
 window.addEventListener("load", ltnOnLoad, false);
 
 /**
- * Make the toolbars' context menu dependent on the current mode.
+ * Get the toolbox id for the current tab type.
+ *
+ * @return {string}  A toolbox id or null
  */
-function onToolbarsPopupShowingWithMode(aEvent, aInsertPoint) {
+function getToolboxIdForCurrentTabType() {
+    // A mapping from calendar tab types to toolbox ids.
+    const calendarToolboxIds = {
+        "calendar": "calendar-toolbox",
+        "tasks": "task-toolbox",
+        "calendarEvent": "event-toolbox",
+        "calendarTask": "event-toolbox"
+    };
+    let tabmail = document.getElementById("tabmail");
+    let tabType = tabmail.currentTabInfo.mode.type;
+
+    return calendarToolboxIds[tabType] || "mail-toolbox";
+}
+
+/**
+ * Modify the contents of the "Toolbars" context menu for the current
+ * tab type.  Menu items are inserted before (appear above) aInsertPoint.
+ *
+ * @param {MouseEvent} aEvent              The popupshowing event
+ * @param {nsIDOMXULElement} aInsertPoint  (optional) menuitem node
+ */
+function onToolbarsPopupShowingForTabType(aEvent, aInsertPoint) {
     if (onViewToolbarsPopupShowing.length < 3) {
         // SeaMonkey
         onViewToolbarsPopupShowing(aEvent);
         return;
     }
 
-    let toolbox = [];
-    if (gCurrentMode != "mail") {
-        toolbox.push("navigation-toolbox");
+    let toolboxes = [];
+    let toolboxId = getToolboxIdForCurrentTabType();
+
+    // We add navigation-toolbox ("Menu Bar") for all tab types except
+    // mail tabs because mail-toolbox already includes navigation-toolbox,
+    // so we do not need to add it separately in that case.
+    if (toolboxId != "mail-toolbox") {
+        toolboxes.push("navigation-toolbox");
     }
-    toolbox.push(gCurrentMode + "-toolbox");
-    onViewToolbarsPopupShowing(aEvent, toolbox, aInsertPoint);
+    toolboxes.push(toolboxId);
+
+    if (toolboxId == "event-toolbox") {
+        // Clear the event/task tab's toolbox.externalToolbars to prevent
+        // duplicate entries for its toolbar in "Toolbars" menu.
+        // (The cloning and/or moving of this toolbox and toolbar on
+        // openTab causes the toolbar to be added to
+        // toolbox.externalToolbars, in addition to being a child node
+        // of the toolbox, leading to duplicate menu entries.)
+        let eventToolbox = document.getElementById("event-toolbox");
+        if (eventToolbox) {
+            eventToolbox.externalToolbars = [];
+        }
+    }
+
+    onViewToolbarsPopupShowing(aEvent, toolboxes, aInsertPoint);
+}
+
+/**
+ * Open the customize dialog for the toolbar for the current tab type.
+ */
+function customizeMailToolbarForTabType() {
+    let toolboxId = getToolboxIdForCurrentTabType();
+    if (toolboxId == "event-toolbox") {
+        onCommandCustomize();
+    } else {
+        CustomizeMailToolbar(toolboxId, "CustomizeMailToolbar");
+    }
 }
 
 // Initialize the Calendar sidebar menu state

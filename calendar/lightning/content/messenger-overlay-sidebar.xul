@@ -89,7 +89,7 @@
 
     <commandset id="mailCommands">
       <command id="cmd_CustomizeMailToolbar"
-               oncommand="CustomizeMailToolbar(document.getElementById('modeBroadcaster').getAttribute('mode') + '-toolbox', 'CustomizeMailToolbar')"/>
+               oncommand="customizeMailToolbarForTabType()"/>
     </commandset>
 
     <keyset id="calendar-keys">

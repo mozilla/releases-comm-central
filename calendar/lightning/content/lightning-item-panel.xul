@@ -247,6 +247,8 @@
           </toolbarpalette>
           <!-- toolboxid is set here since we move the toolbar around for tabs -->
           <toolbar id="event-tab-toolbar"
+                   toolbarname="&event.menu.view.toolbars.event.label;"
+                   accesskey="&event.menu.view.toolbars.event.accesskey;"
                    toolboxid="event-toolbox"
                    class="chromeclass-toolbar inline-toolbar"
                    customizable="true"
@@ -254,7 +256,7 @@
                    defaultlabelalign="end"
                    context="event-dialog-toolbar-context-menu"
                    defaultset="button-save,button-attendees,button-privacy,button-url,button-priority,button-status,button-freebusy,button-delete,spring,calendar-item-appmenu-button"/>
-          <toolbarset id="custom-toolbars"/>
+          <toolbarset id="custom-toolbars" context="event-dialog-toolbar-context-menu"/>
         </toolbox>
 
         <iframe id="lightning-item-panel-iframe" flex="1"/>
@@ -264,7 +266,9 @@
   </tabpanels>
 
   <popupset id="calendar-popupset">
-    <menupopup id="event-dialog-toolbar-context-menu">
+    <menupopup id="event-dialog-toolbar-context-menu"
+               onpopupshowing="onToolbarsPopupShowingForTabType(event);">
+      <menuseparator id="customizeEventToolbarMenuSeparator"/>
       <menuitem id="CustomizeDialogToolbar"
                 label="&event.menu.view.toolbars.customize.label;"
                 command="cmd_customize"/>

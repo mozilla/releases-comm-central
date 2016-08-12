@@ -67,7 +67,7 @@
 
   <menupopup id="menu_View_Popup">
     <menu id="menu_Toolbars"
-          onpopupshowing="onToolbarsPopupShowingWithMode(event);"/>
+          onpopupshowing="onToolbarsPopupShowingForTabType(event);"/>
     <menuseparator id="ltnViewMenuSeparator"
                    insertbefore="viewSortMenuSeparator"/>
     <menu id="ltnTodayPaneMenu"
@@ -453,7 +453,7 @@
   </menupopup>
 
   <menupopup id="toolbar-context-menu"
-             onpopupshowing="onToolbarsPopupShowingWithMode(event);"/>
+             onpopupshowing="onToolbarsPopupShowingForTabType(event);"/>
 
 <!-- AppMenu integration -->
   <menupopup id="appmenu_newMenupopup">
@@ -477,7 +477,7 @@
   </menupopup>
   <splitmenu id="appmenu_customize">
     <menupopup id="appmenu_customizeMenu"
-               onpopupshowing="onToolbarsPopupShowingWithMode(event, document.getElementById('appmenu_quickFilterBar'));"/>
+               onpopupshowing="onToolbarsPopupShowingForTabType(event, document.getElementById("appmenu_quickFilterBar"));"/>
   </splitmenu>
   <menupopup id="appmenu_FilePopup">
     <menu id="appmenu_Open"
