@@ -719,7 +719,7 @@ nsresult nsMsgContentPolicy::SetDisableItemsOnMailNewsUrlDocshells(
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsIFrameLoader> frameLoader;
-  rv = flOwner->GetFrameLoader(getter_AddRefs(frameLoader));
+  rv = flOwner->GetFrameLoaderXPCOM(getter_AddRefs(frameLoader));
   NS_ENSURE_SUCCESS(rv, rv);
   NS_ENSURE_TRUE(frameLoader, NS_ERROR_INVALID_POINTER);
 
