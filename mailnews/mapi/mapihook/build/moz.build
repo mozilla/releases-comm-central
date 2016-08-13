@@ -12,7 +12,8 @@ OS_LIBS += [
 for var in ('REGISTER_PROXY_DLL', 'UNICODE', '_UNICODE'):
     DEFINES[var] = True
 
-DEFINES['_WIN32_WINNT'] = '0x400'
+# This produces a compile warning mozilla-config.h(145): warning C4005: '_WIN32_WINNT': macro redefinition
+#DEFINES['_WIN32_WINNT'] = '0x400'
 
 if not CONFIG['MOZ_INCOMPLETE_EXTERNAL_LINKAGE']:
     DEFINES['MOZILLA_INTERNAL_API'] = True
