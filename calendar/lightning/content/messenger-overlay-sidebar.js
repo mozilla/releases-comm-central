@@ -211,6 +211,8 @@ var calendarItemTabType = {
         // from the iframe. (window.arguments[0])
         aTab.iframe.contentWindow.arguments = [aArgs];
 
+        // activate or de-activate 'Events and Tasks' menu items
+        document.commandDispatcher.updateCommands('calendar_commands');
         this.idNumber += 1;
     },
     /**
@@ -243,6 +245,9 @@ var calendarItemTabType = {
         moveEventToolbox(aTab.panel.firstChild);
         Object.assign(gConfig, aTab.itemTabConfig);
         updateItemTabState(gConfig);
+
+        // activate or de-activate 'Events and Tasks' menu items
+        document.commandDispatcher.updateCommands('calendar_commands');
     },
     /**
      * Called when there is a request to close a tab.  Using aTab.allowTabClose

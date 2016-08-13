@@ -209,6 +209,14 @@ function receiveMessage(aEvent) {
             gConfig.showTimeAs = rotateShowTimeAs(gConfig.showTimeAs);
             updateShowTimeAs(gConfig.showTimeAs);
             break;
+        case "editToDoStatus":
+            let textbox = document.getElementById("percent-complete-textbox");
+            setElementValue(textbox, aEvent.data.value);
+            updateToDoStatus("percent-changed");
+            break;
+        case "postponeTask":
+            postponeTask(aEvent.data.value);
+            break;
         case "toggleTimezoneLinks":
             gTimezonesEnabled = aEvent.data.checked;
             updateDateTime();
@@ -2720,12 +2728,12 @@ function updateUntildateRecRule(recRule) {
 /**
  * Updates the UI controls related to a task's completion status.
  *
- * @param status                    The item's completion status or a string
- *                                  that allows to identify a change in the
- *                                  percent-complete's textbox.
- * @param passedInCompletedDate     The item's completed date (as a JSDate).
+ * @param {string} aStatus       The item's completion status or a string
+ *                               that allows to identify a change in the
+ *                               percent-complete's textbox.
+ * @param {Date} aCompletedDate  The item's completed date (as a JSDate).
  */
-function updateToDoStatus(status, passedInCompletedDate) {
+function updateToDoStatus(aStatus, aCompletedDate=null) {
   // RFC2445 doesn't support completedDates without the todo's status
   // being "COMPLETED", however twiddling the status menulist shouldn't
   // destroy that information at this point (in case you change status
@@ -2733,31 +2741,23 @@ function updateToDoStatus(status, passedInCompletedDate) {
   // date will get lost.
 
   // remember the original values
-  let oldPercentComplete = getElementValue("percent-complete-textbox");
+  let oldPercentComplete = parseInt(getElementValue("percent-complete-textbox"));
   let oldCompletedDate = getElementValue("completed-date-picker");
 
   // If the percent completed has changed to 100 or from 100 to another
   // value, the status must change.
-  if (status == "percent-changed") {
-      let menuItemCompleted = document.getElementById("todo-status").selectedIndex == 3;
-      if (oldPercentComplete == "100") {
-          status = "COMPLETED";
-      } else if (menuItemCompleted) {
-          status = "IN-PROCESS";
-      } else {
-          // Changing to any other value doesn't change the status.
-          return;
+  if (aStatus == "percent-changed") {
+      let selectedIndex = document.getElementById("todo-status").selectedIndex;
+      let menuItemCompleted = selectedIndex == 3;
+      let menuItemNotSpecified = selectedIndex == 0;
+      if (oldPercentComplete == 100) {
+          aStatus = "COMPLETED";
+      } else if (menuItemCompleted || menuItemNotSpecified) {
+          aStatus = "IN-PROCESS";
       }
   }
 
-  let completedDate;
-  if (passedInCompletedDate) {
-      completedDate = passedInCompletedDate;
-  } else {
-      completedDate = null;
-  }
-
-  switch (status) {
+  switch (aStatus) {
       case null:
       case "":
       case "NONE":
@@ -2775,9 +2775,9 @@ function updateToDoStatus(status, passedInCompletedDate) {
           document.getElementById("todo-status").selectedIndex = 3;
           enableElement("percent-complete-textbox");
           enableElement("percent-complete-label");
-          // if there isn't a completedDate, set it to the previous value
-          if (!completedDate) {
-              completedDate = oldCompletedDate;
+          // if there is no aCompletedDate, set it to the previous value
+          if (!aCompletedDate) {
+              aCompletedDate = oldCompletedDate;
           }
           break;
       case "IN-PROCESS":
@@ -2793,20 +2793,27 @@ function updateToDoStatus(status, passedInCompletedDate) {
           break;
   }
 
-  if ((status == "IN-PROCESS" || status == "NEEDS-ACTION") &&
-       oldPercentComplete == "100") {
-      setElementValue("percent-complete-textbox", "0");
+  let newPercentComplete;
+  if ((aStatus == "IN-PROCESS" || aStatus == "NEEDS-ACTION") &&
+      oldPercentComplete == 100) {
+      newPercentComplete = 0;
       setElementValue("completed-date-picker", oldCompletedDate);
       disableElement("completed-date-picker");
-  } else if (status == "COMPLETED") {
-      setElementValue("percent-complete-textbox", "100");
-      setElementValue("completed-date-picker", completedDate);
+  } else if (aStatus == "COMPLETED") {
+      newPercentComplete = 100;
+      setElementValue("completed-date-picker", aCompletedDate);
       enableElement("completed-date-picker");
   } else {
-      setElementValue("percent-complete-textbox", oldPercentComplete);
+      newPercentComplete = oldPercentComplete;
       setElementValue("completed-date-picker", oldCompletedDate);
       disableElement("completed-date-picker");
   }
+
+  setElementValue("percent-complete-textbox", newPercentComplete);
+  sendMessage({
+      command: "updatePanelState",
+      argument: { percentComplete: newPercentComplete }
+  });
 }
 
 /**
@@ -3008,6 +3015,25 @@ function onCommandDeleteItem() {
                                       null, deleteListener);
         }
     }
+}
+
+/**
+ * Postpone the task's start date/time and due date/time. ISO 8601
+ * format: "PT1H", "P1D", and "P1W" are 1 hour, 1 day, and 1 week. (We
+ * use this format intentionally instead of a calIDuration object because
+ * those objects cannot be serialized for message passing with iframes.)
+ *
+ * @param {string} aDuration  A duration in ISO 8601 format
+ */
+function postponeTask(aDuration) {
+    let duration = cal.createDuration(aDuration);
+    if (gStartTime != null) {
+        gStartTime.addDuration(duration);
+    }
+    if (gEndTime != null) {
+        gEndTime.addDuration(duration);
+    }
+    updateDateTime();
 }
 
 /**

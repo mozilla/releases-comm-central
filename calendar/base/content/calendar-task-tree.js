@@ -115,33 +115,37 @@ function changeMenuForTask(aEvent) {
 }
 
 /**
- * Handler function to change the progress of all selected tasks.
+ * Handler function to change the progress of all selected tasks, or of
+ * the task loaded in the current tab.
  *
- * @param aEvent      The DOM event that triggered this command.
- * @param aProgress   The progress percentage to set.
+ * @param {XULCommandEvent} aEvent  The DOM event that triggered this command
+ * @param {short} aProgress         The new progress percentage
  */
 function contextChangeTaskProgress(aEvent, aProgress) {
-    startBatchTransaction();
-    var tasks = getSelectedTasks(aEvent);
-    for (var t = 0; t < tasks.length; t++) {
-        var task = tasks[t];
-        var newTask = task.clone().QueryInterface( Components.interfaces.calITodo );
-        newTask.percentComplete = aProgress;
-        switch (aProgress) {
-            case 0:
-                newTask.isCompleted = false;
-                break;
-            case 100:
-                newTask.isCompleted = true;
-                break;
-            default:
-                newTask.status = "IN-PROCESS";
-                newTask.completedDate = null;
-                break;
+    if (gTabmail && gTabmail.currentTabInfo.mode.type == "calendarTask") {
+        editToDoStatus(aProgress);
+    } else {
+        startBatchTransaction();
+        let tasks = getSelectedTasks(aEvent);
+        for (let task of tasks) {
+            let newTask = task.clone().QueryInterface( Components.interfaces.calITodo );
+            newTask.percentComplete = aProgress;
+            switch (aProgress) {
+                case 0:
+                    newTask.isCompleted = false;
+                    break;
+                case 100:
+                    newTask.isCompleted = true;
+                    break;
+                default:
+                    newTask.status = "IN-PROCESS";
+                    newTask.completedDate = null;
+                    break;
+            }
+            doTransaction('modify', newTask, newTask.calendar, task, null);
         }
-        doTransaction('modify', newTask, newTask.calendar, task, null);
+        endBatchTransaction();
     }
-    endBatchTransaction();
 }
 
 /**
@@ -163,54 +167,68 @@ function contextChangeTaskCalendar(aEvent) {
 }
 
 /**
- * Handler function to change the priority of the selected tasks.
+ * Handler function to change the priority of the selected tasks, or of
+ * the task loaded in the current tab.
  *
- * @param aEvent      The DOM event that triggered this command.
- * @param aPriority   The priority to set on the selected tasks.
+ * @param {XULCommandEvent} aEvent  The DOM event that triggered this command
+ * @param {short} aPriority         The priority to set on the task(s)
  */
 function contextChangeTaskPriority(aEvent, aPriority) {
-    startBatchTransaction();
-    var tasks = getSelectedTasks(aEvent);
-    for (var t = 0; t < tasks.length; t++) {
-        var task = tasks[t];
-        var newTask = task.clone().QueryInterface( Components.interfaces.calITodo );
-        newTask.priority = aPriority;
-        doTransaction('modify', newTask, newTask.calendar, task, null);
+    let tabType = gTabmail && gTabmail.currentTabInfo.mode.type;
+    if (tabType == "calendarTask" || tabType == "calendarEvent") {
+        editPriority(aPriority);
+    } else {
+        startBatchTransaction();
+        var tasks = getSelectedTasks(aEvent);
+        for (let task of tasks) {
+            let newTask = task.clone().QueryInterface( Components.interfaces.calITodo );
+            newTask.priority = aPriority;
+            doTransaction('modify', newTask, newTask.calendar, task, null);
+        }
+        endBatchTransaction();
     }
-    endBatchTransaction();
 }
 
 /**
- * Handler function to postpone the start and due dates of the selected tasks.
+ * Handler function to postpone the start and due dates of the selected
+ * tasks, or of the task loaded in the current tab. ISO 8601 format:
+ * "PT1H", "P1D", and "P1W" are 1 hour, 1 day, and 1 week. (We use this
+ * format intentionally instead of a calIDuration object because those
+ * objects cannot be serialized for message passing with iframes.)
  *
- * @param aEvent      The DOM event that triggered this command.
- * @param aDuration   The duration to postpone the dates.
+ * @param {XULCommandEvent} aEvent  The DOM event that triggered this command
+ * @param {string} aDuration        The duration to postpone in ISO 8601 format
  */
 function contextPostponeTask(aEvent, aDuration) {
     let duration = cal.createDuration(aDuration);
     if (!duration) {
         cal.LOG("[calendar-task-tree] Postpone Task - Invalid duration " + aDuration);
+        return;
     }
 
-    startBatchTransaction();
-    let tasks = getSelectedTasks(aEvent);
+    if (gTabmail && gTabmail.currentTabInfo.mode.type == "calendarTask") {
+        postponeTask(aDuration);
+    } else {
+        startBatchTransaction();
+        let tasks = getSelectedTasks(aEvent);
 
-    tasks.forEach(function(task) {
-        if (task.entryDate || task.dueDate) {
-            let newTask = task.clone();
-            cal.shiftItem(newTask, duration);
-            doTransaction('modify', newTask, newTask.calendar, task, null);
-        }
-    });
+        tasks.forEach(function(task) {
+            if (task.entryDate || task.dueDate) {
+                let newTask = task.clone();
+                cal.shiftItem(newTask, duration);
+                doTransaction('modify', newTask, newTask.calendar, task, null);
+            }
+        });
 
-    endBatchTransaction();
+        endBatchTransaction();
+    }
 }
 
 /**
  * Modifies the selected tasks with the event dialog
  *
  * @param aEvent        The DOM event that triggered this command.
- * @param initialDate   (optional) The initial date for new task datepickers  
+ * @param initialDate   (optional) The initial date for new task datepickers
  */
 function modifyTaskFromContext(aEvent, initialDate) {
     var tasks = getSelectedTasks(aEvent);

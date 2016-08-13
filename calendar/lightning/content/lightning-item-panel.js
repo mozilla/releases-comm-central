@@ -75,6 +75,7 @@ var gConfig = {
     priority: null,
     hasPriority: null,
     status: null,
+    percentComplete: null,
     showTimeAs: null,
     // whether cmd_attendees is enabled or disabled
     attendeesCommand: null,
@@ -245,6 +246,7 @@ function updateItemTabState(aArg) {
         priority: updatePriority,
         status: updateStatus,
         showTimeAs: updateShowTimeAs,
+        percentComplete: updateMarkCompletedMenuItem,
         attendeesCommand: updateAttendeesCommand,
         attachUrlCommand: updateAttachment,
         timezonesEnabled: updateTimezoneCommand
@@ -510,13 +512,20 @@ function rotatePriority() {
 /**
  * Handler to change the priority.
  *
- * @param {nsIDOMNode} aTarget  Its value attribute contains the new priority
+ * @param {nsIDOMNode} aTarget  A DOM node with the new priorty in its "value" attribute
  */
-function editPriority(aTarget) {
-    sendMessage({
-        command: "editPriority",
-        value: parseInt(aTarget.getAttribute("value"))
-    });
+function editPriorityHandler(aTarget) {
+    let newPriority = parseInt(aTarget.getAttribute("value"));
+    editPriority(newPriority);
+}
+
+/**
+ * Edits the priority.
+ *
+ * @param {short} aNewPriority  The new priority value
+ */
+function editPriority(aNewPriority) {
+    sendMessage({ command: "editPriority", value: aNewPriority });
 }
 
 /**
@@ -682,6 +691,41 @@ function updateShowTimeAs(aArg) {
                         aArg.showTimeAs != "OPAQUE" && aArg.showTimeAs != "TRANSPARENT");
     setBooleanAttribute("status-freebusy-free-label", "hidden", aArg.showTimeAs == "OPAQUE");
     setBooleanAttribute("status-freebusy-busy-label", "hidden", aArg.showTimeAs == "TRANSPARENT");
+}
+
+/**
+ * Change the task percent complete (and thus task status).
+ *
+ * @param {short} aTarget  The new percent complete value
+ */
+function editToDoStatus(aPercentComplete) {
+    sendMessage({ command: "editToDoStatus", value: aPercentComplete });
+}
+
+/**
+ * Check or uncheck the "Mark updated" menu item in "Events and Tasks"
+ * menu based on the percent complete value. (The percent complete menu
+ * items are updated by changeMenuByPropertyName in calendar-menus.xml)
+ *
+ * @param {Object} aArg                  Container
+ * @param {short} aArg.percentComplete  The percent complete value as a string
+ */
+function updateMarkCompletedMenuItem(aArg) {
+    let completedCommand = document.getElementById("calendar_toggle_completed_command");
+    let isCompleted = aArg.percentComplete == 100;
+    completedCommand.setAttribute("checked", isCompleted);
+}
+
+/**
+ * Postpone the task's start date/time and due date/time. ISO 8601
+ * format: "PT1H", "P1D", and "P1W" are 1 hour, 1 day, and 1 week. (We
+ * use this format intentionally instead of a calIDuration object because
+ * those objects cannot be serialized for message passing with iframes.)
+ *
+ * @param {string} aDuration  A duration in ISO 8601 format
+ */
+function postponeTask(aDuration) {
+    sendMessage({ command: "postponeTask", value: aDuration });
 }
 
 /**

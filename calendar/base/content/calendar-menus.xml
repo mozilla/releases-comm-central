@@ -27,33 +27,43 @@
       ]]></destructor>
 
 <!-- This method checks a command which naming follows
- *  the notation 'calendar_' +  mType + ' + '-' + propertvalue + 'command',
- *  when its propertyvalue part matches the propertyvalue of the selected tasks
+ *  the notation 'calendar_' +  mType + ' + '-' + propertyValue + 'command',
+ *  when its propertyValue part matches the propertyValue of the selected tasks
  *  as long as the selected tasks share common propertyValues.
  * -->
       <method name="changeMenuByPropertyName">
         <body><![CDATA[
-            var liveList = document.getAnonymousNodes(this);
-            for (var i = liveList.length - 1; i >= 0; i-- ) {
-                var commandName = liveList.item(i).getAttribute("command");
-                var command = document.getElementById(commandName);
+            let liveList = document.getAnonymousNodes(this);
+            for (let item of liveList) {
+                let commandName = item.getAttribute("command");
+                let command = document.getElementById(commandName);
                 if (command) {
                     command.setAttribute("checked", "false");
-                    liveList.item(i).setAttribute("checked", "false");
+                    item.setAttribute("checked", "false");
                 }
             }
-            var tasks = getSelectedTasks();
-            var tasksSelected = ((tasks != null) && (tasks.length > 0));
-            if (tasksSelected) {
-                var task = tasks[0];
-                if (isPropertyValueSame(tasks, this.mType)) {
-                    var command = document.getElementById("calendar_" + this.mType + "-" + task[this.mType] + "_command");
-                    if (command) {
-                        command.setAttribute("checked", "true");
-                    }
-                }
+            let propertyValue;
+            if (gTabmail && gTabmail.currentTabInfo.mode.type == "calendarTask") {
+                // We are in a task tab (editing a single task).
+                propertyValue = gConfig[this.mType];
             } else {
-                applyAttributeToMenuChildren(this, "disabled", (!tasksSelected));
+                // We are in the Tasks tab.
+                let tasks = getSelectedTasks();
+                let tasksSelected = ((tasks != null) && (tasks.length > 0));
+                if (tasksSelected) {
+                    let task = tasks[0];
+                    if (isPropertyValueSame(tasks, this.mType)) {
+                        propertyValue = task[this.mType];
+                    }
+                } else {
+                    applyAttributeToMenuChildren(this, "disabled", (!tasksSelected));
+                }
+            }
+            if (propertyValue) {
+                let command = document.getElementById("calendar_" + this.mType + "-" + propertyValue + "_command");
+                if (command) {
+                    command.setAttribute("checked", "true");
+                }
             }
         ]]></body>
       </method>

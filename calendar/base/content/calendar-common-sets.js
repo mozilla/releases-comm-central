@@ -151,10 +151,11 @@ var calendarController = {
             case "calendar_postpone-1hour_command":
             case "calendar_postpone-1day_command":
             case "calendar_postpone-1week_command":
-                return (this.isCalendarInForeground() || this.todo_tasktree_focused) &&
+                return ((this.isCalendarInForeground() || this.todo_tasktree_focused) &&
                        this.writable &&
                        this.todo_items_selected &&
-                       this.todo_items_writable;
+                       this.todo_items_writable) ||
+                       document.getElementById("tabmail").currentTabInfo.mode.type == "calendarTask";
             case "calendar_delete_calendar_command":
                 return this.isCalendarInForeground() && !this.last_calendar;
             case "calendar_import_command":
