@@ -35,7 +35,7 @@ function Startup()
 function prefClearGlobalHistory()
 {
   Components.utils.import("resource://gre/modules/PlacesUtils.jsm");
-  PlacesUtils.history.removeAllPages();
+  PlacesUtils.history.clear();
 }
 
 function prefClearUrlbarHistory(aButton)

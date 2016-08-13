@@ -173,7 +173,7 @@ var Sanitizer = {
 
         // use try/catch for everything but the last task so we clear as much as possible
         try {
-          PlacesUtils.history.removeAllPages();
+          PlacesUtils.history.clear();
         } catch(ex) {}
 
         try {
