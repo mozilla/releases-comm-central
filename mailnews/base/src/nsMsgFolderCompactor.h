@@ -101,7 +101,7 @@ public:
                                     nsresult status) override;
   NS_IMETHODIMP OnDataAvailable(nsIRequest *request, nsISupports *ctxt,
                                 nsIInputStream *inStr,
-                                uint64_t sourceOffset, uint32_t count);
+                                uint64_t sourceOffset, uint32_t count) override;
 
 protected:
     nsresult         CopyNextMessage(bool &done);

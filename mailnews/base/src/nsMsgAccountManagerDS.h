@@ -47,7 +47,7 @@ public:
   NS_IMETHOD GetTarget(nsIRDFResource *source,
                        nsIRDFResource *property,
                        bool aTruthValue,
-                       nsIRDFNode **_retval);
+                       nsIRDFNode **_retval) override;
   NS_IMETHOD GetTargets(nsIRDFResource *source,
                         nsIRDFResource *property,
                         bool aTruthValue,

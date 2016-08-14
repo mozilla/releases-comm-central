@@ -165,14 +165,14 @@ public:
 
     NS_DECL_ISUPPORTS
 
-    NS_IMETHOD GetContentType(char **contentType)
+    NS_IMETHOD GetContentType(char **contentType) override
     {
         *contentType = ToNewCString(mContentType);
         return *contentType ? NS_OK : NS_ERROR_OUT_OF_MEMORY;
     }
     NS_IMETHOD CreateContentTypeHandlerClass(const char *contentType,
                                              contentTypeHandlerInitStruct *initString,
-                                             MimeObjectClass **objClass);
+                                             MimeObjectClass **objClass) override;
 private:
     virtual ~nsSimpleMimeConverterStub() { }
     nsCString mContentType;

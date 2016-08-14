@@ -139,18 +139,18 @@ public:
                  nsIMsgWindow *aMsgWindow);
 
   // stop binding is a "notification" informing us that the stream associated with aURL is going away.
-  NS_IMETHOD OnStopRequest(nsIRequest *request, nsISupports * aCtxt, nsresult aStatus);
+  NS_IMETHOD OnStopRequest(nsIRequest *request, nsISupports * aCtxt, nsresult aStatus) override;
 
   char * m_ProxyServer;    /* proxy server hostname */
 
-  NS_IMETHOD Cancel(nsresult status);  // handle stop button
-  NS_IMETHOD GetContentType(nsACString &aContentType);
-  NS_IMETHOD AsyncOpen(nsIStreamListener *listener, nsISupports *ctxt);
-  NS_IMETHOD AsyncOpen2(nsIStreamListener *listener);
-  NS_IMETHOD GetOriginalURI(nsIURI* *aURI);
-  NS_IMETHOD SetOriginalURI(nsIURI* aURI);
+  NS_IMETHOD Cancel(nsresult status) override;  // handle stop button
+  NS_IMETHOD GetContentType(nsACString &aContentType) override;
+  NS_IMETHOD AsyncOpen(nsIStreamListener *listener, nsISupports *ctxt) override;
+  NS_IMETHOD AsyncOpen2(nsIStreamListener *listener) override;
+  NS_IMETHOD GetOriginalURI(nsIURI* *aURI) override;
+  NS_IMETHOD SetOriginalURI(nsIURI* aURI) override;
 
-  nsresult LoadUrl(nsIURI * aURL, nsISupports * aConsumer);
+  nsresult LoadUrl(nsIURI * aURL, nsISupports * aConsumer) override;
 
 private:
   virtual ~nsNNTPProtocol();
@@ -173,19 +173,19 @@ private:
    * advised to suspend the request before using this state.
    */
   virtual nsresult ProcessProtocolState(nsIURI * url, nsIInputStream * inputStream,
-                                        uint64_t sourceOffset, uint32_t length);
-  virtual nsresult CloseSocket();
+                                        uint64_t sourceOffset, uint32_t length) override;
+  virtual nsresult CloseSocket() override;
 
   // we have our own implementation of SendData which writes to the nntp log
   // and then calls the base class to transmit the data
-  nsresult SendData(const char * dataBuffer, bool aSuppressLogging = false);
+  nsresult SendData(const char * dataBuffer, bool aSuppressLogging = false) override;
 
   nsresult CleanupAfterRunningUrl();
   void Cleanup(); //free char* member variables
 
   void ParseHeaderForCancel(char *buf);
 
-  virtual const char* GetType() {return "nntp";}
+  virtual const char* GetType() override { return "nntp"; }
 
   static void CheckIfAuthor(nsIMsgIdentity *aIdentity, const nsCString &aOldFrom, nsCString &aFrom);
 

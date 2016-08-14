@@ -40,6 +40,7 @@
 #include "nsIIDNService.h"
 #include "mozilla/mailnews/MimeHeaderParser.h"
 #include "mozilla/Services.h"
+#include "mozilla/Attributes.h"
 #include "nsINetAddr.h"
 #include "nsIProxyInfo.h"
 
@@ -93,6 +94,11 @@ nsresult nsExplainErrorDetails(nsISmtpUrl * aSmtpUrl, nsresult aCode, ...)
   va_start (args, aCode);
 
   const char16_t* exitString;
+#ifdef __GNUC__
+// Temporary workaroung until bug 783526 is fixed.
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wswitch"
+#endif
   switch (aCode)
   {
     case NS_ERROR_ILLEGAL_LOCALPART:
@@ -120,6 +126,9 @@ nsresult nsExplainErrorDetails(nsISmtpUrl * aSmtpUrl, nsresult aCode, ...)
       msg = nsTextFormatter::smprintf(eMsg.get(), aCode);
       break;
   }
+#ifdef __GNUC__
+#pragma GCC diagnostic pop
+#endif
 
   if (msg)
   {
@@ -897,6 +906,7 @@ void nsSmtpProtocol::InitPrefAuthMethods(int32_t authMethodPrefValue)
       MOZ_LOG(SMTPLogModule, mozilla::LogLevel::Error,
           ("SMTP: bad pref authMethod = %d\n", authMethodPrefValue));
       // fall to any
+      MOZ_FALLTHROUGH;
     case nsMsgAuthMethod::anything:
       m_prefAuthMethods =
           SMTP_AUTH_LOGIN_ENABLED | SMTP_AUTH_PLAIN_ENABLED |

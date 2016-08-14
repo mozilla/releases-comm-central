@@ -172,7 +172,9 @@ nsMsgFilter::nsMsgFilter():
     m_filterList(nullptr),
     m_expressionTree(nullptr)
 {
-  NS_NewISupportsArray(getter_AddRefs(m_termList));
+  nsresult rv = NS_NewISupportsArray(getter_AddRefs(m_termList));
+  if (NS_FAILED(rv))
+    NS_ASSERTION(false, "Failed to allocate a nsISupportsArray for nsMsgFilter");
 
   m_type = nsMsgFilterType::InboxRule | nsMsgFilterType::Manual;
 }

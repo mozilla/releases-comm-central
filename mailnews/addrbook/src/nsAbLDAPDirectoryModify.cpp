@@ -35,14 +35,14 @@ public:
                                 const nsACString &login,
                                 const int32_t timeOut = 0);
   // nsILDAPMessageListener
-  NS_IMETHOD OnLDAPMessage(nsILDAPMessage *aMessage);
+  NS_IMETHOD OnLDAPMessage(nsILDAPMessage *aMessage) override;
 
 protected:
   virtual ~nsAbModifyLDAPMessageListener();
 
   nsresult Cancel();
-  virtual void InitFailed(bool aCancelled = false);
-  virtual nsresult DoTask();
+  virtual void InitFailed(bool aCancelled = false) override;
+  virtual nsresult DoTask() override;
   nsresult DoMainTask();
   nsresult OnLDAPMessageModifyResult(nsILDAPMessage *aMessage);
   nsresult OnLDAPMessageRenameResult(nsILDAPMessage *aMessage);

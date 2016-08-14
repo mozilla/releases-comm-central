@@ -679,6 +679,9 @@ NS_IMETHODIMP nsMsgThreadedDBView::OnParentChanged (nsMsgKey aKeyChanged, nsMsgK
 {
   // we need to adjust the level of the hdr whose parent changed, and invalidate that row,
   // iff we're in threaded mode.
+#if 0
+  // This code never runs due to the if (false) and Clang complains about it
+  // so it is ifdefed out for now.
   if (false && m_viewFlags & nsMsgViewFlagsType::kThreadedDisplay)
   {
     nsMsgViewIndex childIndex = FindViewIndex(aKeyChanged);
@@ -703,6 +706,7 @@ NS_IMETHODIMP nsMsgThreadedDBView::OnParentChanged (nsMsgKey aKeyChanged, nsMsgK
       NoteChange(childIndex, 1, nsMsgViewNotificationCode::changed);
     }
   }
+#endif
   return NS_OK;
 }
 

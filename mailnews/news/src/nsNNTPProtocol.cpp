@@ -26,6 +26,7 @@
 #include "mozilla/Logging.h"
 #include "prerror.h"
 #include "nsStringGlue.h"
+#include "mozilla/Attributes.h"
 #include "mozilla/Services.h"
 #include "mozilla/mailnews/MimeHeaderParser.h"
 
@@ -4579,10 +4580,12 @@ nsresult nsNNTPProtocol::ProcessProtocolState(nsIURI * url, nsIInputStream * inp
       FinishMemCacheEntry(false);  // cleanup mem cache entry
       if (m_responseCode != MK_NNTP_RESPONSE_ARTICLE_NOTFOUND && m_responseCode != MK_NNTP_RESPONSE_ARTICLE_NONEXIST)
         return CloseConnection();
+      MOZ_FALLTHROUGH;
     case NEWS_FREE:
       // Remember when we last used this connection
       m_lastActiveTimeStamp = PR_Now();
       CleanupAfterRunningUrl();
+      MOZ_FALLTHROUGH;
     case NNTP_SUSPENDED:
       return NS_OK;
       break;

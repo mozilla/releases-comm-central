@@ -462,7 +462,7 @@ NS_IMETHODIMP nsMsgPurgeService::OnSearchDone(nsresult status)
 {
   if (NS_SUCCEEDED(status))
   {
-    uint32_t count;
+    uint32_t count = 0;
     if (mHdrsToDelete)
       mHdrsToDelete->GetLength(&count);
     MOZ_LOG(MsgPurgeLogModule, mozilla::LogLevel::Info, ("%d messages to delete", count));

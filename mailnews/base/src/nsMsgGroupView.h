@@ -22,25 +22,27 @@ public:
   nsMsgGroupView();
   virtual ~nsMsgGroupView();
 
-  NS_IMETHOD Open(nsIMsgFolder *folder, nsMsgViewSortTypeValue sortType, nsMsgViewSortOrderValue sortOrder, nsMsgViewFlagsTypeValue viewFlags, int32_t *pCount);
-  NS_IMETHOD OpenWithHdrs(nsISimpleEnumerator *aHeaders, nsMsgViewSortTypeValue aSortType, 
-                                        nsMsgViewSortOrderValue aSortOrder, nsMsgViewFlagsTypeValue aViewFlags, 
-                                        int32_t *aCount);
-  NS_IMETHOD GetViewType(nsMsgViewTypeValue *aViewType);
+  NS_IMETHOD Open(nsIMsgFolder *folder, nsMsgViewSortTypeValue sortType,
+                  nsMsgViewSortOrderValue sortOrder, nsMsgViewFlagsTypeValue viewFlags,
+                  int32_t *pCount) override;
+  NS_IMETHOD OpenWithHdrs(nsISimpleEnumerator *aHeaders, nsMsgViewSortTypeValue aSortType,
+                                        nsMsgViewSortOrderValue aSortOrder, nsMsgViewFlagsTypeValue aViewFlags,
+                                        int32_t *aCount) override;
+  NS_IMETHOD GetViewType(nsMsgViewTypeValue *aViewType) override;
   NS_IMETHOD CopyDBView(nsMsgDBView *aNewMsgDBView, nsIMessenger *aMessengerInstance,
                         nsIMsgWindow *aMsgWindow, nsIMsgDBViewCommandUpdater *aCmdUpdater);
-  NS_IMETHOD Close();
+  NS_IMETHOD Close() override;
   NS_IMETHOD OnHdrDeleted(nsIMsgDBHdr *aHdrDeleted, nsMsgKey aParentKey, int32_t aFlags, 
                           nsIDBChangeListener *aInstigator) override;
   NS_IMETHOD OnHdrFlagsChanged(nsIMsgDBHdr *aHdrChanged, uint32_t aOldFlags, 
                                uint32_t aNewFlags, nsIDBChangeListener *aInstigator) override;
 
-  NS_IMETHOD LoadMessageByViewIndex(nsMsgViewIndex aViewIndex);
+  NS_IMETHOD LoadMessageByViewIndex(nsMsgViewIndex aViewIndex) override;
   NS_IMETHOD GetCellProperties(int32_t aRow, nsITreeColumn *aCol, nsAString& aProperties) override;
   NS_IMETHOD GetRowProperties(int32_t aRow, nsAString& aProperties) override;
   NS_IMETHOD CellTextForColumn(int32_t aRow, const char16_t *aColumnName,
-                               nsAString &aValue);
-  NS_IMETHOD GetThreadContainingMsgHdr(nsIMsgDBHdr *msgHdr, nsIMsgThread **pThread);
+                               nsAString &aValue) override;
+  NS_IMETHOD GetThreadContainingMsgHdr(nsIMsgDBHdr *msgHdr, nsIMsgThread **pThread) override;
   NS_IMETHOD AddColumnHandler(const nsAString& column, nsIMsgCustomColumnHandler* handler) override;
 
 protected:

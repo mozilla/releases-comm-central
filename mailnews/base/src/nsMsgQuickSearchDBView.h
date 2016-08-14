@@ -39,18 +39,18 @@ public:
                         nsIMessenger *aMessengerInstance,
                         nsIMsgWindow *aMsgWindow,
                         nsIMsgDBViewCommandUpdater *aCmdUpdater) override;
-  NS_IMETHOD DoCommand(nsMsgViewCommandTypeValue aCommand);
+  NS_IMETHOD DoCommand(nsMsgViewCommandTypeValue aCommand) override;
   NS_IMETHOD GetViewType(nsMsgViewTypeValue *aViewType) override;
-  NS_IMETHOD SetViewFlags(nsMsgViewFlagsTypeValue aViewFlags);
-  NS_IMETHOD SetSearchSession(nsIMsgSearchSession *aSearchSession);
-  NS_IMETHOD GetSearchSession(nsIMsgSearchSession* *aSearchSession);
+  NS_IMETHOD SetViewFlags(nsMsgViewFlagsTypeValue aViewFlags) override;
+  NS_IMETHOD SetSearchSession(nsIMsgSearchSession *aSearchSession) override;
+  NS_IMETHOD GetSearchSession(nsIMsgSearchSession* *aSearchSession) override;
   NS_IMETHOD OnHdrFlagsChanged(nsIMsgDBHdr *aHdrChanged, uint32_t aOldFlags, 
                                uint32_t aNewFlags, nsIDBChangeListener *aInstigator) override;
   NS_IMETHOD OnHdrPropertyChanged(nsIMsgDBHdr *aHdrToChange, bool aPreChange, uint32_t *aStatus, 
                                   nsIDBChangeListener * aInstigator) override;
   NS_IMETHOD OnHdrDeleted(nsIMsgDBHdr *aHdrDeleted, nsMsgKey aParentKey,
                           int32_t aFlags, nsIDBChangeListener *aInstigator) override;
-  NS_IMETHOD GetNumMsgsInView(int32_t *aNumMsgs);
+  NS_IMETHOD GetNumMsgsInView(int32_t *aNumMsgs) override;
 
 protected:
   virtual ~nsMsgQuickSearchDBView();

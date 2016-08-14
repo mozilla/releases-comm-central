@@ -35,8 +35,8 @@ public:
 
   // nsMsgDBFolder overrides
 
-  nsresult CreateChildFromURI(const nsCString &uri, nsIMsgFolder **folder);
-  nsresult GetDatabase();
+  nsresult CreateChildFromURI(const nsCString &uri, nsIMsgFolder **folder) override;
+  nsresult GetDatabase() override;
 
   // Local Utility Functions
 

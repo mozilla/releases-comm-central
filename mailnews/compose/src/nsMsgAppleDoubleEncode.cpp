@@ -144,9 +144,9 @@ int ap_encode_next(
 	*/
 	if (p_ap_encode_obj->s_overflow)
 	{
-		status = write_stream(p_ap_encode_obj, 
-								p_ap_encode_obj->b_overflow,
-								p_ap_encode_obj->s_overflow);
+		status = write_stream(p_ap_encode_obj,
+		                      (const char*)(p_ap_encode_obj->b_overflow),
+		                      p_ap_encode_obj->s_overflow);
 		if (status != noErr)
 			return status;
 				

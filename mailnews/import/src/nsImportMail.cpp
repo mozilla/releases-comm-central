@@ -55,21 +55,21 @@ public:
   NS_DECL_THREADSAFE_ISUPPORTS
 
   /* nsISupports GetData (in string dataId); */
-  NS_IMETHOD GetData(const char *dataId, nsISupports **_retval);
+  NS_IMETHOD GetData(const char *dataId, nsISupports **_retval) override;
 
-  NS_IMETHOD SetData(const char *dataId, nsISupports *pData);
+  NS_IMETHOD SetData(const char *dataId, nsISupports *pData) override;
 
-  NS_IMETHOD GetStatus(const char *statusKind, int32_t *_retval);
+  NS_IMETHOD GetStatus(const char *statusKind, int32_t *_retval) override;
 
-  NS_IMETHOD WantsProgress(bool *_retval);
+  NS_IMETHOD WantsProgress(bool *_retval) override;
 
-  NS_IMETHODIMP BeginImport(nsISupportsString *successLog, nsISupportsString *errorLog, bool *_retval) ;
+  NS_IMETHODIMP BeginImport(nsISupportsString *successLog, nsISupportsString *errorLog, bool *_retval) override;
 
-  NS_IMETHOD ContinueImport(bool *_retval);
+  NS_IMETHOD ContinueImport(bool *_retval) override;
 
-  NS_IMETHOD GetProgress(int32_t *_retval);
+  NS_IMETHOD GetProgress(int32_t *_retval) override;
 
-  NS_IMETHOD CancelImport(void);
+  NS_IMETHOD CancelImport(void) override;
 
 private:
   virtual ~nsImportGenericMail();

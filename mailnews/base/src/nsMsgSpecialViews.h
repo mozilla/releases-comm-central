@@ -17,7 +17,7 @@ public:
   virtual const char * GetViewName(void) override {return "ThreadsWithUnreadView"; }
   NS_IMETHOD CloneDBView(nsIMessenger *aMessengerInstance, nsIMsgWindow *aMsgWindow, nsIMsgDBViewCommandUpdater *aCommandUpdater, nsIMsgDBView **_retval) override;
   NS_IMETHOD GetViewType(nsMsgViewTypeValue *aViewType) override;
-  NS_IMETHOD GetNumMsgsInView(int32_t *aNumMsgs);
+  NS_IMETHOD GetNumMsgsInView(int32_t *aNumMsgs) override;
 
 virtual bool WantsThisThread(nsIMsgThread *threadHdr) override;
 protected:
@@ -30,9 +30,11 @@ class nsMsgWatchedThreadsWithUnreadDBView : public nsMsgThreadedDBView
 public:
   nsMsgWatchedThreadsWithUnreadDBView ();
   NS_IMETHOD GetViewType(nsMsgViewTypeValue *aViewType) override;
-  NS_IMETHOD CloneDBView(nsIMessenger *aMessengerInstance, nsIMsgWindow *aMsgWindow, nsIMsgDBViewCommandUpdater *aCommandUpdater, nsIMsgDBView **_retval) override;
-  NS_IMETHOD GetNumMsgsInView(int32_t *aNumMsgs);
-  virtual const char * GetViewName(void) override {return "WatchedThreadsWithUnreadView"; }
+  NS_IMETHOD CloneDBView(nsIMessenger *aMessengerInstance, nsIMsgWindow *aMsgWindow,
+                         nsIMsgDBViewCommandUpdater *aCommandUpdater,
+                         nsIMsgDBView **_retval) override;
+  NS_IMETHOD GetNumMsgsInView(int32_t *aNumMsgs) override;
+  virtual const char *GetViewName(void) override { return "WatchedThreadsWithUnreadView"; }
   virtual bool WantsThisThread(nsIMsgThread *threadHdr) override;
 protected:
   virtual nsresult AddMsgToThreadNotInView(nsIMsgThread *threadHdr, nsIMsgDBHdr *msgHdr, bool ensureListed) override;

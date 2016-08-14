@@ -42,7 +42,6 @@ protected:
 private:
   nsCOMPtr<nsIMsgFolder> mParentFolder;
   nsTArray<nsMsgKey>     mMarkedMessages;
-  bool                   mWasMarkedRead;
 };
 
 #endif  // nsMsgBaseUndoTxn_h_

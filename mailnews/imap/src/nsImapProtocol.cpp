@@ -75,6 +75,7 @@ PRLogModuleInfo *IMAP;
 #include "nsMsgCompressOStream.h"
 #include "nsAlgorithm.h"
 #include "mozilla/Logging.h"
+#include "mozilla/Attributes.h"
 #include "nsIPrincipal.h"
 #include "nsContentSecurityManager.h"
 
@@ -2703,6 +2704,7 @@ void nsImapProtocol::ProcessSelectedStateURL()
       case nsIImapUrl::nsImapExpungeFolder:
         Expunge();
         // note fall through to next cases.
+        MOZ_FALLTHROUGH;
       case nsIImapUrl::nsImapSelectFolder:
       case nsIImapUrl::nsImapSelectNoopFolder:
         if (!moreHeadersToDownload)
@@ -5528,6 +5530,7 @@ void nsImapProtocol::InitPrefAuthMethods(int32_t authMethodPrefValue,
         MOZ_LOG(IMAP, LogLevel::Error,
             ("IMAP: bad pref authMethod = %d\n", authMethodPrefValue));
         // fall to any
+        MOZ_FALLTHROUGH;
       case nsMsgAuthMethod::anything:
         m_prefAuthMethods = kHasAuthOldLoginCapability |
             kHasAuthLoginCapability | kHasAuthPlainCapability |

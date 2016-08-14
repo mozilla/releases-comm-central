@@ -1035,7 +1035,7 @@ public:
 
   NS_IMETHOD CollectReports(nsIMemoryReporterCallback*aCb,
                             nsISupports* aClosure,
-                            bool aAnonymize)
+                            bool aAnonymize) override
   {
     nsCString path;
     GetPath(path, aAnonymize);

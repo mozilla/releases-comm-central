@@ -72,7 +72,7 @@ public:
   NS_IMETHOD GetMsgFolderFromURI(nsIMsgFolder *aFolderResource,
                                  const nsACString& aURI,
                                  nsIMsgFolder **aFolder) override;
-  NS_IMETHOD SetSocketType(int32_t aSocketType);
+  NS_IMETHOD SetSocketType(int32_t aSocketType) override;
   NS_IMETHOD VerifyLogon(nsIUrlListener *aUrlListener, nsIMsgWindow *aMsgWindow,
                          nsIURI **aURL) override;
 

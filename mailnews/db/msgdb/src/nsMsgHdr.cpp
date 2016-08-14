@@ -11,6 +11,7 @@
 #include "nsIMsgThread.h"
 #include "nsMsgMimeCID.h"
 #include "nsIMimeConverter.h"
+#include "mozilla/Attributes.h"
 
 using namespace mozilla::mailnews;
 
@@ -769,6 +770,7 @@ const char *nsMsgHdr::GetNextReference(const char *startNextRef,
         // intentional fallthrough so whitespaceEndedAt will definitely have
         //  a non-NULL value, just in case the message-id is not valid (no '>')
         //  and the old-school support is desired.
+        MOZ_FALLTHROUGH;
       default:
         if (!whitespaceEndedAt)
             whitespaceEndedAt = ptr;

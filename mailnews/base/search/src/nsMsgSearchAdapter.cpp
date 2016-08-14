@@ -27,6 +27,7 @@
 #include "nsISupportsArray.h"
 #include "nsAlgorithm.h"
 #include <algorithm>
+#include "mozilla/Attributes.h"
 
 // This stuff lives in the base class because the IMAP search syntax
 // is used by the Dredd SEARCH command as well as IMAP itself
@@ -326,6 +327,7 @@ nsresult nsMsgSearchAdapter::EncodeImapTerm (nsIMsgSearchTerm *term, bool really
   case nsMsgSearchAttrib::ToOrCC:
     orHeaderMnemonic = m_kImapCC;
     // fall through to case nsMsgSearchAttrib::To:
+    MOZ_FALLTHROUGH;
   case nsMsgSearchAttrib::To:
     whichMnemonic = m_kImapTo;
     break;

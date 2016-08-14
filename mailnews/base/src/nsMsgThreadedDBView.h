@@ -16,15 +16,15 @@ public:
   virtual ~nsMsgThreadedDBView();
 
   NS_IMETHOD Open(nsIMsgFolder *folder, nsMsgViewSortTypeValue sortType, nsMsgViewSortOrderValue sortOrder, nsMsgViewFlagsTypeValue viewFlags, int32_t *pCount) override;
-  NS_IMETHOD CloneDBView(nsIMessenger *aMessengerInstance, nsIMsgWindow *aMsgWindow, nsIMsgDBViewCommandUpdater *aCommandUpdater, nsIMsgDBView **_retval);
+  NS_IMETHOD CloneDBView(nsIMessenger *aMessengerInstance, nsIMsgWindow *aMsgWindow, nsIMsgDBViewCommandUpdater *aCommandUpdater, nsIMsgDBView **_retval) override;
   NS_IMETHOD Close() override;
   int32_t AddKeys(nsMsgKey *pKeys, int32_t *pFlags, const char *pLevels, nsMsgViewSortTypeValue sortType, int32_t numKeysToAdd);
-  NS_IMETHOD Sort(nsMsgViewSortTypeValue sortType, nsMsgViewSortOrderValue sortOrder);
+  NS_IMETHOD Sort(nsMsgViewSortTypeValue sortType, nsMsgViewSortOrderValue sortOrder) override;
   NS_IMETHOD GetViewType(nsMsgViewTypeValue *aViewType) override;
   NS_IMETHOD OnParentChanged (nsMsgKey aKeyChanged, nsMsgKey oldParent, nsMsgKey newParent, nsIDBChangeListener *aInstigator) override;
 
 protected:
-  virtual const char * GetViewName(void) {return "ThreadedDBView"; }
+  virtual const char *GetViewName(void) override { return "ThreadedDBView"; }
   nsresult InitThreadedView(int32_t *pCount);
   virtual nsresult OnNewHeader(nsIMsgDBHdr *newHdr, nsMsgKey aParentKey, bool ensureListed) override;
   virtual nsresult AddMsgToThreadNotInView(nsIMsgThread *threadHdr, nsIMsgDBHdr *msgHdr, bool ensureListed);

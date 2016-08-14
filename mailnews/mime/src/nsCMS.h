@@ -47,7 +47,7 @@ private:
   nsresult CommonAsyncVerifySignature(nsISMimeVerificationListener *aListener,
                                       unsigned char* aDigestData, uint32_t aDigestDataLen);
 
-  virtual void virtualDestroyNSSReference();
+  virtual void virtualDestroyNSSReference() override;
   void destructorSafeDestroyNSSReference();
 
 };
@@ -73,7 +73,7 @@ private:
   virtual ~nsCMSDecoder();
   nsCOMPtr<nsIInterfaceRequestor> m_ctx;
   NSSCMSDecoderContext *m_dcx;
-  virtual void virtualDestroyNSSReference();
+  virtual void virtualDestroyNSSReference() override;
   void destructorSafeDestroyNSSReference();
 };
 
@@ -97,7 +97,7 @@ private:
   virtual ~nsCMSEncoder();
   nsCOMPtr<nsIInterfaceRequestor> m_ctx;
   NSSCMSEncoderContext *m_ecx;
-  virtual void virtualDestroyNSSReference();
+  virtual void virtualDestroyNSSReference() override;
   void destructorSafeDestroyNSSReference();
 };
 

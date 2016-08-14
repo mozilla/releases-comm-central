@@ -39,8 +39,8 @@ public:
   JaBaseCppUrl() { }
 
   // nsIMsgMailNewsUrl overrides
-  NS_IMETHOD GetFolder(nsIMsgFolder **aFolder);
-  NS_IMETHOD SetFolder(nsIMsgFolder *aFolder);
+  NS_IMETHOD GetFolder(nsIMsgFolder **aFolder) override;
+  NS_IMETHOD SetFolder(nsIMsgFolder *aFolder) override;
 
 protected:
   virtual ~JaBaseCppUrl() { }

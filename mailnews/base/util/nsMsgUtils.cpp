@@ -2332,7 +2332,7 @@ class CharsetDetectionObserver : public nsICharsetDetectionObserver
 public:
   NS_DECL_ISUPPORTS
   CharsetDetectionObserver() {};
-  NS_IMETHOD Notify(const char* aCharset, nsDetectionConfident aConf)
+  NS_IMETHOD Notify(const char* aCharset, nsDetectionConfident aConf) override
   {
     mCharset = aCharset;
     return NS_OK;

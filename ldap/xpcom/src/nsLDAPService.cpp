@@ -209,16 +209,11 @@ NS_IMETHODIMP nsLDAPService::AddServer(nsILDAPServer *aServer)
     //
     rv = aServer->GetKey(getter_Copies(key));
     if (NS_FAILED(rv)) {
-        switch (rv) {
         // Only pass along errors we are aware of
-        //
-        case NS_ERROR_OUT_OF_MEMORY:
-        case NS_ERROR_NULL_POINTER:
+        if ((rv == NS_ERROR_OUT_OF_MEMORY) || (rv == NS_ERROR_NULL_POINTER))
             return rv;
-
-        default:
+        else
             return NS_ERROR_FAILURE;
-        }
     }
 
     // Create the new service server entry, and add it into the hash table
@@ -720,17 +715,13 @@ nsLDAPService::EstablishConnection(nsLDAPServiceEntry *aEntry,
     // 
     rv = operation->SimpleBind(password);
     if (NS_FAILED(rv)) {
-        switch (rv) {
         // Only pass along errors we are aware of
-        //
-        case NS_ERROR_LDAP_ENCODING_ERROR:
-        case NS_ERROR_FAILURE:
-        case NS_ERROR_OUT_OF_MEMORY:
+        if ((rv == NS_ERROR_LDAP_ENCODING_ERROR) ||
+            (rv == NS_ERROR_FAILURE) ||
+            (rv == NS_ERROR_OUT_OF_MEMORY))
             return rv;
-
-        default:
+        else
             return NS_ERROR_UNEXPECTED;
-        }
     }
 
     return NS_OK;

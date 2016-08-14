@@ -48,6 +48,7 @@
 #include "nsIAbDirectory.h"
 #include "nsIAbCard.h"
 #include "mozilla/Services.h"
+#include "mozilla/Attributes.h"
 #include "mozilla/mailnews/MimeHeaderParser.h"
 #include "nsTArray.h"
 #include <algorithm>
@@ -2091,6 +2092,7 @@ NS_IMETHODIMP nsMsgDBView::CellTextForColumn(int32_t aRow,
       keyString.AppendInt((int64_t)key);
       aValue.Assign(keyString);
     }
+    break;
   default:
     break;
   }
@@ -6657,6 +6659,7 @@ nsresult nsMsgDBView::NavigateFromPos(nsMsgNavigationTypeValue motion, nsMsgView
             break;
         case nsMsgNavigationType::firstUnreadMessage:
             startIndex = nsMsgViewIndex_None;        // note fall thru - is this motion ever used?
+            MOZ_FALLTHROUGH;
         case nsMsgNavigationType::nextUnreadMessage:
             for (curIndex = (startIndex == nsMsgViewIndex_None) ? 0 : startIndex; curIndex <= lastIndex && lastIndex != nsMsgViewIndex_None; curIndex++) {
                 uint32_t flags = m_flags[curIndex];

@@ -44,8 +44,8 @@ static int finish64(appledouble_encode_object* p_ap_encode_obj);
 */
 int write_stream(
 	appledouble_encode_object *p_ap_encode_obj,
-	char 	*out_string,
-	int	 	len)			
+	const char *out_string,
+	int len)
 {	
 	if (p_ap_encode_obj->pos_outbuff + len < p_ap_encode_obj->s_outbuff)
 	{
@@ -90,9 +90,7 @@ int fill_apple_mime_header(
 
 	PR_snprintf(tmpstr, sizeof(tmpstr),
 			"Content-Type: multipart/appledouble; boundary=\"=\"; name=\"");
-	status = write_stream(p_ap_encode_obj, 
-						tmpstr,
-						strlen(tmpstr));
+	status = write_stream(p_ap_encode_obj, (const char*)tmpstr, strlen(tmpstr));
 	if (status != noErr)
 		return status;
 		
@@ -107,9 +105,7 @@ int fill_apple_mime_header(
 			p_ap_encode_obj->fname);
 #endif /* 0 */
 	PR_snprintf(tmpstr, sizeof(tmpstr), "--%s" CRLF, p_ap_encode_obj->boundary);
-	status = write_stream(p_ap_encode_obj, 
-						tmpstr, 
-						strlen(tmpstr));
+	status = write_stream(p_ap_encode_obj, (const char*)tmpstr, strlen(tmpstr));
 	return status;
 } 
 
@@ -286,9 +282,7 @@ int ap_encode_header(
 	{
     PL_strcpy(rd_buff, 
 			"Content-Type: application/applefile\r\nContent-Transfer-Encoding: base64\r\n\r\n");
-		status = write_stream(p_ap_encode_obj,
-			 				rd_buff, 
-			 				strlen(rd_buff)); 
+		status = write_stream(p_ap_encode_obj, (const char*)rd_buff, strlen(rd_buff));
 		if (status != noErr)
 			return status;
 			
@@ -350,48 +344,49 @@ int ap_encode_header(
 						CRLF "--%s" CRLF, 
 						p_ap_encode_obj->boundary);
 					
-		status = write_stream(p_ap_encode_obj,
-						rd_buff,
-						strlen(rd_buff));
+		status = write_stream(p_ap_encode_obj, (const char*)rd_buff, strlen(rd_buff));
 		if (status == noErr)
 			status = errDone;
 	}
 	return status;
 }
 
+#if 0
+// This is unused for now and Clang complains about that is it is ifdefed out
 static void replace(char *p, int len, char frm, char to)
 {
 	for (; len > 0; len--, p++)
 		if (*p == frm)	*p = to;
 }
+#endif
 
 /* Description of the various file formats and their magic numbers 		*/
-struct magic 
+struct magic
 {
-    char 	*name;			/* Name of the file format 					*/
-    char 	*num;			/* The magic number 						*/
-    int 	len;			/* Length (0 means strlen(magicnum)) 		*/
+    const char *name;			/* Name of the file format */
+    const char *num;			/* The magic number */
+    int        len;			/* Length (0 means strlen(magicnum)) */
 };
 
 /* The magic numbers of the file formats we know about */
-static struct magic magic[] = 
+static struct magic magic[] =
 {
     { "image/gif", 	"GIF", 			  0 },
     { "image/jpeg", "\377\330\377",   0 },
     { "video/mpeg", "\0\0\001\263",	  4 },
     { "application/postscript", "%!", 0 },
 };
-static int 	num_magic = (sizeof(magic)/sizeof(magic[0]));
+static int num_magic = MOZ_ARRAY_LENGTH(magic);
 
-static char *text_type    = TEXT_PLAIN;					/* the text file type.	*/		
-static char *default_type = APPLICATION_OCTET_STREAM;
+static const char *text_type    = TEXT_PLAIN;					/* the text file type. */
+static const char *default_type = APPLICATION_OCTET_STREAM;
 
 
 /*
  * Determins the format of the file "inputf".  The name
  * of the file format (or NULL on error) is returned.
  */
-static char *magic_look(char *inbuff, int numread)
+static const char *magic_look(char *inbuff, int numread)
 {
     int i, j;
 
@@ -437,7 +432,7 @@ int ap_encode_data(
 	
 	if (firstime)
 	{	
-		char* magic_type;
+		const char* magic_type;
 			
 		/*
 		** preparing to encode the data fork.
@@ -493,9 +488,7 @@ int ap_encode_data(
 			leafName.get(),
 			leafName.get());
 			
-		status = write_stream(p_ap_encode_obj, 
-					rd_buff, 
-					strlen(rd_buff)); 
+		status = write_stream(p_ap_encode_obj, (const char*)rd_buff, strlen(rd_buff));
 		if (status != noErr)
 			return status;
 	}
@@ -509,7 +502,9 @@ int ap_encode_data(
         retval = ::FSReadFork(p_ap_encode_obj->fileId, fsAtMark, 0, 256, rd_buff, &in_count);
 		if (in_count)
 		{
+#if 0
 /*			replace(rd_buff, in_count, '\r', '\n');	 						*/
+#endif
 /* ** may be need to do character set conversion here for localization.	**  */		
 			status = to64(p_ap_encode_obj,
 						rd_buff,
@@ -534,9 +529,7 @@ int ap_encode_data(
 						CRLF "--%s--" CRLF CRLF, 
 						p_ap_encode_obj->boundary);
 	
-		status = write_stream(p_ap_encode_obj,
-						rd_buff,
-						strlen(rd_buff));
+		status = write_stream(p_ap_encode_obj, (const char*)rd_buff, strlen(rd_buff));
 	
 		if (status == noErr)				
 			status = errDone;
@@ -706,7 +699,5 @@ static int output64chunk(
         *p++ = basis_64[((c2 & 0xF) << 2) | ((c3 & 0xC0) >>6)];
         *p++ = basis_64[c3 & 0x3F];
     }
-	return write_stream(p_ap_encode_obj,
-						tmpstr,
-						p-tmpstr);
+    return write_stream(p_ap_encode_obj, (const char*) tmpstr, p-tmpstr);
 }

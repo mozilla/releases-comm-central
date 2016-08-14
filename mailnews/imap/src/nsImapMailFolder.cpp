@@ -94,6 +94,7 @@
 #include "nsMsgLineBuffer.h"
 #include <algorithm>
 #include "mozilla/Logging.h"
+#include "mozilla/Attributes.h"
 #include "nsStringStream.h"
 #include "nsIStreamListener.h"
 
@@ -825,18 +826,17 @@ NS_IMETHODIMP nsImapMailFolder::UpdateFolderWithListener(nsIMsgWindow *aMsgWindo
       mailnewsUrl->RegisterListener(this);
       m_urlListener = aUrlListener;
     }
-    switch (rv)
+
+    if (rv == NS_MSG_ERROR_OFFLINE)
     {
-      case NS_MSG_ERROR_OFFLINE:
-        if (aMsgWindow)
-          AutoCompact(aMsgWindow);
-        // note fall through to next case.
-      case NS_BINDING_ABORTED:
-        rv = NS_OK;
-        NotifyFolderEvent(mFolderLoadedAtom);
-        break;
-      default:
-        break;
+      if (aMsgWindow)
+        AutoCompact(aMsgWindow);
+    }
+
+    if (rv == NS_MSG_ERROR_OFFLINE || rv == NS_BINDING_ABORTED)
+    {
+      rv = NS_OK;
+      NotifyFolderEvent(mFolderLoadedAtom);
     }
   }
   else if (NS_SUCCEEDED(rv))  // tell the front end that the folder is loaded if we're not going to
@@ -3538,6 +3538,7 @@ NS_IMETHODIMP nsImapMailFolder::ApplyFilterHit(nsIMsgFilter *filter, nsIMsgWindo
           msgIsNew = false;
         }
         // note that delete falls through to move.
+        MOZ_FALLTHROUGH;
         case nsMsgFilterAction::MoveToFolder:
         {
           // if moving to a different file, do it.

@@ -562,7 +562,7 @@ private:
   nsresult GetMsgWindow(nsIMsgWindow ** aMsgWindow);
   // End Process AuthenticatedState Url helper methods
 
-  virtual char const *GetType() {return "imap";}
+  virtual char const *GetType() override {return "imap";}
 
   // Quota support
   void GetQuotaDataIfSupported(const char *aBoxName);

@@ -302,7 +302,7 @@ nsMsgLocalStoreUtils::DiskSpaceAvailableInStore(nsIFile *aFile, uint64_t aSpaceR
   nsresult rv = aFile->GetDiskSpaceAvailable(&diskFree);
   if (NS_SUCCEEDED(rv)) {
 #ifdef DEBUG
-    printf("GetDiskSpaceAvailable returned: %lld bytes\n", diskFree);
+    printf("GetDiskSpaceAvailable returned: %lld bytes\n", (long long)diskFree);
 #endif
     // When checking for disk space available, take into consideration
     // possible database changes, therefore ask for a little more

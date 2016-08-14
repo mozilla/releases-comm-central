@@ -75,6 +75,7 @@
 #include "nsIArray.h"
 #include "nsArrayUtils.h"
 #include "mozilla/Services.h"
+#include "mozilla/Attributes.h"
 #include "mozilla/mailnews/MimeEncoder.h"
 #include "mozilla/mailnews/MimeHeaderParser.h"
 #include "nsIMutableArray.h"
@@ -172,7 +173,7 @@ static nsresult StripOutGroupNames(char * addresses)
           group = false;
           //end of the group, act like a recipient separator now...
         /* NO BREAK */
-
+        MOZ_FALLTHROUGH;
       case ',':
         if (!quoted)
         {
@@ -3165,6 +3166,11 @@ NS_IMETHODIMP nsMsgComposeAndSend::SendDeliveryCallback(nsIURI *aUrl, bool inIsN
   {
     if (NS_FAILED(aExitCode))
     {
+#ifdef __GNUC__
+// Temporary workaroung until bug 783526 is fixed.
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wswitch"
+#endif
       switch (aExitCode)
       {
         case NS_ERROR_UNKNOWN_HOST:
@@ -3190,6 +3196,9 @@ NS_IMETHODIMP nsMsgComposeAndSend::SendDeliveryCallback(nsIURI *aUrl, bool inIsN
             aExitCode = NS_ERROR_SMTP_SEND_FAILED_UNKNOWN_REASON;
           break;
       }
+#ifdef __GNUC__
+#pragma GCC diagnostic pop
+#endif
     }
     DeliverAsMailExit(aUrl, aExitCode);
   }

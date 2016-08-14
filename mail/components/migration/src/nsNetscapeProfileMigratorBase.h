@@ -41,8 +41,8 @@ public:
 
   nsNetscapeProfileMigratorBase();
 
-  NS_IMETHOD GetSourceHasMultipleProfiles(bool* aResult);
-  NS_IMETHOD GetSourceExists(bool* aResult);
+  NS_IMETHOD GetSourceHasMultipleProfiles(bool* aResult) override;
+  NS_IMETHOD GetSourceExists(bool* aResult) override;
 
   struct PrefTransform;
   typedef nsresult(*prefConverter)(PrefTransform*, nsIPrefBranch*);

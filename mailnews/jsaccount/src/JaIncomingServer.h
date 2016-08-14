@@ -34,7 +34,7 @@ public:
 
   // nsMsgIncomingServer overrides
   nsresult CreateRootFolderFromUri(const nsCString &serverUri,
-                                         nsIMsgFolder **rootFolder);
+                                         nsIMsgFolder **rootFolder) override;
 
 protected:
   virtual ~JaBaseCppIncomingServer() { }

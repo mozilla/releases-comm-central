@@ -271,13 +271,12 @@ nsresult nsMsgSearchOfflineMail::OpenSummaryFile ()
     else
       return err; // not sure why m_folder wouldn't be set.
 
-    switch (err)
+    if (NS_SUCCEEDED(err))
+      return NS_OK;
+
+    if ((err == NS_MSG_ERROR_FOLDER_SUMMARY_MISSING) ||
+        (err == NS_MSG_ERROR_FOLDER_SUMMARY_OUT_OF_DATE))
     {
-        case NS_OK:
-            break;
-        case NS_MSG_ERROR_FOLDER_SUMMARY_MISSING:
-        case NS_MSG_ERROR_FOLDER_SUMMARY_OUT_OF_DATE:
-          {
             nsCOMPtr<nsIMsgLocalMailFolder> localFolder = do_QueryInterface(scopeFolder, &err);
             if (NS_SUCCEEDED(err) && localFolder)
             {
@@ -292,12 +291,10 @@ nsresult nsMsgSearchOfflineMail::OpenSummaryFile ()
                 localFolder->ParseFolder(searchWindow, this);
               }
             }
-          }
-            break;
-        default:
-        {
-          NS_ASSERTION(false, "unexpected error opening db");
-        }
+    }
+    else
+    {
+      NS_ASSERTION(false, "unexpected error opening db");
     }
 
     return err;

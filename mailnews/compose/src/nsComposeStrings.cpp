@@ -6,6 +6,11 @@
 
 const char16_t* errorStringNameForErrorCode(nsresult aCode)
 {
+#ifdef __GNUC__
+// Temporary workaroung until bug 783526 is fixed.
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wswitch"
+#endif
   switch(aCode)
   {
     case NS_MSG_UNABLE_TO_OPEN_FILE:
@@ -105,4 +110,7 @@ const char16_t* errorStringNameForErrorCode(nsresult aCode)
     default:
       return u"sendFailed";
   }
+#ifdef __GNUC__
+#pragma GCC diagnostic pop
+#endif
 }

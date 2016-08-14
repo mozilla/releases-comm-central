@@ -497,7 +497,7 @@ nsFolderCompactState::FinishCompact()
   m_folder->ForceDBClosed();
 
   nsCOMPtr<nsIFile> cloneFile;
-  int64_t fileSize;
+  int64_t fileSize = 0;
   rv = m_file->Clone(getter_AddRefs(cloneFile));
   if (NS_SUCCEEDED(rv))
     rv = cloneFile->GetFileSize(&fileSize);

@@ -42,7 +42,7 @@ public:
     m_mailboxAction = aAction;
     return NS_OK;
   }
-  NS_IMETHOD IsUrlType(uint32_t type, bool *isType);
+  NS_IMETHOD IsUrlType(uint32_t type, bool *isType) override;
   NS_IMETHOD SetMoveCopyMsgKeys(nsMsgKey *keysToFlag, int32_t numKeys) override;
   NS_IMETHOD GetMoveCopyMsgHdrForIndex(uint32_t msgIndex, nsIMsgDBHdr **msgHdr) override;
   NS_IMETHOD GetNumMoveCopyMsgs(uint32_t *numMsgs) override;
@@ -58,7 +58,7 @@ public:
     return NS_OK;
   }
 
-  NS_IMETHOD GetFolder(nsIMsgFolder **msgFolder);
+  NS_IMETHOD GetFolder(nsIMsgFolder **msgFolder) override;
 
   // nsIMsgMailNewsUrl override
   NS_IMETHOD CloneInternal(uint32_t aRefHandlingMode,

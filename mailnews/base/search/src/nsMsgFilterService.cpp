@@ -46,6 +46,7 @@
 #include "nsAutoPtr.h"
 #include "nsIMsgFilter.h"
 #include "nsIMsgOperationListener.h"
+#include "mozilla/Attributes.h"
 
 #define BREAK_IF_FAILURE(_rv, _text) if (NS_FAILED(_rv)) { \
   NS_WARNING(_text); \
@@ -607,7 +608,7 @@ nsresult nsMsgFilterAfterTheFact::ApplyFilter()
         //   would not have run if move succeeded.
         m_nextAction = numActions;
         // Fall through to the copy case.
-
+        MOZ_FALLTHROUGH;
       case nsMsgFilterAction::CopyToFolder:
       {
         nsCString uri;

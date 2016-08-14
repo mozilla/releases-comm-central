@@ -46,7 +46,7 @@ public:
                                const int32_t timeOut = 0);
 
   // nsILDAPMessageListener
-  NS_IMETHOD OnLDAPMessage(nsILDAPMessage *aMessage);
+  NS_IMETHOD OnLDAPMessage(nsILDAPMessage *aMessage) override;
 
 protected:
   virtual ~nsAbQueryLDAPMessageListener ();
@@ -56,8 +56,8 @@ protected:
   friend class nsAbLDAPDirectoryQuery;
 
   nsresult Cancel();
-  virtual nsresult DoTask();
-  virtual void InitFailed(bool aCancelled = false);
+  virtual nsresult DoTask() override;
+  virtual void InitFailed(bool aCancelled = false) override;
 
   nsCOMPtr<nsILDAPURL> mSearchUrl;
   nsIAbDirectoryQueryResultListener *mResultListener;
@@ -174,6 +174,7 @@ NS_IMETHODIMP nsAbQueryLDAPMessageListener::OnLDAPMessage(nsILDAPMessage *aMessa
       mWaitingForPrevQueryToFinish = false;
       rv = OnLDAPMessageSearchResult(aMessage);
       NS_ENSURE_SUCCESS(rv, rv);
+      break;
     default:
       break;
     }

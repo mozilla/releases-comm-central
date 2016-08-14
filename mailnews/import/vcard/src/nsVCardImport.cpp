@@ -42,20 +42,20 @@ public:
 
   // TODO: support multiple vCard files in future - shouldn't be too hard,
   // since you just import each file in turn.
-  NS_IMETHOD GetSupportsMultiple(bool *_retval)
+  NS_IMETHOD GetSupportsMultiple(bool *_retval) override
   { *_retval = false; return NS_OK;}
 
-  NS_IMETHOD GetAutoFind(char16_t **description, bool *_retval);
+  NS_IMETHOD GetAutoFind(char16_t **description, bool *_retval) override;
 
-  NS_IMETHOD GetNeedsFieldMap(nsIFile *location, bool *_retval)
+  NS_IMETHOD GetNeedsFieldMap(nsIFile *location, bool *_retval) override
   { *_retval = false; return NS_OK;}
 
   NS_IMETHOD GetDefaultLocation(
-      nsIFile **location, bool *found, bool *userVerify);
+      nsIFile **location, bool *found, bool *userVerify) override;
 
-  NS_IMETHOD FindAddressBooks(nsIFile *location, nsIArray **_retval);
+  NS_IMETHOD FindAddressBooks(nsIFile *location, nsIArray **_retval) override;
 
-  NS_IMETHOD InitFieldMap(nsIImportFieldMap *fieldMap)
+  NS_IMETHOD InitFieldMap(nsIImportFieldMap *fieldMap) override
   { return NS_ERROR_FAILURE;}
 
   NS_IMETHOD ImportAddressBook(nsIImportABDescriptor *source,
@@ -64,15 +64,15 @@ public:
                                nsISupports *aSupportService,
                                char16_t **errorLog,
                                char16_t **successLog,
-                               bool *fatalError);
+                               bool *fatalError) override;
 
-  NS_IMETHOD GetImportProgress(uint32_t *_retval);
+  NS_IMETHOD GetImportProgress(uint32_t *_retval) override;
 
-  NS_IMETHOD GetSampleData(int32_t index, bool *pFound, char16_t **pStr)
+  NS_IMETHOD GetSampleData(int32_t index, bool *pFound, char16_t **pStr) override
   { return NS_ERROR_FAILURE;}
 
-  NS_IMETHOD SetSampleLocation(nsIFile *)
-  { return NS_ERROR_FAILURE; } 
+  NS_IMETHOD SetSampleLocation(nsIFile *) override
+  { return NS_ERROR_FAILURE; }
 
 private:
   virtual ~ImportVCardAddressImpl();

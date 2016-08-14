@@ -865,7 +865,7 @@ NS_IMETHODIMP nsImapUrl::AllocateServerPath(const char * canonicalPath, char onl
   if (!result)
     return NS_ERROR_OUT_OF_MEMORY;
 
-  register unsigned char* dst = (unsigned char *) result;
+  unsigned char* dst = (unsigned char *) result;
   src = sourcePath;
   for (i = 0; i < len; i++)
   {
@@ -887,8 +887,8 @@ NS_IMETHODIMP nsImapUrl::AllocateServerPath(const char * canonicalPath, char onl
 
 /* static */ nsresult nsImapUrl::UnescapeSlashes(char *sourcePath)
 {
-    register char *src = sourcePath;
-    register char *dst = sourcePath;
+    char *src = sourcePath;
+    char *dst = sourcePath;
 
     while (*src)
     {

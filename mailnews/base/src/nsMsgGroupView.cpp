@@ -14,6 +14,7 @@
 #include "nsITreeColumns.h"
 #include "nsMsgMessageFlags.h"
 #include <plhash.h>
+#include "mozilla/Attributes.h"
 
 #define MSGHDR_CACHE_LOOK_AHEAD_SIZE  25    // Allocate this more to avoid reallocation on new mail.
 #define MSGHDR_CACHE_MAX_SIZE         8192  // Max msghdr cache entries.
@@ -226,6 +227,7 @@ nsresult nsMsgGroupView::HashHdr(nsIMsgDBHdr *msgHdr, nsString& aHashKey)
       break;
     case nsMsgViewSortType::byReceived:
       rcvDate = true;
+      MOZ_FALLTHROUGH;
     case nsMsgViewSortType::byDate:
     {
       uint32_t ageBucket;
@@ -797,6 +799,7 @@ NS_IMETHODIMP nsMsgGroupView::CellTextForColumn(int32_t aRow,
       {
         case nsMsgViewSortType::byReceived:
           rcvDate = true;
+          MOZ_FALLTHROUGH;
         case nsMsgViewSortType::byDate:
         {
           uint32_t ageBucket = 0;

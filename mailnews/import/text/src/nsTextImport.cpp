@@ -60,18 +60,18 @@ public:
     NS_DECL_THREADSAFE_ISUPPORTS
 
     // nsIImportAddressBooks interface
-    
-  NS_IMETHOD GetSupportsMultiple(bool *_retval) { *_retval = false; return NS_OK;}
 
-  NS_IMETHOD GetAutoFind(char16_t **description, bool *_retval);
+  NS_IMETHOD GetSupportsMultiple(bool *_retval) override { *_retval = false; return NS_OK;}
 
-  NS_IMETHOD GetNeedsFieldMap(nsIFile *location, bool *_retval);
+  NS_IMETHOD GetAutoFind(char16_t **description, bool *_retval) override;
 
-  NS_IMETHOD GetDefaultLocation(nsIFile **location, bool *found, bool *userVerify);
+  NS_IMETHOD GetNeedsFieldMap(nsIFile *location, bool *_retval) override;
 
-  NS_IMETHOD FindAddressBooks(nsIFile *location, nsIArray **_retval);
+  NS_IMETHOD GetDefaultLocation(nsIFile **location, bool *found, bool *userVerify) override;
 
-  NS_IMETHOD InitFieldMap(nsIImportFieldMap *fieldMap);
+  NS_IMETHOD FindAddressBooks(nsIFile *location, nsIArray **_retval) override;
+
+  NS_IMETHOD InitFieldMap(nsIImportFieldMap *fieldMap) override;
 
   NS_IMETHOD ImportAddressBook(nsIImportABDescriptor *source,
                                nsIAddrDatabase *destination,
@@ -79,13 +79,13 @@ public:
                                nsISupports *aSupportService,
                                char16_t **errorLog,
                                char16_t **successLog,
-                               bool *fatalError);
+                               bool *fatalError) override;
 
-  NS_IMETHOD GetImportProgress(uint32_t *_retval);
+  NS_IMETHOD GetImportProgress(uint32_t *_retval) override;
 
-  NS_IMETHOD GetSampleData(int32_t index, bool *pFound, char16_t **pStr);
+  NS_IMETHOD GetSampleData(int32_t index, bool *pFound, char16_t **pStr) override;
 
-  NS_IMETHOD SetSampleLocation(nsIFile *);
+  NS_IMETHOD SetSampleLocation(nsIFile *) override;
 
 private:
   void ClearSampleFile(void);

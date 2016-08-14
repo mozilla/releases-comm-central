@@ -44,6 +44,7 @@ using namespace mozilla;
 #include <prmem.h>
 #include "nsIMsgTraitService.h"
 #include "mozilla/Services.h"
+#include "mozilla/Attributes.h"
 #include <cstdlib> // for std::abs(int/long)
 #include <cmath> // for std::abs(float/double)
 
@@ -546,6 +547,7 @@ void Tokenizer::tokenizeHeaders(nsIUTF8StringEnumerator * aHeaderNames, nsIUTF8S
         if (Substring(headerName, 0, 9).Equals("x-mozilla"))
           break;
         // fall through
+        MOZ_FALLTHROUGH;
     case 'u':
         addTokenForHeader(headerName.get(), headerValue);
         break;

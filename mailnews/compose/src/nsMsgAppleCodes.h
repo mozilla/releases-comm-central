@@ -77,7 +77,7 @@ PR_BEGIN_EXTERN_C
 /*
 **	string utils.
 */
-int write_stream(appledouble_encode_object *p_ap_encode_obj,char *s,int	 len);
+int write_stream(appledouble_encode_object *p_ap_encode_obj, const char *s,int len);
 
 int fill_apple_mime_header(appledouble_encode_object *p_ap_encode_obj);
 int ap_encode_file_infor(appledouble_encode_object *p_ap_encode_obj);

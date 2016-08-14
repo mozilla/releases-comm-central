@@ -32,7 +32,9 @@ nsMsgSearchSession::nsMsgSearchSession()
   m_handlingError = false;
   m_expressionTree = nullptr;
   m_searchPaused = false;
-  NS_NewISupportsArray(getter_AddRefs(m_termList));
+  nsresult rv = NS_NewISupportsArray(getter_AddRefs(m_termList));
+  if (NS_FAILED(rv))
+    NS_ASSERTION(false, "Failed to allocate a nsISupportsArray for nsMsgFilter");
 }
 
 nsMsgSearchSession::~nsMsgSearchSession()

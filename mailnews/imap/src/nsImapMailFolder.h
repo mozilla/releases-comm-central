@@ -210,7 +210,7 @@ public:
 
   NS_IMETHOD CreateSubfolder(const nsAString& folderName,nsIMsgWindow *msgWindow ) override;
   NS_IMETHOD AddSubfolder(const nsAString& aName, nsIMsgFolder** aChild) override;
-  NS_IMETHODIMP CreateStorageIfMissing(nsIUrlListener* urlListener);
+  NS_IMETHODIMP CreateStorageIfMissing(nsIUrlListener* urlListener) override;
 
   NS_IMETHOD Compact(nsIUrlListener *aListener, nsIMsgWindow *aMsgWindow) override;
   NS_IMETHOD CompactAll(nsIUrlListener *aListener, nsIMsgWindow *aMsgWindow,

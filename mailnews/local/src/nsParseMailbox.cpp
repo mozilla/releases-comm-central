@@ -60,6 +60,7 @@
 #include "mozilla/Services.h"
 #include "nsQueryObject.h"
 #include "nsIOutputStream.h"
+#include "mozilla/Attributes.h"
 
 static NS_DEFINE_CID(kRDFServiceCID, NS_RDFSERVICE_CID);
 
@@ -2040,7 +2041,7 @@ NS_IMETHODIMP nsParseNewMailState::ApplyFilterHit(nsIMsgFilter *filter, nsIMsgWi
         }
 
         // FALLTHROUGH
-
+        MOZ_FALLTHROUGH;
       case nsMsgFilterAction::MoveToFolder:
         // if moving to a different file, do it.
         if (actionTargetFolderUri.get() && !m_inboxUri.Equals(actionTargetFolderUri,

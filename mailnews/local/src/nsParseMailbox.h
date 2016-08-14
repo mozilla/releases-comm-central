@@ -153,7 +153,7 @@ public:
   virtual void  AbortNewHeader();
 
   // for nsMsgLineBuffer
-  virtual nsresult HandleLine(const char *line, uint32_t line_length);
+  virtual nsresult HandleLine(const char *line, uint32_t line_length) override;
 
   void  UpdateDBFolderInfo();
   void  UpdateDBFolderInfo(nsIMsgDatabase *mailDB);

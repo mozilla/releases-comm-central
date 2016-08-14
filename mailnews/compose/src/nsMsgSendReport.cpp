@@ -274,6 +274,11 @@ NS_IMETHODIMP nsMsgSendReport::DisplayReport(nsIPrompt *prompt, bool showErrorOn
   //Do we have an explanation of the error? if no, try to build one...
   if (currMessage.IsEmpty())
   {
+#ifdef __GNUC__
+// Temporary workaroung until bug 783526 is fixed.
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wswitch"
+#endif
     switch (currError)
     {
       case NS_BINDING_ABORTED:
@@ -290,6 +295,9 @@ NS_IMETHODIMP nsMsgSendReport::DisplayReport(nsIPrompt *prompt, bool showErrorOn
         nsMsgGetMessageByName(errorString, currMessage);
         break;
     }
+#ifdef __GNUC__
+#pragma GCC diagnostic pop
+#endif
   }
 
   if (mDeliveryMode == nsIMsgCompDeliverMode::Now || mDeliveryMode == nsIMsgCompDeliverMode::SendUnsent)

@@ -19,15 +19,15 @@ public:
   NS_DECL_NSIMSGI18NURL
 
   // nsIURI over-ride...
-  NS_IMETHOD SetSpec(const nsACString &aSpec);
+  NS_IMETHOD SetSpec(const nsACString &aSpec) override;
 
-  NS_IMETHOD IsUrlType(uint32_t type, bool *isType);
+  NS_IMETHOD IsUrlType(uint32_t type, bool *isType) override;
 
   // nsIMsgMailNewsUrl overrides
-  NS_IMETHOD GetServer(nsIMsgIncomingServer **server);
-  NS_IMETHOD GetFolder(nsIMsgFolder **msgFolder);
+  NS_IMETHOD GetServer(nsIMsgIncomingServer **server) override;
+  NS_IMETHOD GetFolder(nsIMsgFolder **msgFolder) override;
   NS_IMETHOD CloneInternal(uint32_t aRefHandlingMode,
-                           const nsACString& newRef,nsIURI **_retval);
+                           const nsACString& newRef,nsIURI **_retval) override;
 
   // nsNntpUrl
   nsNntpUrl();

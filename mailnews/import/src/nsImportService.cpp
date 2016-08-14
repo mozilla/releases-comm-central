@@ -330,7 +330,8 @@ NS_IMETHODIMP nsProxySendRunnable::Run()
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsISupportsArray> supportsArray;
-  NS_NewISupportsArray(getter_AddRefs(supportsArray));
+  rv = NS_NewISupportsArray(getter_AddRefs(supportsArray));
+  NS_ENSURE_SUCCESS(rv, rv);
 
   if (m_embeddedAttachments) {
     nsCOMPtr<nsISimpleEnumerator> enumerator;
