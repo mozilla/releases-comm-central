@@ -112,7 +112,7 @@ protected: // protected morkStream members
   
 // { ===== begin morkNode interface =====
 public: // morkNode virtual methods
-  virtual void CloseMorkNode(morkEnv* ev); // CloseStream() only if open
+  virtual void CloseMorkNode(morkEnv* ev) override; // CloseStream() only if open
   virtual ~morkStream(); // assert that CloseStream() executed earlier
   
 public: // morkStream construction & destruction
@@ -135,7 +135,7 @@ public: // typing
 // ````` ````` ````` `````   ````` ````` ````` `````  
 public: // virtual morkFile methods
 
-  NS_IMETHOD Steal(nsIMdbEnv* ev, nsIMdbFile* ioThief);
+  NS_IMETHOD Steal(nsIMdbEnv* ev, nsIMdbFile* ioThief) override;
   // Steal: tell this file to close any associated i/o stream in the file
   // system, because the file ioThief intends to reopen the file in order
   // to provide the MDB implementation with more exotic file access than is
@@ -146,12 +146,12 @@ public: // virtual morkFile methods
   // the file has been stolen, it can still be read, written, or forcibly
   // closed (by a call to CloseMdbObject()).
 
-  NS_IMETHOD BecomeTrunk(nsIMdbEnv* ev);
+  NS_IMETHOD BecomeTrunk(nsIMdbEnv* ev) override;
   // If this file is a file version branch created by calling AcquireBud(),
   // BecomeTrunk() causes this file's content to replace the original
   // file's content, typically by assuming the original file's identity.
 
-  NS_IMETHOD AcquireBud(nsIMdbEnv* ev, nsIMdbHeap* ioHeap, nsIMdbFile** acqBud);
+  NS_IMETHOD AcquireBud(nsIMdbEnv* ev, nsIMdbHeap* ioHeap, nsIMdbFile** acqBud) override;
   // AcquireBud() starts a new "branch" version of the file, empty of content,
   // so that a new version of the file can be written.  This new file
   // can later be told to BecomeTrunk() the original file, so the branch
@@ -166,13 +166,13 @@ public: // virtual morkFile methods
   // are renamed to become the old file, so that better transactional
   // behavior is exhibited by the file, so crashes protect old files.
   // Note that AcquireBud() is an illegal operation on readonly files.
-  
-  virtual mork_pos Length(morkEnv* ev) const; // eof
-  NS_IMETHOD  Tell(nsIMdbEnv* ev, mork_pos *aOutPos  ) const;
-  NS_IMETHOD  Read(nsIMdbEnv* ev, void* outBuf, mork_size inSize, mork_size *aOutCount);
-  NS_IMETHOD  Seek(nsIMdbEnv* ev, mork_pos inPos, mork_pos *aOutPos);
-  NS_IMETHOD  Write(nsIMdbEnv* ev, const void* inBuf, mork_size inSize, mork_size *aOutCount);
-  NS_IMETHOD  Flush(nsIMdbEnv* ev);
+
+  virtual mork_pos Length(morkEnv* ev) const override; // eof
+  NS_IMETHOD  Tell(nsIMdbEnv* ev, mork_pos *aOutPos  ) const override;
+  NS_IMETHOD  Read(nsIMdbEnv* ev, void* outBuf, mork_size inSize, mork_size *aOutCount) override;
+  NS_IMETHOD  Seek(nsIMdbEnv* ev, mork_pos inPos, mork_pos *aOutPos) override;
+  NS_IMETHOD  Write(nsIMdbEnv* ev, const void* inBuf, mork_size inSize, mork_size *aOutCount) override;
+  NS_IMETHOD  Flush(nsIMdbEnv* ev) override;
     
 // ````` ````` ````` `````   ````` ````` ````` `````  
 protected: // protected non-poly morkStream methods (for char io)

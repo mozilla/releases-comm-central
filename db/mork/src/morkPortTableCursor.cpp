@@ -110,8 +110,6 @@ morkPortTableCursor::CanUsePortTableCursor(nsIMdbEnv* mev, mork_bool inMutable,
 /*public non-poly*/ void
 morkPortTableCursor::ClosePortTableCursor(morkEnv* ev) 
 {
-  if ( this )
-  {
     if ( this->IsNode() )
     {
       mCursor_Pos = -1;
@@ -125,9 +123,6 @@ morkPortTableCursor::ClosePortTableCursor(morkEnv* ev)
     }
     else
       this->NonNodeError(ev);
-  }
-  else
-    ev->NilPointerError();
 }
 
 // } ===== end morkNode methods =====

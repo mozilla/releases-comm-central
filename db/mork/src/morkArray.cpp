@@ -88,8 +88,6 @@ morkArray::morkArray(morkEnv* ev, const morkUsage& inUsage,
 /*public non-poly*/ void
 morkArray::CloseArray(morkEnv* ev) // called by CloseMorkNode();
 {
-  if ( this )
-  {
     if ( this->IsNode() )
     {
       if ( mArray_Heap && mArray_Slots )
@@ -104,9 +102,6 @@ morkArray::CloseArray(morkEnv* ev) // called by CloseMorkNode();
     }
     else
       this->NonNodeError(ev);
-  }
-  else
-    ev->NilPointerError();
 }
 
 // } ===== end morkNode methods =====

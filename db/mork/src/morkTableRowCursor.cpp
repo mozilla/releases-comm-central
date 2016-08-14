@@ -88,8 +88,6 @@ NS_IMPL_ISUPPORTS_INHERITED(morkTableRowCursor, morkCursor, nsIMdbTableRowCursor
 /*public non-poly*/ void
 morkTableRowCursor::CloseTableRowCursor(morkEnv* ev) 
 {
-  if ( this )
-  {
     if ( this->IsNode() )
     {
       mCursor_Pos = -1;
@@ -100,9 +98,6 @@ morkTableRowCursor::CloseTableRowCursor(morkEnv* ev)
     }
     else
       this->NonNodeError(ev);
-  }
-  else
-    ev->NilPointerError();
 }
 
 // } ===== end morkNode methods =====

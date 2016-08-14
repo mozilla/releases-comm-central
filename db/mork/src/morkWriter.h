@@ -184,12 +184,12 @@ public: // state is public because the entire Mork system is private
 #else /*MORK_ENABLE_PROBE_MAPS*/
   morkRowMapIter  mWriter_RowSpaceRowsIter;      // for mRowSpace_Rows
 #endif /*MORK_ENABLE_PROBE_MAPS*/
-   
+
 // { ===== begin morkNode interface =====
 public: // morkNode virtual methods
-  virtual void CloseMorkNode(morkEnv* ev); // CloseWriter()
+  virtual void CloseMorkNode(morkEnv* ev) override; // CloseWriter()
   virtual ~morkWriter(); // assert that close executed earlier
-  
+
 public: // morkWriter construction & destruction
   morkWriter(morkEnv* ev, const morkUsage& inUsage,
     nsIMdbHeap* ioHeap, morkStore* ioStore, nsIMdbFile* ioFile,

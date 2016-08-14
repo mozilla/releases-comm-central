@@ -63,8 +63,6 @@ morkIntMap::morkIntMap(morkEnv* ev,
 /*public non-poly*/ void
 morkIntMap::CloseIntMap(morkEnv* ev) // called by CloseMorkNode();
 {
-  if ( this )
-  {
     if ( this->IsNode() )
     {
       this->CloseMap(ev);
@@ -72,9 +70,6 @@ morkIntMap::CloseIntMap(morkEnv* ev) // called by CloseMorkNode();
     }
     else
       this->NonNodeError(ev);
-  }
-  else
-    ev->NilPointerError();
 }
 
 // } ===== end morkNode methods =====
@@ -172,8 +167,6 @@ morkPointerMap::morkPointerMap(morkEnv* ev,
 /*public non-poly*/ void
 morkPointerMap::ClosePointerMap(morkEnv* ev) // called by CloseMorkNode();
 {
-  if ( this )
-  {
     if ( this->IsNode() )
     {
       this->CloseMap(ev);
@@ -181,9 +174,6 @@ morkPointerMap::ClosePointerMap(morkEnv* ev) // called by CloseMorkNode();
     }
     else
       this->NonNodeError(ev);
-  }
-  else
-    ev->NilPointerError();
 }
 
 // } ===== end morkNode methods =====

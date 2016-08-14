@@ -48,7 +48,7 @@ public: // state is public because the entire Mork system is private
     
 // { ===== begin morkNode interface =====
 public: // morkNode virtual methods
-  virtual void CloseMorkNode(morkEnv* ev); // CloseTableRowCursor()
+  virtual void CloseMorkNode(morkEnv* ev) override; // CloseTableRowCursor()
 
 protected:
   virtual ~morkTableRowCursor(); // assert that close executed earlier
@@ -66,48 +66,48 @@ public:
   NS_DECL_ISUPPORTS_INHERITED
 
   // { ----- begin attribute methods -----
-  NS_IMETHOD GetCount(nsIMdbEnv* ev, mdb_count* outCount); // readonly
-  NS_IMETHOD GetSeed(nsIMdbEnv* ev, mdb_seed* outSeed);    // readonly
+  NS_IMETHOD GetCount(nsIMdbEnv* ev, mdb_count* outCount) override; // readonly
+  NS_IMETHOD GetSeed(nsIMdbEnv* ev, mdb_seed* outSeed) override;    // readonly
   
-  NS_IMETHOD SetPos(nsIMdbEnv* ev, mdb_pos inPos);   // mutable
-  NS_IMETHOD GetPos(nsIMdbEnv* ev, mdb_pos* outPos);
+  NS_IMETHOD SetPos(nsIMdbEnv* ev, mdb_pos inPos) override;   // mutable
+  NS_IMETHOD GetPos(nsIMdbEnv* ev, mdb_pos* outPos) override;
   
-  NS_IMETHOD SetDoFailOnSeedOutOfSync(nsIMdbEnv* ev, mdb_bool inFail);
-  NS_IMETHOD GetDoFailOnSeedOutOfSync(nsIMdbEnv* ev, mdb_bool* outFail);
+  NS_IMETHOD SetDoFailOnSeedOutOfSync(nsIMdbEnv* ev, mdb_bool inFail) override;
+  NS_IMETHOD GetDoFailOnSeedOutOfSync(nsIMdbEnv* ev, mdb_bool* outFail) override;
 
   // } ----- end attribute methods -----
-    NS_IMETHOD GetTable(nsIMdbEnv* ev, nsIMdbTable** acqTable);
+    NS_IMETHOD GetTable(nsIMdbEnv* ev, nsIMdbTable** acqTable) override;
   // } ----- end attribute methods -----
 
   // { ----- begin duplicate row removal methods -----
   NS_IMETHOD CanHaveDupRowMembers(nsIMdbEnv* ev, // cursor might hold dups?
-    mdb_bool* outCanHaveDups);
+    mdb_bool* outCanHaveDups) override;
     
   NS_IMETHOD MakeUniqueCursor( // clone cursor, removing duplicate rows
     nsIMdbEnv* ev, // context
-    nsIMdbTableRowCursor** acqCursor);    // acquire clone with no dups
+    nsIMdbTableRowCursor** acqCursor) override;    // acquire clone with no dups
   // } ----- end duplicate row removal methods -----
 
   // { ----- begin oid iteration methods -----
   NS_IMETHOD NextRowOid( // get row id of next row in the table
     nsIMdbEnv* ev, // context
     mdbOid* outOid, // out row oid
-    mdb_pos* outRowPos);    // zero-based position of the row in table
+    mdb_pos* outRowPos) override; // zero-based position of the row in table
   NS_IMETHOD PrevRowOid( // get row id of previous row in the table
     nsIMdbEnv* ev, // context
     mdbOid* outOid, // out row oid
-    mdb_pos* outRowPos);    // zero-based position of the row in table
+    mdb_pos* outRowPos) override; // zero-based position of the row in table
   // } ----- end oid iteration methods -----
 
   // { ----- begin row iteration methods -----
   NS_IMETHOD NextRow( // get row cells from table for cells already in row
     nsIMdbEnv* ev, // context
     nsIMdbRow** acqRow, // acquire next row in table
-    mdb_pos* outRowPos);    // zero-based position of the row in table
+    mdb_pos* outRowPos) override; // zero-based position of the row in table
   NS_IMETHOD PrevRow( // get row cells from table for cells already in row
     nsIMdbEnv* ev, // context
     nsIMdbRow** acqRow, // acquire previous row in table
-    mdb_pos* outRowPos);    // zero-based position of the row in table
+    mdb_pos* outRowPos) override; // zero-based position of the row in table
   // } ----- end row iteration methods -----
 
 

@@ -59,7 +59,7 @@ public: // state is public because the entire Mork system is private
   morkEnv * mMorkEnv; // weak ref to environment this object created in.
 // { ===== begin morkNode interface =====
 public: // morkNode virtual methods
-  virtual void CloseMorkNode(morkEnv* ev); // CloseObject() only if open
+  virtual void CloseMorkNode(morkEnv* ev) override; // CloseObject() only if open
 #ifdef MORK_DEBUG_HEAP_STATS
   void operator delete(void* ioAddress, size_t size)
   { 
@@ -74,28 +74,36 @@ public: // morkNode virtual methods
   NS_DECL_ISUPPORTS
 
     // { ----- begin attribute methods -----
-  NS_IMETHOD IsFrozenMdbObject(nsIMdbEnv* ev, mdb_bool* outIsReadonly);
+  NS_IMETHOD IsFrozenMdbObject(nsIMdbEnv* ev, mdb_bool* outIsReadonly) override;
   // same as nsIMdbPort::GetIsPortReadonly() when this object is inside a port.
   // } ----- end attribute methods -----
 
   // { ----- begin factory methods -----
-  NS_IMETHOD GetMdbFactory(nsIMdbEnv* ev, nsIMdbFactory** acqFactory); 
+  NS_IMETHOD GetMdbFactory(nsIMdbEnv* ev, nsIMdbFactory** acqFactory) override;
   // } ----- end factory methods -----
 
   // { ----- begin ref counting for well-behaved cyclic graphs -----
   NS_IMETHOD GetWeakRefCount(nsIMdbEnv* ev, // weak refs
-    mdb_count* outCount);  
+    mdb_count* outCount) override;
   NS_IMETHOD GetStrongRefCount(nsIMdbEnv* ev, // strong refs
-    mdb_count* outCount);
+    mdb_count* outCount) override;
 
-  NS_IMETHOD AddWeakRef(nsIMdbEnv* ev);
-  NS_IMETHOD_(mork_uses) AddStrongRef(nsIMdbEnv* ev);
+  NS_IMETHOD AddWeakRef(nsIMdbEnv* ev) override;
+#ifndef _MSC_VER
+  // The first declaration of AddStrongRef is to suppress -Werror,-Woverloaded-virtual.
+  NS_IMETHOD_(mork_uses) AddStrongRef(morkEnv* ev) override;
+#endif
+  NS_IMETHOD_(mork_uses) AddStrongRef(nsIMdbEnv* ev) override;
 
-  NS_IMETHOD CutWeakRef(nsIMdbEnv* ev);
-  NS_IMETHOD CutStrongRef(nsIMdbEnv* ev);
-  
-  NS_IMETHOD CloseMdbObject(nsIMdbEnv* ev); // called at strong refs zero
-  NS_IMETHOD IsOpenMdbObject(nsIMdbEnv* ev, mdb_bool* outOpen);
+  NS_IMETHOD CutWeakRef(nsIMdbEnv* ev) override;
+#ifndef _MSC_VER
+  // The first declaration of CutStrongRef is to suppress -Werror,-Woverloaded-virtual.
+  NS_IMETHOD_(mork_uses) CutStrongRef(morkEnv* ev) override;
+#endif
+  NS_IMETHOD CutStrongRef(nsIMdbEnv* ev) override;
+
+  NS_IMETHOD CloseMdbObject(nsIMdbEnv* ev) override; // called at strong refs zero
+  NS_IMETHOD IsOpenMdbObject(nsIMdbEnv* ev, mdb_bool* outOpen) override;
   // } ----- end ref counting -----
   
 

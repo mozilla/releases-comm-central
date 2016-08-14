@@ -76,8 +76,6 @@ morkBead::morkBead(morkEnv* ev,
 /*public non-poly*/ void
 morkBead::CloseBead(morkEnv* ev) // called by CloseMorkNode();
 {
-  if ( this )
-  {
     if ( this->IsNode() )
     {
       if ( !this->IsShutNode() )
@@ -88,9 +86,6 @@ morkBead::CloseBead(morkEnv* ev) // called by CloseMorkNode();
     }
     else
       this->NonNodeError(ev);
-  }
-  else
-    ev->NilPointerError();
 }
 
 // } ===== end morkNode methods =====
@@ -131,8 +126,6 @@ morkBeadMap::morkBeadMap(morkEnv* ev,
 /*public non-poly*/ void
 morkBeadMap::CloseBeadMap(morkEnv* ev) // called by CloseMorkNode();
 {
-  if ( this )
-  {
     if ( this->IsNode() )
     {
       this->CutAllBeads(ev);
@@ -141,9 +134,6 @@ morkBeadMap::CloseBeadMap(morkEnv* ev) // called by CloseMorkNode();
     }
     else
       this->NonNodeError(ev);
-  }
-  else
-    ev->NilPointerError();
 }
 
 // } ===== end morkNode methods =====
@@ -315,8 +305,6 @@ morkBeadProbeMap::morkBeadProbeMap(morkEnv* ev, const morkUsage& inUsage,
 /*public non-poly*/ void
 morkBeadProbeMap::CloseBeadProbeMap(morkEnv* ev) // called by CloseMorkNode();
 {
-  if ( this )
-  {
     if ( this->IsNode() )
     {
       this->CutAllBeads(ev);
@@ -325,9 +313,6 @@ morkBeadProbeMap::CloseBeadProbeMap(morkEnv* ev) // called by CloseMorkNode();
     }
     else
       this->NonNodeError(ev);
-  }
-  else
-    ev->NilPointerError();
 }
 
 // } ===== end morkNode methods =====

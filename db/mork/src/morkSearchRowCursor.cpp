@@ -91,8 +91,6 @@ morkSearchRowCursor::morkSearchRowCursor(morkEnv* ev,
 /*public non-poly*/ void
 morkSearchRowCursor::CloseSearchRowCursor(morkEnv* ev) 
 {
-  if ( this )
-  {
     if ( this->IsNode() )
     {
       // morkSorting::SlotWeakSorting((morkSorting*) 0, ev, &mSortingRowCursor_Sorting);
@@ -101,9 +99,6 @@ morkSearchRowCursor::CloseSearchRowCursor(morkEnv* ev)
     }
     else
       this->NonNodeError(ev);
-  }
-  else
-    ev->NilPointerError();
 }
 
 // } ===== end morkNode methods =====

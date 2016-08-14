@@ -163,8 +163,6 @@ NS_IMPL_ISUPPORTS_INHERITED(morkEnv, morkObject, nsIMdbEnv)
 /*public non-poly*/ void
 morkEnv::CloseEnv(morkEnv* ev) /*i*/ // called by CloseMorkNode();
 {
-  if ( this )
-  {
     if ( this->IsNode() )
     {
       // $$$ release mEnv_SelfAsMdbEnv??
@@ -197,9 +195,6 @@ morkEnv::CloseEnv(morkEnv* ev) /*i*/ // called by CloseMorkNode();
     }
     else
       this->NonNodeError(ev);
-  }
-  else
-    ev->NilPointerError();
 }
 
 // } ===== end morkNode methods =====

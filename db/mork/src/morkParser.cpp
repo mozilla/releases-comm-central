@@ -146,8 +146,6 @@ morkParser::morkParser(morkEnv* ev,
 /*public non-poly*/ void
 morkParser::CloseParser(morkEnv* ev) // called by CloseMorkNode();
 {
-  if ( this )
-  {
     if ( this->IsNode() )
     {
       if ( !this->IsShutNode() )
@@ -163,9 +161,6 @@ morkParser::CloseParser(morkEnv* ev) // called by CloseMorkNode();
     }
     else
       this->NonNodeError(ev);
-  }
-  else
-    ev->NilPointerError();
 }
 
 // } ===== end morkNode methods =====
@@ -288,7 +283,7 @@ int morkParser::eat_comment(morkEnv* ev) // last char was '/'
   // Note morkStream::Getc() returns EOF when an error occurs, so
   // we don't need to check for both c != EOF and ev->Good() below.
   
-  register int c = s->Getc(ev);
+  int c = s->Getc(ev);
   if ( c == '/' ) // C++ style comment?
   {
     while ( (c = s->Getc(ev)) != EOF && c != 0xA && c != 0xD )
@@ -347,7 +342,7 @@ int morkParser::eat_comment(morkEnv* ev) // last char was '/'
 int morkParser::eat_line_break(morkEnv* ev, int inLast)
 {
   morkStream* s = mParser_Stream;
-  register int c = s->Getc(ev); // get next char after 0xA or 0xD
+  int c = s->Getc(ev); // get next char after 0xA or 0xD
   this->CountLineBreak();
   if ( c == 0xA || c == 0xD ) // another line break character?
   {
@@ -360,7 +355,7 @@ int morkParser::eat_line_break(morkEnv* ev, int inLast)
 int morkParser::eat_line_continue(morkEnv* ev) // last char was '\'
 {
   morkStream* s = mParser_Stream;
-  register int c = s->Getc(ev);
+  int c = s->Getc(ev);
   if ( c == 0xA || c == 0xD ) // linebreak follows \ as expected?
   {
     c = this->eat_line_break(ev, c);
@@ -374,7 +369,7 @@ int morkParser::eat_line_continue(morkEnv* ev) // last char was '\'
 int morkParser::NextChar(morkEnv* ev) // next non-white content
 {
   morkStream* s = mParser_Stream;
-  register int c = s->Getc(ev);
+  int c = s->Getc(ev);
   while ( c > 0 && ev->Good() )
   {
     if ( c == '/' )
@@ -434,7 +429,7 @@ morkParser::OnDictState(morkEnv* ev)
   ev->StubMethodOnlyError();
 }
 
-morkBuf* morkParser::ReadName(morkEnv* ev, register int c)
+morkBuf* morkParser::ReadName(morkEnv* ev, int c)
 {
   morkBuf* outBuf = 0;
   
@@ -480,7 +475,7 @@ morkParser::ReadMid(morkEnv* ev, morkMid* outMid)
   morkStream* s = mParser_Stream;
   int next;
   outMid->mMid_Oid.mOid_Id = this->ReadHex(ev, &next);
-  register int c = next;
+  int c = next;
   if ( c == ':' )
   {
     if ( (c = s->Getc(ev)) != EOF && ev->Good() )
@@ -517,7 +512,7 @@ morkParser::ReadCell(morkEnv* ev)
   morkBuf* cellBuf = 0; // if naked string is used for column
 
   morkStream* s = mParser_Stream;
-  register int c;
+  int c;
   if ( (c = s->Getc(ev)) != EOF && ev->Good() )
   {
     // this->StartSpanOnLastByte(ev, &mParser_ColumnSpan);
@@ -798,7 +793,7 @@ mork_id morkParser::ReadHex(morkEnv* ev, int* outNextChar)
   mork_id hex = 0;
 
   morkStream* s = mParser_Stream;
-  register int c = this->NextChar(ev);
+  int c = this->NextChar(ev);
     
   if ( ev->Good() )
   {
@@ -869,7 +864,7 @@ morkBuf* morkParser::ReadValue(morkEnv* ev)
   if ( ev->Good() )
   {
     morkStream* s = mParser_Stream;
-    register int c;
+    int c;
     while ( (c = s->Getc(ev)) != EOF && c != ')' && ev->Good() )
     {
       if ( c == '\\' ) // next char is escaped by '\'? 
@@ -996,7 +991,7 @@ void morkParser::ReadAlias(morkEnv* ev)
 
   int nextChar;
   mork_id hex = this->ReadHex(ev, &nextChar);
-  register int c = nextChar;
+  int c = nextChar;
 
   mParser_Mid.ClearMid();
   mParser_Mid.mMid_Oid.mOid_Id = hex;
@@ -1107,7 +1102,7 @@ mork_bool morkParser::MatchPattern(morkEnv* ev, const char* inPattern)
   // if an error occurs, we want original inPattern in the debugger:
   const char* pattern = inPattern; // mutable copy of pointer
   morkStream* s = mParser_Stream;
-  register int c;
+  int c;
   while ( *pattern && ev->Good() )
   {
     char byte = *pattern++;
@@ -1127,7 +1122,7 @@ mork_bool morkParser::FindGroupEnd(morkEnv* ev)
   // (void) ev->TokenAsHex(gidBuf, mParser_GroupId);
   
   morkStream* s = mParser_Stream;
-  register int c;
+  int c;
   
   while ( (c = s->Getc(ev)) != EOF && ev->Good() && !foundEnd )
   {
@@ -1164,7 +1159,7 @@ void morkParser::ReadGroup(morkEnv* mev)
   if ( next == '{' )
   {
     morkStream* s = mParser_Stream;
-     register int c;
+     int c;
     if ( (c = s->Getc(mev)) == '@' )
     {
     	// we really need the following span inside morkBuilder::OnNewGroup():
@@ -1212,7 +1207,7 @@ mork_bool morkParser::ReadAt(morkEnv* ev, mork_bool inInsideGroup)
   if ( this->MatchPattern(ev, "$$") )
   {
     morkStream* s = mParser_Stream;
-     register int c;
+     int c;
     if ( ((c = s->Getc(ev)) == '{' || c == '}') && ev->Good() )
      {
        if ( c == '{' ) // start of new group?
@@ -1243,7 +1238,7 @@ mork_bool morkParser::ReadEndGroupId(morkEnv* ev)
 {
   mork_bool outSawGroupId = morkBool_kFalse;
   morkStream* s = mParser_Stream;
-  register int c;
+  int c;
   if ( (c = s->Getc(ev)) != EOF && ev->Good() )
   {
     if ( c == '~' ) // transaction is aborted?

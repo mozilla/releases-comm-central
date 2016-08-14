@@ -32,7 +32,7 @@ class morkRowMap : public morkMap { // for mapping row IDs to rows
 
 // { ===== begin morkNode interface =====
 public: // morkNode virtual methods
-  virtual void CloseMorkNode(morkEnv* ev); // CloseRowMap() only if open
+  virtual void CloseMorkNode(morkEnv* ev) override; // CloseRowMap() only if open
   virtual ~morkRowMap(); // assert that CloseRowMap() executed earlier
   
 public: // morkMap construction & destruction
@@ -47,11 +47,11 @@ public: // dynamic type identification
 
 // { ===== begin morkMap poly interface =====
   virtual mork_bool // note: equal(a,b) implies hash(a) == hash(b)
-  Equal(morkEnv* ev, const void* inKeyA, const void* inKeyB) const;
+  Equal(morkEnv* ev, const void* inKeyA, const void* inKeyB) const override;
   // implemented using morkRow::EqualRow()
 
   virtual mork_u4 // note: equal(a,b) implies hash(a) == hash(b)
-  Hash(morkEnv* ev, const void* inKey) const;
+  Hash(morkEnv* ev, const void* inKey) const override;
   // implemented using morkRow::HashRow()
 // } ===== end morkMap poly interface =====
 
@@ -118,7 +118,7 @@ class morkRowProbeMap : public morkProbeMap { // for mapping row IDs to rows
 
 // { ===== begin morkNode interface =====
 public: // morkNode virtual methods
-  virtual void CloseMorkNode(morkEnv* ev); // CloseRowProbeMap() only if open
+  virtual void CloseMorkNode(morkEnv* ev) override; // CloseRowProbeMap() only if open
   virtual ~morkRowProbeMap(); // assert CloseRowProbeMap() executed earlier
   
 public: // morkMap construction & destruction
@@ -133,12 +133,12 @@ public: // dynamic type identification
 
   // { ===== begin morkProbeMap methods =====
   virtual mork_test // hit(a,b) implies hash(a) == hash(b)
-  MapTest(morkEnv* ev, const void* inMapKey, const void* inAppKey) const;
+  MapTest(morkEnv* ev, const void* inMapKey, const void* inAppKey) const override;
 
   virtual mork_u4 // hit(a,b) implies hash(a) == hash(b)
-  MapHash(morkEnv* ev, const void* inAppKey) const;
+  MapHash(morkEnv* ev, const void* inAppKey) const override;
 
-  virtual mork_u4 ProbeMapHashMapKey(morkEnv* ev, const void* inMapKey) const;
+  virtual mork_u4 ProbeMapHashMapKey(morkEnv* ev, const void* inMapKey) const override;
 
   // virtual mork_bool ProbeMapIsKeyNil(morkEnv* ev, void* ioMapKey);
 

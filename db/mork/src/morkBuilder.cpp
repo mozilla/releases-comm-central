@@ -158,8 +158,6 @@ morkBuilder::morkBuilder(morkEnv* ev,
 /*public non-poly*/ void
 morkBuilder::CloseBuilder(morkEnv* ev) // called by CloseMorkNode();
 {
-  if ( this )
-  {
     if ( this->IsNode() )
     {
       mBuilder_Row = 0;
@@ -185,9 +183,6 @@ morkBuilder::CloseBuilder(morkEnv* ev) // called by CloseMorkNode();
     }
     else
       this->NonNodeError(ev);
-  }
-  else
-    ev->NilPointerError();
 }
 
 // } ===== end morkNode methods =====

@@ -67,8 +67,6 @@ morkRowMap::morkRowMap(morkEnv* ev, const morkUsage& inUsage,
 /*public non-poly*/ void
 morkRowMap::CloseRowMap(morkEnv* ev) // called by CloseMorkNode();
 {
-  if ( this )
-  {
     if ( this->IsNode() )
     {
       this->CloseMap(ev);
@@ -76,9 +74,6 @@ morkRowMap::CloseRowMap(morkEnv* ev) // called by CloseMorkNode();
     }
     else
       this->NonNodeError(ev);
-  }
-  else
-    ev->NilPointerError();
 }
 
 // } ===== end morkNode methods =====
@@ -195,8 +190,6 @@ morkRowProbeMap::morkRowProbeMap(morkEnv* ev, const morkUsage& inUsage,
 /*public non-poly*/ void
 morkRowProbeMap::CloseRowProbeMap(morkEnv* ev) // called by CloseMorkNode();
 {
-  if ( this )
-  {
     if ( this->IsNode() )
     {
       this->CloseProbeMap(ev);
@@ -204,9 +197,6 @@ morkRowProbeMap::CloseRowProbeMap(morkEnv* ev) // called by CloseMorkNode();
     }
     else
       this->NonNodeError(ev);
-  }
-  else
-    ev->NilPointerError();
 }
 
 // } ===== end morkNode methods =====

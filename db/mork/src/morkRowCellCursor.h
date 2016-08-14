@@ -44,19 +44,19 @@ public: // state is public because the entire Mork system is private
   NS_DECL_ISUPPORTS_INHERITED
   morkRowObject*   mRowCellCursor_RowObject;  // strong ref to row
   mork_column      mRowCellCursor_Col;        // col of cell last at mCursor_Pos
-  
+
 // { ===== begin morkNode interface =====
 public: // morkNode virtual methods
-  virtual void CloseMorkNode(morkEnv* ev); // CloseRowCellCursor()
-  
+  virtual void CloseMorkNode(morkEnv* ev) override; // CloseRowCellCursor()
+
 public: // morkRowCellCursor construction & destruction
   morkRowCellCursor(morkEnv* ev, const morkUsage& inUsage,
     nsIMdbHeap* ioHeap, morkRowObject* ioRowObject);
   void CloseRowCellCursor(morkEnv* ev); // called by CloseMorkNode();
 
   // { ----- begin attribute methods -----
-  NS_IMETHOD SetRow(nsIMdbEnv* ev, nsIMdbRow* ioRow); // sets pos to -1
-  NS_IMETHOD GetRow(nsIMdbEnv* ev, nsIMdbRow** acqRow);
+  NS_IMETHOD SetRow(nsIMdbEnv* ev, nsIMdbRow* ioRow) override; // sets pos to -1
+  NS_IMETHOD GetRow(nsIMdbEnv* ev, nsIMdbRow** acqRow) override;
   // } ----- end attribute methods -----
 
   // { ----- begin cell creation methods -----
@@ -64,7 +64,7 @@ public: // morkRowCellCursor construction & destruction
     nsIMdbEnv* ev, // context
     mdb_column* outColumn, // column for this particular cell
     mdb_pos* outPos, // position of cell in row sequence
-    nsIMdbCell** acqCell); // the cell at inPos
+    nsIMdbCell** acqCell) override; // the cell at inPos
   // } ----- end cell creation methods -----
 
   // { ----- begin cell seeking methods -----
@@ -72,7 +72,7 @@ public: // morkRowCellCursor construction & destruction
     nsIMdbEnv* ev, // context
     mdb_pos inPos, // position of cell in row sequence
     mdb_column* outColumn, // column for this particular cell
-    nsIMdbCell** acqCell); // the cell at inPos
+    nsIMdbCell** acqCell) override; // the cell at inPos
   // } ----- end cell seeking methods -----
 
   // { ----- begin cell iteration methods -----
@@ -80,14 +80,14 @@ public: // morkRowCellCursor construction & destruction
     nsIMdbEnv* ev, // context
     nsIMdbCell** acqCell, // changes to the next cell in the iteration
     mdb_column* outColumn, // column for this particular cell
-    mdb_pos* outPos); // position of cell in row sequence
+    mdb_pos* outPos) override; // position of cell in row sequence
     
   NS_IMETHOD PickNextCell( // get next cell in row within filter set
     nsIMdbEnv* ev, // context
     nsIMdbCell* ioCell, // changes to the next cell in the iteration
     const mdbColumnSet* inFilterSet, // col set of actual caller interest
     mdb_column* outColumn, // column for this particular cell
-    mdb_pos* outPos); // position of cell in row sequence
+    mdb_pos* outPos) override; // position of cell in row sequence
 
   // Note that inFilterSet should not have too many (many more than 10?)
   // cols, since this might imply a potential excessive consumption of time

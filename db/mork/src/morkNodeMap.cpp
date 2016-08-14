@@ -66,8 +66,6 @@ morkNodeMap::morkNodeMap(morkEnv* ev,
 /*public non-poly*/ void
 morkNodeMap::CloseNodeMap(morkEnv* ev) // called by CloseMorkNode();
 {
-  if ( this )
-  {
     if ( this->IsNode() )
     {
       this->CutAllNodes(ev);
@@ -76,9 +74,6 @@ morkNodeMap::CloseNodeMap(morkEnv* ev) // called by CloseMorkNode();
     }
     else
       this->NonNodeError(ev);
-  }
-  else
-    ev->NilPointerError();
 }
 
 // } ===== end morkNode methods =====

@@ -170,7 +170,7 @@ protected: // protected inlines
   
 // { ===== begin morkNode interface =====
 public: // morkNode virtual methods
-  virtual void CloseMorkNode(morkEnv* ev); // CloseBuilder() only if open
+  virtual void CloseMorkNode(morkEnv* ev) override; // CloseBuilder() only if open
   virtual ~morkBuilder(); // assert that CloseBuilder() executed earlier
   
 public: // morkYarn construction & destruction
@@ -213,7 +213,7 @@ public: // in virtual morkParser methods, data flow subclass to parser
 
     virtual void MidToYarn(morkEnv* ev,
       const morkMid& inMid,  // typically an alias to concat with strings
-      mdbYarn* outYarn);
+      mdbYarn* outYarn) override;
     // The parser might ask that some aliases be turned into yarns, so they
     // can be concatenated into longer blobs under some circumstances.  This
     // is an alternative to using a long and complex callback for many parts
@@ -222,67 +222,67 @@ public: // in virtual morkParser methods, data flow subclass to parser
 // ````` ````` ````` `````   ````` ````` ````` `````  
 public: // out virtual morkParser methods, data flow parser to subclass
 
-  virtual void OnNewPort(morkEnv* ev, const morkPlace& inPlace);
-  virtual void OnPortGlitch(morkEnv* ev, const morkGlitch& inGlitch);  
-  virtual void OnPortEnd(morkEnv* ev, const morkSpan& inSpan);  
+  virtual void OnNewPort(morkEnv* ev, const morkPlace& inPlace) override;
+  virtual void OnPortGlitch(morkEnv* ev, const morkGlitch& inGlitch) override;
+  virtual void OnPortEnd(morkEnv* ev, const morkSpan& inSpan) override;
 
-  virtual void OnNewGroup(morkEnv* ev, const morkPlace& inPlace, mork_gid inGid);
-  virtual void OnGroupGlitch(morkEnv* ev, const morkGlitch& inGlitch);  
-  virtual void OnGroupCommitEnd(morkEnv* ev, const morkSpan& inSpan);  
-  virtual void OnGroupAbortEnd(morkEnv* ev, const morkSpan& inSpan);  
+  virtual void OnNewGroup(morkEnv* ev, const morkPlace& inPlace, mork_gid inGid) override;
+  virtual void OnGroupGlitch(morkEnv* ev, const morkGlitch& inGlitch) override;
+  virtual void OnGroupCommitEnd(morkEnv* ev, const morkSpan& inSpan) override;
+  virtual void OnGroupAbortEnd(morkEnv* ev, const morkSpan& inSpan) override;
 
-  virtual void OnNewPortRow(morkEnv* ev, const morkPlace& inPlace, 
-    const morkMid& inMid, mork_change inChange);
-  virtual void OnPortRowGlitch(morkEnv* ev, const morkGlitch& inGlitch);  
-  virtual void OnPortRowEnd(morkEnv* ev, const morkSpan& inSpan);  
+  virtual void OnNewPortRow(morkEnv* ev, const morkPlace& inPlace,
+    const morkMid& inMid, mork_change inChange) override;
+  virtual void OnPortRowGlitch(morkEnv* ev, const morkGlitch& inGlitch) override;
+  virtual void OnPortRowEnd(morkEnv* ev, const morkSpan& inSpan) override;
 
   virtual void OnNewTable(morkEnv* ev, const morkPlace& inPlace,
-    const morkMid& inMid, mork_bool inCutAllRows);
-  virtual void OnTableGlitch(morkEnv* ev, const morkGlitch& inGlitch);
-  virtual void OnTableEnd(morkEnv* ev, const morkSpan& inSpan);
+    const morkMid& inMid, mork_bool inCutAllRows) override;
+  virtual void OnTableGlitch(morkEnv* ev, const morkGlitch& inGlitch) override;
+  virtual void OnTableEnd(morkEnv* ev, const morkSpan& inSpan) override;
     
-  virtual void OnNewMeta(morkEnv* ev, const morkPlace& inPlace);
-  virtual void OnMetaGlitch(morkEnv* ev, const morkGlitch& inGlitch);
-  virtual void OnMetaEnd(morkEnv* ev, const morkSpan& inSpan);
+  virtual void OnNewMeta(morkEnv* ev, const morkPlace& inPlace) override;
+  virtual void OnMetaGlitch(morkEnv* ev, const morkGlitch& inGlitch) override;
+  virtual void OnMetaEnd(morkEnv* ev, const morkSpan& inSpan) override;
 
-  virtual void OnMinusRow(morkEnv* ev);
-  virtual void OnNewRow(morkEnv* ev, const morkPlace& inPlace, 
-    const morkMid& inMid, mork_bool inCutAllCols);
-  virtual void OnRowPos(morkEnv* ev, mork_pos inRowPos);  
-  virtual void OnRowGlitch(morkEnv* ev, const morkGlitch& inGlitch);  
-  virtual void OnRowEnd(morkEnv* ev, const morkSpan& inSpan);  
+  virtual void OnMinusRow(morkEnv* ev) override;
+  virtual void OnNewRow(morkEnv* ev, const morkPlace& inPlace,
+    const morkMid& inMid, mork_bool inCutAllCols) override;
+  virtual void OnRowPos(morkEnv* ev, mork_pos inRowPos) override;
+  virtual void OnRowGlitch(morkEnv* ev, const morkGlitch& inGlitch) override;
+  virtual void OnRowEnd(morkEnv* ev, const morkSpan& inSpan) override;
 
-  virtual void OnNewDict(morkEnv* ev, const morkPlace& inPlace);
-  virtual void OnDictGlitch(morkEnv* ev, const morkGlitch& inGlitch);  
-  virtual void OnDictEnd(morkEnv* ev, const morkSpan& inSpan);  
+  virtual void OnNewDict(morkEnv* ev, const morkPlace& inPlace) override;
+  virtual void OnDictGlitch(morkEnv* ev, const morkGlitch& inGlitch) override;
+  virtual void OnDictEnd(morkEnv* ev, const morkSpan& inSpan) override;
 
   virtual void OnAlias(morkEnv* ev, const morkSpan& inSpan,
-    const morkMid& inMid);
+    const morkMid& inMid) override;
 
-  virtual void OnAliasGlitch(morkEnv* ev, const morkGlitch& inGlitch);
+  virtual void OnAliasGlitch(morkEnv* ev, const morkGlitch& inGlitch) override;
 
-  virtual void OnMinusCell(morkEnv* ev);
+  virtual void OnMinusCell(morkEnv* ev) override;
   virtual void OnNewCell(morkEnv* ev, const morkPlace& inPlace,
-    const morkMid* inMid, const morkBuf* inBuf);
+    const morkMid* inMid, const morkBuf* inBuf) override;
   // Exactly one of inMid and inBuf is nil, and the other is non-nil.
   // When hex ID syntax is used for a column, then inMid is not nil, and
   // when a naked string names a column, then inBuf is not nil.
 
-  virtual void OnCellGlitch(morkEnv* ev, const morkGlitch& inGlitch);
-  virtual void OnCellForm(morkEnv* ev, mork_cscode inCharsetFormat);
-  virtual void OnCellEnd(morkEnv* ev, const morkSpan& inSpan);
-    
+  virtual void OnCellGlitch(morkEnv* ev, const morkGlitch& inGlitch) override;
+  virtual void OnCellForm(morkEnv* ev, mork_cscode inCharsetFormat) override;
+  virtual void OnCellEnd(morkEnv* ev, const morkSpan& inSpan) override;
+
   virtual void OnValue(morkEnv* ev, const morkSpan& inSpan,
-    const morkBuf& inBuf);
+    const morkBuf& inBuf) override;
 
   virtual void OnValueMid(morkEnv* ev, const morkSpan& inSpan,
-    const morkMid& inMid);
+    const morkMid& inMid) override;
 
   virtual void OnRowMid(morkEnv* ev, const morkSpan& inSpan,
-    const morkMid& inMid);
+    const morkMid& inMid) override;
 
   virtual void OnTableMid(morkEnv* ev, const morkSpan& inSpan,
-    const morkMid& inMid);
+    const morkMid& inMid) override;
   
 // ````` ````` ````` `````   ````` ````` ````` `````  
 public: // public non-poly morkBuilder methods

@@ -119,8 +119,6 @@ morkStream::morkStream(morkEnv* ev, const morkUsage& inUsage,
 /*public non-poly*/ void
 morkStream::CloseStream(morkEnv* ev) // called by CloseMorkNode();
 {
-  if ( this )
-  {
     if ( this->IsNode() )
     {
       nsIMdbFile_SlotStrongFile((nsIMdbFile*) 0, ev, &mStream_ContentFile);
@@ -136,9 +134,6 @@ morkStream::CloseStream(morkEnv* ev) // called by CloseMorkNode();
     }
     else
       this->NonNodeError(ev);
-  }
-  else
-    ev->NilPointerError();
 }
 
 // } ===== end morkNode methods =====

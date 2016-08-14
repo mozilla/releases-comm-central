@@ -90,36 +90,35 @@ public: // state is public because the entire Mork system is private
   
 // { ===== begin morkNode interface =====
 public: // morkNode virtual methods
-  virtual void CloseMorkNode(morkEnv* ev); // CloseEnv() only if open
+  virtual void CloseMorkNode(morkEnv* ev) override; // CloseEnv() only if open
   virtual ~morkEnv(); // assert that CloseEnv() executed earlier
   
   // { ----- begin attribute methods -----
   NS_IMETHOD GetErrorCount(mdb_count* outCount,
-    mdb_bool* outShouldAbort);
+    mdb_bool* outShouldAbort) override;
   NS_IMETHOD GetWarningCount(mdb_count* outCount,
-    mdb_bool* outShouldAbort);
+    mdb_bool* outShouldAbort) override;
   
-  NS_IMETHOD GetEnvBeVerbose(mdb_bool* outBeVerbose);
-  NS_IMETHOD SetEnvBeVerbose(mdb_bool inBeVerbose);
+  NS_IMETHOD GetEnvBeVerbose(mdb_bool* outBeVerbose) override;
+  NS_IMETHOD SetEnvBeVerbose(mdb_bool inBeVerbose) override;
   
-  NS_IMETHOD GetDoTrace(mdb_bool* outDoTrace);
-  NS_IMETHOD SetDoTrace(mdb_bool inDoTrace);
+  NS_IMETHOD GetDoTrace(mdb_bool* outDoTrace) override;
+  NS_IMETHOD SetDoTrace(mdb_bool inDoTrace) override;
   
-  NS_IMETHOD GetAutoClear(mdb_bool* outAutoClear);
-  NS_IMETHOD SetAutoClear(mdb_bool inAutoClear);
+  NS_IMETHOD GetAutoClear(mdb_bool* outAutoClear) override;
+  NS_IMETHOD SetAutoClear(mdb_bool inAutoClear) override;
   
-  NS_IMETHOD GetErrorHook(nsIMdbErrorHook** acqErrorHook);
+  NS_IMETHOD GetErrorHook(nsIMdbErrorHook** acqErrorHook) override;
   NS_IMETHOD SetErrorHook(
-    nsIMdbErrorHook* ioErrorHook); // becomes referenced
+    nsIMdbErrorHook* ioErrorHook) override; // becomes referenced
   
-  NS_IMETHOD GetHeap(nsIMdbHeap** acqHeap);
-  NS_IMETHOD SetHeap(
-    nsIMdbHeap* ioHeap); // becomes referenced
+  NS_IMETHOD GetHeap(nsIMdbHeap** acqHeap) override;
+  NS_IMETHOD SetHeap(nsIMdbHeap* ioHeap) override; // becomes referenced
   // } ----- end attribute methods -----
   
-  NS_IMETHOD ClearErrors(); // clear errors beore re-entering db API
-  NS_IMETHOD ClearWarnings(); // clear warnings
-  NS_IMETHOD ClearErrorsAndWarnings(); // clear both errors & warnings
+  NS_IMETHOD ClearErrors() override; // clear errors beore re-entering db API
+  NS_IMETHOD ClearWarnings() override; // clear warnings
+  NS_IMETHOD ClearErrorsAndWarnings() override; // clear both errors & warnings
 // } ===== end nsIMdbEnv methods =====
 public: // morkEnv construction & destruction
   morkEnv(const morkUsage& inUsage, nsIMdbHeap* ioHeap,

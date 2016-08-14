@@ -98,18 +98,26 @@ public: // other port methods
 
   // { ----- begin ref counting for well-behaved cyclic graphs -----
   NS_IMETHOD GetWeakRefCount(nsIMdbEnv* ev, // weak refs
-    mdb_count* outCount);  
+    mdb_count* outCount) override;
   NS_IMETHOD GetStrongRefCount(nsIMdbEnv* ev, // strong refs
-    mdb_count* outCount);
+    mdb_count* outCount) override;
 
-  NS_IMETHOD AddWeakRef(nsIMdbEnv* ev);
-  NS_IMETHOD_(mork_uses) AddStrongRef(nsIMdbEnv* ev);
+  NS_IMETHOD AddWeakRef(nsIMdbEnv* ev) override;
+#ifndef _MSC_VER
+  // The first declaration of AddStrongRef is to suppress -Werror,-Woverloaded-virtual.
+  NS_IMETHOD_(mork_uses) AddStrongRef(morkEnv* ev) override;
+#endif
+  NS_IMETHOD_(mork_uses) AddStrongRef(nsIMdbEnv* ev) override;
 
-  NS_IMETHOD CutWeakRef(nsIMdbEnv* ev);
-  NS_IMETHOD CutStrongRef(nsIMdbEnv* ev);
-  
-  NS_IMETHOD CloseMdbObject(nsIMdbEnv* ev); // called at strong refs zero
-  NS_IMETHOD IsOpenMdbObject(nsIMdbEnv* ev, mdb_bool* outOpen);
+  NS_IMETHOD CutWeakRef(nsIMdbEnv* ev) override;
+#ifndef _MSC_VER
+  // The first declaration of CutStrongRef is to suppress -Werror,-Woverloaded-virtual.
+  NS_IMETHOD_(mork_uses) CutStrongRef(morkEnv* ev) override;
+#endif
+  NS_IMETHOD CutStrongRef(nsIMdbEnv* ev) override;
+
+  NS_IMETHOD CloseMdbObject(nsIMdbEnv* ev) override; // called at strong refs zero
+  NS_IMETHOD IsOpenMdbObject(nsIMdbEnv* ev, mdb_bool* outOpen) override;
   // } ----- end ref counting -----
   
 // } ===== end nsIMdbObject methods =====
@@ -117,60 +125,60 @@ public: // other port methods
 // { ===== begin nsIMdbPort methods =====
 
   // { ----- begin attribute methods -----
-  NS_IMETHOD GetIsPortReadonly(nsIMdbEnv* ev, mdb_bool* outBool);
-  NS_IMETHOD GetIsStore(nsIMdbEnv* ev, mdb_bool* outBool);
-  NS_IMETHOD GetIsStoreAndDirty(nsIMdbEnv* ev, mdb_bool* outBool);
+  NS_IMETHOD GetIsPortReadonly(nsIMdbEnv* ev, mdb_bool* outBool) override;
+  NS_IMETHOD GetIsStore(nsIMdbEnv* ev, mdb_bool* outBool) override;
+  NS_IMETHOD GetIsStoreAndDirty(nsIMdbEnv* ev, mdb_bool* outBool) override;
 
-  NS_IMETHOD GetUsagePolicy(nsIMdbEnv* ev, 
-    mdbUsagePolicy* ioUsagePolicy);
+  NS_IMETHOD GetUsagePolicy(nsIMdbEnv* ev,
+    mdbUsagePolicy* ioUsagePolicy) override;
 
-  NS_IMETHOD SetUsagePolicy(nsIMdbEnv* ev, 
-    const mdbUsagePolicy* inUsagePolicy);
+  NS_IMETHOD SetUsagePolicy(nsIMdbEnv* ev,
+    const mdbUsagePolicy* inUsagePolicy) override;
   // } ----- end attribute methods -----
 
   // { ----- begin memory policy methods -----  
   NS_IMETHOD IdleMemoryPurge( // do memory management already scheduled
     nsIMdbEnv* ev, // context
-    mdb_size* outEstimatedBytesFreed); // approximate bytes actually freed
+    mdb_size* outEstimatedBytesFreed) override; // approximate bytes actually freed
 
   NS_IMETHOD SessionMemoryPurge( // request specific footprint decrease
     nsIMdbEnv* ev, // context
     mdb_size inDesiredBytesFreed, // approximate number of bytes wanted
-    mdb_size* outEstimatedBytesFreed); // approximate bytes actually freed
+    mdb_size* outEstimatedBytesFreed) override; // approximate bytes actually freed
 
   NS_IMETHOD PanicMemoryPurge( // desperately free all possible memory
     nsIMdbEnv* ev, // context
-    mdb_size* outEstimatedBytesFreed); // approximate bytes actually freed
+    mdb_size* outEstimatedBytesFreed) override; // approximate bytes actually freed
   // } ----- end memory policy methods -----
 
   // { ----- begin filepath methods -----
   NS_IMETHOD GetPortFilePath(
     nsIMdbEnv* ev, // context
     mdbYarn* outFilePath, // name of file holding port content
-    mdbYarn* outFormatVersion); // file format description
+    mdbYarn* outFormatVersion) override; // file format description
 
   NS_IMETHOD GetPortFile(
     nsIMdbEnv* ev, // context
-    nsIMdbFile** acqFile); // acquire file used by port or store
+    nsIMdbFile** acqFile) override; // acquire file used by port or store
   // } ----- end filepath methods -----
 
   // { ----- begin export methods -----
   NS_IMETHOD BestExportFormat( // determine preferred export format
     nsIMdbEnv* ev, // context
-    mdbYarn* outFormatVersion); // file format description
+    mdbYarn* outFormatVersion) override; // file format description
 
   NS_IMETHOD
   CanExportToFormat( // can export content in given specific format?
     nsIMdbEnv* ev, // context
     const char* inFormatVersion, // file format description
-    mdb_bool* outCanExport); // whether ExportSource() might succeed
+    mdb_bool* outCanExport) override; // whether ExportSource() might succeed
 
   NS_IMETHOD ExportToFormat( // export content in given specific format
     nsIMdbEnv* ev, // context
     // const char* inFilePath, // the file to receive exported content
     nsIMdbFile* ioFile, // destination abstract file interface
     const char* inFormatVersion, // file format description
-    nsIMdbThumb** acqThumb); // acquire thumb for incremental export
+    nsIMdbThumb** acqThumb) override; // acquire thumb for incremental export
   // Call nsIMdbThumb::DoMore() until done, or until the thumb is broken, and
   // then the export will be finished.
 
@@ -180,12 +188,12 @@ public: // other port methods
   NS_IMETHOD TokenToString( // return a string name for an integer token
     nsIMdbEnv* ev, // context
     mdb_token inToken, // token for inTokenName inside this port
-    mdbYarn* outTokenName); // the type of table to access
+    mdbYarn* outTokenName) override; // the type of table to access
   
   NS_IMETHOD StringToToken( // return an integer token for scope name
     nsIMdbEnv* ev, // context
     const char* inTokenName, // Latin1 string to tokenize if possible
-    mdb_token* outToken); // token for inTokenName inside this port
+    mdb_token* outToken) override; // token for inTokenName inside this port
     
   // String token zero is never used and never supported. If the port
   // is a mutable store, then StringToToken() to create a new
@@ -195,7 +203,7 @@ public: // other port methods
   NS_IMETHOD QueryToken( // like StringToToken(), but without adding
     nsIMdbEnv* ev, // context
     const char* inTokenName, // Latin1 string to tokenize if possible
-    mdb_token* outToken); // token for inTokenName inside this port
+    mdb_token* outToken) override; // token for inTokenName inside this port
   
   // QueryToken() will return a string token if one already exists,
   // but unlike StringToToken(), will not assign a new token if not
@@ -207,24 +215,24 @@ public: // other port methods
   NS_IMETHOD HasRow( // contains a row with the specified oid?
     nsIMdbEnv* ev, // context
     const mdbOid* inOid,  // hypothetical row oid
-    mdb_bool* outHasRow); // whether GetRow() might succeed
+    mdb_bool* outHasRow) override; // whether GetRow() might succeed
 
   NS_IMETHOD GetRowRefCount( // get number of tables that contain a row 
     nsIMdbEnv* ev, // context
     const mdbOid* inOid,  // hypothetical row oid
-    mdb_count* outRefCount); // number of tables containing inRowKey 
+    mdb_count* outRefCount) override; // number of tables containing inRowKey 
     
   NS_IMETHOD GetRow( // access one row with specific oid
     nsIMdbEnv* ev, // context
     const mdbOid* inOid,  // hypothetical row oid
-    nsIMdbRow** acqRow); // acquire specific row (or null)
+    nsIMdbRow** acqRow) override; // acquire specific row (or null)
 
   NS_IMETHOD FindRow(nsIMdbEnv* ev, // search for row with matching cell
     mdb_scope inRowScope,   // row scope for row ids
     mdb_column inColumn,   // the column to search (and maintain an index)
     const mdbYarn* inTargetCellValue, // cell value for which to search
     mdbOid* outRowOid, // out row oid on match (or {0,-1} for no match)
-    nsIMdbRow** acqRow); // acquire matching row (or nil for no match)
+    nsIMdbRow** acqRow) override; // acquire matching row (or nil for no match)
                          // can be null if you only want the oid
   // FindRow() searches for one row that has a cell in column inColumn with
   // a contained value with the same form (i.e. charset) and is byte-wise
@@ -263,19 +271,19 @@ public: // other port methods
   NS_IMETHOD HasTable( // supports a table with the specified oid?
     nsIMdbEnv* ev, // context
     const mdbOid* inOid,  // hypothetical table oid
-    mdb_bool* outHasTable); // whether GetTable() might succeed
+    mdb_bool* outHasTable) override; // whether GetTable() might succeed
     
   NS_IMETHOD GetTable( // access one table with specific oid
     nsIMdbEnv* ev, // context
     const mdbOid* inOid,  // hypothetical table oid
-    nsIMdbTable** acqTable); // acquire specific table (or null)
+    nsIMdbTable** acqTable) override; // acquire specific table (or null)
   
   NS_IMETHOD HasTableKind( // supports a table of the specified type?
     nsIMdbEnv* ev, // context
     mdb_scope inRowScope, // rid scope for row ids
     mdb_kind inTableKind, // the type of table to access
     mdb_count* outTableCount, // current number of such tables
-    mdb_bool* outSupportsTable); // whether GetTableKind() might succeed
+    mdb_bool* outSupportsTable) override; // whether GetTableKind() might succeed
         
   NS_IMETHOD GetTableKind( // access one (random) table of specific type
     nsIMdbEnv* ev, // context
@@ -283,14 +291,14 @@ public: // other port methods
     mdb_kind inTableKind,      // the type of table to access
     mdb_count* outTableCount, // current number of such tables
     mdb_bool* outMustBeUnique, // whether port can hold only one of these
-    nsIMdbTable** acqTable);       // acquire scoped collection of rows
+    nsIMdbTable** acqTable) override; // acquire scoped collection of rows
     
   NS_IMETHOD
   GetPortTableCursor( // get cursor for all tables of specific type
     nsIMdbEnv* ev, // context
     mdb_scope inRowScope, // row scope for row ids
     mdb_kind inTableKind, // the type of table to access
-    nsIMdbPortTableCursor** acqCursor); // all such tables in the port
+    nsIMdbPortTableCursor** acqCursor) override; // all such tables in the port
   // } ----- end table methods -----
 
 
@@ -300,7 +308,7 @@ public: // other port methods
     nsIMdbEnv* ev, // context
     mdb_percent inPercentWaste, // 0..100 percent file size waste threshold
     mdb_percent* outActualWaste, // 0..100 percent of file actually wasted
-    mdb_bool* outShould); // true when about inPercentWaste% is wasted
+    mdb_bool* outShould) override; // true when about inPercentWaste% is wasted
   // ShouldCompress() returns true if the store can determine that the file
   // will shrink by an estimated percentage of inPercentWaste% (or more) if
   // CompressCommit() is called, because that percentage of the file seems
@@ -367,7 +375,7 @@ public: // other port methods
     mdb_kind inTableKind,    // the type of table to access
     mdb_bool inMustBeUnique, // whether store can hold only one of these
     const mdbOid* inOptionalMetaRowOid, // can be nil to avoid specifying
-    nsIMdbTable** acqTable);     // acquire scoped collection of rows
+    nsIMdbTable** acqTable) override; // acquire scoped collection of rows
     
   NS_IMETHOD NewTableWithOid( // make one new table of specific type
     nsIMdbEnv* ev, // context
@@ -375,34 +383,34 @@ public: // other port methods
     mdb_kind inTableKind,    // the type of table to access
     mdb_bool inMustBeUnique, // whether store can hold only one of these
     const mdbOid* inOptionalMetaRowOid, // can be nil to avoid specifying 
-    nsIMdbTable** acqTable);     // acquire scoped collection of rows
+    nsIMdbTable** acqTable) override; // acquire scoped collection of rows
   // } ----- end table methods -----
 
   // { ----- begin row scope methods -----
   NS_IMETHOD RowScopeHasAssignedIds(nsIMdbEnv* ev,
     mdb_scope inRowScope,   // row scope for row ids
     mdb_bool* outCallerAssigned, // nonzero if caller assigned specified
-    mdb_bool* outStoreAssigned); // nonzero if store db assigned specified
+    mdb_bool* outStoreAssigned) override; // nonzero if store db assigned specified
 
   NS_IMETHOD SetCallerAssignedIds(nsIMdbEnv* ev,
     mdb_scope inRowScope,   // row scope for row ids
     mdb_bool* outCallerAssigned, // nonzero if caller assigned specified
-    mdb_bool* outStoreAssigned); // nonzero if store db assigned specified
+    mdb_bool* outStoreAssigned) override; // nonzero if store db assigned specified
 
   NS_IMETHOD SetStoreAssignedIds(nsIMdbEnv* ev,
     mdb_scope inRowScope,   // row scope for row ids
     mdb_bool* outCallerAssigned, // nonzero if caller assigned specified
-    mdb_bool* outStoreAssigned); // nonzero if store db assigned specified
+    mdb_bool* outStoreAssigned) override; // nonzero if store db assigned specified
   // } ----- end row scope methods -----
 
   // { ----- begin row methods -----
   NS_IMETHOD NewRowWithOid(nsIMdbEnv* ev, // new row w/ caller assigned oid
     const mdbOid* inOid,   // caller assigned oid
-    nsIMdbRow** acqRow); // create new row
+    nsIMdbRow** acqRow) override; // create new row
 
   NS_IMETHOD NewRow(nsIMdbEnv* ev, // new row with db assigned oid
     mdb_scope inRowScope,   // row scope for row ids
-    nsIMdbRow** acqRow); // create new row
+    nsIMdbRow** acqRow) override; // create new row
   // Note this row must be added to some table or cell child before the
   // store is closed in order to make this row persist across sesssions.
 
@@ -413,14 +421,14 @@ public: // other port methods
     nsIMdbEnv* ev, // context
     mdb_scope inRowScope, // scope for rows (or zero for all?)
     nsIMdbPort* ioPort, // the port with content to add to store
-    nsIMdbThumb** acqThumb); // acquire thumb for incremental import
+    nsIMdbThumb** acqThumb) override; // acquire thumb for incremental import
   // Call nsIMdbThumb::DoMore() until done, or until the thumb is broken, and
   // then the import will be finished.
 
   NS_IMETHOD ImportFile( // import content from port
     nsIMdbEnv* ev, // context
     nsIMdbFile* ioFile, // the file with content to add to store
-    nsIMdbThumb** acqThumb); // acquire thumb for incremental import
+    nsIMdbThumb** acqThumb) override; // acquire thumb for incremental import
   // Call nsIMdbThumb::DoMore() until done, or until the thumb is broken, and
   // then the import will be finished.
   // } ----- end inport/export methods -----
@@ -430,18 +438,18 @@ public: // other port methods
   ShareAtomColumnsHint( // advise re shared column content atomizing
     nsIMdbEnv* ev, // context
     mdb_scope inScopeHint, // zero, or suggested shared namespace
-    const mdbColumnSet* inColumnSet); // cols desired tokenized together
+    const mdbColumnSet* inColumnSet) override; // cols desired tokenized together
 
   NS_IMETHOD
   AvoidAtomColumnsHint( // advise column with poor atomizing prospects
     nsIMdbEnv* ev, // context
-    const mdbColumnSet* inColumnSet); // cols with poor atomizing prospects
+    const mdbColumnSet* inColumnSet) override; // cols with poor atomizing prospects
   // } ----- end hinting methods -----
 
   // { ----- begin commit methods -----
   NS_IMETHOD LargeCommit( // save important changes if at all possible
     nsIMdbEnv* ev, // context
-    nsIMdbThumb** acqThumb); // acquire thumb for incremental commit
+    nsIMdbThumb** acqThumb) override; // acquire thumb for incremental commit
   // Call nsIMdbThumb::DoMore() until done, or until the thumb is broken, and
   // then the commit will be finished.  Note the store is effectively write
   // locked until commit is finished or canceled through the thumb instance.
@@ -449,7 +457,7 @@ public: // other port methods
 
   NS_IMETHOD SessionCommit( // save all changes if large commits delayed
     nsIMdbEnv* ev, // context
-    nsIMdbThumb** acqThumb); // acquire thumb for incremental commit
+    nsIMdbThumb** acqThumb) override; // acquire thumb for incremental commit
   // Call nsIMdbThumb::DoMore() until done, or until the thumb is broken, and
   // then the commit will be finished.  Note the store is effectively write
   // locked until commit is finished or canceled through the thumb instance.
@@ -458,7 +466,7 @@ public: // other port methods
   NS_IMETHOD
   CompressCommit( // commit and make db physically smaller if possible
     nsIMdbEnv* ev, // context
-    nsIMdbThumb** acqThumb); // acquire thumb for incremental commit
+    nsIMdbThumb** acqThumb) override; // acquire thumb for incremental commit
   // Call nsIMdbThumb::DoMore() until done, or until the thumb is broken, and
   // then the commit will be finished.  Note the store is effectively write
   // locked until commit is finished or canceled through the thumb instance.
@@ -610,7 +618,7 @@ public: // lazy creation of members and nested row or atom spaces
  
 // { ===== begin morkNode interface =====
 public: // morkNode virtual methods
-  virtual void CloseMorkNode(morkEnv* ev); // CloseStore() only if open
+  virtual void CloseMorkNode(morkEnv* ev) override; // CloseStore() only if open
   
 public: // morkStore construction & destruction
   morkStore(morkEnv* ev, const morkUsage& inUsage,

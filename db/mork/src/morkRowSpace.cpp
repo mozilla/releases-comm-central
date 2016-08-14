@@ -120,8 +120,6 @@ morkRowSpace::morkRowSpace(morkEnv* ev,
 /*public non-poly*/ void
 morkRowSpace::CloseRowSpace(morkEnv* ev) // called by CloseMorkNode();
 {
-  if ( this )
-  {
     if ( this->IsNode() )
     {
       morkAtomRowMap** cache = mRowSpace_IndexCache;
@@ -144,9 +142,6 @@ morkRowSpace::CloseRowSpace(morkEnv* ev) // called by CloseMorkNode();
     }
     else
       this->NonNodeError(ev);
-  }
-  else
-    ev->NilPointerError();
 }
 
 // } ===== end morkNode methods =====

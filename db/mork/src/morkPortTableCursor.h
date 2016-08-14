@@ -46,24 +46,24 @@ public:
 
 public: // state is public because the entire Mork system is private
   // { ----- begin attribute methods -----
-  NS_IMETHOD SetPort(nsIMdbEnv* ev, nsIMdbPort* ioPort); // sets pos to -1
-  NS_IMETHOD GetPort(nsIMdbEnv* ev, nsIMdbPort** acqPort);
-  
+  NS_IMETHOD SetPort(nsIMdbEnv* ev, nsIMdbPort* ioPort) override; // sets pos to -1
+  NS_IMETHOD GetPort(nsIMdbEnv* ev, nsIMdbPort** acqPort) override;
+
   NS_IMETHOD SetRowScope(nsIMdbEnv* ev, // sets pos to -1
-    mdb_scope inRowScope);
-  NS_IMETHOD GetRowScope(nsIMdbEnv* ev, mdb_scope* outRowScope); 
+    mdb_scope inRowScope) override;
+  NS_IMETHOD GetRowScope(nsIMdbEnv* ev, mdb_scope* outRowScope) override;
   // setting row scope to zero iterates over all row scopes in port
-    
+
   NS_IMETHOD SetTableKind(nsIMdbEnv* ev, // sets pos to -1
-    mdb_kind inTableKind);
-  NS_IMETHOD GetTableKind(nsIMdbEnv* ev, mdb_kind* outTableKind);
+    mdb_kind inTableKind) override;
+  NS_IMETHOD GetTableKind(nsIMdbEnv* ev, mdb_kind* outTableKind) override;
   // setting table kind to zero iterates over all table kinds in row scope
   // } ----- end attribute methods -----
 
   // { ----- begin table iteration methods -----
   NS_IMETHOD NextTable( // get table at next position in the db
     nsIMdbEnv* ev, // context
-    nsIMdbTable** acqTable); // the next table in the iteration
+    nsIMdbTable** acqTable) override; // the next table in the iteration
   // } ----- end table iteration methods -----
   morkStore*    mPortTableCursor_Store;  // weak ref to store
   
@@ -87,8 +87,8 @@ public: // state is public because the entire Mork system is private
    
 // { ===== begin morkNode interface =====
 public: // morkNode virtual methods
-  virtual void CloseMorkNode(morkEnv* ev); // ClosePortTableCursor()
-  
+  virtual void CloseMorkNode(morkEnv* ev) override; // ClosePortTableCursor()
+
 public: // morkPortTableCursor construction & destruction
   morkPortTableCursor(morkEnv* ev, const morkUsage& inUsage,
     nsIMdbHeap* ioHeap, morkStore* ioStore, mdb_scope inRowScope,

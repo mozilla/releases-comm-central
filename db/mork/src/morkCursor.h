@@ -38,24 +38,32 @@ public: // state is public because the entire Mork system is private
   NS_DECL_ISUPPORTS_INHERITED
 
   // { ----- begin attribute methods -----
-  NS_IMETHOD IsFrozenMdbObject(nsIMdbEnv* ev, mdb_bool* outIsReadonly);
+  NS_IMETHOD IsFrozenMdbObject(nsIMdbEnv* ev, mdb_bool* outIsReadonly) override;
   // same as nsIMdbPort::GetIsPortReadonly() when this object is inside a port.
   // } ----- end attribute methods -----
 
   // { ----- begin ref counting for well-behaved cyclic graphs -----
   NS_IMETHOD GetWeakRefCount(nsIMdbEnv* ev, // weak refs
-    mdb_count* outCount);  
+    mdb_count* outCount) override;
   NS_IMETHOD GetStrongRefCount(nsIMdbEnv* ev, // strong refs
-    mdb_count* outCount);
+    mdb_count* outCount) override;
 
-  NS_IMETHOD AddWeakRef(nsIMdbEnv* ev);
-    NS_IMETHOD_(mork_uses) AddStrongRef(nsIMdbEnv* ev);
+  NS_IMETHOD AddWeakRef(nsIMdbEnv* ev) override;
+#ifndef _MSC_VER
+  // The first declaration of AddStrongRef is to suppress -Werror,-Woverloaded-virtual.
+  NS_IMETHOD_(mork_uses) AddStrongRef(morkEnv* ev) override;
+#endif
+  NS_IMETHOD_(mork_uses) AddStrongRef(nsIMdbEnv* ev) override;
 
-  NS_IMETHOD CutWeakRef(nsIMdbEnv* ev);
-  NS_IMETHOD CutStrongRef(nsIMdbEnv* ev);
-  
-  NS_IMETHOD CloseMdbObject(nsIMdbEnv* ev); // called at strong refs zero
-  NS_IMETHOD IsOpenMdbObject(nsIMdbEnv* ev, mdb_bool* outOpen);
+  NS_IMETHOD CutWeakRef(nsIMdbEnv* ev) override;
+#ifndef _MSC_VER
+  // The first declaration of CutStrongRef is to suppress -Werror,-Woverloaded-virtual.
+  NS_IMETHOD_(mork_uses) CutStrongRef(morkEnv* ev) override;
+#endif
+  NS_IMETHOD CutStrongRef(nsIMdbEnv* ev) override;
+
+  NS_IMETHOD CloseMdbObject(nsIMdbEnv* ev) override; // called at strong refs zero
+  NS_IMETHOD IsOpenMdbObject(nsIMdbEnv* ev, mdb_bool* outOpen) override;
   // } ----- end ref counting -----
   
 // } ===== end nsIMdbObject methods =====
@@ -63,14 +71,14 @@ public: // state is public because the entire Mork system is private
 // { ===== begin nsIMdbCursor methods =====
 
   // { ----- begin attribute methods -----
-  NS_IMETHOD GetCount(nsIMdbEnv* ev, mdb_count* outCount); // readonly
-  NS_IMETHOD GetSeed(nsIMdbEnv* ev, mdb_seed* outSeed);    // readonly
-  
-  NS_IMETHOD SetPos(nsIMdbEnv* ev, mdb_pos inPos);   // mutable
-  NS_IMETHOD GetPos(nsIMdbEnv* ev, mdb_pos* outPos);
-  
-  NS_IMETHOD SetDoFailOnSeedOutOfSync(nsIMdbEnv* ev, mdb_bool inFail);
-  NS_IMETHOD GetDoFailOnSeedOutOfSync(nsIMdbEnv* ev, mdb_bool* outFail);
+  NS_IMETHOD GetCount(nsIMdbEnv* ev, mdb_count* outCount) override; // readonly
+  NS_IMETHOD GetSeed(nsIMdbEnv* ev, mdb_seed* outSeed) override;    // readonly
+
+  NS_IMETHOD SetPos(nsIMdbEnv* ev, mdb_pos inPos) override;   // mutable
+  NS_IMETHOD GetPos(nsIMdbEnv* ev, mdb_pos* outPos) override;
+
+  NS_IMETHOD SetDoFailOnSeedOutOfSync(nsIMdbEnv* ev, mdb_bool inFail) override;
+  NS_IMETHOD GetDoFailOnSeedOutOfSync(nsIMdbEnv* ev, mdb_bool* outFail) override;
   // } ----- end attribute methods -----
 
 // } ===== end nsIMdbCursor methods =====
@@ -84,7 +92,7 @@ public: // state is public because the entire Mork system is private
   
 // { ===== begin morkNode interface =====
 public: // morkNode virtual methods
-  virtual void CloseMorkNode(morkEnv* ev); // CloseCursor() only if open
+  virtual void CloseMorkNode(morkEnv* ev) override; // CloseCursor() only if open
   
 public: // morkCursor construction & destruction
   morkCursor(morkEnv* ev, const morkUsage& inUsage, nsIMdbHeap* ioHeap);

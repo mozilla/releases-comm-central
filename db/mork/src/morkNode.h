@@ -169,10 +169,10 @@ protected: // construction without an anv needed for first env constructed:
 public: // morkNode virtual methods
   // virtual FlushMorkNode(morkEnv* ev, morkStream* ioStream);
   // virtual WriteMorkNode(morkEnv* ev, morkStream* ioStream);
-  
+
   virtual ~morkNode(); // assert that CloseNode() executed earlier
   virtual void CloseMorkNode(morkEnv* ev); // CloseNode() only if open
-  
+
   // CloseMorkNode() is the polymorphic close method called when uses==0,
   // which must do NOTHING at all when IsOpenNode() is not true.  Otherwise,
   // CloseMorkNode() should call a static close method specific to an object.

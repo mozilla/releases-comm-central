@@ -247,8 +247,6 @@ morkWriter::MakeWriterStream(morkEnv* ev) // give writer a suitable stream
 /*public non-poly*/ void
 morkWriter::CloseWriter(morkEnv* ev) // called by CloseMorkNode();
 {
-  if ( this )
-  {
     if ( this->IsNode() )
     {
       morkStore::SlotWeakStore((morkStore*) 0, ev, &mWriter_Store);
@@ -260,9 +258,6 @@ morkWriter::CloseWriter(morkEnv* ev) // called by CloseMorkNode();
     }
     else
       this->NonNodeError(ev);
-  }
-  else
-    ev->NilPointerError();
 }
 
 // } ===== end morkNode methods =====
@@ -395,7 +390,7 @@ morkWriter::WriteYarn(morkEnv* ev, const mdbYarn* inYarn)
   const mork_u1* b = (const mork_u1*) inYarn->mYarn_Buf;
   if ( b )
   {
-    register int c;
+    int c;
     mork_fill fill = inYarn->mYarn_Fill;
 
     const mork_u1* end = b + fill;

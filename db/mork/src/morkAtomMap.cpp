@@ -84,8 +84,6 @@ morkAtomAidMap::morkAtomAidMap(morkEnv* ev, const morkUsage& inUsage,
 /*public non-poly*/ void
 morkAtomAidMap::CloseAtomAidMap(morkEnv* ev) // called by CloseMorkNode();
 {
-  if ( this )
-  {
     if ( this->IsNode() )
     {
 #ifdef MORK_ENABLE_PROBE_MAPS
@@ -97,9 +95,6 @@ morkAtomAidMap::CloseAtomAidMap(morkEnv* ev) // called by CloseMorkNode();
     }
     else
       this->NonNodeError(ev);
-  }
-  else
-    ev->NilPointerError();
 }
 
 // } ===== end morkNode methods =====
@@ -279,8 +274,6 @@ morkAtomBodyMap::morkAtomBodyMap(morkEnv* ev, const morkUsage& inUsage,
 /*public non-poly*/ void
 morkAtomBodyMap::CloseAtomBodyMap(morkEnv* ev) // called by CloseMorkNode();
 {
-  if ( this )
-  {
     if ( this->IsNode() )
     {
 #ifdef MORK_ENABLE_PROBE_MAPS
@@ -292,9 +285,6 @@ morkAtomBodyMap::CloseAtomBodyMap(morkEnv* ev) // called by CloseMorkNode();
     }
     else
       this->NonNodeError(ev);
-  }
-  else
-    ev->NilPointerError();
 }
 
 // } ===== end morkNode methods =====

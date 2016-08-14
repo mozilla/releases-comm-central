@@ -560,8 +560,6 @@ morkRowObject::SeekCellYarn( // resembles nsIMdbRowCellCursor::SeekCell()
 /*public non-poly*/ void
 morkRowObject::CloseRowObject(morkEnv* ev) // called by CloseMorkNode();
 {
-  if ( this )
-  {
     if ( this->IsNode() )
     {
       morkRow* row = mRowObject_Row;
@@ -584,9 +582,6 @@ morkRowObject::CloseRowObject(morkEnv* ev) // called by CloseMorkNode();
     }
     else
       this->NonNodeError(ev);
-  }
-  else
-    ev->NilPointerError();
 }
 
 // } ===== end morkNode methods =====

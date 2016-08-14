@@ -46,12 +46,12 @@ class morkUniqRowCursor : public morkTableRowCursor { // row iterator
   // morkTable*  mTableRowCursor_Table; // weak ref to table
 
 public: // state is public because the entire Mork system is private
-    
+
 // { ===== begin morkNode interface =====
 public: // morkNode virtual methods
-  virtual void CloseMorkNode(morkEnv* ev); // CloseUniqRowCursor()
+  virtual void CloseMorkNode(morkEnv* ev) override; // CloseUniqRowCursor()
   virtual ~morkUniqRowCursor(); // assert that close executed earlier
-  
+
 public: // morkUniqRowCursor construction & destruction
   morkUniqRowCursor(morkEnv* ev, const morkUsage& inUsage,
     nsIMdbHeap* ioHeap, morkTable* ioTable, mork_pos inRowPos);

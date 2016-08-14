@@ -38,12 +38,12 @@ class morkYarn : public morkNode { // refcounted yarn
 
 public: // state is public because the entire Mork system is private
   mdbYarn  mYarn_Body;
-  
+
 // { ===== begin morkNode interface =====
 public: // morkNode virtual methods
-  virtual void CloseMorkNode(morkEnv* ev); // CloseYarn() only if open
+  virtual void CloseMorkNode(morkEnv* ev) override; // CloseYarn() only if open
   virtual ~morkYarn(); // assert that CloseYarn() executed earlier
-  
+
 public: // morkYarn construction & destruction
   morkYarn(morkEnv* ev, const morkUsage& inUsage, nsIMdbHeap* ioHeap);
   void CloseYarn(morkEnv* ev); // called by CloseMorkNode();

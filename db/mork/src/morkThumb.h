@@ -63,12 +63,12 @@ public: // state is public because the entire Mork system is private
 
 // { ===== begin nsIMdbThumb methods =====
   NS_IMETHOD GetProgress(nsIMdbEnv* ev, mdb_count* outTotal,
-    mdb_count* outCurrent, mdb_bool* outDone, mdb_bool* outBroken);
-  
+    mdb_count* outCurrent, mdb_bool* outDone, mdb_bool* outBroken) override;
+
   NS_IMETHOD DoMore(nsIMdbEnv* ev, mdb_count* outTotal,
-    mdb_count* outCurrent, mdb_bool* outDone, mdb_bool* outBroken);
-  
-  NS_IMETHOD CancelAndBreakThumb(nsIMdbEnv* ev);
+    mdb_count* outCurrent, mdb_bool* outDone, mdb_bool* outBroken) override;
+
+  NS_IMETHOD CancelAndBreakThumb(nsIMdbEnv* ev) override;
 // } ===== end nsIMdbThumb methods =====
 
   // might as well include all the return values here:
@@ -92,8 +92,8 @@ public: // state is public because the entire Mork system is private
   
 // { ===== begin morkNode interface =====
 public: // morkNode virtual methods
-  virtual void CloseMorkNode(morkEnv* ev); // CloseThumb() only if open
-  
+  virtual void CloseMorkNode(morkEnv* ev) override; // CloseThumb() only if open
+
 public: // morkThumb construction & destruction
   morkThumb(morkEnv* ev, const morkUsage& inUsage,
     nsIMdbHeap* ioHeap, nsIMdbHeap* ioSlotHeap, mork_magic inMagic);

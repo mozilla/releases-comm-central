@@ -29,8 +29,8 @@ public: // state is public because the entire Mork system is private
   
 // { ===== begin morkNode interface =====
 public: // morkNode virtual methods
-  virtual void CloseMorkNode(morkEnv* ev); // CloseRowObject() only if open
-  
+  virtual void CloseMorkNode(morkEnv* ev) override; // CloseRowObject() only if open
+
 public: // morkRowObject construction & destruction
   morkRowObject(morkEnv* ev, const morkUsage& inUsage,
     nsIMdbHeap* ioHeap, morkRow* ioRow, morkStore* ioStore);
@@ -40,31 +40,31 @@ public: // morkRowObject construction & destruction
 
   // { ----- begin attribute methods -----
   NS_IMETHOD GetSeed(nsIMdbEnv* ev,
-    mdb_seed* outSeed);    // member change count
+    mdb_seed* outSeed) override;    // member change count
   NS_IMETHOD GetCount(nsIMdbEnv* ev,
-    mdb_count* outCount); // member count
+    mdb_count* outCount) override; // member count
 
   NS_IMETHOD GetPort(nsIMdbEnv* ev,
-    nsIMdbPort** acqPort); // collection container
+    nsIMdbPort** acqPort) override; // collection container
   // } ----- end attribute methods -----
 
   // { ----- begin cursor methods -----
   NS_IMETHOD GetCursor( // make a cursor starting iter at inMemberPos
     nsIMdbEnv* ev, // context
     mdb_pos inMemberPos, // zero-based ordinal pos of member in collection
-    nsIMdbCursor** acqCursor); // acquire new cursor instance
+    nsIMdbCursor** acqCursor) override; // acquire new cursor instance
   // } ----- end cursor methods -----
 
   // { ----- begin ID methods -----
   NS_IMETHOD GetOid(nsIMdbEnv* ev,
-    mdbOid* outOid); // read object identity
+    mdbOid* outOid) override; // read object identity
   NS_IMETHOD BecomeContent(nsIMdbEnv* ev,
-    const mdbOid* inOid); // exchange content
+    const mdbOid* inOid) override; // exchange content
   // } ----- end ID methods -----
 
   // { ----- begin activity dropping methods -----
   NS_IMETHOD DropActivity( // tell collection usage no longer expected
-    nsIMdbEnv* ev);
+    nsIMdbEnv* ev) override;
   // } ----- end activity dropping methods -----
 
 // } ===== end nsIMdbCollection methods =====
@@ -74,70 +74,70 @@ public: // morkRowObject construction & destruction
   NS_IMETHOD GetRowCellCursor( // make a cursor starting iteration at inRowPos
     nsIMdbEnv* ev, // context
     mdb_pos inRowPos, // zero-based ordinal position of row in table
-    nsIMdbRowCellCursor** acqCursor); // acquire new cursor instance
+    nsIMdbRowCellCursor** acqCursor) override; // acquire new cursor instance
   // } ----- end cursor methods -----
 
   // { ----- begin column methods -----
   NS_IMETHOD AddColumn( // make sure a particular column is inside row
     nsIMdbEnv* ev, // context
     mdb_column inColumn, // column to add
-    const mdbYarn* inYarn); // cell value to install
+    const mdbYarn* inYarn) override; // cell value to install
 
   NS_IMETHOD CutColumn( // make sure a column is absent from the row
     nsIMdbEnv* ev, // context
-    mdb_column inColumn); // column to ensure absent from row
+    mdb_column inColumn) override; // column to ensure absent from row
 
   NS_IMETHOD CutAllColumns( // remove all columns from the row
-    nsIMdbEnv* ev); // context
+    nsIMdbEnv* ev) override; // context
   // } ----- end column methods -----
 
   // { ----- begin cell methods -----
   NS_IMETHOD NewCell( // get cell for specified column, or add new one
     nsIMdbEnv* ev, // context
     mdb_column inColumn, // column to add
-    nsIMdbCell** acqCell); // cell column and value
-    
+    nsIMdbCell** acqCell) override; // cell column and value
+
   NS_IMETHOD AddCell( // copy a cell from another row to this row
     nsIMdbEnv* ev, // context
-    const nsIMdbCell* inCell); // cell column and value
-    
+    const nsIMdbCell* inCell) override; // cell column and value
+
   NS_IMETHOD GetCell( // find a cell in this row
     nsIMdbEnv* ev, // context
     mdb_column inColumn, // column to find
-    nsIMdbCell** acqCell); // cell for specified column, or null
-    
+    nsIMdbCell** acqCell) override; // cell for specified column, or null
+
   NS_IMETHOD EmptyAllCells( // make all cells in row empty of content
-    nsIMdbEnv* ev); // context
+    nsIMdbEnv* ev) override; // context
   // } ----- end cell methods -----
 
   // { ----- begin row methods -----
   NS_IMETHOD AddRow( // add all cells in another row to this one
     nsIMdbEnv* ev, // context
-    nsIMdbRow* ioSourceRow); // row to union with
-    
+    nsIMdbRow* ioSourceRow) override; // row to union with
+
   NS_IMETHOD SetRow( // make exact duplicate of another row
     nsIMdbEnv* ev, // context
-    nsIMdbRow* ioSourceRow); // row to duplicate
+    nsIMdbRow* ioSourceRow) override; // row to duplicate
   // } ----- end row methods -----
 
   // { ----- begin blob methods -----  
   NS_IMETHOD SetCellYarn(nsIMdbEnv* ev, // synonym for AddColumn()
     mdb_column inColumn, // column to write
-    const mdbYarn* inYarn);   // reads from yarn slots
+    const mdbYarn* inYarn) override;   // reads from yarn slots
   // make this text object contain content from the yarn's buffer
-  
+
   NS_IMETHOD GetCellYarn(nsIMdbEnv* ev, 
     mdb_column inColumn, // column to read 
-    mdbYarn* outYarn);  // writes some yarn slots 
+    mdbYarn* outYarn) override;  // writes some yarn slots 
   // copy content into the yarn buffer, and update mYarn_Fill and mYarn_Form
-  
+
   NS_IMETHOD AliasCellYarn(nsIMdbEnv* ev, 
     mdb_column inColumn, // column to alias
-    mdbYarn* outYarn); // writes ALL yarn slots
-  
+    mdbYarn* outYarn) override; // writes ALL yarn slots
+
   NS_IMETHOD NextCellYarn(nsIMdbEnv* ev, // iterative version of GetCellYarn()
     mdb_column* ioColumn, // next column to read
-    mdbYarn* outYarn);  // writes some yarn slots 
+    mdbYarn* outYarn) override;  // writes some yarn slots 
   // copy content into the yarn buffer, and update mYarn_Fill and mYarn_Form
   //
   // The ioColumn argument is an inout parameter which initially contains the
@@ -155,7 +155,7 @@ public: // morkRowObject construction & destruction
     nsIMdbEnv* ev, // context
     mdb_pos inPos, // position of cell in row sequence
     mdb_column* outColumn, // column for this particular cell
-    mdbYarn* outYarn); // writes some yarn slots
+    mdbYarn* outYarn) override; // writes some yarn slots
   // copy content into the yarn buffer, and update mYarn_Fill and mYarn_Form
   // Callers can pass nil for outYarn to indicate no interest in content, so
   // only the outColumn value is returned.  NOTE to subclasses: you must be

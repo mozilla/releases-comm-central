@@ -91,8 +91,6 @@ morkAtomSpace::morkAtomSpace(morkEnv* ev, const morkUsage& inUsage,
 /*public non-poly*/ void
 morkAtomSpace::CloseAtomSpace(morkEnv* ev) // called by CloseMorkNode();
 {
-  if ( this )
-  {
     if ( this->IsNode() )
     {
       mAtomSpace_AtomBodies.CloseMorkNode(ev);
@@ -108,9 +106,6 @@ morkAtomSpace::CloseAtomSpace(morkEnv* ev) // called by CloseMorkNode();
     }
     else
       this->NonNodeError(ev);
-  }
-  else
-    ev->NilPointerError();
 }
 
 // } ===== end morkNode methods =====

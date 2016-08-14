@@ -100,8 +100,6 @@ morkSpace::morkSpace(morkEnv* ev,
 /*public non-poly*/ void
 morkSpace::CloseSpace(morkEnv* ev) // called by CloseMorkNode();
 {
-  if ( this )
-  {
     if ( this->IsNode() )
     {
       morkStore::SlotWeakStore((morkStore*) 0, ev, &mSpace_Store);
@@ -110,9 +108,6 @@ morkSpace::CloseSpace(morkEnv* ev) // called by CloseMorkNode();
     }
     else
       this->NonNodeError(ev);
-  }
-  else
-    ev->NilPointerError();
 }
 
 // } ===== end morkNode methods =====

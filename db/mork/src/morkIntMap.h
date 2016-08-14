@@ -30,7 +30,7 @@ class morkIntMap : public morkMap { // for mapping tokens to maps
 
 // { ===== begin morkNode interface =====
 public: // morkNode virtual methods
-  virtual void CloseMorkNode(morkEnv* ev); // CloseIntMap() only if open
+  virtual void CloseMorkNode(morkEnv* ev) override; // CloseIntMap() only if open
   virtual ~morkIntMap(); // assert that CloseIntMap() executed earlier
   
 public: // morkMap construction & destruction
@@ -47,10 +47,10 @@ public: // dynamic type identification
 
 // { ===== begin morkMap poly interface =====
   virtual mork_bool // *((mork_u4*) inKeyA) == *((mork_u4*) inKeyB)
-  Equal(morkEnv* ev, const void* inKeyA, const void* inKeyB) const;
+  Equal(morkEnv* ev, const void* inKeyA, const void* inKeyB) const override;
 
   virtual mork_u4 // some integer function of *((mork_u4*) inKey)
-  Hash(morkEnv* ev, const void* inKey) const;
+  Hash(morkEnv* ev, const void* inKey) const override;
 // } ===== end morkMap poly interface =====
 
 public: // other map methods
@@ -90,7 +90,7 @@ class morkPointerMap : public morkMap { // for mapping tokens to maps
 
 // { ===== begin morkNode interface =====
 public: // morkNode virtual methods
-  virtual void CloseMorkNode(morkEnv* ev); // ClosePointerMap() only if open
+  virtual void CloseMorkNode(morkEnv* ev) override; // ClosePointerMap() only if open
   virtual ~morkPointerMap(); // assert that ClosePointerMap() executed earlier
   
 public: // morkMap construction & destruction

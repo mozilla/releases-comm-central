@@ -103,7 +103,7 @@ public: // more specific dirty methods for row space:
 
 // { ===== begin morkNode interface =====
 public: // morkNode virtual methods
-  virtual void CloseMorkNode(morkEnv* ev); // CloseRowSpace() only if open
+  virtual void CloseMorkNode(morkEnv* ev) override; // CloseRowSpace() only if open
   virtual ~morkRowSpace(); // assert that CloseRowSpace() executed earlier
   
 public: // morkMap construction & destruction

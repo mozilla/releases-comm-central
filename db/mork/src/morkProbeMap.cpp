@@ -87,8 +87,6 @@ void morkMapScratch::halt_map_scratch(morkEnv* ev)
 void morkProbeMap::ProbeMapBadTagError(morkEnv* ev) const
 {
   ev->NewError("bad sProbeMap_Tag");
-  if ( !this )
-    ev->NewError("nil morkProbeMap");
 }
 
 void morkProbeMap::WrapWithNoVoidSlotError(morkEnv* ev) const
@@ -446,8 +444,6 @@ morkProbeMap::CloseMorkNode(morkEnv* ev) // CloseMap() only if open
 
 void morkProbeMap::CloseProbeMap(morkEnv* ev)
 {
-  if ( this )
-  {
     if ( this->IsNode() )
     {
       nsIMdbHeap* heap = sMap_Heap;
@@ -478,9 +474,6 @@ void morkProbeMap::CloseProbeMap(morkEnv* ev)
     }
     else
       this->NonNodeError(ev);
-  }
-  else
-    ev->NilPointerError();
 }
 
 void*

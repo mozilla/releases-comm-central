@@ -333,7 +333,7 @@ public:
   
 // { ===== begin morkNode interface =====
 public: // morkNode virtual methods
-  virtual void CloseMorkNode(morkEnv* ev); // CloseProbeMap() only if open
+  virtual void CloseMorkNode(morkEnv* ev) override; // CloseProbeMap() only if open
   virtual ~morkProbeMap(); // assert that CloseProbeMap() executed earlier
   
 public: // morkProbeMap construction & destruction

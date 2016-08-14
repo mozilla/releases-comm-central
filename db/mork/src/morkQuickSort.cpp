@@ -64,10 +64,10 @@ morkQS_swapfunc(mork_u1 *, mork_u1 *, int, int);
  */
 #define morkQS_swapcode(TYPE, parmi, parmj, n) {     \
   long i = (n) / sizeof (TYPE);       \
-  register TYPE *pi = (TYPE *) (parmi);     \
-  register TYPE *pj = (TYPE *) (parmj);     \
+  TYPE *pi = (TYPE *) (parmi);     \
+  TYPE *pj = (TYPE *) (parmj);     \
   do {             \
-    register TYPE  t = *pi;    \
+    TYPE  t = *pi;    \
     *pi++ = *pj;        \
     *pj++ = t;        \
         } while (--i > 0);        \

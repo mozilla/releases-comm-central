@@ -122,8 +122,6 @@ extern "C" nsIMdbFactory* MakeMdbFactory()
 /*public non-poly*/ void
 morkFactory::CloseFactory(morkEnv* ev) /*i*/ // called by CloseMorkNode();
 {
-  if ( this )
-  {
     if ( this->IsNode() )
     {
       mFactory_Env.CloseMorkNode(ev);
@@ -132,9 +130,6 @@ morkFactory::CloseFactory(morkEnv* ev) /*i*/ // called by CloseMorkNode();
     }
     else
       this->NonNodeError(ev);
-  }
-  else
-    ev->NilPointerError();
 }
 
 // } ===== end morkNode methods =====

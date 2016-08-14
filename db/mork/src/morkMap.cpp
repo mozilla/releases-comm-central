@@ -125,8 +125,6 @@ morkMap::~morkMap() // assert CloseMap() executed earlier
 /*public non-poly*/ void
 morkMap::CloseMap(morkEnv* ev) // called by CloseMorkNode();
 {
-  if ( this )
-  {
     if ( this->IsNode() )
     {
       nsIMdbHeap* heap = mMap_Heap;
@@ -160,9 +158,6 @@ morkMap::CloseMap(morkEnv* ev) // called by CloseMorkNode();
     }
     else
       this->NonNodeError(ev);
-  }
-  else
-    ev->NilPointerError();
 }
 
 // } ===== end morkNode methods =====
@@ -226,8 +221,6 @@ morkMap::NewIterOutOfSyncError(morkEnv* ev)
 void morkMap::NewBadMapError(morkEnv* ev)
 {
   ev->NewError("bad morkMap tag");
-  if ( !this )
-    ev->NewError("nil morkMap instance");
 }
 
 void morkMap::NewSlotsUnderflowWarning(morkEnv* ev)

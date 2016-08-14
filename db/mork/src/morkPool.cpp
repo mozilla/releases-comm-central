@@ -109,8 +109,6 @@ morkPool::morkPool(morkEnv* ev,
 /*public non-poly*/ void
 morkPool::ClosePool(morkEnv* ev) // called by CloseMorkNode();
 {
-  if ( this )
-  {
     if ( this->IsNode() )
     {
 #ifdef morkZone_CONFIG_ARENA
@@ -134,9 +132,6 @@ morkPool::ClosePool(morkEnv* ev) // called by CloseMorkNode();
     }
     else
       this->NonNodeError(ev);
-  }
-  else
-    ev->NilPointerError();
 }
 
 // } ===== end morkNode methods =====

@@ -275,19 +275,19 @@ protected: // zone utilities
 public:
   NS_IMETHOD Alloc(nsIMdbEnv* ev, // allocate a piece of memory
     mdb_size inSize,   // requested size of new memory block 
-    void** outBlock);  // memory block of inSize bytes, or nil
+    void** outBlock) override; // memory block of inSize bytes, or nil
     
   NS_IMETHOD Free(nsIMdbEnv* ev, // free block allocated earlier by Alloc()
-    void* inBlock);
+    void* inBlock) override;
 
-  virtual size_t GetUsedSize() { return mZone_Heap->GetUsedSize(); }
+  virtual size_t GetUsedSize() override { return mZone_Heap->GetUsedSize(); }
 // } ===== end nsIMdbHeap methods =====
-  
+
 // { ===== begin morkNode interface =====
 public: // morkNode virtual methods
-  virtual void CloseMorkNode(morkEnv* ev); // CloseZone() only if open
+  virtual void CloseMorkNode(morkEnv* ev) override; // CloseZone() only if open
   virtual ~morkZone(); // assert that CloseMap() executed earlier
-  
+
 public: // morkMap construction & destruction
   morkZone(morkEnv* ev, const morkUsage& inUsage, nsIMdbHeap* ioNodeHeap, 
     nsIMdbHeap* ioZoneHeap);

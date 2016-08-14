@@ -114,8 +114,6 @@ morkStore::CloseMorkNode(morkEnv* ev) // ClosePort() only if open
 /*public non-poly*/ void
 morkStore::ClosePort(morkEnv* ev) // called by CloseMorkNode();
 {
-  if ( this )
-  {
     if ( this->IsNode() )
     {
       morkFactory::SlotWeakFactory((morkFactory*) 0, ev, &mPort_Factory);
@@ -125,9 +123,6 @@ morkStore::ClosePort(morkEnv* ev) // called by CloseMorkNode();
     }
     else
       this->NonNodeError(ev);
-  }
-  else
-    ev->NilPointerError();
 }
 
 /*public virtual*/
@@ -208,8 +203,6 @@ NS_IMPL_ISUPPORTS_INHERITED(morkStore, morkObject, nsIMdbStore)
 /*public non-poly*/ void
 morkStore::CloseStore(morkEnv* ev) // called by CloseMorkNode();
 {
-  if ( this )
-  {
     if ( this->IsNode() )
     {
 
@@ -243,9 +236,6 @@ morkStore::CloseStore(morkEnv* ev) // called by CloseMorkNode();
     }
     else
       this->NonNodeError(ev);
-  }
-  else
-    ev->NilPointerError();
 }
 
 // } ===== end morkNode methods =====
@@ -1313,12 +1303,18 @@ morkStore::AddWeakRef(nsIMdbEnv* mev)
   // XXX Casting mork_refs to nsresult
   return static_cast<nsresult>(morkNode::AddWeakRef(ev));
 }
+#ifndef _MSC_VER
+NS_IMETHODIMP_(mork_uses)
+morkStore::AddStrongRef(morkEnv* mev)
+{
+  return AddRef();
+}
+#endif
 NS_IMETHODIMP_(mork_uses)
 morkStore::AddStrongRef(nsIMdbEnv* mev)
 {
   return AddRef();
 }
-
 NS_IMETHODIMP
 morkStore::CutWeakRef(nsIMdbEnv* mev)
 {
@@ -1326,6 +1322,13 @@ morkStore::CutWeakRef(nsIMdbEnv* mev)
   // XXX Casting mork_refs to nsresult
   return static_cast<nsresult>(morkNode::CutWeakRef(ev));
 }
+#ifndef _MSC_VER
+NS_IMETHODIMP_(mork_uses)
+morkStore::CutStrongRef(morkEnv* mev)
+{
+  return Release();
+}
+#endif
 NS_IMETHODIMP
 morkStore::CutStrongRef(nsIMdbEnv* mev)
 {

@@ -294,12 +294,12 @@ private: // convenience inlines
 
   void CountLineBreak()
   { ++mParser_PortSpan.mSpan_End.mPlace_Line; }
-  
+
 // { ===== begin morkNode interface =====
 public: // morkNode virtual methods
-  virtual void CloseMorkNode(morkEnv* ev); // CloseParser() only if open
+  virtual void CloseMorkNode(morkEnv* ev) override; // CloseParser() only if open
   virtual ~morkParser(); // assert that CloseParser() executed earlier
-  
+
 public: // morkYarn construction & destruction
   morkParser(morkEnv* ev, const morkUsage& inUsage, nsIMdbHeap* ioHeap,
     morkStream* ioStream,  // the readonly stream for input bytes

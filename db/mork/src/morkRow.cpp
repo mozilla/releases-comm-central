@@ -535,7 +535,7 @@ morkRow::GetCellAtomAid(morkEnv* ev, mdb_column inColumn) const
   // the atom has no ID to return.  This method is intended to support
   // efficient updating of column indexes for rows in a row space.
 {
-  if ( this && this->IsRow() )
+  if (this->IsRow())
   {
     morkCell* cells = mRow_Cells;
     if ( cells )

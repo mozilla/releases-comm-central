@@ -40,7 +40,7 @@ public: // state is public because the entire Mork system is private
   
 // { ===== begin morkNode interface =====
 public: // morkNode virtual methods
-  virtual void CloseMorkNode(morkEnv* ev); // CloseArray()
+  virtual void CloseMorkNode(morkEnv* ev) override; // CloseArray()
   virtual ~morkArray(); // assert that close executed earlier
   
 public: // morkArray construction & destruction

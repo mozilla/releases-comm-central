@@ -14,9 +14,9 @@ class nsMorkFactoryService final : public nsIMdbFactoryService
 public:
   nsMorkFactoryService() {};
   // nsISupports methods
-  NS_DECL_ISUPPORTS 
+  NS_DECL_ISUPPORTS
 
-  NS_IMETHOD GetMdbFactory(nsIMdbFactory **aFactory);
+  NS_IMETHOD GetMdbFactory(nsIMdbFactory **aFactory) override;
 
 protected:
   ~nsMorkFactoryService() {}

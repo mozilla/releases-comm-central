@@ -57,15 +57,10 @@ morkYarn::morkYarn(morkEnv* ev, /*i*/
 /*public non-poly*/ void
 morkYarn::CloseYarn(morkEnv* ev) /*i*/ // called by CloseMorkNode();
 {
-  if ( this )
-  {
     if ( this->IsNode() )
       this->MarkShut();
     else
       this->NonNodeError(ev);
-  }
-  else
-    ev->NilPointerError();
 }
 
 // } ===== end morkNode methods =====

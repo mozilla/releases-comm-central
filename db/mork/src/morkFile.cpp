@@ -84,8 +84,6 @@ NS_IMPL_ISUPPORTS_INHERITED(morkFile, morkObject, nsIMdbFile)
 /*public non-poly*/ void
 morkFile::CloseFile(morkEnv* ev) // called by CloseMorkNode();
 {
-  if ( this )
-  {
     if ( this->IsNode() )
     {
       mFile_Frozen = 0;
@@ -103,9 +101,6 @@ morkFile::CloseFile(morkEnv* ev) // called by CloseMorkNode();
     }
     else
       this->NonNodeError(ev);
-  }
-  else
-    ev->NilPointerError();
 }
 
 // } ===== end morkNode methods =====
@@ -372,8 +367,6 @@ morkStdioFile::~morkStdioFile() // assert CloseStdioFile() executed earlier
 /*public non-poly*/ void
 morkStdioFile::CloseStdioFile(morkEnv* ev) // called by CloseMorkNode();
 {
-  if ( this )
-  {
     if ( this->IsNode() )
     {
       if ( mStdioFile_File && this->FileActive() && this->FileIoOpen() )
@@ -388,9 +381,6 @@ morkStdioFile::CloseStdioFile(morkEnv* ev) // called by CloseMorkNode();
     }
     else
       this->NonNodeError(ev);
-  }
-  else
-    ev->NilPointerError();
 }
 
 // } ===== end morkNode methods =====

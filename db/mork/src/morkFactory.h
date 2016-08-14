@@ -55,7 +55,7 @@ public: // state is public because the entire Mork system is private
   NS_DECL_ISUPPORTS_INHERITED
 // { ===== begin morkNode interface =====
 public: // morkFactory virtual methods
-  virtual void CloseMorkNode(morkEnv* ev); // CloseFactory() only if open
+  virtual void CloseMorkNode(morkEnv* ev) override; // CloseFactory() only if open
 
 
 // { ===== begin nsIMdbFactory methods =====
@@ -63,7 +63,7 @@ public: // morkFactory virtual methods
   // { ----- begin file methods -----
   NS_IMETHOD OpenOldFile(nsIMdbEnv* ev, nsIMdbHeap* ioHeap,
     const char* inFilePath,
-    mdb_bool inFrozen, nsIMdbFile** acqFile);
+    mdb_bool inFrozen, nsIMdbFile** acqFile) override;
   // Choose some subclass of nsIMdbFile to instantiate, in order to read
   // (and write if not frozen) the file known by inFilePath.  The file
   // returned should be open and ready for use, and presumably positioned
@@ -73,7 +73,7 @@ public: // morkFactory virtual methods
 
   NS_IMETHOD CreateNewFile(nsIMdbEnv* ev, nsIMdbHeap* ioHeap,
     const char* inFilePath,
-    nsIMdbFile** acqFile);
+    nsIMdbFile** acqFile) override;
   // Choose some subclass of nsIMdbFile to instantiate, in order to read
   // (and write if not frozen) the file known by inFilePath.  The file
   // returned should be created and ready for use, and presumably positioned
@@ -83,19 +83,19 @@ public: // morkFactory virtual methods
   // } ----- end file methods -----
 
   // { ----- begin env methods -----
-  NS_IMETHOD MakeEnv(nsIMdbHeap* ioHeap, nsIMdbEnv** acqEnv); // new env
+  NS_IMETHOD MakeEnv(nsIMdbHeap* ioHeap, nsIMdbEnv** acqEnv) override; // new env
   // ioHeap can be nil, causing a MakeHeap() style heap instance to be used
   // } ----- end env methods -----
 
   // { ----- begin heap methods -----
-  NS_IMETHOD MakeHeap(nsIMdbEnv* ev, nsIMdbHeap** acqHeap); // new heap
+  NS_IMETHOD MakeHeap(nsIMdbEnv* ev, nsIMdbHeap** acqHeap) override; // new heap
   // } ----- end heap methods -----
 
   // { ----- begin row methods -----
-  NS_IMETHOD MakeRow(nsIMdbEnv* ev, nsIMdbHeap* ioHeap, nsIMdbRow** acqRow); // new row
+  NS_IMETHOD MakeRow(nsIMdbEnv* ev, nsIMdbHeap* ioHeap, nsIMdbRow** acqRow) override; // new row
   // ioHeap can be nil, causing the heap associated with ev to be used
   // } ----- end row methods -----
-  
+
   // { ----- begin port methods -----
   NS_IMETHOD CanOpenFilePort(
     nsIMdbEnv* ev, // context
@@ -103,24 +103,24 @@ public: // morkFactory virtual methods
     // const mdbYarn* inFirst512Bytes,
     nsIMdbFile* ioFile, // db abstract file interface
     mdb_bool* outCanOpen, // whether OpenFilePort() might succeed
-    mdbYarn* outFormatVersion); // informal file format description
-    
+    mdbYarn* outFormatVersion) override; // informal file format description
+
   NS_IMETHOD OpenFilePort(
     nsIMdbEnv* ev, // context
     nsIMdbHeap* ioHeap, // can be nil to cause ev's heap attribute to be used
     // const char* inFilePath, // the file to open for readonly import
     nsIMdbFile* ioFile, // db abstract file interface
     const mdbOpenPolicy* inOpenPolicy, // runtime policies for using db
-    nsIMdbThumb** acqThumb); // acquire thumb for incremental port open
+    nsIMdbThumb** acqThumb) override; // acquire thumb for incremental port open
   // Call nsIMdbThumb::DoMore() until done, or until the thumb is broken, and
   // then call nsIMdbFactory::ThumbToOpenPort() to get the port instance.
 
   NS_IMETHOD ThumbToOpenPort( // redeeming a completed thumb from OpenFilePort()
     nsIMdbEnv* ev, // context
     nsIMdbThumb* ioThumb, // thumb from OpenFilePort() with done status
-    nsIMdbPort** acqPort); // acquire new port object
+    nsIMdbPort** acqPort) override; // acquire new port object
   // } ----- end port methods -----
-  
+
   // { ----- begin store methods -----
   NS_IMETHOD CanOpenFileStore(
     nsIMdbEnv* ev, // context
@@ -129,31 +129,31 @@ public: // morkFactory virtual methods
     nsIMdbFile* ioFile, // db abstract file interface
     mdb_bool* outCanOpenAsStore, // whether OpenFileStore() might succeed
     mdb_bool* outCanOpenAsPort, // whether OpenFilePort() might succeed
-    mdbYarn* outFormatVersion); // informal file format description
-    
+    mdbYarn* outFormatVersion) override; // informal file format description
+
   NS_IMETHOD OpenFileStore( // open an existing database
     nsIMdbEnv* ev, // context
     nsIMdbHeap* ioHeap, // can be nil to cause ev's heap attribute to be used
     // const char* inFilePath, // the file to open for general db usage
     nsIMdbFile* ioFile, // db abstract file interface
     const mdbOpenPolicy* inOpenPolicy, // runtime policies for using db
-    nsIMdbThumb** acqThumb); // acquire thumb for incremental store open
+    nsIMdbThumb** acqThumb) override; // acquire thumb for incremental store open
   // Call nsIMdbThumb::DoMore() until done, or until the thumb is broken, and
   // then call nsIMdbFactory::ThumbToOpenStore() to get the store instance.
-    
+
   NS_IMETHOD
   ThumbToOpenStore( // redeem completed thumb from OpenFileStore()
     nsIMdbEnv* ev, // context
     nsIMdbThumb* ioThumb, // thumb from OpenFileStore() with done status
-    nsIMdbStore** acqStore); // acquire new db store object
-  
+    nsIMdbStore** acqStore) override; // acquire new db store object
+
   NS_IMETHOD CreateNewFileStore( // create a new db with minimal content
     nsIMdbEnv* ev, // context
     nsIMdbHeap* ioHeap, // can be nil to cause ev's heap attribute to be used
     // const char* inFilePath, // name of file which should not yet exist
     nsIMdbFile* ioFile, // db abstract file interface
     const mdbOpenPolicy* inOpenPolicy, // runtime policies for using db
-    nsIMdbStore** acqStore); // acquire new db store object
+    nsIMdbStore** acqStore) override; // acquire new db store object
   // } ----- end store methods -----
 
 // } ===== end nsIMdbFactory methods =====

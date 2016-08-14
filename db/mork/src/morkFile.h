@@ -97,8 +97,8 @@ protected: // protected morkFile members (similar to public domain IronDoc)
 // { ===== begin morkNode interface =====
 public: // morkNode virtual methods
   NS_DECL_ISUPPORTS_INHERITED
-  virtual void CloseMorkNode(morkEnv* ev); // CloseFile() only if open
-  
+  virtual void CloseMorkNode(morkEnv* ev) override; // CloseFile() only if open
+
 public: // morkFile construction & destruction
   morkFile(morkEnv* ev, const morkUsage& inUsage, nsIMdbHeap* ioHeap,
     nsIMdbHeap* ioSlotHeap);
@@ -188,40 +188,40 @@ public: // typesafe refcounting inlines calling inherited morkNode methods
 public:
   virtual mork_pos   Length(morkEnv* ev) const = 0; // eof
   // nsIMdbFile methods
-  NS_IMETHOD Tell(nsIMdbEnv* ev, mdb_pos* outPos) const = 0;
-  NS_IMETHOD Seek(nsIMdbEnv* ev, mdb_pos inPos, mdb_pos *outPos) = 0;
-  NS_IMETHOD Eof(nsIMdbEnv* ev, mdb_pos* outPos);
+  NS_IMETHOD Tell(nsIMdbEnv* ev, mdb_pos* outPos) const override = 0;
+  NS_IMETHOD Seek(nsIMdbEnv* ev, mdb_pos inPos, mdb_pos *outPos) override =  0;
+  NS_IMETHOD Eof(nsIMdbEnv* ev, mdb_pos* outPos) override;
   // } ----- end pos methods -----
 
   // { ----- begin read methods -----
   NS_IMETHOD Read(nsIMdbEnv* ev, void* outBuf, mdb_size inSize,
-    mdb_size* outActualSize) = 0;
+    mdb_size* outActualSize) override = 0;
   NS_IMETHOD Get(nsIMdbEnv* ev, void* outBuf, mdb_size inSize,
-    mdb_pos inPos, mdb_size* outActualSize);
+    mdb_pos inPos, mdb_size* outActualSize) override;
   // } ----- end read methods -----
     
   // { ----- begin write methods -----
   NS_IMETHOD  Write(nsIMdbEnv* ev, const void* inBuf, mdb_size inSize,
-    mdb_size* outActualSize) = 0;
+    mdb_size* outActualSize) override = 0;
   NS_IMETHOD  Put(nsIMdbEnv* ev, const void* inBuf, mdb_size inSize,
-    mdb_pos inPos, mdb_size* outActualSize);
-  NS_IMETHOD  Flush(nsIMdbEnv* ev) = 0;
+    mdb_pos inPos, mdb_size* outActualSize) override;
+  NS_IMETHOD  Flush(nsIMdbEnv* ev) override = 0;
   // } ----- end attribute methods -----
     
   // { ----- begin path methods -----
-  NS_IMETHOD  Path(nsIMdbEnv* ev, mdbYarn* outFilePath);
+  NS_IMETHOD  Path(nsIMdbEnv* ev, mdbYarn* outFilePath) override ;
   // } ----- end path methods -----
     
   // { ----- begin replacement methods -----
-  NS_IMETHOD  Steal(nsIMdbEnv* ev, nsIMdbFile* ioThief) = 0;
-  NS_IMETHOD  Thief(nsIMdbEnv* ev, nsIMdbFile** acqThief);
+  NS_IMETHOD  Steal(nsIMdbEnv* ev, nsIMdbFile* ioThief) override = 0;
+  NS_IMETHOD  Thief(nsIMdbEnv* ev, nsIMdbFile** acqThief) override;
   // } ----- end replacement methods -----
 
   // { ----- begin versioning methods -----
-  NS_IMETHOD BecomeTrunk(nsIMdbEnv* ev) = 0;
+  NS_IMETHOD BecomeTrunk(nsIMdbEnv* ev) override = 0;
 
   NS_IMETHOD AcquireBud(nsIMdbEnv* ev, nsIMdbHeap* ioHeap,
-    nsIMdbFile** acqBud) = 0; 
+    nsIMdbFile** acqBud) override = 0;
   // } ----- end versioning methods -----
 
 // } ===== end nsIMdbFile methods =====
@@ -241,12 +241,12 @@ protected: // protected morkStdioFile members
 
   void* mStdioFile_File;
   // actually type FILE*, but using opaque void* type
-  
+
 // { ===== begin morkNode interface =====
 public: // morkNode virtual methods
-  virtual void CloseMorkNode(morkEnv* ev); // CloseStdioFile() only if open
+  virtual void CloseMorkNode(morkEnv* ev) override; // CloseStdioFile() only if open
   virtual ~morkStdioFile(); // assert that CloseStdioFile() executed earlier
-  
+
 public: // morkStdioFile construction & destruction
   morkStdioFile(morkEnv* ev, const morkUsage& inUsage,
     nsIMdbHeap* ioHeap, nsIMdbHeap* ioSlotHeap);
@@ -273,33 +273,32 @@ public: // compatible with the morkFile::OpenOldFile() entry point
   static morkStdioFile* CreateNewStdioFile(morkEnv* ev, nsIMdbHeap* ioHeap,
     const char* inFilePath);
 
-  virtual mork_pos   Length(morkEnv* ev) const; // eof
+  virtual mork_pos   Length(morkEnv* ev) const override; // eof
 
-  NS_IMETHOD Tell(nsIMdbEnv* ev, mdb_pos* outPos) const;
-  NS_IMETHOD Seek(nsIMdbEnv* ev, mdb_pos inPos, mdb_pos *outPos);
+  NS_IMETHOD Tell(nsIMdbEnv* ev, mdb_pos* outPos) const override;
+  NS_IMETHOD Seek(nsIMdbEnv* ev, mdb_pos inPos, mdb_pos *outPos) override;
 //  NS_IMETHOD Eof(nsIMdbEnv* ev, mdb_pos* outPos);
   // } ----- end pos methods -----
 
   // { ----- begin read methods -----
   NS_IMETHOD Read(nsIMdbEnv* ev, void* outBuf, mdb_size inSize,
-    mdb_size* outActualSize);
-    
+    mdb_size* outActualSize) override;
+
   // { ----- begin write methods -----
   NS_IMETHOD  Write(nsIMdbEnv* ev, const void* inBuf, mdb_size inSize,
-    mdb_size* outActualSize);
+    mdb_size* outActualSize) override;
 //  NS_IMETHOD  Put(nsIMdbEnv* ev, const void* inBuf, mdb_size inSize,
 //    mdb_pos inPos, mdb_size* outActualSize);
-  NS_IMETHOD  Flush(nsIMdbEnv* ev);
+  NS_IMETHOD  Flush(nsIMdbEnv* ev) override;
   // } ----- end attribute methods -----
-    
-  NS_IMETHOD  Steal(nsIMdbEnv* ev, nsIMdbFile* ioThief);
-   
+
+  NS_IMETHOD  Steal(nsIMdbEnv* ev, nsIMdbFile* ioThief) override;
 
   // { ----- begin versioning methods -----
-  NS_IMETHOD BecomeTrunk(nsIMdbEnv* ev);
+  NS_IMETHOD BecomeTrunk(nsIMdbEnv* ev) override;
 
   NS_IMETHOD AcquireBud(nsIMdbEnv* ev, nsIMdbHeap* ioHeap,
-    nsIMdbFile** acqBud); 
+    nsIMdbFile** acqBud) override;
   // } ----- end versioning methods -----
 
 // } ===== end nsIMdbFile methods =====

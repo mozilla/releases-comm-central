@@ -102,58 +102,66 @@ public: // bead color setter & getter replace obsolete member mTable_Id:
   void         SetTableId(mork_tid inTid) { mBead_Color = inTid; }
 
   // we override these so we use xpcom ref-counting semantics.
-  virtual mork_refs    AddStrongRef(morkEnv* ev);
-  virtual mork_refs    CutStrongRef(morkEnv* ev);
+#ifndef _MSC_VER
+  // The first declaration of AddStrongRef is to suppress -Werror,-Woverloaded-virtual.
+  virtual mork_refs    AddStrongRef(nsIMdbEnv* ev) override;
+#endif
+  virtual mork_refs    AddStrongRef(morkEnv* ev) override;
+#ifndef _MSC_VER
+  // The first declaration of CutStrongRef is to suppress -Werror,-Woverloaded-virtual.
+  virtual nsresult     CutStrongRef(nsIMdbEnv* ev) override;
+#endif
+  virtual mork_refs    CutStrongRef(morkEnv* ev) override;
 public: // state is public because the entire Mork system is private
 
 // { ===== begin nsIMdbCollection methods =====
 
   // { ----- begin attribute methods -----
   NS_IMETHOD GetSeed(nsIMdbEnv* ev,
-    mdb_seed* outSeed);    // member change count
+    mdb_seed* outSeed) override;    // member change count
   NS_IMETHOD GetCount(nsIMdbEnv* ev,
-    mdb_count* outCount); // member count
+    mdb_count* outCount) override; // member count
 
   NS_IMETHOD GetPort(nsIMdbEnv* ev,
-    nsIMdbPort** acqPort); // collection container
+    nsIMdbPort** acqPort) override; // collection container
   // } ----- end attribute methods -----
 
   // { ----- begin cursor methods -----
   NS_IMETHOD GetCursor( // make a cursor starting iter at inMemberPos
     nsIMdbEnv* ev, // context
     mdb_pos inMemberPos, // zero-based ordinal pos of member in collection
-    nsIMdbCursor** acqCursor); // acquire new cursor instance
+    nsIMdbCursor** acqCursor) override; // acquire new cursor instance
   // } ----- end cursor methods -----
 
   // { ----- begin ID methods -----
   NS_IMETHOD GetOid(nsIMdbEnv* ev,
-    mdbOid* outOid); // read object identity
+    mdbOid* outOid) override; // read object identity
   NS_IMETHOD BecomeContent(nsIMdbEnv* ev,
-    const mdbOid* inOid); // exchange content
+    const mdbOid* inOid) override; // exchange content
   // } ----- end ID methods -----
 
   // { ----- begin activity dropping methods -----
   NS_IMETHOD DropActivity( // tell collection usage no longer expected
-    nsIMdbEnv* ev);
+    nsIMdbEnv* ev) override;
   // } ----- end activity dropping methods -----
 
 // } ===== end nsIMdbCollection methods =====
-  NS_IMETHOD SetTablePriority(nsIMdbEnv* ev, mdb_priority inPrio);
-  NS_IMETHOD GetTablePriority(nsIMdbEnv* ev, mdb_priority* outPrio);
+  NS_IMETHOD SetTablePriority(nsIMdbEnv* ev, mdb_priority inPrio) override;
+  NS_IMETHOD GetTablePriority(nsIMdbEnv* ev, mdb_priority* outPrio) override;
   
-  NS_IMETHOD GetTableBeVerbose(nsIMdbEnv* ev, mdb_bool* outBeVerbose);
-  NS_IMETHOD SetTableBeVerbose(nsIMdbEnv* ev, mdb_bool inBeVerbose);
+  NS_IMETHOD GetTableBeVerbose(nsIMdbEnv* ev, mdb_bool* outBeVerbose) override;
+  NS_IMETHOD SetTableBeVerbose(nsIMdbEnv* ev, mdb_bool inBeVerbose) override;
   
-  NS_IMETHOD GetTableIsUnique(nsIMdbEnv* ev, mdb_bool* outIsUnique);
+  NS_IMETHOD GetTableIsUnique(nsIMdbEnv* ev, mdb_bool* outIsUnique) override;
   
-  NS_IMETHOD GetTableKind(nsIMdbEnv* ev, mdb_kind* outTableKind);
-  NS_IMETHOD GetRowScope(nsIMdbEnv* ev, mdb_scope* outRowScope);
+  NS_IMETHOD GetTableKind(nsIMdbEnv* ev, mdb_kind* outTableKind) override;
+  NS_IMETHOD GetRowScope(nsIMdbEnv* ev, mdb_scope* outRowScope) override;
   
   NS_IMETHOD GetMetaRow(
     nsIMdbEnv* ev, // context
     const mdbOid* inOptionalMetaRowOid, // can be nil to avoid specifying 
     mdbOid* outOid, // output meta row oid, can be nil to suppress output
-    nsIMdbRow** acqRow); // acquire table's unique singleton meta row
+    nsIMdbRow** acqRow) override; // acquire table's unique singleton meta row
     // The purpose of a meta row is to support the persistent recording of
     // meta info about a table as cells put into the distinguished meta row.
     // Each table has exactly one meta row, which is not considered a member
@@ -183,88 +191,88 @@ public: // state is public because the entire Mork system is private
   NS_IMETHOD GetTableRowCursor( // make a cursor, starting iteration at inRowPos
     nsIMdbEnv* ev, // context
     mdb_pos inRowPos, // zero-based ordinal position of row in table
-    nsIMdbTableRowCursor** acqCursor); // acquire new cursor instance
+    nsIMdbTableRowCursor** acqCursor) override; // acquire new cursor instance
   // } ----- end row position methods -----
 
   // { ----- begin row position methods -----
   NS_IMETHOD PosToOid( // get row member for a table position
     nsIMdbEnv* ev, // context
     mdb_pos inRowPos, // zero-based ordinal position of row in table
-    mdbOid* outOid); // row oid at the specified position
+    mdbOid* outOid) override; // row oid at the specified position
 
   NS_IMETHOD OidToPos( // test for the table position of a row member
     nsIMdbEnv* ev, // context
     const mdbOid* inOid, // row to find in table
-    mdb_pos* outPos); // zero-based ordinal position of row in table
+    mdb_pos* outPos) override; // zero-based ordinal position of row in table
     
   NS_IMETHOD PosToRow( // test for the table position of a row member
     nsIMdbEnv* ev, // context
     mdb_pos inRowPos, // zero-based ordinal position of row in table
-    nsIMdbRow** acqRow); // acquire row at table position inRowPos
+    nsIMdbRow** acqRow) override; // acquire row at table position inRowPos
     
   NS_IMETHOD RowToPos( // test for the table position of a row member
     nsIMdbEnv* ev, // context
     nsIMdbRow* ioRow, // row to find in table
-    mdb_pos* outPos); // zero-based ordinal position of row in table
+    mdb_pos* outPos) override; // zero-based ordinal position of row in table
   // } ----- end row position methods -----
 
   // { ----- begin oid set methods -----
   NS_IMETHOD AddOid( // make sure the row with inOid is a table member 
     nsIMdbEnv* ev, // context
-    const mdbOid* inOid); // row to ensure membership in table
+    const mdbOid* inOid) override; // row to ensure membership in table
 
   NS_IMETHOD HasOid( // test for the table position of a row member
     nsIMdbEnv* ev, // context
     const mdbOid* inOid, // row to find in table
-    mdb_bool* outHasOid); // whether inOid is a member row
+    mdb_bool* outHasOid) override; // whether inOid is a member row
 
   NS_IMETHOD CutOid( // make sure the row with inOid is not a member 
     nsIMdbEnv* ev, // context
-    const mdbOid* inOid); // row to remove from table
+    const mdbOid* inOid) override; // row to remove from table
   // } ----- end oid set methods -----
 
   // { ----- begin row set methods -----
   NS_IMETHOD NewRow( // create a new row instance in table
     nsIMdbEnv* ev, // context
     mdbOid* ioOid, // please use minus one (unbound) rowId for db-assigned IDs
-    nsIMdbRow** acqRow); // create new row
+    nsIMdbRow** acqRow) override; // create new row
 
   NS_IMETHOD AddRow( // make sure the row with inOid is a table member 
     nsIMdbEnv* ev, // context
-    nsIMdbRow* ioRow); // row to ensure membership in table
+    nsIMdbRow* ioRow) override; // row to ensure membership in table
 
   NS_IMETHOD HasRow( // test for the table position of a row member
     nsIMdbEnv* ev, // context
     nsIMdbRow* ioRow, // row to find in table
-    mdb_bool* outHasRow); // whether row is a table member
+    mdb_bool* outHasRow) override; // whether row is a table member
 
   NS_IMETHOD CutRow( // make sure the row with inOid is not a member 
     nsIMdbEnv* ev, // context
-    nsIMdbRow* ioRow); // row to remove from table
+    nsIMdbRow* ioRow) override; // row to remove from table
 
   NS_IMETHOD CutAllRows( // remove all rows from the table
-    nsIMdbEnv* ev); // context
+    nsIMdbEnv* ev) override; // context
   // } ----- end row set methods -----
 
   // { ----- begin hinting methods -----
   NS_IMETHOD SearchColumnsHint( // advise re future expected search cols  
     nsIMdbEnv* ev, // context
-    const mdbColumnSet* inColumnSet); // columns likely to be searched
+    const mdbColumnSet* inColumnSet) override; // columns likely to be searched
     
   NS_IMETHOD SortColumnsHint( // advise re future expected sort columns  
     nsIMdbEnv* ev, // context
-    const mdbColumnSet* inColumnSet); // columns for likely sort requests
+    const mdbColumnSet* inColumnSet) override; // columns for likely sort requests
     
   NS_IMETHOD StartBatchChangeHint( // advise before many adds and cuts  
     nsIMdbEnv* ev, // context
-    const void* inLabel); // intend unique address to match end call
+    const void* inLabel) override; // intend unique address to match end call
     // If batch starts nest by virtue of nesting calls in the stack, then
     // the address of a local variable makes a good batch start label that
     // can be used at batch end time, and such addresses remain unique.
     
   NS_IMETHOD EndBatchChangeHint( // advise before many adds and cuts  
     nsIMdbEnv* ev, // context
-    const void* inLabel); // label matching start label
+    const void* inLabel) override; // label matching start label
     // Suppose a table is maintaining one or many sort orders for a table,
     // so that every row added to the table must be inserted in each sort,
     // and every row cut must be removed from each sort.  If a db client
@@ -280,12 +288,12 @@ public: // state is public because the entire Mork system is private
   NS_IMETHOD FindRowMatches( // search variable number of sorted cols
     nsIMdbEnv* ev, // context
     const mdbYarn* inPrefix, // content to find as prefix in row's column cell
-    nsIMdbTableRowCursor** acqCursor); // set of matching rows
-    
+    nsIMdbTableRowCursor** acqCursor) override; // set of matching rows
+
   NS_IMETHOD GetSearchColumns( // query columns used by FindRowMatches()
     nsIMdbEnv* ev, // context
     mdb_count* outCount, // context
-    mdbColumnSet* outColSet); // caller supplied space to put columns
+    mdbColumnSet* outColSet) override; // caller supplied space to put columns
     // GetSearchColumns() returns the columns actually searched when the
     // FindRowMatches() method is called.  No more than mColumnSet_Count
     // slots of mColumnSet_Columns will be written, since mColumnSet_Count
@@ -308,17 +316,17 @@ public: // state is public because the entire Mork system is private
   CanSortColumn( // query which column is currently used for sorting
     nsIMdbEnv* ev, // context
     mdb_column inColumn, // column to query sorting potential
-    mdb_bool* outCanSort); // whether the column can be sorted
+    mdb_bool* outCanSort) override; // whether the column can be sorted
     
   NS_IMETHOD GetSorting( // view same table in particular sorting
     nsIMdbEnv* ev, // context
     mdb_column inColumn, // requested new column for sorting table
-    nsIMdbSorting** acqSorting); // acquire sorting for column
+    nsIMdbSorting** acqSorting) override; // acquire sorting for column
     
   NS_IMETHOD SetSearchSorting( // use this sorting in FindRowMatches()
     nsIMdbEnv* ev, // context
     mdb_column inColumn, // often same as nsIMdbSorting::GetSortColumn()
-    nsIMdbSorting* ioSorting); // requested sorting for some column
+    nsIMdbSorting* ioSorting) override; // requested sorting for some column
     // SetSearchSorting() attempts to inform the table that ioSorting
     // should be used during calls to FindRowMatches() for searching
     // the column which is actually sorted by ioSorting.  This method
@@ -351,49 +359,49 @@ public: // state is public because the entire Mork system is private
     const mdbOid* inOid,  // row oid to find in table
     mdb_pos inHintFromPos, // suggested hint regarding start position
     mdb_pos inToPos,       // desired new position for row inRowId
-    mdb_pos* outActualPos); // actual new position of row in table
+    mdb_pos* outActualPos) override; // actual new position of row in table
 
   NS_IMETHOD MoveRow( // change position of row in unsorted table
     nsIMdbEnv* ev, // context
     nsIMdbRow* ioRow,  // row oid to find in table
     mdb_pos inHintFromPos, // suggested hint regarding start position
     mdb_pos inToPos,       // desired new position for row inRowId
-    mdb_pos* outActualPos); // actual new position of row in table
+    mdb_pos* outActualPos) override; // actual new position of row in table
   // } ----- end moving methods -----
   
   // { ----- begin index methods -----
   NS_IMETHOD AddIndex( // create a sorting index for column if possible
     nsIMdbEnv* ev, // context
     mdb_column inColumn, // the column to sort by index
-    nsIMdbThumb** acqThumb); // acquire thumb for incremental index building
+    nsIMdbThumb** acqThumb) override; // acquire thumb for incremental index building
   // Call nsIMdbThumb::DoMore() until done, or until the thumb is broken, and
   // then the index addition will be finished.
   
   NS_IMETHOD CutIndex( // stop supporting a specific column index
     nsIMdbEnv* ev, // context
     mdb_column inColumn, // the column with index to be removed
-    nsIMdbThumb** acqThumb); // acquire thumb for incremental index destroy
+    nsIMdbThumb** acqThumb) override; // acquire thumb for incremental index destroy
   // Call nsIMdbThumb::DoMore() until done, or until the thumb is broken, and
   // then the index removal will be finished.
   
   NS_IMETHOD HasIndex( // query for current presence of a column index
     nsIMdbEnv* ev, // context
     mdb_column inColumn, // the column to investigate
-    mdb_bool* outHasIndex); // whether column has index for this column
+    mdb_bool* outHasIndex) override; // whether column has index for this column
 
   
   NS_IMETHOD EnableIndexOnSort( // create an index for col on first sort
     nsIMdbEnv* ev, // context
-    mdb_column inColumn); // the column to index if ever sorted
+    mdb_column inColumn) override; // the column to index if ever sorted
   
   NS_IMETHOD QueryIndexOnSort( // check whether index on sort is enabled
     nsIMdbEnv* ev, // context
     mdb_column inColumn, // the column to investigate
-    mdb_bool* outIndexOnSort); // whether column has index-on-sort enabled
+    mdb_bool* outIndexOnSort) override; // whether column has index-on-sort enabled
   
   NS_IMETHOD DisableIndexOnSort( // prevent future index creation on sort
     nsIMdbEnv* ev, // context
-    mdb_column inColumn); // the column to index if ever sorted
+    mdb_column inColumn) override; // the column to index if ever sorted
   // } ----- end index methods -----
 
   morkStore*      mTable_Store;   // non-refcnted ptr to port
@@ -463,7 +471,7 @@ public: // morkNode memory management operators
  
 // { ===== begin morkNode interface =====
 public: // morkNode virtual methods
-  virtual void CloseMorkNode(morkEnv* ev); // CloseTable() if open
+  virtual void CloseMorkNode(morkEnv* ev) override; // CloseTable() if open
   
 public: // morkTable construction & destruction
   morkTable(morkEnv* ev, const morkUsage& inUsage,

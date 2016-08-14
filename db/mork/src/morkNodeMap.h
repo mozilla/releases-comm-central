@@ -34,9 +34,9 @@ class morkNodeMap : public morkIntMap { // for mapping tokens to nodes
 
 // { ===== begin morkNode interface =====
 public: // morkNode virtual methods
-  virtual void CloseMorkNode(morkEnv* ev); // CloseNodeMap() only if open
+  virtual void CloseMorkNode(morkEnv* ev) override; // CloseNodeMap() only if open
   virtual ~morkNodeMap(); // assert that CloseNodeMap() executed earlier
-  
+
 public: // morkMap construction & destruction
   morkNodeMap(morkEnv* ev, const morkUsage& inUsage,
     nsIMdbHeap* ioHeap, nsIMdbHeap* ioSlotHeap);

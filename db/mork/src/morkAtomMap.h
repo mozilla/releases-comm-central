@@ -42,7 +42,7 @@ class morkAtomAidMap : public morkMap { // for mapping tokens to maps
 
 // { ===== begin morkNode interface =====
 public: // morkNode virtual methods
-  virtual void CloseMorkNode(morkEnv* ev); // CloseAtomAidMap() only if open
+  virtual void CloseMorkNode(morkEnv* ev) override; // CloseAtomAidMap() only if open
   virtual ~morkAtomAidMap(); // assert that CloseAtomAidMap() executed earlier
   
 public: // morkMap construction & destruction
@@ -59,12 +59,12 @@ public:
 #ifdef MORK_ENABLE_PROBE_MAPS
   // { ===== begin morkProbeMap methods =====
   virtual mork_test // hit(a,b) implies hash(a) == hash(b)
-  MapTest(morkEnv* ev, const void* inMapKey, const void* inAppKey) const;
+  MapTest(morkEnv* ev, const void* inMapKey, const void* inAppKey) const override;
 
   virtual mork_u4 // hit(a,b) implies hash(a) == hash(b)
-  MapHash(morkEnv* ev, const void* inAppKey) const;
+  MapHash(morkEnv* ev, const void* inAppKey) const override;
 
-  virtual mork_u4 ProbeMapHashMapKey(morkEnv* ev, const void* inMapKey) const;
+  virtual mork_u4 ProbeMapHashMapKey(morkEnv* ev, const void* inMapKey) const override;
 
   // virtual mork_bool ProbeMapIsKeyNil(morkEnv* ev, void* ioMapKey);
 
@@ -82,11 +82,11 @@ public:
 #else /*MORK_ENABLE_PROBE_MAPS*/
 // { ===== begin morkMap poly interface =====
   virtual mork_bool // note: equal(a,b) implies hash(a) == hash(b)
-  Equal(morkEnv* ev, const void* inKeyA, const void* inKeyB) const;
+  Equal(morkEnv* ev, const void* inKeyA, const void* inKeyB) const override;
   // implemented using morkBookAtom::HashAid()
 
   virtual mork_u4 // note: equal(a,b) implies hash(a) == hash(b)
-  Hash(morkEnv* ev, const void* inKey) const;
+  Hash(morkEnv* ev, const void* inKey) const override;
   // implemented using morkBookAtom::EqualAid()
 // } ===== end morkMap poly interface =====
 #endif /*MORK_ENABLE_PROBE_MAPS*/
@@ -171,7 +171,7 @@ class morkAtomBodyMap : public morkMap { // for mapping tokens to maps
 
 // { ===== begin morkNode interface =====
 public: // morkNode virtual methods
-  virtual void CloseMorkNode(morkEnv* ev); // CloseAtomBodyMap() only if open
+  virtual void CloseMorkNode(morkEnv* ev) override; // CloseAtomBodyMap() only if open
   virtual ~morkAtomBodyMap(); // assert CloseAtomBodyMap() executed earlier
   
 public: // morkMap construction & destruction
@@ -188,12 +188,12 @@ public:
 #ifdef MORK_ENABLE_PROBE_MAPS
   // { ===== begin morkProbeMap methods =====
   virtual mork_test // hit(a,b) implies hash(a) == hash(b)
-  MapTest(morkEnv* ev, const void* inMapKey, const void* inAppKey) const;
+  MapTest(morkEnv* ev, const void* inMapKey, const void* inAppKey) const override;
 
   virtual mork_u4 // hit(a,b) implies hash(a) == hash(b)
-  MapHash(morkEnv* ev, const void* inAppKey) const;
+  MapHash(morkEnv* ev, const void* inAppKey) const override;
 
-  virtual mork_u4 ProbeMapHashMapKey(morkEnv* ev, const void* inMapKey) const;
+  virtual mork_u4 ProbeMapHashMapKey(morkEnv* ev, const void* inMapKey) const override;
 
   // virtual mork_bool ProbeMapIsKeyNil(morkEnv* ev, void* ioMapKey);
 
@@ -211,11 +211,11 @@ public:
 #else /*MORK_ENABLE_PROBE_MAPS*/
 // { ===== begin morkMap poly interface =====
   virtual mork_bool // note: equal(a,b) implies hash(a) == hash(b)
-  Equal(morkEnv* ev, const void* inKeyA, const void* inKeyB) const;
+  Equal(morkEnv* ev, const void* inKeyA, const void* inKeyB) const override;
   // implemented using morkBookAtom::EqualFormAndBody()
 
   virtual mork_u4 // note: equal(a,b) implies hash(a) == hash(b)
-  Hash(morkEnv* ev, const void* inKey) const;
+  Hash(morkEnv* ev, const void* inKey) const override;
   // implemented using morkBookAtom::HashFormAndBody()
 // } ===== end morkMap poly interface =====
 #endif /*MORK_ENABLE_PROBE_MAPS*/

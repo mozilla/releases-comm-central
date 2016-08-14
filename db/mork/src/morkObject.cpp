@@ -86,8 +86,6 @@ morkObject::morkObject(morkEnv* ev,
 /*public non-poly*/ void
 morkObject::CloseObject(morkEnv* ev) // called by CloseMorkNode();
 {
-  if ( this )
-  {
     if ( this->IsNode() )
     {
       if ( !this->IsShutNode() )
@@ -101,9 +99,6 @@ morkObject::CloseObject(morkEnv* ev) // called by CloseMorkNode();
     }
     else
       this->NonNodeError(ev);
-  }
-  else
-    ev->NilPointerError();
 }
 
 // } ===== end morkNode methods =====
@@ -146,6 +141,15 @@ morkObject::AddWeakRef(nsIMdbEnv* mev)
   // XXX Casting mork_refs to nsresult
   return static_cast<nsresult>(morkNode::AddWeakRef((morkEnv *) mev));
 }
+
+#ifndef _MSC_VER
+NS_IMETHODIMP_(mork_uses)
+morkObject::AddStrongRef(morkEnv* mev)
+{
+  return morkNode::AddStrongRef(mev);
+}
+#endif
+
 NS_IMETHODIMP_(mork_uses)
 morkObject::AddStrongRef(nsIMdbEnv* mev)
 {
@@ -158,6 +162,15 @@ morkObject::CutWeakRef(nsIMdbEnv* mev)
   // XXX Casting mork_refs to nsresult
   return static_cast<nsresult>(morkNode::CutWeakRef((morkEnv *) mev));
 }
+
+#ifndef _MSC_VER
+NS_IMETHODIMP_(mork_uses)
+morkObject::CutStrongRef(morkEnv* mev)
+{
+  return morkNode::CutStrongRef(mev);
+}
+#endif
+
 NS_IMETHODIMP
 morkObject::CutStrongRef(nsIMdbEnv* mev)
 {
@@ -165,7 +178,6 @@ morkObject::CutStrongRef(nsIMdbEnv* mev)
   return static_cast<nsresult>(morkNode::CutStrongRef((morkEnv *) mev));
 }
 
-  
 NS_IMETHODIMP
 morkObject::CloseMdbObject(nsIMdbEnv* mev)
 {

@@ -116,8 +116,6 @@ NS_IMPL_ISUPPORTS_INHERITED(morkCellObject, morkObject, nsIMdbCell)
 /*public non-poly*/ void
 morkCellObject::CloseCellObject(morkEnv* ev) // called by CloseMorkNode();
 {
-  if ( this )
-  {
     if ( this->IsNode() )
     {
       NS_RELEASE(mCellObject_RowObject);
@@ -129,9 +127,6 @@ morkCellObject::CloseCellObject(morkEnv* ev) // called by CloseMorkNode();
     }
     else
       this->NonNodeError(ev);
-  }
-  else
-    ev->NilPointerError();
 }
 
 // } ===== end morkNode methods =====

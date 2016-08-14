@@ -65,8 +65,6 @@ NS_IMPL_ISUPPORTS_INHERITED(morkCursor, morkObject, nsIMdbCursor)
 /*public non-poly*/ void
 morkCursor::CloseCursor(morkEnv* ev) // called by CloseMorkNode();
 {
-  if ( this )
-  {
     if ( this->IsNode() )
     {
       mCursor_Seed = 0;
@@ -75,9 +73,6 @@ morkCursor::CloseCursor(morkEnv* ev) // called by CloseMorkNode();
     }
     else
       this->NonNodeError(ev);
-  }
-  else
-    ev->NilPointerError();
 }
 
 // { ----- begin ref counting for well-behaved cyclic graphs -----
@@ -102,6 +97,15 @@ morkCursor::AddWeakRef(nsIMdbEnv* mev)
   // XXX Casting mork_refs to nsresult
   return static_cast<nsresult>(morkNode::AddWeakRef((morkEnv *) mev));
 }
+
+#ifndef _MSC_VER
+NS_IMETHODIMP_(mork_uses)
+morkCursor::AddStrongRef(morkEnv* mev)
+{
+  return morkNode::AddStrongRef(mev);
+}
+#endif
+
 NS_IMETHODIMP_(mork_uses)
 morkCursor::AddStrongRef(nsIMdbEnv* mev)
 {
@@ -114,6 +118,15 @@ morkCursor::CutWeakRef(nsIMdbEnv* mev)
   // XXX Casting mork_refs to nsresult
   return static_cast<nsresult>(morkNode::CutWeakRef((morkEnv *) mev));
 }
+
+#ifndef _MSC_VER
+NS_IMETHODIMP_(mork_uses)
+morkCursor::CutStrongRef(morkEnv* mev)
+{
+  return morkNode::CutStrongRef(mev);
+}
+#endif
+
 NS_IMETHODIMP
 morkCursor::CutStrongRef(nsIMdbEnv* mev)
 {
@@ -121,7 +134,6 @@ morkCursor::CutStrongRef(nsIMdbEnv* mev)
   return static_cast<nsresult>(morkNode::CutStrongRef((morkEnv *) mev));
 }
 
-  
 NS_IMETHODIMP
 morkCursor::CloseMdbObject(nsIMdbEnv* mev)
 {

@@ -227,7 +227,7 @@ public: // getters (morkProbeMap compatibility)
   
 // { ===== begin morkNode interface =====
 public: // morkNode virtual methods
-  virtual void CloseMorkNode(morkEnv* ev); // CloseMap() only if open
+  virtual void CloseMorkNode(morkEnv* ev) override; // CloseMap() only if open
   virtual ~morkMap(); // assert that CloseMap() executed earlier
   
 public: // morkMap construction & destruction

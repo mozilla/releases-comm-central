@@ -88,8 +88,6 @@ morkHandle::morkHandle(morkEnv* ev, // note morkUsage is always morkUsage_kPool
 /*public non-poly*/ void
 morkHandle::CloseHandle(morkEnv* ev) // called by CloseMorkNode();
 {
-  if ( this )
-  {
     if ( this->IsNode() )
     {
       morkObject* obj = mHandle_Object;
@@ -107,9 +105,6 @@ morkHandle::CloseHandle(morkEnv* ev) // called by CloseMorkNode();
     }
     else
       this->NonNodeError(ev);
-  }
-  else
-    ev->NilPointerError();
 }
 
 // } ===== end morkNode methods =====

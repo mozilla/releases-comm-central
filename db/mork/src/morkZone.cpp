@@ -87,8 +87,6 @@ morkZone::morkZone(morkEnv* ev, const morkUsage& inUsage,
 
 void morkZone::CloseZone(morkEnv* ev) // called by CloseMorkNode()
 {
-  if ( this )
-  {
     if ( this->IsNode() )
     {
       nsIMdbHeap* heap = mZone_Heap;
@@ -114,9 +112,6 @@ void morkZone::CloseZone(morkEnv* ev) // called by CloseMorkNode()
     }
     else
       this->NonNodeError(ev);
-  }
-  else
-    ev->NilPointerError();
 }
 
 // } ===== end morkNode methods =====

@@ -145,23 +145,16 @@ morkUsage::morkUsage(mork_usage code)
 morkNode::MakeNew(size_t inSize, nsIMdbHeap& ioHeap, morkEnv* ev)
 {
   void* node = 0;
-  if ( &ioHeap )
-  {
     ioHeap.Alloc(ev->AsMdbEnv(), inSize, (void **) &node);
     if ( !node )
       ev->OutOfMemoryError();
-  }
-  else
-    ev->NilPointerError();
-  
+
   return node;
 }
 
 /*public non-poly*/ void
 morkNode::ZapOld(morkEnv* ev, nsIMdbHeap* ioHeap)
 {
-  if ( this )
-  {
     if ( this->IsNode() )
     {
       mork_usage usage = mNode_Usage; // mNode_Usage before ~morkNode
@@ -187,9 +180,6 @@ morkNode::ZapOld(morkEnv* ev, nsIMdbHeap* ioHeap)
     }
     else
       this->NonNodeError(ev);
-  }
-  else
-    ev->NilPointerError();
 }
 
 /*public virtual*/ void
@@ -352,15 +342,10 @@ morkNode::UsesUnderflowWarning(morkEnv* ev) const // mNode_Uses underflow
 /*public non-poly*/ void
 morkNode::CloseNode(morkEnv* ev) // called by CloseMorkNode();
 {
-  if ( this )
-  {
     if ( this->IsNode() )
       this->MarkShut();
     else
       this->NonNodeError(ev);
-  }
-  else
-    ev->NilPointerError();
 }
 
 
@@ -393,7 +378,6 @@ nsIMdbHeap_SlotStrongHeap(nsIMdbHeap* self, morkEnv* ev, nsIMdbHeap** ioSlot)
   // then self is put into slot *ioSlot.  Note self can be nil, so we
   // permit expression 'nsIMdbHeap_SlotStrongHeap(0, ev, &slot)'.
 {
-  nsIMdbEnv* menv = ev->AsMdbEnv();
   nsIMdbHeap* heap = *ioSlot;
   if ( self != heap )
   {
@@ -453,8 +437,6 @@ morkNode::SlotWeakNode(morkNode* me, morkEnv* ev, morkNode** ioSlot)
 morkNode::AddStrongRef(morkEnv* ev)
 {
   mork_uses outUses = 0;
-  if ( this )
-  {
     if ( this->IsNode() )
     {
       mork_uses uses = mNode_Uses;
@@ -476,9 +458,6 @@ morkNode::AddStrongRef(morkEnv* ev)
     }
     else
       this->NonNodeError(ev);
-  }
-  else
-    ev->NilPointerError();
   return outUses;
 }
 
@@ -486,8 +465,6 @@ morkNode::AddStrongRef(morkEnv* ev)
 morkNode::cut_use_count(morkEnv* ev) // just one part of CutStrongRef()
 {
   mork_bool didCut = morkBool_kFalse;
-  if ( this )
-  {
     if ( this->IsNode() )
     {
       mork_uses uses = mNode_Uses;
@@ -513,9 +490,6 @@ morkNode::cut_use_count(morkEnv* ev) // just one part of CutStrongRef()
     }
     else
       this->NonNodeError(ev);
-  }
-  else
-    ev->NilPointerError();
   return didCut;
 }
 
@@ -523,8 +497,6 @@ morkNode::cut_use_count(morkEnv* ev) // just one part of CutStrongRef()
 morkNode::CutStrongRef(morkEnv* ev)
 {
   mork_refs outRefs = 0;
-  if ( this )
-  {
     if ( this->IsNode() )
     {
       if ( this->cut_use_count(ev) )
@@ -532,9 +504,7 @@ morkNode::CutStrongRef(morkEnv* ev)
     }
     else
       this->NonNodeError(ev);
-  }
-  else
-    ev->NilPointerError();
+
   return outRefs;
 }
 
@@ -542,8 +512,6 @@ morkNode::CutStrongRef(morkEnv* ev)
 morkNode::AddWeakRef(morkEnv* ev)
 {
   mork_refs outRefs = 0;
-  if ( this )
-  {
     if ( this->IsNode() )
     {
       mork_refs refs = mNode_Refs;
@@ -556,9 +524,7 @@ morkNode::AddWeakRef(morkEnv* ev)
     }
     else
       this->NonNodeError(ev);
-  }
-  else
-    ev->NilPointerError();
+
   return outRefs;
 }
 
@@ -566,8 +532,6 @@ morkNode::AddWeakRef(morkEnv* ev)
 morkNode::CutWeakRef(morkEnv* ev)
 {
   mork_refs outRefs = 0;
-  if ( this )
-  {
     if ( this->IsNode() )
     {
       mork_uses uses = mNode_Uses;
@@ -589,9 +553,7 @@ morkNode::CutWeakRef(morkEnv* ev)
     }
     else
       this->NonNodeError(ev);
-  }
-  else
-    ev->NilPointerError();
+
   return outRefs;
 }
 

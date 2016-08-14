@@ -147,8 +147,6 @@ NS_IMPL_ISUPPORTS_INHERITED(morkTable, morkObject, nsIMdbTable)
 /*public non-poly*/ void
 morkTable::CloseTable(morkEnv* ev) /*i*/ // called by CloseMorkNode();
 {
-  if ( this )
-  {
     if ( this->IsNode() )
     {
       morkRowMap::SlotStrongRowMap((morkRowMap*) 0, ev, &mTable_RowMap);
@@ -160,9 +158,6 @@ morkTable::CloseTable(morkEnv* ev) /*i*/ // called by CloseMorkNode();
     }
     else
       this->NonNodeError(ev);
-  }
-  else
-    ev->NilPointerError();
 }
 
 
@@ -949,11 +944,27 @@ morkTable::DisableIndexOnSort( // prevent future index creation on sort
 // } ===== end nsIMdbTable methods =====
 
 // we override these so that we'll use the xpcom add and release ref.
+#ifndef _MSC_VER
+mork_refs
+morkTable::AddStrongRef(nsIMdbEnv *ev)
+{
+  return (mork_refs) AddRef();
+}
+#endif
+
 mork_refs
 morkTable::AddStrongRef(morkEnv *ev)
 {
   return (mork_refs) AddRef();
 }
+
+#ifndef _MSC_VER
+nsresult
+morkTable::CutStrongRef(nsIMdbEnv *ev)
+{
+  return (nsresult) Release();
+}
+#endif
 
 mork_refs
 morkTable::CutStrongRef(morkEnv *ev)

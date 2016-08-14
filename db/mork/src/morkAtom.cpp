@@ -37,8 +37,6 @@ morkAtom::GetYarn(mdbYarn* outYarn) const
   mdb_cscode form = 0;
   outYarn->mYarn_More = 0;
 
-  if ( this )
-  {
     if ( this->IsWeeBook() )
     {
       morkWeeBookAtom* weeBook = (morkWeeBookAtom*) this;
@@ -65,7 +63,7 @@ morkAtom::GetYarn(mdbYarn* outYarn) const
       fill = bigAnon->mBigAnonAtom_Size;
       form = bigAnon->mBigAnonAtom_Form;
     }
-  }
+
   if ( source && fill ) // have an atom with nonempty content?
   {
     // if we have too many bytes, and yarn seems growable:
@@ -340,10 +338,10 @@ morkBookAtom::HashFormAndBody(morkEnv* ev) const
 {
   // This hash is obviously a variation of the dragon book string hash.
   // (I won't bother to explain or rationalize this usage for you.)
-  
-  register mork_u4 outHash = 0; // hash value returned
-  register unsigned char c; // next character
-  register const mork_u1* body; // body of bytes to hash
+
+  mork_u4 outHash = 0; // hash value returned
+  unsigned char c; // next character
+  const mork_u1* body; // body of bytes to hash
   mork_size size = 0; // the number of bytes to hash
 
   if ( this->IsWeeBook() )

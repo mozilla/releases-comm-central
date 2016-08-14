@@ -94,7 +94,7 @@ public: // more specific dirty methods for atom space:
 
 // { ===== begin morkNode interface =====
 public: // morkNode virtual methods
-  virtual void CloseMorkNode(morkEnv* ev); // CloseAtomSpace() only if open
+  virtual void CloseMorkNode(morkEnv* ev) override; // CloseAtomSpace() only if open
   virtual ~morkAtomSpace(); // assert that CloseAtomSpace() executed earlier
   
 public: // morkMap construction & destruction

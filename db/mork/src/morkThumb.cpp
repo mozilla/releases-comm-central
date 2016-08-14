@@ -106,8 +106,6 @@ NS_IMPL_ISUPPORTS_INHERITED(morkThumb, morkObject, nsIMdbThumb)
 /*public non-poly*/ void
 morkThumb::CloseThumb(morkEnv* ev) // called by CloseMorkNode();
 {
-  if ( this )
-  {
     if ( this->IsNode() )
     {
       mThumb_Magic = 0;
@@ -123,9 +121,6 @@ morkThumb::CloseThumb(morkEnv* ev) // called by CloseMorkNode();
     }
     else
       this->NonNodeError(ev);
-  }
-  else
-    ev->NilPointerError();
 }
 
 // } ===== end morkNode methods =====

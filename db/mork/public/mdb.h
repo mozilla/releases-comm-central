@@ -459,6 +459,8 @@ public:
     void* ioBlock) = 0;     // block to be destroyed/deallocated
 
   virtual size_t GetUsedSize() = 0;
+
+  virtual ~nsIMdbHeap() {};
 // } ===== end nsIMdbHeap methods =====
 };
 

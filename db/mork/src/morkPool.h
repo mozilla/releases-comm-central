@@ -59,12 +59,12 @@ public: // state is public because the entire Mork system is private
   
   mork_count   mPool_UsedFramesCount; // length of mPool_UsedHandleFrames
   mork_count   mPool_FreeFramesCount; // length of mPool_UsedHandleFrames
-    
+
 // { ===== begin morkNode interface =====
 public: // morkNode virtual methods
   virtual void CloseMorkNode(morkEnv* ev); // ClosePool() only if open
   virtual ~morkPool(); // assert that ClosePool() executed earlier
-  
+
 public: // morkPool construction & destruction
   morkPool(const morkUsage& inUsage, nsIMdbHeap* ioHeap,
     nsIMdbHeap* ioSlotHeap);

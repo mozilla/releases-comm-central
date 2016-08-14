@@ -50,8 +50,8 @@ public: // state is public because the entire Mork system is private
   
 // { ===== begin morkNode interface =====
 public: // morkNode virtual methods
-  virtual void CloseMorkNode(morkEnv* ev); // CloseCellObject() only if open
-  
+  virtual void CloseMorkNode(morkEnv* ev) override; // CloseCellObject() only if open
+
 public: // morkCellObject construction & destruction
   morkCellObject(morkEnv* ev, const morkUsage& inUsage,
     nsIMdbHeap* ioHeap, morkRow* ioRow, morkCell* ioCell,
@@ -59,75 +59,75 @@ public: // morkCellObject construction & destruction
   void CloseCellObject(morkEnv* ev); // called by CloseMorkNode();
 
   NS_IMETHOD SetBlob(nsIMdbEnv* ev,
-    nsIMdbBlob* ioBlob); // reads inBlob slots
+    nsIMdbBlob* ioBlob) override; // reads inBlob slots
   // when inBlob is in the same suite, this might be fastest cell-to-cell
-  
+
   NS_IMETHOD ClearBlob( // make empty (so content has zero length)
-    nsIMdbEnv* ev);
+    nsIMdbEnv* ev) override;
   // clearing a yarn is like SetYarn() with empty yarn instance content
-  
+
   NS_IMETHOD GetBlobFill(nsIMdbEnv* ev,
-    mdb_fill* outFill);  // size of blob 
+    mdb_fill* outFill) override;  // size of blob
   // Same value that would be put into mYarn_Fill, if one called GetYarn()
   // with a yarn instance that had mYarn_Buf==nil and mYarn_Size==0.
-  
-  NS_IMETHOD SetYarn(nsIMdbEnv* ev, 
-    const mdbYarn* inYarn);   // reads from yarn slots
+
+  NS_IMETHOD SetYarn(nsIMdbEnv* ev,
+    const mdbYarn* inYarn) override;   // reads from yarn slots
   // make this text object contain content from the yarn's buffer
-  
-  NS_IMETHOD GetYarn(nsIMdbEnv* ev, 
-    mdbYarn* outYarn);  // writes some yarn slots 
+
+  NS_IMETHOD GetYarn(nsIMdbEnv* ev,
+    mdbYarn* outYarn) override;  // writes some yarn slots
   // copy content into the yarn buffer, and update mYarn_Fill and mYarn_Form
-  
-  NS_IMETHOD AliasYarn(nsIMdbEnv* ev, 
-    mdbYarn* outYarn); // writes ALL yarn slots
-  NS_IMETHOD SetColumn(nsIMdbEnv* ev, mdb_column inColumn); 
-  NS_IMETHOD GetColumn(nsIMdbEnv* ev, mdb_column* outColumn);
-  
+
+  NS_IMETHOD AliasYarn(nsIMdbEnv* ev,
+    mdbYarn* outYarn) override; // writes ALL yarn slots
+  NS_IMETHOD SetColumn(nsIMdbEnv* ev, mdb_column inColumn) override;
+  NS_IMETHOD GetColumn(nsIMdbEnv* ev, mdb_column* outColumn) override;
+
   NS_IMETHOD GetCellInfo(  // all cell metainfo except actual content
-    nsIMdbEnv* ev, 
+    nsIMdbEnv* ev,
     mdb_column* outColumn,           // the column in the containing row
     mdb_fill*   outBlobFill,         // the size of text content in bytes
     mdbOid*     outChildOid,         // oid of possible row or table child
-    mdb_bool*   outIsRowChild);  // nonzero if child, and a row child
+    mdb_bool*   outIsRowChild) override; // nonzero if child, and a row child
 
   // Checking all cell metainfo is a good way to avoid forcing a large cell
   // in to memory when you don't actually want to use the content.
-  
+
   NS_IMETHOD GetRow(nsIMdbEnv* ev, // parent row for this cell
-    nsIMdbRow** acqRow);
+    nsIMdbRow** acqRow) override;
   NS_IMETHOD GetPort(nsIMdbEnv* ev, // port containing cell
-    nsIMdbPort** acqPort);
+    nsIMdbPort** acqPort) override;
   // } ----- end attribute methods -----
 
   // { ----- begin children methods -----
   NS_IMETHOD HasAnyChild( // does cell have a child instead of text?
     nsIMdbEnv* ev,
     mdbOid* outOid,  // out id of row or table (or unbound if no child)
-    mdb_bool* outIsRow); // nonzero if child is a row (rather than a table)
+    mdb_bool* outIsRow) override; // nonzero if child is a row (rather than a table)
 
   NS_IMETHOD GetAnyChild( // access table of specific attribute
     nsIMdbEnv* ev, // context
     nsIMdbRow** acqRow, // child row (or null)
-    nsIMdbTable** acqTable); // child table (or null)
+    nsIMdbTable** acqTable) override; // child table (or null)
 
 
   NS_IMETHOD SetChildRow( // access table of specific attribute
     nsIMdbEnv* ev, // context
-    nsIMdbRow* ioRow); // inRow must be bound inside this same db port
+    nsIMdbRow* ioRow) override; // inRow must be bound inside this same db port
 
   NS_IMETHOD GetChildRow( // access row of specific attribute
     nsIMdbEnv* ev, // context
-    nsIMdbRow** acqRow); // acquire child row (or nil if no child)
+    nsIMdbRow** acqRow) override; // acquire child row (or nil if no child)
 
 
   NS_IMETHOD SetChildTable( // access table of specific attribute
     nsIMdbEnv* ev, // context
-    nsIMdbTable* inTable); // table must be bound inside this same db port
+    nsIMdbTable* inTable) override; // table must be bound inside this same db port
 
   NS_IMETHOD GetChildTable( // access table of specific attribute
     nsIMdbEnv* ev, // context
-    nsIMdbTable** acqTable); // acquire child table (or nil if no child)
+    nsIMdbTable** acqTable) override; // acquire child table (or nil if no child)
   // } ----- end children methods -----
 
 // } ===== end nsIMdbCell methods =====
