@@ -523,13 +523,10 @@ var XMPPMUCConversationPrototype = {
 
   // Callback for ban and kick commands.
   _banKickHandler: function(aStanza) {
-    if (aStanza.attributes["type"] == "result")
-      return true;
-    let errorHandler = this._account.handleErrors({
+    return this._account._handleResult({
       notAllowed: _("conversation.error.banKickCommandNotAllowed"),
       conflict: _("conversation.error.banKickCommandConflict")
-    }, this);
-    return errorHandler(aStanza);
+    }, this)(aStanza);
   },
 
   // Changes nick in MUC conversation to a new one.
@@ -1379,7 +1376,12 @@ var XMPPAccountPrototype = {
                                     Stanza.node("item", null, {jid: jid},
                                                 Stanza.node("group", null, null,
                                                             aTag.name))));
-      this.sendStanza(s);
+      this.sendStanza(s, this._handleResult({
+        default: (aError) => {
+          this.WARN("Unable to add a roster item due to " + aError +
+                    " error.");
+        }
+      }));
     }
     this.sendStanza(Stanza.presence({to: jid, type: "subscribe"}));
   },
@@ -1604,6 +1606,9 @@ var XMPPAccountPrototype = {
   //   in the conversation given by aThis.
   handleErrors(aHandlers, aThis) {
     return (aStanza) => {
+      if (!aHandlers)
+        return false;
+
       let error = this.parseError(aStanza);
       if (!error)
         return false;
@@ -1670,6 +1675,16 @@ var XMPPAccountPrototype = {
       aStanza.attributes.from, error));
   },
 
+  // Returns a callback suitable for use in sendStanza, to handle type==result
+  // responses. aHandlers and aThis are passed on to handleErrors for error
+  // handling.
+  _handleResult: function(aHandlers, aThis) {
+    return aStanza => {
+      if (aStanza.attributes["type"] == "result")
+        return true;
+      return this.handleErrors(aHandlers, aThis)(aStanza);
+    }
+  },
 
   /* XMPPSession events */
 
@@ -2712,7 +2727,7 @@ var XMPPAccountPrototype = {
     // any further action).
     if (this._userVCard.getXML() != existingVCard) {
       this.sendStanza(Stanza.iq("set", null, null, this._userVCard),
-        aStanza => aStanza.attributes.type == "result");
+                      this._handleResult());
     }
     else
       this.LOG("Not sending the vCard because the server stored vCard is identical.");
