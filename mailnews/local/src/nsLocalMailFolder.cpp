@@ -1710,20 +1710,23 @@ nsMsgLocalMailFolder::CopyFolderAcrossServer(nsIMsgFolder* srcFolder, nsIMsgWind
 
   nsCOMPtr<nsISimpleEnumerator> messages;
   rv = srcFolder->GetMessages(getter_AddRefs(messages));
+  NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsIMutableArray> msgArray(do_CreateInstance(NS_ARRAY_CONTRACTID));
 
-  bool hasMoreElements;
+  bool hasMoreElements = false;
   nsCOMPtr<nsISupports> aSupport;
 
   if (messages)
-    messages->HasMoreElements(&hasMoreElements);
+    rv = messages->HasMoreElements(&hasMoreElements);
 
-  while (hasMoreElements && NS_SUCCEEDED(rv))
+  while (NS_SUCCEEDED(rv) && hasMoreElements)
   {
     rv = messages->GetNext(getter_AddRefs(aSupport));
+    NS_ENSURE_SUCCESS(rv, rv);
     rv = msgArray->AppendElement(aSupport, false);
-    messages->HasMoreElements(&hasMoreElements);
+    NS_ENSURE_SUCCESS(rv, rv);
+    rv = messages->HasMoreElements(&hasMoreElements);
   }
 
   uint32_t numMsgs=0;
@@ -2197,7 +2200,7 @@ NS_IMETHODIMP nsMsgLocalMailFolder::CopyData(nsIInputStream *aIStream, int32_t a
       if (mCopyState->m_wholeMsgInStream)
       {
         end = start + mCopyState->m_leftOver;
-        memcpy (end, MSG_LINEBREAK + '\0', MSG_LINEBREAK_LEN + 1);
+        memcpy(end, MSG_LINEBREAK "\0", MSG_LINEBREAK_LEN + 1);
       }
       else
       {

@@ -6380,6 +6380,7 @@ NS_IMETHODIMP nsMsgDBView::NoteChange(nsMsgViewIndex firstLineChanged,
       // RowCountChanged() will call our GetRowCount()
       mTree->RowCountChanged(firstLineChanged, numChanged);
       mRemovingRow = false;
+      MOZ_FALLTHROUGH;
     case nsMsgViewNotificationCode::all:
       ClearHdrCache();
       break;

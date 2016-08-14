@@ -1644,6 +1644,7 @@ nsresult nsNNTPProtocol::GetPropertiesResponse(nsIInputStream * inputStream, uin
 nsresult nsNNTPProtocol::SendListSubscriptions()
 {
     nsresult rv = NS_OK;
+/* TODO: is this needed for anything?
 #if 0
     bool searchable=false;
     rv = m_nntpServer->QueryExtension("LISTSUBSCR",&listsubscr);
@@ -1658,6 +1659,7 @@ nsresult nsNNTPProtocol::SendListSubscriptions()
     SetFlag(NNTP_PAUSE_FOR_READ);
   }
   else
+*/
   {
     /* since LIST SUBSCRIPTIONS isn't supported, move on to real work */
     m_nextState = SEND_FIRST_NNTP_COMMAND;

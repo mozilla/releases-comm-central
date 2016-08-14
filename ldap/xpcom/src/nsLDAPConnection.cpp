@@ -27,10 +27,10 @@
 #include "nsLDAPUtils.h"
 #include "nsProxyRelease.h"
 #include "mozilla/Logging.h"
+#include "mozilla/Attributes.h"
 
 using namespace mozilla;
 
-const char kConsoleServiceContractId[] = "@mozilla.org/consoleservice;1";
 const char kDNSServiceContractId[] = "@mozilla.org/network/dns-service;1";
 
 // constructor
@@ -645,6 +645,7 @@ NS_IMETHODIMP nsLDAPConnectionRunnable::Run()
     case LDAP_RES_SEARCH_REFERENCE:
       // XXX what should we do with LDAP_RES_SEARCH_EXTENDED
       operationFinished = false;
+      MOZ_FALLTHROUGH;
     default:
     {
       msg = new nsLDAPMessage;

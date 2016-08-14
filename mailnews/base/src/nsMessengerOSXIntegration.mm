@@ -557,7 +557,7 @@ nsMessengerOSXIntegration::BadgeDockIcon()
   }
 
   id tile = [[NSApplication sharedApplication] dockTile];
-  [tile setBadgeLabel:[NSString stringWithFormat:@"%S", badgeString.get()]];
+  [tile setBadgeLabel:[NSString stringWithFormat:@"%S", (const unichar*)badgeString.get()]];
   return NS_OK;
 
   NS_OBJC_END_TRY_ABORT_BLOCK_NSRESULT;

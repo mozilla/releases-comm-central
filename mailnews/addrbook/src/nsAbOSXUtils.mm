@@ -97,7 +97,8 @@ const nsAbOSXPropertyMap nsAbOSXUtils::kPropertyMap[] = {
     DEFINE_PROPERTY(JobTitle, kABJobTitleProperty, nil, nil)
     DEFINE_PROPERTY(Department, kABDepartmentProperty, nil, nil)
     DEFINE_PROPERTY(Company, kABOrganizationProperty, nil, nil)
-    DONT_MAP(_AimScreenName, kABAIMInstantProperty, nil, nil)
+    // This was kABAIMInstantProperty previously, but it was deprecated in OS X 10.7.
+    DONT_MAP(_AimScreenName, kABInstantMessageProperty, nil, nil)
     DEFINE_PROPERTY(WebPage1, kABHomePageProperty, nil, nil)
     DONT_MAP(WebPage2, kABHomePageProperty, nil, nil)
     DONT_MAP(BirthYear, "birthyear", nil, nil)

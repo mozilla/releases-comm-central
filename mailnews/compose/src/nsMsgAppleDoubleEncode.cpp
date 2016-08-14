@@ -80,7 +80,7 @@ MacGetFileType(nsIFile   *fs,
   }
 }
 
-#pragma cplusplus reset
+//#pragma cplusplus reset
 
 /*
 *	ap_encode_init

@@ -1494,6 +1494,7 @@ nsresult nsMsgSearchTerm::MatchLabel(nsMsgLabelValue aLabelValue, bool *pResult)
   case nsMsgSearchOp::Isnt:
     if (m_value.u.label != aLabelValue)
       result = true;
+    break;
   default:
     rv = NS_ERROR_FAILURE;
     NS_ERROR("invalid compare op for label value");

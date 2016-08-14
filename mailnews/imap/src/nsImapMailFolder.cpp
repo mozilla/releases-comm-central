@@ -3945,8 +3945,8 @@ NS_IMETHODIMP nsImapMailFolder::StoreImapFlags(int32_t flags, bool addFlags,
   }
   else
   {
-    GetDatabase();
-    if (mDatabase)
+    rv = GetDatabase();
+    if (NS_SUCCEEDED(rv) && mDatabase)
     {
       uint32_t total = numKeys;
       for (uint32_t keyIndex = 0; keyIndex < total; keyIndex++)
@@ -4043,10 +4043,7 @@ void nsImapMailFolder::SetNamespaceForFolder(nsIMAPNamespace *ns)
 NS_IMETHODIMP nsImapMailFolder::FolderPrivileges(nsIMsgWindow *window)
 {
   NS_ENSURE_ARG_POINTER(window);
-  nsresult rv ;  // if no window...
-#ifdef DEBUG_bienvenu
-  m_adminUrl.Assign("http://www.netscape.com");
-#endif
+  nsresult rv = NS_OK;  // if no window...
   if (!m_adminUrl.IsEmpty())
   {
     nsCOMPtr<nsIExternalProtocolService> extProtService = do_GetService(NS_EXTERNALPROTOCOLSERVICE_CONTRACTID);
@@ -4191,7 +4188,8 @@ nsresult nsImapMailFolder::MoveIncorporatedMessage(nsIMsgDBHdr *mailHdr,
           rv = NS_OK;
       }
     }
-  }
+  } else
+    rv = NS_ERROR_UNEXPECTED;
 
   // we have to return an error because we do not actually move the message
   // it is done async and that can fail

@@ -1747,7 +1747,7 @@ bool nsImapProtocol::ProcessCurrentURL()
     if (m_runningUrl)
       FindMailboxesIfNecessary();
 
-    nsImapState imapState;
+    nsImapState imapState = nsIImapUrl::ImapStatusNone;
     if (m_runningUrl)
       m_runningUrl->GetRequiredImapState(&imapState);
 
@@ -2163,6 +2163,8 @@ NS_IMETHODIMP nsImapProtocol::LoadImapUrl(nsIURI * aURL, nsISupports * aConsumer
       NS_ASSERTION(false, "missing channel or running url");
 
   } // if we received a url!
+  else
+    rv = NS_ERROR_UNEXPECTED;
 
   return rv;
 }

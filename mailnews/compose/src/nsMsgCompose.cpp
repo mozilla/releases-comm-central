@@ -4749,7 +4749,7 @@ nsresult nsMsgCompose::GetABDirectories(const nsACString& aDirUri,
 nsresult nsMsgCompose::BuildMailListArray(nsIAbDirectory* parentDir,
                                           nsTArray<nsMsgMailList>& array)
 {
-  nsresult rv;
+  nsresult rv = NS_OK;
 
   nsCOMPtr<nsIAbDirectory> directory;
   nsCOMPtr<nsISimpleEnumerator> subDirectories;

@@ -2496,7 +2496,7 @@ void CorpusStore::readTrainingData()
 
   // FIXME:  should make sure that the tokenizers are empty.
   char cookie[4];
-  uint32_t goodMessageCount, junkMessageCount;
+  uint32_t goodMessageCount = 0, junkMessageCount = 0;
   if (!((fread(cookie, sizeof(cookie), 1, stream) == 1) &&
         (memcmp(cookie, kMagicCookie, sizeof(cookie)) == 0) &&
         (readUInt32(stream, &goodMessageCount) == 1) &&

@@ -98,7 +98,7 @@ nsresult nsAutoSyncState::ManageStorageSpace()
 
 nsresult nsAutoSyncState::PlaceIntoDownloadQ(const nsTArray<nsMsgKey> &aMsgKeyList)
 {
-  nsresult rv;
+  nsresult rv = NS_OK;
   if (!aMsgKeyList.IsEmpty())
   {
     nsCOMPtr <nsIMsgFolder> folder = do_QueryReferent(mOwnerFolder, &rv);

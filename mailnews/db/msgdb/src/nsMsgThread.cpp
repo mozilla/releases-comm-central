@@ -255,8 +255,8 @@ NS_IMETHODIMP nsMsgThread::AddChild(nsIMsgDBHdr *child, nsIMsgDBHdr *inReplyTo, 
     child->SetThreadParent(parentKey);
     parentKeyNeedsSetting = false;
   }
-  // check if this header is a parent of one of the messages in this thread
 
+  // check if this header is a parent of one of the messages in this thread
   bool hdrMoved = false;
   nsCOMPtr <nsIMsgDBHdr> curHdr;
   uint32_t moveIndex = 0;
@@ -278,7 +278,7 @@ NS_IMETHODIMP nsMsgThread::AddChild(nsIMsgDBHdr *child, nsIMsgDBHdr *inReplyTo, 
   {
     for (childIndex = 0; childIndex < numChildren; childIndex++)
     {
-      nsMsgKey msgKey;
+      nsMsgKey msgKey = nsMsgKey_None;
 
       rv = GetChildHdrAt(childIndex, getter_AddRefs(curHdr));
       if (NS_SUCCEEDED(rv) && curHdr)
@@ -314,6 +314,7 @@ NS_IMETHODIMP nsMsgThread::AddChild(nsIMsgDBHdr *child, nsIMsgDBHdr *inReplyTo, 
             }
           }
           curHdr->SetThreadParent(newHdrKey);
+          // TODO: what should be msgKey if hdrMoved was true above?
           if (msgKey == newHdrKey)
             parentKeyNeedsSetting = false;
 

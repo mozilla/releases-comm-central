@@ -396,7 +396,7 @@ nsresult nsMsgSearchOfflineMail::ProcessSearchTerm(nsIMsgDBHdr *msgToMatch,
                                             const char * headers,
                                             uint32_t headerSize,
                                             bool Filtering,
-                      bool *pResult)
+                                            bool *pResult)
 {
     nsresult err = NS_OK;
     nsCString  recipients;
@@ -646,8 +646,10 @@ nsresult nsMsgSearchOfflineMail::ProcessSearchTerm(nsIMsgDBHdr *msgToMatch,
                                               headers, headerSize, Filtering,
                                               &result);
           }
-          else
+          else {
             err = NS_ERROR_INVALID_ARG; // ### was SearchError_InvalidAttribute
+            result = false;
+          }
     }
 
     *pResult = result;
