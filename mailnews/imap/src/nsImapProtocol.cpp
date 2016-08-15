@@ -2646,15 +2646,6 @@ void nsImapProtocol::ProcessSelectedStateURL()
                 m_runningUrl->GetStoreResultsOffline(&wasStoringMsgOffline);
                 m_runningUrl->SetStoreOfflineOnFallback(wasStoringMsgOffline);
                 m_runningUrl->SetStoreResultsOffline(false);
-                nsCOMPtr<nsIMsgMailNewsUrl> mailurl = do_QueryInterface(m_runningUrl);
-                if (mailurl)
-                {
-                  mailurl->SetAddToMemoryCache(false);
-                  // need to proxy this over to the ui thread
-                  if (m_imapMessageSink)
-                    m_imapMessageSink->SetImageCacheSessionForUrl(mailurl);
-
-                }
                 SetContentModified(modType);  // This will be looked at by the cache
                 if (bMessageIdsAreUids)
                 {

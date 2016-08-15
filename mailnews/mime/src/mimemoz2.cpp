@@ -44,8 +44,6 @@
 #include "nsIMimeMiscStatus.h"
 #include "nsMsgUtils.h"
 #include "nsIChannel.h"
-#include "nsICacheEntryDescriptor.h"
-#include "nsICacheSession.h"
 #include "nsITransport.h"
 #include "mimeebod.h"
 #include "mimeeobj.h"
@@ -56,10 +54,6 @@
 #include "nsIParserUtils.h"
 // </for>
 #include "mozilla/Services.h"
-
-#ifdef HAVE_MIME_DATA_SLOT
-#define LOCK_LAST_CACHED_MESSAGE
-#endif
 
 void                 ValidateRealName(nsMsgAttachmentData *aAttach, MimeHeaders *aHdrs);
 
@@ -1141,8 +1135,6 @@ public:
   mime_stream_data *msd;
   char                    *url;
   nsMIMESession           *istream;
-  nsCOMPtr<nsIOutputStream> memCacheOutputStream;
-  bool m_shouldCacheImage;
 };
 
 mime_image_stream_data::mime_image_stream_data()
@@ -1150,7 +1142,6 @@ mime_image_stream_data::mime_image_stream_data()
   url = nullptr;
   istream = nullptr;
   msd = nullptr;
-  m_shouldCacheImage = false;
 }
 
 static void *
@@ -1173,50 +1164,6 @@ mime_image_begin(const char *image_url, const char *content_type,
     return nullptr;
   }
 
-  if (msd->channel)
-  {
-    nsCOMPtr <nsIURI> uri;
-    nsresult rv = msd->channel->GetURI(getter_AddRefs(uri));
-    if (NS_SUCCEEDED(rv) && uri)
-    {
-      nsCOMPtr <nsIMsgMailNewsUrl> mailUrl = do_QueryInterface(uri);
-      if (mailUrl)
-      {
-        nsCOMPtr<nsICacheSession> memCacheSession;
-        mailUrl->GetImageCacheSession(getter_AddRefs(memCacheSession));
-        if (memCacheSession)
-        {
-          nsCOMPtr<nsICacheEntryDescriptor> entry;
-
-          // we may need to convert the image_url into just a part url - in any case,
-          // it has to be the same as what imglib will be asking imap for later
-          // on so that we'll find this in the memory cache.
-          rv = memCacheSession->OpenCacheEntry(nsDependentCString(image_url), nsICache::ACCESS_READ_WRITE, nsICache::BLOCKING, getter_AddRefs(entry));
-          nsCacheAccessMode access;
-          if (entry)
-          {
-            entry->GetAccessGranted(&access);
-#ifdef DEBUG_bienvenu
-            printf("Mime opening cache entry for %s access = %ld\n", image_url, access);
-#endif
-            // if we only got write access, then we should fill in this cache entry
-            if (access & nsICache::ACCESS_WRITE && !(access & nsICache::ACCESS_READ))
-            {
-              mailUrl->CacheCacheEntry(entry);
-              entry->MarkValid();
-
-              // remember the content type as meta data so we can pull it out in the imap code
-              // to feed the cache entry directly to imglib w/o going through mime.
-              entry->SetMetaDataElement("contentType", content_type);
-
-              rv = entry->OpenOutputStream(0, getter_AddRefs(mid->memCacheOutputStream));
-              if (NS_FAILED(rv)) return nullptr;
-            }
-          }
-        }
-      }
-    }
-  }
   mid->istream = (nsMIMESession *) msd->pluginObj2;
   return mid;
 }
@@ -1230,8 +1177,6 @@ mime_image_end(void *image_closure, int status)
   PR_ASSERT(mid);
   if (!mid)
     return;
-  if (mid->memCacheOutputStream)
-    mid->memCacheOutputStream->Close();
 
   PR_FREEIF(mid->url);
   delete mid;
@@ -1297,16 +1242,6 @@ mime_image_write_buffer(const char *buf, int32_t size, void *image_closure)
        ( (!msd->pluginObj2)     ) )
     return -1;
 
-  //
-  // If we get here, we are just eating the data this time around
-  // and the returned URL will deal with writing the data to the viewer.
-  // Just return the size value to the caller.
-  //
-  if (mid->memCacheOutputStream)
-  {
-    uint32_t bytesWritten;
-    mid->memCacheOutputStream->Write(buf, size, &bytesWritten);
-  }
   return size;
 }
 

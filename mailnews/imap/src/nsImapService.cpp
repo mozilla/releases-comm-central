@@ -518,7 +518,6 @@ NS_IMETHODIMP nsImapService::DisplayMessage(const char *aMessageURI,
         folder->HasMsgOffline(key, &hasMsgOffline);
       }
       imapUrl->SetStoreResultsOffline(shouldStoreMsgOffline);
-      msgurl->SetAddToMemoryCache(!hasMsgOffline);
       imapUrl->SetFetchPartsOnDemand(
         useMimePartsOnDemand && messageSize >= (uint32_t) gMIMEOnDemandThreshold);
 
@@ -1191,8 +1190,6 @@ NS_IMETHODIMP nsImapService::StreamMessage(const char *aMessageURI,
             return NS_ERROR_FAILURE;
         }
       }
-
-      msgurl->SetAddToMemoryCache(true);
 
       bool shouldStoreMsgOffline = false;
       folder->ShouldStoreMsgOffline(key, &shouldStoreMsgOffline);

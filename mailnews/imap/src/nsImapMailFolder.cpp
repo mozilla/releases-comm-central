@@ -5075,20 +5075,6 @@ nsImapMailFolder::SetContentModified(nsIImapUrl *aImapUrl, nsImapContentModified
 }
 
 NS_IMETHODIMP
-nsImapMailFolder::SetImageCacheSessionForUrl(nsIMsgMailNewsUrl *mailurl)
-{
-  nsresult rv;
-  nsCOMPtr<nsIImapService> imapService = do_GetService(NS_IMAPSERVICE_CONTRACTID, &rv);
-  NS_ENSURE_SUCCESS(rv,rv);
-
-  nsCOMPtr<nsICacheSession> cacheSession;
-  rv = imapService->GetCacheSession(getter_AddRefs(cacheSession));
-  if (NS_SUCCEEDED(rv) && cacheSession)
-    rv = mailurl->SetImageCacheSession(cacheSession);
-  return rv;
-}
-
-NS_IMETHODIMP
 nsImapMailFolder::GetCurMoveCopyMessageInfo(nsIImapUrl *runningUrl,
                                             PRTime *aDate,
                                             nsACString& aKeywords,

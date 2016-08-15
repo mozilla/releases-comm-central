@@ -56,14 +56,11 @@ protected:
   nsCOMPtr<nsIMimeHeaders> mMimeHeaders;
   nsCOMPtr<nsIMsgSearchSession> m_searchSession;
   nsCOMPtr<nsICacheEntryDescriptor> m_memCacheEntry;
-  nsCOMPtr<nsICacheSession> m_imageCacheSession;
-  nsCOMArray<nsICacheEntryDescriptor> m_cachedMemCacheEntries;
   nsCOMPtr<nsIMsgHeaderSink> mMsgHeaderSink;
   char *m_errorMessage;
   int64_t mMaxProgress;
   bool m_runningUrl;
   bool m_updatingFolder;
-  bool m_addContentToCache;
   bool m_msgIsInLocalCache;
   bool m_suppressErrorMsgs;
 

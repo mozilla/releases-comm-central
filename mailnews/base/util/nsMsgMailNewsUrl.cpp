@@ -33,7 +33,6 @@ nsMsgMailNewsUrl::nsMsgMailNewsUrl()
   m_errorMessage = nullptr;
   m_runningUrl = false;
   m_updatingFolder = false;
-  m_addContentToCache = false;
   m_msgIsInLocalCache = false;
   m_suppressErrorMsgs = false;
   mMaxProgress = -1;
@@ -259,19 +258,6 @@ NS_IMETHODIMP nsMsgMailNewsUrl::GetUpdatingFolder(bool *aResult)
 NS_IMETHODIMP nsMsgMailNewsUrl::SetUpdatingFolder(bool updatingFolder)
 {
   m_updatingFolder = updatingFolder;
-  return NS_OK;
-}
-
-NS_IMETHODIMP nsMsgMailNewsUrl::GetAddToMemoryCache(bool *aAddToCache)
-{
-  NS_ENSURE_ARG(aAddToCache); 
-  *aAddToCache = m_addContentToCache;
-  return NS_OK;
-}
-
-NS_IMETHODIMP nsMsgMailNewsUrl::SetAddToMemoryCache(bool aAddToCache)
-{
-  m_addContentToCache = aAddToCache;
   return NS_OK;
 }
 
@@ -718,34 +704,6 @@ NS_IMETHODIMP nsMsgMailNewsUrl:: GetMemCacheEntry(nsICacheEntryDescriptor **memC
   }
 
   return rv;
-}
-
-NS_IMETHODIMP nsMsgMailNewsUrl::SetImageCacheSession(nsICacheSession *imageCacheSession)
-{
-  m_imageCacheSession = imageCacheSession;
-  return NS_OK;
-}
-
-NS_IMETHODIMP nsMsgMailNewsUrl::GetImageCacheSession(nsICacheSession **imageCacheSession)
-{
-  NS_ENSURE_ARG(imageCacheSession);
-
-  NS_IF_ADDREF(*imageCacheSession = m_imageCacheSession);
-
-  return NS_OK;
-}
-
-NS_IMETHODIMP nsMsgMailNewsUrl::CacheCacheEntry(nsICacheEntryDescriptor *cacheEntry)
-{
-  m_cachedMemCacheEntries.AppendObject(cacheEntry);
-
-  return NS_OK;
-}
-
-NS_IMETHODIMP nsMsgMailNewsUrl::RemoveCacheEntry(nsICacheEntryDescriptor *cacheEntry)
-{
-  m_cachedMemCacheEntries.RemoveObject(cacheEntry);
-  return NS_OK;
 }
 
 NS_IMETHODIMP nsMsgMailNewsUrl::GetMimeHeaders(nsIMimeHeaders * *mimeHeaders)
