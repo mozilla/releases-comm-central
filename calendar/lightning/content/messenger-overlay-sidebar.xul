@@ -219,9 +219,6 @@
 
   <statusbar id="status-bar">
     <!-- event/task in tab statusbarpanels -->
-    <statusbarpanel id="status-text"
-                    class="event-dialog"
-                    flex="1"/>
     <statusbarpanel id="status-privacy"
                     class="event-dialog"
                     align="center"
