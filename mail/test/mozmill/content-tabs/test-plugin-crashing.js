@@ -222,14 +222,17 @@ function test_crashed_plugin_notification_inline() {
                                   .getAnonymousElementByAttribute(plugin,
                                                                   "class",
                                                                   "submitStatus");
-
-    if (!submitDiv)
-      return null;
-
     return submitDiv;
   }
 
-  let submitDiv = getStatusDiv();
+  let submitDiv = null;
+  mc.waitFor(() => (submitDiv = getStatusDiv()) != null,
+             "Timeout waiting for submit status to appear",
+             5000, 100);
+
+  assert_equals(null, mc.tabmail.selectedTab.browser.parentNode
+                                .getNotificationWithValue("plugin-crashed"));
+
   let statusString = submitDiv.getAttribute("status");
   if (!statusString) {
     let submitStatusChanged = false;
