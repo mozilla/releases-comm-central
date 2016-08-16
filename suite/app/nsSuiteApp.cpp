@@ -25,7 +25,7 @@
 
 #ifdef XP_WIN
 #ifdef MOZ_ASAN
-// ASAN requires firefox.exe to be built with -MD, and it's OK if we don't
+// ASAN requires seamonkey.exe to be built with -MD, and it's OK if we don't
 // support Windows XP SP2 in ASAN builds.
 #define XRE_DONT_SUPPORT_XPSP2
 #endif
@@ -150,7 +150,7 @@ static int do_main(int argc, char* argv[], char* envp[], nsIFile *xreDirectory)
   nsresult rv;
   uint32_t mainFlags = 0;
 
-  // Allow firefox.exe to launch XULRunner apps via -app <application.ini>
+  // Allow seamonkey.exe to launch XULRunner apps via -app <application.ini>
   // Note that -app must be the *first* argument.
   const char *appDataFile = getenv("XUL_APP_FILE");
   if (appDataFile && *appDataFile) {
