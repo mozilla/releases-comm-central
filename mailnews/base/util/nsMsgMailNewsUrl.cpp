@@ -719,6 +719,14 @@ NS_IMETHODIMP nsMsgMailNewsUrl::SetMimeHeaders(nsIMimeHeaders *mimeHeaders)
     return NS_OK;
 }
 
+NS_IMETHODIMP nsMsgMailNewsUrl::LoadURI(nsIDocShell* docShell,
+                                        nsIDocShellLoadInfo* loadInfo,
+                                        uint32_t aLoadFlags)
+{
+  NS_ENSURE_ARG_POINTER(docShell);
+  return docShell->LoadURI(this, loadInfo, aLoadFlags, false);
+}
+
 #define SAVE_BUF_SIZE 8192
 class nsMsgSaveAsListener : public nsIStreamListener
 {

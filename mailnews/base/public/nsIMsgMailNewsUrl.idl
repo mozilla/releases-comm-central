@@ -19,6 +19,8 @@ interface nsIStreamListener;
 interface nsIMsgFolder;
 interface nsIMsgHeaderSink;
 interface nsIMsgDBHdr;
+interface nsIDocShellLoadInfo;
+interface nsIDocShell; 
 
 [scriptable, uuid(995455ba-5bb4-4643-8d70-2b877a2e1320)]
 interface nsIMsgMailNewsUrl : nsIURL {
@@ -111,6 +113,32 @@ interface nsIMsgMailNewsUrl : nsIURL {
 
   /// Returns true if the URI is for a message (e.g., imap-message://)
   readonly attribute boolean isMessageUri;
+
+  /**
+   * Loads the URI in a docshell. This will give priority to loading the
+   * URI in the passed-in docshell. If it can't be loaded there
+   * however, the URL dispatcher will go through its normal process of content
+   * loading.
+   *
+   * @param docshell     The docshell that will consume the load.
+   *
+   * @param loadInfo     This is the extended load info for this load. This
+   *                     most often will be null, but if you need to do
+   *                     additional setup for this load you can get a loadInfo
+   *                     object by calling createLoadInfo. Once you have this
+   *                     object you can set the needed properties on it and
+   *                     then pass it to loadURI.
+   *
+   * @param aLoadFlags   Flags to modify load behaviour. Flags are defined in
+   *                     nsIWebNavigation. Note that using flags outside
+   *                     LOAD_FLAGS_MASK is only allowed if passing in a
+   *                     non-null loadInfo. And even some of those might not
+   *                     be allowed. Use at your own risk. See nsIDocShell.idl
+   */
+   void loadURI(in nsIDocShell docshell,
+                in nsIDocShellLoadInfo loadInfo,
+                in unsigned long aLoadFlags);
+
 };
 
 //////////////////////////////////////////////////////////////////////////////////
