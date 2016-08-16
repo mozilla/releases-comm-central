@@ -25,7 +25,9 @@
 
 # directories we check out from other repositories
 ^directory/c-sdk$
-^mozilla$
+# ^mozilla$ <--- causes regex perf issues when present with fsmonitor. See Bug 1293993.
+mozilla
+
 ^.mozilla-trunk$
 
 # SVN directories
