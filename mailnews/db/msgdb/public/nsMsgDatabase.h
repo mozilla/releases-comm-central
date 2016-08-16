@@ -203,6 +203,7 @@ public:
   nsresult        GetPropertyAsNSString(nsIMdbRow *row, const char *propertyName, nsAString &result);
   nsresult        SetPropertyFromNSString(nsIMdbRow *row, const char *propertyName, const nsAString &propertyVal);
   nsresult        GetUint32Property(nsIMdbRow *row, const char *propertyName, uint32_t *result, uint32_t defaultValue = 0);
+  nsresult        GetUint64Property(nsIMdbRow *row, const char *propertyName, uint64_t *result, uint64_t defaultValue = 0);
   nsresult        SetUint32Property(nsIMdbRow *row, const char *propertyName, uint32_t propertyVal);
   nsresult        SetUint64Property(nsIMdbRow *row, const char *propertyName, uint64_t propertyVal);
   nsresult        GetBooleanProperty(nsIMdbRow *row, const char *propertyName,

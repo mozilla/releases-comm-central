@@ -6,7 +6,7 @@
 #include "nsISupports.idl"
 #include "MailNewsTypes2.idl"
 
-[scriptable, uuid(6e49d723-cefe-4dd0-bc98-f62c2f8f7f0f)]
+[scriptable, uuid(a72dab4b-b3bd-471e-9a38-1b242b385459)]
 interface  nsIDBFolderInfo : nsISupports {
   attribute long flags;
 
@@ -37,7 +37,7 @@ interface  nsIDBFolderInfo : nsISupports {
 
   attribute nsMsgKey highWater;
   attribute nsMsgKey expiredMark;
-  attribute unsigned long long folderSize;
+  attribute long long folderSize;
   attribute unsigned long folderDate;
   void changeNumUnreadMessages(in long aDelta);
   void changeNumMessages(in long aDelta);
@@ -74,7 +74,9 @@ interface  nsIDBFolderInfo : nsISupports {
    */
   void setCharProperty(in string aPropertyName, in ACString aPropertyValue);
   void setUint32Property(in string propertyName, in unsigned long propertyValue);
+  void setInt64Property(in string propertyName, in long long propertyValue);
   unsigned long getUint32Property(in string propertyName, in unsigned long defaultValue);
+  long long     getInt64Property(in string propertyName, in long long defaultValue);
   boolean getBooleanProperty(in string propertyName, in boolean defaultValue);
   void setBooleanProperty(in string propertyName, in boolean aPropertyValue);
   nsIDBFolderInfo	GetTransferInfo();

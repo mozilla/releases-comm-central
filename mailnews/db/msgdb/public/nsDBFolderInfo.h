@@ -50,14 +50,13 @@ public:
   // get and set arbitrary property, aka row cell value.
   nsresult SetPropertyWithToken(mdb_token aProperty, const nsAString &propertyStr);
   nsresult SetUint32PropertyWithToken(mdb_token aProperty, uint32_t propertyValue);
-  nsresult SetUint64PropertyWithToken(mdb_token aProperty, uint64_t propertyValue);
+  nsresult SetInt64PropertyWithToken(mdb_token aProperty, int64_t propertyValue);
   nsresult SetInt32PropertyWithToken(mdb_token aProperty, int32_t propertyValue);
-  nsresult GetPropertyWithToken(mdb_token aProperty, nsAString &resultProperty);
+  nsresult GetPropertyWithToken(mdb_token aProperty, nsAString &propertyValue);
   nsresult GetUint32PropertyWithToken(mdb_token aProperty, uint32_t &propertyValue, uint32_t defaultValue = 0);
   nsresult GetInt32PropertyWithToken(mdb_token aProperty, int32_t &propertyValue, int32_t defaultValue = 0);
-  nsresult SetUint64Property(const char *aProperty, uint64_t propertyValue);
-  nsresult GetUint64PropertyWithToken(mdb_token columnToken,
-                                      uint64_t *propertyValue);
+  nsresult GetInt64PropertyWithToken(mdb_token aProperty,
+                                     int64_t &propertyValue, int64_t defaultValue = 0);
 
   nsTArray<nsMsgKey> m_lateredKeys; // list of latered messages
 
@@ -80,7 +79,7 @@ protected:
 
   void ReleaseExternalReferences(); // let go of any references to other objects.
 
-  uint64_t  m_folderSize;    // TODO: In nsIMsgFolder folder size is int64_t.
+  int64_t   m_folderSize;
   int64_t   m_expungedBytes; // sum of size of deleted messages in folder
   uint32_t  m_folderDate;
   nsMsgKey  m_highWaterMessageKey; // largest news article number or imap uid whose header we've seen

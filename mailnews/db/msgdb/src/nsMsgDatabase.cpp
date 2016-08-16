@@ -3994,6 +3994,18 @@ nsresult nsMsgDatabase::GetUint32Property(nsIMdbRow *row, const char *propertyNa
   return err;
 }
 
+nsresult nsMsgDatabase::GetUint64Property(nsIMdbRow *row, const char *propertyName, uint64_t *result, uint64_t defaultValue)
+{
+  nsresult err = NS_OK;
+  mdb_token property_token;
+
+  err = m_mdbStore->StringToToken(GetEnv(), propertyName, &property_token);
+  if (NS_SUCCEEDED(err))
+    err = RowCellColumnToUInt64(row, property_token, result, defaultValue);
+
+  return err;
+}
+
 nsresult nsMsgDatabase::SetUint32Property(nsIMdbRow *row, const char *propertyName, uint32_t propertyVal)
 {
   struct mdbYarn yarn;
