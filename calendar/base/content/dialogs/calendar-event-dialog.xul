@@ -178,6 +178,8 @@
     <command id="cmd_attach_url"
              disable-on-readonly="true"
              oncommand="attachURL()"/>
+    <command id="cmd_attach_cloud"
+             disable-on-readonly="true"/>
     <command id="cmd_timezone"
              persist="checked"
              checked="false"

@@ -129,6 +129,12 @@ function receiveMessage(aEvent) {
         case "removeDisableAndCollapseOnReadonly":
             removeDisableAndCollapseOnReadonly();
             break;
+        case "setElementAttribute":
+            setElementAttribute(aEvent.data.argument);
+            break;
+        case "loadCloudProviders":
+            loadCloudProviders(aEvent.data.item);
+            break;
     }
 }
 
@@ -247,6 +253,21 @@ function updateItemTabState(aArg) {
         if (lookup[key]) {
             lookup[key](aArg);
         }
+    }
+}
+
+/**
+ * Set the value of an attribute on a DOM element, identified by its ID.
+ *
+ * @param {Object} aArg            Container
+ * @param {string} aArg.id         The ID of the DOM element
+ * @param {string} aArg.attribute  The attribute to set
+ * @param {boolean} aArg.value     The new attribute value
+ */
+function setElementAttribute(aArg) {
+    let element = document.getElementById(aArg.id);
+    if (element) {
+        element[aArg.attribute] = aArg.value;
     }
 }
 
@@ -848,4 +869,72 @@ function onCommandCustomize() {
                       false,                              // is mode toolbar yes/no?
                       null,                               // callback function
                       "dialog");                          // name of this mode
+}
+
+/**
+ * Add menu items to the UI for attaching files using a cloud provider.
+ *
+ * @param {Object[]} aItemObjects  Array of objects that each contain
+ *                                 data to create a menuitem
+ */
+function loadCloudProviders(aItemObjects) {
+
+    /**
+     * Deletes any existing menu items in aParentNode that have a
+     * cloudProviderAccountKey attribute.
+     *
+     * @param {nsIDOMNode} aParentNode  A menupopup containing menu items
+     */
+    function deleteAlreadyExisting(aParentNode) {
+        for (let node of aParentNode.childNodes) {
+            if (node.cloudProviderAccountKey) {
+                aParentNode.removeChild(node);
+            }
+        }
+    }
+
+    // Delete any existing menu items with a cloudProviderAccountKey,
+    // needed for the tab case to prevent duplicate menu items, and
+    // helps keep the menu items current.
+    let toolbarPopup = document.getElementById("button-attach-menupopup");
+    if (toolbarPopup) {
+        deleteAlreadyExisting(toolbarPopup);
+    }
+    let optionsPopup = document.getElementById("options-attachments-menupopup");
+    if (optionsPopup) {
+        deleteAlreadyExisting(optionsPopup);
+    }
+
+    for (let itemObject of aItemObjects) {
+
+        // Create a menu item.
+        let item = createXULElement("menuitem");
+        item.setAttribute("label", itemObject.label);
+        item.setAttribute("observes", "cmd_attach_cloud");
+        item.setAttribute("oncommand", "attachFileByAccountKey(event.target.cloudProviderAccountKey); event.stopPropagation();");
+
+        if (itemObject.class) {
+            item.setAttribute("class", itemObject.class);
+            item.setAttribute("image", itemObject.image);
+        }
+
+        // Add the menu item to the UI.
+        if (toolbarPopup) {
+            toolbarPopup.appendChild(item.cloneNode(true)).cloudProviderAccountKey = itemObject.cloudProviderAccountKey;
+        }
+        if (optionsPopup) {
+            // This one doesn't need to clone, just use the item itself.
+            optionsPopup.appendChild(item).cloudProviderAccountKey = itemObject.cloudProviderAccountKey;
+        }
+    }
+}
+
+/**
+ * Send a message to attach a file using a given cloud provider,
+ * to be identified by the cloud provider's accountKey.
+ *
+ * @param {string} aAccountKey  The accountKey for a cloud provider
+ */
+function attachFileByAccountKey(aAccountKey) {
+    sendMessage({ command: "attachFileByAccountKey", accountKey: aAccountKey });
 }

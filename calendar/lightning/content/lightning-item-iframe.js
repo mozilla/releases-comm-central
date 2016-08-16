@@ -223,6 +223,9 @@ function receiveMessage(aEvent) {
                 response: response
             });
             break;
+        case "attachFileByAccountKey":
+            attachFileByAccountKey(aEvent.data.accountKey);
+            break;
     }
 }
 
@@ -1828,43 +1831,64 @@ function updateShowTimeAs(aValue) {
     }
 }
 
+/**
+ * Add menu items to the UI for attaching files using cloud providers.
+ */
 function loadCloudProviders() {
-    let cloudFileEnabled = Preferences.get("mail.cloud_files.enabled", false)
+    let cloudFileEnabled = Preferences.get("mail.cloud_files.enabled", false);
     let cmd = document.getElementById("cmd_attach_cloud");
+    let message = {
+        command: "setElementAttribute",
+        argument: { id: "cmd_attach_cloud", attribute: "hidden", value: null }
+    };
 
     if (!cloudFileEnabled) {
         // If cloud file support is disabled, just hide the attach item
         cmd.hidden = true;
+        message.argument.value = true;
+        sendMessage(message);
         return;
     }
 
-    cmd.hidden = (cloudFileAccounts.accounts.length == 0);
-    let toolbarPopup = document.getElementById("button-attach-menupopup");
-    let optionsPopup = document.getElementById("options-attachments-menupopup");
-    let attachmentPopup = document.getElementById("attachment-popup");
+    let isHidden = cloudFileAccounts.accounts.length == 0;
+    cmd.hidden = isHidden;
+    message.argument.value = isHidden;
+    sendMessage(message);
+
+    let itemObjects = [];
 
     for (let [,cloudProvider] in Iterator(cloudFileAccounts.accounts)) {
+
+        // Create a serializable object to pass in a message outside the iframe
+        let itemObject = {};
+        itemObject.displayName = cloudFileAccounts.getDisplayName(cloudProvider);
+        itemObject.label = cal.calGetString("calendar-event-dialog", "attachViaFilelink", [itemObject.displayName]);
+        itemObject.cloudProviderAccountKey = cloudProvider.accountKey;
+        if (cloudProvider.iconClass) {
+            itemObject.class = "menuitem-iconic";
+            itemObject.image = cloudProvider.iconClass;
+        }
+
+        itemObjects.push(itemObject);
+
+        // Create a menu item from the serializable object
         let item = createXULElement("menuitem");
-        let displayName = cloudFileAccounts.getDisplayName(cloudProvider);
-        let label = cal.calGetString("calendar-event-dialog", "attachViaFilelink", [displayName]);
-        item.setAttribute("label", label);
+        item.setAttribute("label", itemObject.label);
         item.setAttribute("observes", "cmd_attach_cloud");
         item.setAttribute("oncommand", "attachFile(event.target.cloudProvider); event.stopPropagation();");
 
-        if (cloudProvider.iconClass) {
-            item.setAttribute("class", "menuitem-iconic");
-            item.setAttribute("image", cloudProvider.iconClass);
+        if (itemObject.class) {
+            item.setAttribute("class", itemObject.class);
+            item.setAttribute("image", itemObject.image);
         }
 
-        // Add the item to the different places we advertise cloud providers
-        if (toolbarPopup) {
-            toolbarPopup.appendChild(item.cloneNode(true)).cloudProvider = cloudProvider;
-        }
-        attachmentPopup.appendChild(item.cloneNode(true)).cloudProvider = cloudProvider;
-
-        // The last one doesn't need to clone, just use the item itself.
-        optionsPopup.appendChild(item).cloudProvider = cloudProvider;
+        // Add the menu item to places inside the iframe where we advertise cloud providers
+        let attachmentPopup = document.getElementById("attachment-popup");
+        attachmentPopup.appendChild(item).cloudProvider = cloudProvider;
     }
+
+    // Add the items to places outside the iframe where we advertise cloud providers
+    sendMessage({ command: "loadCloudProviders", item: itemObjects });
 }
 
 /**
@@ -1897,16 +1921,30 @@ function attachURL() {
 }
 
 /**
+ * Attach a file using a cloud provider, identified by its accountKey.
+ *
+ * @param {string} aAccountKey  The accountKey for a cloud provider
+ */
+function attachFileByAccountKey(aAccountKey) {
+    for (let [,cloudProvider] in Iterator(cloudFileAccounts.accounts)) {
+        if (aAccountKey == cloudProvider.accountKey) {
+            attachFile(cloudProvider);
+            return;
+        }
+    }
+}
+
+/**
  * Attach a file to the item. Not passing a cloud provider is currently unsupported.
  *
  * @param cloudProvider     If set, the cloud provider will be used for attaching
  */
 function attachFile(cloudProvider) {
     if (!cloudProvider) {
-        cal.ERROR("[calendar-event-dialog] Could not attach file wthout cloud provider" + cal.STACK(10));
+        cal.ERROR("[calendar-event-dialog] Could not attach file without cloud provider" + cal.STACK(10));
     }
 
-    var files;
+    let files;
     try {
         const nsIFilePicker = Components.interfaces.nsIFilePicker;
         let fp = Components.classes["@mozilla.org/filepicker;1"]
