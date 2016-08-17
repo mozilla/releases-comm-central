@@ -93,6 +93,8 @@ static const AppendItem CUSTOM_ATTRS_ARRAY[] = {
   {kNotesProperty, "", eAppendLine}
 };
 
+#ifdef MOZ_THUNDERBIRD
+
 static const AppendItem CHAT_ATTRS_ARRAY[] = {
   {kGtalkProperty, "propertyGtalk", eAppendLabel},
   {kAIMProperty, "propertyAIM", eAppendLabel},
@@ -104,6 +106,7 @@ static const AppendItem CHAT_ATTRS_ARRAY[] = {
   {kXMPPProperty, "propertyXMPP", eAppendLabel},
   {kIRCProperty, "propertyIRC", eAppendLabel}
 };
+#endif
 
 nsAbCardProperty::nsAbCardProperty()
   : m_IsMailList(false)
