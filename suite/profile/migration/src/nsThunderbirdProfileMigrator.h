@@ -37,7 +37,7 @@ public:
 
 protected:
   virtual ~nsThunderbirdProfileMigrator();
-  nsresult FillProfileDataFromRegistry();
+  nsresult FillProfileDataFromRegistry() override;
   nsresult CopyPreferences(bool aReplace);
   nsresult TransformPreferences(const char* aSourcePrefFileName,
                                 const char* aTargetPrefFileName);
