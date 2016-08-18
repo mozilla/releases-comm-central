@@ -818,12 +818,12 @@ NS_IMETHODIMP nsMsgGroupView::CellTextForColumn(int32_t aRow,
             break;
           case 3:
             if (m_kLastWeekString.IsEmpty())
-              m_kLastWeekString.Adopt(GetString(u"lastWeek"));
+              m_kLastWeekString.Adopt(GetString(u"last7Days"));
             aValue.Assign(m_kLastWeekString);
             break;
           case 4:
             if (m_kTwoWeeksAgoString.IsEmpty())
-              m_kTwoWeeksAgoString.Adopt(GetString(u"twoWeeksAgo"));
+              m_kTwoWeeksAgoString.Adopt(GetString(u"last14Days"));
             aValue.Assign(m_kTwoWeeksAgoString);
             break;
           case 5:
@@ -1034,4 +1034,3 @@ NS_IMETHODIMP nsMsgGroupView::AddColumnHandler(const nsAString& column,
 
   return NS_OK;
 }
-
