@@ -30,10 +30,10 @@ public:
 
   // nsISuiteProfileMigrator methods
   NS_IMETHOD Migrate(uint16_t aItems, nsIProfileStartup *aStartup,
-                     const char16_t *aProfile);
+                     const char16_t *aProfile) override;
   NS_IMETHOD GetMigrateData(const char16_t *aProfile, bool aDoingStartup,
-                            uint16_t *_retval);
-  NS_IMETHOD GetSupportedItems(uint16_t *aSupportedItems);
+                            uint16_t *_retval) override;
+  NS_IMETHOD GetSupportedItems(uint16_t *aSupportedItems) override;
 
 protected:
   virtual ~nsThunderbirdProfileMigrator();

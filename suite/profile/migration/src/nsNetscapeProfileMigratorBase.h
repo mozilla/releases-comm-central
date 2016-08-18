@@ -80,9 +80,9 @@ public:
   typedef nsTArray<PrefBranchStruct*> PBStructArray;
 
   // nsISuiteProfileMigrator methods
-  NS_IMETHOD GetSourceExists(bool* aSourceExists);
-  NS_IMETHOD GetSourceHasMultipleProfiles(bool* aSourceHasMultipleProfiles);
-  NS_IMETHOD GetSourceProfiles(nsIArray** aResult);
+  NS_IMETHOD GetSourceExists(bool* aSourceExists) override;
+  NS_IMETHOD GetSourceHasMultipleProfiles(bool* aSourceHasMultipleProfiles) override;
+  NS_IMETHOD GetSourceProfiles(nsIArray** aResult) override;
 
   // Pref Transform Methods
   static nsresult GetString(PrefTransform* aTransform, nsIPrefBranch* aBranch);
