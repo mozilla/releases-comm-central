@@ -116,6 +116,11 @@ NS_IMETHODIMP nsAddbookUrl::SetHostPort(const nsACString &aHostPort)
 	return m_baseURL->SetHostPort(aHostPort);
 }
 
+NS_IMETHODIMP nsAddbookUrl::SetHostAndPort(const nsACString &aHostPort)
+{
+	return m_baseURL->SetHostAndPort(aHostPort);
+}
+
 NS_IMETHODIMP nsAddbookUrl::GetHost(nsACString &aHost)
 {
 	return m_baseURL->GetHost(aHost);

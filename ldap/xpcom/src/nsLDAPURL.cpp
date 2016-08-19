@@ -259,6 +259,15 @@ nsLDAPURL::SetHostPort(const nsACString &aHostPort)
   return mBaseURL->SetHostPort(aHostPort);
 }
 
+NS_IMETHODIMP
+nsLDAPURL::SetHostAndPort(const nsACString &aHostPort)
+{
+  if (!mBaseURL)
+    return NS_ERROR_NOT_INITIALIZED;
+
+  return mBaseURL->SetHostAndPort(aHostPort);
+}
+
 NS_IMETHODIMP 
 nsLDAPURL::GetHost(nsACString &_retval)
 {

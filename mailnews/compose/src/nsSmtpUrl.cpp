@@ -446,6 +446,12 @@ NS_IMETHODIMP nsMailtoUrl::SetHostPort(const nsACString &aHostPort)
 	return ParseUrl();
 }
 
+NS_IMETHODIMP nsMailtoUrl::SetHostAndPort(const nsACString &aHostPort)
+{
+	m_baseURL->SetHostAndPort(aHostPort);
+	return ParseUrl();
+}
+
 NS_IMETHODIMP nsMailtoUrl::GetHost(nsACString &aHost)
 {
 	return m_baseURL->GetHost(aHost);

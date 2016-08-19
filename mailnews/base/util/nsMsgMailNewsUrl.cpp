@@ -408,6 +408,11 @@ NS_IMETHODIMP nsMsgMailNewsUrl::SetHostPort(const nsACString &aHostPort)
   return m_baseURL->SetHostPort(aHostPort);
 }
 
+NS_IMETHODIMP nsMsgMailNewsUrl::SetHostAndPort(const nsACString &aHostPort)
+{
+  return m_baseURL->SetHostAndPort(aHostPort);
+}
+
 NS_IMETHODIMP nsMsgMailNewsUrl::GetHost(nsACString &aHost)
 {
   return m_baseURL->GetHost(aHost);
