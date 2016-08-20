@@ -29,8 +29,6 @@ var gSafeBrowsing = {
       } else if (/e=deceptiveBlocked/.test(docURI)) {
         reason = "phishing";
         document.getElementById("reportPhishingError").hidden = false;
-      } else if (/e=forbiddenBlocked/.test(docURI)) {
-        reason = "forbidden";
       }
     }
 

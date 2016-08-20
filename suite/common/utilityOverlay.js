@@ -1164,12 +1164,6 @@ function BrowserOnCommand(event)
       reason = "malware";
     } else if (/e=unwantedBlocked/.test(docURI)) {
       reason = "unwanted";
-    // We do not have the parental control feature but testing for it in case
-    // it's implemented later should not break anything. This feature is currently
-    // only enabled if you set the pref browser.safebrowsing.forbiddenURIs.enabled
-    // to true.
-    } else if (/e=forbiddenBlocked/.test(docURI)) {
-      reason = "forbidden";
     }
 
     switch (buttonID) {
@@ -1193,15 +1187,6 @@ function BrowserOnCommand(event)
         }
         break;
 
-      case "whyForbiddenButton":
-        // This is the "Why is this site blocked" button for family friendly browsing
-        // for Fennec. There's no desktop focused support page yet.
-        try {
-          loadURI(Services.urlFormatter.formatURLPref("browser.safebrowsing.controlledAccess.infoURL"));
-         } catch (e) {
-          Components.utils.reportError("Couldn't get forbidden info URL: " + e);
-        }
-        break;
     }
   }
 }

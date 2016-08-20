@@ -84,9 +84,6 @@ function initPage()
     case "unwantedBlocked":
       error = "unwanted";
       break;
-    case "forbiddenBlocked":
-      error = "forbidden";
-      break;
     default:
       return;
   }
@@ -107,19 +104,6 @@ function initPage()
     deleteElement("errorTitleText_unwanted");
     deleteElement("errorShortDescText_unwanted");
     deleteElement("errorLongDescText_unwanted");
-  }
-
-  if (error != "forbidden") {
-    deleteElement("errorTitleText_forbidden");
-    deleteElement("errorShortDescText_forbidden");
-    deleteElement("whyForbiddenButton");
-  } else {
-    deleteElement("ignoreWarningButton");
-    deleteElement("reportButton");
-
-    // Remove red style: A "forbidden site" does not warrant the same level
-    // of anxiety as a security concern.
-    document.documentElement.className = "";
   }
 
   // Set sitename

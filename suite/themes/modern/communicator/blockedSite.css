@@ -14,7 +14,6 @@
 
 #malware_sitename,
 #phishing_sitename,
-#unwanted_sitename,
-#forbidden_sitename {
+#unwanted_sitename {
   word-wrap: break-word;
 }
