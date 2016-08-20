@@ -43,9 +43,3 @@ richlistitem.permission[type="font"],
 richlistitem.permission[type="media"] {
   -moz-binding: url('chrome://communicator/content/dataman/dataman.xml#perm-content-item');
 }
-
-/* password item has different labels */
-richlistitem.permissionpwd[type="password"] {
-  -moz-binding: url('chrome://communicator/content/dataman/dataman.xml#permpwd-base-item');
-  -moz-box-orient: vertical;
-}

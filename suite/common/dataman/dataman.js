@@ -138,10 +138,7 @@ var gDataman = {
         gPerms.reactToChange(aSubject, aData);
         break;
       case "passwordmgr-storage-changed":
-        if (/^hostSaving/.test(aData))
-          gPermsPwd.reactToChange(aSubject, aData);
-        else
-          gPasswords.reactToChange(aSubject, aData);
+        gPasswords.reactToChange(aSubject, aData);
         break;
       case "satchel-storage-changed":
         gFormdata.reactToChange(aSubject, aData);
@@ -264,7 +261,6 @@ var gDomains = {
     this.domainObjects["*"] = {title: "*",
                                displayTitle: "*",
                                hasPermissions: true,
-                               hasPermissionsPwd: true,
                                hasPreferences: Services.contentPrefs.getPrefs(null, null).enumerator.hasMoreElements(),
                                hasFormData: true};
     this.search("");
@@ -302,16 +298,6 @@ var gDomains = {
           gDomains.addDomainOrFlag(nextPermission.principal.URI.host.replace(/^\./, ""), "hasPermissions");
         }
       }
-      gDomains.ignoreUpdate = false;
-      gDomains.search(gDomains.searchfield.value);
-      yield setTimeout(nextStep, 0);
-
-      // Add domains for password rejects to permissions.
-      gDataman.debugMsg("Add pwd reject permissions to domain list: " + Date.now()/1000);
-      gDomains.ignoreUpdate = true;
-      let rejectHosts = Services.logins.getAllDisabledHosts();
-      for (let rHost of rejectHosts)
-        gDomains.addDomainOrFlag(rHost, "hasPermissionsPwd");
       gDomains.ignoreUpdate = false;
       gDomains.search(gDomains.searchfield.value);
       yield setTimeout(nextStep, 0);
@@ -440,16 +426,6 @@ var gDomains = {
           if (permAdd && selectIdx != 0 &&
               (!(viewdomain in gDomains.domainObjects) ||
                !gDomains.domainObjects[viewdomain].hasPermissions)) {
-            selectIdx = 0; // Force * domain as we have a perm panel there.
-          }
-
-          let permPwdAdd = (gDataman.viewToLoad[1] &&
-                            gDataman.viewToLoad[1] == "permissionsPwd" &&
-                            gDataman.viewToLoad[2] &&
-                            gDataman.viewToLoad[2] == "add");
-          if (permPwdAdd && selectIdx != 0 &&
-              (!(viewdomain in gDomains.domainObjects) ||
-               !gDomains.domainObjects[viewdomain].hasPermissionsPwd)) {
             selectIdx = 0; // Force * domain as we have a perm panel there.
           }
 
@@ -625,7 +601,6 @@ var gDomains = {
     this.domainObjects[aDomain][aFlag] = false;
     if (!this.domainObjects[aDomain].hasCookies &&
         !this.domainObjects[aDomain].hasPermissions &&
-        !this.domainObjects[aDomain].hasPermissionsPwd &&
         !this.domainObjects[aDomain].hasPreferences &&
         !this.domainObjects[aDomain].hasPasswords &&
         !this.domainObjects[aDomain].hasStorage &&
@@ -672,7 +647,6 @@ var gDomains = {
     for (let domain in this.domainObjects) {
       if (!this.domainObjects[domain].hasCookies &&
           !this.domainObjects[domain].hasPermissions &&
-          !this.domainObjects[domain].hasPermissionsPwd &&
           !this.domainObjects[domain].hasPreferences &&
           !this.domainObjects[domain].hasPasswords &&
           !this.domainObjects[domain].hasStorage &&
@@ -700,7 +674,6 @@ var gDomains = {
     if (!this.tree.view.selection.count) {
       gTabs.cookiesTab.disabled = true;
       gTabs.permissionsTab.disabled = true;
-      gTabs.permissionsPwdTab.disabled = true;
       gTabs.preferencesTab.disabled = true;
       gTabs.passwordsTab.disabled = true;
       gTabs.storageTab.disabled = true;
@@ -724,7 +697,6 @@ var gDomains = {
     // Disable/enable and hide/show the tabs as needed.
     gTabs.cookiesTab.disabled = !this.selectedDomain.hasCookies;
     gTabs.permissionsTab.disabled = !this.selectedDomain.hasPermissions;
-    gTabs.permissionsPwdTab.disabled = !this.selectedDomain.hasPermissionsPwd;
     gTabs.preferencesTab.disabled = !this.selectedDomain.hasPreferences;
     gTabs.passwordsTab.disabled = !this.selectedDomain.hasPasswords;
     gTabs.storageTab.disabled = !this.selectedDomain.hasStorage;
@@ -847,7 +819,6 @@ var gTabs = {
   tabs: null,
   cookiesTab: null,
   permissionsTab: null,
-  permissionsPwdTab: null,
   preferencesTab: null,
   passwordsTab: null,
   storageTab: null,
@@ -862,7 +833,6 @@ var gTabs = {
     this.tabbox = document.getElementById("tabbox");
     this.cookiesTab = document.getElementById("cookiesTab");
     this.permissionsTab = document.getElementById("permissionsTab");
-    this.permissionsPwdTab = document.getElementById("permissionsPwdTab");
     this.preferencesTab = document.getElementById("preferencesTab");
     this.passwordsTab = document.getElementById("passwordsTab");
     this.storageTab = document.getElementById("storageTab");
@@ -872,7 +842,6 @@ var gTabs = {
     this.panels = {
       cookiesPanel: gCookies,
       permissionsPanel: gPerms,
-      permissionsPwdPanel: gPermsPwd,
       preferencesPanel: gPrefs,
       passwordsPanel: gPasswords,
       storagePanel: gStorage,
@@ -1463,7 +1432,7 @@ var gPerms = {
       this.addButton.disabled = true;
       this.addType.removeAllItems(); // Make sure list is clean.
       let permTypes = ["allowXULXBL", "cookie", "geo", "image", "indexedDB",
-                       "install", "object", "offline-app",
+                       "install", "login-saving", "object", "offline-app",
                        "plugins", "popup", "script", "sts/use", "sts/subd",
                        "stylesheet", "trackingprotection"];
 
@@ -1728,159 +1697,6 @@ var gPerms = {
     }
 
     gDomains.removeDomainOrFlag(gDomains.selectedDomain.title, "hasPermissions");
-  },
-};
-
-// :::::::::::::::::::: Password hosts permissions panel ::::::::::::::::::::
-var gPermsPwd = {
-  list: null,
-
-  initialize: function PermissionsPwd_initialize() {
-    gDataman.debugMsg("Initializing password permissions panel");
-    this.list = document.getElementById("permPwdList");
-    this.addSelBox = document.getElementById("permPwdSelectionBox");
-    this.addHost = document.getElementById("permPwdHost");
-    this.addType = document.getElementById("permPwdType");
-    this.addButton = document.getElementById("permPwdAddButton");
-
-    // Read password rejects.
-    let rejectHosts = Services.logins.getAllDisabledHosts();
-
-    for (let rHost of rejectHosts) {
-      if (gDomains.hostMatchesSelected(rHost)) {
-        gDataman.debugMsg("Found disabled host " + rHost);
-        let permElem = document.createElement("richlistitem");
-        permElem.setAttribute("type", "password");
-        permElem.setAttribute("host", rHost);
-        permElem.setAttribute("displayHost", rHost);
-        permElem.setAttribute("capability", Services.perms.DENY_ACTION);
-        permElem.setAttribute("class", "permissionpwd");
-        this.list.appendChild(permElem);
-      }
-    }
-    this.list.disabled = !this.list.itemCount;
-    this.addButton.disabled = false;
-  },
-
-  shutdown: function PermissionsPwd_shutdown() {
-    gDataman.debugMsg("Shutting down password permissions panel");
-    // XXX: Here we could detect if we still hold any non-default settings and
-    //      trigger the removeDomainOrFlag if not.
-    while (this.list.hasChildNodes())
-      this.list.lastChild.remove();
-
-    this.addSelBox.hidden = true;
-  },
-
-  // Most functions of permissions are in the XBL items!
-  addButtonClick: function PermissionsPwd_addButtonClick() {
-    gDataman.debugMsg("Add password permissions button clicked!");
-
-    if (this.addSelBox.hidden) {
-      // Show addition box, disable button.
-      this.addButton.disabled = true;
-      this.addType.removeAllItems(); // Make sure list is clean.
-
-      let permTypes = "password";
-      let typeDesc = gDataman.bundle.getString("permpwd.password.label");
-      let menuitem = this.addType.appendItem(typeDesc, "password");
-
-      this.addType.setAttribute("label",
-                                gDataman.bundle.getString("permpwd.type.default"));
-      this.addHost.value =
-          gDomains.selectedDomain.title == "*" ? "" : "www." + gDomains.selectedDomain.title;
-      this.addSelBox.hidden = false;
-    }
-    else {
-      // Add entry to list, hide addition box.
-      let permElem = document.createElement("richlistitem");
-      permElem.setAttribute("type", this.addType.value);
-      permElem.setAttribute("host", this.addHost.value);
-      permElem.setAttribute("displayHost", this.addHost.value);
-      permElem.setAttribute("capability", Services.perms.ALLOW_ACTION);
-      permElem.setAttribute("class", "permissionpwd");
-      this.list.appendChild(permElem);
-      this.list.disabled = false;
-      permElem.useDefault(true);
-      this.addSelBox.hidden = true;
-      this.addType.removeAllItems();
-    }
-  },
-
-  addCheck: function PermissionsPwd_addCheck() {
-    // Only enable button if both fields have (reasonable) values.
-    this.addButton.disabled = !(this.addType.value &&
-                                gDomains.getDomainFromHost(this.addHost.value));
-  },
-
-  reactToChange: function PermissionsPwd_reactToChange(aSubject, aData) {
-
-    // Password Manager test for Host Saving change
-    // no other notifications should occur here
-    // aData: hostSavingEnabled, hostSavingDisabled
-
-    aSubject.QueryInterface(Components.interfaces.nsISupportsString);
-    let domain = gDomains.getDomainFromHost(aSubject.data);
-
-    // Does change affect possibly loaded Preferences pane?
-    let affectsLoaded = this.list && this.list.childElementCount &&
-                        gDomains.hostMatchesSelected(aSubject.data);
-    let permElem = null;
-    if (affectsLoaded) {
-      for (let lChild of this.list.children) {
-        if (lChild.getAttribute("type") == "password" &&
-            lChild.getAttribute("host") == aSubject.data)
-          permElem = lChild;
-      }
-    }
-
-    if (aData == "hostSavingEnabled") {
-      if (affectsLoaded) {
-        permElem.setCapability(Services.perms.ALLOW_ACTION, true);
-      }
-      else {
-        // Only remove if domain is not shown, note that this may leave an empty domain.
-        let haveDomainPerms = false;
-        let rejectHosts = Services.logins.getAllDisabledHosts();
-        for (let rHost of rejectHosts) {
-          if (domain == gDomains.getDomainFromHost(rHost))
-            haveDomainPerms = true;
-        }
-        if (!haveDomainPerms)
-          gDomains.removeDomainOrFlag(domain, "hasPermissionsPwd");
-      }
-    }
-    else if (aData == "hostSavingDisabled") {
-      if (affectsLoaded) {
-        if (permElem) {
-          permElem.setCapability(Services.perms.DENY_ACTION, true);
-        }
-        else {
-          permElem = document.createElement("richlistitem");
-          permElem.setAttribute("type", "password");
-          permElem.setAttribute("host", aSubject.data);
-          permElem.setAttribute("displayHost", aSubject.data);
-          permElem.setAttribute("capability", 2);
-          permElem.setAttribute("class", "permissionpwd");
-          permElem.setAttribute("orient", "vertical");
-          this.list.appendChild(permElem);
-        }
-      }
-      gDomains.addDomainOrFlag(aSubject.data, "hasPermissionsPwd");
-    }
-    this.list.disabled = !this.list.itemCount;
-  },
-
-  forget: function PermissionsPwd_forget() {
-    // Also remove all password rejects.
-    let rejectHosts = Services.logins.getAllDisabledHosts();
-    // Loop backwards so later indexes in the list don't change.
-    for (let i = rejectHosts.length - 1; i >= 0; i--) {
-      if (gDomains.hostMatchesSelected(rejectHosts[i])) {
-        Services.logins.setLoginSavingEnabled(rejectHosts[i], true);
-      }
-    }
-    gDomains.removeDomainOrFlag(gDomains.selectedDomain.title, "hasPermissionsPwd");
   },
 };
 
@@ -2443,6 +2259,12 @@ var gPasswords = {
   },
 
   reactToChange: function passwords_reactToChange(aSubject, aData) {
+
+     // Not interested in legacy hostsaving changes here.
+     // They will be handled in perm-changed.
+     if (/^hostSaving/.test(aData))
+       return;
+
     // aData: addLogin, modifyLogin, removeLogin, removeAllLogins
     if (aData == "removeAllLogins") {
       // Go for re-parsing the whole thing.
@@ -3302,7 +3124,6 @@ var gForget = {
   forgetDesc: null,
   forgetCookies: null,
   forgetPermissions: null,
-  forgetPermissionsPwd: null,
   forgetPreferences: null,
   forgetPasswords: null,
   forgetStorage: null,
@@ -3319,7 +3140,7 @@ var gForget = {
     gDataman.debugMsg("Initializing forget panel");
 
     this.forgetDesc = document.getElementById("forgetDesc");
-    ["forgetCookies", "forgetPermissions", "forgetPermissionsPwd", "forgetPreferences",
+    ["forgetCookies", "forgetPermissions", "forgetPreferences",
      "forgetPasswords", "forgetStorage", "forgetFormdata"]
     .forEach(function(elemID) {
       gForget[elemID] = document.getElementById(elemID);
@@ -3340,7 +3161,6 @@ var gForget = {
 
     this.forgetCookies.disabled = !gDomains.selectedDomain.hasCookies;
     this.forgetPermissions.disabled = !gDomains.selectedDomain.hasPermissions;
-    this.forgetPermissionsPwd.disabled = !gDomains.selectedDomain.hasPermissionsPwd;
     this.forgetPreferences.disabled = !gDomains.selectedDomain.hasPreferences;
     this.forgetPasswords.disabled = !gDomains.selectedDomain.hasPasswords;
     this.forgetStorage.disabled = !gDomains.selectedDomain.hasStorage;
@@ -3356,7 +3176,6 @@ var gForget = {
   updateOptions: function forget_updateOptions() {
     this.forgetButton.disabled = !(this.forgetCookies.checked ||
                                    this.forgetPermissions.checked ||
-                                   this.forgetPermissionsPwd.checked ||
                                    this.forgetPreferences.checked ||
                                    this.forgetPasswords.checked ||
                                    this.forgetStorage.checked ||
@@ -3388,12 +3207,6 @@ var gForget = {
       this.forgetPermissionsLabel.hidden = false;
     }
     this.forgetPermissions.hidden = true;
-
-    if (this.forgetPermissionsPwd.checked) {
-      gPermsPwd.forget();
-      this.forgetPermissionsPwdLabel.hidden = false;
-    }
-    this.forgetPermissionsPwd.hidden = true;
 
     if (this.forgetPreferences.checked) {
       gPrefs.forget();
