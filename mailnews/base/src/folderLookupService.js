@@ -57,11 +57,13 @@ folderLookupService.prototype = {
       } catch (e) {
         // The object was deleted, so it's not valid
       }
-      if (!valid) {
-        // Don't keep around invalid folders.
-        this._map.delete(aUrl);
-        folder = null;
-      }
+
+      if (valid)
+        return folder;
+
+      // Don't keep around invalid folders.
+      this._map.delete(aUrl);
+      folder = null;
     }
 
     // If we get here, then the folder was not in our map. It could be that the
