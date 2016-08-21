@@ -477,7 +477,7 @@
   </menupopup>
   <splitmenu id="appmenu_customize">
     <menupopup id="appmenu_customizeMenu"
-               onpopupshowing="onToolbarsPopupShowingForTabType(event, document.getElementById("appmenu_quickFilterBar"));"/>
+               onpopupshowing="onToolbarsPopupShowingForTabType(event, document.getElementById('appmenu_quickFilterBar'));"/>
   </splitmenu>
   <menupopup id="appmenu_FilePopup">
     <menu id="appmenu_Open"
