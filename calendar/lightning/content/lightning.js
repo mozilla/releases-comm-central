@@ -153,6 +153,9 @@ pref("calendar.filter.maxiterations", 50);
 // Edit events and tasks in a tab rather than a window.
 pref("calendar.item.editInTab", false);
 
+// Edit events and tasks in the new (HTML-based) UI for tabs and windows
+pref("calendar.item.useNewItemUI", false);
+
 // Backend to use. false: libical, true: ical.js
 #ifdef NIGHTLY_BUILD
 pref("calendar.icaljs", true);

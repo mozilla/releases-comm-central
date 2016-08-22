@@ -229,6 +229,11 @@ function onLoad() {
         if (!cal.isEvent(window.arguments[0].calendarEvent)) {
             setDialogId(document.documentElement, "calendar-task-dialog");
         }
+        // load the iframe
+        let url = window.arguments[0].useNewItemUI ?
+            "chrome://lightning/content/html-item-editing/lightning-item-iframe.html" :
+            "chrome://lightning/content/lightning-item-iframe.xul";
+        window.frames["lightning-item-panel-iframe"].location = url;
     }
 }
 
@@ -711,6 +716,7 @@ function editToDoStatus(aPercentComplete) {
  * @param {short} aArg.percentComplete  The percent complete value as a string
  */
 function updateMarkCompletedMenuItem(aArg) {
+    // Command only exists for tab case, function not called for dialog windows.
     let completedCommand = document.getElementById("calendar_toggle_completed_command");
     let isCompleted = aArg.percentComplete == 100;
     completedCommand.setAttribute("checked", isCompleted);

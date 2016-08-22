@@ -17,6 +17,9 @@ try {
     // is false, which means the UI will not be shown
 }
 
+// Flag for using new item UI code (HTML/React.js).
+const gNewItemUI = Preferences.get("calendar.item.useNewItemUI", false);
+
 // the following variables are constructed if the jsContext this file
 // belongs to gets constructed. all those variables are meant to be accessed
 // from within this file only.
@@ -176,38 +179,62 @@ function receiveMessage(aEvent) {
         case "editStatus":
             gConfig.status = aEvent.data.value;
             updateStatus(gConfig.status);
+            if (gNewItemUI) {
+                gTopComponent.importState({status: aEvent.data.value});
+            }
             break;
         case "editShowTimeAs":
             gConfig.showTimeAs = aEvent.data.value;
             updateShowTimeAs(gConfig.showTimeAs);
+            if (gNewItemUI) {
+                gTopComponent.importState({showTimeAs: aEvent.data.value});
+            }
             break;
         case "editPriority":
             gConfig.priority = aEvent.data.value;
             updatePriority(gConfig.priority);
+            if (gNewItemUI) {
+                gTopComponent.importState({priority: aEvent.data.value});
+            }
             break;
         case "editPrivacy":
             gConfig.privacy = aEvent.data.value;
             updatePrivacy(gConfig.privacy);
+            if (gNewItemUI) {
+                gTopComponent.importState({privacy: aEvent.data.value});
+            }
             break;
         case "rotatePrivacy":
             gConfig.privacy = rotatePrivacy(gConfig.privacy);
             updatePrivacy(gConfig.privacy);
+            if (gNewItemUI) {
+                gTopComponent.importState({privacy: gConfig.privacy});
+            }
             break;
         case "rotateStatus":
             gConfig.status = rotateStatus(gConfig.status,
                                           cal.isEvent(window.calendarItem),
                                           aEvent.data.noneCommandIsVisible);
             updateStatus(gConfig.status);
+            if (gNewItemUI) {
+                gTopComponent.importState({status: gConfig.status});
+            }
             break;
         case "rotatePriority":
             if (capSupported("priority")) {
                 gConfig.priority = rotatePriority(gConfig.priority);
                 updatePriority(gConfig.priority);
+                if (gNewItemUI) {
+                    gTopComponent.importState({priority: gConfig.priority});
+                }
             }
             break;
         case "rotateShowTimeAs":
             gConfig.showTimeAs = rotateShowTimeAs(gConfig.showTimeAs);
             updateShowTimeAs(gConfig.showTimeAs);
+            if (gNewItemUI) {
+                gTopComponent.importState({showTimeAs: gConfig.showTimeAs});
+            }
             break;
         case "editToDoStatus":
             let textbox = document.getElementById("percent-complete-textbox");
@@ -220,9 +247,28 @@ function receiveMessage(aEvent) {
         case "toggleTimezoneLinks":
             gTimezonesEnabled = aEvent.data.checked;
             updateDateTime();
+            /*
+            // Not implemented in react-code.js yet
+            if (gNewItemUI) {
+                gTopComponent.importState({ timezonesEnabled: aEvent.data.checked });
+            }
+            */
             break;
         case "toggleLink":
-            updateItemURL(aEvent.data.checked);
+            let newUrl = window.calendarItem.getProperty("URL") || "";
+            let newShow = showOrHideItemURL(aEvent.data.checked, newUrl);
+            // Disable command if there is no url
+            if (!newUrl.length) {
+                sendMessage({ command: "disableLinkCommand" });
+            }
+            if (gNewItemUI) {
+                gTopComponent.importState({
+                    url: newUrl,
+                    showUrl: newShow
+                });
+            } else {
+                updateItemURL(newShow, newUrl);
+            }
             break;
         case "closingWindowWithTabs":
             let response = onCancel(aEvent.data.id, true);
@@ -242,9 +288,6 @@ function receiveMessage(aEvent) {
  * dialog controls from the window's item.
  */
 function onLoad() {
-    // Set a variable to allow/prevent actions when the dialog is loading.
-    onLoad.isLoading = true;
-
     window.addEventListener("message", receiveMessage, false);
 
     // Move the args for the window dialog so they are positioned
@@ -374,9 +417,11 @@ function onLoad() {
     // Set initial values for datepickers in New Tasks dialog
     if (isToDo(item)) {
         let initialDatesValue = cal.dateTimeToJsDate(args.initialStartDateValue);
-        setElementValue("completed-date-picker", initialDatesValue);
-        setElementValue("todo-entrydate", initialDatesValue);
-        setElementValue("todo-duedate", initialDatesValue);
+        if (!gNewItemUI) {
+            setElementValue("completed-date-picker", initialDatesValue);
+            setElementValue("todo-entrydate", initialDatesValue);
+            setElementValue("todo-duedate", initialDatesValue);
+        }
     }
     loadDialog(window.calendarItem);
 
@@ -386,8 +431,10 @@ function onLoad() {
         ToolbarIconColor.init();
     }
 
-    document.getElementById("item-title").focus();
-    document.getElementById("item-title").select();
+    if (!gNewItemUI) {
+        document.getElementById("item-title").focus();
+        document.getElementById("item-title").select();
+    }
 
     // This causes the app to ask if the window should be closed when the
     // application is closed.
@@ -404,8 +451,10 @@ function onLoad() {
     // set up our calendar event observer
     eventDialogCalendarObserver.observe(item.calendar);
 
-    onLoad.isLoading = false;
+    onLoad.hasLoaded = true;
 }
+// Set a variable to allow or prevent actions before the dialog is done loading.
+onLoad.hasLoaded = false;
 
 function onEventDialogUnload() {
     if (typeof ToolbarIconColor !== 'undefined') {
@@ -439,6 +488,14 @@ function onAccept() {
  * @return    Returns true if the window should be closed.
  */
 function onCommandCancel() {
+    if (gNewItemUI) {
+        // saving is not supported yet for gNewItemUI, return true to
+        // allow the tab to close
+        console.log("Saving changes is not yet supported with the HTML " +
+                    "UI for editing events and tasks.");
+        return true;
+    }
+
     // Allow closing if the item has not changed and no warning dialog has to be showed.
     if (!isItemChanged() && !gWarning) {
         return true;
@@ -534,32 +591,98 @@ function cancelItem() {
 /**
  * Sets up all dialog controls from the information of the passed item.
  *
- * @param item      The item to parse information out of.
+ * @param aItem      The item to parse information out of.
  */
-function loadDialog(item) {
-    setElementValue("item-title", item.title);
-    setElementValue("item-location", item.getProperty("LOCATION"));
+function loadDialog(aItem) {
+    loadDateTime(aItem);
 
-    loadDateTime(item);
+    let itemProps;
+    if (gNewItemUI) {
+        // Properties for initializing the React component/UI.
+        itemProps = {
+            initialTitle: aItem.title,
+            initialLocation: aItem.getProperty('LOCATION'),
+            initialStartTimezone: gStartTimezone,
+            initialEndTimezone: gEndTimezone,
+            initialStartTime: gStartTime,
+            initialEndTime: gEndTime
+        }
+    } else {
+        setElementValue("item-title", aItem.title);
+        setElementValue("item-location", aItem.getProperty("LOCATION"));
+    }
 
     // add calendars to the calendar menulist
-    let calendarList = document.getElementById("item-calendar");
-    removeChildren(calendarList);
-    let indexToSelect = appendCalendarItems(item, calendarList, item.calendar || window.arguments[0].calendar);
-    if (indexToSelect > -1) {
-        calendarList.selectedIndex = indexToSelect;
+    if (gNewItemUI) {
+        let calendarToUse = aItem.calendar || window.arguments[0].calendar;
+        let unfilteredList = sortCalendarArray(cal.getCalendarManager().getCalendars({}));
+
+        // filter out calendars that should not be included
+        let calendarList = unfilteredList.filter((calendar) =>
+           (calendar.id == calendarToUse.id ||
+            (calendar &&
+             isCalendarWritable(calendar) &&
+             (userCanAddItemsToCalendar(calendar) ||
+              (calendar == aItem.calendar && userCanModifyItem(aItem))) &&
+             isItemSupported(aItem, calendar))));
+
+        itemProps.calendarList = calendarList.map((c) => [c.id, c.name]);
+
+        if (calendarToUse && calendarToUse.id) {
+            let index = itemProps.calendarList.findIndex(
+                (c) => (c[0] == calendarToUse.id));
+            if (index != -1) {
+                itemProps.initialCalendarId = calendarToUse.id;
+            }
+        }
+    } else {
+        let calendarList = document.getElementById("item-calendar");
+        removeChildren(calendarList);
+        let indexToSelect = appendCalendarItems(aItem, calendarList, aItem.calendar || window.arguments[0].calendar);
+        if (indexToSelect > -1) {
+            calendarList.selectedIndex = indexToSelect;
+        }
     }
 
     // Categories
-    loadCategories(item);
+    if (gNewItemUI) {
+        // XXX more to do here with localization, see loadCategories.
+        itemProps.initialCategoriesList = cal.sortArrayByLocaleCollator(getPrefCategoriesArray());
+        itemProps.initialCategories = aItem.getCategories({});
+
+        // just to demo capsules component
+        itemProps.initialCategories = ['demo categories', 'birthdays', 'business'];
+    } else {
+        loadCategories(aItem);
+    }
 
     // Attachment
-    loadCloudProviders();
-    var hasAttachments = capSupported("attachments");
-    var attachments = item.getAttachments({});
+    if (!gNewItemUI) {
+        loadCloudProviders();
+    }
+    let hasAttachments = capSupported("attachments");
+    let attachments = aItem.getAttachments({});
+    if (gNewItemUI) {
+        itemProps.initialAttachments = {};
+    }
     if (hasAttachments && attachments && attachments.length > 0) {
-        for (var attachment of attachments) {
-            addAttachment(attachment);
+        for (let attachment of attachments) {
+            if (gNewItemUI) {
+                if (attachment &&
+                    attachment.hashId &&
+                    !(attachment.hashId in gAttachMap) &&
+                    // We currently only support uri attachments.
+                    attachment.uri) {
+
+                    itemProps.initialAttachments[attachment.hashId] = attachment;
+
+                    // XXX eventually we probably need to call addAttachment(attachment)
+                    // here, until this works we just call updateAttachment()
+                    updateAttachment();
+                }
+            } else {
+                addAttachment(attachment);
+            }
         }
     } else {
         updateAttachment();
@@ -573,40 +696,66 @@ function loadDialog(item) {
     if (gInTab) {
         showLink = true;
     }
-    updateItemURL(showLink);
+    let itemUrl = window.calendarItem.getProperty("URL") || "";
+    showLink = showOrHideItemURL(showLink, itemUrl);
+    // Disable command if there is no url
+    if (!itemUrl.length) {
+        sendMessage({ command: "disableLinkCommand" });
+    }
+    if (gNewItemUI) {
+        itemProps.initialUrl = itemUrl;
+        itemProps.initialShowUrl = showLink;
+    } else {
+        updateItemURL(showLink, itemUrl);
+    }
 
     // Description
-    setElementValue("item-description", item.getProperty("DESCRIPTION"));
+    if (gNewItemUI) {
+        itemProps.initialDescription = aItem.getProperty("DESCRIPTION");
+    } else {
+        setElementValue("item-description", aItem.getProperty("DESCRIPTION"));
+    }
 
     // Status
-    if (cal.isEvent(item)) {
-        gConfig.status = item.hasProperty("STATUS") ?
-            item.getProperty("STATUS") : "NONE";
+    if (cal.isEvent(aItem)) {
+        gConfig.status = aItem.hasProperty("STATUS") ?
+            aItem.getProperty("STATUS") : "NONE";
         if (gConfig.status == "NONE") {
             sendMessage({ command: "showCmdStatusNone" });
         }
         updateStatus(gConfig.status);
+        if (gNewItemUI) {
+            itemProps.initialStatus = gConfig.status;
+        }
     } else {
-        let todoStatus = document.getElementById("todo-status");
-        setElementValue(todoStatus, item.getProperty("STATUS"));
-        if (!todoStatus.selectedItem) {
-            // No selected item means there was no <menuitem> that matches the
-            // value given. Select the "NONE" item by default.
-            setElementValue(todoStatus, "NONE");
+        let itemStatus = aItem.getProperty("STATUS");
+        if (gNewItemUI) {
+            // Not implemented yet in react-code.js
+            // itemProps.initialTodoStatus = itemStatus;
+        } else {
+            let todoStatus = document.getElementById("todo-status");
+            setElementValue(todoStatus, itemStatus);
+            if (!todoStatus.selectedItem) {
+                // No selected item means there was no <menuitem> that matches the
+                // value given. Select the "NONE" item by default.
+                setElementValue(todoStatus, "NONE");
+            }
         }
     }
 
     // Task completed date
-    if (item.completedDate) {
-        updateToDoStatus(item.status, cal.dateTimeToJsDate(item.completedDate));
-    } else {
-        updateToDoStatus(item.status);
+    if (!gNewItemUI) {
+        if (aItem.completedDate) {
+            updateToDoStatus(aItem.status, cal.dateTimeToJsDate(aItem.completedDate));
+        } else {
+            updateToDoStatus(aItem.status);
+        }
     }
 
     // Task percent complete
-    if (isToDo(item)) {
+    if (isToDo(aItem)) {
         var percentCompleteInteger = 0;
-        var percentCompleteProperty = item.getProperty("PERCENT-COMPLETE");
+        var percentCompleteProperty = aItem.getProperty("PERCENT-COMPLETE");
         if (percentCompleteProperty != null) {
             percentCompleteInteger = parseInt(percentCompleteProperty);
         }
@@ -615,12 +764,16 @@ function loadDialog(item) {
         } else if (percentCompleteInteger > 100) {
             percentCompleteInteger = 100;
         }
-        setElementValue("percent-complete-textbox", percentCompleteInteger);
+        if (gNewItemUI) {
+            itemProps.initialPercentComplete = percentCompleteInteger;
+        } else {
+            setElementValue("percent-complete-textbox", percentCompleteInteger);
+        }
     }
 
     // When in a window, set Item-Menu label to Event or Task
     if (!gInTab) {
-        let isEvent = cal.isEvent(item);
+        let isEvent = cal.isEvent(aItem);
 
         let labelString = isEvent ? "itemMenuLabelEvent" : "itemMenuLabelTask";
         let label = cal.calGetString("calendar-event-dialog", labelString);
@@ -635,60 +788,86 @@ function loadDialog(item) {
     }
 
     // Priority
-    gConfig.priority = parseInt(item.priority);
+    gConfig.priority = parseInt(aItem.priority);
     updatePriority(gConfig.priority);
+    if (gNewItemUI) {
+        itemProps.initialPriority = parseInt(aItem.priority);
+        itemProps.supportsPriority = capSupported("priority");
+    }
 
     // Privacy
-    gConfig.privacy = item.privacy;
+    gConfig.privacy = aItem.privacy;
     updatePrivacy(gConfig.privacy);
-
-    // load repeat details
-    loadRepeat(item);
-
-    // load reminder details
-    loadReminders(item.getAlarms({}));
-
-    // Synchronize link-top-image with keep-duration-button status
-    let keepAttribute = document.getElementById("keepduration-button").getAttribute("keep") == "true";
-    setBooleanAttribute("link-image-top", "keep", keepAttribute);
-
-    updateDateTime();
-
-    updateCalendar();
-
-    // figure out what the title of the dialog should be and set it
-    // tabs already have their title set
-    if (!gInTab) {
-        updateTitle();
+    if (gNewItemUI) {
+        itemProps.initialPrivacy = (aItem.privacy || 'NONE');
+        // XXX need to update the privacy options depending on calendar support for them
+        itemProps.supportsPrivacy = capSupported('privacy');
     }
 
-    let notifyCheckbox = document.getElementById("notify-attendees-checkbox");
-    let undiscloseCheckbox = document.getElementById("undisclose-attendees-checkbox");
-    if (canNotifyAttendees(item.calendar, item)) {
-        // visualize that the server will send out mail:
-        notifyCheckbox.checked = true;
-        // hide undisclosure control as this a client only feature
-        undiscloseCheckbox.disabled = true;
+    // Repeat details
+    let [repeatType, untilDate] = getRepeatTypeAndUntilDate(aItem);
+    if (gNewItemUI) {
+        itemProps.initialRepeat = repeatType;
+        itemProps.initialRepeatUntilDate = untilDate;
+        // XXX more to do, see loadRepeat
     } else {
-        let itemProp = item.getProperty("X-MOZ-SEND-INVITATIONS");
-        notifyCheckbox.checked = (item.calendar.getProperty("imip.identity") &&
-                                  ((itemProp === null)
-                                   ? Preferences.get("calendar.itip.notify", true)
-                                   : (itemProp == "TRUE")));
-        let undiscloseProp = item.getProperty("X-MOZ-SEND-INVITATIONS-UNDISCLOSED");
-        undiscloseCheckbox.checked = (undiscloseProp === null)
-                                     ? false // default value as most common within organizations
-                                     : (undiscloseProp == "TRUE");
-        // disable checkbox, if notifyCheckbox is not checked
-        undiscloseCheckbox.disabled = (notifyCheckbox.checked == false);
+        loadRepeat(repeatType, untilDate, aItem);
     }
 
-    updateAttendees();
-    updateRepeat(true);
-    updateReminder(true);
+    if (!gNewItemUI) {
+        // load reminders details
+        loadReminders(aItem.getAlarms({}));
 
-    gConfig.showTimeAs = item.getProperty("TRANSP");
+        // Synchronize link-top-image with keep-duration-button status
+        let keepAttribute = document.getElementById("keepduration-button").getAttribute("keep") == "true";
+        setBooleanAttribute("link-image-top", "keep", keepAttribute);
+
+        updateDateTime();
+
+        updateCalendar();
+
+        // figure out what the title of the dialog should be and set it
+        // tabs already have their title set
+        if (!gInTab) {
+            updateTitle();
+        }
+
+        let notifyCheckbox = document.getElementById("notify-attendees-checkbox");
+        let undiscloseCheckbox = document.getElementById("undisclose-attendees-checkbox");
+        if (canNotifyAttendees(aItem.calendar, aItem)) {
+            // visualize that the server will send out mail:
+            notifyCheckbox.checked = true;
+            // hide undisclosure control as this a client only feature
+            undiscloseCheckbox.disabled = true;
+        } else {
+            let itemProp = aItem.getProperty("X-MOZ-SEND-INVITATIONS");
+            notifyCheckbox.checked = (aItem.calendar.getProperty("imip.identity") &&
+                                      ((itemProp === null)
+                                       ? Preferences.get("calendar.itip.notify", true)
+                                       : (itemProp == "TRUE")));
+            let undiscloseProp = aItem.getProperty("X-MOZ-SEND-INVITATIONS-UNDISCLOSED");
+            undiscloseCheckbox.checked = (undiscloseProp === null)
+                                         ? false // default value as most common within organizations
+                                         : (undiscloseProp == "TRUE");
+            // disable checkbox, if notifyCheckbox is not checked
+            undiscloseCheckbox.disabled = (notifyCheckbox.checked == false);
+        }
+
+        updateAttendees();
+        updateRepeat(true);
+        updateReminder(true);
+    }
+
+    // Transparency
+    gConfig.showTimeAs = aItem.getProperty("TRANSP");
     updateShowTimeAs(gConfig.showTimeAs);
+    if (gNewItemUI) {
+        itemProps.initialShowTimeAs = aItem.getProperty("TRANSP");
+        gTopComponent = ReactDOM.render(
+            React.createElement(TopComponent, itemProps),
+            document.getElementById('container')
+        );
+    }
 }
 
 /**
@@ -809,12 +988,14 @@ function loadDateTime(item) {
         if (hasEntryDate && hasDueDate) {
             duration = endTime.subtractDate(startTime);
         }
-        setElementValue("cmd_attendees", true, "disabled");
+        if (!gNewItemUI) {
+            setElementValue("cmd_attendees", true, "disabled");
+            setBooleanAttribute("keepduration-button", "disabled", !(hasEntryDate && hasDueDate));
+        }
         sendMessage({
             command: "updatePanelState",
             argument: {attendeesCommand: false}
         });
-        setBooleanAttribute("keepduration-button", "disabled", !(hasEntryDate && hasDueDate));
         gStartTime = startTime;
         gEndTime = endTime;
         gItemDuration = duration;
@@ -1083,16 +1264,34 @@ function updateDateCheckboxes(aDatePickerId, aCheckboxId, aDateTime) {
 }
 
 /**
- * Update the dialog controls to display the item's recurrence information
- * nicely.
+ * Get the item's recurrence information for displaying in dialog controls.
  *
- * @param item    The item to load.
+ * @param {Object} aItem  The calendar item
+ * @return {string[]}     An array of two strings: [repeatType, untilDate]
  */
-function loadRepeat(item) {
-    var recurrenceInfo = window.recurrenceInfo;
-    setElementValue("item-repeat", "none");
+function getRepeatTypeAndUntilDate(aItem) {
+    let recurrenceInfo = window.recurrenceInfo;
+    let repeatType = "none";
+    let untilDate = "Forever";
+
+    /**
+     * Updates the until date (locally and globally).
+     *
+     * @param aRule  The recurrence rule
+     */
+    let updateUntilDate = (aRule) => {
+        if (!aRule.isByCount) {
+            if (aRule.isFinite) {
+                gUntilDate = aRule.untilDate.clone().getInTimezone(cal.calendarDefaultTimezone());
+                untilDate = cal.dateTimeToJsDate(gUntilDate.getInTimezone(cal.floating()));
+            } else {
+                gUntilDate = null;
+            }
+        }
+    };
+
     if (recurrenceInfo) {
-        setElementValue("item-repeat", "custom");
+        repeatType = "custom";
         var ritems = recurrenceInfo.getRecurrenceItems({});
         var rules = [];
         var exceptions = [];
@@ -1107,15 +1306,15 @@ function loadRepeat(item) {
             let rule = cal.wrapInstance(rules[0], Components.interfaces.calIRecurrenceRule);
             if (rule) {
                 switch (rule.type) {
-                    case 'DAILY':
-                        if (!checkRecurrenceRule(rule, ['BYSECOND',
-                                                        'BYMINUTE',
-                                                        'BYHOUR',
-                                                        'BYMONTHDAY',
-                                                        'BYYEARDAY',
-                                                        'BYWEEKNO',
-                                                        'BYMONTH',
-                                                        'BYSETPOS'])) {
+                    case "DAILY":
+                        if (!checkRecurrenceRule(rule, ["BYSECOND",
+                                                        "BYMINUTE",
+                                                        "BYHOUR",
+                                                        "BYMONTHDAY",
+                                                        "BYYEARDAY",
+                                                        "BYWEEKNO",
+                                                        "BYMONTH",
+                                                        "BYSETPOS"])) {
                             let ruleComp = rule.getComponent("BYDAY", {});
                             if (rule.interval == 1) {
                                 if (ruleComp.length > 0) {
@@ -1127,67 +1326,67 @@ function loadRepeat(item) {
                                         }
                                         if (i==5) {
                                             if (!rule.isFinite || !rule.isByCount) {
-                                                setElementValue("item-repeat", "every.weekday");
-                                                updateUntilControls(rule);
+                                                repeatType = "every.weekday";
+                                                updateUntilDate(rule);
                                             }
                                         }
                                     }
                                 } else {
                                     if (!rule.isFinite || !rule.isByCount) {
-                                        setElementValue("item-repeat", "daily");
-                                        updateUntilControls(rule);
+                                        repeatType = "daily";
+                                        updateUntilDate(rule);
                                     }
                                 }
                             }
                         }
                         break;
-                    case 'WEEKLY':
-                        if (!checkRecurrenceRule(rule, ['BYSECOND',
-                                                        'BYMINUTE',
-                                                        'BYDAY',
-                                                        'BYHOUR',
-                                                        'BYMONTHDAY',
-                                                        'BYYEARDAY',
-                                                        'BYWEEKNO',
-                                                        'BYMONTH',
-                                                        'BYSETPOS'])) {
+                    case "WEEKLY":
+                        if (!checkRecurrenceRule(rule, ["BYSECOND",
+                                                        "BYMINUTE",
+                                                        "BYDAY",
+                                                        "BYHOUR",
+                                                        "BYMONTHDAY",
+                                                        "BYYEARDAY",
+                                                        "BYWEEKNO",
+                                                        "BYMONTH",
+                                                        "BYSETPOS"])) {
                             let weekType=["weekly", "bi.weekly"];
                             if ((rule.interval == 1 || rule.interval == 2) &&
                                 (!rule.isFinite || !rule.isByCount)) {
-                                  setElementValue("item-repeat", weekType[rule.interval - 1]);
-                                updateUntilControls(rule);
+                                repeatType = weekType[rule.interval - 1];
+                                updateUntilDate(rule);
                             }
                         }
                         break;
-                    case 'MONTHLY':
-                        if (!checkRecurrenceRule(rule, ['BYSECOND',
-                                                        'BYMINUTE',
-                                                        'BYDAY',
-                                                        'BYHOUR',
-                                                        'BYMONTHDAY',
-                                                        'BYYEARDAY',
-                                                        'BYWEEKNO',
-                                                        'BYMONTH',
-                                                        'BYSETPOS'])) {
+                    case "MONTHLY":
+                        if (!checkRecurrenceRule(rule, ["BYSECOND",
+                                                        "BYMINUTE",
+                                                        "BYDAY",
+                                                        "BYHOUR",
+                                                        "BYMONTHDAY",
+                                                        "BYYEARDAY",
+                                                        "BYWEEKNO",
+                                                        "BYMONTH",
+                                                        "BYSETPOS"])) {
                             if (rule.interval == 1 && (!rule.isFinite || !rule.isByCount)) {
-                                setElementValue("item-repeat", "monthly");
-                                updateUntilControls(rule);
+                                repeatType = "monthly";
+                                updateUntilDate(rule);
                             }
                         }
                         break;
-                    case 'YEARLY':
-                        if (!checkRecurrenceRule(rule, ['BYSECOND',
-                                                        'BYMINUTE',
-                                                        'BYDAY',
-                                                        'BYHOUR',
-                                                        'BYMONTHDAY',
-                                                        'BYYEARDAY',
-                                                        'BYWEEKNO',
-                                                        'BYMONTH',
-                                                        'BYSETPOS'])) {
+                    case "YEARLY":
+                        if (!checkRecurrenceRule(rule, ["BYSECOND",
+                                                        "BYMINUTE",
+                                                        "BYDAY",
+                                                        "BYHOUR",
+                                                        "BYMONTHDAY",
+                                                        "BYYEARDAY",
+                                                        "BYWEEKNO",
+                                                        "BYMONTH",
+                                                        "BYSETPOS"])) {
                             if (rule.interval == 1 && (!rule.isFinite || !rule.isByCount)) {
-                                setElementValue("item-repeat", "yearly");
-                                updateUntilControls(rule);
+                                repeatType = "yearly";
+                                updateUntilDate(rule);
                             }
                         }
                         break;
@@ -1195,33 +1394,31 @@ function loadRepeat(item) {
             }
         }
     }
-
-    var repeatMenu = document.getElementById("item-repeat");
-    gLastRepeatSelection = repeatMenu.selectedIndex;
-
-    if (item.parentItem != item) {
-        disableElement("item-repeat");
-        disableElement("repeat-until-datepicker");
-    }
+    return [repeatType, untilDate];
 }
 
 /**
- * Shows the repeat-until-datepicker and sets its date
+ * Updates the XUL UI with the repeat type and the until date.
  *
- * @param rule    The recurrence rule.
+ * XXX For gNewItemUI we need to handle gLastRepeatSelection and
+ * disabling the element as we do in this function.
+ *
+ * @param {string} aRepeatType  The type of repeat
+ * @param {string} aUntilDate   The until date
+ * @param {Object} aItem        The calendar item
  */
-function updateUntilControls(rule) {
-    let untilDate = "forever";
-    if (!rule.isByCount) {
-        if (rule.isFinite) {
-            gUntilDate = rule.untilDate.clone().getInTimezone(cal.calendarDefaultTimezone());
-            untilDate = cal.dateTimeToJsDate(gUntilDate.getInTimezone(cal.floating()));
-        } else {
-            gUntilDate = null;
-        }
+function loadRepeat(aRepeatType, aUntilDate, aItem) {
+    setElementValue("item-repeat", aRepeatType);
+    let repeatMenu = document.getElementById("item-repeat");
+    gLastRepeatSelection = repeatMenu.selectedIndex;
+
+    if (aItem.parentItem != aItem) {
+        disableElement("item-repeat");
+        disableElement("repeat-until-datepicker");
     }
+    // Show the repeat-until-datepicker and set its date
     document.getElementById("repeat-deck").selectedIndex = 0;
-    setElementValue("repeat-until-datepicker", untilDate);
+    setElementValue("repeat-until-datepicker", aUntilDate);
 }
 
 /**
@@ -2482,7 +2679,7 @@ function editRepeat() {
 }
 
 /**
- * This function is responsilble for propagating UI state to controls
+ * This function is responsible for propagating UI state to controls
  * depending on the repeat setting of an item. This functionality is used
  * after the dialog has been loaded as well as if the repeat pattern has
  * been changed.
@@ -2578,9 +2775,19 @@ function updateRepeat(aSuppressDialogs, aItemRepeatCall) {
         } else {
             // From the Edit Recurrence dialog, the rules "every day" and
             // "every weekday" don't need the recurrence details text when they
-            // have only the until date. The loadRepeat() function verifies
-            // whether this is the case and properly sets the controls.
-            loadRepeat(item);
+            // have only the until date. The getRepeatTypeAndUntilDate()
+            // function verifies whether this is the case.
+            let [repeatType, untilDate] = getRepeatTypeAndUntilDate(item);
+            if (gNewItemUI) {
+                gTopComponent.importState({
+                    repeat: repeatType,
+                    repeatUntilDate: untilDate
+                });
+                // XXX more to do, see loadRepeat
+            } else {
+                let item = window.calendarItem;
+                loadRepeat(repeatType, untilDate, item);
+            }
         }
     } else {
         let item = window.calendarItem;
@@ -2708,7 +2915,7 @@ function updateUntildateRecRule(recRule) {
     }
 
     if (repeatUntilDate) {
-        if (!onLoad.isLoading) {
+        if (onLoad.hasLoaded) {
             repeatUntilDate.isDate = gStartTime.isDate; // Enforce same value type as DTSTART
             if (!gStartTime.isDate) {
                 repeatUntilDate.hour = gStartTime.hour;
@@ -2810,10 +3017,12 @@ function updateToDoStatus(aStatus, aCompletedDate=null) {
   }
 
   setElementValue("percent-complete-textbox", newPercentComplete);
-  sendMessage({
-      command: "updatePanelState",
-      argument: { percentComplete: newPercentComplete }
-  });
+  if (gInTab) {
+      sendMessage({
+          command: "updatePanelState",
+          argument: { percentComplete: newPercentComplete }
+      });
+  }
 }
 
 /**
@@ -3389,7 +3598,9 @@ function updateTimezone() {
  */
 function updateAttachment() {
     let hasAttachments = capSupported("attachments");
-    setElementValue("cmd_attach_url", !hasAttachments && "true", "disabled");
+    if (!gNewItemUI) {
+        setElementValue("cmd_attach_url", !hasAttachments && "true", "disabled");
+    }
     sendMessage({
         command: "updatePanelState",
         argument: { attachUrlCommand: hasAttachments }
@@ -3397,60 +3608,64 @@ function updateAttachment() {
 }
 
 /**
- * Updates the related link on the dialog (rfc2445 URL property).  The
- * argument passed in may be overridden for various reasons.
+ * Returns whether to show or hide the related link on the dialog
+ * (rfc2445 URL property).  The aShow argument passed in may be overridden
+ * for various reasons.
  *
- * @param {boolean} aShowLink  Show the link (true) or not (false)
+ * @param {boolean} aShow  Show the link (true) or not (false)
+ * @param {string} aUrl    The url in question
+ * @return {boolean}       Returns true for show and false for hide
  */
-function updateItemURL(aShowLink) {
-    /**
-     * Hides or shows the related link.
-     *
-     * @param {boolean} aShow  To show (true) or to hide (false) the link
-     */
-    function hideOrShow(aShow) {
-        setElementValue("event-grid-link-row", !aShow && "true", "hidden");
-        let separator = document.getElementById("event-grid-link-separator");
-        if (separator) {
-            // The separator is not there in the summary dialog
-            setElementValue("event-grid-link-separator", !aShow && "true", "hidden");
-        }
-    }
-    let itemUrlString = window.calendarItem.getProperty("URL") || "";
-    if (!itemUrlString.length) {
-        // Disable if there is no url
-        sendMessage({ command: "disableLinkCommand" });
-    }
-
-    if (aShowLink && itemUrlString.length) {
+function showOrHideItemURL(aShow, aUrl) {
+    if (aShow && aUrl.length) {
         let handler;
         let uri;
         try {
-            uri = makeURL(itemUrlString);
+            uri = makeURL(aUrl);
             handler = Services.io.getProtocolHandler(uri.scheme);
         } catch (e) {
             // No protocol handler for the given protocol, or invalid uri
-            hideOrShow(false);
-            return;
+            // hideOrShow(false);
+            return false;
         }
-
         // Only show if its either an internal protcol handler, or its external
         // and there is an external app for the scheme
         handler = cal.wrapInstance(handler, Components.interfaces.nsIExternalProtocolHandler);
-        hideOrShow(!handler ||
-                   handler.externalAppExistsForScheme(uri.scheme));
+        return !handler || handler.externalAppExistsForScheme(uri.scheme);
 
-        setTimeout(() => {
-          // HACK the url-link doesn't crop when setting the value in onLoad
-          setElementValue("url-link", itemUrlString);
-          setElementValue("url-link", itemUrlString, "href");
-        }, 0);
     } else {
         // Hide if there is no url, or the menuitem was chosen so that the url
         // should be hidden.
-        hideOrShow(false);
+        return false;
     }
 }
+
+/**
+ * Updates the related link on the dialog (rfc2445 URL property).
+ *
+ * @param {boolean} aShow  Show the link (true) or not (false)
+ * @param {string} aUrl    The url
+ */
+function updateItemURL(aShow, aUrl) {
+
+    // Hide or show the link
+    setElementValue("event-grid-link-row", !aShow && "true", "hidden");
+    // The separator is not there in the summary dialog
+    let separator = document.getElementById("event-grid-link-separator");
+    if (separator) {
+        setElementValue("event-grid-link-separator", !aShow && "true", "hidden");
+    }
+
+    // Set the url for the link
+    if (aShow && aUrl.length) {
+        setTimeout(() => {
+          // HACK the url-link doesn't crop when setting the value in onLoad
+          setElementValue("url-link", aUrl);
+          setElementValue("url-link", aUrl, "href");
+        }, 0);
+    }
+}
+
 
 /**
  * This function updates dialog controls related to attendees.

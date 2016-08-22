@@ -61,6 +61,7 @@ var testTodayPane = function () {
   controller.waitFor(function() {return mozmill.utils.getWindows("Calendar:EventDialog").length > 0}, WAIT_FOR_WINDOW_TIMEOUT);
   let event = new mozmill.controller.MozMillController(mozmill.utils.getWindows("Calendar:EventDialog")[0]);
   let iframe = event.window.document.getElementById("lightning-item-panel-iframe");
+  event.waitFor(() => iframe.contentWindow.onLoad && iframe.contentWindow.onLoad.hasLoaded == true);
 
   event.waitForElement(new elementslib.Lookup(iframe.contentDocument, eventName));
   event.type(new elementslib.Lookup(iframe.contentDocument, eventName),"Today's Event");
@@ -79,6 +80,7 @@ var testTodayPane = function () {
   controller.waitFor(function() {return mozmill.utils.getWindows("Calendar:EventDialog").length > 0}, WAIT_FOR_WINDOW_TIMEOUT);
   event = new mozmill.controller.MozMillController(mozmill.utils.getWindows("Calendar:EventDialog")[0]);
   iframe = event.window.document.getElementById("lightning-item-panel-iframe");
+  event.waitFor(() => iframe.contentWindow.onLoad && iframe.contentWindow.onLoad.hasLoaded == true);
 
   event.waitForElement(new elementslib.Lookup(iframe.contentDocument, eventName));
   event.type(new elementslib.Lookup(iframe.contentDocument, eventName),"Tomorrow's Event");
@@ -97,6 +99,7 @@ var testTodayPane = function () {
   controller.waitFor(function() {return mozmill.utils.getWindows("Calendar:EventDialog").length > 0}, WAIT_FOR_WINDOW_TIMEOUT);
   event = new mozmill.controller.MozMillController(mozmill.utils.getWindows("Calendar:EventDialog")[0]);
   iframe = event.window.document.getElementById("lightning-item-panel-iframe");
+  event.waitFor(() => iframe.contentWindow.onLoad && iframe.contentWindow.onLoad.hasLoaded == true);
 
   event.waitForElement(new elementslib.Lookup(iframe.contentDocument, eventName));
   event.type(new elementslib.Lookup(iframe.contentDocument, eventName),"Future's Event");

@@ -63,6 +63,8 @@ lightning.jar:
     content/lightning/lightning-item-panel.js              (content/lightning-item-panel.js)
     content/lightning/lightning-item-iframe.xul            (content/lightning-item-iframe.xul)
     content/lightning/lightning-item-iframe.js             (content/lightning-item-iframe.js)
+    content/lightning/html-item-editing/lightning-item-iframe.html      (content/html-item-editing/lightning-item-iframe.html)
+    content/lightning/html-item-editing/react-code.js                   (content/html-item-editing/react-code.js)
 % skin lightning classic/1.0 chrome/skin/linux/lightning/
 % skin lightning classic/1.0 chrome/skin/osx/lightning/ os=Darwin
 % skin lightning classic/1.0 chrome/skin/windows/lightning/ os=WINNT
@@ -116,3 +118,4 @@ calendar.jar:
     ../skin/lightning-common/dialogOverlay.css             (/calendar/resources/skin/dialogOverlay.css)
     ../skin/lightning-common/imip.css                      (themes/common/imip.css)
     ../skin/lightning-common/lightning.css                 (themes/common/lightning.css)
+    ../skin/lightning-common/html-item-editing.css         (themes/common/html-item-editing.css)

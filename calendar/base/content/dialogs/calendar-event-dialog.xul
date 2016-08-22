@@ -570,9 +570,9 @@
     <toolbarset id="custom-toolbars" context="event-dialog-toolbar-context-menu"/>
   </toolbox>
 
+  <!-- the iframe src is set dynamically in the onLoad function -->
   <iframe id="lightning-item-panel-iframe"
-          flex="1"
-          src="chrome://lightning/content/lightning-item-iframe.xul"/>
+          flex="1"/>
 
   <statusbar class="chromeclass-status" id="status-bar">
     <statusbarpanel id="status-text"

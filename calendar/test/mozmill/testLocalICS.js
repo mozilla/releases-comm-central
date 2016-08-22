@@ -50,8 +50,11 @@ var testLocalICS = function () {
   let event = new mozmill.controller.MozMillController(mozmill.utils
     .getWindows("Calendar:EventDialog")[0]);
 
-  // title
+  // let the iframe load
   let iframe = event.window.document.getElementById("lightning-item-panel-iframe");
+  event.waitFor(() => iframe.contentWindow.onLoad && iframe.contentWindow.onLoad.hasLoaded == true);
+
+  // title
   let titleTextBox = new elementslib.Lookup(iframe.contentDocument, '/id("calendar-event-dialog-inner")/'
     + 'id("event-grid")/id("event-grid-rows")/id("event-grid-title-row")/'
     + 'id("item-title")/anon({"class":"textbox-input-box"})/anon({"anonid":"input"})');
