@@ -183,11 +183,11 @@ var calendarItemTabType = {
 
         aTab.panel.appendChild(clone);
 
-        // Set up the iframe and store the iframe's id.
+        // Set up the iframe and store the iframe's id.  The iframe's
+        // src is set in onLoadLightningItemPanel() that is called below.
         aTab.iframe = aTab.panel.querySelector("iframe");
         let iframeId = "calendarItemTabIframe" + this.idNumber;
         aTab.iframe.setAttribute("id", iframeId);
-        aTab.iframe.setAttribute("src", aArgs.url);
         gItemTabIds.push(iframeId);
 
         // Generate and set the tab title.
@@ -213,6 +213,9 @@ var calendarItemTabType = {
 
         // activate or de-activate 'Events and Tasks' menu items
         document.commandDispatcher.updateCommands('calendar_commands');
+
+        onLoadLightningItemPanel(iframeId, aArgs.url);
+
         this.idNumber += 1;
     },
     /**

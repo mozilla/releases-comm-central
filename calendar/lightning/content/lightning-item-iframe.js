@@ -36,7 +36,6 @@ var gLastRepeatSelection = 0;
 var gIgnoreUpdate = false;
 var gWarning = false;
 var gPreviousCalendarId = null;
-var gTimezonesEnabled = null;
 var gTabInfoObject;
 var gConfig = {
     priority: 0,
@@ -44,6 +43,10 @@ var gConfig = {
     status: "NONE",
     showTimeAs: null
 }
+// The following variables are set by the load handler function of the
+// parent context, so that they are already set before iframe content load:
+//   - gTimezoneEnabled
+//   - gShowLink
 
 var eventDialogQuitObserver = {
   observe: function(aSubject, aTopic, aData) {
@@ -290,35 +293,17 @@ function receiveMessage(aEvent) {
 function onLoad() {
     window.addEventListener("message", receiveMessage, false);
 
-    // Move the args for the window dialog so they are positioned
-    // relative to the iframe, like in the tab.
-    if (!window.arguments) {
-        window.arguments = [parent.arguments[0]];
-        // XXX Should we delete the arguments in the parent context so
-        // they are only accessible in one place?  But they are needed for onLoad there.
-    }
-
     // first of all retrieve the array of
     // arguments this window has been called with.
     let args = window.arguments[0];
 
     intializeTabOrWindowVariables();
 
-    // Calling onLoad in the outer context is handled in calendar-event-dialog.xul
-    // for the window case, and here for the tab case because there is no onload
-    // event fired for the outer context for tabs.
-    if (gInTab) {
-        sendMessage({ command: "onLoad" });
-    }
-
     // Needed so we can call switchToTab for the prompt about saving
     // unsaved changes, to show the tab that the prompt is for.
     if (gInTab) {
         gTabInfoObject = gTabmail.currentTabInfo;
     }
-
-    let cmdTimezone = parent.document.getElementById("cmd_timezone");
-    gTimezonesEnabled = cmdTimezone.getAttribute("checked") == "true";
 
     // The calling entity provides us with an object that is responsible
     // for recording details about the initiated modification. the 'finalize'
@@ -689,16 +674,13 @@ function loadDialog(aItem) {
     }
 
     // URL link
-    let cmdToggleLink = parent.document.getElementById("cmd_toggle_link");
-    let showLink = cmdToggleLink.getAttribute("checked") == "true";
-    // currently we always show the link for the tab case (if the link
+    // Currently we always show the link for the tab case (if the link
     // exists), since there is no menu item or toolbar item to show/hide it.
-    if (gInTab) {
-        showLink = true;
-    }
+    let showLink = gInTab ? true : gShowLink;
     let itemUrl = window.calendarItem.getProperty("URL") || "";
     showLink = showOrHideItemURL(showLink, itemUrl);
-    // Disable command if there is no url
+
+    // Disable link command if there is no url
     if (!itemUrl.length) {
         sendMessage({ command: "disableLinkCommand" });
     }

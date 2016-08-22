@@ -93,9 +93,6 @@ function receiveMessage(aEvent) {
         return;
     }
     switch (aEvent.data.command) {
-        case "onLoad":
-            onLoad();
-            break;
         case "initializeItemMenu":
             initializeItemMenu(aEvent.data.label, aEvent.data.accessKey);
             break;
@@ -152,16 +149,9 @@ window.addEventListener("message", receiveMessage, false);
  * @param {string} aIframeId         (optional) id of an iframe to send the message to
  */
 function sendMessage(aMessage, aIframeId) {
-    let iframeId;
-    if (gTabmail) {
-        if (aIframeId) {
-            iframeId = aIframeId;
-        } else {
-            iframeId = gTabmail.currentTabInfo.iframe.id;
-        }
-    } else {
-        iframeId = "lightning-item-panel-iframe";
-    }
+    let iframeId = gTabmail ?
+                   aIframeId || gTabmail.currentTabInfo.iframe.id :
+                   "lightning-item-panel-iframe";
     let iframe = document.getElementById(iframeId);
     iframe.contentWindow.postMessage(aMessage, "*");
 }
@@ -204,37 +194,71 @@ function windowCloseListener(aEvent) {
 
 /**
  * Load handler for the outer parent context that contains the iframe.
+ *
+ * @param {string} aIframeId  (optional) Id of the iframe in this tab
+ * @param {string} aUrl       (optional) The url to load in the iframe
  */
-function onLoad() {
-    gConfig.timezonesEnabled = getTimezoneCommandState();
+function onLoadLightningItemPanel(aIframeId, aUrl) {
+    let iframe;
+    let iframeSrc;
 
     if (!gTabmail) {
         gTabmail = document.getElementById("tabmail") || null;
     }
     if (gTabmail) {
         // tab case
+        let iframeId = aIframeId || gTabmail.currentTabInfo.iframe.id;
+        iframe = document.getElementById(iframeId);
+        iframeSrc = aUrl;
+
         // Add a listener to detect close events, prompt user about saving changes.
         window.addEventListener("close", windowCloseListener, false);
+
     } else {
-        // window case
+        // window dialog case
+        iframe = document.createElement("iframe");
+        iframeSrc = window.arguments[0].useNewItemUI ?
+            "chrome://lightning/content/html-item-editing/lightning-item-iframe.html" :
+            "chrome://lightning/content/lightning-item-iframe.xul";
+
+        iframe.setAttribute("id", "lightning-item-panel-iframe");
+        iframe.setAttribute("flex", "1");
+
+        let dialog = document.getElementById("calendar-event-dialog");
+        let statusbar = document.getElementById("status-bar");
+
+        // Note: iframe.contentWindow is undefined before the iframe is inserted here.
+        dialog.insertBefore(iframe, statusbar);
+
+        // Move the args so they are positioned relative to the iframe,
+        // for the window dialog just as they are for the tab.
+        // XXX Should we delete the arguments here in the parent context
+        // so they are only accessible in one place?
+        iframe.contentWindow.arguments = [window.arguments[0]];
+
         // hide the ok and cancel dialog buttons
-        document.documentElement.getButton("accept")
-                .setAttribute("collapsed", "true");
-        document.documentElement.getButton("cancel")
-                .setAttribute("collapsed", "true");
-        document.documentElement.getButton("cancel")
-                .parentNode.setAttribute("collapsed", "true");
+        let accept = document.documentElement.getButton("accept");
+        let cancel = document.documentElement.getButton("cancel");
+        accept.setAttribute("collapsed", "true");
+        cancel.setAttribute("collapsed", "true");
+        cancel.parentNode.setAttribute("collapsed", "true");
 
         // set the dialog-id for task vs event CSS selection, etc.
         if (!cal.isEvent(window.arguments[0].calendarEvent)) {
             setDialogId(document.documentElement, "calendar-task-dialog");
         }
-        // load the iframe
-        let url = window.arguments[0].useNewItemUI ?
-            "chrome://lightning/content/html-item-editing/lightning-item-iframe.html" :
-            "chrome://lightning/content/lightning-item-iframe.xul";
-        window.frames["lightning-item-panel-iframe"].location = url;
     }
+
+    // timezones enabled
+    gConfig.timezonesEnabled = getTimezoneCommandState();
+    iframe.contentWindow.gTimezonesEnabled = gConfig.timezonesEnabled;
+
+    // toggle link
+    let cmdToggleLink = document.getElementById("cmd_toggle_link");
+    iframe.contentWindow.gShowLink = cmdToggleLink.getAttribute("checked") == "true";
+
+    // set the iframe src, which loads the iframe's contents
+    iframe.setAttribute("src", iframeSrc);
 }
 
 /**
