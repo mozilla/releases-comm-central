@@ -61,13 +61,55 @@ function test_send_enabled_manual_address() {
   check_send_commands_state(cwc, false);
 
   // On valid "To:" addressee input, Send must be enabled.
-  setup_msg_contents(cwc, "recipient@fake.invalid", "", "");
+  toggle_recipient_type(cwc, "addr_to");
+  setup_msg_contents(cwc, " recipient@fake.invalid ", "", "");
   check_send_commands_state(cwc, true);
 
   // When the addressee is not in To, Cc, Bcc or Newsgroup, disable Send again.
-  let addrType = cwc.e("addressCol1#1");
-  cwc.click_menus_in_sequence(addrType.menupopup, [ {value: "addr_reply"} ]);
+  toggle_recipient_type(cwc, "addr_reply");
   check_send_commands_state(cwc, false);
+
+  clear_recipient(cwc);
+  check_send_commands_state(cwc, false);
+
+  // Bug 1296535
+  // Try some other invalid and valid recipient strings:
+  // - random string that is no email.
+  setup_msg_contents(cwc, " recipient@", "", "");
+  check_send_commands_state(cwc, false);
+
+  toggle_recipient_type(cwc, "addr_cc");
+  check_send_commands_state(cwc, false);
+
+  // This types additional characters into the recipient.
+  setup_msg_contents(cwc, "domain.invalid", "", "");
+  check_send_commands_state(cwc, true);
+
+  clear_recipient(cwc);
+  check_send_commands_state(cwc, false);
+
+  // - a mailinglist in addressbook
+  // Button is enabled without checking whether it contains valid addresses.
+  let defaultAB = MailServices.ab.getDirectory("moz-abmdbdirectory://abook.mab");
+  let ml = create_mailing_list("emptyList");
+  defaultAB.addMailList(ml);
+
+  setup_msg_contents(cwc, " emptyList", "", "");
+  check_send_commands_state(cwc, true);
+
+  clear_recipient(cwc);
+  check_send_commands_state(cwc, false);
+
+  setup_msg_contents(cwc, "emptyList <list> ", "", "");
+  check_send_commands_state(cwc, true);
+
+  clear_recipient(cwc);
+  check_send_commands_state(cwc, false);
+
+  // - some string as a newsgroup
+  toggle_recipient_type(cwc, "addr_newsgroups");
+  setup_msg_contents(cwc, "newsgroup ", "", "");
+  check_send_commands_state(cwc, true);
 
   close_compose_window(cwc);
 }

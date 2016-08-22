@@ -2965,7 +2965,9 @@ function updateSendLock()
   {
     let popupValue = awGetPopupElement(row).value;
     let inputValue = awGetInputElement(row).value.trim();
-    if ((mailTypes.includes(popupValue) && isValidAddress(inputValue)) ||
+    if ((mailTypes.includes(popupValue) &&
+        (isValidAddress(inputValue) ||
+         MailServices.ab.mailListNameExists(inputValue.replace(/ *<.*>/, "")))) ||
         ((popupValue == "addr_newsgroups") && (inputValue != "")))
     {
       gSendLocked = false;

@@ -42,6 +42,8 @@ function installInto(module) {
   module.close_compose_window = close_compose_window;
   module.wait_for_compose_window = wait_for_compose_window;
   module.setup_msg_contents = setup_msg_contents;
+  module.clear_recipient = clear_recipient;
+  module.toggle_recipient_type = toggle_recipient_type;
   module.create_msg_attachment = create_msg_attachment;
   module.add_attachments = add_attachments;
   module.add_attachment = add_attachments;
@@ -268,6 +270,31 @@ function setup_msg_contents(aCwc, aAddr, aSubj, aBody) {
   aCwc.type(aCwc.eid("addressCol2#1"), aAddr);
   aCwc.type(aCwc.eid("msgSubject"), aSubj);
   aCwc.type(aCwc.eid("content-frame"), aBody);
+}
+
+/**
+ * Remove the recipient by typing backspaces.
+ *
+ * @param aController    Compose window controller.
+ * @param aRecipientRow  The compose widget row containing recipient to remove.
+ */
+function clear_recipient(aController, aRecipientRow = 1) {
+  let recipientElem = aController.window.awGetInputElement(aRecipientRow);
+  while (recipientElem.value != "") {
+    aController.keypress(new elib.Elem(recipientElem), 'VK_BACK_SPACE', {});
+  }
+}
+
+/**
+ * Change recipient type in compose widget.
+ *
+ * @param aController    Compose window controller.
+ * @param aType          The recipient type, e.g. "addr_to".
+ * @param aRecipientRow  The compose widget row containing recipient to remove.
+ */
+function toggle_recipient_type(aController, aType, aRecipientRow = 1) {
+  let addrType = aController.window.awGetPopupElement(aRecipientRow);
+  aController.click_menus_in_sequence(addrType.menupopup, [ { value: aType } ]);
 }
 
 /**
