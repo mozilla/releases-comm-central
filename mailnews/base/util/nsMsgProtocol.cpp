@@ -1420,11 +1420,13 @@ nsresult nsMsgAsyncWriteProtocol::SetupTransportState()
     NS_ENSURE_SUCCESS(rv, rv);
 
     nsIAsyncInputStream *inputStream = nullptr;
-    pipe->GetInputStream(&inputStream);
+    // This always succeeds because the pipe is initialized above.
+    MOZ_ALWAYS_SUCCEEDS(pipe->GetInputStream(&inputStream));
     mInStream = dont_AddRef(static_cast<nsIInputStream *>(inputStream));
 
     nsIAsyncOutputStream *outputStream = nullptr;
-    pipe->GetOutputStream(&outputStream);
+    // This always succeeds because the pipe is initialized above.
+    MOZ_ALWAYS_SUCCEEDS(pipe->GetOutputStream(&outputStream));
     m_outputStream = dont_AddRef(static_cast<nsIOutputStream *>(outputStream));
 
     mProviderThread = do_GetCurrentThread();

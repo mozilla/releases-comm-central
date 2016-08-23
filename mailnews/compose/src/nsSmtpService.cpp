@@ -334,11 +334,11 @@ NS_IMETHODIMP nsSmtpService::NewChannel2(nsIURI *aURI,
   nsCOMPtr<nsIAsyncOutputStream> pipeOut;
   nsCOMPtr<nsIPipe> pipe = do_CreateInstance("@mozilla.org/pipe;1");
   nsresult rv = pipe->Init(false, false, 0, 0);
-  if (NS_FAILED(rv)) 
-    return rv;
-  
-  pipe->GetInputStream(getter_AddRefs(pipeIn));
-  pipe->GetOutputStream(getter_AddRefs(pipeOut));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  // These always succeed because the pipe is initialized above.
+  MOZ_ALWAYS_SUCCEEDS(pipe->GetInputStream(getter_AddRefs(pipeIn)));
+  MOZ_ALWAYS_SUCCEEDS(pipe->GetOutputStream(getter_AddRefs(pipeOut)));
 
   pipeOut->Close();
 

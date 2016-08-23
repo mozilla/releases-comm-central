@@ -2086,12 +2086,12 @@ nsresult nsNNTPProtocol::BeginArticle()
   //
   if (m_channelListener) {
       nsCOMPtr<nsIPipe> pipe = do_CreateInstance("@mozilla.org/pipe;1");
-      mozilla::DebugOnly<nsresult> rv = pipe->Init(false, false, 4096, PR_UINT32_MAX);
-      NS_ASSERTION(NS_SUCCEEDED(rv), "failed to create pipe");
-      // TODO: return on failure?
+      nsresult rv = pipe->Init(false, false, 4096, PR_UINT32_MAX);
+      NS_ENSURE_SUCCESS(rv, rv);
 
-      pipe->GetInputStream(getter_AddRefs(mDisplayInputStream));
-      pipe->GetOutputStream(getter_AddRefs(mDisplayOutputStream));
+      // These always succeed because the pipe is initialized above.
+      MOZ_ALWAYS_SUCCEEDS(pipe->GetInputStream(getter_AddRefs(mDisplayInputStream)));
+      MOZ_ALWAYS_SUCCEEDS(pipe->GetOutputStream(getter_AddRefs(mDisplayOutputStream)));
   }
 
   m_nextState = NNTP_READ_ARTICLE;

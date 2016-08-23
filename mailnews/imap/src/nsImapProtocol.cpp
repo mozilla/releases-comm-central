@@ -3028,10 +3028,11 @@ nsresult nsImapProtocol::BeginMessageDownLoad(
       // and the consumer is waiting for a whole line
       nsCOMPtr<nsIPipe> pipe = do_CreateInstance("@mozilla.org/pipe;1");
       rv = pipe->Init(false, false, 4096, PR_UINT32_MAX);
-      NS_ASSERTION(NS_SUCCEEDED(rv), "nsIPipe->Init failed!");
+      NS_ENSURE_SUCCESS(rv, rv);
 
-      pipe->GetInputStream(getter_AddRefs(m_channelInputStream));
-      pipe->GetOutputStream(getter_AddRefs(m_channelOutputStream));
+      // These always succeed because the pipe is initialized above.
+      MOZ_ALWAYS_SUCCEEDS(pipe->GetInputStream(getter_AddRefs(m_channelInputStream)));
+      MOZ_ALWAYS_SUCCEEDS(pipe->GetOutputStream(getter_AddRefs(m_channelOutputStream)));
     }
     // else, if we are saving the message to disk!
     else if (m_imapMessageSink /* && m_imapAction == nsIImapUrl::nsImapSaveMessageToDisk */)

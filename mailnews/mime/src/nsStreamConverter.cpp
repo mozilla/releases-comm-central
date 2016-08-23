@@ -619,15 +619,17 @@ NS_IMETHODIMP nsStreamConverter::Init(nsIURI *aURI, nsIStreamListener * aOutList
     }
   }
 
-  // now we want to create a pipe which we'll use for converting the data...
-  nsCOMPtr<nsIPipe> pipe = do_CreateInstance("@mozilla.org/pipe;1");
-  rv = pipe->Init(true, true, 4096, 8);
-  
   // initialize our emitter
-  if (NS_SUCCEEDED(rv) && mEmitter)
+  if (mEmitter)
   {
-    pipe->GetInputStream(getter_AddRefs(mInputStream));
-    pipe->GetOutputStream(getter_AddRefs(mOutputStream));
+    // Now we want to create a pipe which we'll use for converting the data.
+    nsCOMPtr<nsIPipe> pipe = do_CreateInstance("@mozilla.org/pipe;1");
+    rv = pipe->Init(true, true, 4096, 8);
+    NS_ENSURE_SUCCESS(rv, rv);
+
+    // These always succeed because the pipe is initialized above.
+    MOZ_ALWAYS_SUCCEEDS(pipe->GetInputStream(getter_AddRefs(mInputStream)));
+    MOZ_ALWAYS_SUCCEEDS(pipe->GetOutputStream(getter_AddRefs(mOutputStream)));
 
     mEmitter->Initialize(aURI, aChannel, newType);
     mEmitter->SetPipe(mInputStream, mOutputStream);

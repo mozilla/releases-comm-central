@@ -160,9 +160,10 @@ nsAddbookProtocolHandler::NewChannel2(nsIURI *aURI,
       rv = pipe->Init(false, false, 0, 0);
       NS_ENSURE_SUCCESS(rv, rv);
 
-      pipe->GetInputStream(getter_AddRefs(pipeIn));
-      pipe->GetOutputStream(getter_AddRefs(pipeOut));
-      
+      // These always succeed because the pipe is initialized above.
+      MOZ_ALWAYS_SUCCEEDS(pipe->GetInputStream(getter_AddRefs(pipeIn)));
+      MOZ_ALWAYS_SUCCEEDS(pipe->GetOutputStream(getter_AddRefs(pipeOut)));
+
       pipeOut->Close();
       if (aLoadInfo) {
         return NS_NewInputStreamChannelInternal(_retval,
