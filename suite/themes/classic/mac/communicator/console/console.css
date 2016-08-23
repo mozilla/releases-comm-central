@@ -9,7 +9,6 @@
 /* View buttons */
 @import "chrome://global/skin/viewbuttons.css";
 
-%include ../shared.inc
 @namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
 
 .console-box {
@@ -109,14 +108,14 @@
 
 #ToolbarEval {
   -moz-appearance: none;
-  background: @scopeBarBackground@;
-  border-bottom: @scopeBarSeparatorBorder@;
+  background: linear-gradient(#E8E8E8, #D0D0D0) repeat-x; /* @scopeBarBackground@ */
+  border-bottom: 1px solid #888; /* @scopeBarSeparatorBorder@ */
   padding: 2px;
 }
 
 #ToolbarEval > label {
   font-weight: bold;
-  color: @scopeBarTitleColor@;
+  color: #6D6D6D; /* @scopeBarTitleColor@ */
 }
 
 #TextfieldEval {
@@ -128,15 +127,15 @@
   padding: 1px 10px;
   -moz-appearance: none;
   border-radius: 10000px;
-  border: @roundButtonBorder@;
-  background: @roundButtonBackground@;
-  box-shadow: @roundButtonShadow@;
+  border: 1px solid rgba(0, 0, 0, 0.35); /* @roundButtonBorder@ */
+  background: linear-gradient(#F6F6F6, #E9E9E9); /* @roundButtonBackground@ */
+  box-shadow: 0 1px rgba(255, 255, 255, 0.5), inset 0 1px 1px rgba(255, 255, 255, 0.5); /* @roundButtonShadow@ */
 }
 
 #ButtonEval:hover:active {
-  text-shadow: @loweredShadow@;
-  background: @roundButtonPressedBackground@;
-  box-shadow: @roundButtonPressedShadow@;
+  text-shadow: 0 1px rgba(255, 255, 255, 0.4); /* @loweredShadow@ */
+  background: #DADADA; /* @roundButtonPressedBackground@ */
+  box-shadow: 0 1px rgba(255, 255, 255, 0.4), inset 0 1px 3px rgba(0, 0, 0, 0.2); /* @roundButtonPressedShadow@ */
 }
 
 toolbarseparator {
@@ -159,7 +158,7 @@ toolbarseparator {
   -moz-box-align: center;
   -moz-appearance: toolbarbutton;
   font: menu;
-  text-shadow: @loweredShadow@;
+  text-shadow: 0 1px rgba(255, 255, 255, 0.4); /* @loweredShadow@ */
   margin: 4px 0 9px;
   padding: 0 1px;
 }
