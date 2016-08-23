@@ -130,16 +130,16 @@
 
           <!-- priority -->
           <command id="cmd_priority_none"
-                   oncommand="editPriorityHandler(event.target)"
+                   oncommand="editPriority(event.target)"
                    value="0"/>
           <command id="cmd_priority_low"
-                   oncommand="editPriorityHandler(event.target)"
+                   oncommand="editPriority(event.target)"
                    value="9"/>
           <command id="cmd_priority_normal"
-                   oncommand="editPriorityHandler(event.target)"
+                   oncommand="editPriority(event.target)"
                    value="5"/>
           <command id="cmd_priority_high"
-                   oncommand="editPriorityHandler(event.target)"
+                   oncommand="editPriority(event.target)"
                    value="1"/>
 
           <!-- freebusy -->

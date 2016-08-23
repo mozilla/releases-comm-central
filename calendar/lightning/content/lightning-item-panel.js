@@ -68,6 +68,7 @@ var gItemTabIdsCopy;
 // gConfig is used when switching tabs to restore the state of
 // toolbar, statusbar, and menubar for the current tab.
 var gConfig = {
+    isEvent: null,
     privacy: null,
     hasPrivacy: null,
     calendarType: null,
@@ -77,10 +78,13 @@ var gConfig = {
     status: null,
     percentComplete: null,
     showTimeAs: null,
-    // whether cmd_attendees is enabled or disabled
-    attendeesCommand: null,
-    attachUrlCommand: null,
-    timezonesEnabled: false
+    // whether commands are enabled or disabled
+    attendeesCommand: null, // cmd_attendees
+    attachUrlCommand: null, // cmd_attach_url
+    timezonesEnabled: false, // cmd_timezone
+    // XXX Currently there is no toolbar button or menu item for
+    // cmd_toggle_link for event/task tabs
+    toggleLinkCommand: null // cmd_toggle_link
 }
 
 /**
@@ -114,7 +118,7 @@ function receiveMessage(aEvent) {
         case "updateTitle":
             updateTitle(aEvent.data.argument);
             break;
-        case "updatePanelState":
+        case "updateConfigState":
             updateItemTabState(aEvent.data.argument);
             Object.assign(gConfig, aEvent.data.argument);
             break;
@@ -128,10 +132,11 @@ function receiveMessage(aEvent) {
             removeDisableAndCollapseOnReadonly();
             break;
         case "setElementAttribute":
-            setElementAttribute(aEvent.data.argument);
+            let arg = aEvent.data.argument;
+            setElementValue(arg.id, arg.value, arg.attribute);
             break;
         case "loadCloudProviders":
-            loadCloudProviders(aEvent.data.item);
+            loadCloudProviders(aEvent.data.items);
             break;
     }
 }
@@ -242,11 +247,15 @@ function onLoadLightningItemPanel(aIframeId, aUrl) {
         accept.setAttribute("collapsed", "true");
         cancel.setAttribute("collapsed", "true");
         cancel.parentNode.setAttribute("collapsed", "true");
+    }
 
-        // set the dialog-id for task vs event CSS selection, etc.
-        if (!cal.isEvent(window.arguments[0].calendarEvent)) {
-            setDialogId(document.documentElement, "calendar-task-dialog");
-        }
+    // event or task
+    let calendarItem = iframe.contentWindow.arguments[0].calendarEvent;
+    gConfig.isEvent = cal.isEvent(calendarItem);
+
+    // for tasks in a window dialog, set the dialog id for CSS selection, etc.
+    if (!gTabmail && !gConfig.isEvent) {
+        setDialogId(document.documentElement, "calendar-task-dialog");
     }
 
     // timezones enabled
@@ -255,7 +264,8 @@ function onLoadLightningItemPanel(aIframeId, aUrl) {
 
     // toggle link
     let cmdToggleLink = document.getElementById("cmd_toggle_link");
-    iframe.contentWindow.gShowLink = cmdToggleLink.getAttribute("checked") == "true";
+    gConfig.toggleLinkCommand = cmdToggleLink.getAttribute("checked") == "true";
+    iframe.contentWindow.gShowLink = gConfig.toggleLinkCommand;
 
     // set the iframe src, which loads the iframe's contents
     iframe.setAttribute("src", iframeSrc);
@@ -281,24 +291,10 @@ function updateItemTabState(aArg) {
         timezonesEnabled: updateTimezoneCommand
     };
     for (let key of Object.keys(aArg)) {
-        if (lookup[key]) {
-            lookup[key](aArg);
+        let procedure = lookup[key];
+        if (procedure) {
+            procedure(aArg);
         }
-    }
-}
-
-/**
- * Set the value of an attribute on a DOM element, identified by its ID.
- *
- * @param {Object} aArg            Container
- * @param {string} aArg.id         The ID of the DOM element
- * @param {string} aArg.attribute  The attribute to set
- * @param {boolean} aArg.value     The new attribute value
- */
-function setElementAttribute(aArg) {
-    let element = document.getElementById(aArg.id);
-    if (element) {
-        element[aArg.attribute] = aArg.value;
     }
 }
 
@@ -393,29 +389,42 @@ function editAttendees() {
 }
 
 /**
- * Handler for rotate privacy command.
+ * Sends a message to set the gConfig values in the iframe.
+ *
+ * @param {Object} aArg             Container
+ * @param {string} aArg.privacy     (optional) New privacy value
+ * @param {short} aArg.priority     (optional) New priority value
+ * @param {string} aArg.status      (optional) New status value
+ * @param {string} aArg.showTimeAs  (optional) New showTimeAs / transparency value
  */
-function rotatePrivacy() {
-    sendMessage({ command: "rotatePrivacy" });
+function editConfigState(aArg) {
+    sendMessage({ command: "editConfigState", argument: aArg });
 }
 
 /**
- * Sets the privacy of an item to the value specified by
- * the attribute "privacy" of the UI-element aTarget.
- * aEvent is used for the popup menu event-privacy-menupopup
- * in the Privacy toolbar button.
+ * Rotates the Privacy of an item to the next value
+ * following the sequence  -> PUBLIC -> CONFIDENTIAL -> PRIVATE ->.
+ */
+function rotatePrivacy() {
+    const states = ["PUBLIC","CONFIDENTIAL","PRIVATE"];
+    let oldPrivacy = gConfig.privacy;
+    let newPrivacy = states[(states.indexOf(oldPrivacy) + 1) % states.length];
+    editConfigState({ privacy: newPrivacy });
+}
+
+/**
+ * Handler for changing privacy. aEvent is used for the popup menu
+ * event-privacy-menupopup in the Privacy toolbar button.
  *
- * @param aTarget  The calling UI-element
- * @param aEvent   The UI-element selection event
+ * @param {nsIDOMNode} aTarget      Has the new privacy in its "value" attribute
+ * @param {XULCommandEvent} aEvent  (optional) the UI element selection event
  */
 function editPrivacy(aTarget, aEvent) {
     if (aEvent) {
         aEvent.stopPropagation();
     }
-    sendMessage({
-        command: "editPrivacy",
-        value: aTarget.getAttribute("privacy")
-    });
+    let newPrivacy = aTarget.getAttribute("value");
+    editConfigState({ privacy: newPrivacy });
 }
 
 /**
@@ -532,29 +541,32 @@ function updatePrivacy(aArg) {
 }
 
 /**
- * Handler for rotate priority command.
+ * Rotates the Priority of an item to the next value
+ * following the sequence -> Not specified -> Low -> Normal -> High ->.
  */
 function rotatePriority() {
-    sendMessage({ command: "rotatePriority" });
+    let now = gConfig.priority;
+    let next;
+    if (now <= 0 || now > 9) {         // not specified -> low
+        next = 9;
+    } else if (now >= 1 && now <= 4) { // high -> not specified
+        next = 0;
+    } else if (now == 5) {             // normal -> high
+        next = 1;
+    } else if (now >= 6 && now <= 9) { // low -> normal
+        next = 5;
+    }
+    editConfigState({ priority: next });
 }
 
 /**
  * Handler to change the priority.
  *
- * @param {nsIDOMNode} aTarget  A DOM node with the new priorty in its "value" attribute
+ * @param {nsIDOMNode} aTarget  Has the new priority in its "value" attribute
  */
-function editPriorityHandler(aTarget) {
+function editPriority(aTarget) {
     let newPriority = parseInt(aTarget.getAttribute("value"));
-    editPriority(newPriority);
-}
-
-/**
- * Edits the priority.
- *
- * @param {short} aNewPriority  The new priority value
- */
-function editPriority(aNewPriority) {
-    sendMessage({ command: "editPriority", value: aNewPriority });
+    editConfigState({ priority: newPriority });
 }
 
 /**
@@ -621,27 +633,33 @@ function updatePriority(aArg) {
 }
 
 /**
- * Handler for rotate status command.
+ * Rotate the Status of an item to the next value following
+ * the sequence -> NONE -> TENTATIVE -> CONFIRMED -> CANCELLED ->.
  */
 function rotateStatus() {
-    let noneCmd = document.getElementById("cmd_status_none");
-    let isVisible = !noneCmd.hasAttribute("hidden");
-    sendMessage({
-        command: "rotateStatus",
-        noneCommandIsVisible: isVisible
-    });
+    let oldStatus = gConfig.status;
+    let noneCommand = document.getElementById("cmd_status_none");
+    let noneCommandIsVisible = !noneCommand.hasAttribute("hidden");
+    let states = ["TENTATIVE","CONFIRMED","CANCELLED"];
+
+    // If control for status "NONE" ("cmd_status_none") is visible,
+    // allow rotating to it.
+    if (gConfig.isEvent && noneCommandIsVisible) {
+        states.unshift("NONE");
+    }
+
+    let newStatus = states[(states.indexOf(oldStatus) + 1) % states.length];
+    editConfigState({ status: newStatus });
 }
 
 /**
- * Handler to change the status from the dialog elements.
+ * Handler for changing the status.
  *
- * @param {nsIDOMNode} aTarget  Its value attribute contains the new status
+ * @param {nsIDOMNode} aTarget  Has the new status in its "value" attribute
  */
 function editStatus(aTarget) {
-    sendMessage({
-        command: "editStatus",
-        value: aTarget.getAttribute("value")
-    });
+    let newStatus = aTarget.getAttribute("value");
+    editConfigState({ status: newStatus });
 }
 
 /**
@@ -682,22 +700,24 @@ function updateStatus(aArg) {
 }
 
 /**
- * Handler for rotate transparency command.
+ * Toggles the transparency ("Show Time As" property) of an item
+ * from BUSY (Opaque) to FREE (Transparent).
  */
 function rotateShowTimeAs() {
-    sendMessage({ command: "rotateShowTimeAs" });
+    const states = ["OPAQUE", "TRANSPARENT"];
+    let oldValue = gConfig.showTimeAs;
+    let newValue = states[(states.indexOf(oldValue) + 1) % states.length];
+    editConfigState({ showTimeAs: newValue });
 }
 
 /**
- * Handler to change the transparency from the dialog elements.
+ * Handler for changing the transparency.
  *
- * @param {nsIDOMNode} aTarget  Its value attribute contains the new transparency
+ * @param {nsIDOMNode} aTarget  Has the new transparency in its "value" attribute
  */
 function editShowTimeAs(aTarget) {
-    sendMessage({
-        command: "editShowTimeAs",
-        value: aTarget.getAttribute("value")
-    });
+    let newValue = aTarget.getAttribute("value");
+    editConfigState({ showTimeAs: newValue });
 }
 
 /**
@@ -725,7 +745,7 @@ function updateShowTimeAs(aArg) {
 /**
  * Change the task percent complete (and thus task status).
  *
- * @param {short} aTarget  The new percent complete value
+ * @param {short} aPercentComplete  The new percent complete value
  */
 function editToDoStatus(aPercentComplete) {
     sendMessage({ command: "editToDoStatus", value: aPercentComplete });
@@ -736,8 +756,8 @@ function editToDoStatus(aPercentComplete) {
  * menu based on the percent complete value. (The percent complete menu
  * items are updated by changeMenuByPropertyName in calendar-menus.xml)
  *
- * @param {Object} aArg                  Container
- * @param {short} aArg.percentComplete  The percent complete value as a string
+ * @param {Object} aArg                 Container
+ * @param {short} aArg.percentComplete  The percent complete value
  */
 function updateMarkCompletedMenuItem(aArg) {
     // Command only exists for tab case, function not called for dialog windows.
@@ -772,7 +792,7 @@ function getTimezoneCommandState() {
  * Set the timezone button state.  Used to keep the toolbar button in
  * sync when switching tabs.
  *
- * @param {Object}  aArg                   Contains timezones property
+ * @param {Object} aArg                    Contains timezones property
  * @param {boolean} aArg.timezonesEnabled  Are timezones enabled?
  */
 function updateTimezoneCommand(aArg) {

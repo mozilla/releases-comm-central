@@ -176,7 +176,7 @@ function contextChangeTaskCalendar(aEvent) {
 function contextChangeTaskPriority(aEvent, aPriority) {
     let tabType = gTabmail && gTabmail.currentTabInfo.mode.type;
     if (tabType == "calendarTask" || tabType == "calendarEvent") {
-        editPriority(aPriority);
+        editConfigState({ priority: aPriority });
     } else {
         startBatchTransaction();
         var tasks = getSelectedTasks(aEvent);

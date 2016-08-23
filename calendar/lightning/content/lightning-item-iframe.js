@@ -179,64 +179,11 @@ function receiveMessage(aEvent) {
         case "onCommandSave": onCommandSave(aEvent.data.isClosing); break;
         case "onAccept": onAccept(); break;
         case "onCancel": onCancel(aEvent.data.iframeId); break;
-        case "editStatus":
-            gConfig.status = aEvent.data.value;
-            updateStatus(gConfig.status);
+        case "editConfigState":
+            Object.assign(gConfig, aEvent.data.argument);
+            updateConfigState(aEvent.data.argument);
             if (gNewItemUI) {
-                gTopComponent.importState({status: aEvent.data.value});
-            }
-            break;
-        case "editShowTimeAs":
-            gConfig.showTimeAs = aEvent.data.value;
-            updateShowTimeAs(gConfig.showTimeAs);
-            if (gNewItemUI) {
-                gTopComponent.importState({showTimeAs: aEvent.data.value});
-            }
-            break;
-        case "editPriority":
-            gConfig.priority = aEvent.data.value;
-            updatePriority(gConfig.priority);
-            if (gNewItemUI) {
-                gTopComponent.importState({priority: aEvent.data.value});
-            }
-            break;
-        case "editPrivacy":
-            gConfig.privacy = aEvent.data.value;
-            updatePrivacy(gConfig.privacy);
-            if (gNewItemUI) {
-                gTopComponent.importState({privacy: aEvent.data.value});
-            }
-            break;
-        case "rotatePrivacy":
-            gConfig.privacy = rotatePrivacy(gConfig.privacy);
-            updatePrivacy(gConfig.privacy);
-            if (gNewItemUI) {
-                gTopComponent.importState({privacy: gConfig.privacy});
-            }
-            break;
-        case "rotateStatus":
-            gConfig.status = rotateStatus(gConfig.status,
-                                          cal.isEvent(window.calendarItem),
-                                          aEvent.data.noneCommandIsVisible);
-            updateStatus(gConfig.status);
-            if (gNewItemUI) {
-                gTopComponent.importState({status: gConfig.status});
-            }
-            break;
-        case "rotatePriority":
-            if (capSupported("priority")) {
-                gConfig.priority = rotatePriority(gConfig.priority);
-                updatePriority(gConfig.priority);
-                if (gNewItemUI) {
-                    gTopComponent.importState({priority: gConfig.priority});
-                }
-            }
-            break;
-        case "rotateShowTimeAs":
-            gConfig.showTimeAs = rotateShowTimeAs(gConfig.showTimeAs);
-            updateShowTimeAs(gConfig.showTimeAs);
-            if (gNewItemUI) {
-                gTopComponent.importState({showTimeAs: gConfig.showTimeAs});
+                gTopComponent.importState(aEvent.data.argument);
             }
             break;
         case "editToDoStatus":
@@ -698,33 +645,6 @@ function loadDialog(aItem) {
         setElementValue("item-description", aItem.getProperty("DESCRIPTION"));
     }
 
-    // Status
-    if (cal.isEvent(aItem)) {
-        gConfig.status = aItem.hasProperty("STATUS") ?
-            aItem.getProperty("STATUS") : "NONE";
-        if (gConfig.status == "NONE") {
-            sendMessage({ command: "showCmdStatusNone" });
-        }
-        updateStatus(gConfig.status);
-        if (gNewItemUI) {
-            itemProps.initialStatus = gConfig.status;
-        }
-    } else {
-        let itemStatus = aItem.getProperty("STATUS");
-        if (gNewItemUI) {
-            // Not implemented yet in react-code.js
-            // itemProps.initialTodoStatus = itemStatus;
-        } else {
-            let todoStatus = document.getElementById("todo-status");
-            setElementValue(todoStatus, itemStatus);
-            if (!todoStatus.selectedItem) {
-                // No selected item means there was no <menuitem> that matches the
-                // value given. Select the "NONE" item by default.
-                setElementValue(todoStatus, "NONE");
-            }
-        }
-    }
-
     // Task completed date
     if (!gNewItemUI) {
         if (aItem.completedDate) {
@@ -767,23 +687,6 @@ function loadDialog(aItem) {
             label: label,
             accessKey: accessKey
         });
-    }
-
-    // Priority
-    gConfig.priority = parseInt(aItem.priority);
-    updatePriority(gConfig.priority);
-    if (gNewItemUI) {
-        itemProps.initialPriority = parseInt(aItem.priority);
-        itemProps.supportsPriority = capSupported("priority");
-    }
-
-    // Privacy
-    gConfig.privacy = aItem.privacy;
-    updatePrivacy(gConfig.privacy);
-    if (gNewItemUI) {
-        itemProps.initialPrivacy = (aItem.privacy || 'NONE');
-        // XXX need to update the privacy options depending on calendar support for them
-        itemProps.supportsPrivacy = capSupported('privacy');
     }
 
     // Repeat details
@@ -840,14 +743,58 @@ function loadDialog(aItem) {
         updateReminder(true);
     }
 
-    // Transparency
+    // Status
+    if (cal.isEvent(aItem)) {
+        gConfig.status = aItem.hasProperty("STATUS") ?
+            aItem.getProperty("STATUS") : "NONE";
+        if (gConfig.status == "NONE") {
+            sendMessage({ command: "showCmdStatusNone" });
+        }
+        updateConfigState({ status: gConfig.status });
+        if (gNewItemUI) {
+            itemProps.initialStatus = gConfig.status;
+        }
+    } else {
+        let itemStatus = aItem.getProperty("STATUS");
+        if (gNewItemUI) {
+            // Not implemented yet in react-code.js
+            // itemProps.initialTodoStatus = itemStatus;
+        } else {
+            let todoStatus = document.getElementById("todo-status");
+            setElementValue(todoStatus, itemStatus);
+            if (!todoStatus.selectedItem) {
+                // No selected item means there was no <menuitem> that matches the
+                // value given. Select the "NONE" item by default.
+                setElementValue(todoStatus, "NONE");
+            }
+        }
+    }
+
+    // Priority, Privacy, Transparency
+    gConfig.priority = parseInt(aItem.priority);
+    gConfig.privacy = aItem.privacy;
     gConfig.showTimeAs = aItem.getProperty("TRANSP");
-    updateShowTimeAs(gConfig.showTimeAs);
+
+    // update in outer parent context
+    updateConfigState(gConfig);
+
+    // update in iframe (gNewItemUI only)
     if (gNewItemUI) {
-        itemProps.initialShowTimeAs = aItem.getProperty("TRANSP");
+        itemProps.initialPriority = gConfig.priority;
+        itemProps.supportsPriority = capSupported("priority");
+
+        itemProps.initialPrivacy = gConfig.privacy || "NONE";
+        // XXX need to update the privacy options depending on calendar support for them
+        itemProps.supportsPrivacy = capSupported("privacy");
+
+        itemProps.initialShowTimeAs = gConfig.showTimeAs;
+    }
+
+    // render the UI for gNewItemUI
+    if (gNewItemUI) {
         gTopComponent = ReactDOM.render(
             React.createElement(TopComponent, itemProps),
-            document.getElementById('container')
+            document.getElementById("container")
         );
     }
 }
@@ -975,16 +922,16 @@ function loadDateTime(item) {
             setBooleanAttribute("keepduration-button", "disabled", !(hasEntryDate && hasDueDate));
         }
         sendMessage({
-            command: "updatePanelState",
-            argument: {attendeesCommand: false}
+            command: "updateConfigState",
+            argument: { attendeesCommand: false }
         });
         gStartTime = startTime;
         gEndTime = endTime;
         gItemDuration = duration;
     } else {
         sendMessage({
-            command: "updatePanelState",
-            argument: {attendeesCommand: true}
+            command: "updateConfigState",
+            argument: { attendeesCommand: true }
         });
     }
 }
@@ -1818,7 +1765,7 @@ function openNewCardDialog() {
  */
 function setShowTimeAs(allDay) {
     gConfig.showTimeAs = cal.getEventDefaultTransparency(allDay);
-    updateShowTimeAs(gConfig.showTimeAs);
+    updateConfigState({ showTimeAs: gConfig.showTimeAs });
 }
 
 function editAttendees() {
@@ -1901,121 +1848,44 @@ function editAttendees() {
 }
 
 /**
- * Rotates the Privacy of an item to the next value
- * following the sequence  -> PUBLIC -> CONFIDENTIAL -> PRIVATE ->.
+ * Updates the UI outside of the iframe (toolbar, menu, statusbar, etc.)
+ * for changes in priority, privacy, status, showTimeAs/transparency,
+ * and/or other properties. This function should be called any time that
+ * gConfig.privacy, gConfig.priority, etc. are updated.
  *
- * @param  {string} aPrivacy  The current/old privacy value
- * @return {string}           The new privacy value
- */
-function rotatePrivacy(aPrivacy) {
-    const states = ["PUBLIC","CONFIDENTIAL","PRIVATE"];
-    return states[(states.indexOf(aPrivacy) + 1) % states.length];
-}
-
-/**
- * Updates privacy in the UI according to the aValue argument and the
- * selected calendar. If the selected calendar does not support privacy or only
- * certain values, these are removed from the UI. This function should be called
- * any time that gConfig.privacy is updated, passing the new value as an argument.
+ * Privacy and priority updates depend on the selected calendar. If the
+ * selected calendar does not support them, or only supports certain
+ * values, these are removed from the UI.
  *
- * @param {string} aValue  The new privacy value
+ * @param {Object} aArg             Container
+ * @param {string} aArg.privacy     (optional) The new privacy value
+ * @param {short} aArg.priority     (optional) The new priority value
+ * @param {string} aArg.status      (optional) The new status value
+ * @param {string} aArg.showTimeAs  (optional) The new transparency value
  */
-function updatePrivacy(aValue) {
-    sendMessage({
-        command: "updatePanelState",
-        argument: {
-            privacy: aValue,
+function updateConfigState(aArg) {
+    // We include additional info for priority and privacy.
+    if (aArg.hasOwnProperty("priority")) {
+        aArg.hasPriority = capSupported("priority");
+    }
+    if (aArg.hasOwnProperty("privacy")) {
+        Object.assign(aArg, {
             hasPrivacy: capSupported("privacy"),
             calendarType: getCurrentCalendar().type,
             privacyValues: capValues("privacy",
                             ["PUBLIC", "CONFIDENTIAL", "PRIVATE"])
+        });
+    }
+
+    // For tasks, do not include showTimeAs
+    if (aArg.hasOwnProperty("showTimeAs") && cal.isToDo(window.calendarItem)) {
+        delete aArg.showTimeAs;
+        if (Object.keys(aArg).length == 0) {
+            return;
         }
-    });
-}
-
-/**
- * Rotates the Priority of an item to the next value
- * following the sequence -> Not specified -> Low -> Normal -> High ->.
- *
- * @param  {number} aPriority  The current/old priority
- * @return {number}            The new priority
- */
-function rotatePriority(aPriority) {
-    if (aPriority <= 0 || aPriority > 9) { // not specified
-        return 9;
-    } else if (aPriority >= 1 && aPriority <= 4) { // high
-        return 0;
-    } else if (aPriority == 5) {                   // normal
-        return 1;
-    } else if (aPriority >= 6 && aPriority <= 9) { // low
-        return 5;
     }
-}
 
-/**
- * Update the dialog controls related to priority.
- *
- * @param {string} aValue  The new priority value
- */
- function updatePriority(aValue) {
-    sendMessage({
-        command: "updatePanelState",
-        argument: {
-            priority: aValue,
-            hasPriority: capSupported("priority")
-        }
-    });
-}
-
-/**
- * Rotate the Status of an item to the next value following
- * the sequence -> NONE -> TENTATIVE -> CONFIRMED -> CANCELLED ->.
- *
- * @param  {string}  aStatus                The current/old status
- * @param  {boolean} aIsEvent               Is the item an event (not a task)
- * @param  {boolean} aNoneCommandIsVisible  Is the "none" command visible
- * @return {number}                         The new priority
- */
-function rotateStatus(aStatus, aIsEvent, aNoneCommandIsVisible) {
-    let states = ["TENTATIVE","CONFIRMED","CANCELLED"];
-    // If control for status "NONE" ("cmd_status_none") is visible,
-    // allow rotating to it.
-    if (aIsEvent && aNoneCommandIsVisible) {
-        states.unshift("NONE");
-    }
-    return states[(states.indexOf(aStatus) + 1) % states.length];
-}
-
-/**
- * Update the dialog controls related to status.
- *
- * @param {string} aValue  The new status value
- */
-function updateStatus(aValue) {
-    sendMessage({ command: "updatePanelState", argument: { status: aValue } });
-}
-
-/**
- * Toggles the transparency ("Show Time As" property) of an item
- * from BUSY (Opaque) to FREE (Transparent).
- *
- * @param  {string} aShowTimeAs  The current/old value
- * @return {string}              The new value
- */
-function rotateShowTimeAs(aShowTimeAs) {
-    const states = ["OPAQUE", "TRANSPARENT"];
-    return states[(states.indexOf(aShowTimeAs) + 1) % states.length];
-}
-
-/**
- * Update the dialog controls related to transparency.
- *
- * @param {string} aValue  The new transparency value
- */
-function updateShowTimeAs(aValue) {
-    if (cal.isEvent(window.calendarItem)) {
-        sendMessage({ command: "updatePanelState", argument: { showTimeAs: aValue } });
-    }
+    sendMessage({ command: "updateConfigState", argument: aArg });
 }
 
 /**
@@ -2075,7 +1945,7 @@ function loadCloudProviders() {
     }
 
     // Add the items to places outside the iframe where we advertise cloud providers
-    sendMessage({ command: "loadCloudProviders", item: itemObjects });
+    sendMessage({ command: "loadCloudProviders", items: itemObjects });
 }
 
 /**
@@ -3584,7 +3454,7 @@ function updateAttachment() {
         setElementValue("cmd_attach_url", !hasAttachments && "true", "disabled");
     }
     sendMessage({
-        command: "updatePanelState",
+        command: "updateConfigState",
         argument: { attachUrlCommand: hasAttachments }
     });
 }
@@ -3882,8 +3752,10 @@ function sendMailToAttendees(aAttendees) {
  */
 function updateCapabilities() {
     updateAttachment();
-    updatePriority(gConfig.priority);
-    updatePrivacy(gConfig.privacy);
+    updateConfigState({
+        priority: gConfig.priority,
+        privacy: gConfig.privacy
+    });
     updateReminderDetails();
     updateCategoryMenulist();
 }
