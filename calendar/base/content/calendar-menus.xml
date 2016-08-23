@@ -59,7 +59,7 @@
                     applyAttributeToMenuChildren(this, "disabled", (!tasksSelected));
                 }
             }
-            if (propertyValue) {
+            if (propertyValue || propertyValue == 0) {
                 let command = document.getElementById("calendar_" + this.mType + "-" + propertyValue + "_command");
                 if (command) {
                     command.setAttribute("checked", "true");

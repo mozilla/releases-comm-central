@@ -41,7 +41,8 @@ var gConfig = {
     priority: 0,
     privacy: null,
     status: "NONE",
-    showTimeAs: null
+    showTimeAs: null,
+    percentComplete: 0
 }
 // The following variables are set by the load handler function of the
 // parent context, so that they are already set before iframe content load:
@@ -656,8 +657,8 @@ function loadDialog(aItem) {
 
     // Task percent complete
     if (isToDo(aItem)) {
-        var percentCompleteInteger = 0;
-        var percentCompleteProperty = aItem.getProperty("PERCENT-COMPLETE");
+        let percentCompleteInteger = 0;
+        let percentCompleteProperty = aItem.getProperty("PERCENT-COMPLETE");
         if (percentCompleteProperty != null) {
             percentCompleteInteger = parseInt(percentCompleteProperty);
         }
@@ -666,6 +667,7 @@ function loadDialog(aItem) {
         } else if (percentCompleteInteger > 100) {
             percentCompleteInteger = 100;
         }
+        gConfig.percentComplete = percentCompleteInteger;
         if (gNewItemUI) {
             itemProps.initialPercentComplete = percentCompleteInteger;
         } else {
@@ -2868,10 +2870,11 @@ function updateToDoStatus(aStatus, aCompletedDate=null) {
       disableElement("completed-date-picker");
   }
 
+  gConfig.percentComplete = newPercentComplete;
   setElementValue("percent-complete-textbox", newPercentComplete);
   if (gInTab) {
       sendMessage({
-          command: "updatePanelState",
+          command: "updateConfigState",
           argument: { percentComplete: newPercentComplete }
       });
   }
