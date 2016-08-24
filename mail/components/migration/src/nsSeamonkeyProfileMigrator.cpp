@@ -429,7 +429,8 @@ nsSeamonkeyProfileMigrator::CopySignatureFiles(PBStructArray &aIdentities,
       // turn the pref into a nsIFile
       nsCOMPtr<nsIFile> srcSigFile =
         do_CreateInstance(NS_LOCAL_FILE_CONTRACTID);
-      srcSigFile->SetPersistentDescriptor(nsDependentCString(pref->stringValue));
+      rv = srcSigFile->SetPersistentDescriptor(nsDependentCString(pref->stringValue));
+      NS_ENSURE_SUCCESS(rv, rv);
 
       nsCOMPtr<nsIFile> targetSigFile;
       rv = mTargetProfile->Clone(getter_AddRefs(targetSigFile));
@@ -447,7 +448,8 @@ nsSeamonkeyProfileMigrator::CopySignatureFiles(PBStructArray &aIdentities,
 
         // now write out the new descriptor
         nsAutoCString descriptorString;
-        targetSigFile->GetPersistentDescriptor(descriptorString);
+        rv = targetSigFile->GetPersistentDescriptor(descriptorString);
+        NS_ENSURE_SUCCESS(rv, rv);
         NS_Free(pref->stringValue);
         pref->stringValue = ToNewCString(descriptorString);
       }
@@ -465,6 +467,7 @@ nsSeamonkeyProfileMigrator::CopyMailFolders(PBStructArray &aMailServers,
   // (1) Fix up the directory path for the new profile
   // (2) copy the mail folder data from the source directory pref to the destination directory pref
 
+  nsresult rv;
   uint32_t count = aMailServers.Length();
   for (uint32_t i = 0; i < count; ++i)
   {
@@ -532,14 +535,16 @@ nsSeamonkeyProfileMigrator::CopyMailFolders(PBStructArray &aMailServers,
         // we should make sure the host name based directory we are going to migrate
         // the accounts into is unique. This protects against the case where the user
         // has multiple servers with the same host name.
-        targetMailFolder->CreateUnique(nsIFile::DIRECTORY_TYPE, 0777);
+        rv = targetMailFolder->CreateUnique(nsIFile::DIRECTORY_TYPE, 0777);
+        NS_ENSURE_SUCCESS(rv, rv);
 
         (void) RecursiveCopy(sourceMailFolder, targetMailFolder);
         // now we want to make sure the actual directory pref that gets
         // transformed into the new profile's pref.js has the right file
         // location.
         nsAutoCString descriptorString;
-        targetMailFolder->GetPersistentDescriptor(descriptorString);
+        rv = targetMailFolder->GetPersistentDescriptor(descriptorString);
+        NS_ENSURE_SUCCESS(rv, rv);
         NS_Free(pref->stringValue);
         pref->stringValue = ToNewCString(descriptorString);
       }
@@ -555,7 +560,8 @@ nsSeamonkeyProfileMigrator::CopyMailFolders(PBStructArray &aMailServers,
 
       // turn the pref into a nsIFile
       nsCOMPtr<nsIFile> srcNewsRCFile = do_CreateInstance(NS_LOCAL_FILE_CONTRACTID);
-      srcNewsRCFile->SetPersistentDescriptor(nsDependentCString(pref->stringValue));
+      rv = srcNewsRCFile->SetPersistentDescriptor(nsDependentCString(pref->stringValue));
+      NS_ENSURE_SUCCESS(rv, rv);
 
       // now make the copy
       bool exists;
@@ -569,7 +575,8 @@ nsSeamonkeyProfileMigrator::CopyMailFolders(PBStructArray &aMailServers,
 
         // now write out the new descriptor
         nsAutoCString descriptorString;
-        targetNewsRCFile->GetPersistentDescriptor(descriptorString);
+        rv = targetNewsRCFile->GetPersistentDescriptor(descriptorString);
+        NS_ENSURE_SUCCESS(rv, rv);
         NS_Free(pref->stringValue);
         pref->stringValue = ToNewCString(descriptorString);
       }

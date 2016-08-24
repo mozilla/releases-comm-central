@@ -622,7 +622,8 @@ nsMsgMaildirStore::GetNewMsgOutputStream(nsIMsgFolder *aFolder,
   newName.AppendInt(static_cast<int64_t>(PR_Now()));
   newFile->AppendNative(newName);
   // CreateUnique, in case we get more than one message per millisecond :-)
-  newFile->CreateUnique(nsIFile::NORMAL_FILE_TYPE, 0600);
+  rv = newFile->CreateUnique(nsIFile::NORMAL_FILE_TYPE, 0600);
+  NS_ENSURE_SUCCESS(rv, rv);
   newFile->GetNativeLeafName(newName);
   // save the file name in the message header - otherwise no way to retrieve it
   (*aNewMsgHdr)->SetStringProperty("storeToken", newName.get());
@@ -723,7 +724,8 @@ nsMsgMaildirStore::FinishNewMessage(nsIOutputStream *aOutputStream,
   existingPath->Exists(&exists);
 
   if (exists) {
-    existingPath->CreateUnique(nsIFile::NORMAL_FILE_TYPE, 0600);
+    rv = existingPath->CreateUnique(nsIFile::NORMAL_FILE_TYPE, 0600);
+    NS_ENSURE_SUCCESS(rv, rv);
     existingPath->GetNativeLeafName(fileName);
     aNewHdr->SetStringProperty("storeToken", fileName.get());
   }
@@ -806,7 +808,8 @@ nsMsgMaildirStore::MoveNewlyDownloadedMessage(nsIMsgDBHdr *aHdr,
   existingPath->Exists(&exists);
 
   if (exists) {
-    existingPath->CreateUnique(nsIFile::NORMAL_FILE_TYPE, 0600);
+    rv = existingPath->CreateUnique(nsIFile::NORMAL_FILE_TYPE, 0600);
+    NS_ENSURE_SUCCESS(rv, rv);
     existingPath->GetNativeLeafName(fileName);
     newHdr->SetStringProperty("storeToken", fileName.get());
   }

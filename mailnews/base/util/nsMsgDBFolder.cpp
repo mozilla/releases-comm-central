@@ -617,7 +617,8 @@ nsresult nsMsgDBFolder::GetFolderCacheElemFromFile(nsIFile *file, nsIMsgFolderCa
     if (NS_SUCCEEDED(result) && folderCache)
     {
       nsCString persistentPath;
-      file->GetPersistentDescriptor(persistentPath);
+      result = file->GetPersistentDescriptor(persistentPath);
+      NS_ENSURE_SUCCESS(result, result);
       result = folderCache->GetCacheElement(persistentPath, false, cacheElement);
     }
   }
@@ -912,7 +913,8 @@ nsresult nsMsgDBFolder::CreateFileForDB(const nsAString& userLeafName, nsIFile *
   dbPath->Exists(&exists);
   if (exists)
   {
-    dbPath->CreateUnique(nsIFile::NORMAL_FILE_TYPE, 00600);
+    rv = dbPath->CreateUnique(nsIFile::NORMAL_FILE_TYPE, 00600);
+    NS_ENSURE_SUCCESS(rv, rv);
     dbPath->GetLeafName(proposedDBName);
   }
   // now, take the ".msf" off
@@ -1329,8 +1331,10 @@ nsresult nsMsgDBFolder::GetFolderCacheKey(nsIFile **aFile, bool createDBIfMissin
       // create the .msf file
       // see bug #244217 for details
       bool exists;
-      if (createDBIfMissing && NS_SUCCEEDED(dbPath->Exists(&exists)) && !exists)
-        dbPath->Create(nsIFile::NORMAL_FILE_TYPE, 0644);
+      if (createDBIfMissing && NS_SUCCEEDED(dbPath->Exists(&exists)) && !exists) {
+        rv = dbPath->Create(nsIFile::NORMAL_FILE_TYPE, 0644);
+        NS_ENSURE_SUCCESS(rv, rv);
+      }
     }
   }
   NS_IF_ADDREF(*aFile = dbPath);
@@ -1368,7 +1372,8 @@ NS_IMETHODIMP nsMsgDBFolder::WriteToFolderCache(nsIMsgFolderCache *folderCache, 
     if (NS_SUCCEEDED(rv) && dbPath)
     {
       nsCString persistentPath;
-      dbPath->GetPersistentDescriptor(persistentPath);
+      rv = dbPath->GetPersistentDescriptor(persistentPath);
+      NS_ENSURE_SUCCESS(rv, rv);
       rv = folderCache->GetCacheElement(persistentPath, true, getter_AddRefs(cacheElement));
       if (NS_SUCCEEDED(rv) && cacheElement)
         rv = WriteToFolderCacheElem(cacheElement);
@@ -3644,8 +3649,9 @@ NS_IMETHODIMP nsMsgDBFolder::RecursiveDelete(bool deleteStorage, nsIMsgWindow *m
     if (NS_SUCCEEDED(result) && folderCache)
     {
       nsCString persistentPath;
-      dbPath->GetPersistentDescriptor(persistentPath);
-      folderCache->RemoveElement(persistentPath);
+      result = dbPath->GetPersistentDescriptor(persistentPath);
+      if (NS_SUCCEEDED(result))
+        folderCache->RemoveElement(persistentPath);
     }
   }
 

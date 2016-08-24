@@ -61,8 +61,10 @@ NS_IMETHODIMP nsMsgBrkMBoxStore::DiscoverSubFolders(nsIMsgFolder *aParentFolder,
 
   bool exists;
   path->Exists(&exists);
-  if (!exists)
-    path->Create(nsIFile::DIRECTORY_TYPE, 0755);
+  if (!exists) {
+    rv = path->Create(nsIFile::DIRECTORY_TYPE, 0755);
+    NS_ENSURE_SUCCESS(rv, rv);
+  }
 
   return AddSubFolders(aParentFolder, path, aDeep);
 }
@@ -97,7 +99,8 @@ NS_IMETHODIMP nsMsgBrkMBoxStore::CreateFolder(nsIMsgFolder *aParent,
   if (exists) //check this because localized names are different from disk names
     return NS_MSG_FOLDER_EXISTS;
 
-  path->Create(nsIFile::NORMAL_FILE_TYPE, 0600);
+  rv = path->Create(nsIFile::NORMAL_FILE_TYPE, 0600);
+  NS_ENSURE_SUCCESS(rv, rv);
 
   //GetFlags and SetFlags in AddSubfolder will fail because we have no db at
   // this point but mFlags is set.
@@ -440,7 +443,8 @@ NS_IMETHODIMP nsMsgBrkMBoxStore::CopyFolder(nsIMsgFolder *aSrcFolder,
   if (!newPathIsDirectory)
   {
     AddDirectorySeparator(newPath);
-    newPath->Create(nsIFile::DIRECTORY_TYPE, 0700);
+    rv = newPath->Create(nsIFile::DIRECTORY_TYPE, 0700);
+    NS_ENSURE_SUCCESS(rv, rv);
   }
 
   nsCOMPtr<nsIFile> origPath;
@@ -623,13 +627,15 @@ nsMsgBrkMBoxStore::GetNewMsgOutputStream(nsIMsgFolder *aFolder,
   if (!db && !*aNewMsgHdr)
     NS_WARNING("no db, and no message header");
   bool exists;
+  nsresult rv;
   mboxFile->Exists(&exists);
-  if (!exists)
-    mboxFile->Create(nsIFile::NORMAL_FILE_TYPE, 0600);
+  if (!exists) {
+    rv = mboxFile->Create(nsIFile::NORMAL_FILE_TYPE, 0600);
+    NS_ENSURE_SUCCESS(rv, rv);
+  }
 
   nsCString URI;
   aFolder->GetURI(URI);
-  nsresult rv;
   nsCOMPtr<nsISeekableStream> seekable;
   if (m_outputStreams.Get(URI, aResult))
   {

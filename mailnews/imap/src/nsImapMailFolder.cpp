@@ -1734,10 +1734,12 @@ NS_IMETHODIMP nsImapMailFolder::RenameLocal(const nsACString& newName, nsIMsgFol
     parentPathFile->AppendNative(newNameStr);    //only for move we need to progress further in case the parent differs
     bool isDirectory = false;
     parentPathFile->IsDirectory(&isDirectory);
-    if (!isDirectory)
-      parentPathFile->Create(nsIFile::DIRECTORY_TYPE, 0700);
-    else
+    if (!isDirectory) {
+      rv = parentPathFile->Create(nsIFile::DIRECTORY_TYPE, 0700);
+      NS_ENSURE_SUCCESS(rv, rv);
+    } else {
       NS_ERROR("Directory already exists.");
+    }
     rv = RecursiveCopy(dirFile, parentPathFile);
     NS_ENSURE_SUCCESS(rv,rv);
     dirFile->Remove(true);                         // moving folders
