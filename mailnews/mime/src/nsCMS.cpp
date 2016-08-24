@@ -51,7 +51,7 @@ nsCMSMessage::~nsCMSMessage()
     return;
   }
   destructorSafeDestroyNSSReference();
-  shutdown(calledFromObject);
+  shutdown(ShutdownCalledFrom::Object);
 }
 
 nsresult nsCMSMessage::Init()
@@ -433,7 +433,7 @@ public:
       return;
     }
     destructorSafeDestroyNSSReference();
-    shutdown(calledFromObject);
+    shutdown(ShutdownCalledFrom::Object);
   }
 
   void virtualDestroyNSSReference()
@@ -790,7 +790,7 @@ nsCMSDecoder::~nsCMSDecoder()
     return;
   }
   destructorSafeDestroyNSSReference();
-  shutdown(calledFromObject);
+  shutdown(ShutdownCalledFrom::Object);
 }
 
 nsresult nsCMSDecoder::Init()
@@ -880,7 +880,7 @@ nsCMSEncoder::~nsCMSEncoder()
     return;
   }
   destructorSafeDestroyNSSReference();
-  shutdown(calledFromObject);
+  shutdown(ShutdownCalledFrom::Object);
 }
 
 nsresult nsCMSEncoder::Init()
