@@ -595,6 +595,9 @@ function subtest_adding_filelinks_to_plaintext_reply_below(aText, aWithSig) {
     // If no text was entered, just grab the last br's previous sibling - that
     // will be the span.
     span = br.previousSibling;
+    // Sometimes we need to skip one more linebreak.
+    if (span.localName != "span")
+      span = span.previousSibling;
   }
 
   assert_equals(span.localName, "span",
