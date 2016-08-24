@@ -444,6 +444,8 @@ NS_IMETHODIMP nsMsgBrkMBoxStore::CopyFolder(nsIMsgFolder *aSrcFolder,
   {
     AddDirectorySeparator(newPath);
     rv = newPath->Create(nsIFile::DIRECTORY_TYPE, 0700);
+    if (rv == NS_ERROR_FILE_ALREADY_EXISTS)
+      rv = NS_OK;
     NS_ENSURE_SUCCESS(rv, rv);
   }
 

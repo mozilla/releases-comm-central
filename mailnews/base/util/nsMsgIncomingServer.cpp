@@ -906,6 +906,8 @@ nsMsgIncomingServer::GetLocalPath(nsIFile **aLocalPath)
   rv = protocolInfo->GetDefaultLocalPath(getter_AddRefs(localPath));
   NS_ENSURE_SUCCESS(rv, rv);
   rv = localPath->Create(nsIFile::DIRECTORY_TYPE, 0755);
+  if (rv == NS_ERROR_FILE_ALREADY_EXISTS)
+    rv = NS_OK;
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCString hostname;
@@ -964,6 +966,8 @@ nsMsgIncomingServer::SetLocalPath(nsIFile *aLocalPath)
 {
   NS_ENSURE_ARG_POINTER(aLocalPath);
   nsresult rv = aLocalPath->Create(nsIFile::DIRECTORY_TYPE, 0755);
+  if (rv == NS_ERROR_FILE_ALREADY_EXISTS)
+    rv = NS_OK;
   NS_ENSURE_SUCCESS(rv, rv);
   return SetFileValue("directory-rel", "directory", aLocalPath);
 }
