@@ -1,0 +1,98 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+/* html and body styles are copied from chrome://global/skin/global.css
+ * as a temporary measure to prevent a transparent background on windows.
+ * Using the global.css file does not work because of a namespace issue.
+ * See https://bugzilla.mozilla.org/show_bug.cgi?id=1297392#c4
+ *
+ * #container is the top-level react div
+ */
+html,
+body,
+#container {
+    -moz-appearance: window;
+    background-color: -moz-Dialog;
+    color: -moz-DialogText;
+    font: message-box;
+}
+a {
+    color: -moz-NativehyperlinkText;
+    text-decoration: underline;
+    cursor: pointer;
+}
+#topwrapper {
+    max-width: 1200px;
+}
+.wrapper {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    padding: 10px;
+    margin-bottom: 10px;
+}
+#wrapper2 {
+    flex-direction: row;
+    flex-wrap: nowrap;
+}
+.box {
+    flex: 1 1 auto;
+    padding: 10px;
+    border-bottom: 1px solid ButtonShadow;
+    margin-bottom: 10px;
+    margin-right: 10px;
+}
+#box5 {
+    flex-basis: 80%;
+}
+#attendeesDiv {
+    page-break-after: always;
+}
+#description {
+    margin: 10px;
+}
+#descriptionTextArea {
+    width: 100%;
+    box-sizing: border-box;
+}
+#tabstrip {
+    display: flex;
+    padding: 0;
+}
+.tab {
+    list-style: none;
+    border: 1px solid ButtonShadow;
+    padding: 5px 10px;
+    cursor: pointer;
+}
+.activeTab {
+    border-bottom: 0px;
+}
+.hidden {
+    display:none;
+}
+.tabpanel {
+    min-height: 250px;
+}
+.capsule {
+    margin-right: 5px;
+    padding: 3px;
+    border-radius: 3px;
+    color: ButtonText;
+}
+.deleteCapsule {
+    cursor: pointer;
+    border-left: 1px solid ButtonText;
+    padding-left: 4px;
+    padding-right: 4px;
+    margin-left: 6px;
+    font-family: sans;
+}
+
+/* Small screens */
+@media all and (max-width: 750px) {
+    #attendeesDiv {
+        page-break-after: auto;
+    }
+}

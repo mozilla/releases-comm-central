@@ -3,12 +3,17 @@
   <head>
     <meta charset='utf-8'>
     <title>Event in a Tab</title>
+    <!--
+        "chrome://global/skin/global.css" cannot be included here due to
+         namespaces, see https://bugzilla.mozilla.org/show_bug.cgi?id=1297392#c4
+    -->
     <link rel="stylesheet" type="text/css" href="chrome://lightning-common/skin/html-item-editing.css">
   </head>
   <body>
+    <!-- This div's id must be "container" for React.js to use it -->
     <div id='container'>
       <p>
-        If you can see this, React is still loading or is <strong>not</strong> working right.
+        If you can see this, React is still loading or is not working right.
       </p>
     </div>
     <script type="application/javascript" src="resource://devtools/client/shared/vendor/react.js"></script>

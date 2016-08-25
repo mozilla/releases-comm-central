@@ -584,7 +584,7 @@ function loadDialog(aItem) {
         itemProps.initialCategories = aItem.getCategories({});
 
         // just to demo capsules component
-        itemProps.initialCategories = ['demo categories', 'birthdays', 'business'];
+        itemProps.initialCategories = ['Some', 'Demo', 'Categories'];
     } else {
         loadCategories(aItem);
     }

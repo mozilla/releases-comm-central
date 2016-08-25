@@ -131,7 +131,7 @@ var Capsule = React.createClass({
         return React.DOM.span(
             {
                 className: "capsule",
-                style: {background: "#ccc"},
+                style: {background: "ButtonHighlight"},
             },
             this.props.value,
             React.DOM.span({
@@ -209,7 +209,15 @@ var TopComponent = React.createClass({
                 [0, 'No Reminder'],
                 [1, '0 Minutes Before'],
                 [2, '5 Minutes Before'],
-                [3, 'Custom...']
+                [3, '15 Minutes Before'],
+                [4, '30 Minutes Before'],
+                [5, '1 Hour Before'],
+                [6, '2 Hours Before'],
+                [7, '12 Hours Before'],
+                [8, '1 Day Before'],
+                [9, '2 Days Before'],
+                [10, '1 Week Before'],
+                [11, 'Custom...']
             ],
             supportsPriority: false
         }
