@@ -49,6 +49,10 @@ radio[pane=paneLightning] {
   -moz-appearance: none;
 }
 
+#calendar-status-todaypane-button[hideLabel] > stack {
+  margin-inline-start: 5px;
+}
+
 #calendar-status-todaypane-button > stack > .toolbarbutton-day-text {
   margin-top: 4px;
 }

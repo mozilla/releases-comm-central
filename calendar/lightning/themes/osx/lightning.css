@@ -190,11 +190,22 @@ toolbar[bighttext] #task-tab-button {
 }
 
 #calendar-status-todaypane-button > .toolbarbutton-icon-end {
-  list-style-image: url(chrome://global/skin/icons/collapse.png);
+  list-style-image: url(chrome://lightning/skin/collapse.png);
 }
 
 #calendar-status-todaypane-button[checked="true"] > .toolbarbutton-icon-end {
-  list-style-image: url(chrome://global/skin/icons/expand.png);
+  list-style-image: url(chrome://lightning/skin/expand.png);
+}
+
+@media (min-resolution: 2dppx) {
+  #calendar-status-todaypane-button > .toolbarbutton-icon-end {
+    list-style-image: url(chrome://lightning/skin/collapse@2x.png);
+    width: 9px;
+  }
+
+  #calendar-status-todaypane-button[checked="true"] > .toolbarbutton-icon-end {
+    list-style-image: url(chrome://lightning/skin/expand@2x.png);
+  }
 }
 
 #calMinimonthBox {

@@ -38,6 +38,7 @@ var TodayPane = {
         document.getElementById("today-splitter").addEventListener("command", onCalendarViewResize, false);
         TodayPane.updateSplitterState();
         TodayPane.previousMode = document.getElementById("modeBroadcaster").getAttribute("mode");
+        TodayPane.showTodayPaneStatusLabel();
     },
 
     /**
@@ -466,6 +467,14 @@ var TodayPane = {
         if (splitterCollapsed == todaypane.isVisible()) {
             document.getElementById("calendar_toggle_todaypane_command").doCommand();
         }
+    },
+
+    /**
+     * Checks if the todayPaneStatusLabel should be hidden.
+     */
+    showTodayPaneStatusLabel: function showTodayPaneStatusLabel() {
+        let attributeValue = Preferences.get("calendar.view.showTodayPaneStatusLabel", true) && "fale";
+        setElementValue(document.getElementById("calendar-status-todaypane-button"), !attributeValue , "hideLabel");
     }
 };
 

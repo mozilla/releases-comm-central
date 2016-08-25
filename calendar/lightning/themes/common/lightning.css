@@ -18,11 +18,12 @@
   background-color: transparent;
 }
 
-.imipMoreButton > .toolbarbutton-icon {
+#calendar-status-todaypane-button[hideLabel] > .toolbarbutton-text,
+#calendar-status-todaypane-button[hideLabel] > .toolbarbutton-icon-end {
   display: none;
 }
 
-.imipMoreButton >.toolbarbutton-icon {
+.imipMoreButton > .toolbarbutton-icon {
   display: none;
 }
 

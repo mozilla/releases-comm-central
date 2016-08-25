@@ -143,6 +143,10 @@ radio[pane=paneLightning] {
   -moz-appearance: none;
 }
 
+#calendar-status-todaypane-button[hideLabel] > stack {
+  margin-inline-start: 5px;
+}
+
 #calendar-status-todaypane-button > stack > .toolbarbutton-icon-begin {
   list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#pane);
   -moz-image-region: rect(0 18px 18px 0);
