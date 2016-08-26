@@ -572,7 +572,8 @@ function updateHiddenStateForEditDraftMsgCmd()
 {
   let msg = gFolderDisplay.selectedMessage;
   let folder = gFolderDisplay.displayedFolder;
-  let inDraftFolder = (msg &&
+  let inDraftFolder = (msg && msg.folder &&  // Need to check folder since messages
+                                             // opened from file have none.
                        msg.folder.isSpecialFolder(nsMsgFolderFlags.Drafts, true)) ||
                       (folder && folder.getFlag(nsMsgFolderFlags.Drafts));
   document.getElementById("cmd_editDraftMsg").setAttribute("hidden", !inDraftFolder);
