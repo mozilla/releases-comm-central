@@ -153,6 +153,155 @@ function test_add_tag_with_really_long_label() {
   mc.keypress(mc.eid("expandedHeadersNameColumn"), "1", {});
 }
 
+/**
+ * @param headerName used for pretty-printing in exceptions
+ * @param headerValueElement code to be eval()ed returning the DOM element
+ *        with the data.
+ * @param expectedName code to be eval()ed returning the expected value of
+ *                     nsIAccessible.name for the DOM element in question
+ * @param expectedRole the expected value for nsIAccessible.role
+ */
+let headersToTest = [
+{
+  headerName: "Subject",
+  headerValueElement: "mc.a('expandedsubjectBox', {class: 'headerValue'})",
+  expectedName: "mc.e('expandedsubjectLabel').value + ': ' + " +
+                "headerValueElement.textContent",
+  expectedRole: Ci.nsIAccessibleRole.ROLE_ENTRY
+},
+{
+  headerName: "Content-Base",
+  headerValueElement: "mc.a('expandedcontent-baseBox', {class: 'headerValue text-link headerValueUrl'})",
+  expectedName: "mc.e('expandedcontent-baseLabel').value + ': ' + " +
+                "headerValueElement.textContent",
+  expectedRole: Ci.nsIAccessibleRole.ROLE_ENTRY
+},
+{
+  headerName: "From",
+  headerValueElement: "mc.window.document.getAnonymousElementByAttribute(" +
+                      "mc.a('expandedfromBox', {tagName: 'mail-emailaddress'})," +
+                      "'class', 'emailDisplayButton')",
+  expectedName: "mc.e('expandedfromLabel').value + ': ' + " +
+                "headerValueElement.parentNode.getAttribute('fullAddress')",
+  expectedRole: Ci.nsIAccessibleRole.ROLE_ENTRY
+},
+{
+  headerName: "To",
+  headerValueElement: "mc.window.document.getAnonymousElementByAttribute(" +
+                      "mc.a('expandedtoBox', {tagName: 'mail-emailaddress'})," +
+                      "'class', 'emailDisplayButton')",
+  expectedName: "mc.e('expandedtoLabel').value + ': ' + " +
+                "headerValueElement.parentNode.getAttribute('fullAddress')",
+  expectedRole: Ci.nsIAccessibleRole.ROLE_ENTRY
+},
+{
+  headerName: "Cc",
+  headerValueElement: "mc.window.document.getAnonymousElementByAttribute(" +
+                      "mc.a('expandedccBox', {tagName: 'mail-emailaddress'})," +
+                      "'class', 'emailDisplayButton')",
+  expectedName: "mc.e('expandedccLabel').value + ': ' + " +
+                "headerValueElement.parentNode.getAttribute('fullAddress')",
+  expectedRole: Ci.nsIAccessibleRole.ROLE_ENTRY
+},
+{
+  headerName: "Bcc",
+  headerValueElement: "mc.window.document.getAnonymousElementByAttribute(" +
+                      "mc.a('expandedbccBox', {tagName: 'mail-emailaddress'})," +
+                      "'class', 'emailDisplayButton')",
+  expectedName: "mc.e('expandedbccLabel').value + ': ' + " +
+                "headerValueElement.parentNode.getAttribute('fullAddress')",
+  expectedRole: Ci.nsIAccessibleRole.ROLE_ENTRY
+},
+{
+  headerName: "Reply-To",
+  headerValueElement: "mc.window.document.getAnonymousElementByAttribute(" +
+                      "mc.a('expandedreply-toBox', {tagName: 'mail-emailaddress'})," +
+                      "'class', 'emailDisplayButton')",
+  expectedName: "mc.e('expandedreply-toLabel').value + ': ' + " +
+                "headerValueElement.parentNode.getAttribute('fullAddress')",
+  expectedRole: Ci.nsIAccessibleRole.ROLE_ENTRY
+},
+{
+  headerName: "Newsgroups",
+  headerValueElement: "mc.window.document.getAnonymousElementByAttribute(" +
+                      "mc.a('expandednewsgroupsBox', {tagName: 'mail-newsgroup'})," +
+                      "'class', 'newsgrouplabel')",
+  expectedName: "mc.e('expandednewsgroupsLabel').value + ': ' + " +
+                "headerValueElement.parentNode.parentNode.getAttribute('newsgroup')",
+  expectedRole: Ci.nsIAccessibleRole.ROLE_ENTRY
+},
+{
+  headerName: "Tags",
+  headerValueElement: "mc.a('expandedtagsBox', {class: 'tagvalue blc-FF0000'})",
+  expectedName: "mc.e('expandedtagsLabel').value + ': ' + " +
+                "headerValueElement.getAttribute('value')",
+  expectedRole: Ci.nsIAccessibleRole.ROLE_LABEL
+}
+];
+
+// used to get the accessible object for a DOM node
+let gAccRetrieval = Cc["@mozilla.org/accessibleRetrieval;1"].
+                    getService(Ci.nsIAccessibleRetrieval);
+
+/**
+ * Use the information from aHeaderInfo to verify that screenreaders will
+ * do the right thing with the given message header.
+ *
+ * @param {Object} aHeaderInfo  Information about how to do the verification;
+ *                              See the comments above the headersToTest array
+ *                              for details.
+ */
+function verify_header_a11y(aHeaderInfo) {
+  // XXX Don't use eval here.
+  let headerValueElement = eval(aHeaderInfo.headerValueElement);
+
+  let headerAccessible = gAccRetrieval.getAccessibleFor(headerValueElement)
+  if (headerAccessible.role != aHeaderInfo.expectedRole) {
+    throw new Error("role for " + aHeaderInfo.headerName + " was " +
+                    headerAccessible.role + "; should have been " +
+                    aHeaderInfo.expectedRole);
+  }
+
+  // XXX Don't use eval here.
+  let expectedName = eval(aHeaderInfo.expectedName);
+  if (headerAccessible.name != expectedName) {
+    throw new Error("headerAccessible.name for " + aHeaderInfo.headerName +
+                    " was '" + headerAccessible.name + "'; expected '" +
+                    expectedName + "'");
+  }
+}
+
+/**
+ * Test the accessibility attributes of the various message headers.
+ *
+ * XXX This test used to be after test_more_button_with_many_recipients,
+ * however, there were some accessibility changes that it didn't seem to play
+ * nicely with, and the toggling of the "more" button on the cc field was
+ * causing this test to fail on the cc element. Tests with accessibilty
+ * hardware/software showed that the code was working fine. Therefore the test
+ * may be suspect.
+ *
+ * XXX The gInterestingMessage has no tags until after
+ * test_add_tag_with_really_long_label, so ensure it runs after that one.
+ */
+function test_a11y_attrs() {
+  be_in_folder(folder);
+
+  // Convert the SyntheticMessage gInterestingMessage into an actual
+  // nsIMsgDBHdr XPCOM message.
+  let hdr = folder.msgDatabase
+                  .getMsgHdrForMessageID(gInterestingMessage.messageId);
+
+  // select and open the interesting message
+  let curMessage = select_click_row(mc.dbView
+                                      .findIndexOfMsgHdr(hdr, false));
+
+  // make sure it loads
+  assert_selected_and_displayed(mc, curMessage);
+
+  headersToTest.forEach(verify_header_a11y);
+}
+
 function test_more_button_with_many_recipients()
 {
   // Start on the interesting message.
@@ -895,152 +1044,3 @@ function subtest_addresses_in_tooltip_text(aRecipients, aHeaderBox,
     assert_equals(moreForm, ", " + moreTooltipSplit[moreTooltipSplit.length - 1]);
   }
 }
-
-// Some platforms (notably Mac) don't have a11y, so disable these tests there.
-if ("nsIAccessibleRole" in Ci) {
-  /**
-   * @param headerName used for pretty-printing in exceptions
-   * @param headerValueElement code to be eval()ed returning the DOM element
-   *        with the data.
-   * @param expectedName code to be eval()ed returning the expected value of
-   *                     nsIAccessible.name for the DOM element in question
-   * @param expectedRole the expected value for nsIAccessible.role
-   */
-  let headersToTest = [
-  {
-    headerName: "Subject",
-    headerValueElement: "mc.a('expandedsubjectBox', {class: 'headerValue'})",
-    expectedName: "mc.e('expandedsubjectLabel').value + ': ' + " +
-                  "headerValueElement.textContent",
-    expectedRole: Ci.nsIAccessibleRole.ROLE_ENTRY
-  },
-  {
-    headerName: "Content-Base",
-    headerValueElement: "mc.a('expandedcontent-baseBox', {class: 'headerValue text-link headerValueUrl'})",
-    expectedName: "mc.e('expandedcontent-baseLabel').value + ': ' + " +
-                  "headerValueElement.textContent",
-    expectedRole: Ci.nsIAccessibleRole.ROLE_ENTRY
-  },
-  {
-    headerName: "From",
-    headerValueElement: "mc.window.document.getAnonymousElementByAttribute(" +
-                        "mc.a('expandedfromBox', {tagName: 'mail-emailaddress'})," +
-                        "'class', 'emailDisplayButton')",
-    expectedName: "mc.e('expandedfromLabel').value + ': ' + " +
-                  "headerValueElement.parentNode.getAttribute('fullAddress')",
-    expectedRole: Ci.nsIAccessibleRole.ROLE_ENTRY
-  },
-  {
-    headerName: "To",
-    headerValueElement: "mc.window.document.getAnonymousElementByAttribute(" +
-                        "mc.a('expandedtoBox', {tagName: 'mail-emailaddress'})," +
-                        "'class', 'emailDisplayButton')",
-    expectedName: "mc.e('expandedtoLabel').value + ': ' + " +
-                  "headerValueElement.parentNode.getAttribute('fullAddress')",
-    expectedRole: Ci.nsIAccessibleRole.ROLE_ENTRY
-  },
-  {
-    headerName: "Cc",
-    headerValueElement: "mc.window.document.getAnonymousElementByAttribute(" +
-                        "mc.a('expandedccBox', {tagName: 'mail-emailaddress'})," +
-                        "'class', 'emailDisplayButton')",
-    expectedName: "mc.e('expandedccLabel').value + ': ' + " +
-                  "headerValueElement.parentNode.getAttribute('fullAddress')",
-    expectedRole: Ci.nsIAccessibleRole.ROLE_ENTRY
-  },
-  {
-    headerName: "Bcc",
-    headerValueElement: "mc.window.document.getAnonymousElementByAttribute(" +
-                        "mc.a('expandedbccBox', {tagName: 'mail-emailaddress'})," +
-                        "'class', 'emailDisplayButton')",
-    expectedName: "mc.e('expandedbccLabel').value + ': ' + " +
-                  "headerValueElement.parentNode.getAttribute('fullAddress')",
-    expectedRole: Ci.nsIAccessibleRole.ROLE_ENTRY
-  },
-  {
-    headerName: "Reply-To",
-    headerValueElement: "mc.window.document.getAnonymousElementByAttribute(" +
-                        "mc.a('expandedreply-toBox', {tagName: 'mail-emailaddress'})," +
-                        "'class', 'emailDisplayButton')",
-    expectedName: "mc.e('expandedreply-toLabel').value + ': ' + " +
-                  "headerValueElement.parentNode.getAttribute('fullAddress')",
-    expectedRole: Ci.nsIAccessibleRole.ROLE_ENTRY
-  },
-  {
-    headerName: "Newsgroups",
-    headerValueElement: "mc.window.document.getAnonymousElementByAttribute(" +
-                        "mc.a('expandednewsgroupsBox', {tagName: 'mail-newsgroup'})," +
-                        "'class', 'newsgrouplabel')",
-    expectedName: "mc.e('expandednewsgroupsLabel').value + ': ' + " +
-                  "headerValueElement.parentNode.parentNode.getAttribute('newsgroup')",
-    expectedRole: Ci.nsIAccessibleRole.ROLE_ENTRY
-  },
-  {
-    headerName: "Tags",
-    headerValueElement: "mc.a('expandedtagsBox', {class: 'tagvalue blc-FF0000'})",
-    expectedName: "mc.e('expandedtagsLabel').value + ': ' + " +
-                  "headerValueElement.getAttribute('value')",
-    expectedRole: Ci.nsIAccessibleRole.ROLE_LABEL
-  }
-  ];
-
-  // used to get the accessible object for a DOM node
-  let gAccRetrieval = Cc["@mozilla.org/accessibleRetrieval;1"].
-                      getService(Ci.nsIAccessibleRetrieval);
-
-  /**
-   * Use the information from aHeaderInfo to verify that screenreaders will
-   * do the right thing with the given message header.
-   *
-   * @param {Object} aHeaderInfo  Information about how to do the verification;
-   *                              See the comments above the headersToTest array
-   *                              for details.
-   */
-  function verify_header_a11y(aHeaderInfo) {
-    // XXX Don't use eval here.
-    let headerValueElement = eval(aHeaderInfo.headerValueElement);
-
-    let headerAccessible = gAccRetrieval.getAccessibleFor(headerValueElement)
-    if (headerAccessible.role != aHeaderInfo.expectedRole) {
-      throw new Error("role for " + aHeaderInfo.headerName + " was " +
-                      headerAccessible.role + "; should have been " +
-                      aHeaderInfo.expectedRole);
-    }
-
-    // XXX Don't use eval here.
-    let expectedName = eval(aHeaderInfo.expectedName);
-    if (headerAccessible.name != expectedName) {
-      throw new Error("headerAccessible.name for " + aHeaderInfo.headerName +
-                      " was '" + headerAccessible.name + "'; expected '" +
-                      expectedName + "'");
-    }
-  }
-
-  /**
-   * Test the accessibility attributes of the various message headers.
-   *
-   * XXX This test used to be after test_more_button_with_many_recipients,
-   * however, there were some accessibility changes that it didn't seem to play
-   * nicely with, and the toggling of the "more" button on the cc field was
-   * causing this test to fail on the cc element. Tests with accessibilty
-   * hardware/software showed that the code was working fine. Therefore the test
-   * may be suspect.
-   */
-  function test_a11y_attrs() {
-    be_in_folder(folder);
-
-    // Convert the SyntheticMessage gInterestingMessage into an actual
-    // nsIMsgDBHdr XPCOM message.
-    let hdr = folder.msgDatabase
-                    .getMsgHdrForMessageID(gInterestingMessage.messageId);
-
-    // select and open the interesting message
-    let curMessage = select_click_row(mc.dbView
-                                        .findIndexOfMsgHdr(hdr, false));
-
-    // make sure it loads
-    assert_selected_and_displayed(mc, curMessage);
-
-    headersToTest.forEach(verify_header_a11y);
-  }
-} // if ("nsIAccessibleRole" in Ci)
