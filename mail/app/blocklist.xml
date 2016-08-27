@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<blocklist xmlns="http://www.mozilla.org/2006/addons-blocklist" lastupdate="1469801851000">
+<blocklist xmlns="http://www.mozilla.org/2006/addons-blocklist" lastupdate="1472235999000">
   <emItems>
       <emItem  blockID="i58" id="webmaster@buzzzzvideos.info">
                         <versionRange  minVersion="0" maxVersion="*">
@@ -9,6 +9,12 @@
     </emItem>
       <emItem  blockID="i71" id="youtube@2youtube.com">
                         <versionRange  minVersion="0" maxVersion="*">
+                    </versionRange>
+                    <prefs>
+              </prefs>
+    </emItem>
+      <emItem  blockID="i1229" id="/^(.*@(unblocker\.yt|sparpilot\.com))|axtara@axtara\.com$/">
+                        <versionRange  minVersion="0" maxVersion="*" severity="3">
                     </versionRange>
                     <prefs>
               </prefs>
@@ -841,8 +847,8 @@
                     <prefs>
               </prefs>
     </emItem>
-      <emItem  blockID="i866" id="faststartff@gmail.com">
-                        <versionRange  minVersion="0" maxVersion="*" severity="1">
+      <emItem  blockID="i340" id="chiang@programmer.net">
+                        <versionRange  minVersion="0" maxVersion="*" severity="3">
                     </versionRange>
                     <prefs>
               </prefs>
@@ -1588,6 +1594,12 @@
                     <prefs>
               </prefs>
     </emItem>
+      <emItem  blockID="i1262" id="my7thfakeid@gmail.com">
+                        <versionRange  minVersion="0" maxVersion="*" severity="3">
+                    </versionRange>
+                    <prefs>
+              </prefs>
+    </emItem>
       <emItem  blockID="i820" id="{aab02ab1-33cf-4dfa-8a9f-f4e60e976d27}">
                         <versionRange  minVersion="0" maxVersion="*" severity="3">
                     </versionRange>
@@ -1625,12 +1637,6 @@
               </prefs>
     </emItem>
       <emItem  blockID="i483" id="brasilescapefive@facebook.com">
-                        <versionRange  minVersion="0" maxVersion="*" severity="3">
-                    </versionRange>
-                    <prefs>
-              </prefs>
-    </emItem>
-      <emItem  blockID="i1229" id="/^.*@(unblocker\.yt|axtara\.com|sparpilot\.com|suchpony\.de)$/">
                         <versionRange  minVersion="0" maxVersion="*" severity="3">
                     </versionRange>
                     <prefs>
@@ -1850,6 +1856,12 @@
                     <prefs>
               </prefs>
     </emItem>
+      <emItem  blockID="i1265" id="@video_downloader_pro">
+                        <versionRange  minVersion="1.2.1" maxVersion="1.2.5" severity="1">
+                    </versionRange>
+                    <prefs>
+              </prefs>
+    </emItem>
       <emItem  blockID="i60" id="youtb3@youtb3.com">
                         <versionRange  minVersion="0" maxVersion="*">
                     </versionRange>
@@ -2020,6 +2032,12 @@
                     <prefs>
               </prefs>
     </emItem>
+      <emItem  blockID="i1264" id="suchpony@suchpony.de">
+                        <versionRange  minVersion="0" maxVersion="1.6.7" severity="3">
+                    </versionRange>
+                    <prefs>
+              </prefs>
+    </emItem>
       <emItem  blockID="i516" id="/^({3f3cddf8-f74d-430c-bd19-d2c9147aed3d}|{515b2424-5911-40bd-8a2c-bdb20286d8f5}|{17464f93-137e-4646-a0c6-0dc13faf0113}|{d1b5aad5-d1ae-4b20-88b1-feeaeb4c1ebc}|{aad50c91-b136-49d9-8b30-0e8d3ead63d0})$/">
                         <versionRange  minVersion="0" maxVersion="*" severity="1">
                     </versionRange>
@@ -2166,6 +2184,12 @@
                     <prefs>
               </prefs>
     </emItem>
+      <emItem  blockID="i1263" id="axtara__web@axtara.com">
+                        <versionRange  minVersion="0" maxVersion="1.1.1" severity="3">
+                    </versionRange>
+                    <prefs>
+              </prefs>
+    </emItem>
       <emItem  blockID="i77" id="{fa277cfc-1d75-4949-a1f9-4ac8e41b2dfd}">
                         <versionRange  minVersion="0" maxVersion="*">
                     </versionRange>
@@ -2301,8 +2325,8 @@
                     <prefs>
               </prefs>
     </emItem>
-      <emItem  blockID="i340" id="chiang@programmer.net">
-                        <versionRange  minVersion="0" maxVersion="*" severity="3">
+      <emItem  blockID="i866" id="faststartff@gmail.com">
+                        <versionRange  minVersion="0" maxVersion="*" severity="1">
                     </versionRange>
                     <prefs>
               </prefs>
@@ -3222,10 +3246,10 @@
         <certItem issuerName="MGExCzAJBgNVBAYTAk5MMR4wHAYDVQQKDBVTdGFhdCBkZXIgTmVkZXJsYW5kZW4xMjAwBgNVBAMMKVN0YWF0IGRlciBOZWRlcmxhbmRlbiBPcmdhbmlzYXRpZSBDQSAtIEcy">
       <serialNumber>ATE0vw==</serialNumber>
     </certItem>
-        <certItem issuerName="MFkxCzAJBgNVBAYTAk5MMR4wHAYDVQQKExVTdGFhdCBkZXIgTmVkZXJsYW5kZW4xKjAoBgNVBAMTIVN0YWF0IGRlciBOZWRlcmxhbmRlbiBPdmVyaGVpZCBDQQ">
+        <certItem issuerName="MFkxCzAJBgNVBAYTAk5MMR4wHAYDVQQKExVTdGFhdCBkZXIgTmVkZXJsYW5kZW4xKjAoBgNVBAMTIVN0YWF0IGRlciBOZWRlcmxhbmRlbiBPdmVyaGVpZCBDQQ==">
       <serialNumber>ATFpsA==</serialNumber>
     </certItem>
-        <certItem issuerName="MFkxCzAJBgNVBAYTAk5MMR4wHAYDVQQKExVTdGFhdCBkZXIgTmVkZXJsYW5kZW4xKjAoBgNVBAMTIVN0YWF0IGRlciBOZWRlcmxhbmRlbiBPdmVyaGVpZCBDQQ">
+        <certItem issuerName="MFkxCzAJBgNVBAYTAk5MMR4wHAYDVQQKExVTdGFhdCBkZXIgTmVkZXJsYW5kZW4xKjAoBgNVBAMTIVN0YWF0IGRlciBOZWRlcmxhbmRlbiBPdmVyaGVpZCBDQQ==">
       <serialNumber>ATFEdg==</serialNumber>
     </certItem>
         <certItem issuerName="MDcxJDAiBgNVBAMTG1JDUyBDZXJ0aWZpY2F0aW9uIEF1dGhvcml0eTEPMA0GA1UEChMGSFQgc3Js">
