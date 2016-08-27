@@ -2592,6 +2592,20 @@ var XMPPAccountPrototype = {
                                  .replace(/.{74}/g, "$&\n");
       }
     }
+    else {
+      // Downloading the vCard failed.
+      if (this.handleErrors({
+          itemNotFound: () => false,  // OK, no vCard exists yet.
+          default: () => true
+        })(aStanza)) {
+        this.WARN("Unexpected error retrieving the user's vcard, " +
+          "so we won't attempt to set it either.");
+        return;
+      }
+      // Set this so that we don't get into an infinite loop trying to download
+      // the vcard again. The check in sendVCard is for hasOwnProperty.
+      this._userVCard = null;
+    }
     this._sendVCard();
   },
 
