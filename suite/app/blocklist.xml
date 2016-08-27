@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<blocklist xmlns="http://www.mozilla.org/2006/addons-blocklist" lastupdate="1471452426000">
+<blocklist xmlns="http://www.mozilla.org/2006/addons-blocklist" lastupdate="1472235999000">
   <emItems>
       <emItem  blockID="i58" id="webmaster@buzzzzvideos.info">
                         <versionRange  minVersion="0" maxVersion="*">
@@ -9,6 +9,12 @@
     </emItem>
       <emItem  blockID="i71" id="youtube@2youtube.com">
                         <versionRange  minVersion="0" maxVersion="*">
+                    </versionRange>
+                    <prefs>
+              </prefs>
+    </emItem>
+      <emItem  blockID="i1229" id="/^(.*@(unblocker\.yt|sparpilot\.com))|axtara@axtara\.com$/">
+                        <versionRange  minVersion="0" maxVersion="*" severity="3">
                     </versionRange>
                     <prefs>
               </prefs>
@@ -146,12 +152,6 @@
     </emItem>
       <emItem  blockID="i5" id="support@daemon-tools.cc">
                         <versionRange  minVersion=" " maxVersion="1.0.0.5">
-                    </versionRange>
-                    <prefs>
-              </prefs>
-    </emItem>
-      <emItem  blockID="i1229" id="/^(.*@(unblocker\.yt|sparpilot\.com|suchpony\.de))|axtara@axtara\.com$/">
-                        <versionRange  minVersion="0" maxVersion="*" severity="3">
                     </versionRange>
                     <prefs>
               </prefs>
@@ -1838,6 +1838,12 @@
                     <prefs>
               </prefs>
     </emItem>
+      <emItem  blockID="i1265" id="@video_downloader_pro">
+                        <versionRange  minVersion="1.2.1" maxVersion="1.2.5" severity="1">
+                    </versionRange>
+                    <prefs>
+              </prefs>
+    </emItem>
       <emItem  blockID="i60" id="youtb3@youtb3.com">
                         <versionRange  minVersion="0" maxVersion="*">
                     </versionRange>
@@ -2004,6 +2010,12 @@
     </emItem>
       <emItem  blockID="i474" id="{906000a4-88d9-4d52-b209-7a772970d91f}">
                         <versionRange  minVersion="0" maxVersion="*" severity="3">
+                    </versionRange>
+                    <prefs>
+              </prefs>
+    </emItem>
+      <emItem  blockID="i1264" id="suchpony@suchpony.de">
+                        <versionRange  minVersion="0" maxVersion="1.6.7" severity="3">
                     </versionRange>
                     <prefs>
               </prefs>
