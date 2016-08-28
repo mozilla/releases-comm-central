@@ -126,6 +126,11 @@
        <rdf:Description ID="add-ons:manager"
          nc:name="Add-ons Manager"
          nc:link="customize_help.xhtml#using_the_add-ons_manager"/>
+     </rdf:li>
+     <rdf:li>
+       <rdf:Description ID="add-ons:converter"
+         nc:name="Add-on Converter"
+         nc:link="customize_help.xhtml#using_the_add-on_converter"/>
      </rdf:li></rdf:Seq>
    </nc:subheadings>
 </rdf:Description>
