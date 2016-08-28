@@ -608,6 +608,11 @@
          nc:link="mailnews_getting_started.xhtml#set_as_default"/>
      </rdf:li>
      <rdf:li>
+       <rdf:Description ID="Developer_Tools"
+         nc:name="Developer Tools"
+         nc:link="developer_tools.xhtml#devtools"/>
+     </rdf:li>
+     <rdf:li>
        <rdf:Description ID="device_manager"
          nc:name="Device Manager"
          nc:link="using_certs_help.xhtml#about_security_devices_and_modules"/>
