@@ -179,6 +179,28 @@ var stateListener = {
         break;
     }
 
+    // Set the selected item in the identity list as needed, which will cause
+    // an identity/signature switch. This can only be done once the message
+    // body has already been assembled with the signature we need to switch.
+    if (gMsgCompose.identity != gCurrentIdentity) {
+      // Since switching the signature loses the caret position, we record it
+      // and restore it later.
+      let selection = this.editor.selection;
+      let range = selection.getRangeAt(0);
+      let start = range.startOffset;
+      let startNode = range.startContainer;
+
+      this.editor.enableUndo(false);
+      let identityList = GetMsgIdentityElement();
+      identityList.selectedItem = identityList.getElementsByAttribute(
+        "identitykey", gMsgCompose.identity.key)[0];
+      LoadIdentity(false);
+
+      this.editor.enableUndo(true);
+      this.editor.resetModificationCount();
+      selection.collapse(startNode, start);
+    }
+
     if (gMsgCompose.composeHTML)
       loadHTMLMsgPrefs();
     AdjustFocus();
@@ -192,7 +214,7 @@ var stateListener = {
       let pElement = this.editor.createElementWithDefaults("p");
       let brElement = this.editor.createElementWithDefaults("br");
       pElement.appendChild(brElement);
-      this.editor.insertElementAtSelection(pElement,true);
+      this.editor.insertElementAtSelection(pElement, false);
 
       this.paragraphState.setAttribute("state", "p");
 
@@ -227,15 +249,26 @@ var stateListener = {
       this.editor.enableUndo(false);
 
       // Delete a <br> if we see one.
+      let deleted2ndBR = false;
       let currentNode = mailBody.childNodes[start];
       if (currentNode.nodeName == "BR") {
         currentNode.remove();
+        currentNode = mailBody.childNodes[start];
+        if (currentNode && currentNode.nodeName == "BR") {
+          currentNode.remove();
+          deleted2ndBR = true;
+        }
       }
 
       let pElement = this.editor.createElementWithDefaults("p");
       let brElement = this.editor.createElementWithDefaults("br");
       pElement.appendChild(brElement);
-      this.editor.insertElementAtSelection(pElement,true);
+      this.editor.insertElementAtSelection(pElement, false);
+
+      if (deleted2ndBR) {
+        let brElement2 = this.editor.createElementWithDefaults("br");
+        this.editor.insertElementAtSelection(brElement2, false);
+      }
 
       // Position into the paragraph.
       selection.collapse(pElement, 0);
@@ -2582,22 +2615,34 @@ function LoadIdentity(startup)
               awAddRecipients(msgCompFields, "addr_reply", newReplyTo);
           }
 
+          let toAddrs = new Set(msgCompFields.splitRecipients(msgCompFields.to, true, {}));
+          let ccAddrs = new Set(msgCompFields.splitRecipients(msgCompFields.cc, true, {}));
+
           if (newCc != prevCc)
           {
             needToCleanUp = true;
-            if (prevCc != "")
+            if (prevCc)
               awRemoveRecipients(msgCompFields, "addr_cc", prevCc);
-            if (newCc != "")
+            if (newCc) {
+              // Ensure none of the Ccs are already in To.
+              let cc2 = msgCompFields.splitRecipients(newCc, true, {});
+              newCC = cc2.filter(x => !toAddrs.has(x)).join(", ");
               awAddRecipients(msgCompFields, "addr_cc", newCc);
+            }
           }
 
           if (newBcc != prevBcc)
           {
             needToCleanUp = true;
-            if (prevBcc != "")
+            if (prevBcc)
               awRemoveRecipients(msgCompFields, "addr_bcc", prevBcc);
-            if (newBcc != "")
+            if (newBcc) {
+              // Ensure none of the Bccs are already in To or Cc.
+              let bcc2 = msgCompFields.splitRecipients(newBcc, true, {});
+              let toCcAddrs = new Set([...toAddrs, ...ccAddrs]);
+              newBcc = bcc2.filter(x => !toCcAddrs.has(x)).join(", ");
               awAddRecipients(msgCompFields, "addr_bcc", newBcc);
+            }
           }
 
           if (needToCleanUp)
