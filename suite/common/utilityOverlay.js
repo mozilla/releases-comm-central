@@ -1245,29 +1245,32 @@ function createShowPopupsMenu(parent, browser)
   if (!browser)
     return false;
 
-  var popups = browser.blockedPopups;
-
-  if (!popups)
+  if (!browser.blockedPopups ||
+      browser.blockedPopups.count == 0)
     return false;
 
   parent.browser = browser;
 
-  for (var i = 0; i < popups.length; i++) {
-    // popupWindowURI will be null if a file input was blocked.
-    var URI = popups[i].popupWindowURI;
-    if (!URI)
-      continue;
+  browser.retrieveListOfBlockedPopups().then(blockedPopups => {
 
-    var str = gUtilityBundle.getFormattedString("popupMenuShow", [URI.spec]);
-    // Check for duplicates and reuse the old menuitem.
-    var menuitem = parent.getElementsByAttribute("label", str).item(0);
-    if (!menuitem) {
-      menuitem = document.createElement("menuitem");
-      menuitem.setAttribute("label", str);
+    for (var i = 0; i < blockedPopups.length; i++) {
+
+      let blockedPopup = blockedPopups[i];
+      // popupWindowURI will be null if the file picker popup is blocked.
+      if (!blockedPopup.popupWindowURIspec)
+            continue;
+
+      let str = gUtilityBundle.getFormattedString("popupMenuShow", [blockedPopup.popupWindowURIspec]);
+      // Check for duplicates in the blockedPopups list and reuse the old menuitem.
+      let menuitem = parent.getElementsByAttribute("label", str).item(0);
+      if (!menuitem) {
+        menuitem = document.createElement("menuitem");
+        menuitem.setAttribute("label", str);
+      }
+      menuitem.setAttribute("popupReportIndex", i);
+      parent.appendChild(menuitem);
     }
-    menuitem.setAttribute("popupReportIndex", i);
-    parent.appendChild(menuitem);
-  }
+  }, null);
 
   return parent.getElementsByAttribute("popupReportIndex", "*").item(0) != null;
 }

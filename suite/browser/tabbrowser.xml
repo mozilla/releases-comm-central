@@ -1109,6 +1109,8 @@
         <body>
           <![CDATA[
             var newBrowser = this.mPanelContainer.selectedPanel.firstChild;
+            var oldBrowser = this.mCurrentBrowser;
+
             // Transfer the dropped link handler to the new browser.
             // Note: closing the current tab sets mCurrentBrowser to null
             //       so we use mCurrentTab.linkedBrowser instead.
@@ -1129,6 +1131,10 @@
             this.finder.mListeners.forEach(l => this.mCurrentBrowser.finder.addResultListener(l));
 
             var tabListener = this.mTabListeners[this.tabContainer.selectedIndex];
+
+            if (!oldBrowser ||
+                (!oldBrowser.blockedPopups != !newBrowser.blockedPopups))
+              this.mCurrentBrowser.updateBlockedPopups();
 
             // Update the URL bar.
             const nsIWebProgressListener = Components.interfaces.nsIWebProgressListener;
