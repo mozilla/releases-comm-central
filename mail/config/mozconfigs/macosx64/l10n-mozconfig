@@ -1,10 +1,10 @@
-. $topsrcdir/build/macosx/universal/mozconfig
+. $topsrcdir/build/macosx/local-mozconfig.common
 
 ac_add_options --enable-application=mail
 ac_add_options --enable-update-channel=${MOZ_UPDATE_CHANNEL}
 ac_add_options --disable-install-strip
 ac_add_options --enable-profiling
-ac_add_options --with-l10n-base=../../../l10n
+ac_add_options --with-l10n-base=../../l10n
 
 # Build lightning locales
 ac_add_options --enable-calendar
