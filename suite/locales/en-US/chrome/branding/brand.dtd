@@ -4,5 +4,6 @@
 
 <!ENTITY  brandFullName         "SeaMonkey">
 <!ENTITY  brandShortName        "SeaMonkey">
+<!ENTITY  brandShorterName      "SeaMonkey">
 <!ENTITY  vendorShortName       "SeaMonkey">
 <!ENTITY  sidebarName           "Sidebar">
