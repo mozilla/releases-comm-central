@@ -173,8 +173,10 @@ cal.print = {
 
         let dateFormatter = cal.getDateFormatter();
         let defaultTimezone = cal.calendarDefaultTimezone();
-        let start = startDate.getInTimezone(defaultTimezone).clone();
-        let end = endDate.getInTimezone(defaultTimezone).clone();
+        startDate = startDate.getInTimezone(defaultTimezone);
+        endDate = endDate.getInTimezone(defaultTimezone);
+        let start = startDate.clone();
+        let end = endDate.clone();
         start.isDate = true;
         end.isDate = true;
         if (start.compare(end) == 0) {
