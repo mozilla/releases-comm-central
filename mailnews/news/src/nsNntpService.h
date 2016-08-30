@@ -18,7 +18,7 @@
 #include "nsINntpUrl.h"
 #include "nsCOMPtr.h"
 #include "nsIContentHandler.h"
-#include "nsICacheSession.h"
+#include "nsICacheStorage.h"
 
 #include "nsICommandLineHandler.h"
 
@@ -70,7 +70,7 @@ protected:
   bool              mPrintingOperation; // Flag for printing operations
   bool        mOpenAttachmentOperation; // Flag for opening attachments
 
-  nsCOMPtr<nsICacheSession> mCacheSession; // the cache session used by news
+  nsCOMPtr<nsICacheStorage> mCacheStorage; // the cache storage used by news
 };
 
 #endif /* nsNntpService_h___ */

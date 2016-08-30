@@ -57,8 +57,9 @@
 #include "nsIMsgFilterList.h"
 
 // for the memory cache...
-#include "nsICacheEntryDescriptor.h"
-#include "nsICacheSession.h"
+#include "nsICacheEntry.h"
+#include "nsICacheStorage.h"
+#include "nsIApplicationCache.h"
 #include "nsIStreamListener.h"
 #include "nsNetCID.h"
 
@@ -259,7 +260,7 @@ char *MSG_UnEscapeSearchUrl (const char *commandSpecificData)
 ///////////////////////////////////////////////////////////////////////////////////////////
 
 NS_IMPL_ISUPPORTS_INHERITED(nsNNTPProtocol, nsMsgProtocol, nsINNTPProtocol,
-  nsITimerCallback, nsICacheListener, nsIMsgAsyncPromptListener)
+  nsITimerCallback, nsICacheEntryOpenCallback, nsIMsgAsyncPromptListener)
 
 nsNNTPProtocol::nsNNTPProtocol(nsINntpIncomingServer *aServer, nsIURI *aURL,
                                nsIMsgWindow *aMsgWindow)
@@ -689,7 +690,7 @@ nsresult nsNNTPProtocol::SetupPartExtractorListener(nsIStreamListener * aConsume
   return rv;
 }
 
-nsresult nsNNTPProtocol::ReadFromMemCache(nsICacheEntryDescriptor *entry)
+nsresult nsNNTPProtocol::ReadFromMemCache(nsICacheEntry *entry)
 {
   NS_ENSURE_ARG(entry);
 
@@ -811,7 +812,7 @@ bool nsNNTPProtocol::ReadFromLocalCache()
 }
 
 NS_IMETHODIMP
-nsNNTPProtocol::OnCacheEntryAvailable(nsICacheEntryDescriptor *entry, nsCacheAccessMode access, nsresult status)
+nsNNTPProtocol::OnCacheEntryAvailable(nsICacheEntry *entry, bool aNew, nsIApplicationCache* aAppCache, nsresult status)
 {
   nsresult rv = NS_OK;
 
@@ -820,21 +821,8 @@ nsNNTPProtocol::OnCacheEntryAvailable(nsICacheEntryDescriptor *entry, nsCacheAcc
     nsCOMPtr<nsIMsgMailNewsUrl> mailnewsUrl = do_QueryInterface(m_runningURL, &rv);
     mailnewsUrl->SetMemCacheEntry(entry);
 
-    // If we have an empty cache entry with read access, we probably failed to
-    // clear it out from an error ealier. In this case, we'll simply try to
-    // write in the cache entry this time and hope we get luckier.
-    bool canRead = access & nsICache::ACCESS_READ;
-    if (canRead)
-    {
-      uint32_t size;
-      entry->GetDataSize(&size);
-      if (size == 0)
-        canRead = false;
-    }
-
-    // if we have write access then insert a "stream T" into the flow so data
-    // gets written to both
-    if (access & nsICache::ACCESS_WRITE && !canRead)
+    // Insert a "stream T" into the flow so data gets written to both.
+    if (aNew)
     {
       // use a stream listener Tee to force data into the cache and to our current channel listener...
       nsCOMPtr<nsIStreamListener> newListener;
@@ -849,24 +837,26 @@ nsNNTPProtocol::OnCacheEntryAvailable(nsICacheEntryDescriptor *entry, nsCacheAcc
       m_channelListener = do_QueryInterface(tee);
       NS_ENSURE_SUCCESS(rv, rv);
     }
-    else if (canRead)
+    else
     {
       rv = ReadFromMemCache(entry);
-      if (access & nsICache::ACCESS_WRITE)
+      if (NS_SUCCEEDED(rv)) {
         entry->MarkValid();
-      if (NS_SUCCEEDED(rv))
         return NS_OK; // kick out if reading from the cache succeeded...
+      }
     }
   } // if we got a valid entry back from the cache...
 
-  // if reading from the cache failed or if we are writing into the cache, default to ReadFromImapConnection.
+  // if reading from the cache failed or if we are writing into the cache, default to ReadFromNewsConnection.
   return ReadFromNewsConnection();
 }
 
 NS_IMETHODIMP
-nsNNTPProtocol::OnCacheEntryDoomed(nsresult status)
+nsNNTPProtocol::OnCacheEntryCheck(nsICacheEntry* entry, nsIApplicationCache* appCache,
+                                  uint32_t* aResult)
 {
-  return NS_ERROR_NOT_IMPLEMENTED;
+  *aResult = nsICacheEntryOpenCallback::ENTRY_WANTED;
+  return NS_OK;
 }
 
 nsresult nsNNTPProtocol::OpenCacheEntry()
@@ -877,18 +867,27 @@ nsresult nsNNTPProtocol::OpenCacheEntry()
   nsCOMPtr <nsINntpService> nntpService = do_GetService(NS_NNTPSERVICE_CONTRACTID, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  nsCOMPtr<nsICacheSession> cacheSession;
-  rv = nntpService->GetCacheSession(getter_AddRefs(cacheSession));
+  nsCOMPtr<nsICacheStorage> cacheStorage;
+  rv = nntpService->GetCacheStorage(getter_AddRefs(cacheStorage));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  // Open a cache entry with key = url
-  nsAutoCString urlSpec;
-  mailnewsUrl->GetAsciiSpec(urlSpec);
-  // for now, truncate of the query part so we don't duplicate urls in the cache...
-  int32_t pos = urlSpec.FindChar('?');
-  if (pos != -1)
-    urlSpec.SetLength(pos);
-  return cacheSession->AsyncOpenCacheEntry(urlSpec, nsICache::ACCESS_READ_WRITE, this, false);
+  // Open a cache entry with key = url, no extension.
+  nsCOMPtr<nsIURI> uri;
+  rv = mailnewsUrl->GetBaseURI(getter_AddRefs(uri));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  // Truncate of the query part so we don't duplicate urls in the cache for
+  // various message parts.
+  nsCOMPtr<nsIURI> newUri;
+  uri->Clone(getter_AddRefs(newUri));
+  nsAutoCString path;
+  newUri->GetPath(path);
+  int32_t pos = path.FindChar('?');
+  if (pos != kNotFound) {
+    path.SetLength(pos);
+    newUri->SetPath(path);
+  }
+  return cacheStorage->AsyncOpenURI(newUri, EmptyCString(), nsICacheStorage::OPEN_NORMALLY, this);
 }
 
 NS_IMETHODIMP nsNNTPProtocol::AsyncOpen(nsIStreamListener *listener, nsISupports *ctxt)
@@ -1150,7 +1149,7 @@ FAIL:
 
 void nsNNTPProtocol::FinishMemCacheEntry(bool valid)
 {
-  nsCOMPtr <nsICacheEntryDescriptor> memCacheEntry;
+  nsCOMPtr <nsICacheEntry> memCacheEntry;
   nsCOMPtr<nsIMsgMailNewsUrl> mailnewsurl = do_QueryInterface(m_runningURL);
   if (mailnewsurl)
     mailnewsurl->GetMemCacheEntry(getter_AddRefs(memCacheEntry));
@@ -1159,7 +1158,7 @@ void nsNNTPProtocol::FinishMemCacheEntry(bool valid)
     if (valid)
       memCacheEntry->MarkValid();
     else
-      memCacheEntry->Doom();
+      memCacheEntry->AsyncDoom(nullptr);
   }
 }
 

@@ -331,7 +331,6 @@ NS_IMETHODIMP nsMailboxService::StreamHeaders(const char *aMessageURI,
 
 NS_IMETHODIMP nsMailboxService::IsMsgInMemCache(nsIURI *aUrl,
                                                 nsIMsgFolder *aFolder,
-                                                nsICacheEntryDescriptor **aCacheEntry,
                                                 bool *aResult)
 {
   return NS_ERROR_NOT_IMPLEMENTED;

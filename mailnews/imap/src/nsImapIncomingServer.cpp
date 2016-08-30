@@ -32,7 +32,7 @@
 #include "nsMsgI18N.h"
 #include "nsIImapMockChannel.h"
 // for the memory cache...
-#include "nsICacheEntryDescriptor.h"
+#include "nsICacheEntry.h"
 #include "nsImapUrl.h"
 #include "nsIMsgProtocolInfo.h"
 #include "nsIMsgMailSession.h"
@@ -648,10 +648,10 @@ nsresult nsImapIncomingServer::DoomUrlIfChannelHasError(nsIImapUrl *aImapUrl, bo
 
         if (aMailNewsUrl)
         {
-          nsCOMPtr<nsICacheEntryDescriptor>  cacheEntry;
+          nsCOMPtr<nsICacheEntry> cacheEntry;
           res = aMailNewsUrl->GetMemCacheEntry(getter_AddRefs(cacheEntry));
           if (NS_SUCCEEDED(res) && cacheEntry)
-            cacheEntry->Doom();
+            cacheEntry->AsyncDoom(nullptr);
           // we're aborting this url - tell listeners
           aMailNewsUrl->SetUrlState(false, NS_MSG_ERROR_URL_ABORTED);
         }

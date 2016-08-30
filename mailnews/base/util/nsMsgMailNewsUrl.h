@@ -19,7 +19,7 @@
 #include "nsIURL.h"
 #include "nsILoadGroup.h"
 #include "nsIMsgSearchSession.h"
-#include "nsICacheEntryDescriptor.h"
+#include "nsICacheEntry.h"
 #include "nsICacheSession.h"
 #include "nsIMimeMiscStatus.h"
 #include "nsWeakReference.h"
@@ -55,7 +55,7 @@ protected:
   nsWeakPtr m_loadGroupWeak;
   nsCOMPtr<nsIMimeHeaders> mMimeHeaders;
   nsCOMPtr<nsIMsgSearchSession> m_searchSession;
-  nsCOMPtr<nsICacheEntryDescriptor> m_memCacheEntry;
+  nsCOMPtr<nsICacheEntry> m_memCacheEntry;
   nsCOMPtr<nsIMsgHeaderSink> mMsgHeaderSink;
   char *m_errorMessage;
   int64_t mMaxProgress;

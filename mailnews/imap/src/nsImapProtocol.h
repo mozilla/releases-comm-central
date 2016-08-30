@@ -46,7 +46,6 @@
 #include "nsCOMPtr.h"
 #include "nsIImapIncomingServer.h"
 #include "nsIMsgWindow.h"
-#include "nsICacheListener.h"
 #include "nsIImapHeaderXferInfo.h"
 #include "nsMsgLineBuffer.h"
 #include "nsIAsyncInputStream.h"
@@ -56,6 +55,7 @@
 #include "nsIMsgAsyncPrompter.h"
 #include "mozilla/ReentrantMonitor.h"
 #include "nsSyncRunnableHelpers.h"
+#include "nsICacheEntryOpenCallback.h"
 
 class nsIMAPMessagePartIDArray;
 class nsIMsgIncomingServer;
@@ -682,10 +682,10 @@ private:
 //
 // Threading concern: This class lives entirely in the UI thread.
 
-class nsICacheEntryDescriptor;
+class nsICacheEntry;
 
 class nsImapMockChannel : public nsIImapMockChannel
-                        , public nsICacheListener
+                        , public nsICacheEntryOpenCallback
                         , public nsITransportEventSink
                         , public nsSupportsWeakReference
 {
@@ -696,7 +696,7 @@ public:
   NS_DECL_NSIIMAPMOCKCHANNEL
   NS_DECL_NSICHANNEL
   NS_DECL_NSIREQUEST
-  NS_DECL_NSICACHELISTENER
+  NS_DECL_NSICACHEENTRYOPENCALLBACK
   NS_DECL_NSITRANSPORTEVENTSINK
 
   nsImapMockChannel();
@@ -730,7 +730,7 @@ protected:
   nsresult OpenCacheEntry(); // makes a request to the cache service for a cache entry for a url
   bool ReadFromLocalCache(); // attempts to read the url out of our local (offline) cache....
   nsresult ReadFromImapConnection(); // creates a new imap connection to read the url
-  nsresult ReadFromMemCache(nsICacheEntryDescriptor *entry); // attempts to read the url out of our memory cache
+  nsresult ReadFromMemCache(nsICacheEntry *entry); // attempts to read the url out of our memory cache
   nsresult NotifyStartEndReadFromCache(bool start);
 
   // we end up daisy chaining multiple nsIStreamListeners into the load process.

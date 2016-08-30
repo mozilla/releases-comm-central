@@ -686,13 +686,13 @@ NS_IMETHODIMP nsMsgMailNewsUrl::GetRelativeSpec(nsIURI *uri2, nsACString &result
   return m_baseURL->GetRelativeSpec(uri2, result);
 }
 
-NS_IMETHODIMP nsMsgMailNewsUrl::SetMemCacheEntry(nsICacheEntryDescriptor *memCacheEntry)
+NS_IMETHODIMP nsMsgMailNewsUrl::SetMemCacheEntry(nsICacheEntry *memCacheEntry)
 {
   m_memCacheEntry = memCacheEntry;
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgMailNewsUrl:: GetMemCacheEntry(nsICacheEntryDescriptor **memCacheEntry)
+NS_IMETHODIMP nsMsgMailNewsUrl::GetMemCacheEntry(nsICacheEntry **memCacheEntry)
 {
   NS_ENSURE_ARG(memCacheEntry);
   nsresult rv = NS_OK;

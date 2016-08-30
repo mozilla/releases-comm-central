@@ -39,8 +39,10 @@
 #include "nsIPrompt.h"
 #include "nsNewsDownloader.h"
 #include "prprf.h"
-#include "nsICacheService.h"
-#include "nsICacheEntryDescriptor.h"
+#include "nsICacheStorage.h"
+#include "nsICacheStorageService.h"
+#include "nsILoadContextInfo.h"
+#include "nsICacheEntry.h"
 #include "nsMsgUtils.h"
 #include "nsNetUtil.h"
 #include "nsIWindowWatcher.h"
@@ -51,6 +53,7 @@
 #include "nsArrayUtils.h"
 #include "nsIStreamListener.h"
 #include "nsIInputStream.h"
+#include "../../base/src/MailnewsLoadContextInfo.h"
 
 #undef GetPort  // XXX Windows!
 #undef SetPort  // XXX Windows!
@@ -277,7 +280,7 @@ nsNntpService::DisplayMessage(const char* aMessageURI, nsISupports * aDisplayCon
     // Now look in the memory cache
     if (!hasMsgOffline)
     {
-      rv = IsMsgInMemCache(url, folder, nullptr, &hasMsgOffline);
+      rv = IsMsgInMemCache(url, folder, &hasMsgOffline);
       NS_ENSURE_SUCCESS(rv, rv);
     }
 
@@ -1444,7 +1447,7 @@ nsNntpService::StreamMessage(const char *aMessageURI, nsISupports *aConsumer,
         url->SetPort((socketType == nsMsgSocketType::SSL) ?
                      nsINntpUrl::DEFAULT_NNTPS_PORT : nsINntpUrl::DEFAULT_NNTP_PORT);
 
-        rv = IsMsgInMemCache(url, folder, nullptr, &hasMsgOffline);
+        rv = IsMsgInMemCache(url, folder, &hasMsgOffline);
         NS_ENSURE_SUCCESS(rv, rv);
       }
 
@@ -1493,23 +1496,6 @@ NS_IMETHODIMP nsNntpService::StreamHeaders(const char *aMessageURI,
   rv = CreateMessageIDURL(folder, key, getter_Copies(urlStr));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  nsNewsAction action = nsINntpUrl::ActionFetchArticle;
-
-  nsCOMPtr<nsIURI> url;
-  rv = ConstructNntpUrl(urlStr.get(), aUrlListener, nullptr, aMessageURI,
-                        action, getter_AddRefs(url));
-  NS_ENSURE_SUCCESS(rv, rv);
-  nsCOMPtr<nsICacheEntryDescriptor> cacheEntry;
-  bool msgInMemCache = false;
-  rv = IsMsgInMemCache(url, folder, getter_AddRefs(cacheEntry), &msgInMemCache);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  if (msgInMemCache)
-  {
-    rv = cacheEntry->OpenInputStream(0, getter_AddRefs(inputStream));
-    if (NS_SUCCEEDED(rv))
-      return MsgStreamMsgHeaders(inputStream, aConsumer);
-  }
   if (aLocalOnly)
     return NS_ERROR_FAILURE;
   return rv;
@@ -1517,31 +1503,28 @@ NS_IMETHODIMP nsNntpService::StreamHeaders(const char *aMessageURI,
 
 NS_IMETHODIMP nsNntpService::IsMsgInMemCache(nsIURI *aUrl,
                                              nsIMsgFolder *aFolder,
-                                             nsICacheEntryDescriptor **aCacheEntry,
                                              bool *aResult)
 {
   NS_ENSURE_ARG_POINTER(aUrl);
-  NS_ENSURE_ARG_POINTER(aFolder);
   *aResult = false;
+  nsresult rv;
 
-  if (mCacheSession)
+  if (mCacheStorage)
   {
-    // check if message is in memory cache
-    nsAutoCString cacheKey;
-    aUrl->GetAsciiSpec(cacheKey);
-    // nntp urls are truncated at the query part when used as cache keys
-    int32_t pos = cacheKey.FindChar('?');
-    if (pos != -1)
-      cacheKey.SetLength(pos);
-
-    nsCOMPtr<nsICacheEntryDescriptor> cacheEntry;
-    if (NS_SUCCEEDED(mCacheSession->OpenCacheEntry(cacheKey,
-                     nsICache::ACCESS_READ, false,
-                     getter_AddRefs(cacheEntry))))
-    {
+    // NNTP urls are truncated at the query part when used as cache keys.
+    nsCOMPtr <nsIURI> newUri;
+    aUrl->Clone(getter_AddRefs(newUri));
+    nsAutoCString path;
+    newUri->GetPath(path);
+    int32_t pos = path.FindChar('?');
+    if (pos != kNotFound) {
+      path.SetLength(pos);
+      newUri->SetPath(path);
+    }
+    bool exists;
+    rv = mCacheStorage->Exists(newUri, EmptyCString(), &exists);
+    if (NS_SUCCEEDED(rv) && exists) {
       *aResult = true;
-      if (aCacheEntry)
-        NS_IF_ADDREF(*aCacheEntry = cacheEntry);
     }
   }
 
@@ -1750,20 +1733,22 @@ nsNntpService::DownloadNewsgroupsForOffline(nsIMsgWindow *aMsgWindow, nsIUrlList
   return rv;
 }
 
-NS_IMETHODIMP nsNntpService::GetCacheSession(nsICacheSession **result)
+NS_IMETHODIMP nsNntpService::GetCacheStorage(nsICacheStorage **result)
 {
   nsresult rv = NS_OK;
-  if (!mCacheSession)
+  if (!mCacheStorage)
   {
-    nsCOMPtr<nsICacheService> serv = do_GetService(NS_CACHESERVICE_CONTRACTID, &rv);
+    nsCOMPtr<nsICacheStorageService> cacheStorageService =
+      do_GetService("@mozilla.org/netwerk/cache-storage-service;1", &rv);
     NS_ENSURE_SUCCESS(rv, rv);
 
-    rv = serv->CreateSession("NNTP-memory-only", nsICache::STORE_IN_MEMORY, nsICache::STREAM_BASED, getter_AddRefs(mCacheSession));
+    RefPtr<MailnewsLoadContextInfo> lci =
+      new MailnewsLoadContextInfo(false, false, mozilla::NeckoOriginAttributes());
+
+    rv = cacheStorageService->MemoryCacheStorage(lci, getter_AddRefs(mCacheStorage));
     NS_ENSURE_SUCCESS(rv, rv);
-    rv = mCacheSession->SetDoomEntriesIfExpired(false);
   }
 
-  *result = mCacheSession;
-  NS_IF_ADDREF(*result);
+  NS_IF_ADDREF(*result = mCacheStorage);
   return rv;
 }

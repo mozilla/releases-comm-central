@@ -42,7 +42,9 @@
 #include "nsImapOfflineSync.h"
 #include "nsIMsgHdr.h"
 #include "nsMsgUtils.h"
-#include "nsICacheService.h"
+#include "nsICacheStorage.h"
+#include "nsICacheStorageService.h"
+#include "nsILoadContextInfo.h"
 #include "nsIStreamListenerTee.h"
 #include "nsNetCID.h"
 #include "nsMsgI18N.h"
@@ -67,14 +69,13 @@
 #include "nsNetUtil.h"
 #include "nsMsgMessageFlags.h"
 #include "nsIMsgPluggableStore.h"
+#include "../../base/src/MailnewsLoadContextInfo.h"
 
 #define PREF_MAIL_ROOT_IMAP "mail.root.imap"            // old - for backward compatibility only
 #define PREF_MAIL_ROOT_IMAP_REL "mail.root.imap-rel"
 
 static NS_DEFINE_CID(kImapUrlCID, NS_IMAPURL_CID);
 static NS_DEFINE_CID(kCImapMockChannel, NS_IMAPMOCKCHANNEL_CID);
-static NS_DEFINE_CID(kCacheServiceCID, NS_CACHESERVICE_CID);
-
 
 static const char sequenceString[] = "SEQUENCE";
 static const char uidString[] = "UID";
@@ -992,7 +993,7 @@ NS_IMETHODIMP nsImapService::FetchMessage(nsIImapUrl *aImapUrl,
     nsCOMPtr<nsIMsgMailNewsUrl> msgUrl(do_QueryInterface(aImapUrl));
     msgUrl->GetMsgIsInLocalCache(&msgIsInCache);
     if (!msgIsInCache)
-      IsMsgInMemCache(url, aImapMailFolder, nullptr, &msgIsInCache);
+      IsMsgInMemCache(url, aImapMailFolder, &msgIsInCache);
 
     // Display the "offline" message if we didn't find it in the memory cache either
     if (!msgIsInCache)
@@ -1183,7 +1184,7 @@ NS_IMETHODIMP nsImapService::StreamMessage(const char *aMessageURI,
         bool isMsgInMemCache = false;
         if (!hasMsgOffline)
         {
-          rv = IsMsgInMemCache(url, folder, nullptr, &isMsgInMemCache);
+          rv = IsMsgInMemCache(url, folder, &isMsgInMemCache);
           NS_ENSURE_SUCCESS(rv, rv);
 
           if (!isMsgInMemCache)
@@ -1236,25 +1237,8 @@ NS_IMETHODIMP nsImapService::StreamHeaders(const char *aMessageURI,
       if (inputStream)
         return MsgStreamMsgHeaders(inputStream, aConsumer);
     }
-    nsCOMPtr<nsIImapUrl> imapUrl;
-    nsAutoCString urlSpec;
-    char hierarchyDelimiter = GetHierarchyDelimiter(folder);
-    rv = CreateStartOfImapUrl(nsDependentCString(aMessageURI), getter_AddRefs(imapUrl), 
-                              folder, aUrlListener, urlSpec, hierarchyDelimiter);
-    NS_ENSURE_SUCCESS(rv, rv);
-    nsCOMPtr<nsIURI> url(do_QueryInterface(imapUrl));
-    nsCOMPtr<nsICacheEntryDescriptor> cacheEntry;
-    bool msgInMemCache = false;
-    rv = IsMsgInMemCache(url, folder, getter_AddRefs(cacheEntry), &msgInMemCache);
-    NS_ENSURE_SUCCESS(rv, rv);
-
-    if (msgInMemCache)
-    {
-      rv = cacheEntry->OpenInputStream(0, getter_AddRefs(inputStream));
-      if (NS_SUCCEEDED(rv))
-        return MsgStreamMsgHeaders(inputStream, aConsumer);
-    }
   }
+
   if (aLocalOnly)
     return NS_ERROR_FAILURE;
   return rv;
@@ -1262,7 +1246,6 @@ NS_IMETHODIMP nsImapService::StreamHeaders(const char *aMessageURI,
 
 NS_IMETHODIMP nsImapService::IsMsgInMemCache(nsIURI *aUrl,
                                              nsIMsgFolder *aImapMailFolder,
-                                             nsICacheEntryDescriptor **aCacheEntry,
                                              bool *aResult)
 {
   NS_ENSURE_ARG_POINTER(aUrl);
@@ -1270,8 +1253,14 @@ NS_IMETHODIMP nsImapService::IsMsgInMemCache(nsIURI *aUrl,
   *aResult = false;
 
   // Poke around in the memory cache
-  if (mCacheSession)
+  if (mCacheStorage)
   {
+    // XXX: No truncation after a possible '?' done here?
+    nsAutoCString urlSpec;
+    aUrl->GetAsciiSpec(urlSpec);
+    if (urlSpec.RFindChar('?') != kNotFound)
+      NS_WARNING ("nsImapService::IsMsgInMemCache found ? in URL");
+
     nsresult rv;
     nsCOMPtr<nsIImapMailFolderSink> folderSink(do_QueryInterface(aImapMailFolder, &rv));
     NS_ENSURE_SUCCESS(rv, rv);
@@ -1280,20 +1269,13 @@ NS_IMETHODIMP nsImapService::IsMsgInMemCache(nsIURI *aUrl,
     folderSink->GetUidValidity(&uidValidity);
     // stick the uid validity in front of the url, so that if the uid validity
     // changes, we won't re-use the wrong cache entries.
-    nsAutoCString cacheKey;
-    nsAutoCString escapedSpec;
+    nsAutoCString extension;
+    extension.AppendInt(uidValidity, 16);
 
-    cacheKey.AppendInt(uidValidity, 16);
-    aUrl->GetAsciiSpec(escapedSpec);
-    cacheKey.Append(escapedSpec);
-    nsCOMPtr<nsICacheEntryDescriptor> cacheEntry;
-    rv = mCacheSession->OpenCacheEntry(cacheKey, nsICache::ACCESS_READ, false,
-                                       getter_AddRefs(cacheEntry));
-    if (NS_SUCCEEDED(rv))
-    {
+    bool exists;
+    rv = mCacheStorage->Exists(aUrl, extension, &exists);
+    if (NS_SUCCEEDED(rv) && exists) {
       *aResult = true;
-      if (aCacheEntry)
-        NS_IF_ADDREF(*aCacheEntry = cacheEntry);
     }
   }
 
@@ -3316,21 +3298,23 @@ NS_IMETHODIMP nsImapService::DownloadAllOffineImapFolders(nsIMsgWindow *aMsgWind
   return NS_ERROR_OUT_OF_MEMORY;
 }
 
-
-NS_IMETHODIMP nsImapService::GetCacheSession(nsICacheSession **result)
+NS_IMETHODIMP nsImapService::GetCacheStorage(nsICacheStorage **result)
 {
   nsresult rv = NS_OK;
-  if (!mCacheSession)
+  if (!mCacheStorage)
   {
-    nsCOMPtr<nsICacheService> serv = do_GetService(kCacheServiceCID, &rv);
+    nsCOMPtr<nsICacheStorageService> cacheStorageService =
+      do_GetService("@mozilla.org/netwerk/cache-storage-service;1", &rv);
     NS_ENSURE_SUCCESS(rv, rv);
-    
-    rv = serv->CreateSession("IMAP-anywhere", nsICache::STORE_ANYWHERE, nsICache::STREAM_BASED, getter_AddRefs(mCacheSession));
+
+    RefPtr<MailnewsLoadContextInfo> lci =
+      new MailnewsLoadContextInfo(false, false, mozilla::NeckoOriginAttributes());
+
+    rv = cacheStorageService->MemoryCacheStorage(lci, getter_AddRefs(mCacheStorage));
     NS_ENSURE_SUCCESS(rv, rv);
-    rv = mCacheSession->SetDoomEntriesIfExpired(false);
   }
 
-  NS_IF_ADDREF(*result = mCacheSession);
+  NS_IF_ADDREF(*result = mCacheStorage);
   return rv;
 }
 

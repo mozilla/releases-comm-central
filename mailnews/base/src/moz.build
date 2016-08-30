@@ -11,6 +11,7 @@ EXPORTS += [
 
 SOURCES += [
     'MailNewsDLF.cpp',
+    'MailnewsLoadContextInfo.cpp',
     'nsCidProtocolHandler.cpp',
     'nsCopyMessageStreamListener.cpp',
     'nsMailDirProvider.cpp',

@@ -74,7 +74,7 @@
 #include "nsEmbedCID.h"
 #include "nsIMsgComposeService.h"
 #include "nsMsgCompCID.h"
-#include "nsICacheEntryDescriptor.h"
+#include "nsICacheEntry.h"
 #include "nsDirectoryServiceDefs.h"
 #include "nsIMsgIdentity.h"
 #include "nsIMsgFolderNotificationService.h"
@@ -9350,39 +9350,21 @@ NS_IMETHODIMP nsImapMailFolder::FetchMsgPreviewText(nsMsgKey *aKeysToFetch, uint
     rv = msgService->GetUrlForUri(messageUri.get(), getter_AddRefs(url), nullptr);
     NS_ENSURE_SUCCESS(rv,rv);
 
-    nsCOMPtr<nsICacheEntryDescriptor> cacheEntry;
-    bool msgInMemCache = false;
-    rv = msgService->IsMsgInMemCache(url, this, getter_AddRefs(cacheEntry), &msgInMemCache);
-    NS_ENSURE_SUCCESS(rv, rv);
-
-    if (msgInMemCache)
+    // Lets look in the offline store.
+    uint32_t msgFlags;
+    msgHdr->GetFlags(&msgFlags);
+    nsMsgKey msgKey;
+    msgHdr->GetMessageKey(&msgKey);
+    if (msgFlags & nsMsgMessageFlags::Offline)
     {
-      rv = cacheEntry->OpenInputStream(0, getter_AddRefs(inputStream));
-      if (NS_SUCCEEDED(rv))
-      {
-        uint64_t bytesAvailable = 0;
-        rv = inputStream->Available(&bytesAvailable);
-        if (!bytesAvailable)
-          continue;
+      int64_t messageOffset;
+      uint32_t messageSize;
+      GetOfflineFileStream(msgKey, &messageOffset, &messageSize, getter_AddRefs(inputStream));
+      if (inputStream)
         rv = GetMsgPreviewTextFromStream(msgHdr, inputStream);
-      }
     }
-    else // lets look in the offline store
-    {
-      uint32_t msgFlags;
-      msgHdr->GetFlags(&msgFlags);
-      nsMsgKey msgKey;
-      msgHdr->GetMessageKey(&msgKey);
-      if (msgFlags & nsMsgMessageFlags::Offline)
-      {
-        int64_t messageOffset;
-        uint32_t messageSize;
-        GetOfflineFileStream(msgKey, &messageOffset, &messageSize, getter_AddRefs(inputStream));
-        if (inputStream)
-          rv = GetMsgPreviewTextFromStream(msgHdr, inputStream);
-      }
-      else if (!aLocalOnly)
-        keysToFetchFromServer.AppendElement(msgKey);
+    else if (!aLocalOnly) {
+      keysToFetchFromServer.AppendElement(msgKey);
     }
   }
   if (!keysToFetchFromServer.IsEmpty())

@@ -13,7 +13,7 @@ interface nsIMsgIncomingServer;
 interface nsIMsgWindow;
 interface nsILoadGroup;
 interface nsIMsgSearchSession;
-interface nsICacheEntryDescriptor;
+interface nsICacheEntry;
 interface nsIMimeHeaders;
 interface nsIStreamListener;
 interface nsIMsgFolder;
@@ -99,7 +99,7 @@ interface nsIMsgMailNewsUrl : nsIURL {
   attribute boolean msgIsInLocalCache;
   attribute boolean suppressErrorMsgs; // used to avoid displaying biff error messages
 
-  attribute nsICacheEntryDescriptor memCacheEntry;
+  attribute nsICacheEntry memCacheEntry;
 
   const unsigned long eCopy     = 0;
   const unsigned long eMove     = 1;

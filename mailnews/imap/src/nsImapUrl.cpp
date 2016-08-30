@@ -20,7 +20,7 @@
 #include "nsMsgBaseCID.h"
 #include "nsImapUtils.h"
 #include "nsIMAPNamespace.h"
-#include "nsICacheEntryDescriptor.h"
+#include "nsICacheEntry.h"
 #include "nsIMsgFolder.h"
 #include "nsIDocShell.h"
 #include "nsIInterfaceRequestor.h"
@@ -1043,7 +1043,7 @@ NS_IMETHODIMP nsImapUrl::SetAllowContentChange(bool allowContentChange)
 NS_IMETHODIMP nsImapUrl::SetContentModified(nsImapContentModifiedType contentModified)
 {
   m_contentModified = contentModified;
-  nsCOMPtr<nsICacheEntryDescriptor>  cacheEntry;
+  nsCOMPtr<nsICacheEntry> cacheEntry;
   nsresult res = GetMemCacheEntry(getter_AddRefs(cacheEntry));
   if (NS_SUCCEEDED(res) && cacheEntry)
   {

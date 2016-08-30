@@ -40,8 +40,10 @@
 #include "nsMsgI18N.h"
 #include <algorithm>
 // for the memory cache...
-#include "nsICacheEntryDescriptor.h"
-#include "nsICacheSession.h"
+#include "nsICacheEntry.h"
+#include "nsICacheStorage.h"
+#include "nsICacheEntryOpenCallback.h"
+
 #include "nsIPrompt.h"
 #include "nsIDocShell.h"
 #include "nsIDocShellLoadInfo.h"
@@ -938,7 +940,7 @@ nsresult nsImapProtocol::SetupWithUrl(nsIURI * aURL, nsISupports* aConsumer)
       nsCOMPtr<nsIMsgMailNewsUrl> mailnewsUrl = do_QueryInterface(m_runningUrl);
       if (mailnewsUrl)
       {
-        nsCOMPtr<nsICacheEntryDescriptor> cacheEntry;
+        nsCOMPtr<nsICacheEntry> cacheEntry;
         mailnewsUrl->GetMemCacheEntry(getter_AddRefs(cacheEntry));
         if (cacheEntry)
           cacheEntry->SetSecurityInfo(securityInfo);
@@ -1532,10 +1534,10 @@ static void DoomCacheEntry(nsIMsgMailNewsUrl *url)
   imapUrl->GetMsgLoadingFromCache(&readingFromMemCache);
   if (!readingFromMemCache)
   {
-    nsCOMPtr<nsICacheEntryDescriptor>  cacheEntry;
+    nsCOMPtr<nsICacheEntry> cacheEntry;
     url->GetMemCacheEntry(getter_AddRefs(cacheEntry));
     if (cacheEntry)
-      cacheEntry->Doom();
+      cacheEntry->AsyncDoom(nullptr);
   }
 }
 
@@ -8735,7 +8737,7 @@ nsImapCacheStreamListener::OnDataAvailable(nsIRequest *request, nsISupports * aC
 }
 
 NS_IMPL_ISUPPORTS(nsImapMockChannel, nsIImapMockChannel, nsIChannel,
-  nsIRequest, nsICacheListener, nsITransportEventSink, nsISupportsWeakReference)
+  nsIRequest, nsICacheEntryOpenCallback, nsITransportEventSink, nsISupportsWeakReference)
 
 
 nsImapMockChannel::nsImapMockChannel()
@@ -8791,7 +8793,7 @@ NS_IMETHODIMP nsImapMockChannel::Close()
     nsCOMPtr<nsIMsgMailNewsUrl> mailnewsUrl = do_QueryInterface(m_url);
     if (mailnewsUrl)
     {
-      nsCOMPtr<nsICacheEntryDescriptor>  cacheEntry;
+      nsCOMPtr<nsICacheEntry> cacheEntry;
       mailnewsUrl->GetMemCacheEntry(getter_AddRefs(cacheEntry));
       if (cacheEntry)
         cacheEntry->MarkValid();
@@ -8968,7 +8970,7 @@ NS_IMETHODIMP nsImapMockChannel::Open2(nsIInputStream **_retval)
 }
 
 NS_IMETHODIMP
-nsImapMockChannel::OnCacheEntryAvailable(nsICacheEntryDescriptor *entry, nsCacheAccessMode access, nsresult status)
+nsImapMockChannel::OnCacheEntryAvailable(nsICacheEntry *entry, bool aNew, nsIApplicationCache* aAppCache, nsresult status)
 {
   nsresult rv = NS_OK;
 
@@ -8977,34 +8979,29 @@ nsImapMockChannel::OnCacheEntryAvailable(nsICacheEntryDescriptor *entry, nsCache
   // be invalidating the cache entry before kicking out...
   if (mChannelClosed)
   {
-    entry->Doom();
+    entry->AsyncDoom(nullptr);
     return NS_OK;
   }
 
   NS_ENSURE_ARG(m_url); // kick out if m_url is null for some reason.
 
-#ifdef DEBUG_bienvenu
-      nsAutoCString entryKey("null");
-      if (entry)
-        entry->GetKey(entryKey);
-      printf("*** OnCacheEntryAvailable %s with access %d status %u\n", entryKey.get(), access, status);
-#endif
   if (NS_SUCCEEDED(status))
   {
     nsCOMPtr<nsIMsgMailNewsUrl> mailnewsUrl = do_QueryInterface(m_url, &rv);
     mailnewsUrl->SetMemCacheEntry(entry);
 
-    if (mTryingToReadPart && access & nsICache::ACCESS_WRITE && !(access & nsICache::ACCESS_READ))
+    if (mTryingToReadPart && aNew)
     {
-      entry->Doom();
+      entry->AsyncDoom(nullptr);
       // whoops, we're looking for a part, but didn't find it. Fall back to fetching the whole msg.
       nsCOMPtr<nsIImapUrl> imapUrl = do_QueryInterface(m_url);
       SetupPartExtractorListener(imapUrl, m_channelListener);
       return OpenCacheEntry();
     }
+
     // if we have write access then insert a "stream T" into the flow so data
     // gets written to both
-    if (access & nsICache::ACCESS_WRITE && !(access & nsICache::ACCESS_READ))
+    if (aNew)
     {
       // use a stream listener Tee to force data into the cache and to our current channel listener...
       nsCOMPtr<nsIStreamListenerTee> tee = do_CreateInstance(NS_STREAMLISTENERTEE_CONTRACTID, &rv);
@@ -9029,11 +9026,10 @@ nsImapMockChannel::OnCacheEntryAvailable(nsICacheEntryDescriptor *entry, nsCache
       if (NS_SUCCEEDED(rv))
       {
         NotifyStartEndReadFromCache(true);
-        if (access & nsICache::ACCESS_WRITE)
-          entry->MarkValid();
+        entry->MarkValid();
         return NS_OK; // kick out if reading from the cache succeeded...
       }
-      entry->Doom(); // doom entry if we failed to read from mem cache
+      entry->AsyncDoom(nullptr); // doom entry if we failed to read from mem cache
       mailnewsUrl->SetMemCacheEntry(nullptr); // we aren't going to be reading from the cache
     }
   } // if we got a valid entry back from the cache...
@@ -9043,9 +9039,11 @@ nsImapMockChannel::OnCacheEntryAvailable(nsICacheEntryDescriptor *entry, nsCache
 }
 
 NS_IMETHODIMP
-nsImapMockChannel::OnCacheEntryDoomed(nsresult status)
+nsImapMockChannel::OnCacheEntryCheck(nsICacheEntry* entry, nsIApplicationCache* appCache,
+                                     uint32_t* aResult)
 {
-  return NS_ERROR_NOT_IMPLEMENTED;
+  *aResult = nsICacheEntryOpenCallback::ENTRY_WANTED;
+  return NS_OK;
 }
 
 nsresult nsImapMockChannel::OpenCacheEntry()
@@ -9055,8 +9053,8 @@ nsresult nsImapMockChannel::OpenCacheEntry()
   nsCOMPtr<nsIImapService> imapService = do_GetService(NS_IMAPSERVICE_CONTRACTID, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  nsCOMPtr<nsICacheSession> cacheSession;
-  rv = imapService->GetCacheSession(getter_AddRefs(cacheSession));
+  nsCOMPtr<nsICacheStorage> cacheStorage;
+  rv = imapService->GetCacheStorage(getter_AddRefs(cacheStorage));
   NS_ENSURE_SUCCESS(rv, rv);
 
   // we're going to need to extend this logic for the case where we're looking
@@ -9070,34 +9068,40 @@ nsresult nsImapMockChannel::OpenCacheEntry()
   // need to go through mime...
 
   // Open a cache entry with key = url
-  nsAutoCString urlSpec;
-  m_url->GetAsciiSpec(urlSpec);
+  nsCOMPtr <nsIURI> newUri;
+  m_url->Clone(getter_AddRefs(newUri));
+  nsAutoCString path;
+  newUri->GetPath(path);
 
-  // for now, truncate of the query part so we don't duplicate urls in the cache...
-  int32_t anchorIndex = urlSpec.RFindChar('?');
+  // Truncate of the query part so we don't duplicate urls in the cache for
+  // various message parts.
+  int32_t anchorIndex = path.RFindChar('?');
   if (anchorIndex > 0)
   {
     // if we were trying to read a part, we failed - fall back and look for whole msg
     if (mTryingToReadPart)
     {
       mTryingToReadPart = false;
-      urlSpec.SetLength(anchorIndex);
+      path.SetLength(anchorIndex);
+      newUri->SetPath(path);
     }
     else
     {
       // check if this is a filter plugin requesting the message. In that case,we're not
       // fetching a part, and we want the cache key to be just the uri.
-      nsAutoCString anchor(Substring(urlSpec, anchorIndex));
+      nsAutoCString anchor(Substring(path, anchorIndex));
 
       if (!anchor.EqualsLiteral("?header=filter")
-        && !anchor.EqualsLiteral("?header=attach") && !anchor.EqualsLiteral("?header=src"))
+        && !anchor.EqualsLiteral("?header=attach") && !anchor.EqualsLiteral("?header=src")) {
         mTryingToReadPart = true;
-      else
-        urlSpec.SetLength(anchorIndex);
+      } else {
+        path.SetLength(anchorIndex);
+        newUri->SetPath(path);
+      }
     }
   }
   int32_t uidValidity = -1;
-  nsCacheAccessMode cacheAccess = nsICache::ACCESS_READ_WRITE;
+  nsCacheAccessMode cacheAccess = nsICacheStorage::OPEN_NORMALLY;
 
   nsCOMPtr <nsIImapUrl> imapUrl = do_QueryInterface(m_url, &rv);
   if (imapUrl)
@@ -9112,17 +9116,16 @@ nsresult nsImapMockChannel::OpenCacheEntry()
     // If we're storing the message in the offline store, don't
     // write to the disk cache.
     if (storeResultsOffline)
-      cacheAccess = nsICache::ACCESS_READ;
+      cacheAccess = nsICacheStorage::OPEN_READONLY;
   }
   // stick the uid validity in front of the url, so that if the uid validity
   // changes, we won't re-use the wrong cache entries.
-  nsAutoCString cacheKey;
-  cacheKey.AppendInt(uidValidity, 16);
-  cacheKey.Append(urlSpec);
-  return cacheSession->AsyncOpenCacheEntry(cacheKey, cacheAccess, this, false);
+  nsAutoCString extension;
+  extension.AppendInt(uidValidity, 16);
+  return cacheStorage->AsyncOpenURI(newUri, extension, cacheAccess, this);
 }
 
-nsresult nsImapMockChannel::ReadFromMemCache(nsICacheEntryDescriptor *entry)
+nsresult nsImapMockChannel::ReadFromMemCache(nsICacheEntry *entry)
 {
   NS_ENSURE_ARG(entry);
 
@@ -9147,9 +9150,10 @@ nsresult nsImapMockChannel::ReadFromMemCache(nsICacheEntryDescriptor *entry)
     rv = entry->GetMetaDataElement("ContentModified", getter_Copies(annotation));
     if (NS_SUCCEEDED(rv) && !annotation.IsEmpty())
       shouldUseCacheEntry = annotation.EqualsLiteral("Not Modified");
+    // XXX When reading a part, should we compare its length to the full message length?
     if (shouldUseCacheEntry)
     {
-      uint32_t entrySize;
+      int64_t entrySize;
 
       rv = entry->GetDataSize(&entrySize);
       nsCOMPtr<nsIMsgMessageUrl> msgUrl(do_QueryInterface(m_url));
@@ -9165,7 +9169,7 @@ nsresult nsImapMockChannel::ReadFromMemCache(nsICacheEntryDescriptor *entry)
               messageSize != entrySize)
           {
             MOZ_LOG(IMAP, LogLevel::Warning,
-                ("ReadFromMemCache size mismatch for %s: message %d, cache %d\n",
+                ("ReadFromMemCache size mismatch for %s: message %d, cache %ld\n",
                  entryKey.get(), messageSize, entrySize));
             shouldUseCacheEntry = false;
           }

@@ -13,7 +13,7 @@
 #include "nsIProtocolHandler.h"
 #include "nsIMsgProtocolInfo.h"
 #include "nsIContentHandler.h"
-#include "nsICacheSession.h"
+#include "nsICacheStorage.h"
 
 class nsIImapHostSessionList; 
 class nsCString;
@@ -116,7 +116,7 @@ protected:
   nsresult DecomposeImapURI(const nsACString &aMessageURI, nsIMsgFolder **aFolder, nsMsgKey *msgKey);
 
 
-  nsCOMPtr<nsICacheSession> mCacheSession;  // handle to the cache session for imap.....
+  nsCOMPtr<nsICacheStorage> mCacheStorage;
   bool mPrintingOperation;                // Flag for printing operations
 };
 

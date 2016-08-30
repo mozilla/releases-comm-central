@@ -60,19 +60,19 @@ function run_test() {
   server = makeServer(NNTP_RFC977_handler, daemon);
   server.start();
   localserver = setupLocalServer(server.port);
-  const kCacheKey = "news://localhost:" + server.port + "/TSS1%40nntp.test";
+  var uri = Cc["@mozilla.org/network/standard-url;1"]
+              .createInstance(Ci.nsIURI);
+  uri.spec = "news://localhost:" + server.port + "/TSS1%40nntp.test";
 
   try {
     // Add an empty message to the cache
     MailServices.nntp
-                .cacheSession
-                .asyncOpenCacheEntry(kCacheKey, Ci.nsICache.ACCESS_WRITE, {
-      onCacheEntryAvailable: function(cacheEntry, access, status) {
+                .cacheStorage
+                .asyncOpenURI(uri, "", Ci.nsICacheStorage.OPEN_NORMALLY, {
+      onCacheEntryAvailable: function(cacheEntry, isNew, appCache, status) {
         do_check_eq(status, Components.results.NS_OK);
 
         cacheEntry.markValid();
-        var firstAccess = cacheEntry.fetchCount;
-        cacheEntry.close();
 
         // Get the folder and new mail
         var folder = localserver.rootFolder.getChildNamed("test.subscribe.simple");

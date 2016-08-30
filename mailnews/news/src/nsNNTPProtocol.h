@@ -24,7 +24,7 @@
 #include "nsMsgLineBuffer.h"
 #include "nsIStringBundle.h"
 #include "nsITimer.h"
-#include "nsICacheListener.h"
+#include "nsICacheEntryOpenCallback.h"
 
 // this is only needed as long as our libmime hack is in place
 #include "prio.h"
@@ -118,18 +118,18 @@ NEWS_FREE,
 NNTP_SUSPENDED
 } StatesEnum;
 
-class nsICacheEntryDescriptor;
+class nsICacheEntry;
 
 class nsNNTPProtocol : public nsMsgProtocol,
                        public nsINNTPProtocol,
                        public nsITimerCallback,
-                       public nsICacheListener,
+                       public nsICacheEntryOpenCallback,
                        public nsIMsgAsyncPromptListener
 {
 public:
   NS_DECL_ISUPPORTS_INHERITED
   NS_DECL_NSINNTPPROTOCOL
-  NS_DECL_NSICACHELISTENER
+  NS_DECL_NSICACHEENTRYOPENCALLBACK
   NS_DECL_NSITIMERCALLBACK
   NS_DECL_NSIMSGASYNCPROMPTLISTENER
 
@@ -502,7 +502,7 @@ private:
   nsresult OpenCacheEntry(); // makes a request to the cache service for a cache entry for a url
   bool ReadFromLocalCache(); // attempts to read the url out of our local (offline) cache....
   nsresult ReadFromNewsConnection(); // creates a new news connection to read the url
-  nsresult ReadFromMemCache(nsICacheEntryDescriptor *entry); // attempts to read the url out of our memory cache
+  nsresult ReadFromMemCache(nsICacheEntry *entry); // attempts to read the url out of our memory cache
   nsresult SetupPartExtractorListener(nsIStreamListener * aConsumer);
 };
 
