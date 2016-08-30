@@ -328,7 +328,7 @@ var stateListener = {
       let startNode = range.startContainer;
 
       editor.enableUndo(false);
-      let identityList = document.getElementById("msgIdentity");
+      let identityList = GetMsgIdentityElement();
       identityList.selectedItem = identityList.getElementsByAttribute(
         "identitykey", gMsgCompose.identity.key)[0];
       LoadIdentity(false);
@@ -392,10 +392,10 @@ var stateListener = {
       let deleted2ndBR = false;
       let currentNode = mailBody.childNodes[start];
       if (currentNode.nodeName == "BR") {
-        mailBody.removeChild(currentNode);
+        currentNode.remove();
         currentNode = mailBody.childNodes[start];
         if (currentNode && currentNode.nodeName == "BR") {
-          mailBody.removeChild(currentNode);
+          currentNode.remove();
           deleted2ndBR = true;
         }
       }
@@ -4354,23 +4354,16 @@ function LoadIdentity(startup)
             msgCompFields.to, true, {}));
           let ccAddrs = new Set(msgCompFields.splitRecipients(
             msgCompFields.cc, true, {}));
-          let bccAddrs = new Set(msgCompFields.splitRecipients(
-            msgCompFields.bcc, true, {}));
 
           if (newCc != prevCc)
           {
             needToCleanUp = true;
-            if (prevCc != "")
+            if (prevCc)
               awRemoveRecipients(msgCompFields, "addr_cc", prevCc);
-            if (newCc != "") {
+            if (newCc) {
               // Ensure none of the Ccs are already in To.
               let cc2 = msgCompFields.splitRecipients(newCc, true, {});
-              for (let i = cc2.length - 1; i >= 0; i--) {
-                if (toAddrs.has(cc2[i])) {
-                  cc2.splice(i, 1);
-                }
-              }
-              newCc = cc2.join(", ");
+              newCC = cc2.filter(x => !toAddrs.has(x)).join(", ");
               awAddRecipients(msgCompFields, "addr_cc", newCc);
             }
           }
@@ -4378,17 +4371,13 @@ function LoadIdentity(startup)
           if (newBcc != prevBcc)
           {
             needToCleanUp = true;
-            if (prevBcc != "")
+            if (prevBcc)
               awRemoveRecipients(msgCompFields, "addr_bcc", prevBcc);
-            if (newBcc != "") {
+            if (newBcc) {
               // Ensure none of the Bccs are already in To or Cc.
               let bcc2 = msgCompFields.splitRecipients(newBcc, true, {});
-              for (let i = bcc2.length - 1; i >= 0; i--) {
-                if (toAddrs.has(bcc2[i]) || ccAddrs.has(bcc2[i])) {
-                  bcc2.splice(i, 1);
-                }
-              }
-              newBcc = bcc2.join(", ");
+              let toCcAddrs = new Set([...toAddrs, ...ccAddrs]);
+              newBcc = bcc2.filter(x => !toCcAddrs.has(x)).join(", ");
               awAddRecipients(msgCompFields, "addr_bcc", newBcc);
             }
           }
