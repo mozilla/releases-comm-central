@@ -150,4 +150,18 @@ interface nsIImapServerSink : nsISupports {
   string cramMD5Hash(in string decodedChallenge, in string key);
   /// String to send to the imap server as the login user name.
   readonly attribute ACString loginUsername;
+  /// String to send to the imap server as the user name.
+  readonly attribute ACString originalUsername;
+  /// Internal pref key, unique over all servers
+  readonly attribute ACString serverKey;
+  /// password for server login
+  readonly attribute ACString serverPassword;
+  /// remove a connection to the server
+  void removeServerConnection(in nsIImapProtocol aProtocol);
+  /// is the imap server shutting down?
+  readonly attribute boolean serverShuttingDown;
+  /// reset the connection for a particular folder
+  void resetServerConnection(in ACString aFolderName);
+  /// tell the server if listing using lsub command
+  void setServerDoingLsub(in boolean aDoingLsub);
 };

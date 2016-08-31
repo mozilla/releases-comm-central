@@ -24,4 +24,9 @@ interface nsIImapProtocolSink : nsISupports {
    * @returns msgWindow associated with url.
    */
   nsIMsgWindow getUrlWindow(in nsIMsgMailNewsUrl aUrl);
+
+  /**
+   * Setup main thread proxies.
+   */
+  void setupMainThreadProxies();
 };

@@ -369,6 +369,7 @@ NS_SYNCRUNNABLEMETHOD2(ImapProtocolSink, GetUrlWindow, nsIMsgMailNewsUrl *,
                        nsIMsgWindow **)
 
 NS_SYNCRUNNABLEMETHOD0(ImapProtocolSink, CloseStreams)
+NS_SYNCRUNNABLEMETHOD0(ImapProtocolSink, SetupMainThreadProxies)
 
 NS_SYNCRUNNABLEATTRIBUTE(ImapMailFolderSink, FolderNeedsACLListed, bool)
 NS_SYNCRUNNABLEATTRIBUTE(ImapMailFolderSink, FolderNeedsSubscribing, bool)
@@ -447,6 +448,14 @@ NS_SYNCRUNNABLEMETHOD1(ImapServerSink, GetShowAttachmentsInline, bool *)
 NS_SYNCRUNNABLEMETHOD3(ImapServerSink, CramMD5Hash, const char *, const char *, char **)
 NS_SYNCRUNNABLEMETHOD1(ImapServerSink, GetLoginUsername, nsACString &)
 NS_SYNCRUNNABLEMETHOD1(ImapServerSink, UpdateTrySTARTTLSPref, bool)
+NS_SYNCRUNNABLEMETHOD1(ImapServerSink, GetOriginalUsername, nsACString &)
+NS_SYNCRUNNABLEMETHOD1(ImapServerSink, GetServerKey, nsACString &)
+NS_SYNCRUNNABLEMETHOD1(ImapServerSink, GetServerPassword, nsACString &)
+NS_SYNCRUNNABLEMETHOD1(ImapServerSink, RemoveServerConnection, nsIImapProtocol *)
+NS_SYNCRUNNABLEMETHOD1(ImapServerSink, GetServerShuttingDown, bool *)
+NS_SYNCRUNNABLEMETHOD1(ImapServerSink, ResetServerConnection, const nsACString &)
+NS_SYNCRUNNABLEMETHOD1(ImapServerSink, SetServerDoingLsub, bool)
+
 
 namespace mozilla {
 namespace mailnews {

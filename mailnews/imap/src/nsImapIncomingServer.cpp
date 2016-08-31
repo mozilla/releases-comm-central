@@ -3328,3 +3328,45 @@ nsImapIncomingServer::GetLoginUsername(nsACString &aLoginUsername)
 {
   return GetRealUsername(aLoginUsername);
 }
+
+NS_IMETHODIMP
+nsImapIncomingServer::GetOriginalUsername(nsACString &aUsername)
+{
+  return GetUsername(aUsername);
+}
+
+NS_IMETHODIMP
+nsImapIncomingServer::GetServerKey(nsACString &aServerKey)
+{
+  return GetKey(aServerKey);
+}
+
+NS_IMETHODIMP
+nsImapIncomingServer::GetServerPassword(nsACString &aPassword)
+{
+  return GetPassword(aPassword);
+}
+
+NS_IMETHODIMP
+nsImapIncomingServer::RemoveServerConnection(nsIImapProtocol* aProtocol)
+{
+  return RemoveConnection(aProtocol);
+}
+
+NS_IMETHODIMP
+nsImapIncomingServer::GetServerShuttingDown(bool* aShuttingDown)
+{
+  return GetShuttingDown(aShuttingDown);
+}
+
+NS_IMETHODIMP
+nsImapIncomingServer::ResetServerConnection(const nsACString& aFolderName)
+{
+  return ResetConnection(aFolderName);
+}
+
+NS_IMETHODIMP
+nsImapIncomingServer::SetServerDoingLsub(bool aDoingLsub)
+{
+  return SetDoingLsub(aDoingLsub);
+}

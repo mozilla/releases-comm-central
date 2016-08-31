@@ -601,18 +601,20 @@ nsImapProtocol::GetImapHostName()
 const nsCString&
 nsImapProtocol::GetImapUserName()
 {
-  nsCOMPtr<nsIMsgIncomingServer> server = do_QueryReferent(m_server);
-  if (m_userName.IsEmpty() && server)
-    server->GetUsername(m_userName);
+  if (m_userName.IsEmpty() && m_imapServerSink)
+  {
+    m_imapServerSink->GetOriginalUsername(m_userName);
+  }
   return m_userName;
 }
 
 const char*
 nsImapProtocol::GetImapServerKey()
 {
-  nsCOMPtr<nsIMsgIncomingServer> server = do_QueryReferent(m_server);
-  if (m_serverKey.IsEmpty() && server)
-    server->GetKey(m_serverKey);
+  if (m_serverKey.IsEmpty() && m_imapServerSink)
+  {
+    m_imapServerSink->GetServerKey(m_serverKey);
+  }
   return m_serverKey.get();
 }
 
@@ -1147,6 +1149,12 @@ NS_IMETHODIMP nsImapProtocol::GetUrlWindow(nsIMsgMailNewsUrl *aUrl,
   return aUrl->GetMsgWindow(aMsgWindow);
 }
 
+NS_IMETHODIMP nsImapProtocol::SetupMainThreadProxies()
+{
+  SetupSinkProxy();
+  return NS_OK;
+}
+
 NS_IMETHODIMP nsImapProtocol::OnInputStreamReady(nsIAsyncInputStream *inStr)
 {
   // should we check if it's a close vs. data available?
@@ -1593,8 +1601,11 @@ bool nsImapProtocol::ProcessCurrentURL()
     }
   }
 
-  if (!m_imapMailFolderSink)
-    SetupSinkProxy(); // try this again. Evil, but I'm desperate.
+  if (!m_imapMailFolderSink && m_imapProtocolSink)
+  {
+    // This occurs when running another URL in the main thread loop
+    m_imapProtocolSink->SetupMainThreadProxies();
+  }
 
   // Reinitialize the parser
   GetServerStateParser().InitializeState();
@@ -1865,12 +1876,11 @@ bool nsImapProtocol::ProcessCurrentURL()
   if (!anotherUrlRun)
       m_imapServerSink = nullptr;
 
-  nsCOMPtr<nsIImapIncomingServer> imapServer  = do_QueryReferent(m_server, &rv);
   if (NS_FAILED(GetConnectionStatus()) || !GetServerStateParser().Connected()
     || GetServerStateParser().SyntaxError())
   {
-    if (imapServer)
-      imapServer->RemoveConnection(this);
+    if (m_imapServerSink)
+      m_imapServerSink->RemoveServerConnection(this);
 
     if (!DeathSignalReceived())
     {
@@ -1879,10 +1889,10 @@ bool nsImapProtocol::ProcessCurrentURL()
   }
   else
   {
-    if (imapServer)
+    if (m_imapServerSink)
     {
       bool shuttingDown;
-      imapServer->GetShuttingDown(&shuttingDown);
+      m_imapServerSink->GetServerShuttingDown(&shuttingDown);
       if (shuttingDown)
         m_useIdle = false;
     }
@@ -1900,12 +1910,11 @@ bool nsImapProtocol::RetryUrl()
     (void) m_imapServerSink->PrepareToRetryUrl(kungFuGripImapUrl, getter_AddRefs(saveMockChannel));
 
   ReleaseUrlState(true);
-  nsresult rv;
-  nsCOMPtr<nsIImapIncomingServer> imapServer  = do_QueryReferent(m_server, &rv);
-  if (NS_SUCCEEDED(rv))
-    imapServer->RemoveConnection(this);
   if (m_imapServerSink)
+  {
+    m_imapServerSink->RemoveServerConnection(this);
     m_imapServerSink->RetryUrl(kungFuGripImapUrl, saveMockChannel);
+  }
   return (m_imapServerSink != nullptr); // we're running a url (the same url)
 }
 
@@ -6906,9 +6915,8 @@ bool nsImapProtocol::DeleteSubFolders(const char* selectedMailbox, bool &aDelete
           }
           else
           {
-              nsCOMPtr<nsIImapIncomingServer> imapServer = do_QueryReferent(m_server);
-              if (imapServer)
-                  imapServer->ResetConnection(nsDependentCString(longestName));
+              if (m_imapServerSink)
+                  m_imapServerSink->ResetServerConnection(nsDependentCString(longestName));
               bool deleted = false;
               if( folderInSubfolderList )	// for performance
               {
@@ -7181,23 +7189,21 @@ void nsImapProtocol::DiscoverAllAndSubscribedBoxes()
           secondLevelPattern += '%';
         }
 
-        nsresult rv;
-        nsCOMPtr<nsIImapIncomingServer> imapServer = do_QueryReferent(m_server, &rv);
-        if (NS_FAILED(rv) || !imapServer) return;
+        if (!m_imapServerSink) return;
 
         if (!allPattern.IsEmpty())
         {
-          imapServer->SetDoingLsub(true);
+          m_imapServerSink->SetServerDoingLsub(true);
           Lsub(allPattern.get(), true);	// LSUB all the subscribed
         }
         if (!topLevelPattern.IsEmpty())
         {
-          imapServer->SetDoingLsub(false);
+          m_imapServerSink->SetServerDoingLsub(false);
           List(topLevelPattern.get(), true);	// LIST the top level
         }
         if (!secondLevelPattern.IsEmpty())
         {
-          imapServer->SetDoingLsub(false);
+          m_imapServerSink->SetServerDoingLsub(false);
           List(secondLevelPattern.get(), true);	// LIST the second level
         }
       }
@@ -8236,11 +8242,9 @@ nsresult nsImapProtocol::GetPassword(nsCString &password,
   NS_ENSURE_TRUE(m_imapServerSink, NS_ERROR_NULL_POINTER);
   NS_ENSURE_TRUE(m_server, NS_ERROR_NULL_POINTER);
   nsresult rv;
-  nsCOMPtr<nsIMsgIncomingServer> server = do_QueryReferent(m_server, &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
 
   // Get the password already stored in mem
-  rv = server->GetPassword(password);
+  rv = m_imapServerSink->GetServerPassword(password);
   if (NS_FAILED(rv) || password.IsEmpty())
   {
     AutoProxyReleaseMsgWindow msgWindow;
@@ -8558,13 +8562,6 @@ void nsImapProtocol::GetQuotaDataIfSupported(const char *aBoxName)
 {
   // If server doesn't have quota support, don't do anything
   if (! (GetServerStateParser().GetCapabilityFlag() & kQuotaCapability))
-    return;
-
-  // If it's an aol server then only issue cmd for INBOX (since all
-  // other AOL mailboxes are virtual and don't support all imap cmds).
-  nsresult rv;
-  nsCOMPtr<nsIImapIncomingServer> imapServer = do_QueryReferent(m_server, &rv);
-  if (NS_FAILED(rv))
     return;
 
   nsCString escapedName;
