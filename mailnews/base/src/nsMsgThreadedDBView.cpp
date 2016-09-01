@@ -288,7 +288,7 @@ NS_IMETHODIMP nsMsgThreadedDBView::Sort(nsMsgViewSortTypeValue sortType, nsMsgVi
     {
       m_sortType = sortType;
       m_viewFlags |= nsMsgViewFlagsType::kThreadedDisplay;
-      m_viewFlags &= nsMsgViewFlagsType::kGroupBySort;
+      m_viewFlags &= ~nsMsgViewFlagsType::kGroupBySort;
       if ( m_havePrevView)
       {
         // restore saved id array and flags array
