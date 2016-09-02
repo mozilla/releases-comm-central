@@ -1621,7 +1621,7 @@ NS_IMETHODIMP nsMsgCompose::InitEditor(nsIEditor* aEditor, mozIDOMWindowProxy* a
     // Previous behaviour was that SetForceCharacterSet() didn't check.
     // XXX To be revisited in bug 1297118.
     rv = childCV->SetForceCharacterSet(msgCharSet);
-    NS_WARN_IF_FALSE(NS_SUCCEEDED(rv), "SetForceCharacterSet() failed");
+    NS_WARNING_ASSERTION(NS_SUCCEEDED(rv), "SetForceCharacterSet() failed");
   }
 
   // This is what used to be done in mDocumentListener,

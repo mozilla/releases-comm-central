@@ -502,7 +502,7 @@ nsFolderCompactState::FinishCompact()
   if (NS_SUCCEEDED(rv))
     rv = cloneFile->GetFileSize(&fileSize);
   bool tempFileRightSize = ((uint64_t)fileSize == m_totalMsgSize);
-  NS_WARN_IF_FALSE(tempFileRightSize, "temp file not of expected size in compact");
+  NS_WARNING_ASSERTION(tempFileRightSize, "temp file not of expected size in compact");
 
   bool folderRenameSucceeded = false;
   bool msfRenameSucceeded = false;
@@ -522,14 +522,14 @@ nsFolderCompactState::FinishCompact()
     if (NS_SUCCEEDED(rv))
       rv = oldSummaryFile->MoveToNative((nsIFile*) nullptr, tempSummaryFileName);
 
-    NS_WARN_IF_FALSE(NS_SUCCEEDED(rv), "error moving compacted folder's db out of the way");
+    NS_WARNING_ASSERTION(NS_SUCCEEDED(rv), "error moving compacted folder's db out of the way");
     if (NS_SUCCEEDED(rv))
     {
       // Now we've successfully moved the summary file out the way, try moving
       // the newly compacted message file over the old one.
       rv = m_file->MoveToNative((nsIFile *) nullptr, folderName);
       folderRenameSucceeded = NS_SUCCEEDED(rv);
-      NS_WARN_IF_FALSE(folderRenameSucceeded, "error renaming compacted folder");
+      NS_WARNING_ASSERTION(folderRenameSucceeded, "error renaming compacted folder");
       if (folderRenameSucceeded)
       {
         // That worked, so land the new summary file in the right place.
@@ -540,7 +540,7 @@ nsFolderCompactState::FinishCompact()
           rv = renamedCompactedSummaryFile->MoveToNative((nsIFile *) nullptr, dbName);
           msfRenameSucceeded = NS_SUCCEEDED(rv);
         }
-        NS_WARN_IF_FALSE(msfRenameSucceeded, "error renaming compacted folder's db");
+        NS_WARNING_ASSERTION(msfRenameSucceeded, "error renaming compacted folder's db");
       }
 
       if (!msfRenameSucceeded)
@@ -558,9 +558,9 @@ nsFolderCompactState::FinishCompact()
       tempSummaryFile->Remove(false);
   }
 
-  NS_WARN_IF_FALSE(msfRenameSucceeded, "compact failed");
+  NS_WARNING_ASSERTION(msfRenameSucceeded, "compact failed");
   nsresult rvReleaseFolderLock = ReleaseFolderLock();
-  NS_WARN_IF_FALSE(NS_SUCCEEDED(rvReleaseFolderLock),"folder lock not released successfully");
+  NS_WARNING_ASSERTION(NS_SUCCEEDED(rvReleaseFolderLock),"folder lock not released successfully");
   rv = NS_FAILED(rv) ? rv : rvReleaseFolderLock;
 
   // Cleanup of nstmp-named compacted files if failure
@@ -630,8 +630,8 @@ GetBaseStringBundle(nsIStringBundle **aBundle)
 
 void nsFolderCompactState::CompactCompleted(nsresult exitCode)
 {
-  NS_WARN_IF_FALSE(NS_SUCCEEDED(exitCode),
-                   "nsFolderCompactState::CompactCompleted failed");
+  NS_WARNING_ASSERTION(NS_SUCCEEDED(exitCode),
+                       "nsFolderCompactState::CompactCompleted failed");
   if (m_listener)
     m_listener->OnStopRunningUrl(nullptr, exitCode);
   ShowDoneStatus();

@@ -7598,7 +7598,7 @@ nsImapMailFolder::CopyMessages(nsIMsgFolder* srcFolder,
     // complete the copy operation as in offline mode
     rv = CopyMessagesOffline(srcFolder, messages, isMove, msgWindow, listener);
 
-    NS_WARN_IF_FALSE(NS_SUCCEEDED(rv), "error offline copy");
+    NS_WARNING_ASSERTION(NS_SUCCEEDED(rv), "error offline copy");
     // We'll warn if this fails, but we should still try to play back
     // offline ops, because it's possible the copy got far enough to
     // create the offline ops.

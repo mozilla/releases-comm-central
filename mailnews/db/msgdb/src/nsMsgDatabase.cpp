@@ -82,7 +82,7 @@ nsMsgDBService::~nsMsgDBService()
 #ifdef DEBUG
   // If you hit this warning, it means that some code is holding onto
   // a db at shutdown.
-  NS_WARN_IF_FALSE(!m_dbCache.Length(), "some msg dbs left open");
+  NS_WARNING_ASSERTION(!m_dbCache.Length(), "some msg dbs left open");
   for (uint32_t i = 0; i < m_dbCache.Length(); i++)
   {
     nsMsgDatabase* pMessageDB = m_dbCache.ElementAt(i);

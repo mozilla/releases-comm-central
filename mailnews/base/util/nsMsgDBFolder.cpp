@@ -879,8 +879,8 @@ nsMsgDBFolder::GetMsgInputStream(nsIMsgDBHdr *aMsgHdr, bool *aReusable,
   nsCOMPtr<nsISeekableStream> seekableStream(do_QueryInterface(*aInputStream));
   if (seekableStream)
     rv = seekableStream->Seek(PR_SEEK_SET, offset);
-  NS_WARN_IF_FALSE(seekableStream || !offset,
-                   "non-zero offset w/ non-seekable stream");
+  NS_WARNING_ASSERTION(seekableStream || !offset,
+                       "non-zero offset w/ non-seekable stream");
   return rv;
 }
 

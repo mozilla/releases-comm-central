@@ -775,7 +775,7 @@ NS_IMETHODIMP nsMsgLocalMailFolder::Delete()
   //Clean up .sbd folder if it exists.
   // Remove summary file.
   rv = summaryFile->Remove(false);
-  NS_WARN_IF_FALSE(NS_SUCCEEDED(rv), "Could not delete msg summary file");
+  NS_WARNING_ASSERTION(NS_SUCCEEDED(rv), "Could not delete msg summary file");
 
   rv = msgStore->DeleteFolder(this);
   if (rv == NS_ERROR_FILE_NOT_FOUND ||

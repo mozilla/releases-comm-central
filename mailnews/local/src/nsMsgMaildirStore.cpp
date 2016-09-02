@@ -789,8 +789,8 @@ nsMsgMaildirStore::MoveNewlyDownloadedMessage(nsIMsgDBHdr *aHdr,
 
   nsCOMPtr<nsIMsgDatabase> destMailDB;
   rv = aDestFolder->GetMsgDatabase(getter_AddRefs(destMailDB));
-  NS_WARN_IF_FALSE(destMailDB && NS_SUCCEEDED(rv),
-                   "failed to open mail db moving message");
+  NS_WARNING_ASSERTION(destMailDB && NS_SUCCEEDED(rv),
+                       "failed to open mail db moving message");
 
   nsCOMPtr<nsIMsgDBHdr> newHdr;
   if (destMailDB)

@@ -1386,7 +1386,7 @@ nsresult nsParseMailMessageState::FinalizeHeaders()
       if (id->length > 0 && id->value[0] == '<')
         id->length--, id->value++;
 
-      NS_WARN_IF_FALSE(id->length > 0, "id->length failure in FinalizeHeaders().");
+      NS_WARNING_ASSERTION(id->length > 0, "id->length failure in FinalizeHeaders().");
 
       if (id->length > 0 && id->value[id->length - 1] == '>')
         /* generate a new null-terminated string without the final > */
@@ -2543,8 +2543,8 @@ nsresult nsParseNewMailState::MoveIncorporatedMessage(nsIMsgDBHdr *mailHdr,
   // don't force upgrade in place - open the db here before we start writing to the
   // destination file because XP_Stat can return file size including bytes written...
   rv = localFolder->GetDatabaseWOReparse(getter_AddRefs(destMailDB));
-  NS_WARN_IF_FALSE(destMailDB && NS_SUCCEEDED(rv),
-                   "failed to open mail db parsing folder");
+  NS_WARNING_ASSERTION(destMailDB && NS_SUCCEEDED(rv),
+                       "failed to open mail db parsing folder");
   nsCOMPtr<nsIMsgDBHdr> newHdr;
 
   if (destMailDB)

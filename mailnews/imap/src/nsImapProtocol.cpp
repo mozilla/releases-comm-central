@@ -1180,8 +1180,8 @@ NS_IMETHODIMP nsImapProtocol::OnInputStreamReady(nsIAsyncInputStream *inStr)
 NS_IMETHODIMP
 nsImapProtocol::TellThreadToDie(bool aIsSafeToClose)
 {
-  NS_WARN_IF_FALSE(NS_IsMainThread(),
-                   "TellThreadToDie(aIsSafeToClose) should only be called from UI thread");
+  NS_WARNING_ASSERTION(NS_IsMainThread(),
+                       "TellThreadToDie(aIsSafeToClose) should only be called from UI thread");
   MutexAutoLock mon(mLock);
 
   nsCOMPtr<nsIMsgIncomingServer> me_server = do_QueryReferent(m_server);
@@ -1210,8 +1210,8 @@ void
 nsImapProtocol::TellThreadToDie()
 {
   nsresult rv = NS_OK;
-  NS_WARN_IF_FALSE(!NS_IsMainThread(),
-                   "TellThreadToDie() should not be called from UI thread");
+  NS_WARNING_ASSERTION(!NS_IsMainThread(),
+                       "TellThreadToDie() should not be called from UI thread");
 
   // prevent re-entering this method because it may lock the UI.
   if (m_inThreadShouldDie)
@@ -8752,7 +8752,7 @@ nsImapMockChannel::~nsImapMockChannel()
   // if we're offline, we may not get to close the channel correctly.
   // we need to do this to send the url state change notification in
   // the case of mem and disk cache reads.
-  NS_WARN_IF_FALSE(NS_IsMainThread(), "should only access mock channel on ui thread");
+  NS_WARNING_ASSERTION(NS_IsMainThread(), "should only access mock channel on ui thread");
   if (!mChannelClosed)
     Close();
 }
@@ -9592,8 +9592,8 @@ NS_IMETHODIMP nsImapMockChannel::SetImapProtocol(nsIImapProtocol *aProtocol)
 
 NS_IMETHODIMP nsImapMockChannel::Cancel(nsresult status)
 {
-  NS_WARN_IF_FALSE(NS_IsMainThread(),
-                   "nsImapMockChannel::Cancel should only be called from UI thread");
+  NS_WARNING_ASSERTION(NS_IsMainThread(),
+                       "nsImapMockChannel::Cancel should only be called from UI thread");
   m_cancelStatus = status;
   nsCOMPtr<nsIImapProtocol> imapProtocol = do_QueryReferent(m_protocol);
 

@@ -415,7 +415,7 @@ nsresult nsMsgFilterAfterTheFact::RunNextFilter()
     return NS_OK; // OnSearchDone will continue
   }
   m_curFilter = nullptr;
-  NS_WARN_IF_FALSE(NS_SUCCEEDED(rv), "Search failed");
+  NS_WARNING_ASSERTION(NS_SUCCEEDED(rv), "Search failed");
   return AdvanceToNextFolder();
 }
 
@@ -1087,7 +1087,7 @@ nsresult nsMsgApplyFiltersToMessages::RunNextFilter()
     }
   }
   m_curFilter = nullptr;
-  NS_WARN_IF_FALSE(NS_SUCCEEDED(rv), "Failed to run filters");
+  NS_WARNING_ASSERTION(NS_SUCCEEDED(rv), "Failed to run filters");
   // We expect the failure is already recorded through one of the macro
   // expressions, that will have console logging added to them.
   // So an additional console warning is not needed here.
