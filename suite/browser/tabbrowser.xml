@@ -543,9 +543,14 @@
                   if (!(aStateFlags & nsIWebProgressListener.STATE_RESTORING)) {
                     this.mTab.setAttribute("busy", "true");
 
-                    if (aWebProgress.isTopLevel &&
-                        !(aWebProgress.loadType & Components.interfaces.nsIDocShell.LOAD_CMD_RELOAD))
-                      this.mTabBrowser.setTabTitleLoading(this.mTab);
+                    // Do the following only for the top frame not any subframes.
+                    if (aWebProgress.isTopLevel) {
+                      // Remove favicon. This shows busy and progress indicators even during a reload.
+                      this.mTab.removeAttribute("image");
+
+                      if (!(aWebProgress.loadType & Components.interfaces.nsIDocShell.LOAD_CMD_RELOAD))
+                        this.mTabBrowser.setTabTitleLoading(this.mTab);
+                    }
                   }
 
                   if (this.mTab.selected)
