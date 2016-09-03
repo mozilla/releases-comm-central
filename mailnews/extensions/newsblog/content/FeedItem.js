@@ -485,6 +485,6 @@ FeedEnclosure.prototype =
                      (this.mLength ? '"; size=' + this.mLength : '"') + '\n' +
       'X-Mozilla-External-Attachment-URL: ' + this.mURL + '\n' +
       'Content-Disposition: attachment; filename="' + this.mFileName + '"\n\n' +
-      'This MIME attachment is stored separately from the message.\n';
+      FeedUtils.strings.GetStringFromName("externalAttachmentMsg") + '\n';
   }
 };
