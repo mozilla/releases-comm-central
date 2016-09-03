@@ -9133,9 +9133,10 @@ nsresult nsImapMockChannel::ReadFromMemCache(nsICacheEntry *entry)
   bool shouldUseCacheEntry = false;
 
   entry->GetKey(entryKey);
-  // if we have a part, then we should use the cache entry.
   if (entryKey.FindChar('?') != kNotFound)
   {
+    // Part processing: If we have a part, then we should use the cache entry.
+    // XXX Caching of parts doesn't work, see bug 629738 for details.
     entry->GetMetaDataElement("contentType", getter_Copies(contentType));
     if (!contentType.IsEmpty())
       SetContentType(contentType);
@@ -9143,11 +9144,12 @@ nsresult nsImapMockChannel::ReadFromMemCache(nsICacheEntry *entry)
   }
   else
   {
-    // otherwise, we have the whole msg, and we should make sure the content isn't modified.
+    // Whole message processing: We should make sure the content isn't modified.
     rv = entry->GetMetaDataElement("ContentModified", getter_Copies(annotation));
     if (NS_SUCCEEDED(rv) && !annotation.IsEmpty())
       shouldUseCacheEntry = annotation.EqualsLiteral("Not Modified");
-    // XXX When reading a part, should we compare its length to the full message length?
+
+    // Compare cache entry size with message size.
     if (shouldUseCacheEntry)
     {
       int64_t entrySize;
@@ -9174,6 +9176,10 @@ nsresult nsImapMockChannel::ReadFromMemCache(nsICacheEntry *entry)
       }
     }
   }
+
+  // Common processing for full messages and message parts.
+
+  // Check header of full message or part.
   if (shouldUseCacheEntry)
   {
     nsCOMPtr<nsIInputStream> in;
@@ -9195,6 +9201,7 @@ nsresult nsImapMockChannel::ReadFromMemCache(nsICacheEntry *entry)
                            !(strncmp(firstBlock, "From ", 5)));
     in->Close();
   }
+
   if (shouldUseCacheEntry)
   {
     nsCOMPtr<nsIInputStream> in;
@@ -9234,7 +9241,11 @@ nsresult nsImapMockChannel::ReadFromMemCache(nsICacheEntry *entry)
     } // if AsyncRead succeeded.
   } // if content is not modified
   else
-    rv = NS_ERROR_FAILURE; // content is modified so return an error so we try to open it the old fashioned way
+  {
+    // Content is modified so return an error so we try to open it the
+    // old fashioned way.
+    rv = NS_ERROR_FAILURE;
+  }
 
   return rv;
 }
