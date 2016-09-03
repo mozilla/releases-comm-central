@@ -347,7 +347,22 @@ nsMsgComposeService::GetOrigWindowSelection(MSG_ComposeType type, nsIMsgWindow *
   nsAutoString selHTML;
   rv = docEncoder->EncodeToString(selHTML);
   NS_ENSURE_SUCCESS(rv, rv);
-  aSelHTML = NS_ConvertUTF16toUTF8(selHTML);
+
+  // Now remove <span class="moz-txt-citetags">&gt; </span>.
+  nsAutoCString html(NS_ConvertUTF16toUTF8(selHTML).get());
+  int32_t spanInd = html.Find("<span class=\"moz-txt-citetags\">");
+  while (spanInd != kNotFound) {
+    nsAutoCString right0(Substring(html, spanInd));
+    int32_t endInd = right0.Find("</span>");
+    if (endInd == kNotFound)
+      break;  // oops, where is the closing tag gone?
+    nsAutoCString right1(Substring(html, spanInd + endInd + 7));
+    html.SetLength(spanInd);
+    html.Append(right1);
+    spanInd = html.Find("<span class=\"moz-txt-citetags\">");
+  }
+
+  aSelHTML.Assign(html);
 
   return rv;
 }
