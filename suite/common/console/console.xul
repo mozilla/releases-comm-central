@@ -9,6 +9,9 @@
 <?xml-stylesheet href="chrome://communicator/content/console/console.css" type="text/css"?>
 
 <?xul-overlay href="chrome://global/content/editMenuOverlay.xul"?>
+<?xul-overlay href="chrome://global/content/globalOverlay.xul"?>
+<?xul-overlay href="chrome://communicator/content/utilityOverlay.xul"?>
+<?xul-overlay href="chrome://communicator/content/tasksOverlay.xul"?>
 
 <!DOCTYPE window [
   <!ENTITY % console SYSTEM "chrome://communicator/locale/console/console.dtd"> %console;
@@ -18,8 +21,10 @@
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
         title="&errorConsole.title;"
         windowtype="suite:console"
-        width="640" height="480"
-        screenX="10" screenY="10"
+        width="640"
+        height="480"
+        screenX="10"
+        screenY="10"
         persist="screenX screenY width height sizemode"
         onclose="return closeWindow(false);">
 
@@ -32,71 +37,177 @@
   <commandset id="editMenuCommands"/>
 
   <commandset id="consoleCommands">
-    <command id="cmd_close" oncommand="closeWindow(true)"/>
+    <commandset id="tasksCommands"/>
+    <command id="cmd_close" oncommand="closeWindow(true);"/>
   </commandset>
 
   <keyset id="consoleKeys">
-    <key id="key_close" key="&closeCmd.commandkey;" modifiers="accel"
+    <keyset id="tasksKeys"/>
+    <key id="key_close"
+         key="&closeCmd.commandkey;"
+         modifiers="accel"
          command="cmd_close"/>
-    <key id="key_close2" keycode="VK_ESCAPE" command="cmd_close"/>
-    <key id="key_focus1" key="&focus1.commandkey;" modifiers="accel"
-         oncommand="gTextBoxEval.focus()"/>
-    <key id="key_focus2" key="&focus2.commandkey;" modifiers="alt"
-         oncommand="gTextBoxEval.focus()"/>
+    <key id="key_close2"
+         disabled="true"
+         keycode="VK_ESCAPE"
+         command="cmd_close"/>
+    <key id="key_focus1"
+         key="&focus1.commandkey;"
+         modifiers="accel"
+         oncommand="gTextBoxEval.focus();"/>
+    <key id="key_focus2"
+         key="&focus2.commandkey;"
+         modifiers="alt"
+         oncommand="gTextBoxEval.focus();"/>
+    <key id="key_copy"/>
   </keyset>
 
   <popupset id="ContextMenus">
     <menupopup id="ConsoleContext">
-      <menuitem type="radio" id="Console:sortAscend"
-                label="&sortFirst.label;" accesskey="&sortFirst.accesskey;"
+      <menuitem type="radio"
+                id="Console:sortAscend"
+                label="&sortFirst.label;"
+                accesskey="&sortFirst.accesskey;"
                 oncommand="changeSortOrder('forward');"/>
-      <menuitem type="radio" id="Console:sortDescend"
-                label="&sortLast.label;" accesskey="&sortLast.accesskey;"
+      <menuitem type="radio"
+                id="Console:sortDescend"
+                label="&sortLast.label;"
+                accesskey="&sortLast.accesskey;"
                 oncommand="changeSortOrder('reverse');"/>
       <menuseparator/>
-      <menuitem id="menu_copy_cm" command="cmd_copy"
-                label="&copyCmd.label;" accesskey="&copyCmd.accesskey;"/>
+      <menuitem id="menu_copy_cm"
+                label="&copyCmd.label;"
+                accesskey="&copyCmd.accesskey;"
+                command="cmd_copy"/>
     </menupopup>
   </popupset>
 
   <toolbox id="console-toolbox">
-    <toolbar class="chromeclass-toolbar" id="ToolbarMode">
+    <menubar id="main-menubar"
+             class="chromeclass-menubar"
+             grippytooltiptext="&menuBar.tooltip;">
+      <menu id="menu_File">
+        <menupopup id="menu_FilePopup">
+          <menuitem id="menu_close"/>
+        </menupopup>
+      </menu>
+
+      <menu id="menu_Edit">
+        <menupopup>
+          <menuitem id="menu_copy"/>
+        </menupopup>
+      </menu>
+
+      <menu id="menu_View">
+        <menupopup>
+          <menu label="&toolbarsCmd.label;"
+                accesskey="&toolbarsCmd.accesskey;">
+            <menupopup>
+              <menuitem id="toggleToolbarMode"
+                        type="checkbox"
+                        checked="true"
+                        label="&toolbarMode.label;"
+                        accesskey="&toolbarMode.accesskey;"
+                        oncommand="goToggleToolbar('ToolbarMode','toggleToolbarMode');"/>
+              <menuitem id="toggleToolbarEval"
+                        type="checkbox"
+                        checked="true"
+                        label="&toolbarEval.label;"
+                        accesskey="&toolbarEval.accesskey;"
+                        oncommand="goToggleToolbar('ToolbarEval','toggleToolbarEval');"/>
+            </menupopup>
+          </menu>
+          <menuseparator/>
+          <menuitem type="radio" observes="Console:sortAscend"/>
+          <menuitem type="radio" observes="Console:sortDescend"/>
+        </menupopup>
+      </menu>
+
+      <!-- tasks menu filled from tasksOverlay -->
+      <menu id="tasksMenu"/>
+
+      <!-- window menu filled from tasksOverlay -->
+      <menu id="windowMenu"/>
+
+      <!-- help menu filled from globalOverlay -->
+      <menu id="menu_Help"/>
+    </menubar>
+
+    <toolbar class="chromeclass-toolbar"
+             id="ToolbarMode"
+             grippytooltiptext="&modeToolbar.tooltip;">
       <hbox id="viewGroup">
-        <toolbarbutton type="radio" group="mode" id="Console:modeAll"
-                       label="&all.label;" accesskey="&all.accesskey;"
+        <toolbarbutton type="radio"
+                       group="mode"
+                       id="Console:modeAll"
+                       label="&all.label;"
+                       accesskey="&all.accesskey;"
                        oncommand="changeMode('All');"/>
-        <toolbarbutton type="radio" group="mode" id="Console:modeErrors"
-                       label="&errors.label;" accesskey="&errors.accesskey;"
+        <toolbarbutton type="radio"
+                       group="mode"
+                       id="Console:modeErrors"
+                       label="&errors.label;"
+                       accesskey="&errors.accesskey;"
                        oncommand="changeMode('Errors');"/>
-        <toolbarbutton type="radio" group="mode" id="Console:modeWarnings"
-                       label="&warnings.label;" accesskey="&warnings.accesskey;"
+        <toolbarbutton type="radio"
+                       group="mode"
+                       id="Console:modeWarnings"
+                       label="&warnings.label;"
+                       accesskey="&warnings.accesskey;"
                        oncommand="changeMode('Warnings');"/>
-        <toolbarbutton type="radio" group="mode" id="Console:modeMessages"
-                     label="&messages.label;" accesskey="&messages.accesskey;"
-                     oncommand="changeMode('Messages');"/>
+        <toolbarbutton type="radio"
+                       group="mode"
+                       id="Console:modeMessages"
+                       label="&messages.label;"
+                       accesskey="&messages.accesskey;"
+                       oncommand="changeMode('Messages');"/>
       </hbox>
       <toolbarseparator/>
-      <toolbarbutton id="Console:clear" oncommand="clearConsole();"
-                     label="&clear.label;" accesskey="&clear.accesskey;"/>
+      <toolbarbutton id="Console:clear"
+                     label="&clear.label;"
+                     accesskey="&clear.accesskey;"
+                     oncommand="clearConsole();"/>
     </toolbar>
 
-    <toolbar class="chromeclass-toolbar" id="ToolbarEval" align="center" nowindowdrag="true">
-      <label value="&codeEval.label;" accesskey="&codeEval.accesskey;" control="TextboxEval"/>
-      <textbox id="TextboxEval" class="toolbar" value="" onkeypress="onEvalKeyPress(event)" flex="1"/>
-      <toolbarbutton id="ButtonEval" label="&evaluate.label;"
-                     accesskey="&evaluate.accesskey;" oncommand="evaluateTypein()"/>
+    <toolbar class="chromeclass-toolbar"
+             id="ToolbarEval"
+             align="center"
+             nowindowdrag="true"
+             grippytooltiptext="&entryToolbar.tooltip;">
+      <label value="&codeEval.label;"
+             accesskey="&codeEval.accesskey;"
+             control="TextboxEval"/>
+      <textbox id="TextboxEval"
+               class="toolbar"
+               flex="1"
+               value=""
+               onkeypress="onEvalKeyPress(event);"/>
+      <toolbarbutton id="ButtonEval"
+                     label="&evaluate.label;"
+                     accesskey="&evaluate.accesskey;"
+                     oncommand="evaluateTypein();"/>
     </toolbar>
+
   </toolbox>
 
-  <vbox id="ConsoleBox" class="console-box" flex="1" context="ConsoleContext" persist="sortOrder"/>
+  <vbox id="ConsoleBox"
+        class="console-box"
+        flex="1"
+        context="ConsoleContext"
+        persist="sortOrder"/>
 
-  <iframe name="Evaluator" id="Evaluator" collapsed="true"/>
+  <iframe name="Evaluator"
+          id="Evaluator"
+          collapsed="true"/>
 
   <statusbar>
     <statusbarpanel flex="1" pack="start">
       <label value="&filter2.label;" control="Filter"/>
-      <textbox accesskey="&filter2.accesskey;" type="search"
-               id="Filter" oncommand="changeFilter();"/>
+      <textbox type="search"
+               id="Filter"
+               accesskey="&filter2.accesskey;"
+               oncommand="changeFilter();"/>
     </statusbarpanel>
   </statusbar>
+
 </window>
