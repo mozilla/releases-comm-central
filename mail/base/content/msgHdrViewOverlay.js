@@ -566,6 +566,12 @@ var messageHeaderSink = {
           delete currentHeaderData["reply-to"];
       }
 
+      let expandedfromLabel = document.getElementById("expandedfromLabel");
+      if (gFolderDisplay.selectedMessageIsFeed)
+        expandedfromLabel.value = expandedfromLabel.getAttribute("valueAuthor");
+      else
+        expandedfromLabel.value = expandedfromLabel.getAttribute("valueFrom");
+
       this.onEndHeaders();
     },
 

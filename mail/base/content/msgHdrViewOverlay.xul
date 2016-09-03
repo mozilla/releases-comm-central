@@ -428,7 +428,9 @@
             <rows id="expandedHeaderRows">
               <row id="expandedfromRow">
                 <label id="expandedfromLabel" class="headerName"
-                       value="&fromField4.label;" control="expandedfromBox"/>
+                       value="&fromField4.label;"
+                       valueFrom="&fromField4.label;" valueAuthor="&author.label;"
+                       control="expandedfromBox"/>
                 <mail-multi-emailHeaderField id="expandedfromBox" flex="1"/>
               </row>
             </rows>

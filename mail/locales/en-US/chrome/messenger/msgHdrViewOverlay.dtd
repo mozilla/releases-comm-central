@@ -5,6 +5,7 @@
 <!ENTITY toField4.label "To">
 <!ENTITY fromField4.label "From">
 <!ENTITY senderField4.label "Sender">
+<!ENTITY author.label "Author">
 <!ENTITY organizationField4.label "Organization">
 <!ENTITY replyToField4.label "Reply to">
 
