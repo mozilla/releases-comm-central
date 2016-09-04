@@ -468,6 +468,9 @@
 @RESPATH@/components/lwbrk.xpt
 @RESPATH@/components/mimetype.xpt
 @RESPATH@/components/mozfind.xpt
+#ifdef ENABLE_INTL_API
+@RESPATH@/components/mozintl.xpt
+#endif
 ; netwerk
 @RESPATH@/components/necko_about.xpt
 @RESPATH@/components/necko_cache.xpt
