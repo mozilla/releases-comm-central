@@ -150,8 +150,6 @@
   locale/@AB_CD@/communicator/help/images/web-links.png                     (%chrome/common/help/images/web-links.png)
   locale/@AB_CD@/helpviewer/help.properties                                 (%chrome/common/helpviewer/help.properties)
   locale/@AB_CD@/helpviewer/help.dtd                                        (%chrome/common/helpviewer/help.dtd)
-  locale/@AB_CD@/helpviewer/help-toc.rdf                                    (%chrome/common/helpviewer/help-toc.rdf)
-  locale/@AB_CD@/helpviewer/welcome.xhtml                                   (%chrome/common/helpviewer/welcome.xhtml)
   locale/@AB_CD@/communicator/history/history.dtd                           (%chrome/common/history/history.dtd)
   locale/@AB_CD@/communicator/migration/migration.dtd                       (%chrome/common/migration/migration.dtd)
   locale/@AB_CD@/communicator/migration/migration.properties                (%chrome/common/migration/migration.properties)

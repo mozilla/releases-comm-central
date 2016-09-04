@@ -3,7 +3,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-<?xml-stylesheet href="chrome://help/skin/" type="text/css"?>
+<?xml-stylesheet href="chrome://communicator/skin/helpviewer/help.css" type="text/css"?>
 
 <?xul-overlay href="chrome://help/content/helpContextOverlay.xul"?>
 <!DOCTYPE window [
@@ -32,6 +32,7 @@
   <script type="application/javascript" src="chrome://help/content/help.js"/>
   <script type="application/javascript" src="chrome://global/content/viewZoomOverlay.js"/>
   <script type="application/javascript" src="chrome://global/content/globalOverlay.js"/>
+  <script type="application/javascript" src="chrome://communicator/content/findUtils.js"/>
 
   <menupopup id="backMenu" position="after_start"
              onpopupshowing="return createBackMenu(event);"
@@ -57,11 +58,11 @@
     <command id="cmd_fullZoomEnlarge" oncommand="ZoomManager.enlarge();"/>
     <command id="cmd_fullZoomReset" oncommand="ZoomManager.reset();"/>
     <command id="cmd_find"
-             oncommand="document.getElementById('FindToolbar').onFindCommand();"/>
+             oncommand="findInPage(getFindInstData());"/>
     <command id="cmd_findAgain"
-             oncommand="document.getElementById('FindToolbar').onFindAgainCommand(false);"/>
+             oncommand="findAgainInPage(getFindInstData(), false);"/>
     <command id="cmd_findPrevious"
-             oncommand="document.getElementById('FindToolbar').onFindAgainCommand(true);"/>
+             oncommand="findAgainInPage(getFindInstData(), true);"/>
     <command id="cmd_copy" oncommand="goDoCommand('cmd_copy')" disabled="true"/>
     <command id="cmd_selectAll" oncommand="goDoCommand('cmd_selectAll')"/>
   </commandset>
@@ -81,7 +82,7 @@
     <key keycode="VK_BACK" command="Help:Forward" modifiers="shift"/>
 #endif
     <key id="printKb" key="&printCmd.commandkey;" oncommand="print();"
-         modifiers="accel"/>  
+         modifiers="accel"/>
     <key id="key_find" key="&findOnCmd.commandkey;" command="cmd_find" modifiers="accel"/>
     <key id="key_findAgain" key="&findAgainCmd.commandkey;" command="cmd_findAgain" modifiers="accel"/>
     <key id="key_findPrevious" key="&findAgainCmd.commandkey;" command="cmd_findPrevious" modifiers="accel,shift"/>
@@ -141,9 +142,11 @@
         <toolbarspring flex="1"/>
         <toolbaritem id="search-box"
                      align="center" pack="center">
-          <textbox id="findText" type="search" placeholder="&search.emptytext;"
+          <textbox id="findText"
+                   type="search"
+                   placeholder="&search.emptytext;"
                    aria-controls="help-toc-panel"
-                   oncommand="doFind();"/>
+                   oncommand="showSidebar(); doFind();"/>
         </toolbaritem>
       </toolbar>
     </toolbox>
@@ -259,15 +262,24 @@
         <!-- END HIDDEN ITEMS -->
       </vbox>
 
-      <splitter id="help-sidebar-splitter" collapse="before"/>
+      <splitter id="help-sidebar-splitter" collapse="before">
+        <grippy/>
+      </splitter>
 
       <vbox id="appcontent" flex="3">
         <!-- type attribute is used by frame construction to locate
              iframes intended to hold (html) content -->
         <browser context="contentAreaContextMenu"
-                 type="content-primary" id="help-content"
-                 src="about:blank" flex="1"/>
+                 type="content-primary"
+                 id="help-content"
+                 src="about:blank"
+                 flex="1"
+                 onclick="return contentClick(event);"/>
         <findbar id="FindToolbar" browserid="help-content"/>
+        <browser type="content"
+                 id="help-external"
+                 collapsed="true"/>
+
       </vbox>
     </hbox>
 

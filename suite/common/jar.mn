@@ -5,7 +5,6 @@ comm.jar:
 % override chrome://mozapps/content/profile/profileSelection.xul chrome://communicator/content/profile/profileSelection.xul
 % overlay chrome://global/content/viewSource.xul chrome://communicator/content/viewSourceOverlay.xul
 % overlay chrome://global/content/viewPartialSource.xul chrome://communicator/content/viewSourceOverlay.xul
-% overlay chrome://help/content/help.xul chrome://communicator/content/helpOverlay.xul
 % overlay chrome://editor/content/EdAdvancedEdit.xul chrome://communicator/content/helpEditorOverlay.xul
 % overlay chrome://editor/content/EdImageProps.xul chrome://communicator/content/helpEditorOverlay.xul
 % overlay chrome://editor/content/EditorPublish.xul chrome://communicator/content/helpEditorOverlay.xul
@@ -73,8 +72,6 @@ comm.jar:
    content/communicator/helpEditorOverlay.xul
    content/communicator/helpMessengerOverlay.xul
    content/communicator/helpSecurityOverlay.xul
-   content/communicator/helpOverlay.js
-   content/communicator/helpOverlay.xul
    content/communicator/labelsencodings.properties                  (/mozilla/dom/encoding/labelsencodings.properties)
 # the following file is a suite-specific override of the generic license.html, using suite/common/app-license.html as input:
 *  content/communicator/license.html                                (/mozilla/toolkit/content/license.html)
