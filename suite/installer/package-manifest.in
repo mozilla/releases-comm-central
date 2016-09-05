@@ -261,6 +261,9 @@
 @RESPATH@/components/lwbrk.xpt
 @RESPATH@/components/mimetype.xpt
 @RESPATH@/components/mozfind.xpt
+#ifdef ENABLE_INTL_API
+@RESPATH@/components/mozintl.xpt
+#endif
 #ifdef MOZ_ENABLE_GNOME_COMPONENT
 @RESPATH@/components/@DLL_PREFIX@mozgnome@DLL_SUFFIX@
 #endif
