@@ -278,7 +278,7 @@ XMPPSession.prototype = {
   /* Socket events */
   /* The connection is established */
   onConnection: function() {
-    if (this._security.indexOf("ssl") != -1) {
+    if (this._security.includes("ssl")) {
       this.onXmppStanza = this.stanzaListeners.startAuth;
       this._encrypted = true;
     }
@@ -348,7 +348,7 @@ XMPPSession.prototype = {
       }
 
       let starttls = aStanza.getElement(["starttls"]);
-      if (starttls && this._security.indexOf("starttls") != -1) {
+      if (starttls && this._security.includes("starttls")) {
         this._account.reportConnecting(_("connection.initializingEncryption"));
         this.sendStanza(Stanza.node("starttls", Stanza.NS.tls));
         this.onXmppStanza = this.stanzaListeners.startTLS;

@@ -686,7 +686,7 @@ var ircBase = {
       for (let buddyName of this.pendingIsOnQueue) {
         // If the buddy name is in the list returned from the server, they're
         // online.
-        let status = (receivedBuddyNames.indexOf(buddyName) == -1) ?
+        let status = !receivedBuddyNames.includes(buddyName) ?
                        Ci.imIStatusInfo.STATUS_OFFLINE :
                        Ci.imIStatusInfo.STATUS_AVAILABLE;
 
@@ -981,7 +981,7 @@ var ircBase = {
     "367": function(aMessage) { // RPL_BANLIST
       // <channel> <banmask>
       let conv = this.getConversation(aMessage.params[1]);
-      if (conv.banMasks.indexOf(aMessage.params[2]) == -1)
+      if (!conv.banMasks.includes(aMessage.params[2]))
         conv.banMasks.push(aMessage.params[2]);
       return true;
     },

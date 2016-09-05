@@ -517,8 +517,8 @@ var gApplicationsPane = {
 
   _matchesFilter: function(aType) {
     var filterValue = this._filter.value.toLowerCase();
-    return this._describeType(aType).toLowerCase().indexOf(filterValue) != -1 ||
-           this._describePreferredAction(aType).toLowerCase().indexOf(filterValue) != -1;
+    return this._describeType(aType).toLowerCase().includes(filterValue) ||
+           this._describePreferredAction(aType).toLowerCase().includes(filterValue);
   },
 
   /**

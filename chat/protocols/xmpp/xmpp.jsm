@@ -299,7 +299,7 @@ var XMPPMUCConversationPrototype = {
                   from);
         return;
       }
-      if (codes.indexOf("303") != -1) {
+      if (codes.includes("303")) {
         // XEP-0045 (7.6): Changing Nickname.
         // Service Updates Nick for user.
         changeNick();
@@ -325,21 +325,21 @@ var XMPPMUCConversationPrototype = {
           this.left = true;
 
         let message;
-        if (codes.indexOf("301") != -1) {
+        if (codes.includes("301")) {
           // XEP-0045 (9.1): Banning a User.
           message = "conversation.message.banned";
         }
-        else if (codes.indexOf("307") != -1) {
+        else if (codes.includes("307")) {
           // XEP-0045 (8.2): Kicking an Occupant.
           message = "conversation.message.kicked";
         }
-        else if (codes.indexOf("322") != -1 || codes.indexOf("321") != -1) {
+        else if (codes.includes("322") || codes.includes("321")) {
           // XEP-0045: Inform user that he or she is being removed from the
           // room because the room has been changed to members-only and the
           // user is not a member.
           message = "conversation.message.removedNonMember";
         }
-        else if (codes.indexOf("332") != -1) {
+        else if (codes.includes("332")) {
           // XEP-0045: Inform user that he or she is being removed from the
           // room because the MUC service is being shut down.
           message = "conversation.message.mucShutdown";
@@ -368,7 +368,7 @@ var XMPPMUCConversationPrototype = {
       return;
     }
 
-    if (codes.indexOf("201") != -1) {
+    if (codes.includes("201")) {
       // XEP-0045 (10.1): Creating room.
       // Service Acknowledges Room Creation
       // and Room is awaiting configuration.
@@ -388,14 +388,14 @@ var XMPPMUCConversationPrototype = {
         return true;
       });
     }
-    else if (codes.indexOf("210") != -1) {
+    else if (codes.includes("210")) {
       // XEP-0045 (7.6): Changing Nickname.
       // Service modifies this user's nickname in accordance with local service
       // policies.
       changeNick();
       return;
     }
-    else if (codes.indexOf("110") != -1) {
+    else if (codes.includes("110")) {
       // XEP-0045: Room exists and joined successfully.
       this.left = false;
       this.joining = false;

@@ -365,7 +365,7 @@
         <parameter name="aModifier"/>
         <body>
           <![CDATA[
-            if (this._textModifiers.indexOf(aModifier) == -1)
+            if (!this._textModifiers.includes(aModifier))
               this._textModifiers.push(aModifier);
           ]]>
         </body>

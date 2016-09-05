@@ -89,7 +89,7 @@ var MessageFormat = {
   },
   _textboxes: [],
   registerTextbox: function mf_registerTextbox(aTextbox) {
-    if (this._textboxes.indexOf(aTextbox) == -1)
+    if (!this._textboxes.includes(aTextbox))
       this._textboxes.push(aTextbox);
 
     if (this._textboxes.length == 1)
@@ -144,7 +144,7 @@ var TextboxSpellChecker = {
 
   _textboxes: [],
   registerTextbox: function tsc_registerTextbox(aTextbox) {
-    if (this._textboxes.indexOf(aTextbox) == -1)
+    if (!this._textboxes.includes(aTextbox))
       this._textboxes.push(aTextbox);
 
     if (this._textboxes.length == 1) {

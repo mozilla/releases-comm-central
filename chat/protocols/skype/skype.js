@@ -674,7 +674,7 @@ SkypeAccount.prototype = {
         let conversationLink = resource.conversationLink;
 
         // Check if the conversation is a chat.
-        if (conversationLink.indexOf("/19:") != -1) {
+        if (conversationLink.includes("/19:")) {
           // TODO
           this.WARN("Received message from MUC.");
           continue;

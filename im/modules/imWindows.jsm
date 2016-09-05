@@ -19,7 +19,7 @@ var Conversations = {
   },
   _windows: [],
   registerWindow: function(aWindow) {
-    if (this._windows.indexOf(aWindow) == -1)
+    if (!this._windows.includes(aWindow))
       this._windows.unshift(aWindow);
 
     if (this._pendingConversations) {
@@ -41,7 +41,7 @@ var Conversations = {
   _uiConv: {},
   _conversations: [],
   registerConversation: function(aConversation) {
-    if (this._conversations.indexOf(aConversation) == -1)
+    if (!this._conversations.includes(aConversation))
       this._conversations.push(aConversation);
 
     let uiConv = aConversation.conv;
@@ -185,7 +185,7 @@ var Conversations = {
   showConversation: function(aConv) {
     if (this.isUIConversationDisplayed(aConv) ||
         (this._pendingConversations &&
-        this._pendingConversations.indexOf(aConv) != -1))
+        this._pendingConversations.includes(aConv)))
       return;
 
     Services.obs.notifyObservers(aConv, "showing-ui-conversation", null);

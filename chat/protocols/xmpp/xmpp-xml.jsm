@@ -277,7 +277,7 @@ XMLNode.prototype = {
     if (!TOP_LEVEL_ELEMENTS.hasOwnProperty(this.qName))
       return false;
     let ns = TOP_LEVEL_ELEMENTS[this.qName];
-    return ns == this.uri || (Array.isArray(ns) && ns.indexOf(this.uri) != -1);
+    return ns == this.uri || (Array.isArray(ns) && ns.includes(this.uri));
   },
 
   /* Returns indented XML */

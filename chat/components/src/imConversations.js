@@ -406,7 +406,7 @@ UIConversation.prototype = {
     Services.obs.notifyObservers(this, "ui-conversation-closed", null);
   },
   addObserver: function(aObserver) {
-    if (this._observers.indexOf(aObserver) == -1)
+    if (!this._observers.includes(aObserver))
       this._observers.push(aObserver);
   },
   removeObserver: function(aObserver) {
@@ -430,7 +430,7 @@ UIConversation.prototype = {
     }
 
     for (let observer of this._observers) {
-      if (!observer.observe && this._observers.indexOf(observer) == -1)
+      if (!observer.observe && !this._observers.includes(observer))
         continue; // observer removed by a previous call to another observer.
       observer.observe(aSubject, aTopic, aData);
     }

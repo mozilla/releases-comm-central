@@ -226,7 +226,7 @@ Tag.prototype = {
   },
 
   addObserver: function(aObserver) {
-    if (this._observers.indexOf(aObserver) == -1)
+    if (!this._observers.includes(aObserver))
       this._observers.push(aObserver);
   },
   removeObserver: function(aObserver) {
@@ -360,7 +360,7 @@ var otherContactsTag = {
   },
 
   addObserver: function(aObserver) {
-    if (this._observers.indexOf(aObserver) == -1)
+    if (!this._observers.includes(aObserver))
       this._observers.push(aObserver);
   },
   removeObserver: function(aObserver) {
@@ -851,7 +851,7 @@ Contact.prototype = {
   },
 
   addObserver: function(aObserver) {
-    if (this._observers.indexOf(aObserver) == -1)
+    if (!this._observers.includes(aObserver))
       this._observers.push(aObserver);
   },
   removeObserver: function(aObserver) {
@@ -994,7 +994,7 @@ Buddy.prototype = {
   _addAccount: function(aAccountBuddy, aTag) {
     this._accounts.push(aAccountBuddy);
     let contact = this._contact;
-    if (this._contact._tags.indexOf(aTag) == -1) {
+    if (!this._contact._tags.includes(aTag)) {
       this._contact._tags.push(aTag);
       aTag._addContact(contact);
     }
@@ -1126,7 +1126,7 @@ Buddy.prototype = {
   createConversation: function() { return this._preferredAccount.createConversation(); },
 
   addObserver: function(aObserver) {
-    if (this._observers.indexOf(aObserver) == -1)
+    if (!this._observers.includes(aObserver))
       this._observers.push(aObserver);
   },
   removeObserver: function(aObserver) {

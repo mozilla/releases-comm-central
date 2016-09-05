@@ -110,7 +110,7 @@
        <parameter name="aContactElt"/>
        <body>
        <![CDATA[
-         if (this._pendingReorders.indexOf(aContactElt) != -1)
+         if (this._pendingReorders.includes(aContactElt))
            return;
 
          this._pendingReorders.push(aContactElt);

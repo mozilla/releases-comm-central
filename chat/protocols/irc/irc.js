@@ -419,7 +419,7 @@ ircChannel.prototype = {
       // Since some modes are conflicted between different server
       // implementations, check if a participant with that name exists. If this
       // is true, then update the mode of the ConvChatBuddy.
-      if (this._account.memberStatuses.indexOf(aNewMode[i]) != -1 &&
+      if (this._account.memberStatuses.includes(aNewMode[i]) &&
           aModeParams.length && this._participants.has(peekNextParam())) {
         // Store the new modes for this nick (so each participant's mode is only
         // updated once).
@@ -468,7 +468,7 @@ ircChannel.prototype = {
         }
         this.writeMessage(aSetter, _(msgKey, banMask, aSetter), {system: true});
       }
-      else if (["e", "I", "l"].indexOf(aNewMode[i]) != -1) {
+      else if (["e", "I", "l"].includes(aNewMode[i])) {
         // TODO The following have parameters that must be accounted for.
         getNextParam();
       }
@@ -870,7 +870,7 @@ ircAccount.prototype = {
     let str = aStr;
 
     if (aPrefixes) {
-      while (aPrefixes.indexOf(str[0]) != -1)
+      while (aPrefixes.includes(str[0]))
         str = str.slice(1);
     }
 
@@ -880,7 +880,7 @@ ircAccount.prototype = {
   normalizeNick: function(aNick) { return this.normalize(aNick, this.userPrefixes); },
 
   isMUCName: function(aStr) {
-    return (this.channelPrefixes.indexOf(aStr[0]) != -1);
+    return this.channelPrefixes.includes(aStr[0]);
   },
 
   // Tell the server about status changes. IRC is only away or not away;
@@ -1618,7 +1618,7 @@ ircAccount.prototype = {
     // A channel prefix is required. If the user didn't include one,
     // we prepend # automatically to match the behavior of other
     // clients. Not doing it used to cause user confusion.
-    if (this.channelPrefixes.indexOf(channel[0]) == -1)
+    if (!this.channelPrefixes.includes(channel[0]))
       channel = "#" + channel;
 
     if (this.conversations.has(channel)) {

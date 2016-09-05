@@ -7,7 +7,7 @@ this.EXPORTED_SYMBOLS = ["Interruptions"];
 var Interruptions = {
   _listeners: [],
   addListener: function(aListener) {
-    if (this._listeners.indexOf(aListener) == -1)
+    if (!this._listeners.includes(aListener))
       this._listeners.push(aListener);
   },
   removeListener: function(aListener) {

@@ -347,7 +347,7 @@ ConvStatsService.prototype = {
             if (word.startsWith(s))
               return true;
             // Ignore channel prefix characters.
-            while (word.length && "#&+!@_*".indexOf(word[0]) != -1) {
+            while (word.length && "#&+!@_*".includes(word[0])) {
               word = word.substr(1);
               if (word.startsWith(s))
                 return true;
@@ -413,7 +413,7 @@ ConvStatsService.prototype = {
   },
 
   addObserver: function(aObserver) {
-    if (this._observers.indexOf(aObserver) != -1)
+    if (this._observers.includes(aObserver))
       return;
     this._observers.push(aObserver);
 

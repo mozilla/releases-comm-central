@@ -290,7 +290,7 @@
                                  KeyEvent.DOM_VK_UP, KeyEvent.DOM_VK_DOWN,
                                  KeyEvent.DOM_VK_LEFT, KeyEvent.DOM_VK_RIGHT];
 
-            if (tabKeyCodes.indexOf(event.keyCode) != -1)
+            if (tabKeyCodes.includes(event.keyCode))
               return;
 
             // Focus the panel and pass the key to it.
@@ -309,8 +309,8 @@
             if (event.metaKey)
               modifiers |= masks.META_MASK;
             if (event.accelKey)
-              modifiers |= (navigator.platform.indexOf("Mac") >= 0) ? masks.META_MASK
-                                                                    : masks.CONTROL_MASK;
+              modifiers |= (navigator.platform.includes("Mac")) ? masks.META_MASK
+                                                                : masks.CONTROL_MASK;
             // Can't use dispatchEvent to the textbox as these refuse untrusted key events.
             this.selectedPanel.ownerDocument.defaultView
               .QueryInterface(Components.interfaces.nsIInterfaceRequestor)
@@ -634,7 +634,7 @@
         <parameter name="aCloseWindowFastpath"/>
         <body>
           <![CDATA[
-            if (this._removingTabs.indexOf(aTab) > -1 || this._windowIsClosing)
+            if (this._removingTabs.includes(aTab) || this._windowIsClosing)
               return null;
 
             var browser = aTab.linkedBrowser;
@@ -763,14 +763,14 @@
 
             do {
               tab = tab.nextSibling;
-            } while (tab && this._removingTabs.indexOf(tab) != -1);
+            } while (tab && this._removingTabs.includes(tab));
 
             if (!tab) {
               tab = aTab;
 
               do {
                 tab = tab.previousSibling;
-              } while (tab && this._removingTabs.indexOf(tab) != -1);
+              } while (tab && this._removingTabs.includes(tab));
             }
 
             this.selectedTab = tab;

@@ -135,7 +135,7 @@ var joinChat = {
           autojoin = prefValue.split(",");
       }
 
-      if (autojoin.indexOf(name) == -1) {
+      if (!autojoin.includes(name)) {
         autojoin.push(name);
         let str = Cc["@mozilla.org/supports-string;1"]
                     .createInstance(Ci.nsISupportsString);

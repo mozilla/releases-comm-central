@@ -115,7 +115,7 @@ var previewObserver = {
 
     let defaultVariant = "";
     if (("DefaultVariant" in this.theme.metadata) &&
-        variants.indexOf(this.theme.metadata.DefaultVariant) != -1)
+        variants.includes(this.theme.metadata.DefaultVariant))
       defaultVariant = this.theme.metadata.DefaultVariant.replace(/_/g, " ");
 
     let defaultText = defaultVariant;

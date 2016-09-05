@@ -440,7 +440,7 @@
 
         // Pass navigation keys to the browser if
         // 1) the textbox is empty or 2) it's an IB-specific key combination
-        if ((!text && navKeyCodes.indexOf(event.keyCode) != -1) ||
+        if ((!text && navKeyCodes.includes(event.keyCode)) ||
             ((event.shiftKey || event.altKey) && (event.keyCode == KeyEvent.DOM_VK_PAGE_UP ||
                                                   event.keyCode == KeyEvent.DOM_VK_PAGE_DOWN))) {
           let newEvent = document.createEvent("KeyboardEvent");
@@ -461,7 +461,7 @@
         // The 'C' won't be lowercase if caps lock is enabled.
         if ((event.charCode == 99 /* 'c' */ ||
              (event.charCode == 67 /* 'C' */ && !event.shiftKey)) &&
-            (navigator.platform.indexOf("Mac") >= 0 ? event.metaKey : event.ctrlKey) &&
+            (navigator.platform.includes("Mac") ? event.metaKey : event.ctrlKey) &&
             inputBox.selectionStart == inputBox.selectionEnd) {
           this.browser.doCommand();
           return;
@@ -495,7 +495,7 @@
               let completions = Array.from(this.buddies.keys());
               // Check if the preceding words are a sequence of nick completions.
               let preceding = text.substring(0, pos - suffix.length).split(", ");
-              if (preceding.every(n => completions.indexOf(n) != -1)) {
+              if (preceding.every(n => completions.includes(n))) {
                 let s = preceding.pop();
                 if (preceding.length)
                   s = suffix + s;
@@ -571,7 +571,7 @@
               // It's possible to have a global and a protocol specific command
               // with the same name. Avoid duplicates in the |completions| array.
               let name = "/" + cmd.name;
-              if (completions.indexOf(name) == -1)
+              if (!completions.includes(name))
                 completions.push(name);
             }
           }
@@ -607,12 +607,12 @@
               let separator = text.substring(wordStart - 2, wordStart);
               if (separator == ": " || separator == ", ") {
                 let preceding = text.substring(0, wordStart - 2).split(", ");
-                if (preceding.every(n => completions.indexOf(n) != -1)) {
+                if (preceding.every(n => completions.includes(n))) {
                   secondNick = true;
                   isFirstWord = true;
                   // Remove preceding completions from possible completions.
                   completions = completions.filter(c =>
-                    preceding.indexOf(c) == -1);
+                    !preceding.includes(c));
                 }
               }
             }
@@ -685,7 +685,7 @@
             // If one of the completions is the sender of the last ping,
             // take it, if it was less than an hour ago.
             if (this._lastPing && this.buddies.has(this._lastPing) &&
-                this._completions.indexOf(this._lastPing) != -1 &&
+                this._completions.includes(this._lastPing) &&
                 (Date.now() / 1000 - this._lastPingTime) < 3600) {
               preferredNick = true;
               this._completionsIndex = this._completions.indexOf(this._lastPing);

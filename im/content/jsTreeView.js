@@ -175,7 +175,7 @@ PROTO_TREE_VIEW.prototype = {
 
       // Add this container to the persist map
       let id = this._rowMap[aIndex].id;
-      if (this._persistOpenMap.indexOf(id) == -1)
+      if (!this._persistOpenMap.includes(id))
         this._persistOpenMap.push(id);
 
       // Notify the tree of changes
@@ -220,7 +220,7 @@ PROTO_TREE_VIEW.prototype = {
   _restoreOpenStates: function jstv__restoreOpenStates() {
     // Note that as we iterate through here, .length may grow
     for (let i = 0; i < this._rowMap.length; i++) {
-      if (this._persistOpenMap.indexOf(this._rowMap[i].id) != -1)
+      if (this._persistOpenMap.includes(this._rowMap[i].id))
         this.toggleOpenState(i);
     }
   },
