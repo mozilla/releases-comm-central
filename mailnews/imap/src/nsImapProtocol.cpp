@@ -8981,33 +8981,76 @@ nsImapMockChannel::OnCacheEntryAvailable(nsICacheEntry *entry, bool aNew, nsIApp
     return NS_OK;
   }
 
-  NS_ENSURE_ARG(m_url); // kick out if m_url is null for some reason.
+  if (!m_url) {
+    // Something has gone terribly wrong.
+    NS_WARNING("m_url is null in OnCacheEntryAvailable");
+    return Cancel(NS_ERROR_UNEXPECTED);
+  }
 
-  if (NS_SUCCEEDED(status))
-  {
+  do {
+    // For "normal" read/write access we always receive NS_OK here. aNew
+    // indicates whether the cache entry is new and needs to be written, or not
+    // new and can be read. If AsyncOpenURI() was called with access read-only,
+    // status==NS_ERROR_CACHE_KEY_NOT_FOUND can be received here and we just read
+    // the data directly.
+    if (NS_FAILED(status))
+      break;
+
     nsCOMPtr<nsIMsgMailNewsUrl> mailnewsUrl = do_QueryInterface(m_url, &rv);
     mailnewsUrl->SetMemCacheEntry(entry);
 
-    if (mTryingToReadPart && aNew)
+    // For URLs not related to parts, the processing is easy:
+    // aNew==true means that we need to write to the entry,
+    // aNew==false means that we can read it.
+    //
+    // Parts processing is a little complicated, we distinguish two cases:
+    // 1) The caller a) knows that the part is there or
+    //               b) it is not there and can also not be read from the
+    //                  entire message.
+    //    In this case, the URL used as cache key addresses the part and
+    //    mTryingToReadPart==false.
+    //    The caller has already set up part extraction.
+    //    This case is no different to non-part processing.
+    // 2) The caller wants to try to extract the part from the cache entry
+    //    of the entire message.
+    //    In this case, the URL used as cache key addresses the message and
+    //    mTryingToReadPart==true.
+    if (mTryingToReadPart)
     {
-      entry->AsyncDoom(nullptr);
-      // whoops, we're looking for a part, but didn't find it. Fall back to fetching the whole msg.
-      nsCOMPtr<nsIImapUrl> imapUrl = do_QueryInterface(m_url);
-      SetupPartExtractorListener(imapUrl, m_channelListener);
-      return OpenCacheEntry();
+      // We are here with the URI of the entire message which we know exists.
+      MOZ_ASSERT(!aNew,
+                 "Logic error: Trying to read part from entire message which doesn't exist");
+      if (!aNew)
+      {
+        // Check the meta data.
+        nsCString annotation;
+        rv = entry->GetMetaDataElement("ContentModified", getter_Copies(annotation));
+        if (NS_FAILED(rv) || !annotation.EqualsLiteral("Not Modified"))
+        {
+          // The cache entry is not marked "Not Modified", that means it doesn't
+          // contain the entire message, so we can't use it.
+          // Call OpenCacheEntry() a second time to get the part.
+          rv = OpenCacheEntry();
+          if (NS_SUCCEEDED(rv))
+            return rv;
+
+          // Something has gone wrong, fall back to reading from the imap
+          // connection so the protocol doesn't hang.
+          break;
+        }
+      }
     }
 
-    // if we have write access then insert a "stream T" into the flow so data
-    // gets written to both
     if (aNew)
     {
-      // use a stream listener Tee to force data into the cache and to our current channel listener...
+      // If we are writing, then insert a "stream listener Tee" into the flow
+      // to force data into the cache and to our current channel listener.
       nsCOMPtr<nsIStreamListenerTee> tee = do_CreateInstance(NS_STREAMLISTENERTEE_CONTRACTID, &rv);
       if (NS_SUCCEEDED(rv))
       {
         nsCOMPtr<nsIOutputStream> out;
-        // this will fail with the mem cache turned off, so we need to fall through
-        // to ReadFromImapConnection instead of aborting with NS_ENSURE_SUCCESS(rv,rv)
+        // This will fail with the cache turned off, so we need to fall through
+        // to ReadFromImapConnection instead of aborting with NS_ENSURE_SUCCESS(rv,rv).
         rv = entry->OpenOutputStream(0, getter_AddRefs(out));
         if (NS_SUCCEEDED(rv))
         {
@@ -9025,14 +9068,14 @@ nsImapMockChannel::OnCacheEntryAvailable(nsICacheEntry *entry, bool aNew, nsIApp
       {
         NotifyStartEndReadFromCache(true);
         entry->MarkValid();
-        return NS_OK; // kick out if reading from the cache succeeded...
+        return NS_OK; // Kick out if reading from the cache succeeded.
       }
-      entry->AsyncDoom(nullptr); // doom entry if we failed to read from mem cache
-      mailnewsUrl->SetMemCacheEntry(nullptr); // we aren't going to be reading from the cache
+      entry->AsyncDoom(nullptr); // Doom entry if we failed to read from cache.
+      mailnewsUrl->SetMemCacheEntry(nullptr); // We aren't going to be reading from the cache.
     }
-  } // if we got a valid entry back from the cache...
+  } while (false);
 
-  // if reading from the cache failed or if we are writing into the cache, default to ReadFromImapConnection.
+  // If reading from the cache failed or if we are writing into the cache, default to ReadFromImapConnection.
   return ReadFromImapConnection();
 }
 
@@ -9042,6 +9085,27 @@ nsImapMockChannel::OnCacheEntryCheck(nsICacheEntry* entry, nsIApplicationCache* 
 {
   *aResult = nsICacheEntryOpenCallback::ENTRY_WANTED;
   return NS_OK;
+}
+
+// Little helper function to extract a query qualifier.
+static nsAutoCString extractQueryPart(nsAutoCString path, const char* queryToExtract)
+{
+  nsAutoCString queryPart;
+  int32_t queryIndex = path.Find(queryToExtract);
+  if (queryIndex == kNotFound)
+    return queryPart;
+
+  int32_t queryEnd = Substring(path, queryIndex + 1).FindChar('&');
+  if (queryEnd == kNotFound)
+    queryEnd = Substring(path, queryIndex + 1).FindChar('?');
+  if (queryEnd == kNotFound) {
+    // Nothing follows, so return from where the query qualifier started.
+    queryPart.Assign(Substring(path, queryIndex));
+  } else {
+    // Return the substring that represents the query qualifier.
+    queryPart.Assign(Substring(path, queryIndex, queryEnd + 1));
+  }
+  return queryPart;
 }
 
 nsresult nsImapMockChannel::OpenCacheEntry()
@@ -9055,71 +9119,102 @@ nsresult nsImapMockChannel::OpenCacheEntry()
   rv = imapService->GetCacheStorage(getter_AddRefs(cacheStorage));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  // we're going to need to extend this logic for the case where we're looking
-  // for a part. If we're looking for a part, we need to first ask for the part.
-  // if that comes back with a writeable cache entry, we need to doom it right
-  // away and not use it, and turn around and ask for a cache entry for the whole
-  // message, if that's available. But it seems like we shouldn't write into that
-  // cache entry if we just fetch that part - though we're doing that now. Maybe
-  // we never try to download just a single part from imap because our mime parser
-  // can't handle that, though I would think saving a single part as a file wouldn't
-  // need to go through mime...
+  int32_t uidValidity = -1;
+  nsCacheAccessMode cacheAccess = nsICacheStorage::OPEN_NORMALLY;
 
-  // Open a cache entry with key = url
-  nsCOMPtr <nsIURI> newUri;
+  nsCOMPtr<nsIImapUrl> imapUrl = do_QueryInterface(m_url, &rv);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  bool storeResultsOffline;
+  nsCOMPtr<nsIImapMailFolderSink> folderSink;
+
+  rv = imapUrl->GetImapMailFolderSink(getter_AddRefs(folderSink));
+  if (folderSink)
+    folderSink->GetUidValidity(&uidValidity);
+  imapUrl->GetStoreResultsOffline(&storeResultsOffline);
+  // If we're storing the message in the offline store, don't
+  // write to the memory cache.
+  if (storeResultsOffline)
+    cacheAccess = nsICacheStorage::OPEN_READONLY;
+
+  // Use the uid validity as part of the cache key, so that if the uid validity
+  // changes, we won't re-use the wrong cache entries.
+  nsAutoCString extension;
+  extension.AppendInt(uidValidity, 16);
+
+  // Open a cache entry where the key is the potentially modified URL.
+  nsCOMPtr<nsIURI> newUri;
   m_url->Clone(getter_AddRefs(newUri));
   nsAutoCString path;
   newUri->GetPath(path);
 
-  // Truncate of the query part so we don't duplicate urls in the cache for
-  // various message parts.
-  int32_t anchorIndex = path.RFindChar('?');
-  if (anchorIndex > 0)
+  // First we need to "normalise" the URL by extracting ?part= and &filename.
+  // The path should only contain: ?part=x.y&filename=file.ext
+  // These are seen in the wild:
+  // /;section=2?part=1.2&filename=A01.JPG
+  // ?section=2?part=1.2&filename=A01.JPG&type=image/jpeg&filename=A01.JPG
+  // ?part=1.2&type=image/jpeg&filename=IMG_C0030.jpg
+  nsAutoCString partQuery = extractQueryPart(path, "?part=");
+  nsAutoCString filenameQuery = extractQueryPart(path, "&filename=");
+
+  // Truncate path at either /; or ?
+  int32_t ind = path.FindChar('?');
+  if (ind != kNotFound)
+    path.SetLength(ind);
+  ind = path.Find("/;");
+  if (ind != kNotFound)
+    path.SetLength(ind);
+
+  if (partQuery.IsEmpty())
   {
-    // if we were trying to read a part, we failed - fall back and look for whole msg
-    if (mTryingToReadPart)
-    {
-      mTryingToReadPart = false;
-      path.SetLength(anchorIndex);
-      newUri->SetPath(path);
-    }
-    else
-    {
-      // check if this is a filter plugin requesting the message. In that case,we're not
-      // fetching a part, and we want the cache key to be just the uri.
-      nsAutoCString anchor(Substring(path, anchorIndex));
-
-      if (!anchor.EqualsLiteral("?header=filter")
-        && !anchor.EqualsLiteral("?header=attach") && !anchor.EqualsLiteral("?header=src")) {
-        mTryingToReadPart = true;
-      } else {
-        path.SetLength(anchorIndex);
-        newUri->SetPath(path);
-      }
-    }
+    // Not looking for a part. That's the easy part.
+    newUri->SetPath(path);
+    return cacheStorage->AsyncOpenURI(newUri, extension, cacheAccess, this);
   }
-  int32_t uidValidity = -1;
-  nsCacheAccessMode cacheAccess = nsICacheStorage::OPEN_NORMALLY;
 
-  nsCOMPtr <nsIImapUrl> imapUrl = do_QueryInterface(m_url, &rv);
-  if (imapUrl)
+  /**
+   * Part processing (rest of this function).
+   */
+  if (mTryingToReadPart)
   {
-    bool storeResultsOffline;
-    nsCOMPtr <nsIImapMailFolderSink> folderSink;
+    // If mTryingToReadPart is set, we are here for the second time.
+    // We tried to read a part from the entire message but the meta data didn't
+    // allow it. So we come back here.
+    // Now request the part with its full URL.
+    mTryingToReadPart = false;
 
-    rv = imapUrl->GetImapMailFolderSink(getter_AddRefs(folderSink));
-    if (folderSink)
-      folderSink->GetUidValidity(&uidValidity);
-    imapUrl->GetStoreResultsOffline(&storeResultsOffline);
-    // If we're storing the message in the offline store, don't
-    // write to the disk cache.
-    if (storeResultsOffline)
-      cacheAccess = nsICacheStorage::OPEN_READONLY;
+    // Note that part extraction was already set the first time.
+    newUri->SetPath(path + partQuery + filenameQuery);
+    return cacheStorage->AsyncOpenURI(newUri, extension, cacheAccess, this);
   }
-  // stick the uid validity in front of the url, so that if the uid validity
-  // changes, we won't re-use the wrong cache entries.
-  nsAutoCString extension;
-  extension.AppendInt(uidValidity, 16);
+
+  // First time processing. Set up part extraction.
+  SetupPartExtractorListener(imapUrl, m_channelListener);
+
+  // Check whether part is in the cache.
+  bool exists = false;
+  newUri->SetPath(path + partQuery + filenameQuery);
+  rv = cacheStorage->Exists(newUri, extension, &exists);
+  NS_ENSURE_SUCCESS(rv, rv);
+  if (exists) {
+    return cacheStorage->AsyncOpenURI(newUri, extension, cacheAccess, this);
+  }
+
+  // Let's see whether we have the entire message instead.
+  newUri->SetPath(path);
+  rv = cacheStorage->Exists(newUri, extension, &exists);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  if (!exists) {
+    // The entire message is not in the cache. Request the part.
+    newUri->SetPath(path + partQuery + filenameQuery);
+    return cacheStorage->AsyncOpenURI(newUri, extension, cacheAccess, this);
+  }
+
+  // This is where is gets complicated. The entire message is in the cache,
+  // but we don't know whether it's suitable for use. Its meta data
+  // might indicate that the message is incomplete.
+  mTryingToReadPart = true;
   return cacheStorage->AsyncOpenURI(newUri, extension, cacheAccess, this);
 }
 
@@ -9137,7 +9232,6 @@ nsresult nsImapMockChannel::ReadFromMemCache(nsICacheEntry *entry)
   if (entryKey.FindChar('?') != kNotFound)
   {
     // Part processing: If we have a part, then we should use the cache entry.
-    // XXX Caching of parts doesn't work, see bug 629738 for details.
     entry->GetMetaDataElement("contentType", getter_Copies(contentType));
     if (!contentType.IsEmpty())
       SetContentType(contentType);
@@ -9156,6 +9250,9 @@ nsresult nsImapMockChannel::ReadFromMemCache(nsICacheEntry *entry)
       int64_t entrySize;
 
       rv = entry->GetDataSize(&entrySize);
+      // We don't expect concurrent read here, so this call should always work.
+      NS_ENSURE_SUCCESS(rv, rv);
+
       nsCOMPtr<nsIMsgMessageUrl> msgUrl(do_QueryInterface(m_url));
       if (msgUrl)
       {
@@ -9178,7 +9275,9 @@ nsresult nsImapMockChannel::ReadFromMemCache(nsICacheEntry *entry)
     }
   }
 
-  // Common processing for full messages and message parts.
+  /**
+   * Common processing for full messages and message parts.
+   */
 
   // Check header of full message or part.
   if (shouldUseCacheEntry)
@@ -9190,6 +9289,8 @@ nsresult nsImapMockChannel::ReadFromMemCache(nsICacheEntry *entry)
     const int kFirstBlockSize = 100;
     char firstBlock[kFirstBlockSize + 1];
 
+    // Note: This will not work for a cache2 disk cache.
+    // (see bug 1302422 comment #4)
     rv = in->Read(firstBlock, sizeof(firstBlock), &readCount);
     NS_ENSURE_SUCCESS(rv, rv);
     firstBlock[kFirstBlockSize] = '\0';
