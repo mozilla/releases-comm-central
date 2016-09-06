@@ -46,7 +46,7 @@ var GlodaABIndexer = {
     ];
   },
 
-  _worker_index_card: function(aJob, aCallbackHandle) {
+  _worker_index_card: function*(aJob, aCallbackHandle) {
     let card = aJob.id;
 
     if (card.primaryEmail) {

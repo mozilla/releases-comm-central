@@ -639,7 +639,7 @@ var GlodaIMIndexer = {
     yield Gloda.kWorkDone;
   },
 
-  _worker_logsFolderSweep: function(aJob) {
+  _worker_logsFolderSweep: function*(aJob) {
     let dir = FileUtils.getFile("ProfD", ["logs"]);
     if (!dir.exists() || !dir.isDirectory())
       return;
@@ -679,6 +679,8 @@ var GlodaIMIndexer = {
         }
       }
     }
+
+    yield GlodaIndexer.kWorkDone;
   },
 
   _worker_convFolderSweep: function*(aJob, aCallbackHandle) {
