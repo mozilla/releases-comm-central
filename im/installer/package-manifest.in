@@ -468,7 +468,6 @@
 
 ; dom
 @RESPATH@/components/dom.xpt
-@RESPATH@/components/dom_alarm.xpt
 @RESPATH@/components/dom_apps.xpt
 @RESPATH@/components/dom_newapps.xpt
 @RESPATH@/components/dom_base.xpt
