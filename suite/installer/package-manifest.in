@@ -182,7 +182,6 @@
 @RESPATH@/components/directory.xpt
 @RESPATH@/components/docshell.xpt
 @RESPATH@/components/dom.xpt
-@RESPATH@/components/dom_alarm.xpt
 @RESPATH@/components/dom_apps.xpt
 @RESPATH@/components/dom_base.xpt
 @RESPATH@/components/dom_canvas.xpt
@@ -369,8 +368,6 @@
 
 ; JavaScript components
 @RESPATH@/components/addonManager.js
-@RESPATH@/components/AlarmsManager.js
-@RESPATH@/components/AlarmsManager.manifest
 @RESPATH@/components/amContentHandler.js
 @RESPATH@/components/amInstallTrigger.js
 @RESPATH@/components/amWebInstallListener.js
