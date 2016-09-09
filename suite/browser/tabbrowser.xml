@@ -367,6 +367,20 @@
         </body>
       </method>
 
+      <method name="getBrowserForContentWindow">
+        <parameter name="aWindow"/>
+        <body>
+          <![CDATA[
+            const browsers = this.browsers;
+            for (let browser of browsers) {
+              if (browser.contentWindow == aWindow)
+                return browser;
+            }
+            return null;
+          ]]>
+        </body>
+      </method>
+
       <method name="getNotificationBox">
         <parameter name="aBrowser"/>
         <body>
