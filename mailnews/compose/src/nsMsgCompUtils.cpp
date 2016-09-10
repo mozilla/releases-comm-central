@@ -1409,7 +1409,9 @@ msg_pick_real_name (nsMsgAttachmentHandler *attachment, const char16_t *proposed
   else //Let's extract the name from the URL
   {
     nsCString url;
-    attachment->mURL->GetSpec(url);
+    nsresult rv = attachment->mURL->GetSpec(url);
+    if (NS_FAILED(rv))
+      return;
 
     s = url.get();
     s2 = PL_strchr (s, ':');

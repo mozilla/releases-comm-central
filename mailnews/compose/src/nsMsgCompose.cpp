@@ -437,7 +437,8 @@ nsresult nsMsgCompose::ResetUrisForEmbeddedObjects()
         if (!newUrl)
           continue;
         nsCString spec;
-        newUrl->GetSpec(spec);
+        rv = newUrl->GetSpec(spec);
+        NS_ENSURE_SUCCESS(rv, rv);
         nsString newSrc;
         // mailbox urls will have ?number=xxx; imap urls won't. We need to
         // handle both cases because we may be going from a mailbox url to

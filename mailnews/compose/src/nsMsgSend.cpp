@@ -1073,8 +1073,11 @@ nsMsgComposeAndSend::PreProcessPart(nsMsgAttachmentHandler  *ma,
     if (!ma->m_uri.IsEmpty())
       turl = ma->m_uri;
   }
-  else
-    ma->mURL->GetSpec(turl);
+  else {
+    status = ma->mURL->GetSpec(turl);
+    if (NS_FAILED(status))
+      return 0;
+  }
 
   nsCString type(ma->m_type);
   nsCString realName(ma->m_realName);
@@ -1114,7 +1117,10 @@ nsMsgComposeAndSend::PreProcessPart(nsMsgAttachmentHandler  *ma,
   if (ma->mSendViaCloud)
   {
     nsCString urlSpec;
-    ma->mURL->GetSpec(urlSpec);
+    status = ma->mURL->GetSpec(urlSpec);
+    if (NS_FAILED(status))
+      return 0;
+
     // Need to add some headers so that libmime can restore the cloud info
     // when loading a draft message.
     nsCString draftInfo(HEADER_X_MOZILLA_CLOUD_PART": cloudFile; url=");
@@ -1331,7 +1337,8 @@ nsMsgComposeAndSend::GetEmbeddedObjectInfo(nsIDOMNode *node, nsMsgAttachmentData
         if (!uri)
           return NS_ERROR_OUT_OF_MEMORY;
 
-        uri->GetSpec(spec);
+        rv = uri->GetSpec(spec);
+        NS_ENSURE_SUCCESS(rv, rv);
 
         // Ok, now get the path to the root doc and tack on the name we
         // got from the GetSrc() call....
@@ -4167,7 +4174,9 @@ BuildURLAttachmentData(nsIURI *url)
 
   // Now get a readable name...
   nsAutoCString spec;
-  url->GetSpec(spec);
+  nsresult rv = url->GetSpec(spec);
+  if (NS_FAILED(rv))
+    return nullptr;
   if (!spec.IsEmpty())
   {
     theName = strrchr(spec.get(), '/');

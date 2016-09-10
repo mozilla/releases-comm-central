@@ -165,8 +165,10 @@ NS_IMETHODIMP nsMailboxUrl::GetUri(char ** aURI)
       // we blow off errors here so that we can open attachments
       // in .eml files.
       (void) accountManager->FolderUriForPath(m_filePath, baseUri);
-      if (baseUri.IsEmpty())
-        m_baseURL->GetSpec(baseUri);
+      if (baseUri.IsEmpty()) {
+        rv = m_baseURL->GetSpec(baseUri);
+        NS_ENSURE_SUCCESS(rv, rv);
+      }
       nsCString baseMessageURI;
       nsCreateLocalBaseMessageURI(baseUri, baseMessageURI);
       nsAutoCString uriStr;

@@ -678,8 +678,14 @@ NotifyEmittersOfAttachmentList(MimeDisplayOptions     *opt,
     }
 
     nsAutoCString spec;
-    if (tmp->m_url)
-      tmp->m_url->GetSpec(spec);
+    if (tmp->m_url) {
+      nsresult rv = tmp->m_url->GetSpec(spec);
+      if (NS_FAILED(rv)) {
+        ++i;
+        ++tmp;
+        continue;
+      }
+    }
 
     nsAutoCString sizeStr;
     if (tmp->m_isExternalLinkAttachment)

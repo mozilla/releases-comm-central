@@ -143,9 +143,8 @@ mime_dump_attachments ( nsMsgAttachmentData *attachData )
 
     if ( tmp->m_url )
     {
-      nsAutoCString spec;
-      tmp->m_url->GetSpec(spec);
-      printf("URL               : %s\n", spec.get());
+      ;
+      printf("URL               : %s\n", tmp->m_url->GetSpecOrDefault().get());
     }
 
     printf("Desired Type      : %s\n", tmp->m_desiredType.get());

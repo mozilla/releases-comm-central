@@ -1614,7 +1614,8 @@ bool nsImapProtocol::ProcessCurrentURL()
   // acknowledge that we are running the url now..
   nsCOMPtr<nsIMsgMailNewsUrl> mailnewsurl = do_QueryInterface(m_runningUrl, &rv);
   nsAutoCString urlSpec;
-  mailnewsurl->GetSpec(urlSpec);
+  rv = mailnewsurl->GetSpec(urlSpec);
+  NS_ENSURE_SUCCESS(rv, false);
   Log("ProcessCurrentURL", urlSpec.get(), (validUrl) ? " = currentUrl\n" : " is not valid\n");
   if (!validUrl)
     return false;
@@ -2127,9 +2128,7 @@ NS_IMETHODIMP nsImapProtocol::LoadImapUrl(nsIURI * aURL, nsISupports * aConsumer
   if (aURL)
   {
 #ifdef DEBUG_bienvenu
-    nsAutoCString urlSpec;
-    aURL->GetSpec(urlSpec);
-    printf("loading url %s\n", urlSpec.get());
+    printf("loading url %s\n", aURL->GetSpecOrDefault().get());
 #endif
     if (TryToRunUrlLocally(aURL, aConsumer))
       return NS_OK;
@@ -2630,7 +2629,7 @@ void nsImapProtocol::ProcessSelectedStateURL()
                 nsCOMPtr<nsIMsgMailNewsUrl> mailnewsurl = do_QueryInterface(m_runningUrl);
                 nsAutoCString urlSpec;
                 if (mailnewsurl)
-                  mailnewsurl->GetSpec(urlSpec);
+                  urlSpec = mailnewsurl->GetSpecOrDefault();
                 MOZ_LOG(IMAP, LogLevel::Debug,
                        ("SHELL: URL %s, OKToFetchByParts %d, allowedToBreakApart %d, ShouldFetchAllParts %d",
                         urlSpec.get(), urlOKToFetchByParts, allowedToBreakApart,
@@ -4368,7 +4367,9 @@ bool nsImapProtocol::CheckNewMail()
     if (mailnewsUrl)
     {
       nsAutoCString urlSpec, unescapedUrlSpec;
-      mailnewsUrl->GetSpec(urlSpec);
+      nsresult rv = mailnewsUrl->GetSpec(urlSpec);
+      if (NS_FAILED(rv))
+        return;
       MsgUnescapeString(urlSpec, 0, unescapedUrlSpec);
       MOZ_LOG(IMAP, LogLevel::Info, ("%s:%s", logMsg, unescapedUrlSpec.get()));
     }

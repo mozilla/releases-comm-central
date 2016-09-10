@@ -658,7 +658,8 @@ nsresult nsMessenger::SaveAttachment(nsIFile *aFile,
       nsresult rv = NS_NewFileURI(getter_AddRefs(outputURI), aFile);
       NS_ENSURE_SUCCESS(rv, rv);
       nsAutoCString fileUriSpec;
-      outputURI->GetSpec(fileUriSpec);
+      rv = outputURI->GetSpec(fileUriSpec);
+      NS_ENSURE_SUCCESS(rv, rv);
       saveState->m_savedFiles.AppendElement(fileUriSpec);
     }
   }

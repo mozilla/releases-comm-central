@@ -173,7 +173,10 @@ NS_IMETHODIMP nsMsgAttachmentHandler::GetUri(nsACString& aUri)
       turl = m_uri;
   }
   else
-    mURL->GetSpec(turl);
+  {
+    nsresult rv = mURL->GetSpec(turl);
+    NS_ENSURE_SUCCESS(rv, rv);
+  }
   aUri.Assign(turl);
   return NS_OK;
 }
@@ -739,7 +742,8 @@ nsMsgAttachmentHandler::SnarfAttachment(nsMsgCompFields *compFields)
   }
 
   nsCString sourceURISpec;
-  mURL->GetSpec(sourceURISpec);
+  rv = mURL->GetSpec(sourceURISpec);
+  NS_ENSURE_SUCCESS(rv, rv);
 #ifdef XP_MACOSX
   if (!m_bogus_attachment && StringBeginsWith(sourceURISpec, NS_LITERAL_CSTRING("file://")))
   {
@@ -975,8 +979,8 @@ nsMsgAttachmentHandler::ConvertToAppleEncoding(const nsCString &aFileURI,
     NS_ENSURE_SUCCESS(rv,rv);
 
     nsCString newURLSpec;
+    rv = fileURI->GetSpec(newURLSpec);
     NS_ENSURE_SUCCESS(rv, rv);
-    fileURI->GetSpec(newURLSpec);
 
     if (newURLSpec.IsEmpty())
     {

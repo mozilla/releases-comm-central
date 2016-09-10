@@ -363,11 +363,7 @@ NS_IMETHODIMP nsAbLDAPDirectoryQuery::DoQuery(nsIAbDirectory *aDirectory,
   {
     bool equal;
     rv = mDirectoryUrl->Equals(currentUrl, &equal);
-      NS_ENSURE_SUCCESS(rv, rv);
-  
-    nsCString spec;
-    mDirectoryUrl->GetSpec(spec);
-    currentUrl->GetSpec(spec);
+    NS_ENSURE_SUCCESS(rv, rv);
 
     if (!equal)
     {

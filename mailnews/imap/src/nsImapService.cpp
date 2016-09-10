@@ -264,7 +264,8 @@ NS_IMETHODIMP nsImapService::GetUrlForUri(const char *aMessageURI,
     mailnewsUrl->SetMsgIsInLocalCache(useLocalCache);
 
     nsCOMPtr<nsIURI> url = do_QueryInterface(imapUrl);
-    url->GetSpec(urlSpec);
+    rv = url->GetSpec(urlSpec);
+    NS_ENSURE_SUCCESS(rv, rv);
     urlSpec.Append("fetch>UID>");
     urlSpec.Append(hierarchyDelimiter);
 
@@ -583,7 +584,8 @@ nsresult nsImapService::FetchMimePart(nsIImapUrl *aImapUrl,
   if (NS_SUCCEEDED(rv))
   {
     nsCOMPtr<nsIURI> url = do_QueryInterface(aImapUrl);
-    url->GetSpec(urlSpec);
+    rv = url->GetSpec(urlSpec);
+    NS_ENSURE_SUCCESS(rv, rv);
 
     // rhp: If we are displaying this message for the purpose of printing, we
     // need to append the header=print option.
@@ -943,7 +945,8 @@ NS_IMETHODIMP nsImapService::AddImapFetchToUrl(nsIURI *aUrl,
   NS_ENSURE_ARG_POINTER(aUrl);
 
   nsAutoCString urlSpec;
-  aUrl->GetSpec(urlSpec);
+  nsresult rv = aUrl->GetSpec(urlSpec);
+  NS_ENSURE_SUCCESS(rv, rv);
 
   char hierarchyDelimiter = GetHierarchyDelimiter(aImapMailFolder);
 

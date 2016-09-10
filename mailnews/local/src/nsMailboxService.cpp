@@ -583,7 +583,8 @@ NS_IMETHODIMP nsMailboxService::NewChannel2(nsIURI *aURI,
   NS_ENSURE_ARG_POINTER(_retval);
   nsresult rv = NS_OK;
   nsAutoCString spec;
-  aURI->GetSpec(spec);
+  rv = aURI->GetSpec(spec);
+  NS_ENSURE_SUCCESS(rv, rv);
 
   if (spec.Find("?uidl=") >= 0 || spec.Find("&uidl=") >= 0)
   {

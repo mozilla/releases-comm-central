@@ -167,11 +167,9 @@ nsMsgContentPolicy::ShouldLoad(uint32_t          aContentType,
   NS_ENSURE_ARG_POINTER(aContentLocation);
 
 #ifdef DEBUG_MsgContentPolicy
-  nsCString spec;
-  (void)aContentLocation->GetSpec(spec);
   fprintf(stderr, "aContentType: %d\naContentLocation = %s\n",
           aContentType,
-          spec.get());
+          aContentLocation->GetSpecOrDefault().get());
 #endif
 
 #ifndef MOZ_THUNDERBIRD
@@ -230,8 +228,7 @@ nsMsgContentPolicy::ShouldLoad(uint32_t          aContentType,
     return NS_ERROR_INVALID_POINTER;
 
 #ifdef DEBUG_MsgContentPolicy
-  (void)aRequestingLocation->GetSpec(spec);
-  fprintf(stderr, "aRequestingLocation = %s\n", spec.get());
+  fprintf(stderr, "aRequestingLocation = %s\n", aRequestingLocation->GetSpecOrDefault().get());
 #endif
 
   // If the requesting location is safe, accept the content location request.
@@ -293,8 +290,7 @@ nsMsgContentPolicy::ShouldLoad(uint32_t          aContentType,
   NS_ENSURE_SUCCESS(rv, NS_OK);
 
 #ifdef DEBUG_MsgContentPolicy
-  (void)originatorLocation->GetSpec(spec);
-  fprintf(stderr, "originatorLocation = %s\n", spec.get());
+  fprintf(stderr, "originatorLocation = %s\n", originatorLocation->GetSpecOrDefault().get());
 #endif
 
   // Allow content when using a remote page.

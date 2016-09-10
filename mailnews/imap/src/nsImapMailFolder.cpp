@@ -5211,10 +5211,8 @@ nsImapMailFolder::OnStopRunningUrl(nsIURI *aUrl, nsresult aExitCode)
       mailUrl->GetMsgWindow(getter_AddRefs(msgWindow));
     if (session)
       session->IsFolderOpenInWindow(this, &folderOpen);
-#ifdef DEBUG_bienvenu1
-    nsCString urlSpec;
-    aUrl->GetSpec(getter_Copies(urlSpec));
-    printf("stop running url %s\n", urlSpec);
+#ifdef DEBUG_bienvenu
+    printf("stop running url %s\n", aUrl->GetSpecOrDefault().get());
 #endif
 
    if (imapUrl)

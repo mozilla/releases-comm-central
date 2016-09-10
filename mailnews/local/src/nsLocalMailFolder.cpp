@@ -3152,7 +3152,8 @@ nsMsgLocalMailFolder::OnStartRunningUrl(nsIURI * aUrl)
   if (NS_SUCCEEDED(rv))
   {
     nsAutoCString aSpec;
-    aUrl->GetSpec(aSpec);
+    rv = aUrl->GetSpec(aSpec);
+    NS_ENSURE_SUCCESS(rv, rv);
     if (strstr(aSpec.get(), "uidl="))
     {
       nsCOMPtr<nsIPop3Sink> popsink;
@@ -3189,8 +3190,10 @@ nsMsgLocalMailFolder::OnStopRunningUrl(nsIURI * aUrl, nsresult aExitCode)
     nsCOMPtr<nsIMsgWindow> msgWindow;
     rv = mailSession->GetTopmostMsgWindow(getter_AddRefs(msgWindow));
     nsAutoCString aSpec;
-    if (aUrl)
-    aUrl->GetSpec(aSpec);
+    if (aUrl) {
+      rv = aUrl->GetSpec(aSpec);
+      NS_ENSURE_SUCCESS(rv, rv);
+    }
 
     if (strstr(aSpec.get(), "uidl="))
     {

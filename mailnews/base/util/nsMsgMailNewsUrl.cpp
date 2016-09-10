@@ -134,7 +134,8 @@ NS_IMETHODIMP nsMsgMailNewsUrl::GetServer(nsIMsgIncomingServer ** aIncomingServe
   nsCOMPtr<nsIURL> url = do_CreateInstance(NS_STANDARDURL_CONTRACTID, &rv);
   if (NS_FAILED(rv)) return rv;
 
-  m_baseURL->GetSpec(urlstr);
+  rv = m_baseURL->GetSpec(urlstr);
+  NS_ENSURE_SUCCESS(rv, rv);
   rv = url->SetSpec(urlstr);
   if (NS_FAILED(rv)) return rv;
   rv = GetScheme(scheme);
