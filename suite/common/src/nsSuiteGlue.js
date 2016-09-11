@@ -358,6 +358,7 @@ SuiteGlue.prototype = {
       Services.ww.openWindow(null, "chrome://communicator/content/safeMode.xul",
                              "_blank", "chrome,centerscreen,modal,resizable=no", null);
     }
+    this._copyDefaultProfileFiles();
   },
 
   // profile startup handler (contains profile initialization routines)
@@ -382,6 +383,65 @@ SuiteGlue.prototype = {
     var timer = Components.classes["@mozilla.org/timer;1"]
                           .createInstance(Components.interfaces.nsITimer);
     timer.init(this, 3000, timer.TYPE_ONE_SHOT);
+  },
+
+  // Copies additional profile files from the default profile tho the current profile.
+  // Only files not covered by the regular profile creation process.
+  // Currently only the userchrome examples.
+  _copyDefaultProfileFiles: function()
+  {
+    // Copy default chrome example files if they do not exist in the current profile.
+    var profileDir = Services.dirsvc.get("ProfD", Components.interfaces.nsILocalFile);
+    profileDir.append("chrome");
+
+    // The chrome directory in the current/new profile already exists so no copying.
+    if (profileDir.exists())
+      return;
+
+    let defaultProfileDir = Services.dirsvc.get("DefRt",
+                                                Components.interfaces.nsIFile);
+    defaultProfileDir.append("profile");
+    defaultProfileDir.append("chrome");
+
+    if (defaultProfileDir.exists() && defaultProfileDir.isDirectory()) {
+      try {
+        this._copyDir(defaultProfileDir, profileDir);
+      } catch (e) {
+        Components.utils.reportError(e);
+      }
+    }
+  },
+
+  // Simple copy function for copying complete aSource Directory to aDestiniation.
+  _copyDir: function(aSource, aDestination)
+  {
+    let enumerator = aSource.directoryEntries;
+
+    while (enumerator.hasMoreElements()) {
+      let file = enumerator.getNext().QueryInterface(Components.interfaces.nsIFile);
+
+      if (file.isDirectory()) {
+        let subdir = aDestination.clone();
+        subdir.append(file.leafName);
+
+        // Create the target directory. If it already exists continue copying files.
+        try {
+          subdir.create(Components.interfaces.nsIFile.DIRECTORY_TYPE,
+                        FileUtils.PERMS_DIRECTORY);
+        } catch (ex) {
+           if (ex.result != Components.results.NS_ERROR_FILE_ALREADY_EXISTS)
+            throw ex;
+        }
+        // Directory created. Now copy the files.
+        this._copyDir(file, subdir);
+      } else {
+        try {
+          file.copyTo(aDestination, null);
+        } catch (e) {
+          Components.utils.reportError(e);
+        }
+      }
+    }
   },
 
   _setUpUserAgentOverrides: function ()
