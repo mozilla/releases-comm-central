@@ -106,7 +106,7 @@ groupbox.collapsable[closed="true"] caption .caption-icon {
 }
 
 %ifdef XP_WIN
-textbox html|*.textbox-input:-moz-placeholder {
+textbox html|*.textbox-input:placeholder {
   font-style: normal;
 }
 %endif
