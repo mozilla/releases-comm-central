@@ -679,12 +679,8 @@ NotifyEmittersOfAttachmentList(MimeDisplayOptions     *opt,
 
     nsAutoCString spec;
     if (tmp->m_url) {
-      nsresult rv = tmp->m_url->GetSpec(spec);
-      if (NS_FAILED(rv)) {
-        ++i;
-        ++tmp;
-        continue;
-      }
+      // In C++ code |Unused <<| is used instead of |(void)|.
+      (void) tmp->m_url->GetSpec(spec);
     }
 
     nsAutoCString sizeStr;

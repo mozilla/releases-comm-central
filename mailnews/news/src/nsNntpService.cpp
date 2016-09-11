@@ -396,16 +396,17 @@ NS_IMETHODIMP nsNntpService::FetchMimePart(nsIURI *aURI, const char *aMessageURI
   msgUrl->SetMsgWindow(aMsgWindow);
 
   // set up the url listener
-    if (aUrlListener)
-      msgUrl->RegisterListener(aUrlListener);
+  if (aUrlListener)
+    msgUrl->RegisterListener(aUrlListener);
 
-    nsCOMPtr<nsIMsgMessageUrl> msgMessageUrl = do_QueryInterface(aURI);
 // this code isn't ready yet, but it helps getting opening attachments
 // while offline working
+//    nsCOMPtr<nsIMsgMessageUrl> msgMessageUrl = do_QueryInterface(aURI);
 //    if (msgMessageUrl)
 //    {
 //      nsAutoCString spec;
-//      aURI->GetSpec(spec);
+//      rv = aURI->GetSpec(spec);
+//      NS_ENSURE_SUCCESS(rv, rv);
 //      msgMessageUrl->SetOriginalSpec(spec.get());
 //    }
   return RunNewsUrl(msgUrl, aMsgWindow, aDisplayConsumer);

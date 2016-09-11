@@ -2503,11 +2503,12 @@ nsresult nsImapService::GetServerFromUrl(nsIImapUrl *aImapUrl, nsIMsgIncomingSer
     nsAutoCString turl;
     nsCOMPtr<nsIURL> url = do_CreateInstance(NS_STANDARDURL_CONTRACTID, &rv);
     NS_ENSURE_SUCCESS(rv, rv);
-    
-    mailnewsUrl->GetSpec(turl);
+
+    rv = mailnewsUrl->GetSpec(turl);
+    NS_ENSURE_SUCCESS(rv, rv);
     rv = url->SetSpec(turl);
     NS_ENSURE_SUCCESS(rv, rv);
-    
+
     url->SetUserPass(EmptyCString());
     rv = accountManager->FindServerByURI(url, false, aServer);
     if (*aServer)
@@ -3342,9 +3343,10 @@ NS_IMETHODIMP nsImapService::HandleContent(const char *aContentType,
       request->Cancel(NS_BINDING_ABORTED);
       nsCOMPtr<nsIWindowMediator> mediator(do_GetService(NS_WINDOWMEDIATOR_CONTRACTID, &rv));
       NS_ENSURE_SUCCESS(rv, rv);
-      nsAutoCString uriStr;
 
-      uri->GetSpec(uriStr);
+      nsAutoCString uriStr;
+      rv = uri->GetSpec(uriStr);
+      NS_ENSURE_SUCCESS(rv, rv);
 
       // imap uri's are unescaped, so unescape the url.
       nsCString unescapedUriStr;
