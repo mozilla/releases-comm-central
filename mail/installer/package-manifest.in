@@ -643,6 +643,8 @@
 @RESPATH@/components/contentAreaDropListener.js
 @RESPATH@/components/PackagedAppUtils.manifest
 @RESPATH@/components/PackagedAppUtils.js
+@RESPATH@/components/WellKnownOpportunisticUtils.js
+@RESPATH@/components/WellKnownOpportunisticUtils.manifest
 
 #ifdef MOZ_CALENDAR
 [calendar]
