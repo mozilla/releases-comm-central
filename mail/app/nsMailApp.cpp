@@ -10,8 +10,6 @@
 #if defined(XP_WIN)
 #include <windows.h>
 #include <stdlib.h>
-#include <io.h>
-#include <fcntl.h>
 #elif defined(XP_UNIX)
 #include <sys/resource.h>
 #include <unistd.h>
@@ -47,7 +45,7 @@
 #if !defined(MOZ_WIDGET_COCOA) && !defined(MOZ_WIDGET_ANDROID) \
   && !(defined(XP_LINUX) && defined(MOZ_SANDBOX))
 #define MOZ_BROWSER_CAN_BE_CONTENTPROC
-#include "../../ipc/contentproc/plugin-container.cpp"
+#include "../../mozilla/ipc/contentproc/plugin-container.cpp"
 #endif
 
 using namespace mozilla;
@@ -272,8 +270,8 @@ InitXPCOMGlue(const char *argv0, nsIFile **xreDirectory)
   }
 
   char *lastSlash = strrchr(exePath, XPCOM_FILE_PATH_SEPARATOR[0]);
-  if (!lastSlash || (size_t(lastSlash - exePath) > MAXPATHLEN -
-sizeof(XPCOM_DLL) - 1))
+  if (!lastSlash ||
+      (size_t(lastSlash - exePath) > MAXPATHLEN - sizeof(XPCOM_DLL) - 1))
     return NS_ERROR_FAILURE;
 
   strcpy(lastSlash + 1, XPCOM_DLL);
