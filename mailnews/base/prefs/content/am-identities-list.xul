@@ -24,6 +24,18 @@
 <script type="application/javascript"
         src="chrome://messenger/content/am-identities-list.js"/>
 
+<commandset>
+  <command id="cmd_add"     oncommand="openIdentityEditor(null);"/>
+  <command id="cmd_edit"    oncommand="onEdit(event);" disabled="true"/>
+  <command id="cmd_default" oncommand="onSetDefault(event);" disabled="true"/>
+  <command id="cmd_delete"  oncommand="onDelete(event);" disabled="true"/>
+</commandset>
+
+<keyset>
+  <key keycode="VK_INSERT" command="cmd_add"/>
+  <key keycode="VK_DELETE" command="cmd_delete"/>
+</keyset>
+
 <label control="identitiesList">&identitiesListManageDesc.label;</label>
 
 <separator class="thin"/>
@@ -38,16 +50,16 @@
 
   <vbox>
     <button id="addButton"
-            oncommand="openIdentityEditor(null);" label="&identitiesListAdd.label;"
+            command="cmd_add" label="&identitiesListAdd.label;"
             accesskey="&identitiesListAdd.accesskey;"/>
     <button id="editButton" disabled="true"
-            oncommand="onEdit(event);" label="&identitiesListEdit.label;"
+            command="cmd_edit" label="&identitiesListEdit.label;"
             accesskey="&identitiesListEdit.accesskey;"/>
     <button id="setDefaultButton" disabled="true"
-            oncommand="onSetDefault(event);" label="&identitiesListDefault.label;"
+            command="cmd_default" label="&identitiesListDefault.label;"
             accesskey="&identitiesListDefault.accesskey;"/>
     <button id="deleteButton" disabled="true"
-            oncommand="onDelete(event);" label="&identitiesListDelete.label;"
+            command="cmd_delete" label="&identitiesListDelete.label;"
             accesskey="&identitiesListDelete.accesskey;"/>
   </vbox>
 </hbox>
