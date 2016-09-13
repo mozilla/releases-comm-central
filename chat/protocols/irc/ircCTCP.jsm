@@ -21,7 +21,7 @@ Cu.import("resource:///modules/ircUtils.jsm");
 //   <command> " " <parameter>
 // The high level dequote is to unescape \001 in the message content.
 function CTCPMessage(aMessage, aRawCTCPMessage) {
-  let message = aMessage;
+  let message = Object.assign({}, aMessage);
   message.ctcp = {};
   message.ctcp.rawMessage = aRawCTCPMessage;
 
