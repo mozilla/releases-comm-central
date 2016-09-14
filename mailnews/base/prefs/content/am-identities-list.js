@@ -127,7 +127,7 @@ function updateButtons()
   gEditButton.setAttribute("disabled", "false");
   gDeleteButton.setAttribute("disabled", (gIdentityListBox.itemCount <= 1) ? "true" : "false");
   gSetDefaultButton.setAttribute("disabled", (gIdentityListBox.selectedIndex == 0) ? "true" : "false");
-  // The Add command is always be enabled.
+  // The Add command is always enabled.
 }
 
 function onSetDefault(event)
