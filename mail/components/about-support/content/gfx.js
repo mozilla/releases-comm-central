@@ -236,7 +236,7 @@ function populateGraphicsSection() {
           if (a.index > b.index) return 1;
           return 0;});
       trGraphicsFailures = combined.map(function(val) {
-                               createParentElement("tr", [
+                               return createParentElement("tr", [
                                    createElement("th", val.header, {class: "column"}),
                                    createElement("td", val.message),
                                ]);
