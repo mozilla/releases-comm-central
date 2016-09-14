@@ -434,6 +434,11 @@ mail-emailaddress[selected="true"] .emailDisplayButton{
     -moz-image-region: rect(0px 256px 16px 240px);
   }
 
+  .hdrConversationButton {
+    list-style-image: url("chrome://messenger/skin/icons/mail-toolbar-small.png");
+    -moz-image-region: rect(0px 416px 16px 400px);
+  }
+
   #otherActionsButton > .toolbarbutton-icon {
     display: none;
   }
@@ -686,6 +691,10 @@ mail-emailaddress[selected="true"] .emailDisplayButton{
     list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#tag");
   }
 
+  .hdrConversationButton {
+    list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#conversation");
+  }
+
   #attachmentSaveAllSingle,
   #attachmentSaveAllMultiple {
     list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#file");
@@ -724,6 +733,10 @@ mail-emailaddress[selected="true"] .emailDisplayButton{
 
   toolbar[brighttext] .hdrTagButton {
     list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#tag-inverted");
+  }
+
+  toolbar[brighttext] .hdrConversationButton {
+    list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#conversation-inverted");
   }
 
   toolbar[brighttext] #attachmentSaveAllSingle,
@@ -839,6 +852,10 @@ mail-emailaddress[selected="true"] .emailDisplayButton{
 
   .hdrTagButton {
     list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#tag-flat");
+  }
+
+  .hdrConversationButton {
+    list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#conversation-flat");
   }
 
   #attachmentSaveAllSingle,

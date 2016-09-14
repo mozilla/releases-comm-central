@@ -200,6 +200,10 @@
     list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#filter");
   }
 
+  #button-showconversation {
+    list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#conversation");
+  }
+
   .button-appmenu {
     list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#appButton");
   }
@@ -302,6 +306,10 @@
     list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#filter-flat");
   }
 
+  #button-showconversation {
+    list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#conversation-flat");
+  }
+
   .button-appmenu {
     list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#appButton-flat");
   }
@@ -401,6 +409,10 @@ toolbar[brighttext] #button-previousMsg {
 
 toolbar[brighttext] #qfb-show-filter-bar {
   list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#filter-inverted");
+}
+
+toolbar[brighttext] #button-showconversation {
+  list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#conversation-inverted");
 }
 
 toolbar[brighttext] .button-appmenu {

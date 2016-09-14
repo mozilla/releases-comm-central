@@ -202,6 +202,10 @@ toolbox[labelalign="end"] toolbar[mode="full"] .msgHeaderView-button .toolbarbut
   list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#tag");
 }
 
+.hdrConversationButton {
+  list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#conversation");
+}
+
 #attachmentSaveAllSingle,
 #attachmentSaveAllMultiple {
   list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#file");
@@ -240,6 +244,10 @@ toolbar[brighttext] .hdrTrashButton {
 
 toolbar[brighttext] .hdrTagButton {
   list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#tag-inverted");
+}
+
+toolbar[brighttext] .hdrConversationButton {
+  list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#conversation-inverted");
 }
 
 toolbar[brighttext] #attachmentSaveAllSingle,

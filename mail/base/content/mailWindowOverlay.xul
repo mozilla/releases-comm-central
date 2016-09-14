@@ -284,6 +284,7 @@
   <command id="button_file"/>
   <command id="cmd_delete"/>
   <command id="button_junk"/>
+  <command id="button_showconversation"/>
   <command id="button_compact"/>
   <command id="cmd_chat"/>
 </commandset>
@@ -3144,6 +3145,12 @@
                    tooltiptext="&archiveButton.tooltip;"
                    observes="button_archive"
                    oncommand="MsgArchiveSelectedMessages(event)"/>
+    <toolbarbutton id="button-showconversation"
+                   class="toolbarbutton-1"
+                   label="&openConversationButton.label;"
+                   tooltiptext="&openConversationButton.tooltip;"
+                   observes="button_showconversation"
+                   oncommand="gConversationOpener.openConversationForMessages(gFolderDisplay.selectedMessages)"/>
     <toolbarbutton id="button-goback"
                    class="toolbarbutton-1"
                    type="menu-button"

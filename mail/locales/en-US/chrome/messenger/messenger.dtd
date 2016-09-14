@@ -505,6 +505,7 @@
 <!ENTITY forwardButton.label "Forward">
 <!ENTITY fileButton.label "File">
 <!ENTITY archiveButton.label "Archive">
+<!ENTITY openConversationButton.label "Conversation">
 <!ENTITY nextButton.label "Next">
 <!ENTITY nextButtonToolbarItem.label "Next Unread">
 <!ENTITY nextMsgButton.label "Next">
@@ -547,6 +548,7 @@
 <!ENTITY forwardAsAttachment.tooltip "Forward selected message as an attachment">
 <!ENTITY fileButton.tooltip "File selected message">
 <!ENTITY archiveButton.tooltip "Archive selected messages">
+<!ENTITY openConversationButton.tooltip "Show conversation of selected message">
 <!ENTITY nextButton.tooltip "Move to the next unread message">
 <!ENTITY nextMsgButton.tooltip "Move to the next message">
 <!ENTITY previousButton.tooltip "Move to the previous unread message">

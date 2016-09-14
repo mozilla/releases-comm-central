@@ -238,6 +238,12 @@
                              class="toolbarbutton-1 msgHeaderView-button hdrTrashButton"
                              oncommand="goDoCommand(event.shiftKey ? 'button_shiftDelete' :
                                                     'button_delete');RestoreFocusAfterHdrButton();"/>
+              <toolbarbutton id="hdrOpenConversationButton"
+                             label="&hdrOpenConversationButton1.label;"
+                             tooltiptext="&hdrOpenConversationButton1.tooltip;"
+                             observes="button_showconversation"
+                             class="toolbarbutton-1 msgHeaderView-button hdrConversationButton"
+                             oncommand="gConversationOpener.openConversationForMessages(gFolderDisplay.selectedMessages);RestoreFocusAfterHdrButton();"/>
               <toolbarbutton id="hdrReplyToSenderButton" label="&hdrReplyButton1.label;"
                              tooltiptext="&hdrReplyButton2.tooltip;"
                              oncommand="MsgReplySender(event);RestoreFocusAfterHdrButton();"

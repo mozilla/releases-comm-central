@@ -141,6 +141,7 @@ var DefaultController =
       case "cmd_deleteFolder":
       case "button_delete":
       case "button_junk":
+      case "button_showconversation":
       case "cmd_shiftDelete":
       case "button_shiftDelete":
       case "button_nextMsg":
@@ -308,6 +309,7 @@ var DefaultController =
                gFolderDisplay.selectedMessage.folder &&
                gFolderDisplay.selectedMessage.folder.server.canHaveFilters;
       case "cmd_openConversation":
+      case "button_showconversation":
         return gFolderDisplay.selectedCount == 1 &&
                gConversationOpener.isSelectedMessageIndexed();
       case "cmd_saveAsFile":
@@ -804,6 +806,7 @@ var DefaultController =
         MsgOpenSelectedMessages();
         return;
       case "cmd_openConversation":
+      case "button_showconversation":
         gConversationOpener.openConversationForMessages(gFolderDisplay.selectedMessages);
         return;
       case "cmd_printSetup":
