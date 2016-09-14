@@ -39,11 +39,21 @@ function populateGraphicsSection() {
     return elem;
   }
 
-  function pushInfoRow(table, name, value)
+  function pushHeaderRow(table, displayName)
+  {
+    let header = createHeader(displayName);
+    header.colSpan = 2;
+    table.push(createParentElement("tr", [
+      header,
+    ]));
+  }
+
+  function pushInfoRow(table, name, value, displayName)
   {
     if(value) {
+      let string = displayName || bundle.GetStringFromName(name);
       table.push(createParentElement("tr", [
-        createHeader(bundle.GetStringFromName(name)),
+        createHeader(string),
         createElement("td", value),
       ]));
     }
@@ -85,15 +95,16 @@ function populateGraphicsSection() {
     return errorMessage;
   }
 
-  function pushFeatureInfoRow(table, name, feature, isEnabled, message) {
+  function pushFeatureInfoRow(table, name, feature, isEnabled, message, displayName) {
     message = message || isEnabled;
     if (!isEnabled) {
       var errorMessage = errorMessageForFeature(feature);
       if (errorMessage)
         message = errorMessage;
     }
+    let string = displayName || bundle.GetStringFromName(name);
     table.push(createParentElement("tr", [
-      createHeader(bundle.GetStringFromName(name)),
+      createHeader(string),
       createElement("td", message),
     ]));
   }
@@ -116,24 +127,31 @@ function populateGraphicsSection() {
 
   if (gfxInfo) {
     let trGraphics = [];
-    pushInfoRow(trGraphics, "adapterDescription", gfxInfo.adapterDescription);
-    pushInfoRow(trGraphics, "adapterVendorID", gfxInfo.adapterVendorID);
-    pushInfoRow(trGraphics, "adapterDeviceID", gfxInfo.adapterDeviceID);
-    pushInfoRow(trGraphics, "adapterRAM", gfxInfo.adapterRAM);
-    pushInfoRow(trGraphics, "adapterDrivers", gfxInfo.adapterDriver);
-    pushInfoRow(trGraphics, "driverVersion", gfxInfo.adapterDriverVersion);
-    pushInfoRow(trGraphics, "driverDate", gfxInfo.adapterDriverDate);
+    pushHeaderRow(trGraphics, "GPU #1");
+    pushInfoRow(trGraphics, "gpuDescription", gfxInfo.adapterDescription);
+    pushInfoRow(trGraphics, "gpuVendorID", gfxInfo.adapterVendorID);
+    pushInfoRow(trGraphics, "gpuDeviceID", gfxInfo.adapterDeviceID);
+    pushInfoRow(trGraphics, "gpuRAM", gfxInfo.adapterRAM);
+    pushInfoRow(trGraphics, "gpuDrivers", gfxInfo.adapterDriver);
+    pushInfoRow(trGraphics, "gpuDriverVersion", gfxInfo.adapterDriverVersion);
+    pushInfoRow(trGraphics, "gpuDriverDate", gfxInfo.adapterDriverDate);
 
 #ifdef XP_WIN
-    pushInfoRow(trGraphics, "adapterDescription2", gfxInfo.adapterDescription2);
-    pushInfoRow(trGraphics, "adapterVendorID2", gfxInfo.adapterVendorID2);
-    pushInfoRow(trGraphics, "adapterDeviceID2", gfxInfo.adapterDeviceID2);
-    pushInfoRow(trGraphics, "adapterRAM2", gfxInfo.adapterRAM2);
-    pushInfoRow(trGraphics, "adapterDrivers2", gfxInfo.adapterDriver2);
-    pushInfoRow(trGraphics, "driverVersion2", gfxInfo.adapterDriverVersion2);
-    pushInfoRow(trGraphics, "driverDate2", gfxInfo.adapterDriverDate2);
-    pushInfoRow(trGraphics, "isGPU2Active", gfxInfo.isGPU2Active);
+    if(gfxInfo.adapterDescription2) {
+      pushHeaderRow(trGraphics, "GPU #2");
+      pushInfoRow(trGraphics, "gpuDescription", gfxInfo.adapterDescription2);
+      pushInfoRow(trGraphics, "gpuVendorID", gfxInfo.adapterVendorID2);
+      pushInfoRow(trGraphics, "gpuDeviceID", gfxInfo.adapterDeviceID2);
+      pushInfoRow(trGraphics, "gpuRAM", gfxInfo.adapterRAM2);
+      pushInfoRow(trGraphics, "gpuDrivers", gfxInfo.adapterDriver2);
+      pushInfoRow(trGraphics, "gpuDriverVersion", gfxInfo.adapterDriverVersion2);
+      pushInfoRow(trGraphics, "gpuDriverDate", gfxInfo.adapterDriverDate2);
+      pushInfoRow(trGraphics, "active", gfxInfo.isGPU2Active);
+    }
+#endif
 
+    pushHeaderRow(trGraphics, "Features");
+#ifdef XP_WIN
     var version = Services.sysinfo.getProperty("version");
     var isWindowsVistaOrHigher = (parseFloat(version) >= 6.0);
     if (isWindowsVistaOrHigher) {
@@ -141,23 +159,20 @@ function populateGraphicsSection() {
       try {
         d2dEnabled = gfxInfo.D2DEnabled;
       } catch(e) {}
-      pushFeatureInfoRow(trGraphics, "direct2DEnabled", gfxInfo.FEATURE_DIRECT2D, d2dEnabled);
+      pushFeatureInfoRow(trGraphics, "direct2DEnabled", gfxInfo.FEATURE_DIRECT2D, d2dEnabled, null, "Direct2D");
 
       var dwEnabled = "false";
       try {
         dwEnabled = gfxInfo.DWriteEnabled + " (" + gfxInfo.DWriteVersion + ")";
       } catch(e) {}
-      pushInfoRow(trGraphics, "directWriteEnabled", dwEnabled);
+      pushInfoRow(trGraphics, "directWriteEnabled", dwEnabled, "DirectWrite");
 
       var cleartypeParams = "";
       try {
         cleartypeParams = gfxInfo.cleartypeParameters;
-      } catch(e) {
-        cleartypeParams = bundle.GetStringFromName("clearTypeParametersNotFound");
-      }
-      pushInfoRow(trGraphics, "clearTypeParameters", cleartypeParams);
+        pushInfoRow(trGraphics, "clearTypeParameters", cleartypeParams);
+      } catch(e) {}
     }
-
 #endif
 
     var webglrenderer;
@@ -246,30 +261,13 @@ function populateGraphicsSection() {
 
     let awindow = windows.getNext().QueryInterface(Ci.nsIInterfaceRequestor);
     let windowutils = awindow.getInterface(Ci.nsIDOMWindowUtils);
-    if (windowutils.layerManagerType != "Basic") {
-      acceleratedWindows++;
-      mgrType = windowutils.layerManagerType;
+    try {
+      if (windowutils.layerManagerType != "Basic") {
+        acceleratedWindows++;
+        mgrType = windowutils.layerManagerType;
+      }
+    } catch (e) {
+      continue;
     }
   }
-
-  let msg = acceleratedWindows;
-  if (acceleratedWindows) {
-    msg += "/" + totalWindows + " " + mgrType;
-  } else {
-#ifdef XP_WIN
-    var feature = gfxInfo.FEATURE_DIRECT3D_9_LAYERS;
-#else
-    var feature = gfxInfo.FEATURE_OPENGL_LAYERS;
-#endif
-    var errMsg = errorMessageForFeature(feature);
-    if (errMsg)
-      msg += ". " + errMsg;
-  }
-
-  appendChildren(graphics_tbody, [
-    createParentElement("tr", [
-      createHeader(bundle.GetStringFromName("acceleratedWindows")),
-      createElement("td", msg),
-    ])
-  ]);
 }
