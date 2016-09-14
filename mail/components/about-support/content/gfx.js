@@ -210,7 +210,7 @@ function populateGraphicsSection() {
     // display any failures that have occurred
     let graphics_failures_tbody = document.getElementById("graphics-failures-tbody");
 
-    let data = {failures: [], indices: []};
+    let data = {};
 
     let failureCount = {};
     let failureIndices = {};
@@ -222,35 +222,37 @@ function populateGraphicsSection() {
         data.indices = failureIndices.value;
       }
     }
-    let trGraphicsFailures;
-    // If indices is there, it should be the same length as failures,
-    // (see Troubleshoot.jsm) but we check anyway:
-    if ("indices" in data && data.failures.length == data.indices.length) {
-      let combined = [];
-      for (let i = 0; i < data.failures.length; i++) {
-        let assembled = assembleFromGraphicsFailure(i, data);
-        combined.push(assembled);
+    if ("failures" in data) {
+      let trGraphicsFailures;
+      // If indices is there, it should be the same length as failures,
+      // (see Troubleshoot.jsm) but we check anyway:
+      if ("indices" in data && data.failures.length == data.indices.length) {
+        let combined = [];
+        for (let i = 0; i < data.failures.length; i++) {
+          let assembled = assembleFromGraphicsFailure(i, data);
+          combined.push(assembled);
+        }
+        combined.sort(function(a,b) {
+            if (a.index < b.index) return -1;
+            if (a.index > b.index) return 1;
+            return 0;});
+        trGraphicsFailures = combined.map(function(val) {
+                                 return createParentElement("tr", [
+                                     createElement("th", val.header, {class: "column"}),
+                                     createElement("td", val.message),
+                                 ]);
+                             });
+      } else {
+        trGraphicsFailures = createParentElement("tr", [
+                                 createElement("th", "LogFailure", {class: "column"}),
+                                 createParentElement("td", data.failures.map(val =>
+                                     createElement("p", val)
+                             ))]);
       }
-      combined.sort(function(a,b) {
-          if (a.index < b.index) return -1;
-          if (a.index > b.index) return 1;
-          return 0;});
-      trGraphicsFailures = combined.map(function(val) {
-                               return createParentElement("tr", [
-                                   createElement("th", val.header, {class: "column"}),
-                                   createElement("td", val.message),
-                               ]);
-                           });
-    } else {
-      trGraphicsFailures = createParentElement("tr", [
-                               createElement("th", "LogFailure", {class: "column"}),
-                               createParentElement("td", data.failures.map(val =>
-                                   createElement("p", val)
-                           ))]);
-    }
 
-    appendChildren(graphics_failures_tbody, trGraphicsFailures);
-  } // end if (gfxInfo)
+      appendChildren(graphics_failures_tbody, trGraphicsFailures);
+    }
+  }
 
   let windows = Services.ww.getWindowEnumerator();
   let acceleratedWindows = 0;
