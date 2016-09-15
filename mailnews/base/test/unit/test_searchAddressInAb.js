@@ -21,6 +21,8 @@ var nsMsgSearchOp = Ci.nsMsgSearchOp;
 var IsntInAB = nsMsgSearchOp.IsntInAB;
 var IsInAB = nsMsgSearchOp.IsInAB;
 var IsBefore = nsMsgSearchOp.IsBefore; // control entry that is not enabled
+var Is = nsMsgSearchOp.Is;
+var Isnt = nsMsgSearchOp.Isnt;
 
 var offlineMail = nsMsgSearchScope.offlineMail;
 var onlineMail = nsMsgSearchScope.onlineMail;
@@ -97,6 +99,39 @@ var Tests =
     attrib: CCopy,
     op: IsntInAB,
     count: 4 },
+  { value: "PrimaryEmail1@test.invalid",
+    attrib: AllAddresses,
+    op: Is,
+    count: 8 },
+  { value: "PrimaryEmail1@test.invalid",
+    attrib: AllAddresses,
+    op: Isnt,
+    count: 0 },
+  { value: "invalid@example.com",
+    attrib: AllAddresses,
+    op: Is,
+    count: 7 },
+  { value: "invalid@example.com",
+    attrib: AllAddresses,
+    op: Isnt,
+    count: 1 },
+  { value: "PrimaryEmail1@test.invalid",
+    attrib: ToOrCC,
+    op: Is,
+    count: 6 },
+  { value: "PrimaryEmail1@test.invalid",
+    attrib: ToOrCC,
+    op: Isnt,
+    count: 2 },
+  { value: "invalid@example.com",
+    attrib: ToOrCC,
+    op: Is,
+    count: 6 },
+  { value: "invalid@example.com",
+    attrib: ToOrCC,
+    op: Isnt,
+    count: 2 },
+
 ];
 
 var Files = 
@@ -145,6 +180,8 @@ function run_test()
   testValidityTable(offlineMail, IsBefore, AllAddresses, false);
   testValidityTable(offlineMail, IsBefore, CCopy, false);
   testValidityTable(offlineMail, IsBefore, Keywords, false);
+  testValidityTable(offlineMail, Is, AllAddresses, true);
+  testValidityTable(offlineMail, Isnt, AllAddresses, true);
 
   // offline mail filter table
   testValidityTable(offlineMailFilter, IsInAB, Sender, true);
@@ -165,6 +202,8 @@ function run_test()
   testValidityTable(offlineMailFilter, IsBefore, AllAddresses, false);
   testValidityTable(offlineMailFilter, IsBefore, CCopy, false);
   testValidityTable(offlineMailFilter, IsBefore, Keywords, false);
+  testValidityTable(offlineMailFilter, Is, AllAddresses, true);
+  testValidityTable(offlineMailFilter, Isnt, AllAddresses, true);
 
   // online mail
   testValidityTable(onlineMail, IsInAB, Sender, false);

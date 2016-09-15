@@ -203,6 +203,10 @@ nsMsgSearchValidityManager::InitOfflineMailTable()
   m_offlineMailTable->SetEnabled   (nsMsgSearchAttrib::ToOrCC, nsMsgSearchOp::Contains, 1);
   m_offlineMailTable->SetAvailable (nsMsgSearchAttrib::ToOrCC, nsMsgSearchOp::DoesntContain, 1);
   m_offlineMailTable->SetEnabled   (nsMsgSearchAttrib::ToOrCC, nsMsgSearchOp::DoesntContain, 1);
+  m_offlineMailTable->SetAvailable (nsMsgSearchAttrib::ToOrCC, nsMsgSearchOp::Is, 1);
+  m_offlineMailTable->SetEnabled   (nsMsgSearchAttrib::ToOrCC, nsMsgSearchOp::Is, 1);
+  m_offlineMailTable->SetAvailable (nsMsgSearchAttrib::ToOrCC, nsMsgSearchOp::Isnt, 1);
+  m_offlineMailTable->SetEnabled   (nsMsgSearchAttrib::ToOrCC, nsMsgSearchOp::Isnt, 1);
   m_offlineMailTable->SetAvailable (nsMsgSearchAttrib::ToOrCC, nsMsgSearchOp::BeginsWith, 1);
   m_offlineMailTable->SetEnabled   (nsMsgSearchAttrib::ToOrCC, nsMsgSearchOp::BeginsWith, 1);
   m_offlineMailTable->SetAvailable (nsMsgSearchAttrib::ToOrCC, nsMsgSearchOp::EndsWith, 1);
@@ -216,6 +220,10 @@ nsMsgSearchValidityManager::InitOfflineMailTable()
   m_offlineMailTable->SetEnabled   (nsMsgSearchAttrib::AllAddresses, nsMsgSearchOp::Contains, 1);
   m_offlineMailTable->SetAvailable (nsMsgSearchAttrib::AllAddresses, nsMsgSearchOp::DoesntContain, 1);
   m_offlineMailTable->SetEnabled   (nsMsgSearchAttrib::AllAddresses, nsMsgSearchOp::DoesntContain, 1);
+  m_offlineMailTable->SetAvailable (nsMsgSearchAttrib::AllAddresses, nsMsgSearchOp::Is, 1);
+  m_offlineMailTable->SetEnabled   (nsMsgSearchAttrib::AllAddresses, nsMsgSearchOp::Is, 1);
+  m_offlineMailTable->SetAvailable (nsMsgSearchAttrib::AllAddresses, nsMsgSearchOp::Isnt, 1);
+  m_offlineMailTable->SetEnabled   (nsMsgSearchAttrib::AllAddresses, nsMsgSearchOp::Isnt, 1);
   m_offlineMailTable->SetAvailable (nsMsgSearchAttrib::AllAddresses, nsMsgSearchOp::BeginsWith, 1);
   m_offlineMailTable->SetEnabled   (nsMsgSearchAttrib::AllAddresses, nsMsgSearchOp::BeginsWith, 1);
   m_offlineMailTable->SetAvailable (nsMsgSearchAttrib::AllAddresses, nsMsgSearchOp::EndsWith, 1);
@@ -491,6 +499,10 @@ nsMsgSearchValidityManager::InitOnlineMailFilterTable()
   m_onlineMailFilterTable->SetEnabled   (nsMsgSearchAttrib::ToOrCC, nsMsgSearchOp::Contains, 1);
   m_onlineMailFilterTable->SetAvailable (nsMsgSearchAttrib::ToOrCC, nsMsgSearchOp::DoesntContain, 1);
   m_onlineMailFilterTable->SetEnabled   (nsMsgSearchAttrib::ToOrCC, nsMsgSearchOp::DoesntContain, 1);
+  m_onlineMailFilterTable->SetAvailable (nsMsgSearchAttrib::ToOrCC, nsMsgSearchOp::Is, 1);
+  m_onlineMailFilterTable->SetEnabled   (nsMsgSearchAttrib::ToOrCC, nsMsgSearchOp::Is, 1);
+  m_onlineMailFilterTable->SetAvailable (nsMsgSearchAttrib::ToOrCC, nsMsgSearchOp::Isnt, 1);
+  m_onlineMailFilterTable->SetEnabled   (nsMsgSearchAttrib::ToOrCC, nsMsgSearchOp::Isnt, 1);
   m_onlineMailFilterTable->SetAvailable (nsMsgSearchAttrib::ToOrCC, nsMsgSearchOp::BeginsWith, 1);
   m_onlineMailFilterTable->SetEnabled   (nsMsgSearchAttrib::ToOrCC, nsMsgSearchOp::BeginsWith, 1);
   m_onlineMailFilterTable->SetAvailable (nsMsgSearchAttrib::ToOrCC, nsMsgSearchOp::EndsWith, 1);
@@ -504,6 +516,10 @@ nsMsgSearchValidityManager::InitOnlineMailFilterTable()
   m_onlineMailFilterTable->SetEnabled   (nsMsgSearchAttrib::AllAddresses, nsMsgSearchOp::Contains, 1);
   m_onlineMailFilterTable->SetAvailable (nsMsgSearchAttrib::AllAddresses, nsMsgSearchOp::DoesntContain, 1);
   m_onlineMailFilterTable->SetEnabled   (nsMsgSearchAttrib::AllAddresses, nsMsgSearchOp::DoesntContain, 1);
+  m_onlineMailFilterTable->SetAvailable (nsMsgSearchAttrib::AllAddresses, nsMsgSearchOp::Is, 1);
+  m_onlineMailFilterTable->SetEnabled   (nsMsgSearchAttrib::AllAddresses, nsMsgSearchOp::Is, 1);
+  m_onlineMailFilterTable->SetAvailable (nsMsgSearchAttrib::AllAddresses, nsMsgSearchOp::Isnt, 1);
+  m_onlineMailFilterTable->SetEnabled   (nsMsgSearchAttrib::AllAddresses, nsMsgSearchOp::Isnt, 1);
   m_onlineMailFilterTable->SetAvailable (nsMsgSearchAttrib::AllAddresses, nsMsgSearchOp::BeginsWith, 1);
   m_onlineMailFilterTable->SetEnabled   (nsMsgSearchAttrib::AllAddresses, nsMsgSearchOp::BeginsWith, 1);
   m_onlineMailFilterTable->SetAvailable (nsMsgSearchAttrib::AllAddresses, nsMsgSearchOp::EndsWith, 1);
@@ -653,6 +669,10 @@ nsMsgSearchValidityManager::InitOfflineMailFilterTable()
   m_offlineMailFilterTable->SetEnabled   (nsMsgSearchAttrib::ToOrCC, nsMsgSearchOp::Contains, 1);
   m_offlineMailFilterTable->SetAvailable (nsMsgSearchAttrib::ToOrCC, nsMsgSearchOp::DoesntContain, 1);
   m_offlineMailFilterTable->SetEnabled   (nsMsgSearchAttrib::ToOrCC, nsMsgSearchOp::DoesntContain, 1);
+  m_offlineMailFilterTable->SetAvailable (nsMsgSearchAttrib::ToOrCC, nsMsgSearchOp::Is, 1);
+  m_offlineMailFilterTable->SetEnabled   (nsMsgSearchAttrib::ToOrCC, nsMsgSearchOp::Is, 1);
+  m_offlineMailFilterTable->SetAvailable (nsMsgSearchAttrib::ToOrCC, nsMsgSearchOp::Isnt, 1);
+  m_offlineMailFilterTable->SetEnabled   (nsMsgSearchAttrib::ToOrCC, nsMsgSearchOp::Isnt, 1);
   m_offlineMailFilterTable->SetAvailable (nsMsgSearchAttrib::ToOrCC, nsMsgSearchOp::BeginsWith, 1);
   m_offlineMailFilterTable->SetEnabled   (nsMsgSearchAttrib::ToOrCC, nsMsgSearchOp::BeginsWith, 1);
   m_offlineMailFilterTable->SetAvailable (nsMsgSearchAttrib::ToOrCC, nsMsgSearchOp::EndsWith, 1);
@@ -666,6 +686,10 @@ nsMsgSearchValidityManager::InitOfflineMailFilterTable()
   m_offlineMailFilterTable->SetEnabled   (nsMsgSearchAttrib::AllAddresses, nsMsgSearchOp::Contains, 1);
   m_offlineMailFilterTable->SetAvailable (nsMsgSearchAttrib::AllAddresses, nsMsgSearchOp::DoesntContain, 1);
   m_offlineMailFilterTable->SetEnabled   (nsMsgSearchAttrib::AllAddresses, nsMsgSearchOp::DoesntContain, 1);
+  m_offlineMailFilterTable->SetAvailable (nsMsgSearchAttrib::AllAddresses, nsMsgSearchOp::Is, 1);
+  m_offlineMailFilterTable->SetEnabled   (nsMsgSearchAttrib::AllAddresses, nsMsgSearchOp::Is, 1);
+  m_offlineMailFilterTable->SetAvailable (nsMsgSearchAttrib::AllAddresses, nsMsgSearchOp::Isnt, 1);
+  m_offlineMailFilterTable->SetEnabled   (nsMsgSearchAttrib::AllAddresses, nsMsgSearchOp::Isnt, 1);
   m_offlineMailFilterTable->SetAvailable (nsMsgSearchAttrib::AllAddresses, nsMsgSearchOp::BeginsWith, 1);
   m_offlineMailFilterTable->SetEnabled   (nsMsgSearchAttrib::AllAddresses, nsMsgSearchOp::BeginsWith, 1);
   m_offlineMailFilterTable->SetAvailable (nsMsgSearchAttrib::AllAddresses, nsMsgSearchOp::EndsWith, 1);
@@ -832,6 +856,10 @@ nsMsgSearchValidityManager::InitOnlineManualFilterTable()
   m_onlineManualFilterTable->SetEnabled(nsMsgSearchAttrib::ToOrCC, nsMsgSearchOp::Contains, 1);
   m_onlineManualFilterTable->SetAvailable(nsMsgSearchAttrib::ToOrCC, nsMsgSearchOp::DoesntContain, 1);
   m_onlineManualFilterTable->SetEnabled(nsMsgSearchAttrib::ToOrCC, nsMsgSearchOp::DoesntContain, 1);
+  m_onlineManualFilterTable->SetAvailable(nsMsgSearchAttrib::ToOrCC, nsMsgSearchOp::Is, 1);
+  m_onlineManualFilterTable->SetEnabled(nsMsgSearchAttrib::ToOrCC, nsMsgSearchOp::Is, 1);
+  m_onlineManualFilterTable->SetAvailable(nsMsgSearchAttrib::ToOrCC, nsMsgSearchOp::Isnt, 1);
+  m_onlineManualFilterTable->SetEnabled(nsMsgSearchAttrib::ToOrCC, nsMsgSearchOp::Isnt, 1);
   m_onlineManualFilterTable->SetAvailable(nsMsgSearchAttrib::ToOrCC, nsMsgSearchOp::BeginsWith, 1);
   m_onlineManualFilterTable->SetEnabled(nsMsgSearchAttrib::ToOrCC, nsMsgSearchOp::BeginsWith, 1);
   m_onlineManualFilterTable->SetAvailable(nsMsgSearchAttrib::ToOrCC, nsMsgSearchOp::EndsWith, 1);
@@ -845,6 +873,10 @@ nsMsgSearchValidityManager::InitOnlineManualFilterTable()
   m_onlineManualFilterTable->SetEnabled(nsMsgSearchAttrib::AllAddresses, nsMsgSearchOp::Contains, 1);
   m_onlineManualFilterTable->SetAvailable(nsMsgSearchAttrib::AllAddresses, nsMsgSearchOp::DoesntContain, 1);
   m_onlineManualFilterTable->SetEnabled(nsMsgSearchAttrib::AllAddresses, nsMsgSearchOp::DoesntContain, 1);
+  m_onlineManualFilterTable->SetAvailable(nsMsgSearchAttrib::AllAddresses, nsMsgSearchOp::Is, 1);
+  m_onlineManualFilterTable->SetEnabled(nsMsgSearchAttrib::AllAddresses, nsMsgSearchOp::Is, 1);
+  m_onlineManualFilterTable->SetAvailable(nsMsgSearchAttrib::AllAddresses, nsMsgSearchOp::Isnt, 1);
+  m_onlineManualFilterTable->SetEnabled(nsMsgSearchAttrib::AllAddresses, nsMsgSearchOp::Isnt, 1);
   m_onlineManualFilterTable->SetAvailable(nsMsgSearchAttrib::AllAddresses, nsMsgSearchOp::BeginsWith, 1);
   m_onlineManualFilterTable->SetEnabled(nsMsgSearchAttrib::AllAddresses, nsMsgSearchOp::BeginsWith, 1);
   m_onlineManualFilterTable->SetAvailable(nsMsgSearchAttrib::AllAddresses, nsMsgSearchOp::EndsWith, 1);
