@@ -17,7 +17,7 @@ Components.utils.import("resource:///modules/mailServices.js");
 /**
  * Helper to check population worked as expected.
  * @param aTo - text in the To field
- * @param aCheckTo - the expected To addresses (after possible ist population)
+ * @param aCheckTo - the expected To addresses (after possible list population)
  */
 function checkPopulate(aTo, aCheckTo)
 {
@@ -58,6 +58,24 @@ function run_test() {
 
   // Test expansion fo list with description.
   checkPopulate("marge <marges own list>", "Simpson <homer@example.com>, Marge <marge@example.com>");
+
+  // Special tests for bug 1287726: Lists in list. This is what the data looks like:
+  // 1) family (list) = parents (list) + kids (list).
+  // 2) parents (list) = homer + marge + parents (list recursion).
+  // 3) kids (list) = older-kids (list) + maggie.
+  // 4) older-kids (list) = bart + lisa.
+  // 5) bad-kids (list) = older-kids + bad-younger-kids (list).
+  // 6) bad-younger-kids (list) = maggie + bad-kids (list recursion).
+  checkPopulate("family <family>", "Simpson <homer@example.com>, Marge <marge@example.com>, " +
+    "\"lisa@example.com\" <lisa@example.com>, Bart <bart@foobar.invalid>, Maggie <maggie@example.com>");
+  checkPopulate("parents <parents>", "Simpson <homer@example.com>, Marge <marge@example.com>");
+  checkPopulate("kids <kids>", "\"lisa@example.com\" <lisa@example.com>, Bart <bart@foobar.invalid>, " +
+    "Maggie <maggie@example.com>");
+  checkPopulate("older-kids <older-kids>", "\"lisa@example.com\" <lisa@example.com>, Bart <bart@foobar.invalid>");
+  checkPopulate("bad-kids <bad-kids>", "\"lisa@example.com\" <lisa@example.com>, Bart <bart@foobar.invalid>, " +
+    "Maggie <maggie@example.com>");
+  checkPopulate("bad-younger-kids <bad-younger-kids>", "Maggie <maggie@example.com>, "+
+    "\"lisa@example.com\" <lisa@example.com>, Bart <bart@foobar.invalid>");
 
   // Test we don't mistake an email address for a list, with a few variations.
   checkPopulate("Simpson <homer@example.com>", "Simpson <homer@example.com>");
