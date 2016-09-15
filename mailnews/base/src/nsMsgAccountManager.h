@@ -53,7 +53,6 @@ public:
 
   nsCOMPtr <nsIMsgFolder> m_virtualFolder; // folder we're listening to db changes on behalf of.
   nsCOMPtr <nsIMsgFolder> m_folderWatching; // folder whose db we're listening to.
-  nsCOMPtr <nsISupportsArray> m_searchTerms;
   nsCOMPtr <nsIMsgSearchSession> m_searchSession;
   bool m_searchOnMsgStatus;
   bool m_batchingEvents;

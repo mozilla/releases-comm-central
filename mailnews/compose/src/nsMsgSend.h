@@ -130,7 +130,6 @@
 #include "nsIDOMWindow.h"
 #include "nsIMsgComposeSecure.h"
 #include "nsAutoPtr.h"
-#include "nsISupportsArray.h"
 #include "nsMsgAttachmentData.h"
 #include "nsIMsgFilterService.h"
 #include "nsIMsgOperationListener.h"
@@ -255,7 +254,7 @@ public:
   nsresult    ProcessMultipartRelated(int32_t *aMailboxCount, int32_t *aNewsCount);
   nsresult    GetEmbeddedObjectInfo(nsIDOMNode *node, nsMsgAttachmentData *attachment, bool *acceptObject);
   uint32_t    GetMultipartRelatedCount(bool forceToBeCalculated = false);
-  nsCOMPtr<nsISupportsArray> mEmbeddedObjectList; // it's initialized when calling GetMultipartRelatedCount
+  nsCOMPtr<nsIArray> mEmbeddedObjectList; // it's initialized when calling GetMultipartRelatedCount
 
   // Body processing
   nsresult    SnarfAndCopyBody(const nsACString &attachment1_body,

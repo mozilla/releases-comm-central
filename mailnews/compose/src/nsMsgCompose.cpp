@@ -327,7 +327,7 @@ bool nsMsgCompose::IsEmbeddedObjectSafe(const char * originalScheme,
  */
 nsresult nsMsgCompose::ResetUrisForEmbeddedObjects()
 {
-  nsCOMPtr<nsISupportsArray> aNodeList;
+  nsCOMPtr<nsIArray> aNodeList;
   uint32_t numNodes;
   uint32_t i;
 
@@ -336,10 +336,10 @@ nsresult nsMsgCompose::ResetUrisForEmbeddedObjects()
     return NS_ERROR_FAILURE;
 
   nsresult rv = mailEditor->GetEmbeddedObjects(getter_AddRefs(aNodeList));
-  if ((NS_FAILED(rv) || (!aNodeList)))
+  if (NS_FAILED(rv) || !aNodeList)
     return NS_ERROR_FAILURE;
 
-  if (NS_FAILED(aNodeList->Count(&numNodes)))
+  if (NS_FAILED(aNodeList->GetLength(&numNodes)))
     return NS_ERROR_FAILURE;
 
   nsCOMPtr<nsIDOMNode> node;
@@ -468,7 +468,7 @@ nsresult nsMsgCompose::ResetUrisForEmbeddedObjects()
 nsresult nsMsgCompose::TagEmbeddedObjects(nsIEditorMailSupport *aEditor)
 {
   nsresult rv = NS_OK;
-  nsCOMPtr<nsISupportsArray> aNodeList;
+  nsCOMPtr<nsIArray> aNodeList;
   uint32_t count;
   uint32_t i;
 
@@ -476,13 +476,11 @@ nsresult nsMsgCompose::TagEmbeddedObjects(nsIEditorMailSupport *aEditor)
     return NS_ERROR_FAILURE;
 
   rv = aEditor->GetEmbeddedObjects(getter_AddRefs(aNodeList));
-  if ((NS_FAILED(rv) || (!aNodeList)))
+  if (NS_FAILED(rv) || !aNodeList)
     return NS_ERROR_FAILURE;
 
-  if (NS_FAILED(aNodeList->Count(&count)))
+  if (NS_FAILED(aNodeList->GetLength(&count)))
     return NS_ERROR_FAILURE;
-
-  nsCOMPtr<nsIDOMNode> node;
 
   nsCOMPtr<nsIURI> originalUrl;
   nsCString originalScheme;
@@ -506,10 +504,9 @@ nsresult nsMsgCompose::TagEmbeddedObjects(nsIEditorMailSupport *aEditor)
   // Then compare the url of each embedded objects with the original message.
   // If they a not coming from the original message, they should not be sent
   // with the message.
-  nsCOMPtr<nsIDOMElement> domElement;
   for (i = 0; i < count; i ++)
   {
-    node = do_QueryElementAt(aNodeList, i);
+    nsCOMPtr<nsIDOMNode> node = do_QueryElementAt(aNodeList, i);
     if (!node)
       continue;
     if (IsEmbeddedObjectSafe(originalScheme.get(), originalHost.get(),
@@ -517,7 +514,7 @@ nsresult nsMsgCompose::TagEmbeddedObjects(nsIEditorMailSupport *aEditor)
       continue; //Don't need to tag this object, it safe to send it.
 
     //The source of this object should not be sent with the message
-    domElement = do_QueryInterface(node);
+    nsCOMPtr<nsIDOMElement> domElement = do_QueryInterface(node);
     if (domElement)
       domElement->SetAttribute(NS_LITERAL_STRING("moz-do-not-send"), NS_LITERAL_STRING("true"));
   }

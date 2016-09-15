@@ -33,7 +33,6 @@ interface nsIMsgComposeSecure;
 interface nsIMsgStatusFeedback;
 interface nsIEditor;
 interface nsIArray;
-interface nsISupportsArray;
 interface nsIMsgAttachmentHandler;
 interface mozIDOMWindowProxy;
 
@@ -250,7 +249,7 @@ interface nsIMsgSend : nsISupports
                            in ACString aBody,
                            in boolean aCreateAsDraft,
                            in nsIArray aAttachments,
-                           in nsISupportsArray aEmbeddedObjects,
+                           in nsIArray aEmbeddedObjects,
                            in nsIMsgSendListener aListener);
 
   /**

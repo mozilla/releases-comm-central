@@ -1483,7 +1483,7 @@ nsMsgComposeAndSend::GetMultipartRelatedCount(bool forceToBeCalculated /*=false*
   if (!mEmbeddedObjectList)
     return 0;
 
-  if (NS_SUCCEEDED(mEmbeddedObjectList->Count(&count)))
+  if (NS_SUCCEEDED(mEmbeddedObjectList->GetLength(&count)))
   {
     if (count > 0)
     {
@@ -4071,7 +4071,7 @@ nsMsgComposeAndSend::CreateRFC822Message(
               const nsACString &aMsgBody,
               bool aIsDraft,
               nsIArray *aAttachments,
-              nsISupportsArray *aEmbeddedObjects,
+              nsIArray *aEmbeddedObjects,
               nsIMsgSendListener *aListener
               )
 {
