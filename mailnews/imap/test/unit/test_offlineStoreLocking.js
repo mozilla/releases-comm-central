@@ -172,7 +172,7 @@ function setup() {
   let messageGenerator = new MessageGenerator();
   let messages = [];
   let bodyString = "";
-  for (i = 0; i < 100; i++)
+  for (let i = 0; i < 100; i++)
     bodyString += "1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890\r\n";
 
   for (let i = 0; i < 50; i++)

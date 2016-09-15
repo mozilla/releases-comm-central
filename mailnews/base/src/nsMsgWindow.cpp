@@ -43,7 +43,8 @@ static NS_DEFINE_CID(kTransactionManagerCID, NS_TRANSACTIONMANAGER_CID);
 NS_IMPL_ISUPPORTS(nsMsgWindow,
                               nsIMsgWindow,
                               nsIURIContentListener,
-                              nsISupportsWeakReference)
+                              nsISupportsWeakReference,
+                              nsIMsgWindowTest)
 
 nsMsgWindow::nsMsgWindow()
 {
@@ -213,6 +214,14 @@ NS_IMETHODIMP nsMsgWindow::GetRootDocShell(nsIDocShell * *aDocShell)
 NS_IMETHODIMP nsMsgWindow::GetAuthPrompt(nsIAuthPrompt * *aAuthPrompt)
 {
   NS_ENSURE_ARG_POINTER(aAuthPrompt);
+
+  // testing only
+  if (mAuthPrompt)
+  {
+    NS_ADDREF(*aAuthPrompt = mAuthPrompt);
+    return NS_OK;
+  }
+
   if (!mRootDocShellWeak)
     return NS_ERROR_FAILURE;
 
@@ -226,6 +235,12 @@ NS_IMETHODIMP nsMsgWindow::GetAuthPrompt(nsIAuthPrompt * *aAuthPrompt)
   prompt.swap(*aAuthPrompt);
 
   return rv;
+}
+
+NS_IMETHODIMP nsMsgWindow::SetAuthPrompt(nsIAuthPrompt* aAuthPrompt)
+{
+  mAuthPrompt = aAuthPrompt;
+  return NS_OK;
 }
 
 NS_IMETHODIMP nsMsgWindow::SetRootDocShell(nsIDocShell * aDocShell)
@@ -458,6 +473,14 @@ NS_IMETHODIMP nsMsgWindow::SetLoadCookie(nsISupports * aLoadCookie)
 NS_IMETHODIMP nsMsgWindow::GetPromptDialog(nsIPrompt **aPrompt)
 {
   NS_ENSURE_ARG_POINTER(aPrompt);
+
+  // testing only
+  if (mPromptDialog)
+  {
+    NS_ADDREF(*aPrompt = mPromptDialog);
+    return NS_OK;
+  }
+
   nsresult rv;
   nsCOMPtr<nsIDocShell> rootShell(do_QueryReferent(mRootDocShellWeak, &rv));
   if (rootShell)
@@ -467,6 +490,12 @@ NS_IMETHODIMP nsMsgWindow::GetPromptDialog(nsIPrompt **aPrompt)
     dialog.swap(*aPrompt);
   }
   return rv;
+}
+
+NS_IMETHODIMP nsMsgWindow::SetPromptDialog(nsIPrompt* aPromptDialog)
+{
+  mPromptDialog = aPromptDialog;
+  return NS_OK;
 }
 
 NS_IMETHODIMP

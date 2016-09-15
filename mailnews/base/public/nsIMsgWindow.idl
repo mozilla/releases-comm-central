@@ -87,3 +87,12 @@ interface nsIMsgWindow : nsISupports {
    */
   void closeWindow();
 };
+
+[scriptable, uuid(FFBC8B13-243F-4cd9-92D0-01636CDA425E)]
+interface nsIMsgWindowTest : nsISupports {
+  /**
+   * For testing only, allow setting a few read-only attributes
+   */
+  void setPromptDialog(in nsIPrompt promptDialog);
+  void setAuthPrompt(in nsIAuthPrompt authPrompt);
+};

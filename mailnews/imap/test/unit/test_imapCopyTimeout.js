@@ -73,7 +73,7 @@ function* loadImapMessage()
                        btoa(messages[0].toMessageString()),
                        null, null);
   let imapInbox = IMAPPump.daemon.getMailbox("INBOX");
-  gMessage = new imapMessage(msgURI.spec, imapInbox.uidnext++, []);
+  var gMessage = new imapMessage(msgURI.spec, imapInbox.uidnext++, []);
   IMAPPump.mailbox.addMessage(gMessage);
   IMAPPump.inbox.updateFolder(null);
   yield false;
@@ -132,7 +132,7 @@ function endTest()
 
 // listeners
 
-mfnListener =
+var mfnListener =
 {
   folderAdded: function folderAdded(aFolder)
   {

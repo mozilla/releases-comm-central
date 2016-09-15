@@ -11,7 +11,7 @@ load("../../../resources/asyncTestUtils.js");
 load("../../../resources/messageGenerator.js");
 
 // javascript mime emitter functions
-mimeMsg = {};
+var mimeMsg = {};
 Components.utils.import("resource:///modules/gloda/mimemsg.js", mimeMsg);
 Components.utils.import("resource:///modules/mailServices.js");
 
@@ -22,13 +22,8 @@ var kAttachFileName = 'bob.txt';
 setupIMAPPump();
 
 // Dummy message window so we can say the inbox is open in a window.
-var dummyMsgWindow =
-{
-  openFolder : IMAPPump.inbox,
-  QueryInterface: XPCOMUtils.generateQI([Ci.nsIMsgWindow,
-                                         Ci.nsISupportsWeakReference])
-  
-};
+var dummyMsgWindow = Cc["@mozilla.org/messenger/msgwindow;1"]
+                       .createInstance(Ci.nsIMsgWindow);
 
 var tests = [
   loadImapMessage,
@@ -141,6 +136,8 @@ function run_test()
   // the append url, in nsImapMailFolder::OnStopRunningUrl, we'll think the
   // Inbox is open in a folder and update it, which the detach code relies
   // on to finish the detach.
+
+  dummyMsgWindow.openFolder = IMAPPump.inbox;
   MailServices.mailSession.AddMsgWindow(dummyMsgWindow);
 
   async_run_tests(tests);
@@ -177,7 +174,7 @@ function getContentFromMessage(aMsgHdr) {
   return content;
 }
 
-mfnListener =
+var mfnListener =
 {
   msgsDeleted: function msgsDeleted(aMsgArray)
   {

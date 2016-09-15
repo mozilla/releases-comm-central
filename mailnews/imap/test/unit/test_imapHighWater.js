@@ -104,7 +104,7 @@ function* doMoves() {
   let headers1 = Cc["@mozilla.org/array;1"]
                    .createInstance(Ci.nsIMutableArray);
   let msgEnumerator = gIMAPInbox.msgDatabase.EnumerateMessages();
-  for (i = 0; i < 5 && msgEnumerator.hasMoreElements(); i++)
+  for (let i = 0; i < 5 && msgEnumerator.hasMoreElements(); i++)
   {
     let header = msgEnumerator.getNext();
     if (header instanceof Components.interfaces.nsIMsgDBHdr)
@@ -124,7 +124,7 @@ function* doMoves() {
   headers1 = Cc["@mozilla.org/array;1"]
                 .createInstance(Ci.nsIMutableArray);
   msgEnumerator = gIMAPInbox.msgDatabase.EnumerateMessages();
-  for (i = 0; i < 5 && msgEnumerator.hasMoreElements(); i++)
+  for (let i = 0; i < 5 && msgEnumerator.hasMoreElements(); i++)
   {
     let header = msgEnumerator.getNext();
     if (header instanceof Components.interfaces.nsIMsgDBHdr)
