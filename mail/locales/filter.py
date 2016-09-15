@@ -1,21 +1,25 @@
-def test(mod, path, entity = None):
+def test(mod, path, entity=None):
   import re
   # ignore anything but Thunderbird
   if mod not in ("netwerk", "dom", "toolkit", "security/manager",
+                 "devtools/shared",
                  "mail", "chat", "editor/ui", "extensions/spellcheck",
                  "other-licenses/branding/thunderbird"):
-    return False
+    return "ignore"
 
   # ignore MOZ_LANGPACK_CONTRIBUTORS
   if mod == "mail" and path == "defines.inc" and \
      entity == "MOZ_LANGPACK_CONTRIBUTORS":
-    return False
+    return "ignore"
   # ignore dictionaries
   if mod == "extensions/spellcheck":
-    return False
+    return "ignore"
 
   if path == "chrome/messenger-region/region.properties":
-    return not (re.match(r"browser\.search\.order\.[1-9]", entity)) 
+    return ("ignore" if (re.match(r"browser\.search\.order\.[1-9]", entity))
+            else "error")
 
   # ignore search plugins
-  return not (re.match(r"searchplugins\/.+\.xml", path))
+  if re.match(r"searchplugins\/.+\.xml", path):
+    return "ignore"
+  return "error"
