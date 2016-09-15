@@ -80,10 +80,14 @@ protected:
  protected:
   nsresult CreateMessage(const char * originalMsgURI, MSG_ComposeType type, nsIMsgCompFields* compFields);
   void CleanUpRecipients(nsString& recipients);
-  nsresult GetABDirectories(const nsACString& aDirUri,
-                            nsCOMArray<nsIAbDirectory> &aDirArray);
-  nsresult BuildMailListArray(nsIAbDirectory* parentDir,
-                              nsTArray<nsMsgMailList>& array);
+  nsresult GetABDirAndMailLists(const nsACString& aDirUri,
+                                nsCOMArray<nsIAbDirectory>& aDirArray,
+                                nsTArray<nsMsgMailList>& aMailListArray);
+  nsresult ResolveMailList(nsIAbDirectory* aMailList,
+                           nsCOMArray<nsIAbDirectory>& allDirectoriesArray,
+                           nsTArray<nsMsgMailList>& allMailListArray,
+                           nsTArray<nsMsgMailList>& mailListResolved,
+                           nsTArray<nsMsgRecipient>& aListMembers);
   nsresult TagConvertible(nsIDOMElement *node,  int32_t *_retval);
   nsresult _NodeTreeConvertible(nsIDOMElement *node, int32_t *_retval);
   nsresult MoveToAboveQuote(void);

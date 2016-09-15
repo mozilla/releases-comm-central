@@ -4687,8 +4687,17 @@ nsresult nsMsgCompose::AttachmentPrettyName(const nsACString & scheme, const cha
   return NS_OK;
 }
 
-nsresult nsMsgCompose::GetABDirectories(const nsACString& aDirUri,
-                                        nsCOMArray<nsIAbDirectory> &aDirArray)
+/**
+ * Retrieve address book directories and mailing lists.
+ *
+ * @param aDirUri               directory URI
+ * @param allDirectoriesArray   retrieved directories and sub-directories
+ * @param allMailListArray      retrieved maillists
+ */
+nsresult
+nsMsgCompose::GetABDirAndMailLists(const nsACString& aDirUri,
+                                   nsCOMArray<nsIAbDirectory> &aDirArray,
+                                   nsTArray<nsMsgMailList> &aMailListArray)
 {
   static bool collectedAddressbookFound;
   if (aDirUri.EqualsLiteral(kMDBDirectoryRoot))
@@ -4717,7 +4726,10 @@ nsresult nsMsgCompose::GetABDirectories(const nsACString& aDirUri,
           bool bIsMailList;
 
           if (NS_SUCCEEDED(directory->GetIsMailList(&bIsMailList)) && bIsMailList)
+          {
+            aMailListArray.AppendElement(directory);
             continue;
+          }
 
           nsCString uri;
           rv = directory->GetURI(uri);
@@ -4745,39 +4757,7 @@ nsresult nsMsgCompose::GetABDirectories(const nsACString& aDirUri,
           }
 
           aDirArray.InsertObjectAt(directory, pos);
-          rv = GetABDirectories(uri, aDirArray);
-        }
-      }
-    }
-  }
-  return rv;
-}
-
-nsresult nsMsgCompose::BuildMailListArray(nsIAbDirectory* parentDir,
-                                          nsTArray<nsMsgMailList>& array)
-{
-  nsresult rv = NS_OK;
-
-  nsCOMPtr<nsIAbDirectory> directory;
-  nsCOMPtr<nsISimpleEnumerator> subDirectories;
-
-  if (NS_SUCCEEDED(parentDir->GetChildNodes(getter_AddRefs(subDirectories))) && subDirectories)
-  {
-    nsCOMPtr<nsISupports> item;
-    bool hasMore;
-    while (NS_SUCCEEDED(rv = subDirectories->HasMoreElements(&hasMore)) && hasMore)
-    {
-      if (NS_SUCCEEDED(subDirectories->GetNext(getter_AddRefs(item))))
-      {
-        directory = do_QueryInterface(item, &rv);
-        if (NS_SUCCEEDED(rv))
-        {
-          bool bIsMailList;
-
-          if (NS_SUCCEEDED(directory->GetIsMailList(&bIsMailList)) && bIsMailList)
-          {
-            array.AppendElement(directory);
-          }
+          rv = GetABDirAndMailLists(uri, aDirArray, aMailListArray);
         }
       }
     }
@@ -4808,6 +4788,117 @@ struct nsMsgMailListComparator
   }
 };
 
+/**
+ * Comparator for use with nsTArray::IndexOf to find a recipient.
+ */
+struct nsMsgRecipientComparator
+{
+  bool Equals(const nsMsgRecipient &recipient,
+              const nsMsgRecipient &recipientToFind) const {
+    if (!recipient.mEmail.Equals(recipientToFind.mEmail,
+                                 nsCaseInsensitiveStringComparator()))
+      return false;
+
+    if (!recipient.mName.Equals(recipientToFind.mName,
+                                nsCaseInsensitiveStringComparator()))
+      return false;
+
+    return true;
+  }
+};
+
+/**
+ * This function recursively resolves a mailing list and returns individual
+ * email addresses. Nested lists are supported. It maintains an array of
+ * already visited mailing lists to avoid endless recursion.
+ *
+ * @param aMailList             the list
+ * @param allDirectoriesArray   all directories
+ * @param allMailListArray      all maillists
+ * @param mailListProcessed     maillists processed (to avoid recursive lists)
+ * @param aListMembers          list members
+ */
+nsresult
+nsMsgCompose::ResolveMailList(nsIAbDirectory* aMailList,
+                              nsCOMArray<nsIAbDirectory> &allDirectoriesArray,
+                              nsTArray<nsMsgMailList> &allMailListArray,
+                              nsTArray<nsMsgMailList> &mailListProcessed,
+                              nsTArray<nsMsgRecipient> &aListMembers)
+{
+  nsresult rv = NS_OK;
+
+  nsCOMPtr<nsIMutableArray> mailListAddresses;
+  rv = aMailList->GetAddressLists(getter_AddRefs(mailListAddresses));
+  if (NS_FAILED(rv))
+    return rv;
+
+  uint32_t nbrAddresses = 0;
+  mailListAddresses->GetLength(&nbrAddresses);
+  for (uint32_t i = 0; i < nbrAddresses; i++)
+  {
+    nsCOMPtr<nsIAbCard> existingCard(do_QueryElementAt(mailListAddresses, i, &rv));
+    NS_ENSURE_SUCCESS(rv, rv);
+
+    nsMsgRecipient newRecipient;
+
+    rv = existingCard->GetDisplayName(newRecipient.mName);
+    NS_ENSURE_SUCCESS(rv, rv);
+    rv = existingCard->GetPrimaryEmail(newRecipient.mEmail);
+    NS_ENSURE_SUCCESS(rv, rv);
+
+    if (newRecipient.mName.IsEmpty() && newRecipient.mEmail.IsEmpty()) {
+      continue;
+    }
+
+    // First check if it's a mailing list.
+    size_t index = allMailListArray.IndexOf(newRecipient, 0, nsMsgMailListComparator());
+    if (index != allMailListArray.NoIndex && allMailListArray[index].mDirectory)
+    {
+      // Check if maillist processed.
+      if (mailListProcessed.Contains(newRecipient, nsMsgMailListComparator())) {
+        continue;
+      }
+
+      nsCOMPtr<nsIAbDirectory> directory2(allMailListArray[index].mDirectory);
+
+      // Add mailList to mailListProcessed.
+      mailListProcessed.AppendElement(directory2);
+
+      // Resolve mailList members.
+      rv = ResolveMailList(directory2,
+                           allDirectoriesArray,
+                           allMailListArray,
+                           mailListProcessed,
+                           aListMembers);
+      NS_ENSURE_SUCCESS(rv, rv);
+
+      continue;
+    }
+
+    // Check if recipient is in aListMembers.
+    if (aListMembers.Contains(newRecipient, nsMsgRecipientComparator())) {
+      continue;
+    }
+
+    // Now we need to insert the new address into the list of recipients.
+    newRecipient.mCard = existingCard;
+    newRecipient.mDirectory = aMailList;
+
+    aListMembers.AppendElement(newRecipient);
+  }
+
+  return rv;
+}
+
+/**
+ * Lookup the recipients as specified in the compose fields (To, Cc, Bcc)
+ * in the address books and return an array of individual recipients.
+ * Mailing lists are replaced by the cards they contain, nested and recursive
+ * lists are taken care of, recipients contained in multiple lists are only
+ * added once.
+ *
+ * @param recipientsList        (out) recipient array
+ */
 nsresult
 nsMsgCompose::LookupAddressBook(RecipientsArray &recipientsList)
 {
@@ -4835,71 +4926,94 @@ nsMsgCompose::LookupAddressBook(RecipientsArray &recipientsList)
   nsCOMPtr<nsIAbDirectory> abDirectory;
   nsCOMPtr<nsIAbCard> existingCard;
   nsTArray<nsMsgMailList> mailListArray;
+  nsTArray<nsMsgMailList> mailListProcessed;
 
   nsCOMArray<nsIAbDirectory> addrbookDirArray;
-  rv = GetABDirectories(NS_LITERAL_CSTRING(kAllDirectoryRoot),
-                        addrbookDirArray);
-  if (NS_SUCCEEDED(rv))
+  rv = GetABDirAndMailLists(NS_LITERAL_CSTRING(kAllDirectoryRoot),
+                            addrbookDirArray, mailListArray);
+  if (NS_FAILED(rv))
+    return rv;
+
+  nsString dirPath;
+  uint32_t nbrAddressbook = addrbookDirArray.Count();
+
+  for (uint32_t k = 0; k < nbrAddressbook && stillNeedToSearch; ++k)
   {
-    nsString dirPath;
-    uint32_t nbrAddressbook = addrbookDirArray.Count();
-
-    for (uint32_t k = 0; k < nbrAddressbook && stillNeedToSearch; ++k)
+    // Avoid recursive mailing lists.
+    if (abDirectory && (addrbookDirArray[k] == abDirectory))
     {
-      // Avoid recursive mailing lists
-      if (abDirectory && (addrbookDirArray[k] == abDirectory))
-      {
-        stillNeedToSearch = false;
-        break;
-      }
-
-      abDirectory = addrbookDirArray[k];
-      if (!abDirectory)
-        continue;
-
-      bool supportsMailingLists;
-      rv = abDirectory->GetSupportsMailingLists(&supportsMailingLists);
-      if (NS_FAILED(rv) || !supportsMailingLists)
-        continue;
-
-      // Ensure the existing list is empty before filling it
-      mailListArray.Clear();
-
-      // Collect all mailing lists defined in this address book
-      rv = BuildMailListArray(abDirectory, mailListArray);
-      if (NS_FAILED(rv))
-        return rv;
-
       stillNeedToSearch = false;
-      for (uint32_t i = 0; i < MAX_OF_RECIPIENT_ARRAY; i ++)
+      break;
+    }
+
+    abDirectory = addrbookDirArray[k];
+    if (!abDirectory)
+      continue;
+
+    stillNeedToSearch = false;
+    for (uint32_t i = 0; i < MAX_OF_RECIPIENT_ARRAY; i ++)
+    {
+      mailListProcessed.Clear();
+
+      // Note: We check this each time to allow for length changes.
+      for (uint32_t j = 0; j < recipientsList[i].Length(); j++)
       {
-        // Note: We check this each time to allow for length changes.
-        for (uint32_t j = 0; j < recipientsList[i].Length(); ++j)
+        nsMsgRecipient &recipient = recipientsList[i][j];
+        if (!recipient.mDirectory)
         {
-          nsMsgRecipient &recipient = recipientsList[i][j];
-          if (!recipient.mDirectory)
+          // First check if it's a mailing list.
+          size_t index = mailListArray.IndexOf(recipient, 0, nsMsgMailListComparator());
+          if (index != mailListArray.NoIndex && mailListArray[index].mDirectory)
           {
-            // First check if it's a mailing list
-            size_t index = mailListArray.IndexOf(recipient, 0,
-              nsMsgMailListComparator());
-            if (index != mailListArray.NoIndex &&
-                mailListArray[index].mDirectory)
-            {
-              recipient.mDirectory = mailListArray[index].mDirectory;
+            // Check mailList Processed.
+            if (mailListProcessed.Contains(recipient, nsMsgMailListComparator())) {
+              // Remove from recipientsList.
+              recipientsList[i].RemoveElementAt(j--);
               continue;
             }
 
-            // find a card that contains this e-mail address
+            nsCOMPtr<nsIAbDirectory> directory(mailListArray[index].mDirectory);
+
+            // Add mailList to mailListProcessed.
+            mailListProcessed.AppendElement(directory);
+
+            // Resolve mailList members.
+            nsTArray<nsMsgRecipient> members;
+            rv = ResolveMailList(directory,
+                                 addrbookDirArray,
+                                 mailListArray,
+                                 mailListProcessed,
+                                 members);
+            NS_ENSURE_SUCCESS(rv, rv);
+
+            // Remove mailList from recipientsList.
+            recipientsList[i].RemoveElementAt(j);
+
+            // Merge members into recipientsList[i].
+            uint32_t pos = 0;
+            for (uint32_t c = 0; c < members.Length(); c++)
+            {
+              nsMsgRecipient &member = members[c];
+              if (!recipientsList[i].Contains(member, nsMsgRecipientComparator())) {
+                recipientsList[i].InsertElementAt(j + pos, member);
+                pos++;
+              }
+            }
+          }
+          else
+          {
+            // Find a card that contains this e-mail address.
             rv = abDirectory->CardForEmailAddress(NS_ConvertUTF16toUTF8(recipient.mEmail),
                                                   getter_AddRefs(existingCard));
-
             if (NS_SUCCEEDED(rv) && existingCard)
             {
               recipient.mCard = existingCard;
               recipient.mDirectory = abDirectory;
             }
             else
+            {
               stillNeedToSearch = true;
+            }
           }
         }
       }
@@ -4930,53 +5044,6 @@ nsMsgCompose::ExpandMailingLists()
     for (uint32_t j = 0; j < recipientsList[i].Length(); ++j)
     {
       nsMsgRecipient &recipient = recipientsList[i][j];
-
-      // First check if it's a mailing list
-      if (recipient.mDirectory && !recipient.mCard)
-      {
-        // Grab a ref to the directory--we're appending to the nsTArray, which
-        // can invalidate the reference to recipient underneath us.
-        nsCOMPtr<nsIAbDirectory> directory(recipient.mDirectory);
-        nsCOMPtr<nsIMutableArray> mailListAddresses;
-        rv = directory->GetAddressLists(
-          getter_AddRefs(mailListAddresses));
-        if (NS_FAILED(rv))
-          continue;
-
-        uint32_t nbrAddresses = 0;
-        for (mailListAddresses->GetLength(&nbrAddresses); nbrAddresses > 0;
-            nbrAddresses--)
-        {
-          nsCOMPtr<nsIAbCard> existingCard(do_QueryElementAt(mailListAddresses,
-                                           nbrAddresses - 1, &rv));
-          NS_ENSURE_SUCCESS(rv, rv);
-
-          nsMsgRecipient newRecipient;
-          bool bIsMailList;
-          rv = existingCard->GetIsMailList(&bIsMailList);
-          NS_ENSURE_SUCCESS(rv, rv);
-          NS_ASSERTION(!bIsMailList,
-             "Bug 40301 means we don't support this feature.");
-
-          rv = existingCard->GetDisplayName(newRecipient.mName);
-          NS_ENSURE_SUCCESS(rv, rv);
-          rv = existingCard->GetPrimaryEmail(newRecipient.mEmail);
-          NS_ENSURE_SUCCESS(rv, rv);
-
-          if (newRecipient.mName.IsEmpty() && newRecipient.mEmail.IsEmpty())
-            continue;
-
-          // Now we need to insert the new address into the list of recipients.
-          newRecipient.mCard = existingCard;
-          newRecipient.mDirectory = directory;
-          recipientsList[i].InsertElementAt(j + 1, newRecipient);
-        }
-
-        // Remove the mailing list and process the cards we just exposed.
-        recipientsList[i].RemoveElementAt(j);
-        --j;
-        continue;
-      }
 
       if (!recipientsStr.IsEmpty())
         recipientsStr.Append(char16_t(','));
