@@ -246,11 +246,11 @@
   </vbox>
 
   <!-- Attendees -->
-  <box id="item-attendees" orient="vertical" hidden="true">
+  <box id="item-attendees" orient="vertical" hidden="true" flex="1">
     <spacer class="default-spacer"/>
     <calendar-caption label="&read.only.attendees.label;"
                       control="item-attendees-box"/>
-    <vbox id="item-attendees-box" dialogtype="summary">
+    <vbox id="item-attendees-box" flex="1">
       <spacer class="default-spacer"/>
     </vbox>
   </box>

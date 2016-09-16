@@ -2,6 +2,21 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/* Begin: Summary Dialog - this should be moved to
+                           calendar/base/themes/common/dialogs/calendar-event-dialog.css
+                           or a separate file for the summary dialog */
+#calendar-summary-dialog,
+#calendar-event-summary-dialog,
+#calendar-task-summary-dialog {
+    min-width: 35em;
+}
+
+#calendar-summary-dialog #item-description,
+#calendar-event-summary-dialog #item-description,
+#calendar-task-summary-dialog #item-description {
+    min-height: 54px;
+}
+/* End: Summary Dialog */
 
 /* this is for attendee and organizer decoration in summary and event dialog */
 
@@ -9,12 +24,13 @@
     -moz-appearance: listbox;
     margin: 2px 4px 0;
     overflow-y: auto;
-    min-height: 23px; /*at least two rows - otherwise a scrollbar (if required) wouldn't appear*/
+    min-height: 54px; /*at least two rows - otherwise a scrollbar (if required) wouldn't appear*/
 }
 
-#calendar-summary-dialog #item-attendees-box {
-    max-height: 92px; /* displays up to four rows of attendees*/
-    margin: 0px 10px;
+#calendar-summary-dialog #item-attendees,
+#calendar-event-summary-dialog #item-attendees,
+#calendar-task-summary-dialog #item-attendees {
+    max-height: 135px; /* displays up to four rows of attendees*/
 }
 
 .item-attendees-cell {
