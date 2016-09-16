@@ -4158,42 +4158,6 @@ nsMsgComposeAndSend::SendMessageFile(
   return rv;
 }
 
-nsMsgAttachmentData *
-BuildURLAttachmentData(nsIURI *url)
-{
-  int                 attachCount = 2;  // one entry and one empty entry
-  nsMsgAttachmentData *attachments;
-  const char          *theName = nullptr;
-
-  if (!url)
-    return nullptr;
-
-  attachments = new nsMsgAttachmentData[attachCount];
-  if (!attachments)
-    return nullptr;
-
-  // Now get a readable name...
-  nsAutoCString spec;
-  nsresult rv = url->GetSpec(spec);
-  if (NS_FAILED(rv))
-    return nullptr;
-  if (!spec.IsEmpty())
-  {
-    theName = strrchr(spec.get(), '/');
-  }
-
-  if (!theName)
-    theName = "Unknown"; // Don't I18N this string...should never happen...
-  else
-    theName++;
-
-  attachments[0].m_url = url; // The URL to attach.
-  attachments[0].m_realName = theName;  // The original name of this document, which will eventually show up in the
-
-  NS_IF_ADDREF(url);
-  return attachments;
-}
-
 //
 // Send the message to the magic folder, and runs the completion/failure
 // callback.
