@@ -36,6 +36,9 @@
   <script type="application/javascript" src="chrome://messenger/content/specialTabs.js"/>
   <!-- This one is for openURL -->
   <script type="application/javascript" src="chrome://global/content/contentAreaUtils.js"/>
+#ifdef MOZ_UPDATER
+  <script type="application/javascript" src="chrome://messenger/content/aboutDialog-appUpdater.js"/>
+#endif
 
   <vbox id="aboutDialogContainer">
     <hbox id="clientBox">
