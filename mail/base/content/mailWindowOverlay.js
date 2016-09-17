@@ -3358,9 +3358,40 @@ function OnMsgParsed(aUrl)
   let msgURI = selectedMessageUris ? selectedMessageUris[0] : null;
   Services.obs.notifyObservers(msgWindow.msgHeaderSink, "MsgMsgDisplayed", msgURI);
 
-  // Scale any overflowing images, exclude http content.
   let browser = getMessagePaneBrowser();
   let doc = browser && browser.contentDocument ? browser.contentDocument : null;
+
+  // Rewrite any anchor elements' href attribute to reflect that the loaded
+  // document is a mailnews url. This will cause docShell to scroll to the
+  // element in the document rather than opening the link externally.
+  let links = doc && doc.links ? doc.links : [];
+  for (let linkNode of links)
+  {
+    if (!linkNode.hash)
+      continue;
+
+    // We have a ref fragment which may reference a node in this document.
+    // Ensure html in mail anchors work as expected.
+    let anchorId = linkNode.hash.replace("#", "");
+    // Continue if an id (html5) or name attribute value for the ref is not
+    // found in this document.
+    let selector = "#" + anchorId + ", [name='" + anchorId + "']";
+    if (!linkNode.ownerDocument.querySelector(selector))
+      continue;
+
+    // Then check if the href url matches the document baseURL.
+    if (makeURI(linkNode.href).specIgnoringRef != makeURI(linkNode.baseURI).specIgnoringRef)
+      continue;
+
+    // Finally, if the document url is a message url, and the anchor href is
+    // http, it needs to be adjusted so docShell finds the node.
+    let messageURI = makeURI(linkNode.rootNode.URL);
+    if (messageURI instanceof Components.interfaces.nsIMsgMailNewsUrl &&
+        linkNode.href.startsWith("http"))
+      linkNode.href = messageURI.specIgnoringRef + linkNode.hash;
+  }
+
+  // Scale any overflowing images, exclude http content.
   let imgs = doc && !doc.URL.startsWith("http") ? doc.images : [];
   for (let img of imgs)
   {

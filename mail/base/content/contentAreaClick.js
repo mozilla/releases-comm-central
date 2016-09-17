@@ -76,10 +76,15 @@ function messagePaneOnResize(aEvent)
 // should always return true for click to go through.
 function contentAreaClick(aEvent)
 {
+  let target = aEvent.target;
+
+  // If we've loaded a web page url, let the click go through.
+  if (target.rootNode.URL.startsWith("http"))
+    return true;
+
   let href = hRefForClickEvent(aEvent);
 
   if (!href && !aEvent.button) {
-    var target = aEvent.target;
     // Is this an image that we might want to scale?
     const Ci = Components.interfaces;
 
