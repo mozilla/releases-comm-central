@@ -64,8 +64,8 @@
                 accesskey="&useSiteIcons.accesskey;"
                 preference="browser.chrome.site_icons"/>
       <checkbox id="useFavIcons"
-                label="&useFavIcons.label;"
-                accesskey="&useFavIcons.accesskey;"
+                label="&useFavIcons2.label;"
+                accesskey="&useFavIcons2.accesskey;"
                 preference="browser.chrome.favicons"/>
     </groupbox>
 

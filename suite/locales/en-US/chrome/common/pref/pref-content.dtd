@@ -10,8 +10,8 @@
 <!ENTITY siteIcons.label                        "Website icons">
 <!ENTITY useSiteIcons.label                     "Show website icons">
 <!ENTITY useSiteIcons.accesskey                 "S">
-<!ENTITY useFavIcons.label                      "Aggressively look for website icons when the page doesn&apos;t define one">
-<!ENTITY useFavIcons.accesskey                  "A">
+<!ENTITY useFavIcons2.label                     "Try to use the servers favicon when the page doesn&apos;t define an icon">
+<!ENTITY useFavIcons2.accesskey                 "i">
 
 <!ENTITY scrolling.label                        "Scrolling">
 <!ENTITY useAutoScroll.label                    "Use autoscrolling">

@@ -56,7 +56,7 @@ pref("browser.warnOnRestart", true);
 pref("browser.send_pings", false);
 
 pref("browser.chrome.site_icons", true);
-pref("browser.chrome.favicons", false);
+pref("browser.chrome.favicons", true);
 
 pref("browser.download.finished_download_sound", false);
 pref("browser.download.finished_sound_url", "");
