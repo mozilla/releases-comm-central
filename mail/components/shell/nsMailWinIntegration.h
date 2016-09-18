@@ -28,7 +28,6 @@ class nsWindowsShellService : public nsIWindowsShellService
 {
 public:
   nsWindowsShellService();
-  virtual ~nsWindowsShellService() {};
   NS_HIDDEN_(nsresult) Init();
 
   NS_DECL_ISUPPORTS
@@ -40,6 +39,7 @@ protected:
   bool IsDefaultClientVista(uint16_t aApps, bool* aIsDefaultClient);
 
 private:
+  virtual ~nsWindowsShellService() {};
   bool mCheckedThisSession;
   nsAutoString mAppLongPath;
  };

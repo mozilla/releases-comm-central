@@ -28,10 +28,11 @@ public :
     STDMETHODIMP        LockServer (BOOL aLock);
 
     CMapiFactory ();
-    ~CMapiFactory ();
 
 private:
     mozilla::ThreadSafeAutoRefCnt m_cRef;
+
+    ~CMapiFactory ();
 };
 
 #endif  // MSG_MAPI_FACTORY_H

@@ -53,8 +53,6 @@ class nsMAPISendListener : public nsIMsgSendListener
 {
 public:
 
-    virtual ~nsMAPISendListener() { }
-
     // nsISupports interface
     NS_DECL_THREADSAFE_ISUPPORTS
 
@@ -96,6 +94,9 @@ protected :
     }
 
     bool            m_done;
+private:
+    virtual ~nsMAPISendListener() { }
+
 };
 
 

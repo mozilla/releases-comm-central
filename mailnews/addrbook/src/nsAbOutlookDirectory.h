@@ -29,7 +29,6 @@ public:
   NS_DECL_NSIABDIRECTORYQUERYRESULTLISTENER
 
   nsAbOutlookDirectory(void);
-  virtual ~nsAbOutlookDirectory(void);
 
   // nsAbDirProperty methods
   NS_IMETHOD GetDirType(int32_t *aDirType) override;
@@ -47,7 +46,7 @@ public:
   NS_IMETHOD DropCard(nsIAbCard *aData, bool needToCopyCard) override;
   NS_IMETHOD AddMailList(nsIAbDirectory *aMailList, nsIAbDirectory **addedList) override;
   NS_IMETHOD EditMailListToDatabase(nsIAbCard *listCard) override;
-  
+
   // nsAbDirProperty method
   NS_IMETHOD Init(const char *aUri) override;
   // nsIAbDirectoryQuery methods
@@ -85,6 +84,10 @@ protected:
   int32_t mSearchContext;
   // Windows AB type
   uint32_t mAbWinType;
+
+private:
+  virtual ~nsAbOutlookDirectory(void);
+
 };
 
 enum

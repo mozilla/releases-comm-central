@@ -18,7 +18,6 @@ class nsMapiSupport : public nsIMapiSupport,
 {
     public :
         nsMapiSupport();
-        ~nsMapiSupport();
 
         // Declare all interface methods we must implement.
         NS_DECL_THREADSAFE_ISUPPORTS
@@ -26,6 +25,7 @@ class nsMapiSupport : public nsIMapiSupport,
         NS_DECL_NSIMAPISUPPORT
 
     private :
+        ~nsMapiSupport();
 
         DWORD   m_dwRegister;
         CMapiFactory *m_nsMapiFactory;

@@ -22,13 +22,11 @@ public:
   NS_DECL_NSIMAILPROFILEMIGRATOR
   NS_DECL_ISUPPORTS
   NS_DECL_NSITIMERCALLBACK
-
   nsOEProfileMigrator();
-  virtual ~nsOEProfileMigrator();
-
   virtual nsresult ContinueImport();
 
 private:
+  virtual ~nsOEProfileMigrator();
 };
 
 #endif

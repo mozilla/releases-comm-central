@@ -10,15 +10,13 @@
 class nsAbOutlookDirFactory : public nsIAbDirFactory
 {
 public:
-    nsAbOutlookDirFactory(void) ;
-    virtual ~nsAbOutlookDirFactory(void) ;
-    
+    nsAbOutlookDirFactory(void);
+
     NS_DECL_ISUPPORTS
     NS_DECL_NSIABDIRFACTORY
-        
-protected:
-    
+
 private:
-} ;
+    virtual ~nsAbOutlookDirFactory(void);
+};
 
 #endif // nsAbOutlookDirFactory_h___

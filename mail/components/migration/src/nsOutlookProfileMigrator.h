@@ -20,8 +20,10 @@ public:
   NS_DECL_NSITIMERCALLBACK
 
   nsOutlookProfileMigrator();
-  virtual ~nsOutlookProfileMigrator();
   virtual nsresult ContinueImport();
+
+private:
+  virtual ~nsOutlookProfileMigrator();
 };
 
 #endif
