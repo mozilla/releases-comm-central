@@ -72,14 +72,44 @@ function messagePaneOnResize(aEvent)
   }
 }
 
+/**
+ * Check whether the click target's or its ancestor's href
+ * points to an anchor on the page.
+ *
+ * @param HTMLElement aTargetNode - the element node.
+ * @return                        - true if link pointing to anchor.
+ */
+function isLinkToAnchorOnPage(aTargetNode)
+{
+  let url = aTargetNode.rootNode.URL;
+  if (!url.startsWith("http"))
+    return false;
+
+  let linkNode = aTargetNode;
+  while (linkNode && !(linkNode instanceof HTMLAnchorElement))
+    linkNode = linkNode.parentNode;
+
+  // It's not a link with an anchor.
+  if (!linkNode || !linkNode.href || !linkNode.hash)
+    return false;
+
+  // The link's href must match the document URL.
+  if (makeURI(linkNode.href).specIgnoringRef != makeURI(url).specIgnoringRef)
+    return false;
+
+  return true;
+}
+
 // Called whenever the user clicks in the content area,
 // should always return true for click to go through.
 function contentAreaClick(aEvent)
 {
   let target = aEvent.target;
 
-  // If we've loaded a web page url, let the click go through.
-  if (target.rootNode.URL.startsWith("http"))
+  // If we've loaded a web page url, and the element's or its ancestor's href
+  // points to an anchor on the page, let the click go through.
+  // Otherwise fall through and open externally.
+  if (isLinkToAnchorOnPage(target))
     return true;
 
   let href = hRefForClickEvent(aEvent);
