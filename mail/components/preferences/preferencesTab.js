@@ -85,10 +85,9 @@ var preferencesTabType = {
     this._setUpCloseWindowListener(aTab);
 
     if ("onLoad" in aArgs) {
-      aTab.browser.addEventListener("paneload", function _contentTab_onLoad (event) {
-        aArgs.onLoad(event, aTab.browser);
-        aTab.browser.removeEventListener("paneload", _contentTab_onLoad, true);
-      }, true);
+      aTab.browser.addEventListener("paneload",
+        function _contentTab_onLoad (event) { aArgs.onLoad(event, aTab.browser); },
+        {capture: true, once: true});
     }
     // Now start loading the content.
     aTab.title = this.loadingTabString;

@@ -177,8 +177,6 @@ XulTabList.prototype = {
 
   onOpenWindow: DevToolsUtils.makeInfallible(function(aWindow) {
     let handleLoad = DevToolsUtils.makeInfallible(() => {
-      aWindow.removeEventListener("load", handleLoad, false);
-
       if (this._checkedWindows.has(appShellDOMWindowType(aWindow))) {
         // This is one of our windows, we need to check for browser
         // elements. Notify is enough, iterate will do the actual actor
@@ -193,7 +191,7 @@ XulTabList.prototype = {
     // nsIWindowMediator enumeration from within listeners (bug 873589).
     aWindow = aWindow.QueryInterface(Ci.nsIInterfaceRequestor)
                      .getInterface(Ci.nsIDOMWindow);
-    aWindow.addEventListener("load", handleLoad, false);
+    aWindow.addEventListener("load", handleLoad, {capture: false, once: true});
   }, "XulTabList.prototype.onOpenWindow"),
 
   onCloseWindow: DevToolsUtils.makeInfallible(function(aWindow) {

@@ -593,9 +593,8 @@ var FacetContext = {
       // is not cut off at the top, and overflow=hidden causes
       // the transition to not work as intended.
       facetDate.removeAttribute("style");
-      facetDate.removeEventListener("transitionend", listener);
     };
-    facetDate.addEventListener("transitionend", listener);
+    facetDate.addEventListener("transitionend", listener, {once: true});
     facetDate.removeAttribute("hide");
     document.getElementById("date-toggle").removeAttribute("tucked");
     Services.prefs.setBoolPref("gloda.facetview.hidetimeline", false);

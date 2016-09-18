@@ -531,7 +531,7 @@ var gCloudFileTab = {
     if (this._list.itemCount > 0)
       this._list.selectedIndex = 0;
 
-    window.addEventListener("unload", this, false);
+    window.addEventListener("unload", this, {capture: false, once: true});
     CommandUpdate_CloudFile();
 
     this.updateThreshold();
@@ -542,7 +542,6 @@ var gCloudFileTab = {
   destroy: function CFT_destroy() {
     // Remove any controllers or observers here.
     top.controllers.removeController(gCloudFileController);
-    window.removeEventListener("unload", this, false);
   },
 
   makeRichListItemForAccount: function CFT_makeRichListItemForAccount(aAccount) {
@@ -718,9 +717,6 @@ var gCloudFileTab = {
     // When the iframe loads, populate it with the provider.
     this._settings.contentWindow.addEventListener("load",
       function loadProvider() {
-        iframe.contentWindow.removeEventListener("load",
-                                                 loadProvider,
-                                                 false);
         try {
           iframe.contentWindow
                 .wrappedJSObject
@@ -728,22 +724,18 @@ var gCloudFileTab = {
         } catch(e) {
           Components.utils.reportError(e);
         }
-      }, false);
+      }, {capture: false, once: true});
 
     // When the iframe (or any subcontent) fires the DOMContentLoaded event,
     // attach the _onClickLink handler to any anchor elements that we can find.
     this._settings.contentWindow.addEventListener("DOMContentLoaded",
       function addClickListeners(e) {
-        iframe.contentWindow.removeEventListener("DOMContentLoaded",
-                                                 addClickListeners,
-                                                 false);
-
         let doc = e.originalTarget;
         let links = doc.getElementsByTagName("a");
 
         for (let link of links)
           link.addEventListener("click", gCloudFileTab._onClickLink);
-      }, false);
+      }, {capture: false, once: true});
 
     CommandUpdate_CloudFile();
   },
@@ -886,7 +878,7 @@ var gApplicationsPane = {
     Services.prefs.addObserver(PREF_HIDE_PLUGINS_WITHOUT_EXTENSIONS, this, false);
 
     // Listen for window unload so we can remove our preference observers.
-    window.addEventListener("unload", this, false);
+    window.addEventListener("unload", this, {capture: false, once: true});
 
     // Figure out how we should be sorting the list.  We persist sort settings
     // across sessions, so we can't assume the default sort column/direction.
@@ -920,7 +912,6 @@ var gApplicationsPane = {
   },
 
   destroy: function() {
-    window.removeEventListener("unload", this, false);
     Services.prefs.removeObserver(PREF_SHOW_PLUGINS_IN_LIST, this);
     Services.prefs.removeObserver(PREF_HIDE_PLUGINS_WITHOUT_EXTENSIONS, this);
   },

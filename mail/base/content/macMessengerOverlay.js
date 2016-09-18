@@ -27,7 +27,6 @@ addEventListener("load", function() {
 function loadListener(event) {
   setTimeout(function() {
     let preWin = Services.wm.getMostRecentWindow("Mail:Preferences");
-    preWin.removeEventListener("load", loadListener, false);
     preWin.document.documentElement
           .openSubDialog("chrome://messenger/content/preferences/dockoptions.xul",
                          "", null);
@@ -42,7 +41,7 @@ function PrefWindowObserver() {
   this.observe = function(aSubject, aTopic, aData) {
     if (aTopic == "domwindowopened") {
       let win = aSubject.QueryInterface(Components.interfaces.nsIDOMWindow);
-      win.addEventListener("load", loadListener, false);
+      win.addEventListener("load", loadListener, {capture: false, once: true});
     }
     Services.ww.unregisterNotification(this);
   };

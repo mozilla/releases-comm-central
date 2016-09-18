@@ -143,7 +143,7 @@ var gSubDialog = {
       this.injectXMLStylesheet(styleSheetURL);
     }
 
-    this._frame.contentWindow.addEventListener("dialogclosing", this);
+    this._frame.contentWindow.addEventListener("dialogclosing", this, {once: true});
 
     // Make window.close calls work like dialog closing.
     let oldClose = this._frame.contentWindow.close;
@@ -276,7 +276,6 @@ var gSubDialog = {
   },
 
   _onDialogClosing: function(aEvent) {
-    this._frame.contentWindow.removeEventListener("dialogclosing", this);
     this._closingEvent = aEvent;
   },
 

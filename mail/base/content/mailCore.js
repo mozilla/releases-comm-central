@@ -167,9 +167,8 @@ function CustomizeMailToolbar(toolboxId, customizePopupId)
     // that the user doesn't see a white flash.
     panel.style.visibility = "hidden";
     toolbox.addEventListener("beforecustomization", function removeProp() {
-      toolbox.removeEventListener("beforecustomization", removeProp, false);
       panel.style.removeProperty("visibility");
-    }, false);
+    }, {capture: false, once: true});
     panel.openPopup(toolbox, "after_start", 0, 0);
   }
   else {

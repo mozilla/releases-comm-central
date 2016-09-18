@@ -59,13 +59,11 @@ function onComposerLoad()
     setNoSignatureUI();
 }
 
-addEventListener("load", smimeComposeOnLoad, false);
+addEventListener("load", smimeComposeOnLoad, {capture: false, once: true});
 
 // this function gets called multiple times.
 function smimeComposeOnLoad()
 {
-  removeEventListener("load", smimeComposeOnLoad, false);
-
   onComposerLoad();
 
   top.controllers.appendController(SecurityController);
@@ -73,13 +71,11 @@ function smimeComposeOnLoad()
   addEventListener("compose-from-changed", onComposerFromChanged, true);
   addEventListener("compose-send-message", onComposerSendMessage, true);
 
-  addEventListener("unload", smimeComposeOnUnload, false);
+  addEventListener("unload", smimeComposeOnUnload, {capture: false, once: true});
 }
 
 function smimeComposeOnUnload()
 {
-  removeEventListener("unload", smimeComposeOnUnload, false);
-
   removeEventListener("compose-from-changed", onComposerFromChanged, true);
   removeEventListener("compose-send-message", onComposerSendMessage, true);
 

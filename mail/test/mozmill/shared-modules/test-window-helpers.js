@@ -349,10 +349,9 @@ var WindowWatcher = {
         startTest();
       } else {
         function onFocus(event) {
-          targetFocusedWindow.removeEventListener("focus", onFocus, true);
           targetFocusedWindow.setTimeout(startTest, 0);
         }
-        targetFocusedWindow.addEventListener("focus", onFocus, true);
+        targetFocusedWindow.addEventListener("focus", onFocus, {capture: true, once: true});
         targetFocusedWindow.focus();
       }
     }
@@ -674,11 +673,7 @@ function wait_for_window_focused(aWindow) {
   if (focusedWindow == targetWindow) {
     focused = true;
   } else {
-    function onFocus(event) {
-      targetWindow.removeEventListener("focus", onFocus, true);
-      focused = true;
-    }
-    targetWindow.addEventListener("focus", onFocus, true);
+    targetWindow.addEventListener("focus", () => focused = true, {capture: true, once: true});
     targetWindow.focus();
   }
 

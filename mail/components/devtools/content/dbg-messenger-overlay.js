@@ -33,7 +33,6 @@ function initDebuggerToolsMenu() {
  * menuitem checked state listeners.
  */
 function loadDebugger() {
-  window.removeEventListener("load", loadDebugger, false);
   let viewPopup = document.getElementById("taskPopup");
   viewPopup.addEventListener("popupshowing", initDebuggerToolsMenu, false);
 
@@ -47,11 +46,10 @@ function loadDebugger() {
  * menuitem checked state listeners.
  */
 function unloadDebugger() {
-  window.removeEventListener("unload", unloadDebugger, false);
   let viewPopup = document.getElementById("taskPopup");
   viewPopup.removeEventListener("popupshowing", initDebuggerToolsMenu, false);
 }
 
 // Load and unload the debugger when the window loads/unloads.
-window.addEventListener("load", loadDebugger, false);
-window.addEventListener("unload", unloadDebugger, false);
+window.addEventListener("load", loadDebugger, {capture: false, once: true});
+window.addEventListener("unload", unloadDebugger, {capture: false, once: true});

@@ -57,9 +57,8 @@ function selectPaneAndTab(prefWindow, aPaneID, aTabID, aSubdialogID) {
     if (prefWindow.currentPane.id != prefPane.id) {
       if (aTabID && !prefPane.loaded) {
         prefPane.addEventListener("paneload", function showTabOnLoad() {
-          prefPane.removeEventListener("paneload", showTabOnLoad);
           showTab(prefPane, aTabID);
-        });
+        }, {once: true});
         tabOnEvent = true;
       }
       prefWindow.showPane(prefPane);

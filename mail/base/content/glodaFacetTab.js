@@ -67,15 +67,13 @@ var glodaFacetTabType = {
     }
 
     function xulLoadHandler() {
-      aTab.iframe.contentWindow.removeEventListener("load", xulLoadHandler,
-                                                    false);
       aTab.iframe.contentWindow.tab = aTab;
       aTab.browser = aTab.iframe.contentDocument.getElementById("browser");
       aTab.browser.setAttribute("src",
         "chrome://messenger/content/glodaFacetView.xhtml");
     }
 
-    aTab.iframe.contentWindow.addEventListener("load", xulLoadHandler, false);
+    aTab.iframe.contentWindow.addEventListener("load", xulLoadHandler, {capture: false, once: true});
     aTab.iframe.setAttribute("src",
       "chrome://messenger/content/glodaFacetViewWrapper.xul");
   },
