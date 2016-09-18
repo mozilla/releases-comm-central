@@ -227,7 +227,7 @@ parserState.prototype = {
      * Checks if the timezones are missing and notifies the user via error console
      *
      * @param item      The item to check for
-     * @param dt        The datetime object to check with
+     * @param date      The datetime object to check with
      */
     checkTimezone: function(item, date) {
         if (date && cal.isPhantomTimezone(date.timezone)) {
@@ -239,7 +239,7 @@ parserState.prototype = {
                 // so this UI code can be removed from the parser, and caller can
                 // choose whether to alert, or show user the problem items and ask
                 // for fixes, or something else.
-                let msgArgs = [tzid, item.title, cal.getDateFormatter().formatDateTime(dt)];
+                let msgArgs = [tzid, item.title, cal.getDateFormatter().formatDateTime(date)];
                 let msg = calGetString("calendar", "unknownTimezoneInItem", msgArgs);
 
                 cal.ERROR(msg + "\n" + item.icalString);
