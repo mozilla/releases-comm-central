@@ -536,7 +536,7 @@ const char* CpToCharset(unsigned int cp)
       {57004, "x-iscii-ta"}, // ISCII Tamil
       {57005, "x-iscii-te"}, // ISCII Telugu
       {57006, "x-iscii-as"}, // ISCII Assamese
-      {57007, "x-iscii-or"}, // ISCII Oriya
+      {57007, "x-iscii-or"}, // ISCII Oriya (Odia)
       {57008, "x-iscii-ka"}, // ISCII Kannada
       {57009, "x-iscii-ma"}, // ISCII Malayalam
       {57010, "x-iscii-gu"}, // ISCII Gujarati
