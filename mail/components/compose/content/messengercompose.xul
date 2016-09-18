@@ -958,6 +958,7 @@
                          timeout="300"
                          maxrows="6"
                          completedefaultindex="true" forcecomplete="true"
+                         completeselectedindex="true"
                          minresultsforpopup="2" ignoreblurwhilesearching="true"
                          ontextentered="awRecipientTextCommand(param, this)"
                          onchange="onRecipientsChanged();"

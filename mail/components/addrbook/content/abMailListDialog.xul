@@ -70,6 +70,7 @@
                    autocompletesearch="addrbook ldap"
                    autocompletesearchparam="{}" timeout="300" maxrows="4"
                    completedefaultindex="true" forcecomplete="true"
+                   completeselectedindex="true"
                    minresultsforpopup="3"
                    ontextentered="awRecipientTextCommand(param, this)"
                    onkeypress="awHandleKeyPress(this, event);"

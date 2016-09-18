@@ -43,6 +43,7 @@
                          maxrows="4"
                          completedefaultindex="true"
                          forcecomplete="true"
+                         completeselectedindex="true"
                          minresultsforpopup="1"
                          onblur="if (this.localName == 'textbox') document.getBindingParent(this).returnHit(this, true)"
                          ignoreblurwhilesearching="true"
