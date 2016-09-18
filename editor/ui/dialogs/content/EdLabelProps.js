@@ -37,7 +37,9 @@ function Startup()
     gDialog.editText.checked = false;
     gDialog.editText.disabled = false;
     gDialog.labelText.disabled = true;
-    gDialog.editText.addEventListener("command", onEditText, false);
+    gDialog.editText.addEventListener("command",
+      () => Services.prompt.alert(window, GetString("Alert"), GetString("EditTextWarning")),
+      {capture: false, once: true});
     SetTextboxFocus(gDialog.labelFor);
   }
   else
@@ -50,12 +52,6 @@ function InitDialog()
 {
   gDialog.labelFor.value = globalElement.getAttribute("for");
   gDialog.labelAccessKey.value = globalElement.getAttribute("accesskey");
-}
-
-function onEditText()
-{
-  gDialog.editText.removeEventListener("command", onEditText, false);
-  Services.prompt.alert(window, GetString("Alert"), GetString("EditTextWarning"));
 }
 
 function RemoveLabel()
