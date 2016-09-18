@@ -10,21 +10,17 @@ var gSignatureStatus = -1;
 var gSignerCert = null;
 var gEncryptionCert = null;
 
-addEventListener("load", smimeReadOnLoad, false);
+addEventListener("load", smimeReadOnLoad, {capture: false, once: true});
 
 function smimeReadOnLoad()
 {
-  removeEventListener("load", smimeReadOnLoad, false);
-
   top.controllers.appendController(SecurityController);
 
-  addEventListener("unload", smimeReadOnUnload, false);
+  addEventListener("unload", smimeReadOnUnload, {capture: false, once: true});
 }
 
 function smimeReadOnUnload()
 {
-  removeEventListener("unload", smimeReadOnUnload, false);
-
   top.controllers.removeController(SecurityController);
 }
 
