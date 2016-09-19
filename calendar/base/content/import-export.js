@@ -78,20 +78,29 @@ function loadEventsFromFile(aCalendar) {
         let inputStream = Components.classes["@mozilla.org/network/file-input-stream;1"]
                                     .createInstance(nsIFileInputStream);
         let items = [];
+        let exception;
 
         try {
             inputStream.init(picker.file, MODE_RDONLY, parseInt("0444", 8), {});
             items = importer.importFromStream(inputStream, {});
         } catch (ex) {
+            exception = ex;
             switch (ex.result) {
                 case Components.interfaces.calIErrors.INVALID_TIMEZONE:
-                    showError(calGetString("calendar", "timezoneError", [filePath]));
+                    showError(cal.calGetString("calendar", "timezoneError", [filePath]));
                     break;
                 default:
-                    showError(calGetString("calendar", "unableToRead") + filePath + "\n" + ex);
+                    showError(cal.calGetString("calendar", "unableToRead") + filePath + "\n" + ex);
             }
         } finally {
             inputStream.close();
+        }
+
+        if (!items.length && !exception) {
+            // the ics did not contain any events, so there's no need to proceed. But we should
+            // notify the user about it, if we haven't before.
+            showError(cal.calGetString("calendar", "noItemsInCalendarFile", [filePath]));
+            return;
         }
 
         if (aCalendar) {

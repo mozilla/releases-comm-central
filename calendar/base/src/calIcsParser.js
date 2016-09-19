@@ -40,8 +40,15 @@ calIcsParser.prototype = {
         }
 
         if (!calComp) {
-            cal.ERROR("Parser Error. Could not find 'VCALENDAR' component: \n" +
-                      rootComp + "\nStack: \n" + cal.STACK(10));
+            let message = "Parser Error. Could not find 'VCALENDAR' component.\n";
+            try {
+                // we try to also provide the parsed component - if that fails due to an error in
+                // libical, we append the error message of the caught exception, which includes
+                // already a stack trace.
+                cal.ERROR(message + rootComp + "\n" + cal.STACK(10));
+            } catch(e) {
+                cal.ERROR(message + e);
+            }
         }
 
         let self = this;
