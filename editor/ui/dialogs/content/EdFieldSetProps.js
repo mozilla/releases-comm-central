@@ -58,8 +58,8 @@ function Startup()
     gDialog.RemoveFieldSet.hidden = true;
   }
 
-  legendElement = fieldsetElement.firstChild;
-  if (legendElement && legendElement.localName == "LEGEND")
+  legendElement = fieldsetElement.querySelector("legend");
+  if (legendElement)
   {
     newLegend = false;
     var range = editor.document.createRange();
