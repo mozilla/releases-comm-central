@@ -320,8 +320,8 @@
 @RESPATH@/components/toolkit_finalizationwitness.xpt
 @RESPATH@/components/toolkit_formautofill.xpt
 @RESPATH@/components/toolkit_osfile.xpt
-@RESPATH@/components/toolkit_securityreporter.xpt
 @RESPATH@/components/toolkit_perfmonitoring.xpt
+@RESPATH@/components/toolkit_securityreporter.xpt
 @RESPATH@/components/toolkit_xulstore.xpt
 @RESPATH@/components/toolkitplaces.manifest
 @RESPATH@/components/toolkitprofile.xpt
@@ -386,8 +386,6 @@
 @RESPATH@/components/ContactManager.manifest
 @RESPATH@/components/contentAreaDropListener.js
 @RESPATH@/components/contentAreaDropListener.manifest
-@RESPATH@/components/nsCrashMonitor.js
-@RESPATH@/components/crashmonitor.manifest
 @RESPATH@/components/crypto-SDR.js
 @RESPATH@/components/cryptoComponents.manifest
 @RESPATH@/components/devtools-startup.manifest
@@ -408,6 +406,8 @@
 @RESPATH@/components/jsconsole-clhandler.manifest
 @RESPATH@/components/messageWakeupService.js
 @RESPATH@/components/messageWakeupService.manifest
+@RESPATH@/components/multiprocessShims.js
+@RESPATH@/components/addoncompat.manifest
 @RESPATH@/components/NetworkGeolocationProvider.js
 @RESPATH@/components/NetworkGeolocationProvider.manifest
 @RESPATH@/components/NotificationStorage.js
@@ -423,6 +423,8 @@
 @RESPATH@/components/nsContentDispatchChooser.manifest
 @RESPATH@/components/nsContentPrefService.js
 @RESPATH@/components/nsContentPrefService.manifest
+@RESPATH@/components/nsCrashMonitor.js
+@RESPATH@/components/crashmonitor.manifest
 @RESPATH@/components/nsDefaultCLH.js
 @RESPATH@/components/nsDefaultCLH.manifest
 @RESPATH@/components/nsDownloadsStartup.js
@@ -486,6 +488,7 @@
 @RESPATH@/components/PACGenerator.manifest
 @RESPATH@/components/PageThumbsProtocol.js
 @RESPATH@/components/BrowserPageThumbs.manifest
+@RESPATH@/components/PageIconProtocolHandler.js
 @RESPATH@/components/passwordmgr.manifest
 #ifdef MOZ_PAY
 @RESPATH@/components/Payment.js
@@ -500,7 +503,6 @@
 @RESPATH@/components/PermissionSettings.manifest
 @RESPATH@/components/PhoneNumberService.js
 @RESPATH@/components/PhoneNumberService.manifest
-@RESPATH@/components/PageIconProtocolHandler.js
 @RESPATH@/components/PlacesCategoriesStarter.js
 @RESPATH@/components/pluginGlue.manifest
 @RESPATH@/components/ProcessSingleton.manifest
@@ -524,6 +526,11 @@
 @RESPATH@/components/SuiteProfileMigrator.js
 @RESPATH@/components/SuiteProfileMigrator.manifest
 @RESPATH@/components/SyncComponents.manifest
+#ifdef MOZ_DEBUG
+@RESPATH@/components/TestInterfaceJS.js
+@RESPATH@/components/TestInterfaceJS.manifest
+@RESPATH@/components/TestInterfaceJSMaplike.js
+#endif
 @RESPATH@/components/TooltipTextProvider.js
 @RESPATH@/components/TooltipTextProvider.manifest
 @RESPATH@/components/txEXSLTRegExFunctions.js
