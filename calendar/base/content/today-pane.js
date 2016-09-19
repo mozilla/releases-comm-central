@@ -473,7 +473,7 @@ var TodayPane = {
      * Checks if the todayPaneStatusLabel should be hidden.
      */
     showTodayPaneStatusLabel: function showTodayPaneStatusLabel() {
-        let attributeValue = Preferences.get("calendar.view.showTodayPaneStatusLabel", true) && "fale";
+        let attributeValue = Preferences.get("calendar.view.showTodayPaneStatusLabel", true) && "false";
         setElementValue(document.getElementById("calendar-status-todaypane-button"), !attributeValue , "hideLabel");
     }
 };
