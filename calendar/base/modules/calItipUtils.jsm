@@ -1201,7 +1201,7 @@ ItipItemFinder.prototype = {
         if (refItem.id == this.mSearchId) {
             // Check existing found items to see if it already exists
             let found = false;
-            for (let [idx, item] in Iterator(this.mFoundItems)) {
+            for (let [idx, item] of Object.entries(this.mFoundItems)) {
                 if (item.id == refItem.id && item.calendar.id == refItem.calendar.id) {
                     if (aNewItem) {
                         this.mFoundItems.splice(idx, 1, aNewItem);

@@ -103,7 +103,7 @@ function getSql(tblName, tblData, alternateName) {
         sql = "CREATE INDEX " + altName + " ON " + idxOn + ";";
     } else {
         sql = "CREATE TABLE " + altName + " (\n";
-        for (let [key, type] in Iterator(tblData[tblName])) {
+        for (let [key, type] of Object.entries(tblData[tblName])) {
             sql += "    " + key + " " + type + ",\n";
         }
     }

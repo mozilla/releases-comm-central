@@ -1927,7 +1927,7 @@ function loadCloudProviders() {
 
     let itemObjects = [];
 
-    for (let [, cloudProvider] in Iterator(cloudFileAccounts.accounts)) {
+    for (let cloudProvider of cloudFileAccounts.accounts) {
         // Create a serializable object to pass in a message outside the iframe
         let itemObject = {};
         itemObject.displayName = cloudFileAccounts.getDisplayName(cloudProvider);
@@ -1994,7 +1994,7 @@ function attachURL() {
  * @param {string} aAccountKey  The accountKey for a cloud provider
  */
 function attachFileByAccountKey(aAccountKey) {
-    for (let [, cloudProvider] in Iterator(cloudFileAccounts.accounts)) {
+    for (let cloudProvider of cloudFileAccounts.accounts) {
         if (aAccountKey == cloudProvider.accountKey) {
             attachFile(cloudProvider);
             return;

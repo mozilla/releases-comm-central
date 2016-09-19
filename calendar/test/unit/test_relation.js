@@ -16,7 +16,7 @@ function run_test() {
         relId: event2.id
     };
 
-    for (let [property, value] in Iterator(properties)) {
+    for (let [property, value] of Object.entries(properties)) {
         relation1[property] = value;
         equal(relation1[property], value);
     }
