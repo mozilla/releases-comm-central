@@ -1417,7 +1417,8 @@ nsMsgComposeService::Handle(nsICommandLine* aCmdLine)
         StringBeginsWith(uristr, NS_LITERAL_STRING("subject=")) ||
         StringBeginsWith(uristr, NS_LITERAL_STRING("format=")) ||
         StringBeginsWith(uristr, NS_LITERAL_STRING("body="))  ||
-        StringBeginsWith(uristr, NS_LITERAL_STRING("attachment="))) {
+        StringBeginsWith(uristr, NS_LITERAL_STRING("attachment=")) ||
+        StringBeginsWith(uristr, NS_LITERAL_STRING("message="))) {
       composeShouldHandle = true; // the -url argument looks like mailto
       end++;
       // mailto: URIs are frequently passed with spaces in them. They should be

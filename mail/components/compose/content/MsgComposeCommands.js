@@ -21,6 +21,8 @@ Components.utils.import("resource://gre/modules/Services.jsm");
 Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 Components.utils.import("resource://gre/modules/AppConstants.jsm");
 
+XPCOMUtils.defineLazyModuleGetter(this, "OS", "resource://gre/modules/osfile.jsm");
+
 /**
  * interfaces
  */
@@ -76,6 +78,8 @@ var gManualAttachmentReminder;
 var gDisableAttachmentReminder;
 var gComposeType;
 var gLanguageObserver;
+var gBodyFromArgs;
+
 
 // i18n globals
 var gCharsetConvertManager;
@@ -284,10 +288,11 @@ var stateListener = {
     // Look all the possible compose types (nsIMsgComposeParams.idl):
     switch (gComposeType) {
 
+    case Components.interfaces.nsIMsgCompType.MailToUrl:
+      gBodyFromArgs = true;
     case Components.interfaces.nsIMsgCompType.New:
     case Components.interfaces.nsIMsgCompType.NewsPost:
     case Components.interfaces.nsIMsgCompType.ForwardAsAttachment:
-    case Components.interfaces.nsIMsgCompType.MailToUrl:
       this.NotifyComposeBodyReadyNew();
       break;
 
@@ -346,8 +351,7 @@ var stateListener = {
     let useParagraph = Services.prefs.getBoolPref("mail.compose.default_to_paragraph");
     let insertParagraph = gMsgCompose.composeHTML && useParagraph;
 
-    if (insertParagraph &&
-        gComposeType == Components.interfaces.nsIMsgCompType.MailToUrl) {
+    if (insertParagraph && gBodyFromArgs) {
       // Check for empty body before allowing paragraph to be inserted.
       // An "empty" body will have a <br> potentially followed by a
       // <div class="moz-signature"> or <pre class="moz-signature">.
@@ -2267,6 +2271,7 @@ function ComposeStartup(aParams)
 
   var params = null; // New way to pass parameters to the compose window as a nsIMsgComposeParameters object
   var args = null;   // old way, parameters are passed as a string
+  gBodyFromArgs = false;
 
   if (aParams)
     params = aParams;
@@ -2345,7 +2350,11 @@ function ComposeStartup(aParams)
         params.bodyIsLink = true;
       if (args.type)
         params.type = args.type;
-      if (args.format)
+      // Only use valid values.
+      if (args.format &&
+          (args.format == Components.interfaces.nsIMsgCompFormat.PlainText ||
+           args.format == Components.interfaces.nsIMsgCompFormat.HTML ||
+           args.format == Components.interfaces.nsIMsgCompFormat.OppositeOfDefault))
         params.format = args.format;
       if (args.originalMsg)
         params.originalMsgURI = args.originalMsg;
@@ -2393,14 +2402,78 @@ function ComposeStartup(aParams)
             let title = getComposeBundle().getString("errorFileAttachTitle");
             let msg = getComposeBundle().getFormattedString("errorFileAttachMessage",
                                                         [attachmentName]);
-            Services.prompt.alert(window, title, msg);
+            Services.prompt.alert(null, title, msg);
           }
         }
       }
       if (args.newshost)
         composeFields.newshost = args.newshost;
-      if (args.body)
-         composeFields.body = args.body;
+      if (args.message) {
+        let msgFile = Components.classes["@mozilla.org/file/local;1"]
+                        .createInstance(Components.interfaces.nsILocalFile);
+        if (OS.Path.dirname(args.message) == ".") {
+          let workingDir = Services.dirsvc.get("CurWorkD", Components.interfaces.nsILocalFile);
+          args.message = OS.Path.join(workingDir.path, OS.Path.basename(args.message));
+        }
+        msgFile.initWithPath(args.message);
+
+        if (!msgFile.exists()) {
+          let title = getComposeBundle().getString("errorFileMessageTitle");
+          let msg = getComposeBundle().getFormattedString("errorFileMessageMessage",
+                                                          [args.message]);
+          Services.prompt.alert(null, title, msg);
+        }
+        else {
+          let data = "";
+          let fstream = null;
+          let cstream = null;
+
+          try {
+            fstream = Components.classes["@mozilla.org/network/file-input-stream;1"]
+                        .createInstance(Components.interfaces.nsIFileInputStream);
+            cstream = Components.classes["@mozilla.org/intl/converter-input-stream;1"]
+                        .createInstance(Components.interfaces.nsIConverterInputStream);
+            fstream.init(msgFile, -1, 0, 0); // Open file in default/read-only mode.
+            cstream.init(fstream, "UTF-8", 0, 0);
+
+            let str = {};
+            let read = 0;
+
+            do {
+              // Read as much as we can and put it in str.value.
+              read = cstream.readString(0xffffffff, str);
+              data += str.value;
+            } while (read != 0);
+          } catch (e) {
+            let title = getComposeBundle().getString("errorFileMessageTitle");
+            let msg = getComposeBundle().getFormattedString("errorLoadFileMessageMessage",
+                                                            [args.message]);
+            Services.prompt.alert(null, title, msg);
+
+          } finally {
+            if (cstream)
+              cstream.close();
+            if (fstream)
+              fstream.close();
+          }
+
+          if (data) {
+            if (params.format != Components.interfaces.nsIMsgCompFormat.PlainText &&
+                (args.message.endsWith(".htm") || args.message.endsWith(".html"))) {
+              // We replace line breaks because otherwise they'll be converted to
+              // <br> in nsMsgCompose::BuildBodyMessageAndSignature().
+              // Don't do the conversion if the user asked explicitly for plain text.
+              data = data.replace(/\r?\n/g," ");
+            }
+            gBodyFromArgs = true;
+            composeFields.body = data;
+          }
+        }
+      }
+      else if (args.body) {
+        gBodyFromArgs = true;
+        composeFields.body = args.body;
+      }
     }
   }
 
