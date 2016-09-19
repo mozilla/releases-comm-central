@@ -224,18 +224,6 @@ $(MAKE) -C $(LIGHTNING_PATH) LOCALE_MERGEDIR=$(LOCALE_MERGEDIR) $(subst calendar
 $(MAKE) -C $(GDATA_PATH) LOCALE_MERGEDIR=$(LOCALE_MERGEDIR) $(subst calendar-,,$@)
 endef
 
-sm-wget-en-US:
-	 $(NSINSTALL) -D $(ABS_DIST)/$(PKG_PATH)
-	(cd $(ABS_DIST)/$(PKG_PATH) && $(WGET) --no-cache -nv --no-iri -N  '$(EN_US_BINARY_URL)/$(PACKAGE)')
-	@echo 'Downloaded $(EN_US_BINARY_URL)/$(PACKAGE) to $(ABS_DIST)/$(PKG_PATH)/$(PACKAGE)'
-ifdef RETRIEVE_WINDOWS_INSTALLER
-ifeq ($(OS_ARCH), WINNT)
-	$(NSINSTALL) -D $(ABS_DIST)/$(PKG_INST_PATH)
-	(cd $(ABS_DIST)/$(PKG_INST_PATH) && $(WGET) --no-cache -nv --no-iri -N '$(EN_US_BINARY_URL)/$(PKG_PATH)$(PKG_INST_BASENAME).exe')
-	@echo 'Downloaded $(EN_US_BINARY_URL)/$(PKG_PATH)$(PKG_INST_BASENAME).exe to $(ABS_DIST)/$(PKG_INST_PATH)$(PKG_INST_BASENAME).exe'
-endif
-endif
-
 # Add calendar targets for pattern rules. Unfortunately multiple pattern rules
 # on the left hand side do something different with make, therefore we need to
 # write a line for each target.
@@ -247,7 +235,7 @@ calendar-langpack-%:
 	$(run-calendar-rule)
 calendar-repackage-zip-%:
 	$(run-calendar-rule)
-calendar-wget-en-US: sm-wget-en-US
+calendar-wget-en-US:
 	$(run-calendar-rule)
 calendar-unpack:
 	$(run-calendar-rule)
@@ -263,8 +251,8 @@ endif
 
 # Hook calendar targets to the mail non-pattern rules
 wget-en-US: calendar-wget-en-US
-unpack:: calendar-unpack
-upload:: calendar-upload
+unpack: calendar-unpack
+upload: calendar-upload
 
 # Hook into the pattern rules, this will be used later on in the installers-% target.
 CALENDAR_INSTALLERS_TARGETS = calendar-merge-% calendar-clobber-% calendar-langpack-% calendar-repackage-zip-%
