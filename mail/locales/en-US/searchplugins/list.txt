@@ -1,7 +1,6 @@
 amazondotcom
 aol-web-search
 bing
-eBay
 twitter
 wikipedia
 yahoo
