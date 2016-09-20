@@ -36,13 +36,6 @@
         stroke: url(#win2);
       }
     }
-    @media (-moz-mac-lion-theme) {
-      .normal {
-        fill: url(#osx1);
-        fill-opacity: 1;
-        stroke: url(#osx2);
-      }
-    }
     @media (-moz-mac-yosemite-theme) {
       .normal {
         fill: #4d4d4d;
@@ -81,26 +74,6 @@
        gradientUnits="userSpaceOnUse">
       <stop stop-color="#0c1b25" offset="0"/>
       <stop stop-color="#4f585f" stop-opacity="0.9" offset="1"/>
-    </linearGradient>
-    <linearGradient
-       id="osx1"
-       x1="8"
-       y1="1"
-       x2="8"
-       y2="15"
-       gradientUnits="userSpaceOnUse">
-       <stop stop-color="#4f4f4f" stop-opacity="0.76" offset="0"/>
-       <stop stop-color="#717171" stop-opacity="0.6" offset="1"/>
-    </linearGradient>
-    <linearGradient
-       id="osx2"
-       x1="8"
-       y1="1"
-       x2="8"
-       y2="15"
-       gradientUnits="userSpaceOnUse">
-      <stop stop-color="#252525" stop-opacity="0.88" offset="0"/>
-      <stop stop-color="#505050" stop-opacity="0.68" offset="1"/>
     </linearGradient>
   </defs>
   <path id="newcard" class="normal" d="M 4.5,6.5 C 4.3,6.8 4,7.1 4,7.5 c 0,0.3 0.4,0.6 0.5,1 0.2,1.5 0.8,2.5 3,3 l 0,1 c -2.4,0.1 -6,-0.5 -6,3 l 15,0 c 0,-3.5 -3.6,-3 -6,-3 l 0,-1 c 2,-0.5 2.7,-1.6 3,-3 0,-0.3 0.5,-0.6 0.5,-1 0,-0.4 -0.4,-0.7 -0.5,-1 0,-6 -9,-6 -9,0 z m 3,-3 3,0 0,2 2,0 0,3 -2,0 0,2 -3,0 0,-2 -2,0 0,-3 2,0 z"/>

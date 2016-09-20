@@ -79,7 +79,7 @@
 
 @media not all and (-moz-mac-yosemite-theme) {
   #todaypane-new-event-button {
-    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#newevent);
+    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar-osxlion.svg#newevent);
   }
 }
 

@@ -145,6 +145,7 @@ calendar.jar:
     ../skin/common/calendar-task-tree.css             (themes/common/calendar-task-tree.css)
     ../skin/common/calendar-task-view.css             (themes/common/calendar-task-view.css)
     ../skin/common/calendar-toolbar.svg               (themes/common/calendar-toolbar.svg)
+    ../skin/common/calendar-toolbar-osxlion.svg       (themes/common/calendar-toolbar-osxlion.svg)
     ../skin/common/calendar-itip-icons.svg            (themes/common/calendar-itip-icons.svg)
     ../skin/common/calendar-unifinder.css             (themes/common/calendar-unifinder.css)
     ../skin/common/calendar-views.css                 (themes/common/calendar-views.css)

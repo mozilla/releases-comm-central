@@ -53,23 +53,23 @@
 
 @media not all and (-moz-mac-yosemite-theme) {
   #task-actions-category {
-    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#category);
+    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar-osxlion.svg#category);
   }
 
   #task-actions-markcompleted {
-    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#complete);
+    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar-osxlion.svg#complete);
   }
 
   #task-actions-priority {
-    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#priority);
+    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar-osxlion.svg#priority);
   }
 
   #calendar-delete-task-button {
-    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#delete);
+    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar-osxlion.svg#delete);
   }
 
   #calendar-add-task-button {
-    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#newtask);
+    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar-osxlion.svg#newtask);
       -moz-image-region: rect(0 18px 18px 0);
   }
 }

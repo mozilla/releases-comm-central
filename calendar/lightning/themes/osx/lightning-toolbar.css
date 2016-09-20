@@ -5,56 +5,56 @@
 @media not all and (-moz-mac-yosemite-theme) {
   /* Lightning "Calendar" Toolbarbutton */
   #lightning-button-calendar {
-    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#calendar-tab);
+    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar-osxlion.svg#calendar-tab);
   }
 
   /* Lightning "Tasks" Toolbarbutton */
   #lightning-button-tasks {
-    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#task-tab);
+    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar-osxlion.svg#task-tab);
   }
 
   /* Toolbar buttons */
 
   #calendar-synchronize-button,
   #task-synchronize-button {
-    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#synchronize);
+    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar-osxlion.svg#synchronize);
   }
 
   #extractEventButton,
   #task-newevent-button,
   #hdrExtractEventButton,
   #calendar-newevent-button {
-      list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#newevent);
+      list-style-image: url(chrome://calendar-common/skin/calendar-toolbar-osxlion.svg#newevent);
   }
 
   #extractTaskButton,
   #task-newtask-button,
   #hdrExtractTaskButton,
   #calendar-newtask-button {
-    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#newtask);
+    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar-osxlion.svg#newtask);
   }
 
   #calendar-edit-button,
   #task-edit-button {
-    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#edit);
+    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar-osxlion.svg#edit);
   }
 
   #calendar-delete-button,
   #task-delete-button {
-    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#delete);
+    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar-osxlion.svg#delete);
   }
 
   #calendar-goto-today-button {
-    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#today);
+    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar-osxlion.svg#today);
   }
 
   #calendar-print-button,
   #task-print-button {
-    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#print);
+    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar-osxlion.svg#print);
   }
 
   #calendar-unifinder-button {
-    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#find);
+    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar-osxlion.svg#find);
   }
 }
 

@@ -91,15 +91,15 @@
 
 @media not all and (-moz-mac-yosemite-theme) {
   #button-add-buddy {
-    list-style-image: url("chrome://messenger/skin/icons/chat-toolbar.svg#add");
+    list-style-image: url("chrome://messenger/skin/icons/chat-toolbar-osxlion.svg#add");
   }
 
   #button-join-chat {
-    list-style-image: url("chrome://messenger/skin/icons/chat-toolbar.svg#join");
+    list-style-image: url("chrome://messenger/skin/icons/chat-toolbar-osxlion.svg#join");
   }
 
   #button-chat-accounts {
-    list-style-image: url("chrome://messenger/skin/icons/chat-toolbar.svg#accounts");
+    list-style-image: url("chrome://messenger/skin/icons/chat-toolbar-osxlion.svg#accounts");
   }
 }
 
@@ -287,7 +287,7 @@ richlistitem[state="disconnected"] .accountStateIcon {
 @media not all and (-moz-mac-yosemite-theme) {
   .tabmail-tab[type="chat"],
   .alltabs-item[type="chat"] {
-    list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#chat");
+    list-style-image: url("chrome://messenger/skin/icons/mail-toolbar-osxlion.svg#chat");
   }
 }
 

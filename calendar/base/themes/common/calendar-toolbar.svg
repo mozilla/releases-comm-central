@@ -38,13 +38,6 @@
         stroke: url(#win2);
       }
     }
-    @media (-moz-mac-lion-theme) {
-      .normal {
-        fill: url(#osx1);
-        fill-opacity: 1;
-        stroke: url(#osx2);
-      }
-    }
     @media (-moz-mac-yosemite-theme) {
       .normal {
         fill: #4d4d4d;
@@ -83,26 +76,6 @@
        gradientUnits="userSpaceOnUse">
       <stop stop-color="#0c1b25" offset="0"/>
       <stop stop-color="#4f585f" stop-opacity="0.9" offset="1"/>
-    </linearGradient>
-    <linearGradient
-       id="osx1"
-       x1="8"
-       y1="1"
-       x2="8"
-       y2="15"
-       gradientUnits="userSpaceOnUse">
-       <stop stop-color="#4f4f4f" stop-opacity="0.76" offset="0"/>
-       <stop stop-color="#717171" stop-opacity="0.6" offset="1"/>
-    </linearGradient>
-    <linearGradient
-       id="osx2"
-       x1="8"
-       y1="1"
-       x2="8"
-       y2="15"
-       gradientUnits="userSpaceOnUse">
-      <stop stop-color="#252525" stop-opacity="0.88" offset="0"/>
-      <stop stop-color="#505050" stop-opacity="0.68" offset="1"/>
     </linearGradient>
   </defs>
   <path id="calendar-tab" class="normal" d="m 1.5,2.5 0,14 15,0 0,-14 -2,0 0,2 -2,0 0,-3.5 0,3.5 -2,0 0,-2 -3,0 0,2 -2,0 0,-3.5 0,3.5 -2,0 0,-2 z m 0,3 15,0 0,11 -15,0 z m 4,2 6.5,0 -3,7 -2.5,0 2,-5 -3,0 z"/>

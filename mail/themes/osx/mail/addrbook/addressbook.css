@@ -20,27 +20,27 @@
 
 @media not all and (-moz-mac-yosemite-theme) {
   #button-newcard {
-    list-style-image: url("chrome://messenger/skin/addressbook/icons/addressbook-toolbar.svg#newcard");
+    list-style-image: url("chrome://messenger/skin/addressbook/icons/addressbook-toolbar-osxlion.svg#newcard");
   }
 
   #button-newlist {
-    list-style-image: url("chrome://messenger/skin/addressbook/icons/addressbook-toolbar.svg#newlist");
+    list-style-image: url("chrome://messenger/skin/addressbook/icons/addressbook-toolbar-osxlion.svg#newlist");
   }
 
   #button-editcard {
-    list-style-image: url("chrome://messenger/skin/addressbook/icons/addressbook-toolbar.svg#editcard");
+    list-style-image: url("chrome://messenger/skin/addressbook/icons/addressbook-toolbar-osxlion.svg#editcard");
   }
 
   #button-newmessage {
-    list-style-image: url("chrome://messenger/skin/addressbook/icons/addressbook-toolbar.svg#newmessage");
+    list-style-image: url("chrome://messenger/skin/addressbook/icons/addressbook-toolbar-osxlion.svg#newmessage");
   }
 
   #button-newim {
-    list-style-image: url("chrome://messenger/skin/addressbook/icons/addressbook-toolbar.svg#newim");
+    list-style-image: url("chrome://messenger/skin/addressbook/icons/addressbook-toolbar-osxlion.svg#newim");
   }
 
   #button-abdelete {
-    list-style-image: url("chrome://messenger/skin/addressbook/icons/addressbook-toolbar.svg#abdelete");
+    list-style-image: url("chrome://messenger/skin/addressbook/icons/addressbook-toolbar-osxlion.svg#abdelete");
   }
 }
 
