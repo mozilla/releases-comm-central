@@ -77,7 +77,12 @@ endif
 # function print_ltnconfig(section,configname)
 print_ltnconfig = $(shell $(PYTHON) $(MOZILLA_SRCDIR)/config/printconfigsetting.py $(XPI_STAGE_PATH)/$(XPI_NAME)/app.ini $1 $2)
 
-wget-en-US: FINAL_BINARY_URL = $(subst thunderbird,calendar/lightning,$(EN_US_BINARY_URL))
+wget-en-US:
+ifeq ($MOZ_APP_NAME),thunderbird)
+FINAL_BINARY_URL = $(subst thunderbird,calendar/lightning,$(EN_US_BINARY_URL))
+else
+FINAL_BINARY_URL = $(subst seamonkey,calendar/lightning,$(subst latest-comm-central-trunk,latest-comm-central,$(EN_US_BINARY_URL)))
+endif
 wget-en-US: $(XPI_STAGE_PATH)
 	(cd $(XPI_STAGE_PATH) && $(WGET) -nv -N $(FINAL_BINARY_URL)/$(ENUS_PKGNAME).xpi)
 	@echo "Downloaded $(FINAL_BINARY_URL)/$(ENUS_PKGNAME) to $(XPI_ZIP_IN)"
