@@ -51,7 +51,8 @@ nsresult nsMsgComposeContentHandler::GetBestIdentity(
   nsCOMPtr<nsPIDOMWindowOuter> window = nsPIDOMWindowOuter::From(domWindow);
 
   nsAutoString documentURIString;
-  window->GetDoc()->GetDocumentURI(documentURIString);
+  rv = window->GetDoc()->GetDocumentURI(documentURIString);
+  NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsIURI> documentURI;
   rv = NS_NewURI(getter_AddRefs(documentURI), documentURIString);
