@@ -67,12 +67,12 @@ Tweet.prototype = {
           this.conversation.startReply(this._tweet);
         }, this)
       );
+      actions.push(
+        new Action(_("action.retweet"), function() {
+          this.conversation.reTweet(this._tweet);
+        }, this)
+      );
       if (this.incoming) {
-        actions.push(
-          new Action(_("action.retweet"), function() {
-            this.conversation.reTweet(this._tweet);
-          }, this)
-        );
         let isFriend = account._friends.has(this._tweet.user.id_str);
         let action = isFriend ? "stopFollowing" : "follow";
         let screenName = this._tweet.user.screen_name;
