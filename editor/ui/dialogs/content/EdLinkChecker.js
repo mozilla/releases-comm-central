@@ -54,7 +54,7 @@ function Startup()
     objects = editor.getLinkedObjects();
   } catch (e) {}
 
-  if (!objects || objects.Count() == 0)
+  if (!objects || objects.length == 0)
   {
     Services.prompt.alert(window, GetString("Alert"), GetString("NoLinksToCheck"));
     window.close();
@@ -66,11 +66,11 @@ function Startup()
   // Set window location relative to parent window (based on persisted attributes)
   SetWindowLocation();
 
-
   // Loop over the nodes that have links:
-  for (var i = 0; i < objects.Count(); i++)
+  for (let i = 0; i < objects.length; i++)
   {
-    var refobj = objects.GetElementAt(gNumLinksToCheck).QueryInterface(Components.interfaces.nsIURIRefObject);
+    let refobj = objects.queryElementAt(gNumLinksToCheck,
+                                        Components.interfaces.nsIURIRefObject);
     // Loop over the links in this node:
     if (refobj)
     {
@@ -91,14 +91,14 @@ function Startup()
           gLinksBeingChecked[gNumLinksToCheck].init(GetIOService().newURI(uri, null, null));
           gLinksBeingChecked[gNumLinksToCheck].asyncCheck(gRequestObserver, null);
 
-          // Add item  
-          var linkChecker = gLinksBeingChecked[gNumLinksToCheck].QueryInterface(Components.interfaces.nsIURIChecker);
+          // Add item
+          let linkChecker = gLinksBeingChecked[gNumLinksToCheck]
+                            .QueryInterface(Components.interfaces.nsIURIChecker);
           SetItemStatus(linkChecker.name, "busy");
-dump(" *** Linkcount = "+gNumLinksToCheck+"\n");
+          dump(" *** Linkcount = "+gNumLinksToCheck+"\n");
           gNumLinksToCheck++;
-
-        };
-      } catch (e) { dump (" *** EXCEPTION\n");}
+        }
+      } catch (e) { dump (" *** EXCEPTION\n"); }
     }
   }
   // Done with the loop, now we can be prepared for the finish:
