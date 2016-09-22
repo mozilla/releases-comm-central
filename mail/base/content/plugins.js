@@ -2,17 +2,20 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+"use strict";
+
 /* A note to the curious: a large portion of this code was copied over from
  * mozilla/browser/base/content/browser.js
  */
 
 Components.utils.import("resource://gre/modules/Services.jsm");
+Components.utils.import("resource://gre/modules/AppConstants.jsm");
 
-#ifdef MOZ_CRASHREPORTER
-XPCOMUtils.defineLazyServiceGetter(this, "gCrashReporter",
-                                   "@mozilla.org/xre/app-info;1",
-                                   "nsICrashReporter");
-#endif
+if (AppConstants.MOZ_CRASHREPORTER) {
+  XPCOMUtils.defineLazyServiceGetter(this, "gCrashReporter",
+                                     "@mozilla.org/xre/app-info;1",
+                                     "nsICrashReporter");
+}
 
 function getPluginInfo(pluginElement)
 {
@@ -257,9 +260,7 @@ var gPluginHandler = {
 
       case "PluginBlocklisted":
       case "PluginOutdated":
-#ifdef XP_MACOSX
       case "npapi-carbon-event-model-failure":
-#endif
         self.pluginUnavailable(plugin, eventType);
         break;
 
@@ -360,7 +361,6 @@ var gPluginHandler = {
       return true;
     }
 
-#ifdef XP_MACOSX
     function carbonFailurePluginsRestartBrowser()
     {
       // Notify all windows that an application quit has been requested.
@@ -376,7 +376,6 @@ var gPluginHandler = {
                             Ci.nsIAppStartup.eRestart |
                             Ci.nsIAppStartup.eAttemptQuit);
     }
-#endif
 
     let messengerBundle = document.getElementById("bundle_messenger");
 
@@ -408,9 +407,10 @@ var gPluginHandler = {
           popup: null,
           callback: showOutdatedPluginsInfo
         }],
-      },
-#ifdef XP_MACOSX
-      "npapi-carbon-event-model-failure": {
+      }
+    };
+    if (AppConstants.platform == "macosx") {
+      notifications["npapi-carbon-event-model-failure"] = {
         barID: "carbon-failure-plugins",
         iconURL: "chrome://mozapps/skin/plugins/pluginGeneric-16.png",
         message: messengerBundle.getString("carbonFailurePluginsMessage.message"),
@@ -421,15 +421,14 @@ var gPluginHandler = {
           callback: carbonFailurePluginsRestartBrowser
         }],
       }
-#endif
-    };
+    }
 
     // If there is already an outdated plugin notification then do nothing
     if (outdatedNotification)
       return;
 
-#ifdef XP_MACOSX
-    if (eventType == "npapi-carbon-event-model-failure") {
+    if ((AppConstants.platform == "macosx") &&
+        (eventType == "npapi-carbon-event-model-failure")) {
       if (Services.prefs.getBoolPref("plugins.hide_infobar_for_carbon_failure_plugin"))
         return;
 
@@ -444,7 +443,6 @@ var gPluginHandler = {
       if (!macutils.isUniversalBinary)
         eventType = "PluginNotFound";
     }
-#endif
 
     if (eventType == "PluginBlocklisted") {
       if (blockedNotification)
@@ -476,19 +474,19 @@ var gPluginHandler = {
         !(propertyBag instanceof Components.interfaces.nsIWritablePropertyBag2))
      return;
 
-#ifdef MOZ_CRASHREPORTER
-    let pluginDumpID = propertyBag.getPropertyAsAString("pluginDumpID");
-    let browserDumpID = propertyBag.getPropertyAsAString("browserDumpID");
-    let shouldSubmit = gCrashReporter.submitReports;
-    let doPrompt = true; // XXX followup to get via gCrashReporter
+    if (AppConstants.MOZ_CRASHREPORTER) {
+      let pluginDumpID = propertyBag.getPropertyAsAString("pluginDumpID");
+      let browserDumpID = propertyBag.getPropertyAsAString("browserDumpID");
+      let shouldSubmit = gCrashReporter.submitReports;
+      let doPrompt = true; // XXX followup to get via gCrashReporter
 
-    // Submit automatically when appropriate.
-    if (pluginDumpID && shouldSubmit && !doPrompt) {
-      this.submitReport(pluginDumpID, browserDumpID);
-      // Submission is async, so we can't easily show failure UI.
-      propertyBag.setPropertyAsBool("submittedCrashReport", true);
+      // Submit automatically when appropriate.
+      if (pluginDumpID && shouldSubmit && !doPrompt) {
+        this.submitReport(pluginDumpID, browserDumpID);
+        // Submission is async, so we can't easily show failure UI.
+        propertyBag.setPropertyAsBool("submittedCrashReport", true);
+      }
     }
-#endif
   },
 
   // Crashed-plugin event listener. Called for every instance of a
@@ -523,74 +521,75 @@ var gPluginHandler = {
     let doc = plugin.ownerDocument;
     let overlay = this.getPluginUI(plugin, "main");
     let statusDiv = this.getPluginUI(plugin, "submitStatus");
-#ifdef MOZ_CRASHREPORTER
-    let status;
 
-    // Determine which message to show regarding crash reports.
-    if (submittedReport) { // submitReports && !doPrompt, handled in observer
-      status = "submitted";
+    if (AppConstants.MOZ_CRASHREPORTER) {
+      let status;
+
+      // Determine which message to show regarding crash reports.
+      if (submittedReport) { // submitReports && !doPrompt, handled in observer
+        status = "submitted";
+      }
+      else if (!submitReports && !doPrompt) {
+        status = "noSubmit";
+      }
+      else { // doPrompt
+        status = "please";
+        // XXX can we make the link target actually be blank?
+        this.getPluginUI(plugin, "submitButton").addEventListener("click",
+          function (event) {
+            if (event.button != 0 || !event.isTrusted)
+              return;
+            this.submitReport(pluginDumpID, browserDumpID, plugin);
+            pref.setBoolPref("", optInCB.checked);
+          }.bind(this));
+        let optInCB = this.getPluginUI(plugin, "submitURLOptIn");
+        let pref = Services.prefs.getBranch("dom.ipc.plugins.reportCrashURL");
+        optInCB.checked = pref.getBoolPref("");
+      }
+
+      // If we don't have a minidumpID, we can't (or didn't) submit anything.
+      // This can happen if the plugin is killed from the task manager.
+      if (!pluginDumpID) {
+        status = "noReport";
+      }
+
+      statusDiv.setAttribute("status", status);
+
+      let helpIcon = this.getPluginUI(plugin, "helpIcon");
+      this.addLinkClickCallback(helpIcon, "openPluginCrashHelpPage");
+
+      // If we're showing the link to manually trigger report submission, we'll
+      // want to be able to update all the instances of the UI for this crash to
+      // show an updated message when a report is submitted.
+      if (doPrompt) {
+        let observer = {
+          QueryInterface: XPCOMUtils.generateQI([Components.interfaces.nsIObserver,
+                                                 Components.interfaces.nsISupportsWeakReference]),
+          observe : function(subject, topic, data) {
+            let propertyBag = subject;
+            if (!(propertyBag instanceof Components.interfaces.nsIPropertyBag2))
+              return;
+            // Ignore notifications for other crashes.
+            if (propertyBag.get("minidumpID") != pluginDumpID)
+              return;
+            statusDiv.setAttribute("status", data);
+          },
+
+          handleEvent : function(event) {
+              // Not expected to be called, just here for the closure.
+          }
+        };
+
+        // Use a weak reference, so we don't have to remove it...
+        Services.obs.addObserver(observer, "crash-report-status", true);
+        // ...alas, now we need something to hold a strong reference to prevent
+        // it from being GC. But I don't want to manually manage the reference's
+        // lifetime (which should be no greater than the page).
+        // Clever solution? Use a closue with an event listener on the document.
+        // When the doc goes away, so do the listener references and the closure.
+        doc.addEventListener("mozCleverClosureHack", observer, false);
+      }
     }
-    else if (!submitReports && !doPrompt) {
-      status = "noSubmit";
-    }
-    else { // doPrompt
-      status = "please";
-      // XXX can we make the link target actually be blank?
-      this.getPluginUI(plugin, "submitButton").addEventListener("click",
-        function (event) {
-	  if (event.button != 0 || !event.isTrusted)
-            return;
-          this.submitReport(pluginDumpID, browserDumpID, plugin);
-          pref.setBoolPref("", optInCB.checked);
-	}.bind(this));
-      let optInCB = this.getPluginUI(plugin, "submitURLOptIn");
-      let pref = Services.prefs.getBranch("dom.ipc.plugins.reportCrashURL");
-      optInCB.checked = pref.getBoolPref("");
-    }
-
-    // If we don't have a minidumpID, we can't (or didn't) submit anything.
-    // This can happen if the plugin is killed from the task manager.
-    if (!pluginDumpID) {
-      status = "noReport";
-    }
-
-    statusDiv.setAttribute("status", status);
-
-    let helpIcon = this.getPluginUI(plugin, "helpIcon");
-    this.addLinkClickCallback(helpIcon, "openPluginCrashHelpPage");
-
-    // If we're showing the link to manually trigger report submission, we'll
-    // want to be able to update all the instances of the UI for this crash to
-    // show an updated message when a report is submitted.
-    if (doPrompt) {
-      let observer = {
-        QueryInterface: XPCOMUtils.generateQI([Components.interfaces.nsIObserver,
-                                               Components.interfaces.nsISupportsWeakReference]),
-        observe : function(subject, topic, data) {
-          let propertyBag = subject;
-          if (!(propertyBag instanceof Components.interfaces.nsIPropertyBag2))
-            return;
-          // Ignore notifications for other crashes.
-          if (propertyBag.get("minidumpID") != pluginDumpID)
-            return;
-          statusDiv.setAttribute("status", data);
-        },
-
-        handleEvent : function(event) {
-            // Not expected to be called, just here for the closure.
-        }
-      };
-
-      // Use a weak reference, so we don't have to remove it...
-      Services.obs.addObserver(observer, "crash-report-status", true);
-      // ...alas, now we need something to hold a strong reference to prevent
-      // it from being GC. But I don't want to manually manage the reference's
-      // lifetime (which should be no greater than the page).
-      // Clever solution? Use a closue with an event listener on the document.
-      // When the doc goes away, so do the listener references and the closure.
-      doc.addEventListener("mozCleverClosureHack", observer, false);
-    }
-#endif
 
     let crashText = this.getPluginUI(plugin, "crashedText");
     crashText.textContent = messageString;
@@ -652,19 +651,19 @@ var gPluginHandler = {
         popup: null,
         callback: function() { browser.reload(); },
       }];
-#ifdef MOZ_CRASHREPORTER
-      let submitButton = {
-        label: submitLabel,
-        accessKey: submitKey,
-        popup: null,
-          callback: function() { gPluginHandler.submitReport(pluginDumpID, browserDumpID); },
-      };
-      if (pluginDumpID)
-        buttons.push(submitButton);
-#endif
+      if (AppConstants.MOZ_CRASHREPORTER) {
+        let submitButton = {
+          label: submitLabel,
+          accessKey: submitKey,
+          popup: null,
+            callback: function() { gPluginHandler.submitReport(pluginDumpID, browserDumpID); },
+        };
+        if (pluginDumpID)
+          buttons.push(submitButton);
+      }
 
       notification = notificationBox.appendNotification(messageString, "plugin-crashed",
-                                                            iconURL, priority, buttons);
+                                                        iconURL, priority, buttons);
 
       // Add the "learn more" link.
       let XULNS = "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul";
