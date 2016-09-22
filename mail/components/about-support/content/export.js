@@ -2,6 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+"use strict";
+
+Components.utils.import("resource://gre/modules/AppConstants.jsm");
 
 /**
  * Create warning text to add to any private data.
@@ -185,13 +188,13 @@ function generateTextForElement(elem, aHidePrivateData, indent,
     return;
   };
 
-#ifdef MOZ_CRASHREPORTER
-  if (elem.id == "crashes-table")
-  {
-    textFragmentAccumulator.push(getCrashesText(indent));
-    return;
+  if (AppConstants.MOZ_CRASHREPORTER) {
+    if (elem.id == "crashes-table")
+    {
+      textFragmentAccumulator.push(getCrashesText(indent));
+      return;
+    }
   }
-#endif
 
   let childCount = elem.childElementCount;
 

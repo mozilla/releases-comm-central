@@ -2,6 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+"use strict";
+
+Components.utils.import("resource://gre/modules/AppConstants.jsm");
 Components.utils.import("resource://gre/modules/Services.jsm");
 
 function populateGraphicsSection() {
@@ -136,44 +139,45 @@ function populateGraphicsSection() {
     pushInfoRow(trGraphics, "gpuDriverVersion", gfxInfo.adapterDriverVersion);
     pushInfoRow(trGraphics, "gpuDriverDate", gfxInfo.adapterDriverDate);
 
-#ifdef XP_WIN
-    if(gfxInfo.adapterDescription2) {
-      pushHeaderRow(trGraphics, "GPU #2");
-      pushInfoRow(trGraphics, "gpuDescription", gfxInfo.adapterDescription2);
-      pushInfoRow(trGraphics, "gpuVendorID", gfxInfo.adapterVendorID2);
-      pushInfoRow(trGraphics, "gpuDeviceID", gfxInfo.adapterDeviceID2);
-      pushInfoRow(trGraphics, "gpuRAM", gfxInfo.adapterRAM2);
-      pushInfoRow(trGraphics, "gpuDrivers", gfxInfo.adapterDriver2);
-      pushInfoRow(trGraphics, "gpuDriverVersion", gfxInfo.adapterDriverVersion2);
-      pushInfoRow(trGraphics, "gpuDriverDate", gfxInfo.adapterDriverDate2);
-      pushInfoRow(trGraphics, "active", gfxInfo.isGPU2Active);
+    if (AppConstants.platform == "win") {
+      if(gfxInfo.adapterDescription2) {
+        pushHeaderRow(trGraphics, "GPU #2");
+        pushInfoRow(trGraphics, "gpuDescription", gfxInfo.adapterDescription2);
+        pushInfoRow(trGraphics, "gpuVendorID", gfxInfo.adapterVendorID2);
+        pushInfoRow(trGraphics, "gpuDeviceID", gfxInfo.adapterDeviceID2);
+        pushInfoRow(trGraphics, "gpuRAM", gfxInfo.adapterRAM2);
+        pushInfoRow(trGraphics, "gpuDrivers", gfxInfo.adapterDriver2);
+        pushInfoRow(trGraphics, "gpuDriverVersion", gfxInfo.adapterDriverVersion2);
+        pushInfoRow(trGraphics, "gpuDriverDate", gfxInfo.adapterDriverDate2);
+        pushInfoRow(trGraphics, "active", gfxInfo.isGPU2Active);
+      }
     }
-#endif
 
     pushHeaderRow(trGraphics, "Features");
-#ifdef XP_WIN
-    var version = Services.sysinfo.getProperty("version");
-    var isWindowsVistaOrHigher = (parseFloat(version) >= 6.0);
-    if (isWindowsVistaOrHigher) {
-      var d2dEnabled = "false";
-      try {
-        d2dEnabled = gfxInfo.D2DEnabled;
-      } catch(e) {}
-      pushFeatureInfoRow(trGraphics, "direct2DEnabled", gfxInfo.FEATURE_DIRECT2D, d2dEnabled, null, "Direct2D");
 
-      var dwEnabled = "false";
-      try {
-        dwEnabled = gfxInfo.DWriteEnabled + " (" + gfxInfo.DWriteVersion + ")";
-      } catch(e) {}
-      pushInfoRow(trGraphics, "directWriteEnabled", dwEnabled, "DirectWrite");
+    if (AppConstants.platform == "win") {
+      let version = Services.sysinfo.getProperty("version");
+      let isWindowsVistaOrHigher = (parseFloat(version) >= 6.0);
+      if (isWindowsVistaOrHigher) {
+        let d2dEnabled = "false";
+        try {
+          d2dEnabled = gfxInfo.D2DEnabled;
+        } catch(e) {}
+        pushFeatureInfoRow(trGraphics, "direct2DEnabled", gfxInfo.FEATURE_DIRECT2D, d2dEnabled, null, "Direct2D");
 
-      var cleartypeParams = "";
-      try {
-        cleartypeParams = gfxInfo.cleartypeParameters;
-        pushInfoRow(trGraphics, "clearTypeParameters", cleartypeParams);
-      } catch(e) {}
+        let dwEnabled = "false";
+        try {
+          dwEnabled = gfxInfo.DWriteEnabled + " (" + gfxInfo.DWriteVersion + ")";
+        } catch(e) {}
+        pushInfoRow(trGraphics, "directWriteEnabled", dwEnabled, "DirectWrite");
+
+        let cleartypeParams = "";
+        try {
+          cleartypeParams = gfxInfo.cleartypeParameters;
+          pushInfoRow(trGraphics, "clearTypeParameters", cleartypeParams);
+        } catch(e) {}
+      }
     }
-#endif
 
     var webglrenderer;
     var webglenabled;
@@ -184,16 +188,16 @@ function populateGraphicsSection() {
       webglrenderer = false;
       webglenabled = false;
     }
-#ifdef XP_WIN
-    // If ANGLE is not available but OpenGL is, we want to report on the OpenGL feature, because that's what's going to get used.
-    // In all other cases we want to report on the ANGLE feature.
-    var webglfeature = gfxInfo.FEATURE_WEBGL_ANGLE;
-    if (gfxInfo.getFeatureStatus(gfxInfo.FEATURE_WEBGL_ANGLE)  != gfxInfo.FEATURE_STATUS_OK &&
-        gfxInfo.getFeatureStatus(gfxInfo.FEATURE_WEBGL_OPENGL) == gfxInfo.FEATURE_STATUS_OK)
-      webglfeature = gfxInfo.FEATURE_WEBGL_OPENGL;
-#else
-    var webglfeature = gfxInfo.FEATURE_WEBGL_OPENGL;
-#endif
+
+    let webglfeature = gfxInfo.FEATURE_WEBGL_OPENGL;
+    if (AppConstants.platform == "win") {
+      // If ANGLE is not available but OpenGL is, we want to report on the OpenGL feature, because that's what's going to get used.
+      // In all other cases we want to report on the ANGLE feature.
+      webglfeature = gfxInfo.FEATURE_WEBGL_ANGLE;
+      if (gfxInfo.getFeatureStatus(gfxInfo.FEATURE_WEBGL_ANGLE)  != gfxInfo.FEATURE_STATUS_OK &&
+          gfxInfo.getFeatureStatus(gfxInfo.FEATURE_WEBGL_OPENGL) == gfxInfo.FEATURE_STATUS_OK)
+        webglfeature = gfxInfo.FEATURE_WEBGL_OPENGL;
+    }
     pushFeatureInfoRow(trGraphics, "webglRenderer", webglfeature, webglenabled, webglrenderer);
 
     appendChildren(graphics_tbody, trGraphics);

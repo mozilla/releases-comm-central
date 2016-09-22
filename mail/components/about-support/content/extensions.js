@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+"use strict";
+
 /**
  * A list of extensions. This is assigned to by
  * populateExtensionsSection. There's a potential race condition here, but it's
