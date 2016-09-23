@@ -80,7 +80,7 @@
               let localTime = date.getInTimezone(kDefaultTimezone);
               let formatter = getDateFormatter();
               itemDateTimeLabel.value = formatter.formatDateTime(localTime);
-              if (date.timezone.tzid != kDefaultTimezone.tzid) {
+              if (!date.timezone.isFloating && date.timezone.tzid != kDefaultTimezone.tzid) {
                   // we additionally display the original datetime with timezone
                   let orgTime = cal.calGetString("calendar",
                                                  "datetimeWithTimezone",
