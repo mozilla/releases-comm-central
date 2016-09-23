@@ -1303,15 +1303,15 @@ DBViewWrapper.prototype = {
    *    kUnreadOnly or kShowIgnored.
    */
   set _viewFlags(aViewFlags) {
-    // For viewFlag changes, do not make a random selection if there is not
-    // actually anything selected; some views do this (looking at xfvf).
-    if (this.dbView.selection && this.dbView.selection.count == 0)
-      this.dbView.selection.currentIndex = -1;
-
     if (this._viewUpdateDepth || !this.dbView) {
       this.__viewFlags = aViewFlags;
       return;
     }
+
+    // For viewFlag changes, do not make a random selection if there is not
+    // actually anything selected; some views do this (looking at xfvf).
+    if (this.dbView.selection && this.dbView.selection.count == 0)
+      this.dbView.selection.currentIndex = -1;
 
     let setViewFlags = true;
     let reSort = false;
