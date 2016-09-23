@@ -81,6 +81,11 @@
             label="&deleteAttachmentCmd.label;"
             accesskey="&deleteAttachmentCmd.accesskey;"
             oncommand="HandleMultipleAttachments(this.parentNode.attachments, 'delete');"/>
+  <menuseparator id="context-menu-copyurl-separator"/>
+  <menuitem id="context-copyAttachmentUrl"
+            label="&copyLinkCmd.label;"
+            accesskey="&copyLinkCmd.accesskey;"
+            oncommand="HandleMultipleAttachments(this.parentNode.attachments, 'copyUrl');"/>
 </menupopup>
 
 <menupopup id="attachmentListContext" onpopupshowing="goUpdateAttachmentCommands();">

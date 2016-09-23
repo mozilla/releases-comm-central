@@ -1983,6 +1983,8 @@ function onShowAttachmentItemContextMenu()
   let saveMenu       = document.getElementById("context-saveAttachment");
   let detachMenu     = document.getElementById("context-detachAttachment");
   let deleteMenu     = document.getElementById("context-deleteAttachment");
+  let copyUrlMenuSep = document.getElementById("context-menu-copyurl-separator");
+  let copyUrlMenu    = document.getElementById("context-copyAttachmentUrl");
 
   // If we opened the context menu from the attachment info area (the paperclip,
   // "1 attachment" label, filename, or file size, just grab the first (and
@@ -2008,11 +2010,15 @@ function onShowAttachmentItemContextMenu()
   });
   var canDetachSelected = CanDetachAttachments() && !allSelectedDetached &&
                           !allSelectedDeleted;
+  let allSelectedHttp = selectedAttachments.every(function(attachment) {
+    return attachment.url.startsWith("http");
+  });
 
   openMenu.disabled = allSelectedDeleted;
   saveMenu.disabled = allSelectedDeleted;
   detachMenu.disabled = !canDetachSelected;
   deleteMenu.disabled = !canDetachSelected;
+  copyUrlMenuSep.hidden = copyUrlMenu.hidden = !allSelectedHttp;
 }
 
 /**
@@ -2692,6 +2698,13 @@ function HandleMultipleAttachments(attachments, action)
         else
           setTimeout(actionFunction, 100, attachments[i]);
       }
+      return;
+    case "copyUrl":
+      // Copy external http url(s) to clipboard. The menuitem is hidden unless
+      // all selected attachment urls are http.
+      let clipboard = Components.classes["@mozilla.org/widget/clipboardhelper;1"]
+                                .getService(Components.interfaces.nsIClipboardHelper);
+      clipboard.copyString(attachmentUrlArray.join("\n"));
       return;
     default:
       throw new Error("unknown HandleMultipleAttachments action: " + action);
