@@ -311,7 +311,7 @@ function onSave(item) {
             recRule.interval = monthInterval;
             let monthlyGroup = document.getElementById("monthly-group");
             if (monthlyGroup.selectedIndex == 0) {
-                let monthlyOrdinal = Number(getElementValue("monthly-monthlyOrdinal"));
+                let monthlyOrdinal = Number(getElementValue("monthly-ordinal"));
                 let monthlyDOW = Number(getElementValue("monthly-weekday"));
                 if (monthlyDOW < 0) {
                     if (monthlyOrdinal == 0) {
