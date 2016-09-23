@@ -486,36 +486,6 @@ MsgNewNotificationCallbacksAggregation(nsIInterfaceRequestor  *callbacks,
 }
 
 /**
- * Helper class for do_QueryElementAt
- */
-class NS_MSG_BASE MsgQueryElementAt : public nsCOMPtr_helper
-  {
-    public:
-      MsgQueryElementAt( nsISupportsArray* anArray, uint32_t aIndex, nsresult* aErrorPtr )
-          : mArray(anArray),
-            mIndex(aIndex),
-            mErrorPtr(aErrorPtr)
-        {
-          // nothing else to do here
-        }
-      virtual nsresult NS_FASTCALL operator()( const nsIID& aIID, void** ) const;
-    private:
-      nsISupportsArray*  mArray;
-      uint32_t           mIndex;
-      nsresult*          mErrorPtr;
-  };
-
-/**
- * Overload function for nsISupportsArray. The do_QueryElementAt which belongs to
- * internal API only accepts nsICollection* aCollection.
- */
-inline
-const MsgQueryElementAt
-do_QueryElementAt( nsISupportsArray* array, uint32_t aIndex, nsresult* aErrorPtr = 0 )
-{
-    return MsgQueryElementAt(array, aIndex, aErrorPtr);
-}
-/**
  * Count occurences of specified character in string.
  *
  */

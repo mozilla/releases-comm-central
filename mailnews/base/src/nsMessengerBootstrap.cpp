@@ -38,7 +38,7 @@ NS_IMETHODIMP nsMessengerBootstrap::OpenMessengerWindowWithUri(const char *windo
   nsCOMPtr<nsIMutableArray> argsArray(do_CreateInstance(NS_ARRAY_CONTRACTID, &rv));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  // create scriptable versions of our strings that we can store in our nsISupportsArray....
+  // create scriptable versions of our strings that we can store in our nsIMutableArray....
   if (aFolderURI)
   {
     if (standAloneMsgWindow)
