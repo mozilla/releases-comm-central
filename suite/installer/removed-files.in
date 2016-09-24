@@ -166,11 +166,6 @@ components/nsPostUpdateWin.js
 @DIR_MACOS@components/nsUpdateService.js
 @DIR_MACOS@components/nsUpdateServiceStub.js
 #endif
-#ifndef MOZ_URL_CLASSIFIER
-  @DIR_MACOS@components/nsUrlClassifierHashCompleter.js
-  @DIR_MACOS@components/nsUrlClassifierLib.js
-  @DIR_MACOS@components/nsUrlClassifierListManager.js
-#endif
 @DIR_MACOS@components/nsXmlRpcClient.js
 @DIR_MACOS@components/@DLL_PREFIX@oji@DLL_SUFFIX@
 @DIR_MACOS@components/pluginGlue.js
@@ -702,11 +697,6 @@ Throbber-small.gif
   @DIR_MACOS@components/nsUpdateService.js
   @DIR_MACOS@components/nsUpdateServiceStub.js
   @DIR_MACOS@components/nsUpdateTimerManager.js
-  #ifdef MOZ_URL_CLASSIFIER
-    @DIR_MACOS@components/nsUrlClassifierHashCompleter.js
-    @DIR_MACOS@components/nsUrlClassifierLib.js
-    @DIR_MACOS@components/nsUrlClassifierListManager.js
-  #endif
   @DIR_MACOS@components/nsURLFormatter.js
   @DIR_MACOS@components/nsWebHandlerApp.js
   @DIR_MACOS@components/offlineStartup.js

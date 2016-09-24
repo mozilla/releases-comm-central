@@ -335,9 +335,7 @@
 @RESPATH@/components/unicharutil.xpt
 @RESPATH@/components/update.xpt
 @RESPATH@/components/uriloader.xpt
-#ifdef MOZ_URL_CLASSIFIER
 @RESPATH@/components/url-classifier.xpt
-#endif
 @RESPATH@/components/urlformatter.xpt
 
 ; Security Reports
@@ -474,12 +472,10 @@
 #endif
 @RESPATH@/components/nsUpdateTimerManager.js
 @RESPATH@/components/nsUpdateTimerManager.manifest
-#ifdef MOZ_URL_CLASSIFIER
 @RESPATH@/components/nsURLClassifier.manifest
 @RESPATH@/components/nsUrlClassifierHashCompleter.js
 @RESPATH@/components/nsUrlClassifierLib.js
 @RESPATH@/components/nsUrlClassifierListManager.js
-#endif
 @RESPATH@/components/nsURLFormatter.js
 @RESPATH@/components/nsURLFormatter.manifest
 @RESPATH@/components/nsWebHandlerApp.js
