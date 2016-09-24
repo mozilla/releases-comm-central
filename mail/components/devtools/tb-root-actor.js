@@ -3,29 +3,27 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /**
- * Actors for the remote debugger server.
- *
- * NOTE: This file is used from both Thundebird and the Debugger Server
- * extension. Please don't introduce any Thunderbird-specific code
+ * Actors for Thunderbird Developer Tools, for example the root actor or tab
+ * list actor.
  */
 
-var { Ci, Cu } = require("chrome");
+var { Ci, Cc } = require("chrome");
 var Services = require("Services");
 var DevToolsUtils = require("devtools/shared/DevToolsUtils");
+var promise = require('promise');
 var { RootActor } = require("devtools/server/actors/root");
 var { DebuggerServer } = require("devtools/server/main");
-var { Promise } = Cu.import("resource://gre/modules/Promise.jsm", {});
 var { BrowserTabList, BrowserTabActor, BrowserAddonList } = require("devtools/server/actors/webbrowser");
 
 /**
- * Create the root actor for this XUL application.
+ * Create the root actor for Thunderbird.
  *
  * @param aConnection       The debugger connection to create the actor for.
  * @return                  The mail actor for the connection.
  */
 function createRootActor(aConnection) {
   let parameters = {
-    tabList: new XulTabList(aConnection),
+    tabList: new TBTabList(aConnection),
     addonList: new BrowserAddonList(aConnection),
     globalActorFactories: DebuggerServer.globalActorFactories,
     onShutdown: sendShutdownEvent,
@@ -35,18 +33,52 @@ function createRootActor(aConnection) {
   let rootActor = new RootActor(aConnection, parameters);
   if (DebuggerServer.chromeWindowType) {
     rootActor.applicationType = DebuggerServer.chromeWindowType.split(":")[0];
-  } else {
-    rootActor.applicationType = "xulrunner";
   }
 
   return rootActor;
+}
+createRootActor.isMailRootActor = true;
+
+function getChromeWindowTypes() {
+  /** @return the list of main windows, see isMainWindow */
+  function getMainWindows() {
+    let found = [];
+    let windows = Services.wm.getEnumerator(null);
+    while (windows.hasMoreElements()) {
+      let win = windows.getNext();
+      if (isMainWindow(win)) {
+        found.push(win);
+      }
+    }
+    return found;
+  }
+
+  /**
+   * Check if the window is the "main window" by checking if the host part
+   * matches the basename of the filename.
+   *
+   * @param aWindow       The window to check
+   */
+  function isMainWindow(aWindow) {
+    let urlParser = Cc["@mozilla.org/network/url-parser;1?auth=no"]
+                      .getService(Ci.nsIURLParser);
+    let baseName, bnpos = {}, bnlen = {};
+    let path = aWindow.location.pathname;
+    urlParser.parseFilePath(path, path.length, {}, {}, bnpos, bnlen, {}, {});
+    baseName = path.substr(bnpos.value, bnlen.value);
+    return (aWindow.location.hostname == baseName);
+  }
+
+  return getMainWindows().map((win) => {
+    return win.document.documentElement.getAttribute("windowtype");
+  });
 }
 
 /**
  * Returns the window type of the passed window.
  */
 function appShellDOMWindowType(aWindow) {
-  /* This is what nsIWindowMediator's enumerator checks. */
+  // This is what nsIWindowMediator's enumerator checks.
   return aWindow.document.documentElement.getAttribute('windowtype');
 }
 
@@ -54,7 +86,7 @@ function appShellDOMWindowType(aWindow) {
  * Send a debugger shutdown event to all main windows.
  */
 function sendShutdownEvent() {
-  let windowTypes = DebuggerServer.RemoteDebuggerServer.chromeWindowTypes;
+  let windowTypes = getChromeWindowTypes();
   for (let type of windowTypes) {
     let enumerator = Services.wm.getEnumerator(type);
     while (enumerator.hasMoreElements()) {
@@ -67,22 +99,23 @@ function sendShutdownEvent() {
 }
 
 /**
- * The live list of tabs for a XUL Application. The term tab is taken from
+ * The live list of tabs for Thunderbird. The term tab is taken from
  * Firefox tabs, where each browser tab shows up as a tab in the debugger.
- * Not all apps have the concept where each tab is a content tab, so we will
- * be iterating the content windows and presenting them as tabs instead.
+ * This is not the case for Thunderbird, so we will be iterating the content
+ * windows and presenting them as tabs instead.
  *
  * @param aConnection       The connection to create the tab list for.
  */
-function XulTabList(aConnection) {
+function TBTabList(aConnection) {
   this._connection = aConnection;
   this._actorByBrowser = new Map();
 
   // These windows should be checked for browser elements
-  this._checkedWindows = new Set(DebuggerServer.RemoteDebuggerServer.chromeWindowTypes);
+
+  this._checkedWindows = new Set(getChromeWindowTypes());
 }
 
-XulTabList.prototype = {
+TBTabList.prototype = {
   _onListChanged: null,
   _actorByBrowser: null,
   _checkedWindows: null,
@@ -172,7 +205,7 @@ XulTabList.prototype = {
     this._mustNotify = true;
     this._checkListening();
 
-    return Promise.resolve([...this._actorByBrowser.values()]);
+    return promise.resolve([...this._actorByBrowser.values()]);
   },
 
   onOpenWindow: DevToolsUtils.makeInfallible(function(aWindow) {
@@ -192,7 +225,7 @@ XulTabList.prototype = {
     aWindow = aWindow.QueryInterface(Ci.nsIInterfaceRequestor)
                      .getInterface(Ci.nsIDOMWindow);
     aWindow.addEventListener("load", handleLoad, {capture: false, once: true});
-  }, "XulTabList.prototype.onOpenWindow"),
+  }, "TBTabList.prototype.onOpenWindow"),
 
   onCloseWindow: DevToolsUtils.makeInfallible(function(aWindow) {
     aWindow = aWindow.QueryInterface(Ci.nsIInterfaceRequestor)
@@ -223,8 +256,8 @@ XulTabList.prototype = {
         this._notifyListChanged();
       }
       this._checkListening();
-    }, "XulTabList.prototype.onCloseWindow's delayed body"), 0);
-  }, "XulTabList.prototype.onCloseWindow"),
+    }, "TBTabList.prototype.onCloseWindow's delayed body"), 0);
+  }, "TBTabList.prototype.onCloseWindow"),
 
   onWindowTitleChange: function() {}
 };

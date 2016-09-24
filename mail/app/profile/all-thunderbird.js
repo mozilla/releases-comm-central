@@ -809,6 +809,7 @@ pref("browser.search.order.US.3", "data:text/plain,browser.search.defaultenginen
 // Developer Tools related preferences
 pref("devtools.debugger.log", false);
 pref("devtools.chrome.enabled", true);
+pref("devtools.debugger.remote-enabled", true);
 pref("devtools.selfxss.count", 5);
 
 pref("mail.chat.enabled", true);

@@ -528,6 +528,19 @@
        key="&errorConsoleCmd.commandkey;"
        oncommand="toJavaScriptConsole();"
        modifiers="accel,shift"/>
+  <key id="key_devtoolsToolbox"
+       key="&devToolboxCmd.commandkey;"
+#ifdef XP_MACOSX
+       modifiers="accel,alt"
+#else
+       modifiers="accel,shift"
+#endif
+       oncommand="BrowserToolboxProcess.init();"/>
+  <key id="key_scratchpad"
+       keycode="&scratchpadCmd.keycode;"
+       keytext="&scratchpadCmd.keytext;"
+       modifiers="shift"
+       oncommand="ScratchpadManager.openScratchpad({ executionContext: 2 });"/>
   <key id="key_sanitizeHistory"
        keycode="VK_DELETE"
        oncommand="toSanitize();"
@@ -2112,10 +2125,36 @@
             <menuitem id="appmenu_import"
                       label="&importCmd.label;"
                       oncommand="toImport();"/>
-            <menuitem id="appmenu_javascriptConsole"
-                      label="&errorConsoleCmd.label;"
-                      key="key_errorConsole"
-                      oncommand="toJavaScriptConsole();"/>
+            <menu id="appmenu_devtoolsMenu"
+                  label="&devtoolsMenu.label;"
+                  accesskey="&devtoolsMenu.accesskey;">
+              <menupopup id="appmenu_devtoolsPopup">
+                <menuitem id="appmenu_devtoolsToolbox"
+                          label="&devToolboxCmd.label;"
+                          accesskey="&devToolboxCmd.accesskey;"
+                          key="key_devtoolsToolbox"
+                          oncommand="BrowserToolboxProcess.init();"/>
+                <menuitem id="appmenu_addonDebugging"
+                          label="&addonDebugCmd.label;"
+                          accesskey="&addonDebugCmd.accesskey;"
+                          oncommand="openAboutDebugging('addons')"/>
+                <menuitem id="appmenu_tabsDebugging"
+                          label="&tabsDebugCmd.label;"
+                          accesskey="&tabsDebugCmd.accesskey;"
+                          oncommand="openAboutDebugging('tabs')"/>
+                <menuseparator id="appmenu_debuggingSeparator"/>
+                <menuitem id="appmenu_javascriptConsole"
+                          label="&errorConsoleCmd.label;"
+                          accesskey="&errorConsoleCmd.accesskey;"
+                          key="key_errorConsole"
+                          oncommand="toJavaScriptConsole();"/>
+                <menuitem id="appmenu_openScratchpad"
+                          label="&scratchpadCmd.label;"
+                          accesskey="&scratchpadCmd.accesskey;"
+                          key="key_scratchpad"
+                          oncommand="ScratchpadManager.openScratchpad({ executionContext: 2 });"/>
+              </menupopup>
+            </menu>
             <menuitem id="appmenu_sanitizeHistory"
                       label="&clearRecentHistory.label;"
                       key="key_sanitizeHistory"
@@ -2997,11 +3036,34 @@
         <menuitem id="menu_import" label="&importCmd.label;"
                   accesskey="&importCmd.accesskey;"
                   oncommand="toImport();"/>
-        <menuitem id="javascriptConsole"
-                  label="&errorConsoleCmd.label;"
-                  accesskey="&errorConsoleCmd.accesskey;"
-                  key="key_errorConsole"
-                  oncommand="toJavaScriptConsole();"/>
+        <menu id="devtoolsMenu" label="&devtoolsMenu.label;" accesskey="&devtoolsMenu.accesskey;">
+          <menupopup id="devtoolsPopup">
+            <menuitem id="devtoolsToolbox"
+                      label="&devToolboxCmd.label;"
+                      accesskey="&devToolboxCmd.accesskey;"
+                      key="key_devtoolsToolbox"
+                      oncommand="BrowserToolboxProcess.init();"/>
+            <menuitem id="addonDebugging"
+                      label="&addonDebugCmd.label;"
+                      accesskey="&addonDebugCmd.accesskey;"
+                      oncommand="openAboutDebugging('addons')"/>
+            <menuitem id="tabsDebugging"
+                      label="&tabsDebugCmd.label;"
+                      accesskey="&tabsDebugCmd.accesskey;"
+                      oncommand="openAboutDebugging('tabs')"/>
+            <menuseparator id="debuggingSeparator"/>
+            <menuitem id="javascriptConsole"
+                      label="&errorConsoleCmd.label;"
+                      accesskey="&errorConsoleCmd.accesskey;"
+                      key="key_errorConsole"
+                      oncommand="toJavaScriptConsole();"/>
+            <menuitem id="openScratchpad"
+                      label="&scratchpadCmd.label;"
+                      accesskey="&scratchpadCmd.accesskey;"
+                      key="key_scratchpad"
+                      oncommand="ScratchpadManager.openScratchpad({ executionContext: 2 });"/>
+          </menupopup>
+        </menu>
         <menuitem id="sanitizeHistory"
                   label="&clearRecentHistory.label;"
                   accesskey="&clearRecentHistory.accesskey;"

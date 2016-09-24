@@ -323,9 +323,13 @@ function onViewToolbarsPopupShowing(aEvent, toolboxIds, aInsertPoint)
 
 function toJavaScriptConsole()
 {
-  let { require } = Components.utils.import("resource://devtools/shared/Loader.jsm", {});
-  let HUDService = require("devtools/client/webconsole/hudservice");
   HUDService.openBrowserConsoleOrFocus();
+}
+
+function openAboutDebugging(hash)
+{
+  let url = "about:debugging" + (hash ? "#" + hash : "");
+  document.getElementById('tabmail').openTab("contentTab", { contentPage: url });
 }
 
 function toOpenWindowByType(inType, uri)

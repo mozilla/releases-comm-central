@@ -19,6 +19,9 @@
   <script type="application/javascript"
           src="chrome://messenger/content/mailCore.js"/>
 
+  <script type="application/javascript"
+          src="chrome://global/content/viewSourceUtils.js"/>
+
 #ifdef XP_WIN
   <menu id="helpMenu"
         label="&helpMenuWin.label;" accesskey="&helpMenuWin.accesskey;">

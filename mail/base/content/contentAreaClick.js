@@ -188,3 +188,12 @@ function openLinkExternally(url)
             .getService(Components.interfaces.nsIExternalProtocolService)
             .loadUrl(uri);
 }
+
+/**
+ * Compatibility to Firefox, used for example by devtools to open links. Defer
+ * this to the external browser for now, since in most cases this is meant to
+ * open an actionable tab.
+ */
+function openUILinkIn(url, where, options) {
+  openLinkExternally(url);
+}

@@ -1,0 +1,5 @@
+component {089694e9-106a-4704-abf7-62a88545e194} devtools-loader.js
+contract @mozilla.org/messenger/devtools-startup-clh;1 {089694e9-106a-4704-abf7-62a88545e194}
+# This command line handler needs to be initialized before the devtools command line
+# handler, which currently uses "m-devtools". See details in nsICommandLineHandler.idl.
+category command-line-handler m-aaa-tb-devtools @mozilla.org/messenger/devtools-startup-clh;1

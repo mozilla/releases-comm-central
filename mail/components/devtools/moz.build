@@ -3,9 +3,13 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-DIRS += ["extension"]
+EXTRA_JS_MODULES += [
+    "tb-root-actor.js",
+]
 
-EXTRA_JS_MODULES += ["modules/RemoteDebuggerServer.jsm",
-                     "modules/XULRootActor.js"]
+EXTRA_COMPONENTS += [
+    "devtools-loader.js",
+    "devtools-loader.manifest",
+]
 
 JAR_MANIFESTS += ['jar.mn']
