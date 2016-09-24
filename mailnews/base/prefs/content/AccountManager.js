@@ -360,10 +360,10 @@ function checkDirectoryIsAllowed(aLocalPath) {
 
     testDir.normalize();
 
-    if (testDir.equals(aLocalPath) || aLocalPath.contains(testDir, true))
+    if (testDir.equals(aLocalPath) || aLocalPath.contains(testDir))
       return false;
 
-    if (testDir.contains(aLocalPath, true)) {
+    if (testDir.contains(aLocalPath)) {
       if (!("safeSubdirs" in aDirToCheck))
         return false;
 
@@ -373,7 +373,7 @@ function checkDirectoryIsAllowed(aLocalPath) {
       for (let subDir of aDirToCheck.safeSubdirs) {
         let checkDir = testDir.clone();
         checkDir.append(subDir);
-        if (checkDir.contains(aLocalPath, true)) {
+        if (checkDir.contains(aLocalPath)) {
           isInSubdir = true;
           break;
         }
@@ -391,7 +391,7 @@ function checkDirectoryIsAllowed(aLocalPath) {
       let defaultPath = currentAccount.incomingServer.protocolInfo.defaultLocalPath;
       if (defaultPath) {
         defaultPath.normalize();
-        if (defaultPath.contains(aLocalPath, true))
+        if (defaultPath.contains(aLocalPath))
           return true;
       }
     } catch (e) { /* No problem if this fails. */ }
@@ -452,9 +452,9 @@ function checkDirectoryIsUsable(aLocalPath) {
       let alertStringID = null;
       if (serverPath.equals(aLocalPath))
         alertStringID = "directoryAlreadyUsedByOtherAccount";
-      else if (serverPath.contains(aLocalPath, true))
+      else if (serverPath.contains(aLocalPath))
         alertStringID = "directoryParentUsedByOtherAccount";
-      else if (aLocalPath.contains(serverPath, true))
+      else if (aLocalPath.contains(serverPath))
         alertStringID = "directoryChildUsedByOtherAccount";
 
       if (alertStringID) {

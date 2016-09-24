@@ -132,7 +132,7 @@ var abDirTreeObserver = {
   {
     if (orientation != Components.interfaces.nsITreeView.DROP_ON)
       return false;
-    if (!dataTransfer.types.contains("moz/abcard")) {
+    if (!dataTransfer.types.includes("moz/abcard")) {
       return false;
     }
 
@@ -224,7 +224,7 @@ var abDirTreeObserver = {
     var dragSession = dragService.getCurrentSession();
     if (!dragSession)
       return;
-    if (!dataTransfer.types.contains("moz/abcard")) {
+    if (!dataTransfer.types.includes("moz/abcard")) {
       return;
     }
 

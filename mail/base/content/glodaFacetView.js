@@ -141,12 +141,12 @@ ActiveSingularConstraint.prototype = {
   isIncludedGroup: function(aGroupValue) {
     if (!this.inclusive)
       return false;
-    return this.groupValues.contains(aGroupValue);
+    return this.groupValues.includes(aGroupValue);
   },
   isExcludedGroup: function(aGroupValue) {
     if (this.inclusive)
       return false;
-    return this.groupValues.contains(aGroupValue);
+    return this.groupValues.includes(aGroupValue);
   }
 };
 
