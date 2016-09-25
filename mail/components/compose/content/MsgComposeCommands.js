@@ -287,6 +287,7 @@ var stateListener = {
     case Components.interfaces.nsIMsgCompType.New:
     case Components.interfaces.nsIMsgCompType.NewsPost:
     case Components.interfaces.nsIMsgCompType.ForwardAsAttachment:
+    case Components.interfaces.nsIMsgCompType.MailToUrl:
       this.NotifyComposeBodyReadyNew();
       break;
 
@@ -306,7 +307,6 @@ var stateListener = {
 
     case Components.interfaces.nsIMsgCompType.Draft:
     case Components.interfaces.nsIMsgCompType.Template:
-    case Components.interfaces.nsIMsgCompType.MailToUrl:
     case Components.interfaces.nsIMsgCompType.Redirect:
       break;
 
@@ -343,9 +343,36 @@ var stateListener = {
   },
 
   NotifyComposeBodyReadyNew: function() {
-    // Control insertion of line breaks.
     let useParagraph = Services.prefs.getBoolPref("mail.compose.default_to_paragraph");
-    if (gMsgCompose.composeHTML && useParagraph) {
+    let insertParagraph = gMsgCompose.composeHTML && useParagraph;
+
+    if (insertParagraph &&
+        gComposeType == Components.interfaces.nsIMsgCompType.MailToUrl) {
+      // Check for empty body before allowing paragraph to be inserted.
+      // An "empty" body will have a <br> potentially followed by a
+      // <pre class="moz-signature">.
+      let mailBody = getBrowser().contentDocument.querySelector("body");
+      let firstChild = mailBody.firstChild;
+      let nextSibling = firstChild.nextSibling;
+      do {
+        if (firstChild.localName != 'br') {
+          insertParagraph = false;
+          break;
+        }
+
+        if (!nextSibling)
+          break;
+
+        if (nextSibling.localName == "pre" &&
+            nextSibling.getAttribute("class") == "moz-signature")
+          break;
+
+        insertParagraph = false;
+      } while (false);
+    }
+
+    // Control insertion of line breaks.
+    if (insertParagraph) {
       let editor = GetCurrentEditor();
       editor.enableUndo(false);
 
@@ -367,9 +394,7 @@ var stateListener = {
     // Control insertion of line breaks.
     let useParagraph = Services.prefs.getBoolPref("mail.compose.default_to_paragraph");
     if (gMsgCompose.composeHTML && useParagraph) {
-
-      let mailDoc = document.getElementById("content-frame").contentDocument;
-      let mailBody = mailDoc.querySelector("body");
+      let mailBody = getBrowser().contentDocument.querySelector("body");
       let editor = GetCurrentEditor();
       let selection = editor.selection;
       let range = selection.getRangeAt(0);
@@ -422,8 +447,7 @@ var stateListener = {
   },
 
   NotifyComposeBodyReadyForwardInline: function() {
-    let mailDoc = document.getElementById("content-frame").contentDocument;
-    let mailBody = mailDoc.querySelector("body");
+    let mailBody = getBrowser().contentDocument.querySelector("body");
     let editor = GetCurrentEditor();
     let selection = editor.selection;
 
@@ -5019,8 +5043,7 @@ var gAttachmentNotifier =
     let keywordsInCsv = Services.prefs.getComplexValue(
       "mail.compose.attachment_reminder_keywords",
       Components.interfaces.nsIPrefLocalizedString).data;
-    let mailBody = document.getElementById("content-frame")
-                           .contentDocument.querySelector("body");
+    let mailBody = getBrowser().contentDocument.querySelector("body");
     let mailBodyNode = mailBody.cloneNode(true);
 
     // Don't check quoted text from reply.
@@ -5220,11 +5243,13 @@ function UpdateFullZoomMenu() {
   menuItem.setAttribute("checked", !ZoomManager.useFullZoom);
 }
 
-// The zoom manager, view source and possibly some other functions still rely
-// on the getBrowser function.
+/**
+ * Return the <editor> element of the mail compose window. The name is somewhat
+ * unfortunate; we need to maintain it since the zoom manager, view source and
+ * other functions still rely on it.
+ */
 function getBrowser()
 {
-  // return our <editor> element
   return document.getElementById("content-frame");
 }
 
