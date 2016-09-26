@@ -205,8 +205,18 @@ FeedParser.prototype =
         item.id = item.id.replace(/[\n\r\t\s]+/g, " ");
       }
 
+      // Escape html entities in <title>, which are unescaped as textContent
+      // values. If the title is used as content, it will remain escaped; if
+      // it is used as the title, it will be unescaped upon store. Bug 1240603.
+      // The <description> tag must follow escaping examples found in
+      // http://www.rssboard.org/rss-encoding-examples, i.e. single escape angle
+      // brackets for tags, which are removed if used as title, and double
+      // escape entities for presentation in title.
+      // Better: always use <title>. Best: use Atom.
       if (!item.title)
         item.title = this.stripTags(item.description).substr(0, 150);
+      else
+        item.title = item.htmlEscape(item.title);
 
       tags = this.childrenByTagNameNS(itemNode, nsURI, "author");
       if (!tags)
