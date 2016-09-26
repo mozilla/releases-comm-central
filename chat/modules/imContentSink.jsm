@@ -247,7 +247,7 @@ function cleanupNode(aNode, aRules, aTextModifiers)
     let node = aNode.childNodes[i];
     if (node instanceof Components.interfaces.nsIDOMHTMLElement) {
       // check if node allowed
-      let nodeName = node.localName.toLowerCase();
+      let nodeName = node.localName;
       if (!(nodeName in aRules.tags)) {
         if (nodeName in kForbiddenTags) {
           Components.utils.reportError("removing a " + nodeName +
