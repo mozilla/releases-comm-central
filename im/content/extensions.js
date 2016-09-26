@@ -15,8 +15,7 @@ var addonsRegister = {
     Services.obs.addObserver(addonsRegister, "addon-install-failed", false);
     Services.obs.addObserver(addonsRegister, "addon-install-complete", false);
 
-    window.removeEventListener("load", addonsRegister.onload, false);
-    window.addEventListener("unload", addonsRegister.onunload);
+    window.addEventListener("unload", addonsRegister.onunload, {once: true});
 
     let win = document.getElementById("dummychromebrowser").contentWindow;
     let open = win.open;
@@ -35,8 +34,6 @@ var addonsRegister = {
   },
 
   onunload: function () {
-    window.removeEventListener("unload", addonsRegister.onunload, false);
-
     Services.obs.removeObserver(addonsRegister, "addon-install-disabled");
     Services.obs.removeObserver(addonsRegister, "addon-install-blocked");
     Services.obs.removeObserver(addonsRegister, "addon-install-failed");
@@ -208,4 +205,4 @@ var addonsRegister = {
   }
 };
 
-window.addEventListener("load", addonsRegister.onload);
+window.addEventListener("load", addonsRegister.onload, {once: true});
