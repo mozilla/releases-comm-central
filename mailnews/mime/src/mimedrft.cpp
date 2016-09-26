@@ -1315,8 +1315,10 @@ mime_parse_stream_complete (nsMIMESession *stream)
             nsCOMPtr< nsIMsgIdentity > overrulingIdentity;
             rv = accountManager->GetIdentity( nsDependentCString(identityKey), getter_AddRefs( overrulingIdentity ) );
 
-            if ( NS_SUCCEEDED(rv) && overrulingIdentity )
+            if (NS_SUCCEEDED(rv) && overrulingIdentity) {
                 mdd->identity = overrulingIdentity;
+                fields->SetCreatorIdentityKey(identityKey);
+            }
         }
     }
 

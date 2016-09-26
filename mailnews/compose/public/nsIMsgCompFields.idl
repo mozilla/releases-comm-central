@@ -54,6 +54,8 @@ interface nsIMsgCompFields : msgIWritableStructuredHeaders {
   /// (auto = 4, text = 1, html = 2, text and html = 3).
   attribute long deliveryFormat;
   attribute string contentLanguage;
+  /// This is populated with the key of the identity which created the draft or template.
+  attribute string creatorIdentityKey;
 
   /**
    * Beware that when setting this property, your body must be properly wrapped,

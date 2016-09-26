@@ -2419,8 +2419,9 @@ function ComposeStartup(aParams)
     identityList.getElementsByAttribute("identitykey", params.identity.key)[0];
 
   // Here we set the From from the original message, be it a draft or another
-  // message we want to "edit as new". Only do this for drafts.
-  if (gComposeType == nsIMsgCompType.Draft && params.composeFields.from)
+  // message, for example a template, we want to "edit as new".
+  // Only do this the message is our own draft or template.
+  if (params.composeFields.creatorIdentityKey && params.composeFields.from)
   {
     let from = MailServices.headerParser.parseEncodedHeader(params.composeFields.from, null).join(", ");
     if (from != identityList.value)
@@ -2448,9 +2449,11 @@ function ComposeStartup(aParams)
   SetCompositionAsPerDeliveryFormat(gSendFormat);
   SelectDeliveryFormatMenuOption(gSendFormat);
 
-  // Set document language to the draft language or the preference.
+  // Set document language to the draft language or the preference
+  // if this is a draft or template we prepared.
   let draftLanguage = null;
-  if (gComposeType == nsIMsgCompType.Draft && gMsgCompose.compFields.contentLanguage) {
+  if (gMsgCompose.compFields.creatorIdentityKey &&
+      gMsgCompose.compFields.contentLanguage) {
     draftLanguage = gMsgCompose.compFields.contentLanguage;
   }
 

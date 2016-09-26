@@ -63,6 +63,7 @@ public:
     MSG_X_TEMPLATE_HEADER_ID,
     MSG_DRAFT_ID_HEADER_ID,
     MSG_CONTENT_LANGUAGE_ID,
+    MSG_CREATOR_IDENTITY_KEY_ID,
 
     MSG_MAX_HEADERS   //Must be the last one.
   } MsgHeaderID;

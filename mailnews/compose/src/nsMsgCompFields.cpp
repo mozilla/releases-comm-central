@@ -50,7 +50,8 @@ static HeaderInfo kHeaders[] = {
   { "Message-Id", true },
   { "X-Template", true },
   { nullptr, false }, // DRAFT_ID
-  { "Content-Language", true }
+  { "Content-Language", true },
+  { "X-Identity-Key", false }
 };
 
 static_assert(MOZ_ARRAY_LENGTH(kHeaders) ==
@@ -249,6 +250,18 @@ NS_IMETHODIMP nsMsgCompFields::GetHasRecipients(bool *_retval)
     GetTo(), GetCc(), GetBcc(), GetNewsgroups()));
 
   return NS_OK;
+}
+
+NS_IMETHODIMP nsMsgCompFields::SetCreatorIdentityKey(const char *value)
+{
+  return SetAsciiHeader(MSG_CREATOR_IDENTITY_KEY_ID, value);
+}
+
+NS_IMETHODIMP nsMsgCompFields::GetCreatorIdentityKey(char **_retval)
+{
+  NS_ENSURE_ARG_POINTER(_retval);
+  *_retval = strdup(GetAsciiHeader(MSG_CREATOR_IDENTITY_KEY_ID));
+  return *_retval ? NS_OK : NS_ERROR_OUT_OF_MEMORY;
 }
 
 NS_IMETHODIMP nsMsgCompFields::SetSubject(const nsAString &value)
