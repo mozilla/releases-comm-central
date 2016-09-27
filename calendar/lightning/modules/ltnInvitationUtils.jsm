@@ -117,8 +117,8 @@ ltn.invitation = {
             headerDescr.textContent = ltn.invitation.getItipHeader(aItipItem);
         }
 
-        field("summary", aEvent.title);
-        field("location", aEvent.getProperty("LOCATION"));
+        field("summary", aEvent.title, true);
+        field("location", aEvent.getProperty("LOCATION"), true);
 
         let dateString = formatter.formatItemInterval(aEvent);
 
