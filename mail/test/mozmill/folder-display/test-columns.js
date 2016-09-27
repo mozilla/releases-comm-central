@@ -485,25 +485,31 @@ function test_apply_to_folder_no_children_swapped() {
 
   // permute!
   let conExtra = [...INBOX_DEFAULTS];
-  conExtra[5] = "senderCol";
-  hide_column("correspondentCol");
-  show_column("senderCol");
+  if (useCorrespondent) {
+    conExtra[5] = "senderCol";
+    hide_column("correspondentCol");
+    show_column("senderCol");
+  } else {
+    conExtra[5] = "correspondentCol";
+    hide_column("senderCol");
+    show_column("correspondentCol");
+  }
   assert_visible_columns(conExtra);
 
   // Apply to the one dude.
   _apply_to_folder_common(false, folderParent);
 
   // Make sure it copied to the parent.
-  let conExtraSwapped = [...INBOX_DEFAULTS];
-  conExtraSwapped[5] = "recipientCol";
+  let conExtraSwapped = [...SENT_DEFAULTS];
+  conExtraSwapped[5] = useCorrespondent ? "recipientCol" : "correspondentCol";
   be_in_folder(folderParent);
   assert_visible_columns(conExtraSwapped);
 
   // But not the children.
   be_in_folder(folderChild1);
-  assert_visible_columns(INBOX_DEFAULTS);
+  assert_visible_columns(SENT_DEFAULTS);
   be_in_folder(folderChild2);
-  assert_visible_columns(INBOX_DEFAULTS);
+  assert_visible_columns(SENT_DEFAULTS);
 }
 
 /**
@@ -521,17 +527,23 @@ function test_apply_to_folder_and_children_swapped() {
 
   // permute!
   let conExtra = [...INBOX_DEFAULTS];
-  conExtra[5] = "senderCol";
-  hide_column("correspondentCol");
-  show_column("senderCol");
+  if (useCorrespondent) {
+    conExtra[5] = "senderCol";
+    hide_column("correspondentCol");
+    show_column("senderCol");
+  } else {
+    conExtra[5] = "correspondentCol";
+    hide_column("senderCol");
+    show_column("correspondentCol");
+  }
   assert_visible_columns(conExtra);
 
   // Apply to the dude and his offspring.
   _apply_to_folder_common(true, folderParent);
 
   // Make sure it copied to the parent and his children.
-  let conExtraSwapped = [...INBOX_DEFAULTS];
-  conExtraSwapped[5] = "recipientCol";
+  let conExtraSwapped = [...SENT_DEFAULTS];
+  conExtraSwapped[5] = useCorrespondent ? "recipientCol" : "correspondentCol";
   be_in_folder(folderParent);
   assert_visible_columns(conExtraSwapped);
   be_in_folder(folderChild1);
