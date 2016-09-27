@@ -231,6 +231,8 @@ var GenericTwitterConversation = {
         entities = aTweet.entities;
     }
 
+    this._account.LOG("Tweet: " + text);
+
     if (Object.keys(entities).length) {
       /* entArray is an array of entities ready to be replaced in the tweet,
        * each entity contains:
@@ -819,7 +821,10 @@ Account.prototype = {
   onDataAvailable: function(aRequest) {
     this.resetStreamTimeout();
     let newText = this._pendingData + aRequest.target.response;
-    this.DEBUG("Received data: " + newText);
+    if (newText.trim())
+      this.DEBUG("Received data: " + newText);
+    else
+      this.DEBUG("Received ping");
     let messages = newText.split(/\r\n?/);
     this._pendingData = messages.pop();
     for (let message of messages) {
