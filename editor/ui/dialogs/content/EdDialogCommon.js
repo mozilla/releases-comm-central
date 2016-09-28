@@ -660,38 +660,39 @@ function MakeInputValueRelativeOrAbsolute(checkbox)
   }
 }
 
-var IsBlockParent = {
-  APPLET: true,
-  BLOCKQUOTE: true,
-  BODY: true,
-  CENTER: true,
-  DD: true,
-  DIV: true,
-  FORM: true,
-  LI: true,
-  NOSCRIPT: true,
-  OBJECT: true,
-  TD: true,
-  TH: true
-};
+var IsBlockParent = [
+  "applet",
+  "blockquote",
+  "body",
+  "center",
+  "dd",
+  "div",
+  "form",
+  "li",
+  "noscript",
+  "object",
+  "td",
+  "th",
+];
 
-var NotAnInlineParent = {
-  COL: true,
-  COLGROUP: true,
-  DL: true,
-  DIR: true,
-  MENU: true,
-  OL: true,
-  TABLE: true,
-  TBODY: true,
-  TFOOT: true,
-  THEAD: true,
-  TR: true,
-  UL: true
-};
+var NotAnInlineParent = [
+  "col",
+  "colgroup",
+  "dl",
+  "dir",
+  "menu",
+  "ol",
+  "table",
+  "tbody",
+  "tfoot",
+  "thead",
+  "tr",
+  "ul",
+];
 
 function nodeIsBreak(editor, node)
 {
+  // XXX This doesn't work because .localName is lowercase (see bug 1306060).
   return !node || node.localName == 'BR' || editor.nodeIsBlock(node);
 }
 
@@ -723,17 +724,17 @@ function InsertElementAroundSelection(element)
 
     if (editor.nodeIsBlock(element))
       // Block element parent must be a valid block
-      while (!(range.commonAncestorContainer.localName in IsBlockParent))
+      while (!IsBlockParent.includes(range.commonAncestorContainer.localName))
         range.selectNode(range.commonAncestorContainer);
     else
     {
       // Fail if we're not inserting a block (use setInlineProperty instead)
       if (!nodeIsBreak(editor, range.commonAncestorContainer))
         return false;
-      else if (range.commonAncestorContainer.localName in NotAnInlineParent)
+      else if (NotAnInlineParent.includes(range.commonAncestorContainer.localName))
         // Inline element parent must not be an invalid block
         do range.selectNode(range.commonAncestorContainer);
-        while (range.commonAncestorContainer.localName in NotAnInlineParent);
+        while (NotAnInlineParent.includes(range.commonAncestorContainer.localName));
       else
         // Further insert block check
         for (var i = range.startOffset; ; i++)
@@ -782,6 +783,7 @@ function InsertElementAroundSelection(element)
     else
     {
       // Also move a trailing <br>
+      // XXX This doesn't work because .localName is lowercase (see bug 1306060).
       if (start && start.localName == 'BR')
       {
         editor.deleteNode(start);

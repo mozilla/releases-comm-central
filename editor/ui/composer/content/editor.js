@@ -1628,9 +1628,8 @@ function EditorClick(event)
       // be a textnode (bug 193689)
       var element = event.explicitOriginalTarget.QueryInterface(
                         Components.interfaces.nsIDOMElement);
-      var name = element.localName.toLowerCase();
-      if (name != "body" && name != "table" &&
-          name != "td" && name != "th" && name != "caption" && name != "tr")
+      var name = element.localName;
+      if (!["body", "caption", "table", "td", "th", "tr"].includes(name))
       {          
         GetCurrentEditor().selectElement(event.explicitOriginalTarget);
         event.preventDefault();

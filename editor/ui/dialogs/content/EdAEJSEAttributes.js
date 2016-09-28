@@ -7,7 +7,7 @@ function BuildJSEAttributeNameList()
   gDialog.AddJSEAttributeNameList.removeAllItems();
   
   // Get events specific to current element
-  var elementName = gElement.localName.toLowerCase();
+  var elementName = gElement.localName;
   if (elementName in gJSAttr)
   {
     var attNames = gJSAttr[elementName];

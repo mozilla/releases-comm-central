@@ -6,7 +6,7 @@ function BuildHTMLAttributeNameList()
 {
   gDialog.AddHTMLAttributeNameInput.removeAllItems();
   
-  var elementName = gElement.localName.toLowerCase();
+  var elementName = gElement.localName;
   var attNames = gHTMLAttr[elementName];
 
   if (attNames && attNames.length)
@@ -167,7 +167,7 @@ function onInputHTMLAttributeName()
     if (attName == "dir")
       valueListName = "all_dir";
     else
-      valueListName = gElement.localName.toLowerCase() + "_" + attName;
+      valueListName = gElement.localName + "_" + attName;
 
     // Strip off leading "_" we sometimes use (when element name is reserved word)
     if (valueListName.startsWith("_"))
