@@ -113,12 +113,12 @@ p.event {
   color: hsl(0, 0%, 60%);
 }
 
-p.event *:-moz-any-link:not(:hover) {
+p.event *:any-link:not(:hover) {
   color: hsl(0, 0%, 60%);
   text-decoration: none;
 }
 
-p.event *:-moz-any-link:hover {
+p.event *:any-link:hover {
   color: hsl(0, 0%, 25%);
 }
 
@@ -126,7 +126,7 @@ p.event *:-moz-any-link:hover {
   white-space: normal;
 }
 
-p *:-moz-any-link img {
+p *:any-link img {
   margin-bottom: 1px;
   border-bottom: solid 1px;
 }

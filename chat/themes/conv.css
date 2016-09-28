@@ -11,7 +11,7 @@
   vertical-align: text-bottom;
 }
 
-*:-moz-any-link .ib-img-smile {
+*:any-link .ib-img-smile {
   border: none;
   border-bottom: solid 1px;
   margin-bottom: 1px;

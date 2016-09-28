@@ -68,7 +68,7 @@ p {
   margin: 0px auto;
 }
 
-p *:-moz-any-link img {
+p *:any-link img {
   margin-bottom: 1px;
   border-bottom: solid 1px;
 }
