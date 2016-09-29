@@ -475,6 +475,12 @@ NS_IMETHODIMP nsImapService::DisplayMessage(const char *aMessageURI,
       NS_ENSURE_SUCCESS(rv, rv);
       if (!mimePart.IsEmpty())
       {
+        nsresult rv;
+        nsCOMPtr<nsIURI> url = do_QueryInterface(imapUrl);
+
+        rv = AddImapFetchToUrl(url, folder, msgKey + mimePart, EmptyCString());
+        NS_ENSURE_SUCCESS(rv, rv);
+
         return FetchMimePart(imapUrl, nsIImapUrl::nsImapMsgFetch, folder, imapMessageSink,
                              aURL, aDisplayConsumer, msgKey, mimePart);
       }
@@ -584,6 +590,9 @@ nsresult nsImapService::FetchMimePart(nsIImapUrl *aImapUrl,
   if (NS_SUCCEEDED(rv))
   {
     nsCOMPtr<nsIURI> url = do_QueryInterface(aImapUrl);
+    if (aURL)
+      NS_IF_ADDREF(*aURL = url);
+
     rv = url->GetSpec(urlSpec);
     NS_ENSURE_SUCCESS(rv, rv);
 
