@@ -9,6 +9,11 @@ DIRS += [
     'src',
 ]
 
+EXTRA_COMPONENTS += [
+    'places/nsPlacesAutoComplete.js',
+    'places/nsPlacesAutoComplete.manifest',
+]
+
 BROWSER_CHROME_MANIFESTS += [
     'dataman/tests/browser.ini',
     'downloads/tests/browser/browser.ini',
@@ -23,7 +28,10 @@ MOCHITEST_CHROME_MANIFESTS += [
     'tests/chrome/chrome.ini',
 ]
 
-XPCSHELL_TESTS_MANIFESTS += ['places/tests/unit/xpcshell.ini']
+XPCSHELL_TESTS_MANIFESTS += [
+    'places/tests/autocomplete/xpcshell.ini',
+    'places/tests/unit/xpcshell.ini',
+]
 
 JAR_MANIFESTS += ['jar.mn']
 
