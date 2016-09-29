@@ -41,5 +41,10 @@ MOZ_PROFILE_MIGRATOR=1
 MOZ_APP_STATIC_INI=1
 MOZ_SEPARATE_MANIFEST_FOR_THEME_OVERRIDES=1
 
+if test "$OS_ARCH" = "WINNT" -o \
+        "$OS_ARCH" = "Linux"; then
+  MOZ_BUNDLED_FONTS=1
+fi
+
 # Include the DevTools client, not just the server (which is the default)
 MOZ_DEVTOOLS=all

@@ -29,6 +29,9 @@ DIRS += [
 if CONFIG['MAKENSISU']:
     DIRS += ['installer/windows']
 
+if CONFIG['MOZ_BUNDLED_FONTS']:
+    DIRS += ['/mozilla/browser/fonts']
+
 # app is always last as it packages up the built files on mac.
 DIRS += [
     'build',

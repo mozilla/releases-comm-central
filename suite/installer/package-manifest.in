@@ -52,6 +52,9 @@
 @RESPATH@/defaults/profile/panels.rdf
 @RESPATH@/dictionaries/*
 @RESPATH@/hyphenation/*
+#ifdef MOZ_BUNDLED_FONTS
+@RESPATH@/fonts/*
+#endif
 @RESPATH@/@PREF_DIR@/suite-l10n.js
 @RESPATH@/searchplugins/*
 #ifdef HAVE_MAKENSISU
