@@ -161,10 +161,6 @@
 <ul>
   <li><strong>View</strong>: Display detailed information about the selected
     certificates.</li>
-  <li><strong>Edit</strong>: View or change the trust settings that Certificate
-    Manager associates with the selected certificates. You can use these
-    settings to designate an email certificate as one that you trust or
-    don&apos;t trust for identification purposes.</li>
   <li><strong>Import</strong>: Import a file containing one or more
     certificates. When you click Import, Certificate Manager first asks you
     to locate the file that contains the certificate(s).</li>
@@ -195,13 +191,6 @@
 <ul>
   <li><strong>View</strong>: Display detailed information about the selected
     certificates.</li>
-  <li><strong>Edit</strong>: View or change the trust settings that Certificate
-    Manager associates with the selected certificates. You can use these
-    settings to designate a website certificate as one that you trust or
-    don&apos;t trust for identification purposes.</li>
-  <li><strong>Import</strong>: Import a file containing one or more
-    certificates. When you click Import, Certificate Manager first asks you
-    to locate the file that contains the certificate(s).</li>
   <li><strong>Export</strong>: Export the selected certificates. You can
     choose among various formats.</li>
   <li><strong>Delete</strong>: Delete the selected certificates.</li>
@@ -209,48 +198,6 @@
     (website, mail server) that identifies itself with invalid information.
     This is an advanced feature, act with caution.</li>
 </ul>
-
-<h3 id="edit_website_certificate_trust_settings">Edit Website Certificate
-  Trust Settings</h3>
-
-<p>When you select a website certificate from the
-  <a href="#servers">Servers</a> tab in the Certificate Manager and click Edit,
-  you see a window entitled <q>Edit website certificate trust settings</q>.
-  Here you specify whether you want to trust the selected certificate for
-  identifying the website and setting up an encrypted connection.</p>
-
-<p>The dialog box contains these elements:</p>
-
-<ul>
-  <li><strong>The certificate <q><em>name of certificate</em></q> was
-    issued by</strong>: Provides information about the
-    <a href="glossary.xhtml#certificate_authority">certificate authority</a>
-    that issued this certificate.</li>
-  <li><strong>Edit certificate trust settings</strong>:
-    <ul>
-      <li><strong>Trust the authenticity of this certificate</strong>: If you
-        select this option, Certificate Manager will henceforth trust this
-        certificate for the purposes of identifying this website or setting up
-        an encrypted connection. If you select this option and then attempt to
-        visit the website, your browser will access the site with few, if any,
-        warnings.</li>
-      <li><strong>Do not trust the authenticity of this certificate</strong>:
-        If you select this option, Certificate Manager will no longer trust
-        this certificate for the purposes of identifying this website or
-        setting up an encrypted connection. If you select this option and
-        then attempt to visit the website, you will see one or more warning
-        messages before you can access the site.</li>
-    </ul>
-  </li>
-  <li><strong>Edit CA Trust</strong>: Click this button to specify trust
-    settings for the certificate authority (CA) that issued the website
-    certificate. These settings allow you to trust or not to trust different
-    kinds of certificates issued by that certificate authority. For example,
-    you can choose to trust all website certificates issued by the
-    authority.</li>
-</ul>
-
-<p>Click OK to confirm your choice.</p>
 
 <h3 id="delete_website_certificates">Delete Website Certificates</h3>
 
@@ -276,7 +223,7 @@
 <ul>
   <li><strong>View</strong>: Display detailed information about the selected
     certificates.</li>
-  <li><strong>Edit</strong>: View or change the settings that Certificate
+  <li><strong>Edit Trust</strong>: View or change the settings that Certificate
     Manager associates with the selected certificates. You can use these
     settings to designate what kinds of certificates, if any, you trust that
     are issued by the corresponding CAs.</li>
@@ -285,7 +232,7 @@
     to locate the file that contains the certificate(s).</li>
   <li><strong>Export</strong>: Export the selected certificates. You can
     choose among various formats.</li>
-  <li><strong>Delete</strong>: Delete the selected certificates.</li>
+  <li><strong>Delete or Distrust</strong>: Delete the selected certificates.</li>
 </ul>
 
 <p>To ensure that an entire
