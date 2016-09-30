@@ -95,14 +95,14 @@
 }
 
 @media (-moz-os-version: windows-win10) {
-  #tabs-toolbar {
+  #tabs-toolbar:not(:-moz-lwtheme) {
     --tabBackgroundImage: url(chrome://messenger/skin/tabs/background-start-win10.png),
                           url(chrome://messenger/skin/tabs/background-middle-win10.png),
                           url(chrome://messenger/skin/tabs/background-end-win10.png);
   }
 
   @media (min-resolution: 1.1dppx) {
-    #tabs-toolbar {
+    #tabs-toolbar:not(:-moz-lwtheme) {
       --tabBackgroundImage: url(chrome://messenger/skin/tabs/background-start-win10@2x.png),
                             url(chrome://messenger/skin/tabs/background-middle-win10@2x.png),
                             url(chrome://messenger/skin/tabs/background-end-win10@2x.png);
@@ -110,13 +110,13 @@
   }
 
   @media (-moz-windows-default-theme) {
-    #tabs-toolbar {
+    #tabs-toolbar:not(:-moz-lwtheme) {
       --tab-stroke-background-size: 0 0;
     }
 
     /* Remove border between tab strip and navigation toolbar on Windows 10+ */
-    .tab-background-end[selected=true]::after,
-    .tab-background-start[selected=true]::after {
+    .tab-background-end[selected=true]:not(:-moz-lwtheme)::after,
+    .tab-background-start[selected=true]:not(:-moz-lwtheme)::after {
       content: none;
     }
   }

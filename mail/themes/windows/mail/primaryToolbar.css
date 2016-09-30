@@ -50,7 +50,7 @@ menu:not(:-moz-lwtheme):-moz-window-inactive {
 
 @media (-moz-os-version: windows-win10) {
   @media (-moz-windows-default-theme) and (-moz-windows-default-theme) {
-    #tabs-toolbar {
+    #tabs-toolbar:not(:-moz-lwtheme) {
       background-image: none;
     }
   }
