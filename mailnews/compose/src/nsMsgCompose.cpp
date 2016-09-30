@@ -2947,14 +2947,24 @@ NS_IMETHODIMP QuotingOutputStreamListener::OnStopRequest(nsIRequest *request, ns
     // In plain text quotes we always allow line breaking to not end up with
     // long lines. The quote is inserted into a span with style
     // "white-space: pre;" which isn't be wrapped.
+    // Update: Bug 387687 changed this to "white-space: pre-wrap;".
     // Note that the body of the plain text message is wrapped since it uses
     // "white-space: pre-wrap; width: 72ch;".
     // Look at it in the DOM Inspector to see it.
     //
-    // Also, delsp makes no sense in this context. Equally flowing (that means adding
-    // adding a space at the end) makes no sense in a quote, since the quote
-    // will never be re-assembled to a long line. All we need is formatted output.
-    ConvertToPlainText(false, false, true, false);
+    // If we're using format flowed, we need to pass it so the encoder
+    // can add a space at the end.
+    nsCOMPtr<nsIPrefBranch> pPrefBranch(do_GetService(NS_PREFSERVICE_CONTRACTID));
+    bool flowed = false;
+    if (pPrefBranch) {
+      pPrefBranch->GetBoolPref("mailnews.send_plaintext_flowed", &flowed);
+    }
+
+    rv = ConvertToPlainText(flowed,
+                            false,  // delsp makes no sense in this context
+                            true,   // formatted
+                            false); // allow line breaks
+    NS_ENSURE_SUCCESS(rv, rv);
   }
 
   compose->ProcessSignature(mIdentity, true, &mSignature);
