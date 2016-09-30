@@ -461,7 +461,9 @@ function test_address_book_switch_disabled_on_contact_in_mailing_list()
   // Click on the star, and ensure that the inline contact
   // editing panel opens
   mc.click(mc.aid(lastAddr, {class: 'emailStar'}));
-  assert_equals(contactPanel.state, "open");
+  mc.waitFor(() => contactPanel.state == "open",
+             "Timeout waiting for contactPanel to open; state=" +
+             contactPanel.state);
 
   let abDrop = mc.eid('editContactAddressBookList').getNode();
   let warningMsg = mc.eid('contactMoveDisabledText').getNode();
@@ -506,7 +508,9 @@ function test_address_book_switch_disabled_on_contact_in_mailing_list()
 
   // Re-open the inline contact editing panel
   mc.click(mc.aid(lastAddr, {class: 'emailStar'}));
-  assert_equals(contactPanel.state, "open");
+  mc.waitFor(() => contactPanel.state == "open",
+             "Timeout waiting for contactPanel to open; state=" +
+             contactPanel.state);
 
   // The dropdown should be disabled now
   assert_true(abDrop.disabled);
@@ -526,7 +530,9 @@ function test_address_book_switch_disabled_on_contact_in_mailing_list()
 
   // Re-open the inline contact editing panel
   mc.click(mc.aid(lastAddr, {class: 'emailStar'}));
-  assert_equals(contactPanel.state, "open");
+  mc.waitFor(() => contactPanel.state == "open",
+             "Timeout waiting for contactPanel to open; state=" +
+             contactPanel.state);
 
   // Ensure that the address book dropdown is not disabled
   assert_true(!abDrop.disabled);
