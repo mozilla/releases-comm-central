@@ -126,7 +126,9 @@
 }
 
 .msgHeaderView-button {
-  margin: 0 0.1em;
+  margin-top: 0;
+  margin-bottom: 0;
+  margin-inline-start: 2px;
   vertical-align: middle;
   min-width: 28px;
   padding-top: 0;

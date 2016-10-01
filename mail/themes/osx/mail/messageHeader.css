@@ -159,8 +159,8 @@ attachmentlist:focus >attachmentitem[selected="true"] .attachmentcell-size {
 
 .toolbarbutton-1.msgHeaderView-button {
   max-height: 22px;
-  margin: 0px;
-  margin-inline-start: 0.4em;
+  margin: 0;
+  margin-inline-start: 4px;
   vertical-align: middle;
   border: 1px solid var(--toolbarbutton-hover-bordercolor);
   border-radius: 3px;
