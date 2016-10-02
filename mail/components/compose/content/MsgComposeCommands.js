@@ -350,7 +350,7 @@ var stateListener = {
         gComposeType == Components.interfaces.nsIMsgCompType.MailToUrl) {
       // Check for empty body before allowing paragraph to be inserted.
       // An "empty" body will have a <br> potentially followed by a
-      // <pre class="moz-signature">.
+      // <div class="moz-signature"> or <pre class="moz-signature">.
       let mailBody = getBrowser().contentDocument.querySelector("body");
       let firstChild = mailBody.firstChild;
       let nextSibling = firstChild.nextSibling;
@@ -363,7 +363,7 @@ var stateListener = {
         if (!nextSibling)
           break;
 
-        if (nextSibling.localName == "pre" &&
+        if ((nextSibling.localName == "div" || nextSibling.localName == "pre") &&
             nextSibling.getAttribute("class") == "moz-signature")
           break;
 
