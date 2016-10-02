@@ -2880,7 +2880,7 @@ bool nsMsgDBFolder::PromptForMasterPasswordIfNecessary()
   NS_ENSURE_SUCCESS(rv, false);
 
   bool result;
-  rv = token->CheckPassword(EmptyString().get(), &result);
+  rv = token->CheckPassword(EmptyCString(), &result);
   NS_ENSURE_SUCCESS(rv, false);
 
   if (result)
