@@ -1455,7 +1455,7 @@ nsresult MsgNewBufferedFileOutputStream(nsIOutputStream **aResult,
   nsCOMPtr<nsIOutputStream> stream;
   nsresult rv = NS_NewLocalFileOutputStream(getter_AddRefs(stream), aFile, aIOFlags, aPerm);
   if (NS_SUCCEEDED(rv))
-    rv = NS_NewBufferedOutputStream(aResult, stream, FOUR_K);
+    rv = NS_NewBufferedOutputStream(aResult, stream, FOUR_K * 4);
   return rv;
 }
 
@@ -1467,7 +1467,7 @@ nsresult MsgNewSafeBufferedFileOutputStream(nsIOutputStream **aResult,
   nsCOMPtr<nsIOutputStream> stream;
   nsresult rv = NS_NewSafeLocalFileOutputStream(getter_AddRefs(stream), aFile, aIOFlags, aPerm);
   if (NS_SUCCEEDED(rv))
-    rv = NS_NewBufferedOutputStream(aResult, stream, FOUR_K);
+    rv = NS_NewBufferedOutputStream(aResult, stream, FOUR_K * 4);
   return rv;
 }
 
