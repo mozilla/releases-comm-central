@@ -19,10 +19,23 @@ Cu.import("resource:///modules/mailServices.js");
 var os = {};
 Cu.import('resource://mozmill/stdlib/os.js', os);
 
+var draftsFolder;
+
 function setupModule(module) {
   for (let lib of MODULE_REQUIRES) {
     collector.getModule(lib).installInto(module);
   }
+
+  if (!MailServices.accounts
+                   .localFoldersServer
+                   .rootFolder
+                   .containsChildNamed("Drafts")) {
+    create_folder("Drafts", [Ci.nsMsgFolderFlags.Drafts]);
+  }
+  draftsFolder = MailServices.accounts
+                             .localFoldersServer
+                             .rootFolder
+                             .getChildNamed("Drafts");
 
   Services.prefs.setBoolPref("mail.identity.id1.compose_html", false);
 }
@@ -38,15 +51,12 @@ function subtest_reply_format_flowed(aFlowed) {
 
   close_window(msgc);
 
-  // Now send the message.
-  plan_for_window_close(cwc);
-  cwc.window.goDoCommand("cmd_sendLater");
-  wait_for_window_close();
+  // Now save the message as a draft.
+  cwc.keypress(null, "s", {shiftKey: false, accelKey: true});
+  close_compose_window(cwc);
 
-  // Now check the message content in the outbox.
-  let outbox = MailServices.accounts.localFoldersServer.rootFolder
-                           .getChildNamed("Outbox");
-  be_in_folder(outbox);
+  // Now check the message content in the drafts folder.
+  be_in_folder(draftsFolder);
   let message = select_click_row(0);
   let messageContent = get_msg_source(message);
 
