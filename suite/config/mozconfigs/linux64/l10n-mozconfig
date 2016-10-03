@@ -7,12 +7,6 @@ ac_add_options --enable-update-channel=${MOZ_UPDATE_CHANNEL}
 # Build lightning locales
 ac_add_options --enable-calendar
 
-export LDFLAGS="-static-libstdc++"
-export HOST_LDFLAGS="-static-libstdc++"
-
-# For NSS symbols
-export MOZ_DEBUG_SYMBOLS=1
-
 # Needed to enable breakpad in application.ini
 export MOZILLA_OFFICIAL=1
 

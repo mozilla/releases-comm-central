@@ -3,12 +3,8 @@
 ac_add_options --enable-application=suite
 ac_add_options --enable-update-channel=${MOZ_UPDATE_CHANNEL}
 ac_add_options --enable-jemalloc
-ac_add_options --enable-tests
 ac_add_options --enable-calendar
 ac_add_options --enable-require-all-d3dc-versions
-
-# For NSS symbols
-export MOZ_DEBUG_SYMBOLS=1
 
 # Needed to enable breakpad in application.ini
 export MOZILLA_OFFICIAL=1

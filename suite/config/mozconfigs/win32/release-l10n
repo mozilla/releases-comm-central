@@ -4,9 +4,6 @@ ac_add_options --with-l10n-base=../../l10n
 ac_add_options --enable-application=suite
 ac_add_options --enable-update-channel=${MOZ_UPDATE_CHANNEL}
 
-# For NSS symbols
-export MOZ_DEBUG_SYMBOLS=1
-
 # Needed to enable breakpad in application.ini
 export MOZILLA_OFFICIAL=1
 
