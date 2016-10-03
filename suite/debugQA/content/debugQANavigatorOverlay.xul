@@ -9,7 +9,11 @@
 
   <script type="application/javascript">
   <![CDATA[
-    window.addEventListener("load", debugQABuildIDOnLoad, true);
+    // Setting the build id is optional.
+    try {
+      if (Services.prefs.getBoolPref("debugQA.show.buildId"))
+        window.addEventListener("load", debugQABuildIDOnLoad, true);
+    } catch (e) {}
 
     // Set the title modifer to include the build id.
     function debugQABuildIDOnLoad() {
