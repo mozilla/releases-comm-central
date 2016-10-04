@@ -4,6 +4,7 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 SOURCES += [
+    'nsCertPicker.cpp',
     'nsEncryptedSMIMEURIsService.cpp',
     'nsMsgComposeSecure.cpp',
     'nsSMimeJSHelper.cpp',
@@ -17,5 +18,6 @@ EXTRA_COMPONENTS += [
 FINAL_LIBRARY = 'mail'
 
 LOCAL_INCLUDES += [
+    '/mozilla/security/manager/pki',
     '/mozilla/security/pkix/include'
 ]

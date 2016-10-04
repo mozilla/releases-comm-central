@@ -289,6 +289,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 #include "nsCMS.h"
 #include "nsCMSSecureMessage.h"
+#include "nsCertPicker.h"
 #include "nsMsgSMIMECID.h"
 #include "nsMsgComposeSecure.h"
 #include "nsSMimeJSHelper.h"
@@ -768,6 +769,7 @@ NS_GENERIC_FACTORY_CONSTRUCTOR_INIT(nsCMSDecoder, Init)
 NS_GENERIC_FACTORY_CONSTRUCTOR_INIT(nsCMSEncoder, Init)
 NS_GENERIC_FACTORY_CONSTRUCTOR_INIT(nsCMSMessage, Init)
 NS_GENERIC_FACTORY_CONSTRUCTOR_INIT(nsCMSSecureMessage, Init)
+NS_GENERIC_FACTORY_CONSTRUCTOR_INIT(nsCertPicker, Init)
 
 NS_DEFINE_NAMED_CID(NS_MSGCOMPOSESECURE_CID);
 NS_DEFINE_NAMED_CID(NS_MSGSMIMECOMPFIELDS_CID);
@@ -777,6 +779,7 @@ NS_DEFINE_NAMED_CID(NS_CMSDECODER_CID);
 NS_DEFINE_NAMED_CID(NS_CMSENCODER_CID);
 NS_DEFINE_NAMED_CID(NS_CMSMESSAGE_CID);
 NS_DEFINE_NAMED_CID(NS_CMSSECUREMESSAGE_CID);
+NS_DEFINE_NAMED_CID(NS_CERT_PICKER_CID);
 
 ////////////////////////////////////////////////////////////////////////////////
 // vcard factories
@@ -1071,6 +1074,7 @@ const mozilla::Module::CIDEntry kMailNewsCIDs[] = {
   { &kNS_CMSENCODER_CID, false, NULL, nsCMSEncoderConstructor },
   { &kNS_CMSMESSAGE_CID, false, NULL, nsCMSMessageConstructor },
   { &kNS_CMSSECUREMESSAGE_CID, false, NULL, nsCMSSecureMessageConstructor },
+  { &kNS_CERT_PICKER_CID, false, nullptr, nsCertPickerConstructor },
   // Vcard Entries
   { &kNS_VCARD_CONTENT_TYPE_HANDLER_CID, false, NULL, nsVCardMimeContentTypeHandlerConstructor},
   // PGP/MIME Entries
@@ -1317,6 +1321,8 @@ const mozilla::Module::ContractIDEntry kMailNewsContracts[] = {
   { NS_CMSDECODER_CONTRACTID, &kNS_CMSDECODER_CID },
   { NS_CMSENCODER_CONTRACTID, &kNS_CMSENCODER_CID },
   { NS_CMSMESSAGE_CONTRACTID, &kNS_CMSMESSAGE_CID },
+  { NS_CERTPICKDIALOGS_CONTRACTID, &kNS_CERT_PICKER_CID },
+  { NS_CERT_PICKER_CONTRACTID, &kNS_CERT_PICKER_CID },
   // Vcard Entries
   { "@mozilla.org/mimecth;1?type=text/x-vcard", &kNS_VCARD_CONTENT_TYPE_HANDLER_CID },
   // PGP/MIME Entries

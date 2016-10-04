@@ -30,3 +30,8 @@
 <!ENTITY manageCerts2.accesskey "M">
 <!ENTITY manageDevices.label "Security Devices">
 <!ENTITY manageDevices.accesskey "y">
+
+<!-- Strings for the cert picker dialog -->
+<!ENTITY certPicker.title "Select Certificate">
+<!ENTITY certPicker.info  "Certificate:">
+<!ENTITY certPicker.detailsLabel "Details of selected certificate:">

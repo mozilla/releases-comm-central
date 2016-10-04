@@ -13,6 +13,8 @@ messenger.jar:
     content/messenger/am-smime.js                                    (content/am-smime.js)
     content/messenger/am-smimeIdentityEditOverlay.xul                (content/am-smimeIdentityEditOverlay.xul)
     content/messenger/am-smimeOverlay.xul                            (content/am-smimeOverlay.xul)
+    content/messenger/certpicker.js                                  (content/certpicker.js)
+    content/messenger/certpicker.xul                                 (content/certpicker.xul)
     content/messenger-smime/msgCompSMIMEOverlay.js                   (content/msgCompSMIMEOverlay.js)
     content/messenger-smime/msgCompSMIMEOverlay.xul                  (content/msgCompSMIMEOverlay.xul)
     content/messenger-smime/msgReadSMIMEOverlay.js                   (content/msgReadSMIMEOverlay.js)

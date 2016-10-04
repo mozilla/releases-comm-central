@@ -180,15 +180,15 @@ NS_IMETHODIMP nsMsgComposeSecure::RequiresCryptoEncapsulation(nsIMsgIdentity * a
 
 
 nsresult nsMsgComposeSecure::GetSMIMEBundleString(const char16_t *name,
-                                                  char16_t **outString)
+                                                  nsString &outString)
 {
-  *outString = nullptr;
+  outString.Truncate();
 
   NS_ENSURE_ARG_POINTER(name);
 
   NS_ENSURE_TRUE(InitializeSMIMEBundle(), NS_ERROR_FAILURE);
 
-  return mSMIMEBundle->GetStringFromName(name, outString);
+  return mSMIMEBundle->GetStringFromName(name, getter_Copies(outString));
 }
 
 nsresult
@@ -232,11 +232,7 @@ void nsMsgComposeSecure::SetError(nsIMsgSendReport *sendReport, const char16_t *
   mErrorAlreadyReported = true;
 
   nsString errorString;
-  nsresult res;
-
-  res = GetSMIMEBundleString(bundle_string,
-                             getter_Copies(errorString));
-
+  nsresult res = GetSMIMEBundleString(bundle_string, errorString);
   if (NS_SUCCEEDED(res) && !errorString.IsEmpty())
   {
     sendReport->SetMessage(nsIMsgSendReport::process_Current,

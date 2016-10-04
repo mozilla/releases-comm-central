@@ -4,11 +4,12 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 XPIDL_SOURCES += [
+    'nsICertPickDialogs.idl',
     'nsIEncryptedSMIMEURIsSrvc.idl',
     'nsIMsgSMIMECompFields.idl',
     'nsIMsgSMIMEHeaderSink.idl',
     'nsISMimeJSHelper.idl',
+    'nsIUserCertPicker.idl',
 ]
 
 XPIDL_MODULE = 'msgsmime'
-

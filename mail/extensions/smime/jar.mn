@@ -18,6 +18,8 @@ messenger.jar:
    content/messenger/am-smime.js                                    (/mailnews/extensions/smime/content/am-smime.js)
    content/messenger/am-smimeIdentityEditOverlay.xul                (/mailnews/extensions/smime/content/am-smimeIdentityEditOverlay.xul)
    content/messenger/am-smimeOverlay.xul                            (/mailnews/extensions/smime/content/am-smimeOverlay.xul)
+   content/messenger/certpicker.js                                  (/mailnews/extensions/smime/content/certpicker.js)
+   content/messenger/certpicker.xul                                 (/mailnews/extensions/smime/content/certpicker.xul)
    content/messenger-smime/msgReadSMIMEOverlay.js                   (/mailnews/extensions/smime/content/msgReadSMIMEOverlay.js)
    content/messenger-smime/msgCompSecurityInfo.js                   (/mailnews/extensions/smime/content/msgCompSecurityInfo.js)
    content/messenger-smime/msgCompSecurityInfo.xul                  (/mailnews/extensions/smime/content/msgCompSecurityInfo.xul)
