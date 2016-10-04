@@ -689,9 +689,13 @@ nsMimeBaseEmitter::GenerateDateString(const char * dateString,
     dateFormatPrefs->SetBoolPref("date_senders_timezone", true);
 
   PRExplodedTime explodedMsgTime;
-  // XXX Casting PRStatus to nsresult
-  rv = static_cast<nsresult>(
-    PR_ParseTimeStringToExplodedTime(dateString, false, &explodedMsgTime));
+
+  // Bogus date string may leave some fields uninitialized, so take precaution.
+  memset(&explodedMsgTime, 0, sizeof (PRExplodedTime));
+
+  if (PR_ParseTimeStringToExplodedTime(dateString, false, &explodedMsgTime) != PR_SUCCESS)
+    return NS_ERROR_FAILURE;
+
   /**
    * To determine the date format to use, comparison of current and message
    * time has to be made. If displaying in local time, both timestamps have
@@ -723,32 +727,30 @@ nsMimeBaseEmitter::GenerateDateString(const char * dateString,
   }
 
   nsAutoString formattedDateString;
+
+  rv = mDateFormatter->FormatPRExplodedTime(nullptr /* nsILocale* locale */,
+                                            dateFormat,
+                                            kTimeFormatNoSeconds,
+                                            &explodedCompTime,
+                                            formattedDateString);
+
   if (NS_SUCCEEDED(rv))
   {
-    rv = mDateFormatter->FormatPRExplodedTime(nullptr /* nsILocale* locale */,
-                                              dateFormat,
-                                              kTimeFormatNoSeconds,
-                                              &explodedCompTime,
-                                              formattedDateString);
-
-    if (NS_SUCCEEDED(rv))
+    if (displaySenderTimezone)
     {
-      if (displaySenderTimezone)
-      {
-        // offset of local time from UTC in minutes
-        int32_t senderoffset = (explodedMsgTime.tm_params.tp_gmt_offset +
-                                explodedMsgTime.tm_params.tp_dst_offset) / 60;
-        // append offset to date string
-        char16_t *tzstring =
-          nsTextFormatter::smprintf(u" %+05d",
-                                    (senderoffset / 60 * 100) +
-                                    (senderoffset % 60));
-        formattedDateString.Append(tzstring);
-        nsTextFormatter::smprintf_free(tzstring);
-      }
-
-      CopyUTF16toUTF8(formattedDateString, formattedDate);
+      // offset of local time from UTC in minutes
+      int32_t senderoffset = (explodedMsgTime.tm_params.tp_gmt_offset +
+                              explodedMsgTime.tm_params.tp_dst_offset) / 60;
+      // append offset to date string
+      char16_t *tzstring =
+        nsTextFormatter::smprintf(u" %+05d",
+                                  (senderoffset / 60 * 100) +
+                                  (senderoffset % 60));
+      formattedDateString.Append(tzstring);
+      nsTextFormatter::smprintf_free(tzstring);
     }
+
+    CopyUTF16toUTF8(formattedDateString, formattedDate);
   }
 
   return rv;
