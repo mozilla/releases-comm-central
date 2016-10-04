@@ -555,3 +555,30 @@ NS_MSG_BASE nsMsgKey msgKeyFromInt(uint64_t aValue);
   }
 
 #endif
+
+ /**
+ * Macro and helper function for reporting an error, warning or
+ * informational message to the Error Console
+ *
+ * This will require the inclusion of the following files in the source file
+ * #include "nsIScriptError.h"
+ * #include "nsIConsoleService.h"
+ *
+ */
+
+NS_MSG_BASE
+void MsgLogToConsole4(const nsAString &aErrorText, const nsAString &aFilename,
+                      uint32_t aLine, uint32_t flags);
+
+// Macro with filename and line number
+#define MSG_LOG_TO_CONSOLE(_text, _flag) MsgLogToConsole4(NS_LITERAL_STRING(_text), NS_LITERAL_STRING(__FILE__), __LINE__, _flag)
+#define MSG_LOG_ERR_TO_CONSOLE(_text) MSG_LOG_TO_CONSOLE(_text, nsIScriptError::errorFlag)
+#define MSG_LOG_WARN_TO_CONSOLE(_text) MSG_LOG_TO_CONSOLE(_text, nsIScriptError::warningFlag)
+#define MSG_LOG_INFO_TO_CONSOLE(_text) MSG_LOG_TO_CONSOLE(_text, nsIScriptError::infoFlag)
+
+// Helper macros to cope with shoddy I/O error reporting (or lack thereof)
+#define MSG_NS_ERROR(_txt) do { NS_ERROR(_txt); MSG_LOG_ERR_TO_CONSOLE(_txt); } while(0)
+#define MSG_NS_WARNING(_txt) do { NS_WARNING(_txt); MSG_LOG_WARN_TO_CONSOLE(_txt); } while (0)
+#define MSG_NS_WARN_IF_FALSE(_val, _txt) do { if (!(_val)) { NS_WARNING(_txt); MSG_LOG_WARN_TO_CONSOLE(_txt); } } while (0)
+#define MSG_NS_INFO(_txt) do { MSG_LOCAL_INFO_TO_CONSOLE(_txt); \
+  fprintf(stderr,"(info) %s (%s:%d)\n", _txt, __FILE__, __LINE__); } while(0)

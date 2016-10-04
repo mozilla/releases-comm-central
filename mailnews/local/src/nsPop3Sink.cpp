@@ -39,7 +39,11 @@
 #include "mozilla/Services.h"
 #include "mozilla/Logging.h"
 
-extern PRLogModuleInfo *POP3LOGMODULE;
+/* for logging to Error Console */
+#include "nsIScriptError.h"
+#include "nsIConsoleService.h"
+
+extern PRLogModuleInfo *POP3LOGMODULE; // defined in nsPop3Protocol.cpp
 #define POP3LOG(str) "%s sink: [this=%p] " str, POP3LOGMODULE->name, this
 
 NS_IMPL_ISUPPORTS(nsPop3Sink, nsIPop3Sink)
@@ -156,7 +160,7 @@ nsPop3Sink::FindPartialMessages()
 
       // If we got the uidl, see if this partial message belongs to this
       // account. Add it to the array if so...
-      if (folderScanState.m_uidl && 
+      if (folderScanState.m_uidl &&
           m_accountKey.Equals(folderScanState.m_accountKey, nsCaseInsensitiveCStringComparator()))
       {
         partialRecord *partialMsg = new partialRecord();
@@ -531,6 +535,37 @@ nsPop3Sink::IncorporateBegin(const char* uidlString,
     if (closure)
         *closure = (void*) this;
 
+#ifdef DEBUG
+    // Debugging, see bug 1116055.
+    int64_t first_pre_seek_pos;
+    nsresult rv3 = seekableOutStream->Tell(&first_pre_seek_pos);
+#endif
+
+    // XXX Handle error such as network error for remote file system.
+    seekableOutStream->Seek(nsISeekableStream::NS_SEEK_END, 0);
+
+#ifdef DEBUG
+    // Debugging, see bug 1116055.
+    int64_t first_post_seek_pos;
+    nsresult rv4 = seekableOutStream->Tell(&first_post_seek_pos);
+    if (NS_SUCCEEDED(rv3) && NS_SUCCEEDED(rv4)) {
+      if (first_pre_seek_pos != first_post_seek_pos) {
+        nsCOMPtr<nsIMsgFolder> localFolder = do_QueryInterface(m_folder);
+        nsString folderName;
+        if (localFolder)
+          localFolder->GetPrettiestName(folderName);
+        if (!folderName.IsEmpty()) {
+          fprintf(stderr,"(seekdebug) Seek was necessary in IncorporateBegin() for folder %s.\n",
+                  NS_ConvertUTF16toUTF8(folderName).get());
+        } else {
+          fprintf(stderr,"(seekdebug) Seek was necessary in IncorporateBegin().\n");
+        }
+        fprintf(stderr,"(seekdebug) first_pre_seek_pos = 0x%016llx, first_post_seek_pos=0x%016llx\n",
+                (unsigned long long) first_pre_seek_pos, (unsigned long long) first_post_seek_pos);
+      }
+    }
+#endif
+
     nsCString outputString(GetDummyEnvelope());
     rv = WriteLineToMailbox(outputString);
     NS_ENSURE_SUCCESS(rv, rv);
@@ -665,9 +700,54 @@ nsresult nsPop3Sink::WriteLineToMailbox(const nsACString& buffer)
     // See bug 62480
     NS_ENSURE_TRUE(m_outFileStream, NS_ERROR_OUT_OF_MEMORY);
 
+    // To remove seeking to the end for each line to be written, remove the
+    // following line. See bug 1116055 for details.
+#define SEEK_TO_END
+#ifdef  SEEK_TO_END
     // seek to the end in case someone else has seeked elsewhere in our stream.
     nsCOMPtr <nsISeekableStream> seekableOutStream = do_QueryInterface(m_outFileStream);
+
+    int64_t before_seek_pos;
+    nsresult rv2 = seekableOutStream->Tell(&before_seek_pos);
+    MOZ_ASSERT(NS_SUCCEEDED(rv2), "seekableOutStream->Tell(&before_seek_pos) failed");
+
+    // XXX Handle error such as network error for remote file system.
     seekableOutStream->Seek(nsISeekableStream::NS_SEEK_END, 0);
+
+    int64_t after_seek_pos;
+    nsresult rv3 = seekableOutStream->Tell(&after_seek_pos);
+    MOZ_ASSERT(NS_SUCCEEDED(rv3), "seekableOutStream->Tell(&after_seek_pos) failed");
+
+    if (NS_SUCCEEDED(rv2) && NS_SUCCEEDED(rv3)) {
+      if (before_seek_pos != after_seek_pos) {
+        nsCOMPtr<nsIMsgFolder> localFolder = do_QueryInterface(m_folder);
+        nsString folderName;
+        if (localFolder)
+          localFolder->GetPrettiestName(folderName);
+        // This merits a console message, it's poor man's telemetry.
+        MsgLogToConsole4(
+          NS_LITERAL_STRING("Unexpected file position change detected") +
+          (folderName.IsEmpty() ? EmptyString() : NS_LITERAL_STRING(" in folder ")) +
+          (folderName.IsEmpty() ? EmptyString() : folderName) + NS_LITERAL_STRING(". "
+          "If you can reliably reproduce this, please report the steps "
+          "you used to dev-apps-thunderbird@lists.mozilla.org or to bug 1308335 at bugzilla.mozilla.org. "
+          "Resolving this problem will allow speeding up message downloads."),
+          NS_LITERAL_STRING(__FILE__), __LINE__, nsIScriptError::errorFlag);
+#ifdef DEBUG
+        // Debugging, see bug 1116055.
+        if (!folderName.IsEmpty()) {
+          fprintf(stderr,"(seekdebug) WriteLineToMailbox() detected an unexpected file position change in folder %s.\n",
+                  NS_ConvertUTF16toUTF8(folderName).get());
+        } else {
+          fprintf(stderr,"(seekdebug) WriteLineToMailbox() detected an unexpected file position change.\n");
+        }
+        fprintf(stderr,"(seekdebug) before_seek_pos=0x%016llx, after_seek_pos=0x%016llx\n",
+                (long long unsigned int) before_seek_pos, (long long unsigned int) after_seek_pos);
+#endif
+      }
+    }
+#endif
+
     uint32_t bytesWritten;
     m_outFileStream->Write(buffer.BeginReading(), bufferLen, &bytesWritten);
     NS_ENSURE_TRUE(bytesWritten == bufferLen, NS_ERROR_FAILURE);

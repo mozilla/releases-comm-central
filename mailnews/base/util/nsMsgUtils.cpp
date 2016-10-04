@@ -78,6 +78,38 @@
 #include "nsIInputStreamPump.h"
 #include "nsIChannel.h"
 
+/* for logging to Error Console */
+#include "nsIScriptError.h"
+#include "nsIConsoleService.h"
+
+// Log an error string to the error console
+// (adapted from nsContentUtils::LogSimpleConsoleError).
+// Flag can indicate error, warning or info.
+NS_MSG_BASE void MsgLogToConsole4(const nsAString &aErrorText,
+                                  const nsAString &aFilename,
+                                  uint32_t aLinenumber,
+                                  uint32_t aFlag)
+{
+  nsCOMPtr<nsIScriptError> scriptError =
+    do_CreateInstance(NS_SCRIPTERROR_CONTRACTID);
+  if (NS_WARN_IF(!scriptError))
+    return;
+  nsCOMPtr<nsIConsoleService> console =
+    do_GetService(NS_CONSOLESERVICE_CONTRACTID);
+  if (NS_WARN_IF(!console))
+    return;
+  if (NS_FAILED(scriptError->Init(aErrorText,
+                                  aFilename,
+                                  EmptyString(),
+                                  aLinenumber,
+                                  0,
+                                  aFlag,
+                                  "mailnews")))
+    return;
+  console->LogMessage(scriptError);
+  return;
+}
+
 using namespace mozilla;
 using namespace mozilla::net;
 
