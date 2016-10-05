@@ -932,7 +932,7 @@ nsMsgSendLater::BuildHeaders()
   while (buf < buf_end)
   {
     bool prune_p = false;
-    bool    do_flags_p = false;
+    bool do_flags_p = false;
     char *colon = PL_strchr(buf, ':');
     char *end;
     char *value = 0;
@@ -986,11 +986,10 @@ nsMsgSendLater::BuildHeaders()
       break;
     case 'X': case 'x':
       {
-        int32_t headLen = PL_strlen(HEADER_X_MOZILLA_STATUS2);
-        if (headLen == end - buf &&
+        if (buf + strlen(HEADER_X_MOZILLA_STATUS2) == end &&
           !PL_strncasecmp(HEADER_X_MOZILLA_STATUS2, buf, end - buf))
           prune_p = true;
-        else if (strlen(HEADER_X_MOZILLA_STATUS) == end - buf &&
+        else if (buf + strlen(HEADER_X_MOZILLA_STATUS) == end &&
           !PL_strncasecmp(HEADER_X_MOZILLA_STATUS, buf, end - buf))
           prune_p = do_flags_p = true;
         else if (!PL_strncasecmp(HEADER_X_MOZILLA_DRAFT_INFO, buf, end - buf))
