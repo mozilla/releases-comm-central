@@ -6,6 +6,8 @@
  * Test about:downloads.
  */
 
+// make SOLO_TEST=downloads/test-about-downloads.js mozmill-one
+
 var MODULE_NAME = 'test-about-download';
 
 var RELATIVE_ROOT = "../shared-modules";
@@ -19,8 +21,6 @@ var MODULE_REQUIRES = [ 'attachment-helpers',
 var mozmill = {}; Components.utils.import('resource://mozmill/modules/mozmill.js', mozmill);
 var elementslib = {}; Components.utils.import('resource://mozmill/modules/elementslib.js', elementslib);
 var downloads = {}; Components.utils.import("resource://gre/modules/Downloads.jsm", downloads);
-
-var ah;
 
 var downloadsTab;
 
@@ -52,11 +52,15 @@ var downloadsView = {
     this.items.delete(aDownload);
   },
 
-  waitForFinish: function*() {
+  waitForFinish() {
+    let succeededPromises = [];
     for (let download of this.items.keys()) {
       let succeededPromise = download.whenSucceeded();
-      yield succeededPromise;
+      succeededPromises.push(succeededPromise);
     }
+    let finished = false;
+    Promise.all(succeededPromises).then(() => finished = true, Cu.reportError);
+    mc.waitFor(() => finished, "Timeout waiting for downloads to complete.");
   }
 };
 
@@ -97,20 +101,15 @@ function prepare_downloads_view() {
 }
 
 function setupModule(module) {
-  let fdh = collector.getModule("folder-display-helpers");
-  fdh.installInto(module);
-  let wh = collector.getModule('window-helpers');
-  wh.installInto(module);
-  let cth = collector.getModule("content-tab-helpers");
-  cth.installInto(module);
-  let dh = collector.getModule('dom-helpers');
-  dh.installInto(module);
-  ah = collector.getModule('attachment-helpers');
-  ah.installInto(module);
-  ah.gMockFilePickReg.register();
+  for (let lib of MODULE_REQUIRES) {
+    collector.getModule(lib).installInto(module);
+  }
+  gMockFilePickReg.register();
 
   prepare_messages();
   prepare_downloads_view();
+
+  downloadsTab = open_about_downloads();
 }
 
 function setupTest(test) {
@@ -134,8 +133,6 @@ function open_about_downloads() {
  * Test that there is no file in the list at first.
  */
 function test_empty_list() {
-  downloadsTab = open_about_downloads();
-
   switch_tab(downloadsTab);
 
   let empty = content_tab_e(downloadsTab, "msgDownloadsListEmptyDescription");
@@ -292,5 +289,5 @@ function teardownTest() {
 
 function teardownModule(module) {
   close_tab(downloadsTab);
-  ah.gMockFilePickReg.unregister();
+  gMockFilePickReg.unregister();
 }
