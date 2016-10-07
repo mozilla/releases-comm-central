@@ -6,8 +6,11 @@
 #include "nsCMS.h"
 
 #include "CertVerifier.h"
-#include "cms.h"
 #include "CryptoTask.h"
+#include "ScopedNSSTypes.h"
+#include "cms.h"
+#include "mozilla/Logging.h"
+#include "mozilla/RefPtr.h"
 #include "nsArrayUtils.h"
 #include "nsIArray.h"
 #include "nsICMSMessageErrors.h"
@@ -18,12 +21,9 @@
 #include "nsNSSComponent.h"
 #include "nsNSSHelper.h"
 #include "nsServiceManagerUtils.h"
-#include "mozilla/RefPtr.h"
+#include "pkix/Result.h"
 #include "pkix/pkixtypes.h"
-#include "ScopedNSSTypes.h"
 #include "smime.h"
-
-#include "mozilla/Logging.h"
 
 using namespace mozilla;
 using namespace mozilla::psm;
@@ -280,12 +280,14 @@ nsresult nsCMSMessage::CommonVerifySignature(unsigned char* aDigestData, uint32_
 
   {
     UniqueCERTCertList builtChain;
-    SECStatus srv = certVerifier->VerifyCert(si->cert,
-                                             certificateUsageEmailSigner,
-                                             Now(), nullptr /*XXX pinarg*/,
-                                             nullptr /*hostname*/,
-                                             builtChain);
-    if (srv != SECSuccess) {
+    mozilla::pkix::Result result =
+      certVerifier->VerifyCert(si->cert,
+                               certificateUsageEmailSigner,
+                               Now(),
+                               nullptr /*XXX pinarg*/,
+                               nullptr /*hostname*/,
+                               builtChain);
+    if (result != mozilla::pkix::Success) {
       MOZ_LOG(gPIPNSSLog, LogLevel::Debug,
              ("nsCMSMessage::CommonVerifySignature - signing cert not trusted now\n"));
       rv = NS_ERROR_CMS_VERIFY_UNTRUSTED;

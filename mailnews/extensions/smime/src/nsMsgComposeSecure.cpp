@@ -6,28 +6,30 @@
 
 #include "nsMsgComposeSecure.h"
 
+#include <algorithm>
+
+#include "ScopedNSSTypes.h"
 #include "cert.h"
 #include "keyhi.h"
-#include "msgCore.h"
-#include "nsICryptoHash.h"
-#include "nsIMsgCompFields.h"
-#include "nsIMsgIdentity.h"
-#include "nsIX509CertDB.h"
-#include "nsMimeTypes.h"
-#include "nsMsgMimeCID.h"
-#include "nspr.h"
-#include "nsComponentManagerUtils.h"
-#include "nsServiceManagerUtils.h"
-#include "nsMemory.h"
-#include "nsAlgorithm.h"
-#include "nsNSSComponent.h"
 #include "mozilla/RefPtr.h"
 #include "mozilla/Services.h"
 #include "mozilla/mailnews/MimeEncoder.h"
 #include "mozilla/mailnews/MimeHeaderParser.h"
+#include "msgCore.h"
+#include "nsAlgorithm.h"
+#include "nsComponentManagerUtils.h"
+#include "nsICryptoHash.h"
 #include "nsIMimeConverter.h"
-#include "ScopedNSSTypes.h"
-#include <algorithm>
+#include "nsIMsgCompFields.h"
+#include "nsIMsgIdentity.h"
+#include "nsIX509CertDB.h"
+#include "nsMemory.h"
+#include "nsMimeTypes.h"
+#include "nsMsgMimeCID.h"
+#include "nsNSSComponent.h"
+#include "nsServiceManagerUtils.h"
+#include "nspr.h"
+#include "pkix/Result.h"
 
 using namespace mozilla::mailnews;
 using namespace mozilla;
@@ -903,7 +905,7 @@ nsresult nsMsgComposeSecure::MimeCryptoHackCerts(const char *aRecipients,
                                   certificateUsageEmailRecipient,
                                   mozilla::pkix::Now(),
                                   nullptr, nullptr,
-                                  builtChain) != SECSuccess)) {
+                                  builtChain) != mozilla::pkix::Success)) {
       // not suitable for encryption, so unset cert and clear pref
       mSelfEncryptionCert = nullptr;
       mEncryptionCertDBKey.Truncate();
@@ -925,7 +927,7 @@ nsresult nsMsgComposeSecure::MimeCryptoHackCerts(const char *aRecipients,
                                   certificateUsageEmailSigner,
                                   mozilla::pkix::Now(),
                                   nullptr, nullptr,
-                                  builtChain) != SECSuccess)) {
+                                  builtChain) != mozilla::pkix::Success)) {
       // not suitable for signing, so unset cert and clear pref
       mSelfSigningCert = nullptr;
       mSigningCertDBKey.Truncate();
