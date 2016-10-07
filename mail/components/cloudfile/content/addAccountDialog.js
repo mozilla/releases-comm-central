@@ -1,3 +1,5 @@
+/* -*- Mode: javascript; tab-width: 8; indent-tabs-mode: nil; c-basic-offset: 2 ; js-indent-level: 2 -*- */
+/* vim: set ts=2 et sw=2 tw=80: */
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
@@ -69,7 +71,11 @@ var addAccountDialog = {
     this._createAccountText = document.getElementById("createAccountText");
 
     this.removeTitleMenuItem();
-    this.addAccountTypes();
+
+    // Determine whether any account types were added to the menulist,
+    // if not, return early.
+    if (this.addAccountTypes() == 0)
+      return;
 
     // Hook up our onInput event handler
     this._settings.addEventListener("DOMContentLoaded", this, false);
@@ -112,7 +118,8 @@ var addAccountDialog = {
         break;
       }
       case "overflow": {
-        this.fitIFrame();
+        if (this._settings.contentDocument.body)
+          this.fitIFrame();
         break;
       }
       case "select": {
@@ -147,9 +154,15 @@ var addAccountDialog = {
   fitIFrame: function() {
     // Determine the height of the accountSettings iframe, and adjust
     // the height of the window appropriately.
-    let newHeight = this._settings.contentDocument
-                                  .body
-                                  .offsetHeight;
+
+    // If no account is available, |.body| is undefined. In this case
+    // return a minimum height of 16px without calling sizeToContent().
+    if (!this._settings.contentDocument.body) {
+      Cu.reportError("WARNING: addAccountDialog.js: fitFrame: There is no account and this._settings.contentDocument.body is undefined.");
+      this._settings.style.height = this._settings.style.minHeight = "16px";
+      return;
+    }
+    let newHeight = this._settings.contentDocument.body.offsetHeight;
     this._settings.style.height = this._settings.style.minHeight = newHeight + "px";
     window.sizeToContent();
   },
@@ -162,7 +175,9 @@ var addAccountDialog = {
     }
   },
 
+  // Return number of additions to the menulist, zero if none happened.
   addAccountTypes: function AAD_addAccountTypes() {
+    let accountTypeTotal = 0;
     for (let [key, provider] of cloudFileAccounts.enumerateProviders()) {
       // If we already have an account for this type, don't add it to the list.
       // This limitation will hopefully be removed in the future.
@@ -182,6 +197,7 @@ var addAccountDialog = {
       }
 
       this._accountType.menupopup.appendChild(menuitem);
+      accountTypeTotal++;
     }
 
     // This block should go away when bug 748437 gets fixed, since we'll
@@ -200,6 +216,8 @@ var addAccountDialog = {
     // a few clicks.
     if (this._accountType.itemCount == 1)
       this._accountType.selectedIndex = 0;
+
+    return accountTypeTotal;
   },
 
   onOK: function AAD_onOK() {
