@@ -384,7 +384,7 @@ def do_hg_pull(dir, repository, hg, rev, hgtool=None, hgtool1=None):
 
     if options.tinderbox_print and dir != '.':
         got_rev = check_call_output([hg, 'parent', '-R', fulldir,
-                                     '--template={node|short}'])
+                                     '--template={node}'])
 
         url = check_call_output([hg, 'paths', 'default', '-R', fulldir]).rstrip().rstrip('/')
         repo_name = url.split('/')[-1]

@@ -47,7 +47,7 @@ DEFINES += -DGRE_MILESTONE=$(GRE_MILESTONE)
 endif
 
 # comm-central source repo and stamp
-SOURCE_STAMP ?= $(firstword $(shell hg -R $(topsrcdir) parent --template='{node|short}\n' 2>/dev/null))
+SOURCE_STAMP ?= $(firstword $(shell hg -R $(topsrcdir) parent --template='{node}\n' 2>/dev/null))
 ifdef SOURCE_STAMP
 DEFINES += -DSOURCE_STAMP='$(SOURCE_STAMP)'
 endif
@@ -58,7 +58,7 @@ DEFINES += -DSOURCE_REPO='$(SOURCE_REPO)'
 endif
 
 # Mozilla source repo and stamps
-MOZ_SOURCE_STAMP = $(firstword $(shell hg -R $(MOZILLA_SRCDIR) parent --template='{node|short}\n' 2>/dev/null))
+MOZ_SOURCE_STAMP = $(firstword $(shell hg -R $(MOZILLA_SRCDIR) parent --template='{node}\n' 2>/dev/null))
 ifdef MOZ_SOURCE_STAMP
 DEFINES += -DMOZ_SOURCE_STAMP='$(MOZ_SOURCE_STAMP)'
 endif
