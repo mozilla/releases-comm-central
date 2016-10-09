@@ -77,7 +77,7 @@
     </groupbox>
 
     <!-- REMOVE #ifndef once EME are ready for prime time, meta bug 1015800 -->
-#ifndef RELEASE_BUILD
+#ifndef RELEASE_OR_BETA
     <groupbox id="drmPreferences">
       <caption label="&enableDrmMedia.label;"/>
       <checkbox id="emeForSuite"

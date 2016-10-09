@@ -547,7 +547,7 @@ pref("app.update.interval", 86400);
 // The minimum delay in seconds for the timer to fire.
 // default=2 minutes
 pref("app.update.timerMinimumDelay", 120);
-#ifdef RELEASE_BUILD
+#ifdef RELEASE_OR_BETA
 // Give the user x seconds to react before showing the big UI. default=8 days
 pref("app.update.promptWaitTime", 691200);
 #else
