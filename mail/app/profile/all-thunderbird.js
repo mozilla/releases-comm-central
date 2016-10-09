@@ -188,7 +188,7 @@ pref("services.kinto.gfx.collection", "gfx");
 pref("services.kinto.gfx.checked", 0);
 
 // For now, let's keep kinto update out of the release channel.
-#ifdef RELEASE_BUILD
+#ifdef RELEASE_OR_BETA
 pref("services.kinto.update_enabled", false);
 #else
 pref("services.kinto.update_enabled", true);
