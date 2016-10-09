@@ -6,6 +6,7 @@
 
 Components.utils.import("resource://calendar/modules/calUtils.jsm");
 Components.utils.import("resource://gre/modules/Services.jsm");
+Components.utils.import("resource://gre/modules/Preferences.jsm");
 Components.utils.import("resource://gre/modules/AppConstants.jsm");
 
 var gCategoryList;
@@ -15,6 +16,10 @@ var categoryPrefBranch = Services.prefs.getBranch("calendar.category.color.");
  * Global Object to hold methods for the categories pref pane
  */
 var gCategoriesPane = {
+
+    mCategoryDialog: null,
+    mWinProp: null,
+    mLoadInContent: false,
 
     /**
      * Initialize the categories pref pane. Sets up dialog controls to show the
@@ -56,6 +61,23 @@ var gCategoriesPane = {
         }
 
         this.updateCategoryList();
+
+        this.mCategoryDialog = "chrome://calendar/content/preferences/editCategory.xul";
+
+        // Workaround for Bug 1151440 - the HTML color picker won't work
+        // in linux when opened from modal dialog
+        this.mWinProp = "centerscreen, chrome, resizable=no";
+        if (AppConstants.platform != "linux") {
+            this.mWinProp += ", modal";
+        }
+
+        this.mLoadInContent = Preferences.get(
+            "mail.preferences.inContent",
+            false
+        );
+        if (this.mLoadInContent) {
+            gSubDialog.init();
+        }
     },
 
     /**
@@ -110,14 +132,16 @@ var gCategoriesPane = {
         let listbox = document.getElementById("categorieslist");
         listbox.clearSelection();
         this.updateButtons();
-        window.openDialog("chrome://calendar/content/preferences/editCategory.xul",
-                          "addCategory",
-                          // Workaround for Bug 1151440 - the HTML color picker won't work
-                          // in linux when opened from modal dialog
-                          AppConstants.platform == "linux"
-                              ? "centerscreen,chrome,resizable=no"
-                              : "modal,centerscreen,chrome,resizable=no",
-                          "", null, addTitle);
+        let params = {
+            title: addTitle,
+            category: "",
+            color: null
+        };
+        if (this.mLoadInContent) {
+            gSubDialog.open(this.mCategoryDialog, "resizable=no", params);
+        } else {
+            window.openDialog(this.mCategoryDialog, "addCategory", this.mWinProp, params);
+        }
     },
 
     /**
@@ -132,16 +156,17 @@ var gCategoriesPane = {
         } catch (ex) {
             // If the pref doesn't exist, don't bail out here.
         }
-
+        let params = {
+            title: editTitle,
+            category: gCategoryList[list.selectedIndex],
+            color: currentColor
+        };
         if (list.selectedItem) {
-            window.openDialog("chrome://calendar/content/preferences/editCategory.xul",
-                              "editCategory",
-                              // Workaround for Bug 1151440 - the HTML color picker won't work
-                              // in linux when opened from modal dialog
-                              AppConstants.platform == "linux"
-                                  ? "centerscreen,chrome,resizable=no"
-                                  : "modal,centerscreen,chrome,resizable=no",
-                              gCategoryList[list.selectedIndex], currentColor, editTitle);
+            if (this.mLoadInContent) {
+                gSubDialog.open(this.mCategoryDialog, "resizable=no", params);
+            } else {
+                window.openDialog(this.mCategoryDialog, "editCategory", this.mWinProp, params);
+            }
         }
     },
 

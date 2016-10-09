@@ -23,11 +23,13 @@
 
   <!-- dialog-box: from dialogOverlay.xul -->
   <vbox id="dialog-box">
-    <hbox align="center">
-      <label value="&pref.categories.name.label;" control="categoryName"/>
-      <textbox id="categoryName" onchange="categoryNameChanged()" oninput="delay(500, categoryNameChanged)"/>
-    </hbox>
-    <hbox id="row2">
+    <label value="&pref.categories.name.label;"
+           control="categoryName"/>
+    <textbox id="categoryName"
+             flex="1"
+             onchange="categoryNameChanged()"
+             oninput="delay(500, categoryNameChanged)"/>
+    <hbox id="colorSelectRow">
       <checkbox id="useColor"
                 label="&pref.categories.usecolor.label;"
                 oncommand="toggleColor(); categoryNameChanged()"/>

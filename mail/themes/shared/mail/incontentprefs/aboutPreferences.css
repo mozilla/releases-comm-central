@@ -316,8 +316,8 @@ tabs {
 #dialogFrame {
   -moz-box-flex: 1;
   /* Default dialog dimensions */
-  height: 20em;
-  width: 66ch;
+  height: 12em;
+  width: 40ch;
 }
 
 .largeDialogContainer.doScroll {

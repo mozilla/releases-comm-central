@@ -13,13 +13,14 @@ var customColorSelected = false;
  * Load Handler, called when the edit category dialog is loaded
  */
 function editCategoryLoad() {
-    let color = window.arguments[1] || cal.hashColor(window.arguments[0]);
-    let hasColor = (window.arguments[1] != null);
-    document.getElementById("categoryName").value = window.arguments[0];
+    let winArg = window.arguments[0];
+    let color = winArg.color || cal.hashColor(winArg.category);
+    let hasColor = (winArg.color != null);
+    document.getElementById("categoryName").value = winArg.category;
     document.getElementById("categoryColor").value = color;
     document.getElementById("useColor").checked = hasColor;
     customColorSelected = hasColor;
-    document.title = window.arguments[2];
+    document.title = winArg.title;
 
     toggleColor();
 }

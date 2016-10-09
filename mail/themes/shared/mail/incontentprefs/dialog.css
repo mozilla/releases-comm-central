@@ -83,3 +83,9 @@ groupbox description {
   margin-right: 0;
   margin-left: 0;
 }
+
+/* Adjust the Lightning Edit Category dialog */
+#colorSelectRow {
+  margin-top: 10px;
+  margin-inline-start: 4px;
+}
