@@ -11,3 +11,15 @@ ifdef MAKENSISU
 libs::
 	$(MAKE) -C installer/windows uninstaller
 endif
+
+
+# As a fallout from bug 1247162, the sourcestamp in application.ini and
+# platform.ini are the same, which isn't a problem for Firefox, but
+# it's not right for anything else. So we correct platform.ini here.
+
+MOZ_REV=$(shell hg -R "$(MOZILLA_SRCDIR)" parent --template="{node}" 2>/dev/null)
+
+libs:: $(DIST)/bin/platform.ini
+	sed -e "s/^\(SourceStamp=\).*/\1$(MOZ_REV)/" $(DIST)/bin/platform.ini \
+		> $(DIST)/bin/platform.ini~
+	mv -f $(DIST)/bin/platform.ini~ $(DIST)/bin/platform.ini
