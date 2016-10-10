@@ -355,6 +355,13 @@ var ircBase = {
       this._modes = new Set();
       this._userModeReceived = false;
 
+      // Check if autoUserMode is set in preference
+      if (this.prefs.prefHasUserValue("autoUserMode")) {
+        let autoUserMode = this.getString("autoUserMode");
+        // Now send it to server to set the mode
+        this.sendMessage("MODE", [this._nickname, autoUserMode]);
+      }
+
       // Check if our nick has changed.
       if (aMessage.params[0] != this._nickname)
         this.changeBuddyNick(this._nickname, aMessage.params[0]);
