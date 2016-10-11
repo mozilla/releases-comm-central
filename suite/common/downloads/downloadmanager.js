@@ -677,9 +677,9 @@ var gDownloadDNDObserver = {
       return;
 
     var types = aEvent.dataTransfer.types;
-    if (types.contains("text/uri-list") ||
-        types.contains("text/x-moz-url") ||
-        types.contains("text/plain"))
+    if (types.includes("text/uri-list") ||
+        types.includes("text/x-moz-url") ||
+        types.includes("text/plain"))
       aEvent.preventDefault();
     aEvent.stopPropagation();
   },
