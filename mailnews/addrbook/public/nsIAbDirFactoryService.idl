@@ -15,7 +15,7 @@ interface nsIAbDirFactoryService : nsISupports
    * Obtain a directory factory component given a uri representing an address
    * book. The scheme is extracted from the uri and contract id is generated
    * of the form:
-   * @mozilla.org/addressbook/directory-factory;1?type=<scheme>
+   * @mozilla.org/addressbook/directory-factory;1?name=<scheme>
    * 
    * This id is used to instantiate a registered component which implemented
    * the nsIAbDirFactory interface.
