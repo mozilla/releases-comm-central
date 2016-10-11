@@ -435,13 +435,13 @@
           return;
 
         let dt = aEvent.dataTransfer;
-        if (dt.types.contains("application/x-ib-contact")) {
+        if (dt.types.includes("application/x-ib-contact")) {
           if (dt.getData("application/x-ib-contact") != this.contact.id)
             this._DragOk(aEvent);
           else
             aEvent.stopPropagation();
         }
-        else if (dt.types.contains("application/x-ib-buddy"))
+        else if (dt.types.includes("application/x-ib-buddy"))
           this._DragOk(aEvent);
       ]]>
       </body>
@@ -492,11 +492,11 @@
      <handler event="drop">
        <![CDATA[
          let dt = event.dataTransfer;
-         if (dt.types.contains("application/x-ib-contact")) {
+         if (dt.types.includes("application/x-ib-contact")) {
            let id = dt.getData("application/x-ib-contact");
            this.contact.mergeContact(Services.contacts.getContactById(id));
          }
-         else if (dt.types.contains("application/x-ib-buddy")) {
+         else if (dt.types.includes("application/x-ib-buddy")) {
            let id = dt.getData("application/x-ib-buddy");
            let from = Services.contacts.getBuddyById(id);
            if (from.contact.id != this.contact.id)
