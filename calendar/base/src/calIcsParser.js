@@ -46,7 +46,7 @@ calIcsParser.prototype = {
                 // libical, we append the error message of the caught exception, which includes
                 // already a stack trace.
                 cal.ERROR(message + rootComp + "\n" + cal.STACK(10));
-            } catch(e) {
+            } catch (e) {
                 cal.ERROR(message + e);
             }
         }
