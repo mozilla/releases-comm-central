@@ -282,6 +282,4 @@ function test_remove_space_stuffing_format_flowed() {
 }
 
 function teardownModule() {
-  MailServices.accounts.localFoldersServer.rootFolder
-              .propagateDelete(draftsFolder, true, null);
 }
