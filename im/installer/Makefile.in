@@ -201,6 +201,6 @@ endif
 
 # The comm-* source stamp is already there.
 PLATFORM_SOURCE_STAMP = $(firstword $(shell hg -R "$(MOZILLA_SRCDIR)" parent --template="{node}\n" 2>/dev/null))
-PLATFORM_SOURCE_REPO = $(shell hg -R "$(MOZILLA_SRCDIR)" showconfig paths.default 2>/dev/null | sed -e "s/^ssh:/http:/")
+PLATFORM_SOURCE_REPO = $(shell hg -R "$(MOZILLA_SRCDIR)" showconfig paths.default 2>/dev/null | sed -e "s/^ssh:/https:/")
 make-sourcestamp-file::
 	@echo "$(PLATFORM_SOURCE_REPO)/rev/$(PLATFORM_SOURCE_STAMP)" >> $(MOZ_SOURCESTAMP_FILE)
