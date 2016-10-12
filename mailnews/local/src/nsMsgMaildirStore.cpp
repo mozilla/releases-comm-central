@@ -316,6 +316,7 @@ NS_IMETHODIMP nsMsgMaildirStore::SetSummaryFileValid(nsIMsgFolder *aFolder,
   NS_ENSURE_ARG_POINTER(aDB);
   nsCOMPtr<nsIDBFolderInfo> dbFolderInfo;
   aDB->GetDBFolderInfo(getter_AddRefs(dbFolderInfo));
+  NS_ENSURE_STATE(dbFolderInfo);
   return dbFolderInfo->SetBooleanProperty("maildirValid", aValid);
 }
 
