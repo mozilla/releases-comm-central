@@ -30,6 +30,7 @@ Cu.import("resource://gre/modules/Services.jsm");
 
 var FILE_LOAD_PATHS = [
   "../resources",
+  "../../resources",
   "../../../../mailnews/test/resources",
   "../../../../mail/base/test/unit/resources",
   "../../../../mailnews/test/fakeserver"
@@ -2805,9 +2806,11 @@ var SyntheticPartMultiMixed;
 var SyntheticPartMultiRelated;
 
 /**
- * Load a file in its own 'module'.
+ * Load a file in its own 'module' based on the effective location of the staged copy of
+ * test-folder-helpers.js - if you get an error in this function, probably an appropriate releative
+ * path in FILE_LOAD_PATHS is missing for your setup.
  *
- * @param aPath A path relative to the comm-central source path.
+ * @param aPath A path relative to the comm-central source path (can be just a file name)
  *
  * @return An object that serves as the global scope for the loaded file.
  */
