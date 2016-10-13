@@ -94,10 +94,17 @@ ltn.invitation = {
                     // we convert special characters first to not mix up html conversion
                     let mode = Components.interfaces.mozITXTToHTMLConv.kEntities;
                     let contentText = linkConverter.scanTXT(aContentText, mode);
-                    mode = Components.interfaces.mozITXTToHTMLConv.kStructPhrase +
-                           Components.interfaces.mozITXTToHTMLConv.kGlyphSubstitution +
-                           Components.interfaces.mozITXTToHTMLConv.kURLs;
-                    content.innerHTML = linkConverter.scanHTML(contentText, mode);
+                    try {
+                        // kGlyphSubstitution may lead to unexpected results when used in scanHTML
+                        mode = Components.interfaces.mozITXTToHTMLConv.kStructPhrase +
+                               Components.interfaces.mozITXTToHTMLConv.kGlyphSubstitution +
+                               Components.interfaces.mozITXTToHTMLConv.kURLs;
+                        content.innerHTML = linkConverter.scanHTML(contentText, mode);
+                    } catch (e) {
+                        mode = Components.interfaces.mozITXTToHTMLConv.kStructPhrase +
+                               Components.interfaces.mozITXTToHTMLConv.kURLs;
+                        content.innerHTML = linkConverter.scanHTML(contentText, mode);
+                    }
                 } else {
                     content.textContent = aContentText;
                 }
