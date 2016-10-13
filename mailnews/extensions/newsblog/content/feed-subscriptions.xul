@@ -10,8 +10,10 @@
 <?xml-stylesheet href="chrome://messenger-newsblog/skin/feed-subscriptions.css" type="text/css"?>
 
 <!DOCTYPE window [
-<!ENTITY % feedDTD SYSTEM "chrome://messenger-newsblog/locale/feed-subscriptions.dtd">
-  %feedDTD;
+  <!ENTITY % feedDTD SYSTEM "chrome://messenger-newsblog/locale/feed-subscriptions.dtd">
+    %feedDTD;
+  <!ENTITY % certDTD SYSTEM "chrome://pippki/locale/certManager.dtd">
+    %certDTD;
 ]>
 
 <window id="subscriptionsDialog"
@@ -178,6 +180,11 @@
              crop="end"
              value="&validateText.label;"
              onclick="FeedSubscriptions.checkValidation(event);"/>
+      <button id="addCertException"
+              collapsed="true"
+              label="&certmgr.addException.label;"
+              accesskey="&certmgr.addException.accesskey;"
+              oncommand="FeedSubscriptions.addCertExceptionDialog();"/>
       <progressmeter id="progressMeter"
                      collapsed="true"
                      mode="determined"

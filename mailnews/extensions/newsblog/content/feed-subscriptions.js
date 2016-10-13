@@ -1146,7 +1146,9 @@ var FeedSubscriptions = {
 
   onMouseDown: function (aEvent)
   {
-    if (aEvent.button != 0 || aEvent.target.id == "validationText")
+    if (aEvent.button != 0 ||
+        aEvent.target.id == "validationText" ||
+        aEvent.target.id == "addCertException")
       return;
 
     this.clearStatusInfo();
@@ -1743,6 +1745,14 @@ var FeedSubscriptions = {
         if (aErrorCode == FeedUtils.kNewsBlogFileError)
           message = FeedUtils.strings.GetStringFromName(
                       "subscribe-errorOpeningFile");
+        if (aErrorCode == FeedUtils.kNewsBlogBadCertError) {
+          let host = Services.io.newURI(feed.url, null, null).host;
+          message = FeedUtils.strings.formatStringFromName(
+                      "newsblog-badCertError", [host], 1);
+        }
+        if (aErrorCode == FeedUtils.kNewsBlogNoAuthError)
+          message = FeedUtils.strings.GetStringFromName(
+                      "subscribe-noAuthError");
 
         if (win.mActionMode != win.kUpdateMode)
           // Re-enable the add button if subscribe failed.
@@ -1796,6 +1806,12 @@ var FeedSubscriptions = {
       el.removeAttribute("collapsed");
     else
       el.setAttribute("collapsed", true);
+
+    el = document.getElementById("addCertException");
+    if (aErrorCode == FeedUtils.kNewsBlogBadCertError)
+      el.removeAttribute("collapsed");
+    else
+      el.setAttribute("collapsed", true);
   },
 
   clearStatusInfo: function()
@@ -1803,6 +1819,7 @@ var FeedSubscriptions = {
     document.getElementById("statusText").textContent = "";
     document.getElementById("progressMeter").collapsed = true;
     document.getElementById("validationText").collapsed = true;
+    document.getElementById("addCertException").collapsed = true;
   },
 
   checkValidation: function(aEvent)
@@ -1827,6 +1844,18 @@ var FeedSubscriptions = {
       }
     }
     aEvent.stopPropagation();
+  },
+
+  addCertExceptionDialog: function()
+  {
+    let feedURL = document.getElementById("locationValue").value.trim();
+    let params = { exceptionAdded : false,
+                   location: feedURL,
+                   prefetchCert: true };
+    window.openDialog("chrome://pippki/content/exceptionDialog.xul",
+                      "", "chrome,centerscreen,modal", params);
+    if (params.exceptionAdded)
+      this.clearStatusInfo();
   },
 
   // Listener for folder pane changes.

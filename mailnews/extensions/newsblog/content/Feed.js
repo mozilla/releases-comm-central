@@ -220,15 +220,27 @@ Feed.prototype =
     let feed = FeedCache.getFeed(url);
     if (feed.downloadCallback) 
     {
+      // Generic network or 'not found' error initially.
       let error = FeedUtils.kNewsBlogRequestFailure;
-      try
-      {
-        if (request.status == 304)
-          // If the http status code is 304, the feed has not been modified
-          // since we last downloaded it and does not need to be parsed.
-          error = FeedUtils.kNewsBlogNoNewItems;
+
+      if (request.status == 304) {
+        // If the http status code is 304, the feed has not been modified
+        // since we last downloaded it and does not need to be parsed.
+        error = FeedUtils.kNewsBlogNoNewItems;
       }
-      catch (ex) {}
+      else {
+        let [errType, errName] = FeedUtils.createTCPErrorFromFailedXHR(request);
+        FeedUtils.log.info("Feed.onDownloaded: request errType:errName:statusCode - " +
+                           errType + ":" + errName + ":" + request.status);
+        if (errType == "SecurityCertificate")
+          // This is the code for nsINSSErrorsService.ERROR_CLASS_BAD_CERT
+          // overrideable security certificate errors.
+          error = FeedUtils.kNewsBlogBadCertError;
+
+        if (request.status == 401 || request.status == 403)
+          // Unauthorized or Forbidden.
+          error = FeedUtils.kNewsBlogNoAuthError;
+      }
 
       feed.downloadCallback.downloaded(feed, error);
     }
@@ -602,4 +614,3 @@ Feed.prototype =
     this.storeNextItem();
   }
 };
-
