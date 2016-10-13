@@ -1,6 +1,9 @@
 # Always ignore node_modules.
 **/node_modules/**/*.*
 
+# lint eslint config files which are excluded by default
+!**/.eslintrc.js
+
 # Exclude expected objdirs.
 obj*/**
 
