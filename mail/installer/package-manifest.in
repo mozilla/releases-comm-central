@@ -425,7 +425,6 @@
 @RESPATH@/components/dom_storage.xpt
 @RESPATH@/components/dom_stylesheets.xpt
 @RESPATH@/components/dom_traversal.xpt
-@RESPATH@/components/dom_tv.xpt
 @RESPATH@/components/dom_webspeechrecognition.xpt
 @RESPATH@/components/dom_workers.xpt
 @RESPATH@/components/dom_xbl.xpt
@@ -670,8 +669,6 @@
 @RESPATH@/components/messageWakeupService.manifest
 @RESPATH@/components/SettingsManager.js
 @RESPATH@/components/SettingsManager.manifest
-@RESPATH@/components/Webapps.js
-@RESPATH@/components/Webapps.manifest
 @RESPATH@/components/AppsService.js
 @RESPATH@/components/AppsService.manifest
 @RESPATH@/components/htmlMenuBuilder.js
