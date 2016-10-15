@@ -14,6 +14,7 @@
 #include "nsStringGlue.h"
 #include "nsISupportsPrimitives.h"
 
+#include "nsIMsgBiffManager.h"
 #include "nsMsgBaseCID.h"
 #include "nsMsgDBCID.h"
 #include "nsIMsgFolder.h"
@@ -1386,6 +1387,19 @@ nsMsgIncomingServer::SetDoBiff(bool aDoBiff)
 {
   if (!mPrefBranch)
     return NS_ERROR_NOT_INITIALIZED;
+
+  // Update biffManager immediately, no restart required. Adding/removing
+  // existing/non-existing server is handled without error checking.
+  nsresult rv;
+  nsCOMPtr<nsIMsgBiffManager> biffService =
+    do_GetService(NS_MSGBIFFMANAGER_CONTRACTID, &rv);
+  if (NS_SUCCEEDED(rv) && biffService)
+  {
+    if (aDoBiff)
+      (void) biffService->AddServerBiff(this);
+    else
+      (void) biffService->RemoveServerBiff(this);
+  }
 
   return mPrefBranch->SetBoolPref(BIFF_PREF_NAME, aDoBiff);
 }
