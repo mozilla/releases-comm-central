@@ -1622,6 +1622,9 @@ NS_IMETHODIMP nsMsgDBView::GetLevel(int32_t index, int32_t *_retval)
 nsresult nsMsgDBView::GetMsgHdrForViewIndex(nsMsgViewIndex index, nsIMsgDBHdr **msgHdr)
 {
   nsresult rv = NS_OK;
+  if (!IsValidIndex(index))
+    return NS_MSG_INVALID_DBVIEW_INDEX;
+
   nsMsgKey key = m_keys[index];
   if (key == nsMsgKey_None || !m_db)
     return NS_MSG_INVALID_DBVIEW_INDEX;
@@ -2716,7 +2719,7 @@ NS_IMETHODIMP nsMsgDBView::GetCommandStatus(nsMsgViewCommandTypeValue command, b
     haveSelection = NonDummyMsgSelected(indices, numIndices);
   else
   // If we don't have a tree selection we must be in stand alone mode.
-    haveSelection = m_currentlyDisplayedViewIndex != nsMsgViewIndex_None;
+    haveSelection = IsValidIndex(m_currentlyDisplayedViewIndex);
 
   switch (command)
   {
@@ -8003,7 +8006,7 @@ bool nsMsgDBView::JunkControlsEnabled(nsMsgViewIndex aViewIndex)
 
   // we need to check per message or folder
   nsCOMPtr <nsIMsgFolder> folder = m_folder;
-  if (!folder && aViewIndex != nsMsgViewIndex_None)
+  if (!folder && IsValidIndex(aViewIndex))
     GetFolderForViewIndex(aViewIndex, getter_AddRefs(folder));
   if (folder)
   {
