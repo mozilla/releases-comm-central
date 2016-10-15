@@ -14,12 +14,8 @@ var MODULE_NAME = "test-charset-upgrade";
 var RELATIVE_ROOT = "../shared-modules";
 var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers", "compose-helpers"];
 
-var os = {};
-Cu.import("resource://mozmill/stdlib/os.js", os);
 Cu.import('resource://gre/modules/Services.jsm');
 Cu.import("resource:///modules/mailServices.js");
-var elib = {};
-Cu.import("resource://mozmill/modules/elementslib.js", elib);
 
 var draftsFolder;
 var outboxFolder;
@@ -37,20 +33,14 @@ function setupModule(module) {
   draftsFolder = MailServices.accounts
                              .localFoldersServer
                              .rootFolder
-                             .getChildNamed("Drafts");
+                             .getFolderWithFlags(Ci.nsMsgFolderFlags.Drafts);
   if (!draftsFolder)
     throw new Error("draftsFolder not found");
 
-  if (!MailServices.accounts
-                   .localFoldersServer
-                   .rootFolder
-                   .containsChildNamed("Outbox")) {
-     create_folder("Outbox", [Ci.nsMsgFolderFlags.Outbox]);
-  }
   outboxFolder = MailServices.accounts
                              .localFoldersServer
                              .rootFolder
-                             .getChildNamed("Outbox");
+                             .getFolderWithFlags(Ci.nsMsgFolderFlags.Queue);
   if (!outboxFolder)
     throw new Error("outboxFolder not found");
 
@@ -69,20 +59,18 @@ function setupModule(module) {
   Services.prefs.setBoolPref("mail.compose.default_to_paragraph", false);
 }
 
-function teardownModule(module) {
-  Services.prefs.clearUserPref("mail.compose.default_to_paragraph");
-}
-
 /**
  * Test that if all characters don't fit the current charset selection,
  * we upgrade properly to UTF-8. In HTML composition.
  */
 function test_encoding_upgrade_html_compose() {
+  Services.prefs.setBoolPref("mail.identity.default.compose_html", true);
   let compWin = open_compose_new_mail();
 
-  compWin.type(null, "someone@example.com");
-  compWin.type(compWin.eid("msgSubject"), "encoding upgrade test - html mode")
-  compWin.type(compWin.eid("content-frame"), "so far, this is latin1\n");
+  setup_msg_contents(compWin,
+                     "someone@example.com",
+                     "encoding upgrade test - html mode",
+                     "so far, this is latin1\n");
 
   // Ctrl+S = save as draft.
   compWin.keypress(null, "s", {shiftKey: false, accelKey: true});
@@ -99,15 +87,13 @@ function test_encoding_upgrade_html_compose() {
                     draftMsgContent);
 
   const CHINESE = "漢皇重色思傾國漢皇重色思傾國";
-  compWin.type(compWin.eid("content-frame"),
-    "but now, we enter some chinese: " + CHINESE +"\n");
+  type_in_composer(compWin, ["but now, we enter some chinese: " + CHINESE + "\n"]);
 
   // Ctrl+U = Underline (so we can check multipart/alternative gets right,
   // without it html->plaintext conversion will it as send plain text only)
   compWin.keypress(null, "U", {shiftKey: false, accelKey: true});
 
-  compWin.type(compWin.eid("content-frame"),
-    "content need to be upgraded to utf-8 now.");
+  type_in_composer(compWin, ["content need to be upgraded to utf-8 now."]);
 
   // Ctrl+S = save as draft.
   compWin.keypress(null, "s", {shiftKey: false, accelKey: true});
@@ -126,10 +112,9 @@ function test_encoding_upgrade_html_compose() {
     throw new Error("Chinese text not in msg; CHINESE=" + CHINESE +
                     ", draftMsg2Content=" + draftMsg2Content);
 
-  compWin.window.setTimeout(function() {
-    // Ctrl+Shift+Return = Send Later
-    compWin.keypress(null, "VK_RETURN", {shiftKey: true, accelKey: true});
-  }, 0);
+  plan_for_window_close(compWin);
+  compWin.window.goDoCommand("cmd_sendLater");
+  wait_for_window_close();
 
   be_in_folder(outboxFolder);
   let outMsg = select_click_row(0);
@@ -164,9 +149,10 @@ function test_encoding_upgrade_plaintext_compose() {
   let compWin = open_compose_new_mail();
   Services.prefs.setBoolPref("mail.identity.default.compose_html", true);
 
-  compWin.type(null, "someone-else@example.com");
-  compWin.type(compWin.eid("msgSubject"), "encoding upgrade test - plaintext");
-  compWin.type(compWin.eid("content-frame"), "this is plaintext latin1\n");
+  setup_msg_contents(compWin,
+                     "someone-else@example.com",
+                     "encoding upgrade test - plaintext",
+                     "this is plaintext latin1\n");
 
   // Ctrl+S = Save as Draft.
   compWin.keypress(null, "s", {shiftKey: false, accelKey: true});
@@ -178,11 +164,8 @@ function test_encoding_upgrade_plaintext_compose() {
   assert_equals(draftMsg.Charset, "windows-1252");
 
   const CHINESE = "漢皇重色思傾國漢皇重色思傾國";
-  compWin.type(compWin.eid("content-frame"),
-    "enter some plain text chinese: " + CHINESE +"\n");
-
-  compWin.type(compWin.eid("content-frame"),
-    "content need to be upgraded to utf-8 now.");
+  type_in_composer(compWin, ["enter some plain text chinese: " + CHINESE,
+                             "content need to be upgraded to utf-8 now."]);
 
   // Ctrl+S = Save as Draft.
   compWin.keypress(null, "s", {shiftKey: false, accelKey: true});
@@ -201,10 +184,9 @@ function test_encoding_upgrade_plaintext_compose() {
     throw new Error("Chinese text not in msg; CHINESE=" + CHINESE +
                     ", draftMsg2Content=" + draftMsg2Content);
 
-  compWin.window.setTimeout(function() {
-    // Ctrl+Shift+Return = Send Later.
-    compWin.keypress(null, "VK_RETURN", {shiftKey: true, accelKey: true});
-  }, 0);
+  plan_for_window_close(compWin);
+  compWin.window.goDoCommand("cmd_sendLater");
+  wait_for_window_close();
 
   be_in_folder(outboxFolder);
   let outMsg = select_click_row(0);
@@ -223,4 +205,6 @@ function test_encoding_upgrade_plaintext_compose() {
 
 function teardownModule(module) {
   Services.prefs.clearUserPref("mailnews.send_default_charset");
+  Services.prefs.clearUserPref("mail.compose.default_to_paragraph");
+  Services.prefs.clearUserPref("mail.identity.default.compose_html");
 }
