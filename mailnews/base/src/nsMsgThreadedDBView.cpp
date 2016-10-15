@@ -887,7 +887,7 @@ nsresult nsMsgThreadedDBView::RemoveByIndex(nsMsgViewIndex index)
       if (NS_SUCCEEDED(rv))
       {
         nsMsgViewIndex threadIndex = FindViewIndex(msgKey);
-        if (threadIndex != nsMsgViewIndex_None)
+        if (IsValidIndex(threadIndex))
         {
           uint32_t flags = m_flags[threadIndex];
           flags &= ~(MSG_VIEW_FLAG_ISTHREAD | nsMsgMessageFlags::Elided | MSG_VIEW_FLAG_HASCHILDREN);

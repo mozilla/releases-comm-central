@@ -6251,11 +6251,13 @@ NS_IMETHODIMP nsMsgDBView::OnHdrFlagsChanged(nsIMsgDBHdr *aHdrChanged, uint32_t 
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgDBView::OnHdrDeleted(nsIMsgDBHdr *aHdrChanged, nsMsgKey aParentKey, int32_t aFlags,
-                            nsIDBChangeListener *aInstigator)
+NS_IMETHODIMP nsMsgDBView::OnHdrDeleted(nsIMsgDBHdr *aHdrChanged,
+                                        nsMsgKey aParentKey,
+                                        int32_t aFlags,
+                                        nsIDBChangeListener *aInstigator)
 {
   nsMsgViewIndex deletedIndex = FindHdr(aHdrChanged);
-  if (deletedIndex != nsMsgViewIndex_None)
+  if (IsValidIndex(deletedIndex))
   {
     // Check if this message is currently selected. If it is, tell the frontend
     // to be prepared for a delete.
