@@ -2764,7 +2764,7 @@ NS_IMETHODIMP nsMsgDBView::GetCommandStatus(nsMsgViewCommandTypeValue command, b
     break;
   case nsMsgViewCommandType::junk:
   case nsMsgViewCommandType::unjunk:
-    *selectable_p = haveSelection && JunkControlsEnabled(selection[0]);
+    *selectable_p = haveSelection && numIndices && JunkControlsEnabled(selection[0]);
     break;
   case nsMsgViewCommandType::cmdRequiringMsgBody:
     *selectable_p = haveSelection && (!WeAreOffline() || OfflineMsgSelected(indices, numIndices));
