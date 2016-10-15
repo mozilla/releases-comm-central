@@ -32,12 +32,34 @@ treechildren::-moz-tree-image(folderNameCol, serverType-nntp) {
 }
 
 /* ..... Feed Folders ..... */
+treechildren::-moz-tree-image(folderNameCol, isFeed-true) {
+  list-style-image: url("chrome://messenger-newsblog/skin/rss-feed.png");
+  -moz-image-region: rect(0 16px 16px 0);
+  width: 16px;
+  height: 16px;
+}
 .tabmail-tab[type="folder"][IsFeedFolder="true"],
 treechildren::-moz-tree-image(folderNameCol, isFeedFolder-true) {
   list-style-image: url("chrome://messenger/skin/icons/folder-pane.png");
   -moz-image-region: rect(0 224px 16px 208px);
   width: 16px;
   height: 16px;
+}
+treechildren::-moz-tree-image(folderNameCol, serverIsPaused),
+treechildren::-moz-tree-cell-text(folderNameCol, serverIsPaused),
+treechildren::-moz-tree-image(folderNameCol, isPaused),
+treechildren::-moz-tree-cell-text(folderNameCol, isPaused) {
+  opacity: 0.4;
+}
+treechildren::-moz-tree-image(folderNameCol, closed, isBusy),
+treechildren::-moz-tree-image(folderNameCol, leaf, isBusy) {
+  list-style-image: url("chrome://messenger/skin/icons/status.png");
+  -moz-image-region: rect(0 32px 16px 16px);
+}
+treechildren::-moz-tree-image(folderNameCol, closed, hasError),
+treechildren::-moz-tree-image(folderNameCol, leaf, hasError) {
+  list-style-image: url("chrome://global/skin/icons/error-16.png");
+  -moz-image-region: rect(0 16px 16px 0);
 }
 
 /* ..... Inbox ..... */
@@ -128,10 +150,24 @@ treechildren::-moz-tree-image(folderNameCol, specialFolder-Archive) {
   }
 
   /* ..... Feed Folders ..... */
+  treechildren::-moz-tree-image(folderNameCol, isFeed-true) {
+    list-style-image: url("chrome://messenger-newsblog/skin/rss-feed@2x.png");
+    -moz-image-region: rect(0 32px 32px 0);
+  }
   .tabmail-tab[type="folder"][IsFeedFolder="true"],
   treechildren::-moz-tree-image(folderNameCol, isFeedFolder-true) {
     list-style-image: url("chrome://messenger/skin/icons/folder-pane@2x.png");
     -moz-image-region: rect(0 448px 32px 416px);
+  }
+  treechildren::-moz-tree-image(folderNameCol, closed, isBusy),
+  treechildren::-moz-tree-image(folderNameCol, leaf, isBusy) {
+    list-style-image: url("chrome://messenger/skin/icons/status@2x.png");
+    -moz-image-region: rect(0 64px 32px 32px);
+  }
+  treechildren::-moz-tree-image(folderNameCol, closed, hasError),
+  treechildren::-moz-tree-image(folderNameCol, leaf, hasError) {
+    list-style-image: url("chrome://global/skin/icons/error.png");
+    -moz-image-region: rect(0 16px 16px 0);
   }
 
   /* ..... Inbox ..... */

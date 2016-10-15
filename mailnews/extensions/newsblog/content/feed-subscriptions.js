@@ -6,6 +6,7 @@
 Components.utils.import("resource:///modules/FeedUtils.jsm");
 Components.utils.import("resource:///modules/gloda/log4moz.js");
 Components.utils.import("resource:///modules/mailServices.js");
+Components.utils.import("resource://gre/modules/AppConstants.jsm");
 Components.utils.import("resource://gre/modules/FileUtils.jsm");
 Components.utils.import("resource://gre/modules/PluralForm.jsm");
 Components.utils.import("resource://gre/modules/Services.jsm");
@@ -172,20 +173,34 @@ var FeedSubscriptions = {
 
     getCellProperties: function (aRow, aColumn) {
       let item = this.getItemAtIndex(aRow);
-      let folder = item && item.folder ? item.folder : null;
-#ifdef MOZ_THUNDERBIRD
-      let properties = ["folderNameCol"];
-      let hasFeeds = folder ? FeedUtils.getFeedUrlsInFolder(folder) : false;
-      let prop = !folder ? "isFeed-true" :
-                 hasFeeds ? "isFeedFolder-true" :
-                 folder.isServer ? "serverType-rss isServer-true" : null;
-      if (prop)
-        properties.push(prop);
-      return properties.join(" ");
-#else
-      return !folder ? "serverType-rss" :
-             folder.isServer ? "serverType-rss isServer-true" : "livemark";
-#endif
+      if (!item)
+        return;
+
+      if (AppConstants.MOZ_APP_NAME != "thunderbird")
+      {
+        return !item.folder ? "serverType-rss" :
+               item.folder.isServer ? "serverType-rss isServer-true" : "livemark";
+      }
+
+      let folder = item.folder;
+      let properties = "folderNameCol";
+      let mainWin = FeedSubscriptions.mMainWin;
+      if (!mainWin)
+      {
+        let hasFeeds = FeedUtils.getFeedUrlsInFolder(folder);
+        properties += !folder ? " isFeed-true" :
+                      hasFeeds ? " isFeedFolder-true" :
+                      folder.isServer ? " serverType-rss isServer-true" : "";
+      }
+      else
+      {
+        let url = folder ? null : item.url;
+        folder = folder || item.parentFolder;
+        properties += mainWin.FeedUtils.getFolderProperties(folder, url);
+      }
+
+      item["properties"] = properties;
+      return properties;
     },
 
     isContainer: function (aRow)
@@ -195,15 +210,15 @@ var FeedSubscriptions = {
     },
 
     isContainerOpen: function (aRow)
-    { 
+    {
       let item = this.getItemAtIndex(aRow);
       return item ? item.open : false;
     },
 
     isContainerEmpty: function (aRow)
-    { 
+    {
       let item = this.getItemAtIndex(aRow);
-      if (!item) 
+      if (!item)
         return false;
 
       return item.children.length == 0;
@@ -292,6 +307,11 @@ var FeedSubscriptions = {
       if ((item.folder && item.folder.isServer) || item.open)
         return "";
 
+      if (!item.open &&
+          (item.properties.includes("hasError") ||
+           item.properties.includes("isBusy")))
+        return "";
+
       if (item.favicon != null)
         return item.favicon;
 
@@ -349,7 +369,7 @@ var FeedSubscriptions = {
     },
 
     canDrop: function (aRow, aOrientation)
-    { 
+    {
       let dropResult = this.extractDragData(aRow);
       return aOrientation == Ci.nsITreeView.DROP_ON && dropResult.canDrop &&
              (dropResult.dropUrl || dropResult.dropOnIndex != this.kRowIndexUndefined);
@@ -693,10 +713,10 @@ var FeedSubscriptions = {
    * a known folder, or expanded to include the entire tree. This function is
    * also used to insert/remove folders without rebuilding the tree view cache
    * (to avoid position/toggle state loss).
-   * 
+   *
    * @param  aFolder nsIMsgFolder - the folder to find.
    * @param  [aParams] object     - params object, containing:
-   * 
+   *
    * [parentIndex] int        - index of folder to start the search; if
    *                            null (default), the index of the folder's
    *                            rootFolder will be used.
@@ -707,7 +727,7 @@ var FeedSubscriptions = {
    *                            false (default) otherwise.
    * [newFolder] nsIMsgFolder - if not null (default) the new folder,
    *                            for add or rename.
-   * 
+   *
    * @return bool found - true if found, false if not.
    */
   selectFolder: function(aFolder, aParms)
@@ -871,10 +891,10 @@ var FeedSubscriptions = {
   /**
    * Find the feed in the tree.  The search first gets the feed's folder,
    * then selects the child feed.
-   * 
+   *
    * @param  aFeed {Feed object}    - the feed to find.
    * @param  [aParentIndex] integer - index to start the folder search.
-   * 
+   *
    * @return found bool - true if found, false if not.
    */
   selectFeed: function(aFeed, aParentIndex)
@@ -954,21 +974,43 @@ var FeedSubscriptions = {
     // Set quick mode value.
     document.getElementById("quickMode").checked = aItem.quickMode;
 
+    if (isServer)
+      aItem.options = FeedUtils.getOptionsAcct(server);
+
+    // Update items.
+    let updateEnabled = document.getElementById("updateEnabled");
+    let updateValue = document.getElementById("updateValue");
+    let biffUnits = document.getElementById("biffUnits");
+    let recommendedUnits = document.getElementById("recommendedUnits");
+    let recommendedUnitsVal = document.getElementById("recommendedUnitsVal");
+    let updates = aItem.options ? aItem.options.updates :
+                                  FeedUtils._optionsDefault.updates;
+
+    updateEnabled.checked = updates.enabled;
+    updateValue.disabled = !updateEnabled.checked;
+    biffUnits.value = updates.updateUnits;
+    let minutes = updates.updateUnits == FeedUtils.kBiffUnitsMinutes ?
+                    updates.updateMinutes :
+                    updates.updateMinutes / (24 * 60);
+    updateValue.valueNumber = minutes;
+    if (isFeed)
+      recommendedUnitsVal.value = this.getUpdateMinutesRec(updates);
+    else
+      recommendedUnitsVal.value = "";
+
+    recommendedUnits.hidden = recommendedUnitsVal.value == "";
+
     // Autotag items.
     let autotagEnable = document.getElementById("autotagEnable");
     let autotagUsePrefix = document.getElementById("autotagUsePrefix");
     let autotagPrefix = document.getElementById("autotagPrefix");
-    let categoryPrefsAcct = FeedUtils.getOptionsAcct(server).category;
-    if (isServer)
-      aItem.options = FeedUtils.getOptionsAcct(server);
-    let categoryPrefs = aItem.options ? aItem.options.category : null;
+    let category = aItem.options ? aItem.options.category : null;
 
-    autotagEnable.checked = categoryPrefs && categoryPrefs.enabled;
-    autotagUsePrefix.checked = categoryPrefs && categoryPrefs.prefixEnabled;
+    autotagEnable.checked = category && category.enabled;
+    autotagUsePrefix.checked = category && category.prefixEnabled;
     autotagUsePrefix.disabled = !autotagEnable.checked;
     autotagPrefix.disabled = autotagUsePrefix.disabled || !autotagUsePrefix.checked;
-    autotagPrefix.value = categoryPrefs && categoryPrefs.prefix ?
-                            categoryPrefs.prefix : "";
+    autotagPrefix.value = category && category.prefix ? category.prefix : "";
   },
 
   setFolderPicker: function(aFolder, aIsFeed)
@@ -1072,7 +1114,7 @@ var FeedSubscriptions = {
     this.updateStatusItem("statusText", message);
   },
 
-  setCategoryPrefs: function(aNode)
+  setPrefs: function(aNode)
   {
     let item = this.mView.currentItem;
     if (!item)
@@ -1080,6 +1122,9 @@ var FeedSubscriptions = {
 
     let isServer = item.folder && item.folder.isServer;
     let isFolder = item.folder && !item.folder.isServer;
+    let updateEnabled = document.getElementById("updateEnabled");
+    let updateValue = document.getElementById("updateValue");
+    let biffUnits = document.getElementById("biffUnits");
     let autotagEnable = document.getElementById("autotagEnable");
     let autotagUsePrefix = document.getElementById("autotagUsePrefix");
     let autotagPrefix = document.getElementById("autotagPrefix");
@@ -1087,12 +1132,22 @@ var FeedSubscriptions = {
     {
       // Intend to subscribe a feed to a folder, a value must be in the url
       // field. Update states for addFeed() and return.
+      updateValue.disabled = !updateEnabled.checked;
       autotagUsePrefix.disabled = !autotagEnable.checked;
       autotagPrefix.disabled = autotagUsePrefix.disabled || !autotagUsePrefix.checked;
       return;
     }
 
     switch (aNode.id) {
+      case "updateEnabled":
+      case "biffUnits":
+        item.options.updates.enabled = updateEnabled.checked;
+        let minutes = biffUnits.value == FeedUtils.kBiffUnitsMinutes ?
+                        updateValue.valueNumber :
+                        updateValue.valueNumber * 24 * 60;
+        item.options.updates.updateMinutes = minutes;
+        item.options.updates.updateUnits = biffUnits.value;
+        break;
       case "autotagEnable":
         item.options.category.enabled = aNode.checked;
         break;
@@ -1113,11 +1168,49 @@ var FeedSubscriptions = {
       feed.options = item.options;
       let ds = FeedUtils.getSubscriptionsDS(item.parentFolder.server);
       ds.Flush();
+
+      if (aNode.id == "updateEnabled")
+      {
+        FeedUtils.setStatus(item.parentFolder, item.url, "enabled", aNode.checked);
+        this.mView.selection.tree.invalidateRow(this.mView.selection.currentIndex);
+      }
     }
 
     this.updateFeedData(item);
     let message = FeedUtils.strings.GetStringFromName("subscribe-feedUpdated");
     this.updateStatusItem("statusText", message);
+  },
+
+  getUpdateMinutesRec: function(aUpdates)
+  {
+    // Assume the parser has stored correct/valid values for the spec. If the
+    // feed doesn't use any of these tags, updatePeriod will be null.
+    if (aUpdates.updatePeriod == null)
+      return "";
+
+    let biffUnits = document.getElementById("biffUnits").value;
+    let units = biffUnits == FeedUtils.kBiffUnitsDays ? 1 : 24 * 60;
+    let frequency = aUpdates.updateFrequency;
+    let val;
+    switch (aUpdates.updatePeriod) {
+      case "hourly":
+        val = biffUnits == FeedUtils.kBiffUnitsDays ? frequency / 24 : 60 / frequency;
+        break;
+      case "daily":
+        val = units / frequency;
+        break;
+      case "weekly":
+        val = 7 * units / frequency;
+        break;
+      case "monthly":
+        val = 30 * units / frequency;
+        break;
+      case "yearly":
+        val = 365 * units / frequency;
+        break;
+    }
+
+    return val ? Math.round(val * 100) / 100 : "";
   },
 
   onKeyPress: function(aEvent)
@@ -1133,7 +1226,7 @@ var FeedSubscriptions = {
   {
     let item = this.mView.currentItem;
     this.updateFeedData(item);
-    this.setSummaryFocus();
+    this.setFocus();
     this.updateButtons(item);
   },
 
@@ -1166,13 +1259,15 @@ var FeedSubscriptions = {
     this.clearStatusInfo();
   },
 
-  setSummaryFocus: function ()
+  setFocus: function ()
   {
     let item = this.mView.currentItem;
     if (!item)
       return;
 
     let locationValue = document.getElementById("locationValue");
+    let updateEnabled = document.getElementById("updateEnabled");
+    let updateValue = document.getElementById("updateValue");
     let quickMode = document.getElementById("quickMode");
     let autotagEnable = document.getElementById("autotagEnable");
     let autotagUsePrefix = document.getElementById("autotagUsePrefix");
@@ -1181,8 +1276,9 @@ var FeedSubscriptions = {
     let isFolder = item.folder && !item.folder.isServer;
     let isFeed = !item.container;
 
-    // Enable summary/autotag by default.
-    quickMode.disabled = autotagEnable.disabled = false;
+    // Enabled by default.
+    updateEnabled.disabled = quickMode.disabled = autotagEnable.disabled = false;
+    updateValue.disabled = !updateEnabled.checked;
     autotagUsePrefix.disabled = !autotagEnable.checked;
     autotagPrefix.disabled = autotagUsePrefix.disabled || !autotagUsePrefix.checked;
 
@@ -1200,7 +1296,8 @@ var FeedSubscriptions = {
         // Enabled for a folder with feeds. Autotag disabled unless intent is
         // to add a feed.
         quickMode.disabled = !FeedUtils.getFeedUrlsInFolder(item.folder);
-        autotagEnable.disabled = autotagUsePrefix.disabled =
+        updateEnabled.disabled = updateValue.disabled =
+          autotagEnable.disabled = autotagUsePrefix.disabled =
           autotagPrefix.disabled = true;
       }
     }
@@ -1259,7 +1356,7 @@ var FeedSubscriptions = {
    * the drop folder is selected and the url is prefilled, so proceed just as
    * though the url were entered manually.  This allows a user to see the dnd
    * url better in case of errors.
-   * 
+   *
    * @param  [aFeedLocation] string    - the feed url; get the url from the
    *                                     input field if null.
    * @param  [aFolder] nsIMsgFolder    - folder to subscribe, current selected
@@ -1269,7 +1366,7 @@ var FeedSubscriptions = {
    * @param  [aParams] object          - additional params.
    * @param  [aMode] integer           - action mode (default is kSubscribeMode)
    *                                     of the add.
-   * 
+   *
    * @return success boolean           - true if edit checks passed and an
    *                                     async download has been initiated.
    */
@@ -1338,6 +1435,12 @@ var FeedSubscriptions = {
     {
       // Not passed a param, get values from the ui.
       options = FeedUtils.optionsTemplate;
+      options.updates.enabled = document.getElementById("updateEnabled").checked;
+      let biffUnits = document.getElementById("biffUnits").value;
+      let units = document.getElementById("updateValue").valueNumber;
+      let minutes = biffUnits == FeedUtils.kBiffUnitsMinutes ? units : units * 24 * 60;
+      options.updates.updateUnits = biffUnits;
+      options.updates.updateMinutes = minutes;
       options.category.enabled = document.getElementById("autotagEnable").checked;
       options.category.prefixEnabled = document.getElementById("autotagUsePrefix").checked;
       options.category.prefix = document.getElementById("autotagPrefix").value;
@@ -1391,10 +1494,18 @@ var FeedSubscriptions = {
 
   updateAccount: function(aItem)
   {
-    // Check to see if the categoryPrefs custom prefix string value changed.
+    // Check to see if a pref value changed.
+    let editUpdateValue = document.getElementById("updateValue").valueNumber;
+    let editBiffUnits = document.getElementById("biffUnits").value;
     let editAutotagPrefix = document.getElementById("autotagPrefix").value;
-    if (aItem.options.category.prefix != editAutotagPrefix)
+    if (aItem.options.updates.updateMinutes != editUpdateValue ||
+        aItem.options.updates.updateUnits != editBiffUnits ||
+        aItem.options.category.prefix != editAutotagPrefix)
     {
+      aItem.options.updates.updateUnits = editBiffUnits;
+      let minutes = editBiffUnits == FeedUtils.kBiffUnitsMinutes ?
+                      editUpdateValue : editUpdateValue * 24 * 60;
+      aItem.options.updates.updateMinutes = minutes;
       aItem.options.category.prefix = editAutotagPrefix;
       FeedUtils.setOptionsAcct(aItem.folder.server, aItem.options)
       let message = FeedUtils.strings.GetStringFromName("subscribe-feedUpdated");
@@ -1428,6 +1539,8 @@ var FeedSubscriptions = {
     let editNameValue = document.getElementById("nameValue").value;
     let editFeedLocation = document.getElementById("locationValue").value.trim();
     let selectFolder = document.getElementById("selectFolder");
+    let editUpdateValue = document.getElementById("updateValue").valueNumber;
+    let editBiffUnits = document.getElementById("biffUnits").value;
     let editQuickMode = document.getElementById("quickMode").checked;
     let editAutotagPrefix = document.getElementById("autotagPrefix").value;
 
@@ -1487,6 +1600,20 @@ var FeedSubscriptions = {
       }
     }
 
+    // Check to see if the updateValue value changed.
+    if (itemToEdit.options.updates.updateMinutes != editUpdateValue ||
+        itemToEdit.options.updates.updateUnits != editBiffUnits)
+    {
+      itemToEdit.options.updates.updateUnits = editBiffUnits;
+      let minutes = editBiffUnits == FeedUtils.kBiffUnitsMinutes ?
+                      editUpdateValue : editUpdateValue * 24 * 60;
+      itemToEdit.options.updates.updateMinutes = minutes;
+      feed.options = itemToEdit.options;
+      FeedUtils.setStatus(itemToEdit.parentFolder, itemToEdit.url,
+                          "updateMinutes", minutes);
+      updated = true;
+    }
+
     // Check to see if the quickMode value changed.
     if (feed.quickMode != editQuickMode)
     {
@@ -1495,7 +1622,7 @@ var FeedSubscriptions = {
       updated = true;
     }
 
-    // Check to see if the categoryPrefs custom prefix string value changed.
+    // Check to see if the category custom prefix string value changed.
     if (itemToEdit.options.category.prefix != editAutotagPrefix &&
         itemToEdit.options.category.prefix != null &&
         editAutotagPrefix != "")
@@ -1526,7 +1653,7 @@ var FeedSubscriptions = {
 
 /**
  * Moves or copies a feed to another folder or account.
- * 
+ *
  * @param  int aOldFeedIndex    - index in tree of target feed item.
  * @param  int aNewParentIndex  - index in tree of target parent folder item.
  * @param  string aMoveCopy     - either "move" or "copy".
@@ -1704,6 +1831,11 @@ var FeedSubscriptions = {
           document.getElementById("editFeed").removeAttribute("disabled");
           return;
         }
+
+        // Update lastUpdateTime if successful.
+        let options = feed.options;
+        options.updates.lastUpdateTime = Date.now();
+        feed.options = options;
 
         // Add the feed to the databases.
         FeedUtils.addFeed(feed);
@@ -2138,7 +2270,7 @@ var FeedSubscriptions = {
 
 /**
  * Export feeds as opml file Save As filepicker function.
- * 
+ *
  * @param  bool aList - if true, exporting as list; if false (default)
  *                      exporting feeds in folder structure - used for title.
  * @return nsILocalFile or null.
@@ -2178,7 +2310,7 @@ var FeedSubscriptions = {
 
 /**
  * Import feeds opml file Open filepicker function.
- * 
+ *
  * @return nsILocalFile or null.
  */
   opmlPickOpenFile: function()
@@ -2423,11 +2555,11 @@ var FeedSubscriptions = {
 /**
  * Import opml file into a feed account.  Used by the Subscribe dialog and
  * the Import wizard.
- * 
+ *
  * @param  nsILocalFile aFile           - the opml file.
  * @param  nsIMsgIncomingServer aServer - the account server.
  * @param  func aCallback               - callback function.
- * 
+ *
  * @return bool                         - false if error.
  */
   importOPMLFile: function(aFile, aServer, aCallback)

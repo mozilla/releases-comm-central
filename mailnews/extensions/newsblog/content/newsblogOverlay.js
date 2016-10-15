@@ -21,6 +21,8 @@ var FeedMessageHandler = {
   kOpenToggleInMessagePane: 2,
   kOpenLoadInBrowser:       3,
 
+  FeedAccountTypes: ["rss"],
+
   /**
    * How to load message on threadpane select.
    */
@@ -61,9 +63,22 @@ var FeedMessageHandler = {
    * @return true if message is a feed, false if not.
    */
   isFeedMessage: function(aMsgHdr) {
-    return (aMsgHdr instanceof Components.interfaces.nsIMsgDBHdr) &&
-           ((aMsgHdr.flags & Components.interfaces.nsMsgMessageFlags.FeedMsg) ||
-            (aMsgHdr.folder && aMsgHdr.folder.server.type == "rss"));
+    return Boolean(aMsgHdr instanceof Components.interfaces.nsIMsgDBHdr &&
+                   (aMsgHdr.flags & Components.interfaces.nsMsgMessageFlags.FeedMsg ||
+                    this.isFeedFolder(aMsgHdr.folder)));
+  },
+
+  /**
+   * Determine if a folder is a feed acount folder. Trash or a folder in Trash
+   * should be checked with FeedUtils.isInTrash() if required.
+   *
+   * @param nsIMsgFolder aFolder - the folder.
+   *
+   * @return true if folder's server.type is in FeedAccountTypes, false if not.
+   */
+  isFeedFolder: function(aFolder) {
+    return Boolean(aFolder instanceof Components.interfaces.nsIMsgFolder &&
+                   this.FeedAccountTypes.includes(aFolder.server.type));
   },
 
   /**

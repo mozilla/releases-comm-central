@@ -10,7 +10,7 @@
 <!ENTITY feedTitle.accesskey         "T">
 
 <!ENTITY feedLocation.label          "Feed URL:">
-<!ENTITY feedLocation.accesskey      "U">
+<!ENTITY feedLocation.accesskey      "F">
 <!ENTITY feedLocation.placeholder    "Enter a valid feed url to Add">
 <!ENTITY locationValidate.label      "Validate">
 <!ENTITY validateText.label          "Check validation and retrieve a valid url.">
@@ -18,15 +18,25 @@
 <!ENTITY feedFolder.label            "Store Articles in:">
 <!ENTITY feedFolder.accesskey        "S">
 
+<!-- Account Settings and Subscription Dialog -->
+<!ENTITY biffStart.label             "Check for new articles every ">
+<!ENTITY biffStart.accesskey         "k">
+<!ENTITY biffMinutes.label           "minutes">
+<!ENTITY biffMinutes.accesskey       "n">
+<!ENTITY biffDays.label              "days">
+<!ENTITY biffDays.accesskey          "d">
+<!ENTITY recommendedUnits.label      "Publisher recommends:">
+
 <!ENTITY quickMode.label             "Show the article summary instead of loading the web page">
 <!ENTITY quickMode.accesskey         "h">
 
 <!ENTITY autotagEnable.label         "Automatically create tags from feed &lt;category&gt; names">
-<!ENTITY autotagEnable.accesskey     "c">
+<!ENTITY autotagEnable.accesskey     "o">
 <!ENTITY autotagUsePrefix.label      "Prefix tags with:">
 <!ENTITY autotagUsePrefix.accesskey  "P">
 <!ENTITY autoTagPrefix.placeholder   "Enter a tag prefix">
 
+<!-- Subscription Dialog -->
 <!ENTITY button.addFeed.label        "Add">
 <!ENTITY button.addFeed.accesskey    "A">
 <!ENTITY button.updateFeed.label     "Update">

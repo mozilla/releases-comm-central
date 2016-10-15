@@ -1439,6 +1439,19 @@ function MsgGetMessage()
     GetFolderMessages();
 }
 
+function MsgPauseUpdates(aMenuitem)
+{
+  // Pause single feed folder subscription updates, or all account updates if
+  // folder is the account folder.
+  let selectedFolders = GetSelectedMsgFolders();
+  let folder = selectedFolders.length ? selectedFolders[0] : null;
+  if (!FeedMessageHandler.isFeedFolder(folder))
+    return;
+
+  let pause = aMenuitem.getAttribute("checked") == "true";
+  FeedUtils.pauseFeedFolderUpdates(folder, pause, true);
+}
+
 function MsgGetMessagesForAllServers(defaultServer)
 {
   // now log into any server

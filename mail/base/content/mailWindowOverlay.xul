@@ -940,6 +940,17 @@
               label="&folderContextGetMessages.label;"
               accesskey="&folderContextGetMessages.accesskey;"
               oncommand="MsgGetMessage();"/>
+    <menuitem id="folderPaneContext-pauseAllUpdates"
+              type="checkbox"
+              label="&folderContextPauseAllUpdates.label;"
+              accesskey="&folderContextPauseUpdates.accesskey;"
+              oncommand="MsgPauseUpdates(this);"/>
+    <menuitem id="folderPaneContext-pauseUpdates"
+              type="checkbox"
+              label="&folderContextPauseUpdates.label;"
+              accesskey="&folderContextPauseUpdates.accesskey;"
+              oncommand="MsgPauseUpdates(this);"/>
+    <menuseparator id="folderPaneContext-sepPause"/>
     <menuitem id="folderPaneContext-openNewTab"
               label="&folderContextOpenNewTab.label;"
               accesskey="&folderContextOpenNewTab.accesskey;"

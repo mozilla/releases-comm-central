@@ -123,6 +123,8 @@ FeedParser.prototype =
     if (!aFeed.parseItems)
       return parsedItems;
 
+    this.findSyUpdateTags(aFeed, channel);
+
     aFeed.invalidateItems();
     // XXX use getElementsByTagNameNS for now; childrenByTagNameNS would be
     // better, but RSS .90 is still with us.
@@ -349,6 +351,8 @@ FeedParser.prototype =
     if (!aFeed.parseItems)
       return parsedItems;
 
+    this.findSyUpdateTags(aFeed, channel, ds);
+
     aFeed.invalidateItems();
 
     // Ignore the <items> list and just get the <item>s.
@@ -427,6 +431,8 @@ FeedParser.prototype =
 
     if (!aFeed.parseItems)
       return parsedItems;
+
+    this.findSyUpdateTags(aFeed, channel);
 
     aFeed.invalidateItems();
     let items = this.childrenByTagNameNS(channel, FeedUtils.ATOM_03_NS, "entry");
@@ -513,7 +519,7 @@ FeedParser.prototype =
           else
             content += this.mSerializer.serializeToString(node);
         }
-      
+
         if (contentNode.getAttribute("mode") == "escaped")
         {
           content = content.replace(/&lt;/g, "<");
@@ -563,6 +569,8 @@ FeedParser.prototype =
 
     if (!aFeed.parseItems)
       return parsedItems;
+
+    this.findSyUpdateTags(aFeed, channel);
 
     aFeed.invalidateItems();
     let items = this.childrenByTagNameNS(channel, FeedUtils.ATOM_IETF_NS, "entry");
@@ -876,6 +884,61 @@ FeedParser.prototype =
     }
 
     return null;
+  },
+
+  /**
+   * Find RSS Syndication extension tags.
+   * http://web.resource.org/rss/1.0/modules/syndication/
+   *
+   * Feed aFeed           - the feed object.
+   * Node aChannel        - dom node for the <channel>.
+   * nsIRDFDataSource aDS - passed in for rdf feeds only.
+   */
+  findSyUpdateTags: function(aFeed, aChannel, aDS)
+  {
+    let tag, updatePeriod, updateFrequency, updateBase;
+    if (aDS)
+    {
+      // For rdf feeds.
+      tag = FeedUtils.rdf.GetResource(FeedUtils.RSS_SY_NS + "updatePeriod");
+      updatePeriod = this.getRDFTargetValue(aDS, aChannel, tag) || "";
+      tag = FeedUtils.rdf.GetResource(FeedUtils.RSS_SY_NS + "updateFrequency");
+      updateFrequency = this.getRDFTargetValue(aDS, aChannel, tag) || "";
+      tag = FeedUtils.rdf.GetResource(FeedUtils.RSS_SY_NS + "updateBase");
+      updateBase = this.getRDFTargetValue(aDS, aChannel, tag) || "";
+    }
+    else
+    {
+      tag = this.childrenByTagNameNS(aChannel, FeedUtils.RSS_SY_NS, "updatePeriod");
+      updatePeriod = this.getNodeValue(tag ? tag[0] : null) || "";
+      tag = this.childrenByTagNameNS(aChannel, FeedUtils.RSS_SY_NS, "updateFrequency");
+      updateFrequency = this.getNodeValue(tag ? tag[0] : null) || "";
+      tag = this.childrenByTagNameNS(aChannel, FeedUtils.RSS_SY_NS, "updateBase");
+      updateBase = this.getNodeValue(tag ? tag[0] : null) || "";
+    }
+    FeedUtils.log.debug("FeedParser.findSyUpdateTags: updatePeriod:updateFrequency - " +
+                        updatePeriod + ":" + updateFrequency);
+
+    if (updatePeriod)
+    {
+      if (FeedUtils.RSS_SY_UNITS.includes(updatePeriod.toLowerCase()))
+        updatePeriod = updatePeriod.toLowerCase();
+      else
+        updatePeriod = "daily";
+    }
+
+    updateFrequency = isNaN(updateFrequency) ? 1 : updateFrequency;
+
+    let options = aFeed.options;
+    if (options.updates.updatePeriod == updatePeriod &&
+        options.updates.updateFrequency == updateFrequency &&
+        options.updates.updateBase == updateBase)
+      return;
+
+    options.updates.updatePeriod = updatePeriod;
+    options.updates.updateFrequency = updateFrequency;
+    options.updates.updateBase = updateBase;
+    aFeed.options = options;
   },
 
   stripTags: function(someHTML)

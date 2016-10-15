@@ -52,7 +52,7 @@ function Feed(aResource, aRSSServer)
   this.server = aRSSServer;
 }
 
-Feed.prototype = 
+Feed.prototype =
 {
   description: null,
   author: null,
@@ -199,8 +199,8 @@ Feed.prototype =
     // The download callback is called asynchronously when parse() is done.
     feed.parse();
   },
-  
-  onProgress: function(aEvent) 
+
+  onProgress: function(aEvent)
   {
     let request = aEvent.target;
     let url = request.channel.originalURI.spec;
@@ -216,7 +216,7 @@ Feed.prototype =
     let request = aEvent.target;
     let url = request.channel.originalURI.spec;
     let feed = FeedCache.getFeed(url);
-    if (feed.downloadCallback) 
+    if (feed.downloadCallback)
     {
       // Generic network or 'not found' error initially.
       let error = FeedUtils.kNewsBlogRequestFailure;
@@ -350,7 +350,7 @@ Feed.prototype =
   {
     let ds = FeedUtils.getSubscriptionsDS(this.server);
     aNewQuickMode = FeedUtils.rdf.GetLiteral(aNewQuickMode);
-    let old_quickMode = ds.GetTarget(this.resource, 
+    let old_quickMode = ds.GetTarget(this.resource,
                                      FeedUtils.FZ_QUICKMODE,
                                      true);
     if (old_quickMode)
@@ -365,16 +365,19 @@ Feed.prototype =
   {
     let ds = FeedUtils.getSubscriptionsDS(this.server);
     let options = ds.GetTarget(this.resource, FeedUtils.FZ_OPTIONS, true);
-    if (options)
-      return JSON.parse(options.QueryInterface(Ci.nsIRDFLiteral).Value);
+    options = options ? JSON.parse(options.QueryInterface(Ci.nsIRDFLiteral).Value) :
+                        null;
+    if (options && options.version == FeedUtils._optionsDefault.version)
+      return options;
 
-    return null;
+    let newOptions = FeedUtils.newOptions(options);
+    this.options = newOptions;
+    return newOptions;
   },
 
   set options (aOptions)
   {
-    let newOptions = aOptions ? FeedUtils.newOptions(aOptions) :
-                                FeedUtils._optionsDefault;
+    let newOptions = aOptions ? aOptions : FeedUtils.optionsTemplate;
     let ds = FeedUtils.getSubscriptionsDS(this.server);
     newOptions = FeedUtils.rdf.GetLiteral(JSON.stringify(newOptions));
     let oldOptions = ds.GetTarget(this.resource, FeedUtils.FZ_OPTIONS, true);
@@ -382,15 +385,6 @@ Feed.prototype =
       ds.Change(this.resource, FeedUtils.FZ_OPTIONS, oldOptions, newOptions);
     else
       ds.Assert(this.resource, FeedUtils.FZ_OPTIONS, newOptions, true);
-  },
-
-  categoryPrefs: function ()
-  {
-    let categoryPrefsAcct = FeedUtils.getOptionsAcct(this.server).category;
-    if (!this.options)
-      return categoryPrefsAcct;
-
-    return this.options.category;
   },
 
   get link ()
@@ -605,7 +599,6 @@ Feed.prototype =
     this.request = null;
     this.itemsToStore = "";
     this.itemsToStoreIndex = 0;
-    this.itemsStored = 0;
     this.storeItemsTimer = null;
 
     if (aFeed.downloadCallback)

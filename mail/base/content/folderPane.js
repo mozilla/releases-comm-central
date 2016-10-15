@@ -919,6 +919,10 @@ var gFolderTreeView = {
     if (folder.server.type != "rss" || folder.isServer)
       return "";
 
+    let properties = this.getFolderCacheProperty(folder, "properties");
+    if (properties.includes("hasError") || properties.includes("isBusy"))
+      return "";
+
     let favicon = this.getFolderCacheProperty(folder, "favicon");
     if (favicon != null)
       return favicon;
@@ -1494,7 +1498,8 @@ var gFolderTreeView = {
     if (!aFolder || !aProperty)
       return null;
 
-    if (!(aFolder.URI in this._cache))
+    if (!(aFolder.URI in this._cache) ||
+        !(aProperty in this._cache[aFolder.URI]))
       return null;
 
     return this._cache[aFolder.URI][aProperty];
@@ -2382,9 +2387,10 @@ ftvItem.prototype = {
       properties += " specialFolder-" + smartFolderName.replace(' ','');
     }
 
-    if (this._folder.server.type == "rss" && !this._folder.isServer &&
-        FeedUtils.getFeedUrlsInFolder(this._folder))
-      properties += " isFeedFolder-true";
+    if (FeedMessageHandler.isFeedFolder(this._folder)) {
+      properties += FeedUtils.getFolderProperties(this._folder, null);
+      gFolderTreeView.setFolderCacheProperty(this._folder, "properties", properties);
+    }
 
     return properties;
   },

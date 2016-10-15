@@ -41,6 +41,11 @@ var FeedUtils = {
     return this.rdf.GetResource(this.RSS_CONTENT_NS + "encoded");
   },
 
+  RSS_SY_NS: "http://purl.org/rss/1.0/modules/syndication/",
+  RSS_SY_UNITS:      ["hourly", "daily", "weekly", "monthly", "yearly"],
+  kBiffUnitsMinutes: "min",
+  kBiffUnitsDays:    "d",
+
   DC_NS: "http://purl.org/dc/elements/1.1/",
   get DC_CREATOR()      { return this.rdf.GetResource(this.DC_NS + "creator") },
   get DC_SUBJECT()      { return this.rdf.GetResource(this.DC_NS + "subject") },
@@ -89,7 +94,8 @@ var FeedUtils = {
   // The delay is currently one day.
   INVALID_ITEM_PURGE_DELAY: 24 * 60 * 60 * 1000,
 
-  kBiffMinutesDefault: 100,
+  // Polling inverval to check individual feed update interval preference.
+  kBiffPollMinutes: 1,
   kNewsBlogSuccess: 0,
   // Usually means there was an error trying to parse the feed.
   kNewsBlogInvalidFeed: 1,
@@ -149,7 +155,7 @@ var FeedUtils = {
       hostName = hostNamePref + "-" + i++;
 
     server = MailServices.accounts.createIncomingServer(userName, hostName, serverType);
-    server.biffMinutes = FeedUtils.kBiffMinutesDefault;
+    server.biffMinutes = FeedUtils.kBiffPollMinutes;
     server.prettyName = aName ? aName : defaultName;
     server.valid = true;
     let account = MailServices.accounts.createAccount();
@@ -217,6 +223,9 @@ var FeedUtils = {
  * @param   nsIDOMWindow aMsgWindow      - window
  */
   downloadFeed: function(aFolder, aUrlListener, aIsBiff, aMsgWindow) {
+    FeedUtils.log.debug("downloadFeed: account loginAtStartUp:isBiff:isOffline - " +
+                        aFolder.server.loginAtStartUp + " : " +
+                        aIsBiff + " : " + Services.io.offline);
     if (Services.io.offline)
       return;
 
@@ -228,6 +237,21 @@ var FeedUtils = {
       FeedUtils.log.warn("downloadFeed: Aborting RSS New Mail Check. " +
                          "Feed subscription in progress\n");
       return;
+    }
+
+    let forceDownload = !aIsBiff;
+    if (aFolder.isServer)
+    {
+      // The lastUpdateTime is |null| only at startup/initialization. Check
+      // if download at startup is wanted; this overrides individual feed
+      // lastUpdateTime or enabled status, just like manual get messages.
+      // Setting loginAtStartUp is not very useful for feeds, as the biff poll
+      // will go off in about kBiffPollMinutes (1) anyway and process each feed
+      // according to its own lastUpdatTime/update frequency.
+      if (FeedUtils.getStatus(aFolder, aFolder.URI).lastUpdateTime === null)
+        forceDownload = aFolder.server.loginAtStartUp;
+
+      FeedUtils.setStatus(aFolder, aFolder.URI, "lastUpdateTime", Date.now());
     }
 
     let allFolders = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
@@ -247,15 +271,7 @@ var FeedUtils = {
         folder = allFolders.queryElementAt(i, Ci.nsIMsgFolder);
         FeedUtils.log.debug("downloadFeed: START x/# foldername:uri - " +
                             (i+1) + "/" + numFolders + " " +
-                            folder.name + ":" + folder.URI);
-
-        // Ensure folder's msgDatabase is openable for new message processing.
-        // If not, reparse. After the async reparse the folder will be ready
-        // for the next cycle; don't bother with a listener. Continue with
-        // the next folder, as attempting to add a message to a folder with
-        // an unavailable msgDatabase will throw later.
-        if (!FeedUtils.isMsgDatabaseOpenable(folder, true))
-          continue;
+                            folder.name + " : " + folder.URI);
 
         let feedUrlArray = FeedUtils.getFeedUrlsInFolder(folder);
         // Continue if there are no feedUrls for the folder in the feeds
@@ -264,17 +280,52 @@ var FeedUtils = {
           continue;
 
         FeedUtils.log.debug("downloadFeed: CONTINUE foldername:urlArray - " +
-                            folder.name + ":" + feedUrlArray);
+                            folder.name + " : " + feedUrlArray);
 
         FeedUtils.progressNotifier.init(aMsgWindow, false);
 
         // We need to kick off a download for each feed.
+        let now = Date.now();
+        let msgDbOk = false;
         let id, feed;
         for (let url of feedUrlArray)
         {
+          // Ensure folder's msgDatabase is openable for new message processing.
+          // If not, reparse and break (to the next folder), as attempting to
+          // add a message to a folder with an unavailable msgDatabase will
+          // throw later. After the async reparse the folder will be ready for
+          // the next poll cycle to pick up this folder's feeds, whose update
+          // time will not have changed.
+          if (!msgDbOk) {
+            // Only do this test once on the first url.
+            msgDbOk = FeedUtils.isMsgDatabaseOpenable(folder, true);
+            if (!msgDbOk)
+              break;
+          }
+
+          // Check whether this feed should be updated; if forceDownload is true
+          // skip the per feed check.
+          if (!forceDownload)
+          {
+            let status = FeedUtils.getStatus(folder, url);
+            if (!status.enabled ||
+                (now - status.lastUpdateTime < status.updateMinutes * 60000))
+            {
+              FeedUtils.log.debug("downloadFeed: SKIP feed, " +
+                                  "aIsBiff:enabled:minsSinceLastUpdate::url - " +
+                                  aIsBiff + " : " + status.enabled + " : " +
+                                  (Math.round((now - status.lastUpdateTime) / 60) / 1000) +" :: "+
+                                  url);
+              continue;
+            }
+          }
+
+          // Update this feed.
           id = FeedUtils.rdf.GetResource(url);
           feed = new Feed(id, folder.server);
           feed.folder = folder;
+          // Set status info.
+          FeedUtils.setStatus(folder, url, "code", FeedUtils.kNewsBlogFeedIsBusy);
           // Bump our pending feed download count.
           FeedUtils.progressNotifier.mNumPendingFeedDownloads++;
           feed.download(true, FeedUtils.progressNotifier);
@@ -385,6 +436,7 @@ var FeedUtils = {
 
     let itemResource = FeedUtils.rdf.GetResource(aUrl);
     let feed = new Feed(itemResource, aFolder.server);
+    // Default setting for new feeds per account settings.
     feed.quickMode = feed.server.getBoolValue("quickMode");
     feed.options = FeedUtils.getOptionsAcct(feed.server);
 
@@ -396,6 +448,69 @@ var FeedUtils = {
     FeedUtils.progressNotifier.init(aMsgWindow, true);
     FeedUtils.progressNotifier.mNumPendingFeedDownloads++;
     feed.download(true, FeedUtils.progressNotifier);
+  },
+
+/**
+ * Enable or disable updates for all subscriptions in a folder, or all
+ * subscriptions in an account if the folder is the account folder.
+ *
+ * @param   nsIMsgFolder aFolder     - folder or account folder (server).
+ * @param   bool aPause              - to pause or not to pause.
+ * @param   bool aBiffNow            - if aPause is false, and aBiffNow is true
+ *                                     do the biff immediately.
+ */
+  pauseFeedFolderUpdates: function(aFolder, aPause, aBiffNow) {
+    if (aFolder.isServer)
+    {
+      let serverFolder = aFolder.server.rootFolder;
+      // Remove server from biff first. If enabling biff, this will make the
+      // latest biffMinutes take effect now rather than waiting for the timer
+      // to expire.
+      aFolder.server.doBiff = false;
+      if (!aPause)
+        aFolder.server.doBiff = true;
+
+      FeedUtils.setStatus(serverFolder, serverFolder.URI, "enabled", !aPause);
+      if (!aPause && aBiffNow)
+        aFolder.server.performBiff(null);
+
+      return;
+    }
+
+    let feedUrls = FeedUtils.getFeedUrlsInFolder(aFolder);
+    if (!feedUrls)
+      return;
+
+    for (let feedUrl of feedUrls)
+    {
+      let resource = FeedUtils.rdf.GetResource(feedUrl);
+      let feed = new Feed(resource, aFolder.server);
+      let options = feed.options;
+      options.updates.enabled = !aPause;
+      feed.options = options;
+      FeedUtils.setStatus(aFolder, feedUrl, "enabled", !aPause);
+FeedUtils.log.debug("pauseFeedFolderUpdates: enabled:url " + !aPause + ": " + feedUrl);
+    }
+
+    let win = Services.wm.getMostRecentWindow("Mail:News-BlogSubscriptions");
+    if (win)
+    {
+      let curItem = win.FeedSubscriptions.mView.currentItem;
+      win.FeedSubscriptions.refreshSubscriptionView();
+      if (curItem.container)
+        win.FeedSubscriptions.selectFolder(curItem.folder);
+      else
+      {
+        let resource = FeedUtils.rdf.GetResource(curItem.url);
+        let feed = new Feed(resource, curItem.parentFolder.server);
+        feed.folder = curItem.parentFolder;
+        win.FeedSubscriptions.selectFeed(feed);
+      }
+    }
+
+    this.getSubscriptionsDS(aFolder.server).Flush();
+
+    feed = null;
   },
 
 /**
@@ -464,6 +579,8 @@ var FeedUtils = {
 
     // Update folderpane.
     this.setFolderPaneProperty(aParentFolder, "favicon", null, "row");
+    // Remove from cache.
+    delete this[aParentFolder.server.serverURI][feed.url];
 
     feed = null;
   },
@@ -517,7 +634,7 @@ var FeedUtils = {
  * @return array of urls, or null if none.
  */
   getFeedUrlsInFolder: function(aFolder) {
-    if (aFolder.isServer || aFolder.server.type != "rss" ||
+    if (!aFolder || aFolder.isServer || aFolder.server.type != "rss" ||
         aFolder.getFlag(Ci.nsMsgFolderFlags.Trash) ||
         aFolder.getFlag(Ci.nsMsgFolderFlags.Virtual) ||
         !aFolder.filePath.exists())
@@ -583,6 +700,48 @@ var FeedUtils = {
     return false;
   },
 
+  /**
+   * Return properties for nsITreeView getCellProperties, for a tree row item in
+   * folderpane or subscribe dialog tree.
+   *
+   * @param   nsIMsgFolder aFolder - folder or a feed url's parent folder
+   * @param   string aFeedUrl      - feed url for a feed row, null for folder
+   * @return  string               - properties
+   */
+  getFolderProperties: function(aFolder, aFeedUrl) {
+    let folder = aFolder;
+    let feedUrls = aFeedUrl ? [aFeedUrl] : this.getFeedUrlsInFolder(aFolder);
+    if (!feedUrls && !folder.isServer)
+      return "";
+
+    let serverEnabled = this.getStatus(folder.server.rootFolder,
+                                       folder.server.rootFolder.URI).enabled;
+    if (folder.isServer)
+      return !serverEnabled ? " serverIsPaused" : "";
+
+    let properties = aFeedUrl ? " isFeed-true" : " isFeedFolder-true";
+    let hasError, isBusy, numPaused = 0;
+    for (let feedUrl of feedUrls) {
+      let feedStatus = this.getStatus(folder, feedUrl);
+      if (feedStatus.code == FeedUtils.kNewsBlogInvalidFeed ||
+          feedStatus.code == FeedUtils.kNewsBlogRequestFailure ||
+          feedStatus.code == FeedUtils.kNewsBlogBadCertError ||
+          feedStatus.code == FeedUtils.kNewsBlogNoAuthError)
+        hasError = true;
+      if (feedStatus.code == FeedUtils.kNewsBlogFeedIsBusy)
+        isBusy = true;
+      if (!feedStatus.enabled)
+        numPaused++;
+    }
+
+    properties += hasError ? " hasError" : "";
+    properties += isBusy ? " isBusy" : "";
+    properties += numPaused == feedUrls.length ? " isPaused" : "";
+    properties += !serverEnabled ? " serverIsPaused" : "";
+
+    return properties;
+  },
+
 /**
  * Update a folderpane cached property.
  *
@@ -599,13 +758,91 @@ var FeedUtils = {
 
     win.gFolderTreeView.setFolderCacheProperty(aFolder, aProperty, aValue);
 
-    if (aInvalidate == "all") {
+    if (aInvalidate == "all")
       win.gFolderTreeView._tree.invalidate();
-    }
+
     if (aInvalidate == "row") {
       let row = win.gFolderTreeView.getIndexOfFolder(aFolder);
       win.gFolderTreeView._tree.invalidateRow(row);
     }
+  },
+
+  /**
+   * Get a cached feed or folder status.
+   *
+   * @param  nsIMsgFolder aFolder   - folder
+   * @param  string aUrl            - url key (feed url or folder URI)
+   * @param  string aProperty       - url status property
+   * @return string aValue          - value
+   */
+  getStatus: function(aFolder, aUrl) {
+    if (!aFolder || !aUrl)
+      return;
+
+    let serverKey = aFolder.server.serverURI;
+    if (!this[serverKey])
+      this[serverKey] = {};
+
+    if (!this[serverKey][aUrl]) {
+      // Seed the status object.
+      this[serverKey][aUrl] = {};
+      this[serverKey][aUrl]["status"] = this.statusTemplate;
+      if (FeedUtils.isValidScheme(aUrl)) {
+        // Seed persisted status properties for feed urls.
+        let feedResource = FeedUtils.rdf.GetResource(aUrl);
+        let feed = new Feed(feedResource, aFolder.server);
+        this[serverKey][aUrl]["status"].enabled =
+          feed.options.updates.enabled;
+        this[serverKey][aUrl]["status"].updateMinutes =
+          feed.options.updates.updateMinutes;
+        this[serverKey][aUrl]["status"].lastUpdateTime =
+          feed.options.updates.lastUpdateTime;
+        feed = null;
+      }
+      else {
+        // Seed persisted status properties for servers.
+        let optionsAcct = FeedUtils.getOptionsAcct(aFolder.server);
+        this[serverKey][aUrl]["status"].enabled = optionsAcct.doBiff;
+      }
+      FeedUtils.log.debug("getStatus: seed url - " + aUrl);
+    }
+
+    return this[serverKey][aUrl].status;
+  },
+
+  /**
+   * Update a feed or folder status and refresh folderpane.
+   *
+   * @param  nsIMsgFolder aFolder   - folder
+   * @param  string aUrl            - url key (feed url or folder URI)
+   * @param  string aProperty       - url status property
+   * @param  string aValue          - value
+   */
+  setStatus: function(aFolder, aUrl, aProperty, aValue) {
+    if (!aFolder || !aUrl || !aProperty)
+      return;
+
+    if (!this[aFolder.server.serverURI][aUrl])
+      // Not yet seeded, so do it.
+      this.getStatus(aFolder, aUrl);
+
+    this[aFolder.server.serverURI][aUrl]["status"][aProperty] = aValue;
+
+    let win = Services.wm.getMostRecentWindow("mail:3pane");
+    if (win && "gFolderTreeView" in win)
+    {
+      if (aFolder.isServer) {
+        win.gFolderTreeView._tree.invalidate();
+      }
+      else {
+        let row = win.gFolderTreeView.getIndexOfFolder(aFolder);
+        win.gFolderTreeView._tree.invalidateRow(row);
+      }
+    }
+
+    win = Services.wm.getMostRecentWindow("Mail:News-BlogSubscriptions");
+    if (win)
+      win.FeedSubscriptions.mView.treeBox.invalidate();
   },
 
 /**
@@ -904,10 +1141,44 @@ var FeedUtils = {
   },
 
 /**
- * This object will contain all feed specific properties.
+ * This object contains feed/account status info.
+ */
+  _statusDefault: {
+    // Derived from persisted value.
+    enabled: null,
+    // Last update result code, a kNewsBlog* value.
+    code: 0,
+    updateMinutes: null,
+    // JS Date; startup state is null indicating no update since startup.
+    lastUpdateTime: null
+  },
+
+  get statusTemplate()
+  {
+    // Copy the object.
+    return JSON.parse(JSON.stringify(this._statusDefault));
+  },
+
+/**
+ * This object will contain all persisted feed specific properties.
  */
   _optionsDefault: {
-    version: 1,
+    version: 2,
+    updates: {
+      enabled: true,
+      // User set.
+      updateMinutes: 100,
+      // User set: "min"=minutes, "d"=days
+      updateUnits: "min",
+      // JS Date.
+      lastUpdateTime: null,
+      // The last time a new message was stored. JS Date.
+      lastDownloadTime: null,
+      // Publisher recommended from the feed.
+      updatePeriod: null,
+      updateFrequency: 1,
+      updateBase: null
+    },
     // Autotag and <category> handling options.
     category: {
       enabled: false,
@@ -924,27 +1195,113 @@ var FeedUtils = {
 
   getOptionsAcct: function(aServer)
   {
+    let optionsAcct;
     let optionsAcctPref = "mail.server." + aServer.key + ".feed_options";
+    let check_new_mail = "mail.server." + aServer.key + ".check_new_mail";
+    let check_time = "mail.server." + aServer.key + ".check_time";
+
+    // Biff enabled or not. Make sure pref exists.
+    if (!Services.prefs.prefHasUserValue(check_new_mail))
+      Services.prefs.setBoolPref(check_new_mail, true);
+
+    // System polling interval. Make sure pref exists.
+    if (!Services.prefs.prefHasUserValue(check_time))
+      Services.prefs.setIntPref(check_time, FeedUtils.kBiffPollMinutes);
+
     try {
-      return JSON.parse(Services.prefs.getCharPref(optionsAcctPref));
+      optionsAcct = JSON.parse(Services.prefs.getCharPref(optionsAcctPref));
+      // Add the server specific biff enabled state.
+      optionsAcct["doBiff"] = Services.prefs.getBoolPref(check_new_mail);
     }
-    catch (ex) {
-      this.setOptionsAcct(aServer, this._optionsDefault);
-      return JSON.parse(Services.prefs.getCharPref(optionsAcctPref));
-    }
+    catch (ex) {}
+
+    if (optionsAcct && optionsAcct.version == this._optionsDefault.version)
+      return optionsAcct;
+
+    // Init account updates options if new or upgrading to version in
+    // |_optionsDefault.version|.
+    if (!optionsAcct || optionsAcct.version < this._optionsDefault.version)
+      this.initAcct(aServer);
+
+    let newOptions = this.newOptions(optionsAcct);
+    this.setOptionsAcct(aServer, newOptions);
+    newOptions["doBiff"] = Services.prefs.getBoolPref(check_new_mail);
+    return newOptions;
   },
 
   setOptionsAcct: function(aServer, aOptions)
   {
     let optionsAcctPref = "mail.server." + aServer.key + ".feed_options";
-    let newOptions = this.newOptions(aOptions);
-    Services.prefs.setCharPref(optionsAcctPref, JSON.stringify(newOptions));
+    aOptions = aOptions || this.optionsTemplate;
+    Services.prefs.setCharPref(optionsAcctPref, JSON.stringify(aOptions));
   },
 
-  newOptions: function(aOptions)
+  initAcct: function(aServer)
   {
-    // TODO: Clean options, so that only keys in the active template are stored.
-    return aOptions;
+    let serverPrefStr = "mail.server." + aServer.key;
+    // System polling interval. Effective after current interval expires on
+    // change; no user facing ui.
+    Services.prefs.setIntPref(serverPrefStr + ".check_time",
+                              FeedUtils.kBiffPollMinutes);
+
+    // If this pref is false, polling on biff is disabled and account updates
+    // are paused; ui in account server settings and folderpane context menu
+    // (Pause All Updates). Checking Enable updates or unchecking Pause takes
+    // effect immediately. Here on startup, we just ensure the polling interval
+    // above is reset immediately.
+    let doBiff = Services.prefs.getBoolPref(serverPrefStr + ".check_new_mail");
+    FeedUtils.log.debug("initAcct: " + aServer.prettyName + " doBiff - " + doBiff);
+    this.pauseFeedFolderUpdates(aServer.rootFolder, !doBiff, false);
+  },
+
+  newOptions: function(aCurrentOptions)
+  {
+    if (!aCurrentOptions)
+      return this.optionsTemplate;
+
+    // Options version has changed; meld current template with existing
+    // aCurrentOptions settings, removing items gone from the template while
+    // preserving user settings for retained template items.
+    let newOptions = this.optionsTemplate;
+    this.Mixins.meld(aCurrentOptions, false, true).into(newOptions);
+    newOptions.version = this.optionsTemplate.version;
+    return newOptions;
+  },
+
+/**
+ * A generalized recursive melder of two objects. Getters/setters not included.
+ */
+  Mixins: {
+    meld: function(source, keep, replace) {
+      function meldin(source, target, keep, replace) {
+        for (let attribute in source) {
+          // Recurse for objects.
+          if (typeof source[attribute] == "object" &&
+              typeof target[attribute] == "object") {
+            meldin(source[attribute], target[attribute], keep, replace);
+          }
+          else {
+            // Use attribute values from source for the target, unless
+            // replace is false.
+            if (attribute in target && !replace)
+              continue;
+
+            // Don't copy attribute from source to target if it is not in the
+            // target, unless keep is true.
+            if (!(attribute in target) && !keep)
+              continue;
+
+            target[attribute] = source[attribute];
+          }
+        }
+      };
+      return {
+        source: source,
+        into: function(target) {
+          meldin(this.source, target, keep, replace);
+        }
+      };
+    }
   },
 
   getSubscriptionsDS: function(aServer) {
@@ -1464,10 +1821,30 @@ var FeedUtils = {
         }
       }
 
-      if (feed.folder && aErrorCode != FeedUtils.kNewsBlogFeedIsBusy)
-        // Free msgDatabase after new mail biff is set; if busy let the next
-        // result do the freeing.  Otherwise new messages won't be indicated.
-        feed.folder.msgDatabase = null;
+      if (aErrorCode != FeedUtils.kNewsBlogFeedIsBusy)
+      {
+        if (aErrorCode == FeedUtils.kNewsBlogSuccess ||
+            aErrorCode == FeedUtils.kNewsBlogNoNewItems)
+        {
+          // Update lastUpdateTime only if successful normal processing.
+          let options = feed.options;
+          let now = Date.now();
+          options.updates.lastUpdateTime = now;
+          if (feed.itemsStored)
+            options.updates.lastDownloadTime = now;
+
+          feed.options = options;
+          FeedUtils.setStatus(feed.folder, feed.url, "lastUpdateTime", now);
+        }
+
+        if (!this.mSubscribeMode)
+          FeedUtils.setStatus(feed.folder, feed.url, "code", aErrorCode);
+
+        if (feed.folder)
+          // Free msgDatabase after new mail biff is set; if busy let the next
+          // result do the freeing.  Otherwise new messages won't be indicated.
+          feed.folder.msgDatabase = null;
+      }
 
       let message = "";
       if (feed.folder)
@@ -1597,6 +1974,11 @@ XPCOMUtils.defineLazyGetter(FeedUtils, "log", function() {
 XPCOMUtils.defineLazyGetter(FeedUtils, "strings", function() {
   return Services.strings.createBundle(
     "chrome://messenger-newsblog/locale/newsblog.properties");
+});
+
+XPCOMUtils.defineLazyGetter(FeedUtils, "stringsPrefs", function() {
+  return Services.strings.createBundle(
+    "chrome://messenger/locale/prefs.properties");
 });
 
 XPCOMUtils.defineLazyGetter(FeedUtils, "rdf", function() {

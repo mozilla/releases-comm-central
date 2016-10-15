@@ -416,6 +416,35 @@ function fillFolderPaneContextMenu(aEvent)
                 selectedServers.length == selectedFoldersThatCanGetMessages.length) ||
                selectedFoldersThatCanGetMessages.length == numSelected);
 
+  // --- Set up the pause all updates menu item.
+  // Show only if a feed server.
+  let showPausedAll = numSelected == 1 && folders[0].isServer &&
+                      FeedMessageHandler.isFeedFolder(folders[0]);
+  ShowMenuItem("folderPaneContext-pauseAllUpdates", showPausedAll);
+  // Adjust the checked state on the menu item.
+  if (showPausedAll) {
+    let menuitem = document.getElementById("folderPaneContext-pauseAllUpdates");
+    let optionsAcct = FeedUtils.getOptionsAcct(folders[0].server);
+    menuitem.setAttribute("checked", !optionsAcct.doBiff);
+  }
+
+  // --- Set up the pause single folder subscription updates menu item.
+  // Show only if a feed folder, or a feed account folder with no subscriptions
+  // but subfolders (which may have feed folders).
+  let showPaused = numSelected == 1 &&
+                   (FeedUtils.getFeedUrlsInFolder(folders[0]) ||
+                    (FeedMessageHandler.isFeedFolder(folders[0]) &&
+                     !folders[0].isServer && folders[0].hasSubFolders));
+  ShowMenuItem("folderPaneContext-pauseUpdates", showPaused);
+  // Adjust the checked state on the menu item.
+  if (showPaused) {
+    let menuitem = document.getElementById("folderPaneContext-pauseUpdates");
+    let properties = FeedUtils.getFolderProperties(folders[0]);
+    let paused = properties.includes("isPaused");
+    menuitem.setAttribute("checked", paused);
+  }
+  ShowMenuItem("folderPaneContext-sepPause", showPausedAll || showPaused);
+
   // --- Set up new sub/folder menu item.
   if (numSelected == 1) {
     let showNewFolderItem =

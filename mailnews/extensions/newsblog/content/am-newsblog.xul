@@ -60,34 +60,48 @@
                 accesskey="&loginAtStartup.accesskey;"
                 prefattribute="value"
                 prefstring="mail.server.%serverkey%.login_at_startup"/>
+      <checkbox id="doBiff"
+                label="&biffAll.label;"
+                accesskey="&biffAll.accesskey;"
+                oncommand="setPrefs(this)"/>
+    </groupbox>
+
+    <separator class="thin"/>
+
+    <groupbox>
+      <caption label="&newFeedSettings.label;"/>
 
       <hbox align="center">
-        <checkbox id="server.doBiff"
-                  wsm_persist="true"
+        <checkbox id="updateEnabled"
                   label="&biffStart.label;"
                   accesskey="&biffStart.accesskey;"
-                  oncommand="onCheckItem('server.biffMinutes', [this.id]);"
-                  prefattribute="value"
-                  prefstring="mail.server.%serverkey%.check_new_mail"/>
-        <textbox id="server.biffMinutes"
-                 wsm_persist="true"
+                  oncommand="setPrefs(this)"/>
+        <textbox id="updateValue"
                  type="number"
                  size="3"
                  min="1"
                  increment="1"
-                 preftype="int"
-                 prefstring="mail.server.%serverkey%.check_time"
-                 aria-labelledby="server.doBiff server.biffMinutes biffEnd"/>
-        <label id="biffEnd"
-             value="&biffEnd.label;"
-             control="server.biffMinutes"/>
+                 aria-labelledby="updateEnabled updateValue biffMinutes biffDays"
+                 onchange="setPrefs(this)"/>
+        <radiogroup id="biffUnits"
+                    orient="horizontal"
+                    oncommand="setPrefs(this)">
+          <radio id="biffMinutes" value="min" label="&biffMinutes.label;"
+                 accesskey="&biffMinutes.accesskey;">
+            <observes element="updateValue" attribute="disabled"/>
+          </radio>
+          <radio id="biffDays" value="d" label="&biffDays.label;"
+                 accesskey="&biffDays.accesskey;">
+            <observes element="updateValue" attribute="disabled"/>
+          </radio>
+        </radiogroup>
       </hbox>
 
       <checkbox id="server.quickMode"
                 wsm_persist="true"
                 genericattr="true"
-                label="&useQuickMode.label;"
-                accesskey="&useQuickMode.accesskey;"
+                label="&quickMode.label;"
+                accesskey="&quickMode.accesskey;"
                 preftype="bool"
                 prefattribute="value"
                 prefstring="mail.server.%serverkey%.quickMode"/>
@@ -95,19 +109,28 @@
       <checkbox id="autotagEnable"
                 accesskey="&autotagEnable.accesskey;"
                 label="&autotagEnable.label;"
-                oncommand="setCategoryPrefs(this)"/>
+                oncommand="setPrefs(this)"/>
       <hbox>
           <checkbox id="autotagUsePrefix"
                     class="indent"
                     accesskey="&autotagUsePrefix.accesskey;"
                     label="&autotagUsePrefix.label;"
-                    oncommand="setCategoryPrefs(this)"/>
+                    oncommand="setPrefs(this)"/>
           <textbox id="autotagPrefix"
                    placeholder="&autoTagPrefix.placeholder;"
                    clickSelectsAll="true"
-                   onchange="setCategoryPrefs(this)"/>
+                   onchange="setPrefs(this)"/>
       </hbox>
     </groupbox>
+
+    <separator class="thin"/>
+
+    <hbox align="center">
+      <button label="&manageSubscriptions.label;"
+              accesskey="&manageSubscriptions.accesskey;"
+              oncommand="openSubscriptionsDialog(gServer.rootFolder);"/>
+      <spacer flex="1"/>
+    </hbox>
 
     <separator class="thin"/>
 
@@ -142,14 +165,5 @@
       </vbox>
 
     </groupbox>
-
-    <separator class="thin"/>
-
-    <hbox align="center">
-      <spacer flex="1"/>
-      <button label="&manageSubscriptions.label;"
-              accesskey="&manageSubscriptions.accesskey;"
-              oncommand="openSubscriptionsDialog(gServer.rootFolder);"/>
-    </hbox>
   </vbox>
 </page>

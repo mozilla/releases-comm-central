@@ -12,6 +12,8 @@
 <!DOCTYPE window [
   <!ENTITY % feedDTD SYSTEM "chrome://messenger-newsblog/locale/feed-subscriptions.dtd">
     %feedDTD;
+  <!ENTITY % newsblogDTD SYSTEM "chrome://messenger-newsblog/locale/am-newsblog.dtd">
+    %newsblogDTD;
   <!ENTITY % certDTD SYSTEM "chrome://pippki/locale/certManager.dtd">
     %certDTD;
 ]>
@@ -106,8 +108,8 @@
                          class="uri-element"
                          placeholder="&feedLocation.placeholder;"
                          clickSelectsAll="true"
-                         onfocus="FeedSubscriptions.setSummaryFocus();"
-                         onblur="FeedSubscriptions.setSummaryFocus();"/>
+                         onfocus="FeedSubscriptions.setFocus();"
+                         onblur="FeedSubscriptions.setFocus();"/>
                 <hbox align="center">
                   <label id="locationValidate"
                          collapsed="true"
@@ -147,6 +149,46 @@
             </row>
           </rows>
         </grid>
+
+        <hbox align="center">
+          <checkbox id="updateEnabled"
+                    label="&biffStart.label;"
+                    accesskey="&biffStart.accesskey;"
+                    oncommand="FeedSubscriptions.setPrefs(this)"/>
+          <textbox id="updateValue"
+                   type="number"
+                   size="3"
+                   min="1"
+                   increment="1"
+                   aria-labelledby="updateEnabled updateValue biffMinutes biffDays recommendedUnits recommendedUnitsVal"/>
+          <radiogroup id="biffUnits"
+                      orient="horizontal"
+                      oncommand="FeedSubscriptions.setPrefs(this)">
+            <radio id="biffMinutes" value="min" label="&biffMinutes.label;"
+                   accesskey="&biffMinutes.accesskey;">
+              <observes element="updateValue" attribute="disabled"/>
+            </radio>
+            <radio id="biffDays" value="d" label="&biffDays.label;"
+                   accesskey="&biffDays.accesskey;">
+              <observes element="updateValue" attribute="disabled"/>
+            </radio>
+          </radiogroup>
+          <hbox id="recommendedBox">
+            <label id="recommendedUnits"
+                   value="&recommendedUnits.label;"
+                   hidden="true"
+                   control="updateMinutes">
+              <observes element="updateValue" attribute="disabled"/>
+            </label>
+            <label id="recommendedUnitsVal"
+                   value=""
+                   hidden="true"
+                   control="updateMinutes">
+              <observes element="updateValue" attribute="disabled"/>
+              <observes element="recommendedUnits" attribute="hidden"/>
+            </label>
+          </hbox>
+        </hbox>
         <checkbox id="quickMode"
                   accesskey="&quickMode.accesskey;"
                   label="&quickMode.label;"
@@ -154,13 +196,13 @@
         <checkbox id="autotagEnable"
                   accesskey="&autotagEnable.accesskey;"
                   label="&autotagEnable.label;"
-                  oncommand="FeedSubscriptions.setCategoryPrefs(this)"/>
+                  oncommand="FeedSubscriptions.setPrefs(this)"/>
         <hbox>
             <checkbox id="autotagUsePrefix"
                       class="indent"
                       accesskey="&autotagUsePrefix.accesskey;"
                       label="&autotagUsePrefix.label;"
-                      oncommand="FeedSubscriptions.setCategoryPrefs(this)"/>
+                      oncommand="FeedSubscriptions.setPrefs(this)"/>
             <textbox id="autotagPrefix"
                      placeholder="&autoTagPrefix.placeholder;"
                      clickSelectsAll="true"/>

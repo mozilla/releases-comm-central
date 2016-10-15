@@ -214,7 +214,7 @@ FeedItem.prototype =
     if (ds.hasArcOut(resource, FeedUtils.FZ_STORED))
     {
       currentValue = ds.GetTarget(resource, FeedUtils.FZ_STORED, true);
-      ds.Change(resource, FeedUtils.FZ_STORED, 
+      ds.Change(resource, FeedUtils.FZ_STORED,
                 currentValue, FeedUtils.RDF_LITERAL_TRUE);
     }
     else
@@ -376,14 +376,14 @@ FeedItem.prototype =
  */
   tagItem: function(aMsgDBHdr, aKeywords)
   {
-    let categoryPrefs = this.feed.categoryPrefs();
-    if (!aKeywords.length || !categoryPrefs.enabled)
+    let category = this.feed.options.category;
+    if (!aKeywords.length || !category.enabled)
       return;
 
     let msgArray = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
     msgArray.appendElement(aMsgDBHdr, false);
 
-    let prefix = categoryPrefs.prefixEnabled ? categoryPrefs.prefix : "";
+    let prefix = category.prefixEnabled ? category.prefix : "";
     let rtl = Services.prefs.getIntPref("bidi.direction") == 2;
 
     let keys = [];
