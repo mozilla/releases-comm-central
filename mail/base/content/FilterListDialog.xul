@@ -87,9 +87,19 @@
 
         <vbox>
           <button id="newButton"
+                  type="menu-button"
                   label="&newButton.label;"
                   accesskey="&newButton.accesskey;"
-                  oncommand="onNewFilter(null);"/>
+                  oncommand="onNewFilter();">
+            <menupopup>
+              <menuitem label="&newButton.label;"
+                        accesskey="&newButton.accesskey;"/>
+              <menuitem id="copyToNewButton"
+                        label="&newButton.popupCopy.label;"
+                        accesskey="&newButton.popupCopy.accesskey;"
+                        oncommand="onCopyToNewFilter(); event.stopPropagation();"/>
+            </menupopup>
+          </button>
           <button id="editButton" label="&editButton.label;"
                   accesskey="&editButton.accesskey;"
                   oncommand="onEditFilter();"/>

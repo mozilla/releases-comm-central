@@ -7,6 +7,8 @@
 <!ENTITY activeColumn.label "Enabled">
 <!ENTITY newButton.label "New…">
 <!ENTITY newButton.accesskey "N">
+<!ENTITY newButton.popupCopy.label "Copy…">
+<!ENTITY newButton.popupCopy.accesskey "C">
 <!ENTITY editButton.label "Edit…">
 <!ENTITY editButton.accesskey "E">
 <!ENTITY deleteButton.label "Delete">
