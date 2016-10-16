@@ -19,10 +19,9 @@ var folder1, folder2;
 var gInitRecentMenuCount;
 
 var setupModule = function(module) {
-  let fdh = collector.getModule('folder-display-helpers');
-  fdh.installInto(module);
-  let wh = collector.getModule('window-helpers');
-  wh.installInto(module);
+  for (let lib of MODULE_REQUIRES) {
+    collector.getModule(lib).installInto(module);
+  }
 
   // Ensure that there are no updated folders to ensure the recent folder
   // is empty.
@@ -43,10 +42,11 @@ function test_move_message() {
   let msgHdr = select_click_row(0);
   // This will cause the initial build of the move recent context menu,
   // which should be empty and disabled.
+  right_click_on_row(0);
   let popups = mc.click_menus_in_sequence(mc.e("mailContext"),
                                           [{id: "mailContext-moveMenu"}], true);
-  let recentMenu = mc.eid("mailContext-moveMenu")
-                     .node.querySelector('[label="Recent"]');
+  let recentMenu = popups[popups.length - 1]
+                         .querySelector('[label="Recent"]');
   assert_equals(recentMenu.getAttribute("disabled"), "true");
   gInitRecentMenuCount = recentMenu.itemCount;
   assert_equals(gInitRecentMenuCount, 0);
@@ -71,12 +71,11 @@ function test_move_message() {
   // We've moved a message to aaafolder2 - it should appear in recent list now.
   // Clicking the menuitem by label is not localizable, but Recent doesn't have an
   // id we can use.
+  right_click_on_row(0);
   popups = mc.click_menus_in_sequence(mc.e("mailContext"),
                                       [{id: "mailContext-moveMenu"},
                                        {label: "Recent"}], true);
-  recentMenu = mc.eid("mailContext-moveMenu")
-                     .node.querySelector('[label="Recent"]');
-  let recentChildren = recentMenu.menupopup.children;
+  let recentChildren = popups[popups.length - 1].children;
   assert_equals(recentChildren.length, gInitRecentMenuCount + 1,
                 "recent menu should have one more child after move");
   assert_equals(recentChildren[0].label, "aaafolder2",
@@ -87,12 +86,11 @@ function test_move_message() {
 function test_delete_message() {
   press_delete(mc);
   // We've deleted a message - we should still just have folder2 in the menu.
+  right_click_on_row(0);
   let popups = mc.click_menus_in_sequence(mc.e("mailContext"),
                                           [{id: "mailContext-moveMenu"},
                                            {label: "Recent"}], true);
-  let recentMenu = mc.eid("mailContext-moveMenu")
-                     .node.querySelector('[label="Recent"]');
-  let recentChildren = recentMenu.menupopup.children;
+  let recentChildren = popups[popups.length - 1].children;
   assert_equals(recentChildren.length, gInitRecentMenuCount + 1,
                 "delete shouldn't add anything to recent menu");
   assert_equals(recentChildren[0].label, "aaafolder2",
@@ -103,12 +101,14 @@ function test_delete_message() {
 function test_archive_message() {
   archive_selected_messages();
   // We've archived a message - we should still just have folder2 in the menu.
+  let archive = get_special_folder(Ci.nsMsgFolderFlags.Archive, false);
+  let archives = archive.descendants;
+  be_in_folder(archives.queryElementAt(0, Ci.nsIMsgFolder));
+  right_click_on_row(0);
   let popups = mc.click_menus_in_sequence(mc.e("mailContext"),
                                           [{id: "mailContext-moveMenu"},
                                            {label: "Recent"}], true);
-  let recentMenu = mc.eid("mailContext-moveMenu")
-                     .node.querySelector('[label="Recent"]');
-  let recentChildren = recentMenu.menupopup.children;
+  let recentChildren = popups[popups.length - 1].children;
   assert_equals(recentChildren.length, gInitRecentMenuCount + 1,
                 "archive shouldn't add anything to recent menu");
   assert_equals(recentChildren[0].label, "aaafolder2",
