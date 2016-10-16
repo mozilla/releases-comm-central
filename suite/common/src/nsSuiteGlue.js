@@ -164,7 +164,6 @@ SuiteGlue.prototype = {
         Components.classes["@mozilla.org/globalmessagemanager;1"]
                   .getService(Components.interfaces.nsIMessageListenerManager)
                   .loadFrameScript("chrome://navigator/content/content.js", true);
-        Components.utils.import("resource://gre/modules/Webapps.jsm");
         Components.utils.import("resource://gre/modules/NotificationDB.jsm");
         break;
       case "sessionstore-windows-restored":

@@ -710,7 +710,6 @@ Throbber-small.gif
   @DIR_MACOS@components/TCPSocket.js
   @DIR_MACOS@components/txEXSLTRegExFunctions.js
   @DIR_MACOS@components/Weave.js
-  @DIR_MACOS@components/Webapps.js
   @DIR_MACOS@components/WebContentConverter.js
   @DIR_MACOS@components/browser.xpt
   @DIR_MACOS@components/binary.manifest
@@ -1069,7 +1068,6 @@ Throbber-small.gif
   @DIR_MACOS@modules/UserAgentOverrides.jsm
   @DIR_MACOS@modules/utils.js
   @DIR_MACOS@modules/virtualFolderWrapper.js
-  @DIR_MACOS@modules/Webapps.jsm
   @DIR_MACOS@modules/WindowDraggingUtils.jsm
   @DIR_MACOS@modules/WorkerTest.jsm
   @DIR_MACOS@modules/WorkerTest_subworker.js
