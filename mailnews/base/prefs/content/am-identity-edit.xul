@@ -16,7 +16,8 @@
 %identityDTD;
 ]>
 
-<dialog title="&identityTitle.label;"
+<dialog id="identityDialog"
+        title="&identityTitle.label;"
         xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
         onload="onLoadIdentityProperties();"
@@ -46,7 +47,7 @@
     </tabs>
 
     <tabpanels id="identityTabsPanels" flex="1">
-      <!-- Identity Settings Tab --> 
+      <!-- Identity Settings Tab -->
       <vbox flex="1" name="settings">
         <grid>
           <columns>
@@ -93,7 +94,7 @@
                    aria-labelledby="identity.attachSignature"
                    observes="broadcaster_attachSignature" class="uri-element"/>
           <button class="push" name="browse" label="&choose.label;"
-                  accesskey="&choose.accesskey;" 
+                  accesskey="&choose.accesskey;"
                   oncommand="selectFile()"
                   observes="broadcaster_attachSignature"
                   id="identity.sigbrowsebutton"/>
@@ -102,7 +103,7 @@
         <hbox align="center">
           <checkbox id="identity.attachVCard" label="&attachVCard.label;" flex="1"
                     accesskey="&attachVCard.accesskey;"/>
-          <button class="push" name="editVCard" label="&editVCard.label;"  
+          <button class="push" name="editVCard" label="&editVCard.label;"
                   accesskey="&editVCard.accesskey;"
                   oncommand="editVCard()"/>
           <label hidden="true" id="identity.escapedVCard"/>
@@ -130,6 +131,6 @@
       <!-- Composition & Addressing Tab -->
       <vbox flex="1" name="composeAddressing" id="compositionAndAddressing"/>
 
-    </tabpanels> 
+    </tabpanels>
   </tabbox>
 </dialog>
