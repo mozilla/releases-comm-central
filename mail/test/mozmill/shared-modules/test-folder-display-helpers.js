@@ -400,6 +400,31 @@ function create_virtual_folder() {
   return folder;
 }
 
+/**
+ * Get special folder having a folder flag under Local Folders.
+ *
+ * @param aFolderFlag  Folder flag of the required folder.
+ * @param aCreate      Create the folder if it does not exist yet.
+ */
+function get_special_folder(aFolderFlag, aCreate = false) {
+  let folderNames = new Map([[ Ci.nsMsgFolderFlags.Drafts, "Drafts" ],
+                             [ Ci.nsMsgFolderFlags.Templates, "Templates" ],
+                             [ Ci.nsMsgFolderFlags.Queue, "Outbox" ]
+                            ]);
+
+  let folder = MailServices.accounts
+                           .localFoldersServer
+                           .rootFolder
+                           .getFolderWithFlags(aFolderFlag);
+
+  if (!folder && aCreate) {
+    folder = create_folder(folderNames.get(aFolderFlag), [aFolderFlag]);
+  }
+  if (!folder)
+    throw new Error("Special folder not found");
+
+  return folder;
+}
 
 /**
  * Create a thread with the specified number of messages in it.

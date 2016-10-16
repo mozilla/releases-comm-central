@@ -24,25 +24,8 @@ function setupModule(module) {
   for (let req of MODULE_REQUIRES) {
     collector.getModule(req).installInto(module);
   }
-  if (!MailServices.accounts
-                   .localFoldersServer
-                   .rootFolder
-                   .containsChildNamed("Drafts")) {
-     create_folder("Drafts", [Ci.nsMsgFolderFlags.Drafts]);
-  }
-  draftsFolder = MailServices.accounts
-                             .localFoldersServer
-                             .rootFolder
-                             .getFolderWithFlags(Ci.nsMsgFolderFlags.Drafts);
-  if (!draftsFolder)
-    throw new Error("draftsFolder not found");
-
-  outboxFolder = MailServices.accounts
-                             .localFoldersServer
-                             .rootFolder
-                             .getFolderWithFlags(Ci.nsMsgFolderFlags.Queue);
-  if (!outboxFolder)
-    throw new Error("outboxFolder not found");
+  draftsFolder = get_special_folder(Ci.nsMsgFolderFlags.Drafts, true);
+  outboxFolder = get_special_folder(Ci.nsMsgFolderFlags.Queue);
 
   // Ensure reply charset isn't UTF-8, otherwise there's no need to upgrade,
   //  which is what this test tests.

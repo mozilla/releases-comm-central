@@ -31,13 +31,8 @@ function setupModule(module) {
   for (let req of MODULE_REQUIRES) {
     collector.getModule(req).installInto(module);
   }
-  let rootFolder = MailServices.accounts.localFoldersServer.rootFolder;
-  if (!rootFolder.containsChildNamed("Drafts")) {
-     create_folder("Drafts", [Ci.nsMsgFolderFlags.Drafts]);
-  }
-  draftsFolder = rootFolder.getChildNamed("Drafts");
-  if (!draftsFolder)
-    throw new Error("draftsFolder not found");
+
+  draftsFolder = get_special_folder(Ci.nsMsgFolderFlags.Drafts, true);
 
   // Ensure reply charset isn't UTF-8, otherwise there's no need to upgrade,
   // which is what this test tests.
@@ -177,6 +172,4 @@ function test_no_mojibake() {
 
 function teardownModule(module) {
   Services.prefs.clearUserPref("mailnews.send_default_charset");
-  MailServices.accounts.localFoldersServer.rootFolder
-              .propagateDelete(draftsFolder, true, null);
 }

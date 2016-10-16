@@ -314,8 +314,7 @@ function test_manual_attachment_reminder() {
   close_compose_window(cwc);
 
   // The draft message was saved into Local Folders/Drafts.
-  let drafts = MailServices.accounts.localFoldersServer.rootFolder
-                           .getFolderWithFlags(Ci.nsMsgFolderFlags.Drafts);
+  let drafts = get_special_folder(Ci.nsMsgFolderFlags.Drafts);
   be_in_folder(drafts);
 
   select_click_row(0);
@@ -576,8 +575,7 @@ function test_reminder_in_draft() {
   wait_for_modal_dialog("commonDialog");
 
   // The draft message was saved into Local Folders/Drafts.
-  let drafts = MailServices.accounts.localFoldersServer.rootFolder
-                           .getFolderWithFlags(Ci.nsMsgFolderFlags.Drafts);
+  let drafts = get_special_folder(Ci.nsMsgFolderFlags.Drafts);
   be_in_folder(drafts);
 
   select_click_row(0);
@@ -650,8 +648,7 @@ function test_disabling_attachment_reminder() {
   wait_for_window_close();
 
   // There should be no alert so it is saved in Outbox.
-  let outbox = MailServices.accounts.localFoldersServer.rootFolder
-                           .getChildNamed("Outbox");
+  let outbox = get_special_folder(Ci.nsMsgFolderFlags.Queue);
   be_in_folder(outbox);
 
   select_click_row(0);
@@ -712,11 +709,4 @@ function click_save_message(controller) {
     throw new Error("Not a Save message dialog; title=" +
                     controller.window.document.title);
   controller.window.document.documentElement.getButton('accept').doCommand();
-}
-
-function teardownModule(module) {
-  let drafts = MailServices.accounts.localFoldersServer.rootFolder
-                           .getFolderWithFlags(Ci.nsMsgFolderFlags.Drafts);
-  MailServices.accounts.localFoldersServer.rootFolder
-              .propagateDelete(drafts, true, null);
 }

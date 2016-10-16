@@ -65,10 +65,11 @@ function forward_selected_messages_and_go_to_drafts_folder(f) {
   cwc.window.goDoCommand('cmd_close');
   // wait for the modal dialog to return
   wait_for_modal_dialog();
-  // actually quite the window
+  // Actually quit the window.
   wait_for_window_close();
 
-  let draftsFolder = MailServices.accounts.localFoldersServer.rootFolder.getChildNamed("Drafts");
+  // Visit the existing Drafts folder.
+  let draftsFolder = get_special_folder(Ci.nsMsgFolderFlags.Drafts);
   be_in_folder(draftsFolder);
 }
 

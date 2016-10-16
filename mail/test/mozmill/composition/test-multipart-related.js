@@ -29,14 +29,7 @@ function setupModule(module) {
   for (let req of MODULE_REQUIRES) {
     collector.getModule(req).installInto(module);
   }
-  let rootFolder = MailServices.accounts.localFoldersServer.rootFolder;
-  if (!rootFolder.containsChildNamed("Drafts")) {
-     create_folder("Drafts", [Ci.nsMsgFolderFlags.Drafts]);
-  }
-  draftsFolder = rootFolder.getChildNamed("Drafts");
-  if (!draftsFolder) {
-    throw new Error("draftsFolder not found");
-  }
+  draftsFolder = get_special_folder(Ci.nsMsgFolderFlags.Drafts, true);
 }
 
 /**
@@ -118,9 +111,4 @@ function test_basic_multipart_related() {
     throw new Error("Expected HTML to refer to cid " + cid);
   }
   press_delete(mc); // Delete message
-}
-
-function teardownModule(module) {
-  MailServices.accounts.localFoldersServer.rootFolder
-              .propagateDelete(draftsFolder, true, null);
 }

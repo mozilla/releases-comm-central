@@ -40,9 +40,8 @@ function test_reply_to_eml_save_as_draft() {
   // Ctrl+S saves as draft.
   replyWin.keypress(null, "s", {shiftKey: false, accelKey: true});
 
-  let draftsFolder = MailServices.accounts.localFoldersServer.rootFolder
-                                 .getChildNamed("Drafts");
-
+  // Drafts folder should exist now.
+  let draftsFolder = get_special_folder(Ci.nsMsgFolderFlags.Drafts);
   be_in_folder(draftsFolder);
   let draftMsg = select_click_row(0);
   if (!draftMsg)
@@ -68,9 +67,8 @@ function test_forward_eml_save_as_draft() {
   // Ctrl+S saves as draft.
   replyWin.keypress(null, "s", {shiftKey: false, accelKey: true});
 
-  let draftsFolder = MailServices.accounts.localFoldersServer.rootFolder
-                                 .getChildNamed("Drafts");
-
+  // Drafts folder should exist now.
+  let draftsFolder = get_special_folder(Ci.nsMsgFolderFlags.Drafts);
   be_in_folder(draftsFolder);
   let draftMsg = select_click_row(0);
   if (!draftMsg)

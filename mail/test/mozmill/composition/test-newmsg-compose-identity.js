@@ -50,6 +50,7 @@ function setupModule(module) {
 
   gInbox = account.incomingServer.rootFolder
                   .getFolderWithFlags(Ci.nsMsgFolderFlags.Inbox);
+  gDrafts = get_special_folder(Ci.nsMsgFolderFlags.Drafts, true);
 }
 
 /**
@@ -153,8 +154,6 @@ function test_editing_identity() {
   // This should not save the identity2 to the draft message.
   close_compose_window(compWin);
 
-  gDrafts = MailServices.accounts.localFoldersServer.rootFolder
-                                 .getFolderWithFlags(Ci.nsMsgFolderFlags.Drafts);
   be_in_folder(gDrafts);
   let curMessage = select_click_row(0);
   assert_equals(curMessage.author, identityCustom);
@@ -170,6 +169,4 @@ function teardownModule(module) {
   // which effectively destroys it.
   MailServices.accounts.getIdentity(identityKey2).clearAllValues();
   MailServices.accounts.removeAccount(account);
-  MailServices.accounts.localFoldersServer.rootFolder
-              .propagateDelete(gDrafts, true, null);
 }

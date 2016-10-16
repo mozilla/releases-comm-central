@@ -26,16 +26,7 @@ function setupModule(module) {
     collector.getModule(lib).installInto(module);
   }
 
-  if (!MailServices.accounts
-                   .localFoldersServer
-                   .rootFolder
-                   .containsChildNamed("Drafts")) {
-    create_folder("Drafts", [Ci.nsMsgFolderFlags.Drafts]);
-  }
-  draftsFolder = MailServices.accounts
-                             .localFoldersServer
-                             .rootFolder
-                             .getChildNamed("Drafts");
+  draftsFolder = get_special_folder(Ci.nsMsgFolderFlags.Drafts, true);
 }
 
 function forwardDirect(aFilePath) {
