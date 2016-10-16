@@ -71,23 +71,13 @@ treechildren::-moz-tree-twisty {
 }
 
 #folderTree treechildren::-moz-tree-row(selected) {
-  background: linear-gradient(#5ea3df 6%, #73b8ea 6%, #6cafe5 7%,
-                              #3984d2 95%, #3577c2 100%);
+  -moz-appearance: -moz-mac-source-list-selection;
 }
 
-#folderTree:-moz-system-metric(mac-graphite-theme) treechildren::-moz-tree-row(selected) {
-  background: linear-gradient(#7b8b9e 6%, #93a3b4 6%, #8fa0b1 7%,
-                              #587088 95%, #536b84 100%);
-}
-
-#folderTree treechildren:-moz-window-inactive::-moz-tree-row(selected) {
-  background: linear-gradient(#bbc5d7 6%, #c3cbe0 6%, #bdc6dd 7%,
-                              #9ca9c6 95%, #939fba 100%);
-}
-
-#folderTree treechildren::-moz-tree-cell-text(selected, focus),
-#folderTree treechildren::-moz-tree-cell-text(selected) {
-  color: HighlightText;
+@media not all and (-moz-mac-yosemite-theme) {
+  #folderTree treechildren::-moz-tree-cell-text(selected, focus) {
+    -moz-appearance: -moz-mac-active-source-list-selection;
+  }
 }
 
 @media (-moz-mac-yosemite-theme) {
@@ -95,15 +85,8 @@ treechildren::-moz-tree-twisty {
     font-family: 'Helvetica Neue';
   }
 
-  #folderTree treechildren::-moz-tree-cell-text(selected, focus),
-  #folderTree treechildren::-moz-tree-cell-text(selected) {
+  #folderTree treechildren::-moz-tree-cell-text(selected, focus) {
     color: black;
-  }
-
-  #folderTree treechildren::-moz-tree-row(selected),
-  #folderTree:-moz-system-metric(mac-graphite-theme) treechildren::-moz-tree-row(selected),
-  #folderTree treechildren:-moz-window-inactive::-moz-tree-row(selected) {
-    background: rgba(0, 0, 0, .1);
   }
 }
 

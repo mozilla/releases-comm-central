@@ -112,39 +112,18 @@
 }
 
 #dirTree treechildren::-moz-tree-row(selected) {
-  background: linear-gradient(#bbc5d7 6%, #c3cbe0 6%, #bdc6dd 7%,
-                              #9ca9c6 95%, #939fba 100%);
+  -moz-appearance: -moz-mac-source-list-selection;
 }
 
-#dirTree treechildren::-moz-tree-row(selected, focus) {
-  background: linear-gradient(#5ea3df 6%, #73b8ea 6%, #6cafe5 7%,
-                              #3984d2 95%, #3577c2 100%);
-}
-
-#dirTree:-moz-system-metric(mac-graphite-theme) treechildren::-moz-tree-row(selected, focus) {
-  background: -moz-linear-gradient(#7b8b9e 6%, #93a3b4 6%, #8fa0b1 7%,
-                                   #587088 95%, #536b84 100%);
-}
-
-#dirTree treechildren::-moz-tree-cell-text(selected),
-#dirTree treechildren::-moz-tree-cell-text(selected, focus) {
-  color: #FFFFFF;
+@media not all and (-moz-mac-yosemite-theme) {
+  #dirTree treechildren::-moz-tree-cell-text(selected, focus) {
+    -moz-appearance: -moz-mac-active-source-list-selection;
+  }
 }
 
 @media (-moz-mac-yosemite-theme) {
-  #folderTree treechildren::-moz-tree-cell-text {
-    font-family: 'Helvetica Neue';
-  }
-
-  #dirTree treechildren::-moz-tree-cell-text(selected, focus),
-  #dirTree treechildren::-moz-tree-cell-text(selected) {
+  #dirTree treechildren::-moz-tree-cell-text(selected, focus) {
     color: black;
-  }
-
-  #dirTree treechildren::-moz-tree-row(selected),
-  #dirTree:-moz-system-metric(mac-graphite-theme) treechildren::-moz-tree-row(selected),
-  #dirTree treechildren:-moz-window-inactive::-moz-tree-row(selected) {
-    background: rgba(0, 0, 0, .1);
   }
 }
 
@@ -194,8 +173,31 @@ splitter {
 /* ::::: results pane ::::: */
 
 #abResultsTree {
-  border-inline-start: 1px solid #bebebe;
-  border-bottom: 1px solid #bebebe;
+  -moz-appearance: -moz-mac-source-list;
+}
+
+#abResultsTree treechildren::-moz-tree-row {
+  background-color: transparent;
+}
+
+#abResultsTree treechildren::-moz-tree-row(selected) {
+  -moz-appearance: -moz-mac-source-list-selection;
+}
+
+@media not all and (-moz-mac-yosemite-theme) {
+  #abResultsTree treechildren::-moz-tree-cell-text(selected, focus) {
+    -moz-appearance: -moz-mac-active-source-list-selection;
+  }
+}
+
+@media (-moz-mac-yosemite-theme) {
+  #abResultsTree treechildren::-moz-tree-cell-text(selected, focus) {
+    color: black;
+  }
+}
+
+#abResultsTree + separator {
+  border-top: 1px solid #bebebe;
 }
 
 #GeneratedName {
