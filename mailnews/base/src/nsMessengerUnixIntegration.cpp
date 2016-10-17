@@ -349,6 +349,7 @@ nsresult nsMessengerUnixIntegration::ShowAlertMessage(const nsAString& aAlertTit
                                                 EmptyString(),
                                                 EmptyString(),
                                                 nullptr,
+                                                false,
                                                 false);
       if (NS_SUCCEEDED(rv))
         return rv;

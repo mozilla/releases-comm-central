@@ -396,6 +396,7 @@ nsMessengerOSXIntegration::ShowAlertMessage(const nsAString& aAlertTitle,
                                          NS_LITERAL_STRING("auto"),
                                          EmptyString(), EmptyString(),
                                          nullptr,
+                                         false,
                                          false);
   }
 

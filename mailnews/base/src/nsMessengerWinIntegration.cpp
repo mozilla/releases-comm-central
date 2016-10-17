@@ -452,6 +452,7 @@ nsresult nsMessengerWinIntegration::ShowAlertMessage(const nsString& aAlertTitle
                                                 NS_LITERAL_STRING("auto"),
                                                 EmptyString(), EmptyString(),
                                                 nullptr,
+                                                false,
                                                 false);
       mAlertInProgress = true;
     }
