@@ -71,7 +71,7 @@
     "en-GB": {
       "default": {
         "visibleDefaultEngines": [
-          "amazon-en-GB", "aol-en-GB", "bing", "eBay-en-GB", "google", "twitter", "wikipedia", "yahoo-en-GB"
+          "amazon-en-GB", "aol-en-GB", "bing", "google", "twitter", "wikipedia", "yahoo-en-GB"
         ]
       }
     },
@@ -225,7 +225,7 @@
     "pt-PT": {
       "default": {
         "visibleDefaultEngines": [
-          "google", "sapo", "priberam", "wikipedia-pt", "amazon-en-GB"
+          "google", "sapo", "priberam", "wikipedia-ptpt", "amazon-en-GB"
         ]
       }
     },
