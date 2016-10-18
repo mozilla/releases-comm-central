@@ -39,6 +39,26 @@
     <command id="cmd_delete" oncommand="goDoCommand('cmd_delete');"/>
     <command id="cmd_properties" oncommand="goDoCommand('cmd_properties');"/>
   </commandset>
+  <broadcasterset id="cmd_properties-flavors">
+    <broadcaster id="cmd_properties-contextMenu" observes="cmd_properties"
+                 valueGeneric="&propertiesContext.label;"
+                 valueGenericAccessKey="&propertiesContext.accesskey;"
+                 valueAddressBook="&abPropertiesContext.label;"
+                 valueAddressBookAccessKey="&abPropertiesContext.accesskey;"
+                 valueContact="&editContactContext.label;"
+                 valueContactAccessKey="&editContactContext.accesskey;"
+                 valueMailingList="&editMailingListContext.label;"
+                 valueMailingListAccessKey="&editMailingListContext.accesskey;"/>
+    <broadcaster id="cmd_properties-menu" observes="cmd_properties"
+                 valueGeneric="&propertiesMenu.label;"
+                 valueGenericAccessKey="&propertiesMenu.accesskey;"
+                 valueAddressBook="&abPropertiesMenu.label;"
+                 valueAddressBookAccessKey="&abPropertiesMenu.accesskey;"
+                 valueContact="&contactPropertiesMenu.label;"
+                 valueContactAccessKey="&contactPropertiesMenu.accesskey;"
+                 valueMailingList="&mailingListPropertiesMenu.label;"
+                 valueMailingListAccessKey="&mailingListPropertiesMenu.accesskey;"/>
+  </broadcasterset>
 
   <!-- These keys do not really run any command, but they are used to show
        the hotkeys at the corresponding menuitems -->
@@ -61,10 +81,9 @@
               key="key_delete"
               command="cmd_delete"/>
     <menuseparator/>
-    <menuitem label="&addrBookCardProperties.label;"
-              accesskey="&addrBookCardProperties.accesskey;"
+    <menuitem label="&propertiesContext.label;"
               key="key_properties"
-              command="cmd_properties"/>
+              command="cmd_properties-contextMenu"/>
   </menupopup>
 
   <vbox id="results_box" flex="1">

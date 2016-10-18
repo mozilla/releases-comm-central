@@ -5,6 +5,7 @@
 <!ENTITY addressbookWindow.title                        "Address Book">
 <!ENTITY blankResultsPaneMessage.label                  "This address book shows contacts only after a search">
 <!ENTITY localResultsOnlyMessage.label                  "Contacts from remote address books are not shown until you search">
+
 <!-- File Menu -->
 <!ENTITY fileMenu.label                                 "File">
 <!ENTITY fileMenu.accesskey                             "F">
@@ -75,9 +76,15 @@
 <!-- LOCALIZATION NOTE (hideSwapFnLnUI) : DONT_TRANSLATE -->
 <!-- Swap FN/LN UI  Set to "false" to show swap fn/ln UI -->
 <!ENTITY hideSwapFnLnUI "true">
-<!ENTITY propertiesCmd2.label                           "Properties">
-<!ENTITY propertiesCmd2.accesskey                       "i">
+<!ENTITY propertiesMenu.label                           "Properties">
+<!ENTITY propertiesMenu.accesskey                       "i">
 <!ENTITY propertiesCmd.key                              "i">
+<!ENTITY abPropertiesMenu.label                         "Address Book Properties">
+<!ENTITY abPropertiesMenu.accesskey                     "i">
+<!ENTITY contactPropertiesMenu.label                    "Contact Properties">
+<!ENTITY contactPropertiesMenu.accesskey                "i">
+<!ENTITY mailingListPropertiesMenu.label                "Mailing List Properties">
+<!ENTITY mailingListPropertiesMenu.accesskey            "i">
 
 <!-- View Menu -->
 <!ENTITY viewMenu.label                                 "View">
@@ -133,8 +140,15 @@ because displayed names don't have the comma in between. -->
 <!ENTITY newContactButton.accesskey                     "C">
 <!ENTITY newlistButton.label                            "New List">
 <!ENTITY newlistButton.accesskey                        "L">
-<!ENTITY editButton2.label                              "Properties">
-<!ENTITY editButton2.accesskey                          "P">
+<!ENTITY editPropertiesButton.label                     "Edit">
+<!ENTITY propertiesContext.label                        "Properties">
+<!ENTITY propertiesContext.accesskey                    "i">
+<!ENTITY abPropertiesContext.label                      "Properties">
+<!ENTITY abPropertiesContext.accesskey                  "i">
+<!ENTITY editContactContext.label                       "Edit Contact">
+<!ENTITY editContactContext.accesskey                   "E">
+<!ENTITY editMailingListContext.label                   "Edit List">
+<!ENTITY editMailingListContext.accesskey               "E">
 <!ENTITY newmsgButton.label                             "Write">
 <!ENTITY newmsgButton.accesskey                         "W">
 <!ENTITY newIM.label                                    "Instant Message">
@@ -147,7 +161,10 @@ because displayed names don't have the comma in between. -->
 <!-- Address Book Toolbar Tooltips -->
 <!ENTITY newContactButton.tooltip                       "Create a new address book contact">
 <!ENTITY newlistButton.tooltip                          "Create a new list">
-<!ENTITY editButton2.tooltip                            "Edit the selected item">
+<!ENTITY editPropertiesButton.tooltip                   "Edit the selected item">
+<!ENTITY editAbPropertiesButton.tooltip                 "Edit the properties of the selected address book">
+<!ENTITY editContactPropertiesButton.tooltip            "Edit the selected contact">
+<!ENTITY editMailingListPropertiesButton.tooltip        "Edit the selected mailing list">
 <!ENTITY newmsgButton.tooltip                           "Send a mail message">
 <!ENTITY newIM.tooltip                                  "Send an instant message or chat">
 <!ENTITY deleteButton2.tooltip                          "Delete selected item">

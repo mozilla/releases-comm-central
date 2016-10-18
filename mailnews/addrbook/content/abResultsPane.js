@@ -415,6 +415,38 @@ var ResultsPaneController =
         }
         return (enabled && (numSelected > 0));
       case "cmd_properties":
+        let labelAttr = "valueGeneric";
+        let accKeyAttr = "valueGenericAccessKey";
+        let tooltipTextAttr = "valueGenericTooltipText";
+        switch (GetSelectedCardTypes()) {
+          // Set cmd_properties UI according to the type of the selected item(s),
+          // even with multiple selections for which cmd_properties is
+          // not yet available and hence disabled.
+          case kMultipleListsOnly:
+          case kSingleListOnly:
+            labelAttr = "valueMailingList";
+            accKeyAttr = "valueMailingListAccessKey";
+            tooltipTextAttr = "valueMailingListTooltipText";
+            break;
+          case kCardsOnly:
+            labelAttr = "valueContact";
+            accKeyAttr = "valueContactAccessKey";
+            tooltipTextAttr = "valueContactTooltipText";
+            break;
+          case kListsAndCards:
+          default:
+            //use generic set of attributes declared above
+            break;
+        }
+        // This code is shared between main AB and composition's contacts sidebar.
+        // Note that in composition, there's no cmd_properties-button (yet);
+        // the resulting dump() should be ignored.
+        goSetLabelAccesskeyTooltiptext("cmd_properties-button", null, null,
+          tooltipTextAttr);
+        goSetLabelAccesskeyTooltiptext("cmd_properties-contextMenu",
+          labelAttr, accKeyAttr);
+        goSetLabelAccesskeyTooltiptext("cmd_properties-menu",
+          labelAttr, accKeyAttr);
         // While "Edit Contact" dialogue is still modal (bug 115904, bug 135126),
         // only enable "Properties" button for single selection; then fix bug 119999.
         return (GetNumSelectedCards() == 1);

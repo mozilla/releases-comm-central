@@ -83,6 +83,31 @@
     <command id="cmd_printcardpreview" oncommand="AbPrintPreviewCard();"/>
     <command id="cmd_printcard" oncommand="AbPrintCard();"/>
     <command id="cmd_properties" oncommand="goDoCommand('cmd_properties');" disabled="true"/>
+    <broadcasterset id="cmd_properties-flavors">
+      <broadcaster id="cmd_properties-button" observes="cmd_properties"
+                   valueGenericTooltipText="&editPropertiesButton.tooltip;"
+                   valueAddressBookTooltipText="&editAbPropertiesButton.tooltip;"
+                   valueContactTooltipText="&editContactPropertiesButton.tooltip;"
+                   valueMailingListTooltipText="&editMailingListPropertiesButton.tooltip;"/>
+      <broadcaster id="cmd_properties-contextMenu" observes="cmd_properties"
+                   valueGeneric="&propertiesContext.label;"
+                   valueGenericAccessKey="&propertiesContext.accesskey;"
+                   valueAddressBook="&abPropertiesContext.label;"
+                   valueAddressBookAccessKey="&abPropertiesContext.accesskey;"
+                   valueContact="&editContactContext.label;"
+                   valueContactAccessKey="&editContactContext.accesskey;"
+                   valueMailingList="&editMailingListContext.label;"
+                   valueMailingListAccessKey="&editMailingListContext.accesskey;"/>
+      <broadcaster id="cmd_properties-menu" observes="cmd_properties"
+                   valueGeneric="&propertiesMenu.label;"
+                   valueGenericAccessKey="&propertiesMenu.accesskey;"
+                   valueAddressBook="&abPropertiesMenu.label;"
+                   valueAddressBookAccessKey="&abPropertiesMenu.accesskey;"
+                   valueContact="&contactPropertiesMenu.label;"
+                   valueContactAccessKey="&contactPropertiesMenu.accesskey;"
+                   valueMailingList="&mailingListPropertiesMenu.label;"
+                   valueMailingListAccessKey="&mailingListPropertiesMenu.accesskey;"/>
+    </broadcasterset>
     <command id="cmd_undo" oncommand="goDoCommand('cmd_undo')" disabled="true"/>
     <command id="cmd_redo" oncommand="goDoCommand('cmd_redo')" disabled="true"/>
     <command id="cmd_cut" oncommand="goDoCommand('cmd_cut')" disabled="true"/>
@@ -177,9 +202,7 @@
 
 <menupopup id="dirTreeContext">
   <menuitem id="dirTreeContext-properties"
-            label="&editButton2.label;"
-            accesskey="&editButton2.accesskey;"
-            command="cmd_properties"/>
+            command="cmd_properties-contextMenu"/>
   <menuseparator/>
   <menuitem id="dirTreeContext-newcard" label="&newContactButton.label;"
             accesskey="&newContactButton.accesskey;" command="cmd_newCard"/>
@@ -197,9 +220,7 @@
 
 <menupopup id="abResultsTreeContext">
   <menuitem id="abResultsTreeContext-properties"
-            label="&editButton2.label;"
-            accesskey="&editButton2.accesskey;"
-            command="cmd_properties"/>
+            command="cmd_properties-contextMenu"/>
   <menuseparator/>
   <menuitem id="abResultsTreeContext-newmessage"
             label="&newmsgButton.label;"
@@ -214,6 +235,7 @@
             label="&printButton.label;"
             accesskey="&printButton.accesskey;"
             command="cmd_printcard"/>
+  <menuseparator/>
   <menuitem id="abResultsTreeContext-delete"
             label="&deleteButton2.label;"
             accesskey="&deleteButton2.accesskey;"
@@ -397,10 +419,8 @@
                       hidden="&hideSwapFnLnUI;"
                       oncommand="AbSwapFirstNameLastName()"/>
             <menuitem id="menu_properties"
-                      label="&propertiesCmd2.label;"
-                      accesskey="&propertiesCmd2.accesskey;"
                       key="key_properties"
-                      command="cmd_properties"/>
+                      command="cmd_properties-menu"/>
 #ifdef XP_UNIX
 #ifndef XP_MACOSX
         <menuseparator id="prefSep"/>
@@ -590,9 +610,8 @@
                      tooltiptext="&newContactButton.tooltip;"/>
       <toolbarbutton class="toolbarbutton-1" id="button-newlist" label="&newlistButton.label;" tooltiptext="&newlistButton.tooltip;" command="cmd_newlist"/>
       <toolbarbutton class="toolbarbutton-1" id="button-editcard"
-                     label="&editButton2.label;"
-                     tooltiptext="&editButton2.tooltip;"
-                     command="cmd_properties"/>
+                     label="&editPropertiesButton.label;"
+                     command="cmd_properties-button"/>
       <toolbarbutton class="toolbarbutton-1" id="button-newmessage" label="&newmsgButton.label;" tooltiptext="&newmsgButton.tooltip;" oncommand="AbNewMessage();"/>
       <toolbarbutton class="toolbarbutton-1" id="button-newim" label="&newIM.label;" tooltiptext="&newIM.tooltip;" command="cmd_chatWithCard"/>
       <toolbarbutton class="toolbarbutton-1" id="button-abdelete"

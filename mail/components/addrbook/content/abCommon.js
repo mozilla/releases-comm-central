@@ -108,7 +108,27 @@ var DirPaneController =
       case "cmd_printcardpreview":
         return (GetSelectedCardIndex() != -1);
       case "cmd_properties":
-        return (GetSelectedDirectory() != null);
+        let labelAttr = "valueGeneric";
+        let accKeyAttr = "valueGenericAccessKey";
+        let tooltipTextAttr = "valueGenericTooltipText";
+        let isMailList;
+        var selectedDir = GetSelectedDirectory();
+        if (selectedDir) {
+          isMailList = GetDirectoryFromURI(selectedDir).isMailList;
+          labelAttr = isMailList ? "valueMailingList"
+                                 : "valueAddressBook";
+          accKeyAttr = isMailList ? "valueMailingListAccessKey"
+                                  : "valueAddressBookAccessKey";
+          tooltipTextAttr = isMailList ? "valueMailingListTooltipText"
+                                       : "valueAddressBookTooltipText";
+        }
+        goSetLabelAccesskeyTooltiptext("cmd_properties-button", null, null,
+          tooltipTextAttr);
+        goSetLabelAccesskeyTooltiptext("cmd_properties-contextMenu",
+          labelAttr, accKeyAttr);
+        goSetLabelAccesskeyTooltiptext("cmd_properties-menu",
+          labelAttr, accKeyAttr);
+        return (selectedDir != null);
       case "cmd_newlist":
       case "cmd_newCard":
         return true;
@@ -813,4 +833,83 @@ function nearestLeap(aYear) {
   }
 
   return 2000;
+}
+
+/**
+ * Sets the label, accesskey, and tooltiptext attributes of an element from
+ * custom attributes of the same element. Typically, the element will be a
+ * command or broadcaster element. JS does not allow omitting function arguments
+ * in the middle of the arguments list, so in that case, please pass an explicit
+ * falsy argument like null or undefined instead; the respective attributes will
+ * not be touched. Empty strings ("") from custom attributes will be applied
+ * correctly. Hacker's shortcut: Passing empty string ("") for any of the custom
+ * attribute names will also set the respective main attribute to empty string ("").
+ * Examples:
+ *
+ * goSetLabelAccesskeyTooltiptext("cmd_foo", "valueFlavor", "valueFlavorAccesskey");
+ * goSetLabelAccesskeyTooltiptext("cmd_foo", "valueFlavor", "valueFlavorAccesskey",
+ *                                           "valueFlavorTooltiptext");
+ * goSetLabelAccesskeyTooltiptext("cmd_foo", null, null, "valueFlavorTooltiptext");
+ * goSetLabelAccesskeyTooltiptext("cmd_foo", "", "", "valueFlavorTooltiptext");
+ *
+ * @param aID                    the ID of an XUL element (attribute source and target)
+ * @param aLabelAttribute        (optional) the name of a custom label attribute of aID, or ""
+ * @param aAccessKeyAttribute    (optional) the name of a custom accesskey attribute of aID, or ""
+ * @param aTooltipTextAttribute  (optional) the name of a custom tooltiptext attribute of aID, or ""
+ */
+function goSetLabelAccesskeyTooltiptext(aID, aLabelAttribute, aAccessKeyAttribute,
+                                             aTooltipTextAttribute)
+{
+  let errorMsgIntro = 'Something wrong here: goSetLabelAccesskeyTooltiptext("' +
+                      aID + '", ...): ';
+  let node = top.document.getElementById(aID);
+  if (!node) {
+    // tweak for composition's abContactsPanel
+    node = document.getElementById(aID);
+  }
+  if (node) {
+    if (aLabelAttribute) {
+      // In XUL (DOM Level 3), getAttribute() on non-existing attributes returns
+      // "" (instead of null), which is indistinguishable from existing valid
+      // attributes with value="", so we have to check using hasAttribute()
+      if (node.hasAttribute(aLabelAttribute)) {
+        let value = node.getAttribute(aLabelAttribute);
+        node.setAttribute("label", value);
+      } else {  // missing custom label attribute
+        let errorMsg = errorMsgIntro +
+          'Missing custom label attribute: ' + aLabelAttribute;
+        dump(errorMsg);
+      }
+    } else if (aLabelAttribute === "") {
+      node.removeAttribute("label");
+    }
+    if (aAccessKeyAttribute) {
+      if (node.hasAttribute(aAccessKeyAttribute)) {
+        let value = node.getAttribute(aAccessKeyAttribute);
+        node.setAttribute("accesskey", value);
+      } else {  // missing custom access key attribute
+        let errorMsg = errorMsgIntro +
+          'Missing custom accesskey attribute: ' + aAccessKeyAttribute;
+        dump(errorMsg);
+      }
+    } else if (aAccessKeyAttribute === "") {
+      node.removeAttribute("accesskey");
+    }
+    if (aTooltipTextAttribute) {
+      if (node.hasAttribute(aTooltipTextAttribute)) {
+        let value = node.getAttribute(aTooltipTextAttribute);
+        node.setAttribute("tooltiptext", value);
+      } else {  // missing custom tooltiptext attribute
+        let errorMsg = errorMsgIntro +
+          'Missing custom tooltiptext attribute: ' + aTooltipTextAttribute;
+        dump(errorMsg);
+      }
+    } else if (aTooltipTextAttribute === "") {
+      node.removeAttribute("tooltiptext");
+    }
+  } else { // node not found; this is OK sometimes, e.g. for contacts sidebar
+    let errorMsg = errorMsgIntro +
+                   'getElementById("' + aID + '") failed!';
+    dump(errorMsg);
+  }
 }
