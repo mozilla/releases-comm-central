@@ -112,7 +112,9 @@ MOZCONFIG_OUT_LINES := $(subst $(CR), ,$(subst $(NULL) $(NULL),||,$(MOZCONFIG_CO
 START_COMMENT = \#
 MOZCONFIG_OUT_FILTERED := $(filter-out $(START_COMMENT)%,$(MOZCONFIG_OUT_LINES))
 
+ifdef MOZ_PGO
 export MOZ_PGO
+endif
 
 # Automatically add -jN to make flags if not defined. N defaults to number of cores.
 ifeq (,$(findstring -j,$(MOZ_MAKE_FLAGS)))
