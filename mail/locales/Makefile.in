@@ -188,7 +188,7 @@ endif
 merge-%:
 ifdef LOCALE_MERGEDIR
 	$(RM) -rf $(LOCALE_MERGEDIR)
-	MACOSX_DEPLOYMENT_TARGET= compare-locales -m $(LOCALE_MERGEDIR) $(srcdir)/l10n.ini $(L10NBASEDIR) $*
+	$(MOZILLA_SRCDIR)/mach compare-locales --merge-dir $(LOCALE_MERGEDIR) --l10n-ini $(srcdir)/l10n.ini $*
 endif
 	@echo
 
