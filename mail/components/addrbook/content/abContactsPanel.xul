@@ -81,8 +81,8 @@
     <separator class="thin"/>
 
     <vbox>
-      <label value="&searchInput.label;"
-             accesskey="&searchInput.accesskey;"
+      <label value="&searchContacts.label;"
+             accesskey="&searchContacts.accesskey;"
              control="peopleSearchInput"/>
       <textbox type="search"
                id="peopleSearchInput"
