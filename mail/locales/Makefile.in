@@ -229,9 +229,15 @@ calendar-upload:
 
 # Hook into l10n.mk, providing extra arguments to l10n-repack.py
 ifdef NIGHTLY_BUILD
-MOZ_PKG_EXTRAL10N += extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}=$(DIST)/xpi-stage/lightning-$(AB_CD)
+MOZ_PKG_EXTRAL10N += \
+   extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}=$(DIST)/xpi-stage/lightning-$(AB_CD) \
+   extensions/{a62ef8ec-5fdc-40c2-873c-223b8a6925cc}=$(DIST)/xpi-stage/gdata-provider-$(AB_CD) \
+   $(NULL)
 else
-MOZ_PKG_EXTRAL10N += distribution/extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}=$(DIST)/xpi-stage/lightning-$(AB_CD)
+MOZ_PKG_EXTRAL10N += \
+   distribution/extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}=$(DIST)/xpi-stage/lightning-$(AB_CD) \
+   distribution/extensions/{a62ef8ec-5fdc-40c2-873c-223b8a6925cc}=$(DIST)/xpi-stage/gdata-provider-$(AB_CD) \
+   $(NULL)
 endif
 
 # Hook calendar targets to the mail non-pattern rules
