@@ -63,6 +63,10 @@ GARBAGE += $(list-json)
 
 libs:: searchplugins
 
+# Required for l10n.mk - defines a list of app sub dirs that should
+# be included in langpack xpis.
+DIST_SUBDIRS = $(DIST_SUBDIR)
+
 include $(topsrcdir)/config/rules.mk
 
 include $(topsrcdir)/mozilla/toolkit/locales/l10n.mk
@@ -78,8 +82,8 @@ $(DIST)/branding:
 
 libs-%:
 	$(NSINSTALL) -D $(DIST)/install
-	@$(MAKE) -C $(DEPTH)/toolkit/locales libs-$*
-	@$(MAKE) -C $(DEPTH)/devtools/client/locales AB_CD=$* XPI_NAME=locale-$*
+	@$(MAKE) -C $(DEPTH)/toolkit/locales libs-$*  XPI_ROOT_APPID='$(XPI_ROOT_APPID)'
+	@$(MAKE) -C $(DEPTH)/devtools/client/locales AB_CD=$* XPI_NAME=locale-$* XPI_ROOT_APPID='$(XPI_ROOT_APPID)'
 	@$(MAKE) -C ../../chat/locales AB_CD=$* XPI_NAME=locale-$*
 	@$(MAKE) -C ../../editor/ui/locales AB_CD=$* XPI_NAME=locale-$*
 	@$(MAKE) -C $(DEPTH)/extensions/spellcheck/locales AB_CD=$* XPI_NAME=locale-$*
