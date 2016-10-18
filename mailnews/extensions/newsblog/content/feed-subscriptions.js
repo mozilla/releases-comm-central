@@ -25,6 +25,7 @@ var FeedSubscriptions = {
   kMoveMode      : 3,
   kCopyMode      : 4,
   kImportingOPML : 5,
+  kVerifyUrlMode : 6,
 
   get FOLDER_ACTIONS()
   {
@@ -1016,9 +1017,10 @@ var FeedSubscriptions = {
     }
   },
 
-  setNewFolder: function(aFolder)
+  setNewFolder: function(aEvent)
   {
-    this.setFolderPicker(aFolder, true);
+    aEvent.stopPropagation();
+    this.setFolderPicker(aEvent.target._folder, true);
     this.editFeed();
   },
 
@@ -1285,6 +1287,13 @@ var FeedSubscriptions = {
       return false;
     }
 
+    if (!FeedUtils.isValidScheme(feedLocation))
+    {
+      message = FeedUtils.strings.GetStringFromName("subscribe-feedNotValid");
+      this.updateStatusItem("statusText", message);
+      return false;
+    }
+
     let addFolder;
     if (aFolder)
     {
@@ -1402,8 +1411,7 @@ var FeedSubscriptions = {
     let resource = FeedUtils.rdf.GetResource(itemToEdit.url);
     let currentFolderServer = itemToEdit.parentFolder.server;
     let ds = FeedUtils.getSubscriptionsDS(currentFolderServer);
-    let currentFolder = ds.GetTarget(resource, FeedUtils.FZ_DESTFOLDER, true);
-    let currentFolderURI = currentFolder.QueryInterface(Ci.nsIRDFResource).ValueUTF8;
+    let currentFolderURI = itemToEdit.parentFolder.URI;
     let feed = new Feed(resource, currentFolderServer);
     feed.folder = itemToEdit.parentFolder;
 
@@ -1421,7 +1429,38 @@ var FeedSubscriptions = {
       return;
     }
 
+    // Did the user change the folder URI for storing the feed?
+    let editFolderURI = selectFolder.getAttribute("uri");
+    if (currentFolderURI != editFolderURI)
+    {
+      // Make sure the new folderpicked folder is visible.
+      this.selectFolder(selectFolder._folder);
+      // Now go back to the feed item.
+      this.selectFeed(feed, null);
+      // We need to find the index of the new parent folder.
+      let newParentIndex = this.mView.kRowIndexUndefined;
+      for (let index = 0; index < this.mView.rowCount; index++)
+      {
+        let item = this.mView.getItemAtIndex(index);
+        if (item && item.container && item.url == editFolderURI)
+        {
+          newParentIndex = index;
+          break;
+        }
+      }
+
+      if (newParentIndex != this.mView.kRowIndexUndefined)
+        this.moveCopyFeed(seln.currentIndex, newParentIndex, "move");
+
+      return;
+    }
+
     let updated = false;
+    let message = "";
+    // Disable the button until the update completes and we process the async
+    // verify response.
+    document.getElementById("editFeed").setAttribute("disabled", true);
+
     // Check to see if the title value changed, no blank title allowed.
     if (feed.title != editNameValue)
     {
@@ -1447,44 +1486,32 @@ var FeedSubscriptions = {
     }
 
     // Check to see if the categoryPrefs custom prefix string value changed.
-    if (itemToEdit.options.category.prefix != editAutotagPrefix)
+    if (itemToEdit.options.category.prefix != editAutotagPrefix &&
+        itemToEdit.options.category.prefix != null &&
+        editAutotagPrefix != "")
     {
       itemToEdit.options.category.prefix = editAutotagPrefix;
       feed.options = itemToEdit.options;
       updated = true;
     }
 
-    // Did the user change the folder URI for storing the feed?
-    let editFolderURI = selectFolder.getAttribute("uri");
-    if (currentFolderURI != editFolderURI)
-    {
-      // Make sure the new folderpicked folder is visible.
-      this.selectFolder(selectFolder._folder);
-      // Now go back to the feed item.
-      this.selectFeed(feed, null);
-      // We need to find the index of the new parent folder.
-      let newParentIndex = this.mView.kRowIndexUndefined;
-      for (let index = 0; index < this.mView.rowCount; index++)
-      {
-        let item = this.mView.getItemAtIndex(index);
-        if (item && item.container && item.url == editFolderURI)
-        {
-          newParentIndex = index;
-          break;
-        }
-      }
-
-      if (newParentIndex != this.mView.kRowIndexUndefined)
-        this.moveCopyFeed(seln.currentIndex, newParentIndex, "move");
+    let verifyDelay = 0;
+    if (updated) {
+      ds.Flush();
+      message = FeedUtils.strings.GetStringFromName("subscribe-feedUpdated");
+      this.updateStatusItem("statusText", message);
+      verifyDelay = 1500;
     }
 
-    if (!updated)
-      return;
-
-    ds.Flush();
-
-    let message = FeedUtils.strings.GetStringFromName("subscribe-feedUpdated");
-    this.updateStatusItem("statusText", message);
+    // Now we want to verify if the stored feed url still works. If it
+    // doesn't, show the error. Delay a bit to leave Updated message visible.
+    message = FeedUtils.strings.GetStringFromName("subscribe-validating-feed");
+    this.mActionMode = this.kVerifyUrlMode;
+    setTimeout(() => {
+      this.updateStatusItem("statusText", message);
+      this.updateStatusItem("progressMeter", "?");
+      feed.download(false, this.mFeedDownloadCallback);
+    }, verifyDelay);
   },
 
 /**
@@ -1652,9 +1679,21 @@ var FeedSubscriptions = {
       // Feed is null if our attempt to parse the feed failed.
       let message = "";
       let win = FeedSubscriptions;
-      if (aErrorCode == FeedUtils.kNewsBlogSuccess)
+      if (aErrorCode == FeedUtils.kNewsBlogSuccess ||
+          aErrorCode == FeedUtils.kNewsBlogNoNewItems)
       {
         win.updateStatusItem("progressMeter", 100);
+
+        if (win.mActionMode == win.kVerifyUrlMode) {
+          // Just checking for errors, if none bye. The (non error) code
+          // kNewsBlogNoNewItems can only happen in verify mode.
+          win.mActionMode = null;
+          win.clearStatusInfo();
+          message = FeedUtils.strings.GetStringFromName("subscribe-feedVerified");
+          win.updateStatusItem("statusText", message);
+          document.getElementById("editFeed").removeAttribute("disabled");
+          return;
+        }
 
         // Add the feed to the databases.
         FeedUtils.addFeed(feed);
@@ -1731,7 +1770,9 @@ var FeedSubscriptions = {
       else
       {
         // Non success.  Remove intermediate traces from the feeds database.
-        if (feed && feed.url && feed.server)
+        // But only if we're not in verify mode.
+        if (win.mActionMode != win.kVerifyUrlMode &&
+            feed && feed.url && feed.server)
           FeedUtils.deleteFeed(FeedUtils.rdf.GetResource(feed.url),
                                feed.server,
                                feed.server.rootFolder);
@@ -1754,9 +1795,13 @@ var FeedSubscriptions = {
           message = FeedUtils.strings.GetStringFromName(
                       "subscribe-noAuthError");
 
-        if (win.mActionMode != win.kUpdateMode)
+        if (win.mActionMode != win.kUpdateMode &&
+            win.mActionMode != win.kVerifyUrlMode)
           // Re-enable the add button if subscribe failed.
           document.getElementById("addFeed").removeAttribute("disabled");
+        if (win.mActionMode == win.kVerifyUrlMode)
+          // Re-enable the update button if verify failed.
+          document.getElementById("editFeed").removeAttribute("disabled");
       }
 
       win.mActionMode = null;

@@ -240,8 +240,8 @@ var FeedUtils = {
 
     aFolder.ListDescendants(allFolders);
 
+    let folder;
     function* feeder() {
-      let folder;
       let numFolders = allFolders.length;
       for (let i = 0; i < numFolders; i++) {
         folder = allFolders.queryElementAt(i, Ci.nsIMsgFolder);
