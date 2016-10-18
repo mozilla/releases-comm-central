@@ -126,9 +126,6 @@
 
 #endif # MOZ_ANGLE_RENDERER
 
-@RESPATH@/components/PACGenerator.js
-@RESPATH@/components/PACGenerator.manifest
-
 ; Modules
 @RESPATH@/modules/*
 

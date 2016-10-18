@@ -692,9 +692,6 @@
 @RESPATH@/components/BuiltinProviders.manifest
 @RESPATH@/components/PresentationControlService.js
 
-@RESPATH@/components/PACGenerator.js
-@RESPATH@/components/PACGenerator.manifest
-
 ; Phishing Protection
 ; Modules
 @RESPATH@/modules/*
