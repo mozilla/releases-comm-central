@@ -250,7 +250,7 @@ nsThunderbirdProfileMigrator::PrefTransform gTransforms[] = {
 
   MAKESAMETYPEPREFTRANSFORM("intl.accept_charsets",                    String),
   MAKESAMETYPEPREFTRANSFORM("intl.accept_languages",                   String),
-  MAKESAMETYPEPREFTRANSFORM("intl.charset.default",                    String),
+  MAKESAMETYPEPREFTRANSFORM("intl.charset.fallback.override",          String),
 
   MAKESAMETYPEPREFTRANSFORM("javascript.enabled",                      Bool),
   MAKESAMETYPEPREFTRANSFORM("javascript.options.relimit",              Bool),

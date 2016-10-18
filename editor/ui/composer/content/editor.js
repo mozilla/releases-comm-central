@@ -2314,14 +2314,8 @@ function EditorSetDefaultPrefsAndDoctype()
     // hitting other 8-bit char in other meta tags
     // grab charset pref and make it the default charset
     var element;
-    var prefCharsetString = 0;
-    try
-    {
-      prefCharsetString = Services.prefs.getComplexValue("intl.charset.default",
-                                                         Components.interfaces.nsIPrefLocalizedString).data;
-    }
-    catch (ex) {}
-    if ( prefCharsetString && prefCharsetString != 0)
+    var prefCharsetString = Services.prefs.getCharPref("intl.charset.fallback.override");
+    if (prefCharsetString)
       editor.documentCharacterSet = prefCharsetString;
 
     // let's start by assuming we have an author in case we don't have the pref
