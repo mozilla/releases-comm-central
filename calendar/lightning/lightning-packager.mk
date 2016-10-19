@@ -140,7 +140,7 @@ repack-stage:
 	@echo "Repackaging $(XPI_PKGNAME) locale for Language $(AB_CD)"
 	$(RM) -rf $(L10N_TARGET)
 	cp -R $(XPI_STAGE_PATH)/$(XPI_NAME) $(L10N_TARGET)
-	grep -v 'locale \S\+ en-US' $(L10N_TARGET)/chrome.manifest > $(L10N_TARGET)/chrome.manifest~ && \
+	grep -v '^locale [a-z\-]\+ en-US' $(L10N_TARGET)/chrome.manifest > $(L10N_TARGET)/chrome.manifest~ && \
 	  mv $(L10N_TARGET)/chrome.manifest~ $(L10N_TARGET)/chrome.manifest
 	find $(abspath $(L10N_TARGET)) -name '*en-US*' -print0 | xargs -0 rm -rf
 
