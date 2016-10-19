@@ -2433,17 +2433,14 @@ nsresult nsParseNewMailState::AppendMsgFromStream(nsIInputStream *fileStream,
   NS_ENSURE_SUCCESS(rv, rv);
 
   if (!m_ibuffer)
-    m_ibuffer_size = 10240;
+  {
+    m_ibuffer_size = FILE_IO_BUFFER_SIZE;
+    m_ibuffer = (char *) PR_Malloc(m_ibuffer_size);
+    NS_ASSERTION(m_ibuffer != nullptr, "couldn't get memory to move msg");
+  }
   m_ibuffer_fp = 0;
 
-  while (!m_ibuffer && (m_ibuffer_size >= 512))
-  {
-    m_ibuffer = (char *) PR_Malloc(m_ibuffer_size);
-    if (m_ibuffer == nullptr)
-      m_ibuffer_size /= 2;
-  }
-  NS_ASSERTION(m_ibuffer != nullptr, "couldn't get memory to move msg");
-  while ((length > 0) && m_ibuffer)
+  while (length > 0 && m_ibuffer)
   {
     uint32_t nRead;
     fileStream->Read (m_ibuffer, length > m_ibuffer_size ? m_ibuffer_size  : length, &nRead);

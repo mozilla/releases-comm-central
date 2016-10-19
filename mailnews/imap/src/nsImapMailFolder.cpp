@@ -105,7 +105,6 @@ static NS_DEFINE_CID(kCImapHostSessionList, NS_IIMAPHOSTSESSIONLIST_CID);
 extern PRLogModuleInfo *gAutoSyncLog;
 extern PRLogModuleInfo* IMAP;
 
-#define FOUR_K 4096
 #define MAILNEWS_CUSTOM_HEADERS "mailnews.customHeaders"
 
 /*
@@ -7051,15 +7050,14 @@ nsresult nsImapMailFolder::CopyOfflineMsgBody(nsIMsgFolder *srcFolder,
     if (NS_SUCCEEDED(rv))
     {
       // now, copy the dest folder offline store msg to the temp file
-      int32_t inputBufferSize = 10240;
-      char *inputBuffer = (char *) PR_Malloc(inputBufferSize);
+      char *inputBuffer = (char *) PR_Malloc(FILE_IO_BUFFER_SIZE);
       int32_t bytesLeft;
       uint32_t bytesRead, bytesWritten;
       bytesLeft = messageSize;
       rv = (inputBuffer) ? NS_OK : NS_ERROR_OUT_OF_MEMORY;
       while (bytesLeft > 0 && NS_SUCCEEDED(rv))
       {
-        rv = inputStream->Read(inputBuffer, inputBufferSize, &bytesRead);
+        rv = inputStream->Read(inputBuffer, FILE_IO_BUFFER_SIZE, &bytesRead);
         if (NS_SUCCEEDED(rv) && bytesRead > 0)
         {
           rv = outputStream->Write(inputBuffer, std::min((int32_t) bytesRead, bytesLeft), &bytesWritten);
@@ -8395,9 +8393,8 @@ nsImapMailFolder::CopyFileToOfflineStore(nsIFile *srcFile, nsMsgKey msgKey)
   {
     // Now, parse the temp file to (optionally) copy to
     // the offline store for the cur folder.
-    int32_t inputBufferSize = 10240;
     nsMsgLineStreamBuffer *inputStreamBuffer =
-      new nsMsgLineStreamBuffer(inputBufferSize, true, false);
+      new nsMsgLineStreamBuffer(FILE_IO_BUFFER_SIZE, true, false);
     int64_t fileSize;
     srcFile->GetFileSize(&fileSize);
     uint32_t bytesWritten;

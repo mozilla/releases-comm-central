@@ -8,7 +8,6 @@
 #include "nsIImportService.h"
 #include "nsIComponentManager.h"
 #include "nsIMemory.h"
-#include "nsIImportService.h"
 #include "nsIImportMail.h"
 #include "nsIImportMailboxDescriptor.h"
 #include "nsIImportGeneric.h"

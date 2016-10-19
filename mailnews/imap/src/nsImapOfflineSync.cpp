@@ -415,19 +415,13 @@ nsImapOfflineSync::ProcessAppendMsgOperation(nsIMsgOfflineImapOperation *current
               if (NS_SUCCEEDED(rv))
               {
                 // now, copy the dest folder offline store msg to the temp file
-                int32_t inputBufferSize = 10240;
-                char *inputBuffer = nullptr;
+                int32_t inputBufferSize = FILE_IO_BUFFER_SIZE;
+                char *inputBuffer = (char *) PR_Malloc(inputBufferSize);
 
-                while (!inputBuffer && (inputBufferSize >= 512))
-                {
-                  inputBuffer = (char *) PR_Malloc(inputBufferSize);
-                  if (!inputBuffer)
-                    inputBufferSize /= 2;
-                }
                 int32_t bytesLeft;
                 uint32_t bytesRead, bytesWritten;
                 bytesLeft = messageSize;
-                rv = NS_OK;
+                rv = inputBuffer ? NS_OK : NS_ERROR_OUT_OF_MEMORY;
                 while (bytesLeft > 0 && NS_SUCCEEDED(rv))
                 {
                   int32_t bytesToRead = std::min(inputBufferSize, bytesLeft);
@@ -435,7 +429,7 @@ nsImapOfflineSync::ProcessAppendMsgOperation(nsIMsgOfflineImapOperation *current
                   if (NS_SUCCEEDED(rv) && bytesRead > 0)
                   {
                     rv = outputStream->Write(inputBuffer, bytesRead, &bytesWritten);
-                    NS_ASSERTION(bytesWritten == bytesRead, "wrote out correct number of bytes");
+                    NS_ASSERTION(bytesWritten == bytesRead, "wrote out incorrect number of bytes");
                   }
                   else
                     break;

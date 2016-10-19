@@ -502,7 +502,7 @@ nsresult nsMsgFilterList::LoadTextFilters(nsIInputStream *aStream)
   uint64_t bytesAvailable;
 
   nsCOMPtr<nsIInputStream> bufStream;
-  err = NS_NewBufferedInputStream(getter_AddRefs(bufStream), aStream, 10240);
+  err = NS_NewBufferedInputStream(getter_AddRefs(bufStream), aStream, FILE_IO_BUFFER_SIZE);
   NS_ENSURE_SUCCESS(err, err);
 
   nsMsgFilterFileAttribValue attrib;

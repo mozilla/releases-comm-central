@@ -1088,7 +1088,6 @@ MimeMultipartRelated_parse_eof (MimeObject *obj, bool abort_p)
   {
     /* Read it off disk. */
     char *buf;
-    int32_t buf_size = 10 * 1024;  /* 10k; tune this? */
 
     PR_ASSERT(relobj->head_buffer_size == 0 &&
           relobj->head_buffer_fp == 0);
@@ -1099,7 +1098,7 @@ MimeMultipartRelated_parse_eof (MimeObject *obj, bool abort_p)
       goto FAIL;
     }
 
-    buf = (char *) PR_MALLOC(buf_size);
+    buf = (char *) PR_MALLOC(FILE_IO_BUFFER_SIZE);
     if (!buf)
     {
       status = MIME_OUT_OF_MEMORY;
@@ -1121,7 +1120,7 @@ MimeMultipartRelated_parse_eof (MimeObject *obj, bool abort_p)
     while(1)
     {
       uint32_t bytesRead = 0;
-      rv = relobj->input_file_stream->Read(buf, buf_size - 1, &bytesRead);
+      rv = relobj->input_file_stream->Read(buf, FILE_IO_BUFFER_SIZE - 1, &bytesRead);
       if (NS_FAILED(rv) || !bytesRead)
       {
         status = NS_FAILED(rv) ? -1 : 0;

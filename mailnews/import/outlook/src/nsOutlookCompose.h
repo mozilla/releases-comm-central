@@ -55,7 +55,6 @@ private:
   nsIMsgCompFields *    m_pMsgFields;
   static nsIMsgIdentity *    m_pIdentity;
   char* m_optimizationBuffer;
-  unsigned int m_optimizationBufferSize;
   nsCOMPtr<nsIImportService>  m_pImportService;
 
   // Bug 593907

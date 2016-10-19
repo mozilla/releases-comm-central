@@ -41,7 +41,7 @@
 ///////////////////////////////////////////////////////////////////////////
 #ifdef XP_MACOSX
 
-#define AD_WORKING_BUFF_SIZE                  8192
+#define AD_WORKING_BUFF_SIZE FILE_IO_BUFFER_SIZE
 
 extern void         MacGetFileType(nsIFile *fs, bool *useDefault, char **type, char **encoding);
 
@@ -921,16 +921,7 @@ nsMsgAttachmentHandler::ConvertToAppleEncoding(const nsCString &aFileURI,
       return NS_ERROR_OUT_OF_MEMORY;
     }
 
-    int32_t     bSize = AD_WORKING_BUFF_SIZE;
-
-    char  *working_buff = nullptr;
-    while (!working_buff && (bSize >= 512))
-    {
-      working_buff = (char *)PR_CALLOC(bSize);
-      if (!working_buff)
-        bSize /= 2;
-    }
-
+    char *working_buff = (char *) PR_Malloc(AD_WORKING_BUFF_SIZE);
     if (!working_buff)
     {
       PR_FREEIF(separator);
@@ -939,7 +930,7 @@ nsMsgAttachmentHandler::ConvertToAppleEncoding(const nsCString &aFileURI,
     }
 
     obj->buff = working_buff;
-    obj->s_buff = bSize;
+    obj->s_buff = AD_WORKING_BUFF_SIZE;
 
     //
     //  Setup all the need information on the apple double encoder.
@@ -952,7 +943,7 @@ nsMsgAttachmentHandler::ConvertToAppleEncoding(const nsCString &aFileURI,
     m_size = 0;
     while (status == noErr)
     {
-      status = ap_encode_next(&(obj->ap_encode_obj), obj->buff, bSize, &count);
+      status = ap_encode_next(&(obj->ap_encode_obj), obj->buff, obj->s_buff, &count);
       if (status == noErr || status == errDone)
       {
         //
@@ -1229,7 +1220,8 @@ nsMsgAttachmentHandler::UrlExit(nsresult status, const char16_t* aMsg)
           mTmpFile->Remove(false);
 
         nsCOMPtr<nsIOutputStream> outputStream;
-        nsresult rv = NS_NewLocalFileOutputStream(getter_AddRefs(outputStream), mTmpFile,  PR_WRONLY | PR_CREATE_FILE, 00600);
+        nsresult rv = MsgNewBufferedFileOutputStream(getter_AddRefs(outputStream), mTmpFile,
+                                                     PR_WRONLY | PR_CREATE_FILE, 00600);
 
         if (NS_SUCCEEDED(rv))
         {

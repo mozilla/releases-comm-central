@@ -1044,7 +1044,7 @@ public:
 
         if (avail)
         {
-          rv = aOutStream->WriteFrom(mInStream, std::min(avail, uint64_t(4096)), &bytesWritten);
+          rv = aOutStream->WriteFrom(mInStream, std::min(avail, uint64_t(FILE_IO_BUFFER_SIZE)), &bytesWritten);
           // if were full at the time, the input stream may be backed up and we need to read any remains from the last ODA call
           // before we'll get more ODA calls
           if (protInst->mSuspendedRead)

@@ -1193,9 +1193,8 @@ nsresult MaildirStoreParser::ParseNextMessage(nsIFile *aFile)
   rv = NS_NewLocalFileInputStream(getter_AddRefs(inputStream), aFile);
   if (NS_SUCCEEDED(rv) && inputStream)
   {
-    int32_t inputBufferSize = 10240;
     nsMsgLineStreamBuffer *inputStreamBuffer =
-      new nsMsgLineStreamBuffer(inputBufferSize, true, false);
+      new nsMsgLineStreamBuffer(FILE_IO_BUFFER_SIZE, true, false);
     int64_t fileSize;
     aFile->GetFileSize(&fileSize);
     msgParser->SetNewMsgHdr(newMsgHdr);

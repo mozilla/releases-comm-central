@@ -137,7 +137,6 @@
 //
 // Some necessary defines...
 //
-#define TEN_K                 10240
 #define MIME_BUFFER_SIZE      4096 // must be greater than 1000
                                    // SMTP (RFC821) limit
 // Maximum number of bytes we allow in a line before we force

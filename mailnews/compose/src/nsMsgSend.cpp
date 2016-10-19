@@ -4207,6 +4207,7 @@ nsMsgGetEnvelopeLine(void)
   return result;
 }
 
+#define ibuffer_size FILE_IO_BUFFER_SIZE
 nsresult
 nsMsgComposeAndSend::MimeDoFCC(nsIFile          *input_file,
                                nsMsgDeliverMode mode,
@@ -4215,9 +4216,7 @@ nsMsgComposeAndSend::MimeDoFCC(nsIFile          *input_file,
                                const char       *news_url)
 {
   nsresult      status = NS_OK;
-  char          *ibuffer = 0;
-  int32_t       ibuffer_size = TEN_K;
-  char          *obuffer = 0;
+  char          *ibuffer = nullptr;
   uint32_t      n;
   bool          folderIsLocal = true;
   nsCString     turi;
@@ -4285,14 +4284,7 @@ nsMsgComposeAndSend::MimeDoFCC(nsIFile          *input_file,
   }
 
   // now the buffers...
-  ibuffer = nullptr;
-  while (!ibuffer && (ibuffer_size >= 1024))
-  {
-    ibuffer = (char *) PR_Malloc(ibuffer_size);
-    if (!ibuffer)
-      ibuffer_size /= 2;
-  }
-
+  ibuffer = (char *) PR_Malloc(ibuffer_size);
   if (!ibuffer)
   {
     status = NS_ERROR_OUT_OF_MEMORY;
@@ -4634,9 +4626,6 @@ nsMsgComposeAndSend::MimeDoFCC(nsIFile          *input_file,
 
 FAIL:
   PR_Free(ibuffer);
-  if (obuffer != ibuffer)
-    PR_Free(obuffer);
-
 
   if (NS_FAILED(tempOutfile->Flush()))
     status = NS_MSG_ERROR_WRITING_FILE;

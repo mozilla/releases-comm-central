@@ -482,7 +482,7 @@ ImportMessageRunnable::WriteAttachmentFile(nsIFile *aMailboxFile,
                                   attachmentFile);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  char buffer[4096];
+  char buffer[FILE_IO_BUFFER_SIZE];
   uint32_t readBytes = 0;
   uint32_t writtenBytes = 0;
   rv = aOutputStream->Write(MSG_LINEBREAK, strlen(MSG_LINEBREAK), &writtenBytes);

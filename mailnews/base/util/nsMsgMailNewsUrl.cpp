@@ -733,7 +733,7 @@ NS_IMETHODIMP nsMsgMailNewsUrl::LoadURI(nsIDocShell* docShell,
   return docShell->LoadURI(this, loadInfo, aLoadFlags, false);
 }
 
-#define SAVE_BUF_SIZE 8192
+#define SAVE_BUF_SIZE FILE_IO_BUFFER_SIZE
 class nsMsgSaveAsListener : public nsIStreamListener
 {
 public:

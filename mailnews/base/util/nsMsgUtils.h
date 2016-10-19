@@ -38,6 +38,7 @@ class nsIMsgWindow;
 class nsISupportsArray;
 class nsIStreamListener;
 
+#define FILE_IO_BUFFER_SIZE (16*1024)
 #define MSGS_URL    "chrome://messenger/locale/messenger.properties"
 
 //These are utility functions that can used throughout the mailnews code
@@ -190,10 +191,10 @@ NS_MSG_BASE nsresult MsgGetFileStream(nsIFile *file, nsIOutputStream **fileStrea
 
 NS_MSG_BASE nsresult MsgReopenFileStream(nsIFile *file, nsIInputStream *fileStream);
 
-// Automatically creates an output stream with a 4K buffer
+// Automatically creates an output stream with a suitable buffer
 NS_MSG_BASE nsresult MsgNewBufferedFileOutputStream(nsIOutputStream **aResult, nsIFile *aFile, int32_t aIOFlags = -1, int32_t aPerm = -1);
 
-// Automatically creates an output stream with a 4K buffer, but write to a temporary file first, then rename to aFile
+// Automatically creates an output stream with a suitable buffer, but write to a temporary file first, then rename to aFile
 NS_MSG_BASE nsresult MsgNewSafeBufferedFileOutputStream(nsIOutputStream **aResult, nsIFile *aFile, int32_t aIOFlags = -1, int32_t aPerm = -1);
 
 // fills in the position of the passed in keyword in the passed in keyword list

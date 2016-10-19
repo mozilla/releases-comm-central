@@ -98,7 +98,6 @@
 
 static NS_DEFINE_CID(kRDFServiceCID,  NS_RDFSERVICE_CID);
 
-#define FOUR_K 4096
 #define MESSENGER_SAVE_DIR_PREF_NAME "messenger.save.dir"
 #define MIMETYPE_DELETED    "text/x-moz-deleted"
 #define ATTACHMENT_PERMISSION 00664
@@ -150,7 +149,7 @@ public:
 
   nsCOMPtr<nsIFile> m_file;
   nsCOMPtr<nsIOutputStream> m_outputStream;
-  char m_dataBuffer[FOUR_K];
+  char m_dataBuffer[FILE_IO_BUFFER_SIZE];
   nsCOMPtr<nsIChannel> m_channel;
   nsCString m_templateUri;
   nsMessenger *m_messenger; // not ref counted
@@ -1970,7 +1969,7 @@ nsSaveMsgListener::OnDataAvailable(nsIRequest* request,
   {
     mProgress += count;
     uint64_t available;
-    uint32_t readCount, maxReadCount = FOUR_K;
+    uint32_t readCount, maxReadCount = sizeof(m_dataBuffer);
     uint32_t writeCount;
     rv = inStream->Available(&available);
     while (NS_SUCCEEDED(rv) && available)
