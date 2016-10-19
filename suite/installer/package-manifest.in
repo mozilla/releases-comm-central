@@ -377,8 +377,6 @@
 @RESPATH@/components/BrowserElementParent.manifest
 @RESPATH@/components/captivedetect.js
 @RESPATH@/components/CaptivePortalDetectComponents.manifest
-@RESPATH@/components/ChromeNotifications.js
-@RESPATH@/components/ChromeNotifications.manifest
 @RESPATH@/components/ColorAnalyzer.js
 @RESPATH@/components/ConsoleAPIStorage.js
 @RESPATH@/components/ConsoleAPI.manifest
