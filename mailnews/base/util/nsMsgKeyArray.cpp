@@ -71,7 +71,7 @@ NS_IMETHODIMP nsMsgKeyArray::GetArray(uint32_t *aCount, nsMsgKey **aKeys)
   NS_ENSURE_ARG_POINTER(aKeys);
   *aCount = m_keys.Length();
   *aKeys =
-    (nsMsgKey *) nsMemory::Clone(&m_keys[0],
+    (nsMsgKey *) nsMemory::Clone(m_keys.begin(),
                                  m_keys.Length() * sizeof(nsMsgKey));
   return (*aKeys) ? NS_OK : NS_ERROR_OUT_OF_MEMORY;
 }
