@@ -102,18 +102,13 @@ unpack: $(XPI_ZIP_IN)
 langpack-en-US:
 	@echo "Skipping $@ as en-US is the default"
 
-# It wouldn't fit into mozharness to run compare-locales for calendar
-# separately, so we need to do it ourselves. Unfortunately compare-locales is
-# not installed globally on the slaves, so we need to hardcode the path.
-BUILD_COMPARE_LOCALES = $(wildcard $(topsrcdir)/../compare-locales)
-COMPARE_LOCALES = $(if $(BUILD_COMPARE_LOCALES),$(PYTHON) $(BUILD_COMPARE_LOCALES)/scripts/compare-locales,compare-locales)
-COMPARE_LOCALES_PYTHONPATH = $(if $(BUILD_COMPARE_LOCALES),$(BUILD_COMPARE_LOCALES)/lib,)
-
 merge-%:
 ifdef LOCALE_MERGEDIR
 	$(RM) -rf $(LOCALE_MERGEDIR)/calendar
-	MACOSX_DEPLOYMENT_TARGET= PYTHONPATH=$(COMPARE_LOCALES_PYTHONPATH) \
-	  $(COMPARE_LOCALES) -m $(LOCALE_MERGEDIR) $(topsrcdir)/calendar/locales/l10n.ini $(L10NBASEDIR) $*
+	$(MOZILLA_SRCDIR)/mach compare-locales \
+	    --merge-dir $(LOCALE_MERGEDIR) \
+	    --l10n-ini $(topsrcdir)/calendar/locales/l10n.ini \
+	    $*
 
 	# This file requires a bugfix with string changes, see bug 1154448
 	[ -f $(L10NBASEDIR)/$*/calendar/chrome/calendar/calendar-extract.properties ] && \
@@ -145,7 +140,7 @@ repack-stage:
 	@echo "Repackaging $(XPI_PKGNAME) locale for Language $(AB_CD)"
 	$(RM) -rf $(L10N_TARGET)
 	cp -R $(XPI_STAGE_PATH)/$(XPI_NAME) $(L10N_TARGET)
-	grep -v 'locale \D\+ en-US' $(L10N_TARGET)/chrome.manifest > $(L10N_TARGET)/chrome.manifest~ && \
+	grep -v 'locale \S\+ en-US' $(L10N_TARGET)/chrome.manifest > $(L10N_TARGET)/chrome.manifest~ && \
 	  mv $(L10N_TARGET)/chrome.manifest~ $(L10N_TARGET)/chrome.manifest
 	find $(abspath $(L10N_TARGET)) -name '*en-US*' -print0 | xargs -0 rm -rf
 
