@@ -9154,7 +9154,15 @@ nsresult nsImapMockChannel::OpenCacheEntry()
   // /;section=2?part=1.2&filename=A01.JPG
   // ?section=2?part=1.2&filename=A01.JPG&type=image/jpeg&filename=A01.JPG
   // ?part=1.2&type=image/jpeg&filename=IMG_C0030.jpg
+  // ?header=quotebody&part=1.2&filename=lijbmghmkilicioj.png
   nsAutoCString partQuery = extractQueryPart(path, "?part=");
+  if (partQuery.IsEmpty()) {
+    partQuery = extractQueryPart(path, "&part=");
+    if (!partQuery.IsEmpty()) {
+      // ? indicates a part query, so set the first character to that.
+      partQuery.SetCharAt('?', 0);
+    }
+  }
   nsAutoCString filenameQuery = extractQueryPart(path, "&filename=");
 
   // Truncate path at either /; or ?
