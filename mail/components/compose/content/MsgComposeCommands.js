@@ -2350,16 +2350,35 @@ function ComposeStartup(aParams)
         params.bodyIsLink = true;
       if (args.type)
         params.type = args.type;
-      // Only use valid values.
-      if (args.format &&
-          (args.format == Components.interfaces.nsIMsgCompFormat.PlainText ||
-           args.format == Components.interfaces.nsIMsgCompFormat.HTML ||
-           args.format == Components.interfaces.nsIMsgCompFormat.OppositeOfDefault))
-        params.format = args.format;
+      if (args.format)
+      {
+        // Only use valid values.
+        if (args.format == Components.interfaces.nsIMsgCompFormat.PlainText ||
+            args.format == Components.interfaces.nsIMsgCompFormat.HTML ||
+            args.format == Components.interfaces.nsIMsgCompFormat.OppositeOfDefault)
+          params.format = args.format;
+        else if (args.format.toLowerCase().trim() == "html")
+          params.format = Components.interfaces.nsIMsgCompFormat.HTML;
+        else if (args.format.toLowerCase().trim() == "text")
+          params.format = Components.interfaces.nsIMsgCompFormat.PlainText;
+      }
       if (args.originalMsg)
         params.originalMsgURI = args.originalMsg;
       if (args.preselectid)
         params.identity = getIdentityForKey(args.preselectid);
+      else if (args.from) {
+        let identities = MailServices.accounts.allIdentities;
+        let enumerator = identities.enumerate();
+        let ident = {};
+
+        while (enumerator.hasMoreElements()) {
+          ident = enumerator.getNext();
+          if (args.from.toLowerCase().trim() == ident.email.toLowerCase()) {
+            params.identity = ident;
+            break;
+          }
+        }
+      }
       if (args.to)
         composeFields.to = args.to;
       if (args.cc)
@@ -2458,8 +2477,12 @@ function ComposeStartup(aParams)
           }
 
           if (data) {
+            let pos = data.search(/\S/); // Find first non-whitespace character.
+
             if (params.format != Components.interfaces.nsIMsgCompFormat.PlainText &&
-                (args.message.endsWith(".htm") || args.message.endsWith(".html"))) {
+                (args.message.endsWith(".htm") || args.message.endsWith(".html") ||
+                 data.substr(pos, 14).toLowerCase() == "<!doctype html" ||
+                 data.substr(pos, 5).toLowerCase() == "<html")) {
               // We replace line breaks because otherwise they'll be converted to
               // <br> in nsMsgCompose::BuildBodyMessageAndSignature().
               // Don't do the conversion if the user asked explicitly for plain text.

@@ -306,7 +306,7 @@ nsMsgComposeService::GetOrigWindowSelection(MSG_ComposeType type, nsIMsgWindow *
         const uint32_t length = selPlain.Length();
         const char16_t* unicodeStr = selPlain.get();
         int32_t endWordPos = lineBreaker->Next(unicodeStr, length, 0);
-        
+
         // If there's not even one word, then there's not multiple words
         if (endWordPos == NS_LINEBREAKER_NEED_MORE_TEXT)
           return NS_ERROR_ABORT;
@@ -928,7 +928,7 @@ NS_IMETHODIMP nsMsgComposeService::ReplyWithTemplate(nsIMsgDBHdr *aMsgHdr, const
   if (!query)
     return NS_ERROR_FAILURE;
 
-  nsAutoCString folderUri(Substring(templateUri, query)); 
+  nsAutoCString folderUri(Substring(templateUri, query));
   rv = GetExistingFolder(folderUri, getter_AddRefs(templateFolder));
   NS_ENSURE_SUCCESS(rv, rv);
   rv = templateFolder->GetMsgDatabase(getter_AddRefs(templateDB));
@@ -1252,7 +1252,7 @@ nsMsgComposeService::LoadDraftOrTemplate(const nsACString& aMsgURI, nsMimeOutput
 }
 
 /**
- * Run the aMsgURI message through libmime. We set various attributes of the 
+ * Run the aMsgURI message through libmime. We set various attributes of the
  * nsIMimeStreamConverter so mimedrft.cpp will know what to do with the message
  * when its done streaming. Usually that will be opening a compose window
  * with the contents of the message, but if forwardTo is non-empty, mimedrft.cpp
@@ -1418,7 +1418,8 @@ nsMsgComposeService::Handle(nsICommandLine* aCmdLine)
         StringBeginsWith(uristr, NS_LITERAL_STRING("format=")) ||
         StringBeginsWith(uristr, NS_LITERAL_STRING("body="))  ||
         StringBeginsWith(uristr, NS_LITERAL_STRING("attachment=")) ||
-        StringBeginsWith(uristr, NS_LITERAL_STRING("message="))) {
+        StringBeginsWith(uristr, NS_LITERAL_STRING("message=")) ||
+        StringBeginsWith(uristr, NS_LITERAL_STRING("from="))) {
       composeShouldHandle = true; // the -url argument looks like mailto
       end++;
       // mailto: URIs are frequently passed with spaces in them. They should be
@@ -1461,7 +1462,11 @@ nsMsgComposeService::Handle(nsICommandLine* aCmdLine)
 NS_IMETHODIMP
 nsMsgComposeService::GetHelpInfo(nsACString& aResult)
 {
-  aResult.Assign(NS_LITERAL_CSTRING("  -compose           Compose a mail or news message.\n"));
+  aResult.AssignLiteral(
+    "  -compose [ <options> ] Compose a mail or news message. Options are specified\n"
+    "                     as string \"option='value,...',option=value,...\" and\n"
+    "                     include: from, to, cc, bcc, newsgroups, subject, body,\n"
+    "                     message (file), attachment (file), format (html | text).\n"
+    "                     Example: \"to=john@example.com,subject='Dinner tonight?'\"\n");
   return NS_OK;
 }
-
