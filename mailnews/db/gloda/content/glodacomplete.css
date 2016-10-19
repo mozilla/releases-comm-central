@@ -21,18 +21,23 @@ panel[type="glodacomplete-richlistbox"] {
 }
 
 .explanation, .gloda-single-identity {
-  margin-left: 1em;
+  margin-inline-start: 1em;
   margin-top: 2px;
   margin-bottom: 2px;
 }
 
 .ac-comment {
   font-size: 1.1em;
+  margin-inline-start: 0;
 }
 
 .ac-url-text {
   color: -moz-nativehyperlinktext;
   font-size: 0.95em;
+}
+
+span.ac-emphasize-text {
+  font-weight: bold;
 }
 
 .ac-url-text[selected="true"] {
@@ -45,11 +50,7 @@ panel[type="glodacomplete-richlistbox"] {
 
 .parameters {
   font-style: italic;
-  margin-left: 1em;
-}
-
-.picture {
-  /*margin-right: 1em;*/
+  margin-inline-start: 1em;
 }
 
 .autocomplete-richlistitem[type="gloda-single-tag"] {
