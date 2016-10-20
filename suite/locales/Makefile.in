@@ -215,6 +215,8 @@ endif
 
 .PHONY: repackage-extensions
 
+MOZ_PKG_EXTRAL10N += extensions/langpack-$(AB_CD)@chatzilla.mozilla.org=$(DIST)/xpi-stage/chatzilla-$(AB_CD)
+
 ifdef MOZ_CALENDAR
 LIGHTNING_PATH=$(DEPTH)/calendar/lightning
 GDATA_PATH=$(DEPTH)/calendar/providers/gdata
