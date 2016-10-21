@@ -11,6 +11,7 @@
 #include "nsNetCID.h"
 #include "nsISocketProvider.h"
 #include "nsISSLSocketControl.h"
+#include "nsString.h"
 #include "nsMemory.h"
 #include "plstr.h"
 #include "ldap.h"
@@ -174,7 +175,8 @@ nsLDAPSSLConnect(const char *hostlist, int defport, int timeout,
     //
     rv = tlsSocketProvider->AddToSocket(PR_AF_INET,
                                         sessionClosure->hostname, defport,
-                                        nullptr, 0, socketInfo.soinfo_prfd,
+                                        nullptr, EmptyCString(), 0,
+                                        socketInfo.soinfo_prfd,
                                         getter_AddRefs(securityInfo));
     if (NS_FAILED(rv)) {
 	NS_ERROR("nsLDAPSSLConnect(): unable to add SSL layer to socket");
