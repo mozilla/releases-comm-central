@@ -435,6 +435,8 @@ nsImapOfflineSync::ProcessAppendMsgOperation(nsIMsgOfflineImapOperation *current
                     break;
                   bytesLeft -= bytesRead;
                 }
+                PR_FREEIF(inputBuffer);
+
                 outputStream->Flush();
                 outputStream->Close();
                 if (NS_SUCCEEDED(rv))
