@@ -77,7 +77,7 @@ var gSystemIntegrationDialog = {
     {
       this._searchCheckbox.checked = this.SearchIntegration.prefEnabled;
       // On Windows, do not offer the option on startup as it does not perform well.
-      if ((Services.appinfo.OS == "WINNT") && !calledFromPrefs &&
+      if ((this.Services.appinfo.OS == "WINNT") && !calledFromPrefs &&
           !this._searchCheckbox.checked) {
         this._searchCheckbox.hidden = true;
       } else {
