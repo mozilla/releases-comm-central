@@ -600,10 +600,10 @@ nsSubscribeDataSource::GetAllCmds(nsIRDFResource* source,
 }
 
 NS_IMETHODIMP
-nsSubscribeDataSource::IsCommandEnabled(nsISupportsArray/*<nsIRDFResource>*/* aSources,
-                                       nsIRDFResource*   aCommand,
-                                       nsISupportsArray/*<nsIRDFResource>*/* aArguments,
-                                       bool* aResult)
+nsSubscribeDataSource::IsCommandEnabled(nsISupports/*nsISupportsArray<nsIRDFResource>*/* aSources,
+                                        nsIRDFResource*   aCommand,
+                                        nsISupports/*nsISupportsArray<nsIRDFResource>*/* aArguments,
+                                        bool* aResult)
 {
 	return(NS_ERROR_NOT_IMPLEMENTED);
 }
@@ -611,9 +611,9 @@ nsSubscribeDataSource::IsCommandEnabled(nsISupportsArray/*<nsIRDFResource>*/* aS
 
 
 NS_IMETHODIMP
-nsSubscribeDataSource::DoCommand(nsISupportsArray/*<nsIRDFResource>*/* aSources,
-                                nsIRDFResource*   aCommand,
-                                nsISupportsArray/*<nsIRDFResource>*/* aArguments)
+nsSubscribeDataSource::DoCommand(nsISupports/*nsISupportsArray<nsIRDFResource>*/* aSources,
+                                 nsIRDFResource*   aCommand,
+                                 nsISupports/*nsISupportsArray<nsIRDFResource>*/* aArguments)
 {
 	return(NS_ERROR_NOT_IMPLEMENTED);
 }

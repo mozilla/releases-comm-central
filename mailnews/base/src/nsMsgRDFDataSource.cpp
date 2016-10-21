@@ -237,17 +237,17 @@ nsMsgRDFDataSource::GetAllCmds(nsIRDFResource *aSource, nsISimpleEnumerator **_r
 }
 
 
-/* boolean IsCommandEnabled (in nsISupportsArray aSources, in nsIRDFResource aCommand, in nsISupportsArray aArguments); */
+/* boolean IsCommandEnabled (in nsISupports aSources, in nsIRDFResource aCommand, in nsISupports aArguments); */
 NS_IMETHODIMP
-nsMsgRDFDataSource::IsCommandEnabled(nsISupportsArray *aSources, nsIRDFResource *aCommand, nsISupportsArray *aArguments, bool *_retval)
+nsMsgRDFDataSource::IsCommandEnabled(nsISupports *aSources, nsIRDFResource *aCommand, nsISupports *aArguments, bool *_retval)
 {
     return NS_RDF_NO_VALUE;
 }
 
 
-/* void DoCommand (in nsISupportsArray aSources, in nsIRDFResource aCommand, in nsISupportsArray aArguments); */
+/* void DoCommand (in nsISupports aSources, in nsIRDFResource aCommand, in nsISupports aArguments); */
 NS_IMETHODIMP
-nsMsgRDFDataSource::DoCommand(nsISupportsArray *aSources, nsIRDFResource *aCommand, nsISupportsArray *aArguments)
+nsMsgRDFDataSource::DoCommand(nsISupports *aSources, nsIRDFResource *aCommand, nsISupports *aArguments)
 {
     return NS_RDF_NO_VALUE;
 }

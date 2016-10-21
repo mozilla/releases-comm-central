@@ -627,20 +627,23 @@ nsMsgFolderDataSource::GetAllCmds(nsIRDFResource* source,
 }
 
 NS_IMETHODIMP
-nsMsgFolderDataSource::IsCommandEnabled(nsISupportsArray/*<nsIRDFResource>*/* aSources,
+nsMsgFolderDataSource::IsCommandEnabled(nsISupports/*nsISupportsArray<nsIRDFResource>*/* aSources,
                                         nsIRDFResource*   aCommand,
-                                        nsISupportsArray/*<nsIRDFResource>*/* aArguments,
+                                        nsISupports/*nsISupportsArray<nsIRDFResource>*/* aArguments,
                                         bool* aResult)
 {
   nsresult rv;
   nsCOMPtr<nsIMsgFolder> folder;
 
+  nsCOMPtr<nsISupportsArray> sources = do_QueryInterface(aSources);
+  NS_ENSURE_STATE(sources);
+
   uint32_t cnt;
-  rv = aSources->Count(&cnt);
+  rv = sources->Count(&cnt);
   if (NS_FAILED(rv)) return rv;
   for (uint32_t i = 0; i < cnt; i++)
   {
-    folder = do_QueryElementAt(aSources, i, &rv);
+    folder = do_QueryElementAt(sources, i, &rv);
     if (NS_SUCCEEDED(rv))
     {
       // we don't care about the arguments -- folder commands are always enabled
@@ -668,22 +671,26 @@ nsMsgFolderDataSource::IsCommandEnabled(nsISupportsArray/*<nsIRDFResource>*/* aS
 }
 
 NS_IMETHODIMP
-nsMsgFolderDataSource::DoCommand(nsISupportsArray/*<nsIRDFResource>*/* aSources,
+nsMsgFolderDataSource::DoCommand(nsISupports/*nsISupportsArray<nsIRDFResource>*/* aSources,
                                  nsIRDFResource*   aCommand,
-                                 nsISupportsArray/*<nsIRDFResource>*/* aArguments)
+                                 nsISupports/*nsISupportsArray<nsIRDFResource>*/* aArguments)
 {
   nsresult rv = NS_OK;
   nsCOMPtr<nsISupports> supports;
   nsCOMPtr<nsIMsgWindow> window;
 
+  nsCOMPtr<nsISupportsArray> sources = do_QueryInterface(aSources);
+  NS_ENSURE_STATE(sources);
+  nsCOMPtr<nsISupportsArray> arguments = do_QueryInterface(aArguments);
+
   // callers can pass in the msgWindow as the last element of the arguments
   // array. If they do, we'll use that as the msg window for progress, etc.
-  if (aArguments)
+  if (arguments)
   {
     uint32_t numArgs;
-    aArguments->Count(&numArgs);
+    arguments->Count(&numArgs);
     if (numArgs > 1)
-      window = do_QueryElementAt(aArguments, numArgs - 1);
+      window = do_QueryElementAt(arguments, numArgs - 1);
   }
   if (!window)
     window = mWindow;
@@ -693,47 +700,47 @@ nsMsgFolderDataSource::DoCommand(nsISupportsArray/*<nsIRDFResource>*/* aSources,
   uint32_t cnt = 0;
   uint32_t i = 0;
 
-  rv = aSources->Count(&cnt);
+  rv = sources->Count(&cnt);
   if (NS_FAILED(rv)) return rv;
 
   for ( ; i < cnt; i++)
   {
-    nsCOMPtr<nsIMsgFolder> folder = do_QueryElementAt(aSources, i, &rv);
+    nsCOMPtr<nsIMsgFolder> folder = do_QueryElementAt(sources, i, &rv);
     if (NS_SUCCEEDED(rv))
     {
       if (aCommand == kNC_Delete)
       {
-        rv = DoDeleteFromFolder(folder, aArguments, window, false);
+        rv = DoDeleteFromFolder(folder, arguments, window, false);
       }
       if (aCommand == kNC_ReallyDelete)
       {
-        rv = DoDeleteFromFolder(folder, aArguments, window, true);
+        rv = DoDeleteFromFolder(folder, arguments, window, true);
       }
       else if (aCommand == kNC_NewFolder)
       {
-        rv = DoNewFolder(folder, aArguments, window);
+        rv = DoNewFolder(folder, arguments, window);
       }
       else if (aCommand == kNC_GetNewMessages)
       {
-        nsCOMPtr<nsIMsgIncomingServer> server = do_QueryElementAt(aArguments, i, &rv);
+        nsCOMPtr<nsIMsgIncomingServer> server = do_QueryElementAt(arguments, i, &rv);
         NS_ENSURE_SUCCESS(rv, rv);
         rv = server->GetNewMessages(folder, window, nullptr);
       }
       else if (aCommand == kNC_Copy)
       {
-        rv = DoCopyToFolder(folder, aArguments, window, false);
+        rv = DoCopyToFolder(folder, arguments, window, false);
       }
       else if (aCommand == kNC_Move)
       {
-        rv = DoCopyToFolder(folder, aArguments, window, true);
+        rv = DoCopyToFolder(folder, arguments, window, true);
       }
       else if (aCommand == kNC_CopyFolder)
       {
-        rv = DoFolderCopyToFolder(folder, aArguments, window, false);
+        rv = DoFolderCopyToFolder(folder, arguments, window, false);
       }
       else if (aCommand == kNC_MoveFolder)
       {
-        rv = DoFolderCopyToFolder(folder, aArguments, window, true);
+        rv = DoFolderCopyToFolder(folder, arguments, window, true);
       }
       else if (aCommand == kNC_MarkAllMessagesRead)
       {
@@ -754,7 +761,7 @@ nsMsgFolderDataSource::DoCommand(nsISupportsArray/*<nsIRDFResource>*/* aSources,
       }
       else if (aCommand == kNC_Rename)
       {
-        nsCOMPtr<nsIRDFLiteral> literal = do_QueryElementAt(aArguments, 0, &rv);
+        nsCOMPtr<nsIRDFLiteral> literal = do_QueryElementAt(arguments, 0, &rv);
         if(NS_SUCCEEDED(rv))
         {
           nsString name;

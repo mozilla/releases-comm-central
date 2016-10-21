@@ -13,6 +13,7 @@
 #include "nsITransactionManager.h"
 #include "nsCOMArray.h"
 #include "nsIMutableArray.h"
+#include "nsISupportsArray.h"
 /**
  * The mail data source.
  */
@@ -81,14 +82,14 @@ public:
                             nsISimpleEnumerator/*<nsIRDFResource>*/** commands
                         ) override;
 
-  NS_IMETHOD IsCommandEnabled(nsISupportsArray/*<nsIRDFResource>*/* aSources,
+  NS_IMETHOD IsCommandEnabled(nsISupports/*nsISupportsArray<nsIRDFResource>*/* aSources,
                               nsIRDFResource*   aCommand,
-                              nsISupportsArray/*<nsIRDFResource>*/* aArguments,
+                              nsISupports/*nsISupportsArray<nsIRDFResource>*/* aArguments,
                               bool* aResult) override;
 
-  NS_IMETHOD DoCommand(nsISupportsArray/*<nsIRDFResource>*/* aSources,
+  NS_IMETHOD DoCommand(nsISupports/*nsISupportsArray<nsIRDFResource>*/* aSources,
                        nsIRDFResource*   aCommand,
-                       nsISupportsArray/*<nsIRDFResource>*/* aArguments) override;
+                       nsISupports/*nsISupportsArray<nsIRDFResource>*/* aArguments) override;
 protected:
   virtual ~nsMsgFolderDataSource();
 
