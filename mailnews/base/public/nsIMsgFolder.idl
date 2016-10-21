@@ -247,6 +247,19 @@ interface nsIMsgFolder : nsISupports {
    */
   long getTotalMessages(in boolean deep);
 
+  /**
+   * These functions are used for tricking the front end into thinking that we
+   * have more messages than are really in the DB.  This is usually after an
+   * IMAP message copy where we don't want to do an expensive select until the
+   * user actually opens that folder. These functions are called when
+   * MSG_Master::GetFolderLineById is populating a MSG_FolderLine struct used
+   * by the FE.
+   */
+  readonly attribute long numPendingUnread;
+  readonly attribute long numPendingTotalMessages;
+  void changeNumPendingUnread(in long delta);
+  void changeNumPendingTotalMessages(in long delta);
+
  /**
   * does this folder have new messages
   *

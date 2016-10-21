@@ -1705,8 +1705,8 @@ NS_IMETHODIMP nsMsgNewsFolder::NotifyDownloadedLine(const char *line, nsMsgKey k
 NS_IMETHODIMP nsMsgNewsFolder::NotifyFinishedDownloadinghdrs()
 {
   bool wasCached = !!mDatabase;
-  ChangeNumPendingTotalMessages(-GetNumPendingTotalMessages());
-  ChangeNumPendingUnread(-GetNumPendingUnread());
+  ChangeNumPendingTotalMessages(-mNumPendingTotalMessages);
+  ChangeNumPendingUnread(-mNumPendingUnreadMessages);
   bool filtersRun;
   // run the bayesian spam filters, if enabled.
   CallFilterPlugins(nullptr, &filtersRun);

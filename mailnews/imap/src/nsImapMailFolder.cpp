@@ -2649,8 +2649,8 @@ NS_IMETHODIMP nsImapMailFolder::OnNewIdleMessages()
 NS_IMETHODIMP nsImapMailFolder::UpdateImapMailboxInfo(nsIImapProtocol* aProtocol, nsIMailboxSpec* aSpec)
 {
   nsresult rv;
-  ChangeNumPendingTotalMessages(-GetNumPendingTotalMessages());
-  ChangeNumPendingUnread(-GetNumPendingUnread());
+  ChangeNumPendingTotalMessages(-mNumPendingTotalMessages);
+  ChangeNumPendingUnread(-mNumPendingUnreadMessages);
   m_numServerRecentMessages = 0; // clear this since we selected the folder.
   m_numServerUnseenMessages = 0; // clear this since we selected the folder.
 
@@ -2884,10 +2884,10 @@ NS_IMETHODIMP nsImapMailFolder::UpdateImapMailboxStatus(
   // We may want to do similar things with total messages, but the total messages
   // include deleted messages if the folder hasn't been expunged.
   int32_t previousUnreadMessages = (m_numServerUnseenMessages)
-    ? m_numServerUnseenMessages : GetNumPendingUnread() + mNumUnreadMessages;
+    ? m_numServerUnseenMessages : mNumPendingUnreadMessages + mNumUnreadMessages;
   if (numUnread != previousUnreadMessages || m_nextUID != prevNextUID)
   {
-    int32_t unreadDelta = numUnread - (GetNumPendingUnread() + mNumUnreadMessages);
+    int32_t unreadDelta = numUnread - (mNumPendingUnreadMessages + mNumUnreadMessages);
     if (numUnread - previousUnreadMessages != unreadDelta)
        NS_WARNING("unread count should match server count");
     ChangeNumPendingUnread(unreadDelta);

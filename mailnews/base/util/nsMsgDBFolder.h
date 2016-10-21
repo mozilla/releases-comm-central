@@ -66,17 +66,6 @@ public:
   // nsRDFResource overrides
   NS_IMETHOD Init(const char* aURI) override;
 
-  // These functions are used for tricking the front end into thinking that we have more 
-  // messages than are really in the DB.  This is usually after and IMAP message copy where
-  // we don't want to do an expensive select until the user actually opens that folder
-  // These functions are called when MSG_Master::GetFolderLineById is populating a MSG_FolderLine
-  // struct used by the FE
-  int32_t GetNumPendingUnread();
-  int32_t GetNumPendingTotalMessages();
-
-  void ChangeNumPendingUnread(int32_t delta);
-  void ChangeNumPendingTotalMessages(int32_t delta);
-
   nsresult CreateDirectoryForFolder(nsIFile **result);
   nsresult CreateBackupDirectory(nsIFile **result);
   nsresult GetBackupSummaryFile(nsIFile **result, const nsACString& newName);

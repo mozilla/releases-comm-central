@@ -4259,17 +4259,19 @@ NS_IMETHODIMP nsMsgDBFolder::GetTotalMessages(bool deep, int32_t *totalMessages)
   return NS_OK;
 }
 
-int32_t nsMsgDBFolder::GetNumPendingUnread()
+NS_IMETHODIMP nsMsgDBFolder::GetNumPendingUnread(int32_t *aPendingUnread)
 {
-  return mNumPendingUnreadMessages;
+  *aPendingUnread = mNumPendingUnreadMessages;
+  return NS_OK;
 }
 
-int32_t nsMsgDBFolder::GetNumPendingTotalMessages()
+NS_IMETHODIMP nsMsgDBFolder::GetNumPendingTotalMessages(int32_t *aPendingTotal)
 {
-  return mNumPendingTotalMessages;
+  *aPendingTotal = mNumPendingTotalMessages;
+  return NS_OK;
 }
 
-void nsMsgDBFolder::ChangeNumPendingUnread(int32_t delta)
+NS_IMETHODIMP nsMsgDBFolder::ChangeNumPendingUnread(int32_t delta)
 {
   if (delta)
   {
@@ -4287,9 +4289,10 @@ void nsMsgDBFolder::ChangeNumPendingUnread(int32_t delta)
       NotifyIntPropertyChanged(kTotalUnreadMessagesAtom, oldUnreadMessages, newUnreadMessages);
     }
   }
+  return NS_OK;
 }
 
-void nsMsgDBFolder::ChangeNumPendingTotalMessages(int32_t delta)
+NS_IMETHODIMP nsMsgDBFolder::ChangeNumPendingTotalMessages(int32_t delta)
 {
   if (delta)
   {
@@ -4304,6 +4307,7 @@ void nsMsgDBFolder::ChangeNumPendingTotalMessages(int32_t delta)
       folderInfo->SetImapTotalPendingMessages(mNumPendingTotalMessages);
     NotifyIntPropertyChanged(kTotalMessagesAtom, oldTotalMessages, newTotalMessages);
   }
+  return NS_OK;
 }
 
 NS_IMETHODIMP nsMsgDBFolder::SetFlag(uint32_t flag)
