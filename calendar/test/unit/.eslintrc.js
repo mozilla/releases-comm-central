@@ -2,7 +2,7 @@
 
 module.exports = {
     "extends": [
-        "../../../mozilla/testing/xpcshell/xpcshell.eslintrc"
+        "../../../mozilla/testing/xpcshell/xpcshell.eslintrc.js"
     ],
     "rules": {
         // Allow non-camelcase so that run_test doesn't produce a warning.

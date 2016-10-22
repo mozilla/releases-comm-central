@@ -2,7 +2,7 @@
 
 module.exports = {
     "extends": [
-        "../mozilla/toolkit/.eslintrc"
+        "../mozilla/toolkit/.eslintrc.js"
     ],
     "rules": {
         // Enforce one true brace style (opening brace on the same line)
