@@ -2706,7 +2706,7 @@ function updateRepeat(aSuppressDialogs, aItemRepeatCall) {
                 break;
             case "every.weekday":
                 recRule.type = "DAILY";
-                recRule.setComponent("BYDAY", onDays.length, [2, 3, 4, 5, 6]);
+                recRule.setComponent("BYDAY", 5, [2, 3, 4, 5, 6]);
                 break;
             case "bi.weekly":
                 recRule.type = "WEEKLY";
