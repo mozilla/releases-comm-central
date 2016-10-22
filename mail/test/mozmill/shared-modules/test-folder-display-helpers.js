@@ -325,7 +325,7 @@ function teardownImporter(customTeardown) {
       windowHelper.plan_for_new_window("mail:3pane");
       Services.ww.openWindow(null,
           "chrome://messenger/content/", "",
-          "all,chrome,dialog=no,status,toolbar", args);
+          "all,chrome,dialog=no,status,toolbar", null);
       mc = windowHelper.wait_for_new_window("mail:3pane");
     }
     else {
