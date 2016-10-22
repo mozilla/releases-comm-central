@@ -335,14 +335,14 @@ interface nsIMsgIncomingServer : nsISupports {
    */
   void clearAllValues();
 
-  /** 
-   * this is also very dangerous.  this will remove the files
-   * associated with this server on disk.
+  /**
+   * This is also very dangerous. This will low-level remove the files
+   * associated with this server on disk. It does not notify any listeners.
    */
   void removeFiles();
-  
+
   attribute boolean valid;
-  
+
   AString toString();
 
   void displayOfflineMsg(in nsIMsgWindow aWindow);

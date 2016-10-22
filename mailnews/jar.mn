@@ -63,6 +63,8 @@ messenger.jar:
     content/messenger/SmtpServerEdit.js                                        (base/prefs/content/SmtpServerEdit.js)
     content/messenger/smtpEditOverlay.xul                                      (base/prefs/content/smtpEditOverlay.xul)
     content/messenger/smtpEditOverlay.js                                       (base/prefs/content/smtpEditOverlay.js)
+    content/messenger/removeAccount.xul                                        (base/prefs/content/removeAccount.xul)
+    content/messenger/removeAccount.js                                         (base/prefs/content/removeAccount.js)
 #ifdef MOZ_THUNDERBIRD
     content/messenger/accountcreation/accountConfig.js                         (base/prefs/content/accountcreation/accountConfig.js)
     content/messenger/accountcreation/createInBackend.js                       (base/prefs/content/accountcreation/createInBackend.js)

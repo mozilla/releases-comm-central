@@ -10,6 +10,8 @@ var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers"];
 
 var utils = {};
 Cu.import('resource://mozmill/modules/utils.js', utils);
+var elib = {};
+Components.utils.import("resource://mozmill/modules/elementslib.js", elib);
 
 var wh, fdh, mc;
 
@@ -28,6 +30,7 @@ function installInto(module) {
     open_advanced_settings_from_account_wizard;
   module.click_account_tree_row = click_account_tree_row;
   module.get_account_tree_row = get_account_tree_row;
+  module.remove_account = remove_account;
 }
 
 /**
@@ -129,4 +132,37 @@ function get_account_tree_row(aAccountKey, aPaneId, aController) {
   // The account was not found.
   dump("The treerow for account " + aAccountKey + " was not found!\n");
   return -1;
+}
+
+/**
+ * Remove an account via the account manager UI.
+ *
+ * @param aAccount        The account to remove.
+ * @param aController     The controller of the account manager window.
+ * @param aRemoveAccount  Remove the account itself.
+ * @param aRemoveData     Remove the message data of the account.
+ */
+function remove_account(aAccount, aController, aRemoveAccount = true, aRemoveData = false) {
+  let accountRow = get_account_tree_row(aAccount.key, "am-server.xul", aController);
+  click_account_tree_row(aController, accountRow);
+
+  wh.plan_for_modal_dialog("removeAccountDialog", function(cdc) {
+    // Account removal confirmation dialog. Select what to remove.
+    if (aRemoveAccount)
+      cdc.click(new elib.Elem(cdc.window.document.getElementById("removeAccount")));
+    if (aRemoveData)
+      cdc.click(new elib.Elem(cdc.window.document.getElementById("removeData")));
+
+    cdc.window.document.documentElement.acceptDialog();
+    cdc.waitFor(() => !cdc.window.document.documentElement.getButton("accept").disabled,
+                "Timeout waiting for finish of account removal",
+                5000, 100);
+    cdc.window.document.documentElement.acceptDialog();
+  });
+
+  // Use the Remove item in the Account actions menu.
+  aController.click_menus_in_sequence(aController.e("accountActionsDropdown"),
+                                      [ {id: "accountActionsDropdownRemove"} ]);
+  wh.wait_for_modal_dialog("removeAccountDialog");
+  // TODO: For unknown reason this also closes the whole account manager.
 }

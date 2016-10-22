@@ -682,6 +682,9 @@ function AddIMAccount()
  *                    Can be given as null if there was none.
  */
 function markDefaultServer(newDefault, oldDefault) {
+  if (oldDefault == newDefault)
+    return;
+
   let accountTreeNodes = document.getElementById("account-tree-children")
                                  .childNodes;
   for (let i = 0; i < accountTreeNodes.length; i++) {
@@ -720,20 +723,9 @@ function onRemoveAccount(event) {
     return;
 
   let server = currentAccount.incomingServer;
-  let prettyName = server.prettyName;
 
   let canDelete = server.protocolInfo.canDelete || server.canDelete;
-
   if (!canDelete)
-    return;
-
-  let bundle = document.getElementById("bundle_prefs");
-  let confirmRemoveAccount = bundle.getFormattedString("confirmRemoveAccount",
-                                                       [prettyName]);
-
-  let confirmTitle = bundle.getString("confirmRemoveAccountTitle");
-
-  if (!Services.prompt.confirm(window, confirmTitle, confirmRemoveAccount))
     return;
 
   let serverList = [];
@@ -757,36 +749,30 @@ function onRemoveAccount(event) {
   else
     serverIndex++;
 
-  // Remove password information.
-  let serverUri = server.type + "://" + server.hostName;
+  // Need to save these before the account and its server is removed.
+  let serverId = server.serverURI;
 
-  let logins = Services.logins.findLogins({}, serverUri, null, serverUri);
+  // Confirm account deletion.
+  let removeArgs = { server: server, account: currentAccount,
+                     result: false };
 
-  for (let i = 0; i < logins.length; i++) {
-    if (logins[i].username == server.username) {
-      Services.logins.removeLogin(logins[i]);
-      break;
-    }
+  window.openDialog("chrome://messenger/content/removeAccount.xul",
+                    "removeAccount",
+                    "chrome,titlebar,modal,centerscreen,resizable=no",
+                    removeArgs);
+
+  // If result is true, the account was removed.
+  if (!removeArgs.result)
+    return;
+
+  // clear cached data out of the account array
+  currentAccount = currentPageId = null;
+  if (serverId in accountArray) {
+    delete accountArray[serverId];
   }
 
-  try {
-    let serverId = server.serverURI;
-    MailServices.accounts.removeAccount(currentAccount);
-
-    // clear cached data out of the account array
-    currentAccount = currentPageId = null;
-    if (serverId in accountArray) {
-      delete accountArray[serverId];
-    }
-
-    if ((serverIndex >= 0) && (serverIndex < serverList.length))
-      selectServer(serverList[serverIndex], null);
-  }
-  catch (ex) {
-    Components.utils.reportError("Failure to remove account: " + ex);
-    let alertText = bundle.getString("failedRemoveAccount");
-    Services.prompt.alert(window, null, alertText);
-  }
+  if ((serverIndex >= 0) && (serverIndex < serverList.length))
+    selectServer(serverList[serverIndex], null);
 
   // Either the default account was deleted so there is a new one
   // or the default account was not changed. Either way, there is

@@ -21,9 +21,15 @@ interface nsIMsgAccountManager : nsISupports {
    * Return the account with the provided key, or null if none found.
    */
   nsIMsgAccount getAccount(in ACString key);
-    
-  void removeAccount(in nsIMsgAccount account);
-  
+
+  /**
+   * Removes the account from the list of accounts.
+   *
+   * @param aAccount      the account to remove
+   * @param aRemoveFiles  remove data directory (local directory) of this account
+   */
+  void removeAccount(in nsIMsgAccount aAccount, [optional] in boolean aRemoveFiles);
+
   /*
    * creates a new identity and assigns it a new, unique "key"
    */
@@ -44,12 +50,12 @@ interface nsIMsgAccountManager : nsISupports {
    * Removes the server from the list of servers
    * 
    * @param aServer        server to remove
-   * @param aCleanupFiles  remove directory from profile
+   * @param aRemoveFiles   remove directory from profile
    *
    * @throws NS_ERROR_FAILURE if server not found 
    */
   void removeIncomingServer(in nsIMsgIncomingServer aServer, 
-                            in boolean aCleanupFiles);
+                            in boolean aRemoveFiles);
   /*
    * get the identity with the given key
    * if the identity does not exist, it will be created

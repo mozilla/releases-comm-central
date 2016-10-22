@@ -1030,11 +1030,7 @@ NS_IMETHODIMP
 nsMsgIncomingServer::RemoveFiles()
 {
   // IMPORTANT, see bug #77652
-  // don't turn this code on yet.  we don't inform the user that
-  // we are going to be deleting the directory, and they might have
-  // tweaked their localPath pref for this server to point to
-  // somewhere they didn't want deleted.
-  // until we tell them, we shouldn't do the delete.
+  // TODO: Decide what to do for deferred accounts.
   nsCString deferredToAccount;
   GetCharValue("deferred_to_account", deferredToAccount);
   bool isDeferredTo = true;

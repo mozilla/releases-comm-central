@@ -43,8 +43,8 @@ function open_mail_account_setup_wizard(k) {
   return wait_for_modal_dialog("mail:autoconfig");
 }
 
-// Remove an account on the Account Manager
-function remove_account(amc, aAccount, aOutgoing) {
+// Remove an account in the Account Manager, but not via the UI.
+function remove_account_internal(amc, aAccount, aOutgoing) {
   let win = amc.window;
 
   try {
@@ -140,7 +140,7 @@ function subtest_verify_account(amc) {
       }
     }
   } finally {
-    remove_account(amc, account, outgoing);
+    remove_account_internal(amc, account, outgoing);
   }
 }
 

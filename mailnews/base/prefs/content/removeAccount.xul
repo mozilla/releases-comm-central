@@ -1,0 +1,79 @@
+<?xml version="1.0"?>
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+
+<?xml-stylesheet href="chrome://messenger/skin/messenger.css" type="text/css"?>
+<?xml-stylesheet href="chrome://messenger/skin/dialogs.css" type="text/css"?>
+
+<!DOCTYPE dialog [
+<!ENTITY % brandDTD SYSTEM "chrome://branding/locale/brand.dtd">
+%brandDTD;
+<!ENTITY % removalDTD SYSTEM "chrome://messenger/locale/removeAccount.dtd">
+%removalDTD;
+]>
+
+<dialog id="removeAccountDialog"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        title="&dialogTitle;"
+        width="600"
+        buttons="accept,disclosure,cancel"
+        buttonlabelaccept="&removeButton.label;"
+        buttonaccesskeyaccept="&removeButton.accesskey;"
+        defaultButton="cancel"
+        onload="onLoad();"
+        ondialogdisclosure="showInfo();"
+        ondialogaccept="return onAccept();">
+  <stringbundle id="bundle_removeAccount"
+                src="chrome://messenger/locale/removeAccount.properties"/>
+  <script type="application/javascript"
+          src="chrome://messenger/content/removeAccount.js"/>
+  <deck id="infoPane">
+    <vbox flex="1">
+      <label id="accountName"></label>
+      <separator class="thin"/>
+      <checkbox id="removeAccount"
+                label="&removeAccount.label;"
+                checked="true"
+                disabled="true"
+                accesskey="&removeAccount.accesskey;"
+                oncommand="enableRemove();"/>
+      <vbox class="indent" collapsed="true">
+        <description>
+          &removeAccount.desc;
+        </description>
+      </vbox>
+      <checkbox id="removeData"
+                label="&removeData.label;"
+                checked="false"
+                accesskey="&removeData.accesskey;"
+                oncommand="enableRemove();"/>
+      <vbox class="indent" collapsed="true">
+        <description id="localAccount" collapsed="true">
+          &removeDataLocalAccount.desc;
+        </description>
+        <description id="serverAccount" collapsed="true">
+          &removeDataServerAccount.desc;
+        </description>
+        <hbox align="center">
+          <button label="&showData.label;"
+                  accesskey="&showData.accesskey;"
+                  oncommand="openLocalDirectory();"/>
+          <label id="localDirectory" collapsed="true"/>
+        </hbox>
+      </vbox>
+    </vbox>
+    <vbox align="center">
+      <spacer flex="1"/>
+      <deck id="status">
+        <vbox align="center">
+          <label>&progressPending;</label>
+          <progressmeter mode="undetermined"/>
+        </vbox>
+        <label id="success">&progressSuccess;</label>
+        <label id="failure">&progressFailure;</label>
+      </deck>
+      <spacer flex="1"/>
+    </vbox>
+  </deck>
+</dialog>

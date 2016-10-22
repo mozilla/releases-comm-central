@@ -497,7 +497,7 @@ nsMsgAccountManager::GetIncomingServer(const nsACString& key,
 
 NS_IMETHODIMP
 nsMsgAccountManager::RemoveIncomingServer(nsIMsgIncomingServer *aServer,
-                                          bool aCleanupFiles)
+                                          bool aRemoveFiles)
 {
   NS_ENSURE_ARG_POINTER(aServer);
 
@@ -554,7 +554,7 @@ nsMsgAccountManager::RemoveIncomingServer(nsIMsgIncomingServer *aServer,
 
   removeListenersFromFolder(rootFolder);
   NotifyServerUnloaded(aServer);
-  if (aCleanupFiles)
+  if (aRemoveFiles)
   {
     rv = aServer->RemoveFiles();
     NS_ENSURE_SUCCESS(rv, rv);
@@ -631,7 +631,8 @@ nsMsgAccountManager::removeListenersFromFolder(nsIMsgFolder *aFolder)
 }
 
 NS_IMETHODIMP
-nsMsgAccountManager::RemoveAccount(nsIMsgAccount *aAccount)
+nsMsgAccountManager::RemoveAccount(nsIMsgAccount *aAccount,
+                                   bool aRemoveFiles = false)
 {
   NS_ENSURE_ARG_POINTER(aAccount);
   nsresult rv = LoadAccounts();
@@ -657,7 +658,7 @@ nsMsgAccountManager::RemoveAccount(nsIMsgAccount *aAccount)
   nsCOMPtr<nsIMsgIncomingServer> server;
   rv = aAccount->GetIncomingServer(getter_AddRefs(server));
   if (NS_SUCCEEDED(rv) && server)
-    RemoveIncomingServer(server, false);
+    RemoveIncomingServer(server, aRemoveFiles);
 
   nsCOMPtr<nsIArray> identityArray;
   rv = aAccount->GetIdentities(getter_AddRefs(identityArray));

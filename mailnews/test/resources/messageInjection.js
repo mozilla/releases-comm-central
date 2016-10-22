@@ -571,7 +571,7 @@ var make_new_sets_in_folder = make_new_sets_in_folders;
  */
 function* _looperator(aList) {
   if (aList.length == 0)
-    throw Exception("aList must have at least one item!");
+    throw new Exception("aList must have at least one item!");
 
   let i = 0, length = aList.length;
   while (true) {
@@ -629,7 +629,7 @@ function add_sets_to_folders(aMsgFolders, aMessageSets, aDoNotForceUpdate) {
   if (mis.injectionConfig.mode == "local") {
     for (let folder of aMsgFolders) {
       if (!(folder instanceof Components.interfaces.nsIMsgLocalMailFolder))
-        throw Exception("All folders in aMsgFolders must be local folders!");
+        throw new Exception("All folders in aMsgFolders must be local folders!");
     }
     folderList = aMsgFolders;
   }

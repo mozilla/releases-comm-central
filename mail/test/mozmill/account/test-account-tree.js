@@ -151,10 +151,6 @@ function test_selection_after_account_deletion() {
  */
 function subtest_check_selection_after_account_deletion(amc)
 {
-  // Select the default account.
-  let accountRow = get_account_tree_row(gPopAccount.key, "am-server.xul", amc);
-  click_account_tree_row(amc, accountRow);
-
   let accountList = [];
   let accountTreeNode = amc.e("account-tree-children");
   // Build the list of accounts in the account tree (order is important).
@@ -169,14 +165,8 @@ function subtest_check_selection_after_account_deletion(amc)
   // Get position of the current account in the account list.
   let accountIndex = accountList.indexOf(gPopAccount);
 
-  plan_for_modal_dialog("commonDialog", function(cdc) {
-    // Account removal confirmation dialog. Just accept it.
-    cdc.window.document.documentElement.acceptDialog();
-  });
-  // Use the Remove item in the Account actions menu.
-  amc.click_menus_in_sequence(amc.e("accountActionsDropdown"),
-                              [ {id: "accountActionsDropdownRemove"} ]);
-  wait_for_modal_dialog("commonDialog");
+  // Remove our account.
+  remove_account(gPopAccount, amc);
   // Now there should be only the original accounts left.
   assert_equals(MailServices.accounts.allServers.length, gOriginalAccountCount);
 
