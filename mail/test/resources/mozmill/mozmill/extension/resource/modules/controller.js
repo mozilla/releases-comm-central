@@ -128,9 +128,9 @@ waitForEvents.prototype = {
   wait : function waitForEvents_wait(timeout, interval)
   {
     for (var e in this.registry) {
-      utils.waitFor(function() {
+      utils.waitFor(() => {
         return this.node.firedEvents[e] == true;
-      }, "Timeout happened before event '" + ex +"' was fired.", timeout, interval);
+      }, "Timeout happened before event '" + e +"' was fired.", timeout, interval);
 
       this.node.removeEventListener(e, this.registry[e], true);
     }
