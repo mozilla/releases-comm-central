@@ -11,11 +11,11 @@ var gSubDialog = {
   _frame: null,
   _overlay: null,
   _box: null,
-  _injectedStyleSheets: ["chrome://mozapps/content/preferences/preferences.css",
-                         "chrome://messenger/skin/preferences/preferences.css",
-                         "chrome://global/skin/in-content/common.css",
-                         "chrome://messenger/skin/preferences/aboutPreferences.css",
-                         "chrome://messenger/skin/preferences/dialog.css"],
+  _injectedStyleSheets: [
+    "chrome://messenger/skin/preferences/preferences.css",
+    "chrome://global/skin/in-content/common.css",
+    "chrome://messenger/skin/preferences/aboutPreferences.css",
+    "chrome://messenger/skin/preferences/dialog.css"],
 
   // Store the original instantApply pref for restoring after closing the dialog
   _instantApplyOrig: Services.prefs.getBoolPref("browser.preferences.instantApply"),
@@ -44,6 +44,21 @@ var gSubDialog = {
   },
 
   open: function(aURL, aFeatures = null, aParams = null, aClosingCallback = null) {
+    // If we're already open/opening on this URL, do nothing.
+    if (this._openedURL == aURL && !this._isClosing) {
+      return;
+    }
+    // If we're open on some (other) URL or we're closing, open when closing has finished.
+    if (this._openedURL || this._isClosing) {
+      if (!this._isClosing) {
+        this.close();
+      }
+      let args = Array.from(arguments);
+      this._closingPromise.then(() => {
+        this.open.apply(this, args);
+      });
+      return;
+    }
     this._addDialogEventListeners();
 
     Services.prefs.setBoolPref("browser.preferences.instantApply", true);
@@ -55,13 +70,13 @@ var gSubDialog = {
 
     this._closingEvent = null;
     this._isClosing = false;
+    this._openedURL = aURL;
 
     features = features.replace(/,/g, "&");
     let featureParams = new URLSearchParams(features.toLowerCase());
     this._box.setAttribute("resizable", featureParams.has("resizable") &&
                                         featureParams.get("resizable") != "no" &&
                                         featureParams.get("resizable") != "0");
-    return dialog;
   },
 
   close: function(aEvent = null) {
@@ -69,6 +84,9 @@ var gSubDialog = {
       return;
     }
     this._isClosing = true;
+    this._closingPromise = new Promise(resolve => {
+      this._resolveClosePromise = resolve;
+    });
 
     if (this._closingCallback) {
       try {
@@ -94,6 +112,16 @@ var gSubDialog = {
     setTimeout(() => {
       // Unload the dialog after the event listeners run so that the load of about:blank isn't
       // cancelled by the ESC <key>.
+      let onBlankLoad = e => {
+        if (this._frame.contentWindow.location.href == "about:blank") {
+          this._frame.removeEventListener("load", onBlankLoad);
+          // We're now officially done closing, so update the state to reflect that.
+          delete this._openedURL;
+          this._isClosing = false;
+          this._resolveClosePromise();
+        }
+      };
+      this._frame.addEventListener("load", onBlankLoad);
       this._frame.loadURI("about:blank");
     }, 0);
   },
@@ -101,7 +129,7 @@ var gSubDialog = {
   handleEvent: function(aEvent) {
     switch (aEvent.type) {
       case "command":
-        this.close(aEvent);
+        this._frame.contentWindow.close();
         break;
       case "dialogclosing":
         this._onDialogClosing(aEvent);
@@ -130,20 +158,36 @@ var gSubDialog = {
   /* Private methods */
 
   _onUnload: function(aEvent) {
-    if (aEvent.target.location.href != "about:blank") {
-      this.close(this._closingEvent);
+    if (aEvent.target.location.href == this._openedURL) {
+      this._frame.contentWindow.close();
     }
   },
 
   _onContentLoaded: function(aEvent) {
-    if (aEvent.target != this._frame || aEvent.target.contentWindow.location == "about:blank")
+    if (aEvent.target != this._frame || aEvent.target.contentWindow.location == "about:blank") {
       return;
+    }
 
     for (let styleSheetURL of this._injectedStyleSheets) {
       this.injectXMLStylesheet(styleSheetURL);
     }
 
-    this._frame.contentWindow.addEventListener("dialogclosing", this, {once: true});
+    // Provide the ability for the dialog to know that it is being loaded "in-content".
+    this._frame.contentDocument.documentElement.setAttribute("subdialog", "true");
+
+    this._frame.contentWindow.addEventListener("dialogclosing", this);
+
+    let oldResizeBy = this._frame.contentWindow.resizeBy;
+    this._frame.contentWindow.resizeBy = function(resizeByWidth, resizeByHeight) {
+      // Only handle resizeByHeight currently.
+      let frameHeight = gSubDialog._frame.clientHeight;
+      let boxMinHeight = parseFloat(getComputedStyle(gSubDialog._box).minHeight, 10);
+
+      gSubDialog._frame.style.height = (frameHeight + resizeByHeight) + "px";
+      gSubDialog._box.style.minHeight = (boxMinHeight + resizeByHeight) + "px";
+
+      oldResizeBy.call(gSubDialog._frame.contentWindow, resizeByWidth, resizeByHeight);
+    };
 
     // Make window.close calls work like dialog closing.
     let oldClose = this._frame.contentWindow.close;
@@ -170,8 +214,9 @@ var gSubDialog = {
   },
 
   _onLoad: function(aEvent) {
-    if (aEvent.target.contentWindow.location == "about:blank")
+    if (aEvent.target.contentWindow.location == "about:blank") {
       return;
+    }
 
     // Do this on load to wait for the CSS to load and apply before calculating the size.
     let docEl = this._frame.contentDocument.documentElement;
@@ -244,8 +289,10 @@ var gSubDialog = {
     this._overlay.style.visibility = "visible";
     this._overlay.style.opacity = ""; // XXX: focus hack continued from _onContentLoaded
 
-    this._resizeObserver = new MutationObserver(this._onResize);
-    this._resizeObserver.observe(this._box, {attributes: true});
+    if (this._box.getAttribute("resizable") == "true") {
+      this._resizeObserver = new MutationObserver(this._onResize);
+      this._resizeObserver.observe(this._box, {attributes: true});
+    }
 
     this._trapFocus();
   },
@@ -261,8 +308,9 @@ var gSubDialog = {
 
     let docEl = frame.contentDocument.documentElement;
     let persistedAttributes = docEl.getAttribute("persist");
-    if (!persistedAttributes.contains("width") &&
-        !persistedAttributes.contains("height")) {
+    if (!persistedAttributes ||
+        (!persistedAttributes.includes("width") &&
+         !persistedAttributes.includes("height"))) {
       return;
     }
 
@@ -276,6 +324,7 @@ var gSubDialog = {
   },
 
   _onDialogClosing: function(aEvent) {
+    this._frame.contentWindow.removeEventListener("dialogclosing", this);
     this._closingEvent = aEvent;
   },
 
@@ -306,7 +355,7 @@ var gSubDialog = {
         (isLastFocusableElement(aEvent.originalTarget) && forward)) {
       aEvent.preventDefault();
       aEvent.stopImmediatePropagation();
-      let parentWin = this._getBrowser().ownerDocument.defaultView;
+      let parentWin = this._getBrowser().ownerGlobal;
       if (forward) {
         fm.moveFocus(parentWin, null, fm.MOVEFOCUS_FIRST, fm.FLAG_BYKEY);
       } else {
