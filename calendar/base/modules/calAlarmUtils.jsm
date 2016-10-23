@@ -75,8 +75,13 @@ cal.alarms = {
                     returnDate = returnDate.getInTimezone(timezone);
                     returnDate.isDate = false;
                 } else {
-                    // Clone the date to correctly add the duration.
-                    returnDate = returnDate.clone();
+                    if (returnDate.timezone.tzid == "floating") {
+                        let timezone = cal.calendarDefaultTimezone();
+                        returnDate = returnDate.getInTimezone(timezone);
+                    } else {
+                        // Clone the date to correctly add the duration.
+                        returnDate = returnDate.clone();
+                    }
                 }
 
                 returnDate.addDuration(aAlarm.offset);
