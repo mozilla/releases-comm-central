@@ -1,0 +1,12 @@
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+<svg xmlns="http://www.w3.org/2000/svg" height="17" width="43" fill="context-fill">
+  <rect y="11" x="1" height="5" width="5"/>
+  <rect y="6" x="7" height="10" width="5"/>
+  <rect y="2" x="13" height="14" width="5"/>
+  <rect y="1" x="19" height="15" width="5"/>
+  <rect y="7" x="25" height="9" width="5"/>
+  <rect y="4" x="31" height="12" width="5"/>
+  <rect y="7" x="37" height="9" width="5"/>
+</svg>

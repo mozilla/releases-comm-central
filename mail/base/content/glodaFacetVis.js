@@ -270,9 +270,9 @@ DateFacetVis.prototype = {
       .width(() => barWidth)
       .left(function() { return isRTL ? null : (this.index * barPix); })
       .right(function() { return isRTL ? (this.index * barPix) : null; })
-      .fillStyle("#add2fb")
-      .event("mouseover", function(d) { return this.fillStyle("#3465a4"); })
-      .event("mouseout", function(d) { return this.fillStyle("#add2fb"); })
+      .fillStyle("var(--barColor)")
+      .event("mouseover", function(d) { return this.fillStyle("var(--barHlColor)"); })
+      .event("mouseout", function(d) { return this.fillStyle("var(--barColor)"); })
       .event("click", function(d) {
           dis.constraints = [[d.startDate, d.endDate]];
           dis.binding.setAttribute("zoomedout", "false");
@@ -287,7 +287,7 @@ DateFacetVis.prototype = {
       .height(d => Math.floor(d * binScale))
       .width(() => barWidth)
       .left(function() { return this.index * barPix; })
-      .fillStyle("#3465a4");
+      .fillStyle("var(--barHlColor)");
 
     for (let labelTier of labelTiers) {
       let labelBar = vis.add(pv.Bar)
@@ -297,9 +297,9 @@ DateFacetVis.prototype = {
         .left(d => isRTL ? null : Math.floor(width * d[0]))
         .right(d => isRTL ? Math.floor(width * d[0]) : null)
         .width(d => Math.floor(width * d[1]) - Math.floor(width * d[0]) - 1)
-        .fillStyle("#dddddd")
-        .event("mouseover", function(d) { return this.fillStyle("#3465a4"); })
-        .event("mouseout", function(d) { return this.fillStyle("#dddddd"); })
+        .fillStyle("var(--dateColor)")
+        .event("mouseover", function(d) { return this.fillStyle("var(--dateHLColor)"); })
+        .event("mouseout", function(d) { return this.fillStyle("var(--dateColor)"); })
         .event("click", function(d) {
           dis.constraints = [[d[3], d[4]]];
           dis.binding.setAttribute("zoomedout", "false");

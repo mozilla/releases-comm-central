@@ -3,3 +3,54 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 @import url("chrome://messenger/content/glodaFacetView.css");
+
+#body {
+  --popupColor: Menu;
+  --popupBorder: ThreeDShadow;
+  --popupHLColor: Highlight;
+  --popupHLTextColor: HighlightText;
+  --barColor: Highlight;
+  --barHlColor: -moz-nativehyperlinktext;
+  --dateColor: rgba(0,0,0,0.1);
+  --dateHLColor: Highlight;
+  --borderRadius: 0;
+  --buttonHoverColor: ButtonShadow;
+  --buttonHoverTextColor: -moz-ButtonHoverText;
+}
+
+.facets-sidebar {
+  background-color: -moz-Dialog;
+  color: -moz-DialogText;
+}
+
+@media (-moz-windows-default-theme) and (-moz-os-version: windows-win7) {
+  #main-column {
+    --borderRadius: 2px;
+  }
+
+  .facets-sidebar {
+    background-color: #eef3fa;
+  }
+}
+
+#table {
+  background-color: -moz-Field;
+  color: -moz-FieldText;
+}
+
+.barry {
+  border-top: 1px solid GrayText;
+}
+
+.bar {
+  border-bottom: 1px solid GrayText;
+}
+
+.bar-link {
+  color: -moz-NativehyperlinkText;
+}
+
+.bar:hover > .bar-link,
+.bar:focus > .bar-link {
+  color: HighlightText;
+}

@@ -3,15 +3,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 html {
-  background:white;
   height: 100%;
 }
 
 body {
   padding: 0;
   margin: 0;
-  font-family: sans-serif;
-  background: white;
   height: 100%;
 }
 
@@ -20,7 +17,6 @@ body {
   width: 100%;
   height: 100%;
   position: relative;
-  background: white;
 }
 
 #table>div {
@@ -31,7 +27,6 @@ body {
   display: table-cell;
   width: 20em;
   max-width: 20em;
-  background-color: #e0eaf5;
   padding: 4px;
   min-height: 100%;
   padding-inline-start: 1em;
@@ -58,20 +53,21 @@ body {
 .popup-menu {
   position: absolute;
   z-index: 100;
-  color: #3465a4;
-  font-size: 80%;
   overflow: hidden;
-  border-radius: 5px;
-  box-shadow: 1px 1px 1px black;
+  border: 1px solid var(--popupBorder);
+  background-color: var(--popupColor);
+  box-shadow: 0 0 4px hsla(210, 4%, 10%, .2);
 }
 
 .popup-menuitem {
-  border: 1px solid #729fcf;
-  border-radius: 5px;
-  background: white;
-  padding: 20px;
-  padding-top: 0px;
-  text-align: center;
+  font: menu;
+  padding: 4px 10px;
+}
+
+.popup-menuitem:hover,
+.popup-menuitem:focus {
+  background-color: var(--popupHLColor);
+  color: var(--popupHLTextColor);
 }
 
 .popup-menu[variety="remainder"] .undo {
@@ -90,29 +86,7 @@ body {
   display: none;
 }
 
-.popup-menuitem.top {
-  border-bottom-left-radius: 0;
-  border-bottom-right-radius: 0;
-  padding-top: 5px;
-  padding-bottom: 5px;
-  border-bottom: 0px;
-}
-
-.popup-menuitem.bottom {
-  border-top-left-radius: 0;
-  border-top-right-radius: 0;
-  padding-top: 5px;
-  padding-bottom: 5px;
-}
-
-.popup-menuitem.undo {
-  padding-top: 5px;
-  padding-bottom: 5px;
-}
-
 .popup-menuitem:focus {
-  background-color: #729fcf;
-  color: #ffffff;
   cursor: pointer;
 }
 
@@ -132,18 +106,13 @@ body {
   padding-inline-end: 80px;
 }
 
-.explanation-fulltext-label {
-  color: #3465a4;
-  margin: 0 0.1em;
-}
-
+.explanation-fulltext-label,
 .explanation-fulltext-term {
-  color: black;
   margin: 0 0.1em;
 }
 
 .explanation-fulltext-criteria {
-  color: #888;
+  color: GrayText;
   margin: 0 0.1em;
 }
 
@@ -155,14 +124,12 @@ body {
 .explanation-query-label,
 .explanation-query-involves,
 .explanation-query-tagged {
-  color: #3465a4;
   margin-inline-end: 0.5ex;
 }
 
 /* ===== Facets ===== */
 
 h1, h2, h3 {
-  color: #555753;
   cursor: default;
 }
 
@@ -180,12 +147,6 @@ h1, h2, h3 {
   list-style: none;
   padding: 2px;
 }
-
-.bar[selected="true"] {
-  background: Highlight;
-  color: HighlightText;
-}
-
 
 h1 {
   font-size: medium !important;
@@ -228,7 +189,7 @@ h2 {
   position: relative;
   height: 80px;
   display: block;
-  padding: 0px;
+  padding: 0;
   padding-top: 0.5em;
   margin-inline-end: 1em;
   padding-inline-start: 2em;
@@ -248,10 +209,12 @@ h2 {
   margin-inline-end: 2px;
   margin-top: 2px;
   padding: 4px;
-  background-image: url("chrome://messenger/skin/icons/timeline.png");
+  background-image: url("chrome://messenger/skin/icons/timeline.svg");
   background-position: center;
   background-repeat: no-repeat;
-  border-radius: 4px;
+  border-radius: var(--borderRadius);
+  -moz-context-properties: fill;
+  fill: Highlight;
 }
 
 html[dir="rtl"] #date-toggle {
@@ -259,11 +222,9 @@ html[dir="rtl"] #date-toggle {
   left: 1em;
 }
 
-#date-toggle:hover,
-#date-toggle:focus {
-  background-color: #729fcf;
-  color: #ffffff;
-  background-image: url("chrome://messenger/skin/icons/timeline-inverted.png");
+#date-toggle:hover {
+  background-color: Highlight;
+  fill: HighlightText;
 }
 
 
@@ -275,7 +236,7 @@ html[dir="rtl"] #date-toggle {
   height: 24px !important;
   background-position: center center;
   background-repeat: no-repeat;
-  border-radius: 4px;
+  border-radius: var(--borderRadius);
 }
 
 html[dir="rtl"] .facet-date-zoom-out {
@@ -316,47 +277,43 @@ html[dir="rtl"] .date-vis-frame {
   display: none;
 }
 
-.facetious[type="boolean"][disabled] {
-  color: #888888;
-}
-
 .facet-checkbox-bubble {
+  display: inline-flex;
   padding: 2px;
   padding-inline-end: 6px;
-  border: solid transparent 1px;
+  border-radius: var(--borderRadius);
   cursor: pointer;
-  color: #333;
   font-size: 90%;
 }
 
+.facetious[type="boolean"][disabled] {
+  opacity: 0.6;
+}
 
 .facetious[type="boolean"][disabled] > .facet-checkbox-bubble,
 .facetious[type="boolean-filtered"][disabled] > .facet-checkbox-bubble {
   cursor: default;
-  color: #777;
 }
 
 .facetious[type="boolean"]:not([disabled]):hover > .facet-checkbox-bubble,
 .facetious[type="boolean-filtered"]:not([disabled]):hover > .facet-checkbox-bubble {
-  background-color: #729fcf;
-  border-radius: 4px;
-  color: #ffffff;
-
+  background-color: Highlight;
+  color: HighlightText;
 }
 
-
-
-.facet-checkbox-label {
-}
-
+.facet-checkbox-label,
 .facet-checkbox-count {
+  margin: 3px;
+}
+
+.facetious:not(:hover) > .facet-checkbox-count {
   color: GrayText;
 }
 .facet-checkbox-count:empty {
   display: none;
 }
 .facet-checkbox-count:before {
-  content: " (";
+  content: "(";
 }
 .facet-checkbox-count:after {
   content: ")";
@@ -379,37 +336,68 @@ html[dir="rtl"] .date-vis-frame {
   overflow: auto;
 }
 
-
-.facet-more[needed="true"] {
-  display: inline-block;
+.facet-more {
+  display: none;
+  -moz-appearance: button;
   margin: 1px;
   margin-top: 0.5em;
   padding: 0.2em 1em;
-  font-weight: normal;
   font-size: 85%;
-  color: #000000;
-  background-color: #babdb6;
   cursor: pointer;
-  border-radius: 4px;
 }
 
-.facet-more[needed="true"]:hover,
-.facet-more[needed="true"]:focus {
-  background-color: #729fcf;
-  color: #ffffff;
-  text-decoration: none;
-}
-
-.facet-more[needed="false"] {
-  display: none;
-}
-
-.facet-more:hover {
-  text-decoration: underline;
+.facet-more[needed="true"] {
+  display: inline-block;
 }
 
 .bar {
   display: block;
+}
+
+html[dir="rtl"] .bar-count {
+  right: auto;
+  left: 3px;
+}
+
+.barry {
+  margin: 0;
+  padding: 0;
+}
+
+.bar {
+  display: block;
+  position: relative;
+  cursor: pointer;
+  font-size: 80%;
+}
+
+.bar:hover {
+  background-color: rgba(0, 0, 0, 0.2);
+}
+
+.bar[selected="true"] {
+  background-color: Highlight;
+  color: HighlightText;
+}
+
+.bar:focus {
+  background-color: Highlight;
+  outline: none;
+}
+
+.bar-link {
+  display: inline-block;
+  text-decoration: none;
+  display: block;
+  padding-top: 0.3em;
+  padding-bottom: 0.3em;
+  padding-inline-start: 0.5em;
+  padding-inline-end: 4em;
+  position: relative;
+  z-index: 2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .bar-count {
@@ -420,61 +408,14 @@ html[dir="rtl"] .date-vis-frame {
   color: GrayText;
 }
 
-html[dir="rtl"] .bar-count {
-  right: auto;
-  left: 3px;
-}
-
-.barry {
-  border-top: 1px solid #ccc;
-  margin: 0;
-  padding: 0;
-  /*padding: 4px;*/
-}
-
-.bar {
-  display: block;
-  position: relative;
-  border-bottom: 1px solid #ccc;
-  cursor: pointer;
-  font-size: 80%;
-}
-
-
-.bar:hover {
-  background: #e2e2e2;
-}
-
-.bar-link {
-  display: inline-block;
-  color: #2D7BB2;
-  text-decoration: none;
-  display: block;
-  padding: 0.3em 2em 0.3em 0.5em;
-  padding-inline-end: 4em;
-  position: relative;
-  z-index: 2;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
 html[dir="rtl"] .bar-link {
   padding: 0.3em 0.5em 0.3em 2em;
 }
 
 .bar:hover > .bar-link {
-  color: #333;
+  color: GrayText;
 }
 
-.bar:focus {
-  background: Highlight;
-  outline: none;
-}
-
-.bar:focus > .bar-link {
-  color: HighlightText;
-}
 .bar:focus > .bar-count {
   color: HighlightText;
 }
@@ -485,36 +426,13 @@ html[dir="rtl"] .bar-link {
   color: HighlightText;
 }
 
-
-.bar-percent {
-  display: block;
-  position: absolute;
-  top: 0;
-  left: 0;
-  height: 100%;
-  background: #e9f2f5;
-  text-indent: -9999px;
-  overflow: hidden;
-  line-height: 1.6em;
-}
-
-html[dir="rtl"] .bar-percent {
-  left: auto;
-  right: 0;
-  text-indent: 9999px;
-}
-
-.bar:hover > .bar-percent {
-  background: #ceeaf5;
-}
-
 /* ===== Results ===== */
 
 .results-message-header {
   display: none; /* $('.results-message-header').show() is run if there are results */
   width: 100%;
-  background-color: #edeeef;
-  border-top: 2px solid #ddd;
+  background-color: rgba(0,0,0,0.1);
+  border-top: 2px solid GrayText;
   padding: 2px;
   margin-bottom: 0.5em;
 }
@@ -538,15 +456,15 @@ html[dir="rtl"] .bar-percent {
 .results-message-showall-button {
   padding: 0.2em 1em;
   font-size: small;
-  border-radius: 4px;
+  border-radius: var(--borderRadius);
   cursor: pointer;
   text-align: center;
 }
 
 .results-message-showall-button:hover,
 .results-message-showall-button:focus {
-  background-color: #729fcf;
-  color: #ffffff;
+  background-color: var(--buttonHoverColor);
+  color: var(--buttonHoverTextColor);
   text-decoration: none;
 }
 
@@ -563,14 +481,14 @@ html[dir="rtl"] .bar-percent {
 }
 
 .results-message-sort-value {
+  border-radius: var(--borderRadius);
   padding: 0.2em;
 }
 
 .results-message-sort-value:hover,
 .results-message-sort-value:focus {
-  border-radius: 4px;
-  background-color: #729fcf;
-  color: #ffffff;
+  background-color: var(--buttonHoverColor);
+  color: var(--buttonHoverTextColor);
   cursor: pointer;
 }
 
@@ -581,8 +499,8 @@ html[dir="rtl"] .bar-percent {
 .results-message-sort-value[selected="true"]:hover,
 .results-message-sort-value[selected="true"]:focus {
   cursor: default;
-  background-color: #dcddde;
-  color: #000000;
+  background-color: transparent;
+  color: inherit;
 }
 
 /* ===== Messages ===== */
@@ -591,42 +509,38 @@ html[dir="rtl"] .bar-percent {
   display: block;
   font-family: sans-serif;
   font-size: small;
-  padding: 3px 0;
-  margin: 3px 0;
-  border-bottom: 1px solid #ddd;
-  color: #555;
-  background-color: #ffffff;
+  padding: 3px 5px;
+  border: 1px solid transparent;
+  border-bottom-color: lightgrey;
+  border-radius: var(--borderRadius);
+  color: -moz-DialogText;
+}
+.message:not(:first-child) {
+  border-top-style: none;
+}
+.message:last-child {
+  border-bottom-color: transparent;
+}
+
+.message:hover {
+  border-color: lightgrey;
+  box-shadow: 0 0 1px lightgrey inset, 0 0 1px lightgrey inset, 0 0 1px lightgrey inset;
 }
 
 .message:hover .message-subject {
-  color: #000000;
-  background-color: #e0eaf5;
+  color: Highlight;
 }
 
 .message .message-subject:hover,
 .message .message-subject:focus {
-  color: #ffffff;
-  background-color: #729fcf;
+  background-color: Highlight;
+  color: Highlighttext;
 }
 
-.message:focus {
-  border: 1px dotted #111;
-  padding: 1em 0px;
-}
+.message:focus,
 .message[unread="true"]:focus {
-  border: 1px dotted #111;
-  padding: 1em 0px;
-}
-.message:focus:last-child {
-  border: 1px dotted #111;
-  padding: 1em 0px;
-}
-.message:focus:first-child {
-  border: 1px dotted #111;
-  padding: 1em 0px;
-}
-.message:last-child {
-  border-bottom: 1px solid transparent;
+  border: 1px dotted lightgrey;
+  padding: 1em 0;
 }
 
 .message-header {
@@ -639,7 +553,7 @@ html[dir="rtl"] .bar-percent {
   max-width: 20em;
   max-height: 10em;
   overflow: hidden;
-  color: #999;
+  color: GrayText;
 }
 
 html[dir="rtl"] .message-meta {
@@ -688,10 +602,6 @@ html[dir="rtl"] .message-attachment-icon {
   text-align: end;
 }
 
-.message-date {
-  color: #999;
-}
-
 .message-star[starred="true"] {
   display: inline-block;
   width: 12px !important;
@@ -710,11 +620,11 @@ html[dir="rtl"] .message-attachment-icon {
 .message-author, .message-recipients {
   text-align: end;
   display: inline;
-  color: #222;
+  color: -moz-DialogText;
 }
 
 .message-subject {
-  color: #3465a4;
+  color: -moz-NativehyperlinkText;
   font-size: medium;
 }
 
@@ -723,7 +633,7 @@ html[dir="rtl"] .message-attachment-icon {
 }
 
 .message-body {
-  color: black;
+  color: -moz-DialogText;
   margin-inline-start: 1em;
   font-family: monospace;
   font-size: medium;
@@ -731,8 +641,9 @@ html[dir="rtl"] .message-attachment-icon {
 }
 
 .message-body-fulltext-match {
-  background-color: rgb(187, 208, 231);
-  border-radius: 3px;
+  color: HighlightText;
+  background-color: Highlight;
+  border-radius: var(--borderRadius);
 }
 
 .message-recipients-group {
@@ -742,58 +653,48 @@ html[dir="rtl"] .message-attachment-icon {
 
 .message-tag {
   display: inline-block; /* to avoid splitting 'To' and 'Do' e.g. */
-  margin-inline-start: 0px;
+  margin-inline-start: 0;
   margin-inline-end: 3px;
   padding: 0 0.5ex;
   background-image: url("chrome://messenger/skin/tagbg.png");
-  border-radius: 3px;
+  border-radius: var(--borderRadius);
   border-style: outset;
   border-width: 0.5px;
   text-shadow: 0 1px 0 rgba(238,238,236,0.4); /* Tango Alumninum 1 */
-  color: #111111;
-}
-
-.message-folder {
-  background-color: #faf0b8;
-  border: 1px solid #ede4af;
 }
 
 .show-more {
   display: none; /* $('.show-more').show() is run if there are results */
-  background-color: #babdb6;
-  border-radius: 4px;
+  -moz-appearance: button;
   float: right;
   padding: 0.2em 1em;
   font-size: small;
+  margin-top: 5px;
   margin-inline-end: 1em;
   margin-bottom: 2em;
-  color: #000000;
+  cursor: pointer;
 }
 
 html[dir="rtl"] .show-more {
   float: left;
 }
 
-.show-more:hover,
-.show-more:focus {
-  background-color: #729fcf;
-  color: #ffffff;
-  cursor: pointer;
-}
-
-div.loading, div.empty {
+div.loading,
+div.empty {
   margin: 0 auto;
   text-align: center;
 }
 
-span.loading, span.empty {
+span.loading,
+span.empty {
   color: ButtonText;
   background-color: ButtonFace;
   border: 1px outset ThreeDShadow;
-  border-radius: 3px;
+  border-radius: var(--borderRadius);
 }
 
-img.loading, img.empty {
+img.loading,
+img.empty {
   margin: 0 1ex;
   padding: 0;
   border: none;
@@ -824,7 +725,7 @@ span.empty {
 }
 
 #facet-date[hide="true"] {
-  max-height: 0px;
-  padding-top: 0px;
-  padding-bottom: 0px;
+  max-height: 0;
+  padding-top: 0;
+  padding-bottom: 0;
 }

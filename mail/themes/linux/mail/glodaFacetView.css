@@ -4,14 +4,54 @@
 
 @import url("chrome://messenger/content/glodaFacetView.css");
 
-.facet-more[needed="true"] {
-  font-size: x-small;
+#body {
+  --popupColor: Menu;
+  --popupBorder: ThreeDShadow;
+  --popupHLColor: Highlight;
+  --popupHLTextColor: HighlightText;
+  --barColor: Highlight;
+  --barHlColor: -moz-nativehyperlinktext;
+  --dateColor: rgba(0,0,0,0.1);
+  --dateHLColor: Highlight;
+  --borderRadius: 3px;
+  --buttonHoverColor: ButtonShadow;
+  --buttonHoverTextColor: -moz-ButtonHoverText;
 }
 
-.results-message-showall-button {
-  font-size: x-small;
+.facets-sidebar {
+  background-color: -moz-Dialog;
+  color: -moz-DialogText;
 }
 
+#table {
+  background-color: -moz-Field;
+  color: -moz-FieldText;
+}
+
+.facet-more,
+.show-more {
+  padding: 0;
+}
+
+.facet-more[needed="true"],
+.results-message-showall-button,
 .results-message-sort-bar {
   font-size: x-small;
+}
+
+.barry {
+  border-top: 1px solid GrayText;
+}
+
+.bar {
+  border-bottom: 1px solid GrayText;
+}
+
+.bar-link {
+  color: -moz-NativehyperlinkText;
+}
+
+.bar:hover > .bar-link,
+.bar:focus > .bar-link {
+  color: HighlightText;
 }
