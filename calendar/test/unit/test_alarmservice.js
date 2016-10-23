@@ -220,14 +220,32 @@ function addTestItems(aCalendar) {
     aCalendar.addItem(item, null);
 
     // monthly repeating event starting 2 months and a day ago. The alarms on the first 2 occurrences
-    // should be ignored, the alarm on the next occurrence only should fire
+    // should be ignored, the alarm on the next occurrence only should fire.
+    // For the first day of a month, the event is going to start three months before on the last day
+    // and if it is a 31st, missing occurrences for next months with 30 days have to be considered.
     date = cal.now();
+    let expected = [EXPECT_NONE, EXPECT_NONE, EXPECT_FIRED, EXPECT_NONE, EXPECT_NONE];
+    if (date.day == 1) {
+        let first3Expected = [
+            [EXPECT_NONE, EXPECT_FIRED, EXPECT_NONE],
+            [EXPECT_NONE, EXPECT_NONE, EXPECT_FIRED],
+            [EXPECT_NONE, EXPECT_NONE, EXPECT_NONE],
+            [EXPECT_NONE, EXPECT_FIRED, EXPECT_NONE],
+            [EXPECT_NONE, EXPECT_NONE, EXPECT_FIRED],
+            [EXPECT_NONE, EXPECT_FIRED, EXPECT_NONE],
+            [EXPECT_NONE, EXPECT_NONE, EXPECT_FIRED],
+            [EXPECT_NONE, EXPECT_FIRED, EXPECT_NONE],
+            [EXPECT_NONE, EXPECT_NONE, EXPECT_FIRED],
+            [EXPECT_NONE, EXPECT_NONE, EXPECT_NONE],
+            [EXPECT_NONE, EXPECT_FIRED, EXPECT_NONE],
+            [EXPECT_NONE, EXPECT_NONE, EXPECT_NONE]
+        ];
+        expected = first3Expected[date.month].concat([EXPECT_NONE, EXPECT_NONE]);
+    }
     date.month -= 2;
     date.day -= 1;
     [item, alarm] = createEventWithAlarm(aCalendar, date, date, "-PT15M", "RRULE:FREQ=MONTHLY");
-    alarmObserver.expectOccurrences(aCalendar, item, alarm,
-                                   [EXPECT_NONE, EXPECT_NONE, EXPECT_FIRED,
-                                    EXPECT_NONE, EXPECT_NONE]);
+    alarmObserver.expectOccurrences(aCalendar, item, alarm, expected);
     aCalendar.addItem(item, null);
 }
 
