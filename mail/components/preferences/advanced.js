@@ -312,9 +312,13 @@ updateWritePrefs: function ()
 
   showUpdates: function ()
   {
-    var prompter = Components.classes["@mozilla.org/updates/update-prompt;1"]
-                             .createInstance(Components.interfaces.nsIUpdatePrompt);
-    prompter.showUpdateHistory(window);
+    if (this._loadInContent) {
+      gSubDialog.open("chrome://mozapps/content/update/history.xul");
+    } else {
+      var prompter = Components.classes["@mozilla.org/updates/update-prompt;1"]
+                               .createInstance(Components.interfaces.nsIUpdatePrompt);
+      prompter.showUpdateHistory(window);
+    }
   },
 
   updateCompactOptions: function(aCompactEnabled)
