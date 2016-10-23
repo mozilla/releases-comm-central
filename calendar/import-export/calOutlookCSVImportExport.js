@@ -482,6 +482,12 @@ calOutlookCSVExporter.prototype = {
 
             line = line.map(value => `"${String(value).replace(/"/g, '""')}"`);
             str = line.join(",") + exportLineEnding;
+
+            let converter = Components.classes["@mozilla.org/intl/scriptableunicodeconverter"]
+                                      .createInstance(Components.interfaces.nsIScriptableUnicodeConverter);
+            converter.charset = "UTF-8";
+            str = converter.ConvertFromUnicode(str);
+
             aStream.write(str, str.length);
         }
     }
