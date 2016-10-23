@@ -10,7 +10,6 @@
 
 <dialog xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
         id="ablistWindow"
-        title="&mailListWindow.title;"
         onload="OnLoadEditList();"
         ondialogaccept="return EditListOKButton();"
         ondragover="DragOverAddressListTree(event);"

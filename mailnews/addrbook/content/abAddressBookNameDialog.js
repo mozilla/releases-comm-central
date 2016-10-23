@@ -30,8 +30,12 @@ function abNameOnLoad()
   // rename).
   var bundle = document.getElementById("bundle_addressBook");
 
-  document.title = bundle.getString(gDirectory ?
-    'renameAddressBookTitle' : 'newAddressBookTitle');
+  if (gDirectory) {
+    let oldListName = gDirectory.dirName;
+    document.title = bundle.getFormattedString("addressBookTitleEdit", [oldListName]);
+  } else {
+    document.title = bundle.getString("addressBookTitleNew");
+  }
 
   if (gDirectory &&
      (gDirectory.URI == kCollectedAddressbookURI ||

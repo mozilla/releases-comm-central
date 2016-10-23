@@ -257,6 +257,8 @@ function OnLoadEditList()
   document.getElementById('ListDescription').value = gEditList.description;
   oldListName = gEditList.dirName;
 
+  document.title = gAddressBookBundle.getFormattedString("mailingListTitleEdit", [oldListName]);
+
   if (gEditList.addressLists)
   {
     let total = gEditList.addressLists.length;

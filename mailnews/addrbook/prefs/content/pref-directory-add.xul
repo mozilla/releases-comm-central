@@ -10,7 +10,6 @@
 <dialog id="addDirectory"
         style="width: &newDirectoryWidth;"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-        title="&newDirectoryTitle.label;"
         onload="Startup();"
         onunload="onUnload();"
         buttons="accept,cancel"

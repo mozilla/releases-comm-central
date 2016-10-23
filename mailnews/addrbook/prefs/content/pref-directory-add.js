@@ -50,6 +50,9 @@ function Startup()
            + ex + "\n");
     }
 
+    let oldListName = gCurrentDirectory.dirName;
+    document.title = gReplicationBundle.getFormattedString("directoryTitleEdit", [oldListName]);
+
     // Only set up the download button for online/offline status toggling
     // if the pref isn't locked to disable the button.
     if (!Services.prefs.prefIsLocked(gCurrentDirectory.dirPrefId +
@@ -62,6 +65,7 @@ function Startup()
       setDownloadOfflineOnlineState(Services.io.offline);
     }
   } else {
+    document.title = gReplicationBundle.getString("directoryTitleNew");
     fillDefaultSettings();
     // Don't add observer here as it doesn't make any sense.
   }

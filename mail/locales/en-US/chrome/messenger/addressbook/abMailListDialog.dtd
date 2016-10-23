@@ -3,7 +3,7 @@
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
 <!-- Title -->
-<!ENTITY mailListWindow.title           "Mailing List">
+<!ENTITY mailListWindowAdd.title        "New Mailing List">
 <!-- Labels -->
 <!ENTITY addToAddressBook.label         "Add to: ">
 
