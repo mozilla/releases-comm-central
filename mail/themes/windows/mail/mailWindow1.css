@@ -298,11 +298,12 @@ treechildren::-moz-tree-cell-text(imapdeleted) {
     }
 
     @media (-moz-windows-default-theme) {
-      #messengerWindow {
+      #messengerWindow[tabsintitlebar] {
         background-color: #a8cbdb;
       }
 
-      #messengerWindow:-moz-window-inactive {
+      #messengerWindow:-moz-window-inactive,
+      #messengerWindow:not([tabsintitlebar]) {
         background-color: #d1d1d1;
       }
     }

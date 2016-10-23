@@ -918,11 +918,27 @@ toolbar:not([mode="text"]) > toolbarpaletteitem > #button-chat > stack {
   .glodaTabToolbar {
     color: black;
   }
+}
+
+@media (-moz-windows-glass) {
+  .mail-toolbox::after,
+  .contentTabToolbox::after {
+    background-color: #aabccf;
+  }
+
+  #tabs-toolbar {
+    -moz-box-ordinal-group: 10;
+  }
 
   #mail-toolbar-menubar2 {
+    -moz-box-ordinal-group: 20;
+    -moz-window-dragging: no-drag;
+  }
+
+  #mail-toolbar-menubar2 {
+    box-shadow: 0 1px 0 rgba(253, 253, 253, 0.45) inset;
     background-image: linear-gradient(var(--toolbarHighlight),
                                       var(--toolbarHighlight));
-    box-shadow: 0 1px 0 rgba(253, 253, 253, 0.45) inset;
     padding-bottom: 1px !important;
     padding-top: 2px;
   }
@@ -932,44 +948,13 @@ toolbar:not([mode="text"]) > toolbarpaletteitem > #button-chat > stack {
   }
 
   #navigation-toolbox > #mail-toolbar-menubar2:not(:-moz-lwtheme) {
-    background-color: -moz-dialog;
-    border-bottom: 1px solid ThreeDShadow;
-  }
-
-  #messengerWindow[tabsintitlebar][sizemode="normal"] > #navigation-toolbox >
-  #tabs-toolbar {
-    margin-top: 16px !important;
-  }
-
-  #messengerWindow[tabsintitlebar][sizemode="maximized"] > #navigation-toolbox >
-  #tabs-toolbar {
-    margin-top: 0 !important;
-  }
-
-  #tabs-toolbar {
-    -moz-box-ordinal-group: 10;
-  }
-
-  #mail-toolbar-menubar2 {
     -moz-appearance: none;
-    -moz-box-ordinal-group: 20;
-    -moz-window-dragging: no-drag;
+    background-color: hsl(210, 75%, 92%);
+    border-bottom: 1px solid #AABCCF;
   }
 
   #mail-toolbar-menubar2:-moz-lwtheme {
     background-image: linear-gradient(var(--toolbarHighlight), var(--toolbarHighlight));
-  }
-}
-
-@media (-moz-windows-glass) {
-  .mail-toolbox::after,
-  .contentTabToolbox::after {
-    background-color: #aabccf;
-  }
-
-  #navigation-toolbox > #mail-toolbar-menubar2:not(:-moz-lwtheme) {
-    background-color: hsl(210, 75%, 92%);
-    border-bottom: 1px solid #AABCCF;
   }
 
   #tabs-toolbar:not(:-moz-lwtheme) {
@@ -987,6 +972,16 @@ toolbar:not([mode="text"]) > toolbarpaletteitem > #button-chat > stack {
     top: 50%;
     width: -moz-available;
     z-index: -1;
+  }
+
+  #messengerWindow[tabsintitlebar][sizemode="normal"] > #navigation-toolbox >
+  #tabs-toolbar {
+    margin-top: 16px !important;
+  }
+
+  #messengerWindow[tabsintitlebar][sizemode="maximized"] > #navigation-toolbox >
+  #tabs-toolbar {
+    margin-top: 0 !important;
   }
 }
 
@@ -1021,7 +1016,6 @@ toolbar:not([mode="text"]) > toolbarpaletteitem > #button-chat > stack {
   }
 
   #mail-toolbar-menubar2 {
-    background-image: none;
     box-shadow: none;
   }
 
@@ -1047,6 +1041,12 @@ toolbar:not([mode="text"]) > toolbarpaletteitem > #button-chat > stack {
 
 @media (-moz-os-version: windows-win8) and (-moz-windows-default-theme),
        (-moz-os-version: windows-win10) and (-moz-windows-default-theme) {
+  #navigation-toolbox > #mail-toolbar-menubar2 {
+    background-color: transparent;
+    padding-top: 0;
+    padding-bottom: 0 !important;
+  }
+
   .mail-toolbox::after,
   .contentTabToolbox::after {
     background-color: #c2c2c2;
