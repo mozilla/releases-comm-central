@@ -28,7 +28,9 @@
 #endif
       <preference id="mail.biff.show_tray_icon" name="mail.biff.show_tray_icon" type="bool" />
       <preference id="mail.biff.play_sound" name="mail.biff.play_sound" type="bool"/>
+#ifndef XP_MACOSX
       <preference id="mail.biff.play_sound.type" name="mail.biff.play_sound.type" type="int"/>
+#endif
       <preference id="mail.biff.play_sound.url" name="mail.biff.play_sound.url" type="string"/>
     </preferences>
 
@@ -74,7 +76,7 @@
                 oncommand="gGeneralPane.configureDockOptions();"/>
       </hbox>
       <hbox>
-        <description class="bold">&notificationAlertSettings.label;</description>
+        <description class="bold">&notificationAlertSettings2.label;</description>
 #else
         <checkbox id="newMailNotificationAlert"
                   label="&showAnimatedAlert.label;"
@@ -95,12 +97,18 @@
 #endif
       </hbox>
       <hbox align="center">
+#ifndef XP_MACOSX
         <checkbox id="newMailNotification" accesskey="&playSound1.accesskey;"
                   preference="mail.biff.play_sound" label="&playSound.label;"
+#else
+        <checkbox id="newMailNotification" accesskey="&playSoundMac.accesskey;"
+                  preference="mail.biff.play_sound" label="&playSoundMac.label;"
+#endif
                   oncommand="gGeneralPane.updatePlaySound();"/>
         <spacer flex="1"/>
         <button id="playSound" label="&play.label;" accesskey="&play.accesskey;" oncommand="gGeneralPane.previewSound();"/>
       </hbox>
+#ifndef XP_MACOSX
       <radiogroup id="soundType"
                   class="indent"
                   preference="mail.biff.play_sound.type"
@@ -110,13 +118,8 @@
         <hbox>
           <radio id="system"
                  value="0"
-#ifdef XP_MACOSX
-                 label="&systemsoundMac.label;"
-                 accesskey="&systemsoundMac.accesskey;"/>
-#else
                  label="&systemsound.label;"
                  accesskey="&systemsound.accesskey;"/>
-#endif
           <spacer flex="1"/>
         </hbox>
         <hbox>
@@ -126,6 +129,7 @@
                  accesskey="&customsound.accesskey;"/>
           <spacer flex="1"/>
         </hbox>
+#endif
         <hbox>
           <filefield id="soundUrlLocation"
                      class="indent"
@@ -141,7 +145,9 @@
             <observes element="soundUrlLocation" attribute="disabled"/>
           </button>
         </hbox>
+#ifndef XP_MACOSX
       </radiogroup>
+#endif
     </groupbox>
   </prefpane>
 </overlay>

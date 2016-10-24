@@ -663,7 +663,11 @@ pref("mail.biff.alert.show_subject", true);
 pref("mail.biff.alert.show_sender",  true);
 pref("mail.biff.alert.preview_length", 40);
 
+#ifdef XP_MACOSX
+pref("mail.biff.play_sound", false);
+#else
 pref("mail.biff.play_sound", true);
+#endif
 // 0 == default system sound, 1 == user specified wav
 pref("mail.biff.play_sound.type", 0);
 // _moz_mailbeep is a magic key, for the default sound.

@@ -109,15 +109,17 @@ var gGeneralPane = {
     let sound = Components.classes["@mozilla.org/sound;1"].createInstance(Components.interfaces.nsISound);
 
     var soundLocation;
-    soundLocation = document.getElementById('soundType').value == 1 ?
+    // soundType radio-group isn't used for macOS so it is not in the XUL file
+    // for the platform.
+    soundLocation = (AppConstants.platform == "macosx" ||
+                     document.getElementById('soundType').value == 1) ?
                     document.getElementById('soundUrlLocation').value : "";
 
     if (!soundLocation.includes("file://")) {
-      if (Services.appinfo.OS == "Darwin") // OS X
-        sound.beep();
-      else
-        sound.playEventSound(Components.interfaces.nsISound.EVENT_NEW_MAIL_RECEIVED);
+      // User has not set any custom sound file to be played
+      sound.playEventSound(Components.interfaces.nsISound.EVENT_NEW_MAIL_RECEIVED);
     } else {
+      // User has set a custom audio file to be played along the alert.
       sound.play(Services.io.newURI(soundLocation, null, null));
     }
   },
@@ -160,11 +162,26 @@ var gGeneralPane = {
   {
     // update the sound type radio buttons based on the state of the play sound checkbox
     var soundsDisabled = !document.getElementById('newMailNotification').checked;
-    var soundTypeEl = document.getElementById('soundType');
     var soundUrlLocation = document.getElementById('soundUrlLocation').value;
-    soundTypeEl.disabled = soundsDisabled;
-    document.getElementById('browseForSound').disabled = soundsDisabled || soundTypeEl.value != 1;
-    document.getElementById('playSound').disabled = soundsDisabled || (!soundUrlLocation && soundTypeEl.value != 0);
+
+    // The UI is different on OS X as the user can only choose between letting
+    // the system play a default sound or setting a custom one. Therefore,
+    // "soundTypeEl" does not exist on OS X
+    if (AppConstants.platform != "macosx") {
+      var soundTypeEl = document.getElementById('soundType');
+      soundTypeEl.disabled = soundsDisabled;
+      document.getElementById('browseForSound').disabled =
+        soundsDisabled || soundTypeEl.value != 1;
+      document.getElementById('playSound').disabled =
+        soundsDisabled || (!soundUrlLocation && soundTypeEl.value != 0);
+    } else {
+      // On OS X, if there is no selected custom sound then default one will
+      // be played. We keep consistency by unchecking "Play sound" checkbox.
+      document.getElementById('newMailNotification').disabled = !soundUrlLocation;
+
+      document.getElementById('playSound').disabled =
+        !soundUrlLocation && soundsDisabled;
+    }
   },
 
   updateStartPage: function()

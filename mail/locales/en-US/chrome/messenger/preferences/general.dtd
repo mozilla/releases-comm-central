@@ -16,10 +16,12 @@
 
 <!ENTITY newMessagesArrive.label          "When new messages arrive:">
 <!ENTITY playSound.label                  "Play a sound">
-<!ENTITY playSound1.accesskey              "d">
+<!ENTITY playSound1.accesskey             "d">
+<!ENTITY playSoundMac.label               "Play the following sound file:">
+<!ENTITY playSoundMac.accesskey           "d">
 <!ENTITY showAnimatedAlert.label          "Show an alert">
 <!ENTITY showAnimatedAlert.accesskey      "S">
-<!ENTITY notificationAlertSettings.label  "Alerts can be disabled on the Notification pane of System Preferences.">
+<!ENTITY notificationAlertSettings2.label "Alerts and the default sound can be disabled on the Notification pane of System Preferences.">
 <!ENTITY customizeMailAlert.label         "Customize…">
 <!ENTITY customizeMailAlert.accesskey     "C">
 
@@ -29,8 +31,6 @@
 <!ENTITY play.label                       "Play">
 <!ENTITY play.accesskey                   "P">
 <!ENTITY systemsound.label                "Default system sound for new mail">
-<!ENTITY systemsoundMac.label             "System Alert Sound">
-<!ENTITY systemsoundMac.accesskey         "y">
 <!ENTITY systemsound.accesskey            "y">
 <!ENTITY customsound.label                "Use the following sound file">
 <!ENTITY customsound.accesskey            "U">

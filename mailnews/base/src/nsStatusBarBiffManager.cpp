@@ -149,16 +149,13 @@ nsresult nsStatusBarBiffManager::PlayBiffSound(const char *aPrefBranch)
       }
     }
   }
+#ifndef XP_MACOSX
   // if nothing played, play the default system sound
   if (!customSoundPlayed) {
-#ifdef XP_MACOSX
-    // Mac has no specific event sounds, so just beep instead.
-    rv = mSound->Beep();
-#else
     rv = mSound->PlayEventSound(nsISound::EVENT_NEW_MAIL_RECEIVED);
-#endif
     NS_ENSURE_SUCCESS(rv, rv);
   }
+#endif
   return rv;
 }
 
