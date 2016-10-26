@@ -4,7 +4,6 @@
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
 <?xml-stylesheet href="chrome://global/skin/global.css" type="text/css"?>
-<?xul-overlay href="chrome://global/content/dialogOverlay.xul"?>
 
 <!-- DTD File with all strings specific to the file -->
 <!DOCTYPE dialog
@@ -21,7 +20,6 @@
         ondialogaccept="return doOK();">
   <script type="application/javascript" src="chrome://calendar/content/preferences/editCategory.js"/>
 
-  <!-- dialog-box: from dialogOverlay.xul -->
   <vbox id="dialog-box">
     <label value="&pref.categories.name.label;"
            control="categoryName"/>

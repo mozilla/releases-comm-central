@@ -7,9 +7,8 @@
 <?xml-stylesheet href="chrome://editor/skin/editor.css" type="text/css"?>
 <?xml-stylesheet href="chrome://editor/skin/EditorDialog.css" type="text/css"?>
 
-<?xul-overlay href="chrome://editor/content/EdDialogOverlay.xul"?> 
-<?xul-overlay href="chrome://global/content/globalOverlay.xul"?>
-<?xul-overlay href="chrome://communicator/content/utilityOverlay.xul"?> 
+<?xul-overlay href="chrome://editor/content/EdDialogOverlay.xul"?>
+<?xul-overlay href="chrome://communicator/content/utilityOverlay.xul"?>
 
 <!DOCTYPE dialog SYSTEM "chrome://editor/locale/EditorHLineProperties.dtd">
 
@@ -26,7 +25,7 @@
   <script type="application/javascript" src="chrome://editor/content/EdHLineProps.js"/>
 
   <spacer id="location" offsetY="50" persist="offsetX offsetY"/>
-  
+
   <groupbox><caption label="&dimensionsBox.label;"/>
     <grid>
       <columns><column/><column/><column /></columns>
@@ -47,7 +46,7 @@
           <label value="&pixelsPopup.value;" />
         </row>
       </rows>
-    </grid>        
+    </grid>
     <checkbox id="3dShading" label="&threeDShading.label;" accesskey="&threeDShading.accessKey;"/>
   </groupbox>
   <groupbox><caption label="&alignmentBox.label;"/>
@@ -60,7 +59,7 @@
   </groupbox>
   <spacer class="spacer"/>
   <hbox>
-    <button  id="SaveDefault" label="&saveSettings.label;" 
+    <button  id="SaveDefault" label="&saveSettings.label;"
          accesskey="&saveSettings.accessKey;"
          oncommand="onSaveDefault()"
          tooltiptext="&saveSettings.tooltip;" />

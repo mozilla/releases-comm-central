@@ -1,20 +1,19 @@
-<?xml version="1.0"?> 
+<?xml version="1.0"?>
 
 <!-- This Source Code Form is subject to the terms of the Mozilla Public
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
-<?xml-stylesheet href="chrome://editor/skin/" type="text/css"?> 
+<?xml-stylesheet href="chrome://editor/skin/" type="text/css"?>
 
-<?xml-stylesheet href="chrome://editor/skin/editorPrimaryToolbar.css" type="text/css"?> 
-<?xml-stylesheet href="chrome://editor/skin/editorFormatToolbar.css" type="text/css"?> 
-<?xml-stylesheet href="chrome://editor/skin/editorModeToolbar.css" type="text/css"?> 
+<?xml-stylesheet href="chrome://editor/skin/editorPrimaryToolbar.css" type="text/css"?>
+<?xml-stylesheet href="chrome://editor/skin/editorFormatToolbar.css" type="text/css"?>
+<?xml-stylesheet href="chrome://editor/skin/editorModeToolbar.css" type="text/css"?>
 <?xul-overlay href="chrome://editor/content/editorOverlay.xul"?>
 <?xul-overlay href="chrome://editor/content/editingOverlay.xul"?>
 <?xul-overlay href="chrome://editor/content/composerOverlay.xul"?>
 <?xul-overlay href="chrome://communicator/content/contentAreaContextOverlay.xul"?>
 <?xul-overlay href="chrome://editor/content/EditorContextMenuOverlay.xul"?>
-<?xul-overlay href="chrome://global/content/globalOverlay.xul"?>
 <?xul-overlay href="chrome://communicator/content/charsetOverlay.xul"?>
 <?xul-overlay href="chrome://communicator/content/utilityOverlay.xul"?>
 <?xul-overlay href="chrome://communicator/content/tasksOverlay.xul"?>
@@ -27,7 +26,7 @@
 %editorOverlayDTD;
 <!ENTITY % brandDTD SYSTEM "chrome://branding/locale/brand.dtd" >
 %brandDTD;
-]> 
+]>
 
 <window id="editorWindow"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
@@ -95,7 +94,7 @@
                oncommand="goDoCommand('cmd_PreviewMode');"/>
     </commandset>
     <commandset id="composerEditMenuItems"/>
-    <commandset id="composerSaveMenuItems"/>    
+    <commandset id="composerSaveMenuItems"/>
     <commandset id="composerStyleMenuItems">
       <command id="cmd_updateStructToolbar"
                oncommand="goDoCommand('cmd_updateStructToolbar');"/>
@@ -141,7 +140,7 @@
     <!-- id pulls in "Show Sidebar" item from sidebarOverlay -->
     <menupopup id="menu_View_Popup">
       <menu id="menu_Toolbars">
-        <menupopup id="view_toolbars_popup"> 
+        <menupopup id="view_toolbars_popup">
           <menuitem id="viewComposerToolbar" label="&compositionToolbarCmd.label;" type="checkbox" accesskey="&compositionToolbarCmd.accesskey;" command="cmd_viewCompToolbar"  />
           <menuitem id="viewFormatToolbar"   label="&formattingToolbarCmd.label;"  type="checkbox" accesskey="&formattingToolbarCmd.accesskey;"  command="cmd_viewFormatToolbar" />
           <menuitem id="viewEditModeToolbar" label="&editmodeToolbarCmd.label;"    type="checkbox" accesskey="&editmodeToolbarCmd.accesskey;"    command="cmd_viewEditModeToolbar" />
@@ -180,7 +179,7 @@
             oncommand="EditorSetCharacterSet(event);"/>
     </menupopup>
     </menu>
- 
+
     <menu id="insertMenu"/>
 
     <menu id="formatMenu" label="&formatMenu.label;" accesskey="&formatMenu.accesskey;">
@@ -225,7 +224,7 @@
 
   <!-- toolbar mostly filled out from editorOverlay -->
   <!-- add  class="standard" for dark blue background (icons need rework first) -->
-  <toolbar class="chromeclass-toolbar toolbar-primary" id="EditToolbar" persist="collapsed" 
+  <toolbar class="chromeclass-toolbar toolbar-primary" id="EditToolbar" persist="collapsed"
            grippytooltiptext="&compositionToolbar.tooltip;">
     <toolbarbutton id="newButton"/>
     <toolbarbutton id="openButton"/>
@@ -256,7 +255,7 @@
               tooltiptext="&throbber.tooltip;">
         <observes element="Editor:Throbber" attribute="busy"/>
       </button>
-    </hbox> 
+    </hbox>
   </toolbar>
   <toolbar id="FormatToolbar"
            class="chromeclass-toolbar"
@@ -283,7 +282,7 @@
     <toolbarbutton id="underlineButton"/>
 
     <toolbarseparator class="toolbarseparator-standard"/>
-    
+
     <toolbarbutton id="ulButton"/>
     <toolbarbutton id="olButton"/>
     <toolbarbutton id="outdentButton"/>
@@ -381,7 +380,7 @@
       </statusbarpanel>
       <statusbarpanel class="statusbarpanel-iconic" id="offline-status"/>
     </statusbar>
-    
+
 
 
 </window>

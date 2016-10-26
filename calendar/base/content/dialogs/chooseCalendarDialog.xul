@@ -4,7 +4,6 @@
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
 <?xml-stylesheet href="chrome://global/skin/global.css" type="text/css"?>
-<?xul-overlay href="chrome://global/content/dialogOverlay.xul"?>
 
 <!-- DTD File with all strings specific to the file -->
 <!DOCTYPE page
@@ -46,7 +45,7 @@
                 try {
                     var calColor = calendar.getProperty('color');
                     colorCell.style.background = calColor || "#a8c2e1";
-                } catch(e) {} 
+                } catch(e) {}
                 listItem.appendChild(colorCell);
 
                 var nameCell = document.createElement("listcell");

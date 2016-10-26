@@ -12,8 +12,6 @@
    - Nor can it depend on files which may conflict.
   -->
 
-<?xul-overlay href="chrome://global/content/dialogOverlay.xul"?>
-
 <!-- DTD File with all strings specific to the file -->
 <!DOCTYPE overlay
 [
