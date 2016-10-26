@@ -1310,7 +1310,8 @@ ircAccount.prototype = {
       this.conversations.set(aNewNick, conversation);
 
       conversation.updateNick(aNewNick);
-      conversation.writeMessage(aOldNick, msg, {system: true});
+      conversation.writeMessage(aOldNick, _conv("nickSet", aOldNick, aNewNick),
+                                {system: true});
     }
   },
 
