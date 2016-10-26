@@ -342,7 +342,7 @@
             return;
 
           this.tabTypes[aTabType.name] = aTabType;
-          for (let [modeName, modeDetails] in Iterator(aTabType.modes)) {
+          for (let [modeName, modeDetails] of Object.entries(aTabType.modes)) {
             modeDetails.name = modeName;
             modeDetails.tabType = aTabType;
             modeDetails.tabs = [];
@@ -367,12 +367,12 @@
 
           // ... if the tab type is still in use, we can not remove it without
           // breaking the UI. So we throw an exception.
-          for (let [modeName] in Iterator(aTabType.modes))
+          for (let modeName of Object.keys(aTabType.modes))
             if (this.tabModes[modeName].tabs.length)
               throw new Error("Tab mode " + modeName + " still in use. Close tabs");
 
           // ... finally get rid of the tab type
-          for (let [modeName] in Iterator(aTabType.modes))
+          for (let modeName of Object.keys(aTabType.modes))
             delete this.tabModes[modeName];
 
           delete this.tabTypes[aTabType.name];
@@ -449,7 +449,7 @@
             tabOpenFirstFunc.call(firstTab.mode.tabType, firstTab);
             this.setTabTitle(null);
 
-            for (let [i, tabMonitor] of this.tabMonitors.entries()) {
+            for (let tabMonitor of this.tabMonitors) {
               if ("onTabOpened" in tabMonitor)
                 tabMonitor.onTabOpened(firstTab, true);
               tabMonitor.onTabSwitched(firstTab, null);
@@ -565,7 +565,7 @@
           tabOpenFunc.apply(tab.mode.tabType, [tab, aArgs]);
 
           let restoreState = this._restoringTabState;
-          for (let [i, tabMonitor] of this.tabMonitors.entries()) {
+          for (let tabMonitor of this.tabMonitors) {
             if (("onTabRestored" in tabMonitor) && restoreState &&
                 (tabMonitor.monitorName in restoreState.ext))
               tabMonitor.onTabRestored(tab,
@@ -709,7 +709,7 @@
             if (tryCloseFunc && !tryCloseFunc.call(tab.mode.tabType, tab))
               return;
 
-            for (let [i, tabMonitor] of this.tabMonitors.entries()) {
+            for (let tabMonitor of this.tabMonitors) {
               if ("onTabClosing" in tabMonitor)
                 tabMonitor.onTabClosing(tab);
             }
@@ -735,15 +735,12 @@
             tabNode.remove();
 
             if (this.tabContainer.selectedIndex == -1) {
-              let lastTabOpenerIndex = this.tabInfo.indexOf(this.mLastTabOpener);
-
-              if (this.mLastTabOpener && (lastTabOpenerIndex != -1)) {
+              if (this.mLastTabOpener && this.tabInfo.includes(this.mLastTabOpener)) {
                 this.tabContainer.selectedIndex = this.tabInfo.indexOf(this.mLastTabOpener);
               } else {
                 this.tabContainer.selectedIndex =
                   (iTab == this.tabContainer.childNodes.length) ? iTab - 1 : iTab;
               }
-
             }
 
             // Clear the last tab opener - we don't need this anymore.
@@ -922,7 +919,7 @@
 
            let ext = {};
 
-           for (let [i, tabMonitor] of this.tabMonitors.entries()) {
+           for (let tabMonitor of this.tabMonitors) {
              if ("onTabPersist" in tabMonitor) {
                let monState = tabMonitor.onTabPersist(tab);
                if (monState !== null)
@@ -1156,8 +1153,9 @@
               let showTabFunc = tab.mode.showTab || tab.mode.tabType.showTab;
               showTabFunc.call(tab.mode.tabType, tab);
 
-              for (let [i, tabMonitor] of this.tabMonitors.entries())
+              for (let tabMonitor of this.tabMonitors) {
                 tabMonitor.onTabSwitched(tab, oldTab);
+              }
 
               // always update the cursor status when we switch tabs
               SetBusyCursor(window, tab.busy);
@@ -1225,8 +1223,9 @@
               if (titleChangeFunc)
                 titleChangeFunc.call(tab.mode.tabType, tab, tabNode);
 
-              for (let tabMonitor of this.tabMonitors)
+              for (let tabMonitor of this.tabMonitors) {
                 tabMonitor.onTabTitleChanged(tab);
+              }
 
               // If the displayed tab is the one at the moment of creation
               // (aTabNodeOrInfo is null), set the default title as its title.
