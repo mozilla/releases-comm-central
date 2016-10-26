@@ -4891,29 +4891,38 @@ nsImapMailFolder::NotifyMessageFlagsFromHdr(nsIMsgDBHdr *dbHdr,
   nsresult rv = GetDatabase();
   NS_ENSURE_SUCCESS(rv, rv);
 
-  mDatabase->MarkHdrRead(dbHdr, (flags & kImapMsgSeenFlag) != 0, nullptr);
-  mDatabase->MarkHdrReplied(dbHdr, (flags & kImapMsgAnsweredFlag) != 0, nullptr);
-  mDatabase->MarkHdrMarked(dbHdr, (flags & kImapMsgFlaggedFlag) != 0, nullptr);
-  mDatabase->MarkImapDeleted(msgKey, (flags & kImapMsgDeletedFlag) != 0, nullptr);
+  // Although it may seem strange to keep a local reference of mDatabase here,
+  // the current lifetime management of databases requires that methods sometimes
+  // null the database when they think they opened it. Unfortunately experience
+  // shows this happens when we don't expect, so for crash protection best
+  // practice with the current flawed database management is to keep a local
+  // reference when there will be complex calls in a method. See bug 1312254.
+  nsCOMPtr<nsIMsgDatabase> database(mDatabase);
+  NS_ENSURE_STATE(database);
+
+  database->MarkHdrRead(dbHdr, (flags & kImapMsgSeenFlag) != 0, nullptr);
+  database->MarkHdrReplied(dbHdr, (flags & kImapMsgAnsweredFlag) != 0, nullptr);
+  database->MarkHdrMarked(dbHdr, (flags & kImapMsgFlaggedFlag) != 0, nullptr);
+  database->MarkImapDeleted(msgKey, (flags & kImapMsgDeletedFlag) != 0, nullptr);
 
   uint32_t supportedFlags;
   GetSupportedUserFlags(&supportedFlags);
   if (supportedFlags & kImapMsgSupportForwardedFlag)
-    mDatabase->MarkForwarded(msgKey, (flags & kImapMsgForwardedFlag) != 0, nullptr);
+    database->MarkForwarded(msgKey, (flags & kImapMsgForwardedFlag) != 0, nullptr);
   // this turns on labels, but it doesn't handle the case where the user
   // unlabels a message on one machine, and expects it to be unlabeled
   // on their other machines. If I turn that on, I'll be removing all the labels
   // that were assigned before we started storing them on the server, which will
   // make some people very unhappy.
   if (flags & kImapMsgLabelFlags)
-    mDatabase->SetLabel(msgKey, (flags & kImapMsgLabelFlags) >> 9);
+    database->SetLabel(msgKey, (flags & kImapMsgLabelFlags) >> 9);
   else
   {
     if (supportedFlags & kImapMsgLabelFlags)
-      mDatabase->SetLabel(msgKey, 0);
+      database->SetLabel(msgKey, 0);
   }
   if (supportedFlags & kImapMsgSupportMDNSentFlag)
-    mDatabase->MarkMDNSent(msgKey, (flags & kImapMsgMDNSentFlag) != 0, nullptr);
+    database->MarkMDNSent(msgKey, (flags & kImapMsgMDNSentFlag) != 0, nullptr);
 
   return NS_OK;
 }
