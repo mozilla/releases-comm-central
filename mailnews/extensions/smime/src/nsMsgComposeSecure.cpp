@@ -328,14 +328,14 @@ GetSigningHashFunction(nsIX509Cert *aSigningCert, int16_t *hashType)
     return NS_ERROR_FAILURE;
   }
 
-  mozilla::ScopedSECKEYPublicKey scertPublicKey(CERT_ExtractPublicKey(scert));
+  UniqueSECKEYPublicKey scertPublicKey(CERT_ExtractPublicKey(scert));
   if (!scertPublicKey) {
     return mozilla::MapSECStatus(SECFailure);
   }
-  KeyType subjectPublicKeyType = SECKEY_GetPublicKeyType(scertPublicKey);
+  KeyType subjectPublicKeyType = SECKEY_GetPublicKeyType(scertPublicKey.get());
 
   // Get the length of the signature in bits.
-  unsigned siglen = SECKEY_SignatureLen(scertPublicKey) * 8;
+  unsigned siglen = SECKEY_SignatureLen(scertPublicKey.get()) * 8;
   if (!siglen) {
     return mozilla::MapSECStatus(SECFailure);
   }
@@ -954,12 +954,12 @@ nsresult nsMsgComposeSecure::MimeCryptoHackCerts(const char *aRecipients,
   if (aEncrypt && mSelfEncryptionCert) {
     // Make sure self's configured cert is prepared for being used
     // as an email recipient cert.
-    mozilla::ScopedCERTCertificate nsscert(mSelfEncryptionCert->GetCert());
+    UniqueCERTCertificate nsscert(mSelfEncryptionCert->GetCert());
     if (!nsscert) {
       return NS_ERROR_FAILURE;
     }
     // XXX: This does not respect the nsNSSShutDownObject protocol.
-    if (CERT_SaveSMimeProfile(nsscert, nullptr, nullptr) != SECSuccess) {
+    if (CERT_SaveSMimeProfile(nsscert.get(), nullptr, nullptr) != SECSuccess) {
       return NS_ERROR_FAILURE;
     }
   }

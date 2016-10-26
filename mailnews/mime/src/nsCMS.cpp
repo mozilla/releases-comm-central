@@ -561,7 +561,7 @@ NS_IMETHODIMP nsCMSMessage::CreateEncrypted(nsIArray * aRecipientCerts)
     if (!x509cert)
       return NS_ERROR_FAILURE;
 
-    mozilla::ScopedCERTCertificate c(x509cert->GetCert());
+    UniqueCERTCertificate c(x509cert->GetCert());
     recipientCerts.set(i, c.get());
   }
 
@@ -599,7 +599,7 @@ NS_IMETHODIMP nsCMSMessage::CreateEncrypted(nsIArray * aRecipientCerts)
 
   // Create and attach recipient information //
   for (i=0; i < recipientCertCount; i++) {
-    mozilla::ScopedCERTCertificate rc(recipientCerts.get(i));
+    UniqueCERTCertificate rc(recipientCerts.get(i));
     if ((recipientInfo = NSS_CMSRecipientInfo_Create(m_cmsMsg, rc.get())) == nullptr) {
       MOZ_LOG(gPIPNSSLog, LogLevel::Debug, ("nsCMSMessage::CreateEncrypted - can't create recipient info\n"));
       goto loser;
@@ -634,8 +634,8 @@ nsCMSMessage::CreateSigned(nsIX509Cert* aSigningCert, nsIX509Cert* aEncryptCert,
   NSSCMSContentInfo *cinfo;
   NSSCMSSignedData *sigd;
   NSSCMSSignerInfo *signerinfo;
-  mozilla::ScopedCERTCertificate scert(aSigningCert->GetCert());
-  mozilla::ScopedCERTCertificate ecert;
+  UniqueCERTCertificate scert(aSigningCert->GetCert());
+  UniqueCERTCertificate ecert;
   nsresult rv = NS_ERROR_FAILURE;
 
   if (!scert) {
@@ -643,7 +643,7 @@ nsCMSMessage::CreateSigned(nsIX509Cert* aSigningCert, nsIX509Cert* aEncryptCert,
   }
 
   if (aEncryptCert) {
-    ecert = aEncryptCert->GetCert();
+    ecert = UniqueCERTCertificate(aEncryptCert->GetCert());
   }
 
   SECOidTag digestType;
