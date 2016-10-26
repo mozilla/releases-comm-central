@@ -1634,8 +1634,8 @@ var gOldStartTimezone = null;
 var gOldEndTimezone = null;
 
 /**
- * Handler function to update controls in consequence of the "all day" checkbox
- * being clicked.
+ * Handler function to update controls and state in consequence of the "all
+ * day" checkbox being clicked.
  */
 function onUpdateAllDay() {
     if (!isEvent(window.calendarItem)) {
@@ -1689,6 +1689,7 @@ function onUpdateAllDay() {
     }
     gStartTimezone = (allDay ? cal.floating() : gOldStartTimezone);
     gEndTimezone = (allDay ? cal.floating() : gOldEndTimezone);
+    setShowTimeAs(allDay);
 
     updateAllDay();
 }
@@ -1713,8 +1714,6 @@ function updateAllDay() {
     let allDay = getElementValue("event-all-day", "checked");
     setElementValue("event-starttime", allDay, "timepickerdisabled");
     setElementValue("event-endtime", allDay, "timepickerdisabled");
-
-    setShowTimeAs(allDay);
 
     gStartTime.isDate = allDay;
     gEndTime.isDate = allDay;
