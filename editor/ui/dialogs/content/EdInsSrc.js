@@ -5,6 +5,8 @@
 
 /* Insert Source HTML dialog */
 
+var gDataURIs = new Map();
+
 function Startup()
 {
   var editor = GetCurrentEditor();
@@ -25,7 +27,15 @@ function Startup()
   } catch (e) {}
   if (selection)
   {
+    var count = 0;
     selection = (selection.replace(/<body[^>]*>/,"")).replace(/<\/body>/,"");
+    // Hide the raw binary data part of data URIs.
+    selection = selection.replace(/(src|href)(="data:[^;]*;base64,)[^"]+/gi,
+      function(match, attr, nonDataPart) {
+        count++;
+        gDataURIs.set(count, match);
+        return attr + nonDataPart + " … [" + count + "]";
+      });
     if (selection)
       gDialog.srcInput.value = selection;
   }
@@ -37,17 +47,22 @@ function Startup()
 
 function onAccept()
 {
-  if (gDialog.srcInput.value)
-  {
-    try {
-      GetCurrentEditor().insertHTML(gDialog.srcInput.value);
-    } catch (e) {}
-  }
-  else
-  {
-    dump("Null value -- not inserting in HTML Source dialog\n");
+  var html = gDialog.srcInput.value;
+  if (!html)
     return false;
-  }
+
+  // Add back the original data URIs we stashed away earlier.
+  html = html.replace(/(src|href)="data:[^;]*;base64, … \[([0-9]+)\]/gi,
+    function(match, attr, num) {
+      var index = parseInt(num);
+      if (!gDataURIs.has(index))
+        return match; // user edited number
+      return gDataURIs.get(index);
+    });
+
+  try {
+    GetCurrentEditor().insertHTML(html);
+  } catch (e) {}
   SaveWindowLocation();
 
   return true;
