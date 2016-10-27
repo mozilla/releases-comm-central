@@ -4,9 +4,13 @@
 
 @import url(chrome://calendar-common/skin/calendar-task-tree.css);
 
+.calendar-task-tree > treechildren::-moz-tree-image(calendar-task-tree-col-completed),
+.calendar-task-tree-col-completed {
+    list-style-image: url(chrome://calendar-common/skin/checkbox-images.png);
+}
+
 .calendar-task-tree > treechildren::-moz-tree-image(calendar-task-tree-col-completed, completed),
 .calendar-task-tree-col-completed {
-    list-style-image: url(chrome://calendar/skin/checkbox-images.png);
     -moz-image-region: rect(0 26px 13px 13px);
 }
 
@@ -14,11 +18,9 @@
 .calendar-task-tree > treechildren::-moz-tree-image(calendar-task-tree-col-completed, overdue),
 .calendar-task-tree > treechildren::-moz-tree-image(calendar-task-tree-col-completed, future),
 .calendar-task-tree > treechildren::-moz-tree-image(calendar-task-tree-col-completed, inprogress) {
-    list-style-image: url(chrome://calendar/skin/checkbox-images.png);
     -moz-image-region: rect(0 13px 13px 0);
 }
 
 .calendar-task-tree > treechildren::-moz-tree-image(calendar-task-tree-col-completed, repeating) {
-    list-style-image: url(chrome://calendar/skin/checkbox-images.png);
     -moz-image-region: rect(0 39px 13px 26px);
 }

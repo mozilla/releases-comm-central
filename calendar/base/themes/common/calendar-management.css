@@ -2,10 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-calendar-list-tree > tree > treechildren::-moz-tree-image(checkbox-treecol) {
-    list-style-image: url(chrome://calendar/skin/checkbox-images.png);
-}
-
 calendar-list-tree > tree > treechildren::-moz-tree-cell(color-treecol, color-default) {
     background-color: #a8c2e1;
 }

@@ -94,7 +94,7 @@ calendar-alarm-widget[selected="true"] .alarm-calendar-image {
 }
 
 .snooze-popup-button {
-    list-style-image: url(chrome://calendar/skin/ok-cancel.png);
+    list-style-image: url(chrome://calendar-common/skin/ok-cancel.png);
     min-width: 0;
     -moz-appearance: toolbarbutton;
 }

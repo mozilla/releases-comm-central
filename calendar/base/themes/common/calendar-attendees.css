@@ -123,7 +123,7 @@
 
 .status-icon {
     margin: 0 3px;
-    list-style-image: url(chrome://calendar/skin/calendar-event-dialog-attendees.png);
+    list-style-image: url(chrome://calendar-common/skin/calendar-event-dialog-attendees.png);
     -moz-image-region: rect(0px 48px 14px 36px);
 }
 
@@ -161,7 +161,7 @@
 
 .role-icon {
     margin: 0 3px;
-    list-style-image: url(chrome://calendar/skin/calendar-event-dialog-attendees.png);
+    list-style-image: url(chrome://calendar-common/skin/calendar-event-dialog-attendees.png);
     -moz-image-region: rect(0px 159px 16px 138px);
 }
 

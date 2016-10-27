@@ -5,6 +5,10 @@
 @import url(chrome://calendar-common/skin/calendar-management.css);
 
 calendar-list-tree > tree > treechildren::-moz-tree-image(checkbox-treecol) {
+    list-style-image: url(chrome://calendar-common/skin/checkbox-images.png);
+}
+
+calendar-list-tree > tree > treechildren::-moz-tree-image(checkbox-treecol) {
     -moz-image-region: rect(0 13px 13px 0);
 }
 

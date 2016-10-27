@@ -26,44 +26,12 @@ extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/skin/linux/calendar/cal
 extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/skin/windows/calendar/calendar-daypicker.css
 extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/skin/linux/calendar/calendar-alarm-dialog.css
 extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/skin/windows/calendar/calendar-alarm-dialog.css
-extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/skin/linux/calendar/checkbox-images.png
-extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/skin/windows/calendar/checkbox-images.png
-extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/skin/linux/calendar/calendar-invitations-dialog-button-images.png
-extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/skin/osx/calendar/calendar-invitations-dialog-button-images.png
-extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/skin/windows/calendar/calendar-invitations-dialog-button-images.png
 extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/skin/linux/calendar/calendar-management.css
 extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/skin/windows/calendar/calendar-management.css
-extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/skin/linux/calendar/calendar-event-dialog.png
-extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/skin/windows/calendar/calendar-event-dialog.png
-extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/skin/osx/calendar/cal-icon24.png
-extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/skin/osx/calendar/cal-icon32.png
-extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/skin/linux/calendar/calendar-task-dialog.png
-extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/skin/windows/calendar/calendar-task-dialog.png
-extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/skin/linux/lightning/imip.png
-extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/skin/windows/lightning/imip.png
-extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/skin/linux/calendar/calendar-invitations-dialog-list-images.png
-extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/skin/osx/calendar/calendar-invitations-dialog-list-images.png
-extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/skin/windows/calendar/calendar-invitations-dialog-list-images.png
-extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/skin/linux/calendar/calendar-occurrence-prompt.png
-extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/skin/windows/calendar/calendar-occurrence-prompt.png
-extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/skin/linux/calendar/ok-cancel.png
-extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/skin/osx/calendar/ok-cancel.png
-extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/skin/windows/calendar/ok-cancel.png
-extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/icons/default/calendar-event-dialog.ico
-extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/icons/default/calendar-event-summary-dialog.ico
-extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/icons/default/calendar-task-dialog.ico
-extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/icons/default/calendar-task-summary-dialog.ico
-extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/skin/linux/calendar/calendar-event-dialog-attendees.png
-extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/skin/osx/calendar/calendar-event-dialog-attendees.png
-extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/skin/windows/calendar/calendar-event-dialog-attendees.png
 extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/calendar-js/calFilter.js
 extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/calendar/content/calendar/calFilter.js
 extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/calendar-js/calUtils.js
 extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/calendar/content/calendar/calUtils.js
-extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/icons/default/calendar-event-dialog.png
-extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/icons/default/calendar-event-summary-dialog.png
-extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/icons/default/calendar-task-dialog.png
-extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/icons/default/calendar-task-summary-dialog.png
 
 # Variants of paths in mozilla/browser/installer/allowed-dupes.mn:
 # bug 658850

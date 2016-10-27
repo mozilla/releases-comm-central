@@ -21,7 +21,7 @@ else:
 
 # Window icons are not needed on mac
 if CONFIG['MOZ_WIDGET_TOOLKIT'] in ('windows', 'gtk2', 'gtk3'):
-    icon_path = 'themes/windows/icons/'
+    icon_path = 'themes/common/icons/'
     window_icons = [
         'calendar-alarm-dialog',
         'calendar-event-dialog',
