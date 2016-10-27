@@ -142,7 +142,7 @@ var gGeneralPane = {
     var bundlePrefs = document.getElementById("bundlePreferences");
     var soundFilesText = bundlePrefs.getString("soundFilesDescription");
     if (AppConstants.platform == "macosx")
-      fp.appendFilter(soundFilesText, "*.wav; *.aif; *.aiff; *.caf");
+      fp.appendFilter(soundFilesText, "*.wav; *.aif; *.aiff; *.caf; *.mp3");
     else if (AppConstants.platform == "linux")
       fp.appendFilter(soundFilesText, "*.wav; *.ogg");
     else
