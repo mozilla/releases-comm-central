@@ -766,10 +766,12 @@ function editToDoStatus(aPercentComplete) {
  * @param {short} aArg.percentComplete  The percent complete value
  */
 function updateMarkCompletedMenuItem(aArg) {
-    // Command only exists for tab case, function not called for dialog windows.
-    let completedCommand = document.getElementById("calendar_toggle_completed_command");
-    let isCompleted = aArg.percentComplete == 100;
-    completedCommand.setAttribute("checked", isCompleted);
+    // Command only for tab case, function only to be executed in dialog windows.
+    if (gTabmail) {
+        let completedCommand = document.getElementById("calendar_toggle_completed_command");
+        let isCompleted = aArg.percentComplete == 100;
+        completedCommand.setAttribute("checked", isCompleted);
+    }
 }
 
 /**
