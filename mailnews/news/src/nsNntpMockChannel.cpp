@@ -139,14 +139,15 @@ NS_IMETHODIMP nsNntpMockChannel::SetLoadInfo(nsILoadInfo *aLoadInfo)
 NS_IMETHODIMP nsNntpMockChannel::GetOriginalURI(nsIURI **aURI)
 {
   FORWARD_CALL(GetOriginalURI, aURI)
-  NS_IF_ADDREF(*aURI = m_originalUrl);
+  NS_IF_ADDREF(*aURI = m_url);
   return NS_OK;
 }
 
 NS_IMETHODIMP nsNntpMockChannel::SetOriginalURI(nsIURI *aURI)
 {
   FORWARD_CALL(SetOriginalURI, aURI)
-  m_originalUrl = aURI;
+  // News does not seem to have the notion of an original URI.
+  // (See bug 193317 and bug 1312314.)
   return NS_OK;
 }
 
@@ -316,7 +317,6 @@ nsNntpMockChannel::AttachNNTPConnection(nsNNTPProtocol &protocol)
   // Variable fun
   protocol.SetLoadGroup(m_loadGroup);
   protocol.SetLoadFlags(m_loadFlags);
-  protocol.SetOriginalURI(m_originalUrl);
   protocol.SetOwner(m_owner);
   protocol.SetNotificationCallbacks(m_notificationCallbacks);
   protocol.SetContentType(m_contentType);
