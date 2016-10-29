@@ -237,7 +237,7 @@ nsMsgPrintEngine::SetWindow(mozIDOMWindowProxy *aWin)
   docShellAsItem->GetSameTypeRootTreeItem(getter_AddRefs(rootAsItem));
 
   nsCOMPtr<nsIDocShellTreeItem> childItem;
-  rootAsItem->FindChildWithName(u"content", true,
+  rootAsItem->FindChildWithName(NS_LITERAL_STRING("content"), true,
 				false, nullptr, nullptr,
 				getter_AddRefs(childItem));
 

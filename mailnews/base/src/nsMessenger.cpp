@@ -252,7 +252,7 @@ NS_IMETHODIMP nsMessenger::SetWindow(mozIDOMWindowProxy *aWin, nsIMsgWindow *aMs
     docShellAsItem->GetSameTypeRootTreeItem(getter_AddRefs(rootDocShellAsItem));
 
     nsCOMPtr<nsIDocShellTreeItem> childAsItem;
-    rv = rootDocShellAsItem->FindChildWithName(u"messagepane", true, false,
+    rv = rootDocShellAsItem->FindChildWithName(NS_LITERAL_STRING("messagepane"), true, false,
                                                nullptr, nullptr, getter_AddRefs(childAsItem));
 
     mDocShell = do_QueryInterface(childAsItem);
