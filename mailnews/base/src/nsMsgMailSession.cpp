@@ -435,7 +435,7 @@ nsMsgMailSession::GetSelectedLocaleDataDir(nsIFile *defaultsDir)
       mozilla::services::GetXULChromeRegistryService();
     if (packageRegistry) {
       nsAutoCString localeName;
-      rv = packageRegistry->GetSelectedLocale(NS_LITERAL_CSTRING("global-region"), localeName);
+      rv = packageRegistry->GetSelectedLocale(NS_LITERAL_CSTRING("global-region"), false, localeName);
 
       if (NS_SUCCEEDED(rv) && !localeName.IsEmpty()) {
         bool localeDirExists = false;

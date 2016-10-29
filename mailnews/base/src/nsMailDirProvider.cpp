@@ -200,7 +200,7 @@ nsMailDirProvider::AppendingEnumerator::AppendingEnumerator
   nsCOMPtr<nsIXULChromeRegistry> packageRegistry =
     mozilla::services::GetXULChromeRegistryService();
   if (packageRegistry)
-    packageRegistry->GetSelectedLocale(NS_LITERAL_CSTRING("global"), mLocale);
+    packageRegistry->GetSelectedLocale(NS_LITERAL_CSTRING("global"), false, mLocale);
   // Initialize mNext to begin
   GetNext(nullptr);
 }
