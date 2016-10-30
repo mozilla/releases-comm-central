@@ -198,9 +198,6 @@
 @RESPATH@/components/dom_network.xpt
 @RESPATH@/components/dom_notification.xpt
 @RESPATH@/components/dom_offline.xpt
-#ifdef MOZ_PAY
-@RESPATH@/components/dom_payment.xpt
-#endif
 @RESPATH@/components/dom_permissionsettings.xpt
 @RESPATH@/components/dom_power.xpt
 @RESPATH@/components/dom_push.xpt
@@ -482,11 +479,6 @@
 @RESPATH@/components/BrowserPageThumbs.manifest
 @RESPATH@/components/PageIconProtocolHandler.js
 @RESPATH@/components/passwordmgr.manifest
-#ifdef MOZ_PAY
-@RESPATH@/components/Payment.js
-@RESPATH@/components/PaymentFlowInfo.js
-@RESPATH@/components/Payment.manifest
-#endif
 #ifdef MOZ_WEBRTC
 @RESPATH@/components/PeerConnection.js
 @RESPATH@/components/PeerConnection.manifest
