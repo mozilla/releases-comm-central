@@ -941,3 +941,99 @@ pref("devtools.selfxss.count", 5);
 
 // Enable general plugin loading.
 pref("plugin.load_flash_only", false);
+
+#if defined(XP_WIN) && defined(MOZ_SANDBOX)
+// When this pref is true the Windows process sandbox will set up dummy
+// interceptions and log to the browser console when calls fail in the sandboxed
+// process and also if they are subsequently allowed by the broker process.
+// This will require a restart.
+pref("security.sandbox.windows.log", false);
+
+// Controls whether and how the Windows NPAPI plugin process is sandboxed.
+// To get a different setting for a particular plugin replace "default", with
+// the plugin's nice file name, see: nsPluginTag::GetNiceFileName.
+// On windows these levels are:
+// 0 - no sandbox
+// 1 - sandbox with USER_NON_ADMIN access token level
+// 2 - a more strict sandbox, which might cause functionality issues. This now
+//     includes running at low integrity.
+// 3 - the strongest settings we seem to be able to use without breaking
+//     everything, but will probably cause some functionality restrictions
+pref("dom.ipc.plugins.sandbox-level.default", 0);
+#if defined(_AMD64_)
+// The lines in PluginModuleParent.cpp should be changed in line with this.
+pref("dom.ipc.plugins.sandbox-level.flash", 2);
+#else
+pref("dom.ipc.plugins.sandbox-level.flash", 0);
+#endif
+
+#if defined(MOZ_CONTENT_SANDBOX)
+// This controls the strength of the Windows content process sandbox for testing
+// purposes. This will require a restart.
+// On windows these levels are:
+// See - security/sandbox/win/src/sandboxbroker/sandboxBroker.cpp
+// SetSecurityLevelForContentProcess() for what the different settings mean.
+#if defined(NIGHTLY_BUILD)
+pref("security.sandbox.content.level", 2);
+#else
+pref("security.sandbox.content.level", 1);
+#endif
+
+#if defined(MOZ_STACKWALKING)
+// This controls the depth of stack trace that is logged when Windows sandbox
+// logging is turned on.  This is only currently available for the content
+// process because the only other sandbox (for GMP) has too strict a policy to
+// allow stack tracing.  This does not require a restart to take effect.
+pref("security.sandbox.windows.log.stackTraceDepth", 0);
+#endif
+#endif
+#endif
+
+#if defined(XP_MACOSX) && defined(MOZ_SANDBOX) && defined(MOZ_CONTENT_SANDBOX)
+// This pref is discussed in bug 1083344, the naming is inspired from its
+// Windows counterpart, but on Mac it's an integer which means:
+// 0 -> "no sandbox"
+// 1 -> "preliminary content sandboxing enabled: write access to
+//       home directory is prevented"
+// 2 -> "preliminary content sandboxing enabled with profile protection:
+//       write access to home directory is prevented, read and write access
+//       to ~/Library and profile directories are prevented (excluding
+//       $PROFILE/{extensions,weave})"
+// This setting is read when the content process is started. On Mac the content
+// process is killed when all windows are closed, so a change will take effect
+// when the 1st window is opened.
+#if defined(NIGHTLY_BUILD)
+pref("security.sandbox.content.level", 2);
+#else
+pref("security.sandbox.content.level", 1);
+#endif
+#endif
+
+#if defined(XP_LINUX) && defined(MOZ_SANDBOX) && defined(MOZ_CONTENT_SANDBOX)
+// This pref is introduced as part of bug 742434, the naming is inspired from
+// its Windows/Mac counterpart, but on Linux it's an integer which means:
+// 0 -> "no sandbox"
+// 1 -> "content sandbox using seccomp-bpf when available"
+// 2 -> "seccomp-bpf + file broker"
+// Content sandboxing on Linux is currently in the stage of
+// 'just getting it enabled', which includes a very permissive whitelist. We
+// enable seccomp-bpf on nightly to see if everything is running, or if we need
+// to whitelist more system calls.
+//
+// So the purpose of this setting is to allow nightly users to disable the
+// sandbox while we fix their problems. This way, they won't have to wait for
+// another nightly release which disables seccomp-bpf again.
+//
+// This setting may not be required anymore once we decide to permanently
+// enable the content sandbox.
+pref("security.sandbox.content.level", 2);
+#endif
+
+#if defined(XP_MACOSX) || defined(XP_WIN)
+#if defined(MOZ_SANDBOX) && defined(MOZ_CONTENT_SANDBOX)
+// ID (a UUID when set by gecko) that is used to form the name of a
+// sandbox-writable temporary directory to be used by content processes
+// when a temporary writable file is required in a level 1 sandbox.
+pref("security.sandbox.content.tempDirSuffix", "");
+#endif
+#endif
