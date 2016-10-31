@@ -4308,10 +4308,15 @@ nsAttachmentOpener.prototype =
 
   getInterface: function(iid)
   {
-    if (iid.equals(Components.interfaces.nsIDOMWindow))
+    if (iid.equals(Components.interfaces.nsIDOMWindow)) {
       return window;
-    else
+    } else if (iid.equals(Components.interfaces.nsIDocShell)) {
+      return window.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
+                   .getInterface(Components.interfaces.nsIWebNavigation)
+                   .QueryInterface(Components.interfaces.nsIDocShell);
+    } else {
       return this.QueryInterface(iid);
+    }
   },
 
   loadCookie: null,
