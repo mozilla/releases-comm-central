@@ -291,7 +291,11 @@ function booleanChanged(event) {
       setSearchScope(GetScopeForDirectoryURI(selectedAB));
     }
     for (var i=0; i<gSearchTerms.length; i++) {
-        var searchTerm = gSearchTerms[i].obj;
+        let searchTerm = gSearchTerms[i].obj;
+        // If term is not yet initialized in the UI, change the original object.
+        if (!searchTerm || !gSearchTerms[i].initialized)
+            searchTerm = gSearchTerms[i].searchTerm;
+
         searchTerm.booleanAnd = newBoolValue;
         searchTerm.matchAll = matchAllValue;
     }
@@ -493,16 +497,16 @@ function saveSearchTerms(searchTerms, termOwner)
     for (i = 0; i < gSearchRemovedTerms.length; i++)
         searchTerms.removeElementAt(searchTerms.indexOf(0, gSearchRemovedTerms[i]));
 
-    for (i = 0; i<gSearchTerms.length; i++) {
+    for (i = 0; i < gSearchTerms.length; i++) {
         try {
             gSearchTerms[i].obj.matchAll = matchAll;
             var searchTerm = gSearchTerms[i].obj.searchTerm;
-            if (searchTerm)
+            if (searchTerm) {
                 gSearchTerms[i].obj.save();
-            else if (!gSearchTerms[i].initialized)
+            } else if (!gSearchTerms[i].initialized) {
                 // the term might be an offscreen one we haven't initialized yet
                 searchTerm = gSearchTerms[i].searchTerm;
-            else {
+            } else {
                 // need to create a new searchTerm, and somehow save it to that
                 searchTerm = termOwner.createTerm();
                 gSearchTerms[i].obj.saveTo(searchTerm);
