@@ -78,6 +78,11 @@ Tweet.prototype = {
         let screenName = this._tweet.user.screen_name;
         actions.push(new Action(_("action." + action, screenName),
                                 function() { account[action](screenName); }));
+
+        const favAction = this._tweet.favorited ? "unlike" : "like";
+        actions.push(new Action(_("action." + favAction), () => {
+          this.conversation.like(this._tweet, this._tweet.favorited);
+        }, this));
       }
       else if (this.outgoing && !this._deleted) {
         actions.push(
@@ -392,6 +397,15 @@ TimelineConversation.prototype = {
     }, this);
     this.sendTyping("");
   },
+  like: function(aTweet, aRemoveLike = false) {
+    this._account.like(aTweet, aRemoveLike, function() {
+      aTweet.favorited = !aRemoveLike;
+    }, function(aException, aData) {
+      const messageName = aRemoveLike ? "unlike" : "like";
+      this.systemMessage(_("error." + messageName,
+                          this.parseError(aData), aTweet.text), true);
+    }, this);
+  },
   sendTyping: function(aString) {
     if (aString.length == 0 && this.inReplyToStatusId) {
       delete this.inReplyToStatusId;
@@ -661,6 +675,12 @@ Account.prototype = {
     let POSTData = [["text", aMsg], ["screen_name", aName]];
     this.signAndSend("1.1/direct_messages/new.json", null, POSTData, aOnSent,
                      aOnError, aThis);
+  },
+  like: function(aTweet, aRemoveLike, aOnSent, aOnError, aThis) {
+    const action = aRemoveLike ? "destroy" : "create";
+    const url = `1.1/favorites/${action}.json`;
+    const POSTData = [["id", aTweet.id_str]];
+    this.signAndSend(url, null, POSTData, aOnSent, aOnError, aThis);
   },
 
   _friends: null,
