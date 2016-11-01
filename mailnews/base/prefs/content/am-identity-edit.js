@@ -14,6 +14,7 @@ function onLoadIdentityProperties()
   // extract the account
   gIdentity = window.arguments[0].identity;
   gAccount = window.arguments[0].account;
+  let prefBundle = document.getElementById("bundle_prefs");
 
   // Make the dialog the same height and 90% of the width of the main Account
   // manager page when the Account manager is not maximized.
@@ -24,6 +25,14 @@ function onLoadIdentityProperties()
       accountDialog.getElementById("accountManager").clientWidth * 0.9 + "px";
     document.getElementById("identityDialog").style.height =
       accountDialog.getElementById("accountManager").clientHeight + "px";
+  }
+
+  if (gIdentity) {
+    let listName = gIdentity.identityName;
+    document.title = prefBundle
+                     .getFormattedString("identityDialogTitleEdit", [listName]);
+  } else {
+    document.title = prefBundle.getString("identityDialogTitleAdd");
   }
 
   loadSMTPServerList();
