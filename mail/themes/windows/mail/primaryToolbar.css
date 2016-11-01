@@ -337,7 +337,7 @@ toolbar[mode="text"] .button-appmenu .toolbarbutton-icon {
 }
 
 #appmenu_addons {
-  list-style-image: url("chrome://mozapps/skin/extensions/extensionGeneric-16.png");
+  list-style-image: url("chrome://mozapps/skin/extensions/extensionGeneric.svg");
 }
 
 @media (-moz-os-version: windows-xp) {
@@ -1637,12 +1637,6 @@ toolbar[mode="text"] .button-appmenu .toolbarbutton-icon {
       .appmenu-menuseparator {
         margin-inline-start: 22px;
       }
-    }
-  }
-
-  @media (min-resolution: 1.25dppx) {
-    #appmenu_addons {
-      list-style-image: url("chrome://mozapps/skin/extensions/extensionGeneric.png");
     }
   }
 
