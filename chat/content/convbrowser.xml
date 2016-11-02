@@ -892,6 +892,17 @@
         </body>
       </method>
 
+      <method name="_exposeMethodsToContent">
+        <body>
+          <![CDATA[
+            // Expose scrollToElement and autoScrollEnabled to the
+            // message styles.
+            this.contentWindow.scrollToElement = this._scrollToElement.bind(this);
+            this.contentWindow.autoScrollEnabled = this.autoScrollEnabled.bind(this);
+          ]]>
+        </body>
+      </method>
+
       <!-- nsIWebProgressListener implementation -->
       <method name="onStateChange">
         <parameter name="aProgress"/>
@@ -911,10 +922,8 @@
                 }
                 this._loadState = 1;
 
-                // Expose scrollToElement and autoScrollEnabled to the
-                // message styles.
-                this.contentWindow.scrollToElement = this._scrollToElement.bind(this);
-                this.contentWindow.autoScrollEnabled = this.autoScrollEnabled.bind(this);
+                this._exposeMethodsToContent();
+
                 // A common use case is to click somewhere in the conversation and
                 // start typing a command (often /me). If quick find is enabled, it
                 // will pick up the "/" keypress and open the findbar. See bug 1161930.
@@ -1235,6 +1244,8 @@
             this[field] = otherFieldValues[field];
             aOtherBrowser[field] = ourFieldValues[field];
           }
+
+          this._exposeMethodsToContent();
 
           this.initMagicCopy();
 
