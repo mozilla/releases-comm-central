@@ -1,0 +1,18 @@
+# Known duplicate files
+# This file is ideally removed, but some existing files will be grandfathered in
+# See bug 1303184, bug 1313670
+#
+# PLEASE DO NOT ADD MORE EXCEPTIONS TO THIS LIST
+#
+
+# im
+chrome/instantbird/skin/classic/instantbird/messages/simple/Variants/Normal.css
+chrome/instantbird/skin/classic/instantbird/messages/simple/Incoming/Context.html
+chrome/instantbird/skin/classic/instantbird/messages/simple/Incoming/NextContext.html
+chrome/chat/content/chat/conv.html
+
+# Variants of paths in mozilla/browser/installer/allowed-dupes.mn
+# and mail/installer/allowed-dupes.mn:
+# bug 658850
+instantbird
+instantbird-bin

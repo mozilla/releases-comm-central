@@ -14,6 +14,10 @@ MOZ_PKG_MANIFEST_P = $(srcdir)/package-manifest.in
 ifndef SYSTEM_LIBXUL
 MOZ_PKG_FATAL_WARNINGS = 1
 endif
+MOZ_PKG_DUPEFLAGS = \
+	-f $(srcdir)/allowed-dupes.mn \
+	-f $(MOZILLA_DIR)/browser/installer/allowed-dupes.mn \
+	$(NULL)
 
 MOZ_NONLOCALIZED_PKG_LIST = \
 	xpcom \
