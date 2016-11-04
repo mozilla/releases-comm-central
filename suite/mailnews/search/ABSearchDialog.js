@@ -4,6 +4,7 @@
 
 Components.utils.import("resource:///modules/ABQueryUtils.jsm");
 Components.utils.import("resource:///modules/mailServices.js");
+Components.utils.import("resource://gre/modules/PluralForm.jsm");
 
 var searchSessionContractID = "@mozilla.org/messenger/searchSession;1";
 var gSearchSession;
@@ -27,19 +28,16 @@ var gSearchAbViewListener = {
   onSelectionChanged: function() {
     UpdateCardView();
   },
-  onCountChanged: function(total) {
-    var statusText;
-    switch (total) {
-      case 0:
-        statusText = gAddressBookBundle.getString("noMatchFound");
-        break;
-      case 1:
-        statusText = gAddressBookBundle.getString("matchFound");
-        break;
-      default:
-        statusText = gAddressBookBundle.getFormattedString("matchesFound", [total]);
-        break;
+  onCountChanged: function(aTotal) {
+    let statusText;
+    if (aTotal == 0) {
+      statusText = gAddressBookBundle.getString("noMatchFound");
+    } else {
+      statusText = PluralForm
+        .get(aTotal, gAddressBookBundle.getString("matchesFoundCount"))
+        .replace("%S", aTotal);
     }
+
     gStatusText.setAttribute("label", statusText);
   }
 };

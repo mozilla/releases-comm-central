@@ -5,11 +5,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-Components.utils.import("resource://gre/modules/Services.jsm");
 // Ensure the activity modules are loaded for this window.
 Components.utils.import("resource:///modules/activity/activityModules.js");
 Components.utils.import("resource:///modules/ABQueryUtils.jsm");
 Components.utils.import("resource:///modules/mailServices.js");
+Components.utils.import("resource://gre/modules/PluralForm.jsm");
+Components.utils.import("resource://gre/modules/Services.jsm");
 
 var nsIAbListener = Components.interfaces.nsIAbListener;
 var kPrefMailAddrBookLastNameFirst = "mail.addr_book.lastnamefirst";
@@ -488,14 +489,12 @@ function SetStatusText(total)
 
     var searchInput = document.getElementById("peopleSearchInput");
     if (searchInput && searchInput.value) {
-      if (total == 0)
+      if (total == 0) {
         statusText = gAddressBookBundle.getString("noMatchFound");
-      else
-      {
-        if (total == 1)
-          statusText = gAddressBookBundle.getString("matchFound");
-        else
-          statusText = gAddressBookBundle.getFormattedString("matchesFound", [total]);
+      } else {
+        statusText = PluralForm
+          .get(total, gAddressBookBundle.getString("matchesFoundCount"))
+          .replace("%S", total);
       }
     }
     else
