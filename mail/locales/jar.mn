@@ -172,7 +172,9 @@
   locale/@AB_CD@/messenger/preferences/applicationManager.properties    (%chrome/messenger/preferences/applicationManager.properties)
   locale/@AB_CD@/messenger/preferences/fonts.dtd                        (%chrome/messenger/preferences/fonts.dtd)
   locale/@AB_CD@/messenger/preferences/offline.dtd                      (%chrome/messenger/preferences/offline.dtd)
+#ifndef XP_MACOSX
   locale/@AB_CD@/messenger/preferences/notifications.dtd                (%chrome/messenger/preferences/notifications.dtd)
+#endif
   locale/@AB_CD@/messenger/preferences/preferences.properties           (%chrome/messenger/preferences/preferences.properties)
   locale/@AB_CD@/messenger/preferences/cookies.dtd                      (%chrome/messenger/preferences/cookies.dtd)
   locale/@AB_CD@/messenger/preferences/permissions.dtd                  (%chrome/messenger/preferences/permissions.dtd)

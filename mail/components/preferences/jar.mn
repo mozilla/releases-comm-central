@@ -45,7 +45,9 @@ messenger.jar:
     content/messenger/preferences/actionsshared.js
     content/messenger/preferences/fonts.js
 *   content/messenger/preferences/fonts.xul
+#ifndef XP_MACOSX
     content/messenger/preferences/notifications.xul
+#endif
     content/messenger/preferences/offline.js
     content/messenger/preferences/offline.xul
     content/messenger/preferences/cookies.js

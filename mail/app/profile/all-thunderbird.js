@@ -440,7 +440,9 @@ pref("spellchecker.dictionaries.download.url", "https://addons.mozilla.org/%LOCA
 pref("profile.force.migration", "");
 
 // prefs to control the mail alert notification
+#ifndef XP_MACOSX
 pref("alerts.totalOpenTime", 10000);
+#endif
 
 // analyze urls in mail messages for scams
 pref("mail.phishing.detection.enabled", true);
