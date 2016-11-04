@@ -621,8 +621,6 @@
 @RESPATH@/components/find.xpt
 @RESPATH@/components/ConsoleAPIStorage.js
 @RESPATH@/components/ConsoleAPI.manifest
-@RESPATH@/components/ContactManager.js
-@RESPATH@/components/ContactManager.manifest
 @RESPATH@/components/Push.js
 @RESPATH@/components/Push.manifest
 @RESPATH@/components/PushComponents.js
