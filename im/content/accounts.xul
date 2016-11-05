@@ -141,6 +141,8 @@
   <windowdragbox id="bottombuttons" align="center">
     <button id="newaccount" command="cmd_new"/>
     <spacer flex="1"/>
+#ifdef XP_WIN
     <button id="close" command="cmd_close"/>
+#endif
   </windowdragbox>
 </window>
