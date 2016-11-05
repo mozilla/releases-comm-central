@@ -13,7 +13,7 @@ XPCOMUtils.defineLazyModuleGetter(this, "LoginManagerContent",
   "resource://gre/modules/LoginManagerContent.jsm");
 XPCOMUtils.defineLazyModuleGetter(this, "InsecurePasswordUtils",
   "resource://gre/modules/InsecurePasswordUtils.jsm");
-XPCOMUtils.defineLazyModuleGetter(this, "FormLikeFactory",
+XPCOMUtils.defineLazyModuleGetter(this, "LoginFormFactory",
   "resource://gre/modules/LoginManagerContent.jsm");
 
 addMessageListener("RemoteLogins:fillForm", message => {
@@ -22,14 +22,14 @@ addMessageListener("RemoteLogins:fillForm", message => {
 
 addEventListener("DOMFormHasPassword", event => {
   LoginManagerContent.onDOMFormHasPassword(event, content);
-  let formLike = FormLikeFactory.createFromForm(event.target);
-  InsecurePasswordUtils.checkForInsecurePasswords(formLike);
+  let formLike = LoginFormFactory.createFromForm(event.target);
+  InsecurePasswordUtils.reportInsecurePasswords(formLike);
 });
 
 addEventListener("DOMInputPasswordAdded", event => {
   LoginManagerContent.onDOMInputPasswordAdded(event, content);
-  let formLike = FormLikeFactory.createFromField(event.target);
-  InsecurePasswordUtils.checkForInsecurePasswords(formLike);
+  let formLike = LoginFormFactory.createFromField(event.target);
+  InsecurePasswordUtils.reportInsecurePasswords(formLike);
 });
 
 addEventListener("pageshow", event => {
