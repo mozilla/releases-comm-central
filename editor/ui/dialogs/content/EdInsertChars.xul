@@ -17,7 +17,8 @@
         buttonlabelaccept="&insertButton.label;"
         buttonlabelcancel="&closeButton.label;"
         ondialogaccept = "return onAccept();"
-        ondialogcancel = "return onClose();">
+        ondialogcancel = "return onClose();"
+        style = "width: 20em">
 
   <!-- Methods common to all editor dialogs -->
   <script type="application/javascript" src="chrome://editor/content/editorUtilities.js"/>
