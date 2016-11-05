@@ -34,3 +34,11 @@ menu.push[disabled="true"]:hover,
 menu.push[disabled="true"]:hover:active {
   color: GrayText;
 }
+
+textbox[readonly="true"] {
+  -moz-appearance: none;
+  -moz-border-top-colors: transparent ThreeDShadow;
+  -moz-border-right-colors: transparent ThreeDShadow;
+  -moz-border-bottom-colors: transparent ThreeDShadow;
+  -moz-border-left-colors: transparent ThreeDShadow;
+}
