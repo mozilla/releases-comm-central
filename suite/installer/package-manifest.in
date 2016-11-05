@@ -375,8 +375,6 @@
 @RESPATH@/components/ColorAnalyzer.js
 @RESPATH@/components/ConsoleAPIStorage.js
 @RESPATH@/components/ConsoleAPI.manifest
-@RESPATH@/components/ContactManager.js
-@RESPATH@/components/ContactManager.manifest
 @RESPATH@/components/contentAreaDropListener.js
 @RESPATH@/components/contentAreaDropListener.manifest
 @RESPATH@/components/crypto-SDR.js
