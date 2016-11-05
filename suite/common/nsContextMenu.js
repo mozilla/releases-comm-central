@@ -17,6 +17,12 @@ Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 var gContextMenuContentData = null;
 
+XPCOMUtils.defineLazyGetter(this, "InlineSpellCheckerUI", function() {
+  let tmp = {};
+  Components.utils.import("resource://gre/modules/InlineSpellChecker.jsm", tmp);
+  return new tmp.InlineSpellChecker();
+});
+
 XPCOMUtils.defineLazyGetter(this, "PageMenuParent", function() {
   let tmp = {};
   Components.utils.import("resource://gre/modules/PageMenu.jsm", tmp);

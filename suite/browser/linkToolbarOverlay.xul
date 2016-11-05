@@ -4,7 +4,6 @@
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
 <?xml-stylesheet href="chrome://navigator/skin/linkToolbar.css" type="text/css"?>
-<?xul-overlay href="chrome://global/content/globalOverlay.xul"?>
 <!DOCTYPE overlay SYSTEM "chrome://navigator/locale/linkToolbar.dtd">
 
 <overlay id="linkToolbarOverlay"
@@ -12,6 +11,7 @@
          xmlns:rdf="http://www.mozilla.org/rdf">
 
   <!-- classes -->
+  <script type="application/javascript" src="chrome://global/content/globalOverlay.js"/>
   <script type="application/javascript" src="chrome://navigator/content/linkToolbarHandler.js" />
   <script type="application/javascript" src="chrome://navigator/content/linkToolbarItem.js" />
 

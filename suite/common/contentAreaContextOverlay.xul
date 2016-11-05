@@ -11,7 +11,6 @@
     // Global variable that holds the nsContextMenu instance.
     var gContextMenu = null;
   </script>
-  <script type="application/javascript" src="chrome://global/content/inlineSpellCheckUI.js"/>
   <script type="application/javascript" src="chrome://communicator/content/nsContextMenu.js"/>
   <script type="application/javascript" src="chrome://global/content/contentAreaUtils.js"/>
 

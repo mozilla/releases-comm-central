@@ -5,7 +5,6 @@
 
 <?xml-stylesheet href="chrome://communicator/skin/" type="text/css"?>
 
-<?xul-overlay href="chrome://global/content/globalOverlay.xul"?>
 <?xul-overlay href="chrome://communicator/content/tasksOverlay.xul"?>
 <?xul-overlay href="chrome://communicator/content/utilityOverlay.xul"?>
 <?xul-overlay href="chrome://communicator/content/history/placesOverlay.xul"?>

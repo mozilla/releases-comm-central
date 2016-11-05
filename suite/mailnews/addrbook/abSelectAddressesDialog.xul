@@ -6,7 +6,6 @@
 <?xml-stylesheet href="chrome://messenger/skin/addressbook/selectAddressesDialog.css" type="text/css"?>
 
 <?xul-overlay href="chrome://messenger/content/addressbook/abResultsPaneOverlay.xul"?>
-<?xul-overlay href="chrome://global/content/globalOverlay.xul"?>
 <?xul-overlay href="chrome://communicator/content/utilityOverlay.xul"?>
 
 <!DOCTYPE dialog [

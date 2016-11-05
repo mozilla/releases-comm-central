@@ -1355,8 +1355,6 @@ function QualifySearchTerm()
   return "";
 }
 
-//Note: BrowserNewEditorWindow() was moved to globalOverlay.xul and renamed to NewEditorWindow()
-
 function BrowserOpenWindow()
 {
   //opens a window where users can select a web location to open
