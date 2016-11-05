@@ -398,8 +398,7 @@
               return;
             this._messageDisplayPending = true;
             this.contentWindow.messageInsertPending = true;
-            Services.tm.mainThread.dispatch(this.displayPendingMessages.bind(this),
-                                            Ci.nsIEventTarget.DISPATCH_NORMAL);
+            requestIdleCallback(this.displayPendingMessages.bind(this));
           ]]>
         </body>
       </method>
@@ -439,20 +438,23 @@
       <field name="_pendingMessagesDisplayed">0</field>
       <field name="_displayPendingMessagesCalls">0</field>
       <method name="displayPendingMessages">
+        <parameter name="timing"/>
         <body>
           <![CDATA[
             if (!this._messageDisplayPending)
               return;
 
             let max = this.getPendingMessagesCount();
-            for (let begin = Date.now(); Date.now() - begin < 40; ) {
+            do {
+              // One message takes less than 2ms on average.
               let msg = this.getNextPendingMessage();
               if (!msg)
                 break;
               this.displayMessage(msg.msg, msg.context,
                                   ++this._pendingMessagesDisplayed < max,
                                   msg.firstUnread);
-            }
+            } while (timing.timeRemaining() > 2);
+
             let event = document.createEvent("UIEvents");
             event.initUIEvent("MessagesDisplayed", false, false, window, 0);
             if (this._pendingMessagesDisplayed < max) {
@@ -465,8 +467,7 @@
                 this.progressBar.max = max;
                 this.progressBar.value = this._pendingMessagesDisplayed;
               }
-              Services.tm.mainThread.dispatch(this.displayPendingMessages.bind(this),
-                                              Ci.nsIEventTarget.DISPATCH_NORMAL);
+              requestIdleCallback(this.displayPendingMessages.bind(this));
               this.dispatchEvent(event);
               return;
             }
