@@ -483,8 +483,6 @@
 #endif
 @RESPATH@/components/PermissionSettings.js
 @RESPATH@/components/PermissionSettings.manifest
-@RESPATH@/components/PhoneNumberService.js
-@RESPATH@/components/PhoneNumberService.manifest
 @RESPATH@/components/PlacesCategoriesStarter.js
 @RESPATH@/components/pluginGlue.manifest
 @RESPATH@/components/ProcessSingleton.manifest
