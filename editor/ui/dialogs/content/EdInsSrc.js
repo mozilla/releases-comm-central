@@ -34,7 +34,7 @@ function Startup()
       function(match, attr, nonDataPart) {
         count++;
         gDataURIs.set(count, match);
-        return attr + nonDataPart + " … [" + count + "]";
+        return attr + nonDataPart + "…[" + count + "]";
       });
     if (selection)
       gDialog.srcInput.value = selection;
@@ -52,7 +52,7 @@ function onAccept()
     return false;
 
   // Add back the original data URIs we stashed away earlier.
-  html = html.replace(/(src|href)="data:[^;]*;base64, … \[([0-9]+)\]/gi,
+  html = html.replace(/(src|href)="data:[^;]*;base64,…\[([0-9]+)\]/gi,
     function(match, attr, num) {
       var index = parseInt(num);
       if (!gDataURIs.has(index))

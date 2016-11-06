@@ -56,7 +56,7 @@
       // find the ellipsis we added. The user could have pasted a full new
       // data URI which we don't want to lose.
       if (/^data:/i.test(gMsgCompInputElement.value.trim()) &&
-          gMsgCompInputElement.value.includes(" ...")) {
+          gMsgCompInputElement.value.includes("...")) {
         gMsgCompInputElement.value = gMsgCompPrevInputValue;
       }
     }
@@ -121,7 +121,7 @@
         gMsgCompInputElement.value = gMsgCompInputElement
           .value.replace(/(data:[^;]*;base64,).*/i, function(match, nonDataPart) {
             gMsgCompInputElement.addEventListener("copy", onCopy, true);
-            return nonDataPart + " ...";
+            return nonDataPart + "...";
           });
       }
     }
@@ -131,7 +131,7 @@
       // and we find the ellipsis we added. The user could have pasted a full
       // new data URI which we don't want to lose.
       if (/^data:/i.test(gMsgCompInputElement.value.trim()) &&
-          gMsgCompInputElement.value.includes(" ...")) {
+          gMsgCompInputElement.value.includes("...")) {
         event.clipboardData.setData("text/plain", gMsgCompPrevInputValue);
         event.preventDefault();
       }
