@@ -204,15 +204,18 @@ menulist.folderMenuItem > .menulist-label-box > .menulist-label {
   margin-inline-start: 2px !important;
 }
 
+button[type="menu-button"] {
+  margin: 1px 5px 2px 5px;
+}
+
 button[type="menu-button"] > button {
   margin: -3px;
   margin-inline-end: 0;
 }
 
-@media not all and (-moz-windows-default-theme) {
+@media (-moz-windows-default-theme: 0) {
   button[type="menu-button"] > button {
     margin: -2px;
-    margin-inline-end: 0;
   }
 }
 

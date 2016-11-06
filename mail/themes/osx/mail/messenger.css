@@ -524,6 +524,10 @@ notification[type="critical"] .messageCloseButton:not(:hover) {
   display: none;
 }
 
+button[type="menu-button"] {
+  margin: 5px 6px 3px;
+}
+
 button[type="menu-button"] > button {
   margin-top: -1px;
   margin-bottom: -3px;
