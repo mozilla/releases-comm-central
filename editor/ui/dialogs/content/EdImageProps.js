@@ -120,6 +120,9 @@ function Startup()
   else
     SetTextboxFocus(gDialog.srcInput);
 
+  // Hide the separator from EdDialogOverlay.xul as we show our own
+  document.getElementById("advancedSeparator").hidden = true;
+
   SetWindowLocation();
 }
 

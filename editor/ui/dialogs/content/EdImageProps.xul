@@ -67,5 +67,6 @@
     <!-- from EdDialogOverlay -->
     <vbox id="AdvancedEdit"/>
   </hbox>
+  <separator class="groove"/>
 
 </dialog>

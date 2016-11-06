@@ -16,7 +16,7 @@
     <button id="AdvancedEditButton1" oncommand="onAdvancedEdit()" label="&AdvancedEditButton.label;"
             accesskey="&AdvancedEditButton.accessKey;" tooltiptext="&AdvancedEditButton.tooltip;"/>
   </hbox>
-  <separator class="groove"/>
+  <separator id="advancedSeparator" class="groove"/>
 </vbox>
 
 <!-- Extra buttons to use when just button is needed
