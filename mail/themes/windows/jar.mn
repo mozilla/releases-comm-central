@@ -204,6 +204,7 @@ classic.jar:
   skin/classic/messenger/icons/blacklist.svg                  (../shared/mail/icons/blacklist.svg)
   skin/classic/messenger/icons/cert-error.svg                 (../shared/mail/icons/cert-error.svg)
   skin/classic/messenger/icons/correspondents.svg             (../shared/mail/icons/correspondents.svg)
+  skin/classic/messenger/icons/extensionGeneric.svg           (../shared/mail/icons/extensionGeneric.svg)
   skin/classic/messenger/icons/mail-toolbar.svg               (../shared/mail/icons/mail-toolbar.svg)
   skin/classic/messenger/icons/folder.png                     (mail/icons/folder.png)
   skin/classic/messenger/icons/folder-XP.png                  (mail/icons/folder-XP.png)
@@ -347,4 +348,5 @@ classic.jar:
   skin/classic/messenger/shared/addressbook.css               (../shared/mail/addressbook.css)
   skin/classic/messenger/shared/accountProvisioner.css        (../shared/mail/accountProvisioner.css)
 [extensions/{972ce4c6-7e08-4474-a285-3208198ce6fd}] chrome.jar:
+% override chrome://mozapps/skin/extensions/extensionGeneric-16.png chrome://messenger/skin/icons/extensionGeneric.svg
 % override chrome://global/skin/netError.css chrome://messenger/skin/aboutNetError.css

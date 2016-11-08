@@ -367,5 +367,5 @@ toolbar[mode="text"] .button-appmenu .toolbarbutton-icon {
 }
 
 #appmenu_addons {
-  list-style-image: url("chrome://mozapps/skin/extensions/extensionGeneric-16.png");
+  list-style-image: url("chrome://messenger/skin/icons/extensionGeneric.svg");
 }
