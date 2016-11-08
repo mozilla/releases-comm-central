@@ -134,7 +134,8 @@ function setupModule(module) {
 
 function teardownModule(module) {
   put_bool_prefs_back();
-  Services.prefs.setIntPref("alerts.totalOpenTime", gTotalOpenTime);
+  if (Services.appinfo.OS != "Darwin")
+    Services.prefs.setIntPref("alerts.totalOpenTime", gTotalOpenTime);
 }
 
 function setupTest(test) {
@@ -148,8 +149,10 @@ function setupTest(test) {
   remember_and_set_bool_pref("mail.biff.alert.show_subject", true);
   remember_and_set_bool_pref("mail.biff.alert.show_sender", true);
   remember_and_set_bool_pref("mail.biff.alert.show_preview", true);
-  gTotalOpenTime = Services.prefs.getIntPref("alerts.totalOpenTime");
-  Services.prefs.setIntPref("alerts.totalOpenTime", 3000);
+  if (Services.appinfo.OS != "Darwin") {
+    gTotalOpenTime = Services.prefs.getIntPref("alerts.totalOpenTime");
+    Services.prefs.setIntPref("alerts.totalOpenTime", 3000);
+  }
 }
 
 function put_bool_prefs_back() {
