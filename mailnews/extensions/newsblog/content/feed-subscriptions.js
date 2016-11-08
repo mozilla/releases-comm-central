@@ -289,53 +289,63 @@ var FeedSubscriptions = {
     getImageSrc: function(aRow, aCol)
     {
       let item = this.getItemAtIndex(aRow);
-      if (item.favicon == "")
+      if ((item.folder && item.folder.isServer) || item.open)
+        return "";
+
+      if (item.favicon != null)
         return item.favicon;
 
-      if (item.folder)
-      {
-        if (item.open || item.folder.isServer)
-          return "";
-        if (item.closed && item.favicon)
-          return item.favicon;
+      if (item.folder && FeedSubscriptions.mMainWin &&
+          "gFolderTreeView" in FeedSubscriptions.mMainWin) {
+        let favicon = FeedSubscriptions.mMainWin.gFolderTreeView
+                                       .getFolderCacheProperty(item.folder, "favicon");
+        if (favicon != null)
+          return item.favicon = favicon;
       }
 
-      let iconUrl, favicon;
-      let tree = this.selection.tree;
-
-      function callback(iconUrl, domain, arg) {
-        item.favicon = iconUrl || "";
+      let callback = (iconUrl => {
+        item.favicon = iconUrl;
         if (item.folder)
         {
           for (let child of item.children)
             if (!child.container)
             {
-              child.favicon = iconUrl || "";
+              child.favicon = iconUrl;
               break;
             }
         }
-        if (iconUrl != "")
-          tree.invalidateRow(aRow);
-      }
+
+        this.selection.tree.invalidateRow(aRow);
+      });
 
       // A closed non server folder.
       if (item.folder)
       {
         for (let child of item.children)
         {
-          if (!child.container)
-            return item.favicon = child.favicon =
-              FeedUtils.getFavicon(child.parentFolder, child.url, child.favicon,
-                                   window, callback);
-        }
+          if (!child.container) {
+            if (child.favicon != null)
+              return child.favicon;
 
-        return item.favicon = "";
+            setTimeout(() => {
+              FeedUtils.getFavicon(child.parentFolder, child.url, null,
+                                   window, callback);
+            }, 0);
+            break;
+          }
+        }
+      }
+      else
+      {
+        // A feed.
+        setTimeout(() => {
+          FeedUtils.getFavicon(item.parentFolder, item.url, null,
+                               window, callback);
+        }, 0);
       }
 
-      // A feed.
-      return item.favicon =
-        FeedUtils.getFavicon(item.parentFolder, item.url, item.favicon,
-                             window, callback);
+      // Store empty string to return default while favicons are retrieved.
+      return item.favicon = "";
     },
 
     canDrop: function (aRow, aOrientation)
@@ -783,7 +793,7 @@ var FeedSubscriptions = {
               aItem.children[i] = newItem;
               aItem.children = FeedSubscriptions.folderItemSorter(aItem.children);
             }
-            FeedUtils.log.debug("selectFolder: parentName:newFolderName:newFolderItem - " +
+            FeedUtils.log.trace("selectFolder: parentName:newFolderName:newFolderItem - " +
                                 aItem.name + ":" + newItem.name + ":" + newItem.toSource());
             newFolder = null;
             return true;
@@ -1557,8 +1567,8 @@ var FeedSubscriptions = {
       ds.Flush();
 
       // Update folderpane favicons.
-      FeedUtils.setFolderPaneProperty(currentFolder, "_favicon", null);
-      FeedUtils.setFolderPaneProperty(newFolder, "_favicon", null);
+      FeedUtils.setFolderPaneProperty(currentFolder, "favicon", null, "row");
+      FeedUtils.setFolderPaneProperty(newFolder, "favicon", null, "row");
     }
     else
     {

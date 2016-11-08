@@ -919,18 +919,24 @@ var gFolderTreeView = {
     if (folder.server.type != "rss" || folder.isServer)
       return "";
 
-    if (rowItem._favicon == "")
-      return rowItem._favicon;
+    let favicon = this.getFolderCacheProperty(folder, "favicon");
+    if (favicon != null)
+      return favicon;
 
-    let tree = this._tree;
-    let callback = function(iconUrl, domain, arg) {
-      rowItem._favicon = iconUrl || "";
-      if (iconUrl != "")
-        tree.invalidateRow(aRow);
-    }
+    let callback = (iconUrl => {
+      this.setFolderCacheProperty(folder, "favicon", iconUrl);
+      this._tree.invalidateRow(aRow);
+    });
 
-    return rowItem._favicon = FeedUtils.getFavicon(folder, null,
-                                                   rowItem._favicon, window, callback);
+    // Cache empty string initiallly to return default while getting favicon,
+    // so as to never return here. Alternatively, a blank image could be cached.
+    this.setFolderCacheProperty(folder, "favicon", "");
+
+    // On startup, allow the ui to paint first before spawning potentially
+    // many requests for favicons, even though they are async.
+    setTimeout(() => {
+      FeedUtils.getFavicon(folder, null, favicon, window, callback);
+    }, 0);
   },
 
   /**
@@ -1451,6 +1457,47 @@ var gFolderTreeView = {
     });
 
     return accounts;
+  },
+
+  /*
+   * Session cache keyed by folder url, for properties intended to survive
+   * a _rowMap rebuild and avoid expensive requeries. Not for persistence
+   * across restarts; _persistOpenMap could be used for that.
+   */
+  _cache: {},
+
+  /**
+   * Update a folder property in the session cache.
+   *
+   * @param  nsIMsgFolder aFolder   - folder.
+   * @param  string aProperty       - property, currently in "favicon".
+   * @param  aValue                 - string or object value.
+   */
+  setFolderCacheProperty: function(aFolder, aProperty, aValue) {
+    if (!aFolder || !aProperty)
+      return;
+
+    if (!this._cache[aFolder.URI])
+      this._cache[aFolder.URI] = {};
+
+    this._cache[aFolder.URI][aProperty] = aValue;
+  },
+
+  /**
+   * Get a folder property from the session cache.
+   *
+   * @param  nsIMsgFolder aFolder   - folder.
+   * @param  string aProperty       - property key.
+   * @return value or null          - null indicates uninitialized.
+   */
+  getFolderCacheProperty: function(aFolder, aProperty) {
+    if (!aFolder || !aProperty)
+      return null;
+
+    if (!(aFolder.URI in this._cache))
+      return null;
+
+    return this._cache[aFolder.URI][aProperty];
   },
 
   /**
@@ -2214,7 +2261,6 @@ function ftvItem(aFolder, aFolderFilter) {
   this._level = 0;
   this._parent = null;
   this._folderFilter = aFolderFilter;
-  this._favicon = null;
   // The map contains message counts for each folder column.
   // Each key is a column name (ID) from the folder tree.
   // Value is an array of the format "[value_for_folder, value_for_all_its_subfolders]".

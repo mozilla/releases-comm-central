@@ -271,59 +271,33 @@ var mailTabType = {
         aTabNode.setAttribute("IsFeedFolder", feedUrls ? true : false);
 
         // Set the favicon for feed folders.
-        if (!aTabNode.selected) {
-          // This is a new background tab.
-          if (folder.server.type != "rss" || folder.isServer ||
-              specialFolderStr != "none" || !feedUrls)
-            return;
-
-          let iconUrl = FeedUtils.getFavicon(folder, feedUrls[0], null, null, null);
-          if (iconUrl) {
-            let url = Services.io.newURI(iconUrl, null, null).prePath;
-            let callback = function(iconUrl, domain, tabNode) {
-              if (iconUrl)
-                tabNode.setAttribute("image", iconUrl);
-              else
-                tabNode.removeAttribute("image");
-            }
-            aTabNode.addEventListener("error",
-              function(event) { FeedUtils.getFaviconFromPage(url, callback, aTabNode); });
-            aTabNode.setAttribute("image", iconUrl);
-          }
-
-          return;
-        }
-
-        // Changing folders in an existing tab or opening a foreground tab.
-        let treeItem = gFolderTreeView.selection.count ?
-          gFolderTreeView._rowMap[gFolderTreeView.selection.currentIndex] : null;
-        if (!treeItem || folder != treeItem._folder)
-          return;
-
         aTabNode.removeAttribute("image");
-        if (folder.server.type != "rss" || folder.isServer ||
+        if (folder.server.type != "rss" || folder.isServer || !feedUrls ||
             specialFolderStr != "none")
           return;
 
-        if (treeItem._favicon)
-          aTabNode.setAttribute("image", treeItem._favicon);
+        let favicon = gFolderTreeView.getFolderCacheProperty(folder, "favicon");
+        if (favicon) {
+          aTabNode.setAttribute("image", favicon);
+          return;
+        }
 
-        // First tab always exists but treeItem is not ready at startup.
-        if (treeItem._favicon == null && feedUrls &&
-            aTabNode.getAttribute("first-tab") == "true") {
-          let iconUrl = FeedUtils.getFavicon(folder, feedUrls[0], null, null, null);
-          if (iconUrl) {
-            let url = Services.io.newURI(iconUrl, null, null).prePath;
-            let callback = function(iconUrl, domain, tabNode) {
-              if (iconUrl)
-                tabNode.setAttribute("image", iconUrl);
-              else
-                tabNode.removeAttribute("image");
-            }
-            aTabNode.addEventListener("error",
-              function(event) { FeedUtils.getFaviconFromPage(url, callback, aTabNode); });
-            aTabNode.setAttribute("image", iconUrl);
-          }
+        if (favicon == null) {
+          // If we have a background tab, or the first tab on startup, the
+          // favicon is unlikely to be cached yet.
+          let callback = (iconUrl => {
+            if (iconUrl)
+              aTabNode.setAttribute("image", iconUrl);
+            else
+              aTabNode.removeAttribute("image");
+
+            // Cache it for folderpane.
+            gFolderTreeView.setFolderCacheProperty(folder, "favicon", iconUrl);
+            let row = gFolderTreeView.getIndexOfFolder(folder);
+            gFolderTreeView._tree.invalidateRow(row);
+           });
+
+          FeedUtils.getFavicon(folder, null, favicon, window, callback);
         }
       },
       getBrowser: function(aTab) {
@@ -433,17 +407,15 @@ var mailTabType = {
           MsgHdrToMimeMessage(aMsgHdr, null, function(aMsgHdr, aMimeMsg, tabNode) {
             if (aMimeMsg && aMimeMsg.headers["content-base"] &&
                 aMimeMsg.headers["content-base"][0]) {
-              let callback = function(iconUrl, domain, tabNode) {
-                iconUrl = iconUrl ? iconUrl : FeedUtils.getFavicon(null, domain);
+              let callback = (iconUrl => {
                 if (iconUrl)
-                  tabNode.setAttribute("image", iconUrl);
+                  aTab.tabNode.setAttribute("image", iconUrl);
                 else
-                  tabNode.removeAttribute("image");
-              }
-              aTab.tabNode.setAttribute("onerror", "this.removeAttribute('image')");
+                  aTab.tabNode.removeAttribute("image");
+              });
+
               let url = aMimeMsg.headers["content-base"][0];
-              if (url.startsWith("http"))
-                FeedUtils.getFaviconFromPage(url, callback, aTab.tabNode);
+              FeedUtils.getFavicon(null, url, null, window, callback);
             }
           }, false, {saneBodySize: true});
         }

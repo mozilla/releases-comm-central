@@ -459,6 +459,105 @@ var specialTabs = {
                 .getService(Components.interfaces.nsIFaviconService);
   },
 
+  /**
+   * We use an html image node to test the favicon, errors are well returned.
+   * Returning a url for nsITreeView.getImageSrc() will not indicate any
+   * error, and setAndFetchFaviconForPage() can't be used to detect
+   * failed icons due to Bug 740457. This also ensures 301 Moved or
+   * redirected urls will work (they won't otherwise in getImageSrc).
+   *
+   * @param  function successFunc - caller's success function.
+   * @param  function errorFunc   - caller's error function.
+   * @param  string iconUrl       - url to load.
+   * @return HTMLImageElement imageNode
+   */
+  loadFaviconImageNode: function(successFunc, errorFunc, iconUrl) {
+    let HTMLNS = "http://www.w3.org/1999/xhtml";
+    let imageNode = document.createElementNS(HTMLNS, "img");
+    imageNode.style.visibility = "collapse";
+    imageNode.addEventListener("load", event => successFunc(event, iconUrl),
+                               {capture: false, once: true});
+    imageNode.addEventListener("error", event => errorFunc(event, iconUrl),
+                               {capture: false, once: true});
+    imageNode.src = iconUrl;
+    return imageNode;
+  },
+
+  /**
+   * Favicon request timeout, 20 seconds.
+   */
+  REQUEST_TIMEOUT: 20 * 1000,
+
+  /**
+   * Get the favicon by parsing for <link rel=""> with "icon" from the page's
+   * dom <head>.
+   *
+   * @param  string aUrl          - a url from whose homepage to get a favicon.
+   * @param  function aCallback   - callback.
+   */
+  getFaviconFromPage: function(aUrl, aCallback) {
+    let url, uri;
+    try {
+      url = Services.io.newURI(aUrl, null, null).prePath;
+      uri = Services.io.newURI(url, null, null);
+    }
+    catch (ex) {
+      if (aCallback)
+        aCallback("");
+      return;
+    }
+
+    let onLoadSuccess = (aEvent => {
+      let iconUri = Services.io.newURI(aEvent.target.src, null, null);
+      specialTabs.mFaviconService.setAndFetchFaviconForPage(
+        uri, iconUri, false,
+        specialTabs.mFaviconService.FAVICON_LOAD_NON_PRIVATE,
+        null, Services.scriptSecurityManager.getSystemPrincipal());
+
+      if (aCallback)
+        aCallback(iconUri.spec);
+    });
+
+    let onDownloadError = (aEvent => {
+      if (aCallback)
+        aCallback("");
+    });
+
+    let onDownload = (aEvent => {
+      let request = aEvent.target;
+      let dom = request.response;
+      if (request.status != 200 || !(dom instanceof Ci.nsIDOMHTMLDocument)) {
+        onDownloadError(aEvent);
+        return;
+      }
+
+      let iconUri;
+      let linkNode = dom.head.querySelector('link[rel="shortcut icon"],' +
+                                            'link[rel="icon"]');
+      let href = linkNode ? linkNode.href : null;
+      try {
+        iconUri = Services.io.newURI(href, null, null);
+      }
+      catch (ex) {
+        onDownloadError(aEvent);
+        return;
+      }
+
+      specialTabs.loadFaviconImageNode(onLoadSuccess, onDownloadError,
+                                       iconUri.spec);
+    });
+
+    let request = Cc["@mozilla.org/xmlextras/xmlhttprequest;1"]
+                    .createInstance(Ci.nsIXMLHttpRequest);
+    request.open("GET", url, true);
+    request.responseType = "document";
+    request.onload = onDownload;
+    request.onerror = onDownloadError;
+    request.timeout = this.REQUEST_TIMEOUT;
+    request.ontimeout = onDownloadError;
+    request.send(null);
+  },
+
   // This will open any special tabs if necessary on startup.
   openSpecialTabsOnStartup: function() {
     window.addEventListener("unload", specialTabs.onunload, false);

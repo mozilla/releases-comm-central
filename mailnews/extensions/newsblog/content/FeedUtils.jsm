@@ -428,7 +428,7 @@ var FeedUtils = {
     ds.Flush();
 
     // Update folderpane.
-    this.setFolderPaneProperty(aFeed.folder, "_favicon", null);
+    this.setFolderPaneProperty(aFeed.folder, "favicon", null, "row");
   },
 
 /**
@@ -463,7 +463,7 @@ var FeedUtils = {
     itemds.Flush();
 
     // Update folderpane.
-    this.setFolderPaneProperty(aParentFolder, "_favicon", null);
+    this.setFolderPaneProperty(aParentFolder, "favicon", null, "row");
 
     feed = null;
   },
@@ -584,33 +584,29 @@ var FeedUtils = {
   },
 
 /**
- * Update a folderpane ftvItem property.
+ * Update a folderpane cached property.
  *
  * @param  nsIMsgFolder aFolder   - folder
- * @param  string aProperty       - ftvItem property
+ * @param  string aProperty       - property
  * @param  string aValue          - value
+ * @param  string aInvalidate     - "row" = folder's row.
+ *                                  "all" = all rows.
  */
-  setFolderPaneProperty: function(aFolder, aProperty, aValue) {
+  setFolderPaneProperty: function(aFolder, aProperty, aValue, aInvalidate) {
     let win = Services.wm.getMostRecentWindow("mail:3pane");
-    if (!aFolder || !win)
+    if (!aFolder || !aProperty || !win || !("gFolderTreeView" in win))
       return;
 
-    if ("gFolderTreeView" in win) {
-      let row = win.gFolderTreeView.getIndexOfFolder(aFolder);
-      let rowItem = win.gFolderTreeView.getFTVItemForIndex(row);
-      if (rowItem == null)
-        return;
+    win.gFolderTreeView.setFolderCacheProperty(aFolder, aProperty, aValue);
 
-      rowItem[aProperty] = aValue;
+    if (aInvalidate == "all") {
+      win.gFolderTreeView._tree.invalidate();
+    }
+    if (aInvalidate == "row") {
+      let row = win.gFolderTreeView.getIndexOfFolder(aFolder);
       win.gFolderTreeView._tree.invalidateRow(row);
     }
   },
-
-  get mFaviconService() {
-    delete this.mFaviconService;
-    return this.mFaviconService = Cc["@mozilla.org/browser/favicon-service;1"]
-                                    .getService(Ci.nsIFaviconService);
- },
 
 /**
  * Get the favicon for a feed folder subscription url (first one) or a feed
@@ -620,30 +616,55 @@ var FeedUtils = {
  * @param  nsIMsgFolder aFolder - the feed folder or null if aUrl
  * @param  string aUrl          - a url (feed, message, other) or null if aFolder
  * @param  string aIconUrl      - the icon url if already determined, else null
- * @param  nsIDOMWindow aWindow - null or caller's window if aCallback needed
+ * @param  nsIDOMWindow aWindow - null if requesting url without setting it
  * @param  function aCallback   - null or callback
  * @return string               - the favicon url or empty string
  */
   getFavicon: function(aFolder, aUrl, aIconUrl, aWindow, aCallback) {
-    if (!Services.prefs.getBoolPref("browser.chrome.site_icons") ||
-        !Services.prefs.getBoolPref("browser.chrome.favicons") ||
-         (aCallback && !aWindow))
+    // On any error, cache an empty string to show the default favicon, and
+    // don't try anymore in this session.
+    let useDefaultFavicon = (() => {
+      if (aCallback)
+        aCallback("");
       return "";
+    });
 
-    if (aIconUrl)
+    if (!Services.prefs.getBoolPref("browser.chrome.site_icons") ||
+        !Services.prefs.getBoolPref("browser.chrome.favicons"))
+      return useDefaultFavicon();
+
+    if (aIconUrl != null)
       return aIconUrl;
+
+    let onLoadSuccess = (aEvent => {
+      let iconUri = Services.io.newURI(aEvent.target.src, null, null);
+      aWindow.specialTabs.mFaviconService.setAndFetchFaviconForPage(
+        uri, iconUri, false,
+        aWindow.specialTabs.mFaviconService.FAVICON_LOAD_NON_PRIVATE,
+        null, Services.scriptSecurityManager.getSystemPrincipal());
+
+      if (aCallback)
+        aCallback(iconUri.spec);
+    });
+
+    let onLoadError = (aEvent => {
+      useDefaultFavicon();
+      let url = aEvent.target.src;
+      aWindow.specialTabs.getFaviconFromPage(url, aCallback);
+    });
 
     let url = aUrl;
     if (!url)
     {
-      // Get the proposed iconUrl from the folder's first subscribed feed's <link>.
+      // Get the proposed iconUrl from the folder's first subscribed feed's
+      // <link>.
       if (!aFolder)
-        return "";
+        return useDefaultFavicon();
 
       let feedUrls = this.getFeedUrlsInFolder(aFolder);
       url = feedUrls ? feedUrls[0] : null;
       if (!url)
-        return "";
+        return useDefaultFavicon();
     }
 
     if (aFolder)
@@ -662,104 +683,19 @@ var FeedUtils = {
       iconUri = Services.io.newURI(uri.prePath + "/favicon.ico", null, null);
     }
     catch (ex) {
-      return "";
+      return useDefaultFavicon();
     }
 
-    if (!iconUri || !this.isValidScheme(iconUri))
-      return "";
+    if (!aWindow)
+      return iconUri.spec;
 
-    try {
-      // Valid urls with an icon image gecko cannot render will cause a throw.
-      FeedUtils.mFaviconService.setAndFetchFaviconForPage(
-        uri, iconUri, false, FeedUtils.mFaviconService.FAVICON_LOAD_NON_PRIVATE,
-        null, Services.scriptSecurityManager.getSystemPrincipal());
-    }
-    catch (ex) {}
-
-    if (aWindow) {
-      // Unfortunately, setAndFetchFaviconForPage() does not invoke its
-      // callback (Bug 740457).  So we have to do it this way. Try to resolve
-      // quickly at first, since most fails will do so and it's better ux to
-      // populate the icon fast; resolve slow responders on a second check.
-      aWindow.setTimeout(function() {
-        if (FeedUtils.mFaviconService.isFailedFavicon(iconUri)) {
-          let uri = Services.io.newURI(iconUri.prePath, null, null);
-          FeedUtils.getFaviconFromPage(uri.prePath, aCallback, null);
-        }
-        else {
-          // Check slow loaders again.
-          aWindow.setTimeout(function() {
-            if (FeedUtils.mFaviconService.isFailedFavicon(iconUri)) {
-              let uri = Services.io.newURI(iconUri.prePath, null, null);
-              FeedUtils.getFaviconFromPage(uri.prePath, aCallback, null);
-            }
-          }, 6000);
-        }
-      }, 2000);
-    }
+    aWindow.specialTabs.loadFaviconImageNode(onLoadSuccess, onLoadError,
+                                             iconUri.spec);
+    // Cache the favicon url initially.
+    if (aCallback)
+      aCallback(iconUri.spec);
 
     return iconUri.spec;
-  },
-
-/**
- * Get the favicon by parsing for <link rel=""> with "icon" from the page's dom.
- * @param  string aUrl        - a url from whose homepage to get a favicon
- * @param  function aCallback - callback
- * @param  aArg               - caller's argument or null
- */
-  getFaviconFromPage: function(aUrl, aCallback, aArg) {
-    let onDownload = function(aEvent) {
-      let request = aEvent.target;
-      responseDomain = request.channel.URI.prePath;
-      let dom = request.response;
-      if (request.status != 200 || !(dom instanceof Ci.nsIDOMHTMLDocument) ||
-          !dom.head) {
-        onDownloadError();
-        return;
-      }
-
-      let iconUri;
-      let linkNode = dom.head.querySelector('link[rel="shortcut icon"],' +
-                                            'link[rel="icon"]');
-      let href = linkNode ? linkNode.href : null;
-      try {
-        iconUri = Services.io.newURI(href, null, null);
-
-        if (!iconUri || !FeedUtils.isValidScheme(iconUri) ||
-            !FeedUtils.isValidScheme(uri) ||
-            FeedUtils.mFaviconService.isFailedFavicon(iconUri)) {
-          onDownloadError();
-          return;
-        }
-
-        FeedUtils.mFaviconService.setAndFetchFaviconForPage(
-          uri, iconUri, false, FeedUtils.mFaviconService.FAVICON_LOAD_NON_PRIVATE,
-          null, Services.scriptSecurityManager.getSystemPrincipal());
-        if (aCallback)
-          aCallback(iconUri.spec, responseDomain, aArg);
-      }
-      catch (ex) {
-        onDownloadError();
-      }
-    }
-
-    let onDownloadError = function() {
-      if (aCallback)
-        aCallback(null, responseDomain, aArg);
-    }
-
-    if (!aUrl)
-      onDownloadError();
-
-    let uri = Services.io.newURI(aUrl, null, null);
-    let responseDomain;
-    let request = Cc["@mozilla.org/xmlextras/xmlhttprequest;1"]
-                    .createInstance(Ci.nsIXMLHttpRequest);
-    request.open("GET", aUrl, true);
-    request.responseType = "document";
-    request.onload = onDownload;
-    request.onerror = onDownloadError;
-    request.send(null);
   },
 
 /**
