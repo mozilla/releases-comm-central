@@ -13,6 +13,7 @@
 <!ENTITY locationEditField.label "Image Location:">
 <!ENTITY locationEditField.accessKey "L">
 <!ENTITY locationEditField.tooltip "Type the image's filename or location">
+<!ENTITY locationEditField.shortenedDataURI "Shortened data URI (copy will place the full URI onto the clipboard)">
 <!ENTITY title.label "Tooltip:">
 <!ENTITY title.accessKey "T">
 <!ENTITY title.tooltip "The html 'title' attribute that displays as a tooltip">

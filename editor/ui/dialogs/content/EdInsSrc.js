@@ -5,11 +5,13 @@
 
 /* Insert Source HTML dialog */
 
-var gDataURIs = new Map();
+var gFullDataStrings = new Map();
+var gShortDataStrings = new Map();
+var gListenerAttached = false;
 
 function Startup()
 {
-  var editor = GetCurrentEditor();
+  let editor = GetCurrentEditor();
   if (!editor)
   {
     window.close();
@@ -21,21 +23,19 @@ function Startup()
   // Create dialog object to store controls for easy access
   gDialog.srcInput = document.getElementById("srcInput");
 
-  var selection;
+  let selection;
   try {
     selection = editor.outputToString("text/html", kOutputFormatted | kOutputSelectionOnly | kOutputWrap);
   } catch (e) {}
   if (selection)
   {
-    var count = 0;
+    gDialog.srcInput.addEventListener("paste", onPaste);
+
     selection = (selection.replace(/<body[^>]*>/,"")).replace(/<\/body>/,"");
-    // Hide the raw binary data part of data URIs.
-    selection = selection.replace(/(src|href)(="data:[^;]*;base64,)[^"]+/gi,
-      function(match, attr, nonDataPart) {
-        count++;
-        gDataURIs.set(count, match);
-        return attr + nonDataPart + "…[" + count + "]";
-      });
+
+    // Shorten data URIs for display.
+    selection = replaceDataURIs(selection);
+
     if (selection)
       gDialog.srcInput.value = selection;
   }
@@ -45,19 +45,97 @@ function Startup()
   SetWindowLocation();
 }
 
+function replaceDataURIs(input)
+{
+  return input.replace(/(src|href)(="data:[^;]*;base64,)([^"]+)/gi,
+    function(match, attr, nonDataPart, dataPart) {
+
+      if (gShortDataStrings.has(dataPart)) {
+          // We found the exact same data URI, just return the shortened URI.
+          return attr + nonDataPart + gShortDataStrings.get(dataPart);
+      }
+
+      let l = 5;
+      // Normally we insert the ellipsis after five characters but if it's not unique
+      // we include more data.
+      do {
+        key = dataPart.substr(0, l) + "…" + dataPart.substr(dataPart.length - 10);
+        l++;
+      } while (gFullDataStrings.has(key) && l < dataPart.length - 10);
+      gFullDataStrings.set(key, dataPart);
+      gShortDataStrings.set(dataPart, key);
+
+      // Attach listeners. In case anyone copies/cuts from the HTML window,
+      // we want to restore the data URI on the clipboard.
+      if (!gListenerAttached) {
+        gDialog.srcInput.addEventListener("copy", onCopy);
+        gDialog.srcInput.addEventListener("cut", onCut);
+        gListenerAttached = true;
+      }
+
+      return attr + nonDataPart + key;
+    });
+}
+
+function onCut(event) {
+  commonCopyCut(event, true);
+}
+function onCopy(event) {
+  commonCopyCut(event, false);
+}
+
+function commonCopyCut(event, isCut)
+{
+  let startPos = gDialog.srcInput.selectionStart;
+  if (startPos == undefined)
+    return;
+  let endPos = gDialog.srcInput.selectionEnd;
+  let clipboard = gDialog.srcInput.value.substring(startPos, endPos);
+
+  // Add back the original data URIs we stashed away earlier.
+  clipboard = clipboard.replace(/(data:[^;]*;base64,)([^"]+)/gi,
+    function(match, nonDataPart, key) {
+      if (!gFullDataStrings.has(key))
+        return match; // user changed data URI
+      return nonDataPart + gFullDataStrings.get(key);
+    });
+  event.clipboardData.setData("text/plain", clipboard);
+  if (isCut) {
+    // We have to cut the selection manually.
+    gDialog.srcInput.value = gDialog.srcInput.value.substr(0, startPos) +
+                             gDialog.srcInput.value.substr(endPos);
+  }
+  event.preventDefault();
+}
+
+function onPaste(event)
+{
+  let startPos = gDialog.srcInput.selectionStart;
+  if (startPos == undefined)
+    return;
+  let endPos = gDialog.srcInput.selectionEnd;
+  let clipboard = event.clipboardData.getData("text/plain");
+
+  // We do out own paste by replacing the selection with the pre-processed
+  // clipboard data.
+  gDialog.srcInput.value = gDialog.srcInput.value.substr(0, startPos) +
+                           replaceDataURIs(clipboard) +
+                           gDialog.srcInput.value.substr(endPos);
+  event.preventDefault();
+}
+
 function onAccept()
 {
-  var html = gDialog.srcInput.value;
+  let html = gDialog.srcInput.value;
   if (!html)
     return false;
 
   // Add back the original data URIs we stashed away earlier.
-  html = html.replace(/(src|href)="data:[^;]*;base64,…\[([0-9]+)\]/gi,
-    function(match, attr, num) {
-      var index = parseInt(num);
-      if (!gDataURIs.has(index))
-        return match; // user edited number
-      return gDataURIs.get(index);
+  html = html.replace(/(src|href)(="data:[^;]*;base64,)([^"]+)/gi,
+    function(match, attr, nonDataPart, key) {
+      if (!gFullDataStrings.has(key))
+        return match; // user changed data URI
+      return attr + nonDataPart + gFullDataStrings.get(key);
     });
 
   try {
