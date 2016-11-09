@@ -6,33 +6,27 @@ var {interfaces: Ci, utils: Cu} = Components;
 
 Cu.import("resource:///modules/imXPCOMUtils.jsm");
 Cu.import("resource:///modules/jsProtoHelper.jsm");
-Cu.import("resource:///modules/xmpp.jsm");
-Cu.import("resource:///modules/xmpp-session.jsm");
 
 XPCOMUtils.defineLazyGetter(this, "_", () =>
   l10nHelper("chrome://chat/locale/facebook.properties")
-);
-XPCOMUtils.defineLazyGetter(this, "_irc", () =>
-  l10nHelper("chrome://chat/locale/irc.properties")
 );
 
 function FacebookAccount(aProtoInstance, aImAccount) {
   this._init(aProtoInstance, aImAccount);
 }
 FacebookAccount.prototype = {
-  __proto__: XMPPAccountPrototype,
-  get canJoinChat() { return false; },
+  __proto__: GenericAccountPrototype,
+
   connect: function() {
     this.WARN("As Facebook deprecated its XMPP gateway, it is currently not " +
               "possible to connect to Facebook Chat. See bug 1141674.");
     this.reportDisconnecting(Ci.prplIAccount.ERROR_OTHER_ERROR,
-                             _irc("error.unavailable", _("facebook.chat.name")));
+                             _("facebook.disabled"));
     this.reportDisconnected();
   }
 };
 
-function FacebookProtocol() {
-}
+function FacebookProtocol() {}
 FacebookProtocol.prototype = {
   __proto__: GenericProtocolPrototype,
   get normalizedName() { return "facebook"; },

@@ -342,8 +342,7 @@
                   msg = "<font face=\"" + style.fontFamily + "\">" + msg + "</font>";
                 // MSN doesn't support font size info in messages...
               }
-              else if (proto == "prpl-aim" || proto == "prpl-icq" ||
-                       proto == "prpl-yahoo" || proto == "prpl-yahoojp") {
+              else if (proto == "prpl-aim" || proto == "prpl-icq") {
                 let styleAttributes = ""
                 if ("color" in style)
                   styleAttributes += " color=\"" + style.color + "\"";
