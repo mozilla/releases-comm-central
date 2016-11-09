@@ -346,8 +346,8 @@ function nsBrowserAccess() {
 }
 
 nsBrowserAccess.prototype = {
-  openURI: function openURI(aURI, aOpener, aWhere, aContext) {
-    var isExternal = aContext == nsIBrowserDOMWindow.OPEN_EXTERNAL;
+  openURI: function openURI(aURI, aOpener, aWhere, aFlags) {
+    var isExternal = !!(aFlags & Ci.nsIBrowserDOMWindow.OPEN_EXTERNAL);
     if (aWhere == nsIBrowserDOMWindow.OPEN_DEFAULTWINDOW)
       if (isExternal)
         aWhere = Services.prefs.getIntPref("browser.link.open_external");
