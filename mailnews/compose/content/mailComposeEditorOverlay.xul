@@ -48,19 +48,8 @@
         }
       }
     }
-    addEventListener("load", OnLoadOverlay, false);
 
-    function OnAcceptOverlay()
-    {
-      // Restore data URI. We need to restore if there is a data URI and we
-      // find the ellipsis we added. The user could have pasted a full new
-      // data URI which we don't want to lose.
-      if (/^data:/i.test(gMsgCompInputElement.value.trim()) &&
-          gMsgCompInputElement.value.includes("...")) {
-        gMsgCompInputElement.value = gMsgCompPrevInputValue;
-      }
-    }
-    addEventListener("dialogaccept", OnAcceptOverlay, false);
+    addEventListener("load", OnLoadOverlay, false);
 
     function SetAttachCheckbox()
     {
@@ -114,49 +103,6 @@
           attach = (mozDoNotSend != "true");
 
         gMsgCompAttachSourceElement.checked = attach;
-
-        // Shorten data URIs for display. Let's not use an ellipsis character
-        // since this will look funny in the advanced edit dialogue.
-        gMsgCompInputElement.value = gMsgCompInputElement
-          .value.replace(/(data:[^;]*;base64,)(.*)/i,
-            function(match, nonDataPart, dataPart) {
-              gMsgCompInputElement.addEventListener("copy", onCopy);
-              gMsgCompInputElement.addEventListener("cut", onCut);
-              gMsgCompInputElement.setAttribute("tooltip", "shortenedDataURI");
-              return nonDataPart + dataPart.substring(0, 5) + "..." +
-                                   dataPart.substring(dataPart.length - 30);
-            });
-      }
-    }
-
-    function onCut(event) {
-      commonCopyCut(event, true);
-    }
-    function onCopy(event) {
-      commonCopyCut(event, false);
-    }
-    function commonCopyCut(event, isCut) {
-      // Put the original data URI onto the clipboard in case the value
-      // is a shortened data URI.
-      let startPos = gMsgCompInputElement.selectionStart;
-      if (startPos == undefined)
-        return;
-      let endPos = gMsgCompInputElement.selectionEnd;
-      let selection = gMsgCompInputElement.value.substring(startPos, endPos).trim();
-
-      // Test that a) the user selected the whole value,
-      //           b) the value is a data URI,
-      //           c) it contains the ellipsis we added. Otherwise it could be
-      //              a new value that the user pasted in.
-      if (selection == gMsgCompInputElement.value.trim() &&
-          /^data:/i.test(selection) && selection.includes("...")) {
-        event.clipboardData.setData("text/plain", gMsgCompPrevInputValue);
-        if (isCut) {
-          // We have to cut the selection manually. Since we tested that
-          // everything was selected, we can just reset the field.
-          gMsgCompInputElement.value = "";
-        }
-        event.preventDefault();
       }
     }
 

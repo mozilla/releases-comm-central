@@ -23,14 +23,15 @@ function Startup()
   // Create dialog object to store controls for easy access
   gDialog.srcInput = document.getElementById("srcInput");
 
+  // Attach a paste listener so we can detect pasted data URIs we need to shorten.
+  gDialog.srcInput.addEventListener("paste", onPaste);
+
   let selection;
   try {
     selection = editor.outputToString("text/html", kOutputFormatted | kOutputSelectionOnly | kOutputWrap);
   } catch (e) {}
   if (selection)
   {
-    gDialog.srcInput.addEventListener("paste", onPaste);
-
     selection = (selection.replace(/<body[^>]*>/,"")).replace(/<\/body>/,"");
 
     // Shorten data URIs for display.
@@ -47,12 +48,12 @@ function Startup()
 
 function replaceDataURIs(input)
 {
-  return input.replace(/(src|href)(="data:[^;]*;base64,)([^"]+)/gi,
-    function(match, attr, nonDataPart, dataPart) {
+  return input.replace(/(data:[^;]*;base64,)([^"' >]+)/gi,
+    function(match, nonDataPart, dataPart) {
 
       if (gShortDataStrings.has(dataPart)) {
           // We found the exact same data URI, just return the shortened URI.
-          return attr + nonDataPart + gShortDataStrings.get(dataPart);
+          return nonDataPart + gShortDataStrings.get(dataPart);
       }
 
       let l = 5;
@@ -68,23 +69,16 @@ function replaceDataURIs(input)
       // Attach listeners. In case anyone copies/cuts from the HTML window,
       // we want to restore the data URI on the clipboard.
       if (!gListenerAttached) {
-        gDialog.srcInput.addEventListener("copy", onCopy);
-        gDialog.srcInput.addEventListener("cut", onCut);
+        gDialog.srcInput.addEventListener("copy", onCopyOrCut);
+        gDialog.srcInput.addEventListener("cut", onCopyOrCut);
         gListenerAttached = true;
       }
 
-      return attr + nonDataPart + key;
+      return nonDataPart + key;
     });
 }
 
-function onCut(event) {
-  commonCopyCut(event, true);
-}
-function onCopy(event) {
-  commonCopyCut(event, false);
-}
-
-function commonCopyCut(event, isCut)
+function onCopyOrCut(event)
 {
   let startPos = gDialog.srcInput.selectionStart;
   if (startPos == undefined)
@@ -93,14 +87,14 @@ function commonCopyCut(event, isCut)
   let clipboard = gDialog.srcInput.value.substring(startPos, endPos);
 
   // Add back the original data URIs we stashed away earlier.
-  clipboard = clipboard.replace(/(data:[^;]*;base64,)([^"]+)/gi,
+  clipboard = clipboard.replace(/(data:[^;]*;base64,)([^"' >]+)/gi,
     function(match, nonDataPart, key) {
       if (!gFullDataStrings.has(key))
         return match; // user changed data URI
       return nonDataPart + gFullDataStrings.get(key);
     });
   event.clipboardData.setData("text/plain", clipboard);
-  if (isCut) {
+  if (event.type == "cut") {
     // We have to cut the selection manually.
     gDialog.srcInput.value = gDialog.srcInput.value.substr(0, startPos) +
                              gDialog.srcInput.value.substr(endPos);
@@ -131,11 +125,11 @@ function onAccept()
     return false;
 
   // Add back the original data URIs we stashed away earlier.
-  html = html.replace(/(src|href)(="data:[^;]*;base64,)([^"]+)/gi,
-    function(match, attr, nonDataPart, key) {
+  html = html.replace(/(data:[^;]*;base64,)([^"' >]+)/gi,
+    function(match, nonDataPart, key) {
       if (!gFullDataStrings.has(key))
         return match; // user changed data URI
-      return attr + nonDataPart + gFullDataStrings.get(key);
+      return nonDataPart + gFullDataStrings.get(key);
     });
 
   try {
