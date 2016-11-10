@@ -94,7 +94,7 @@
 
   <command id="cmd_quit" oncommand="goQuitApplication()"/>
   <command id="cmd_copyLink" oncommand="goDoCommand('cmd_copyLink')" disabled="false"/>
-  <command id="cmd_copyImage" oncommand="goDoCommand('cmd_copyImage')" disabled="false"/>
+  <command id="cmd_copyImage" oncommand="goCopyImage()" disabled="false"/>
   <command id="cmd_undo" oncommand="goDoCommand('cmd_undo')" disabled="true"/>
   <command id="cmd_redo" oncommand="goDoCommand('cmd_redo')" disabled="true"/>
   <command id="cmd_cut" oncommand="goDoCommand('cmd_cut')" disabled="true"/>

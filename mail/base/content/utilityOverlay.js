@@ -47,6 +47,23 @@ function goUpdatePasteMenuItems()
   goUpdateCommand('cmd_paste');
 }
 
+function goCopyImage() {
+  let img = document.popupNode;
+  if (/^(https?|data):/i.test(img.src)) {
+    goDoCommand("cmd_copyImage");
+    return;
+  }
+  // A mailbox/imap URL then... copy only data then since the HTML data is
+  // not that useful for pasting when the image won't be resolved.
+  let param = Components.classes["@mozilla.org/embedcomp/command-params;1"]
+                        .createInstance(Components.interfaces.nsICommandParams);
+  param.setLongValue("imageCopy",
+                     Components.interfaces.nsIContentViewerEdit.COPY_IMAGE_DATA);
+  document.commandDispatcher.getControllerForCommand("cmd_copyImage")
+          .QueryInterface(Components.interfaces.nsICommandController)
+          .doCommandWithParams("cmd_copyImage", param);
+}
+
 // update Find As You Type menu items, they rely on focus
 function goUpdateFindTypeMenuItems()
 {
