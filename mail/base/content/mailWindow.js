@@ -551,10 +551,9 @@ function nsBrowserAccess() { }
 nsBrowserAccess.prototype = {
   QueryInterface: XPCOMUtils.generateQI([Components.interfaces.nsIBrowserDOMWindow]),
 
-  openURI: function (aURI, aOpener, aWhere, aContext) {
+  openURI: function (aURI, aOpener, aWhere, aFlags) {
     const nsIBrowserDOMWindow = Components.interfaces.nsIBrowserDOMWindow;
-    let isExternal = aContext == nsIBrowserDOMWindow.OPEN_EXTERNAL;
-
+    let isExternal = !!(aFlags & Components.interfaces.nsIBrowserDOMWindow.OPEN_EXTERNAL);
     if (isExternal && aURI && aURI.schemeIs("chrome")) {
       Services.console.logStringMessage("use -chrome command-line option to load external chrome urls\n");
       return null;
