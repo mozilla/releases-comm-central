@@ -30,7 +30,7 @@ var gOriginalSrc = "";
 var gHaveDocumentUrl = false;
 var gTimerID;
 var gValidateTab;
-var gFullDataURI;
+var gFullDataURI = null;
 var gListenerAttached = false;
 
 // These must correspond to values in EditorDialog.css for each theme
@@ -103,19 +103,22 @@ function InitImage()
   // Set the controls to the image's attributes
   var src = globalElement.getAttribute("src");
 
-  // Shorten data URIs for display.
-  gDialog.srcInput.value = src.replace(/(data:[^;]*;base64,)(.*)/i,
-    function(match, nonDataPart, dataPart) {
-      if (!gListenerAttached) {
-        gDialog.srcInput.addEventListener("copy", onCopyOrCut);
-        gDialog.srcInput.addEventListener("cut", onCopyOrCut);
-        gListenerAttached = true;
-      }
-      gDialog.srcInput.setAttribute("tooltip", "shortenedDataURI");
-      gFullDataURI = src;
-      return nonDataPart + dataPart.substring(0, 5) + "…" +
-                           dataPart.substring(dataPart.length - 30);
-    });
+  // For image insertion the 'src' attribute is null. 
+  if (src) {
+    // Shorten data URIs for display.
+    gDialog.srcInput.value = src.replace(/(data:[^;]*;base64,)(.*)/i,
+      function(match, nonDataPart, dataPart) {
+        if (!gListenerAttached) {
+          gDialog.srcInput.addEventListener("copy", onCopyOrCut);
+          gDialog.srcInput.addEventListener("cut", onCopyOrCut);
+          gListenerAttached = true;
+        }
+        gDialog.srcInput.setAttribute("tooltip", "shortenedDataURI");
+        gFullDataURI = src;
+        return nonDataPart + dataPart.substring(0, 5) + "…" +
+                             dataPart.substring(dataPart.length - 30);
+      });
+  }
 
   // Set "Relativize" checkbox according to current URL state
   SetRelativeCheckbox();
