@@ -59,7 +59,7 @@ nsMailboxProtocol::nsMailboxProtocol(nsIURI * aURI)
 
 nsMailboxProtocol::~nsMailboxProtocol()
 {
-  // free our local state 
+  // free our local state
   delete m_lineStreamBuffer;
 }
 
@@ -89,7 +89,7 @@ nsresult nsMailboxProtocol::Initialize(nsIURI * aURL)
     if (NS_SUCCEEDED(rv) && m_runningUrl)
     {
       nsCOMPtr <nsIMsgWindow> window;
-      rv = m_runningUrl->GetMailboxAction(&m_mailboxAction); 
+      rv = m_runningUrl->GetMailboxAction(&m_mailboxAction);
       // clear stopped flag on msg window, because we care.
       nsCOMPtr <nsIMsgMailNewsUrl> mailnewsUrl = do_QueryInterface(m_runningUrl);
       if (mailnewsUrl)
@@ -175,20 +175,20 @@ nsresult nsMailboxProtocol::Initialize(nsIURI * aURL)
       }
     }
   }
-  
+
   m_lineStreamBuffer = new nsMsgLineStreamBuffer(OUTPUT_BUFFER_SIZE, true);
-  
+
   m_nextState = MAILBOX_READ_FOLDER;
   m_initialState = MAILBOX_READ_FOLDER;
   mCurrentProgress = 0;
-  
+
   // do we really need both?
   m_tempMessageFile = m_tempMsgFile;
   return rv;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////
-// we suppport the nsIStreamListener interface 
+// we suppport the nsIStreamListener interface
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 NS_IMETHODIMP nsMailboxProtocol::OnStartRequest(nsIRequest *request, nsISupports *ctxt)
@@ -216,7 +216,7 @@ bool nsMailboxProtocol::RunningMultipleMsgUrl()
   return false;
 }
 
-// stop binding is a "notification" informing us that the stream associated with aURL is going away. 
+// stop binding is a "notification" informing us that the stream associated with aURL is going away.
 NS_IMETHODIMP nsMailboxProtocol::OnStopRequest(nsIRequest *request, nsISupports *ctxt, nsresult aStatus)
 {
   nsresult rv;
@@ -225,7 +225,7 @@ NS_IMETHODIMP nsMailboxProtocol::OnStopRequest(nsIRequest *request, nsISupports 
     // we need to inform our mailbox parser that there is no more incoming data...
     m_mailboxParser->OnStopRequest(request, ctxt, aStatus);
   }
-  else if (m_nextState == MAILBOX_READ_MESSAGE) 
+  else if (m_nextState == MAILBOX_READ_MESSAGE)
   {
     DoneReadingMessage();
   }
@@ -241,7 +241,7 @@ NS_IMETHODIMP nsMailboxProtocol::OnStopRequest(nsIRequest *request, nsISupports 
       if (window)
         window->GetStopped(&stopped);
     }
-    
+
     if (!stopped && NS_SUCCEEDED(aStatus) && (m_mailboxAction == nsIMailboxUrl::ActionCopyMessage || m_mailboxAction == nsIMailboxUrl::ActionMoveMessage))
     {
       uint32_t numMoveCopyMsgs;
@@ -291,9 +291,9 @@ NS_IMETHODIMP nsMailboxProtocol::OnStopRequest(nsIRequest *request, nsISupports 
                 // put us in a state where we are always notified of incoming data
                 //
 
-                m_transport = 0; // open new stream transport
-                m_inputStream = 0;
-                m_outputStream = 0;
+                m_transport = nullptr; // open new stream transport
+                m_inputStream = nullptr;
+                m_outputStream = nullptr;
 
                 if (m_multipleMsgMoveCopyStream)
                 {
@@ -355,32 +355,32 @@ NS_IMETHODIMP nsMailboxProtocol::OnStopRequest(nsIRequest *request, nsISupports 
       }
     }
   }
-  // and we want to mark ourselves for deletion or some how inform our protocol manager that we are 
+  // and we want to mark ourselves for deletion or some how inform our protocol manager that we are
   // available for another url if there is one.
-  
+
   // mscott --> maybe we should set our state to done because we don't run multiple urls in a mailbox
   // protocol connection....
   m_nextState = MAILBOX_DONE;
-  
+
   // the following is for smoke test purposes. QA is looking at this "Mailbox Done" string which
   // is printed out to the console and determining if the mail app loaded up correctly...obviously
   // this solution is not very good so we should look at something better, but don't remove this
   // line before talking to me (mscott) and mailnews QA....
-  
+
   MOZ_LOG(MAILBOX, mozilla::LogLevel::Info, ("Mailbox Done\n"));
-  
+
   // when on stop binding is called, we as the protocol are done...let's close down the connection
   // releasing all of our interfaces. It's important to remember that this on stop binding call
   // is coming from netlib so they are never going to ping us again with on data available. This means
   // we'll never be going through the Process loop...
-  
+
   if (m_multipleMsgMoveCopyStream)
   {
     m_multipleMsgMoveCopyStream->Close();
     m_multipleMsgMoveCopyStream = nullptr;
   }
   nsMsgProtocol::OnStopRequest(request, ctxt, aStatus);
-  return CloseSocket(); 
+  return CloseSocket();
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////
@@ -391,20 +391,20 @@ nsresult nsMailboxProtocol::DoneReadingMessage()
 {
   nsresult rv = NS_OK;
   // and close the article file if it was open....
-  
+
   if (m_mailboxAction == nsIMailboxUrl::ActionSaveMessageToDisk && m_msgFileOutputStream)
     rv = m_msgFileOutputStream->Close();
-  
+
   return rv;
 }
 
 nsresult nsMailboxProtocol::SetupMessageExtraction()
 {
-  // Determine the number of bytes we are going to need to read out of the 
+  // Determine the number of bytes we are going to need to read out of the
   // mailbox url....
   nsCOMPtr<nsIMsgDBHdr> msgHdr;
   nsresult rv = NS_OK;
-  
+
   NS_ASSERTION(m_runningUrl, "Not running a url");
   if (m_runningUrl)
   {
@@ -439,7 +439,7 @@ nsresult nsMailboxProtocol::LoadUrl(nsIURI * aURL, nsISupports * aConsumer)
   nsCOMPtr<nsIStreamListener> consumer = do_QueryInterface(aConsumer);
   if (consumer)
     m_channelListener = consumer;
-  
+
   if (aURL)
   {
     m_runningUrl = do_QueryInterface(aURL);
@@ -447,7 +447,7 @@ nsresult nsMailboxProtocol::LoadUrl(nsIURI * aURL, nsISupports * aConsumer)
     {
       // find out from the url what action we are supposed to perform...
       rv = m_runningUrl->GetMailboxAction(&m_mailboxAction);
-      
+
       bool convertData = false;
 
       // need to check if we're fetching an rfc822 part in order to
@@ -486,7 +486,7 @@ nsresult nsMailboxProtocol::LoadUrl(nsIURI * aURL, nsISupports * aConsumer)
                                                  "*/*",
                                                  consumer, channel, getter_AddRefs(m_channelListener));
       }
-      
+
       if (NS_SUCCEEDED(rv))
       {
         switch (m_mailboxAction)
@@ -533,12 +533,12 @@ nsresult nsMailboxProtocol::LoadUrl(nsIURI * aURL, nsISupports * aConsumer)
           break;
         }
       }
-      
+
       rv = nsMsgProtocol::LoadUrl(aURL, m_channelListener);
-      
+
     } // if we received an MAILBOX url...
   } // if we received a url!
-  
+
   return rv;
 }
 
@@ -547,10 +547,10 @@ int32_t nsMailboxProtocol::ReadFolderResponse(nsIInputStream * inputStream, uint
   // okay we are doing a folder read in 8K chunks of a mail folder....
   // this is almost too easy....we can just forward the data in this stream on to our
   // folder parser object!!!
-  
+
   nsresult rv = NS_OK;
   mCurrentProgress += length;
-  
+
   if (m_mailboxParser)
   {
     nsCOMPtr <nsIURI> url = do_QueryInterface(m_runningUrl);
@@ -561,16 +561,16 @@ int32_t nsMailboxProtocol::ReadFolderResponse(nsIInputStream * inputStream, uint
     m_nextState = MAILBOX_ERROR_DONE; // drop out of the loop....
     return -1;
   }
-  
+
   // now wait for the next 8K chunk to come in.....
   SetFlag(MAILBOX_PAUSE_FOR_READ);
-  
+
   // leave our state alone so when the next chunk of the mailbox comes in we jump to this state
   // and repeat....how does this process end? Well when the file is done being read in, core net lib
   // will issue an ::OnStopRequest to us...we'll use that as our sign to drop out of this state and to
   // close the protocol instance...
-  
-  return 0; 
+
+  return 0;
 }
 
 int32_t nsMailboxProtocol::ReadMessageResponse(nsIInputStream * inputStream, uint64_t sourceOffset, uint32_t length)
@@ -579,10 +579,10 @@ int32_t nsMailboxProtocol::ReadMessageResponse(nsIInputStream * inputStream, uin
   uint32_t status = 0;
   nsresult rv = NS_OK;
   mCurrentProgress += length;
-  
+
   // if we are doing a move or a copy, forward the data onto the copy handler...
   // if we want to display the message then parse the incoming data...
-  
+
   if (m_channelListener)
   {
     // just forward the data we read in to the listener...
@@ -593,7 +593,7 @@ int32_t nsMailboxProtocol::ReadMessageResponse(nsIInputStream * inputStream, uin
     bool pauseForMoreData = false;
     bool canonicalLineEnding = false;
     nsCOMPtr<nsIMsgMessageUrl> msgurl = do_QueryInterface(m_runningUrl);
-    
+
     if (msgurl)
       msgurl->GetCanonicalLineEnding(&canonicalLineEnding);
 
@@ -633,7 +633,7 @@ int32_t nsMailboxProtocol::ReadMessageResponse(nsIInputStream * inputStream, uin
     }
     PR_Free(line);
   }
-  
+
   SetFlag(MAILBOX_PAUSE_FOR_READ); // wait for more data to become available...
   if (mProgressEventSink && m_runningUrl)
   {
@@ -644,9 +644,9 @@ int32_t nsMailboxProtocol::ReadMessageResponse(nsIInputStream * inputStream, uin
                                    mCurrentProgress,
                                    maxProgress);
   }
-  
+
   if (NS_FAILED(rv)) return -1;
-  
+
   return 0;
 }
 
@@ -661,11 +661,11 @@ nsresult nsMailboxProtocol::ProcessProtocolState(nsIURI * url, nsIInputStream * 
   nsresult rv = NS_OK;
   int32_t status = 0;
   ClearFlag(MAILBOX_PAUSE_FOR_READ); /* already paused; reset */
-  
+
   while(!TestFlag(MAILBOX_PAUSE_FOR_READ))
   {
-    
-    switch(m_nextState) 
+
+    switch(m_nextState)
     {
     case MAILBOX_READ_MESSAGE:
       if (inputStream == nullptr)
@@ -688,18 +688,18 @@ nsresult nsMailboxProtocol::ProcessProtocolState(nsIURI * url, nsIInputStream * 
         m_nextState = MAILBOX_FREE;
       }
       break;
-      
+
     case MAILBOX_FREE:
       // MAILBOX is a one time use connection so kill it if we get here...
-      CloseSocket(); 
+      CloseSocket();
       return rv; /* final end */
-      
+
     default: /* should never happen !!! */
       m_nextState = MAILBOX_ERROR_DONE;
       break;
     }
-    
-    /* check for errors during load and call error 
+
+    /* check for errors during load and call error
     * state if found
     */
     if(status < 0 && m_nextState != MAILBOX_FREE)
@@ -709,14 +709,14 @@ nsresult nsMailboxProtocol::ProcessProtocolState(nsIURI * url, nsIInputStream * 
       ClearFlag(MAILBOX_PAUSE_FOR_READ);
     }
   } /* while(!MAILBOX_PAUSE_FOR_READ) */
-  
+
   return rv;
 }
 
 nsresult nsMailboxProtocol::CloseSocket()
 {
   // how do you force a release when closing the connection??
-  nsMsgProtocol::CloseSocket(); 
+  nsMsgProtocol::CloseSocket();
   m_runningUrl = nullptr;
   m_mailboxParser = nullptr;
   return NS_OK;

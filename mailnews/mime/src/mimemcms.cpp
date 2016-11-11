@@ -301,7 +301,7 @@ MimeMultCMS_data_eof (void *crypto_closure, bool abort_p)
   memcpy(data->item_data, hashString.get(), data->item_len);
 
   // Release our reference to nsICryptoHash //
-  data->data_hash_context = 0;
+  data->data_hash_context = nullptr;
 
   /* At this point, data->item.data contains a digest for the first part.
    When we process the signature, the security library will compare this
@@ -383,7 +383,7 @@ MimeMultCMS_sig_eof (void *crypto_closure, bool abort_p)
     data->sig_decoder_context->Finish(getter_AddRefs(data->content_info));
 
     // Release our reference to nsICMSDecoder //
-    data->sig_decoder_context = 0;
+    data->sig_decoder_context = nullptr;
   }
 
   return 0;

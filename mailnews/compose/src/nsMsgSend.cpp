@@ -942,7 +942,7 @@ nsMsgComposeAndSend::GatherMimeAttachments()
   if (m_crypto_closure)
   {
     status = m_crypto_closure->FinishCryptoEncapsulation(false, mSendReport);
-    m_crypto_closure = 0;
+    m_crypto_closure = nullptr;
     if (NS_FAILED(status)) goto FAIL;
   }
 

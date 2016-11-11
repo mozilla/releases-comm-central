@@ -73,7 +73,7 @@ typedef struct MimeCMSdata
   bool parent_is_encrypted_p;
   bool parent_holds_stamp_p;
   nsCOMPtr<nsIMsgSMIMEHeaderSink> smimeHeaderSink;
-  
+
   MimeCMSdata()
   :output_fn(nullptr),
   output_closure(nullptr),
@@ -86,7 +86,7 @@ typedef struct MimeCMSdata
   parent_holds_stamp_p(false)
   {
   }
-  
+
   ~MimeCMSdata()
   {
     if(sender_addr)
@@ -140,7 +140,7 @@ bool MimeEncryptedCMS_encrypted_p (MimeObject *obj)
 }
 
 
-bool MimeCMSHeadersAndCertsMatch(nsICMSMessage *content_info, 
+bool MimeCMSHeadersAndCertsMatch(nsICMSMessage *content_info,
                                    nsIX509Cert *signerCert,
                                    const char *from_addr,
                                    const char *from_name,
@@ -218,7 +218,7 @@ public:
 
 protected:
   virtual ~nsSMimeVerificationListener() {}
-  
+
   /**
    * It is safe to declare this implementation as thread safe,
    * despite not using a lock to protect the members.
@@ -300,17 +300,17 @@ NS_IMETHODIMP nsSMimeVerificationListener::Notify(nsICMSMessage2 *aVerifiedMessa
 {
   // Only continue if we have a valid pointer to the UI
   NS_ENSURE_FALSE(mSinkIsNull, NS_OK);
-  
+
   NS_ENSURE_TRUE(aVerifiedMessage, NS_ERROR_FAILURE);
-  
+
   nsCOMPtr<nsICMSMessage> msg = do_QueryInterface(aVerifiedMessage);
   NS_ENSURE_TRUE(msg, NS_ERROR_FAILURE);
-  
+
   nsCOMPtr<nsIX509Cert> signerCert;
   msg->GetSignerCert(getter_AddRefs(signerCert));
-  
+
   int32_t signature_status = nsICMSMessageErrors::GENERAL_ERROR;
-  
+
   if (NS_FAILED(aVerificationResultCode))
   {
     if (NS_ERROR_MODULE_SECURITY == NS_ERROR_GET_MODULE(aVerificationResultCode))
@@ -333,7 +333,7 @@ NS_IMETHODIMP nsSMimeVerificationListener::Notify(nsICMSMessage2 *aVerifiedMessa
       else
         signature_status = nsICMSMessageErrors::VERIFY_HEADER_MISMATCH;
     }
-    else 
+    else
       signature_status = nsICMSMessageErrors::SUCCESS;
   }
 
@@ -411,7 +411,7 @@ int MIMEGetRelativeCryptoNestLevel(MimeObject *obj)
 }
 
 static void *MimeCMS_init(MimeObject *obj,
-                          int (*output_fn) (const char *buf, int32_t buf_size, void *output_closure), 
+                          int (*output_fn) (const char *buf, int32_t buf_size, void *output_closure),
                           void *output_closure)
 {
   MimeCMSdata *data;
@@ -572,13 +572,13 @@ void MimeCMSRequestAsyncSignatureVerification(nsICMSMessage *aCMSMsg,
   nsCOMPtr<nsICMSMessage2> msg2 = do_QueryInterface(aCMSMsg);
   if (!msg2)
     return;
-  
-  RefPtr<nsSMimeVerificationListener> listener = 
+
+  RefPtr<nsSMimeVerificationListener> listener =
     new nsSMimeVerificationListener(aFromAddr, aFromName, aSenderAddr, aSenderName,
                                     aHeaderSink, aMimeNestingLevel);
   if (!listener)
     return;
-  
+
   if (item_data)
     msg2->AsyncVerifyDetachedSignature(listener, item_data, item_len);
   else
@@ -611,7 +611,7 @@ MimeCMS_eof (void *crypto_closure, bool abort_p)
   if (NS_FAILED(rv))
     status = nsICMSMessageErrors::GENERAL_ERROR;
 
-  data->decoder_context = 0;
+  data->decoder_context = nullptr;
 
   nsCOMPtr<nsIX509Cert> certOfInterest;
 
@@ -675,14 +675,14 @@ MimeCMS_eof (void *crypto_closure, bool abort_p)
       nsCString sender_addr;
       nsCString sender_name;
 
-      MimeCMSGetFromSender(data->self, 
+      MimeCMSGetFromSender(data->self,
                            from_addr, from_name,
                            sender_addr, sender_name);
 
-      MimeCMSRequestAsyncSignatureVerification(data->content_info, 
+      MimeCMSRequestAsyncSignatureVerification(data->content_info,
                                                from_addr.get(), from_name.get(),
                                                sender_addr.get(), sender_name.get(),
-                                               data->smimeHeaderSink, aRelativeNestLevel, 
+                                               data->smimeHeaderSink, aRelativeNestLevel,
                                                nullptr, 0);
     }
   }
@@ -704,7 +704,7 @@ MimeCMS_free (void *crypto_closure)
 {
   MimeCMSdata *data = (MimeCMSdata *) crypto_closure;
   if (!data) return;
-  
+
   delete data;
 }
 

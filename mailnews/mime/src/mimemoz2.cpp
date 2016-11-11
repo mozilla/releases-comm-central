@@ -496,7 +496,7 @@ BuildAttachmentList(MimeObject *anObject, nsMsgAttachmentData *aAttachData, cons
   int32_t               i;
   MimeContainer         *cobj = (MimeContainer *) anObject;
   bool                  found_output = false;
-  
+
   if ( (!anObject) || (!cobj->children) || (!cobj->nchildren) ||
        (mime_typep(anObject, (MimeObjectClass *)&mimeExternalBodyClass)))
     return NS_OK;
@@ -1530,7 +1530,7 @@ mime_bridge_create_display_stream(
   rv = CallCreateInstance(MOZ_TXTTOHTMLCONV_CONTRACTID, &(msd->options->conv));
   if (NS_FAILED(rv))
   {
-    msd->options->m_prefBranch = 0;
+    msd->options->m_prefBranch = nullptr;
     delete msd;
     return nullptr;
   }
@@ -1780,7 +1780,7 @@ mimeEmitterAddAllHeaders(MimeDisplayOptions *opt, const char *allheaders, const 
   if (msd->output_emitter)
   {
     nsIMimeEmitter *emitter = (nsIMimeEmitter *)msd->output_emitter;
-    return emitter->AddAllHeaders(Substring(allheaders, 
+    return emitter->AddAllHeaders(Substring(allheaders,
                                             allheaders + allheadersize));
   }
 

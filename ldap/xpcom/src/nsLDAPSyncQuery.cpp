@@ -32,9 +32,9 @@ nsLDAPSyncQuery::~nsLDAPSyncQuery()
 
 
 // Messages received are passed back via this function.
-// void OnLDAPMessage (in nsILDAPMessage aMessage) 
+// void OnLDAPMessage (in nsILDAPMessage aMessage)
 //
-NS_IMETHODIMP 
+NS_IMETHODIMP
 nsLDAPSyncQuery::OnLDAPMessage(nsILDAPMessage *aMessage)
 {
     int32_t messageType;
@@ -64,7 +64,7 @@ nsLDAPSyncQuery::OnLDAPMessage(nsILDAPMessage *aMessage)
         return OnLDAPBind(aMessage);
 
     case nsILDAPMessage::RES_SEARCH_ENTRY:
-        
+
         // a search entry has been returned
         //
         return OnLDAPSearchEntry(aMessage);
@@ -72,11 +72,11 @@ nsLDAPSyncQuery::OnLDAPMessage(nsILDAPMessage *aMessage)
     case nsILDAPMessage::RES_SEARCH_RESULT:
 
         // the search is finished; we're all done
-        //  
+        //
         return OnLDAPSearchResult(aMessage);
 
     default:
-        
+
         // Given the LDAP operations nsLDAPSyncQuery uses, we should
         // never get here.  If we do get here in a release build, it's
         // probably a bug, but maybe it's the LDAP server doing something
@@ -96,8 +96,8 @@ nsLDAPSyncQuery::OnLDAPInit(nsILDAPConnection *aConn, nsresult aStatus)
 {
     nsresult rv;        // temp for xpcom return values
     // create and initialize an LDAP operation (to be used for the bind)
-    //  
-    mOperation = do_CreateInstance("@mozilla.org/network/ldap-operation;1", 
+    //
+    mOperation = do_CreateInstance("@mozilla.org/network/ldap-operation;1",
                                    &rv);
     if (NS_FAILED(rv)) {
         FinishLDAPQuery();
@@ -112,14 +112,14 @@ nsLDAPSyncQuery::OnLDAPInit(nsILDAPConnection *aConn, nsresult aStatus)
         return NS_ERROR_UNEXPECTED; // this should never happen
     }
 
-    // kick off a bind operation 
-    // 
-    rv = mOperation->SimpleBind(EmptyCString()); 
+    // kick off a bind operation
+    //
+    rv = mOperation->SimpleBind(EmptyCString());
     if (NS_FAILED(rv)) {
         FinishLDAPQuery();
         return NS_ERROR_FAILURE;
     }
-    
+
     return NS_OK;
 }
 
@@ -129,13 +129,13 @@ nsLDAPSyncQuery::OnLDAPBind(nsILDAPMessage *aMessage)
 
     int32_t errCode;
 
-    mOperation = 0;  // done with bind op; make nsCOMPtr release it
+    mOperation = nullptr;  // done with bind op; make nsCOMPtr release it
 
     // get the status of the bind
     //
     nsresult rv = aMessage->GetErrorCode(&errCode);
     if (NS_FAILED(rv)) {
-        
+
         NS_ERROR("nsLDAPSyncQuery::OnLDAPBind(): couldn't get "
                  "error code from aMessage");
         FinishLDAPQuery();
@@ -207,7 +207,7 @@ nsLDAPSyncQuery::OnLDAPSearchResult(nsILDAPMessage *aMessage)
 {
     // We are done with the LDAP search.
     // Release the control variable for the eventloop and other members
-    // 
+    //
     FinishLDAPQuery();
     return NS_OK;
 }
@@ -217,8 +217,8 @@ nsLDAPSyncQuery::StartLDAPSearch()
 {
     nsresult rv;
     // create and initialize an LDAP operation (to be used for the search
-    //  
-    mOperation = 
+    //
+    mOperation =
         do_CreateInstance("@mozilla.org/network/ldap-operation;1", &rv);
 
     if (NS_FAILED(rv)) {
@@ -238,7 +238,7 @@ nsLDAPSyncQuery::StartLDAPSearch()
         return NS_ERROR_UNEXPECTED;
     }
 
-    // get the search filter associated with the directory server url; 
+    // get the search filter associated with the directory server url;
     //
     nsAutoCString urlFilter;
     rv = mServerURL->GetFilter(urlFilter);
@@ -283,7 +283,7 @@ nsLDAPSyncQuery::StartLDAPSearch()
     return NS_OK;
 }
 
-// void initConnection (); 
+// void initConnection ();
 //
 nsresult nsLDAPSyncQuery::InitConnection()
 {
@@ -323,17 +323,17 @@ nsresult nsLDAPSyncQuery::InitConnection()
 void
 nsLDAPSyncQuery::FinishLDAPQuery()
 {
-    // We are done with the LDAP operation. 
+    // We are done with the LDAP operation.
     // Release the Control variable for the eventloop
     //
     mFinished = true;
-    
+
     // Release member variables
     //
-    mConnection = 0;
-    mOperation = 0;
-    mServerURL = 0;
- 
+    mConnection = nullptr;
+    mOperation = nullptr;
+    mServerURL = nullptr;
+
 }
 
 /* wstring getQueryResults (in nsILDAPURL aServerURL, in unsigned long aVersion); */
@@ -342,7 +342,7 @@ NS_IMETHODIMP nsLDAPSyncQuery::GetQueryResults(nsILDAPURL *aServerURL,
                                                char16_t **_retval)
 {
     nsresult rv;
-    
+
     if (!aServerURL) {
         NS_ERROR("nsLDAPSyncQuery::GetQueryResults() called without LDAP URL");
         return NS_ERROR_FAILURE;
@@ -352,23 +352,23 @@ NS_IMETHODIMP nsLDAPSyncQuery::GetQueryResults(nsILDAPURL *aServerURL,
 
     nsCOMPtr<nsIThread> currentThread = do_GetCurrentThread();
 
-    // Start an LDAP query. 
-    // InitConnection will bind to the ldap server and post a OnLDAPMessage 
-    // event. This event will trigger a search and the whole operation will 
+    // Start an LDAP query.
+    // InitConnection will bind to the ldap server and post a OnLDAPMessage
+    // event. This event will trigger a search and the whole operation will
     // be carried out by chain of events
     //
     rv = InitConnection();
     if (NS_FAILED(rv))
         return rv;
-    
-    // We want this LDAP query to be synchronous while the XPCOM LDAP is 
-    // async in nature. So this eventQueue handling will wait for the 
-    // LDAP operation to be finished. 
-    // mFinished controls the state of the LDAP opertion. 
+
+    // We want this LDAP query to be synchronous while the XPCOM LDAP is
+    // async in nature. So this eventQueue handling will wait for the
+    // LDAP operation to be finished.
+    // mFinished controls the state of the LDAP opertion.
     // It will be released in any case (success/failure)
-    
-    
-    // Run the event loop, 
+
+
+    // Run the event loop,
     // mFinished is a control variable
     //
     while (!mFinished)

@@ -36,12 +36,12 @@ const char kDNSServiceContractId[] = "@mozilla.org/network/dns-service;1";
 // constructor
 //
 nsLDAPConnection::nsLDAPConnection()
-    : mConnectionHandle(0),
+    : mConnectionHandle(nullptr),
       mPendingOperationsMutex("nsLDAPConnection.mPendingOperationsMutex"),
       mPendingOperations(10),
       mSSL(false),
       mVersion(nsILDAPConnection::VERSION3),
-      mDNSRequest(0)
+      mDNSRequest(nullptr)
 {
 }
 
@@ -205,9 +205,9 @@ nsLDAPConnection::Close()
   //
   if (mDNSRequest) {
       mDNSRequest->Cancel(NS_ERROR_ABORT);
-      mDNSRequest = 0;
+      mDNSRequest = nullptr;
   }
-  mInitListener = 0;
+  mInitListener = nullptr;
 
 }
 
@@ -589,13 +589,13 @@ nsLDAPConnection::OnLookupComplete(nsICancelable *aRequest,
     // Drop the DNS request object, we no longer need it, and set the flag
     // indicating that DNS has finished.
     //
-    mDNSRequest = 0;
+    mDNSRequest = nullptr;
     mDNSHost.Truncate();
 
     // Call the listener, and then we can release our reference to it.
     //
     mInitListener->OnLDAPInit(this, rv);
-    mInitListener = 0;
+    mInitListener = nullptr;
 
     return rv;
 }

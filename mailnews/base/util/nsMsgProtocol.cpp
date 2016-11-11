@@ -255,10 +255,10 @@ nsresult nsMsgProtocol::CloseSocket()
   if (m_request) {
     rv = m_request->Cancel(NS_BINDING_ABORTED);
   }
-  m_request = 0;
+  m_request = nullptr;
   if (m_transport) {
     m_transport->Close(NS_BINDING_ABORTED);
-    m_transport = 0;
+    m_transport = nullptr;
   }
 
   return rv;
@@ -392,8 +392,8 @@ NS_IMETHODIMP nsMsgProtocol::OnStopRequest(nsIRequest *request, nsISupports *ctx
   } // if we have a mailnews url.
 
   // Drop notification callbacks to prevent cycles.
-  mCallbacks = 0;
-  mProgressEventSink = 0;
+  mCallbacks = nullptr;
+  mProgressEventSink = nullptr;
   // Call CloseSocket(), in case we got here because the server dropped the
   // connection while reading, and we never get a chance to get back into
   // the protocol state machine via OnDataAvailable.

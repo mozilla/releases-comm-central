@@ -277,7 +277,7 @@ nsPop3Sink::EndMailDelivery(nsIPop3Protocol *protocol)
   if (m_outFileStream)
   {
     m_outFileStream->Close();
-    m_outFileStream = 0;
+    m_outFileStream = nullptr;
   }
 
   if (m_downloadingToTempFile)
@@ -405,7 +405,7 @@ nsPop3Sink::AbortMailDelivery(nsIPop3Protocol *protocol)
   if (m_outFileStream)
   {
     m_outFileStream->Close();
-    m_outFileStream = 0;
+    m_outFileStream = nullptr;
   }
 
   if (m_downloadingToTempFile && m_tmpDownloadFile)

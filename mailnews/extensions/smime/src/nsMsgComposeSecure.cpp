@@ -686,7 +686,7 @@ nsresult nsMsgComposeSecure::MimeFinishMultipartSigned (bool aOuter, nsIMsgSendR
   nsAutoCString hashString;
   mDataHash->Finish(false, hashString);
 
-  mDataHash = 0;
+  mDataHash = nullptr;
 
   status = PR_GetError();
   if (status < 0) goto FAIL;
@@ -838,14 +838,14 @@ nsresult nsMsgComposeSecure::MimeFinishEncryption (bool aSign, nsIMsgSendReport 
     goto FAIL;
   }
 
-  mEncryptionContext = 0;
+  mEncryptionContext = nullptr;
 
   PR_ASSERT(mEncryptionCinfo);
   if (!mEncryptionCinfo) {
     rv = NS_ERROR_FAILURE;
   }
   if (mEncryptionCinfo) {
-    mEncryptionCinfo = 0;
+    mEncryptionCinfo = nullptr;
   }
 
   // Shut down the base64 encoder.

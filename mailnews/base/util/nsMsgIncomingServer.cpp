@@ -53,7 +53,7 @@
 #define PORT_NOT_SET -1
 
 nsMsgIncomingServer::nsMsgIncomingServer():
-    m_rootFolder(0),
+    m_rootFolder(nullptr),
     m_downloadedHdrs(50),
     m_numMsgsDownloaded(0),
     m_biffState(nsIMsgFolder::nsMsgBiffState_Unknown),
@@ -61,7 +61,7 @@ nsMsgIncomingServer::nsMsgIncomingServer():
     m_canHaveFilters(true),
     m_displayStartupPage(true),
     mPerformingBiff(false)
-{ 
+{
 }
 
 nsMsgIncomingServer::~nsMsgIncomingServer()
@@ -914,7 +914,7 @@ nsMsgIncomingServer::GetLocalPath(nsIFile **aLocalPath)
   nsCString hostname;
   rv = GetHostName(hostname);
   NS_ENSURE_SUCCESS(rv, rv);
-  
+
   // set the leaf name to "dummy", and then call MakeUnique with a suggested leaf name
   rv = localPath->AppendNative(hostname);
   NS_ENSURE_SUCCESS(rv, rv);
@@ -1310,7 +1310,7 @@ nsMsgIncomingServer::GetRealHostName(nsACString& aResult)
   nsresult rv;
   rv = GetCharValue("realhostname", aResult);
   NS_ENSURE_SUCCESS(rv, rv);
-  
+
   if (aResult.IsEmpty())
     return GetHostName(aResult);
 
