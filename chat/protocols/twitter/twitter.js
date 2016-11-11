@@ -209,18 +209,18 @@ var GenericTwitterConversation = {
       text = text.slice(0, offset) + retweetText;
 
       // Keep any entities that refer to the prefix (we can refer directly to
-      // the tweet for these since they are not edited).
-      if ("entities" in tweet) {
-        for (let type in tweet.entities) {
+      // aTweet for these since they are not edited).
+      if ("entities" in aTweet) {
+        for (let type in aTweet.entities) {
           let filteredEntities =
-            tweet.entities[type].filter(e => e.indices[0] < offset);
+            aTweet.entities[type].filter(e => e.indices[0] < offset);
           if (filteredEntities.length)
             entities[type] = filteredEntities;
         }
       }
 
       // Add the entities from the retweet (a copy of these must be made since
-      // they will be edited and we do not wish to change the tweet object).
+      // they will be edited and we do not wish to change aTweet).
       for (let type in retweetEntities) {
         if (!(type in entities))
           entities[type] = [];
