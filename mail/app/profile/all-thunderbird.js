@@ -36,9 +36,15 @@ pref("mail.rights.override", true);
 pref("nglayout.enable_drag_images", false);
 #endif
 
-// The minimum delay in seconds for the timer to fire.
-// default=2 minutes
+// The minimum delay in seconds for the timer to fire between the notification
+// of each consumer of the timer manager.
+// minimum=30 seconds, default=120 seconds, and maximum=300 seconds
 pref("app.update.timerMinimumDelay", 120);
+
+// The minimum delay in milliseconds for the first firing after startup of the timer
+// to notify consumers of the timer manager.
+// minimum=10 seconds, default=30 seconds, and maximum=120 seconds
+pref("app.update.timerFirstInterval", 30000);
 
 // App-specific update preferences
 
@@ -47,12 +53,6 @@ pref("app.update.timerMinimumDelay", 120);
 
 // Enables some extra Application Update Logging (can reduce performance)
 pref("app.update.log", false);
-
-// When |app.update.cert.requireBuiltIn| is true or not specified the
-// final certificate and all certificates the connection is redirected to before
-// the final certificate for the url specified in the |app.update.url|
-// preference must be built-in.
-pref("app.update.cert.requireBuiltIn", true);
 
 // When |app.update.cert.checkAttributes| is true or not specified the
 // certificate attributes specified in the |app.update.certs.| preference branch
