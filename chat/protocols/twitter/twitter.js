@@ -153,26 +153,17 @@ var GenericTwitterConversation = {
       flags.time = aDate;
     this.writeMessage("twitter.com", aMessage, flags);
   },
-  onSentCallback: function(aMsg, aData) {
+  onSentCallback: function(aData) {
     // The conversation may have been unitialized in the time it takes for
     // the async callback to fire.  Use `_observers` as a proxy for uninit'd.
     if (!this._observers)
       return;
 
     let tweet = JSON.parse(aData);
-    // The OTR extension requires that the protocol not modify the message
-    // (see the notes at `imIOutgoingMessage`).  That's the contract we made.
-    // Unfortunately, Twitter trims tweets and substitutes links.
-    tweet.text = aMsg;
     this.displayMessages([tweet]);
   },
-  prepareForDisplaying: function(aMsg) {
-    if (!this._tweets.has(aMsg.id))
-      return;
-    let tweet = this._tweets.get(aMsg.id)._tweet;
-    this._tweets.delete(aMsg.id);
-
-    let text = aMsg.displayMessage;
+  parseTweet: function(aTweet) {
+    let text = aTweet.text;
     let entities = {};
 
     // Handle retweets: retweeted_status contains the object for the original
@@ -182,8 +173,8 @@ var GenericTwitterConversation = {
     // the FULL text from the original tweet and update the entities to match.
     // Note: the truncated flag is not always set correctly by twitter, so we
     // always make use of the original tweet.
-    if ("retweeted_status" in tweet) {
-      let retweet = tweet["retweeted_status"];
+    if ("retweeted_status" in aTweet) {
+      let retweet = aTweet["retweeted_status"];
       let retweetText, retweetEntities = {};
 
       if ("extended_tweet" in retweet) {
@@ -203,8 +194,6 @@ var GenericTwitterConversation = {
       // We're going to take portions of the retweeted status and replace parts
       // of the original tweet, the retweeted status prepends the original
       // status with "RT @<username>: ", we need to keep the prefix.
-      // Note: this doesn't play nice with extensions that may have altered
-      // `text` to this point, but at least OTR doesn't act on `isChat`.
       let offset = text.indexOf(": ") + 2;
       text = text.slice(0, offset) + retweetText;
 
@@ -235,35 +224,83 @@ var GenericTwitterConversation = {
           })
         );
       }
-    } else if ("extended_tweet" in tweet) {
+    } else if ("extended_tweet" in aTweet) {
       // Bare bones extended tweet handling.
-      let extended = tweet.extended_tweet;
+      let extended = aTweet.extended_tweet;
       text = extended.full_text;
       if ("entities" in extended)
         entities = extended.entities;
     } else {
       // For non-retweets, we just want to use the entities that are given.
-      if ("entities" in tweet)
-        entities = tweet.entities;
+      if ("entities" in aTweet)
+        entities = aTweet.entities;
     }
 
     this._account.LOG("Tweet: " + text);
 
-    aMsg.displayMessage = twttr.txt.autoLink(text, {
-      usernameClass: "ib-person",
-      // Pass in the url entities so the t.co links are replaced.
-      urlEntities: tweet.entities.urls.map(function(u) {
-        let o = Object.assign(u);
-        // But remove the indices so they apply in the face of modifications.
-        delete o.indices;
-        return o;
-      })
-    });
+    if (Object.keys(entities).length) {
+      /* entArray is an array of entities ready to be replaced in the tweet,
+       * each entity contains:
+       *  - start: the start index of the entity inside the tweet,
+       *  - end: the end index of the entity inside the tweet,
+       *  - str: the string that should be replaced inside the tweet,
+       *  - href: the url (href attribute) of the created link tag,
+       *  - [optional] text: the text to display for the link,
+       *     The original string (str) will be used if this is not set.
+       *  - [optional] title: the title attribute for the link.
+       */
+      let entArray = [];
+      if ("hashtags" in entities && Array.isArray(entities.hashtags)) {
+        entArray = entArray.concat(entities.hashtags.map(h => ({
+          start: h.indices[0],
+          end: h.indices[1],
+          str: "#" + h.text,
+          href: "https://twitter.com/#!/search?q=%23" + h.text})));
+      }
+      if ("urls" in entities && Array.isArray(entities.urls)) {
+        entArray = entArray.concat(entities.urls.map(u => ({
+          start: u.indices[0],
+          end: u.indices[1],
+          str: u.url,
+          text: u.display_url || u.url,
+          href: u.expanded_url || u.url})));
+      }
+      if ("user_mentions" in entities &&
+          Array.isArray(entities.user_mentions)) {
+        entArray = entArray.concat(entities.user_mentions.map(um => ({
+          start: um.indices[0],
+          end: um.indices[1],
+          str: "@" + um.screen_name,
+          text: '@<span class="ib-person">' + um.screen_name + "</span>",
+          title: um.name,
+          href: "https://twitter.com/" + um.screen_name})));
+      }
+      entArray.sort((a, b) => a.start - b.start);
+      let offset = 0;
+      for (let entity of entArray) {
+        let str = text.substring(offset + entity.start, offset + entity.end);
+        if (str[0] == "\uFF20") // ＠ - unicode character similar to @
+          str = "@" + str.substring(1);
+        if (str[0] == "\uFF03") // ＃ - unicode character similar to #
+          str = "#" + str.substring(1);
+        if (str.toLowerCase() != entity.str.toLowerCase())
+          continue;
 
-    GenericConversationPrototype.prepareForDisplaying.apply(this, arguments);
+        let html = "<a href=\"" + entity.href + "\"";
+        if ("title" in entity)
+          html += " title=\"" + entity.title + "\"";
+        html += ">" + ("text" in entity ? entity.text : entity.str) + "</a>";
+        text = text.slice(0, offset + entity.start) + html +
+               text.slice(offset + entity.end);
+        offset += html.length - (entity.end - entity.start);
+      }
+    }
+
+    return text;
   },
   displayTweet: function(aTweet, aUser) {
     let name = aUser.screen_name;
+    let text = this.parseTweet(aTweet);
 
     let flags = name == this.nick ? {outgoing: true} : {incoming: true};
     flags.time = Math.round(new Date(aTweet.created_at) / 1000);
@@ -275,9 +312,7 @@ var GenericTwitterConversation = {
         aTweet.entities.user_mentions.some(mention => mention.screen_name == this.nick))
       flags.containsNick = true;
 
-    let tweet = new Tweet(aTweet, name, aTweet.text, flags);
-    this._tweets.set(tweet.id, tweet);
-    tweet.conversation = this;
+    (new Tweet(aTweet, name, text, flags)).conversation = this;
   },
   _parseError: function(aData) {
     let error = "";
@@ -314,9 +349,6 @@ function TimelineConversation(aAccount)
     if ("description" in userInfo)
       this.setTopic(userInfo.description, aAccount.name, true);
   }
-
-  // Store messages by message id.
-  this._tweets = new Map();
 }
 TimelineConversation.prototype = {
   __proto__: GenericConvChatPrototype,
@@ -358,8 +390,7 @@ TimelineConversation.prototype = {
       this.systemMessage(_("error.tooLong"), true);
       throw Cr.NS_ERROR_INVALID_ARG;
     }
-    this._account.tweet(aMsg, this.inReplyToStatusId,
-                        this.onSentCallback.bind(this, aMsg),
+    this._account.tweet(aMsg, this.inReplyToStatusId, this.onSentCallback,
                         function(aException, aData) {
       let error = this._parseError(aData);
       this.systemMessage(_("error.general", error, aMsg), true);
@@ -432,15 +463,11 @@ Object.assign(TimelineConversation.prototype, GenericTwitterConversation);
 function DirectMessageConversation(aAccount, aName)
 {
   this._init(aAccount, aName);
-
-  // Store messages by message id.
-  this._tweets = new Map();
 }
 DirectMessageConversation.prototype = {
   __proto__: GenericConvIMPrototype,
   sendMsg: function(aMsg) {
-    this._account.directMessage(aMsg, this.name,
-                                this.onSentCallback.bind(this, aMsg),
+    this._account.directMessage(aMsg, this.name, this.onSentCallback,
                                 function(aException, aData) {
       let error = this._parseError(aData);
       this.systemMessage(_("error.general", error, aMsg), true);
