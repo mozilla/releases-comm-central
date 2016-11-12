@@ -234,6 +234,9 @@ var FolderNotificationHelper = {
     else if (eventType == "DeleteOrMoveMsgFailed") {
       this._notifyHelper(aFolder, "_deleteFailed");
     }
+    else if (eventType == "RenameCompleted") {
+      this._notifyHelper(aFolder, "_renameCompleted");
+    }
 
   },
 
@@ -1259,6 +1262,16 @@ DBViewWrapper.prototype = {
     if (this.dbView)
       this.dbView.onDeleteCompleted(false);
     this.listener.onMessageRemovalFailed();
+  },
+
+  _forceOpen: function DBViewWrapper__forceOpen(aFolder) {
+    this.displayedFolder = null;
+    this.open(aFolder);
+  },
+
+  _renameCompleted: function DBViewWrapper__renameCompleted(aFolder) {
+    if (aFolder == this.displayedFolder)
+      this._forceOpen(aFolder);
   },
 
   /**
