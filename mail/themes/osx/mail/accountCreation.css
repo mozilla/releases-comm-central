@@ -204,7 +204,7 @@ menulist[disabled="true"] {
 }
 
 #status_area[status=loading] #status_img_after {
-  background: url("chrome://messenger/skin/icons/loading.png") no-repeat;
+  background: url("chrome://global/skin/icons/loading.png") no-repeat;
   width: 16px;
   height: 16px;
   background-size: 16px 16px;
@@ -212,7 +212,7 @@ menulist[disabled="true"] {
 
 @media (min-resolution: 2dppx) {
   #status_area[status=loading] #status_img_after {
-    background: url("chrome://messenger/skin/icons/loading@2x.png") no-repeat;
+    background: url("chrome://global/skin/icons/loading@2x.png") no-repeat;
   }
 }
 

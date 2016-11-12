@@ -223,7 +223,7 @@ richlistitem[state="disconnected"] .accountStateIcon {
   list-style-image: url("chrome://chat/skin/offline-16.png");
 }
 richlistitem[state="connecting"] .accountStateIcon {
-  list-style-image: url("chrome://messenger/skin/icons/loading.png");
+  list-style-image: url("chrome://global/skin/icons/loading.png");
 }
 richlistitem[error="true"] .accountStateIcon {
   list-style-image: url("chrome://global/skin/icons/warning-16.png");

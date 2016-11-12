@@ -6,39 +6,13 @@
 #
 
 # mail
-chrome/classic/skin/classic/messenger/noise.png
-chrome/classic/skin/classic/messenger/userIcon.png
-chrome/classic/skin/classic/messenger/accountcentral/manage-rss.png
-chrome/classic/skin/classic/messenger/accountcentral/manage-subscriptions.png
-chrome/classic/skin/classic/messenger/activity/defaultEventIcon.png
-chrome/classic/skin/classic/messenger/activity/defaultEventIcon-XP.png
-chrome/classic/skin/classic/messenger/activity/defaultWarningIcon.png
-chrome/classic/skin/classic/messenger/icons/flag.png
-chrome/classic/skin/classic/messenger/icons/flag-col.png
-chrome/classic/skin/classic/messenger/icons/flag-XP.png
-chrome/classic/skin/classic/messenger/icons/flag-col-XP.png
-chrome/classic/skin/classic/messenger/icons/insecure.png
-chrome/classic/skin/classic/messenger/icons/loading@2x.png
-chrome/classic/skin/classic/messenger/icons/secure.png
 chrome/classic/skin/classic/messenger/icons/new-mail-alert.png
-chrome/classic/skin/classic/messenger/messengercompose/linux-noise.png
 chrome/messenger/content/branding/icon48.png
 chrome/messenger/content/messenger/cloudfile/Box/management.js
 chrome/messenger/content/messenger/cloudfile/Hightail/management.js
-chrome/messenger/skin/classic/messenger/messages/Incoming/buddy_icon.png
-chrome/messenger/skin/classic/messenger/messages/Outgoing/buddy_icon.png
-chrome/toolkit/skin/classic/global/icons/Warning.png
-chrome/toolkit/skin/classic/global/icons/warning-32.png
 chrome/devtools/modules/devtools/client/themes/splitters.css
 chrome/devtools/skin/splitters.css
 chrome/icons/default/default48.png
-# chat
-chrome/chat/skin/classic/chat/loading.png
-chrome/chat/skin/classic/chat/loading@2x.png
-chrome/chat/skin/classic/chat/icons/insecure.png
-chrome/chat/skin/classic/chat/icons/secure.png
-chrome/toolkit/skin/classic/global/icons/loading.png
-chrome/toolkit/skin/classic/global/icons/loading@2x.png
 # calendar addon
 extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/skin/linux/lightning/imip.css
 extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/skin/windows/lightning/imip.css

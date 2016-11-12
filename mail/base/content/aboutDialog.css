@@ -68,7 +68,7 @@
   width: 16px;
   min-height: 16px;
   margin-inline-end: 3px;
-  list-style-image: url("chrome://messenger/skin/icons/loading.png");
+  list-style-image: url("chrome://global/skin/icons/loading.png");
 }
 
 .trademark-label,

@@ -39,8 +39,6 @@ messenger.jar:
 	skin/classic/messenger/messages/main.css                      (messages/main.css)
 	skin/classic/messenger/messages/NextStatus.html               (messages/NextStatus.html)
 	skin/classic/messenger/messages/Status.html                   (messages/Status.html)
-	skin/classic/messenger/messages/Outgoing/buddy_icon.png       (messages/Outgoing/buddy_icon.png)
-	skin/classic/messenger/messages/Incoming/buddy_icon.png       (messages/Incoming/buddy_icon.png)
 % skin messenger-emoticons classic/1.0 %skin/classic/messenger/smileys/
 	skin/classic/messenger/smileys/theme.js              (smileys/theme.js)
 	skin/classic/messenger/smileys/angry.png             (smileys/angry.png)
@@ -64,3 +62,6 @@ messenger.jar:
 	skin/classic/messenger/smileys/straight_face.png     (smileys/straight_face.png)
 	skin/classic/messenger/smileys/tongue.png            (smileys/tongue.png)
 	skin/classic/messenger/smileys/wink.png              (smileys/wink.png)
+[extensions/{972ce4c6-7e08-4474-a285-3208198ce6fd}] chrome.jar:
+% override chrome://messenger-messagestyles/skin/Incoming/buddy_icon.png chrome://messenger/skin/userIcon.png
+% override chrome://messenger-messagestyles/skin/Outgoing/buddy_icon.png chrome://messenger/skin/userIcon.png

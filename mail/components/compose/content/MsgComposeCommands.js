@@ -1346,7 +1346,7 @@ uploadListener.prototype = {
     let bucket = document.getElementById("attachmentBucket");
     let item = bucket.findItemForAttachment(this.attachment);
     if (item)
-      item.image = "chrome://messenger/skin/icons/loading.png";
+      item.image = "chrome://global/skin/icons/loading.png";
   },
 
   onStopRequest: function uploadListener_onStopRequest(aRequest, aContext,

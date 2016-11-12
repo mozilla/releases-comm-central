@@ -21,7 +21,7 @@
 }
 
 .statusIcon[status="joining"] {
-  background-image: url('chrome://chat/skin/loading.png');
+  background-image: url('chrome://global/skin/icons/loading.png');
   -moz-transform: scale(0.5) translate(50%, 50%);
 }
 

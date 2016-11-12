@@ -182,7 +182,7 @@ spacer {
   }
 
   #SubscribeNewsgroups label {
-    background: url("chrome://messenger/skin/accountcentral/manage-rss@2x.png")  no-repeat !important;
+    background: url("chrome://messenger/skin/accountcentral/manage-subscriptions@2x.png")  no-repeat !important;
     background-size: 32px 32px !important;
   }
 

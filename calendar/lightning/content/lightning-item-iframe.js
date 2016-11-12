@@ -2117,7 +2117,7 @@ function uploadCloudAttachment(attachment, cloudProvider, listItem) {
     listItem.attachCloudProvider = cloudProvider;
     cloudProvider.uploadFile(file, {
         onStartRequest: function() {
-            listItem.setAttribute("image", "chrome://messenger/skin/icons/loading.png");
+            listItem.setAttribute("image", "chrome://global/skin/icons/loading.png");
         },
 
         onStopRequest: function(aRequest, aContext, aStatusCode) {

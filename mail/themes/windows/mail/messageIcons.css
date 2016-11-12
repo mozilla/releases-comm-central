@@ -89,13 +89,13 @@ treechildren::-moz-tree-image(flaggedCol) {
 
 @media (-moz-os-version: windows-xp) {
   treechildren::-moz-tree-image(flaggedCol, flagged) {
-    list-style-image: url(chrome://messenger/skin/icons/flag-XP.png);
+    list-style-image: url(chrome://messenger/skin/icons/flag-col-XP.png);
   }
 }
 
 @media not all and (-moz-os-version: windows-xp) {
   treechildren::-moz-tree-image(flaggedCol, flagged) {
-    list-style-image: url(chrome://messenger/skin/icons/flag.png);
+    list-style-image: url(chrome://messenger/skin/icons/flag-col.png);
   }
 }
 

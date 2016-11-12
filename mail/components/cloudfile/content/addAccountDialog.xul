@@ -43,7 +43,7 @@
   <iframe id="accountSettings" class="indent" flex="1" src="chrome://messenger/content/cloudfile/emptySettings.xhtml"/>
   <deck id="messages" class="indent" selectedIndex="-1">
     <hbox id="authorizing">
-      <image src="chrome://messenger/skin/icons/loading.png"/>
+      <image src="chrome://global/skin/icons/loading.png"/>
       <label>&addAccountDialog.authorizing;</label>
     </hbox>
     <hbox id="error">

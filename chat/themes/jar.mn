@@ -21,7 +21,7 @@ chat.jar:
 	skin/classic/chat/chat-16.png
 	skin/classic/chat/chat-left-16.png
 	skin/classic/chat/conv.css
-	skin/classic/chat/browserRequest.css
+*	skin/classic/chat/browserRequest.css
 	skin/classic/chat/imtooltip.css
 	skin/classic/chat/status.css
 	skin/classic/chat/prpl-generic/icon32.png	(icons/prpl-generic-32.png)
@@ -30,15 +30,7 @@ chat.jar:
 	skin/classic/chat/prpl-unknown/icon32.png	(icons/prpl-unknown-32.png)
 	skin/classic/chat/prpl-unknown/icon48.png	(icons/prpl-unknown-48.png)
 	skin/classic/chat/prpl-unknown/icon.png		(icons/prpl-unknown.png)
+#ifndef MOZ_THUNDERBIRD
 	skin/classic/chat/icons/secure.png		(icons/secure.png)
 	skin/classic/chat/icons/insecure.png		(icons/insecure.png)
-#ifdef XP_UNIX
-#ifdef XP_MACOSX
-	skin/classic/chat/loading.png			(osx/loading.png)
-	skin/classic/chat/loading@2x.png		(osx/loading@2x.png)
-#else
-	skin/classic/chat/loading.png			(linux/loading.png)
-#endif
-#else
-	skin/classic/chat/loading.png			(windows/loading.png)
 #endif

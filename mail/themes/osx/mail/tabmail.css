@@ -38,7 +38,7 @@
 }
 
 .tab-throbber {
-  list-style-image: url("chrome://messenger/skin/icons/loading.png") !important;
+  list-style-image: url("chrome://global/skin/icons/loading.png") !important;
   -moz-image-region: auto !important;
 }
 
@@ -74,7 +74,7 @@
   }
 
   .tab-throbber {
-    list-style-image: url("chrome://messenger/skin/icons/loading@2x.png") !important;
+    list-style-image: url("chrome://global/skin/icons/loading@2x.png") !important;
   }
 
   .tabmail-tab[type="glodaSearch"] {
@@ -375,7 +375,7 @@ tabmail > tabbox > tabpanels {
 }
 
 .alltabs-item[busy] {
-  list-style-image: url("chrome://messenger/skin/icons/loading.png") !important;
+  list-style-image: url("chrome://global/skin/icons/loading.png") !important;
   -moz-image-region: auto !important;
 }
 
@@ -395,7 +395,7 @@ tabmail > tabbox > tabpanels {
   }
 
   alltabs-item[busy] {
-    list-style-image: url("chrome://messenger/skin/icons/loading@2x.png") !important;
+    list-style-image: url("chrome://global/skin/icons/loading@2x.png") !important;
   }
 }
 

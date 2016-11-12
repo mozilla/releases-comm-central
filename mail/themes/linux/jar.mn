@@ -13,7 +13,6 @@ classic.jar:
   skin/classic/messenger/accountWizard.css                    (mail/accountWizard.css)
 * skin/classic/messenger/chat.css                             (mail/chat.css)
   skin/classic/messenger/userIcon.png                         (mail/userIcon.png)
-  skin/classic/messenger/noise.png                            (mail/noise.png)
 * skin/classic/messenger/imAccounts.css                       (../../components/im/themes/imAccounts.css)
 * skin/classic/messenger/imAccountWizard.css                  (../../components/im/themes/imAccountWizard.css)
   skin/classic/messenger/imMenulist.css                       (../../components/im/themes/imMenulist.css)
@@ -250,7 +249,6 @@ classic.jar:
   skin/classic/messenger/icons/arrow/arrow-up-dim.png         (mail/icons/arrow/arrow-up-dim.png)
   skin/classic/messenger/icons/arrow/arrow-down-dim.png       (mail/icons/arrow/arrow-down-dim.png)
   skin/classic/messenger/icons/connecting.png                 (mail/icons/connecting.png)
-  skin/classic/messenger/icons/loading.png                    (mail/icons/loading.png)
   skin/classic/messenger/icons/notloading.png                 (mail/icons/notloading.png)
   skin/classic/messenger/tagbg.png                            (mail/tagbg.png)
 % skin editor classic/1.0 %skin/classic/editor/

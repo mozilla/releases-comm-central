@@ -13,11 +13,19 @@ statusbar {
 }
 #security-button[level="high"],
 #security-button[level="low"] {
+%ifdef MOZ_THUNDERBIRD
+  background-image: url("chrome://messenger/skin/icons/secure.png");
+%else
   background-image: url("chrome://chat/skin/icons/secure.png");
+%endif
 }
 
 #security-button[level="broken"] {
+%ifdef MOZ_THUNDERBIRD
+  background-image: url("chrome://messenger/skin/icons/insecure.png");
+%else
   background-image: url("chrome://chat/skin/icons/insecure.png");
+%endif
 }
 
 #header {

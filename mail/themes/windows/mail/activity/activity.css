@@ -199,6 +199,10 @@ activity-warning .statusText {
   color: #555;
 }
 
+.eventIconBox image {
+  list-style-image: url(chrome://messenger/skin/activity/defaultEventIcon.png);
+}
+
 @media (-moz-os-version: windows-xp) {
   .blockedIcon {
     list-style-image: url(chrome://global/skin/icons/Error-XP.png);
@@ -206,10 +210,6 @@ activity-warning .statusText {
 
   .processIconBox image {
     list-style-image: url(chrome://messenger/skin/activity/defaultProcessIcon-XP.png);
-  }
-
-  .eventIconBox image {
-    list-style-image: url(chrome://messenger/skin/activity/defaultEventIcon-XP.png);
   }
 
   .warningIconBox image {
@@ -266,12 +266,8 @@ activity-warning .statusText {
     list-style-image: url(chrome://messenger/skin/activity/defaultProcessIcon.png);
   }
 
-  .eventIconBox image {
-    list-style-image: url(chrome://messenger/skin/activity/defaultEventIcon.png);
-  }
-
   .warningIconBox image {
-    list-style-image: url(chrome://messenger/skin/activity/defaultWarningIcon.png);
+    list-style-image: url(chrome://global/skin/icons/Warning.png);
   }
 
   image.syncMail {

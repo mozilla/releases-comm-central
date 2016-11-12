@@ -44,7 +44,7 @@
 
 @media (min-resolution: 1.1dppx) {
   .tab-throbber {
-    list-style-image: url("chrome://messenger/skin/icons/loading@2x.png") !important;
+    list-style-image: url("chrome://global/skin/icons/loading@2x.png") !important;
   }
 }
 
@@ -60,7 +60,7 @@
 
 .tabmail-tab[busy],
 .tabmail-tab[thinking] {
-  list-style-image: url("chrome://messenger/skin/icons/loading.png") !important;
+  list-style-image: url("chrome://global/skin/icons/loading.png") !important;
   -moz-image-region: auto !important;
 }
 
@@ -401,5 +401,5 @@ tabpanels {
 }
 
 .alltabs-item[busy] {
-  list-style-image: url("chrome://messenger/skin/icons/loading.png") !important;
+  list-style-image: url("chrome://global/skin/icons/loading.png") !important;
 }
