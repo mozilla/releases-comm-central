@@ -8,7 +8,7 @@
 <?xml-stylesheet type="text/css" href="chrome://calendar-common/skin/calendar-alarms.css"?>
 <?xml-stylesheet type="text/css" href="chrome://calendar-common/skin/calendar-attendees.css"?>
 <?xml-stylesheet type="text/css" href="chrome://calendar/skin/calendar-event-dialog.css"?>
-<?xml-stylesheet type="text/css" href="chrome://calendar/skin/common/dialogs/calendar-event-dialog.css"?>
+<?xml-stylesheet type="text/css" href="chrome://calendar-common/skin/dialogs/calendar-event-dialog.css"?>
 <?xml-stylesheet type="text/css" href="chrome://calendar/content/datetimepickers/datetimepickers.css"?>
 <?xml-stylesheet type="text/css" href="chrome://calendar/content/calendar-bindings.css"?>
 
@@ -52,7 +52,6 @@
   <box id="item-general-box" orient="vertical">
     <calendar-caption label="&read.only.general.label;"/>
     <box orient="horizontal">
-      <spacer class="default-spacer"/>
       <grid flex="1">
         <columns>
           <column/>
@@ -60,7 +59,7 @@
         </columns>
         <rows>
           <row align="top">
-            <label value="&read.only.title.label;" class="headline"/>
+            <label value="&read.only.title.label;"/>
             <label id="item-title" crop="end"/>
           </row>
           <row class="item-date-row"
@@ -76,21 +75,21 @@
                eventEndLabel="&read.only.event.end.label;"
                align="start"/>
           <row id="repeat-row" align="top" hidden="true">
-            <label value="&read.only.repeat.label;" class="headline"/>
+            <label value="&read.only.repeat.label;"/>
             <box id="repeat-details" orient="vertical">
               <label/>
             </box>
           </row>
           <row id="location-row" align="top" hidden="true">
-            <label value="&read.only.location.label;" class="headline"/>
+            <label value="&read.only.location.label;"/>
             <label id="item-location" crop="end"/>
           </row>
           <row id="category-row" align="top" hidden="true">
-            <label value="&read.only.category.label;" class="headline"/>
+            <label value="&read.only.category.label;"/>
             <label id="item-category" crop="end"/>
           </row>
           <row id="organizer-row" align="top" hidden="true" class="item-attendees-row">
-            <label value="&read.only.organizer.label;" class="headline"/>
+            <label value="&read.only.organizer.label;"/>
             <hbox class="item-organizer-cell">
               <img class="itip-icon"/>
               <label id="item-organizer"
@@ -101,7 +100,7 @@
             </hbox>
           </row>
           <row id="status-row" align="top" hidden="true">
-            <label value="&task.status.label;" class="headline"/>
+            <label value="&task.status.label;"/>
             <label value="&newevent.status.tentative.label;" hidden="true" status="TENTATIVE"/>
             <label value="&newevent.status.confirmed.label;" hidden="true" status="CONFIRMED"/>
             <label value="&newevent.eventStatus.cancelled.label;" hidden="true" status="CANCELLED"/>
@@ -229,6 +228,26 @@
                 </hbox>
              </hbox>
           </row>
+          <row id="attachments-row"
+               align="top"
+               hidden="true"
+               class="item-attachments-row">
+            <label value="&read.only.attachments.label;"
+                   control="item-attachment-cell" />
+            <vbox id="item-attachment-cell">
+              <!-- attachment box template -->
+              <hbox id="attachment-template"
+                    hidden="true"
+                    align="center"
+                    disable-on-readonly="true">
+                <image class="attachment-icon"/>
+                <label class="text-link item-attachment-cell-label"
+                       onclick="openAttachment(this.getAttribute('hashid'), event)"
+                       crop="end"
+                       flex="1" />
+              </hbox>
+            </vbox>
+          </row>
         </rows>
       </grid>
     </box>
@@ -250,9 +269,7 @@
     <spacer class="default-spacer"/>
     <calendar-caption label="&read.only.attendees.label;"
                       control="item-attendees-box"/>
-    <vbox id="item-attendees-box" flex="1">
-      <spacer class="default-spacer"/>
-    </vbox>
+    <vbox id="item-attendees-box" flex="1" />
   </box>
 
   <!-- Description -->
@@ -261,7 +278,6 @@
     <calendar-caption label="&read.only.description.label;"
                       control="item-description"/>
     <box orient="horizontal" flex="1">
-      <spacer class="default-spacer"/>
       <textbox id="item-description"
                multiline="true"
                rows="6"

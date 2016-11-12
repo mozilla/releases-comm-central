@@ -389,6 +389,7 @@
 <!ENTITY read.only.tentative.label       "I might attend">
 <!ENTITY read.only.needs.action.label    "I will confirm later">
 <!ENTITY read.only.reminder.label        "Reminder:">
+<!ENTITY read.only.attachments.label     "Attachments:">
 <!ENTITY read.only.attendees.label       "Attendees">
 <!ENTITY read.only.description.label     "Description">
 <!ENTITY read.only.link.label            "Related Link">

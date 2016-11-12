@@ -173,6 +173,33 @@ function onLoad() {
 
     document.title = item.title;
 
+    let attachments = item.getAttachments({});
+    if (attachments.length) {
+        // we only want to display uri type attachments and no ones received inline with the
+        // invitation message (having a CID: prefix results in about:blank) here
+        let attCounter = 0;
+        attachments.forEach(aAttachment => {
+            if (aAttachment.uri && aAttachment.uri.spec != "about:blank") {
+                let attachment = document.getElementById("attachment-template").cloneNode(true);
+                attachment.removeAttribute("id");
+                attachment.removeAttribute("hidden");
+
+                let label = attachment.getElementsByTagName("label")[0];
+                label.setAttribute("value", aAttachment.uri.spec);
+                label.setAttribute("hashid", aAttachment.hashId);
+
+                let icon = attachment.getElementsByTagName("image")[0];
+                let iconSrc = aAttachment.uri.spec.length ? aAttachment.uri.spec : "dummy.html";
+                icon.setAttribute("src", "moz-icon://" + iconSrc);
+
+                document.getElementById("item-attachment-cell").appendChild(attachment);
+                attCounter++;
+            }
+        });
+        if (attCounter > 0) {
+            document.getElementById("attachments-row").removeAttribute("hidden");
+        }
+    }
     // If this item is read only we remove the 'cancel' button as users
     // can't modify anything, thus we go ahead with an 'ok' button only.
     if (window.readOnly) {
@@ -352,4 +379,24 @@ function sendMailToOrganizer() {
     let emailSubject = cal.calGetString("calendar-event-dialog", "emailSubjectReply", [item.title]);
     let identity = item.calendar.getProperty("imip.identity");
     sendMailTo(email, emailSubject, null, identity);
+}
+
+/**
+ * Opens an attachment
+ *
+ * @param {AUTF8String}  aAttachmentId   The hashId of the attachment to open
+ */
+function openAttachment(aAttachmentId) {
+    if (!aAttachmentId) {
+        return;
+    }
+    let args = window.arguments[0];
+    let item = args.calendarEvent;
+    let attachments = item.getAttachments({})
+                          .filter(aAttachment => aAttachment.hashId == aAttachmentId);
+    if (attachments.length && attachments[0].uri && attachments[0].uri.spec != "about:blank") {
+        let externalLoader = Components.classes["@mozilla.org/uriloader/external-protocol-service;1"]
+                                       .getService(Components.interfaces.nsIExternalProtocolService);
+        externalLoader.loadUrl(attachments[0].uri);
+    }
 }

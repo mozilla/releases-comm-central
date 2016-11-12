@@ -2,22 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* Begin: Summary Dialog - this should be moved to
-                           calendar/base/themes/common/dialogs/calendar-event-dialog.css
-                           or a separate file for the summary dialog */
-#calendar-summary-dialog,
-#calendar-event-summary-dialog,
-#calendar-task-summary-dialog {
-    min-width: 35em;
-}
-
-#calendar-summary-dialog #item-description,
-#calendar-event-summary-dialog #item-description,
-#calendar-task-summary-dialog #item-description {
-    min-height: 54px;
-}
-/* End: Summary Dialog */
-
 /* this is for attendee and organizer decoration in summary and event dialog */
 
 #item-attendees-box {
@@ -34,7 +18,7 @@
 }
 
 .item-attendees-cell {
-    padding: 3px 0px;
+    padding: 2px;
 }
 
 #calendar-event-dialog-inner .item-attendees-cell {

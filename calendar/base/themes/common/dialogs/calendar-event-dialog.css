@@ -505,3 +505,40 @@ freebusy-day > box {
 .checkbox-no-label > .checkbox-label-box {
     display: none;
 }
+
+/*--------------------------------------------------------------------
+ *   Event summary dialog
+ *-------------------------------------------------------------------*/
+
+#calendar-summary-dialog,
+#calendar-event-summary-dialog,
+#calendar-task-summary-dialog {
+    min-width: 35em;
+}
+
+#calendar-summary-dialog #item-attachment-cell,
+#calendar-event-summary-dialog #item-attachment-cell,
+#calendar-task-summary-dialog #item-attachment-cell {
+    margin-left: 6px;
+}
+
+#calendar-summary-dialog .item-attachment-cell-label,
+#calendar-event-summary-dialog .item-attachment-cell-label,
+#calendar-task-summary-dialog .item-attachment-cell-label {
+    margin-left: 3px;
+}
+
+#calendar-summary-dialog #item-description,
+#calendar-event-summary-dialog #item-description,
+#calendar-task-summary-dialog #item-description {
+    min-height: 54px;
+}
+
+#calendar-summary-dialog #item-start-row .headline,
+#calendar-event-summary-dialog #item-start-row .headline,
+#calendar-task-summary-dialog #item-start-row .headline,
+#calendar-summary-dialog #item-end-row .headline,
+#calendar-event-summary-dialog #item-end-row .headline,
+#calendar-task-summary-dialog #item-end-row .headline {
+    font-weight: normal;
+}
