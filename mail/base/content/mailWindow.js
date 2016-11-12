@@ -59,13 +59,18 @@ function OnMailWindowUnload()
  * that the images can be accessed in a paste elsewhere.
  */
 function onCopyOrDragStart(e) {
+  let sourceDoc = getBrowser().contentDocument;
+  if (e.target.ownerDocument != sourceDoc) {
+    return; // We're only interested if this is in the message content.
+  }
+
   let imgMap = new Map(); // Mapping img.src -> dataURL.
 
   // For copy, the data of what is to be copied is not accessible at this point.
   // Figure out what images are a) part of the selection and b) visible in
   // the current document. If their source isn't http or data already, convert
   // them to data URLs.
-  let sourceDoc = getBrowser().contentDocument;
+
   let selection = sourceDoc.getSelection();
   let draggedImg = selection.isCollapsed ? e.target : null;
   for (let img of sourceDoc.images) {
