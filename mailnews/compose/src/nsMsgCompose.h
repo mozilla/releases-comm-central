@@ -93,6 +93,8 @@ protected:
   nsresult MoveToAboveQuote(void);
   nsresult MoveToBeginningOfDocument(void);
   nsresult MoveToEndOfDocument(void);
+  nsresult ReplaceFileURLs(nsAutoString &sigData);
+  nsresult DataURLForFileURL(const nsAString &aFileURL, nsAString &aDataURL);
 
 // 3 = To, Cc, Bcc
 #define MAX_OF_RECIPIENT_ARRAY 3

@@ -103,10 +103,10 @@ function InitImage()
   // Set the controls to the image's attributes
   var src = globalElement.getAttribute("src");
 
-  // For image insertion the 'src' attribute is null. 
+  // For image insertion the 'src' attribute is null.
   if (src) {
     // Shorten data URIs for display.
-    gDialog.srcInput.value = src.replace(/(data:[^;]*;base64,)(.*)/i,
+    gDialog.srcInput.value = src.replace(/(data:.+;base64,)(.*)/i,
       function(match, nonDataPart, dataPart) {
         if (!gListenerAttached) {
           gDialog.srcInput.addEventListener("copy", onCopyOrCut);

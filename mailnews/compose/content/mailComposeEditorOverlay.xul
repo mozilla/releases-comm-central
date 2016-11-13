@@ -17,7 +17,6 @@
     var gMsgCompPrevInputValue = null;
     var gMsgCompPrevMozDoNotSendAttribute;
     var gMsgCompAttachSourceElement = null;
-    var gMOZDONOTSEND = "moz-do-not-send";
 
     function OnLoadOverlay()
     {
@@ -44,17 +43,30 @@
         if (gMsgCompInputElement)
         {
           SetAttachCheckbox();
-          gMsgCompPrevMozDoNotSendAttribute = globalElement.getAttribute(gMOZDONOTSEND)
+          gMsgCompPrevMozDoNotSendAttribute = globalElement.getAttribute("moz-do-not-send")
         }
       }
     }
-
     addEventListener("load", OnLoadOverlay, false);
+
+    function OnAcceptOverlay()
+    {
+      // Auto-convert file URLs to data URLs. If we're in the link properties
+      // dialog convert only when requested - for the image dialog do it always.
+      if (/^file:/i.test(gMsgCompInputElement.value.trim()) &&
+          (gMsgCompAttachSourceElement.checked || !gMsgCompProcessLink)) {
+        var dataURI = GenerateDataURL(gMsgCompInputElement.value.trim());
+        gMsgCompInputElement.value = dataURI;
+        gMsgCompAttachSourceElement.checked = true;
+        DoAttachSourceCheckbox();
+       }
+     }
+     addEventListener("dialogaccept", OnAcceptOverlay, false);
 
     function SetAttachCheckbox()
     {
       var resetCheckbox = false;
-      var mozDoNotSend = globalElement.getAttribute(gMOZDONOTSEND);
+      var mozDoNotSend = globalElement.getAttribute("moz-do-not-send");
 
       //In case somebody played with the advanced property and changed the moz-do-not-send attribute
       if (mozDoNotSend != gMsgCompPrevMozDoNotSendAttribute)
@@ -73,34 +85,20 @@
       if (gMsgCompInputElement && resetCheckbox)
       {
         // Here is the rule about how to set the checkbox Attach Source To Message:
-        // if the attribute moz-do-not-send has not been set, we look at the scheme of the url
+        // if the attribute "moz-do-not-send" has not been set, we look at the scheme of the url
         // and at some pref to decide what is the best for the user. Else if it is set to true,
         // the checkbox is unchecked else is checked.
-        var attach = true;
+        var attach = false;
         if (mozDoNotSend == null)
         {
-          // We haven't yet set the moz-do-not-send attribute, let's figure out the best setting
-          // the rule should be in sync with to the one in nsMsgComposeAndSend::GetEmbeddedObjectInfo
-
-          if (gMsgCompProcessLink)
-          {
-            //is it a Windows remote file?
-            if (gMsgCompInputElement.value.trimLeft().toLowerCase().startsWith("file://///"))
-            {
-              try {
-                let dontAttachPref =
-                  "mail.compose.dont_attach_source_of_local_network_links";
-                if (Services.prefs.getBoolPref(dontAttachPref))
-                  attach = false;
-              } catch(ex) {};
-            }
-            //is it not a file: location at all?
-            else if (!gMsgCompInputElement.value.trimLeft().toLowerCase().startsWith("file://"))
-              attach = false;
-          }
+          // We haven't yet set the "moz-do-not-send" attribute.
+          // For files, default to attach them.
+          attach = /^file:/i.test(gMsgCompInputElement.value);
         }
         else
-          attach = (mozDoNotSend != "true");
+        {
+          attach = (mozDoNotSend == "false");
+        }
 
         gMsgCompAttachSourceElement.checked = attach;
       }
@@ -109,9 +107,27 @@
     function DoAttachSourceCheckbox()
     {
       gMsgCompPrevMozDoNotSendAttribute = (!gMsgCompAttachSourceElement.checked).toString();
-      globalElement.setAttribute(gMOZDONOTSEND, gMsgCompPrevMozDoNotSendAttribute)
+      globalElement.setAttribute("moz-do-not-send", gMsgCompPrevMozDoNotSendAttribute);
     }
 
+    function GenerateDataURL(url) {
+      var file = Services.io.newURI(url, null, null)
+        .QueryInterface(Components.interfaces.nsIFileURL).file;
+      var contentType = Components.classes["@mozilla.org/mime;1"]
+        .getService(Components.interfaces.nsIMIMEService)
+        .getTypeFromFile(file);
+      var inputStream = Components.classes["@mozilla.org/network/file-input-stream;1"]
+        .createInstance(Components.interfaces.nsIFileInputStream);
+      inputStream.init(file, 0x01, 0600, 0);
+      var stream = Components.classes["@mozilla.org/binaryinputstream;1"]
+        .createInstance(Components.interfaces.nsIBinaryInputStream);
+      stream.setInputStream(inputStream);
+      var encoded = btoa(stream.readBytes(stream.available()));
+      stream.close();
+      return "data:" + contentType +
+        ";filename=" + encodeURIComponent(file.leafName) +
+        ";base64," + encoded;
+    }
   ]]>
   </script>
 

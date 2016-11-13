@@ -83,6 +83,8 @@
 #include "nsJSEnvironment.h"
 #include "nsIObserverService.h"
 #include "nsIProtocolHandler.h"
+#include "nsContentUtils.h"
+#include "nsIFileURL.h"
 
 using namespace mozilla;
 using namespace mozilla::mailnews;
@@ -4228,6 +4230,8 @@ nsMsgCompose::LoadDataFromFile(nsIFile *file, nsString &sigData,
   nsAutoCString readStr(readBuf, (int32_t) fileSize);
   PR_FREEIF(readBuf);
 
+  // XXX: ^^^ could really use nsContentUtils::SlurpFileToString instead!
+
   if (NS_FAILED(ConvertToUnicode(sigEncoding.get(), readStr, sigData)))
     CopyASCIItoUTF16(readStr, sigData);
 
@@ -4240,7 +4244,104 @@ nsMsgCompose::LoadDataFromFile(nsIFile *file, nsString &sigData,
     if (pos != kNotFound)
       sigData.Cut(pos, metaCharset.Length());
   }
+  return NS_OK;
+}
 
+/**
+ * If the data contains file URLs, convert them to data URLs instead.
+ * This is intended to be used in for signature files, so that we can make sure
+ * images loaded into the editor are available on send.
+ */
+nsresult
+nsMsgCompose::ReplaceFileURLs(nsAutoString &aData)
+{
+  int32_t fPos;
+  int32_t offset = -1;
+  while ((fPos = aData.RFind("file://", true, offset)) != kNotFound) {
+    if (fPos != kNotFound && fPos > 0) {
+      char16_t q = aData.CharAt(fPos - 1);
+      bool quoted = (q == '"' || q == '\'');
+      int32_t end = kNotFound;
+      if (quoted) {
+        end = aData.FindChar(q, fPos);
+      }
+      else {
+        int32_t spacePos = aData.FindChar(' ', fPos);
+        int32_t gtPos = aData.FindChar('>', fPos);
+        if (gtPos != kNotFound && spacePos != kNotFound) {
+          end = (spacePos < gtPos) ? spacePos : gtPos;
+        }
+        else if (gtPos == kNotFound && spacePos != kNotFound) {
+          end = spacePos;
+        }
+        else if (gtPos != kNotFound && spacePos == kNotFound) {
+          end = gtPos;
+        }
+      }
+      if (end == kNotFound) {
+        break;
+      }
+      nsString fileURL;
+      fileURL = Substring(aData, fPos, end - fPos);
+      nsString dataURL;
+      nsresult rv = DataURLForFileURL(fileURL, dataURL);
+      NS_ENSURE_SUCCESS(rv, rv);
+      aData.Replace(fPos, end - fPos, dataURL);
+      int32_t gtAfter = aData.FindChar('>', fPos + dataURL.Length());
+      if (gtAfter != kNotFound) {
+        aData.Insert(NS_LITERAL_STRING(" moz-do-not-send='false'"), gtAfter);
+      }
+      offset = fPos - 1;
+    }
+  }
+  return NS_OK;
+}
+
+nsresult
+nsMsgCompose::DataURLForFileURL(const nsAString &aFileURL, nsAString &aDataURL)
+{
+  nsresult rv;
+  nsCOMPtr<nsIMIMEService> mime = do_GetService("@mozilla.org/mime;1", &rv);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  nsCOMPtr<nsIURI> fileUri;
+  rv = NS_NewURI(getter_AddRefs(fileUri), NS_ConvertUTF16toUTF8(aFileURL).get());
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  nsCOMPtr<nsIFileURL> fileUrl(do_QueryInterface(fileUri, &rv));
+  NS_ENSURE_SUCCESS(rv, rv);
+  nsCOMPtr<nsIFile> file;
+  rv = fileUrl->GetFile(getter_AddRefs(file));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  nsCString type;
+  rv = mime->GetTypeFromFile(file, type);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  nsCString data;
+  rv = nsContentUtils::SlurpFileToString(file, data);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  aDataURL.AssignLiteral("data:");
+  AppendUTF8toUTF16(type, aDataURL);
+
+  nsAutoString filename;
+  rv = file->GetLeafName(filename);
+  if (NS_SUCCEEDED(rv)) {
+    nsAutoCString fn;
+    MsgEscapeURL(NS_ConvertUTF16toUTF8(filename),
+      nsINetUtil::ESCAPE_URL_FILE_BASENAME | nsINetUtil::ESCAPE_URL_FORCED, fn);
+    if (!fn.IsEmpty()) {
+      aDataURL.AppendLiteral(";filename=");
+      aDataURL.Append(NS_ConvertUTF8toUTF16(fn));
+    }
+  }
+
+  aDataURL.AppendLiteral(";base64,");
+  char *result = PL_Base64Encode(data.get(), data.Length(), nullptr);
+  nsDependentCString base64data(result);
+  NS_ENSURE_SUCCESS(rv, rv);
+  AppendUTF8toUTF16(base64data, aDataURL);
   return NS_OK;
 }
 
@@ -4346,7 +4447,7 @@ nsMsgCompose::ProcessSignature(nsIMsgIdentity *identity, bool aQuoted, nsString 
   // Unless signature to be attached from file, use preference value;
   // the htmlSigText value is always going to be treated as html if
   // the htmlSigFormat pref is true, otherwise it is considered text
-  nsString prefSigText;
+  nsAutoString prefSigText;
   if (identity && !attachFile)
     identity->GetHtmlSigText(prefSigText);
   // Now, if they didn't even want to use a signature, we should
@@ -4386,25 +4487,40 @@ nsMsgCompose::ProcessSignature(nsIMsgIdentity *identity, bool aQuoted, nsString 
       }
 
       sigOutput.AppendLiteral(htmlBreak);
-      sigOutput.AppendLiteral("<img src=\"file:///");
-           /* XXX pp This gives me 4 slashes on Unix, that's at least one to
-              much. Better construct the URL with some service. */
-      // this isn't right on windows - need to convert to url format...
-      sigOutput.Append(NS_ConvertASCIItoUTF16(sigNativePath));
-      sigOutput.AppendLiteral("\" border=0>");
+      sigOutput.AppendLiteral("<img src='");
+
+      nsCOMPtr<nsIURI> fileURI;
+      nsresult rv = NS_NewFileURI(getter_AddRefs(fileURI), sigFile);
+      NS_ENSURE_SUCCESS(rv, rv);
+      nsCString fileURL;
+      fileURI->GetSpec(fileURL);
+
+      nsString dataURL;
+      rv = DataURLForFileURL(NS_ConvertUTF8toUTF16(fileURL), dataURL);
+      if (NS_SUCCEEDED(rv)) {
+        sigOutput.Append(dataURL);
+        sigOutput.AppendLiteral("' moz-do-not-send='false' border=0>");
+      }
+      else {
+        sigOutput.AppendLiteral("' border=0>");
+      }
       sigOutput.AppendLiteral(htmlsigclose);
     }
   }
   else if (useSigFile)
   {
     // is this a text sig with an HTML editor?
-    if ( (m_composeHTML) && (!htmlSig) )
+    if ( (m_composeHTML) && (!htmlSig) ) {
       ConvertTextToHTML(sigFile, sigData);
+    }
     // is this a HTML sig with a text window?
-    else if ( (!m_composeHTML) && (htmlSig) )
+    else if ( (!m_composeHTML) && (htmlSig) ) {
       ConvertHTMLToText(sigFile, sigData);
-    else // We have a match...
+    }
+    else { // We have a match...
       LoadDataFromFile(sigFile, sigData);  // Get the data!
+      ReplaceFileURLs(sigData);
+    }
   }
 
   // if we have a prefSigText, append it to sigData.
@@ -4434,8 +4550,10 @@ nsMsgCompose::ProcessSignature(nsIMsgIdentity *identity, bool aQuoted, nsString 
         else
           sigData.Append(prefSigText);
       }
-      else
+      else {
+        ReplaceFileURLs(prefSigText);
         sigData.Append(prefSigText);
+      }
     }
   }
 

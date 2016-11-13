@@ -1,0 +1,45 @@
+<?xml version="1.0"?>
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+
+<!DOCTYPE window SYSTEM "chrome://messenger/locale/messengercompose/mailComposeEditorOverlay.dtd" >
+
+<overlay id="mailEdColorPropsOverlay"
+         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+  <script type="application/javascript">
+  <![CDATA[
+  function onAccept() {
+    // If it's a file, convert to a data URL.
+    if (gBackgroundImage && /^file:/i.test(gBackgroundImage)) {
+      let nsFile = Services.io.newURI(gBackgroundImage, null, null)
+        .QueryInterface(Components.interfaces.nsIFileURL).file;
+      if (nsFile.exists()) {
+        let reader = new FileReader();
+        reader.addEventListener("load", function() {
+          gBackgroundImage = reader.result;
+          gDialog.BackgroundImageInput.value = reader.result;
+          if (onAccept()) {
+            window.close();
+          }
+        });
+        reader.readAsDataURL(new File(nsFile));
+        return false; // Don't close just yet...
+      }
+    }
+    if (ValidateData()) {
+      // Copy attributes to element we are changing
+      try {
+        GetCurrentEditor().cloneAttributes(gBodyElement, globalElement);
+      } catch (e) {}
+
+      SaveWindowLocation();
+      return true; // do close the window
+    }
+    return false;
+  }
+  ]]>
+  </script>
+
+</overlay>

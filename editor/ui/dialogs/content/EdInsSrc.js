@@ -48,7 +48,7 @@ function Startup()
 
 function replaceDataURIs(input)
 {
-  return input.replace(/(data:[^;]*;base64,)([^"' >]+)/gi,
+  return input.replace(/(data:.+;base64,)([^"' >]+)/gi,
     function(match, nonDataPart, dataPart) {
 
       if (gShortDataStrings.has(dataPart)) {
@@ -87,7 +87,7 @@ function onCopyOrCut(event)
   let clipboard = gDialog.srcInput.value.substring(startPos, endPos);
 
   // Add back the original data URIs we stashed away earlier.
-  clipboard = clipboard.replace(/(data:[^;]*;base64,)([^"' >]+)/gi,
+  clipboard = clipboard.replace(/(data:.+;base64,)([^"' >]+)/gi,
     function(match, nonDataPart, key) {
       if (!gFullDataStrings.has(key))
         return match; // user changed data URI
@@ -125,7 +125,7 @@ function onAccept()
     return false;
 
   // Add back the original data URIs we stashed away earlier.
-  html = html.replace(/(data:[^;]*;base64,)([^"' >]+)/gi,
+  html = html.replace(/(data:.+;base64,)([^"' >]+)/gi,
     function(match, nonDataPart, key) {
       if (!gFullDataStrings.has(key))
         return match; // user changed data URI
