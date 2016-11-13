@@ -480,7 +480,6 @@ void OutlookSettings::SetIdentities(nsIMsgAccountManager *aMgr,
     rv = aMgr->CreateIdentity(getter_AddRefs(id));
     if (id) {
       id->SetFullName(name);
-      id->SetIdentityName(name);
       id->SetOrganization(orgName);
 
       nsAutoCString nativeEmail;

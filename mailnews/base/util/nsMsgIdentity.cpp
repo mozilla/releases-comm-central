@@ -15,6 +15,7 @@
 #include "nsIMsgFolder.h"
 #include "nsIMsgIncomingServer.h"
 #include "nsIMsgAccountManager.h"
+#include "mozilla/mailnews/MimeHeaderParser.h"
 #include "nsMsgBaseCID.h"
 #include "prprf.h"
 #include "nsISupportsPrimitives.h"
@@ -66,29 +67,45 @@ nsMsgIdentity::SetKey(const nsACString& identityKey)
 nsresult
 nsMsgIdentity::GetIdentityName(nsAString& idName)
 {
-  nsresult rv = GetUnicharAttribute("identityName", idName);
-  if (NS_FAILED(rv)) return rv;
+  idName.AssignLiteral("");
+  // Try to use "fullname <email>" as the name.
+  nsresult rv = GetFullAddress(idName);
+  NS_ENSURE_SUCCESS(rv, rv);
 
-  if (idName.IsEmpty()) {
-    nsString fullName;
-    rv = GetFullName(fullName);
-    if (NS_FAILED(rv)) return rv;
-
-    nsCString email;
-    rv = GetEmail(email);
-    if (NS_FAILED(rv)) return rv;
-
-    idName.Assign(fullName);
-    idName.AppendLiteral(" <");
-    idName.Append(NS_ConvertASCIItoUTF16(email));
-    idName.AppendLiteral(">");
+  // If a non-empty label exists, append it.
+  nsString label;
+  rv = GetLabel(label);
+  if (NS_SUCCEEDED(rv) && !label.IsEmpty())
+  { // TODO: this should be localizable
+    idName.AppendLiteral(" (");
+    idName.Append(label);
+    idName.AppendLiteral(")");
   }
 
-  return rv;
+  if (!idName.IsEmpty())
+    return NS_OK;
+
+  // If we still found nothing to use, use our key.
+  return ToString(idName);
 }
 
-nsresult nsMsgIdentity::SetIdentityName(const nsAString& idName) {
-  return SetUnicharAttribute("identityName", idName);
+nsresult
+nsMsgIdentity::GetFullAddress(nsAString& fullAddress)
+{
+  nsAutoString fullName;
+  nsresult rv = GetFullName(fullName);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  nsAutoCString email;
+  rv = GetEmail(email);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  if (fullName.IsEmpty() && email.IsEmpty())
+    fullAddress.Truncate();
+  else
+    mozilla::mailnews::MakeMimeAddress(fullName, NS_ConvertASCIItoUTF16(email), fullAddress);
+
+  return NS_OK;
 }
 
 NS_IMETHODIMP
@@ -137,6 +154,7 @@ NS_IMPL_IDPREF_STR(EscapedVCard, "escapedVCard")
 NS_IMPL_IDPREF_STR(SmtpServerKey, "smtpServer")
 NS_IMPL_IDPREF_WSTR(FullName, "fullName")
 NS_IMPL_IDPREF_STR(Email, "useremail")
+NS_IMPL_IDPREF_WSTR(Label, "label")
 NS_IMPL_IDPREF_STR(ReplyTo, "reply_to")
 NS_IMPL_IDPREF_WSTR(Organization, "organization")
 NS_IMPL_IDPREF_BOOL(ComposeHtml, "compose_html")
@@ -570,6 +588,7 @@ nsMsgIdentity::Copy(nsIMsgIdentity *identity)
 
     COPY_IDENTITY_BOOL_VALUE(identity,GetComposeHtml,SetComposeHtml)
     COPY_IDENTITY_STR_VALUE(identity,GetEmail,SetEmail)
+    COPY_IDENTITY_WSTR_VALUE(identity,GetLabel,SetLabel)
     COPY_IDENTITY_STR_VALUE(identity,GetReplyTo,SetReplyTo)
     COPY_IDENTITY_WSTR_VALUE(identity,GetFullName,SetFullName)
     COPY_IDENTITY_WSTR_VALUE(identity,GetOrganization,SetOrganization)

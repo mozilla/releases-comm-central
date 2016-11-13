@@ -768,8 +768,6 @@ void OESettings::SetIdentities(nsIMsgAccountManager *aMgr,
     return;
 
   id->SetFullName(name);
-  //BUG 470587. Don't set this: id->SetIdentityName(fullName);
-
   id->SetOrganization(orgName);
 
   nsAutoCString nativeEmail;

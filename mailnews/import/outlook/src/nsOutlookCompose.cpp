@@ -224,8 +224,7 @@ nsresult nsOutlookCompose::CreateIdentity(void)
   name.AssignLiteral("Import Identity");
   if (m_pIdentity) {
     m_pIdentity->SetFullName(name);
-    m_pIdentity->SetIdentityName(name);
-    m_pIdentity->SetEmail(NS_LITERAL_CSTRING("import@import.service"));
+    m_pIdentity->SetEmail(NS_LITERAL_CSTRING("import@service.invalid"));
   }
   return rv;
 }

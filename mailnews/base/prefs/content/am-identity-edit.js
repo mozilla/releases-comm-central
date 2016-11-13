@@ -69,6 +69,11 @@ function initIdentityValues(identity)
     document.getElementById('identity.attachVCard').checked = identity.attachVCard;
     document.getElementById('identity.escapedVCard').value = identity.escapedVCard;
     initSmtpServer(identity.smtpServerKey);
+
+    // This field does not exist for the default identity shown in the am-main.xul pane.
+    let idLabel = document.getElementById("identity.label");
+    if (idLabel)
+      idLabel.value = identity.label;
   }
   else
   {
@@ -187,6 +192,9 @@ function saveIdentitySettings(identity)
 {
   if (identity)
   {
+    let idLabel = document.getElementById('identity.label');
+    if (idLabel)
+      identity.label = idLabel.value;
     identity.fullName = document.getElementById('identity.fullName').value;
     identity.email = document.getElementById('identity.email').value;
     identity.replyTo = document.getElementById('identity.replyTo').value;

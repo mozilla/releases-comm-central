@@ -375,7 +375,7 @@ nsBeckySettings::CreateIdentity(nsIMsgIdentity **aIdentity)
   rv = accountManager->CreateIdentity(getter_AddRefs(identity));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  identity->SetIdentityName(NS_ConvertUTF8toUTF16(identityName));
+  identity->SetLabel(NS_ConvertUTF8toUTF16(identityName));
   identity->SetFullName(NS_ConvertUTF8toUTF16(fullName));
   identity->SetEmail(email);
   if (!bccAddress.IsEmpty()) {

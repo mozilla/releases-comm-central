@@ -1110,8 +1110,8 @@ function ComposeStartup(aParams)
 
   gComposeType = params.type;
 
-  // " <>" is an empty identity, and most likely not valid
-  if (!params.identity || params.identity.identityName == " <>") {
+  // An identity with no email is likely not valid.
+  if (!params.identity || !params.identity.email) {
     // no pre selected identity, so use the default account
     var identities = gAccountManager.defaultAccount.identities;
     if (identities.length == 0)
@@ -2061,11 +2061,8 @@ function FillIdentityList(menulist)
     for (let i = 0; i < identities.length; i++)
     {
       let identity = identities[i];
-      let address = MailServices.headerParser
-                                .makeMailboxObject(identity.fullName,
-                                                   identity.email).toString();
       let item = menulist.appendItem(identity.identityName,
-                                     address,
+                                     identity.fullAddress,
                                      account.incomingServer.prettyName);
       item.setAttribute("identitykey", identity.key);
       item.setAttribute("accountkey", account.key);
@@ -2675,8 +2672,9 @@ function LoadIdentity(startup)
           if (getPref("mail.autoComplete.highlightNonMatches"))
             document.getElementById('addressCol2#1').highlightNonMatches = true;
 
-          // only do this if we aren't starting up....it gets done as part of startup already
-          addRecipientsToIgnoreList(gCurrentIdentity.identityName);
+          // Only do this if we aren't starting up...
+          // It gets done as part of startup already.
+          addRecipientsToIgnoreList(gCurrentIdentity.fullAddress);
       }
     }
 }

@@ -48,6 +48,9 @@
     <tabpanels id="identityTabsPanels" flex="1">
       <!-- Identity Settings Tab -->
       <vbox flex="1" name="settings">
+        <groupbox>
+          <caption label="&publicData.label;"/>
+
         <grid>
           <columns>
             <column/>
@@ -107,19 +110,35 @@
                   oncommand="editVCard()"/>
           <label hidden="true" id="identity.escapedVCard"/>
         </hbox>
+        </groupbox>
 
-        <separator class="thin"/>
-        <hbox align="center">
-          <label value="&smtpName.label;" control="identity.smtpServerKey"
-                 accesskey="&smtpName.accesskey;"/>
-          <menulist id="identity.smtpServerKey" flex="1">
-            <menupopup id="smtpPopup">
-              <menuitem value="" label="&smtpDefaultServer.label;" id="useDefaultItem"/>
-              <menuseparator/>
-              <!-- list will be inserted here -->
-            </menupopup>
-          </menulist>
-        </hbox>
+        <groupbox>
+          <caption label="&privateData.label;"/>
+
+          <hbox align="center">
+            <label value="&smtpName.label;"
+                   control="identity.smtpServerKey"
+                   accesskey="&smtpName.accesskey;"/>
+            <menulist id="identity.smtpServerKey" flex="1">
+              <menupopup id="smtpPopup">
+                <menuitem value=""
+                          label="&smtpDefaultServer.label;"
+                          id="useDefaultItem"/>
+                <menuseparator/>
+                <!-- list will be inserted here -->
+              </menupopup>
+            </menulist>
+          </hbox>
+
+          <separator class="thin"/>
+
+          <hbox align="center">
+            <label value="&identityAlias.label;"
+                   accesskey="&identityAlias.accesskey;"
+                   control="identity.label"/>
+            <textbox id="identity.label" flex="1"/>
+          </hbox>
+        </groupbox>
 
         <spacer flex="1"/>
       </vbox>

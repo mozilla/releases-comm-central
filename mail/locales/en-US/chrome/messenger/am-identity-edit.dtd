@@ -11,3 +11,8 @@
 <!ENTITY settingsTab.label       "Settings">
 <!ENTITY copiesFoldersTab.label "Copies &amp; Folders">
 <!ENTITY addressingTab.label    "Composition &amp; Addressing">
+
+<!ENTITY publicData.label        "Public Data">
+<!ENTITY privateData.label       "Private Data">
+<!ENTITY identityAlias.label     "Identity Label:">
+<!ENTITY identityAlias.accesskey "b">

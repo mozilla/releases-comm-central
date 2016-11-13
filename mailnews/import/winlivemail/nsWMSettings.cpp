@@ -607,7 +607,6 @@ void WMSettings::SetIdentities(nsIMsgAccountManager *pMgr, nsIMsgAccount *pAcc,
                                int32_t authMethodIncoming, bool isNNTP)
 {
   // Get the relevant information for an identity
-  // BUG 470587. Don't set this: id->SetIdentityName(fullName);
   nsresult rv;
   nsAutoString value;
 

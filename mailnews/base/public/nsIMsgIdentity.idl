@@ -12,7 +12,7 @@
  * Each identity is identified by a key, which is the <id> string in
  * the identity preferences, such as in mail.identity.<id>.replyTo.
  */
-[scriptable, uuid(4a769f39-f8c2-41e6-962a-175a33107578)]
+[scriptable, uuid(9dede9a0-f6fc-4afc-8fc9-a6af52414b3d)]
 interface nsIMsgIdentity : nsISupports {
   /**
    * Internal preferences ID.
@@ -20,10 +20,15 @@ interface nsIMsgIdentity : nsISupports {
   attribute ACString key;
 
   /**
-   * Overriding display name for this identity. If this pref is not set
-   * then this will return some composed string from the fullname and email.
+   * Label describing this identity. May be empty.
    */
-  attribute AString identityName;
+  attribute AString label;
+
+  /**
+   * Pretty display name to identify this specific identity. Will return a
+   * composed string like "fullname <email> (label)".
+   */
+  readonly attribute AString identityName;
 
   /**
    * User's full name, i.e. John Doe.
@@ -34,6 +39,12 @@ interface nsIMsgIdentity : nsISupports {
    * User's e-mail address, i.e. john@doe.com.
    */
   attribute ACString email;
+
+  /**
+   * Formats fullName and email into the proper string to use as sender:
+   * name <email>
+   */
+  readonly attribute AString fullAddress;
 
   /**
    * Optional replyTo address, i.e. johnNOSPAM@doe.com.
