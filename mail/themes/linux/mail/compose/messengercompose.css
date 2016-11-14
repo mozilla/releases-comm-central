@@ -632,7 +632,7 @@ toolbarbutton.formatting-button {
 }
 
 #InsertImageItem {
-  -moz-image-region: rect(64px 16px 80px 0px);
+  -moz-image-region: rect(80px 16px 96px 0px);
 }
 
 #InsertHRuleItem {
