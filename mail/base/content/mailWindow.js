@@ -638,7 +638,7 @@ nsBrowserAccess.prototype = {
 
   openURI: function (aURI, aOpener, aWhere, aFlags) {
     const nsIBrowserDOMWindow = Components.interfaces.nsIBrowserDOMWindow;
-    let isExternal = !!(aFlags & Components.interfaces.nsIBrowserDOMWindow.OPEN_EXTERNAL);
+    let isExternal = !!(aFlags & nsIBrowserDOMWindow.OPEN_EXTERNAL);
     if (isExternal && aURI && aURI.schemeIs("chrome")) {
       Services.console.logStringMessage("use -chrome command-line option to load external chrome urls\n");
       return null;
