@@ -75,8 +75,7 @@ pref("app.update.cert.maxErrors", 5);
 //    the value for the name must be the same as the value for the attribute name
 //    on the certificate.
 // If these conditions aren't met it will be treated the same as when there is
-// no update available. This validation will not be performed when using the
-// |app.update.url.override| preference for update checking.
+// no update available.
 
 pref("app.update.certs.1.issuerName", "CN=DigiCert SHA2 Secure Server CA,O=DigiCert Inc,C=US");
 pref("app.update.certs.1.commonName", "aus5.mozilla.org");
@@ -108,8 +107,6 @@ pref("app.update.url.manual", "http://www.getthunderbird.com");
 // A default value for the "More information about this update" link
 // supplied in the "An update is available" page of the update wizard.
 pref("app.update.url.details", "https://www.mozilla.org/%LOCALE%/%APP%/releases/");
-// User-settable override to app.update.url for testing purposes.
-//pref("app.update.url.override", "");
 
 // app.update.promptWaitTime is in branding section
 
