@@ -91,7 +91,6 @@ classic.jar:
   skin/classic/messenger/activity/defaultEventIcon.png        (mail/activity/defaultEventIcon.png)
   skin/classic/messenger/activity/defaultProcessIcon.png      (mail/activity/defaultProcessIcon.png)
   skin/classic/messenger/activity/defaultProcessIcon-XP.png   (mail/activity/defaultProcessIcon-XP.png)
-  skin/classic/messenger/activity/defaultWarningIcon.png      (mail/activity/defaultWarningIcon.png)
   skin/classic/messenger/activity/defaultWarningIcon-XP.png   (mail/activity/defaultWarningIcon-XP.png)
   skin/classic/messenger/activity/deleteMailIcon.png          (mail/activity/deleteMailIcon.png)
   skin/classic/messenger/activity/deleteMailIcon-XP.png       (mail/activity/deleteMailIcon-XP.png)
