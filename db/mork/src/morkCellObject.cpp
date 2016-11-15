@@ -350,10 +350,10 @@ NS_IMETHODIMP morkCellObject::AliasYarn(nsIMdbEnv* mev,
   if ( ev )
   {
     morkAtom* atom = cell->GetAtom();
-    atom->AliasYarn(outYarn);
+    morkAtom::AliasYarn(atom, outYarn);
     outErr = ev->AsErr();
   }
-    
+
   return outErr;
 } // writes ALL yarn slots
 

@@ -52,10 +52,9 @@ void
 morkCell::AliasYarn(morkEnv* ev, mdbYarn* outYarn) const
 {
   MORK_USED_1(ev);
-  mCell_Atom->AliasYarn(outYarn);
+  morkAtom::AliasYarn(mCell_Atom, outYarn);
 }
-  
-  
+
 void
 morkCell::SetCellClean()
 {

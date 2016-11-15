@@ -656,12 +656,12 @@ morkStore::CopyAtom(morkEnv* ev, const morkAtom* inAtom)
   if ( inAtom )
   {
     mdbYarn yarn;
-    if ( inAtom->AliasYarn(&yarn) )
+    if ( morkAtom::AliasYarn(inAtom, &yarn) )
       outAtom = this->YarnToAtom(ev, &yarn, true /* create */);
   }
   return outAtom;
 }
- 
+
 morkAtom*
 morkStore::YarnToAtom(morkEnv* ev, const mdbYarn* inYarn, bool createIfMissing /* = true */)
 {

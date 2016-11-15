@@ -87,9 +87,8 @@ public: // errors
   static void AtomSizeOverflowError(morkEnv* ev);
 
 public: // yarns
-  
-  mork_bool   AsBuf(morkBuf& outBuf) const;
-  mork_bool   AliasYarn(mdbYarn* outYarn) const;
+
+  static mork_bool AliasYarn(const morkAtom* atom, mdbYarn* outYarn);
   mork_bool   GetYarn(mdbYarn* outYarn) const;
 
 private: // copying is not allowed

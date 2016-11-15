@@ -94,55 +94,13 @@ morkAtom::GetYarn(mdbYarn* outYarn) const
   return ( source != 0 );
 }
 
+/* static */
 mork_bool
-morkAtom::AsBuf(morkBuf& outBuf) const
-{
-  const morkAtom* atom = this;
-  if ( atom )
-  {
-    if ( atom->IsWeeBook() )
-    {
-      morkWeeBookAtom* weeBook = (morkWeeBookAtom*) atom;
-      outBuf.mBuf_Body = weeBook->mWeeBookAtom_Body;
-      outBuf.mBuf_Fill = weeBook->mAtom_Size;
-    }
-    else if ( atom->IsBigBook() )
-    {
-      morkBigBookAtom* bigBook = (morkBigBookAtom*) atom;
-      outBuf.mBuf_Body = bigBook->mBigBookAtom_Body;
-      outBuf.mBuf_Fill = bigBook->mBigBookAtom_Size;
-    }
-    else if ( atom->IsWeeAnon() )
-    {
-      morkWeeAnonAtom* weeAnon = (morkWeeAnonAtom*) atom;
-      outBuf.mBuf_Body = weeAnon->mWeeAnonAtom_Body;
-      outBuf.mBuf_Fill = weeAnon->mAtom_Size;
-    }
-    else if ( atom->IsBigAnon() )
-    {
-      morkBigAnonAtom* bigAnon = (morkBigAnonAtom*) atom;
-      outBuf.mBuf_Body = bigAnon->mBigAnonAtom_Body;
-      outBuf.mBuf_Fill = bigAnon->mBigAnonAtom_Size;
-    }
-    else
-      atom = 0; // show desire to put empty content in yarn
-  }
-  
-  if ( !atom ) // empty content for yarn?
-  {
-    outBuf.mBuf_Body = 0;
-    outBuf.mBuf_Fill = 0;
-  }
-  return ( atom != 0 );
-}
-
-mork_bool
-morkAtom::AliasYarn(mdbYarn* outYarn) const
+morkAtom::AliasYarn(const morkAtom* atom, mdbYarn* outYarn)
 {
   outYarn->mYarn_More = 0;
   outYarn->mYarn_Form = 0;
-  const morkAtom* atom = this;
-  
+
   if ( atom )
   {
     if ( atom->IsWeeBook() )
