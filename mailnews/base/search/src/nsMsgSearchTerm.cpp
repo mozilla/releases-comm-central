@@ -1906,7 +1906,7 @@ nsresult nsMsgSearchScopeTerm::TimeSlice (bool *aDone)
   return m_adapter->Search(aDone);
 }
 
-nsresult nsMsgSearchScopeTerm::InitializeAdapter (nsISupportsArray *termList)
+nsresult nsMsgSearchScopeTerm::InitializeAdapter (nsIArray *termList)
 {
   if (m_adapter)
     return NS_OK;

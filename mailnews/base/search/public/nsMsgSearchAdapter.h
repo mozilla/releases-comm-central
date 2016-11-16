@@ -29,20 +29,20 @@ class nsIMsgSearchScopeTerm;
 class nsMsgSearchAdapter : public nsIMsgSearchAdapter
 {
 public:
-  nsMsgSearchAdapter (nsIMsgSearchScopeTerm*, nsISupportsArray *);
+  nsMsgSearchAdapter (nsIMsgSearchScopeTerm*, nsIArray*);
 
   NS_DECL_ISUPPORTS
   NS_DECL_NSIMSGSEARCHADAPTER
 
   nsIMsgSearchScopeTerm        *m_scope;
-  nsCOMPtr<nsISupportsArray>  m_searchTerms;       /* linked list of criteria terms */
+  nsCOMPtr<nsIArray>  m_searchTerms;       /* linked list of criteria terms */
 
   bool m_abortCalled;
   nsString  m_defaultCharset;
   bool m_forceAsciiSearch;
 
   static nsresult EncodeImap (char **ppEncoding,
-           nsISupportsArray *searchTerms,
+           nsIArray *searchTerms,
            const char16_t *srcCharset,
            const char16_t *destCharset,
            bool reallyDredd = false);

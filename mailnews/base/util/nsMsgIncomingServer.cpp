@@ -24,6 +24,7 @@
 #include "nsIMsgWindow.h"
 #include "nsIMsgFilterService.h"
 #include "nsIMsgProtocolInfo.h"
+#include "nsIMutableArray.h"
 #include "nsIPrefService.h"
 #include "nsIRelativeFilePref.h"
 #include "nsIDocShell.h"
@@ -1875,7 +1876,7 @@ nsMsgIncomingServer::ConfigureTemporaryServerSpamFilters(nsIMsgFilterList *filte
      */
 
     // get the list of search terms from the filter
-    nsCOMPtr<nsISupportsArray> searchTerms;
+    nsCOMPtr<nsIMutableArray> searchTerms;
     rv = newFilter->GetSearchTerms(getter_AddRefs(searchTerms));
     NS_ENSURE_SUCCESS(rv, rv);
     uint32_t count = 0;
@@ -1911,7 +1912,7 @@ nsMsgIncomingServer::ConfigureTemporaryServerSpamFilters(nsIMsgFilterList *filte
     searchValue->SetStr(NS_LITERAL_STRING("user"));
     searchTerm->SetValue(searchValue);
 
-    searchTerms->InsertElementAt(searchTerm, count);
+    searchTerms->InsertElementAt(searchTerm, count, /* weak = */ false);
 
     bool moveOnSpam, markAsReadOnSpam;
     spamSettings->GetMoveOnSpam(&moveOnSpam);

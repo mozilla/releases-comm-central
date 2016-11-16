@@ -137,9 +137,9 @@ function filterEditorOnLoad()
         }
 
         // copy the search terms
-        for (let i = 0; i < copiedFilter.searchTerms.Count(); i++)
+        for (let i = 0; i < copiedFilter.searchTerms.length; i++)
         {
-          var searchTerm = copiedFilter.searchTerms.QueryElementAt(i,
+          let searchTerm = copiedFilter.searchTerms.queryElementAt(i,
             Components.interfaces.nsIMsgSearchTerm);
 
           var newTerm = newFilter.createTerm();

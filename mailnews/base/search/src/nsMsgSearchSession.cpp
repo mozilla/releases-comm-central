@@ -4,6 +4,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "msgCore.h"
+#include "nsArray.h"
 #include "nsMsgSearchCore.h"
 #include "nsMsgSearchAdapter.h"
 #include "nsMsgSearchBoolExpression.h"
@@ -32,9 +33,8 @@ nsMsgSearchSession::nsMsgSearchSession()
   m_handlingError = false;
   m_expressionTree = nullptr;
   m_searchPaused = false;
-  nsresult rv = NS_NewISupportsArray(getter_AddRefs(m_termList));
-  if (NS_FAILED(rv))
-    NS_ASSERTION(false, "Failed to allocate a nsISupportsArray for nsMsgFilter");
+  m_termList = nsArray::Create();
+  NS_ASSERTION(m_termList, "Failed to allocate a nsIMutableArray for m_termList");
 }
 
 nsMsgSearchSession::~nsMsgSearchSession()
@@ -62,7 +62,7 @@ nsMsgSearchSession::AddSearchTerm(nsMsgSearchAttribValue attrib,
                                                boolOp, customString);
   NS_ENSURE_TRUE(pTerm, NS_ERROR_OUT_OF_MEMORY);
 
-  m_termList->AppendElement(pTerm);
+  m_termList->AppendElement(pTerm, /* weak = */ false);
   // force the expression tree to rebuild whenever we change the terms
   delete m_expressionTree;
   m_expressionTree = nullptr;
@@ -76,16 +76,23 @@ nsMsgSearchSession::AppendTerm(nsIMsgSearchTerm *aTerm)
     NS_ENSURE_TRUE(m_termList, NS_ERROR_NOT_INITIALIZED);
     delete m_expressionTree;
     m_expressionTree = nullptr;
-    return m_termList->AppendElement(aTerm);
+    return m_termList->AppendElement(aTerm, /* weak = */ false);
 }
 
 NS_IMETHODIMP
-nsMsgSearchSession::GetSearchTerms(nsISupportsArray **aResult)
+nsMsgSearchSession::GetSearchTerms(nsIMutableArray **aResult)
 {
     NS_ENSURE_ARG_POINTER(aResult);
     *aResult = m_termList;
     NS_ADDREF(*aResult);
     return NS_OK;
+}
+
+NS_IMETHODIMP
+nsMsgSearchSession::SetSearchTerms(nsIMutableArray *aSearchTerms)
+{
+  m_termList = aSearchTerms;
+  return NS_OK;
 }
 
 NS_IMETHODIMP

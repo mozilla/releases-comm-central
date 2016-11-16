@@ -173,8 +173,8 @@ function initializeBooleanWidgets()
 
 function initializeSearchRows(scope, searchTerms)
 {
-    for (var i = 0; i < searchTerms.Count(); i++) {
-        var searchTerm = searchTerms.QueryElementAt(i, nsIMsgSearchTerm);
+    for (let i = 0; i < searchTerms.length; i++) {
+        let searchTerm = searchTerms.queryElementAt(i, nsIMsgSearchTerm);
         createSearchRow(i, scope, searchTerm, false);
         gTotalSearchTerms++;
     }
@@ -470,19 +470,19 @@ function removeSearchRow(index)
 
 
     if (searchTermObj.searchTerm) {
-        gSearchRemovedTerms[gSearchRemovedTerms.length] = searchTermObj.searchTerm;
+        gSearchRemovedTerms.push(searchTermObj.searchTerm);
     } else {
         //dump("That wasn't real. ignoring \n");
     }
 
     listitem.remove();
-    
+
     // now remove the item from our list of terms
     gSearchTerms.splice(index, 1); 
 }
 
 // save the search terms from the UI back to the actual search terms
-// searchTerms: nsISupportsArray of terms
+// searchTerms: nsIMutableArray of terms
 // termOwner:   object which can contain and create the terms
 //              (will be unnecessary if we just make terms creatable
 //               via XPCOM)
@@ -491,7 +491,7 @@ function saveSearchTerms(searchTerms, termOwner)
     var matchAll = gSearchBooleanRadiogroup.value == 'matchAll';
     var i;
     for (i = 0; i < gSearchRemovedTerms.length; i++)
-        searchTerms.RemoveElement(gSearchRemovedTerms[i]);
+        searchTerms.removeElementAt(searchTerms.indexOf(0, gSearchRemovedTerms[i]));
 
     for (i = 0; i<gSearchTerms.length; i++) {
         try {
@@ -510,7 +510,7 @@ function saveSearchTerms(searchTerms, termOwner)
                 // but we need to make the array longer anyway
                 termOwner.appendTerm(searchTerm);
             }
-            searchTerms.SetElementAt(i, searchTerm);
+            searchTerms.replaceElementAt(searchTerm, i, /* weak */ false);
         } catch (ex) {
             dump("** Error saving element " + i + ": " + ex + "\n");
         }

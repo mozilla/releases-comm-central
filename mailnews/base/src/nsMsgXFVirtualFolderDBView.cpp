@@ -18,6 +18,7 @@
 #include "nsMsgDBCID.h"
 #include "nsMsgMessageFlags.h"
 #include "nsServiceManagerUtils.h"
+#include "nsIMutableArray.h"
 
 nsMsgXFVirtualFolderDBView::nsMsgXFVirtualFolderDBView()
 {
@@ -383,7 +384,7 @@ nsMsgXFVirtualFolderDBView::OnNewSearch()
 
   nsCString terms;
   dbFolderInfo->GetCharProperty("searchStr", terms);
-  nsCOMPtr<nsISupportsArray> searchTerms;
+  nsCOMPtr<nsIMutableArray> searchTerms;
   rv = searchSession->GetSearchTerms(getter_AddRefs(searchTerms));
   NS_ENSURE_SUCCESS(rv, rv);
   nsCString curSearchAsString;

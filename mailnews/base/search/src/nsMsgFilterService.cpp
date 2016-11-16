@@ -383,7 +383,7 @@ nsresult nsMsgFilterAfterTheFact::RunNextFilter()
     rv = m_filters->GetFilterAt(m_curFilterIndex++, getter_AddRefs(m_curFilter));
     CONTINUE_IF_FAILURE(rv, "Could not get filter at index");
 
-    nsCOMPtr <nsISupportsArray> searchTerms;
+    nsCOMPtr<nsIMutableArray> searchTerms;
     rv = m_curFilter->GetSearchTerms(getter_AddRefs(searchTerms));
     CONTINUE_IF_FAILURE(rv, "Could not get searchTerms");
 
@@ -393,8 +393,8 @@ nsresult nsMsgFilterAfterTheFact::RunNextFilter()
     BREAK_IF_FAILURE(rv, "Failed to get search session");
 
     nsMsgSearchScopeValue searchScope = nsMsgSearchScope::offlineMail;
-    uint32_t termCount;
-    searchTerms->Count(&termCount);
+    uint32_t termCount = 0;
+    searchTerms->GetLength(&termCount);
     for (uint32_t termIndex = 0; termIndex < termCount; termIndex++)
     {
       nsCOMPtr <nsIMsgSearchTerm> term;

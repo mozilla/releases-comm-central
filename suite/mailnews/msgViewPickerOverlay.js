@@ -210,8 +210,8 @@ function ViewTagKeyword(keyword)
   PrepareForViewChange();
 
   // create an i supports array to store our search terms
-  var searchTermsArray = Components.classes["@mozilla.org/supports-array;1"]
-                                   .createInstance(Components.interfaces.nsISupportsArray);
+  var searchTermsArray = Components.classes["@mozilla.org/array;1"]
+                                   .createInstance(Components.interfaces.nsIMutableArray);
   var term = gSearchSession.createTerm();
   var value = term.value;
 
@@ -222,7 +222,7 @@ function ViewTagKeyword(keyword)
   term.op = nsMsgSearchOp.Contains;
   term.booleanAnd = true;
 
-  searchTermsArray.AppendElement(term);
+  searchTermsArray.appendElement(term, /* weak = */ false);
   AddVirtualFolderTerms(searchTermsArray);
   createSearchTermsWithList(searchTermsArray);
   gDefaultSearchViewTerms = searchTermsArray;
@@ -234,8 +234,8 @@ function ViewNewMail()
   PrepareForViewChange();
 
   // create an i supports array to store our search terms
-  var searchTermsArray = Components.classes["@mozilla.org/supports-array;1"]
-                                   .createInstance(Components.interfaces.nsISupportsArray);
+  var searchTermsArray = Components.classes["@mozilla.org/array;1"]
+                                   .createInstance(Components.interfaces.nsIMutableArray);
   var term = gSearchSession.createTerm();
   var value = term.value;
 
@@ -245,7 +245,7 @@ function ViewNewMail()
   term.attrib = nsMsgSearchAttrib.MsgStatus;
   term.op = nsMsgSearchOp.Isnt;
   term.booleanAnd = true;
-  searchTermsArray.AppendElement(term);
+  searchTermsArray.appendElement(term, /* weak = */ false);
 
   AddVirtualFolderTerms(searchTermsArray);
 
@@ -260,8 +260,8 @@ function ViewNotDeletedMail()
   PrepareForViewChange();
 
   // create an i supports array to store our search terms
-  var searchTermsArray = Components.classes["@mozilla.org/supports-array;1"]
-                                   .createInstance(Components.interfaces.nsISupportsArray);
+  var searchTermsArray = Components.classes["@mozilla.org/array;1"]
+                                   .createInstance(Components.interfaces.nsIMutableArray);
   var term = gSearchSession.createTerm();
   var value = term.value;
 
@@ -271,7 +271,7 @@ function ViewNotDeletedMail()
   term.attrib = nsMsgSearchAttrib.MsgStatus;
   term.op = nsMsgSearchOp.Isnt;
   term.booleanAnd = true;
-  searchTermsArray.AppendElement(term);
+  searchTermsArray.appendElement(term, /* weak = */ false);
 
   AddVirtualFolderTerms(searchTermsArray);
 
@@ -287,14 +287,10 @@ function AddVirtualFolderTerms(searchTermsArray)
   var virtualFolderSearchTerms = (gVirtualFolderTerms || gXFVirtualFolderTerms);
   if (virtualFolderSearchTerms)
   {
-    var isupports = null;
-    var searchTerm;
-    var termsArray = virtualFolderSearchTerms.QueryInterface(Components.interfaces.nsISupportsArray);
-    for (var i = 0; i < termsArray.Count(); i++)
+    for (let i = 0; i < termsArray.length; i++)
     {
-      isupports = termsArray.GetElementAt(i);
-      searchTerm = isupports.QueryInterface(Components.interfaces.nsIMsgSearchTerm);
-      searchTermsArray.AppendElement(searchTerm);
+      let searchTerm = virtualFolderSearchTerms.queryElementAt(i, Components.interfaces.nsIMsgSearchTerm);
+      searchTermsArray.appendElement(searchTerm, /* weak = */ false);
     }
   }
 }

@@ -1146,11 +1146,11 @@ nsresult nsMsgFilterList::ComputeArbitraryHeaders()
     rv = GetFilterAt(index, getter_AddRefs(filter));
     if (!(NS_SUCCEEDED(rv) && filter)) continue;
 
-    nsCOMPtr <nsISupportsArray> searchTerms;
-    uint32_t numSearchTerms=0;
+    nsCOMPtr<nsIMutableArray> searchTerms;
+    uint32_t numSearchTerms = 0;
     filter->GetSearchTerms(getter_AddRefs(searchTerms));
     if (searchTerms)
-      searchTerms->Count(&numSearchTerms);
+      searchTerms->GetLength(&numSearchTerms);
     for (uint32_t i = 0; i < numSearchTerms; i++)
     {
       filter->GetTerm(i, &attrib, nullptr, nullptr, nullptr, arbitraryHeader);

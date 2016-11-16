@@ -11,6 +11,7 @@
 #include "nsIMsgFilter.h"
 #include "nsIMsgSearchScopeTerm.h"
 #include "nsMsgSearchBoolExpression.h"
+#include "nsIMutableArray.h"
 #include "nsIDateTimeFormat.h"
 #include "nsIMsgFilterCustomAction.h"
 
@@ -92,7 +93,7 @@ protected:
   bool m_temporary;
   bool m_unparseable;
   nsIMsgFilterList *m_filterList;  /* owning filter list */
-  nsCOMPtr<nsISupportsArray> m_termList;       /* linked list of criteria terms */
+  nsCOMPtr<nsIMutableArray> m_termList;       /* linked list of criteria terms */
   nsCOMPtr<nsIMsgSearchScopeTerm> m_scope;         /* default for mail rules is inbox, but news rules could
                                                   have a newsgroup - LDAP would be invalid */
   nsTArray<nsCOMPtr<nsIMsgRuleAction> > m_actionList;

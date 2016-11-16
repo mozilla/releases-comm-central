@@ -24,7 +24,7 @@ class nsMsgSearchBoolExpression;
 class nsMsgSearchOfflineMail : public nsMsgSearchAdapter, public nsIUrlListener
 {
 public:
-  nsMsgSearchOfflineMail (nsIMsgSearchScopeTerm*, nsISupportsArray *);
+  nsMsgSearchOfflineMail (nsIMsgSearchScopeTerm*, nsIArray *);
 
   NS_DECL_ISUPPORTS_INHERITED
 
@@ -36,7 +36,7 @@ public:
   NS_IMETHOD AddResultElement (nsIMsgDBHdr *) override;
 
   static nsresult  MatchTermsForFilter(nsIMsgDBHdr * msgToMatch,
-                                         nsISupportsArray *termList,
+                                         nsIArray *termList,
                                          const char *defaultCharset,
                                          nsIMsgSearchScopeTerm *scope,
                                          nsIMsgDatabase * db,
@@ -46,7 +46,7 @@ public:
                      bool *pResult);
 
   static nsresult MatchTermsForSearch(nsIMsgDBHdr * msgTomatch,
-                                      nsISupportsArray * termList,
+                                      nsIArray *termList,
                                       const char *defaultCharset,
                                       nsIMsgSearchScopeTerm *scope,
                                       nsIMsgDatabase *db,
@@ -67,7 +67,7 @@ public:
 protected:
   virtual ~nsMsgSearchOfflineMail();
   static nsresult MatchTerms(nsIMsgDBHdr *msgToMatch,
-                                nsISupportsArray *termList,
+                                nsIArray *termList,
                                 const char *defaultCharset,
                                 nsIMsgSearchScopeTerm *scope,
                                 nsIMsgDatabase * db,
@@ -77,7 +77,7 @@ protected:
                                 nsMsgSearchBoolExpression ** aExpressionTree,
                 bool *pResult);
 
-    static nsresult ConstructExpressionTree(nsISupportsArray * termList,
+    static nsresult ConstructExpressionTree(nsIArray *termList,
                                       uint32_t termCount,
                                       uint32_t &aStartPosInList,
                                       nsMsgSearchBoolExpression ** aExpressionTree);
@@ -91,7 +91,7 @@ protected:
 class nsMsgSearchOfflineNews : public nsMsgSearchOfflineMail
 {
 public:
-  nsMsgSearchOfflineNews (nsIMsgSearchScopeTerm*, nsISupportsArray *);
+  nsMsgSearchOfflineNews (nsIMsgSearchScopeTerm*, nsIArray*);
   virtual ~nsMsgSearchOfflineNews ();
   NS_IMETHOD ValidateTerms () override;
 

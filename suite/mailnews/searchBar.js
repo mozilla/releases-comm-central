@@ -4,6 +4,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 Components.utils.import("resource://gre/modules/PluralForm.jsm");
+Components.utils.import("resource:///modules/iteratorUtils.jsm");
 
 var gSearchSession = null;
 var gPreQuickSearchView = null;
@@ -172,7 +173,7 @@ function onEnterInSearchBar()
        var addTerms = gDefaultSearchViewTerms || gVirtualFolderTerms || gXFVirtualFolderTerms;
        if (addTerms)
        {
-           viewDebug ("addTerms = " + addTerms + " count = " + addTerms.Count() + "\n");
+           viewDebug ("addTerms = " + addTerms + " count = " + addTerms.length + "\n");
            initializeSearchBar();
            onSearch(addTerms);
        }
@@ -291,10 +292,8 @@ function createSearchTermsWithList(aTermsArray)
   var nsMsgSearchAttrib = Components.interfaces.nsMsgSearchAttrib;
   var nsMsgSearchOp = Components.interfaces.nsMsgSearchOp;
 
+  gSearchSession.clear();
   gSearchSession.clearScopes();
-  var searchTerms = gSearchSession.searchTerms;
-  var searchTermsArray = searchTerms.QueryInterface(Components.interfaces.nsISupportsArray);
-  searchTermsArray.Clear();
 
   var i;
   var selectedFolder = GetThreadPaneFolder();
@@ -320,11 +319,11 @@ function createSearchTermsWithList(aTermsArray)
     viewDebug ("in createSearchTermsWithList, adding scope term for selected folder\n");
     gSearchSession.addScopeTerm(nsMsgSearchScope.offlineMail, selectedFolder);
   }
-  // add each item in termsArray to the search session
 
-  var termsArray = aTermsArray.QueryInterface(Components.interfaces.nsISupportsArray);
-  for (i = 0; i < termsArray.Count(); ++i)
-    gSearchSession.appendTerm(termsArray.GetElementAt(i).QueryInterface(Components.interfaces.nsIMsgSearchTerm));
+  // Add each item in aTermsArray to the search session.
+  for (let term of fixIterator(aTermsArray, Components.interfaces.nsIMsgSearchTerm)) {
+    gSearchSession.appendTerm(term);
+  }
 }
 
 function createSearchTerms()
@@ -333,8 +332,9 @@ function createSearchTerms()
   var nsMsgSearchAttrib = Components.interfaces.nsMsgSearchAttrib;
   var nsMsgSearchOp = Components.interfaces.nsMsgSearchOp;
 
-  // create an nsISupportsArray to store our search terms
-  var searchTermsArray = Components.classes["@mozilla.org/supports-array;1"].createInstance(Components.interfaces.nsISupportsArray);
+  // create an nsIMutableArray to store our search terms
+  var searchTermsArray = Components.classes["@mozilla.org/array;1"]
+                                   .createInstance(Components.interfaces.nsIMutableArray);
   var selectedFolder = GetThreadPaneFolder();
 
   // implement | for QS
@@ -356,7 +356,7 @@ function createSearchTerms()
     term.attrib = nsMsgSearchAttrib.Subject;
     term.op = nsMsgSearchOp.Contains;
     term.booleanAnd = false;
-    searchTermsArray.AppendElement(term);
+    searchTermsArray.appendElement(term, /* weak = */ false);
 
     // create, fill, and append the AllAddresses term
     term = gSearchSession.createTerm();
@@ -366,7 +366,7 @@ function createSearchTerms()
     term.attrib = nsMsgSearchAttrib.AllAddresses;
     term.op = nsMsgSearchOp.Contains;
     term.booleanAnd = false;
-    searchTermsArray.AppendElement(term);
+    searchTermsArray.appendElement(term, /* weak = */ false);
   }
 
   // now append the default view or virtual folder criteria to the quick search
@@ -376,14 +376,9 @@ function createSearchTerms()
   var defaultSearchTerms = (gDefaultSearchViewTerms || gVirtualFolderTerms || gXFVirtualFolderTerms);
   if (defaultSearchTerms)
   {
-    var isupports = null;
-    var searchTerm;
-    var termsArray = defaultSearchTerms.QueryInterface(Components.interfaces.nsISupportsArray);
-    for (i = 0; i < termsArray.Count(); i++)
+    for (let searchTerm of fixIterator(defaultSearchTerms, Components.interfaces.nsIMsgSearchTerm))
     {
-      isupports = termsArray.GetElementAt(i);
-      searchTerm = isupports.QueryInterface(Components.interfaces.nsIMsgSearchTerm);
-      searchTermsArray.AppendElement(searchTerm);
+      searchTermsArray.appendElement(searchTerm, /* weak = */ false);
     }
   }
 

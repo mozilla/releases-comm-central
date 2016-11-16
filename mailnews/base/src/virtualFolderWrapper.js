@@ -29,9 +29,8 @@ var VirtualFolderHelper = {
    * @param aSearchFolders A list of nsIMsgFolders that you want to use as the
    *     sources for the virtual folder OR a string that is the already '|'
    *     delimited list of folder URIs to use.
-   * @param aSearchTerms The search terms to use for the virtual folder.  This
-   *     should be a JS list/nsIMutableArray/nsISupportsArray of
-   *     nsIMsgSearchTermbs.
+   * @param aSearchTerms The search terms to use for the virtual folder. This
+   *     should be a JS list/nsIMutableArray of nsIMsgSearchTerms.
    * @param aOnlineSearch Should the search attempt to use the server's search
    *     capabilities when possible and appropriate?
    *
@@ -133,8 +132,7 @@ VirtualFolderWrapper.prototype = {
    * Set the search folders that back this virtual folder.
    *
    * @param aFolders Either a "|"-delimited string of folder URIs or a list of
-   *     nsIMsgFolders that fixIterator can traverse (JS array/nsIMutableArray/
-   *     nsISupportsArray).
+   *     nsIMsgFolders that fixIterator can traverse (JS array/nsIMutableArray).
    */
   set searchFolders(aFolders) {
     if (typeof(aFolders) == "string") {
@@ -183,7 +181,7 @@ VirtualFolderWrapper.prototype = {
    *  directly.
    *
    * @param aTerms Some collection that fixIterator can traverse.  A JS list or
-   *     XPCOM array (nsIMutableArray or nsISupportsArray) should work.
+   *     XPCOM array (nsIMutableArray) should work.
    */
   set searchTerms(aTerms) {
     let condition = "";

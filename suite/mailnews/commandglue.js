@@ -880,7 +880,7 @@ function getSearchTermString(searchTerms)
   var count = searchTerms.Count();
   for (searchIndex = 0; searchIndex < count; )
   {
-    var term = searchTerms.QueryElementAt(searchIndex++, Components.interfaces.nsIMsgSearchTerm);
+    var term = searchTerms.queryElementAt(searchIndex++, Components.interfaces.nsIMsgSearchTerm);
 
     if (condition.length > 1)
       condition += ' ';
@@ -978,26 +978,33 @@ function setupXFVirtualFolderSearch(folderUrisToSearch, searchTerms, searchOnlin
         gSearchSession.addScopeTerm(!searchOnline ? nsMsgSearchScope.offlineMail : GetScopeForFolder(realFolder), realFolder);
     }
 
-    var termsArray = searchTerms.QueryInterface(Components.interfaces.nsISupportsArray);
     const nsIMsgSearchTerm = Components.interfaces.nsIMsgSearchTerm;
-    for (let term in fixIterator(termsArray, nsIMsgSearchTerm)) {
+    for (let term of fixIterator(searchTerms, nsIMsgSearchTerm)) {
       gSearchSession.appendTerm(term);
     }
 }
 
+/**
+ * Uses an array of search terms to produce a new list usable from quick search.
+ *
+ * @param searchTermsArray  A nsIArray of terms to copy.
+ *
+ * @return nsIMutableArray of search terms
+ */
 function CreateGroupedSearchTerms(searchTermsArray)
 {
 
   var searchSession = gSearchSession ||
     Components.classes[searchSessionContractID].createInstance(Components.interfaces.nsIMsgSearchSession);
 
-  // create a temporary isupports array to store our search terms
-  // since we will be modifying the terms so they work with quick search
-  var searchTermsArrayForQS = Components.classes["@mozilla.org/supports-array;1"].createInstance(Components.interfaces.nsISupportsArray);
+  // Create a temporary nsIMutableArray to store our search terms
+  // since we will be modifying the terms so they work with quick search.
+  var searchTermsArrayForQS = Components.classes["@mozilla.org/array;1"]
+                                        .createInstance(Components.interfaces.nsIMutableArray);
 
-  var numEntries = searchTermsArray.Count();
-  for (var i = 0; i < numEntries; i++) {
-    var searchTerm = searchTermsArray.GetElementAt(i).QueryInterface(Components.interfaces.nsIMsgSearchTerm);
+  var numEntries = searchTermsArray.length;
+  for (let i = 0; i < numEntries; i++) {
+    let searchTerm = searchTermsArray.queryElementAt(i, Components.interfaces.nsIMsgSearchTerm);
 
     // clone the term, since we might be modifying it
     var searchTermForQS = searchSession.createTerm();
@@ -1017,7 +1024,7 @@ function CreateGroupedSearchTerms(searchTermsArray)
     // turn the first term to true to work with quick search...
     searchTermForQS.booleanAnd = i ? searchTerm.booleanAnd : true;
 
-    searchTermsArrayForQS.AppendElement(searchTermForQS);
+    searchTermsArrayForQS.appendElement(searchTermForQS, /* weak = */ false);
   }
   return searchTermsArrayForQS;
 }

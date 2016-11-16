@@ -6,6 +6,7 @@
 // this file implements the nsMsgFilter interface
 
 #include "msgCore.h"
+#include "nsArray.h"
 #include "nsMsgBaseCID.h"
 #include "nsIMsgHdr.h"
 #include "nsMsgFilterList.h"    // for kFileVersion
@@ -17,13 +18,13 @@
 #include "nsIMsgIncomingServer.h"
 #include "nsMsgSearchValue.h"
 #include "nsMsgI18N.h"
+#include "nsIMutableArray.h"
 #include "nsIOutputStream.h"
 #include "nsIStringBundle.h"
 #include "nsDateTimeFormatCID.h"
 #include "nsComponentManagerUtils.h"
 #include "nsServiceManagerUtils.h"
 #include "nsIMsgFilterService.h"
-#include "nsIMutableArray.h"
 #include "prmem.h"
 #include "mozilla/ArrayUtils.h"
 #include "mozilla/Services.h"
@@ -172,9 +173,8 @@ nsMsgFilter::nsMsgFilter():
     m_filterList(nullptr),
     m_expressionTree(nullptr)
 {
-  nsresult rv = NS_NewISupportsArray(getter_AddRefs(m_termList));
-  if (NS_FAILED(rv))
-    NS_ASSERTION(false, "Failed to allocate a nsISupportsArray for nsMsgFilter");
+  m_termList = nsArray::Create();
+  NS_ASSERTION(m_termList, "Failed to allocate a nsIMutableArray for m_termList");
 
   m_type = nsMsgFilterType::InboxRule | nsMsgFilterType::Manual;
 }
@@ -245,7 +245,7 @@ NS_IMETHODIMP nsMsgFilter::AppendTerm(nsIMsgSearchTerm * aTerm)
     // invalidate expression tree if we're changing the terms
     delete m_expressionTree;
     m_expressionTree = nullptr;
-    return m_termList->AppendElement(static_cast<nsISupports*>(aTerm));
+    return m_termList->AppendElement(aTerm, /* weak = */ false);
 }
 
 NS_IMETHODIMP
@@ -442,7 +442,7 @@ NS_IMETHODIMP nsMsgFilter::GetTerm(int32_t termIndex,
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgFilter::GetSearchTerms(nsISupportsArray **aResult)
+NS_IMETHODIMP nsMsgFilter::GetSearchTerms(nsIMutableArray **aResult)
 {
     NS_ENSURE_ARG_POINTER(aResult);
     // caller can change m_termList, which can invalidate m_expressionTree.
@@ -452,7 +452,7 @@ NS_IMETHODIMP nsMsgFilter::GetSearchTerms(nsISupportsArray **aResult)
     return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgFilter::SetSearchTerms(nsISupportsArray *aSearchList)
+NS_IMETHODIMP nsMsgFilter::SetSearchTerms(nsIMutableArray *aSearchList)
 {
     delete m_expressionTree;
     m_expressionTree = nullptr;

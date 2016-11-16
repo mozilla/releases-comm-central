@@ -15,7 +15,7 @@
 class nsMsgSearchNews : public nsMsgSearchAdapter
 {
 public:
-  nsMsgSearchNews (nsMsgSearchScopeTerm *scope, nsISupportsArray *termList);
+  nsMsgSearchNews (nsMsgSearchScopeTerm *scope, nsIArray *termList);
   virtual ~nsMsgSearchNews ();
 
   NS_IMETHOD ValidateTerms () override;

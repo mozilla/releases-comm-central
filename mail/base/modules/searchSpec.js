@@ -361,7 +361,7 @@ SearchSpec.prototype = {
     let session = this.session;
 
     // clear out our current terms and scope
-    session.searchTerms.QueryInterface(Ci.nsISupportsArray).Clear();
+    session.searchTerms.clear();
     session.clearScopes();
 
     // the scope logic needs to know if any terms look at the body attribute.

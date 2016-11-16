@@ -14,7 +14,7 @@
 class nsMsgSearchOnlineMail : public nsMsgSearchAdapter
 {
 public:
-  nsMsgSearchOnlineMail (nsMsgSearchScopeTerm *scope, nsISupportsArray *termList);
+  nsMsgSearchOnlineMail (nsMsgSearchScopeTerm *scope, nsIArray *termList);
   virtual ~nsMsgSearchOnlineMail ();
 
   NS_IMETHOD ValidateTerms () override;
@@ -23,7 +23,7 @@ public:
   NS_IMETHOD AddResultElement (nsIMsgDBHdr *) override;
 
   static nsresult Encode (nsCString& ppEncoding,
-                            nsISupportsArray *searchTerms,
+                            nsIArray *searchTerms,
                             const char16_t *destCharset);
 
 

@@ -26,7 +26,7 @@ public:
   NS_DECL_NSIMSGSEARCHSCOPETERM
     
   nsresult TimeSlice (bool *aDone);
-  nsresult InitializeAdapter (nsISupportsArray *termList);
+  nsresult InitializeAdapter (nsIArray *termList);
   
   char *GetStatusBarName ();
   

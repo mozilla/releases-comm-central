@@ -691,7 +691,7 @@ NS_IMETHODIMP nsImapMailFolder::UpdateFolderWithListener(nsIMsgWindow *aMsgWindo
         filter->GetEnabled(&enabled);
         if (!enabled)
           continue;
-        nsCOMPtr<nsISupportsArray> searchTerms;
+        nsCOMPtr<nsIMutableArray> searchTerms;
         uint32_t numSearchTerms = 0;
         filter->GetSearchTerms(getter_AddRefs(searchTerms));
         if (searchTerms)

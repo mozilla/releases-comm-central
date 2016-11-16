@@ -3593,7 +3593,7 @@ nsMsgDBView::PerformActionsOnJunkMsgs(bool msgsAreJunk)
         //  a delete toggle. So what we have to do is to assemble a new delete
         //  array, keeping only those that are not deleted.
         //
-        nsCOMPtr<nsIMutableArray> hdrsToDelete = do_CreateInstance("@mozilla.org/array;1", &rv);
+        nsCOMPtr<nsIMutableArray> hdrsToDelete = do_CreateInstance(NS_ARRAY_CONTRACTID, &rv);
         NS_ENSURE_SUCCESS(rv, rv);
         uint32_t cnt;
         rv = mJunkHdrs->GetLength(&cnt);
