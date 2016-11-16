@@ -28,7 +28,7 @@ Cu.import("resource:///modules/ircUtils.jsm");
 Cu.import("resource:///modules/jsProtoHelper.jsm");
 
 function privmsg(aAccount, aMessage, aIsNotification) {
-  let params = {incoming: true};
+  let params = {incoming: true, tags: aMessage.tags};
   if (aIsNotification)
     params.notification = true;
   aAccount.getConversation(aAccount.isMUCName(aMessage.params[0]) ?
@@ -79,6 +79,7 @@ function leftRoom(aAccount, aNicks, aChannels, aSource, aReason, aKicked) {
 function writeMessage(aAccount, aMessage, aString, aType) {
   let type = {};
   type[aType] = true;
+  type.tags = aMessage.tags;
   aAccount.getConversation(aMessage.origin)
           .writeMessage(aMessage.origin, aString, type);
   return true;

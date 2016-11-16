@@ -80,7 +80,7 @@ var ircNonStandard = {
       if (!aMessage.params[1].startsWith("***") && !isAuth) {
         this.getConversation(aMessage.origin)
             .writeMessage(aMessage.origin, aMessage.params[1],
-                          {incoming: true});
+                          {incoming: true, tags: aMessage.tags});
         return true;
       }
 

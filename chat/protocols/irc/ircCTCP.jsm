@@ -123,7 +123,7 @@ var ctcpBase = {
       this.getConversation(this.isMUCName(aMessage.params[0]) ?
                              aMessage.params[0] : aMessage.origin)
           .writeMessage(aMessage.origin, "/me " + aMessage.ctcp.param,
-                        {incoming: true});
+                        {incoming: true, tags: aMessage.tags});
       return true;
     },
 
@@ -208,7 +208,7 @@ var ctcpBase = {
         this.getConversation(aMessage.origin)
             .writeMessage(aMessage.origin,
                           _("ctcp.time", aMessage.origin, time),
-                          {system: true});
+                          {system: true, tags: aMessage.tags});
       }
       return true;
     },
@@ -235,7 +235,8 @@ var ctcpBase = {
         let response = _("ctcp.version", aMessage.origin,
                          aMessage.ctcp.param);
         this.getConversation(aMessage.origin)
-            .writeMessage(aMessage.origin, response, {system: true});
+            .writeMessage(aMessage.origin, response,
+                          {system: true, tags: aMessage.tags});
       }
       return true;
     }

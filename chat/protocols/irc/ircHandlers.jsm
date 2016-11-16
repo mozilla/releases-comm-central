@@ -36,6 +36,9 @@ var ircHandlers = {
   // Object to hold the Services handlers, expects the same fields as
   // _ircHandlers.
   _servicesHandlers: [],
+  // Object to hold irc message tag handlers, expects the same fields as
+  // _ircHandlers.
+  _tagHandlers: [],
 
   _registerHandler: function(aArray, aHandler) {
     // Protect ourselves from adding broken handlers.
@@ -103,6 +106,13 @@ var ircHandlers = {
                                                      aHandler);
   },
 
+  registerTagHandler: function(aHandler) {
+    return this._registerHandler(this._tagHandlers, aHandler);
+  },
+  unregisterTagHandler: function(aHandler) {
+    this._tagHandlers = this._unregisterHandler(this._tagHandlers, aHandler);
+  },
+
   // Handle a message based on a set of handlers.
   _handleMessage: function(aHandlers, aAccount, aMessage, aCommand) {
     // Loop over each handler and run the command until one handles the message.
@@ -111,8 +121,7 @@ var ircHandlers = {
         // Attempt to execute the command, by checking if the handler has the
         // command.
         // Parse the command with the JavaScript account object as "this".
-        if (handler.isEnabled.call(aAccount) &&
-            Object.prototype.hasOwnProperty.call(handler.commands, aCommand) &&
+        if (handler.isEnabled.call(aAccount) && aCommand in handler.commands &&
             handler.commands[aCommand].call(aAccount, aMessage))
           return true;
       } catch (e) {
@@ -159,6 +168,12 @@ var ircHandlers = {
                                aMessage.serviceName);
   },
 
+  // aMessage is a Tag Message.
+  handleTag: function(aAccount, aMessage) {
+    return this._handleMessage(this._tagHandlers, aAccount, aMessage,
+                               aMessage.tagName);
+  },
+
   // Checking if handlers exist.
   get hasHandlers() { return this._ircHandlers.length > 0; },
   get hasISUPPORTHandlers() { return this._isupportHandlers.length > 0; },
@@ -166,6 +181,7 @@ var ircHandlers = {
   get hasCTCPHandlers() { return this._ctcpHandlers.length > 0; },
   get hasDCCHandlers() { return this._dccHandlers.length > 0; },
   get hasServicesHandlers() { return this._servicesHandlers.length > 0; },
+  get hasTagHandlers() { return this._tagHandlers.length > 0 },
 
   // Some constant priorities.
   get LOW_PRIORITY() { return -100; },

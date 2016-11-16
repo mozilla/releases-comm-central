@@ -153,6 +153,12 @@ function _setMode(aAddNewMode, aNewModes) {
   }
 }
 
+function TagMessage(aMessage, aTagName) {
+    this.message = aMessage;
+    this.tagName = aTagName;
+    this.tagValue = aMessage.tags.get(aTagName);
+}
+
 // Properties / methods shared by both ircChannel and ircConversation.
 var GenericIRCConversation = {
   _observedNicks: [],
@@ -173,6 +179,38 @@ var GenericIRCConversation = {
                       " :\r\n";
     return this._account.maxMessageLength -
            this._account.countBytes(baseMessage);
+  },
+  /**
+   * @param {string} aWho - Message author's username.
+   * @param {string} aMessage - Message text.
+   * @param {Object} aObject - Other properties to set on the imMessage.
+   */
+  writeMessage: function(aWho, aMessage, aObject) {
+    let messageProps = aObject;
+    if ("tags" in aObject && ircHandlers.hasTagHandlers) {
+      // Merge extra info for the handler into the props.
+      messageProps = Object.assign({
+        who: aWho,
+        message: aMessage,
+        get originalMessage() {
+          return aMessage;
+        }
+      }, messageProps);
+      for (let tag of aObject.tags.keys()) {
+        // Unhandled tags may be common, since a tag does not have to be handled
+        // with a tag handler, it may also be handled by a message command handler.
+        ircHandlers.handleTag(this._account, new TagMessage(messageProps, tag));
+      }
+
+      // Remove helper prop for tag handlers. We don't want to remove the other
+      // ones, since they might have been changed and will override aWho and
+      // aMessage in the imMessage constructor.
+      delete messageProps.originalMessage;
+    }
+    // Remove the IRC tags, as those were passed in just for this step.
+    delete aObject.tags;
+
+    GenericConversationPrototype.writeMessage.call(this, aWho, aMessage, messageProps);
   },
   // Apply CTCP formatting before displaying.
   prepareForDisplaying: function(aMsg) {
