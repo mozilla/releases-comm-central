@@ -53,7 +53,7 @@ nsMsgMailNewsUrl::~nsMsgMailNewsUrl()
   PR_FREEIF(m_errorMessage);
 }
   
-NS_IMPL_ISUPPORTS(nsMsgMailNewsUrl, nsIMsgMailNewsUrl, nsIURL, nsIURI)
+NS_IMPL_ISUPPORTS(nsMsgMailNewsUrl, nsIMsgMailNewsUrl, nsIURL, nsIURIWithQuery, nsIURI)
 
 ////////////////////////////////////////////////////////////////////////////////////
 // Begin nsIMsgMailNewsUrl specific support

@@ -67,6 +67,7 @@ public:
 
   NS_FORWARD_NSIMSGMAILNEWSURL(DELEGATE_JS(nsIMsgMailNewsUrl, mJsIMsgMailNewsUrl)->)
   NS_FORWARD_NSIURI(DELEGATE_JS(nsIURI, mJsIURI)->)
+  NS_FORWARD_NSIURIWITHQUERY(DELEGATE_JS(nsIURIWithQuery, mJsIURIWithQuery)->)
   NS_FORWARD_NSIURL(DELEGATE_JS(nsIURL, mJsIURL)->)
   NS_FORWARD_NSIMSGMESSAGEURL(DELEGATE_JS(nsIMsgMessageUrl, mJsIMsgMessageUrl)->)
   NS_FORWARD_NSIINTERFACEREQUESTOR(DELEGATE_JS(nsIInterfaceRequestor, mJsIInterfaceRequestor)->)
@@ -82,6 +83,7 @@ public:
       NS_DECL_ISUPPORTS
       NS_FORWARD_NSIMSGMAILNEWSURL(mFakeThis->JaBaseCppUrl::)
       NS_FORWARD_NSIURI(mFakeThis->JaBaseCppUrl::)
+      NS_FORWARD_NSIURIWITHQUERY(mFakeThis->JaBaseCppUrl::)
       NS_FORWARD_NSIURL(mFakeThis->JaBaseCppUrl::)
       NS_FORWARD_NSIMSGMESSAGEURL(mFakeThis->JaBaseCppUrl::)
       NS_FORWARD_NSIINTERFACEREQUESTOR(mFakeThis->JaBaseCppUrl::)
@@ -97,6 +99,7 @@ private:
   // Interfaces that may be overridden by JS.
   nsCOMPtr<nsIMsgMailNewsUrl> mJsIMsgMailNewsUrl;
   nsCOMPtr<nsIURI> mJsIURI;
+  nsCOMPtr<nsIURIWithQuery> mJsIURIWithQuery;
   nsCOMPtr<nsIURL> mJsIURL;
   nsCOMPtr<nsIMsgMessageUrl> mJsIMsgMessageUrl;
   nsCOMPtr<nsIInterfaceRequestor> mJsIInterfaceRequestor;
