@@ -2,7 +2,7 @@ def test(mod, path, entity=None):
   import re
   # ignore anything but Thunderbird
   if mod not in ("netwerk", "dom", "toolkit", "security/manager",
-                 "devtools/shared",
+                 "devtools/shared", "devtools/client",
                  "mail", "chat", "editor/ui", "extensions/spellcheck",
                  "other-licenses/branding/thunderbird"):
     return "ignore"
