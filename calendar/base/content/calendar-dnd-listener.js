@@ -579,12 +579,12 @@ function invokeEventDragSession(aItem, aXULBox) {
     transfer.setTransferData("text/unicode", supportsString, supportsString.data.length * 2);
 
     let action = Components.interfaces.nsIDragService.DRAGDROP_ACTION_MOVE;
-    let supArray = Components.classes["@mozilla.org/supports-array;1"]
-                   .createInstance(Components.interfaces.nsISupportsArray);
-    supArray.AppendElement(transfer);
+    let mutArray = Components.classes["@mozilla.org/array;1"]
+                   .createInstance(Components.interfaces.nsIMutableArray);
+    mutArray.appendElement(transfer, /* weak = */ false);
     aXULBox.sourceObject = aItem;
     try {
-        cal.getDragService().invokeDragSession(aXULBox, supArray, null, action);
+        cal.getDragService().invokeDragSession(aXULBox, mutArray, null, action);
     } catch (error) {
         // Nothing done here because we only have to catch an exception that occurs when dragging
         // is cancelled with ESC. This is an odd behaviour of the nativeDragService which we have

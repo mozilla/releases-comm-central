@@ -1194,16 +1194,16 @@
             if (this.mTabs.length == 1)
               return null;
 
-            var sa = Components.classes["@mozilla.org/supports-array;1"]
-                               .createInstance(Components.interfaces.nsISupportsArray);
-            aTabs.forEach(function(aTab) { sa.AppendElement(aTab); });
+            var ma = Components.classes["@mozilla.org/array;1"]
+                               .createInstance(Components.interfaces.nsIMutableArray);
+            aTabs.forEach(function(aTab) { ma.appendElement(aTab, /* weak = */ false); });
 
             // tell a new window to take the "dropped" tab
             return Services.ww.openWindow(window,
                                           getConvWindowURL(),
                                           null,
                                           "chrome,dialog=no,all",
-                                          sa);
+                                          ma);
           ]]>
         </body>
       </method>

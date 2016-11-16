@@ -70,7 +70,7 @@ var nsTransferable = {
    * @param FlavourSet aFlavourSet
    *        a FlavourSet object that contains a list of supported flavours.
    * @param Function aRetrievalFunc
-   *        a reference to a function that returns a nsISupportsArray of nsITransferables
+   *        a reference to a function that returns a nsIArray of nsITransferables
    *        for each item from the specified source (clipboard/drag&drop etc)
    * @param Boolean aAnyFlag
    *        a flag specifying whether or not a specific flavour is requested. If false,
@@ -82,16 +82,16 @@ var nsTransferable = {
       if (!aRetrievalFunc)
         throw "No data retrieval handler provided!";
 
-      var supportsArray = aRetrievalFunc(aFlavourSet);
+      var array = aRetrievalFunc(aFlavourSet);
       var dataArray = [];
-      var count = supportsArray.Count();
+      var count = array.Count();
 
       // Iterate over the number of items returned from aRetrievalFunc. For
       // clipboard operations, this is 1, for drag and drop (where multiple
       // items may have been dragged) this could be >1.
       for (var i = 0; i < count; i++)
         {
-          var trans = supportsArray.GetElementAt(i);
+          var trans = array.GetElementAt(i);
           if (!trans) continue;
           trans = trans.QueryInterface(Components.interfaces.nsITransferable);
 

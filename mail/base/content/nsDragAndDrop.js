@@ -8,7 +8,7 @@
 //
 // USE OF THIS API FOR DRAG AND DROP IS DEPRECATED!
 // Do not use this file for new code.
-// 
+//
 // Toolkit dropped nsDragAndDrop.js in bug 1162050.
 // Mapped to content/global/nsDragAndDrop.js until we can remove this usage.
 //
@@ -18,26 +18,26 @@
 ////////////////////////////////////////////////////////////////////////
 
 
-/** 
+/**
  *  nsTransferable - a wrapper for nsITransferable that simplifies
  *                   javascript clipboard and drag&drop. for use in
  *                   these situations you should use the nsClipboard
  *                   and nsDragAndDrop wrappers for more convenience
- **/ 
- 
+ **/
+
 var nsTransferable = {
   /**
    * nsITransferable set (TransferData aTransferData) ;
    *
    * Creates a transferable with data for a list of supported types ("flavours")
-   * 
+   *
    * @param TransferData aTransferData
-   *        a javascript object in the format described above 
-   **/ 
+   *        a javascript object in the format described above
+   **/
   set: function (aTransferDataSet)
     {
       var trans = this.createTransferable();
-      for (var i = 0; i < aTransferDataSet.dataList.length; ++i) 
+      for (var i = 0; i < aTransferDataSet.dataList.length; ++i)
         {
           var currData = aTransferDataSet.dataList[i];
           var currFlavour = currData.flavour.contentType;
@@ -52,7 +52,7 @@ var nsTransferable = {
               supports.data = currData.supports;
               length = supports.data.length;
             }
-          else 
+          else
             {
               // non-string data.
               supports = currData.supports;
@@ -62,9 +62,9 @@ var nsTransferable = {
         }
       return trans;
     },
-  
+
   /**
-   * TransferData/TransferDataSet get (FlavourSet aFlavourSet, 
+   * TransferData/TransferDataSet get (FlavourSet aFlavourSet,
    *                                   Function aRetrievalFunc, Boolean aAnyFlag) ;
    *
    * Retrieves data from the transferable provided in aRetrievalFunc, formatted
@@ -73,7 +73,7 @@ var nsTransferable = {
    * @param FlavourSet aFlavourSet
    *        a FlavourSet object that contains a list of supported flavours.
    * @param Function aRetrievalFunc
-   *        a reference to a function that returns a nsISupportsArray of nsITransferables
+   *        a reference to a function that returns a nsIArray of nsITransferables
    *        for each item from the specified source (clipboard/drag&drop etc)
    * @param Boolean aAnyFlag
    *        a flag specifying whether or not a specific flavour is requested. If false,
@@ -82,34 +82,34 @@ var nsTransferable = {
    **/
   get: function (aFlavourSet, aRetrievalFunc, aAnyFlag)
     {
-      if (!aRetrievalFunc) 
+      if (!aRetrievalFunc)
         throw "No data retrieval handler provided!";
-      
-      var supportsArray = aRetrievalFunc(aFlavourSet);
+
+      var array = aRetrievalFunc(aFlavourSet);
       var dataArray = [];
-      var count = supportsArray.Count();
-      
+      var count = array.Count();
+
       // Iterate over the number of items returned from aRetrievalFunc. For
       // clipboard operations, this is 1, for drag and drop (where multiple
       // items may have been dragged) this could be >1.
       for (var i = 0; i < count; i++)
         {
-          var trans = supportsArray.GetElementAt(i);
+          var trans = array.GetElementAt(i);
           if (!trans) continue;
           trans = trans.QueryInterface(Components.interfaces.nsITransferable);
-            
+
           var data = { };
           var length = { };
-          
+
           var currData = null;
           if (aAnyFlag)
-            { 
+            {
               var flavour = { };
               trans.getAnyTransferData(flavour, data, length);
               if (data && flavour)
                 {
                   var selectedFlavour = aFlavourSet.flavourTable[flavour.value];
-                  if (selectedFlavour) 
+                  if (selectedFlavour)
                     dataArray[i] = FlavourToXfer(data.value, length.value, selectedFlavour);
                 }
             }
@@ -124,11 +124,11 @@ var nsTransferable = {
       return new TransferDataSet(dataArray);
     },
 
-  /** 
+  /**
    * nsITransferable createTransferable (void) ;
    *
    * Creates and returns a transferable object.
-   **/    
+   **/
   createTransferable: function ()
     {
       const kXferableContractID = "@mozilla.org/widget/transferable;1";
@@ -137,17 +137,17 @@ var nsTransferable = {
       trans.init(null);
       return trans;
     }
-};  
+};
 
-/** 
+/**
  * A FlavourSet is a simple type that represents a collection of Flavour objects.
  * FlavourSet is constructed from an array of Flavours, and stores this list as
  * an array and a hashtable. The rationale for the dual storage is as follows:
- * 
- * Array: Ordering is important when adding data flavours to a transferable. 
- *        Flavours added first are deemed to be 'preferred' by the client. 
+ *
+ * Array: Ordering is important when adding data flavours to a transferable.
+ *        Flavours added first are deemed to be 'preferred' by the client.
  * Hash:  Convenient lookup of flavour data using the content type (MIME type)
- *        of data as a key. 
+ *        of data as a key.
  */
 function FlavourSet(aFlavourList)
 {
@@ -155,7 +155,7 @@ function FlavourSet(aFlavourList)
   this.flavourTable = { };
 
   this._XferID = "FlavourSet";
-  
+
   for (var i = 0; i < this.flavours.length; ++i)
     this.flavourTable[this.flavours[i].contentType] = this.flavours[i];
 }
@@ -169,13 +169,13 @@ FlavourSet.prototype = {
   }
 };
 
-/** 
- * A Flavour is a simple type that represents a data type that can be handled. 
+/**
+ * A Flavour is a simple type that represents a data type that can be handled.
  * It takes a content type (MIME type) which is used when storing data on the
  * system clipboard/drag and drop, and an IIDKey (string interface name
  * which is used to QI data to an appropriate form. The default interface is
  * assumed to be wide-string.
- */ 
+ */
 function Flavour(aContentType, aDataIIDKey)
 {
   this.contentType = aContentType;
@@ -197,9 +197,9 @@ TransferDataBase.prototype = {
   }
 };
 
-/** 
+/**
  * TransferDataSet is a list (array) of TransferData objects, which represents
- * data dragged from one or more elements. 
+ * data dragged from one or more elements.
  */
 function TransferDataSet(aTransferDataList)
 {
@@ -209,9 +209,9 @@ function TransferDataSet(aTransferDataList)
 }
 TransferDataSet.prototype = TransferDataBase.prototype;
 
-/** 
+/**
  * TransferData is a list (array) of FlavourData for all the applicable content
- * types associated with a drag from a single item. 
+ * types associated with a drag from a single item.
  */
 function TransferData(aFlavourDataList)
 {
@@ -221,29 +221,29 @@ function TransferData(aFlavourDataList)
 }
 TransferData.prototype = {
   __proto__: TransferDataBase.prototype,
-  
+
   addDataForFlavour: function (aFlavourString, aData, aLength, aDataIIDKey)
   {
-    this.dataList.push(new FlavourData(aData, aLength, 
+    this.dataList.push(new FlavourData(aData, aLength,
                        new Flavour(aFlavourString, aDataIIDKey)));
   }
 };
 
-/** 
- * FlavourData is a type that represents data retrieved from the system 
+/**
+ * FlavourData is a type that represents data retrieved from the system
  * clipboard or drag and drop. It is constructed internally by the Transferable
  * using the raw (nsISupports) data from the clipboard, the length of the data,
  * and an object of type Flavour representing the type. Clients implementing
  * IDragDropObserver receive an object of this type in their implementation of
- * onDrop. They access the 'data' property to retrieve data, which is either data 
- * QI'ed to a usable form, or unicode string. 
+ * onDrop. They access the 'data' property to retrieve data, which is either data
+ * QI'ed to a usable form, or unicode string.
  */
-function FlavourData(aData, aLength, aFlavour) 
+function FlavourData(aData, aLength, aFlavour)
 {
   this.supports = aData;
   this.contentLength = aLength;
   this.flavour = aFlavour || null;
-  
+
   this._XferID = "FlavourData";
 }
 
@@ -252,21 +252,21 @@ FlavourData.prototype = {
   {
     if (this.flavour &&
         this.flavour.dataIIDKey != "nsISupportsString")
-      return this.supports.QueryInterface(Components.interfaces[this.flavour.dataIIDKey]); 
+      return this.supports.QueryInterface(Components.interfaces[this.flavour.dataIIDKey]);
 
     var supports = this.supports;
     if (supports instanceof Components.interfaces.nsISupportsString)
       return supports.data.substring(0, this.contentLength/2);
-     
+
     return supports;
   }
 }
 
-/** 
- * Create a TransferData object with a single FlavourData entry. Used when 
- * unwrapping data of a specific flavour from the drag service. 
+/**
+ * Create a TransferData object with a single FlavourData entry. Used when
+ * unwrapping data of a specific flavour from the drag service.
  */
-function FlavourToXfer(aData, aLength, aFlavour) 
+function FlavourToXfer(aData, aLength, aFlavour)
 {
   return new TransferData([new FlavourData(aData, aLength, aFlavour)]);
 }
@@ -289,42 +289,42 @@ var transferUtils = {
                                    .QueryInterface(Components.interfaces.nsIFileProtocolHandler);
         return fileHandler.getURLSpecFromFile(aData);
     }
-    return null;                                                   
+    return null;
   }
 
 }
 
 /**
  * nsDragAndDrop - a convenience wrapper for nsTransferable, nsITransferable
- *                 and nsIDragService/nsIDragSession. 
+ *                 and nsIDragService/nsIDragSession.
  *
  * Use: map the handler functions to the 'ondraggesture', 'ondragover' and
- *   'ondragdrop' event handlers on your XML element, e.g.                   
- *   <xmlelement ondraggesture="nsDragAndDrop.startDrag(event, observer);"   
- *               ondragover="nsDragAndDrop.dragOver(event, observer);"      
- *               ondragdrop="nsDragAndDrop.drop(event, observer);"/>         
- *                                                                           
- *   You need to create an observer js object with the following member      
- *   functions:                                                              
- *     Object onDragStart (event)        // called when drag initiated,      
- *                                       // returns flavour list with data   
- *                                       // to stuff into transferable      
- *     void onDragOver (Object flavour)  // called when element is dragged   
- *                                       // over, so that it can perform     
+ *   'ondragdrop' event handlers on your XML element, e.g.
+ *   <xmlelement ondraggesture="nsDragAndDrop.startDrag(event, observer);"
+ *               ondragover="nsDragAndDrop.dragOver(event, observer);"
+ *               ondragdrop="nsDragAndDrop.drop(event, observer);"/>
+ *
+ *   You need to create an observer js object with the following member
+ *   functions:
+ *     Object onDragStart (event)        // called when drag initiated,
+ *                                       // returns flavour list with data
+ *                                       // to stuff into transferable
+ *     void onDragOver (Object flavour)  // called when element is dragged
+ *                                       // over, so that it can perform
  *                                       // any drag-over feedback for provided
- *                                       // flavour                          
- *     void onDrop (Object data)         // formatted data object dropped.   
- *     Object getSupportedFlavours ()    // returns a flavour list so that   
+ *                                       // flavour
+ *     void onDrop (Object data)         // formatted data object dropped.
+ *     Object getSupportedFlavours ()    // returns a flavour list so that
  *                                       // nsTransferable can determine
- *                                       // whether or not to accept drop. 
- **/   
+ *                                       // whether or not to accept drop.
+ **/
 
 var nsDragAndDrop = {
-  
+
   _mDS: null,
   get mDragService()
     {
-      if (!this._mDS) 
+      if (!this._mDS)
         {
           const kDSContractID = "@mozilla.org/widget/dragservice;1";
           const kDSIID = Components.interfaces.nsIDragService;
@@ -343,7 +343,7 @@ var nsDragAndDrop = {
    * @param Object aDragDropObserver
    *        javascript object of format described above that specifies
    *        the way in which the element responds to drag events.
-   **/  
+   **/
   startDrag: function (aEvent, aDragDropObserver)
     {
       if (!("onDragStart" in aDragDropObserver))
@@ -353,11 +353,11 @@ var nsDragAndDrop = {
       var dragAction = { action: kDSIID.DRAGDROP_ACTION_COPY + kDSIID.DRAGDROP_ACTION_MOVE + kDSIID.DRAGDROP_ACTION_LINK };
 
       var transferData = { data: null };
-      try 
+      try
         {
           aDragDropObserver.onDragStart(aEvent, transferData, dragAction);
         }
-      catch (e) 
+      catch (e)
         {
           return;  // not a draggable item, bail!
         }
@@ -368,10 +368,10 @@ var nsDragAndDrop = {
       var dt = aEvent.dataTransfer;
       var count = 0;
       do {
-        var tds = transferData._XferID == "TransferData" 
-                                         ? transferData 
+        var tds = transferData._XferID == "TransferData"
+                                         ? transferData
                                          : transferData.dataList[count]
-        for (var i = 0; i < tds.dataList.length; ++i) 
+        for (var i = 0; i < tds.dataList.length; ++i)
         {
           var currData = tds.dataList[i];
           var currFlavour = currData.flavour.contentType;
@@ -383,7 +383,7 @@ var nsDragAndDrop = {
 
         count++;
       }
-      while (transferData._XferID == "TransferDataSet" && 
+      while (transferData._XferID == "TransferDataSet" &&
              count < transferData.dataList.length);
 
       dt.effectAllowed = "all";
@@ -394,7 +394,7 @@ var nsDragAndDrop = {
       aEvent.stopPropagation();
     },
 
-  /** 
+  /**
    * void dragOver (DOMEvent aEvent, Object aDragDropObserver) ;
    *
    * called when a drag passes over this element
@@ -406,8 +406,8 @@ var nsDragAndDrop = {
    *        the way in which the element responds to drag events.
    **/
   dragOver: function (aEvent, aDragDropObserver)
-    { 
-      if (!("onDragOver" in aDragDropObserver)) 
+    {
+      if (!("onDragOver" in aDragDropObserver))
         return;
       if (!this.checkCanDrop(aEvent, aDragDropObserver))
         return;
@@ -416,8 +416,8 @@ var nsDragAndDrop = {
         {
           if (this.mDragSession.isDataFlavorSupported(flavour))
             {
-              aDragDropObserver.onDragOver(aEvent, 
-                                           flavourSet.flavourTable[flavour], 
+              aDragDropObserver.onDragOver(aEvent,
+                                           flavourSet.flavourTable[flavour],
                                            this.mDragSession);
               aEvent.stopPropagation();
               aEvent.preventDefault();
@@ -428,7 +428,7 @@ var nsDragAndDrop = {
 
   mDragSession: null,
 
-  /** 
+  /**
    * void drop (DOMEvent aEvent, Object aDragDropObserver) ;
    *
    * called when the user drops on the element
@@ -444,7 +444,7 @@ var nsDragAndDrop = {
       if (!("onDrop" in aDragDropObserver))
         return;
       if (!this.checkCanDrop(aEvent, aDragDropObserver))
-        return;  
+        return;
 
       var flavourSet = aDragDropObserver.getSupportedFlavours();
 
@@ -481,7 +481,7 @@ var nsDragAndDrop = {
       aEvent.stopPropagation();
     },
 
-  /** 
+  /**
    * void dragExit (DOMEvent aEvent, Object aDragDropObserver) ;
    *
    * called when a drag leaves this element
@@ -498,9 +498,9 @@ var nsDragAndDrop = {
         return;
       if ("onDragExit" in aDragDropObserver)
         aDragDropObserver.onDragExit(aEvent, this.mDragSession);
-    },  
-    
-  /** 
+    },
+
+  /**
    * void dragEnter (DOMEvent aEvent, Object aDragDropObserver) ;
    *
    * called when a drag enters in this element
@@ -517,9 +517,9 @@ var nsDragAndDrop = {
         return;
       if ("onDragEnter" in aDragDropObserver)
         aDragDropObserver.onDragEnter(aEvent, this.mDragSession);
-    },  
+    },
 
-  /** 
+  /**
    * Boolean checkCanDrop (DOMEvent aEvent, Object aDragDropObserver) ;
    *
    * Sets the canDrop attribute for the drag session.
@@ -533,9 +533,9 @@ var nsDragAndDrop = {
    **/
   checkCanDrop: function (aEvent, aDragDropObserver)
     {
-      if (!this.mDragSession) 
+      if (!this.mDragSession)
         this.mDragSession = this.mDragService.getCurrentSession();
-      if (!this.mDragSession) 
+      if (!this.mDragSession)
         return false;
       this.mDragSession.canDrop = this.mDragSession.sourceNode != aEvent.target;
       if ("canDrop" in aDragDropObserver)

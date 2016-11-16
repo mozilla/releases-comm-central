@@ -11,7 +11,7 @@ const RDFSERVICE_CONTRACTID     = "@mozilla.org/rdf/rdf-service;1";
 const DRAGSERVICE_CONTRACTID    = "@mozilla.org/widget/dragservice;1";
 const TRANSFERABLE_CONTRACTID   = "@mozilla.org/widget/transferable;1";
 const XULSORTSERVICE_CONTRACTID = "@mozilla.org/xul/xul-sort-service;1";
-const ARRAY_CONTRACTID          = "@mozilla.org/supports-array;1";
+const ARRAY_CONTRACTID          = "@mozilla.org/mutable-array;1";
 const WSTRING_CONTRACTID        = "@mozilla.org/supports-string;1";
 
 const NC_NS                 = "http://home.netscape.com/NC-rdf#";
@@ -25,7 +25,7 @@ const nsITransferable       = Components.interfaces.nsITransferable;
 const nsIXULSortService     = Components.interfaces.nsIXULSortService;
 const nsIRDFService         = Components.interfaces.nsIRDFService;
 const nsIRDFLiteral         = Components.interfaces.nsIRDFLiteral;
-const nsISupportsArray      = Components.interfaces.nsISupportsArray;
+const nsIMutableArray      = Components.interfaces.nsIMutableArray;
 const nsISupportsString    = Components.interfaces.nsISupportsString;
 
 // By the time this runs, The 'HTTPIndex' variable will have been
@@ -244,11 +244,11 @@ function BeginDragTree (event)
     transferable.setTransferData("text/unicode", genData, genData.data.length * 2);
 
     var transArray =
-      Components.classes[ARRAY_CONTRACTID].createInstance(nsISupportsArray);
+      Components.classes[ARRAY_CONTRACTID].createInstance(nsIMutableArray);
 
     // put it into the transferable as an |nsISupports|
     var genTrans = transferable.QueryInterface(Components.interfaces.nsISupports);
-    transArray.AppendElement(genTrans);
+    transArray.appendElement(genTrans, /* weak = */ false);
 
     var dragService =
       Components.classes[DRAGSERVICE_CONTRACTID].getService(nsIDragService);
