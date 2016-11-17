@@ -384,8 +384,6 @@
 @RESPATH@/components/AppsService.manifest
 @RESPATH@/components/BrowserElementParent.js
 @RESPATH@/components/BrowserElementParent.manifest
-@RESPATH@/components/BrowserElementProxy.manifest
-@RESPATH@/components/BrowserElementProxy.js
 @RESPATH@/components/PageThumbsProtocol.js
 @RESPATH@/components/XULStore.js
 @RESPATH@/components/XULStore.manifest
