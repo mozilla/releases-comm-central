@@ -323,6 +323,7 @@
                        class="inline-toolbar"
                        toolboxid="mail-toolbox"
                        toolbarname="&folderPaneBar.label;"
+                       accesskey="&folderPaneBar.accesskey;"
                        customizable="true"
                        align="start"
                        mode="icons" defaultmode="icons" lockmode="true"
