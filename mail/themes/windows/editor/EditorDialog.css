@@ -307,3 +307,15 @@ tree.list {
 .progressitem[progress="failed"] {
   list-style-image: url("chrome://editor/skin/icons/progress-failed.gif");
 }
+
+@media not all and (-moz-os-version: windows-xp) {
+  #AddJSEAttributeNameList > menupopup > menuseparator,
+  #AddHTMLAttributeNameInput > menupopup > menuseparator {
+    -moz-appearance: none;
+    margin-top: 3px;
+    margin-bottom: 3px;
+    padding-top: 0;
+    padding-bottom: 0;
+    border-top-color: #d7d7d7;
+  }
+}
