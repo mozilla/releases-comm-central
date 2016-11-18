@@ -78,6 +78,7 @@
 #include "mozilla/Services.h"
 #include "mozilla/mailnews/MimeHeaderParser.h"
 #include "mozilla/Preferences.h"
+#include "mozilla/ErrorResult.h"
 #include "nsStreamConverter.h"
 #include "nsISelection.h"
 #include "nsJSEnvironment.h"
@@ -578,16 +579,24 @@ nsMsgCompose::InsertDivWrappedTextAtSelection(const nsAString &aText,
     NS_ENSURE_SUCCESS_VOID(rv);
 
     nsCOMPtr<nsIDOMNode> newTextNode = do_QueryInterface(textNode);
-    nsCOMPtr<nsIDOMNode> resultNode;
-    rv = divElem->AppendChild(newTextNode, getter_AddRefs(resultNode));
-    NS_ENSURE_SUCCESS_VOID(rv);
+    nsCOMPtr<nsINode> divElem2 = do_QueryInterface(divElem);
+    nsCOMPtr<nsINode> newTextNode2 = do_QueryInterface(newTextNode);
+    IgnoredErrorResult rv2;
+    divElem2->AppendChild(*newTextNode2, rv2);
+    if (rv2.Failed()) {
+      return;
+    }
 
     // Now create and insert a BR
     nsCOMPtr<nsIDOMElement> brElem;
     rv = htmlEditor->CreateElementWithDefaults(NS_LITERAL_STRING("br"),
                                                getter_AddRefs(brElem));
-    rv = divElem->AppendChild(brElem, getter_AddRefs(resultNode));
     NS_ENSURE_SUCCESS_VOID(rv);
+    nsCOMPtr<nsINode> brElem2 = do_QueryInterface(brElem);
+    divElem2->AppendChild(*brElem2, rv2);
+    if (rv2.Failed()) {
+      return;
+    }
 
     if (delimiter == end)
       break;
@@ -788,7 +797,7 @@ nsMsgCompose::ConvertAndLoadComposeWindow(nsString& aPrefix,
       {
         nsresult rv;
         nsCOMPtr<nsIDOMElement> divElem;
-        nsCOMPtr<nsIDOMNode> extraBr;
+        nsCOMPtr<nsIDOMElement> extraBr;
 
         if (isForwarded) {
           // Special treatment for forwarded messages: Part 1.
@@ -804,12 +813,17 @@ nsMsgCompose::ConvertAndLoadComposeWindow(nsString& aPrefix,
           divElem->SetAttribute(attributeName, attributeValue);
 
           // We can't insert an empty <div>, so fill it with something.
-          nsCOMPtr<nsIDOMElement> brElem;
           rv = htmlEditor->CreateElementWithDefaults(NS_LITERAL_STRING("br"),
-                                                     getter_AddRefs(brElem));
+                                                     getter_AddRefs(extraBr));
           NS_ENSURE_SUCCESS(rv, rv);
-          rv = divElem->AppendChild(brElem, getter_AddRefs(extraBr));
-          NS_ENSURE_SUCCESS(rv, rv);
+
+          nsCOMPtr<nsINode> divElem2 = do_QueryInterface(divElem);
+          nsCOMPtr<nsINode> extraBr2 = do_QueryInterface(extraBr);
+          ErrorResult rv2;
+          divElem2->AppendChild(*extraBr2, rv2);
+          if (rv2.Failed()) {
+            return rv2.StealNSResult();
+          }
 
           // Insert the non-empty <div> into the DOM.
           rv = htmlEditor->InsertElementAtSelection(divElem, false);
