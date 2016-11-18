@@ -380,8 +380,6 @@
 @RESPATH@/components/toolkit_finalizationwitness.xpt
 
 ; toolkit
-@RESPATH@/components/AppsService.js
-@RESPATH@/components/AppsService.manifest
 @RESPATH@/components/BrowserElementParent.js
 @RESPATH@/components/BrowserElementParent.manifest
 @RESPATH@/components/PageThumbsProtocol.js
@@ -461,7 +459,6 @@
 
 ; dom
 @RESPATH@/components/dom.xpt
-@RESPATH@/components/dom_apps.xpt
 @RESPATH@/components/dom_base.xpt
 @RESPATH@/components/dom_canvas.xpt
 @RESPATH@/components/dom_core.xpt
