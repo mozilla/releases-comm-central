@@ -385,7 +385,6 @@
 @RESPATH@/components/PageThumbsProtocol.js
 @RESPATH@/components/XULStore.js
 @RESPATH@/components/XULStore.manifest
-@RESPATH@/components/PermissionSettings.js
 @RESPATH@/components/messageWakeupService.js
 @RESPATH@/components/messageWakeupService.manifest
 @RESPATH@/components/SettingsManager.js
@@ -471,7 +470,6 @@
 @RESPATH@/components/dom_network.xpt
 @RESPATH@/components/dom_notification.xpt
 @RESPATH@/components/dom_offline.xpt
-@RESPATH@/components/dom_permissionsettings.xpt
 @RESPATH@/components/dom_power.xpt
 @RESPATH@/components/dom_push.xpt
 @RESPATH@/components/dom_presentation.xpt

@@ -417,7 +417,6 @@
 @RESPATH@/components/dom_range.xpt
 @RESPATH@/components/dom_security.xpt
 @RESPATH@/components/dom_settings.xpt
-@RESPATH@/components/dom_permissionsettings.xpt
 @RESPATH@/components/dom_sidebar.xpt
 @RESPATH@/components/dom_storage.xpt
 @RESPATH@/components/dom_stylesheets.xpt
@@ -663,7 +662,6 @@
 @RESPATH@/components/SettingsManager.manifest
 @RESPATH@/components/htmlMenuBuilder.js
 @RESPATH@/components/htmlMenuBuilder.manifest
-@RESPATH@/components/PermissionSettings.js
 @RESPATH@/components/Push.js
 @RESPATH@/components/Push.manifest
 @RESPATH@/components/PushComponents.js
