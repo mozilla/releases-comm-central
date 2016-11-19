@@ -7,7 +7,7 @@ DIRS = [
     'build'
 ]
 
-SOURCES += [
+UNIFIED_SOURCES += [
     'calDateTime.cpp',
     'calDuration.cpp',
     'calICSService.cpp',
