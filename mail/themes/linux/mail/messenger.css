@@ -287,29 +287,35 @@ splitmenu[command="cmd_newMessage"] {
   -moz-image-region: rect(0px 32px 16px 16px);
 }
 
-#menu_newFolder {
+#menu_newFolder,
+#appmenu_newFolder {
   list-style-image: url("moz-icon://stock/gtk-directory?size=menu");
 }
 
-#menu_newVirtualFolder {
+#menu_newVirtualFolder,
+#appmenu_newVirtualFolder {
   list-style-image: url("chrome://messenger/skin/icons/folder-pane.png");
   -moz-image-region: rect(128px 16px 144px 0px);
 }
 
-#menu_newCard {
+#menu_newCard,
+#appmenu_newCard {
   list-style-image: url("chrome://messenger/skin/addressbook/icons/addressbook-toolbar.png");
   -moz-image-region: rect(44px 22px 66px 0px); /* contact-add.png */
 }
 
-#openMessageFileMenuitem {
+#openMessageFileMenuitem,
+#appmenu_openMessageFileMenuitem {
   list-style-image: url("moz-icon://stock/gtk-open?size=menu");
 }
 
-#menu_close {
+#menu_close,
+#appmenu_close {
   list-style-image: url("moz-icon://stock/gtk-close?size=menu");
 }
 
-#menu_saveAs {
+#menu_saveAs,
+#appmenu_saveAs {
   -moz-binding: url("chrome://global/content/bindings/menu.xml#menu-iconic");
   list-style-image: url("moz-icon://stock/gtk-save-as?size=menu");
 }
@@ -398,6 +404,15 @@ menuitem[command="cmd_selectAll"] {
 
 #menu_find {
   -moz-binding: url("chrome://global/content/bindings/menu.xml#menu-iconic");
+}
+
+#appmenu_find > .splitmenu-menuitem,
+#appmenu_customize > .splitmenu-menuitem {
+  -moz-binding: url("chrome://global/content/bindings/menu.xml#menuitem-iconic");
+}
+
+#menu_find,
+#appmenu_find {
   list-style-image: url("moz-icon://stock/gtk-find?size=menu");
 }
 
@@ -413,7 +428,8 @@ menuitem[command="cmd_selectAll"] {
   list-style-image: url("moz-icon://stock/gtk-properties?size=menu");
 }
 
-#menu_preferences {
+#menu_preferences,
+#appmenu_customize {
   list-style-image: url("moz-icon://stock/gtk-preferences?size=menu");
 }
 
@@ -461,19 +477,23 @@ menuitem[command="cmd_goForward"][disabled]:-moz-locale-dir(rtl) {
   list-style-image: url("moz-icon://stock/gtk-go-forward-rtl?size=menu&state=disabled");
 }
 
-#goStartPage {
+#goStartPage,
+#appmenu_goStartPage {
   list-style-image: url("moz-icon://stock/gtk-home?size=menu");
 }
 
-#menu_openHelp {
+#menu_openHelp,
+#appmenu_openHelp {
   list-style-image: url("moz-icon://stock/gtk-help?size=menu");
 }
 
-#aboutName {
+#aboutName,
+#appmenu_about {
   list-style-image: url("moz-icon://stock/gtk-about?size=menu");
 }
 
-#addressBook {
+#addressBook,
+#appmenu_addressBook {
   list-style-image: url("chrome://messenger/skin/addressbook/icons/addrbook.png");
 }
 
