@@ -17,4 +17,4 @@ SOURCES += [
     'calUtils.cpp',
 ]
 
-FINAL_LIBRARY = 'calbasecomps'
+FINAL_LIBRARY = 'xul'

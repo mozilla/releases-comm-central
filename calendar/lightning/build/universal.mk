@@ -28,20 +28,6 @@ define unify_lightning
 mkdir -p $(DIST_UNI)/$1
 rm -rf $(DIST_UNI)/$1/$2*
 cp -R $(DIST_ARCH_1)/$1/$2 $(DIST_UNI)/$1
-grep -v binary-component $(DIST_ARCH_1)/$1/$2/components/libical-manifest > \
-	$(DIST_UNI)/$1/$2/components/libical-manifest || true
-platform=`$(PYTHON) $(TOPSRCDIR)/calendar/lightning/build/get-platform.py \
-	$(DIST_ARCH_1)/$1/$2`; \
-mkdir -p $(DIST_UNI)/$1/$2/components/$$platform; \
-mv $(DIST_UNI)/$1/$2/components/*.dylib \
-	$(DIST_UNI)/$1/$2/components/$$platform; \
-$(foreach dylib,$(wildcard $(DIST_ARCH_1)/$1/$2/components/*.dylib),echo binary-component $$platform/$(notdir $(dylib)) abi=$$platform >> $(DIST_UNI)/$1/$2/components/libical-manifest)
-platform=`$(PYTHON) $(TOPSRCDIR)/calendar/lightning/build/get-platform.py \
-	$(DIST_ARCH_2)/$1/$2`; \
-mkdir -p $(DIST_UNI)/$1/$2/components/$$platform; \
-cp $(DIST_ARCH_2)/$1/$2/components/*.dylib \
-	$(DIST_UNI)/$1/$2/components/$$platform; \
-$(foreach dylib,$(wildcard $(DIST_ARCH_2)/$1/$2/components/*.dylib),echo binary-component $$platform/$(notdir $(dylib)) abi=$$platform >> $(DIST_UNI)/$1/$2/components/libical-manifest)
 grep -v em:targetPlatform $(DIST_ARCH_1)/$1/$2/install.rdf > $(DIST_UNI)/$1/$2/install.rdf
 endef
 

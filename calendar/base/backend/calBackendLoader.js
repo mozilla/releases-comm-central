@@ -38,22 +38,42 @@ calBackendLoader.prototype = {
             return;
         }
 
-        let backend = Services.prefs.getBoolPref("calendar.icaljs") ? "icaljs" : "libical";
+        if (Services.prefs.getBoolPref("calendar.icaljs")) {
+            let contracts = [
+                "@mozilla.org/calendar/datetime;1",
+                "@mozilla.org/calendar/duration;1",
+                "@mozilla.org/calendar/ics-service;1",
+                "@mozilla.org/calendar/period;1",
+                "@mozilla.org/calendar/recurrence-rule;1"
+            ];
 
-        let uri = Services.io.getProtocolHandler("resource")
-                          .QueryInterface(Components.interfaces.nsIResProtocolHandler)
-                          .getSubstitution("calendar");
+            // Unregister libical components
+            let registrar = Components.manager.QueryInterface(Components.interfaces.nsIComponentRegistrar);
+            for (let contractId of contracts) {
+                let classobj = Components.classes[contractId];
+                let factory = Components.manager.getClassObject(classobj, Components.interfaces.nsIFactory);
+                let classId = registrar.contractIDToCID(contractId);
+                registrar.unregisterFactory(classId, factory);
+            }
 
-        let file = Services.io.getProtocolHandler("file")
-                           .QueryInterface(Components.interfaces.nsIFileProtocolHandler)
-                           .getFileFromURLSpec(uri.spec);
+            // Now load ical.js backend
+            let uri = Services.io.getProtocolHandler("resource")
+                              .QueryInterface(Components.interfaces.nsIResProtocolHandler)
+                              .getSubstitution("calendar");
 
-        file.append("components");
-        file.append(backend + "-manifest");
+            let file = Services.io.getProtocolHandler("file")
+                               .QueryInterface(Components.interfaces.nsIFileProtocolHandler)
+                               .getFileFromURLSpec(uri.spec);
+            file.append("components");
+            file.append("icaljs-manifest");
 
-        Components.manager.QueryInterface(Components.interfaces.nsIComponentRegistrar)
-                  .autoRegister(file);
-        dump("[calBackendLoader] Using " + backend + " backend at " + file.path + "\n");
+            Components.manager.QueryInterface(Components.interfaces.nsIComponentRegistrar)
+                      .autoRegister(file);
+            dump("[calBackendLoader] Using icaljs backend at " + file.path + "\n");
+        } else {
+            dump("[calBackendLoader] Using Thunderbird's builtin libical backend\n");
+        }
+
         this.loaded = true;
     }
 };

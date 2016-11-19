@@ -7,17 +7,8 @@ SOURCES += [
     'calBaseModule.cpp',
 ]
 
-XPCOMBinaryComponent('calbasecomps')
-
 LOCAL_INCLUDES += [
     '..'
 ]
 
-if CONFIG['JS_SHARED_LIBRARY']:
-    USE_LIBS += [
-        'js',
-    ]
-
-EXTRA_PP_COMPONENTS += ['libical-manifest']
-
-NO_COMPONENTS_MANIFEST = True
+FINAL_LIBRARY = "xul"

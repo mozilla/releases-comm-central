@@ -111,8 +111,7 @@ calIcalProperty::SetValue(const nsACString &str)
         icalvalue *v = icalvalue_new_x(PromiseFlatCString(str).get());
         icalproperty_set_value(mProperty, v);
     } else if (kind == ICAL_ATTACH_VALUE) {
-        const char *strdata = PromiseFlatCString(str).get();
-        icalattach *v = icalattach_new_from_data(strdata, nullptr, nullptr);
+        icalattach *v = icalattach_new_from_data(PromiseFlatCString(str).get(), nullptr, nullptr);
         icalproperty_set_attach(mProperty, v);
     } else {
         icalproperty_set_value_from_string(mProperty,
@@ -1277,8 +1276,7 @@ calICSService::ParseICS(const nsACString& serialized,
 NS_IMETHODIMP
 calICSService::ParserWorker::Run()
 {
-    icalcomponent *ical =
-        icalparser_parse_string(PromiseFlatCString(mString).get());
+    icalcomponent *ical = icalparser_parse_string(mString.get());
     nsresult status = NS_OK;
     calIIcalComponent *comp = nullptr;
 
