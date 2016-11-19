@@ -185,7 +185,6 @@
 @RESPATH@/components/directory.xpt
 @RESPATH@/components/docshell.xpt
 @RESPATH@/components/dom.xpt
-@RESPATH@/components/dom_apps.xpt
 @RESPATH@/components/dom_base.xpt
 @RESPATH@/components/dom_canvas.xpt
 @RESPATH@/components/dom_core.xpt
@@ -198,7 +197,6 @@
 @RESPATH@/components/dom_network.xpt
 @RESPATH@/components/dom_notification.xpt
 @RESPATH@/components/dom_offline.xpt
-@RESPATH@/components/dom_permissionsettings.xpt
 @RESPATH@/components/dom_power.xpt
 @RESPATH@/components/dom_push.xpt
 @RESPATH@/components/dom_presentation.xpt
@@ -366,8 +364,6 @@
 @RESPATH@/components/amContentHandler.js
 @RESPATH@/components/amInstallTrigger.js
 @RESPATH@/components/amWebInstallListener.js
-@RESPATH@/components/AppsService.js
-@RESPATH@/components/AppsService.manifest
 @RESPATH@/components/BrowserElementParent.js
 @RESPATH@/components/BrowserElementParent.manifest
 @RESPATH@/components/captivedetect.js
@@ -481,8 +477,6 @@
 @RESPATH@/components/PeerConnection.js
 @RESPATH@/components/PeerConnection.manifest
 #endif
-@RESPATH@/components/PermissionSettings.js
-@RESPATH@/components/PermissionSettings.manifest
 @RESPATH@/components/PlacesCategoriesStarter.js
 @RESPATH@/components/pluginGlue.manifest
 @RESPATH@/components/ProcessSingleton.manifest
@@ -888,7 +882,7 @@ bin/libfreebl_32int64_3.so
 #endif
 
 #if defined(MOZ_ASAN) && defined(CLANG_CL)
-@BINPATH@/clang_rt.asan_dynamic-i386.dll
+@BINPATH@/clang_rt.asan_dynamic-*.dll
 #endif
 
 [chatzilla]
