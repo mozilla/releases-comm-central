@@ -20,14 +20,25 @@ listcell[enabled="true"] {
   list-style-image: url("chrome://messenger/skin/icons/check.gif");
 }
 
+#gray_horizontal_splitter {
+  margin-right: -6px;
+  margin-left: -6px;
+}
+
+#filterListDialog > hbox,
+#filterListDialog > grid {
+   margin: 8px 6px 0;
+}
+
 #FilterEditor {
-  padding: 0px;
+  padding-right: 4px;
+  padding-left: 4px;
 }
 
 .small-button {
   min-width: 3em;
-  padding: 0px;
-  margin: 0px 1px;
+  padding: 0;
+  margin: 0 1px;
 }
 
 .search-menulist, .search-value-menulist {

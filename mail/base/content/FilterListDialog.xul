@@ -4,7 +4,6 @@
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
 <?xml-stylesheet href="chrome://messenger/skin/filterDialog.css" type="text/css"?>
-<?xml-stylesheet href="chrome://messenger/skin/messenger.css" type="text/css"?>
  <?xml-stylesheet href="chrome://messenger/skin/folderMenus.css" type="text/css"?>
 
 <!DOCTYPE window [
