@@ -90,8 +90,13 @@ var pop3DownloadModule =
   onDownloadCompleted : function(aFolder, aNumMsgsDownloaded) {
     this.log.info("in onDownloadCompleted");
 
-    this.activityMgr.removeActivity(this._mostRecentActivityForFolder
-                                        .get(aFolder.URI).eventID);
+    // Remove activity if there was any.
+    // It can happen that download never started (e.g. couldn't connect to server),
+    // with onDownloadStarted, but we still get a onDownloadCompleted event
+    // when the connection is given up.
+    let recentActivity = this._mostRecentActivityForFolder.get(aFolder.URI);
+    if (recentActivity)
+      this.activityMgr.removeActivity(recentActivity.eventID);
 
     let displayText;
     if (aNumMsgsDownloaded > 0)
