@@ -417,12 +417,18 @@
       <method name="getNextPendingMessage">
         <body>
           <![CDATA[
-            if (this._nextPendingMessageIndex == this._pendingMessages.length) {
+            let length = this._pendingMessages.length;
+            if (this._nextPendingMessageIndex == length)
+              return null;
+
+            let result = this._pendingMessages[this._nextPendingMessageIndex++];
+
+            if (this._nextPendingMessageIndex == length) {
               this._pendingMessages = [];
               this._nextPendingMessageIndex = 0;
-              return null;
             }
-            return this._pendingMessages[this._nextPendingMessageIndex++];
+
+            return result;
           ]]>
         </body>
       </method>
