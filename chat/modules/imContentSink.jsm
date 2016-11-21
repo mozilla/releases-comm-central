@@ -47,6 +47,7 @@ var kAllowedMozClasses =
   aClassName => aClassName == "moz-txt-underscore" ||
                 aClassName == "moz-txt-tag" ||
                 aClassName == "ib-person";
+var kAllowedAnchorClasses = aClassName => aClassName == "ib-person";
 
 /* Tags whose content should be fully removed, and reported in the Error Console. */
 var kForbiddenTags = {
@@ -61,7 +62,8 @@ var kStrictMode = {
   tags: {
     'a': {
       'title': true,
-      'href': kAllowedURLs
+      'href': kAllowedURLs,
+      'class': kAllowedAnchorClasses
     },
     'br': true,
     'p': true
@@ -80,7 +82,8 @@ var kStandardMode = {
     'div': true,
     'a': {
       'title': true,
-      'href': kAllowedURLs
+      'href': kAllowedURLs,
+      'class': kAllowedAnchorClasses
     },
     'em': true,
     'strong': true,
@@ -117,7 +120,8 @@ var kPermissiveMode = {
     'div': true,
     'a': {
       'title': true,
-      'href': kAllowedURLs
+      'href': kAllowedURLs,
+      'class': kAllowedAnchorClasses
     },
     'font': {
       'face': true,
