@@ -612,7 +612,7 @@
           <![CDATA[
             aEmailNode.setAttribute("label", aAddress.fullAddress || aAddress.displayName);
             aEmailNode.removeAttribute("tooltiptext");
-            aEmailNode.setAttribute("emailAddress", aAddress.emailAddress);
+            aEmailNode.setAttribute("emailAddress", aAddress.emailAddress || "");
             aEmailNode.setAttribute("fullAddress", aAddress.fullAddress || "");
             aEmailNode.setAttribute("displayName", aAddress.displayName || "");
 
@@ -631,7 +631,7 @@
 
             try
             {
-              if ("UpdateEmailNodeDetails" in top)
+              if (("UpdateEmailNodeDetails" in top) && aAddress.emailAddress)
                 UpdateEmailNodeDetails(aAddress.emailAddress, aEmailNode);
             }
             catch(ex)

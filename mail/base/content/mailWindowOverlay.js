@@ -1234,17 +1234,6 @@ function IsReplyAllEnabled()
   let numAddresses = MailServices.headerParser.parseHeadersWithArray(uniqueAddresses,
                                                                      emailAddresses, {}, {});
 
-  // XXX: This should be handled by the nsIMsgHeaderParser.  See Bug 498480.
-  // Remove addresses that look like email groups, because we don't support
-  // those yet.  (Any address with a : in it will be an empty email group,
-  // or the colon and the groupname would be set as the first name, and not
-  // show up in the address at all.)
-  for (var i in emailAddresses.value)
-  {
-    if (emailAddresses.value[i].includes(":"))
-      numAddresses--;
-  }
-
   // I don't want to count my address in the number of addresses to reply
   // to, since I won't be emailing myself.
   if (imInAddresses)

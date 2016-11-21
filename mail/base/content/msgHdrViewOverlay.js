@@ -1238,6 +1238,15 @@ function OutputEmailAddresses(headerEntry, emailAddresses)
   var index = 0;
   if (headerEntry.useToggle)
     headerEntry.enclosingBox.resetAddressView(); // make sure we start clean
+  if (numAddresses == 0 && emailAddresses.includes(":")) {
+    // No addresses and a colon, so an empty group like "undisclosed-recipients: ;".
+    // Add group name so at least something displays.
+    let address = { displayName: emailAddresses };
+    if (headerEntry.useToggle)
+      headerEntry.enclosingBox.addAddressView(address);
+    else
+      updateEmailAddressNode(headerEntry.enclosingBox.emailAddressNode, address);
+  }
   while (index < numAddresses) {
     // If we want to include short/long toggle views and we have a long view,
     // always add it. If we aren't including a short/long view OR if we are and
@@ -1261,11 +1270,12 @@ function OutputEmailAddresses(headerEntry, emailAddresses)
 
 function updateEmailAddressNode(emailAddressNode, address)
 {
-  emailAddressNode.setAttribute("emailAddress", address.emailAddress);
+  emailAddressNode.setAttribute("emailAddress", address.emailAddress || "");
   emailAddressNode.setAttribute("fullAddress", address.fullAddress || "");
   emailAddressNode.setAttribute("displayName", address.displayName || "");
 
-  UpdateEmailNodeDetails(address.emailAddress, emailAddressNode);
+  if (address.emailAddress)
+    UpdateEmailNodeDetails(address.emailAddress, emailAddressNode);
 }
 
 function UpdateEmailNodeDetails(aEmailAddress, aDocumentNode, aCardDetails) {
@@ -1608,7 +1618,8 @@ function SendMailToNode(addressNode, aEvent)
   if (addressNode.hasAttribute("fullAddress")) {
     let addresses = MailServices.headerParser.makeFromDisplayAddress(
       addressNode.getAttribute("fullAddress"), {});
-    fields.to = MailServices.headerParser.makeMimeHeader(addresses, 1);
+    if (addresses.length > 0)
+      fields.to = MailServices.headerParser.makeMimeHeader(addresses, 1);
   }
 
   params.type = Components.interfaces.nsIMsgCompType.New;
