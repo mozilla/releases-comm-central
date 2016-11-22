@@ -21,6 +21,11 @@ treechildren::-moz-tree-image(rowMigrate-no) {
   list-style-image: url("chrome://communicator/skin/profile/migrate.gif");
 }
 
+/* Override global.css */
+hbox.wizard-box {
+  padding: 10px 10px 10px 10px;
+}
+
 #intro,
 #label {
   width: 17em;

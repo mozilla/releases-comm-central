@@ -251,7 +251,7 @@ function toProfileManager()
     params.SetString(0, "menu");
     window.openDialog("chrome://communicator/content/profile/profileSelection.xul",
                 "",
-                "centerscreen,chrome,titlebar",
+                "centerscreen,chrome,titlebar,resizable",
                 params);
   }
   // Here, we don't care about the result code
