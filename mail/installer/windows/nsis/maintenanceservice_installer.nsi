@@ -42,7 +42,7 @@ Var BrandFullName
 !insertmacro GetSize
 
 ; The test slaves use this fallback key to run tests.
-; And anyone that wants to run tests themselves should already have 
+; And anyone that wants to run tests themselves should already have
 ; this installed.
 !define FallbackKey \
   "SOFTWARE\Mozilla\MaintenanceService\3932ecacee736d366d6436db0f55bce4"
@@ -52,7 +52,7 @@ Var BrandFullName
 
 ; The following includes are custom.
 !include defines.nsi
-; We keep defines.nsi defined so that we get other things like 
+; We keep defines.nsi defined so that we get other things like
 ; the version number, but we redefine BrandFullName
 !define MaintFullName "Mozilla Maintenance Service"
 !undef BrandFullName
@@ -127,10 +127,7 @@ Function .onInit
   Abort
 !endif
 
-  ; On Windows 2000 we do not install the maintenance service.
-  ; We won't run this installer from the parent installer, but just in case 
-  ; someone tries to execute it on Windows 2000...
-  ${Unless} ${AtLeastWinXP}
+  ${Unless} ${AtLeastWin7}
     Abort
   ${EndUnless}
 FunctionEnd
@@ -161,7 +158,7 @@ Section "MaintenanceService"
     StrCpy $TempMaintServiceName "maintenanceservice_tmp.exe"
   skipAlreadyExists:
 
-  ; We always write out a copy and then decide whether to install it or 
+  ; We always write out a copy and then decide whether to install it or
   ; not via calling its 'install' cmdline which works by version comparison.
   CopyFiles "$EXEDIR\maintenanceservice.exe" "$INSTDIR\$TempMaintServiceName"
 
@@ -215,7 +212,7 @@ Section "MaintenanceService"
   WriteRegDWORD HKLM "Software\Mozilla\MaintenanceService" "Attempted" 1
   WriteRegDWORD HKLM "Software\Mozilla\MaintenanceService" "Installed" 1
 
-  ; Included here for debug purposes only.  
+  ; Included here for debug purposes only.
   ; These keys are used to bypass the installation dir is a valid installation
   ; check from the service so that tests can be run.
   ; WriteRegStr HKLM "${FallbackKey}\0" "name" "Mozilla Corporation"
@@ -237,7 +234,7 @@ Function un.RenameDelete
   Rename "$9" "$9.moz-delete"
   ${If} ${Errors}
     Delete /REBOOTOK "$9"
-  ${Else} 
+  ${Else}
     Delete /REBOOTOK "$9.moz-delete"
   ${EndIf}
   ClearErrors
