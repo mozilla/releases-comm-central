@@ -346,17 +346,29 @@ function nsBrowserAccess() {
 }
 
 nsBrowserAccess.prototype = {
+
   openURI: function openURI(aURI, aOpener, aWhere, aFlags) {
-    var isExternal = !!(aFlags & Ci.nsIBrowserDOMWindow.OPEN_EXTERNAL);
-    if (aWhere == nsIBrowserDOMWindow.OPEN_DEFAULTWINDOW)
+
+    var isExternal = !!(aFlags & nsIBrowserDOMWindow.OPEN_EXTERNAL);
+
+    if (aOpener && isExternal) {
+      Components.utils.reportError("nsBrowserAccess.openURI did not expect an opener to be " +
+                                   "passed if the context is OPEN_EXTERNAL.");
+      throw Components.results.NS_ERROR_FAILURE;
+    }
+
+    if (aWhere == nsIBrowserDOMWindow.OPEN_DEFAULTWINDOW) {
       if (isExternal)
         aWhere = Services.prefs.getIntPref("browser.link.open_external");
       else
         aWhere = Services.prefs.getIntPref("browser.link.open_newwindow");
+    }
+
     var referrer = aOpener ? aOpener.QueryInterface(nsIInterfaceRequestor)
                                     .getInterface(nsIWebNavigation)
                                     .currentURI : null;
     var uri = aURI ? aURI.spec : "about:blank";
+
     switch (aWhere) {
       case nsIBrowserDOMWindow.OPEN_NEWWINDOW:
         return window.openDialog(getBrowserURL(), "_blank", "all,dialog=no",
@@ -364,10 +376,20 @@ nsBrowserAccess.prototype = {
       case nsIBrowserDOMWindow.OPEN_NEWTAB:
         var bgLoad = Services.prefs.getBoolPref("browser.tabs.loadDivertedInBackground");
         var isRelated = referrer ? true : false;
+        // If we have an opener, that means that the caller is expecting access
+        // to the nsIDOMWindow of the opened tab right away.
+        let userContextId = aOpener && aOpener.document
+                            ? aOpener.document.nodePrincipal.originAttributes.userContextId
+                           : Components.interfaces.nsIScriptSecurityManager.DEFAULT_USER_CONTEXT_ID;
+        let openerWindow = (aFlags & nsIBrowserDOMWindow.OPEN_NO_OPENER) ? null : aOpener;
+
         var newTab = gBrowser.loadOneTab(uri, {inBackground: bgLoad,
                                                fromExternal: isExternal,
                                                relatedToCurrent: isRelated,
-                                               referrerURI: referrer});
+                                               referrerURI: referrer,
+                                               userContextId: userContextId,
+                                               opener: openerWindow,
+                                               });
         var contentWin = gBrowser.getBrowserForTab(newTab).contentWindow;
         if (!bgLoad)
           contentWin.focus();

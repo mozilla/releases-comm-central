@@ -1449,7 +1449,9 @@
                 charset: aCharset,
                 postData: aPostData,
                 inBackground: aLoadInBackground,
-                allowThirdPartyFixup: aAllowThirdPartyFixup
+                allowThirdPartyFixup: aAllowThirdPartyFixup,
+                userContextId: null,
+                opener: null,
               };
             }
 
@@ -1521,6 +1523,8 @@
             var aFromExternal;
             var aRelatedToCurrent;
             var aIsUTF8;
+            var aUserContextId;
+            var aOpener;
             if (arguments.length == 2 &&
                 arguments[1] != null &&
                 typeof arguments[1] == "object" &&
@@ -1534,6 +1538,8 @@
               aFromExternal         = params.fromExternal;
               aRelatedToCurrent     = params.relatedToCurrent;
               aIsUTF8               = params.isUTF8;
+              aUserContextId        = params.userContextId;
+              aOpener               = params.opener;
             }
 
             this._browsers = null; // invalidate cache
@@ -1554,6 +1560,11 @@
             b.setAttribute("tooltip", this.getAttribute("contenttooltip"));
             b.setAttribute("autocompletepopup", this.getAttribute("autocompletepopup"));
             b.setAttribute("flex", "1");
+
+           // Check if we have a "parent" window which we need to set as our opener
+           if (aOpener) {
+             b.presetOpenerWindow(aOpener);
+           }
 
             // Add the Message and the Browser to the box
             var n = document.createElementNS("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul",
