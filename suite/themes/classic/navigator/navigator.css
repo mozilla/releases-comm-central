@@ -514,6 +514,23 @@ toolbar[mode="text"] > #window-controls > toolbarbutton > .toolbarbutton-icon {
 
 /* ::::: autocomplete ::::: */
 
+#PopupAutoComplete > richlistbox > richlistitem {
+  height: 20px;
+  min-height: 20px;
+  border: 0;
+  border-radius: 0;
+  padding: 0px 1px 0px 1px;
+}
+
+#PopupAutoComplete > richlistbox > richlistitem > .ac-title {
+  font: icon;
+  margin-inline-start: 6px;
+}
+
+#PopupAutoComplete > richlistbox {
+  padding: 0;
+}
+
 .autocomplete-history-dropmarker {
   border-right-width: 1px;
   border-bottom-width: 1px;

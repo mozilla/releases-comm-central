@@ -26,6 +26,9 @@ XPCOMUtils.defineLazyModuleGetter(this, "PlacesUtils",
 XPCOMUtils.defineLazyModuleGetter(this, "PlacesBackups",
                                   "resource://gre/modules/PlacesBackups.jsm");
 
+XPCOMUtils.defineLazyModuleGetter(this, "AutoCompletePopup",
+                                  "resource://gre/modules/AutoCompletePopup.jsm");
+
 XPCOMUtils.defineLazyModuleGetter(this, "BookmarkHTMLUtils",
                                   "resource://gre/modules/BookmarkHTMLUtils.jsm");
 
@@ -178,6 +181,8 @@ SuiteGlue.prototype = {
         this._onQuitRequest(subject, data);
         break;
       case "quit-application-granted":
+        AutoCompletePopup.uninit();
+
         if (this._saveSession) {
           this._setPrefToSaveSession();
         }
@@ -466,6 +471,8 @@ SuiteGlue.prototype = {
   // Browser startup complete. All initial windows have opened.
   _onBrowserStartup: function(aWindow)
   {
+    AutoCompletePopup.init();
+
     if (Services.prefs.getBoolPref("plugins.update.notifyUser"))
       this._showPluginUpdatePage(aWindow);
 

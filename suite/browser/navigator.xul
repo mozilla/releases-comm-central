@@ -108,7 +108,10 @@
                onclick="checkForMiddleClick(this, event);"/>
 
     <!-- for search and content formfill/pw manager -->
-    <panel id="PopupAutoComplete" type="autocomplete" noautofocus="true"/>
+    <panel id="PopupAutoComplete"
+           type="autocomplete-richlistbox"
+           noautofocus="true"
+           hidden="true"/>
 
     <!-- for invalid form error message -->
     <panel id="invalid-form-popup" noautofocus="true" hidden="true" level="parent">
