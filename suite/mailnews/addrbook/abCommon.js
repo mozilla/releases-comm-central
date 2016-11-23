@@ -437,19 +437,23 @@ function DirPaneClick(event)
 
 function DirPaneDoubleClick(event)
 {
-  // we only care about left button events
+  // We only care about left button events.
   if (event.button != 0)
     return;
 
-  var row = gDirTree.treeBoxObject.getRowAt(event.clientX, event.clientY);
-  if (row == -1 || row >= gDirectoryTreeView.rowCount) {
-    // double clicking on a non valid row should not open the dir properties dialog
+  // Ignore double clicking on invalid rows.
+  let row = gDirTree.treeBoxObject.getRowAt(event.clientX, event.clientY);
+  if (row == -1 || row >= gDirectoryTreeView.rowCount)
     return;
-  }
 
-  if (gDirectoryTreeView.selection &&
-      gDirectoryTreeView.selection.count == 1)
+  // Default action for double click is expand/collapse which ships with the tree.
+  // For convenience, allow double-click to edit the properties of mailing
+  // lists in directory tree.
+  if (gDirTree && gDirTree.view.selection &&
+      gDirTree.view.selection.count == 1 &&
+      getSelectedDirectory().isMailList) {
     AbEditSelectedDirectory();
+  }
 }
 
 function DirPaneSelectionChange()
