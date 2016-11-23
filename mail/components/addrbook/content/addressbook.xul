@@ -200,7 +200,7 @@
 
 <keyset id="baseMenuKeyset"/>
 
-<menupopup id="dirTreeContext">
+<menupopup id="dirTreeContext" onpopupshowing="updateDirTreeContext();">
   <menuitem id="dirTreeContext-properties"
             command="cmd_properties-contextMenu"/>
   <menuseparator/>
@@ -210,6 +210,12 @@
             label="&newlistButton.label;"
             accesskey="&newlistButton.accesskey;"
             command="cmd_newlist"/>
+  <menuitem id="dirTreeContext-startupDir"
+            label="&showAsDefault.label;"
+            accesskey="&showAsDefault.accesskey;"
+            type="checkbox"
+            checked="false"
+            oncommand="goDoCommand('cmd_abToggleStartupDir');"/>
   <menuseparator/>
   <menuitem id="dirTreeContext-delete"
             label="&deleteButton2.label;"

@@ -18,56 +18,117 @@
            parent menulist. Defaults to URI but can be e.g. dirPrefId -->
       <field name="_value">this.getAttribute("value") || "URI"</field>
 
+      <field name="_stringBundle">null</field>
+
       <constructor>
         <![CDATA[
-          Components.utils.import("resource:///modules/mailServices.js");
-          // Init the address book cache.
-          const nsIAbDirectory = Components.interfaces.nsIAbDirectory;
-          let directories = MailServices.ab.directories;
-          while (directories && directories.hasMoreElements()) {
-            var ab = directories.getNext();
-            if (ab instanceof nsIAbDirectory && this._matches(ab))
-              this._directories.push(ab);
-          }
+          Components.utils.import("resource:///modules/mailServices.js", this);
+          Components.utils.import("resource:///modules/iteratorUtils.jsm", this);
+          Components.utils.import("resource:///modules/StringBundle.js", this);
+          this._stringBundle = new this
+              .StringBundle("chrome://messenger/locale/addressbook/addressBook.properties");
 
-          this._directories.sort(this._compare);
-
-          // Now create menuitems for all displayed directories.
-          var menulist = this.parentNode;
-          var value = this._value;
-          this._directories.forEach(function (ab) {
-            menulist.appendItem(ab.dirName, ab[value]);
-          });
-          if (this.hasAttribute("none")) {
-            // Create a dummy menuitem representing no selection.
-            this._directories.unshift(null);
-            menulist.insertItemAt(0, this.getAttribute("none"), "");
-          }
-
-          // Attempt to select the persisted or otherwise first directory.
-          menulist.value = menulist.value;
-          if (!menulist.selectedItem && this.hasChildNodes())
-            menulist.selectedIndex = 0;
-
+          this._rebuild();
           const nsIAbListener = Components.interfaces.nsIAbListener;
           // Add a listener so we can update correctly if the list should change
-          MailServices.ab.addAddressBookListener(this,
-                                                 nsIAbListener.itemAdded |
-                                                 nsIAbListener.directoryRemoved |
-                                                 nsIAbListener.itemChanged);
+          this.MailServices.ab
+              .addAddressBookListener(this,
+                                      nsIAbListener.itemAdded |
+                                      nsIAbListener.directoryItemRemoved |
+                                      nsIAbListener.directoryRemoved |
+                                      nsIAbListener.itemChanged);
         ]]>
       </constructor>
 
       <destructor>
         <![CDATA[
-          Components.utils.import("resource:///modules/mailServices.js");
-          MailServices.ab.removeAddressBookListener(this);
+          this.MailServices.ab.removeAddressBookListener(this);
 
-          // Empty out anything in the list.
-          while (this.hasChildNodes())
-            this.lastChild.remove();
+          this._teardown();
         ]]>
       </destructor>
+
+      <method name="_rebuild">
+        <parameter name="aSelectValue"/>
+        <body><![CDATA[
+          // Init the address book cache.
+          this._directories.length = 0;
+          const nsIAbDirectory = Components.interfaces.nsIAbDirectory;
+          let directories = this.MailServices.ab.directories;
+          while (directories && directories.hasMoreElements()) {
+            let ab = directories.getNext();
+            if ((ab instanceof nsIAbDirectory) && this._matches(ab)) {
+              this._directories.push(ab);
+              if (this.getAttribute("mailinglists") == "true") {
+                // Also append contained mailinglists.
+                for (let list of this.fixIterator(ab.childNodes, Components.interfaces.nsIAbDirectory)) {
+                  if (this._matches(list))
+                    this._directories.push(list);
+                }
+              }
+            }
+          }
+
+          this._sort();
+
+          this._teardown();
+
+          // Now create menuitems for all displayed directories.
+          let menulist = this.parentNode;
+          let value = this._value;
+          for (let ab of this._directories) {
+            let listItem = menulist.appendItem(ab.dirName, ab[value]);
+            listItem.setAttribute("class", "menuitem-iconic abMenuItem");
+
+            // Style the items by type.
+            if (ab.isMailList)
+              listItem.setAttribute("MailList", "true");
+            else
+              listItem.setAttribute("AddrBook", "true");
+
+            if (ab.isRemote)
+              listItem.setAttribute("IsRemote", "true");
+            if (ab.isSecure)
+              listItem.setAttribute("IsSecure", "true");
+          }
+
+          if (this.hasAttribute("alladdressbooks")) {
+            // Insert a menuitem representing All addressbooks.
+            let allABLabel = this.getAttribute("alladdressbooks");
+            if (allABLabel == "true")
+              allABLabel = this._stringBundle.getString("allAddressBooks");
+            const allABURI = "moz-abdirectory://?";
+            this._directories.unshift(null);
+            let listItem = menulist.insertItemAt(0, allABLabel, allABURI);
+            listItem.setAttribute("class", "menuitem-iconic abMenuItem");
+            listItem.setAttribute("AddrBook", "true");
+            listItem.setAttribute("IsAllAB", "true");
+          }
+
+          if (this.hasAttribute("none")) {
+            // Create a dummy menuitem representing no selection.
+            this._directories.unshift(null);
+            let listItem = menulist.insertItemAt(0, this.getAttribute("none"), "");
+            listItem.setAttribute("class", "menuitem-iconic abMenuItem");
+            listItem.setAttribute("IsNone", "true");
+          }
+
+          // Attempt to select the persisted or otherwise first directory.
+          menulist.value = aSelectValue || this.parentNode.value;
+          if (!menulist.selectedItem && this.hasChildNodes())
+            menulist.selectedIndex = 0;
+        ]]></body>
+      </method>
+
+      <method name="_teardown">
+        <body><![CDATA[
+          // Empty out anything in the list.
+          // (Don't use menulist.removeAllItems() as it would remove
+          // the menupopup with our special attributes too.)
+          while (this.hasChildNodes())
+            this.lastChild.remove();
+        ]]></body>
+      </method>
 
       <!-- nsIAbListener methods -->
       <method name="onItemAdded">
@@ -76,12 +137,8 @@
         <body><![CDATA[
           // Are we interested in this new directory?
           if (aItem instanceof Components.interfaces.nsIAbDirectory &&
-              !aItem.isMailList && this._matches(aItem)) {
-            this._directories.push(aItem);
-            this._directories.sort(this._compare);
-            // Insert the new menuitem at the position to which it was sorted.
-            this.parentNode.insertItemAt(this._directories.indexOf(aItem),
-                                         aItem.dirName, aItem[this._value]);
+              this._matches(aItem)) {
+            this._rebuild();
           }
         ]]></body>
       </method>
@@ -90,22 +147,24 @@
         <parameter name="aParentDir"/>
         <parameter name="aItem"/>
         <body><![CDATA[
-          if (aItem instanceof Components.interfaces.nsIAbDirectory &&
-              !aItem.isMailList) {
-            // Find the item in the list to remove
-            // We can't use indexOf here because we need loose equality
+          if (aItem instanceof Components.interfaces.nsIAbDirectory) {
+            // Find the item in the list to remove.
+            // We can't use indexOf here because we need loose equality.
             for (var index = this._directories.length; --index >= 0; )
               if (this._directories[index] == aItem)
                 break;
-            if (index != -1)
+            if (index != -1) {
+              this._directories.splice(index, 1);
               // Are we removing the selected directory?
               if (this.parentNode.selectedItem ==
-                  this.removeChild(this.childNodes[index]))
+                  this.removeChild(this.childNodes[index])) {
                 // If so, try to select the first directory, if available.
                 if (this.hasChildNodes())
                   this.firstChild.doCommand();
                 else
                   this.parentNode.selectedItem = null;
+              }
+            }
           }
         ]]></body>
       </method>
@@ -116,26 +175,14 @@
         <parameter name="aOldValue"/>
         <parameter name="aNewValue"/>
         <body><![CDATA[
-          if (aItem instanceof Components.interfaces.nsIAbDirectory &&
-              !aItem.isMailList) {
+          if (aItem instanceof Components.interfaces.nsIAbDirectory) {
             // Find the item in the list to rename.
-            // We can't use indexOf here because we need loose equality
+            // We can't use indexOf here because we need loose equality.
             for (var oldIndex = this._directories.length; --oldIndex >= 0; )
               if (this._directories[oldIndex] == aItem)
                 break;
-            if (oldIndex != -1) {
-              // Cache the matching item so that we can use indexOf next time.
-              aItem = this._directories[oldIndex];
-              var child = this.childNodes[oldIndex];
-              child.label = aItem.dirName;
-              this._directories.sort(this._compare);
-              // Reorder the menuitems if renaming changed the directory index.
-              var newIndex = this._directories.indexOf(aItem);
-              if (newIndex < oldIndex)
-                this.insertBefore(child, this.childNodes[newIndex]);
-              else if (newIndex > oldIndex)
-                this.insertBefore(child, this.childNodes[newIndex].nextSibling);
-            }
+            if (oldIndex != -1)
+              this._rebuild();
           }
         ]]></body>
       </method>
@@ -155,6 +202,43 @@
             return false;
 
           return this.getAttribute(ab.isRemote ? "localonly" : "remoteonly") != "true";
+        ]]></body>
+      </method>
+
+      <!-- Sort all our directories. -->
+      <method name="_sort">
+        <body><![CDATA[
+          let lists = {};
+          let lastAB;
+          // If there are any mailing lists, pull them out of the array temporarily.
+          for (let d = 0; d < this._directories.length; d++) {
+            if (this._directories[d].isMailList) {
+              let [list] = this._directories.splice(d, 1);
+              if (!(lastAB in lists))
+                lists[lastAB] = [];
+              lists[lastAB].push(list);
+              d--;
+            } else {
+              lastAB = this._directories[d].URI;
+            }
+          }
+
+          this._directories.sort(this._compare);
+
+          // Push mailing lists back appending them after their respective
+          // containing addressbook.
+          for (let d = this._directories.length - 1; d >= 0; d--) {
+            let abURI = this._directories[d].URI;
+            if (abURI in lists) {
+              lists[abURI].sort(function(a,b) { return a.dirName.localeCompare(b.dirName); });
+              let listIndex = d;
+              for (let list of lists[abURI]) {
+                listIndex++;
+                this._directories.splice(listIndex, 0, list);
+              }
+              delete lists[abURI];
+            }
+          }
         ]]></body>
       </method>
 

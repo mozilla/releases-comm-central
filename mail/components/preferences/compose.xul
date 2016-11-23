@@ -219,6 +219,17 @@
                            localonly="true" writable="true"/>
               </menulist>
             </hbox>
+
+           <hbox align="center" pack="start">
+             <label value="&showAsDefault.label;" accesskey="&showAsDefault.accesskey;"/>
+             <menulist id="defaultStartupDirList" flex="1"
+                       oncommand="gComposePane.setDefaultStartupDir(this.value);">
+               <menupopup class="addrbooksPopup"
+                          none="&showAsDefaultLast.label;"
+                          alladdressbooks="true"
+                          mailinglists="true"/>
+             </menulist>
+           </hbox>
          </tabpanel>
 
          <tabpanel orient="vertical">

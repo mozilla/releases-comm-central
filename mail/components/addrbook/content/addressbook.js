@@ -292,6 +292,7 @@ function CommandUpdate_AddressBook()
   goUpdateCommand('cmd_delete');
   goUpdateCommand('button_delete');
   goUpdateCommand('cmd_properties');
+  goUpdateCommand("cmd_abToggleStartupDir");
   goUpdateCommand('cmd_newlist');
   goUpdateCommand('cmd_newCard');
   goUpdateCommand('cmd_chatWithCard');

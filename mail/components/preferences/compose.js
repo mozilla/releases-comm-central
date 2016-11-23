@@ -26,6 +26,8 @@ var gComposePane = {
 
     this.updateEmailCollection();
 
+    this.initAbDefaultStartupDir();
+
     if (!(("arguments" in window) && window.arguments[1])) {
       // If no tab was specified, select the last used tab.
       let preference = document.getElementById("mail.preferences.compose.selectedTabIndex");
@@ -116,6 +118,40 @@ var gComposePane = {
     }
   },
 
+  initAbDefaultStartupDir: function() {
+    if (!this.startupDirListener.inited)
+      this.startupDirListener.load();
+
+    let dirList = document.getElementById("defaultStartupDirList");
+    if (Services.prefs.getBoolPref("mail.addr_book.view.startupURIisDefault")) {
+      // Some directory is the default.
+      let startupURI = Services.prefs.getCharPref("mail.addr_book.view.startupURI");
+      let dirItem = dirList.menupopup.querySelector('[value="' + startupURI + '"]');
+      // It may happen that the stored URI is not in the list.
+      // In that case select the "none" value and let the AB code clear out
+      // the invalid value, unless the user selects something here.
+      if (dirItem)
+        dirList.selectedItem = dirItem;
+      else
+        dirList.value = "";
+    } else {
+      // Choose item meaning there is no default startup directory any more.
+      dirList.value = "";
+    }
+  },
+
+  setDefaultStartupDir: function(aDirURI) {
+    if (aDirURI) {
+      // Some AB directory was selected. Set prefs to make this directory
+      // the default view when starting up the main AB.
+      Services.prefs.setCharPref("mail.addr_book.view.startupURI", aDirURI);
+      Services.prefs.setBoolPref("mail.addr_book.view.startupURIisDefault", true);
+    } else {
+      // Set pref that there's no default startup view directory any more.
+      Services.prefs.setBoolPref("mail.addr_book.view.startupURIisDefault", false);
+    }
+  },
+
   initLanguageMenu: function ()
   {
     var languageMenuList = document.getElementById("languageMenuList");
@@ -175,7 +211,7 @@ var gComposePane = {
     // Choose the item after the list is completely generated.
     var preference = document.getElementById(fontsList.getAttribute("preference"));
     fontsList.value = preference.value;
-   },
+  },
 
    restoreHTMLDefaults: function()
    {
@@ -196,5 +232,30 @@ var gComposePane = {
      try {
        document.getElementById('msgcompose.background_color').reset();
      } catch (ex) {}
-   }
+  },
+
+  startupDirListener: {
+    inited: false,
+    domain: "mail.addr_book.view.startupURI",
+    observe: function(subject, topic, prefName) {
+      if (topic != "nsPref:changed")
+        return;
+
+      // If the default startup directory prefs have changed,
+      // reinitialize the default startup dir picker to show the new value.
+      gComposePane.initAbDefaultStartupDir();
+    },
+    load: function() {
+      // Observe changes of our prefs.
+      Services.prefs.addObserver(this.domain, this, false);
+      // Unload the pref observer when preferences window is closed.
+      window.addEventListener("unload", this.unload, true);
+      this.inited = true;
+    },
+
+    unload: function(event) {
+      Services.prefs.removeObserver(gComposePane.startupDirListener.domain,
+                                    gComposePane.startupDirListener);
+    }
+  }
 };

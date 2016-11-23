@@ -45,6 +45,7 @@ var DirPaneController =
       case "cmd_delete":
       case "button_delete":
       case "cmd_properties":
+      case "cmd_abToggleStartupDir":
       case "cmd_printcard":
       case "cmd_printcardpreview":
       case "cmd_newlist":
@@ -136,6 +137,8 @@ var DirPaneController =
           labelAttr, accKeyAttr);
         return (selectedDir != null);
       }
+      case "cmd_abToggleStartupDir":
+        return !!getSelectedDirectoryURI();
       case "cmd_newlist":
       case "cmd_newCard":
         return true;
@@ -159,6 +162,9 @@ var DirPaneController =
         break;
       case "cmd_properties":
         AbEditSelectedDirectory();
+        break;
+      case "cmd_abToggleStartupDir":
+        abToggleSelectedDirStartup();
         break;
       case "cmd_newlist":
         AbNewList();
@@ -216,6 +222,41 @@ function AbEditSelectedDirectory()
                       "chrome,modal,resizable=no,centerscreen",
                       {selectedDirectory: selectedDir});
   }
+}
+
+function updateDirTreeContext() {
+  let startupItem = document.getElementById("dirTreeContext-startupDir");
+  if (Services.prefs.getBoolPref("mail.addr_book.view.startupURIisDefault")) {
+    let startupURI = Services.prefs.getCharPref("mail.addr_book.view.startupURI");
+    let selectedDirURI = getSelectedDirectoryURI();
+    startupItem.setAttribute("checked", (startupURI == selectedDirURI));
+  } else {
+    startupItem.setAttribute("checked", "false");
+  }
+}
+
+function abToggleSelectedDirStartup()
+{
+  let selectedDirURI = getSelectedDirectoryURI();
+  if (!selectedDirURI)
+    return;
+
+  let isDefault = Services.prefs.getBoolPref("mail.addr_book.view.startupURIisDefault");
+  let startupURI = Services.prefs.getCharPref("mail.addr_book.view.startupURI");
+
+  if (isDefault && (startupURI == selectedDirURI)) {
+    // The current directory has been the default startup view directory;
+    // toggle that off now. So there's no default startup view directory any more.
+    Services.prefs.setBoolPref("mail.addr_book.view.startupURIisDefault", false);
+  } else {
+    // The current directory will now be the default view
+    // when starting up the main AB window.
+    Services.prefs.setCharPref("mail.addr_book.view.startupURI", selectedDirURI);
+    Services.prefs.setBoolPref("mail.addr_book.view.startupURIisDefault", true);
+  }
+
+  // Update the checkbox in the menuitem.
+  goUpdateCommand("cmd_abToggleStartupDir");
 }
 
 function AbDeleteSelectedDirectory()

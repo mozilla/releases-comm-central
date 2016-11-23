@@ -82,3 +82,21 @@ notification[value="addon-install-failed"] {
 #findbar-beforeReplaceSeparator {
   height: 16px;
 }
+
+/* ::::: Address Book menuitem icons ::::: */
+
+.abMenuItem[AddrBook="true"] {
+  list-style-image: url("chrome://messenger/skin/addressbook/icons/addrbook.png");
+}
+
+.abMenuItem[MailList="true"] {
+  list-style-image: url("chrome://messenger/skin/addressbook/icons/ablist.png");
+}
+
+.abMenuItem[AddrBook="true"][IsRemote="true"] {
+  list-style-image: url("chrome://messenger/skin/addressbook/icons/remote-addrbook.png");
+}
+
+.abMenuItem[AddrBook="true"][IsRemote="true"][IsSecure="true"] {
+  list-style-image: url("chrome://messenger/skin/addressbook/icons/secure-remote-addrbook.png");
+}
