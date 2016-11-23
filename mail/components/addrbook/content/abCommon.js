@@ -473,6 +473,31 @@ function SelectFirstAddressBook()
   gAbResultsTree.focus();
 }
 
+/**
+ * Get the startup view directory from pref and select it in the
+ * directory tree so that it gets shown.
+ */
+function selectStartupViewDirectory()
+{
+  let startupURI = Services.prefs.getCharPref("mail.addr_book.view.startupURI");
+  if (!startupURI) {
+    // If pref is empty, fall back to "All Address Books" root directory.
+    startupURI = kAllDirectoryRoot + "?"
+  }
+  let startupDirTreeIndex = gDirectoryTreeView.getIndexForId(startupURI);
+  // XXX TODO: If directory of startupURI is collapsed, we fail to find and
+  // select it, so getIndexForId returns -1; for now, fall back to "All Address
+  // Books" root directory.
+  // We also end up here and redirect to "All ABs" root when default directory
+  // is not found because it has been deleted; after fixing the collapsed case,
+  // deletion will be the only case to end up here, then we could reset the pref
+  // here (somewhat lazy and fuzzy).
+  if (startupDirTreeIndex == -1) {
+    startupDirTreeIndex = gDirectoryTreeView.getIndexForId(kAllDirectoryRoot + "?");
+  }
+  gDirectoryTreeView.selection.select(startupDirTreeIndex);
+}
+
 function DirPaneClick(event)
 {
   // we only care about left button events

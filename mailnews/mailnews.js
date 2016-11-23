@@ -155,6 +155,9 @@ pref("mail.accountwizard.deferstorage", false);
 pref("mail.showCondensedAddresses", false);
 #endif
 
+pref("mail.addr_book.view.startupURI", "moz-abdirectory://?");
+pref("mail.addr_book.view.startupURIisDefault", true);
+
 // mail.addr_book.quicksearchquery.format is the model query used for:
 // * TB: AB Quick Search and composition's Contact Side Bar
 // * SM: AB Quick Search and composition's Select Addresses dialogue

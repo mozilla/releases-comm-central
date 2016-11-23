@@ -4,20 +4,19 @@
 
 <!-- Title -->
 <!ENTITY mailListWindowAdd.title        "New Mailing List">
-<!-- Labels -->
-<!ENTITY addToAddressBook.label         "Add to: ">
 
+<!-- Labels and Access Keys -->
+<!ENTITY addToAddressBook.label         "Add to: ">
+<!ENTITY addToAddressBook.accesskey     "A">
 <!ENTITY ListName.label                 "List Name: ">
+<!ENTITY ListName.accesskey             "L">
 <!ENTITY ListNickName.label             "List Nickname: ">
+<!ENTITY ListNickName.accesskey         "N">
 <!ENTITY ListDescription.label          "Description: ">
+<!ENTITY ListDescription.accesskey      "D">
 <!-- See bug 58485, when we implement drag and drop, add 'or drag addresses' back in -->
 <!ENTITY AddressTitle.label             "Type email addresses to add them to the mailing list:">
+<!ENTITY AddressTitle.accesskey         "m">
 <!ENTITY UpButton.label                 "Move Up">
 <!ENTITY DownButton.label               "Move Down">
-
-<!-- Access Keys -->
-<!ENTITY addToAddressBook.accesskey     "A">
-<!ENTITY ListName.accesskey             "L">
-<!ENTITY ListNickName.accesskey         "N">
-<!ENTITY ListDescription.accesskey      "e">
 

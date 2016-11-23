@@ -48,7 +48,9 @@
     </hbox>
 
     <spacer style="height:1em"/>
-    <label control="addressingWidget" value="&AddressTitle.label;"/>
+    <label control="addressCol1#1"
+           value="&AddressTitle.label;"
+           accesskey="&AddressTitle.accesskey;"/>
     <spacer style="height:0.1em"/>
 
     <listbox id="addressingWidget" style="height: 15em;" onclick="awClickEmptySpace(event.target, true)">

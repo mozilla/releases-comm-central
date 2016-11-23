@@ -101,6 +101,13 @@ var gAddressBookAbListener = {
 
 function OnUnloadAddressBook()
 {
+  // If there's no default startupURI, save the last used URI as new startupURI.
+  let saveLastURIasStartupURI = !Services.prefs.getBoolPref("mail.addr_book.view.startupURIisDefault");
+  if (saveLastURIasStartupURI) {
+    let selectedDirURI = getSelectedDirectoryURI();
+    Services.prefs.setCharPref("mail.addr_book.view.startupURI", selectedDirURI);
+  }
+
   MailServices.ab.removeAddressBookListener(gAddressBookAbListener);
   MailServices.ab.removeAddressBookListener(gDirectoryTreeView);
 
@@ -175,7 +182,8 @@ function delayedOnLoadAddressBook()
   gDirectoryTreeView.init(gDirTree,
                           kPersistCollapseMapStorage);
 
-  SelectFirstAddressBook();
+  selectStartupViewDirectory();
+  gAbResultsTree.focus();
 
   // if the pref is locked disable the menuitem New->LDAP directory
   if (Services.prefs.prefIsLocked("ldap_2.disable_button_add"))
