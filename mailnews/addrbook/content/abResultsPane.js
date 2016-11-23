@@ -7,7 +7,7 @@
 /**
  * Use of items in this file require:
  *
- * GetSelectedDirectory()
+ * getSelectedDirectoryURI()
  *   returns the URI of the selected directory
  * AbResultsPaneDoubleClick(card)
  *   Is called when the results pane is double-clicked, with the clicked card.

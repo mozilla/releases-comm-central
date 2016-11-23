@@ -9,12 +9,12 @@ Components.utils.import("resource:///modules/mailServices.js");
 Components.utils.import("resource:///modules/IOUtils.js");
 
 var gDirTree;
-var abList = 0;
+var abList = null;
 var gAbResultsTree = null;
 var gAbView = null;
 var gAddressBookBundle;
-// A boolean variable determining whether AB column should be shown in AB
-// sidebar in compose window.
+// A boolean variable determining whether AB column should be shown
+// in Contacts Sidebar in compose window.
 var gShowAbColumnInComposeSidebar = false;
 
 var kDefaultSortColumn = "GeneratedName";
@@ -57,64 +57,70 @@ var DirPaneController =
 
   isCommandEnabled: function(command)
   {
-    var selectedDir;
-
     switch (command) {
       case "cmd_selectAll":
-        // the gDirTree pane
-        // only handles single selection
-        // so we forward select all to the results pane
-        // but if there is no gAbView
-        // don't bother sending to the results pane
+        // The gDirTree pane only handles single selection, but normally we
+        // enable cmd_selectAll as it will get forwarded to the results pane.
+        // But if there is no gAbView, disable as we can't forward to anywhere.
         return (gAbView != null);
       case "cmd_delete":
-      case "button_delete":
-        var selectedDir = GetSelectedDirectory();
-        if (command == "cmd_delete" && selectedDir)
-          goSetMenuValue(command, GetDirectoryFromURI(selectedDir).isMailList ?
+      case "button_delete": {
+        let selectedDir = getSelectedDirectory();
+        let selectedDirURI = selectedDir.URI;
+
+        // Context-sensitive labels for Edit > Delete menuitem.
+        // We only have ABs or Mailing Lists in the directory pane.
+        // For contacts and mixed selections, the label is set in
+        // ResultsPaneController in abResultsPane.js.
+        if (command == "cmd_delete" && selectedDir) {
+          goSetMenuValue(command, selectedDir.isMailList ?
                                   "valueList" : "valueAddressBook");
-
-        if (selectedDir &&
-            (selectedDir != kPersonalAddressbookURI) &&
-            (selectedDir != kCollectedAddressbookURI) &&
-            (selectedDir != (kAllDirectoryRoot + "?"))) {
-          // If the directory is a mailing list, and it is read-only, return
-          // false.
-          var abDir = GetDirectoryFromURI(selectedDir);
-          if (abDir.isMailList && abDir.readOnly)
-            return false;
-
-          // If the selected directory is an ldap directory
-          // and if the prefs for this directory are locked
-          // disable the delete button.
-          if (selectedDir.startsWith(kLdapUrlPrefix))
-          {
-            var disable = false;
-            try {
-              var prefName = selectedDir.substr(kLdapUrlPrefix.length);
-              disable = Services.prefs.getBoolPref(prefName + ".disable_delete");
-            }
-            catch(ex) {
-              // if this preference is not set its ok.
-            }
-            if (disable)
-              return false;
-          }
-          return true;
         }
-        else
+
+        // If there's no directory selected, or if it's one of these special ABs,
+        // return false to disable deletion.
+        if (!selectedDir ||
+             (selectedDirURI == kPersonalAddressbookURI) ||
+             (selectedDirURI == kCollectedAddressbookURI) ||
+             (selectedDirURI == (kAllDirectoryRoot + "?")))
           return false;
+
+        // If the directory is a mailing list, and it is read-only,
+        // return false to disable deletion.
+        if (selectedDir.isMailList && selectedDir.readOnly)
+          return false;
+
+        // If the selected directory is an ldap directory,
+        // and if the prefs for this directory are locked,
+        // return false to disable deletion.
+        if (selectedDirURI.startsWith(kLdapUrlPrefix))
+        {
+          let disable = false;
+          try {
+            let prefName = selectedDirURI.substr(kLdapUrlPrefix.length);
+            disable = Services.prefs.getBoolPref(prefName + ".disable_delete");
+          }
+          catch(ex) {
+            // If this preference is not set, that's ok.
+          }
+          if (disable)
+            return false;
+        }
+
+        // Else return true to enable deletion (default).
+        return true;
+      }
       case "cmd_printcard":
       case "cmd_printcardpreview":
         return (GetSelectedCardIndex() != -1);
-      case "cmd_properties":
+      case "cmd_properties": {
         let labelAttr = "valueGeneric";
         let accKeyAttr = "valueGenericAccessKey";
         let tooltipTextAttr = "valueGenericTooltipText";
         let isMailList;
-        var selectedDir = GetSelectedDirectory();
+        let selectedDir = getSelectedDirectory();
         if (selectedDir) {
-          isMailList = GetDirectoryFromURI(selectedDir).isMailList;
+          isMailList = selectedDir.isMailList;
           labelAttr = isMailList ? "valueMailingList"
                                  : "valueAddressBook";
           accKeyAttr = isMailList ? "valueMailingListAccessKey"
@@ -129,6 +135,7 @@ var DirPaneController =
         goSetLabelAccesskeyTooltiptext("cmd_properties-menu",
           labelAttr, accKeyAttr);
         return (selectedDir != null);
+      }
       case "cmd_newlist":
       case "cmd_newCard":
         return true;
@@ -197,29 +204,27 @@ function AbNewAddressBook()
 
 function AbEditSelectedDirectory()
 {
-  if (gDirTree.view.selection.count == 1) {
-    var selecteduri = GetSelectedDirectory();
-    var directory = GetDirectoryFromURI(selecteduri);
-    if (directory.isMailList) {
-      var dirUri = GetParentDirectoryFromMailingListURI(selecteduri);
-      goEditListDialog(null, selecteduri);
-    }
-    else {
-      window.openDialog(directory.propertiesChromeURI,
-                        "",
-                        "chrome,modal,resizable=no,centerscreen",
-                        {selectedDirectory: directory});
-    }
+  let selectedDir = getSelectedDirectory();
+  if (!selectedDir)
+    return;
+
+  if (selectedDir.isMailList) {
+    goEditListDialog(null, selectedDir.URI);
+  } else {
+    window.openDialog(selectedDir.propertiesChromeURI,
+                      "",
+                      "chrome,modal,resizable=no,centerscreen",
+                      {selectedDirectory: selectedDir});
   }
 }
 
 function AbDeleteSelectedDirectory()
 {
-  var selectedABURI = GetSelectedDirectory();
-  if (!selectedABURI)
+  let selectedDirURI = getSelectedDirectoryURI();
+  if (!selectedDirURI)
     return;
 
-  AbDeleteDirectory(selectedABURI);
+  AbDeleteDirectory(selectedDirURI);
 }
 
 function AbDeleteDirectory(aURI)
@@ -234,8 +239,7 @@ function AbDeleteDirectory(aURI)
     // Check if this address book is being used for collection
     if (Services.prefs.getCharPref("mail.collect_addressbook") == aURI &&
         Services.prefs.getBoolPref("mail.collect_email_address_outgoing")) {
-      var brandShortName = document.getElementById("bundle_brand").getString("brandShortName");
-
+      let brandShortName = document.getElementById("bundle_brand").getString("brandShortName");
       confirmDeleteMessage = gAddressBookBundle.getFormattedString("confirmDeleteCollectionAddressbook", [brandShortName]);
       clearPrefsRequired = true;
     }
@@ -315,7 +319,7 @@ function AbDelete()
 
   if (confirmDeleteMessage &&
       Services.prompt.confirm(window, null, confirmDeleteMessage)) {
-    if (GetSelectedDirectory() != (kAllDirectoryRoot + "?")) {
+    if (getSelectedDirectoryURI() != (kAllDirectoryRoot + "?")) {
       gAbView.deleteSelectedCards();
     } else {
       let cards = GetSelectedAbCards();
@@ -339,7 +343,7 @@ function AbDelete()
 
 function AbNewCard()
 {
-  goNewCardDialog(GetSelectedDirectory());
+  goNewCardDialog(getSelectedDirectoryURI());
 }
 
 function AbEditCard(card)
@@ -353,38 +357,34 @@ function AbEditCard(card)
     goEditListDialog(card, card.mailListURI);
   }
   else {
-    goEditCardDialog(GetSelectedDirectory(), card);
+    goEditCardDialog(getSelectedDirectoryURI(), card);
   }
 }
 
 function AbNewMessage()
 {
-  var msgComposeType = Components.interfaces.nsIMsgCompType;
-  var msgComposFormat = Components.interfaces.nsIMsgCompFormat;
+  let msgComposeType = Components.interfaces.nsIMsgCompType;
+  let msgComposeFormat = Components.interfaces.nsIMsgCompFormat;
 
-  var params = Components.classes["@mozilla.org/messengercompose/composeparams;1"].createInstance(Components.interfaces.nsIMsgComposeParams);
-  if (params)
-  {
+  let params = Components.classes["@mozilla.org/messengercompose/composeparams;1"].createInstance(Components.interfaces.nsIMsgComposeParams);
+  if (params) {
     params.type = msgComposeType.New;
-    params.format = msgComposFormat.Default;
-    var composeFields = Components.classes["@mozilla.org/messengercompose/composefields;1"].createInstance(Components.interfaces.nsIMsgCompFields);
-    if (composeFields)
-    {
-      if (DirPaneHasFocus())
-      {
-        var directory = gDirectoryTreeView.getDirectoryAtIndex(gDirTree.currentIndex);
-        var hidesRecipients = false;
-
+    params.format = msgComposeFormat.Default;
+    let composeFields = Components.classes["@mozilla.org/messengercompose/composefields;1"].createInstance(Components.interfaces.nsIMsgCompFields);
+    if (composeFields) {
+      if (DirPaneHasFocus()) {
+        let selectedDir = getSelectedDirectory();
+        let hidesRecipients = false;
         try {
           // This is a bit of hackery so that extensions can have mailing lists
           // where recipients are sent messages via BCC.
-          hidesRecipients = directory.getBoolValue("HidesRecipients", false);
+          hidesRecipients = selectedDir.getBoolValue("HidesRecipients", false);
         } catch(e) {
           // Standard Thunderbird mailing lists do not have preferences
           // associated with them, so we'll silently eat the error.
         }
 
-        if (directory && directory.isMailList && hidesRecipients)
+        if (selectedDir && selectedDir.isMailList && hidesRecipients)
           // Bug 669301 (https://bugzilla.mozilla.org/show_bug.cgi?id=669301)
           // We're using BCC right now to hide recipients from one another.
           // We should probably use group syntax, but that's broken
@@ -392,10 +392,9 @@ function AbNewMessage()
           composeFields.bcc = GetSelectedAddressesFromDirTree();
         else
           composeFields.to = GetSelectedAddressesFromDirTree();
-      }
-      else
+      } else {
         composeFields.to = GetSelectedAddresses();
-
+      }
       params.composeFields = composeFields;
       MailServices.compose.OpenComposeWindowWithParams(null, params);
     }
@@ -424,24 +423,21 @@ function InitViewLayoutMenuPopup(event) {
 // an empty string is returned.
 function GetSelectedAddressesFromDirTree()
 {
-  var addresses = "";
+  let selectedDir = getSelectedDirectory();
 
-  if (gDirTree.currentIndex >= 0) {
-    var directory = gDirectoryTreeView.getDirectoryAtIndex(gDirTree.currentIndex);
-    if (directory.isMailList) {
-      var listCardsCount = directory.addressLists.length;
-      var cards = new Array(listCardsCount);
-      for (var i = 0; i < listCardsCount; ++i)
-        cards[i] = directory.addressLists
-                            .queryElementAt(i, Components.interfaces.nsIAbCard);
-      addresses = GetAddressesForCards(cards);
-    }
-  }
-  return addresses;
+  if (!selectedDir || !selectedDir.isMailList)
+    return "";
+
+  let listCardsCount = selectedDir.addressLists.length;
+  let cards = new Array(listCardsCount);
+  for (let i = 0; i < listCardsCount; ++i)
+    cards[i] = selectedDir.addressLists
+                 .queryElementAt(i, Components.interfaces.nsIAbCard);
+  return GetAddressesForCards(cards);
 }
 
-// Generate a comma separated list of addresses from a given set of
-// cards.
+// Generate a comma separated list of addresses from a given
+// set of cards.
 function GetAddressesForCards(cards)
 {
   var addresses = "";
@@ -472,7 +468,7 @@ function SelectFirstAddressBook()
     // ChangeDirectoryByURI() have already been run
     // (e.g. by the onselect event on the tree) so skip the call.
     if (gPreviousDirTreeIndex != 0)
-      ChangeDirectoryByURI(GetSelectedDirectory());
+      ChangeDirectoryByURI(getSelectedDirectoryURI());
   }
   gAbResultsTree.focus();
 }
@@ -508,7 +504,7 @@ function DirPaneDoubleClick(event)
 
 function DirPaneSelectionChange()
 {
-  let uri = GetSelectedDirectory();
+  let uri = getSelectedDirectoryURI();
   // clear out the search box when changing folders...
   onAbClearSearch(false);
   if (gDirTree && gDirTree.view.selection && gDirTree.view.selection.count == 1) {
@@ -539,7 +535,7 @@ function ChangeDirectoryByURI(uri = kPersonalAddressbookURI)
 
 function AbNewList()
 {
-  goNewListDialog(GetSelectedDirectory());
+  goNewListDialog(getSelectedDirectoryURI());
 }
 
 function goNewListDialog(selectedAB)
@@ -581,7 +577,6 @@ function goEditCardDialog(abURI, card)
                     "chrome,modal,resizable=no,centerscreen",
                     {abURI:abURI, card:card});
 }
-
 
 function setSortByMenuItemCheckState(id, value)
 {
@@ -653,21 +648,56 @@ function GetParentDirectoryFromMailingListURI(abURI)
   return null;
 }
 
+/**
+ * Return true if the directory pane has focus, otherwise false.
+ */
 function DirPaneHasFocus()
 {
-  // returns true if diectory pane has the focus. Returns false, otherwise.
-  return (top.document.commandDispatcher.focusedElement == gDirTree)
+  return (top.document.commandDispatcher.focusedElement == gDirTree);
 }
 
-function GetSelectedDirectory()
+/**
+ * Get the selected directory object.
+ *
+ * @return The object of the currently selected directory
+ */
+function getSelectedDirectory()
 {
+  // Contacts Sidebar
+  if (abList)
+    return MailServices.ab.getDirectory(abList.value);
+
+  // Main Address Book
+  if (gDirTree.currentIndex < 0)
+    return null;
+  return gDirectoryTreeView.getDirectoryAtIndex(gDirTree.currentIndex);
+}
+
+/**
+ * Get the URI of the selected directory.
+ *
+ * @return The URI of the currently selected directory
+ */
+function getSelectedDirectoryURI()
+{
+  // Contacts Sidebar
   if (abList)
     return abList.value;
-  else {
-    if (gDirTree.currentIndex < 0)
-      return null;
-    return gDirectoryTreeView.getDirectoryAtIndex(gDirTree.currentIndex).URI;
-  }
+
+  // Main Address Book
+  if (gDirTree.currentIndex < 0)
+    return null;
+  return gDirectoryTreeView.getDirectoryAtIndex(gDirTree.currentIndex).URI;
+}
+
+/**
+ * DEPRECATED legacy function wrapper for addon compatibility;
+ * use getSelectedDirectoryURI() instead!
+ * Return the URI of the selected directory.
+ */
+function GetSelectedDirectory()
+{
+  return getSelectedDirectoryURI();
 }
 
 /**
@@ -691,7 +721,7 @@ function onAbClearSearch(aRefresh = true)
 // sets focus into the quick search box
 function QuickSearchFocus()
 {
-  var searchInput = document.getElementById("peopleSearchInput");
+  let searchInput = document.getElementById("peopleSearchInput");
   if (searchInput) {
     searchInput.focus();
     searchInput.select();
@@ -831,7 +861,6 @@ function nearestLeap(aYear) {
     if (new Date(year, 1, 29).getMonth() == 1)
       return year;
   }
-
   return 2000;
 }
 

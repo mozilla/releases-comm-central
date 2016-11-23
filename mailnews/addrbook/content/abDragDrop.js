@@ -56,7 +56,7 @@ var abResultsPaneObserver = {
       aXferData.data.addDataForFlavour("text/x-moz-address", selectedAddresses);
       aXferData.data.addDataForFlavour("text/unicode", selectedAddresses);
 
-      var srcDirectory = GetDirectoryFromURI(GetSelectedDirectory());
+      let srcDirectory = getSelectedDirectory();
       // The default allowable actions are copy, move and link, so we need
       // to restrict them here.
       if (!srcDirectory.readOnly)
@@ -72,7 +72,7 @@ var abResultsPaneObserver = {
 
       var card = GetSelectedCard();
       if (card && card.displayName) {
-        var vCard = card.translateTo("vcard");
+        let vCard = card.translateTo("vcard");
         aXferData.data.addDataForFlavour("text/vcard", decodeURIComponent(vCard));
         aXferData.data.addDataForFlavour("application/x-moz-file-promise-dest-filename", card.displayName + ".vcf");
         aXferData.data.addDataForFlavour("application/x-moz-file-promise-url", "data:text/vcard," + vCard);
@@ -136,9 +136,9 @@ var abDirTreeObserver = {
       return false;
     }
 
-    var targetURI = gDirectoryTreeView.getDirectoryAtIndex(index).URI;
+    let targetURI = gDirectoryTreeView.getDirectoryAtIndex(index).URI;
 
-    var srcURI = GetSelectedDirectory();
+    let srcURI = getSelectedDirectoryURI();
 
     // We cannot allow copy/move to "All Address Books".
     if (targetURI == kAllDirectoryRoot + "?")
@@ -228,8 +228,8 @@ var abDirTreeObserver = {
       return;
     }
 
-    var targetURI = gDirectoryTreeView.getDirectoryAtIndex(index).URI;
-    var srcURI = GetSelectedDirectory();
+    let targetURI = gDirectoryTreeView.getDirectoryAtIndex(index).URI;
+    let srcURI = getSelectedDirectoryURI();
 
     // The data contains the a string of "selected rows", eg.: "1,2".
     var rows = dataTransfer.getData("moz/abcard").split(",").map(j => parseInt(j, 10));

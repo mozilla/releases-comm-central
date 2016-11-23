@@ -64,7 +64,7 @@ function addSelectedAddresses(aRecipientType)
 
 function AddressBookMenuListChange()
 {
-  var searchInput = document.getElementById("peopleSearchInput");
+  let searchInput = document.getElementById("peopleSearchInput");
   if (searchInput.value && !searchInput.showingSearchCriteria)
     onEnterInSearchBar();
   else
@@ -106,7 +106,7 @@ function AbPanelLoad()
 
   mutationObs = new MutationObserver(function(aMutations) {
     aMutations.forEach(function(mutation) {
-      if (GetSelectedDirectory() == (kAllDirectoryRoot + "?") &&
+      if (getSelectedDirectoryURI() == (kAllDirectoryRoot + "?") &&
           mutation.type == "attributes" &&
           mutation.attributeName == "hidden") {
         let curState = document.getElementById("addrbook").hidden;
@@ -173,8 +173,8 @@ function onEnterInSearchBar()
     gQueryURIFormat = getModelQuery("mail.addr_book.quicksearchquery.format");
   }
 
-  var searchURI = GetSelectedDirectory();
-  var searchInput = document.getElementById("peopleSearchInput");
+  let searchURI = getSelectedDirectoryURI();
+  let searchInput = document.getElementById("peopleSearchInput");
 
   // Use helper method to split up search query to multi-word search
   // query against multiple fields.

@@ -193,26 +193,18 @@ function AbPrintCardInternal(doPrintPreview, msgType)
   if (!numSelected)
     return;
 
-  var uri = GetSelectedDirectory();
-  if (!uri)
-    return;
+  let statusFeedback;
+  statusFeedback = Components.classes["@mozilla.org/messenger/statusfeedback;1"].createInstance();
+  statusFeedback = statusFeedback.QueryInterface(Components.interfaces.nsIMsgStatusFeedback);
 
-   var statusFeedback;
-   statusFeedback = Components.classes["@mozilla.org/messenger/statusfeedback;1"].createInstance();
-   statusFeedback = statusFeedback.QueryInterface(Components.interfaces.nsIMsgStatusFeedback);
+  let selectionArray = new Array(numSelected);
 
-   var selectionArray = new Array(numSelected);
-
-   var totalCard = 0;
-
-   for (var i = 0; i < numSelected; i++)
-   {
-     var card = selectedItems[i];
-     var printCardUrl = CreatePrintCardUrl(card);
-     if (printCardUrl)
-     {
-        selectionArray[totalCard++] = printCardUrl;
-     }
+  for (let i = 0; i < numSelected; i++) {
+    let card = selectedItems[i];
+    let printCardUrl = CreatePrintCardUrl(card);
+    if (printCardUrl) {
+      selectionArray.push(printCardUrl);
+    }
   }
 
   printEngineWindow = window.openDialog("chrome://messenger/content/msgPrintEngine.xul",
@@ -241,7 +233,7 @@ function CreatePrintCardUrl(card)
 
 function AbPrintAddressBookInternal(doPrintPreview, msgType)
 {
-  var uri = GetSelectedDirectory();
+  let uri = getSelectedDirectoryURI();
   if (!uri)
     return;
 
@@ -279,14 +271,14 @@ function AbPrintPreviewAddressBook()
  * Export the currently selected addressbook.
  */
 function AbExportSelection() {
-  let selectedABURI = GetSelectedDirectory();
-  if (!selectedABURI)
+  let selectedDirURI = getSelectedDirectoryURI();
+  if (!selectedDirURI)
     return;
 
-  if (selectedABURI == (kAllDirectoryRoot + "?"))
+  if (selectedDirURI == (kAllDirectoryRoot + "?"))
     AbExportAll();
   else
-    AbExport(selectedABURI);
+    AbExport(selectedDirURI);
 }
 
 /**
@@ -309,15 +301,15 @@ function AbExportAll()
 /**
  * Export the specified addressbook to a file.
  *
- * @param aSelectedABURI  The URI if the addressbook to export.
+ * @param aSelectedDirURI  The URI of the addressbook to export.
  */
-function AbExport(aSelectedABURI)
+function AbExport(aSelectedDirURI)
 {
-  if (!aSelectedABURI)
+  if (!aSelectedDirURI)
     return;
 
   try {
-    let directory = GetDirectoryFromURI(aSelectedABURI);
+    let directory = GetDirectoryFromURI(aSelectedDirURI);
     MailServices.ab.exportAddressBook(window, directory);
   }
   catch (ex) {
@@ -346,7 +338,7 @@ function SetStatusText(total)
     gStatusText = document.getElementById('statusText');
 
   try {
-    var statusText;
+    let statusText;
 
     if (gSearchInput.value) {
       if (total == 0) {
@@ -374,8 +366,9 @@ function AbResultsPaneDoubleClick(card)
 
 function onAdvancedAbSearch()
 {
-  var selectedABURI = GetSelectedDirectory();
-  if (!selectedABURI) return;
+  let selectedDirURI = getSelectedDirectoryURI();
+  if (!selectedDirURI)
+    return;
 
   var existingSearchWindow = Services.wm.getMostRecentWindow("mailnews:absearch");
   if (existingSearchWindow)
@@ -383,7 +376,7 @@ function onAdvancedAbSearch()
   else
     window.openDialog("chrome://messenger/content/ABSearchDialog.xul", "",
                       "chrome,resizable,status,centerscreen,dialog=no",
-                      {directory: selectedABURI});
+                      {directory: selectedDirURI});
 }
 
 function onEnterInSearchBar()
@@ -394,7 +387,7 @@ function onEnterInSearchBar()
     // Get model query from pref, without preceding "?", so we need to add it again
     gQueryURIFormat = "?" + getModelQuery("mail.addr_book.quicksearchquery.format");
   }
-  var searchURI = GetSelectedDirectory();
+  let searchURI = getSelectedDirectoryURI();
   if (!searchURI) return;
 
   /*
