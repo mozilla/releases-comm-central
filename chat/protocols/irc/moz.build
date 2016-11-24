@@ -21,6 +21,7 @@ EXTRA_JS_MODULES += [
     'ircMultiPrefix.jsm',
     'ircNonStandard.jsm',
     'ircSASL.jsm',
+    'ircServerTime.jsm',
     'ircServices.jsm',
     'ircUtils.jsm',
     'ircWatchMonitor.jsm',

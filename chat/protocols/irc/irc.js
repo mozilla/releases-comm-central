@@ -1955,6 +1955,7 @@ function ircProtocol() {
   Cu.import("resource:///modules/ircMultiPrefix.jsm", tempScope);
   Cu.import("resource:///modules/ircNonStandard.jsm", tempScope);
   Cu.import("resource:///modules/ircSASL.jsm", tempScope);
+  Cu.import("resource:///modules/ircServerTime.jsm", tempScope);
   Cu.import("resource:///modules/ircWatchMonitor.jsm", tempScope);
 
   // Register default IRC handlers (IRC base, CTCP).
@@ -1981,6 +1982,8 @@ function ircProtocol() {
   ircHandlers.registerISUPPORTHandler(tempScope.isupportMONITOR);
   ircHandlers.registerHandler(tempScope.ircSASL);
   ircHandlers.registerCAPHandler(tempScope.capSASL);
+  ircHandlers.registerCAPHandler(tempScope.capServerTime);
+  ircHandlers.registerTagHandler(tempScope.tagServerTime);
 }
 ircProtocol.prototype = {
   __proto__: GenericProtocolPrototype,
