@@ -119,6 +119,10 @@ var calauth = {
         asyncPromptAuth(aChannel, aCallback, aContext, aLevel, aAuthInfo) {
             let self = this;
             let promptlistener = {
+                onPromptStartAsync: function(callback) {
+                  callback.onAuthResult(this.onPromptStart());
+                },
+
                 onPromptStart: function() {
                     let res = self.promptAuth(aChannel, aLevel, aAuthInfo);
                     if (res) {
