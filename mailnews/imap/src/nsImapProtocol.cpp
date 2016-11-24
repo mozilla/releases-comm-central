@@ -8387,6 +8387,13 @@ nsresult nsImapProtocol::GetPassword(nsCString &password,
   return rv;
 }
 
+NS_IMETHODIMP nsImapProtocol::OnPromptStartAsync(nsIMsgAsyncPromptCallback *aCallback)
+{
+  bool result = false;
+  OnPromptStart(&result);
+  return aCallback->OnAuthResult(result);
+}
+
 // This is called from the UI thread.
 NS_IMETHODIMP
 nsImapProtocol::OnPromptStart(bool *aResult)

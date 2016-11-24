@@ -791,6 +791,13 @@ nsresult nsPop3Protocol::StartGetAsyncPassword(Pop3StatesEnum aNextState)
   return rv;
 }
 
+NS_IMETHODIMP nsPop3Protocol::OnPromptStartAsync(nsIMsgAsyncPromptCallback *aCallback)
+{
+  bool result = false;
+  OnPromptStart(&result);
+  return aCallback->OnAuthResult(result);
+}
+
 NS_IMETHODIMP nsPop3Protocol::OnPromptStart(bool *aResult)
 {
   MOZ_LOG(POP3LOGMODULE, LogLevel::Debug, (POP3LOG("OnPromptStart()")));

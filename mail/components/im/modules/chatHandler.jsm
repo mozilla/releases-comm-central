@@ -33,6 +33,9 @@ var ChatCore = {
     Components.classes["@mozilla.org/messenger/msgAsyncPrompter;1"]
               .getService(Components.interfaces.nsIMsgAsyncPrompter)
               .queueAsyncAuthPrompt("im", false, {
+      onPromptStartAsync: function(callback) {
+        callback.onAuthResult(this.onPromptStart());
+      },
       onPromptStart: function() {
         Services.core.init();
 
