@@ -1,5 +1,5 @@
 {
-  "version": "2.2016i",
+  "version": "2.2016j",
   "aliases": {
     "AUS Central Standard Time": {
       "aliasTo": "Australia/Darwin"
@@ -1487,6 +1487,11 @@
       "latitude": "+0375700",
       "longitude": "+0582300"
     },
+    "Asia/Atyrau": {
+      "ics": "BEGIN:VTIMEZONE\r\nTZID:Asia/Atyrau\r\nBEGIN:STANDARD\r\nTZOFFSETFROM:+0500\r\nTZOFFSETTO:+0500\r\nTZNAME:+05\r\nDTSTART:19700101T000000\r\nEND:STANDARD\r\nEND:VTIMEZONE",
+      "latitude": "+0470700",
+      "longitude": "+0515600"
+    },
     "Asia/Baghdad": {
       "ics": "BEGIN:VTIMEZONE\r\nTZID:Asia/Baghdad\r\nBEGIN:STANDARD\r\nTZOFFSETFROM:+0300\r\nTZOFFSETTO:+0300\r\nTZNAME:AST\r\nDTSTART:19700101T000000\r\nEND:STANDARD\r\nEND:VTIMEZONE",
       "latitude": "+0332100",
@@ -2186,6 +2191,11 @@
       "ics": "BEGIN:VTIMEZONE\r\nTZID:Europe/Sarajevo\r\nBEGIN:DAYLIGHT\r\nTZOFFSETFROM:+0100\r\nTZOFFSETTO:+0200\r\nTZNAME:CEST\r\nDTSTART:19700329T020000\r\nRRULE:FREQ=YEARLY;BYMONTH=3;BYDAY=-1SU\r\nEND:DAYLIGHT\r\nBEGIN:STANDARD\r\nTZOFFSETFROM:+0200\r\nTZOFFSETTO:+0100\r\nTZNAME:CET\r\nDTSTART:19701025T030000\r\nRRULE:FREQ=YEARLY;BYMONTH=10;BYDAY=-1SU\r\nEND:STANDARD\r\nEND:VTIMEZONE",
       "latitude": "+0435200",
       "longitude": "+0182500"
+    },
+    "Europe/Saratov": {
+      "ics": "BEGIN:VTIMEZONE\r\nTZID:Europe/Saratov\r\nBEGIN:STANDARD\r\nTZOFFSETFROM:+0400\r\nTZOFFSETTO:+0400\r\nTZNAME:+04\r\nDTSTART:19700101T000000\r\nEND:STANDARD\r\nEND:VTIMEZONE",
+      "latitude": "+0513400",
+      "longitude": "+0460200"
     },
     "Europe/Simferopol": {
       "ics": "BEGIN:VTIMEZONE\r\nTZID:Europe/Simferopol\r\nBEGIN:STANDARD\r\nTZOFFSETFROM:+0300\r\nTZOFFSETTO:+0300\r\nTZNAME:MSK\r\nDTSTART:19700101T000000\r\nEND:STANDARD\r\nEND:VTIMEZONE",
