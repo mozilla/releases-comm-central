@@ -392,7 +392,7 @@ calDavCalendar.prototype = {
               this.oauth.tokenExpires - OAUTH_GRACE_TIME < (new Date()).getTime())) {
             // The token has expired, we need to reauthenticate first
             cal.LOG("CalDAV: OAuth token expired or empty, refreshing");
-            this.oauth.connect(authSuccess, aFailureFunc, true, true);
+            this.oauthConnect(authSuccess, aFailureFunc, true);
         } else {
             // Either not Google OAuth, or the token is still valid.
             authSuccess();
@@ -1555,6 +1555,28 @@ calDavCalendar.prototype = {
     // Helper functions
     //
 
+    oauthConnect: function(authSuccessCb, authFailureCb, aRefresh=false) {
+        // Use the async prompter to avoid multiple master password prompts
+        let promptlistener = {
+            onPromptStartAsync: function(callback) {
+                self.oauth.connect(() => {
+                    authSuccessCb();
+                    callback.onAuthResult(true);
+                }, () => {
+                    authFailureCb();
+                    callback.onAuthResult(false);
+                }, true, aRefresh);
+            },
+
+            onPromptAuthAvailable: authSuccessCb,
+            onPromptCanceled: authFailureCb,
+            onPromptStart: function() {}
+        };
+        let asyncprompter = Components.classes["@mozilla.org/messenger/msgAsyncPrompter;1"]
+                                      .getService(Components.interfaces.nsIMsgAsyncPrompter);
+        asyncprompter.queueAsyncAuthPrompt(self.uri.spec, false, promptlistener);
+    },
+
     /**
      * Sets up any needed prerequisites regarding authentication. This is the
      * beginning of a chain of asynchronous calls. This function will, when
@@ -1577,26 +1599,6 @@ calDavCalendar.prototype = {
             self.setProperty("disabled", "true");
             self.setProperty("auto-enabled", "true");
             self.completeCheckServerInfo(aChangeLogListener, Components.results.NS_ERROR_FAILURE);
-        }
-        function connect() {
-            // Use the async prompter to avoid multiple master password prompts
-            let promptlistener = {
-                onPromptStart: function() {
-                    // Usually this function should be synchronous. The OAuth
-                    // connection itself is asynchronous, but if a master
-                    // password is prompted it will block on that.
-                    this.onPromptAuthAvailable();
-                    return true;
-                },
-
-                onPromptAuthAvailable: function() {
-                    self.oauth.connect(authSuccess, authFailed, true);
-                },
-                onPromptCanceled: authFailed
-            };
-            let asyncprompter = Components.classes["@mozilla.org/messenger/msgAsyncPrompter;1"]
-                                          .getService(Components.interfaces.nsIMsgAsyncPrompter);
-            asyncprompter.queueAsyncAuthPrompt(self.uri.spec, false, promptlistener);
         }
         if (this.mUri.host == "apidata.googleusercontent.com") {
             if (!this.oauth) {
@@ -1659,7 +1661,7 @@ calDavCalendar.prototype = {
                     if (!win || win.document.readyState != "complete") {
                         setTimeout(postpone, 0);
                     } else {
-                        connect();
+                        self.oauthConnect(authSuccess, authFailed);
                     }
                 }, 0);
             }

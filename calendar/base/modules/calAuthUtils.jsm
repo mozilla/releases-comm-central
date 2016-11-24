@@ -300,6 +300,10 @@ cal.auth.Prompt.prototype = {
                               aAuthInfo) {  // nsIAuthInformation
         let self = this;
         let promptlistener = {
+            onPromptStartAsync: function(callback) {
+              callback.onAuthResult(this.onPromptStart());
+            },
+
             onPromptStart: function() {
                 res = self.promptAuth(aChannel, aLevel, aAuthInfo);
 
