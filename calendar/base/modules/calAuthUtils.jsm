@@ -68,23 +68,41 @@ cal.auth = {
     },
 
     /**
+     * Make sure the passed origin is actually an uri string, because password
+     * manager functions require it. This is a fallback for compatibility only
+     * and should be removed a few versions after Lightning 5.5
+     *
+     * @param aOrigin       The hostname or origin to check
+     * @return              The origin uri
+     */
+    _ensureOrigin: function(aOrigin) {
+        try {
+            return Services.io.newURI(aOrigin, null, null).spec;
+        } catch (e) {
+            return "https://" + aOrigin;
+        }
+    },
+
+    /**
      * Helper to insert/update an entry to the password manager.
      *
      * @param aUserName     The username
      * @param aPassword     The corresponding password
-     * @param aHostName     The corresponding hostname
+     * @param aOrigin       The corresponding origin
      * @param aRealm        The password realm (unused on branch)
      */
-    passwordManagerSave: function(aUsername, aPassword, aHostName, aRealm) {
+    passwordManagerSave: function(aUsername, aPassword, aOrigin, aRealm) {
         cal.ASSERT(aUsername);
         cal.ASSERT(aPassword);
 
+        let origin = this._ensureOrigin(aOrigin);
+
         try {
-            let logins = Services.logins.findLogins({}, aHostName, null, aRealm);
+            let logins = Services.logins.findLogins({}, origin, null, aRealm);
 
             let newLoginInfo = Components.classes["@mozilla.org/login-manager/loginInfo;1"]
                                          .createInstance(Components.interfaces.nsILoginInfo);
-            newLoginInfo.init(aHostName, null, aRealm, aUsername, aPassword, "", "");
+            newLoginInfo.init(origin, null, aRealm, aUsername, aPassword, "", "");
             if (logins.length > 0) {
                 Services.logins.modifyLogin(logins[0], newLoginInfo);
             } else {
@@ -102,23 +120,25 @@ cal.auth = {
      *
      * @param in  aUsername     The username to search
      * @param out aPassword     The corresponding password
-     * @param aHostName         The corresponding hostname
+     * @param aOrigin           The corresponding origin
      * @param aRealm            The password realm (unused on branch)
      * @return                  Does an entry exist in the password manager
      */
-    passwordManagerGet: function(aUsername, aPassword, aHostName, aRealm) {
+    passwordManagerGet: function(aUsername, aPassword, aOrigin, aRealm) {
         cal.ASSERT(aUsername);
 
         if (typeof aPassword != "object") {
             throw new Components.Exception("", Components.results.NS_ERROR_XPC_NEED_OUT_OBJECT);
         }
 
+        let origin = this._ensureOrigin(aOrigin);
+
         try {
-            if (!Services.logins.getLoginSavingEnabled(aUsername)) {
+            if (!Services.logins.getLoginSavingEnabled(origin)) {
                 return false;
             }
 
-            let logins = Services.logins.findLogins({}, aHostName, null, aRealm);
+            let logins = Services.logins.findLogins({}, origin, null, aRealm);
             for (let loginInfo of logins) {
                 if (loginInfo.username == aUsername) {
                     aPassword.value = loginInfo.password;
@@ -135,15 +155,17 @@ cal.auth = {
      * Helper to remove an entry from the password manager
      *
      * @param aUsername     The username to remove.
-     * @param aHostName     The corresponding hostname
+     * @param aOrigin       The corresponding origin
      * @param aRealm        The password realm (unused on branch)
      * @return              Could the user be removed?
      */
-    passwordManagerRemove: function(aUsername, aHostName, aRealm) {
+    passwordManagerRemove: function(aUsername, aOrigin, aRealm) {
         cal.ASSERT(aUsername);
 
+        let origin = this._ensureOrigin(aOrigin);
+
         try {
-            let logins = Services.logins.findLogins({}, aHostName, null, aRealm);
+            let logins = Services.logins.findLogins({}, origin, null, aRealm);
             for (let loginInfo of logins) {
                 if (loginInfo.username == aUsername) {
                     Services.logins.removeLogin(loginInfo);

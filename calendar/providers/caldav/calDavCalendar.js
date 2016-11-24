@@ -1615,7 +1615,8 @@ calDavCalendar.prototype = {
                         if (!this.mRefreshToken) {
                             let pass = { value: null };
                             try {
-                                cal.auth.passwordManagerGet(sessionId, pass, sessionId, pwMgrId);
+                                let origin = "oauth:" + sessionId;
+                                cal.auth.passwordManagerGet(sessionId, pass, origin, pwMgrId);
                             } catch (e) {
                                 // User might have cancelled the master password prompt, thats ok
                                 if (e.result != Components.results.NS_ERROR_ABORT) {
@@ -1628,10 +1629,11 @@ calDavCalendar.prototype = {
                     },
                     set: function(val) {
                         try {
+                            let origin = "oauth:" + sessionId;
                             if (val) {
-                                cal.auth.passwordManagerSave(sessionId, val, sessionId, pwMgrId);
+                                cal.auth.passwordManagerSave(sessionId, val, origin, pwMgrId);
                             } else {
-                                cal.auth.passwordManagerRemove(sessionId, sessionId, pwMgrId);
+                                cal.auth.passwordManagerRemove(sessionId, origin, pwMgrId);
                             }
                         } catch (e) {
                             // User might have cancelled the master password prompt, thats ok
