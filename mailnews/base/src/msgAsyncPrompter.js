@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+ChromeUtils.import("resource://gre/modules/Deprecated.jsm");
 ChromeUtils.import("resource://gre/modules/Services.jsm");
 ChromeUtils.import("resource://gre/modules/Task.jsm");
 ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
@@ -16,28 +17,46 @@ runnablePrompter.prototype = {
   _asyncPrompter: null,
   _hashKey: null,
 
+  _promiseAuthPrompt: function(listener) {
+    return new Promise((resolve, reject) => {
+      try {
+        listener.onPromptStartAsync({ onAuthResult: resolve });
+      } catch (e) {
+        if (e.result == Components.results.NS_ERROR_XPC_JSOBJECT_HAS_NO_FUNCTION_NAMED) {
+          // Fall back to onPromptStart, for add-ons compat
+          Deprecated.warning("onPromptStart has been replaced by onPromptStartAsync",
+                             "https://bugzilla.mozilla.org/show_bug.cgi?id=1176399");
+          let ok = listener.onPromptStart();
+          resolve(ok);
+        } else {
+          reject(e);
+        }
+      }
+    });
+  },
+
   async run() {
     await Services.logins.initializationPromise;
     this._asyncPrompter._log.debug("Running prompt for " + this._hashKey);
     let prompter = this._asyncPrompter._pendingPrompts[this._hashKey];
     let ok = false;
     try {
-      ok = prompter.first.onPromptStart();
-    }
-    catch (ex) {
+      ok = await this._promiseAuthPrompt(prompter.first);
+    } catch (ex) {
       Cu.reportError("runnablePrompter:run: " + ex + "\n");
+      prompter.first.onPromptCanceled();
     }
 
     delete this._asyncPrompter._pendingPrompts[this._hashKey];
 
     for (var consumer of prompter.consumers) {
       try {
-        if (ok)
+        if (ok) {
           consumer.onPromptAuthAvailable();
-        else
+        } else {
           consumer.onPromptCanceled();
-      }
-      catch (ex) {
+        }
+      } catch (ex) {
         // Log the error for extension devs and others to pick up.
         Cu.reportError("runnablePrompter:run: consumer.onPrompt* reported an exception: " + ex + "\n");
       }

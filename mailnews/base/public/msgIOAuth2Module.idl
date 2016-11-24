@@ -14,7 +14,10 @@ interface nsISmtpServer;
  */
 [scriptable, uuid(9a088b49-bc13-4f99-9478-053a6a43e370)]
 interface msgIOAuth2ModuleListener : nsISupports {
-  /// Called on successful OAuth2 authentication with the bearer token to use.
+  /**
+   * Called on successful OAuth2 authentication with the base64-encoded
+   * string to send as the client initial response for SASL XOAUTH2.
+   */
   void onSuccess(in ACString aBearerToken);
 
   /// Called on failed OAuth2 authentication.
@@ -46,12 +49,6 @@ interface msgIOAuth2Module : nsISupports {
    * @param aCallback Listener that handles the async response.
    */
   void connect(in boolean aWithUI, in msgIOAuth2ModuleListener aCallback);
-
-  /**
-   * Return the base64-encoded string to send as the client initial response for
-   * SASL XOAUTH2.
-   */
-  ACString buildXOAuth2String();
 };
 
 %{C++

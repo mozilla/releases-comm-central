@@ -35,19 +35,35 @@ interface nsIMsgAsyncPrompter : nsISupports {
                             in nsIMsgAsyncPromptListener aCaller);
 };
 
+[scriptable, function, uuid(acca94c9-378e-46e3-9a91-6655bf9c91a3)]
+interface nsIMsgAsyncPromptCallback : nsISupports {
+  /**
+   * Called when an auth result is available. Can be passed as a function.
+   *
+   * @param aResult   True if there is auth information available following the
+   *                    prompt, false otherwise.
+   */
+  void onAuthResult(in boolean aResult);
+};
+
 /**
  * This is used in combination with nsIMsgAsyncPrompter.
  */
 [scriptable, uuid(fb5307a3-39d0-462e-92c8-c5c288a2612f)]
 interface nsIMsgAsyncPromptListener : nsISupports {
   /**
-   * Called when the listener should do its prompt. The listener
-   * should not return until the prompt is complete.
-   *
-   * @return  True if there is auth information available following the prompt,
-   *          false otherwise.
+   * This method has been deprecated, please use onPromptStartAsync instead.
    */
   boolean onPromptStart();
+
+  /**
+   * Called when the listener should do its prompt. This can happen
+   * synchronously or asynchronously, but in any case when done the callback
+   * method should be called.
+   *
+   * @param aCallback   The callback to execute when auth prompt has completed.
+   */
+  void onPromptStartAsync(in nsIMsgAsyncPromptCallback aCallback);
 
   /**
    * Called in the case that the queued prompt was combined with another and

@@ -1644,18 +1644,15 @@ nsresult nsSmtpProtocol::AuthOAuth2Step1()
   return NS_OK;
 }
 
-nsresult nsSmtpProtocol::OnSuccess(const nsACString &aAccessToken)
+nsresult nsSmtpProtocol::OnSuccess(const nsACString &aOAuth2String)
 {
   MOZ_ASSERT(mOAuth2Support, "Can't do anything without OAuth2 support");
-
-  nsCString base64Str;
-  mOAuth2Support->BuildXOAuth2String(base64Str);
 
   // Send the AUTH XOAUTH2 command, and then siphon us back to the regular
   // authentication login stream.
   nsAutoCString buffer;
   buffer.AppendLiteral("AUTH XOAUTH2 ");
-  buffer += base64Str;
+  buffer += aOAuth2String;
   buffer += CRLF;
   nsresult rv = SendData(buffer.get(), true);
   if (NS_FAILED(rv))

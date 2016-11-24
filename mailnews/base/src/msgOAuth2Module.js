@@ -122,24 +122,47 @@ OAuth2Module.prototype = {
       }
     }
 
-    // Otherwise, we need a new login, so create one and fill it in.
-    let login = Cc["@mozilla.org/login-manager/loginInfo;1"]
-                  .createInstance(Ci.nsILoginInfo);
-    login.init(this._loginUrl, null, this._scope, this._username, token,
-      '', '');
-    loginMgr.addLogin(login);
+    // Unless the token is null, we need to create and fill in a new login
+    if (token) {
+      let login = Cc["@mozilla.org/login-manager/loginInfo;1"]
+                    .createInstance(Ci.nsILoginInfo);
+      login.init(this._loginUrl, null, this._scope, this._username, token,
+        '', '');
+      loginMgr.addLogin(login);
+    }
     return token;
   },
 
   connect(aWithUI, aListener) {
-    this._oauth.connect(() => aListener.onSuccess(this._oauth.accessToken),
-                        x => aListener.onFailure(x),
-                        aWithUI, false);
-  },
+    let oauth = this._oauth;
+    let promptlistener = {
+      onPromptStartAsync: function(callback) {
+        this.onPromptAuthAvailable(callback);
+      },
 
-  buildXOAuth2String() {
-    return btoa("user=" + this._username + "\x01auth=Bearer " +
-      this._oauth.accessToken + "\x01\x01");
+      onPromptAuthAvailable: (callback) => {
+        oauth.connect(() => {
+          aListener.onSuccess(btoa(`user=${this._username}\x01auth=Bearer ${oauth.accessToken}\x01\x01`));
+          if (callback) {
+            callback.onAuthResult(true);
+          }
+        }, () => {
+          aListener.onFailure(Components.results.NS_ERROR_ABORT);
+          if (callback) {
+            callback.onAuthResult(false);
+          }
+        }, aWithUI, false);
+      },
+      onPromptCanceled: function() {
+        aListener.onFailure(Components.results.NS_ERROR_ABORT);
+      },
+      onPromptStart: function() {}
+    };
+
+    let asyncprompter = Components.classes["@mozilla.org/messenger/msgAsyncPrompter;1"]
+                                  .getService(Components.interfaces.nsIMsgAsyncPrompter);
+    let promptkey = this._loginUrl + "/" + this._username;
+    asyncprompter.queueAsyncAuthPrompt(promptkey, false, promptlistener);
   },
 };
 
