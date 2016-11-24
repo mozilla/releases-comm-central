@@ -174,8 +174,11 @@ nsLDAPSSLConnect(const char *hostlist, int defport, int timeout,
     // the certificate.  Need to investigate.
     //
     rv = tlsSocketProvider->AddToSocket(PR_AF_INET,
-                                        sessionClosure->hostname, defport,
-                                        nullptr, EmptyCString(), 0,
+                                        sessionClosure->hostname,
+                                        defport,
+                                        nullptr,
+                                        mozilla::NeckoOriginAttributes(),
+                                        0,
                                         socketInfo.soinfo_prfd,
                                         getter_AddRefs(securityInfo));
     if (NS_FAILED(rv)) {
