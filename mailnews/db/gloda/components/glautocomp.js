@@ -89,7 +89,7 @@ nsAutoCompleteGlodaResult.prototype = {
     this._pendingCount++;
   },
   markCompleted: function ACGR_markCompleted(aCompleter) {
-    if (--this._pendingCount == 0) {
+    if (--this._pendingCount == 0 && this.active) {
       this.listener.onSearchResult(this.completer, this);
     }
   },
@@ -101,8 +101,9 @@ nsAutoCompleteGlodaResult.prototype = {
     if (!aRows.length)
       return;
     this._results.push.apply(this._results, aRows);
-    if (this._initiallyReported)
+    if (this._initiallyReported && this.active) {
       this.listener.onSearchResult(this.completer, this);
+    }
   },
   // ==== nsIAutoCompleteResult
   searchString: null,
@@ -116,6 +117,7 @@ nsAutoCompleteGlodaResult.prototype = {
       return (!this._pendingCount) ? Ci.nsIAutoCompleteResult.RESULT_NOMATCH
                           : Ci.nsIAutoCompleteResult.RESULT_NOMATCH_ONGOING;
   },
+  active: false,
   defaultIndex: -1,
   errorDescription: null,
   get matchCount() {
@@ -490,10 +492,10 @@ function nsAutoCompleteGloda() {
     this.completers = [];
     this.curResult = null;
 
-    this.completers.push(new FullTextCompleter());
-    this.completers.push(new ContactIdentityCompleter());
-    this.completers.push(new ContactTagCompleter());
-    this.completers.push(new MessageTagCompleter());
+    this.completers.push(new FullTextCompleter());        // not async.
+    this.completers.push(new ContactIdentityCompleter()); // potentially async.
+    this.completers.push(new ContactTagCompleter());      // not async.
+    this.completers.push(new MessageTagCompleter());      // not async.
   } catch (e) {
     logException(e);
   }
@@ -509,7 +511,11 @@ nsAutoCompleteGloda.prototype = {
       let result = new nsAutoCompleteGlodaResult(aListener, this, aString);
       // save this for hacky access to the search.  I somewhat suspect we simply
       //  should not be using the formal autocomplete mechanism at all.
+      // Used in glodacomplete.xml.
       this.curResult = result;
+
+      // Guard against late async results being sent.
+      this.curResult.active = true;
 
       if (aParam == "global") {
         for (let completer of this.completers) {
@@ -530,6 +536,7 @@ nsAutoCompleteGloda.prototype = {
   },
 
   stopSearch: function() {
+    this.curResult.active = false;
   }
 };
 
