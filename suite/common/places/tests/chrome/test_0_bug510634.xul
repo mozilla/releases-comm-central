@@ -45,21 +45,6 @@
 
     SimpleTest.waitForExplicitFinish();
 
-    function createSupportsArray() {
-      return Components.classes["@mozilla.org/supports-array;1"]
-                       .createInstance(Components.interfaces.nsISupportsArray);
-    }
-
-    // converts nsISupportsArray of atoms to a simple JS-strings array
-    function convertPropertiesToJSArray(aSupportsArray) {
-      var results = [];
-      var count = aSupportsArray.Count();
-      for (var i = 0; i < count; i++)
-        results.push(aSupportsArray.QueryElementAt(i, Components.interfaces.nsIAtom).toString());
-
-      return results;
-    }
-
     function runTest() {
       // We need to cache and restore this getter in order to simulate
       // Bug 510634
@@ -84,10 +69,8 @@
       ["Tags", "AllBookmarks", "BookmarksToolbar",
        "BookmarksMenu", "UnfiledBookmarks"].forEach(
          function(aQueryName, aRow) {
-           let rowProperties = createSupportsArray();
-           tree.view.getCellProperties(aRow, titleColumn, rowProperties);
-           rowProperties = convertPropertiesToJSArray(rowProperties);
-           ok(rowProperties.indexOf("OrganizerQuery_" + aQueryName) != -1,
+           let rowProperties = tree.view.getCellProperties(aRow, titleColumn).split(" ");
+           ok(rowProperties.includes("OrganizerQuery_" + aQueryName),
              "OrganizerQuery_" + aQueryName + " is set");
          }
        );
