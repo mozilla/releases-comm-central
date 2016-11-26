@@ -15,13 +15,13 @@
         <!-- Get the localized text for use in the .js -->
         <script type="application/javascript">
             var noneLabel  = "&pref.categories.none.label;";
-            var addTitle   = "&pref.categories.add.title;";
+            var newTitle   = "&pref.categories.new.title;";
             var editTitle  = "&pref.categories.edit.title;";
             var overwrite  = "&pref.categories.overwrite;";
             var overwriteTitle = "&pref.categories.overwrite.title;";
             var noBlankCategories = "&pref.categories.noBlankCategories;";
         </script>
-        
+
         <preferences>
             <preference id="calendar.categories.names"
                         name="calendar.categories.names"
@@ -43,8 +43,8 @@
             </listcols>
         </listbox>
         <hbox pack="end">
-            <button label="&pref.categories.addButton.label;"
-                    accesskey="&pref.categories.addButton.accesskey;"
+            <button label="&pref.categories.newButton.label;"
+                    accesskey="&pref.categories.newButton.accesskey;"
                     oncommand="gCategoriesPane.addCategory()"/>
             <button id="editCButton"
                     label="&pref.categories.editButton.label;"

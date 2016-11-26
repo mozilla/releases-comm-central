@@ -249,7 +249,7 @@ var gDisplayPane = {
         let dialog = window.openDialog(
                     "chrome://messenger/content/newTagDialog.xul",
                     "",
-                    "chrome,titlebar,modal",
+                    "centerscreen,chrome,titlebar,modal",
                     args);
       }
     }
@@ -265,7 +265,7 @@ var gDisplayPane = {
       let dialog = window.openDialog(
                    "chrome://messenger/content/newTagDialog.xul",
                    "",
-                   "chrome,titlebar,modal",
+                   "centerscreen,chrome,titlebar,modal",
                    args);
     }
   },

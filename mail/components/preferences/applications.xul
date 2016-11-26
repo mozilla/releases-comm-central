@@ -192,8 +192,8 @@
                 </richlistbox>
                 <separator class="thin"/>
                 <hbox>
-                  <button id="addCloudFileAccount" flex="1" label="&addCloudFileAccount.label;"
-                          accesskey="&addCloudFileAccount.accesskey;"
+                  <button id="addCloudFileAccount" flex="1" label="&addCloudFileAccount1.label;"
+                          accesskey="&addCloudFileAccount1.accesskey;"
                           command="cmd_addCloudfileAccount"/>
                   <button id="removeCloudFileAccount" flex="1"
                           label="&removeCloudFileAccount.label;"

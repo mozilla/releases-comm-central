@@ -31,9 +31,9 @@
         <listbox id="keywordList" flex="1" rows="5"
                  ondblclick="gAttachmentReminderOptionsDialog.editKeyword();"/>
         <vbox>
-          <button label="&addKeywordButton.label;" accesskey="&addKeywordButton.accesskey;"
+          <button label="&newKeywordButton.label;" accesskey="&newKeywordButton.accesskey;"
                   oncommand="gAttachmentReminderOptionsDialog.addKeyword();"/>
-          <button label="&editKeywordButton.label;" accesskey="&editKeywordButton.accesskey;"
+          <button label="&editKeywordButton1.label;" accesskey="&editKeywordButton1.accesskey;"
                   oncommand="gAttachmentReminderOptionsDialog.editKeyword();"/>
           <button label="&removeKeywordButton.label;" accesskey="&removeKeywordButton.accesskey;"
                   oncommand="gAttachmentReminderOptionsDialog.removeKeyword();"/>

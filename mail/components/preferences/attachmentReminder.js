@@ -38,8 +38,8 @@ var gAttachmentReminderOptionsDialog = {
   {
     var input = {value: ""}; // Default to empty.
     var ok = Services.prompt.prompt(window,
-                                    this.bundle.getString("attachmentReminderAddDialogTitle"),
-                                    this.bundle.getString("attachmentReminderAddText"),
+                                    this.bundle.getString("attachmentReminderNewDialogTitle"),
+                                    this.bundle.getString("attachmentReminderNewText"),
                                     input, null, {value:0});
     if (ok && input.value)
       this.keywordListBox.appendItem(input.value, input.value);

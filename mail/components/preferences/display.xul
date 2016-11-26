@@ -175,11 +175,11 @@
             <listbox id="tagList" flex="1" rows="10" ondblclick="gDisplayPane.editTag();"
                      onselect="gDisplayPane.onSelect();"/>
             <vbox>
-              <button label="&addTagButton.label;" accesskey="&addTagButton.accesskey;"
+              <button label="&newTagButton.label;" accesskey="&newTagButton.accesskey;"
                       oncommand="gDisplayPane.addTag();"/>
               <button id="editTagButton" disabled="true"
-                      label="&editTagButton.label;"
-                      accesskey="&editTagButton.accesskey;"
+                      label="&editTagButton1.label;"
+                      accesskey="&editTagButton1.accesskey;"
                       oncommand="gDisplayPane.editTag();"/>
               <button id="removeTagButton" disabled="true"
                       label="&removeTagButton.label;"

@@ -133,7 +133,7 @@ var gCategoriesPane = {
         listbox.clearSelection();
         this.updateButtons();
         let params = {
-            title: addTitle,
+            title: newTitle,
             category: "",
             color: null
         };
