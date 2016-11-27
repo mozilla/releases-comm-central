@@ -292,7 +292,7 @@ function createSearchTermsWithList(aTermsArray)
   var nsMsgSearchAttrib = Components.interfaces.nsMsgSearchAttrib;
   var nsMsgSearchOp = Components.interfaces.nsMsgSearchOp;
 
-  gSearchSession.clear();
+  gSearchSession.searchTerms.clear();
   gSearchSession.clearScopes();
 
   var i;
@@ -385,7 +385,7 @@ function createSearchTerms()
   createSearchTermsWithList(searchTermsArray);
 
   // now that we've added the terms, clear out our input array
-  searchTermsArray.Clear();
+  searchTermsArray.clear();
 }
 
 function onSearchStop()
