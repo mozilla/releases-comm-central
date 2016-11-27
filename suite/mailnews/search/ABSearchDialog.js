@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 Components.utils.import("resource:///modules/ABQueryUtils.jsm");
-Components.utils.import("resource:///modules/iteratorUtils.js");
 Components.utils.import("resource:///modules/mailServices.js");
 Components.utils.import("resource://gre/modules/PluralForm.jsm");
 
@@ -166,7 +165,9 @@ function onSearch()
 
     var searchUri = currentAbURI + "?(";
 
-    for (let searchTerm of fixIterator(gSearchSession.searchTerms, nsIMsgSearchTerm)) {
+    for (let i = 0; i < gSearchSession.searchTerms.length; i++) {
+      let searchTerm = gSearchSession.searchTerms.queryElementAt(i, nsIMsgSearchTerm);
+
       // get the "and" / "or" value from the first term
       if (i == 0) {
        if (searchTerm.booleanAnd)
