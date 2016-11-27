@@ -860,56 +860,30 @@ function nearestLeap(aYear) {
 function goSetLabelAccesskeyTooltiptext(aID, aLabelAttribute, aAccessKeyAttribute,
                                              aTooltipTextAttribute)
 {
-  let errorMsgIntro = 'Something wrong here: goSetLabelAccesskeyTooltiptext("' +
-                      aID + '", ...): ';
   let node = top.document.getElementById(aID);
   if (!node) {
     // tweak for composition's abContactsPanel
     node = document.getElementById(aID);
   }
-  if (node) {
-    if (aLabelAttribute) {
+  if (!node)
+    return;
+
+  for (let [attr, customAttr] of [["label",       aLabelAttribute      ],
+                                  ["accesskey",   aAccessKeyAttribute  ],
+                                  ["tooltiptext", aTooltipTextAttribute]]) {
+    if (customAttr) {
       // In XUL (DOM Level 3), getAttribute() on non-existing attributes returns
       // "" (instead of null), which is indistinguishable from existing valid
-      // attributes with value="", so we have to check using hasAttribute()
-      if (node.hasAttribute(aLabelAttribute)) {
-        let value = node.getAttribute(aLabelAttribute);
-        node.setAttribute("label", value);
-      } else {  // missing custom label attribute
-        let errorMsg = errorMsgIntro +
-          'Missing custom label attribute: ' + aLabelAttribute;
-        dump(errorMsg);
+      // attributes with value="", so we have to check using hasAttribute().
+      if (node.hasAttribute(customAttr)) {
+        let value = node.getAttribute(customAttr);
+        node.setAttribute(attr, value);
+      } else {  // missing custom attribute
+        dump('Something wrong here: goSetLabelAccesskeyTooltiptext("' + aID + '", ...): ' +
+             'Missing custom attribute: ' + customAttr + '\n');
       }
-    } else if (aLabelAttribute === "") {
-      node.removeAttribute("label");
+    } else if (customAttr === "") {
+      node.removeAttribute(attr);
     }
-    if (aAccessKeyAttribute) {
-      if (node.hasAttribute(aAccessKeyAttribute)) {
-        let value = node.getAttribute(aAccessKeyAttribute);
-        node.setAttribute("accesskey", value);
-      } else {  // missing custom access key attribute
-        let errorMsg = errorMsgIntro +
-          'Missing custom accesskey attribute: ' + aAccessKeyAttribute;
-        dump(errorMsg);
-      }
-    } else if (aAccessKeyAttribute === "") {
-      node.removeAttribute("accesskey");
-    }
-    if (aTooltipTextAttribute) {
-      if (node.hasAttribute(aTooltipTextAttribute)) {
-        let value = node.getAttribute(aTooltipTextAttribute);
-        node.setAttribute("tooltiptext", value);
-      } else {  // missing custom tooltiptext attribute
-        let errorMsg = errorMsgIntro +
-          'Missing custom tooltiptext attribute: ' + aTooltipTextAttribute;
-        dump(errorMsg);
-      }
-    } else if (aTooltipTextAttribute === "") {
-      node.removeAttribute("tooltiptext");
-    }
-  } else { // node not found; this is OK sometimes, e.g. for contacts sidebar
-    let errorMsg = errorMsgIntro +
-                   'getElementById("' + aID + '") failed!';
-    dump(errorMsg);
   }
 }
