@@ -96,6 +96,8 @@ XPCOMUtils.defineLazyServiceGetter(this, "SecMan",
   "@mozilla.org/scriptsecuritymanager;1", "nsIScriptSecurityManager");
 XPCOMUtils.defineLazyServiceGetter(this, "gScreenManager",
   "@mozilla.org/gfx/screenmanager;1", "nsIScreenManager");
+XPCOMUtils.defineLazyServiceGetter(this, "uuidGenerator",
+  "@mozilla.org/uuid-generator;1", "nsIUUIDGenerator");
 
 function debug(aMsg) {
   Services.console.logStringMessage("SessionStore: " + aMsg);
@@ -177,6 +179,9 @@ SessionStoreService.prototype = {
 
   // Whether we've been initialized
   _initialized: false,
+
+  // Mapping from legacy docshellIDs to docshellUUIDs.
+  _docshellUUIDMap: new Map(),
 
 /* ........ Public Getters .............. */
 
@@ -1568,7 +1573,7 @@ SessionStoreService.prototype = {
       entry.cacheKey = cacheKey.data;
     }
     entry.ID = aEntry.ID;
-    entry.docshellID = aEntry.docshellID;
+    entry.docshellUUID = aEntry.docshellID.toString();
 
     if (aEntry.referrerURI)
       entry.referrer = aEntry.referrerURI.spec;
@@ -2819,8 +2824,21 @@ SessionStoreService.prototype = {
       shEntry.ID = id;
     }
 
-    if (aEntry.docshellID)
-      shEntry.docshellID = aEntry.docshellID;
+    // If we have the legacy docshellID on our entry, upgrade it to a
+    // docshellUUID by going through the mapping.
+    if (aEntry.docshellID) {
+      if (!this._docshellUUIDMap.has(aEntry.docshellID)) {
+        // Convert the nsID to a string so that the docshellUUID property
+        // is correctly stored as a string.
+        this._docshellUUIDMap.set(aEntry.docshellID,
+                                  uuidGenerator.generateUUID().toString());
+      }
+      aEntry.docshellUUID = this._docshellUUIDMap.get(aEntry.docshellID);
+      delete aEntry.docshellID;
+    }
+
+    if (aEntry.docshellUUID)
+      shEntry.docshellID = Components.ID(aEntry.docshellUUID);
 
     if (aEntry.structuredCloneState && aEntry.structuredCloneVersion) {
       shEntry.stateData =
