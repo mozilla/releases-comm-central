@@ -353,8 +353,8 @@ function SetStatusText(total)
         statusText = gAddressBookBundle.getString("noMatchFound");
       } else {
         statusText = PluralForm
-          .get(total, gAddressBookBundle.getString("matchesFoundCount"))
-          .replace("%S", total);
+          .get(total, gAddressBookBundle.getString("matchesFound"))
+          .replace("#1", total);
       }
     }
     else
