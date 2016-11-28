@@ -3459,7 +3459,7 @@
 </toolbox>
 
 <statusbar class="chromeclass-status" id="status-bar">
-  <hbox insertbefore="unreadMessageCount"  id="statusTextBox" flex="1">
+  <hbox insertbefore="unreadMessageCount"  id="statusTextBox" ondblclick="openActivityMgr();" flex="1">
     <statusbarpanel id="offline-status" class="statusbarpanel-iconic" oncommand="MailOfflineMgr.toggleOfflineStatus();"/>
     <statusbarpanel id="statusText" label="&statusText.label;" flex="1"/>
     <statusbarpanel class="statusbarpanel-progress" collapsed="true" id="statusbar-progresspanel">
