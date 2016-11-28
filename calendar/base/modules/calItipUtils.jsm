@@ -179,9 +179,9 @@ cal.itip = {
         const cIOL = Components.interfaces.calIOperationListener;
         if (Components.isSuccessCode(aStatus)) {
             switch (aOperationType) {
-                case cIOL.ADD: text = _gs("imipAddedItemToCal"); break;
-                case cIOL.MODIFY: text = _gs("imipUpdatedItem"); break;
-                case cIOL.DELETE: text = _gs("imipCanceledItem"); break;
+                case cIOL.ADD: text = _gs("imipAddedItemToCal2"); break;
+                case cIOL.MODIFY: text = _gs("imipUpdatedItem2"); break;
+                case cIOL.DELETE: text = _gs("imipCanceledItem2"); break;
             }
         } else {
             text = _gs("imipBarProcessingFailed", [aStatus.toString(16)]);
@@ -271,11 +271,11 @@ cal.itip = {
         } else if (Components.isSuccessCode(rc)) {
             cal.LOG("iTIP options on: " + actionFunc.method);
             switch (actionFunc.method) {
-                case "REPLY":
                 case "PUBLISH:UPDATE":
-                    // falls through
                 case "REQUEST:UPDATE-MINOR":
                     data.label = _gs("imipBarUpdateText");
+                    // falls through
+                case "REPLY":
                     data.buttons.push("imipUpdateButton");
                     break;
                 case "PUBLISH":
