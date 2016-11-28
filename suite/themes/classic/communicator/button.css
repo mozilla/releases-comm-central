@@ -94,7 +94,7 @@ toolbar[labelalign="end"] .toolbarbutton-1 > hbox > vbox {
   padding-inline-end: 1px;
 }
 
-.button-toolbar > .button-box > .button-icon,
+.button-toolbar > .button-box > .button-icon[src],
 .button-toolbar > .button-box > .button-text {
   margin-inline-end: 2px;
 }  

@@ -584,6 +584,11 @@ panel[nomatch="true"] > .autocomplete-search-box {
   font-weight: bold;
 }
 
+#go-button {
+  padding-inline-start: 2px;
+  padding-inline-end: 2px;
+}
+
 #search-button {
   list-style-image: url("chrome://communicator/skin/icons/search.png");
   -moz-image-region: rect(0 17px 17px 0);
