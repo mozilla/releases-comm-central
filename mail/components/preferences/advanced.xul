@@ -305,6 +305,12 @@ type="bool"/>
           <groupbox>
             <caption label="&Diskspace;"/>
             <hbox align="center">
+              <label id="actualDiskCacheSize" flex="1"/>
+              <button id="clearCacheButton" icon="clear"
+                      label="&clearCacheNow.label;" accesskey="&clearCacheNow.accesskey;"
+                      oncommand="gAdvancedPane.clearCache();"/>
+            </hbox>
+            <hbox align="center">
               <label id="useCacheBefore" control="cacheSize"
                      accesskey="&useCacheBefore.accesskey;" value="&useCacheBefore.label;"/>
               <textbox id="cacheSize" type="number" size="4" max="1024"
@@ -313,9 +319,6 @@ type="bool"/>
                        onsynctopreference="return gAdvancedPane.writeCacheSize();"
                        aria-labelledby="useCacheBefore cacheSize useCacheAfter"/>
               <label id="useCacheAfter" flex="1">&useCacheAfter.label;</label>
-              <button id="clearCacheButton" icon="clear"
-                      label="&clearCacheNow.label;" accesskey="&clearCacheNow.accesskey;"
-                      oncommand="gAdvancedPane.clearCache();"/>
             </hbox>
             <hbox align="center">
                 <checkbox id="offlineCompactFolder"

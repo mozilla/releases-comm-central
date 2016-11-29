@@ -3,6 +3,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+// Load DownloadUtils module for convertByteUnits
+Components.utils.import("resource://gre/modules/DownloadUtils.jsm");
+Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
+
 var gAdvancedPane = {
   mPane: null,
   mInitialized: false,
@@ -35,6 +39,7 @@ var gAdvancedPane = {
     if (AppConstants.MOZ_CRASHREPORTER)
       this.initSubmitCrashes();
     this.initTelemetry();
+    this.updateActualCacheSize();
 
     // Search integration -- check whether we should hide or disable integration
     let hideSearchUI = false;
@@ -147,6 +152,40 @@ var gAdvancedPane = {
    * - the size of the browser cache in KB
    */
 
+  // Retrieves the amount of space currently used by disk cache
+  updateActualCacheSize: function()
+  {
+    let actualSizeLabel = document.getElementById("actualDiskCacheSize");
+    let prefStrBundle = document.getElementById("bundlePreferences");
+
+    // Needs to root the observer since cache service keeps only a weak reference.
+    this.observer = {
+      onNetworkCacheDiskConsumption: function(consumption) {
+        let size = DownloadUtils.convertByteUnits(consumption);
+        // The XBL binding for the string bundle may have been destroyed if
+        // the page was closed before this callback was executed.
+        if (!prefStrBundle.getFormattedString) {
+          return;
+        }
+        actualSizeLabel.value = prefStrBundle.getFormattedString("actualDiskCacheSize", size);
+      },
+
+      QueryInterface: XPCOMUtils.generateQI([
+        Components.interfaces.nsICacheStorageConsumptionObserver,
+        Components.interfaces.nsISupportsWeakReference
+      ])
+    };
+
+    actualSizeLabel.value = prefStrBundle.getString("actualDiskCacheSizeCalculated");
+
+    try {
+      let cacheService =
+        Components.classes["@mozilla.org/netwerk/cache-storage-service;1"]
+                  .getService(Components.interfaces.nsICacheStorageService);
+      cacheService.asyncGetDiskConsumption(this.observer);
+    } catch (e) {}
+  },
+
   /**
    * Converts the cache size from units of KB to units of MB and returns that
    * value.
@@ -174,8 +213,11 @@ var gAdvancedPane = {
   clearCache: function ()
   {
     try {
-      Services.cache.evictEntries(Components.interfaces.nsICache.STORE_ANYWHERE);
-    } catch(ex) {}
+      let cache = Components.classes["@mozilla.org/netwerk/cache-storage-service;1"]
+                            .getService(Components.interfaces.nsICacheStorageService);
+      cache.clear();
+    } catch (ex) {}
+    this.updateActualCacheSize();
   },
 
   updateButtons: function (aButtonID, aPreferenceID)

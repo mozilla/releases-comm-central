@@ -81,8 +81,10 @@ Sanitizer.prototype = {
         try {
           // Cache doesn't consult timespan, nor does it have the
           // facility for timespan-based eviction.  Wipe it.
-          Services.cache.evictEntries(Ci.nsICache.STORE_ANYWHERE);
-        } catch(er) {}
+          let cache = Components.classes["@mozilla.org/netwerk/cache-storage-service;1"]
+                                .getService(Ci.nsICacheStorageService);
+          cache.clear();
+        } catch (ex) {}
 
       },
 
