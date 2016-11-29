@@ -379,6 +379,8 @@
 @RESPATH@/components/devtools-startup.js
 @RESPATH@/components/Downloads.manifest
 @RESPATH@/components/DownloadLegacy.js
+@RESPATH@/components/EditorUtils.manifest
+@RESPATH@/components/EditorUtils.js
 @RESPATH@/components/FeedConverter.js
 @RESPATH@/components/FeedProcessor.js
 @RESPATH@/components/FeedProcessor.manifest
@@ -500,7 +502,7 @@
 @RESPATH@/components/SuiteProfileMigrator.js
 @RESPATH@/components/SuiteProfileMigrator.manifest
 @RESPATH@/components/SyncComponents.manifest
-#ifdef MOZ_DEBUG
+#if defined(ENABLE_TESTS) && defined(MOZ_DEBUG)
 @RESPATH@/components/TestInterfaceJS.js
 @RESPATH@/components/TestInterfaceJS.manifest
 @RESPATH@/components/TestInterfaceJSMaplike.js
