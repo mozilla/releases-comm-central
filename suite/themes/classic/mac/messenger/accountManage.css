@@ -20,15 +20,6 @@
   margin-inline-start: 20px;
 }
 
-.selectForOfflineUseButton {
-  list-style-image: url("chrome://communicator/skin/icons/offline.gif");
-}
-
-.selectForOfflineUseButton > .button-box > .button-icon {
-  margin-inline-start: 4px;
-  margin-inline-end: 4px;
-}
-
 .signatureBox {
   font-family: -moz-fixed;
 }
