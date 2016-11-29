@@ -239,7 +239,7 @@ statusbarpanel#statusbar-display {
 @media (min-resolution: 2dppx) {
   .tabbrowser-tab[chat][status="joining"],
   .alltabs-item[chat][status="joining"] > .menu-iconic-left > .menu-iconic-icon {
-    list-style-image: url("chrome://chat/skin/loading@2x.png") !important;
+    list-style-image: url("chrome://global/skin/icons/loading@2x.png") !important;
   }
 }
 
