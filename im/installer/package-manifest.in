@@ -542,6 +542,8 @@
 @RESPATH@/components/simpleServices.js
 @RESPATH@/components/extensions.xpt
 @RESPATH@/components/extensions.manifest
+@RESPATH@/components/EditorUtils.manifest
+@RESPATH@/components/EditorUtils.js
 @RESPATH@/components/update.xpt
 @RESPATH@/components/nsURLFormatter.js
 @RESPATH@/components/nsURLFormatter.manifest
