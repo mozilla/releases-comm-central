@@ -108,7 +108,7 @@ pref("mail.imap.expunge_threshold_number",  20);
 pref("mail.imap.hdr_chunk_size", 200);
 // Should we filter imap messages based on new messages since the previous
 // highest UUID seen instead of unread?
-pref("mail.imap.filter_on_new", false);
+pref("mail.imap.filter_on_new", true);
 
 // if true, we assume that a user access a folder in the other users namespace
 // is acting as a delegate for that folder, and wishes to use the other users
