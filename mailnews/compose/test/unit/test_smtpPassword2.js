@@ -58,7 +58,7 @@ add_task(function *() {
 
   logins = Services.logins.findLogins(count, kServerUrl, null, kServerUrl);
 
-  // should be one login left for kUser2
+  // There should be no login left.
   do_check_eq(count.value, 0);
   do_check_eq(logins.length, 0);
 });

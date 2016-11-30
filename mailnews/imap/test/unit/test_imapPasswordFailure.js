@@ -104,7 +104,7 @@ add_task(function *() {
   do_check_true(rootFolder.containsChildNamed("Inbox"));
   do_check_false(rootFolder.containsChildNamed("Subscribed"));
 
-  // Check that we haven't forgetton the login even though we've retried and
+  // Check that we haven't forgotten the login even though we've retried and
   // canceled.
 
   let count = {};
@@ -134,6 +134,13 @@ add_task(function *() {
   do_check_eq(count.value, 1);
   do_check_eq(logins[0].username, kUserName);
   do_check_eq(logins[0].password, kValidPassword);
+
+  // Remove the login via the incoming server.
+  incomingServer.forgetPassword();
+  logins = Services.logins.findLogins(count, "imap://localhost", null,
+                                      "imap://localhost");
+
+  do_check_eq(count.value, 0);
 
   do_timeout(500, endTest);
 });
