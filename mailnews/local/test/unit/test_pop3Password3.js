@@ -55,8 +55,17 @@ add_task(function *() {
   do_check_eq(count.value, 1);
   do_check_eq(logins[0].username, kUser2);
 
-  // Test - Remove the other login via the incoming server
-  incomingServer2.forgetPassword();
+  // Bug 561056 - Expand username to also contain domain (i.e. full email).
+  incomingServer2.realUsername = kUser2 + "@local.host";
+
+  logins = Services.logins.findLogins(count, kServerUrl, null, kServerUrl);
+
+  // There should still be the one login left for kUser2
+  do_check_eq(count.value, 1);
+  do_check_eq(logins[0].username, kUser2);
+
+  // Change username to another one.
+  incomingServer2.realUsername = "testpop";
 
   logins = Services.logins.findLogins(count, kServerUrl, null, kServerUrl);
 

@@ -47,6 +47,7 @@
 #include "nsIMsgSearchTerm.h"
 #include "nsAppDirectoryServiceDefs.h"
 #include "mozilla/Services.h"
+#include "Services.h"
 #include "nsIMsgFilter.h"
 #include "nsIArray.h"
 #include "nsArrayUtils.h"
@@ -1203,14 +1204,21 @@ nsMsgIncomingServer::OnUserOrHostNameChanged(const nsACString& oldName,
   nsresult rv;
 
   // 1. Reset password so that users are prompted for new password for the new user/host.
-  ForgetPassword();
+  int32_t atPos = newName.FindChar('@');
+  // If only username changed and the new name just added a domain
+  // we can keep the password.
+  if (hostnameChanged || (atPos == kNotFound) ||
+      !StringHead(NS_ConvertASCIItoUTF16(newName), atPos)
+                 .Equals(NS_ConvertASCIItoUTF16(oldName))) {
+
+    ForgetPassword();
+  }
 
   // 2. Let the derived class close all cached connection to the old host.
   CloseCachedConnections();
 
   // 3. Notify any listeners for account server changes.
-  nsCOMPtr<nsIMsgAccountManager> accountManager = do_GetService(NS_MSGACCOUNTMANAGER_CONTRACTID, &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
+  nsCOMPtr<nsIMsgAccountManager> accountManager(mozilla::services::GetAccountManager());
 
   rv = accountManager->NotifyServerChanged(this);
   NS_ENSURE_SUCCESS(rv, rv);
@@ -1220,13 +1228,11 @@ nsMsgIncomingServer::OnUserOrHostNameChanged(const nsACString& oldName,
   rv = GetPrettyName(acctName);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  NS_ENSURE_FALSE(acctName.IsEmpty(), NS_OK);
-
-  // exit if new name contains @ then better do not update the account name
-  if (!hostnameChanged && (newName.FindChar('@') != kNotFound))
+  // If new username contains @ then better do not update the account name.
+  if (acctName.IsEmpty() || (!hostnameChanged && (atPos != kNotFound)))
     return NS_OK;
 
-  int32_t atPos = acctName.FindChar('@');
+  atPos = acctName.FindChar('@');
 
   // get previous username and hostname
   nsCString userName, hostName;
