@@ -18,6 +18,10 @@
  *   Event dialog toolbar buttons
  *-------------------------------------------------------------------*/
 
+#button-save {
+  list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#save);
+}
+
 #button-saveandclose {
   list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#save);
 }
@@ -54,6 +58,10 @@
 
 #button-timezones {
   list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#timezones);
+}
+
+toolbar[brighttext] #button-save {
+  list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#save-inverted);
 }
 
 toolbar[brighttext] #button-saveandclose {

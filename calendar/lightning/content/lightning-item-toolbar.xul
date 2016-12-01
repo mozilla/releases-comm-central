@@ -18,7 +18,12 @@
          xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 
   <toolbarpalette id="event-toolbarpalette">
-    <!-- this is "save and close" -->
+    <toolbarbutton id="button-save"
+                   mode="dialog"
+                   class="cal-event-toolbarbutton toolbarbutton-1"
+                   label="&event.toolbar.save.label2;"
+                   tooltiptext="&event.toolbar.save.tooltip2;"
+                   command="cmd_save"/>
     <toolbarbutton id="button-saveandclose"
                    mode="dialog"
                    class="cal-event-toolbarbutton toolbarbutton-1"

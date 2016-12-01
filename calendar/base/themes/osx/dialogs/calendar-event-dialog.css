@@ -19,6 +19,10 @@
  *-------------------------------------------------------------------*/
 
 @media not all and (-moz-mac-yosemite-theme) {
+  #button-save {
+    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar-osxlion.svg#save);
+  }
+
   #button-saveandclose {
     list-style-image: url(chrome://calendar-common/skin/calendar-toolbar-osxlion.svg#save);
   }
@@ -59,6 +63,10 @@
 }
 
 @media (-moz-mac-yosemite-theme) {
+  #button-save {
+    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#save-flat);
+  }
+
   #button-saveandclose {
     list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#save-flat);
   }
@@ -96,6 +104,10 @@
     list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#delete) !important;
     -moz-image-region: auto !important;
   }
+}
+
+toolbar[brighttext] #button-save {
+  list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#save-inverted);
 }
 
 toolbar[brighttext] #button-saveandclose {

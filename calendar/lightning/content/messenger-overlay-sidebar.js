@@ -335,6 +335,8 @@ var calendarItemTabType = {
             aState.args.initialStartDateValue = aState.initialStartDate
                 ? cal.createDateTime(aState.initialStartDate) : getDefaultStartDate();
 
+            aState.args.onOk = doTransaction.bind(null, "modify");
+
             aState.args.calendar = getCalendarManager().getCalendarById(aState.calendarId);
             if (aState.args.calendar) {
                 // using wrappedJSObject is a hack that is needed to prevent a proxy error

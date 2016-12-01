@@ -65,6 +65,20 @@
     -moz-image-region: rect(32px 80px 48px 64px);
   }
 
+  #button-save {
+    -moz-image-region: rect(0px 144px 24px 120px);
+  }
+  #button-save[disabled="true"] {
+    -moz-image-region: rect(48px 144px 72px 120px);
+  }
+
+  toolbar[iconsize="small"] #button-save {
+    -moz-image-region: rect(0px 96px 16px 80px);
+  }
+  toolbar[iconsize="small"] #button-save[disabled="true"] {
+    -moz-image-region: rect(32px 96px 48px 80px);
+  }
+
   #button-saveandclose {
     -moz-image-region: rect(0px 144px 24px 120px);
   }
@@ -163,6 +177,10 @@
 }
 
 @media not all and (-moz-os-version: windows-xp) {
+  #button-save {
+    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#save);
+  }
+
   #button-saveandclose {
     list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#save);
   }
@@ -199,6 +217,10 @@
 
   #button-timezones {
     list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#timezones);
+  }
+
+  toolbar[brighttext] #button-save {
+    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#save-inverted);
   }
 
   toolbar[brighttext] #button-saveandclose {
@@ -269,6 +291,10 @@
 
 @media (-moz-windows-default-theme) and (-moz-os-version: windows-win8),
        (-moz-windows-default-theme) and (-moz-os-version: windows-win10) {
+  #button-save {
+    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#save-flat);
+  }
+
   #button-saveandclose {
     list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#save-flat);
   }
