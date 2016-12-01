@@ -264,8 +264,8 @@ pref("plugins.click_to_play", false);
 // Disable by default.
 pref("plugin.default.state", 0);
 
-// Plugins bundled in XPIs are enabled by default.
-pref("plugin.defaultXpi.state", 2);
+// Plugins bundled in XPIs are disabled by default.
+pref("plugin.defaultXpi.state", 0);
 
 // Flash and Java disabled by default.
 pref("plugin.state.flash", 0);
