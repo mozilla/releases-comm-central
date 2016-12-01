@@ -266,7 +266,6 @@ instantbird.jar:
 	skin/classic/instantbird/messages/bubbles/Bitmaps/minus.png             (messages/bubbles/Bitmaps/minus.png)
 	skin/classic/instantbird/messages/bubbles/Bitmaps/plus-hover.png        (messages/bubbles/Bitmaps/plus-hover.png)
 	skin/classic/instantbird/messages/bubbles/Bitmaps/plus.png              (messages/bubbles/Bitmaps/plus.png)
-	skin/classic/instantbird/messages/bubbles/bubbles.svg                   (messages/bubbles/bubbles.svg)
 	skin/classic/instantbird/messages/bubbles/Footer.html                   (messages/bubbles/Footer.html)
 	skin/classic/instantbird/messages/bubbles/Incoming/Content.html         (messages/bubbles/Incoming/Content.html)
 	skin/classic/instantbird/messages/bubbles/Incoming/Context.html         (messages/bubbles/Incoming/Context.html)

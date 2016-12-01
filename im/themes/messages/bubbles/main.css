@@ -40,7 +40,7 @@ p {
 }
 
 .bubble.context:not(:hover) {
-  filter: url("bubbles.svg#desaturate");
+  filter: saturate(40%);
 }
 
 .indicator {
