@@ -42,7 +42,7 @@ function onLoad() {
         }
     }
     // the display names need to be sorted
-    displayNames.sort(String.localeCompare);
+    displayNames.sort((a, b) => a.localeCompare(b));
     for (let i = 0; i < displayNames.length; ++i) {
         let displayName = displayNames[i];
         addMenuItem(tzMenuPopup, displayName, tzids[displayName]);

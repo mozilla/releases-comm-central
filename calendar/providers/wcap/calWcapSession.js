@@ -839,7 +839,7 @@ calWcapSession.prototype = {
         let alarmEmails = this.getUserPreferences("X-NSCP-WCAP-PREF-ceDefaultAlarmEmail");
         if (alarmEmails.length > 0 && alarmEmails[0].length > 0) {
             for (let email of alarmEmails) {
-                ret = ret.concat(email.split(/[;,]/).map(String.trim));
+                ret = ret.concat(email.split(/[;,]/).map(email => email.trim()));
             }
         }
         out_count.value = ret.length;

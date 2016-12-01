@@ -49,7 +49,7 @@ var gCalendarGeneralPane = {
             }
         }
         // the display names need to be sorted
-        displayNames.sort(String.localeCompare);
+        displayNames.sort((a, b) => a.localeCompare(b));
         for (let displayName of displayNames) {
             addMenuItem(tzMenuPopup, displayName, tzids[displayName]);
         }
