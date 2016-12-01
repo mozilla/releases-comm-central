@@ -417,7 +417,7 @@ var EmailAccountProvisioner = {
     // Here's where we do some kind of hack-y client-side sanitization.
     // Believe it or not, this is how you sanitize stuff to HTML elements
     // via jQuery.
-    // let name = String.trim($("<div></div>").text($("#name").val()).html());
+    // let name = $("<div></div>").text($("#name").val()).html().trim();
     // Not quite sure what this was for, but here's the hack converted
     // to vanilla JS.
     let nameElement = document.getElementById("name");
@@ -461,7 +461,7 @@ var EmailAccountProvisioner = {
     request.onloadend = function() {
       // Also called if we timeout.
       let firstAndLastName = document.getElementById("FirstAndLastName");
-      firstAndLastName.innerHTML = String.trim(firstname + " " + lastname);
+      firstAndLastName.innerHTML = (firstname + " " + lastname).trim();
       EmailAccountProvisioner.searchEnabled(true);
       EmailAccountProvisioner.spinning(false);
     };
@@ -501,7 +501,7 @@ var EmailAccountProvisioner = {
     let tabmail = mail3Pane.document.getElementById("tabmail");
     tabmail.openTab("accountProvisionerTab", {
       contentPage: url,
-      realName: String.trim(firstName + " " + lastName),
+      realName: (firstName + " " + lastName).trim(),
       email: email,
       searchEngine: provider.search_engine,
       onLoad: function (aEvent, aBrowser) {
