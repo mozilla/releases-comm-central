@@ -203,9 +203,6 @@ public:
 int
 main(int32_t argc, char *argv[])
 {
-    if (test_common_init(&argc, &argv) != 0)
-        return -1;
-
     bool allTestsPassed = true;
 
     ScopedXPCOM xpcom;
