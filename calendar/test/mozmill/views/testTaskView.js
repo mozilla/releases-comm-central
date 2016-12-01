@@ -103,7 +103,7 @@ var testTaskView = function() {
       percentComplete);
 
     // save
-    task.click(new elementslib.ID(task.window.document, "button-save"));
+    task.click(new elementslib.ID(task.window.document, "button-saveandclose"));
     controller.waitFor(() => mozmill.utils.getWindows("Calendar:EventDialog").length == 0);
 
     // verify description and status in details pane

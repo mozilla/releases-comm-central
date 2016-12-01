@@ -37,7 +37,7 @@ var testAnnualRecurrence = function() {
     event.sleep(sleep);
     event.select(new elementslib.ID(event.window.document, "item-repeat"), undefined, undefined,
       "yearly");
-    event.click(new elementslib.ID(event.window.document, "button-save"));
+    event.click(new elementslib.ID(event.window.document, "button-saveandclose"));
     controller.sleep(sleep);
 
     let checkYears = [startYear, startYear + 1, epoch - 1, epoch, epoch + 1];

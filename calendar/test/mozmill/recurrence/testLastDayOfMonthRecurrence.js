@@ -33,7 +33,7 @@ var testLastDayOfMonthRecurrence = function() {
     event.select(new elementslib.ID(event.window.document, "item-repeat"), undefined, undefined,
       "custom");
 
-    event.click(new elementslib.ID(event.window.document, "button-save"));
+    event.click(new elementslib.ID(event.window.document, "button-saveandclose"));
     controller.waitFor(() => mozmill.utils.getWindows("Calendar:EventDialog").length == 0);
 
     //                        date     correct row in month view

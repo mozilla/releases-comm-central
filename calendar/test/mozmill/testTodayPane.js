@@ -66,7 +66,7 @@ var testTodayPane = function() {
 
     event.waitForElement(new elementslib.Lookup(iframe.contentDocument, eventName));
     event.type(new elementslib.Lookup(iframe.contentDocument, eventName), "Today's Event");
-    event.click(new elementslib.ID(event.window.document, "button-save"));
+    event.click(new elementslib.ID(event.window.document, "button-saveandclose"));
     controller.waitFor(() => mozmill.utils.getWindows("Calendar:EventDialog").length == 0);
 
     // reset view
@@ -85,7 +85,7 @@ var testTodayPane = function() {
 
     event.waitForElement(new elementslib.Lookup(iframe.contentDocument, eventName));
     event.type(new elementslib.Lookup(iframe.contentDocument, eventName), "Tomorrow's Event");
-    event.click(new elementslib.ID(event.window.document, "button-save"));
+    event.click(new elementslib.ID(event.window.document, "button-saveandclose"));
     controller.waitFor(() => mozmill.utils.getWindows("Calendar:EventDialog").length == 0);
 
     // go 5 days forward and add an event
@@ -105,7 +105,7 @@ var testTodayPane = function() {
 
     event.waitForElement(new elementslib.Lookup(iframe.contentDocument, eventName));
     event.type(new elementslib.Lookup(iframe.contentDocument, eventName), "Future's Event");
-    event.click(new elementslib.ID(event.window.document, "button-save"));
+    event.click(new elementslib.ID(event.window.document, "button-saveandclose"));
     controller.waitFor(() => mozmill.utils.getWindows("Calendar:EventDialog").length == 0);
 
     // go to mail tab

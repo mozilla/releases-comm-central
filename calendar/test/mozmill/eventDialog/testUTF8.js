@@ -48,7 +48,7 @@ var testUTF8 = function() {
       UTF8string);
 
     // save
-    event.click(new elementslib.ID(event.window.document, "button-save"));
+    event.click(new elementslib.ID(event.window.document, "button-saveandclose"));
 
     // open
     let eventBox = new elementslib.Lookup(controller.window.document,

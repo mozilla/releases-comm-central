@@ -93,7 +93,7 @@ var testDayView = function() {
     event.select(new elementslib.ID(event.window.document, "item-calendar"), null, calendar);
 
     // save
-    event.click(new elementslib.ID(event.window.document, "button-save"));
+    event.click(new elementslib.ID(event.window.document, "button-saveandclose"));
 
     // if it was created successfully, it can be opened
     let eventBox = new elementslib.Lookup(controller.window.document, dayView +
@@ -112,7 +112,7 @@ var testDayView = function() {
       'anon({"anonid":"input"})');
     event.waitForElement(titleTextBox);
     event.type(titleTextBox, title2);
-    event.click(new elementslib.ID(event.window.document, "button-save"));
+    event.click(new elementslib.ID(event.window.document, "button-saveandclose"));
 
     // check if name was saved
     let eventName = new elementslib.Lookup(controller.window.document, dayView +

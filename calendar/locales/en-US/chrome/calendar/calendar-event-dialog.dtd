@@ -150,12 +150,12 @@
 <!ENTITY event.remove.attendee.accesskey                  "e">
 
 <!-- Toolbar -->
-<!ENTITY  event.toolbar.save.label                        "Save and Close">
+<!ENTITY  event.toolbar.saveandclose.label                "Save and Close">
 <!ENTITY  event.toolbar.delete.label                      "Delete">
 <!ENTITY  event.toolbar.attendees.label                   "Invite Attendees">
 <!ENTITY  event.toolbar.privacy.label                     "Privacy">
 
-<!ENTITY  event.toolbar.save.tooltip                      "Save and Close">
+<!ENTITY  event.toolbar.saveandclose.tooltip              "Save and Close">
 <!ENTITY  event.toolbar.delete.tooltip                    "Delete">
 <!ENTITY  event.toolbar.attendees.tooltip                 "Invite Attendees">
 <!ENTITY  event.toolbar.attachments.tooltip               "Add Attachments">

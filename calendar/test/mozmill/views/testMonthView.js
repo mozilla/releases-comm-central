@@ -104,7 +104,7 @@ var testMonthView = function() {
       '[0]/{"label":"' + calendar + '"}'));
 
     // save
-    event.click(new elementslib.ID(event.window.document, "button-save"));
+    event.click(new elementslib.ID(event.window.document, "button-saveandclose"));
 
     // if it was created successfully, it can be opened
     controller.waitForElement(new elementslib.Lookup(controller.window.document, eventBox));
@@ -118,7 +118,7 @@ var testMonthView = function() {
       'anon({"anonid":"input"})');
     event.waitForElement(titleTextBox);
     event.type(titleTextBox, title2);
-    event.click(new elementslib.ID(event.window.document, "button-save"));
+    event.click(new elementslib.ID(event.window.document, "button-saveandclose"));
 
     // check if name was saved
     let eventName = new elementslib.Lookup(controller.window.document, eventBox +

@@ -30,7 +30,7 @@ var testDailyRecurrence = function() {
     event.waitForElement(new elementslib.ID(event.window.document, "item-repeat"));
     event.select(new elementslib.ID(event.window.document, "item-repeat"), undefined, undefined,
       "daily");
-    event.click(new elementslib.ID(event.window.document, "button-save"));
+    event.click(new elementslib.ID(event.window.document, "button-saveandclose"));
 
     // check day view for 7 days
     let daybox = calUtils.getEventBoxPath(controller, "day", calUtils.EVENT_BOX, undefined, 1, hour, undefined) +
@@ -137,7 +137,7 @@ var testDailyRecurrence = function() {
     event.waitForElement(new elementslib.ID(event.window.document, "item-repeat"));
     event.select(new elementslib.ID(event.window.document, "item-repeat"), undefined, undefined,
       "every.weekday");
-    event.click(new elementslib.ID(event.window.document, "button-save"));
+    event.click(new elementslib.ID(event.window.document, "button-saveandclose"));
     controller.waitFor(() => mozmill.utils.getWindows("Calendar:EventDialog").length == 0);
 
     // check day view for 7 days

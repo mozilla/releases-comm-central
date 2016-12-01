@@ -34,7 +34,7 @@ var testWeeklyUntilRecurrence = function() {
     event.waitForElement(new elementslib.ID(event.window.document, "item-repeat"));
     event.select(new elementslib.ID(event.window.document, "item-repeat"), undefined, undefined, "custom");
 
-    event.click(new elementslib.ID(event.window.document, "button-save"));
+    event.click(new elementslib.ID(event.window.document, "button-saveandclose"));
     controller.waitFor(() => mozmill.utils.getWindows("Calendar:EventDialog").length == 0);
 
     let box = calUtils.getEventBoxPath(controller, "day", calUtils.EVENT_BOX, undefined, 1, hour) +

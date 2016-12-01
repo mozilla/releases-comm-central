@@ -70,7 +70,7 @@ var testLocalICS = function() {
     event.waitFor(() => itemCalendar.getNode().value == calendar);
 
     // save
-    event.click(new elementslib.ID(event.window.document, "button-save"));
+    event.click(new elementslib.ID(event.window.document, "button-saveandclose"));
 
     // assert presence in view
     let box = calUtils.getEventBoxPath(controller, "day", calUtils.EVENT_BOX, undefined, 1, hour) +

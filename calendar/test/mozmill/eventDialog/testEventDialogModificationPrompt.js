@@ -79,7 +79,7 @@ var testEventDialogModificationPrompt = function() {
     calUtils.setData(event, data[0]);
 
     // save
-    event.click(new elementslib.ID(event.window.document, "button-save"));
+    event.click(new elementslib.ID(event.window.document, "button-saveandclose"));
 
     // open, but change nothing
     let eventBox = new elementslib.Lookup(controller.window.document,
@@ -139,7 +139,7 @@ var testEventDialogModificationPrompt = function() {
         event = new mozmill.controller.MozMillController(mozmill.utils
           .getWindows("Calendar:EventDialog")[0]);
         calUtils.setData(event, newlines[i]);
-        event.click(new elementslib.ID(event.window.document, "button-save"));
+        event.click(new elementslib.ID(event.window.document, "button-saveandclose"));
 
         // open and close
         eventBox = new elementslib.Lookup(controller.window.document,

@@ -150,7 +150,7 @@ var calendarWindowPrefs = {
  * to change UI items that require js code intervention
  */
 function migrateCalendarUI() {
-    const UI_VERSION = 2;
+    const UI_VERSION = 3;
     let currentUIVersion = Preferences.get("calendar.ui.version");
     if (currentUIVersion >= UI_VERSION) {
         return;
@@ -187,6 +187,29 @@ function migrateCalendarUI() {
                 // loaded into the DOM so the toolbar's currentset
                 // attribute does not yet match the new currentSet.
                 tabBar.setAttribute("currentset", tabSet);
+            }
+        }
+        if (currentUIVersion < 3) {
+            // Rename toolbar button id "button-save" to
+            // "button-saveandclose" in customized toolbars
+            let xulStore = Components.classes["@mozilla.org/xul/xulstore;1"]
+                                     .getService(Components.interfaces.nsIXULStore);
+            let windowUri = "chrome://calendar/content/calendar-event-dialog.xul";
+            let tabUri = "chrome://messenger/content/messenger.xul";
+
+            if (xulStore.hasValue(windowUri, "event-toolbar", "currentset")) {
+                let windowSet = xulStore.getValue(windowUri, "event-toolbar", "currentset");
+                let newSet = windowSet.replace("button-save", "button-saveandclose");
+                xulStore.setValue(windowUri, "event-toolbar", "currentset", newSet);
+            }
+            if (xulStore.hasValue(tabUri, "event-tab-toolbar", "currentset")) {
+                let tabSet = xulStore.getValue(tabUri, "event-tab-toolbar", "currentset");
+                let newSet = tabSet.replace("button-save", "button-saveandclose");
+                xulStore.setValue(tabUri, "event-tab-toolbar", "currentset", newSet);
+
+                let tabBar = document.getElementById("event-tab-toolbar");
+                tabBar.currentSet = newSet;
+                tabBar.setAttribute("currentset", newSet);
             }
         }
         Preferences.set("calendar.ui.version", UI_VERSION);

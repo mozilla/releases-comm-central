@@ -138,7 +138,7 @@ var testEventDialog = function() {
 
     // save
     calUtils.acceptSendingNotificationMail(event);
-    event.click(new elementslib.ID(event.window.document, "button-save"));
+    event.click(new elementslib.ID(event.window.document, "button-saveandclose"));
 
     // catch and dismiss alarm
     controller.waitFor(() => mozmill.utils.getWindows("Calendar:AlarmWindow").length > 0, sleep);

@@ -39,7 +39,7 @@ var testTimezones2_CreateEvents = function() {
         calUtils.setData(event, { title: timezones[i], repeat: "weekly", starttime: time });
 
         // save
-        event.click(new elementslib.ID(event.window.document, "button-save"));
+        event.click(new elementslib.ID(event.window.document, "button-saveandclose"));
         controller.waitFor(() => mozmill.utils.getWindows("Calendar:EventDialog").length == 0);
     }
 };

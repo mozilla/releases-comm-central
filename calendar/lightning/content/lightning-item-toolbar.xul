@@ -19,11 +19,11 @@
 
   <toolbarpalette id="event-toolbarpalette">
     <!-- this is "save and close" -->
-    <toolbarbutton id="button-save"
+    <toolbarbutton id="button-saveandclose"
                    mode="dialog"
                    class="cal-event-toolbarbutton toolbarbutton-1"
-                   label="&event.toolbar.save.label;"
-                   tooltiptext="&event.toolbar.save.tooltip;"
+                   label="&event.toolbar.saveandclose.label;"
+                   tooltiptext="&event.toolbar.saveandclose.tooltip;"
                    command="cmd_accept"/>
     <toolbarbutton id="button-attendees"
                    mode="dialog"

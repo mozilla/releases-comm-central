@@ -33,7 +33,7 @@ var testWeeklyWithExceptionRecurrence = function() {
     event.waitForElement(new elementslib.ID(event.window.document, "item-repeat"));
     event.select(new elementslib.ID(event.window.document, "item-repeat"), undefined, undefined, "custom");
 
-    event.click(new elementslib.ID(event.window.document, "button-save"));
+    event.click(new elementslib.ID(event.window.document, "button-saveandclose"));
     controller.waitFor(() => mozmill.utils.getWindows("Calendar:EventDialog").length == 0);
 
     // move 5th January occurrence to 6th January
@@ -67,7 +67,7 @@ var testWeeklyWithExceptionRecurrence = function() {
     // applies startdate change
     event.click(endDateInput);
 
-    event.click(new elementslib.ID(event.window.document, "button-save"));
+    event.click(new elementslib.ID(event.window.document, "button-saveandclose"));
     controller.waitFor(() => mozmill.utils.getWindows("Calendar:EventDialog").length == 0);
 
     // change recurrence rule
@@ -84,7 +84,7 @@ var testWeeklyWithExceptionRecurrence = function() {
     event.waitForElement(new elementslib.ID(event.window.document, "item-repeat"));
     event.select(new elementslib.ID(event.window.document, "item-repeat"), undefined, undefined, "custom");
 
-    event.click(new elementslib.ID(event.window.document, "button-save"));
+    event.click(new elementslib.ID(event.window.document, "button-saveandclose"));
     controller.waitFor(() => mozmill.utils.getWindows("Calendar:EventDialog").length == 0);
 
     // check two weeks
