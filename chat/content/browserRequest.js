@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+Components.utils.import("resource:///modules/imServices.jsm");
+
 var wpl = Components.interfaces.nsIWebProgressListener;
 
 var reporterListener = {
@@ -133,6 +135,11 @@ function loadRequestedUrl()
     account.protocol.iconBaseURI + "icon48.png";
 
   let browser = document.getElementById("requestFrame");
+  browser.docShell.allowPlugins = false;
+
+  if (Services.prefs.getBoolPref("chat.browserRequest.disableJavascript"))
+    browser.docShell.allowJavascript = false;
+
   browser.addProgressListener(reporterListener,
                               Components.interfaces.nsIWebProgress.NOTIFY_ALL);
   let url = request.url;
