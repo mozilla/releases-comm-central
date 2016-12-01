@@ -25,7 +25,7 @@ var Core = {
   initLibpurpleOverrides: function() {
     let forcePurple = Services.prefs.getCharPref("chat.prpls.forcePurple")
                               .split(",")
-                              .map(String.trim)
+                              .map(aPrplId => aPrplId.trim())
                               .filter(aPrplId => !!aPrplId);
     if (!forcePurple.length)
       return;

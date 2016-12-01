@@ -872,7 +872,7 @@ AccountsService.prototype = {
       return;
 
     this._accounts =
-      this._accountList.split(",").map(String.trim)
+      this._accountList.split(",").map(account => account.trim())
           .filter(k => k.startsWith(kAccountKeyPrefix))
           .map(k => parseInt(k.substr(kAccountKeyPrefix.length)))
           .map(this.getAccountByNumericId, this)
