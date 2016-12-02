@@ -913,10 +913,13 @@ nsresult nsMsgComposeSecure::MimeCryptoHackCerts(const char *aRecipients,
                                    mEncryptionCertDBKey);
     }
   }
+#if 0
+Temporary fix, see bug 1319185
   if (!mSelfEncryptionCert) {
     certdb->FindEmailEncryptionCert(mEncryptionCertName,
                                     getter_AddRefs(mSelfEncryptionCert));
   }
+#endif
 
   // same procedure for the signing cert
   if (!mSigningCertDBKey.IsEmpty()) {
@@ -934,10 +937,13 @@ nsresult nsMsgComposeSecure::MimeCryptoHackCerts(const char *aRecipients,
       aIdentity->SetCharAttribute("signing_cert_dbkey", mSigningCertDBKey);
     }
   }
+#if 0
+Temporary fix, see bug 1319185
   if (!mSelfSigningCert) {
     certdb->FindEmailSigningCert(mSigningCertName,
                                  getter_AddRefs(mSelfSigningCert));
   }
+#endif
 
   // must have both the signing and encryption certs to sign
   if (!mSelfSigningCert && aSign) {
