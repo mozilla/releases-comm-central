@@ -84,6 +84,9 @@ var calendarController = {
 
         "calendar_attendance_command": true,
 
+        // for saving events/tasks in a tab
+        "cmd_save": true,
+
         // Pseudo commands
         "calendar_in_foreground": true,
         "calendar_in_background": true,
@@ -227,6 +230,12 @@ var calendarController = {
                     return this.defaultController.isCommandEnabled(aCommand);
                 }
                 break;
+
+            // for saving events/tasks in a tab
+            case "cmd_save": {
+                let tabType = document.getElementById("tabmail").currentTabInfo.mode.type;
+                return tabType == "calendarTask" || tabType == "calendarEvent";
+            }
 
             default:
                 if (this.defaultController && !this.isCalendarInForeground()) {

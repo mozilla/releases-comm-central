@@ -71,7 +71,17 @@
 <!ENTITY  event.menu.item.close.label                     "Close">
 <!ENTITY  event.menu.item.close.accesskey                 "C">
 <!ENTITY  event.menu.item.save.label                      "Save">
+
+<!-- LOCALIZATION NOTE(event.menu.item.save.accesskey)
+   - This accesskey is used for the "Save" menu item when editing
+   - events/tasks in a dialog window -->
 <!ENTITY  event.menu.item.save.accesskey                  "S">
+
+<!-- LOCALIZATION NOTE(event.menu.item.save.tab.accesskey)
+   - This accesskey is used for the "Save" menu item when editing
+   - events/tasks in a tab. -->
+<!ENTITY  event.menu.item.save.tab.accesskey        "a">
+
 <!ENTITY  event.menu.item.saveandclose.label              "Save and Close">
 <!ENTITY  event.menu.item.saveandclose.accesskey          "l">
 <!ENTITY  event.menu.item.delete.label                    "Delete…">

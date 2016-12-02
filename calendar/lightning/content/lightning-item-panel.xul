@@ -187,7 +187,7 @@
                key="&event.dialog.close.key;"
                command="cmd_item_close"/>
           <key id="save-key"
-               modifiers="accel"
+               modifiers="accel, shift"
                key="&event.dialog.save.key;"
                command="cmd_save"/>
           <key id="saveandclose-key"

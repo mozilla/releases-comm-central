@@ -8,6 +8,7 @@
   <!ENTITY % calendarDTD SYSTEM "chrome://calendar/locale/calendar.dtd" > %calendarDTD;
   <!ENTITY % toolbarDTD SYSTEM "chrome://lightning/locale/lightning-toolbar.dtd" > %toolbarDTD;
   <!ENTITY % menuOverlayDTD SYSTEM "chrome://calendar/locale/menuOverlay.dtd" > %menuOverlayDTD;
+  <!ENTITY % eventDialogDTD SYSTEM "chrome://calendar/locale/calendar-event-dialog.dtd" > %eventDialogDTD;
 ]>
 
 <overlay id="ltnMenusOverlay" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
@@ -28,6 +29,13 @@
                   oncommand="openLocalCalendar();"/>
       </menupopup>
     </menu>
+    <menuitem id="ltnSave"
+              insertbefore="menu_saveAs"
+              label="&event.menu.item.save.label;"
+              accesskey="&event.menu.item.save.tab.accesskey;"
+              key="save-key"
+              command="cmd_save"
+              observes="cmd_save"/>
   </menupopup>
   <menuitem id="openMessageFileMenuitem" hidden="true"/>
 
