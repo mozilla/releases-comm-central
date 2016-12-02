@@ -463,6 +463,7 @@
 @RESPATH@/components/dom_core.xpt
 @RESPATH@/components/dom_css.xpt
 @RESPATH@/components/dom_events.xpt
+@RESPATH@/components/dom_file.xpt
 @RESPATH@/components/dom_geolocation.xpt
 @RESPATH@/components/dom_html.xpt
 @RESPATH@/components/dom_json.xpt
