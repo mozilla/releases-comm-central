@@ -185,7 +185,7 @@ var GenericIRCConversation = {
    * @param {string} aMessage - Message text.
    * @param {Object} aObject - Other properties to set on the imMessage.
    */
-  writeMessage: function(aWho, aMessage, aObject) {
+  handleTags: function(aWho, aMessage, aObject) {
     let messageProps = aObject;
     if ("tags" in aObject && ircHandlers.hasTagHandlers) {
       // Merge extra info for the handler into the props.
@@ -208,9 +208,8 @@ var GenericIRCConversation = {
       delete messageProps.originalMessage;
     }
     // Remove the IRC tags, as those were passed in just for this step.
-    delete aObject.tags;
-
-    GenericConversationPrototype.writeMessage.call(this, aWho, aMessage, messageProps);
+    delete messageProps.tags;
+    return messageProps;
   },
   // Apply CTCP formatting before displaying.
   prepareForDisplaying: function(aMsg) {
@@ -583,6 +582,10 @@ ircChannel.prototype = {
     // If the channel mode is +t, hops and ops can set the topic; otherwise
     // everyone can.
     return !this._modes.has("t") || participant.op || participant.halfOp;
+  },
+  writeMessage: function(aMsg, aWho, aObject) {
+    const messageProps = this.handleTags(aMsg, aWho, aObject);
+    GenericConvChatPrototype.writeMessage.call(this, aMsg, aWho, messageProps);
   }
 };
 Object.assign(ircChannel.prototype, GenericIRCConversation);
@@ -648,6 +651,10 @@ ircConversation.prototype = {
   updateNick: function(aNewNick) {
     this._name = aNewNick;
     this.notifyObservers(null, "update-conv-title");
+  },
+  writeMessage: function(aMsg, aWho, aObject) {
+    const messageProps = this.handleTags(aMsg, aWho, aObject);
+    GenericConvIMPrototype.writeMessage.call(this, aMsg, aWho, messageProps);
   }
 };
 Object.assign(ircConversation.prototype, GenericIRCConversation);
