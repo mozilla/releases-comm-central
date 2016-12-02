@@ -80,6 +80,9 @@ var gSystemIntegrationDialog = {
       if ((this.Services.appinfo.OS == "WINNT") && !calledFromPrefs &&
           !this._searchCheckbox.checked) {
         this._searchCheckbox.hidden = true;
+        // Even if the user wasn't presented the choice,
+        // we do not want to ask again automatically.
+        this.SearchIntegration.firstRunDone = true;
       } else {
         // Hide/disable the options if the OS does not support them.
         if (!this.SearchIntegration.osVersionTooLow) {
@@ -104,6 +107,8 @@ var gSystemIntegrationDialog = {
     // In all cases, save the user's decision for "always check at startup".
     this._shellSvc.shouldCheckDefaultClient = this._startupCheckbox.checked;
 
+    // If the search checkbox is exposed, the user had the chance to make his choice.
+    // So do not ask next time.
     let searchIntegPossible = !this._searchCheckbox.hidden;
     if (searchIntegPossible) {
       this.SearchIntegration.firstRunDone = true;
