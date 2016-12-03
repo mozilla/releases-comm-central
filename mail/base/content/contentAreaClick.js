@@ -81,7 +81,7 @@ function messagePaneOnResize(aEvent)
  */
 function isLinkToAnchorOnPage(aTargetNode)
 {
-  let url = aTargetNode.rootNode.URL;
+  let url = aTargetNode.ownerDocument.URL;
   if (!url.startsWith("http"))
     return false;
 

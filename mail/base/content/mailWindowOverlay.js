@@ -3378,7 +3378,7 @@ function OnMsgParsed(aUrl)
 
     // Finally, if the document url is a message url, and the anchor href is
     // http, it needs to be adjusted so docShell finds the node.
-    let messageURI = makeURI(linkNode.rootNode.URL);
+    let messageURI = makeURI(linkNode.ownerDocument.URL);
     if (messageURI instanceof Components.interfaces.nsIMsgMailNewsUrl &&
         linkNode.href.startsWith("http"))
       linkNode.href = messageURI.specIgnoringRef + linkNode.hash;
