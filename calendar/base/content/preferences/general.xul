@@ -63,6 +63,9 @@
             <preference id="calendar.agendaListbox.soondays"
                         name="calendar.agendaListbox.soondays"
                         type="int"/>
+            <preference id="calendar.item.editInTab"
+                        name="calendar.item.editInTab"
+                        type="bool"/>
         </preferences>
 
         <groupbox>
@@ -294,5 +297,15 @@
             </hbox>
         </groupbox>
 #endif
+
+        <groupbox>
+            <caption label="&pref.eventsandtasks.label;"/>
+            <hbox align="center">
+                <checkbox id="tabedit" pack="end"
+                          label="&pref.editInTab.label;"
+                          accesskey="&pref.editInTab.accesskey;"
+                          preference="calendar.item.editInTab"/>
+            </hbox>
+        </groupbox>
     </vbox>
 </overlay>
