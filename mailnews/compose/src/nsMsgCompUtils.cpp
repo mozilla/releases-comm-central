@@ -357,14 +357,6 @@ nsresult mime_generate_headers(nsIMsgCompFields *fields,
     finalHeaders->SetRawHeader(HEADER_X_MOZILLA_DRAFT_INFO, draftInfo, nullptr);
   }
 
-  // Set Content-Language header.
-  char* contentLanguage = nullptr;
-  fields->GetContentLanguage(&contentLanguage);
-  if (contentLanguage) {
-    finalHeaders->SetRawHeader(HEADER_CONTENT_LANGUAGE,
-                               nsDependentCString(contentLanguage), nullptr);
-  }
-
   nsCOMPtr<nsIHttpProtocolHandler> pHTTPHandler = do_GetService(NS_NETWORK_PROTOCOL_CONTRACTID_PREFIX "http", &rv);
   if (NS_SUCCEEDED(rv) && pHTTPHandler)
   {
