@@ -36,8 +36,8 @@ var gSearchAbViewListener = {
       statusText = gAddressBookBundle.getString("noMatchFound");
     } else {
       statusText = PluralForm
-        .get(aTotal, gAddressBookBundle.getString("matchesFoundCount"))
-        .replace("%S", aTotal);
+        .get(aTotal, gAddressBookBundle.getString("matchesFound1"))
+        .replace("#1", aTotal);
     }
 
     gStatusText.setAttribute("label", statusText);
