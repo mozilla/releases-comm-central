@@ -36,6 +36,12 @@
               key="save-key"
               command="cmd_save"
               observes="cmd_save"/>
+    <menuitem id="ltnSaveAndClose"
+              insertafter="ltnSave"
+              label="&event.menu.item.saveandclose.label;"
+              accesskey="&event.menu.item.saveandclose.tab.accesskey;"
+              command="cmd_accept"
+              observes="cmd_accept"/>
   </menupopup>
   <menuitem id="openMessageFileMenuitem" hidden="true"/>
 

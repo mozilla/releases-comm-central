@@ -70,20 +70,25 @@
 <!ENTITY  event.menu.item.new.contact.accesskey           "C">
 <!ENTITY  event.menu.item.close.label                     "Close">
 <!ENTITY  event.menu.item.close.accesskey                 "C">
+
+<!-- LOCALIZATION NOTE
+   - event.menu.item.save.accesskey is used for the "Save" menu item
+   - when editing events/tasks in a dialog window.
+   - event.menu.item.save.tab.accesskey is used for the "Save" menu item
+   - when editing events/tasks in a tab. -->
 <!ENTITY  event.menu.item.save.label                      "Save">
-
-<!-- LOCALIZATION NOTE(event.menu.item.save.accesskey)
-   - This accesskey is used for the "Save" menu item when editing
-   - events/tasks in a dialog window -->
 <!ENTITY  event.menu.item.save.accesskey                  "S">
+<!ENTITY  event.menu.item.save.tab.accesskey              "a">
 
-<!-- LOCALIZATION NOTE(event.menu.item.save.tab.accesskey)
-   - This accesskey is used for the "Save" menu item when editing
-   - events/tasks in a tab. -->
-<!ENTITY  event.menu.item.save.tab.accesskey        "a">
-
+<!-- LOCALIZATION NOTE
+    - event.menu.item.saveandclose.accesskey is used for "Save and Close"
+    - menu item when editing events/tasks in a dialog window.
+    - event.menu.item.saveandclose.tab.accesskey is used for "Save and Close"
+    - when editing events/tasks in a tab. -->
 <!ENTITY  event.menu.item.saveandclose.label              "Save and Close">
 <!ENTITY  event.menu.item.saveandclose.accesskey          "l">
+<!ENTITY  event.menu.item.saveandclose.tab.accesskey      "z">
+
 <!ENTITY  event.menu.item.delete.label                    "Delete…">
 <!ENTITY  event.menu.item.delete.accesskey                "D">
 <!ENTITY  event.menu.item.page.setup.label                "Page Setup">

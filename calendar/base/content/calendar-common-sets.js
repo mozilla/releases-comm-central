@@ -84,8 +84,9 @@ var calendarController = {
 
         "calendar_attendance_command": true,
 
-        // for saving events/tasks in a tab
+        // for events/tasks in a tab
         "cmd_save": true,
+        "cmd_accept": true,
 
         // Pseudo commands
         "calendar_in_foreground": true,
@@ -231,8 +232,10 @@ var calendarController = {
                 }
                 break;
 
-            // for saving events/tasks in a tab
-            case "cmd_save": {
+            // for events/tasks in a tab
+            case "cmd_save":
+            // falls through
+            case "cmd_accept": {
                 let tabType = document.getElementById("tabmail").currentTabInfo.mode.type;
                 return tabType == "calendarTask" || tabType == "calendarEvent";
             }
