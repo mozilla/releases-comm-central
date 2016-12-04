@@ -280,7 +280,6 @@ nsThunderbirdProfileMigrator::PrefTransform gTransforms[] = {
   MAKESAMETYPEPREFTRANSFORM("mail.compose.add_undisclosed_recipients", Bool),
   MAKESAMETYPEPREFTRANSFORM("mail.compose.autosave",                   Bool),
   MAKESAMETYPEPREFTRANSFORM("mail.compose.autosaveinterval",           Int),
-  MAKESAMETYPEPREFTRANSFORM("mail.compose.dont_attach_source_of_local_network_links", Bool),
   MAKESAMETYPEPREFTRANSFORM("mail.compose.dontWarnMail2Newsgroup",     Bool),
   MAKESAMETYPEPREFTRANSFORM("mail.compose.other.header",               String),
   MAKESAMETYPEPREFTRANSFORM("mail.content_disposition_type",           Int),

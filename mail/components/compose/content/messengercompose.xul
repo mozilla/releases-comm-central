@@ -417,6 +417,10 @@
             accesskey="&customizeToolbar.accesskey;"/>
 </menupopup>
 
+<menupopup id="blockedContentOptions" value=""
+           onpopupshowing="onBlockedContentOptionsShowing(event);">
+</menupopup>
+
 #ifdef XP_MACOSX
   <vbox id="titlebar">
     <hbox id="titlebar-content">

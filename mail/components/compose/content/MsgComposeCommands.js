@@ -2249,6 +2249,97 @@ var dictionaryRemovalObserver =
   }
 }
 
+/**
+ * On paste or drop, we may want to modify the content before inserting it into
+ * the editor, replacing file URLs with data URLs when appropriate.
+ */
+function onPasteOrDrop(e) {
+  // For paste use e.clipboardData, for drop use e.dataTransfer.
+  let dataTransfer = ("clipboardData" in e) ? e.clipboardData : e.dataTransfer;
+
+  if (!dataTransfer.types.includes("text/html")) {
+    return;
+  }
+
+  if (!gMsgCompose.composeHTML) {
+    // We're in the plain text editor. Nothing to do here.
+    return;
+  }
+
+  let html = dataTransfer.getData("text/html");
+  let doc = (new DOMParser()).parseFromString(html, "text/html");
+  let tmpD = Services.dirsvc.get("TmpD", Components.interfaces.nsIFile);
+  let pendingConversions = 0;
+  let toConvert = 0;
+  for (let img of doc.images) {
+    if (!/^file:/i.test(img.src)) {
+      // Doesn't start with file:. Nothing to do here.
+      continue;
+    }
+
+    let nsFile = Services.io.getProtocolHandler("file")
+      .QueryInterface(Components.interfaces.nsIFileProtocolHandler)
+      .getFileFromURLSpec(img.src);
+
+    if (!nsFile.exists()) {
+      continue;
+    }
+
+    if (!tmpD.contains(nsFile)) {
+       // Not anywhere under the temp dir.
+      continue;
+    }
+
+    let contentType = Components.classes["@mozilla.org/mime;1"]
+      .getService(Components.interfaces.nsIMIMEService)
+      .getTypeFromFile(nsFile);
+    if (!contentType.startsWith("image/")) {
+      continue;
+    }
+
+    let file = File.createFromNsIFile(nsFile);
+    if (file.lastModifiedDate.getTime() < (Date.now() - 60000)) {
+      // Not put in temp in the last minute. May be something other than
+      // a copy-paste. Let's not allow that.
+      continue;
+    }
+
+    let doTheInsert = function() {
+      // Now run it through sanitation to make sure there wasn't any
+      // unwanted things in the content.
+      let ParserUtils = Components.classes["@mozilla.org/parserutils;1"]
+        .getService(Components.interfaces.nsIParserUtils);
+      let html2 = ParserUtils.sanitize(doc.documentElement.innerHTML,
+                                     ParserUtils.SanitizerAllowStyle);
+      getBrowser().contentDocument.execCommand("insertHTML", false, html2);
+    }
+
+    // Everything checks out. Convert file to data URL.
+    toConvert++;
+    let reader = new FileReader();
+    reader.addEventListener("load", function() {
+      let dataURL = reader.result;
+      pendingConversions--;
+      img.src = dataURL;
+      if (pendingConversions == 0) {
+        doTheInsert();
+      }
+    });
+    reader.addEventListener("error", function() {
+      pendingConversions--;
+      if (pendingConversions == 0) {
+        doTheInsert();
+      }
+    });
+
+    pendingConversions++;
+    reader.readAsDataURL(file);
+  }
+  if (toConvert > 0) {
+    e.preventDefault();
+  }
+}
+
 function ComposeStartup(aParams)
 {
   // Findbar overlay
@@ -2334,6 +2425,9 @@ function ComposeStartup(aParams)
   var identityList = document.getElementById("msgIdentity");
 
   document.addEventListener("keypress", awDocumentKeyPress, true);
+
+  document.addEventListener("paste", onPasteOrDrop, false);
+  document.addEventListener("drop", onPasteOrDrop, false);
 
   if (identityList)
     FillIdentityList(identityList);
@@ -5281,6 +5375,59 @@ function InitEditor()
   // Listen for spellchecker changes, set document language to
   // dictionary picked by the user via the right-click menu in the editor.
   document.addEventListener("spellcheck-changed", updateDocumentLanguage);
+
+  // XXX: the error event fires twice for each load. Why??
+  editor.document.body.addEventListener("error", function(event) {
+    if (event.target.localName != "img") {
+      return;
+    }
+
+    if (event.target.getAttribute("moz-do-not-send") == "true") {
+      return;
+    }
+
+    let src = event.target.src;
+    if (!src) {
+      return;
+    }
+    if (!/^file:/i.test(src)) {
+      // Check if this is a protocol that can fetch parts.
+      let protocol = src.substr(0, src.indexOf(":")).toLowerCase();
+      if (!(Services.io.getProtocolHandler(protocol) instanceof
+            Components.interfaces.nsIMsgMessageFetchPartService)) {
+        // Can't fetch parts, don't try to load.
+        return;
+      }
+    }
+
+    if (event.target.classList.contains("loading-internal")) {
+      // We're already loading this, or tried so unsuccesfully.
+      return;
+    }
+    if (gMsgCompose.originalMsgURI) {
+      let msgSvc = Components.classes["@mozilla.org/messenger;1"]
+        .createInstance(Components.interfaces.nsIMessenger)
+        .messageServiceFromURI(gMsgCompose.originalMsgURI);
+      let originalMsgNeckoURI = {};
+      msgSvc.GetUrlForUri(gMsgCompose.originalMsgURI, originalMsgNeckoURI, null);
+      if (src.startsWith(originalMsgNeckoURI.value.spec)) {
+        // Reply/Forward/Edit Draft/Edit as New can contain references to
+        // images in the original message. Load those and make them data: URLs
+        // now.
+        event.target.classList.add("loading-internal");
+        loadBlockedImage(src);
+      }
+      else {
+        // Appears to reference a random message. Notify and keep blocking.
+        gComposeNotificationBar.setBlockedContent(src);
+      }
+    }
+    else {
+      // For file:, and references to parts of random messages, show the
+      // blocked content notification.
+      gComposeNotificationBar.setBlockedContent(src);
+    }
+  }, true);
 }
 
 // This is used as event listener to spellcheck-changed event to update
@@ -5365,5 +5512,173 @@ function goUpdateMailMenuItems(commandset)
     let commandID = commandset.childNodes[i].getAttribute("id");
     if (commandID)
       goUpdateCommand(commandID);
+  }
+}
+
+/**
+ * Object to handle message related notifications that are showing in a
+ * notificationbox below the composed message content.
+ */
+var gComposeNotificationBar = {
+  get stringBundle() {
+    delete this.stringBundle;
+    return this.stringBundle = document.getElementById("bundle_composeMsgs");
+  },
+
+  get brandBundle() {
+    delete this.brandBundle;
+    return this.brandBundle = document.getElementById("brandBundle");
+  },
+
+  get notificationBar() {
+    delete this.notificationBar;
+    return this.notificationBar = document.getElementById("attachmentNotificationBox");
+  },
+
+  setBlockedContent: function(aBlockedURI) {
+    let brandName = this.brandBundle.getString("brandShortName");
+    let buttonLabel = this.stringBundle.getString((AppConstants.platform == "win") ?
+      "blockedContentPrefLabel" : "blockedContentPrefLabelUnix");
+    let buttonAccesskey = this.stringBundle.getString((AppConstants.platform == "win") ?
+      "blockedContentPrefAccesskey" : "blockedContentPrefAccesskeyUnix");
+
+    let buttons = [{
+      label: buttonLabel,
+      accessKey: buttonAccesskey,
+      popup: "blockedContentOptions",
+      callback: function(aNotification, aButton) {
+        return true; // keep notification open
+      }
+    }];
+
+    // The popup value is a space separated list of all the blocked urls.
+    let popup = document.getElementById("blockedContentOptions");
+    let urls = popup.value ? popup.value.split(" ") : [];
+    if (!urls.includes(aBlockedURI))
+      urls.push(aBlockedURI);
+    popup.value = urls.join(" ");
+
+    let msg = this.stringBundle.getFormattedString(
+      "blockedContentMessage", [brandName, brandName]);
+    msg = PluralForm.get(urls.length, msg);
+
+    if (!this.isShowingBlockedContentNotification()) {
+      this.notificationBar.appendNotification(msg, "blockedContent",
+        null, this.notificationBar.PRIORITY_WARNING_MEDIUM, buttons);
+    }
+    else {
+      this.notificationBar.getNotificationWithValue("blockedContent")
+        .setAttribute("label", msg);
+    }
+  },
+
+  isShowingBlockedContentNotification: function() {
+    return !!this.notificationBar.getNotificationWithValue("blockedContent");
+  },
+
+  clearNotifications: function(aValue) {
+    this.notificationBar.removeAllNotifications(true);
+  }
+};
+
+/**
+ * Populate the menuitems of what blocked content to unblock.
+ */
+function onBlockedContentOptionsShowing(aEvent) {
+  let urls = aEvent.target.value ? aEvent.target.value.split(" ") : [];
+
+  let composeBundle = document.getElementById("bundle_composeMsgs");
+
+  // Out with the old...
+  let childNodes = aEvent.target.childNodes;
+  for (let i = childNodes.length - 1; i >= 0; i--) {
+    childNodes[i].remove();
+  }
+
+  // ... and in with the new.
+  for (let url of urls) {
+    let menuitem = document.createElement("menuitem");
+    menuitem.setAttribute("label",
+      composeBundle.getFormattedString("blockedAllowResource", [url]));
+    menuitem.setAttribute("crop", "center");
+    menuitem.setAttribute("value", url);
+    menuitem.setAttribute("oncommand",
+                          "onUnblockResource(this.value, this.parentNode);");
+    aEvent.target.appendChild(menuitem);
+  }
+}
+
+/**
+ * Handle clicking the "Load <url>" in the blocked content notification bar.
+ * @param {String} aURL - the URL that was unblocked
+ * @param {Node} aNode  - the node holding as value the URLs of the blocked
+ *                        resources in the message (space separated).
+ */
+function onUnblockResource(aURL, aNode) {
+  try {
+    loadBlockedImage(aURL);
+  } finally {
+    // Remove it from the list on success and failure.
+    let urls = aNode.value.split(" ");
+    for (let i = 0; i < urls.length; i++) {
+      if (urls[i] == aURL) {
+        urls.splice(i, 1);
+        aNode.value = urls.join(" ");
+        if (urls.length == 0) {
+          gComposeNotificationBar.clearNotifications();
+        }
+        break;
+      }
+    }
+  }
+}
+
+/**
+ * Convert the blocked content to a data URL and swap the src to that for the
+ * elements that were using it.
+ * @param {String} aURL - (necko) URL to unblock
+ */
+function loadBlockedImage(aURL) {
+  let filename;
+  if (/^file:/i.test(aURL)) {
+    filename = aURL.substr(aURL.lastIndexOf("/") + 1);
+  }
+  else {
+    let fnMatch = /[?&;]filename=([^?&]+)/.exec(aURL);
+    filename = (fnMatch && fnMatch[1]) || "";
+  }
+  filename = decodeURIComponent(filename);
+  let url = Services.io.newURI(aURL, null, null);
+  let contentType = Components.classes["@mozilla.org/mime;1"]
+    .getService(Components.interfaces.nsIMIMEService)
+    .getTypeFromURI(url);
+  if (!contentType.startsWith("image/")) {
+    // Unsafe to unblock this. It would just be garbage either way.
+    throw new Error("Won't unblock; url=" + aURL +
+                    ", contentType=" + contentType);
+  }
+  url = url.QueryInterface(Components.interfaces.nsIURL);
+  let channel = Services.io.newChannelFromURI2(url,
+    null,
+    Services.scriptSecurityManager.getSystemPrincipal(),
+    null,
+    Components.interfaces.nsILoadInfo.SEC_NORMAL,
+    Components.interfaces.nsIContentPolicy.TYPE_OTHER);
+  let inputStream = channel.open();
+  let stream = Components.classes["@mozilla.org/binaryinputstream;1"]
+    .createInstance(Components.interfaces.nsIBinaryInputStream);
+  stream.setInputStream(inputStream);
+  let encoded = btoa(stream.readBytes(stream.available()));
+  stream.close();
+  let dataURL = "data:" + contentType +
+    (filename ? ";filename=" + encodeURIComponent(filename) : "") +
+    ";base64," + encoded;
+
+  let editor = GetCurrentEditor();
+  for (let img of editor.document.images) {
+    if (img.src == aURL) {
+      img.src = dataURL; // Swap to data URL.
+      img.classList.remove("loading-internal");
+    }
   }
 }

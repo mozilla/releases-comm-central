@@ -82,7 +82,9 @@
 #include "nsIMsgFilterService.h"
 #include "nsIMsgProtocolInfo.h"
 #include "mozIDOMWindow.h"
+#include "mozilla/Preferences.h"
 
+using namespace mozilla;
 using namespace mozilla::mailnews;
 
 static NS_DEFINE_CID(kRDFServiceCID, NS_RDFSERVICE_CID);
@@ -91,7 +93,6 @@ static NS_DEFINE_CID(kRDFServiceCID, NS_RDFSERVICE_CID);
 #define PREF_MAIL_STRICTLY_MIME "mail.strictly_mime"
 #define PREF_MAIL_MESSAGE_WARNING_SIZE "mailnews.message_warning_size"
 #define PREF_MAIL_COLLECT_EMAIL_ADDRESS_OUTGOING "mail.collect_email_address_outgoing"
-#define PREF_MAIL_DONT_ATTACH_SOURCE "mail.compose.dont_attach_source_of_local_network_links"
 
 #define ATTR_MOZ_DO_NOT_SEND "moz-do-not-send"
 
@@ -1264,28 +1265,16 @@ nsMsgComposeAndSend::GetEmbeddedObjectInfo(nsIDOMNode *node, nsMsgAttachmentData
   // GetEmbeddedObjectInfo will determine if we need to attach the source of the
   // embedded object with the message. The decision is made automatically unless
   // the attribute moz-do-not-send has been set to true or false.
-  // The default rule is that all image and anchor objects are attached as well
-  // link to a local file
   nsresult rv = NS_OK;
 
   // Reset this structure to null!
   *acceptObject = false;
 
-  // Check if the object has a moz-do-not-send attribute set. If it's true,
-  // we must ignore it, if false set forceToBeAttached to be true.
-
-  bool forceToBeAttached = false;
+  nsAutoString mozDoNotSendAttr;
   nsCOMPtr<nsIDOMElement> domElement = do_QueryInterface(node);
   if (domElement)
   {
-    nsAutoString attributeValue;
-    if (NS_SUCCEEDED(domElement->GetAttribute(NS_LITERAL_STRING(ATTR_MOZ_DO_NOT_SEND), attributeValue)))
-    {
-      if (attributeValue.LowerCaseEqualsLiteral("true"))
-        return NS_OK;
-      if (attributeValue.LowerCaseEqualsLiteral("false"))
-        forceToBeAttached = true;
-    }
+    domElement->GetAttribute(NS_LITERAL_STRING(ATTR_MOZ_DO_NOT_SEND), mozDoNotSendAttr);
   }
   // Now, we know the types of objects this node can be, so we will do
   // our query interface here and see what we come up with
@@ -1316,6 +1305,11 @@ nsMsgComposeAndSend::GetEmbeddedObjectInfo(nsIDOMNode *node, nsMsgAttachmentData
     // Create the URI
     if (NS_FAILED(image->GetSrc(tUrl)))
       return NS_ERROR_FAILURE;
+    if (tUrl.IsEmpty())
+    {
+      return NS_OK;
+    }
+
     nsAutoCString turlC;
     CopyUTF16toUTF8(tUrl, turlC);
     if (NS_FAILED(nsMsgNewURL(getter_AddRefs(attachment->m_url), turlC.get())))
@@ -1370,6 +1364,10 @@ nsMsgComposeAndSend::GetEmbeddedObjectInfo(nsIDOMNode *node, nsMsgAttachmentData
     // Create the URI
     rv = link->GetHref(tUrl);
     NS_ENSURE_SUCCESS(rv, rv);
+    if (tUrl.IsEmpty())
+    {
+      return NS_OK;
+    }
     nsAutoCString turlC;
     CopyUTF16toUTF8(tUrl, turlC);
     rv = nsMsgNewURL(getter_AddRefs(attachment->m_url), turlC.get());
@@ -1383,6 +1381,10 @@ nsMsgComposeAndSend::GetEmbeddedObjectInfo(nsIDOMNode *node, nsMsgAttachmentData
     // Create the URI
     rv = anchor->GetHref(tUrl);
     NS_ENSURE_SUCCESS(rv, rv);
+    if (tUrl.IsEmpty())
+    {
+      return NS_OK;
+    }
     nsAutoCString turlC;
     CopyUTF16toUTF8(tUrl, turlC);
     // ignore errors here.
@@ -1398,63 +1400,47 @@ nsMsgComposeAndSend::GetEmbeddedObjectInfo(nsIDOMNode *node, nsMsgAttachmentData
     return NS_OK;
   }
 
-  //
-  // Before going further, check if we are dealing with a local file and
-  // if it's the case be sure the file exists!
-  bool schemeIsFile = false;
-  if (attachment->m_url)
-    rv = attachment->m_url->SchemeIs("file", &schemeIsFile);
+  // Before going further, check what scheme we're dealing with. Files need to
+  // be converted to data URLs during composition. "Attaching" means
+  // sending as a cid: part instead of original URL.
 
-  if (schemeIsFile && NS_SUCCEEDED(rv))
+  bool isHttp =
+    (NS_SUCCEEDED(attachment->m_url->SchemeIs("http", &isHttp)) && isHttp) ||
+    (NS_SUCCEEDED(attachment->m_url->SchemeIs("https", &isHttp)) && isHttp);
+  // Attach (= create cid: part) http resources if the pref is set to do so,
+  // or moz-do-not-send is set to "false".
+  if (isHttp)
   {
-    nsCOMPtr<nsIFileURL> fileUrl (do_QueryInterface(attachment->m_url));
-    if (fileUrl)
-    {
-      bool isAValidFile = false;
-
-      nsCOMPtr<nsIFile> aFile;
-      rv = fileUrl->GetFile(getter_AddRefs(aFile));
-      if (NS_SUCCEEDED(rv) && aFile)
-      {
-        rv = aFile->IsFile(&isAValidFile);
-        if (NS_FAILED(rv))
-          isAValidFile = false;
-        else
-        {
-          if (anchor)
-          {
-            // One more test, if the anchor points to a local network server, let's check what the pref
-            // mail.compose.dont_attach_source_of_local_network_links tells us to do.
-            nsAutoCString urlSpec;
-            rv = attachment->m_url->GetSpec(urlSpec);
-            if (NS_SUCCEEDED(rv))
-              if (StringBeginsWith(urlSpec, NS_LITERAL_CSTRING("file://///")))
-              {
-                nsCOMPtr<nsIPrefBranch> pPrefBranch(do_GetService(NS_PREFSERVICE_CONTRACTID));
-                if (pPrefBranch)
-                {
-                  bool dontSend = false;
-                  rv = pPrefBranch->GetBoolPref(PREF_MAIL_DONT_ATTACH_SOURCE, &dontSend);
-                  if (dontSend)
-                    isAValidFile = false;
-                }
-              }
-          }
-        }
-      }
-
-      if (! isAValidFile)
-        return NS_OK;
-    }
-  }
-  else //not a file:// url
-  {
-    //if this is an anchor, don't attach remote file unless we have been forced to do it
-    if (anchor && !forceToBeAttached)
+    *acceptObject = Preferences::GetBool("mail.compose.attachHttp", false) ||
+      mozDoNotSendAttr.LowerCaseEqualsLiteral("false");
       return NS_OK;
   }
 
-  *acceptObject = true;
+  bool isData =
+    (NS_SUCCEEDED(attachment->m_url->SchemeIs("data", &isData)) && isData);
+  bool isNews =
+    (NS_SUCCEEDED(attachment->m_url->SchemeIs("news", &isNews)) && isNews) ||
+    (NS_SUCCEEDED(attachment->m_url->SchemeIs("snews", &isNews)) && isNews) ||
+    (NS_SUCCEEDED(attachment->m_url->SchemeIs("nntp", &isNews)) && isNews);
+  // Attach (= create cid: part) data resources if moz-do-not-send was not
+  // specified or set to "false".
+  if (isData || isNews)
+  {
+    *acceptObject = mozDoNotSendAttr.IsEmpty() ||
+      mozDoNotSendAttr.LowerCaseEqualsLiteral("false");
+      return NS_OK;
+  }
+
+#ifdef MOZ_SUITE
+  bool isFile =
+    (NS_SUCCEEDED(attachment->m_url->SchemeIs("file", &isFile)) && isFile);
+  if (isFile)
+  {
+    *acceptObject = mozDoNotSendAttr.IsEmpty() ||
+      mozDoNotSendAttr.LowerCaseEqualsLiteral("false");
+      return NS_OK;
+  }
+#endif
   return NS_OK;
 }
 
