@@ -79,7 +79,60 @@
     <command id="cmd_deleteAllAttachments"
              disable-on-readonly="true"
              oncommand="deleteAllAttachments()"/>
+    <command id="cmd_applyProposal"
+             disable-on-readonly="true"
+             oncommand="applyValues('proposed')"/>
+    <command id="cmd_applyOriginal"
+             disable-on-readonly="true"
+             oncommand="applyValues('original')"/>
   </commandset>
+
+  <!-- Counter information section -->
+  <hbox id="counter-proposal-box"
+        collapsed="true">
+    <vbox>
+      <description id="counter-proposal-summary"
+                   collapsed="true"
+                   crop="end" />
+      <hbox id="counter-proposal">
+        <vbox id="counter-proposal-property-labels">
+          <label id="counter-proposal-property-label"
+                 control="counter-proposal-property-value"
+                 collapsed="true"
+                 value="" />
+        </vbox>
+        <vbox id="counter-proposal-property-values">
+          <description id="counter-proposal-property-value"
+                       crop="end"
+                       collapsed="true"
+                       value="" />
+        </vbox>
+      </hbox>
+      <description id="counter-proposal-comment"
+                   collapsed="true"
+                   crop="end" />
+    </vbox>
+    <spacer flex="1" />
+    <vbox id ="counter-buttons">
+      <button id="counter-proposal-btn"
+              label="&counter.button.proposal.label;"
+              crop="end"
+              command="cmd_applyProposal"
+              orient="horizontal"
+              class="counter-buttons"
+              accesskey="&counter.button.proposal.accesskey;"
+              tooltip="&counter.button.proposal.tooltip2;" />
+      <button id="counter-original-btn"
+              label="&counter.button.original.label;"
+              crop="end"
+              command="cmd_applyOriginal"
+              orient="horizontal"
+              disabled="true"
+              class="counter-buttons"
+              accesskey="&counter.button.original.accesskey;"
+              tooltip="&counter.button.original.tooltip2;" />
+    </vbox>
+  </hbox>
 
   <notificationbox id="event-dialog-notifications" notificationside="top"/>
 
@@ -571,6 +624,11 @@
                           label="&event.attendees.notifyundisclosed.label;"
                           accesskey="&event.attendees.notifyundisclosed.accesskey;"
                           tooltiptext="&event.attendees.notifyundisclosed.tooltip;"
+                          pack="start"/>
+                <checkbox id="disallow-counter-checkbox"
+                          label="&event.attendees.disallowcounter.label;"
+                          accesskey="&event.attendees.disallowcounter.accesskey;"
+                          tooltiptext="&event.attendees.disallowcounter.tooltip;"
                           pack="start"/>
               </hbox>
             </vbox>

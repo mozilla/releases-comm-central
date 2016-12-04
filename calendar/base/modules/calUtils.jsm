@@ -395,6 +395,33 @@ var cal = {
     },
 
     /**
+     * Returns all attendees from given set of attendees matching based on the attendee id
+     * or a sent-by parameter compared to the specified email address
+     *
+     * @param  {Array}  aAttendees      An array of calIAttendee objects
+     * @param  {String} aEmailAddress   A string containing the email address for lookup
+     * @return {Array}                  Returns an array of matching attendees
+     */
+    getAttendeesBySender: function(aAttendees, aEmailAddress) {
+        let attendees = [];
+        // we extract the email address to make it work also for a raw header value
+        let compFields = Components.classes["@mozilla.org/messengercompose/composefields;1"]
+                                   .createInstance(Components.interfaces.nsIMsgCompFields);
+        let addresses = compFields.splitRecipients(aEmailAddress, true, {});
+        if (addresses.length == 1) {
+            let searchFor = cal.prependMailTo(addresses[0]);
+            aAttendees.forEach(aAttendee => {
+                if ([aAttendee.id, aAttendee.getProperty("SENT-BY")].includes(searchFor)) {
+                    attendees.push(aAttendee);
+                }
+            });
+        } else {
+            cal.WARN("No unique email address for lookup!");
+        }
+        return attendees;
+    },
+
+    /**
      * Returns a wellformed email string like 'attendee@example.net',
      * 'Common Name <attendee@example.net>' or '"Name, Common" <attendee@example.net>'
      *

@@ -244,6 +244,7 @@ radio[pane=paneLightning] {
     list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#complete);
   }
 
+  .imipDeclineCounterButton,
   .imipDeclineButton,
   .imipDeclineRecurrencesButton {
     list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#decline);
@@ -258,6 +259,7 @@ radio[pane=paneLightning] {
     list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#newevent);
   }
 
+  .imipRescheduleButton,
   .imipUpdateButton {
     list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#synchronize);
   }
@@ -361,6 +363,7 @@ radio[pane=paneLightning] {
     list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#complete-flat);
   }
 
+  .imipDeclineCounterButton,
   .imipDeclineButton,
   .imipDeclineRecurrencesButton {
     list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#decline-flat);
@@ -375,6 +378,7 @@ radio[pane=paneLightning] {
     list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#newevent-flat);
   }
 
+  .imipRescheduleButton,
   .imipUpdateButton {
     list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#synchronize-flat);
   }

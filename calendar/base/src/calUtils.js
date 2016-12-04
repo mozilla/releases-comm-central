@@ -1698,7 +1698,7 @@ function calIterateEmailIdentities(func) {
  */
 function compareItemContent(aFirstItem, aSecondItem, aIgnoreProps, aIgnoreParams) {
     let ignoreProps = arr2hash(aIgnoreProps ||
-        ["SEQUENCE", "DTSTAMP", "LAST-MODIFIED", "X-MOZ-GENERATION",
+        ["SEQUENCE", "DTSTAMP", "LAST-MODIFIED", "X-MOZ-GENERATION", "X-MICROSOFT-DISALLOW-COUNTER",
          "X-MOZ-SEND-INVITATIONS", "X-MOZ-SEND-INVITATIONS-UNDISCLOSED"]);
 
     let ignoreParams = aIgnoreParams ||

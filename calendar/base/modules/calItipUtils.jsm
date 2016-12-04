@@ -80,27 +80,57 @@ cal.itip = {
     },
 
     /**
-     * Compares sequences and/or stamps of two parties; returns -1, 0, +1.
+     * Compares sequences and/or stamps of two items
+     *
+     * @param {calIEvent|calIToDo|calIAttendee} aItem1
+     * @param {calIEvent|calIToDo|calIAttendee} aItem2
+     * @return {Integer} +1 if item2 is newer, -1 if item1 is newer or 0 if both are equal
      */
-    compare: function(item1, item2) {
-        let seq1 = cal.itip.getSequence(item1);
-        let seq2 = cal.itip.getSequence(item2);
+    compare: function(aItem1, aItem2) {
+        let comp = cal.itip.compareSequence(aItem1, aItem2);
+        if (comp == 0) {
+            comp = cal.itip.compareStamp(aItem1, aItem2);
+        }
+        return comp;
+    },
+
+    /**
+     * Compares sequences of two items
+     *
+     * @param {calIEvent|calIToDo|calIAttendee} aItem1
+     * @param {calIEvent|calIToDo|calIAttendee} aItem2
+     * @return {Integer} +1 if item2 is newer, -1 if item1 is newer or 0 if both are equal
+     */
+    compareSequence: function(aItem1, aItem2) {
+        let seq1 = cal.itip.getSequence(aItem1);
+        let seq2 = cal.itip.getSequence(aItem2);
         if (seq1 > seq2) {
             return 1;
         } else if (seq1 < seq2) {
             return -1;
         } else {
-            let st1 = cal.itip.getStamp(item1);
-            let st2 = cal.itip.getStamp(item2);
-            if (st1 && st2) {
-                return st1.compare(st2);
-            } else if (!st1 && st2) {
-                return -1;
-            } else if (st1 && !st2) {
-                return 1;
-            } else {
-                return 0;
-            }
+            return 0;
+        }
+    },
+
+    /**
+     * Compares stamp of two items
+     *
+     * @param {calIEvent|calIToDo|calIAttendee} aItem1
+     * @param {calIEvent|calIToDo|calIAttendee} aItem2
+     * @return {Integer} +1 if item2 is newer, -1 if item1 is newer or 0 if both are equal
+     */
+    compareStamp: function(aItem1, aItem2) {
+        let st1 = cal.itip.getStamp(aItem1);
+        let st2 = cal.itip.getStamp(aItem2);
+        if (st1 && st2) {
+            return st1.compare(st2);
+        } else if (!st1 && st2) {
+            return -1;
+        } else if (st1 && !st2) {
+            return 1;
+        } else {
+            return 0;
         }
     },
 
@@ -127,6 +157,9 @@ cal.itip = {
      * @param aMsgHdr     Information about the received email
      */
     initItemFromMsgData: function(itipItem, imipMethod, aMsgHdr) {
+        // set the sender of the itip message
+        itipItem.sender = cal.itip.getMessageSender(aMsgHdr);
+
         // Get the recipient identity and save it with the itip item.
         itipItem.identity = cal.itip.getMessageRecipient(aMsgHdr);
 
@@ -209,6 +242,8 @@ cal.itip = {
             case "PUBLISH": return _gs("imipBarPublishText");
             case "CANCEL": return _gs("imipBarCancelText");
             case "REPLY": return _gs("imipBarReplyText");
+            case "COUNTER": return _gs("imipBarCounterText");
+            case "DECLINECOUNTER": return _gs("imipBarDeclineCounterText");
             default:
                 cal.ERROR("Unknown iTIP method: " + method);
                 return _gs("imipBarUnsupportedText");
@@ -242,6 +277,11 @@ cal.itip = {
         }
         let data = { label: imipLabel, buttons: [], hideMenuItems: [] };
 
+        let disallowedCounter = false;
+        if (foundItems && foundItems.length) {
+             let disallow = foundItems[0].getProperty("X-MICROSOFT-DISALLOW-COUNTER");
+             disallowedCounter = disallow && disallow == "TRUE";
+        }
         if (rc == Components.interfaces.calIErrors.CAL_IS_READONLY) {
             // No writable calendars, tell the user about it
             data.label = _gs("imipBarNotWritable");
@@ -250,8 +290,30 @@ cal.itip = {
             // added/updated, we want to tell them that.
             data.label = _gs("imipBarAlreadyProcessedText");
             if (foundItems && foundItems.length) {
-                // Not a real method, but helps us decide
                 data.buttons.push("imipDetailsButton");
+                if (itipItem.receivedMethod == "COUNTER" && itipItem.sender) {
+                    if (disallowedCounter) {
+                        data.label = _gs("imipBarDisallowedCounterText");
+                    } else {
+                        let comparison;
+                        for (let item of itipItem.getItemList({})) {
+                            let attendees = cal.getAttendeesBySender(
+                                    item.getAttendees({}),
+                                    itipItem.sender
+                            );
+                            if (attendees.length == 1) {
+                                let replyer = foundItems[0].getAttendeeById(attendees[0].id);
+                                comparison = cal.itip.compareSequence(item, foundItems[0]);
+                                if (comparison == 1) {
+                                    data.label = _gs("imipBarCounterErrorText");
+                                    break;
+                                } else if (comparison == -1) {
+                                    data.label = _gs("imipBarCounterPreviousVersionText");
+                                }
+                            }
+                        }
+                    }
+                }
             } else if (itipItem.receivedMethod == "REPLY") {
                 // The item has been previously removed from the available calendars or the calendar
                 // containing the item is not available
@@ -267,6 +329,8 @@ cal.itip = {
                 } else {
                     data.label = _gs("imipBarReplyToNotExistingItem");
                 }
+            } else if (itipItem.receivedMethod == "DECLINECOUNTER") {
+                data.label = _gs("imipBarDeclineCounterText");
             }
         } else if (Components.isSuccessCode(rc)) {
             cal.LOG("iTIP options on: " + actionFunc.method);
@@ -319,6 +383,14 @@ cal.itip = {
                     data.buttons.push("imipReconfirmButton");
                     break;
                 }
+                case "COUNTER": {
+                    if (disallowedCounter) {
+                        data.label = _gs("imipBarDisallowedCounterText");
+                    }
+                    data.buttons.push("imipDeclineCounterButton");
+                    data.buttons.push("imipRescheduleButton");
+                    break;
+                }
                 default:
                     data.label = _gs("imipBarUnsupportedText");
                     break;
@@ -328,6 +400,24 @@ cal.itip = {
         }
 
         return data;
+    },
+
+    /**
+     * Scope: iTIP message receiver
+     * Retrieves the message sender.
+     *
+     * @param {nsIMsgHdr} aMsgHdr     The message header to check.
+     * @return                        The email address of the intended recipient.
+     */
+    getMessageSender: function(aMsgHdr) {
+        let author = (aMsgHdr && aMsgHdr.author) || "";
+        let compFields = Components.classes["@mozilla.org/messengercompose/composefields;1"]
+                                   .createInstance(Components.interfaces.nsIMsgCompFields);
+        let addresses = compFields.splitRecipients(author, true, {});
+        if (addresses.length != 1) {
+            cal.LOG("No unique email address for lookup in message.\r\n" + cal.STACK(20));
+        }
+        return addresses[0] || null;
     },
 
     /**
@@ -425,6 +515,8 @@ cal.itip = {
             case "PUBLISH:UPDATE":
             case "REPLY":
             case "CANCEL":
+            case "COUNTER":
+            case "DECLINECOUNTER":
                 needsCalendar = false;
                 break;
             default:
@@ -505,6 +597,8 @@ cal.itip = {
      *                    * REQUEST:UPDATE-MINOR -- update of invitation, minor change (sent by organizer)
      *                    * REPLY -- invitation reply (sent by attendee(s))
      *                    * CANCEL -- invitation cancel (sent by organizer)
+     *                    * COUNTER -- counterproposal (sent by attendee)
+     *                    * DECLINECOUNTER -- denial of a counterproposal (sent by organizer)
      */
     processItipItem: function(itipItem, optionsFunc) {
         switch (itipItem.receivedMethod.toUpperCase()) {
@@ -512,6 +606,8 @@ cal.itip = {
             case "PUBLISH":
             case "REQUEST":
             case "CANCEL":
+            case "COUNTER":
+            case "DECLINECOUNTER":
             case "REPLY": {
                 // Per iTIP spec (new Draft 4), multiple items in an iTIP message MUST have
                 // same ID, this simplifies our searching, we can just look for Item[0].id
@@ -831,9 +927,10 @@ cal.itip = {
      * Returns a copy of an itipItem with modified properties and items build from scratch
      * Use itipItem.clone() instead if only a simple copy is required
      *
-     * @param aItipItem     ItipItem to derive a new one from
-     * @param aItems        List of items to be contained in the new itipItem
-     * @param aProps        List of properties to be different in the new itipItem
+     * @param  {calIItipItem} aItipItem  ItipItem to derive a new one from
+     * @param  {Array}        aItems     calIEvent or calITodo items to be contained in the new itipItem
+     * @param  {JsObject}     aProps     Properties to be different in the new itipItem
+     * @return {calIItipItem}
      */
     getModifiedItipItem: function(aItipItem, aItems=[], aProps={}) {
         let itipItem = Components.classes["@mozilla.org/calendar/itip-item;1"]
@@ -853,6 +950,20 @@ cal.itip = {
         itipItem.targetCalendar = ("targetCalendar" in aProps) ? aProps.targetCalendar : aItipItem.targetCalendar;
 
         return itipItem;
+    },
+
+    /**
+     * A shortcut to send DECLINECOUNTER messages - for everything else use cal.itip.checkAndSend
+     *
+     * @param aItem iTIP item to be sent
+     * @param aMethod iTIP method
+     * @param aRecipientsList an array of calIAttendee objects the message should be sent to
+     * @param aAutoResponse an inout object whether the transport should ask before sending
+     */
+    sendDeclineCounterMessage: function(aItem, aMethod, aRecipientsList, aAutoResponse) {
+        if (aMethod == "DECLINECOUNTER") {
+            return sendMessage(aItem, aMethod, aRecipientsList, aAutoResponse);
+        }
     }
 };
 
@@ -1004,7 +1115,7 @@ function sendMessage(aItem, aMethod, aRecipientsList, autoResponse) {
     let calendar = cal.wrapInstance(aItem.calendar, Components.interfaces.calISchedulingSupport);
     if (calendar) {
         if (calendar.QueryInterface(Components.interfaces.calISchedulingSupport)
-                          .canNotify(aMethod, aItem)) {
+                    .canNotify(aMethod, aItem)) {
             // provider will handle that, so we return - we leave it also to the provider to
             // deal with user canceled notifications (if possible), so set the return value
             // to true as false would prevent any further notification within this cycle
@@ -1213,7 +1324,7 @@ ItipItemFinder.prototype = {
                 }
             }
 
-            // If it hasn't been found and there isto add a item, add it to the end
+            // If it hasn't been found and there is to add a item, add it to the end
             if (!found && aNewItem) {
                 this.mFoundItems.push(aNewItem);
             }
@@ -1263,6 +1374,8 @@ ItipItemFinder.prototype = {
                 case "PUBLISH":
                 case "REQUEST":
                 case "REPLY":
+                case "COUNTER":
+                case "DECLINECOUNTER":
                     for (let itipItemItem of this.mItipItem.getItemList({})) {
                         for (let item of this.mFoundItems) {
                             let rid = itipItemItem.recurrenceId; //  XXX todo support multiple
@@ -1280,7 +1393,8 @@ ItipItemFinder.prototype = {
                             switch (method) {
                                 case "REFRESH": { // xxx todo test
                                     let attendees = itipItemItem.getAttendees({});
-                                    cal.ASSERT(attendees.length == 1, "invalid number of attendees in REFRESH!");
+                                    cal.ASSERT(attendees.length == 1,
+                                               "invalid number of attendees in REFRESH!");
                                     if (attendees.length > 0) {
                                         let action = function(opListener) {
                                             if (!item.organizer) {
@@ -1368,25 +1482,65 @@ ItipItemFinder.prototype = {
                                     }
                                     break;
                                 }
+                                case "DECLINECOUNTER":
+                                    // nothing to do right now, but once countering is implemented,
+                                    // we probably need some action here to remove the proposal from
+                                    // the countering attendee's calendar
+                                    break;
+                                case "COUNTER":
                                 case "REPLY": {
                                     let attendees = itipItemItem.getAttendees({});
-                                    cal.ASSERT(attendees.length == 1, "invalid number of attendees in REPLY!");
-                                    if (attendees.length > 0 &&
-                                        (item.calendar.getProperty("itip.disableRevisionChecks") ||
-                                         (cal.itip.compare(itipItemItem, item.getAttendeeById(attendees[0].id)) > 0))) {
-                                        // accepts REPLYs from previously uninvited attendees:
+                                    if (method == "REPLY") {
+                                        cal.ASSERT(
+                                            attendees.length == 1,
+                                            "invalid number of attendees in REPLY!"
+                                        );
+                                    } else {
+                                        attendees = cal.getAttendeesBySender(
+                                            attendees,
+                                            this.mItipItem.sender
+                                        );
+                                        cal.ASSERT(
+                                            attendees.length == 1,
+                                            "ambiguous resolution of replying attendee in COUNTER!"
+                                        );
+                                    }
+                                    // we get the attendee from the event stored in the calendar
+                                    let replyer = item.getAttendeeById(attendees[0].id);
+                                    if (!replyer && method == "REPLY") {
+                                        // We accepts REPLYs also from previously uninvited
+                                        // attendees, so we always have one for REPLY
+                                        replyer = attendees[0];
+                                    }
+                                    let noCheck = item.calendar.getProperty(
+                                        "itip.disableRevisionChecks");
+                                    let revCheck = false;
+                                    if (replyer && !noCheck) {
+                                        revCheck = cal.itip.compare(itipItemItem, replyer) > 0;
+                                        if (revCheck && method == "COUNTER") {
+                                            revCheck = cal.itip.compareSequence(itipItemItem, item) == 0;
+                                        }
+                                    }
+
+                                    if (replyer && (noCheck || revCheck)) {
                                         let newItem = item.clone();
-                                        let att = item.getAttendeeById(attendees[0].id) || attendees[0];
-                                        newItem.removeAttendee(att);
-                                        att = att.clone();
-                                        setReceivedInfo(att, itipItemItem);
-                                        att.participationStatus = attendees[0].participationStatus;
-                                        newItem.addAttendee(att);
+                                        newItem.removeAttendee(replyer);
+                                        replyer = replyer.clone();
+                                        setReceivedInfo(replyer, itipItemItem);
+                                        let newPS = itipItemItem.getAttendeeById(replyer.id)
+                                                                .participationStatus;
+                                        replyer.participationStatus = newPS;
+                                        newItem.addAttendee(replyer);
 
                                         // Make sure the provider-specified properties are copied over
                                         copyProviderProperties(this.mItipItem, itipItemItem, newItem);
 
                                         let action = function(opListener) {
+                                            // n.b.: this will only be processed in case of reply or
+                                            // declining the counter request - of sending the
+                                            // appropriate reply will be taken care within the
+                                            // opListener (defined in imip-bar.js)
+                                            // TODO: move that from imip-bar.js to here
                                             return newItem.calendar.modifyItem(
                                                 newItem, item,
                                                 newItem.calendar.getProperty("itip.notify-replies")
@@ -1484,6 +1638,7 @@ ItipItemFinder.prototype = {
                     }
                     case "CANCEL": // has already been processed
                     case "REPLY": // item has been previously removed from the calendar
+                    case "COUNTER": // the item has been previously removed form the calendar
                         break;
                     default:
                         rc = Components.results.NS_ERROR_NOT_IMPLEMENTED;

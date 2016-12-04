@@ -373,6 +373,11 @@ function onLoad() {
     }
     loadDialog(window.calendarItem);
 
+    if (args.counterProposal) {
+        window.counterProposal = args.counterProposal;
+        displayCounterProposal();
+    }
+
     gMainWindow.setCursor("auto");
 
     if (typeof ToolbarIconColor !== "undefined") {
@@ -735,10 +740,11 @@ function loadDialog(aItem) {
 
         let notifyCheckbox = document.getElementById("notify-attendees-checkbox");
         let undiscloseCheckbox = document.getElementById("undisclose-attendees-checkbox");
+        let disallowcounterCheckbox = document.getElementById("disallow-counter-checkbox");
         if (canNotifyAttendees(aItem.calendar, aItem)) {
             // visualize that the server will send out mail:
             notifyCheckbox.checked = true;
-            // hide undisclosure control as this a client only feature
+            // hide these controls as this a client only feature
             undiscloseCheckbox.disabled = true;
         } else {
             let itemProp = aItem.getProperty("X-MOZ-SEND-INVITATIONS");
@@ -753,6 +759,12 @@ function loadDialog(aItem) {
             // disable checkbox, if notifyCheckbox is not checked
             undiscloseCheckbox.disabled = (notifyCheckbox.checked == false);
         }
+        // this may also be a server exposed calendar property from exchange servers - if so, this
+        // probably should overrule the client-side config option
+        let disallowCounterProp = aItem.getProperty("X-MICROSOFT-DISALLOW-COUNTER");
+        disallowcounterCheckbox.checked = disallowCounterProp == "TRUE";
+        // if we're in reschedule mode, it's pointless to enable the control
+        disallowcounterCheckbox.disabled = !!window.counterProposal;
 
         updateAttendees();
         updateRepeat(true);
@@ -2928,7 +2940,20 @@ function saveItem() {
         if (undiscloseCheckbox.disabled) {
             item.deleteProperty("X-MOZ-SEND-INVITATIONS-UNDISCLOSED");
         } else {
-            item.setProperty("X-MOZ-SEND-INVITATIONS-UNDISCLOSED", undiscloseCheckbox.checked ? "TRUE" : "FALSE");
+            item.setProperty("X-MOZ-SEND-INVITATIONS-UNDISCLOSED",
+                             undiscloseCheckbox.checked ? "TRUE" : "FALSE");
+        }
+        let disallowcounterCheckbox = document.getElementById("disallow-counter-checkbox");
+        let xProp = window.calendarItem.getProperty("X-MICROSOFT-DISALLOW-COUNTER");
+        // we want to leave an existing x-prop in case the checkbox is disabled as we need to
+        // roundtrip x-props that are not exclusively under our control
+        if (!disallowcounterCheckbox.disabled) {
+            // we only set the prop if we need to
+            if (disallowcounterCheckbox.checked) {
+                item.setProperty("X-MICROSOFT-DISALLOW-COUNTER", "TRUE");
+            } else if (xProp) {
+                item.setProperty("X-MICROSOFT-DISALLOW-COUNTER", "FALSE");
+            }
         }
     }
 
@@ -2993,7 +3018,7 @@ function onCommandSave(aIsClosing) {
         onOperationComplete: function(aCalendar, aStatus, aOpType, aId, aItem) {
             // Check if the current window has a calendarItem first, because in case of undo
             // window refers to the main window and we would get a 'calendarItem is undefined' warning.
-            if ("calendarItem" in window) {
+            if (!aIsClosing && "calendarItem" in window) {
                 // If we changed the calendar of the item, onOperationComplete will be called multiple
                 // times. We need to make sure we're receiving the update on the right calendar.
                 if ((!window.calendarItem.id ||aId == window.calendarItem.id) &&
@@ -3017,14 +3042,14 @@ function onCommandSave(aIsClosing) {
                     eventDialogCalendarObserver.observe(window.calendarItem.calendar);
                 }
             }
+            // this triggers the update of the imipbar in case this is a rescheduling case
+            if (window.counterProposal && window.counterProposal.onReschedule) {
+                window.counterProposal.onReschedule();
+            }
         },
         onGetResult: function() {}
     };
-
-    // Let the caller decide how to handle the modified/added item. Only pass
-    // the above item if we are not closing, otherwise the listener will be
-    // missing its window afterwards.
-    window.onAcceptCallback(item, calendar, originalItem, !aIsClosing && listener);
+    window.onAcceptCallback(item, calendar, originalItem, listener);
 }
 
 /**
@@ -3819,7 +3844,7 @@ function capValues(aCap, aDefault) {
     return (vals === null ? aDefault : vals);
 }
 
- /**
+/**
  * Checks the until date just entered in the datepicker in order to avoid
  * setting a date earlier than the start date.
  * Restores the previous correct date; sets the warning flag to prevent closing
@@ -3862,4 +3887,199 @@ function checkUntilDate() {
         gUntilDate = untilDate;
         updateUntildateRecRule();
     }
+}
+
+/**
+ * Displays a counterproposal if any
+ */
+function displayCounterProposal() {
+    if (!window.counterProposal || !window.counterProposal.attendee ||
+        !window.counterProposal.proposal) {
+        return;
+    }
+
+    let propLabels = document.getElementById("counter-proposal-property-labels");
+    let propValues = document.getElementById("counter-proposal-property-values");
+    let idCounter = 0;
+    let comment;
+
+    for (let proposal of window.counterProposal.proposal) {
+        if (proposal.property == "COMMENT") {
+            if (proposal.proposed && !proposal.original) {
+                comment = proposal.proposed;
+            }
+        } else {
+            let label = lookupCounterLabel(proposal);
+            let value = formatCounterValue(proposal);
+            if (label && value) {
+                // setup label node
+                let propLabel = propLabels.firstChild.cloneNode(false);
+                propLabel.id = propLabel.id + "-" + idCounter;
+                propLabel.control = propLabel.control + "-" + idCounter;
+                propLabel.removeAttribute("collapsed");
+                propLabel.value = label;
+                // setup value node
+                let propValue = propValues.firstChild.cloneNode(false);
+                propValue.id = propLabel.control;
+                propValue.removeAttribute("collapsed");
+                propValue.value = value;
+                // append nodes
+                propLabels.appendChild(propLabel);
+                propValues.appendChild(propValue);
+                idCounter++;
+            }
+        }
+    }
+
+    let attendeeId = window.counterProposal.attendee.CN ||
+                     cal.removeMailTo(window.counterProposal.attendee.id || "");
+    let partStat = window.counterProposal.attendee.participationStatus;
+    if (partStat == "DECLINED") {
+        partStat = "counterSummaryDeclined";
+    } else if (partStat == "TENTATIVE") {
+        partStat = "counterSummaryTentative";
+    } else if (partStat == "ACCEPTED") {
+        partStat = "counterSummaryAccepted";
+    } else if (partStat == "DELEGATED") {
+        partStat = "counterSummaryDelegated";
+    } else if (partStat == "NEEDS-ACTION") {
+        partStat = "counterSummaryNeedsAction";
+    } else {
+        cal.LOG("Unexpected partstat " + partStat + " detected.");
+        // we simply reset partStat not display the summary text of the counter box
+        // to avoid the window of death
+        partStat = null;
+    }
+
+    if (idCounter > 0) {
+        if (partStat && attendeeId.length) {
+            document.getElementById("counter-proposal-summary").value = cal.calGetString(
+                "calendar-event-dialog",
+                partStat,
+                [attendeeId]
+            );
+            document.getElementById("counter-proposal-summary").removeAttribute("collapsed");
+        }
+        if (comment) {
+            document.getElementById("counter-proposal-comment").value = comment;
+            document.getElementById("counter-proposal-box").removeAttribute("collapsed");
+        }
+        document.getElementById("counter-proposal-box").removeAttribute("collapsed");
+
+        if (window.counterProposal.oldVersion) {
+            // this is a counterproposal to a previous version of the event - we should notify the
+            // user accordingly
+            notifyUser(
+                "counterProposalOnPreviousVersion",
+                cal.calGetString("calendar-event-dialog", "counterOnPreviousVersionNotification"),
+                "warn"
+            );
+        }
+        if (window.calendarItem.getProperty("X-MICROSOFT-DISALLOW-COUNTER") == "TRUE") {
+            // this is a counterproposal although the user disallowed countering when sending the
+            // invitation, so we notify the user accordingly
+            notifyUser(
+                "counterProposalOnCounteringDisallowed",
+                cal.calGetString("calendar-event-dialog", "counterOnCounterDisallowedNotification"),
+                "warn"
+            );
+        }
+    }
+}
+
+/**
+ * Get the property label to display for a counterproposal based on the respective label used in
+ * the dialog
+ *
+ * @param   {JSObject}     aProperty  The property to check for a label
+ * @returns {String|null}             The label to display or null if no such label
+ */
+function lookupCounterLabel(aProperty) {
+    let nodeIds = getPropertyMap();
+    let labels = nodeIds.has(aProperty.property) &&
+                document.getElementsByAttribute("control", nodeIds.get(aProperty.property));
+    let labelValue;
+    if (labels && labels.length) {
+        // as label control assignment should be unique, we can just take the first result
+        labelValue = labels[0].value;
+    } else {
+        cal.LOG("Unsupported property " + aProperty.property + " detected when setting up counter " +
+                "box labels.");
+    }
+    return labelValue;
+}
+
+/**
+ * Get the property value to display for a counterproposal as currently supported
+ *
+ * @param   {JSObject}     aProperty  The property to check for a label
+ * @returns {String|null}             The value to display or null if the property is not supported
+ */
+function formatCounterValue(aProperty) {
+    const dateProps = ["DTSTART", "DTEND"];
+    const stringProps = ["SUMMARY", "LOCATION"];
+
+    let val;
+    if (dateProps.includes(aProperty.property)) {
+        let localTime = aProperty.proposed.getInTimezone(cal.calendarDefaultTimezone());
+        let formatter = getDateFormatter();
+        val = formatter.formatDateTime(localTime);
+        if (gTimezonesEnabled) {
+            let tzone = localTime.timezone.displayName || localTime.timezone.tzid;
+            val += " " + tzone;
+        }
+    } else if (stringProps.includes(aProperty.property)) {
+        val = aProperty.proposed;
+    } else {
+        cal.LOG("Unsupported property " + aProperty.property +
+                " detected when setting up counter box values.");
+    }
+    return val;
+}
+
+/**
+ * Get a map of porperty names and labels of currently supported properties
+ *
+ * @returns {Map}
+ */
+function getPropertyMap() {
+    let map = new Map();
+    map.set("SUMMARY", "item-title");
+    map.set("LOCATION", "item-location");
+    map.set("DTSTART", "event-starttime");
+    map.set("DTEND", "event-endtime");
+    return map;
+}
+
+/**
+ * Applies the proposal or original data to the respective dialog fields
+ *
+ * @param {String} aType Either 'proposed' or 'original'
+ */
+function applyValues(aType) {
+    if (!window.counterProposal || (aType != "proposed" && aType != "original")) {
+        return;
+    }
+    let originalBtn = document.getElementById("counter-original-btn");
+    if (originalBtn.disabled) {
+        // The button is disbled when opening the dialog/tab, which makes it more obvious to the
+        // user that he/she needs to apply the proposal values prior to saving & sending.
+        // Once that happened, we leave both options to the user without toogling the button states
+        // to avoid needing to listen to manual changes to do that correctly
+        originalBtn.removeAttribute("disabled");
+    }
+    let nodeIds = getPropertyMap();
+    window.counterProposal.proposal.forEach(aProperty => {
+        if (aProperty.property != "COMMENT") {
+            let valueNode = nodeIds.has(aProperty.property) &&
+                            document.getElementById(nodeIds.get(aProperty.property));
+            if (valueNode) {
+                if (["DTSTART", "DTEND"].includes(aProperty.property)) {
+                    valueNode.value = cal.dateTimeToJsDate(aProperty[aType]);
+                } else {
+                    valueNode.value = aProperty[aType];
+                }
+            }
+        }
+    });
 }

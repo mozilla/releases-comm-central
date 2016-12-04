@@ -210,7 +210,7 @@ var ltnImipBar = {
                 let accounts = MailServices.accounts;
                 for (let identity in fixIterator(accounts.allIdentities,
                                                  Components.interfaces.nsIMsgIdentity)) {
-                    if (author.includes(identity.email) && !identity.fccReplyFollowParent) {
+                    if (author.includes(identity.email) && !identity.fccReplyFollowsParent) {
                         return true;
                     }
                 }
@@ -279,9 +279,10 @@ var ltnImipBar = {
     executeAction: function(partStat, extendResponse) {
         function _execAction(aActionFunc, aItipItem, aWindow, aPartStat) {
             if (cal.itip.promptCalendar(aActionFunc.method, aItipItem, aWindow)) {
+                let isDeclineCounter = aPartStat == "X-DECLINECOUNTER";
                 // filter out fake partstats
                 if (aPartStat.startsWith("X-")) {
-                    partstat = "";
+                    partStat = "";
                 }
                 // hide the buttons now, to disable pressing them twice...
                 if (aPartStat == partStat) {
@@ -291,8 +292,48 @@ var ltnImipBar = {
                 let opListener = {
                     QueryInterface: XPCOMUtils.generateQI([Components.interfaces.calIOperationListener]),
                     onOperationComplete: function(aCalendar, aStatus, aOperationType, aId, aDetail) {
+                        if (Components.isSuccessCode(aStatus) && isDeclineCounter) {
+                            // TODO: move the DECLINECOUNTER stuff to actionFunc
+                            aItipItem.getItemList({}).forEach(aItem => {
+                                // we can rely on the received itipItem to reply at this stage
+                                // already, the checks have been done in cal.itip.processFoundItems
+                                // when setting up the respective aActionFunc
+                                let attendees = cal.getAttendeesBySender(
+                                    aItem.getAttendees({}),
+                                    aItipItem.sender
+                                );
+                                let status = true;
+                                if (attendees.length == 1 && ltnImipBar.foundItems &&
+                                    ltnImipBar.foundItems.length) {
+                                    // we must return a message with the same sequence number as the
+                                    // counterproposal - to make it easy, we simply use the received
+                                    // item and just remove a comment, if any
+                                    try {
+                                        let item = aItem.clone();
+                                        item.calendar = ltnImipBar.foundItems[0].calendar;
+                                        item.deleteProperty("COMMENT");
+                                        // once we have full support to deal with for multiple items
+                                        // in a received invitation message, we should send this
+                                        // from outside outside of the forEach context
+                                        status = cal.itip.sendDeclineCounterMessage(
+                                            item,
+                                            "DECLINECOUNTER",
+                                            attendees,
+                                            { value: false }
+                                        );
+                                    } catch (e) {
+                                        cal.ERROR(e);
+                                        status = false;
+                                    }
+                                } else {
+                                    status = false;
+                                }
+                                if (!status) {
+                                    cal.ERROR("Failed to send DECLINECOUNTER reply!");
+                                }
+                            });
+                        }
                         // For now, we just state the status for the user something very simple
-                        let imipBar = document.getElementById("imip-bar");
                         let label = cal.itip.getCompleteText(aStatus, aOperationType);
                         imipBar.setAttribute("label", label);
 
@@ -314,19 +355,70 @@ var ltnImipBar = {
             return false;
         }
 
+        let imipBar = document.getElementById("imip-bar");
         if (partStat == null) {
             partStat = "";
         }
-        if (partStat == "X-SHOWDETAILS") {
+        if (partStat == "X-SHOWDETAILS" || partStat == "X-RESCHEDULE") {
+            let counterProposal;
             let items = ltnImipBar.foundItems;
             if (items && items.length) {
                 let item = items[0].isMutable ? items[0] : items[0].clone();
-                modifyEventWithDialog(item);
+
+                if (partStat == "X-RESCHEDULE") {
+                    // TODO most of the following should be moved to the actionFunc defined in
+                    // calItipUtils
+                    let proposedItem = ltnImipBar.itipItem.getItemList({})[0];
+                    let proposedRID = proposedItem.getProperty("RECURRENCE-ID");
+                    if (proposedRID) {
+                        // if this is a counterproposal for a specific occurrence, we use
+                        // that to compare with
+                        item = item.recurrenceInfo.getOccurrenceFor(proposedRID).clone();
+                    }
+                    let parsedProposal = ltn.invitation.parseCounter(proposedItem, item);
+                    let potentialProposers = cal.getAttendeesBySender(
+                        proposedItem.getAttendees({}),
+                        ltnImipBar.itipItem.sender
+                    );
+                    let proposingAttendee = potentialProposers.length == 1 ?
+                                            potentialProposers[0] : null;
+                    if (proposingAttendee &&
+                        ["OK", "OUTDATED", "NOTLATESTUPDATE"].includes(parsedProposal.result.type)) {
+                        counterProposal = {
+                            attendee: proposingAttendee,
+                            proposal: parsedProposal.differences,
+                            oldVersion: parsedProposal.result == "OLDVERSION" ||
+                                        parsedProposal.result == "NOTLATESTUPDATE",
+                            onReschedule: () => {
+                                imipBar.setAttribute(
+                                    "label",
+                                    ltn.getString("lightning", "imipBarCounterPreviousVersionText")
+                                );
+                                // TODO: should we hide the buttons in this case, too?
+                            }
+                        };
+                    } else {
+                        imipBar.setAttribute(
+                            "label",
+                            ltn.getString("lightning", "imipBarCounterErrorText")
+                        );
+                        ltnImipBar.resetButtons();
+                        if (proposingAttendee) {
+                            cal.LOG(parsedProposal.result.descr);
+                        } else {
+                            cal.LOG("Failed to identify the sending attendee of the counterproposal.");
+                        }
+
+                        return false;
+                    }
+                }
+                // if this a rescheduling operation, we suppress the occurrence prompt here
+                modifyEventWithDialog(item, null, partStat != "X-RESCHEDULE", null, counterProposal);
             }
         } else {
             if (extendResponse) {
                 // Open an extended response dialog to enable the user to add a comment, make a
-                // counter proposal, delegate the event or interact in another way.
+                // counterproposal, delegate the event or interact in another way.
                 // Instead of a dialog, this might be implemented as a separate container inside the
                 // imip-overlay as proposed in bug 458578
                 //

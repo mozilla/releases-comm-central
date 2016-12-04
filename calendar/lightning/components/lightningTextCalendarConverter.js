@@ -53,40 +53,36 @@ ltnMimeConverter.prototype = {
 
         let itipItem = null;
         let msgOverlay = "";
+        let msgWindow = null;
 
-        try {
-            itipItem = Components.classes["@mozilla.org/calendar/itip-item;1"]
-                                 .createInstance(Components.interfaces.calIItipItem);
-            itipItem.init(data);
+        itipItem = Components.classes["@mozilla.org/calendar/itip-item;1"]
+                             .createInstance(Components.interfaces.calIItipItem);
+        itipItem.init(data);
+
+        // this.uri is the message URL that we are processing.
+        // We use it to get the nsMsgHeaderSink to store the calItipItem.
+        if (this.uri) {
+            try {
+                let msgUrl = this.uri.QueryInterface(Components.interfaces.nsIMsgMailNewsUrl);
+                msgWindow = msgUrl.msgWindow;
+                itipItem.sender = msgUrl.mimeHeaders.extractHeader("From", false);
+            } catch (exc) {
+                // msgWindow is optional in some scenarios
+                // (e.g. gloda in action, throws NS_ERROR_INVALID_POINTER then)
+            }
+        }
+
+        if (msgWindow) {
             let dom = ltn.invitation.createInvitationOverlay(event, itipItem);
             msgOverlay = cal.xml.serializeDOM(dom);
 
-            // this.uri is the message URL that we are processing.
-            // We use it to get the nsMsgHeaderSink to store the calItipItem.
-            if (this.uri) {
-                let msgWindow = null;
-                try {
-                    let msgUrl = this.uri.QueryInterface(Components.interfaces.nsIMsgMailNewsUrl);
-                    msgWindow = msgUrl.msgWindow;
-                } catch (exc) {
-                    // msgWindow is optional in some scenarios
-                    // (e.g. gloda in action, throws NS_ERROR_INVALID_POINTER then)
-                }
+            let sinkProps = msgWindow.msgHeaderSink.properties;
+            sinkProps.setPropertyAsInterface("itipItem", itipItem);
+            sinkProps.setPropertyAsAUTF8String("msgOverlay", msgOverlay);
 
-                if (msgWindow) {
-                    let sinkProps = msgWindow.msgHeaderSink.properties;
-                    sinkProps.setPropertyAsInterface("itipItem", itipItem);
-                    sinkProps.setPropertyAsAUTF8String("msgOverlay", msgOverlay);
-
-                    // Notify the observer that the itipItem is available
-                    Services.obs.notifyObservers(null, "onItipItemCreation", 0);
-                }
-            }
-        } catch (e) {
-            cal.ERROR("[ltnMimeConverter] convertToHTML: " + e);
+            // Notify the observer that the itipItem is available
+            Services.obs.notifyObservers(null, "onItipItemCreation", 0);
         }
-
-        // Create the HTML string for display
         return msgOverlay;
     }
 };

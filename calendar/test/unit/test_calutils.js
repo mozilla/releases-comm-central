@@ -4,16 +4,17 @@
 
 Components.utils.import("resource://calendar/modules/calUtils.jsm");
 
+// tests for calUtils.jsm
+
 function run_test() {
     getAttendeeEmail_test();
+    getAttendeesBySender_test();
     getRecipientList_test();
     prependMailTo_test();
     removeMailTo_test();
     resolveDelegation_test();
     validateRecipientList_test();
 }
-
-// tests for calUtils.jsm
 
 function getAttendeeEmail_test() {
     let data = [{
@@ -56,6 +57,74 @@ function getAttendeeEmail_test() {
             attendee.setProperty("EMAIL", test.input.email);
         }
         equal(cal.getAttendeeEmail(attendee, test.input.useCn), test.expected, "(test #" + i + ")");
+    }
+}
+
+function getAttendeesBySender_test() {
+    let data = [{
+        input: {
+            attendees: [{ id: "mailto:user1@example.net", sentBy: null },
+                        { id: "mailto:user2@example.net", sentBy: null }],
+            sender: "user1@example.net"
+        },
+        expected: ["mailto:user1@example.net"]
+    }, {
+        input: {
+            attendees: [{ id: "mailto:user1@example.net", sentBy: null },
+                        { id: "mailto:user2@example.net", sentBy: null }],
+            sender: "user3@example.net"
+        },
+        expected: []
+    }, {
+        input: {
+            attendees: [{ id: "mailto:user1@example.net", sentBy: "mailto:user3@example.net" },
+                        { id: "mailto:user2@example.net", sentBy: null }],
+            sender: "user3@example.net"
+        },
+        expected: ["mailto:user1@example.net"]
+    }, {
+        input: {
+            attendees: [{ id: "mailto:user1@example.net", sentBy: null },
+                        { id: "mailto:user2@example.net", sentBy: "mailto:user1@example.net" }],
+            sender: "user1@example.net"
+        },
+        expected: ["mailto:user1@example.net", "mailto:user2@example.net"]
+    }, {
+        input: { attendees: [], sender: "user1@example.net" },
+        expected: []
+    }, {
+        input: {
+            attendees: [{ id: "mailto:user1@example.net", sentBy: null },
+                        { id: "mailto:user2@example.net", sentBy: null }],
+            sender: ""
+        },
+        expected: []
+    }, {
+        input: {
+            attendees: [{ id: "mailto:user1@example.net", sentBy: null },
+                        { id: "mailto:user2@example.net", sentBy: null }],
+            sender: null
+        },
+        expected: []
+    }];
+
+    for (let i = 1; i <= data.length; i++) {
+        let test = data[i - 1];
+        let attendees = [];
+        for (let att of test.input.attendees) {
+            let attendee = cal.createAttendee();
+            attendee.id = att.id;
+            if (att.sentBy) {
+                attendee.setProperty("SENT-BY", att.sentBy);
+            }
+            attendees.push(attendee);
+        }
+        let detected = [];
+        cal.getAttendeesBySender(attendees, test.input.sender).forEach(att => {
+            detected.push(att.id);
+        });
+        ok(detected.every(aId => test.expected.includes(aId)), "(test #" + i + " ok1)");
+        ok(test.expected.every(aId => detected.includes(aId)), "(test #" + i + " ok2)");
     }
 }
 

@@ -83,6 +83,22 @@
                              oncommand="ltnImipBar.executeAction('X-SHOWDETAILS')"
                              hidden="true"/>
 
+              <!-- decline counter -->
+              <toolbarbutton id="imipDeclineCounterButton"
+                             label="&lightning.imipbar.btnDeclineCounter.label;"
+                             tooltiptext="&lightning.imipbar.btnDeclineCounter.tooltiptext;"
+                             class="toolbarbutton-1 msgHeaderView-button imipDeclineCounterButton"
+                             oncommand="ltnImipBar.executeAction('X-DECLINECOUNTER')"
+                             hidden="true"/>
+
+              <!-- reschedule -->
+              <toolbarbutton id="imipRescheduleButton"
+                             label="&lightning.imipbar.btnReschedule.label;"
+                             tooltiptext="&lightning.imipbar.btnReschedule.tooltiptext;"
+                             class="toolbarbutton-1 msgHeaderView-button imipRescheduleButton"
+                             oncommand="ltnImipBar.executeAction('X-RESCHEDULE')"
+                             hidden="true"/>
+
               <!-- add published events -->
               <toolbarbutton id="imipAddButton"
                              label="&lightning.imipbar.btnAdd.label;"

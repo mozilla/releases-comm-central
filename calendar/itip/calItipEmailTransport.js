@@ -112,11 +112,26 @@ calItipEmailTransport.prototype = {
                 );
                 break;
             }
+            case "DECLINECOUNTER": {
+                subject = cal.calGetString(
+                    "lightning",
+                    "itipDeclineCounterSubject",
+                    [summary],
+                    "lightning"
+                );
+                body = cal.calGetString(
+                    "lightning",
+                    "itipDeclineCounterBody",
+                    [item.organizer ? item.organizer.toString() : "", summary],
+                    "lightning"
+                );
+                break;
+            }
             case "REPLY": {
                 // Get my participation status
                 let att = cal.getInvitedAttendee(item, aItipItem.targetCalendar);
                 if (!att && aItipItem.identity) {
-                    att = item.getAttendeeById("mailto:" + aItipItem.identity);
+                    att = item.getAttendeeById(cal.prependMailTo(aItipItem.identity));
                 }
                 if (!att) { // should not happen anymore
                     return false;
@@ -308,7 +323,7 @@ calItipEmailTransport.prototype = {
                                             true  /* deleteSendFileOnCompletion */,
                                             false /* digest_p */,
                                             (Services.io.offline ? Components.interfaces.nsIMsgSend.nsMsgQueueForLater
-                                                                 : Components.interfaces.nsIMsgSend.nsMsgDeliverNow),
+                                                    : Components.interfaces.nsIMsgSend.nsMsgDeliverNow),
                                             null  /* nsIMsgDBHdr msgToReplace */,
                                             null  /* nsIMsgSendListener aListener */,
                                             null  /* nsIMsgStatusFeedback aStatusFeedback */,

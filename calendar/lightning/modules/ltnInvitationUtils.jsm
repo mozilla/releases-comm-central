@@ -37,24 +37,34 @@ ltn.invitation = {
                                            "itipCancelBody",
                                            [organizerString, summary]);
                     break;
-                case "REPLY": {
-                    // This is a reply received from someone else, there should
-                    // be just one attendee, the attendee that replied. If
-                    // there is more than one attendee, just take the first so
-                    // code doesn't break here.
+                case "COUNTER":
+                    // falls through
+                case "REPLY":
                     let attendees = item.getAttendees({});
-                    if (attendees && attendees.length >= 1) {
-                        let sender = attendees[0];
-                        let statusString = sender.participationStatus == "DECLINED"
-                                               ? "itipReplyBodyDecline"
-                                               : "itipReplyBodyAccept";
-
-                        header = ltn.getString("lightning", statusString, [sender.toString()]);
+                    let sender = cal.getAttendeesBySender(attendees, aItipItem.sender);
+                    if (sender.length == 1) {
+                        if (aItipItem.responseMethod == "COUNTER") {
+                            header = cal.calGetString("lightning",
+                                                      "itipCounterBody",
+                                                      [sender[0].toString(), summary],
+                                                      "lightning");
+                        } else {
+                            let statusString = (sender[0].participationStatus == "DECLINED" ?
+                                                "itipReplyBodyDecline" : "itipReplyBodyAccept");
+                            header = cal.calGetString("lightning",
+                                                      statusString,
+                                                      [sender[0].toString()],
+                                                      "lightning");
+                        }
                     } else {
                         header = "";
                     }
                     break;
-                }
+                case "DECLINECOUNTER":
+                    header = ltn.getString("lightning",
+                                           "itipDeclineCounterBody",
+                                           [organizerString, summary]);
+                    break;
             }
         }
 
@@ -504,5 +514,75 @@ ltn.invitation = {
                                                      Components.interfaces
                                                                .nsIMimeConverter
                                                                .MIME_ENCODED_WORD_SIZE);
+    },
+
+    /**
+     * Parses a counterproposal to extract differences to the existing event
+     * @param  {calIEvent|calITodo} aProposedItem  The counterproposal
+     * @param  {calIEvent|calITodo} aExistingItem  The item to compare with
+     * @return {JSObject}                          Objcet of result and differences of parsing
+     * @return {String} JsObject.result.type       Parsing result: OK|OLDVERSION|ERROR|NODIFF
+     * @return {String} JsObject.result.descr      Parsing result description
+     * @return {Array}  JsObject.differences       Array of objects consisting of property, proposed
+     *                                                 and original properties.
+     * @return {String} JsObject.comment           A comment of the attendee, if any
+     */
+    parseCounter: function(aProposedItem, aExistingItem) {
+        let isEvent = cal.isEvent(aProposedItem);
+        // atm we only support a subset of properties, for a full list see RfC 5546 section 3.2.7
+        let properties = ["SUMMARY", "LOCATION", "DTSTART", "DTEND", "COMMENT"];
+        if (!isEvent) {
+            cal.LOG("Parsing of counterproposals is currently only supported for events.");
+            properties = [];
+        }
+
+        let diff = [];
+        let status = { descr: "", type: "OK" };
+        // As required in https://tools.ietf.org/html/rfc5546#section-3.2.7 a valid counterproposal
+        // is referring to as existing UID and must include the same sequence number and organizer as
+        // the original request being countered
+        if (aProposedItem.id == aExistingItem.id &&
+            aProposedItem.organizer && aExistingItem.organizer &&
+            aProposedItem.organizer.id == aExistingItem.organizer.id) {
+            let proposedSequence = aProposedItem.getProperty("SEQUENCE") || 0;
+            let existingSequence = aExistingItem.getProperty("SEQUENCE") || 0;
+            if (existingSequence >= proposedSequence) {
+                if (existingSequence > proposedSequence) {
+                    // in this case we prompt the organizer with the additional information that the
+                    // received proposal refers to an outdated version of the event
+                    status.descr = "This is a counterproposal to an already rescheduled event.";
+                    status.type = "OUTDATED";
+                } else if (aProposedItem.stampTime.compare(aExistingItem.stampTime) == -1) {
+                    // now this is the same sequence but the proposal is not based on the latest
+                    // update of the event - updated events may have minor changes, while for major
+                    // ones there has been a rescheduling
+                    status.descr = "This is a counterproposal not based on the latest event update.";
+                    status.type = "NOTLATESTUPDATE";
+                }
+                for (let prop of properties) {
+                    let newValue = aProposedItem.getProperty(prop) || null;
+                    let oldValue = aExistingItem.getProperty(prop) || null;
+                    if ((["DTSTART", "DTEND"].includes(prop) && newValue.toString() != oldValue.toString()) ||
+                        (!["DTSTART", "DTEND"].includes(prop) && newValue != oldValue)) {
+                        diff.push({
+                            property: prop,
+                            proposed: newValue,
+                            original: oldValue
+                        });
+                    }
+                }
+            } else {
+                status.descr = "Invalid sequence number in counterproposal.";
+                status.type = "ERROR";
+            }
+        } else {
+            status.descr = "Mismatch of uid or organizer in counterproposal.";
+            status.type = "ERROR";
+        }
+        if (status.type != "ERROR" && !diff.length) {
+            status.descr = "No difference in counterproposal detected.";
+            status.type = "NODIFF";
+        }
+        return { result: status, differences: diff };
     }
 };

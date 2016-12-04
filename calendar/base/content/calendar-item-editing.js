@@ -269,7 +269,7 @@ function createEventWithDialog(calendar, startDate, endDate, summary, event, aFo
             event.title = summary;
         }
     }
-    openEventDialog(event, event.calendar, "new", onNewEvent, null);
+    openEventDialog(event, event.calendar, "new", onNewEvent);
 }
 
 /**
@@ -326,8 +326,21 @@ function createTodoWithDialog(calendar, dueDate, summary, todo, initialDate) {
  * @param aPromptOccurrence     If the user should be prompted to select if the
  *                                parent item or occurrence should be modified.
  * @param initialDate           (optional) The initial date for new task datepickers
+ * @param aCounterProposal      (optional) An object representing the counterproposal
+ *        {
+ *            {JsObject} result: {
+ *                type: {String} "OK"|"OUTDATED"|"NOTLATESTUPDATE"|"ERROR"|"NODIFF"
+ *                descr: {String} a technical description of the problem if type is ERROR or NODIFF,
+ *                                otherwise an empty string 
+ *            },
+ *            (empty if result.type = "ERROR"|"NODIFF"){Array} differences: [{
+ *                property: {String} a property that is subject to the proposal
+ *                proposed: {String} the proposed value
+ *                original: {String} the original value
+ *            }]
+ *        }
  */
-function modifyEventWithDialog(aItem, job, aPromptOccurrence, initialDate) {
+function modifyEventWithDialog(aItem, job=null, aPromptOccurrence, initialDate=null, aCounterProposal) {
     let dlg = cal.findItemWindow(aItem);
     if (dlg) {
         dlg.focus();
@@ -346,7 +359,8 @@ function modifyEventWithDialog(aItem, job, aPromptOccurrence, initialDate) {
     }
 
     if (item && (response || response === undefined)) {
-        openEventDialog(item, item.calendar, "modify", onModifyItem, job, initialDate);
+        openEventDialog(item, item.calendar, "modify", onModifyItem, job, initialDate,
+                        aCounterProposal);
     } else {
         disposeJob(job);
     }
@@ -361,8 +375,10 @@ function modifyEventWithDialog(aItem, job, aPromptOccurrence, initialDate) {
  * @param callback          The callback to call when the dialog has completed.
  * @param job               (optional) The job object for the modification.
  * @param initialDate       (optional) The initial date for new task datepickers
+ * @param counterProposal   (optional) An object representing the counterproposal - see
+ *                                     description for modifyEventWithDialog()
  */
-function openEventDialog(calendarItem, calendar, mode, callback, job, initialDate) {
+function openEventDialog(calendarItem, calendar, mode, callback, job=null, initialDate=null, counterProposal) {
     let dlg = cal.findItemWindow(calendarItem);
     if (dlg) {
         dlg.focus();
@@ -438,6 +454,7 @@ function openEventDialog(calendarItem, calendar, mode, callback, job, initialDat
     args.onOk = callback;
     args.job = job;
     args.initialStartDateValue = initialDate || getDefaultStartDate();
+    args.counterProposal = counterProposal;
     args.inTab = Preferences.get("calendar.item.editInTab", false);
     args.useNewItemUI = Preferences.get("calendar.item.useNewItemUI", false);
 

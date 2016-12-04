@@ -28,6 +28,14 @@ calItipItem.prototype = {
         interfaces: calItipItemInterfaces
     }),
 
+    mSender: null,
+    get sender() {
+        return this.mSender;
+    },
+    set sender(aValue) {
+        return (this.mSender = aValue);
+    },
+
     mIsSend: false,
     get isSend() {
         return this.mIsSend;
@@ -164,6 +172,7 @@ calItipItem.prototype = {
         newItem.mTargetCalendar = this.mTargetCalendar;
         newItem.mIdentity = this.mIdentity;
         newItem.mLocalStatus = this.mLocalStatus;
+        newItem.mSender = this.mSender;
         newItem.mIsSend = this.mIsSend;
         newItem.mIsInitialized = this.mIsInitialized;
         return newItem;

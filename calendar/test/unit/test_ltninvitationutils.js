@@ -13,9 +13,9 @@ function run_test() {
 
 // tests for ltnInvitationUtils.jsm
 
-function getIcs() {
+function getIcs(aAsArray=false) {
     // we use an unfolded ics blueprint here to make replacing of properties easier
-    return [
+    let item = [
         "BEGIN:VCALENDAR",
         "PRODID:-//Mozilla.org/NONSGML Mozilla Calendar V1.1//EN",
         "VERSION:2.0",
@@ -48,68 +48,87 @@ function getIcs() {
         "e@example.net",
         "DTSTART;TZID=Europe/Berlin:20150909T210000",
         "DTEND;TZID=Europe/Berlin:20150909T220000",
+        "SEQUENCE:1",
         "TRANSP:OPAQUE",
         "LOCATION:Room 1",
         "DESCRIPTION:Let us get together",
         "URL:http://www.example.com",
         "ATTACH:http://www.example.com",
         "END:VEVENT",
-        "END:VCALENDAR"].join("\r\n");
+        "END:VCALENDAR"];
+    if (!aAsArray) {
+        item = item.join("\r\n");
+    }
+    return item;
 }
 
 add_task(function* getItipHeader_test() {
     let data = [{
         input: {
             method: "METHOD:REQUEST\r\n",
-            attendee: null
+            attendees: [null]
         },
         expected: "Organizer has invited you to Test Event"
     }, {
         input: {
             method: "METHOD:CANCEL\r\n",
-            attendee: null
+            attendees: [null]
         },
-        expected: "Organizer has canceled this event: « Test Event »"
+        expected: "Organizer has canceled this event: Test Event"
+    }, {
+        input: {
+            method: "METHOD:DECLINECOUNTER\r\n",
+            attendees: ["ATTENDEE;RSVP=TRUE;CN=Attendee1;PARTSTAT=ACCEPTED;" +
+                        "ROLE=REQ-PARTICIPANT:mailto:attendee1@example.net"]
+        },
+        expected: "Organizer has declined your counterproposal for \"Test Event\"."
+    }, {
+        input: {
+            method: "METHOD:COUNTER\r\n",
+            attendees: ["ATTENDEE;RSVP=TRUE;CN=Attendee1;PARTSTAT=DECLINED;" +
+                        "ROLE=REQ-PARTICIPANT:mailto:attendee1@example.net"]
+        },
+        expected: "Attendee1 <attendee1@example.net> has made a counterproposal for \"Test Event\":"
     }, {
         input: {
             method: "METHOD:REPLY\r\n",
-            attendee: "ATTENDEE;RSVP=TRUE;CN=Attendee1;PARTSTAT=ACCEPTED;" +
-                      "ROLE=REQ-PARTICIPANT:mailto:attendee1@example.net"
+            attendees: ["ATTENDEE;RSVP=TRUE;CN=Attendee1;PARTSTAT=ACCEPTED;" +
+                        "ROLE=REQ-PARTICIPANT:mailto:attendee1@example.net"]
         },
         expected: "Attendee1 <attendee1@example.net> has accepted your event invitation."
     }, {
         input: {
             method: "METHOD:REPLY\r\n",
-            attendee: "ATTENDEE;RSVP=TRUE;CN=Attendee1;PARTSTAT=TENTATIVE;" +
-                      "ROLE=REQ-PARTICIPANT:mailto:attendee1@example.net"
+            attendees: ["ATTENDEE;RSVP=TRUE;CN=Attendee1;PARTSTAT=TENTATIVE;" +
+                        "ROLE=REQ-PARTICIPANT:mailto:attendee1@example.net"]
         },
         expected: "Attendee1 <attendee1@example.net> has accepted your event invitation."
     }, {
         input: {
             method: "METHOD:REPLY\r\n",
-            attendee: "ATTENDEE;RSVP=TRUE;CN=Attendee1;PARTSTAT=DECLINED;" +
-                      "ROLE=REQ-PARTICIPANT:mailto:attendee1@example.net"
+            attendees: ["ATTENDEE;RSVP=TRUE;CN=Attendee1;PARTSTAT=DECLINED;" +
+                        "ROLE=REQ-PARTICIPANT:mailto:attendee1@example.net"]
         },
         expected: "Attendee1 <attendee1@example.net> has declined your event invitation."
     }, {
         input: {
             method: "METHOD:REPLY\r\n",
-            attendee: ["ATTENDEE;RSVP=TRUE;CN=Attendee1;PARTSTAT=ACCEPTED;" +
-                       "ROLE=REQ-PARTICIPANT:mailto:attendee1@example.net",
-                       "ATTENDEE;RSVP=TRUE;CN=Attendee2;PARTSTAT=DECLINED;" +
-                       "ROLE=REQ-PARTICIPANT:mailto:attendee2@example.net"].join("\r\n")
+            attendees: ["ATTENDEE;RSVP=TRUE;CN=Attendee1;PARTSTAT=ACCEPTED;" +
+                        "ROLE=REQ-PARTICIPANT:mailto:attendee1@example.net",
+                        "ATTENDEE;RSVP=TRUE;CN=Attendee2;PARTSTAT=DECLINED;" +
+                        "ROLE=REQ-PARTICIPANT:mailto:attendee2@example.net"]
         },
         expected: "Attendee1 <attendee1@example.net> has accepted your event invitation."
     }, {
         input: {
             method: "METHOD:UNSUPPORTED\r\n",
-            attendee: null
+            attendees: [null]
         },
         expected: "Event Invitation"
     }, {
         input: {
             method: "",
-            attendee: ""
+            attendees: [""]
         },
         expected: "Event Invitation"
     }];
@@ -119,15 +138,23 @@ add_task(function* getItipHeader_test() {
         let itipItem = Components.classes["@mozilla.org/calendar/itip-item;1"]
                                  .createInstance(Components.interfaces.calIItipItem);
         let item = getIcs();
+        let sender;
         if (test.input.method || test.input.method == "") {
             item = item.replace(/METHOD:REQUEST\r\n/, test.input.method);
         }
-        if (test.input.attendee || test.input.attendee == "") {
-            item = item.replace(/(ATTENDEE.+(?:\r\n))/, test.input.attendee + "\r\n");
+        if (test.input.attendees.length) {
+            let attendees = test.input.attendees.filter(aAtt => !!aAtt).join("\r\n");
+            item = item.replace(/(ATTENDEE.+(?:\r\n))/, attendees + "\r\n");
+            if (test.input.attendees[0]) {
+                sender = cal.createAttendee();
+                sender.icalString = test.input.attendees[0];
+            }
         }
         itipItem.init(item);
-        equal(ltn.invitation.getItipHeader(itipItem), test.expected,
-              "(test #" + i + ")");
+        if (sender) {
+            itipItem.sender = sender.id;
+        }
+        equal(ltn.invitation.getItipHeader(itipItem), test.expected, "(test #" + i + ")");
     }
 });
 
@@ -771,4 +798,336 @@ add_task(function* getRfc5322FormattedDate_test() {
         ok(re.test(ltn.invitation.getRfc5322FormattedDate(date)), "(test #" + i + ")");
     }
     Preferences.set("calendar.timezone.local", timezone);
+});
+
+add_task(function* parseCounter_test() {
+    let data = [{
+        // #1: basic test to check all currently supported properties
+        input: {
+            existing: [],
+            proposed: [
+                {
+                    method: "METHOD:COUNTER"
+                }, {
+                    dtStart: "DTSTART;TZID=Europe/Berlin:20150910T210000"
+                }, {
+                    dtEnd: "DTEND;TZID=Europe/Berlin:20150910T220000"
+                }, {
+                    location: "LOCATION:Room 2"
+                }, {
+                    summary: "SUMMARY:Test Event 2"
+                }, {
+                    attendee: "ATTENDEE;CN=Attendee;PARTSTAT=DECLINED;ROLE=REQ-PARTICIPANT:" +
+                              "mailto:attendee@example.net"
+                }, {
+                    dtStamp: "DTSTAMP:20150909T182048Z"
+                }, {
+                    attach: "COMMENT:Sorry\, I cannot make it that time."
+                }
+            ]
+        },
+        expected: {
+            result: { descr: "", type: "OK" },
+            differences: [{
+                property: "SUMMARY",
+                proposed: "Test Event 2",
+                original: "Test Event"
+            }, {
+                property: "LOCATION",
+                proposed: "Room 2",
+                original: "Room 1"
+            }, {
+                property: "DTSTART",
+                proposed: ["Thursday, September 10, 2015 9:00 PM Europe/Berlin", // Automation Win
+                           "Thu 10 Sep 2015 9:00 PM Europe/Berlin", // Automation OSX
+                           "Thu 10 Sep 2015 09:00 PM Europe/Berlin", // Automation Linux
+                           "Thu 10 Sep 2015 21:00 Europe/Berlin"], // Local Win 24h
+                original: ["Wednesday, September 09, 2015 9:00 PM Europe/Berlin",
+                           "Wed 9 Sep 2015 9:00 PM Europe/Berlin",
+                           "Wed 9 Sep 2015 09:00 PM Europe/Berlin",
+                           "Wed 9 Sep 2015 21:00 Europe/Berlin"]
+            }, {
+                property: "DTEND",
+                proposed: ["Thursday, September 10, 2015 10:00 PM Europe/Berlin",
+                           "Thu 10 Sep 2015 10:00 PM Europe/Berlin",
+                           "Thu 10 Sep 2015 22:00 Europe/Berlin"],
+                original: ["Wednesday, September 09, 2015 10:00 PM Europe/Berlin",
+                           "Wed 9 Sep 2015 10:00 PM Europe/Berlin",
+                           "Wed 9 Sep 2015 22:00 Europe/Berlin"]
+            }, {
+                property: "COMMENT",
+                proposed: "Sorry\, I cannot make it that time.",
+                original: null
+            }]
+        }
+    }, {
+        // #2: test with an unsupported property has been changed
+        input: {
+            existing: [],
+            proposed: [
+                {
+                    method: "METHOD:COUNTER"
+                }, {
+                    attendee: "ATTENDEE;CN=Attendee;PARTSTAT=NEEDS-ACTION;ROLE=REQ-PARTICIPANT:" +
+                              "mailto:attendee@example.net"
+                }, {
+                    location: "LOCATION:Room 2"
+                }, {
+                    attach: "ATTACH:http://www.example2.com"
+                } ,{
+                    dtStamp: "DTSTAMP:20150909T182048Z"
+                }]
+        },
+        expected: {
+            result: { descr: "", type: "OK" },
+            differences: [{ property: "LOCATION", proposed: "Room 2", original: "Room 1" }]
+        }
+    }, {
+        // #3: proposed change not based on the latest update of the invitation
+        input: {
+            existing: [],
+            proposed: [
+                {
+                    method: "METHOD:COUNTER"
+                }, {
+                    attendee: "ATTENDEE;CN=Attendee;PARTSTAT=NEEDS-ACTION;ROLE=REQ-PARTICIPANT:" +
+                              "mailto:attendee@example.net"
+                }, {
+                    location: "LOCATION:Room 2"
+                }, {
+                    dtStamp: "DTSTAMP:20150909T171048Z"
+                }
+            ]
+        },
+        expected: {
+            result: {
+                descr: "This is a counterproposal not based on the latest event update.",
+                type: "NOTLATESTUPDATE"
+            },
+            differences: [{ property: "LOCATION", proposed: "Room 2", original: "Room 1" }]
+        }
+    }, {
+        // #4: proposed change based on a meanwhile reschuled invitation
+        input: {
+            existing: [],
+            proposed: [
+                {
+                    method: "METHOD:COUNTER"
+                }, {
+                    attendee: "ATTENDEE;CN=Attendee;PARTSTAT=NEEDS-ACTION;ROLE=REQ-PARTICIPANT:" +
+                              "mailto:attendee@example.net"
+                }, {
+                    location: "LOCATION:Room 2"
+                }, {
+                    sequence: "SEQUENCE:0"
+                }, {
+                    dtStamp: "DTSTAMP:20150909T182048Z"
+                }
+            ]
+        },
+        expected: {
+            result: {
+                descr: "This is a counterproposal to an already rescheduled event.",
+                type: "OUTDATED"
+            },
+            differences: [{ property: "LOCATION", proposed: "Room 2", original: "Room 1" }]
+        }
+    }, {
+        // #5: proposed change for an later sequence of the event
+        input: {
+            existing: [],
+            proposed: [
+                {
+                    method: "METHOD:COUNTER"
+                }, {
+                    attendee: "ATTENDEE;CN=Attendee;PARTSTAT=NEEDS-ACTION;ROLE=REQ-PARTICIPANT:" +
+                              "mailto:attendee@example.net"
+                }, {
+                    location: "LOCATION:Room 2"
+                }, {
+                    sequence: "SEQUENCE:2"
+                }, {
+                    dtStamp: "DTSTAMP:20150909T182048Z"
+                }
+            ]
+        },
+        expected: {
+            result: {
+                descr: "Invalid sequence number in counterproposal.",
+                type: "ERROR"
+            },
+            differences: []
+        }
+    }, {
+        // #6: proposal to a different event
+        input: {
+            existing: [],
+            proposed: [
+                {
+                    method: "METHOD:COUNTER"
+                }, {
+                    uid: "UID:cb189fdc-0000-0000-0000-31a08802249d"
+                }, {
+                    attendee: "ATTENDEE;CN=Attendee;PARTSTAT=NEEDS-ACTION;ROLE=REQ-PARTICIPANT:" +
+                              "mailto:attendee@example.net"
+                }, {
+                    location: "LOCATION:Room 2"
+                }, {
+                    dtStamp: "DTSTAMP:20150909T182048Z"
+                }
+            ]
+        },
+        expected: {
+            result: {
+                descr: "Mismatch of uid or organizer in counterproposal.",
+                type: "ERROR"
+            },
+            differences: []
+        }
+    }, {
+        // #7: proposal with a different organizer
+        input: {
+            existing: [],
+            proposed: [
+                {
+                    method: "METHOD:COUNTER"
+                }, {
+                    organizer: "ORGANIZER;RSVP=TRUE;CN=Organizer;PARTSTAT=ACCEPTED;ROLE=CHAI" +
+                               "R:mailto:organizer2@example.net"
+                }, {
+                    attendee: "ATTENDEE;CN=Attendee;PARTSTAT=NEEDS-ACTION;ROLE=REQ-PARTICIPANT:" +
+                              "mailto:attendee@example.net"
+                }, {
+                    dtStamp: "DTSTAMP:20150909T182048Z"
+                }
+            ]
+        },
+        expected: {
+            result: {
+                descr: "Mismatch of uid or organizer in counterproposal.",
+                type: "ERROR"
+            },
+            differences: []
+        }
+    }, {
+        // #8:counterproposal without any difference
+        input: {
+            existing: [],
+            proposed: [{ method: "METHOD:COUNTER" }] },
+        expected: {
+            result: {
+                descr: "No difference in counterproposal detected.",
+                type: "NODIFF"
+            },
+            differences: []
+        }
+    }];
+
+    let getItem = function(aProperties) {
+        let item = getIcs(true);
+
+        let modifyProperty = function(aRegex, aReplacement, aInVevent) {
+            let inVevent = false;
+            let i = 0;
+            item.forEach(aProp => {
+                if (aProp == "BEGIN:VEVENT" && !inVevent) {
+                    inVevent = true;
+                } else if (aProp == "END:VEVENT" && inVevent) {
+                    inVevent = false;
+                }
+                if ((aInVevent && inVevent) || !aInVevent) {
+                    item[i] = aProp.replace(aRegex, aReplacement);
+                }
+                i++;
+            });
+        };
+
+        if (aProperties) {
+            aProperties.forEach(aProp => {
+                if ("method" in aProp && aProp.method) {
+                    modifyProperty(/(METHOD.+)/, aProp.method, false);
+                } else if ("attendee" in aProp && aProp.attendee) {
+                    modifyProperty(/(ATTENDEE.+)/, aProp.attendee, true);
+                } else if ("attach" in aProp && aProp.attach) {
+                    modifyProperty(/(ATTACH.+)/, aProp.attach, true);
+                } else if ("summary" in aProp && aProp.summary) {
+                    modifyProperty(/(SUMMARY.+)/, aProp.summary, true);
+                } else if ("location" in aProp && aProp.location) {
+                    modifyProperty(/(LOCATION.+)/, aProp.location, true);
+                } else if ("dtStart" in aProp && aProp.dtStart) {
+                    modifyProperty(/(DTSTART.+)/, aProp.dtStart, true);
+                } else if ("dtEnd" in aProp && aProp.dtEnd) {
+                    modifyProperty(/(DTEND.+)/, aProp.dtEnd, true);
+                } else if ("sequence" in aProp && aProp.sequence) {
+                    modifyProperty(/(SEQUENCE.+)/, aProp.sequence, true);
+                } else if ("dtStamp" in aProp && aProp.dtStamp) {
+                    modifyProperty(/(DTSTAMP.+)/, aProp.dtStamp, true);
+                } else if ("organizer" in aProp && aProp.organizer) {
+                    modifyProperty(/(ORGANIZER.+)/, aProp.organizer, true);
+                } else if ("uid" in aProp && aProp.uid) {
+                    modifyProperty(/(UID.+)/, aProp.uid, true);
+                }
+            });
+        }
+        item = item.join("\r\n");
+        return createEventFromIcalString(item);
+    };
+
+    let formatDt = function (aDateTime) {
+        let datetime = getDateFormatter().formatDateTime(aDateTime);
+        return datetime += " " + aDateTime.timezone.displayName;
+    };
+
+    for (let i = 1; i <= data.length; i++) {
+        let test = data[i - 1];
+        let existingItem = getItem(test.input.existing);
+        let proposedItem = getItem(test.input.proposed);
+        let parsed = ltn.invitation.parseCounter(proposedItem, existingItem);
+
+        equal(parsed.result.type, test.expected.result.type, "(test #" + i + ": result.type)");
+        equal(parsed.result.descr, test.expected.result.descr, "(test #" + i + ": result.descr)");
+        let parsedProps = [];
+        let additionalProps = [];
+        let missingProps = [];
+        parsed.differences.forEach(aDiff => {
+            let expected = test.expected.differences.filter(bDiff => bDiff.property == aDiff.property);
+            if (expected.length == 1) {
+                if (["DTSTART", "DTEND"].includes(aDiff.property)) {
+                    let prop = aDiff.proposed ? formatDt(aDiff.proposed) : null;
+                    ok(
+                        prop && expected[0].proposed.includes(prop),
+                        "(test #" + i + ": difference " + aDiff.property + ": proposed '" + prop + "')"
+                    );
+                    prop = aDiff.original ? formatDt(aDiff.original) : null
+                    ok(
+                        prop && expected[0].original.includes(prop),
+                        "(test #" + i + ": difference " + aDiff.property + ": original '" + prop + "')"
+                    );
+                } else {
+                    equal(
+                        aDiff.proposed,
+                        expected[0].proposed,
+                        "(test #" + i + ": difference " + aDiff.property + ": proposed)"
+                    );
+                    equal(
+                        aDiff.original,
+                        expected[0].original,
+                        "(test #" + i + ": difference " + aDiff.property + ": original)"
+                    );
+                }
+                parsedProps.push(aDiff.property);
+            } else if (expected.length == 0) {
+                additionalProps.push(aDiff.property);
+            }
+        });
+        test.expected.differences.forEach(aDiff => {
+            if (!parsedProps.includes(aDiff.property)) {
+                missingProps.push(aDiff.property);
+            }
+        });
+        ok(additionalProps.length == 0, "(test #" + i + ": differences: check for unexpectedly "+
+                                        "occurring additional properties " + additionalProps + ")");
+        ok(missingProps.length == 0, "(test #" + i + ": differences: check for unexpectedly " +
+                                     "missing properties " + missingProps + ")");
+    }
 });

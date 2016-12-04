@@ -14,7 +14,7 @@ interface nsISimpleEnumerator;
  * parser, the imip-bar UI, and the iTIP processor. It encapsulates a list of
  * calIItemBase objects and provides specialized iTIP methods for those items.
  */
-[scriptable, uuid(f41392ab-dcad-4bad-818f-b3d1631c4d93)]
+[scriptable, uuid(7539c158-c30d-41d0-90e9-41d315ac3eb1)]
 interface calIItipItem : nsISupports
 {
     /**
@@ -38,6 +38,12 @@ interface calIItipItem : nsISupports
      * handle everything else.
      */
     attribute boolean isSend;
+
+    /**
+     * Attribute: sender - set to the email address of the sender if part of an
+     * iMIP communication.
+     */
+    attribute AUTF8String sender;
 
     /**
      * Attribute: receivedMethod - method the iTIP item had upon reciept

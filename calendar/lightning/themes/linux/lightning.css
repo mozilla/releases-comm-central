@@ -190,6 +190,7 @@ radio[pane=paneLightning] {
   list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#complete);
 }
 
+.imipDeclineCounterButton,
 .imipDeclineRecurrencesButton,
 .imipDeclineButton {
   list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#decline);
@@ -208,6 +209,7 @@ radio[pane=paneLightning] {
   list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#newevent);
 }
 
+.imipRescheduleButton,
 .imipUpdateButton {
   list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#synchronize);
 }

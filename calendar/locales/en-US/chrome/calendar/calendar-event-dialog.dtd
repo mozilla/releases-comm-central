@@ -40,7 +40,7 @@
 <!ENTITY event.attendees.notifyundisclosed.tooltip   "This option sends one invitation email per attendee. Each invitation only contains the recipient attendee so that other attendee identities are not disclosed.">
 <!ENTITY event.attendees.disallowcounter.label       "Disallow counter">
 <!ENTITY event.attendees.disallowcounter.accesskey   "a">
-<!ENTITY event.attendees.disallowcounter.tooltip     "Indicates that you will not accept counter proposals">
+<!ENTITY event.attendees.disallowcounter.tooltip     "Indicates that you will not accept counterproposals">
 
 <!-- Keyboard Shortcuts -->
 <!ENTITY event.dialog.new.event.key2              "I">
@@ -165,12 +165,18 @@
 <!ENTITY  event.toolbar.freebusy.tooltip                  "Change Free/Busy time">
 
 <!-- Counter box -->
+<!-- LOCALIZATON NOTE(counter.button.*)
+   - This is only visible in the UI if you have received a counterproposal before and are going to
+   - reschedule the event from the imipbar in the email view. Clicking on the buttons will only
+   - populate the form fields in the dialog, there's no other immediate action on clicking like with
+   - the imip bar. Rescheduling will happen after clicking on save&close as usual. This screenshot
+   - illustrates how it might look like: https://bugzilla.mozilla.org/attachment.cgi?id=8810121 -->
 <!ENTITY counter.button.proposal.label                    "Apply proposal">
 <!ENTITY counter.button.proposal.accesskey                "p">
-<!ENTITY counter.button.proposal.tooltip                  "Apply the proposal data to the form.">
+<!ENTITY counter.button.proposal.tooltip2                 "Event fields will be filled in using the values from the counterproposal, only saving with or without additional changes will notify all attendees accordingly">
 <!ENTITY counter.button.original.label                    "Apply original data">
 <!ENTITY counter.button.original.accesskey                "r">
-<!ENTITY counter.button.original.tooltip                  "Apply the original data to the form.">
+<!ENTITY counter.button.original.tooltip2                 "The fields will be set to the values from the original event, before the counterproposal was made">
 
 <!-- Main page -->
 <!ENTITY event.title.textbox.label                        "Title:" >

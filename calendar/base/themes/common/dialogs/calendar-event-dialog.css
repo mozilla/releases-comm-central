@@ -34,6 +34,27 @@ dialog[systemcolors] {
     display: none;
 }
 
+/*--------------------------------------------------------------------
+ *   Event dialog counter box section
+ *-------------------------------------------------------------------*/
+
+#counter-proposal-box {
+    background-color: rgb(186, 238, 255);
+    border-bottom: 1px solid #444444;
+}
+
+#counter-proposal-property-values > description {
+    margin-bottom: 2px;
+}
+
+#counter-proposal-summary {
+    font-weight: bold;
+}
+
+.counter-buttons {
+    max-height: 25px;
+}
+
 #yearly-period-of-label,
 label.label {
     text-align: right;

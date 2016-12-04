@@ -266,6 +266,7 @@ toolbar[bighttext] #task-tab-button {
     list-style-image: url(chrome://calendar-common/skin/calendar-toolbar-osxlion.svg#complete);
   }
 
+  .imipDeclineCounterButton,
   .imipDeclineRecurrencesButton,
   .imipDeclineButton {
     list-style-image: url(chrome://calendar-common/skin/calendar-toolbar-osxlion.svg#decline);
@@ -284,6 +285,7 @@ toolbar[bighttext] #task-tab-button {
     list-style-image: url(chrome://calendar-common/skin/calendar-toolbar-osxlion.svg#newevent);
   }
 
+  .imipRescheduleButton,
   .imipUpdateButton {
     list-style-image: url(chrome://calendar-common/skin/calendar-toolbar-osxlion.svg#synchronize);
   }
@@ -303,6 +305,7 @@ toolbar[bighttext] #task-tab-button {
     list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#complete-flat);
   }
 
+  .imipDeclineCounterButton,
   .imipDeclineRecurrencesButton,
   .imipDeclineButton {
     list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#decline-flat);
@@ -321,6 +324,7 @@ toolbar[bighttext] #task-tab-button {
     list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#newevent-flat);
   }
 
+  .imipRescheduleButton,
   .imipUpdateButton {
     list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#synchronize-flat);
   }
