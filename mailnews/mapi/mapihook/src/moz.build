@@ -12,10 +12,7 @@ SOURCES += [
     'Registry.cpp',
 ]
 
-if CONFIG['MOZ_INCOMPLETE_EXTERNAL_LINKAGE']:
-    XPCOMBinaryComponent('msgMapi')
-else:
-    FINAL_LIBRARY = 'xul'
+FINAL_LIBRARY = 'xul'
 
 OS_LIBS += [
     'ole32',

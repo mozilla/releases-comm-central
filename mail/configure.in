@@ -36,13 +36,6 @@ MOZ_ARG_ENABLE_BOOL(calendar,
     MOZ_CALENDAR= )
 AC_SUBST(MOZ_CALENDAR)
 
-MOZ_ARG_ENABLE_BOOL(incomplete-external-linkage,
-[  --enable-incomplete-external-linkage Changes some comm-central code to be built with external linkage. Developer only option, incomplete broken builds will result - There are already existing bugs for this. ],
-    MOZ_INCOMPLETE_EXTERNAL_LINKAGE=1,
-    MOZ_INCOMPLETE_EXTERNAL_LINKAGE= )
-
-AC_SUBST(MOZ_INCOMPLETE_EXTERNAL_LINKAGE)
-
 dnl =========================================================
 dnl = LDAP
 dnl =========================================================

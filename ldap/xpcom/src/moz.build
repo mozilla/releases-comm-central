@@ -31,21 +31,8 @@ USE_LIBS += [
     'ldapsdks',
 ]
 
-if CONFIG['MOZ_INCOMPLETE_EXTERNAL_LINKAGE']:
-    XPCOMBinaryComponent('mozldap')
-    USE_LIBS += [
-        'nspr',
-        'xpcomglue_s',
-        'xul',
-    ]
-# js needs to come after xul for now, because it is an archive and its content
-# is discarded when it comes first.
-    USE_LIBS += [
-        'js',
-    ]
-else:
-    Library('mozldap')
-    FINAL_LIBRARY = 'xul'
+Library('mozldap')
+FINAL_LIBRARY = 'xul'
 
 LOCAL_INCLUDES += [
     '/ldap/c-sdk/include',

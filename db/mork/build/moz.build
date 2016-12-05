@@ -12,13 +12,5 @@ SOURCES += [
     'nsMorkFactory.cpp',
 ]
 
-if CONFIG['MOZ_INCOMPLETE_EXTERNAL_LINKAGE']:
-    XPCOMBinaryComponent('mork')
-    USE_LIBS += [
-        'nspr',
-        'xpcomglue_s',
-        'xul',
-    ]
-else:
-    Library('mork')
-    FINAL_LIBRARY = 'xul'
+Library('mork')
+FINAL_LIBRARY = 'xul'

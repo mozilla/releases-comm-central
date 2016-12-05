@@ -7,20 +7,8 @@ SOURCES += [
     'nsMailComps.cpp',
 ]
 
-# NOTE: if we switch away from LIBXUL_LIBRARY at any stage
-# we need to clear the EMBED_MANIFEST_AT flag. (See Bug 714495)
-if CONFIG['MOZ_INCOMPLETE_EXTERNAL_LINKAGE']:
-    XPCOMBinaryComponent('mailcomps')
-    USE_LIBS += [
-        'nspr',
-        'unicharutil_external_s',
-        'xpcomglue_s',
-        'xul',
-    ]
-    OS_LIBS += CONFIG['GLIB_LIBS']
-else:
-    Library('mailcomps')
-    FINAL_LIBRARY = 'xul'
+Library('mailcomps')
+FINAL_LIBRARY = 'xul'
 
 LOCAL_INCLUDES += [
     '../migration/src',

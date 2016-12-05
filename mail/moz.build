@@ -15,10 +15,6 @@ DIRS += [
     'app',
 ]
 
-# Add components for external linkage build
-if CONFIG['MOZ_INCOMPLETE_EXTERNAL_LINKAGE']:
-    DIRS += ['components']
-
 if CONFIG['MAKENSISU']:
     DIRS += ['installer/windows']
 
