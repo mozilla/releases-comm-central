@@ -2277,9 +2277,15 @@ function onPasteOrDrop(e) {
       continue;
     }
 
-    let nsFile = Services.io.getProtocolHandler("file")
-      .QueryInterface(Components.interfaces.nsIFileProtocolHandler)
-      .getFileFromURLSpec(img.src);
+    // This may throw if the URL is invalid for the OS.
+    let nsFile;
+    try {
+      nsFile = Services.io.getProtocolHandler("file")
+        .QueryInterface(Components.interfaces.nsIFileProtocolHandler)
+        .getFileFromURLSpec(img.src);
+    } catch (ex) {
+      continue;
+    }
 
     if (!nsFile.exists()) {
       continue;
