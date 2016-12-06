@@ -3,33 +3,39 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+#include "nsWindowsShellService.h"
+
 #include "imgIContainer.h"
 #include "imgIRequest.h"
 #include "mozilla/gfx/2D.h"
 #include "mozilla/RefPtr.h"
+#include "nsIDOMElement.h"
 #include "nsIDOMHTMLImageElement.h"
 #include "nsIImageLoadingContent.h"
+#include "nsIOutputStream.h"
 #include "nsIPrefService.h"
 #include "nsIPrefLocalizedString.h"
-#include "nsWindowsShellService.h"
-#include "nsIProcess.h"
-#include "windows.h"
-#include "nsIFile.h"
-#include "nsNetUtil.h"
-#include "nsNativeCharsetUtils.h"
-#include "nsUnicharUtils.h"
-#include "nsIStringBundle.h"
 #include "nsIServiceManager.h"
+#include "nsIStringBundle.h"
+#include "nsNetUtil.h"
 #include "nsServiceManagerUtils.h"
+#include "nsShellService.h"
+#include "nsIProcess.h"
+#include "nsICategoryManager.h"
+#include "nsDirectoryServiceUtils.h"
 #include "nsAppDirectoryServiceDefs.h"
 #include "nsDirectoryServiceDefs.h"
-#include "nsDirectoryServiceUtils.h"
 #include "nsIWindowsRegKey.h"
+#include "nsUnicharUtils.h"
 #include "nsIWinTaskbar.h"
 #include "nsISupportsPrimitives.h"
+#include "nsIURLFormatter.h"
+#include "nsThreadUtils.h"
 #include "nsXULAppAPI.h"
-#include <mbstring.h>
-#include "mozilla/Services.h"
+#include "mozilla/WindowsVersion.h"
+
+#include "windows.h"
+#include "shellapi.h"
 
 #ifdef _WIN32_WINNT
 #undef _WIN32_WINNT

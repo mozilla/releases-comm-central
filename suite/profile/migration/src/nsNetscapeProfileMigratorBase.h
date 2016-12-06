@@ -8,7 +8,6 @@
 
 #include "nsIFile.h"
 #include "nsIMutableArray.h"
-#include "nsStringAPI.h"
 #include "nsTArray.h"
 #include "nsITimer.h"
 #include "nsIObserverService.h"

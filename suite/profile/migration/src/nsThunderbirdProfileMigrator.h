@@ -10,7 +10,6 @@
 #include "nsIFile.h"
 #include "nsIObserverService.h"
 #include "nsNetscapeProfileMigratorBase.h"
-#include "nsStringAPI.h"
 #include "nsITimer.h"
 #include "mozilla/Attributes.h"
 

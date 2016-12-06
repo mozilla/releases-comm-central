@@ -33,6 +33,7 @@
 NS_IMPL_ISUPPORTS(nsNetscapeProfileMigratorBase, nsISuiteProfileMigrator,
                    nsITimerCallback)
 
+using namespace mozilla;
 
 ///////////////////////////////////////////////////////////////////////////////
 // nsITimerCallback

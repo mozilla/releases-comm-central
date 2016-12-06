@@ -9,9 +9,7 @@
 #include "nsShellService.h"
 #include "nsStringGlue.h"
 #include "mozilla/Attributes.h"
-
-#define NS_SUITEGNOMEINTEGRATION_CID \
-{0xc16cfa25, 0xa74a, 0x420b, {0xa5, 0x45, 0x4b, 0xc0, 0x6b, 0x08, 0xa8, 0x65}}
+#include "nsSuiteCID.h"
 
 struct ProtocolAssociation;
 

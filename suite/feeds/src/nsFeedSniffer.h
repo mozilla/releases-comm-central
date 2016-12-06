@@ -5,16 +5,9 @@
 
 #include "nsIContentSniffer.h"
 #include "nsIStreamListener.h"
-#include "nsStringAPI.h"
+#include "nsString.h"
+#include "nsSuiteCID.h"
 #include "mozilla/Attributes.h"
-
-#define NS_FEEDSNIFFER_CONTRACTID \
-  "@mozilla.org/browser/feeds/sniffer;1"
-
-// {E5EEEF51-05CE-4885-9434-7287616D9547}
-#define NS_FEEDSNIFFER_CID \
-  { 0xe5eeef51, 0x5ce, 0x4885, { 0x94, 0x34, 0x72, 0x87, 0x61, 0x6d, 0x95, 0x47 } }
-
 
 class nsFeedSniffer final : public nsIContentSniffer, nsIStreamListener
 {

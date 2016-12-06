@@ -28,7 +28,7 @@
   NS_LITERAL_CSTRING("http://home.netscape.com/NC-rdf#"#property)
 
 
-#include "nsStringAPI.h"
+#include "nsString.h"
 #include "nscore.h"
 #include "nsCOMPtr.h"
 
@@ -62,15 +62,6 @@ void GetMigrateDataFromArray(MigrationData* aDataArray,
 // this is already cloned, modify it to your heart's content
 void GetProfilePath(nsIProfileStartup* aStartup,
                     nsIFile** aProfileDir);
-
-// The Netscape Bookmarks Format (bookmarks.html) is fairly standard but
-// each browser vendor seems to have their own way of identifying the
-// Personal Toolbar Folder. This function scans for the vendor-specific
-// name in the source Bookmarks file and then writes out a normalized
-// variant into the target folder.
-nsresult AnnotatePersonalToolbarFolder(nsIFile* aSourceBookmarksFile,
-                                       nsIFile* aTargetBookmarksFile,
-                                       const char* aToolbarFolderName);
 
 // In-place import from aBookmarksFile into a folder in the user's bookmarks
 // with the name "From (STR:aImportSourceNameKey)" (aImportSourceNameKey

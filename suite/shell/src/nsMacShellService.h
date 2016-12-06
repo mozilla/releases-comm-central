@@ -11,11 +11,9 @@
 #include "nsIFile.h"
 #include "nsCOMPtr.h"
 #include "mozilla/Attributes.h"
+#include "nsSuiteCID.h"
 
 #include <CoreFoundation/CoreFoundation.h>
-
-#define NS_SUITEMACINTEGRATION_CID \
-{0xac17e6f0, 0x50c9, 0x4901, {0xab, 0x08, 0xf8, 0x70, 0xbf, 0xcd, 0x12, 0xce}}
 
 class nsMacShellService final : public nsIShellService,
                                 public nsIWebProgressListener

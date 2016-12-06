@@ -5,14 +5,12 @@
 
 #include "nscore.h"
 #include "nsShellService.h"
-#include "nsStringGlue.h"
+#include "nsString.h"
 #include "nsIWindowsShellService.h"
 #include "mozilla/Attributes.h"
+#include "nsSuiteCID.h"
 
 #include <windows.h>
-
-#define NS_SUITEWININTEGRATION_CID \
-{0x39b688ec, 0xe308, 0x49e5, {0xbe, 0x6b, 0x28, 0xdc, 0x7f, 0xcd, 0x61, 0x54}}
 
 typedef struct {
   const char* keyName;

@@ -20,6 +20,7 @@
 
 #define NS_SUITEPROFILEMIGRATOR_CONTRACTID_PREFIX "@mozilla.org/profile/migrator;1?app=suite&type="
 
+using namespace mozilla;
 /////////////////////////////////////////////////////////////////////////////
 
 #if defined(XP_WIN)
@@ -33,12 +34,12 @@ NS_GENERIC_FACTORY_CONSTRUCTOR(nsSuiteDirectoryProvider)
 NS_GENERIC_FACTORY_CONSTRUCTOR(nsThunderbirdProfileMigrator)
 NS_GENERIC_FACTORY_CONSTRUCTOR(nsFeedSniffer)
 
-#if defined(NS_SUITEWININTEGRATION_CID)
-NS_DEFINE_NAMED_CID(NS_SUITEWININTEGRATION_CID);
-#elif defined(NS_SUITEMACINTEGRATION_CID)
-NS_DEFINE_NAMED_CID(NS_SUITEMACINTEGRATION_CID);
-#elif defined(NS_SUITEGNOMEINTEGRATION_CID)
-NS_DEFINE_NAMED_CID(NS_SUITEGNOMEINTEGRATION_CID);
+#if defined(XP_WIN)
+NS_DEFINE_NAMED_CID(NS_SHELLSERVICE_CID);
+#elif defined(XP_MACOSX)
+NS_DEFINE_NAMED_CID(NS_SHELLSERVICE_CID);
+#elif defined(MOZ_WIDGET_GTK)
+NS_DEFINE_NAMED_CID(NS_SHELLSERVICE_CID);
 #endif
 NS_DEFINE_NAMED_CID(NS_SUITEDIRECTORYPROVIDER_CID);
 NS_DEFINE_NAMED_CID(NS_THUNDERBIRDPROFILEMIGRATOR_CID);
@@ -47,12 +48,12 @@ NS_DEFINE_NAMED_CID(NS_FEEDSNIFFER_CID);
 /////////////////////////////////////////////////////////////////////////////
 
 static const mozilla::Module::CIDEntry kSuiteCIDs[] = {
-#if defined(NS_SUITEWININTEGRATION_CID)
-  { &kNS_SUITEWININTEGRATION_CID, false, NULL, nsWindowsShellServiceConstructor },
-#elif defined(NS_SUITEMACINTEGRATION_CID)
-  { &kNS_SUITEMACINTEGRATION_CID, false, NULL, nsMacShellServiceConstructor },
-#elif defined(NS_SUITEGNOMEINTEGRATION_CID)
-  { &kNS_SUITEGNOMEINTEGRATION_CID, false, NULL, nsGNOMEShellServiceConstructor },
+#if defined(XP_WIN)
+  { &kNS_SHELLSERVICE_CID, false, NULL, nsWindowsShellServiceConstructor },
+#elif defined(XP_MACOSX)
+  { &kNS_SHELLSERVICE_CID, false, NULL, nsMacShellServiceConstructor },
+#elif defined(MOZ_WIDGET_GTK)
+  { &kNS_SHELLSERVICE_CID, false, NULL, nsGNOMEShellServiceConstructor },
 #endif
   { &kNS_SUITEDIRECTORYPROVIDER_CID, false, NULL, nsSuiteDirectoryProviderConstructor },
   { &kNS_THUNDERBIRDPROFILEMIGRATOR_CID, false, NULL, nsThunderbirdProfileMigratorConstructor },
@@ -61,12 +62,12 @@ static const mozilla::Module::CIDEntry kSuiteCIDs[] = {
 };
 
 static const mozilla::Module::ContractIDEntry kSuiteContracts[] = {
-#if defined(NS_SUITEWININTEGRATION_CID)
-  { NS_SUITESHELLSERVICE_CONTRACTID, &kNS_SUITEWININTEGRATION_CID },
-#elif defined(NS_SUITEMACINTEGRATION_CID)
-  { NS_SUITESHELLSERVICE_CONTRACTID, &kNS_SUITEMACINTEGRATION_CID },
-#elif defined(NS_SUITEGNOMEINTEGRATION_CID)
-  { NS_SUITESHELLSERVICE_CONTRACTID, &kNS_SUITEGNOMEINTEGRATION_CID },
+#if defined(XP_WIN)
+  { NS_SHELLSERVICE_CONTRACTID, &kNS_SHELLSERVICE_CID },
+#elif defined(XP_MACOSX)
+  { NS_SHELLSERVICE_CONTRACTID, &kNS_SHELLSERVICE_CID },
+#elif defined(MOZ_WIDGET_GTK)
+  { NS_SHELLSERVICE_CONTRACTID, &kNS_SHELLSERVICE_CID },
 #endif
   { NS_SUITEDIRECTORYPROVIDER_CONTRACTID, &kNS_SUITEDIRECTORYPROVIDER_CID },
   { NS_SUITEPROFILEMIGRATOR_CONTRACTID_PREFIX "thunderbird", &kNS_THUNDERBIRDPROFILEMIGRATOR_CID },

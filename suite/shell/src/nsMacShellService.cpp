@@ -3,7 +3,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#include "nsCOMPtr.h"
 #include "nsDirectoryServiceDefs.h"
 #include "nsIDOMElement.h"
 #include "nsIDOMHTMLImageElement.h"
@@ -18,13 +17,12 @@
 #include "nsIURL.h"
 #include "nsIWebBrowserPersist.h"
 #include "nsMacShellService.h"
-#include "nsNetUtil.h"
-#include "nsShellService.h"
-#include "nsStringAPI.h"
-#include "nsIDocShell.h"
-#include "nsILoadContext.h"
 #include "nsIProperties.h"
 #include "nsServiceManagerUtils.h"
+#include "nsShellService.h"
+#include "nsString.h"
+#include "nsIDocShell.h"
+#include "nsILoadContext.h"
 
 #include <ApplicationServices/ApplicationServices.h>
 

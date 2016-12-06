@@ -151,10 +151,6 @@
 #endif
 
 ; [Components]
-; Although components.manifest ends up being shipped inside omni.jar
-; it still needs listing here as it is parsed for various binary
-; components before being packaged inside omni.jar.
-@RESPATH@/components/components.manifest
 #ifdef ACCESSIBILITY
 #ifdef XP_WIN32
 @BINPATH@/AccessibleMarshal.dll
@@ -300,7 +296,6 @@
 @RESPATH@/components/spellchecker.xpt
 @RESPATH@/components/startupcache.xpt
 @RESPATH@/components/storage.xpt
-@RESPATH@/components/@DLL_PREFIX@suite@DLL_SUFFIX@
 @RESPATH@/components/SuiteBrowser.manifest
 @RESPATH@/components/suitecommon.xpt
 @RESPATH@/components/SuiteCommon.manifest
