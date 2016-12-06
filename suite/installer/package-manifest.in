@@ -259,9 +259,6 @@
 #ifdef ENABLE_INTL_API
 @RESPATH@/components/mozintl.xpt
 #endif
-#ifdef MOZ_ENABLE_GNOME_COMPONENT
-@RESPATH@/components/@DLL_PREFIX@mozgnome@DLL_SUFFIX@
-#endif
 @RESPATH@/components/necko.xpt
 @RESPATH@/components/necko_about.xpt
 @RESPATH@/components/necko_cache.xpt
