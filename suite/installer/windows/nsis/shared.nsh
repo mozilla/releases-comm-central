@@ -305,15 +305,15 @@
   ${AddHandlerValues} "$0\SeaMonkeyHTML" "$2" \
                       "$INSTDIR\chrome\icons\default\html-file.ico,0" \
                       "${AppRegName} Document" "" ""
-  ${AddDDEHandlerValues} "SeaMonkeyURL" "$1" "$8,0" "${AppRegName} URL" "delete" \
-                         "${DDEApplication}" "$3" "WWW_OpenURL"
+  ${AddDisabledDDEHandlerValues} "SeaMonkeyURL" "$1" "$8,0" \
+                                 "${AppRegName} URL" "delete"
 
   ; An empty string is used for the 4th & 5th params because the following
-  ; protocol handlers already have a display name and additional keys required
-  ; for a protocol handler.
-  ${AddDDEHandlerValues} "ftp" "$1" "$8,0" "" "" "${DDEApplication}" "$3" "WWW_OpenURL"
-  ${AddDDEHandlerValues} "http" "$1" "$8,0" "" "" "${DDEApplication}" "$3" "WWW_OpenURL"
-  ${AddDDEHandlerValues} "https" "$1" "$8,0" "" "" "${DDEApplication}" "$3" "WWW_OpenURL"
+  ; protocol handlers already have a display name and the additional keys
+  ; required for a protocol handler.
+  ${AddDisabledDDEHandlerValues} "ftp" "$1" "$8,0" "" ""
+  ${AddDisabledDDEHandlerValues} "http" "$1" "$8,0" "" ""
+  ${AddDisabledDDEHandlerValues} "https" "$1" "$8,0" "" ""
 
   ReadRegStr $6 HKCR ".htm" ""
   ${If} "$6" != "SeaMonkeyHTML"
@@ -701,26 +701,23 @@
 
   ${IsHandlerForInstallDir} "SeaMonkeyURL" $R9
   ${If} "$R9" == "true"
-    ${AddDDEHandlerValues} "SeaMonkeyURL" "$3" "$8,0" "${AppRegName} URL" \
-                           "delete" "${DDEApplication}" "$4" "WWW_OpenURL"
+    ${AddDisabledDDEHandlerValues} "SeaMonkeyURL" "$3" "$8,0" \
+                                   "${AppRegName} URL" "delete"
   ${EndIf}
 
   ${IsHandlerForInstallDir} "ftp" $R9
   ${If} "$R9" == "true"
-    ${AddDDEHandlerValues} "ftp" "$3" "$8,0" "" "" "${DDEApplication}" \
-                           "$4" "WWW_OpenURL"
+    ${AddDisabledDDEHandlerValues} "ftp" "$3" "$8,0" "" ""
   ${EndIf}
 
   ${IsHandlerForInstallDir} "http" $R9
   ${If} "$R9" == "true"
-    ${AddDDEHandlerValues} "http" "$3" "$8,0" "" "" "${DDEApplication}" \
-                           "$4" "WWW_OpenURL"
+    ${AddDisabledDDEHandlerValues} "http" "$3" "$8,0" "" ""
   ${EndIf}
 
   ${IsHandlerForInstallDir} "https" $R9
   ${If} "$R9" == "true"
-    ${AddDDEHandlerValues} "https" "$3" "$8,0" "" "" "${DDEApplication}" \
-                           "$4" "WWW_OpenURL"
+    ${AddDisabledDDEHandlerValues} "https" "$3" "$8,0" "" ""
   ${EndIf}
 
   ${IsHandlerForInstallDir} "SeaMonkeyEML" $R9

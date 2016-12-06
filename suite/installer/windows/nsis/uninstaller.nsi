@@ -67,7 +67,7 @@ VIAddVersionKey "OriginalFilename" "helper.exe"
 ; Most commonly used macros for managing shortcuts
 !insertmacro _LoggingShortcutsCommon
 
-!insertmacro AddDDEHandlerValues
+!insertmacro AddDisabledDDEHandlerValues
 !insertmacro AddHandlerValues
 !insertmacro CheckIfRegistryKeyExists
 !insertmacro CleanUpdateDirectories

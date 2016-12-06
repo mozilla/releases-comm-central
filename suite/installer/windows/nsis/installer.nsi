@@ -69,7 +69,7 @@ VIAddVersionKey "OriginalFilename" "setup.exe"
 ; Most commonly used macros for managing shortcuts
 !insertmacro _LoggingShortcutsCommon
 
-!insertmacro AddDDEHandlerValues
+!insertmacro AddDisabledDDEHandlerValues
 !insertmacro AddHandlerValues
 !insertmacro ChangeMUIHeaderImage
 !insertmacro CheckForFilesInUse
@@ -389,8 +389,8 @@ Section "-Application" APP_IDX
   ${AddHandlerValues} "SOFTWARE\Classes\SeaMonkeyHTML" "$3" \
                       "$INSTDIR\chrome\icons\default\html-file.ico,0" \
                       "${AppRegName} Document" "" ""
-  ${AddDDEHandlerValues} "SeaMonkeyURL" "$1" "$8,0" "${AppRegName} URL" "" \
-                         "${DDEApplication}" "$2" "WWW_OpenURL"
+  ${AddDisabledDDEHandlerValues} "SeaMonkeyURL" "$1" "$8,0" \
+                                 "${AppRegName} URL" ""
 
   ${FixShellIconHandler}
 
