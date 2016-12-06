@@ -1306,9 +1306,7 @@ nsMsgComposeAndSend::GetEmbeddedObjectInfo(nsIDOMNode *node, nsMsgAttachmentData
     if (NS_FAILED(image->GetSrc(tUrl)))
       return NS_ERROR_FAILURE;
     if (tUrl.IsEmpty())
-    {
       return NS_OK;
-    }
 
     nsAutoCString turlC;
     CopyUTF16toUTF8(tUrl, turlC);
@@ -1344,8 +1342,7 @@ nsMsgComposeAndSend::GetEmbeddedObjectInfo(nsIDOMNode *node, nsMsgAttachmentData
         workURL.Append(tUrl);
         NS_ConvertUTF16toUTF8 workurlC(workURL);
         if (NS_FAILED(nsMsgNewURL(getter_AddRefs(attachment->m_url), workurlC.get())))
-          // rhp - just try to continue and send it without this image.
-          return NS_OK;
+          return NS_OK; // Continue and send it without this image.
       }
     }
 
@@ -1365,9 +1362,7 @@ nsMsgComposeAndSend::GetEmbeddedObjectInfo(nsIDOMNode *node, nsMsgAttachmentData
     rv = link->GetHref(tUrl);
     NS_ENSURE_SUCCESS(rv, rv);
     if (tUrl.IsEmpty())
-    {
       return NS_OK;
-    }
     nsAutoCString turlC;
     CopyUTF16toUTF8(tUrl, turlC);
     rv = nsMsgNewURL(getter_AddRefs(attachment->m_url), turlC.get());
@@ -1382,13 +1377,13 @@ nsMsgComposeAndSend::GetEmbeddedObjectInfo(nsIDOMNode *node, nsMsgAttachmentData
     rv = anchor->GetHref(tUrl);
     NS_ENSURE_SUCCESS(rv, rv);
     if (tUrl.IsEmpty())
-    {
       return NS_OK;
-    }
     nsAutoCString turlC;
     CopyUTF16toUTF8(tUrl, turlC);
-    // ignore errors here.
-    (void) nsMsgNewURL(getter_AddRefs(attachment->m_url), turlC.get());
+    // This can fail since the URL might not be recognised, for example:
+    // <a href="skype:some-name?call" title="Skype">Some Name</a>
+    if (NS_FAILED(nsMsgNewURL(getter_AddRefs(attachment->m_url), turlC.get())))
+      return NS_OK;
     rv = anchor->GetName(tName);
     NS_ENSURE_SUCCESS(rv, rv);
     LossyCopyUTF16toASCII(tName, attachment->m_realName);
@@ -1403,7 +1398,6 @@ nsMsgComposeAndSend::GetEmbeddedObjectInfo(nsIDOMNode *node, nsMsgAttachmentData
   // Before going further, check what scheme we're dealing with. Files need to
   // be converted to data URLs during composition. "Attaching" means
   // sending as a cid: part instead of original URL.
-
   bool isHttp =
     (NS_SUCCEEDED(attachment->m_url->SchemeIs("http", &isHttp)) && isHttp) ||
     (NS_SUCCEEDED(attachment->m_url->SchemeIs("https", &isHttp)) && isHttp);
