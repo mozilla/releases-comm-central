@@ -1079,6 +1079,11 @@ NS_IMETHODIMP nsImapProtocol::Run()
   if (NS_FAILED(NS_DispatchToMainThread(ev)))
     NS_WARNING("Failed to dispatch nsImapThreadShutdownEvent");
   m_iThread = nullptr;
+
+  // Release protocol object on the main thread to avoid destruction of 'this'
+  // on the IMAP thread, which causes grief for weak references.
+  nsCOMPtr<nsIImapProtocol> releaseOnMain(this);
+  NS_ReleaseOnMainThread(releaseOnMain.forget());
   return NS_OK;
 }
 
