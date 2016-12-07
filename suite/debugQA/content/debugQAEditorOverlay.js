@@ -220,9 +220,9 @@ function EditorShowEmbeddedObjects()
   dump("\nEmbedded Objects:\n");
   try {
     var objectArray = GetCurrentEditor().getEmbeddedObjects();
-    dump(objectArray.Count() + " embedded objects\n");
-    for (var i=0; i < objectArray.Count(); ++i)
-      dump(objectArray.GetElementAt(i) + "\n");
+    dump(objectArray.length + " embedded objects\n");
+    for (let i = 0; i < objectArray.length; ++i)
+      dump(objectArray.queryElementAt(i, Components.interfaces.nsIDOMNode) + "\n");
   } catch(e) {}
 }
 

@@ -1104,7 +1104,9 @@ AutomatedAutoCompleteHandler.prototype =
       searchResultsForSession = this.searchResults[sessionIndex];
       if (searchResultsForSession && searchResultsForSession.defaultItemIndex > -1)
       {
-        addressToAdd = searchResultsForSession.items.QueryElementAt(searchResultsForSession.defaultItemIndex, Components.interfaces.nsIAutoCompleteItem).value;
+        addressToAdd = searchResultsForSession.items
+          .queryElementAt(searchResultsForSession.defaultItemIndex,
+                          Components.interfaces.nsIAutoCompleteItem).value;
         break;
       }
     }
@@ -1117,7 +1119,8 @@ AutomatedAutoCompleteHandler.prototype =
         searchResultsForSession = this.searchResults[sessionIndex];
         if (searchResultsForSession && searchResultsForSession.defaultItemIndex == -1)
         {
-          addressToAdd = searchResultsForSession.items.QueryElementAt(0, Components.interfaces.nsIAutoCompleteItem).value;
+          addressToAdd = searchResultsForSession.items
+            .queryElementAt(0, Components.interfaces.nsIAutoCompleteItem).value;
           break;
         }
       }

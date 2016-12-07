@@ -301,11 +301,12 @@ function NewMessageToSelectedAddresses(type, format, identity) {
     params.identity = identity;
     var composeFields = Components.classes["@mozilla.org/messengercompose/composefields;1"].createInstance(Components.interfaces.nsIMsgCompFields);
     if (composeFields) {
-      var addressList = "";
-      for (var i = 0; i < addresses.Count(); i++) {
-        addressList = addressList + (i > 0 ? ",":"") + addresses.QueryElementAt(i,Components.interfaces.nsISupportsString).data;
+      let addressList = [];
+      const nsISupportsString = Components.interfaces.nsISupportsString;
+      for (let i = 0; i < addresses.length; i++) {
+        addressList.push(addresses.queryElementAt(i, nsISupportsString).data);
       }
-      composeFields.to = addressList;
+      composeFields.to = addressList.join(",");
       params.composeFields = composeFields;
       MailServices.compose.OpenComposeWindowWithParams(null, params);
     }

@@ -87,16 +87,15 @@ var nsTransferable = {
 
       var array = aRetrievalFunc(aFlavourSet);
       var dataArray = [];
-      var count = array.Count();
 
       // Iterate over the number of items returned from aRetrievalFunc. For
       // clipboard operations, this is 1, for drag and drop (where multiple
       // items may have been dragged) this could be >1.
-      for (var i = 0; i < count; i++)
+      for (let i = 0; i < array.length; i++)
         {
-          var trans = array.GetElementAt(i);
-          if (!trans) continue;
-          trans = trans.QueryInterface(Components.interfaces.nsITransferable);
+          let trans = array.queryElementAt(i, Components.interfaces.nsITransferable);
+          if (!trans)
+            continue;
 
           var data = { };
           var length = { };
