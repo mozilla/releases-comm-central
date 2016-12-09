@@ -4300,8 +4300,11 @@ nsMsgCompose::ReplaceFileURLs(nsAutoString &aData)
       fileURL = Substring(aData, fPos, end - fPos);
       nsString dataURL;
       nsresult rv = DataURLForFileURL(fileURL, dataURL);
-      NS_ENSURE_SUCCESS(rv, rv);
-      aData.Replace(fPos, end - fPos, dataURL);
+      // If this one failed, maybe because the file wasn't found,
+      // continue to process the next one.
+      if (NS_SUCCEEDED(rv)) {
+        aData.Replace(fPos, end - fPos, dataURL);
+      }
       offset = fPos - 1;
     }
   }
