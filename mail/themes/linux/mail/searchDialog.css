@@ -12,6 +12,14 @@
 
 @namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
 
+#searchTerms  {
+  margin: 8px 6px 0;
+}
+
+#searchResults {
+  margin: 0 6px 6px;
+}
+
 /* ::::: box sizes ::::: */
 
 #searchTermTree {
