@@ -1,10 +1,6 @@
-/*
-
-# This Source Code Form is subject to the terms of the Mozilla Public
-# License, v. 2.0. If a copy of the MPL was not distributed with this
-# file, You can obtain one at http://mozilla.org/MPL/2.0/.
-
-*/
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /* ===== searchDialog.css ===============================================
   == Styles for the Mail Search dialog.
@@ -16,15 +12,15 @@
 
 @namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
 
-window {
-  padding-top: 8px;
+#searchTerms  {
+  margin: 8px 8px 0;
 }
 
-window > vbox {
-  padding: 0 8px;
+#searchResults {
+  margin: 0 8px 8px;
 }
 
-window > #searchTerms > vbox {
+#searchTerms > vbox {
   font: menu;
 }
 
@@ -53,11 +49,6 @@ listcell > hbox {
   height: 100px;
 }
 
-#searchAddressBookWindow,
-#searchMailWindow {
-  padding: 0;
-}
-
 menulist {
   width: 18em;
 }
@@ -79,11 +70,17 @@ menulist {
   font: icon;
   text-shadow: 0 1px #F2F2F2;
   border: 1px solid #A8A8A8;
+  border-top-left-radius: 4px;
+  border-bottom-left-radius: 4px;
   background: linear-gradient(to top, #ECECEC, #ECECEC 50%, #F9F9F9 0%, #F9F9F9);
   min-width: 22px;
   height: 20px;
   padding: 0 1px 1px 0;
   margin: 0;
+}
+
+.small-button:-moz-locale-dir(rtl) {
+  border-radius: 0 4px 4px 0;
 }
 
 .small-button:not([disabled="true"]):hover:active {
@@ -93,6 +90,14 @@ menulist {
 
 .small-button[disabled="true"] {
   opacity: 0.6;
+}
+
+.small-button + .small-button {
+  border-radius: 0 4px 4px 0;
+}
+
+.small-button + .small-button:-moz-locale-dir(rtl) {
+  border-radius: 4px 0 0 4px;
 }
 
 .small-button + .small-button,
