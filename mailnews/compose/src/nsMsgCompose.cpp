@@ -1618,8 +1618,24 @@ NS_IMETHODIMP nsMsgCompose::InitEditor(nsIEditor* aEditor, mozIDOMWindowProxy* a
 
   m_editor = aEditor;
 
-  // Set the charset
-  const nsDependentCString msgCharSet(m_compFields->GetCharacterSet());
+  // Convert to a canonical charset name.
+  // Bug 1297118 will revisit this call site.
+  nsCOMPtr<nsICharsetConverterManager> ccm =
+    do_GetService(NS_CHARSETCONVERTERMANAGER_CONTRACTID, &rv);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  nsAutoCString msgCharSet;
+  rv = ccm->GetCharsetAlias(m_compFields->GetCharacterSet(), msgCharSet);
+
+  // Don't accept UTF-16 ever. UTF-16 should never be selected as an
+  // outgoing encoding for e-mail. MIME can't handle those messages
+  // encoded in ASCII-incompatible encodings.
+  if (NS_FAILED(rv) ||
+      StringBeginsWith(msgCharSet, NS_LITERAL_CSTRING("UTF-16"))) {
+    NS_WARNING("Suppressing UTF-16");
+    msgCharSet.AssignLiteral("UTF-8");
+  }
+  m_compFields->SetCharacterSet(msgCharSet.get());
   m_editor->SetDocumentCharacterSet(msgCharSet);
 
   nsCOMPtr<nsPIDOMWindowOuter> window = nsPIDOMWindowOuter::From(aContentWindow);
@@ -1631,10 +1647,8 @@ NS_IMETHODIMP nsMsgCompose::InitEditor(nsIEditor* aEditor, mozIDOMWindowProxy* a
   NS_ENSURE_SUCCESS(docShell->GetContentViewer(getter_AddRefs(childCV)), NS_ERROR_FAILURE);
   if (childCV)
   {
-    // SetForceCharacterSet will complain when passing a charset (label) which doesn't
-    // correspond to a Gecko-canonical name. If we can't set our charset, we just keep going.
-    // Previous behaviour was that SetForceCharacterSet() didn't check.
-    // XXX To be revisited in bug 1297118.
+    // SetForceCharacterSet will complain about "UTF-7" or "x-mac-croatian"
+    // (see test-charset-edit.js), but we deal with this elsewhere.
     rv = childCV->SetForceCharacterSet(msgCharSet);
     NS_WARNING_ASSERTION(NS_SUCCEEDED(rv), "SetForceCharacterSet() failed");
   }
