@@ -1305,7 +1305,7 @@ bool MimeObjectIsMessageBodyNoClimb(MimeObject *parent,
 
   for (i = 0; i < container->nchildren; i++) {
     MimeObject *child = container->children[i];
-    bool is_body = false;
+    bool is_body = true;
 
     // The body can't be something we're not displaying.
     if (! child->output_p)
