@@ -2808,6 +2808,15 @@
           set caseSensitive(val) {
             return this.finder.caseSensitive = val;
           },
+          set aEntireWord(val) {
+            return this.finder.aEntireWord = val;
+          },
+          get highlighter() {
+            return this.finder.highlighter;
+          },
+          get matchesCountLimit() {
+            return this.finder.matchesCountLimit;
+          },
           fastFind: function(aSearchString, aLinksOnly, aDrawOutline) {
             this.finder.fastFind(aSearchString, aLinksOnly, aDrawOutline);
           },
@@ -2817,11 +2826,14 @@
           setSearchStringToSelection: function() {
             return this.finder.setSearchStringToSelection();
           },
-          highlight: function(aHighlight, aWord) {
-            this.finder.highlight(aHighlight, aWord);
+          highlight: function(...args) {
+            this.finder.highlight(...args);
           },
           getInitialSelection: function() {
             this.finder.getInitialSelection();
+          },
+          getActiveSelectionText: function() {
+            return this.finder.getActiveSelectionText();
           },
           enableSelection: function() {
             this.finder.enableSelection();
@@ -2832,11 +2844,23 @@
           focusContent: function() {
             this.finder.focusContent();
           },
+          onFindbarClose: function() {
+            this.finder.onFindbarClose();
+          },
+          onFindbarOpen: function() {
+            this.finder.onFindbarOpen();
+          },
+          onModalHighlightChange: function(...args) {
+            return this.finder.onModalHighlightChange(...args);
+          },
+          onHighlightAllChange: function(...args) {
+            return this.finder.onHighlightAllChange(...args);
+          },
           keyPress: function(aEvent) {
             this.finder.keyPress(aEvent);
           },
-          requestMatchesCount: function(aWord, aMatchLimit, aLinksOnly) {
-            this.finder.requestMatchesCount(aWord, aMatchLimit, aLinksOnly);
+          requestMatchesCount: function(...args) {
+            this.finder.requestMatchesCount(...args);
           }
         })
       ]]></field>

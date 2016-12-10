@@ -92,10 +92,17 @@
                                  this._observer);
           prefsvc.removeObserver("accessibility.typeaheadfind.casesensitive",
                                  this._observer);
+          prefsvc.removeObserver("findbar.entireword", this._observer);
+          prefsvc.removeObserver("findbar.highlightAll", this._observer);
+          prefsvc.removeObserver("findbar.modalHighlight", this._observer);
+
           prefsvc.removeObserver("accessibility.typeaheadfind.usefindbar",
                                  this._suiteObserver);
           prefsvc.removeObserver("accessibility.typeaheadfind.autostart",
                                  this._suiteObserver);
+
+          // Clear all timers that might still be running.
+          this._cancelTimers();
         ]]></body>
       </method>
 
@@ -119,10 +126,11 @@
 
             case "Findbar:Keypress":
               if (this._useFindbar)
-                return this._onBrowserKeypress(aMessage.data);
+                return this._onBrowserKeypress(aMessage.data.fakeEvent,
+                                               aMessage.data.shouldFastFind);
               break;
           }
-          return true;
+          return undefined;
         ]]></body>
       </method>
 
