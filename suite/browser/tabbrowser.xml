@@ -2808,8 +2808,8 @@
           set caseSensitive(val) {
             return this.finder.caseSensitive = val;
           },
-          set aEntireWord(val) {
-            return this.finder.aEntireWord = val;
+          set entireWord(val) {
+            return this.finder.entireWord = val;
           },
           get highlighter() {
             return this.finder.highlighter;
