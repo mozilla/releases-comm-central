@@ -1,0 +1,10 @@
+From: test <test@example.com>
+Subject: test reply to UTF-16 encoded message
+To: test2 <test2@example.com>
+Date: Sat, 27 Feb 2016 17:11:45 +0100
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-16LE;
+Content-Transfer-Encoding: base64
+
+//5IAGkAIABNAGEAZwBuAHUAcwAsACAAaABlAHIAZQAgAGEAIABiAGUAdAB0AGUAcgAgAFUA
+VABGAC0AMQA2ACAAZQBuAGMAbwBkAGUAZAAgAG0AYQBpAGwALgA=
