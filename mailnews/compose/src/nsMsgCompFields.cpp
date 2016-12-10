@@ -51,7 +51,7 @@ static HeaderInfo kHeaders[] = {
   { "X-Template", true },
   { nullptr, false }, // DRAFT_ID
   { "Content-Language", true },
-  { "X-Identity-Key", false }
+  { nullptr, false } // CREATOR IDENTITY KEY
 };
 
 static_assert(MOZ_ARRAY_LENGTH(kHeaders) ==
