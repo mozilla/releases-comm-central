@@ -1,0 +1,24 @@
+From: test <test@example.com>
+Subject: test multipart mixed, attachment with different charset
+To: test2 <test2@example.com>
+Date: Sat, 27 Feb 2016 17:11:45 +0100
+MIME-Version: 1.0
+Content-Type: multipart/mixed;
+ boundary="boundary"
+
+This is a multi-part message in MIME format.
+--boundary
+Content-Type: text/plain; charset=EUC-KR; format=flowed
+Content-Transfer-Encoding: 7bit
+
+Hi there.
+
+--boundary
+Content-Type: text/plain; charset=KOI8-R;
+ name="attachment.tmx"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+ filename="attachment.tmx"
+
+Just some text.
+--boundary--

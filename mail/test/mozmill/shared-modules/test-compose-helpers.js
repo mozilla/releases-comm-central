@@ -38,6 +38,7 @@ function installInto(module) {
   module.open_compose_with_reply_to_list = open_compose_with_reply_to_list;
   module.open_compose_with_forward = open_compose_with_forward;
   module.open_compose_with_forward_as_attachments = open_compose_with_forward_as_attachments;
+  module.open_compose_with_edit_as_new = open_compose_with_edit_as_new;
   module.open_compose_with_element_click = open_compose_with_element_click;
   module.close_compose_window = close_compose_window;
   module.wait_for_compose_window = wait_for_compose_window;
@@ -138,6 +139,23 @@ function open_compose_with_forward_as_attachments(aController) {
 
   windowHelper.plan_for_new_window("msgcompose");
   aController.click(aController.eid("menu_forwardAsAttachment"));
+
+  return wait_for_compose_window();
+}
+
+/**
+ * Opens the compose window by editing the selected message as new
+ * and waits for it to load.
+ *
+ * @return The loaded window of type "msgcompose" wrapped in a MozmillController
+ *         that is augmented using augment_controller.
+ */
+function open_compose_with_edit_as_new(aController) {
+  if (aController === undefined)
+    aController = mc;
+
+  windowHelper.plan_for_new_window("msgcompose");
+  aController.click(aController.eid("menu_editMsgAsNew"));
 
   return wait_for_compose_window();
 }
