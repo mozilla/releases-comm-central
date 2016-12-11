@@ -53,6 +53,11 @@ menulist[disabled="true"] > .menulist-dropmarker {
   font-weight: bold;
 }
 
+window {
+  -moz-appearance: none;
+  padding: 14px;
+}
+
 .warningicon {
   width: 16px;
   height: 16px;
@@ -74,7 +79,8 @@ menulist[disabled="true"] > .menulist-dropmarker {
 }
 
 .mastervbox {
-  padding: 8px;
+  padding: 14px;
+  background: -moz-dialog;
 }
 
 #warningbox {

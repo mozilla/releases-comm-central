@@ -28,6 +28,10 @@
  * #config_status_title
  */
 
+window {
+  -moz-appearance: none;
+}
+
 .warningicon {
   width: 16px;
   height: 16px;
@@ -55,7 +59,8 @@
 }
 
 .mastervbox {
-  padding: 10px 8px;
+  padding: 14px;
+  background: #F4F4F4;
 }
 
 #warningbox {
