@@ -415,6 +415,7 @@ var ResultsPaneController =
         }
         return (enabled && (numSelected > 0));
       case "cmd_properties":
+        if (typeof goSetLabelAccesskeyTooltiptext == "function") {
         let labelAttr = "valueGeneric";
         let accKeyAttr = "valueGenericAccessKey";
         let tooltipTextAttr = "valueGenericTooltipText";
@@ -447,6 +448,7 @@ var ResultsPaneController =
           labelAttr, accKeyAttr);
         goSetLabelAccesskeyTooltiptext("cmd_properties-menu",
           labelAttr, accKeyAttr);
+        }
         // While "Edit Contact" dialogue is still modal (bug 115904, bug 135126),
         // only enable "Properties" button for single selection; then fix bug 119999.
         return (GetNumSelectedCards() == 1);
