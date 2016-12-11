@@ -331,7 +331,7 @@ function SetDocumentTitle(title)
 {
 
   try {
-    GetCurrentEditor().setDocumentTitle(title);
+    GetCurrentEditorElement().contentDocument.title = title;
 
     // Update window title (doesn't work if called from a dialog)
     if ("UpdateWindowTitle" in window)

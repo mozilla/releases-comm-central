@@ -1726,7 +1726,7 @@ function Save()
 function SaveAsFile(saveAs)
 {
   var subject = GetMsgSubjectElement().value;
-  GetCurrentEditor().setDocumentTitle(subject);
+  GetCurrentEditorElement().contentDocument.title = subject;
 
   if (gMsgCompose.bodyConvertible() == nsIMsgCompConvertible.Plain)
     SaveDocument(saveAs, false, "text/plain");
