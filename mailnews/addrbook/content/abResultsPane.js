@@ -415,6 +415,10 @@ var ResultsPaneController =
         }
         return (enabled && (numSelected > 0));
       case "cmd_properties":
+        // Temporary fix for SeaMonkey (see bug  1318852).
+        // goSetLabelAccesskeyTooltiptext() is only defined in mail/.
+        // This will be removed in due course and therefore the
+        // block wasn't indented.
         if (typeof goSetLabelAccesskeyTooltiptext == "function") {
         let labelAttr = "valueGeneric";
         let accKeyAttr = "valueGenericAccessKey";
