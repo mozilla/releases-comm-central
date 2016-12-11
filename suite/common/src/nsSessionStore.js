@@ -1696,8 +1696,9 @@ SessionStoreService.prototype = {
         // We've already asserted in _collectTabData, so we won't show that again.
         continue;
       }
-      // sessionStorage is saved per origin (cf. nsDocShell::GetSessionStorageForURI)
-      let origin = principal.jarPrefix + principal.origin;
+
+      // sessionStorage is saved per principal (cf. nsGlobalWindow::GetSessionStorage)
+      let origin = principal.origin;
       if (storageData[origin])
         continue;
 
@@ -1706,21 +1707,28 @@ SessionStoreService.prototype = {
         continue;
 
       let storage, storageItemCount = 0;
+
+      let window = aDocShell.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
+                                              .getInterface(Components.interfaces.nsIDOMWindow);
       try {
-        storage = aDocShell.getSessionStorageForPrincipal(principal, "", false);
+        let storageManager = aDocShell.QueryInterface(Components.interfaces.nsIDOMStorageManager);
+        storage = storageManager.getStorage(window, principal);
+
+        // See Bug 1232955 - storage.length can throw, catch that failure here inside the try.
         if (storage)
           storageItemCount = storage.length;
       }
       catch (ex) { /* sessionStorage might throw if it's turned off, see bug 458954 */ }
+
       if (storageItemCount == 0)
         continue;
 
       let data = storageData[origin] = {};
+
       for (let j = 0; j < storageItemCount; j++) {
         try {
           let key = storage.key(j);
-          let item = storage.getItem(key);
-          data[key] = item;
+          data[key] = storage.getItem(key);
         }
         catch (ex) { /* XXXzeniko this currently throws for secured items (cf. bug 442048) */ }
       }
@@ -2930,15 +2938,37 @@ SessionStoreService.prototype = {
    *        A tab's docshell (containing the sessionStorage)
    */
   _deserializeSessionStorage: function sss_deserializeSessionStorage(aStorageData, aDocShell) {
-    for (let url in aStorageData) {
-      let uri = this._getURIFromString(url);
-      let principal = SecMan.getDocShellCodebasePrincipal(uri, aDocShell);
-      let storage = aDocShell.getSessionStorageForPrincipal(principal, "", true);
-      for (let key in aStorageData[url]) {
+
+    for (let origin of Object.keys(aStorageData)) {
+      let data = aStorageData[origin];
+
+      let principal;
+
+      try {
+        let attrs = aDocShell.getOriginAttributes();
+        let originURI = Services.io.newURI(origin, null, null);
+        principal = Services.scriptSecurityManager.createCodebasePrincipal(originURI, attrs);
+      } catch (e) {
+        Components.utils.reportError(e);
+        continue;
+      }
+
+      let storageManager = aDocShell.QueryInterface(Components.interfaces.nsIDOMStorageManager);
+      let window = aDocShell.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
+                                            .getInterface(Components.interfaces.nsIDOMWindow);
+
+      // There is no need to pass documentURI, it's only used to fill documentURI property of
+      // domstorage event, which in this case has no consumer. Prevention of events in case
+      // of missing documentURI will be solved in a followup bug to bug 600307.
+      let storage = storageManager.createStorage(window, principal, "");
+
+      for (let key of Object.keys(data)) {
         try {
-          storage.setItem(key, aStorageData[url][key]);
+          storage.setItem(key, data[key]);
+        } catch (e) {
+          // Throws e.g. for URIs that can't have sessionStorage.
+          Components.utils.reportError(e);
         }
-        catch (ex) { Components.utils.reportError(ex); } // throws e.g. for URIs that can't have sessionStorage
       }
     }
   },
