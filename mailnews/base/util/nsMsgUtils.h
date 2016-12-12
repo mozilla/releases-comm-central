@@ -263,7 +263,9 @@ NS_MSG_BASE bool MsgAdvanceToNextLine(const char *buffer, uint32_t &bufferOffset
  *                   creating the dialog.
  */
 NS_MSG_BASE nsresult MsgPromptLoginFailed(nsIMsgWindow *aMsgWindow,
-                                          const nsCString &aHostname,
+                                          const nsACString &aHostname,
+                                          const nsACString &aUsername,
+                                          const nsAString &aAccountname,
                                           int32_t *aResult);
 
 /**

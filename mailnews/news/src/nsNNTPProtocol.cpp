@@ -2888,8 +2888,13 @@ void nsNNTPProtocol::HandleAuthenticationFailure()
   nsCOMPtr<nsIMsgIncomingServer> server(do_QueryInterface(m_nntpServer));
   nsCString hostname;
   server->GetRealHostName(hostname);
+  nsCString username;
+  server->GetRealUsername(username);
+  nsString accountname;
+  server->GetPrettyName(accountname);
+
   int32_t choice = 1;
-  MsgPromptLoginFailed(m_msgWindow, hostname, &choice);
+  MsgPromptLoginFailed(m_msgWindow, hostname, username, accountname, &choice);
 
   if (choice == 1) // Cancel
   {

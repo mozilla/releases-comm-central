@@ -1163,8 +1163,17 @@ nsresult nsSmtpProtocol::AuthLoginResponse(nsIInputStream * stream, uint32_t len
           rv = smtpServer->GetHostname(hostname);
           NS_ENSURE_SUCCESS(rv, rv);
 
+          nsCString username;
+          rv = smtpServer->GetUsername(username);
+          NS_ENSURE_SUCCESS(rv, rv);
+
+          nsCString accountname;
+          rv = smtpServer->GetDescription(accountname);
+          NS_ENSURE_SUCCESS(rv, rv);
+          NS_ConvertUTF8toUTF16 accountNameUTF16(accountname);
+
           int32_t buttonPressed = 1;
-          if (NS_SUCCEEDED(MsgPromptLoginFailed(nullptr, hostname,
+          if (NS_SUCCEEDED(MsgPromptLoginFailed(nullptr, hostname, username, accountNameUTF16,
                                                 &buttonPressed)))
           {
             if (buttonPressed == 1) // Cancel button

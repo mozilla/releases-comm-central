@@ -774,11 +774,14 @@ NS_IMETHODIMP nsPop3Protocol::OnPromptStart(bool *aResult)
   nsCString hostName;
   server->GetRealHostName(hostName);
 
+  nsString accountName;
+  server->GetPrettyName(accountName);
+
   nsString passwordPrompt;
   NS_ConvertUTF8toUTF16 userNameUTF16(userName);
   NS_ConvertUTF8toUTF16 hostNameUTF16(hostName);
   const char16_t* passwordParams[] = { userNameUTF16.get(),
-                                        hostNameUTF16.get() };
+                                       hostNameUTF16.get() };
 
   // if the last prompt got us a bad password then show a special dialog
   if (TestFlag(POP3_PASSWORD_FAILED))
@@ -791,7 +794,7 @@ NS_IMETHODIMP nsPop3Protocol::OnPromptStart(bool *aResult)
               (POP3LOG("POP: ask user what to do (after password failed): new password, retry or cancel")));
 
       int32_t buttonPressed = 0;
-      if (NS_SUCCEEDED(MsgPromptLoginFailed(msgWindow, hostName,
+      if (NS_SUCCEEDED(MsgPromptLoginFailed(msgWindow, hostName, userName, accountName,
                                             &buttonPressed)))
       {
         if (buttonPressed == 1) // Cancel button

@@ -1837,7 +1837,13 @@ nsImapIncomingServer::PromptLoginFailed(nsIMsgWindow *aMsgWindow,
   nsAutoCString hostName;
   GetRealHostName(hostName);
 
-  return MsgPromptLoginFailed(aMsgWindow, hostName, aResult);
+  nsAutoCString userName;
+  GetRealUsername(userName);
+
+  nsAutoString accountName;
+  GetPrettyName(accountName);
+
+  return MsgPromptLoginFailed(aMsgWindow, hostName, userName, accountName, aResult);
 }
 
 NS_IMETHODIMP

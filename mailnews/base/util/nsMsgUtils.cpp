@@ -2158,10 +2158,11 @@ MsgExamineForProxy(nsIChannel *channel, nsIProxyInfo **proxyInfo)
 }
 
 NS_MSG_BASE nsresult MsgPromptLoginFailed(nsIMsgWindow *aMsgWindow,
-                                          const nsCString &aHostname,
+                                          const nsACString &aHostname,
+                                          const nsACString &aUsername,
+                                          const nsAString &aAccountname,
                                           int32_t *aResult)
 {
-
   nsCOMPtr<nsIPrompt> dialog;
   if (aMsgWindow)
     aMsgWindow->GetPromptDialog(getter_AddRefs(dialog));
@@ -2190,16 +2191,25 @@ NS_MSG_BASE nsresult MsgPromptLoginFailed(nsIMsgWindow *aMsgWindow,
 
   nsString message;
   NS_ConvertUTF8toUTF16 hostNameUTF16(aHostname);
-  const char16_t *formatStrings[] = { hostNameUTF16.get() };
+  NS_ConvertUTF8toUTF16 userNameUTF16(aUsername);
+  const char16_t *formatStrings[] = { hostNameUTF16.get(), userNameUTF16.get() };
 
-  rv = bundle->FormatStringFromName(u"mailServerLoginFailed",
-                                    formatStrings, 1,
+  rv = bundle->FormatStringFromName(u"mailServerLoginFailed2",
+                                    formatStrings, 2,
                                     getter_Copies(message));
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsString title;
-  rv = bundle->GetStringFromName(
-    u"mailServerLoginFailedTitle", getter_Copies(title));
+  if (aAccountname.IsEmpty()) {
+    // Account name may be empty e.g. on a SMTP server.
+    rv = bundle->GetStringFromName(
+      u"mailServerLoginFailedTitle", getter_Copies(title));
+  } else {
+    const char16_t *formatStrings[] = { aAccountname.BeginReading() };
+    rv = bundle->FormatStringFromName(
+      u"mailServerLoginFailedTitleWithAccount",
+      formatStrings, 1, getter_Copies(title));
+  }
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsString button0;
