@@ -277,7 +277,7 @@ function onViewToolbarsPopupShowing(aEvent, toolboxIds, aInsertPoint)
 
     // We'll consider either childnodes that have a toolbarname attribute,
     // or externalToolbars.
-    let potentialToolbars = Array.slice(
+    let potentialToolbars = Array.from(
       toolbox.querySelectorAll("[toolbarname]")
     );
     for (let externalToolbar of toolbox.externalToolbars) {

@@ -23,7 +23,7 @@
   <binding id="attachmentlist-base" extends="chrome://global/content/bindings/listbox.xml#listbox-base">
     <implementation>
       <constructor><![CDATA[
-        let children = Array.slice(this._childNodes);
+        let children = Array.from(this._childNodes);
 
         children.filter(aChild => aChild.getAttribute("selected") == "true")
                 .forEach(this.selectedItems.append, this.selectedItems);

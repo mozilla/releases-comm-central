@@ -282,9 +282,9 @@ Menu.prototype = {
    *        Top menu node whose elements have to be populated
    */
   _buildMenu : function(menu) {
-    var items = menu ? menu.childNodes : null;
+    var items = menu ? menu.childNodes : [];
 
-    Array.forEach(items, function(item) {
+    Array.from(items).forEach(function(item) {
       // When we have a menu node, fake a click onto it to populate
       // the sub menu with dynamic entries
       if (item.tagName == "menu") {
@@ -417,7 +417,7 @@ MozMillController.prototype.type = function (aTarget, aText, aExpectedEvent) {
     return false;
   }
 
-  Array.forEach(aText, function(letter) {
+  Array.from(aText).forEach(function(letter) {
     events.triggerKeyEvent(element, 'keypress', letter, {}, aExpectedEvent);
   });
 

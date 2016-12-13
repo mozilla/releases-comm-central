@@ -832,8 +832,7 @@ var AugmentEverybodyWith = {
       let elem = this.window.document.getElementById(aId);
       if (aQuery) {
         if (aQuery.tagName) {
-          let elems = Array.prototype.slice.call(
-                        elem.getElementsByTagName(aQuery.tagName));
+          let elems = Array.from(elem.getElementsByTagName(aQuery.tagName));
           if (aQuery.label)
             elems = elems.filter(elem => elem.label == aQuery.label);
           elem = elems[0];
@@ -1391,7 +1390,7 @@ function _augment_helper(aController, aAugmentDef) {
       else {
         traceFunc = function() {
           mark_action("winhelp", reportAs,
-                      showArgs ? Array.prototype.slice.call(arguments) : []);
+                      showArgs ? Array.from(arguments) : []);
           try {
             return origFunc.apply(this, arguments);
           }
@@ -1848,10 +1847,9 @@ function captureWindowStatesForErrorReporting(normalizeForJsonFunc) {
                 ("unnamed:" + iWin);
 
     let openPopups =
-      Array.prototype.slice.call(
-          win.document.documentElement.getElementsByTagName("menupopup"))
-        .filter(x => x.state != "closed")
-        .map(x => normalizeForJsonFunc(x));
+      Array.from(win.document.documentElement.getElementsByTagName("menupopup"))
+           .filter(x => x.state != "closed")
+           .map(x => normalizeForJsonFunc(x));
 
     let ignoredFocusedWindow = {};
     let winfo = {

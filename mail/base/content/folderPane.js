@@ -673,8 +673,8 @@ var gFolderTreeView = {
     if (!targetFolder)
       return false;
     let dt = this._currentTransfer;
-    let types = dt.mozTypesAt(0);
-    if (Array.indexOf(types, "text/x-moz-message") != -1) {
+    let types = Array.from(dt.mozTypesAt(0));
+    if (types.includes("text/x-moz-message")) {
       if (aOrientation != Ci.nsITreeView.DROP_ON)
         return false;
       // Don't allow drop onto server itself.
@@ -692,7 +692,7 @@ var gFolderTreeView = {
       }
       return true;
     }
-    else if (Array.indexOf(types, "text/x-moz-folder") != -1) {
+    else if (types.includes("text/x-moz-folder")) {
       if (aOrientation != Ci.nsITreeView.DROP_ON)
         return false;
       // If cannot create subfolders then don't allow drop here.
@@ -726,7 +726,7 @@ var gFolderTreeView = {
       }
       return true;
     }
-    else if (Array.indexOf(types, "text/x-moz-newsfolder") != -1) {
+    else if (types.includes("text/x-moz-newsfolder")) {
       // Don't allow dragging onto element.
       if (aOrientation == Ci.nsITreeView.DROP_ON)
         return false;
@@ -754,7 +754,7 @@ var gFolderTreeView = {
     // Allow subscribing to feeds by dragging an url to a feed account.
     else if (targetFolder.server.type == "rss" && dt.mozItemCount == 1)
       return FeedUtils.getFeedUriFromDataTransfer(dt) ? true : false;
-    else if (Array.indexOf(types, "application/x-moz-file") != -1) {
+    else if (types.includes("application/x-moz-file")) {
       if (aOrientation != Ci.nsITreeView.DROP_ON)
         return false;
       // Don't allow drop onto server itself.
@@ -786,8 +786,8 @@ var gFolderTreeView = {
                     FeedUtils.getFeedUriFromDataTransfer(dt) : null;
 
     // we only support drag of a single flavor at a time.
-    let types = dt.mozTypesAt(0);
-    if (Array.indexOf(types, "text/x-moz-folder") != -1) {
+    let types = Array.from(dt.mozTypesAt(0));
+    if (types.includes("text/x-moz-folder")) {
       for (let i = 0; i < count; i++) {
         let folders = new Array;
         folders.push(dt.mozGetDataAt("text/x-moz-folder", i)
@@ -798,7 +798,7 @@ var gFolderTreeView = {
                        msgWindow);
       }
     }
-    else if (Array.indexOf(types, "text/x-moz-newsfolder") != -1) {
+    else if (types.includes("text/x-moz-newsfolder")) {
       // Start by getting folders into order.
       let folders = new Array;
       for (let i = 0; i < count; i++) {
@@ -820,7 +820,7 @@ var gFolderTreeView = {
         i -= aOrientation;
       }
     }
-    else if (Array.indexOf(types, "text/x-moz-message") != -1) {
+    else if (types.includes("text/x-moz-message")) {
       let array = Cc["@mozilla.org/array;1"]
                     .createInstance(Ci.nsIMutableArray);
       let sourceFolder;
@@ -850,7 +850,7 @@ var gFolderTreeView = {
          .getService(Ci.nsINewsBlogFeedDownloader)
          .subscribeToFeed(feedUri.spec, targetFolder, msgWindow);
     }
-    else if (Array.indexOf(types, "application/x-moz-file") != -1) {
+    else if (types.includes("application/x-moz-file")) {
       for (let i = 0; i < count; i++) {
         let extFile = dt.mozGetDataAt("application/x-moz-file", i)
                         .QueryInterface(Ci.nsILocalFile);

@@ -451,13 +451,13 @@ var nsDragAndDrop = {
       var dataArray = [];
       var count = dt.mozItemCount;
       for (var i = 0; i < count; ++i) {
-        var types = dt.mozTypesAt(i);
+        var types = Array.from(dt.mozTypesAt(i));
         for (var j = 0; j < flavourSet.flavours.length; j++) {
           var type = flavourSet.flavours[j].contentType;
           // dataTransfer uses text/plain but older code used text/unicode, so
           // switch this for compatibility
           var modtype = (type == "text/unicode") ? "text/plain" : type;
-          if (Array.indexOf(types, modtype) >= 0) {
+          if (types.includes(modtype)) {
             var data = dt.mozGetDataAt(modtype, i);
             if (data) {
               // Non-strings need some non-zero value used for their data length.

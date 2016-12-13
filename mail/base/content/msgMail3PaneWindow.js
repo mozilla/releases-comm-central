@@ -1530,7 +1530,7 @@ function ThreadPaneOnDragOver(aEvent) {
     return;
 
   let dt = aEvent.dataTransfer;
-  if (Array.indexOf(dt.mozTypesAt(0), "application/x-moz-file") != -1) {
+  if (Array.from(dt.mozTypesAt(0)).includes("application/x-moz-file")) {
     let extFile = dt.mozGetDataAt("application/x-moz-file", 0)
                     .QueryInterface(Components.interfaces.nsIFile);
     if (extFile.isFile()) {
@@ -2011,8 +2011,8 @@ var TabsInTitlebar = {
   },
 
   _sizePlaceholder: function (type, width) {
-    Array.forEach(document.querySelectorAll(".titlebar-placeholder[type='"+ type +"']"),
-                  function (node) { node.width = width; });
+    Array.from(document.querySelectorAll(".titlebar-placeholder[type='"+ type +"']"))
+         .forEach(node => node.width = width);
   },
 #endif
 
