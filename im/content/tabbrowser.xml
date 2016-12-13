@@ -938,7 +938,7 @@
        <getter>
           <![CDATA[
             return this._tabPanels ||
-                   (this._tabPanels = Array.map(this.mTabs, tab => tab.linkedTabPanel));
+                   (this._tabPanels = Array.from(this.mTabs, tab => tab.linkedTabPanel));
           ]]>
         </getter>
       </property>
@@ -947,7 +947,8 @@
        <getter>
         <![CDATA[
           if (!this._conversations) {
-            this._conversations = Array.filter(this.mTabs, aTab => aTab.linkedConversation)
+            this._conversations = Array.from(this.mTabs)
+                                       .filter(aTab => aTab.linkedConversation)
                                        .map(aTab => aTab.linkedConversation);
           }
           return this._conversations;
