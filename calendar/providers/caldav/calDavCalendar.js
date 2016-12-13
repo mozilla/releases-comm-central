@@ -356,7 +356,7 @@ calDavCalendar.prototype = {
                 self.oauth.accessToken = null;
                 self.sendHttpRequest(...origArgs);
             } else {
-                let nextArguments = Array.slice(arguments, 1);
+                let nextArguments = Array.from(arguments).slice(1);
                 nextMethod(...nextArguments);
             }
         }

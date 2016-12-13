@@ -381,7 +381,7 @@ calCachedCalendar.prototype = {
                 if (this.getsCompleted < this.getsReceived) {
                     // If not all of our gets have been processed, then save the
                     // arguments and finish processing later.
-                    this.opCompleted = Array.slice(arguments);
+                    this.opCompleted = Array.from(arguments);
                     return;
                 }
 

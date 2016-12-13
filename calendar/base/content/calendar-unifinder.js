@@ -492,8 +492,8 @@ var unifinderTreeView = {
         this.tree.endUpdateBatch();
 
         // Finally, we recalculate the index map once. This way we end up with
-        // (given that Array.unshift doesn't loop but just prepends or maps
-        // memory smartly) O(3n) behavior. Lets hope its worth it.
+        // (given that Array.prototype.unshift doesn't loop but just prepends or
+        // maps memory smartly) O(3n) behavior. Lets hope its worth it.
         this.calculateIndexMap(true);
     },
 

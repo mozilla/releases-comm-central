@@ -628,7 +628,7 @@ function hashColor(str) {
                           "#000000", "#330000", "#663300", "#663333", "#333300",
                           "#003300", "#003333", "#000066", "#330099", "#330033"];
 
-    let sum = Array.map(str || " ", e => e.charCodeAt(0)).reduce((a, b) => a + b);
+    let sum = Array.from(str || " ", e => e.charCodeAt(0)).reduce((a, b) => a + b);
     return colorPalette[sum % colorPalette.length];
 }
 
@@ -1813,7 +1813,7 @@ function binaryInsertNode(parentNode, insertNode, aItem, comptor, discardDuplica
     let accessor = itemAccessor || binaryInsertNode.defaultAccessor;
 
     // Get the index of the node before which the inserNode will be inserted
-    let newIndex = binarySearch(Array.map(parentNode.childNodes, accessor), aItem, comptor);
+    let newIndex = binarySearch(Array.from(parentNode.childNodes, accessor), aItem, comptor);
 
     if (newIndex < 0) {
         parentNode.appendChild(insertNode);

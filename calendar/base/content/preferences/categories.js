@@ -190,7 +190,7 @@ var gCategoriesPane = {
         // Remove category entry from listbox and gCategoryList.
         let newSelection = list.selectedItem.nextSibling ||
                            list.selectedItem.previousSibling;
-        let selectedItems = Array.slice(list.selectedItems).concat([]);
+        let selectedItems = Array.from(list.selectedItems);
         for (let i = list.selectedCount - 1; i >= 0; i--) {
             let item = selectedItems[i];
             if (item == newSelection) {
