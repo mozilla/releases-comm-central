@@ -1709,7 +1709,7 @@ SessionStoreService.prototype = {
       let storage, storageItemCount = 0;
 
       let window = aDocShell.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
-                                              .getInterface(Components.interfaces.nsIDOMWindow);
+                            .getInterface(Components.interfaces.nsIDOMWindow);
       try {
         let storageManager = aDocShell.QueryInterface(Components.interfaces.nsIDOMStorageManager);
         storage = storageManager.getStorage(window, principal);
@@ -2955,7 +2955,7 @@ SessionStoreService.prototype = {
 
       let storageManager = aDocShell.QueryInterface(Components.interfaces.nsIDOMStorageManager);
       let window = aDocShell.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
-                                            .getInterface(Components.interfaces.nsIDOMWindow);
+                            .getInterface(Components.interfaces.nsIDOMWindow);
 
       // There is no need to pass documentURI, it's only used to fill documentURI property of
       // domstorage event, which in this case has no consumer. Prevention of events in case
