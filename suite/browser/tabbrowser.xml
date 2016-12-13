@@ -458,7 +458,7 @@
             mRequestCount: 0,
 
             _callProgressListeners: function () {
-              Array.from(arguments).unshift(this.mBrowser);
+              Array.prototype.unshift.call(arguments, this.mBrowser);
               return this.mTabBrowser._callProgressListeners.apply(this.mTabBrowser, arguments);
             },
 

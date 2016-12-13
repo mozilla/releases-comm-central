@@ -239,7 +239,7 @@ function DropOnFolderTree(aRow, aOrientation)
                                      "", null, msgWindow);
     }
   }
-  else if (types.includes("text/x-moz-url")))
+  else if (types.includes("text/x-moz-url"))
   {
     // This is a potential RSS feed to subscribe to
     // and there's only one, so just get the 0th element.
