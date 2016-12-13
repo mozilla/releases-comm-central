@@ -813,7 +813,7 @@ var GlodaIndexer = {
         this._savedCallbackArgs = null;
       }
       else
-        args = arguments; //Array.slice.call(arguments);
+        args = arguments; //Array.from(arguments);
 
       let result;
       if (args.length == 0)

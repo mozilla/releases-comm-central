@@ -374,8 +374,7 @@ Logger.prototype = {
         continue;
 
       if (!message)
-        message = new LogMessage(this._name, level,
-                                 Array.prototype.slice.call(args));
+        message = new LogMessage(this._name, level, Array.from(args));
 
       appender.append(message);
     }

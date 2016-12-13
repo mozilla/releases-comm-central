@@ -81,7 +81,8 @@ function fixIterator(aEnum, aIface) {
 
   // If the input is an array or something that sports Symbol.iterator, then
   // the original input is sufficient to directly return. However, if we want
-  // to support the aIface parameter, we need to do a lazy version of Array.map.
+  // to support the aIface parameter, we need to do a lazy version of
+  // Array.prototype.map.
   if (Array.isArray(aEnum) || ITERATOR_SYMBOL in aEnum) {
     if (!aIface) {
       return makeDualIterator(aEnum);

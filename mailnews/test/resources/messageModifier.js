@@ -231,8 +231,8 @@ SyntheticMessageSet.prototype = {
   },
 
   /**
-   * Slice the message set using the exact Array.slice semantics (because we
-   *  call Array.slice).
+   * Slice the message set using the exact Array.prototype.slice semantics
+   * (because we call Array.prototype.slice).
    */
   slice: function() {
     let slicedMessages = this.synMessages.slice.apply(this.synMessages,

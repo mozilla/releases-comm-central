@@ -566,7 +566,7 @@ DateFaceter.prototype = {
         continue;
       dayItemLists.push(dayItemList);
     }
-    return Array.concat.apply([], dayItemLists);
+    return dayItemLists;
   },
 
   _unionYear: function(aYearObj) {
@@ -577,6 +577,6 @@ DateFaceter.prototype = {
         continue;
       monthItemLists.push(this._unionMonth(monthObj));
     }
-    return Array.concat.apply([], monthItemLists);
+    return monthItemLists;
   }
 };
