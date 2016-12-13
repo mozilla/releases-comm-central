@@ -454,7 +454,7 @@ var nsDragAndDrop = {
           // dataTransfer uses text/plain but older code used text/unicode, so
           // switch this for compatibility
           var modtype = (type == "text/unicode") ? "text/plain" : type;
-          if (Array.indexOf(types, modtype) >= 0) {
+          if (Array.from(types).includes(modtype)) {
             var data = dt.mozGetDataAt(modtype, i);
             if (data) {
               // Non-strings need some non-zero value used for their data length.

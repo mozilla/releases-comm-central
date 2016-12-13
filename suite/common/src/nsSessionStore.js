@@ -406,7 +406,7 @@ SessionStoreService.prototype = {
         let restoreItem = aWindow.document.getElementById("historyRestoreLastSession");
         restoreItem.setAttribute("disabled", "true");
 
-        Array.forEach(aWindow.getBrowser().tabs, function(aTab) {
+        Array.from(aWindow.getBrowser().tabs).forEach(function(aTab) {
           delete aTab.linkedBrowser.__SS_data;
           delete aTab.linkedBrowser.__SS_formDataSaved;
           if (aTab.linkedBrowser.__SS_restoreState)
@@ -1922,7 +1922,7 @@ SessionStoreService.prototype = {
       else {
         // <select>s with the multiple attribute are easier to determine the
         // default value since each <option> has a defaultSelected
-        let options = Array.map(node.options, function(aOpt, aIx) {
+        let options = Array.from(node.options, function(aOpt, aIx) {
           let oSelected = aOpt.selected;
           hasDefaultValue = hasDefaultValue && (oSelected == aOpt.defaultSelected);
           return oSelected ? aIx : -1;
@@ -3029,7 +3029,7 @@ SessionStoreService.prototype = {
           eventType = "input";
         }
         else if (value && typeof value.indexOf == "function" && node.options) {
-          Array.forEach(node.options, function(aOpt, aIx) {
+          Array.from(node.options).forEach(function(aOpt, aIx) {
             aOpt.selected = value.indexOf(aIx) > -1;
 
             // Only fire the event here if this wasn't selected by default
@@ -3063,7 +3063,7 @@ SessionStoreService.prototype = {
       if (aData.scroll && (match = /(\d+),(\d+)/.exec(aData.scroll)) != null) {
         aContent.scrollTo(match[1], match[2]);
       }
-      Array.forEach(aContent.document.styleSheets, function(aSS) {
+      Array.from(aContent.document.styleSheets).forEach(function(aSS) {
         aSS.disabled = aSS.title && aSS.title != selectedPageStyle;
       });
       for (var i = 0; i < aContent.frames.length; i++) {

@@ -21,8 +21,8 @@ function CanDropOnFolderTree(aIndex, aOrientation)
   var count = dt.mozItemCount;
 
   // We only support drag of a single flavor at a time.
-  var types = dt.mozTypesAt(0);
-  if (Array.indexOf(types, "text/x-moz-message") != -1)
+  var types = Array.from(dt.mozTypesAt(0));
+  if (types.includes("text/x-moz-message"))
   {
     // Only allow dragging onto container.
     if (aOrientation != Components.interfaces.nsITreeView.DROP_ON)
@@ -42,7 +42,7 @@ function CanDropOnFolderTree(aIndex, aOrientation)
     }
     return true;
   }
-  else if (Array.indexOf(types, "text/x-moz-folder") != -1)
+  else if (types.includes("text/x-moz-folder"))
   {
     // Only allow dragging onto container.
     if (aOrientation != Components.interfaces.nsITreeView.DROP_ON)
@@ -79,7 +79,7 @@ function CanDropOnFolderTree(aIndex, aOrientation)
     }
     return true;
   }
-  else if (Array.indexOf(types, "text/x-moz-newsfolder") != -1)
+  else if (types.includes("text/x-moz-newsfolder"))
   {
     // Don't allow dragging onto newsgroup.
     if (aOrientation == Components.interfaces.nsITreeView.DROP_ON)
@@ -109,7 +109,7 @@ function CanDropOnFolderTree(aIndex, aOrientation)
     }
     return true;
   }
-  else if (Array.indexOf(types, "text/x-moz-url") != -1)
+  else if (types.includes("text/x-moz-url"))
   {
     // Only allow dragging onto container.
     if (aOrientation != Components.interfaces.nsITreeView.DROP_ON)
@@ -121,7 +121,7 @@ function CanDropOnFolderTree(aIndex, aOrientation)
     if (/^https?$/.test(scheme) && targetFolder.server.type == "rss")
       return true;
   }
-  else if (Array.indexOf(types, "application/x-moz-file") != -1)
+  else if (types.includes("application/x-moz-file"))
   {
     // Only allow dragging onto container.
     if (aOrientation != Components.interfaces.nsITreeView.DROP_ON)
@@ -153,8 +153,8 @@ function DropOnFolderTree(aRow, aOrientation)
   var count = dt.mozItemCount;
 
   // We only support drag of a single flavor at a time.
-  var types = dt.mozTypesAt(0);
-  if (Array.indexOf(types, "text/x-moz-folder") != -1)
+  var types = Array.from(dt.mozTypesAt(0));
+  if (types.includes("text/x-moz-folder"))
   {
     const NS_MSG_FOLDER_EXISTS = 0x80550013;
     const NS_MSG_ERROR_COPY_FOLDER_ABORTED = 0x8055001a;
@@ -178,7 +178,7 @@ function DropOnFolderTree(aRow, aOrientation)
       catch (ex if (ex.result == NS_MSG_ERROR_COPY_FOLDER_ABORTED)) {}
     }
   }
-  else if (Array.indexOf(types, "text/x-moz-newsfolder") != -1)
+  else if (types.includes("text/x-moz-newsfolder"))
   {
     // Start by getting folders into order.
     let folders = new Array;
@@ -205,7 +205,7 @@ function DropOnFolderTree(aRow, aOrientation)
       i -= aOrientation;
     }
   }
-  else if (Array.indexOf(types, "text/x-moz-message") != -1)
+  else if (types.includes("text/x-moz-message"))
   {
     let array = Components.classes["@mozilla.org/array;1"]
                           .createInstance(Components.interfaces.nsIMutableArray);
@@ -228,7 +228,7 @@ function DropOnFolderTree(aRow, aOrientation)
     gCopyService.CopyMessages(sourceFolder, array, targetFolder, isMove, null,
                               msgWindow, true);
   }
-  else if (Array.indexOf(types, "application/x-moz-file") != -1)
+  else if (types.includes("application/x-moz-file"))
   {
     for (let i = 0; i < count; i++)
     {
@@ -239,7 +239,7 @@ function DropOnFolderTree(aRow, aOrientation)
                                      "", null, msgWindow);
     }
   }
-  else if (Array.indexOf(types, "text/x-moz-url") != -1)
+  else if (types.includes("text/x-moz-url")))
   {
     // This is a potential RSS feed to subscribe to
     // and there's only one, so just get the 0th element.
@@ -317,7 +317,7 @@ function DragOverThreadPane(aEvent)
   dt.effectAllowed = "copy";
   for (let i = 0; i < dt.mozItemCount; i++)
   {
-    if (Array.indexOf(dt.mozTypesAt(i), "application/x-moz-file") != -1)
+    if (Array.from(dt.mozTypesAt(i)).includes("application/x-moz-file"))
     {
       let extFile = dt.mozGetDataAt("application/x-moz-file", i)
                       .QueryInterface(Components.interfaces.nsIFile);

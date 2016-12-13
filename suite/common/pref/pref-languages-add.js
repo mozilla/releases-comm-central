@@ -89,7 +89,7 @@ function WriteAddedLanguages(aListbox)
   var invalidLangs = [];
   // selected languages
   var languages = aListbox.selectedItems;
-  var addedLang = Array.map(languages, function(e) { return e.value; });
+  var addedLang = Array.from(languages, e => e.value);
 
   // user-defined languages
   languages = gOtherLanguages.value;

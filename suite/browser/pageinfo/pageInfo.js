@@ -93,7 +93,7 @@ pageInfoTreeView.prototype = {
     this.sortdir = ascending;
     this.sortcol = col.index;
 
-    Array.forEach(this.tree.columns, function(treecol) {
+    Array.from(this.tree.columns).forEach(function(treecol) {
       treecol.element.removeAttribute("sortActive");
       treecol.element.removeAttribute("sortDirection");
     });
@@ -637,7 +637,7 @@ function grabAll(elem)
   // check for background images, any node may have multiple
   var computedStyle = elem.ownerDocument.defaultView.getComputedStyle(elem, "");
   if (computedStyle) {
-    Array.forEach(computedStyle.getPropertyCSSValue("background-image"), function (url) {
+    Array.from(computedStyle.getPropertyCSSValue("background-image")).forEach(function (url) {
       if (url.primitiveType == CSSPrimitiveValue.CSS_URI)
         addImage(url.getStringValue(), gStrings.mediaBGImg, gStrings.notSet, elem, true);
     });

@@ -136,7 +136,7 @@ function InSync(aPrefArray)
 // Called on onsynctopreference.
 function WriteActiveLanguages()
 {
-  return Array.map(gLanguages, function(e) { return e.value; }).join(",");
+  return Array.from(gLanguages, e => e.value).join(",");
 }
 
 function MoveUp()

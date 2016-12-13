@@ -89,14 +89,14 @@ SuiteGlue.prototype = {
       case "error":
         var scriptError = Components.classes["@mozilla.org/scripterror;1"]
                                     .createInstance(nsIScriptError);
-        scriptError.initWithWindowID(Array.slice(aEvent.arguments),
+        scriptError.initWithWindowID(Array.from(aEvent.arguments),
                                      aEvent.filename, "", aEvent.lineNumber, 0,
                                      flg, "content javascript", aEvent.innerID);
         Services.console.logMessage(scriptError);
         break;
       case "log":
       case "info":
-        Services.console.logStringMessage(Array.slice(aEvent.arguments));
+        Services.console.logStringMessage(Array.from(aEvent.arguments));
         break;
     }
   },

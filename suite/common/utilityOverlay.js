@@ -352,10 +352,10 @@ function onViewToolbarsPopupShowing(aEvent, aInsertPoint)
   while (toolbar.localName != "toolbar")
     toolbar = toolbar.parentNode;
   var toolbox = toolbar.toolbox;
-  var externalToolbars = Array.filter(toolbox.externalToolbars,
-                                      function(toolbar) {
+  var externalToolbars = Array.from(toolbox.externalToolbars)
+                              .filter(function(toolbar) {
                                         return toolbar.hasAttribute("toolbarname")});
-  var toolbars = Array.slice(toolbox.getElementsByAttribute("toolbarname", "*"));
+  var toolbars = Array.from(toolbox.getElementsByAttribute("toolbarname", "*"));
   toolbars = toolbars.concat(externalToolbars);
   var menusep = document.getElementById("toolbarmode-sep");
 

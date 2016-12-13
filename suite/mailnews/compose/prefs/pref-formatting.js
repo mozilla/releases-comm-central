@@ -147,5 +147,5 @@ function ReadDomains(aListbox)
 function WriteDomains(aListbox)
 {
   var domains = aListbox.getElementsByAttribute("label", "*");
-  return Array.map(domains, function(e) { return e.label; }).join(",");
+  return Array.from(domains, e => e.label).join(",");
 }

@@ -32,7 +32,10 @@ function test() {
   addTab("http://mochi.test:8888/#7");
 
   function testPosition(tabNum, expectedPosition, msg) {
-    is(Array.indexOf(getBrowser().tabs, tabs[tabNum]), expectedPosition, msg);
+    is(Array.from(getBrowser().tabs)
+            .indexOf(tabs[tabNum]),
+       expectedPosition,
+       msg);
   }
 
   testPosition(0, 3, "tab without referrer was opened to the far right");

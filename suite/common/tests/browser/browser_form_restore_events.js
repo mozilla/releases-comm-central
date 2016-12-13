@@ -33,7 +33,7 @@ function test() {
     // select
     doc.getElementById("modify06").selectedIndex = 1;
     var multipleChange = doc.getElementById("modify07");
-    Array.forEach(multipleChange.options, option => option.selected = true);
+    Array.from(multipleChange.options).forEach(option => option.selected = true);
 
     // checkbox
     doc.getElementById("modify08").checked = true;

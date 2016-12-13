@@ -24,7 +24,7 @@ function checkPageStyleMenu() {
   }
 
   var validLinks = 0;
-  Array.forEach(content.document.getElementsByTagName("link"), function (link) {
+  Array.from(content.document.getElementsByTagName("link")).forEach(function (link) {
     var title = link.getAttribute("title");
     var rel = link.getAttribute("rel");
     var media = link.getAttribute("media");

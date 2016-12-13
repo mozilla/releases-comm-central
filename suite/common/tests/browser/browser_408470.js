@@ -16,7 +16,7 @@ function test() {
   tab.linkedBrowser.addEventListener("load", function loadListener1(aEvent) {
     tab.linkedBrowser.removeEventListener("load", loadListener1, true);
     // enable all stylesheets and verify that they're correctly persisted
-    Array.forEach(tab.linkedBrowser.contentDocument.styleSheets, function(aSS, aIx) {
+    Array.from(tab.linkedBrowser.contentDocument.styleSheets).forEach(function(aSS, aIx) {
       pendingCount++;
       let ssTitle = aSS.title;
       stylesheetSwitchAll(tab.linkedBrowser.contentWindow, ssTitle);
@@ -24,8 +24,8 @@ function test() {
       let newTab = ss.duplicateTab(window,tab);
       newTab.linkedBrowser.addEventListener("load", function loadListener2(aEvent) {
         newTab.linkedBrowser.removeEventListener("load", loadListener2, true);
-        let states = Array.map(newTab.linkedBrowser.contentDocument.styleSheets,
-                               aSS => !aSS.disabled);
+        let states = Array.from(newTab.linkedBrowser.contentDocument.styleSheets,
+                                aSS => !aSS.disabled);
         let correct = states.indexOf(true) == aIx && states.indexOf(true, aIx + 1) == -1;
 
         if (/^fail_/.test(ssTitle))

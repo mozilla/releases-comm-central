@@ -56,7 +56,7 @@ ProfileMigrator.prototype = {
      ["thunderbird"],
 
   _getDefaultMigrator: function PM__getDefaultMigrator() {
-    let migratorsOrdered = Array.slice(this._PLATFORM_FALLBACK_LIST);
+    let migratorsOrdered = Array.from(this._PLATFORM_FALLBACK_LIST);
 #if 0
     let defaultBrowser = "";
 #ifdef XP_WIN

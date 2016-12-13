@@ -110,7 +110,7 @@
       <!-- ///////////////// private members ///////////////// -->
 
       <property name="children" readonly="true"
-                onget="return Array.slice(this.getElementsByTagName('descriptionitem'));"/>
+                onget="return Array.from(this.getElementsByTagName('descriptionitem'));"/>
 
       <method name="_fireOnSelect">
         <body><![CDATA[

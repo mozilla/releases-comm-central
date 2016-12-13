@@ -861,7 +861,7 @@
                clicks on a link in the click-to-play UI (e.g. to check for
                plugin updates)
              */
-            let callbackArgs = Array.slice(arguments, 2);
+            let callbackArgs = Array.from(arguments).slice(2);
             linkNode.addEventListener("click",
                                       function(aEvent) {
                                         if (!aEvent.isTrusted)
