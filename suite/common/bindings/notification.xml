@@ -5,8 +5,10 @@
 
 
 <!DOCTYPE bindings [
-<!ENTITY % notificationDTD SYSTEM "chrome://global/locale/notification.dtd">
-%notificationDTD;
+<!ENTITY % commNotificationDTD SYSTEM "chrome://communicator/locale/notification.dtd">
+ %commNotificationDTD;
+<!ENTITY % globalNotificationDTD SYSTEM "chrome://global/locale/notification.dtd">
+ %globalNotificationDTD;
 ]>
 
 <bindings id="browserNotificationBindings"
