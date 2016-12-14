@@ -230,10 +230,10 @@ nsresult
 nsMsgSearchAdapter::GetSearchCharsets(nsAString &srcCharset, nsAString &dstCharset)
 {
   nsresult rv;
+  bool forceAsciiSearch = false;
 
   if (m_defaultCharset.IsEmpty())
   {
-    m_forceAsciiSearch = false;  // set the default value in case of error
     nsCOMPtr<nsIPrefBranch> prefs(do_GetService(NS_PREFSERVICE_CONTRACTID, &rv));
     if (NS_SUCCEEDED(rv))
     {
@@ -243,7 +243,7 @@ nsMsgSearchAdapter::GetSearchCharsets(nsAString &srcCharset, nsAString &dstChars
       if (NS_SUCCEEDED(rv))
         localizedstr->GetData(getter_Copies(m_defaultCharset));
 
-      prefs->GetBoolPref("mailnews.force_ascii_search", &m_forceAsciiSearch);
+      prefs->GetBoolPref("mailnews.force_ascii_search", &forceAsciiSearch);
     }
   }
   srcCharset = m_defaultCharset.IsEmpty() ?
@@ -278,7 +278,7 @@ nsMsgSearchAdapter::GetSearchCharsets(nsAString &srcCharset, nsAString &dstChars
     dstCharset.Assign(srcCharset);
   }
 
-  if (m_forceAsciiSearch)
+  if (forceAsciiSearch)
   {
     // Special cases to use in order to force US-ASCII searching with Latin1
     // or MacRoman text. Eurgh. This only has to happen because IMAP

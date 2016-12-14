@@ -8,6 +8,12 @@
 #include "MailNewsTypes.h"
 #include "nsTArray.h"
 
+typedef enum search_type {
+  ST_UNINITIALIZED,
+  ST_OR_SEARCH,
+  ST_AND_SEARCH
+} search_type;
+
 //-----------------------------------------------------------------------------
 //---------- Adapter class for searching online (news) folders ----------------
 //-----------------------------------------------------------------------------
@@ -29,12 +35,12 @@ public:
   char16_t *EncodeToWildmat (const char16_t *);
 
   void ReportHits ();
-    void CollateHits ();
-    void ReportHit (nsIMsgDBHdr *pHeaders, nsIMsgFolder *folder);
+  void CollateHits ();
+  void ReportHit (nsIMsgDBHdr *pHeaders, nsIMsgFolder *folder);
 
 protected:
   nsCString m_encoding;
-  bool m_ORSearch; // set to true if any of the search terms contains an OR for a boolean operator.
+  search_type m_searchType;
 
   nsTArray<nsMsgKey> m_candidateHits;
   nsTArray<nsMsgKey> m_hits;

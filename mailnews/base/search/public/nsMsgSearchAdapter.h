@@ -37,9 +37,7 @@ public:
   nsIMsgSearchScopeTerm        *m_scope;
   nsCOMPtr<nsIArray>  m_searchTerms;       /* linked list of criteria terms */
 
-  bool m_abortCalled;
   nsString  m_defaultCharset;
-  bool m_forceAsciiSearch;
 
   static nsresult EncodeImap (char **ppEncoding,
            nsIArray *searchTerms,

@@ -35,6 +35,7 @@ const char *nsMsgSearchNews::m_kTermSeparator = "/";
 
 nsMsgSearchNews::nsMsgSearchNews (nsMsgSearchScopeTerm *scope, nsIArray *termList) : nsMsgSearchAdapter (scope, termList)
 {
+  m_searchType = ST_UNINITIALIZED;
 }
 
 
@@ -232,7 +233,7 @@ nsresult nsMsgSearchNews::Encode (nsCString *outEncoding)
       // homogeneous boolean operators.
       bool isBooleanOpAnd;
       pTerm->GetBooleanAnd(&isBooleanOpAnd);
-      m_ORSearch = !isBooleanOpAnd;
+      m_searchType = isBooleanOpAnd ? ST_AND_SEARCH : ST_OR_SEARCH;
 
       intermediateEncodings[i] = EncodeTerm (pTerm);
       if (intermediateEncodings[i])
@@ -321,7 +322,8 @@ void nsMsgSearchNews::CollateHits()
 
   // For an OR search we only need to count the first occurrence of a candidate.
   uint32_t termCount = 1;
-  if (!m_ORSearch)
+  MOZ_ASSERT(m_searchType != ST_UNINITIALIZED, "m_searchType accessed without being set");
+  if (m_searchType == ST_AND_SEARCH)
   {
     // We have a traditional AND search which must be collated. In order to
     // get promoted into the hits list, a candidate article number must appear
