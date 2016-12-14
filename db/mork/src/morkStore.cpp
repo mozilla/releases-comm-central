@@ -128,7 +128,6 @@ morkStore::ClosePort(morkEnv* ev) // called by CloseMorkNode();
 /*public virtual*/
 morkStore::~morkStore() // assert CloseStore() executed earlier
 {
-  MOZ_COUNT_DTOR(morkStore);
   if (IsOpenNode())
     CloseMorkNode(mMorkEnv);
   MORK_ASSERT(this->IsShutNode());
@@ -178,7 +177,6 @@ morkStore::morkStore(morkEnv* ev, const morkUsage& inUsage,
 , mStore_CanDirty( morkBool_kFalse ) // not until the store is open
 , mStore_CanWriteIncremental( morkBool_kTrue ) // always with few exceptions
 {
-  MOZ_COUNT_CTOR(morkStore);
   if ( ev->Good() )
   {
     if ( inFactory && ioPortHeap )

@@ -14,12 +14,10 @@ NS_IMPL_ISUPPORTS(nsMsgThread, nsIMsgThread)
 
 nsMsgThread::nsMsgThread()
 {
-  MOZ_COUNT_CTOR(nsMsgThread);
   Init();
 }
 nsMsgThread::nsMsgThread(nsMsgDatabase *db, nsIMdbTable *table)
 {
-  MOZ_COUNT_CTOR(nsMsgThread);
   Init();
   m_mdbTable = table;
   m_mdbDB = db;
@@ -51,7 +49,6 @@ void nsMsgThread::Init()
 
 nsMsgThread::~nsMsgThread()
 {
-  MOZ_COUNT_DTOR(nsMsgThread);
   if (m_mdbDB)
   {
     mozilla::DebugOnly<bool> found = m_mdbDB->m_threads.RemoveElement(this);

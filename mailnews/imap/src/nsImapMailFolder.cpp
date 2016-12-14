@@ -197,8 +197,6 @@ nsImapMailFolder::nsImapMailFolder() :
     m_folderQuotaUsedKB(0),
     m_folderQuotaMaxKB(0)
 {
-  MOZ_COUNT_CTOR(nsImapMailFolder); // double count these for now.
-
   m_moveCoalescer = nullptr;
   m_boxFlags = 0;
   m_uidValidity = kUidUnknown;
@@ -216,8 +214,6 @@ nsImapMailFolder::nsImapMailFolder() :
 
 nsImapMailFolder::~nsImapMailFolder()
 {
-  MOZ_COUNT_DTOR(nsImapMailFolder);
-
   NS_IF_RELEASE(m_moveCoalescer);
   delete m_folderACL;
     

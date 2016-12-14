@@ -86,13 +86,11 @@ nsMsgNewsFolder::nsMsgNewsFolder(void) :
      m_downloadMessageForOfflineUse(false), m_downloadingMultipleMessages(false),
      mReadSet(nullptr), mSortOrder(kNewsSortOffset)
 {
-  MOZ_COUNT_CTOR(nsMsgNewsFolder); // double count these for now.
   mFolderSize = kSizeUnknown;
 }
 
 nsMsgNewsFolder::~nsMsgNewsFolder(void)
 {
-  MOZ_COUNT_DTOR(nsMsgNewsFolder);
   delete mReadSet;
 }
 
