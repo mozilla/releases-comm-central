@@ -4,7 +4,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "nsXULAppAPI.h"
-#include "mozilla/AppData.h"
+#include "mozilla/XREAppData.h"
 #include "application.ini.h"
 #include "nsXPCOMGlue.h"
 #if defined(XP_WIN)
@@ -39,8 +39,55 @@
 
 #include "nsXPCOMPrivate.h" // for MAXPATHLEN and XPCOM_DLL
 
+#include "mozilla/Sprintf.h"
 #include "mozilla/Telemetry.h"
 #include "mozilla/WindowsDllBlocklist.h"
+
+#ifdef MOZ_LINUX_32_SSE2_STARTUP_ERROR
+#include <cpuid.h>
+#include "mozilla/Unused.h"
+
+static bool
+IsSSE2Available()
+{
+  // The rest of the app has been compiled to assume that SSE2 is present
+  // unconditionally, so we can't use the normal copy of SSE.cpp here.
+  // Since SSE.cpp caches the results and we need them only transiently,
+  // instead of #including SSE.cpp here, let's just inline the specific check
+  // that's needed.
+  unsigned int level = 1u;
+  unsigned int eax, ebx, ecx, edx;
+  unsigned int bits = (1u<<26);
+  unsigned int max = __get_cpuid_max(0, nullptr);
+  if (level > max) {
+    return false;
+  }
+  __cpuid_count(level, 0, eax, ebx, ecx, edx);
+  return (edx & bits) == bits;
+}
+
+static const char sSSE2Message[] =
+    "This browser version requires a processor with the SSE2 instruction "
+    "set extension.\nYou may be able to obtain a version that does not "
+    "require SSE2 from your Linux distribution.\n";
+
+__attribute__((constructor))
+static void
+SSE2Check()
+{
+  if (IsSSE2Available()) {
+    return;
+  }
+  // Using write() in order to avoid jemalloc-based buffering. Ignoring return
+  // values, since there isn't much we could do on failure and there is no
+  // point in trying to recover from errors.
+  MOZ_UNUSED(write(STDERR_FILENO,
+                   sSSE2Message,
+                   MOZ_ARRAY_LENGTH(sSSE2Message) - 1));
+  // _exit() instead of exit() to avoid running the usual "at exit" code.
+  _exit(255);
+}
+#endif
 
 #if !defined(MOZ_WIDGET_COCOA) && !defined(MOZ_WIDGET_ANDROID) \
   && !(defined(XP_LINUX) && defined(MOZ_SANDBOX))
@@ -116,8 +163,7 @@ static bool IsArg(const char* arg, const char* s)
 }
 
 XRE_GetFileFromPathType XRE_GetFileFromPath;
-XRE_CreateAppDataType XRE_CreateAppData;
-XRE_FreeAppDataType XRE_FreeAppData;
+XRE_ParseAppDataType XRE_ParseAppData;
 XRE_TelemetryAccumulateType XRE_TelemetryAccumulate;
 XRE_StartupTimelineRecordType XRE_StartupTimelineRecord;
 XRE_mainType XRE_main;
@@ -127,11 +173,14 @@ XRE_GetProcessTypeType XRE_GetProcessType;
 XRE_SetProcessTypeType XRE_SetProcessType;
 XRE_InitChildProcessType XRE_InitChildProcess;
 XRE_EnableSameExecutableForContentProcType XRE_EnableSameExecutableForContentProc;
+#ifdef LIBFUZZER
+XRE_LibFuzzerSetMainType XRE_LibFuzzerSetMain;
+XRE_LibFuzzerGetFuncsType XRE_LibFuzzerGetFuncs;
+#endif
 
 static const nsDynamicFunctionLoad kXULFuncs[] = {
     { "XRE_GetFileFromPath", (NSFuncPtr*) &XRE_GetFileFromPath },
-    { "XRE_CreateAppData", (NSFuncPtr*) &XRE_CreateAppData },
-    { "XRE_FreeAppData", (NSFuncPtr*) &XRE_FreeAppData },
+    { "XRE_ParseAppData", (NSFuncPtr*) &XRE_ParseAppData },
     { "XRE_TelemetryAccumulate", (NSFuncPtr*) &XRE_TelemetryAccumulate },
     { "XRE_StartupTimelineRecord", (NSFuncPtr*) &XRE_StartupTimelineRecord },
     { "XRE_main", (NSFuncPtr*) &XRE_main },
@@ -141,8 +190,23 @@ static const nsDynamicFunctionLoad kXULFuncs[] = {
     { "XRE_SetProcessType", (NSFuncPtr*) &XRE_SetProcessType },
     { "XRE_InitChildProcess", (NSFuncPtr*) &XRE_InitChildProcess },
     { "XRE_EnableSameExecutableForContentProc", (NSFuncPtr*) &XRE_EnableSameExecutableForContentProc },
+#ifdef LIBFUZZER
+    { "XRE_LibFuzzerSetMain", (NSFuncPtr*) &XRE_LibFuzzerSetMain },
+    { "XRE_LibFuzzerGetFuncs", (NSFuncPtr*) &XRE_LibFuzzerGetFuncs },
+#endif
     { nullptr, nullptr }
 };
+
+#ifdef LIBFUZZER
+int libfuzzer_main(int argc, char **argv);
+
+/* This wrapper is used by the libFuzzer main to call into libxul */
+
+void libFuzzerGetFuncs(const char* moduleName, LibFuzzerInitFunc* initFunc,
+                       LibFuzzerTestingFunc* testingFunc) {
+  return XRE_LibFuzzerGetFuncs(moduleName, initFunc, testingFunc);
+}
+#endif
 
 static int do_main(int argc, char* argv[], char* envp[], nsIFile *xreDirectory)
 {
@@ -173,7 +237,7 @@ static int do_main(int argc, char* argv[], char* envp[], nsIFile *xreDirectory)
     }
 
     char appEnv[MAXPATHLEN];
-    snprintf(appEnv, MAXPATHLEN, "XUL_APP_FILE=%s", argv[2]);
+    SprintfLiteral(appEnv, "XUL_APP_FILE=%s", argv[2]);
     if (putenv(strdup(appEnv))) {
       Output("Couldn't set %s.\n", appEnv);
       return 255;
@@ -195,44 +259,46 @@ static int do_main(int argc, char* argv[], char* envp[], nsIFile *xreDirectory)
     return XRE_XPCShellMain(--argc, argv, envp, &shellData);
   }
 
+  XREAppData appData;
+  appData.xreDirectory = xreDirectory;
+
   if (appini) {
-    nsXREAppData *appData;
-    rv = XRE_CreateAppData(appini, &appData);
+    rv = XRE_ParseAppData(appini, appData);
     if (NS_FAILED(rv)) {
       Output("Couldn't read application.ini");
       return 255;
     }
-    // xreDirectory already has a refcount from NS_NewLocalFile
-    appData->xreDirectory = xreDirectory;
-    int result = XRE_main(argc, argv, appData, mainFlags);
-    XRE_FreeAppData(appData);
-    return result;
-  }
 
-  ScopedAppData appData(&sAppData);
-  nsCOMPtr<nsIFile> exeFile;
-  rv = mozilla::BinaryPath::GetFile(argv[0], getter_AddRefs(exeFile));
-  if (NS_FAILED(rv)) {
-    Output("Couldn't find the application directory.\n");
-    return 255;
-  }
+    appini->GetParent(getter_AddRefs(appData.directory));
+  } else {
+    // no -app flag so we use the compiled-in app data
+    appData = sAppData;
 
-  // Override the crash reporting url.
-  SetAllocatedString(appData.crashReporterURL,
-                     "https://crash-reporter.instantbird.org/submit/");
+    nsCOMPtr<nsIFile> exeFile;
+    rv = mozilla::BinaryPath::GetFile(argv[0], getter_AddRefs(exeFile));
+    if (NS_FAILED(rv)) {
+      Output("Couldn't find the application directory.\n");
+      return 255;
+    }
 
-  nsCOMPtr<nsIFile> greDir;
-  exeFile->GetParent(getter_AddRefs(greDir));
+    nsCOMPtr<nsIFile> greDir;
+    exeFile->GetParent(getter_AddRefs(greDir));
 #ifdef XP_MACOSX
-  greDir->SetNativeLeafName(NS_LITERAL_CSTRING(kOSXResourcesFolder));
+    greDir->SetNativeLeafName(NS_LITERAL_CSTRING(kOSXResourcesFolder));
 #endif
-  nsCOMPtr<nsIFile> appSubdir;
-  greDir->Clone(getter_AddRefs(appSubdir));
-  appSubdir->Append(NS_LITERAL_STRING(kDesktopFolder));
+    nsCOMPtr<nsIFile> appSubdir;
+    greDir->Clone(getter_AddRefs(appSubdir));
+    appSubdir->Append(NS_LITERAL_STRING(kDesktopFolder));
+    appData.directory = appSubdir;
+  }
 
-  SetStrongPtr(appData.directory, static_cast<nsIFile*>(appSubdir.get()));
-  // xreDirectory already has a refcount from NS_NewLocalFile
-  appData.xreDirectory = xreDirectory;
+#if defined(HAS_DLL_BLOCKLIST)
+  // The dll blocklist operates in the exe vs. xullib. Pass a flag to
+  // xullib so automated tests can check the result once the browser
+  // is up and running.
+  appData.flags |=
+    DllBlocklist_CheckStatus() ? NS_XRE_DLL_BLOCKLIST_ENABLED : 0;
+#endif
 
 #if defined(XP_WIN) && defined(MOZ_SANDBOX)
   sandbox::BrokerServices* brokerServices =
@@ -246,7 +312,12 @@ static int do_main(int argc, char* argv[], char* envp[], nsIFile *xreDirectory)
   appData.sandboxBrokerServices = brokerServices;
 #endif
 
-  return XRE_main(argc, argv, &appData, mainFlags);
+#ifdef LIBFUZZER
+  if (getenv("LIBFUZZER"))
+    XRE_LibFuzzerSetMain(argc, argv, libfuzzer_main);
+#endif
+
+  return XRE_main(argc, argv, appData, mainFlags);
 }
 
 static bool
@@ -366,9 +437,9 @@ int main(int argc, char* argv[], char* envp[])
 #endif
 
 
-  nsIFile *xreDirectory;
+  nsCOMPtr<nsIFile> xreDirectory;
 
-  nsresult rv = InitXPCOMGlue(argv[0], &xreDirectory);
+  nsresult rv = InitXPCOMGlue(argv[0], getter_AddRefs(xreDirectory));
   if (NS_FAILED(rv)) {
     return 255;
   }
@@ -381,6 +452,7 @@ int main(int argc, char* argv[], char* envp[])
 
   int result = do_main(argc, argv, envp, xreDirectory);
 
+  xreDirectory = nullptr;
   NS_LogTerm();
 
 #ifdef XP_MACOSX
