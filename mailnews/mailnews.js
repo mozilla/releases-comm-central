@@ -775,8 +775,8 @@ pref("mail.compose.add_undisclosed_recipients", true);
 
 pref("mail.compose.dontWarnMail2Newsgroup", false);
 
-// Attach http resources to composed messages.
-pref("mail.compose.attachHttp", false);
+// Attach http image resources to composed messages.
+pref("mail.compose.attach_http_images", false);
 
 // these prefs (in minutes) are here to help QA test this feature
 // "mail.purge.min_delay", never purge a junk folder more than once every 480 minutes (60 mins/hour * 8 hours)

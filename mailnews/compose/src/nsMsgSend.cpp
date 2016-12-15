@@ -1270,12 +1270,20 @@ nsMsgComposeAndSend::GetEmbeddedObjectInfo(nsIDOMNode *node, nsMsgAttachmentData
   // Reset this structure to null!
   *acceptObject = false;
 
-  nsAutoString mozDoNotSendAttr;
+  // We're only interested in body, image, link and anchors which are all
+  // elements.
   nsCOMPtr<nsIDOMElement> domElement = do_QueryInterface(node);
-  if (domElement)
-  {
-    domElement->GetAttribute(NS_LITERAL_STRING(ATTR_MOZ_DO_NOT_SEND), mozDoNotSendAttr);
-  }
+  if (!domElement)
+    return NS_OK;
+
+  bool isImage = false;
+  nsAutoString mozDoNotSendAttr;
+  domElement->GetAttribute(NS_LITERAL_STRING(ATTR_MOZ_DO_NOT_SEND), mozDoNotSendAttr);
+
+  // Only empty or moz-do-not-send="false" may be accepted later.
+  if (!(mozDoNotSendAttr.IsEmpty() || mozDoNotSendAttr.LowerCaseEqualsLiteral("false")))
+    return NS_OK;
+
   // Now, we know the types of objects this node can be, so we will do
   // our query interface here and see what we come up with
   nsCOMPtr<nsIDOMHTMLBodyElement>     body = (do_QueryInterface(node));
@@ -1294,7 +1302,8 @@ nsMsgComposeAndSend::GetEmbeddedObjectInfo(nsIDOMNode *node, nsMsgAttachmentData
       CopyUTF16toUTF8(tUrl, turlC);
       if (NS_FAILED(nsMsgNewURL(getter_AddRefs(attachment->m_url), turlC.get())))
         return NS_OK;
-     }
+    }
+    isImage = true;
   }
   else if (image)        // Is this an image?
   {
@@ -1345,6 +1354,7 @@ nsMsgComposeAndSend::GetEmbeddedObjectInfo(nsIDOMNode *node, nsMsgAttachmentData
           return NS_OK; // Continue and send it without this image.
       }
     }
+    isImage = true;
 
     rv = image->GetName(tName);
     NS_ENSURE_SUCCESS(rv, rv);
@@ -1365,8 +1375,8 @@ nsMsgComposeAndSend::GetEmbeddedObjectInfo(nsIDOMNode *node, nsMsgAttachmentData
       return NS_OK;
     nsAutoCString turlC;
     CopyUTF16toUTF8(tUrl, turlC);
-    rv = nsMsgNewURL(getter_AddRefs(attachment->m_url), turlC.get());
-    NS_ENSURE_SUCCESS(rv, rv);
+    if (NS_FAILED(nsMsgNewURL(getter_AddRefs(attachment->m_url), turlC.get())))
+      return NS_OK;
   }
   else if (anchor)
   {
@@ -1401,13 +1411,16 @@ nsMsgComposeAndSend::GetEmbeddedObjectInfo(nsIDOMNode *node, nsMsgAttachmentData
   bool isHttp =
     (NS_SUCCEEDED(attachment->m_url->SchemeIs("http", &isHttp)) && isHttp) ||
     (NS_SUCCEEDED(attachment->m_url->SchemeIs("https", &isHttp)) && isHttp);
-  // Attach (= create cid: part) http resources if the pref is set to do so,
-  // or moz-do-not-send is set to "false".
+  // Attach (= create cid: part) http resources if moz-do-not-send is set to
+  // "false". Special processing for images: We attach if the preference says so.
+  // Note that moz-do-not-send="true" is already processed above so the preference
+  // doesn't override this.
   if (isHttp)
   {
-    *acceptObject = Preferences::GetBool("mail.compose.attachHttp", false) ||
+    *acceptObject =
+      (isImage && Preferences::GetBool("mail.compose.attach_http_images", false)) ||
       mozDoNotSendAttr.LowerCaseEqualsLiteral("false");
-      return NS_OK;
+    return NS_OK;
   }
 
   bool isData =
@@ -1416,13 +1429,13 @@ nsMsgComposeAndSend::GetEmbeddedObjectInfo(nsIDOMNode *node, nsMsgAttachmentData
     (NS_SUCCEEDED(attachment->m_url->SchemeIs("news", &isNews)) && isNews) ||
     (NS_SUCCEEDED(attachment->m_url->SchemeIs("snews", &isNews)) && isNews) ||
     (NS_SUCCEEDED(attachment->m_url->SchemeIs("nntp", &isNews)) && isNews);
-  // Attach (= create cid: part) data resources if moz-do-not-send was not
+  // Attach (= create cid: part) data resources if moz-do-not-send is not
   // specified or set to "false".
   if (isData || isNews)
   {
     *acceptObject = mozDoNotSendAttr.IsEmpty() ||
       mozDoNotSendAttr.LowerCaseEqualsLiteral("false");
-      return NS_OK;
+    return NS_OK;
   }
 
 #ifdef MOZ_SUITE
@@ -1432,7 +1445,7 @@ nsMsgComposeAndSend::GetEmbeddedObjectInfo(nsIDOMNode *node, nsMsgAttachmentData
   {
     *acceptObject = mozDoNotSendAttr.IsEmpty() ||
       mozDoNotSendAttr.LowerCaseEqualsLiteral("false");
-      return NS_OK;
+    return NS_OK;
   }
 #endif
   return NS_OK;
