@@ -174,6 +174,10 @@ pref("app.update.nagTimer.restart", 1800);
 //     versions.
 pref("app.update.incompatible.mode", 0);
 
+// The time interval between the downloading of mar file chunks in the
+// background (in seconds)
+pref("app.update.download.backgroundInterval", 60);
+
 // base URL for web-based support pages (used by toolkit)
 pref("app.support.baseURL", "https://support.mozilla.org/1/firefox/%VERSION%/%OS%/%LOCALE%/");
 
