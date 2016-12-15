@@ -66,23 +66,23 @@ var DirPaneController =
       case "cmd_delete":
       case "button_delete": {
         let selectedDir = getSelectedDirectory();
+        if (!selectedDir)
+          return false;
         let selectedDirURI = selectedDir.URI;
 
         // Context-sensitive labels for Edit > Delete menuitem.
         // We only have ABs or Mailing Lists in the directory pane.
         // For contacts and mixed selections, the label is set in
         // ResultsPaneController in abResultsPane.js.
-        if (command == "cmd_delete" && selectedDir) {
+        if (command == "cmd_delete") {
           goSetMenuValue(command, selectedDir.isMailList ?
                                   "valueList" : "valueAddressBook");
         }
 
-        // If there's no directory selected, or if it's one of these special ABs,
-        // return false to disable deletion.
-        if (!selectedDir ||
-             (selectedDirURI == kPersonalAddressbookURI) ||
-             (selectedDirURI == kCollectedAddressbookURI) ||
-             (selectedDirURI == (kAllDirectoryRoot + "?")))
+        // If it's one of these special ABs, return false to disable deletion.
+        if (selectedDirURI == kPersonalAddressbookURI ||
+            selectedDirURI == kCollectedAddressbookURI ||
+            selectedDirURI == (kAllDirectoryRoot + "?"))
           return false;
 
         // If the directory is a mailing list, and it is read-only,

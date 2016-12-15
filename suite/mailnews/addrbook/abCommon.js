@@ -55,19 +55,19 @@ var DirPaneController =
       case "cmd_delete":
       case "button_delete": {
         let selectedDir = getSelectedDirectory();
+        if (!selectedDir)
+          return false;
         let selectedDirURI = selectedDir.URI;
 
         // Context-sensitive labels for Edit > Delete menuitem.
-        if (command == "cmd_delete" && selectedDir) {
+        if (command == "cmd_delete") {
           goSetMenuValue(command, selectedDir.isMailList ?
                                   "valueList" : "valueAddressBook");
         }
 
-        // If there's no directory selected, or if it's one of these special ABs,
-        // return false to disable deletion.
-        if (!selectedDir ||
-             (selectedDirURI == kPersonalAddressbookURI) ||
-             (selectedDirURI == kCollectedAddressbookURI))
+        // If it's one of these special ABs, return false to disable deletion.
+        if (selectedDirURI == kPersonalAddressbookURI ||
+            selectedDirURI == kCollectedAddressbookURI)
           return false;
 
         // If the directory is a mailing list, and it is read-only,
