@@ -23,7 +23,7 @@
         </toolbar>
       </toolbox>
       <notificationbox flex="1" notificationside="top">
-        <browser id="dummycontentbrowser" type="content-targetable" flex="1"
+        <browser id="dummycontentbrowser" type="content" flex="1"
                  disablehistory="true" autocompletepopup="PopupAutoComplete"
                  context="mailContext"/>
       </notificationbox>

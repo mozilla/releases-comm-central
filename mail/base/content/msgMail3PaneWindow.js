@@ -1034,7 +1034,7 @@ function GetMessagePaneWrapper()
 function GetMessagePaneFrame()
 {
   // We must use the message pane element directly here, as other tabs can
-  // have browser elements as well (which could be set to content-primary,
+  // have browser elements as well (which could be set to content primary,
   // which would confuse things with a window.content return).
   return document.getElementById("messagepane").contentWindow;
 }

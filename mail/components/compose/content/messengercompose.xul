@@ -1075,7 +1075,8 @@
   <!-- The mail message body frame -->
   <vbox id="appcontent" flex="1">
     <editor id="content-frame"
-            type="content-primary"
+            type="content"
+            primary="true"
             src="about:blank"
             name="browser.message.body"
             minheight="100"

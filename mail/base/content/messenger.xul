@@ -537,8 +537,8 @@
                         <browser id="messagepane" context="mailContext"
                                  autofind="false" minheight="1" flex="1"
                                  name="messagepane" tooltip="aHTMLTooltip"
-                                 disablehistory="true" type="content-primary"
-                                 src="about:blank"
+                                 disablehistory="true" type="content"
+                                 primary="true" src="about:blank"
                                  onresize="return messagePaneOnResize(event);"
                                  disablesecurity="true"
                                  onclick="return contentAreaClick(event);"/>

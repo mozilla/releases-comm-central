@@ -33,5 +33,6 @@
   <script src="chrome://messenger/content/msgPrintEngine.js"/>
 
   <!-- The main display frame -->
-  <browser id="content" type="content-primary" name="content" src="about:blank" flex="1" disablehistory="true" disablesecurity="true"/>
+  <browser id="content" type="content" primary="true" name="content"
+           src="about:blank" flex="1" disablehistory="true" disablesecurity="true"/>
 </window>

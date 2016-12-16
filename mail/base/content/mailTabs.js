@@ -497,8 +497,8 @@ var mailTabType = {
    */
   openTab: function(aTab, aIsFirstTab, aMessageDisplay, aFolderPaneVisible) {
     // Set the messagepane as the primary browser for content.
-    document.getElementById("messagepane").setAttribute("type",
-                                                        "content-primary");
+    document.getElementById("messagepane").setAttribute("type", "content");
+    document.getElementById("messagepane").setAttribute("primary", "true");
 
     aTab.messageDisplay = aMessageDisplay;
     aTab.folderDisplay = new FolderDisplayWidget(aTab, aTab.messageDisplay);
@@ -565,8 +565,7 @@ var mailTabType = {
 
   saveTabState: function(aTab) {
     // Now let other tabs have a primary browser if they want.
-    document.getElementById("messagepane").setAttribute("type",
-                                                        "content-targetable");
+    document.getElementById("messagepane").setAttribute("type", "content");
 
     this.saveFocus(aTab);
     aTab.folderDisplay.makeInactive();
@@ -699,8 +698,8 @@ var mailTabType = {
 
   showTab: function(aTab) {
     // Set the messagepane as the primary browser for content.
-    document.getElementById("messagepane").setAttribute("type",
-                                                        "content-primary");
+    document.getElementById("messagepane").setAttribute("type", "content");
+    document.getElementById("messagepane").setAttribute("primary", "true");
 
     aTab.folderDisplay.makeActive();
 

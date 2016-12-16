@@ -321,7 +321,8 @@
       <vbox>
         <findbar id="FindToolbar" browserid="content-frame"/>
         <editor editortype="html"
-                type="content-primary"
+                type="content"
+                primary="true"
                 id="content-frame"
                 onclick="EditorClick(event);"
                 ondblclick="EditorDblClick(event);"

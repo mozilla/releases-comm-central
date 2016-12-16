@@ -12,7 +12,7 @@
     <vbox id="preferencesTab" collapsed="true">
       <vbox flex="1">
         <notificationbox flex="1">
-          <browser id="preferencesbrowser" type="content-targetable" flex="1"
+          <browser id="preferencesbrowser" type="content" flex="1"
                    disablehistory="true" autocompletepopup="PopupAutoComplete"
                    context="mailContext"/>
         </notificationbox>
