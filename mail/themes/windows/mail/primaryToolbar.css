@@ -224,7 +224,36 @@ toolbar[mode="text"] .button-appmenu .toolbarbutton-icon {
 /* AppMenu styling */
 
 .splitmenu-menuitem {
+  -moz-appearance: menuitem;
+  -moz-box-align: center;
+  color: MenuText;
+  font: menu;
+  list-style-image: none;
+  -moz-image-region: auto;
   margin-inline-end: 1px;
+}
+
+.splitmenu-menuitem[disabled="true"],
+.splitmenu-menuitem[_moz-menuactive="true"][disabled="true"] {
+  color: GrayText;
+  text-shadow: none;
+}
+
+@media (-moz-windows-classic) {
+  .splitmenu-menuitem[disabled="true"] {
+    color: ThreeDShadow;
+    text-shadow: 1px 1px ThreeDHighlight;
+  }
+}
+
+.splitmenu-menuitem[iconic="true"] > .menu-iconic-left {
+  -moz-appearance: menuimage;
+  padding-top: 2px;
+}
+
+.splitmenu-menuitem[_moz-menuactive="true"] {
+  background-color: -moz-menuhover;
+  color: -moz-menuhovertext;
 }
 
 .splitmenu-menu {

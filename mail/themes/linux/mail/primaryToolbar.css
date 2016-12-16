@@ -326,8 +326,23 @@ toolbar[mode="text"] .button-appmenu .toolbarbutton-icon {
 /* AppMenu styling */
 
 .splitmenu-menuitem {
+  -moz-appearance: menuitem;
+  -moz-box-align: center;
+  max-width: 42em;
+  color: MenuText;
+  font: menu;
+  list-style-image: none;
   margin-inline-end: 1px;
   -moz-image-region: auto;
+}
+
+.splitmenu-menuitem[_moz-menuactive="true"] {
+  color: -moz-menuhovertext;
+  background-color: -moz-menuhover;
+}
+
+.splitmenu-menuitem[disabled="true"] {
+  color: GrayText;
 }
 
 #appmenuSecondaryPane {
