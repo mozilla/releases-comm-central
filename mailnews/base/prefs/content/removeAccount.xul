@@ -43,10 +43,13 @@
           &removeAccount.desc;
         </description>
       </vbox>
+      <vbox id="removeDataPossibility" collapsed="false">
       <checkbox id="removeData"
                 label="&removeData.label;"
+                labelChat="&removeDataChat.label;"
                 checked="false"
                 accesskey="&removeData.accesskey;"
+                accesskeyChat="&removeDataChat.accesskey;"
                 oncommand="enableRemove();"/>
       <vbox class="indent" collapsed="true">
         <description id="localAccount" collapsed="true">
@@ -55,12 +58,17 @@
         <description id="serverAccount" collapsed="true">
           &removeDataServerAccount.desc;
         </description>
+        <description id="chatAccount" collapsed="true">
+          &removeDataChatAccount.desc;
+        </description>
         <hbox align="center">
-          <button label="&showData.label;"
+          <button id="showLocalDirectory"
+                  label="&showData.label;"
                   accesskey="&showData.accesskey;"
                   oncommand="openLocalDirectory();"/>
           <label id="localDirectory" collapsed="true"/>
         </hbox>
+      </vbox>
       </vbox>
     </vbox>
     <vbox align="center">

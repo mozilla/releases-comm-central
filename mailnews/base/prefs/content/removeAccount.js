@@ -18,18 +18,31 @@ function onLoad(event) {
                                                  [gServer.prettyName]);
   document.getElementById("accountName").textContent = removeQuestion;
 
-  // Do not allow removal if localPath is outside of profile folder.
-  let profilePath = Services.dirsvc.get("ProfD", Components.interfaces.nsIFile)
-  profilePath.normalize();
-  let localDirectory = gServer.localPath
-  localDirectory.normalize();
-  // TODO: bug 77652, decide what to do for deferred accounts.
-  // And inform the user if the account localPath is outside the profile.
-  if ((gServer.isDeferredTo ||
-      (gServer instanceof Components.interfaces.nsIPop3IncomingServer &&
-       gServer.deferredToAccount)) ||
-       !profilePath.contains(localDirectory)) {
-    document.getElementById("removeData").disabled = true;
+  // Allow to remove account data if it has a local storage.
+  let localDirectory = gServer.localPath;
+  if (localDirectory && localDirectory.exists()) {
+    localDirectory.normalize();
+
+    // Do not allow removal if localPath is outside of profile folder.
+    let profilePath = Services.dirsvc.get("ProfD", Components.interfaces.nsIFile);
+    profilePath.normalize();
+
+    // TODO: bug 77652, decide what to do for deferred accounts.
+    // And inform the user if the account localPath is outside the profile.
+    if ((gServer.isDeferredTo ||
+        (gServer instanceof Components.interfaces.nsIPop3IncomingServer &&
+         gServer.deferredToAccount)) ||
+         !profilePath.contains(localDirectory)) {
+      document.getElementById("removeData").disabled = true;
+    }
+  } else {
+    document.getElementById("removeDataPossibility").collapsed = true;
+  }
+
+  if (gServer.type == "im") {
+    let dataCheckbox = document.getElementById("removeData");
+    dataCheckbox.label = dataCheckbox.getAttribute("labelChat");
+    dataCheckbox.accessKey = dataCheckbox.getAttribute("accesskeyChat");
   }
 
   enableRemove();
@@ -64,8 +77,11 @@ function showInfo() {
     desc.collapsed = false;
   }
 
+  // TODO: bug 1238271, this should use showFor attributes if possible.
   if (gServer.type == "imap" || gServer.type == "nntp") {
     document.getElementById("serverAccount").collapsed = false;
+  } else if (gServer.type == "im") {
+    document.getElementById("chatAccount").collapsed = false;
   } else {
     document.getElementById("localAccount").collapsed = false;
   }

@@ -94,4 +94,11 @@ interface imILogger: nsISupports {
   // until the promise resolves. If the callback throws (or rejects), iteration
   // will stop and the returned promise will reject with the same error.
   jsval forEach(in imIProcessLogsCallback aCallback);
+
+  // Returns the folder storing all logs for aAccount.
+  AUTF8String getLogFolderPathForAccount(in imIAccount aAccount);
+
+  // Removes the folder storing all logs for aAccount.
+  // Be sure the account is disconnected before using this.
+  jsval deleteLogFolderForAccount(in imIAccount aAccount);
 };

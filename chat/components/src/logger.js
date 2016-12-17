@@ -810,6 +810,31 @@ Logger.prototype = {
     return this._getEnumerator(entries, aGroupByDay);
   }),
 
+  getLogFolderPathForAccount: function(aAccount) {
+    return getLogFolderPathForAccount(aAccount);
+  },
+
+  deleteLogFolderForAccount: function(aAccount) {
+    if (!aAccount.disconnecting && !aAccount.disconnected)
+      throw new Error("Account must be disconnected first before deleting logs.");
+
+    if (aAccount.disconnecting)
+      Cu.reportError("Account is still disconnecting while we attempt to remove logs.");
+
+    let logPath = this.getLogFolderPathForAccount(aAccount);
+    // Find all operations on files inside the log folder.
+    let pendingPromises = [];
+    function checkLogFiles(promiseOperation, filePath) {
+      if (filePath.startsWith(logPath))
+        pendingPromises.push(promiseOperation);
+    }
+    gFilePromises.forEach(checkLogFiles);
+    // After all operations finish, remove the whole log folder.
+    return Promise.all(pendingPromises)
+                  .then(values => { OS.File.removeDir(logPath, { ignoreAbsent: true }); })
+                  .catch(aError => Cu.reportError("Failed to remove log folders:\n" + aError));
+  },
+
   forEach: Task.async(function* (aCallback) {
     let getAllSubdirs = Task.async(function* (aPaths, aErrorMsg) {
       let entries = [];

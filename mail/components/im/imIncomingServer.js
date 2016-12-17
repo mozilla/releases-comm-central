@@ -46,8 +46,32 @@ imIncomingServer.prototype = {
     delete this._prefBranch;
     delete this._imAccount;
   },
+
+  // Returns the directory where the account would have its data stored.
+  // There are currently conversation logs only.
+  // It may not exist yet.
+  // This is used in account removal dialog and should return the same path
+  // that the removeFiles() function deletes.
+  get localPath() {
+    let logPath = Services.logs.getLogFolderPathForAccount(this.imAccount);
+    let file = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);
+    file.initWithPath(logPath);
+    return file;
+  },
+
+  // Removes files created by this account.
+  removeFiles: function() {
+    Services.logs.deleteLogFolderForAccount(this.imAccount);
+  },
+
   // called by nsMsgAccountManager while deleting an account:
   forgetSessionPassword: function() { },
+
+  forgetPassword: function() {
+    // Password is cleared in imAccount.remove()
+    // TODO: this may need to be implemented here as a separate function
+    // once IM accounts support changing username/hostname.
+  },
 
   // Shown in the "Remove Account" confirm prompt.
   get prettyName() {
@@ -198,7 +222,12 @@ imIncomingServer.prototype = {
 
   writeToFolderCache: function() { },
   closeCachedConnections: function() { },
-  shutdown: function() { },
+
+  // Shutdown the server instance so at least disconnect from the server.
+  shutdown: function() {
+    this.imAccount.disconnect();
+  },
+
   setFilterList: function() { },
 
   get canBeDefaultServer() { return false; },
