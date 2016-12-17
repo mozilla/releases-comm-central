@@ -134,10 +134,10 @@ function showAlert()
   alertContainer.addEventListener("animationend", function hideAlert(event) {
     if (event.animationName == "fade-in") {
       alertContainer.removeEventListener("animationend", hideAlert, false);
-      let remaining = Math.max(Math.round(gOpenTime - event.elapsedTime * 1000), 0);
-      setTimeout(fadeOutAlert, remaining);
+      setTimeout(fadeOutAlert, gOpenTime);
     }
   }, false);
+
   alertContainer.setAttribute("fade-in", true);
 }
 
