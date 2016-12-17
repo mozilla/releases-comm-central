@@ -15,12 +15,6 @@ interface nsIX509Cert;
 interface nsICMSSecureMessage : nsISupports
 {
   /**
-   * getCertByPrefID - a BASE64 string representing a user's
-   *   certificate (or NULL if there isn't one)
-   */
-  string getCertByPrefID(in string certID);
-
-  /**
    * decodeCert - decode a BASE64 string into an X509Certificate object
    */
   nsIX509Cert decodeCert(in string value);
@@ -35,6 +29,16 @@ interface nsICMSSecureMessage : nsISupports
    * receiveMessage - receive an encrypted (enveloped) message
    */
   string receiveMessage(in string msg);
+
+  /**
+   * Return true if the certificate can be used for encrypting emails.
+   */
+  bool canBeUsedForEmailEncryption(in nsIX509Cert cert);
+
+  /**
+   * Return true if the certificate can be used for signing emails.
+   */
+  bool canBeUsedForEmailSigning(in nsIX509Cert cert);
 };
 
 %{C++

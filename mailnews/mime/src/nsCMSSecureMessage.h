@@ -7,8 +7,10 @@
 #define _NSCMSSECUREMESSAGE_H_
 
 #include "nsICMSSecureMessage.h"
+#include "cert.h"
 
 #include "cms.h"
+
 
 // ===============================================
 // nsCMSManager - implementation of nsICMSManager
@@ -29,8 +31,9 @@ public:
 
 private:
   virtual ~nsCMSSecureMessage();
-  NS_METHOD encode(const unsigned char *data, int32_t dataLen, char **_retval);
-  NS_METHOD decode(const char *data, unsigned char **result, int32_t * _retval);
+  nsresult encode(const unsigned char *data, int32_t dataLen, char **_retval);
+  nsresult decode(const char *data, unsigned char **result, int32_t * _retval);
+  nsresult CheckUsageOk(nsIX509Cert* cert, SECCertificateUsage usage, bool* _retval);
 };
 
 

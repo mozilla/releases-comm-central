@@ -18,6 +18,8 @@
 #include "nsNSSCertificate.h"
 #include "nsNSSShutDown.h"
 
+#include "nsNSSComponent.h"
+
 #include <string.h>
 #include "plbase64.h"
 #include "cert.h"
@@ -33,6 +35,7 @@ extern mozilla::LazyLogModule gPIPNSSLog;
 #endif
 
 using namespace mozilla;
+using namespace mozilla::psm;
 
 // Standard ISupports implementation
 // NOTE: Should these be the thread-safe versions?
@@ -62,49 +65,42 @@ nsresult nsCMSSecureMessage::Init()
   return rv;
 }
 
-/* string getCertByPrefID (in string certID); */
-NS_IMETHODIMP nsCMSSecureMessage::
-GetCertByPrefID(const char *certID, char **_retval)
-{
-  nsNSSShutDownPreventionLock locker;
-  MOZ_LOG(gPIPNSSLog, LogLevel::Debug, ("nsCMSSecureMessage::GetCertByPrefID\n"));
-  nsresult rv = NS_OK;
-  CERTCertificate *cert = 0;
-  nsXPIDLCString nickname;
-  nsCOMPtr<nsIInterfaceRequestor> ctx = new PipUIContext();
+nsresult nsCMSSecureMessage::CheckUsageOk(
+  nsIX509Cert* aCert, SECCertificateUsage aUsage, bool* aCanBeUsed) {
+  NS_ENSURE_ARG_POINTER(aCert);
+  *aCanBeUsed = false;
 
-  *_retval = 0;
+  nsresult rv;
+  nsCOMPtr<nsIX509CertDB> certdb = do_GetService(
+    "@mozilla.org/security/x509certdb;1", &rv);
+  NS_ENSURE_SUCCESS(rv, rv);
 
-  nsCOMPtr<nsIPrefBranch> prefs = do_GetService(NS_PREFSERVICE_CONTRACTID, &rv);
-  if (NS_FAILED(rv)) {
-    goto done;
+  RefPtr<SharedCertVerifier> certVerifier(GetDefaultCertVerifier());
+  NS_ENSURE_TRUE(certVerifier, NS_ERROR_UNEXPECTED);
+
+  UniqueCERTCertList unusedBuiltChain;
+  if (certVerifier->VerifyCert(aCert->GetCert(),
+                               aUsage,
+                               mozilla::pkix::Now(),
+                               nullptr,
+                               nullptr,
+                               unusedBuiltChain,
+                               CertVerifier::FLAG_LOCAL_ONLY) == mozilla::pkix::Success) {
+    *aCanBeUsed = true;
   }
-
-  rv = prefs->GetCharPref(certID,
-                          getter_Copies(nickname));
-  if (NS_FAILED(rv)) goto done;
-
-  /* Find a good cert in the user's database */
-  cert = CERT_FindUserCertByUsage(CERT_GetDefaultCertDB(), const_cast<char*>(nickname.get()), 
-           certUsageEmailRecipient, true, ctx);
-
-  if (!cert) { 
-    /* Success, but no value */
-    MOZ_LOG(gPIPNSSLog, LogLevel::Debug, ("nsCMSSecureMessage::GetCertByPrefID - can't find user cert\n"));
-    goto done;
-  } 
-
-  /* Convert the DER to a BASE64 String */
-  encode(cert->derCert.data, cert->derCert.len, _retval);
-
-done:
-  if (cert) CERT_DestroyCertificate(cert);
-  return rv;
+  return NS_OK;
 }
 
+NS_IMETHODIMP nsCMSSecureMessage::CanBeUsedForEmailEncryption(nsIX509Cert* aCert, bool* aCanBeUsed) {
+  return CheckUsageOk(aCert, certificateUsageEmailRecipient, aCanBeUsed);
+}
+
+NS_IMETHODIMP nsCMSSecureMessage::CanBeUsedForEmailSigning(nsIX509Cert* aCert, bool* aCanBeUsed) {
+  return CheckUsageOk(aCert, certificateUsageEmailSigner, aCanBeUsed);
+}
 
 // nsCMSSecureMessage::DecodeCert
-nsresult nsCMSSecureMessage::
+NS_IMETHODIMP nsCMSSecureMessage::
 DecodeCert(const char *value, nsIX509Cert ** _retval)
 {
   nsNSSShutDownPreventionLock locker;
@@ -144,7 +140,11 @@ DecodeCert(const char *value, nsIX509Cert ** _retval)
 }
 
 // nsCMSSecureMessage::SendMessage
-nsresult nsCMSSecureMessage::
+// Don't clash with Bill's versions SendMessageA or SendMessageW.
+#if defined (_MSC_VER)
+#undef SendMessage
+#endif
+NS_IMETHODIMP nsCMSSecureMessage::
 SendMessage(const char *msg, const char *base64Cert, char ** _retval)
 {
   nsNSSShutDownPreventionLock locker;
@@ -268,7 +268,7 @@ done:
 /*
  * nsCMSSecureMessage::ReceiveMessage
  */
-nsresult nsCMSSecureMessage::
+NS_IMETHODIMP nsCMSSecureMessage::
 ReceiveMessage(const char *msg, char **_retval)
 {
   nsNSSShutDownPreventionLock locker;

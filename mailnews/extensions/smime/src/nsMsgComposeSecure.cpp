@@ -886,11 +886,6 @@ nsresult nsMsgComposeSecure::MimeCryptoHackCerts(const char *aRecipients,
    - "signing_cert_dbkey"/"encryption_cert_dbkey": a Base64 encoded blob
      specifying an nsIX509Cert dbKey (represents serial number
      and issuer DN, which is considered to be unique for X.509 certificates)
-
-   When retrieving the prefs, we try (in this order):
-   1) *_cert_dbkey, if available
-   2) *_cert_name (for maintaining backwards compatibility with preference
-      attributes written by earlier versions)
   */
 
   RefPtr<SharedCertVerifier> certVerifier(GetDefaultCertVerifier());
@@ -913,13 +908,6 @@ nsresult nsMsgComposeSecure::MimeCryptoHackCerts(const char *aRecipients,
                                    mEncryptionCertDBKey);
     }
   }
-#if 0
-Temporary fix, see bug 1319185
-  if (!mSelfEncryptionCert) {
-    certdb->FindEmailEncryptionCert(mEncryptionCertName,
-                                    getter_AddRefs(mSelfEncryptionCert));
-  }
-#endif
 
   // same procedure for the signing cert
   if (!mSigningCertDBKey.IsEmpty()) {
@@ -937,13 +925,6 @@ Temporary fix, see bug 1319185
       aIdentity->SetCharAttribute("signing_cert_dbkey", mSigningCertDBKey);
     }
   }
-#if 0
-Temporary fix, see bug 1319185
-  if (!mSelfSigningCert) {
-    certdb->FindEmailSigningCert(mSigningCertName,
-                                 getter_AddRefs(mSelfSigningCert));
-  }
-#endif
 
   // must have both the signing and encryption certs to sign
   if (!mSelfSigningCert && aSign) {

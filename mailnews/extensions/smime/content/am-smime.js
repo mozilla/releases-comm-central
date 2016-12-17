@@ -9,8 +9,8 @@ var nsIX509CertDB = Components.interfaces.nsIX509CertDB;
 var nsX509CertDBContractID = "@mozilla.org/security/x509certdb;1";
 var nsIX509Cert = Components.interfaces.nsIX509Cert;
 
-var email_recipient_cert_usage = 5;
-var email_signing_cert_usage = 4;
+var email_signing_cert_usage = 4; // SECCertUsage.certUsageEmailSigner
+var email_recipient_cert_usage = 5; // SECCertUsage.certUsageEmailRecipient
 
 var gIdentity;
 var gPref = null;
@@ -57,10 +57,11 @@ function smimeInitializeFields()
     // as the new identity is going to have a different mail address.
 
     gEncryptionCertName.value = "";
-    gEncryptionCertName.nickname = "";
+    gEncryptionCertName.displayName = "";
     gEncryptionCertName.dbKey = "";
+
     gSignCertName.value = "";
-    gSignCertName.nickname = "";
+    gSignCertName.displayName = "";
     gSignCertName.dbKey = "";
 
     gEncryptAlways.setAttribute("disabled", true);
@@ -78,12 +79,12 @@ function smimeInitializeFields()
     gEncryptionCertName.dbKey = gIdentity.getCharAttribute("encryption_cert_dbkey");
     // If we succeed in looking up the certificate by the dbkey pref, then
     // append the serial number " [...]" to the display value, and remember the
-    // nickname in a separate property.
+    // displayName in a separate property.
     try {
         if (certdb && gEncryptionCertName.dbKey &&
             (x509cert = certdb.findCertByDBKey(gEncryptionCertName.dbKey))) {
-            gEncryptionCertName.value = x509cert.nickname + " [" + x509cert.serialNumber + "]";
-            gEncryptionCertName.nickname = x509cert.nickname;
+            gEncryptionCertName.value = x509cert.displayName + " [" + x509cert.serialNumber + "]";
+            gEncryptionCertName.displayName = x509cert.displayName;
         }
     } catch(e) {}
 
@@ -104,8 +105,8 @@ function smimeInitializeFields()
     try {
         if (certdb && gSignCertName.dbKey &&
             (x509cert = certdb.findCertByDBKey(gSignCertName.dbKey))) {
-            gSignCertName.value = x509cert.nickname + " [" + x509cert.serialNumber + "]";
-            gSignCertName.nickname = x509cert.nickname;
+            gSignCertName.value = x509cert.displayName + " [" + x509cert.serialNumber + "]";
+            gSignCertName.displayName = x509cert.displayName;
         }
     } catch(e) {}
 
@@ -146,12 +147,12 @@ function smimeSave()
   gHiddenEncryptionPolicy.setAttribute('value', newValue);
   gIdentity.setIntAttribute("encryptionpolicy", newValue);
   gIdentity.setUnicharAttribute("encryption_cert_name",
-                                gEncryptionCertName.nickname || gEncryptionCertName.value);
+    gEncryptionCertName.displayName || gEncryptionCertName.value);
   gIdentity.setCharAttribute("encryption_cert_dbkey", gEncryptionCertName.dbKey);
 
   gIdentity.setBoolAttribute("sign_mail", gSignMessages.checked);
   gIdentity.setUnicharAttribute("signing_cert_name",
-                                gSignCertName.nickname || gSignCertName.value);
+    gSignCertName.displayName || gSignCertName.value);
   gIdentity.setCharAttribute("signing_cert_dbkey", gSignCertName.dbKey);
 }
 
@@ -251,30 +252,32 @@ function askUser(message)
 function checkOtherCert(cert, pref, usage, msgNeedCertWantSame, msgWantSame, msgNeedCertWantToSelect, enabler)
 {
   var otherCertInfo = document.getElementById(pref);
-  if (!otherCertInfo)
+  if (otherCertInfo.dbKey == cert.dbKey) {
+    // All is fine, same cert is now selected for both purposes.
     return;
+  }
 
-  if (otherCertInfo.dbKey == cert.dbKey)
-    // all is fine, same cert is now selected for both purposes
-    return;
+  var secMsg = Components.classes["@mozilla.org/nsCMSSecureMessage;1"]
+    .getService(Components.interfaces.nsICMSSecureMessage);
 
-  var certdb = Components.classes[nsX509CertDBContractID].getService(nsIX509CertDB);
-  if (!certdb)
-    return;
-  
+  var matchingOtherCert;
   if (email_recipient_cert_usage == usage) {
-    matchingOtherCert = certdb.findEmailEncryptionCert(cert.nickname);
+    if(secMsg.canBeUsedForEmailEncryption(cert)) {
+      matchingOtherCert = cert;
+    }
   }
   else if (email_signing_cert_usage == usage) {
-    matchingOtherCert = certdb.findEmailSigningCert(cert.nickname);
+    if (secMsg.canBeUsedForEmailSigning(cert)) {
+      matchingOtherCert = cert;
+    }
   }
-  else
-    return;
+  else {
+    throw new Error("Unexpected SECCertUsage: " + usage);
+  }
 
   var userWantsSameCert = false;
-
-  if (!otherCertInfo.value.length) {
-    if (matchingOtherCert && (matchingOtherCert.dbKey == cert.dbKey)) {
+  if (!otherCertInfo.value) {
+    if (matchingOtherCert) {
       userWantsSameCert = askUser(gBundle.getString(msgNeedCertWantSame));
     }
     else {
@@ -284,14 +287,14 @@ function checkOtherCert(cert, pref, usage, msgNeedCertWantSame, msgWantSame, msg
     }
   }
   else {
-    if (matchingOtherCert && (matchingOtherCert.dbKey == cert.dbKey)) {
+    if (matchingOtherCert) {
       userWantsSameCert = askUser(gBundle.getString(msgWantSame));
     }
   }
 
   if (userWantsSameCert) {
-    otherCertInfo.value = cert.nickname + " [" + cert.serialNumber + "]";
-    otherCertInfo.nickname = cert.nickname;
+    otherCertInfo.value = cert.displayName + " [" + cert.serialNumber + "]";
+    otherCertInfo.displayName = cert.displayName;
     otherCertInfo.dbKey = cert.dbKey;
     enabler(true);
   }
@@ -344,8 +347,8 @@ function smimeSelectCert(smime_cert)
     }
     else {
       certInfo.removeAttribute("disabled");
-      certInfo.value = x509cert.nickname + " [" + x509cert.serialNumber + "]";
-      certInfo.nickname = x509cert.nickname;
+      certInfo.value = x509cert.displayName + " [" + x509cert.serialNumber + "]";
+      certInfo.displayName = x509cert.displayName;
       certInfo.dbKey = x509cert.dbKey;
 
       if (selectEncryptionCert) {
@@ -432,7 +435,7 @@ function smimeClearCert(smime_cert)
 
   certInfo.setAttribute("disabled", "true");
   certInfo.value = "";
-  certInfo.nickname = "";
+  certInfo.displayName = "";
   certInfo.dbKey = "";
 
   if (smime_cert == kEncryptionCertPref) {
