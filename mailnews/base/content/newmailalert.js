@@ -2,8 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-Components.utils.import("resource://gre/modules/Services.jsm");
 Components.utils.import("resource:///modules/iteratorUtils.jsm");
+Components.utils.import("resource://gre/modules/PluralForm.jsm");
+Components.utils.import("resource://gre/modules/Services.jsm");
 
 // Copied from nsILookAndFeel.h, see comments on eMetric_AlertNotificationOrigin
 var NS_ALERT_HORIZONTAL = 1;
@@ -43,12 +44,11 @@ function prefillAlertInfo()
   // Generate an account label string based on the root folder.
   var label = document.getElementById('alertTitle');
   var totalNumNewMessages = rootFolder.getNumNewMessages(true);
-  var message = totalNumNewMessages == 1 ? "newMailNotification_message"
-                                         : "newMailNotification_messages";
-  label.value = document.getElementById('bundle_messenger')
-                        .getFormattedString(message,
-                                            [rootFolder.prettiestName,
-                                             totalNumNewMessages]);
+  let message = document.getElementById("bundle_messenger")
+                        .getString("newMailAlert_message");
+  label.value = PluralForm.get(totalNumNewMessages, message)
+                          .replace("#1", rootFolder.prettiestName)
+                          .replace("#2", totalNumNewMessages);
 
   // This is really the root folder and we have to walk through the list to
   // find the real folder that has new mail in it...:(
