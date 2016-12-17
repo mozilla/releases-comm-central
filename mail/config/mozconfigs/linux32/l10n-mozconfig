@@ -4,6 +4,10 @@ ac_add_options --enable-application=mail
 ac_add_options --enable-update-channel=${MOZ_UPDATE_CHANNEL}
 ac_add_options --with-l10n-base=../../l10n
 
+ac_add_options --disable-rust
+unset RUSTC
+unset CARGO
+
 # Build lightning locales
 ac_add_options --enable-calendar
 

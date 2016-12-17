@@ -4,6 +4,10 @@ ac_add_options --enable-calendar
 
 . $topsrcdir/build/unix/mozconfig.linux32
 
+ac_add_options --disable-rust
+unset RUSTC
+unset CARGO
+
 # Needed to enable breakpad in application.ini
 export MOZILLA_OFFICIAL=1
 
