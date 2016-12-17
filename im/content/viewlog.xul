@@ -116,7 +116,7 @@
                  context="contentAreaContextMenu" tooltip="imTooltip"
                  disablehistory="true" src="about:blank" flex="1"/>
         <vbox flex="1">
-          <browser id="conv-browser" type="content-conversation" flex="1"
+          <browser id="conv-browser" type="content" browser-type="conversation" flex="1"
                    context="contentAreaContextMenu" tooltip="imTooltip"/>
           <progressmeter id="browserProgress" hidden="true"/>
         </vbox>

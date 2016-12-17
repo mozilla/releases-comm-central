@@ -244,7 +244,8 @@
                   </hbox>
                 </vbox>
                 <vbox flex="1" id="logDisplayBrowserBox">
-                  <browser id="conv-log-browser" type="content-conversation" contextmenu="chatConversationContextMenu" flex="1"
+                  <browser id="conv-log-browser" type="content" browser-type="conversation"
+                           contextmenu="chatConversationContextMenu" flex="1"
                            tooltip="imTooltip"/>
                   <progressmeter id="log-browserProgress" hidden="true"/>
                   <findbar id="log-findbar" browserid="conv-log-browser"/>

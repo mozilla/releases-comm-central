@@ -80,7 +80,8 @@
                 </vbox>
               </hbox>
             </vbox>
-            <browser flex="1" id="previewbrowser" type="content-conversation" tooltip="aHTMLTooltip"/>
+            <browser flex="1" id="previewbrowser" type="content"
+                     browser-type="conversation" tooltip="aHTMLTooltip"/>
           </deck>
           <hbox align="baseline">
             <label value="&messageStyleVariant.label;" control="themevariant"

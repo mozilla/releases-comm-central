@@ -20,7 +20,7 @@
         <xul:hbox class="conv-top" flex="1" anonid="conv-top">
           <xul:notificationbox class="conv-messages" anonid="convNotificationBox" flex="1" xbl:inherits="chat">
             <xul:vbox flex="1">
-              <xul:browser anonid="browser" type="content-conversation" flex="1"
+              <xul:browser anonid="browser" type="content" browser-type="conversation" flex="1"
                            xbl:inherits="tooltip=contenttooltip,contextmenu=contentcontextmenu,autoscrollpopup"/>
               <xul:progressmeter anonid="browserProgress" hidden="true"/>
               <xul:findbar anonid="FindToolbar" reversed="true"/>

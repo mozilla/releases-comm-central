@@ -41,7 +41,7 @@ tooltip[type="im"] {
   -moz-binding: url("chrome://chat/content/imtooltip.xml#tooltip");
 }
 
-browser[type="content-conversation"] {
+browser[browser-type="conversation"] {
   -moz-binding: url("chrome://chat/content/convbrowser.xml#browser");
 }
 
