@@ -217,11 +217,11 @@
       </method>
 
       <method name="doSearch">
+        <parameter name="aEmpty"/> <!-- run the search even with empty string -->
         <body><![CDATA[
           Components.utils.import("resource://gre/modules/Services.jsm");
-
           try {
-            if (this.value) {
+            if (this.value || aEmpty) {
               let tabmail = document.getElementById("tabmail");
               // If the current tab is a gloda search tab, reset the value
               //  to the initial search value.  Otherwise, clear it.  This
