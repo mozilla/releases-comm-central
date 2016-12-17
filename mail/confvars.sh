@@ -13,6 +13,12 @@ MOZ_NO_ACTIVEX_SUPPORT=1
 MOZ_ACTIVEX_SCRIPTING_SUPPORT=
 MOZ_LDAP_XPCOM=1
 MOZ_COMPOSER=1
+
+if test "$OS_ARCH" = "WINNT" -o \
+        "$OS_ARCH" = "Linux"; then
+  MOZ_BUNDLED_FONTS=1
+fi
+
 if test "$OS_ARCH" = "WINNT"; then
   if ! test "$HAVE_64BIT_BUILD"; then
     MOZ_VERIFY_MAR_SIGNATURE=1

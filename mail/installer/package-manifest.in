@@ -51,6 +51,9 @@
 @RESPATH@/chrome/@AB_CD@.manifest
 @RESPATH@/@PREF_DIR@/all-l10n.js
 @RESPATH@/dictionaries/*
+#if defined(XP_WIN) || defined(XP_LINUX)
+@RESPATH@/fonts/*
+#endif
 @RESPATH@/hyphenation/*
 #ifdef HAVE_MAKENSISU
 @BINPATH@/uninstall/helper.exe

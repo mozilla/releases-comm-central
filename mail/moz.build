@@ -9,6 +9,7 @@ CONFIGURE_SUBST_FILES += ['installer/Makefile']
 DIRS += [
     'base',
     'locales',
+    'fonts',
     'extensions',
     'steel',
     'themes',
