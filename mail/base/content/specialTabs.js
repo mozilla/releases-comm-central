@@ -286,6 +286,7 @@ var contentTabBaseType = {
 
   saveTabState: function onSaveTabState(aTab) {
     aTab.browser.setAttribute("type", "content");
+    aTab.browser.removeAttribute("primary");
   },
 
   showTab: function onShowTab(aTab) {
@@ -679,7 +680,9 @@ var specialTabs = {
       // the type according to if we're opening in background or not.
       let background = ("background" in aArgs) && aArgs.background;
       aTab.browser.setAttribute("type", "content");
-      if (!background)
+      if (background)
+        aTab.browser.removeAttribute("primary");
+      else
         aTab.browser.setAttribute("primary", "true");
 
       aTab.browser.setAttribute("id", "contentTabBrowser" + this.lastBrowserId);

@@ -565,7 +565,9 @@ var mailTabType = {
 
   saveTabState: function(aTab) {
     // Now let other tabs have a primary browser if they want.
-    document.getElementById("messagepane").setAttribute("type", "content");
+    let messagepane = document.getElementById("messagepane");
+    messagepane.setAttribute("type", "content");
+    messagepane.removeAttribute("primary");
 
     this.saveFocus(aTab);
     aTab.folderDisplay.makeInactive();
