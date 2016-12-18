@@ -283,8 +283,6 @@
 ; download progress
 @RESPATH@/components/nsHelperAppDlg.js
 @RESPATH@/components/nsHelperAppDlg.manifest
-@RESPATH@/components/nsDownloadManagerUI.js
-@RESPATH@/components/nsDownloadManagerUI.manifest
 @RESPATH@/components/downloads.xpt
 
 ; Protocol/Content handling
