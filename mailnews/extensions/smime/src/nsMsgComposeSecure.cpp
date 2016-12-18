@@ -1181,5 +1181,10 @@ static nsresult
 mime_nested_encoder_output_fn (const char *buf, int32_t size, void *closure)
 {
   nsMsgComposeSecure *state = (nsMsgComposeSecure *) closure;
-  return state->MimeCryptoWriteBlock((char *) buf, size);
+
+  // Copy to new null-terminated string so JS glue doesn't crash when
+  // MimeCryptoWriteBlock() is implemented in JS.
+  nsCString bufWithNull;
+  bufWithNull.Assign(buf, size);
+  return state->MimeCryptoWriteBlock(bufWithNull.get(), size);
 }

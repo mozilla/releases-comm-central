@@ -1235,7 +1235,11 @@ mime_write_message_body(nsIMsgSend *state, const char *buf, uint32_t size)
   state->GetCryptoclosure(getter_AddRefs(crypto_closure));
   if (crypto_closure)
   {
-    return crypto_closure->MimeCryptoWriteBlock (buf, size);
+    // Copy to new null-terminated string so JS glue doesn't crash when
+    // MimeCryptoWriteBlock() is implemented in JS.
+    nsCString bufWithNull;
+    bufWithNull.Assign(buf, size);
+    return crypto_closure->MimeCryptoWriteBlock(bufWithNull.get(), size);
   }
 
   uint32_t n;
