@@ -722,7 +722,9 @@ mime_generate_attachment_headers (const char *type,
     // Note that we don't need to output the name field if the name encoding is
     // RFC 2231. If the MUA knows the RFC 2231, it should know the RFC 2183 too.
     if (parmFolding != 2) {
-      char *nameValue = LegacyParmFolding(charset, nsDependentCString(real_name),
+      // The underlying JS MIME code will only handle UTF-8 here.
+      char *nameValue = LegacyParmFolding(NS_LITERAL_CSTRING("UTF-8"),
+                                          nsDependentCString(real_name),
                                           parmFolding);
       if (!nameValue || !*nameValue) {
         PR_FREEIF(nameValue);
