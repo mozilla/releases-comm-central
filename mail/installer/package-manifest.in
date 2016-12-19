@@ -51,7 +51,7 @@
 @RESPATH@/chrome/@AB_CD@.manifest
 @RESPATH@/@PREF_DIR@/all-l10n.js
 @RESPATH@/dictionaries/*
-#if defined(XP_WIN) || defined(XP_LINUX)
+#ifdef MOZ_BUNDLED_FONTS
 @RESPATH@/fonts/*
 #endif
 @RESPATH@/hyphenation/*

@@ -9,7 +9,6 @@ CONFIGURE_SUBST_FILES += ['installer/Makefile']
 DIRS += [
     'base',
     'locales',
-    'fonts',
     'extensions',
     'steel',
     'themes',
@@ -18,6 +17,9 @@ DIRS += [
 
 if CONFIG['MAKENSISU']:
     DIRS += ['installer/windows']
+
+if CONFIG['MOZ_BUNDLED_FONTS']:
+    DIRS += ['/mozilla/browser/fonts']
 
 TEST_DIRS += ['test/mozmill']
 
