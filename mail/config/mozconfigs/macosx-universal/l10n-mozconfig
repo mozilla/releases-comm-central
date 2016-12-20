@@ -4,10 +4,6 @@ ac_add_options --disable-install-strip
 ac_add_options --with-l10n-base=../../../l10n
 ac_add_options --disable-compile-environment
 
-ac_add_options --disable-rust
-unset RUSTC
-unset CARGO
-
 # Build lightning locales
 ac_add_options --enable-calendar
 mk_add_options MOZ_POSTFLIGHT_ALL+=calendar/lightning/build/universal.mk
