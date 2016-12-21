@@ -163,6 +163,7 @@ pref("extensions.getAddons.recommended.url", "https://services.addons.mozilla.or
 pref("extensions.getAddons.search.browseURL", "https://addons.mozilla.org/%LOCALE%/%APP%/search?q=%TERMS%");
 pref("extensions.getAddons.search.url", "https://services.addons.mozilla.org/%LOCALE%/%APP%/api/%API_VERSION%/search/%TERMS%/all/%MAX_RESULTS%/%OS%/%VERSION%/%COMPATIBILITY_MODE%?src=thunderbird");
 pref("extensions.webservice.discoverURL", "https://services.addons.mozilla.org/%LOCALE%/%APP%/discovery/pane/%VERSION%/%OS%");
+pref("extensions.getAddons.themes.browseURL", "https://addons.mozilla.org/%LOCALE%/thunderbird/themes/?src=thunderbird");
 
 // Blocklist preferences
 pref("extensions.blocklist.enabled", true);
