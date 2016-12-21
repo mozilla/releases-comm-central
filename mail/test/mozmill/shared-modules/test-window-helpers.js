@@ -942,9 +942,10 @@ var AugmentEverybodyWith = {
      * Dynamically-built/XBL-defined menus can be hard to work with, this makes it
      *  easier.
      *
-     * @param aRootPopup The base popup.  We will open it if it is not open or
-     *     wait for it to open if it is in the process.
-     * @param aActions A list of objects where each object has a single
+     * @param aRootPopup  The base popup. The caller is expected to activate it
+     *     (by clicking/rightclicking the right widget). We will only wait for it
+     *     to open if it is in the process.
+     * @param aActions  A list of objects where each object has a single
      *     attribute with a single value.  We pick the menu option whose DOM
      *     node has an attribute with that name and value.  We click whatever we
      *     find.  We throw if we don't find what you were asking for.
@@ -954,8 +955,6 @@ var AugmentEverybodyWith = {
      *          an empty array if aKeepOpen was set to false.
      */
     click_menus_in_sequence: function _click_menus(aRootPopup, aActions, aKeepOpen) {
-      if (aRootPopup.state == "closed")
-        aRootPopup.openPopup(null, "", 0, 0, true, true);
       if (aRootPopup.state != "open") { // handle "showing"
         utils.waitFor(() => aRootPopup.state == "open",
                       "Popup never opened! id=" + aRootPopup.id +
@@ -1038,10 +1037,24 @@ var AugmentEverybodyWith = {
     close_popup_sequence: function _close_popup_sequence(aCloseStack) {
       while (aCloseStack.length) {
         let curPopup = aCloseStack.pop();
-        this.keypress(new elib.Elem(curPopup), "VK_ESCAPE", {});
+        if (curPopup.state == "open")
+          this.keypress(new elib.Elem(curPopup), "VK_ESCAPE", {});
         utils.waitFor(function() { return curPopup.state == "closed"; },
                       "Popup did not close! id=" + curPopup.id +
                       ", state=" +  curPopup.state, 5000, 50);
+      }
+    },
+
+    /**
+     * Get dropmarker arrow element from 
+     *
+     * @param aNode  An element containing a dropmarker, e.g. menulist or menu-button
+     */
+    get_menu_dropmarker: function(aNode) {
+      let children = aNode.ownerDocument.getAnonymousNodes(aNode);
+      for (let node of children) {
+        if (node.tagName == "xul:dropmarker")
+          return node;
       }
     },
 
@@ -1096,7 +1109,7 @@ var MOUSE_OPS_TO_WRAP = [
   "middleClick", "rightClick",
 ];
 
-for (let [, mouseOp] in Iterator(MOUSE_OPS_TO_WRAP)) {
+for (let mouseOp of MOUSE_OPS_TO_WRAP) {
   let thisMouseOp = mouseOp;
   let wrapperFunc = function (aElem, aLeft, aTop) {
     let el = aElem.getNode();

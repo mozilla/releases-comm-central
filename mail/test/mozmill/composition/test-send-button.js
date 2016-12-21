@@ -162,11 +162,13 @@ function test_send_enabled_prefilled_address_from_identity() {
   assert_true(account.identities.length >= 2);
   let identityWithoutCC = account.identities.queryElementAt(1, Ci.nsIMsgIdentity);
   assert_false(identityWithoutCC.doCc);
+  cwc.click(cwc.eid("msgIdentity"));
   cwc.click_menus_in_sequence(cwc.e("msgIdentityPopup"),
                               [ { identitykey: identityWithoutCC.key } ]);
   check_send_commands_state(cwc, false);
 
   // Check the first identity again.
+  cwc.click(cwc.eid("msgIdentity"));
   cwc.click_menus_in_sequence(cwc.e("msgIdentityPopup"),
                               [ { identitykey: identityWithCC.key } ]);
   check_send_commands_state(cwc, true);

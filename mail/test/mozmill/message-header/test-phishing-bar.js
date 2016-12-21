@@ -57,6 +57,9 @@ function setupModule(module) {
  */
 function assert_ignore_works(aController) {
   wait_for_notification_to_show(aController, kBoxId, kNotificationValue);
+  let prefButton = get_notification_button(aController, kBoxId, kNotificationValue,
+                                           { popup: "phishingOptions" });
+  aController.click(new elementslib.Elem(prefButton));
   aController.click_menus_in_sequence(aController.e("phishingOptions"),
                                       [{id: "phishingOptionIgnore"}]);
   wait_for_notification_to_stop(aController, kBoxId, kNotificationValue);

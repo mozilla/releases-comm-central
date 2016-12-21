@@ -13,6 +13,7 @@ function installInto(module) {
   module.close_notification = close_notification;
   module.wait_for_notification_to_stop = wait_for_notification_to_stop;
   module.wait_for_notification_to_show = wait_for_notification_to_show;
+  module.get_notification_button = get_notification_button;
 }
 
 /**
@@ -101,7 +102,7 @@ function wait_for_notification_to_stop(aController, aBoxId, aValue) {
  * A helper function that waits for a notification with value aValue
  * to show in the window.
  *
- * @param aController the controller for the compose window that we want
+ * @param aController the controller for the window that we want
  *                    the notification to appear in
  * @param aBoxId the id of the notification box
  * @param aValue the value of the notification to wait for
@@ -117,4 +118,55 @@ function wait_for_notification_to_show(aController, aBoxId, aValue) {
   aController.waitFor(nbReady,
                       "Timed out waiting for notification with value " +
                       aValue + " to show.");
+}
+
+
+/**
+ * Gets a button in a notification, as those do not have IDs.
+ *
+ * @param aController The controller for the window
+ *                    that has the notification.
+ * @param aBoxId      The id of the notification box.
+ * @param aValue      The value of the notification to find.
+ * @param aMatch      Attributes of the button to find.
+ *                    An object with key:value pairs,
+ *                    similar to click_menus_in_sequence().
+ */
+function get_notification_button(aController, aBoxId, aValue, aMatch) {
+  let nb = aController.window.document.getElementById(aBoxId);
+  if (!nb)
+    throw new Error("Couldn't find a notification box for id=" + aBoxId);
+
+  let notification = nb.getNotificationWithValue(aValue);
+  let buttons = notification.querySelectorAll("button");
+  for (let button of buttons) {
+    let matchedAll = true;
+    for (let name in aMatch) {
+      let value = aMatch[name];
+      let matched = false;
+      if (name == "popup") {
+        if (button.getAttribute("type") == "menu-button" ||
+            button.getAttribute("type") == "menu") {
+          // The button contains a menupopup as the first child.
+          matched = (button.firstChild &&
+                     (button.firstChild.tagName == "menupopup") &&
+                     (button.firstChild.id == value));
+        } else {
+          // The "popup" attribute is not on the button itself but in its
+          // buttonInfo member.
+          matched = (("buttonInfo" in button) && (button.buttonInfo.popup == value));
+        }
+      } else if (button.hasAttribute(name) && button.getAttribute(name) == value) {
+        matched = true;
+      }
+      if (!matched) {
+        matchedAll = false;
+        break;
+      }
+    }
+    if (matchedAll)
+      return button;
+  }
+
+  throw new Error("Couldn't find the requested button on a notification");
 }

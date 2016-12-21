@@ -48,8 +48,10 @@ function setupModule(module) {
   modeList_menu = mc.e("menu_FolderViewsPopup");
   modeList_appmenu = mc.e("appmenu_FolderViewsPopup");
 
-  view_menu = mc.e("menu_View_Popup");
-  view_appmenu = mc.e("appmenu-popup");
+  view_menu = mc.eid("menu_View");
+  view_menupopup = mc.e("menu_View_Popup");
+  appmenu = mc.eid("button-appmenu");
+  appmenupopup = mc.e("appmenu-popup");
 
   tree = mc.folderTreeView;
 
@@ -83,11 +85,13 @@ function assert_mode_selected(aMode) {
   // We need to open the menu because only then the right mode is set in them.
   if (!mc.mozmillModule.isMac) {
     // On OS X the main menu seems not accessible for clicking from mozmill.
-    popuplist = mc.click_menus_in_sequence(view_menu, [ { id: modeList_menu.parentNode.id } ], true);
+    mc.click(view_menu);
+    popuplist = mc.click_menus_in_sequence(view_menupopup, [ { id: modeList_menu.parentNode.id } ], true);
     assert_true(modeList_menu.querySelector('[value="' + baseMode + '"]').hasAttribute("checked"));
     mc.close_popup_sequence(popuplist);
   }
-  popuplist = mc.click_menus_in_sequence(view_appmenu, [ { id: modeList_appmenu.parentNode.id } ], true);
+  mc.click(appmenu);
+  popuplist = mc.click_menus_in_sequence(appmenupopup, [ { id: modeList_appmenu.parentNode.id } ], true);
   assert_true(modeList_menu.querySelector('[value="' + baseMode + '"]').hasAttribute("checked"));
   mc.close_popup_sequence(popuplist);
 }
@@ -98,7 +102,8 @@ function assert_mode_selected(aMode) {
  * @param aMode  The base name of the mode to select.
  */
 function select_mode_in_menu(aMode) {
-  mc.click_menus_in_sequence(view_appmenu, [ { id: modeList_appmenu.parentNode.id },
+  mc.click(appmenu);
+  mc.click_menus_in_sequence(appmenupopup, [ { id: modeList_appmenu.parentNode.id },
                                              { value: aMode } ]);
 }
 

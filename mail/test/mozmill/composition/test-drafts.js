@@ -92,6 +92,7 @@ function internal_check_delivery_format(editDraft) {
 
   // Select our wanted format.
   if (!mc.mozmillModule.isMac) {
+    cwc.click(cwc.eid("optionsMenu"));
     formatMenu = cwc.click_menus_in_sequence(cwc.e("optionsMenuPopup"),
                                              [ { id: "outputFormatMenu" },
                                                { id: "format_both" } ]);
@@ -109,6 +110,7 @@ function internal_check_delivery_format(editDraft) {
    */
   function assert_format_value(aMenuItemId, aValue) {
     if (!mc.mozmillModule.isMac) {
+      cwc.click(cwc.eid("optionsMenu"));
       let formatMenu = cwc.click_menus_in_sequence(cwc.e("optionsMenuPopup"),
                                                    [ { id: "outputFormatMenu" } ], true);
       let formatItem = cwc.e("outputFormatMenuPopup")

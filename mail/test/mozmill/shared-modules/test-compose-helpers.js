@@ -312,6 +312,7 @@ function clear_recipient(aController, aRecipientRow = 1) {
  */
 function toggle_recipient_type(aController, aType, aRecipientRow = 1) {
   let addrType = aController.window.awGetPopupElement(aRecipientRow);
+  aController.click(new elib.Elem(addrType));
   aController.click_menus_in_sequence(addrType.menupopup, [ { value: aType } ]);
 }
 

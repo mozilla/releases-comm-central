@@ -161,6 +161,7 @@ function remove_account(aAccount, aController, aRemoveAccount = true, aRemoveDat
   });
 
   // Use the Remove item in the Account actions menu.
+  aController.click(aController.eid("accountActionsButton"));
   aController.click_menus_in_sequence(aController.e("accountActionsDropdown"),
                                       [ {id: "accountActionsDropdownRemove"} ]);
   wh.wait_for_modal_dialog("removeAccountDialog");

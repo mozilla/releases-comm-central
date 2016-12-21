@@ -253,7 +253,7 @@ function test_no_send_now_sends() {
 
   setup_msg_contents(cwc, "test@example.org",
                      "will the 'No, Send Now' button work?",
-                     "Hello, i got your attachment!");
+                     "Hello, I got your attachment!");
 
   wait_for_reminder_state(cwc, true);
 
@@ -278,6 +278,7 @@ function test_no_send_now_sends() {
  */
 function click_manual_reminder(aCwc, aExpectedState) {
   wait_for_window_focused(aCwc.window);
+  aCwc.click(new elementslib.Elem(aCwc.get_menu_dropmarker(aCwc.e("button-attach"))));
   aCwc.click_menus_in_sequence(aCwc.e("button-attachPopup"),
                                [ {id: "button-attachPopup_remindLaterItem"} ]);
   wait_for_window_focused(aCwc.window);
@@ -611,7 +612,11 @@ function test_disabling_attachment_reminder() {
   // There should be an attachment reminder.
   wait_for_reminder_state(cwc, true);
 
-  // Disable the reminder (not just dismiss).
+  // Disable the reminder (not just dismiss) using the menuitem
+  // in the notification bar menu-button.
+  let disableButton = get_notification_button(cwc, kBoxId, kNotificationId,
+                                              { popup: "reminderBarPopup" });
+  cwc.click(new elementslib.Elem(cwc.get_menu_dropmarker(disableButton)));
   cwc.click_menus_in_sequence(cwc.e("reminderBarPopup"),
                               [ {id: "disableReminder"} ]);
 
@@ -638,6 +643,9 @@ function test_disabling_attachment_reminder() {
   wait_for_reminder_state(cwc, true);
 
   // Disable the reminder again.
+  disableButton = get_notification_button(cwc, kBoxId, kNotificationId,
+                                          { popup: "reminderBarPopup" });
+  cwc.click(new elementslib.Elem(cwc.get_menu_dropmarker(disableButton)));
   cwc.click_menus_in_sequence(cwc.e("reminderBarPopup"),
                               [ {id: "disableReminder"} ]);
   wait_for_reminder_state(cwc, false);

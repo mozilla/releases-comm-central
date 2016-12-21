@@ -125,16 +125,19 @@ function test_address_types() {
   check_nntp_address_types();
 
   let NNTPidentity = accountNNTP.defaultIdentity.key;
+  cwc.click(cwc.eid("msgIdentity"));
   cwc.click_menus_in_sequence(cwc.e("msgIdentityPopup"), [ { identitykey: NNTPidentity } ]);
   check_nntp_address_types();
 
   // In a News account, choose "Newsgroup:" as the address type.
+  cwc.click(cwc.eid("addressCol1#1"));
   cwc.click_menus_in_sequence(cwc.e("addressCol1#1").menupopup,
                               [ { value: "addr_newsgroups" } ]);
   check_nntp_address_types();
 
   // And switch back to the POP3 account.
   let POP3identity = accountPOP3.defaultIdentity.key;
+  cwc.click(cwc.eid("msgIdentity"));
   cwc.click_menus_in_sequence(cwc.e("msgIdentityPopup"), [ { identitykey: POP3identity } ]);
   check_nntp_address_types();
 

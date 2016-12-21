@@ -244,6 +244,9 @@ function allowRemoteContentAndCheck(test) {
   const kBoxId = "msgNotificationBar";
   const kNotificationValue = "remoteContent";
   wait_for_notification_to_show(mc, kBoxId, kNotificationValue);
+  let prefButton = get_notification_button(mc, kBoxId, kNotificationValue,
+                                           { popup: "remoteContentOptions" });
+  mc.click(new elib.Elem(prefButton));
   mc.click_menus_in_sequence(mc.e("remoteContentOptions"),
                              [{id: "remoteContentOptionAllowForMsg"}]);
   wait_for_notification_to_stop(mc, kBoxId, kNotificationValue);

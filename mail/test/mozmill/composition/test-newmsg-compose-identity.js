@@ -116,8 +116,7 @@ function test_compose_from_composer() {
 
   // Switch to identity2 in the main compose window, new compose windows
   // starting from here should use the same identity as its "parent".
-  let identityList = mainCompWin.e("msgIdentity");
-  identityList.selectedIndex++;
+  mainCompWin.click(mainCompWin.eid("msgIdentity"));
   mainCompWin.click_menus_in_sequence(mainCompWin.e("msgIdentityPopup"),
                                       [ { identitykey: identityKey2 } ]);
   checkCompIdentity(mainCompWin, identityKey2);
@@ -149,6 +148,7 @@ function test_editing_identity() {
   let customEmail = "custom@edited.invalid";
   let identityCustom = customName + " <" + customEmail + ">";
 
+  compWin.click(compWin.eid("msgIdentity"));
   compWin.click_menus_in_sequence(compWin.e("msgIdentityPopup"),
                                   [ { command: "cmd_customizeFromAddress" } ]);
 

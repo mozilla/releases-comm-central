@@ -92,6 +92,7 @@ function plaintextComposeWindowSwitchSignatures(suppressSigSep) {
   assert_equals(sigNode.textContent, expectedText);
 
   // Now switch identities!
+  cwc.click(cwc.eid("msgIdentity"));
   cwc.click_menus_in_sequence(cwc.e("msgIdentityPopup"), [ { identitykey: "id2" } ]);
 
   node = contentFrame.contentDocument.body.lastChild;
@@ -169,6 +170,7 @@ function HTMLComposeWindowSwitchSignatures(suppressSigSep, paragraphFormat) {
     assert_equals(node.nodeValue, "-- \nTinderbox is soo 90ies");
 
   // Now switch identities!
+  cwc.click(cwc.eid("msgIdentity"));
   cwc.click_menus_in_sequence(cwc.e("msgIdentityPopup"), [ { identitykey: "id2" } ]);
 
   node = contentFrame.contentDocument.body.lastChild;
