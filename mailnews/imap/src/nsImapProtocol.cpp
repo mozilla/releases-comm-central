@@ -1012,6 +1012,8 @@ void nsImapProtocol::ReleaseUrlState(bool rerunning)
     if (m_runningUrl)
     {
       mailnewsurl = do_QueryInterface(m_runningUrl);
+      // It is unclear what 'saveFolderSink' is used for, most likely to hold
+      // a reference for a little longer. See bug 1324893 and bug 391259.
       saveFolderSink = m_imapMailFolderSink;
 
       m_runningUrl = nullptr; // force us to release our last reference on the url
@@ -1024,11 +1026,11 @@ void nsImapProtocol::ReleaseUrlState(bool rerunning)
   // we want to make sure the imap protocol's last reference to the url gets released
   // back on the UI thread. This ensures that the objects the imap url hangs on to
   // properly get released back on the UI thread.
-  if (saveFolderSink)
+  if (mailnewsurl)
   {
     NS_ReleaseOnMainThread(mailnewsurl.forget());
-    saveFolderSink = nullptr;
   }
+  saveFolderSink = nullptr;
 }
 
 
@@ -1820,7 +1822,10 @@ bool nsImapProtocol::ProcessCurrentURL()
       DoomCacheEntry(mailnewsurl);
   }
   else
-    NS_ERROR("missing url or sink");
+  {
+    // That's seen at times in debug sessions.
+    NS_WARNING("missing url or sink");
+  }
 
   // disable timeouts before caching connection.
   if (m_transport)
