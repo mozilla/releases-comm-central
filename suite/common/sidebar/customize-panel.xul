@@ -14,6 +14,9 @@
   onunload="RefreshPanel();;">
 
   <script type="application/javascript" src="chrome://communicator/content/sidebar/customize-panel.js" />
-  <browser id="customize_frame" type="content-primary" src="about:blank" flex="1"/>
-
+  <browser id="customize_frame"
+           type="content"
+           primary="true"
+           src="about:blank"
+           flex="1"/>
 </window>

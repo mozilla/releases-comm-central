@@ -270,7 +270,8 @@
         <!-- type attribute is used by frame construction to locate
              iframes intended to hold (html) content -->
         <browser context="contentAreaContextMenu"
-                 type="content-primary"
+                 type="content"
+                 primary="true"
                  id="help-content"
                  src="about:blank"
                  flex="1"

@@ -89,7 +89,8 @@
         </xul:hbox>
         <xul:tabpanels flex="1" class="plain" selectedIndex="0" anonid="panelcontainer">
           <xul:notificationbox class="browser-notificationbox" xbl:inherits="popupnotification">
-            <xul:browser flex="1" type="content-primary" xbl:inherits="tooltip=contenttooltip,contextmenu=contentcontextmenu,autocompletepopup"/>
+            <xul:browser flex="1" type="content" primary="true"
+                         xbl:inherits="tooltip=contenttooltip,contextmenu=contentcontextmenu,autocompletepopup"/>
           </xul:notificationbox>
         </xul:tabpanels>
       </xul:tabbox>
@@ -1139,11 +1140,11 @@
             if (this.mCurrentBrowser) {
               this.mCurrentBrowser.droppedLinkHandler = null;
               this.mCurrentBrowser.docShellIsActive = false;
-              this.mCurrentBrowser.setAttribute("type", "content-targetable");
+              this.mCurrentBrowser.removeAttribute("primary");
               this.finder.mListeners.forEach(l => this.mCurrentBrowser.finder.removeResultListener(l));
             }
 
-            newBrowser.setAttribute("type", "content-primary");
+            newBrowser.setAttribute("primary", "true");
             this.mCurrentBrowser = newBrowser;
             this.mCurrentTab = this.selectedTab;
             this.mCurrentTab.removeAttribute("unread");
@@ -1555,7 +1556,7 @@
 
             var b = document.createElementNS("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul",
                                              "browser");
-            b.setAttribute("type", "content-targetable");
+            b.setAttribute("type", "content");
             b.setAttribute("contextmenu", this.getAttribute("contentcontextmenu"));
             b.setAttribute("tooltip", this.getAttribute("contenttooltip"));
             b.setAttribute("autocompletepopup", this.getAttribute("autocompletepopup"));
@@ -1885,8 +1886,8 @@
             // Remove our title change listener
             oldBrowser.removeEventListener("DOMTitleChanged", this.onTitleChanged, true);
 
-            // We are no longer a targetable content area
-            oldBrowser.setAttribute("type", "content");
+            // We are no longer the primary content area
+            oldBrowser.removeAttribute("primary");
 
             // Now select the new tab before nuking the old one.
             var currentIndex = this.tabContainer.selectedIndex;

@@ -132,7 +132,8 @@
              disablesecurity="true"
              disablehistory="true"
              autofind="false"
-             type="content-primary"
+             type="content"
+             primary="true"
              onresize="return messagePaneOnResize(event);"
              onclick="return messagePaneOnClick(event);"/>
   </notificationbox>

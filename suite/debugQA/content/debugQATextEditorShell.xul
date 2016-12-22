@@ -148,7 +148,8 @@
     <splitter id="sidebar-splitter" class="chromeclass-extrachrome" hidden="true"/>
     <vbox id="appcontent" flex="1">
       <editor editortype="text"
-              type="content-primary"
+              type="content"
+              primary="true"
               id="content-frame"
               src="about:blank" flex="1"
               context="contentAreaContextMenu"/>

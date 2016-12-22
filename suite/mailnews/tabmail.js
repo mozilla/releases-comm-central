@@ -183,7 +183,9 @@ var gMailNewsTabsType =
     // don't allow saveTabState while restoring a tab
     aTabInfo.lock = true;
     // set the messagepane as the primary browser for content
-    getMessageBrowser().setAttribute("type", "content-primary");
+    var messageBrowser = getMessageBrowser();
+    messageBrowser.setAttribute("type", "content");
+    messageBrowser.setAttribute("primary", "true");
 
     if (aTabInfo.uriToOpen)
     {
