@@ -5,18 +5,18 @@
 
 
 #include <CoreFoundation/CoreFoundation.h>
-#include <CoreServices/CoreServices.h> 
+#include <CoreServices/CoreServices.h>
 
 
 /* -----------------------------------------------------------------------------
     Get metadata attributes from file
-   
+
    This function's job is to extract useful information from the .mozeml file
    and return it as a dictionary
    ----------------------------------------------------------------------------- */
 
-Boolean GetMetadataForFile(void* thisInterface, 
-			   CFMutableDictionaryRef attributes, 
+Boolean GetMetadataForFile(void* thisInterface,
+			   CFMutableDictionaryRef attributes,
 			   CFStringRef contentTypeUTI,
 			   CFStringRef pathToFile)
 {
@@ -28,21 +28,24 @@ Boolean GetMetadataForFile(void* thisInterface,
   CFReadStreamRef stream = CFReadStreamCreateWithFile(kCFAllocatorDefault, fileURL);
   CFReadStreamOpen(stream);
 
-  CFPropertyListFormat format;
-  CFStringRef errorString = NULL;
-  CFPropertyListRef ticket = CFPropertyListCreateFromStream(kCFAllocatorDefault,
+  CFErrorRef err = NULL;
+  CFPropertyListRef ticket = CFPropertyListCreateWithStream(kCFAllocatorDefault,
                              stream,
                              /*streamLength*/ 0,
                              kCFPropertyListImmutable,
-                              &format,
-                             &errorString
+                             NULL,
+                             &err
                              );
-  if (errorString)
-  {
-    printf("failed creating property list from stream\n");
-    printf("error = %s\n", (const char*) errorString);
-    success = FALSE;
-  } 
+   if (err != NULL)
+   {
+       CFStringRef errorString = CFErrorCopyDescription(err);
+       if (errorString != NULL) {
+         printf("failed creating property list from stream\n");
+         printf("error = %s\n", (const char*) errorString);
+       }
+       CFRelease (err);
+       success = FALSE;
+   }
   else
   {
     CFTypeRef value;
@@ -55,14 +58,13 @@ Boolean GetMetadataForFile(void* thisInterface,
      if (value)
      {
        CFDictionarySetValue(attributes, kMDItemTextContent, value);
-       
      }
      value = CFDictionaryGetValue(ticket, kMDItemDisplayName);
      if (value)
        CFDictionarySetValue(attributes, kMDItemDisplayName, value);
-        
+
      CFDateFormatterRef dateFormatter = CFDateFormatterCreate(NULL, NULL, kCFDateFormatterLongStyle, kCFDateFormatterLongStyle);
-                                              
+
      value = CFDictionaryGetValue(ticket, kMDItemLastUsedDate);
 
      if (value && dateFormatter)
@@ -73,13 +75,12 @@ Boolean GetMetadataForFile(void* thisInterface,
        if (curDate)
          CFDictionarySetValue(attributes, kMDItemLastUsedDate, curDate);
      }
-                                                   
      success = TRUE;
   }
   // contents are kMDItemTextContent
-  
+
   CFReadStreamClose(stream);
   CFRelease(stream);
   CFRelease(fileURL);
-  return success;    
+  return success;
 }
