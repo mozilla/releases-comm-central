@@ -191,6 +191,10 @@ pref("services.kinto.update_enabled", false);
 pref("services.kinto.update_enabled", true);
 #endif
 
+// 1 = allow "Man In The Middle" (local proxy, web filter, etc.) for certificate
+//     pinning checks.
+pref("security.cert_pinning.enforcement_level", 1);
+
 // Enables some extra Extension System Logging (can reduce performance)
 pref("extensions.logging.enabled", false);
 

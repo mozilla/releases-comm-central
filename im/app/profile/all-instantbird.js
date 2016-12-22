@@ -220,7 +220,8 @@ pref("services.kinto.update_enabled", false);
 // Block insecure active content on https pages
 pref("security.mixed_content.block_active_content", true);
 
-// 1 = allow MITM for certificate pinning checks.
+// 1 = allow "Man In The Middle" (local proxy, web filter, etc.) for certificate
+//     pinning checks.
 pref("security.cert_pinning.enforcement_level", 1);
 
 /* Extension manager */
