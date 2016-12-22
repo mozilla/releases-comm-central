@@ -9,6 +9,7 @@
 !define CompanyName             "mozilla.org"
 !define URLInfoAbout            "http://www.mozilla.org"
 !define URLUpdateInfo           "http://www.seamonkey-project.org"
+!define URLSystemRequirements   "http://www.seamonkey-project.org/doc/system-requirements"
 
 # Percentage of new "Standard" installs to enable talkback for
 !define RandomPercent           "100"
