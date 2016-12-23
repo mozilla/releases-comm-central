@@ -5,7 +5,6 @@ ac_add_options --enable-application=suite
 ac_add_options --enable-update-channel=${MOZ_UPDATE_CHANNEL}
 ac_add_options --enable-jemalloc
 ac_add_options --enable-profiling
-ac_add_options --enable-require-all-d3dc-versions
 ac_add_options --enable-calendar
 
 # Needed to enable breakpad in application.ini
