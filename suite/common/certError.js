@@ -76,6 +76,16 @@ function initPage()
     break;
   }
 
+  addDomainErrorLinks();
+}
+
+/* In the case of SSL error pages about domain mismatch, see if
+   we can hyperlink the user to the correct site.  We don't want
+   to do this generically since it allows MitM attacks to redirect
+   users to a site under attacker control, but in certain cases
+   it is safe (and helpful!) to do so.  Bug 402210
+*/
+function addDomainErrorLinks() {
   // Rather than textContent, we need to treat description as HTML
   var sd = document.getElementById("technicalContentText");
   if (!sd)
@@ -87,26 +97,43 @@ function initPage()
 
   // First, find the index of the <a> tag we care about, being careful not to
   // use an over-greedy regex
-  var re = /<a id="cert_domain_link" title="([^"]+)">/;
-  var result = re.exec(desc);
-  if (!result) {
-    sd.textContent = desc;
-    return;
+  var codeRe = /<a id="errorCode" title="([^"]+)">/;
+  var codeResult = codeRe.exec(desc);
+  var domainRe = /<a id="cert_domain_link" title="([^"]+)">/;
+  var domainResult = domainRe.exec(desc);
+  // The order of these links in the description is fixed in
+  // TransportSecurityInfo.cpp:formatOverridableCertErrorMessage.
+  var firstResult = domainResult;
+  if (!domainResult)
+    firstResult = codeResult;
+  if (!firstResult) {
+      sd.textContent = desc;
+      return;
   }
 
-  var okHost = result[1];
-  sd.textContent = desc.slice(0, result.index);
+  // Remove sd's existing children.
+  sd.textContent = "";
 
-  // Now create the link itself
-  var link = document.createElement("a");
-  link.setAttribute("id", "cert_domain_link");
-  link.setAttribute("title", okHost);
-  link.appendChild(document.createTextNode(okHost));
-  sd.appendChild(link);
+  // Everything up to the link should be text content.
+  sd.appendChild(document.createTextNode(desc.slice(0, firstResult.index)));
+
+  // Now create the actual links.
+  var link;
+  if (domainResult) {
+    link = createLink(sd, "cert_domain_link", domainResult[1]);
+    // Append text for anything between the two links.
+    sd.appendChild(document.createTextNode(desc.slice(desc.indexOf("</a>") + "</a>".length, codeResult.index)));
+  }
+  createLink(sd, "errorCode", codeResult[1]);
 
   // Finally, append text for anything after the closing </a>
   sd.appendChild(document.createTextNode(desc.slice(desc.indexOf("</a>") + "</a>".length)));
 
+  if (!link)
+    return;
+
+  // Then initialize the cert domain link.
+  var okHost = link.getAttribute("title");
   var thisHost = document.location.hostname;
   var proto = document.location.protocol;
 
@@ -143,6 +170,15 @@ function initPage()
   // the user here, expand the section by default
   if (link.href && getCSSClass() != "expertBadCert")
     toggle("technicalContent");
+}
+
+function createLink(el, id, text) {
+  var anchorEl = document.createElement("a");
+  anchorEl.setAttribute("id", id);
+  anchorEl.setAttribute("title", text);
+  anchorEl.appendChild(document.createTextNode(text));
+  el.appendChild(anchorEl);
+  return anchorEl;
 }
 
 function toggle(id) {
