@@ -20,10 +20,6 @@ ac_add_options --disable-install-strip
 ac_add_options --enable-profiling
 ac_add_options --enable-calendar
 
-ac_add_options --disable-rust
-unset RUSTC
-unset CARGO
-
 # For NSS symbols
 export MOZ_DEBUG_SYMBOLS=1
 
