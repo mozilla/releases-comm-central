@@ -888,9 +888,8 @@ function OutputFileWithPersistAPI(editorDoc, aDestinationLocation, aRelatedFiles
   gPersistObj = null;
   var editor = GetCurrentEditor();
   try {
-    var imeEditor = editor.QueryInterface(Components.interfaces.nsIEditorIMESupport);
-    imeEditor.forceCompositionEnd();
-    } catch (e) {}
+    editor.forceCompositionEnd();
+  } catch (e) {}
 
   var isLocalFile = false;
   try {
