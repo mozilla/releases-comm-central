@@ -17,6 +17,9 @@ if CONFIG['OS_ARCH'] == 'WINNT':
     RCINCLUDE = 'splash.rc'
     DEFINES['MOZ_SUITE'] = True
 
+if CONFIG['LIBFUZZER']:
+    USE_LIBS += [ 'fuzzer' ]
+
 if CONFIG['_MSC_VER']:
     # Always enter a Windows program through wmain, whether or not we're
     # a console application.
