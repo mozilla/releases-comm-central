@@ -4,7 +4,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "nsXULAppAPI.h"
-#include "mozilla/AppData.h"
+#include "mozilla/XREAppData.h"
 #include "application.ini.h"
 #include "nsXPCOMGlue.h"
 #if defined(XP_WIN)
@@ -39,6 +39,7 @@
 
 #include "nsXPCOMPrivate.h" // for MAXPATHLEN and XPCOM_DLL
 
+#include "mozilla/Sprintf.h"
 #include "mozilla/Telemetry.h"
 #include "mozilla/WindowsDllBlocklist.h"
 
@@ -162,8 +163,7 @@ static bool IsArg(const char* arg, const char* s)
 }
 
 XRE_GetFileFromPathType XRE_GetFileFromPath;
-XRE_CreateAppDataType XRE_CreateAppData;
-XRE_FreeAppDataType XRE_FreeAppData;
+XRE_ParseAppDataType XRE_ParseAppData;
 XRE_TelemetryAccumulateType XRE_TelemetryAccumulate;
 XRE_StartupTimelineRecordType XRE_StartupTimelineRecord;
 XRE_mainType XRE_main;
@@ -180,8 +180,7 @@ XRE_LibFuzzerGetFuncsType XRE_LibFuzzerGetFuncs;
 
 static const nsDynamicFunctionLoad kXULFuncs[] = {
     { "XRE_GetFileFromPath", (NSFuncPtr*) &XRE_GetFileFromPath },
-    { "XRE_CreateAppData", (NSFuncPtr*) &XRE_CreateAppData },
-    { "XRE_FreeAppData", (NSFuncPtr*) &XRE_FreeAppData },
+    { "XRE_ParseAppData", (NSFuncPtr*) &XRE_ParseAppData },
     { "XRE_TelemetryAccumulate", (NSFuncPtr*) &XRE_TelemetryAccumulate },
     { "XRE_StartupTimelineRecord", (NSFuncPtr*) &XRE_StartupTimelineRecord },
     { "XRE_main", (NSFuncPtr*) &XRE_main },
@@ -238,7 +237,7 @@ static int do_main(int argc, char* argv[], char* envp[], nsIFile *xreDirectory)
     }
 
     char appEnv[MAXPATHLEN];
-    snprintf(appEnv, MAXPATHLEN, "XUL_APP_FILE=%s", argv[2]);
+    SprintfLiteral(appEnv, "XUL_APP_FILE=%s", argv[2]);
     // Bug 1271574 Purposefully leak the XUL_APP_FILE string passed to putenv.
     if (putenv(strdup(appEnv))) {
       Output("Couldn't set %s.\n", appEnv);
@@ -253,6 +252,7 @@ static int do_main(int argc, char* argv[], char* envp[], nsIFile *xreDirectory)
     }
 
     XREShellData shellData;
+
 #if defined(XP_WIN) && defined(MOZ_SANDBOX)
     shellData.sandboxBrokerServices =
       sandboxing::GetInitializedBrokerServices();
@@ -261,36 +261,45 @@ static int do_main(int argc, char* argv[], char* envp[], nsIFile *xreDirectory)
     return XRE_XPCShellMain(--argc, argv, envp, &shellData);
   }
 
+  XREAppData appData;
+  appData.xreDirectory = xreDirectory;
+
   if (appini) {
-    nsXREAppData *appData;
-    rv = XRE_CreateAppData(appini, &appData);
+    rv = XRE_ParseAppData(appini, appData);
     if (NS_FAILED(rv)) {
       Output("Couldn't read application.ini");
       return 255;
     }
-    // xreDirectory already has a refcount from NS_NewLocalFile
-    appData->xreDirectory = xreDirectory;
-    int result = XRE_main(argc, argv, appData, mainFlags);
-    XRE_FreeAppData(appData);
-    return result;
-  }
 
-  ScopedAppData appData(&sAppData);
-  nsCOMPtr<nsIFile> exeFile;
-  rv = mozilla::BinaryPath::GetFile(argv[0], getter_AddRefs(exeFile));
-  if (NS_FAILED(rv)) {
-    Output("Couldn't find the application directory.\n");
-    return 255;
-  }
+    appini->GetParent(getter_AddRefs(appData.directory));
+  } else {
+    // no -app flag so we use the compiled-in app data
+    appData = sAppData;
 
-  nsCOMPtr<nsIFile> greDir;
-  exeFile->GetParent(getter_AddRefs(greDir));
+    nsCOMPtr<nsIFile> exeFile;
+    rv = mozilla::BinaryPath::GetFile(argv[0], getter_AddRefs(exeFile));
+    if (NS_FAILED(rv)) {
+      Output("Couldn't find the application directory.\n");
+      return 255;
+    }
+
+    nsCOMPtr<nsIFile> greDir;
+    exeFile->GetParent(getter_AddRefs(greDir));
 #ifdef XP_MACOSX
-  greDir->SetNativeLeafName(NS_LITERAL_CSTRING(kOSXResourcesFolder));
+    greDir->SetNativeLeafName(NS_LITERAL_CSTRING(kOSXResourcesFolder));
 #endif
-  SetStrongPtr(appData.directory, static_cast<nsIFile*>(greDir.get()));
-  // xreDirectory already has a refcount from NS_NewLocalFile
-  appData.xreDirectory = xreDirectory;
+    nsCOMPtr<nsIFile> appDir;
+    greDir->Clone(getter_AddRefs(appDir));
+    appData.directory = appDir;
+  }
+
+#if defined(HAS_DLL_BLOCKLIST)
+  // The dll blocklist operates in the exe vs. xullib. Pass a flag to
+  // xullib so automated tests can check the result once the browser
+  // is up and running.
+  appData.flags |=
+    DllBlocklist_CheckStatus() ? NS_XRE_DLL_BLOCKLIST_ENABLED : 0;
+#endif
 
 #if defined(XP_WIN) && defined(MOZ_SANDBOX)
   sandbox::BrokerServices* brokerServices =
@@ -309,7 +318,7 @@ static int do_main(int argc, char* argv[], char* envp[], nsIFile *xreDirectory)
     XRE_LibFuzzerSetMain(argc, argv, libfuzzer_main);
 #endif
 
-  return XRE_main(argc, argv, &appData, mainFlags);
+  return XRE_main(argc, argv, appData, mainFlags);
 }
 
 static bool
@@ -337,7 +346,8 @@ InitXPCOMGlue(const char *argv0, nsIFile **xreDirectory)
   }
 
   char *lastSlash = strrchr(exePath, XPCOM_FILE_PATH_SEPARATOR[0]);
-  if (!lastSlash || (size_t(lastSlash - exePath) > MAXPATHLEN - sizeof(XPCOM_DLL) - 1))
+  if (!lastSlash ||
+      (size_t(lastSlash - exePath) > MAXPATHLEN - sizeof(XPCOM_DLL) - 1))
     return NS_ERROR_FAILURE;
 
   strcpy(lastSlash + 1, XPCOM_DLL);
@@ -428,9 +438,9 @@ int main(int argc, char* argv[], char* envp[])
 #endif
 
 
-  nsIFile *xreDirectory;
+  nsCOMPtr<nsIFile> xreDirectory;
 
-  nsresult rv = InitXPCOMGlue(argv[0], &xreDirectory);
+  nsresult rv = InitXPCOMGlue(argv[0], getter_AddRefs(xreDirectory));
   if (NS_FAILED(rv)) {
     return 255;
   }
@@ -443,6 +453,7 @@ int main(int argc, char* argv[], char* envp[])
 
   int result = do_main(argc, argv, envp, xreDirectory);
 
+  xreDirectory = nullptr;
   NS_LogTerm();
 
 #ifdef XP_MACOSX
