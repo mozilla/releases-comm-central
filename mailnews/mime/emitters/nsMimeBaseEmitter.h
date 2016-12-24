@@ -22,7 +22,7 @@
 #include "nsIMimeConverter.h"
 #include "nsIInterfaceRequestor.h"
 #include "nsIInterfaceRequestorUtils.h"
-#include "nsIDateTimeFormat.h"
+#include "DateTimeFormat.h"
 
 //
 // The base emitter will serve as the place to do all of the caching,
@@ -137,7 +137,6 @@ protected:
   // For I18N Conversion...
   nsCOMPtr<nsIMimeConverter> mUnicodeConverter;
   nsString            mCharset;
-  nsCOMPtr<nsIDateTimeFormat> mDateFormatter;
   nsresult GenerateDateString(const char * dateString, nsACString& formattedDate,
                               bool showDateForToday);
   // The caller is expected to free the result of GetLocalizedDateString

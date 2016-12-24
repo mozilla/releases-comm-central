@@ -12,7 +12,7 @@
 #include "nsIOutputStream.h"
 #include "nsIMsgIncomingServer.h"
 #include "nsIUrlListener.h"
-#include "nsIDateTimeFormat.h"
+#include "DateTimeFormat.h"
 #include "nsCOMArray.h"
 #include "nsIAbDirectory.h"
 #include "nsTArray.h"
@@ -49,8 +49,6 @@ private:
   nsCString mServerFilterName;
   nsCOMPtr<nsIFile> mServerFilterFile;
   int32_t  mServerFilterTrustFlags;
-
-  nsCOMPtr<nsIDateTimeFormat> mDateFormatter;
 
   // array of address directories to use in junk whitelisting
   nsCOMArray<nsIAbDirectory> mWhiteListDirArray;

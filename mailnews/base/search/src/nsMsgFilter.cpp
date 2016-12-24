@@ -21,7 +21,6 @@
 #include "nsIMutableArray.h"
 #include "nsIOutputStream.h"
 #include "nsIStringBundle.h"
-#include "nsDateTimeFormatCID.h"
 #include "nsComponentManagerUtils.h"
 #include "nsServiceManagerUtils.h"
 #include "nsIMsgFilterService.h"
@@ -532,18 +531,10 @@ nsMsgFilter::LogRuleHitGeneric(nsIMsgRuleAction *aFilterAction,
     PRExplodedTime exploded;
     PR_ExplodeTime(date, PR_LocalTimeParameters, &exploded);
 
-    if (!mDateFormatter)
-    {
-      mDateFormatter = do_CreateInstance(NS_DATETIMEFORMAT_CONTRACTID, &rv);
-      NS_ENSURE_SUCCESS(rv, rv);
-      if (!mDateFormatter)
-      {
-        return NS_ERROR_FAILURE;
-      }
-    }
-    mDateFormatter->FormatPRExplodedTime(nullptr, kDateFormatShort,
-                                         kTimeFormatSeconds, &exploded,
-                                         dateValue);
+    mozilla::DateTimeFormat::FormatPRExplodedTime(kDateFormatShort,
+                                                  kTimeFormatSeconds,
+                                                  &exploded,
+                                                  dateValue);
 
     (void)aMsgHdr->GetMime2DecodedAuthor(authorValue);
     (void)aMsgHdr->GetMime2DecodedSubject(subjectValue);
@@ -657,9 +648,10 @@ nsMsgFilter::LogRuleHitGeneric(nsIMsgRuleAction *aFilterAction,
 
     // Prepare timestamp
     PR_ExplodeTime(PR_Now(), PR_LocalTimeParameters, &exploded);
-    mDateFormatter->FormatPRExplodedTime(nullptr, kDateFormatShort,
-                                         kTimeFormatSeconds, &exploded,
-                                         dateValue);
+    mozilla::DateTimeFormat::FormatPRExplodedTime(kDateFormatShort,
+                                                  kTimeFormatSeconds,
+                                                  &exploded,
+                                                  dateValue);
 
     nsCString timestampString(LOG_ENTRY_TIMESTAMP);
     MsgReplaceSubstring(timestampString, "$S", NS_ConvertUTF16toUTF8(dateValue).get());

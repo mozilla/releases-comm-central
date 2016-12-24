@@ -20,7 +20,6 @@
 #include "nsIPrefService.h"
 #include "nsIPrefBranch.h"
 #include "nsIStringBundle.h"
-#include "nsDateTimeFormatCID.h"
 #include "mozilla/Services.h"
 #include "mozilla/mailnews/MimeHeaderParser.h"
 #include "nsIArray.h"
@@ -650,18 +649,10 @@ NS_IMETHODIMP nsSpamSettings::LogJunkHit(nsIMsgDBHdr *aMsgHdr, bool aMoveMessage
   PRExplodedTime exploded;
   PR_ExplodeTime(date, PR_LocalTimeParameters, &exploded);
 
-  if (!mDateFormatter)
-  {
-    mDateFormatter = do_CreateInstance(NS_DATETIMEFORMAT_CONTRACTID, &rv);
-    NS_ENSURE_SUCCESS(rv, rv);
-    if (!mDateFormatter)
-    {
-      return NS_ERROR_FAILURE;
-    }
-  }
-  mDateFormatter->FormatPRExplodedTime(nullptr, kDateFormatShort,
-                                      kTimeFormatSeconds, &exploded,
-                                      dateValue);
+  mozilla::DateTimeFormat::FormatPRExplodedTime(kDateFormatShort,
+                                                kTimeFormatSeconds,
+                                                &exploded,
+                                                dateValue);
 
   (void)aMsgHdr->GetMime2DecodedAuthor(authorValue);
   (void)aMsgHdr->GetMime2DecodedSubject(subjectValue);
@@ -732,18 +723,10 @@ NS_IMETHODIMP nsSpamSettings::LogJunkString(const char *string)
   PRExplodedTime exploded;
   PR_ExplodeTime(PR_Now(), PR_LocalTimeParameters, &exploded);
 
-  if (!mDateFormatter)
-  {
-    mDateFormatter = do_CreateInstance(NS_DATETIMEFORMAT_CONTRACTID, &rv);
-    NS_ENSURE_SUCCESS(rv, rv);
-    if (!mDateFormatter)
-    {
-      return NS_ERROR_FAILURE;
-    }
-  }
-  mDateFormatter->FormatPRExplodedTime(nullptr, kDateFormatShort,
-                                       kTimeFormatSeconds, &exploded,
-                                       dateValue);
+  mozilla::DateTimeFormat::FormatPRExplodedTime(kDateFormatShort,
+                                                kTimeFormatSeconds,
+                                                &exploded,
+                                                dateValue);
 
   nsCString timestampString(LOG_ENTRY_TIMESTAMP);
   MsgReplaceSubstring(timestampString, "$S", NS_ConvertUTF16toUTF8(dateValue).get());
