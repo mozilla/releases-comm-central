@@ -148,7 +148,7 @@ imcontact[aliasing] .contactDisplayName {
   margin-inline-end: 0;
   -moz-stack-sizing: ignore;
 %ifdef XP_WIN
-  list-style-image: url("chrome://global/skin/icons/close-XPVista7.png");
+  list-style-image: url("chrome://global/skin/icons/close-win7.png");
 %else
   list-style-image: url("chrome://global/skin/icons/close.png");
 %endif
