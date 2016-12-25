@@ -180,7 +180,14 @@
         ]
       }
     },
-   "ko": {
+    "kab": {
+      "default": {
+        "visibleDefaultEngines": [
+           "amazondotcom", "aol-web-search", "bing", "twitter", "wikipedia", "yahoo"
+        ]
+      }
+    },
+    "ko": {
       "default": {
         "visibleDefaultEngines": [
           "danawa-kr", "daum-kr", "google","naver-kr", "wikipedia-kr"
