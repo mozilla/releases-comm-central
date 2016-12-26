@@ -249,7 +249,7 @@ Section "-InstallStartCleanup"
   ; setup the application model id registration value
   ${InitHashAppModelId} "$INSTDIR" "Software\Mozilla\${AppName}\TaskBarIDs"
 
-  ; Remove the updates directory for Vista and above
+  ; Remove the updates directory for Windows 7 and above
   ${CleanUpdateDirectories} "Mozilla\SeaMonkey" "Mozilla\updates"
 
   ${InstallStartCleanupCommon}
@@ -399,7 +399,7 @@ Section "-Application" APP_IDX
     ; Uninstall keys can only exist under HKLM on some versions of windows.
     ${SetUninstallKeys}
 
-    ; Set the Start Menu Internet and Vista Registered App HKLM registry keys.
+    ; Set the Start Menu Internet and Windows 7 Registered App HKLM registry keys.
     ${SetStartMenuInternet}
     ${SetClientsMail}
 
@@ -456,14 +456,12 @@ Section "-Application" APP_IDX
       ${LogMsg} "Added Start Menu Directory: $SMPROGRAMS\$StartMenuDir"
     ${EndUnless}
     CreateShortCut "$SMPROGRAMS\$StartMenuDir\${BrandFullName}.lnk" "$INSTDIR\${FileMainEXE}" "" "$INSTDIR\${FileMainEXE}" 0
-    ${If} ${AtLeastWin7}
-    ${AndIf} "$AppUserModelID" != ""
+    ${If} "$AppUserModelID" != ""
       ApplicationID::Set "$SMPROGRAMS\$StartMenuDir\${BrandFullName}.lnk" "$AppUserModelID"
     ${EndIf}
     ${LogMsg} "Added Shortcut: $SMPROGRAMS\$StartMenuDir\${BrandFullName}.lnk"
     CreateShortCut "$SMPROGRAMS\$StartMenuDir\${BrandFullName} ($(SAFE_MODE)).lnk" "$INSTDIR\${FileMainEXE}" "-safe-mode" "$INSTDIR\${FileMainEXE}" 0
-    ${If} ${AtLeastWin7}
-    ${AndIf} "$AppUserModelID" != ""
+    ${If} "$AppUserModelID" != ""
       ApplicationID::Set "$SMPROGRAMS\$StartMenuDir\${BrandFullName} ($(SAFE_MODE)).lnk" "$AppUserModelID"
     ${EndIf}
     ${LogMsg} "Added Shortcut: $SMPROGRAMS\$StartMenuDir\${BrandFullName} ($(SAFE_MODE)).lnk"
@@ -475,8 +473,7 @@ Section "-Application" APP_IDX
 
   ${If} $AddQuickLaunchSC == 1
     CreateShortCut "$QUICKLAUNCH\${BrandFullName}.lnk" "$INSTDIR\${FileMainEXE}" "" "$INSTDIR\${FileMainEXE}" 0
-    ${If} ${AtLeastWin7}
-    ${AndIf} "$AppUserModelID" != ""
+    ${If} "$AppUserModelID" != ""
       ApplicationID::Set "$QUICKLAUNCH\${BrandFullName}.lnk" "$AppUserModelID"
     ${EndIf}
     ${LogMsg} "Added Shortcut: $QUICKLAUNCH\${BrandFullName}.lnk"
@@ -484,8 +481,7 @@ Section "-Application" APP_IDX
 
   ${If} $AddDesktopSC == 1
     CreateShortCut "$DESKTOP\${BrandFullName}.lnk" "$INSTDIR\${FileMainEXE}" "" "$INSTDIR\${FileMainEXE}" 0
-    ${If} ${AtLeastWin7}
-    ${AndIf} "$AppUserModelID" != ""
+    ${If} "$AppUserModelID" != ""
       ApplicationID::Set "$DESKTOP\${BrandFullName}.lnk" "$AppUserModelID"
     ${EndIf}
     ${LogMsg} "Added Shortcut: $DESKTOP\${BrandFullName}.lnk"

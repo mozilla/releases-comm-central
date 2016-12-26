@@ -14,8 +14,7 @@
   ${UpdateProtocolHandlers}
 
   ; Win7 taskbar and start menu link maintenance
-  ${If} ${AtLeastWin7}
-  ${AndIf} "$AppUserModelID" != ""
+  ${If} "$AppUserModelID" != ""
     ${UpdateShortcutAppModelIDs} "$INSTDIR\${FileMainEXE}" "$AppUserModelID" $0
   ${EndIf}
 
@@ -119,15 +118,13 @@
     ${FixShellIconHandler}
     WriteRegStr HKCU "Software\Clients\StartMenuInternet" "" "$R9"
 
-    ${If} ${AtLeastWinVista}
-      ClearErrors
-      ReadRegStr $0 HKLM "Software\RegisteredApplications" "${AppRegName}"
-      ; Only register as the handler on Vista if the app registry name exists
-      ; under the RegisteredApplications registry key.
-      ${Unless} ${Errors}
-        AppAssocReg::SetAppAsDefaultAll "${AppRegName}"
-      ${EndUnless}
-    ${EndIf}
+    ClearErrors
+    ReadRegStr $0 HKLM "Software\RegisteredApplications" "${AppRegName}"
+    ; Only register as the handler on 7 if the app registry name exists
+    ; under the RegisteredApplications registry key.
+    ${Unless} ${Errors}
+      AppAssocReg::SetAppAsDefaultAll "${AppRegName}"
+    ${EndUnless}
 
     SetShellVarContext current  ; Set SHCTX to the current user (e.g. HKCU)
     ${SetHandlersBrowser}
@@ -264,8 +261,7 @@
   SetShellVarContext all  ; Set $DESKTOP to All Users
   ${Unless} ${FileExists} "$DESKTOP\${BrandFullName}.lnk"
     CreateShortCut "$DESKTOP\${BrandFullName}.lnk" "$INSTDIR\${FileMainEXE}" "" "$INSTDIR\${FileMainEXE}" 0
-    ${If} ${AtLeastWin7}
-    ${AndIf} "$AppUserModelID" != ""
+    ${If} "$AppUserModelID" != ""
       ApplicationID::Set "$DESKTOP\${BrandFullName}.lnk" "$AppUserModelID"
     ${EndIf}
     ShellLink::SetShortCutWorkingDirectory "$DESKTOP\${BrandFullName}.lnk" "$INSTDIR"
@@ -273,8 +269,7 @@
       SetShellVarContext current  ; Set $DESKTOP to the current user's desktop
       ${Unless} ${FileExists} "$DESKTOP\${BrandFullName}.lnk"
         CreateShortCut "$DESKTOP\${BrandFullName}.lnk" "$INSTDIR\${FileMainEXE}" "" "$INSTDIR\${FileMainEXE}" 0
-        ${If} ${AtLeastWin7}
-        ${AndIf} "$AppUserModelID" != ""
+        ${If} "$AppUserModelID" != ""
           ApplicationID::Set "$DESKTOP\${BrandFullName}.lnk" "$AppUserModelID"
         ${EndIf}
         ShellLink::SetShortCutWorkingDirectory "$DESKTOP\${BrandFullName}.lnk" "$INSTDIR"
@@ -283,8 +278,7 @@
   ${EndUnless}
   ${Unless} ${FileExists} "$QUICKLAUNCH\${BrandFullName}.lnk"
     CreateShortCut "$QUICKLAUNCH\${BrandFullName}.lnk" "$INSTDIR\${FileMainEXE}" "" "$INSTDIR\${FileMainEXE}" 0
-    ${If} ${AtLeastWin7}
-    ${AndIf} "$AppUserModelID" != ""
+    ${If} "$AppUserModelID" != ""
       ApplicationID::Set "$QUICKLAUNCH\${BrandFullName}.lnk" "$AppUserModelID"
     ${EndIf}
     ShellLink::SetShortCutWorkingDirectory "$QUICKLAUNCH\${BrandFullName}.lnk" "$INSTDIR"
@@ -1014,29 +1008,25 @@
 Function SetAsDefaultMailAppUser
   SetShellVarContext current  ; Set SHCTX to the current user (e.g. HKCU)
   ${SetHandlersMail}
-  ${If} ${AtLeastWinVista}
-    ClearErrors
-    ReadRegStr $0 HKLM "Software\RegisteredApplications" "${AppRegNameMail}"
-    ; Only register as the handler on Vista if the app registry name exists
-    ; under the RegisteredApplications registry key.
-    ${Unless} ${Errors}
-      AppAssocReg::SetAppAsDefaultAll "${AppRegNameMail}"
-    ${EndUnless}
-  ${EndIf}
+  ClearErrors
+  ReadRegStr $0 HKLM "Software\RegisteredApplications" "${AppRegNameMail}"
+  ; Only register as the handler if the app registry name exists
+  ; under the RegisteredApplications registry key.
+  ${Unless} ${Errors}
+    AppAssocReg::SetAppAsDefaultAll "${AppRegNameMail}"
+  ${EndUnless}
 FunctionEnd
 
 Function SetAsDefaultNewsAppUser
   SetShellVarContext current  ; Set SHCTX to the current user (e.g. HKCU)
   ${SetHandlersNews}
-  ${If} ${AtLeastWinVista}
-    ClearErrors
-    ReadRegStr $0 HKLM "Software\RegisteredApplications" "${AppRegNameNews}"
-    ; Only register as the handler on Vista if the app registry name exists
-    ; under the RegisteredApplications registry key.
-    ${Unless} ${Errors}
-      AppAssocReg::SetAppAsDefaultAll "${AppRegNameNews}"
-    ${EndUnless}
-  ${EndIf}
+  ClearErrors
+  ReadRegStr $0 HKLM "Software\RegisteredApplications" "${AppRegNameNews}"
+  ; Only register as the handler if the app registry name exists
+  ; under the RegisteredApplications registry key.
+  ${Unless} ${Errors}
+    AppAssocReg::SetAppAsDefaultAll "${AppRegNameNews}"
+  ${EndUnless}
 FunctionEnd
 !endif
 

@@ -206,15 +206,3 @@ toolbar#ToolbarMode .toolbarbutton-text {
   padding-inline-start: 0px;
   padding-inline-end: 5px;
 }
-
-%ifdef XP_WIN
-@media not all and (-moz-os-version: windows-xp) {
-  #ToolbarMode {
-    -moz-appearance: -moz-win-browsertabbar-toolbox;
-  }
-
-  #ToolbarEval {
-    -moz-appearance: toolbox;
-  }
-}
-%endif

@@ -152,14 +152,13 @@ function openDownload(aDownload)
     var alertOnEXEOpen = GetBoolPref("browser.download.manager.alertOnEXEOpen",
                                      true);
 
-    // On Vista and above, we rely on native security prompting for
+    // On Windows 7 and above, we rely on native security prompting for
     // downloaded content unless it's disabled.
     try {
       var sysInfo = Components.classes["@mozilla.org/system-info;1"]
                               .getService(Components.interfaces.nsIPropertyBag2);
       if (/^Windows/.test(sysInfo.getProperty("name")) &&
-          (parseFloat(sysInfo.getProperty("version")) >= 6 &&
-          Services.prefs.getBoolPref("browser.download.manager.scanWhenDone")))
+          Services.prefs.getBoolPref("browser.download.manager.scanWhenDone"))
         alertOnEXEOpen = false;
     } catch (ex) { }
 
