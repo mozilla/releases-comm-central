@@ -15,7 +15,9 @@ MOZ_PKG_FATAL_WARNINGS = 1
 endif
 
 MOZ_PKG_DUPEFLAGS = \
-	-w -f $(MOZILLA_DIR)/browser/installer/allowed-dupes.mn \
+	-w \
+	-f $(srcdir)/allowed-dupes.mn \
+	-f $(MOZILLA_DIR)/browser/installer/allowed-dupes.mn \
 	$(NULL)
 
 MOZ_NONLOCALIZED_PKG_LIST = \
