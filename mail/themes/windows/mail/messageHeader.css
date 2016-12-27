@@ -13,6 +13,7 @@
   color: WindowText;
   background-color: ButtonFace;
   padding: 0.4ex;
+  border-bottom: 1px solid #a9b7c9; /* The same color as the splitters */
 }
 
 /* ::::: msg header toolbars ::::: */
@@ -277,522 +278,303 @@ mail-emailaddress[selected="true"] .emailDisplayButton{
   float: right;
 }
 
-@media (-moz-os-version: windows-xp) {
-  .main-header-area {
-    border-bottom: 1px solid ThreeDDarkShadow;
-  }
+#attachmentView,
+#attachmentList {
+  border-top: 1px solid #a9b7c9; /* The same color as the splitters */
+}
 
-  #attachmentList {
-    border-top: 1px solid ThreeDDarkShadow;
-  }
-
+@media (-moz-windows-default-theme: 0) {
   #displayDeck[collapsed="true"] + splitter + #messagepaneboxwrapper
   .main-header-area {
     background-image: linear-gradient(rgba(255, 255, 255, .5),
                                       rgba(255, 255, 255, .5) 100%);
   }
+}
 
-  #expandedBoxSpacer {
-    height: 10px;
-  }
+#expandedBoxSpacer {
+  height: 6px;
+}
 
-  #attachmentIcon {
-    list-style-image: url("chrome://messenger/skin/icons/attachment-col-XP.png");
-  }
+#attachmentIcon {
+  list-style-image: url("chrome://messenger/skin/icons/attachment-col.png");
+}
 
-  #attachmentSize {
-    opacity: 0.5; /* lower contrast */
-  }
+#attachmentToggle:hover {
+  list-style-image: url("chrome://global/skin/tree/twisty.svg#clsd-hover");
+}
 
-  #attachment-splitter[collapsed="true"] + #attachmentView {
-    border-top: 1px solid ThreeDShadow;
-  }
+#attachmentToggle[checked="true"]:hover {
+  list-style-image: url("chrome://global/skin/tree/twisty.svg#open-hover");
+}
 
-  #attachment-view-toolbox {
-    background-color: transparent;
-  }
+#attachmentToggle:-moz-locale-dir(rtl) {
+  list-style-image: url("chrome://global/skin/tree/twisty.svg#clsd-rtl");
+}
 
-  #attachmentSaveAllSingle,
-  #attachmentSaveAllMultiple {
-    list-style-image: url("chrome://messenger/skin/icons/mail-toolbar-small.png");
-    -moz-image-region: rect(0px 192px 16px 176px);
-  }
+#attachmentToggle[checked="true"]:-moz-locale-dir(rtl) {
+  list-style-image: url("chrome://global/skin/tree/twisty.svg#open-rtl");
+}
 
-  .dateLabel {
-    padding-inline-end: 8px;
-  }
+#attachmentToggle:hover:-moz-locale-dir(rtl) {
+  list-style-image: url("chrome://global/skin/tree/twisty.svg#clsd-hover-rtl");
+}
 
-  .msgHeaderView-button {
+#attachmentToggle[checked="true"]:hover:-moz-locale-dir(rtl) {
+  list-style-image: url("chrome://global/skin/tree/twisty.svg#open-hover-rtl");
+}
+
+#attachmentSize {
+  color: #888a85; /* the same color as .headerName */
+}
+
+.dateLabel {
+  padding-inline-end: 6px;
+}
+
+.toolbarbutton-1.msgHeaderView-button {
+  min-width: 1em;
+  margin-inline-start: 2px !important;
+  margin-inline-end: 2px !important;
+  margin-top: 1px;
+  margin-bottom: 2px;
+  vertical-align: middle;
+  /* important required to override primaryToolbar.css rules */
+  padding-inline-start: 3px !important;
+  padding-inline-end: 3px !important;
+}
+
+@media (-moz-windows-default-theme: 0) {
+  .toolbarbutton-1.msgHeaderView-button:not([type="menu-button"]),
+  .toolbarbutton-1.msgHeaderView-button > .toolbarbutton-menubutton-button,
+  .toolbarbutton-1.msgHeaderView-button > .toolbarbutton-menubutton-dropmarker {
     -moz-appearance: button;
-    min-height: 1ex;
-    margin-inline-start: 2px;
-    margin-inline-end: 2px;
-    margin-top: 1px;
-    margin-bottom: 2px;
-    vertical-align: middle;
-    /* important required to override messenger.css rules */
-    min-width: 1em !important;
-    padding-inline-start: 4px !important;
-    padding-inline-end: 3px !important;
-    padding-top: 3px !important;
-    padding-bottom: 2px !important;
-    list-style-image: none;
-  }
-
-  .msgHeaderView-button > .toolbarbutton-icon,
-  .msgHeaderView-button[type="menu-button"] > .toolbarbutton-menubutton-button
-  > .toolbarbutton-icon {
-    /* Needed to make the buttons w/o icons the same height as those with icons */
-    min-height: 16px;
-  }
-
-  .msgHeaderView-button[type="menu-button"] {
-    /* important required to override -moz-appearance from msgHdrView-button */
-    -moz-appearance: dualbutton !important;
-    margin-inline-end: 0 !important;
-    /* Need to override both rules from messenger.css and msgHeaderView-button */
-    padding: 0 !important;
-  }
-
-  .msgHeaderView-button[type="menu-button"] > .toolbarbutton-menubutton-button {
-    -moz-appearance: button;
-    min-width: 1em;
-    min-height: 1ex;
-    margin: 0px;
-    /* important required to override messenger.css rules */
-    padding-inline-start: 4px !important;
-    padding-inline-end: 3px !important;
-    padding-top: 3px !important;
-    padding-bottom: 2px !important;
-  }
-
-  /* toolbar[mode="text"] is necessary so that we end up with more specificity
-   * than the !important rule in toolkit's toolbar.css.
-   */
-  toolbar[mode="text"] .msgHeaderView-button .toolbarbutton-text,
-  toolbar[mode="text"] toolbarpaletteitem .msgHeaderView-button .toolbarbutton-text {
-    margin: 0 !important;
     padding-top: 1px !important;
-    padding-bottom: 0px !important;
-    padding-inline-start: 0px !important;
-    padding-inline-end: 0px !important;
+    padding-bottom: 1px !important;
   }
 
-  /* For unclear reasons, toolkit's toolbarbutton.css forces a margin of 0,
-   * jamming the image up against the text, so we need this !important
-   * rule to override that.
-   *
-   * The second selector is a descendent selector rather than a child selector
-   * so that we effect both buttons and menubuttons.
-   */
-
-  toolbox[labelalign="end"] toolbar[mode="full"] toolbarpaletteitem .msgHeaderView-button .toolbarbutton-text,
-  toolbox[labelalign="end"] toolbar[mode="full"] .msgHeaderView-button .toolbarbutton-text {
-    margin-inline-start: 2px !important;
-  }
-
-  .hdrReplyToSenderButton,
-  .hdrDummyReplyButton,
-  .hdrReplyButton {
-    list-style-image: url("chrome://messenger/skin/icons/mail-toolbar-small.png");
-    -moz-image-region: rect(0px 64px 16px 48px);
-  }
-
-  .hdrReplyAllButton {
-    list-style-image: url("chrome://messenger/skin/icons/mail-toolbar-small.png");
-    -moz-image-region: rect(0px 80px 16px 64px);
-  }
-
-  .hdrReplyListButton,
-  .hdrFollowupButton {
-    list-style-image: url("chrome://messenger/skin/icons/mail-toolbar-small.png");
-    -moz-image-region: rect(0px 112px 16px 96px);
-  }
-
-  .hdrForwardButton {
-    list-style-image: url("chrome://messenger/skin/icons/mail-toolbar-small.png");
-    -moz-image-region: rect(0px 96px 16px 80px);
-  }
-
-  .hdrArchiveButton {
-    list-style-image: url("chrome://messenger/skin/icons/mail-toolbar-small.png");
-    -moz-image-region: rect(0px 320px 16px 304px);
-  }
-
-  .hdrJunkButton {
-    list-style-image: url("chrome://messenger/skin/icons/mail-toolbar-small.png");
-    -moz-image-region: rect(0px 144px 16px 128px);
-  }
-
-  .hdrTrashButton {
-    list-style-image: url("chrome://messenger/skin/icons/mail-toolbar-small.png");
-    -moz-image-region: rect(0px 128px 16px 112px);
-  }
-
-  .hdrTagButton {
-    list-style-image: url("chrome://messenger/skin/icons/mail-toolbar-small.png");
-    -moz-image-region: rect(0px 256px 16px 240px);
-  }
-
-  .hdrConversationButton {
-    list-style-image: url("chrome://messenger/skin/icons/mail-toolbar-small.png");
-    -moz-image-region: rect(0px 416px 16px 400px);
-  }
-
-  #otherActionsButton > .toolbarbutton-icon {
-    display: none;
-  }
-
-  #otherActionsButton > hbox > .toolbarbutton-menu-dropmarker {
-    padding-inline-end: 3px;
-    list-style-image: url(chrome://messenger/skin/icons/mainwindow-dropdown-arrow.png);
-    -moz-image-region: rect(0 13px 11px 0);
-  }
-
-  #header-view-toolbar[brighttext] #otherActionsButton > hbox >
-    .toolbarbutton-menu-dropmarker {
-    list-style-image: url(chrome://messenger/skin/icons/mainwindow-dropdown-arrow-inverted.png);
-  }
-
-  /* show a icon in customize window */
-  #CustomizeToolbarWindow toolbarpaletteitem > #otherActionsButton >
-    .toolbarbutton-icon {
-    display: -moz-box;
-    width: 13px;
-    padding-top: 2px;
-    padding-bottom: 2px;
-    list-style-image: url(chrome://messenger/skin/icons/mainwindow-dropdown-arrow.png);
-    -moz-image-region: rect(0 13px 11px 0);
-  }
-
-  .inline-toolbar toolbarpaletteitem toolbarseparator,
-  .inline-toolbar toolbarseparator {
-    height: 27px;
-  }
-
-  .inline-toolbar toolbarspacer {
-    height: 23px;
-  }
-
-  .msgHeaderView-button,
-  toolbarpaletteitem .msgHeaderView-button {
-    min-height: 27px;
-  }
-
-  .headerName {
-    color: windowtext;
-    opacity: 0.5; /* lower contrast */
-  }
-
-  #header-view-toolbox {
-    padding-top: 3px;
+  .toolbarbutton-1 > .toolbarbutton-menubutton-dropmarker {
+    padding-inline-start: 3px !important;
+    padding-inline-end: 3px !important;
   }
 }
 
-@media not all and (-moz-os-version: windows-xp) {
-  .main-header-area {
-    border-bottom: 1px solid #a9b7c9; /* The same color as the splitters */
-  }
-
-  #attachmentView,
-  #attachmentList {
-    border-top: 1px solid #a9b7c9; /* The same color as the splitters */
-  }
-
-  @media not all and (-moz-windows-default-theme) {
-    #displayDeck[collapsed="true"] + splitter + #messagepaneboxwrapper
-    .main-header-area {
-      background-image: linear-gradient(rgba(255, 255, 255, .5),
-                                        rgba(255, 255, 255, .5) 100%);
-    }
-  }
-
-  #expandedBoxSpacer {
-    height: 6px;
-  }
-
-  #attachmentIcon {
-    list-style-image: url("chrome://messenger/skin/icons/attachment-col.png");
-  }
-
-  #attachmentToggle:hover {
-    list-style-image: url("chrome://global/skin/tree/twisty.svg#clsd-hover");
-  }
-
-  #attachmentToggle[checked="true"]:hover {
-    list-style-image: url("chrome://global/skin/tree/twisty.svg#open-hover");
-  }
-
-  #attachmentToggle:-moz-locale-dir(rtl) {
-    list-style-image: url("chrome://global/skin/tree/twisty.svg#clsd-rtl");
-  }
-
-  #attachmentToggle[checked="true"]:-moz-locale-dir(rtl) {
-    list-style-image: url("chrome://global/skin/tree/twisty.svg#open-rtl");
-  }
-
-  #attachmentToggle:hover:-moz-locale-dir(rtl) {
-    list-style-image: url("chrome://global/skin/tree/twisty.svg#clsd-hover-rtl");
-  }
-
-  #attachmentToggle[checked="true"]:hover:-moz-locale-dir(rtl) {
-    list-style-image: url("chrome://global/skin/tree/twisty.svg#open-hover-rtl");
-  }
-
-  #attachmentSize {
-    color: #888a85; /* the same color as .headerName */
-  }
-
-  .dateLabel {
-    padding-inline-end: 6px;
-  }
-
-  .toolbarbutton-1.msgHeaderView-button {
-    min-width: 1em;
-    margin-inline-start: 2px !important;
-    margin-inline-end: 2px !important;
-    margin-top: 1px;
-    margin-bottom: 2px;
-    vertical-align: middle;
-    /* important required to override primaryToolbar.css rules */
+@media (-moz-windows-default-theme) {
+  toolbar[mode="icons"] .msgHeaderView-button.toolbarbutton-menubutton-button,
+  toolbar[mode="icons"] .msgHeaderView-button:not([type="menu-button"]) {
     padding-inline-start: 3px !important;
     padding-inline-end: 3px !important;
   }
 
-  @media not all and (-moz-windows-default-theme) {
-    .toolbarbutton-1.msgHeaderView-button:not([type="menu-button"]),
-    .toolbarbutton-1.msgHeaderView-button > .toolbarbutton-menubutton-button,
-    .toolbarbutton-1.msgHeaderView-button > .toolbarbutton-menubutton-dropmarker {
-      -moz-appearance: button;
-      padding-top: 1px !important;
-      padding-bottom: 1px !important;
-    }
-
-    .toolbarbutton-1 > .toolbarbutton-menubutton-dropmarker {
-      padding-inline-start: 3px !important;
-      padding-inline-end: 3px !important;
-    }
+  .toolbarbutton-1.msgHeaderView-button,
+  .toolbarbutton-1.msgHeaderView-button > .toolbarbutton-menubutton-button,
+  .toolbarbutton-1.msgHeaderView-button > .toolbarbutton-menubutton-dropmarker {
+    background: var(--toolbarbutton-hover-background);
+    border-color: var(--toolbarbutton-hover-bordercolor);
   }
 
-  @media (-moz-windows-default-theme) {
-    toolbar[mode="icons"] .msgHeaderView-button.toolbarbutton-menubutton-button,
-    toolbar[mode="icons"] .msgHeaderView-button:not([type="menu-button"]) {
-      padding-inline-start: 3px !important;
-      padding-inline-end: 3px !important;
-    }
-
-    .toolbarbutton-1.msgHeaderView-button,
-    .toolbarbutton-1.msgHeaderView-button > .toolbarbutton-menubutton-button,
-    .toolbarbutton-1.msgHeaderView-button > .toolbarbutton-menubutton-dropmarker {
-      background: var(--toolbarbutton-hover-background);
-      border-color: var(--toolbarbutton-hover-bordercolor);
-    }
-
-    .toolbarbutton-1.msgHeaderView-button:not([disabled=true]):-moz-any(:hover,[open]) >
-    .toolbarbutton-menubutton-button,
-    .toolbarbutton-1.msgHeaderView-button:not([disabled=true]):-moz-any(:hover,[open]) >
-    .toolbarbutton-menubutton-dropmarker,
-    .toolbarbutton-1.msgHeaderView-button:not([disabled=true]):not([checked=true]):not([open]):not(:active):hover,
-    .toolbarbutton-1.msgHeaderView-button:not([buttonover]):not([open]):not(:active):hover >
-    .toolbarbutton-menubutton-dropmarker:not([disabled]) {
-      background: var(--toolbarbutton-active-background);
-      border-color: var(--toolbarbutton-active-bordercolor);
-    }
-  }
-
-  .msgHeaderView-button > .toolbarbutton-icon,
-  .msgHeaderView-button[type="menu-button"] > .toolbarbutton-menubutton-button
-  > .toolbarbutton-icon {
-   /* Needed to make the buttons w/o icons the same height as those with icons */
-    min-height: 16px;
-  }
-
-  .msgHeaderView-button[type="menu-button"] {
-    /* Need to override both rules from messenger.css and msgHeaderView-button */
-    padding: 0 !important;
-  }
-
-  .msgHeaderView-button[type="menu-button"] > .toolbarbutton-menubutton-button {
-    min-width: 1em;
-    margin: 0px;
-    /* important required to override primaryToolbar.css rules */
-    padding-inline-start: 3px !important;
-    padding-inline-end: 3px !important;
-  }
-
-  /* toolbar[mode="text"] is necessary so that we end up with more specificity
-  *  than the !important rule in toolkit's toolbar.css.
-  */
-  toolbar[mode="text"] .msgHeaderView-button .toolbarbutton-text,
-  toolbar[mode="text"] toolbarpaletteitem
-  .msgHeaderView-button .toolbarbutton-text {
-    margin: 0 !important;
-    padding-top: 1px !important;
-    padding-bottom: 0px !important;
-    padding-inline-start: 0px !important;
-    padding-inline-end: 0px !important;
-  }
-
-  toolbar[iconsize="small"] .msgHeaderView-button .toolbarbutton-text {
-    margin-bottom: 1px !important;
-  }
-
-  toolbar[mode="text"] .msgHeaderView-button .toolbarbutton-text {
-    padding-top: 0 !important;
-  }
-
-  /* For unclear reasons, toolkit's toolbarbutton.css forces a margin of 0,
-  *  jamming the image up against the text, so we need this !important
-  *  rule to override that.
-  *
-  *  The second selector is a descendent selector rather than a child selector
-  *  so that we effect both buttons and menubuttons.
-  */
-
-  toolbox[labelalign="end"] toolbar[mode="full"]
-  toolbarpaletteitem .msgHeaderView-button .toolbarbutton-text,
-  toolbox[labelalign="end"] toolbar[mode="full"]
-  .msgHeaderView-button .toolbarbutton-text {
-    margin-inline-start: 2px !important;
-  }
-
-  .hdrReplyToSenderButton,
-  .hdrDummyReplyButton,
-  .hdrReplyButton {
-    list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#reply");
-  }
-
-  .hdrReplyAllButton {
-    list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#replyall");
-  }
-
-  .hdrReplyListButton,
-  .hdrFollowupButton {
-    list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#replylist");
-  }
-
-  .hdrForwardButton {
-    list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#forward");
-  }
-
-  .hdrArchiveButton {
-    list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#archive");
-  }
-
-  .hdrJunkButton {
-    list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#junk");
-  }
-
-  .hdrTrashButton {
-    list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#delete");
-  }
-
-  .hdrTagButton {
-    list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#tag");
-  }
-
-  .hdrConversationButton {
-    list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#conversation");
-  }
-
-  #attachmentSaveAllSingle,
-  #attachmentSaveAllMultiple {
-    list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#file");
-  }
-
-  toolbar[brighttext] .hdrReplyToSenderButton,
-  toolbar[brighttext] .hdrDummyReplyButton,
-  toolbar[brighttext] .hdrReplyButton {
-    list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#reply-inverted");
-  }
-
-  toolbar[brighttext] .hdrReplyAllButton {
-    list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#replyall-inverted");
-  }
-
-  toolbar[brighttext] .hdrReplyListButton,
-  toolbar[brighttext] .hdrFollowupButton {
-    list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#replylist-inverted");
-  }
-
-  toolbar[brighttext] .hdrForwardButton {
-    list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#forward-inverted");
-  }
-
-  toolbar[brighttext] .hdrArchiveButton {
-    list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#archive-inverted");
-  }
-
-  toolbar[brighttext] .hdrJunkButton {
-    list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#junk-inverted");
-  }
-
-  toolbar[brighttext] .hdrTrashButton {
-    list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#delete-inverted");
-  }
-
-  toolbar[brighttext] .hdrTagButton {
-    list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#tag-inverted");
-  }
-
-  toolbar[brighttext] .hdrConversationButton {
-    list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#conversation-inverted");
-  }
-
-  toolbar[brighttext] #attachmentSaveAllSingle,
-  toolbar[brighttext] #attachmentSaveAllMultiple {
-    list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#file-inverted");
-  }
-
-  #otherActionsButton > hbox > vbox > .toolbarbutton-icon {
-    display: none;
-  }
-
-  #otherActionsButton > hbox > .toolbarbutton-menu-dropmarker {
-    padding-inline-end: 3px;
-  }
-
-  /* show a icon in customize window */
-  #CustomizeToolbarWindow toolbarpaletteitem > #otherActionsButton >
-    .toolbarbutton-icon {
-    display: -moz-box;
-    width: 9px;
-    padding-top: 4px;
-    padding-bottom: 4px;
-    list-style-image: url("chrome://messenger/skin/icons/toolbarbutton-arrow.png");
-  }
-
-  .inline-toolbar toolbarpaletteitem toolbarseparator,
-  .inline-toolbar toolbarseparator {
-    height: 24px;
-  }
-
-  .inline-toolbar toolbarspacer {
-    height: 20px;
-  }
-
-  .msgHeaderView-button,
-  toolbarpaletteitem .msgHeaderView-button {
-    -moz-appearance: none;
-  }
-
-  .headerName {
-    color: #888a85; /* lower contrast */
-  }
-
-  #header-view-toolbox {
-    padding-top: 1px;
+  .toolbarbutton-1.msgHeaderView-button:not([disabled=true]):-moz-any(:hover,[open]) >
+  .toolbarbutton-menubutton-button,
+  .toolbarbutton-1.msgHeaderView-button:not([disabled=true]):-moz-any(:hover,[open]) >
+  .toolbarbutton-menubutton-dropmarker,
+  .toolbarbutton-1.msgHeaderView-button:not([disabled=true]):not([checked=true]):not([open]):not(:active):hover,
+  .toolbarbutton-1.msgHeaderView-button:not([buttonover]):not([open]):not(:active):hover >
+  .toolbarbutton-menubutton-dropmarker:not([disabled]) {
+    background: var(--toolbarbutton-active-background);
+    border-color: var(--toolbarbutton-active-bordercolor);
   }
 }
 
-@media (-moz-windows-default-theme) and (-moz-windows-compositor) {
+.msgHeaderView-button > .toolbarbutton-icon,
+.msgHeaderView-button[type="menu-button"] > .toolbarbutton-menubutton-button
+> .toolbarbutton-icon {
+ /* Needed to make the buttons w/o icons the same height as those with icons */
+  min-height: 16px;
+}
+
+.msgHeaderView-button[type="menu-button"] {
+  /* Need to override both rules from messenger.css and msgHeaderView-button */
+  padding: 0 !important;
+}
+
+.msgHeaderView-button[type="menu-button"] > .toolbarbutton-menubutton-button {
+  min-width: 1em;
+  margin: 0px;
+  /* important required to override primaryToolbar.css rules */
+  padding-inline-start: 3px !important;
+  padding-inline-end: 3px !important;
+}
+
+/* toolbar[mode="text"] is necessary so that we end up with more specificity
+*  than the !important rule in toolkit's toolbar.css.
+*/
+toolbar[mode="text"] .msgHeaderView-button .toolbarbutton-text,
+toolbar[mode="text"] toolbarpaletteitem
+.msgHeaderView-button .toolbarbutton-text {
+  margin: 0 !important;
+  padding-top: 1px !important;
+  padding-bottom: 0px !important;
+  padding-inline-start: 0px !important;
+  padding-inline-end: 0px !important;
+}
+
+toolbar[iconsize="small"] .msgHeaderView-button .toolbarbutton-text {
+  margin-bottom: 1px !important;
+}
+
+toolbar[mode="text"] .msgHeaderView-button .toolbarbutton-text {
+  padding-top: 0 !important;
+}
+
+/* For unclear reasons, toolkit's toolbarbutton.css forces a margin of 0,
+*  jamming the image up against the text, so we need this !important
+*  rule to override that.
+*
+*  The second selector is a descendent selector rather than a child selector
+*  so that we effect both buttons and menubuttons.
+*/
+
+toolbox[labelalign="end"] toolbar[mode="full"]
+toolbarpaletteitem .msgHeaderView-button .toolbarbutton-text,
+toolbox[labelalign="end"] toolbar[mode="full"]
+.msgHeaderView-button .toolbarbutton-text {
+  margin-inline-start: 2px !important;
+}
+
+.hdrReplyToSenderButton,
+.hdrDummyReplyButton,
+.hdrReplyButton {
+  list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#reply");
+}
+
+.hdrReplyAllButton {
+  list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#replyall");
+}
+
+.hdrReplyListButton,
+.hdrFollowupButton {
+  list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#replylist");
+}
+
+.hdrForwardButton {
+  list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#forward");
+}
+
+.hdrArchiveButton {
+  list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#archive");
+}
+
+.hdrJunkButton {
+  list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#junk");
+}
+
+.hdrTrashButton {
+  list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#delete");
+}
+
+.hdrTagButton {
+  list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#tag");
+}
+
+.hdrConversationButton {
+  list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#conversation");
+}
+
+#attachmentSaveAllSingle,
+#attachmentSaveAllMultiple {
+  list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#file");
+}
+
+toolbar[brighttext] .hdrReplyToSenderButton,
+toolbar[brighttext] .hdrDummyReplyButton,
+toolbar[brighttext] .hdrReplyButton {
+  list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#reply-inverted");
+}
+
+toolbar[brighttext] .hdrReplyAllButton {
+  list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#replyall-inverted");
+}
+
+toolbar[brighttext] .hdrReplyListButton,
+toolbar[brighttext] .hdrFollowupButton {
+  list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#replylist-inverted");
+}
+
+toolbar[brighttext] .hdrForwardButton {
+  list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#forward-inverted");
+}
+
+toolbar[brighttext] .hdrArchiveButton {
+  list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#archive-inverted");
+}
+
+toolbar[brighttext] .hdrJunkButton {
+  list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#junk-inverted");
+}
+
+toolbar[brighttext] .hdrTrashButton {
+  list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#delete-inverted");
+}
+
+toolbar[brighttext] .hdrTagButton {
+  list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#tag-inverted");
+}
+
+toolbar[brighttext] .hdrConversationButton {
+  list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#conversation-inverted");
+}
+
+toolbar[brighttext] #attachmentSaveAllSingle,
+toolbar[brighttext] #attachmentSaveAllMultiple {
+  list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#file-inverted");
+}
+
+#otherActionsButton > hbox > vbox > .toolbarbutton-icon {
+  display: none;
+}
+
+#otherActionsButton > hbox > .toolbarbutton-menu-dropmarker {
+  padding-inline-end: 3px;
+}
+
+/* show a icon in customize window */
+#CustomizeToolbarWindow toolbarpaletteitem > #otherActionsButton >
+  .toolbarbutton-icon {
+  display: -moz-box;
+  width: 9px;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  list-style-image: url("chrome://messenger/skin/icons/toolbarbutton-arrow.png");
+}
+
+.inline-toolbar toolbarpaletteitem toolbarseparator,
+.inline-toolbar toolbarseparator {
+  height: 24px;
+}
+
+.inline-toolbar toolbarspacer {
+  height: 20px;
+}
+
+.msgHeaderView-button,
+toolbarpaletteitem .msgHeaderView-button {
+  -moz-appearance: none;
+}
+
+.headerName {
+  color: #888a85; /* lower contrast */
+}
+
+#header-view-toolbox {
+  padding-top: 1px;
+}
+
+@media (-moz-windows-compositor) and (-moz-windows-default-theme) {
   #msgHeaderView {
     background: #f8f8f8;
   }
 }
 
-@media (-moz-windows-default-theme) and (-moz-os-version: windows-vista),
-       (-moz-windows-default-theme) and (-moz-os-version: windows-win7) {
+@media (-moz-os-version: windows-win7) and (-moz-windows-default-theme) {
   #displayDeck[collapsed="true"] + splitter + #messagepaneboxwrapper
   .main-header-area {
     background-image: none;
@@ -821,8 +603,8 @@ mail-emailaddress[selected="true"] .emailDisplayButton{
   }
 }
 
-@media (-moz-windows-default-theme) and (-moz-os-version: windows-win8),
-       (-moz-windows-default-theme) and (-moz-os-version: windows-win10) {
+@media (-moz-os-version: windows-win8) and (-moz-windows-default-theme),
+       (-moz-os-version: windows-win10) and (-moz-windows-default-theme) {
   .hdrReplyToSenderButton,
   .hdrDummyReplyButton,
   .hdrReplyButton {

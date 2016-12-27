@@ -29,28 +29,20 @@
   margin-right: 0.5em;
 }
 
-@media (-moz-os-version: windows-xp) {
-  .starred .star {
-    background-image: url("chrome://messenger/skin/icons/flag-col-XP.png");
-  }
+.starred .star {
+  background-image: url("chrome://messenger/skin/icons/flag-col.png");
 }
 
-@media not all and (-moz-os-version: windows-xp) {
-  .starred .star {
-    background-image: url("chrome://messenger/skin/icons/flag-col.png");
+@media (-moz-windows-default-theme) {
+  .toolbarbutton-1.msgHeaderView-button {
+    background-image: linear-gradient(-moz-dialog, -moz-dialog);
   }
 
-  @media (-moz-windows-default-theme) {
-    .toolbarbutton-1.msgHeaderView-button {
-      background-image: linear-gradient(-moz-dialog, -moz-dialog);
-    }
+  .toolbarbutton-1.msgHeaderView-button:not([disabled=true]):not([checked=true]):not([open]):not(:active):hover {
+    background-image: linear-gradient(rgba(0, 0, 0, .1), rgba(0, 0, 0, .1)), linear-gradient(-moz-dialog, -moz-dialog);
+  }
 
-    .toolbarbutton-1.msgHeaderView-button:not([disabled=true]):not([checked=true]):not([open]):not(:active):hover {
-      background-image: linear-gradient(rgba(0, 0, 0, .1), rgba(0, 0, 0, .1)), linear-gradient(-moz-dialog, -moz-dialog);
-    }
-
-    .toolbarbutton-1.msgHeaderView-button:not([type="menu-button"]):not([disabled="true"]):-moz-any([open="true"],[checked="true"],:hover:active) {
-      background-image: linear-gradient(rgba(0, 0, 0, .15), rgba(0, 0, 0, .15)), linear-gradient(-moz-dialog, -moz-dialog);
-    }
+  .toolbarbutton-1.msgHeaderView-button:not([type="menu-button"]):not([disabled="true"]):-moz-any([open="true"],[checked="true"],:hover:active) {
+    background-image: linear-gradient(rgba(0, 0, 0, .15), rgba(0, 0, 0, .15)), linear-gradient(-moz-dialog, -moz-dialog);
   }
 }

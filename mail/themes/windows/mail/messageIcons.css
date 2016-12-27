@@ -62,18 +62,7 @@ treechildren::-moz-tree-image(unreadButtonColHeader, unread) {
 
 treechildren::-moz-tree-image(attachmentCol, attach) {
   margin-inline-start: 3px;
-}
-
-@media (-moz-os-version: windows-xp) {
-  treechildren::-moz-tree-image(attachmentCol, attach) {
-    list-style-image: url(chrome://messenger/skin/icons/attachment-col-XP.png);
-  }
-}
-
-@media not all and (-moz-os-version: windows-xp) {
-  treechildren::-moz-tree-image(attachmentCol, attach) {
-    list-style-image: url(chrome://messenger/skin/icons/attachment-col.png);
-  }
+  list-style-image: url(chrome://messenger/skin/icons/attachment-col.png);
 }
 
 /* ..... flag column ..... */
@@ -87,31 +76,15 @@ treechildren::-moz-tree-image(flaggedCol) {
   padding-inline-end: 2px;
 }
 
-@media (-moz-os-version: windows-xp) {
-  treechildren::-moz-tree-image(flaggedCol, flagged) {
-    list-style-image: url(chrome://messenger/skin/icons/flag-col-XP.png);
-  }
-}
-
-@media not all and (-moz-os-version: windows-xp) {
-  treechildren::-moz-tree-image(flaggedCol, flagged) {
-    list-style-image: url(chrome://messenger/skin/icons/flag-col.png);
-  }
+treechildren::-moz-tree-image(flaggedCol, flagged) {
+  list-style-image: url(chrome://messenger/skin/icons/flag-col.png);
 }
 
 /* ..... junkStatus column ..... */
 
-@media (-moz-os-version: windows-xp) {
-  treechildren::-moz-tree-image(junkStatusCol) {
-    list-style-image: url(chrome://messenger/skin/icons/folder-XP.png);
-  }
-}
-
-@media not all and (-moz-os-version: windows-xp) {
-  treechildren::-moz-tree-image(junkStatusCol) {
-    margin-inline-start: -3px;
-    list-style-image: url(chrome://messenger/skin/icons/folder.png);
-  }
+treechildren::-moz-tree-image(junkStatusCol) {
+  margin-inline-start: -3px;
+  list-style-image: url(chrome://messenger/skin/icons/folder.png);
 }
 
 .junkStatusHeader {
@@ -134,16 +107,8 @@ treechildren::-moz-tree-image(junkStatusCol, notjunk) {
 
 /* ..... subject column ..... */
 
-@media (-moz-os-version: windows-xp) {
-  treechildren::-moz-tree-image(subjectCol) {
-    list-style-image: url(chrome://messenger/skin/icons/message-XP.png);
-  }
-}
-
-@media not all and (-moz-os-version: windows-xp) {
-  treechildren::-moz-tree-image(subjectCol) {
-    list-style-image: url(chrome://messenger/skin/icons/message.png);
-  }
+treechildren::-moz-tree-image(subjectCol) {
+  list-style-image: url(chrome://messenger/skin/icons/message.png);
 }
 
 treechildren::-moz-tree-image(subjectCol) {
@@ -174,64 +139,60 @@ treechildren::-moz-tree-image(subjectCol, imapdeleted) {
   -moz-image-region: rect(0 80px 16px 64px);
 }
 
-@media not all and (-moz-os-version: windows-xp) {
+#subjectCol {
+  padding-inline-start: 20px;
+}
+
+#subjectCol[primary="true"] {
+  padding-inline-start: 30px;
+}
+
+@media (-moz-windows-default-theme: 0) {
   #subjectCol {
-    padding-inline-start: 20px;
+    padding-inline-start: 17px;
   }
 
   #subjectCol[primary="true"] {
-    padding-inline-start: 30px;
-  }
-
-  @media not all and (-moz-windows-default-theme) {
-    #subjectCol {
-      padding-inline-start: 17px;
-    }
-
-    #subjectCol[primary="true"] {
-      padding-inline-start: 27px;
-    }
-  }
-
-  treechildren::-moz-tree-image(news, threadCol, watch) {
-    margin-inline-start: -2px;
+    padding-inline-start: 27px;
   }
 }
 
-@media not all and (-moz-os-version: windows-xp) {
+treechildren::-moz-tree-image(news, threadCol, watch) {
+  margin-inline-start: -2px;
+}
+
+#subjectCol {
+  padding-inline-start: 20px;
+}
+
+#subjectCol[primary="true"] {
+  padding-inline-start: 30px;
+}
+
+@media (-moz-windows-default-theme: 0) {
   #subjectCol {
-    padding-inline-start: 20px;
+    padding-inline-start: 17px;
   }
 
   #subjectCol[primary="true"] {
-    padding-inline-start: 30px;
+    padding-inline-start: 27px;
   }
+}
 
-  @media not all and (-moz-windows-default-theme) {
-    #subjectCol {
-      padding-inline-start: 17px;
-    }
+.treecol-image image {
+  padding-inline-start: 1px;
+  padding-inline-end: 2px;
+}
 
-    #subjectCol[primary="true"] {
-      padding-inline-start: 27px;
-    }
-  }
+.junkStatusHeader {
+  padding-inline-end: 2px;
+}
 
-  .treecol-image image {
-    padding-inline-start: 1px;
-    padding-inline-end: 2px;
-  }
+treechildren::-moz-tree-image(unreadButtonColHeader) {
+  padding-inline-start: 0;
+  margin-inline-start: -3px;
+}
 
-  .junkStatusHeader {
-    padding-inline-end: 2px;
-  }
-
-  treechildren::-moz-tree-image(unreadButtonColHeader) {
-    padding-inline-start: 0;
-    margin-inline-start: -3px;
-  }
-
-  treechildren::-moz-tree-image(attachmentCol, attach) {
-    margin-inline-start: 0;
-  }
+treechildren::-moz-tree-image(attachmentCol, attach) {
+  margin-inline-start: 0;
 }

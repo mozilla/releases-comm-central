@@ -1,8 +1,6 @@
-/*
-# This Source Code Form is subject to the terms of the Mozilla Public
-# License, v. 2.0. If a copy of the MPL was not distributed with this
-# file, You can obtain one at http://mozilla.org/MPL/2.0/.
-*/
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /* ===== mailWindow1.css ================================================
   == Styles for the main Mail window in the default layout scheme.
@@ -17,23 +15,7 @@
 @import url("chrome://messenger/skin/shared/mailWindow1.css");
 
 /* give the toolbox a min-height of 42px for Australis theme */
-@media (-moz-os-version: windows-xp) {
-  .mail-toolbox:not([mode="full"]) > toolbar:only-of-type,
-  .mail-toolbox[mode="full"][labelalign="end"] > toolbar:only-of-type {
-    margin-top: 6px;
-    margin-bottom: 6px;
-  }
-
-  .mail-toolbox[iconsize="large"]:not([mode="full"]) > toolbar:only-of-type,
-  .mail-toolbox[iconsize="large"][mode="full"][labelalign="end"] >
-  toolbar:only-of-type {
-    margin-top: 2px;
-    margin-bottom: 3px;
-  }
-}
-
-@media (-moz-os-version: windows-vista),
-       (-moz-os-version: windows-win7),
+@media (-moz-os-version: windows-win7),
        (-moz-os-version: windows-win8) {
   .mail-toolbox:not([mode="full"]) > toolbar:only-of-type,
   .mail-toolbox[mode="full"][labelalign="end"] > toolbar:only-of-type {
@@ -64,6 +46,7 @@
 }
 
 #folderPane-toolbar {
+  border-top-style: none;
   border-bottom-width: 1px !important;
   border-bottom-color: ThreeDShadow;
 }
@@ -115,8 +98,6 @@ treechildren::-moz-tree-cell-text(imapdeleted) {
   padding-inline-start: 20px;
 }
 
-
-
 /* ..... splitter adjustments ..... */
 
 #mailContent[layout="standard"] #threadpane-splitter {
@@ -158,42 +139,12 @@ treechildren::-moz-tree-cell-text(imapdeleted) {
   border-top: 0;
 }
 
-@media (-moz-os-version: windows-xp) {
-  #mailContent[layout="wide"] #threadPaneBox,
-  #mailContent[layout="wide"] #folderPaneBox {
-    /* ... draw it here instead! (This removes the white highlight just below the
-       folder pane splitter so everything looks pretty.) */
-    position: relative;
-    z-index: 1;
-    margin-bottom: -2px;
-    border-bottom: 2px solid;
-    -moz-border-bottom-colors: ThreeDHighlight ThreeDShadow;
-  }
-}
-
 #mailContent[layout="wide"] #folderPaneBox:-moz-locale-dir(ltr),
 #mailContent[layout="wide"] #threadPaneBox:-moz-locale-dir(rtl) {
   /* Make sure we have a white dot in the top-left corner where the splitters
      meet. */
   margin-right: -2px;
   padding-right: 2px;
-}
-
-@media (-moz-os-version: windows-xp) {
-  #threadTree treechildren::-moz-tree-row(odd) {
-    background-image: url("chrome://messenger/skin/icons/row.png");
-    background-position: bottom;
-    background-repeat: repeat-x;
-  }
-
-  #threadTree treechildren::-moz-tree-row(dummy, odd) {
-    background-image: none;
-  }
-
-  .tabmail-tab[type="message"] {
-    list-style-image: url("chrome://messenger/skin/icons/server-xp.png");
-    -moz-image-region: rect(0 16px 16px 0);
-  }
 }
 
 .tabmail-tab[type="message"] {
@@ -271,7 +222,7 @@ treechildren::-moz-tree-cell-text(imapdeleted) {
   -moz-appearance: -moz-window-button-minimize;
 }
 
-@media not all and (-moz-windows-classic) {
+@media (-moz-windows-classic: 0) {
   #titlebar-min {
     margin-inline-end: 2px;
   }
@@ -302,8 +253,7 @@ treechildren::-moz-tree-cell-text(imapdeleted) {
     -moz-appearance: -moz-win-exclude-glass;
   }
 
-  @media (-moz-os-version: windows-vista),
-         (-moz-os-version: windows-win7),
+  @media (-moz-os-version: windows-win7),
          (-moz-os-version: windows-win8) {
     #messengerWindow {
       -moz-appearance: -moz-win-borderless-glass;
@@ -321,9 +271,8 @@ treechildren::-moz-tree-cell-text(imapdeleted) {
   }
 
   /* Artificially draw window borders that are covered by lwtheme,
-     see bug 591930. Vista/win7 are using different colors than win8 */
-  @media (-moz-os-version: windows-vista),
-         (-moz-os-version: windows-win7) {
+     see bug 591930. win7 are uses different colors than win8 */
+  @media (-moz-os-version: windows-win7) {
     #messengerWindow[sizemode="normal"] > #titlebar >
     #titlebar-content:-moz-lwtheme {
       border-top: 2px solid;
@@ -358,7 +307,7 @@ treechildren::-moz-tree-cell-text(imapdeleted) {
       }
     }
 
-    @media not all and (-moz-windows-default-theme) {
+    @media (-moz-windows-default-theme: 0) {
       #messengerWindow {
         background-color: transparent;
       }
@@ -484,7 +433,7 @@ treechildren::-moz-tree-cell-text(imapdeleted) {
         background-color: hsl(355, 82%, 69%);
       }
     }
-    @media not all and (-moz-windows-default-theme) {
+    @media (-moz-windows-default-theme: 0) {
       .titlebar-button {
         background-color: -moz-field;
       }
@@ -531,193 +480,185 @@ treechildren::-moz-tree-cell-text(imapdeleted) {
   }
 }
 
-@media not all and (-moz-os-version: windows-xp) {
-  #folderPane-toolbar {
-    border-top-style: none;
+#folderpane_splitter,
+#threadpane-splitter:not([orient="vertical"]) {
+  border: none;
+  min-width: 0;
+  width: 5px;
+  background-color: transparent;
+  margin-top: 0;
+  position: relative;
+  z-index: 10;
+  transition: border-width .3s ease-in;
+}
+
+#folderpane_splitter {
+  border-inline-start: 1px solid #a9b7c9;
+  /* make only the splitter border visible */
+  margin-inline-end: -4px;
+}
+
+#folderpane_splitter[state="collapsed"]:hover {
+  border-inline-start: 4px solid highlight;
+}
+
+#threadpane-splitter:not([orient="vertical"]) {
+  border-inline-end: 1px solid #a9b7c9;
+  /* make only the splitter border visible */
+  margin-inline-start: -4px;
+}
+
+#threadpane-splitter[state="collapsed"]:not([orient="vertical"]):hover {
+  border-inline-end: 4px solid highlight;
+}
+
+#mailContent[layout="wide"] #folderpane_splitter {
+  margin-bottom: 0;
+}
+
+#threadpane-splitter,
+#attachment-splitter {
+  border: none;
+  border-bottom: 1px solid #A9B7C9;
+  min-height: 0;
+  height: 5px;
+  background-color: transparent;
+  margin-top: -5px;
+  position: relative;
+  z-index: 10;
+  transition: border-width .3s ease-in;
+}
+
+#attachment-splitter:not([state="collapsed"]) {
+  border-bottom: 1px solid transparent;
+}
+
+#attachment-splitter,
+#threadpane-splitter[state="collapsed"] {
+  transition: border-color .3s;
+}
+
+#threadpane-splitter[state="collapsed"]:hover,
+#attachment-splitter[state="collapsed"]:hover {
+  border-bottom: 4px solid highlight;
+}
+
+#accountCentralBox,
+#threadTree {
+  border-inline-end: none;
+}
+
+#messagepanebox {
+  border-top-width: 0px;
+  border-inline-start: none;
+}
+
+.tabmail-tab[type="message"] {
+  list-style-image: url("chrome://messenger/skin/icons/server.png");
+  -moz-image-region: rect(0 16px 16px 0);
+}
+
+#viewPickerPopup menu,
+#viewPickerPopup menuitem {
+  -moz-appearance: none;
+}
+
+@media (-moz-windows-default-theme) {
+  menulist {
+    -moz-appearance: none;
+    min-height: 24px;
+    color: inherit;
+    margin: 1px 4px;
+    padding: 0 5px 1px !important;
+    border: 1px solid;
+    background: var(--toolbarbutton-hover-background);
+    border-color: var(--toolbarbutton-hover-bordercolor);
+    box-shadow: var(--toolbarbutton-hover-boxshadow);
+    transition-property: background-color, border-color, box-shadow;
+    transition-duration: 150ms;
   }
 
-  #folderpane_splitter,
-  #threadpane-splitter:not([orient="vertical"]) {
-    border: none;
-    min-width: 0;
-    width: 5px;
-    background-color: transparent;
-    margin-top: 0;
-    position: relative;
-    z-index: 10;
-    transition: border-width .3s ease-in;
+  menulist:not([disabled="true"]):not([open="true"]):hover {
+    background: var(--toolbarbutton-active-background);
+    border-color: var(--toolbarbutton-active-bordercolor);
   }
 
-  #folderpane_splitter {
-    border-inline-start: 1px solid #a9b7c9;
-    /* make only the splitter border visible */
-    margin-inline-end: -4px;
+  menulist[open="true"] {
+    background: var(--toolbarbutton-active-background);
+    border-color: var(--toolbarbutton-active-bordercolor);
+    box-shadow: var(--toolbarbutton-active-boxshadow);
   }
 
-  #folderpane_splitter[state="collapsed"]:hover {
-    border-inline-start: 4px solid highlight;
+  menulist[disabled="true"] {
+    opacity: .6;
   }
 
-  #threadpane-splitter:not([orient="vertical"]) {
-    border-inline-end: 1px solid #a9b7c9;
-    /* make only the splitter border visible */
-    margin-inline-start: -4px;
-  }
-
-  #threadpane-splitter[state="collapsed"]:not([orient="vertical"]):hover {
-    border-inline-end: 4px solid highlight;
-  }
-
-  #mailContent[layout="wide"] #folderpane_splitter {
-    margin-bottom: 0;
-  }
-
-  #threadpane-splitter,
-  #attachment-splitter {
-    border: none;
-    border-bottom: 1px solid #A9B7C9;
-    min-height: 0;
-    height: 5px;
-    background-color: transparent;
-    margin-top: -5px;
-    position: relative;
-    z-index: 10;
-    transition: border-width .3s ease-in;
-  }
-
-  #attachment-splitter:not([state="collapsed"]) {
-    border-bottom: 1px solid transparent;
-  }
-
-  #attachment-splitter,
-  #threadpane-splitter[state="collapsed"] {
-    transition: border-color .3s;
-  }
-
-  #threadpane-splitter[state="collapsed"]:hover,
-  #attachment-splitter[state="collapsed"]:hover {
-    border-bottom: 4px solid highlight;
-  }
-
-  #accountCentralBox,
-  #threadTree {
-    border-inline-end: none;
-  }
-
-  #messagepanebox {
-    border-top-width: 0px;
-    border-inline-start: none;
-  }
-
-  .tabmail-tab[type="message"] {
-    list-style-image: url("chrome://messenger/skin/icons/server.png");
-    -moz-image-region: rect(0 16px 16px 0);
+  #viewPickerPopup > menu,
+  #viewPickerPopup > menuitem {
+    margin: 1px;
   }
 
   #viewPickerPopup menu,
   #viewPickerPopup menuitem {
+    height: 2em;
+    border: 1px solid transparent;
+  }
+
+  #folderPaneHeader {
     -moz-appearance: none;
+    background-color: #f8f8f8;
+    border-top: 0px;
+    border-bottom: 1px solid #a9b1b8;
   }
 
-  @media (-moz-windows-default-theme) {
-    menulist {
-      -moz-appearance: none;
-      min-height: 24px;
-      color: inherit;
-      margin: 1px 4px;
-      padding: 0 5px 1px !important;
-      border: 1px solid;
-      background: var(--toolbarbutton-hover-background);
-      border-color: var(--toolbarbutton-hover-bordercolor);
-      box-shadow: var(--toolbarbutton-hover-boxshadow);
-      transition-property: background-color, border-color, box-shadow;
-      transition-duration: 150ms;
-    }
+  #folderTree {
+    -moz-appearance: none;
+    background-color: -moz-Dialog;
+    border-bottom: none;
+    border-left: none;
+  }
 
-    menulist:not([disabled="true"]):not([open="true"]):hover {
-      background: var(--toolbarbutton-active-background);
-      border-color: var(--toolbarbutton-active-bordercolor);
-    }
-
-    menulist[open="true"] {
-      background: var(--toolbarbutton-active-background);
-      border-color: var(--toolbarbutton-active-bordercolor);
-      box-shadow: var(--toolbarbutton-active-boxshadow);
-    }
-
-    menulist[disabled="true"] {
-      opacity: .6;
-    }
-
-    #viewPickerPopup > menu,
-    #viewPickerPopup > menuitem {
-      margin: 1px;
-    }
-
-    #viewPickerPopup menu,
-    #viewPickerPopup menuitem {
-      height: 2em;
-      border: 1px solid transparent;
-    }
-
-    #folderPaneHeader {
-      -moz-appearance: none;
-      background-color: #f8f8f8;
-      border-top: 0px;
-      border-bottom: 1px solid #a9b1b8;
-    }
-
+  @media (-moz-os-version: windows-win7) {
     #folderTree {
-      -moz-appearance: none;
-      background-color: -moz-Dialog;
-      border-bottom: none;
-      border-left: none;
-    }
-
-    @media (-moz-os-version: windows-vista),
-           (-moz-os-version: windows-win7) {
-      #folderTree {
-        background-color: #eef3fa;
-      }
-    }
-
-    @media (-moz-os-version: windows-win10) {
-      #folderTree {
-        background-color: #fafafa;
-      }
-    }
-
-    #folderTree treechildren::-moz-tree-cell(dropOn) {
-      background-image: linear-gradient(rgba(255, 255, 255, .7),
-                                        rgba(255, 255, 255, .45));
-      background-color: Highlight;
-      border-radius: 3px;
-    }
-
-    #folderTree treechildren::-moz-tree-cell-text(dropOn) {
-      color: -moz-FieldText;
-    }
-
-    treechildren::-moz-tree-line(selected, focus),
-    tree[seltype="cell"] > treechildren::-moz-tree-line(active, selected, focus) {
-      border-color: -moz-DialogText;
-    }
-
-    #viewPicker > .menulist-label-box > .menulist-label,
-    #locationFolders > .menulist-label-box > .menulist-label {
-      margin-top: 0 !important;
-      margin-bottom: 0 !important;
+      background-color: #eef3fa;
     }
   }
 
-  #viewPicker > .menulist-label-box > .menulist-icon,
-  #locationFolders > .menulist-label-box > .menulist-icon {
-    min-height: 16px;
+  @media (-moz-os-version: windows-win10) {
+    #folderTree {
+      background-color: #fafafa;
+    }
+  }
+
+  #folderTree treechildren::-moz-tree-cell(dropOn) {
+    background-image: linear-gradient(rgba(255, 255, 255, .7),
+                                      rgba(255, 255, 255, .45));
+    background-color: Highlight;
+    border-radius: 3px;
+  }
+
+  #folderTree treechildren::-moz-tree-cell-text(dropOn) {
+    color: -moz-FieldText;
+  }
+
+  treechildren::-moz-tree-line(selected, focus),
+  tree[seltype="cell"] > treechildren::-moz-tree-line(active, selected, focus) {
+    border-color: -moz-DialogText;
+  }
+
+  #viewPicker > .menulist-label-box > .menulist-label,
+  #locationFolders > .menulist-label-box > .menulist-label {
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
   }
 }
 
-@media (-moz-windows-default-theme) and (-moz-os-version: windows-vista),
-       (-moz-windows-default-theme) and (-moz-os-version: windows-win7) {
+#viewPicker > .menulist-label-box > .menulist-icon,
+#locationFolders > .menulist-label-box > .menulist-icon {
+  min-height: 16px;
+}
+
+@media (-moz-os-version: windows-win7) and (-moz-windows-default-theme) {
   menulist {
     border-radius: 2px;
   }
@@ -746,67 +687,8 @@ treechildren::-moz-tree-cell-text(imapdeleted) {
   }
 }
 
-/* Render a window top border for lwthemes on WinXP modern themes: */
-@media (-moz-windows-theme: luna-blue) {
-  #messengerWindow[tabsintitlebar][sizemode="normal"]
-  #titlebar-content:-moz-lwtheme {
-    background-image: linear-gradient(to bottom, rgb(8, 49, 216) 0,
-                                      rgb(8, 49, 216) 1px, rgb(15, 77, 227) 1px,
-                                      rgb(15, 77, 227) 2px, rgb(22, 106, 238) 2px,
-                                      rgb(22, 106, 238) 3px, rgb(8, 85, 221) 3px,
-                                      rgb(8, 85, 221) 4px, transparent 4px);
-  }
-
-  #messengerWindow[tabsintitlebar][sizemode="normal"]
-  #titlebar-content:-moz-lwtheme:-moz-window-inactive {
-    background-image: linear-gradient(to bottom, rgb(91, 104, 205) 0,
-                                      rgb(91, 104, 205) 1px, rgb(116, 128, 220) 1px,
-                                      rgb(116, 128, 220) 2px, rgb(117, 140, 221) 2px,
-                                      rgb(117, 140, 221) 4px, transparent 4px);
-  }
-}
-
-@media (-moz-windows-theme: luna-silver) {
-  #messengerWindow[tabsintitlebar][sizemode="normal"]
-  #titlebar-content:-moz-lwtheme {
-    background-image: linear-gradient(to bottom, rgb(102,102,126) 0,
-                                      rgb(102, 102, 126) 1px, rgb(168, 167, 191) 1px,
-                                      rgb(168, 167, 191) 2px, white 2px, white 3px,
-                                      rgb(188, 188, 207) 3px, rgb(188, 188, 207) 4px,
-                                      transparent 4px);
-  }
-
-  #messengerWindow[tabsintitlebar][sizemode="normal"]
-  #titlebar-content:-moz-lwtheme:-moz-window-inactive {
-    background-image: linear-gradient(to bottom, rgb(186, 186, 197) 0,
-                                      rgb(186, 186, 197) 1px, rgb(236, 238, 245) 1px,
-                                      rgb(236, 238, 245) 2px, white 2px, white 3px,
-                                      rgb(215, 215, 227) 3px, rgb(215, 215, 227) 4px,
-                                      transparent 4px);
-  }
-}
-
-@media (-moz-windows-theme: luna-olive) {
-  #messengerWindow[tabsintitlebar][sizemode="normal"]
-  #titlebar-content:-moz-lwtheme {
-    background-image: linear-gradient(to bottom, rgb(139, 161, 105) 0,
-                                      rgb(139, 161, 105) 1px, rgb(171, 189, 133) 1px,
-                                      rgb(171, 189, 133) 2px, rgb(164, 178, 127) 2px,
-                                      rgb(164, 178, 127) 3px, transparent 3px);
-  }
-
-  #messengerWindow[tabsintitlebar][sizemode="normal"]
-  #titlebar-content:-moz-lwtheme:-moz-window-inactive {
-    background-image: linear-gradient(to bottom, rgb(207, 214, 188) 0,
-                                      rgb(207, 214, 188) 1px, rgb(224, 226, 200) 1px,
-                                      rgb(224, 226, 200) 2px, rgb(214, 216, 190) 2px,
-                                      rgb(214, 216, 190) 3px, transparent 3px);
-  }
-}
-
-@media (-moz-windows-default-theme) and (-moz-os-version: windows-vista),
-       (-moz-windows-default-theme) and (-moz-os-version: windows-win7),
-       (-moz-windows-default-theme) and (-moz-os-version: windows-win8) {
+@media (-moz-os-version: windows-win7) and (-moz-windows-default-theme),
+       (-moz-os-version: windows-win8) and (-moz-windows-default-theme) {
   @media (-moz-windows-compositor) {
     #messengerWindow[sizemode=normal] #tabpanelcontainer {
       border: 1px solid rgba(10%, 10%, 10%, .4);
@@ -831,14 +713,14 @@ treechildren::-moz-tree-cell-text(imapdeleted) {
   }
 }
 
-@media (-moz-windows-default-theme) and (-moz-os-version: windows-win8),
-       (-moz-windows-default-theme) and (-moz-os-version: windows-win10) {
+@media (-moz-os-version: windows-win8) and (-moz-windows-default-theme),
+       (-moz-os-version: windows-win10) and (-moz-windows-default-theme) {
   #folderPane-toolbar {
     border-bottom-color: #c2c2c2;
   }
 }
 
-@media (-moz-windows-default-theme) and (-moz-os-version: windows-win8) {
+@media (-moz-os-version: windows-win8) and (-moz-windows-default-theme) {
   #viewPickerPopup menu[_moz-menuactive="true"],
   #viewPickerPopup menuitem[_moz-menuactive="true"] {
     color: -moz-DialogText;
@@ -847,7 +729,7 @@ treechildren::-moz-tree-cell-text(imapdeleted) {
   }
 }
 
-@media (-moz-windows-default-theme) and (-moz-os-version: windows-win10) {
+@media (-moz-os-version: windows-win10) and (-moz-windows-default-theme) {
   #viewPickerPopup menu[_moz-menuactive="true"],
   #viewPickerPopup menuitem[_moz-menuactive="true"] {
     background-color: #91c9f7;
@@ -895,29 +777,27 @@ treechildren::-moz-tree-cell-text(imapdeleted) {
   padding: 1px 3px;
 }
 
-@media not all and (-moz-windows-compositor) {
+@media (-moz-windows-compositor: 0) {
   #mail-toolbar-menubar2[autohide="false"] +
   #tabs-toolbar > .titlebar-placeholder {
     display: none;
   }
 
-  @media not all and (-moz-os-version: windows-xp) {
-    @media (-moz-windows-default-theme) {
-      #messengerWindow:not(:-moz-lwtheme) {
-        background-color: rgb(185, 209, 234);
-      }
-      #messengerWindow:not(:-moz-lwtheme):-moz-window-inactive {
-        background-color: rgb(215, 228, 242);
-      }
+  @media (-moz-windows-default-theme) {
+    #messengerWindow:not(:-moz-lwtheme) {
+      background-color: rgb(185, 209, 234);
+    }
+    #messengerWindow:not(:-moz-lwtheme):-moz-window-inactive {
+      background-color: rgb(215, 228, 242);
+    }
 
-      #messengerWindow[sizemode="normal"] > #titlebar > #titlebar-content {
-        border-top-width: 2px;
-        -moz-border-top-colors: #4D4D4D #E9ECF3;
-      }
+    #messengerWindow[sizemode="normal"] > #titlebar > #titlebar-content {
+      border-top-width: 2px;
+      -moz-border-top-colors: #4D4D4D #E9ECF3;
+    }
 
-      #messengerWindow[sizemode="normal"] #titlebar-buttonbox {
-        margin-top: -2px;
-      }
+    #messengerWindow[sizemode="normal"] #titlebar-buttonbox {
+      margin-top: -2px;
     }
   }
 }
