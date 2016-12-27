@@ -47,7 +47,8 @@
 #include "nsIMsgMailSession.h"
 #include "nsMsgBaseCID.h"
 #include "nsMsgMimeCID.h"
-#include "DateTimeFormat.h"
+#include "nsDateTimeFormatCID.h"
+#include "nsIDateTimeFormat.h"
 #include "nsILocaleService.h"
 #include "nsILocale.h"
 #include "nsIMsgComposeService.h"
@@ -90,6 +91,7 @@ using namespace mozilla;
 using namespace mozilla::mailnews;
 
 static nsresult GetReplyHeaderInfo(int32_t* reply_header_type,
+                                   nsString& reply_header_locale,
                                    nsString& reply_header_authorwrote,
                                    nsString& reply_header_ondateauthorwrote,
                                    nsString& reply_header_authorwroteondate,
@@ -102,6 +104,9 @@ static nsresult GetReplyHeaderInfo(int32_t* reply_header_type,
 
   // If fetching any of the preferences fails,
   // we return early with header_type = 0 meaning "no header".
+  rv = NS_GetUnicharPreferenceWithDefault(prefBranch, "mailnews.reply_header_locale", EmptyString(), reply_header_locale);
+  NS_ENSURE_SUCCESS(rv, rv);
+
   rv = NS_GetLocalizedUnicharPreference(prefBranch, "mailnews.reply_header_authorwrotesingle",
                                         reply_header_authorwrote);
   NS_ENSURE_SUCCESS(rv, rv);
@@ -2311,11 +2316,13 @@ QuotingOutputStreamListener::QuotingOutputStreamListener(const char * originalMs
   {
     // Get header type, locale and strings from pref.
     int32_t replyHeaderType;
+    nsAutoString replyHeaderLocale;
     nsString replyHeaderAuthorWrote;
     nsString replyHeaderOnDateAuthorWrote;
     nsString replyHeaderAuthorWroteOnDate;
     nsString replyHeaderOriginalmessage;
     GetReplyHeaderInfo(&replyHeaderType,
+                       replyHeaderLocale,
                        replyHeaderAuthorWrote,
                        replyHeaderOnDateAuthorWrote,
                        replyHeaderAuthorWroteOnDate,
@@ -2377,28 +2384,43 @@ QuotingOutputStreamListener::QuotingOutputStreamListener(const char * originalMs
 
         if (headerDate)
         {
-          PRTime originalMsgDate;
-          rv = originalMsgHdr->GetDate(&originalMsgDate);
+          nsCOMPtr<nsIDateTimeFormat> dateFormatter = do_CreateInstance(NS_DATETIMEFORMAT_CONTRACTID, &rv);
           if (NS_SUCCEEDED(rv))
           {
-            nsAutoString citeDatePart;
-            if ((placeholderIndex = mCitePrefix.Find("#2")) != kNotFound)
+            PRTime originalMsgDate;
+            rv = originalMsgHdr->GetDate(&originalMsgDate);
+            if (NS_SUCCEEDED(rv))
             {
-              rv = mozilla::DateTimeFormat::FormatPRTime(kDateFormatShort,
-                                                         kTimeFormatNone,
-                                                         originalMsgDate,
-                                                         citeDatePart);
+              nsCOMPtr<nsILocale> locale;
+              nsCOMPtr<nsILocaleService> localeService(do_GetService(NS_LOCALESERVICE_CONTRACTID));
+
+              // Format date using "mailnews.reply_header_locale", if empty then use application default locale.
+              if (!replyHeaderLocale.IsEmpty())
+                rv = localeService->NewLocale(replyHeaderLocale, getter_AddRefs(locale));
               if (NS_SUCCEEDED(rv))
-                mCitePrefix.Replace(placeholderIndex, 2, citeDatePart);
-            }
-            if ((placeholderIndex = mCitePrefix.Find("#3")) != kNotFound)
-            {
-              rv = mozilla::DateTimeFormat::FormatPRTime(kDateFormatNone,
-                                                         kTimeFormatNoSeconds,
-                                                         originalMsgDate,
-                                                         citeDatePart);
-              if (NS_SUCCEEDED(rv))
-                mCitePrefix.Replace(placeholderIndex, 2, citeDatePart);
+              {
+                nsAutoString citeDatePart;
+                if ((placeholderIndex = mCitePrefix.Find("#2")) != kNotFound)
+                {
+                  rv = dateFormatter->FormatPRTime(locale,
+                                                   kDateFormatShort,
+                                                   kTimeFormatNone,
+                                                   originalMsgDate,
+                                                   citeDatePart);
+                  if (NS_SUCCEEDED(rv))
+                    mCitePrefix.Replace(placeholderIndex, 2, citeDatePart);
+                }
+                if ((placeholderIndex = mCitePrefix.Find("#3")) != kNotFound)
+                {
+                  rv = dateFormatter->FormatPRTime(locale,
+                                                   kDateFormatNone,
+                                                   kTimeFormatNoSeconds,
+                                                   originalMsgDate,
+                                                   citeDatePart);
+                  if (NS_SUCCEEDED(rv))
+                    mCitePrefix.Replace(placeholderIndex, 2, citeDatePart);
+                }
+              }
             }
           }
         }

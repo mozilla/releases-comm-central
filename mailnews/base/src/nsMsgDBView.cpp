@@ -21,6 +21,7 @@
 #include "nsMsgFolderFlags.h"
 #include "nsIMsgLocalMailFolder.h"
 #include "nsIDOMElement.h"
+#include "nsDateTimeFormatCID.h"
 #include "nsMsgMimeCID.h"
 #include "nsIPrefService.h"
 #include "nsIPrefBranch.h"
@@ -559,6 +560,10 @@ nsresult nsMsgDBView::FetchDate(nsIMsgDBHdr * aHdr, nsAString &aDateString, bool
   uint32_t rcvDateSecs;
   nsresult rv;
 
+  if (!mDateFormatter)
+    mDateFormatter = do_CreateInstance(NS_DATETIMEFORMAT_CONTRACTID);
+
+  NS_ENSURE_TRUE(mDateFormatter, NS_ERROR_FAILURE);
   // Silently return Date: instead if Received: is unavailable
   if (rcvDate)
   {
@@ -614,10 +619,11 @@ nsresult nsMsgDBView::FetchDate(nsIMsgDBHdr * aHdr, nsAString &aDateString, bool
   }
 
   if (NS_SUCCEEDED(rv))
-    rv = mozilla::DateTimeFormat::FormatPRTime(dateFormat,
-                                               kTimeFormatNoSeconds,
-                                               dateOfMsg,
-                                               aDateString);
+    rv = mDateFormatter->FormatPRTime(nullptr /* nsILocale* locale */,
+                                      dateFormat,
+                                      kTimeFormatNoSeconds,
+                                      dateOfMsg,
+                                      aDateString);
 
   return rv;
 }
@@ -7808,6 +7814,7 @@ nsresult nsMsgDBView::CopyDBView(nsMsgDBView *aNewMsgDBView, nsIMessenger *aMess
   aNewMsgDBView->m_secondarySortOrder = m_secondarySortOrder;
   aNewMsgDBView->m_secondaryCustomColumn = m_secondaryCustomColumn;
   aNewMsgDBView->m_db = m_db;
+  aNewMsgDBView->mDateFormatter = mDateFormatter;
   if (m_db)
     aNewMsgDBView->m_db->AddListener(aNewMsgDBView);
   aNewMsgDBView->mIsNews = mIsNews;
