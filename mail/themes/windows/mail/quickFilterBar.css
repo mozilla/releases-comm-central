@@ -27,273 +27,116 @@
   }
 }
 
-@media (-moz-os-version: windows-xp) {
-  /* :::: Filter Tab Bar Button :::: */
+#tabbar-toolbar #qfb-show-filter-bar {
+  padding-left: 4px !important;
+  padding-right: 4px !important;
+}
 
-  #qfb-show-filter-bar > .toolbarbutton-icon {
-    padding: 0 3px;
-  }
+/* :::: Filter Bar :::: */
 
-  /* ::::: QFB button on main toolbar ::::: */
+#quick-filter-bar-main-bar {
+  padding-inline-start: 2px;
+}
 
-  #mail-toolbox #qfb-show-filter-bar {
-    margin: 0;
-    padding-top: 5px;
-    padding-bottom: 6px;
-    padding-inline-start: 4px;
-    padding-inline-end: 5px;
-  }
+#quick-filter-bar-tab-bar,
+#quick-filter-bar-filter-text-bar {
+  margin-top: -2px;
+  padding: 2px;
+}
 
-  #mail-toolbox #qfb-show-filter-bar[open="true"],
-  #mail-toolbox #qfb-show-filter-bar:hover:active {
-    padding-top: 6px;
-    padding-bottom: 5px;
-    padding-inline-start: 5px;
-    padding-inline-end: 4px;
-  }
+#quick-filter-bar-filter-text-bar:not(:-moz-system-metric(windows-default-theme)) {
+  padding-top: 3px;
+  padding-bottom: 3px;
+}
 
-  #mail-toolbox #qfb-show-filter-bar[checked="true"] {
-    padding-top: 6px !important;
-    padding-bottom: 5px !important;
-    padding-inline-start: 5px !important;
-    padding-inline-end: 4px !important;
-  }
+/* :::: Filter Buttons :::: */
 
-  #mail-toolbox #qfb-show-filter-bar[style="visibility: hidden;"] {
-    color: GrayText;
-    text-shadow: none;
-  }
+#quick-filter-bar toolbarbutton {
+  min-height: 19px;
+  border: 1px solid transparent;
+  padding: 1px 3px;
+  margin-inline-start: 1px;
+  margin-inline-end: 1px;
+}
 
-  toolbox[labelalign="end"] #qfb-show-filter-bar {
-    -moz-box-orient: horizontal;
-  }
+#quick-filter-bar-main-bar toolbarbutton {
+  min-width: 22px;
+  margin-inline-start: 1px;
+  margin-inline-end: 1px;
+  list-style-image: url("chrome://messenger/skin/icons/quick-search-icons.png");
+}
 
-  /* :::: Filter Bar :::: */
+/* keep that hideous outline focus ring from showing on the checked buttons */
+#quick-filter-bar-main-bar toolbarbutton:focus {
+  outline: none;
+}
 
-  #quick-filter-bar:-moz-system-metric(windows-default-theme) {
-    background: linear-gradient(#f2f7fd 0, #e9f2fc 50%, #e3eefb 50%, #e3eefb 100%);
-  }
+#qfb-boolean-mode {
+  margin: 0 1px;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+}
 
-  #quick-filter-bar-main-bar {
-    border-top: 1px solid ThreeDHighlight;
-  }
+#qfb-sticky {
+  -moz-image-region: rect(0 16px 16px 0);
+}
 
-  #quick-filter-bar-main-bar:-moz-system-metric(windows-default-theme) {
-    border-top: 1px solid #fff;
-  }
+#qfb-sticky[checked] {
+  -moz-image-region: rect(0 32px 16px 16px);
+}
 
-  #quick-filter-bar-expando:-moz-system-metric(windows-default-theme) {
-    border-bottom: 2px solid;
-    -moz-border-bottom-colors: #9196a2 #fff;
-  }
+#qfb-unread {
+  -moz-image-region: rect(0 48px 16px 32px);
+}
 
+#qfb-starred {
+  -moz-image-region: rect(0 64px 16px 48px);
+}
+
+#qfb-inaddrbook {
+  -moz-image-region: rect(0 80px 16px 64px);
+}
+
+#qfb-tags {
+  -moz-image-region: rect(0 112px 16px 96px);
+}
+
+#qfb-tags[disabled] > .toolbarbutton-icon {
+  opacity: .4;
+}
+
+#qfb-attachment {
+  -moz-image-region: rect(0 96px 16px 80px);
+}
+
+#quick-filter-bar[filterActive="matches"] #qfb-results-label {
+  color: green;
+}
+
+#quick-filter-bar[filterActive="nomatches"] #qfb-results-label {
+  color: #f66;
+}
+
+#quick-filter-bar-collapsible-buttons toolbarbutton .toolbarbutton-text {
+  margin-inline-start: 3px !important;
+}
+
+@media (-moz-windows-default-theme) {
   #threadTree[filterActive="searching"] {
     background-color: #ffffcc;
   }
 
-  /* :::: Filter Buttons :::: */
-
-  #quick-filter-bar-main-bar toolbarbutton {
-    margin-inline-start: 1px;
-    margin-inline-end: 1px;
-    min-width: 26px;
+  #threadTree[filterActive="matches"] {
+    background-color: #f2f9fc;
   }
 
-  /* keep that hideous outline focus ring from showing on the checked buttons */
-  #quick-filter-bar-main-bar toolbarbutton:focus {
-    outline: none;
-  }
-
-  #qfb-boolean-mode {
-    margin-top: 1px;
-    margin-bottom: 1px;
-  }
-
-  #qfb-sticky {
-    list-style-image: url("chrome://messenger/skin/icons/xp-pin-grey.png");
-  }
-
-  #qfb-sticky[checked] {
-    list-style-image: url("chrome://messenger/skin/icons/xp-pin-red.png");
-  }
-
-  #qfb-unread {
-    list-style-image: url("chrome://messenger/skin/icons/read.png");
-  }
-
-  #qfb-starred {
-    list-style-image: url("chrome://messenger/skin/icons/flag-empty.png");
-  }
-
-  #qfb-starred[checked] {
-    list-style-image: url("chrome://messenger/skin/icons/flag-col.png");
-  }
-
-  .qfb-starred-nostar {
-    list-style-image: url("chrome://messenger/skin/starContact.png");
-    -moz-image-region:rect(0px 32px 16px 16px);
-  }
-
-  #qfb-inaddrbook {
-    list-style-image: url("chrome://messenger/skin/addressbook/icons/abcard.png");
-  }
-
-  #qfb-tags {
-    list-style-image: url("chrome://messenger/skin/icons/mail-toolbar-small.png");
-    -moz-image-region: rect(0px 256px 16px 240px);
-  }
-
-  #qfb-tags[disabled] {
-    -moz-image-region: rect(48px, 384px, 72px, 360px) !important;
-  }
-
-  #qfb-attachment {
-    list-style-image: url("chrome://messenger/skin/icons/attachment-col.png");
-  }
-
-  #quick-filter-bar[filterActive="matches"] #qfb-results-label {
-    color: green;
-  }
-
-  #quick-filter-bar[filterActive="nomatches"] #qfb-results-label {
-    color: #f66;
-  }
-
-  #quick-filter-bar-main-bar toolbarbutton > .toolbarbutton-icon {
-    margin-inline-end: 0;
-  }
-
-  #quick-filter-bar-collapsible-buttons > toolbarbutton > .toolbarbutton-text {
-    margin-inline-start: 4px !important;
-  }
-
-  #quick-filter-bar-expando toolbarbutton,
-  #quick-filter-bar-expando toolbarbutton[checked] {
-    padding-inline-end: 6px !important;
-    padding-top: 1px;
-    padding-bottom: 1px;
-    margin-inline-start: 1px;
-    margin-inline-end: 1px;
-  }
-
-  #quick-filter-bar-expando toolbarbutton:not(:-moz-system-metric(windows-default-theme)) {
-    min-height: 24px;
+  #threadTree[filterActive="nomatches"] {
+    background: repeating-linear-gradient(-45deg, #fff0f4,
+                #fff0f4 5px, white 5px, white 10px);
   }
 }
 
-@media not all and (-moz-os-version: windows-xp) {
-  #tabbar-toolbar #qfb-show-filter-bar {
-    padding-left: 4px !important;
-    padding-right: 4px !important;
-  }
-
-  /* :::: Filter Bar :::: */
-
-  #quick-filter-bar-main-bar {
-    padding-inline-start: 2px;
-  }
-
-  #quick-filter-bar-tab-bar,
-  #quick-filter-bar-filter-text-bar {
-    margin-top: -2px;
-    padding: 2px;
-  }
-
-  #quick-filter-bar-filter-text-bar:not(:-moz-system-metric(windows-default-theme)) {
-    padding-top: 3px;
-    padding-bottom: 3px;
-  }
-
-  /* :::: Filter Buttons :::: */
-
-  #quick-filter-bar toolbarbutton {
-    min-height: 19px;
-    border: 1px solid transparent;
-    padding: 1px 3px;
-    margin-inline-start: 1px;
-    margin-inline-end: 1px;
-  }
-
-  #quick-filter-bar-main-bar toolbarbutton {
-    min-width: 22px;
-    margin-inline-start: 1px;
-    margin-inline-end: 1px;
-    list-style-image: url("chrome://messenger/skin/icons/quick-search-icons.png");
-  }
-
-  /* keep that hideous outline focus ring from showing on the checked buttons */
-  #quick-filter-bar-main-bar toolbarbutton:focus {
-    outline: none;
-  }
-
-  #qfb-boolean-mode {
-    margin: 0 1px;
-    padding-top: 0 !important;
-    padding-bottom: 0 !important;
-  }
-
-  #qfb-sticky {
-    -moz-image-region: rect(0 16px 16px 0);
-  }
-
-  #qfb-sticky[checked] {
-    -moz-image-region: rect(0 32px 16px 16px);
-  }
-
-  #qfb-unread {
-    -moz-image-region: rect(0 48px 16px 32px);
-  }
-
-  #qfb-starred {
-    -moz-image-region: rect(0 64px 16px 48px);
-  }
-
-  #qfb-inaddrbook {
-    -moz-image-region: rect(0 80px 16px 64px);
-  }
-
-  #qfb-tags {
-    -moz-image-region: rect(0 112px 16px 96px);
-  }
-
-  #qfb-tags[disabled] > .toolbarbutton-icon {
-    opacity: .4;
-  }
-
-  #qfb-attachment {
-    -moz-image-region: rect(0 96px 16px 80px);
-  }
-
-  #quick-filter-bar[filterActive="matches"] #qfb-results-label {
-    color: green;
-  }
-
-  #quick-filter-bar[filterActive="nomatches"] #qfb-results-label {
-    color: #f66;
-  }
-
-  #quick-filter-bar-collapsible-buttons toolbarbutton .toolbarbutton-text {
-    margin-inline-start: 3px !important;
-  }
-
-  @media (-moz-windows-default-theme) {
-    #threadTree[filterActive="searching"] {
-      background-color: #ffffcc;
-    }
-
-    #threadTree[filterActive="matches"] {
-      background-color: #f2f9fc;
-    }
-
-    #threadTree[filterActive="nomatches"] {
-      background: repeating-linear-gradient(-45deg, #fff0f4,
-                  #fff0f4 5px, white 5px, white 10px);
-    }
-  }
-}
-
-@media (-moz-os-version: windows-vista),
-       (-moz-os-version: windows-win7) {
+@media (-moz-os-version: windows-win7) {
   #quick-filter-bar toolbarbutton {
     -moz-appearance: none;
     border-radius: 2px;
@@ -315,8 +158,7 @@
   }
 }
 
-@media (-moz-windows-default-theme) and (-moz-os-version: windows-vista),
-       (-moz-windows-default-theme) and (-moz-os-version: windows-win7) {
+@media (-moz-os-version: windows-win7) and (-moz-windows-default-theme) {
   #quick-filter-bar {
     background: #f8f8f8;
   }

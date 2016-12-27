@@ -20,8 +20,7 @@
  * Tab
  */
 
-@media (-moz-windows-default-theme) and (-moz-os-version: windows-vista),
-       (-moz-windows-default-theme) and (-moz-os-version: windows-win7) {
+@media (-moz-os-version: windows-win7) and (-moz-windows-default-theme) {
   .tab-background-middle[selected=true]:not(:-moz-lwtheme) {
     background-color: var(--customToolbarColor);
   }
@@ -29,7 +28,7 @@
 
 @media (-moz-os-version: windows-win8),
        (-moz-os-version: windows-win10) {
-  @media not all and (-moz-windows-default-theme) {
+  @media (-moz-windows-default-theme: 0) {
     #tabs-toolbar:not(:-moz-lwtheme) {
       color: CaptionText;
     }
@@ -66,32 +65,6 @@
 
 .tabmail-tab[type="glodaSearch"] {
   list-style-image: url("chrome://global/skin/icons/Search-glass.png");
-}
-
-@media (-moz-os-version: windows-xp) {
-  .tabmail-tab[selected] > .tab-stack > .tab-content > .tab-text {
-    opacity: 1.0 !important;
-  }
-
-  .tabmail-arrowscrollbox > .scrollbutton-up:-moz-lwtheme-brighttext,
-  .tabmail-arrowscrollbox > .scrollbutton-down:-moz-lwtheme-brighttext,
-  .tabs-alltabs-button:-moz-lwtheme-brighttext,
-  .tabs-closebutton:-moz-lwtheme-brighttext {
-    background-color: rgba(0,0,0,.5);
-  }
-
-  .tabmail-arrowscrollbox > .scrollbutton-up:-moz-lwtheme-darktext,
-  .tabmail-arrowscrollbox > .scrollbutton-down:-moz-lwtheme-darktext,
-  .tabs-alltabs-button:-moz-lwtheme-darktext,
-  .tabs-closebutton:-moz-lwtheme-darktext {
-    background-color: rgba(255,255,255,.5);
-  }
-
-  .tabmail-tabs:-moz-lwtheme {
-    padding-top: 1px;
-    background-color: transparent;
-    background-image: none;
-  }
 }
 
 @media (-moz-os-version: windows-win10) {
@@ -176,13 +149,6 @@ tabpanels {
   }
 }
 
-@media (-moz-os-version: windows-xp) {
-  .tabs-closebutton-box {
-    margin-top: 2px;
-    margin-bottom: 4px;
-  }
-}
-
 .tabs-closebutton-box > .tabs-closebutton {
   margin-top: 1px;
   padding: 0 2px;
@@ -203,6 +169,9 @@ tabpanels {
 .tabmail-arrowscrollbox > .scrollbutton-up,
 .tabmail-arrowscrollbox > stack > .scrollbutton-down {
   list-style-image: url(tabs/arrow-left.svg);
+  margin: 0;
+  margin-inline-end: 1px;
+  border-radius: 0;
 }
 
 #tabs-toolbar[brighttext] .tabmail-arrowscrollbox > .scrollbutton-up,
@@ -218,134 +187,53 @@ tabpanels {
 .tabmail-arrowscrollbox > .scrollbutton-up:-moz-locale-dir(rtl),
 .tabmail-arrowscrollbox > stack > .scrollbutton-down:-moz-locale-dir(ltr) {
   transform: scaleX(-1);
-}
-
-@media (-moz-os-version: windows-xp) {
-  .tabmail-arrowscrollbox > .scrollbutton-up {
-    margin-top: 1px;
-    margin-bottom: 1px;
-    padding: 0 0 3px;
-    width: 18px;
-    height: 23px;
-    margin-inline-start: 0;
-    margin-inline-end: 2px;
-  }
-
-  .tabmail-arrowscrollbox > .scrollbutton-up > .toolbarbutton-icon {
-    margin: 2px 0px 0px;
-  }
-
-  .tabmail-arrowscrollbox > .scrollbutton-down-stack {
-    height: 23px;
-    margin-top: 1px;
-    margin-bottom: 1px;
-    margin-inline-start: 2px;
-  }
-
-  .tabmail-arrowscrollbox > stack > .scrollbutton-down-box {
-    width: 18px;
-  }
-
-  .tabmail-arrowscrollbox > stack > .scrollbutton-down {
-    width: 18px;
-    margin: 0px;
-    padding: 0 0 3px;
-  }
-
-  .tabmail-arrowscrollbox > stack > .scrollbutton-down > .toolbarbutton-icon {
-    margin-top: 2px;
-    margin-bottom: 0px;
-    margin-inline-start: 1px;
-    margin-inline-end: 0px;
-  }
-}
-
-@media not all and (-moz-os-version: windows-xp) {
-  .tabmail-arrowscrollbox > .scrollbutton-up,
-  .tabmail-arrowscrollbox > stack > .scrollbutton-down {
-    margin: 0;
-    margin-inline-end: 1px;
-    border-radius: 0;
-  }
-
-  .tabmail-arrowscrollbox > .scrollbutton-up:-moz-locale-dir(rtl),
-  .tabmail-arrowscrollbox > stack > .scrollbutton-down:-moz-locale-dir(ltr) {
-    margin-inline-start: 1px;
-    margin-inline-end: 0;
-  }
+  margin-inline-start: 1px;
+  margin-inline-end: 0;
 }
 
 /**
  * All Tabs Button
  */
 
-@media (-moz-os-version: windows-xp) {
-  .tabs-alltabs-button {
-    margin-top: 1px;
-    margin-bottom: 1px;
-    width: 18px !important;
-    height: 23px !important;
-    padding-inline-start: 4px !important;
-    padding-inline-end: 4px !important;
-    padding: 0px;
-  }
-
-  .tabs-alltabs-button > .toolbarbutton-icon {
-    margin-inline-end: 0;
-  }
-
-  .tabs-alltabs-button > .toolbarbutton-menu-dropmarker {
-    margin-inline-end: 3px !important;
-    list-style-image: url(chrome://messenger/skin/icons/mainwindow-dropdown-arrow.png);
-    -moz-image-region: rect(0, 13px, 11px, 0);
-  }
-
-  #tabs-toolbar[brighttext] .tabs-alltabs-button > .toolbarbutton-menu-dropmarker {
-    list-style-image: url(chrome://messenger/skin/icons/mainwindow-dropdown-arrow-inverted.png);
-  }
+.tabs-alltabs-button,
+.tabmail-tabs toolbarbutton {
+  -moz-appearance: none;
+  border-style: none;
+  padding: 0 3px;
 }
 
-@media not all and (-moz-os-version: windows-xp) {
-  .tabs-alltabs-button,
-  .tabmail-tabs toolbarbutton {
-    -moz-appearance: none;
-    border-style: none;
-    padding: 0 3px;
-  }
+.tabs-alltabs-button:hover,
+.tabs-alltabs-button[open],
+.tabs-alltabs-button:hover:active,
+.tabmail-arrowscrollbox > .scrollbutton-up:not([disabled]):hover,
+.tabmail-arrowscrollbox > stack > .scrollbutton-down:not([disabled]):hover {
+  background-image: linear-gradient(rgba(255, 255, 255, 0),
+                    rgba(255, 255, 255, .5)),
+                    linear-gradient(transparent, rgba(0, 0, 0, .25) 30%),
+                    linear-gradient(transparent, rgba(0, 0, 0, .25) 30%);
+  background-position: 1px -1px, 0 -1px, 100% -1px;
+  background-size: calc(100% - 2px) 100%, 1px 100%, 1px 100%;
+  background-repeat: no-repeat;
+}
 
-  .tabs-alltabs-button:hover,
-  .tabs-alltabs-button[open],
-  .tabs-alltabs-button:hover:active,
-  .tabmail-arrowscrollbox > .scrollbutton-up:not([disabled]):hover,
-  .tabmail-arrowscrollbox > stack > .scrollbutton-down:not([disabled]):hover {
-    background-image: linear-gradient(rgba(255, 255, 255, 0),
-                      rgba(255, 255, 255, .5)),
-                      linear-gradient(transparent, rgba(0, 0, 0, .25) 30%),
-                      linear-gradient(transparent, rgba(0, 0, 0, .25) 30%);
-    background-position: 1px -1px, 0 -1px, 100% -1px;
-    background-size: calc(100% - 2px) 100%, 1px 100%, 1px 100%;
-    background-repeat: no-repeat;
-  }
+.tabs-alltabs-button {
+  margin-bottom: -1px;
+  width: 18px;
+  list-style-image: url(icons/dropmarker.svg#win);
+}
 
-  .tabs-alltabs-button {
-    margin-bottom: -1px;
-    width: 18px;
-    list-style-image: url(icons/dropmarker.svg#win);
-  }
+#tabs-toolbar[brighttext] .tabs-alltabs-button {
+  list-style-image: url(icons/dropmarker.svg#win-inverted);
+}
 
-  #tabs-toolbar[brighttext] .tabs-alltabs-button {
-    list-style-image: url(icons/dropmarker.svg#win-inverted);
-  }
+.tabs-alltabs-button > .toolbarbutton-icon {
+  width: 9px;
+  height: 7px;
+  margin: 3px 0;
+}
 
-  .tabs-alltabs-button > .toolbarbutton-icon {
-    width: 9px;
-    height: 7px;
-    margin: 3px 0;
-  }
-
-  .tabs-alltabs-button > .toolbarbutton-menu-dropmarker {
-    display: none;
-  }
+.tabs-alltabs-button > .toolbarbutton-menu-dropmarker {
+  display: none;
 }
 
 @media (-moz-os-version: windows-win8),
@@ -364,7 +252,7 @@ tabpanels {
   }
 }
 
-@media (-moz-windows-default-theme) and (-moz-os-version: windows-win8) {
+@media (-moz-os-version: windows-win8) and (-moz-windows-default-theme) {
   #messengerWindow[darkwindowframe="true"]
   #tabs-toolbar:not(:-moz-lwtheme):not(:-moz-window-inactive),
   #messengerWindow[darkwindowframe="true"]

@@ -1,11 +1,9 @@
-/*
-# This Source Code Form is subject to the terms of the Mozilla Public
-# License, v. 2.0. If a copy of the MPL was not distributed with this
-# file, You can obtain one at http://mozilla.org/MPL/2.0/.
-*/
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /*
- * On Vista, the emptytext style would appear to use italics.  This is causing
+ * The emptytext style would appear to use italics.  This is causing
  * problems for the search box because it has no minwidth and is flexy, so
  * removing the emptytext causes the size of the box to change and this is silly
  * and undesirable.  This change is being made to maintain the generally
@@ -77,46 +75,30 @@
   padding-inline-start: 2px;
 }
 
-@media (-moz-os-version: windows-xp) {
-  .remote-gloda-search-container {
-    padding-top: 6px;
-    padding-bottom: 5px;
-  }
-
-  .searchBox,
-  #view-task-edit-field,
-  #unifinder-task-edit-field {
-    min-height: 22px;
-  }
+.searchBox,
+#view-task-edit-field,
+#unifinder-task-edit-field {
+  background-clip: padding-box;
+  min-height: 24px;
+  margin-top: 1px;
+  margin-bottom: 1px;
+  width: 25em;
 }
 
-@media not all and (-moz-os-version: windows-xp) {
-  .searchBox,
-  #view-task-edit-field,
-  #unifinder-task-edit-field {
-    background-clip: padding-box;
-    min-height: 24px;
-    margin-top: 1px;
-    margin-bottom: 1px;
-    width: 25em;
-  }
-
-  #searchInput,
-  #IMSearchInput,
-  #peopleSearchInput {
-    margin-top: -1px;
-    margin-bottom: -1px;
-  }
-
-  .searchBox[focused],
-  #view-task-edit-field[focused],
-  #unifinder-task-edit-field[focused] {
-    border-color: Highlight;
-  }
+#searchInput,
+#IMSearchInput,
+#peopleSearchInput {
+  margin-top: -1px;
+  margin-bottom: -1px;
 }
 
-@media (-moz-windows-default-theme) and (-moz-os-version: windows-vista),
-       (-moz-windows-default-theme) and (-moz-os-version: windows-win7) {
+.searchBox[focused],
+#view-task-edit-field[focused],
+#unifinder-task-edit-field[focused] {
+  border-color: Highlight;
+}
+
+@media (-moz-os-version: windows-win7) and (-moz-windows-default-theme) {
   .searchBox,
   #view-task-edit-field,
   #unifinder-task-edit-field {
@@ -124,9 +106,8 @@
   }
 }
 
-@media (-moz-windows-default-theme) and (-moz-os-version: windows-vista),
-       (-moz-windows-default-theme) and (-moz-os-version: windows-win7),
-       (-moz-windows-default-theme) and (-moz-os-version: windows-win8) {
+@media (-moz-os-version: windows-win7) and (-moz-windows-default-theme),
+       (-moz-os-version: windows-win8) and (-moz-windows-default-theme) {
   .searchBox,
   #view-task-edit-field,
   #unifinder-task-edit-field {
@@ -144,7 +125,7 @@
   }
 }
 
-@media (-moz-windows-default-theme) and (-moz-os-version: windows-win10) {
+@media (-moz-os-version: windows-win10) and (-moz-windows-default-theme) {
   .searchBox,
   #view-task-edit-field,
   #unifinder-task-edit-field {
