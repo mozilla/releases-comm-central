@@ -21,6 +21,7 @@
   -moz-appearance:  none;
   background-color: -moz-Field;
   color: -moz-FieldText;
+  border-inline-end: 1px solid ThreeDHighlight;
 }
 
 #GeneratedName {
@@ -57,378 +58,143 @@
   min-width: 50px;
 }
 
-@media (-moz-os-version: windows-xp) {
-  /* ::::: primary toolbar buttons ::::: */
+/* :::: Toolbar :::: */
 
-  .toolbarbutton-1 {
-    min-width: 0;
-  }
+#ab-toolbox:not(:-moz-lwtheme) {
+  -moz-appearance: none;
+  background-color: -moz-Dialog;
+  border-top: none;
+  border-bottom: 1px solid ThreeDShadow;
+}
 
-  #button-newcard {
-    list-style-image: url("chrome://messenger/skin/addressbook/icons/addressbook-toolbar.png");
-    -moz-image-region: rect(0 24px 24px 0);
-  }
+toolbar:not(:-moz-lwtheme) {
+  -moz-appearance: none;
+  border: none;
+}
 
-  #button-newcard:hover {
-    -moz-image-region: rect(24px 24px 48px 0);
-  }
+#ab-toolbox > toolbar {
+  /* force iconsize="small" on these toolbars */
+  counter-reset: smallicons;
+}
 
-  #button-newcard:hover:active {
-    -moz-image-region: rect(24px 24px 48px 0);
-  }
+#ab-toolbox > toolbar:not([type="menubar"]) {
+  padding: 2px 1px;
+}
 
-  #button-newcard[disabled="true"] {
-    -moz-image-region: rect(48px 24px 72px 0) !important;
-  }
+#ab-toolbox > toolbar:not([type="menubar"]):-moz-lwtheme {
+  text-shadow: none;
+}
 
-  #button-newlist {
-    list-style-image: url("chrome://messenger/skin/addressbook/icons/addressbook-toolbar.png");
-    -moz-image-region: rect(0 48px 24px 24px);
-  }
+toolbox > toolbar:last-of-type {
+  padding-top: 1px;
+  padding-bottom: 1px;
+}
 
-  #button-newlist:hover {
-    -moz-image-region: rect(24px 48px 48px 24px);
-  }
+/* ::::: primary toolbar buttons ::::: */
 
-  #button-newlist[disabled="true"] {
-    -moz-image-region: rect(48px 48px 72px 24px) !important;
-  }
-
-  #button-editcard {
-    list-style-image: url("chrome://messenger/skin/addressbook/icons/addressbook-toolbar.png");
-    -moz-image-region: rect(0 72px 24px 48px);
-  }
-
-  #button-editcard:hover {
-    -moz-image-region: rect(24px 72px 48px 48px);
-  }
-
-  #button-editcard[disabled="true"] {
-    -moz-image-region: rect(48px 72px 72px 48px) !important;
-  }
-
-  #button-newmessage {
-    list-style-image: url("chrome://messenger/skin/addressbook/icons/addressbook-toolbar.png");
-    -moz-image-region: rect(0 96px 24px 72px);
-  }
-
-  #button-newmessage:hover {
-    -moz-image-region: rect(24px 96px 48px 72px);
-  }
-
-  #button-newmessage[disabled] {
-    -moz-image-region: rect(48px 96px 72px 72px) !important;
-  }
-
-  #button-newim {
-   list-style-image: url("chrome://messenger/skin/addressbook/icons/addressbook-toolbar.png");
-   -moz-image-region: rect(0 120px 24px 96px);
-  }
-
-  #button-newim:hover {
-    -moz-image-region: rect(24px 120px 48px 96px);
-  }
-
-  #button-newim[disabled] {
-    -moz-image-region: rect(48px 120px 72px 96px) !important;
-  }
-
-  #button-abdelete {
-    list-style-image: url("chrome://messenger/skin/addressbook/icons/addressbook-toolbar.png");
-    -moz-image-region: rect(0 144px 24px 120px);
-  }
-
-  #button-abdelete:hover {
-    -moz-image-region: rect(24px 144px 48px 120px);
-  }
-
-  #button-abdelete[disabled] {
-    -moz-image-region: rect(48px 144px 72px 120px) !important;
-  }
-
-  /* ::::: small primary toolbar buttons ::::: */
-
-  toolbar[iconsize="small"] #button-newcard {
-    list-style-image: url("chrome://messenger/skin/addressbook/icons/addressbook-toolbar-small.png");
-    -moz-image-region: rect(0 16px 16px 0);
-  }
-
-  toolbar[iconsize="small"] #button-newcard:hover {
-    -moz-image-region: rect(16px 16px 32px 0);
-  }
-
-  toolbar[iconsize="small"] #button-newcard[disabled] {
-    -moz-image-region: rect(32px 16px 48px 0) !important;
-  }
-
-  toolbar[iconsize="small"] #button-newlist {
-    list-style-image: url("chrome://messenger/skin/addressbook/icons/addressbook-toolbar-small.png");
-    -moz-image-region: rect(0 32px 16px 16px);
-  }
-
-  toolbar[iconsize="small"] #button-newlist:hover {
-    -moz-image-region: rect(16px 32px 32px 16px);
-  }
-
-  toolbar[iconsize="small"] #button-newlist[disabled] {
-     -moz-image-region: rect(32px 32px 48px 16px) !important;
-  }
-
-  toolbar[iconsize="small"] #button-editcard {
-    list-style-image: url("chrome://messenger/skin/addressbook/icons/addressbook-toolbar-small.png");
-    -moz-image-region: rect(0 48px 16px 32px);
-  }
-
-  toolbar[iconsize="small"] #button-editcard:hover {
-    -moz-image-region: rect(16px 48px 32px 32px);
-  }
-
-  toolbar[iconsize="small"] #button-editcard[disabled="true"] {
-    -moz-image-region: rect(32px 48px 48px 32px) !important;
-  }
-
-  toolbar[iconsize="small"] #button-newmessage {
-    list-style-image: url("chrome://messenger/skin/addressbook/icons/addressbook-toolbar-small.png");
-    -moz-image-region: rect(0 64px 16px 48px);
-  }
-
-  toolbar[iconsize="small"] #button-newmessage:hover {
-    -moz-image-region: rect(16px 64px 32px 48px);
-  }
-
-  toolbar[iconsize="small"] #button-newmessage[disabled] {
-    -moz-image-region: rect(32px 64px 48px 48px) !important;
-  }
-
-  toolbar[iconsize="small"] #button-newim {
-    list-style-image: url("chrome://messenger/skin/addressbook/icons/addressbook-toolbar-small.png");
-    -moz-image-region: rect(0 80px 16px 64px);
-  }
-
-  toolbar[iconsize="small"] #button-newim:hover {
-    -moz-image-region: rect(16px 80px 32px 64px);
-  }
-
-  toolbar[iconsize="small"] #button-newim[disabled] {
-    -moz-image-region: rect(32px 80px 48px 64px) !important;
-  }
-
-  toolbar[iconsize="small"] #button-abdelete {
-     list-style-image: url("chrome://messenger/skin/addressbook/icons/addressbook-toolbar-small.png");
-    -moz-image-region: rect(0 96px 16px 80px);
-  }
-
-  toolbar[iconsize="small"] #button-abdelete:hover {
-    -moz-image-region: rect(16px 96px 32px 80px);
-  }
-
-  toolbar[iconsize="small"] #button-abdelete[disabled] {
-    -moz-image-region: rect(32px 96px 48px 80px) !important;
-  }
-
-  #abContent {
-    border-top: 1px solid ThreeDShadow;
-  }
-
-  /* ::::: directory pane adjustments ::::: */
-
-  /* Don't use the listbox appearance as that gives us a blue-grey top border
-     that collides with the primary toolbar border */
-  #dirTree {
-    -moz-appearance:  none;
-    background-color: -moz-Field;
-    color: -moz-FieldText;
-  }
-
-  /* ::::: splitters ::::: */
-
-  #results-splitter {
-    margin-inline-start: -1px;
-  }
-
-  #dirTree-splitter:-moz-locale-dir(rtl) {
-    /* Don't draw the splitter's border here... */
-    border-left: 0;
-  }
-
-  #abResultsTree:-moz-locale-dir(rtl),
-  #CardViewOuterBox:-moz-locale-dir(rtl){
-    /* ... draw it here instead! (This removes the white highlight just below the
-       folder pane splitter so everything looks pretty.) */
-    margin-right: -2px !important;
-    border-right: 2px solid;
-    -moz-border-right-colors: ThreeDHighlight ThreeDShadow;
-  }
-
-  #abResultsTree:-moz-locale-dir(rtl) {
-    /* Make sure we have a white dot in the top-left corner where the splitters
-       meet. */
-    margin-bottom: -2px;
-    padding-bottom: 2px;
-  }
-
-  /* ::::: results pane ::::: */
-
-  .CardViewHeading {
-    padding: 1px;
-    padding-inline-start: 5px;
-    background-color: Highlight;
-    color: HighlightText;
-    font-weight: bold;
-    min-width: 30px;
-  }
-
-  #cvHomeMapIt,
-  #cvWorkMapIt {
-    margin-bottom: 0;
+@media (-moz-windows-default-theme) {
+  sidebarheader {
+    -moz-appearance: none;
+    background-color: #f8f8f8;
+    border-top: 0;
+    border-bottom: 1px solid #a9b1b8;
   }
 }
 
-@media not all and (-moz-os-version: windows-xp) {
-  /* :::: Toolbar :::: */
+#button-newcard {
+  list-style-image: url("chrome://messenger/skin/addressbook/icons/addressbook-toolbar.svg#newcard");
+}
 
-  #ab-toolbox:not(:-moz-lwtheme) {
-    -moz-appearance: none;
-    background-color: -moz-Dialog;
-    border-top: none;
-    border-bottom: 1px solid ThreeDShadow;
-  }
+#button-newlist {
+  list-style-image: url("chrome://messenger/skin/addressbook/icons/addressbook-toolbar.svg#newlist");
+}
 
-  toolbar:not(:-moz-lwtheme) {
-    -moz-appearance: none;
-    border: none;
-  }
+#button-editcard {
+  list-style-image: url("chrome://messenger/skin/addressbook/icons/addressbook-toolbar.svg#editcard");
+}
 
-  #ab-toolbox > toolbar {
-    /* force iconsize="small" on these toolbars */
-    counter-reset: smallicons;
-  }
+#button-newmessage {
+  list-style-image: url("chrome://messenger/skin/addressbook/icons/addressbook-toolbar.svg#newmessage");
+}
 
-  #ab-toolbox > toolbar:not([type="menubar"]) {
-    padding: 2px 1px;
-  }
+#button-newim {
+  list-style-image: url("chrome://messenger/skin/addressbook/icons/addressbook-toolbar.svg#newim");
+}
 
-  #ab-toolbox > toolbar:not([type="menubar"]):-moz-lwtheme {
-    text-shadow: none;
-  }
+#button-abdelete {
+  list-style-image: url("chrome://messenger/skin/addressbook/icons/addressbook-toolbar.svg#abdelete");
+}
 
-  toolbox > toolbar:last-of-type {
-    padding-top: 1px;
-    padding-bottom: 1px;
-  }
+#ab-bar2[brighttext] #button-newcard {
+  list-style-image: url("chrome://messenger/skin/addressbook/icons/addressbook-toolbar.svg#newcard-inverted");
+}
 
-  /* ::::: primary toolbar buttons ::::: */
+#ab-bar2[brighttext] #button-newlist {
+  list-style-image: url("chrome://messenger/skin/addressbook/icons/addressbook-toolbar.svg#newlist-inverted");
+}
 
-  @media (-moz-windows-default-theme) {
-    sidebarheader {
-      -moz-appearance: none;
-      background-color: #f8f8f8;
-      border-top: 0;
-      border-bottom: 1px solid #a9b1b8;
-    }
-  }
+#ab-bar2[brighttext] #button-editcard {
+  list-style-image: url("chrome://messenger/skin/addressbook/icons/addressbook-toolbar.svg#editcard-inverted");
+}
 
-  #button-newcard {
-    list-style-image: url("chrome://messenger/skin/addressbook/icons/addressbook-toolbar.svg#newcard");
-  }
+#ab-bar2[brighttext] #button-newmessage {
+  list-style-image: url("chrome://messenger/skin/addressbook/icons/addressbook-toolbar.svg#newmessage-inverted");
+}
 
-  #button-newlist {
-    list-style-image: url("chrome://messenger/skin/addressbook/icons/addressbook-toolbar.svg#newlist");
-  }
+#ab-bar2[brighttext] #button-newim {
+  list-style-image: url("chrome://messenger/skin/addressbook/icons/addressbook-toolbar.svg#newim-inverted");
+}
 
-  #button-editcard {
-    list-style-image: url("chrome://messenger/skin/addressbook/icons/addressbook-toolbar.svg#editcard");
-  }
+#ab-bar2[brighttext] #button-abdelete {
+  list-style-image: url("chrome://messenger/skin/addressbook/icons/addressbook-toolbar.svg#abdelete-inverted");
+}
 
-  #button-newmessage {
-    list-style-image: url("chrome://messenger/skin/addressbook/icons/addressbook-toolbar.svg#newmessage");
-  }
+/* ::::: Search Textbox ::::: */
 
-  #button-newim {
-    list-style-image: url("chrome://messenger/skin/addressbook/icons/addressbook-toolbar.svg#newim");
-  }
+#peopleSearchInput {
+  width: 20em;
+  padding-top: 3px;
+  padding-bottom: 3px;
+  padding-inline-start: 5px;
+}
 
-  #button-abdelete {
-    list-style-image: url("chrome://messenger/skin/addressbook/icons/addressbook-toolbar.svg#abdelete");
-  }
+/* ::::: directory pane adjustments ::::: */
 
-  #ab-bar2[brighttext] #button-newcard {
-    list-style-image: url("chrome://messenger/skin/addressbook/icons/addressbook-toolbar.svg#newcard-inverted");
-  }
+/* Don't use the listbox appearance as that gives us a blue-grey top border
+   that collides with the primary toolbar border */
+#dirTree {
+  border-inline-end: 1px solid transparent;
+}
 
-  #ab-bar2[brighttext] #button-newlist {
-    list-style-image: url("chrome://messenger/skin/addressbook/icons/addressbook-toolbar.svg#newlist-inverted");
-  }
+/* ::::: splitters ::::: */
 
-  #ab-bar2[brighttext] #button-editcard {
-    list-style-image: url("chrome://messenger/skin/addressbook/icons/addressbook-toolbar.svg#editcard-inverted");
-  }
+#dirTree-splitter {
+  border: none;
+  border-inline-end: 1px solid #a9b7c9;
+  min-width: 0;
+  width: 3px;
+  background-color: transparent;
+  margin-inline-start: -3px;
+  position: relative;
+  z-index: 10;
+}
 
-  #ab-bar2[brighttext] #button-newmessage {
-    list-style-image: url("chrome://messenger/skin/addressbook/icons/addressbook-toolbar.svg#newmessage-inverted");
-  }
+#results-splitter {
+  border: none;
+  border-top: 1px solid #a9b7c9;
+  min-height: 0;
+  height: 3px;
+  background-color: transparent;
+  margin-bottom: -3px;
+  position: relative;
+  z-index: 10;
+}
 
-  #ab-bar2[brighttext] #button-newim {
-    list-style-image: url("chrome://messenger/skin/addressbook/icons/addressbook-toolbar.svg#newim-inverted");
-  }
+/* ::::: card view pane ::::: */
 
-  #ab-bar2[brighttext] #button-abdelete {
-    list-style-image: url("chrome://messenger/skin/addressbook/icons/addressbook-toolbar.svg#abdelete-inverted");
-  }
-
-  /* ::::: Search Textbox ::::: */
-
-  #peopleSearchInput {
-    width: 20em;
-    padding-top: 3px;
-    padding-bottom: 3px;
-    padding-inline-start: 5px;
-  }
-
-  /* ::::: directory pane adjustments ::::: */
-
-  /* Don't use the listbox appearance as that gives us a blue-grey top border
-     that collides with the primary toolbar border */
-  #dirTree {
-    border-inline-end: 1px solid transparent;
-  }
-
-  /* ::::: splitters ::::: */
-
-  #dirTree-splitter {
-    border: none;
-    border-inline-end: 1px solid #a9b7c9;
-    min-width: 0;
-    width: 3px;
-    background-color: transparent;
-    margin-inline-start: -3px;
-    position: relative;
-    z-index: 10;
-  }
-
-  #results-splitter {
-    border: none;
-    border-top: 1px solid #a9b7c9;
-    min-height: 0;
-    height: 3px;
-    background-color: transparent;
-    margin-bottom: -3px;
-    position: relative;
-    z-index: 10;
-  }
-
-  /* ::::: results pane ::::: */
-
-  #abResultsTree {
-    border-inline-end: 1px solid ThreeDHighlight;
-  }
-
-  /* ::::: card view pane ::::: */
-
-  #CardViewOuterBox {
-    border: none;
-    border-top: 1px solid ThreeDShadow;
-  }
+#CardViewOuterBox {
+  border: none;
+  border-top: 1px solid ThreeDShadow;
 }
 
 @media (-moz-windows-glass) {
@@ -439,16 +205,14 @@
   }
 }
 
-@media (-moz-os-version: windows-vista),
-        (-moz-os-version: windows-win7) {
+@media (-moz-os-version: windows-win7) {
   #ab-toolbox:not(:-moz-lwtheme) {
   background-image: linear-gradient(rgba(255, 255, 255, .5),
                     rgba(255, 255, 255, 0));
   }
 }
 
-@media (-moz-windows-default-theme) and (-moz-os-version: windows-vista),
-       (-moz-windows-default-theme) and (-moz-os-version: windows-win7) {
+@media (-moz-os-version: windows-win7) and (-moz-windows-default-theme) {
   #ab-toolbox:not(:-moz-lwtheme) {
     background-color: hsl(210, 75%, 92%);
   }
@@ -465,14 +229,14 @@
   }
 }
 
-@media (-moz-windows-default-theme) and (-moz-os-version: windows-win10) {
+@media (-moz-os-version: windows-win10) and (-moz-windows-default-theme) {
   #dirTree {
     background-color: #fafafa;
   }
 }
 
-@media (-moz-windows-default-theme) and (-moz-os-version: windows-win8),
-       (-moz-windows-default-theme) and (-moz-os-version: windows-win10) {
+@media (-moz-os-version: windows-win8) and (-moz-windows-default-theme),
+       (-moz-os-version: windows-win10) and (-moz-windows-default-theme) {
   #button-newcard {
     list-style-image: url("chrome://messenger/skin/addressbook/icons/addressbook-toolbar.svg#newcard-flat");
   }

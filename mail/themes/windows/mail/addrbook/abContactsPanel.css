@@ -24,43 +24,41 @@
   background-color: transparent;
 }
 
-@media not all and (-moz-os-version: windows-xp) {
-  #abResultsTree {
-    border-inline-end: none;
-    border-bottom: 1px solid #A9B1B8;
+#abResultsTree {
+  border-inline-end: none;
+  border-bottom: 1px solid #A9B1B8;
+}
+
+@media (-moz-windows-default-theme) {
+  button,
+  #addressbookList {
+    -moz-appearance: none;
+    margin: 1px 4px;
+    padding: 1px 5px !important;
+    border: 1px solid;
   }
 
-  @media (-moz-windows-default-theme) {
-    button,
-    #addressbookList {
-      -moz-appearance: none;
-      margin: 1px 4px;
-      padding: 1px 5px !important;
-      border: 1px solid;
-    }
+  button,
+  #addressbookList {
+    background: var(--toolbarbutton-hover-background);
+    border-color: var(--toolbarbutton-hover-bordercolor);
+    box-shadow: var(--toolbarbutton-hover-boxshadow);
+    transition-property: background-color, border-color, box-shadow;
+    transition-duration: 150ms;
+  }
 
-    button,
-    #addressbookList {
-      background: var(--toolbarbutton-hover-background);
-      border-color: var(--toolbarbutton-hover-bordercolor);
-      box-shadow: var(--toolbarbutton-hover-boxshadow);
-      transition-property: background-color, border-color, box-shadow;
-      transition-duration: 150ms;
-    }
+  button:hover,
+  #addressbookList:not([open="true"]):hover {
+    background: var(--toolbarbutton-active-background);
+    border-color: var(--toolbarbutton-active-bordercolor);
+  }
 
-    button:hover,
-    #addressbookList:not([open="true"]):hover {
-      background: var(--toolbarbutton-active-background);
-      border-color: var(--toolbarbutton-active-bordercolor);
-    }
-
-    button:hover:active,
-    #addressbookList[open="true"] {
-      background: var(--toolbarbutton-active-background);
-      border-color: var(--toolbarbutton-active-bordercolor);
-      box-shadow: var(--toolbarbutton-active-boxshadow);
-      transition: none;
-    }
+  button:hover:active,
+  #addressbookList[open="true"] {
+    background: var(--toolbarbutton-active-background);
+    border-color: var(--toolbarbutton-active-bordercolor);
+    box-shadow: var(--toolbarbutton-active-boxshadow);
+    transition: none;
   }
 }
 
@@ -71,8 +69,7 @@
   }
 }
 
-@media (-moz-windows-default-theme) and (-moz-os-version: windows-vista),
-       (-moz-windows-default-theme) and (-moz-os-version: windows-win7) {
+@media (-moz-os-version: windows-win7) and (-moz-windows-default-theme) {
   #abContactsPanel {
     -moz-appearance: none;
     background-color: hsl(210, 75%, 92%);

@@ -29,18 +29,7 @@ a {
 .small-indent {
   margin-bottom: 15px;
   margin-inline-start: 6px;
-}
-
-@media (-moz-os-version: windows-xp) {
-  .small-indent {
-    margin-inline-end: 5px;
-  }
-}
-
-@media not all and (-moz-os-version: windows-xp) {
-  .small-indent {
-    margin-inline-end: 6px;
-  }
+  margin-inline-end: 6px;
 }
 
 #accountType {
@@ -110,10 +99,7 @@ a {
   float: right;
 }
 
-@media (-moz-windows-default-theme) and  (-moz-os-version: windows-vista),
-       (-moz-windows-default-theme) and  (-moz-os-version: windows-win7),
-       (-moz-windows-default-theme) and  (-moz-os-version: windows-win8),
-       (-moz-windows-default-theme) and  (-moz-os-version: windows-win10) {
+@media (-moz-windows-default-theme) {
   #accountType {
     height: 26px;
     /* We have to be a stickler about the width here, or else we get
@@ -124,6 +110,6 @@ a {
   }
 
   #provider-form label {
-    margin-left: 0px;
+    margin-left: 0;
   }
 }

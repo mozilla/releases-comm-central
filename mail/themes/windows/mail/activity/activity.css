@@ -44,17 +44,17 @@ activity-process button {
   list-style-image: url(chrome://messenger/skin/activity/buttons.png);
 }
 .cancel {
-  -moz-image-region: rect(0px, 16px, 16px, 0px);
+  -moz-image-region: rect(0, 16px, 16px, 0);
 }
 .cancel:hover {
-  -moz-image-region: rect(0px, 32px, 16px, 16px);
+  -moz-image-region: rect(0, 32px, 16px, 16px);
 }
 .cancel:hover:active {
-  -moz-image-region: rect(0px, 48px, 16px, 32px);
+  -moz-image-region: rect(0, 48px, 16px, 32px);
 }
 
 .pause {
-  -moz-image-region: rect(48px, 16px, 64px, 0px);
+  -moz-image-region: rect(48px, 16px, 64px, 0);
 }
 .pause:hover {
   -moz-image-region: rect(48px, 32px, 64px, 16px);
@@ -63,11 +63,11 @@ activity-process button {
   -moz-image-region: rect(48px, 48px, 64px, 32px);
 }
 .pause[disabled="true"] {
-  -moz-image-region: rect(48px, 16px, 64px, 0px);
+  -moz-image-region: rect(48px, 16px, 64px, 0);
 }
 
 .resume {
-  -moz-image-region: rect(16px, 16px, 32px, 0px);
+  -moz-image-region: rect(16px, 16px, 32px, 0);
 }
 .resume:hover {
   -moz-image-region: rect(16px, 32px, 32px, 16px);
@@ -77,7 +77,7 @@ activity-process button {
 }
 
 .retry {
-  -moz-image-region: rect(32px, 16px, 48px, 0px);
+  -moz-image-region: rect(32px, 16px, 48px, 0);
   display: none;
 }
 .retry:hover {
@@ -104,7 +104,7 @@ activity-event button {
   list-style-image: url(chrome://messenger/skin/activity/buttons.png);
 }
 .undo {
-  -moz-image-region: rect(32px, 16px, 48px, 0px);
+  -moz-image-region: rect(32px, 16px, 48px, 0);
 }
 .undo:hover {
   -moz-image-region: rect(32px, 32px, 48px, 16px);
@@ -127,7 +127,7 @@ activity-warning button {
   list-style-image: url(chrome://messenger/skin/activity/buttons.png);
 }
 .recover {
-  -moz-image-region: rect(32px, 16px, 48px, 0px);
+  -moz-image-region: rect(32px, 16px, 48px, 0);
 }
 .recover:hover {
   -moz-image-region: rect(32px, 32px, 48px, 16px);
@@ -154,15 +154,6 @@ activity-warning button {
 
 activity-group button {
   list-style-image: url(chrome://messenger/skin/activity/buttons.png);
-}
-.retry {
-  -moz-image-region: rect(32px, 16px, 48px, 0px);
-}
-.retry:hover {
-  -moz-image-region: rect(32px, 32px, 48px, 16px);
-}
-.retry:hover:active {
-  -moz-image-region: rect(32px, 48px, 48px, 32px);
 }
 
 activity-group button {
@@ -203,112 +194,56 @@ activity-warning .statusText {
   list-style-image: url(chrome://messenger/skin/activity/defaultEventIcon.png);
 }
 
-@media (-moz-os-version: windows-xp) {
-  .blockedIcon {
-    list-style-image: url(chrome://global/skin/icons/Error-XP.png);
-  }
-
-  .processIconBox image {
-    list-style-image: url(chrome://messenger/skin/activity/defaultProcessIcon-XP.png);
-  }
-
-  .warningIconBox image {
-    list-style-image: url(chrome://messenger/skin/activity/defaultWarningIcon-XP.png);
-  }
-
-  image.syncMail {
-    list-style-image: url(chrome://messenger/skin/activity/syncMailIcon-XP.png);
-  }
-
-  image.sendMail {
-    list-style-image: url(chrome://messenger/skin/activity/sendMailIcon-XP.png);
-  }
-
-  image.copyMail {
-    list-style-image: url(chrome://messenger/skin/activity/copyMailIcon-XP.png);
-  }
-
-  image.moveMail {
-    list-style-image: url(chrome://messenger/skin/activity/moveMailIcon-XP.png);
-  }
-
-  image.deleteMail {
-    list-style-image: url(chrome://messenger/skin/activity/deleteMailIcon-XP.png);
-  }
-
-  image.addItem {
-    list-style-image: url(chrome://messenger/skin/activity/addItemIcon-XP.png);
-  }
-
-  image.removeItem {
-    list-style-image: url(chrome://messenger/skin/activity/removeItemIcon-XP.png);
-  }
-
-  image.undo {
-    list-style-image: url(chrome://messenger/skin/activity/undoIcon-XP.png);
-  }
-
-  image.indexMail {
-    list-style-image: url(chrome://messenger/skin/activity/indexMailIcon-XP.png);
-  }
-
-  image.compactMail {
-    list-style-image: url(chrome://messenger/skin/activity/compactMailIcon-XP.png);
-  }
+.blockedIcon {
+  list-style-image: url(chrome://global/skin/icons/Error.png);
 }
 
-@media not all and (-moz-os-version: windows-xp) {
-  .blockedIcon {
-    list-style-image: url(chrome://global/skin/icons/Error.png);
-  }
+.processIconBox image {
+  list-style-image: url(chrome://messenger/skin/activity/defaultProcessIcon.png);
+}
 
-  .processIconBox image {
-    list-style-image: url(chrome://messenger/skin/activity/defaultProcessIcon.png);
-  }
+.warningIconBox image {
+  list-style-image: url(chrome://global/skin/icons/Warning.png);
+}
 
-  .warningIconBox image {
-    list-style-image: url(chrome://global/skin/icons/Warning.png);
-  }
+image.syncMail {
+  list-style-image: url(chrome://messenger/skin/activity/syncMailIcon.png);
+}
 
-  image.syncMail {
-    list-style-image: url(chrome://messenger/skin/activity/syncMailIcon.png);
-  }
+image.sendMail {
+  list-style-image: url(chrome://messenger/skin/activity/sendMailIcon.png);
+}
 
-  image.sendMail {
-    list-style-image: url(chrome://messenger/skin/activity/sendMailIcon.png);
-  }
+image.copyMail {
+  list-style-image: url(chrome://messenger/skin/activity/copyMailIcon.png);
+}
 
-  image.copyMail {
-    list-style-image: url(chrome://messenger/skin/activity/copyMailIcon.png);
-  }
+image.moveMail {
+  list-style-image: url(chrome://messenger/skin/activity/moveMailIcon.png);
+}
 
-  image.moveMail {
-    list-style-image: url(chrome://messenger/skin/activity/moveMailIcon.png);
-  }
+image.deleteMail {
+  list-style-image: url(chrome://messenger/skin/activity/deleteMailIcon.png);
+}
 
-  image.deleteMail {
-    list-style-image: url(chrome://messenger/skin/activity/deleteMailIcon.png);
-  }
+image.addItem {
+  list-style-image: url(chrome://messenger/skin/activity/addItemIcon.png);
+}
 
-  image.addItem {
-    list-style-image: url(chrome://messenger/skin/activity/addItemIcon.png);
-  }
+image.removeItem {
+  list-style-image: url(chrome://messenger/skin/activity/removeItemIcon.png);
+}
 
-  image.removeItem {
-    list-style-image: url(chrome://messenger/skin/activity/removeItemIcon.png);
-  }
+image.undo {
+  list-style-image: url(chrome://messenger/skin/activity/undoIcon.png);
+}
 
-  image.undo {
-    list-style-image: url(chrome://messenger/skin/activity/undoIcon.png);
-  }
+image.indexMail {
+  list-style-image: url(chrome://messenger/skin/activity/indexMailIcon.png);
+}
 
-  image.indexMail {
-    list-style-image: url(chrome://messenger/skin/activity/indexMailIcon.png);
-  }
-
-  image.compactMail {
-    list-style-image: url(chrome://messenger/skin/activity/compactMailIcon.png);
-  }
+image.compactMail {
+  list-style-image: url(chrome://messenger/skin/activity/compactMailIcon.png);
 }
 
 /* prevent flickering when changing states */
