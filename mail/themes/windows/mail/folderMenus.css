@@ -89,30 +89,14 @@
 }
 
 /* Feed server */
-@media (-moz-os-version: windows-xp) {
-  .folderMenuItem {
-    list-style-image: url("chrome://messenger/skin/icons/folder-XP.png");
-  }
-
-  .folderMenuItem[IsServer="true"] {
-    list-style-image: url("chrome://messenger/skin/icons/server-XP.png");
-  }
-
-  .folderMenuItem[IsServer="true"][ServerType="rss"] {
-    list-style-image: url("chrome://messenger-newsblog/skin/icons/server-rss-XP.png");
-  }
+.folderMenuItem {
+  list-style-image: url("chrome://messenger/skin/icons/folder.png");
 }
 
-@media not all and (-moz-os-version: windows-xp) {
-  .folderMenuItem {
-    list-style-image: url("chrome://messenger/skin/icons/folder.png");
-  }
+.folderMenuItem[IsServer="true"] {
+  list-style-image: url("chrome://messenger/skin/icons/server.png");
+}
 
-  .folderMenuItem[IsServer="true"] {
-    list-style-image: url("chrome://messenger/skin/icons/server.png");
-  }
-
-  .folderMenuItem[IsServer="true"][ServerType="rss"] {
-    list-style-image: url("chrome://messenger-newsblog/skin/icons/server-rss.png");
-  }
+.folderMenuItem[IsServer="true"][ServerType="rss"] {
+  list-style-image: url("chrome://messenger-newsblog/skin/icons/server-rss.png");
 }
