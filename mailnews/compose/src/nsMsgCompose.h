@@ -128,6 +128,7 @@ protected:
   bool                                      mQuotingToFollow;   // Quoting indicator
   MSG_ComposeType                           mType;              // Message type
   bool                                      mCharsetOverride;
+  bool                                      mAnswerDefaultCharset;
   bool                                      mDeleteDraft;
   nsMsgDispositionState                     mDraftDisposition;
   nsCOMPtr <nsIMsgDBHdr>                    mOrigMsgHdr;
@@ -157,8 +158,8 @@ public:
                                 bool quoteHeaders,
                                 bool headersOnly,
                                 nsIMsgIdentity *identity,
-                                const char *charset,
-                                bool charetOverride, 
+                                nsIMsgQuote* msgQuote,
+                                bool charsetFixed,
                                 bool quoteOriginal,
                                 const nsACString& htmlToQuote);
 
@@ -183,6 +184,8 @@ private:
     nsString                    mSignature;
     bool                        mQuoteHeaders;
     bool                        mHeadersOnly;
+    bool                        mCharsetFixed;
+    nsCOMPtr<nsIMsgQuote>       mQuote;
     nsCOMPtr<nsIMimeHeaders>    mHeaders;
     nsCOMPtr<nsIMsgIdentity>    mIdentity;
     nsCOMPtr<nsIMsgDBHdr>       mOrigMsgHdr;

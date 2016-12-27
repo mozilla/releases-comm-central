@@ -84,7 +84,8 @@ function test_replyEditAsNewForward_charset() {
   subtest_replyEditAsNewForward_charset(1, "./multipart-charset.eml", "EUC-KR");
   subtest_replyEditAsNewForward_charset(2, "./multipart-charset.eml", "EUC-KR");
   subtest_replyEditAsNewForward_charset(3, "./multipart-charset.eml", "EUC-KR");
-  subtest_replyEditAsNewForward_charset(4, "./multipart-charset.eml", "EUC-KR");
+  // For "forward as attachment" we use the default charset (which is UTF-8).
+  subtest_replyEditAsNewForward_charset(4, "./multipart-charset.eml", "UTF-8");
 
   // Check that a UTF-16 encoded e-mail is forced to UTF-8 when replying.
   subtest_replyEditAsNewForward_charset(1, "./body-utf16.eml", "UTF-8");

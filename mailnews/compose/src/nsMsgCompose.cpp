@@ -181,6 +181,7 @@ nsMsgCompose::nsMsgCompose()
   m_editor = nullptr;
   mQuoteStreamListener=nullptr;
   mCharsetOverride = false;
+  mAnswerDefaultCharset = false;
   mDeleteDraft = false;
   m_compFields = nullptr;    //m_compFields will be set during nsMsgCompose::Initialize
   mType = nsIMsgCompType::New;
@@ -1606,6 +1607,33 @@ NS_IMETHODIMP nsMsgCompose::SetEditor(nsIEditor *aEditor)
   return NS_OK;
 }
 
+static nsresult fixCharset(nsCString &aCharset)
+{
+  // No matter what, we should block x-windows-949 (our internal name)
+  // from being used for outgoing emails (bug 234958).
+  if (aCharset.Equals("x-windows-949", nsCaseInsensitiveCStringComparator()))
+    aCharset = "EUC-KR";
+
+  // Convert to a canonical charset name.
+  // Bug 1297118 will revisit this call site.
+  nsresult rv;
+  nsCOMPtr<nsICharsetConverterManager> ccm =
+    do_GetService(NS_CHARSETCONVERTERMANAGER_CONTRACTID, &rv);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  nsCString charset(aCharset);
+  rv = ccm->GetCharsetAlias(charset.get(), aCharset);
+
+  // Don't accept UTF-16 ever. UTF-16 should never be selected as an
+  // outgoing encoding for e-mail. MIME can't handle those messages
+  // encoded in ASCII-incompatible encodings.
+  if (NS_FAILED(rv) ||
+      StringBeginsWith(aCharset, NS_LITERAL_CSTRING("UTF-16"))) {
+    aCharset.AssignLiteral("UTF-8");
+  }
+  return NS_OK;
+}
+
 // This used to be called BEFORE editor was created
 //  (it did the loadUrl that triggered editor creation)
 // It is called from JS after editor creation
@@ -1618,23 +1646,9 @@ NS_IMETHODIMP nsMsgCompose::InitEditor(nsIEditor* aEditor, mozIDOMWindowProxy* a
 
   m_editor = aEditor;
 
-  // Convert to a canonical charset name.
-  // Bug 1297118 will revisit this call site.
-  nsCOMPtr<nsICharsetConverterManager> ccm =
-    do_GetService(NS_CHARSETCONVERTERMANAGER_CONTRACTID, &rv);
+  nsAutoCString msgCharSet(m_compFields->GetCharacterSet());
+  rv = fixCharset(msgCharSet);
   NS_ENSURE_SUCCESS(rv, rv);
-
-  nsAutoCString msgCharSet;
-  rv = ccm->GetCharsetAlias(m_compFields->GetCharacterSet(), msgCharSet);
-
-  // Don't accept UTF-16 ever. UTF-16 should never be selected as an
-  // outgoing encoding for e-mail. MIME can't handle those messages
-  // encoded in ASCII-incompatible encodings.
-  if (NS_FAILED(rv) ||
-      StringBeginsWith(msgCharSet, NS_LITERAL_CSTRING("UTF-16"))) {
-    NS_WARNING("Suppressing UTF-16");
-    msgCharSet.AssignLiteral("UTF-8");
-  }
   m_compFields->SetCharacterSet(msgCharSet.get());
   m_editor->SetDocumentCharacterSet(msgCharSet);
 
@@ -1891,11 +1905,13 @@ nsresult nsMsgCompose::CreateMessage(const char * originalMsgURI,
   nsCOMPtr<nsIPrefBranch> prefs (do_GetService(NS_PREFSERVICE_CONTRACTID, &rv));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  // If we are forwarding inline or replying with template, mime did already
-  // setup the compose fields therefore we should stop now.
+  // "Forward inline" and "Reply with template" processing.
+  // Note the early return at the end of the block.
   if (type == nsIMsgCompType::ForwardInline ||
       type == nsIMsgCompType::ReplyWithTemplate)
   {
+    // Use charset set up in the compose fields by MIME unless we should
+    // use the default charset.
     bool replyInDefault = false;
     prefs->GetBoolPref("mailnews.reply_in_default_charset",
                         &replyInDefault);
@@ -1910,6 +1926,7 @@ nsresult nsMsgCompose::CreateMessage(const char * originalMsgURI,
       {
         LossyCopyUTF16toASCII(str, charset);
         m_compFields->SetCharacterSet(charset.get());
+        mAnswerDefaultCharset = true;
       }
     }
 
@@ -1948,28 +1965,43 @@ nsresult nsMsgCompose::CreateMessage(const char * originalMsgURI,
       reference.AppendLiteral(">");
       m_compFields->SetReferences(reference.get());
     }
+
+    // Early return for "Forward inline" and "Reply with template" processing.
     return NS_OK;
   }
 
+  // All other processing.
   char *uriList = PL_strdup(originalMsgURI);
   if (!uriList)
     return NS_ERROR_OUT_OF_MEMORY;
 
+  // Resulting charset for this message.
   nsCString charset;
-  // use a charset of the original message
-  nsCString mailCharset;
-  bool charsetOverride = false;
-  GetTopmostMsgWindowCharacterSet(mailCharset, &mCharsetOverride);
-  if (!mailCharset.IsEmpty())
-  {
-    charset = mailCharset;
-    charsetOverride = mCharsetOverride;
+
+  // Check for the charset of the last displayed message, it
+  // will be used for quoting and as override.
+  nsCString windowCharset;
+  mCharsetOverride = false;
+  mAnswerDefaultCharset = false;
+  GetTopmostMsgWindowCharacterSet(windowCharset, &mCharsetOverride);
+  if (!windowCharset.IsEmpty()) {
+    // Although the charset in which to send the message might change,
+    // the original message will be parsed for quoting using the charset it is
+    // now displayed with.
+    mQuoteCharset = windowCharset;
+
+    if (mCharsetOverride) {
+      // Use override charset.
+      charset = windowCharset;
+    }
   }
 
-  // although the charset in which to _send_ the message might change,
-  // the original message will be parsed for quoting using the charset it is
-  // now displayed with
-  mQuoteCharset = charset;
+  // Note the following:
+  // LoadDraftOrTemplate() is run in nsMsgComposeService::OpenComposeWindow()
+  // for five compose types: ForwardInline, ReplyWithTemplate (both covered
+  // in the code block above) and Draft, Template and Redirect. For these
+  // compose types, the charset is already correct (incl. MIME-applied override)
+  // unless the default charset should be used.
 
   bool isFirstPass = true;
   char *uri = uriList;
@@ -2004,12 +2036,6 @@ nsresult nsMsgCompose::CreateMessage(const char * originalMsgURI,
     {
       nsCString decodedCString;
 
-      if (!charsetOverride && charset.IsEmpty())
-      {
-        rv = msgHdr->GetCharset(getter_Copies(charset));
-        if (NS_FAILED(rv)) return rv;
-      }
-
       bool replyInDefault = false;
       prefs->GetBoolPref("mailnews.reply_in_default_charset",
                           &replyInDefault);
@@ -2019,24 +2045,15 @@ nsresult nsMsgCompose::CreateMessage(const char * originalMsgURI,
         nsString str;
         NS_GetLocalizedUnicharPreferenceWithDefault(prefs, "mailnews.send_default_charset",
                                                     EmptyString(), str);
-        if (!str.IsEmpty())
+        if (!str.IsEmpty()) {
           LossyCopyUTF16toASCII(str, charset);
+          mAnswerDefaultCharset = true;
+        }
       }
 
-      // ReplyWithTemplate needs to always use the charset of the template,
-      // nothing else. That is passed in through the compFields.
-      if (type == nsIMsgCompType::ReplyWithTemplate) {
-         rv = compFields->GetCharacterSet(getter_Copies(charset));
-         NS_ENSURE_SUCCESS(rv,rv);
-      }
-
-      // No matter what, we should block x-windows-949 (our internal name)
-      // from being used for outgoing emails (bug 234958)
-      if (charset.Equals("x-windows-949",
-            nsCaseInsensitiveCStringComparator()))
-        charset = "EUC-KR";
-
-      // get an original charset, used for a label, UTF-8 is used for the internal processing
+      // Set the charset we determined, if any, in the comp fields.
+      // For replies, the charset will be set after processing the message
+      // through MIME in QuotingOutputStreamListener::OnStopRequest().
       if (isFirstPass && !charset.IsEmpty())
         m_compFields->SetCharacterSet(charset.get());
 
@@ -2297,8 +2314,8 @@ QuotingOutputStreamListener::QuotingOutputStreamListener(const char * originalMs
                                                          bool quoteHeaders,
                                                          bool headersOnly,
                                                          nsIMsgIdentity *identity,
-                                                         const char *charset,
-                                                         bool charsetOverride,
+                                                         nsIMsgQuote* msgQuote,
+                                                         bool charsetFixed,
                                                          bool quoteOriginal,
                                                          const nsACString& htmlToQuote)
 {
@@ -2311,6 +2328,8 @@ QuotingOutputStreamListener::QuotingOutputStreamListener(const char * originalMs
   mUnicodeConversionBuffer = nullptr;
   mQuoteOriginal = quoteOriginal;
   mHtmlToQuote = htmlToQuote;
+  mQuote = msgQuote;
+  mCharsetFixed = charsetFixed;
 
   if (!mHeadersOnly || !mHtmlToQuote.IsEmpty())
   {
@@ -2479,7 +2498,6 @@ NS_IMETHODIMP QuotingOutputStreamListener::OnStartRequest(nsIRequest *request, n
 NS_IMETHODIMP QuotingOutputStreamListener::OnStopRequest(nsIRequest *request, nsISupports *ctxt, nsresult status)
 {
   nsresult rv = NS_OK;
-  nsAutoString aCharset;
 
   if (!mHtmlToQuote.IsEmpty())
   {
@@ -2512,7 +2530,6 @@ NS_IMETHODIMP QuotingOutputStreamListener::OnStopRequest(nsIRequest *request, ns
     compose->GetCompFields(getter_AddRefs(compFields));
     if (compFields)
     {
-      aCharset.AssignLiteral("UTF-8");
       nsAutoString from;
       nsAutoString to;
       nsAutoString cc;
@@ -2536,6 +2553,22 @@ NS_IMETHODIMP QuotingOutputStreamListener::OnStopRequest(nsIRequest *request, ns
       }
       nsCString charset;
       compFields->GetCharacterSet(getter_Copies(charset));
+
+      if (!mCharsetFixed) {
+        // Get the charset from the channel where MIME left it.
+        if (mQuote) {
+          nsCOMPtr<nsIChannel> quoteChannel;
+          mQuote->GetQuoteChannel(getter_AddRefs(quoteChannel));
+          if (quoteChannel) {
+            quoteChannel->GetContentCharset(charset);
+            if (!charset.IsEmpty()) {
+              rv = fixCharset(charset);
+              NS_ENSURE_SUCCESS(rv, rv);
+              compFields->SetCharacterSet(charset.get());
+            }
+          }
+        }
+      }
 
       mHeaders->ExtractHeader(HEADER_FROM, true, outCString);
       ConvertRawBytesToUTF16(outCString, charset.get(), from);
@@ -3305,8 +3338,14 @@ nsMsgCompose::QuoteMessage(const char *msgURI)
 
   // Create the consumer output stream.. this will receive all the HTML from libmime
   mQuoteStreamListener =
-    new QuotingOutputStreamListener(msgURI, msgHdr, false, !mHtmlToQuote.IsEmpty(), m_identity,
-                                    m_compFields->GetCharacterSet(), mCharsetOverride, false,
+    new QuotingOutputStreamListener(msgURI,
+                                    msgHdr,
+                                    false,
+                                    !mHtmlToQuote.IsEmpty(),
+                                    m_identity,
+                                    mQuote,
+                                    mCharsetOverride || mAnswerDefaultCharset,
+                                    false,
                                     mHtmlToQuote);
 
   if (!mQuoteStreamListener)
@@ -3352,9 +3391,15 @@ nsMsgCompose::QuoteOriginalMessage() // New template
 
   // Create the consumer output stream.. this will receive all the HTML from libmime
   mQuoteStreamListener =
-    new QuotingOutputStreamListener(mOriginalMsgURI.get(), originalMsgHdr, mWhatHolder != 1,
-                                    !bAutoQuote || !mHtmlToQuote.IsEmpty(), m_identity,
-                                    mQuoteCharset.get(), mCharsetOverride, true, mHtmlToQuote);
+    new QuotingOutputStreamListener(mOriginalMsgURI.get(),
+                                    originalMsgHdr,
+                                    mWhatHolder != 1,
+                                    !bAutoQuote || !mHtmlToQuote.IsEmpty(),
+                                    m_identity,
+                                    mQuote,
+                                    mCharsetOverride || mAnswerDefaultCharset,
+                                    true,
+                                    mHtmlToQuote);
 
   if (!mQuoteStreamListener)
     return NS_ERROR_FAILURE;

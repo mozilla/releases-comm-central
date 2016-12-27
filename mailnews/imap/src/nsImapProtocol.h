@@ -718,8 +718,9 @@ protected:
   nsCOMPtr<nsISupports> mOwner;
   nsCOMPtr<nsISupports> mSecurityInfo;
   nsCOMPtr<nsIRequest> mCacheRequest; // the request associated with a read from the cache
-  nsCString m_ContentType;
-  nsWeakPtr   m_protocol;
+  nsCString mContentType;
+  nsCString mCharset;
+  nsWeakPtr mProtocol;
 
   bool mChannelClosed;
   bool mReadingFromCache;

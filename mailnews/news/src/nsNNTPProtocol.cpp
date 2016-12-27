@@ -718,7 +718,7 @@ nsresult nsNNTPProtocol::ReadFromMemCache(nsICacheEntry *entry)
     nsCOMPtr<nsIMsgMailNewsUrl> mailnewsUrl = do_QueryInterface(m_runningURL);
     cacheListener->Init(m_channelListener, static_cast<nsIChannel *>(this), mailnewsUrl);
 
-    m_ContentType = ""; // reset the content type for the upcoming read....
+    mContentType = ""; // reset the content type for the upcoming read....
 
     rv = pump->AsyncRead(cacheListener, m_channelContext);
     NS_RELEASE(cacheListener);
@@ -796,7 +796,7 @@ bool nsNNTPProtocol::ReadFromLocalCache()
 
         if (NS_SUCCEEDED(rv)) // ONLY if we succeeded in actually starting the read should we return
         {
-          m_ContentType.Truncate();
+          mContentType.Truncate();
           m_channelListener = nullptr;
           NNTP_LOG_NOTE("Loading message from offline storage");
           return true;
@@ -950,7 +950,7 @@ nsresult nsNNTPProtocol::LoadUrl(nsIURI * aURL, nsISupports * aConsumer)
   NS_ENSURE_ARG_POINTER(aURL);
 
   nsCString group;
-  m_ContentType.Truncate();
+  mContentType.Truncate();
   nsresult rv = NS_OK;
 
   m_runningURL = do_QueryInterface(aURL, &rv);
@@ -4737,9 +4737,9 @@ NS_IMETHODIMP nsNNTPProtocol::GetContentType(nsACString &aContentType)
 
   // if we've been set with a content type, then return it....
   // this happens when we go through libmime now as it sets our new content type
-  if (!m_ContentType.IsEmpty())
+  if (!mContentType.IsEmpty())
   {
-    aContentType = m_ContentType;
+    aContentType = mContentType;
     return NS_OK;
   }
 

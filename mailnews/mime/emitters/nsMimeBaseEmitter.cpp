@@ -563,9 +563,7 @@ nsMimeBaseEmitter::StartHeader(bool rootMailHeader, bool headerOnly, const char 
 NS_IMETHODIMP
 nsMimeBaseEmitter::UpdateCharacterSet(const char *aCharset)
 {
-  if ( (aCharset) && (PL_strcasecmp(aCharset, "US-ASCII")) &&
-        (PL_strcasecmp(aCharset, "ISO-8859-1")) &&
-        (PL_strcasecmp(aCharset, "UTF-8")) )
+  if (aCharset)
   {
     nsAutoCString contentType;
 
@@ -595,7 +593,11 @@ nsMimeBaseEmitter::UpdateCharacterSet(const char *aCharset)
 
       // have to set content-type since it could have an embedded null byte
       mChannel->SetContentType(nsDependentCString(cBegin));
-      mChannel->SetContentCharset(nsDependentCString(aCharset));
+      if (PL_strcasecmp(aCharset, "US-ASCII") == 0) {
+        mChannel->SetContentCharset(NS_LITERAL_CSTRING("ISO-8859-1"));
+      } else {
+        mChannel->SetContentCharset(nsDependentCString(aCharset));
+      }
     }
   }
 

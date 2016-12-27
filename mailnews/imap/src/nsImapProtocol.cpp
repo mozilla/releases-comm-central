@@ -8773,7 +8773,7 @@ nsresult nsImapMockChannel::NotifyStartEndReadFromCache(bool start)
   nsresult rv = NS_OK;
   mReadingFromCache = start;
   nsCOMPtr<nsIImapUrl> imapUrl = do_QueryInterface(m_url, &rv);
-  nsCOMPtr<nsIImapProtocol> imapProtocol = do_QueryReferent(m_protocol);
+  nsCOMPtr<nsIImapProtocol> imapProtocol = do_QueryReferent(mProtocol);
   if (imapUrl)
   {
     nsCOMPtr<nsIImapMailFolderSink> folderSink;
@@ -9581,7 +9581,7 @@ NS_IMETHODIMP nsImapMockChannel::SetLoadFlags(nsLoadFlags aLoadFlags)
 
 NS_IMETHODIMP nsImapMockChannel::GetContentType(nsACString &aContentType)
 {
-  if (m_ContentType.IsEmpty())
+  if (mContentType.IsEmpty())
   {
     nsImapAction imapAction = 0;
     if (m_url)
@@ -9598,29 +9598,29 @@ NS_IMETHODIMP nsImapMockChannel::GetContentType(nsACString &aContentType)
       aContentType.AssignLiteral("message/rfc822");
   }
   else
-    aContentType = m_ContentType;
+    aContentType = mContentType;
   return NS_OK;
 }
 
 NS_IMETHODIMP nsImapMockChannel::SetContentType(const nsACString &aContentType)
 {
   nsAutoCString charset;
-  nsresult rv = NS_ParseResponseContentType(aContentType, m_ContentType, charset);
-  if (NS_FAILED(rv) || m_ContentType.IsEmpty())
-    m_ContentType.AssignLiteral(UNKNOWN_CONTENT_TYPE);
+  nsresult rv = NS_ParseResponseContentType(aContentType, mContentType, charset);
+  if (NS_FAILED(rv) || mContentType.IsEmpty())
+    mContentType.AssignLiteral(UNKNOWN_CONTENT_TYPE);
   return rv;
 }
 
 NS_IMETHODIMP nsImapMockChannel::GetContentCharset(nsACString &aContentCharset)
 {
-  aContentCharset.Truncate();
+  aContentCharset.Assign(mCharset);
   return NS_OK;
 }
 
 NS_IMETHODIMP nsImapMockChannel::SetContentCharset(const nsACString &aContentCharset)
 {
-  NS_WARNING("nsImapMockChannel::SetContentCharset() not implemented");
-  return NS_ERROR_NOT_IMPLEMENTED;
+  mCharset.Assign(aContentCharset);
+  return NS_OK;
 }
 
 NS_IMETHODIMP
@@ -9717,7 +9717,7 @@ NS_IMETHODIMP nsImapMockChannel::GetStatus(nsresult *status)
 
 NS_IMETHODIMP nsImapMockChannel::SetImapProtocol(nsIImapProtocol *aProtocol)
 {
-  m_protocol = do_GetWeakReference(aProtocol);
+  mProtocol = do_GetWeakReference(aProtocol);
   return NS_OK;
 }
 
@@ -9726,7 +9726,7 @@ NS_IMETHODIMP nsImapMockChannel::Cancel(nsresult status)
   NS_WARNING_ASSERTION(NS_IsMainThread(),
                        "nsImapMockChannel::Cancel should only be called from UI thread");
   m_cancelStatus = status;
-  nsCOMPtr<nsIImapProtocol> imapProtocol = do_QueryReferent(m_protocol);
+  nsCOMPtr<nsIImapProtocol> imapProtocol = do_QueryReferent(mProtocol);
 
   // if we aren't reading from the cache and we get canceled...doom our cache entry...
   if (m_url)

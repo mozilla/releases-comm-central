@@ -148,7 +148,8 @@ protected:
   nsCOMPtr<nsIProgressEventSink> mProgressEventSink;
   nsCOMPtr<nsIInterfaceRequestor> mCallbacks;
   nsCOMPtr<nsISupports>       mOwner;
-  nsCString                   m_ContentType;
+  nsCString                   mContentType;
+  nsCString                   mCharset;
   int64_t                     mContentLength;
   nsCOMPtr<nsILoadInfo>       m_loadInfo;
 

@@ -571,32 +571,32 @@ NS_IMETHODIMP nsMsgProtocol::GetContentType(nsACString &aContentType)
   // us to optimize the case where the message url actual refers to
   // a part in the message that has a content type that is not message/rfc822
 
-  if (m_ContentType.IsEmpty())
+  if (mContentType.IsEmpty())
     aContentType.AssignLiteral("message/rfc822");
   else
-    aContentType = m_ContentType;
+    aContentType = mContentType;
   return NS_OK;
 }
 
 NS_IMETHODIMP nsMsgProtocol::SetContentType(const nsACString &aContentType)
 {
   nsAutoCString charset;
-  nsresult rv = NS_ParseResponseContentType(aContentType, m_ContentType, charset);
-  if (NS_FAILED(rv) || m_ContentType.IsEmpty())
-    m_ContentType.AssignLiteral(UNKNOWN_CONTENT_TYPE);
+  nsresult rv = NS_ParseResponseContentType(aContentType, mContentType, charset);
+  if (NS_FAILED(rv) || mContentType.IsEmpty())
+    mContentType.AssignLiteral(UNKNOWN_CONTENT_TYPE);
   return rv;
 }
 
 NS_IMETHODIMP nsMsgProtocol::GetContentCharset(nsACString &aContentCharset)
 {
-  aContentCharset.Truncate();
+  aContentCharset.Assign(mCharset);
   return NS_OK;
 }
 
 NS_IMETHODIMP nsMsgProtocol::SetContentCharset(const nsACString &aContentCharset)
 {
-  NS_WARNING("nsMsgProtocol::SetContentCharset() not implemented");
-  return NS_ERROR_NOT_IMPLEMENTED;
+  mCharset.Assign(aContentCharset);
+  return NS_OK;
 }
 
 NS_IMETHODIMP
