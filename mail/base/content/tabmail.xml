@@ -502,7 +502,6 @@
             "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul",
             "tab");
           tab.tabNode = t;
-          t.setAttribute("crop", "end");
           t.maxWidth = this.tabContainer.mTabMaxWidth;
           t.minWidth = this.tabContainer.mTabMinWidth;
           t.width = 0;
@@ -1540,10 +1539,15 @@
           <xul:image xbl:inherits="validate,src=image,src,fadein,pinned,selected"
                      class="tab-icon-image"
                      role="presentation"/>
-          <xul:label flex="1"
-                     xbl:inherits="value=label,crop,accesskey,fadein,pinned,selected"
-                     class="tab-text tab-label"
-                     role="presentation"/>
+          <xul:hbox class="tab-label-container"
+                    xbl:inherits="pinned,selected=visuallyselected"
+                    onoverflow="this.setAttribute('textoverflow', 'true');"
+                    onunderflow="this.removeAttribute('textoverflow');"
+                    flex="1">
+            <xul:label class="tab-text tab-label"
+                       xbl:inherits="xbl:text=label,accesskey,fadein,pinned,selected"
+                       role="presentation"/>
+          </xul:hbox>
           <xul:toolbarbutton anonid="close-button"
                              xbl:inherits="fadein,pinned,selected"
                              tabindex="-1"
@@ -1642,6 +1646,8 @@
         }
 
         this.setAttribute("notoverflowing", "true");
+        let alltabsButton = document.getElementById("alltabs-button");
+        alltabsButton.setAttribute("hidden", "true");
       ]]></handler>
 
       <handler event="overflow"><![CDATA[
@@ -1655,6 +1661,8 @@
         }
 
         this.removeAttribute("notoverflowing");
+        let alltabsButton = document.getElementById("alltabs-button");
+        alltabsButton.removeAttribute("hidden");
       ]]></handler>
 
       <handler event="UpdatedScrollButtonsDisabledState"><![CDATA[
@@ -1679,36 +1687,29 @@
   <binding id="tabmail-tabs"
            extends="chrome://global/content/bindings/tabbox.xml#tabs">
     <content context="toolbar-context-menu">
-      <xul:stack flex="1" class="tabs-stack">
-        <xul:vbox>
-          <xul:spacer flex="1"/>
-          <xul:hbox class="tabs-bottom" align="center"/>
-        </xul:vbox>
-        <xul:vbox>
-          <xul:hbox>
-            <xul:hbox align="end">
-              <xul:image class="tab-drop-indicator" anonid="tab-drop-indicator" collapsed="true"/>
-            </xul:hbox>
-            <xul:stack>
-              <xul:spacer class="tabs-left"/>
-            </xul:stack>
-            <xul:arrowscrollbox class="tabmail-arrowscrollbox"
-                                anonid="arrowscrollbox"
-                                orient="horizontal"
-                                flex="1"
-                                style="min-width: 1px;">
-              <children includes="tab"/>
-            </xul:arrowscrollbox>
-            <children/>
-            <xul:hbox class="tabs-closebutton-box"
-                      anonid="tabstrip-closebutton"
-                      align="center" pack="end">
-              <xul:toolbarbutton class="close-icon tabs-closebutton"/>
-            </xul:hbox>
+      <xul:vbox flex="1">
+        <xul:hbox>
+          <xul:hbox align="end">
+            <xul:image class="tab-drop-indicator"
+                       anonid="tab-drop-indicator"
+                       collapsed="true"/>
           </xul:hbox>
-          <xul:spacer class="tabs-bottom-spacer"/>
-        </xul:vbox>
-      </xul:stack>
+          <xul:arrowscrollbox class="tabmail-arrowscrollbox"
+                              anonid="arrowscrollbox"
+                              orient="horizontal"
+                              flex="1"
+                              style="min-width: 1px;">
+            <children includes="tab"/>
+          </xul:arrowscrollbox>
+          <children/>
+          <xul:hbox class="tabs-closebutton-box"
+                    anonid="tabstrip-closebutton"
+                    align="center"
+                    pack="end">
+            <xul:toolbarbutton class="close-icon tabs-closebutton"/>
+          </xul:hbox>
+        </xul:hbox>
+      </xul:vbox>
     </content>
 
     <implementation implements="nsITimerCallback, nsIDOMEventListener">
@@ -1896,12 +1897,10 @@
         <body><![CDATA[
           switch (aEvent.type) {
             case "overflow":
-              this.setAttribute("overflow", "true");
               this.mTabstrip.scrollBoxObject
                             .ensureElementIsVisible(this.selectedItem);
               break;
             case "underflow":
-              this.removeAttribute("overflow");
               break;
             case "resize":
               var width = this.mTabstrip.boxObject.width;
@@ -2524,7 +2523,7 @@
         <parameter name="aTab"/>
         <body><![CDATA[
           aMenuitem.setAttribute("label", aTab.label);
-          aMenuitem.setAttribute("crop", aTab.getAttribute("crop"));
+          aMenuitem.setAttribute("crop", "end");
 
           if (aTab.hasAttribute("busy")) {
             aMenuitem.setAttribute("busy", aTab.getAttribute("busy"));

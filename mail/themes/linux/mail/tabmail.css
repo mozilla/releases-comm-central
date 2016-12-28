@@ -53,22 +53,22 @@ tabpanels {
   list-style-image: url(moz-icon://stock/gtk-find?size=menu);
 }
 
-.tabmail-tab > .tab-stack > .tab-content > .tab-text {
+.tabmail-tab > .tab-stack > .tab-content > .tab-label-container {
   /* tabmail-tab focus ring */
   border: 1px dotted transparent;
   margin: -1px !important; /* let the border not consume any space, like outline */
 }
 
-.tabmail-tab:not(:-moz-lwtheme) > .tab-stack > .tab-content > .tab-text {
+.tabmail-tab[selected]:focus > .tab-stack > .tab-content > .tab-label-container {
+  border-color: -moz-DialogText;
+}
+
+.tabmail-tab:not(:-moz-lwtheme) > .tab-stack > .tab-content > .tab-label-container {
   color: -moz-MenuBarText;
 }
 
-.tabmail-tab[selected]:not(:-moz-lwtheme) > .tab-stack > .tab-content > .tab-text {
+.tabmail-tab[selected]:not(:-moz-lwtheme) > .tab-stack > .tab-content > .tab-label-container {
   color: -moz-DialogText;
-}
-
-.tabmail-tab[selected]:focus > .tab-stack > .tab-content > .tab-text {
-  border: 1px dotted -moz-DialogText;
 }
 
 /* Tab drag and drop */

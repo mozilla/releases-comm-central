@@ -273,6 +273,7 @@
       <toolbarbutton class="tabs-alltabs-button"
                      id="alltabs-button"
                      type="menu"
+                     hidden="true"
                      tooltiptext="&listAllTabs.label;">
         <menupopup class="tabs-alltabs-popup"
                    id="alltabs-popup" position="after_end"

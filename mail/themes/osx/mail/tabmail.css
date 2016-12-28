@@ -28,6 +28,7 @@
  */
 
 .tab-label {
+  -moz-box-flex: 1;
   margin-top: 1px;
   margin-bottom: 0;
   text-align: center;
@@ -169,7 +170,7 @@
   opacity: .9;
 }
 
-.tab-label:not([selected="true"]) {
+.tab-label-container:not([selected="true"]) {
   opacity: .7;
 }
 
@@ -184,7 +185,7 @@
   text-shadow: 0 1px rgba(255, 255, 255, 0.4);
 }
 
-.tabmail-tab:focus > .tab-stack > .tab-content > .tab-label {
+.tabmail-tab:focus > .tab-stack > .tab-content > .tab-label-container {
   box-shadow: 0 0 1px -moz-mac-focusring inset,
               0 0 4px 1px -moz-mac-focusring, 0 0 1.5px 1px -moz-mac-focusring;
 }

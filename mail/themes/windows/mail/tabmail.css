@@ -106,12 +106,12 @@ tabpanels {
 }
 
 /* tabmail-tab focus ring */
-.tabmail-tab > .tab-stack > .tab-content > .tab-text {
+.tabmail-tab > .tab-stack > .tab-content > .tab-label-container {
   border: 1px dotted transparent;
 }
 
-.tabmail-tab:focus > .tab-stack > .tab-content > .tab-text {
-  border: 1px dotted -moz-DialogText;
+.tabmail-tab:focus > .tab-stack > .tab-content > .tab-label-container {
+  border-color: -moz-DialogText;
 }
 
 /* Tab DnD indicator */
@@ -161,10 +161,6 @@ tabpanels {
 /**
  * Tab Scrollbox Arrow Buttons
  */
-
-.tabs-left {
-  display: none;
-}
 
 .tabmail-arrowscrollbox > .scrollbutton-up,
 .tabmail-arrowscrollbox > stack > .scrollbutton-down {

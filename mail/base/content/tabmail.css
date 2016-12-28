@@ -30,6 +30,22 @@
   vertical-align: top;
 }
 
+.tab-label-container {
+  overflow: hidden;
+}
+
+.tab-label-container[textoverflow] {
+  mask-image: linear-gradient(to left, transparent, black 1em);
+}
+
+.tab-label-container[textoverflow]:-moz-locale-dir(rtl) {
+  mask-image: linear-gradient(to right, transparent, black 1em);
+}
+
+.tab-label {
+  white-space: nowrap;
+}
+
 .tab-close-button {
   display: none;
 }
@@ -59,10 +75,6 @@
 .tab-throbber[thinking] + .tab-icon-image,
 .tab-throbber[busy][thinking] + .tab-icon-image {
   display: none;
-}
-
-#tabcontainer:not([overflow="true"]) ~ #alltabs-button {
-  visibility: collapse;
 }
 
 /**
