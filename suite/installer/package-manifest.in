@@ -373,6 +373,8 @@
 @RESPATH@/components/FeedConverter.js
 @RESPATH@/components/FeedProcessor.js
 @RESPATH@/components/FeedProcessor.manifest
+@RESPATH@/components/WellKnownOpportunisticUtils.js
+@RESPATH@/components/WellKnownOpportunisticUtils.manifest
 @RESPATH@/components/FeedWriter.js
 @RESPATH@/components/folderLookupService.js
 @RESPATH@/components/formautofill.manifest
