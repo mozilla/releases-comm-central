@@ -2,16 +2,21 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var calUtils = require("../shared-modules/calendar-utils");
-var timezoneUtils = require("../shared-modules/timezone-utils");
+var RELATIVE_ROOT = "../shared-modules";
+var MODULE_REQUIRES = ["calendar-utils", "timezone-utils"];
 
-var calendar = "Mozmill";
+var createCalendar, CALENDARNAME;
+var switchAppTimezone;
 
-var setupModule = function(module) {
+function setupModule(module) {
     controller = mozmill.getMail3PaneController();
-    calUtils.createCalendar(controller, calendar);
-};
+    ({ createCalendar, CALENDARNAME } = collector.getModule("calendar-utils"));
+    collector.getModule("calendar-utils").setupModule();
+    ({ switchAppTimezone } = collector.getModule("timezone-utils"));
+    collector.getModule("timezone-utils").setupModule();
+    createCalendar(controller, CALENDARNAME);
+}
 
-var testTimezones1_SetGMT = function() {
-    timezoneUtils.switchAppTimezone("Europe/London");
-};
+function testTimezones1_SetGMT() {
+    switchAppTimezone("Europe/London");
+}

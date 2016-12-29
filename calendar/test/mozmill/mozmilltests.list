@@ -1,3 +1,4 @@
+testAlarmDefaultValue.js
 testBasicFunctionality.js
-testTodayPane.js
 testLocalICS.js
+testTodayPane.js

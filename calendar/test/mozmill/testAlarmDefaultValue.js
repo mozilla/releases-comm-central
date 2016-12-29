@@ -3,116 +3,110 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /**
- * @title Test default alarm settings for events and tasks
- * @litmus 2510
+ * Test default alarm settings for events and tasks
  */
-
-Components.utils.import("resource://calendar/modules/calUtils.jsm");
-Components.utils.import("resource://gre/modules/PluralForm.jsm");
-Components.utils.import("resource://gre/modules/Services.jsm");
 
 var MODULE_NAME = "testAlarmDefaultValue";
 var RELATIVE_ROOT = "./shared-modules";
-var MODULE_REQUIRES = ["calendar-utils"];
+var MODULE_REQUIRES = ["calendar-utils", "keyboard-helpers"];
 
-var calendarController;
-var calUtils = require("shared-modules/calendar-utils");
+Cu.import("resource://calendar/modules/calUtils.jsm");
+Cu.import("resource://gre/modules/PluralForm.jsm");
+Cu.import("resource://gre/modules/Preferences.jsm");
+
+const DEFVALUE = 43;
+
+var helpersForController, invokeEventDialog, openLightningPrefs, menulistSelect;
 
 function setupModule(module) {
-    calendarController = mozmill.getMail3PaneController();
+    controller = mozmill.getMail3PaneController();
+    ({
+        helpersForController,
+        invokeEventDialog,
+        openLightningPrefs,
+        menulistSelect
+    } = collector.getModule("calendar-utils"));
+    collector.getModule("calendar-utils").setupModule();
+    Object.assign(module, helpersForController(controller));
 }
 
 function testDefaultAlarms() {
-    let localeUnitString = cal.calGetString("calendar",
-                                            "unitDays");
-    let unitString = PluralForm.get(50, localeUnitString)
-                               .replace("#1", 50);
-    let originStringEvent = cal.calGetString("calendar-alarms",
-                                             "reminderCustomOriginBeginBeforeEvent");
-    let originStringTask = cal.calGetString("calendar-alarms",
-                                            "reminderCustomOriginBeginBeforeTask");
-    let expectedEventReminder = cal.calGetString("calendar-alarms",
-                                                "reminderCustomTitle",
-                                                [unitString, originStringEvent]);
-    let expectedTaskReminder = cal.calGetString("calendar-alarms",
-                                                "reminderCustomTitle",
-                                                [unitString, originStringTask]);
+    let localeUnitString = cal.calGetString("calendar", "unitDays");
+    let unitString = PluralForm.get(DEFVALUE, localeUnitString).replace("#1", DEFVALUE);
+    let alarmString = (...args) => cal.calGetString("calendar-alarms", ...args);
+    let originStringEvent = alarmString("reminderCustomOriginBeginBeforeEvent");
+    let originStringTask = alarmString("reminderCustomOriginBeginBeforeTask");
+    let expectedEventReminder = alarmString("reminderCustomTitle", [unitString, originStringEvent]);
+    let expectedTaskReminder = alarmString("reminderCustomTitle", [unitString, originStringTask]);
 
     // Configure the lightning preferences
-    calUtils.open_lightning_prefs(handle_pref_dialog, calendarController, collector);
+    openLightningPrefs(handlePrefDialog, controller);
 
     // Create New Event
-    calendarController.click(new elementslib.ID(calendarController.window.document, "newMsgButton-calendar-menuitem"));
+    controller.click(eid("newMsgButton-calendar-menuitem"));
 
     // Set up the event dialog controller
-    calendarController.waitFor(() => mozmill.utils.getWindows("Calendar:EventDialog").length > 0);
-    let eventController = new mozmill.controller.MozMillController(mozmill.utils.getWindows("Calendar:EventDialog")[0]);
+    invokeEventDialog(controller, null, (event, iframe) => {
+        let { xpath: eventpath, eid: eventid } = helpersForController(event);
 
-    // Check if the "custom" item was selected
-    eventController.assertDOMProperty(new elementslib.ID(eventController.window.document, "item-alarm"),
-                                      "value",
-                                      "custom");
-    eventController.assertDOMProperty(new elementslib.XPath(eventController.window.document,
-                                        '//*[@id="reminder-details"]/*[local-name()="label" ' +
-                                        'and (not(@hidden) or @hidden="false")]'),
-                                      "value",
-                                      expectedEventReminder);
+        // Check if the "custom" item was selected
+        event.assertDOMProperty(eventid("item-alarm"), "value", "custom");
+        let reminderDetailsVisible = eventpath(`
+            //*[@id="reminder-details"]/
+            *[local-name()="label" and (not(@hidden) or @hidden="false")]
+        `);
+        event.assertDOMProperty(reminderDetailsVisible, "value", expectedEventReminder);
 
-    // Close the event dialog
-    eventController.window.close();
-    calendarController.waitFor(() => mozmill.utils.getWindows("Calendar:EventDialog").length == 0);
+        // Close the event dialog
+        event.window.close();
+    });
 
     // Create New Task
-    calendarController.click(new elementslib.ID(calendarController.window.document, "newMsgButton-task-menuitem"));
+    controller.click(eid("newMsgButton-task-menuitem"));
+    invokeEventDialog(controller, null, (task, iframe) => {
+        let { xpath: taskpath, eid: taskid } = helpersForController(task);
 
-    // Set up the task dialog controller
-    calendarController.waitFor(() => mozmill.utils.getWindows("Calendar:EventDialog").length > 0);
-    let taskController = new mozmill.controller.MozMillController(mozmill.utils.getWindows("Calendar:EventDialog")[0]);
+        // Check if the "custom" item was selected
+        task.assertDOMProperty(taskid("item-alarm"), "value", "custom");
+        reminderDetailsVisible = taskpath(`
+            //*[@id="reminder-details"]/
+            *[local-name()="label" and (not(@hidden) or @hidden="false")]
+        `);
+        task.assertDOMProperty(reminderDetailsVisible, "value", expectedTaskReminder);
 
-    // Check if the "custom" item was selected
-    taskController.assertDOMProperty(new elementslib.ID(taskController.window.document, "item-alarm"),
-                                     "value",
-                                     "custom");
-    taskController.assertDOMProperty(new elementslib.XPath(taskController.window.document,
-                                       '//*[@id="reminder-details"]/*[local-name()="label" ' +
-                                        'and (not(@hidden) or @hidden="false")]'),
-                                     "value",
-                                     expectedTaskReminder);
-    // Close the task dialog
-    taskController.window.close();
-    calendarController.waitFor(() => mozmill.utils.getWindows("Calendar:EventDialog").length == 0);
+        // Close the task dialog
+        task.window.close();
+    });
 }
 
-function handle_pref_dialog(prefsController) {
+function handlePrefDialog(prefs) {
+    let { eid: prefsid } = helpersForController(prefs);
+
     // Click on the alarms tab
-    prefsController.click(new elementslib.ID(prefsController.window.document, "calPreferencesTabAlarms"));
+    prefs.click(prefsid("calPreferencesTabAlarms"));
 
     // Turn on alarms for events and tasks
-    prefsController.waitThenClick(new elementslib.ID(prefsController.window.document, "eventdefalarm"));
-    prefsController.click(new elementslib.ID(prefsController.window.document, "eventdefalarmon"));
-    prefsController.click(new elementslib.ID(prefsController.window.document, "tododefalarm"));
-    prefsController.click(new elementslib.ID(prefsController.window.document, "tododefalarmon"));
+    prefs.waitForElement(prefsid("eventdefalarm"));
+    menulistSelect(prefsid("eventdefalarm"), "1", prefs);
+    menulistSelect(prefsid("tododefalarm"), "1", prefs);
 
     // Selects "days" as a unit
-    prefsController.select(new elementslib.ID(prefsController.window.document, "tododefalarmunit"),
-                           null, null, "days");
-    prefsController.select(new elementslib.ID(prefsController.window.document, "eventdefalarmunit"),
-                           null, null, "days");
+    menulistSelect(prefsid("tododefalarmunit"), "days", prefs);
+    menulistSelect(prefsid("eventdefalarmunit"), "days", prefs);
 
-    // Sets default alarm length for events to "50"
-    let eventdefalarmlen = new elementslib.ID(prefsController.window.document, "eventdefalarmlen");
-    let tododefalarmlen = new elementslib.ID(prefsController.window.document, "tododefalarmlen");
-    prefsController.keypress(eventdefalarmlen, "a", { accelKey: true });
-    prefsController.type(eventdefalarmlen, "50");
-    prefsController.keypress(tododefalarmlen, "a", { accelKey: true });
-    prefsController.type(tododefalarmlen, "50");
+    // Sets default alarm length for events to DEFVALUE
+    let eventdefalarmlen = prefsid("eventdefalarmlen");
+    prefs.click(eventdefalarmlen);
+    prefs.keypress(eventdefalarmlen, "a", { accelKey: true });
+    prefs.type(eventdefalarmlen, DEFVALUE.toString());
+
+    let tododefalarmlen = prefsid("tododefalarmlen");
+    prefs.click(tododefalarmlen);
+    prefs.keypress(tododefalarmlen, "a", { accelKey: true });
+    prefs.type(tododefalarmlen, DEFVALUE.toString());
+    prefs.window.document.documentElement.acceptDialog();
 }
 
 function teardownTest(module) {
-    Services.prefs.clearUserPref("calendar.alarms.eventalarmlen");
-    Services.prefs.clearUserPref("calendar.alarms.eventalarmunit");
-    Services.prefs.clearUserPref("calendar.alarms.onforevents");
-    Services.prefs.clearUserPref("calendar.alarms.onfortodos");
-    Services.prefs.clearUserPref("calendar.alarms.todoalarmlen");
-    Services.prefs.clearUserPref("calendar.alarms.todoalarmunit");
+    Preferences.resetBranch("calendar.alarms");
 }
