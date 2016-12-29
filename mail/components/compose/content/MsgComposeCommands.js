@@ -4346,14 +4346,11 @@ function OpenSelectedAttachment()
     }
     else
     {
-      // turn the url into a nsIURL object then open it
-
-      let url = Services.io.newURI(attachmentUrl, null, null);
-      url = url.QueryInterface( Components.interfaces.nsIURL );
-
-      if (url)
+      // Turn the URL into a nsIURI object then open it.
+      let uri = Services.io.newURI(attachmentUrl, null, null);
+      if (uri)
       {
-        let channel = Services.io.newChannelFromURI2(url,
+        let channel = Services.io.newChannelFromURI2(uri,
                                                      null,
                                                      Services.scriptSecurityManager.getSystemPrincipal(),
                                                      null,
@@ -4363,8 +4360,8 @@ function OpenSelectedAttachment()
         {
           let uriLoader = Components.classes["@mozilla.org/uriloader;1"].getService(Components.interfaces.nsIURILoader);
           uriLoader.openURI(channel, true, new nsAttachmentOpener());
-        } // if channel
-      } // if url
+        }
+      }
     }
   } // if one attachment selected
 }
@@ -5654,17 +5651,16 @@ function loadBlockedImage(aURL) {
     filename = (fnMatch && fnMatch[1]) || "";
   }
   filename = decodeURIComponent(filename);
-  let url = Services.io.newURI(aURL, null, null);
+  let uri = Services.io.newURI(aURL, null, null);
   let contentType = Components.classes["@mozilla.org/mime;1"]
     .getService(Components.interfaces.nsIMIMEService)
-    .getTypeFromURI(url);
+    .getTypeFromURI(uri);
   if (!contentType.startsWith("image/")) {
     // Unsafe to unblock this. It would just be garbage either way.
-    throw new Error("Won't unblock; url=" + aURL +
+    throw new Error("Won't unblock; URL=" + aURL +
                     ", contentType=" + contentType);
   }
-  url = url.QueryInterface(Components.interfaces.nsIURL);
-  let channel = Services.io.newChannelFromURI2(url,
+  let channel = Services.io.newChannelFromURI2(uri,
     null,
     Services.scriptSecurityManager.getSystemPrincipal(),
     null,
