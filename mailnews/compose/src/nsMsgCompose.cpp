@@ -1879,9 +1879,7 @@ nsresult nsMsgCompose::CreateMessage(const char * originalMsgURI,
       {
         nsCString queuedDisposition;
         msgDBHdr->GetStringProperty(QUEUED_DISPOSITION_PROPERTY, getter_Copies(queuedDisposition));
-        nsCString originalMsgURIs;
-        msgDBHdr->GetStringProperty(ORIG_URI_PROPERTY, getter_Copies(originalMsgURIs));
-        mOriginalMsgURI = originalMsgURIs;
+        mOriginalMsgURI.Assign(originalMsgURI);
         if (!queuedDisposition.IsEmpty())
         {
           if (queuedDisposition.Equals("replied"))

@@ -1052,8 +1052,8 @@ function ComposeStartup(aParams)
         params.type = args.type;
       if (args.format)
         params.format = args.format;
-      if (args.originalMsg)
-        params.originalMsgURI = args.originalMsg;
+      if (args.originalMsgURI)
+        params.originalMsgURI = args.originalMsgURI;
       if (args.preselectid)
         params.identity = getIdentityForKey(args.preselectid);
       if (args.to)

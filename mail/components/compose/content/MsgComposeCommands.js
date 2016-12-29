@@ -2462,8 +2462,8 @@ function ComposeStartup(aParams)
         else if (args.format.toLowerCase().trim() == "text")
           params.format = Components.interfaces.nsIMsgCompFormat.PlainText;
       }
-      if (args.originalMsg)
-        params.originalMsgURI = args.originalMsg;
+      if (args.originalMsgURI)
+        params.originalMsgURI = args.originalMsgURI;
       if (args.preselectid)
         params.identity = getIdentityForKey(args.preselectid);
       else if (args.from) {
