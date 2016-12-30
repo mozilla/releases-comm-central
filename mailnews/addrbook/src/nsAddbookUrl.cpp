@@ -248,6 +248,30 @@ nsAddbookUrl::SetRef(const nsACString &aRef)
   return ParseUrl();
 }
 
+NS_IMETHODIMP
+nsAddbookUrl::GetFilePath(nsACString &aFilePath)
+{
+  return m_baseURL->GetFilePath(aFilePath);
+}
+
+NS_IMETHODIMP
+nsAddbookUrl::SetFilePath(const nsACString &aFilePath)
+{
+  return m_baseURL->SetFilePath(aFilePath);
+}
+
+NS_IMETHODIMP
+nsAddbookUrl::GetQuery(nsACString &aQuery)
+{
+  return m_baseURL->GetQuery(aQuery);
+}
+
+NS_IMETHODIMP
+nsAddbookUrl::SetQuery(const nsACString &aQuery)
+{
+  return m_baseURL->SetQuery(aQuery);
+}
+
 NS_IMETHODIMP nsAddbookUrl::EqualsExceptRef(nsIURI *other, bool *_retval)
 {
   // The passed-in URI might be an nsMailtoUrl. Pass our inner URL to its

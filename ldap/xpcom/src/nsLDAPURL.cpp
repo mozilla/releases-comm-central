@@ -723,3 +723,27 @@ nsLDAPURL::GetHasRef(bool *result)
 {
   return mBaseURL->GetHasRef(result);
 }
+
+NS_IMETHODIMP
+nsLDAPURL::GetFilePath(nsACString &aFilePath)
+{
+  return mBaseURL->GetFilePath(aFilePath);
+}
+
+NS_IMETHODIMP
+nsLDAPURL::SetFilePath(const nsACString &aFilePath)
+{
+  return mBaseURL->SetFilePath(aFilePath);
+}
+
+NS_IMETHODIMP
+nsLDAPURL::GetQuery(nsACString &aQuery)
+{
+  return mBaseURL->GetQuery(aQuery);
+}
+
+NS_IMETHODIMP
+nsLDAPURL::SetQuery(const nsACString &aQuery)
+{
+  return mBaseURL->SetQuery(aQuery);
+}

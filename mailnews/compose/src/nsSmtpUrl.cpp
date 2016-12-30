@@ -602,6 +602,30 @@ nsMailtoUrl::GetHasRef(bool *result)
   return m_baseURL->GetHasRef(result);
 }
 
+NS_IMETHODIMP
+nsMailtoUrl::GetFilePath(nsACString &aFilePath)
+{
+  return m_baseURL->GetFilePath(aFilePath);
+}
+
+NS_IMETHODIMP
+nsMailtoUrl::SetFilePath(const nsACString &aFilePath)
+{
+  return m_baseURL->SetFilePath(aFilePath);
+}
+
+NS_IMETHODIMP
+nsMailtoUrl::GetQuery(nsACString &aQuery)
+{
+  return m_baseURL->GetQuery(aQuery);
+}
+
+NS_IMETHODIMP
+nsMailtoUrl::SetQuery(const nsACString &aQuery)
+{
+  return m_baseURL->SetQuery(aQuery);
+}
+
 /////////////////////////////////////////////////////////////////////////////////////
 // smtp url definition
 /////////////////////////////////////////////////////////////////////////////////////
