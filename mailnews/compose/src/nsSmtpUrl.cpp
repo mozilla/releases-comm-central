@@ -97,7 +97,7 @@ nsresult nsMailtoUrl::ParseMailtoUrl(char * searchPart)
 
       switch (NS_ToUpper(decodedName.First()))
       {
-        /* DO NOT support attachment= in mailto urls. This poses a security fire hole!!! 
+        /* DO NOT support attachment= in mailto urls. This poses a security fire hole!!!
                           case 'A':
                           if (!PL_strcasecmp (token, "attachment"))
                           m_attachmentPart = value;
@@ -112,7 +112,7 @@ nsresult nsMailtoUrl::ParseMailtoUrl(char * searchPart)
             escapedBccPart += value;
           }
           else
-            escapedBccPart = value; 
+            escapedBccPart = value;
         }
         else if (decodedName.LowerCaseEqualsLiteral("body"))
         {
@@ -125,7 +125,7 @@ nsresult nsMailtoUrl::ParseMailtoUrl(char * searchPart)
             escapedBodyPart = value;
         }
         break;
-      case 'C': 
+      case 'C':
         if (decodedName.LowerCaseEqualsLiteral("cc"))
         {
           if (!escapedCcPart.IsEmpty())
@@ -137,7 +137,7 @@ nsresult nsMailtoUrl::ParseMailtoUrl(char * searchPart)
             escapedCcPart = value;
         }
         break;
-      case 'F': 
+      case 'F':
         if (decodedName.LowerCaseEqualsLiteral("followup-to"))
           escapedFollowUpToPart = value;
         else if (decodedName.LowerCaseEqualsLiteral("from"))
@@ -271,7 +271,7 @@ nsresult nsMailtoUrl::CleanupMailtoState()
     m_ccPart = "";
     m_subjectPart = "";
     m_newsgroupPart = "";
-    m_newsHostPart = ""; 
+    m_newsHostPart = "";
     m_referencePart = "";
     m_bodyPart = "";
     m_bccPart = "";
@@ -638,12 +638,12 @@ nsSmtpUrl::nsSmtpUrl() : nsMsgMailNewsUrl()
   m_requestDSN = false;
   m_verifyLogon = false;
 }
- 
+
 nsSmtpUrl::~nsSmtpUrl()
 {
 }
-  
-NS_IMPL_ISUPPORTS_INHERITED(nsSmtpUrl, nsMsgMailNewsUrl, nsISmtpUrl)  
+
+NS_IMPL_ISUPPORTS_INHERITED(nsSmtpUrl, nsMsgMailNewsUrl, nsISmtpUrl)
 
 ////////////////////////////////////////////////////////////////////////////////////
 // Begin nsISmtpUrl specific support
@@ -695,7 +695,7 @@ NS_IMETHODIMP nsSmtpUrl::GetPostMessageFile(nsIFile ** aFile)
 
 NS_IMPL_GETSET(nsSmtpUrl, RequestDSN, bool, m_requestDSN)
 
-NS_IMETHODIMP 
+NS_IMETHODIMP
 nsSmtpUrl::SetDsnEnvid(const nsACString &aDsnEnvid)
 {
     m_dsnEnvid = aDsnEnvid;

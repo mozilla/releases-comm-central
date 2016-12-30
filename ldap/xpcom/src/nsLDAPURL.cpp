@@ -1,5 +1,5 @@
 /* -*- Mode: C++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*-
- * 
+ *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
@@ -126,7 +126,7 @@ nsLDAPURL::SetPathInternal(const nsCString &aPath)
     NS_ERROR("nsLDAPURL::SetSpec: out of memory ");
     return NS_ERROR_OUT_OF_MEMORY;
 
-  case LDAP_URL_ERR_PARAM: 
+  case LDAP_URL_ERR_PARAM:
     return NS_ERROR_INVALID_POINTER;
   }
 
@@ -134,12 +134,12 @@ nsLDAPURL::SetPathInternal(const nsCString &aPath)
   return NS_ERROR_UNEXPECTED;
 }
 
-// A string representation of the URI. Setting the spec 
+// A string representation of the URI. Setting the spec
 // causes the new spec to be parsed, initializing the URI. Setting
 // the spec (or any of the accessors) causes also any currently
 // open streams on the URI's channel to be closed.
 
-NS_IMETHODIMP 
+NS_IMETHODIMP
 nsLDAPURL::GetSpec(nsACString &_retval)
 {
   if (!mBaseURL)
@@ -148,7 +148,7 @@ nsLDAPURL::GetSpec(nsACString &_retval)
   return mBaseURL->GetSpec(_retval);
 }
 
-NS_IMETHODIMP 
+NS_IMETHODIMP
 nsLDAPURL::SetSpec(const nsACString &aSpec)
 {
   if (!mBaseURL)
@@ -202,7 +202,7 @@ NS_IMETHODIMP nsLDAPURL::SetScheme(const nsACString &aScheme)
   return mBaseURL->SetScheme(aScheme);
 }
 
-NS_IMETHODIMP 
+NS_IMETHODIMP
 nsLDAPURL::GetUserPass(nsACString &_retval)
 {
   _retval.Truncate();
@@ -228,20 +228,20 @@ nsLDAPURL::SetUsername(const nsACString &aUsername)
   return NS_OK;
 }
 
-NS_IMETHODIMP 
+NS_IMETHODIMP
 nsLDAPURL::GetPassword(nsACString &_retval)
 {
   _retval.Truncate();
   return NS_OK;
 }
 
-NS_IMETHODIMP 
+NS_IMETHODIMP
 nsLDAPURL::SetPassword(const nsACString &aPassword)
 {
   return NS_OK;
 }
 
-NS_IMETHODIMP 
+NS_IMETHODIMP
 nsLDAPURL::GetHostPort(nsACString &_retval)
 {
   if (!mBaseURL)
@@ -250,7 +250,7 @@ nsLDAPURL::GetHostPort(nsACString &_retval)
   return mBaseURL->GetHostPort(_retval);
 }
 
-NS_IMETHODIMP 
+NS_IMETHODIMP
 nsLDAPURL::SetHostPort(const nsACString &aHostPort)
 {
   if (!mBaseURL)
@@ -268,7 +268,7 @@ nsLDAPURL::SetHostAndPort(const nsACString &aHostPort)
   return mBaseURL->SetHostAndPort(aHostPort);
 }
 
-NS_IMETHODIMP 
+NS_IMETHODIMP
 nsLDAPURL::GetHost(nsACString &_retval)
 {
   if (!mBaseURL)
@@ -277,7 +277,7 @@ nsLDAPURL::GetHost(nsACString &_retval)
   return mBaseURL->GetHost(_retval);
 }
 
-NS_IMETHODIMP 
+NS_IMETHODIMP
 nsLDAPURL::SetHost(const nsACString &aHost)
 {
   if (!mBaseURL)
@@ -286,7 +286,7 @@ nsLDAPURL::SetHost(const nsACString &aHost)
   return mBaseURL->SetHost(aHost);
 }
 
-NS_IMETHODIMP 
+NS_IMETHODIMP
 nsLDAPURL::GetPort(int32_t *_retval)
 {
   if (!mBaseURL)
@@ -295,7 +295,7 @@ nsLDAPURL::GetPort(int32_t *_retval)
   return mBaseURL->GetPort(_retval);
 }
 
-NS_IMETHODIMP 
+NS_IMETHODIMP
 nsLDAPURL::SetPort(int32_t aPort)
 {
   if (!mBaseURL)

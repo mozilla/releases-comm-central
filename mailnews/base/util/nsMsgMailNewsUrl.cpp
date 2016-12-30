@@ -52,7 +52,7 @@ nsMsgMailNewsUrl::~nsMsgMailNewsUrl()
 {
   PR_FREEIF(m_errorMessage);
 }
-  
+
 NS_IMPL_ISUPPORTS(nsMsgMailNewsUrl, nsIMsgMailNewsUrl, nsIURL, nsIURI)
 
 ////////////////////////////////////////////////////////////////////////////////////
@@ -74,7 +74,7 @@ nsresult nsMsgMailNewsUrl::SetUrlState(bool aRunningUrl, nsresult aExitCode)
     return NS_OK;
   m_runningUrl = aRunningUrl;
   nsCOMPtr <nsIMsgStatusFeedback> statusFeedback;
-  
+
   // put this back - we need it for urls that don't run through the doc loader
   if (NS_SUCCEEDED(GetStatusFeedback(getter_AddRefs(statusFeedback))) && statusFeedback)
   {
@@ -86,7 +86,7 @@ nsresult nsMsgMailNewsUrl::SetUrlState(bool aRunningUrl, nsresult aExitCode)
       statusFeedback->StopMeteors();
     }
   }
-  
+
   if (m_runningUrl)
   {
     NOTIFY_URL_LISTENERS(OnStartRunningUrl, (this));
@@ -96,7 +96,7 @@ nsresult nsMsgMailNewsUrl::SetUrlState(bool aRunningUrl, nsresult aExitCode)
     NOTIFY_URL_LISTENERS(OnStopRunningUrl, (this, aExitCode));
     mUrlListeners.Clear();
   }
-  
+
   return NS_OK;
 }
 
@@ -147,16 +147,16 @@ NS_IMETHODIMP nsMsgMailNewsUrl::GetServer(nsIMsgIncomingServer ** aIncomingServe
         if (scheme.EqualsLiteral("news"))
           scheme.Assign("nntp");
         url->SetScheme(scheme);
-        nsCOMPtr<nsIMsgAccountManager> accountManager = 
+        nsCOMPtr<nsIMsgAccountManager> accountManager =
                  do_GetService(NS_MSGACCOUNTMANAGER_CONTRACTID, &rv);
         if (NS_FAILED(rv)) return rv;
-        
+
         nsCOMPtr<nsIMsgIncomingServer> server;
         rv = accountManager->FindServerByURI(url, false,
                                         aIncomingServer);
         if (!*aIncomingServer && scheme.EqualsLiteral("imap"))
         {
-          // look for any imap server with this host name so clicking on 
+          // look for any imap server with this host name so clicking on
           // other users folder urls will work. We could override this method
           // for imap urls, or we could make caching of servers work and
           // just set the server in the imap code for this case.
@@ -173,7 +173,7 @@ NS_IMETHODIMP nsMsgMailNewsUrl::GetMsgWindow(nsIMsgWindow **aMsgWindow)
 {
   NS_ENSURE_ARG_POINTER(aMsgWindow);
   *aMsgWindow = nullptr;
-  
+
   nsCOMPtr<nsIMsgWindow> msgWindow(do_QueryReferent(m_msgWindowWeak));
   msgWindow.swap(*aMsgWindow);
   return *aMsgWindow ? NS_OK : NS_ERROR_NULL_POINTER;
@@ -264,7 +264,7 @@ NS_IMETHODIMP nsMsgMailNewsUrl::SetUpdatingFolder(bool updatingFolder)
 
 NS_IMETHODIMP nsMsgMailNewsUrl::GetMsgIsInLocalCache(bool *aMsgIsInLocalCache)
 {
-  NS_ENSURE_ARG(aMsgIsInLocalCache); 
+  NS_ENSURE_ARG(aMsgIsInLocalCache);
   *aMsgIsInLocalCache = m_msgIsInLocalCache;
   return NS_OK;
 }
@@ -277,7 +277,7 @@ NS_IMETHODIMP nsMsgMailNewsUrl::SetMsgIsInLocalCache(bool aMsgIsInLocalCache)
 
 NS_IMETHODIMP nsMsgMailNewsUrl::GetSuppressErrorMsgs(bool *aSuppressErrorMsgs)
 {
-  NS_ENSURE_ARG(aSuppressErrorMsgs); 
+  NS_ENSURE_ARG(aSuppressErrorMsgs);
   *aSuppressErrorMsgs = m_suppressErrorMsgs;
   return NS_OK;
 }
@@ -560,7 +560,7 @@ nsMsgMailNewsUrl::CloneWithNewRef(const nsACString& newRef, nsIURI** _retval)
   return CloneInternal(nsIMsgMailNewsUrl::REPLACE_REF, newRef, _retval);
 }
 
-NS_IMETHODIMP nsMsgMailNewsUrl::Resolve(const nsACString &relativePath, nsACString &result) 
+NS_IMETHODIMP nsMsgMailNewsUrl::Resolve(const nsACString &relativePath, nsACString &result)
 {
   // only resolve anchor urls....i.e. urls which start with '#' against the mailnews url...
   // everything else shouldn't be resolved against mailnews urls.
@@ -784,11 +784,11 @@ nsMsgSaveAsListener::OnStopRequest(nsIRequest *request, nsISupports * aCtxt, nsr
     m_outputStream->Close();
   }
   return NS_OK;
-} 
+}
 
-NS_IMETHODIMP nsMsgSaveAsListener::OnDataAvailable(nsIRequest* request, 
+NS_IMETHODIMP nsMsgSaveAsListener::OnDataAvailable(nsIRequest* request,
                                   nsISupports* aSupport,
-                                  nsIInputStream* inStream, 
+                                  nsIInputStream* inStream,
                                   uint64_t srcOffset,
                                   uint32_t count)
 {
@@ -806,10 +806,10 @@ NS_IMETHODIMP nsMsgSaveAsListener::OnDataAvailable(nsIRequest* request,
   nsCOMPtr <nsIMsgMessageUrl> msgUrl = do_QueryInterface(aSupport);
   if (msgUrl)
     msgUrl->GetCanonicalLineEnding(&useCanonicalEnding);
-  
+
   const char *lineEnding = (useCanonicalEnding) ? CRLF : MSG_LINEBREAK;
   uint32_t lineEndingLength = (useCanonicalEnding) ? 2 : MSG_LINEBREAK_LEN;
-  
+
   uint32_t readCount, maxReadCount = SAVE_BUF_SIZE - m_leftOver;
   uint32_t writeCount;
   char *start, *end, lastCharInPrevBuf = '\0';
@@ -885,7 +885,7 @@ NS_IMETHODIMP nsMsgSaveAsListener::OnDataAvailable(nsIRequest* request,
           lastCharInPrevBuf = *end;
   }
   return rv;
-  
+
   //  rv = m_outputStream->WriteFrom(inStream, std::min(available, count), &bytesWritten);
 }
 
@@ -931,7 +931,7 @@ nsresult nsMsgSaveAsListener::SetupMsgWriteStream(nsIFile *aFile, bool addDummyE
 }
 
 
-NS_IMETHODIMP nsMsgMailNewsUrl::GetSaveAsListener(bool addDummyEnvelope, 
+NS_IMETHODIMP nsMsgMailNewsUrl::GetSaveAsListener(bool addDummyEnvelope,
                                                   nsIFile *aFile, nsIStreamListener **aSaveListener)
 {
   NS_ENSURE_ARG_POINTER(aSaveListener);
