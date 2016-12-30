@@ -259,33 +259,8 @@
     list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#timezones-inverted);
   }
 
-  #event-toolbox {
-    -moz-appearance: none;
-    border-top: none;
-    background-color: -moz-Dialog;
-    border-bottom: 1px solid ThreeDShadow;
-  }
-
-  #event-menubar,
-  #event-toolbar {
-    -moz-appearance: none;
-    border-style: none;
-    background-color: transparent
-  }
-
-  #event-toolbar {
-    margin-inline-start: 0;
-    padding: 1px 0 2px;
-  }
-}
-
-@media (-moz-windows-default-theme) and (-moz-os-version: windows-vista),
-       (-moz-windows-default-theme) and (-moz-os-version: windows-win7) {
-  /* < Win8 */
-  #event-toolbox {
-    background-color: hsl(210, 75%, 92%);
-    background-image: linear-gradient(rgba(255, 255, 255, .5),
-                      rgba(255, 255, 255, 0));
+  #calendar-event-dialog > #event-toolbox > #event-toolbar {
+    padding-bottom: 2px;
   }
 }
 
@@ -321,11 +296,5 @@
 
   #button-timezones {
     list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#timezones-flat);
-  }
-}
-
-@media (-moz-windows-glass) {
-  #event-toolbox {
-    border-bottom-color: #AABCCF;
   }
 }
