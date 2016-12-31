@@ -24,7 +24,7 @@
   }
 
   #button-saveandclose {
-    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar-osxlion.svg#save);
+    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar-osxlion.svg#save-close);
   }
 
   #button-attendees {
@@ -68,7 +68,7 @@
   }
 
   #button-saveandclose {
-    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#save-flat);
+    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#save-close-flat);
   }
 
   #button-attendees {
@@ -111,7 +111,7 @@ toolbar[brighttext] #button-save {
 }
 
 toolbar[brighttext] #button-saveandclose {
-  list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#save-inverted);
+  list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#save-close-inverted);
 }
 
 toolbar[brighttext] #button-attendees {
