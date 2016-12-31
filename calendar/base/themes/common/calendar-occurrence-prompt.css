@@ -28,7 +28,6 @@
   border-bottom: 2px groove ThreeDFace;
 }
 
-
 .occurrence-accept-buttons {
   list-style-image: url(chrome://calendar/skin/calendar-occurrence-prompt.png);
   margin: 10px 0px;
@@ -62,7 +61,9 @@
   -moz-image-region: rect(0 120px 20px 100px);
 }
 
-@media not all and (-moz-os-version: windows-xp) {
+@media (-moz-os-version: windows-win7),
+       (-moz-os-version: windows-win8),
+       (-moz-os-version: windows-win10) {
   .occurrence-accept-buttons {
     list-style-image: url(chrome://calendar/skin/calendar-occurrence-prompt-aero.png);
   }

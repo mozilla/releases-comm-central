@@ -4,9 +4,7 @@
 
 @import url(chrome://calendar-common/skin/today-pane.css);
 
-@media (-moz-os-version: windows-xp),
-       (-moz-os-version: windows-vista),
-       (-moz-os-version: windows-win7) {
+@media (-moz-os-version: windows-win7) {
   #today-pane-panel:-moz-lwtheme {
     box-shadow: 0 1px 0 rgba(253, 253, 253, 0.45) inset;
   }
@@ -79,65 +77,45 @@
   margin-inline-end: 0px; /* override toolkit's default value */
 }
 
-@media (-moz-os-version: windows-xp) {
-  #today-pane-panel {
-    border-left: 1px solid ThreeDShadow;
-  }
-
-  .today-pane-cycler {
-    padding-inline-end: 0;
-  }
-
-  #todaypane-new-event-button {
-    list-style-image: url("chrome://calendar/skin/toolbar-small.png");
-    -moz-image-region: rect(0px 16px 16px 0px);
-  }
-  #todaypane-new-event-button[disabled="true"] {
-    -moz-image-region: rect(32px 16px 48px 0px);
-  }
+#today-none-box {
+  border-top: 1px solid ThreeDShadow;
 }
 
-@media not all and (-moz-os-version: windows-xp) {
-  #today-none-box {
-    border-top: 1px solid ThreeDShadow;
+.today-pane-cycler {
+  padding-inline-start: 5px;
+  padding-inline-end: 5px;
+}
+
+#todaypane-new-event-button {
+  list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#newevent);
+}
+
+#todaypane-new-event-button[disabled="true"] > .toolbarbutton-icon {
+  opacity: 0.4;
+}
+
+#todaypane-new-event-button > .toolbarbutton-icon {
+  width: 18px;
+  height: 18px;
+  margin: -1px;
+}
+
+@media (-moz-windows-default-theme) {
+  #today-pane-panel > sidebarheader {
+    -moz-appearance: none;
+    background-color: #f8f8f8;
+    border-bottom: none;
   }
 
-  .today-pane-cycler {
-    padding-inline-start: 5px;
-    padding-inline-end: 5px;
+  #today-pane-panel:-moz-lwtheme > sidebarheader {
+    background-color: rgba(255, 255, 255, 0.3);
+    background-image: linear-gradient(rgba(255, 255, 255, 0.5),
+                      rgba(255, 255, 255, 0) 28px);
+    border-top: 1px solid rgba(253, 253, 253, 0.45);
   }
 
-  #todaypane-new-event-button {
-    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#newevent);
-  }
-
-  #todaypane-new-event-button[disabled="true"] > .toolbarbutton-icon {
-    opacity: 0.4;
-  }
-
-  #todaypane-new-event-button > .toolbarbutton-icon {
-    width: 18px;
-    height: 18px;
-    margin: -1px;
-  }
-
-  @media (-moz-windows-default-theme) {
-    #today-pane-panel > sidebarheader {
-      -moz-appearance: none;
-      background-color: #f8f8f8;
-      border-bottom: none;
-    }
-
-    #today-pane-panel:-moz-lwtheme > sidebarheader {
-      background-color: rgba(255, 255, 255, 0.3);
-      background-image: linear-gradient(rgba(255, 255, 255, 0.5),
-                        rgba(255, 255, 255, 0) 28px);
-      border-top: 1px solid rgba(253, 253, 253, 0.45);
-    }
-
-    sidebarheader > spacer {
-      min-height: 25px;
-    }
+  sidebarheader > spacer {
+    min-height: 25px;
   }
 }
 
@@ -172,8 +150,8 @@
   }
 }
 
-@media (-moz-windows-default-theme) and (-moz-os-version: windows-win8),
-       (-moz-windows-default-theme) and (-moz-os-version: windows-win10) {
+@media (-moz-os-version: windows-win8) and (-moz-windows-default-theme),
+       (-moz-os-version: windows-win10) and (-moz-windows-default-theme) {
   #todaypane-new-event-button {
     list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#newevent-flat);
   }

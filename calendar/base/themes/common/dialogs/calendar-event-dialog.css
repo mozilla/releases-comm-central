@@ -68,11 +68,9 @@ label.label {
     min-width: 12em;
 }
 
-@media not all and (-moz-os-version: windows-xp) {
-  .cal-event-toolbarbutton .toolbarbutton-icon {
+.cal-event-toolbarbutton .toolbarbutton-icon {
     width: 18px;
     height: 18px;
-  }
 }
 
 .icon-holder[type="calendarEvent"],

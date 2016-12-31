@@ -71,272 +71,158 @@ radio[pane=paneLightning] {
 }
 
 #calMinimonthBox {
-    margin-top: 3px;
+  margin-top: 3px;
 }
 
-@media (-moz-os-version: windows-xp) {
-  #calsidebar_splitter {
-      border-right: none;
-  }
-
-  #today-splitter {
-      border-right: none;
-  }
-
-  #today-splitter:-moz-lwtheme {
-      background-image: linear-gradient(rgba(255, 255, 255, 0.5),
-                        rgba(255, 255, 255, 0) 19px, rgba(255, 255, 255, 0) 25px,
-                        ThreeDDarkShadow 25px, -moz-Dialog 26px);
-  }
-
-  #newMsgButton-mail-menuitem {
-    list-style-image: url(chrome://messenger/skin/icons/mail-toolbar-small.png);
-    -moz-image-region: rect(0 32px 16px 16px);
-  }
-
-  #newMsgButton-calendar-menuitem {
-    list-style-image: url(chrome://calendar/skin/toolbar-small.png);
-    -moz-image-region: rect(0 16px 16px 0);
-  }
-
-  #newMsgButton-task-menuitem {
-    list-style-image: url(chrome://calendar/skin/toolbar-small.png);
-    -moz-image-region: rect(0 256px 16px 240px);
-  }
-
-  #calendar-status-todaypane-button > stack > .toolbarbutton-icon-begin {
-    list-style-image: url(chrome://calendar/skin/toolbar-small.png);
-    -moz-image-region: rect(0 336px 16px 320px);
-  }
-
-  /* ::: new tab buttons ::: */
-  #calendar-tab-button {
-    list-style-image: url(chrome://lightning-common/skin/mode-switch-icons.png);
-    -moz-image-region: rect(0 64px 16px 48px);
-  }
-
-  #calendar-tab-button[disabled] {
-    -moz-image-region: rect(32px 64px 48px 48px);
-  }
-
-  #task-tab-button {
-    list-style-image: url(chrome://lightning-common/skin/mode-switch-icons.png);
-    -moz-image-region: rect(0 80px 16px 64px);
-  }
-
-  #task-tab-button[disabled] {
-    -moz-image-region: rect(32px 80px 48px 64px);
-  }
-
-  /* ::: tab icons ::: */
-  .icon-holder[type="calendar"],
-  .tabmail-tab[type="calendar"] {
-    list-style-image: url(chrome://lightning-common/skin/mode-switch-icons.png);
-    -moz-image-region: rect(0 64px 16px 48px);
-  }
-
-  .icon-holder[type="tasks"],
-  .tabmail-tab[type="tasks"] {
-    list-style-image: url(chrome://lightning-common/skin/mode-switch-icons.png);
-    -moz-image-region: rect(0 80px 16px 64px);
-  }
-
-  /* ::: imip button icons ::: */
-  .imipAcceptButton,
-  .imipAcceptRecurrencesButton {
-    list-style-image: url(chrome://lightning/skin/imip.png);
-    -moz-image-region: rect(0 16px 16px 0);
-  }
-
-  .imipDeclineButton,
-  .imipDeclineRecurrencesButton {
-    list-style-image: url(chrome://lightning/skin/imip.png);
-    -moz-image-region: rect(0 32px 16px 16px);
-  }
-
-  .imipTentativeButton,
-  .imipTentativeRecurrencesButton {
-    list-style-image: url(chrome://lightning/skin/imip.png);
-    -moz-image-region: rect(0 48px 16px 32px);
-  }
-
-  .imipAddButton {
-    list-style-image: url(chrome://calendar/skin/toolbar-small.png);
-    -moz-image-region: rect(0 16px 16px 0);
-  }
-
-  .imipUpdateButton {
-    list-style-image: url(chrome://calendar/skin/toolbar-small.png);
-    -moz-image-region: rect(0 432px 16px 416px);
-  }
-
-  .imipDetailsButton {
-    list-style-image: url(chrome://calendar/skin/toolbar-small.png);
-    -moz-image-region: rect(0 352px 16px 336px);
-  }
-
-  .imipDeleteButton {
-    list-style-image: url(chrome://calendar/skin/toolbar-small.png);
-    -moz-image-region: rect(0 48px 16px 32px);
-  }
-
-  .imipReconfirmButton {
-    list-style-image: url(chrome://calendar/skin/tasks-actions.png);
-    -moz-image-region: rect(0 48px 16px 32px);
-  }
+#calendar-tab-button,
+#newMsgButton-calendar-menuitem {
+  list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#calendar-tab);
+  -moz-image-region: auto;
 }
 
-@media not all and (-moz-os-version: windows-xp) {
-  #calendar-tab-button,
-  #newMsgButton-calendar-menuitem {
-    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#calendar-tab);
-    -moz-image-region: auto;
-  }
+#task-tab-button,
+#newMsgButton-task-menuitem {
+  list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#task-tab);
+  -moz-image-region: auto;
+}
 
-  #task-tab-button,
-  #newMsgButton-task-menuitem {
-    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#task-tab);
-    -moz-image-region: auto;
-  }
+#newMsgButton-mail-menuitem {
+  list-style-image: url(chrome://messenger/skin/icons/mail-toolbar.svg#newmsg);
+}
 
-  #newMsgButton-mail-menuitem {
-    list-style-image: url(chrome://messenger/skin/icons/mail-toolbar.svg#newmsg);
-  }
+#tabs-toolbar[brighttext] #calendar-tab-button {
+  list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#calendar-tab-inverted);
+}
 
-  #tabs-toolbar[brighttext] #calendar-tab-button {
-    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#calendar-tab-inverted);
-  }
+#tabs-toolbar[brighttext] #task-tab-button {
+  list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#task-tab-inverted);
+}
 
-  #tabs-toolbar[brighttext] #task-tab-button {
-    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#task-tab-inverted);
-  }
-
-  #calendar-status-todaypane-button > stack > .toolbarbutton-icon-begin {
-    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#pane);
-    -moz-image-region: rect(0 18px 18px 0);
-  }
+#calendar-status-todaypane-button > stack > .toolbarbutton-icon-begin {
+  list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#pane);
+  -moz-image-region: rect(0 18px 18px 0);
+}
 
 #calendar-status-todaypane-button:-moz-lwtheme-brighttext > stack >
   .toolbarbutton-icon-begin {
   list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#pane-inverted);
-  }
-  /* compensate the 18px icon height */
-  #calendar-status-todaypane-button > stack > .toolbarbutton-icon-begin {
-    margin-top: -1px;
-    margin-bottom: -1px;
-  }
-
-  .icon-holder[type="calendar"],
-  .tabmail-tab[type="calendar"] {
-    list-style-image: url(chrome://lightning/skin/mode-switch-icons-aero.png);
-    -moz-image-region: rect(16px 16px 32px 0);
-  }
-
-  .icon-holder[type="tasks"],
-  .tabmail-tab[type="tasks"] {
-    list-style-image: url(chrome://lightning/skin/mode-switch-icons-aero.png);
-    -moz-image-region: rect(16px 32px 32px 16px);
-  }
-
-  /* ::: imip button icons ::: */
-  .imipAcceptButton,
-  .imipAcceptRecurrencesButton {
-    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#complete);
-  }
-
-  .imipDeclineCounterButton,
-  .imipDeclineButton,
-  .imipDeclineRecurrencesButton {
-    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#decline);
-  }
-
-  .imipTentativeButton,
-  .imipTentativeRecurrencesButton {
-    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#tentative);
-  }
-
-  .imipAddButton {
-    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#newevent);
-  }
-
-  .imipRescheduleButton,
-  .imipUpdateButton {
-    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#synchronize);
-  }
-
-  .imipDetailsButton {
-    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#find);
-  }
-
-  .imipDeleteButton {
-    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#delete);
-  }
-
-  .imipReconfirmButton {
-    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#priority);
-  }
-
-  #newMsgButton-mail-menuitem > .menu-iconic-left > .menu-iconic-icon,
-  #newMsgButton-calendar-menuitem > .menu-iconic-left > .menu-iconic-icon,
-  #newMsgButton-task-menuitem > .menu-iconic-left > .menu-iconic-icon {
-    width: 18px;
-    height: 18px;
-    margin: -1px;
-  }
-
-  #calsidebar_splitter,
-  #today-splitter {
-    border: none;
-    min-width: 0;
-    width: 5px;
-    background-color: transparent;
-    margin-top: 0;
-    position: relative;
-    z-index: 10;
-    transition: border-width .3s ease-in;
-  }
-
-  #calsidebar_splitter {
-    border-inline-start: 1px solid #a9b7c9;
-    margin-inline-end: -5px;
-  }
-
-  #calsidebar_splitter[state="collapsed"] {
-    border-inline-start: 1px solid transparent;
-  }
-
-  #calsidebar_splitter[state="collapsed"]:hover {
-    border-inline-start: 4px solid highlight;
-  }
-
-  #today-splitter {
-    border-inline-end: 1px solid #a9b7c9;
-    margin-inline-start: -5px;
-    position: relative;
-  }
-
-  #today-splitter.calendar-sidebar-splitter:-moz-lwtheme {
-    background-image: none;
-  }
-
-  #today-splitter > grippy {
-    display: none;
-  }
-
-  #today-pane-splitter {
-    border: none;
-    border-bottom: 3px double #a9b7c9;
-    min-height: 0;
-    height: 5px;
-    background-color: transparent;
-    margin-top: -3px;
-    position: relative;
-    z-index: 10;
-  }
+}
+/* compensate the 18px icon height */
+#calendar-status-todaypane-button > stack > .toolbarbutton-icon-begin {
+  margin-top: -1px;
+  margin-bottom: -1px;
 }
 
-@media (-moz-windows-default-theme) and (-moz-os-version: windows-win8),
-       (-moz-windows-default-theme) and (-moz-os-version: windows-win10) {
+.icon-holder[type="calendar"],
+.tabmail-tab[type="calendar"] {
+  list-style-image: url(chrome://lightning/skin/mode-switch-icons-aero.png);
+  -moz-image-region: rect(16px 16px 32px 0);
+}
+
+.icon-holder[type="tasks"],
+.tabmail-tab[type="tasks"] {
+  list-style-image: url(chrome://lightning/skin/mode-switch-icons-aero.png);
+  -moz-image-region: rect(16px 32px 32px 16px);
+}
+
+/* ::: imip button icons ::: */
+.imipAcceptButton,
+.imipAcceptRecurrencesButton {
+  list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#complete);
+}
+
+.imipDeclineCounterButton,
+.imipDeclineButton,
+.imipDeclineRecurrencesButton {
+  list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#decline);
+}
+
+.imipTentativeButton,
+.imipTentativeRecurrencesButton {
+  list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#tentative);
+}
+
+.imipAddButton {
+  list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#newevent);
+}
+
+.imipRescheduleButton,
+.imipUpdateButton {
+  list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#synchronize);
+}
+
+.imipDetailsButton {
+  list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#find);
+}
+
+.imipDeleteButton {
+  list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#delete);
+}
+
+.imipReconfirmButton {
+  list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#priority);
+}
+
+#newMsgButton-mail-menuitem > .menu-iconic-left > .menu-iconic-icon,
+#newMsgButton-calendar-menuitem > .menu-iconic-left > .menu-iconic-icon,
+#newMsgButton-task-menuitem > .menu-iconic-left > .menu-iconic-icon {
+  width: 18px;
+  height: 18px;
+  margin: -1px;
+}
+
+#calsidebar_splitter,
+#today-splitter {
+  border: none;
+  min-width: 0;
+  width: 5px;
+  background-color: transparent;
+  margin-top: 0;
+  position: relative;
+  z-index: 10;
+  transition: border-width .3s ease-in;
+}
+
+#calsidebar_splitter {
+  border-inline-start: 1px solid #a9b7c9;
+  margin-inline-end: -5px;
+}
+
+#calsidebar_splitter[state="collapsed"] {
+  border-inline-start: 1px solid transparent;
+}
+
+#calsidebar_splitter[state="collapsed"]:hover {
+  border-inline-start: 4px solid highlight;
+}
+
+#today-splitter {
+  border-inline-end: 1px solid #a9b7c9;
+  margin-inline-start: -5px;
+  position: relative;
+}
+
+#today-splitter.calendar-sidebar-splitter:-moz-lwtheme {
+  background-image: none;
+}
+
+#today-splitter > grippy {
+  display: none;
+}
+
+#today-pane-splitter {
+  border: none;
+  border-bottom: 3px double #a9b7c9;
+  min-height: 0;
+  height: 5px;
+  background-color: transparent;
+  margin-top: -3px;
+  position: relative;
+  z-index: 10;
+}
+
+@media (-moz-os-version: windows-win8) and (-moz-windows-default-theme),
+       (-moz-os-version: windows-win10) and (-moz-windows-default-theme) {
   #calendar-tab-button,
   #newMsgButton-calendar-menuitem {
     list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#calendar-tab-flat);

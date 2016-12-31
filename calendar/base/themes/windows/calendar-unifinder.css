@@ -19,19 +19,10 @@
   background: transparent;
 }
 
-@media (-moz-os-version: windows-xp) {
+@media (-moz-windows-default-theme) {
   #unifinder-searchBox {
-    background-color: transparent;
-    height: 30px;
-  }
-}
-
-@media not all and (-moz-os-version: windows-xp) {
-  @media (-moz-windows-default-theme) {
-    #unifinder-searchBox {
-      background-color: #f8f8f8;
-      height: 33px;
-    }
+    background-color: #f8f8f8;
+    height: 33px;
   }
 }
 

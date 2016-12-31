@@ -61,8 +61,7 @@ tab[calview]:hover {
     padding-top: 0px !important; /* a workaround to center the label vertically on Windows */
 }
 
-@media not all and (-moz-os-version: windows-xp) {
-  #calendar-view-box #calendar-view-splitter {
+#calendar-view-box #calendar-view-splitter {
     border: none;
     border-bottom: 1px solid #A9B7C9;
     min-height: 0;
@@ -71,5 +70,4 @@ tab[calview]:hover {
     margin-top: -5px;
     position: relative;
     z-index: 10;
-  }
 }
