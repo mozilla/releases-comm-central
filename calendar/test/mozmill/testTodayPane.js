@@ -284,9 +284,12 @@ function testTodayPane() {
 
 function getIsoDate() {
     let currDate = new Date();
-    return `${currDate.getFullYear()}${currDate.getMonth() + 1}${currDate.getDate()}`;
+    let month = (currDate.getMonth() + 1).toString().padStart(2, "0");
+    let day = currDate.getDate().toString().padStart(2, "0");
+    return `${currDate.getFullYear()}${month}${day}`;
 }
 
 function teardownTest(module) {
     deleteCalendars(controller, "Mozmill");
 }
+
