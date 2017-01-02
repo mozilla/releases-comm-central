@@ -7,5 +7,6 @@
 # See nsPermissionManager.cpp for more...
 
 # XPInstall
-host	install	1	addons.mozilla.org
-host	install	1	downloads.mozdev.org
+origin	install	1	https://addons.mozilla.org
+origin	install	1	http://downloads.mozdev.org
+origin	install	1	https://downloads.mozdev.org
