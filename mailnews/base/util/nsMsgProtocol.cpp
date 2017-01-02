@@ -78,6 +78,10 @@ nsresult nsMsgProtocol::InitFromURI(nsIURI *aUrl)
     mailUrl->GetStatusFeedback(getter_AddRefs(statusFeedback));
     mProgressEventSink = do_QueryInterface(statusFeedback);
   }
+
+  // Reset channel data in case the object is reused and initialised again.
+  mCharset.Truncate();
+
   return NS_OK;
 }
 
