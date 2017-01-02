@@ -496,7 +496,7 @@
 
 <!-- Developer Tools Submenu -->
 <!ENTITY devtoolsMenu.label "Developer Tools">
-<!ENTITY devtoolsMenu.accesskey "o">
+<!ENTITY devtoolsMenu.accesskey "e">
 <!ENTITY devToolboxCmd.label "Developer Toolbox">
 <!ENTITY devToolboxCmd.accesskey "T">
 <!ENTITY devToolboxCmd.commandkey "i">
