@@ -124,8 +124,10 @@
 
       <property name="currentEngine">
         <setter><![CDATA[
-          var ss = this.searchService;
-          ss.defaultEngine = ss.currentEngine = val;
+          this.searchService.currentEngine = val;
+          var os = Components.classes["@mozilla.org/observer-service;1"]
+                             .getService(Components.interfaces.nsIObserverService);
+          os.notifyObservers(null, "browser-search-engine-modified", "engine-current");
           return val;
         ]]></setter>
         <getter><![CDATA[

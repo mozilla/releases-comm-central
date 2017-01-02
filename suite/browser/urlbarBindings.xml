@@ -350,13 +350,18 @@
     <implementation>
       <constructor><![CDATA[
         // listen for changes to default search engine
-        this.mPrefs.addObserver("browser.search", this.mPrefObserver, false);
-        this.mPrefs.addObserver("browser.urlbar", this.mPrefObserver, false);
+        this.mPrefs.addObserver("browser.search", this.mObserver, false);
+        this.mPrefs.addObserver("browser.urlbar", this.mObserver, false);
+        this.mObSvc.addObserver(this.mObserver,
+                                "browser-search-engine-modified", false);
+        this.updateEngines();
       ]]></constructor>
 
       <destructor><![CDATA[
-        this.mPrefs.removeObserver("browser.search", this.mPrefObserver);
-        this.mPrefs.removeObserver("browser.urlbar", this.mPrefObserver);
+        this.mPrefs.removeObserver("browser.search", this.mObserver);
+        this.mPrefs.removeObserver("browser.urlbar", this.mObserver);
+        this.mObSvc.removeObserver(this.mObserver,
+                                   "browser-search-engine-modified");
       ]]></destructor>
 
       <property name="showSearch" onget="return this.mShowSearch;">
@@ -381,20 +386,40 @@
       </field>
 
       <field name="mPrefs">
-        var svc = Components.classes["@mozilla.org/preferences-service;1"]
-                            .getService(Components.interfaces.nsIPrefService);
-        svc.getBranch(null);
+        Components.classes["@mozilla.org/preferences-service;1"]
+                  .getService(Components.interfaces.nsIPrefService)
+                  .getBranch(null);
       </field>
 
-      <field name="mPrefObserver"><![CDATA[
+      <field name="mObSvc">
+        Components.classes["@mozilla.org/observer-service;1"]
+                  .getService(Components.interfaces.nsIObserverService);
+      </field>
+
+      <field name="mSearchService">
+        Components.classes["@mozilla.org/browser/search-service;1"]
+                  .getService(Components.interfaces.nsIBrowserSearchService);
+      </field>
+
+      <field name="mObserver"><![CDATA[
         ({
           resultsPopup: this,
 
-          observe: function(aObserver, aBlah, aPref) {
-            if (/^browser\.search\./.test(aPref))
-              this.resultsPopup.updateEngines();
-            else if (/^browser\.urlbar\./.test(aPref))
-              this.resultsPopup.updatePref(aPref);
+          observe: function(aSubject, aTopic, aData) {
+            switch (aTopic) {
+              case "browser-search-engine-modified":
+                if (aData == "engine-current") {
+                  this.resultsPopup.updateEngines();
+                }
+                break;
+              case "nsPref:changed":
+                if (/^browser\.search\./.test(aData))
+                  this.resultsPopup.updateEngines();
+                else if (/^browser\.urlbar\./.test(aData))
+                  this.resultsPopup.updatePref(aData);
+                break;
+              default:
+            }
           }
         });
       ]]></field>
@@ -459,7 +484,7 @@
 
       <method name="updateEngines">
         <body><![CDATA[
-          var defaultEngine = Services.search.defaultEngine;
+          var defaultEngine = this.mSearchService.defaultEngine;
           if (defaultEngine) {
             this.clearEngines();
             this.addEngine(defaultEngine.name, defaultEngine.iconURI,
@@ -559,6 +584,11 @@
         -1
       </field>
 
+      <field name="mSearchService">
+        Components.classes["@mozilla.org/browser/search-service;1"]
+                  .getService(Components.interfaces.nsIBrowserSearchService);
+      </field>
+
       <property name="activeChild"
                 onget="return this.childNodes[this.mSelectedIndex]"/>
 
@@ -608,7 +638,7 @@
           if (item) {
             // XXXsearch: using default engine for now, this ignores the following values:
             //            item.getAttribute("searchEngine") and item.getAttribute("searchBarUrl")
-            var engine = Services.search.defaultEngine;
+            var engine = this.mSearchService.defaultEngine;
 
             var submission = engine.getSubmission(this.mSearchValue); // HTML response
 

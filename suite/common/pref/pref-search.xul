@@ -10,9 +10,6 @@
             script="chrome://communicator/content/pref/pref-search.js">
 
     <preferences id="search_preferences">
-      <preference id="browser.search.defaultenginename"
-                  name="browser.search.defaultenginename"
-                  type="wstring"/>
       <preference id="browser.search.openintab"
                   name="browser.search.openintab"
                   type="bool"/>
@@ -32,7 +29,7 @@
                accesskey="&defaultSearchEngine.accesskey;"
                control="engineList"/>
         <menulist id="engineList"
-                  preference="browser.search.defaultenginename"/>
+                  oncommand="UpdateDefaultEngine(this.selectedItem)"/>
       </hbox>
       <hbox pack="end">
         <button id="managerButton"

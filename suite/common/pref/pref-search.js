@@ -19,9 +19,6 @@ var SearchObserver = {
     if (aTopic != "browser-search-engine-modified")
       return;
     MakeList();
-    var pref = document.getElementById("browser.search.defaultenginename");
-    if (pref)
-      pref.updateElements();
   },
 
   handleEvent: function searchEngineListEvent(aEvent) {
@@ -34,16 +31,30 @@ var SearchObserver = {
 
 function MakeList() {
   var menulist = document.getElementById("engineList");
-  while (menulist.hasChildNodes())
-    menulist.lastChild.remove();
+  var currentEngineName = Services.search.currentEngine.name;
+
+  // Make sure the popup is empty.
+  menulist.removeAllItems();
 
   var engines = Services.search.getVisibleEngines();
-  for (let i = 0; i < engines.length; i++) {
-    let name = engines[i].name;
+  for (let engine of engines) {
+    let name = engine.name;
     let menuitem = menulist.appendItem(name, name);
     menuitem.setAttribute("class", "menuitem-iconic");
-    if (engines[i].iconURI)
-      menuitem.setAttribute("image", engines[i].iconURI.spec);
-    menuitem.engine = engines[i];
+    if (engine.iconURI)
+      menuitem.setAttribute("image", engine.iconURI.spec);
+    menuitem.engine = engine;
+    if (engine.name == currentEngineName) {
+      // Set selection to the current default engine.
+      menulist.selectedItem = menuitem;
+    }
   }
+  // If the current engine isn't in the list any more, select the first item.
+  if (menulist.selectedIndex < 0)
+    menulist.selectedIndex = 0;
+}
+
+function UpdateDefaultEngine(selectedItem) {
+  Services.search.currentEngine = selectedItem.engine;
+  Services.obs.notifyObservers(null, "browser-search-engine-modified", "engine-current");
 }

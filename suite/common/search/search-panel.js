@@ -22,25 +22,32 @@ function Startup() {
 }
 
 function LoadEngineList() {
+  var currentEngineName = Services.search.currentEngine.name;
   // Make sure the popup is empty.
   menulist.removeAllItems();
 
   var engines = Services.search.getVisibleEngines();
-  for (let i = 0; i < engines.length; i++) {
-    let name = engines[i].name;
+  for (let engine of engines) {
+    let name = engine.name;
     let menuitem = menulist.appendItem(name, name);
     menuitem.setAttribute("class", "menuitem-iconic");
-    if (engines[i].iconURI)
-      menuitem.setAttribute("image", engines[i].iconURI.spec);
-    menulist.menupopup.appendChild(menuitem);
-    menuitem.engine = engines[i];
+    if (engine.iconURI)
+      menuitem.setAttribute("image", engine.iconURI.spec);
+    menuitem.engine = engine;
+    if (engine.name == currentEngineName) {
+      // Set selection to the current default engine.
+      menulist.selectedItem = menuitem;
+    }
   }
-  menulist.value = Services.search.currentEngine.name;
+  // If the current engine isn't in the list any more, select the first item.
+  if (menulist.selectedIndex < 0)
+    menulist.selectedIndex = 0;
 }
 
 function SelectEngine() {
   if (menulist.selectedItem)
     Services.search.currentEngine = menulist.selectedItem.engine;
+  Services.obs.notifyObservers(null, SEARCH_ENGINE_TOPIC, "engine-current");
 }
 
 function doSearch() {
@@ -72,8 +79,6 @@ var engineObserver = {
 
   observe: function(aEngine, aTopic, aVerb) {
     if (aTopic == SEARCH_ENGINE_TOPIC) {
-      if (aVerb == "engine-current")
-        return;
       // Right now, always just rebuild the list after any modification.
       LoadEngineList();
     }
