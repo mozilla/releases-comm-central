@@ -112,10 +112,14 @@
 <!ENTITY mediaPlaybackRate050.accesskey "S">
 <!ENTITY mediaPlaybackRate100.label     "Normal Speed">
 <!ENTITY mediaPlaybackRate100.accesskey "N">
+<!ENTITY mediaPlaybackRate125.label     "Fast Speed (1¼×)">
+<!ENTITY mediaPlaybackRate125.accesskey "F">
 <!ENTITY mediaPlaybackRate150.label     "High Speed (1½×)">
 <!ENTITY mediaPlaybackRate150.accesskey "H">
 <!ENTITY mediaPlaybackRate200.label     "Double Speed">
 <!ENTITY mediaPlaybackRate200.accesskey "D">
+<!ENTITY mediaLoop.label              "Loop">
+<!ENTITY mediaLoop.accesskey          "o">
 <!-- LOCALIZATION NOTE: The access keys for "Show Controls" and
 "Hide Controls" are the same because the two context-menu
 items are mutually exclusive. -->
