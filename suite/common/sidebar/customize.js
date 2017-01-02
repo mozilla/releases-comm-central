@@ -4,6 +4,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 //////////////////////////////////////////////////////////////
+// Import modules
+//////////////////////////////////////////////////////////////
+
+Components.utils.import("resource://gre/modules/Services.jsm");
+
+//////////////////////////////////////////////////////////////
 // Global variables
 //////////////////////////////////////////////////////////////
 
@@ -426,7 +432,8 @@ function BrowseMorePanels()
   try {
     url = Services.prefs.getCharPref("sidebar.customize.more_panels.url");
     var temp = Services.prefs.getCharPref("browser.chromeURL");
-    if (temp) browser_url = temp;
+    if (temp)
+      browser_url = temp;
   } catch(ex) {
     debug("Unable to get prefs: "+ex);
   }

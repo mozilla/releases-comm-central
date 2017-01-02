@@ -638,8 +638,8 @@ pref("browser.taskbar.previews.cachetime", 5);
 #endif
 
 pref("sidebar.customize.all_panels.url", "http://sidebar-rdf.netscape.com/%LOCALE%/sidebar-rdf/%SIDEBAR_VERSION%/all-panels.rdf");
-pref("sidebar.customize.directory.url", "http://dmoz.org/Netscape/Sidebar/");
-pref("sidebar.customize.more_panels.url", "http://dmoz.org/Netscape/Sidebar/");
+pref("sidebar.customize.directory.url", "https://edmullen.net/mozilla/moz_sidebar.php");
+pref("sidebar.customize.more_panels.url", "https://edmullen.net/mozilla/moz_sidebar.php");
 pref("sidebar.num_tabs_in_view", 8);
 
 pref("browser.throbber.url","chrome://navigator-region/locale/region.properties");

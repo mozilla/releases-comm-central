@@ -20,6 +20,12 @@
 //    <menuitem> sidebar-menu
 
 //////////////////////////////////////////////////////////////
+// Import modules
+//////////////////////////////////////////////////////////////
+
+Components.utils.import("resource://gre/modules/Services.jsm");
+
+//////////////////////////////////////////////////////////////
 // Global variables
 //////////////////////////////////////////////////////////////
 
@@ -1092,9 +1098,10 @@ function BrowseMorePanels()
   var browser_url = "chrome://navigator/content/navigator.xul";
   var locale;
   try {
-    url = prefs.getCharPref("sidebar.customize.directory.url");
-    var temp = prefs.getCharPref("browser.chromeURL");
-    if (temp) browser_url = temp;
+    url = Services.prefs.getCharPref("sidebar.customize.directory.url");
+    var temp = Services.prefs.getCharPref("browser.chromeURL");
+    if (temp)
+      browser_url = temp;
   } catch(ex) {
     debug("Unable to get prefs: "+ex);
   }
