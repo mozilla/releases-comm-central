@@ -108,7 +108,7 @@ var addonsRegister = {
       break;
     case "addon-install-failed":
       // XXX TODO This isn't terribly ideal for the multiple failure case
-      for (let [, install] in Iterator(installInfo.installs)) {
+      for (let install of installInfo.installs) {
         let host = ((installInfo.originatingURI instanceof Ci.nsIStandardURL) &&
                     installInfo.originatingURI.host) ||
                    ((install.sourceURI instanceof Ci.nsIStandardURL) &&
@@ -174,7 +174,7 @@ var addonsRegister = {
         // installs.
         let types = {};
         let bestType = null;
-        for (let [, install] in Iterator(installInfo.installs)) {
+        for (let install of installInfo.installs) {
           if (install.type in types)
             types[install.type]++;
           else

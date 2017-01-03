@@ -124,7 +124,7 @@ PROTO_TREE_VIEW.prototype = {
     // for the next add item at our own level.
     let currentCount = this._rowMap.length;
     if (aChild.children.length && aChild.open) {
-      for (let [i, child] in Iterator(this._rowMap[aNewIndex].children)) {
+      for (let [i, child] of Array.from(this._rowMap[aNewIndex].children).entries()) {
         let index = aNewIndex + i + 1;
         this._rowMap.splice(index, 0, child);
         aNewIndex += this.recursivelyAddToMap(child, index);
