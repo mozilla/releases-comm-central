@@ -874,7 +874,7 @@ var GenericProtocolPrototype = {
       return EmptyEnumerator;
 
     let purplePrefs = [];
-    for (let [name, option] in Iterator(this.options))
+    for (let [name, option] of Object.entries(this.options))
       purplePrefs.push(new purplePref(name, option));
     return new nsSimpleEnumerator(purplePrefs);
   },
