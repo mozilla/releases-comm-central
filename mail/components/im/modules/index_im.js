@@ -641,8 +641,10 @@ var GlodaIMIndexer = {
 
   _worker_logsFolderSweep: function*(aJob) {
     let dir = FileUtils.getFile("ProfD", ["logs"]);
-    if (!dir.exists() || !dir.isDirectory())
-      return;
+    if (!dir.exists() || !dir.isDirectory()) {
+      // If the folder does not exist, then we are done.
+      yield GlodaIndexer.kWorkDone;
+    }
 
     // Sweep the logs directory for log files, adding any new entries to the
     // _knownFiles tree as we traverse.
