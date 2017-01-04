@@ -109,11 +109,11 @@ var DownloadsView = {
   },
 
   searchDownloads() {
-    let searchString = document.getElementById("searchBox").value;
+    let searchString = document.getElementById("searchBox").value.toLowerCase();
     for (let i = 0; i < this.listElement.itemCount; i++) {
       let downloadElem = this.listElement.getItemAtIndex(i);
       downloadElem.collapsed =
-        !downloadElem.downloadItem.fileName.includes(searchString);
+        !downloadElem.downloadItem.fileName.toLowerCase().includes(searchString);
     }
     this.listElement.clearSelection();
   },
