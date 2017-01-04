@@ -296,7 +296,7 @@
             if (aTabType.name in this.tabTypes)
               return;
             this.tabTypes[aTabType.name] = aTabType;
-            for (let [modeName, modeDetails] in Iterator(aTabType.modes))
+            for (let [modeName, modeDetails] of Object.entries(aTabType.modes))
             {
               modeDetails.name = modeName;
               modeDetails.tabType = aTabType;
@@ -353,7 +353,7 @@
               this.setTabTitle(firstTabInfo);
               if (this.tabMonitors.length)
               {
-                for (let [i, tabMonitor] in Iterator(this.tabMonitors))
+                for (let tabMonitor of this.tabMonitors)
                   tabMonitor.onTabSwitched(firstTabInfo, null);
               }
             }
@@ -481,7 +481,7 @@
             if (this.tabMonitors.length)
             {
               if (switchToNewTab)
-                for (let [i, tabMonitor] in Iterator(this.tabMonitors))
+                for (let tabMonitor of this.tabMonitors)
                   tabMonitor.onTabSwitched(tabInfo, oldTabInfo);
             }
 
@@ -631,7 +631,7 @@
                 showTabFunc.call(tabInfo.mode.tabType, tabInfo);
               if (this.tabMonitors.length)
               {
-                for (let [i, tabMonitor] in Iterator(this.tabMonitors))
+                for (let tabMonitor of this.tabMonitors)
                   tabMonitor.onTabSwitched(tabInfo, oldTabInfo);
               }
 
@@ -717,7 +717,7 @@
                 titleChangeFunc.call(tabInfo.mode.tabType, tabInfo, tabNode);
               if (this.tabMonitors.length)
               {
-                for (let [i, tabMonitor] in Iterator(this.tabMonitors))
+                for (let tabMonitor of this.tabMonitors)
                   tabMonitor.onTabTitleChanged(tabInfo);
               }
               tabNode.setAttribute("label", tabInfo.title);

@@ -2020,7 +2020,7 @@ SessionStoreService.prototype = {
         }, this);
       }, this);
 
-      for (var [host, isPinned] in Iterator(hosts)) {
+      for (var [host, isPinned] of Object.entries(hosts)) {
         try {
           var list = Services.cookies.getCookiesFromHost(host, {});
           while (list.hasMoreElements()) {

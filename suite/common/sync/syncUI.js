@@ -338,7 +338,7 @@ var gSyncUI = {
 
     // Check if the client is outdated in some way
     let outdated = Weave.Status.sync == Weave.VERSION_OUT_OF_DATE;
-    for (let [engine, reason] in Iterator(Weave.Status.engines))
+    for (let [engine, reason] of Object.entries(Weave.Status.engines))
       outdated = outdated || reason == Weave.VERSION_OUT_OF_DATE;
 
     if (outdated) {

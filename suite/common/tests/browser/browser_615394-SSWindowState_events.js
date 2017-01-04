@@ -289,7 +289,7 @@ function test_setBrowserState() {
 
   waitForBrowserState(lameMultiWindowState, function() {
     let checkedWindows = 0;
-    for (let [id, winEvents] of Iterator(windowEvents)) {
+    for (let [id, winEvents] of Object.entries(windowEvents)) {
       is(winEvents.busyEventCount, 1,
          "[test_setBrowserState] window" + id + " busy event count correct");
       is(winEvents.readyEventCount, 1,

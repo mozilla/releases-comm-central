@@ -144,7 +144,7 @@ function basicNotification() {
     }
   };
   this.addOptions = function(options) {
-    for (let [name, value] in Iterator(options))
+    for (let [name, value] of Object.entries(options))
       self.options[name] = value;
   }
 }

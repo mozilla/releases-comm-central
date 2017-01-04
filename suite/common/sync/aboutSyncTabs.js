@@ -142,7 +142,7 @@ var RemoteTabViewer = {
     let seenURLs = new Set();
     let localURLs = engine.getOpenURLs();
 
-    for (let [guid, client] in Iterator(engine.getAllClients())) {
+    for (let [guid, client] of Object.entries(engine.getAllClients())) {
       let appendClient = true;
 
       client.tabs.forEach(function({title, urlHistory, icon}) {
