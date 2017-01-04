@@ -12,7 +12,7 @@
 #include "nsIMsgSearchScopeTerm.h"
 #include "nsMsgSearchBoolExpression.h"
 #include "nsIMutableArray.h"
-#include "nsIDateTimeFormat.h"
+#include "DateTimeFormat.h"
 #include "nsIMsgFilterCustomAction.h"
 
 class nsMsgRuleAction : public nsIMsgRuleAction
@@ -98,7 +98,6 @@ protected:
                                                   have a newsgroup - LDAP would be invalid */
   nsTArray<nsCOMPtr<nsIMsgRuleAction> > m_actionList;
   nsMsgSearchBoolExpression *m_expressionTree;
-  nsCOMPtr<nsIDateTimeFormat> mDateFormatter;
 };
 
 #endif

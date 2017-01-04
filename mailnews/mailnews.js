@@ -231,8 +231,6 @@ pref("mailnews.wraplength",                 72);
 
 // 0=no header, 1="<author> wrote:", 2="On <date> <author> wrote:", 3="<author> wrote On <date>:", 4=user specified
 pref("mailnews.reply_header_type",          1);
-// locale which affects date format, set empty string to use application default locale
-pref("mailnews.reply_header_locale",        "");
 pref("mailnews.reply_header_authorwrotesingle", "chrome://messenger/locale/messengercompose/composeMsgs.properties");
 pref("mailnews.reply_header_ondateauthorwrote", "chrome://messenger/locale/messengercompose/composeMsgs.properties");
 pref("mailnews.reply_header_authorwroteondate", "chrome://messenger/locale/messengercompose/composeMsgs.properties");

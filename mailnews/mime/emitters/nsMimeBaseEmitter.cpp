@@ -25,7 +25,6 @@
 #include "nsIMimeHeaders.h"
 #include "nsIMsgWindow.h"
 #include "nsIMsgMailNewsUrl.h"
-#include "nsDateTimeFormatCID.h"
 #include "nsServiceManagerUtils.h"
 #include "nsComponentManagerUtils.h"
 #include "nsMsgUtils.h"
@@ -663,11 +662,6 @@ nsMimeBaseEmitter::GenerateDateString(const char * dateString,
 {
   nsresult rv = NS_OK;
 
-  if (!mDateFormatter) {
-    mDateFormatter = do_CreateInstance(NS_DATETIMEFORMAT_CONTRACTID, &rv);
-    NS_ENSURE_SUCCESS(rv, rv);
-  }
-
   /**
    * See if the user wants to have the date displayed in the senders
    * timezone (including the timezone offset).
@@ -730,11 +724,10 @@ nsMimeBaseEmitter::GenerateDateString(const char * dateString,
 
   nsAutoString formattedDateString;
 
-  rv = mDateFormatter->FormatPRExplodedTime(nullptr /* nsILocale* locale */,
-                                            dateFormat,
-                                            kTimeFormatNoSeconds,
-                                            &explodedCompTime,
-                                            formattedDateString);
+  rv = mozilla::DateTimeFormat::FormatPRExplodedTime(dateFormat,
+                                                     kTimeFormatNoSeconds,
+                                                     &explodedCompTime,
+                                                     formattedDateString);
 
   if (NS_SUCCEEDED(rv))
   {
