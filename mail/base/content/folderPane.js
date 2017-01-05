@@ -1035,7 +1035,7 @@ var gFolderTreeView = {
     // for the next add item at our own level.
     let count = 0;
     if (aChild.children.length && aChild.open) {
-      for (let [i, child] in Iterator(this._rowMap[aNewIndex].children)) {
+      for (let [i, child] of Array.from(this._rowMap[aNewIndex].children).entries()) {
         count++;
         let index = Number(aNewIndex) + Number(i) + 1;
         this._rowMap.splice(index, 0, child);

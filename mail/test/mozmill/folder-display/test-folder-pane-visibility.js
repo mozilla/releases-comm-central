@@ -193,7 +193,7 @@ function test_folder_pane_persistence_generally_works() {
   //  visible, 0 for hidden)
   function openTabs(aConfig) {
     let curState;
-    for (let [iTab, folderPaneVisible] in Iterator(aConfig)) {
+    for (let [iTab, folderPaneVisible] of aConfig.entries()) {
       if (iTab == 0) {
         curState = folderPaneVisible;
       }
@@ -214,7 +214,7 @@ function test_folder_pane_persistence_generally_works() {
   }
 
   function verifyTabs(aConfig) {
-    for (let [iTab, folderPaneVisible] in Iterator(aConfig)) {
+    for (let [iTab, folderPaneVisible] of aConfig.entries()) {
       switch_tab(iTab);
       dump(" checking tab: " + iTab + "\n");
       if (folderPaneVisible)

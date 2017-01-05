@@ -458,7 +458,7 @@ function verify_view_level_histogram(aExpectedHisto, aViewWrapper) {
     actualHisto[level] = (actualHisto[level] || 0) + 1;
   }
 
-  for (let [level, count] in Iterator(aExpectedHisto)) {
+  for (let [level, count] of Object.entries(aExpectedHisto)) {
     if (actualHisto[level] != count) {
       dump_view_state(aViewWrapper);
       dump("*******************\n");

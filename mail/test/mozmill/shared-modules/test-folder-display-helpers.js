@@ -2581,7 +2581,7 @@ function assert_folder_at_index_as(n, str) {
  * Since indexOf does strict equality checking, we need this.
  */
 function _non_strict_index_of(aArray, aSearchElement) {
-  for ([i, item] in Iterator(aArray)) {
+  for ([i, item] of aArray.entries()) {
     if (item == aSearchElement)
       return i;
   }

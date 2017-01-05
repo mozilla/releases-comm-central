@@ -46,7 +46,7 @@ function setupModule(module) {
 
   gFontEnumerator = Cc["@mozilla.org/gfx/fontenumerator;1"]
                       .createInstance(Ci.nsIFontEnumerator);
-  for (let [, fontType] in Iterator(kFontTypes)) {
+  for (let fontType of kFontTypes) {
     gRealFontLists[fontType] =
       gFontEnumerator.EnumerateFonts(kLanguage, fontType, {});
     if (gRealFontLists[fontType].length == 0)
@@ -107,7 +107,7 @@ function test_font_name_displayed() {
 
   // Pick the first font for each font type and set it.
   let expected = {};
-  for (let [fontType, fontList] in Iterator(gRealFontLists)) {
+  for (let [fontType, fontList] of Object.entries(gRealFontLists)) {
     // Work around bug 698238 (on Windows, Courier is returned by the enumerator but
     // substituted with Courier New) by getting the standard (substituted) family
     // name for each font.
@@ -140,7 +140,7 @@ function test_font_name_not_present() {
   // The fonts we're expecting to see selected in the font chooser for
   // test_font_name_not_present.
   let expected = {};
-  for (let [fontType, fakeFont] in Iterator(kFakeFonts)) {
+  for (let [fontType, fakeFont] of Object.entries(kFakeFonts)) {
     // Look at the font.name-list. We need to verify that the first font is the
     // fake one, and that the second one is present on the user's computer.
     let listPref = "font.name-list." + fontType + "." + kLanguage;

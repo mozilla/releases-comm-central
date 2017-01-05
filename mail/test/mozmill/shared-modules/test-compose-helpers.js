@@ -347,7 +347,7 @@ function add_attachments(aComposeWindow, aUrls, aSizes) {
 
   let attachments = [];
 
-  for (let [i, url] in Iterator(aUrls)) {
+  for (let [i, url] of aUrls.entries()) {
     attachments.push(create_msg_attachment(url, aSizes[i]));
   }
 

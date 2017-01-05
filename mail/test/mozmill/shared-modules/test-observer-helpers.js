@@ -63,7 +63,7 @@ ObservationRecorder.prototype = {
     if (!Array.isArray(aTopics))
       aTopics = [aTopics];
 
-    for (let [, topic] in Iterator(aTopics)) {
+    for (let topic of aTopics.entries()) {
       if (topic in this.saw)
         delete this.saw[topic];
       if (topic in this.subject)

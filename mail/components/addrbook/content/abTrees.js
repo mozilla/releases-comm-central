@@ -234,7 +234,7 @@ directoryTreeView.prototype = {
       return;
 
     // Now select this new item
-    for (var [i, row] in Iterator(this._rowMap)) {
+    for (var [i, row] of this._rowMap.entries()) {
       if (row.id == aItem.URI) {
         this.selection.select(i);
         break;
@@ -259,7 +259,7 @@ directoryTreeView.prototype = {
     }
 
     // Now select this parent item
-    for (var [i, row] in Iterator(this._rowMap)) {
+    for (var [i, row] of this._rowMap.entries()) {
       if (row.id == aParent.URI) {
         this.selection.select(i);
         break;

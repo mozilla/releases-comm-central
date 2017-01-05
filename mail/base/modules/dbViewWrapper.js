@@ -1387,7 +1387,7 @@ DBViewWrapper.prototype = {
     this.dbView = this._createView();
     // if the synthetic view defines columns, add those for it
     if (this.isSynthetic) {
-      for (let [, customCol] in Iterator(this._syntheticView.customColumns)) {
+      for (let customCol of this._syntheticView.customColumns) {
         customCol.bindToView(this.dbView);
         this.dbView.addColumnHandler(customCol.id, customCol);
       }

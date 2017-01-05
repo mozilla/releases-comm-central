@@ -1095,7 +1095,7 @@ function subtest_disabled_fields_when_searching(aController) {
   wait_for_element_enabled(aController, aController.e("name"), false);
   let providerCheckboxes = doc.querySelectorAll(".providerCheckbox");
 
-  for (let [, checkbox] in Iterator(providerCheckboxes))
+  for (let checkbox of providerCheckboxes)
     wait_for_element_enabled(aController, checkbox, false);
 
   // Check to ensure that the buttons for switching to the wizard and closing
@@ -1109,7 +1109,7 @@ function subtest_disabled_fields_when_searching(aController) {
   wait_for_element_enabled(aController, aController.e("searchSubmit"), true);
   wait_for_element_enabled(aController, aController.e("name"), true);
 
-  for (let [, checkbox] in Iterator(providerCheckboxes))
+  for (let checkbox of providerCheckboxes)
     wait_for_element_enabled(aController, checkbox, true);
 
   // Ok, cleanup time. Put the old suggest URL back.

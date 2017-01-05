@@ -186,7 +186,7 @@ function check_display_name(index, columnName, expectedName) {
 }
 
 // Generate a test for each message in |messages|.
-for (let [i, message] in Iterator(messages)) {
+for (let [i, message] of messages.entries()) {
   this["test_" + message.name] = function(i, message) {
     check_display_name(i, message.expected.column, message.expected.value);
   }.bind(this, i, message);

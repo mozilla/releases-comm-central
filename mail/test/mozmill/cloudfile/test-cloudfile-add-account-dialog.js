@@ -54,7 +54,7 @@ function teardownModule(module) {
   gCategoryMan.deleteCategory(kCategory);
 
   // Put the old entries back
-  for (let [key, value] in Iterator(gOldProviders))
+  for (let [key, value] of Object.entries(gOldProviders))
     gCategoryMan.addCategoryEntry(kCategory, key, value, false, true);
 }
 

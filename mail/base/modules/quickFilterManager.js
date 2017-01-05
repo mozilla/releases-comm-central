@@ -1011,7 +1011,7 @@ var MessageTextFilter = {
         term = null;
         let splitPhrases = groupedPhrases.split("|");
         for (let phrase of splitPhrases) {
-          for (let [tfName, tfValue] in Iterator(aFilterValue.states)) {
+          for (let [tfName, tfValue] of Object.entries(aFilterValue.states)) {
             if (!tfValue)
               continue;
             let tfDef = this.textFilterDefs[tfName];

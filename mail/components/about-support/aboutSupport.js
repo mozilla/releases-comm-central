@@ -23,11 +23,11 @@ var gMessengerBundle = Services.strings.createBundle(
   "chrome://messenger/locale/messenger.properties");
 
 var gSocketTypes = {};
-for (let [str, index] in Iterator(Ci.nsMsgSocketType))
+for (let [str, index] of Object.entries(Ci.nsMsgSocketType))
   gSocketTypes[index] = str;
 
 var gAuthMethods = {};
-for (let [str, index] in Iterator(Ci.nsMsgAuthMethod))
+for (let [str, index] of Object.entries(Ci.nsMsgAuthMethod))
   gAuthMethods[index] = str;
 
 // l10n properties in messenger.properties corresponding to each auth method

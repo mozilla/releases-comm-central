@@ -105,7 +105,7 @@ function test_load_accounts_and_properly_order() {
     const kExpected = ["someKey3", "someKey2", "someKey4",
                        "someKey1"];
 
-    for (let [index, expectedKey] in Iterator(kExpected)) {
+    for (let [index, expectedKey] of kExpected.entries()) {
       let item = richList.getItemAtIndex(index);
       assert_equals(expectedKey, item.value,
                     "The account list is out of order");

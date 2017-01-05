@@ -905,7 +905,7 @@ var AugmentEverybodyWith = {
       }
       else {
         let msg = "Query constraint not implemented, query contained:";
-        for (let [key, val] in Iterator(aQuery)) {
+        for (let [key, val] of Object.entries(aQuery)) {
           msg += " '" + key + "': " + val;
         }
         throw new Error(msg);

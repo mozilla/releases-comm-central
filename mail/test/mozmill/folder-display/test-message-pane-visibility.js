@@ -165,7 +165,7 @@ function test_message_pane_persistence_generally_works() {
   //  visible, 0 for hidden)
   function openTabs(aConfig) {
     let curState;
-    for (let [iTab, messagePaneVisible] in Iterator(aConfig)) {
+    for (let [iTab, messagePaneVisible] of aConfig.entries()) {
       if (iTab == 0) {
         curState = messagePaneVisible;
       }
@@ -186,7 +186,7 @@ function test_message_pane_persistence_generally_works() {
   }
 
   function verifyTabs(aConfig) {
-    for (let [iTab, messagePaneVisible] in Iterator(aConfig)) {
+    for (let [iTab, messagePaneVisible] of aConfig.entries()) {
       switch_tab(iTab);
       dump(" checking tab: " + iTab + "\n");
       if (messagePaneVisible)

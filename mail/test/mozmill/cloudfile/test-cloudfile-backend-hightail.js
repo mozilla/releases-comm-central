@@ -145,7 +145,7 @@ function test_chained_uploads() {
 
   assert_equals(kFilenames.length, obs.numSightings(kUploadFile));
 
-  for (let [index, filename] in Iterator(kFilenames)) {
+  for (let [index, filename] of kFilenames.entries()) {
     assert_equals(obs.data[kUploadFile][index], filename);
     let file = getFile("./data/" + filename, __file__);
     let expectedUriForFile = kExpectedUrlRoot + filename;

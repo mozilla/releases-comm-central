@@ -88,12 +88,12 @@ function test_display_about_support() {
   let tab = open_about_support();
   // Check that the document has a few strings that indicate that we've loaded
   // the right page.
-  for (let [, str] in Iterator(ABOUT_SUPPORT_STRINGS)) {
+  for (let str of ABOUT_SUPPORT_STRINGS) {
     assert_content_tab_text_present(tab, str);
   }
 
   // Check that error strings aren't present anywhere
-  for (let [, str] in Iterator(ABOUT_SUPPORT_ERROR_STRINGS)) {
+  for (let str of ABOUT_SUPPORT_ERROR_STRINGS) {
     assert_content_tab_text_absent(tab, str);
   }
   close_tab(tab);
@@ -195,17 +195,17 @@ function test_copy_to_clipboard_public() {
   // To avoid destroying the current contents of the clipboard, instead of
   // actually copying to it, we just retrieve what would have been copied to it
   let transferable = tab.browser.contentWindow.getClipboardTransferable();
-  for (let [, flavor] in Iterator(["text/html", "text/unicode"])) {
+  for (let flavor of ["text/html", "text/unicode"]) {
     let data = {};
     transferable.getTransferData(flavor, data, {});
     let text = data.value.QueryInterface(Ci.nsISupportsString).data;
 
-    for (let [, str] in Iterator(ABOUT_SUPPORT_STRINGS)) {
+    for (let str of ABOUT_SUPPORT_STRINGS) {
       if (!text.includes(str))
         mark_failure(["Unable to find \"" + str + "\" in flavor \"" + flavor + "\""]);
     }
 
-    for (let [, str] in Iterator(ABOUT_SUPPORT_ERROR_STRINGS)) {
+    for (let str of ABOUT_SUPPORT_ERROR_STRINGS) {
       if (text.includes(str))
         mark_failure(["Found \"" + str + "\" in flavor \"" + flavor + "\""]);
     }
@@ -236,17 +236,17 @@ function test_copy_to_clipboard_private() {
   // To avoid destroying the current contents of the clipboard, instead of
   // actually copying to it, we just retrieve what would have been copied to it
   let transferable = tab.browser.contentWindow.getClipboardTransferable();
-  for (let [, flavor] in Iterator(["text/html", "text/unicode"])) {
+  for (let flavor of ["text/html", "text/unicode"]) {
     let data = {};
     transferable.getTransferData(flavor, data, {});
     let text = data.value.QueryInterface(Ci.nsISupportsString).data;
 
-    for (let [, str] in Iterator(ABOUT_SUPPORT_STRINGS)) {
+    for (let str of ABOUT_SUPPORT_STRINGS) {
       if (!text.includes(str))
         mark_failure(["Unable to find \"" + str + "\" in flavor \"" + flavor + "\""]);
     }
 
-    for (let [, str] in Iterator(ABOUT_SUPPORT_ERROR_STRINGS)) {
+    for (let str of ABOUT_SUPPORT_ERROR_STRINGS) {
       if (text.includes(str))
         mark_failure(["Found \"" + str + "\" in flavor \"" + flavor + "\""]);
     }
@@ -273,12 +273,12 @@ function test_send_via_email_public() {
   let contentFrame = cwc.e("content-frame");
   let text = contentFrame.contentDocument.body.innerHTML;
 
-  for (let [, str] in Iterator(ABOUT_SUPPORT_STRINGS)) {
+  for (let str of ABOUT_SUPPORT_STRINGS) {
     if (!text.includes(str))
       mark_failure(["Unable to find \"" + str + "\" in compose window"]);
   }
 
-  for (let [, str] in Iterator(ABOUT_SUPPORT_ERROR_STRINGS)) {
+  for (let str of ABOUT_SUPPORT_ERROR_STRINGS) {
     if (text.includes(str))
       mark_failure(["Found \"" + str + "\" in compose window"]);
   }
@@ -312,12 +312,12 @@ function test_send_via_email_private() {
   let contentFrame = cwc.e("content-frame");
   let text = contentFrame.contentDocument.body.innerHTML;
 
-  for (let [, str] in Iterator(ABOUT_SUPPORT_STRINGS)) {
+  for (let str of ABOUT_SUPPORT_STRINGS) {
     if (!text.includes(str))
       mark_failure(["Unable to find \"" + str + "\" in compose window"]);
   }
 
-  for (let [, str] in Iterator(ABOUT_SUPPORT_ERROR_STRINGS)) {
+  for (let str of ABOUT_SUPPORT_ERROR_STRINGS) {
     if (text.includes(str))
       mark_failure(["Found \"" + str + "\" in compose window"]);
   }
