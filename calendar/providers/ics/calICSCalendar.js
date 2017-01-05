@@ -113,7 +113,7 @@ calICSCalendar.prototype = {
                                                      null,
                                                      Services.scriptSecurityManager.getSystemPrincipal(),
                                                      null,
-                                                     Components.interfaces.nsILoadInfo.SEC_NORMAL,
+                                                     Components.interfaces.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
                                                      Components.interfaces.nsIContentPolicy.TYPE_OTHER);
         let wHttpChannel = cal.wrapInstance(channel, Components.interfaces.nsIHttpChannel);
         let wFileChannel = cal.wrapInstance(channel, Components.interfaces.nsIFileChannel);
@@ -175,7 +175,7 @@ calICSCalendar.prototype = {
                                                      null,
                                                      Services.scriptSecurityManager.getSystemPrincipal(),
                                                      null,
-                                                     Components.interfaces.nsILoadInfo.SEC_NORMAL,
+                                                     Components.interfaces.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
                                                      Components.interfaces.nsIContentPolicy.TYPE_OTHER);
         this.prepareChannel(channel, aForce);
 
@@ -322,7 +322,7 @@ calICSCalendar.prototype = {
                                                                  null,
                                                                  Services.scriptSecurityManager.getSystemPrincipal(),
                                                                  null,
-                                                                 Components.interfaces.nsILoadInfo.SEC_NORMAL,
+                                                                 Components.interfaces.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
                                                                  Components.interfaces.nsIContentPolicy.TYPE_OTHER);
 
                     // Allow the hook to add things to the channel, like a
@@ -790,7 +790,7 @@ calICSCalendar.prototype = {
                                                      null,
                                                      Services.scriptSecurityManager.getSystemPrincipal(),
                                                      null,
-                                                     Components.interfaces.nsILoadInfo.SEC_NORMAL,
+                                                     Components.interfaces.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
                                                      Components.interfaces.nsIContentPolicy.TYPE_OTHER);
         channel.loadFlags |= Components.interfaces.nsIRequest.LOAD_BYPASS_CACHE;
         channel.notificationCallbacks = this;

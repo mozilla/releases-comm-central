@@ -52,7 +52,7 @@ function run_test() {
                                                  null,
                                                  Services.scriptSecurityManager.getSystemPrincipal(),
                                                  null,
-                                                 Ci.nsILoadInfo.SEC_NORMAL,
+                                                 Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
                                                  Ci.nsIContentPolicy.TYPE_OTHER);
     do_check_eq(channel.contentLength, kSimpleNewsArticle.length);
 
@@ -64,7 +64,7 @@ function run_test() {
                                                            null,
                                                            Services.scriptSecurityManager.getSystemPrincipal(),
                                                            null,
-                                                           Ci.nsILoadInfo.SEC_NORMAL,
+                                                           Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
                                                            Ci.nsIContentPolicy.TYPE_OTHER);
     // Currently attachments have their content length set to the length of the
     // entire message

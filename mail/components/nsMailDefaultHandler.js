@@ -88,7 +88,7 @@ function openURI(uri)
                                                null,
                                                Services.scriptSecurityManager.getSystemPrincipal(),
                                                null,
-                                               Components.interfaces.nsILoadInfo.SEC_NORMAL,
+                                               Components.interfaces.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
                                                Components.interfaces.nsIContentPolicy.TYPE_OTHER);
   var loader = Components.classes["@mozilla.org/uriloader;1"]
                          .getService(Components.interfaces.nsIURILoader);

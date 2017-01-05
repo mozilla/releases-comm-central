@@ -401,7 +401,7 @@ function issueNetworkRequest(parentRequest, respFunc, url, bLogging) {
                                                      null,
                                                      Services.scriptSecurityManager.getSystemPrincipal(),
                                                      null,
-                                                     Components.interfaces.nsILoadInfo.SEC_NORMAL,
+                                                     Components.interfaces.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
                                                      Components.interfaces.nsIContentPolicy.TYPE_OTHER);
         netRequest.prepareChannel(channel);
         channel = channel.QueryInterface(Components.interfaces.nsIHttpChannel);

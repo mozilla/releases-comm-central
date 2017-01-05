@@ -81,7 +81,7 @@ function getTheme(aName)
     let channel = Services.io.newChannel2(theme.baseUri + kThemeFile, null, null, null,
                                           Services.scriptSecurityManager.getSystemPrincipal(),
                                           null,
-                                          Components.interfaces.nsILoadInfo.SEC_NORMAL,
+                                          Components.interfaces.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
                                           Components.interfaces.nsIContentPolicy.TYPE_IMAGE);
     let stream = channel.open();
     let json = Components.classes["@mozilla.org/dom/json;1"]

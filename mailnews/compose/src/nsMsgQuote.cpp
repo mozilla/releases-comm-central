@@ -188,7 +188,7 @@ nsMsgQuote::QuoteMessage(const char *msgURI, bool quoteHeaders,
                                       nullptr,
                                       systemPrincipal,
                                       nullptr,
-                                      nsILoadInfo::SEC_NORMAL,
+                                      nsILoadInfo::SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
                                       nsIContentPolicy::TYPE_OTHER,
                                       getter_AddRefs(mQuoteChannel));
 

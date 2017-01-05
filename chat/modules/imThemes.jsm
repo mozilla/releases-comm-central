@@ -49,7 +49,7 @@ function getChromeFile(aURI)
     let channel = Services.io.newChannel2(aURI, null, null, null,
                                           Services.scriptSecurityManager.getSystemPrincipal(),
                                           null,
-                                          Ci.nsILoadInfo.SEC_NORMAL,
+                                          Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
                                           Ci.nsIContentPolicy.TYPE_OTHER);
     let stream = channel.open();
     let sstream = Components.classes["@mozilla.org/scriptableinputstream;1"]
@@ -158,7 +158,7 @@ function getInfoPlistContent(aBaseURI)
     let channel = Services.io.newChannel2(aBaseURI + "Info.plist", null, null, null,
                                           Services.scriptSecurityManager.getSystemPrincipal(),
                                           null,
-                                          Ci.nsILoadInfo.SEC_NORMAL,
+                                          Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
                                           Ci.nsIContentPolicy.TYPE_OTHER);
     let stream = channel.open();
     let parser = Components.classes["@mozilla.org/xmlextras/domparser;1"]

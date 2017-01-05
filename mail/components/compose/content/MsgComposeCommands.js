@@ -4354,7 +4354,7 @@ function OpenSelectedAttachment()
                                                      null,
                                                      Services.scriptSecurityManager.getSystemPrincipal(),
                                                      null,
-                                                     Components.interfaces.nsILoadInfo.SEC_NORMAL,
+                                                     Components.interfaces.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
                                                      Components.interfaces.nsIContentPolicy.TYPE_OTHER);
         if (channel)
         {
@@ -5664,7 +5664,7 @@ function loadBlockedImage(aURL) {
     null,
     Services.scriptSecurityManager.getSystemPrincipal(),
     null,
-    Components.interfaces.nsILoadInfo.SEC_NORMAL,
+    Components.interfaces.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
     Components.interfaces.nsIContentPolicy.TYPE_OTHER);
   let inputStream = channel.open();
   let stream = Components.classes["@mozilla.org/binaryinputstream;1"]
