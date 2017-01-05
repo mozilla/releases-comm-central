@@ -346,7 +346,7 @@ function ContactTagCompleter() {
 ContactTagCompleter.prototype = {
   _buildSuffixTree: function() {
     let tagNames = [], tags = [];
-    for (let [tagName, tag] in Iterator(FreeTagNoun.knownFreeTags)) {
+    for (let [tagName, tag] of Object.entries(FreeTagNoun.knownFreeTags)) {
       tagNames.push(tagName.toLowerCase());
       tags.push(tag);
     }

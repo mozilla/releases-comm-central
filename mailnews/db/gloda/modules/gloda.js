@@ -2054,7 +2054,7 @@ var Gloda = {
         if (objectNounDef.toJSON) {
           let toJSON = objectNounDef.toJSON;
           jsonDict[attrib.id] = [];
-          for (let [, subValue] in Iterator(value)) {
+          for (let subValue of value) {
             jsonDict[attrib.id].push(toJSON(subValue));
           }
         }
@@ -2261,7 +2261,7 @@ var Gloda = {
         if (provider.score)
           score += provider.score(item);
       }
-      for (let [, extraScoreFunc] in Iterator(aExtraScoreFuncs))
+      for (let extraScoreFunc of aExtraScoreFuncs)
         score += extraScoreFunc(item, aContext);
       scores.push(score);
     }

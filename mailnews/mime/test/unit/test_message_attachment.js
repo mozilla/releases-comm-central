@@ -75,7 +75,7 @@ var gStreamListener = {
     // here because it's simple.
     let regex = /<legend class="mimeAttachmentHeaderName">(.*?)<\/legend>/gi;
 
-    for (let [,attachment] in Iterator(messages[this.index].attachments)) {
+    for (let attachment of messages[this.index].attachments) {
       let match = regex.exec(this.contents);
       do_check_neq(match, null);
       do_check_eq(match[1], attachment.expectedFilename || attachment.filename);

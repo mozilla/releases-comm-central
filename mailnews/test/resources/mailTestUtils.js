@@ -476,7 +476,7 @@ var mailTestUtils = {
    * For when you want to compare elements non-strictly.
    */
   non_strict_index_of: function(aArray, aElem) {
-    for (let [i, elem] in Iterator(aArray)) {
+    for (let [i, elem] of aArray.entries()) {
       if (elem == aElem)
         return i;
     }

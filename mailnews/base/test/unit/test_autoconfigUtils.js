@@ -66,7 +66,7 @@ function assert_equal_host_entries(hostEntry, expected)
 function assert_equal_try_orders(aA, aB)
 {
   assert_equal(aA.length, aB.length, "tryOrders have different length");
-  for (let [i,subA] in Iterator(aA)) {
+  for (let [i,subA] of aA.entries()) {
     let subB = aB[i];
     assert_equal_host_entries(subA, subB);
   }

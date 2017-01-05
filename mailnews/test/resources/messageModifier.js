@@ -127,7 +127,7 @@ SyntheticMessageSet.prototype = {
   msgHdrs: function*() {
     // get the databases
     let msgDatabases = this.msgFolders.map(folder => folder.msgDatabase);
-    for (let [iMsg, synMsg] in Iterator(this.synMessages)) {
+    for (let [iMsg, synMsg] of this.synMessages.entries()) {
       let folderIndex = this.folderIndices[iMsg];
       if (folderIndex != null)
         yield msgDatabases[folderIndex].getMsgHdrForMessageID(synMsg.messageId);
@@ -155,7 +155,7 @@ SyntheticMessageSet.prototype = {
    */
   get foldersWithMsgHdrs() {
     let results = this.msgFolders.map(folder => [folder, []]);
-    for (let [iMsg, synMsg] in Iterator(this.synMessages)) {
+    for (let [iMsg, synMsg] of this.synMessages.entries()) {
       let folderIndex = this.folderIndices[iMsg];
       if (folderIndex != null) {
         let [folder, msgHdrs] = results[folderIndex];

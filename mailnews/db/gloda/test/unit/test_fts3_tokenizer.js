@@ -173,7 +173,7 @@ function msgSearchExpectCount(aCount, aFulltextStr) {
 
   // Bind the parameters
   let stmt = conn.createStatement(sql);
-  for (let [iBinding, bindingValue] in Iterator(args)) {
+  for (let [iBinding, bindingValue] of args.entries()) {
     GlodaDatastore._bindVariant(stmt, iBinding, bindingValue);
   }
 

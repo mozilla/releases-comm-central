@@ -112,7 +112,7 @@ var QueryFromQueryResolver = {
       originColl.masterCollection.inverseReferencesByNounID;
 
     if (originColl.pendingItems) {
-      for (let [, item] in Iterator(originColl.pendingItems)) {
+      for (let item of originColl.pendingItems) {
         //QFQ_LOG.debug("QFQR: loading deferred " + item.NOUN_ID + ":" + item.id);
         GlodaDatastore.loadNounDeferredDeps(item, referencesByNounID,
             inverseReferencesByNounID);
@@ -214,8 +214,7 @@ QueryFromQueryCallback.prototype = {
         let item = nounDef.objFromRow.call(nounDef.datastore, row);
         if (this.collection.stashedColumns) {
           let stashed = this.collection.stashedColumns[item.id] = [];
-          for (let [,iCol] in
-               Iterator(this.collection.query.options.stashColumns)) {
+          for (let iCol of this.collection.query.options.stashColumns) {
             stashed.push(GlodaDatastore._getVariant(row, iCol));
           }
         }
@@ -3493,7 +3492,7 @@ var GlodaDatastore = {
 
     if (aQuery._order.length) {
       let orderClauses = [];
-      for (let [, colName] in Iterator(aQuery._order)) {
+      for (let colName of aQuery._order) {
          if (colName.startsWith("-"))
            orderClauses.push(colName.substring(1) + " DESC");
          else
@@ -3531,7 +3530,7 @@ var GlodaDatastore = {
       aBoundArgs, aNounDef, aQuery, aListener, aListenerData,
       aExistingCollection, aMasterCollection) {
     let statement = this._createAsyncStatement(aSqlString, true);
-    for (let [iBinding, bindingValue] in Iterator(aBoundArgs)) {
+    for (let [iBinding, bindingValue] of aBoundArgs.entries()) {
       this._bindVariant(statement, iBinding, bindingValue);
     }
 
@@ -3732,7 +3731,7 @@ var GlodaDatastore = {
 
     let attribIDToDBDefAndParam = this._attributeIDToDBDefAndParam;
 
-    for (let [attribId, jsonValue] in Iterator(aItem._deps)) {
+    for (let [attribId, jsonValue] of Object.entries(aItem._deps)) {
       let dbAttrib = attribIDToDBDefAndParam[attribId][0];
       let attrib = dbAttrib.attrDef;
 

@@ -154,7 +154,7 @@ var GlodaHasAttributesMixIn = {
 
 function MixIn(aConstructor, aMixIn) {
   let proto = aConstructor.prototype;
-  for (let [name, func] in Iterator(aMixIn)) {
+  for (let [name, func] of Object.entries(aMixIn)) {
     if (name.startsWith("get_"))
       proto.__defineGetter__(name.substring(4), func);
     else

@@ -973,7 +973,7 @@ function* actually_run_test() {
   dump("Num Messages: " + gTestFolder.msgDatabase.dBFolderInfo.numMessages + "\n");
 
   // for each view type...
-  for (let [, view_type_and_flags] in Iterator(view_types)) {
+  for (let view_type_and_flags of view_types) {
     let [view_type, view_flags] = view_type_and_flags;
     dump("===== Testing View Type: " + view_type + " flags: " + view_flags +
          "\n");
@@ -982,13 +982,13 @@ function* actually_run_test() {
     // ... run each test
     setup_view(view_type, view_flags);
 
-    for (let [, testFunc] in Iterator(tests_for_all_views)) {
+    for (let testFunc of tests_for_all_views) {
       dump("=== Running generic test: " + testFunc.name + "\n");
       yield async_run({func: testFunc});
     }
 
     if (tests_for_specific_views[view_type]) {
-      for (let [, testFunc] in Iterator(tests_for_specific_views[view_type])) {
+      for (let testFunc of tests_for_specific_views[view_type]) {
         dump("=== Running view-specific test: " + testFunc.name + "\n");
         yield async_run({func: testFunc});
       }

@@ -273,7 +273,7 @@ var GlodaCollectionManager = {
     let needToCache = [];
     // next, let's fall back to our collections
     for (let collection of this.getCollectionsForNounID(aNounID)) {
-      for (let [iItem, item] in Iterator(unresolvedIndexToItem)) {
+      for (let [iItem, item] of Object.entries(unresolvedIndexToItem)) {
         if (item.id in collection._idMap) {
           let realItem = collection._idMap[item.id];
           // update the caller's array to now have the 'real' object

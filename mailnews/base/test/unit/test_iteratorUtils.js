@@ -132,7 +132,7 @@ function test_toArray_NodeList() {
   do_check_true(childNodes.length > 0);
   let childArray = iteratorUtils.toArray(childNodes);
   do_check_eq(childNodes.length, childArray.length);
-  for (let [i, node] in Iterator(childArray))
+  for (let [i, node] of childArray.entries())
     do_check_eq(node, childArray[i]);
 }
 
@@ -147,7 +147,7 @@ function test_toArray_builtin_iterator() {
   // returned by Iterator for an array
   let iteratorArray = iteratorUtils.toArray(iterator);
   do_check_eq(arr.length, iteratorArray.length);
-  for (let [i, val] in Iterator(arr)) {
+  for (let [i, val] of arr.entries()) {
     do_check_eq(i, iteratorArray[i][0]);
     do_check_eq(val, iteratorArray[i][1]);
   }
@@ -183,7 +183,7 @@ function test_toArray_custom_iterator() {
   };
   let iteratorArray = iteratorUtils.toArray(iterator);
   do_check_eq(arr.length, iteratorArray.length);
-  for (let [i, val] in Iterator(arr))
+  for (let [i, val] of arr.entries())
     do_check_eq(val, iteratorArray[i]);
 }
 

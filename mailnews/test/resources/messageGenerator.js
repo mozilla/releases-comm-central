@@ -103,7 +103,7 @@ SyntheticPart.prototype = {
     if (this._filename)
       s += ';\r\n name="' + this._filename +'"';
     if (this._contentTypeExtra) {
-      for (let [key, value] in Iterator(this._contentTypeExtra))
+      for (let [key, value] of Object.entries(this._contentTypeExtra))
         s += ';\r\n ' + key + '="' + value + '"';
     }
     if (this._boundary)
@@ -192,7 +192,7 @@ SyntheticPartMulti.prototype = {
   BOUNDARY_COUNTER: 0,
   toMessageString: function() {
     let s = "This is a multi-part message in MIME format.\r\n";
-    for (let [,part] in Iterator(this.parts)) {
+    for (let part of this.parts) {
       s += "--" + this._boundary + "\r\n";
       if (part instanceof SyntheticDegeneratePartEmpty)
         continue;
@@ -655,7 +655,7 @@ SyntheticMessage.prototype = {
 function addMessagesToFolder (aMessages, aFolder)
 {
   let localFolder = aFolder.QueryInterface(Ci.nsIMsgLocalMailFolder);
-  for (let [, message] in Iterator(aMessages))
+  for (let message of aMessages)
     localFolder.addMessage(message.toMboxString());
 }
 
@@ -1020,13 +1020,13 @@ MessageGenerator.prototype = {
     // zero out all the age_incr fields in age (if present)
     if (aSetDef.age_incr) {
       args.age = {};
-      for (let [unit, delta] in Iterator(aSetDef.age_incr))
+      for (let [unit, delta] of Object.entries(aSetDef.age_incr))
         args.age[unit] = 0;
     }
     // copy over the initial values from age (if present)
     if (aSetDef.age) {
       args.age = args.age || {};
-      for (let [unit, value] in Iterator(aSetDef.age))
+      for (let [unit, value] of Object.entries(aSetDef.age))
         args.age[unit] = value;
     }
     // just copy over any attributes found from MAKE_MESSAGES_PROPAGATE
@@ -1048,7 +1048,7 @@ MessageGenerator.prototype = {
       messages.push(lastMessage);
 
       if (aSetDef.age_incr) {
-        for (let [unit, delta] in Iterator(aSetDef.age_incr))
+        for (let [unit, delta] of Object.entries(aSetDef.age_incr))
           args.age[unit] += delta;
       }
     }
@@ -1143,7 +1143,7 @@ MessageScenarioFactory.prototype = {
  *     probably be your prototype object.
  */
 function bindMethods(aObj) {
-  for (let [name, ubfunc] in Iterator(aObj)) {
+  for (let [name, ubfunc] of Object.entries(aObj)) {
     // the variable binding needs to get captured...
     let realFunc = ubfunc;
     delete aObj[name];

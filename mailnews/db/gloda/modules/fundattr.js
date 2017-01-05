@@ -781,10 +781,10 @@ var GlodaFundAttr = {
       score += this.NOTABILITY_INVOLVING_ME;
 
     let involvedAddrBookCount = 0;
-    for (let [, identity] in Iterator(aMessage.to))
+    for (let identity of aMessage.to)
       if (identity.inAddressBook)
         involvedAddrBookCount++;
-    for (let [, identity] in Iterator(aMessage.cc))
+    for (let identity of aMessage.cc)
       if (identity.inAddressBook)
         involvedAddrBookCount++;
     if (involvedAddrBookCount)

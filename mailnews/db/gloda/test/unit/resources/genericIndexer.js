@@ -36,7 +36,7 @@ var GenericIndexer = {
   _worker_index_generic: function*(aJob, aCallbackHandle) {
     this._log.debug("Beginning indexing " + aJob.items.length +
                     " generic items");
-    for (let [, item] in Iterator(aJob.items)) {
+    for (let item of aJob.items) {
       this._log.debug("Indexing: " + item);
       yield aCallbackHandle.pushAndGo(
         Gloda.grokNounItem(item, {},
