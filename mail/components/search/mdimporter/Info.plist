@@ -24,7 +24,7 @@
 	<key>CFBundleIconFile</key>
 	<string>thunderbird-mdimport</string>
 	<key>CFBundleIdentifier</key>
-	<string>com.apple.yourcfbundle</string>
+	<string>org.mozilla.MDImporter.Thunderbird</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
