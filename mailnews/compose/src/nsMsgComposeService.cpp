@@ -1352,11 +1352,11 @@ nsMsgComposeService::RunMessageThroughMimeDraft(
 
   nsCOMPtr<nsIChannel> channel;
   rv = NS_NewInputStreamChannel(getter_AddRefs(channel),
-                     url,
-                     nullptr,
-                     nullPrincipal,
-                     nsILoadInfo::SEC_NORMAL,
-                     nsIContentPolicy::TYPE_OTHER);
+                                url,
+                                nullptr,
+                                nullPrincipal,
+                                nsILoadInfo::SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
+                                nsIContentPolicy::TYPE_OTHER);
   NS_ASSERTION(NS_SUCCEEDED(rv), "NS_NewChannel failed.");
   if (NS_FAILED(rv))
     return rv;

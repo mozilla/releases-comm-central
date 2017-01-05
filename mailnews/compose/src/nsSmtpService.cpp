@@ -357,8 +357,11 @@ NS_IMETHODIMP nsSmtpService::NewChannel2(nsIURI *aURI,
   if (NS_FAILED(rv))
     return rv;
 
-  return NS_NewInputStreamChannel(_retval, aURI, pipeIn,
-                                  nullPrincipal, nsILoadInfo::SEC_NORMAL,
+  return NS_NewInputStreamChannel(_retval,
+                                  aURI,
+                                  pipeIn,
+                                  nullPrincipal,
+                                  nsILoadInfo::SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
                                   nsIContentPolicy::TYPE_OTHER,
                                   NS_LITERAL_CSTRING("application/x-mailto"));
 }

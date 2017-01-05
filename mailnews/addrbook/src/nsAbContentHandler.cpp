@@ -125,7 +125,7 @@ nsAbContentHandler::HandleContent(const char *aContentType,
                             uri,
                             this,
                             nullPrincipal,
-                            nsILoadInfo::SEC_NORMAL,
+                            nsILoadInfo::SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
                             nsIContentPolicy::TYPE_OTHER);
     NS_ENSURE_SUCCESS(rv, rv);
 

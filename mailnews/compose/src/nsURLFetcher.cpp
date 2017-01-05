@@ -325,7 +325,7 @@ nsURLFetcher::FireURLRequest(nsIURI *aURL, nsIFile *localFile, nsIOutputStream *
   rv = NS_NewChannel(getter_AddRefs(channel),
                      aURL,
                      nullPrincipal,
-                     nsILoadInfo::SEC_NORMAL,
+                     nsILoadInfo::SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
                      nsIContentPolicy::TYPE_OTHER,
                      nullptr, // aLoadGroup
                      this); // aCallbacks

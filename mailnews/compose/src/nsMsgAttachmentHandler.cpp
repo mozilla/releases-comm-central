@@ -661,7 +661,7 @@ nsMsgAttachmentHandler::SnarfMsgAttachment(nsMsgCompFields *compFields)
                                     aURL,
                                     nullptr,
                                     nullPrincipal,
-                                    nsILoadInfo::SEC_NORMAL,
+                                    nsILoadInfo::SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
                                     nsIContentPolicy::TYPE_OTHER);
       if (NS_FAILED(rv))
         goto done;
