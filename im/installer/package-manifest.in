@@ -645,7 +645,6 @@
 @RESPATH@/components/shistory.xpt
 @RESPATH@/components/telemetry.xpt
 @RESPATH@/components/zipwriter.xpt
-@RESPATH@/components/cookie.xpt
 @RESPATH@/components/places.xpt
 @RESPATH@/components/plugin.xpt
 @RESPATH@/components/prefetch.xpt
