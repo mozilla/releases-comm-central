@@ -80,6 +80,10 @@ endif
 
 DEFINES += -DMOZ_CHILD_PROCESS_NAME=$(MOZ_CHILD_PROCESS_NAME)
 
+ifdef MOZ_LDAP_XPCOM
+DEFINES += -DMOZ_LDAP_XPCOM=1
+endif
+
 # Set MSVC dlls version to package, if any.
 ifdef MOZ_NO_DEBUG_RTL
 ifdef WIN32_REDIST_DIR

@@ -340,14 +340,16 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ; LDAP components
-@RESPATH@/components/mozldap.xpt
 @RESPATH@/components/nsAbLDAPAttributeMap.js
+#ifdef MOZ_LDAP_XPCOM
+@RESPATH@/components/mozldap.xpt
 @RESPATH@/components/nsAbLDAPAutoCompleteSearch.js
 @RESPATH@/components/nsLDAPProtocolHandler.js
 @RESPATH@/components/ldapComponents.manifest
 @BINPATH@/@DLL_PREFIX@ldap60@DLL_SUFFIX@
 @BINPATH@/@DLL_PREFIX@ldif60@DLL_SUFFIX@
 @BINPATH@/@DLL_PREFIX@prldap60@DLL_SUFFIX@
+#endif
 
 ; download progress for jsdownloads
 @RESPATH@/components/DownloadsStartup.js
