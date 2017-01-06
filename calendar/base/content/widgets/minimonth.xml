@@ -853,6 +853,7 @@
           let today = new Date();
 
           this.mDayMap = {};
+          let defaultTz = cal.calendarDefaultTimezone();
           for (let k = 1; k < calbox.childNodes.length; k++) {
               let row = calbox.childNodes[k];
 
@@ -860,7 +861,8 @@
               let firstElement = row.childNodes[0];
               setBooleanAttribute(firstElement, "hidden", !this.mShowWeekNumber);
               if (this.mShowWeekNumber) {
-                  let weekNumber = cal.getWeekInfoService().getWeekTitle(cal.jsDateToDateTime(date));
+                  let weekNumber = cal.getWeekInfoService()
+                                      .getWeekTitle(cal.jsDateToDateTime(date, defaultTz));
                   firstElement.setAttribute("value", weekNumber);
               }
 
