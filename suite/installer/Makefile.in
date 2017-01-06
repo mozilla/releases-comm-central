@@ -102,6 +102,10 @@ ifdef MOZ_BUNDLED_FONTS
 DEFINES += -DMOZ_BUNDLED_FONTS=1
 endif
 
+ifdef MOZ_LDAP_XPCOM
+DEFINES += -DMOZ_LDAP_XPCOM=1
+endif
+
 # Set MSVC dlls version to package, if any.
 # With VS2015+ it does not make sense to define the ucrt libs without
 # the base c++ libs and vice versa. 
