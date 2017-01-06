@@ -1337,7 +1337,7 @@ var specialTabs = {
       let brandBundle = document.getElementById("bundle_brand");
       let messengerBundle = document.getElementById("bundle_messenger");
 
-      let installInfo = aSubject.QueryInterface(Ci.amIWebInstallInfo);
+      let installInfo = aSubject.wrappedJSObject;
       let browser = installInfo.browser;
       let notificationBox = getNotificationBox(browser.contentWindow);
       let notificationID = aTopic;

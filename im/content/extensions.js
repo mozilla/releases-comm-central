@@ -46,7 +46,7 @@ var addonsRegister = {
     let brandBundle = document.getElementById("bundle_brand");
     let extensionsBundle = document.getElementById("bundle_extensions");
 
-    let installInfo = aSubject.QueryInterface(Ci.amIWebInstallInfo);
+    let installInfo = aSubject.wrappedJSObject;
     let notificationBox = document.getElementById("addonsNotify");
     if (!notificationBox)
       return;
