@@ -23,8 +23,8 @@
        command="downloadmgr" modifiers="accel"/>
   <key id="key_addOnsManager" key="&addOnsManagerCmd.commandkey;"
        command="addonsmgr" modifiers="accel,shift"/>
-  <key id="key_errorConsole" key="&errorConsoleCmd.commandkey;"
-       command="Tasks:ErrorConsole" modifiers="accel,shift"/>
+  <key id="key_errorConsole" key="&errorConsoleCmd.commandkey2;"
+       command="Tasks:ErrorConsole" modifiers="accel,alt"/>
 </keyset>
 <commandset id="tasksCommands">
   <command id="Tasks:DataMan" oncommand="toDataManager();"/>
