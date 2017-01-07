@@ -65,6 +65,8 @@ messenger.jar:
     content/messenger/SmtpServerEdit.js                                        (base/prefs/content/SmtpServerEdit.js)
     content/messenger/smtpEditOverlay.xul                                      (base/prefs/content/smtpEditOverlay.xul)
     content/messenger/smtpEditOverlay.js                                       (base/prefs/content/smtpEditOverlay.js)
+    content/messenger/converterDialog.xhtml                                    (base/prefs/content/converterDialog.xhtml)
+    content/messenger/converterDialog.js                                       (base/prefs/content/converterDialog.js)
     content/messenger/removeAccount.xul                                        (base/prefs/content/removeAccount.xul)
     content/messenger/removeAccount.js                                         (base/prefs/content/removeAccount.js)
     content/messenger/msgSelectOfflineFolders.xul                              (base/content/msgSelectOfflineFolders.xul)

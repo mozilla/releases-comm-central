@@ -49,6 +49,8 @@
   locale/@AB_CD@/messenger/am-addressing.dtd                            (%chrome/messenger/am-addressing.dtd)
   locale/@AB_CD@/messenger/am-main.dtd                                  (%chrome/messenger/am-main.dtd)
   locale/@AB_CD@/messenger/am-server-top.dtd                            (%chrome/messenger/am-server-top.dtd)
+  locale/@AB_CD@/messenger/converterDialog.dtd                          (%chrome/messenger/converterDialog.dtd)
+  locale/@AB_CD@/messenger/converterDialog.properties                   (%chrome/messenger/converterDialog.properties)
   locale/@AB_CD@/messenger/am-identities-list.dtd                       (%chrome/messenger/am-identities-list.dtd)
   locale/@AB_CD@/messenger/am-identity-edit.dtd                         (%chrome/messenger/am-identity-edit.dtd)
   locale/@AB_CD@/messenger/am-im.dtd                                    (%chrome/messenger/am-im.dtd)

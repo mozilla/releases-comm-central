@@ -49,6 +49,7 @@ SOURCES += [
 
 EXTRA_JS_MODULES += [
     'ABQueryUtils.jsm',
+    'converterWorker.js',
     'errUtils.js',
     'folderUtils.jsm',
     'hostnameUtils.jsm',
@@ -58,6 +59,7 @@ EXTRA_JS_MODULES += [
     'JXON.js',
     'mailnewsMigrator.js',
     'mailServices.js',
+    'mailstoreConverter.jsm',
     'msgDBCacheManager.js',
     'OAuth2.jsm',
     'OAuth2Providers.jsm',

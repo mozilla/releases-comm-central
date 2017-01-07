@@ -51,7 +51,8 @@
         <label value="&storeType.label;"
                accesskey="&storeType.accesskey;"
                control="server.storeTypeMenulist"/>
-        <menulist id="server.storeTypeMenulist">
+        <menulist id="server.storeTypeMenulist"
+                  oncommand="clickStoreTypeMenu(this);">
           <menupopup id="server.storeTypeMenupopup">
             <menuitem id="server.mboxStore"
                       value="@mozilla.org/msgstore/berkeleystore;1"

@@ -8,6 +8,58 @@ ChromeUtils.import("resource:///modules/MailUtils.js");
 ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var gServer;
+var gOriginalStoreType;
+
+/**
+ * Called when the store type menu is clicked.
+ * @param {Object} aStoreTypeElement - store type menu list element.
+ */
+function clickStoreTypeMenu(aStoreTypeElement) {
+  if (aStoreTypeElement.value == gOriginalStoreType) {
+    return;
+  }
+
+  // Response from migration dialog modal. If the conversion is complete
+  // 'response.newRootFolder' will hold the path to the new account root folder,
+  // otherwise 'response.newRootFolder' will be null.
+  let response = { newRootFolder: null };
+  // Send 'response' as an argument to converterDialog.xhtml.
+  window.openDialog("converterDialog.xhtml","mailnews:mailstoreconverter",
+                    "modal,centerscreen,width=800,height=180", gServer,
+                    aStoreTypeElement.value, response);
+  changeStoreType(response);
+}
+
+/**
+ * Revert store type to the original store type if converter modal closes
+ * before migration is complete, otherwise change original store type to
+ * currently selected store type.
+ * @param {Object} aResponse - response from migration dialog modal.
+ */
+function changeStoreType(aResponse) {
+  if (aResponse.newRootFolder) {
+    // The conversion is complete.
+    // Set local path to the new account root folder which is present
+    // in 'aResponse.newRootFolder'.
+    if (gServer.type == "nntp") {
+      let newRootFolder = aResponse.newRootFolder;
+      let lastSlash = newRootFolder.lastIndexOf("/");
+      let newsrc = newRootFolder.slice(0, lastSlash) + "/newsrc-" +
+                   newRootFolder.slice(lastSlash + 1);
+      document.getElementById("nntp.newsrcFilePath").value = newsrc;
+    }
+
+    document.getElementById("server.localPath").value = aResponse.newRootFolder;
+    gOriginalStoreType = document.getElementById("server.storeTypeMenulist")
+                                 .value;
+    BrowserUtils.restartApplication();
+  } else {
+    // The conversion failed or was cancelled.
+    // Restore selected item to what was selected before conversion.
+    document.getElementById("server.storeTypeMenulist").value =
+      gOriginalStoreType;
+  }
+}
 
 function onSave()
 {
@@ -46,9 +98,12 @@ function onInit(aPageId, aServerId)
                                .getAttribute("value");
   let targetItem = storeTypeElement.getElementsByAttribute("value", currentStoreID);
   storeTypeElement.selectedItem = targetItem[0];
-  // disable store type change if store has already been used
+  // Disable store type change if store has not been used yet.
   storeTypeElement.setAttribute("disabled",
-    gServer.getBoolValue("canChangeStoreType") ? "false" : "true");
+    gServer.getBoolValue("canChangeStoreType") ?
+      "false" : !Services.prefs.getBoolPref("mail.store_conversion_enabled"));
+  // Initialise 'gOriginalStoreType' to the item that was originally selected.
+  gOriginalStoreType = storeTypeElement.value;
 }
 
 function onPreInit(account, accountValues)
