@@ -2,39 +2,51 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+var MODULE_NAME = "testWeeklyUntilRecurrence";
 var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["calendar-utils"];
+var MODULE_REQUIRES = ["calendar-utils", "window-helpers"];
 
-var helpersForController, invokeEventDialog, createCalendar, deleteCalendars;
-var switchToView, goToDate, handleOccurrencePrompt;
-var CALENDARNAME, EVENT_BOX, CANVAS_BOX;
+Cu.import("resource://calendar/modules/calUtils.jsm");
 
-var modalDialog = require("../shared-modules/modal-dialog");
-var utils = require("../shared-modules/utils");
+var SHORT_SLEEP, TIMEOUT_MODAL_DIALOG, CALENDARNAME, EVENTPATH, EVENT_BOX;
+var CANVAS_BOX, REC_DLG_DAYS, REC_DLG_ACCEPT, REC_DLG_UNTIL_INPUT;
+var helpersForController, handleOccurrencePrompt, switchToView, goToDate;
+var invokeEventDialog, viewForward, deleteCalendars, createCalendar, menulistSelect;
+var plan_for_modal_dialog, wait_for_modal_dialog;
 
-var ENDDATE = new Date(2009, 0, 26); // last Monday in month
-
-var HOUR = 8;
-var EVENTPATH = `/{"tooltip":"itemTooltip","calendar":"${CALENDARNAME.toLowerCase()}"}`;
+const ENDDATE = new Date(2009, 0, 26); // last Monday in month
+const HOUR = 8;
 
 function setupModule(module) {
     controller = mozmill.getMail3PaneController();
     ({
+        SHORT_SLEEP,
+        TIMEOUT_MODAL_DIALOG,
+        CALENDARNAME,
+        EVENTPATH,
+        EVENT_BOX,
+        CANVAS_BOX,
+        REC_DLG_DAYS,
+        REC_DLG_ACCEPT,
+        REC_DLG_UNTIL_INPUT,
         helpersForController,
-        invokeEventDialog,
-        createCalendar,
-        deleteCalendars,
+        handleOccurrencePrompt,
         switchToView,
         goToDate,
-        handleOccurrencePrompt,
-        CALENDARNAME,
-        EVENT_BOX,
-        CANVAS_BOX
+        invokeEventDialog,
+        viewForward,
+        deleteCalendars,
+        createCalendar,
+        menulistSelect
     } = collector.getModule("calendar-utils"));
     collector.getModule("calendar-utils").setupModule();
     Object.assign(module, helpersForController(controller));
 
-    createCalendar(controller, calendar);
+    ({ plan_for_modal_dialog, wait_for_modal_dialog } =
+        collector.getModule("window-helpers")
+    );
+
+    createCalendar(controller, CALENDARNAME);
 }
 
 function testWeeklyUntilRecurrence() {
@@ -47,12 +59,12 @@ function testWeeklyUntilRecurrence() {
     invokeEventDialog(controller, eventBox, (event, iframe) => {
         let { eid: eventid } = helpersForController(event);
 
-        let dialog = new modalDialog.modalDialog(event.window);
-        dialog.start(setRecurrence);
+        plan_for_modal_dialog("Calendar:EventDialog:Recurrence", setRecurrence);
         event.waitForElement(eventid("item-repeat"));
-        event.select(eventid("item-repeat"), null, null, "custom");
+        menulistSelect(eventid("item-repeat"), "custom", event);
+        wait_for_modal_dialog("Calendar:EventDialog:Recurrence", TIMEOUT_MODAL_DIALOG);
 
-        event.click(eventid("button-save"));
+        event.click(eventid("button-saveandclose"));
     });
 
     let box = getEventBoxPath("day", EVENT_BOX, null, 1, HOUR) + EVENTPATH;
@@ -60,50 +72,50 @@ function testWeeklyUntilRecurrence() {
     // check day view
     for (let week = 0; week < 3; week++) {
         // Monday
-        controller.assertNode(lookup(box));
-        forward(controller, 2);
+        controller.waitForElement(lookup(box));
+        viewForward(controller, 2);
 
         // Wednesday
-        controller.assertNode(lookup(box));
-        forward(controller, 2);
+        controller.waitForElement(lookup(box));
+        viewForward(controller, 2);
 
         // Friday
-        controller.assertNode(lookup(box));
-        forward(controller, 3);
+        controller.waitForElement(lookup(box));
+        viewForward(controller, 3);
     }
 
     // Monday, last occurrence
-    controller.assertNode(lookup(box));
-    forward(controller, 2);
+    controller.waitForElement(lookup(box));
+    viewForward(controller, 2);
 
     // Wednesday
-    controller.assertNodeNotExist(lookup(box));
-    forward(controller, 2);
+    controller.waitForElementNotPresent(lookup(box));
+    viewForward(controller, 2);
 
     // check week view
     switchToView(controller, "week");
     goToDate(controller, 2009, 1, 5);
     for (let week = 0; week < 3; week++) {
         // Monday
-        controller.assertNode(
+        controller.waitForElement(
             lookupEventBox("week", EVENT_BOX, null, 2, HOUR, EVENTPATH)
         );
 
         // Wednesday
-        controller.assertNode(
+        controller.waitForElement(
             lookupEventBox("week", EVENT_BOX, null, 4, HOUR, EVENTPATH)
         );
 
         // Friday
-        controller.assertNode(
+        controller.waitForElement(
             lookupEventBox("week", EVENT_BOX, null, 6, HOUR, EVENTPATH)
         );
 
-        forward(controller, 1);
+        viewForward(controller, 1);
     }
 
     // Monday, last occurrence
-    controller.assertNode(
+    controller.waitForElement(
         lookupEventBox("week", EVENT_BOX, null, 2, HOUR, EVENTPATH)
     );
     // Wednesday
@@ -129,55 +141,49 @@ function testWeeklyUntilRecurrence() {
 }
 
 function setRecurrence(recurrence) {
-    let { sleep: recsleep, lookup: reclookup, eid: recid } = helpersForController(recurrence);
+    let { sleep: recsleep, lookup: reclookup, eid: recid } =
+        helpersForController(recurrence);
 
     // weekly
     recurrence.waitForElement(recid("period-list"));
-    recurrence.select(recid("period-list"), null, null, "1");
-    recsleep();
+    menulistSelect(recid("period-list"), "1", recurrence);
 
-    let mon = utils.getProperty("chrome://calendar/locale/dateFormat.properties", "day.2.Mmm");
-    let wed = utils.getProperty("chrome://calendar/locale/dateFormat.properties", "day.4.Mmm");
-    let fri = utils.getProperty("chrome://calendar/locale/dateFormat.properties", "day.6.Mmm");
+    let mon = cal.calGetString("dateFormat", "day.2.Mmm");
+    let wed = cal.calGetString("dateFormat", "day.4.Mmm");
+    let fri = cal.calGetString("dateFormat", "day.6.Mmm");
 
-    let days = `
-        /id("calendar-event-dialog-recurrence")/id("recurrence-pattern-groupbox")/
-        id("recurrence-pattern-grid")/id("recurrence-pattern-rows")/
-        id("recurrence-pattern-period-row")/id("period-deck")/id("period-deck-weekly-box")/
-        [1]/id("daypicker-weekday")/anon({"anonid":"mainbox"})
-    `;
-
+    // starting from Monday so it should be checked. We have to wait a little,
+    // because the checkedstate is set in background by JS.
+    recurrence.waitFor(() => {
+        return recurrence.assertChecked(reclookup(`${REC_DLG_DAYS}/{"label":"${mon}"}`));
+    }, 30000);
     // starting from Monday so it should be checked
-    recurrence.assertChecked(reclookup(`${days}/{"label":"${mon}"}`));
+    recurrence.assertChecked(reclookup(`${REC_DLG_DAYS}/{"label":"${mon}"}`));
     // check Wednesday and Friday too
-    recurrence.click(reclookup(`${days}/{"label":"${wed}"}`));
-    recurrence.click(reclookup(`${days}/{"label":"${fri}"}`));
+    recurrence.click(reclookup(`${REC_DLG_DAYS}/{"label":"${wed}"}`));
+    recurrence.click(reclookup(`${REC_DLG_DAYS}/{"label":"${fri}"}`));
 
     // set until date
-    recurrence.click(recid("recurrence-range-until"));
-    let input = `
-        /id("calendar-event-dialog-recurrence")/id("recurrence-range-groupbox")/[1]/
-        id("recurrence-duration")/id("recurrence-range-until-box")/
-        id("repeat-until-date")/anon({"class":"datepicker-box-class"})/
-        {"class":"datepicker-text-class"}/
-        anon({"class":"menulist-editable-box textbox-input-box"})/
-        anon({"anonid":"input"})
-    `;
+    recurrence.radio(recid("recurrence-range-until"));
+
     // delete previous date
-    recurrence.keypress(reclookup(input), "a", { ctrlKey: true });
-    recurrence.keypress(reclookup(input), "VK_DELETE", {});
+    let untilInput = reclookup(REC_DLG_UNTIL_INPUT);
+    recurrence.keypress(untilInput, "a", { accelKey: true });
+    recurrence.keypress(untilInput, "VK_DELETE", {});
 
     let dateService = Components.classes["@mozilla.org/intl/scriptabledateformat;1"]
                        .getService(Components.interfaces.nsIScriptableDateFormat);
     let ymd = [ENDDATE.getFullYear(), ENDDATE.getMonth() + 1, ENDDATE.getDate()];
     let endDateString = dateService.FormatDate("", dateService.dateFormatShort, ...ymd);
-    recurrence.type(reclookup(input), endDateString);
+    recsleep(SHORT_SLEEP);
+    recurrence.type(untilInput, endDateString);
+
+    recsleep(SHORT_SLEEP);
+    // Move focus to ensure the date is selected
+    recurrence.keypress(untilInput, "VK_TAB", {});
 
     // close dialog
-    recurrence.click(reclookup(`
-        /id("calendar-event-dialog-recurrence")/anon({"anonid":"buttons"})/
-        {"dlgtype":"accept"}
-    `));
+    recurrence.click(reclookup(REC_DLG_ACCEPT));
 }
 
 function checkMultiWeekView(view) {
@@ -204,7 +210,7 @@ function checkMultiWeekView(view) {
     );
 
     // Wednesday
-    controller.assertNode(
+    controller.assertNodeNotExist(
         lookupEventBox(view, EVENT_BOX, startWeek + 3, 4, null, EVENTPATH)
     );
 }

@@ -2,20 +2,27 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+var MODULE_NAME = "testLastDayOfMonthRecurrence";
 var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["calendar-utils"];
+var MODULE_REQUIRES = ["calendar-utils", "window-helpers"];
 
-var helpersForController, invokeEventDialog, createCalendar;
-var deleteCalendars, switchToView, goToDate, handleOccurrencePrompt;
-var CALENDARNAME, EVENT_BOX, CANVAS_BOX;
+var TIMEOUT_MODAL_DIALOG, CALENDARNAME, EVENTPATH, EVENT_BOX;
+var CANVAS_BOX, REC_DLG_ACCEPT;
+var helpersForController, handleOccurrencePrompt, switchToView, goToDate;
+var invokeEventDialog, deleteCalendars, createCalendar, menulistSelect;
+var plan_for_modal_dialog, wait_for_modal_dialog;
 
-var modalDialog = require("../shared-modules/modal-dialog");
-
-var HOUR = 8;
+const HOUR = 8;
 
 function setupModule(module) {
     controller = mozmill.getMail3PaneController();
     ({
+        TIMEOUT_MODAL_DIALOG,
+        CALENDARNAME,
+        EVENTPATH,
+        EVENT_BOX,
+        CANVAS_BOX,
+        REC_DLG_ACCEPT,
         helpersForController,
         invokeEventDialog,
         createCalendar,
@@ -23,19 +30,19 @@ function setupModule(module) {
         switchToView,
         goToDate,
         handleOccurrencePrompt,
-        CALENDARNAME,
-        EVENT_BOX,
-        CANVAS_BOX
+        menulistSelect
     } = collector.getModule("calendar-utils"));
     collector.getModule("calendar-utils").setupModule();
     Object.assign(module, helpersForController(controller));
+
+    ({ plan_for_modal_dialog, wait_for_modal_dialog } =
+        collector.getModule("window-helpers")
+    );
 
     createCalendar(controller, CALENDARNAME);
 }
 
 function testLastDayOfMonthRecurrence() {
-    let eventPath = `/{"tooltip":"itemTooltip","calendar":"${CALENDARNAME.toLowerCase()}"}`;
-
     controller.click(eid("calendar-tab-button"));
     switchToView(controller, "day");
     goToDate(controller, 2008, 1, 31); // start with a leap year
@@ -45,16 +52,15 @@ function testLastDayOfMonthRecurrence() {
     invokeEventDialog(controller, eventBox, (event, iframe) => {
         let { eid: eventid } = helpersForController(event);
 
-        let dialog = new modalDialog.modalDialog(event.window);
-        dialog.start(setRecurrence);
-        event.waitForElement(eventid("item-repeat"));
-        event.select(eventid("item-repeat"), null, null, "custom");
+        plan_for_modal_dialog("Calendar:EventDialog:Recurrence", setRecurrence);
+        menulistSelect(eventid("item-repeat"), "custom", event);
+        wait_for_modal_dialog("Calendar:EventDialog:Recurrence", TIMEOUT_MODAL_DIALOG);
 
         event.click(eventid("button-saveandclose"));
     });
 
-    //                   year mo day  correct row in month view
-    //                   vvvv vv vvv  v
+    // data tuple: [year, month, day, row in month view]
+    // note: month starts here with 1 for January
     let checkingData = [[2008, 1, 31, 5],
                         [2008, 2, 29, 5],
                         [2008, 3, 31, 6],
@@ -80,32 +86,32 @@ function testLastDayOfMonthRecurrence() {
         // day view
         switchToView(controller, "day");
         controller.waitForElement(
-            lookupEventBox("day", EVENT_BOX, null, 1, HOUR, eventPath)
+            lookupEventBox("day", EVENT_BOX, null, 1, HOUR, EVENTPATH)
         );
 
         // week view
         switchToView(controller, "week");
         controller.waitForElement(
-            lookupEventBox("week", EVENT_BOX, null, column, HOUR, eventPath)
+            lookupEventBox("week", EVENT_BOX, null, column, HOUR, EVENTPATH)
         );
 
         // multiweek view
         switchToView(controller, "multiweek");
-        controller.assertNode(
-            lookupEventBox("multiweek", EVENT_BOX, 1, column, null, eventPath)
+        controller.waitForElement(
+            lookupEventBox("multiweek", EVENT_BOX, 1, column, null, EVENTPATH)
         );
 
         // month view
         switchToView(controller, "month");
-        controller.assertNode(
-            lookupEventBox("month", EVENT_BOX, correctRow, column, null, eventPath)
+        controller.waitForElement(
+            lookupEventBox("month", EVENT_BOX, correctRow, column, null, EVENTPATH)
         );
     }
 
     // delete event
     goToDate(controller, checkingData[0][0], checkingData[0][1], checkingData[0][2]);
     switchToView(controller, "day");
-    let box = getEventBoxPath("day", EVENT_BOX, null, 1, HOUR) + eventPath;
+    let box = getEventBoxPath("day", EVENT_BOX, null, 1, HOUR) + EVENTPATH;
     controller.waitThenClick(lookup(box));
     handleOccurrencePrompt(controller, eid("day-view"), "delete", true, false);
     controller.waitForElementNotPresent(lookup(box));
@@ -119,22 +125,16 @@ function setRecurrence(recurrence) {
     } = helpersForController(recurrence);
 
     // monthly
-    recsleep();
-    recurrence.select(recid("period-list"), null, null, "2");
+    menulistSelect(recid("period-list"), "2", recurrence);
 
     // last day of month
-    recurrence.click(recid("montly-period-relative-date-radio"));
-    recsleep();
-    recurrence.select(recid("monthly-ordinal"), null, null, "-1");
-    recsleep();
-    recurrence.select(recid("monthly-weekday"), null, null, "-1");
+    recurrence.radio(recid("montly-period-relative-date-radio"));
+    menulistSelect(recid("monthly-ordinal"), "-1", recurrence);
+    menulistSelect(recid("monthly-weekday"), "-1", recurrence);
     recsleep();
 
     // close dialog
-    recurrence.click(reclookup(`
-        /id("calendar-event-dialog-recurrence")/anon({"anonid":"buttons"})/
-        {"dlgtype":"accept"}
-    `));
+    recurrence.click(reclookup(REC_DLG_ACCEPT));
 }
 
 function teardownTest(module) {

@@ -2,29 +2,32 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+var MODULE_NAME = "testBiweeklyRecurrence";
 var RELATIVE_ROOT = "../shared-modules";
 var MODULE_REQUIRES = ["calendar-utils"];
 
-var helpersForController, invokeEventDialog, createCalendar, deleteCalendars;
-var switchToView, goToDate, handleOccurrencePrompt, viewForward;
-var CALENDARNAME, EVENT_BOX, CANVAS_BOX;
+var CALENDARNAME, EVENTPATH, EVENT_BOX, CANVAS_BOX;
+var helpersForController, handleOccurrencePrompt, switchToView, goToDate;
+var invokeEventDialog, viewForward, createCalendar, deleteCalendars, menulistSelect;
 
-var HOUR = 8;
+const HOUR = 8;
 
 function setupModule(module) {
     controller = mozmill.getMail3PaneController();
     ({
+        CALENDARNAME,
+        EVENTPATH,
+        EVENT_BOX,
+        CANVAS_BOX,
         helpersForController,
-        invokeEventDialog,
-        createCalendar,
-        deleteCalendars,
+        handleOccurrencePrompt,
         switchToView,
         goToDate,
-        handleOccurrencePrompt,
+        invokeEventDialog,
         viewForward,
-        CALENDARNAME,
-        EVENT_BOX,
-        CANVAS_BOX
+        deleteCalendars,
+        createCalendar,
+        menulistSelect
     } = collector.getModule("calendar-utils"));
     collector.getModule("calendar-utils").setupModule();
     Object.assign(module, helpersForController(controller));
@@ -33,8 +36,6 @@ function setupModule(module) {
 }
 
 function testBiweeklyRecurrence() {
-    let eventPath = `/{"tooltip":"itemTooltip","calendar":"${CALENDARNAME.toLowerCase()}"}`;
-
     controller.click(eid("calendar-tab-button"));
     switchToView(controller, "day");
     goToDate(controller, 2009, 1, 31);
@@ -44,17 +45,14 @@ function testBiweeklyRecurrence() {
     invokeEventDialog(controller, eventBox, (event, iframe) => {
         let { eid: eventid } = helpersForController(event);
 
-        event.waitForElement(eventid("item-repeat"));
-        event.select(eventid("item-repeat"), null, null, "bi.weekly");
-
-        // save
+        menulistSelect(eventid("item-repeat"), "bi.weekly", event);
         event.click(eventid("button-saveandclose"));
     });
 
     // check day view
     for (let i = 0; i < 4; i++) {
-        controller.assertNode(
-            lookupEventBox("day", EVENT_BOX, null, 1, HOUR, eventPath)
+        controller.waitForElement(
+            lookupEventBox("day", EVENT_BOX, null, 1, HOUR, EVENTPATH)
         );
         viewForward(controller, 14);
     }
@@ -64,8 +62,8 @@ function testBiweeklyRecurrence() {
     goToDate(controller, 2009, 1, 31);
 
     for (let i = 0; i < 4; i++) {
-        controller.assertNode(
-            lookupEventBox("week", EVENT_BOX, null, 7, HOUR, eventPath)
+        controller.waitForElement(
+            lookupEventBox("week", EVENT_BOX, null, 7, HOUR, EVENTPATH)
         );
         viewForward(controller, 2);
     }
@@ -76,11 +74,11 @@ function testBiweeklyRecurrence() {
 
     // always two occurrences in view, 1st and 3rd or 2nd and 4th week
     for (let i = 0; i < 5; i++) {
-        controller.assertNode(
-            lookupEventBox("multiweek", EVENT_BOX, i % 2 + 1, 7, null, eventPath)
+        controller.waitForElement(
+            lookupEventBox("multiweek", EVENT_BOX, i % 2 + 1, 7, null, EVENTPATH)
         );
         controller.assertNode(
-            lookupEventBox("multiweek", EVENT_BOX, i % 2 + 3, 7, null, eventPath)
+            lookupEventBox("multiweek", EVENT_BOX, i % 2 + 3, 7, null, EVENTPATH)
         );
         viewForward(controller, 1);
     }
@@ -90,20 +88,20 @@ function testBiweeklyRecurrence() {
     goToDate(controller, 2009, 1, 31);
 
     // January
-    controller.assertNode(lookupEventBox("month", EVENT_BOX, 5, 7, null, eventPath));
+    controller.waitForElement(lookupEventBox("month", EVENT_BOX, 5, 7, null, EVENTPATH));
     viewForward(controller, 1);
 
     // February
-    controller.assertNode(lookupEventBox("month", EVENT_BOX, 2, 7, null, eventPath));
-    controller.assertNode(lookupEventBox("month", EVENT_BOX, 4, 7, null, eventPath));
+    controller.waitForElement(lookupEventBox("month", EVENT_BOX, 2, 7, null, EVENTPATH));
+    controller.assertNode(lookupEventBox("month", EVENT_BOX, 4, 7, null, EVENTPATH));
     viewForward(controller, 1);
 
     // March
-    controller.assertNode(lookupEventBox("month", EVENT_BOX, 2, 7, null, eventPath));
-    controller.assertNode(lookupEventBox("month", EVENT_BOX, 4, 7, null, eventPath));
+    controller.waitForElement(lookupEventBox("month", EVENT_BOX, 2, 7, null, EVENTPATH));
+    controller.assertNode(lookupEventBox("month", EVENT_BOX, 4, 7, null, EVENTPATH));
 
     // delete event
-    let box = lookupEventBox("month", EVENT_BOX, 4, 7, null, eventPath);
+    let box = lookupEventBox("month", EVENT_BOX, 4, 7, null, EVENTPATH);
     controller.click(box);
     handleOccurrencePrompt(controller, eid("month-view"), "delete", true, false);
     controller.waitForElementNotPresent(box);

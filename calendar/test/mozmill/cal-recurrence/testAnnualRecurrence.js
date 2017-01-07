@@ -2,36 +2,39 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+var MODULE_NAME = "testAnnualRecurrence";
 var RELATIVE_ROOT = "../shared-modules";
 var MODULE_REQUIRES = ["calendar-utils"];
 
-var helpersForController, invokeEventDialog, createCalendar, deleteCalendars;
-var switchToView, goToDate, handleOccurrencePrompt;
-var CALENDARNAME, ALLDAY;
+var CALENDARNAME, EVENTPATH, ALLDAY;
+var helpersForController, handleOccurrencePrompt, switchToView, goToDate;
+var invokeEventDialog, deleteCalendars, createCalendar, menulistSelect;
 
-var STARTYEAR = 1950;
-var EPOCH = 1970;
+const STARTYEAR = 1950;
+const EPOCH = 1970;
 
 function setupModule(module) {
     controller = mozmill.getMail3PaneController();
     ({
+        CALENDARNAME,
+        EVENTPATH,
+        ALLDAY,
         helpersForController,
-        invokeEventDialog,
-        createCalendar,
-        deleteCalendars,
+        handleOccurrencePrompt,
         switchToView,
         goToDate,
-        handleOccurrencePrompt,
-        CALENDARNAME,
-        ALLDAY
+        invokeEventDialog,
+        deleteCalendars,
+        createCalendar,
+        menulistSelect
     } = collector.getModule("calendar-utils"));
     collector.getModule("calendar-utils").setupModule();
     Object.assign(module, helpersForController(controller));
+
     createCalendar(controller, CALENDARNAME);
 }
 
 function testAnnualRecurrence() {
-    let EVENTPATH = `/{"tooltip":"itemTooltip","calendar":"${CALENDARNAME.toLowerCase()}"}`;
     controller.click(eid("calendar-tab-button"));
     sleep();
 
@@ -43,9 +46,7 @@ function testAnnualRecurrence() {
     invokeEventDialog(controller, eventBox, (event, iframe) => {
         let { eid: eventid } = helpersForController(event);
 
-        event.select(eventid("item-repeat"), null, null, "yearly");
-
-        // save
+        menulistSelect(eventid("item-repeat"), "yearly", event);
         event.click(eventid("button-saveandclose"));
     });
 

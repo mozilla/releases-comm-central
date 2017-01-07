@@ -22,6 +22,28 @@ var EVENT_BOX = 0; // Use when you need an event box
 var CANVAS_BOX = 1; // Use when you need a calendar canvas box
 var ALLDAY = 2; // Use when you need an allday canvas or event box
 
+// Lookup paths and path-snippets
+var EVENTPATH = `/{"tooltip":"itemTooltip","calendar":"${CALENDARNAME.toLowerCase()}"}`;
+var REC_DLG_ACCEPT = `
+        /id("calendar-event-dialog-recurrence")
+        /anon({"anonid":"buttons"})/{"dlgtype":"accept"}
+`;
+var REC_DLG_DAYS = `
+        /id("calendar-event-dialog-recurrence")
+        /id("recurrence-pattern-groupbox")/id("recurrence-pattern-grid")
+        /id("recurrence-pattern-rows")/id("recurrence-pattern-period-row")
+        /id("period-deck")/id("period-deck-weekly-box")/[1]/id("daypicker-weekday")
+        /anon({"anonid":"mainbox"})
+`;
+var REC_DLG_UNTIL_INPUT = `
+        /id("calendar-event-dialog-recurrence")/id("recurrence-range-groupbox")/[1]/
+        id("recurrence-duration")/id("recurrence-range-until-box")/
+        id("repeat-until-date")/anon({"class":"datepicker-box-class"})/
+        {"class":"datepicker-text-class"}/
+        anon({"class":"menulist-editable-box textbox-input-box"})/
+        anon({"anonid":"input"})
+`;
+
 var plan_for_modal_dialog, wait_for_modal_dialog, open_pref_window;
 
 function setupModule() {
@@ -42,9 +64,13 @@ function installInto(module) {
     module.MID_SLEEP = MID_SLEEP;
     module.TIMEOUT_MODAL_DIALOG = TIMEOUT_MODAL_DIALOG;
     module.CALENDARNAME = CALENDARNAME;
+    module.EVENTPATH = EVENTPATH;
     module.EVENT_BOX = EVENT_BOX;
     module.CANVAS_BOX = CANVAS_BOX;
     module.ALLDAY = ALLDAY;
+    module.REC_DLG_ACCEPT = REC_DLG_ACCEPT;
+    module.REC_DLG_DAYS = REC_DLG_DAYS;
+    module.REC_DLG_UNTIL_INPUT = REC_DLG_UNTIL_INPUT;
     // Now copy helper functions
     module.helpersForController = helpersForController;
     module.acceptSendingNotificationMail = acceptSendingNotificationMail;
@@ -81,6 +107,20 @@ function helpersForController(controller) {
             return new elementslib.Lookup(controller.window.document, selector(path + extra));
         }
     };
+}
+
+/**
+ * make sure, the current view has finished loading
+ *
+ * @param controller        Mozmill window controller
+ */
+function ensureViewLoaded(controller) {
+    let { sleep } = helpersForController(controller);
+    controller.waitFor(() =>
+        controller.window.getViewDeck().selectedPanel.mPendingRefreshJobs.size == 0
+    );
+    // after the queue is empty the view needs a moment to settle.
+    sleep(200);
 }
 
 /**
@@ -156,25 +196,10 @@ function handleOccurrencePrompt(controller, element, mode, selectParent, attende
 function switchToView(controller, view) {
     let { eid } = helpersForController(controller);
 
-    let views = { day: 0, week: 1, multiweek: 2, month: 3 };
-    controller.waitForEvents.init(
-        controller.window.getViewDeck().childNodes[views[view]],
-        ["viewloaded"]
-    );
     let button = `calendar-${view}-view-button`;
-    controller.waitThenClick(eid(button));
 
-    // wait for the view to be loaded
-    try {
-        controller.waitForEvents.wait(4000);
-    } catch (err) {
-      // The event only fires, if the view reloads the displayed events.
-      // when switching from month-view to day-view, changing forward-backward
-      // some times, it may be still the same month when switching back to
-      // month-view. In this case we just have to wait for the view to be ready.
-      // Since data loading may take some time, we have to wait a decent time
-      // to give the view time to load and fire the event.
-    }
+    controller.waitThenClick(eid(button));
+    ensureViewLoaded(controller);
 }
 
 /**
@@ -263,7 +288,7 @@ function goToDate(controller, year, month, day) {
         ${miniMonth}/anon({"anonid":"minimonth-calendar"})/[${dateRow + 1}]/
         [${dateColumn + 1}]
     `));
-    sleep();
+    ensureViewLoaded(controller);
 }
 
 /**
@@ -372,6 +397,7 @@ function viewForward(controller, n) {
         controller.click(eid("next-view-button"));
         sleep(SHORT_SLEEP);
     }
+    ensureViewLoaded(controller);
 }
 
 /**
@@ -387,6 +413,7 @@ function viewBack(controller, n) {
         controller.click(eid("previous-view-button"));
         sleep(SHORT_SLEEP);
     }
+    ensureViewLoaded(controller);
 }
 
 /**
@@ -690,7 +717,8 @@ function setData(dialog, iframe, data) {
         if (!isEvent) {
             dialog.check(iframeId("todo-has-entrydate"), true);
         }
-        startDateInput.getNode().value = startdate;
+        dialog.keypress(startDateInput, "a", { accelKey: true });
+        dialog.type(startDateInput, startdate);
     }
 
     // starttime
@@ -712,7 +740,8 @@ function setData(dialog, iframe, data) {
         if (!isEvent) {
             dialog.check(iframeId("todo-has-duedate"), true);
         }
-        endDateInput.getNode().value = enddate;
+        dialog.keypress(endDateInput, "a", { accelKey: true });
+        dialog.type(endDateInput, enddate);
     }
 
     // endtime
@@ -825,6 +854,7 @@ function openLightningPrefs(aCallback, aParentController) {
  * @param aController   The mozmill controller associated to the menulist.
  */
 function menulistSelect(aMenuList, aValue, aController) {
+    aController.waitForElement(aMenuList);
     let menulist = aMenuList.getNode();
     let menuitem = menulist.querySelector(`menupopup > menuitem[value='${aValue}']`);
     menulist.click();

@@ -292,4 +292,3 @@ function getIsoDate() {
 function teardownTest(module) {
     deleteCalendars(controller, "Mozmill");
 }
-

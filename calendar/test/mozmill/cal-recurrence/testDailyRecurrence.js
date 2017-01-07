@@ -2,31 +2,34 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+var MODULE_NAME = "testDailyRecurrence";
 var RELATIVE_ROOT = "../shared-modules";
 var MODULE_REQUIRES = ["calendar-utils"];
 
+var CALENDARNAME, EVENTPATH, EVENT_BOX, CANVAS_BOX;
 var helpersForController, invokeEventDialog, createCalendar, deleteCalendars;
 var switchToView, goToDate, viewForward, viewBack, handleOccurrencePrompt;
-var CALENDARNAME, EVENT_BOX, CANVAS_BOX;
+var menulistSelect;
 
-var HOUR = 8;
-var EVENTPATH = `/{"tooltip":"itemTooltip","calendar":"${CALENDARNAME.toLowerCase()}"}`;
+const HOUR = 8;
 
 function setupModule(module) {
     controller = mozmill.getMail3PaneController();
     ({
+        CALENDARNAME,
+        EVENTPATH,
+        EVENT_BOX,
+        CANVAS_BOX,
         helpersForController,
-        invokeEventDialog,
-        createCalendar,
-        deleteCalendars,
+        handleOccurrencePrompt,
         switchToView,
         goToDate,
+        invokeEventDialog,
         viewForward,
         viewBack,
-        handleOccurrencePrompt,
-        CALENDARNAME,
-        EVENT_BOX,
-        CANVAS_BOX
+        deleteCalendars,
+        createCalendar,
+        menulistSelect
     } = collector.getModule("calendar-utils"));
     collector.getModule("calendar-utils").setupModule();
     Object.assign(module, helpersForController(controller));
@@ -44,10 +47,7 @@ function testDailyRecurrence() {
     invokeEventDialog(controller, eventBox, (event, iframe) => {
         let { eid: eventid } = helpersForController(event);
 
-        event.waitForElement(eventid("item-repeat"));
-        event.select(eventid("item-repeat"), null, null, "daily");
-
-        // save
+        menulistSelect(eventid("item-repeat"), "daily", event);
         event.click(eventid("button-saveandclose"));
     });
 
@@ -56,7 +56,7 @@ function testDailyRecurrence() {
     controller.waitForElement(lookup(daybox));
 
     for (let day = 1; day <= 7; day++) {
-        controller.assertNode(lookup(daybox));
+        controller.waitForElement(lookup(daybox));
         viewForward(controller, 1);
     }
 
@@ -65,7 +65,7 @@ function testDailyRecurrence() {
     goToDate(controller, 2009, 1, 1);
 
     for (let day = 5; day <= 7; day++) {
-        controller.assertNode(
+        controller.waitForElement(
             lookupEventBox("week", EVENT_BOX, 1, day, HOUR, EVENTPATH)
         );
     }
@@ -73,7 +73,7 @@ function testDailyRecurrence() {
     viewForward(controller, 1);
 
     for (let day = 1; day <= 7; day++) {
-        controller.assertNode(
+        controller.waitForElement(
             lookupEventBox("week", EVENT_BOX, 2, day, HOUR, EVENTPATH)
         );
     }
@@ -83,14 +83,14 @@ function testDailyRecurrence() {
     goToDate(controller, 2009, 1, 1);
 
     for (let day = 5; day <= 7; day++) {
-        controller.assertNode(
+        controller.waitForElement(
             lookupEventBox("multiweek", EVENT_BOX, 1, day, HOUR, EVENTPATH)
         );
     }
 
     for (let week = 2; week <= 4; week++) {
         for (let day = 1; day <= 7; day++) {
-            controller.assertNode(
+            controller.waitForElement(
                 lookupEventBox("multiweek", EVENT_BOX, week, day, HOUR, EVENTPATH)
             );
         }
@@ -101,7 +101,7 @@ function testDailyRecurrence() {
     goToDate(controller, 2009, 1, 1);
 
     for (let day = 5; day <= 7; day++) {
-        controller.assertNode(
+        controller.waitForElement(
             lookupEventBox("month", EVENT_BOX, 1, day, null, EVENTPATH)
         );
     }
@@ -123,16 +123,19 @@ function testDailyRecurrence() {
     controller.waitForElementNotPresent(lookup(saturday));
 
     switchToView(controller, "multiweek");
-    saturday = lookupEventBox("multiweek", EVENT_BOX, 1, 7, null, EVENTPATH);
-    controller.assertNodeNotExist(saturday);
+    controller.assertNodeNotExist(
+        lookupEventBox("multiweek", EVENT_BOX, 1, 7, null, EVENTPATH)
+    );
 
     switchToView(controller, "week");
-    saturday = lookupEventBox("week", EVENT_BOX, null, 7, null, EVENTPATH);
-    controller.assertNodeNotExist(saturday);
+    controller.assertNodeNotExist(
+        lookupEventBox("week", EVENT_BOX, null, 7, null, EVENTPATH)
+    );
 
     switchToView(controller, "day");
-    saturday = getEventBoxPath("day", EVENT_BOX, null, 1, null, EVENTPATH);
-    controller.assertNodeNotExist(saturday);
+    controller.assertNodeNotExist(
+        lookupEventBox("day", EVENT_BOX, null, 1, null, EVENTPATH)
+    );
 
     // go to previous day to edit event to occur only on weekdays
     viewBack(controller, 1);
@@ -140,10 +143,10 @@ function testDailyRecurrence() {
     eventBox = lookupEventBox("day", EVENT_BOX, null, 1, HOUR, EVENTPATH);
     handleOccurrencePrompt(controller, eventBox, "modify", true, false);
     invokeEventDialog(controller, null, (event, iframe) => {
-        let { eid: eventid } = helpersForController(event);
+        let { eid: eventid, sleep: eventsleep } = helpersForController(event);
 
-        event.waitForElement(eventid("item-repeat"));
-        event.select(eventid("item-repeat"), null, null, "every.weekday");
+        menulistSelect(eventid("item-repeat"), "every.weekday", event);
+        eventsleep();
         event.click(eventid("button-saveandclose"));
     });
 
@@ -163,7 +166,7 @@ function testDailyRecurrence() {
     goToDate(controller, 2009, 1, 1);
 
     for (let i = 0; i <= 1; i++) {
-        controller.assertNodeNotExist(
+        controller.waitForElementNotPresent(
             lookupEventBox("week", EVENT_BOX, null, 1, null, EVENTPATH)
         );
         controller.assertNodeNotExist(
@@ -177,7 +180,7 @@ function testDailyRecurrence() {
     goToDate(controller, 2009, 1, 1);
 
     for (let i = 1; i <= 4; i++) {
-        controller.assertNodeNotExist(
+        controller.waitForElementNotPresent(
             lookupEventBox("multiweek", EVENT_BOX, i, 1, null, EVENTPATH)
         );
         controller.assertNodeNotExist(
@@ -190,7 +193,7 @@ function testDailyRecurrence() {
     goToDate(controller, 2009, 1, 1);
 
     for (let i = 1; i <= 5; i++) {
-        controller.assertNodeNotExist(
+        controller.waitForElementNotPresent(
             lookupEventBox("month", EVENT_BOX, i, 1, null, EVENTPATH)
         );
         controller.assertNodeNotExist(

@@ -13,8 +13,10 @@ var DATES = [
     [2009, 7, 2], [2009, 10, 15], [2009, 10, 29], [2009, 11, 5]
 ];
 
-var TIMEZONES = ["America/St_Johns", "America/Caracas", "America/Phoenix", "America/Los_Angeles",
-                 "America/Argentina/Buenos_Aires", "Europe/Paris", "Asia/Kathmandu", "Australia/Adelaide"];
+var TIMEZONES = [
+    "America/St_Johns", "America/Caracas", "America/Phoenix", "America/Los_Angeles",
+    "America/Argentina/Buenos_Aires", "Europe/Paris", "Asia/Kathmandu", "Australia/Adelaide"
+];
 
 var helpersForController, goToDate, viewForward, viewBack, findEventsInNode;
 
