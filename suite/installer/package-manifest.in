@@ -351,7 +351,6 @@
 @RESPATH@/components/addonManager.js
 @RESPATH@/components/amContentHandler.js
 @RESPATH@/components/amInstallTrigger.js
-@RESPATH@/components/amWebInstallListener.js
 @RESPATH@/components/BrowserElementParent.js
 @RESPATH@/components/BrowserElementParent.manifest
 @RESPATH@/components/captivedetect.js

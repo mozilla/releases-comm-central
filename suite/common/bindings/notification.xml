@@ -407,31 +407,31 @@
                 break;
 
               case "addon-install-blocked":
-                var installInfo = aSubject.QueryInterface(Components.interfaces.amIWebInstallInfo);
+                var installInfo = aSubject.wrappedJSObject;
                 if (installInfo.browser == browser)
                   this.addonInstallBlocked(installInfo);
                 break;
 
               case "addon-install-complete":
-                var installInfo = aSubject.QueryInterface(Components.interfaces.amIWebInstallInfo);
+                var installInfo = aSubject.wrappedJSObject;
                 if (installInfo.browser == browser)
                   this.addonInstallComplete(installInfo);
                 break;
 
               case "addon-install-disabled":
-                var installInfo = aSubject.QueryInterface(Components.interfaces.amIWebInstallInfo);
+                var installInfo = aSubject.wrappedJSObject;
                 if (installInfo.browser == browser)
                   this.addonInstallDisabled(installInfo);
                 break;
 
               case "addon-install-failed":
-                var installInfo = aSubject.QueryInterface(Components.interfaces.amIWebInstallInfo);
+                var installInfo = aSubject.wrappedJSObject;
                 if (installInfo.browser == browser)
                   this.addonInstallFailed(installInfo);
                 break;
 
               case "addon-install-started":
-                var installInfo = aSubject.QueryInterface(Components.interfaces.amIWebInstallInfo);
+                var installInfo = aSubject.wrappedJSObject;
                 if (installInfo.browser == browser)
                   this.addonInstallStarted(installInfo);
                 break;
@@ -1740,10 +1740,8 @@
                 var weblistener = Components.classes["@mozilla.org/addons/web-install-listener;1"]
                                             .getService(Components.interfaces.amIWebInstallListener);
                 if (weblistener.onWebInstallRequested(installInfo.browser, installInfo.originatingURI,
-                                                      installInfo.installs, installInfo.installs.length)) {
-                  installInfo.installs.forEach(function(aInstall) {
-                    aInstall.install();
-                  });
+                                                      [aInstall], 1)) {
+                  aInstall.install();
                 }
               }
             }];
@@ -2954,10 +2952,8 @@
                 var weblistener = Components.classes["@mozilla.org/addons/web-install-listener;1"]
                                             .getService(Components.interfaces.amIWebInstallListener);
                 if (weblistener.onWebInstallRequested(installInfo.browser, installInfo.originatingURI,
-                                                      installInfo.installs, installInfo.installs.length)) {
-                  installInfo.installs.forEach(function(aInstall) {
-                    aInstall.install();
-                  });
+                                                      [aInstall], 1)) {
+                  aInstall.install();
                 }
               }
             };
