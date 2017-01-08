@@ -145,7 +145,7 @@ var TopComponent = React.createClass({
             initialLocation: "",
             initialAllDay: false,
             initialRepeat: "none",
-            initialRepeatUntilDate: "Forever",
+            initialRepeatUntilDate: "forever",
             initialReminders: 0,
             initialDescription: "",
             initialShowTimeAs: "OPAQUE",

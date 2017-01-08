@@ -1229,7 +1229,7 @@ function updateDateCheckboxes(aDatePickerId, aCheckboxId, aDateTime) {
 function getRepeatTypeAndUntilDate(aItem) {
     let recurrenceInfo = window.recurrenceInfo;
     let repeatType = "none";
-    let untilDate = "Forever";
+    let untilDate = "forever";
 
     /**
      * Updates the until date (locally and globally).
