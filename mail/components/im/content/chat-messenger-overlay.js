@@ -627,7 +627,8 @@ var chatHandler = {
       item.convView.focus();
   },
   onListItemSelected: function() {
-    let item = document.getElementById("contactlistbox").selectedItem;
+    let contactlistbox = document.getElementById("contactlistbox");
+    let item = contactlistbox.selectedItem;
     if (!item || item.hidden || item.localName == "imgroup") {
       this._hideContextPane(true);
       document.getElementById("conversationsDeck").selectedPanel =
@@ -658,6 +659,8 @@ var chatHandler = {
       path = OS.Path.join(OS.Constants.Path.profileDir, ...path.split("/"));
       imServices.logs.getLogFromFile(path, true).then(aLog => {
         imServices.logs.getSimilarLogs(aLog, true).then(aSimilarLogs => {
+          if (contactlistbox.selectedItem != item)
+            return;
           this._pendingSearchTerm = item.searchTerm || undefined;
           this._showLogList(aSimilarLogs, aLog);
         });
@@ -685,6 +688,8 @@ var chatHandler = {
       item.update();
 
       imServices.logs.getLogsForConversation(item.conv, true).then(aLogs => {
+        if (contactlistbox.selectedItem != item)
+          return;
         this._showLogList(aLogs);
       });
 
@@ -716,6 +721,8 @@ var chatHandler = {
       document.getElementById("contextPane").removeAttribute("chat");
 
       imServices.logs.getLogsForContact(contact, true).then(aLogs => {
+        if (contactlistbox.selectedItem != item)
+          return;
         if (!this._showLogList(aLogs, true)) {
           document.getElementById("conversationsDeck").selectedPanel =
             document.getElementById("logDisplay");
