@@ -2579,20 +2579,25 @@ NS_IMETHODIMP nsImapService::NewURI(const nsACString &aSpec,
   if (rootFolder && !folderName.IsEmpty())
   {
     nsCOMPtr<nsIMsgFolder> folder;
-    nsCOMPtr<nsIMsgImapMailFolder> imapRoot = do_QueryInterface(rootFolder, &rv);
+    nsCOMPtr<nsIMsgImapMailFolder> imapRoot = do_QueryInterface(rootFolder);
     nsCOMPtr<nsIMsgImapMailFolder> subFolder;
     if (imapRoot)
     {
       imapRoot->FindOnlineSubFolder(folderName, getter_AddRefs(subFolder));
-      folder = do_QueryInterface(subFolder, &rv);
+      folder = do_QueryInterface(subFolder);
     }
-    if (NS_SUCCEEDED(rv))
+
+    // If we can't find the folder, we can still create the URI
+    // in this low-level service. Cloning URIs where the folder
+    // isn't found is common when folders are renamed or moved.
+    // We also ignore return statuses here.
+    if (folder)
     {
       nsCOMPtr<nsIImapMessageSink> msgSink = do_QueryInterface(folder);
-      rv = aImapUrl->SetImapMessageSink(msgSink);
+      (void) aImapUrl->SetImapMessageSink(msgSink);
 
       nsCOMPtr<nsIMsgFolder> msgFolder = do_QueryInterface(folder);
-      rv = SetImapUrlSink(msgFolder, aImapUrl);
+      (void) SetImapUrlSink(msgFolder, aImapUrl);
 
       nsCString messageIdString;
       aImapUrl->GetListOfMessageIds(messageIdString);
