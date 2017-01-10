@@ -112,6 +112,9 @@ var gStartupPPObserver =
 
 function ReplaceWithSelection()
 {
+  if (!printOpener.content)
+    return;
+
   var selection = printOpener.content.getSelection();
 
   if ( selection != "" ) {

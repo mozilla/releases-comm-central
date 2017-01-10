@@ -197,7 +197,7 @@ function AbPrintCardInternal(doPrintPreview, msgType)
   statusFeedback = Components.classes["@mozilla.org/messenger/statusfeedback;1"].createInstance();
   statusFeedback = statusFeedback.QueryInterface(Components.interfaces.nsIMsgStatusFeedback);
 
-  let selectionArray = new Array(numSelected);
+  let selectionArray = [];
 
   for (let i = 0; i < numSelected; i++) {
     let card = selectedItems[i];
@@ -210,8 +210,8 @@ function AbPrintCardInternal(doPrintPreview, msgType)
   printEngineWindow = window.openDialog("chrome://messenger/content/msgPrintEngine.xul",
                                          "",
                                          "chrome,dialog=no,all",
-                                          totalCard, selectionArray, statusFeedback,
-                                          doPrintPreview, msgType);
+                                         selectionArray.length, selectionArray,
+                                         statusFeedback, doPrintPreview, msgType);
 
   return;
 }
