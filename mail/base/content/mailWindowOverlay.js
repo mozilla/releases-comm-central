@@ -3200,7 +3200,7 @@ function onRemoteContentOptionsShowing(aEvent) {
   if (adrCount > 0) {
     let authorEmailAddress = addresses.value[0];
     let authorEmailAddressURI = Services.io.newURI(
-      "chrome://messenger/content/?email=" + authorEmailAddress, null, null);
+      "chrome://messenger/content/?email=" + authorEmailAddress);
     let mailPrincipal = Services.scriptSecurityManager
       .createCodebasePrincipal(authorEmailAddressURI, {});
     origins.push(mailPrincipal.origin);
@@ -3250,7 +3250,7 @@ function onRemoteContentOptionsShowing(aEvent) {
  * @param aReload  Reload the message display after allowing the URI.
  */
 function allowRemoteContentForURI(aUriSpec, aReload = true) {
-  let uri = Services.io.newURI(aUriSpec, null, null);
+  let uri = Services.io.newURI(aUriSpec);
   Services.perms.add(uri, "image", Services.perms.ALLOW_ACTION);
   if (aReload)
     ReloadMessage();

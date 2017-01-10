@@ -36,7 +36,7 @@ function run_test()
       do_check_eq(pH.allowPort(i, ""), false);
 
     // Check we get a URI when we ask for one
-    var uri = pH.newURI(protocols[part].urlSpec, "", null);
+    var uri = pH.newURI(protocols[part].urlSpec, "");
 
     uri.QueryInterface(Ci.nsIMailboxUrl);
 

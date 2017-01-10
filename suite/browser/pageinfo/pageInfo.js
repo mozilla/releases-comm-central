@@ -503,7 +503,7 @@ function makeGeneralTab()
   setItemValue("sizetext", null);
   var cacheKey = url.replace(/#.*$/, "");
   try {
-    diskCacheStorage.asyncOpenURI(Services.io.newURI(cacheKey, null, null),
+    diskCacheStorage.asyncOpenURI(Services.io.newURI(cacheKey),
                                   null, OPEN_READONLY, cacheListener);
   }
   catch(ex) { }
@@ -626,7 +626,7 @@ function addImage(url, type, alt, elem, isBg)
 {
   if (url) try {
     var listener = new imgCacheListener(url, type, alt, elem, isBg);
-    diskCacheStorage.asyncOpenURI(Services.io.newURI(url, null, null),
+    diskCacheStorage.asyncOpenURI(Services.io.newURI(url),
                                   null, OPEN_READONLY, listener);
   }
   catch (ex) { }

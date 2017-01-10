@@ -687,7 +687,7 @@ nsBrowserAccess.prototype = {
         let referrer = null;
         if (aOpener) {
           let location = aOpener.location;
-          referrer = Services.io.newURI(location, null, null);
+          referrer = Services.io.newURI(location);
         }
         newWindow.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
                  .getInterface(Components.interfaces.nsIWebNavigation)

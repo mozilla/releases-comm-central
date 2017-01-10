@@ -490,7 +490,7 @@ function setCookiePermissions(action) {
                             .getService(Components.interfaces.nsIIOService);
 
   try {
-    var uri = ioService.newURI(url, null, null);
+    var uri = ioService.newURI(url);
   } catch (e) {
     // show an error if URI can not be constructed or adding it failed
     window.alert(cookieBundle.getString("errorAddPermission"));

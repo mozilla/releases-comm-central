@@ -177,7 +177,7 @@ var Socket = {
 
         // Add a URI scheme since, by default, some protocols (i.e. IRC) don't
         // have a URI scheme before the host.
-        let uri = Services.io.newURI("http://" + this.host, null, null);
+        let uri = Services.io.newURI("http://" + this.host);
         // This will return null when the result is known immediately and
         // the callback will just be dispatched to the current thread.
         this._proxyCancel = proxyService.asyncResolve(uri, this.proxyFlags, this);

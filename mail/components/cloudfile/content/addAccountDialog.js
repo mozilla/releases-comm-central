@@ -268,7 +268,7 @@ var addAccountDialog = {
   onClickLink: function AAD_onClickLink(e) {
     e.preventDefault();
     let href = e.target.getAttribute("href");
-    gProtocolService.loadUrl(Services.io.newURI(href, "UTF-8", null));
+    gProtocolService.loadUrl(Services.io.newURI(href, "UTF-8"));
   },
 
   onInput: function AAD_onInput() {

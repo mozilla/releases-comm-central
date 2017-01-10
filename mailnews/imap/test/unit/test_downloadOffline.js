@@ -33,8 +33,7 @@ function *setup() {
   let gMessageGenerator = new MessageGenerator();
   messages = messages.concat(gMessageGenerator.makeMessage());
   let dataUri = Services.io.newURI("data:text/plain;base64," +
-                                   btoa(messages[0].toMessageString()),
-                                   null, null);
+                                   btoa(messages[0].toMessageString()));
   let imapMsg = new imapMessage(dataUri.spec, IMAPPump.mailbox.uidnext++, []);
   imapMsg.setSize(5000);
   IMAPPump.mailbox.addMessage(imapMsg);

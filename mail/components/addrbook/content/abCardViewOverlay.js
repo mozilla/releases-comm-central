@@ -538,7 +538,7 @@ function OpenURLWithHistory(url)
 {
   try {
     PlacesUtils.asyncHistory.updatePlaces({
-      uri: Services.io.newURI(url, null, null),
+      uri: Services.io.newURI(url),
       visits:  [{
         visitDate: Date.now() * 1000,
         transitionType: Components.interfaces.nsINavHistoryService.TRANSITION_LINK

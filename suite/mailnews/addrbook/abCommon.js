@@ -705,7 +705,7 @@ function storePhoto(aUri) {
   var file = getPhotosDir();
 
   // Create a channel from the URI and open it as an input stream
-  var channel = Services.io.newChannelFromURI2(Services.io.newURI(aUri, null, null),
+  var channel = Services.io.newChannelFromURI2(Services.io.newURI(aUri),
                                          null,
                                          Services.scriptSecurityManager.getSystemPrincipal(),
                                          null,

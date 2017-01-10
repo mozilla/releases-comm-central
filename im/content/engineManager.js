@@ -77,7 +77,7 @@ var gEngineManagerDialog = {
     var ios = Cc["@mozilla.org/network/io-service;1"].getService(Ci.nsIIOService);
     Components.classes["@mozilla.org/uriloader/external-protocol-service;1"]
               .getService(Ci.nsIExternalProtocolService)
-              .loadURI(ios.newURI(url, null, null), window);
+              .loadURI(ios.newURI(url), window);
 
     window.close();
   },

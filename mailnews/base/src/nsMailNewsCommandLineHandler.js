@@ -74,7 +74,7 @@ var nsMailNewsCommandLineHandler =
         // Necko URL, so convert it into a message header
         let neckoURL = null;
         try {
-          neckoURL = Services.io.newURI(mailURL, null, null);
+          neckoURL = Services.io.newURI(mailURL);
         }
         catch (e) {
           // We failed to convert the URI. Oh well.

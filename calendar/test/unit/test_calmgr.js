@@ -32,7 +32,7 @@ add_test(function test_registration() {
     checkCalendarCount(0, 0, 0);
 
     // Create a local memory calendar, ths shouldn't register any calendars
-    let memory = calmgr.createCalendar("memory", Services.io.newURI("moz-memory-calendar://", null, null));
+    let memory = calmgr.createCalendar("memory", Services.io.newURI("moz-memory-calendar://"));
     checkCalendarCount(0, 0, 0);
 
     // Register an observer to test it.
@@ -127,8 +127,8 @@ add_test(function test_calobserver() {
 
     // First of all we need a local calendar to work on and some variables
     let calmgr = cal.getCalendarManager();
-    let memory = calmgr.createCalendar("memory", Services.io.newURI("moz-memory-calendar://", null, null));
-    let memory2 = calmgr.createCalendar("memory", Services.io.newURI("moz-memory-calendar://", null, null));
+    let memory = calmgr.createCalendar("memory", Services.io.newURI("moz-memory-calendar://"));
+    let memory2 = calmgr.createCalendar("memory", Services.io.newURI("moz-memory-calendar://"));
     let calcounter, allcounter;
 
     // These observers will end up counting calls which we will use later on
@@ -226,7 +226,7 @@ add_test(function test_removeModes() {
     const cICM = Components.interfaces.calICalendarManager;
 
     let calmgr = cal.getCalendarManager();
-    let memory = calmgr.createCalendar("memory", Services.io.newURI("moz-memory-calendar://", null, null));
+    let memory = calmgr.createCalendar("memory", Services.io.newURI("moz-memory-calendar://"));
     let baseCalendarCount = calmgr.calendarCount;
     let removeModes = null;
     let deleteCalled = false;
@@ -245,7 +245,7 @@ add_test(function test_removeModes() {
 add_test(function test_calprefs() {
     let prop;
     let calmgr = cal.getCalendarManager();
-    let memory = calmgr.createCalendar("memory", Services.io.newURI("moz-memory-calendar://", null, null));
+    let memory = calmgr.createCalendar("memory", Services.io.newURI("moz-memory-calendar://"));
     calmgr.registerCalendar(memory);
     let memid = memory.id;
 
@@ -258,7 +258,7 @@ add_test(function test_calprefs() {
 
     // Before checking the value, reinitialize the memory calendar with the
     // same id to make sure the pref value isn't just cached
-    memory = calmgr.createCalendar("memory", Services.io.newURI("moz-memory-calendar://", null, null));
+    memory = calmgr.createCalendar("memory", Services.io.newURI("moz-memory-calendar://"));
     memory.id = memid;
 
     // First test the standard types
@@ -285,7 +285,7 @@ add_test(function test_calprefs() {
 
     // Check if changing pref types works. We need to reset the calendar again
     // because retrieving the value just cached it again.
-    memory = calmgr.createCalendar("memory", Services.io.newURI("moz-memory-calendar://", null, null));
+    memory = calmgr.createCalendar("memory", Services.io.newURI("moz-memory-calendar://"));
     memory.id = memid;
 
     calmgr.setCalendarPref_(memory, "boolpref", "kinda true");
@@ -295,7 +295,7 @@ add_test(function test_calprefs() {
 
     // Check if unsetting a pref works
     memory.setProperty("intpref", null);
-    memory = calmgr.createCalendar("memory", Services.io.newURI("moz-memory-calendar://", null, null));
+    memory = calmgr.createCalendar("memory", Services.io.newURI("moz-memory-calendar://"));
     memory.id = memid;
     prop = memory.getProperty("intpref");
     ok(prop === null);

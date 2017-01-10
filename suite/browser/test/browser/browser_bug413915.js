@@ -1,7 +1,7 @@
 function test() {
   var ioserv = Components.classes["@mozilla.org/network/io-service;1"].
                getService(Components.interfaces.nsIIOService);
-  var exampleUri = ioserv.newURI("http://example.com/", null, null);
+  var exampleUri = ioserv.newURI("http://example.com/");
   var secman = Components.classes["@mozilla.org/scriptsecuritymanager;1"].
                getService(Components.interfaces.nsIScriptSecurityManager);
   var principal = secman.createCodebasePrincipal(exampleUri, {});

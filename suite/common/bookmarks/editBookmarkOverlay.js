@@ -918,7 +918,7 @@ var gEditItemOverlay = {
       if (locationField.value != aValue) {
         this._uri = Components.classes["@mozilla.org/network/io-service;1"]
                               .getService(Components.interfaces.nsIIOService)
-                              .newURI(aValue, null, null);
+                              .newURI(aValue);
         this._initTextField("locationField", this._uri.spec);
         this._initNamePicker();
         this._initTextField("tagsField",

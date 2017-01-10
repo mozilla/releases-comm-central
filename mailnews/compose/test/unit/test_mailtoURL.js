@@ -10,7 +10,7 @@ var COMPOSE_DEFAULT = Components.interfaces.nsIMsgCompFormat.Default;
 function run_test() {
 
   function test(aTest) {
-    var uri = Services.io.newURI(aTest.url, null, null);
+    var uri = Services.io.newURI(aTest.url);
     uri = uri.QueryInterface(Components.interfaces.nsIMailtoUrl);
 
     var to = {}, cc = {}, bcc = {}, subject = {}, body = {}, html = {},
@@ -39,7 +39,7 @@ function run_test() {
     test(tests[i]);
 
   // Test cloning reparses the url by checking the to field.
-  let uriToClone = Services.io.newURI(tests[0].url, null, null);
+  let uriToClone = Services.io.newURI(tests[0].url);
   let clonedUrl = uriToClone.clone().QueryInterface(Components.interfaces.nsIMailtoUrl);
   var to = {}, cc = {}, bcc = {}, subject = {}, body = {}, html = {},
       reference = {}, newsgroup = {}, composeformat = {};

@@ -120,7 +120,7 @@ var gGeneralPane = {
       sound.playEventSound(Components.interfaces.nsISound.EVENT_NEW_MAIL_RECEIVED);
     } else {
       // User has set a custom audio file to be played along the alert.
-      sound.play(Services.io.newURI(soundLocation, null, null));
+      sound.play(Services.io.newURI(soundLocation));
     }
   },
 

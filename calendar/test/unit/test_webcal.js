@@ -27,7 +27,7 @@ function run_test() {
 }
 
 function check_webcal_uri(aUri) {
-    let uri = Services.io.newURI(aUri, null, null);
+    let uri = Services.io.newURI(aUri);
 
     let channel = Services.io.newChannelFromURI2(uri,
                                                  null,

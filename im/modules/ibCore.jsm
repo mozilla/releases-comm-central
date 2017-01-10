@@ -106,7 +106,7 @@ var Core = {
         let url = "about:" + page;
         // If the page doesn't exist, we avoid opening a tab.
         try {
-          Services.io.newChannelFromURI(Services.io.newURI(url, null, null));
+          Services.io.newChannelFromURI(Services.io.newURI(url));
         } catch(e) {
           if (e.result == Components.results.NS_ERROR_MALFORMED_URI) {
             Services.conversations.getUIConversation(aConv).systemMessage(
@@ -293,7 +293,7 @@ var Core = {
     if (aTopic == "handle-xul-text-link") {
       Cc["@mozilla.org/uriloader/external-protocol-service;1"]
         .getService(Ci.nsIExternalProtocolService)
-        .loadURI(Services.io.newURI(aData, null, null));
+        .loadURI(Services.io.newURI(aData));
       aSubject.QueryInterface(Ci.nsISupportsPRBool).data = true;
       return;
     }

@@ -1284,7 +1284,7 @@
             }
           }
           if (url) {
-            let uri = Services.io.newURI(url, null, null);
+            let uri = Services.io.newURI(url);
 
             // http and https are the only schemes that are both
             // allowed by our IM filters and exposed.

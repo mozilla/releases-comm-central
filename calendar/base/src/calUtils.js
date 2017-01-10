@@ -403,7 +403,7 @@ function calPrint() {
  * @returns  an nsIURI whose spec is aUriString
  */
 function makeURL(aUriString) {
-    return Services.io.newURI(aUriString, null, null);
+    return Services.io.newURI(aUriString);
 }
 
 /**

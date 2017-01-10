@@ -584,7 +584,7 @@ function openFormattedURL(aPrefName)
 {
   var urlToOpen = Services.urlFormatter.formatURLPref(aPrefName);
 
-  var uri = Services.io.newURI(urlToOpen, null, null);
+  var uri = Services.io.newURI(urlToOpen);
 
   var protocolSvc = Components.classes["@mozilla.org/uriloader/external-protocol-service;1"]
                               .getService(Components.interfaces.nsIExternalProtocolService);

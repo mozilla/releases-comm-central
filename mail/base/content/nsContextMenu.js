@@ -796,7 +796,7 @@ nsContextMenu.prototype = {
    */
   getLinkURI: function CM_getLinkURI() {
     try {
-      return Services.io.newURI(this.linkURL, null, null);
+      return Services.io.newURI(this.linkURL);
     } catch (ex) {
       // e.g. empty URL string
     }
@@ -875,9 +875,9 @@ nsContextMenu.prototype = {
    */
   makeURLAbsolute : function CM_makeURLAbsolute(aBase, aUrl) {
     // Construct nsIURL.
-    var baseURI  = Services.io.newURI(aBase, null, null);
+    var baseURI  = Services.io.newURI(aBase);
 
-    return Services.io.newURI(baseURI.resolve(aUrl), null, null).spec;
+    return Services.io.newURI(baseURI.resolve(aUrl)).spec;
   },
 
   /**
@@ -947,7 +947,7 @@ nsContextMenu.prototype = {
 
   openInBrowser: function CM_openInBrowser() {
     let uri = Services.io.newURI(this.target.ownerDocument.defaultView.
-                                 top.location.href, null, null);
+                                 top.location.href);
     PlacesUtils.asyncHistory.updatePlaces({
       uri: uri,
       visits:  [{

@@ -31,7 +31,7 @@ smileProtocolHandler.prototype = {
   },
   newChannel2: function SPH_newChannel2(aURI, aLoadInfo) {
     let smile = aURI.spec.replace(kSmileRegexp, "");
-    let uri = Services.io.newURI(getSmileRealURI(smile), null, null);
+    let uri = Services.io.newURI(getSmileRealURI(smile));
     let channel = Services.io.newChannelFromURIWithLoadInfo(uri, aLoadInfo);
     channel.originalURI = aURI;
     return channel;

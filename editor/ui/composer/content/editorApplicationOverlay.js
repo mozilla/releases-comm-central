@@ -116,7 +116,7 @@ function editPage(url, aFileType)
 function createURI(urlstring)
 {
   try {
-    return Services.io.newURI(urlstring, null, null);
+    return Services.io.newURI(urlstring);
   } catch (e) {}
 
   return null;

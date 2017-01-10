@@ -677,7 +677,7 @@ SuiteGlue.prototype = {
       try {
         var url = Services.prefs.getComplexValue("browser.download.finished_sound_url",
                                                  Components.interfaces.nsISupportsString);
-        this._sound.play(Services.io.newURI(url.data, null, null));
+        this._sound.play(Services.io.newURI(url.data));
       } catch (e) {
         this._sound.beep();
       }
@@ -896,7 +896,7 @@ SuiteGlue.prototype = {
       var bookmarksURI = null;
       if (restoreDefaultBookmarks) {
         // User wants to restore bookmarks.html file from default profile folder.
-        bookmarksURI = Services.io.newURI("resource:///defaults/profile/bookmarks.html", null, null);
+        bookmarksURI = Services.io.newURI("resource:///defaults/profile/bookmarks.html");
       }
       else {
         // Get bookmarks.html file location.

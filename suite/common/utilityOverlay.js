@@ -961,7 +961,7 @@ function makeURLAbsolute(aBase, aUrl, aCharset)
 {
   // Construct nsIURL.
   return Services.io.newURI(aUrl, aCharset,
-                            Services.io.newURI(aBase, aCharset, null)).spec;
+                            Services.io.newURI(aBase, aCharset)).spec;
 }
 
 function openAsExternal(aURL)
@@ -1648,7 +1648,7 @@ function switchToTabHavingURI(aURI, aOpenNew, aCallback) {
 
   // This can be passed either nsIURI or a string.
   if (!(aURI instanceof Components.interfaces.nsIURI))
-    aURI = Services.io.newURI(aURI, null, null);
+    aURI = Services.io.newURI(aURI);
 
   // Prioritise this window.
   if (switchIfURIInWindow(window))

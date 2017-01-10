@@ -308,7 +308,7 @@ function onAccept()
       // XXX Due to the LDAP c-sdk pass a dummy url to the IO service, then
       // update the parts (bug 473351).
       let ldapUrl = Services.io.newURI(
-        (secure.checked ? "ldaps://" : "ldap://") + "localhost/dc=???", null, null)
+        (secure.checked ? "ldaps://" : "ldap://") + "localhost/dc=???")
         .QueryInterface(Components.interfaces.nsILDAPURL);
 
       ldapUrl.host = hostname;

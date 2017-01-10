@@ -1214,7 +1214,7 @@ function test_search_button_disabled_if_no_query_on_init() {
   let url = "chrome://content/messenger/accountProvisionerStorage/accountProvisioner";
   let dsm = Services.domStorageManager;
 
-  let uri = Services.io.newURI(url, "", null);
+  let uri = Services.io.newURI(url, "");
   let principal = Services.scriptSecurityManager.getNoAppCodebasePrincipal(uri);
   let storage = dsm.getLocalStorageForPrincipal(principal, url);
 

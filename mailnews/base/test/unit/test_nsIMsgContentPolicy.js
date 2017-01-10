@@ -7,7 +7,7 @@
 function makeURI(aURL) {
   var ioService = Cc["@mozilla.org/network/io-service;1"]
                     .getService(Ci.nsIIOService);
-  return ioService.newURI(aURL, null, null);
+  return ioService.newURI(aURL);
 }
 
 function run_test() {

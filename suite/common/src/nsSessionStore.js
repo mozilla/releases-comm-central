@@ -2946,7 +2946,7 @@ SessionStoreService.prototype = {
 
       try {
         let attrs = aDocShell.getOriginAttributes();
-        let originURI = Services.io.newURI(origin, null, null);
+        let originURI = Services.io.newURI(origin);
         principal = Services.scriptSecurityManager.createCodebasePrincipal(originURI, attrs);
       } catch (e) {
         Components.utils.reportError(e);
@@ -3503,7 +3503,7 @@ SessionStoreService.prototype = {
    * @returns nsIURI
    */
   _getURIFromString: function sss_getURIFromString(aString) {
-    return Services.io.newURI(aString, null, null);
+    return Services.io.newURI(aString);
   },
 
   /**

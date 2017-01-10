@@ -132,7 +132,7 @@ function MigrateABRemoteContentSettings()
   {
     let migrateAddress = function(aEmail) {
       let uri = Services.io.newURI(
-        "chrome://messenger/content/?email=" + aEmail, null, null);
+        "chrome://messenger/content/?email=" + aEmail);
       Services.perms.add(uri, "image", Services.perms.ALLOW_ACTION);
     }
 

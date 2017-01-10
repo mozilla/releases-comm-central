@@ -389,7 +389,7 @@ function doRunTest(aOnCalendarCreated, aOnAlarmsLoaded) {
     alarmObserver.clear();
 
     let calmgr = cal.getCalendarManager();
-    let memory = calmgr.createCalendar("memory", Services.io.newURI("moz-memory-calendar://", null, null));
+    let memory = calmgr.createCalendar("memory", Services.io.newURI("moz-memory-calendar://"));
     memory.id = cal.getUUID();
 
     if (aOnCalendarCreated) {

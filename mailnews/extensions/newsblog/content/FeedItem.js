@@ -50,7 +50,7 @@ FeedItem.prototype =
   {
     try
     {
-      this.mURL = Services.io.newURI(aVal, null, null).spec;
+      this.mURL = Services.io.newURI(aVal).spec;
     }
     catch(ex)
     {
@@ -454,7 +454,7 @@ function FeedEnclosure(aURL, aContentType, aLength, aTitle)
   {
     try
     {
-      this.mFileName = Services.io.newURI(this.mURL, null, null).
+      this.mFileName = Services.io.newURI(this.mURL).
                                    QueryInterface(Ci.nsIURL).
                                    fileName;
     }

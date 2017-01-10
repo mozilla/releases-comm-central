@@ -58,7 +58,7 @@ function historyOnSelect()
     if (PlacesUtils.nodeIsURI(selectedNode)) {
       try {
         url = selectedNode.uri;
-        gLastHostname = Services.io.newURI(url, null, null).host;
+        gLastHostname = Services.io.newURI(url).host;
       } catch (e) {}
     } else if (PlacesUtils.nodeIsHost(selectedNode)) {
       gLastHostname = selectedNode.title;

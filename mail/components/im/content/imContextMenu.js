@@ -248,7 +248,7 @@ imContextMenu.prototype = {
 
   getLinkURI: function() {
     try {
-      return Services.io.newURI(this.linkURL, null, null);
+      return Services.io.newURI(this.linkURL);
     }
     catch (ex) {
      // e.g. empty URL string

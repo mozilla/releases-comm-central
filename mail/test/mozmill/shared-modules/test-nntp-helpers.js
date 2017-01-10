@@ -144,7 +144,7 @@ function setupLocalServer(port) {
 var URLCreator = MailServices.nntp.QueryInterface(Ci.nsIProtocolHandler);
 
 function create_post(baseURL, file) {
-  var url = URLCreator.newURI(baseURL, null, null);
+  var url = URLCreator.newURI(baseURL);
   url.QueryInterface(Ci.nsINntpUrl);
 
   var post = Cc["@mozilla.org/messenger/nntpnewsgrouppost;1"]

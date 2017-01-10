@@ -45,7 +45,7 @@ function run_test() {
     messageService.GetUrlForUri(messageUri, neckoURL, null);
     // Don't use the necko URL directly. Instead, get the spec and create a new
     // URL using the IO service
-    let urlToRun = Services.io.newURI(neckoURL.value.spec, null, null);
+    let urlToRun = Services.io.newURI(neckoURL.value.spec);
 
     // Get a channel from this URI, and check its content length
     let channel = Services.io.newChannelFromURI2(urlToRun,
@@ -58,8 +58,7 @@ function run_test() {
 
     // Now try an attachment. &part=1.2
     // XXX the message doesn't really have an attachment
-    let attachmentURL = Services.io.newURI(neckoURL.value.spec + "&part=1.2",
-                                           null, null);
+    let attachmentURL = Services.io.newURI(neckoURL.value.spec + "&part=1.2");
     let attachmentChannel = Services.io.newChannelFromURI2(attachmentURL,
                                                            null,
                                                            Services.scriptSecurityManager.getSystemPrincipal(),

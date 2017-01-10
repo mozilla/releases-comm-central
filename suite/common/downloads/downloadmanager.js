@@ -370,7 +370,7 @@ function handlePaste() {
     if (!url)
       return;
 
-    let uri = Services.io.newURI(url, null, null);
+    let uri = Services.io.newURI(url);
 
     saveURL(uri.spec, name || uri.spec, null, true, true, null, document);
   } catch (ex) {}

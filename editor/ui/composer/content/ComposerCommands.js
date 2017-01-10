@@ -750,7 +750,7 @@ function GetSuggestedFileName(aDocumentURLString, aMIMEType)
   {
     try {
       let docURI = Services.io.newURI(aDocumentURLString,
-        GetCurrentEditor().documentCharacterSet, null);
+        GetCurrentEditor().documentCharacterSet);
       docURI = docURI.QueryInterface(Components.interfaces.nsIURL);
 
       // grab the file name
@@ -809,7 +809,7 @@ function PromptForSaveLocation(aDoSaveAsText, aEditorType, aMIMEType, aDocumentU
 
     var isLocalFile = true;
     try {
-      let docURI = Services.io.newURI(aDocumentURLString, GetCurrentEditor().documentCharacterSet, null);
+      let docURI = Services.io.newURI(aDocumentURLString, GetCurrentEditor().documentCharacterSet);
       isLocalFile = docURI.schemeIs("file");
     }
     catch (e) {}
@@ -1169,7 +1169,7 @@ var gEditorOutputProgressListener =
             // Make a new docURI from the "browse location" in case "publish location" was FTP
             // We need to set document uri before notifying listeners
             var docUrl = GetDocUrlFromPublishData(gPublishData);
-            SetDocumentURI(Services.io.newURI(docUrl, editor.documentCharacterSet, null));
+            SetDocumentURI(Services.io.newURI(docUrl, editor.documentCharacterSet));
 
             UpdateWindowTitle();
 
@@ -1642,7 +1642,7 @@ function SaveDocument(aSaveAs, aSaveCopy, aMimeType)
     var docURI;
     if (!tempLocalFile)
     {
-      docURI = Services.io.newURI(urlstring, editor.documentCharacterSet, null);
+      docURI = Services.io.newURI(urlstring, editor.documentCharacterSet);
 
       if (docURI.schemeIs("file"))
       {
@@ -1684,7 +1684,7 @@ function SaveDocument(aSaveAs, aSaveCopy, aMimeType)
           if (lastSlash != -1)
           {
             var relatedFilesDirString = urlstring.slice(0, lastSlash + 1);  // include last slash
-            relatedFilesDir = Services.io.newURI(relatedFilesDirString, editor.documentCharacterSet, null);
+            relatedFilesDir = Services.io.newURI(relatedFilesDirString, editor.documentCharacterSet);
           }
         }
       } catch(e) { relatedFilesDir = null; }
@@ -1895,7 +1895,7 @@ function CreateURIFromPublishData(publishData, doDocUri)
     else
       spec += FormatDirForPublishing(publishData.otherDir);
 
-    URI = Services.io.newURI(spec, GetCurrentEditor().documentCharacterSet, null);
+    URI = Services.io.newURI(spec, GetCurrentEditor().documentCharacterSet);
 
     if (publishData.username)
       URI.username = publishData.username;

@@ -116,7 +116,7 @@ function safeGetCharPref(pref, defaultValue) {
  */
 function makeURI(aURLSpec, aCharset) {
   try {
-    return Services.io.newURI(aURLSpec, aCharset, null);
+    return Services.io.newURI(aURLSpec, aCharset);
   } catch (ex) {
   }
 

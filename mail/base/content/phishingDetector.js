@@ -99,7 +99,7 @@ var gPhishingDetector = {
     var hrefURL;
     // make sure relative link urls don't make us bail out
     try {
-      hrefURL = Services.io.newURI(aUrl, null, null);
+      hrefURL = Services.io.newURI(aUrl);
     } catch(ex) { return; }
 
     // only check for phishing urls if the url is an http or https link.
@@ -150,7 +150,7 @@ var gPhishingDetector = {
        "browser.safebrowsing.reportPhishURL");
      reportUrl += "&url=" + encodeURIComponent(aPhishingURL);
 
-     let uri = Services.io.newURI(reportUrl, null, null);
+     let uri = Services.io.newURI(reportUrl);
      let protocolSvc = Components.classes["@mozilla.org/uriloader/external-protocol-service;1"]
                        .getService(Components.interfaces.nsIExternalProtocolService);
      protocolSvc.loadUrl(uri);
@@ -173,7 +173,7 @@ var gPhishingDetector = {
     // Only worry about http: and https: urls.
     if (/^https?:/.test(aLinkNodeText))
     {
-      let linkTextURI = Services.io.newURI(aLinkNodeText, null, null);
+      let linkTextURI = Services.io.newURI(aLinkNodeText);
 
       // Compare the base domain of the href and the link text.
       try {
@@ -206,7 +206,7 @@ var gPhishingDetector = {
     var hrefURL;
     // make sure relative link urls don't make us bail out
     try {
-      hrefURL = Services.io.newURI(aUrl, null, null);
+      hrefURL = Services.io.newURI(aUrl);
     } catch(ex) { return false; }
 
     // only prompt for http and https urls

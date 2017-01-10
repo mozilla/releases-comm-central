@@ -227,7 +227,7 @@ function getCurrentTheme()
 function getDirectoryEntries(aDir)
 {
   let ios = Services.io;
-  let uri = ios.newURI(aDir, null, null);
+  let uri = ios.newURI(aDir);
   let cr = Components.classes["@mozilla.org/chrome/chrome-registry;1"]
                      .getService(Ci.nsIXULChromeRegistry);
   while (uri.scheme == "chrome")
@@ -235,7 +235,7 @@ function getDirectoryEntries(aDir)
 
   // remove any trailing file name added by convertChromeURL
   let spec = uri.spec.replace(/[^\/]+$/, "");
-  uri = ios.newURI(spec, null, null);
+  uri = ios.newURI(spec);
 
   let results = [];
   if (uri.scheme == "jar") {

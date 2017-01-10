@@ -93,7 +93,7 @@ var gThemePane = {
   openURL: function (aURL) {
     Components.classes["@mozilla.org/uriloader/external-protocol-service;1"]
               .getService(Components.interfaces.nsIExternalProtocolService)
-              .loadUrl(Services.io.newURI(aURL, null, null));
+              .loadUrl(Services.io.newURI(aURL));
   },
 
   // Getting the extension list is slow, return a cached copy of the list

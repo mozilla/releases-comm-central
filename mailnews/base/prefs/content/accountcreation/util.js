@@ -52,7 +52,7 @@ function runAsync(func)
  */
 function makeNSIURI(uriStr)
 {
-  return Services.io.newURI(uriStr, null, null);
+  return Services.io.newURI(uriStr);
 }
 
 

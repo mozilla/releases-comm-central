@@ -1778,7 +1778,7 @@ function CopyNewsgroupURL(newsgroupNode)
   }
 
   try {
-    let uri = Services.io.newURI(url, null, null);
+    let uri = Services.io.newURI(url);
     let clipboard = Components.classes["@mozilla.org/widget/clipboardhelper;1"]
                               .getService(Components.interfaces.nsIClipboardHelper);
     clipboard.copyString(decodeURI(uri.spec));
@@ -1905,7 +1905,7 @@ AttachmentInfo.prototype = {
   get isEmpty()
   {
     // Create an input stream on the attachment url.
-    let url = Services.io.newURI(this.url, null, null);
+    let url = Services.io.newURI(this.url);
     let channel = Services.io.newChannelFromURI2(url,
                                                  null,
                                                  Services.scriptSecurityManager.getSystemPrincipal(),

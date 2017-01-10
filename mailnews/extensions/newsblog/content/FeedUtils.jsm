@@ -637,7 +637,7 @@ var FeedUtils = {
       return aIconUrl;
 
     let onLoadSuccess = (aEvent => {
-      let iconUri = Services.io.newURI(aEvent.target.src, null, null);
+      let iconUri = Services.io.newURI(aEvent.target.src);
       aWindow.specialTabs.mFaviconService.setAndFetchFaviconForPage(
         uri, iconUri, false,
         aWindow.specialTabs.mFaviconService.FAVICON_LOAD_NON_PRIVATE,
@@ -679,8 +679,8 @@ var FeedUtils = {
 
     let uri, iconUri;
     try {
-      uri = Services.io.newURI(url, null, null);
-      iconUri = Services.io.newURI(uri.prePath + "/favicon.ico", null, null);
+      uri = Services.io.newURI(url);
+      iconUri = Services.io.newURI(uri.prePath + "/favicon.ico");
     }
     catch (ex) {
       return useDefaultFavicon();
@@ -1306,7 +1306,7 @@ var FeedUtils = {
   isValidScheme: function(aUri) {
     if (!(aUri instanceof Ci.nsIURI)) {
       try {
-        aUri = Services.io.newURI(aUri, null, null);
+        aUri = Services.io.newURI(aUri);
       }
       catch (ex) {
         return false;
@@ -1495,7 +1495,7 @@ var FeedUtils = {
                       "subscribe-errorOpeningFile");
           break;
         case FeedUtils.kNewsBlogBadCertError:
-          let host = Services.io.newURI(feed.url, null, null).host;
+          let host = Services.io.newURI(feed.url).host;
           message = FeedUtils.strings.formatStringFromName(
                       "newsblog-badCertError", [host], 1);
           break;

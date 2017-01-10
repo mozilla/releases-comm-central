@@ -860,7 +860,7 @@ function GetUrlForPasswordManager(publishData)
   if (!publishData || !publishData.publishUrl)
     return false;
 
-  let url = Services.io.newURI(publishData.publishUrl, null, null);
+  let url = Services.io.newURI(publishData.publishUrl);
 
   if (url.scheme == "ftp" && publishData.username)
     // Include username in the URL so we can handle multiple users per server

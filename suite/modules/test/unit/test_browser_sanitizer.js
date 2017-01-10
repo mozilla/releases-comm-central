@@ -53,7 +53,7 @@ var sanTests = {
       Services.prefs.setIntPref("network.cookie.cookieBehavior", 0);
       var ios = Components.classes["@mozilla.org/network/io-service;1"]
                           .getService(Components.interfaces.nsIIOService);
-      this.uri = ios.newURI("http://sanitizer.test/", null, null);
+      this.uri = ios.newURI("http://sanitizer.test/");
       this.cs = Components.classes["@mozilla.org/cookieService;1"]
                           .getService(Components.interfaces.nsICookieService);
       this.cs.setCookieString(this.uri, null, "Sanitizer!", null);
@@ -72,7 +72,7 @@ var sanTests = {
     setup: function() {
       var ios = Components.classes["@mozilla.org/network/io-service;1"]
                           .getService(Components.interfaces.nsIIOService);
-      var uri = ios.newURI("http://sanitizer.test/", null, null);
+      var uri = ios.newURI("http://sanitizer.test/");
       yield promiseAddVisits({
         uri: uri,
         title: "Sanitizer!"
@@ -177,7 +177,7 @@ var sanTests = {
     setup: function() {
       var ios = Components.classes["@mozilla.org/network/io-service;1"]
                           .getService(Components.interfaces.nsIIOService);
-      var uri = ios.newURI("http://sanitizer.test/", null, null);
+      var uri = ios.newURI("http://sanitizer.test/");
       var file = Components.classes["@mozilla.org/file/directory_service;1"]
                            .getService(Components.interfaces.nsIProperties)
                            .get("TmpD", Components.interfaces.nsIFile);

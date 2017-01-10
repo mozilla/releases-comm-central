@@ -106,7 +106,7 @@ var gAlarmsPane = {
         try {
             soundIfc.init();
             if (soundUrl && soundUrl.length && soundUrl.length > 0) {
-                url = Services.io.newURI(soundUrl, null, null);
+                url = Services.io.newURI(soundUrl);
                 soundIfc.play(url);
             } else {
                 soundIfc.beep();

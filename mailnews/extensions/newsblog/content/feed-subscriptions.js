@@ -1797,7 +1797,7 @@ var FeedSubscriptions = {
           message = FeedUtils.strings.GetStringFromName(
                       "subscribe-errorOpeningFile");
         if (aErrorCode == FeedUtils.kNewsBlogBadCertError) {
-          let host = Services.io.newURI(feed.url, null, null).host;
+          let host = Services.io.newURI(feed.url).host;
           message = FeedUtils.strings.formatStringFromName(
                       "newsblog-badCertError", [host], 1);
         }

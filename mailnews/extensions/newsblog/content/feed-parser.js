@@ -167,7 +167,7 @@ FeedParser.prototype =
         {
           try
           {
-            Services.io.newURI(guid, null, null);
+            Services.io.newURI(guid);
             if (Services.io.extractScheme(guid) == "tag")
               isPermaLink = false;
           }
@@ -868,7 +868,7 @@ FeedParser.prototype =
       {
         // Atom links are interpreted relative to xml:base.
         try {
-          return Services.io.newURI(alink.baseURI, null, null).
+          return Services.io.newURI(alink.baseURI).
                              resolve(alink.getAttribute("href"));
         }
         catch (ex) {}

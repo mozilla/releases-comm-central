@@ -88,7 +88,7 @@ function run_test() {
   for (part = 0; part < ldapURLs.length; ++part)
   {
     dump("url: " + ldapURLs[part].url + "\n");
-    url = ioService.newURI(ldapURLs[part].url, null, null);
+    url = ioService.newURI(ldapURLs[part].url);
 
     do_check_eq(url.spec, ldapURLs[part].spec);
     do_check_eq(url.asciiSpec, ldapURLs[part].asciiSpec);
@@ -113,7 +113,7 @@ function run_test() {
   // Start off with a base url
   const kBaseURL = "ldap://localhost:389/dc=test,dc=abc??sub?(objectclass=*)";
 
-  url = ioService.newURI(kBaseURL, null, null)
+  url = ioService.newURI(kBaseURL)
                  .QueryInterface(Ci.nsILDAPURL);
 
   // Test - dn
@@ -185,7 +185,7 @@ function run_test() {
 
   // Test - Equals
 
-  var url2 = ioService.newURI("ldap://localhost" + portAdpt + "/dc=short??one?(objectclass=*)", null, null)
+  var url2 = ioService.newURI("ldap://localhost" + portAdpt + "/dc=short??one?(objectclass=*)")
                       .QueryInterface(Ci.nsILDAPURL);
 
   do_check_true(url.equals(url2));

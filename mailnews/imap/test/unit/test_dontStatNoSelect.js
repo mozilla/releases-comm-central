@@ -112,8 +112,7 @@ function addMessageToFolder(mbox) {
 
   let msgURI =
     Services.io.newURI("data:text/plain;base64," +
-                       btoa(messages[0].toMessageString()),
-                       null, null);
+                       btoa(messages[0].toMessageString()));
   let message = new imapMessage(msgURI.spec, mbox.uidnext++);
   mbox.addMessage(message);
 }

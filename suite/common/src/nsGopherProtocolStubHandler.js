@@ -48,7 +48,7 @@ GopherProtocol.prototype = {
 
   newChannel2: function GP_newChannel2(inputURI, loadinfo) {
     var ios = Services.io;
-    var newURI = ios.newURI("chrome://communicator/content/gopherAddon.xhtml", null, null);
+    var newURI = ios.newURI("chrome://communicator/content/gopherAddon.xhtml");
     // Create a chrome channel, and de-chrome it, to our information page.
     var chan = loadinfo ? ios.newChannelFromURIWithLoadInfo(newURI, loadinfo) :
                           ios.newChannelFromURI2(newURI, null,

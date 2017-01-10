@@ -1717,7 +1717,7 @@ var gApplicationsPane = {
   },
 
   _getIconURLForWebApp: function(aWebAppURITemplate) {
-    var uri = Services.io.newURI(aWebAppURITemplate, null, null);
+    var uri = Services.io.newURI(aWebAppURITemplate);
 
     // Unfortunately we need to use favicon.ico here, but we don't know
     // about any other possibility to retrieve an icon for the web app/site

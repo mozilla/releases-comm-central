@@ -1077,7 +1077,7 @@ var gApplicationsPane = {
   },
 
   _getIconURLForWebApp: function(aWebAppURITemplate) {
-    var uri = Services.io.newURI(aWebAppURITemplate, null, null);
+    var uri = Services.io.newURI(aWebAppURITemplate);
 
     // Unfortunately we can't use the favicon service to get the favicon,
     // because the service looks in the annotations table for a record with

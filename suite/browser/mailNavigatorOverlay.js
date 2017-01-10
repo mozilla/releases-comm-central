@@ -62,7 +62,7 @@ function openExternalMailer(url, title) {
   var mailto = url ? "mailto:?body=" + encodeURIComponent(url)
                                      + "&subject="
                                      + encodeURIComponent(title) : "mailto:";
-  var uri = Services.io.newURI(mailto, null, null);
+  var uri = Services.io.newURI(mailto);
 
   extProtocolSvc.loadUrl(uri);
 }

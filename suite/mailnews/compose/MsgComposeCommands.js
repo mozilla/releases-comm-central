@@ -996,7 +996,7 @@ function handleMailtoArgs(mailtoUrl)
   if (/^mailto:/i.test(mailtoUrl))
   {
     // if it is a mailto url, turn the mailto url into a MsgComposeParams object....
-    var uri = Services.io.newURI(mailtoUrl, null, null);
+    var uri = Services.io.newURI(mailtoUrl);
 
     if (uri)
       return sMsgComposeService.getParamsForMailto(uri);

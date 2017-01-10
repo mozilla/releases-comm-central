@@ -2762,7 +2762,7 @@ function onRemoteContentOptionsShowing(aEvent)
   var authorEmailAddress = addresses.value[0];
 
   var emailURI = Services.io.newURI(
-    "chrome://messenger/content/?email=" + authorEmailAddress, null, null);
+    "chrome://messenger/content/?email=" + authorEmailAddress);
   var principal = Services.scriptSecurityManager
                           .createCodebasePrincipal(emailURI, {});
   // Put author email first in the menu.
@@ -2803,7 +2803,7 @@ function allowRemoteContentForURI(aItem)
   if (!origin)
     return;
 
-  let uri = Services.io.newURI(origin, null, null);
+  let uri = Services.io.newURI(origin);
   Services.perms.add(uri, "image", Services.perms.ALLOW_ACTION);
 
   ReloadMessage();

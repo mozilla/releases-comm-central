@@ -281,7 +281,7 @@ calDNDBaseObserver.prototype = {
                 break;
             case "application/x-moz-file-promise":
             case "text/x-moz-url":
-                var uri = Services.io.newURI(data.toString(), null, null);
+                var uri = Services.io.newURI(data.toString());
                 var loader = Components.classes["@mozilla.org/network/unichar-stream-loader;1"]
                              .createInstance(Components.interfaces.nsIUnicharStreamLoader);
                 var channel = Services.io.newChannelFromURI2(uri,

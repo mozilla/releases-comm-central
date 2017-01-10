@@ -115,8 +115,7 @@ function* setup() {
 
   let msgURI =
     Services.io.newURI("data:text/plain;base64," +
-                       btoa(gSynthMessage.toMessageString()),
-                       null, null);
+                       btoa(gSynthMessage.toMessageString()));
   gMessage = new imapMessage(msgURI.spec, IMAPPump.mailbox.uidnext++, []);
   IMAPPump.mailbox.addMessage(gMessage);
 

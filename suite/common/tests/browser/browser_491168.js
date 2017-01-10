@@ -59,6 +59,6 @@ function test() {
     }, true);
   },true);
 
-  let referrerURI = Services.io.newURI(REFERRER1, null, null);
+  let referrerURI = Services.io.newURI(REFERRER1);
   browser.loadURI("http://example.org", referrerURI, null);
 }

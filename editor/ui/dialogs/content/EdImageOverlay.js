@@ -338,7 +338,7 @@ function LoadPreviewImage()
 
     if (GetScheme(imageSrc))
     {
-      let uri = Services.io.newURI(imageSrc, null, null);
+      let uri = Services.io.newURI(imageSrc);
       if (uri)
       {
         let imgCache = Components.classes["@mozilla.org/image/cache;1"]

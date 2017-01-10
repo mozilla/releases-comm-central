@@ -103,8 +103,7 @@ function addImapMessage()
   let messageGenerator = new MessageGenerator();
   messages = messages.concat(messageGenerator.makeMessage());
   let dataUri = Services.io.newURI("data:text/plain;base64," +
-                  btoa(messages[0].toMessageString()),
-                  null, null);
+                  btoa(messages[0].toMessageString()));
   let imapMsg = new imapMessage(dataUri.spec, IMAPPump.mailbox.uidnext++, []);
   IMAPPump.mailbox.addMessage(imapMsg);
 }

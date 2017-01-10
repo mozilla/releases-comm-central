@@ -174,7 +174,7 @@ function openLinkExternally(url)
 {
   let uri = url;
   if (!(uri instanceof Components.interfaces.nsIURI))
-    uri = Services.io.newURI(url, null, null);
+    uri = Services.io.newURI(url);
 
   PlacesUtils.asyncHistory.updatePlaces({
     uri: uri,

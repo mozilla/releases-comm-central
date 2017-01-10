@@ -283,7 +283,7 @@ nsContextMenu.prototype = {
 
     // Block image depends on whether an image was clicked on.
     if (this.onImage) {
-      var uri = Services.io.newURI(this.mediaURL, null, null);
+      var uri = Services.io.newURI(this.mediaURL);
       if (uri instanceof Components.interfaces.nsIURL && uri.host) {
         var serverLabel = uri.host;
         // Limit length to max 15 characters.
@@ -835,7 +835,7 @@ nsContextMenu.prototype = {
 
   // Block/Unblock image from loading in the future.
   toggleImageBlocking: function(aBlock) {
-  const uri = Services.io.newURI(this.mediaURL, null, null);
+  const uri = Services.io.newURI(this.mediaURL);
   if (aBlock)
     Services.perms.add(uri, "image", Services.perms.DENY_ACTION);
   else

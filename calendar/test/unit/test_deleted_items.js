@@ -36,7 +36,7 @@ add_task(function* test_deleted_items() {
     // error.
     yield check_delmgr_call(() => delmgr.flush());
 
-    let memory = calmgr.createCalendar("memory", Services.io.newURI("moz-storage-calendar://", null, null));
+    let memory = calmgr.createCalendar("memory", Services.io.newURI("moz-storage-calendar://"));
     calmgr.registerCalendar(memory);
 
     let item = cal.createEvent();

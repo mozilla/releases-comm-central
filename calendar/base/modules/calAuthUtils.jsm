@@ -77,7 +77,7 @@ cal.auth = {
      */
     _ensureOrigin: function(aOrigin) {
         try {
-            return Services.io.newURI(aOrigin, null, null).spec;
+            return Services.io.newURI(aOrigin).spec;
         } catch (e) {
             return "https://" + aOrigin;
         }

@@ -476,7 +476,7 @@ var accountWizard = {
   openURL: function (aURL) {
     Components.classes["@mozilla.org/uriloader/external-protocol-service;1"]
               .getService(Components.interfaces.nsIExternalProtocolService)
-              .loadUrl(Services.io.newURI(aURL, null, null));
+              .loadUrl(Services.io.newURI(aURL));
   },
 
   advanceTopProtocolPage: function() {

@@ -34,8 +34,7 @@ function* loadImapMessage()
 
   let msgURI =
     Services.io.newURI("data:text/plain;base64," +
-                        btoa(smsg.toMessageString()),
-                        null, null);
+                        btoa(smsg.toMessageString()));
   let imapInbox =  IMAPPump.daemon.getMailbox("INBOX")
   let message = new imapMessage(msgURI.spec, imapInbox.uidnext++, []);
   IMAPPump.mailbox.addMessage(message);

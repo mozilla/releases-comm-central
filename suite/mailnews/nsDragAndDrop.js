@@ -567,7 +567,7 @@ var nsDragAndDrop = {
       var ioService = Components.classes["@mozilla.org/network/io-service;1"]
                                 .getService(Components.interfaces.nsIIOService);
       try {
-        uri = ioService.newURI(aDraggedText, null, null);
+        uri = ioService.newURI(aDraggedText);
       } catch (e) {
       }
 
@@ -587,7 +587,7 @@ var nsDragAndDrop = {
       // Use "file:///" as the default sourceURI so that drops of file:// URIs
       // are always allowed.
       var principal = sourceDoc ? sourceDoc.nodePrincipal
-                                : secMan.createCodebasePrincipal(ioService.newURI("file:///", null, null), {});
+                                : secMan.createCodebasePrincipal(ioService.newURI("file:///"), {});
 
       try {
         secMan.checkLoadURIStrWithPrincipal(principal, aDraggedText,

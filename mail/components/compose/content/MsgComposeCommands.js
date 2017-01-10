@@ -1925,7 +1925,7 @@ function handleMailtoArgs(mailtoUrl)
   if (mailtoUrl.toLowerCase().startsWith("mailto:"))
   {
     // if it is a mailto url, turn the mailto url into a MsgComposeParams object....
-    let uri = Services.io.newURI(mailtoUrl, null, null);
+    let uri = Services.io.newURI(mailtoUrl);
 
     if (uri) {
       return MailServices.compose.getParamsForMailto(uri);
@@ -4116,7 +4116,7 @@ function AddAttachments(aAttachments, aCallback)
       // web url that had a query or reference string after the file name and for
       // mailnews urls where the filename is hidden in the url as a &filename=
       // part.
-      let url = Services.io.newURI(attachment.url, null, null);
+      let url = Services.io.newURI(attachment.url);
       if (url instanceof Components.interfaces.nsIURL &&
           url.fileName && !url.schemeIs("file"))
         item.image = "moz-icon://" + url.fileName;
@@ -4347,7 +4347,7 @@ function OpenSelectedAttachment()
     else
     {
       // Turn the URL into a nsIURI object then open it.
-      let uri = Services.io.newURI(attachmentUrl, null, null);
+      let uri = Services.io.newURI(attachmentUrl);
       if (uri)
       {
         let channel = Services.io.newChannelFromURI2(uri,
@@ -5651,7 +5651,7 @@ function loadBlockedImage(aURL) {
     filename = (fnMatch && fnMatch[1]) || "";
   }
   filename = decodeURIComponent(filename);
-  let uri = Services.io.newURI(aURL, null, null);
+  let uri = Services.io.newURI(aURL);
   let contentType = Components.classes["@mozilla.org/mime;1"]
     .getService(Components.interfaces.nsIMIMEService)
     .getTypeFromURI(uri);

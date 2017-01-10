@@ -1391,7 +1391,7 @@ createNewAttachmentInfo.prototype.openAttachment = function openAttachment()
       var url = this.url + "&type=application/x-message-display";
       window.openDialog("chrome://messenger/content/messageWindow.xul",
                         "_blank", "all,dialog=no",
-                        Services.io.newURI(url, null, null));
+                        Services.io.newURI(url));
       return;
     case "text/x-moz-deleted":
       return;

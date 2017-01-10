@@ -99,7 +99,7 @@ function _getOfflineAppUsage(aPermission)
 
   var usage = 0;
   for (let i = 0; i < groups.length; i++) {
-    let uri = Services.io.newURI(groups[i], null, null);
+    let uri = Services.io.newURI(groups[i]);
     if (aPermission.matchesURI(uri, true))
       usage += appCache.getActiveCache(groups[i]).usage;
   }
@@ -164,7 +164,7 @@ function RemoveOfflineApp()
                            .getService(Components.interfaces.nsIApplicationCacheService);
   var groups = appCache.getGroups();
   for (let i = 0; i < groups.length; i++) {
-      var uri = Services.io.newURI(groups[i], null, null);
+      var uri = Services.io.newURI(groups[i]);
       if (uri.asciiHost == host)
           appCache.getActiveCache(groups[i]).discard();
   }

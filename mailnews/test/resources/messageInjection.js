@@ -750,8 +750,7 @@ function add_sets_to_folders(aMsgFolders, aMessageSets, aDoNotForceUpdate) {
             let synMsg = messageSet._trackMessageAddition(realFolder, iPerSet);
             let msgURI =
               Services.io.newURI("data:text/plain;base64," +
-                                 btoa(synMsg.toMessageString()),
-                                 null, null);
+                                 btoa(synMsg.toMessageString()));
             let imapMsg = new imapMessage(msgURI.spec, fakeFolder.uidnext++, []);
             // If the message's meta-state indicates it is junk, set that flag.
             // There is also a NotJunk flag, but we're not playing with that

@@ -46,8 +46,7 @@ function* setup_messages() {
 
   let messageGenerator = new MessageGenerator();
   let messageString = messageGenerator.makeMessage().toMessageString();
-  let dataUri = Services.io.newURI("data:text/plain;base64," + btoa(messageString),
-                                   null, null);
+  let dataUri = Services.io.newURI("data:text/plain;base64," + btoa(messageString));
   let imapMsg = new imapMessage(dataUri.spec, IMAPPump.mailbox.uidnext++, []);
   IMAPPump.mailbox.addMessage(imapMsg);
 

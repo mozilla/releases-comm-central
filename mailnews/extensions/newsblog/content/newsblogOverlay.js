@@ -188,7 +188,7 @@ var FeedMessageHandler = {
                             .createInstance(Ci.nsIScriptableUnicodeConverter);
           converter.charset = "UTF-8";
           url = converter.ConvertToUnicode(url);
-          uri = Services.io.newURI(url, null, null);
+          uri = Services.io.newURI(url);
           url = uri.spec;
         }
         catch (ex) {

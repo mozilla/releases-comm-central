@@ -183,8 +183,7 @@ var tests = [
     messages.forEach(function (message)
     {
       let dataUri = Services.io.newURI("data:text/plain;base64," +
-                                       btoa(message.toMessageString()),
-                                       null, null);
+                                       btoa(message.toMessageString()));
       mbox.addMessage(new imapMessage(dataUri.spec, mbox.uidnext++, []));
     });
     IMAPPump.inbox.updateFolderWithListener(null, asyncUrlListener);

@@ -217,7 +217,7 @@ function finalizeChanges() {
   for (i in additions) {
     p = additions[i];
     try {
-      var uri = ioService.newURI("http://" + p.host, null, null);
+      var uri = ioService.newURI("http://" + p.host);
       permissionManager.add(uri, p.type, p.perm);
     } catch(ex) {
     }
@@ -237,7 +237,7 @@ function addPermission(aPermission) {
   try {
     var ioService = Components.classes["@mozilla.org/network/io-service;1"]
                               .getService(Components.interfaces.nsIIOService);
-    var uri = ioService.newURI("http://" + host, null, null);
+    var uri = ioService.newURI("http://" + host);
     host = uri.host;
   } catch(ex) {
     var promptService = Components.classes["@mozilla.org/embedcomp/prompt-service;1"]

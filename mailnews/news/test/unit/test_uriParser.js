@@ -145,7 +145,7 @@ function run_test() {
                       .getService(Components.interfaces.nsIProtocolHandler);
   for (let test of tests) {
     dump("Checking URL " + test.uri + "\n");
-    let url = nntpService.newURI(test.uri, null, null);
+    let url = nntpService.newURI(test.uri);
     url.QueryInterface(Ci.nsIMsgMailNewsUrl);
     url.QueryInterface(Ci.nsINntpUrl);
     for (let prop in test) {
@@ -158,7 +158,7 @@ function run_test() {
   for (let fail of invalid_uris) {
     try {
       dump("Checking URL " + fail + " for failure\n");
-      nntpService.newURI(fail, null, null);
+      nntpService.newURI(fail);
       do_check_true(false);
     } catch (e) {
       do_check_eq(e.result, Components.results.NS_ERROR_MALFORMED_URI);

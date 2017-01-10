@@ -68,7 +68,7 @@ var gChatPane = {
       else
         sound.playEventSound(Ci.nsISound.EVENT_NEW_MAIL_RECEIVED);
     } else {
-      sound.play(Services.io.newURI(soundLocation, null, null));
+      sound.play(Services.io.newURI(soundLocation));
     }
   },
 

@@ -118,15 +118,13 @@ function *setup() {
 
   let msgURI =
     Services.io.newURI("data:text/plain;base64," +
-                       btoa(messages[0].toMessageString()),
-                       null, null);
+                       btoa(messages[0].toMessageString()));
   let imapInbox =  IMAPPump.daemon.getMailbox("INBOX")
   let message = new imapMessage(msgURI.spec, imapInbox.uidnext++, ["\\Seen"]);
   imapInbox.addMessage(message);
   msgURI =
     Services.io.newURI("data:text/plain;base64," +
-                       btoa(messages[1].toMessageString()),
-                       null, null);
+                       btoa(messages[1].toMessageString()));
   message = new imapMessage(msgURI.spec, imapInbox.uidnext++, ["\\Seen"]);
   imapInbox.addMessage(message);
 

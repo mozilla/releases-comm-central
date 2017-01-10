@@ -19,7 +19,7 @@ function run_test() {
   for (var part = 0; part < smtpURLs.length; ++part) {
     print("url: " + smtpURLs[part].url);
 
-    url = Services.io.newURI(smtpURLs[part].url, null, null);
+    url = Services.io.newURI(smtpURLs[part].url);
 
     do_check_eq(url.spec, smtpURLs[part].spec);
     do_check_eq(url.username, smtpURLs[part].username);

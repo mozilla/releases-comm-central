@@ -11,7 +11,7 @@ Components.utils.import("resource:///modules/mailServices.js");
 function getMessageHeaderFromUrl(aUrl) {
   let msgUrl = MailServices.nntp
                 .QueryInterface(Ci.nsIProtocolHandler)
-                .newURI(aUrl, null, null)
+                .newURI(aUrl)
                 .QueryInterface(Ci.nsIMsgMessageUrl);
   return msgUrl.messageHeader;
 }

@@ -64,8 +64,7 @@ function* uploadImapMessages()
   messages.forEach(function (message)
   {
     let dataUri = Services.io.newURI("data:text/plain;base64," +
-                                     btoa(message.toMessageString()),
-                                     null, null);
+                                     btoa(message.toMessageString()));
     imapInbox.addMessage(new imapMessage(dataUri.spec, imapInbox.uidnext++, []));
   });
   // updateFolderWithListener with null for nsIMsgWindow makes biff notify.

@@ -136,7 +136,7 @@ function setupProtocolTest(port, newsUrl, incomingServer) {
   if (newsUrl instanceof Ci.nsIMsgMailNewsUrl) {
     url = newsUrl;
   } else {
-    url = URLCreator.newURI(newsUrl, null, null);
+    url = URLCreator.newURI(newsUrl);
   }
 
   var newsServer = incomingServer;
@@ -166,7 +166,7 @@ function setupProtocolTest(port, newsUrl, incomingServer) {
 }
 
 function create_post(baseURL, file) {
-  var url = URLCreator.newURI(baseURL, null, null);
+  var url = URLCreator.newURI(baseURL);
   url.QueryInterface(Ci.nsINntpUrl);
 
   var post = Cc["@mozilla.org/messenger/nntpnewsgrouppost;1"]

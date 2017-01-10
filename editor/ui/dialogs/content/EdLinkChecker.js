@@ -88,7 +88,7 @@ function Startup()
                 .createInstance()
                   .QueryInterface(Components.interfaces.nsIURIChecker);
           // XXX uri creation needs to be localized
-          gLinksBeingChecked[gNumLinksToCheck].init(GetIOService().newURI(uri, null, null));
+          gLinksBeingChecked[gNumLinksToCheck].init(GetIOService().newURI(uri));
           gLinksBeingChecked[gNumLinksToCheck].asyncCheck(gRequestObserver, null);
 
           // Add item

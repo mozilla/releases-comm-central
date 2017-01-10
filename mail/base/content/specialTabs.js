@@ -500,8 +500,8 @@ var specialTabs = {
   getFaviconFromPage: function(aUrl, aCallback) {
     let url, uri;
     try {
-      url = Services.io.newURI(aUrl, null, null).prePath;
-      uri = Services.io.newURI(url, null, null);
+      url = Services.io.newURI(aUrl).prePath;
+      uri = Services.io.newURI(url);
     }
     catch (ex) {
       if (aCallback)
@@ -510,7 +510,7 @@ var specialTabs = {
     }
 
     let onLoadSuccess = (aEvent => {
-      let iconUri = Services.io.newURI(aEvent.target.src, null, null);
+      let iconUri = Services.io.newURI(aEvent.target.src);
       specialTabs.mFaviconService.setAndFetchFaviconForPage(
         uri, iconUri, false,
         specialTabs.mFaviconService.FAVICON_LOAD_NON_PRIVATE,
@@ -538,7 +538,7 @@ var specialTabs = {
                                             'link[rel="icon"]');
       let href = linkNode ? linkNode.href : null;
       try {
-        iconUri = Services.io.newURI(href, null, null);
+        iconUri = Services.io.newURI(href);
       }
       catch (ex) {
         onDownloadError(aEvent);

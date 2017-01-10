@@ -1474,7 +1474,7 @@ messageFlavorDataProvider.prototype = {
                                   fileUriPrimitive, dataSize);
 
     let fileUriStr = fileUriPrimitive.value.QueryInterface(Components.interfaces.nsISupportsString);
-    let fileUri = Services.io.newURI(fileUriStr.data, null, null);
+    let fileUri = Services.io.newURI(fileUriStr.data);
     let fileUrl = fileUri.QueryInterface(Components.interfaces.nsIURL);
     let fileName = fileUrl.fileName;
 

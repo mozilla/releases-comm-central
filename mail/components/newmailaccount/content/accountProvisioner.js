@@ -38,7 +38,7 @@ function isAccel (event) { return isOSX && event.metaKey || event.ctrlKey; }
 function getLocalStorage(page) {
   var url = "chrome://content/messenger/accountProvisionerStorage/" + page;
 
-  var uri = Services.io.newURI(url, "", null);
+  var uri = Services.io.newURI(url, "");
   var principal = Services.scriptSecurityManager.getNoAppCodebasePrincipal(uri);
   return Services.domStorageManager.getLocalStorageForPrincipal(principal, url);
 }
@@ -228,7 +228,7 @@ var EmailAccountProvisioner = {
           e.target.classList.contains("external")) {
         e.preventDefault();
         let uri = e.target.getAttribute("href");
-        opener.loadUrl(Services.io.newURI(uri, "UTF-8", null));
+        opener.loadUrl(Services.io.newURI(uri, "UTF-8"));
       }
     });
 

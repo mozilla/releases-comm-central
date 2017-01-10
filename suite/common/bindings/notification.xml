@@ -1166,7 +1166,7 @@
             var cacheService = Components.classes["@mozilla.org/network/application-cache-service;1"]
                                          .getService(Components.interfaces.nsIApplicationCacheService);
             cacheService.getGroups().forEach(function(aGroup) {
-              var uri = ioService.newURI(aGroup, null, null);
+              var uri = ioService.newURI(aGroup);
               if (uri.asciiHost == host)
                 usage += cacheService.getActiveCache(aGroup).usage;
             });

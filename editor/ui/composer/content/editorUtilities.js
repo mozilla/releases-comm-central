@@ -546,8 +546,8 @@ function MakeRelativeUrl(url)
 
   // Get just the file path part of the urls
   // XXX Should we use GetCurrentEditor().documentCharacterSet for 2nd param ?
-  let docPath = Services.io.newURI(docUrl, GetCurrentEditor().documentCharacterSet, null).path;
-  let urlPath = Services.io.newURI(inputUrl, GetCurrentEditor().documentCharacterSet, null).path;
+  let docPath = Services.io.newURI(docUrl, GetCurrentEditor().documentCharacterSet).path;
+  let urlPath = Services.io.newURI(inputUrl, GetCurrentEditor().documentCharacterSet).path;
 
   // We only return "urlPath", so we can convert
   //  the entire docPath for case-insensitive comparisons
@@ -659,7 +659,7 @@ function MakeAbsoluteUrl(url)
 
   // Make a URI object to use its "resolve" method
   let absoluteUrl = resultUrl;
-  let docUri = Services.io.newURI(docUrl, GetCurrentEditor().documentCharacterSet, null);
+  let docUri = Services.io.newURI(docUrl, GetCurrentEditor().documentCharacterSet);
 
   try {
     absoluteUrl = docUri.resolve(resultUrl);
@@ -725,7 +725,7 @@ function GetHost(urlspec)
 
   var host = "";
   try {
-    host = Services.io.newURI(urlspec, null, null).host;
+    host = Services.io.newURI(urlspec).host;
    } catch (e) {}
 
   return host;
@@ -738,7 +738,7 @@ function GetUsername(urlspec)
 
   var username = "";
   try {
-    username = Services.io.newURI(urlspec, null, null).username;
+    username = Services.io.newURI(urlspec).username;
   } catch (e) {}
 
   return username;
@@ -752,7 +752,7 @@ function GetFilename(urlspec)
   var filename;
 
   try {
-    let uri = Services.io.newURI(urlspec, null, null);
+    let uri = Services.io.newURI(urlspec);
     if (uri)
     {
       let url = uri.QueryInterface(Components.interfaces.nsIURL);
@@ -783,7 +783,7 @@ function StripUsernamePassword(urlspec, usernameObj, passwordObj)
   if (atIndex > 0)
   {
     try {
-      let uri = Services.io.newURI(urlspec, null, null);
+      let uri = Services.io.newURI(urlspec);
       let username = uri.username;
       let password = uri.password;
 
@@ -816,7 +816,7 @@ function StripPassword(urlspec, passwordObj)
   if (atIndex > 0)
   {
     try {
-      let password = Services.io.newURI(urlspec, null, null).password;
+      let password = Services.io.newURI(urlspec).password;
 
       if (passwordObj && password)
         passwordObj.value = password;
@@ -860,7 +860,7 @@ function InsertUsernameIntoUrl(urlspec, username)
     return urlspec;
 
   try {
-    let URI = Services.io.newURI(urlspec, GetCurrentEditor().documentCharacterSet, null);
+    let URI = Services.io.newURI(urlspec, GetCurrentEditor().documentCharacterSet);
     URI.username = username;
     return URI.spec;
   } catch (e) {}

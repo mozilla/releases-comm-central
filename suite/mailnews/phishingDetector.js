@@ -89,7 +89,7 @@ function isPhishingURL(aLinkNode, aSilentMode, aHref)
   var linkTextURL = {};
   var isPhishingURL = false;
 
-  var hrefURL = Services.io.newURI(href, null, null);
+  var hrefURL = Services.io.newURI(href);
 
   // only check for phishing urls if the url is an http or https link.
   // this prevents us from flagging imap and other internally handled urls
@@ -128,7 +128,7 @@ function misMatchedHostWithLinkText(aLinkNode, aHrefURL, aLinkTextURL)
     // does the link text look like a http url?
      if (linkNodeText.search(/(^http:|^https:)/) != -1)
      {
-       var linkTextURL  = Services.io.newURI(linkNodeText, null, null);
+       var linkTextURL  = Services.io.newURI(linkNodeText);
        aLinkTextURL.value = linkTextURL;
        // compare hosts, but ignore possible www. prefix
        return !(aHrefURL.host.replace(/^www\./, "") == aLinkTextURL.value.host.replace(/^www\./, ""));

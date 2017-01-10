@@ -55,8 +55,7 @@ function addGeneratedMessagesToServer(messages, mailbox)
   messages.forEach(function (message)
   {
     let dataUri = Services.io.newURI("data:text/plain;base64," +
-                                     btoa(message.toMessageString()),
-                                     null, null);
+                                     btoa(message.toMessageString()));
     mailbox.addMessage(new imapMessage(dataUri.spec, mailbox.uidnext++, []));
   });
 }

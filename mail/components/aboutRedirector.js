@@ -49,7 +49,7 @@ AboutRedirector.prototype = {
     if (!(name in this._redirMap))
       throw Components.results.NS_ERROR_ILLEGAL_VALUE;
 
-    let newURI = Services.io.newURI(this._redirMap[name].url, null, null);
+    let newURI = Services.io.newURI(this._redirMap[name].url);
     let channel = Services.io.newChannelFromURIWithLoadInfo(newURI, aLoadInfo);
     channel.originalURI = aURI;
 

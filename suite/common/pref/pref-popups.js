@@ -57,7 +57,7 @@ function SetLists()
       for (var i in hosts)
       {
         var host = "http://" + hosts[i];
-        var uri = Services.io.newURI(host, null, null);
+        var uri = Services.io.newURI(host);
         permissionManager.add(uri, kPopupType, true);
       }
     }

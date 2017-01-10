@@ -85,7 +85,7 @@ function PlaySound(aValue, aMail)
                         .createInstance(nsISound);
 
   if (aValue)
-    sound.play(Services.io.newURI(aValue, null, null));
+    sound.play(Services.io.newURI(aValue));
   else if (aMail && !/Mac/.test(navigator.platform))
     sound.playEventSound(nsISound.EVENT_NEW_MAIL_RECEIVED);
   else

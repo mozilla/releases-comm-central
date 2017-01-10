@@ -364,7 +364,7 @@ var WinTaskbarJumpList =
         }
 
         let title = aResult.title || aResult.uri;
-        let faviconPageUri = Services.io.newURI(aResult.uri, null, null);
+        let faviconPageUri = Services.io.newURI(aResult.uri);
         let shortcut = this._getHandlerAppItem(title, title, aResult.uri, 2,
                                                faviconPageUri);
         items.appendElement(shortcut, false);
@@ -409,7 +409,7 @@ var WinTaskbarJumpList =
         }
 
         let title = aResult.title || aResult.uri;
-        let faviconPageUri = Services.io.newURI(aResult.uri, null, null);
+        let faviconPageUri = Services.io.newURI(aResult.uri);
         let shortcut = this._getHandlerAppItem(title, title, aResult.uri, 2,
                                                faviconPageUri);
         items.appendElement(shortcut, false);

@@ -20,7 +20,7 @@ var addonsRegister = {
     let win = document.getElementById("dummychromebrowser").contentWindow;
     let open = win.open;
     win.open = function(aUrl) {
-      let uri = Services.io.newURI(aUrl, null, null);
+      let uri = Services.io.newURI(aUrl);
 
       // http and https are the only schemes that are exposed even
       // though we don't handle them internally.

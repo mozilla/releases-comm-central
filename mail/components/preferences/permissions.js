@@ -101,14 +101,14 @@ var gPermissionManager = {
       // permissions from being entered by the user.
       let uri;
       try {
-        uri = Services.io.newURI(input_url, null, null);
+        uri = Services.io.newURI(input_url);
         principal = Services.scriptSecurityManager.createCodebasePrincipal(uri, {});
         // If we have ended up with an unknown scheme, the following will throw.
         principal.origin;
       } catch(ex) {
         let scheme = (this._type != "image" || !input_url.includes("@")) ?
           "http://" : MAILURI_BASE;
-        uri = Services.io.newURI(scheme + input_url, null, null);
+        uri = Services.io.newURI(scheme + input_url);
         principal = Services.scriptSecurityManager.createCodebasePrincipal(uri, {});
         // If we have ended up with an unknown scheme, the following will throw.
         principal.origin;

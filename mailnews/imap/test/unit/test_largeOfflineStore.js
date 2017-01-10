@@ -63,14 +63,12 @@ function* setup() {
 
   messages = messages.concat(scenarioFactory.directReply(2));
   let dataUri = Services.io.newURI("data:text/plain;base64," +
-                                   btoa(messages[0].toMessageString()),
-                                   null, null);
+                                   btoa(messages[0].toMessageString()));
   let imapMsg = new imapMessage(dataUri.spec, IMAPPump.mailbox.uidnext++, []);
   IMAPPump.mailbox.addMessage(imapMsg);
 
   dataUri = Services.io.newURI("data:text/plain;base64," +
-                               btoa(messages[1].toMessageString()),
-                               null, null);
+                               btoa(messages[1].toMessageString()));
   imapMsg = new imapMessage(dataUri.spec, IMAPPump.mailbox.uidnext++, []);
   IMAPPump.mailbox.addMessage(imapMsg);
 

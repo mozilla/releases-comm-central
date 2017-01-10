@@ -46,7 +46,7 @@ About.prototype = {
 
   newChannel: function(aURI, aLoadInfo) {
     var module = this.getModule(aURI);
-    var newURI = Services.io.newURI(this[module + "URI"], null, null);
+    var newURI = Services.io.newURI(this[module + "URI"]);
     var channel = aLoadInfo ?
                   Services.io.newChannelFromURIWithLoadInfo(newURI, aLoadInfo) :
                   Services.io.newChannelFromURI2(newURI, null,

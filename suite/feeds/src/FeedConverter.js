@@ -252,7 +252,7 @@ FeedConverter.prototype = {
         feedService.addFeedResult(result);
 
         // Now load the actual XUL document.
-        var chromeURI = Services.io.newURI(FEEDHANDLER_URI, null, null);
+        var chromeURI = Services.io.newURI(FEEDHANDLER_URI);
         chromeChannel = Services.io.newChannelFromURIWithLoadInfo(chromeURI, loadInfo);
         chromeChannel.owner = Services.scriptSecurityManager
                                       .getNoAppCodebasePrincipal(chromeURI);
@@ -369,7 +369,7 @@ FeedResultService.prototype = {
       // http://foo.com/index.rdf -> feed://foo.com/index.rdf
       // other urls: prepend feed: scheme, e.g.
       // https://foo.com/index.rdf -> feed:https://foo.com/index.rdf
-      var feedURI = Services.io.newURI(spec, null, null);
+      var feedURI = Services.io.newURI(spec);
       if (feedURI.schemeIs("http")) {
         feedURI.scheme = "feed";
         spec = feedURI.spec;

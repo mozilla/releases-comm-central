@@ -396,7 +396,7 @@ function issueNetworkRequest(parentRequest, respFunc, url, bLogging) {
         parentRequest.attachSubRequest(netRequest);
     }
     try {
-        let uri = Services.io.newURI(url, null, null);
+        let uri = Services.io.newURI(url);
         let channel = Services.io.newChannelFromURI2(uri,
                                                      null,
                                                      Services.scriptSecurityManager.getSystemPrincipal(),

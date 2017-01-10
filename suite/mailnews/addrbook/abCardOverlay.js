@@ -1020,7 +1020,7 @@ var gFilePhotoHandler =
     var photoURI = aCard.getProperty("PhotoURI", "");
     try
     {
-      var file = Services.io.newURI(photoURI, null, null)
+      var file = Services.io.newURI(photoURI)
                             .QueryInterface(Components.interfaces.nsIFileURL)
                             .file;
     } catch (e) {}

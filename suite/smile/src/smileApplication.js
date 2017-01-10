@@ -56,7 +56,7 @@ var Utilities = {
       return null;
     var ios = Components.classes["@mozilla.org/network/io-service;1"]
                         .getService(Components.interfaces.nsIIOService);
-    return ios.newURI(aSpec, null, null);
+    return ios.newURI(aSpec);
   },
 
   free: function smileutil_free() {

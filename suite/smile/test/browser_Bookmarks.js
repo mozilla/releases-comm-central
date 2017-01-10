@@ -3,7 +3,7 @@ var gLastBookmarkAction = "";
 var gLastRootAction = "";
 
 function url(spec) {
-  return Services.io.newURI(spec, null, null);
+  return Services.io.newURI(spec);
 }
 
 function test() {

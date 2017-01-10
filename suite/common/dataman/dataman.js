@@ -1407,7 +1407,7 @@ var gPerms = {
       // This can currently fail for some schemes like 'file://'.
       // Maybe fix it later if needed.
       try {
-        let uri = Services.io.newURI(new URL(aOrigin), null, null);
+        let uri = Services.io.newURI(new URL(aOrigin));
         Services.perms.add(uri, aType, aValue);
       }
       catch (e) {
@@ -2440,7 +2440,7 @@ var gStorage = {
     let groups = gLocSvc.appcache.getGroups();
     gDataman.debugMsg("Loading " + groups.length + " appcache entries");
     for (let lGroup of groups) {
-      let uri = Services.io.newURI(lGroup, null, null);
+      let uri = Services.io.newURI(lGroup);
       let cache = gLocSvc.appcache.getActiveCache(lGroup);
       this.storages.push({host: uri.host,
                           rawHost: uri.host,
@@ -2539,7 +2539,7 @@ var gStorage = {
         let file = files.nextFile;
         // Convert directory name to a URI.
         let host = file.leafName.replace(/\+\+\+/, "://").replace(/\+(\d+)$/, ":$1");
-        let uri = Services.io.newURI(host, null, null);
+        let uri = Services.io.newURI(host);
         this.storages.push({host: host,
                             rawHost: uri.host,
                             type: "indexedDB",
@@ -2680,7 +2680,7 @@ var gStorage = {
         let testHost = aStorageItem.host;
         if (!/:/.test(testHost))
           testHost = "http://" + testHost;
-        let uri = Services.io.newURI(testHost, null, null);
+        let uri = Services.io.newURI(testHost);
         let principal = gLocSvc.ssm.getCodebasePrincipal(uri);
         let storage = gLocSvc.domstoremgr
                              .getLocalStorageForPrincipal(principal, "");
@@ -2688,7 +2688,7 @@ var gStorage = {
         break;
       case "indexedDB":
         gLocSvc.idxdbmgr.clearDatabasesForURI(
-            Services.io.newURI(aStorageItem.host, null, null));
+            Services.io.newURI(aStorageItem.host));
         break;
     }
   },

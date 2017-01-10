@@ -76,7 +76,7 @@ calTimezoneService.prototype = {
             cal.LOG("[calTimezoneService] Loading " + aURL);
 
             return new Promise((resolve, reject) => {
-                let uri = Services.io.newURI(aURL, null, null);
+                let uri = Services.io.newURI(aURL);
                 let channel = Services.io.newChannelFromURI2(uri,
                                                              null,
                                                              Services.scriptSecurityManager.getSystemPrincipal(),

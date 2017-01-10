@@ -89,12 +89,12 @@ function test_binaryattach() {
 function test_serialize() {
     let attach = cal.createAttachment();
     attach.formatType = "x-moz/test2";
-    attach.uri = Services.io.newURI("data:text/plain,", null, null);
+    attach.uri = Services.io.newURI("data:text/plain,");
     equal(attach.icalString, "ATTACH;FMTTYPE=x-moz/test2:data:text/plain,\r\n");
 
     attach = cal.createAttachment();
     attach.encoding = "BASE64";
-    attach.uri = Services.io.newURI("data:text/plain,", null, null);
+    attach.uri = Services.io.newURI("data:text/plain,");
     equal(attach.icalString, "ATTACH;ENCODING=BASE64:data:text/plain,\r\n");
 
     throws(() => {
@@ -102,7 +102,7 @@ function test_serialize() {
     }, /Illegal value/);
 
     attach = cal.createAttachment();
-    attach.uri = Services.io.newURI("data:text/plain,", null, null);
+    attach.uri = Services.io.newURI("data:text/plain,");
     attach.setParameter("X-PROP", "VAL");
     equal(attach.icalString, "ATTACH;X-PROP=VAL:data:text/plain,\r\n");
     attach.setParameter("X-PROP", null);

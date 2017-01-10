@@ -101,7 +101,7 @@ const gPopupPermListener = {
       // the URI in the notification
       var popupOpenerURI = maybeInitPopupContext();
       if (popupOpenerURI) {
-        closeURI = Services.io.newURI(data, null, null);
+        closeURI = Services.io.newURI(data);
         if (closeURI.host == popupOpenerURI.host)
           window.close();
       }
@@ -2445,7 +2445,7 @@ function maybeInitPopupContext()
     if (xulwin.contextFlags &
         CI.nsIWindowCreator2.PARENT_IS_LOADING_OR_RUNNING_TIMEOUT) {
       // return our opener's URI
-      return Services.io.newURI(window.content.opener.location.href, null, null);
+      return Services.io.newURI(window.content.opener.location.href);
     }
   } catch(e) {
   }

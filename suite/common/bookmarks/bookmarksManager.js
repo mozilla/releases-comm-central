@@ -721,7 +721,7 @@ var PlacesOrganizer = {
     var placeSpec = PlacesUtils.history.queriesToQueryString(queries,
                                                              queries.length,
                                                              options);
-    var placeURI = Services.io.newURI(placeSpec, null, null);
+    var placeURI = Services.io.newURI(placeSpec);
 
     // Prompt the user for a name for the query.
     // XXX - using prompt service for now; will need to make

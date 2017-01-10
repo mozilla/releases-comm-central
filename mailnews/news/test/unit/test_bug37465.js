@@ -10,8 +10,7 @@ function run_test() {
 
   // Correct URI?
   let uri = Services.io.newURI("news://localhost:" + server.port +
-                                 "/1@regular.invalid",
-                               null, null);
+                                 "/1@regular.invalid");
   let newsUri = uri.QueryInterface(Ci.nsINntpUrl)
                    .QueryInterface(Ci.nsIMsgMailNewsUrl);
   do_check_eq(uri.port, server.port);
