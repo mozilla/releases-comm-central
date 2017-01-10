@@ -363,12 +363,12 @@ nsIImportMimeEncodeImpl::~nsIImportMimeEncodeImpl()
 
 NS_IMPL_ISUPPORTS(nsIImportMimeEncodeImpl, nsIImportMimeEncode)
 
-NS_METHOD nsIImportMimeEncodeImpl::EncodeFile(nsIFile *inFile, nsIFile *outFile, const char *fileName, const char *mimeType)
+NS_IMETHODIMP nsIImportMimeEncodeImpl::EncodeFile(nsIFile *inFile, nsIFile *outFile, const char *fileName, const char *mimeType)
 {
   return Initialize(inFile, outFile, fileName, mimeType);
 }
 
-NS_METHOD nsIImportMimeEncodeImpl::DoWork(bool *done, bool *_retval)
+NS_IMETHODIMP nsIImportMimeEncodeImpl::DoWork(bool *done, bool *_retval)
 {
   if (done && _retval && m_pEncode) {
     *_retval = m_pEncode->DoWork(done);
@@ -377,14 +377,14 @@ NS_METHOD nsIImportMimeEncodeImpl::DoWork(bool *done, bool *_retval)
   return NS_ERROR_FAILURE;
 }
 
-NS_METHOD nsIImportMimeEncodeImpl::NumBytesProcessed(int32_t *_retval)
+NS_IMETHODIMP nsIImportMimeEncodeImpl::NumBytesProcessed(int32_t *_retval)
 {
   if (m_pEncode && _retval)
     *_retval = m_pEncode->NumBytesProcessed();
   return NS_OK;
 }
 
-NS_METHOD nsIImportMimeEncodeImpl::DoEncoding(bool *_retval)
+NS_IMETHODIMP nsIImportMimeEncodeImpl::DoEncoding(bool *_retval)
 {
   if (_retval && m_pEncode) {
     bool    done = false;
@@ -395,7 +395,7 @@ NS_METHOD nsIImportMimeEncodeImpl::DoEncoding(bool *_retval)
   return NS_ERROR_FAILURE;
 }
 
-NS_METHOD nsIImportMimeEncodeImpl::Initialize(nsIFile *inFile, nsIFile *outFile, const char *fileName, const char *mimeType)
+NS_IMETHODIMP nsIImportMimeEncodeImpl::Initialize(nsIFile *inFile, nsIFile *outFile, const char *fileName, const char *mimeType)
 {
   delete m_pEncode;
   delete m_pOut;

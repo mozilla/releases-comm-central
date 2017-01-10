@@ -26,7 +26,7 @@ public:
 
   nsImportFieldMap(nsIStringBundle *aBundle);
 
-   static NS_METHOD Create(nsIStringBundle *aBundle, nsISupports *aOuter, REFNSIID aIID, void **aResult);
+  static nsresult Create(nsIStringBundle *aBundle, nsISupports *aOuter, REFNSIID aIID, void **aResult);
 
 private:
   virtual ~nsImportFieldMap();

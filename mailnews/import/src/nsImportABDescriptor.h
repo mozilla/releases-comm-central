@@ -87,7 +87,7 @@ public:
 
   nsImportABDescriptor();
 
-  static NS_METHOD Create(nsISupports *aOuter, REFNSIID aIID, void **aResult);
+  static nsresult Create(nsISupports *aOuter, REFNSIID aIID, void **aResult);
 
 private:
   virtual ~nsImportABDescriptor() {}

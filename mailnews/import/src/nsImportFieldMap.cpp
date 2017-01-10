@@ -14,7 +14,7 @@
 
 ////////////////////////////////////////////////////////////////////////
 
-NS_METHOD nsImportFieldMap::Create(nsIStringBundle *aBundle, nsISupports *aOuter, REFNSIID aIID, void **aResult)
+nsresult nsImportFieldMap::Create(nsIStringBundle *aBundle, nsISupports *aOuter, REFNSIID aIID, void **aResult)
 {
   if (aOuter)
     return NS_ERROR_NO_AGGREGATION;

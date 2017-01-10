@@ -40,7 +40,7 @@ public:
   nsPgpMimeProxy();
 
   // Define a Create method to be used with a factory:
-  static NS_METHOD
+  static nsresult
   Create(nsISupports *aOuter, REFNSIID aIID, void **aResult);
 
 protected:

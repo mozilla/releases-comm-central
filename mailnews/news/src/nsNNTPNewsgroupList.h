@@ -61,7 +61,7 @@ public:
 private:
   virtual  ~nsNNTPNewsgroupList();
 
-  NS_METHOD CleanUp();
+  nsresult CleanUp();
      
   bool    m_finishingXover;
 
