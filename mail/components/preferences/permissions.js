@@ -14,7 +14,7 @@ var NOTIFICATION_FLUSH_PERMISSIONS = "flush-pending-permissions";
  * Magic URI base used so the permission manager can store
  * remote content permissions for a given email address.
  */
-var MAILURI_BASE = "chrome://messenger/content/?email=";
+var MAILURI_BASE = "chrome://messenger/content/email=";
 
 function Permission(principal, type, capability)
 {

@@ -2762,7 +2762,7 @@ function onRemoteContentOptionsShowing(aEvent)
   var authorEmailAddress = addresses.value[0];
 
   var emailURI = Services.io.newURI(
-    "chrome://messenger/content/?email=" + authorEmailAddress);
+    "chrome://messenger/content/email=" + authorEmailAddress);
   var principal = Services.scriptSecurityManager
                           .createCodebasePrincipal(emailURI, {});
   // Put author email first in the menu.
@@ -2780,7 +2780,7 @@ function onRemoteContentOptionsShowing(aEvent)
   for (let origin of origins)
   {
     let menuitem = document.createElement("menuitem");
-    let host = origin.replace("chrome://messenger/content/?email=", "");
+    let host = origin.replace("chrome://messenger/content/email=", "");
     let hostString = messengerBundle.getFormattedString("remoteContentAllow", [host]);
     menuitem.setAttribute("label", hostString);
     menuitem.setAttribute("value", origin);

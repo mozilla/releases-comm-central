@@ -33,11 +33,11 @@ function run_test() {
   testAB.copyTo(do_get_profile(), kPABData.fileName);
 
   let uriAllowed = Services.io.newURI(
-    "chrome://messenger/content/?email=yes@test.invalid");
+    "chrome://messenger/content/email=yes@test.invalid");
   let uriAllowed2 = Services.io.newURI(
-    "chrome://messenger/content/?email=yes2@test.invalid");
+    "chrome://messenger/content/email=yes2@test.invalid");
   let uriDisallowed = Services.io.newURI(
-    "chrome://messenger/content/?email=no@test.invalid");
+    "chrome://messenger/content/email=no@test.invalid");
 
   // Check that this email that according to the ab data has (had!)
   // remote content premissions, has no premissions pre migration.

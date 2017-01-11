@@ -309,7 +309,7 @@ function checkAllowForSenderWithPerms(test) {
   MailServices.headerParser.parseHeadersWithArray(msgDbHdr.author, addresses, {}, {});
   let authorEmailAddress = addresses.value[0];
 
-  let uri = Services.io.newURI("chrome://messenger/content/?email=" + authorEmailAddress);
+  let uri = Services.io.newURI("chrome://messenger/content/email=" + authorEmailAddress);
   Services.perms.add(uri, "image", Services.perms.ALLOW_ACTION);
   assert_true(Services.perms.testPermission(uri, "image") ==
               Services.perms.ALLOW_ACTION);
