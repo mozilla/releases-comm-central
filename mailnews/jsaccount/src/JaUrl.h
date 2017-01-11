@@ -29,7 +29,8 @@ namespace mailnews {
 // in the C++ base class (bypassing any JS override).
 class JaBaseCppUrl : public nsMsgMailNewsUrl,
                      public nsIMsgMessageUrl,
-                     public nsIInterfaceRequestor
+                     public nsIInterfaceRequestor,
+                     public nsSupportsWeakReference
 
 {
 public:

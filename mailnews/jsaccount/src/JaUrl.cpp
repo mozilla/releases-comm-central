@@ -19,7 +19,8 @@ namespace mailnews {
 
 NS_IMPL_ISUPPORTS_INHERITED(JaBaseCppUrl, nsMsgMailNewsUrl,
                             nsIMsgMessageUrl,
-                            nsIInterfaceRequestor)
+                            nsIInterfaceRequestor,
+                            nsISupportsWeakReference)
 
 // nsIMsgMailNewsUrl overrides
 NS_IMETHODIMP JaBaseCppUrl::GetFolder(nsIMsgFolder **aFolder)
