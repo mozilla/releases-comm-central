@@ -44,13 +44,16 @@ Cu.import("resource://gre/modules/XPCOMUtils.jsm");
 
 // Logger definitions.
 const LOGGER_NAME = "JsAccount";
-const PREF_BRANCH_LOG = "mailnews.jsaccount.log";
+const PREF_BRANCH_LOG = "mailnews.jsaccount.log.";
 const PREF_LOG_LEVEL = PREF_BRANCH_LOG + "level";
 const PREF_LOG_DUMP = PREF_BRANCH_LOG + "dump";
 
 // Set default logging levels.
 const LOG_LEVEL_DEFAULT = "Info"
 const LOG_DUMP_DEFAULT = true;
+
+// Logging usage: set mailnews.jsaccount.log.level to the word "Debug" to
+// increase logging level.
 
 var log = configureLogging();
 
