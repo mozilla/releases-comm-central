@@ -606,7 +606,6 @@
 @RESPATH@/components/jsdownloads.xpt
 @RESPATH@/components/jsinspector.xpt
 @RESPATH@/components/fastfind.xpt
-@RESPATH@/components/find.xpt
 @RESPATH@/components/ConsoleAPIStorage.js
 @RESPATH@/components/ConsoleAPI.manifest
 @RESPATH@/components/Push.js
@@ -629,7 +628,7 @@
 #endif
 @RESPATH@/components/exthandler.xpt
 @RESPATH@/components/exthelper.xpt
-@RESPATH@/components/embed_base.xpt
+@RESPATH@/components/windowcreator.xpt
 @RESPATH@/components/windowds.xpt
 @RESPATH@/components/lwbrk.xpt
 @RESPATH@/components/nsINIProcessor.js
