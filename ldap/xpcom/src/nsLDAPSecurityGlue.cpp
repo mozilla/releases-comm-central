@@ -177,7 +177,7 @@ nsLDAPSSLConnect(const char *hostlist, int defport, int timeout,
                                         sessionClosure->hostname,
                                         defport,
                                         nullptr,
-                                        mozilla::NeckoOriginAttributes(),
+                                        mozilla::OriginAttributes(),
                                         0,
                                         socketInfo.soinfo_prfd,
                                         getter_AddRefs(securityInfo));

@@ -18,7 +18,7 @@ public:
   NS_DECL_THREADSAFE_ISUPPORTS
   NS_DECL_NSILOADCONTEXTINFO
 
-  MailnewsLoadContextInfo(bool aIsPrivate, bool aIsAnonymous, mozilla::NeckoOriginAttributes aOriginAttributes);
+  MailnewsLoadContextInfo(bool aIsPrivate, bool aIsAnonymous, mozilla::OriginAttributes aOriginAttributes);
 
 private:
   virtual ~MailnewsLoadContextInfo();
@@ -26,7 +26,7 @@ private:
 protected:
   bool mIsPrivate : 1;
   bool mIsAnonymous : 1;
-  mozilla::NeckoOriginAttributes mOriginAttributes;
+  mozilla::OriginAttributes mOriginAttributes;
 };
 
 #endif

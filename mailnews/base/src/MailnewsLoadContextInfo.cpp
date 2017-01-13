@@ -16,7 +16,7 @@
 
 NS_IMPL_ISUPPORTS(MailnewsLoadContextInfo, nsILoadContextInfo)
 
-MailnewsLoadContextInfo::MailnewsLoadContextInfo(bool aIsPrivate, bool aIsAnonymous, mozilla::NeckoOriginAttributes aOriginAttributes)
+MailnewsLoadContextInfo::MailnewsLoadContextInfo(bool aIsPrivate, bool aIsAnonymous, mozilla::OriginAttributes aOriginAttributes)
   : mIsPrivate(aIsPrivate)
   , mIsAnonymous(aIsAnonymous)
   , mOriginAttributes(aOriginAttributes)
@@ -40,7 +40,7 @@ NS_IMETHODIMP MailnewsLoadContextInfo::GetIsAnonymous(bool *aIsAnonymous)
   return NS_OK;
 }
 
-mozilla::NeckoOriginAttributes const* MailnewsLoadContextInfo::OriginAttributesPtr()
+mozilla::OriginAttributes const* MailnewsLoadContextInfo::OriginAttributesPtr()
 {
   return &mOriginAttributes;
 }

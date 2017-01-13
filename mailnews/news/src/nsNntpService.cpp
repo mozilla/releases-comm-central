@@ -1744,7 +1744,7 @@ NS_IMETHODIMP nsNntpService::GetCacheStorage(nsICacheStorage **result)
     NS_ENSURE_SUCCESS(rv, rv);
 
     RefPtr<MailnewsLoadContextInfo> lci =
-      new MailnewsLoadContextInfo(false, false, mozilla::NeckoOriginAttributes());
+      new MailnewsLoadContextInfo(false, false, mozilla::OriginAttributes());
 
     rv = cacheStorageService->MemoryCacheStorage(lci, getter_AddRefs(mCacheStorage));
     NS_ENSURE_SUCCESS(rv, rv);
