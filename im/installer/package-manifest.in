@@ -165,8 +165,6 @@
 #endif
 #else
 @RESPATH@/components/components.manifest
-@RESPATH@/components/@DLL_PREFIX@trayToolkit@DLL_SUFFIX@
-@RESPATH@/components/trayToolkit.xpt
 @RESPATH@/components/profileMigrator.js
 @RESPATH@/components/profileMigrator.manifest
 #endif
