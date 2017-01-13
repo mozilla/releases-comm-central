@@ -6,7 +6,7 @@
 #include "trayPlatform.h"
 
 #include "nsCOMPtr.h"
-#include "nsStringAPI.h"
+#include "nsString.h"
 #include "nsServiceManagerUtils.h"
 
 #include "mozIDOMWindow.h"

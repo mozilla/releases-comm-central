@@ -13,7 +13,7 @@
 #include "xpcom-config.h"
 
 #include "nsCOMPtr.h"
-#include "nsStringAPI.h"
+#include "nsString.h"
 
 #include "mozIDOMWindow.h"
 

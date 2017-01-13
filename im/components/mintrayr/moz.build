@@ -23,7 +23,7 @@ elif 'gtk' in CONFIG['MOZ_WIDGET_TOOLKIT']:
     OS_LIBS += CONFIG['XLIBS']
     CXXFLAGS += CONFIG['MOZ_GTK2_CFLAGS']
 
-XPCOMBinaryComponent('trayToolkit')
+FINAL_LIBRARY = 'xul'
 
 XPIDL_SOURCES += [
     'trayIToolkit.idl',
@@ -36,9 +36,3 @@ EXPORTS += [
 ]
 
 JAR_MANIFESTS += ['jar.mn']
-
-USE_LIBS += [
-    'nspr',
-    'xpcomglue_s',
-    'xul',
-]
