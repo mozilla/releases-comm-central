@@ -932,7 +932,7 @@ Extractor.prototype = {
 
                 if (duration != 0) {
                     let startDate = new Date(start.year, start.month - 1, start.day);
-                    if (start.hour) {
+                    if ("hour" in start) {
                         startDate.setHours(start.hour);
                         startDate.setMinutes(start.minute);
                     } else {
