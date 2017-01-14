@@ -19,3 +19,7 @@ Cu.import("resource://testing-common/mailnews/localAccountUtils.js");
 do_load_manifest("resources/testComponents.manifest")
 // Ensure the profile directory is set up.
 do_get_profile();
+
+do_register_cleanup(function() {
+  load("../../../../mailnews/resources/mailShutdown.js");
+});

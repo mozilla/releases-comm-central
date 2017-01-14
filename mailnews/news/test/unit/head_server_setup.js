@@ -249,3 +249,8 @@ var articleTextListener = {
     this.data += scriptStream.read(aCount);
   }
 };
+
+do_register_cleanup(function() {
+  load("../../../resources/mailShutdown.js");
+});
+

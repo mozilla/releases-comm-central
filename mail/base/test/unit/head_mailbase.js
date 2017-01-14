@@ -12,3 +12,7 @@ var CC = Components.Constructor;
 do_get_profile();
 
 var gDEPTH = "../../../../";
+
+do_register_cleanup(function() {
+  load(gDEPTH + "mailnews/resources/mailShutdown.js");
+});

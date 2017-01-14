@@ -15,3 +15,7 @@ load("../../../resources/abSetup.js");
 
 // Import the script with basic import functions
 load("resources/import_helper.js");
+
+do_register_cleanup(function() {
+  load("../../../resources/mailShutdown.js");
+});

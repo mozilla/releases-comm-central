@@ -21,3 +21,7 @@ function getSpec(aFileName)
   uri.query = "type=application/x-message-display";
   return uri.spec;
 }
+
+do_register_cleanup(function() {
+  load("../../../../resources/mailShutdown.js");
+});
