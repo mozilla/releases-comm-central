@@ -29,42 +29,32 @@
 }
 
 .occurrence-accept-buttons {
-  list-style-image: url(chrome://calendar/skin/calendar-occurrence-prompt.png);
-  margin: 10px 0px;
+  margin: 10px 0;
+}
+
+.occurrence-accept-buttons > .button-box > .button-icon {
+  width: 18px;
+  height: 18px;
 }
 
 .occurrence-accept-buttons > .button-box > .button-text {
   margin: 0 3px !important;
 }
 
-#accept-buttons-box[action="edit"] > #accept-occurrence-button {
-  -moz-image-region: rect(0 20px 20px 0);
+#accept-buttons-box[type="event"] > #accept-occurrence-button {
+  list-style-image: url(chrome://calendar-common/skin/calendar-occurrence.svg#event-single);
 }
 
-#accept-buttons-box[action="edit"] > #accept-parent-button {
-  -moz-image-region: rect(0 40px 20px 20px);
+#accept-buttons-box[type="event"] > #accept-parent-button,
+#accept-buttons-box[type="event"] > #accept-allfollowing-button {
+  list-style-image: url(chrome://calendar-common/skin/calendar-occurrence.svg#event-all);
 }
 
-#accept-buttons-box[action="edit"] > #accept-allfollowing-button {
-  -moz-image-region: rect(0 60px 20px 40px);
+#accept-buttons-box[type="task"] > .occurrence-accept-buttons {
+  list-style-image: url(chrome://calendar-common/skin/calendar-occurrence.svg#task-single);
 }
 
-#accept-buttons-box[action="delete"] > #accept-occurrence-button {
-  -moz-image-region: rect(0 80px 20px 60px);
-}
-
-#accept-buttons-box[action="delete"] > #accept-parent-button {
-  -moz-image-region: rect(0 100px 20px 80px);
-}
-
-#accept-buttons-box[action="delete"] > #accept-allfollowing-button {
-  -moz-image-region: rect(0 120px 20px 100px);
-}
-
-@media (-moz-os-version: windows-win7),
-       (-moz-os-version: windows-win8),
-       (-moz-os-version: windows-win10) {
-  .occurrence-accept-buttons {
-    list-style-image: url(chrome://calendar/skin/calendar-occurrence-prompt-aero.png);
-  }
+#accept-buttons-box[type="task"] > #accept-parent-button,
+#accept-buttons-box[type="task"] > #accept-allfollowing-button {
+  list-style-image: url(chrome://calendar-common/skin/calendar-occurrence.svg#task-all);
 }

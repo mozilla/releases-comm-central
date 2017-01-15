@@ -141,6 +141,7 @@ calendar.jar:
     ../skin/common/calendar-creation-wizard.css       (themes/common/calendar-creation-wizard.css)
     ../skin/common/calendar-daypicker.css             (themes/common/calendar-daypicker.css)
     ../skin/common/calendar-management.css            (themes/common/calendar-management.css)
+    ../skin/common/calendar-occurrence.svg            (themes/common/calendar-occurrence.svg)
     ../skin/common/calendar-occurrence-prompt.css     (themes/common/calendar-occurrence-prompt.css)
     ../skin/common/calendar-printing.css              (themes/common/calendar-printing.css)
     ../skin/common/calendar-providerUninstall-dialog.css (themes/common/calendar-providerUninstall-dialog.css)
@@ -179,7 +180,6 @@ calendar.jar:
     ../skin/linux/calendar/calendar-views.css                             (themes/linux/calendar-views.css)
     ../skin/linux/calendar/today-pane.css                                 (themes/linux/today-pane.css)
     ../skin/linux/calendar/widgets/calendar-widgets.css                   (themes/linux/widgets/calendar-widgets.css)
-    ../skin/linux/calendar/calendar-occurrence-prompt.png                 (themes/linux/images/calendar-occurrence-prompt.png)
 
 # OS X theme files
     ../skin/osx/calendar/cal-icon32.png                                 (themes/osx/images/cal-icon32.png)
@@ -196,7 +196,6 @@ calendar.jar:
     ../skin/osx/calendar/checkbox-images.png                            (themes/osx/images/checkbox-images.png)
     ../skin/osx/calendar/today-pane.css                                 (themes/osx/today-pane.css)
     ../skin/osx/calendar/widgets/calendar-widgets.css                   (themes/osx/widgets/calendar-widgets.css)
-    ../skin/osx/calendar/calendar-occurrence-prompt.png                 (themes/osx/images/calendar-occurrence-prompt.png)
     ../skin/osx/calendar/checkbox-images-graphite.png                   (themes/osx/images/checkbox-images-graphite.png)
     ../skin/osx/calendar/sidebar-item.png                               (themes/osx/images/sidebar-item.png)
     ../skin/osx/calendar/spin-buttons.png                               (themes/osx/images/spin-buttons.png)
@@ -216,4 +215,3 @@ calendar.jar:
     ../skin/windows/calendar/calendar-views.css                             (themes/windows/calendar-views.css)
     ../skin/windows/calendar/today-pane.css                                 (themes/windows/today-pane.css)
     ../skin/windows/calendar/widgets/calendar-widgets.css                   (themes/windows/widgets/calendar-widgets.css)
-    ../skin/windows/calendar/calendar-occurrence-prompt-aero.png            (themes/windows/images/calendar-occurrence-prompt-aero.png)
