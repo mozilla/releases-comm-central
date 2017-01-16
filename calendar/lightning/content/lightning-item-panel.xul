@@ -31,82 +31,16 @@
             id="dummy-calendar-event-dialog-tab"
             class="calendar-event-dialog-tab">
 
-        <stringbundleset id="stringbundleset">
-          <stringbundle id="languageBundle"
-                        src="chrome://global/locale/languageNames.properties"/>
-        </stringbundleset>
-
-        <script type="application/javascript"
-                src="chrome://global/content/globalOverlay.js"/>
-
-        <!-- Command updater -->
-        <commandset id="globalEditMenuItems"
-                    commandupdater="true"
-                    events="focus"
-                    oncommandupdate="goUpdateGlobalEditMenuItems()"/>
-        <commandset id="selectEditMenuItems"
-                    commandupdater="true"
-                    events="select"
-                    oncommandupdate="goUpdateSelectEditMenuItems()"/>
-        <commandset id="undoEditMenuItems"
-                    commandupdater="true"
-                    events="undo"
-                    oncommandupdate="goUpdateUndoEditMenuItems()"/>
-        <commandset id="clipboardEditMenuItems"
-                    commandupdater="true"
-                    events="clipboard"
-                    oncommandupdate="goUpdatePasteMenuItems()"/>
-
         <!-- Commands -->
         <commandset id="itemCommands">
-
-          <!-- Item menu -->
-          <command id="cmd_item_new_event"
-                   oncommand="openNewEvent()"/>
-          <command id="cmd_item_new_task"
-                   oncommand="openNewTask()"/>
-          <command id="cmd_item_new_message"
-                   oncommand="openNewMessage()"/>
-          <command id="cmd_item_new_card"
-                   oncommand="openNewCardDialog()"/>
-          <command id="cmd_item_close"
-                   oncommand="cancelDialog()"/>
           <command id="cmd_save"
                    disable-on-readonly="true"
                    oncommand="onCommandSave()"/>
           <command id="cmd_item_delete"
                    disable-on-readonly="true"
                    oncommand="onCommandDeleteItem()"/>
-          <command id="cmd_printSetup"
-                   oncommand="PrintUtils.showPageSetup()"/>
-          <command id="cmd_print"
-                   disabled="true"
-                   oncommand="calPrint()"/>
-
-          <!-- Edit menu -->
-          <command id="cmd_undo"
-                   disabled="true"
-                   oncommand="goDoCommand('cmd_undo')"/>
-          <command id="cmd_redo"
-                   disabled="true"
-                   oncommand="goDoCommand('cmd_redo')"/>
-          <command id="cmd_cut"
-                   disabled="true"
-                   oncommand="goDoCommand('cmd_cut')"/>
-          <command id="cmd_copy"
-                   disabled="true"
-                   oncommand="goDoCommand('cmd_copy')"/>
-          <command id="cmd_paste"
-                   disabled="true"
-                   oncommand="goDoCommand('cmd_paste')"/>
-          <command id="cmd_selectAll"
-                   disabled="true"
-                   oncommand="goDoCommand('cmd_selectAll')"/>
 
           <!-- View menu -->
-          <command id="cmd_toolbar"
-                   oncommand="onCommandViewToolbar('event-toolbar',
-                                                   'view-toolbars-event-menuitem')"/>
           <command id="cmd_customize"
                    oncommand="onCommandCustomize()"/>
           <command id="cmd_toggle_link"
@@ -170,22 +104,6 @@
         </commandset>
 
         <keyset id="calendar-event-dialog-keyset">
-          <key id="new-event-key"
-               modifiers="accel"
-               key="&event.dialog.new.event.key2;"
-               command="cmd_item_new_event"/>
-          <key id="new-task-key"
-               modifiers="accel"
-               key="&event.dialog.new.task.key2;"
-               command="cmd_item_new_task"/>
-          <key id="new-message-key"
-               modifiers="accel"
-               key="&event.dialog.new.message.key2;"
-               command="cmd_item_new_message"/>
-          <key id="close-key"
-               modifiers="accel"
-               key="&event.dialog.close.key;"
-               command="cmd_item_close"/>
           <key id="save-key"
                modifiers="accel, shift"
                key="&event.dialog.save.key;"
@@ -198,34 +116,6 @@
                modifiers="accel"
                keycode="VK_RETURN"
                command="cmd_accept"/>
-          <key id="print-key"
-               modifiers="accel"
-               key="&event.dialog.print.key;"
-               command="cmd_print"/>
-          <key id="undo-key"
-               modifiers="accel"
-               key="&event.dialog.undo.key;"
-               command="cmd_undo"/>
-          <key id="redo-key"
-               modifiers="accel"
-               key="&event.dialog.redo.key;"
-               command="cmd_redo"/>
-          <key id="cut-key"
-               modifiers="accel"
-               key="&event.dialog.cut.key;"
-               command="cmd_cut"/>
-          <key id="copy-key"
-               modifiers="accel"
-               key="&event.dialog.copy.key;"
-               command="cmd_copy"/>
-          <key id="paste-key"
-               modifiers="accel"
-               key="&event.dialog.paste.key;"
-               command="cmd_paste"/>
-          <key id="select-all-key"
-               modifiers="accel"
-               key="&event.dialog.select.all.key;"
-               command="cmd_selectAll"/>
         </keyset>
 
         <toolbox id="event-toolbox"

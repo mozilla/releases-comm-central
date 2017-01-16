@@ -191,6 +191,8 @@ function receiveMessage(aEvent) {
         case "onCommandSave": onCommandSave(aEvent.data.isClosing); break;
         case "onAccept": onAccept(); break;
         case "onCancel": onCancel(aEvent.data.iframeId); break;
+        case "openNewEvent": openNewEvent(); break;
+        case "openNewTask": openNewTask(); break;
         case "editConfigState": {
             Object.assign(gConfig, aEvent.data.argument);
             updateConfigState(aEvent.data.argument);
@@ -1755,29 +1757,6 @@ function openNewTask() {
     let item = window.calendarItem;
     let args = window.arguments[0];
     args.onNewTodo(item.calendar);
-}
-
-/**
- * Open a new Thunderbird compose window.
- */
-function openNewMessage() {
-    MailServices.compose.OpenComposeWindow(null,
-                                           null,
-                                           null,
-                                           Components.interfaces.nsIMsgCompType.New,
-                                           Components.interfaces.nsIMsgCompFormat.Default,
-                                           null,
-                                           null);
-}
-
-/**
- * Open a new addressbook window
- */
-function openNewCardDialog() {
-    window.openDialog(
-        "chrome://messenger/content/addressbook/abNewCardDialog.xul",
-        "",
-        "chrome,modal,resizable=no,centerscreen");
 }
 
 /**

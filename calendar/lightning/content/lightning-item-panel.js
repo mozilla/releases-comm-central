@@ -390,6 +390,47 @@ function updateTitle(aNewTitle) {
 }
 
 /**
+ * Open a new event.
+ */
+function openNewEvent() {
+    sendMessage({ command: "openNewEvent" });
+}
+
+/**
+ * Open a new task.
+ */
+function openNewTask() {
+    sendMessage({ command: "openNewTask" });
+}
+
+
+/**
+ * Open a new Thunderbird compose window.
+ */
+function openNewMessage() {
+    MailServices.compose.OpenComposeWindow(
+        null,
+        null,
+        null,
+        Components.interfaces.nsIMsgCompType.New,
+        Components.interfaces.nsIMsgCompFormat.Default,
+        null,
+        null
+    );
+}
+
+/**
+ * Open a new addressbook window
+ */
+function openNewCardDialog() {
+    window.openDialog(
+        "chrome://messenger/content/addressbook/abNewCardDialog.xul",
+        "",
+        "chrome,modal,resizable=no,centerscreen"
+    );
+}
+
+/**
  * Handler for edit attendees command.
  */
 function editAttendees() {
@@ -431,7 +472,8 @@ function editPrivacy(aTarget, aEvent) {
     if (aEvent) {
         aEvent.stopPropagation();
     }
-    let newPrivacy = aTarget.getAttribute("value");
+    // "privacy" is indeed the correct attribute to use here
+    let newPrivacy = aTarget.getAttribute("privacy");
     editConfigState({ privacy: newPrivacy });
 }
 
