@@ -7,5 +7,6 @@
 
 <overlay id="tb-webconsole-overlay"
          xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+  <script type="application/javascript" src="chrome://global/content/viewSourceUtils.js"/>
   <window id="devtools-webconsole" browserConsoleTitle="&errorConsoleCmd.label;"/>
 </overlay>
