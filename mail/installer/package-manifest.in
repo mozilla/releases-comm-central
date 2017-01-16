@@ -668,10 +668,15 @@
 @RESPATH@/components/Push.js
 @RESPATH@/components/Push.manifest
 @RESPATH@/components/PushComponents.js
+
+@RESPATH@/components/SlowScriptDebug.manifest
+@RESPATH@/components/SlowScriptDebug.js
+
 #ifdef MOZ_WEBRTC
 @RESPATH@/components/PeerConnection.js
 @RESPATH@/components/PeerConnection.manifest
 #endif
+
 @RESPATH@/components/dom_webspeechsynth.xpt
 @RESPATH@/components/nsAsyncShutdown.manifest
 @RESPATH@/components/nsAsyncShutdown.js
