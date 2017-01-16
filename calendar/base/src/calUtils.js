@@ -1170,7 +1170,7 @@ function getProgressAtom(aTask) {
     }
 
     if (aTask.entryDate && aTask.entryDate.isValid &&
-        cal.dateTimeToJsDate(aTask.entryDate).getTime() < now.getTime()) {
+        cal.dateTimeToJsDate(aTask.entryDate).getTime() < nowdate.getTime()) {
         return "inprogress";
     }
 
