@@ -160,9 +160,7 @@ function test_deleting_contact_causes_confirm_prompt()
 
   let bundle = Services.strings
                        .createBundle("chrome://messenger/locale/addressbook/addressBook.properties")
-  let confirmSingle = bundle.GetStringFromName("confirmDeleteThisContact");
-  confirmSingle = confirmSingle.replace("#1", "Sammy Jenkis");
-
+  let confirmSingle = bundle.GetStringFromName("confirmDeleteContact");
   // Add some contacts to the address book
   load_contacts_into_address_book(addrBook1, toDelete);
   select_address_book(addrBook1);
@@ -224,8 +222,7 @@ function test_deleting_contacts_causes_confirm_prompt()
 
   let bundle = Services.strings
                        .createBundle("chrome://messenger/locale/addressbook/addressBook.properties")
-  let confirmMultiple = bundle.GetStringFromName("confirmDelete2orMoreContacts");
-  confirmMultiple = confirmMultiple.replace(/.*;/, "").replace("#1", "3");
+  let confirmMultiple = bundle.GetStringFromName("confirmDeleteContacts");
 
   // Add some contacts to the address book
   load_contacts_into_address_book(addrBook1, toDelete);
