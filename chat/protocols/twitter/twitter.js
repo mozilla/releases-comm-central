@@ -267,7 +267,7 @@ var GenericTwitterConversation = {
     let name = aUser.screen_name;
 
     let flags = name == this.nick ? {outgoing: true} : {incoming: true};
-    flags.time = Math.round(new Date(aTweet.created_at) / 1000);
+    flags.time = Math.floor(new Date(aTweet.created_at) / 1000);
     flags._iconURL = aUser.profile_image_url;
     if (aTweet.delayed)
       flags.delayed = true;

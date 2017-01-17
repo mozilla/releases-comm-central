@@ -386,7 +386,7 @@ var GenericMessagePrototype = {
   _lastId: 0,
   _init: function (aWho, aMessage, aObject) {
     this.id = ++GenericMessagePrototype._lastId;
-    this.time = Math.round(new Date() / 1000);
+    this.time = Math.floor(new Date() / 1000);
     this.who = aWho;
     this.message = aMessage;
     this.originalMessage = aMessage;
