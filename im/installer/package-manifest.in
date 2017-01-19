@@ -378,8 +378,6 @@
 @RESPATH@/components/XULStore.manifest
 @RESPATH@/components/messageWakeupService.js
 @RESPATH@/components/messageWakeupService.manifest
-@RESPATH@/components/SettingsManager.js
-@RESPATH@/components/SettingsManager.manifest
 @RESPATH@/components/SiteSpecificUserAgent.js
 @RESPATH@/components/SiteSpecificUserAgent.manifest
 @RESPATH@/components/browser-element.xpt
@@ -468,7 +466,6 @@
 @RESPATH@/components/dom_quota.xpt
 @RESPATH@/components/dom_range.xpt
 @RESPATH@/components/dom_security.xpt
-@RESPATH@/components/dom_settings.xpt
 @RESPATH@/components/dom_sidebar.xpt
 @RESPATH@/components/dom_smil.xpt
 @RESPATH@/components/dom_storage.xpt
