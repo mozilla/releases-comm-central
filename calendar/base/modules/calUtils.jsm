@@ -7,6 +7,7 @@ var gCalThreadingEnabled;
 Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 Components.utils.import("resource://gre/modules/Services.jsm");
 Components.utils.import("resource://gre/modules/Preferences.jsm");
+Components.utils.import("resource://gre/modules/Locale.jsm");
 
 // Usually the backend loader gets loaded via profile-after-change, but in case
 // a calendar component hooks in earlier, its very likely it will use calUtils.
@@ -627,9 +628,15 @@ var cal = {
                         // column without scrolling past all the empty values).
                         return -(seA.length - seB.length) * modifier;
                     }
-                    let collator = cal.createLocaleCollator();
-                    let comparison = collator.compareString(0, seA, seB);
-                    return comparison * modifier;
+                    // To support alphanumeric sorting.
+                    let locale = Locale.getLocale();
+                    if (modifier == 1) {
+                        return seA.localeCompare(seB, locale,
+                                                 { numeric: true, sensitivity: 'base' });
+                    } else {
+                        return seB.localeCompare(seA, locale,
+                                                 { numeric: true, sensitivity: 'base' });
+                    }
                 };
             default:
                 return function(sortEntryA, sortEntryB) {
