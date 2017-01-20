@@ -154,12 +154,13 @@ STDMETHODIMP CMapiImp::Login(unsigned long aUIArg, LOGIN_PW_TYPE aLogin, LOGIN_P
       NS_ENSURE_SUCCESS(rv,MAPI_E_LOGIN_FAILURE);
       nsCOMPtr <nsIMsgAccount> account;
       nsCOMPtr <nsIMsgIdentity> identity;
-       rv = accountManager->GetDefaultAccount(getter_AddRefs(account));
+      rv = accountManager->GetDefaultAccount(getter_AddRefs(account));
       NS_ENSURE_SUCCESS(rv,MAPI_E_LOGIN_FAILURE);
-      account->GetDefaultIdentity(getter_AddRefs(identity));
+      rv = account->GetDefaultIdentity(getter_AddRefs(identity));
       NS_ENSURE_SUCCESS(rv,MAPI_E_LOGIN_FAILURE);
+      if (!identity)
+        return MAPI_E_LOGIN_FAILURE;
       identity->GetKey(id_key);
-
     }
 
     // finally register(create) the session.
