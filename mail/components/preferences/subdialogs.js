@@ -11,6 +11,7 @@ var gSubDialog = {
   _frame: null,
   _overlay: null,
   _box: null,
+  _openedURL: null,
   _injectedStyleSheets: [
     "chrome://messenger/skin/preferences/preferences.css",
     "chrome://global/skin/in-content/common.css",
@@ -116,7 +117,7 @@ var gSubDialog = {
         if (this._frame.contentWindow.location.href == "about:blank") {
           this._frame.removeEventListener("load", onBlankLoad);
           // We're now officially done closing, so update the state to reflect that.
-          delete this._openedURL;
+          this._openedURL = null;
           this._isClosing = false;
           this._resolveClosePromise();
         }
