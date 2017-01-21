@@ -1857,6 +1857,11 @@ nsSaveMsgListener::OnStopRequest(nsIRequest* request, nsISupports* aSupport,
     nsCString outCString;
     rv = nsMsgI18NConvertFromUnicode(nsMsgI18NFileSystemCharset(),
       utf16Buffer, outCString, false, true);
+    if (rv == NS_ERROR_UENC_NOMAPPING) {
+      // If we can't encode with the preferred charset, use UTF-8.
+      CopyUTF16toUTF8(utf16Buffer, outCString);
+      rv = NS_OK;
+    }
     if (NS_SUCCEEDED(rv))
     {
       uint32_t writeCount;
