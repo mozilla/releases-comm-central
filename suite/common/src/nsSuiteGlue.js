@@ -353,6 +353,7 @@ SuiteGlue.prototype = {
   // profile startup handler (contains profile initialization routines)
   _onProfileStartup: function()
   {
+    this._migrateUI();
     this._updatePrefs();
     this._migrateDownloadPrefs();
     migrateMailnews(); // mailnewsMigrator.js
@@ -372,6 +373,72 @@ SuiteGlue.prototype = {
     var timer = Components.classes["@mozilla.org/timer;1"]
                           .createInstance(Components.interfaces.nsITimer);
     timer.init(this, 3000, timer.TYPE_ONE_SHOT);
+  },
+
+  _migrateUI: function()
+  {
+    const UI_VERSION = 1;
+
+    // If the pref is not set this is a new or pre SeaMonkey 2.50 profile.
+    // We can't tell so we just run migration with version 0.
+    let currentUIVersion = 0;
+
+    if (Services.prefs.prefHasUserValue("suite.migration.version")) {
+      currentUIVersion = Services.prefs.getIntPref("suite.migration.version");
+    }
+
+    if (currentUIVersion >= UI_VERSION)
+      return;
+
+    // Migrate remote content exceptions for email addresses which are
+    // encoded as chrome URIs.
+    if (currentUIVersion < 1) {
+      let permissionsDB =
+        Services.dirsvc.get("ProfD", Components.interfaces.nsILocalFile);
+      permissionsDB.append("permissions.sqlite");
+      let db = Services.storage.openDatabase(permissionsDB);
+
+      let statement = db.createStatement(
+        "select origin, permission from moz_perms where " +
+        // Avoid 'like' here which needs to be escaped.
+        "  substr(origin, 1, 28) = 'chrome://messenger/content/?';");
+
+      try {
+        while (statement.executeStep()) {
+          let origin = statement.getUTF8String(0);
+          let permission = statement.getInt32(1);
+          Services.console.logStringMessage("Mail-Image-Perm Mig: " + origin);
+          Services.perms.remove(
+            Services.io.newURI(origin), "image");
+          origin = origin.replace("chrome://messenger/content/?",
+                                  "chrome://messenger/content/");
+          Services.perms.add(
+            Services.io.newURI(origin), "image", permission);
+        }
+      } catch (ex) {
+        throw ex;
+      } finally {
+        statement.finalize();
+      }
+
+      // Sadly we still need to clear the database manually. Experiments
+      // showed that the permissions manager deletes only one record.
+      db.beginTransactionAs(Components.interfaces.mozIStorageConnection.TRANSACTION_EXCLUSIVE);
+
+      try {
+        db.executeSimpleSQL("delete from moz_perms where " +
+             "  substr(origin, 1, 28) = 'chrome://messenger/content/?';");
+        db.commitTransaction();
+      } catch (ex) {
+        db.rollbackTransaction();
+        throw ex;
+      } finally {
+        db.close();
+      }
+    }
+
+    // Update the migration version.
+    Services.prefs.setIntPref("suite.migration.version", UI_VERSION);
   },
 
   // Copies additional profile files from the default profile tho the current profile.
