@@ -19,6 +19,9 @@ if CONFIG['OS_ARCH'] == 'WINNT':
 
 if CONFIG['LIBFUZZER']:
     USE_LIBS += [ 'fuzzer' ]
+    LOCAL_INCLUDES += [
+        '/mozilla//tools/fuzzing/libfuzzer',
+    ]
 
 if CONFIG['_MSC_VER']:
     # Always enter a Windows program through wmain, whether or not we're
