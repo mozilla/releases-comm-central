@@ -6,7 +6,7 @@
 #include "nsXULAppAPI.h"
 #include "mozilla/XREAppData.h"
 #include "application.ini.h"
-#include "nsXPCOMGlue.h"
+#include "mozilla/Bootstrap.h"
 #if defined(XP_WIN)
 #include <windows.h>
 #include <stdlib.h>
@@ -236,43 +236,16 @@ static int do_main(int argc, char* argv[], char* envp[])
   return gBootstrap->XRE_main(argc, argv, config);
 }
 
-static bool
-FileExists(const char *path)
-{
-#ifdef XP_WIN
-  wchar_t wideDir[MAX_PATH];
-  MultiByteToWideChar(CP_UTF8, 0, path, -1, wideDir, MAX_PATH);
-  DWORD fileAttrs = GetFileAttributesW(wideDir);
-  return fileAttrs != INVALID_FILE_ATTRIBUTES;
-#else
-  return access(path, R_OK) == 0;
-#endif
-}
-
 static nsresult
 InitXPCOMGlue(const char *argv0)
 {
-  char exePath[MAXPATHLEN];
-
-  nsresult rv = mozilla::BinaryPath::Get(argv0, exePath);
-  if (NS_FAILED(rv)) {
+  UniqueFreePtr<char> exePath = BinaryPath::Get(argv0);
+  if (!exePath) {
     Output("Couldn't find the application directory.\n");
-    return rv;
-  }
-
-  char *lastSlash = strrchr(exePath, XPCOM_FILE_PATH_SEPARATOR[0]);
-  if (!lastSlash ||
-      (size_t(lastSlash - exePath) > MAXPATHLEN - sizeof(XPCOM_DLL) - 1))
-    return NS_ERROR_FAILURE;
-
-  strcpy(lastSlash + 1, XPCOM_DLL);
-
-  if (!FileExists(exePath)) {
-    Output("Could not find the Mozilla runtime.\n");
     return NS_ERROR_FAILURE;
   }
 
-  gBootstrap = mozilla::GetBootstrap(exePath);
+  gBootstrap = mozilla::GetBootstrap(exePath.get());
   if (!gBootstrap) {
     Output("Couldn't load XPCOM.\n");
     return NS_ERROR_FAILURE;
@@ -290,14 +263,6 @@ int main(int argc, char* argv[], char* envp[])
 
 #ifdef HAS_DLL_BLOCKLIST
   DllBlocklist_Initialize();
-
-#ifdef DEBUG
-  // In order to be effective against AppInit DLLs, the blocklist must be
-  // initialized before user32.dll is loaded into the process (bug 932100).
-  if (GetModuleHandleA("user32.dll")) {
-    fprintf(stderr, "DLL blocklist was unable to intercept AppInit DLLs.\n");
-  }
-#endif
 #endif
 
 #ifdef MOZ_BROWSER_CAN_BE_CONTENTPROC
