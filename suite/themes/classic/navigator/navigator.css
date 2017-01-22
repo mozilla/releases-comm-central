@@ -611,18 +611,6 @@ toolbar[mode="icons"] #search-button > .button-box > .button-text {
   display: none;
 }
 
-/* ::::: search bar ::::: */
-
-.autocomplete-treebody::-moz-tree-cell-text(suggesthint, treecolAutoCompleteComment),
-.autocomplete-treebody::-moz-tree-cell-text(suggestfirst, treecolAutoCompleteComment) {
-  color: GrayText;
-  font-size: smaller;
-}
-
-.autocomplete-treebody::-moz-tree-cell(suggesthint) {
-  border-top: 1px solid GrayText;
-}
-
 /* ::::: sidebar splitter ::::: */
 
 #sidebar-splitter {

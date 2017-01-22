@@ -25,15 +25,19 @@
     <content>
       <xul:stringbundle src="chrome://communicator/locale/search/search.properties"
                         anonid="searchbar-stringbundle"/>
-
+      <!--
+      There is a dependency between "maxrows" attribute and
+      "SuggestAutoComplete._historyLimit" (nsSearchSuggestions.js). Changing
+      one of them requires changing the other one.
+      -->
       <xul:textbox class="searchbar-textbox"
                    anonid="searchbar-textbox"
                    type="autocomplete"
+                   inputtype="search"
                    flex="1"
-                   autocompletepopup="PopupAutoComplete"
+                   autocompletepopup="_child"
                    autocompletesearch="search-autocomplete"
                    autocompletesearchparam="searchbar-history"
-                   timeout="250"
                    maxrows="10"
                    completeselectedindex="true"
                    showcommentcolumn="true"
@@ -60,6 +64,9 @@
                      onclick="handleSearchCommand(event);"
                      tooltiptext="&searchEndCap.label;"/>
         </xul:hbox>
+        <xul:panel anonid="searchPopupAutoComplete"
+                   type="autocomplete"
+                   noautofocus="true"/>
       </xul:textbox>
     </content>
 

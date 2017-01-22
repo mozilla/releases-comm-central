@@ -17,6 +17,12 @@
   <script type="application/javascript" src="chrome://communicator/content/search/search-panel.js"/>
   <script type="application/javascript" src="chrome://communicator/content/utilityOverlay.js"/>
 
+    <popupset id="sidebarPopupset">
+      <panel id="PopupAutoComplete"
+             type="autocomplete"
+             noautofocus="true"/>
+    </popupset>
+
     <menulist id="sidebar-search-engines"
               oncommand="SelectEngine(this);"/>
 
@@ -26,9 +32,10 @@
                ontextentered="doSearch();"
                placeholder="&search.placeholder;"
                type="autocomplete"
+               inputtype="search"
+               autocompletepopup="PopupAutoComplete"
                autocompletesearch="search-autocomplete"
                autocompletesearchparam="searchbar-history"
-               timeout="250"
                maxrows="10"
                completeselectedindex="true"
                tabscrolling="true"/>

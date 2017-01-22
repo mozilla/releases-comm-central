@@ -775,18 +775,6 @@ panel[nomatch="true"] > .autocomplete-search-box {
   list-style-image: url("chrome://global/skin/icons/search.gif");
 }
 
-/* ::::: search bar ::::: */
-
-.autocomplete-treebody::-moz-tree-cell-text(suggesthint, treecolAutoCompleteComment),
-.autocomplete-treebody::-moz-tree-cell-text(suggestfirst, treecolAutoCompleteComment) {
-  color: #999999;
-  font-size: smaller;
-}
-
-.autocomplete-treebody::-moz-tree-cell(suggesthint) {
-  border-top: 1px solid #999999;
-}
-
 /* ::::: navigator throbber ::::: */
 
 .toolbar-primary #throbber-box {

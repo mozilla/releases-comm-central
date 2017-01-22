@@ -7,6 +7,17 @@
   min-width: 6em;
 }
 
+/* ::::: search bar ::::: */
+
+.autocomplete-treebody::-moz-tree-cell-text(datalist-first, treecolAutoCompleteComment) {
+  color: GrayText;
+  font-size: smaller;
+}
+
+.autocomplete-treebody::-moz-tree-cell(datalist-first) {
+  border-top: 1px solid GrayText;
+}
+
 /* ::::: searchbar-engine-button ::::: */
 
 .toolbarbutton-icon {

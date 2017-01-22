@@ -107,7 +107,7 @@
                oncommand="subscribeToFeed(event.target.statusText, event);"
                onclick="checkForMiddleClick(this, event);"/>
 
-    <!-- for search and content formfill/pw manager -->
+    <!-- for content formfill and password manager -->
     <panel id="PopupAutoComplete"
            type="autocomplete-richlistbox"
            noautofocus="true"
