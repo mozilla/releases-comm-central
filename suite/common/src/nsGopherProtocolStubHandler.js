@@ -54,7 +54,7 @@ GopherProtocol.prototype = {
                           ios.newChannelFromURI2(newURI, null,
                                                  Services.scriptSecurityManager.getSystemPrincipal(),
                                                  null,
-                                                 Components.interfaces.nsILoadInfo.SEC_NORMAL,
+                                                 Components.interfaces.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
                                                  Components.interfaces.nsIContentPolicy.TYPE_OTHER);
     chan.originalURI = inputURI;
     chan.owner = Components.classes["@mozilla.org/scriptsecuritymanager;1"]

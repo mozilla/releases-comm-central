@@ -709,7 +709,7 @@ function storePhoto(aUri) {
                                          null,
                                          Services.scriptSecurityManager.getSystemPrincipal(),
                                          null,
-                                         Components.interfaces.nsILoadInfo.SEC_NORMAL,
+                                         Components.interfaces.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
                                          Components.interfaces.nsIContentPolicy.TYPE_INTERNAL_IMAGE);
 
   var istream = channel.open();

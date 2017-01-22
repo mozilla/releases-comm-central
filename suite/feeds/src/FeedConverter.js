@@ -264,7 +264,7 @@ FeedConverter.prototype = {
         chromeChannel = Services.io.newChannelFromURIWithLoadInfo(result.uri, loadInfo);
 
       chromeChannel.loadGroup = this._request.loadGroup;
-      chromeChannel.asyncOpen(this._listener, null);
+      chromeChannel.asyncOpen2(this._listener);
     }
     finally {
       this._releaseHandles();
@@ -534,7 +534,7 @@ GenericProtocolHandler.prototype = {
                   ios.newChannelFromURI2(uri, null,
                                          Services.scriptSecurityManager.getSystemPrincipal(),
                                          null,
-                                         Components.interfaces.nsILoadInfo.SEC_NORMAL,
+                                         Components.interfaces.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
                                          Components.interfaces.nsIContentPolicy.TYPE_OTHER);
     if (channel instanceof Components.interfaces.nsIHttpChannel)
       // Set this so we know this is supposed to be a feed

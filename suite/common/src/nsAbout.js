@@ -52,7 +52,7 @@ About.prototype = {
                   Services.io.newChannelFromURI2(newURI, null,
                                                  Services.scriptSecurityManager.getSystemPrincipal(),
                                                  null,
-                                                 Components.interfaces.nsILoadInfo.SEC_NORMAL,
+                                                 Components.interfaces.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
                                                  Components.interfaces.nsIContentPolicy.TYPE_OTHER);
     channel.originalURI = aURI;
     if (this[module + "Flags"] & UNTRUSTED)

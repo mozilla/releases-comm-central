@@ -103,9 +103,9 @@ function registerPlayPreview(mimeType, targetUrl) {
       var channel = ios.newChannel2(targetUrl, null, null, null,
                                     Services.scriptSecurityManager.getSystemPrincipal(),
                                     null,
-                                    Components.interfaces.nsILoadInfo.SEC_NORMAL,
+                                    Components.interfaces.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
                                     Components.interfaces.nsIContentPolicy.TYPE_OTHER);
-      channel.asyncOpen(this.listener, aContext);
+      channel.asyncOpen2(this.listener);
     },
 
     // nsIRequestObserver::onStopRequest

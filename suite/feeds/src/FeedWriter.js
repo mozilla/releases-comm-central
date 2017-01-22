@@ -512,8 +512,8 @@ FeedWriter.prototype = {
       if (enc.hasKey("length") && /^[0-9]+$/.test(enc.get("length"))) {
         let enc_size = convertByteUnits(parseInt(enc.get("length")));
 
-        let size_text = this._getFormattedString("enclosureSizeText",
-                             [enc_size[0], this._getString(enc_size[1])]);
+        size_text = this._getFormattedString("enclosureSizeText",
+                         [enc_size[0], this._getString(enc_size[1])]);
       }
 
       let iconimg = this._document.createElementNS(HTML_NS, "img");
@@ -974,11 +974,13 @@ FeedWriter.prototype = {
                       .getInterface(Components.interfaces.nsIWebNavigation)
                       .QueryInterface(Components.interfaces.nsIDocShell)
                       .currentDocumentChannel;
+    // The following channel is never openend, so it does not matter what
+    // securityFlags we pass; let's follow the principle of least privilege.
     var ios = Services.io;
     var channel = ios.newChannel2(FEEDHANDLER_URI, null, null, null,
                                   this._feedprincipal,
                                   null,
-                                  Components.interfaces.nsILoadInfo.SEC_NORMAL,
+                                  Components.interfaces.nsILoadInfo.SEC_REQUIRE_SAME_ORIGIN_DATA_IS_BLOCKED,
                                   Components.interfaces.nsIContentPolicy.TYPE_OTHER);
     var resolvedURI = channel.URI;
 
