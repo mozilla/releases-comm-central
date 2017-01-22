@@ -254,8 +254,10 @@ FeedConverter.prototype = {
         // Now load the actual XUL document.
         var chromeURI = Services.io.newURI(FEEDHANDLER_URI);
         chromeChannel = Services.io.newChannelFromURIWithLoadInfo(chromeURI, loadInfo);
+        // carry the origin attributes from the channel that loaded the feed.
         chromeChannel.owner = Services.scriptSecurityManager
-                                      .getNoAppCodebasePrincipal(chromeURI);
+                                      .createCodebasePrincipal(chromeURI,
+                                                               loadInfo.originAttributes);
         chromeChannel.originalURI = result.uri;
       }
       else
@@ -296,7 +298,8 @@ FeedConverter.prototype = {
         request.cancel(Components.results.NS_BINDING_ABORTED);
         return;
       }
-      var noSniff = httpChannel.getResponseHeader("X-Moz-Is-Feed");
+      // Note: this throws if the header is not set.
+      httpChannel.getResponseHeader("X-Moz-Is-Feed");
     }
     catch (ex) {
       this._sniffed = true;
@@ -399,7 +402,8 @@ FeedResultService.prototype = {
       // fall through
     case "bookmarks":
       var topWindow = Services.wm.getMostRecentWindow("navigator:browser");
-      topWindow.PlacesCommandHook.addLiveBookmark(spec, title, subtitle);
+      topWindow.PlacesCommandHook.addLiveBookmark(spec, title, subtitle)
+                                 .catch(Components.utils.reportError);
       break;
     case "messenger":
       Components.classes["@mozilla.org/newsblog-feed-downloader;1"]
@@ -477,7 +481,15 @@ function GenericProtocolHandler(scheme, classID) {
 
 GenericProtocolHandler.prototype = {
   get protocolFlags() {
-    return this._http.protocolFlags;
+    var httpPref = "browser.feeds.feeds_like_http"
+    if (Services.prefs.getPrefType(httpPref) == Services.prefs.PREF_BOOL &&
+        Services.prefs.getBoolPref(httpPref)) {
+      return this._http.protocolFlags;
+    }
+
+    return this._http.URI_DANGEROUS_TO_LOAD |
+           this._http.ALLOWS_PROXY |
+           this._http.ALLOWS_PROXY_HTTP;
   },
 
   get defaultPort() {
@@ -500,13 +512,12 @@ GenericProtocolHandler.prototype = {
     var prefix = /^feed:\/\//.test(spec) ? "http:" : "";
     var inner = Services.io.newURI(spec.replace("feed:", prefix),
                                    originalCharset, baseURI);
-    var netutil = Components.classes["@mozilla.org/network/util;1"]
-                            .getService(Components.interfaces.nsINetUtil);
-    if (netutil.URIChainHasFlags(inner,
-        Components.interfaces.nsIProtocolHandler.URI_INHERITS_SECURITY_CONTEXT))
+
+    if (! /^https?/.test(inner.scheme))
       throw Components.results.NS_ERROR_MALFORMED_URI;
 
-    var uri = netutil.newSimpleNestedURI(inner);
+    var uri = Services.io.QueryInterface(Components.interfaces.nsINetUtil)
+                         .newSimpleNestedURI(inner);
     uri.spec = inner.spec.replace(prefix, "feed:");
     return uri;
   },
