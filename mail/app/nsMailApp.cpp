@@ -43,6 +43,10 @@
 #include "mozilla/Telemetry.h"
 #include "mozilla/WindowsDllBlocklist.h"
 
+#ifdef LIBFUZZER
+#include "FuzzerDefs.h"
+#endif
+
 #ifdef MOZ_LINUX_32_SSE2_STARTUP_ERROR
 #include <cpuid.h>
 #include "mozilla/Unused.h"
@@ -164,17 +168,6 @@ static bool IsArg(const char* arg, const char* s)
 
 Bootstrap::UniquePtr gBootstrap;
 
-#ifdef LIBFUZZER
-int libfuzzer_main(int argc, char **argv);
-
-/* This wrapper is used by the libFuzzer main to call into libxul */
-
-void libFuzzerGetFuncs(const char* moduleName, LibFuzzerInitFunc* initFunc,
-                       LibFuzzerTestingFunc* testingFunc) {
-  return gBootstrap->XRE_LibFuzzerGetFuncs(moduleName, initFunc, testingFunc);
-}
-#endif
-
 static int do_main(int argc, char* argv[], char* envp[])
 {
 
@@ -237,7 +230,7 @@ static int do_main(int argc, char* argv[], char* envp[])
 
 #ifdef LIBFUZZER
   if (getenv("LIBFUZZER"))
-    gBootstrap->XRE_LibFuzzerSetMain(argc, argv, libfuzzer_main);
+    gBootstrap->XRE_LibFuzzerSetDriver(fuzzer::FuzzerDriver);
 #endif
 
   return gBootstrap->XRE_main(argc, argv, config);
