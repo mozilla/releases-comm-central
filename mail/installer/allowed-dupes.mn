@@ -61,8 +61,10 @@ chrome/devtools/modules/devtools/client/projecteditor/lib/helpers/readdir.js
 chrome/devtools/modules/devtools/client/shared/frame-script-utils.js
 chrome/devtools/modules/devtools/client/shared/theme-switching.js
 chrome/devtools/modules/devtools/client/themes/common.css
+chrome/devtools/modules/devtools/client/themes/toolbars.css
 chrome/devtools/modules/devtools/client/themes/variables.css
 chrome/devtools/skin/common.css
+chrome/devtools/skin/toolbars.css
 chrome/devtools/skin/images/command-scratchpad.svg
 chrome/devtools/skin/images/controls.png
 chrome/devtools/skin/images/controls@2x.png
