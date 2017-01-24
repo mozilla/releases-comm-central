@@ -16,7 +16,10 @@ LOCAL_INCLUDES += [
 ]
 
 if CONFIG['LIBFUZZER']:
-  USE_LIBS += [ 'fuzzer' ]
+    USE_LIBS += [ 'fuzzer' ]
+    LOCAL_INCLUDES += [
+        '/mozilla/tools/fuzzing/libfuzzer',
+    ]
 
 if CONFIG['OS_ARCH'] == 'WINNT':
     RCINCLUDE = 'splash.rc'
