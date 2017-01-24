@@ -93,8 +93,7 @@ SSE2Check()
 }
 #endif
 
-#if !defined(MOZ_WIDGET_COCOA) && !defined(MOZ_WIDGET_ANDROID) \
-  && !(defined(XP_LINUX) && defined(MOZ_SANDBOX))
+#if !defined(MOZ_WIDGET_COCOA) && !defined(MOZ_WIDGET_ANDROID)
 #define MOZ_BROWSER_CAN_BE_CONTENTPROC
 #include "../../mozilla/ipc/contentproc/plugin-container.cpp"
 #endif
