@@ -428,7 +428,7 @@
 @RESPATH@/components/nsFilePicker.js
 @RESPATH@/components/nsFilePicker.manifest
 #endif
-#ifdef MOZ_ENABLE_PROFILER_SPS
+#ifdef MOZ_GECKO_PROFILER
 @RESPATH@/components/profiler.xpt
 #endif
 @RESPATH@/components/ProcessSingleton.manifest

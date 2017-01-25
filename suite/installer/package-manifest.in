@@ -273,7 +273,7 @@
 @RESPATH@/components/plugin.xpt
 @RESPATH@/components/pref.xpt
 @RESPATH@/components/prefetch.xpt
-#ifdef MOZ_ENABLE_PROFILER_SPS
+#ifdef MOZ_GECKO_PROFILER
 @RESPATH@/components/profiler.xpt
 #endif
 @RESPATH@/components/rdf.xpt
