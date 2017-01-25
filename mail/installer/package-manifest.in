@@ -320,7 +320,6 @@
 ; default pref files
 @RESPATH@/defaults/pref/all-thunderbird.js
 @RESPATH@/defaults/pref/channel-prefs.js
-@RESPATH@/defaults/pref/services-sync.js
 @RESPATH@/defaults/pref/composer.js
 @RESPATH@/defaults/pref/mailnews.js
 @RESPATH@/defaults/pref/mdn.js
