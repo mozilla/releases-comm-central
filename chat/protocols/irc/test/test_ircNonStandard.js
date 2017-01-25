@@ -7,7 +7,7 @@ Services.scriptloader.loadSubScript("resource:///components/irc.js", irc);
 Components.utils.import("resource:///modules/ircNonStandard.jsm");
 
 // The function that is under test here.
-var NOTICE = ircNonStandard.commands["NOTICE"]
+var NOTICE = ircNonStandard.commands["NOTICE"];
 
 function FakeConversation() {}
 FakeConversation.prototype = {
@@ -61,12 +61,12 @@ function testSecureList() {
   let result = NOTICE.call(account, message);
 
   // Yes, it was handled.
-  do_check_true(result);
+  ok(result);
 
   // Undo the expected calculation, this should be near 0.
   let value = account._lastListTime - Date.now() - 60000 + 12 * 60 * 60 * 1000;
   // Give some wiggle room.
-  do_check_true(Math.abs(value) < 5 * 1000);
+  less(Math.abs(value), 5 * 1000);
 
   run_next_test();
 }
@@ -91,24 +91,24 @@ function testZncAuth() {
     do_check_true(result);
 
     // No sent data and parameters should be unchanged.
-    do_check_true(account.buffer.length == 0);
-    do_check_true(account.shouldAuthenticate === undefined);
+    equal(account.buffer.length, 0);
+    equal(account.shouldAuthenticate, undefined);
 
     // With a password.
     account = new FakeAccount("password");
     result = NOTICE.call(account, message);
 
     // Yes, it was handled.
-    do_check_true(result);
+    ok(result);
 
     // Check if the proper message was sent.
     let sent = account.buffer[0];
-    do_check_true(sent[0] == "PASS");
-    do_check_true(sent[1] == "password");
-    do_check_true(account.buffer.length == 1);
+    equal(sent[0], "PASS");
+    equal(sent[1], "password");
+    equal(account.buffer.length, 1);
 
     // Don't try to authenticate with NickServ.
-    do_check_true(account.shouldAuthenticate === false);
+    equal(account.shouldAuthenticate, false);
 
     // Finally, check if the message is wrong.
     account = new FakeAccount("password");
@@ -116,7 +116,7 @@ function testZncAuth() {
     result = NOTICE.call(account, message);
 
     // This would be handled as a normal NOTICE.
-    do_check_false(result);
+    equal(result, false);
   }
 
   run_next_test();
@@ -146,16 +146,16 @@ function testUMich() {
 
     // These initial notices are not handled (i.e. they'll be subject to
     // _showServerTab).
-    do_check_false(result);
+    equal(result, false);
   }
 
   // And finally the last one should be printed out, always. It contains the
   // directions of what to do next.
   let message = irc.ircMessage(kFinalMsg, "");
   let result = NOTICE.call(account, message);
-  do_check_true(result);
-  do_check_eq(account.convs.length, 1);
-  do_check_eq(account.convs[0], "irc.umich.edu");
+  ok(result);
+  equal(account.convs.length, 1);
+  equal(account.convs[0], "irc.umich.edu");
 
   run_next_test();
 }
@@ -175,7 +175,7 @@ function testAuthNick() {
 
   // Since it is ambiguous if it was an authentication message or a message
   // directed at the user, print it out.
-  do_check_true(result);
+  ok(result);
 
   run_next_test();
 }
@@ -200,7 +200,7 @@ function testIgnoredNotices() {
     let result = NOTICE.call(account, message);
 
     // This message should *NOT* be shown.
-    do_check_false(result);
+    equal(result, false);
   }
 
   run_next_test();

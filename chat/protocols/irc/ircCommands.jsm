@@ -6,7 +6,7 @@
 // implementing the commands field before we register them.
 this.EXPORTED_SYMBOLS = ["commands"];
 
-var {classes: Cc, interfaces: Ci, utils: Cu} = Components;
+var {interfaces: Ci, utils: Cu} = Components;
 
 Cu.import("resource:///modules/imXPCOMUtils.jsm");
 Cu.import("resource:///modules/ircUtils.jsm");
@@ -14,13 +14,13 @@ XPCOMUtils.defineLazyModuleGetter(this, "Task",
   "resource://gre/modules/Task.jsm");
 
 // Shortcut to get the JavaScript conversation object.
-function getConv(aConv) { return aConv.wrappedJSObject; };
+function getConv(aConv) { return aConv.wrappedJSObject; }
 
 // Shortcut to get the JavaScript account object.
-function getAccount(aConv) { return getConv(aConv)._account; };
+function getAccount(aConv) { return getConv(aConv)._account; }
 
 // Trim leading and trailing spaces and split a string by any type of space.
-function splitInput(aString) { return aString.trim().split(/\s+/); };
+function splitInput(aString) { return aString.trim().split(/\s+/); }
 
 function OutgoingMessage(aMsg, aConversation, aAction) {
   this.message = aMsg;
@@ -372,7 +372,7 @@ var commands = [
       if (newNick.indexOf(/\s+/) != -1)
         return false;
 
-      let account = getAccount(aConv)
+      let account = getAccount(aConv);
       // The user wants to change their nick, so overwrite the account
       // nickname for this session.
       account._requestedNickname = newNick;

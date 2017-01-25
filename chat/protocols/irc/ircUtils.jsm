@@ -186,7 +186,7 @@ function mIRCColoring(aStack, aInput) {
     // first open font tag.
     if (!matches[1]) {
       // Find the first font tag.
-      let offset = stack.map(aTag => aTag.indexOf("font") == 0)
+      let offset = stack.map(aTag => aTag.indexOf("font") === 0)
                         .indexOf(true);
 
       // Close all tags from the first font tag on.

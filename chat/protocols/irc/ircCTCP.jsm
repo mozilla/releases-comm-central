@@ -58,7 +58,7 @@ var ircCTCP = {
     "PRIVMSG": ctcpHandleMessage,
     "NOTICE": ctcpHandleMessage
   }
-}
+};
 // Parse the message and call all CTCP handlers on the message.
 function ctcpHandleMessage(aMessage) {
   // If there are no CTCP handlers, then don't parse the CTCP message.
@@ -161,7 +161,7 @@ var ctcpBase = {
         // Received a CLIENTINFO response, store the information for future
         // use.
         let info = aMessage.ctcp.param.split(" ");
-        this.setWhois(aMessage.origin, {clientInfo: info})
+        this.setWhois(aMessage.origin, {clientInfo: info});
       }
       return true;
     },

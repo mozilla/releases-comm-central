@@ -43,7 +43,7 @@ function test_mIRCColoring() {
   ];
 
   for (let i = 0; i < input.length; i++)
-    do_check_eq(expectedOutput[i], ctcpFormatToHTML(input[i]));
+    equal(expectedOutput[i], ctcpFormatToHTML(input[i]));
 
   run_next_test();
 }
@@ -62,7 +62,7 @@ function test_ctcpFormatToText() {
   ];
 
   for (let i = 0; i < input.length; i++)
-    do_check_eq(expectedOutput[i], ctcpFormatToText(input[i]));
+    equal(expectedOutput[i], ctcpFormatToText(input[i]));
 
   run_next_test();
 }

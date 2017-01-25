@@ -9,7 +9,7 @@ var fakeProto = {
   id: "fake-proto",
   options: {alternateNicks: ""},
   _getOptionDefault: function(aOption) { return this.options[aOption]; }
-}
+};
 
 function test_tryNewNick() {
   const testData = {
@@ -37,7 +37,7 @@ function test_tryNewNick() {
   for (let currentNick in testData) {
     account._sentNickname = currentNick;
     account.sendMessage = (aCommand, aNewNick) =>
-      do_check_eq(aNewNick, testData[currentNick]);
+      equal(aNewNick, testData[currentNick]);
 
     account.tryNewNick(currentNick);
   }
@@ -79,7 +79,7 @@ function test_maxLength() {
 
   for (let currentNick of testData) {
     account.sendMessage = (aCommand, aNewNick) =>
-      do_check_eq(aNewNick, currentNick[1]);
+      equal(aNewNick, currentNick[1]);
 
     account.tryNewNick(currentNick[0]);
   }
@@ -120,7 +120,7 @@ function test_altNicks() {
     account._sentNickname = currentNick;
 
     account.sendMessage = (aCommand, aNewNick) =>
-      do_check_eq(aNewNick, testData[currentNick][1]);
+      equal(aNewNick, testData[currentNick][1]);
 
     account.tryNewNick(currentNick);
   }

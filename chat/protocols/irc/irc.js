@@ -71,7 +71,7 @@ function ircMessage(aData, aOrigin) {
   // here, we want to ignore the first value (which is empty).
   message.params = temp[4] ? temp[4].split(" ").slice(1) : [];
   // Last parameter can contain spaces or be an empty string.
-  if (temp[5] != undefined)
+  if (temp[5] !== undefined)
     message.params.push(temp[5]);
 
   // Handle the prefix part of the message per RFC 2812 Section 2.3.

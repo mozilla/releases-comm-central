@@ -39,7 +39,7 @@ function ServiceMessage(aAccount, aMessage) {
     "chanserv": "ChanServ",
     "infoserv": "InfoServ",
     "nickserv": "NickServ"
-  }
+  };
 
   let nickname = aAccount.normalize(aMessage.origin);
   if (nicknameToServiceName.hasOwnProperty(nickname))

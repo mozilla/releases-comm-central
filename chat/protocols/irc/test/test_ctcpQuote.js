@@ -24,8 +24,6 @@ var input = [
   "\\\\atest"
 ];
 
-var expectedOutputCommand = "PRIVMSG";
-
 var expectedOutputParams = [
   "ACTION",
   "ACTION test",
@@ -48,17 +46,17 @@ var expectedOutputParams = [
 var outputParams = [];
 
 irc.ircAccount.prototype.sendMessage = function(aCommand, aParams) {
-  do_check_eq(expectedOutputCommand, aCommand);
+  equal("PRIVMSG", aCommand);
   outputParams.push(aParams[1]);
-}
+};
 
 function run_test() {
-  let output = input.map(aStr =>
+  input.map(aStr =>
     irc.ircAccount.prototype.sendCTCPMessage("", false, "ACTION", aStr));
 
   // Ensure both arrays have the same length.
-  do_check_eq(expectedOutputParams.length, outputParams.length);
+  equal(expectedOutputParams.length, outputParams.length);
   // Ensure the values in the arrays are equal.
   for (let i = 0; i < outputParams.length; ++i)
-    do_check_eq("\x01" + expectedOutputParams[i] + "\x01", outputParams[i]);
+    equal("\x01" + expectedOutputParams[i] + "\x01", outputParams[i]);
 }

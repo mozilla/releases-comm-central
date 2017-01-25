@@ -17,7 +17,7 @@ FakeAccount.prototype = {
   sendMessage: function(aCommand, aParams) {
     (this.callbacks.shift())(aCommand, aParams);
   }
-}
+};
 
 var account = new FakeAccount();
 

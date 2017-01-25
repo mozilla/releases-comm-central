@@ -35,9 +35,9 @@ function DCCMessage(aMessage, aAccount) {
     message.ctcp.dcc = {
       type: params[0],
       argument: params[1],
-      address: new Number(params[2]),
-      port: new Number(params[3]),
-      size: params.length == 5 ? new Number(params[4]) : null,
+      address: Number(params[2]),
+      port: Number(params[3]),
+      size: params.length == 5 ? Number(params[4]) : null,
       furtherArguments: params.length > 5 ? params.slice(5) : []
     };
   } catch (e) {

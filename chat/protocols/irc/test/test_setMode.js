@@ -14,7 +14,7 @@ FakeAccount.prototype = {
   __proto__: irc.ircAccount.prototype,
   setWhois: (n, f) => true,
   ERROR: do_throw
-}
+};
 
 function run_test() {
   add_test(test_topicSettable);

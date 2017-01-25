@@ -28,7 +28,7 @@ Cu.import("resource:///modules/ircUtils.jsm");
  *              defined by the RFC.
  *   value      The new value for the parameter.
  */
-function isupportMessage(aMessage, aToken) {
+function isupportMessage(aMessage) {
   // Seperate the ISUPPORT parameters.
   let tokens = aMessage.params.slice(1, -1);
 
@@ -71,11 +71,11 @@ var ircISUPPORT = {
       return true;
     }
   }
-}
+};
 
 function setSimpleNumber(aAccount, aField, aMessage, aDefaultValue) {
   let value =
-    aMessage.isupport.value ? new Number(aMessage.isupport.value) : null;
+    aMessage.isupport.value ? Number(aMessage.isupport.value) : null;
   aAccount[aField] = (value && !isNaN(value)) ? value : aDefaultValue;
   return true;
 }
@@ -212,7 +212,7 @@ var isupportBase = {
       let commands = aMessage.isupport.value.split(",");
       for (let i = 0; i < commands.length; i++) {
         let [command, limitStr] = commands[i].split("=");
-        let limit = limitStr ? new Number(limit) : Infinity;
+        let limit = limitStr ? Number(limit) : Infinity;
         if (isNaN(limit)) {
           this.WARN("Invalid maximum number of targets: " + limitStr);
           continue;

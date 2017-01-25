@@ -144,36 +144,10 @@ function testRFC2812Messages() {
         expectedStringMessage.slice(expectedStringMessage.indexOf(" ") + 1);
     }
 
-    do_check_eq(stringMessage, expectedStringMessage);
+    equal(stringMessage, expectedStringMessage);
   }
 
   run_next_test();
-}
-
-/*
- * Test if two objects have the same fields (recursively). aObject2 should be
- * an ircMessage and aObject1 its expected values.
- */
-function isEqual(aObject1, aObject2) {
-  let result = true;
-  for (let fieldName in aObject1) {
-    let field1 = aObject1[fieldName];
-    // Get the value current field value of the ircMessage. aObject2 might have
-    // be a Map, if so use the proper getter.
-    let field2;
-    if (aObject2 instanceof Map)
-      field2 = aObject2.get(fieldName);
-    else
-      field2 = aObject2[fieldName];
-
-    if (typeof field1 == "object")
-      result &= isEqual(field1, field2);
-    else if (Array.isArray(field1))
-      result &= field1.every((el, idx) => el == field2[idx]);
-    else
-      result &= field1 == field2;
-  }
-  return result;
 }
 
 // Unreal sends a couple of broken messages, see ircMessage in irc.js for a
@@ -185,26 +159,38 @@ function testBrokenUnrealMessages() {
       rawMessage: ":gravel.mozilla.org 432  #momo :Erroneous Nickname: Illegal characters",
       command: "432",
       params: ["", "#momo", "Erroneous Nickname: Illegal characters"],
-      origin: "gravel.mozilla.org"
+      origin: "gravel.mozilla.org",
+      user: undefined,
+      host: undefined,
+      source: "",
+      tags: new Map(),
     },
     // An extraneous space at the end.
     ":gravel.mozilla.org MODE #tckk +n ": {
       rawMessage: ":gravel.mozilla.org MODE #tckk +n ",
       command: "MODE",
       params: ["#tckk", "+n"],
-      origin: "gravel.mozilla.org"
+      origin: "gravel.mozilla.org",
+      user: undefined,
+      host: undefined,
+      source: "",
+      tags: new Map(),
     },
     // Two extraneous spaces at the end.
     ":services.esper.net MODE #foo-bar +o foobar  ": {
       rawMessage: ":services.esper.net MODE #foo-bar +o foobar  ",
       command: "MODE",
       params: ["#foo-bar", "+o", "foobar"],
-      origin: "services.esper.net"
+      origin: "services.esper.net",
+      user: undefined,
+      host: undefined,
+      source: "",
+      tags: new Map(),
     }
   };
 
   for (let messageStr in messages)
-    do_check_true(isEqual(messages[messageStr], irc.ircMessage(messageStr, "")));
+    deepEqual(messages[messageStr], irc.ircMessage(messageStr, ""));
 
   run_next_test();
 }
@@ -220,7 +206,8 @@ function testNewLinesInMessages() {
       origin: "test",
       user: "Instantbir",
       host: "host",
-      source: "Instantbir@host"
+      tags: new Map(),
+      source: "Instantbir@host",
     },
     ":test!Instantbir@host PRIVMSG #instantbird :First line\r\nSecond line": {
       rawMessage: ":test!Instantbir@host PRIVMSG #instantbird :First line\r\nSecond line",
@@ -229,12 +216,13 @@ function testNewLinesInMessages() {
       origin: "test",
       user: "Instantbir",
       host: "host",
-      source: "Instantbir@host"
+      tags: new Map(),
+      source: "Instantbir@host",
     }
   };
 
   for (let messageStr in messages)
-    do_check_true(isEqual(messages[messageStr], irc.ircMessage(messageStr)));
+    deepEqual(messages[messageStr], irc.ircMessage(messageStr));
 
   run_next_test();
 }
@@ -251,12 +239,13 @@ function testLocalhost() {
       origin: "localhost",
       user: undefined,
       host: undefined,
-      source: ""
+      tags: new Map(),
+      source: "",
     }
   };
 
   for (let messageStr in messages)
-    do_check_true(isEqual(messages[messageStr], irc.ircMessage(messageStr)));
+    deepEqual(messages[messageStr], irc.ircMessage(messageStr));
 
   run_next_test();
 }
@@ -270,42 +259,54 @@ function testTags() {
       origin: "nick",
       user: "ident",
       host: "host.com",
-      tags: {
-        "aaa": "bBb",
-        "ccc": undefined,
-        "example.com/ddd": "eee"
-      }
+      tags: new Map([
+        ["aaa", "bBb"],
+        ["ccc", undefined],
+        ["example.com/ddd", "eee"]
+      ]),
+      source: "ident@host.com",
     },
     "@xn--e1afmkfd.org/foo :nick@host.com PRIVMSG him :Test": {
       rawMessage: "@xn--e1afmkfd.org/foo :nick@host.com PRIVMSG him :Test",
       command: "PRIVMSG",
       params: ["him", "Test"],
       origin: "nick",
+      // Note that this is a bug, it should be undefined for user and host.com
+      // for host/source.
       user: "host.com",
-      tags: {
-        "xn--e1afmkfd.org/foo": undefined
-      }
+      host: undefined,
+      tags: new Map([
+        ["xn--e1afmkfd.org/foo", undefined]
+      ]),
+      source: "host.com@undefined",
     },
     "@aaa=\\\\n\\:\\n\\r\\s :nick@host.com PRIVMSG it :Yes": {
       rawMessage: "@aaa=\\\\n\\:\\n\\r\\s :nick@host.com PRIVMSG it :Yes",
       command: "PRIVMSG",
       params: ["it", "Yes"],
       origin: "nick",
+      // Note that this is a bug, it should be undefined for user and host.com
+      // for host/source.
       user: "host.com",
-      tags: {
-        "aaa": "\\n;\n\r "
-      }
+      host: undefined,
+      tags: new Map([
+        ["aaa", "\\n;\n\r "]
+      ]),
+      source: "host.com@undefined",
     },
     "@c;h=;a=b :quux ab cd": {
       rawMessage: "@c;h=;a=b :quux ab cd",
       command: "ab",
       params: ["cd"],
       origin: "quux",
-      tags: {
-        "c": undefined,
-        "h": "",
-        "a": "b"
-      }
+      user: undefined,
+      host: undefined,
+      tags: new Map([
+        ["c", undefined],
+        ["h", ""],
+        ["a", "b"]
+      ]),
+      source: "",
     },
     "@time=2012-06-30T23:59:60.419Z :John!~john@1.2.3.4 JOIN #chan": {
       rawMessage: "@time=2012-06-30T23:59:60.419Z :John!~john@1.2.3.4 JOIN #chan",
@@ -314,14 +315,15 @@ function testTags() {
       origin: "John",
       user: "~john",
       host: "1.2.3.4",
-      tags: {
-        "time": "2012-06-30T23:59:60.419Z"
-      }
+      tags: new Map([
+        ["time", "2012-06-30T23:59:60.419Z"]
+      ]),
+      source: "~john@1.2.3.4",
     }
   };
 
   for (let messageStr in messages)
-    do_check_true(isEqual(messages[messageStr], irc.ircMessage(messageStr, "")));
+    deepEqual(messages[messageStr], irc.ircMessage(messageStr, ""));
 
   run_next_test();
 }

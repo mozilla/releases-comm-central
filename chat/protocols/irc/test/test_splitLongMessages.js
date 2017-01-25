@@ -31,10 +31,7 @@ function run_test() {
 
     // The expected messages as defined above.
     let expectedMsgs = messages[message];
-    // Ensure both arrays have the same length.
-    do_check_eq(expectedMsgs.length, generatedMsgs.length);
-    // Ensure the values in the arrays are equal.
-    for (let i = 0; i < expectedMsgs.length; ++i)
-      do_check_eq(generatedMsgs[i], expectedMsgs[i]);
+    // Ensure the arrays are equal.
+    deepEqual(generatedMsgs, expectedMsgs);
   }
 }

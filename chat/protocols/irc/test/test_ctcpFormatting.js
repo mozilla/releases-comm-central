@@ -39,9 +39,8 @@ function test_ctcpFormatToHTML() {
     "The quick <u>brown <i>fox <b>jumps</b></i></u> over <i>the lazy <b>dog.</b></i>"
   ];
 
-  let output = input.map(ctcpFormatToHTML);
-  for (let i = 0; i < output.length; i++)
-    do_check_eq(expectedOutput[i], output[i]);
+  for (let i = 0; i < input.length; i++)
+    equal(expectedOutput[i], ctcpFormatToHTML(input[i]));
 
   run_next_test();
 }
@@ -49,9 +48,8 @@ function test_ctcpFormatToHTML() {
 function test_ctcpFormatToText() {
   let expectedOutput = "The quick brown fox jumps over the lazy dog.";
 
-  let output = input.map(ctcpFormatToText);
-  for (let i = 0; i < output.length; ++i)
-    do_check_eq(expectedOutput, output[i]);
+  for (let i = 0; i < input.length; ++i)
+    equal(expectedOutput, ctcpFormatToText(input[i]));
 
   run_next_test();
 }

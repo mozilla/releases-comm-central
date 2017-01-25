@@ -24,8 +24,6 @@ var input = [
   "ACTION \x5C\x5Catest"
 ];
 
-var expectedOutputCommand = "ACTION";
-
 var expectedOutputParam = [
   "",
   "test",
@@ -48,10 +46,10 @@ var expectedOutputParam = [
 function run_test() {
   let output = input.map(aStr => ircCTCP.CTCPMessage({}, aStr));
   // Ensure both arrays have the same length.
-  do_check_eq(expectedOutputParam.length, output.length);
+  equal(expectedOutputParam.length, output.length);
   // Ensure the values in the arrays are equal.
   for (let i = 0; i < output.length; ++i) {
-    do_check_eq(expectedOutputParam[i], output[i].ctcp.param);
-    do_check_eq(expectedOutputCommand, output[i].ctcp.command);
+    equal(expectedOutputParam[i], output[i].ctcp.param);
+    equal("ACTION", output[i].ctcp.command);
   }
 }
