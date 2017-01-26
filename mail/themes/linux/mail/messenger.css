@@ -520,6 +520,11 @@ notification[type="critical"] .messageCloseButton:not(:hover):not(:active) {
   background-image: -moz-image-rect(url("chrome://global/skin/icons/close.svg"), 0, 64, 16, 48);
 }
 
+/* Fix to show the menulist-dropmarker under newer GTK3 versions */
+menulist[editable="true"] > .menulist-dropmarker {
+  min-width: 2em;
+}
+
 /* Status panel */
 
 .statuspanel-label {

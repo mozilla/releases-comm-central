@@ -195,6 +195,11 @@ menulist > .menulist-editable-input {
   padding-left: 1px !important;
 }
 
+/* Fix to show the menulist-dropmarker under newer GTK3 versions */
+menulist[editable="true"] > .menulist-dropmarker {
+  min-width: 2em;
+}
+
 /* status area */
 
 #status_area {
