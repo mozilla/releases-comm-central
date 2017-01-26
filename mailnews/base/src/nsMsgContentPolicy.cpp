@@ -623,10 +623,9 @@ void nsMsgContentPolicy::ComposeShouldLoad(nsIMsgCompose *aMsgCompose,
 
     // Special case image elements. When replying to a message, we want to allow
     // the user to add remote images to the message. But we don't want remote
-    // images that are a part of the quoted content to load. Fortunately, after
-    // the quoted message has been inserted into the document, mail compose
-    // flags remote content elements that came from the original message with a
-    // moz-do-not-send attribute.
+    // images that are a part of the quoted content to load. Hence we block them
+    // while the reply is created (insertingQuotedContent==true), but allow them
+    // later when the user inserts them.
     if (*aDecision == nsIContentPolicy::REJECT_REQUEST)
     {
       bool insertingQuotedContent = true;
@@ -636,17 +635,8 @@ void nsMsgContentPolicy::ComposeShouldLoad(nsIMsgCompose *aMsgCompose,
       {
         if (!insertingQuotedContent)
         {
-          nsCOMPtr<nsIDOMElement> element(do_QueryInterface(imageElement));
-          if (element)
-          {
-            bool doNotSendAttrib;
-            if (NS_SUCCEEDED(element->HasAttribute(NS_LITERAL_STRING("moz-do-not-send"), &doNotSendAttrib)) &&
-                !doNotSendAttrib)
-            {
-              *aDecision = nsIContentPolicy::ACCEPT;
-              return;
-            }
-          }
+          *aDecision = nsIContentPolicy::ACCEPT;
+          return;
         }
 
         // Test whitelist.
