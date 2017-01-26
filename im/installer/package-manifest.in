@@ -304,6 +304,7 @@
 @RESPATH@/chrome/devtools@JAREXT@
 @RESPATH@/chrome/devtools.manifest
 @RESPATH@/@PREF_DIR@/devtools.js
+@RESPATH@/@PREF_DIR@/debugger.js
 @RESPATH@/components/devtools-startup.manifest
 @RESPATH@/components/devtools-startup.js
 

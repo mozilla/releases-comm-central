@@ -532,6 +532,7 @@
 @RESPATH@/chrome/devtools@JAREXT@
 @RESPATH@/chrome/devtools.manifest
 @RESPATH@/@PREF_DIR@/devtools.js
+@RESPATH@/@PREF_DIR@/debugger.js
 
 ; classic theme
 @RESPATH@/chrome/classic@JAREXT@
