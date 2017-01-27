@@ -20,22 +20,6 @@
 #include "nsIMutableArray.h"
 #include "nsIObserver.h"
 
-typedef enum tagMOZ_QUERY_USER_NOTIFICATION_STATE {
-    QUNS_NOT_PRESENT = 1,
-    QUNS_BUSY = 2,
-    QUNS_RUNNING_D3D_FULL_SCREEN = 3,
-    QUNS_PRESENTATION_MODE = 4,
-    QUNS_ACCEPTS_NOTIFICATIONS = 5,
-    QUNS_QUIET_TIME = 6
-} MOZ_QUERY_USER_NOTIFICATION_STATE;
-
-// this function is exported by shell32.dll on Windows Vista or later
-extern "C"
-{
-// Vista or later
-typedef HRESULT (__stdcall *fnSHQueryUserNotificationState)(MOZ_QUERY_USER_NOTIFICATION_STATE *pquns);
-}
-
 #define NS_MESSENGERWININTEGRATION_CID \
   {0xf62f3d3a, 0x1dd1, 0x11b2, \
     {0xa5, 0x16, 0xef, 0xad, 0xb1, 0x31, 0x61, 0x5c}}
@@ -104,8 +88,6 @@ private:
   nsCOMPtr <nsIAtom> mDefaultServerAtom;
   nsCOMPtr <nsIAtom> mTotalUnreadMessagesAtom;
   nsCOMPtr <nsITimer> mUnreadCountUpdateTimer;
-
-  fnSHQueryUserNotificationState mSHQueryUserNotificationState;
 
   nsCString mInboxURI;
   nsCString mEmail;

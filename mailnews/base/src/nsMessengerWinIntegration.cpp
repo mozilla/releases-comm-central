@@ -56,7 +56,6 @@
 
 #define NOTIFICATIONCLASSNAME "MailBiffNotificationMessageWindow"
 #define UNREADMAILNODEKEY "Software\\Microsoft\\Windows\\CurrentVersion\\UnreadMail\\"
-#define SHELL32_DLL L"shell32.dll"
 #define DOUBLE_QUOTE "\""
 #define MAIL_COMMANDLINE_ARG " -mail"
 #define IDI_MAILBIFF 32576
@@ -336,14 +335,6 @@ nsMessengerWinIntegration::Init()
 {
   nsresult rv;
 
-  // Get shell32.dll handle
-  HMODULE hModule = ::GetModuleHandleW(SHELL32_DLL);
-
-  if (hModule) {
-    // SHQueryUserNotificationState is available from Vista
-    mSHQueryUserNotificationState = (fnSHQueryUserNotificationState)GetProcAddress(hModule, "SHQueryUserNotificationState");
-  }
-
   nsCOMPtr <nsIMsgAccountManager> accountManager =
     do_GetService(NS_MSGACCOUNTMANAGER_CONTRACTID, &rv);
   NS_ENSURE_SUCCESS(rv,rv);
@@ -492,9 +483,10 @@ nsresult nsMessengerWinIntegration::ShowNewAlertNotification(bool aUserInitiated
     prefBranch->GetBoolPref(SHOW_ALERT_PREF, &showAlert);
 
   // check if we are allowed to show a notification
-  if (showAlert && mSHQueryUserNotificationState) {
-    MOZ_QUERY_USER_NOTIFICATION_STATE qstate;
-    if (SUCCEEDED(mSHQueryUserNotificationState(&qstate))) {
+  if (showAlert) {
+    QUERY_USER_NOTIFICATION_STATE qstate;
+
+    if (SUCCEEDED(SHQueryUserNotificationState(&qstate))) {
       if (qstate != QUNS_ACCEPTS_NOTIFICATIONS) {
         showAlert = false;
       }
