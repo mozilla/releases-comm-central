@@ -244,8 +244,6 @@ protected:
 
   static NS_MSG_BASE_STATIC_MEMBER_(nsICollation*) gCollationKeyGenerator;
 
-  static const NS_MSG_BASE_STATIC_MEMBER_(nsStaticAtom) folder_atoms[];
-
   // store of keys that have a processing flag set
   struct
   {
