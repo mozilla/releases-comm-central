@@ -167,13 +167,14 @@
 #ifdef XP_MACOSX
 @RESPATH@/components/ibDockBadge.js
 @RESPATH@/components/ibDockBadge.manifest
-#ifdef MOZ_PURPLE
-@RESPATH@/components/components.manifest
-#endif
 #else
-@RESPATH@/components/components.manifest
 @RESPATH@/components/profileMigrator.js
 @RESPATH@/components/profileMigrator.manifest
+#endif
+#ifdef MOZ_PURPLE
+; Purple should be the only binary component left,
+; now mintrayr is linked into libxul.
+@RESPATH@/components/components.manifest
 #endif
 @RESPATH@/components/instantbird.xpt
 @RESPATH@/components/captivedetect.xpt
