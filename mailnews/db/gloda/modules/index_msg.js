@@ -37,6 +37,10 @@ Cu.import("resource:///modules/gloda/indexer.js");
 
 Cu.import("resource:///modules/gloda/mimemsg.js");
 
+XPCOMUtils.defineLazyServiceGetter(this, "atomService",
+                                   "@mozilla.org/atom-service;1",
+                                   "nsIAtomService");
+
 // Components.results does not have mailnews error codes!
 var NS_MSG_ERROR_FOLDER_SUMMARY_OUT_OF_DATE = 0x80550005;
 
@@ -2769,15 +2773,29 @@ var GlodaMsgIndexer = {
 
     _init: function gloda_indexer_fl_init(aIndexer) {
       this.indexer = aIndexer;
-      let atomService = Cc["@mozilla.org/atom-service;1"].
-                        getService(Ci.nsIAtomService);
-      this._kFolderLoadedAtom = atomService.getAtom("FolderLoaded");
-      // we explicitly know about these things rather than bothering with some
-      //  form of registration scheme because these aren't going to change much.
-      this._kKeywordsAtom = atomService.getAtom("Keywords");
-      this._kStatusAtom = atomService.getAtom("Status");
-      this._kFlaggedAtom = atomService.getAtom("Flagged");
-      this._kFolderFlagAtom = atomService.getAtom("FolderFlag");
+    },
+
+    // We explicitly know about these things rather than bothering with some
+    // form of registration scheme because these aren't going to change much.
+    get _kFolderLoadedAtom() {
+      delete this._kFolderLoadedAtom;
+      return this._kFolderLoadedAtom = atomService.getAtom("FolderLoaded");
+    },
+    get _kKeywordsAtom() {
+      delete this._kKeywordsAtom;
+      return this._kKeywordsAtom = atomService.getAtom("Keywords");
+    },
+    get _kStatusAtom() {
+      delete this._kStatusAtom;
+      return this._kStatusAtom = atomService.getAtom("Status");
+    },
+    get _kFlaggedAtom() {
+      delete this._kFlaggedAtom;
+      return this._kFlaggedAtom = atomService.getAtom("Flagged");
+    },
+    get _kFolderFlagAtom() {
+      delete this._kFolderFlagAtom;
+      return this._kFolderFlagAtom = atomService.getAtom("FolderFlag");
     },
 
     OnItemAdded: function gloda_indexer_OnItemAdded(aParentItem, aItem) {
