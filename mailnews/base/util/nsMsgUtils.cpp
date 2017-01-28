@@ -1955,16 +1955,6 @@ NS_MSG_BASE already_AddRefed<nsIAtom> MsgNewAtom(const char* aString)
   return atom.forget();
 }
 
-NS_MSG_BASE nsIAtom* MsgNewPermanentAtom(const char* aString)
-{
-  nsCOMPtr<nsIAtomService> atomService(do_GetService("@mozilla.org/atom-service;1"));
-  nsIAtom* atom = nullptr;
-
-  if (atomService)
-    atomService->GetPermanentAtomUTF8(aString, &atom);
-  return atom;
-}
-
 NS_MSG_BASE void MsgReplaceSubstring(nsAString &str, const nsAString &what, const nsAString &replacement)
 {
   const char16_t* replacement_str;

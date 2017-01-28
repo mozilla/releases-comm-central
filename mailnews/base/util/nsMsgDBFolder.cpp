@@ -110,18 +110,6 @@ NS_IMPL_ISUPPORTS_INHERITED(nsMsgDBFolder, nsRDFResource,
 #include "nsMsgDBFolderAtomList.h"
 #undef MSGDBFOLDER_ATOM
 
-#ifdef MOZILLA_INTERNAL_API // These macros are relevant only for internal API
-#define MSGDBFOLDER_ATOM(name_, value_) NS_STATIC_ATOM_BUFFER(name_##_buffer, value_)
-#include "nsMsgDBFolderAtomList.h"
-#undef MSGDBFOLDER_ATOM
-
-const nsStaticAtom nsMsgDBFolder::folder_atoms[] = {
-#define MSGDBFOLDER_ATOM(name_, value_) NS_STATIC_ATOM(name_##_buffer, &nsMsgDBFolder::name_),
-#include "nsMsgDBFolderAtomList.h"
-#undef MSGDBFOLDER_ATOM
-};
-#endif
-
 nsMsgDBFolder::nsMsgDBFolder(void)
 : mAddListener(true),
   mNewMessages(false),
@@ -144,13 +132,9 @@ nsMsgDBFolder::nsMsgDBFolder(void)
   mInVFEditSearchScope (false)
 {
   if (mInstanceCount++ <=0) {
-#ifdef MOZILLA_INTERNAL_API //FIXME NS_RegisterStaticAtoms
-    NS_RegisterStaticAtoms(folder_atoms);
-#else
-#define MSGDBFOLDER_ATOM(name_, value_) name_ = MsgNewPermanentAtom(value_);
+#define MSGDBFOLDER_ATOM(name_, value_) name_ = MsgNewAtom(value_).take();
 #include "nsMsgDBFolderAtomList.h"
 #undef MSGDBFOLDER_ATOM
-#endif
     initializeStrings();
     createCollationKeyGenerator();
     gtimeOfLastPurgeCheck = 0;
@@ -182,6 +166,10 @@ nsMsgDBFolder::~nsMsgDBFolder(void)
     NS_Free(kLocalizedJunkName);
     NS_Free(kLocalizedArchivesName);
     NS_Free(kLocalizedBrandShortName);
+
+#define MSGDBFOLDER_ATOM(name_, value_) NS_RELEASE(name_);
+#include "nsMsgDBFolderAtomList.h"
+#undef MSGDBFOLDER_ATOM
   }
   //shutdown but don't shutdown children.
   Shutdown(false);

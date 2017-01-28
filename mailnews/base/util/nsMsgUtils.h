@@ -450,8 +450,6 @@ NS_MSG_BASE char16_t *MsgEscapeHTML2(const char16_t *aBuffer, int32_t aLen);
 NS_MSG_BASE bool MsgIsUTF8(const nsACString& aString);
 /// Equivalent of NS_Atomize(aUTF8String)
 NS_MSG_BASE already_AddRefed<nsIAtom> MsgNewAtom(const char* aString);
-/// Replacement of NS_RegisterStaticAtoms
-NS_MSG_BASE nsIAtom* MsgNewPermanentAtom(const char* aString);
 /// Equivalent of NS_Atomize(aUTF8String)
 inline already_AddRefed<nsIAtom> MsgGetAtom(const char* aUTF8String)
 {
