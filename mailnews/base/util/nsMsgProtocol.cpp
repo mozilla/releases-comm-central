@@ -1495,7 +1495,8 @@ void nsMsgAsyncWriteProtocol::UpdateProgress(uint32_t aNewBytes)
     if (!webProgressListener) return;
 
     // XXX not sure if m_request is correct here
-    webProgressListener->OnProgressChange(nullptr, m_request, mNumBytesPosted, mFilePostSize, mNumBytesPosted, mFilePostSize);
+    webProgressListener->OnProgressChange(nullptr, m_request, mNumBytesPosted,
+      static_cast<uint32_t>(mFilePostSize), mNumBytesPosted, mFilePostSize);
   }
 
   return;

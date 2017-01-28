@@ -225,8 +225,8 @@ protected:
                                                    // the input stream becomes unblocked
   uint32_t                  mSuspendedReadBytesPostPeriod; // # of bytes which need processed after we insert a '.' before 
                                                            // the input stream becomes unblocked.
-  int64_t  mFilePostSize; // used for determining progress on posting files.
-  uint32_t  mNumBytesPosted; // used for deterimining progress on posting files 
+  int64_t   mFilePostSize; // used for file size, we post a single message in a file
+  uint32_t  mNumBytesPosted; // used for determining progress on posting files
   bool      mGenerateProgressNotifications; // set during a post operation after we've started sending the post data...
 
   virtual nsresult CloseSocket() override; 
