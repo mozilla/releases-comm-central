@@ -220,11 +220,11 @@ contact[droptarget] > buddy[dummy] {
 }
 
 .expander-up {
-  list-style-image: url("chrome://instantbird/skin/collapse.png");
+  list-style-image: url("chrome://global/skin/icons/collapse.png");
 }
 
 .expander-down {
-  list-style-image: url("chrome://instantbird/skin/expand.png");
+  list-style-image: url("chrome://global/skin/icons/expand.png");
 }
 
 .contactBuddies {

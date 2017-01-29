@@ -31,8 +31,6 @@ instantbird.jar:
 	skin/classic/instantbird/menus.css
 *	skin/classic/instantbird/viewlog.css
 	skin/classic/instantbird/newMessage.png
-	skin/classic/instantbird/expand.png
-	skin/classic/instantbird/collapse.png
 	skin/classic/instantbird/userIcon.png
 	skin/classic/instantbird/userIcon.svg
 	skin/classic/instantbird/multiUserIcon.png
