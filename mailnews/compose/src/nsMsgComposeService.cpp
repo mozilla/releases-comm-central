@@ -963,10 +963,11 @@ NS_IMETHODIMP nsMsgComposeService::ReplyWithTemplate(nsIMsgDBHdr *aMsgHdr, const
   nsCOMPtr<nsISupports> listenerSupports;
   helper->QueryInterface(NS_GET_IID(nsISupports), getter_AddRefs(listenerSupports));
 
+  nsCOMPtr<nsIURI> dummyNull;
   rv = msgService->StreamMessage(templateMsgHdrUri.get(), listenerSupports,
                                  aMsgWindow, helper,
                                  false, // convert data
-                                 EmptyCString(), false, nullptr);
+                                 EmptyCString(), false, getter_AddRefs(dummyNull));
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsIMsgFolder> folder;

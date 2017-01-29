@@ -2897,9 +2897,10 @@ nsDelAttachListener::StartProcessing(nsMessenger * aMessenger, nsIMsgWindow * aM
   nsCOMPtr<nsIUrlListener> listenerUrlListener = do_QueryInterface(listenerSupports, &rv);
   NS_ENSURE_SUCCESS(rv,rv);
 
+  nsCOMPtr<nsIURI> dummyNull;
   rv = mMessageService->StreamMessage(messageUri, listenerSupports, mMsgWindow,
                                       listenerUrlListener, true, sHeader,
-                                      false, nullptr);
+                                      false, getter_AddRefs(dummyNull));
   NS_ENSURE_SUCCESS(rv,rv);
 
   return NS_OK;

@@ -1032,8 +1032,9 @@ nsresult nsOfflineStoreCompactState::CopyNextMessage(bool &done)
     m_startOfMsg = true;
     nsCOMPtr<nsISupports> thisSupports;
     QueryInterface(NS_GET_IID(nsISupports), getter_AddRefs(thisSupports));
+    nsCOMPtr<nsIURI> dummyNull;
     rv = m_messageService->StreamMessage(m_messageUri.get(), thisSupports, m_window, nullptr,
-                                    false, EmptyCString(), true, nullptr);
+                                    false, EmptyCString(), true, getter_AddRefs(dummyNull));
     // if copy fails, we clear the offline flag on the source message.
     if (NS_FAILED(rv))
     {

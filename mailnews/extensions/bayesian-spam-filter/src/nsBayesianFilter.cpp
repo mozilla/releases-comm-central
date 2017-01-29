@@ -1317,9 +1317,10 @@ nsresult nsBayesianFilter::tokenizeMessage(const char* aMessageURI, nsIMsgWindow
     NS_ENSURE_SUCCESS(rv, rv);
 
     aAnalyzer->setSource(aMessageURI);
+    nsCOMPtr<nsIURI> dummyNull;
     return msgService->StreamMessage(aMessageURI, aAnalyzer->mTokenListener,
                                      aMsgWindow, nullptr, true /* convert data */,
-                                     NS_LITERAL_CSTRING("filter"), false, nullptr);
+                                     NS_LITERAL_CSTRING("filter"), false, getter_AddRefs(dummyNull));
 }
 
 // a TraitAnalysis is the per-token representation of the statistical
