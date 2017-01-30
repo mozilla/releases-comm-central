@@ -13,7 +13,6 @@
 
 <dialog id="linkDlg" title="&windowTitle.label;"
    xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-   buttons="accept,cancel"
    onload = "Startup()"
    ondialogaccept="return onAccept();"
    ondialogcancel="return onCancel();">

@@ -18,7 +18,6 @@
     style="width: 40em;"
     xmlns ="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
     onload="Startup()"
-    buttons="accept,cancel"
     ondialogaccept="return onAccept();"
     ondialogcancel="return onCancel();">
 
