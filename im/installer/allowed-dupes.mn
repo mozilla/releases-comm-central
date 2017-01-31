@@ -11,6 +11,7 @@ chrome/instantbird/skin/classic/instantbird/messages/simple/Incoming/Context.htm
 chrome/instantbird/skin/classic/instantbird/messages/simple/Incoming/NextContext.html
 chrome/chat/content/chat/conv.html
 chrome/icons/default/default16.png
+icons/default16.png
 
 # Variants of paths in mozilla/browser/installer/allowed-dupes.mn
 # and mail/installer/allowed-dupes.mn:
