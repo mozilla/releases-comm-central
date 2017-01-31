@@ -237,7 +237,7 @@ char * nsMsgI18NEncodeMimePartIIStr(const char *header, bool structured, const c
   nsCOMPtr<nsIMimeConverter> converter = do_GetService(NS_MIME_CONVERTER_CONTRACTID, &res);
   if (NS_SUCCEEDED(res) && nullptr != converter)
     res = converter->EncodeMimePartIIStr_UTF8(nsDependentCString(header),
-      structured, charset, fieldnamelen,
+      structured, "UTF-8", fieldnamelen,
       nsIMimeConverter::MIME_ENCODED_WORD_SIZE, encodedString);
 
   return NS_SUCCEEDED(res) ? PL_strdup(encodedString.get()) : nullptr;
