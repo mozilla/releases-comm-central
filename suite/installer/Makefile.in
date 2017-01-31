@@ -108,7 +108,7 @@ endif
 
 # Set MSVC dlls version to package, if any.
 # With VS2015+ it does not make sense to define the ucrt libs without
-# the base c++ libs and vice versa. 
+# the base c++ libs and vice versa.
 ifdef MOZ_NO_DEBUG_RTL
 ifdef WIN32_REDIST_DIR
 ifdef WIN_UCRT_REDIST_DIR
@@ -157,8 +157,6 @@ NON_OMNIJAR_FILES = \
 	defaults/profile/chrome/userChrome-example.css \
 	defaults/profile/chrome/userContent-example.css \
 	$(NULL)
-
-INSTALL_SDK = 1
 
 include $(MOZILLA_SRCDIR)/toolkit/mozapps/installer/packager.mk
 

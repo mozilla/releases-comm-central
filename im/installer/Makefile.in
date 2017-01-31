@@ -116,8 +116,6 @@ endif
 
 NON_OMNIJAR_FILES =
 
-INSTALL_SDK = 1
-
 GENERATE_CACHE=1
 
 include $(MOZILLA_SRCDIR)/toolkit/mozapps/installer/signing.mk

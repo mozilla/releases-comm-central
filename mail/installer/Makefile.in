@@ -124,8 +124,6 @@ endif
 
 NON_OMNIJAR_FILES = defaults/messenger/mailViews.dat
 
-INSTALL_SDK = 1
-
 include $(MOZILLA_SRCDIR)/toolkit/mozapps/installer/signing.mk
 include $(MOZILLA_SRCDIR)/toolkit/mozapps/installer/packager.mk
 
