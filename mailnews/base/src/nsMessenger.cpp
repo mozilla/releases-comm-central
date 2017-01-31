@@ -1789,7 +1789,7 @@ nsresult nsSaveMsgListener::InitializeDownload(nsIRequest * aRequest)
     // create a download progress window
 
     // Set saveToDisk explicitly to avoid launching the saved file.
-    // See http://hg.mozilla.org/mozilla-central/file/814a6f071472/toolkit/components/jsdownloads/src/DownloadLegacy.js#l164
+    // See https://hg.mozilla.org/mozilla-central/file/814a6f071472/toolkit/components/jsdownloads/src/DownloadLegacy.js#l164
     mimeinfo->SetPreferredAction(nsIHandlerInfo::saveToDisk);
 
     // When we don't allow warnings, also don't show progress, as this

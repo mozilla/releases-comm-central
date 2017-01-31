@@ -44,7 +44,7 @@ root_path = os.path.dirname(abs_path)
 # We need the latest version of Event Utils
 externalModules = [
     {   # EventUtils.js
-        "url": "http://hg.mozilla.org/mozilla-central/raw-file/default/testing/mochitest/tests/SimpleTest/EventUtils.js",
+        "url": "https://hg.mozilla.org/mozilla-central/raw-file/default/testing/mochitest/tests/SimpleTest/EventUtils.js",
         "path": "mozmill/extension/resource/stdlib/EventUtils.js",
         "patch": "patches/eventUtils.patch"
     }

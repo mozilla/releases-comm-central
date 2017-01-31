@@ -212,7 +212,7 @@ endif
 	@echo
 
 IB_L10N_REPO_BASE = https://hg.instantbird.org/l10n
-MOZ_L10N_REPO_BASE = http://hg.mozilla.org/releases/l10n-mozilla-2.0
+MOZ_L10N_REPO_BASE = https://hg.mozilla.org/releases/l10n-mozilla-2.0
 
 checkout-%: AB_CD=$*
 checkout-%:

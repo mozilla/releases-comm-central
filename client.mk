@@ -5,7 +5,7 @@
 # Build a comm application (Mozilla calendar, mail or suite).
 #
 # To build a tree,
-#    1. hg clone http://hg.mozilla.org/comm-central comm
+#    1. hg clone https://hg.mozilla.org/comm-central comm
 #    2. cd comm
 #    3. python client.py checkout
 #    4. create your .mozconfig file with

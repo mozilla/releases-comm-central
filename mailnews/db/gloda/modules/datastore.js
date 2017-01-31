@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /* This file looks to Myk Melez <myk@mozilla.org>'s Mozilla Labs snowl
- * project's (http://hg.mozilla.org/labs/snowl/) modules/datastore.js
+ * project's (https://hg.mozilla.org/labs/snowl/) modules/datastore.js
  * for inspiration and idioms (and also a name :).
  */
 
