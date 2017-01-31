@@ -427,7 +427,10 @@ nsMsgLocalMailFolder::UpdateFolder(nsIMsgWindow *aWindow)
   if (!mDatabase)
   {
     // return of NS_ERROR_NOT_INITIALIZED means running parsing URL
-    rv = GetDatabaseWithReparse(this, aWindow, getter_AddRefs(mDatabase));
+    // We don't need the return value, and assigning it to mDatabase which
+    // is already set internally leaks.
+    nsCOMPtr<nsIMsgDatabase> returnedDb;
+    rv = GetDatabaseWithReparse(this, aWindow, getter_AddRefs(returnedDb));
     if (NS_SUCCEEDED(rv))
       NotifyFolderEvent(mFolderLoadedAtom);
   }
