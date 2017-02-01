@@ -407,8 +407,6 @@ Section "-Application" APP_IDX
     ${If} $R0 == "true"
     ; Only proceed if we have HKLM write access
     ${AndIf} $TmpVal == "HKLM"
-    ; On Windows 2000 we do not install the maintenance service.
-    ${AndIf} ${AtLeastWinXP}
       ; The user is an admin so we should default to install service yes
       StrCpy $InstallMaintenanceService "1"
     ${Else}
@@ -850,11 +848,6 @@ Function preComponents
     ; The service already exists so don't show this page.
     Abort
   ${EndIf}
-
-  ; On Windows 2000 we do not install the maintenance service.
-  ${Unless} ${AtLeastWinXP}
-    Abort
-  ${EndUnless}
 
   ; Don't show the custom components page if the
   ; user is not an admin

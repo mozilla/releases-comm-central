@@ -99,8 +99,6 @@
   ${If} $R0 == "true"
   ; Only proceed if we have HKLM write access
   ${AndIf} $TmpVal == "HKLM"
-  ; On Windows 2000 we do not install the maintenance service.
-  ${AndIf} ${AtLeastWinXP}
     ; Add the registry keys for allowed certificates.
     ${AddMaintCertKeys}
 
@@ -1093,12 +1091,6 @@ Function SetAsDefaultMailAppUserHKCU
     ${Unless} ${Errors}
       AppAssocReg::SetAppAsDefaultAll "${AppRegNameMail}"
     ${EndUnless}
-  ${EndIf}
-
-  ; On Windows XP, we need to register HKLM\Software\Clients\Mail
-  ; for Simple MAPI. See bug 390331.
-  ${If} ${IsWinXP}
-    ${SetMailClientForMapi}
   ${EndIf}
 FunctionEnd
 
