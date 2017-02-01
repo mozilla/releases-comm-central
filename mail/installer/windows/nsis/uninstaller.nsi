@@ -36,6 +36,9 @@ RequestExecutionLevel user
 ; prevents compiling of the reg write logging.
 !define NO_LOG
 
+!define MaintUninstallKey \
+ "Software\Microsoft\Windows\CurrentVersion\Uninstall\MozillaMaintenanceService"
+
 Var TmpVal
 Var MaintCertKey
 
@@ -357,6 +360,7 @@ Section "Uninstall"
     DeleteRegKey HKLM "$MaintCertKey\"
     SetRegView lastused
   ${EndIf}
+  Call un.UninstallServiceIfNotUsed
 !endif
 
 SectionEnd
@@ -364,7 +368,52 @@ SectionEnd
 ################################################################################
 # Helper Functions
 
-; XXX Add the Maintenance service uninstall function here
+; This function is used to uninstall the maintenance service if the
+; application currently being uninstalled is the last application to use the
+; maintenance service.
+Function un.UninstallServiceIfNotUsed
+  ; $0 will store if a subkey exists
+  ; $1 will store the first subkey if it exists or an empty string if it doesn't
+  ; Backup the old values
+  Push $0
+  Push $1
+
+  ; The maintenance service always uses the 64-bit registry on x64 systems
+  ${If} ${RunningX64}
+    SetRegView 64
+  ${EndIf}
+
+  ; Figure out the number of subkeys
+  StrCpy $0 0
+  ${Do}
+    EnumRegKey $1 HKLM "Software\Mozilla\MaintenanceService" $0
+    ${If} "$1" == ""
+      ${ExitDo}
+    ${EndIf}
+    IntOp $0 $0 + 1
+  ${Loop}
+
+  ; Restore back the registry view
+  ${If} ${RunningX64}
+    SetRegView lastUsed
+  ${EndIf}
+  ${If} $0 == 0
+    ; Get the path of the maintenance service uninstaller
+    ReadRegStr $1 HKLM ${MaintUninstallKey} "UninstallString"
+
+    ; If the uninstall string does not exist, skip executing it
+    StrCmp $1 "" doneUninstall
+
+    ; $1 is already a quoted string pointing to the install path
+    ; so we're already protected against paths with spaces
+    nsExec::Exec "$1 /S"
+doneUninstall:
+  ${EndIf}
+
+  ; Restore the old value of $1 and $0
+  Pop $1
+  Pop $0
+FunctionEnd
 
 ################################################################################
 # Language
