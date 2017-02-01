@@ -29,7 +29,7 @@ RequestExecutionLevel user
 
 !addplugindir ./
 
-; On Vista and above attempt to elevate Standard Users in addition to users that
+; Attempt to elevate Standard Users in addition to users that
 ; are a member of the Administrators group.
 !define NONADMIN_ELEVATE
 
@@ -161,16 +161,6 @@ UninstPage custom un.preConfirm un.leaveConfirm
 
 ; Finish Page
 
-; Don't setup the survey controls, functions, etc. when the application has
-; defined NO_UNINSTALL_SURVEY
-!ifndef NO_UNINSTALL_SURVEY
-!define MUI_PAGE_CUSTOMFUNCTION_PRE un.preFinish
-!define MUI_FINISHPAGE_SHOWREADME_NOTCHECKED
-!define MUI_FINISHPAGE_SHOWREADME ""
-!define MUI_FINISHPAGE_SHOWREADME_TEXT $(SURVEY_TEXT)
-!define MUI_FINISHPAGE_SHOWREADME_FUNCTION un.Survey
-!endif
-
 !insertmacro MUI_UNPAGE_FINISH
 
 ; Use the default dialog for IDD_VERIFY for a simple Banner
@@ -196,7 +186,7 @@ Section "Uninstall"
   ${If} ${Errors}
     ; If the user closed the application it can take several seconds for it to
     ; shut down completely. If the application is being used by another user we
-    ; can still delete the files when the system is restarted. 
+    ; can still delete the files when the system is restarted.
     Sleep 5000
     ${DeleteFile} "$INSTDIR\${FileMainEXE}"
     ClearErrors
@@ -266,11 +256,11 @@ Section "Uninstall"
   ${un.RemoveQuotesFromPath} "$R1" $R1
   ${un.GetParent} "$R1" $R1
 
-  ; Only remove the Clients\Mail and Clients\News key if it refers to this 
-  ; install location. The Clients\Mail & Clients\News keys are independent 
-  ; of the default app for the OS settings. The XPInstall base un-installer 
-  ; always removes these keys if it is uninstalling the default app and it 
-  ; will always replace the keys when installing even if there is another 
+  ; Only remove the Clients\Mail and Clients\News key if it refers to this
+  ; install location. The Clients\Mail & Clients\News keys are independent
+  ; of the default app for the OS settings. The XPInstall base un-installer
+  ; always removes these keys if it is uninstalling the default app and it
+  ; will always replace the keys when installing even if there is another
   ; install of Thunderbird that is set as the
   ; default app. Now the keys are always updated on install but are only
   ; removed if they refer to this install location.
@@ -320,7 +310,7 @@ Section "Uninstall"
     Delete /REBOOTOK "$INSTDIR\mozMapi32_InUse.dll"
   ${EndIf}
 
-  ; Remove the updates directory for Vista and above
+  ; Remove the updates directory
   ${un.CleanUpdatesDir} "Thunderbird"
 
   ; Remove files that may be left behind by the application in the
@@ -374,13 +364,7 @@ SectionEnd
 ################################################################################
 # Helper Functions
 
-; Don't setup the survey controls, functions, etc. when the application has
-; defined NO_UNINSTALL_SURVEY
-!ifndef NO_UNINSTALL_SURVEY
-Function un.Survey
-  ExecShell "open" "${SurveyURL}"
-FunctionEnd
-!endif
+; XXX Add the Maintenance service uninstall function here
 
 ################################################################################
 # Language
@@ -497,24 +481,6 @@ Function un.leaveConfirm
     ${un.ManualCloseAppPrompt} "${WindowClass}" "$(WARN_MANUALLY_CLOSE_APP_UNINSTALL)"
   ${EndIf}
 FunctionEnd
-
-!ifndef NO_UNINSTALL_SURVEY
-Function un.preFinish
-  ; Do not modify the finish page if there is a reboot pending
-  ${Unless} ${RebootFlag}
-    ; Don't display the option to take a survey on the finish page if the OS is
-    ; Vista or above since the process will be running elevated.
-    ${If} ${AtLeastWinVista}
-      !insertmacro MUI_INSTALLOPTIONS_WRITE "ioSpecial.ini" "settings" "NumFields" "3"
-    ${Else}
-      ; When we add an optional action to the finish page the cancel button
-      ; is enabled. This disables it and leaves the finish button as the
-      ; only choice.
-      !insertmacro MUI_INSTALLOPTIONS_WRITE "ioSpecial.ini" "settings" "cancelenabled" "0"
-    ${EndIf}
-  ${EndUnless}
-FunctionEnd
-!endif
 
 ################################################################################
 # Initialization Functions

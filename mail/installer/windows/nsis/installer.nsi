@@ -45,7 +45,7 @@ Var PageName
 ; StartMenuDir variable can use the common InstallOnInitCommon macro.
 !define NO_STARTMENU_DIR
 
-; On Vista and above attempt to elevate Standard Users in addition to users that
+; Attempt to elevate Standard Users in addition to users that
 ; are a member of the Administrators group.
 !define NONADMIN_ELEVATE
 
@@ -216,7 +216,7 @@ Section "-InstallStartCleanup"
     Delete /REBOOTOK "$INSTDIR\components\IKLAntiSpam.xpt"
   ${EndIf}
 
-  ; Remove the updates directory for Vista and above
+  ; Remove the updates directory
   ${CleanUpdatesDir} "Thunderbird"
 
   ${GetParameters} $0
@@ -378,7 +378,7 @@ Section "-Application" APP_IDX
 
   ; The following keys should only be set if we can write to HKLM
   ${If} $TmpVal == "HKLM"
-    ; Set the Start Menu Internet and Vista Registered App HKLM registry keys.
+    ; Set the Start Menu Internet and Registered App HKLM registry keys.
     ${SetClientsMail}
     ${SetClientsNews}
 
@@ -1034,13 +1034,10 @@ Function .onInit
   !insertmacro InitInstallOptionsFile "summary.ini"
 
   ClearErrors
-  ${If} ${AtLeastWinVista}
-    WriteRegStr HKLM "Software\Mozilla" "${BrandShortName}InstallerTest" "Write Test"
-  ${EndIf}
+  WriteRegStr HKLM "Software\Mozilla" "${BrandShortName}InstallerTest" "Write Test"
   ${If} ${Errors}
     ; Setup the options.ini file for the Custom Options Page without the option
-    ; to set as default for Vista and above since the installer is unable to
-    ; write to HKLM.
+    ; to set as default since the installer is unable to write to HKLM.
     WriteINIStr "$PLUGINSDIR\options.ini" "Settings" NumFields "5"
   ${Else}
     DeleteRegValue HKLM "Software\Mozilla" "${BrandShortName}InstallerTest"

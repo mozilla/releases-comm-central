@@ -346,7 +346,7 @@
   StrCpy $1 "$\"$8$\" -osint -compose $\"%1$\""
   ${AddHandlerValues} "$0\Protocols\mailto" "$1" "$8,0" "${AppRegNameMail} URL" "true" ""
 
-  ; Vista Capabilities registry keys
+  ; Capabilities registry keys
   WriteRegStr HKLM "$0\Capabilities" "ApplicationDescription" "$(REG_APP_DESC)"
   WriteRegStr HKLM "$0\Capabilities" "ApplicationIcon" "$8,0"
   WriteRegStr HKLM "$0\Capabilities" "ApplicationName" "${AppRegNameMail}"
@@ -355,7 +355,7 @@
   WriteRegStr HKLM "$0\Capabilities\StartMenu" "Mail" "${ClientsRegName}"
   WriteRegStr HKLM "$0\Capabilities\URLAssociations" "mailto" "Thunderbird.Url.mailto"
 
-  ; Vista Registered Application
+  ; Registered Application
   WriteRegStr HKLM "Software\RegisteredApplications" "${AppRegNameMail}" "$0\Capabilities"
 !macroend
 !define SetClientsMail "!insertmacro SetClientsMail"
@@ -408,7 +408,7 @@
   ; Mail shell/open/command
   WriteRegStr HKLM "$0\shell\open\command" "" "$\"$8$\" -mail"
 
-  ; Vista Capabilities registry keys
+  ; Capabilities registry keys
   WriteRegStr HKLM "$0\Capabilities" "ApplicationDescription" "$(REG_APP_DESC)"
   WriteRegStr HKLM "$0\Capabilities" "ApplicationIcon" "$8,0"
   WriteRegStr HKLM "$0\Capabilities" "ApplicationName" "${AppRegNameNews}"
@@ -422,7 +422,7 @@
   ${AddHandlerValues} "$0\Protocols\news" "$1" "$8,0" "${AppRegNameNews} URL" "true" ""
   ${AddHandlerValues} "$0\Protocols\snews" "$1" "$8,0" "${AppRegNameNews} URL" "true" ""
 
-  ; Vista Registered Application
+  ; Registered Application
   WriteRegStr HKLM "Software\RegisteredApplications" "${AppRegNameNews}" "$0\Capabilities"
 !macroend
 !define SetClientsNews "!insertmacro SetClientsNews"
@@ -646,9 +646,9 @@
     DeleteRegKey HKLM "SOFTWARE\clients\news\Shredder"
   ${EndUnless}
 
-  ; The Vista shim for 1.5.0.10 writes out a set of bogus keys which we need to
+  ; The shim for 1.5.0.10 writes out a set of bogus keys which we need to
   ; cleanup. Intentionally hard coding Mozilla Thunderbird here
-  ; as this is the string used by the vista shim.
+  ; as this is the string used by the shim.
   DeleteRegKey HKLM "$0\Mozilla Thunderbird.Url.mailto"
   DeleteRegValue HKLM "Software\RegisteredApplications" "Mozilla Thunderbird"
 
@@ -1020,8 +1020,7 @@ Function SetAsDefaultAppUser
     ${EndIf}
   ${EndUnless}
 
-  ; The code after ElevateUAC won't be executed on Vista and above when the
-  ; user:
+  ; The code after ElevateUAC won't be executed when the user:
   ; a) is a member of the administrators group (e.g. elevation is required)
   ; b) is not a member of the administrators group and chooses to elevate
   ${ElevateUAC}
@@ -1083,15 +1082,13 @@ Function SetAsDefaultMailAppUserHKCU
 
   SetShellVarContext current  ; Set SHCTX to the current user (e.g. HKCU)
   ${SetHandlersMail}
-  ${If} ${AtLeastWinVista}
-    ClearErrors
-    ReadRegStr $0 HKLM "Software\RegisteredApplications" "${AppRegNameMail}"
-    ; Only register as the handler on Vista if the app registry name exists
-    ; under the RegisteredApplications registry key.
-    ${Unless} ${Errors}
-      AppAssocReg::SetAppAsDefaultAll "${AppRegNameMail}"
-    ${EndUnless}
-  ${EndIf}
+  ClearErrors
+  ReadRegStr $0 HKLM "Software\RegisteredApplications" "${AppRegNameMail}"
+  ; Only register as the handler if the app registry name exists
+  ; under the RegisteredApplications registry key.
+  ${Unless} ${Errors}
+    AppAssocReg::SetAppAsDefaultAll "${AppRegNameMail}"
+  ${EndUnless}
 FunctionEnd
 
 ; The !ifdef NO_LOG prevents warnings when compiling the installer.nsi due to
@@ -1116,15 +1113,13 @@ Function SetAsDefaultNewsAppUserHKCU
 
   SetShellVarContext current  ; Set SHCTX to the current user (e.g. HKCU)
   ${SetHandlersNews}
-  ${If} ${AtLeastWinVista}
-    ClearErrors
-    ReadRegStr $0 HKLM "Software\RegisteredApplications" "${AppRegNameNews}"
-    ; Only register as the handler on Vista if the app registry name exists
-    ; under the RegisteredApplications registry key.
-    ${Unless} ${Errors}
-      AppAssocReg::SetAppAsDefaultAll "${AppRegNameNews}"
-    ${EndUnless}
-  ${EndIf}
+  ClearErrors
+  ReadRegStr $0 HKLM "Software\RegisteredApplications" "${AppRegNameNews}"
+  ; Only register as the handler if the app registry name exists
+  ; under the RegisteredApplications registry key.
+  ${Unless} ${Errors}
+    AppAssocReg::SetAppAsDefaultAll "${AppRegNameNews}"
+  ${EndUnless}
 FunctionEnd
 
 !endif
