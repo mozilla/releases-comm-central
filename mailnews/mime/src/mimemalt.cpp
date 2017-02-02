@@ -440,11 +440,13 @@ MimeMultipartAlternative_prioritize_part(char *content_type,
       return PRIORITY_TEXT_PLAIN;
     }
 
-    /* Need to white-list all text/... types that are or could be implemented. */
+    /*
+     * Need to white-list all "rich" text/* types that are or could be implemented.
+     * Note that text/calendar is not one of them since it is plain text.
+     */
     if (!PL_strncasecmp(text_type, "html", 4) ||
         !PL_strncasecmp(text_type, "enriched", 8) ||
         !PL_strncasecmp(text_type, "richtext", 8) ||
-        !PL_strncasecmp(text_type, "calendar", 8) ||
         !PL_strncasecmp(text_type, "rtf", 3)) {
       return PRIORITY_NORMAL;
     }
