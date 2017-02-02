@@ -2359,7 +2359,7 @@ function ComposeStartup(aParams)
     replaceButton.setAttribute("oncommand", "findbarFindReplace();");
 
     let findbar = document.getElementById("FindToolbar");
-    let lastButton = findbar.getElement("find-case-sensitive");
+    let lastButton = findbar.getElement("find-entire-word");
     let tSeparator = document.createElement("toolbarseparator");
     tSeparator.setAttribute("id", "findbar-beforeReplaceSeparator");
     lastButton.parentNode.insertBefore(replaceButton, lastButton.nextSibling);
