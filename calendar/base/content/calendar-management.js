@@ -290,8 +290,14 @@ function setupDeleteMenuitem(aDeleteId, aCalendar) {
  * @param aCalendar   The calendar to make visible.
  */
 function ensureCalendarVisible(aCalendar) {
-    // We use the main window's calendar list to ensure that the calendar is visible
-    document.getElementById("calendar-list-tree-widget").ensureCalendarVisible(aCalendar);
+    // We use the main window's calendar list to ensure that the calendar is visible.
+    // If the main window has been closed this function may still be called,
+    // like when an event/task window is still open and the user clicks 'save',
+    // thus we have the extra checks.
+    let list = document.getElementById("calendar-list-tree-widget");
+    if (list && list.ensureCalendarVisible) {
+        list.ensureCalendarVisible(aCalendar);
+    }
 }
 
 /**
