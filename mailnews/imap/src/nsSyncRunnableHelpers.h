@@ -26,7 +26,9 @@ class StreamListenerProxy final : public nsIStreamListener
 public:
   StreamListenerProxy(nsIStreamListener* receiver)
     : mReceiver(receiver)
-  { }
+  {
+    MOZ_DIAGNOSTIC_ASSERT(receiver, "Null receiver, crash now to get feedback instead of later");
+  }
 
   NS_DECL_THREADSAFE_ISUPPORTS
   NS_DECL_NSIREQUESTOBSERVER
@@ -45,7 +47,7 @@ public:
   ImapMailFolderSinkProxy(nsIImapMailFolderSink* receiver)
     : mReceiver(receiver)
   {
-    NS_ASSERTION(receiver, "Don't allow receiver is nullptr");
+    MOZ_DIAGNOSTIC_ASSERT(receiver, "Null receiver, crash now to get feedback instead of later");
   }
 
   NS_DECL_THREADSAFE_ISUPPORTS
@@ -63,7 +65,9 @@ class ImapServerSinkProxy final : public nsIImapServerSink
 public:
   ImapServerSinkProxy(nsIImapServerSink* receiver)
     : mReceiver(receiver)
-  { }
+  {
+    MOZ_DIAGNOSTIC_ASSERT(receiver, "Null receiver, crash now to get feedback instead of later");
+  }
 
   NS_DECL_THREADSAFE_ISUPPORTS
   NS_DECL_NSIIMAPSERVERSINK
@@ -81,7 +85,9 @@ class ImapMessageSinkProxy final : public nsIImapMessageSink
 public:
   ImapMessageSinkProxy(nsIImapMessageSink* receiver)
     : mReceiver(receiver)
-  { }
+  {
+    MOZ_DIAGNOSTIC_ASSERT(receiver, "Null receiver, crash now to get feedback instead of later");
+  }
 
   NS_DECL_THREADSAFE_ISUPPORTS
   NS_DECL_NSIIMAPMESSAGESINK
@@ -98,7 +104,9 @@ class ImapProtocolSinkProxy final : public nsIImapProtocolSink
 public:
   ImapProtocolSinkProxy(nsIImapProtocolSink* receiver)
     : mReceiver(receiver)
-  { }
+  {
+    MOZ_DIAGNOSTIC_ASSERT(receiver, "Null receiver, crash now to get feedback instead of later");
+  }
 
   NS_DECL_THREADSAFE_ISUPPORTS
   NS_DECL_NSIIMAPPROTOCOLSINK
