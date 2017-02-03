@@ -255,6 +255,11 @@ function onLoadLightningItemPanel(aIframeId, aUrl) {
         accept.setAttribute("collapsed", "true");
         cancel.setAttribute("collapsed", "true");
         cancel.parentNode.setAttribute("collapsed", "true");
+
+        // set toolbar icon color for light or dark themes
+        if (typeof ToolbarIconColor !== "undefined") {
+            ToolbarIconColor.init();
+        }
     }
 
     // event or task
@@ -277,6 +282,19 @@ function onLoadLightningItemPanel(aIframeId, aUrl) {
 
     // set the iframe src, which loads the iframe's contents
     iframe.setAttribute("src", iframeSrc);
+}
+
+/**
+ * Unload handler for the outer parent context that contains the iframe.
+ * Currently only called for windows and not tabs.
+ */
+function onUnloadLightningItemPanel() {
+    if (!gTabmail) {
+        // window dialog case
+        if (typeof ToolbarIconColor !== "undefined") {
+            ToolbarIconColor.uninit();
+        }
+    }
 }
 
 /**

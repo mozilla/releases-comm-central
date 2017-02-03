@@ -382,10 +382,6 @@ function onLoad() {
 
     gMainWindow.setCursor("auto");
 
-    if (typeof ToolbarIconColor !== "undefined") {
-        ToolbarIconColor.init();
-    }
-
     if (!gNewItemUI) {
         document.getElementById("item-title").focus();
         document.getElementById("item-title").select();
@@ -412,9 +408,6 @@ function onLoad() {
 onLoad.hasLoaded = false;
 
 function onEventDialogUnload() {
-    if (typeof ToolbarIconColor !== "undefined") {
-        ToolbarIconColor.uninit();
-    }
     Services.obs.removeObserver(eventDialogQuitObserver,
                                 "quit-application-requested");
     eventDialogCalendarObserver.cancel();
