@@ -1255,6 +1255,8 @@ void MaildirStoreParser::TimerCallback(nsITimer *aTimer, void *aClosure)
         parser->m_listener->OnStopRunningUrl(url, NS_OK);
       }
     }
+    // Parsing complete and timer cancelled, so we release the parser object.
+    delete parser;
     return;
   }
   nsCOMPtr<nsISupports> aSupport;
