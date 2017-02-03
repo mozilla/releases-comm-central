@@ -13,13 +13,9 @@ CRCCheck on
 
 RequestExecutionLevel admin
 
-; The commands inside this ifdef require NSIS 3.0a2 or greater so the ifdef can
-; be removed after we require NSIS 3.0a2 or greater.
-!ifdef NSIS_PACKEDVERSION
-  Unicode true
-  ManifestSupportedOS all
-  ManifestDPIAware true
-!endif
+Unicode true
+ManifestSupportedOS all
+ManifestDPIAware true
 
 !addplugindir ./
 
@@ -72,17 +68,16 @@ InstallDirRegKey HKLM "Software\Mozilla\MaintenanceService" ""
 
 SetOverwrite on
 
+; serviceinstall.cpp also uses this key, in case the path is changed, update
+; there too.
 !define MaintUninstallKey \
  "Software\Microsoft\Windows\CurrentVersion\Uninstall\MozillaMaintenanceService"
 
-; The HAVE_64BIT_BUILD define also means that we have an x64 build,
-; not just an x64 OS.
-!ifdef HAVE_64BIT_BUILD
-  ; See below, we actually abort the install for x64 builds currently.
-  InstallDir "$PROGRAMFILES64\${MaintFullName}\"
-!else
-  InstallDir "$PROGRAMFILES32\${MaintFullName}\"
-!endif
+; Always install into the 32-bit location even if we have a 64-bit build.
+; This is because we use only 1 service for all Firefox channels.
+; Allow either x86 and x64 builds to exist at this location, depending on
+; what is the latest build.
+InstallDir "$PROGRAMFILES32\${MaintFullName}\"
 ShowUnInstDetails nevershow
 
 ################################################################################
@@ -120,12 +115,6 @@ Function .onInit
   System::Call 'kernel32::SetDllDirectoryW(w "")'
 
   SetSilent silent
-!ifdef HAVE_64BIT_BUILD
-  ; We plan to eventually enable 64bit native builds to use the maintenance
-  ; service, but for the initial release, to reduce testing and development,
-  ; 64-bit builds will not install the maintenanceservice.
-  Abort
-!endif
 
   ${Unless} ${AtLeastWin7}
     Abort
@@ -178,14 +167,28 @@ Section "MaintenanceService"
   ${GetParameters} $0
   ${GetOptions} "$0" "/Upgrade" $0
   ${If} ${Errors}
-    nsExec::Exec '"$INSTDIR\$TempMaintServiceName" install'
+    ExecWait '"$INSTDIR\$TempMaintServiceName" install'
   ${Else}
     ; The upgrade cmdline is the same as install except
     ; It will fail if the service isn't already installed.
-    nsExec::Exec '"$INSTDIR\$TempMaintServiceName" upgrade'
+    ExecWait '"$INSTDIR\$TempMaintServiceName" upgrade'
   ${EndIf}
 
   WriteUninstaller "$INSTDIR\Uninstall.exe"
+
+  ; Since the Maintenance service can be installed either x86 or x64,
+  ; always use the 64-bit registry.
+  ${If} ${RunningX64}
+    ; Previous versions always created the uninstall key in the 32-bit registry.
+    ; Clean those old entries out if they still exist.
+    SetRegView 32
+    DeleteRegKey HKLM "${MaintUninstallKey}"
+    ; Preserve the lastused value before we switch to 64.
+    SetRegView lastused
+
+    SetRegView 64
+  ${EndIf}
+
   WriteRegStr HKLM "${MaintUninstallKey}" "DisplayName" "${MaintFullName}"
   WriteRegStr HKLM "${MaintUninstallKey}" "UninstallString" \
                    '"$INSTDIR\uninstall.exe"'
@@ -193,8 +196,7 @@ Section "MaintenanceService"
                    "$INSTDIR\Uninstall.exe,0"
   WriteRegStr HKLM "${MaintUninstallKey}" "DisplayVersion" "${AppVersion}"
   WriteRegStr HKLM "${MaintUninstallKey}" "Publisher" "Mozilla"
-  WriteRegStr HKLM "${MaintUninstallKey}" "Comments" \
-                   "${BrandFullName} ${AppVersion} (${ARCH} ${AB_CD})"
+  WriteRegStr HKLM "${MaintUninstallKey}" "Comments" "${BrandFullName}"
   WriteRegDWORD HKLM "${MaintUninstallKey}" "NoModify" 1
   ${GetSize} "$INSTDIR" "/S=0K" $R2 $R3 $R4
   WriteRegDWORD HKLM "${MaintUninstallKey}" "EstimatedSize" $R2
@@ -204,13 +206,9 @@ Section "MaintenanceService"
   ; want to install once on the first upgrade to maintenance service.
   ; Also write out that we are currently installed, preferences will check
   ; this value to determine if we should show the service update pref.
-  ; Since the Maintenance service can be installed either x86 or x64,
-  ; always use the 64-bit registry for checking if an attempt was made.
-  ${If} ${RunningX64}
-    SetRegView 64
-  ${EndIf}
   WriteRegDWORD HKLM "Software\Mozilla\MaintenanceService" "Attempted" 1
   WriteRegDWORD HKLM "Software\Mozilla\MaintenanceService" "Installed" 1
+  DeleteRegValue HKLM "Software\Mozilla\MaintenanceService" "FFPrefetchDisabled"
 
   ; Included here for debug purposes only.
   ; These keys are used to bypass the installation dir is a valid installation
@@ -242,7 +240,7 @@ FunctionEnd
 
 Section "Uninstall"
   ; Delete the service so that no updates will be attempted
-  nsExec::Exec '"$INSTDIR\maintenanceservice.exe" uninstall'
+  ExecWait '"$INSTDIR\maintenanceservice.exe" uninstall'
 
   Push "$INSTDIR\updater.ini"
   Call un.RenameDelete
@@ -254,14 +252,75 @@ Section "Uninstall"
   Call un.RenameDelete
   Push "$INSTDIR\Uninstall.exe"
   Call un.RenameDelete
+  Push "$INSTDIR\update\updater.ini"
+  Call un.RenameDelete
+  Push "$INSTDIR\update\updater.exe"
+  Call un.RenameDelete
+  Push "$INSTDIR\logs\maintenanceservice.log"
+  Call un.RenameDelete
+  Push "$INSTDIR\logs\maintenanceservice-1.log"
+  Call un.RenameDelete
+  Push "$INSTDIR\logs\maintenanceservice-2.log"
+  Call un.RenameDelete
+  Push "$INSTDIR\logs\maintenanceservice-3.log"
+  Call un.RenameDelete
+  Push "$INSTDIR\logs\maintenanceservice-4.log"
+  Call un.RenameDelete
+  Push "$INSTDIR\logs\maintenanceservice-5.log"
+  Call un.RenameDelete
+  Push "$INSTDIR\logs\maintenanceservice-6.log"
+  Call un.RenameDelete
+  Push "$INSTDIR\logs\maintenanceservice-7.log"
+  Call un.RenameDelete
+  Push "$INSTDIR\logs\maintenanceservice-8.log"
+  Call un.RenameDelete
+  Push "$INSTDIR\logs\maintenanceservice-9.log"
+  Call un.RenameDelete
+  Push "$INSTDIR\logs\maintenanceservice-10.log"
+  Call un.RenameDelete
+  Push "$INSTDIR\logs\maintenanceservice-install.log"
+  Call un.RenameDelete
+  Push "$INSTDIR\logs\maintenanceservice-uninstall.log"
+  Call un.RenameDelete
+  SetShellVarContext all
+  Push "$APPDATA\Mozilla\logs\maintenanceservice.log"
+  Call un.RenameDelete
+  Push "$APPDATA\Mozilla\logs\maintenanceservice-1.log"
+  Call un.RenameDelete
+  Push "$APPDATA\Mozilla\logs\maintenanceservice-2.log"
+  Call un.RenameDelete
+  Push "$APPDATA\Mozilla\logs\maintenanceservice-3.log"
+  Call un.RenameDelete
+  Push "$APPDATA\Mozilla\logs\maintenanceservice-4.log"
+  Call un.RenameDelete
+  Push "$APPDATA\Mozilla\logs\maintenanceservice-5.log"
+  Call un.RenameDelete
+  Push "$APPDATA\Mozilla\logs\maintenanceservice-6.log"
+  Call un.RenameDelete
+  Push "$APPDATA\Mozilla\logs\maintenanceservice-7.log"
+  Call un.RenameDelete
+  Push "$APPDATA\Mozilla\logs\maintenanceservice-8.log"
+  Call un.RenameDelete
+  Push "$APPDATA\Mozilla\logs\maintenanceservice-9.log"
+  Call un.RenameDelete
+  Push "$APPDATA\Mozilla\logs\maintenanceservice-10.log"
+  Call un.RenameDelete
+  Push "$APPDATA\Mozilla\logs\maintenanceservice-install.log"
+  Call un.RenameDelete
+  Push "$APPDATA\Mozilla\logs\maintenanceservice-uninstall.log"
+  Call un.RenameDelete
+  RMDir /REBOOTOK "$APPDATA\Mozilla\logs"
+  RMDir /REBOOTOK "$APPDATA\Mozilla"
+  RMDir /REBOOTOK "$INSTDIR\logs"
+  RMDir /REBOOTOK "$INSTDIR\update"
   RMDir /REBOOTOK "$INSTDIR"
-
-  DeleteRegKey HKLM "${MaintUninstallKey}"
 
   ${If} ${RunningX64}
     SetRegView 64
   ${EndIf}
+  DeleteRegKey HKLM "${MaintUninstallKey}"
   DeleteRegValue HKLM "Software\Mozilla\MaintenanceService" "Installed"
+  DeleteRegValue HKLM "Software\Mozilla\MaintenanceService" "FFPrefetchDisabled"
   DeleteRegKey HKLM "${FallbackKey}\"
   ${If} ${RunningX64}
     SetRegView lastused
