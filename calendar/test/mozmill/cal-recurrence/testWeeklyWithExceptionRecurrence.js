@@ -267,7 +267,7 @@ function checkMultiWeekView(view) {
         return controller.assertNodeNotExist(lookupEventBox(...args));
     };
 
-    // wait for the first items, then check te ones not to be present
+    // wait for the first items, then check the ones not to be present
     // assert exactly two
     controller.waitForElement(
         lookupEventBox(view, EVENT_BOX, startWeek, 3, HOUR, "/[0]")
