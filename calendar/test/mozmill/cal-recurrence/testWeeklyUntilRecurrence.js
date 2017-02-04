@@ -90,7 +90,6 @@ function testWeeklyUntilRecurrence() {
 
     // Wednesday
     controller.waitForElementNotPresent(lookup(box));
-    viewForward(controller, 2);
 
     // check week view
     switchToView(controller, "week");
@@ -191,7 +190,7 @@ function checkMultiWeekView(view) {
 
     for (let week = startWeek; week < startWeek + 3; week++) {
         // Monday
-        controller.assertNode(
+        controller.waitForElement(
             lookupEventBox(view, EVENT_BOX, week, 2, null, EVENTPATH)
         );
         // Wednesday
