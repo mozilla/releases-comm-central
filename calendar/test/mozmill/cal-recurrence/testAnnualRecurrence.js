@@ -58,27 +58,19 @@ function testAnnualRecurrence() {
 
         // day view
         switchToView(controller, "day");
-        controller.waitForElement(
-            lookupEventBox("day", ALLDAY, null, 1, null, EVENTPATH)
-        );
+        controller.assertNode(lookupEventBox("day", ALLDAY, null, 1, null, EVENTPATH));
 
         // week view
         switchToView(controller, "week");
-        controller.waitForElement(
-            lookupEventBox("week", ALLDAY, null, column, null, EVENTPATH)
-        );
+        controller.assertNode(lookupEventBox("week", ALLDAY, null, column, null, EVENTPATH));
 
         // multiweek view
         switchToView(controller, "multiweek");
-        controller.waitForElement(
-            lookupEventBox("multiweek", ALLDAY, 1, column, null, EVENTPATH)
-        );
+        controller.assertNode(lookupEventBox("multiweek", ALLDAY, 1, column, null, EVENTPATH));
 
         // month view
         switchToView(controller, "month");
-        controller.waitForElement(
-            lookupEventBox("month", ALLDAY, 1, column, null, EVENTPATH)
-        );
+        controller.assertNode(lookupEventBox("month", ALLDAY, 1, column, null, EVENTPATH));
     }
 
     // delete event

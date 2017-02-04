@@ -836,7 +836,6 @@ function setData(dialog, iframe, data) {
             dialog.keypress(iframeId("attachment-link"), "VK_DELETE", {});
         }
     }
-    dialog.click(iframeId("item-title"));
     sleep();
 }
 
