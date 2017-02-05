@@ -2144,7 +2144,7 @@ MsgExamineForProxy(nsIChannel *channel, nsIProxyInfo **proxyInfo)
   nsProtocolProxyService *rawProxyService = static_cast<nsProtocolProxyService*>(proxyService.get());
 #endif
 
-  return rawProxyService->DeprecatedBlockingResolve(channel, 0, proxyInfo);
+  return NS_ERROR_FAILURE; // rawProxyService->DeprecatedBlockingResolve(channel, 0, proxyInfo);
 }
 
 NS_MSG_BASE nsresult MsgPromptLoginFailed(nsIMsgWindow *aMsgWindow,
