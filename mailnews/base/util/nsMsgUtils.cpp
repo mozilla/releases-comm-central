@@ -2122,29 +2122,7 @@ bool MsgAdvanceToNextLine(const char *buffer, uint32_t &bufferOffset, uint32_t m
 NS_MSG_BASE nsresult
 MsgExamineForProxy(nsIChannel *channel, nsIProxyInfo **proxyInfo)
 {
-  nsresult rv;
-
-#ifdef DEBUG
-  nsCOMPtr<nsIURI> uri;
-  rv = channel->GetURI(getter_AddRefs(uri));
-  NS_ASSERTION(NS_SUCCEEDED(rv) && uri,
-    "The URI needs to be set before calling the proxy service");
-#endif
-
-  nsCOMPtr<nsIProtocolProxyService> proxyService =
-      do_GetService(NS_PROTOCOLPROXYSERVICE_CONTRACTID, &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  // XXX: This "interface" ID is exposed, but it's not hooked up to the QI.
-  // Until it is, use a static_cast for now.
-#if 0
-  RefPtr<nsProtocolProxyService> rawProxyService = do_QueryObject(proxyService, &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
-#else
-  nsProtocolProxyService *rawProxyService = static_cast<nsProtocolProxyService*>(proxyService.get());
-#endif
-
-  return NS_ERROR_FAILURE; // rawProxyService->DeprecatedBlockingResolve(channel, 0, proxyInfo);
+  return NS_ERROR_FAILURE;
 }
 
 NS_MSG_BASE nsresult MsgPromptLoginFailed(nsIMsgWindow *aMsgWindow,
