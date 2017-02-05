@@ -239,6 +239,8 @@ var MSG_VIEW_FLAG_DUMMY = 0x20000000;
 var MSG_VIEW_FLAG_HASCHILDREN = 0x40000000;
 var MSG_VIEW_FLAG_ISTHREAD = 0x8000000;
 
+var gFakeSelection = new JSTreeSelection(null);
+
 function setup_view(aViewType, aViewFlags, aTestFolder) {
   let dbviewContractId = "@mozilla.org/messenger/msgdbview;1?type=" + aViewType;
 
@@ -281,9 +283,8 @@ function setup_view(aViewType, aViewFlags, aTestFolder) {
   gDBView.curCustomColumn = "authorFirstLetterCol";
 
   gTreeView = gDBView.QueryInterface(Components.interfaces.nsITreeView);
-  let selection = new JSTreeSelection(null);
-  selection.view = gTreeView;
-  gTreeView.selection = selection;
+  gTreeView.selection = gFakeSelection;
+  gFakeSelection.view = gTreeView;
 }
 
 function setup_group_view(aSortType, aSortOrder, aTestFolder) {
@@ -308,9 +309,8 @@ function setup_group_view(aSortType, aSortOrder, aTestFolder) {
   gDBView.curCustomColumn = "authorFirstLetterCol";
 
   gTreeView = gDBView.QueryInterface(Components.interfaces.nsITreeView);
-  let selection = new JSTreeSelection(null);
-  selection.view = gTreeView;
-  gTreeView.selection = selection;
+  gFakeSelection.view = gTreeView;
+  gTreeView.selection = gFakeSelection;
 }
 
 /**
@@ -995,5 +995,9 @@ function* actually_run_test() {
     }
     gTestFolder = save_gTestFolder;
   }
+
+  // Delete view reference to avoid a cycle leak.
+  gFakeSelection.view = null;
+
   do_test_finished();
 }

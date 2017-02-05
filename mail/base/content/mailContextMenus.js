@@ -25,6 +25,8 @@ function RestoreSelectionWithoutContentLoad(tree)
     view.selection = realSelection;
     // replay any calls to adjustSelection, this handles suppression.
     transientSelection.replayAdjustSelectionLog(realSelection);
+    // Avoid possible cycle leaks.
+    gRightMouseButtonSavedSelection.view = null;
     gRightMouseButtonSavedSelection = null;
 
     if (tree)

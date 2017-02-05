@@ -191,5 +191,9 @@ function* actually_run_test() {
     }
   }
   MailServices.mfn.removeListener(gListener);
+
+  // Delete view reference to avoid a cycle leak.
+  gFakeSelection.view = null;
+
   do_test_finished();
 }

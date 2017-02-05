@@ -707,6 +707,12 @@ function OnUnloadMessenger()
   Services.prefs.removeObserver("mail.pane_config.dynamic", MailPrefObserver);
   Services.prefs.removeObserver("mail.showCondensedAddresses", MailPrefObserver);
 
+  if (gRightMouseButtonSavedSelection) {
+    // Avoid possible cycle leaks.
+    gRightMouseButtonSavedSelection.view = null;
+    gRightMouseButtonSavedSelection = null;
+  }
+
   sessionStoreManager.unloadingWindow(window);
 
   TabsInTitlebar.uninit();
@@ -1144,6 +1150,7 @@ function ChangeSelectionWithoutContentLoad(event, tree, aSingleSelect)
     transientSelection.logAdjustSelectionForReplay();
 
     gRightMouseButtonSavedSelection = {
+      // Need to clear out this reference later.
       view: treeBoxObj.view,
       realSelection: treeSelection,
       transientSelection: transientSelection
