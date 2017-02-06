@@ -134,6 +134,40 @@ MapMultiValue(nsAbOSXCard *aCard, ABRecord *aOSXCard,
   return false;
 }
 
+// Maps Address Book's instant messenger name to the corresponding nsIAbCard field name.
+static const char*
+InstantMessengerFieldName(NSString* aInstantMessengerName)
+{
+  if ([aInstantMessengerName isEqualToString:@"AIMInstant"]) {
+    return "_AimScreenName";
+  }
+  if ([aInstantMessengerName isEqualToString:@"GoogleTalkInstant"]) {
+    return "_GoogleTalk";
+  }
+  if ([aInstantMessengerName isEqualToString:@"ICQInstant"]) {
+    return "_ICQ";
+  }
+  if ([aInstantMessengerName isEqualToString:@"JabberInstant"]) {
+    return "_JabberId";
+  }
+  if ([aInstantMessengerName isEqualToString:@"MSNInstant"]) {
+    return "_MSN";
+  }
+  if ([aInstantMessengerName isEqualToString:@"QQInstant"]) {
+    return "_QQ";
+  }
+  if ([aInstantMessengerName isEqualToString:@"SkypeInstant"]) {
+    return "_Skype";
+  }
+  if ([aInstantMessengerName isEqualToString:@"YahooInstant"]) {
+    return "_Yahoo";
+  }
+
+  // Fall back to AIM for everything else.
+  // We don't have nsIAbCard fields for FacebookInstant and GaduGaduInstant.
+  return "_AimScreenName";
+}
+
 nsresult
 nsAbOSXCard::Init(const char *aUri)
 {
@@ -309,12 +343,19 @@ nsAbOSXCard::Update(bool aNotify)
   value = GetMultiValue(card, kABInstantMessageProperty);
   if (value) {
     unsigned int count = [value count];
-    if (count > 0) {
-      unsigned int j = [value indexForIdentifier:[value primaryIdentifier]];
-      
-      if (j < count)
-        SET_STRING([value valueAtIndex:j], AimScreenName, aNotify,
-                   abManager);
+    for (size_t i = 0; i < count; i++) {
+      id imValue = [value valueAtIndex:i];
+      // Depending on the macOS version, imValue can be an NSString or an NSDictionary.
+      if ([imValue isKindOfClass:[NSString class]]) {
+        if (i == [value indexForIdentifier:[value primaryIdentifier]]) {
+          SET_STRING(imValue, _AimScreenName, aNotify, abManager);
+        }
+      } else if ([imValue isKindOfClass:[NSDictionary class]]) {
+        NSString* instantMessageService = [imValue objectForKey:@"InstantMessageService"];
+        const char* fieldName = InstantMessengerFieldName(instantMessageService);
+        NSString* userName = [imValue objectForKey:@"InstantMessageUsername"];
+        SetStringProperty(this, userName, fieldName, aNotify, abManager);
+      }
     }
   }
   
