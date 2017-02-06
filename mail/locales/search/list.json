@@ -4,6 +4,7 @@
       "amazondotcom", "aol-web-search", "bing", "twitter", "wikipedia", "yahoo"
     ]
   },
+  "regionOverrides": {},
   "locales": {
     "en-US": {
       "default": {
