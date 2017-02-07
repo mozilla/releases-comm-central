@@ -272,6 +272,8 @@ function toggleFilter(aFilterItem)
 
   // Now update the checkbox
   aFilterItem.childNodes[1].setAttribute("enabled", filter.enabled);
+  // For accessibility set the checked state on listitem
+  aFilterItem.setAttribute("aria-checked", filter.enabled);
 }
 
 // update the server menulist
@@ -706,6 +708,7 @@ function rebuildFilterList()
     {
       // If there are not enough listitems in the list, create a new one.
       listitem = document.createElement("listitem");
+      listitem.setAttribute("role", "checkbox");
       nameCell = document.createElement("listcell");
       enabledCell = document.createElement("listcell");
       enabledCell.setAttribute("class", "listcell-iconic");
@@ -718,9 +721,12 @@ function rebuildFilterList()
       listitem.addEventListener("click", onFilterClick, true);
       listitem.addEventListener("dblclick", onFilterDoubleClick, true);
     }
+    // For accessibility set the label on listitem.
+    listitem.setAttribute("label", filter.filterName);
     // Set the listitem values to represent the current filter.
     nameCell.setAttribute("label", filter.filterName);
     enabledCell.setAttribute("enabled", filter.enabled);
+    listitem.setAttribute("aria-checked", filter.enabled);
     listitem._filter = filter;
 
     if (selectedNames.includes(filter.filterName))
