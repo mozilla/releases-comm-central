@@ -3381,7 +3381,7 @@ SessionStoreService.prototype = {
                               .createInstance(Components.interfaces.nsISupportsString);
     argString.data = "about:blank";
 
-    var features = "chrome,dialog=no,macsuppressanimation,all";
+    var features = "chrome,dialog=no,suppressanimation,all";
     var winState = aState.windows[0];
     for (var aAttr in WINDOW_ATTRIBUTES) {
       // Use !isNaN as an easy way to ignore sizemode and check for numbers
