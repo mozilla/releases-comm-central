@@ -46,8 +46,10 @@ function setupModule(module) {
   subfolderB = inboxFolder.getChildNamed("smartFolderB");
 
   // This is how folders are marked to match a custom smart folder
-  subfolderA.setStringProperty("smartFolderName", smartParentNameA);
-  subfolderB.setStringProperty("smartFolderName", smartParentNameB);
+  // The name is added to a cache, as msgDatabase access in nsITreeView is
+  // bad perf.
+  mc.window.setSmartFolderName(subfolderA, smartParentNameA);
+  mc.window.setSmartFolderName(subfolderB, smartParentNameB);
 
   // The message itself doesn't really matter, as long as there's at least one
   // in the folder.
@@ -67,11 +69,11 @@ function test_switch_to_smart_folder_mode() {
 }
 
 
-function test_string_property() {
-  if (subfolderA.getStringProperty("smartFolderName") != smartParentNameA)
-    throw new Error("smartFolderName string property not set");
-  if (subfolderB.getStringProperty("smartFolderName") != smartParentNameB)
-    throw new Error("smartFolderName string property not set");
+function test_cache_property() {
+  if (mc.window.getSmartFolderName(subfolderA) != smartParentNameA)
+    throw new Error("smartFolderName A cache property not set");
+  if (mc.window.getSmartFolderName(subfolderB) != smartParentNameB)
+    throw new Error("smartFolderName B cache property not set");
 }
 
 function _test_smart_folder_type(folder, parentName) {
