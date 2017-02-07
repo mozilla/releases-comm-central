@@ -766,6 +766,8 @@ NS_IMETHODIMP nsMsgTemplateReplyHelper::OnStopRunningUrl(nsIURI *aUrl, nsresult 
   rv = pMsgCompose->Initialize(pMsgComposeParams, parentWindow, nullptr);
   NS_ENSURE_SUCCESS(rv,rv);
 
+  Release();
+
   return pMsgCompose->SendMsg(nsIMsgSend::nsMsgDeliverNow, mIdentity, nullptr, nullptr, nullptr) ;
 }
 
@@ -902,7 +904,11 @@ NS_IMETHODIMP nsMsgComposeService::ReplyWithTemplate(nsIMsgDBHdr *aMsgHdr, const
   if (!identity) // Found no match -> don't reply.
     return NS_ERROR_ABORT;
 
-  RefPtr<nsMsgTemplateReplyHelper> helper = new nsMsgTemplateReplyHelper;
+  nsMsgTemplateReplyHelper *helper = new nsMsgTemplateReplyHelper;
+  if (!helper)
+    return NS_ERROR_OUT_OF_MEMORY;
+
+  NS_ADDREF(helper);
 
   helper->mHdrToReplyTo = aMsgHdr;
   helper->mMsgWindow = aMsgWindow;
