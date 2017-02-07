@@ -372,12 +372,14 @@ nsMsgAttachmentHandler::PickEncoding(const char *charset, nsIMsgSend *mime_deliv
   if (pPrefBranch)
     pPrefBranch->GetBoolPref ("mail.file_attach_binary", &forceB64);
 
-  if (!mMainBody && (forceB64 || mime_type_requires_b64_p (m_type.get()) ||
-    m_have_cr + m_have_lf + m_have_crlf != 1))
+  // If the content-type is "image/" or something else known to be binary or
+  // several flavors of newlines are present, use base64 unless we're attaching
+  // a message (so that we don't get confused by newline conversions).
+  if (!mMainBody &&
+      (forceB64 || mime_type_requires_b64_p(m_type.get()) ||
+                   m_have_cr + m_have_lf + m_have_crlf != 1) &&
+      !m_type.LowerCaseEqualsLiteral(MESSAGE_RFC822))
   {
-    // If the content-type is "image/" or something else known to be binary
-    // or several flavors of newlines are present, always use base64
-    // (so that we don't get confused by newline conversions.)
     needsB64 = true;
   }
   else
