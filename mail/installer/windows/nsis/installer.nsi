@@ -5,7 +5,7 @@
 # Required Plugins:
 # AppAssocReg    http://nsis.sourceforge.net/Application_Association_Registration_plug-in
 # ApplicationID  http://nsis.sourceforge.net/ApplicationID_plug-in
-# CityHash       http://mxr.mozilla.org/mozilla-central/source/other-licenses/nsis/Contrib/CityHash
+# CityHash       http://dxr.mozilla.org/mozilla-central/source/other-licenses/nsis/Contrib/CityHash
 # ShellLink      http://nsis.sourceforge.net/ShellLink_plug-in
 # UAC            http://nsis.sourceforge.net/UAC_plug-in
 # ServicesHelper Mozilla specific plugin that is located in /other-licenses/nsis
@@ -21,13 +21,9 @@ CRCCheck on
 
 RequestExecutionLevel user
 
-; The commands inside this ifdef require NSIS 3.0a2 or greater so the ifdef can
-; be removed after we require NSIS 3.0a2 or greater.
-!ifdef NSIS_PACKEDVERSION
-  Unicode true
-  ManifestSupportedOS all
-  ManifestDPIAware true
-!endif
+Unicode true
+ManifestSupportedOS all
+ManifestDPIAware true
 
 !addplugindir ./
 
@@ -39,6 +35,7 @@ Var AddQuickLaunchSC
 Var AddDesktopSC
 Var InstallMaintenanceService
 Var PageName
+Var PreventRebootRequired
 
 ; By defining NO_STARTMENU_DIR an installer that doesn't provide an option for
 ; an application's Start Menu PROGRAMS directory and doesn't define the
@@ -49,7 +46,6 @@ Var PageName
 ; are a member of the Administrators group.
 !define NONADMIN_ELEVATE
 
-; Disabled until a survey url is provided
 !define AbortSurveyURL "http://live.mozillamessaging.com/survey/cancel/?page="
 
 ; Other included files may depend upon these includes!
@@ -64,7 +60,9 @@ Var PageName
 !insertmacro GetOptions
 !insertmacro GetParameters
 !insertmacro GetSize
+!insertmacro StrFilter
 !insertmacro WordFind
+!insertmacro WordReplace
 
 ; The following includes are custom.
 !include branding.nsi
@@ -72,7 +70,7 @@ Var PageName
 !include common.nsh
 !include locales.nsi
 
-VIAddVersionKey "FileDescription"  "${BrandShortName} Installer"
+VIAddVersionKey "FileDescription" "${BrandShortName} Installer"
 VIAddVersionKey "OriginalFilename" "setup.exe"
 
 ; Must be inserted before other macros that use logging
@@ -81,8 +79,10 @@ VIAddVersionKey "OriginalFilename" "setup.exe"
 !insertmacro AddHandlerValues
 !insertmacro ChangeMUIHeaderImage
 !insertmacro CheckForFilesInUse
-!insertmacro CleanUpdatesDir
+!insertmacro CleanUpdateDirectories
 !insertmacro CopyFilesFromDir
+!insertmacro CreateRegKey
+!insertmacro GetLongPath
 !insertmacro GetPathFromString
 !insertmacro GetParent
 !insertmacro InitHashAppModelId
@@ -94,8 +94,11 @@ VIAddVersionKey "OriginalFilename" "setup.exe"
 !insertmacro LogStartMenuShortcut
 !insertmacro ManualCloseAppPrompt
 !insertmacro PinnedToStartMenuLnkCount
+!insertmacro RegCleanAppHandler
 !insertmacro RegCleanMain
 !insertmacro RegCleanUninstall
+!insertmacro RemovePrecompleteEntries
+!insertmacro SetAppLSPCategories
 !insertmacro SetBrandNameVars
 !insertmacro UpdateShortcutAppModelIDs
 !insertmacro UnloadUAC
@@ -195,7 +198,42 @@ Section "-InstallStartCleanup"
   SetOutPath "$INSTDIR"
   ${StartInstallLog} "${BrandFullName}" "${AB_CD}" "${AppVersion}" "${GREVersion}"
 
-  ; Delete the app exe to prevent launching the app while we are installing.
+  StrCpy $R9 "true"
+  StrCpy $PreventRebootRequired "false"
+  ${GetParameters} $R8
+  ${GetOptions} "$R8" "/INI=" $R7
+  ${Unless} ${Errors}
+    ; The configuration file must also exist
+    ${If} ${FileExists} "$R7"
+      ReadINIStr $R9 $R7 "Install" "RemoveDistributionDir"
+      ReadINIStr $R8 $R7 "Install" "PreventRebootRequired"
+      ${If} $R8 == "true"
+        StrCpy $PreventRebootRequired "true"
+      ${EndIf}
+    ${EndIf}
+  ${EndUnless}
+
+  ; Remove directories and files we always control before parsing the uninstall
+  ; log so empty directories can be removed.
+  ${If} ${FileExists} "$INSTDIR\updates"
+    RmDir /r "$INSTDIR\updates"
+  ${EndIf}
+  ${If} ${FileExists} "$INSTDIR\updated"
+    RmDir /r "$INSTDIR\updated"
+  ${EndIf}
+  ${If} ${FileExists} "$INSTDIR\defaults\shortcuts"
+    RmDir /r "$INSTDIR\defaults\shortcuts"
+  ${EndIf}
+  ; Only remove the distribution directory if it exists and if the installer
+  ; isn't launched with an ini file that has RemoveDistributionDir=false in the
+  ; install section.
+  ${If} ${FileExists} "$INSTDIR\distribution"
+  ${AndIf} $R9 != "false"
+    RmDir /r "$INSTDIR\distribution"
+  ${EndIf}
+
+  ; Delete the app exe if present to prevent launching the app while we are
+  ; installing.
   ClearErrors
   ${DeleteFile} "$INSTDIR\${FileMainEXE}"
   ${If} ${Errors}
@@ -207,6 +245,15 @@ Section "-InstallStartCleanup"
     ClearErrors
   ${EndIf}
 
+  ; setup the application model id registration value
+  ${InitHashAppModelId} "$INSTDIR" "Software\Mozilla\${AppName}\TaskBarIDs"
+
+  ; Remove the updates directory
+  ${CleanUpdateDirectories} "Thunderbird" "Thunderbird\updates"
+
+  ; Upgrade the copies of the MAPI DLL's
+  ${UpgradeMapiDLLs}
+
   ; Delete two files installed by Kaspersky Anti-Spam extension that are only
   ; compatible with Thunderbird 2 (bug 533692).
   ${If} ${FileExists} "$INSTDIR\components\klthbplg.dll"
@@ -214,23 +261,6 @@ Section "-InstallStartCleanup"
   ${EndIf}
   ${If} ${FileExists} "$INSTDIR\components\IKLAntiSpam.xpt"
     Delete /REBOOTOK "$INSTDIR\components\IKLAntiSpam.xpt"
-  ${EndIf}
-
-  ; Remove the updates directory
-  ${CleanUpdatesDir} "Thunderbird"
-
-  ${GetParameters} $0
-  ${GetOptions} "$0" "/INI=" $1
-  ${Unless} ${Errors}
-    ; The configuration file must also exist
-    ${If} ${FileExists} "$1"
-      ReadINIStr $0 $1 "Install" "RemoveDistributionDir"
-    ${EndIf}
-  ${EndUnless}
-
-  ${If} ${FileExists} "$INSTDIR\distribution"
-  ${AndIf} $0 != "false"
-    RmDir /r "$INSTDIR\distribution"
   ${EndIf}
 
   ${InstallStartCleanupCommon}
@@ -340,9 +370,6 @@ Section "-Application" APP_IDX
     ${UpdateProtocolHandlers}
   ${EndIf}
 
-  ; setup the application model id registration value
-  ${InitHashAppModelId} "$INSTDIR" "Software\Mozilla\${AppName}\TaskBarIDs"
-
   ${RemoveDeprecatedKeys}
 
   ; The previous installer adds several regsitry values to both HKLM and HKCU.
@@ -376,23 +403,16 @@ Section "-Application" APP_IDX
   ${AddHandlerValues} "$0\Thunderbird.Url.news" "$3" "$8,0" \
                       "${AppRegNameNews} URL" "delete" ""
 
-  ; The following keys should only be set if we can write to HKLM
+  ; For pre win8, the following keys should only be set if we can write to HKLM.
+  ; For post win8, the keys below can be set in HKCU if needed.
   ${If} $TmpVal == "HKLM"
-    ; Set the Start Menu Internet and Registered App HKLM registry keys.
-    ${SetClientsMail}
-    ${SetClientsNews}
-
-    ; If we are writing to HKLM and create either the desktop or start menu
-    ; shortcuts set IconsVisible to 1 otherwise to 0.
-    ; Taskbar shortcuts imply having a start menu shortcut.
-    StrCpy $0 "Software\Clients\Mail\${ClientsRegName}\InstallInfo"
-    ${If} $AddDesktopSC == 1
-    ${OrIf} $AddStartMenuSC == 1
-    ${OrIf} $AddTaskbarSC == 1
-      WriteRegDWORD HKLM "$0" "IconsVisible" 1
-    ${Else}
-      WriteRegDWORD HKLM "$0" "IconsVisible" 0
-    ${EndIf}
+    ; Set the Start Menu Mail/News and Registered App HKLM registry keys.
+    ${SetClientsMail} "HKLM"
+    ${SetClientsNews} "HKLM"
+  ${ElseIf} ${AtLeastWin8}
+    ; Set the Start Menu Mail/News and Registered App HKCU registry keys.
+    ${SetClientsMail} "HKCU"
+    ${SetClientsNews} "HKCU"
   ${EndIf}
 
 !ifdef MOZ_MAINTENANCE_SERVICE
@@ -407,10 +427,10 @@ Section "-Application" APP_IDX
     ${If} $R0 == "true"
     ; Only proceed if we have HKLM write access
     ${AndIf} $TmpVal == "HKLM"
-      ; The user is an admin so we should default to install service yes
+      ; The user is an admin, so we should default to installing the service.
       StrCpy $InstallMaintenanceService "1"
     ${Else}
-      ; The user is not admin so we should default to install service no
+      ; The user is not admin, so we can't install the service.
       StrCpy $InstallMaintenanceService "0"
     ${EndIf}
   ${EndIf}
@@ -546,6 +566,7 @@ Section "-InstallEndCleanup"
   SetDetailsPrint none
 
   ${Unless} ${Silent}
+    ClearErrors
     ${MUI_INSTALLOPTIONS_READ} $0 "options.ini" "Field 6" "State"
     ${If} "$0" == "1"
       ${LogHeader} "Setting as the default mail application"
@@ -569,33 +590,43 @@ Section "-InstallEndCleanup"
 
   ${InstallEndCleanupCommon}
 
-  ${If} ${RebootFlag}
-    ; If we have to reboot give SHChangeNotify time to finish refreshing
-    ; the icons so the OS doesn't display the icons from helper.exe
-    Sleep 10000
-    ${LogHeader} "Reboot Required To Finish Installation"
-    ; ${FileMainEXE}.moz-upgrade should never exist but just in case...
-    ${Unless} ${FileExists} "$INSTDIR\${FileMainEXE}.moz-upgrade"
-      Rename "$INSTDIR\${FileMainEXE}" "$INSTDIR\${FileMainEXE}.moz-upgrade"
-    ${EndUnless}
+  ${If} $PreventRebootRequired == "true"
+    SetRebootFlag false
+  ${EndIf}
 
-    ${If} ${FileExists} "$INSTDIR\${FileMainEXE}"
-      ClearErrors
-      Rename "$INSTDIR\${FileMainEXE}" "$INSTDIR\${FileMainEXE}.moz-delete"
-      ${Unless} ${Errors}
-        Delete /REBOOTOK "$INSTDIR\${FileMainEXE}.moz-delete"
+  ${If} ${RebootFlag}
+    ; Admin is required to delete files on reboot so only add the moz-delete if
+    ; the user is an admin. After calling UAC::IsAdmin $0 will equal 1 if the
+    ; user is an admin.
+    UAC::IsAdmin
+    ${If} "$0" == "1"
+      ; When a reboot is required give SHChangeNotify time to finish the
+      ; refreshing the icons so the OS doesn't display the icons from helper.exe
+      Sleep 10000
+      ${LogHeader} "Reboot Required To Finish Installation"
+      ; ${FileMainEXE}.moz-upgrade should never exist but just in case...
+      ${Unless} ${FileExists} "$INSTDIR\${FileMainEXE}.moz-upgrade"
+        Rename "$INSTDIR\${FileMainEXE}" "$INSTDIR\${FileMainEXE}.moz-upgrade"
+      ${EndUnless}
+
+      ${If} ${FileExists} "$INSTDIR\${FileMainEXE}"
+        ClearErrors
+        Rename "$INSTDIR\${FileMainEXE}" "$INSTDIR\${FileMainEXE}.moz-delete"
+        ${Unless} ${Errors}
+          Delete /REBOOTOK "$INSTDIR\${FileMainEXE}.moz-delete"
+        ${EndUnless}
+      ${EndIf}
+
+      ${Unless} ${FileExists} "$INSTDIR\${FileMainEXE}"
+        CopyFiles /SILENT "$INSTDIR\uninstall\helper.exe" "$INSTDIR"
+        FileOpen $0 "$INSTDIR\${FileMainEXE}" w
+        FileWrite $0 "Will be deleted on restart"
+        Rename /REBOOTOK "$INSTDIR\${FileMainEXE}.moz-upgrade" "$INSTDIR\${FileMainEXE}"
+        FileClose $0
+        Delete "$INSTDIR\${FileMainEXE}"
+        Rename "$INSTDIR\helper.exe" "$INSTDIR\${FileMainEXE}"
       ${EndUnless}
     ${EndIf}
-
-    ${Unless} ${FileExists} "$INSTDIR\${FileMainEXE}"
-      CopyFiles /SILENT "$INSTDIR\uninstall\helper.exe" "$INSTDIR"
-      FileOpen $0 "$INSTDIR\${FileMainEXE}" w
-      FileWrite $0 "Will be deleted on restart"
-      Rename /REBOOTOK "$INSTDIR\${FileMainEXE}.moz-upgrade" "$INSTDIR\${FileMainEXE}"
-      FileClose $0
-      Delete "$INSTDIR\${FileMainEXE}"
-      Rename "$INSTDIR\helper.exe" "$INSTDIR\${FileMainEXE}"
-    ${EndUnless}
   ${EndIf}
 SectionEnd
 
@@ -603,14 +634,13 @@ SectionEnd
 # Install Abort Survey Functions
 
 Function CustomAbort
-!ifdef AbortSurveyURL
   ${If} "${AB_CD}" == "en-US"
   ${AndIf} "$PageName" != ""
   ${AndIf} ${FileExists} "$EXEDIR\core\distribution\distribution.ini"
     ReadINIStr $0 "$EXEDIR\core\distribution\distribution.ini" "Global" "about"
     ClearErrors
     ${WordFind} "$0" "Funnelcake" "E#" $1
-   ${Unless} ${Errors}
+    ${Unless} ${Errors}
       ; Yes = fill out the survey and exit, No = don't fill out survey and exit,
       ; Cancel = don't exit.
       MessageBox MB_YESNO|MB_ICONEXCLAMATION \
@@ -640,7 +670,6 @@ Function CustomAbort
       Return
     ${EndUnless}
   ${EndIf}
-!endif
 
   MessageBox MB_YESNO|MB_ICONEXCLAMATION "$(MOZ_MUI_TEXT_ABORTWARNING)" \
              IDYES +1 IDNO +2
@@ -648,7 +677,6 @@ Function CustomAbort
   Abort
 FunctionEnd
 
-!ifdef AbortSurveyURL
 Function AbortSurveyWelcome
   ExecShell "open" "${AbortSurveyURL}step1"
 FunctionEnd
@@ -668,7 +696,6 @@ FunctionEnd
 Function AbortSurveySummary
   ExecShell "open" "${AbortSurveyURL}step5"
 FunctionEnd
-!endif
 
 ################################################################################
 # Helper Functions
@@ -682,21 +709,29 @@ Function AddQuickLaunchShortcut
 FunctionEnd
 
 Function CheckExistingInstall
-  ; If there is a pending file copy from a previous uninstall don't allow
+  ; If there is a pending file copy from a previous upgrade don't allow
   ; installing until after the system has rebooted.
   IfFileExists "$INSTDIR\${FileMainEXE}.moz-upgrade" +1 +4
-  MessageBox MB_YESNO "$(WARN_RESTART_REQUIRED_UPGRADE)" IDNO +2
+  MessageBox MB_YESNO|MB_ICONEXCLAMATION "$(WARN_RESTART_REQUIRED_UPGRADE)" IDNO +2
   Reboot
   Quit
 
   ; If there is a pending file deletion from a previous uninstall don't allow
   ; installing until after the system has rebooted.
   IfFileExists "$INSTDIR\${FileMainEXE}.moz-delete" +1 +4
-  MessageBox MB_YESNO "$(WARN_RESTART_REQUIRED_UNINSTALL)" IDNO +2
+  MessageBox MB_YESNO|MB_ICONEXCLAMATION "$(WARN_RESTART_REQUIRED_UNINSTALL)" IDNO +2
   Reboot
   Quit
 
   ${If} ${FileExists} "$INSTDIR\${FileMainEXE}"
+    ; Disable the next, cancel, and back buttons
+    GetDlgItem $0 $HWNDPARENT 1 ; Next button
+    EnableWindow $0 0
+    GetDlgItem $0 $HWNDPARENT 2 ; Cancel button
+    EnableWindow $0 0
+    GetDlgItem $0 $HWNDPARENT 3 ; Back button
+    EnableWindow $0 0
+
     Banner::show /NOUNLOAD "$(BANNER_CHECK_EXISTING)"
 
     ${If} "$TmpVal" == "FoundMessageWindow"
@@ -711,6 +746,14 @@ Function CheckExistingInstall
 
     Banner::destroy
 
+    ; Enable the next, cancel, and back buttons
+    GetDlgItem $0 $HWNDPARENT 1 ; Next button
+    EnableWindow $0 1
+    GetDlgItem $0 $HWNDPARENT 2 ; Cancel button
+    EnableWindow $0 1
+    GetDlgItem $0 $HWNDPARENT 3 ; Back button
+    EnableWindow $0 1
+
     ${If} "$TmpVal" == "true"
       StrCpy $TmpVal "FoundMessageWindow"
       ${ManualCloseAppPrompt} "${WindowClass}" "$(WARN_MANUALLY_CLOSE_APP_INSTALL)"
@@ -720,11 +763,12 @@ Function CheckExistingInstall
 FunctionEnd
 
 Function LaunchApp
+  ${ManualCloseAppPrompt} "${WindowClass}" "$(WARN_MANUALLY_CLOSE_APP_LAUNCH)"
+
   ClearErrors
   ${GetParameters} $0
   ${GetOptions} "$0" "/UAC:" $1
   ${If} ${Errors}
-    ${ManualCloseAppPrompt} "${WindowClass}" "$(WARN_MANUALLY_CLOSE_APP_LAUNCH)"
     Exec "$\"$INSTDIR\${FileMainEXE}$\""
   ${Else}
     GetFunctionAddress $0 LaunchAppFromElevatedProcess
@@ -733,17 +777,10 @@ Function LaunchApp
 FunctionEnd
 
 Function LaunchAppFromElevatedProcess
-  ${ManualCloseAppPrompt} "${WindowClass}" "$(WARN_MANUALLY_CLOSE_APP_LAUNCH)"
-
-  ; Find the installation directory when launching using GetFunctionAddress
-  ; from an elevated installer since $INSTDIR will not be set in this installer
-  ReadRegStr $0 HKLM "Software\Clients\Mail\${ClientsRegName}\DefaultIcon" ""
-  ${GetPathFromString} "$0" $0
-  ${GetParent} "$0" $1
   ; Set our current working directory to the application's install directory
   ; otherwise the 7-Zip temp directory will be in use and won't be deleted.
-  SetOutPath "$1"
-  Exec "$\"$0$\""
+  SetOutPath "$INSTDIR"
+  Exec "$\"$INSTDIR\${FileMainEXE}$\""
 FunctionEnd
 
 ################################################################################
@@ -779,7 +816,6 @@ Function preOptions
     CopyFiles /SILENT "$EXEDIR\core\distribution\modern-header.bmp" "$PLUGINSDIR\modern-header.bmp"
     ${ChangeMUIHeaderImage} "$PLUGINSDIR\modern-header.bmp"
   ${EndIf}
-
   !insertmacro MUI_HEADER_TEXT "$(OPTIONS_PAGE_TITLE)" "$(OPTIONS_PAGE_SUBTITLE)"
   !insertmacro MUI_INSTALLOPTIONS_DISPLAY "options.ini"
 FunctionEnd
@@ -829,6 +865,7 @@ Function leaveShortcuts
   ${EndIf}
   ${MUI_INSTALLOPTIONS_READ} $AddDesktopSC "shortcuts.ini" "Field 2" "State"
   ${MUI_INSTALLOPTIONS_READ} $AddStartMenuSC "shortcuts.ini" "Field 3" "State"
+
   ; Don't install the quick launch shortcut on Windows 7
   ${Unless} ${AtLeastWin7}
     ${MUI_INSTALLOPTIONS_READ} $AddQuickLaunchSC "shortcuts.ini" "Field 4" "State"
@@ -910,7 +947,6 @@ Function preSummary
   WriteINIStr "$PLUGINSDIR\summary.ini" "Field 2" flags  "READONLY"
 
   WriteINIStr "$PLUGINSDIR\summary.ini" "Field 3" Type   "label"
-  WriteINIStr "$PLUGINSDIR\summary.ini" "Field 3" Text   "$(SUMMARY_CLICK)"
   WriteINIStr "$PLUGINSDIR\summary.ini" "Field 3" Left   "0"
   WriteINIStr "$PLUGINSDIR\summary.ini" "Field 3" Right  "-1"
   WriteINIStr "$PLUGINSDIR\summary.ini" "Field 3" Top    "130"

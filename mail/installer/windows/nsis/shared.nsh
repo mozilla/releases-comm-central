@@ -12,31 +12,20 @@
   ${RegCleanMain} "Software\Mozilla"
   ${RegCleanUninstall}
   ${UpdateProtocolHandlers}
-  ; Win7 taskbar and start menu link maintenance
-  Call FixShortcutAppModelIDs
 
   ; setup the application model id registration value
   ${InitHashAppModelId} "$INSTDIR" "Software\Mozilla\${AppName}\TaskBarIDs"
 
-  ; Upgrade the copies of the MAPI DLL's
-  ${UpgradeMapiDLLs}
-
-  ; Delete two files installed by Kaspersky Anti-Spam extension that are only
-  ; compatible with Thunderbird 2 (bug 533692).
-  ${If} ${FileExists} "$INSTDIR\components\klthbplg.dll"
-    Delete /REBOOTOK "$INSTDIR\components\klthbplg.dll"
-  ${EndIf}
-  ${If} ${FileExists} "$INSTDIR\components\IKLAntiSpam.xpt"
-    Delete /REBOOTOK "$INSTDIR\components\IKLAntiSpam.xpt"
-  ${EndIf}
+  ; Win7 taskbar and start menu link maintenance
+  Call FixShortcutAppModelIDs
 
   ClearErrors
   WriteRegStr HKLM "Software\Mozilla" "${BrandShortName}InstallerTest" "Write Test"
   ${If} ${Errors}
     StrCpy $TmpVal "HKCU" ; used primarily for logging
   ${Else}
-    DeleteRegValue HKLM "Software\Mozilla" "${BrandShortName}InstallerTest"
     SetShellVarContext all    ; Set SHCTX to all users (e.g. HKLM)
+    DeleteRegValue HKLM "Software\Mozilla" "${BrandShortName}InstallerTest"
     StrCpy $TmpVal "HKLM" ; used primarily for logging
     ${RegCleanMain} "Software\Mozilla"
     ${RegCleanUninstall}
@@ -54,7 +43,7 @@
       ${GetLongPath} "$0" $0
     ${EndIf}
     ${If} "$0" == "$INSTDIR"
-      ${SetClientsMail}
+      ${SetClientsMail} "HKLM"
     ${EndIf}
 
     ; Only update the Clients\News registry key values if they don't exist or
@@ -66,7 +55,7 @@
       ${GetLongPath} "$0" $0
     ${EndIf}
     ${If} "$0" == "$INSTDIR"
-      ${SetClientsNews}
+      ${SetClientsNews} "HKLM"
     ${EndIf}
   ${EndIf}
 
@@ -99,16 +88,20 @@
   ${If} $R0 == "true"
   ; Only proceed if we have HKLM write access
   ${AndIf} $TmpVal == "HKLM"
-    ; Add the registry keys for allowed certificates.
-    ${AddMaintCertKeys}
-
     ; We check to see if the maintenance service install was already attempted.
     ; Since the Maintenance service can be installed either x86 or x64,
     ; always use the 64-bit registry for checking if an attempt was made.
-    SetRegView 64
+    ${If} ${RunningX64}
+      SetRegView 64
+    ${EndIf}
     ReadRegDWORD $5 HKLM "Software\Mozilla\MaintenanceService" "Attempted"
     ClearErrors
-    SetRegView lastused
+    ${If} ${RunningX64}
+      SetRegView lastused
+    ${EndIf}
+
+    ; Add the registry keys for allowed certificates.
+    ${AddMaintCertKeys}
 
     ; If the maintenance service is already installed, do nothing.
     ; The maintenance service will launch:
@@ -122,42 +115,43 @@
     ; and we need a return result back to the service when run that way.
     ${If} $5 == ""
       ; An install of maintenance service was never attempted.
-      ; We call ExecShell (which is ShellExecute) with the verb "runas"
-      ; to ask for elevation if the user isn't already elevated.  If the user
-      ; is already elevated it will just launch the program.
-      ExecShell "runas" "$\"$INSTDIR\maintenanceservice_installer.exe$\""
+      ; We know we are an Admin and that we have write access into HKLM
+      ; based on the above checks, so attempt to just run the EXE.
+      ; In the worst case, in case there is some edge case with the
+      ; IsAdmin check and the permissions check, the maintenance service
+      ; will just fail to be attempted to be installed.
+      nsExec::Exec "$\"$INSTDIR\maintenanceservice_installer.exe$\""
     ${EndIf}
   ${EndIf}
 !endif
-
-  ; Remove talkback if it is present (remove after bug 386760 is fixed)
-  ${If} ${FileExists} "$INSTDIR\extensions\talkback@mozilla.org\"
-    RmDir /r "$INSTDIR\extensions\talkback@mozilla.org\"
-  ${EndIf}
 !macroend
 !define PostUpdate "!insertmacro PostUpdate"
 
 !macro SetAsDefaultAppGlobal
-  ${RemoveDeprecatedKeys}
+  ${RemoveDeprecatedKeys} ; Does not use SHCTX
 
   SetShellVarContext all      ; Set SHCTX to all users (e.g. HKLM)
-  ${SetHandlersMail}
-  ${SetHandlersNews}
-  ${SetClientsMail}
-  ${SetClientsNews}
+  ${SetHandlersMail} ; Uses SHCTX
+  ${SetHandlersNews} ; Uses SHCTX
+  ${SetClientsMail} "HKLM"
+  ${SetClientsNews} "HKLM"
+  ${SetMailClientForMapi} "HKLM"
   ${ShowShortcuts}
-  ${SetMailClientForMapi}
 !macroend
 !define SetAsDefaultAppGlobal "!insertmacro SetAsDefaultAppGlobal"
 
-!macro SetMailClientForMapi
-  WriteRegStr HKLM "Software\Clients\Mail" "" "${ClientsRegName}"
+!macro SetMailClientForMapi RegKey
+  WriteRegStr ${RegKey} "Software\Clients\Mail" "" "${ClientsRegName}"
 !macroend
 !define SetMailClientForMapi "!insertmacro SetMailClientForMapi"
 
 !macro HideShortcuts
   StrCpy $R1 "Software\Clients\Mail\${ClientsRegName}\InstallInfo"
   WriteRegDWORD HKLM "$R1" "IconsVisible" 0
+  ${If} ${AtLeastWin8}
+    WriteRegDWORD HKCU "$R1" "IconsVisible" 0
+  ${EndIf}
+
   SetShellVarContext all  ; Set $DESKTOP to All Users
   ${Unless} ${FileExists} "$DESKTOP\${BrandFullName}.lnk"
     SetShellVarContext current  ; Set $DESKTOP to the current user's desktop
@@ -169,9 +163,28 @@
     ${If} "$0" == ""
       ShellLink::GetShortCutTarget "$DESKTOP\${BrandFullName}.lnk"
       Pop $0
-      ; Needs to handle short paths
+      ${GetLongPath} "$0" $0
       ${If} "$0" == "$INSTDIR\${FileMainEXE}"
         Delete "$DESKTOP\${BrandFullName}.lnk"
+      ${EndIf}
+    ${EndIf}
+  ${EndIf}
+
+  SetShellVarContext all  ; Set $SMPROGRAMS to All Users
+  ${Unless} ${FileExists} "$SMPROGRAMS\${BrandFullName}.lnk"
+    SetShellVarContext current  ; Set $SMPROGRAMS to the current user's Start
+                                ; Menu Programs directory
+  ${EndUnless}
+
+  ${If} ${FileExists} "$SMPROGRAMS\${BrandFullName}.lnk"
+    ShellLink::GetShortCutArgs "$SMPROGRAMS\${BrandFullName}.lnk"
+    Pop $0
+    ${If} "$0" == ""
+      ShellLink::GetShortCutTarget "$SMPROGRAMS\${BrandFullName}.lnk"
+      Pop $0
+      ${GetLongPath} "$0" $0
+      ${If} "$0" == "$INSTDIR\${FileMainEXE}"
+        Delete "$SMPROGRAMS\${BrandFullName}.lnk"
       ${EndIf}
     ${EndIf}
   ${EndIf}
@@ -182,7 +195,7 @@
     ${If} "$0" == ""
       ShellLink::GetShortCutTarget "$QUICKLAUNCH\${BrandFullName}.lnk"
       Pop $0
-      ; Needs to handle short paths
+      ${GetLongPath} "$0" $0
       ${If} "$0" == "$INSTDIR\${FileMainEXE}"
         Delete "$QUICKLAUNCH\${BrandFullName}.lnk"
       ${EndIf}
@@ -191,10 +204,41 @@
 !macroend
 !define HideShortcuts "!insertmacro HideShortcuts"
 
+; Adds shortcuts for this installation. This should also add the application
+; to Open With for the file types the application handles (bug 370480).
 !macro ShowShortcuts
   StrCpy $R1 "Software\Clients\Mail\${ClientsRegName}\InstallInfo"
   WriteRegDWORD HKLM "$R1" "IconsVisible" 1
+  ${If} ${AtLeastWin8}
+    WriteRegDWORD HKCU "$R1" "IconsVisible" 1
+  ${EndIf}
+
   SetShellVarContext all  ; Set $DESKTOP to All Users
+  ${Unless} ${FileExists} "$DESKTOP\${BrandFullName}.lnk"
+    CreateShortCut "$DESKTOP\${BrandFullName}.lnk" "$INSTDIR\${FileMainEXE}"
+    ${If} ${FileExists} "$DESKTOP\${BrandFullName}.lnk"
+      ShellLink::SetShortCutWorkingDirectory "$DESKTOP\${BrandFullName}.lnk" "$INSTDIR"
+      ${If} ${AtLeastWin7}
+      ${AndIf} "$AppUserModelID" != ""
+        ApplicationID::Set "$DESKTOP\${BrandFullName}.lnk" "$AppUserModelID" "true"
+      ${EndIf}
+    ${Else}
+      SetShellVarContext current  ; Set $DESKTOP to the current user's desktop
+      ${Unless} ${FileExists} "$DESKTOP\${BrandFullName}.lnk"
+        CreateShortCut "$DESKTOP\${BrandFullName}.lnk" "$INSTDIR\${FileMainEXE}"
+        ${If} ${FileExists} "$DESKTOP\${BrandFullName}.lnk"
+          ShellLink::SetShortCutWorkingDirectory "$DESKTOP\${BrandFullName}.lnk" \
+                                                 "$INSTDIR"
+          ${If} ${AtLeastWin7}
+          ${AndIf} "$AppUserModelID" != ""
+            ApplicationID::Set "$DESKTOP\${BrandFullName}.lnk" "$AppUserModelID" "true"
+          ${EndIf}
+        ${EndIf}
+      ${EndUnless}
+    ${EndIf}
+  ${EndUnless}
+
+  SetShellVarContext all  ; Set $SMPROGRAMS to All Users
   ${Unless} ${FileExists} "$SMPROGRAMS\${BrandFullName}.lnk"
     CreateShortCut "$SMPROGRAMS\${BrandFullName}.lnk" "$INSTDIR\${FileMainEXE}"
     ${If} ${FileExists} "$SMPROGRAMS\${BrandFullName}.lnk"
@@ -236,6 +280,7 @@
 
 !macro SetHandlersMail
   ${GetLongPath} "$INSTDIR\${FileMainEXE}" $8
+
   StrCpy $0 "SOFTWARE\Classes"
   StrCpy $1 "$\"$8$\" $\"%1$\""
   StrCpy $2 "$\"$8$\" -osint -compose $\"%1$\""
@@ -270,16 +315,16 @@
 
 ; XXXrstrong - there are several values that will be overwritten by and
 ; overwrite other installs of the same application.
-!macro SetClientsMail
+!macro SetClientsMail RegKey
   ${GetLongPath} "$INSTDIR\${FileMainEXE}" $8
   ${GetLongPath} "$INSTDIR\uninstall\helper.exe" $7
   ${GetLongPath} "$INSTDIR\mozMapi32_InUse.dll" $6
 
   StrCpy $0 "Software\Clients\Mail\${ClientsRegName}"
 
-  WriteRegStr HKLM "$0" "" "${ClientsRegName}"
-  WriteRegStr HKLM "$0\DefaultIcon" "" "$8,0"
-  WriteRegStr HKLM "$0" "DLLPath" "$6"
+  WriteRegStr ${RegKey} "$0" "" "${ClientsRegName}"
+  WriteRegStr ${RegKey} "$0\DefaultIcon" "" "$8,0"
+  WriteRegStr ${RegKey} "$0" "DLLPath" "$6"
 
   ; The MapiProxy dll can exist in multiple installs of the application.
   ; Registration occurs as follows with the last action to occur being the one
@@ -303,75 +348,72 @@
   !endif
 
   StrCpy $1 "Software\Classes\CLSID\{29F458BE-8866-11D5-A3DD-00B0D0F3BAA7}"
-  WriteRegStr HKLM "$1\LocalServer32" "" "$\"$8$\" /MAPIStartup"
-  WriteRegStr HKLM "$1\ProgID" "" "MozillaMapi.1"
-  WriteRegStr HKLM "$1\VersionIndependentProgID" "" "MozillaMAPI"
+  WriteRegStr ${RegKey} "$1\LocalServer32" "" "$\"$8$\" /MAPIStartup"
+  WriteRegStr ${RegKey} "$1\ProgID" "" "MozillaMapi.1"
+  WriteRegStr ${RegKey} "$1\VersionIndependentProgID" "" "MozillaMAPI"
   StrCpy $1 "SOFTWARE\Classes"
-  WriteRegStr HKLM "$1\MozillaMapi" "" "Mozilla MAPI"
-  WriteRegStr HKLM "$1\MozillaMapi\CLSID" "" "{29F458BE-8866-11D5-A3DD-00B0D0F3BAA7}"
-  WriteRegStr HKLM "$1\MozillaMapi\CurVer" "" "MozillaMapi.1"
-  WriteRegStr HKLM "$1\MozillaMapi.1" "" "Mozilla MAPI"
-  WriteRegStr HKLM "$1\MozillaMapi.1\CLSID" "" "{29F458BE-8866-11D5-A3DD-00B0D0F3BAA7}"
+  WriteRegStr ${RegKey} "$1\MozillaMapi" "" "Mozilla MAPI"
+  WriteRegStr ${RegKey} "$1\MozillaMapi\CLSID" "" "{29F458BE-8866-11D5-A3DD-00B0D0F3BAA7}"
+  WriteRegStr ${RegKey} "$1\MozillaMapi\CurVer" "" "MozillaMapi.1"
+  WriteRegStr ${RegKey} "$1\MozillaMapi.1" "" "Mozilla MAPI"
+  WriteRegStr ${RegKey} "$1\MozillaMapi.1\CLSID" "" "{29F458BE-8866-11D5-A3DD-00B0D0F3BAA7}"
 
   ; The Reinstall Command is defined at
   ; http://msdn.microsoft.com/library/default.asp?url=/library/en-us/shellcc/platform/shell/programmersguide/shell_adv/registeringapps.asp
-  WriteRegStr HKLM "$0\InstallInfo" "HideIconsCommand" "$\"$7$\" /HideShortcuts"
-  WriteRegStr HKLM "$0\InstallInfo" "ShowIconsCommand" "$\"$7$\" /ShowShortcuts"
-  WriteRegStr HKLM "$0\InstallInfo" "ReinstallCommand" "$\"$7$\" /SetAsDefaultAppGlobal"
+  WriteRegStr ${RegKey} "$0\InstallInfo" "HideIconsCommand" "$\"$7$\" /HideShortcuts"
+  WriteRegStr ${RegKey} "$0\InstallInfo" "ShowIconsCommand" "$\"$7$\" /ShowShortcuts"
+  WriteRegStr ${RegKey} "$0\InstallInfo" "ReinstallCommand" "$\"$7$\" /SetAsDefaultAppGlobal"
 
   ClearErrors
-  ReadRegDWORD $1 HKLM "$0\InstallInfo" "IconsVisible"
-  ; If the IconsVisible name vale pair doesn't exist add it otherwise the
+  ReadRegDWORD $1 ${RegKey} "$0\InstallInfo" "IconsVisible"
+  ; If the IconsVisible name value pair doesn't exist add it otherwise the
   ; application won't be displayed in Set Program Access and Defaults.
   ${If} ${Errors}
     ${If} ${FileExists} "$QUICKLAUNCH\${BrandFullName}.lnk"
-      WriteRegDWORD HKLM "$0\InstallInfo" "IconsVisible" 1
+      WriteRegDWORD ${RegKey} "$0\InstallInfo" "IconsVisible" 1
     ${Else}
-      WriteRegDWORD HKLM "$0\InstallInfo" "IconsVisible" 0
+      WriteRegDWORD ${RegKey} "$0\InstallInfo" "IconsVisible" 0
     ${EndIf}
   ${EndIf}
 
-  ; Mail shell/open/command
-  WriteRegStr HKLM "$0\shell\open\command" "" "$\"$8$\" -mail"
+  WriteRegStr ${RegKey} "$0\shell\open\command" "" "$\"$8$\" -mail"
 
-  ; options
-  WriteRegStr HKLM "$0\shell\properties" "" "$(CONTEXT_OPTIONS)"
-  WriteRegStr HKLM "$0\shell\properties\command" "" "$\"$8$\" -options"
+  WriteRegStr ${RegKey} "$0\shell\properties" "" "$(CONTEXT_OPTIONS)"
+  WriteRegStr ${RegKey} "$0\shell\properties\command" "" "$\"$8$\" -options"
 
-  ; safemode
-  WriteRegStr HKLM "$0\shell\safemode" "" "$(CONTEXT_SAFE_MODE)"
-  WriteRegStr HKLM "$0\shell\safemode\command" "" "$\"$8$\" -safe-mode"
+  WriteRegStr ${RegKey} "$0\shell\safemode" "" "$(CONTEXT_SAFE_MODE)"
+  WriteRegStr ${RegKey} "$0\shell\safemode\command" "" "$\"$8$\" -safe-mode"
 
   ; Protocols
   StrCpy $1 "$\"$8$\" -osint -compose $\"%1$\""
   ${AddHandlerValues} "$0\Protocols\mailto" "$1" "$8,0" "${AppRegNameMail} URL" "true" ""
 
   ; Capabilities registry keys
-  WriteRegStr HKLM "$0\Capabilities" "ApplicationDescription" "$(REG_APP_DESC)"
-  WriteRegStr HKLM "$0\Capabilities" "ApplicationIcon" "$8,0"
-  WriteRegStr HKLM "$0\Capabilities" "ApplicationName" "${AppRegNameMail}"
-  WriteRegStr HKLM "$0\Capabilities\FileAssociations" ".eml"   "ThunderbirdEML"
-  WriteRegStr HKLM "$0\Capabilities\FileAssociations" ".wdseml" "ThunderbirdEML"
-  WriteRegStr HKLM "$0\Capabilities\StartMenu" "Mail" "${ClientsRegName}"
-  WriteRegStr HKLM "$0\Capabilities\URLAssociations" "mailto" "Thunderbird.Url.mailto"
+  WriteRegStr ${RegKey} "$0\Capabilities" "ApplicationDescription" "$(REG_APP_DESC)"
+  WriteRegStr ${RegKey} "$0\Capabilities" "ApplicationIcon" "$8,0"
+  WriteRegStr ${RegKey} "$0\Capabilities" "ApplicationName" "${AppRegNameMail}"
+  WriteRegStr ${RegKey} "$0\Capabilities\FileAssociations" ".eml"   "ThunderbirdEML"
+  WriteRegStr ${RegKey} "$0\Capabilities\FileAssociations" ".wdseml" "ThunderbirdEML"
+  WriteRegStr ${RegKey} "$0\Capabilities\StartMenu" "Mail" "${ClientsRegName}"
+  WriteRegStr ${RegKey} "$0\Capabilities\URLAssociations" "mailto" "Thunderbird.Url.mailto"
 
   ; Registered Application
-  WriteRegStr HKLM "Software\RegisteredApplications" "${AppRegNameMail}" "$0\Capabilities"
+  WriteRegStr ${RegKey} "Software\RegisteredApplications" "${AppRegNameMail}" "$0\Capabilities"
 !macroend
 !define SetClientsMail "!insertmacro SetClientsMail"
 
 ; XXXrstrong - there are several values that will be overwritten by and
 ; overwrite other installs of the same application.
-!macro SetClientsNews
+!macro SetClientsNews RegKey
   ${GetLongPath} "$INSTDIR\${FileMainEXE}" $8
   ${GetLongPath} "$INSTDIR\uninstall\helper.exe" $7
   ${GetLongPath} "$INSTDIR\mozMapi32_InUse.dll" $6
 
   StrCpy $0 "Software\Clients\News\${ClientsRegName}"
 
-  WriteRegStr HKLM "$0" "" "${ClientsRegName}"
-  WriteRegStr HKLM "$0\DefaultIcon" "" "$8,0"
-  WriteRegStr HKLM "$0" "DLLPath" "$6"
+  WriteRegStr ${RegKey} "$0" "" "${ClientsRegName}"
+  WriteRegStr ${RegKey} "$0\DefaultIcon" "" "$8,0"
+  WriteRegStr ${RegKey} "$0" "DLLPath" "$6"
 
   ; The MapiProxy dll can exist in multiple installs of the application.
   ; Registration occurs as follows with the last action to occur being the one
@@ -395,26 +437,26 @@
   !endif
 
   StrCpy $1 "Software\Classes\CLSID\{29F458BE-8866-11D5-A3DD-00B0D0F3BAA7}"
-  WriteRegStr HKLM "$1\LocalServer32" "" "$\"$8$\" /MAPIStartup"
-  WriteRegStr HKLM "$1\ProgID" "" "MozillaMapi.1"
-  WriteRegStr HKLM "$1\VersionIndependentProgID" "" "MozillaMAPI"
+  WriteRegStr ${RegKey} "$1\LocalServer32" "" "$\"$8$\" /MAPIStartup"
+  WriteRegStr ${RegKey} "$1\ProgID" "" "MozillaMapi.1"
+  WriteRegStr ${RegKey} "$1\VersionIndependentProgID" "" "MozillaMAPI"
   StrCpy $1 "SOFTWARE\Classes"
-  WriteRegStr HKLM "$1\MozillaMapi" "" "Mozilla MAPI"
-  WriteRegStr HKLM "$1\MozillaMapi\CLSID" "" "{29F458BE-8866-11D5-A3DD-00B0D0F3BAA7}"
-  WriteRegStr HKLM "$1\MozillaMapi\CurVer" "" "MozillaMapi.1"
-  WriteRegStr HKLM "$1\MozillaMapi.1" "" "Mozilla MAPI"
-  WriteRegStr HKLM "$1\MozillaMapi.1\CLSID" "" "{29F458BE-8866-11D5-A3DD-00B0D0F3BAA7}"
+  WriteRegStr ${RegKey} "$1\MozillaMapi" "" "Mozilla MAPI"
+  WriteRegStr ${RegKey} "$1\MozillaMapi\CLSID" "" "{29F458BE-8866-11D5-A3DD-00B0D0F3BAA7}"
+  WriteRegStr ${RegKey} "$1\MozillaMapi\CurVer" "" "MozillaMapi.1"
+  WriteRegStr ${RegKey} "$1\MozillaMapi.1" "" "Mozilla MAPI"
+  WriteRegStr ${RegKey} "$1\MozillaMapi.1\CLSID" "" "{29F458BE-8866-11D5-A3DD-00B0D0F3BAA7}"
 
   ; Mail shell/open/command
-  WriteRegStr HKLM "$0\shell\open\command" "" "$\"$8$\" -mail"
+  WriteRegStr ${RegKey} "$0\shell\open\command" "" "$\"$8$\" -mail"
 
   ; Capabilities registry keys
-  WriteRegStr HKLM "$0\Capabilities" "ApplicationDescription" "$(REG_APP_DESC)"
-  WriteRegStr HKLM "$0\Capabilities" "ApplicationIcon" "$8,0"
-  WriteRegStr HKLM "$0\Capabilities" "ApplicationName" "${AppRegNameNews}"
-  WriteRegStr HKLM "$0\Capabilities\URLAssociations" "nntp" "Thunderbird.Url.news"
-  WriteRegStr HKLM "$0\Capabilities\URLAssociations" "news" "Thunderbird.Url.news"
-  WriteRegStr HKLM "$0\Capabilities\URLAssociations" "snews" "Thunderbird.Url.news"
+  WriteRegStr ${RegKey} "$0\Capabilities" "ApplicationDescription" "$(REG_APP_DESC)"
+  WriteRegStr ${RegKey} "$0\Capabilities" "ApplicationIcon" "$8,0"
+  WriteRegStr ${RegKey} "$0\Capabilities" "ApplicationName" "${AppRegNameNews}"
+  WriteRegStr ${RegKey} "$0\Capabilities\URLAssociations" "nntp" "Thunderbird.Url.news"
+  WriteRegStr ${RegKey} "$0\Capabilities\URLAssociations" "news" "Thunderbird.Url.news"
+  WriteRegStr ${RegKey} "$0\Capabilities\URLAssociations" "snews" "Thunderbird.Url.news"
 
   ; Protocols
   StrCpy $1 "$\"$8$\" -osint -mail $\"%1$\""
@@ -423,10 +465,11 @@
   ${AddHandlerValues} "$0\Protocols\snews" "$1" "$8,0" "${AppRegNameNews} URL" "true" ""
 
   ; Registered Application
-  WriteRegStr HKLM "Software\RegisteredApplications" "${AppRegNameNews}" "$0\Capabilities"
+  WriteRegStr ${RegKey} "Software\RegisteredApplications" "${AppRegNameNews}" "$0\Capabilities"
 !macroend
 !define SetClientsNews "!insertmacro SetClientsNews"
 
+; Add Software\Mozilla\ registry entries (uses SHCTX).
 !macro SetAppKeys
   ${GetLongPath} "$INSTDIR" $8
   StrCpy $0 "Software\Mozilla\${BrandFullNameInternal}\${AppVersion} (${AB_CD})\Main"
@@ -511,7 +554,7 @@
 !define SetUninstallKeys "!insertmacro SetUninstallKeys"
 
 ; Updates protocol handlers if their registry open command value is for this
-; install location (uses SHCTX)
+; install location (uses SHCTX).
 !macro UpdateProtocolHandlers
   ; Store the command to open the app with an url in a register for easy access.
   ${GetLongPath} "$INSTDIR\${FileMainEXE}" $8
@@ -577,9 +620,18 @@
     ; with at most one certificate.  A fallback certificate can only be used
     ; if the binary is replaced with a different certificate.
     ; We always use the 64bit registry for certs.
-    ; This call is ignored on 32-bit systems.
-    SetRegView 64
+    ${If} ${RunningX64}
+      SetRegView 64
+    ${EndIf}
     DeleteRegKey HKLM "$R0"
+
+    ; Setting the Attempted value will ensure that a new Maintenance Service
+    ; install will never be attempted again after this from updates.  The value
+    ; is used only to see if updates should attempt new service installs.
+    WriteRegDWORD HKLM "Software\Mozilla\MaintenanceService" "Attempted" 1
+
+    ; These values associate the allowed certificates for the current
+    ; installation.
     WriteRegStr HKLM "$R0\0" "name" "${CERTIFICATE_NAME}"
     WriteRegStr HKLM "$R0\0" "issuer" "${CERTIFICATE_ISSUER}"
     ; These values associate the allowed certificates for the previous
@@ -587,8 +639,9 @@
     ;  old updater.exe (which will still have this signature).
     WriteRegStr HKLM "$R0\1" "name" "${CERTIFICATE_NAME_PREVIOUS}"
     WriteRegStr HKLM "$R0\1" "issuer" "${CERTIFICATE_ISSUER_PREVIOUS}"
-
-    SetRegView lastused
+    ${If} ${RunningX64}
+      SetRegView lastused
+    ${EndIf}
     ClearErrors
   ${EndIf}
   ; Restore the previously used value back
@@ -1027,8 +1080,8 @@ Function SetAsDefaultAppUser
   ${ElevateUAC}
 
   SetShellVarContext all  ; Set SHCTX to all users (e.g. HKLM)
-  ${SetClientsMail}
-  ${SetClientsNews}
+  ${SetClientsMail} "HKLM"
+  ${SetClientsNews} "HKLM"
 
   ${RemoveDeprecatedKeys}
   ${MigrateTaskBarShortcut}
@@ -1065,6 +1118,11 @@ FunctionEnd
 
 !endif
 
+; Sets this installation as the default mailer by setting the registry keys
+; under HKEY_CURRENT_USER via registry calls and using the AppAssocReg NSIS
+; plugin. This is a function instead of a macro so it is
+; easily called from an elevated instance of the binary. Since this can be
+; called by an elevated instance logging is not performed in this function.
 Function SetAsDefaultMailAppUserHKCU
   ; Only set as the user's Mail client if the StartMenuInternet
   ; registry keys are for this install.
@@ -1082,7 +1140,11 @@ Function SetAsDefaultMailAppUserHKCU
   ${EndUnless}
 
   SetShellVarContext current  ; Set SHCTX to the current user (e.g. HKCU)
-  ${SetHandlersMail}
+
+  ${If} ${AtLeastWin8}
+    ${SetHandlersMail}
+  ${EndIf}
+
   ClearErrors
   ReadRegStr $0 HKLM "Software\RegisteredApplications" "${AppRegNameMail}"
   ; Only register as the handler if the app registry name exists
@@ -1096,6 +1158,11 @@ FunctionEnd
 ; this function only being used by SetAsDefaultAppUser.
 !ifdef NO_LOG
 
+; Sets this installation as the default news client by setting the registry keys
+; under HKEY_CURRENT_USER via registry calls and using the AppAssocReg NSIS
+; plugin. This is a function instead of a macro so it is
+; easily called from an elevated instance of the binary. Since this can be
+; called by an elevated instance logging is not performed in this function.
 Function SetAsDefaultNewsAppUserHKCU
   ; Only set as the user's News client if the StartMenuInternet
   ; registry keys are for this install.
@@ -1113,7 +1180,11 @@ Function SetAsDefaultNewsAppUserHKCU
   ${EndUnless}
 
   SetShellVarContext current  ; Set SHCTX to the current user (e.g. HKCU)
-  ${SetHandlersNews}
+
+  ${If} ${AtLeastWin8}
+    ${SetHandlersNews}
+  ${EndIf}
+
   ClearErrors
   ReadRegStr $0 HKLM "Software\RegisteredApplications" "${AppRegNameNews}"
   ; Only register as the handler if the app registry name exists
