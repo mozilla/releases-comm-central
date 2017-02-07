@@ -24,6 +24,7 @@ var MODULE_NAME = 'test-general-content-policy';
 var RELATIVE_ROOT = '../shared-modules';
 var MODULE_REQUIRES = ['folder-display-helpers', 'window-helpers',
                          'compose-helpers', 'content-tab-helpers',
+                         'keyboard-helpers',
                          'notificationbox-helpers'];
 var jumlib = {};
 Components.utils.import("resource://mozmill/modules/jum.js", jumlib);
@@ -456,3 +457,104 @@ function test_generalContentPolicy() {
     }
   }
 }
+
+// Copied from test-blocked-content.js.
+function putHTMLOnClipboard(html) {
+  let trans = Components.classes["@mozilla.org/widget/transferable;1"]
+                        .createInstance(Components.interfaces.nsITransferable);
+
+  // Register supported data flavors
+  trans.init(null);
+  trans.addDataFlavor("text/html");
+
+  let wapper = Components.classes["@mozilla.org/supports-string;1"]
+   .createInstance(Components.interfaces.nsISupportsString);
+  wapper.data = html;
+  trans.setTransferData("text/html", wapper, wapper.data.length * 2);
+
+  Services.clipboard.setData(trans, null,
+    Components.interfaces.nsIClipboard.kGlobalClipboard);
+}
+
+function subtest_insertImageIntoReplyForward(aReplyType) {
+  let msgDbHdr = addToFolder("Test insert image into reply or forward",
+                             "Stand by for image insertion ;-)",
+                             folder);
+  gMsgNo++;
+
+  // Select the newly created message.
+  be_in_folder(folder);
+  let msgHdr = select_click_row(gMsgNo);
+
+  if (msgDbHdr != msgHdr)
+    throw new Error("Selected Message Header is not the same as generated header");
+
+  assert_selected_and_displayed(gMsgNo);
+
+  let replyWindow = aReplyType ? open_compose_with_reply() :
+                                 open_compose_with_forward();
+
+  // Now insert the image
+  // (copied from test-compose-mailto.js:test_checkInsertImage()).
+
+  // First focus on the editor element
+  replyWindow.e("content-frame").focus();
+
+  // Now open the image window
+  plan_for_modal_dialog("imageDlg",
+    function insert_image(mwc) {
+      // Insert the url of the image.
+      let srcloc = mwc.window.document.getElementById("srcInput");
+      srcloc.focus();
+
+      input_value(mwc, url + "pass.png");
+      mwc.sleep(0);
+
+      // Don't add alternate text
+      mwc.click(mwc.eid("noAltTextRadio"));
+
+      // Accept the dialog
+      mwc.window.document.getElementById("imageDlg").acceptDialog();
+    });
+  replyWindow.click(replyWindow.eid("insertImage"));
+
+  wait_for_modal_dialog();
+  wait_for_window_close();
+
+  // Paste an image.
+  putHTMLOnClipboard("<img id='tmp-img' src='" + url + "pass.png' />");
+
+  // Ctrl+V = Paste
+  replyWindow.keypress(null, "v", {shiftKey: false, accelKey: true});
+
+  // Now wait for the paste.
+  replyWindow.waitFor(function() {
+    let img = replyWindow.e("content-frame").contentDocument.getElementById("tmp-img");
+    return (img != null);
+  }, "Timeout waiting for pasted tmp image to be loaded ok");
+
+  // Test that the image load has not been denied
+  let childImages = replyWindow.e("content-frame").contentDocument.getElementsByTagName("img");
+
+  if (childImages.length != 2)
+    throw new Error("Expecting one image in document, actually have " + childImages.length);
+
+  // Check both images.
+  if (childImages[0].QueryInterface(Ci.nsIImageLoadingContent)
+                    .imageBlockingStatus != Ci.nsIContentPolicy.ACCEPT)
+    throw new Error("Loading of image has been unexpectedly blocked (1)");
+  if (childImages[1].QueryInterface(Ci.nsIImageLoadingContent)
+                    .imageBlockingStatus != Ci.nsIContentPolicy.ACCEPT)
+    throw new Error("Loading of image has been unexpectedly blocked (2)");
+
+  close_compose_window(replyWindow);
+}
+
+function test_insertImageIntoReply() {
+  subtest_insertImageIntoReplyForward(true);
+}
+
+function test_insertImageIntoForward() {
+  subtest_insertImageIntoReplyForward(false);
+}
+
