@@ -1,0 +1,26 @@
+From - Fri, 27 Jan 2017 00:19:08 GMT
+X-Mozilla-Status: 0041
+X-Mozilla-Status2: 00000000
+X-Mozilla-Keys:                                                                                 
+Received: by localhost; Fri, 27 Jan 2017 07:52:26 +0100
+Date: Fri, 27 Jan 2017 00:19:08 GMT
+Message-Id: <http://www.selenic.com/mercurial/#changeset-c11fe7c58837ebf4266357d1f31896c7cc4a49b9@localhost.localdomain>
+From: john@example.com
+MIME-Version: 1.0
+Subject: Changeset c11fe7c58837ebf4266357d1f31896c7cc4a49b9
+Content-Transfer-Encoding: 8bit
+Content-Base: http://hg.mozilla.org/mozilla-central/rev/c11fe7c58837ebf4266357d1f31896c7cc4a49b9
+Content-Type: text/html; charset=UTF-8
+
+<html>
+  <head>
+    <title>Changeset c11fe7c58837ebf4266357d1f31896c7cc4a49b9</title>
+    <base href="http://hg.mozilla.org/mozilla-central/pushlog">
+  </head>
+  <body id="msgFeedSummaryBody" selected="false">
+    <div xmlns="http://www.w3.org/1999/xhtml">
+    <ul class="filelist"><li class="file">modules/libpref/init/all.js</li><li class="file">netwerk/base/nsIOService.cpp</li><li class="file">netwerk/base/nsIOService.h</li><li class="file">We like using linefeeds only.</li></ul>
+   </div>
+  </body>
+</html>
+

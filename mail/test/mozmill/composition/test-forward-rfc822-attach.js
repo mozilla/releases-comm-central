@@ -29,7 +29,7 @@ function setupModule(module) {
   draftsFolder = get_special_folder(Ci.nsMsgFolderFlags.Drafts, true);
 }
 
-function forwardDirect(aFilePath) {
+function forwardDirect(aFilePath, aExpectedText) {
   let file = os.getFileForPath(os.abspath(aFilePath,
                                os.getFileForPath(__file__)));
   let msgc = open_message_from_file(file);
@@ -47,7 +47,7 @@ function forwardDirect(aFilePath) {
 
   let draftMsgContent = get_msg_source(draftMsg);
 
-  if (!draftMsgContent.includes("We like writing long lines.")) {
+  if (!draftMsgContent.includes(aExpectedText)) {
     assert_true(false, "Failed to find expected text");
   }
 
@@ -55,8 +55,9 @@ function forwardDirect(aFilePath) {
 }
 
 function test_forwarding_long_html_line_as_attachment() {
-  forwardDirect("./long-html-line.eml");
+  forwardDirect("./long-html-line.eml", "We like writing long lines.");
 }
 
-function teardownModule() {
+function test_forwarding_feed_message_as_attachment() {
+  forwardDirect("./feed-message.eml", "We like using linefeeds only.");
 }
