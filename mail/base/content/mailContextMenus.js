@@ -429,12 +429,10 @@ function fillFolderPaneContextMenu(aEvent)
   }
 
   // --- Set up the pause single folder subscription updates menu item.
-  // Show only if a feed folder, or a feed account folder with no subscriptions
-  // but subfolders (which may have feed folders).
-  let showPaused = numSelected == 1 &&
-                   (FeedUtils.getFeedUrlsInFolder(folders[0]) ||
-                    (FeedMessageHandler.isFeedFolder(folders[0]) &&
-                     !folders[0].isServer && folders[0].hasSubFolders));
+  // Show only if a feed folder. A folder without feeds, even though it may
+  // have subfolders, is not eligible.
+  let showPaused = numSelected == 1 && !folders[0].isServer &&
+                   FeedUtils.getFeedUrlsInFolder(folders[0]);
   ShowMenuItem("folderPaneContext-pauseUpdates", showPaused);
   // Adjust the checked state on the menu item.
   if (showPaused) {

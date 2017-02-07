@@ -290,19 +290,6 @@ var FeedUtils = {
         let id, feed;
         for (let url of feedUrlArray)
         {
-          // Ensure folder's msgDatabase is openable for new message processing.
-          // If not, reparse and break (to the next folder), as attempting to
-          // add a message to a folder with an unavailable msgDatabase will
-          // throw later. After the async reparse the folder will be ready for
-          // the next poll cycle to pick up this folder's feeds, whose update
-          // time will not have changed.
-          if (!msgDbOk) {
-            // Only do this test once on the first url.
-            msgDbOk = FeedUtils.isMsgDatabaseOpenable(folder, true);
-            if (!msgDbOk)
-              break;
-          }
-
           // Check whether this feed should be updated; if forceDownload is true
           // skip the per feed check.
           if (!forceDownload)
@@ -318,6 +305,19 @@ var FeedUtils = {
                                   url);
               continue;
             }
+          }
+
+          // Ensure folder's msgDatabase is openable for new message processing.
+          // If not, reparse and break (to the next folder), as attempting to
+          // add a message to a folder with an unavailable msgDatabase will
+          // throw later. After the async reparse the folder will be ready for
+          // the next poll cycle to pick up this folder's feeds, whose update
+          // time will not have changed.
+          if (!msgDbOk) {
+            // Only do this test once on the first url ready to update.
+            msgDbOk = FeedUtils.isMsgDatabaseOpenable(folder, true);
+            if (!msgDbOk)
+              break;
           }
 
           // Update this feed.
@@ -453,6 +453,7 @@ var FeedUtils = {
 /**
  * Enable or disable updates for all subscriptions in a folder, or all
  * subscriptions in an account if the folder is the account folder.
+ * A folder's subfolders' feeds are not included.
  *
  * @param   nsIMsgFolder aFolder     - folder or account folder (server).
  * @param   bool aPause              - to pause or not to pause.
@@ -489,7 +490,8 @@ var FeedUtils = {
       options.updates.enabled = !aPause;
       feed.options = options;
       FeedUtils.setStatus(aFolder, feedUrl, "enabled", !aPause);
-FeedUtils.log.debug("pauseFeedFolderUpdates: enabled:url " + !aPause + ": " + feedUrl);
+      FeedUtils.log.debug("pauseFeedFolderUpdates: enabled:url " +
+                          !aPause + ": " + feedUrl);
     }
 
     let win = Services.wm.getMostRecentWindow("Mail:News-BlogSubscriptions");
@@ -497,8 +499,9 @@ FeedUtils.log.debug("pauseFeedFolderUpdates: enabled:url " + !aPause + ": " + fe
     {
       let curItem = win.FeedSubscriptions.mView.currentItem;
       win.FeedSubscriptions.refreshSubscriptionView();
-      if (curItem.container)
+      if (curItem.container) {
         win.FeedSubscriptions.selectFolder(curItem.folder);
+      }
       else
       {
         let resource = FeedUtils.rdf.GetResource(curItem.url);
@@ -509,8 +512,6 @@ FeedUtils.log.debug("pauseFeedFolderUpdates: enabled:url " + !aPause + ": " + fe
     }
 
     this.getSubscriptionsDS(aFolder.server).Flush();
-
-    feed = null;
   },
 
 /**
