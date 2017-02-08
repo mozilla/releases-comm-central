@@ -3671,28 +3671,11 @@ nsresult nsMsgDatabase::GetCollationKeyGenerator()
   nsresult err = NS_OK;
   if (!m_collationKeyGenerator)
   {
-    nsCOMPtr <nsILocale> locale;
-    nsAutoString localeName;
-
-    // get a locale service
-    nsCOMPtr <nsILocaleService> localeService = do_GetService(NS_LOCALESERVICE_CONTRACTID, &err);
-    if (NS_SUCCEEDED(err))
+    nsCOMPtr <nsICollationFactory> f = do_CreateInstance(NS_COLLATIONFACTORY_CONTRACTID, &err);
+    if (NS_SUCCEEDED(err) && f)
     {
-      // do this for a new db if no UI to be provided for locale selection
-      err = localeService->GetApplicationLocale(getter_AddRefs(locale));
-
-      if (locale)
-      {
-        // or generate a locale from a stored locale name ("en_US", "fr_FR")
-        //err = localeFactory->NewLocale(&localeName, &locale);
-
-        nsCOMPtr <nsICollationFactory> f = do_CreateInstance(NS_COLLATIONFACTORY_CONTRACTID, &err);
-        if (NS_SUCCEEDED(err) && f)
-        {
-          // get a collation interface instance
-          err = f->CreateCollation(locale, getter_AddRefs(m_collationKeyGenerator));
-        }
-      }
+      // get a collation interface instance
+      err = f->CreateCollation(getter_AddRefs(m_collationKeyGenerator));
     }
   }
   return err;

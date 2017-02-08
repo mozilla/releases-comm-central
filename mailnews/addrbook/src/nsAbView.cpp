@@ -796,17 +796,10 @@ nsresult nsAbView::GenerateCollationKeysForCard(const char16_t *colID, AbCard *a
 
   if (!mCollationKeyGenerator)
   {
-    nsCOMPtr<nsILocaleService> localeSvc = do_GetService(NS_LOCALESERVICE_CONTRACTID,&rv); 
+    nsCOMPtr <nsICollationFactory> factory = do_CreateInstance(NS_COLLATIONFACTORY_CONTRACTID, &rv);
     NS_ENSURE_SUCCESS(rv, rv);
 
-    nsCOMPtr<nsILocale> locale; 
-    rv = localeSvc->GetApplicationLocale(getter_AddRefs(locale));
-    NS_ENSURE_SUCCESS(rv, rv);
-
-    nsCOMPtr <nsICollationFactory> factory = do_CreateInstance(NS_COLLATIONFACTORY_CONTRACTID, &rv); 
-    NS_ENSURE_SUCCESS(rv, rv);
-
-    rv = factory->CreateCollation(locale, getter_AddRefs(mCollationKeyGenerator));
+    rv = factory->CreateCollation(getter_AddRefs(mCollationKeyGenerator));
     NS_ENSURE_SUCCESS(rv, rv);
   }
 

@@ -740,7 +740,7 @@ var cal = {
     createLocaleCollator: function() {
         return Components.classes["@mozilla.org/intl/collation-factory;1"]
                          .getService(Components.interfaces.nsICollationFactory)
-                         .CreateCollation(Services.locale.getApplicationLocale());
+                         .CreateCollation();
     },
 
     /**
