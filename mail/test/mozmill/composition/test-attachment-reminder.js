@@ -422,7 +422,7 @@ function assert_any_notification(aCwc, aValue)
  * Send filelink attachment should not trigger the
  * attachment reminder.
  */
-function test_attachment_vs_filelink_reminder() {
+function disabled_attachment_vs_filelink_reminder() {
   // Open a blank message compose
   let cwc = open_compose_new_mail();
   setup_msg_contents(cwc, "test@example.invalid", "Testing Filelink notification",
