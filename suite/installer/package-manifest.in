@@ -416,7 +416,6 @@
 @RESPATH@/components/nsFilePicker.manifest
 #endif
 @RESPATH@/components/nsFormAutoComplete.js
-@RESPATH@/components/nsFormHistory.js
 @RESPATH@/components/FormHistoryStartup.js
 @RESPATH@/components/nsGopherProtocolStubHandler.js
 @RESPATH@/components/nsHandlerService.js
