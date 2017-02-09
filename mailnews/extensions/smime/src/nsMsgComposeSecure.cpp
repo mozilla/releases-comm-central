@@ -893,7 +893,7 @@ nsresult nsMsgComposeSecure::MimeCryptoHackCerts(const char *aRecipients,
 
   UniqueCERTCertList builtChain;
   if (!mEncryptionCertDBKey.IsEmpty()) {
-    certdb->FindCertByDBKey(mEncryptionCertDBKey.get(),
+    certdb->FindCertByDBKey(mEncryptionCertDBKey,
                             getter_AddRefs(mSelfEncryptionCert));
     if (mSelfEncryptionCert &&
         (certVerifier->VerifyCert(mSelfEncryptionCert->GetCert(),
@@ -911,7 +911,7 @@ nsresult nsMsgComposeSecure::MimeCryptoHackCerts(const char *aRecipients,
 
   // same procedure for the signing cert
   if (!mSigningCertDBKey.IsEmpty()) {
-    certdb->FindCertByDBKey(mSigningCertDBKey.get(),
+    certdb->FindCertByDBKey(mSigningCertDBKey,
                             getter_AddRefs(mSelfSigningCert));
     if (mSelfSigningCert &&
         (certVerifier->VerifyCert(mSelfSigningCert->GetCert(),
@@ -964,7 +964,7 @@ nsresult nsMsgComposeSecure::MimeCryptoHackCerts(const char *aRecipients,
       nsCString mailbox_lowercase;
       ToLowerCase(mailboxes[i], mailbox_lowercase);
       nsCOMPtr<nsIX509Cert> cert;
-      res = certdb->FindCertByEmailAddress(mailbox_lowercase.get(),
+      res = certdb->FindCertByEmailAddress(mailbox_lowercase,
                                            getter_AddRefs(cert));
       if (NS_FAILED(res)) {
         // Failure to find a valid encryption cert is fatal.

@@ -3,33 +3,27 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#include "nsXPIDLString.h"
-#include "nsCOMPtr.h"
-#include "nsISupports.h"
-#include "nsIInterfaceRequestor.h"
-#include "nsCRT.h"
-#include "nsIX509CertDB.h"
-
-#include "nsICMSSecureMessage.h"
-
 #include "nsCMSSecureMessage.h"
-#include "nsIX509Cert.h"
-#include "nsNSSHelper.h"
-#include "nsNSSCertificate.h"
-#include "nsNSSShutDown.h"
-
-#include "nsNSSComponent.h"
 
 #include <string.h>
-#include "plbase64.h"
-#include "cert.h"
+
+#include "ScopedNSSTypes.h"
+#include "SharedCertVerifier.h"
 #include "cms.h"
-
-#include "nsIServiceManager.h"
-#include "nsIPrefService.h"
-#include "nsIPrefBranch.h"
-
 #include "mozilla/Logging.h"
+#include "mozilla/RefPtr.h"
+#include "nsCOMPtr.h"
+#include "nsDependentSubstring.h"
+#include "nsIInterfaceRequestor.h"
+#include "nsServiceManagerUtils.h"
+#include "nsISupports.h"
+#include "nsIX509Cert.h"
+#include "nsIX509CertDB.h"
+#include "nsNSSComponent.h"
+#include "nsNSSHelper.h"
+#include "nsNSSShutDown.h"
+#include "plbase64.h"
+
 #ifdef PR_LOGGING
 extern mozilla::LazyLogModule gPIPNSSLog;
 #endif
@@ -124,8 +118,9 @@ DecodeCert(const char *value, nsIX509Cert ** _retval)
     return NS_ERROR_FAILURE;
   }
 
+  nsDependentCSubstring certDER(reinterpret_cast<char*>(data), length);
   nsCOMPtr<nsIX509Cert> cert;
-  certdb->ConstructX509(reinterpret_cast<char *>(data), length, getter_AddRefs(cert));
+  certdb->ConstructX509(certDER, getter_AddRefs(cert));
 
   if (cert) {
     *_retval = cert;

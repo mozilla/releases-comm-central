@@ -3,14 +3,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef _NSCMSSECUREMESSAGE_H_
-#define _NSCMSSECUREMESSAGE_H_
+#ifndef nsCMSSecureMessage_h
+#define nsCMSSecureMessage_h
 
 #include "nsICMSSecureMessage.h"
 #include "cert.h"
-
-#include "cms.h"
-
 
 // ===============================================
 // nsCMSManager - implementation of nsICMSManager
@@ -36,5 +33,4 @@ private:
   nsresult CheckUsageOk(nsIX509Cert* cert, SECCertificateUsage usage, bool* _retval);
 };
 
-
-#endif /* _NSCMSMESSAGE_H_ */
+#endif // nsCMSSecureMessage_h
