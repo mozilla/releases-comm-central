@@ -2379,12 +2379,12 @@ ftvItem.prototype = {
     if (this._folder.getFlag(nsMsgFolderFlags.Virtual)) {
       properties += " specialFolder-Smart";
       // a second possibility for customized smart folders
-      properties += " specialFolder-" + this._folder.name.replace(/\s+/g, "");
+      properties += " specialFolder-" + this._folder.name.replace(' ','');
     }
     // if there is a smartFolder name property, add it
     let smartFolderName = getSmartFolderName(this._folder);
     if (smartFolderName) {
-      properties += " specialFolder-" + smartFolderName.replace(/\s+/g, "");
+      properties += " specialFolder-" + smartFolderName.replace(' ','');
     }
 
     if (FeedMessageHandler.isFeedFolder(this._folder)) {
@@ -2861,28 +2861,13 @@ function sortFolderItems (aFtvItems) {
   aFtvItems.sort(sorter);
 }
 
-/**
- * An extension wishing to set a folderpane tree property must use
- * gFolderTreeView.setFolderCacheProperty(). Due to severe perf and memory
- * issues, direct access by nsITreeView methods to any call which opens a
- * folder's msgDatabase is disallowed.
- *
- * Example:
- *   gFolderTreeView.setFolderCacheProperty(folder, // nsIMsgFolder
- *                                          "smartFolderName",
- *                                          "My Smart Folder");
- * Note: for css styling using nsITreeView pseudo elements, the name property
- * is returned with all spaces removed, eg |specialFolder-MySmartFolder|.
- *
- * @param nsIMsgFolder aFolder  - The folder.
- * @return property || null     - Cached property value, or null if not set.
- */
 function getSmartFolderName(aFolder) {
-  return gFolderTreeView.getFolderCacheProperty(aFolder, "smartFolderName");
-}
-
-function setSmartFolderName(aFolder, aName) {
-  gFolderTreeView.setFolderCacheProperty(aFolder, "smartFolderName", aName);
+  try {
+    return aFolder.getStringProperty("smartFolderName");
+  } catch (ex) {
+    Components.utils.reportError(ex);
+    return null;
+  }
 }
 
 var gFolderStatsHelpers = {
