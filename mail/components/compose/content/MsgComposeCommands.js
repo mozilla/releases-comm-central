@@ -2270,7 +2270,7 @@ function onPasteOrDrop(e) {
   let doc = (new DOMParser()).parseFromString(html, "text/html");
   let tmpD = Services.dirsvc.get("TmpD", Components.interfaces.nsIFile);
   let pendingConversions = 0;
-  let toConvert = 0;
+  let needToPreventDefault = true;
   for (let img of doc.images) {
     if (!/^file:/i.test(img.src)) {
       // Doesn't start with file:. Nothing to do here.
@@ -2303,46 +2303,50 @@ function onPasteOrDrop(e) {
       continue;
     }
 
-    let file = File.createFromNsIFile(nsFile);
-    if (file.lastModifiedDate.getTime() < (Date.now() - 60000)) {
-      // Not put in temp in the last minute. May be something other than
-      // a copy-paste. Let's not allow that.
-      continue;
+    // If we ever get here, we need to prevent the default paste or drop since
+    // the code below will do its own insertion.
+    if (needToPreventDefault) {
+      e.preventDefault();
+      needToPreventDefault = false;
     }
 
-    let doTheInsert = function() {
-      // Now run it through sanitation to make sure there wasn't any
-      // unwanted things in the content.
-      let ParserUtils = Components.classes["@mozilla.org/parserutils;1"]
-        .getService(Components.interfaces.nsIParserUtils);
-      let html2 = ParserUtils.sanitize(doc.documentElement.innerHTML,
-                                     ParserUtils.SanitizerAllowStyle);
-      getBrowser().contentDocument.execCommand("insertHTML", false, html2);
-    }
-
-    // Everything checks out. Convert file to data URL.
-    toConvert++;
-    let reader = new FileReader();
-    reader.addEventListener("load", function() {
-      let dataURL = reader.result;
-      pendingConversions--;
-      img.src = dataURL;
-      if (pendingConversions == 0) {
-        doTheInsert();
+    File.createFromNsIFile(nsFile).then(function(file) {
+      if (file.lastModifiedDate.getTime() < (Date.now() - 60000)) {
+        // Not put in temp in the last minute. May be something other than
+        // a copy-paste. Let's not allow that.
+        return;
       }
-    });
-    reader.addEventListener("error", function() {
-      pendingConversions--;
-      if (pendingConversions == 0) {
-        doTheInsert();
-      }
-    });
 
-    pendingConversions++;
-    reader.readAsDataURL(file);
-  }
-  if (toConvert > 0) {
-    e.preventDefault();
+      let doTheInsert = function() {
+        // Now run it through sanitation to make sure there wasn't any
+        // unwanted things in the content.
+        let ParserUtils = Components.classes["@mozilla.org/parserutils;1"]
+          .getService(Components.interfaces.nsIParserUtils);
+        let html2 = ParserUtils.sanitize(doc.documentElement.innerHTML,
+                                       ParserUtils.SanitizerAllowStyle);
+        getBrowser().contentDocument.execCommand("insertHTML", false, html2);
+      }
+
+      // Everything checks out. Convert file to data URL.
+      let reader = new FileReader();
+      reader.addEventListener("load", function() {
+        let dataURL = reader.result;
+        pendingConversions--;
+        img.src = dataURL;
+        if (pendingConversions == 0) {
+          doTheInsert();
+        }
+      });
+      reader.addEventListener("error", function() {
+        pendingConversions--;
+        if (pendingConversions == 0) {
+          doTheInsert();
+        }
+      });
+
+      pendingConversions++;
+      reader.readAsDataURL(file);
+    });
   }
 }
 
