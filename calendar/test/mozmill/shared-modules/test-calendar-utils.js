@@ -211,7 +211,7 @@ function switchToView(controller, view) {
  * @param day           1-based index of a day
  */
 function goToDate(controller, year, month, day) {
-    let { lookup, sleep } = helpersForController(controller);
+    let { eid, lookup, sleep } = helpersForController(controller);
 
     let miniMonth = `
         /id("messengerWindow")/id("tabmail-container")/id("tabmail")/
@@ -253,15 +253,17 @@ function goToDate(controller, year, month, day) {
             sleep(SHORT_SLEEP);
         }
 
+        controller.waitForEvents.init(eid("calMinimonth"), ["monthchange"]);
         controller.click(lookup(`
             ${miniMonth}/anon({"anonid":"minimonth-header"})/
             anon({"anonid":"minmonth-popupset"})/anon({"anonid":"years-popup"})/
             [0]/{"value":"${year}"}
         `));
-        sleep();
+        controller.waitForEvents.wait(1000);
     }
 
     if (monthDifference != 0) {
+        controller.waitForEvents.init(eid("calMinimonth"), ["monthchange"]);
         // pick month
         controller.click(lookup(`
             ${miniMonth}/anon({"anonid":"minimonth-header"})/
@@ -272,7 +274,7 @@ function goToDate(controller, year, month, day) {
             anon({"anonid":"minmonth-popupset"})/anon({"anonid":"months-popup"})/
             [0]/{"index":"${month - 1}"}
         `));
-        sleep();
+        controller.waitForEvents.wait(1000);
     }
 
     let lastDayInFirstRow = lookup(`
@@ -316,7 +318,7 @@ function invokeEventDialog(controller, clickBox, body) {
     eventController.waitFor(() => {
         return iframe.contentWindow.onLoad &&
                iframe.contentWindow.onLoad.hasLoaded == true;
-    });
+    }, "event-dialog did not load in time", 10000);
 
     // We can't use a full mozmill controller on an iframe, but we need
     // something for helpersForController.
