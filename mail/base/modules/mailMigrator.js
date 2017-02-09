@@ -102,7 +102,7 @@ var MailMigrator = {
   _migrateUI: function() {
     // The code for this was ported from
     // mozilla/browser/components/nsBrowserGlue.js
-    const UI_VERSION = 14;
+    const UI_VERSION = 15;
     const MESSENGER_DOCURL = "chrome://messenger/content/messenger.xul";
     const UI_VERSION_PREF = "mail.ui-rdf.version";
     let currentUIVersion = 0;
@@ -362,6 +362,21 @@ var MailMigrator = {
           }
         } finally {
           db.close();
+        }
+      }
+
+      // Changed notification sound behaviour on OS X.
+      if (currentUIVersion < 15) {
+        Cu.import("resource://gre/modules/AppConstants.jsm");
+        if (AppConstants.platform == "macosx") {
+          // For people updating from versions < 52 who had "Play system sound"
+          // selected for notifications. As TB no longer plays system sounds,
+          // uncheck the pref to match the new behaviour.
+          const soundPref = "mail.biff.play_sound";
+          if (Services.prefs.getBoolPref(soundPref) &&
+              Services.prefs.getIntPref(soundPref + ".type") == 0) {
+            Services.prefs.setBoolPref(soundPref, false);
+          }
         }
       }
 

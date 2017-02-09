@@ -28,9 +28,7 @@
 #endif
       <preference id="mail.biff.show_tray_icon" name="mail.biff.show_tray_icon" type="bool" />
       <preference id="mail.biff.play_sound" name="mail.biff.play_sound" type="bool"/>
-#ifndef XP_MACOSX
       <preference id="mail.biff.play_sound.type" name="mail.biff.play_sound.type" type="int"/>
-#endif
       <preference id="mail.biff.play_sound.url" name="mail.biff.play_sound.url" type="string"/>
     </preferences>
 

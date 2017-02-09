@@ -106,14 +106,15 @@ var gGeneralPane = {
 
   previewSound: function ()
   {
-    let sound = Components.classes["@mozilla.org/sound;1"].createInstance(Components.interfaces.nsISound);
+    let sound = Components.classes["@mozilla.org/sound;1"]
+                          .createInstance(Components.interfaces.nsISound);
 
-    var soundLocation;
+    let soundLocation;
     // soundType radio-group isn't used for macOS so it is not in the XUL file
     // for the platform.
     soundLocation = (AppConstants.platform == "macosx" ||
                      document.getElementById('soundType').value == 1) ?
-                    document.getElementById('soundUrlLocation').value : "";
+                       document.getElementById('soundUrlLocation').value : "";
 
     if (!soundLocation.includes("file://")) {
       // User has not set any custom sound file to be played
@@ -160,13 +161,14 @@ var gGeneralPane = {
 
   updatePlaySound: function()
   {
-    // update the sound type radio buttons based on the state of the play sound checkbox
+    // Update the sound type radio buttons based on the state of the
+    // play sound checkbox.
     var soundsDisabled = !document.getElementById('newMailNotification').checked;
     var soundUrlLocation = document.getElementById('soundUrlLocation').value;
 
     // The UI is different on OS X as the user can only choose between letting
     // the system play a default sound or setting a custom one. Therefore,
-    // "soundTypeEl" does not exist on OS X
+    // "soundTypeEl" does not exist on OS X.
     if (AppConstants.platform != "macosx") {
       var soundTypeEl = document.getElementById('soundType');
       soundTypeEl.disabled = soundsDisabled;
@@ -176,11 +178,14 @@ var gGeneralPane = {
         soundsDisabled || (!soundUrlLocation && soundTypeEl.value != 0);
     } else {
       // On OS X, if there is no selected custom sound then default one will
-      // be played. We keep consistency by unchecking "Play sound" checkbox.
+      // be played. We keep consistency by disabling the "Play sound" checkbox
+      // if the user hasn't selected a custom sound file yet.
       document.getElementById('newMailNotification').disabled = !soundUrlLocation;
-
-      document.getElementById('playSound').disabled =
-        !soundUrlLocation && soundsDisabled;
+      document.getElementById('playSound').disabled = !soundUrlLocation;
+      // The sound type radiogroup is hidden, but we have to keep the
+      // play_sound.type pref set appropriately.
+      document.getElementById("mail.biff.play_sound.type").value =
+        (!soundsDisabled && soundUrlLocation) ? 1 : 0;
     }
   },
 
