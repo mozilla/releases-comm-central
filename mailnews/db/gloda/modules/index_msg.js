@@ -319,7 +319,7 @@ var PendingCommitTracker = {
       function PendingCommitTracker_noteFolderDatabaseGettingBlownAway(
                  aMsgFolder) {
     let uri = aMsgFolder.URI + "#";
-    for (let key of Object.keys(this._indexedMessagesPendingCommitByKey)) {
+    for (let key in Iterator(this._indexedMessagesPendingCommitByKey, true)) {
       // this is not as efficient as it could be, but compaction is relatively
       //  rare and the number of pending headers is generally going to be
       //  small.
@@ -1166,8 +1166,8 @@ var GlodaMsgIndexer = {
     let numHeadersSeen = 0;
 
     // We are consuming two lists; our loop structure has to reflect that.
-    let headerIter = XPCOMUtils.IterSimpleEnumerator(this._indexingEnumerator,
-                                                     nsIMsgDBHdr);
+    let headerIter = Iterator(fixIterator(this._indexingEnumerator,
+                                          nsIMsgDBHdr));
     let mayHaveMoreGlodaMessages = true;
     let keepIterHeader = false;
     let keepGlodaTuple = false;
@@ -1175,13 +1175,20 @@ var GlodaMsgIndexer = {
     while (headerIter || mayHaveMoreGlodaMessages) {
       let glodaId;
       if (headerIter) {
-        if (!keepIterHeader) {
-          let { value: msgHdr, done } = headerIter.next();
-          if (done) {
+        try {
+          if (!keepIterHeader)
+            msgHdr = headerIter.next();
+          else
+            keepIterHeader = false;
+        }
+        catch (ex) {
+          if (ex instanceof StopIteration) {
             headerIter = null;
             msgHdr = null;
             // do the loop check again
             continue;
+          } else {
+            throw ex;
           }
         }
       }
