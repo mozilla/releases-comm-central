@@ -14,29 +14,20 @@ var MODULE_REQUIRES = ['folder-display-helpers',
                        'cloudfile-helpers',
                        'attachment-helpers']
 
-var elib = {};
-Cu.import('resource://mozmill/modules/elementslib.js', elib);
-
 var kAttachmentItemContextID = "msgComposeAttachmentItemContext";
 
-var ah, cfh;
-
 function setupModule(module) {
-  collector.getModule('folder-display-helpers').installInto(module);
-  collector.getModule('compose-helpers').installInto(module);
+  for (let lib of MODULE_REQUIRES) {
+    collector.getModule(lib).installInto(module);
+  }
 
-  ah = collector.getModule('attachment-helpers');
-  ah.installInto(module);
-  ah.gMockFilePickReg.register();
-
-  cfh = collector.getModule('cloudfile-helpers');
-  cfh.installInto(module);
-  cfh.gMockCloudfileManager.register();
+  gMockFilePickReg.register();
+  gMockCloudfileManager.register();
 }
 
 function teardownModule(module) {
-  cfh.gMockCloudfileManager.unregister();
-  ah.gMockFilePickReg.unregister();
+  gMockCloudfileManager.unregister();
+  gMockFilePickReg.unregister();
 }
 
 /**
@@ -48,7 +39,7 @@ function test_upload_cancel_repeat() {
   const kFile = "./data/testFile1";
 
   // Prepare the mock file picker to return our test file.
-  let file = cfh.getFile(kFile, __file__);
+  let file = getFile(kFile, __file__);
   gMockFilePicker.returnFiles = [file];
 
   let provider = new MockCloudfileAccount();
@@ -95,7 +86,7 @@ function test_upload_multiple_and_cancel() {
                   "./data/testFile3"];
 
   // Prepare the mock file picker to return our test file.
-  let files = cfh.collectFiles(kFiles, __file__);
+  let files = collectFiles(kFiles, __file__);
   gMockFilePicker.returnFiles = files;
 
   let provider = new MockCloudfileAccount();

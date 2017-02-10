@@ -15,6 +15,8 @@ var MODULE_NAME = 'test-cloudfile-backend-hightail';
 var RELATIVE_ROOT = '../shared-modules';
 var MODULE_REQUIRES = ['folder-display-helpers',
                          'compose-helpers',
+                         'cloudfile-helpers',
+                         'cloudfile-backend-helpers',
                          'cloudfile-hightail-helpers',
                          'observer-helpers',
                          'prompt-helpers',];
@@ -24,32 +26,15 @@ Cu.import('resource://gre/modules/Services.jsm');
 var gServer, gObsManager;
 
 function setupModule(module) {
-  let fdh = collector.getModule('folder-display-helpers');
-  fdh.installInto(module);
+  for (let lib of MODULE_REQUIRES) {
+    collector.getModule(lib).installInto(module);
+  }
 
-  let ch = collector.getModule('compose-helpers');
-  ch.installInto(module);
-
-  let cfh = collector.getModule('cloudfile-helpers');
-  cfh.installInto(module);
-
-  let cbh = collector.getModule('cloudfile-backend-helpers');
-  cbh.installInto(module);
-
-  let cyh = collector.getModule('cloudfile-hightail-helpers');
-  cyh.installInto(module);
-
-  let oh = collector.getModule('observer-helpers');
-  oh.installInto(module);
-
-  let ph = collector.getModule('prompt-helpers');
-  ph.installInto(module);
-
-  gObsManager = new cbh.SimpleRequestObserverManager();
+  gObsManager = new SimpleRequestObserverManager();
 
   // Enable logging for this group of tests.
   Services.prefs.setCharPref("Hightail.logging.dump", "All");
-};
+}
 
 function teardownModule(module) {
   Services.prefs.clearUserPref("Hightail.logging.dump");

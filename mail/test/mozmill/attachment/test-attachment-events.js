@@ -9,14 +9,13 @@
 var MODULE_NAME = 'test-attachment-events';
 
 var RELATIVE_ROOT = '../shared-modules';
-var MODULE_REQUIRES = ['folder-display-helpers', 'compose-helpers',
-                         'window-helpers', 'attachment-helpers',
-                         'prompt-helpers'];
+var MODULE_REQUIRES = ['folder-display-helpers',
+                       'compose-helpers',
+                       'window-helpers',
+                       'attachment-helpers',
+                       'observer-helpers',
+                       'prompt-helpers'];
 
-var elib = {};
-Cu.import('resource://mozmill/modules/elementslib.js', elib);
-var EventUtils = {};
-Cu.import('resource://mozmill/stdlib/EventUtils.js', EventUtils);
 var os = {};
 Cu.import('resource://mozmill/stdlib/os.js', os);
 
@@ -30,26 +29,12 @@ var kAttachmentRenamed = "attachment-renamed";
 var gPath;
 
 function setupModule(module) {
-  let fdh = collector.getModule('folder-display-helpers');
-  fdh.installInto(module);
-
-  let wh = collector.getModule('window-helpers');
-  wh.installInto(module);
-
-  let composeHelper = collector.getModule('compose-helpers');
-  composeHelper.installInto(module);
-
-  let ah = collector.getModule('attachment-helpers');
-  ah.installInto(module);
-
-  let ph = collector.getModule('prompt-helpers');
-  ph.installInto(module);
-
-  let oh = collector.getModule('observer-helpers');
-  oh.installInto(module);
+  for (let lib of MODULE_REQUIRES) {
+    collector.getModule(lib).installInto(module);
+  }
 
   gPath = os.getFileForPath(__file__);
-};
+}
 
 /**
  * Test that the attachments-added event is fired when we add a single
@@ -96,6 +81,7 @@ function test_attachments_added_on_single() {
 
   cw.e("attachmentBucket").removeEventListener(kAttachmentsAdded, listener,
                                                false);
+  close_compose_window(cw);
 }
 
 /**
@@ -136,7 +122,7 @@ function test_attachments_added_on_multiple() {
   }
 
   // Close the compose window - let's try again with 3 attachments.
-  close_window(cw);
+  close_compose_window(cw);
 
   attachmentUrls = ["http://www.example.com/1",
                     "http://www.example.com/2",
@@ -166,6 +152,7 @@ function test_attachments_added_on_multiple() {
 
   cw.e("attachmentBucket").removeEventListener(kAttachmentsAdded, listener,
                                                false);
+  close_compose_window(cw);
 }
 
 /**
@@ -221,6 +208,7 @@ function test_attachments_removed_on_single() {
 
   cw.e("attachmentBucket").removeEventListener(kAttachmentsRemoved, listener,
                                                false);
+  close_compose_window(cw);
 }
 
 /**
@@ -277,6 +265,7 @@ function test_attachments_removed_on_multiple() {
 
   cw.e("attachmentBucket").removeEventListener(kAttachmentsRemoved, listener,
                                                false);
+  close_compose_window(cw);
 }
 
 /**
@@ -309,6 +298,8 @@ function test_no_attachments_removed_on_none() {
   assert_equals(0, eventCount);
   cw.e("attachmentBucket").removeEventListener(kAttachmentsRemoved, listener,
                                                false);
+
+  close_compose_window(cw);
 }
 
 /**
@@ -395,9 +386,11 @@ function test_attachment_renamed() {
   assert_equals("www.example.com/2", originalName3);
 
   // Unregister the Mock Prompt service, and remove our observer.
-  gMockPromptService.unregister();
   cw.e("attachmentBucket").addEventListener(kAttachmentRenamed, listener,
                                             false);
+
+  close_compose_window(cw);
+  gMockPromptService.unregister();
 }
 
 /**
@@ -435,7 +428,8 @@ function test_no_attachment_renamed_on_blank() {
 
   // Ensure that we didn't see the attachment-renamed event.
   assert_equals(0, eventCount);
-  gMockPromptService.unregister();
   cw.e("attachmentBucket").removeEventListener(kAttachmentRenamed, listener,
                                                false);
+  close_compose_window(cw);
+  gMockPromptService.unregister();
 }

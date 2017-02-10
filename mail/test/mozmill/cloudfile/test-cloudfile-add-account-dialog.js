@@ -31,10 +31,9 @@ XPCOMUtils.defineLazyServiceGetter(this, 'gCategoryMan',
                                    'nsICategoryManager');
 
 function setupModule(module) {
-  collector.getModule('dom-helpers').installInto(module);
-  collector.getModule('folder-display-helpers').installInto(module);
-  collector.getModule('keyboard-helpers').installInto(module);
-  collector.getModule('window-helpers').installInto(module);
+  for (let lib of MODULE_REQUIRES) {
+    collector.getModule(lib).installInto(module);
+  }
 
   // Save the old providers...
   for (let entry in fixIterator(gCategoryMan.enumerateCategory(kCategory),
@@ -45,9 +44,7 @@ function setupModule(module) {
 
   // Clear out the old entries
   gCategoryMan.deleteCategory(kCategory);
-
-  collector.getModule('cloudfile-helpers').installInto(module);
-};
+}
 
 function teardownModule(module) {
   // Clear out any leftover entries.

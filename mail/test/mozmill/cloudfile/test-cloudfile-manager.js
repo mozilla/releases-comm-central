@@ -16,27 +16,19 @@ var MODULE_NAME = 'test-cloudfile-manager';
 var RELATIVE_ROOT = '../shared-modules';
 var MODULE_REQUIRES = ['folder-display-helpers',
                        'pref-window-helpers',
-                       'window-helpers'];
+                       'window-helpers',
+                       'cloudfile-helpers'];
 
 Cu.import("resource://gre/modules/Services.jsm");
 
 var kTestAccountType = "mock";
 
-var cfh;
-
 function setupModule(module) {
-  let fdh = collector.getModule('folder-display-helpers');
-  fdh.installInto(module);
+  for (let lib of MODULE_REQUIRES) {
+    collector.getModule(lib).installInto(module);
+  }
 
-  let pwh = collector.getModule('pref-window-helpers');
-  pwh.installInto(module);
-
-  cfh = collector.getModule('cloudfile-helpers');
-  cfh.installInto(module);
-  cfh.gMockCloudfileManager.register(kTestAccountType);
-
-  let wh = collector.getModule('window-helpers');
-  wh.installInto(module);
+  gMockCloudfileManager.register(kTestAccountType);
 
   // Let's set up a few dummy accounts;
   create_dummy_account("someKey1", kTestAccountType,
@@ -47,12 +39,12 @@ function setupModule(module) {
                        "alice's Account");
   create_dummy_account("someKey4", kTestAccountType,
                        "Bob's Account");
-};
+}
 
 function teardownModule(module) {
   Services.prefs.QueryInterface(Ci.nsIPrefBranch)
           .deleteBranch("mail.cloud_files.accounts");
-  cfh.gMockCloudfileManager.unregister(kTestAccountType);
+  gMockCloudfileManager.unregister(kTestAccountType);
 }
 
 function create_dummy_account(aKey, aType, aDisplayName) {

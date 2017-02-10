@@ -16,15 +16,11 @@ var MODULE_REQUIRES = ['folder-display-helpers',
                        'prompt-helpers',
                        'notificationbox-helpers'];
 
-var controller = {};
-var mozmill = {};
-var elib = {};
-Cu.import('resource://mozmill/modules/controller.js', controller);
-Cu.import('resource://mozmill/modules/mozmill.js', mozmill);
-Cu.import('resource://mozmill/modules/elementslib.js', elib);
+//var controller = {};
+//Cu.import('resource://mozmill/modules/controller.js', controller);
 Cu.import('resource://gre/modules/Services.jsm');
 
-var maxSize, cfh, ah, oldInsertNotificationPref;
+var maxSize, oldInsertNotificationPref;
 
 var kOfferThreshold = "mail.compose.big_attachments.threshold_kb";
 var kInsertNotificationPref = "mail.compose.big_attachments.insert_notification";
@@ -32,29 +28,22 @@ var kInsertNotificationPref = "mail.compose.big_attachments.insert_notification"
 var kBoxId = "attachmentNotificationBox";
 
 function setupModule(module) {
-  collector.getModule('folder-display-helpers').installInto(module);
-  collector.getModule('compose-helpers').installInto(module);
+  for (let lib of MODULE_REQUIRES) {
+    collector.getModule(lib).installInto(module);
+  }
 
-  cfh = collector.getModule('cloudfile-helpers');
-  cfh.installInto(module);
-  cfh.gMockCloudfileManager.register();
-
-  ah = collector.getModule('attachment-helpers');
-  ah.installInto(module);
-  ah.gMockFilePickReg.register();
-
-  collector.getModule('prompt-helpers').installInto(module);
-  collector.getModule('notificationbox-helpers').installInto(module);
+  gMockCloudfileManager.register();
+  gMockFilePickReg.register();
 
   maxSize = Services.prefs.getIntPref(kOfferThreshold, 0) * 1024;
   oldInsertNotificationPref = Services.prefs
                                       .getBoolPref(kInsertNotificationPref);
   Services.prefs.setBoolPref(kInsertNotificationPref, true);
-};
+}
 
 function teardownModule(module) {
-  cfh.gMockCloudfileManager.unregister();
-  ah.gMockFilePickReg.unregister();
+  gMockCloudfileManager.unregister();
+  gMockFilePickReg.unregister();
   Services.prefs.setBoolPref(kInsertNotificationPref,
                              oldInsertNotificationPref);
 }
@@ -124,6 +113,8 @@ function test_no_notification_for_small_file() {
 
   add_attachments(cwc, "http://www.example.com/4", 500);
   assert_cloudfile_notification_displayed(cwc, false);
+
+  close_compose_window(cwc);
 }
 
 function test_notification_for_big_files() {
@@ -139,6 +130,8 @@ function test_notification_for_big_files() {
 
   add_attachments(cwc, "http://www.example.com/4", maxSize + 100000);
   assert_cloudfile_notification_displayed(cwc, true);
+
+  close_compose_window(cwc);
 }
 
 function test_graduate_to_notification() {
@@ -151,12 +144,14 @@ function test_graduate_to_notification() {
 
   add_attachments(cwc, "http://www.example.com/3", maxSize);
   assert_cloudfile_notification_displayed(cwc, true);
+
+  close_compose_window(cwc);
 }
 
 function test_no_notification_if_disabled() {
+  Services.prefs.setBoolPref("mail.cloud_files.enabled", false);
   let cwc = open_compose_new_mail(mc);
 
-  Services.prefs.setBoolPref("mail.cloud_files.enabled", false);
   add_attachments(cwc, "http://www.example.com/1", maxSize);
   assert_cloudfile_notification_displayed(cwc, false);
 
@@ -169,6 +164,7 @@ function test_no_notification_if_disabled() {
   add_attachments(cwc, "http://www.example.com/4", maxSize + 100000);
   assert_cloudfile_notification_displayed(cwc, false);
 
+  close_compose_window(cwc);
   Services.prefs.setBoolPref("mail.cloud_files.enabled", true);
 }
 
@@ -192,6 +188,8 @@ function test_link_insertion_notification_single() {
   cwc.window.attachToCloud(provider);
   assert_upload_notification_displayed(cwc, false);
   Services.prefs.setBoolPref(kInsertNotificationPref, true);
+
+  close_compose_window(cwc);
 }
 
 /**
@@ -216,6 +214,8 @@ function test_link_insertion_notification_multiple() {
   cwc.window.attachToCloud(provider);
   assert_upload_notification_displayed(cwc, false);
   Services.prefs.setBoolPref(kInsertNotificationPref, true);
+
+  close_compose_window(cwc);
 }
 
 /**
@@ -242,6 +242,8 @@ function test_link_insertion_goes_away_on_error() {
 
   assert_upload_notification_displayed(cwc, true);
   wait_for_notification_to_stop(cwc, kBoxId, "bigAttachmentUploading");
+
+  close_compose_window(cwc);
   gMockPromptService.unregister();
 }
 
@@ -275,6 +277,8 @@ function test_no_offer_on_conversion() {
   cw.window.convertSelectedToRegularAttachment();
 
   assert_cloudfile_notification_displayed(cw, false);
+
+  close_compose_window(cw);
 
   // Now put the old threshold back.
   Services.prefs.setIntPref(kOfferThreshold, maxSize);
@@ -325,6 +329,8 @@ function test_offer_then_upload_notifications() {
   // And the upload notification should be displayed.
   assert_upload_notification_displayed(cw, true);
 
+  close_compose_window(cw);
+
   // Now put the old threshold back.
   Services.prefs.setIntPref(kOfferThreshold, maxSize);
 }
@@ -365,6 +371,8 @@ function test_privacy_warning_notification() {
                                               './data/testFile4'], __file__);
   cwc.window.attachToCloud(provider);
   assert_privacy_warning_notification_displayed(cwc, false);
+
+  close_compose_window(cwc);
   gMockPromptService.unregister();
 }
 
@@ -404,6 +412,8 @@ function test_privacy_warning_notification_no_persist() {
 
   // We shouldn't be displaying the privacy warning.
   assert_privacy_warning_notification_displayed(cwc, false);
+
+  close_compose_window(cwc);
   gMockPromptService.unregister();
 }
 
@@ -438,6 +448,8 @@ function test_privacy_warning_notification_open_after_close() {
   // Close the privacy warning notification...
   close_privacy_warning_notification(cwc);
 
+  close_compose_window(cwc);
+
   // Open a new compose window
   cwc = open_compose_new_mail(mc);
 
@@ -451,5 +463,6 @@ function test_privacy_warning_notification_open_after_close() {
   // Assert that the privacy warning notification is displayed again.
   assert_privacy_warning_notification_displayed(cwc, true);
 
+  close_compose_window(cwc);
   gMockPromptService.unregister();
 }
