@@ -2311,7 +2311,7 @@ function onPasteOrDrop(e) {
     }
 
     File.createFromNsIFile(nsFile).then(function(file) {
-      if (file.lastModifiedDate.getTime() < (Date.now() - 60000)) {
+      if (file.lastModified < (Date.now() - 60000)) {
         // Not put in temp in the last minute. May be something other than
         // a copy-paste. Let's not allow that.
         return;
