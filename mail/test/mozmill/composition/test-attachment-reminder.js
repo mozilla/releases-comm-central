@@ -419,10 +419,9 @@ function assert_any_notification(aCwc, aValue)
 
 /**
  * Bug 989653
- * Send filelink attachment should not trigger the
- * attachment reminder.
+ * Send filelink attachment should not trigger the attachment reminder.
  */
-function disabled_attachment_vs_filelink_reminder() {
+function test_attachment_vs_filelink_reminder() {
   // Open a blank message compose
   let cwc = open_compose_new_mail();
   setup_msg_contents(cwc, "test@example.invalid", "Testing Filelink notification",
@@ -434,11 +433,13 @@ function disabled_attachment_vs_filelink_reminder() {
   // Bring up the FileLink notification.
   let kOfferThreshold = "mail.compose.big_attachments.threshold_kb";
   let maxSize = Services.prefs.getIntPref(kOfferThreshold, 0) * 1024;
-  add_attachment(cwc, "http://www.example.com/1", maxSize);
+  let file = Services.dirsvc.get("ProfD", Components.interfaces.nsIFile);
+  file.append("panacea.dat");
+  add_attachment(cwc, Services.io.newFileURI(file).spec, maxSize);
 
   // The filelink attachment proposal should be up but not the attachment
   // reminder and it should also not interfere with the sending of the message.
-  assert_notification_displayed(cwc, kBoxId, "bigAttachment", true);
+  wait_for_notification_to_show(cwc, kBoxId, "bigAttachment");
   assert_automatic_reminder_state(cwc, false);
 
   click_send_and_handle_send_error(cwc);
@@ -512,7 +513,6 @@ function test_attachment_reminder_in_subject_and_body() {
  * is turned off.
  */
 function test_disabled_attachment_reminder() {
-
   Services.prefs.setBoolPref(kReminderPref, false);
 
   // Open a sample message with no attachment keywords.
