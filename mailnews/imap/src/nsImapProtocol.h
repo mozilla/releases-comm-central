@@ -373,7 +373,7 @@ private:
   RefPtr<ImapProtocolSinkProxy>   m_imapProtocolSink;
 
   // helper function to setup imap sink interface proxies
-  void SetupSinkProxy();
+  nsresult SetupSinkProxy();
   // End thread support stuff
 
   bool GetDeleteIsMoveToTrash();

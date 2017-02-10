@@ -450,7 +450,7 @@ nsImapIncomingServer::GetImapConnectionAndLoadUrl(nsIImapUrl* aImapUrl,
     // *** jt - in case of the time out situation or the connection gets
     // terminated by some unforseen problems let's give it a second chance
     // to run the url
-    if (NS_FAILED(rv))
+    if (NS_FAILED(rv) && rv != NS_ERROR_ILLEGAL_VALUE)
     {
       NS_ASSERTION(false, "shouldn't get an error loading url");
       rv = aProtocol->LoadImapUrl(mailnewsurl, aConsumer);

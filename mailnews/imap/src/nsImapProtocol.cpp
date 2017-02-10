@@ -618,7 +618,7 @@ nsImapProtocol::GetImapServerKey()
   return m_serverKey.get();
 }
 
-void
+nsresult
 nsImapProtocol::SetupSinkProxy()
 {
   nsresult res;
@@ -638,13 +638,21 @@ nsImapProtocol::SetupSinkProxy()
     {
       nsCOMPtr<nsIImapMessageSink> aImapMessageSink;
       (void) m_runningUrl->GetImapMessageSink(getter_AddRefs(aImapMessageSink));
-      m_imapMessageSink = new ImapMessageSinkProxy(aImapMessageSink);
+      if (aImapMessageSink) {
+        m_imapMessageSink = new ImapMessageSinkProxy(aImapMessageSink);
+      } else {
+        return NS_ERROR_ILLEGAL_VALUE;
+      }
     }
     if (!m_imapServerSink)
     {
-       nsCOMPtr<nsIImapServerSink> aImapServerSink;
-       res = m_runningUrl->GetImapServerSink(getter_AddRefs(aImapServerSink));
-       m_imapServerSink = new ImapServerSinkProxy(aImapServerSink);
+      nsCOMPtr<nsIImapServerSink> aImapServerSink;
+      res = m_runningUrl->GetImapServerSink(getter_AddRefs(aImapServerSink));
+      if (aImapServerSink) {
+        m_imapServerSink = new ImapServerSinkProxy(aImapServerSink);
+      } else {
+        return NS_ERROR_ILLEGAL_VALUE;
+      }
     }
     if (!m_imapProtocolSink)
     {
@@ -652,6 +660,7 @@ nsImapProtocol::SetupSinkProxy()
       m_imapProtocolSink = new ImapProtocolSinkProxy(anImapProxyHelper);
     }
   }
+  return NS_OK;
 }
 
 static void SetSecurityCallbacksFromChannel(nsISocketTransport* aTrans, nsIChannel* aChannel)
@@ -1158,8 +1167,7 @@ NS_IMETHODIMP nsImapProtocol::GetUrlWindow(nsIMsgMailNewsUrl *aUrl,
 
 NS_IMETHODIMP nsImapProtocol::SetupMainThreadProxies()
 {
-  SetupSinkProxy();
-  return NS_OK;
+  return SetupSinkProxy();
 }
 
 NS_IMETHODIMP nsImapProtocol::OnInputStreamReady(nsIAsyncInputStream *inStr)
@@ -1611,7 +1619,8 @@ bool nsImapProtocol::ProcessCurrentURL()
   if (!m_imapMailFolderSink && m_imapProtocolSink)
   {
     // This occurs when running another URL in the main thread loop
-    m_imapProtocolSink->SetupMainThreadProxies();
+    rv = m_imapProtocolSink->SetupMainThreadProxies();
+    NS_ENSURE_SUCCESS(rv, false);
   }
 
   // Reinitialize the parser
@@ -2149,7 +2158,10 @@ NS_IMETHODIMP nsImapProtocol::LoadImapUrl(nsIURI * aURL, nsISupports * aConsumer
     if (NS_FAILED(rv))
       return rv;
 
-    SetupSinkProxy(); // generate proxies for all of the event sinks in the url
+    rv = SetupSinkProxy(); // generate proxies for all of the event sinks in the url
+    if (NS_FAILED(rv)) // URL can be invalid.
+      return rv;
+
     m_lastActiveTime = PR_Now();
     if (m_transport && m_runningUrl)
     {

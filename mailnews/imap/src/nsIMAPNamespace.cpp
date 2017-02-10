@@ -643,7 +643,7 @@ char *nsIMAPNamespaceList::GenerateFullFolderNameWithDefaultNamespace(const char
   else
   {
     // Could not find other users namespace on the given host
-    NS_ASSERTION(false, "couldn't find namespace for given host");
+    NS_WARNING("couldn't find namespace for given host");
   }
   return (fullFolderName);
 }
