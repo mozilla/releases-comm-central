@@ -146,8 +146,6 @@ textbox.username {
 
 .host {
   width: 12em;
-  margin-bottom: 4px !important;
-  margin-top: 4px !important;
 }
 
 .technical_details {
@@ -178,6 +176,24 @@ menulist[disabled="true"] {
   color: -moz-DialogText;
 }
 
+menulist:not([editable="true"]) {
+  padding-top: 2px;
+  padding-bottom: 3px;
+}
+
+.menulist-editable-box {
+  -moz-appearance: textfield;
+  min-width: 4em;
+  padding-top: 2px;
+  padding-bottom: 2px;
+  padding-inline-start: 4px;
+  padding-inline-end: 2px;
+}
+
+menulist > .menulist-editable-input {
+  padding-right: 1px !important;
+  padding-left: 1px !important;
+}
 
 /* status area */
 
@@ -212,6 +228,10 @@ menulist[disabled="true"] {
 
 textbox.port[disabled="true"] {
   padding-top: 4px;
+}
+
+#outgoing_server_area {
+  padding-top: 2px;
 }
 
 #incoming_protocol[disabled="true"] {

@@ -144,8 +144,6 @@ textbox.username {
 
 .host {
   width: 14em;
-  margin-bottom: 4px !important;
-  margin-top: 4px !important;
 }
 
 /* Missing:
@@ -180,6 +178,10 @@ menulist[disabled="true"] {
   color: #000000 !important;
 }
 
+menulist {
+  margin-right: 4px;
+  margin-left: 4px;
+}
 
 /* status area */
 

@@ -164,6 +164,9 @@ textbox.username {
 
 .host {
   width: 12em;
+}
+
+.outgoing_hostname {
   margin-bottom: 4px !important;
   margin-top: 4px !important;
 }
@@ -200,6 +203,24 @@ textbox.padded html|*.textbox-input::placeholder {
   font-style: normal;
 }
 
+.textbox-input-box {
+  padding-top: 2px;
+  padding-bottom: 1px;
+}
+
+.menulist-editable-box {
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-inline-start: 5px;
+}
+
+@media (-moz-windows-default-theme: 0) {
+  .menulist-label-box {
+    padding-top: 2px;
+    padding-bottom: 2px;
+  }
+}
+
 /* status area */
 
 #status_area[status=loading] #status_msg {
@@ -229,6 +250,10 @@ textbox.padded html|*.textbox-input::placeholder {
 
 textbox.port[disabled="true"] {
   padding-top: 6px;
+}
+
+#outgoing_server_area {
+  padding-top: 2px;
 }
 
 #incoming_protocol[disabled="true"] {

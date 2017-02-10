@@ -260,10 +260,12 @@
             <label value="&ssl.label;" class="columnHeader"/>
             <label value="&auth.label;" class="columnHeader"/>
           </row>
-          <row id="incoming_server_area" align="center">
-            <label class="textbox-label"
-                   value="&incoming.label;"
-                   control="incoming_hostname"/>
+          <row id="incoming_server_area">
+            <hbox align="center" pack="end">
+              <label class="textbox-label"
+                     value="&incoming.label;"
+                     control="incoming_hostname"/>
+            </hbox>
             <menulist id="incoming_protocol"
                       oncommand="gEmailConfigWizard.onChangedProtocolIncoming();"
                       sizetopopup="always">
