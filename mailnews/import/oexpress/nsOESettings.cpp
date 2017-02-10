@@ -897,25 +897,7 @@ void OESettings::SetSmtpServer(const nsString &aSmtpServer,
 
 bool OESettings::IsKB933612Applied()
 {
-  // The following versions of Windows include KB933612 fix:
-  // - Windows 7 and future versions of Windows
-  // - Windows Vista, SP1 or later
-  // - Windows Server 2003, SP2 or later
-  // - Windows XP, SP3 or later
-  //
-  // The following versions do not:
-  // - Windows Vista SP0
-  // - Windows Server 2003, SP1 or earlier
-  // - Windows XP, SP2 or earlier
-  //
-  // See http://support.microsoft.com/kb/929123 and
-  // http://support.microsoft.com/kb/933612
-  //
-  // Note that mozilla::IsWin2003SP2OrLater() will return true for
-  // Windows Vista and mozilla::IsXPSP3OrLater() will return true
-  // for Windows Server 2003.
-  return mozilla::IsVistaSP1OrLater() ||
-         !mozilla::IsWin2003OrLater() && mozilla::IsXPSP3OrLater() ||
-         !mozilla::IsVistaOrLater() && mozilla::IsWin2003SP2OrLater();
+  // All supported versions of Windows include the KB933612 fix.
+  return true;
 }
 
