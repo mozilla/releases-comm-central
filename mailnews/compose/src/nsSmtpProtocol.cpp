@@ -246,7 +246,7 @@ nsresult nsSmtpProtocol::Initialize(nsIURI * aURL)
     m_prefSocketType = nsMsgSocketType::trySTARTTLS;
     m_tlsInitiated = false;
 
-    m_url = aURL;
+    m_url = aURL; // Needed in nsMsgAsyncWriteProtocol::UpdateProgress().
     m_urlErrorState = NS_ERROR_FAILURE;
 
     if (!SMTPLogModule)
@@ -1940,8 +1940,6 @@ nsresult nsSmtpProtocol::LoadUrl(nsIURI * aURL, nsISupports * aConsumer )
 
 nsresult nsSmtpProtocol::LoadUrlInternal(nsIURI *aURL, nsISupports *aConsumer)
 {
-  m_url = nullptr;
-
   m_continuationResponse = -1;  /* init */
   m_runningURL = do_QueryInterface(aURL);
   if (!m_runningURL)
