@@ -37,7 +37,6 @@ if CONFIG['OS_ARCH'] == 'WINNT':
 
     if not CONFIG['GNU_CC']:
         DIRS += [
-            'import/oexpress',
             'import/winlivemail',
         ]
 

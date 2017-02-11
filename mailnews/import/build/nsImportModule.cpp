@@ -46,8 +46,6 @@ NS_DEFINE_NAMED_CID(NS_APPLEMAILIMPL_CID);
 // outlook import Include Files
 ////////////////////////////////////////////////////////////////////////////////
 #ifdef XP_WIN
-#include "nsOEImport.h"
-#include "nsOEStringBundle.h"
 #ifdef MOZ_MAPI_SUPPORT
 #include "nsOutlookImport.h"
 #include "nsOutlookStringBundle.h"
@@ -55,7 +53,6 @@ NS_DEFINE_NAMED_CID(NS_APPLEMAILIMPL_CID);
 #include "nsWMImport.h"
 #include "nsWMStringBundle.h"
 
-NS_DEFINE_NAMED_CID(NS_OEIMPORT_CID);
 NS_DEFINE_NAMED_CID(NS_WMIMPORT_CID);
 #ifdef MOZ_MAPI_SUPPORT
 NS_DEFINE_NAMED_CID(NS_OUTLOOKIMPORT_CID);
@@ -100,7 +97,6 @@ NS_GENERIC_FACTORY_CONSTRUCTOR_INIT(nsAppleMailImportMail, Initialize)
 // outlook import factories
 ////////////////////////////////////////////////////////////////////////////////
 #ifdef XP_WIN
-NS_GENERIC_FACTORY_CONSTRUCTOR(nsOEImport)
 NS_GENERIC_FACTORY_CONSTRUCTOR(nsWMImport)
 #ifdef MOZ_MAPI_SUPPORT
 NS_GENERIC_FACTORY_CONSTRUCTOR(nsOutlookImport)
@@ -120,7 +116,6 @@ static const mozilla::Module::CategoryEntry kMailNewsImportCategories[] = {
   { "mailnewsimport", "{0eb034a3-964a-4e2f-92eb-cc55d9ae9dd2}", NS_IMPORT_ADDRESS_STR },
 #ifdef XP_WIN
   { "mailnewsimport", "{42bc82bc-8e9f-4597-8b6e-e529daaf3af1}", kWMSupportsString },
-  { "mailnewsimport", "{be0bc880-1742-11d3-a206-00a0cc26da63}", kOESupportsString },
   { "mailnewsimport", "{7952a6cf-2442-4c04-9f02-150b15a0a841}", kBeckySupportsString },
 #ifdef MOZ_MAPI_SUPPORT
   { "mailnewsimport", "{1DB469A0-8B00-11d3-A206-00A0CC26DA63}", kOutlookSupportsString },
@@ -143,7 +138,6 @@ const mozilla::Module::CIDEntry kMailNewsImportCIDs[] = {
 #endif
 
 #ifdef XP_WIN
-  { &kNS_OEIMPORT_CID, false, NULL, nsOEImportConstructor },
   { &kNS_WMIMPORT_CID, false, NULL, nsWMImportConstructor },
   { &kNS_BECKYIMPORT_CID, false, NULL, nsBeckyImportConstructor },
 #ifdef MOZ_MAPI_SUPPORT
@@ -164,7 +158,6 @@ const mozilla::Module::ContractIDEntry kMailNewsImportContracts[] = {
 #endif
 
 #ifdef XP_WIN
-  { "@mozilla.org/import/import-oe;1", &kNS_OEIMPORT_CID },
   { "@mozilla.org/import/import-wm;1", &kNS_WMIMPORT_CID },
   { "@mozilla.org/import/import-becky;1", &kNS_BECKYIMPORT_CID },
 #ifdef MOZ_MAPI_SUPPORT
@@ -178,8 +171,6 @@ const mozilla::Module::ContractIDEntry kMailNewsImportContracts[] = {
 static void importModuleDtor()
 {
 #ifdef XP_WIN
-
-    nsOEStringBundle::Cleanup();
     nsWMStringBundle::Cleanup();
     nsBeckyStringBundle::Cleanup();
 #ifdef MOZ_MAPI_SUPPORT

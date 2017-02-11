@@ -39,7 +39,6 @@
              accesskey="&importFromSeamonkey3.accesskey;"/>
 
 #ifdef XP_WIN
-      <radio id="oexpress"  label="&importFromOExpress.label;"  accesskey="&importFromOExpress.accesskey;"/>
       <radio id="outlook"   label="&importFromOutlook.label;"   accesskey="&importFromOutlook.accesskey;"
                             tooltiptext="Currently disabled due to bug 1175055" disabled="true"/>
 #endif
