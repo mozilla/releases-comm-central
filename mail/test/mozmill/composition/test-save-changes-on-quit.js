@@ -19,20 +19,15 @@ var SAVE = 0
 var CANCEL = 1
 var DONT_SAVE = 2;
 
-var jumlib = {};
-Components.utils.import("resource://mozmill/modules/jum.js", jumlib);
-var elib = {};
-Components.utils.import("resource://mozmill/modules/elementslib.js", elib);
 Components.utils.import("resource://gre/modules/Services.jsm");
 
 var cwc = null; // compose window controller
 var folder = null;
 
-var setupModule = function (module) {
-  collector.getModule("folder-display-helpers").installInto(module);
-  collector.getModule("compose-helpers").installInto(module);
-  collector.getModule("prompt-helpers").installInto(module);
-  collector.getModule("window-helpers").installInto(module);
+function setupModule(module) {
+  for (let lib of MODULE_REQUIRES) {
+    collector.getModule(lib).installInto(module);
+  }
 
   folder = create_folder("PromptToSaveTest");
 
@@ -40,7 +35,7 @@ var setupModule = function (module) {
   let localFolder = folder.QueryInterface(Ci.nsIMsgLocalMailFolder);
   localFolder.addMessage(msgSource("content type: text", "text")); // row 1
   localFolder.addMessage(msgSource("content type missing", null)); // row 2
-};
+}
 
 function msgSource(aSubject, aContentType) {
   let msgId = Components.classes["@mozilla.org/uuid-generator;1"]
@@ -185,7 +180,7 @@ function test_window_quit_state_reset_on_aborted_quit() {
   Services.obs.notifyObservers(cancelQuit, "quit-application-requested",
                                null);
 
-  // We should have cancelled the quit appropraitely.
+  // We should have cancelled the quit appropriately.
   assert_true(cancelQuit.data);
 
   // The quit behaviour is that the second window to spawn is the first
@@ -199,6 +194,8 @@ function test_window_quit_state_reset_on_aborted_quit() {
 
   let promptState = gMockPromptService.promptState;
   assert_not_equals(null, promptState, "Expected a confirmEx prompt");
+
+  close_compose_window(cwc1);
 
   gMockPromptService.unregister();
 }
