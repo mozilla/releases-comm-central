@@ -678,6 +678,7 @@ multigetSyncHandler.prototype = {
     unhandledErrors: 0,
     itemsNeedFetching: null,
     additionalSyncNeeded: false,
+    timer: null,
 
     QueryInterface: XPCOMUtils.generateQI([
         Components.interfaces.nsISAXContentHandler,
@@ -809,11 +810,13 @@ multigetSyncHandler.prototype = {
                     this.requestHandler.doMultiGet();
                 }
             };
-            let timer = Components.classes["@mozilla.org/timer;1"]
-                        .createInstance(Components.interfaces.nsITimer);
-            timer.initWithCallback(timerCallback,
-                                   0,
-                                   Components.interfaces.nsITimer.TYPE_ONE_SHOT);
+            this.timer = Components.classes["@mozilla.org/timer;1"]
+                                   .createInstance(Components.interfaces.nsITimer);
+            this.timer.initWithCallback(
+                timerCallback,
+                0,
+                Components.interfaces.nsITimer.TYPE_ONE_SHOT
+            );
         }
     },
 

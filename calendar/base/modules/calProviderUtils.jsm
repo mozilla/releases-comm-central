@@ -150,6 +150,7 @@ cal.BadCertHandler = function(thisProvider) {
 };
 cal.BadCertHandler.prototype = {
     QueryInterface: XPCOMUtils.generateQI([Components.interfaces.nsIBadCertListener2]),
+    timer: null,
 
     notifyCertProblem: function(socketInfo, status, targetSite) {
         // Unfortunately we can't pass js objects using the window watcher, so
@@ -179,11 +180,13 @@ cal.BadCertHandler.prototype = {
                 }
             }
         };
-        let timer = Components.classes["@mozilla.org/timer;1"]
-                    .createInstance(Components.interfaces.nsITimer);
-        timer.initWithCallback(timerCallback,
-                               0,
-                               Components.interfaces.nsITimer.TYPE_ONE_SHOT);
+        this.timer = Components.classes["@mozilla.org/timer;1"]
+                               .createInstance(Components.interfaces.nsITimer);
+        this.timer.initWithCallback(
+            timerCallback,
+            0,
+            Components.interfaces.nsITimer.TYPE_ONE_SHOT
+        );
         return true;
     }
 };
