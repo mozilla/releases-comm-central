@@ -7890,7 +7890,7 @@ static void getDateFormatPref( nsIPrefBranch* _prefBranch, const char* _prefLoca
     // translate
     nsDateFormatSelector res( nFormatSetting );
     // transfer if valid
-    if ( ( res >= kDateFormatNone ) && ( res <= kDateFormatShort ) )
+    if ( ( res >= kDateFormatNone ) && ( res <= kDateFormatWeekday ) )
       _format = res;
   }
 }
