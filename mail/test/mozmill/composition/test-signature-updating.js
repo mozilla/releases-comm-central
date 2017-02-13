@@ -201,8 +201,10 @@ function HTMLComposeWindowSwitchSignatures(suppressSigSep, paragraphFormat) {
     textNode = node;
   }
   assert_equals(textNode.nodeValue, "Body, first line.");
-  node = node.nextSibling;
-  assert_equals(node.localName, "br");
+  if (!paragraphFormat) {
+    node = node.nextSibling;
+    assert_equals(node.localName, "br");
+  }
   node = node.nextSibling;
   // check that the signature is immediately after the message text.
   assert_equals(node.className, "moz-signature");

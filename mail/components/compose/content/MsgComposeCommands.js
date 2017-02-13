@@ -278,6 +278,15 @@ function toggleAffectedChrome(aHide)
   document.getElementById("appcontent").collapsed = aHide;
 }
 
+/**
+ * Small helper function to check whether the node passed in is a signature.
+ * Note that a text node is not a DOM element, hence .localName can't be used.
+ */
+function isSignature(aNode) {
+  return ["DIV","PRE"].includes(aNode.nodeName) &&
+         aNode.classList.contains("moz-signature");
+}
+
 var stateListener = {
   NotifyComposeFieldsReady: function() {
     ComposeFieldsReady();
@@ -351,28 +360,20 @@ var stateListener = {
     let useParagraph = Services.prefs.getBoolPref("mail.compose.default_to_paragraph");
     let insertParagraph = gMsgCompose.composeHTML && useParagraph;
 
+    let mailBody = getBrowser().contentDocument.querySelector("body");
     if (insertParagraph && gBodyFromArgs) {
-      // Check for empty body before allowing paragraph to be inserted.
-      // An "empty" body will have a <br> potentially followed by a
-      // <div class="moz-signature"> or <pre class="moz-signature">.
-      let mailBody = getBrowser().contentDocument.querySelector("body");
+      // Check for "empty" body before allowing paragraph to be inserted.
+      // Non-empty bodies in a new message can occur when clicking on a
+      // mailto link or when using the command line option -compose.
+      // An "empty" body can be one of these two cases:
+      // 1) <br> and nothing follows (no next sibling)
+      // 2) <div/pre class="moz-signature">
+      // Note that <br><div/pre class="moz-signature"> doesn't happen in
+      // paragraph mode.
       let firstChild = mailBody.firstChild;
-      let nextSibling = firstChild.nextSibling;
-      do {
-        if (firstChild.localName != 'br') {
-          insertParagraph = false;
-          break;
-        }
-
-        if (!nextSibling)
-          break;
-
-        if ((nextSibling.localName == "div" || nextSibling.localName == "pre") &&
-            nextSibling.getAttribute("class") == "moz-signature")
-          break;
-
+      if ((firstChild.nodeName != "BR" || firstChild.nextSibling) &&
+          !isSignature(firstChild))
         insertParagraph = false;
-      } while (false);
     }
 
     // Control insertion of line breaks.
@@ -380,6 +381,7 @@ var stateListener = {
       let editor = GetCurrentEditor();
       editor.enableUndo(false);
 
+      editor.selection.collapse(mailBody, 0);
       let pElement = editor.createElementWithDefaults("p");
       pElement.appendChild(editor.createElementWithDefaults("br"));
       editor.insertElementAtSelection(pElement, false);
@@ -401,6 +403,11 @@ var stateListener = {
       let mailBody = getBrowser().contentDocument.querySelector("body");
       let editor = GetCurrentEditor();
       let selection = editor.selection;
+
+      // Make sure the selection isn't inside the signature.
+      if (isSignature(mailBody.firstChild))
+        selection.collapse(mailBody, 0);
+
       let range = selection.getRangeAt(0);
       let start = range.startOffset;
 
