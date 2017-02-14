@@ -5663,13 +5663,20 @@ function loadBlockedImage(aURL) {
   }
   filename = decodeURIComponent(filename);
   let uri = Services.io.newURI(aURL);
-  let contentType = Components.classes["@mozilla.org/mime;1"]
-    .getService(Components.interfaces.nsIMIMEService)
-    .getTypeFromURI(uri);
-  if (!contentType.startsWith("image/")) {
-    // Unsafe to unblock this. It would just be garbage either way.
-    throw new Error("Won't unblock; URL=" + aURL +
-                    ", contentType=" + contentType);
+  let contentType;
+  if (filename) {
+    contentType = Components.classes["@mozilla.org/mime;1"]
+      .getService(Components.interfaces.nsIMIMEService)
+      .getTypeFromURI(uri);
+    if (!contentType.startsWith("image/")) {
+      // Unsafe to unblock this. It would just be garbage either way.
+      throw new Error("Won't unblock; URL=" + aURL +
+                      ", contentType=" + contentType);
+    }
+  }
+  else {
+    // Assuming image/png is the best we can do.
+    contentType = "image/png";
   }
   let channel = Services.io.newChannelFromURI2(uri,
     null,
