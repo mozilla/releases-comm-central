@@ -198,7 +198,7 @@ function populateGraphicsSection() {
           gfxInfo.getFeatureStatus(gfxInfo.FEATURE_WEBGL_OPENGL) == gfxInfo.FEATURE_STATUS_OK)
         webglfeature = gfxInfo.FEATURE_WEBGL_OPENGL;
     }
-    pushFeatureInfoRow(trGraphics, "webglRenderer", webglfeature, webglenabled, webglrenderer);
+    pushFeatureInfoRow(trGraphics, "webgl1Renderer", webglfeature, webglenabled, webglrenderer);
 
     appendChildren(graphics_tbody, trGraphics);
 
