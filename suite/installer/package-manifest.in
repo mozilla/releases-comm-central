@@ -766,6 +766,10 @@ bin/libfreebl_32int64_3.so
 #endif
 #endif
 
+; [ Ping Sender ]
+;
+@BINPATH@/pingsender@BIN_SUFFIX@
+
 [mail]
 ; MailNews component xpts
 @RESPATH@/components/addrbook.xpt

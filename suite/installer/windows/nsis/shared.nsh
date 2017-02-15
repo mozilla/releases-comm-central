@@ -992,6 +992,7 @@
   Push "mozsqlite3.dll"
   Push "xpcom.dll"
   Push "crashreporter.exe"
+  Push "pingsender.exe"
   Push "updater.exe"
   Push "xpicleanup.exe"
   Push "MapiProxy.dll"

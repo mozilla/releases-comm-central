@@ -850,6 +850,10 @@
 #endif
 #endif
 
+; [ Ping Sender ]
+;
+@BINPATH@/pingsender@BIN_SUFFIX@
+
 ; Shutdown Terminator
 @RESPATH@/components/nsTerminatorTelemetry.js
 @RESPATH@/components/terminator.manifest
