@@ -166,7 +166,7 @@
         </hbox>
       </row>
 #ifdef MOZ_THUNDERBIRD
-      <row id="CreateAccounts" class="acctCentralRow" collapsed="false">
+      <row id="CreateAccounts" class="acctCentralRow" collapsed="true">
         <vbox id="CreateAccountsList">
           <label id="CreateAccountMail"
                  class="acctCentralNewAcctText acctCentralLinkText"

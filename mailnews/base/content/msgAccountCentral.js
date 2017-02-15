@@ -42,7 +42,12 @@ function OnInit()
             title = messengerBundle.getFormattedString("acctCentralTitleFormat",
                                                        [brandName, acctType, acctName]);
         } else {
-            title = brandName;
+          // If there is no selectedServer, we are in a brand new profile with
+          // no accounts - show the create account rows.
+          title = brandName;
+          SetItemDisplay("AccountsHeader", true);
+          SetItemDisplay("CreateAccount", true);
+          SetItemDisplay("CreateAccounts", true);
         }
 
         // Set the title for the document
@@ -152,6 +157,7 @@ function ArrangeAccountCentralItems(server, msgFolder)
         canShowCreateAccount = !Services.prefs
           .prefIsLocked("mail.disable_new_account_addition");
         SetItemDisplay("CreateAccount", canShowCreateAccount);
+        SetItemDisplay("CreateAccounts", canShowCreateAccount);
     } catch (e) { exceptions.push(e); }
 
     // Display Accounts header, only if any of the items are displayed
