@@ -42,7 +42,7 @@
 #quick-filter-bar #qfb-sticky[checked] {
   background: none;
   border-width: 0;
-  -moz-border-image: none;
+  border-image: none;
 }
 
 #qfb-sticky {
