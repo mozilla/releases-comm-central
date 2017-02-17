@@ -2186,7 +2186,7 @@ var gFolderTreeView = {
     if (index == null)
       return;
     // forget our parent's children; they'll get rebuilt
-    if (aRDFParentItem)
+    if (aRDFParentItem && this._rowMap[index]._parent)
       this._rowMap[index]._parent._children = null;
     let kidCount = 1;
     let walker = Number(index) + 1;

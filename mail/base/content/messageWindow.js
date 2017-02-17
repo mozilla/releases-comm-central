@@ -246,6 +246,10 @@ StandaloneMessageDisplayWidget.prototype = {
   },
 
   onSelectedMessagesChanged: function () {
+    // When switching folders, we won't have any selection for a while.
+    if (!this.folderDisplay.view.dbView)
+      return true;
+
     // If the message we're displaying is deleted, we won't have any selection
     // for a while, but we'll soon select a new message. So don't test the
     // selection count -- instead see if there are any messages in the db view
