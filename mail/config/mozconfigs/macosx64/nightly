@@ -7,16 +7,12 @@ if test -e "$topsrcdir/mail/config/version.txt"; then
   unset CXX
 fi
 
-# Make sure Lightning is also unified, this needs to happen before including
-# the universal mozconfig because Lightning's univeral.mk needs to run first.
-mk_add_options MOZ_POSTFLIGHT_ALL+=calendar/lightning/build/universal.mk
+. $topsrcdir/build/macosx/mozconfig.common
 
-. $topsrcdir/build/macosx/universal/mozconfig
-
-# Universal builds override the default of mail (bug 575283 comment 29)
 ac_add_options --enable-application=mail
 ac_add_options --enable-update-channel=${MOZ_UPDATE_CHANNEL}
-ac_add_options --enable-official-branding
+ac_add_options --disable-install-strip
+ac_add_options --enable-profiling
 ac_add_options --enable-calendar
 
 # For NSS symbols
@@ -27,13 +23,15 @@ export MOZILLA_OFFICIAL=1
 
 export MOZ_TELEMETRY_REPORTING=1
 
+# Package js shell
+export MOZ_PACKAGE_JSSHELL=1
+
 # Disable checking that add-ons are signed by the trusted root
 MOZ_ADDON_SIGNING=0
 # Disable enforcing that add-ons are signed by the trusted root
 MOZ_REQUIRE_ADDON_SIGNING=0
 
-# Package js shell
-export MOZ_PACKAGE_JSSHELL=1
+ac_add_options --with-ccache
 
 # Run client.py
 mk_add_options CLIENT_PY_ARGS="$([ -f $topsrcdir/build/client.py-args ] && cat $topsrcdir/build/client.py-args)"
