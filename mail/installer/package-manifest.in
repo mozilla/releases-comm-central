@@ -359,7 +359,10 @@
 @RESPATH@/components/nsSMTPProtocolHandler.manifest
 
 ; misson control, autoconfig
+#ifdef MOZ_PREF_EXTENSIONS
 @RESPATH@/defaults/autoconfig/prefcalls.js
+@RESPATH@/components/autoconfig.xpt
+#endif
 
 ; Address Book autocomplete
 @RESPATH@/components/nsAbAutoCompleteMyDomain.js
@@ -391,7 +394,6 @@
 @RESPATH@/components/appshell.xpt
 @RESPATH@/components/appstartup.xpt
 @RESPATH@/components/autocomplete.xpt
-@RESPATH@/components/autoconfig.xpt
 @RESPATH@/components/browser-element.xpt
 ; caps (JavaScript security)
 @RESPATH@/components/caps.xpt
