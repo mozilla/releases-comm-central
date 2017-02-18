@@ -1455,8 +1455,12 @@ nsresult nsSmtpProtocol::AuthLoginStep1()
     if (username.IsEmpty() || password.IsEmpty())
       return NS_ERROR_SMTP_PASSWORD_UNDEFINED;
   }
+
+  nsCString hostname;
+  smtpServer->GetHostname(hostname);
+
   MOZ_LOG(SMTPLogModule, mozilla::LogLevel::Debug, ("SMTP AuthLoginStep1() for %s@%s",
-      username.get(), smtpServer.get()));
+      username.get(), hostname.get()));
 
   GetPassword(password);
   if (password.IsEmpty())
