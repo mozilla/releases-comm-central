@@ -1389,7 +1389,7 @@ int32_t nsPop3Protocol::Pop3SendData(const char * dataBuffer, bool aSuppressLogg
   }
 
   m_pop3ConData->next_state = POP3_ERROR_DONE;
-  MOZ_LOG(POP3LOGMODULE, LogLevel::Info, (POP3LOG("Pop3SendData failed: %lx"), result));
+  MOZ_LOG(POP3LOGMODULE, LogLevel::Info, (POP3LOG("Pop3SendData failed: %" PRIx32), static_cast<uint32_t>(result)));
   return -1;
 }
 

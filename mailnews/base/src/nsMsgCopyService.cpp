@@ -162,7 +162,7 @@ void nsMsgCopyService::LogCopyRequest(const char *logMsg, nsCopyRequest* aReques
       aRequest->m_copySourceArray[0]->m_messageArray)
     aRequest->m_copySourceArray[0]->m_messageArray->GetLength(&numMsgs);
   MOZ_LOG(gCopyServiceLog, mozilla::LogLevel::Info,
-         ("request %lx %s - src %s dest %s numItems %d type=%d",
+         ("request %p %s - src %s dest %s numItems %d type=%d",
          aRequest, logMsg, srcFolderUri.get(),
          destFolderUri.get(), numMsgs, aRequest->m_requestType));
 }

@@ -771,7 +771,7 @@ ImportMailThread(void *stuff)
         while ((newDepth < depth) && NS_SUCCEEDED(rv)) {
           rv = curFolder->GetParent(getter_AddRefs(curFolder));
           if (NS_FAILED(rv)) {
-            IMPORT_LOG1("*** ImportMailThread: Failed to get the interface for parent folder '%s'.", lastName.get());
+            IMPORT_LOG1("*** ImportMailThread: Failed to get the interface for parent folder '%s'.", NS_ConvertUTF16toUTF8(lastName).get());
             nsImportGenericMail::ReportError(IMPORT_ERROR_MB_FINDCHILD,
                                              lastName.get(), &error,
                                              pData->stringBundle);
@@ -781,7 +781,7 @@ ImportMailThread(void *stuff)
           depth--;
         }
         if (NS_FAILED(rv)) {
-          IMPORT_LOG1("*** ImportMailThread: Failed to get the proxy interface for parent folder '%s'.", lastName.get());
+          IMPORT_LOG1("*** ImportMailThread: Failed to get the proxy interface for parent folder '%s'.", NS_ConvertUTF16toUTF8(lastName).get());
           nsImportStringBundle::GetStringByID(IMPORT_ERROR_MB_NOPROXY,
                                               pData->stringBundle, error);
           pData->fatalError = true;
@@ -822,7 +822,7 @@ ImportMailThread(void *stuff)
 
       rv = ProxyGetChildNamed(curFolder, lastName, getter_AddRefs(newFolder));
       if (NS_FAILED(rv)) {
-        IMPORT_LOG1("*** ImportMailThread: Failed to locate subfolder '%s' after it's been created.", lastName.get());
+        IMPORT_LOG1("*** ImportMailThread: Failed to locate subfolder '%s' after it's been created.", NS_ConvertUTF16toUTF8(lastName).get());
         nsImportGenericMail::ReportError(IMPORT_ERROR_MB_CREATE, lastName.get(),
                                          &error, pData->stringBundle);
       }

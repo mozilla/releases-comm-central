@@ -43,6 +43,7 @@
 #include "nsIMemoryReporter.h"
 #include "mozilla/mailnews/MimeHeaderParser.h"
 #include "mozilla/mailnews/Services.h"
+#include "mozilla/SizePrintfMacros.h"
 #include <algorithm>
 
 using namespace mozilla::mailnews;
@@ -968,12 +969,12 @@ void nsMsgDBService::AddToCache(nsMsgDatabase* pMessageDB)
 void nsMsgDBService::DumpCache()
 {
   nsMsgDatabase* db = nullptr;
-  MOZ_LOG(DBLog, LogLevel::Info, ("%d open DB's\n", m_dbCache.Length()));
+  MOZ_LOG(DBLog, LogLevel::Info, ("%" PRIuSIZE " open DBs\n", m_dbCache.Length()));
   for (uint32_t i = 0; i < m_dbCache.Length(); i++)
   {
     db = m_dbCache.ElementAt(i);
-    MOZ_LOG(DBLog, LogLevel::Info, ("%s - %ld hdrs in use\n",
-      (const char*)db->m_dbName.get(),
+    MOZ_LOG(DBLog, LogLevel::Info, ("%s - %" PRIu32 " hdrs in use\n",
+      db->m_dbName.get(),
       db->m_headersInUse ? db->m_headersInUse->EntryCount() : 0));
   }
 }
@@ -1141,8 +1142,7 @@ nsMsgDatabase::~nsMsgDatabase()
     m_msgReferences = nullptr;
   }
 
-  MOZ_LOG(DBLog, LogLevel::Info, ("closing database    %s\n",
-    (const char*)m_dbName.get()));
+  MOZ_LOG(DBLog, LogLevel::Info, ("closing database    %s\n", m_dbName.get()));
 
   nsCOMPtr<nsIMsgDBService> serv(do_GetService(NS_MSGDB_SERVICE_CONTRACTID));
   if (serv)
@@ -1209,7 +1209,7 @@ nsresult nsMsgDatabase::OpenInternal(nsMsgDBService *aDBService,
 
   nsresult rv = OpenMDB(summaryFilePath.get(), aCreate, sync);
   if (NS_FAILED(rv))
-    MOZ_LOG(DBLog, LogLevel::Info, ("error opening db %lx", rv));
+    MOZ_LOG(DBLog, LogLevel::Info, ("error opening db %" PRIx32, static_cast<uint32_t>(rv)));
 
   if (MOZ_LOG_TEST(DBLog, LogLevel::Debug))
     aDBService->DumpCache();

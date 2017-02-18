@@ -343,7 +343,7 @@ nsresult nsMsgBiffManager::PerformBiff()
         nsCString serverKey;
         current.server->GetKey(serverKey);
         nsresult rv = current.server->PerformBiff(nullptr);
-        MOZ_LOG(MsgBiffLogModule, mozilla::LogLevel::Info, ("biffing server %s rv = %x\n", serverKey.get(), rv));
+        MOZ_LOG(MsgBiffLogModule, mozilla::LogLevel::Info, ("biffing server %s rv = %" PRIx32 "\n", serverKey.get(), static_cast<uint32_t>(rv)));
       }
       else
       {

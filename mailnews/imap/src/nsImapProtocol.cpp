@@ -1324,7 +1324,7 @@ nsImapProtocol::PseudoInterruptMsgLoad(nsIMsgFolder *aImapFolder, nsIMsgWindow *
 void
 nsImapProtocol::ImapThreadMainLoop()
 {
-  MOZ_LOG(IMAP, LogLevel::Debug, ("ImapThreadMainLoop entering [this=%x]\n", this));
+  MOZ_LOG(IMAP, LogLevel::Debug, ("ImapThreadMainLoop entering [this=%p]\n", this));
 
   PRIntervalTime sleepTime = kImapSleepTime;
   while (!DeathSignalReceived())
@@ -1412,7 +1412,7 @@ nsImapProtocol::ImapThreadMainLoop()
   }
   m_imapThreadIsRunning = false;
 
-  MOZ_LOG(IMAP, LogLevel::Debug, ("ImapThreadMainLoop leaving [this=%x]\n", this));
+  MOZ_LOG(IMAP, LogLevel::Debug, ("ImapThreadMainLoop leaving [this=%p]\n", this));
 }
 
 void nsImapProtocol::HandleIdleResponses()
@@ -1844,7 +1844,7 @@ bool nsImapProtocol::ProcessCurrentURL()
                                                 NS_SUCCEEDED(GetConnectionStatus()),
                                                 copyState);
       if (NS_FAILED(rv))
-        MOZ_LOG(IMAP, LogLevel::Info, ("CopyNextStreamMessage failed:%lx\n", rv));
+        MOZ_LOG(IMAP, LogLevel::Info, ("CopyNextStreamMessage failed: %" PRIx32 "\n", static_cast<uint32_t>(rv)));
 
       NS_ReleaseOnMainThread(copyState.forget());
     }
@@ -4470,11 +4470,11 @@ void nsImapProtocol::Log(const char *logSubName, const char *extraInfo, const ch
     {
     case nsImapServerResponseParser::kFolderSelected:
       if (extraInfo)
-        MOZ_LOG(IMAP, LogLevel::Info, ("%x:%s:%s-%s:%s:%s: %.400s", this, hostName.get(),
+        MOZ_LOG(IMAP, LogLevel::Info, ("%p:%s:%s-%s:%s:%s: %.400s", this, hostName.get(),
                selectedStateName, GetServerStateParser().GetSelectedMailboxName(),
                logSubName, extraInfo, logDataToLog));
       else
-        MOZ_LOG(IMAP, LogLevel::Info, ("%x:%s:%s-%s:%s: %.400s", this, hostName.get(),
+        MOZ_LOG(IMAP, LogLevel::Info, ("%p:%s:%s-%s:%s: %.400s", this, hostName.get(),
                selectedStateName, GetServerStateParser().GetSelectedMailboxName(),
                logSubName, logDataToLog));
       break;
@@ -4485,10 +4485,10 @@ void nsImapProtocol::Log(const char *logSubName, const char *extraInfo, const ch
                                nsImapServerResponseParser::kNonAuthenticated)
                                ? nonAuthStateName : authStateName;
       if (extraInfo)
-        MOZ_LOG(IMAP, LogLevel::Info, ("%x:%s:%s:%s:%s: %.400s", this,
+        MOZ_LOG(IMAP, LogLevel::Info, ("%p:%s:%s:%s:%s: %.400s", this,
                hostName.get(),stateName,logSubName,extraInfo,logDataToLog));
       else
-        MOZ_LOG(IMAP, LogLevel::Info, ("%x:%s:%s:%s: %.400s",this,
+        MOZ_LOG(IMAP, LogLevel::Info, ("%p:%s:%s:%s: %.400s", this,
                hostName.get(),stateName,logSubName,logDataToLog));
     }
     }
@@ -4749,7 +4749,7 @@ char* nsImapProtocol::CreateNewLineFromSocket()
   do
   {
     newLine = m_inputStreamBuffer->ReadNextLine(m_inputStream, numBytesInLine, needMoreData, &rv);
-    MOZ_LOG(IMAP, LogLevel::Debug, ("ReadNextLine [stream=%x nb=%u needmore=%u]\n",
+    MOZ_LOG(IMAP, LogLevel::Debug, ("ReadNextLine [stream=%p nb=%u needmore=%u]\n",
         m_inputStream.get(), numBytesInLine, needMoreData));
 
   } while (!newLine && NS_SUCCEEDED(rv) && !DeathSignalReceived()); // until we get the next line and haven't been interrupted
@@ -5626,14 +5626,17 @@ nsresult nsImapProtocol::ChooseAuthMethod()
   eIMAPCapabilityFlags serverCaps = GetServerStateParser().GetCapabilityFlag();
   eIMAPCapabilityFlags availCaps = serverCaps & m_prefAuthMethods & ~m_failedAuthMethods;
 
-  MOZ_LOG(IMAP, LogLevel::Debug, ("IMAP auth: server caps 0x%llx, pref 0x%llx, failed 0x%llx, avail caps 0x%llx",
+  MOZ_LOG(IMAP, LogLevel::Debug, ("IMAP auth: server caps 0x%" PRIx64
+        ", pref 0x%" PRIx64 ", failed 0x%" PRIx64 ", avail caps 0x%" PRIx64,
         serverCaps, m_prefAuthMethods, m_failedAuthMethods, availCaps));
-  MOZ_LOG(IMAP, LogLevel::Debug, ("(GSSAPI = 0x%llx, CRAM = 0x%llx, NTLM = 0x%llx, "
-        "MSN = 0x%llx, PLAIN = 0x%llx,\n  LOGIN = 0x%llx, old-style IMAP login = 0x%llx"
-        ", auth external IMAP login = 0x%llx, OAUTH2 = 0x%llx)",
+  MOZ_LOG(IMAP, LogLevel::Debug, ("(GSSAPI = 0x%" PRIx64 ", CRAM = 0x%" PRIx64
+        ", NTLM = 0x%" PRIx64 ", MSN = 0x%" PRIx64 ", PLAIN = 0x%" PRIx64
+        ",\n  LOGIN = 0x%" PRIx64 ", old-style IMAP login = 0x%" PRIx64
+        ", auth external IMAP login = 0x%" PRIx64 ", OAUTH2 = 0x%" PRIx64 ")",
         kHasAuthGssApiCapability, kHasCRAMCapability, kHasAuthNTLMCapability,
         kHasAuthMSNCapability, kHasAuthPlainCapability, kHasAuthLoginCapability,
-        kHasAuthOldLoginCapability, kHasAuthExternalCapability, kHasXOAuth2Capability));
+        kHasAuthOldLoginCapability, kHasAuthExternalCapability,
+        kHasXOAuth2Capability));
 
   if (kHasAuthExternalCapability & availCaps)
     m_currentAuthMethod = kHasAuthExternalCapability;
@@ -5659,13 +5662,13 @@ nsresult nsImapProtocol::ChooseAuthMethod()
     m_currentAuthMethod = kCapabilityUndefined;
     return NS_ERROR_FAILURE;
   }
-  MOZ_LOG(IMAP, LogLevel::Debug, ("trying auth method 0x%llx", m_currentAuthMethod));
+  MOZ_LOG(IMAP, LogLevel::Debug, ("trying auth method 0x%" PRIx64, m_currentAuthMethod));
   return NS_OK;
 }
 
 void nsImapProtocol::MarkAuthMethodAsFailed(eIMAPCapabilityFlags failedAuthMethod)
 {
-  MOZ_LOG(IMAP, LogLevel::Debug, ("marking auth method 0x%llx failed", failedAuthMethod));
+  MOZ_LOG(IMAP, LogLevel::Debug, ("marking auth method 0x%" PRIx64 " failed", failedAuthMethod));
   m_failedAuthMethods |= failedAuthMethod;
 }
 
@@ -5687,7 +5690,7 @@ nsresult nsImapProtocol::AuthLogin(const char *userName, const nsCString &passwo
   char * currentCommand=nullptr;
   nsresult rv;
 
-  MOZ_LOG(IMAP, LogLevel::Debug, ("IMAP: trying auth method 0x%llx", m_currentAuthMethod));
+  MOZ_LOG(IMAP, LogLevel::Debug, ("IMAP: trying auth method 0x%" PRIx64, m_currentAuthMethod));
 
   if (flag & kHasAuthExternalCapability)
   {
@@ -5696,7 +5699,7 @@ nsresult nsImapProtocol::AuthLogin(const char *userName, const nsCString &passwo
       command.Append(" authenticate EXTERNAL " );
       command.Append(base64UserName);
       command.Append(CRLF);
-	  PR_Free(base64UserName);
+      PR_Free(base64UserName);
       rv = SendData(command.get());
       ParseIMAPandCheckForNewMail();
       nsImapServerResponseParser &parser = GetServerStateParser();
@@ -9329,7 +9332,7 @@ nsresult nsImapMockChannel::ReadFromMemCache(nsICacheEntry *entry)
               messageSize != entrySize)
           {
             MOZ_LOG(IMAP, LogLevel::Warning,
-                ("ReadFromMemCache size mismatch for %s: message %d, cache %ld\n",
+                ("ReadFromMemCache size mismatch for %s: message %" PRIu32 ", cache %" PRIi64 "\n",
                  entryKey.get(), messageSize, entrySize));
             shouldUseCacheEntry = false;
           }

@@ -15,6 +15,7 @@
 #include "nsServiceManagerUtils.h"
 #include "nsComponentManagerUtils.h"
 #include "mozilla/Logging.h"
+#include "mozilla/SizePrintfMacros.h"
 
 using namespace mozilla;
 
@@ -366,7 +367,7 @@ NS_IMETHODIMP nsAutoSyncState::ProcessExistingHeaders(uint32_t aNumOfHdrsToProce
     nsCString folderName;
     folder->GetURI(folderName);
     MOZ_LOG(gAutoSyncLog, LogLevel::Debug,
-          ("%d messages will be added into the download q of folder %s\n",
+          ("%" PRIuSIZE " messages will be added into the download q of folder %s\n",
             msgKeys.Length(), folderName.get()));
 
     rv = PlaceIntoDownloadQ(msgKeys);
@@ -450,10 +451,10 @@ NS_IMETHODIMP nsAutoSyncState::OnStopRunningUrl(nsIURI* aUrl, nsresult aExitCode
       nsCString folderName;
       ownerFolder->GetURI(folderName);
       MOZ_LOG(gAutoSyncLog, LogLevel::Debug,
-             ("folder %s status changed serverNextUID = %lx lastNextUID = %lx\n", folderName.get(),
+             ("folder %s status changed serverNextUID = %x lastNextUID = %x\n", folderName.get(),
               serverNextUID, mLastNextUID));
       MOZ_LOG(gAutoSyncLog, LogLevel::Debug,
-             ("serverTotal = %lx lastServerTotal = %lx serverRecent = %lx lastServerRecent = %lx\n",
+             ("serverTotal = %x lastServerTotal = %x serverRecent = %x lastServerRecent = %x\n",
               serverTotal, mLastServerTotal, serverRecent, mLastServerRecent));
       SetServerCounts(serverTotal, serverRecent, serverUnseen, serverNextUID);
       SetState(nsAutoSyncState::stUpdateIssued);

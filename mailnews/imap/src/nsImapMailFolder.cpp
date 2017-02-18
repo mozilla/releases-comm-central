@@ -3232,7 +3232,7 @@ NS_IMETHODIMP nsImapMailFolder::BeginCopy(nsIMsgDBHdr *message)
     {
       nsCString nativePath;
       m_copyState->m_tmpFile->GetNativePath(nativePath);
-      MOZ_LOG(IMAP, mozilla::LogLevel::Info, ("couldn't remove prev temp file %s: %lx\n", nativePath.get(), rv));
+      MOZ_LOG(IMAP, mozilla::LogLevel::Info, ("couldn't remove prev temp file %s: %" PRIx32 "\n", nativePath.get(), static_cast<uint32_t>(rv)));
     }
     m_copyState->m_tmpFile = nullptr;
   }
@@ -3243,14 +3243,14 @@ NS_IMETHODIMP nsImapMailFolder::BeginCopy(nsIMsgDBHdr *message)
                                        "nscpmsg.txt",
                                         getter_AddRefs(m_copyState->m_tmpFile));
   if (NS_FAILED(rv))
-    MOZ_LOG(IMAP, mozilla::LogLevel::Info, ("couldn't find nscpmsg.txt:%lx\n", rv));
+    MOZ_LOG(IMAP, mozilla::LogLevel::Info, ("couldn't find nscpmsg.txt:%" PRIx32 "\n", static_cast<uint32_t>(rv)));
   NS_ENSURE_SUCCESS(rv, rv);
 
   // create a unique file, since multiple copies may be open on multiple folders
   rv = m_copyState->m_tmpFile->CreateUnique(nsIFile::NORMAL_FILE_TYPE, 00600);
   if (NS_FAILED(rv))
   {
-    MOZ_LOG(IMAP, mozilla::LogLevel::Info, ("couldn't create temp nscpmsg.txt:%lx\n", rv));
+    MOZ_LOG(IMAP, mozilla::LogLevel::Info, ("couldn't create temp nscpmsg.txt:%" PRIx32 "\n", static_cast<uint32_t>(rv)));
     // Last ditch attempt to create a temp file, because virus checker might
     // be locking the previous temp file, and CreateUnique fails if the file
     // is locked. Use the message key to make a unique name.
@@ -3265,7 +3265,7 @@ NS_IMETHODIMP nsImapMailFolder::BeginCopy(nsIMsgDBHdr *message)
       rv = m_copyState->m_tmpFile->CreateUnique(nsIFile::NORMAL_FILE_TYPE, 00600);
       if (NS_FAILED(rv))
       {
-        MOZ_LOG(IMAP, mozilla::LogLevel::Info, ("couldn't create temp nscpmsg.txt:%lx\n", rv));
+        MOZ_LOG(IMAP, mozilla::LogLevel::Info, ("couldn't create temp nscpmsg.txt: %" PRIx32 "\n", static_cast<uint32_t>(rv)));
         OnCopyCompleted(m_copyState->m_srcSupport, rv);
         return rv;
       }
@@ -3276,7 +3276,7 @@ NS_IMETHODIMP nsImapMailFolder::BeginCopy(nsIMsgDBHdr *message)
   rv = MsgNewBufferedFileOutputStream(getter_AddRefs(m_copyState->m_msgFileStream),
                                       m_copyState->m_tmpFile, -1, 00600);
   if (NS_FAILED(rv))
-    MOZ_LOG(IMAP, mozilla::LogLevel::Info, ("couldn't create output file stream:%lx\n", rv));
+    MOZ_LOG(IMAP, mozilla::LogLevel::Info, ("couldn't create output file stream: %" PRIx32 "\n", static_cast<uint32_t>(rv)));
 
   if (!m_copyState->m_dataBuffer)
     m_copyState->m_dataBuffer = (char*) PR_CALLOC(COPY_BUFFER_SIZE+1);
@@ -3374,7 +3374,7 @@ NS_IMETHODIMP nsImapMailFolder::CopyData(nsIInputStream *aIStream, int32_t aLeng
                                                 m_copyState->m_msgFileStream);
   if (NS_FAILED(rv))
   {
-    MOZ_LOG(IMAP, mozilla::LogLevel::Info, ("CopyData failed:%lx\n", rv));
+    MOZ_LOG(IMAP, mozilla::LogLevel::Info, ("CopyData failed: %" PRIx32 "\n", static_cast<uint32_t>(rv)));
     OnCopyCompleted(m_copyState->m_srcSupport, rv);
   }
   return rv;
@@ -3406,7 +3406,7 @@ NS_IMETHODIMP nsImapMailFolder::EndCopy(bool copySucceeded)
                                             m_copyState->m_msgWindow);
   }
   if (NS_FAILED(rv) || !copySucceeded)
-    MOZ_LOG(IMAP, mozilla::LogLevel::Info, ("EndCopy failed:%lx\n", rv));
+    MOZ_LOG(IMAP, mozilla::LogLevel::Info, ("EndCopy failed: %" PRIx32 "\n", static_cast<uint32_t>(rv)));
   return rv;
 }
 
@@ -6780,14 +6780,14 @@ nsImapMailFolder::CopyNextStreamMessage(bool copySucceeded, nsISupports *copySta
   nsCOMPtr<nsImapMailCopyState> mailCopyState = do_QueryInterface(copyState, &rv);
   if (NS_FAILED(rv))
   {
-    MOZ_LOG(IMAP, mozilla::LogLevel::Info, ("QI copyState failed:%lx\n", rv));
+    MOZ_LOG(IMAP, mozilla::LogLevel::Info, ("QI copyState failed: %" PRIx32 "\n", static_cast<uint32_t>(rv)));
     return rv; // this can fail...
   }
 
   if (!mailCopyState->m_streamCopy)
     return NS_OK;
 
-  MOZ_LOG(IMAP, mozilla::LogLevel::Info, ("CopyNextStreamMessage: Copying %ld of %ld\n", mailCopyState->m_curIndex, mailCopyState->m_totalCount));
+  MOZ_LOG(IMAP, mozilla::LogLevel::Info, ("CopyNextStreamMessage: Copying %u of %u\n", mailCopyState->m_curIndex, mailCopyState->m_totalCount));
   if (mailCopyState->m_curIndex < mailCopyState->m_totalCount)
   {
     mailCopyState->m_message = do_QueryElementAt(mailCopyState->m_messages,
@@ -6803,7 +6803,7 @@ nsImapMailFolder::CopyNextStreamMessage(bool copySucceeded, nsISupports *copySta
     }
     else
     {
-      MOZ_LOG(IMAP, mozilla::LogLevel::Info, ("QueryElementAt %ld failed:%lx\n", mailCopyState->m_curIndex, rv));
+      MOZ_LOG(IMAP, mozilla::LogLevel::Info, ("QueryElementAt %u failed: %" PRIx32 "\n", mailCopyState->m_curIndex, static_cast<uint32_t>(rv)));
     }
   }
   else

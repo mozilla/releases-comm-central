@@ -100,7 +100,7 @@ nsMovemailService::nsMovemailService()
   if (!gMovemailLog)
       gMovemailLog = PR_NewLogModule("Movemail");
 #endif
-  LOG(("nsMovemailService created: 0x%x\n", this));
+  LOG(("nsMovemailService created: 0x%p\n", this));
 }
 
 nsMovemailService::~nsMovemailService()
@@ -553,7 +553,7 @@ nsMovemailService::GetNewMail(nsIMsgWindow *aMsgWindow,
     Error("movemailCantTruncateSpoolFile", spoolPathString, 1);
   }
 
-  LOG(("GetNewMail returning rv=%d", rv));
+  LOG(("GetNewMail returning rv=%" PRIx32, static_cast<uint32_t>(rv)));
   return rv;
 }
 

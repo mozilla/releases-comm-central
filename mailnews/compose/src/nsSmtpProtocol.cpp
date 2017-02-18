@@ -535,7 +535,7 @@ NS_IMETHODIMP nsSmtpProtocol::OnStopRequest(nsIRequest *request, nsISupports *ct
   if (m_sendDone && NS_FAILED(aStatus))
   {
     MOZ_LOG(SMTPLogModule, mozilla::LogLevel::Info,
-     ("SMTP connection error quitting %lx, ignoring ", aStatus));
+     ("SMTP connection error quitting %" PRIx32 ", ignoring ", static_cast<uint32_t>(aStatus)));
     aStatus = NS_OK;
   }
   if (NS_SUCCEEDED(aStatus) && !m_sendDone) {
@@ -544,7 +544,7 @@ NS_IMETHODIMP nsSmtpProtocol::OnStopRequest(nsIRequest *request, nsISupports *ct
     // it means that the server has dropped us before we could send the whole mail
     // for example, see bug #200647
     MOZ_LOG(SMTPLogModule, mozilla::LogLevel::Info,
- ("SMTP connection dropped after %ld total bytes read", m_totalAmountRead));
+ ("SMTP connection dropped after %d total bytes read", m_totalAmountRead));
     if (!connDroppedDuringAuth)
       nsMsgAsyncWriteProtocol::OnStopRequest(nullptr, ctxt, NS_ERROR_NET_INTERRUPT);
   }
