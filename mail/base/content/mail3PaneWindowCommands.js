@@ -374,7 +374,7 @@ var DefaultController =
           return gFolderDisplay.getCommandStatus(nsMsgViewCommandType.cmdRequiringMsgBody);
         return false;
       case "cmd_newMessage":
-      // This enables Write button even without any accounts set up, so users might run into Bug 524863
+        return CanComposeMessages();
       case "cmd_printSetup":
       case "cmd_viewAllHeader":
       case "cmd_viewNormalHeader":

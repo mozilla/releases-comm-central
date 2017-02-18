@@ -965,6 +965,7 @@ var MessageWindowController =
       case "button_replylist":
         return gFolderDisplay.selectedMessage && IsReplyListEnabled();
       case "cmd_newMessage":
+        return CanComposeMessages();
       case "cmd_replySender":
       case "cmd_replyGroup":
       case "button_followup":

@@ -82,6 +82,7 @@
     <command id="cmd_newCard" oncommand="goDoCommand('cmd_newCard');"/>
     <command id="cmd_printcardpreview" oncommand="AbPrintPreviewCard();"/>
     <command id="cmd_printcard" oncommand="AbPrintCard();"/>
+    <command id="cmd_newMessage" oncommand="AbNewMessage();" disabled="true"/>
     <command id="cmd_properties" oncommand="goDoCommand('cmd_properties');" disabled="true"/>
     <broadcasterset id="cmd_properties-flavors">
       <broadcaster id="cmd_properties-button" observes="cmd_properties"
@@ -143,9 +144,9 @@
 <keyset id="tasksKeys">
   <!-- File Menu -->
 #ifdef XP_MACOSX
-  <key id="key_newMessage" key="&newMessageCmd.key;" modifiers="accel,shift" oncommand="AbNewMessage()"/>
+  <key id="key_newMessage" key="&newMessageCmd.key;" modifiers="accel,shift" command="cmd_newMessage"/>
 #else
-  <key id="key_newMessage" key="&newMessageCmd.key;" modifiers="accel" oncommand="AbNewMessage()"/>
+  <key id="key_newMessage" key="&newMessageCmd.key;" modifiers="accel" command="cmd_newMessage"/>
 #endif
   <key id="key_newCard" key="&newContact.key;" modifiers="accel"
        command="cmd_newCard"/>
@@ -231,7 +232,7 @@
   <menuitem id="abResultsTreeContext-newmessage"
             label="&newmsgButton.label;"
             accesskey="&newmsgButton.accesskey;"
-            oncommand="AbNewMessage()"/>
+            command="cmd_newMessage"/>
   <menuitem id="abResultsTreeContext-newim"
             label="&newIM.label;"
             accesskey="&newIM.accesskey;"
@@ -326,7 +327,7 @@
                                 label="&newMessageCmd.label;"
                                 key="key_newMessage"
                                 accesskey="&newMessageCmd.accesskey;"
-                                oncommand="AbNewMessage()"/>
+                                command="cmd_newMessage"/>
                     </menupopup>
                 </menu>
                 <menuseparator/>
@@ -618,7 +619,7 @@
       <toolbarbutton class="toolbarbutton-1" id="button-editcard"
                      label="&editPropertiesButton.label;"
                      command="cmd_properties-button"/>
-      <toolbarbutton class="toolbarbutton-1" id="button-newmessage" label="&newmsgButton.label;" tooltiptext="&newmsgButton.tooltip;" oncommand="AbNewMessage();"/>
+      <toolbarbutton class="toolbarbutton-1" id="button-newmessage" label="&newmsgButton.label;" tooltiptext="&newmsgButton.tooltip;" command="cmd_newMessage"/>
       <toolbarbutton class="toolbarbutton-1" id="button-newim" label="&newIM.label;" tooltiptext="&newIM.tooltip;" command="cmd_chatWithCard"/>
       <toolbarbutton class="toolbarbutton-1" id="button-abdelete"
                      observes="button_delete" label="&deleteButton2.label;"

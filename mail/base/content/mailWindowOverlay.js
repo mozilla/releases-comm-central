@@ -1619,6 +1619,11 @@ function MsgNewMessage(event)
   composeMsgByType(Components.interfaces.nsIMsgCompType.New, event);
 }
 
+function CanComposeMessages()
+{
+  return MailServices.accounts.allIdentities.length > 0;
+}
+
 function MsgReplyMessage(event)
 {
   if (gFolderDisplay.selectedMessageIsNews)

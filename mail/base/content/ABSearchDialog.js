@@ -351,7 +351,9 @@ function UpdateCardView()
   if (!numSelected)
     return;
 
-  gComposeCmd.removeAttribute("disabled");
+  if (MailServices.accounts.allIdentities.length > 0)
+    gComposeCmd.removeAttribute("disabled");
+
   gDeleteCmd.removeAttribute("disabled");
   if (numSelected == 1)
     gPropertiesCmd.removeAttribute("disabled");

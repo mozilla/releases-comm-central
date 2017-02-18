@@ -189,6 +189,9 @@ function delayedOnLoadAddressBook()
   if (Services.prefs.prefIsLocked("ldap_2.disable_button_add"))
     document.getElementById("addLDAP").setAttribute("disabled", "true");
 
+  document.getElementById("cmd_newMessage")
+          .setAttribute("disabled", (MailServices.accounts.allIdentities.length == 0));
+
   // Add a listener, so we can switch directories if the current directory is
   // deleted. This listener cares when a directory (= address book), or a
   // directory item is/are removed. In the case of directory items, we are
