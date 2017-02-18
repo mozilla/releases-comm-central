@@ -818,10 +818,10 @@ nsMsgSearchValidityTable::GetNumAvailAttribs(int32_t *aResult)
 nsresult
 nsMsgSearchValidityTable::ValidateTerms (nsIArray *searchTerms)
 {
-  nsresult err = NS_OK;
+  nsresult rv = NS_OK;
   uint32_t count;
 
-  NS_ENSURE_ARG(searchTerms);
+  NS_ENSURE_ARG_POINTER(searchTerms);
 
   searchTerms->GetLength(&count);
   for (uint32_t i = 0; i < count; i++)
@@ -833,21 +833,23 @@ nsMsgSearchValidityTable::ValidateTerms (nsIArray *searchTerms)
     nsIMsgSearchTerm *iTerm = pTerm;
     nsMsgSearchTerm *term = static_cast<nsMsgSearchTerm *>(iTerm);
 //    XP_ASSERT(term->IsValid());
-        bool enabled;
-        bool available;
-        GetEnabled(term->m_attribute, term->m_operator, &enabled);
-        GetAvailable(term->m_attribute, term->m_operator, &available);
+    bool enabled;
+    bool available;
+    rv = GetEnabled(term->m_attribute, term->m_operator, &enabled);
+    NS_ENSURE_SUCCESS(rv, rv);
+    rv = GetAvailable(term->m_attribute, term->m_operator, &available);
+    NS_ENSURE_SUCCESS(rv, rv);
     if (!enabled || !available)
     {
-            bool validNotShown;
-            GetValidButNotShown(term->m_attribute, term->m_operator,
-                                &validNotShown);
-            if (!validNotShown)
-        err = NS_MSG_ERROR_INVALID_SEARCH_SCOPE;
+      bool validNotShown;
+      rv = GetValidButNotShown(term->m_attribute, term->m_operator, &validNotShown);
+      NS_ENSURE_SUCCESS(rv, rv);
+      if (!validNotShown)
+        return NS_MSG_ERROR_INVALID_SEARCH_SCOPE;
     }
   }
 
-  return err;
+  return rv;
 }
 
 nsresult
