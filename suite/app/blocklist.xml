@@ -1968,16 +1968,12 @@
       <versionRange maxVersion="13.0.0.302" minVersion="13.0.0.302" severity="0" vulnerabilitystatus="1"/>
     </pluginItem>
     <pluginItem blockID="p1495" os="Linux">
-      <match exp="" name="name"/>
       <match exp="libflashplayer\.so" name="filename"/>
-      <match exp="" name="description"/>
       <infoURL>https://get.adobe.com/flashplayer/</infoURL>
       <versionRange maxVersion="24.0.0.186" minVersion="23.0.0.207" severity="0" vulnerabilitystatus="1"/>
     </pluginItem>
-    <pluginItem blockID="p1420" os="">
-      <match exp="" name="name"/>
+    <pluginItem blockID="p1420">
       <match exp="(NPSWF32.*\.dll)|(NPSWF64.*\.dll)|(Flash\ Player\.plugin)" name="filename"/>
-      <match exp="" name="description"/>
       <infoURL>https://get.adobe.com/flashplayer/</infoURL>
       <versionRange maxVersion="23.0.0.205" minVersion="23.0.0.185" severity="0" vulnerabilitystatus="1"/>
     </pluginItem>
@@ -2023,9 +2019,7 @@
       <versionRange maxVersion="*" minVersion="0"/>
     </pluginItem>
     <pluginItem blockID="p1419" os="Linux">
-      <match exp="" name="name"/>
       <match exp="libflashplayer\.so" name="filename"/>
-      <match exp="" name="description"/>
       <infoURL>https://get.adobe.com/flashplayer/</infoURL>
       <versionRange maxVersion="11.2.202.643" minVersion="11.2.202.637" severity="0" vulnerabilitystatus="1"/>
     </pluginItem>
@@ -2072,6 +2066,16 @@
           <versionRange maxVersion="*" minVersion="2.16a1"/>
         </targetApplication>
       </versionRange>
+    </pluginItem>
+    <pluginItem blockID="3f136e56-4c93-4619-8c0d-d86258c1065d">
+      <match exp="(nppdf32\.dll)|(AdobePDFViewerNPAPI\.plugin)" name="filename"/>
+      <infoURL>https://get.adobe.com/reader/</infoURL>
+      <versionRange maxVersion="15.006.30244" minVersion="15.006" severity="1" vulnerabilitystatus="1"/>
+    </pluginItem>
+    <pluginItem blockID="43b45ad8-a373-42c1-89c6-64e2746885e5">
+      <match exp="(nppdf32\.dll)|(AdobePDFViewerNPAPI\.plugin)" name="filename"/>
+      <infoURL>https://get.adobe.com/reader/</infoURL>
+      <versionRange maxVersion="15.020.20042" minVersion="15.020" severity="1" vulnerabilitystatus="1"/>
     </pluginItem>
     <pluginItem blockID="p366">
       <match exp="Scorch\.plugin" name="filename"/>
@@ -2152,6 +2156,11 @@
           <versionRange maxVersion="*" minVersion="2.14"/>
         </targetApplication>
       </versionRange>
+    </pluginItem>
+    <pluginItem blockID="59c31ade-88d6-4b22-8601-5316f82e3977">
+      <match exp="(nppdf32\.dll)|(AdobePDFViewerNPAPI\.plugin)" name="filename"/>
+      <infoURL>https://get.adobe.com/reader/</infoURL>
+      <versionRange maxVersion="11.0.18" minVersion="11.0" severity="1" vulnerabilitystatus="1"/>
     </pluginItem>
     <pluginItem blockID="p1004">
       <match exp="Unity Web Player\.plugin" name="filename"/>
@@ -2253,10 +2262,8 @@
       <infoURL>https://get.adobe.com/flashplayer/</infoURL>
       <versionRange maxVersion="18.0.0.232" minVersion="18.0.0.204" severity="0" vulnerabilitystatus="1"/>
     </pluginItem>
-    <pluginItem blockID="p1274" os="">
-      <match exp="" name="name"/>
+    <pluginItem blockID="p1274">
       <match exp="(NPSWF32.*\.dll)|(NPSWF64.*\.dll)|(Flash\ Player\.plugin)" name="filename"/>
-      <match exp="" name="description"/>
       <infoURL>https://get.adobe.com/flashplayer/</infoURL>
       <versionRange maxVersion="22.0.0.211" minVersion="22.0.0.192" severity="0" vulnerabilitystatus="1"/>
     </pluginItem>
@@ -2369,10 +2376,8 @@
         </targetApplication>
       </versionRange>
     </pluginItem>
-    <pluginItem blockID="p1494" os="">
-      <match exp="" name="name"/>
+    <pluginItem blockID="p1494">
       <match exp="(NPSWF32.*\.dll)|(NPSWF64.*\.dll)|(Flash\ Player\.plugin)" name="filename"/>
-      <match exp="" name="description"/>
       <infoURL>https://get.adobe.com/flashplayer/</infoURL>
       <versionRange maxVersion="24.0.0.186" minVersion="23.0.0.207" severity="0" vulnerabilitystatus="1"/>
     </pluginItem>
@@ -2582,9 +2587,7 @@
       <match exp="NPFFAddOn.dll" name="filename"/>
     </pluginItem>
     <pluginItem blockID="p1421" os="Linux">
-      <match exp="" name="name"/>
       <match exp="libflashplayer\.so" name="filename"/>
-      <match exp="" name="description"/>
       <infoURL>https://get.adobe.com/flashplayer/</infoURL>
       <versionRange maxVersion="23.0.0.207" minVersion="11.2.202.643" severity="0" vulnerabilitystatus="1"/>
     </pluginItem>
@@ -2746,10 +2749,8 @@
       <infoURL>https://get.adobe.com/reader</infoURL>
       <versionRange maxVersion="15.006.30174" minVersion="15.006.30174" severity="0" vulnerabilitystatus="1"/>
     </pluginItem>
-    <pluginItem blockID="p1422" os="">
-      <match exp="" name="name"/>
+    <pluginItem blockID="p1422">
       <match exp="(NPSWF32.*\.dll)|(NPSWF64.*\.dll)|(Flash\ Player\.plugin)" name="filename"/>
-      <match exp="" name="description"/>
       <infoURL>https://get.adobe.com/flashplayer/</infoURL>
       <versionRange maxVersion="23.0.0.207" minVersion="23.0.0.205" severity="0" vulnerabilitystatus="1"/>
     </pluginItem>
