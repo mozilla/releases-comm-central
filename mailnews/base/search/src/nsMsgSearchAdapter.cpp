@@ -25,6 +25,7 @@
 #include "nsMemory.h"
 #include "nsMsgMessageFlags.h"
 #include "nsIArray.h"
+#include "nsArrayUtils.h"
 #include "nsAlgorithm.h"
 #include <algorithm>
 #include "mozilla/Attributes.h"
@@ -681,9 +682,7 @@ nsresult nsMsgSearchAdapter::EncodeImap (char **ppOutEncoding, nsIArray *searchT
   {
     char *termEncoding;
     bool matchAll;
-    nsCOMPtr<nsIMsgSearchTerm> pTerm;
-    searchTerms->QueryElementAt(i, NS_GET_IID(nsIMsgSearchTerm),
-      (void **)getter_AddRefs(pTerm));
+    nsCOMPtr<nsIMsgSearchTerm> pTerm = do_QueryElementAt(searchTerms, i);
     pTerm->GetMatchAll(&matchAll);
     if (matchAll)
       continue;
@@ -826,9 +825,7 @@ nsMsgSearchValidityTable::ValidateTerms (nsIArray *searchTerms)
   searchTerms->GetLength(&count);
   for (uint32_t i = 0; i < count; i++)
   {
-    nsCOMPtr<nsIMsgSearchTerm> pTerm;
-    searchTerms->QueryElementAt(i, NS_GET_IID(nsIMsgSearchTerm),
-                             (void **)getter_AddRefs(pTerm));
+    nsCOMPtr<nsIMsgSearchTerm> pTerm = do_QueryElementAt(searchTerms, i);
 
     nsIMsgSearchTerm *iTerm = pTerm;
     nsMsgSearchTerm *term = static_cast<nsMsgSearchTerm *>(iTerm);

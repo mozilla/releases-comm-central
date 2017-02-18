@@ -923,7 +923,7 @@ nsresult nsMsgMdnGenerator::InitAndProcess(bool *needToAskUser)
               {
                 for (uint32_t i = 0; i < count; i++)
                 {
-                  rv = servIdentities->QueryElementAt(i, NS_GET_IID(nsIMsgIdentity),getter_AddRefs(ident));
+                  ident = do_QueryElementAt(servIdentities, i, &rv);
                   if (NS_FAILED(rv))
                     continue;
                   ident->GetEmail(identEmail);

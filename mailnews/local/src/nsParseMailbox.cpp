@@ -2002,9 +2002,8 @@ NS_IMETHODIMP nsParseNewMailState::ApplyFilterHit(nsIMsgFilter *filter, nsIMsgWi
   bool msgIsNew = true;
   for (uint32_t actionIndex = 0; actionIndex < numActions && *applyMore; actionIndex++)
   {
-    nsCOMPtr<nsIMsgRuleAction> filterAction;
-    rv = filterActionList->QueryElementAt(actionIndex, NS_GET_IID(nsIMsgRuleAction),
-                                                       getter_AddRefs(filterAction));
+    nsCOMPtr<nsIMsgRuleAction> filterAction =
+      do_QueryElementAt(filterActionList, actionIndex, &rv);
     if (NS_FAILED(rv) || !filterAction)
       continue;
 

@@ -957,8 +957,7 @@ GetOrCreateFolder(const nsACString &aURI, nsIUrlListener *aListener)
   rv = rdf->GetResource(aURI, getter_AddRefs(resource));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  nsCOMPtr <nsIMsgFolder> folderResource;
-  folderResource = do_QueryInterface(resource, &rv);
+  nsCOMPtr<nsIMsgFolder> folderResource = do_QueryInterface(resource, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
   // don't check validity of folder - caller will handle creating it
@@ -1078,14 +1077,13 @@ nsresult IsRSSArticle(nsIURI * aMsgURI, bool *aIsRSSArticle)
   NS_ENSURE_SUCCESS(rv, rv);
 
   // get the folder and the server from the msghdr
-  nsCOMPtr<nsIRssIncomingServer> rssServer;
   nsCOMPtr<nsIMsgFolder> folder;
   rv = msgHdr->GetFolder(getter_AddRefs(folder));
   if (NS_SUCCEEDED(rv) && folder)
   {
     nsCOMPtr<nsIMsgIncomingServer> server;
     folder->GetServer(getter_AddRefs(server));
-    rssServer = do_QueryInterface(server);
+    nsCOMPtr<nsIRssIncomingServer> rssServer = do_QueryInterface(server);
 
     if (rssServer)
       *aIsRSSArticle = true;
@@ -2031,18 +2029,6 @@ MsgNewInterfaceRequestorAggregation(nsIInterfaceRequestor *aFirst,
   return NS_OK;
 }
 
-nsresult NS_FASTCALL MsgQueryElementAt::operator()( const nsIID& aIID, void** aResult ) const
-  {
-    nsresult status = mArray
-                        ? mArray->QueryElementAt(mIndex, aIID, aResult)
-                        : NS_ERROR_NULL_POINTER;
-
-    if ( mErrorPtr )
-      *mErrorPtr = status;
-
-    return status;
-  }
-
 #endif
 
 NS_MSG_BASE nsresult MsgGetHeadersFromKeys(nsIMsgDatabase *aDB, const nsTArray<nsMsgKey> &aMsgKeys,
@@ -2235,9 +2221,7 @@ NS_MSG_BASE nsresult MsgTermListToString(nsIArray *aTermList, nsCString &aOutStr
   {
     nsAutoCString stream;
 
-    nsCOMPtr<nsIMsgSearchTerm> term;
-    aTermList->QueryElementAt(searchIndex, NS_GET_IID(nsIMsgSearchTerm),
-                               (void **)getter_AddRefs(term));
+    nsCOMPtr<nsIMsgSearchTerm> term = do_QueryElementAt(aTermList, searchIndex);
     if (!term)
       continue;
 
@@ -2402,8 +2386,7 @@ MsgDetectCharsetFromFile(nsIFile *aFile, nsACString &aCharset)
     rv = detector->Init(observer);
     NS_ENSURE_SUCCESS(rv, rv);
 
-    nsCOMPtr<nsILineInputStream> lineInputStream;
-    lineInputStream = do_QueryInterface(inputStream, &rv);
+    nsCOMPtr<nsILineInputStream> lineInputStream = do_QueryInterface(inputStream, &rv);
     NS_ENSURE_SUCCESS(rv, rv);
 
     bool isMore = true;

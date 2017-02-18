@@ -1514,9 +1514,7 @@ nsMsgNewsFolder::GetNntpServer(nsINntpIncomingServer **result)
   if (NS_FAILED(rv))
     return rv;
 
-  nsCOMPtr<nsINntpIncomingServer> nntpServer;
-  rv = server->QueryInterface(NS_GET_IID(nsINntpIncomingServer),
-                              getter_AddRefs(nntpServer));
+  nsCOMPtr<nsINntpIncomingServer> nntpServer = do_QueryInterface(server, &rv);
   if (NS_FAILED(rv))
     return rv;
   nntpServer.swap(*result);

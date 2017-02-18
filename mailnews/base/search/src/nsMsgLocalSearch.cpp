@@ -15,6 +15,7 @@
 #include "nsMsgResultElement.h"
 #include "nsIDBFolderInfo.h"
 #include "nsIArray.h"
+#include "nsArrayUtils.h"
 #include "nsMsgBaseCID.h"
 #include "nsMsgSearchValue.h"
 #include "nsIMsgLocalMailFolder.h"
@@ -341,8 +342,7 @@ nsresult nsMsgSearchOfflineMail::ConstructExpressionTree(nsIArray *termList,
 
   while (aStartPosInList < termCount)
   {
-      nsCOMPtr<nsIMsgSearchTerm> pTerm;
-      termList->QueryElementAt(aStartPosInList, NS_GET_IID(nsIMsgSearchTerm), (void **)getter_AddRefs(pTerm));
+      nsCOMPtr<nsIMsgSearchTerm> pTerm = do_QueryElementAt(termList, aStartPosInList);
       NS_ASSERTION (pTerm, "couldn't get term to match");
 
       bool beginsGrouping;

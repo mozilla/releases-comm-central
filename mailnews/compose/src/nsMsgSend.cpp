@@ -1699,7 +1699,6 @@ nsMsgComposeAndSend::ProcessMultipartRelated(int32_t *aMailboxCount, int32_t *aN
     memset(domSaveArray, 0, sizeof(domSaveStruct) * multipartCount);
   }
 
-  nsCOMPtr<nsIDOMNode> node;
   for (i = mPreloadedAttachmentCount; i < (mPreloadedAttachmentCount + multipartCount);)
   {
     // Ok, now we need to get the element in the array and do the magic
@@ -1707,7 +1706,7 @@ nsMsgComposeAndSend::ProcessMultipartRelated(int32_t *aMailboxCount, int32_t *aN
     //
 
     locCount++;
-    mEmbeddedObjectList->QueryElementAt(locCount, NS_GET_IID(nsIDOMNode), getter_AddRefs(node));
+    nsCOMPtr<nsIDOMNode> node = do_QueryElementAt(mEmbeddedObjectList, locCount);
     if (node)
     {
       bool acceptObject = false;

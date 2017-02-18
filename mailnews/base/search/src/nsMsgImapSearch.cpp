@@ -11,6 +11,7 @@
 #include "nsMsgSearchImap.h"
 #include "prmem.h"
 #include "nsIArray.h"
+#include "nsArrayUtils.h"
 // Implementation of search for IMAP mail folders
 
 
@@ -93,9 +94,7 @@ nsresult nsMsgSearchOnlineMail::Encode (nsCString& pEncoding,
     
     for (i = 0; i < termCount && asciiOnly; i++)
     {
-      nsCOMPtr<nsIMsgSearchTerm> pTerm;
-      searchTerms->QueryElementAt(i, NS_GET_IID(nsIMsgSearchTerm),
-        (void **)getter_AddRefs(pTerm));
+      nsCOMPtr<nsIMsgSearchTerm> pTerm = do_QueryElementAt(searchTerms, i);
       
       nsMsgSearchAttribValue attribute;
       pTerm->GetAttrib(&attribute);

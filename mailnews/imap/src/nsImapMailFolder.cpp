@@ -696,10 +696,8 @@ NS_IMETHODIMP nsImapMailFolder::UpdateFolderWithListener(nsIMsgWindow *aMsgWindo
              termIndex < numSearchTerms && !m_filterListRequiresBody;
              termIndex++)
         {
-          nsCOMPtr<nsIMsgSearchTerm> term;
-          rv = searchTerms->QueryElementAt(termIndex,
-                                           NS_GET_IID(nsIMsgSearchTerm),
-                                           getter_AddRefs(term));
+          nsCOMPtr<nsIMsgSearchTerm> term = do_QueryElementAt(searchTerms, termIndex, &rv);
+          NS_ENSURE_SUCCESS(rv, rv);
           nsMsgSearchAttribValue attrib;
           rv = term->GetAttrib(&attrib);
           NS_ENSURE_SUCCESS(rv, rv);
@@ -3478,9 +3476,7 @@ NS_IMETHODIMP nsImapMailFolder::ApplyFilterHit(nsIMsgFilter *filter, nsIMsgWindo
 
   for (uint32_t actionIndex = 0; actionIndex < numActions; actionIndex++)
   {
-    nsCOMPtr<nsIMsgRuleAction> filterAction;
-    rv = filterActionList->QueryElementAt(actionIndex, NS_GET_IID(nsIMsgRuleAction),
-                                                       getter_AddRefs(filterAction));
+    nsCOMPtr<nsIMsgRuleAction> filterAction = do_QueryElementAt(filterActionList, actionIndex);
     if (NS_FAILED(rv) || !filterAction)
       continue;
 

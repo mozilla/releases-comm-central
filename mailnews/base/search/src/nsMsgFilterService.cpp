@@ -397,8 +397,7 @@ nsresult nsMsgFilterAfterTheFact::RunNextFilter()
     searchTerms->GetLength(&termCount);
     for (uint32_t termIndex = 0; termIndex < termCount; termIndex++)
     {
-      nsCOMPtr <nsIMsgSearchTerm> term;
-      nsresult rv = searchTerms->QueryElementAt(termIndex, NS_GET_IID(nsIMsgSearchTerm), getter_AddRefs(term));
+      nsCOMPtr<nsIMsgSearchTerm> term = do_QueryElementAt(searchTerms, termIndex, &rv);
       BREAK_IF_FAILURE(rv, "Could not get search term");
       rv = m_searchSession->AppendTerm(term);
       BREAK_IF_FAILURE(rv, "Could not append search term");
@@ -434,7 +433,7 @@ nsresult nsMsgFilterAfterTheFact::AdvanceToNextFolder()
     // reset the filter index to apply all filters to this new folder
     m_curFilterIndex = 0;
     m_nextAction = 0;
-    rv = m_folders->QueryElementAt(m_curFolderIndex++, NS_GET_IID(nsIMsgFolder), getter_AddRefs(m_curFolder));
+    m_curFolder = do_QueryElementAt(m_folders, m_curFolderIndex++, &rv);
     CONTINUE_IF_FAILURE(rv, "Could not get next folder");
 
     // Note: I got rv = NS_OK but null m_curFolder after deleting a folder
@@ -573,8 +572,7 @@ nsresult nsMsgFilterAfterTheFact::ApplyFilter()
       {
         for (uint32_t msgIndex = 0; msgIndex < m_searchHits.Length(); msgIndex++)
         {
-          nsCOMPtr <nsIMsgDBHdr> msgHdr;
-          m_searchHitHdrs->QueryElementAt(msgIndex, NS_GET_IID(nsIMsgDBHdr), getter_AddRefs(msgHdr));
+          nsCOMPtr<nsIMsgDBHdr> msgHdr = do_QueryElementAt(m_searchHitHdrs, msgIndex);
           if (msgHdr)
             (void)m_curFilter->LogRuleHit(filterAction, msgHdr);
           else
@@ -684,8 +682,7 @@ nsresult nsMsgFilterAfterTheFact::ApplyFilter()
         {
           for (uint32_t msgIndex = 0; msgIndex < m_searchHits.Length(); msgIndex++)
           {
-            nsCOMPtr <nsIMsgDBHdr> msgHdr;
-            m_searchHitHdrs->QueryElementAt(msgIndex, NS_GET_IID(nsIMsgDBHdr), getter_AddRefs(msgHdr));
+            nsCOMPtr<nsIMsgDBHdr> msgHdr = do_QueryElementAt(m_searchHitHdrs, msgIndex);
             CONTINUE_IF_FALSE(msgHdr, "Could not get msg header");
 
             nsCOMPtr<nsIMsgThread> msgThread;
@@ -704,8 +701,7 @@ nsresult nsMsgFilterAfterTheFact::ApplyFilter()
         {
           for (uint32_t msgIndex = 0; msgIndex < m_searchHits.Length(); msgIndex++)
           {
-            nsCOMPtr<nsIMsgDBHdr> msgHdr;
-            m_searchHitHdrs->QueryElementAt(msgIndex, NS_GET_IID(nsIMsgDBHdr), getter_AddRefs(msgHdr));
+            nsCOMPtr<nsIMsgDBHdr> msgHdr = do_QueryElementAt(m_searchHitHdrs, msgIndex);
             CONTINUE_IF_FALSE(msgHdr, "Could not get msg header");
             m_curFolderDB->MarkHeaderKilled(msgHdr, true, nullptr);
           }
@@ -717,8 +713,7 @@ nsresult nsMsgFilterAfterTheFact::ApplyFilter()
           filterAction->GetPriority(&filterPriority);
           for (uint32_t msgIndex = 0; msgIndex < m_searchHits.Length(); msgIndex++)
           {
-            nsCOMPtr <nsIMsgDBHdr> msgHdr;
-            m_searchHitHdrs->QueryElementAt(msgIndex, NS_GET_IID(nsIMsgDBHdr), getter_AddRefs(msgHdr));
+            nsCOMPtr<nsIMsgDBHdr> msgHdr = do_QueryElementAt(m_searchHitHdrs, msgIndex);
             CONTINUE_IF_FALSE(msgHdr, "Could not get msg header");
             msgHdr->SetPriority(filterPriority);
           }
@@ -785,8 +780,7 @@ nsresult nsMsgFilterAfterTheFact::ApplyFilter()
           CONTINUE_IF_FAILURE(rv, "Could not get compose service");
           for (uint32_t msgIndex = 0; msgIndex < m_searchHits.Length(); msgIndex++)
           {
-            nsCOMPtr <nsIMsgDBHdr> msgHdr;
-            m_searchHitHdrs->QueryElementAt(msgIndex, NS_GET_IID(nsIMsgDBHdr), getter_AddRefs(msgHdr));
+            nsCOMPtr<nsIMsgDBHdr> msgHdr = do_QueryElementAt(m_searchHitHdrs, msgIndex);
             CONTINUE_IF_FALSE(msgHdr, "Could not get msgHdr");
             rv = compService->ReplyWithTemplate(msgHdr, replyTemplateUri.get(), m_msgWindow, server);
             CONTINUE_IF_FAILURE(rv, "ReplyWithtemplate failed");
@@ -806,8 +800,7 @@ nsresult nsMsgFilterAfterTheFact::ApplyFilter()
           //   that the server copy is being deleted.
           for (uint32_t msgIndex = 0; msgIndex < m_searchHits.Length(); msgIndex++)
           {
-            nsCOMPtr <nsIMsgDBHdr> msgHdr;
-            m_searchHitHdrs->QueryElementAt(msgIndex, NS_GET_IID(nsIMsgDBHdr), getter_AddRefs(msgHdr));
+            nsCOMPtr<nsIMsgDBHdr> msgHdr = do_QueryElementAt(m_searchHitHdrs, msgIndex);
             CONTINUE_IF_FALSE(msgHdr, "Could not get msgHdr");
             uint32_t flags;
             msgHdr->GetFlags(&flags);
@@ -837,8 +830,7 @@ nsresult nsMsgFilterAfterTheFact::ApplyFilter()
           CONTINUE_IF_FAILURE(rv, "Could not create messages array");
           for (uint32_t msgIndex = 0; msgIndex < m_searchHits.Length(); msgIndex++)
           {
-            nsCOMPtr<nsIMsgDBHdr> msgHdr;
-            m_searchHitHdrs->QueryElementAt(msgIndex, NS_GET_IID(nsIMsgDBHdr), getter_AddRefs(msgHdr));
+            nsCOMPtr<nsIMsgDBHdr> msgHdr = do_QueryElementAt(m_searchHitHdrs, msgIndex);
             CONTINUE_IF_FALSE(msgHdr, "Could not get msgHdr");
             uint32_t flags = 0;
             msgHdr->GetFlags(&flags);

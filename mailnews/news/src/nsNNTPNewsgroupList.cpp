@@ -57,6 +57,7 @@
 #include "nsIMsgWindow.h"
 #include "nsIDocShell.h"
 #include "nsIMutableArray.h"
+#include "nsArrayUtils.h"
 #include "nsIMsgFolderNotificationService.h"
 #include "nsIMsgFilterCustomAction.h"
 #include "nsComponentManagerUtils.h"
@@ -641,9 +642,8 @@ NS_IMETHODIMP nsNNTPNewsgroupList::ApplyFilterHit(nsIMsgFilter *aFilter, nsIMsgW
 
   for (uint32_t actionIndex = 0; actionIndex < numActions; actionIndex++)
   {
-    nsCOMPtr<nsIMsgRuleAction> filterAction;
-    rv = filterActionList->QueryElementAt(actionIndex, NS_GET_IID(nsIMsgRuleAction),
-                                                       getter_AddRefs(filterAction));
+    nsCOMPtr<nsIMsgRuleAction> filterAction =
+      do_QueryElementAt(filterActionList, actionIndex, &rv);
     if (NS_FAILED(rv) || !filterAction)
       continue;
 

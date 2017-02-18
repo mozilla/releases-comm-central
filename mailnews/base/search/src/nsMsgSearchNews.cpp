@@ -16,6 +16,7 @@
 #include "nsMemory.h"
 #include <ctype.h>
 #include "nsIArray.h"
+#include "nsArrayUtils.h"
 
 // Implementation of search for IMAP mail folders
 
@@ -226,9 +227,7 @@ nsresult nsMsgSearchNews::Encode (nsCString *outEncoding)
     uint32_t i;
     for (i = 0; i < numTerms; i++)
     {
-      nsCOMPtr<nsIMsgSearchTerm> pTerm;
-      m_searchTerms->QueryElementAt(i, NS_GET_IID(nsIMsgSearchTerm),
-                               (void **)getter_AddRefs(pTerm));
+      nsCOMPtr<nsIMsgSearchTerm> pTerm = do_QueryElementAt(m_searchTerms, i);
       // set boolean OR term if any of the search terms are an OR...this only works if we are using
       // homogeneous boolean operators.
       bool isBooleanOpAnd;

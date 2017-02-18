@@ -7,6 +7,7 @@
 
 #include "msgCore.h"
 #include "nsArray.h"
+#include "nsArrayUtils.h"
 #include "nsMsgBaseCID.h"
 #include "nsIMsgHdr.h"
 #include "nsMsgFilterList.h"    // for kFileVersion
@@ -421,9 +422,8 @@ NS_IMETHODIMP nsMsgFilter::GetTerm(int32_t termIndex,
                                    bool *booleanAnd, /* true if AND is the boolean operator. false if OR is the boolean operator */
                                    nsACString &arbitraryHeader) /* arbitrary header specified by user.ignore unless attrib = attribOtherHeader */
 {
-  nsCOMPtr<nsIMsgSearchTerm> term;
-  nsresult rv = m_termList->QueryElementAt(termIndex, NS_GET_IID(nsIMsgSearchTerm),
-                                           (void **)getter_AddRefs(term));
+  nsresult rv;
+  nsCOMPtr<nsIMsgSearchTerm> term = do_QueryElementAt(m_termList, termIndex, &rv);
   if (NS_SUCCEEDED(rv) && term)
   {
     if (attrib)

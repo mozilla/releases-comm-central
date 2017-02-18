@@ -2691,9 +2691,7 @@ NS_IMETHODIMP QuotingOutputStreamListener::OnStopRequest(nsIRequest *request, ns
             // E.g. husband+wife or own-email+company-role-mail.
             for (uint32_t j = 0; j < count; j++)
             {
-              nsCOMPtr<nsIMsgIdentity> lookupIdentity2;
-              rv = identities->QueryElementAt(j, NS_GET_IID(nsIMsgIdentity),
-                                              getter_AddRefs(lookupIdentity2));
+              nsCOMPtr<nsIMsgIdentity> lookupIdentity2 = do_QueryElementAt(identities, j, &rv);
               if (NS_FAILED(rv))
                 continue;
 

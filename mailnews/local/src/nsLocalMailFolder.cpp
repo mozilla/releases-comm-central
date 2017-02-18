@@ -2134,8 +2134,7 @@ NS_IMETHODIMP nsMsgLocalMailFolder::BeginCopy(nsIMsgDBHdr *message)
   int32_t messageIndex = (mCopyState->m_copyingMultipleMessages) ? mCopyState->m_curCopyIndex - 1 : mCopyState->m_curCopyIndex;
   NS_ASSERTION(!mCopyState->m_copyingMultipleMessages || messageIndex >= 0, "messageIndex invalid");
   // by the time we get here, m_curCopyIndex is 1 relative because WriteStartOfNewMessage increments it
-  mCopyState->m_messages->QueryElementAt(messageIndex, NS_GET_IID(nsIMsgDBHdr),
-                                  (void **)getter_AddRefs(mCopyState->m_message));
+  mCopyState->m_message = do_QueryElementAt(mCopyState->m_messages, messageIndex);
   // The flags of the source message can get changed when it is deleted, so
   // save them here.
   if (mCopyState->m_message)

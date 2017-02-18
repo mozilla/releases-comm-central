@@ -30,6 +30,7 @@
 #include "nsMsgUtils.h"
 #include "nsMsgKeyArray.h"
 #include "nsIMutableArray.h"
+#include "nsArrayUtils.h"
 #include "nsComponentManagerUtils.h"
 #include "nsServiceManagerUtils.h"
 #include "nsMemory.h"
@@ -2993,8 +2994,7 @@ nsresult nsMsgFilteredDBEnumerator::InitSearchSession(nsIArray *searchTerms, nsI
   NS_ENSURE_SUCCESS(rv, rv);
   for (uint32_t i = 0; i < numTerms; i++)
   {
-    nsCOMPtr <nsIMsgSearchTerm> searchTerm;
-    searchTerms->QueryElementAt(i, NS_GET_IID(nsIMsgSearchTerm), getter_AddRefs(searchTerm));
+    nsCOMPtr<nsIMsgSearchTerm> searchTerm = do_QueryElementAt(searchTerms, i);
     m_searchSession->AppendTerm(searchTerm);
   }
   return NS_OK;

@@ -14,6 +14,8 @@
 #include "nsIAutoSyncMsgStrategy.h"
 #include "nsServiceManagerUtils.h"
 #include "nsComponentManagerUtils.h"
+#include "nsIMutableArray.h"
+#include "nsArrayUtils.h"
 #include "mozilla/Logging.h"
 #include "mozilla/SizePrintfMacros.h"
 
@@ -737,12 +739,10 @@ void nsAutoSyncState::LogQWithSize(nsIMutableArray *q, uint32_t toOffset)
     while (x > toOffset && database) 
     {
       x--;
-      nsCOMPtr<nsIMsgDBHdr> h;
-      q->QueryElementAt(x, NS_GET_IID(nsIMsgDBHdr),
-                        getter_AddRefs(h));
-      uint32_t s;
+      nsCOMPtr<nsIMsgDBHdr> h = do_QueryElementAt(q, x);
       if (h)
       {
+        uint32_t s;
         h->GetMessageSize(&s);
         MOZ_LOG(gAutoSyncLog, LogLevel::Debug,
               ("Elem #%d, size: %u bytes\n", x+1, s));
