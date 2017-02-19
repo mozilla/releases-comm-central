@@ -11,7 +11,7 @@ classic.jar:
   skin/classic/messenger/aboutNetError.css                       (../shared/mail/aboutNetError.css)
   skin/classic/messenger/messengerLWTheme.css                    (../shared/mail/messengerLWTheme.css)
   skin/classic/messenger/primaryToolbar.css                      (mail/primaryToolbar.css)
-  skin/classic/messenger/aboutSupport.css                        (../windows/mail/aboutSupport.css)
+  skin/classic/messenger/aboutSupport.css                        (../shared/mail/aboutSupport.css)
   skin/classic/messenger/accountCentral.css                      (mail/accountCentral.css)
   skin/classic/messenger/accountCreation.css                     (mail/accountCreation.css)
   skin/classic/messenger/accountManage.css                       (mail/accountManage.css)

@@ -2190,7 +2190,7 @@
               <menuseparator/>
               <menuitem id="appmenu_troubleshootingInfo"
                         label="&helpTroubleshootingInfo.label;"
-                        oncommand="AboutSupportOverlay.openInNewTab();"/>
+                        oncommand="openAboutSupport();"/>
               <menuseparator/>
               <menuitem id="appmenu_safeMode"
                   label="&helpSafeMode.label;"

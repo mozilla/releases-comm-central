@@ -3,11 +3,16 @@
   - License, v. 2.0. If a copy of the MPL was not distributed with this
   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
+<!-- This file is a copy of mozilla/toolkit/content/aboutSupport.xhtml with
+     modifications for TB. -->
+
 <!DOCTYPE html [
   <!ENTITY % htmlDTD PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "DTD/xhtml1-strict.dtd"> %htmlDTD;
   <!ENTITY % globalDTD SYSTEM "chrome://global/locale/global.dtd"> %globalDTD;
   <!ENTITY % brandDTD SYSTEM "chrome://branding/locale/brand.dtd"> %brandDTD;
   <!ENTITY % aboutSupportDTD SYSTEM "chrome://global/locale/aboutSupport.dtd"> %aboutSupportDTD;
+  <!ENTITY % resetProfileDTD SYSTEM "chrome://global/locale/resetProfile.dtd"> %resetProfileDTD;
+<!-- Added for TB -->
   <!ENTITY % aboutSupportMailDTD SYSTEM "chrome://messenger/locale/aboutSupportMail.dtd"> %aboutSupportMailDTD;
 ]>
 
@@ -21,39 +26,43 @@
           type="text/css"/>
     <link rel="stylesheet" href="chrome://global/skin/aboutSupport.css"
           type="text/css"/>
+<!-- Added for TB -->
     <link rel="stylesheet" href="chrome://messenger/skin/aboutSupport.css"
-          type="text/css"/>
-    <link rel="stylesheet" href="chrome://messenger/content/about-support/show-private.css"
           type="text/css"/>
     <!-- Private data is hidden by default. -->
     <link rel="stylesheet" href="chrome://messenger/content/about-support/hide-private.css"
           type="text/css" id="about-support-private"/>
-
+<!-- End of TB addition -->
     <script type="application/javascript;version=1.7"
-            src="chrome://messenger/content/about-support/init.js"/>
+            src="chrome://messenger/content/about-support/aboutSupport.js"/>
+    <script type="application/javascript;version=1.7"
+            src="chrome://global/content/resetProfile.js"/>
+<!-- Added for TB -->
     <script type="application/javascript;version=1.7"
             src="chrome://messenger/content/about-support/accounts.js"/>
-#ifdef MOZ_CRASHREPORTER
-    <script type="application/javascript;version=1.7"
-            src="chrome://messenger/content/about-support/crashes.js"/>
-#endif
-    <script type="application/javascript;version=1.7"
-            src="chrome://messenger/content/about-support/extensions.js"/>
-    <script type="application/javascript;version=1.7"
-            src="chrome://messenger/content/about-support/prefs.js"/>
-    <script type="application/javascript;version=1.7"
-            src="chrome://messenger/content/about-support/gfx.js"/>
-    <script type="application/javascript;version=1.7"
-            src="chrome://messenger/content/about-support/js.js"/>
-    <script type="application/javascript;version=1.7"
-            src="chrome://messenger/content/about-support/a11y.js"/>
-    <script type="application/javascript;version=1.7"
-            src="chrome://messenger/content/about-support/libversions.js"/>
     <script type="application/javascript;version=1.7"
             src="chrome://messenger/content/about-support/export.js"/>
+<!-- End of TB addition -->
   </head>
 
   <body dir="&locale.dir;">
+
+#ifndef ANDROID
+    <div id="action-box">
+      <div id="reset-box">
+        <h3>&refreshProfile.title;</h3>
+        <button id="reset-box-button">
+          &refreshProfile.button.label;
+        </button>
+      </div>
+      <div id="safe-mode-box">
+        <h3>&aboutSupport.safeModeTitle;</h3>
+        <button id="restart-in-safe-mode-button">
+          &aboutSupport.restartInSafeMode.label;
+        </button>
+      </div>
+    </div>
+#endif
 
     <h1>
       &aboutSupport.pageTitle;
@@ -64,16 +73,23 @@
     </div>
 
     <div>
-      <button onclick="copyToClipboard()">
+<!-- Not used on TB
+      <button id="copy-raw-data-to-clipboard">
+        &aboutSupport.copyRawDataToClipboard.label;
+      </button>
+ -->
+      <button id="copy-to-clipboard">
         &aboutSupport.copyTextToClipboard.label;
       </button>
-      <button id="button-send-via-email" onclick="sendViaEmail()">
+<!-- Added for TB -->
+      <button id="send-via-email">
         &aboutSupport.sendViaEmail.label;
       </button>
       <input type="checkbox" id="check-show-private-data" class="data-uionly"
              onchange="onShowPrivateDataChange(this);" />
       <label for="check-show-private-data">&aboutSupport.showPrivateData.mainText;
       <span class="gray-text">&aboutSupport.showPrivateData.explanationText;</span></label>
+<!-- End of TB addition -->
     </div>
 
     <div id="contents">
@@ -106,6 +122,36 @@
 
           <tr>
             <th class="column">
+              &aboutSupport.appBasicsBuildID;
+              </th>
+            <td id="buildid-box"></td>
+          </tr>
+
+#ifndef ANDROID
+          <tr class="no-copy">
+            <th class="column">
+              &aboutSupport.appBasicsUpdateHistory;
+            </th>
+
+            <td>
+              <button id="show-update-history-button">
+                &aboutSupport.appBasicsShowUpdateHistory;
+              </button>
+            </td>
+          </tr>
+#endif
+
+#ifdef MOZ_UPDATER
+          <tr>
+            <th class="column">
+              &aboutSupport.appBasicsUpdateChannel;
+            </th>
+            <td id="updatechannel-box"></td>
+          </tr>
+#endif
+
+          <tr>
+            <th class="column">
               &aboutSupport.appBasicsUserAgent;
             </th>
 
@@ -114,6 +160,15 @@
           </tr>
 
           <tr>
+            <th class="column">
+              &aboutSupport.appBasicsOS;
+            </th>
+
+            <td id="os-box">
+            </td>
+          </tr>
+
+          <tr id="profile-row" class="no-copy">
             <th class="column">
 #ifdef XP_WIN
               &aboutSupport.appBasicsProfileDirWinMac;
@@ -127,34 +182,21 @@
             </th>
 
             <td>
-              <div id="profile-dir-button-box" class="data-public">
-                <button onclick="openProfileDirectory()">
+              <button id="profile-dir-button">
 #ifdef XP_WIN
-                  &aboutSupport.showWin2.label;
+                &aboutSupport.showWin2.label;
 #else
 #ifdef XP_MACOSX
-                  &aboutSupport.showMac.label;
+                &aboutSupport.showMac.label;
 #else
-                  &aboutSupport.showDir.label;
+                &aboutSupport.showDir.label;
 #endif
 #endif
-                </button>
-              </div>
-              <span id="profile-dir-box" class="data-private"></span>
-              <span id="profile-fs-type-box"></span>
+               </button>
             </td>
           </tr>
 
-          <tr>
-            <th class="column">
-              &aboutSupport.appBasicsAppBuildID;
-            </th>
-
-            <td id="buildid-box">
-            </td>
-          </tr>
-
-          <tr>
+          <tr class="no-copy">
             <th class="column">
               &aboutSupport.appBasicsEnabledPlugins;
             </th>
@@ -164,7 +206,7 @@
             </td>
           </tr>
 
-          <tr>
+          <tr class="no-copy">
             <th class="column">
               &aboutSupport.appBasicsBuildConfig;
             </th>
@@ -174,7 +216,7 @@
             </td>
           </tr>
 
-          <tr>
+          <tr class="no-copy">
             <th class="column">
               &aboutSupport.appBasicsMemoryUse;
             </th>
@@ -184,7 +226,64 @@
             </td>
           </tr>
 
+          <tr class="no-copy">
+            <th class="column">
+              &aboutSupport.appBasicsPerformance;
+            </th>
+
+            <td>
+              <a href="about:performance" target="_blank">about:performance</a>
+            </td>
+          </tr>
+
+          <tr class="no-copy">
+            <th class="column">
+              &aboutSupport.appBasicsServiceWorkers;
+            </th>
+
+            <td>
+              <a href="about:serviceworkers" target="_blank">about:serviceworkers</a>
+            </td>
+          </tr>
+
           <tr>
+            <th class="column">
+              &aboutSupport.appBasicsMultiProcessSupport;
+            </th>
+
+            <td id="multiprocess-box">
+            </td>
+          </tr>
+
+          <tr>
+            <th class="column">
+              &aboutSupport.appBasicsKeyGoogle;
+            </th>
+
+            <td id="key-google-box">
+            </td>
+          </tr>
+
+          <tr>
+            <th class="column">
+              &aboutSupport.appBasicsKeyMozilla;
+            </th>
+
+            <td id="key-mozilla-box">
+            </td>
+          </tr>
+
+          <tr>
+            <th class="column">
+              &aboutSupport.appBasicsSafeMode;
+            </th>
+
+            <td id="safemode-box">
+            </td>
+          </tr>
+
+#ifndef ANDROID
+          <tr class="no-copy">
             <th class="column">
               &aboutSupport.appBasicsProfiles;
             </th>
@@ -193,11 +292,13 @@
               <a href="about:profiles" target="_blank">about:profiles</a>
             </td>
           </tr>
+#endif
+
         </tbody>
       </table>
 
       <!-- - - - - - - - - - - - - - - - - - - - - -->
-
+<!-- Added for TB -->
       <h2 class="major-section">
         &aboutSupport.accountsTitle;
       </h2>
@@ -261,11 +362,11 @@
         <tbody id="accounts-tbody">
         </tbody>
       </table>
+<!-- End of TB addition -->
 
       <!-- - - - - - - - - - - - - - - - - - - - - -->
 #ifdef MOZ_CRASHREPORTER
-
-      <h2 class="major-section">
+      <h2 class="major-section" id="crashes-title">
         &aboutSupport.crashes.title;
       </h2>
 
@@ -283,13 +384,13 @@
         <tbody id="crashes-tbody">
         </tbody>
       </table>
-      <p id="crashes-allReports" class="data-uionly" style="display: none">
-        <a href="about:crashes" id="crashes-allReportsWithPending" style="display: block" target="_blank">&aboutSupport.crashes.allReports;</a>
+      <p id="crashes-allReports" class="hidden no-copy">
+        <a href="about:crashes" id="crashes-allReportsWithPending" class="block" target="_blank">&aboutSupport.crashes.allReports;</a>
       </p>
-      <p id="crashes-noConfig" class="data-uionly" style="display: none">&aboutSupport.crashes.noConfig;</p>
+      <p id="crashes-noConfig" class="hidden no-copy">&aboutSupport.crashes.noConfig;</p>
 
-      <!-- - - - - - - - - - - - - - - - - - - - - -->
 #endif
+      <!-- - - - - - - - - - - - - - - - - - - - - -->
 
       <h2 class="major-section">
         &aboutSupport.extensionsTitle;
@@ -319,40 +420,144 @@
       <!-- - - - - - - - - - - - - - - - - - - - - -->
 
       <h2 class="major-section">
+        &aboutSupport.graphicsTitle;
+      </h2>
+
+      <table>
+        <tbody id="graphics-features-tbody">
+          <tr>
+            <th colspan="2" class="title-column">
+              &aboutSupport.graphicsFeaturesTitle;
+            </th>
+          </tr>
+        </tbody>
+
+        <tbody id="graphics-tbody">
+        </tbody>
+
+        <tbody id="graphics-gpu-1-tbody">
+          <tr>
+            <th colspan="2" class="title-column">
+              &aboutSupport.graphicsGPU1Title;
+            </th>
+          </tr>
+        </tbody>
+
+        <tbody id="graphics-gpu-2-tbody">
+          <tr>
+            <th colspan="2" class="title-column">
+              &aboutSupport.graphicsGPU2Title;
+            </th>
+          </tr>
+        </tbody>
+
+        <tbody id="graphics-diagnostics-tbody">
+          <tr>
+            <th colspan="2" class="title-column">
+              &aboutSupport.graphicsDiagnosticsTitle;
+            </th>
+          </tr>
+        </tbody>
+
+        <tbody id="graphics-decisions-tbody">
+          <tr>
+            <th colspan="2" class="title-column">
+              &aboutSupport.graphicsDecisionLogTitle;
+            </th>
+          </tr>
+        </tbody>
+
+        <tbody id="graphics-crashguards-tbody">
+          <tr>
+            <th colspan="2" class="title-column">
+              &aboutSupport.graphicsCrashGuardsTitle;
+            </th>
+          </tr>
+        </tbody>
+
+        <tbody id="graphics-workarounds-tbody">
+          <tr>
+            <th colspan="2" class="title-column">
+              &aboutSupport.graphicsWorkaroundsTitle;
+            </th>
+          </tr>
+        </tbody>
+
+        <tbody id="graphics-failures-tbody">
+          <tr>
+            <th colspan="2" class="title-column">
+              &aboutSupport.graphicsFailureLogTitle;
+            </th>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- - - - - - - - - - - - - - - - - - - - - -->
+
+      <h2 class="major-section">
         &aboutSupport.modifiedKeyPrefsTitle;
       </h2>
 
       <table class="prefs-table">
-        <thead>
-          <tr>
-            <th class="name">
-              &aboutSupport.modifiedPrefsName;
-            </th>
+        <thead class="no-copy">
+          <th class="name">
+            &aboutSupport.modifiedPrefsName;
+          </th>
 
-            <th class="value">
-              &aboutSupport.modifiedPrefsValue;
-            </th>
-          </tr>
+          <th class="value">
+            &aboutSupport.modifiedPrefsValue;
+          </th>
         </thead>
 
         <tbody id="prefs-tbody">
         </tbody>
       </table>
 
+      <section id="prefs-user-js-section" class="hidden no-copy">
+        <h3>&aboutSupport.userJSTitle;</h3>
+        <p>&aboutSupport.userJSDescription;</p>
+      </section>
+
       <!-- - - - - - - - - - - - - - - - - - - - - -->
+
       <h2 class="major-section">
-        &aboutSupport.graphicsTitle;
+        &aboutSupport.lockedKeyPrefsTitle;
+      </h2>
+
+      <table class="prefs-table">
+        <thead class="no-copy">
+          <th class="name">
+            &aboutSupport.lockedPrefsName;
+          </th>
+
+          <th class="value">
+            &aboutSupport.lockedPrefsValue;
+          </th>
+        </thead>
+
+        <tbody id="locked-prefs-tbody">
+        </tbody>
+      </table>
+
+      <!-- - - - - - - - - - - - - - - - - - - - - -->
+
+      <h2 class="major-section">
+        &aboutSupport.placeDatabaseTitle;
       </h2>
 
       <table>
-        <tbody id="graphics-tbody">
-        </tbody>
+        <tr class="no-copy">
+          <th class="column">
+            &aboutSupport.placeDatabaseIntegrity;
+          </th>
 
-        <tbody id="graphics-info-properties">
-        </tbody>
-
-        <tbody id="graphics-failures-tbody">
-        </tbody>
+          <td>
+            <button id="verify-place-integrity-button">
+              &aboutSupport.placeDatabaseVerifyIntegrity;
+            </button>
+            <pre id="verify-place-result" class="hidden no-copy"></pre>
+          </td>
+        </tr>
       </table>
 
       <!-- - - - - - - - - - - - - - - - - - - - - -->
@@ -408,6 +613,87 @@
         <tbody id="libversions-tbody">
         </tbody>
       </table>
+
+      <!-- Not used by TB
+      <h2 class="major-section">
+        &aboutSupport.experimentsTitle;
+      </h2>
+
+      <table>
+        <thead>
+          <tr>
+            <th>
+              &aboutSupport.experimentName;
+            </th>
+            <th>
+              &aboutSupport.experimentId;
+            </th>
+            <th>
+              &aboutSupport.experimentDescription;
+            </th>
+            <th>
+              &aboutSupport.experimentActive;
+            </th>
+            <th>
+              &aboutSupport.experimentEndDate;
+            </th>
+            <th>
+              &aboutSupport.experimentHomepage;
+            </th>
+            <th>
+              &aboutSupport.experimentBranch;
+            </th>
+          </tr>
+        </thead>
+        <tbody id="experiments-tbody">
+        </tbody>
+      </table>
+      -->
+      <!-- - - - - - - - - - - - - - - - - - - - - -->
+
+#if defined(MOZ_SANDBOX)
+      <h2 class="major-section" id="sandbox">
+	&aboutSupport.sandboxTitle;
+      </h2>
+
+      <table>
+	<tbody id="sandbox-tbody">
+	</tbody>
+      </table>
+
+#if defined(XP_LINUX)
+      <h4>&aboutSupport.sandboxSyscallLogTitle;</h4>
+      <table>
+	<thead>
+	  <tr>
+	    <th>
+	      &aboutSupport.sandboxSyscallIndex;
+	    </th>
+	    <th>
+	      &aboutSupport.sandboxSyscallAge;
+	    </th>
+	    <th>
+	      &aboutSupport.sandboxSyscallPID;
+	    </th>
+	    <th>
+	      &aboutSupport.sandboxSyscallTID;
+	    </th>
+	    <th>
+	      &aboutSupport.sandboxSyscallProcType;
+	    </th>
+	    <th>
+	      &aboutSupport.sandboxSyscallNumber;
+	    </th>
+	    <th id="sandbox-syscalls-argshead">
+	      &aboutSupport.sandboxSyscallArgs;
+	    </th>
+	    </tr>
+	</thead>
+	<tbody id="sandbox-syscalls-tbody">
+	</tbody>
+      </table>
+#endif
+#endif
 
     </div>
 

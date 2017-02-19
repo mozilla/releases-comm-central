@@ -592,6 +592,15 @@ function openFormattedURL(aPrefName)
 }
 
 /**
+ * Opens the Troubleshooting page in a new tab.
+ */
+function openAboutSupport() {
+  let tabmail = document.getElementById("tabmail");
+  tabmail.openTab("contentTab", {contentPage: "about:support",
+                  clickHandler: "specialTabs.aboutClickHandler(event);" });
+}
+
+/**
  * Prompt the user to restart the browser in safe mode.
  */
 function safeModeRestart()

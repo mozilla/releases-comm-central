@@ -172,7 +172,6 @@ function createTextForElement(elem, aHidePrivateData) {
  */
 var gElementsToReplace = {
   "accounts-table": getAccountsText,
-  "extensions-table": getExtensionsText,
 };
 
 function generateTextForElement(elem, aHidePrivateData, indent,
@@ -237,4 +236,20 @@ function generateTextForTextNode(node, indent, textFragmentAccumulator) {
   // any internal line breaks.
   let text = node.textContent.trim().replace(/\n/g, "\n" + indent);
   textFragmentAccumulator.push(text);
+}
+
+/**
+ * Returns a plaintext representation of crashes data.
+ */
+
+function getCrashesText(aIndent) {
+  let crashesData = "";
+  let recentCrashesSubmitted = document.querySelectorAll("#crashes-tbody > tr");
+  for (let i = 0; i < recentCrashesSubmitted.length; i++)
+  {
+    let tds = recentCrashesSubmitted.item(i).querySelectorAll("td");
+    crashesData += aIndent.repeat(2) + tds.item(0).firstChild.href +
+                   " (" + tds.item(1).textContent + ")\n";
+  }
+  return crashesData;
 }
