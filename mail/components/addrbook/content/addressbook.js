@@ -169,8 +169,6 @@ function OnLoadAddressBook()
 
 function delayedOnLoadAddressBook()
 {
-  verifyAccounts(null, false);   // this will do migration, if we need to.
-
   InitCommonJS();
 
   GetCurrentPrefs();
