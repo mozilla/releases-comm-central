@@ -85,7 +85,7 @@ JSTreeSelection.prototype = {
 
   // In the case of the stand-alone message window, there's no tree, but
   // there's a view.
-  _viewWeak: null,
+  _view: null,
 
   get tree() {
     return this._treeBoxObject;
@@ -95,10 +95,7 @@ JSTreeSelection.prototype = {
   },
 
   set view(aView) {
-    this._viewWeak = Cu.getWeakReference(aView);
-  },
-  get view() {
-    return (this._viewWeak) ? this._viewWeak.get() : null;
+    this._view = aView;
   },
   /**
    * Although the nsITreeSelection documentation doesn't say, what this method
@@ -386,10 +383,10 @@ JSTreeSelection.prototype = {
    * Select all with no rows is a no-op, otherwise we select all and notify.
    */
   selectAll: function JSTreeSelection_selectAll() {
-    if (!this.view)
+    if (!this._view)
       return;
 
-    let view = this.view;
+    let view = this._view;
     let rowCount = view.rowCount;
 
     // no-ops-ville
@@ -593,7 +590,7 @@ JSTreeSelection.prototype = {
     if (this._treeBoxObject && this._treeBoxObject.view)
       view = this._treeBoxObject.view;
     else
-      view = this.view;
+      view = this._view;
 
     // We might not have a view if we're in the middle of setting up things
     if (view) {
