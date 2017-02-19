@@ -118,7 +118,9 @@ nsMsgSendLater::Init()
   // XXX This code should be set up for multiple unsent folders, however we
   // don't support that at the moment, so for now just assume one folder.
   rv = GetUnsentMessagesFolder(nullptr, getter_AddRefs(mMessageFolder));
-  NS_ENSURE_SUCCESS(rv, rv);
+  // There doesn't have to be a nsMsgQueueForLater flagged folder.
+  if (NS_FAILED(rv) || !mMessageFolder)
+    return NS_OK;
 
   rv = mMessageFolder->AddFolderListener(this);
   NS_ENSURE_SUCCESS(rv, rv);
@@ -677,6 +679,7 @@ NS_IMETHODIMP
 nsMsgSendLater::HasUnsentMessages(nsIMsgIdentity *aIdentity, bool *aResult)
 {
   NS_ENSURE_ARG_POINTER(aResult);
+  *aResult = false;
   nsresult rv;
 
   nsCOMPtr<nsIMsgAccountManager> accountManager =
@@ -689,18 +692,17 @@ nsMsgSendLater::HasUnsentMessages(nsIMsgIdentity *aIdentity, bool *aResult)
 
   uint32_t cnt = 0;
   rv = accounts->GetLength(&cnt);
-  if (cnt == 0) {
-    *aResult = false;
+  if (cnt == 0)
     return NS_OK; // no account set up -> no unsent messages
-  }
 
   // XXX This code should be set up for multiple unsent folders, however we
   // don't support that at the moment, so for now just assume one folder.
   if (!mMessageFolder)
   {
-    rv = GetUnsentMessagesFolder(nullptr,
-                                 getter_AddRefs(mMessageFolder));
-    NS_ENSURE_SUCCESS(rv, rv);
+    rv = GetUnsentMessagesFolder(nullptr, getter_AddRefs(mMessageFolder));
+    // There doesn't have to be a nsMsgQueueForLater flagged folder.
+    if (NS_FAILED(rv) || !mMessageFolder)
+      return NS_OK;
   }
   rv = ReparseDBIfNeeded(nullptr);
   NS_ENSURE_SUCCESS(rv, rv);
