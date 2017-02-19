@@ -89,10 +89,31 @@ var FeedUtils = {
   // Timeout for nonresponse to request, 30 seconds.
   REQUEST_TIMEOUT: 30 * 1000,
 
-  // The approximate amount of time, specified in milliseconds, to leave an
-  // item in the RDF cache after the item has dissappeared from feeds.
-  // The delay is currently one day.
-  INVALID_ITEM_PURGE_DELAY: 24 * 60 * 60 * 1000,
+  MILLISECONDS_PER_DAY: 24 * 60 * 60 * 1000,
+
+  // Maximum number of concurrent in progress feeds, across all accounts.
+  kMaxConcurrentFeeds: 25,
+  get MAX_CONCURRENT_FEEDS() {
+    let pref = "rss.max_concurrent_feeds";
+    if (Services.prefs.prefHasUserValue(pref))
+      return Services.prefs.getIntPref(pref);
+
+    Services.prefs.setIntPref(pref, FeedUtils.kMaxConcurrentFeeds);
+    return FeedUtils.kMaxConcurrentFeeds;
+  },
+
+  // The amount of time, specified in milliseconds, to leave an item in the
+  // feeditems.rdf cache after the item has disappeared from the publisher's
+  // file. The default delay is one day.
+  kInvalidItemPurgeDelayDays: 1,
+  get INVALID_ITEM_PURGE_DELAY() {
+    let pref = "rss.invalid_item_purge_delay_days";
+    if (Services.prefs.prefHasUserValue(pref))
+      return Services.prefs.getIntPref(pref) * this.MILLISECONDS_PER_DAY;
+
+    Services.prefs.setIntPref(pref, FeedUtils.kInvalidItemPurgeDelayDays);
+    return FeedUtils.kInvalidItemPurgeDelayDays * this.MILLISECONDS_PER_DAY;
+  },
 
   // Polling inverval to check individual feed update interval preference.
   kBiffPollMinutes: 1,
@@ -160,6 +181,8 @@ var FeedUtils = {
     server.valid = true;
     let account = MailServices.accounts.createAccount();
     account.incomingServer = server;
+    // Initialize the feed_options now.
+    this.getOptionsAcct(server);
 
     // Ensure the Trash folder db (.msf) is created otherwise folder/message
     // deletes will throw until restart creates it.
@@ -226,8 +249,19 @@ var FeedUtils = {
     FeedUtils.log.debug("downloadFeed: account loginAtStartUp:isBiff:isOffline - " +
                         aFolder.server.loginAtStartUp + " : " +
                         aIsBiff + " : " + Services.io.offline);
+    // User set.
     if (Services.io.offline)
       return;
+
+    // No network connection. Unfortunately, this is only set if the event is
+    // received by Tb from the OS (ie it must already be running) and doesn't
+    // necessarily mean connectivity to the internet, only the nearest network
+    // point. But it's something.
+    if (!Services.io.connectivity)
+    {
+      FeedUtils.log.warn("downloadFeed: network connection unavailable");
+      return;
+    }
 
     // We don't yet support the ability to check for new articles while we are
     // in the middle of subscribing to a feed. For now, abort the check for
@@ -245,6 +279,7 @@ var FeedUtils = {
       // The lastUpdateTime is |null| only at startup/initialization. Check
       // if download at startup is wanted; this overrides individual feed
       // lastUpdateTime or enabled status, just like manual get messages.
+      // However, note that the MAX_CONCURRENT_FEEDS throttle is still applied.
       // Setting loginAtStartUp is not very useful for feeds, as the biff poll
       // will go off in about kBiffPollMinutes (1) anyway and process each feed
       // according to its own lastUpdatTime/update frequency.
@@ -269,9 +304,9 @@ var FeedUtils = {
       let numFolders = allFolders.length;
       for (let i = 0; i < numFolders; i++) {
         folder = allFolders.queryElementAt(i, Ci.nsIMsgFolder);
-        FeedUtils.log.debug("downloadFeed: START x/# foldername:uri - " +
+        FeedUtils.log.debug("downloadFeed: START x/# folderName:folderPath - " +
                             (i+1) + "/" + numFolders + " " +
-                            folder.name + " : " + folder.URI);
+                            folder.name + " : " + folder.filePath.path);
 
         let feedUrlArray = FeedUtils.getFeedUrlsInFolder(folder);
         // Continue if there are no feedUrls for the folder in the feeds
@@ -287,7 +322,6 @@ var FeedUtils = {
         // We need to kick off a download for each feed.
         let now = Date.now();
         let msgDbOk = false;
-        let id, feed;
         for (let url of feedUrlArray)
         {
           // Check whether this feed should be updated; if forceDownload is true
@@ -307,6 +341,29 @@ var FeedUtils = {
             }
           }
 
+          // Create a feed object.
+          let feedResource = FeedUtils.rdf.GetResource(url);
+          let feed = new Feed(feedResource, folder.server);
+          feed.folder = folder;
+
+          // Bump our pending feed download count. From now on, all feeds will
+          // be resolved and finish with progressNotifier.downloaded(). Any
+          // early returns must call downloaded() so mNumPendingFeedDownloads
+          // is decremented and notification/status feedback is reset.
+          FeedUtils.progressNotifier.mNumPendingFeedDownloads++;
+
+          // If the current active count exceeds the max desired, exit from
+          // the current poll cycle. Only throttle for a background biff; for
+          // a user manual get messages, do them all.
+          if (aIsBiff && FeedUtils.progressNotifier.mNumPendingFeedDownloads >
+                         FeedUtils.MAX_CONCURRENT_FEEDS)
+          {
+            FeedUtils.log.debug("downloadFeed: RETURN active feeds count is greater " +
+                                "than the max - " + FeedUtils.MAX_CONCURRENT_FEEDS);
+            FeedUtils.progressNotifier.downloaded(feed, FeedUtils.kNewsBlogFeedIsBusy);
+            return;
+          }
+
           // Ensure folder's msgDatabase is openable for new message processing.
           // If not, reparse and break (to the next folder), as attempting to
           // add a message to a folder with an unavailable msgDatabase will
@@ -317,17 +374,14 @@ var FeedUtils = {
             // Only do this test once on the first url ready to update.
             msgDbOk = FeedUtils.isMsgDatabaseOpenable(folder, true);
             if (!msgDbOk)
+            {
+              FeedUtils.progressNotifier.downloaded(feed, FeedUtils.kNewsBlogFeedIsBusy);
               break;
+            }
           }
 
-          // Update this feed.
-          id = FeedUtils.rdf.GetResource(url);
-          feed = new Feed(id, folder.server);
-          feed.folder = folder;
-          // Set status info.
+          // Set status info and download.
           FeedUtils.setStatus(folder, url, "code", FeedUtils.kNewsBlogFeedIsBusy);
-          // Bump our pending feed download count.
-          FeedUtils.progressNotifier.mNumPendingFeedDownloads++;
           feed.download(true, FeedUtils.progressNotifier);
           FeedUtils.log.debug("downloadFeed: DOWNLOAD feed url - " + url);
 
@@ -335,7 +389,7 @@ var FeedUtils = {
             try {
               let done = getFeed.next().done;
               if (done) {
-                // Finished with all feeds in base folder and its subfolders.
+                // Finished with all feeds in base aFolder and its subfolders.
                 FeedUtils.log.debug("downloadFeed: Finished with folder - " +
                                     aFolder.name);
                 folder = null;
@@ -344,7 +398,7 @@ var FeedUtils = {
             }
             catch (ex) {
               FeedUtils.log.error("downloadFeed: error - " + ex);
-              FeedUtils.progressNotifier.downloaded({name: folder.name}, 0);
+              FeedUtils.progressNotifier.downloaded(feed, FeedUtils.kNewsBlogFeedIsBusy);
             }
           }, Ci.nsIThread.DISPATCH_NORMAL);
 
@@ -366,7 +420,8 @@ var FeedUtils = {
     }
     catch (ex) {
       FeedUtils.log.error("downloadFeed: error - " + ex);
-      FeedUtils.progressNotifier.downloaded({name: aFolder.name}, 0);
+      FeedUtils.progressNotifier.downloaded({folder: aFolder, url: ""},
+                                            FeedUtils.kNewsBlogFeedIsBusy);
     }
   },
 
@@ -823,7 +878,8 @@ var FeedUtils = {
     if (!aFolder || !aUrl || !aProperty)
       return;
 
-    if (!this[aFolder.server.serverURI][aUrl])
+    if (!this[aFolder.server.serverURI] ||
+        !this[aFolder.server.serverURI][aUrl])
       // Not yet seeded, so do it.
       this.getStatus(aFolder, aUrl);
 
@@ -1786,13 +1842,26 @@ var FeedUtils = {
       }
     },
 
-    downloaded: function(feed, aErrorCode)
+    /**
+     * Called on final success or error resolution of a feed download and
+     * parsing. If aDisable is true, the error shouldn't be retried continually
+     * and the url should be verified by the user. A bad html response code or
+     * cert error will cause the url to be disabled, while general network
+     * connectivity errors applying to all urls will not.
+     *
+     * Feed feed             - The Feed object, or a synthetic object that must
+     *                         contain members {nsIMsgFolder folder, string url}
+     * kNewsBlog* aErrorcode - The resolution code.
+     * bool aDisable         - If true, disable/pause the feed.
+     */
+    downloaded: function(feed, aErrorCode, aDisable)
     {
-      let location = feed.folder ? feed.folder.filePath.path : "";
+      let folderName = feed.folder ? feed.folder.name :
+                                     feed.server.rootFolder.prettyName;
       FeedUtils.log.debug("downloaded: "+
                           (this.mSubscribeMode ? "Subscribe " : "Update ") +
-                          "errorCode:feedName:folder - " +
-                          aErrorCode + " : " + feed.name + " : " + location);
+                          "errorCode:folderName:feedUrl - " +
+                          aErrorCode + " : " + folderName + " : " + feed.url);
       if (this.mSubscribeMode)
       {
         if (aErrorCode == FeedUtils.kNewsBlogSuccess)
@@ -1837,6 +1906,16 @@ var FeedUtils = {
           feed.options = options;
           FeedUtils.setStatus(feed.folder, feed.url, "lastUpdateTime", now);
         }
+        else if (aDisable)
+        {
+          // Do not keep retrying feeds with error states.
+          let options = feed.options;
+          options.updates.enabled = false;
+          feed.options = options;
+          FeedUtils.setStatus(feed.folder, feed.url, "enabled", false);
+          FeedUtils.log.warn("downloaded: udpates disabled due to error, " +
+                             "check the url - " + feed.url);
+        }
 
         if (!this.mSubscribeMode)
           FeedUtils.setStatus(feed.folder, feed.url, "code", aErrorCode);
@@ -1848,8 +1927,6 @@ var FeedUtils = {
       }
 
       let message = "";
-      if (feed.folder)
-        location = FeedUtils.getFolderPrettyPath(feed.folder) + " -> ";
       switch (aErrorCode) {
         case FeedUtils.kNewsBlogSuccess:
         case FeedUtils.kNewsBlogFeedIsBusy:
@@ -1883,9 +1960,13 @@ var FeedUtils = {
           break;
       }
       if (message)
+      {
+        let location = FeedUtils.getFolderPrettyPath(feed.folder ||
+                                                     feed.server.rootFolder) + " -> ";
         FeedUtils.log.info("downloaded: " +
                            (this.mSubscribeMode ? "Subscribe: " : "Update: ") +
                            location + message);
+      }
 
       if (this.mStatusFeedback)
       {
@@ -1895,7 +1976,9 @@ var FeedUtils = {
 
       if (!--this.mNumPendingFeedDownloads)
       {
-        FeedUtils.getSubscriptionsDS(feed.server).Flush();
+        if (feed.server)
+          FeedUtils.getSubscriptionsDS(feed.server).Flush();
+
         this.mFeeds = {};
         this.mSubscribeMode = false;
         FeedUtils.log.debug("downloaded: all pending downloads finished");

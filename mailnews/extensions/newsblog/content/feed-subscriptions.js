@@ -197,6 +197,12 @@ var FeedSubscriptions = {
         let url = folder ? null : item.url;
         folder = folder || item.parentFolder;
         properties += mainWin.FeedUtils.getFolderProperties(folder, url);
+        if (this.selection.currentIndex == aRow && url &&
+            item.options.updates.enabled && properties.includes("isPaused"))
+        {
+          item.options.updates.enabled = false;
+          FeedSubscriptions.updateFeedData(item);
+        }
       }
 
       item["properties"] = properties;

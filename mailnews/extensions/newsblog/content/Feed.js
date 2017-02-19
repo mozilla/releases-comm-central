@@ -62,6 +62,7 @@ Feed.prototype =
   resource: null,
   items: new Array(),
   itemsStored: 0,
+  fileSize: 0,
   mFolder: null,
   mInvalidFeed: false,
   mFeedType: null,
@@ -163,10 +164,20 @@ Feed.prototype =
     this.request.setRequestHeader("Accept", FeedUtils.REQUEST_ACCEPT);
     this.request.timeout = FeedUtils.REQUEST_TIMEOUT;
     this.request.onload = this.onDownloaded;
+    this.request.onreadystatechange = this.onReadyStateChange;
     this.request.onerror = this.onDownloadError;
     this.request.ontimeout = this.onDownloadError;
     FeedCache.putFeed(this);
     this.request.send(null);
+  },
+
+  onReadyStateChange: function(aEvent)
+  {
+    // Once a server responds with data, reset the timeout to allow potentially
+    // large files to complete the download.
+    let request = aEvent.target;
+    if (request.timeout && request.readyState == request.LOADING)
+      request.timeout = 0;
   },
 
   onDownloaded: function(aEvent)
@@ -180,7 +191,8 @@ Feed.prototype =
       return;
     }
 
-    FeedUtils.log.debug("Feed.onDownloaded: got a download - " + url);
+    FeedUtils.log.debug("Feed.onDownloaded: got a download, fileSize:url - " +
+                        aEvent.loaded + " : " + url);
     let feed = FeedCache.getFeed(url);
     if (!feed)
       throw new Error("Feed.onDownloaded: error - couldn't retrieve feed " +
@@ -195,6 +207,8 @@ Feed.prototype =
     let lastModifiedHeader = request.getResponseHeader("Last-Modified");
     feed.mLastModified = (lastModifiedHeader && feed.parseItems) ?
                            lastModifiedHeader : null;
+
+    feed.fileSize = aEvent.loaded;
 
     // The download callback is called asynchronously when parse() is done.
     feed.parse();
@@ -220,6 +234,8 @@ Feed.prototype =
     {
       // Generic network or 'not found' error initially.
       let error = FeedUtils.kNewsBlogRequestFailure;
+      // Certain errors should disable the feed.
+      let disable = false;
 
       if (request.status == 304) {
         // If the http status code is 304, the feed has not been modified
@@ -238,9 +254,12 @@ Feed.prototype =
         if (request.status == 401 || request.status == 403)
           // Unauthorized or Forbidden.
           error = FeedUtils.kNewsBlogNoAuthError;
+
+        if (request.status != 0 || error == FeedUtils.kNewsBlogBadCertError)
+          disable = true;
       }
 
-      feed.downloadCallback.downloaded(feed, error);
+      feed.downloadCallback.downloaded(feed, error, disable);
     }
 
     FeedCache.removeFeed(url);
@@ -253,7 +272,7 @@ Feed.prototype =
 
     aFeed.mInvalidFeed = true;
     if (aFeed.downloadCallback)
-      aFeed.downloadCallback.downloaded(aFeed, FeedUtils.kNewsBlogInvalidFeed);
+      aFeed.downloadCallback.downloaded(aFeed, FeedUtils.kNewsBlogInvalidFeed, true);
 
     FeedCache.removeFeed(aFeed.url);
   },

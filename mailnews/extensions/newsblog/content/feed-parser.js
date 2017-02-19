@@ -101,7 +101,6 @@ FeedParser.prototype =
 
     // Usually the empty string, unless this is RSS .90.
     let nsURI = channel.namespaceURI || "";
-    FeedUtils.log.debug("FeedParser.parseAsRSS2: channel nsURI - " + nsURI);
 
     if (this.isPermanentRedirect(aFeed, null, channel, null))
       return;
