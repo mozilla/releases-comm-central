@@ -15,6 +15,7 @@ nsMsgGroupThread::nsMsgGroupThread()
 {
   Init();
 }
+
 nsMsgGroupThread::nsMsgGroupThread(nsIMsgDatabase *db)
 {
   m_db = db;
@@ -23,9 +24,9 @@ nsMsgGroupThread::nsMsgGroupThread(nsIMsgDatabase *db)
 
 void nsMsgGroupThread::Init()
 {
-  m_threadKey = nsMsgKey_None; 
+  m_threadKey = nsMsgKey_None;
   m_threadRootKey = nsMsgKey_None;
-  m_numUnreadChildren = 0;	
+  m_numUnreadChildren = 0;
   m_flags = 0;
   m_newestMsgDate = 0;
   m_dummy = false;
@@ -115,8 +116,10 @@ nsMsgViewIndex nsMsgGroupThread::FindMsgHdr(nsIMsgDBHdr *hdr)
   return (nsMsgViewIndex)m_keys.IndexOf(msgKey);
 }
 
-NS_IMETHODIMP nsMsgGroupThread::AddChild(nsIMsgDBHdr *child, nsIMsgDBHdr *inReplyTo, bool threadInThread, 
-                                    nsIDBChangeAnnouncer *announcer)
+NS_IMETHODIMP nsMsgGroupThread::AddChild(nsIMsgDBHdr *child,
+                                         nsIMsgDBHdr *inReplyTo,
+                                         bool threadInThread,
+                                         nsIDBChangeAnnouncer *announcer)
 {
   NS_ASSERTION(false, "shouldn't call this");
   return NS_ERROR_NOT_IMPLEMENTED;
@@ -127,7 +130,7 @@ nsMsgViewIndex nsMsgGroupThread::AddMsgHdrInDateOrder(nsIMsgDBHdr *child, nsMsgD
   nsMsgKey newHdrKey;
   child->GetMessageKey(&newHdrKey);
   uint32_t insertIndex = 0;
-  // since we're sorted by date, we could do a binary search for the 
+  // since we're sorted by date, we could do a binary search for the
   // insert point. Or, we could start at the end...
   if (m_keys.Length() > 0)
   {
@@ -137,9 +140,9 @@ nsMsgViewIndex nsMsgGroupThread::AddMsgHdrInDateOrder(nsIMsgDBHdr *child, nsMsgD
     (void) view->GetSortOrder(&sortOrder);
     // historical behavior is ascending date order unless our primary sort is
     //  on date
-    nsMsgViewSortOrderValue threadSortOrder = 
+    nsMsgViewSortOrderValue threadSortOrder =
       (sortType == nsMsgViewSortType::byDate
-        && sortOrder == nsMsgViewSortOrder::descending) ? 
+        && sortOrder == nsMsgViewSortOrder::descending) ?
           nsMsgViewSortOrder::descending : nsMsgViewSortOrder::ascending;
     // new behavior is tricky and uses the secondary sort order if the secondary
     //  sort is on the date
@@ -158,12 +161,12 @@ nsMsgViewIndex nsMsgGroupThread::AddMsgHdrInDateOrder(nsIMsgDBHdr *child, nsMsgD
   return insertIndex;
 }
 
-nsMsgViewIndex 
-nsMsgGroupThread::GetInsertIndexFromView(nsMsgDBView *view, 
-                                          nsIMsgDBHdr *child, 
-                                          nsMsgViewSortOrderValue threadSortOrder)
+nsMsgViewIndex
+nsMsgGroupThread::GetInsertIndexFromView(nsMsgDBView *view,
+                                         nsIMsgDBHdr *child,
+                                         nsMsgViewSortOrderValue threadSortOrder)
 {
-   return view->GetInsertIndexHelper(child, m_keys, nullptr, threadSortOrder, nsMsgViewSortType::byDate);
+  return view->GetInsertIndexHelper(child, m_keys, nullptr, threadSortOrder, nsMsgViewSortType::byDate);
 }
 
 nsMsgViewIndex nsMsgGroupThread::AddChildFromGroupView(nsIMsgDBHdr *child, nsMsgDBView *view)
@@ -171,7 +174,7 @@ nsMsgViewIndex nsMsgGroupThread::AddChildFromGroupView(nsIMsgDBHdr *child, nsMsg
   uint32_t newHdrFlags = 0;
   uint32_t msgDate;
   nsMsgKey newHdrKey = 0;
-  
+
   child->GetFlags(&newHdrFlags);
   child->GetMessageKey(&newHdrKey);
   child->GetDateInSeconds(&msgDate);
@@ -180,22 +183,24 @@ nsMsgViewIndex nsMsgGroupThread::AddChildFromGroupView(nsIMsgDBHdr *child, nsMsg
 
   child->AndFlags(~(nsMsgMessageFlags::Watched), &newHdrFlags);
   uint32_t numChildren;
-  
+
   // get the num children before we add the new header.
   GetNumChildren(&numChildren);
-  
+
   // if this is an empty thread, set the root key to this header's key
   if (numChildren == 0)
     m_threadRootKey = newHdrKey;
-  
+
   if (! (newHdrFlags & nsMsgMessageFlags::Read))
     ChangeUnreadChildCount(1);
 
   return AddMsgHdrInDateOrder(child, view);
 }
 
-nsresult nsMsgGroupThread::ReparentNonReferenceChildrenOf(nsIMsgDBHdr *topLevelHdr, nsMsgKey newParentKey,
-                                                            nsIDBChangeAnnouncer *announcer)
+nsresult
+nsMsgGroupThread::ReparentNonReferenceChildrenOf(nsIMsgDBHdr *topLevelHdr,
+                                                 nsMsgKey newParentKey,
+                                                 nsIDBChangeAnnouncer *announcer)
 {
   return NS_OK;
 }
@@ -236,7 +241,8 @@ nsresult nsMsgGroupThread::RemoveChild(nsMsgKey msgKey)
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgGroupThread::RemoveChildHdr(nsIMsgDBHdr *child, nsIDBChangeAnnouncer *announcer)
+NS_IMETHODIMP nsMsgGroupThread::RemoveChildHdr(nsIMsgDBHdr *child,
+                                               nsIDBChangeAnnouncer *announcer)
 {
   NS_ENSURE_ARG_POINTER(child);
 
@@ -270,35 +276,35 @@ NS_IMETHODIMP nsMsgGroupThread::RemoveChildHdr(nsIMsgDBHdr *child, nsIDBChangeAn
   return rv;
 }
 
-nsresult nsMsgGroupThread::ReparentChildrenOf(nsMsgKey oldParent, nsMsgKey newParent, nsIDBChangeAnnouncer *announcer)
+nsresult nsMsgGroupThread::ReparentChildrenOf(nsMsgKey oldParent,
+                                              nsMsgKey newParent,
+                                              nsIDBChangeAnnouncer *announcer)
 {
   nsresult rv = NS_OK;
-  
-  uint32_t numChildren;
-  uint32_t childIndex = 0;
-  
+
+  uint32_t numChildren = 0;
   GetNumChildren(&numChildren);
-  
-  nsCOMPtr <nsIMsgDBHdr> curHdr;
+
   if (numChildren > 0)
   {
-    for (childIndex = 0; childIndex < numChildren; childIndex++)
+    nsCOMPtr<nsIMsgDBHdr> curHdr;
+    for (uint32_t childIndex = 0; childIndex < numChildren; childIndex++)
     {
       rv = GetChildHdrAt(childIndex, getter_AddRefs(curHdr));
       if (NS_SUCCEEDED(rv) && curHdr)
       {
         nsMsgKey threadParent;
-        
+
         curHdr->GetThreadParent(&threadParent);
         if (threadParent == oldParent)
         {
           nsMsgKey curKey;
-          
+
           curHdr->SetThreadParent(newParent);
           curHdr->GetMessageKey(&curKey);
           if (announcer)
             announcer->NotifyParentChangedAll(curKey, oldParent, newParent, nullptr);
-          // if the old parent was the root of the thread, then only the first child gets 
+          // if the old parent was the root of the thread, then only the first child gets
           // promoted to root, and other children become children of the new root.
           if (newParent == nsMsgKey_None)
           {
@@ -322,23 +328,23 @@ NS_IMETHODIMP nsMsgGroupThread::MarkChildRead(bool bRead)
 class nsMsgGroupThreadEnumerator : public nsISimpleEnumerator {
 public:
   NS_DECL_ISUPPORTS
-    
+
   // nsISimpleEnumerator methods:
   NS_DECL_NSISIMPLEENUMERATOR
-    
+
   // nsMsgGroupThreadEnumerator methods:
   typedef nsresult (*nsMsgGroupThreadEnumeratorFilter)(nsIMsgDBHdr* hdr, void* closure);
-  
+
   nsMsgGroupThreadEnumerator(nsMsgGroupThread *thread, nsMsgKey startKey,
   nsMsgGroupThreadEnumeratorFilter filter, void* closure);
   int32_t MsgKeyFirstChildIndex(nsMsgKey inMsgKey);
-  
+
 protected:
   virtual ~nsMsgGroupThreadEnumerator();
-  
+
   nsresult                Prefetch();
-  
-  nsCOMPtr <nsIMsgDBHdr>  mResultHdr;
+
+  nsCOMPtr<nsIMsgDBHdr>   mResultHdr;
   nsMsgGroupThread*       mThread;
   nsMsgKey                mThreadParentKey;
   nsMsgKey                mFirstMsgKey;
@@ -360,46 +366,40 @@ nsMsgGroupThreadEnumerator::nsMsgGroupThreadEnumerator(nsMsgGroupThread *thread,
   mThread = thread;
   mNeedToPrefetch = true;
   mFirstMsgKey = nsMsgKey_None;
-  
+
   nsresult rv = mThread->GetRootHdr(nullptr, getter_AddRefs(mResultHdr));
-  
   if (NS_SUCCEEDED(rv) && mResultHdr)
     mResultHdr->GetMessageKey(&mFirstMsgKey);
-  
+
   uint32_t numChildren;
   mThread->GetNumChildren(&numChildren);
-  
+
   if (mThreadParentKey != nsMsgKey_None)
   {
     nsMsgKey msgKey = nsMsgKey_None;
-    uint32_t childIndex = 0;
-    
-    
-    for (childIndex = 0; childIndex < numChildren; childIndex++)
+    for (uint32_t childIndex = 0; childIndex < numChildren; childIndex++)
     {
       rv = mThread->GetChildHdrAt(childIndex, getter_AddRefs(mResultHdr));
       if (NS_SUCCEEDED(rv) && mResultHdr)
       {
         mResultHdr->GetMessageKey(&msgKey);
-        
         if (msgKey == startKey)
         {
           mChildIndex = MsgKeyFirstChildIndex(msgKey);
           mDone = (mChildIndex < 0);
           break;
         }
-        
+
         if (mDone)
           break;
-        
       }
       else
         NS_ASSERTION(false, "couldn't get child from thread");
     }
   }
-  
+
 #ifdef DEBUG_bienvenu1
-  nsCOMPtr <nsIMsgDBHdr> child;
+  nsCOMPtr<nsIMsgDBHdr> child;
   for (uint32_t childIndex = 0; childIndex < numChildren; childIndex++)
   {
     rv = mThread->GetChildHdrAt(childIndex, getter_AddRefs(child));
@@ -412,11 +412,12 @@ nsMsgGroupThreadEnumerator::nsMsgGroupThreadEnumerator(nsMsgGroupThread *thread,
       // if not, we will tell him there are no children.
       child->GetMessageKey(&msgKey);
       child->GetThreadParent(&threadParent);
-      
+
       printf("index = %ld key = %ld parent = %lx\n", childIndex, msgKey, threadParent);
     }
   }
 #endif
+
   NS_ADDREF(thread);
 }
 
@@ -427,33 +428,25 @@ nsMsgGroupThreadEnumerator::~nsMsgGroupThreadEnumerator()
 
 NS_IMPL_ISUPPORTS(nsMsgGroupThreadEnumerator, nsISimpleEnumerator)
 
-
 int32_t nsMsgGroupThreadEnumerator::MsgKeyFirstChildIndex(nsMsgKey inMsgKey)
 {
-  //	if (msgKey != mThreadParentKey)
-  //		mDone = true;
   // look through rest of thread looking for a child of this message.
   // If the inMsgKey is the first message in the thread, then all children
   // without parents are considered to be children of inMsgKey.
   // Otherwise, only true children qualify.
   uint32_t numChildren;
-  nsCOMPtr <nsIMsgDBHdr> curHdr;
+  nsCOMPtr<nsIMsgDBHdr> curHdr;
   int32_t firstChildIndex = -1;
-  
+
   mThread->GetNumChildren(&numChildren);
-  
-  // if this is the first message in the thread, just check if there's more than
-  // one message in the thread.
-  //	if (inMsgKey == mThread->m_threadRootKey)
-  //		return (numChildren > 1) ? 1 : -1;
-  
+
   for (uint32_t curChildIndex = 0; curChildIndex < numChildren; curChildIndex++)
   {
     nsresult rv = mThread->GetChildHdrAt(curChildIndex, getter_AddRefs(curHdr));
     if (NS_SUCCEEDED(rv) && curHdr)
     {
       nsMsgKey parentKey;
-      
+
       curHdr->GetThreadParent(&parentKey);
       if (parentKey == inMsgKey)
       {
@@ -470,17 +463,15 @@ int32_t nsMsgGroupThreadEnumerator::MsgKeyFirstChildIndex(nsMsgKey inMsgKey)
 
 NS_IMETHODIMP nsMsgGroupThreadEnumerator::GetNext(nsISupports **aItem)
 {
-  if (!aItem)
-    return NS_ERROR_NULL_POINTER;
+  NS_ENSURE_ARG_POINTER(aItem);
   nsresult rv = NS_OK;
-  
+
   if (mNeedToPrefetch)
     rv = Prefetch();
-  
-  if (NS_SUCCEEDED(rv) && mResultHdr) 
+
+  if (NS_SUCCEEDED(rv) && mResultHdr)
   {
-    *aItem = mResultHdr;
-    NS_ADDREF(*aItem);
+    NS_ADDREF(*aItem = mResultHdr);
     mNeedToPrefetch = true;
   }
   return rv;
@@ -488,7 +479,7 @@ NS_IMETHODIMP nsMsgGroupThreadEnumerator::GetNext(nsISupports **aItem)
 
 nsresult nsMsgGroupThreadEnumerator::Prefetch()
 {
-  nsresult rv=NS_OK;          // XXX or should this default to an error?
+  nsresult rv = NS_OK;          // XXX or should this default to an error?
   mResultHdr = nullptr;
   if (mThreadParentKey == nsMsgKey_None)
   {
@@ -500,7 +491,7 @@ nsresult nsMsgGroupThreadEnumerator::Prefetch()
   {
     uint32_t numChildren;
     mThread->GetNumChildren(&numChildren);
-    
+
     while ((uint32_t)mChildIndex < numChildren)
     {
       rv  = mThread->GetChildHdrAt(mChildIndex++, getter_AddRefs(mResultHdr));
@@ -508,19 +499,19 @@ nsresult nsMsgGroupThreadEnumerator::Prefetch()
       {
         nsMsgKey parentKey;
         nsMsgKey curKey;
-        
+
         if (mFilter && NS_FAILED(mFilter(mResultHdr, mClosure))) {
           mResultHdr = nullptr;
           continue;
         }
-        
+
         mResultHdr->GetThreadParent(&parentKey);
         mResultHdr->GetMessageKey(&curKey);
         // if the parent is the same as the msg we're enumerating over,
         // or the parentKey isn't set, and we're iterating over the top
         // level message in the thread, then leave mResultHdr set to cur msg.
-        if (parentKey == mThreadParentKey || 
-          (parentKey == nsMsgKey_None 
+        if (parentKey == mThreadParentKey ||
+          (parentKey == nsMsgKey_None
           && mThreadParentKey == mFirstMsgKey && curKey != mThreadParentKey))
           break;
         mResultHdr = nullptr;
@@ -533,12 +524,12 @@ nsresult nsMsgGroupThreadEnumerator::Prefetch()
 //      mThread->ReparentMsgsWithInvalidParent(numChildren, mThreadParentKey);
     }
   }
-  if (!mResultHdr) 
+  if (!mResultHdr)
   {
     mDone = true;
     return NS_ERROR_FAILURE;
   }
-  if (NS_FAILED(rv)) 
+  if (NS_FAILED(rv))
   {
     mDone = true;
     return rv;
@@ -553,13 +544,12 @@ nsresult nsMsgGroupThreadEnumerator::Prefetch()
 	printf("next for %ld = %ld\n", mThreadParentKey, debugMsgKey);
 #endif
 
-    return rv;
+  return rv;
 }
 
 NS_IMETHODIMP nsMsgGroupThreadEnumerator::HasMoreElements(bool *aResult)
 {
-  if (!aResult)
-    return NS_ERROR_NULL_POINTER;
+  NS_ENSURE_ARG_POINTER(aResult);
   if (mNeedToPrefetch)
     Prefetch();
   *aResult = !mDone;
@@ -568,31 +558,28 @@ NS_IMETHODIMP nsMsgGroupThreadEnumerator::HasMoreElements(bool *aResult)
 
 NS_IMETHODIMP nsMsgGroupThread::EnumerateMessages(nsMsgKey parentKey, nsISimpleEnumerator* *result)
 {
-    nsMsgGroupThreadEnumerator* e = new nsMsgGroupThreadEnumerator(this, parentKey, nullptr, nullptr);
-    if (e == nullptr)
-        return NS_ERROR_OUT_OF_MEMORY;
-    NS_ADDREF(e);
-    *result = e;
-
-    return NS_OK;
+  nsMsgGroupThreadEnumerator* e = new nsMsgGroupThreadEnumerator(this, parentKey, nullptr, nullptr);
+  NS_ADDREF(*result = e);
+  return NS_OK;
 }
+
 #if 0
 nsresult nsMsgGroupThread::ReparentMsgsWithInvalidParent(uint32_t numChildren, nsMsgKey threadParentKey)
 {
   nsresult ret = NS_OK;
-  // run through looking for messages that don't have a correct parent, 
+  // run through looking for messages that don't have a correct parent,
   // i.e., a parent that's in the thread!
   for (int32_t childIndex = 0; childIndex < (int32_t) numChildren; childIndex++)
   {
-    nsCOMPtr <nsIMsgDBHdr> curChild;
+    nsCOMPtr<nsIMsgDBHdr> curChild;
     ret  = GetChildHdrAt(childIndex, getter_AddRefs(curChild));
     if (NS_SUCCEEDED(ret) && curChild)
     {
       nsMsgKey parentKey;
-      nsCOMPtr <nsIMsgDBHdr> parent;
-      
+      nsCOMPtr<nsIMsgDBHdr> parent;
+
       curChild->GetThreadParent(&parentKey);
-      
+
       if (parentKey != nsMsgKey_None)
       {
         GetChild(parentKey, getter_AddRefs(parent));
@@ -604,13 +591,13 @@ nsresult nsMsgGroupThread::ReparentMsgsWithInvalidParent(uint32_t numChildren, n
   return ret;
 }
 #endif
+
 NS_IMETHODIMP nsMsgGroupThread::GetRootHdr(int32_t *resultIndex, nsIMsgDBHdr **result)
 {
-  if (!result)
-    return NS_ERROR_NULL_POINTER;
-  
+  NS_ENSURE_ARG_POINTER(result);
+
   *result = nullptr;
-  
+
   if (m_threadRootKey != nsMsgKey_None)
   {
     nsresult ret = GetChildHdrForKey(m_threadRootKey, result, resultIndex);
@@ -622,15 +609,15 @@ NS_IMETHODIMP nsMsgGroupThread::GetRootHdr(int32_t *resultIndex, nsIMsgDBHdr **r
       uint32_t numChildren;
       nsMsgKey threadParentKey = nsMsgKey_None;
       GetNumChildren(&numChildren);
-      
+
       for (uint32_t childIndex = 0; childIndex < numChildren; childIndex++)
       {
-        nsCOMPtr <nsIMsgDBHdr> curChild;
+        nsCOMPtr<nsIMsgDBHdr> curChild;
         ret  = GetChildHdrAt(childIndex, getter_AddRefs(curChild));
         if (NS_SUCCEEDED(ret) && curChild)
         {
           nsMsgKey parentKey;
-          
+
           curChild->GetThreadParent(&parentKey);
           if (parentKey == nsMsgKey_None)
           {
@@ -639,10 +626,7 @@ NS_IMETHODIMP nsMsgGroupThread::GetRootHdr(int32_t *resultIndex, nsIMsgDBHdr **r
             m_threadRootKey = threadParentKey;
             if (resultIndex)
               *resultIndex = childIndex;
-            *result = curChild;
-            NS_ADDREF(*result);
-//            ReparentMsgsWithInvalidParent(numChildren, threadParentKey);
-            //            return NS_OK;
+            curChild.forget(result);
           }
         }
       }
@@ -652,7 +636,7 @@ NS_IMETHODIMP nsMsgGroupThread::GetRootHdr(int32_t *resultIndex, nsIMsgDBHdr **r
       }
     }
     // if we can't get the thread root key, we'll just get the first hdr.
-    // there's a bug where sometimes we weren't resetting the thread root key 
+    // there's a bug where sometimes we weren't resetting the thread root key
     // when removing the thread root key.
   }
   if (resultIndex)
@@ -668,15 +652,13 @@ nsresult nsMsgGroupThread::ChangeUnreadChildCount(int32_t delta)
 
 nsresult nsMsgGroupThread::GetChildHdrForKey(nsMsgKey desiredKey, nsIMsgDBHdr **result, int32_t *resultIndex)
 {
-  uint32_t numChildren;
-  uint32_t childIndex = 0;
+  NS_ENSURE_ARG_POINTER(result);
+
   nsresult rv = NS_OK;        // XXX or should this default to an error?
-  
-  if (!result)
-    return NS_ERROR_NULL_POINTER;
-  
+  uint32_t numChildren = 0;
   GetNumChildren(&numChildren);
 
+  uint32_t childIndex;
   for (childIndex = 0; childIndex < numChildren; childIndex++)
   {
     rv = GetChildHdrAt(childIndex, result);
@@ -687,65 +669,67 @@ nsresult nsMsgGroupThread::GetChildHdrForKey(nsMsgKey desiredKey, nsIMsgDBHdr **
       // asking for children of the first message in the thread or not.
       // if not, we will tell him there are no children.
       (*result)->GetMessageKey(&msgKey);
-      
+
       if (msgKey == desiredKey)
         break;
+
+      // XXX Hack: since GetChildHdrAt() addref'ed result, we need to
+      // release any unwanted result before continuing in the loop.
       NS_RELEASE(*result);
     }
   }
   if (resultIndex)
     *resultIndex = (int32_t) childIndex;
-  
+
   return rv;
 }
 
 NS_IMETHODIMP nsMsgGroupThread::GetFirstUnreadChild(nsIMsgDBHdr **result)
 {
-  NS_ENSURE_ARG(result);
-  uint32_t numChildren;
+  NS_ENSURE_ARG_POINTER(result);
+
   nsresult rv = NS_OK;
-  
+
+  uint32_t numChildren = 0;
   GetNumChildren(&numChildren);
-  
-  if ((int32_t) numChildren < 0)
-    numChildren = 0;
-  
+
   for (uint32_t childIndex = 0; childIndex < numChildren; childIndex++)
   {
-    nsCOMPtr <nsIMsgDBHdr> child;
+    nsCOMPtr<nsIMsgDBHdr> child;
     rv = GetChildHdrAt(childIndex, getter_AddRefs(child));
     if (NS_SUCCEEDED(rv) && child)
     {
       nsMsgKey msgKey;
       child->GetMessageKey(&msgKey);
-      
+
       bool isRead;
       rv = m_db->IsRead(msgKey, &isRead);
       if (NS_SUCCEEDED(rv) && !isRead)
       {
-        *result = child;
-        NS_ADDREF(*result);
+        child.forget(result);
         break;
       }
     }
   }
-  
+
   return rv;
 }
 
-NS_IMETHODIMP nsMsgGroupThread::GetNewestMsgDate(uint32_t *aResult) 
+NS_IMETHODIMP nsMsgGroupThread::GetNewestMsgDate(uint32_t *aResult)
 {
+  NS_ENSURE_ARG_POINTER(aResult);
+
   // if this hasn't been set, figure it out by enumerating the msgs in the thread.
   if (!m_newestMsgDate)
   {
-    uint32_t numChildren;
     nsresult rv = NS_OK;
-  
+
+    uint32_t numChildren = 0;
     GetNumChildren(&numChildren);
-  
+
     for (uint32_t childIndex = 0; childIndex < numChildren; childIndex++)
     {
-      nsCOMPtr <nsIMsgDBHdr> child;
+      nsCOMPtr<nsIMsgDBHdr> child;
       rv = GetChildHdrAt(childIndex, getter_AddRefs(child));
       if (NS_SUCCEEDED(rv) && child)
       {
@@ -755,14 +739,14 @@ NS_IMETHODIMP nsMsgGroupThread::GetNewestMsgDate(uint32_t *aResult)
           m_newestMsgDate = msgDate;
       }
     }
-  
+
   }
   *aResult = m_newestMsgDate;
   return NS_OK;
 }
 
 
-NS_IMETHODIMP nsMsgGroupThread::SetNewestMsgDate(uint32_t aNewestMsgDate) 
+NS_IMETHODIMP nsMsgGroupThread::SetNewestMsgDate(uint32_t aNewestMsgDate)
 {
   m_newestMsgDate = aNewestMsgDate;
   return NS_OK;
@@ -846,11 +830,10 @@ nsMsgViewIndex nsMsgXFGroupThread::AddMsgHdrInDateOrder(nsIMsgDBHdr *child, nsMs
   m_folders.InsertObjectAt(folder, insertIndex);
   return insertIndex;
 }
-nsMsgViewIndex 
-nsMsgXFGroupThread::GetInsertIndexFromView(nsMsgDBView *view, 
-                                          nsIMsgDBHdr *child, 
-                                          nsMsgViewSortOrderValue threadSortOrder)
+nsMsgViewIndex
+nsMsgXFGroupThread::GetInsertIndexFromView(nsMsgDBView *view,
+                                           nsIMsgDBHdr *child,
+                                           nsMsgViewSortOrderValue threadSortOrder)
 {
-   return view->GetInsertIndexHelper(child, m_keys, &m_folders, threadSortOrder, nsMsgViewSortType::byDate);
+  return view->GetInsertIndexHelper(child, m_keys, &m_folders, threadSortOrder, nsMsgViewSortType::byDate);
 }
-

@@ -3045,8 +3045,8 @@ void nsImapProtocol::ProcessSelectedStateURL()
         if (GetServerStateParser().LastCommandSuccessful() && !uidValidityOk)
           ProcessMailboxUpdate(false); // handle uidvalidity change
         break;
+      }
     }
-   }
   }
   else if (!DeathSignalReceived())
     HandleMemoryFailure();
@@ -3294,7 +3294,6 @@ void nsImapProtocol::PipelinedFetchMessageParts(const char *uid, nsIMAPMessagePa
         NS_ASSERTION(false, "we should only be pipelining MIME headers and Message headers");
         break;
       }
-
     }
     currentPartNum++;
   }
@@ -3315,7 +3314,6 @@ void nsImapProtocol::PipelinedFetchMessageParts(const char *uid, nsIMAPMessagePa
             ParseIMAPandCheckForNewMail(commandString.get());
   }
 }
-
 
 void nsImapProtocol::FetchMsgAttribute(const nsCString &messageIds, const nsCString &attribute)
 {
@@ -3575,7 +3573,7 @@ nsImapProtocol::FetchMessage(const nsCString &messageIds,
   case kMIMEHeader:
     commandString.Append(" %s (BODY[%s.MIME])");
     break;
-  };
+  }
 
   if (fetchModifier)
     commandString.Append(fetchModifier);
@@ -4799,7 +4797,7 @@ char* nsImapProtocol::CreateNewLineFromSocket()
                                     "imapServerDroppedConnection");
           break;
         default:
-            break;
+          break;
     }
 
     nsAutoCString logMsg("clearing IMAP_CONNECTION_IS_OPEN - rv = ");
