@@ -321,7 +321,6 @@ var FeedUtils = {
 
         // We need to kick off a download for each feed.
         let now = Date.now();
-        let msgDbOk = false;
         for (let url of feedUrlArray)
         {
           // Check whether this feed should be updated; if forceDownload is true
@@ -364,26 +363,10 @@ var FeedUtils = {
             return;
           }
 
-          // Ensure folder's msgDatabase is openable for new message processing.
-          // If not, reparse and break (to the next folder), as attempting to
-          // add a message to a folder with an unavailable msgDatabase will
-          // throw later. After the async reparse the folder will be ready for
-          // the next poll cycle to pick up this folder's feeds, whose update
-          // time will not have changed.
-          if (!msgDbOk) {
-            // Only do this test once on the first url ready to update.
-            msgDbOk = FeedUtils.isMsgDatabaseOpenable(folder, true);
-            if (!msgDbOk)
-            {
-              FeedUtils.progressNotifier.downloaded(feed, FeedUtils.kNewsBlogFeedIsBusy);
-              break;
-            }
-          }
-
           // Set status info and download.
+          FeedUtils.log.debug("downloadFeed: DOWNLOAD feed url - " + url);
           FeedUtils.setStatus(folder, url, "code", FeedUtils.kNewsBlogFeedIsBusy);
           feed.download(true, FeedUtils.progressNotifier);
-          FeedUtils.log.debug("downloadFeed: DOWNLOAD feed url - " + url);
 
           Services.tm.mainThread.dispatch(function() {
             try {
@@ -725,11 +708,13 @@ var FeedUtils = {
 /**
  * Check if the folder's msgDatabase is openable, reparse if desired.
  *
- * @param  nsIMsgFolder aFolder - the folder
- * @param  boolean aReparse     - reparse if true
+ * @param  nsIMsgFolder aFolder        - the folder
+ * @param  boolean aReparse            - reparse if true
+ * @param  nsIUrlListener aUrlListener - object implementing nsIUrlListener
+ *
  * @return boolean              - true if msgDb is available, else false
  */
-  isMsgDatabaseOpenable: function(aFolder, aReparse) {
+  isMsgDatabaseOpenable: function(aFolder, aReparse, aUrlListener) {
     let msgDb;
     try {
       msgDb = Cc["@mozilla.org/msgDatabase/msgDBService;1"]
@@ -749,7 +734,7 @@ var FeedUtils = {
     try {
       // Ignore error returns.
       aFolder.QueryInterface(Ci.nsIMsgLocalMailFolder)
-             .getDatabaseWithReparse(null, null);
+             .getDatabaseWithReparse(aUrlListener, null);
     }
     catch (ex) {}
 
@@ -1918,12 +1903,21 @@ var FeedUtils = {
         }
 
         if (!this.mSubscribeMode)
+        {
           FeedUtils.setStatus(feed.folder, feed.url, "code", aErrorCode);
 
-        if (feed.folder)
-          // Free msgDatabase after new mail biff is set; if busy let the next
-          // result do the freeing.  Otherwise new messages won't be indicated.
-          feed.folder.msgDatabase = null;
+          if (feed.folder &&
+              !FeedUtils.getFolderProperties(feed.folder).includes("isBusy"))
+          {
+            // Free msgDatabase after new mail biff is set; if busy let the next
+            // result do the freeing.  Otherwise new messages won't be indicated.
+            // This feed may belong to a folder with multiple other feeds, some
+            // of which may not yet be finished, so free only if the folder is
+            // no longer busy.
+            feed.folder.msgDatabase = null;
+            FeedUtils.log.debug("downloaded: msgDatabase freed - " + feed.folder.name);
+          }
+        }
       }
 
       let message = "";

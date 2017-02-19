@@ -290,6 +290,25 @@ Feed.prototype =
     FeedCache.removeFeed(aOldUrl);
   },
 
+  // nsIUrlListener methods for getDatabaseWithReparse().
+  OnStartRunningUrl: function(aUrl) { },
+  OnStopRunningUrl: function(aUrl, aExitCode)
+  {
+    if (Components.isSuccessCode(aExitCode))
+    {
+      FeedUtils.log.debug("Feed.OnStopRunningUrl: rebuilt msgDatabase for " +
+                          this.folder.name + " - " + this.folder.filePath.path);
+    }
+    else
+    {
+      FeedUtils.log.error("Feed.OnStopRunningUrl: rebuild msgDatabase failed, " +
+                          "error " + aExitCode + ", for " +
+                          this.folder.name + " - " + this.folder.filePath.path);
+    }
+    // Continue.
+    this.storeNextItem();
+  },
+
   get url()
   {
     let ds = FeedUtils.getSubscriptionsDS(this.server);
@@ -444,9 +463,19 @@ Feed.prototype =
       return;
     }
 
-    // storeNextItem() will iterate through the parsed items, storing each one.
     this.itemsToStoreIndex = 0;
     this.itemsStored = 0;
+
+    // At this point, if we have items to potentially store and an existing
+    // folder, ensure the folder's msgDatabase is openable for new message
+    // processing. If not, reparse with an async nsIUrlListener |this| to
+    // continue once the reparse is complete.
+    if (this.itemsToStore && this.itemsToStore.length > 0 && this.folder &&
+        !FeedUtils.isMsgDatabaseOpenable(this.folder, true, this))
+      return;
+
+    // We have an msgDatabase; storeNextItem() will iterate through the parsed
+    // items, storing each one.
     this.storeNextItem();
   },
 
@@ -545,6 +574,7 @@ Feed.prototype =
       this.createFolder();
       if (!this.folder)
         code = FeedUtils.kNewsBlogFileError;
+
       this.cleanupParsingState(this, code);
       return;
     }
