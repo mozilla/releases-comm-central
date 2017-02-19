@@ -670,8 +670,7 @@ var FeedSubscriptions = {
 
     for (let url of feedUrlArray)
     {
-      let feedResource = FeedUtils.rdf.GetResource(url);
-      let feed = new Feed(feedResource, aFolder.server);
+      let feed = new Feed(url, aFolder);
       feeds.push(feed);
     }
 
@@ -912,7 +911,7 @@ var FeedSubscriptions = {
       // If passed the root folder, the caller wants to get the feed's folder
       // from the db (for cases of an ancestor folder rename/move).
       let itemResource = FeedUtils.rdf.GetResource(aFeed.url);
-      let ds = FeedUtils.getSubscriptionsDS(aFeed.folder.server);
+      let ds = FeedUtils.getSubscriptionsDS(aFeed.server);
       folder = ds.GetTarget(itemResource, FeedUtils.FZ_DESTFOLDER, true);
     }
 
@@ -1169,8 +1168,7 @@ var FeedSubscriptions = {
     }
     else
     {
-      let feedResource = FeedUtils.rdf.GetResource(item.url);
-      let feed = new Feed(feedResource, item.parentFolder.server);
+      let feed = new Feed(item.url, item.parentFolder);
       feed.options = item.options;
       let ds = FeedUtils.getSubscriptionsDS(item.parentFolder.server);
       ds.Flush();
@@ -1338,9 +1336,8 @@ var FeedSubscriptions = {
         return;
     }
 
-    FeedUtils.deleteFeed(FeedUtils.rdf.GetResource(itemToRemove.url),
-                         itemToRemove.parentFolder.server,
-                         itemToRemove.parentFolder);
+    let feed = new Feed(itemToRemove.url, itemToRemove.parentFolder);
+    FeedUtils.deleteFeed(feed);
 
     // Now that we have removed the feed from the datasource, it is time to
     // update our view layer.  Update parent folder's quickMode if necessary
@@ -1452,11 +1449,9 @@ var FeedSubscriptions = {
       options.category.prefix = document.getElementById("autotagPrefix").value;
     }
 
-    let folderURI = addFolder.isServer ? null : addFolder.URI;
     let feedProperties = { feedName     : name,
                            feedLocation : feedLocation,
-                           folderURI    : folderURI,
-                           server       : addFolder.server,
+                           feedFolder   : addFolder,
                            quickMode    : quickMode,
                            options      : options };
 
@@ -1477,21 +1472,7 @@ var FeedSubscriptions = {
   // Helper routine used by addFeed and importOPMLFile.
   storeFeed: function(feedProperties)
   {
-    let itemResource = FeedUtils.rdf.GetResource(feedProperties.feedLocation);
-    let feed = new Feed(itemResource, feedProperties.server);
-
-    // If the user specified a folder to add the feed to, then set it here.
-    if (feedProperties.folderURI)
-    {
-      let folderResource = FeedUtils.rdf.GetResource(feedProperties.folderURI);
-      if (folderResource)
-      {
-        let folder = folderResource.QueryInterface(Ci.nsIMsgFolder);
-        if (folder && !folder.isServer)
-          feed.folder = folder;
-      }
-    }
-
+    let feed = new Feed(feedProperties.feedLocation, feedProperties.feedFolder);
     feed.title = feedProperties.feedName;
     feed.quickMode = feedProperties.quickMode;
     feed.options = feedProperties.options;
@@ -1535,12 +1516,7 @@ var FeedSubscriptions = {
     if (!itemToEdit || itemToEdit.container || !itemToEdit.parentFolder)
       return;
 
-    let resource = FeedUtils.rdf.GetResource(itemToEdit.url);
-    let currentFolderServer = itemToEdit.parentFolder.server;
-    let ds = FeedUtils.getSubscriptionsDS(currentFolderServer);
-    let currentFolderURI = itemToEdit.parentFolder.URI;
-    let feed = new Feed(resource, currentFolderServer);
-    feed.folder = itemToEdit.parentFolder;
+    let feed = new Feed(itemToEdit.url, itemToEdit.parentFolder);
 
     let editNameValue = document.getElementById("nameValue").value;
     let editFeedLocation = document.getElementById("locationValue").value.trim();
@@ -1560,7 +1536,7 @@ var FeedSubscriptions = {
 
     // Did the user change the folder URI for storing the feed?
     let editFolderURI = selectFolder.getAttribute("uri");
-    if (currentFolderURI != editFolderURI)
+    if (itemToEdit.parentFolder.URI != editFolderURI)
     {
       // Make sure the new folderpicked folder is visible.
       this.selectFolder(selectFolder._folder);
@@ -1640,6 +1616,7 @@ var FeedSubscriptions = {
 
     let verifyDelay = 0;
     if (updated) {
+      let ds = FeedUtils.getSubscriptionsDS(feed.server);
       ds.Flush();
       message = FeedUtils.strings.GetStringFromName("subscribe-feedUpdated");
       this.updateStatusItem("statusText", message);
@@ -1682,9 +1659,6 @@ var FeedSubscriptions = {
     let newParentResource = FeedUtils.rdf.GetResource(newParentItem.url);
     let newFolder = newParentResource.QueryInterface(Ci.nsIMsgFolder);
 
-    let ds = FeedUtils.getSubscriptionsDS(currentItem.parentFolder.server);
-    let resource = FeedUtils.rdf.GetResource(currentItem.url);
-
     let accountMoveCopy = false;
     if (currentFolder.rootFolder.URI == newFolder.rootFolder.URI)
     {
@@ -1695,7 +1669,9 @@ var FeedSubscriptions = {
         return;
 
       // Unassert the older URI, add an assertion for the new parent URI.
-      ds.Change(resource, FeedUtils.FZ_DESTFOLDER,
+      let feedResource = FeedUtils.rdf.GetResource(currentItem.url);
+      let ds = FeedUtils.getSubscriptionsDS(currentItem.parentFolder.server);
+      ds.Change(feedResource, FeedUtils.FZ_DESTFOLDER,
                 currentParentResource, newParentResource);
       ds.Flush();
 
@@ -1719,9 +1695,10 @@ var FeedSubscriptions = {
       // Unsubscribe the feed from the old folder, if add to the new folder
       // is successfull, and doing a move.
       if (moveFeed)
-        FeedUtils.deleteFeed(FeedUtils.rdf.GetResource(currentItem.url),
-                             currentItem.parentFolder.server,
-                             currentItem.parentFolder);
+      {
+        let feed = new Feed(currentItem.url, currentItem.parentFolder);
+        FeedUtils.deleteFeed(feed);
+      }
     }
 
     // Update local favicons.
@@ -1780,8 +1757,7 @@ var FeedSubscriptions = {
       // only feed, update the parent folder to the feed's quickMode.
       if (feedsInFolder > 1)
       {
-        let feedResource = FeedUtils.rdf.GetResource(feedItem.url);
-        let feed = new Feed(feedResource, feedItem.parentFolder.server);
+        let feed = new Feed(feedItem.url, feedItem.parentFolder);
         feed.quickMode = parentItem.quickMode;
         feedItem.quickMode = parentItem.quickMode;
       }
@@ -1921,9 +1897,7 @@ var FeedSubscriptions = {
         // But only if we're not in verify mode.
         if (win.mActionMode != win.kVerifyUrlMode &&
             feed && feed.url && feed.server)
-          FeedUtils.deleteFeed(FeedUtils.rdf.GetResource(feed.url),
-                               feed.server,
-                               feed.server.rootFolder);
+          FeedUtils.deleteFeed(feed);
 
         if (aErrorCode == FeedUtils.kNewsBlogInvalidFeed)
           message = FeedUtils.strings.GetStringFromName(
@@ -2654,7 +2628,7 @@ var FeedSubscriptions = {
         let outlineName = outline.getAttribute("text") ||
                           outline.getAttribute("title") ||
                           outline.getAttribute("xmlUrl");
-        let feedUrl, folderURI;
+        let feedUrl, folder;
 
         if (outline.getAttribute("type") == "rss")
         {
@@ -2679,8 +2653,10 @@ var FeedSubscriptions = {
 
           if (aParentNode.tagName == "outline" &&
               aParentNode.getAttribute("type") != "rss")
+          {
             // Parent is a folder, already created.
-            folderURI = feedFolder.URI;
+            folder = feedFolder;
+          }
           else
           {
             // Parent is not a folder outline, likely the <body> in a flat list.
@@ -2689,6 +2665,7 @@ var FeedSubscriptions = {
             // NOTE: Assume a type=rss outline must be a leaf and is not a
             // direct parent of another type=rss outline; such a structure
             // may lead to unintended nesting and inaccurate counts.
+            folder = rssServer.rootFolder;
           }
 
           // Create the feed.
@@ -2709,8 +2686,7 @@ var FeedSubscriptions = {
 
           let feedProperties = { feedName     : outlineName,
                                  feedLocation : feedUrl,
-                                 server       : rssServer,
-                                 folderURI    : folderURI,
+                                 feedFolder   : folder,
                                  quickMode    : quickMode,
                                  options      : options };
 
@@ -2726,9 +2702,8 @@ var FeedSubscriptions = {
           {
             // Non success. Remove intermediate traces from the feeds database.
             if (feed && feed.url && feed.server)
-              FeedUtils.deleteFeed(FeedUtils.rdf.GetResource(feed.url),
-                                   feed.server,
-                                   feed.server.rootFolder);
+              FeedUtils.deleteFeed(feed);
+
             FeedUtils.log.info("importOPMLOutlines: skipping, error creating folder - '" +
                                feed.folderName + "' from outlineName - '" +
                                outlineName + "' in parent folder " +

@@ -341,9 +341,7 @@ var FeedUtils = {
           }
 
           // Create a feed object.
-          let feedResource = FeedUtils.rdf.GetResource(url);
-          let feed = new Feed(feedResource, folder.server);
-          feed.folder = folder;
+          let feed = new Feed(url, folder);
 
           // Bump our pending feed download count. From now on, all feeds will
           // be resolved and finish with progressNotifier.downloaded(). Any
@@ -472,16 +470,10 @@ var FeedUtils = {
       return;
     }
 
-    let itemResource = FeedUtils.rdf.GetResource(aUrl);
-    let feed = new Feed(itemResource, aFolder.server);
+    let feed = new Feed(aUrl, aFolder);
     // Default setting for new feeds per account settings.
     feed.quickMode = feed.server.getBoolValue("quickMode");
     feed.options = FeedUtils.getOptionsAcct(feed.server);
-
-    // If the root server, create a new folder for the feed.  The user must
-    // want us to add this subscription url to an existing RSS folder.
-    if (!aFolder.isServer)
-      feed.folder = aFolder;
 
     FeedUtils.progressNotifier.init(aMsgWindow, true);
     FeedUtils.progressNotifier.mNumPendingFeedDownloads++;
@@ -522,8 +514,7 @@ var FeedUtils = {
 
     for (let feedUrl of feedUrls)
     {
-      let resource = FeedUtils.rdf.GetResource(feedUrl);
-      let feed = new Feed(resource, aFolder.server);
+      let feed = new Feed(feedUrl, aFolder);
       let options = feed.options;
       options.updates.enabled = !aPause;
       feed.options = options;
@@ -542,9 +533,7 @@ var FeedUtils = {
       }
       else
       {
-        let resource = FeedUtils.rdf.GetResource(curItem.url);
-        let feed = new Feed(resource, curItem.parentFolder.server);
-        feed.folder = curItem.parentFolder;
+        let feed = new Feed(curItem.url, curItem.parentFolder);
         win.FeedSubscriptions.selectFeed(feed);
       }
     }
@@ -556,10 +545,10 @@ var FeedUtils = {
  * Add a feed record to the feeds.rdf database and update the folder's feedUrl
  * property.
  *
- * @param  object aFeed - our feed object
+ * @param  Feed aFeed - our feed object.
  */
   addFeed: function(aFeed) {
-    let ds = this.getSubscriptionsDS(aFeed.folder.server);
+    let ds = this.getSubscriptionsDS(aFeed.server);
     let feeds = this.getSubscriptionsList(ds);
 
     // Generate a unique ID for the feed.
@@ -572,13 +561,13 @@ var FeedUtils = {
                       "for feed " + aFeed.url);
 
     // Add the feed to the list.
-    id = this.rdf.GetResource(id);
-    feeds.AppendElement(id);
-    ds.Assert(id, this.RDF_TYPE, this.FZ_FEED, true);
-    ds.Assert(id, this.DC_IDENTIFIER, this.rdf.GetLiteral(aFeed.url), true);
+    let feedResource = this.rdf.GetResource(id);
+    feeds.AppendElement(feedResource);
+    ds.Assert(feedResource, this.RDF_TYPE, this.FZ_FEED, true);
+    ds.Assert(feedResource, this.DC_IDENTIFIER, this.rdf.GetLiteral(aFeed.url), true);
     if (aFeed.title)
-      ds.Assert(id, this.DC_TITLE, this.rdf.GetLiteral(aFeed.title), true);
-    ds.Assert(id, this.FZ_DESTFOLDER, aFeed.folder, true);
+      ds.Assert(feedResource, this.DC_TITLE, this.rdf.GetLiteral(aFeed.title), true);
+    ds.Assert(feedResource, this.FZ_DESTFOLDER, aFeed.folder, true);
     ds.Flush();
 
     // Update folderpane.
@@ -589,37 +578,31 @@ var FeedUtils = {
  * Delete a feed record from the feeds.rdf database and update the folder's
  * feedUrl property.
  *
- * @param  nsIRDFResource aId           - feed url as rdf resource.
- * @param  nsIMsgIncomingServer aServer - folder's account server.
- * @param  nsIMsgFolder aParentFolder   - owning folder.
+ * @param  Feed aFeed - our feed object.
  */
-  deleteFeed: function(aId, aServer, aParentFolder) {
-    let feed = new Feed(aId, aServer);
-    let ds = this.getSubscriptionsDS(aServer);
-
-    if (!feed || !ds)
-     return;
+  deleteFeed: function(aFeed) {
+    let ds = this.getSubscriptionsDS(aFeed.server);
 
     // Remove the feed from the subscriptions ds.
     let feeds = this.getSubscriptionsList(ds);
-    let index = feeds.IndexOf(aId);
+    let index = feeds.IndexOf(aFeed.resource);
     if (index != -1)
       feeds.RemoveElementAt(index, false);
 
     // Remove all assertions about the feed from the subscriptions database.
-    this.removeAssertions(ds, aId);
+    this.removeAssertions(ds, aFeed.resource);
     ds.Flush();
 
     // Remove all assertions about items in the feed from the items database.
-    let itemds = this.getItemsDS(aServer);
-    feed.invalidateItems();
-    feed.removeInvalidItems(true);
+    let itemds = this.getItemsDS(aFeed.server);
+    aFeed.invalidateItems();
+    aFeed.removeInvalidItems(true);
     itemds.Flush();
 
     // Update folderpane.
-    this.setFolderPaneProperty(aParentFolder, "favicon", null, "row");
+    this.setFolderPaneProperty(aFeed.folder, "favicon", null, "row");
     // Remove from cache.
-    delete this[aParentFolder.server.serverURI][feed.url];
+    delete this[aFeed.server.serverURI][aFeed.url];
 
     feed = null;
   },
@@ -636,10 +619,10 @@ var FeedUtils = {
     if (!aFeed || !aFeed.folder || !aNewUrl)
       return false;
 
-    if (this.feedAlreadyExists(aNewUrl, aFeed.folder.server))
+    if (this.feedAlreadyExists(aNewUrl, aFeed.server))
     {
       this.log.info("FeedUtils.changeUrlForFeed: new feed url " + aNewUrl +
-                    " already subscribed in account " + aFeed.folder.server.prettyName);
+                    " already subscribed in account " + aFeed.server.prettyName);
       return false;
     }
 
@@ -648,10 +631,8 @@ var FeedUtils = {
     let quickMode = aFeed.quickMode;
     let options = aFeed.options;
 
-    this.deleteFeed(this.rdf.GetResource(aFeed.url),
-                    aFeed.folder.server, aFeed.folder);
-    aFeed.resource = this.rdf.GetResource(aNewUrl)
-                             .QueryInterface(Ci.nsIRDFResource);
+    this.deleteFeed(aFeed);
+    aFeed.resource = this.rdf.GetResource(aNewUrl).QueryInterface(Ci.nsIRDFResource);
     aFeed.title = title;
     aFeed.link = link;
     aFeed.quickMode = quickMode;
@@ -830,8 +811,7 @@ var FeedUtils = {
       this[serverKey][aUrl]["status"] = this.statusTemplate;
       if (FeedUtils.isValidScheme(aUrl)) {
         // Seed persisted status properties for feed urls.
-        let feedResource = FeedUtils.rdf.GetResource(aUrl);
-        let feed = new Feed(feedResource, aFolder.server);
+        let feed = new Feed(aUrl, aFolder);
         this[serverKey][aUrl]["status"].enabled =
           feed.options.updates.enabled;
         this[serverKey][aUrl]["status"].updateMinutes =
@@ -948,12 +928,8 @@ var FeedUtils = {
 
     if (aFolder)
     {
-      let ds = this.getSubscriptionsDS(aFolder.server);
-      let resource = this.rdf.GetResource(url).QueryInterface(Ci.nsIRDFResource);
-      let feedLinkUrl = ds.GetTarget(resource, this.RSS_LINK, true);
-      feedLinkUrl = feedLinkUrl ?
-                      feedLinkUrl.QueryInterface(Ci.nsIRDFLiteral).Value : null;
-      url = feedLinkUrl && feedLinkUrl.startsWith("http") ? feedLinkUrl : url;
+      let feed = new Feed(url, aFolder);
+      url = feed.link && feed.link.startsWith("http") ? feed.link : url;
     }
 
     let uri, iconUri;
@@ -1072,26 +1048,25 @@ var FeedUtils = {
       return;
     }
 
-    let id, resource, node;
     let ds = this.getSubscriptionsDS(aFolder.server);
     for (let feedUrl of feedUrlArray)
     {
       this.log.debug("updateFolderChangeInFeedsDS: feedUrl - " + feedUrl);
+      let feed = new Feed(feedUrl, aFolder);
 
-      id = this.rdf.GetResource(feedUrl);
       // If move to trash, unsubscribe.
       if (this.isInTrash(aFolder))
       {
-        this.deleteFeed(id, aFolder.server, aFolder);
+        this.deleteFeed(feed);
       }
       else
       {
-        resource = this.rdf.GetResource(aFolder.URI);
+        let folderResource = this.rdf.GetResource(aFolder.URI);
         // Get the node for the current folder URI.
-        node = ds.GetTarget(id, this.FZ_DESTFOLDER, true);
+        let node = ds.GetTarget(feed.resource, this.FZ_DESTFOLDER, true);
         if (node)
         {
-          ds.Change(id, this.FZ_DESTFOLDER, node, resource);
+          ds.Change(feed.resource, this.FZ_DESTFOLDER, node, folderResource);
         }
         else
         {
@@ -1099,23 +1074,21 @@ var FeedUtils = {
           // preserve all properties from the original datasource where
           // available. Otherwise use the new folder's name and default server
           // quickMode; preserve link and options.
-          let feedTitle = dsSrc.GetTarget(id, this.DC_TITLE, true);
+          let feedTitle = dsSrc.GetTarget(feed.resource, this.DC_TITLE, true);
           feedTitle = feedTitle ? feedTitle.QueryInterface(Ci.nsIRDFLiteral).Value :
-                                  resource.name;
-          let link = dsSrc.GetTarget(id, FeedUtils.RSS_LINK, true);
+                                  folderResource.name;
+          let link = dsSrc.GetTarget(feed.resource, FeedUtils.RSS_LINK, true);
           link = link ? link.QueryInterface(Ci.nsIRDFLiteral).Value : "";
-          let quickMode = dsSrc.GetTarget(id, this.FZ_QUICKMODE, true);
+          let quickMode = dsSrc.GetTarget(feed.resource, this.FZ_QUICKMODE, true);
           quickMode = quickMode ? quickMode.QueryInterface(Ci.nsIRDFLiteral).Value :
                                   null;
           quickMode = quickMode == "true" ? true :
                       quickMode == "false" ? false :
-                      aFeed.folder.server.getBoolValue("quickMode");
-          let options = dsSrc.GetTarget(id, this.FZ_OPTIONS, true);
+                      feed.server.getBoolValue("quickMode");
+          let options = dsSrc.GetTarget(feed.resource, this.FZ_OPTIONS, true);
           options = options ? JSON.parse(options.QueryInterface(Ci.nsIRDFLiteral).Value) :
                               this.optionsTemplate;
-
-          let feed = new Feed(id, aFolder.server);
-          feed.folder = aFolder;
+          // Update the feedUrl feed properties.
           feed.title = feedTitle;
           feed.link = link;
           feed.quickMode = quickMode;
@@ -1712,7 +1685,7 @@ var FeedUtils = {
       }
     }
 
-    return (this._validSchemes.indexOf(aUri.scheme) != -1);
+    return this._validSchemes.includes(aUri.scheme);
   },
 
 /**
@@ -1870,9 +1843,7 @@ var FeedUtils = {
         {
           // Non success.  Remove intermediate traces from the feeds database.
           if (feed && feed.url && feed.server)
-            FeedUtils.deleteFeed(FeedUtils.rdf.GetResource(feed.url),
-                                 feed.server,
-                                 feed.server.rootFolder);
+            FeedUtils.deleteFeed(feed);
         }
       }
 

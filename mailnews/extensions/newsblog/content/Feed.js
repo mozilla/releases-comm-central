@@ -46,10 +46,22 @@ var FeedCache =
   }
 };
 
-function Feed(aResource, aRSSServer)
+/**
+ * A Feed object. If aFolder is the account root folder, a new subfolder
+ * for the feed url is created otherwise the url will be subscribed to the
+ * existing aFolder, upon successful download() completion.
+ *
+ * @param  string aFeedUrl        - feed url.
+ * @param  nsIMsgFolder aFolder   - folder containing or to contain the feed
+ *                                  subscription.
+ */
+function Feed(aFeedUrl, aFolder)
 {
-  this.resource = aResource.QueryInterface(Ci.nsIRDFResource);
-  this.server = aRSSServer;
+  this.resource = FeedUtils.rdf.GetResource(aFeedUrl)
+                               .QueryInterface(Ci.nsIRDFResource);
+  this.server = aFolder.server;
+  if (!aFolder.isServer)
+    this.mFolder = aFolder;
 }
 
 Feed.prototype =
