@@ -72,7 +72,7 @@ Feed.prototype =
   server: null,
   downloadCallback: null,
   resource: null,
-  items: new Array(),
+  itemsToStore: [],
   itemsStored: 0,
   fileSize: 0,
   mFolder: null,
@@ -482,7 +482,7 @@ Feed.prototype =
     // folder, ensure the folder's msgDatabase is openable for new message
     // processing. If not, reparse with an async nsIUrlListener |this| to
     // continue once the reparse is complete.
-    if (this.itemsToStore && this.itemsToStore.length > 0 && this.folder &&
+    if (this.itemsToStore.length > 0 && this.folder &&
         !FeedUtils.isMsgDatabaseOpenable(this.folder, true, this))
       return;
 
@@ -580,7 +580,7 @@ Feed.prototype =
       return;
     }
 
-    if (!this.itemsToStore || !this.itemsToStore.length)
+    if (this.itemsToStore.length == 0)
     {
       let code = FeedUtils.kNewsBlogSuccess;
       this.createFolder();
@@ -658,7 +658,7 @@ Feed.prototype =
     // Force the xml http request to go away.  This helps reduce some nasty
     // assertions on shut down.
     this.request = null;
-    this.itemsToStore = "";
+    this.itemsToStore = [];
     this.itemsToStoreIndex = 0;
     this.storeItemsTimer = null;
 
