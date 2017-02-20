@@ -43,48 +43,30 @@ function toArray(aObj) {
  *   nsISimpleEnumerator
  *
  * Note that old-style JS iterators are explicitly not supported in this
- * method, as they are going away. For a limited time, the resulting iterator
- * can be used in a for...in loop, but this is a legacy compatibility shim that
- * will not work forever. See bug 1098412.
+ * method, as they are going away.
  *
  *   @param aEnum  the enumerator to convert
  *   @param aIface (optional) an interface to QI each object to prior to
  *                 returning
  *
  *   @note This returns an object that can be used in 'for...of' loops.
- *         Do not use 'for each...in'. 'for...in' may be used, but only as a
- *         legacy feature.
+ *         Do not use 'for each...in' or 'for...in'.
  *         This does *not* return an Array object. To create such an array, use
  *         let array = toArray(fixIterator(xpcomEnumerator));
  */
 function fixIterator(aEnum, aIface) {
-  // Minor internal details: to support both for (let x of fixIterator()) and
-  // for (let x in fixIterator()), we need to add in a __iterator__ kludge
-  // property. __iterator__ is to go away in bug 1098412; we could theoretically
-  // make it work beyond that by using Proxies, but that's far to go for
-  // something we want to get rid of anyways.
-  // Note that the new-style iterator uses Symbol.iterator to work, and anything
-  // that has Symbol.iterator works with for-of.
-  function makeDualIterator(newStyle) {
-    newStyle.__iterator__ = function() {
-      for (let item of newStyle)
-        yield item;
-    };
-    return newStyle;
-  }
-
   // If the input is an array or something that sports Symbol.iterator, then
   // the original input is sufficient to directly return. However, if we want
   // to support the aIface parameter, we need to do a lazy version of
   // Array.prototype.map.
   if (Array.isArray(aEnum) || ITERATOR_SYMBOL in aEnum) {
     if (!aIface) {
-      return makeDualIterator(aEnum);
+      return aEnum;
     } else {
-      return makeDualIterator((function*() {
+      return (function*() {
         for (let o of aEnum)
           yield o.QueryInterface(aIface);
-      })());
+      })();
     }
   }
 
@@ -92,19 +74,19 @@ function fixIterator(aEnum, aIface) {
   // Figure out which kind of array object we have.
   // First try nsIArray (covers nsIMutableArray too).
   if (aEnum instanceof Ci.nsIArray) {
-    return makeDualIterator((function*() {
+    return (function*() {
       let count = aEnum.length;
       for (let i = 0; i < count; i++)
         yield aEnum.queryElementAt(i, face);
-    })());
+    })();
   }
 
   // How about nsISimpleEnumerator? This one is nice and simple.
   if (aEnum instanceof Ci.nsISimpleEnumerator) {
-    return makeDualIterator((function*() {
+    return (function*() {
       while (aEnum.hasMoreElements())
         yield aEnum.getNext().QueryInterface(face);
-    })());
+    })();
   }
 
   // We got something unexpected, notify the caller loudly.

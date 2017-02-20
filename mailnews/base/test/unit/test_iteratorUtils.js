@@ -58,13 +58,13 @@ function test_fixIterator() {
   do_check_eq(nsIArray.length, 5);
 
   i = 0;
-  for (let val in iteratorUtils.fixIterator(nsIArray)) {
+  for (let val of iteratorUtils.fixIterator(nsIArray)) {
     do_check_eq(val, JSArray[i++]);
   }
   do_check_true(i > 0);
 
   i = 0;
-  for (let val in iteratorUtils.fixIterator(nsIArray.enumerate())) {
+  for (let val of iteratorUtils.fixIterator(nsIArray.enumerate())) {
     do_check_eq(val, JSArray[i++]);
   }
   do_check_true(i > 0);
@@ -80,7 +80,7 @@ function test_fixIterator() {
   let thrown = false;
   let tryIterate = { item: "An object, that is not supported by fixIterator." };
   try {
-    for (let val in iteratorUtils.fixIterator(tryIterate)) { dump(val); }
+    for (let val of iteratorUtils.fixIterator(tryIterate)) { dump(val); }
   } catch (e) {
     // A specific exception is the correct behaviour here.
     if (e.message == "An unsupported object sent to fixIterator: [object Object]")
