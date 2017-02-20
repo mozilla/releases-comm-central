@@ -814,7 +814,12 @@ nsMessenger::SaveOneAttachment(const char * aContentType, const char * aURL,
   nsString defaultDisplayString;
   ConvertAndSanitizeFileName(aDisplayName, defaultDisplayString);
 
-  GetString(NS_LITERAL_STRING("SaveAttachment"), saveAttachmentStr);
+  if (detaching) {
+    GetString(NS_LITERAL_STRING("DetachAttachment"), saveAttachmentStr);
+  }
+  else {
+    GetString(NS_LITERAL_STRING("SaveAttachment"), saveAttachmentStr);
+  }
   filePicker->Init(mWindow, saveAttachmentStr,
                    nsIFilePicker::modeSave);
   filePicker->SetDefaultString(defaultDisplayString);
@@ -906,7 +911,12 @@ nsMessenger::SaveAllAttachments(uint32_t count,
   nsString saveAttachmentStr;
 
   NS_ENSURE_SUCCESS(rv, rv);
-  GetString(NS_LITERAL_STRING("SaveAllAttachments"), saveAttachmentStr);
+  if (detaching) {
+    GetString(NS_LITERAL_STRING("DetachAllAttachments"), saveAttachmentStr);
+  }
+  else {
+    GetString(NS_LITERAL_STRING("SaveAllAttachments"), saveAttachmentStr);
+  }
   filePicker->Init(mWindow,
                    saveAttachmentStr,
                    nsIFilePicker::modeGetFolder);
