@@ -66,7 +66,7 @@ function generateFoldersToSearchList()
 {
   let uriSearchString = "";
   let allFolders = MailServices.accounts.allFolders;
-  for (let folder in fixIterator(allFolders, Components.interfaces.nsIMsgFolder))
+  for (let folder of fixIterator(allFolders, Components.interfaces.nsIMsgFolder))
     uriSearchString = processSearchSettingForFolder(folder, uriSearchString);
 
   return uriSearchString;
@@ -77,7 +77,7 @@ function resetFolderToSearchAttribute()
   // iterates over all accounts and all folders, clearing out the inVFEditScope property in case
   // we set it.
   let allFolders = MailServices.accounts.allFolders;
-  for (let folder in fixIterator(allFolders, Components.interfaces.nsIMsgFolder))
+  for (let folder of fixIterator(allFolders, Components.interfaces.nsIMsgFolder))
     folder.setInVFEditSearchScope(false, false);
 }
 

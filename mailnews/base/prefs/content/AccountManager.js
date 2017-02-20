@@ -210,7 +210,7 @@ function replaceWithDefaultSmtpServer(deletedSmtpServerKey)
 {
   // First we replace the smtpserverkey in every identity.
   let am = MailServices.accounts;
-  for (let identity in fixIterator(am.allIdentities,
+  for (let identity of fixIterator(am.allIdentities,
                                    Components.interfaces.nsIMsgIdentity)) {
     if (identity.smtpServerKey == deletedSmtpServerKey)
       identity.smtpServerKey = "";
@@ -440,7 +440,7 @@ function checkDirectoryIsUsable(aLocalPath) {
   // Check that no other account has this same or dependent local directory.
   let allServers = MailServices.accounts.allServers;
 
-  for (let server in fixIterator(allServers,
+  for (let server of fixIterator(allServers,
                                  Components.interfaces.nsIMsgIncomingServer))
   {
     if (server.key == currentAccount.incomingServer.key)

@@ -185,7 +185,7 @@ VirtualFolderWrapper.prototype = {
    */
   set searchTerms(aTerms) {
     let condition = "";
-    for (let term in fixIterator(aTerms, Ci.nsIMsgSearchTerm)) {
+    for (let term of fixIterator(aTerms, Ci.nsIMsgSearchTerm)) {
       if (condition.length)
         condition += " ";
       if (term.matchAll) {

@@ -64,7 +64,7 @@ function onInit(aPageId, aServerId)
 
   // Populate the listbox with address books
   let abItems = [];
-  for (let ab in fixIterator(MailServices.ab.directories,
+  for (let ab of fixIterator(MailServices.ab.directories,
                              Components.interfaces.nsIAbDirectory)) {
     // We skip mailing lists and remote address books.
     if (ab.isMailList || ab.isRemote)
