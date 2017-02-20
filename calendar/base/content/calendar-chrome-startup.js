@@ -139,7 +139,7 @@ var calendarWindowPrefs = {
             switch (aData) {
                 case "calendar.view.useSystemColors": {
                     let attributeValue = Preferences.get("calendar.view.useSystemColors", false) && "true";
-                    for (let win in fixIterator(Services.ww.getWindowEnumerator())) {
+                    for (let win of fixIterator(Services.ww.getWindowEnumerator())) {
                         setElementValue(win.document.documentElement, attributeValue, "systemcolors");
                     }
                     break;
