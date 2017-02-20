@@ -8,7 +8,7 @@ Components.utils.import("resource:///modules/imServices.jsm");
 var addBuddy = {
   onload: function ab_onload() {
     let accountList = document.getElementById("accountlist");
-    for (let acc in fixIterator(Services.accounts.getAccounts())) {
+    for (let acc of fixIterator(Services.accounts.getAccounts())) {
       if (!acc.connected)
         continue;
       let proto = acc.protocol;

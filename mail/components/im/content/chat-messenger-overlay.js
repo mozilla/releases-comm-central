@@ -792,7 +792,7 @@ var chatHandler = {
     let connected = false;
     let hasAccount = false;
     let canJoinChat = false;
-    for (let account in fixIterator(imServices.accounts.getAccounts())) {
+    for (let account of fixIterator(imServices.accounts.getAccounts())) {
       hasAccount = true;
       if (account.connected) {
         connected = true;

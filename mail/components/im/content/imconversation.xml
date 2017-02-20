@@ -1407,7 +1407,7 @@
            // Populate the nicklist
            this.buddies = new Map();
            let nicks = fixIterator(this.conv.getParticipants());
-           for (let n in nicks)
+           for (let n of nicks)
              this.addBuddy(n);
            this.updateParticipantCount();
          }

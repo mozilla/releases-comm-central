@@ -41,10 +41,10 @@ var ChatCore = {
         // the user has used an older version of Thunderbird on a
         // profile with IM accounts. See bug 736035.
         let accountsById = {};
-        for (let account in fixIterator(Services.accounts.getAccounts()))
+        for (let account of fixIterator(Services.accounts.getAccounts()))
           accountsById[account.numericId] = account;
         let mgr = MailServices.accounts;
-        for (let account in fixIterator(mgr.accounts, Components.interfaces.nsIMsgAccount)) {
+        for (let account of fixIterator(mgr.accounts, Components.interfaces.nsIMsgAccount)) {
           let incomingServer = account.incomingServer;
           if (!incomingServer || incomingServer.type != "im")
             continue;
