@@ -36,7 +36,7 @@ function setupModule(module) {
   }
 
   // Save the old providers...
-  for (let entry in fixIterator(gCategoryMan.enumerateCategory(kCategory),
+  for (let entry of fixIterator(gCategoryMan.enumerateCategory(kCategory),
                                 Ci.nsISupportsCString)) {
     let value = gCategoryMan.getCategoryEntry(kCategory, entry.data);
     gOldProviders[entry] = value;

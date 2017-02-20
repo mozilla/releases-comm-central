@@ -117,7 +117,7 @@ function test_attachments_added_on_multiple() {
   assert_true(subjects instanceof Ci.nsIMutableArray);
   assert_equals(2, subjects.length);
 
-  for (let attachment in fixIterator(subjects, Ci.nsIMsgAttachment)) {
+  for (let attachment of fixIterator(subjects, Ci.nsIMsgAttachment)) {
     assert_true(attachmentUrls.includes(attachment.url));
   }
 
@@ -141,7 +141,7 @@ function test_attachments_added_on_multiple() {
   assert_true(subjects instanceof Ci.nsIMutableArray);
   assert_equals(3, subjects.length);
 
-  for (let attachment in fixIterator(subjects, Ci.nsIMsgAttachment)) {
+  for (let attachment of fixIterator(subjects, Ci.nsIMsgAttachment)) {
     assert_true(attachmentUrls.includes(attachment.url));
   }
 
@@ -251,7 +251,7 @@ function test_attachments_removed_on_multiple() {
   assert_true(subjects instanceof Ci.nsIMutableArray);
   assert_equals(3, subjects.length);
 
-  for (let attachment in fixIterator(subjects, Ci.nsIMsgAttachment)) {
+  for (let attachment of fixIterator(subjects, Ci.nsIMsgAttachment)) {
     assert_true(removedAttachmentUrls.includes(attachment.url));
   }
 

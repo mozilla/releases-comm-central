@@ -188,7 +188,7 @@ function test_folder_flag_changes() {
   let localArchiveFolder = rootFolder.getChildNamed("Archives");
   let allDescendants = localArchiveFolder.descendants;
   desiredScope = "|" + localArchiveFolder.URI + "|";
-  for (let folder in fixIterator(allDescendants, Ci.nsIMsgFolder)) {
+  for (let folder of fixIterator(allDescendants, Ci.nsIMsgFolder)) {
     desiredScope += folder.URI + "|";
   }
 
@@ -202,7 +202,7 @@ function assert_folder_and_children_in_scope(folder, searchScope)
   let folderURI = "|" + folder.URI + "|";
   assert_uri_found(folderURI, searchScope);
   let allDescendants = folder.descendants;
-  for (let folder in fixIterator(allDescendants, Ci.nsIMsgFolder)) {
+  for (let folder of fixIterator(allDescendants, Ci.nsIMsgFolder)) {
     assert_uri_found(folder.URI, searchScope);
   }
 }
@@ -212,7 +212,7 @@ function assert_folder_and_children_not_in_scope(folder, searchScope)
   let folderURI = "|" + folder.URI + "|";
   assert_uri_not_found(folderURI, searchScope);
   let allDescendants = folder.descendants;
-  for (let folder in fixIterator(allDescendants, Ci.nsIMsgFolder)) {
+  for (let folder of fixIterator(allDescendants, Ci.nsIMsgFolder)) {
     assert_uri_not_found(folder.URI, searchScope);
   }
 }

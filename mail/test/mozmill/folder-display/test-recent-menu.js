@@ -26,7 +26,7 @@ var setupModule = function(module) {
   // Ensure that there are no updated folders to ensure the recent folder
   // is empty.
   let allFolders = MailServices.accounts.allFolders;
-  for (let folder in fixIterator(allFolders, Ci.nsIMsgFolder)) {
+  for (let folder of fixIterator(allFolders, Ci.nsIMsgFolder)) {
     folder.setStringProperty("MRMTime", "0");
   }
 

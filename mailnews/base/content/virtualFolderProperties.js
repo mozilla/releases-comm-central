@@ -52,7 +52,7 @@ function onLoad()
 
     if (windowArgs.searchTerms) // then add them to our search session
     {
-      for (let searchTerm in fixIterator(windowArgs.searchTerms,
+      for (let searchTerm of fixIterator(windowArgs.searchTerms,
                                          Components.interfaces.nsIMsgSearchTerm))
         gSearchTermSession.appendTerm(searchTerm);
     }

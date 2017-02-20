@@ -97,7 +97,7 @@ function remove_NNTP_account() {
  */
 function test_address_types() {
   // Be sure there is no NNTP account yet.
-  for (let account in fixIterator(MailServices.accounts.accounts,
+  for (let account of fixIterator(MailServices.accounts.accounts,
                                   Components.interfaces.nsIMsgAccount)) {
     assert_not_equals(account.incomingServer.type, "nntp",
                       "There is a NNTP account existing unexpectedly");
