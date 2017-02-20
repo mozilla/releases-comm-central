@@ -29,7 +29,7 @@ function getBestIdentity(identities, optionalHint, useDefault = false)
     let hints = optionalHint.toLowerCase().split(",");
 
     for (let i = 0 ; i < hints.length; i++) {
-      for (let identity in fixIterator(identities,
+      for (let identity of fixIterator(identities,
                                        Components.interfaces.nsIMsgIdentity)) {
         if (!identity.email)
           continue;
@@ -87,7 +87,7 @@ function getIdentityForHeader(hdr, type)
     deliveredTos.reverse();
 
     for (let i = 0; i < deliveredTos.length; i++) {
-      for (let identity in fixIterator(accountManager.allIdentities,
+      for (let identity of fixIterator(accountManager.allIdentities,
                                        Components.interfaces.nsIMsgIdentity)) {
         if (!identity.email)
           continue;
