@@ -286,6 +286,8 @@ nsMsgContentPolicy::ShouldLoad(uint32_t          aContentType,
   {
     rv = GetOriginatingURIForContext(aRequestingContext,
                                      getter_AddRefs(originatorLocation));
+    if (NS_SUCCEEDED(rv) && !originatorLocation)
+      return NS_OK;
   }
   NS_ENSURE_SUCCESS(rv, NS_OK);
 
@@ -654,6 +656,8 @@ already_AddRefed<nsIMsgCompose> nsMsgContentPolicy::GetMsgComposeForContext(nsIS
   nsresult rv;
 
   nsIDocShell *shell = NS_CP_GetDocShellFromContext(aRequestingContext);
+  if (!shell)
+    return nullptr;
   nsCOMPtr<nsIDocShellTreeItem> docShellTreeItem(do_QueryInterface(shell, &rv));
   NS_ENSURE_SUCCESS(rv, nullptr);
 
@@ -785,6 +789,10 @@ nsMsgContentPolicy::GetOriginatingURIForContext(nsISupports *aRequestingContext,
   nsresult rv;
 
   nsIDocShell *shell = NS_CP_GetDocShellFromContext(aRequestingContext);
+  if (!shell) {
+    *aURI = nullptr;
+    return NS_OK;
+  }
   nsCOMPtr<nsIDocShellTreeItem> docshellTreeItem(do_QueryInterface(shell, &rv));
   NS_ENSURE_SUCCESS(rv, rv);
 
