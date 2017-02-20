@@ -52,7 +52,7 @@ var AboutSupport = {
     let defaultIdentity = aAccount.defaultIdentity;
     let smtpDetails = [];
 
-    for (let identity in fixIterator(identities, Ci.nsIMsgIdentity)) {
+    for (let identity of fixIterator(identities, Ci.nsIMsgIdentity)) {
       let isDefault = identity == defaultIdentity;
       let smtpServer = {};
       MailServices.smtp.getServerByIdentity(identity, smtpServer);
@@ -73,7 +73,7 @@ var AboutSupport = {
     let accountDetails = [];
     let accounts = MailServices.accounts.accounts;
 
-    for (let account in fixIterator(accounts, Ci.nsIMsgAccount)) {
+    for (let account of fixIterator(accounts, Ci.nsIMsgAccount)) {
       let server = account.incomingServer;
       accountDetails.push({
         key: account.key,

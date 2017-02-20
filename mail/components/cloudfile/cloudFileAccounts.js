@@ -143,7 +143,7 @@ var cloudFileAccounts = {
   },
 
   enumerateProviders: function*() {
-    for (let entry in fixIterator(categoryManager.enumerateCategory(CATEGORY),
+    for (let entry of fixIterator(categoryManager.enumerateCategory(CATEGORY),
                                   Ci.nsISupportsCString)) {
       let provider = this.getProviderForType(entry.data);
       yield [entry.data, provider];
