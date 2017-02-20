@@ -312,7 +312,7 @@ var Gloda = {
     // group the headers by the folder they are found in
     let headersByFolder = {};
     let iter;
-    for (let header in fixIterator(aHeaders)) {
+    for (let header of fixIterator(aHeaders)) {
       let folderURI = header.folder.URI;
       let headersForFolder = headersByFolder[folderURI];
       if (headersForFolder === undefined)
@@ -1182,7 +1182,7 @@ var Gloda = {
             seenRootFolders[rootFolder.URI] = true;
 
             let allFolders = rootFolder.descendants;
-            for (let folder in fixIterator(allFolders, Ci.nsIMsgFolder)) {
+            for (let folder of fixIterator(allFolders, Ci.nsIMsgFolder)) {
               let folderFlags = folder.flags;
 
               // Ignore virtual folders, non-mail folders.

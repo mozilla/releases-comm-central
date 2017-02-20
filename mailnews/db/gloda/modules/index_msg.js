@@ -1001,7 +1001,7 @@ var GlodaMsgIndexer = {
       let foldersToProcess = aJob.foldersToProcess = [];
 
       let allFolders = MailServices.accounts.allFolders;
-      for (let folder in fixIterator(allFolders, Ci.nsIMsgFolder)) {
+      for (let folder of fixIterator(allFolders, Ci.nsIMsgFolder)) {
         if (this.shouldIndexFolder(folder))
           foldersToProcess.push(Gloda.getFolderForFolder(folder));
       }
@@ -1362,7 +1362,7 @@ var GlodaMsgIndexer = {
     if (glodaFolder.dirtyStatus == glodaFolder.kFolderFilthy) {
       this._indexerGetEnumerator(this.kEnumIndexedMsgs, true);
       let count = 0;
-      for (let msgHdr in fixIterator(this._indexingEnumerator, nsIMsgDBHdr)) {
+      for (let msgHdr of fixIterator(this._indexingEnumerator, nsIMsgDBHdr)) {
         // we still need to avoid locking up the UI, pause periodically...
         if (++count % HEADER_CHECK_SYNC_BLOCK_SIZE == 0)
           yield this.kWorkSync;
@@ -1420,7 +1420,7 @@ var GlodaMsgIndexer = {
 
       // Pass 2: index the messages.
       let count = 0;
-      for (let msgHdr in fixIterator(this._indexingEnumerator, nsIMsgDBHdr)) {
+      for (let msgHdr of fixIterator(this._indexingEnumerator, nsIMsgDBHdr)) {
         // per above, we want to periodically release control while doing all
         // this header traversal/investigation.
         if (++count % HEADER_CHECK_SYNC_BLOCK_SIZE == 0)
@@ -1887,7 +1887,7 @@ var GlodaMsgIndexer = {
     this._log.info("Queueing all accounts for indexing.");
 
     GlodaDatastore._beginTransaction();
-    for (let account in fixIterator(MailServices.accounts.accounts,
+    for (let account of fixIterator(MailServices.accounts.accounts,
                                     Ci.nsIMsgAccount)) {
       this.indexAccount(account);
     }
@@ -1904,7 +1904,7 @@ var GlodaMsgIndexer = {
 
       let allFolders = rootFolder.descendants;
       let folderJobs = [];
-      for (let folder in fixIterator(allFolders, Ci.nsIMsgFolder)) {
+      for (let folder of fixIterator(allFolders, Ci.nsIMsgFolder)) {
         if (this.shouldIndexFolder(folder))
           GlodaIndexer.indexJob(
             new IndexingJob("folder", GlodaDatastore._mapFolder(folder).id));
@@ -2053,7 +2053,7 @@ var GlodaMsgIndexer = {
                                       aMsgHdrs, aDirtyingEvent) {
     let glodaIdsNeedingDeletion = null;
     let messageKeyChangedIds = null, messageKeyChangedNewKeys = null;
-    for (let msgHdr in fixIterator(aMsgHdrs, nsIMsgDBHdr)) {
+    for (let msgHdr of fixIterator(aMsgHdrs, nsIMsgDBHdr)) {
       // -- Index this folder?
       let msgFolder = msgHdr.folder;
       if (!this.shouldIndexFolder(msgFolder)) {
@@ -2326,7 +2326,7 @@ var GlodaMsgIndexer = {
                  GlodaFolder.prototype.kFolderFilthy)) {
             // Local case, just modify the destination headers directly.
             if (aDestMsgHdrs) {
-              for (let destMsgHdr in fixIterator(aDestMsgHdrs, nsIMsgDBHdr)) {
+              for (let destMsgHdr of fixIterator(aDestMsgHdrs, nsIMsgDBHdr)) {
                 // zero it out if it exists
                 // (no need to deal with pending commit issues here; a filthy
                 //  folder by definition has nothing indexed in it.)
@@ -2358,7 +2358,7 @@ var GlodaMsgIndexer = {
                                        " Gloda corruption possible.");
                 return;
               }
-              for (let srcMsgHdr in fixIterator(aSrcMsgHdrs, nsIMsgDBHdr)) {
+              for (let srcMsgHdr of fixIterator(aSrcMsgHdrs, nsIMsgDBHdr)) {
                 // zero it out if it exists
                 // (no need to deal with pending commit issues here; a filthy
                 //  folder by definition has nothing indexed in it.)
@@ -2473,7 +2473,7 @@ var GlodaMsgIndexer = {
           // -- Do not propagate gloda-id's for copies
           // (Only applies if we have the destination header, which means local)
           if (aDestMsgHdrs) {
-            for (let destMsgHdr in fixIterator(aDestMsgHdrs, nsIMsgDBHdr)) {
+            for (let destMsgHdr of fixIterator(aDestMsgHdrs, nsIMsgDBHdr)) {
               let glodaId = destMsgHdr.getUint32Property(
                 GLODA_MESSAGE_ID_PROPERTY);
               if (glodaId)
@@ -2583,7 +2583,7 @@ var GlodaMsgIndexer = {
         // delete the parent
         delFunc(aFolder, this.indexer);
         // delete all its descendents
-        for (let folder in fixIterator(descendentFolders, Ci.nsIMsgFolder)) {
+        for (let folder of fixIterator(descendentFolders, Ci.nsIMsgFolder)) {
           delFunc(folder, this.indexer);
         }
 
@@ -2636,7 +2636,7 @@ var GlodaMsgIndexer = {
         // First thing to do: make sure we don't index the resulting folder and
         //  its descendents.
         GlodaMsgIndexer.resetFolderIndexingPriority(newFolder);
-        for (let folder in fixIterator(descendentFolders, Ci.nsIMsgFolder)) {
+        for (let folder of fixIterator(descendentFolders, Ci.nsIMsgFolder)) {
           GlodaMsgIndexer.resetFolderIndexingPriority(folder);
         }
 
@@ -2649,7 +2649,7 @@ var GlodaMsgIndexer = {
         // this rename is straightforward.
         GlodaDatastore.renameFolder(aOrigFolder, aNewURI);
 
-        for (let folder in fixIterator(descendentFolders, Ci.nsIMsgFolder)) {
+        for (let folder of fixIterator(descendentFolders, Ci.nsIMsgFolder)) {
           let oldSubURI = folder.URI;
           // mangle a new URI from the old URI.  we could also try and do a
           //  parallel traversal of the new folder hierarchy, but that seems like
