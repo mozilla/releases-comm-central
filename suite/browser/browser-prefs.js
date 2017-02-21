@@ -1037,3 +1037,6 @@ pref("security.sandbox.content.level", 2);
 pref("security.sandbox.content.tempDirSuffix", "");
 #endif
 #endif
+
+// Url shown when you type moz://a
+pref("toolkit.mozprotocol.url", "http://www.seamonkey-project.org/");

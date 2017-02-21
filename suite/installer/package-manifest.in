@@ -389,6 +389,8 @@
 @RESPATH@/components/jsconsole-clhandler.manifest
 @RESPATH@/components/messageWakeupService.js
 @RESPATH@/components/messageWakeupService.manifest
+@RESPATH@/components/mozProtocolHandler.js
+@RESPATH@/components/mozProtocolHandler.manifest
 @RESPATH@/components/multiprocessShims.js
 @RESPATH@/components/addoncompat.manifest
 @RESPATH@/components/NetworkGeolocationProvider.js
