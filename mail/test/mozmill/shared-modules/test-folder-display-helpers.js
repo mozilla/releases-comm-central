@@ -660,11 +660,15 @@ function display_message_in_folder_tab(aMsgHdr, aExpectNew3Pane) {
  * Create a new window displaying a message loaded from a file.  We do not
  * return until the message has finished loading.
  *
- * @param file an nsIFile for the message
- * @return The MozmillController-wrapped new window.
+ * @param file  An nsIFile to load the message from.
+ * @return      The MozmillController-wrapped new window.
  */
 function open_message_from_file(file) {
   mark_action("fdh", "open_message_from_file", ["file", file.nativePath]);
+
+  if (!file.isFile() || !file.isReadable())
+    throw new Error("The requested message file " + file.leafName +
+                    " was not found or is not accessible.");
 
   let fileURL = Services.io.newFileURI(file)
                         .QueryInterface(Ci.nsIFileURL);
