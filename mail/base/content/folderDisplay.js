@@ -2511,7 +2511,7 @@ FolderDisplayWidget.prototype = {
     // try and trigger a reflow...
     treeBox.height;
 
-    let maxIndex = this.view.dbView.rowCount - 1;
+    let maxIndex = treeBox.view.rowCount - 1;
 
     let first = treeBox.getFirstVisibleRow();
     // Assume the bottom row is half-visible and should generally be ignored.
