@@ -98,6 +98,8 @@ XPCOMUtils.defineLazyServiceGetter(this, "gScreenManager",
   "@mozilla.org/gfx/screenmanager;1", "nsIScreenManager");
 XPCOMUtils.defineLazyServiceGetter(this, "uuidGenerator",
   "@mozilla.org/uuid-generator;1", "nsIUUIDGenerator");
+XPCOMUtils.defineLazyModuleGetter(this, "Utils",
+  "resource://gre/modules/sessionstore/Utils.jsm");
 
 function debug(aMsg) {
   Services.console.logStringMessage("SessionStore: " + aMsg);
@@ -264,6 +266,7 @@ SessionStoreService.prototype = {
               // replace the crashed session with a restore-page-only session
               let pageData = {
                 url: "about:sessionrestore",
+                triggeringPrincipal_base64: Utils.SERIALIZED_SYSTEMPRINCIPAL,
                 formdata: { "#sessionData": JSON.stringify(this._initialState) }
               };
               this._initialState = { windows: [{ tabs: [{ entries: [pageData] }] }] };
@@ -1497,7 +1500,8 @@ SessionStoreService.prototype = {
     }
     else if (browser.currentURI.spec != "about:blank" ||
              browser.contentDocument.body.hasChildNodes()) {
-      tabData.entries[0] = { url: browser.currentURI.spec };
+      tabData.entries[0] = { url: browser.currentURI.spec,
+                             triggeringPrincipal_base64: Utils.SERIALIZED_SYSTEMPRINCIPAL };
       tabData.index = 1;
     }
 
@@ -1553,7 +1557,8 @@ SessionStoreService.prototype = {
    */
   _serializeHistoryEntry:
     function sss_serializeHistoryEntry(aEntry, aFullData, aIsPinned) {
-    var entry = { url: aEntry.URI.spec };
+    var entry = { url: aEntry.URI.spec,
+                  triggeringPrincipal_base64: Utils.SERIALIZED_SYSTEMPRINCIPAL };
 
     if (aEntry.title && aEntry.title != entry.url) {
       entry.title = aEntry.title;
@@ -1609,30 +1614,35 @@ SessionStoreService.prototype = {
     }
     catch (ex) { debug(ex); } // POSTDATA is tricky - especially since some extensions don't get it right
 
-    if (aEntry.owner) {
-      // Not catching anything specific here, just possible errors
-      // from writeCompoundObject and the like.
+    // Collect triggeringPrincipal data for the current history entry.
+    // Please note that before Bug 1297338 there was no concept of a
+    // principalToInherit. To remain backward/forward compatible we
+    // serialize the principalToInherit as triggeringPrincipal_b64.
+    // Once principalToInherit is well established (within Gecko 55)
+    // we can update this code, remove triggeringPrincipal_b64 and
+    // just keep triggeringPrincipal_base64 as well as
+    // principalToInherit_base64.
+    if (aEntry.principalToInherit) {
       try {
-        var binaryStream = Components.classes["@mozilla.org/binaryoutputstream;1"]
-                                     .createInstance(Components.interfaces.nsIObjectOutputStream);
-        var pipe = Components.classes["@mozilla.org/pipe;1"].createInstance(Components.interfaces.nsIPipe);
-        pipe.init(false, false, 0, 0xffffffff, null);
-        binaryStream.setOutputStream(pipe.outputStream);
-        binaryStream.writeCompoundObject(aEntry.owner, Components.interfaces.nsISupports, true);
-        binaryStream.close();
-
-        // Now we want to read the data from the pipe's input end and encode it.
-        var scriptableStream = Components.classes["@mozilla.org/binaryinputstream;1"]
-                                         .createInstance(Components.interfaces.nsIBinaryInputStream);
-        scriptableStream.setInputStream(pipe.inputStream);
-        var ownerBytes =
-          scriptableStream.readByteArray(scriptableStream.available());
-        // We can stop doing base64 encoding once our serialization into JSON
-        // is guaranteed to handle all chars in strings, including embedded
-        // nulls.
-        entry.owner_b64 = btoa(String.fromCharCode.apply(null, ownerBytes));
+        let principalToInherit = Utils.serializePrincipal(aEntry.principalToInherit);
+        if (principalToInherit) {
+          entry.triggeringPrincipal_b64 = principalToInherit;
+          entry.principalToInherit_base64 = principalToInherit;
+        }
+      } catch (e) {
+        debug(e);
       }
-      catch (ex) { debug(ex); }
+    }
+
+    if (aEntry.triggeringPrincipal) {
+      try {
+        let triggeringPrincipal = Utils.serializePrincipal(aEntry.triggeringPrincipal);
+        if (triggeringPrincipal) {
+          entry.triggeringPrincipal_base64 = triggeringPrincipal;
+        }
+      } catch (e) {
+        debug(e);
+      }
     }
 
     entry.docIdentifier = aEntry.BFCacheEntry.ID;
@@ -1654,7 +1664,8 @@ SessionStoreService.prototype = {
           entry.children.push(this._serializeHistoryEntry(child, aFullData, aIsPinned));
         }
         else { // to maintain the correct frame order, insert a dummy entry
-          entry.children.push({ url: "about:blank" });
+          entry.children.push({ url: "about:blank",
+                                triggeringPrincipal_base64: Utils.SERIALIZED_SYSTEMPRINCIPAL});
         }
         // don't try to restore framesets containing wyciwyg URLs (cf. bug 424689 and bug 450595)
         if (/^wyciwyg:\/\//.test(entry.children[i].url)) {
@@ -2737,7 +2748,10 @@ SessionStoreService.prototype = {
         browser.__SS_restore_data = { url: null };
         browser.__SS_restore_tab = aTab;
         didStartLoad = true;
-        browser.loadURI(tabData.userTypedValue, null, null, true);
+        browser.loadURI(tabData.userTypedValue,
+                        Components.interfaces.nsIWebNavigation.LOAD_FLAGS_ALLOW_THIRD_PARTY_FIXUP,
+                        null, null, null);
+
       }
     }
 
@@ -2888,17 +2902,49 @@ SessionStoreService.prototype = {
       }
     }
 
+    // The field entry.owner_b64 got renamed to entry.triggeringPricipal_b64 in
+    // Bug 1286472 and Bug 1334780 for SeaMonkey.
+    // To remain backward compatible we still have to support that field for a
+    // few cycles before we can remove it.
     if (aEntry.owner_b64) {
-      var ownerInput = Components.classes["@mozilla.org/io/string-input-stream;1"]
-                                 .createInstance(Components.interfaces.nsIStringInputStream);
-      var binaryData = atob(aEntry.owner_b64);
-      ownerInput.setData(binaryData, binaryData.length);
-      var binaryStream = Components.classes["@mozilla.org/binaryinputstream;1"]
-                                   .createInstance(Components.interfaces.nsIObjectInputStream);
-      binaryStream.setInputStream(ownerInput);
-      try { // Catch possible deserialization exceptions
-        shEntry.owner = binaryStream.readObject(true);
-      } catch (ex) { debug(ex); }
+      aEntry.triggeringPricipal_b64 = aEntry.owner_b64;
+      delete aEntry.owner_b64;
+    }
+
+    // Before introducing the concept of principalToInherit we only had
+    // a triggeringPrincipal within every entry which basically is the
+    // equivalent of the new principalToInherit. To avoid compatibility
+    // issues, we first check if the entry has entries for
+    // triggeringPrincipal_base64 and principalToInherit_base64. If not
+    // we fall back to using the principalToInherit (which is stored
+    // as triggeringPrincipal_b64) as the triggeringPrincipal and
+    // the principalToInherit.
+    // FF55 will remove the triggeringPrincipal_b64, see Bug 1301666.
+    if (aEntry.triggeringPrincipal_base64 || aEntry.principalToInherit_base64) {
+      if (aEntry.triggeringPrincipal_base64) {
+        try {
+          shEntry.triggeringPrincipal =
+            Utils.deserializePrincipal(aEntry.triggeringPrincipal_base64);
+        } catch (e) {
+          debug(e);
+        }
+      }
+      if (aEntry.principalToInherit_base64) {
+        try {
+          shEntry.principalToInherit =
+            Utils.deserializePrincipal(aEntry.principalToInherit_base64);
+        } catch (e) {
+          debug(e);
+        }
+      }
+    } else if (aEntry.triggeringPrincipal_b64) {
+      try {
+        shEntry.triggeringPrincipal = Utils.deserializePrincipal(aEntry.triggeringPrincipal_b64);
+        shEntry.principalToInherit = shEntry.triggeringPrincipal;
+      }
+      catch (e) {
+        debug(e);
+      }
     }
 
     if (aEntry.children && shEntry instanceof Components.interfaces.nsISHContainer) {
