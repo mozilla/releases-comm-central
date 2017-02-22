@@ -162,6 +162,12 @@ var commands = [
     run: actionCommand
   },
   {
+    name: "ban",
+    get helpString() { return _("command.ban", "ban"); },
+    usageContext: Ci.imICommand.CMD_CONTEXT_CHAT,
+    run: (aMsg, aConv) => setMode(aMsg, aConv, "b", true)
+  },
+  {
     name: "ctcp",
     get helpString() { return _("command.ctcp", "ctcp"); },
     run: function(aMsg, aConv) {
