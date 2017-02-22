@@ -176,9 +176,9 @@ mime_locate_external_content_handler(const char *content_type,
   nsresult rv;
 
   nsAutoCString lookupID("@mozilla.org/mimecth;1?type=");
-  nsAutoCString lowerCaseContentType;
-  ToLowerCase(nsDependentCString(content_type), lowerCaseContentType);
-  lookupID += lowerCaseContentType;
+  nsAutoCString contentType;
+  ToLowerCase(nsDependentCString(content_type), contentType);
+  lookupID += contentType;
 
   nsCOMPtr<nsIMimeContentTypeHandler> ctHandler = do_CreateInstance(lookupID.get(), &rv);
   if (NS_FAILED(rv) || !ctHandler) {
@@ -189,20 +189,20 @@ mime_locate_external_content_handler(const char *content_type,
 
     nsCString value;
     rv = catman->GetCategoryEntry(NS_SIMPLEMIMECONVERTERS_CATEGORY,
-                                  content_type, getter_Copies(value));
+                                  contentType.get(), getter_Copies(value));
     if (NS_FAILED(rv) || value.IsEmpty())
       return nullptr;
-    rv = MIME_NewSimpleMimeConverterStub(content_type,
+    rv = MIME_NewSimpleMimeConverterStub(contentType.get(),
                                          getter_AddRefs(ctHandler));
     if (NS_FAILED(rv) || !ctHandler)
       return nullptr;
   }
 
-  rv = ctHandler->CreateContentTypeHandlerClass(content_type, ctHandlerInfo, &newObj);
+  rv = ctHandler->CreateContentTypeHandlerClass(contentType.get(), ctHandlerInfo, &newObj);
   if (NS_FAILED(rv))
     return nullptr;
 
-  add_content_type_attribs(content_type, ctHandlerInfo);
+  add_content_type_attribs(contentType.get(), ctHandlerInfo);
   return newObj;
 }
 
