@@ -2236,21 +2236,16 @@ function MsgOpenFromFile()
   // Default or last filter is "All Files".
   fp.appendFilters(nsIFilePicker.filterAll);
 
-  try {
-    var ret = fp.show();
-    if (ret == nsIFilePicker.returnCancel)
+  fp.open(rv => {
+    if (rv != nsIFilePicker.returnOK || !fp.file) {
       return;
-  }
-  catch (ex) {
-    dump("filePicker.chooseInputFile threw an exception\n");
-    return;
-  }
+    }
+    let uri = fp.fileURL.QueryInterface(Components.interfaces.nsIURL);
+    uri.query = "type=application/x-message-display";
 
-  var uri = fp.fileURL.QueryInterface(Components.interfaces.nsIURL);
-  uri.query = "type=application/x-message-display";
-
-  window.openDialog("chrome://messenger/content/messageWindow.xul", "_blank",
+    window.openDialog("chrome://messenger/content/messageWindow.xul", "_blank",
                     "all,chrome,dialog=no,status,toolbar", uri);
+  });
 }
 
 function MsgOpenNewWindowForMessage(aMsgHdr)

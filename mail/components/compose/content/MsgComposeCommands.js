@@ -1509,10 +1509,10 @@ function attachToCloud(aProvider)
   let files = [];
 
   fp.appendFilters(nsIFilePicker.filterAll);
-  if (fp.show() == nsIFilePicker.returnOK)
-  {
-    if (!fp.files)
+  fp.open(rv => {
+    if (rv != nsIFilePicker.returnOK || !fp.files) {
       return;
+    }
 
     let files = Array.from(fixIterator(fp.files,
                              Components.interfaces.nsIFile))
@@ -1532,7 +1532,7 @@ function attachToCloud(aProvider)
 
     dispatchAttachmentBucketEvent("attachments-uploading", attachments);
     SetLastAttachDirectory(files[files.length-1]);
-  }
+  });
 }
 
 /**
@@ -4029,10 +4029,10 @@ function AttachFile()
     fp.displayDirectory = lastDirectory;
 
   fp.appendFilters(nsIFilePicker.filterAll);
-  if (fp.show() == nsIFilePicker.returnOK)
-  {
-    if (!fp.files)
+  fp.open(rv => {
+    if (rv != Components.interfaces.nsIFilePicker.returnOK || !fp.file) {
       return;
+    }
     let file;
     let attachments = [];
 
@@ -4041,7 +4041,7 @@ function AttachFile()
 
     AddAttachments(attachments);
     SetLastAttachDirectory(file);
-  }
+  });
 }
 
 /**

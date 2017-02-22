@@ -48,8 +48,8 @@ function getBasename(path){
   return pathArr[pathArr.length-1]
 }
 
-function openFile(){
-  var openObj = utils.openFile(window);
+async function openFile() {
+  var openObj = await utils.openFile(window);
   if (openObj) {
     $("#tabs").tabs("select", 0);
     var index = editor.getTabForFile(openObj.path);
@@ -100,24 +100,28 @@ function runFile(){
   var fp = Components.classes["@mozilla.org/filepicker;1"].createInstance(nsIFilePicker);
   fp.init(window, "Select a File", nsIFilePicker.modeOpen);
   fp.appendFilter("JavaScript Files","*.js");
-  var res = fp.show();
-  if (res == nsIFilePicker.returnOK){
+  fp.open(rv => {
+    if (rv != nsIFilePicker.returnOK || !fp.file) {
+      return;
+    }
     $("#tabs").tabs("select", 1);
     frame.runTestFile(fp.file.path, true);
-  }
-  testFinished();
+    testFinished();
+  });
 }
 
 function runDirectory(){
   var nsIFilePicker = Components.interfaces.nsIFilePicker;
   var fp = Components.classes["@mozilla.org/filepicker;1"].createInstance(nsIFilePicker);
   fp.init(window, "Select a Directory", nsIFilePicker.modeGetFolder);
-  var res = fp.show();
-  if (res == nsIFilePicker.returnOK){
+  fp.open(rv => {
+    if (rv != nsIFilePicker.returnOK || !fp.file) {
+      return;
+    }
     $("#tabs").tabs("select", 1);
     frame.runTestDirectory(fp.file.path, true);
-  }
-  testFinished();
+    testFinished();
+  });
 }
 
 function runEditor(){

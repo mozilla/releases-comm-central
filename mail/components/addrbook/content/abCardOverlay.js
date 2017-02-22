@@ -1004,8 +1004,6 @@ function removePhoto(aName) {
  * Opens a file picker with image filters to look for a contact photo.
  * If the user selects a file and clicks OK then the PhotoURI textbox is set
  * with a file URI pointing to that file and updatePhoto is called.
- *
- * @return true if the OK button was clicked and a photo was chosen
  */
 function browsePhoto() {
   var nsIFilePicker = Components.interfaces.nsIFilePicker;
@@ -1017,13 +1015,14 @@ function browsePhoto() {
   fp.appendFilters(nsIFilePicker.filterImages);
   fp.appendFilters(nsIFilePicker.filterAll);
 
-  if (fp.show() == nsIFilePicker.returnOK) {
+  fp.open(rv => {
+    if (rv != nsIFilePicker.returnOK) {
+      return;
+    }
     document.getElementById("PhotoFile").file = fp.file;
     let photoType = document.getElementById("FilePhotoType").value;
     onSwitchPhotoType(photoType);
-    return true;
-  }
-  return false;
+  });
 }
 
 /* A photo handler defines the behaviour of the contact editor

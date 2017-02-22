@@ -80,8 +80,8 @@ var gMockFilePicker = {
   appendFilter: function gMFP_appendFilter(aTitle, aFilter) {
   },
 
-  show: function gMFP_show() {
-    return Ci.nsIFilePicker.returnOK;
+  open: function(aFilePickerShownCallback) {
+    aFilePickerShownCallback.done(Ci.nsIFilePicker.returnOK);
   },
 
   set defaultString(aVal) {

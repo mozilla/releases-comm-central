@@ -1,4 +1,4 @@
-/* -*- Mode: Java; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*-
+/* -*- Mode: Java; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*-
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
@@ -18,11 +18,15 @@ var gDownloadDirSection = {
     if (customDirPref.value)
       fp.displayDirectory = customDirPref.value;
     fp.appendFilters(nsIFilePicker.filterAll);
-    if (fp.show() == nsIFilePicker.returnOK) {
-      var file = fp.file.QueryInterface(nsIFile);
-      var currentDirPref = document.getElementById("browser.download.downloadDir");
+    fp.open(rv => {
+      if (rv != nsIFilePicker.returnOK || !fp.file) {
+        return;
+      }
+
+      let file = fp.file.QueryInterface(nsIFile);
+      let currentDirPref = document.getElementById("browser.download.downloadDir");
       customDirPref.value = currentDirPref.value = file;
-      var folderListPref = document.getElementById("browser.download.folderList");
+      let folderListPref = document.getElementById("browser.download.folderList");
       folderListPref.value = this._fileToIndex(file);
     }
   },

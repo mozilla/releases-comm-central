@@ -149,68 +149,31 @@ var checkChrome = function() {
    else { return false; }
 }
 
-/*var openFile = function(){
- const nsIFilePicker = Components.interfaces.nsIFilePicker;
+var runFile = function(w) {
+  var nsIFilePicker = Components.interfaces.nsIFilePicker;
+  var fp = Components.classes["@mozilla.org/filepicker;1"].createInstance(nsIFilePicker);
+  fp.init(w, "Select a File", nsIFilePicker.modeOpen);
+  fp.appendFilter("JavaScript Files","*.js");
+  fp.open(rv => {
+    if (rv != nsIFilePicker.returnOK || !fp.files) {
+      return;
+    }
+    let thefile = fp.file;
+    //create the paramObj with a files array attrib
+    var paramObj = {};
+    paramObj.files = [];
+    paramObj.files.push(thefile.path);
 
- var fp = Components.classes["@mozilla.org/filepicker;1"].createInstance(nsIFilePicker);
- fp.init(window, "Select a Test Directory", nsIFilePicker.modeGetFolder);
-
- var rv = fp.show();
- if (rv == Components.interfaces.nsIFilePicker.returnOK){
-   // file is the given directory (nsIFile)
-   var array = [];
-   //iterate directories recursively
-   recurseDir = function(ent){
-       var entries = ent;
-       while(entries.hasMoreElements())
-       {
-         var entry = entries.getNext();
-         entry.QueryInterface(Components.interfaces.nsIFile);
-         if ((entry.isDirectory()) && (entry.path.indexOf('.svn') == -1)){
-           recurseDir(entry.directoryEntries);
-         }
-         //push js files onto the array
-         if (entry.path.indexOf('.js') != -1){
-           array.push(entry.path);
-         }
-       }
-   }
-   //build the files array
-   recurseDir(fp.file.directoryEntries);
-   paramObj = {};
-   paramObj.files = array;
-   mozmill.MozMillController.commands.jsTests(paramObj);
- }*/
-
- var runFile = function(w){
-   //define the interface
-   var nsIFilePicker = Components.interfaces.nsIFilePicker;
-   var fp = Components.classes["@mozilla.org/filepicker;1"].createInstance(nsIFilePicker);
-   //define the file picker window
-   fp.init(w, "Select a File", nsIFilePicker.modeOpen);
-   fp.appendFilter("JavaScript Files","*.js");
-   //show the window
-   var res = fp.show();
-   //if we got a file
-   if (res == nsIFilePicker.returnOK){
-     var thefile = fp.file;
-     //create the paramObj with a files array attrib
-     var paramObj = {};
-     paramObj.files = [];
-     paramObj.files.push(thefile.path);
-
-     //Move focus to output tab
-     //w.document.getElementById('mmtabs').setAttribute("selectedIndex", 2);
-     //send it into the JS test framework to run the file
-     // jstest.runFromFile(thefile.path);
-   }
- };
+   //Move focus to output tab
+   //w.document.getElementById('mmtabs').setAttribute("selectedIndex", 2);
+   //send it into the JS test framework to run the file
+   // jstest.runFromFile(thefile.path);
+  });
+};
 
  var saveFile = function(w, content, filename){
-   //define the file interface
    var file = Components.classes["@mozilla.org/file/local;1"]
                         .createInstance(Components.interfaces.nsIFile);
-   //point it at the file we want to get at
    file.initWithPath(filename);
 
    // file is nsIFile, data is a string
@@ -227,67 +190,66 @@ var checkChrome = function() {
    foStream.close();
  };
 
-  var saveAsFile = function(w, content){
-     //define the interface
-     var nsIFilePicker = Components.interfaces.nsIFilePicker;
-     var fp = Components.classes["@mozilla.org/filepicker;1"].createInstance(nsIFilePicker);
-     //define the file picker window
-     fp.init(w, "Select a File", nsIFilePicker.modeSave);
-     fp.appendFilter("JavaScript Files","*.js");
-     //show the window
-     var res = fp.show();
-     //if we got a file
-     if ((res == nsIFilePicker.returnOK) || (res == nsIFilePicker.returnReplace)){
-       var thefile = fp.file;
+  var saveAsFile = function(w, content) {
+    var nsIFilePicker = Components.interfaces.nsIFilePicker;
+    var fp = Components.classes["@mozilla.org/filepicker;1"].createInstance(nsIFilePicker);
+    fp.init(w, "Select a File", nsIFilePicker.modeSave);
+    fp.appendFilter("JavaScript Files","*.js");
 
-       //forcing the user to save as a .js file
-       if (thefile.path.indexOf(".js") == -1){
-         //define the file interface
-         var file = Components.classes["@mozilla.org/file/local;1"]
+    return new Promise(resolve => {
+      fp.open(rv => {
+        if ((rv != nsIFilePicker.returnOK && rv != nsIFilePicker.returnReplace) || !fp.file) {
+          resolve(null)
+          return;
+        }
+        var thefile = fp.file;
+
+        // forcing the user to save as a .js file
+        if (thefile.path.indexOf(".js") == -1) {
+          // define the file interface
+          var file = Components.classes["@mozilla.org/file/local;1"]
                               .createInstance(Components.interfaces.nsIFile);
-         //point it at the file we want to get at
-         file.initWithPath(thefile.path+".js");
-         var thefile = file;
-       }
+          // point it at the file we want to get at
+          file.initWithPath(thefile.path+".js");
+          var thefile = file;
+        }
 
-       // file is nsIFile, data is a string
-       var foStream = Components.classes["@mozilla.org/network/file-output-stream;1"]
+        // file is nsIFile, data is a string
+        var foStream = Components.classes["@mozilla.org/network/file-output-stream;1"]
                                .createInstance(Components.interfaces.nsIFileOutputStream);
 
-       // use 0x02 | 0x10 to open file for appending.
-       foStream.init(thefile, 0x02 | 0x08 | 0x20, 0o666, 0);
-       // write, create, truncate
-       // In a c file operation, we have no need to set file mode with or operation,
-       // directly using "r" or "w" usually.
-       foStream.write(content, content.length);
-       foStream.close();
-       return thefile.path;
-     }
+        // use 0x02 | 0x10 to open file for appending.
+        foStream.init(thefile, 0x02 | 0x08 | 0x20, 0o666, 0);
+        // write, create, truncate
+        // In a c file operation, we have no need to set file mode with or operation,
+        // directly using "r" or "w" usually.
+        foStream.write(content, content.length);
+        foStream.close();
+        resolve(thefile.path);
+      });
+    });
   };
 
- var openFile = function(w){
+  var openFile = function(w) {
     //define the interface
     var nsIFilePicker = Components.interfaces.nsIFilePicker;
     var fp = Components.classes["@mozilla.org/filepicker;1"].createInstance(nsIFilePicker);
     //define the file picker window
     fp.init(w, "Select a File", nsIFilePicker.modeOpen);
     fp.appendFilter("JavaScript Files","*.js");
-    //show the window
-    var res = fp.show();
-    //if we got a file
-    if (res == nsIFilePicker.returnOK){
-      var thefile = fp.file;
-      //create the paramObj with a files array attrib
-      var data = getFile(thefile.path);
-      //w.document.getElementById('editorInput').value = data;
-
-      //Move focus to output tab
-      //$('mmtabs').setAttribute("selectedIndex", 2);
-      //send it into the JS test framework to run the file
-      //mozmill.utils.jsTests(paramObj);
-      //jsTest.runFromString(thefile.path);
-      return {path:thefile.path, data:data};
-    }
+    return new Promise(resolve => {
+      //show the window
+      fp.open(rv => {
+        if (rv != nsIFilePicker.returnOK || !fp.file) {
+          resolve(null);
+          return;
+        }
+        var thefile = fp.file;
+        //create the paramObj with a files array attrib
+        var data = getFile(thefile.path);
+        resolve({path:thefile.path, data:data});
+      });
+    });
   };
 
  var getFile = function(path){
