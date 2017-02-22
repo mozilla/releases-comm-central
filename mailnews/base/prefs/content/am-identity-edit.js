@@ -278,11 +278,12 @@ function selectFile()
   if (sigFolder)
       fp.displayDirectory = sigFolder;
 
-  var ret = fp.show();
-  if (ret == nsIFilePicker.returnOK) {
-      var folderField = document.getElementById("identity.signature");
-      folderField.value = fp.file.path;
-  }
+  fp.open(rv => {
+    if (rv != nsIFilePicker.returnOK || !fp.file) {
+      return;
+    }
+    document.getElementById("identity.signature").value = fp.file.path;
+  });
 }
 
 function GetSigFolder()

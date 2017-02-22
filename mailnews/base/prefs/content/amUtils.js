@@ -27,17 +27,19 @@ function BrowseForLocalFolders()
   currentFolder.initWithPath(currentFolderTextBox.value);
   fp.displayDirectory = currentFolder;
 
-  if (fp.show() != nsIFilePicker.returnOK)
-    return;
+  fp.open(rv => {
+    if (rv != nsIFilePicker.returnOK || !fp.file) {
+      return;
+    }
+    // Retrieve the selected folder.
+    let selectedFolder = fp.file;
 
-  // Retrieve the selected folder.
-  let selectedFolder = fp.file;
+    // Check if the folder can be used for mail storage.
+    if (!top.checkDirectoryIsUsable(selectedFolder))
+      return;
 
-  // Check if the folder can be used for mail storage.
-  if (!top.checkDirectoryIsUsable(selectedFolder))
-    return;
-
-  currentFolderTextBox.value = selectedFolder.path;
+    currentFolderTextBox.value = selectedFolder.path;
+  });
 }
 
 /**

@@ -122,7 +122,7 @@ function CheckIfLocalFolderExists()
   }
 }
 
-function ImportDialogOKButton()
+async function ImportDialogOKButton()
 {
   var listbox = document.getElementById("moduleList");
   var deck = document.getElementById("stateDeck");
@@ -206,7 +206,7 @@ function ImportDialogOKButton()
           break;
 
         case "feeds":
-          if (ImportFeeds())
+          if (await ImportFeeds())
           {
             // Successful completion of pre processing and launch of async import.
             meterText = document.getElementById("description").textContent;
@@ -231,7 +231,7 @@ function ImportDialogOKButton()
           break;
 
         case "addressbook":
-          if (ImportAddress(module, gSuccessStr, gErrorStr)) {
+          if (await ImportAddress(module, gSuccessStr, gErrorStr)) {
             // We think it was a success, either, we need to
             // wait for the import to finish
             // or we are done!
@@ -269,7 +269,7 @@ function ImportDialogOKButton()
         case "settings":
           error.value = null;
           let newAccount = {};
-          if (!ImportSettings(module, newAccount, error))
+          if (!(await ImportSettings(module, newAccount, error)))
           {
             if (error.value)
               ShowImportResultsRaw(gImportMsgsBundle.getString("ImportSettingsFailed"),
@@ -603,6 +603,21 @@ function attachStrings(aNode, aString)
   }
 }
 
+/**
+ * Show the file picker.
+ * @return {Promise} the selected file, or null
+ */
+function promptForFile(fp) {
+  return new Promise(resolve => {
+    fp.open(rv => {
+      if (rv != Ci.nsIFilePicker.returnOK || !fp.file) {
+        resolve(null);
+      }
+      resolve(fp.file);
+    });
+  });
+}
+
 /*
   Import Settings from a specific module, returns false if it failed
   and true if successful.  A "local mail" account is returned in newAccount.
@@ -611,7 +626,7 @@ function attachStrings(aNode, aString)
   import address books.
   An error string is returned as error.value
 */
-function ImportSettings(module, newAccount, error) {
+async function ImportSettings(module, newAccount, error) {
   var setIntf = module.GetImportInterface("settings");
   if (!(setIntf instanceof Ci.nsIImportSettings)) {
     error.value = gImportMsgsBundle.getString('ImportSettingsBadModule');
@@ -635,11 +650,11 @@ function ImportSettings(module, newAccount, error) {
                             gImportMsgsBundle.getString("ImportSelectSettings"),
                             filePicker.modeOpen);
             filePicker.appendFilters(filePicker.filterAll);
-            filePicker.show();
-            file = filePicker.file;
+
+            file = await promptForFile(filePicker);
           }
           catch(ex) {
-            file = null;
+            Components.utils.reportError(ex);
             error.value = null;
             return false;
           }
@@ -672,7 +687,7 @@ function ImportSettings(module, newAccount, error) {
   return result;
 }
 
-function ImportMail(module, success, error) {
+async function ImportMail(module, success, error) {
   if (gProgressInfo.importInterface || gProgressInfo.intervalState) {
     error.data = gImportMsgsBundle.getString('ImportAlreadyInProgress');
     return false;
@@ -698,12 +713,13 @@ function ImportMail(module, success, error) {
                             gImportMsgsBundle.getString("ImportSelectMailDir"),
                             filePicker.modeGetFolder);
             filePicker.appendFilters(filePicker.filterAll);
-            filePicker.show();
-            if (filePicker.file && (filePicker.file.path.length > 0))
-              mailInterface.SetData("mailLocation", filePicker.file);
-            else
+            let file = await promptForFile(filePicker);
+            if (!file) {
               return false;
+            }
+            mailInterface.SetData("mailLocation", file);
           } catch(ex) {
+            Components.utils.reportError(ex);
             // don't show an error when we return!
             return false;
           }
@@ -728,14 +744,13 @@ function ImportMail(module, success, error) {
     else
       return false;
   }
-  else
-    return mailInterface.BeginImport(success, error);
+  return mailInterface.BeginImport(success, error);
 }
 
 
 // The address import!  A little more complicated than the mail import
 // due to field maps...
-function ImportAddress(module, success, error) {
+async function ImportAddress(module, success, error) {
   if (gProgressInfo.importInterface || gProgressInfo.intervalState) {
     error.data = gImportMsgsBundle.getString('ImportAlreadyInProgress');
     return false;
@@ -783,15 +798,12 @@ function ImportAddress(module, success, error) {
                         gImportMsgsBundle.getString("ImportSelectAddrDir"),
                         filePicker.modeGetFolder);
         filePicker.appendFilters(filePicker.filterAll);
-        filePicker.show();
-        if (filePicker.file && (filePicker.file.path.length > 0)) {
-          file = filePicker.file;
+        file = await promptForFile(filePicker);
+        if (file && file.path) {
           fileIsDirectory = true;
         }
-        else {
-          file = null;
-        }
       } catch(ex) {
+        Components.utils.reportError(ex);
         file = null;
       }
     }
@@ -813,26 +825,20 @@ function ImportAddress(module, success, error) {
           filePicker.appendFilters(filePicker.filterAll);
         }
 
-        if (filePicker.show() == filePicker.returnCancel)
-          return false;
-
-        if (filePicker.file && (filePicker.file.path.length > 0))
-          file = filePicker.file;
-        else
-          file = null;
+        file = await promptForFile(filePicker);
       } catch(ex) {
-        dump("ImportAddress(): failure when picking a file to import:  " + ex + "\n");
+        Components.utils.reportError(ex);
         file = null;
       }
     }
 
-    if (file == null) {
+    if (!file) {
       return false;
     }
 
     if (!fileIsDirectory && (file.fileSize == 0)) {
       let errorText = gImportMsgsBundle.getFormattedString("ImportEmptyAddressBook",
-                                                           [filePicker.file.leafName]);
+                                                           [file.leafName]);
 
       Services.prompt.alert(window, document.title, errorText);
       return false;
@@ -894,10 +900,10 @@ function ImportFilters(module, error)
 /*
   Import feeds.
 */
-function ImportFeeds()
+async function ImportFeeds()
 {
   // Get file to open from filepicker.
-  let openFile = FeedSubscriptions.opmlPickOpenFile();
+  let openFile = await FeedSubscriptions.opmlPickOpenFile();
   if (!openFile)
     return false;
 

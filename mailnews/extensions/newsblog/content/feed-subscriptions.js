@@ -2253,7 +2253,7 @@ var FeedSubscriptions = {
  *
  * @param  bool aList - if true, exporting as list; if false (default)
  *                      exporting feeds in folder structure - used for title.
- * @return nsIFile or null.
+ * @return {Promise} nsIFile or null.
  */
   opmlPickSaveAsFile: function(aList)
   {
@@ -2279,19 +2279,22 @@ var FeedSubscriptions = {
     fp.filterIndex = 0;
     fp.init(window, title, Ci.nsIFilePicker.modeSave);
 
-    if (fp.show() != Ci.nsIFilePicker.returnCancel && fp.file)
-    {
-      this.opmlLastSaveAsDir = fp.file.parent;
-      return fp.file;
-    }
-
-    return null;
+    return new Promise(resolve => {
+      fp.open(rv => {
+        if (rv != Ci.nsIFilePicker.returnOK || !fp.file) {
+          resolve(null);
+          return;
+        }
+        this.opmlLastSaveAsDir = fp.file.parent;
+        resolve(fp.file);
+      });
+    });
   },
 
 /**
  * Import feeds opml file Open filepicker function.
  *
- * @return nsIFile or null.
+ * @return {Promise} nsIFile or null.
  */
   opmlPickOpenFile: function()
   {
@@ -2309,16 +2312,19 @@ var FeedSubscriptions = {
     fp.appendFilters(Ci.nsIFilePicker.filterAll);
     fp.init(window, title, Ci.nsIFilePicker.modeOpen);
 
-    if (fp.show() != Ci.nsIFilePicker.returnCancel && fp.file)
-    {
-      this.opmlLastOpenDir = fp.file.parent;
-      return fp.file;
-    }
-
-    return null;
+    return new Promise(resolve => {
+      fp.open(rv => {
+        if (rv != Ci.nsIFilePicker.returnOK || !fp.file) {
+          resolve(null);
+          return;
+        }
+        this.opmlLastOpenDir = fp.file.parent;
+        resolve(fp.file);
+      });
+    });
   },
 
-  exportOPML: function(aEvent)
+  exportOPML: async function(aEvent)
   {
     // Account folder must be selected.
     let item = this.mView.currentItem;
@@ -2381,7 +2387,7 @@ var FeedSubscriptions = {
                             serializer.serializeToString(opmlDoc) + "\n");
 
       // Get file to save from filepicker.
-      let saveAsFile = this.opmlPickSaveAsFile(exportAsList);
+      let saveAsFile = await this.opmlPickSaveAsFile(exportAsList);
       if (!saveAsFile)
         return;
 
@@ -2504,7 +2510,7 @@ var FeedSubscriptions = {
     return outRv;
   },
 
-  importOPML: function()
+  importOPML: async function()
   {
     // Account folder must be selected in subscribe dialog.
     let item = this.mView ? this.mView.currentItem : null;
@@ -2513,7 +2519,7 @@ var FeedSubscriptions = {
 
     let server = item.folder.server;
     // Get file to open from filepicker.
-    let openFile = this.opmlPickOpenFile();
+    let openFile = await this.opmlPickOpenFile();
     if (!openFile)
       return;
 
