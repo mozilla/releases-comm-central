@@ -81,7 +81,7 @@
 
   <stringbundleset id="stringbundleset">
     <stringbundle id="bundle_instantbird" src="chrome://instantbird/locale/instantbird.properties"/>
-    <stringbundle id="bundle_dateformat" src="chrome://global/locale/dateFormat.properties"/>
+    <stringbundle id="bundle_dateformat" src="chrome://chat/locale/dateFormat.properties"/>
     <stringbundle id="bundle_places" src="chrome://places/locale/places.properties"/>
   </stringbundleset>
 

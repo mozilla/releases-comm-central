@@ -1242,8 +1242,8 @@ chatLogTreeView.prototype = {
     };
     let formatMonthYear = function(aDate) {
       let month = formatMonth(aDate);
-      return placesBundle.getFormattedString("finduri-MonthYear",
-                                             [month, aDate.getFullYear()]);
+      return dateFormatBundle.getFormattedString("finduri-MonthYear",
+                                                 [month, aDate.getFullYear()]);
     };
     let formatMonth = aDate =>
       dateFormatBundle.getString("month." + (aDate.getMonth() + 1) + ".name");
