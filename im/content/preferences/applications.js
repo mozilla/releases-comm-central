@@ -940,68 +940,82 @@ var gApplicationsPane = {
     aEvent.stopPropagation();
 
     var handlerApp;
+    let onSelectionDone = () => {
+      // Rebuild the actions menu whether the user picked an app or canceled.
+      // If they picked an app, we want to add the app to the menu and select it.
+      // If they canceled, we want to go back to their previous selection.
+      this.rebuildActionsMenu();
 
-#ifdef XP_WIN
-    var params = {};
-    var handlerInfo = this._handledTypes[this._list.selectedItem.type];
-    params.mimeInfo = handlerInfo.wrappedHandlerInfo;
-    params.title         = this._prefsBundle.getString("fpTitleChooseApp");
-    params.description   = handlerInfo.description;
-    params.filename      = null;
-    params.handlerApp    = null;
-
-    window.openDialog("chrome://global/content/appPicker.xul", null,
-                      "chrome,modal,centerscreen,titlebar,dialog=yes",
-                      params);
-
-    if (params.handlerApp && 
-        params.handlerApp.executable && 
-        params.handlerApp.executable.isFile()) {
-      handlerApp = params.handlerApp;
-
-      // Add the app to the type's list of possible handlers.
-      handlerInfo.addPossibleApplicationHandler(handlerApp);
-    }
-#else
-    var fp = Cc["@mozilla.org/filepicker;1"].createInstance(Ci.nsIFilePicker);
-    var winTitle = this._prefsBundle.getString("fpTitleChooseApp");
-    fp.init(window, winTitle, Ci.nsIFilePicker.modeOpen);
-    fp.appendFilters(Ci.nsIFilePicker.filterApps);
-
-    // Prompt the user to pick an app.  If they pick one, and it's a valid
-    // selection, then add it to the list of possible handlers.
-    if (fp.show() == Ci.nsIFilePicker.returnOK && fp.file &&
-        this._isValidHandlerExecutable(fp.file)) {
-      handlerApp = Cc["@mozilla.org/uriloader/local-handler-app;1"].
-                   createInstance(Ci.nsILocalHandlerApp);
-      handlerApp.name = getDisplayNameForFile(fp.file);
-      handlerApp.executable = fp.file;
-
-      // Add the app to the type's list of possible handlers.
-      let handlerInfo = this._handledTypes[this._list.selectedItem.type];
-      handlerInfo.addPossibleApplicationHandler(handlerApp);
-    }
-#endif
-
-    // Rebuild the actions menu whether the user picked an app or canceled.
-    // If they picked an app, we want to add the app to the menu and select it.
-    // If they canceled, we want to go back to their previous selection.
-    this.rebuildActionsMenu();
-
-    // If the user picked a new app from the menu, select it.
-    if (handlerApp) {
-      let typeItem = this._list.selectedItem;
-      let actionsMenu =
-        document.getAnonymousElementByAttribute(typeItem, "class", "actionsMenu");
-      let menuItems = actionsMenu.menupopup.childNodes;
-      for (let i = 0; i < menuItems.length; i++) {
-        let menuItem = menuItems[i];
-        if (menuItem.handlerApp && menuItem.handlerApp.equals(handlerApp)) {
-          actionsMenu.selectedIndex = i;
-          this.onSelectAction(menuItem);
-          break;
+      // If the user picked a new app from the menu, select it.
+      if (handlerApp) {
+        let typeItem = this._list.selectedItem;
+        let actionsMenu =
+          document.getAnonymousElementByAttribute(typeItem, "class", "actionsMenu");
+        let menuItems = actionsMenu.menupopup.childNodes;
+        for (let i = 0; i < menuItems.length; i++) {
+          let menuItem = menuItems[i];
+          if (menuItem.handlerApp && menuItem.handlerApp.equals(handlerApp)) {
+            actionsMenu.selectedIndex = i;
+            this.onSelectAction(menuItem);
+            break;
+          }
         }
       }
+    }
+
+    if (AppConstants.platform == "win") {
+      var params = {};
+      var handlerInfo = this._handledTypes[this._list.selectedItem.type];
+
+      params.mimeInfo = handlerInfo.wrappedHandlerInfo;
+
+      params.title         = this._prefsBundle.getString("fpTitleChooseApp");
+      params.description   = handlerInfo.description;
+      params.filename      = null;
+      params.handlerApp    = null;
+
+      if (this._loadInContent) {
+        gSubDialog.open("chrome://global/content/appPicker.xul",
+                        "resizable=no", params);
+      } else {
+        window.openDialog("chrome://global/content/appPicker.xul", null,
+                          "chrome,modal,centerscreen,titlebar,dialog=yes",
+                          params);
+      };
+
+      if (params.handlerApp &&
+          params.handlerApp.executable &&
+          params.handlerApp.executable.isFile()) {
+        handlerApp = params.handlerApp;
+
+        // Add the app to the type's list of possible handlers.
+        handlerInfo.addPossibleApplicationHandler(handlerApp);
+      }
+      onSelectionDone();
+    } else {
+      const nsIFilePicker = Components.interfaces.nsIFilePicker;
+      let fp = Components.classes["@mozilla.org/filepicker;1"].createInstance(nsIFilePicker);
+      let winTitle = this._prefsBundle.getString("fpTitleChooseApp");
+      fp.init(window, winTitle, nsIFilePicker.modeOpen);
+      fp.appendFilters(nsIFilePicker.filterApps);
+
+      // Prompt the user to pick an app.  If they pick one, and it's a valid
+      // selection, then add it to the list of possible handlers.
+
+      fp.open(rv => {
+        if (rv == nsIFilePicker.returnOK && fp.file &&
+            this._isValidHandlerExecutable(fp.file)) {
+          handlerApp = Components.classes["@mozilla.org/uriloader/local-handler-app;1"]
+                                 .createInstance(Components.interfaces.nsILocalHandlerApp);
+          handlerApp.name = getDisplayNameForFile(fp.file);
+          handlerApp.executable = fp.file;
+
+          // Add the app to the type's list of possible handlers.
+          let handlerInfo = this._handledTypes[this._list.selectedItem.type];
+          handlerInfo.addPossibleApplicationHandler(handlerApp);
+        }
+        onSelectionDone();
+      });
     }
   },
 

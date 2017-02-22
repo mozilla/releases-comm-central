@@ -612,8 +612,12 @@ var buddyList = {
     fp.init(window, bundle.getString("userIconFilePickerTitle"),
             nsIFilePicker.modeOpen);
     fp.appendFilters(nsIFilePicker.filterImages);
-    if (fp.show() == nsIFilePicker.returnOK)
+    fp.open(rv => {
+      if (rv != nsIFilePicker.returnOK || !fp.file) {
+        return;
+      }
       Services.core.globalUserStatus.setUserIcon(fp.file);
+    });
   },
 
   webcamSuccessCallback: function bl_webcamSuccessCallback(aStream) {
