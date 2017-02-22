@@ -486,7 +486,7 @@ var nsOpenCommand =
     fp.appendFilters(nsIFilePicker.filterAll);
 
     fp.open(rv => {
-      if (rv != nsIFilePicker.returnOK || !fp.file) {
+      if (rv == nsIFilePicker.returnCancel) {
         return;
       }
       // editPage checks for already open window and activates it.
