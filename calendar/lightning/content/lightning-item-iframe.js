@@ -1995,57 +1995,49 @@ function attachFile(cloudProvider) {
         cal.ERROR("[calendar-event-dialog] Could not attach file without cloud provider" + cal.STACK(10));
     }
 
-    let files;
-    try {
-        const nsIFilePicker = Components.interfaces.nsIFilePicker;
-        let filePicker = Components.classes["@mozilla.org/filepicker;1"]
-                                   .createInstance(nsIFilePicker);
-        filePicker.init(window,
-                        cal.calGetString("calendar-event-dialog", "selectAFile"),
-                        nsIFilePicker.modeOpenMultiple);
+    const nsIFilePicker = Components.interfaces.nsIFilePicker;
+    let filePicker = Components.classes["@mozilla.org/filepicker;1"]
+                               .createInstance(nsIFilePicker);
+    filePicker.init(window,
+                    cal.calGetString("calendar-event-dialog", "selectAFile"),
+                    nsIFilePicker.modeOpenMultiple);
 
-        // Check for the last directory
-        let lastDir = lastDirectory();
-        if (lastDir) {
-            filePicker.displayDirectory = lastDir;
-        }
-
-        // Get the attachment
-        if (filePicker.show() == nsIFilePicker.returnOK) {
-            files = filePicker.files;
-        }
-    } catch (ex) {
-        dump("failed to get attachments: " +ex+ "\n");
+    // Check for the last directory
+    let lastDir = lastDirectory();
+    if (lastDir) {
+        filePicker.displayDirectory = lastDir;
     }
 
-    // Check if something has to be done
-    if (!files || !files.hasMoreElements()) {
-        return;
-    }
+    filePicker.open(rv => {
+        if (rv != nsIFilePicker.returnOK || !filePicker.files) {
+            return;
+        }
+        let files = filePicker.files;
 
-    // Create the attachment
-    while (files.hasMoreElements()) {
-        let file = files.getNext().QueryInterface(Components.interfaces.nsILocalFile);
+        // Create the attachment
+        while (files.hasMoreElements()) {
+            let file = files.getNext().QueryInterface(Components.interfaces.nsILocalFile);
 
-        let fileHandler = Services.io.getProtocolHandler("file")
-                                     .QueryInterface(Components.interfaces.nsIFileProtocolHandler);
-        let uriSpec = fileHandler.getURLSpecFromFile(file);
+            let fileHandler = Services.io.getProtocolHandler("file")
+                                         .QueryInterface(Components.interfaces.nsIFileProtocolHandler);
+            let uriSpec = fileHandler.getURLSpecFromFile(file);
 
-        if (!(uriSpec in gAttachMap)) {
-            // If the attachment hasn't been added, then set the last display
-            // directory.
-            lastDirectory(uriSpec);
+            if (!(uriSpec in gAttachMap)) {
+                // If the attachment hasn't been added, then set the last display
+                // directory.
+                lastDirectory(uriSpec);
 
-            // ... and add the attachment.
-            let attachment = cal.createAttachment();
-            if (cloudProvider) {
-                attachment.uri = Services.io.newURI(uriSpec);
-            } else {
-                // TODO read file into attachment
+                // ... and add the attachment.
+                let attachment = cal.createAttachment();
+                if (cloudProvider) {
+                    attachment.uri = Services.io.newURI(uriSpec);
+                } else {
+                    // TODO read file into attachment
+                }
+                addAttachment(attachment, cloudProvider);
             }
-            addAttachment(attachment, cloudProvider);
         }
-    }
+    });
 }
 
 /**

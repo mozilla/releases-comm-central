@@ -60,10 +60,11 @@ function loadEventsFromFile(aCalendar) {
         }
     }
 
-    let rv = picker.show();
+    picker.open(rv => {
+        if (rv != nsIFilePicker.returnOK || !picker.file || !picker.file.path) {
+            return;
+        }
 
-    if (rv != nsIFilePicker.returnCancel &&
-        picker.file && picker.file.path && picker.file.path.length > 0) {
         let filterIndex = picker.filterIndex;
         if (picker.filterIndex < 0 || picker.filterIndex > contractids.length) {
             // For some reason the wrong filter was selected, assume default extension
@@ -128,7 +129,7 @@ function loadEventsFromFile(aCalendar) {
             openDialog("chrome://calendar/content/chooseCalendarDialog.xul",
                        "_blank", "chrome,titlebar,modal,resizable", args);
         }
-    }
+    });
 }
 
 /**
@@ -265,10 +266,12 @@ function saveEventsToFile(calendarEventArray, aDefaultFileName) {
         }
     }
 
-    let rv = picker.show();
-
     // Now find out as what to save, convert the events and save to file.
-    if (rv != nsIFilePicker.returnCancel && picker.file && picker.file.path.length > 0) {
+    picker.open(rv => {
+        if (rv == nsIFilePicker.returnCancel || !picker.file || !picker.file.path) {
+            return;
+        }
+
         let filterIndex = picker.filterIndex;
         if (picker.filterIndex < 0 || picker.filterIndex > contractids.length) {
             // For some reason the wrong filter was selected, assume default extension
@@ -309,7 +312,7 @@ function saveEventsToFile(calendarEventArray, aDefaultFileName) {
         } catch (ex) {
             cal.showError(cal.calGetString("calendar", "unableToWrite") + filePath, window);
         }
-    }
+    });
 }
 
 /**

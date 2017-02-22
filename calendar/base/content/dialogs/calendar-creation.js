@@ -19,33 +19,34 @@ function openLocalCalendar() {
     picker.appendFilter(description, wildmat);
     picker.appendFilters(nsIFilePicker.filterAll);
 
-    if (picker.show() != nsIFilePicker.returnOK) {
-        return;
-    }
+    picker.open(rv => {
+        if (rv != nsIFilePicker.returnOK || !picker.file) {
+            return;
+        }
+        let calMgr = cal.getCalendarManager();
+        let calendars = calMgr.getCalendars({});
+        if (calendars.some(x => x.uri == picker.fileURL)) {
+            // The calendar already exists, select it and return.
+            document.getElementById("calendar-list-tree-widget")
+                    .tree.view.selection.select(index);
+            return;
+        }
 
-    let calMgr = cal.getCalendarManager();
-    let calendars = calMgr.getCalendars({});
-    if (calendars.some(x => x.uri == picker.fileURL)) {
-        // The calendar already exists, select it and return.
-        document.getElementById("calendar-list-tree-widget")
-                .tree.view.selection.select(index);
-        return;
-    }
+        let openCalendar = calMgr.createCalendar("ics", picker.fileURL);
 
-    let openCalendar = calMgr.createCalendar("ics", picker.fileURL);
+        // Strip ".ics" from filename for use as calendar name, taken from
+        // calendarCreation.js
+        let fullPathRegex = new RegExp("([^/:]+)[.]ics$");
+        let prettyName = picker.fileURL.spec.match(fullPathRegex);
+        let name;
 
-    // Strip ".ics" from filename for use as calendar name, taken from
-    // calendarCreation.js
-    let fullPathRegex = new RegExp("([^/:]+)[.]ics$");
-    let prettyName = picker.fileURL.spec.match(fullPathRegex);
-    let name;
+        if (prettyName) {
+            name = decodeURIComponent(prettyName[1]);
+        } else {
+            name = cal.calGetString("calendar", "untitledCalendarName");
+        }
+        openCalendar.name = name;
 
-    if (prettyName && prettyName.length >= 1) {
-        name = decodeURIComponent(prettyName[1]);
-    } else {
-        name = cal.calGetString("calendar", "untitledCalendarName");
-    }
-    openCalendar.name = name;
-
-    calMgr.registerCalendar(openCalendar);
+        calMgr.registerCalendar(openCalendar);
+    });
 }

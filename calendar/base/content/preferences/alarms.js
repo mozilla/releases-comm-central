@@ -86,13 +86,14 @@ var gAlarmsPane = {
         picker.appendFilter(label, wildmat);
         picker.appendFilters(nsIFilePicker.filterAll);
 
-        let ret = picker.show();
-
-        if (ret == nsIFilePicker.returnOK) {
+        picker.open(rv => {
+            if (rv != nsIFilePicker.returnOK || !picker.file) {
+               return;
+            }
             document.getElementById("calendar.alarms.soundURL").value = picker.fileURL.spec;
             document.getElementById("alarmSoundCheckbox").checked = true;
             this.readSoundLocation();
-        }
+        });
     },
 
     /**
@@ -101,7 +102,7 @@ var gAlarmsPane = {
     previewAlarm: function() {
         let soundUrl = document.getElementById("alarmSoundFileField").value;
         let soundIfc = Components.classes["@mozilla.org/sound;1"]
-                            .createInstance(Components.interfaces.nsISound);
+                                 .createInstance(Components.interfaces.nsISound);
         let url;
         try {
             soundIfc.init();
