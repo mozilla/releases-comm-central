@@ -1,0 +1,44 @@
+From: ExampleStore <noreply@example.com>
+Date: Wed, 24 Aug 2016 16:40:06 -0400
+Subject: ExampleStore - booking 01.09.2016 @ 09.25 - 09.50
+Content-Type: multipart/mixed;
+	boundary="_=aspNetEmail=_51bed191ceac49f7a22392ea84b6ef35"
+To: <foo@example.com>
+Message-ID: <df0f52ae-d3dc-4b89-bc3e-67fc4f6e8552@example.com>
+MIME-Version: 1.0
+
+--_=aspNetEmail=_51bed191ceac49f7a22392ea84b6ef35
+Content-Type: multipart/alternative;
+	boundary="_=ALT_=aspNetEmail=_51bed191ceac49f7a22392ea84b6ef35"
+
+--_=ALT_=aspNetEmail=_51bed191ceac49f7a22392ea84b6ef35
+Content-Type: text/plain; charset="UTF-8"
+
+Remember your booking @ 09.25
+
+--_=ALT_=aspNetEmail=_51bed191ceac49f7a22392ea84b6ef35
+Content-Type: text/html; charset="UTF-8"
+
+<html>
+<body>
+<p>You have a booking for 9.25</p>
+</body>
+</html>
+
+--_=ALT_=aspNetEmail=_51bed191ceac49f7a22392ea84b6ef35--
+
+--_=aspNetEmail=_51bed191ceac49f7a22392ea84b6ef35
+Content-Type: TeXt/CaLeNdAr; method=PUBLISH; charset=UTF-8
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="booking.ics"
+
+QkVHSU46VkNBTEVOREFSDQpWRVJTSU9OOjIuMA0KTUVUSE9EOlBVQkxJU0gNClBST0RJRDpleGFt
+cGxlLmNvbQ0KQkVHSU46VkVWRU5UDQpEVFNUQVJUOjIwMTYwOTAxVDA2MjUwMFoNCkRURU5EOjIw
+MTYwOTAxVDA2NTAwMFoNCkRUU1RBTVA6MjAxNjA4MjRUMjA0MDAwWg0KVUlEOjIwMTYwODI0VDIw
+NDAwMFotNTY4ODYwMjgwQGV4YW1wbGVjb20NClNVTU1BUlk6SGFpcmN1dA0KREVTQ1JJUFRJT046
+SGFpcmN1dCtzdHlsaW5nDQpMT0NBVElPTjpTb21ld2hlcmUNClRSQU5TUDpPUEFRVUUNClNFUVVF
+TkNFOjANCkNMQVNTOlBVQkxJQw0KQkVHSU46VkFMQVJNDQpUUklHR0VSOi1QVDYwTQ0KQUNUSU9O
+OkFVRElPDQpERVNDUklQVElPTjpSZW1pbmRlcg0KRU5EOlZBTEFSTQ0KRU5EOlZFVkVOVA0KRU5E
+OlZDQUxFTkRBUg==
+
+--_=aspNetEmail=_51bed191ceac49f7a22392ea84b6ef35--

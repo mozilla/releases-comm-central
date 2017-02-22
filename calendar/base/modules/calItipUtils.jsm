@@ -439,13 +439,13 @@ cal.itip = {
             // First, check if the message has an account key. If so, we can use the
             // account identities to find the correct recipient
             identities = actMgr.getAccount(aMsgHdr.accountKey).identities;
-        } else {
+        } else if (aMsgHdr.folder) {
             // Without an account key, we have to revert back to using the server
             identities = actMgr.getIdentitiesForServer(aMsgHdr.folder.server);
         }
 
         let emailMap = {};
-        if (identities.length == 0) {
+        if (!identities || identities.length == 0) {
             // If we were not able to retrieve identities above, then we have no
             // choice but to revert to the default identity
             let identity = actMgr.defaultAccount.defaultIdentity;
@@ -471,7 +471,7 @@ cal.itip = {
         }
 
         // First check the recipient list
-        let toList = MailServices.headerParser.makeFromDisplayAddress(aMsgHdr.recipients);
+        let toList = MailServices.headerParser.makeFromDisplayAddress(aMsgHdr.recipients || "");
         for (let recipient of toList) {
             if (recipient.email.toLowerCase() in emailMap) {
                 // Return the first found recipient
@@ -480,7 +480,7 @@ cal.itip = {
         }
 
         // Maybe we are in the CC list?
-        let ccList = MailServices.headerParser.makeFromDisplayAddress(aMsgHdr.ccList);
+        let ccList = MailServices.headerParser.makeFromDisplayAddress(aMsgHdr.ccList || "");
         for (let recipient of ccList) {
             if (recipient.email.toLowerCase() in emailMap) {
                 // Return the first found recipient

@@ -123,9 +123,12 @@ Initialize(MimeObject *obj)
     if (NS_FAILED(rv))
         return -1;
 
+    nsAutoCString contentType; // lowercase
+    ToLowerCase(nsDependentCString(obj->content_type), contentType);
+
     nsCString value;
     rv = catman->GetCategoryEntry(NS_SIMPLEMIMECONVERTERS_CATEGORY,
-                                  obj->content_type, getter_Copies(value));
+                                  contentType.get(), getter_Copies(value));
     if (NS_FAILED(rv) || value.IsEmpty())
         return -1;
 
