@@ -504,7 +504,7 @@ function DocumentHasBeenSaved()
   return true;
 }
 
-function CheckAndSaveDocument(command, allowDontSave)
+async function CheckAndSaveDocument(command, allowDontSave)
 {
   var document;
   try {
@@ -590,7 +590,7 @@ function CheckAndSaveDocument(command, allowDontSave)
     }
 
     // Save to local disk
-    return SaveDocument(false, false, editor.contentsMIMEType);
+    return await SaveDocument(false, false, editor.contentsMIMEType);
   }
 
   if (result == 2) // "Don't Save"

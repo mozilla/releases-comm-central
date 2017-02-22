@@ -387,6 +387,9 @@ function SwitchToValidatePanel()
 
 const nsIFilePicker = Components.interfaces.nsIFilePicker;
 
+/**
+ * @return {Promise} URL spec of the file chosen, or null
+ */
 function GetLocalFileURL(filterType)
 {
   var fp = Components.classes["@mozilla.org/filepicker;1"].createInstance(nsIFilePicker);
@@ -419,22 +422,17 @@ function GetLocalFileURL(filterType)
 
   // set the file picker's current directory to last-opened location saved in prefs
   SetFilePickerDirectory(fp, fileType);
-
-
-  /* doesn't handle *.shtml files */
-  try {
-    var ret = fp.show();
-    if (ret == nsIFilePicker.returnCancel)
-      return null;
-  }
-  catch (ex) {
-    dump("filePicker.chooseInputFile threw an exception\n");
-    return null;
-  }
-  SaveFilePickerDirectory(fp, fileType);
   
-  var fileHandler = GetFileProtocolHandler();
-  return fp.file ? fileHandler.getURLSpecFromFile(fp.file) : null;
+  return new Promise(resolve => {
+    fp.open(rv => {
+      if (rv != nsIFilePicker.returnOK || !fp.file) {
+        resolve(null);
+        return;
+      }
+      SaveFilePickerDirectory(fp, fileType);
+      resolve(fp.fileURL.spec);
+    });
+  });
 }
 
 function GetMetaElementByAttribute(name, value)
@@ -981,21 +979,16 @@ function createMenuItem(aMenuPopup, aLabel)
 // Shared by Image and Link dialogs for the "Choose" button for links
 function chooseLinkFile()
 {
-  // Get a local file, converted into URL format
-  var fileName = GetLocalFileURL("html, img");
-  if (fileName) 
-  {
+  GetLocalFileURL("html, img").then(fileURL => {
     // Always try to relativize local file URLs
     if (gHaveDocumentUrl)
-      fileName = MakeRelativeUrl(fileName);
+      fileURL = MakeRelativeUrl(fileURL);
 
-    gDialog.hrefInput.value = fileName;
+    gDialog.hrefInput.value = fileURL;
 
     // Do stuff specific to a particular dialog
     // (This is defined separately in Image and Link dialogs)
     ChangeLinkLocation();
-  }
-  // Put focus into the input field
-  SetTextboxFocus(gDialog.hrefInput);
+  });
 }
 

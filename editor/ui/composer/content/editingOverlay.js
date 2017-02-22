@@ -219,7 +219,7 @@ function EditorShutdown()
 
 // Check for changes to document and allow saving before closing
 // This is hooked up to the OS's window close widget (e.g., "X" for Windows)
-function EditorCanClose(aCancelQuit, aTopic, aData)
+async function EditorCanClose(aCancelQuit, aTopic, aData)
 {
   if (aTopic == "quit-application-requested" &&
       aCancelQuit instanceof Components.interfaces.nsISupportsPRBool &&
@@ -229,7 +229,7 @@ function EditorCanClose(aCancelQuit, aTopic, aData)
   // Returns FALSE only if user cancels save action
 
   // "true" means allow "Don't Save" button
-  var canClose = CheckAndSaveDocument("cmd_close", true);
+  var canClose = await CheckAndSaveDocument("cmd_close", true);
 
   // This is our only hook into closing via the "X" in the caption
   //   or "Quit" (or other paths?)

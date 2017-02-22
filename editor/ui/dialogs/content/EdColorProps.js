@@ -305,20 +305,17 @@ function UseDefaultColors()
 function chooseFile()
 {
   // Get a local image file, converted into URL format
-  var fileName = GetLocalFileURL("img");
-  if (fileName)
-  {
+  GetLocalFileURL("img").then(fileURL => {
     // Always try to relativize local file URLs
     if (gHaveDocumentUrl)
-      fileName = MakeRelativeUrl(fileName);
+      fileURL = MakeRelativeUrl(fileURL);
 
-    gDialog.BackgroundImageInput.value = fileName;
+    gDialog.BackgroundImageInput.value = fileURL;
 
     SetRelativeCheckbox();
-
     ValidateAndPreviewImage(true);
-  }
-  SetTextboxFocus(gDialog.BackgroundImageInput);
+    SetTextboxFocus(gDialog.BackgroundImageInput);
+  });
 }
 
 function ChangeBackgroundImage()

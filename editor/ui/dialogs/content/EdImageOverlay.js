@@ -216,23 +216,21 @@ function chooseFile()
 {
   if (gTimerID)
     clearTimeout(gTimerID);
-  // Get a local file, converted into URL format
-  var fileName = GetLocalFileURL("img");
-  if (fileName)
-  {
-    // Always try to relativize local file URLs
-    if (gHaveDocumentUrl)
-      fileName = MakeRelativeUrl(fileName);
-
-    gDialog.srcInput.value = fileName;
-
-    SetRelativeCheckbox();
-    doOverallEnabling();
-  }
-  LoadPreviewImage();
 
   // Put focus into the input field
   SetTextboxFocus(gDialog.srcInput);
+
+  GetLocalFileURL("img").then(fileURL => {
+    // Always try to relativize local file URLs
+    if (gHaveDocumentUrl)
+      fileURL = MakeRelativeUrl(fileURL);
+
+    gDialog.srcInput.value = fileURL;
+
+    SetRelativeCheckbox();
+    doOverallEnabling();
+    LoadPreviewImage();
+  });
 }
 
 function PreviewImageLoaded()

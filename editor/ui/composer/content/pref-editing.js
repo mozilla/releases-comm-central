@@ -165,12 +165,15 @@ function ChooseImageFile()
   var title = editorBundle.getString("SelectImageFile");
   fp.init(window, title, nsIFilePicker.modeOpen);
   fp.appendFilters(nsIFilePicker.filterImages);
-  if (fp.show() == nsIFilePicker.returnOK)
+  fp.open(rv => {
+    if (rv != nsIFilePicker.returnOK || !fp.file) {
+      return;
+    }
     document.getElementById("editor.default_background_image").value = fp.fileURL.spec;
-
-  var textbox = document.getElementById("backgroundImageInput");
-  textbox.focus();
-  textbox.select();
+    let textbox = document.getElementById("backgroundImageInput");
+    textbox.focus();
+    textbox.select();
+  });
 }
 
 function WindowOnUnload()
