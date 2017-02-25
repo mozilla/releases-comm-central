@@ -10,15 +10,22 @@ var MODULE_REQUIRES = ['folder-display-helpers', 'content-tab-helpers',
 
 Components.utils.import("resource://gre/modules/Services.jsm");
 
+var warningText = new Map();
+
 function setupModule(module) {
-  let fdh = collector.getModule("folder-display-helpers");
-  fdh.installInto(module);
-  let cth = collector.getModule("content-tab-helpers");
-  cth.installInto(module);
-  let ch = collector.getModule("compose-helpers");
-  ch.installInto(module);
-  let wh = collector.getModule("window-helpers");
-  wh.installInto(module);
+  for (let lib of MODULE_REQUIRES) {
+    collector.getModule(lib).installInto(module);
+  }
+
+  // The wording of the warning message when private data is being exported
+  // from the about:support page.
+  let bundle = Services.strings.createBundle(
+    "chrome://messenger/locale/aboutSupportMail.properties");
+  // In HTML the warning label and text comprise the textContent of a single element.
+  warningText.set("text/html", bundle.GetStringFromName("warningLabel") + " " +
+                               bundle.GetStringFromName("warningText"));
+  // In plain text the warning label may end up on a separate line so do not match it.
+  warningText.set("text/unicode", bundle.GetStringFromName("warningText"));
 }
 
 // After every test we want to close the about:support tab so that failures
@@ -31,15 +38,17 @@ function teardownTest(module) {
  * Strings found in the about:support HTML or text that should clearly mark the
  * data as being from about:support.
  */
-var ABOUT_SUPPORT_STRINGS = ["Application Basics", "Mail and News Accounts",
-                               "Extensions", "Modified Preferences", "Graphics",
-                               "JavaScript", "Accessibility", "Library Versions"];
+const ABOUT_SUPPORT_STRINGS = ["Application Basics", "Mail and News Accounts",
+                               "Extensions", "Important Modified Preferences",
+                               "Graphics", "JavaScript", "Accessibility",
+                               "Library Versions"];
 
 /**
  * Strings that if found in the about:support text or HTML usually indicate an
  * error.
  */
-var ABOUT_SUPPORT_ERROR_STRINGS = ["undefined", "null"];
+const ABOUT_SUPPORT_ERROR_STRINGS = new Map([[ "text/html",["undefined", "null"] ],
+                                             [ "text/unicode",["undefined"] ]]);
 
 
 /*
@@ -56,8 +65,9 @@ function open_about_support() {
                                         "about:support");
   // We have one variable that's asynchronously populated -- wait for it to be
   // populated.
-  mc.waitFor(() => (tab.browser.contentWindow.gExtensions !== undefined),
-             "Timeout waiting for about:support's gExtensions to populate.");
+  mc.waitFor(() => (tab.browser.contentWindow.gAccountDetails !== undefined),
+             "Timeout waiting for about:support's gAccountDetails to populate.");
+
   return tab;
 }
 
@@ -67,13 +77,26 @@ function open_about_support() {
  * @param aTab The about:support tab.
  */
 function open_send_via_email(aTab) {
-  let button = content_tab_eid(aTab, "button-send-via-email");
+  let button = content_tab_eid(aTab, "send-via-email");
   plan_for_new_window("msgcompose");
   mc.click(button);
   let cwc = wait_for_compose_window();
   return cwc;
 }
 
+/**
+ * Find some element marked as private data.
+ */
+function find_private_element(aTab) {
+  // We use the identity name as an example of a private-only element.
+  // It is currenly the second td element with class="data-private" in the table.
+  // The content string must be something unique that is not found anywhere else.
+  let elem = aTab.browser.contentDocument
+                 .querySelector("#accounts-table td.data-private~td.data-private");
+  assert_true(elem != null);
+  assert_true(elem.textContent.length > 0);
+  return elem;
+}
 
 /*
  * Tests
@@ -93,9 +116,24 @@ function test_display_about_support() {
   }
 
   // Check that error strings aren't present anywhere
-  for (let str of ABOUT_SUPPORT_ERROR_STRINGS) {
+  for (let str of ABOUT_SUPPORT_ERROR_STRINGS.get("text/html")) {
     assert_content_tab_text_absent(tab, str);
   }
+
+  // Bug 1339436
+  // Test that the tables in the page are all populated with at least one row
+  // in the tbody element.
+  // An exception in the code could cause some to be empty.
+  let tables = tab.browser.contentDocument.querySelectorAll("tbody");
+  let emptyTables = [ "graphics-failures-tbody", "graphics-tbody",
+                      "locked-prefs-tbody", "sandbox-syscalls-tbody",
+                      "crashes-tbody" ]; // some tables may be empty
+  for (let table of tables) {
+    if (!emptyTables.includes(table.id))
+      assert_true(table.querySelectorAll("tr").length > 0,
+                  "Troubleshooting table '" + table.id + "' is empty!");
+  }
+
   close_tab(tab);
 }
 
@@ -126,9 +164,6 @@ function test_modified_pref_on_whitelist() {
   let prefName = PREFIX + UNIQUE_ID;
   Services.prefs.setBoolPref(prefName, true);
   let tab = open_about_support();
-  // Check that the prefix is actually in the whitelist.
-  if (!tab.browser.contentWindow.PREFS_WHITELIST.includes(PREFIX))
-    mark_failure(["The prefs whitelist doesn't contain " + PREFIX]);
 
   assert_content_tab_text_present(tab, prefName);
   close_tab(tab);
@@ -154,11 +189,7 @@ function test_modified_pref_on_blacklist() {
   let prefName = PREFIX + UNIQUE_ID;
   Services.prefs.setBoolPref(prefName, true);
   let tab = open_about_support();
-  // Check that the prefix is in the blacklist.
-  if (!tab.browser.contentWindow.PREFS_BLACKLIST.some(
-        regex => regex.test(PREFIX))) {
-    mark_failure(["The prefs blacklist doesn't include " + PREFIX]);
-  }
+
   assert_content_tab_text_absent(tab, prefName);
   close_tab(tab);
   Services.prefs.clearUserPref(prefName);
@@ -170,21 +201,41 @@ function test_modified_pref_on_blacklist() {
  */
 function test_private_data() {
   let tab = open_about_support();
-  let checkbox = content_tab_e(tab, "check-show-private-data");
-  // We use the profile button's div as an example of a public-only element, and
-  // the profile directory display as an example of a private-only element.
-  let privateElem = content_tab_e(tab, "profile-dir-box");
-  let publicElem = content_tab_e(tab, "profile-dir-button-box");
+  let checkbox = content_tab_eid(tab, "check-show-private-data");
+
+  // We use the profile path and some other element as an example
+  // of a private-only element.
+  let privateElem1 = find_private_element(tab);
+  let privateElem2 = content_tab_e(tab, "profile-dir-path");;
+  // We use the profile button as an example of a public element.
+  let publicElem = content_tab_e(tab, "profile-dir-button");
+
   assert_true(!checkbox.checked,
               "Private data checkbox shouldn't be checked by default");
   assert_content_tab_element_visible(tab, publicElem);
-  assert_content_tab_element_hidden(tab, privateElem);
+  assert_content_tab_element_hidden(tab, privateElem1);
+  assert_content_tab_element_hidden(tab, privateElem2);
 
-  // Now check the checkbox and see what happens
-  checkbox.click();
-  wait_for_content_tab_element_display_value(tab, publicElem, "none");
-  wait_for_content_tab_element_display_value(tab, privateElem, "inline");
+  // Now check the checkbox and see what happens.
+  mc.click(checkbox);
+  wait_for_content_tab_element_display(tab, privateElem1);
+  wait_for_content_tab_element_display(tab, privateElem2);
   close_tab(tab);
+}
+
+/**
+ * Checks if text fragment exists in the document.
+ * If it is a node tree, find the element whole contents is the searched text.
+ * If it is plain text string, just check in text is anywhere in it.
+ *
+ * @param aDocument  A node tree or a string of plain text data.
+ * @param aText      The text to find in the document.
+ */
+function check_text_in_body(aDocument, aText) {
+  if (typeof(aDocument) == "object")
+    return (get_element_by_text(aDocument, aText) != null);
+  else
+    return aDocument.includes(aText);
 }
 
 /**
@@ -192,6 +243,7 @@ function test_private_data() {
  */
 function test_copy_to_clipboard_public() {
   let tab = open_about_support();
+  let privateElem = find_private_element(tab);
   // To avoid destroying the current contents of the clipboard, instead of
   // actually copying to it, we just retrieve what would have been copied to it
   let transferable = tab.browser.contentWindow.getClipboardTransferable();
@@ -199,21 +251,28 @@ function test_copy_to_clipboard_public() {
     let data = {};
     transferable.getTransferData(flavor, data, {});
     let text = data.value.QueryInterface(Ci.nsISupportsString).data;
+    let contentBody;
+    if (flavor == "text/html") {
+      let parser = Components.classes["@mozilla.org/xmlextras/domparser;1"]
+                             .createInstance(Ci.nsIDOMParser);
+      contentBody = parser.parseFromString(text, "text/html").body;
+    } else {
+      contentBody = text;
+    }
 
     for (let str of ABOUT_SUPPORT_STRINGS) {
-      if (!text.includes(str))
+      if (!check_text_in_body(contentBody, str))
         mark_failure(["Unable to find \"" + str + "\" in flavor \"" + flavor + "\""]);
     }
 
-    for (let str of ABOUT_SUPPORT_ERROR_STRINGS) {
-      if (text.includes(str))
+    for (let str of ABOUT_SUPPORT_ERROR_STRINGS.get(flavor)) {
+      if (check_text_in_body(contentBody, str))
         mark_failure(["Found \"" + str + "\" in flavor \"" + flavor + "\""]);
     }
 
-    // Check that private data (profile directory) isn't in the output.
-    let profD = Services.dirsvc.get("ProfD", Ci.nsIFile).path;
-    if (text.includes(profD))
-      mark_failure(["Found profile directory in flavor \"" + flavor + "\""]);
+    // Check that private data isn't in the output.
+    if (check_text_in_body(contentBody, privateElem.textContent))
+      mark_failure(["Found private data in flavor \"" + flavor + "\""]);
   }
   close_tab(tab);
 }
@@ -222,16 +281,12 @@ function test_copy_to_clipboard_public() {
  * Test (well, sort of) the copy to clipboard function with private data.
  */
 function test_copy_to_clipboard_private() {
-  let bundle = Services.strings.createBundle(
-    "chrome://messenger/locale/aboutSupportMail.properties");
-  let warningText = bundle.GetStringFromName("warningText");
-
   let tab = open_about_support();
 
   // Display private data.
-  let privateElem = content_tab_e(tab, "profile-dir-box");
-  content_tab_e(tab, "check-show-private-data").click();
-  wait_for_content_tab_element_display_value(tab, privateElem, "inline");
+  let privateElem = find_private_element(tab);
+  mc.click(content_tab_eid(tab, "check-show-private-data"));
+  wait_for_content_tab_element_display(tab, privateElem);
 
   // To avoid destroying the current contents of the clipboard, instead of
   // actually copying to it, we just retrieve what would have been copied to it
@@ -240,24 +295,31 @@ function test_copy_to_clipboard_private() {
     let data = {};
     transferable.getTransferData(flavor, data, {});
     let text = data.value.QueryInterface(Ci.nsISupportsString).data;
+    let contentBody;
+    if (flavor == "text/html") {
+      let parser = Components.classes["@mozilla.org/xmlextras/domparser;1"]
+                             .createInstance(Ci.nsIDOMParser);
+      contentBody = parser.parseFromString(text, "text/html").body;
+    } else {
+      contentBody = text;
+    }
 
     for (let str of ABOUT_SUPPORT_STRINGS) {
-      if (!text.includes(str))
+      if (!check_text_in_body(contentBody, str))
         mark_failure(["Unable to find \"" + str + "\" in flavor \"" + flavor + "\""]);
     }
 
-    for (let str of ABOUT_SUPPORT_ERROR_STRINGS) {
-      if (text.includes(str))
+    for (let str of ABOUT_SUPPORT_ERROR_STRINGS.get(flavor)) {
+      if (check_text_in_body(contentBody, str))
         mark_failure(["Found \"" + str + "\" in flavor \"" + flavor + "\""]);
     }
 
-    // Check that private data (profile directory) is in the output.
-    let profD = Services.dirsvc.get("ProfD", Ci.nsIFile).path;
-    if (!text.includes(profD))
-      mark_failure(["Unable to find profile directory in flavor \"" + flavor + "\""]);
+    // Check that private data is in the output.
+    if (!check_text_in_body(contentBody, privateElem.textContent))
+      mark_failure(["Unable to find private data in flavor \"" + flavor + "\""]);
 
     // Check that the warning text is in the output.
-    if (!text.includes(warningText))
+    if (!check_text_in_body(contentBody, warningText.get(flavor)))
       mark_failure(["Unable to find warning text in flavor \"" + flavor + "\""]);
   }
   close_tab(tab);
@@ -268,25 +330,25 @@ function test_copy_to_clipboard_private() {
  */
 function test_send_via_email_public() {
   let tab = open_about_support();
+  let privateElem = find_private_element(tab);
+
   let cwc = open_send_via_email(tab);
 
-  let contentFrame = cwc.e("content-frame");
-  let text = contentFrame.contentDocument.body.innerHTML;
+  let contentBody = cwc.e("content-frame").contentDocument.body;
 
   for (let str of ABOUT_SUPPORT_STRINGS) {
-    if (!text.includes(str))
+    if (!check_text_in_body(contentBody, str))
       mark_failure(["Unable to find \"" + str + "\" in compose window"]);
   }
 
-  for (let str of ABOUT_SUPPORT_ERROR_STRINGS) {
-    if (text.includes(str))
+  for (let str of ABOUT_SUPPORT_ERROR_STRINGS.get("text/html")) {
+    if (check_text_in_body(contentBody, str))
       mark_failure(["Found \"" + str + "\" in compose window"]);
   }
 
-  // Check that private data (profile directory) isn't in the output.
-  let profD = Services.dirsvc.get("ProfD", Ci.nsIFile).path;
-  if (text.includes(profD))
-    mark_failure(["Found profile directory in compose window"]);
+  // Check that private data isn't in the output.
+  if (check_text_in_body(contentBody, privateElem.textContent))
+    mark_failure(["Found private data in compose window"]);
 
   close_compose_window(cwc);
   close_tab(tab);
@@ -296,39 +358,33 @@ function test_send_via_email_public() {
  * Test opening the compose window with private data.
  */
 function test_send_via_email_private() {
-  let bundle = Services.strings.createBundle(
-    "chrome://messenger/locale/aboutSupportMail.properties");
-  let warningText = bundle.GetStringFromName("warningText");
-
   let tab = open_about_support();
 
   // Display private data.
-  let privateElem = content_tab_e(tab, "profile-dir-box");
-  content_tab_e(tab, "check-show-private-data").click();
-  wait_for_content_tab_element_display_value(tab, privateElem, "inline");
+  let privateElem = find_private_element(tab);
+  mc.click(content_tab_eid(tab, "check-show-private-data"));
+  wait_for_content_tab_element_display(tab, privateElem);
 
   let cwc = open_send_via_email(tab);
 
-  let contentFrame = cwc.e("content-frame");
-  let text = contentFrame.contentDocument.body.innerHTML;
+  let contentBody = cwc.e("content-frame").contentDocument.body;
 
   for (let str of ABOUT_SUPPORT_STRINGS) {
-    if (!text.includes(str))
+    if (!check_text_in_body(contentBody, str))
       mark_failure(["Unable to find \"" + str + "\" in compose window"]);
   }
 
-  for (let str of ABOUT_SUPPORT_ERROR_STRINGS) {
-    if (text.includes(str))
+  for (let str of ABOUT_SUPPORT_ERROR_STRINGS.get("text/html")) {
+    if (check_text_in_body(contentBody, str))
       mark_failure(["Found \"" + str + "\" in compose window"]);
   }
 
-  // Check that private data (profile directory) is in the output.
-  let profD = Services.dirsvc.get("ProfD", Ci.nsIFile).path;
-  if (!text.includes(profD))
-    mark_failure(["Unable to find profile directory in compose window"]);
+  // Check that private data is in the output.
+  if (!check_text_in_body(contentBody, privateElem.textContent))
+    mark_failure(["Unable to find private data in compose window"]);
 
   // Check that the warning text is in the output.
-  if (!text.includes(warningText))
+  if (!check_text_in_body(contentBody, warningText.get("text/html")))
     mark_failure(["Unable to find warning text in compose window"]);
 
   close_compose_window(cwc);

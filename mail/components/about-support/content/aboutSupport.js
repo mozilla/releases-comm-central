@@ -117,6 +117,7 @@ var snapshotFormatters = {
     let profElem = document.getElementById("profile-dir-button").parentNode;
     let profDirNode = document.createElement("span");
     profDirNode.setAttribute("class", CLASS_DATA_PRIVATE);
+    profDirNode.setAttribute("id", "profile-dir-path");
     let profLinkNode = document.createElement("a");
     profLinkNode.setAttribute("href", Services.io.newFileURI(currProfD).spec);
     profLinkNode.setAttribute("onclick", "openProfileDirectory(); event.preventDefault();");

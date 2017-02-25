@@ -59,6 +59,8 @@ function installInto(module) {
   module.assert_content_tab_element_hidden = assert_content_tab_element_hidden;
   module.assert_content_tab_element_visible = assert_content_tab_element_visible;
   module.wait_for_content_tab_element_display_value = wait_for_content_tab_element_display_value;
+  module.wait_for_content_tab_element_display = wait_for_content_tab_element_display;
+  module.get_element_by_text = get_element_by_text;
   module.assert_content_tab_text_present = assert_content_tab_text_present;
   module.assert_content_tab_text_absent = assert_content_tab_text_absent;
   module.NotificationWatcher = NotificationWatcher;
@@ -317,7 +319,7 @@ function assert_content_tab_element_hidden(aTab, aElem) {
  */
 function assert_content_tab_element_visible(aTab, aElem) {
   let display = get_content_tab_element_display(aTab, aElem);
-  if (display != "inline") {
+  if (display == "none") {
     mark_failure(["Element", aElem, "should be visible but has display", display,
                   "instead"]);
   }
@@ -343,11 +345,55 @@ function wait_for_content_tab_element_display_value(aTab, aElem, aValue) {
 }
 
 /**
+ * Waits for the element's display property indicate it is visible.
+ */
+function wait_for_content_tab_element_display(aTab, aElem) {
+  function isValue() {
+    return get_content_tab_element_display(aTab, aElem) != "none";
+  }
+  try {
+    utils.waitFor(isValue);
+  } catch (e) {
+    if (e instanceof utils.TimeoutError) {
+      mark_failure(["Timeout waiting for element", aElem, "to become visible"]);
+    } else {
+      throw e;
+    }
+  }
+}
+
+/**
+ * Finds element in document fragment, containing only the specified text
+ * as its textContent value.
+ *
+ * @param aRootNode  Root node of the node tree where search should start.
+ * @param aText      The string to search.
+ */
+function get_element_by_text(aRootNode, aText) {
+  // Check every node existing.
+  let nodes = aRootNode.querySelectorAll("*");
+  for (let node of nodes) {
+    // We ignore surrounding whitespace.
+    if (node.textContent.trim() == aText)
+      return node;
+  }
+
+  return null;
+}
+
+/**
+ * Finds element containing only the specified text in the content tab's page.
+ */
+function get_content_tab_element_by_text(aTab, aText) {
+  let doc = aTab.browser.contentDocument.documentElement;
+  return get_element_by_text(doc, aText);
+}
+
+/**
  * Asserts that the given text is present on the content tab's page.
  */
 function assert_content_tab_text_present(aTab, aText) {
-  let html = aTab.browser.contentDocument.documentElement.innerHTML;
-  if (!html.includes(aText)) {
+  if (!get_content_tab_element_by_text(aTab, aText)) {
     mark_failure(["Unable to find string \"" + aText + "\" on the content tab's page"]);
   }
 }
@@ -356,8 +402,7 @@ function assert_content_tab_text_present(aTab, aText) {
  * Asserts that the given text is absent on the content tab's page.
  */
 function assert_content_tab_text_absent(aTab, aText) {
-  let html = aTab.browser.contentDocument.documentElement.innerHTML;
-  if (html.includes(aText)) {
+  if (get_content_tab_element_by_text(aTab, aText)) {
     mark_failure(["Found string \"" + aText + "\" on the content tab's page"]);
   }
 }
