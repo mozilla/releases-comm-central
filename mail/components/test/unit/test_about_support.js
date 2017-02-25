@@ -137,13 +137,14 @@ function verify_account_details(aDetails) {
  * on.
  */
 function test_get_file_system_type() {
-  let fsType = AboutSupport.getFileSystemType(do_get_cwd());
-  if ("nsILocalFileMac" in Ci)
+  let fsType = AboutSupportPlatform.getFileSystemType(do_get_cwd());
+  if ("nsILocalFileMac" in Ci) {
     // Mac should return null
     do_check_eq(fsType, null);
-  else
+  } else {
     // Windows and Linux should return a string
     do_check_true(["local", "network", "unknown"].includes(fsType));
+  }
 }
 
 /**
@@ -188,7 +189,7 @@ function run_test() {
     Cc["@mozilla.org/gnome-gconf-service;1"].getService();
   }
 
-  Components.utils.import("resource:///modules/aboutSupport.js");
+  Services.scriptloader.loadSubScript("chrome://messenger/content/about-support/accounts.js");
 
   setup_accounts();
 

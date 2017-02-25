@@ -16,14 +16,6 @@ Cu.import("resource://gre/modules/ResetProfile.jsm");
 Cu.import("resource://gre/modules/AppConstants.jsm");
 // added for TB
 Cu.import("resource:///modules/mailServices.js");
-
-// Platform-specific includes
-if ("@mozilla.org/windows-registry-key;1" in Cc)
-  Cu.import("resource:///modules/aboutSupportWin32.js");
-else if ("nsILocalFileMac" in Ci)
-  Cu.import("resource:///modules/aboutSupportMac.js");
-else
-  Cu.import("resource:///modules/aboutSupportUnix.js");
 // end of TB addition
 
 XPCOMUtils.defineLazyModuleGetter(this, "PluralForm",

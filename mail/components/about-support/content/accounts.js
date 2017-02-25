@@ -6,7 +6,17 @@
 
 var { interfaces: Ci, utils: Cu } = Components;
 
-Components.utils.import("resource:///modules/iteratorUtils.jsm");
+Cu.import("resource:///modules/mailServices.js");
+Cu.import("resource:///modules/iteratorUtils.jsm");
+Cu.import("resource://gre/modules/Services.jsm");
+
+// Platform-specific includes
+if ("@mozilla.org/windows-registry-key;1" in Cc)
+  Cu.import("resource:///modules/aboutSupportWin32.js");
+else if ("nsILocalFileMac" in Ci)
+  Cu.import("resource:///modules/aboutSupportMac.js");
+else
+  Cu.import("resource:///modules/aboutSupportUnix.js");
 
 var gMessengerBundle = Services.strings.createBundle(
   "chrome://messenger/locale/messenger.properties");
@@ -214,8 +224,7 @@ var gOutgoingDetails = [
 /**
  * A list of account details.
  */
-XPCOMUtils.defineLazyGetter(window, "gAccountDetails",
-                            () => AboutSupport.getAccountDetails());
+var gAccountDetails = AboutSupport.getAccountDetails();
 
 function populateAccountsSection() {
   let trAccounts = [];
