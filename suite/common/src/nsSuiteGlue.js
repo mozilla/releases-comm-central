@@ -398,40 +398,40 @@ SuiteGlue.prototype = {
       permissionsDB.append("permissions.sqlite");
       let db = Services.storage.openDatabase(permissionsDB);
 
-      let statement = db.createStatement(
-        "select origin, permission from moz_perms where " +
-        // Avoid 'like' here which needs to be escaped.
-        "  substr(origin, 1, 28) = 'chrome://messenger/content/?';");
-
       try {
-        while (statement.executeStep()) {
-          let origin = statement.getUTF8String(0);
-          let permission = statement.getInt32(1);
-          Services.console.logStringMessage("Mail-Image-Perm Mig: " + origin);
-          Services.perms.remove(
-            Services.io.newURI(origin), "image");
-          origin = origin.replace("chrome://messenger/content/?",
-                                  "chrome://messenger/content/");
-          Services.perms.add(
-            Services.io.newURI(origin), "image", permission);
+        let statement = db.createStatement(
+          "select origin, permission from moz_perms where " +
+          // Avoid 'like' here which needs to be escaped.
+          "  substr(origin, 1, 28) = 'chrome://messenger/content/?';");
+
+        try {
+          while (statement.executeStep()) {
+            let origin = statement.getUTF8String(0);
+            let permission = statement.getInt32(1);
+            Services.console.logStringMessage("Mail-Image-Perm Mig: " + origin);
+            Services.perms.remove(
+              Services.io.newURI(origin), "image");
+            origin = origin.replace("chrome://messenger/content/?",
+                                    "chrome://messenger/content/");
+            Services.perms.add(
+              Services.io.newURI(origin), "image", permission);
+          }
+        } finally {
+          statement.finalize();
         }
-      } catch (ex) {
-        throw ex;
-      } finally {
-        statement.finalize();
-      }
 
-      // Sadly we still need to clear the database manually. Experiments
-      // showed that the permissions manager deletes only one record.
-      db.beginTransactionAs(Components.interfaces.mozIStorageConnection.TRANSACTION_EXCLUSIVE);
+        // Sadly we still need to clear the database manually. Experiments
+        // showed that the permissions manager deletes only one record.
+        db.beginTransactionAs(Components.interfaces.mozIStorageConnection.TRANSACTION_EXCLUSIVE);
 
-      try {
-        db.executeSimpleSQL("delete from moz_perms where " +
-             "  substr(origin, 1, 28) = 'chrome://messenger/content/?';");
-        db.commitTransaction();
-      } catch (ex) {
-        db.rollbackTransaction();
-        throw ex;
+        try {
+          db.executeSimpleSQL("delete from moz_perms where " +
+               "  substr(origin, 1, 28) = 'chrome://messenger/content/?';");
+          db.commitTransaction();
+        } catch (ex) {
+          db.rollbackTransaction();
+          throw ex;
+        }
       } finally {
         db.close();
       }
