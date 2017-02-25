@@ -1381,21 +1381,25 @@ function BrowserOpenWindow()
 {
   //opens a window where users can select a web location to open
   var params = { action: gPrivate ? "4" : "0", url: "" };
-  openDialog("chrome://communicator/content/openLocation.xul", "_blank", "chrome,modal,titlebar", params);
-  promiseShortcutOrURI(params.url).then(([url, postData]) => {
+  openDialog("chrome://communicator/content/openLocation.xul", "_blank",
+             "chrome,modal,titlebar", params);
+
+  getShortcutOrURIAndPostData(params.url).then(data => {
     switch (params.action) {
       case "0": // current window
-        loadURI(url, null, postData, true);
+        loadURI(data.url, null, data.postData, true);
         break;
       case "1": // new window
-        openDialog(getBrowserURL(), "_blank", "all,dialog=no", url, null, null,
-                   postData, true);
+        openDialog(getBrowserURL(), "_blank", "all,dialog=no", data.url, null, null,
+                   data.postData, true);
         break;
       case "2": // edit
-        editPage(url);
+        editPage(data.url);
         break;
       case "3": // new tab
-        gBrowser.selectedTab = gBrowser.addTab(url, {allowThirdPartyFixup: true, postData: postData});
+        gBrowser.selectedTab = gBrowser.addTab(data.url,
+                                               {allowThirdPartyFixup: true,
+                                                postData: data.postData});
         break;
       case "4": // private
         openNewPrivateWith(params.url);
@@ -1690,7 +1694,7 @@ function handleURLBarCommand(aUserAction, aTriggeringEvent)
     return;
   }
 
-  promiseShortcutOrURI(url).then(([url, postData]) => {
+  getShortcutOrURIAndPostData(url).then(data => {
     // Check the pressed modifiers: (also see bug 97123)
     // Modifier Mac | Modifier PC | Action
     // -------------+-------------+-----------
@@ -1722,8 +1726,8 @@ function handleURLBarCommand(aUserAction, aTriggeringEvent)
         // Reset url in the urlbar
         URLBarSetURI();
         // Open link in new tab
-        var t = browser.addTab(url, {
-                  postData: postData,
+        var t = browser.addTab(data.url, {
+                  postData: data.postData,
                   allowThirdPartyFixup: true,
                   isUTF8: isUTF8
                 });
@@ -1733,8 +1737,8 @@ function handleURLBarCommand(aUserAction, aTriggeringEvent)
           browser.selectedTab = t;
       } else {
         // Open a new window with the URL
-        var newWin = openDialog(getBrowserURL(), "_blank", "all,dialog=no", url,
-            null, null, postData, true, isUTF8);
+        var newWin = openDialog(getBrowserURL(), "_blank", "all,dialog=no", data.url,
+                                null, null, data.postData, true, isUTF8);
         // Reset url in the urlbar
         URLBarSetURI();
 
@@ -1753,7 +1757,7 @@ function handleURLBarCommand(aUserAction, aTriggeringEvent)
         if (!gURIFixup)
           gURIFixup = Components.classes["@mozilla.org/docshell/urifixup;1"]
                                 .getService(nsIURIFixup);
-        url = gURIFixup.createFixupURI(url, nsIURIFixup.FIXUP_FLAGS_MAKE_ALTERNATE_URI).spec;
+        url = gURIFixup.createFixupURI(data.url, nsIURIFixup.FIXUP_FLAGS_MAKE_ALTERNATE_URI).spec;
         // Open filepicker to save the url
         saveURL(url, null, null, false, true, null, document);
       }
@@ -1764,88 +1768,74 @@ function handleURLBarCommand(aUserAction, aTriggeringEvent)
     } else {
       // No modifier was pressed, load the URL normally and
       // focus the content area
-      loadURI(url, null, postData, true, isUTF8);
+      loadURI(data.url, null, data.postData, true, isUTF8);
       content.focus();
     }
   });
 }
 
-function promiseShortcutOrURI(aURL)
-{
-  var keyword = aURL;
-  var param = "";
+/**
+ * Given a string, will generate a more appropriate urlbar value if a Places
+ * keyword or a search alias is found at the beginning of it.
+ *
+ * @param url
+ *        A string that may begin with a keyword or an alias.
+ *
+ * @return {Promise}
+ * @resolves { url, postData, mayInheritPrincipal }. If it's not possible
+ *           to discern a keyword or an alias, url will be the input string.
+ */
+function getShortcutOrURIAndPostData(url) {
+  return Task.spawn(function* () {
+    let mayInheritPrincipal = false;
+    let postData = null;
+    // Split on the first whitespace.
+    let [keyword, param = ""] = url.trim().split(/\s(.+)/, 2);
 
-  var offset = aURL.indexOf(" ");
-  if (offset > 0) {
-    keyword = aURL.substr(0, offset);
-    param = aURL.substr(offset + 1);
-  }
+    if (!keyword) {
+      return { url, postData, mayInheritPrincipal };
+    }
 
-  var engine = Services.search.getEngineByAlias(keyword);
-  if (engine) {
-    var submission = engine.getSubmission(param);
-    return Promise.resolve([submission.uri.spec, submission.postData]);
-  }
+    let engine = Services.search.getEngineByAlias(keyword);
+    if (engine) {
+      let submission = engine.getSubmission(param, null, "keyword");
+      return { url: submission.uri.spec,
+               postData: submission.postData,
+               mayInheritPrincipal };
+    }
 
-  return PlacesUtils.keywords.fetch(keyword).then(entry => {
-    if (!entry)
-      return [aURL];
+    // A corrupt Places database could make this throw, breaking navigation
+    // from the location bar.
+    let entry = null;
+    try {
+      entry = yield PlacesUtils.keywords.fetch(keyword);
+    } catch (ex) {
+      Components.utils.reportError(`Unable to fetch Places keyword "${keyword}": ${ex}`);
+    }
+    if (!entry || !entry.url) {
+      // This is not a Places keyword.
+      return { url, postData, mayInheritPrincipal };
+    }
 
-    var shortcutURL = entry.url.href;
-    var postData = entry.postData;
-    if (postData)
-      postData = unescape(postData);
-
-    if (/%s/i.test(shortcutURL) || /%s/i.test(postData)) {
-      var charset;
-      const re = /^(.*)\&mozcharset=([a-zA-Z][_\-a-zA-Z0-9]+)\s*$/;
-      var matches = shortcutURL.match(re);
-      if (matches) {
-        shortcutURL = matches[1];
-        charset = Promise.resolve(matches[2]);
-      } else {
-        // Try to get the saved character-set.
-        try {
-          // makeURI throws if URI is invalid.
-          // Will return an empty string if character-set is not found.
-          charset = PlacesUtils.getCharsetForURI(makeURI(shortcutURL));
-        } catch (e) {
-          charset = Promise.resolve();
-        }
+    try {
+      [url, postData] =
+        yield BrowserUtils.parseUrlAndPostData(entry.url.href,
+                                               entry.postData,
+                                               param);
+      if (postData) {
+        postData = getPostDataStream(postData);
       }
 
-      return charset.then(charset => {
-        // encodeURIComponent produces UTF-8, and cannot be used for other
-        // charsets. escape() works in those cases, but it doesn't uri-encode
-        // +, @, and /. Therefore we need to manually replace these ASCII
-        // characters by their encodeURIComponent result, to match the
-        // behaviour of nsEscape() with url_XPAlphas.
-        var encodedParam = "";
-        if (charset && charset != "UTF-8")
-          encodedParam = escape(convertFromUnicode(charset, param)).
-                         replace(/[+@\/]+/g, encodeURIComponent);
-        else // Default charset is UTF-8
-          encodedParam = encodeURIComponent(param);
-
-        shortcutURL = shortcutURL.replace(/%s/g, encodedParam).replace(/%S/g, param);
-
-        if (/%s/i.test(postData)) { // POST keyword
-          var postDataStream = getPostDataStream(postData, param, encodedParam,
-                                                 "application/x-www-form-urlencoded");
-          return [shortcutURL, postDataStream];
-        }
-
-        return [shortcutURL];
-      });
+      // Since this URL came from a bookmark, it's safe to let it inherit the
+      // current document's principal.
+      mayInheritPrincipal = true;
+    } catch (ex) {
+      // It was not possible to bind the param, just use the original url value.
     }
 
-    if (param) {
-      // This keyword doesn't take a parameter, but one was provided. Just return
-      // the original URL.
-      return [aURL];
-    }
-
-    return [shortcutURL];
+    return { url, postData, mayInheritPrincipal };
+  }).then(data => {
+    return data;
   });
 }
 
@@ -1864,16 +1854,58 @@ function getPostDataStream(aStringData, aKeyword, aEncKeyword, aType)
   return mimeStream.QueryInterface(Components.interfaces.nsIInputStream);
 }
 
-function handleDroppedLink(event, url, name)
+// handleDroppedLink has the following 2 overloads:
+//   handleDroppedLink(event, url, name)
+//   handleDroppedLink(event, links)
+function handleDroppedLink(event, urlOrLinks, name)
 {
-  promiseShortcutOrURI(url).then(([uri, postData]) => {
-    if (uri)
-      loadURI(uri, null, postData, false);
+  let links;
+  if (Array.isArray(urlOrLinks)) {
+    links = urlOrLinks;
+  } else {
+    links = [{ url: urlOrLinks, name, type: "" }];
+  }
+
+  let lastLocationChange = gBrowser.selectedBrowser.lastLocationChange;
+
+  // Usually blank for SeaMonkey.
+  let userContextId = gBrowser.selectedBrowser.getAttribute("usercontextid");
+
+  // event is null if links are dropped in content process.
+  // inBackground should be false, as it's loading into current browser.
+  let inBackground = false;
+  if (event) {
+    inBackground = Services.prefs.getBoolPref("browser.tabs.loadInBackground");
+    if (event.shiftKey)
+      inBackground = !inBackground;
+  }
+
+  Task.spawn(function*() {
+    let urls = [];
+    let postDatas = [];
+    for (let link of links) {
+      let data = yield getShortcutOrURIAndPostData(link.url);
+      urls.push(data.url);
+      postDatas.push(data.postData);
+    }
+    if (lastLocationChange == gBrowser.selectedBrowser.lastLocationChange) {
+      gBrowser.loadTabs(urls, {
+        inBackground,
+        replace: true,
+        allowThirdPartyFixup: false,
+        postDatas,
+        userContextId,
+      });
+    }
   });
 
-  // Keep the event from being handled by the dragDrop listeners
-  // built-in to gecko if they happen to be above us.
-  event.preventDefault();
+  // If links are dropped in content process, event.preventDefault() should be
+  // called in content process.
+  if (event) {
+    // Keep the event from being handled by the dragDrop listeners
+    // built-in to gecko if they happen to be above us.
+    event.preventDefault();
+  }
 }
 
 function readFromClipboard()

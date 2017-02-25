@@ -1470,6 +1470,22 @@
         <parameter name="aLoadInBackground"/>
         <parameter name="aReplace"/>
         <body><![CDATA[
+          let aAllowThirdPartyFixup;
+          let aPostDatas = [];
+          let aUserContextId;
+
+          // Additional parameters are in a params object.
+          // Firefox uses additional parameters not supported here.
+          if (arguments.length == 2 &&
+              typeof arguments[1] == "object") {
+            let params = arguments[1];
+            aLoadInBackground     = params.inBackground;
+            aReplace              = params.replace;
+            aAllowThirdPartyFixup = params.allowThirdPartyFixup;
+            aPostDatas            = params.postDatas || aPostDatas;
+            aUserContextId        = params.userContextId;
+          }
+
           if (!aURIs.length)
             return;
 
@@ -1484,31 +1500,56 @@
           //    == 1              false                     YES
           //    == 1              true                      NO
           //    > 1               false/true                NO
+          var multiple = aURIs.length > 1;
+          var owner = multiple || aLoadInBackground ? null : this.selectedTab;
           var firstTabAdded = null;
+          var targetTabIndex = -1;
 
           if (aReplace) {
+            let browser;
+            browser = this.mCurrentBrowser;
+            targetTabIndex = this.tabContainer.selectedIndex;
+
+            let flags = Components.interfaces.nsIWebNavigation.LOAD_FLAGS_NONE;
+            if (aAllowThirdPartyFixup) {
+              flags |= Components.interfaces.nsIWebNavigation.LOAD_FLAGS_ALLOW_THIRD_PARTY_FIXUP |
+                       Components.interfaces.nsIWebNavigation.LOAD_FLAGS_FIXUP_SCHEME_TYPOS;
+            }
             try {
-              this.loadURI(aURIs[0]);
+              browser.loadURIWithFlags(aURIs[0], {
+                flags, postData: aPostDatas[0]
+              });
             } catch (e) {
               // Ignore failure in case a URI is wrong, so we can continue
               // opening the next ones.
             }
-          }
-          else {
+          } else {
             firstTabAdded = this.addTab(aURIs[0], {
-              focusNewTab: !aLoadInBackground && aURIs.length == 1
+              ownerTab: owner,
+              allowThirdPartyFixup: aAllowThirdPartyFixup,
+              postData: aPostDatas[0],
+              userContextId: aUserContextId
             });
           }
 
-          var tabNum = this.tabContainer.selectedIndex;
+          let tabNum = targetTabIndex;
           for (let i = 1; i < aURIs.length; ++i) {
-            let tab = this.addTab(aURIs[i]);
-            if (aReplace)
+            let tab = this.addTab(aURIs[i], {
+              allowThirdPartyFixup: aAllowThirdPartyFixup,
+              postData: aPostDatas[i],
+              userContextId: aUserContextId
+            });
+            if (targetTabIndex !== -1)
               this.moveTabTo(tab, ++tabNum);
           }
 
-          if (!aLoadInBackground && aReplace)
-            window.content.focus();
+          if (!aLoadInBackground) {
+            if (firstTabAdded) {
+              // .selectedTab setter focuses the content area
+              this.selectedTab = firstTabAdded;
+            } else
+              this.selectedBrowser.focus();
+          }
         ]]></body>
       </method>
 
@@ -2367,7 +2408,7 @@
             if (!url || url.indexOf(" ") != -1)
               return;
 
-            promiseShortcutOrURI(url).then(([url]) => {
+            getShortcutOrURIAndPostData(url).then(data => {
               var bgLoad = this.mPrefs.getBoolPref("browser.tabs.loadInBackground");
               if (aEvent.shiftKey)
                 bgLoad = !bgLoad;
@@ -2377,20 +2418,20 @@
               if (tabIndex != -1) {
                 // Load in an existing tab.
                 tab = this.tabs[tabIndex];
-                tab.linkedBrowser.loadURI(url);
+                tab.linkedBrowser.loadURI(data.url);
                 if (this.mCurrentTab != tab && !bgLoad)
                   this.selectedTab = tab;
               }
               else if (dt.mozSourceDocument &&
                        dt.mozSourceDocument.defaultView.top == content) {
                 // We're adding a new tab, and we may want parent-tab tracking.
-                tab = this.loadOneTab(url, {inBackground: bgLoad});
+                tab = this.loadOneTab(data.url, {inBackground: bgLoad});
                 if (newIndex != this.tabs.length - 1)
                   this.moveTabTo(this.tabs.length - 1, newIndex);
               }
               else {
                 // We're adding a new tab, but do not want parent-tab tracking.
-                tab = this.addTab(url);
+                tab = this.addTab(data.url);
                 if (newIndex != this.tabs.length - 1)
                   this.moveTabTo(this.tabs.length - 1, newIndex);
                 if (this.mCurrentTab != tab && !bgLoad)

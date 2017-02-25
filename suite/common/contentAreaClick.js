@@ -144,54 +144,63 @@
 
   var gURIFixup = null;
 
-  function middleMousePaste(event)
-  {
-    var url = readFromClipboard();
-    if (!url)
+  function middleMousePaste(event) {
+
+    let clipboard = readFromClipboard();
+
+    if (!clipboard)
       return;
-    addToUrlbarHistory(url);
-    promiseShortcutOrURI(url).then(([url]) => {
-      // On ctrl-middleclick, open in new window or tab.  Do not send referrer.
-      if (event.ctrlKey) {
-        // fix up our pasted URI in case it is malformed.
-        const nsIURIFixup = Components.interfaces.nsIURIFixup;
-        if (!gURIFixup)
-          gURIFixup = Components.classes["@mozilla.org/docshell/urifixup;1"]
-                                .getService(nsIURIFixup);
 
-        url = gURIFixup.createFixupURI(url, nsIURIFixup.FIXUP_FLAGS_MAKE_ALTERNATE_URI).spec;
+    // Strip embedded newlines and surrounding whitespace, to match the URL
+    // bar's behavior (stripsurroundingwhitespace).
+    clipboard = clipboard.replace(/\s*\n\s*/g, "");
 
-        if (openNewTabOrWindow(event, url, null))
-          event.stopPropagation();
+    clipboard = stripUnsafeProtocolOnPaste(clipboard);
+
+    // If its not the current tab, we don't need to do anything because the
+    // browser doesn't exist.
+    let where = whereToOpenLink(event, true, false);
+    let lastLocationChange;
+    if (where == "current") {
+        lastLocationChange = gBrowser.selectedBrowser.lastLocationChange;
+    }
+
+    getShortcutOrURIAndPostData(clipboard).then(data => {
+      try {
+        makeURI(data.url);
+      } catch (ex) {
+        // Not a valid URI.
         return;
       }
 
-      // If ctrl wasn't down, then just load the url in the targeted win/tab.
-      var browser = getBrowser();
-      var tab = event.originalTarget;
-      if (tab.localName == "tab" &&
-          tab.parentNode == browser.tabContainer) {
-        tab.linkedBrowser.userTypedValue = url;
-        if (tab == browser.mCurrentTab && url != "about:blank") {
-            gURLBar.value = url;
-        }
-        tab.linkedBrowser.loadURI(url);
-        if (event.shiftKey != (Services.prefs.getBoolPref("browser.tabs.loadInBackground")))
-          browser.selectedTab = tab;
+      try {
+        addToUrlbarHistory(data.url);
+      } catch (ex) {
+        // Things may go wrong when adding url to session history,
+        // but don't let that interfere with the loading of the url.
+        Components.utils.reportError(ex);
       }
-      else if (event.target == browser) {
-        tab = browser.addTab(url);
-        if (event.shiftKey != (Services.prefs.getBoolPref("browser.tabs.loadInBackground")))
-          browser.selectedTab = tab;
-      }
-      else {
-        if (url != "about:blank") {
-          gURLBar.value = url;
-        }
-        loadURI(url);
+
+      if (where != "current" ||
+          lastLocationChange == gBrowser.selectedBrowser.lastLocationChange) {
+        openUILink(data.url, event,
+                   { ignoreButton: true,
+                       disallowInheritPrincipal: !data.mayInheritPrincipal });
       }
     });
+
     event.stopPropagation();
+  }
+
+  function stripUnsafeProtocolOnPaste(pasteData) {
+    // Don't allow pasting javascript URIs since we don't support
+    // LOAD_FLAGS_DISALLOW_INHERIT_PRINCIPAL for those.
+    let changed = false;
+    let pasteDataNoJS = pasteData.replace(/\r?\n/g, "")
+                                 .replace(/^(?:\s*javascript:)+/i,
+                                          () => { changed = true;
+                                                  return ""; });
+    return changed ? pasteDataNoJS : pasteData;
   }
 
   function addToUrlbarHistory(aUrlToAdd)
@@ -202,20 +211,21 @@
     if (!Services.prefs.getBoolPref("browser.urlbar.historyEnabled"))
       return;
 
-    // Remove leading and trailing spaces first
+    // Remove leading and trailing spaces first.
     aUrlToAdd = aUrlToAdd.trim();
 
     if (!aUrlToAdd)
       return;
-    if (aUrlToAdd.search(/[\x00-\x1F]/) != -1) // don't store bad URLs
+    // Don't store bad URLs.
+    if (aUrlToAdd.search(/[\x00-\x1F]/) != -1) 
       return;
 
     if (!gURIFixup)
       gURIFixup = Components.classes["@mozilla.org/docshell/urifixup;1"]
                             .getService(Components.interfaces.nsIURIFixup);
 
-    promiseShortcutOrURI(aUrlToAdd).then(([url]) => {
-      var fixedUpURI = gURIFixup.createFixupURI(url, 0);
+    getShortcutOrURIAndPostData(aUrlToAdd).then(data => {
+      var fixedUpURI = gURIFixup.createFixupURI(data.url, 0);
       if (!fixedUpURI.schemeIs("data"))
         PlacesUtils.history.markPageAsTyped(fixedUpURI);
     }).catch(() => {});
@@ -235,7 +245,7 @@
     statement.execute();
     statement.finalize();
 
-    // Put the value as it was typed by the user in to urlbar history
+    // Put the value as it was typed by the user in to urlbar history.
     statement = connection.createStatement(
         "INSERT INTO urlbarhistory (url) VALUES (?1)");
     statement.bindByIndex(0, aUrlToAdd);
