@@ -4,22 +4,19 @@
 
 <SearchPlugin xmlns="http://www.mozilla.org/2006/browser/search/">
 <ShortName>Wikipedia (en)</ShortName>
-<Description>Wikipedia, the free encyclopedia</Description>
+<Description>Wikipedia, the Free Encyclopedia</Description>
 <InputEncoding>UTF-8</InputEncoding>
-<Image width="16" height="16">data:image/x-icon;base64,AAABAAEAEBAQAAEABAAoAQAAFgAAACgAAAAQAAAAIAAAAAEABAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAEAgQAhIOEAMjHyABIR0gA6ejpAGlqaQCpqKkAKCgoAPz9%2FAAZGBkAmJiYANjZ2ABXWFcAent6ALm6uQA8OjwAiIiIiIiIiIiIiI4oiL6IiIiIgzuIV4iIiIhndo53KIiIiB%2FWvXoYiIiIfEZfWBSIiIEGi%2FfoqoiIgzuL84i9iIjpGIoMiEHoiMkos3FojmiLlUipYliEWIF%2BiDe0GoRa7D6GPbjcu1yIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA</Image>
-<Url type="application/x-suggestions+json" method="GET" template="http://en.wikipedia.org/w/api.php">
+<Image width="16" height="16">data:image/x-icon;base64,AAABAAIAEBAAAAEACABZAQAAJgAAACAgAAABAAgAFAIAAH8BAACJUE5HDQoaCgAAAA1JSERSAAAAEAAAABAIBgAAAB/z/2EAAAEgSURBVDiNxZPNqYUwEIVP5FUQ7jZYgWQtwt3bgCXYgGADYgliA1nI7UJs4GIDV6zACua8VYK572fjgxcYyMkk3zBniCJJXFjJlcd/Avi42AGSZVlgrUWSJOj7HgBQFEXQ+77DWgtrLfZ9xziOuN1uKIoC67oCIsJt26iUonOOXhtj2HUdRYR5nnPbNooIRYRZloU9/CbP8ygxDAO11nTOsWma6NyDI8A8zwTAeZ5D0hhDY0zQvtBZ4z15vlBVFbXWPBep6/pngHOOSik+n88A1FpzGIYAPHshIlQiEs0xTVOUZYn7/Y7X64XjOPB4PLAsC9q2xTRN8RzPNG+SUiq04ieUZVnkz7ct+NBaR05XVfXFvF8B3oNzvPcePPj33/gJUmDVZiwX0JoAAAAASUVORK5CYIKJUE5HDQoaCgAAAA1JSERSAAAAIAAAACAIBgAAAHN6evQAAAHbSURBVFiF7ZbBkcUgCIZh5zVAAdzTgSXkbg+WYA12kV7SgE3YB+xhB0cTzduXSy4vM55Q+IAfJqiqCg9+P08G/wJ8AQAAXg8PwfMVABHRZVkUERUA6kFEXddVRURFRJm5sxORppRURDTGqETU2c2WUjq9BYDqGyxAKUWJqIKUUmpwO9776mDf986Wc1YAUGbWnPPp7bquNXDrG9pLMcYaYNu2k5NSSgX03ne2bdum7wyAiE6JwTGAlXJZlqGjEIIioiJi54yZ1Tk3fGPgMcaTDUYB3lXBWhVCqNkj4qktrc9R9kMAo0XEaUbHKjBzJ9jjIaJTy6YA1i8LMBJUWwW7O7rXamNmHwLknCvALDNrFSJOsxP5G/FZJacAIqLOuRpg1Lu2VTOAfd8VEaeTcQlgwgKAKrZRbxFxKjDv/XSa3gJY+WYBDNDOccSsQrYRbwGYgEYBmFm993XDEVFnt/V85f8twLHMx+xzznUFA0AHSUTDxfMxQEqpltnKadkfBWuQBjjSxccA7Xpm5uFct3qIMapz7nI0PwIQ6TffbDeYYG1yZovnFkA787Ot1wr2avHcAhD5m+mrzWjaeLd4bgOUUjSEcCmsnPO/lN8eFJFH/0pfiPhk/Of/ir8Avyp/kQM+tx+NAAAAAElFTkSuQmCC</Image>
+<Url type="application/x-suggestions+json" method="GET" template="https://en.wikipedia.org/w/api.php">
   <Param name="action" value="opensearch"/>
   <Param name="search" value="{searchTerms}"/>
 </Url>
 <Url type="text/html"
      method="GET"
-     template="http://en.wikipedia.org/wiki/Special:Search"
-     resultdomain="wikipedia.org">
+     template="https://en.wikipedia.org/wiki/Special:Search"
+     resultdomain="wikipedia.org"
+     rel="searchform">
   <Param name="search" value="{searchTerms}"/>
   <Param name="sourceid" value="Mozilla-search"/>
 </Url>
-<Url type="text/html"
-     method="GET"
-     template="http://en.wikipedia.org/wiki/Special:Search"
-     rel="searchform"/>
 </SearchPlugin>
