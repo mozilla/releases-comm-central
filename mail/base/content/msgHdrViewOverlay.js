@@ -566,6 +566,13 @@ var messageHeaderSink = {
           delete currentHeaderData["reply-to"];
       }
 
+      // For content-base urls stored uri encoded, we want to decode for
+      // display (and encode for external link open).
+      if ("content-base" in currentHeaderData) {
+        currentHeaderData["content-base"].headerValue =
+          decodeURI(currentHeaderData["content-base"].headerValue);
+      }
+
       let expandedfromLabel = document.getElementById("expandedfromLabel");
       if (gFolderDisplay.selectedMessageIsFeed)
         expandedfromLabel.value = expandedfromLabel.getAttribute("valueAuthor");
