@@ -15,5 +15,4 @@
   <Param name="q" value="{searchTerms}"/>
   <Param name="t" value="seamonkey"/>
 </Url>
-<SearchForm>https://duckduckgo.com/</SearchForm>
 </SearchPlugin>
