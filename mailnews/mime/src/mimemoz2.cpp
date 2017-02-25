@@ -54,6 +54,7 @@
 #include "nsIParserUtils.h"
 // </for>
 #include "mozilla/Services.h"
+#include "mozilla/Unused.h"
 
 void                 ValidateRealName(nsMsgAttachmentData *aAttach, MimeHeaders *aHdrs);
 
@@ -679,8 +680,10 @@ NotifyEmittersOfAttachmentList(MimeDisplayOptions     *opt,
 
     nsAutoCString spec;
     if (tmp->m_url) {
-      // In C++ code |Unused <<| is used instead of |(void)|.
-      (void) tmp->m_url->GetSpec(spec);
+      if (tmp->m_isExternalLinkAttachment)
+        mozilla::Unused << tmp->m_url->GetAsciiSpec(spec);
+      else
+        mozilla::Unused << tmp->m_url->GetSpec(spec);
     }
 
     nsAutoCString sizeStr;
@@ -688,6 +691,7 @@ NotifyEmittersOfAttachmentList(MimeDisplayOptions     *opt,
       sizeStr.Append(tmp->m_sizeExternalStr);
     else
       sizeStr.AppendInt(tmp->m_size);
+
     nsAutoCString downloadedStr;
     downloadedStr.AppendInt(tmp->m_isDownloaded);
 
