@@ -819,7 +819,7 @@ nsNntpIncomingServer::WriteHostInfoFile()
   rv = MsgNewBufferedFileOutputStream(getter_AddRefs(hostInfoStream), mHostInfoFile, -1, 00600);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  // todo, missing some formatting, see the 4.x code
+  // XXX TODO: missing some formatting, see the 4.x code
   nsAutoCString header("# News host information file.");
   WriteLine(hostInfoStream, header);
   header.Assign("# This is a generated file!  Do not edit.");
@@ -841,7 +841,7 @@ nsNntpIncomingServer::WriteHostInfoFile()
   header.Assign(MSG_LINEBREAK"begingroups");
   WriteLine(hostInfoStream, header);
 
-  // XXX todo, sort groups first?
+  // XXX TODO: sort groups first?
   uint32_t length = mGroupsOnServer.Length();
   for (uint32_t i = 0; i < length; ++i)
   {
@@ -903,16 +903,14 @@ nsNntpIncomingServer::LoadHostInfoFile()
 NS_IMETHODIMP
 nsNntpIncomingServer::StartPopulatingWithUri(nsIMsgWindow *aMsgWindow, bool aForceToServer, const char *uri)
 {
-  nsresult rv = NS_OK;
-
 #ifdef DEBUG_seth
   printf("StartPopulatingWithUri(%s)\n",uri);
 #endif
 
-    rv = EnsureInner();
-    NS_ENSURE_SUCCESS(rv,rv);
-    rv = mInner->StartPopulatingWithUri(aMsgWindow, aForceToServer, uri);
-    NS_ENSURE_SUCCESS(rv,rv);
+  nsresult rv = EnsureInner();
+  NS_ENSURE_SUCCESS(rv,rv);
+  rv = mInner->StartPopulatingWithUri(aMsgWindow, aForceToServer, uri);
+  NS_ENSURE_SUCCESS(rv,rv);
 
   rv = StopPopulating(mMsgWindow);
   if (NS_FAILED(rv)) return rv;
@@ -932,11 +930,9 @@ nsNntpIncomingServer::SubscribeCleanup()
 NS_IMETHODIMP
 nsNntpIncomingServer::StartPopulating(nsIMsgWindow *aMsgWindow, bool aForceToServer, bool aGetOnlyNew)
 {
-  nsresult rv;
-
   mMsgWindow = aMsgWindow;
 
-  rv = EnsureInner();
+  nsresult rv = EnsureInner();
   NS_ENSURE_SUCCESS(rv,rv);
 
   rv = mInner->StartPopulating(aMsgWindow, aForceToServer, aGetOnlyNew);
@@ -1015,79 +1011,81 @@ nsNntpIncomingServer::AddNewsgroupToList(const char *aName)
 NS_IMETHODIMP
 nsNntpIncomingServer::SetIncomingServer(nsIMsgIncomingServer *aServer)
 {
-    nsresult rv = EnsureInner();
-    NS_ENSURE_SUCCESS(rv,rv);
+  nsresult rv = EnsureInner();
+  NS_ENSURE_SUCCESS(rv,rv);
   return mInner->SetIncomingServer(aServer);
 }
 
 NS_IMETHODIMP
 nsNntpIncomingServer::SetShowFullName(bool showFullName)
 {
-    nsresult rv = EnsureInner();
-    NS_ENSURE_SUCCESS(rv,rv);
+  nsresult rv = EnsureInner();
+  NS_ENSURE_SUCCESS(rv,rv);
   return mInner->SetShowFullName(showFullName);
 }
 
 nsresult
 nsNntpIncomingServer::ClearInner()
 {
-    nsresult rv = NS_OK;
+  nsresult rv = NS_OK;
 
-    if (mInner) {
-        rv = mInner->SetSubscribeListener(nullptr);
-        NS_ENSURE_SUCCESS(rv,rv);
+  if (mInner) {
+    rv = mInner->SetSubscribeListener(nullptr);
+    NS_ENSURE_SUCCESS(rv,rv);
 
-        rv = mInner->SetIncomingServer(nullptr);
-        NS_ENSURE_SUCCESS(rv,rv);
+    rv = mInner->SetIncomingServer(nullptr);
+    NS_ENSURE_SUCCESS(rv,rv);
 
-        mInner = nullptr;
-    }
-    return NS_OK;
+    mInner = nullptr;
+  }
+  return NS_OK;
 }
 
 nsresult
 nsNntpIncomingServer::EnsureInner()
 {
-    nsresult rv = NS_OK;
+  nsresult rv = NS_OK;
 
-    if (mInner) return NS_OK;
-
-    mInner = do_CreateInstance(kSubscribableServerCID,&rv);
-    NS_ENSURE_SUCCESS(rv,rv);
-    if (!mInner) return NS_ERROR_FAILURE;
-
-    rv = SetIncomingServer(this);
-    NS_ENSURE_SUCCESS(rv,rv);
-
+  if (mInner)
     return NS_OK;
+
+  mInner = do_CreateInstance(kSubscribableServerCID,&rv);
+  NS_ENSURE_SUCCESS(rv,rv);
+  if (!mInner)
+    return NS_ERROR_FAILURE;
+
+  rv = SetIncomingServer(this);
+  NS_ENSURE_SUCCESS(rv,rv);
+
+  return NS_OK;
 }
 
 NS_IMETHODIMP
 nsNntpIncomingServer::GetDelimiter(char *aDelimiter)
 {
-    nsresult rv = EnsureInner();
-    NS_ENSURE_SUCCESS(rv,rv);
-    return mInner->GetDelimiter(aDelimiter);
+  nsresult rv = EnsureInner();
+  NS_ENSURE_SUCCESS(rv,rv);
+  return mInner->GetDelimiter(aDelimiter);
 }
 
 NS_IMETHODIMP
 nsNntpIncomingServer::SetDelimiter(char aDelimiter)
 {
-    nsresult rv = EnsureInner();
-    NS_ENSURE_SUCCESS(rv,rv);
-    return mInner->SetDelimiter(aDelimiter);
+  nsresult rv = EnsureInner();
+  NS_ENSURE_SUCCESS(rv,rv);
+  return mInner->SetDelimiter(aDelimiter);
 }
 
 NS_IMETHODIMP
 nsNntpIncomingServer::SetAsSubscribed(const nsACString &path)
 {
-    mTempSubscribed.AppendElement(path);
-    if (mGetOnlyNew && (!mGroupsOnServer.Contains(path)))
-      return NS_OK;
+  mTempSubscribed.AppendElement(path);
+  if (mGetOnlyNew && (!mGroupsOnServer.Contains(path)))
+    return NS_OK;
 
-    nsresult rv = EnsureInner();
-    NS_ENSURE_SUCCESS(rv,rv);
-    return mInner->SetAsSubscribed(path);
+  nsresult rv = EnsureInner();
+  NS_ENSURE_SUCCESS(rv,rv);
+  return mInner->SetAsSubscribed(path);
 }
 
 NS_IMETHODIMP
@@ -1106,17 +1104,17 @@ NS_IMETHODIMP
 nsNntpIncomingServer::AddTo(const nsACString &aName, bool addAsSubscribed,
                             bool aSubscribable, bool changeIfExists)
 {
-    NS_ASSERTION(MsgIsUTF8(aName), "Non-UTF-8 newsgroup name");
-    nsresult rv = EnsureInner();
-    NS_ENSURE_SUCCESS(rv,rv);
+  NS_ASSERTION(MsgIsUTF8(aName), "Non-UTF-8 newsgroup name");
+  nsresult rv = EnsureInner();
+  NS_ENSURE_SUCCESS(rv,rv);
 
-    rv = AddGroupOnServer(aName);
-    NS_ENSURE_SUCCESS(rv,rv);
+  rv = AddGroupOnServer(aName);
+  NS_ENSURE_SUCCESS(rv,rv);
 
-    rv = mInner->AddTo(aName, addAsSubscribed, aSubscribable, changeIfExists);
-    NS_ENSURE_SUCCESS(rv,rv);
+  rv = mInner->AddTo(aName, addAsSubscribed, aSubscribable, changeIfExists);
+  NS_ENSURE_SUCCESS(rv,rv);
 
-    return rv;
+  return rv;
 }
 
 NS_IMETHODIMP
@@ -1145,26 +1143,26 @@ nsNntpIncomingServer::StopPopulating(nsIMsgWindow *aMsgWindow)
     NS_ENSURE_SUCCESS(rv,rv);
   }
 
-  //xxx todo when do I set this to null?
-  //rv = ClearInner();
-  //NS_ENSURE_SUCCESS(rv,rv);
+  // XXX TODO: when do I set this to null?
+  // rv = ClearInner();
+  // NS_ENSURE_SUCCESS(rv,rv);
   return NS_OK;
 }
 
 NS_IMETHODIMP
 nsNntpIncomingServer::SetSubscribeListener(nsISubscribeListener *aListener)
 {
-    nsresult rv = EnsureInner();
-    NS_ENSURE_SUCCESS(rv,rv);
+  nsresult rv = EnsureInner();
+  NS_ENSURE_SUCCESS(rv,rv);
   return mInner->SetSubscribeListener(aListener);
 }
 
 NS_IMETHODIMP
 nsNntpIncomingServer::GetSubscribeListener(nsISubscribeListener **aListener)
 {
-    nsresult rv = EnsureInner();
-    NS_ENSURE_SUCCESS(rv,rv);
-    return mInner->GetSubscribeListener(aListener);
+  nsresult rv = EnsureInner();
+  NS_ENSURE_SUCCESS(rv,rv);
+  return mInner->GetSubscribeListener(aListener);
 }
 
 NS_IMETHODIMP
@@ -1225,7 +1223,7 @@ nsNntpIncomingServer::HandleLine(const char* line, uint32_t line_size)
   // skip blank lines and comments
   if (line[0] == '#' || line[0] == '\0')
     return NS_OK;
-  // ###TODO - make this truly const, maybe pass in an nsCString &
+  // XXX TODO: make this truly const, maybe pass in an nsCString &
 
   if (mHasSeenBeginGroups) {
     // v1 hostinfo files had additional data fields delimited by commas.
@@ -1275,144 +1273,141 @@ nsNntpIncomingServer::AddGroupOnServer(const nsACString &aName)
 NS_IMETHODIMP
 nsNntpIncomingServer::AddNewsgroup(const nsAString &aName)
 {
-    // handle duplicates?
-    mSubscribedNewsgroups.AppendElement(NS_ConvertUTF16toUTF8(aName));
-    return NS_OK;
+  // handle duplicates?
+  mSubscribedNewsgroups.AppendElement(NS_ConvertUTF16toUTF8(aName));
+  return NS_OK;
 }
 
 NS_IMETHODIMP
 nsNntpIncomingServer::RemoveNewsgroup(const nsAString &aName)
 {
-    // handle duplicates?
-    mSubscribedNewsgroups.RemoveElement(NS_ConvertUTF16toUTF8(aName));
-    return NS_OK;
+  // handle duplicates?
+  mSubscribedNewsgroups.RemoveElement(NS_ConvertUTF16toUTF8(aName));
+  return NS_OK;
 }
 
 NS_IMETHODIMP
 nsNntpIncomingServer::SetState(const nsACString &path, bool state,
                                bool *stateChanged)
 {
-    nsresult rv = EnsureInner();
-    NS_ENSURE_SUCCESS(rv,rv);
+  nsresult rv = EnsureInner();
+  NS_ENSURE_SUCCESS(rv,rv);
 
-    rv = mInner->SetState(path, state, stateChanged);
-    if (*stateChanged) {
-      if (state)
-        mTempSubscribed.AppendElement(path);
-      else
-        mTempSubscribed.RemoveElement(path);
-    }
-    return rv;
+  rv = mInner->SetState(path, state, stateChanged);
+  if (*stateChanged) {
+    if (state)
+      mTempSubscribed.AppendElement(path);
+    else
+      mTempSubscribed.RemoveElement(path);
+  }
+  return rv;
 }
 
 NS_IMETHODIMP
 nsNntpIncomingServer::HasChildren(const nsACString &path, bool *aHasChildren)
 {
-    nsresult rv = EnsureInner();
-    NS_ENSURE_SUCCESS(rv,rv);
-    return mInner->HasChildren(path, aHasChildren);
+  nsresult rv = EnsureInner();
+  NS_ENSURE_SUCCESS(rv,rv);
+  return mInner->HasChildren(path, aHasChildren);
 }
 
 NS_IMETHODIMP
 nsNntpIncomingServer::IsSubscribed(const nsACString &path,
                                    bool *aIsSubscribed)
 {
-    nsresult rv = EnsureInner();
-    NS_ENSURE_SUCCESS(rv,rv);
-    return mInner->IsSubscribed(path, aIsSubscribed);
+  nsresult rv = EnsureInner();
+  NS_ENSURE_SUCCESS(rv,rv);
+  return mInner->IsSubscribed(path, aIsSubscribed);
 }
 
 NS_IMETHODIMP
 nsNntpIncomingServer::IsSubscribable(const nsACString &path,
                                      bool *aIsSubscribable)
 {
-    nsresult rv = EnsureInner();
-    NS_ENSURE_SUCCESS(rv,rv);
-    return mInner->IsSubscribable(path, aIsSubscribable);
+  nsresult rv = EnsureInner();
+  NS_ENSURE_SUCCESS(rv,rv);
+  return mInner->IsSubscribable(path, aIsSubscribable);
 }
 
 NS_IMETHODIMP
 nsNntpIncomingServer::GetLeafName(const nsACString &path, nsAString &aLeafName)
 {
-    nsresult rv = EnsureInner();
-    NS_ENSURE_SUCCESS(rv,rv);
-    return mInner->GetLeafName(path, aLeafName);
+  nsresult rv = EnsureInner();
+  NS_ENSURE_SUCCESS(rv,rv);
+  return mInner->GetLeafName(path, aLeafName);
 }
 
 NS_IMETHODIMP
 nsNntpIncomingServer::GetFirstChildURI(const nsACString &path, nsACString &aResult)
 {
-    nsresult rv = EnsureInner();
-    NS_ENSURE_SUCCESS(rv,rv);
-    return mInner->GetFirstChildURI(path, aResult);
+  nsresult rv = EnsureInner();
+  NS_ENSURE_SUCCESS(rv,rv);
+  return mInner->GetFirstChildURI(path, aResult);
 }
 
 NS_IMETHODIMP
 nsNntpIncomingServer::GetChildren(const nsACString &aPath,
                                   nsISimpleEnumerator **aResult)
 {
-    nsresult rv = EnsureInner();
-    NS_ENSURE_SUCCESS(rv,rv);
-    return mInner->GetChildren(aPath, aResult);
+  nsresult rv = EnsureInner();
+  NS_ENSURE_SUCCESS(rv,rv);
+  return mInner->GetChildren(aPath, aResult);
 }
 
 NS_IMETHODIMP
 nsNntpIncomingServer::CommitSubscribeChanges()
 {
-    nsresult rv;
-
-    // we force the newrc to be dirty, so it will get written out when
-    // we call WriteNewsrcFile()
-    rv = SetNewsrcHasChanged(true);
-    NS_ENSURE_SUCCESS(rv,rv);
-    return WriteNewsrcFile();
+  // we force the newrc to be dirty, so it will get written out when
+  // we call WriteNewsrcFile()
+  nsresult rv = SetNewsrcHasChanged(true);
+  NS_ENSURE_SUCCESS(rv,rv);
+  return WriteNewsrcFile();
 }
 
 NS_IMETHODIMP
 nsNntpIncomingServer::ForgetPassword()
 {
-    nsresult rv;
+  // clear password of root folder (for the news account)
+  nsCOMPtr<nsIMsgFolder> rootFolder;
+  nsresult rv = GetRootFolder(getter_AddRefs(rootFolder));
+  NS_ENSURE_SUCCESS(rv,rv);
+  if (!rootFolder) return NS_ERROR_FAILURE;
 
-    // clear password of root folder (for the news account)
-    nsCOMPtr<nsIMsgFolder> rootFolder;
-    rv = GetRootFolder(getter_AddRefs(rootFolder));
-    NS_ENSURE_SUCCESS(rv,rv);
-    if (!rootFolder) return NS_ERROR_FAILURE;
+  nsCOMPtr <nsIMsgNewsFolder> newsFolder = do_QueryInterface(rootFolder, &rv);
+  NS_ENSURE_SUCCESS(rv,rv);
+  if (!newsFolder) return NS_ERROR_FAILURE;
 
-    nsCOMPtr <nsIMsgNewsFolder> newsFolder = do_QueryInterface(rootFolder, &rv);
-    NS_ENSURE_SUCCESS(rv,rv);
-    if (!newsFolder) return NS_ERROR_FAILURE;
+  rv = newsFolder->ForgetAuthenticationCredentials();
+  NS_ENSURE_SUCCESS(rv,rv);
 
-    rv = newsFolder->ForgetAuthenticationCredentials();
-    NS_ENSURE_SUCCESS(rv,rv);
+  // clear password of all child folders
+  nsCOMPtr<nsISimpleEnumerator> subFolders;
 
-    // clear password of all child folders
-    nsCOMPtr<nsISimpleEnumerator> subFolders;
+  rv = rootFolder->GetSubFolders(getter_AddRefs(subFolders));
+  NS_ENSURE_SUCCESS(rv,rv);
 
-    rv = rootFolder->GetSubFolders(getter_AddRefs(subFolders));
-    NS_ENSURE_SUCCESS(rv,rv);
+  bool moreFolders = false;
 
-    bool moreFolders = false;
+  nsresult return_rv = NS_OK;
 
-    nsresult return_rv = NS_OK;
-
-    while (NS_SUCCEEDED(subFolders->HasMoreElements(&moreFolders)) &&
-           moreFolders) {
-        nsCOMPtr<nsISupports> child;
-        rv = subFolders->GetNext(getter_AddRefs(child));
-        if (NS_SUCCEEDED(rv) && child) {
-            newsFolder = do_QueryInterface(child, &rv);
-            if (NS_SUCCEEDED(rv) && newsFolder) {
-                rv = newsFolder->ForgetAuthenticationCredentials();
-                if (NS_FAILED(rv)) return_rv = rv;
-            }
-            else {
-                return_rv = NS_ERROR_FAILURE;
-            }
-        }
+  while (NS_SUCCEEDED(subFolders->HasMoreElements(&moreFolders)) &&
+         moreFolders) {
+    nsCOMPtr<nsISupports> child;
+    rv = subFolders->GetNext(getter_AddRefs(child));
+    if (NS_SUCCEEDED(rv) && child) {
+      newsFolder = do_QueryInterface(child, &rv);
+      if (NS_SUCCEEDED(rv) && newsFolder) {
+        rv = newsFolder->ForgetAuthenticationCredentials();
+        if (NS_FAILED(rv))
+          return_rv = rv;
+      }
+      else {
+        return_rv = NS_ERROR_FAILURE;
+      }
     }
+  }
 
-    return return_rv;
+  return return_rv;
 }
 
 NS_IMETHODIMP
@@ -1547,7 +1542,6 @@ nsNntpIncomingServer::SetGroupNeedsExtraInfo(const nsACString &name,
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 
-
 NS_IMETHODIMP
 nsNntpIncomingServer::GroupNotFound(nsIMsgWindow *aMsgWindow,
                                     const nsAString &aName, bool aOpening)
@@ -1611,49 +1605,49 @@ nsNntpIncomingServer::SetPrettyNameForGroup(const nsAString &name,
 NS_IMETHODIMP
 nsNntpIncomingServer::GetCanSearchMessages(bool *canSearchMessages)
 {
-    NS_ENSURE_ARG_POINTER(canSearchMessages);
-    *canSearchMessages = true;
-    return NS_OK;
+  NS_ENSURE_ARG_POINTER(canSearchMessages);
+  *canSearchMessages = true;
+  return NS_OK;
 }
 
 NS_IMETHODIMP
 nsNntpIncomingServer::GetOfflineSupportLevel(int32_t *aSupportLevel)
 {
-    NS_ENSURE_ARG_POINTER(aSupportLevel);
-    nsresult rv;
+  NS_ENSURE_ARG_POINTER(aSupportLevel);
+  nsresult rv;
 
-    rv = GetIntValue("offline_support_level", aSupportLevel);
-    if (*aSupportLevel != OFFLINE_SUPPORT_LEVEL_UNDEFINED) return rv;
+  rv = GetIntValue("offline_support_level", aSupportLevel);
+  if (*aSupportLevel != OFFLINE_SUPPORT_LEVEL_UNDEFINED) return rv;
 
-    // set default value
-    *aSupportLevel = OFFLINE_SUPPORT_LEVEL_EXTENDED;
-    return NS_OK;
+  // set default value
+  *aSupportLevel = OFFLINE_SUPPORT_LEVEL_EXTENDED;
+  return NS_OK;
 }
 
 NS_IMETHODIMP
 nsNntpIncomingServer::GetDefaultCopiesAndFoldersPrefsToServer(bool *aCopiesAndFoldersOnServer)
 {
-    NS_ENSURE_ARG_POINTER(aCopiesAndFoldersOnServer);
+  NS_ENSURE_ARG_POINTER(aCopiesAndFoldersOnServer);
 
-    /**
-     * When a news account is created, the copies and folder prefs for the
-     * associated identity don't point to folders on the server.
-     * This makes sense, since there is no "Drafts" folder on a news server.
-     * They'll point to the ones on "Local Folders"
-     */
+  /**
+   * When a news account is created, the copies and folder prefs for the
+   * associated identity don't point to folders on the server.
+   * This makes sense, since there is no "Drafts" folder on a news server.
+   * They'll point to the ones on "Local Folders"
+   */
 
-    *aCopiesAndFoldersOnServer = false;
-    return NS_OK;
+  *aCopiesAndFoldersOnServer = false;
+  return NS_OK;
 }
 
 NS_IMETHODIMP
 nsNntpIncomingServer::GetCanCreateFoldersOnServer(bool *aCanCreateFoldersOnServer)
 {
-    NS_ENSURE_ARG_POINTER(aCanCreateFoldersOnServer);
+  NS_ENSURE_ARG_POINTER(aCanCreateFoldersOnServer);
 
-    // No folder creation on news servers. Return false.
-    *aCanCreateFoldersOnServer = false;
-    return NS_OK;
+  // No folder creation on news servers. Return false.
+  *aCanCreateFoldersOnServer = false;
+  return NS_OK;
 }
 
 NS_IMETHODIMP
@@ -1703,15 +1697,15 @@ nsNntpIncomingServer::SetSearchValue(const nsAString &aSearchValue)
 NS_IMETHODIMP
 nsNntpIncomingServer::GetSupportsSubscribeSearch(bool *retVal)
 {
-    *retVal = true;
-    return NS_OK;
+  *retVal = true;
+  return NS_OK;
 }
 
 NS_IMETHODIMP
 nsNntpIncomingServer::GetRowCount(int32_t *aRowCount)
 {
-    *aRowCount = mSubscribeSearchResult.Length();
-    return NS_OK;
+  *aRowCount = mSubscribeSearchResult.Length();
+  return NS_OK;
 }
 
 NS_IMETHODIMP
@@ -1732,73 +1726,73 @@ nsNntpIncomingServer::SetSelection(nsITreeSelection * aSelection)
 NS_IMETHODIMP
 nsNntpIncomingServer::GetRowProperties(int32_t index, nsAString& properties)
 {
-    return NS_OK;
+  return NS_OK;
 }
 
 NS_IMETHODIMP
 nsNntpIncomingServer::GetCellProperties(int32_t row, nsITreeColumn* col, nsAString& properties)
 {
-    if (!IsValidRow(row))
-      return NS_ERROR_UNEXPECTED;
+  if (!IsValidRow(row))
+    return NS_ERROR_UNEXPECTED;
 
-    NS_ENSURE_ARG_POINTER(col);
+  NS_ENSURE_ARG_POINTER(col);
 
-    const char16_t* colID;
-    col->GetIdConst(&colID);
-    if (colID[0] == 's') {
-        // if <name> is in our temporary list of subscribed groups
-        // add the "subscribed" property so the check mark shows up
-        // in the "subscribedCol"
-        if (mSearchResultSortDescending)
-          row = mSubscribeSearchResult.Length() - 1 - row;
-        if (mTempSubscribed.Contains(mSubscribeSearchResult.ElementAt(row))) {
-          properties.AssignLiteral("subscribed");
-        }
+  const char16_t* colID;
+  col->GetIdConst(&colID);
+  if (colID[0] == 's') {
+    // if <name> is in our temporary list of subscribed groups
+    // add the "subscribed" property so the check mark shows up
+    // in the "subscribedCol"
+    if (mSearchResultSortDescending)
+      row = mSubscribeSearchResult.Length() - 1 - row;
+    if (mTempSubscribed.Contains(mSubscribeSearchResult.ElementAt(row))) {
+      properties.AssignLiteral("subscribed");
     }
-    else if (colID[0] == 'n') {
-      // add the "nntp" property to the "nameCol"
-      // so we get the news folder icon in the search view
-      properties.AssignLiteral("nntp");
-    }
-    return NS_OK;
+  }
+  else if (colID[0] == 'n') {
+    // add the "nntp" property to the "nameCol"
+    // so we get the news folder icon in the search view
+    properties.AssignLiteral("nntp");
+  }
+  return NS_OK;
 }
 
 NS_IMETHODIMP
 nsNntpIncomingServer::GetColumnProperties(nsITreeColumn* col, nsAString& properties)
 {
-    return NS_OK;
+  return NS_OK;
 }
 
 NS_IMETHODIMP
 nsNntpIncomingServer::IsContainer(int32_t index, bool *_retval)
 {
-    *_retval = false;
-    return NS_OK;
+  *_retval = false;
+  return NS_OK;
 }
 
 NS_IMETHODIMP
 nsNntpIncomingServer::IsContainerOpen(int32_t index, bool *_retval)
 {
-    return NS_ERROR_NOT_IMPLEMENTED;
+  return NS_ERROR_NOT_IMPLEMENTED;
 }
 
 NS_IMETHODIMP
 nsNntpIncomingServer::IsContainerEmpty(int32_t index, bool *_retval)
 {
-    return NS_ERROR_NOT_IMPLEMENTED;
+  return NS_ERROR_NOT_IMPLEMENTED;
 }
 
 NS_IMETHODIMP
 nsNntpIncomingServer::IsSeparator(int32_t index, bool *_retval)
 {
-    *_retval = false;
-    return NS_OK;
+  *_retval = false;
+  return NS_OK;
 }
 
 NS_IMETHODIMP
 nsNntpIncomingServer::IsSorted(bool *_retval)
 {
-    return NS_ERROR_NOT_IMPLEMENTED;
+  return NS_ERROR_NOT_IMPLEMENTED;
 }
 
 NS_IMETHODIMP
@@ -1807,7 +1801,7 @@ nsNntpIncomingServer::CanDrop(int32_t index,
                               nsIDOMDataTransfer *dataTransfer,
                               bool *_retval)
 {
-    return NS_ERROR_NOT_IMPLEMENTED;
+  return NS_ERROR_NOT_IMPLEMENTED;
 }
 
 NS_IMETHODIMP
@@ -1815,26 +1809,26 @@ nsNntpIncomingServer::Drop(int32_t row,
                            int32_t orientation,
                            nsIDOMDataTransfer *dataTransfer)
 {
-    return NS_ERROR_NOT_IMPLEMENTED;
+  return NS_ERROR_NOT_IMPLEMENTED;
 }
 
 NS_IMETHODIMP
 nsNntpIncomingServer::GetParentIndex(int32_t rowIndex, int32_t *_retval)
 {
-    return NS_ERROR_NOT_IMPLEMENTED;
+  return NS_ERROR_NOT_IMPLEMENTED;
 }
 
 NS_IMETHODIMP
 nsNntpIncomingServer::HasNextSibling(int32_t rowIndex, int32_t afterIndex, bool *_retval)
 {
-    return NS_ERROR_NOT_IMPLEMENTED;
+  return NS_ERROR_NOT_IMPLEMENTED;
 }
 
 NS_IMETHODIMP
 nsNntpIncomingServer::GetLevel(int32_t index, int32_t *_retval)
 {
-    *_retval = 0;
-    return NS_OK;
+  *_retval = 0;
+  return NS_OK;
 }
 
 bool
@@ -1864,24 +1858,24 @@ nsNntpIncomingServer::GetCellValue(int32_t row, nsITreeColumn* col, nsAString& _
 NS_IMETHODIMP
 nsNntpIncomingServer::GetCellText(int32_t row, nsITreeColumn* col, nsAString& _retval)
 {
-    if (!IsValidRow(row))
-      return NS_ERROR_UNEXPECTED;
+  if (!IsValidRow(row))
+    return NS_ERROR_UNEXPECTED;
 
-    NS_ENSURE_ARG_POINTER(col);
+  NS_ENSURE_ARG_POINTER(col);
 
-    const char16_t* colID;
-    col->GetIdConst(&colID);
+  const char16_t* colID;
+  col->GetIdConst(&colID);
 
-    nsresult rv = NS_OK;
-    if (colID[0] == 'n') {
-      nsAutoCString str;
-      if (mSearchResultSortDescending)
-        row = mSubscribeSearchResult.Length() - 1 - row;
-      // some servers have newsgroup names that are non ASCII.  we store
-      // those as escaped. unescape here so the UI is consistent
-      rv = NS_MsgDecodeUnescapeURLPath(mSubscribeSearchResult.ElementAt(row), _retval);
-    }
-    return rv;
+  nsresult rv = NS_OK;
+  if (colID[0] == 'n') {
+    nsAutoCString str;
+    if (mSearchResultSortDescending)
+      row = mSubscribeSearchResult.Length() - 1 - row;
+    // some servers have newsgroup names that are non ASCII.  we store
+    // those as escaped. unescape here so the UI is consistent
+    rv = NS_MsgDecodeUnescapeURLPath(mSubscribeSearchResult.ElementAt(row), _retval);
+  }
+  return rv;
 }
 
 NS_IMETHODIMP
@@ -1889,22 +1883,22 @@ nsNntpIncomingServer::SetTree(nsITreeBoxObject *tree)
 {
   mTree = tree;
   if (!tree)
-      return NS_OK;
+    return NS_OK;
 
   nsCOMPtr<nsITreeColumns> cols;
   tree->GetColumns(getter_AddRefs(cols));
   if (!cols)
-      return NS_OK;
+    return NS_OK;
 
   nsCOMPtr<nsITreeColumn> col;
   cols->GetKeyColumn(getter_AddRefs(col));
   if (!col)
-      return NS_OK;
+    return NS_OK;
 
   nsCOMPtr<nsIDOMElement> element;
   col->GetElement(getter_AddRefs(element));
   if (!element)
-      return NS_OK;
+    return NS_OK;
 
   nsAutoString dir;
   element->GetAttribute(NS_LITERAL_STRING("sortDirection"), dir);
@@ -1915,117 +1909,117 @@ nsNntpIncomingServer::SetTree(nsITreeBoxObject *tree)
 NS_IMETHODIMP
 nsNntpIncomingServer::ToggleOpenState(int32_t index)
 {
-    return NS_ERROR_NOT_IMPLEMENTED;
+  return NS_ERROR_NOT_IMPLEMENTED;
 }
 
 NS_IMETHODIMP
 nsNntpIncomingServer::CycleHeader(nsITreeColumn* col)
 {
-    NS_ENSURE_ARG_POINTER(col);
+  NS_ENSURE_ARG_POINTER(col);
 
-    bool cycler;
-    col->GetCycler(&cycler);
-    if (!cycler) {
-        NS_NAMED_LITERAL_STRING(dir, "sortDirection");
-        nsCOMPtr<nsIDOMElement> element;
-        col->GetElement(getter_AddRefs(element));
-        mSearchResultSortDescending = !mSearchResultSortDescending;
-        element->SetAttribute(dir, mSearchResultSortDescending ?
-            NS_LITERAL_STRING("descending") : NS_LITERAL_STRING("ascending"));
-        mTree->Invalidate();
-    }
-    return NS_OK;
+  bool cycler;
+  col->GetCycler(&cycler);
+  if (!cycler) {
+    NS_NAMED_LITERAL_STRING(dir, "sortDirection");
+    nsCOMPtr<nsIDOMElement> element;
+    col->GetElement(getter_AddRefs(element));
+    mSearchResultSortDescending = !mSearchResultSortDescending;
+    element->SetAttribute(dir, mSearchResultSortDescending ?
+      NS_LITERAL_STRING("descending") : NS_LITERAL_STRING("ascending"));
+    mTree->Invalidate();
+  }
+  return NS_OK;
 }
 
 NS_IMETHODIMP
 nsNntpIncomingServer::SelectionChanged()
 {
-    return NS_ERROR_NOT_IMPLEMENTED;
+  return NS_ERROR_NOT_IMPLEMENTED;
 }
 
 NS_IMETHODIMP
 nsNntpIncomingServer::CycleCell(int32_t row, nsITreeColumn* col)
 {
-    return NS_OK;
+  return NS_OK;
 }
 
 NS_IMETHODIMP
 nsNntpIncomingServer::IsEditable(int32_t row, nsITreeColumn* col, bool *_retval)
 {
-    *_retval = false;
-    return NS_OK;
+  *_retval = false;
+  return NS_OK;
 }
 
 NS_IMETHODIMP
 nsNntpIncomingServer::IsSelectable(int32_t row, nsITreeColumn* col, bool *_retval)
 {
-    *_retval = false;
-    return NS_OK;
+  *_retval = false;
+  return NS_OK;
 }
 
 NS_IMETHODIMP
 nsNntpIncomingServer::SetCellValue(int32_t row, nsITreeColumn* col, const nsAString& value)
 {
-    return NS_ERROR_NOT_IMPLEMENTED;
+  return NS_ERROR_NOT_IMPLEMENTED;
 }
 
 NS_IMETHODIMP
 nsNntpIncomingServer::SetCellText(int32_t row, nsITreeColumn* col, const nsAString& value)
 {
-    return NS_ERROR_NOT_IMPLEMENTED;
+  return NS_ERROR_NOT_IMPLEMENTED;
 }
 
 NS_IMETHODIMP
 nsNntpIncomingServer::PerformAction(const char16_t *action)
 {
-    return NS_ERROR_NOT_IMPLEMENTED;
+  return NS_ERROR_NOT_IMPLEMENTED;
 }
 
 NS_IMETHODIMP
 nsNntpIncomingServer::PerformActionOnRow(const char16_t *action, int32_t row)
 {
-    return NS_ERROR_NOT_IMPLEMENTED;
+  return NS_ERROR_NOT_IMPLEMENTED;
 }
 
 NS_IMETHODIMP
 nsNntpIncomingServer::PerformActionOnCell(const char16_t *action, int32_t row, nsITreeColumn* col)
 {
-    return NS_ERROR_NOT_IMPLEMENTED;
+  return NS_ERROR_NOT_IMPLEMENTED;
 }
 
 NS_IMETHODIMP
 nsNntpIncomingServer::GetCanFileMessagesOnServer(bool *aCanFileMessagesOnServer)
 {
-    NS_ENSURE_ARG_POINTER(aCanFileMessagesOnServer);
+  NS_ENSURE_ARG_POINTER(aCanFileMessagesOnServer);
 
-    // No folder creation on news servers. Return false.
-    *aCanFileMessagesOnServer = false;
-    return NS_OK;
+  // No folder creation on news servers. Return false.
+  *aCanFileMessagesOnServer = false;
+  return NS_OK;
 }
 
 NS_IMETHODIMP
 nsNntpIncomingServer::GetFilterScope(nsMsgSearchScopeValue *filterScope)
 {
-   NS_ENSURE_ARG_POINTER(filterScope);
+  NS_ENSURE_ARG_POINTER(filterScope);
 
-   *filterScope = nsMsgSearchScope::newsFilter;
-   return NS_OK;
+  *filterScope = nsMsgSearchScope::newsFilter;
+  return NS_OK;
 }
 
 NS_IMETHODIMP
 nsNntpIncomingServer::GetSearchScope(nsMsgSearchScopeValue *searchScope)
 {
-   NS_ENSURE_ARG_POINTER(searchScope);
+  NS_ENSURE_ARG_POINTER(searchScope);
 
-   if (WeAreOffline()) {
-     // This value is set to the localNewsBody scope to be compatible with
-     // the legacy default value.
-     *searchScope = nsMsgSearchScope::localNewsBody;
-   }
-   else {
-     *searchScope = nsMsgSearchScope::news;
-   }
-   return NS_OK;
+  if (WeAreOffline()) {
+    // This value is set to the localNewsBody scope to be compatible with
+    // the legacy default value.
+    *searchScope = nsMsgSearchScope::localNewsBody;
+  }
+  else {
+    *searchScope = nsMsgSearchScope::news;
+  }
+  return NS_OK;
 }
 
 NS_IMETHODIMP
