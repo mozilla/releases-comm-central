@@ -16,7 +16,6 @@ ac_add_options --disable-install-strip
 
 # Build lightning locales
 ac_add_options --enable-calendar
-mk_add_options MOZ_POSTFLIGHT_ALL+=calendar/lightning/build/universal.mk
 
 # Needed to enable breakpad in application.ini
 export MOZILLA_OFFICIAL=1
