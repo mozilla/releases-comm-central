@@ -1160,7 +1160,7 @@ FolderDisplayWidget.prototype = {
     //  is backed by a single underlying folder (the only way having just a
     //  message key works out), try that
     if (Services.prefs.getBoolPref("mailnews.remember_selected_message") &&
-        this.view.isSingleFolder) {
+        this.view.isSingleFolder && this.view.displayedFolder) {
       // use the displayed folder; nsMsgDBView goes to the effort to save the
       //  state to the viewFolder, so this is the correct course of action.
       let lastLoadedMessageKey = this.view.displayedFolder.lastMessageLoaded;
