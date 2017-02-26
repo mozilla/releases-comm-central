@@ -4,6 +4,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "nsSubscribableServer.h"
+#include "nsIMsgIncomingServer.h"
 #include "prmem.h"
 #include "rdf.h"
 #include "nsRDFCID.h"
@@ -59,8 +60,17 @@ NS_IMPL_ISUPPORTS(nsSubscribableServer, nsISubscribableServer)
 NS_IMETHODIMP
 nsSubscribableServer::SetIncomingServer(nsIMsgIncomingServer *aServer)
 {
-  mIncomingServer = aServer;
-  return NS_OK;
+  if (!aServer) {
+    mIncomingServerUri.AssignLiteral("");
+    return NS_OK;
+  }
+
+  // We intentionally do not store a pointer to the aServer here
+  // as it would create reference loops, because nsIImapIncomingServer
+  // and nsINntpIncomingServer keep a reference to an internal
+  // nsISubscribableServer object.
+  // We only need the URI of the server anyway.
+  return aServer->GetServerURI(mIncomingServerUri);
 }
 
 NS_IMETHODIMP
@@ -573,11 +583,8 @@ nsSubscribableServer::FindAndCreateNode(const nsACString &aPath,
   if (!aResult) return NS_ERROR_NULL_POINTER;
 
   if (!mTreeRoot) {
-      nsCString serverUri;
-      rv = mIncomingServer->GetServerURI(serverUri);
-      NS_ENSURE_SUCCESS(rv,rv);
       // the root has no parent, and its name is server uri
-      rv = CreateNode(nullptr, serverUri.get(), &mTreeRoot);
+      rv = CreateNode(nullptr, mIncomingServerUri.get(), &mTreeRoot);
       NS_ENSURE_SUCCESS(rv,rv);
   }
 

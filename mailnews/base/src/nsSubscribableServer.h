@@ -7,8 +7,8 @@
 #define nsSubscribableServer_h__
 
 #include "nsCOMPtr.h"
+#include "nsStringGlue.h"
 #include "nsISubscribableServer.h"
-#include "nsIMsgIncomingServer.h"
 #include "nsIRDFService.h"
 #include "nsSubscribeDataSource.h"
 #include "nsIRDFResource.h"
@@ -50,7 +50,7 @@ private:
 
   nsresult ConvertNameToUnichar(const char *inStr, char16_t **outStr);
   nsCOMPtr <nsISubscribeListener> mSubscribeListener;
-  nsCOMPtr <nsIMsgIncomingServer> mIncomingServer;
+  nsCString mIncomingServerUri;
   nsCOMPtr <nsISubscribeDataSource> mSubscribeDS;
   char mDelimiter;
   bool mShowFullName;
