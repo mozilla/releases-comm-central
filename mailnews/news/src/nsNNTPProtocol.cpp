@@ -675,11 +675,8 @@ nsresult nsNNTPProtocol::ReadFromMemCache(nsICacheEntry *entry)
     // do this to get m_key set, so that marking the message read will work.
     rv = ParseURL(m_url, group, m_messageID);
 
-    nsNntpCacheStreamListener * cacheListener = new nsNntpCacheStreamListener();
-    if (!cacheListener)
-       return NS_ERROR_OUT_OF_MEMORY;
-
-    NS_ADDREF(cacheListener);
+    RefPtr<nsNntpCacheStreamListener> cacheListener =
+      new nsNntpCacheStreamListener();
 
     SetLoadGroup(m_loadGroup);
     m_typeWanted = ARTICLE_WANTED;
@@ -690,7 +687,6 @@ nsresult nsNNTPProtocol::ReadFromMemCache(nsICacheEntry *entry)
     mContentType = ""; // reset the content type for the upcoming read....
 
     rv = pump->AsyncRead(cacheListener, m_channelContext);
-    NS_RELEASE(cacheListener);
 
     if (NS_SUCCEEDED(rv)) // ONLY if we succeeded in actually starting the read should we return
     {
@@ -746,11 +742,9 @@ bool nsNNTPProtocol::ReadFromLocalCache()
 
         m_typeWanted = ARTICLE_WANTED;
 
-        nsNntpCacheStreamListener * cacheListener = new nsNntpCacheStreamListener();
-        if (!cacheListener)
-          return false;
+        RefPtr<nsNntpCacheStreamListener> cacheListener =
+          new nsNntpCacheStreamListener();
 
-        NS_ADDREF(cacheListener);
         cacheListener->Init(m_channelListener, static_cast<nsIChannel *>(this), mailnewsUrl);
 
         // create a stream pump that will async read the specified amount of data.
@@ -760,8 +754,6 @@ bool nsNNTPProtocol::ReadFromLocalCache()
                                    fileStream, offset, (int64_t) size);
         if (NS_SUCCEEDED(rv))
           rv = pump->AsyncRead(cacheListener, m_channelContext);
-
-        NS_RELEASE(cacheListener);
 
         if (NS_SUCCEEDED(rv)) // ONLY if we succeeded in actually starting the read should we return
         {

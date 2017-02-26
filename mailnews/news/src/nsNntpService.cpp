@@ -1725,13 +1725,9 @@ nsNntpService::MessageURIToMsgHdr(const char *uri, nsIMsgDBHdr **_retval)
 NS_IMETHODIMP
 nsNntpService::DownloadNewsgroupsForOffline(nsIMsgWindow *aMsgWindow, nsIUrlListener *aListener)
 {
-  nsresult rv = NS_OK;
-  nsMsgDownloadAllNewsgroups *newsgroupDownloader = new nsMsgDownloadAllNewsgroups(aMsgWindow, aListener);
-  if (newsgroupDownloader)
-    rv = newsgroupDownloader->ProcessNextGroup();
-  else
-    rv = NS_ERROR_OUT_OF_MEMORY;
-  return rv;
+  RefPtr<nsMsgDownloadAllNewsgroups> newsgroupDownloader =
+    new nsMsgDownloadAllNewsgroups(aMsgWindow, aListener);
+  return newsgroupDownloader->ProcessNextGroup();
 }
 
 NS_IMETHODIMP nsNntpService::GetCacheStorage(nsICacheStorage **result)
