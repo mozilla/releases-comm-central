@@ -160,6 +160,9 @@ function* test_grouplist() {
   let groups = enumGroups("");
   for (let group in daemon._groups)
     do_check_true(groups.indexOf(group) >= 0);
+
+  // Release reference, somehow impedes GC of 'subserver'.
+  subserver.subscribeListener = null;
   yield true;
 }
 
