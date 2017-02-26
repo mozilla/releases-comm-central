@@ -3,7 +3,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-include $(topsrcdir)/config/rules.mk
+include $(moztopsrcdir)/config/rules.mk
 
 # We're installing to _tests/mozmill
 _DEST_DIR = $(DEPTH)/_tests/mozmill
@@ -18,12 +18,12 @@ $(_DEST_DIR):
 VIRTUALENV_DIR = $(_DEST_DIR)/../mozmill-virtualenv
 mozmill-virtualenv: NSDISTMODE=copy
 mozmill-virtualenv: $(_DEST_DIR)
-	$(INSTALL) $(topsrcdir)/mail/test/resources $(_DEST_DIR)
-	$(INSTALL) $(topsrcdir)/mozilla/third_party/python/virtualenv $(_DEST_DIR)/resources/
+	$(INSTALL) $(commtopsrcdir)/mail/test/resources $(_DEST_DIR)
+	$(INSTALL) $(moztopsrcdir)/third_party/python/virtualenv $(_DEST_DIR)/resources/
 	rm -rf $(VIRTUALENV_DIR) && \
 	mkdir $(VIRTUALENV_DIR) && \
 	unset MACOSX_DEPLOYMENT_TARGET && \
-	$(PYTHON) $(_DEST_DIR)/resources/installmozmill.py $(VIRTUALENV_DIR) $(MOZILLA_DIR)/testing/mozbase
+	$(PYTHON) $(_DEST_DIR)/resources/installmozmill.py $(VIRTUALENV_DIR) $(moztopsrcdir)/testing/mozbase
 
 libs:: mozmill-virtualenv
 
@@ -31,5 +31,5 @@ PKG_STAGE = $(DIST)/test-stage
 
 stage-package:
 	$(NSINSTALL) -D $(PKG_STAGE)/mozmill/
-	@(cd $(topsrcdir)/mail/test/mozmill && tar $(TAR_CREATE_FLAGS) - *) | (cd $(PKG_STAGE)/mozmill/ && tar -xf -)
+	@(cd $(commtopsrcdir)/mail/test/mozmill && tar $(TAR_CREATE_FLAGS) - *) | (cd $(PKG_STAGE)/mozmill/ && tar -xf -)
 	@(cd $(DEPTH)/_tests/mozmill && tar $(TAR_CREATE_FLAGS) - *) | (cd $(PKG_STAGE)/mozmill/ && tar -xf -)

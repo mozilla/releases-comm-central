@@ -67,7 +67,7 @@ EXTRA_JS_MODULES += [
 ]
 
 LOCAL_INCLUDES += [
-  '/mozilla/netwerk/base'
+  '/%s/netwerk/base' % CONFIG['mozreltopsrcdir']
 ]
 
 FINAL_LIBRARY = 'mail'

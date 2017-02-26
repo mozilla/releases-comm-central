@@ -2,8 +2,8 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-# Setting this to calendar/locales sets up LOCALE_SRCDIR to the correct locale
-# directory
-relativesrcdir = $(commreltopsrcdir)/calendar/locales
-
-DEFINES += -DLOCALE_SRCDIR=$(LOCALE_SRCDIR)
+ifeq ($(findstring comm,$(MOZ_BUILD_APP)),)
+COMMDEPTH = $(DEPTH)
+else
+COMMDEPTH = $(DEPTH)/comm
+endif

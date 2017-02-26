@@ -12,6 +12,7 @@ JAR_MANIFESTS += ['jar.mn']
 USE_EXTENSION_MANIFEST = True
 
 DEFINES['SEAMONKEY_VERSION'] = CONFIG['SEAMONKEY_VERSION']
+DEFINES['mozreltopsrcdir'] = CONFIG['mozreltopsrcdir']
 
 FINAL_TARGET_FILES += [
     'icon.png',

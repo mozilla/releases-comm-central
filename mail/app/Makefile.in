@@ -4,8 +4,8 @@
 
 AB_CD = $(MOZ_UI_LOCALE)
 
-GRE_MILESTONE = $(shell $(PYTHON) $(MOZILLA_SRCDIR)/config/printconfigsetting.py $(DIST)/bin/platform.ini Build Milestone)
-MOZ_BUILDID = $(shell $(PYTHON) $(MOZILLA_SRCDIR)/config/printconfigsetting.py $(DIST)/bin/platform.ini Build BuildID)
+GRE_MILESTONE = $(shell $(PYTHON) $(moztopsrcdir)/config/printconfigsetting.py $(DIST)/bin/platform.ini Build Milestone)
+MOZ_BUILDID = $(shell $(PYTHON) $(moztopsrcdir)/config/printconfigsetting.py $(DIST)/bin/platform.ini Build BuildID)
 
 DEFINES += \
   -DTHUNDERBIRD_ICO='"$(DIST)/branding/thunderbird.ico"' \
@@ -25,7 +25,7 @@ endif
 # shouldn't get 755 perms need $(IFLAGS1) for either way of calling nsinstall.
 NSDISTMODE = copy
 
-include $(topsrcdir)/config/config.mk
+include $(moztopsrcdir)/config/config.mk
 
 # If we are trying to show an error dialog about the lack of SSE2 support,
 # make sure that code itself doesn't use SSE2.
@@ -38,7 +38,7 @@ endif
 
 ifeq ($(OS_ARCH),WINNT)
 # Extract the icons we care about embedding into the EXE
-mailtoolbar = $(topsrcdir)/mail/themes/windows/mail/icons/jumplist.png
+mailtoolbar = $(commtopsrcdir)/mail/themes/windows/mail/icons/jumplist.png
 
 # png to ico converter. The function takes 5 arguments, in order: source png
 # file, left, top, size, output ico file.
@@ -62,7 +62,7 @@ GARBAGE += write-message.ico address-book.ico
 EXTRA_DEPS += thunderbird.exe.manifest
 endif
 
-include $(topsrcdir)/config/rules.mk
+include $(moztopsrcdir)/config/rules.mk
 
 ifeq ($(OS_ARCH),WINNT)
 

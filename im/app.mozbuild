@@ -6,11 +6,11 @@ include('/toolkit/toolkit.mozbuild')
 
 DIRS += [
     '/%s' % CONFIG['MOZ_BRANDING_DIRECTORY'],
-    '/chat',
+    '/%s/chat' % CONFIG['commreltopsrcdir']
 ]
 
 # Ensure extensions are built after chat/ so purplexpcom can build.
 if CONFIG['MOZ_EXTENSIONS']:
     DIRS += ['/extensions']
 
-DIRS += ['/im']
+DIRS += ['/%s/im' % CONFIG['commreltopsrcdir']]

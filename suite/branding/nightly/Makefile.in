@@ -6,7 +6,7 @@
 # Note: mac icons are handled in /suite/app during the final application
 # packaging
 
-include $(topsrcdir)/config/rules.mk
+include $(moztopsrcdir)/config/rules.mk
 
 export::
 	$(NSINSTALL) -D $(DIST)/branding

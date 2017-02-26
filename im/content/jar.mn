@@ -2,6 +2,8 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+#filter substitution
+
 instantbird.jar:
 % content instantbird %content/instantbird/
 #ifdef XP_MACOSX
@@ -97,7 +99,7 @@ instantbird.jar:
 	content/instantbird/preferences/smiley.css		(preferences/smiley.css)
 	content/instantbird/preferences/smiley.xml		(preferences/smiley.xml)
 # override the toolkit license.html file
-* 	content/instantbird/license.html                        (/mozilla/toolkit/content/license.html)
+* 	content/instantbird/license.html                        (/@mozreltopsrcdir@/toolkit/content/license.html)
 % override chrome://global/content/license.html chrome://instantbird/content/license.html
 
 toolkit.jar:

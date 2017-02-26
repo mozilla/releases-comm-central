@@ -31,7 +31,7 @@ mozmill:
 	unset PYTHONHOME && cd $(MOZMILLDIR) && MACOSX_DEPLOYMENT_TARGET= \
 	$(MOZMILLPYTHON) runtestlist.py --list=mozmilltests.list \
 	--binary=$(abspath $(BINARY)) \
-	--dir=$(abspath $(topsrcdir))/../mail/test/mozmill \
+	--dir=$(commtopsrcdir)/mail/test/mozmill \
 	--symbols-path=$(ABS_DIST)/crashreporter-symbols \
 	--plugins-path=$(ABS_DIST)/plugins \
 	--testing-modules-dir=$(topobjdir)/_tests/modules \
@@ -41,7 +41,7 @@ mozmill-one: solo-test = $(find-solo-test)
 mozmill-one:
 	unset PYTHONHOME && cd $(MOZMILLDIR) && MACOSX_DEPLOYMENT_TARGET= \
 	$(MOZMILLPYTHON) runtest.py \
-	--test=$(abspath $(topsrcdir))/../mail/test/mozmill/$(solo-test) \
+	--test=$(commtopsrcdir)/mail/test/mozmill/$(solo-test) \
 	--binary=$(abspath $(BINARY)) \
 	--symbols-path=$(ABS_DIST)/crashreporter-symbols \
 	--plugins-path=$(ABS_DIST)/plugins \
@@ -57,10 +57,10 @@ package-tests: stage-mozmill
 endif
 
 stage-mozmill: make-stage-dir
-	$(MAKE) -C $(DEPTH)/mail/test/mozmill stage-package
+	$(MAKE) -C $(COMMDEPTH)/mail/test/mozmill stage-package
 
 stage-calendar: make-stage-dir
-	$(MAKE) -C $(DEPTH)/calendar/lightning stage-package
-	$(MAKE) -C $(DEPTH)/calendar/providers/gdata stage-package
+	$(MAKE) -C $(COMMDEPTH)/calendar/lightning stage-package
+	$(MAKE) -C $(COMMDEPTH)/calendar/providers/gdata stage-package
 
 .PHONY: stage-mozmill stage-calendar

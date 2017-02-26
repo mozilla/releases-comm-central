@@ -6,9 +6,9 @@
 XPCSHELL_TESTS_MANIFESTS += ['unit/xpcshell.ini']
 
 LOCAL_INCLUDES += [
+   '../../base/util',
    '../src',
-   '/mailnews/base/util',
-   '/mozilla/xpcom/tests',
+   '/%s/xpcom/tests' % CONFIG['mozreltopsrcdir'],
 ]
 
 USE_LIBS += [

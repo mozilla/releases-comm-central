@@ -2895,7 +2895,7 @@ function load_via_src_path(aPath, aModule) {
   }
 
   // If we've got this far, then we weren't successful, fail out.
-  throw new Error("Could not find " + aModule + " in available paths");
+  throw new Error("Could not find " + aPath + " in available paths");
 }
 
 function assert_equals(a, b, comment)

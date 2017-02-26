@@ -4,7 +4,7 @@
 
 # Branding Makefile for nightlies/unofficial branding
 
-include $(topsrcdir)/config/rules.mk
+include $(moztopsrcdir)/config/rules.mk
 
 export::
 	$(NSINSTALL) -D $(DIST)/branding

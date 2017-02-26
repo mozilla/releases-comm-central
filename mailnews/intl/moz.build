@@ -20,14 +20,14 @@ UNIFIED_SOURCES += [
 XPIDL_MODULE = 'commuconv'
 
 LOCAL_INCLUDES += [
-    '/mozilla/intl/locale',
+    '/%s/intl/locale' % CONFIG['mozreltopsrcdir'],
 ]
 
 GENERATED_FILES += [
     'charsetalias.properties.h',
 ]
 charsetalias = GENERATED_FILES['charsetalias.properties.h']
-charsetalias.script = '../../mozilla/intl/locale/props2arrays.py'
+charsetalias.script = '/%s/intl/locale/props2arrays.py' % CONFIG['mozreltopsrcdir']
 charsetalias.inputs = ['charsetalias.properties']
 
 FINAL_LIBRARY = 'mail'

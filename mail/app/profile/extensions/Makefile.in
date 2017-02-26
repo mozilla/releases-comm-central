@@ -5,7 +5,7 @@
 
 DISTROEXT = $(ABS_DIST)/bin/distribution/extensions
 
-include $(topsrcdir)/config/rules.mk
+include $(moztopsrcdir)/config/rules.mk
 
 # If adding extra extensions here, check that EXTRA_ARGS defined below won't
 # affect them unintentionally.

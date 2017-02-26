@@ -3,7 +3,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-include('/mailnews/mailnews.mozbuild')
+include('/%s/mailnews/mailnews.mozbuild' % CONFIG['commreltopsrcdir'])
 
 include('/toolkit/toolkit.mozbuild')
 
@@ -11,17 +11,17 @@ if CONFIG['MOZ_EXTENSIONS']:
     DIRS += ['/extensions']
 
 if CONFIG['MOZ_COMPOSER']:
-    DIRS += ['/editor/ui']
+    DIRS += ['/%s/editor/ui' % CONFIG['commreltopsrcdir']]
 
 DIRS += ['/%s' % CONFIG['MOZ_BRANDING_DIRECTORY']]
 
 if CONFIG['MOZ_CALENDAR']:
     DIRS += [
-        '/calendar/lightning',
-        '/calendar/timezones'
+        '/%s/calendar/lightning' % CONFIG['commreltopsrcdir'],
+        '/%s/calendar/timezones' % CONFIG['commreltopsrcdir']
     ]
 
 DIRS += [
     '/xpfe/components/autocomplete',
-    '/suite',
+    '/%s/suite' % CONFIG['commreltopsrcdir'],
 ]

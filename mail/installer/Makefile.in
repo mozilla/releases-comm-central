@@ -5,7 +5,10 @@
 STANDALONE_MAKEFILE := 1
 # DIST_SUBDIR := mail  # Not sure why TB is not using this
 
-include $(topsrcdir)/config/rules.mk
+# Since STANDALONE_MAKEFILE is defined we need to manually include our config
+include $(commtopsrcdir)/mail/app-config.mk
+
+include $(moztopsrcdir)/config/rules.mk
 
 MOZ_PKG_REMOVALS = $(srcdir)/removed-files.in
 
@@ -16,7 +19,7 @@ MOZ_PKG_FATAL_WARNINGS = 1
 endif
 MOZ_PKG_DUPEFLAGS = \
 	-f $(srcdir)/allowed-dupes.mn \
-	-f $(MOZILLA_DIR)/browser/installer/allowed-dupes.mn \
+	-f $(moztopsrcdir)/browser/installer/allowed-dupes.mn \
 	$(NULL)
 
 MOZ_NONLOCALIZED_PKG_LIST = \
@@ -132,8 +135,8 @@ endif
 
 NON_OMNIJAR_FILES = defaults/messenger/mailViews.dat
 
-include $(MOZILLA_SRCDIR)/toolkit/mozapps/installer/signing.mk
-include $(MOZILLA_SRCDIR)/toolkit/mozapps/installer/packager.mk
+include $(moztopsrcdir)/toolkit/mozapps/installer/signing.mk
+include $(moztopsrcdir)/toolkit/mozapps/installer/packager.mk
 
 ifeq (bundle, $(MOZ_FS_LAYOUT))
 BINPATH = $(_BINPATH)
@@ -176,7 +179,7 @@ DEFINES += -DCLANG_CL
 endif
 
 libs::
-	$(MAKE) -C $(DEPTH)/mail/locales langpack
+	$(MAKE) -C $(COMMDEPTH)/mail/locales langpack
 
 ifeq (WINNT,$(OS_ARCH))
 PKGCOMP_FIND_OPTS =
@@ -203,7 +206,7 @@ ifdef INSTALLER_DIR
 endif
 
 # The comm-* source stamp is already there.
-PLATFORM_SOURCE_STAMP = $(firstword $(shell hg -R "$(MOZILLA_SRCDIR)" parent --template="{node}\n" 2>/dev/null))
-PLATFORM_SOURCE_REPO = $(shell hg -R "$(MOZILLA_SRCDIR)" showconfig paths.default 2>/dev/null | sed -e "s/^ssh:/https:/")
+PLATFORM_SOURCE_STAMP = $(firstword $(shell hg -R "$(moztopsrcdir)" parent --template="{node}\n" 2>/dev/null))
+PLATFORM_SOURCE_REPO = $(shell hg -R "$(moztopsrcdir)" showconfig paths.default 2>/dev/null | sed -e "s/^ssh:/https:/")
 make-sourcestamp-file::
 	@echo "$(PLATFORM_SOURCE_REPO)/rev/$(PLATFORM_SOURCE_STAMP)" >> $(MOZ_SOURCESTAMP_FILE)

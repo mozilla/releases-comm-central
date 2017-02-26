@@ -17,7 +17,7 @@
 #   LIGHTNING_VERSION = 2.2  # Will be used to replace the Thunderbird version
 #   						 # in POST_UPLOAD_CMD
 
-include $(MOZILLA_SRCDIR)/toolkit/mozapps/installer/package-name.mk
+include $(moztopsrcdir)/toolkit/mozapps/installer/package-name.mk
 
 XPI_STAGE_PATH = $(DIST)/xpi-stage
 _ABS_XPI_STAGE_PATH = $(ABS_DIST)/xpi-stage
@@ -58,7 +58,7 @@ $(XPI_ZIP_IN): ensure-stage-dir
 L10N_TARGET = $(XPI_STAGE_PATH)/$(XPI_NAME)-$(AB_CD)
 
 # function print_ltnconfig(section,configname)
-print_ltnconfig = $(shell $(PYTHON) $(MOZILLA_SRCDIR)/config/printconfigsetting.py $(XPI_STAGE_PATH)/$(XPI_NAME)/app.ini $1 $2)
+print_ltnconfig = $(shell $(PYTHON) $(moztopsrcdir)/config/printconfigsetting.py $(XPI_STAGE_PATH)/$(XPI_NAME)/app.ini $1 $2)
 
 wget-en-US:
 ifeq (thunderbird,$(MOZ_APP_NAME))
@@ -88,9 +88,9 @@ langpack-en-US:
 merge-%: AB_CD=$*
 merge-%:
 	$(RM) -rf $(REAL_LOCALE_MERGEDIR)/calendar
-	$(MOZILLA_SRCDIR)/mach compare-locales \
+	$(moztopsrcdir)/mach compare-locales \
 	    --merge $(REAL_LOCALE_MERGEDIR)/.. \
-	    $(topsrcdir)/calendar/locales/l10n.toml \
+	    $(commtopsrcdir)/calendar/locales/l10n.toml \
 	    $(L10NBASEDIR) \
 	    $*
 
@@ -167,7 +167,7 @@ upload-%: AB_CD=$*
 upload-%: LTN_UPLOAD_CMD := $(patsubst $(THUNDERBIRD_VERSION)%,$(LIGHTNING_VERSION),$(subst thunderbird,calendar/lightning,$(POST_UPLOAD_CMD)))
 upload-%: stage-upload-%
 	POST_UPLOAD_CMD="$(LTN_UPLOAD_CMD)" \
-	  $(PYTHON) $(MOZILLA_DIR)/build/upload.py --base-path $(DIST) \
+	  $(PYTHON) $(moztopsrcdir)/build/upload.py --base-path $(DIST) \
 	  --properties-file $(DIST)/$(XPI_NAME)_build_properties.json \
 	  "$(DIST)/$(MOZ_PKG_PLATFORM)/$(XPI_PKGNAME).xpi"
 

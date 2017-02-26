@@ -3,6 +3,8 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+source ${_topsrcdir}/$MOZ_BUILD_APP/../comm-confvars.sh
+
 MOZ_APP_BASENAME=Thunderbird
 MOZ_APP_NAME=thunderbird
 MOZ_UPDATER=1
@@ -31,8 +33,9 @@ MOZ_APP_VERSION_DISPLAY_TXT=${_topsrcdir}/$MOZ_BUILD_APP/config/version_display.
 MOZ_APP_VERSION_DISPLAY=`cat $MOZ_APP_VERSION_DISPLAY_TXT`
 THUNDERBIRD_VERSION=$MOZ_APP_VERSION
 
-MOZ_BRANDING_DIRECTORY=mail/branding/nightly
-MOZ_OFFICIAL_BRANDING_DIRECTORY=other-licenses/branding/thunderbird
+MOZ_BRANDING_DIRECTORY=$commreltopsrcdir/mail/branding/nightly
+MOZ_OFFICIAL_BRANDING_DIRECTORY=$commreltopsrcdir/other-licenses/branding/thunderbird
+
 MOZ_APP_ID={3550f703-e582-4d05-9a08-453d09bdfdc6}
 # This should usually be the same as the value MAR_CHANNEL_ID.
 # If more than one ID is needed, then you should use a comma separated list

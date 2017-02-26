@@ -2,13 +2,13 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-include $(MOZILLA_SRCDIR)/toolkit/mozapps/installer/package-name.mk
+include $(moztopsrcdir)/toolkit/mozapps/installer/package-name.mk
 
 PKG_INST_PATH =
 CONFIG_DIR = instgen
-SFX_MODULE = $(topsrcdir)/other-licenses/7zstub/instantbird/7zSD.sfx
+SFX_MODULE = $(commtopsrcdir)/other-licenses/7zstub/instantbird/7zSD.sfx
 DEFINES += -DMOZ_APP_VERSION=$(MOZ_APP_VERSION)
-PRE_RELEASE_SUFFIX := $(shell $(PYTHON) $(topsrcdir)/mozilla/config/printprereleasesuffix.py $(MOZ_APP_VERSION))
+PRE_RELEASE_SUFFIX := $(shell $(PYTHON) $(moztopsrcdir)/config/printprereleasesuffix.py $(MOZ_APP_VERSION))
 DEFINES += -DPRE_RELEASE_SUFFIX="$(PRE_RELEASE_SUFFIX)"
 
 ifdef MOZ_UPDATER
@@ -35,7 +35,7 @@ DEFINES += \
 	-DMOZILLA_VERSION=${MOZILLA_VERSION} \
 	$(NULL)
 
-include $(topsrcdir)/config/config.mk
+include $(moztopsrcdir)/config/config.mk
 
 OVERRIDE_DEFAULT_GOAL := installer
 installer::
@@ -50,8 +50,8 @@ uninstaller::
 	$(INSTALL) $(addprefix $(DIST)/branding/,$(BRANDING_FILES)) $(CONFIG_DIR)
 	$(call py_action,preprocessor,-Fsubstitution $(DEFINES) $(ACDEFINES) \
 	  $(srcdir)/nsis/defines.nsi.in -o $(CONFIG_DIR)/defines.nsi)
-	$(PYTHON) $(MOZILLA_SRCDIR)/toolkit/mozapps/installer/windows/nsis/preprocess-locale.py \
-          --preprocess-locale $(MOZILLA_SRCDIR) \
+	$(PYTHON) $(moztopsrcdir)/toolkit/mozapps/installer/windows/nsis/preprocess-locale.py \
+          --preprocess-locale $(moztopsrcdir) \
 	  $(call EXPAND_LOCALE_SRCDIR,im/locales)/installer $(AB_CD) $(CONFIG_DIR)
 
 $(CONFIG_DIR)/setup.exe::
@@ -60,9 +60,9 @@ $(CONFIG_DIR)/setup.exe::
 	$(INSTALL) $(addprefix $(DIST)/branding/,$(BRANDING_FILES)) $(CONFIG_DIR)
 	$(call py_action,preprocessor,-Fsubstitution $(DEFINES) $(ACDEFINES) \
 	  $(srcdir)/nsis/defines.nsi.in -o $(CONFIG_DIR)/defines.nsi)
-	$(PYTHON) $(MOZILLA_SRCDIR)/toolkit/mozapps/installer/windows/nsis/preprocess-locale.py \
-	  --preprocess-locale $(MOZILLA_SRCDIR) \
+	$(PYTHON) $(moztopsrcdir)/toolkit/mozapps/installer/windows/nsis/preprocess-locale.py \
+	  --preprocess-locale $(moztopsrcdir) \
 	  $(call EXPAND_LOCALE_SRCDIR,im/locales)/installer $(AB_CD) $(CONFIG_DIR)
 
-include $(topsrcdir)/config/rules.mk
-include $(MOZILLA_SRCDIR)/toolkit/mozapps/installer/windows/nsis/makensis.mk
+include $(moztopsrcdir)/config/rules.mk
+include $(moztopsrcdir)/toolkit/mozapps/installer/windows/nsis/makensis.mk

@@ -18,7 +18,7 @@ if CONFIG['MAKENSISU']:
     DIRS += ['installer/windows']
 
 if CONFIG['MOZ_BUNDLED_FONTS']:
-    DIRS += ['/mozilla/browser/fonts']
+    DIRS += ['/%s/browser/fonts' % CONFIG['mozreltopsrcdir']]
 
 TEST_DIRS += ['test/mozmill']
 

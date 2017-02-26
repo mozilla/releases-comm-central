@@ -2,9 +2,9 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-include $(topsrcdir)/config/config.mk
+include $(moztopsrcdir)/config/config.mk
 
-_ABS_SRCDIR := $(abspath $(topsrcdir))
+_ABS_SRCDIR := $(abspath $(commtopsrcdir))
 
 ifndef MOZ_BRANDING_DIRECTORY
 MOZ_BRANDING_DIRECTORY = im/branding/nightly
@@ -40,8 +40,8 @@ MOZ_PKG_MAC_ICON=$(ABS_DIST)/branding/disk.icns
 MOZ_PKG_MAC_EXTRA=--symlink "/Applications:/ "
 endif
 
-MOZ_SFX_PACKAGE=$(topsrcdir)/other-licenses/7zstub/instantbird/7zSD.sfx
-MOZ_INSTALLER_PATH=$(topsrcdir)/im/installer/windows
+MOZ_SFX_PACKAGE=$(commtopsrcdir)/other-licenses/7zstub/instantbird/7zSD.sfx
+MOZ_INSTALLER_PATH=$(commtopsrcdir)/im/installer/windows
 
 ifeq (WINNT,$(OS_ARCH))
 UNINSTALLER_PACKAGE_HOOK = $(RM) -r $(STAGEDIST)/uninstall; \
@@ -67,9 +67,9 @@ GARBAGE += $(list-txt)
 
 libs:: searchplugins
 
-include $(topsrcdir)/config/rules.mk
+include $(moztopsrcdir)/config/rules.mk
 
-include $(topsrcdir)/mozilla/toolkit/locales/l10n.mk
+include $(moztopsrcdir)/toolkit/locales/l10n.mk
 
 $(list-txt): $(call mkdir_deps,$(SEARCHPLUGINS_PATH)) $(if $(IS_LANGUAGE_REPACK),FORCE)
 	$(RM) $(list-txt)
@@ -150,13 +150,13 @@ endif
 
 ident:
 	@printf "ib_revision "
-	@$(PYTHON) $(MOZILLA_SRCDIR)/config/printconfigsetting.py \
+	@$(PYTHON) $(moztopsrcdir)/config/printconfigsetting.py \
 	    $(STAGEDIST)/application.ini App SourceStamp
 	@printf "moz_revision "
-	@$(PYTHON) $(MOZILLA_SRCDIR)/config/printconfigsetting.py \
+	@$(PYTHON) $(moztopsrcdir)/config/printconfigsetting.py \
 	    $(STAGEDIST)/platform.ini Build SourceStamp
 	@printf "buildid "
-	@$(PYTHON) $(MOZILLA_SRCDIR)/config/printconfigsetting.py \
+	@$(PYTHON) $(moztopsrcdir)/config/printconfigsetting.py \
 	    $(STAGEDIST)/application.ini App BuildID
 
 #These make targets call prepare-repackages by setting different UPLOAD_DIR
@@ -205,8 +205,8 @@ MOZ_L10N_REPO_BASE = https://hg.mozilla.org/releases/l10n-mozilla-2.0
 
 checkout-%: AB_CD=$*
 checkout-%:
-	mkdir -p $(topsrcdir)/$(L10NBASEDIR)
-	$(PYTHON) $(topsrcdir)/client.py checkout-l10n --skip-instantbird --clean --l10n-base-dir $(L10NBASEDIR) --locale $(AB_CD)
+	mkdir -p $(commtopsrcdir)/$(L10NBASEDIR)
+	$(PYTHON) $(commtopsrcdir)/client.py checkout-l10n --skip-instantbird --clean --l10n-base-dir $(L10NBASEDIR) --locale $(AB_CD)
 
 repack-%: AB_CD=$*
 repack-%:

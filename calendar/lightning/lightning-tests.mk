@@ -18,6 +18,6 @@ stage-extension:
 # name conflicts between calendar/ and mail/
 stage-mozmill:
 	$(NSINSTALL) -D $(PKG_STAGE)/mozmill/shared-modules
-	(cd $(topsrcdir)/calendar/test/mozmill && tar $(TAR_CREATE_FLAGS) - `cat $(topsrcdir)/calendar/test/mozmill/mozmilltests.list`) | (cd $(PKG_STAGE)/mozmill && tar -xf -)
-	(cd $(topsrcdir)/calendar/test/mozmill/shared-modules && tar $(TAR_CREATE_FLAGS) - *) | (cd $(PKG_STAGE)/mozmill/shared-modules && tar -xf -)
-	$(call py_action,buildlist,$(PKG_STAGE)/mozmill/mozmilltests.list $(shell cat $(topsrcdir)/calendar/test/mozmill/mozmilltests.list))
+	(cd $(commtopsrcdir)/calendar/test/mozmill && tar $(TAR_CREATE_FLAGS) - `cat $(commtopsrcdir)/calendar/test/mozmill/mozmilltests.list`) | (cd $(PKG_STAGE)/mozmill && tar -xf -)
+	(cd $(commtopsrcdir)/calendar/test/mozmill/shared-modules && tar $(TAR_CREATE_FLAGS) - *) | (cd $(PKG_STAGE)/mozmill/shared-modules && tar -xf -)
+	$(call py_action,buildlist,$(PKG_STAGE)/mozmill/mozmilltests.list $(shell cat $(commtopsrcdir)/calendar/test/mozmill/mozmilltests.list))

@@ -35,6 +35,6 @@ Library('mozldap')
 FINAL_LIBRARY = 'xul'
 
 LOCAL_INCLUDES += [
-    '/ldap/c-sdk/include',
+    '../../c-sdk/include',
 ]
 

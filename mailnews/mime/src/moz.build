@@ -70,9 +70,9 @@ SOURCES += [
 ]
 
 LOCAL_INCLUDES += [
-     '/mozilla/security/certverifier',
-     '/mozilla/security/manager/ssl',
-     '/mozilla/security/pkix/include',
+     '/%s/security/certverifier' % CONFIG['mozreltopsrcdir'],
+     '/%s/security/manager/ssl' % CONFIG['mozreltopsrcdir'],
+     '/%s/security/pkix/include' % CONFIG['mozreltopsrcdir'],
 ]
 
 EXTRA_COMPONENTS += [

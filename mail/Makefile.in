@@ -1,22 +1,21 @@
-#
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-include $(topsrcdir)/config/config.mk
+include $(moztopsrcdir)/config/config.mk
 
 ifdef ENABLE_TESTS
 
 check-sync-dirs::
-	@$(PYTHON) $(topsrcdir)/mail/check-sync-dirs.py \
-	   $(topsrcdir)/build $(MOZILLA_SRCDIR)/build
-	@$(PYTHON) $(topsrcdir)/mail/check-sync-dirs.py \
-	   $(srcdir)/config/tooltool-manifests $(MOZILLA_SRCDIR)/browser/config/tooltool-manifests
+	@$(PYTHON) $(commtopsrcdir)/mail/check-sync-dirs.py \
+	   $(topsrcdir)/build $(moztopsrcdir)/build
+	@$(PYTHON) $(commtopsrcdir)/mail/check-sync-dirs.py \
+	   $(srcdir)/config/tooltool-manifests $(moztopsrcdir)/browser/config/tooltool-manifests
 
 check:: check-sync-dirs
 endif
 
-include $(topsrcdir)/config/rules.mk
+include $(moztopsrcdir)/config/rules.mk
 
 ifdef MAKENSISU
 # For Windows build the uninstaller during the application build since the
@@ -33,7 +32,7 @@ endif
 # platform.ini are the same, which isn't a problem for Firefox, but
 # it's not right for anything else. So we correct platform.ini here.
 
-MOZ_REV=$(shell hg -R "$(MOZILLA_SRCDIR)" parent --template="{node}" 2>/dev/null)
+MOZ_REV=$(shell hg -R "$(moztopsrcdir)" parent --template="{node}" 2>/dev/null)
 
 libs:: $(DIST)/bin/platform.ini
 	sed -e "s/^\(SourceStamp=\).*/\1$(MOZ_REV)/" $(DIST)/bin/platform.ini \

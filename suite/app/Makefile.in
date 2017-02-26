@@ -23,7 +23,7 @@ endif
 # shouldn't get 755 perms need $(IFLAGS1) for either way of calling nsinstall.
 NSDISTMODE = copy
 
-include $(topsrcdir)/config/config.mk
+include $(moztopsrcdir)/config/config.mk
 
 # If we are trying to show an error dialog about the lack of SSE2 support,
 # make sure that code itself doesn't use SSE2.
@@ -42,14 +42,14 @@ ifeq ($(OS_ARCH),WINNT)
 EXTRA_DEPS += seamonkey.exe.manifest
 endif
 
-include $(topsrcdir)/config/rules.mk
+include $(moztopsrcdir)/config/rules.mk
 
 libs::
 ifeq ($(OS_ARCH),WINNT)
 	$(EXIT_ON_ERROR) \
-	$(PERL) -pe 's/(?<!\r)\n/\r\n/g;' < $(topsrcdir)/suite/installer/license.txt > $(DIST)/bin/license.txt
+	$(PERL) -pe 's/(?<!\r)\n/\r\n/g;' < $(commtopsrcdir)/suite/installer/license.txt > $(DIST)/bin/license.txt
 else
-	$(INSTALL) $(IFLAGS1) $(topsrcdir)/suite/installer/license.txt $(DIST)/bin/
+	$(INSTALL) $(IFLAGS1) $(commtopsrcdir)/suite/installer/license.txt $(DIST)/bin/
 endif
 
 ifneq ($(OS_ARCH),WINNT)

@@ -1,3 +1,5 @@
+#filter substitution
+
 comm.jar:
 % content communicator %content/communicator/ contentaccessible=yes
 % content help %content/communicator/helpviewer/
@@ -71,9 +73,9 @@ comm.jar:
    content/communicator/helpEditorOverlay.xul
    content/communicator/helpMessengerOverlay.xul
    content/communicator/helpSecurityOverlay.xul
-   content/communicator/labelsencodings.properties                  (/mozilla/dom/encoding/labelsencodings.properties)
+   content/communicator/labelsencodings.properties                  (/@mozreltopsrcdir@/dom/encoding/labelsencodings.properties)
 # the following file is a suite-specific override of the generic license.html, using suite/common/app-license.html as input:
-*  content/communicator/license.html                                (/mozilla/toolkit/content/license.html)
+*  content/communicator/license.html                                (/@mozreltopsrcdir@/toolkit/content/license.html)
    content/communicator/nsContextMenu.js
    content/communicator/openLocation.js
    content/communicator/openLocation.xul

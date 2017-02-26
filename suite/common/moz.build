@@ -41,5 +41,5 @@ JAR_MANIFESTS += ['jar.mn']
 # chrome://global/content/license.html (about:license)
 DEFINES['APP_LICENSE_BLOCK'] = '%s/app-license.html' % SRCDIR
 
-for var in ('MOZ_APP_NAME', 'MOZ_MACBUNDLE_NAME'):
+for var in ('MOZ_APP_NAME', 'MOZ_MACBUNDLE_NAME', 'mozreltopsrcdir'):
     DEFINES[var] = CONFIG[var]

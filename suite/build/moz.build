@@ -15,8 +15,8 @@ Library('suite')
 FINAL_LIBRARY = 'xul'
 
 LOCAL_INCLUDES += [
-    '/suite/feeds/src',
-    '/suite/profile',
-    '/suite/profile/migration/src',
-    '/suite/shell/src',
+    '../feeds/src',
+    '../profile',
+    '../profile/migration/src',
+    '../shell/src',
 ]

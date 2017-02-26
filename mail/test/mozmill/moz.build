@@ -10,8 +10,7 @@ TEST_HARNESS_FILES.mozmill += [
 ]
 
 TEST_HARNESS_FILES.mozmill.resources += [
-    '/mail/base/test/unit/resources/**',
-    '/mailnews/test/fakeserver/**',
-    '/mailnews/test/resources/**',
+    '/%s/mail/base/test/unit/resources/**' % CONFIG['commreltopsrcdir'],
+    '/%s/mailnews/test/fakeserver/**' % CONFIG['commreltopsrcdir'],
+    '/%s/mailnews/test/resources/**' % CONFIG['commreltopsrcdir']
 ]
-

@@ -3,27 +3,30 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-include('/mailnews/mailnews.mozbuild')
+# Note that paths in this file are relative to the top directory, which may be
+# m-c or c-c.
 
-DIRS += ['/mail/components']
+include('../mailnews/mailnews.mozbuild')
 
-include('/toolkit/toolkit.mozbuild')
+DIRS += ['/%s/mail/components' % CONFIG['commreltopsrcdir']]
+
+include('/%s/toolkit/toolkit.mozbuild' % CONFIG['mozreltopsrcdir'])
 
 if CONFIG['MOZ_EXTENSIONS']:
-    DIRS += ['/extensions']
+    DIRS += ['/%s/extensions' % CONFIG['mozreltopsrcdir']]
 
 DIRS += ['/%s' % CONFIG['MOZ_BRANDING_DIRECTORY']]
 
 if CONFIG['MOZ_COMPOSER']:
-    DIRS += ['/editor/ui']
+    DIRS += ['/%s/editor/ui' % CONFIG['commreltopsrcdir']]
 
 if CONFIG['MOZ_CALENDAR']:
     DIRS += [
-        '/calendar/lightning',
-        '/calendar/timezones'
+        '/%s/calendar/lightning' % CONFIG['commreltopsrcdir'],
+        '/%s/calendar/timezones' % CONFIG['commreltopsrcdir']
     ]
 
 DIRS += [
-    '/chat',
-    '/mail',
+    '/%s/chat' % CONFIG['commreltopsrcdir'],
+    '/%s/mail' % CONFIG['commreltopsrcdir'],
 ]

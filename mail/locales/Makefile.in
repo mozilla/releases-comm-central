@@ -2,9 +2,9 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-include $(topsrcdir)/config/config.mk
+include $(moztopsrcdir)/config/config.mk
 
-_ABS_SRCDIR := $(abspath $(topsrcdir))
+_ABS_SRCDIR := $(abspath $(commtopsrcdir))
 
 SUBMAKEFILES += \
 	$(DEPTH)/$(MOZ_BRANDING_DIRECTORY)/Makefile \
@@ -40,8 +40,8 @@ MOZ_PKG_MAC_ICON=$(ABS_DIST)/branding/disk.icns
 MOZ_PKG_MAC_EXTRA=--symlink '/Applications:/ '
 endif
 
-MOZ_SFX_PACKAGE=$(topsrcdir)/other-licenses/7zstub/thunderbird/7zSD.sfx
-MOZ_INSTALLER_PATH=$(topsrcdir)/mail/installer/windows
+MOZ_SFX_PACKAGE=$(commtopsrcdir)/other-licenses/7zstub/thunderbird/7zSD.sfx
+MOZ_INSTALLER_PATH=$(commtopsrcdir)/mail/installer/windows
 
 ifeq (WINNT,$(OS_ARCH))
 UNINSTALLER_PACKAGE_HOOK = $(RM) -r $(STAGEDIST)/uninstall; \
@@ -72,9 +72,9 @@ libs:: searchplugins
 # be included in langpack xpis.
 DIST_SUBDIRS = $(DIST_SUBDIR)
 
-include $(topsrcdir)/config/rules.mk
+include $(moztopsrcdir)/config/rules.mk
 
-include $(topsrcdir)/mozilla/toolkit/locales/l10n.mk
+include $(moztopsrcdir)/toolkit/locales/l10n.mk
 
 $(list-json): $(call mkdir_deps,$(SEARCHPLUGINS_PATH)) $(if $(IS_LANGUAGE_REPACK),FORCE)
 	$(call py_action,generate_searchjson,$(srcdir)/search/list.json $(AB_CD) $(list-json))
@@ -147,13 +147,13 @@ endif
 
 ident:
 	@printf 'comm_revision '
-	@$(PYTHON) $(MOZILLA_SRCDIR)/config/printconfigsetting.py \
+	@$(PYTHON) $(moztopsrcdir)/config/printconfigsetting.py \
 	    $(STAGEDIST)/application.ini App SourceStamp
 	@printf 'moz_revision '
-	@$(PYTHON) $(MOZILLA_SRCDIR)/config/printconfigsetting.py \
+	@$(PYTHON) $(moztopsrcdir)/config/printconfigsetting.py \
 	    $(STAGEDIST)/platform.ini Build SourceStamp
 	@printf 'buildid '
-	@$(PYTHON) $(MOZILLA_SRCDIR)/config/printconfigsetting.py \
+	@$(PYTHON) $(moztopsrcdir)/config/printconfigsetting.py \
 	    $(STAGEDIST)/application.ini App BuildID
 
 #These make targets call prepare-repackages by setting different UPLOAD_DIR
@@ -199,8 +199,8 @@ l10n-check::
 	$(MAKE) installers-x-test L10NBASEDIR='$(PWD)'
 
 ifdef MOZ_CALENDAR
-LIGHTNING_PATH=$(DEPTH)/calendar/lightning
-GDATA_PATH=$(DEPTH)/calendar/providers/gdata
+LIGHTNING_PATH=$(COMMDEPTH)/calendar/lightning
+GDATA_PATH=$(COMMDEPTH)/calendar/providers/gdata
 
 define run-calendar-rule
 $(MAKE) -C $(LIGHTNING_PATH) $(subst calendar-,,$@) AB_CD=$(AB_CD)

@@ -77,12 +77,17 @@ TESTING_JS_MODULES.mailnews += [
     'test/resources/PromiseTestUtils.jsm',
 ]
 
-TEST_HARNESS_FILES.xpcshell.mailnews.data += [
-    '/mailnews/test/data/**',
+if 'comm' in CONFIG['MOZ_BUILD_APP']:
+  test_harness_base = TEST_HARNESS_FILES.xpcshell.comm
+else:
+  test_harness_base = TEST_HARNESS_FILES.xpcshell
+
+test_harness_base.mailnews.data += [
+    '/%s/mailnews/test/data/**' % CONFIG['commreltopsrcdir'],
 ]
 
-TEST_HARNESS_FILES.xpcshell.mailnews.resources += [
-    '/mailnews/test/resources/**',
+test_harness_base.mailnews.resources += [
+    '/%s/mailnews/test/resources/**' % CONFIG['commreltopsrcdir'],
 ]
 
 JS_PREFERENCE_PP_FILES += [

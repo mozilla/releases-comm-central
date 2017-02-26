@@ -3,6 +3,8 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+source ${_topsrcdir}/$MOZ_BUILD_APP/../comm-confvars.sh
+
 MOZ_APP_BASENAME=Instantbird
 MOZ_APP_NAME=instantbird
 MOZ_APP_STATIC_INI=1
@@ -17,8 +19,9 @@ MOZ_APP_VERSION_TXT=${_topsrcdir}/$MOZ_BUILD_APP/config/version.txt
 MOZ_APP_VERSION=`cat $MOZ_APP_VERSION_TXT`
 INSTANTBIRD_VERSION=$MOZ_APP_VERSION
 
-MOZ_BRANDING_DIRECTORY=im/branding/nightly
-MOZ_OFFICIAL_BRANDING_DIRECTORY=other-licenses/branding/instantbird
+MOZ_BRANDING_DIRECTORY=$commreltopsrcdir/im/branding/nightly
+MOZ_OFFICIAL_BRANDING_DIRECTORY=$commreltopsrcdir/other-licenses/branding/instantbird
+
 MOZ_APP_ID={33cb9019-c295-46dd-be21-8c4936574bee}
 # Enable generational GC on desktop.
 JSGC_GENERATIONAL=1

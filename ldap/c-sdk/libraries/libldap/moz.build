@@ -3,7 +3,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-include('/ldap/ldap-sdk.mozbuild')
+include('/%s/ldap/ldap-sdk.mozbuild' % CONFIG['commreltopsrcdir'])
 
 SharedLibrary('ldap60')
 
@@ -82,7 +82,7 @@ if CONFIG['OS_TARGET'] != 'WINNT':
 DEFINES['NEEDPROTOS'] = True
 
 LOCAL_INCLUDES += [
-    '/ldap/c-sdk/include'
+    '../../include'
 ]
 
 USE_LIBS += ['lber60']

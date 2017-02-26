@@ -1,6 +1,9 @@
 "use strict";
 
 module.exports = {
+    "extends": [
+        "../../toolkit/.eslintrc.js"
+    ],
     "rules": {
         // Enforce one true brace style (opening brace on the same line)
         // Allow single line (for now) because of the vast number of changes needed
