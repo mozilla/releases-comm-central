@@ -939,9 +939,6 @@ pref("full-screen-api.enabled", true);
 // then pasting code into the web console or scratchpad is disabled
 pref("devtools.selfxss.count", 5);
 
-// Enable general plugin loading.
-pref("plugin.load_flash_only", false);
-
 #if defined(XP_WIN) && defined(MOZ_SANDBOX)
 // When this pref is true the Windows process sandbox will set up dummy
 // interceptions and log to the browser console when calls fail in the sandboxed
