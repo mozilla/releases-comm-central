@@ -3,6 +3,7 @@
 ac_add_options --enable-debug
 
 ac_add_options --enable-application=suite
+ac_add_options --enable-calendar
 
 # Needed to enable breakpad in application.ini
 export MOZILLA_OFFICIAL=1
