@@ -1223,7 +1223,8 @@ function IsReplyAllEnabled()
     addresses += currentHeaderData.bcc.headerValue;
 
   // Check to see if my email address is in the list of addresses.
-  let myEmail = getIdentityForHeader(msgHdr).email;
+  let myIdentity = getIdentityForHeader(msgHdr);
+  let myEmail = myIdentity ? myIdentity.email : null;
   // We aren't guaranteed to have an email address, so guard against that.
   let imInAddresses = myEmail && (addresses.toLowerCase().includes(
                                     myEmail.toLowerCase()));
@@ -1679,13 +1680,15 @@ BatchMessageMover.prototype = {
       let msgDate = new Date(msgHdr.date / 1000);
       let msgYear = msgDate.getFullYear().toString();
       let monthFolderName = msgDate.toLocaleFormat("%Y-%m");
-      let archiveFolderURI;
 
+      let archiveFolderURI;
       let archiveGranularity;
       let archiveKeepFolderStructure;
-      if (server.type == "rss") {
-        // RSS servers don't have an identity, so we need to figure this out
-        // based on the default identity prefs.
+
+      let identity = getIdentityForHeader(msgHdr);
+      if (!identity) {
+        // Some servers (RSS) don't have an identity, so we need to figure
+        // this out based on the default identity prefs.
         let enabled = Services.prefs.getBoolPref(
           "mail.identity.default.archive_enabled"
         );
@@ -1701,9 +1704,9 @@ BatchMessageMover.prototype = {
         );
       }
       else {
-        let identity = getIdentityForHeader(msgHdr);
         if (!identity.archiveEnabled)
           continue;
+
         archiveFolderURI = identity.archiveFolder;
         archiveGranularity = identity.archiveGranularity;
         archiveKeepFolderStructure = identity.archiveKeepFolderStructure;
