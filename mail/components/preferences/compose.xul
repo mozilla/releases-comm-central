@@ -221,7 +221,8 @@
             </hbox>
 
            <hbox align="center" pack="start">
-             <label value="&showAsDefault.label;" accesskey="&showAsDefault.accesskey;"/>
+             <label value="&showAsDefault.label;" accesskey="&showAsDefault.accesskey;"
+                    control="defaultStartupDirList"/>
              <menulist id="defaultStartupDirList" flex="1"
                        oncommand="gComposePane.setDefaultStartupDir(this.value);">
                <menupopup class="addrbooksPopup"
