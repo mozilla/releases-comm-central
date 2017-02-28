@@ -414,9 +414,10 @@ var mailTestUtils = {
    * @param aFuncThis Optional 'this' pointer to use.
    * @param aFuncArgs Optional list of arguments to pass to the function.
    */
+  _timer: null,
   do_timeout_function: function(aDelayInMS, aFunc, aFuncThis, aFuncArgs) {
-    let timer = Components.classes["@mozilla.org/timer;1"]
-                          .createInstance(Components.interfaces.nsITimer);
+    this._timer = Components.classes["@mozilla.org/timer;1"]
+                            .createInstance(Components.interfaces.nsITimer);
     let wrappedFunc = function() {
       try {
         aFunc.apply(aFuncThis, aFuncArgs);
@@ -427,7 +428,7 @@ var mailTestUtils = {
         do_throw(ex);
       }
     };
-    timer.initWithCallback(wrappedFunc, aDelayInMS,
+    this._timer.initWithCallback(wrappedFunc, aDelayInMS,
       Components.interfaces.nsITimer.TYPE_ONE_SHOT);
   },
 
