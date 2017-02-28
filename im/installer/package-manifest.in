@@ -607,6 +607,8 @@
 @RESPATH@/components/Push.js
 @RESPATH@/components/Push.manifest
 @RESPATH@/components/PushComponents.js
+@RESPATH@/components/ProcessSelector.js
+@RESPATH@/components/ProcessSelector.manifest
 @RESPATH@/components/contentAreaDropListener.js
 @RESPATH@/components/contentAreaDropListener.manifest
 @RESPATH@/components/WellKnownOpportunisticUtils.js

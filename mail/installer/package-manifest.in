@@ -677,6 +677,9 @@
 @RESPATH@/components/Push.manifest
 @RESPATH@/components/PushComponents.js
 
+@RESPATH@/components/ProcessSelector.js
+@RESPATH@/components/ProcessSelector.manifest
+
 @RESPATH@/components/SlowScriptDebug.manifest
 @RESPATH@/components/SlowScriptDebug.js
 
