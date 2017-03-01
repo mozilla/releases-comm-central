@@ -2827,7 +2827,7 @@ function GetMessagesForAllAuthenticatedAccounts()
   try
   {
     var allServers = accountManager.allServers;
-    // array of isupportsarrays of servers for a particular folder
+    // Array of arrays of servers for a particular folder.
     var pop3DownloadServersArray = [];
     // parallel array of folders to download to...
     var localFoldersToDownloadTo = [];

@@ -63,7 +63,7 @@ TestMailImpoter.prototype = {
     let descriptor = this._createMailboxDescriptor(directory.path,
                                                    directory.leafName,
                                                    depth);
-    result.AppendElement(descriptor, false);
+    result.appendElement(descriptor, false);
     let entries = directory.directoryEntries;
     while (entries.hasMoreElements()) {
       let entry = entries.getNext().QueryInterface(Ci.nsIFile);
@@ -73,9 +73,8 @@ TestMailImpoter.prototype = {
   },
 
   FindMailboxes: function(location) {
-    let result;
-    result = Cc["@mozilla.org/supports-array;1"]
-             .createInstance(Ci.nsIArray);
+    let result = Cc["@mozilla.org/array;1"]
+                   .createInstance(Ci.nsIMutableArray);
     this._collectMailboxesInDirectory(location, 0, result);
 
     return result;
