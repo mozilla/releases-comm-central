@@ -10,7 +10,7 @@
 #include "nsImapProtocol.h"
 #include "nsMsgImapCID.h"
 #include "nsImapUrl.h"
-#include "nsStringGlue.h"
+#include "nsString.h"
 #include "nsServiceManagerUtils.h"
 
 //////////////////// nsIMAPNamespace  /////////////////////////////////////////////////////////////

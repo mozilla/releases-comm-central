@@ -8,7 +8,7 @@
 
 #include "nsIWindowsShellService.h"
 #include "nsIObserver.h"
-#include "nsStringGlue.h"
+#include "nsString.h"
 
 #include <ole2.h>
 #include <windows.h>

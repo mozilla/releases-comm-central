@@ -11,7 +11,7 @@
 
 #include "nsCOMPtr.h"
 #include "nscore.h"
-#include "nsStringGlue.h"
+#include "nsString.h"
 #include "nsMsgUtils.h"
 #include "nsWMImport.h"
 #include "nsIComponentManager.h"

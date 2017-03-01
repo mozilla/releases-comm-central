@@ -10,7 +10,7 @@
 #include "nsIPrefService.h"
 #include "nsIPrefBranch.h"
 #include "nsISupportsPrimitives.h"
-#include "nsStringGlue.h"
+#include "nsString.h"
 
 #define STRING_SIZE 255
 struct testInfo {

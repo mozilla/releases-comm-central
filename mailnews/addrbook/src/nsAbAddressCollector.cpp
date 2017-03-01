@@ -11,7 +11,7 @@
 #include "nsAbAddressCollector.h"
 #include "nsIPrefService.h"
 #include "nsIPrefBranch.h"
-#include "nsStringGlue.h"
+#include "nsString.h"
 #include "prmem.h"
 #include "nsServiceManagerUtils.h"
 #include "nsComponentManagerUtils.h"

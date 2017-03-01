@@ -4,7 +4,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "nsCidProtocolHandler.h"
-#include "nsStringGlue.h"
+#include "nsString.h"
 #include "nsIURI.h"
 #include "nsNetCID.h"
 #include "nsComponentManagerUtils.h"

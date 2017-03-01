@@ -7,7 +7,7 @@
 #define __IMPORTEMBEDDEDIMAGETDATA_H__
 
 #include "nsIMsgSend.h"
-#include "nsStringGlue.h"
+#include "nsString.h"
 #include "nsCOMPtr.h"
 #include "nsIURI.h"
 

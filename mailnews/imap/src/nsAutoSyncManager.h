@@ -6,7 +6,7 @@
 #define nsAutoSyncManager_h__
 
 #include "nsAutoPtr.h"
-#include "nsStringGlue.h"
+#include "nsString.h"
 #include "nsCOMArray.h"
 #include "nsIObserver.h"
 #include "nsIUrlListener.h"

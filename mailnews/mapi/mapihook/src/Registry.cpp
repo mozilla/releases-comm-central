@@ -6,7 +6,7 @@
 #undef UNICODE
 
 #include <objbase.h>
-#include "nsStringGlue.h"
+#include "nsString.h"
 #include "Registry.h"
 
 #define MAPI_PROXY_DLL_NAME   "MapiProxy.dll"

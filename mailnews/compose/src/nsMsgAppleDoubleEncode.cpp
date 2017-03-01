@@ -16,7 +16,7 @@
 */
 #include "nsID.h"
 #include "nscore.h"
-#include "nsStringGlue.h"
+#include "nsString.h"
 #include "nsMsgAppleDouble.h"
 #include "nsMsgAppleCodes.h"
 #include "nsMsgCompUtils.h"

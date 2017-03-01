@@ -28,7 +28,7 @@
 #include "nsQuickSort.h"
 #include "nsComponentManagerUtils.h"
 #include "msgCore.h"
-#include "nsStringGlue.h"
+#include "nsString.h"
 
 #include <ctype.h>
 

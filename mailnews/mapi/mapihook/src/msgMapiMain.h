@@ -17,7 +17,7 @@
 #include "nspr.h"
 #include "nsDataHashtable.h"
 #include "nsClassHashtable.h"
-#include "nsStringGlue.h"
+#include "nsString.h"
 
 class nsMAPISession;
 

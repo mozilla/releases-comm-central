@@ -6,7 +6,7 @@
 #define MapiMessage_h___
 
 #include "nsTArray.h"
-#include "nsStringGlue.h"
+#include "nsString.h"
 #include "nsIFile.h"
 #include "MapiApi.h"
 #include "nsIMsgSend.h"

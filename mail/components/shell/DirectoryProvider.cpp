@@ -17,7 +17,7 @@
 #include "nsComponentManagerUtils.h"
 #include "nsCOMArray.h"
 #include "nsServiceManagerUtils.h"
-#include "nsStringGlue.h"
+#include "nsString.h"
 #include "nsXULAppAPI.h"
 #include "nsIPrefLocalizedString.h"
 

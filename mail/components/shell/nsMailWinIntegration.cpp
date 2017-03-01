@@ -18,7 +18,7 @@
 #include "nsComponentManagerUtils.h"
 #include "nsServiceManagerUtils.h"
 #include "nsIProperties.h"
-#include "nsStringGlue.h"
+#include "nsString.h"
 
 #ifndef MOZILLA_INTERNAL_API
 /**

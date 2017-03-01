@@ -16,7 +16,7 @@
 #include "nsIMsgFolder.h"
 #include "nsAutoPtr.h"
 #include "nsTArray.h"
-#include "nsStringGlue.h"
+#include "nsString.h"
 
 class nsParseNewMailState;
 class nsIMsgFolder;

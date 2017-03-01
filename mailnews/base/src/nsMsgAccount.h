@@ -6,7 +6,7 @@
 #include "nscore.h"
 #include "nsIMsgAccount.h"
 #include "nsIPrefBranch.h"
-#include "nsStringGlue.h"
+#include "nsString.h"
 #include "nsIMutableArray.h"
 
 class nsMsgAccount : public nsIMsgAccount

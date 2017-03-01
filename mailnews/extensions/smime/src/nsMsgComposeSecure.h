@@ -15,7 +15,7 @@
 #include "nsICryptoHash.h"
 #include "nsICMSMessage.h"
 #include "nsIMutableArray.h"
-#include "nsStringGlue.h"
+#include "nsString.h"
 #include "nsIOutputStream.h"
 #include "nsAutoPtr.h"
 

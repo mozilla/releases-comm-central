@@ -7,7 +7,7 @@
 #define _NSMSGUTILS_H
 
 #include "nsIURL.h"
-#include "nsStringGlue.h"
+#include "nsString.h"
 #include "msgCore.h"
 #include "nsCOMPtr.h"
 #include "MailNewsTypes2.h"

@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "ldap.h"
-#include "nsStringGlue.h"
+#include "nsString.h"
 #include "nsILDAPURL.h"
 #include "nsCOMPtr.h"
 

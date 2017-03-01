@@ -10,7 +10,7 @@
 #include "nsIPrefBranch.h"
 #include "msgCore.h"
 #include "nsCOMPtr.h"
-#include "nsStringGlue.h"
+#include "nsString.h"
 
 class NS_MSG_BASE nsMsgIdentity final : public nsIMsgIdentity
 {

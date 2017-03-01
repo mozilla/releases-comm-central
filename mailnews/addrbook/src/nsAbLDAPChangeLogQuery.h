@@ -9,7 +9,7 @@
 
 #include "mozilla/Attributes.h"
 #include "nsAbLDAPReplicationQuery.h"
-#include "nsStringGlue.h"
+#include "nsString.h"
 
 class nsAbLDAPChangeLogQuery : public nsIAbLDAPChangeLogQuery,
                                public nsAbLDAPReplicationQuery

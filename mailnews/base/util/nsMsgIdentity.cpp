@@ -6,7 +6,7 @@
 #include "msgCore.h" // for pre-compiled headers
 #include "nsMsgIdentity.h"
 #include "nsIPrefService.h"
-#include "nsStringGlue.h"
+#include "nsString.h"
 #include "nsMsgCompCID.h"
 #include "nsIRDFService.h"
 #include "nsIRDFResource.h"

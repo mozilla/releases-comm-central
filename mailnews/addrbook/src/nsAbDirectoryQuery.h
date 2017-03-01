@@ -9,7 +9,7 @@
 #include "nsIAbDirectoryQuery.h"
 #include "nsIAbDirectory.h"
 #include "nsCOMPtr.h"
-#include "nsStringGlue.h"
+#include "nsString.h"
 #include "nsIArray.h"
 #include "nsIAbBooleanExpression.h"
 

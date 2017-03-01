@@ -12,7 +12,7 @@
 #include "nsCOMPtr.h"
 #include "nsDirectoryServiceDefs.h"
 
-#include "nsStringGlue.h"
+#include "nsString.h"
 
 #define NS_THUNDERBIRD_PROFILEIMPORT_CID \
 { 0xb3c78baf, 0x3a52, 0x41d2, { 0x97, 0x18, 0xc3, 0x19, 0xbe, 0xf9, 0xaf, 0xfc } }

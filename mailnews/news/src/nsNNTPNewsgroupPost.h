@@ -9,7 +9,7 @@
 #include "msgCore.h"
 #include "nsINNTPNewsgroupPost.h"
 #include "nsCOMPtr.h"
-#include "nsStringGlue.h"
+#include "nsString.h"
 #include "nsIFile.h"
 
 #define IDX_HEADER_FROM             0

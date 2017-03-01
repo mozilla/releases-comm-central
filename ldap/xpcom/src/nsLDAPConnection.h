@@ -9,7 +9,7 @@
 
 #include "nsILDAPConnection.h"
 #include "ldap.h"
-#include "nsStringGlue.h"
+#include "nsString.h"
 #include "nsIThread.h"
 #include "nsIRunnable.h"
 #include "nsCOMPtr.h"

@@ -6,7 +6,7 @@
 #include "nsIURI.h"
 #include "nsNetCID.h"
 #include "nsAddbookUrl.h"
-#include "nsStringGlue.h"
+#include "nsString.h"
 #include "nsAbBaseCID.h"
 #include "nsComponentManagerUtils.h"
 #include "nsAutoPtr.h"

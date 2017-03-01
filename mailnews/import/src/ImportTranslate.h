@@ -6,7 +6,7 @@
 #ifndef ImportTranslate_h___
 #define ImportTranslate_h___
 
-#include "nsStringGlue.h"
+#include "nsString.h"
 #include "nsImportTranslator.h"
 
 class ImportTranslate {

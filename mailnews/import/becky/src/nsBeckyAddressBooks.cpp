@@ -10,7 +10,7 @@
 #include "nsISimpleEnumerator.h"
 #include "nsIDirectoryEnumerator.h"
 #include "nsIMutableArray.h"
-#include "nsStringGlue.h"
+#include "nsString.h"
 #include "nsAbBaseCID.h"
 #include "nsIAbManager.h"
 #include "nsIImportService.h"

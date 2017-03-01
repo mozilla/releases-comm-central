@@ -8,7 +8,7 @@
 
 #include "nscore.h"
 #include "msgCore.h"
-#include "nsStringGlue.h"
+#include "nsString.h"
 class nsIFile;
 
 /**

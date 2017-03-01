@@ -13,7 +13,7 @@
 #define _MIMETHPL_H_
 
 #include "mimetpla.h"
-#include "nsStringGlue.h"
+#include "nsString.h"
 
 typedef struct MimeInlineTextHTMLAsPlaintextClass MimeInlineTextHTMLAsPlaintextClass;
 typedef struct MimeInlineTextHTMLAsPlaintext      MimeInlineTextHTMLAsPlaintext;

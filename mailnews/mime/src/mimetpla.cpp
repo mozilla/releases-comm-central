@@ -10,7 +10,7 @@
 #include "mozITXTToHTMLConv.h"
 #include "nsCOMPtr.h"
 #include "nsIComponentManager.h"
-#include "nsStringGlue.h"
+#include "nsString.h"
 #include "nsMimeStringResources.h"
 #include "mimemoz2.h"
 #include "nsIServiceManager.h"

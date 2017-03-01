@@ -10,7 +10,7 @@
 #include "nsImapUrl.h"
 #include "nsIIMAPHostSessionList.h"
 #include "nsThreadUtils.h"
-#include "nsStringGlue.h"
+#include "nsString.h"
 #include "prmem.h"
 #include "plstr.h"
 #include "prprf.h"

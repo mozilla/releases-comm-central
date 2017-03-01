@@ -11,7 +11,7 @@
 #include "rdf.h"
 #include "nsIServiceManager.h"
 #include "nsEnumeratorUtils.h"
-#include "nsStringGlue.h"
+#include "nsString.h"
 #include "nsCOMPtr.h"
 #include "nsIMsgFolder.h"
 #include "nsIMsgIncomingServer.h"

@@ -5,7 +5,7 @@
 
 #include "nsIAbLDAPAttributeMap.h"
 #include "nsAbBoolExprToLDAPFilter.h"
-#include "nsStringGlue.h"
+#include "nsString.h"
 #include "nsIArray.h"
 #include "nsArrayUtils.h"
 

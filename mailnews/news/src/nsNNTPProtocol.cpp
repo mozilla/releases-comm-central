@@ -25,7 +25,7 @@
 #include "prtime.h"
 #include "mozilla/Logging.h"
 #include "prerror.h"
-#include "nsStringGlue.h"
+#include "nsString.h"
 #include "mozilla/Attributes.h"
 #include "mozilla/Services.h"
 #include "mozilla/mailnews/MimeHeaderParser.h"

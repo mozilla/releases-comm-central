@@ -8,7 +8,7 @@
 #define nsTextAddress_h__
 
 #include "nsCOMPtr.h"
-#include "nsStringGlue.h"
+#include "nsString.h"
 #include "nsIImportFieldMap.h"
 #include "nsIImportService.h"
 

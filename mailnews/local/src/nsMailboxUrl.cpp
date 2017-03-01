@@ -9,7 +9,7 @@
 #include "nsIMailboxUrl.h"
 #include "nsMailboxUrl.h"
 
-#include "nsStringGlue.h"
+#include "nsString.h"
 #include "nsLocalUtils.h"
 #include "nsIMsgDatabase.h"
 #include "nsMsgDBCID.h"

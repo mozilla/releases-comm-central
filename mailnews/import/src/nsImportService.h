@@ -8,7 +8,7 @@
 
 #include "nsICharsetConverterManager.h"
 
-#include "nsStringGlue.h"
+#include "nsString.h"
 #include "nsIComponentManager.h"
 #include "nsIServiceManager.h"
 #include "nsMemory.h"

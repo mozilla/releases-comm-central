@@ -16,7 +16,7 @@
 #include "nsIAtom.h"
 #include "nsITimer.h"
 #include "nsCOMPtr.h"
-#include "nsStringGlue.h"
+#include "nsString.h"
 #include "nsIMutableArray.h"
 #include "nsIObserver.h"
 

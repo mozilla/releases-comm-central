@@ -9,7 +9,7 @@
 #include "nsAbBooleanExpression.h"
 #include "nsArrayUtils.h"
 #include "nsComponentManagerUtils.h"
-#include "nsStringGlue.h"
+#include "nsString.h"
 #include "nsUnicharUtils.h"
 #include "nsIAbDirSearchListener.h"
 #include "nsISimpleEnumerator.h"

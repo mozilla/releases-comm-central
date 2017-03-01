@@ -8,7 +8,7 @@
 #include "nsIURL.h"
 #include "nsPop3URL.h"
 #include "nsPop3Protocol.h"
-#include "nsStringGlue.h"
+#include "nsString.h"
 #include "prmem.h"
 #include "plstr.h"
 #include "prprf.h"

@@ -14,7 +14,7 @@
 
 #include "nsIAbCard.h"  
 #include "nsCOMPtr.h"
-#include "nsStringGlue.h"
+#include "nsString.h"
 
 #include "nsInterfaceHashtable.h"
 #include "nsIVariant.h"

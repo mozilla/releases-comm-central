@@ -8,7 +8,7 @@
 
 #include "nsIFile.h"
 #include "nsIStringBundle.h"
-#include "nsStringGlue.h"
+#include "nsString.h"
 #include "nsTArray.h"
 #include "nsIObserverService.h"
 #include "nsITimer.h"

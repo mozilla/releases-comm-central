@@ -22,7 +22,7 @@
 #include "nsIStringBundle.h"
 #include "nsIPrefService.h"
 #include "nsIPrefBranch.h"
-#include "nsStringGlue.h"
+#include "nsString.h"
 #include "nsUnicharUtils.h"
 #include "nsIMsgAttachment.h"
 #include "nsIMsgCompFields.h"

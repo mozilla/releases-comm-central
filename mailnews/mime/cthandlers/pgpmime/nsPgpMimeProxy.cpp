@@ -6,7 +6,7 @@
 #include "nspr.h"
 #include "plstr.h"
 #include "nsCOMPtr.h"
-#include "nsStringGlue.h"
+#include "nsString.h"
 #include "mozilla/Services.h"
 #include "nsIRequest.h"
 #include "nsIStringBundle.h"

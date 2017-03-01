@@ -8,7 +8,7 @@
 #include "mimetext.h"
 #include "mimemoz2.h"
 #include "mimecom.h"
-#include "nsStringGlue.h"
+#include "nsString.h"
 #include "nsComponentManagerUtils.h"
 #include "nsICategoryManager.h"
 #include "nsCOMPtr.h"

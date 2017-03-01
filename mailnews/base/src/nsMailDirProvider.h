@@ -8,7 +8,7 @@
 
 #include "nsIDirectoryService.h"
 #include "nsISimpleEnumerator.h"
-#include "nsStringGlue.h"
+#include "nsString.h"
 #include "nsCOMPtr.h"
 
 class nsMailDirProvider final : public nsIDirectoryServiceProvider2

@@ -13,7 +13,7 @@
 #include "msgCore.h"
 #include "mimemoz2.h"
 #include "nsIPrefBranch.h"
-#include "nsStringGlue.h"
+#include "nsString.h"
 
 //#define DEBUG_BenB
 

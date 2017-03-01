@@ -8,7 +8,7 @@
 
 #include "mozilla/Attributes.h"
 #include "nscore.h"
-#include "nsStringGlue.h"
+#include "nsString.h"
 #include "nsIImportABDescriptor.h"
 #include "nsIFile.h"
 #include "nsCOMPtr.h"

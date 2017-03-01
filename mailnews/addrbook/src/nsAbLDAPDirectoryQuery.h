@@ -12,7 +12,7 @@
 #include "nsILDAPURL.h"
 #include "nsWeakReference.h"
 
-#include "nsStringGlue.h"
+#include "nsString.h"
 #include "nsCOMArray.h"
 
 class nsAbLDAPDirectoryQuery : public nsIAbDirectoryQuery,

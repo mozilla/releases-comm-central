@@ -6,7 +6,7 @@
    module to frozen linkage.
  */
 #include "nsServiceManagerUtils.h"
-#include "nsStringGlue.h"
+#include "nsString.h"
 #include <ctype.h>
 
 #ifdef MOZILLA_INTERNAL_API

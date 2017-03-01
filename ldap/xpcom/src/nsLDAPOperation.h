@@ -12,7 +12,7 @@
 #include "nsILDAPConnection.h"
 #include "nsILDAPOperation.h"
 #include "nsILDAPMessageListener.h"
-#include "nsStringGlue.h"
+#include "nsString.h"
 #include "nsIMutableArray.h"
 #include "nsLDAPConnection.h"
 

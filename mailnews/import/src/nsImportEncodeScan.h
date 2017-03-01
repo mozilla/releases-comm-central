@@ -9,7 +9,7 @@
 #include "mozilla/Attributes.h"
 #include "nsIFile.h"
 #include "nsImportScanFile.h"
-#include "nsStringGlue.h"
+#include "nsString.h"
 
 class nsImportEncodeScan : public nsImportScanFile {
 public:

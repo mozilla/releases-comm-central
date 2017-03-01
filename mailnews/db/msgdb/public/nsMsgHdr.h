@@ -8,7 +8,7 @@
 
 #include "mozilla/MemoryReporting.h"
 #include "nsIMsgHdr.h"
-#include "nsStringGlue.h"
+#include "nsString.h"
 #include "MailNewsTypes.h"
 #include "mdb.h"
 #include "nsTArray.h"

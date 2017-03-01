@@ -103,7 +103,7 @@
 #include "prlog.h"
 #include "plstr.h"
 #include "mimemoz2.h"
-#include "nsStringGlue.h"
+#include "nsString.h"
 #include "nsIURL.h"
 #include "msgCore.h"
 #include "nsMimeStringResources.h"

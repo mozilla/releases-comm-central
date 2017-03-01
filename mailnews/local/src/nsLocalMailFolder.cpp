@@ -31,7 +31,7 @@
 #include "nsIMsgIncomingServer.h"
 #include "nsMsgBaseCID.h"
 #include "nsMsgLocalCID.h"
-#include "nsStringGlue.h"
+#include "nsString.h"
 #include "nsIMsgFolderCacheElement.h"
 #include "nsUnicharUtils.h"
 #include "nsMsgUtils.h"

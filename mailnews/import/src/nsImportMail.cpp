@@ -19,7 +19,7 @@
 #include "nsISupportsPrimitives.h"
 #include "nsIImportMailboxDescriptor.h"
 
-#include "nsStringGlue.h"
+#include "nsString.h"
 #include "nsUnicharUtils.h"
 
 #include "nsMsgUtils.h"

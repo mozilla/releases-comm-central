@@ -8,7 +8,7 @@
 #include "nsIURI.h"
 #include "nsNetCID.h"
 #include "nsSmtpUrl.h"
-#include "nsStringGlue.h"
+#include "nsString.h"
 #include "nsMsgUtils.h"
 #include "nsIMimeConverter.h"
 #include "nsMsgMimeCID.h"

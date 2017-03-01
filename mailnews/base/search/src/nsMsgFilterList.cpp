@@ -13,7 +13,7 @@
 #include "nsIMsgFilterHitNotify.h"
 #include "nsMsgUtils.h"
 #include "nsMsgSearchTerm.h"
-#include "nsStringGlue.h"
+#include "nsString.h"
 #include "nsMsgBaseCID.h"
 #include "nsIMsgFilterService.h"
 #include "nsMsgSearchScopeTerm.h"

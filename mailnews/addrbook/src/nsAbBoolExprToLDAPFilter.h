@@ -8,7 +8,7 @@
 
 #include "nsIAbBooleanExpression.h"
 #include "nsCOMPtr.h"
-#include "nsStringGlue.h"
+#include "nsString.h"
 
 class nsIAbLDAPAttributeMap;
 

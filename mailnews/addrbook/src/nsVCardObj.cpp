@@ -52,7 +52,7 @@ DFARS 252.227-7013 or 48 CFR 52.227-19, as applicable.
 #include "prmem.h"
 #include "plstr.h"
 #include "prprf.h"
-#include "nsStringGlue.h"
+#include "nsString.h"
 
 /* debugging utilities */
 #define DBG_(x)

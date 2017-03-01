@@ -6,7 +6,7 @@
 
 #include "nscore.h"
 #include "prthread.h"
-#include "nsStringGlue.h"
+#include "nsString.h"
 #include "nsMsgUtils.h"
 #include "nsUnicharUtils.h"
 #include "nsCOMPtr.h"

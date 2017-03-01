@@ -23,7 +23,7 @@
 #include "nsICacheSession.h"
 #include "nsIMimeMiscStatus.h"
 #include "nsWeakReference.h"
-#include "nsStringGlue.h"
+#include "nsString.h"
 
 ///////////////////////////////////////////////////////////////////////////////////
 // Okay, I found that all of the mail and news url interfaces needed to support

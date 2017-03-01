@@ -9,7 +9,7 @@
 #include "nsImportScanFile.h"
 #include "ImportOutFile.h"
 #include "nsImportEncodeScan.h"
-#include "nsStringGlue.h"
+#include "nsString.h"
 #include "nsIImportMimeEncode.h"
 
 

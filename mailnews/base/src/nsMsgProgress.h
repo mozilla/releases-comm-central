@@ -11,7 +11,7 @@
 #include "nsCOMArray.h"
 #include "nsIDOMWindow.h"
 #include "nsIMsgStatusFeedback.h"
-#include "nsStringGlue.h"
+#include "nsString.h"
 #include "nsIMsgWindow.h"
 #include "nsIProgressEventSink.h"
 #include "nsIStringBundle.h"

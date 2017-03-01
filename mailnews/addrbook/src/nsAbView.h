@@ -7,7 +7,7 @@
 #define _nsAbView_H_
 
 #include "nsISupports.h"
-#include "nsStringGlue.h"
+#include "nsString.h"
 #include "nsIAbView.h"
 #include "nsITreeView.h"
 #include "nsITreeBoxObject.h"

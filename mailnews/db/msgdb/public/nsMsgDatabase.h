@@ -10,7 +10,7 @@
 #include "mozilla/MemoryReporting.h"
 #include "nsIMsgDatabase.h"
 #include "nsMsgHdr.h"
-#include "nsStringGlue.h"
+#include "nsString.h"
 #include "nsAutoPtr.h"
 #include "nsIDBChangeListener.h"
 #include "nsIDBChangeAnnouncer.h"

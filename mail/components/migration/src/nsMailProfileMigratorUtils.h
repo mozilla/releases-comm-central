@@ -26,7 +26,7 @@
 
 #include "nsIPrefBranch.h"
 #include "nsIFile.h"
-#include "nsStringGlue.h"
+#include "nsString.h"
 #include "nsCOMPtr.h"
 class nsIProfileStartup;
 

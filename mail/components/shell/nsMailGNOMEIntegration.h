@@ -7,7 +7,7 @@
 #define nsMailGNOMEIntegration_h_
 
 #include "nsIShellService.h"
-#include "nsStringGlue.h"
+#include "nsString.h"
 
 #define BRAND_PROPERTIES "chrome://branding/locale/brand.properties"
 

@@ -12,7 +12,7 @@ nsIMAPBodyShell and associated classes
 
 #include "mozilla/Attributes.h"
 #include "nsImapCore.h"
-#include "nsStringGlue.h"
+#include "nsString.h"
 #include "nsRefPtrHashtable.h"
 #include "nsTArray.h"
 

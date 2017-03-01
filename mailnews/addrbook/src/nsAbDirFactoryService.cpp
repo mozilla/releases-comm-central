@@ -8,7 +8,7 @@
 #include "nsIIOService.h"
 #include "nsNetCID.h"
 #include "nsMemory.h"
-#include "nsStringGlue.h"
+#include "nsString.h"
 #include "plstr.h"
 
 #include "nsAbBaseCID.h"

@@ -8,7 +8,7 @@
 #define nsOutlookCompose_h__
 
 #include "nscore.h"
-#include "nsStringGlue.h"
+#include "nsString.h"
 #include "nsIFile.h"
 #include "nsIImportService.h"
 

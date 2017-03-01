@@ -15,7 +15,7 @@
 #include "prmem.h"
 #include "plstr.h"
 #include "nsIComponentManager.h"
-#include "nsStringGlue.h"
+#include "nsString.h"
 #include "nsIIOService.h"
 #include "nsIChannel.h"
 #include "nsNetUtil.h"

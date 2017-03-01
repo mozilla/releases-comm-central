@@ -70,7 +70,7 @@
 #include "nsIMsgHdr.h"
 #include "nsIMsgFolder.h"
 #include "nsComposeStrings.h"
-#include "nsStringGlue.h"
+#include "nsString.h"
 #include "nsMsgUtils.h"
 #include "nsIArray.h"
 #include "nsArrayUtils.h"

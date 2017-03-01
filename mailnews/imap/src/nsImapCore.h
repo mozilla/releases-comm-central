@@ -7,7 +7,7 @@
 #define _nsImapCore_H_
 
 #include "MailNewsTypes.h"
-#include "nsStringGlue.h"
+#include "nsString.h"
 #include "nsIMailboxSpec.h"
 #include "nsIImapFlagAndUidState.h"
 

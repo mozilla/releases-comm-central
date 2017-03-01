@@ -9,7 +9,7 @@
 #include "mozilla/Attributes.h"
 #include "nsIAddrDatabase.h"
 #include "mdb.h"
-#include "nsStringGlue.h"
+#include "nsString.h"
 #include "nsIAddrDBListener.h"
 #include "nsCOMPtr.h"
 #include "nsTObserverArray.h"

@@ -11,7 +11,7 @@
 #include "nsIDocShell.h"
 #include "nsIWebNavigation.h"
 #include "nsIURL.h"
-#include "nsStringGlue.h"
+#include "nsString.h"
 #include "nsMsgBaseCID.h"
 #include "plstr.h"
 #include "nsIURL.h"

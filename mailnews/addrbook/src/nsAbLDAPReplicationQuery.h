@@ -14,7 +14,7 @@
 #include "nsILDAPOperation.h"
 #include "nsILDAPURL.h"
 #include "nsDirPrefs.h"
-#include "nsStringGlue.h"
+#include "nsString.h"
 
 class nsAbLDAPReplicationQuery final : public nsIAbLDAPReplicationQuery
 {

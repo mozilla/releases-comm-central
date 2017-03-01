@@ -8,7 +8,7 @@
 #include "nsSMimeJSHelper.h"
 #include "nsCOMPtr.h"
 #include "nsMemory.h"
-#include "nsStringGlue.h"
+#include "nsString.h"
 #include "nsIX509CertDB.h"
 #include "nsIX509CertValidity.h"
 #include "nsIServiceManager.h"

@@ -8,7 +8,7 @@
 
 #include "nsCOMPtr.h"
 #include "nsISpamSettings.h"
-#include "nsStringGlue.h"
+#include "nsString.h"
 #include "nsIOutputStream.h"
 #include "nsIMsgIncomingServer.h"
 #include "nsIUrlListener.h"

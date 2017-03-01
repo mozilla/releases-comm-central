@@ -11,7 +11,7 @@
 
 #include "nsIMsgCompFields.h"
 #include "msgMapiHook.h"
-#include "nsStringGlue.h"
+#include "nsString.h"
 #include "nsCOMPtr.h"
 #include "nsISupports.h"
 #include "nsMsgCompCID.h"

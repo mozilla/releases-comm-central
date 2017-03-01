@@ -6,7 +6,7 @@
 
 #include "nsLDAPInternal.h"
 #include "nsIServiceManager.h"
-#include "nsStringGlue.h"
+#include "nsString.h"
 #include "nsIComponentManager.h"
 #include "nsIDNSRecord.h"
 #include "nsLDAPConnection.h"

@@ -6,7 +6,7 @@
 #define _rebuffer_h_
 
 #include <stdint.h>
-#include "nsStringGlue.h"
+#include "nsString.h"
 
 //////////////////////////////////////////////////////////////
 // A rebuffering class necessary for stream output buffering

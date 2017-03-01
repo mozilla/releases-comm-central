@@ -16,7 +16,7 @@
  */
 
 #include "nscore.h"
-#include "nsStringGlue.h"
+#include "nsString.h"
 #include "nsMimeTypes.h"
 #include "prprf.h"
 #include "nsServiceManagerUtils.h"

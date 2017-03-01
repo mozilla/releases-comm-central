@@ -7,7 +7,7 @@
 
 #include "nsAbBaseCID.h"
 #include "nsIAbCard.h"
-#include "nsStringGlue.h"
+#include "nsString.h"
 #include "nsAbDirectoryQuery.h"
 #include "nsIAbBooleanExpression.h"
 #include "nsIAbManager.h"

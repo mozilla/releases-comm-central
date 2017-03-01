@@ -8,7 +8,7 @@
 
 #include "nsAutoPtr.h"
 #include "nsIMsgThread.h"
-#include "nsStringGlue.h"
+#include "nsString.h"
 #include "MailNewsTypes.h"
 #include "mdb.h"
 

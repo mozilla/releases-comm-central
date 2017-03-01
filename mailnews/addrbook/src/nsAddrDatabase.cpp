@@ -6,7 +6,7 @@
 // this file implements the nsAddrDatabase interface using the MDB Interface.
 
 #include "nsAddrDatabase.h"
-#include "nsStringGlue.h"
+#include "nsString.h"
 #include "nsAutoPtr.h"
 #include "nsUnicharUtils.h"
 #include "nsAbBaseCID.h"

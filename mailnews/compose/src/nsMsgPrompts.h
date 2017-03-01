@@ -8,7 +8,7 @@
 
 #include "nscore.h"
 #include "nsError.h"
-#include "nsStringGlue.h"
+#include "nsString.h"
 
 class nsIPrompt;
 

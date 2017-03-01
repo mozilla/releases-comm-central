@@ -4,7 +4,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "nscore.h"
-#include "nsStringGlue.h"
+#include "nsString.h"
 #include "MapiMimeTypes.h"
 
 uint8_t CMimeTypes::m_mimeBuffer[kMaxMimeTypeSize];

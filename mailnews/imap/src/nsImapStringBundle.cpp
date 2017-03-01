@@ -5,7 +5,7 @@
 #include "prprf.h"
 #include "prmem.h"
 #include "nsCOMPtr.h"
-#include "nsStringGlue.h"
+#include "nsString.h"
 #include "nsIStringBundle.h"
 #include "nsImapStringBundle.h"
 #include "nsIServiceManager.h"

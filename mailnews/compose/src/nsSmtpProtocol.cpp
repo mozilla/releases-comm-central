@@ -15,7 +15,7 @@
 #include "nsMsgCompCID.h"
 #include "nsIPrompt.h"
 #include "nsIAuthPrompt.h"
-#include "nsStringGlue.h"
+#include "nsString.h"
 #include "nsTextFormatter.h"
 #include "nsIMsgIdentity.h"
 #include "nsISmtpServer.h"

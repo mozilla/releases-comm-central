@@ -7,7 +7,7 @@
 #define __MSGATTACHMENTDATA_H__
 
 #include "nsIURL.h"
-#include "nsStringGlue.h"
+#include "nsString.h"
 #include "nsIMsgSend.h"
 
 // Attachment file/URL structures - we're letting libmime use this directly

@@ -6,7 +6,7 @@
 #ifndef NS_NEWSUTILS_H
 #define NS_NEWSUTILS_H
 
-#include "nsStringGlue.h"
+#include "nsString.h"
 #include "MailNewsTypes2.h"
 
 class nsIMsgNewsFolder;

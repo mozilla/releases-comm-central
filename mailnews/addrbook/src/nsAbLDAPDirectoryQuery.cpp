@@ -12,7 +12,7 @@
 #include "nsIAbLDAPCard.h"
 #include "nsAbUtils.h"
 #include "nsAbBaseCID.h"
-#include "nsStringGlue.h"
+#include "nsString.h"
 #include "prprf.h"
 #include "nsServiceManagerUtils.h"
 #include "nsComponentManagerUtils.h"

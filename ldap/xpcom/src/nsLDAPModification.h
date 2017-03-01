@@ -8,7 +8,7 @@
 
 #include "nsILDAPModification.h"
 #include "nsIMutableArray.h"
-#include "nsStringGlue.h"
+#include "nsString.h"
 #include "nsCOMPtr.h"
 #include "mozilla/Mutex.h"
 

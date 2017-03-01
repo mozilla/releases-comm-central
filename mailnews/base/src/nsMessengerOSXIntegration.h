@@ -11,7 +11,7 @@
 #include "nsIAtom.h"
 #include "nsITimer.h"
 #include "nsCOMPtr.h"
-#include "nsStringGlue.h"
+#include "nsString.h"
 #include "nsIObserver.h"
 #include "nsIAlertsService.h"
 #include "mozINewMailListener.h"

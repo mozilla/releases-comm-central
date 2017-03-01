@@ -4,7 +4,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "nsIMsgComposeParams.h"
-#include "nsStringGlue.h"
+#include "nsString.h"
 #include "nsIMsgHdr.h"
 #include "nsCOMPtr.h"
 class nsMsgComposeParams : public nsIMsgComposeParams

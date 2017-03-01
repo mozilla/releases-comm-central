@@ -13,7 +13,7 @@
 #include "nsISupportsPrimitives.h"
 #include "nsIImportABDescriptor.h"
 #include "nsIImportFieldMap.h"
-#include "nsStringGlue.h"
+#include "nsString.h"
 #include "nsIFile.h"
 #include "nsIAddrDatabase.h"
 #include "nsIAbManager.h"

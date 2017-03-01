@@ -7,7 +7,7 @@
 
 #include "msgCore.h"
 #include "nsIMsgPluggableStore.h"
-#include "nsStringGlue.h"
+#include "nsString.h"
 #include "nsReadLine.h"
 #include "nsISeekableStream.h"
 #include "nsIMsgHdr.h"

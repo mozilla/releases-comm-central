@@ -8,7 +8,7 @@
 #include "nsComponentManagerUtils.h"
 #include "nsServiceManagerUtils.h"
 #include "nsCOMPtr.h"
-#include "nsStringGlue.h"
+#include "nsString.h"
 #include "nsITextToSubURI.h"
 #include "nsAbBooleanExpression.h"
 #include "nsAbBaseCID.h"

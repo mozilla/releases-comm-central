@@ -8,7 +8,7 @@
 #include "nsEnumeratorUtils.h"
 #include "nsIAbDirectory.h"
 #include "nsIAbManager.h"
-#include "nsStringGlue.h"
+#include "nsString.h"
 #include "nsServiceManagerUtils.h"
 #include "nsAbOSXDirectory.h"
 

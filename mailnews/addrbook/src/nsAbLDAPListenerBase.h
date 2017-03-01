@@ -12,7 +12,7 @@
 #include "nsILDAPURL.h"
 #include "nsILDAPConnection.h"
 #include "nsILDAPOperation.h"
-#include "nsStringGlue.h"
+#include "nsString.h"
 #include "mozilla/Mutex.h"
 
 class nsAbLDAPListenerBase : public nsILDAPMessageListener

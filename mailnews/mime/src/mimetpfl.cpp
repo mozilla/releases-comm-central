@@ -8,7 +8,7 @@
 #include "prmem.h"
 #include "plstr.h"
 #include "mozITXTToHTMLConv.h"
-#include "nsStringGlue.h"
+#include "nsString.h"
 #include "nsMimeStringResources.h"
 #include "nsIPrefBranch.h"
 #include "nsIServiceManager.h"

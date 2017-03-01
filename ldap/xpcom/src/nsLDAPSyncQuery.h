@@ -8,7 +8,7 @@
 #include "nsILDAPOperation.h"
 #include "nsILDAPMessageListener.h"
 #include "nsILDAPURL.h"
-#include "nsStringGlue.h"
+#include "nsString.h"
 #include "nsILDAPSyncQuery.h"
 
 // DDDEE14E-ED81-4182-9323-C2AB22FBA68E

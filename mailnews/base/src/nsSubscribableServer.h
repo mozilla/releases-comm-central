@@ -7,7 +7,7 @@
 #define nsSubscribableServer_h__
 
 #include "nsCOMPtr.h"
-#include "nsStringGlue.h"
+#include "nsString.h"
 #include "nsISubscribableServer.h"
 #include "nsIRDFService.h"
 #include "nsSubscribeDataSource.h"

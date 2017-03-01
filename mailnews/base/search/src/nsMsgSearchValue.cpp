@@ -7,7 +7,7 @@
 #include "nsMsgSearchValue.h"
 #include "nsIMsgFolder.h"
 #include "nsMsgUtils.h"
-#include "nsStringGlue.h"
+#include "nsString.h"
 
 nsMsgSearchValueImpl::nsMsgSearchValueImpl(nsMsgSearchValue *aInitialValue)
 {

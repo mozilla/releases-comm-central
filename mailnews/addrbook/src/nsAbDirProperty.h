@@ -17,7 +17,7 @@
 #include "nsCOMPtr.h"
 #include "nsDirPrefs.h"
 #include "nsIAddrDatabase.h"
-#include "nsStringGlue.h"
+#include "nsString.h"
 #include "nsIPrefBranch.h"
 #include "nsIMutableArray.h"
 #include "nsWeakReference.h"

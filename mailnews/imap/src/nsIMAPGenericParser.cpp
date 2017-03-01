@@ -8,7 +8,7 @@
 #include "nsImapCore.h"
 #include "nsImapProtocol.h"
 #include "nsIMAPGenericParser.h"
-#include "nsStringGlue.h"
+#include "nsString.h"
 
 ////////////////// nsIMAPGenericParser /////////////////////////
 

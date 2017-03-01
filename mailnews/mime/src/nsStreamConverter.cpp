@@ -16,7 +16,7 @@
 #include "nsMimeTypes.h"
 #include "nsIComponentManager.h"
 #include "nsIURL.h"
-#include "nsStringGlue.h"
+#include "nsString.h"
 #include "nsUnicharUtils.h"
 #include "nsIServiceManager.h"
 #include "nsMemory.h"

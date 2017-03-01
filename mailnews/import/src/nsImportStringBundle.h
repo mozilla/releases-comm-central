@@ -5,7 +5,7 @@
 #ifndef _nsImportStringBundle_H__
 #define _nsImportStringBundle_H__
 
-#include "nsStringGlue.h"
+#include "nsString.h"
 
 class nsIStringBundle;
 

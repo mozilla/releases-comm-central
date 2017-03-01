@@ -16,7 +16,7 @@
 #include "nsIContentPolicy.h"
 #include "nsIObserver.h"
 #include "nsWeakReference.h"
-#include "nsStringGlue.h"
+#include "nsString.h"
 #include "nsIMsgMailNewsUrl.h"
 #include "nsIWebProgressListener.h"
 #include "nsIMsgCompose.h"

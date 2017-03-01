@@ -13,7 +13,7 @@
 #include "PLDHashTable.h"
 #include "nsITimer.h"
 #include "nsTArray.h"
-#include "nsStringGlue.h"
+#include "nsString.h"
 #include "nsWeakReference.h"
 #include "nsIObserver.h"
 

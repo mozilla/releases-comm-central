@@ -8,7 +8,7 @@
 #include <windows.h>
 #include <mapix.h>
 
-#include "nsStringGlue.h"
+#include "nsString.h"
 #include "mozilla/Mutex.h"
 #include "nsAutoPtr.h"
 

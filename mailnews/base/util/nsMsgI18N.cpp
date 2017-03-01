@@ -18,7 +18,7 @@
 #include "nsILineInputStream.h"
 #include "nsMimeTypes.h"
 #include "nsISaveAsCharset.h"
-#include "nsStringGlue.h"
+#include "nsString.h"
 #include "prmem.h"
 #include "plstr.h"
 #include "nsUTF8Utils.h"

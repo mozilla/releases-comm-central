@@ -4,7 +4,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "msgCore.h"
-#include "nsStringGlue.h"
+#include "nsString.h"
 #include "nsMsgProtocol.h"
 #include "nsIMsgMailNewsUrl.h"
 #include "nsIMsgMailSession.h"

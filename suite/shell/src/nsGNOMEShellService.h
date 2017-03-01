@@ -7,7 +7,7 @@
 #define nsgnomeshellservice_h____
 
 #include "nsShellService.h"
-#include "nsStringGlue.h"
+#include "nsString.h"
 #include "mozilla/Attributes.h"
 #include "nsSuiteCID.h"
 

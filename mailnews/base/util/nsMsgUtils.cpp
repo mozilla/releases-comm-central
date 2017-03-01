@@ -8,7 +8,7 @@
 #include "nsMsgUtils.h"
 #include "nsMsgFolderFlags.h"
 #include "nsMsgMessageFlags.h"
-#include "nsStringGlue.h"
+#include "nsString.h"
 #include "nsIServiceManager.h"
 #include "nsCOMPtr.h"
 #include "nsIFolderLookupService.h"

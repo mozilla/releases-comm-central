@@ -7,7 +7,7 @@
 #define nsOutlookMail_h___
 
 #include "nsIArray.h"
-#include "nsStringGlue.h"
+#include "nsString.h"
 #include "nsOutlookCompose.h"
 #include "nsIFile.h"
 #include "MapiApi.h"

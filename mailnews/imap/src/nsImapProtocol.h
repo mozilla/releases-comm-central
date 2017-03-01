@@ -15,7 +15,7 @@
 #include "nsIAsyncOutputStream.h"
 #include "nsIAsyncInputStream.h"
 #include "nsImapCore.h"
-#include "nsStringGlue.h"
+#include "nsString.h"
 #include "nsIProgressEventSink.h"
 #include "nsIInterfaceRequestor.h"
 #include "nsIInterfaceRequestorUtils.h"

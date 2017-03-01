@@ -8,7 +8,7 @@
 #include "nsIURL.h"
 #include "nsNntpUrl.h"
 
-#include "nsStringGlue.h"
+#include "nsString.h"
 #include "nsNewsUtils.h"
 #include "nsMsgUtils.h"
 

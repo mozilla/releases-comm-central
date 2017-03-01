@@ -22,7 +22,7 @@
 #define _MIMETHSA_H_
 
 #include "mimethtm.h"
-#include "nsStringGlue.h"
+#include "nsString.h"
 
 typedef struct MimeInlineTextHTMLSanitizedClass MimeInlineTextHTMLSanitizedClass;
 typedef struct MimeInlineTextHTMLSanitized      MimeInlineTextHTMLSanitized;

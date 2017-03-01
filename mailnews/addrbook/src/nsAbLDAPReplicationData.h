@@ -16,7 +16,7 @@
 #include "nsDirPrefs.h"
 #include "nsIAbLDAPAttributeMap.h"
 #include "nsIAbLDAPDirectory.h"
-#include "nsStringGlue.h"
+#include "nsString.h"
 
 class nsAbLDAPProcessReplicationData : public nsIAbLDAPProcessReplicationData,
                                        public nsAbLDAPListenerBase

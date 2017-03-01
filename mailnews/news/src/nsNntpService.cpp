@@ -10,7 +10,7 @@
 #include "nsIMsgNewsFolder.h"
 #include "nsNNTPNewsgroupPost.h"
 #include "nsIMsgIdentity.h"
-#include "nsStringGlue.h"
+#include "nsString.h"
 #include "nsNewsUtils.h"
 #include "nsNewsDatabase.h"
 #include "nsMsgDBCID.h"

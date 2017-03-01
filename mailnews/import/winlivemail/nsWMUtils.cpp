@@ -6,7 +6,7 @@
 #include "nsCOMPtr.h"
 #include "nsComponentManagerUtils.h"
 #include "nsNetCID.h"
-#include "nsStringGlue.h"
+#include "nsString.h"
 #include "nsWMUtils.h"
 #include "nsIDOMDocument.h"
 #include "nsIDOMNodeList.h"

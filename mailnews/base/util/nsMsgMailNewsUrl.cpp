@@ -7,7 +7,7 @@
 #include "nsMsgMailNewsUrl.h"
 #include "nsMsgBaseCID.h"
 #include "nsIMsgAccountManager.h"
-#include "nsStringGlue.h"
+#include "nsString.h"
 #include "nsILoadGroup.h"
 #include "nsIDocShell.h"
 #include "nsIWebProgress.h"

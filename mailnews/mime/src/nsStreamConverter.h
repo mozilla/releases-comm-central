@@ -12,7 +12,7 @@
 #include "nsIAsyncInputStream.h"
 #include "nsIAsyncOutputStream.h"
 #include "nsIChannel.h"
-#include "nsStringGlue.h"
+#include "nsString.h"
 #include "nsCOMPtr.h"
 
 #define MIME_FORWARD_HTML_PREFIX "<HTML><BODY><BR><BR>"

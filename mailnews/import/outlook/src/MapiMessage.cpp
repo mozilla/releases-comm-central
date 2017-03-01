@@ -13,7 +13,7 @@
 
 #include "nscore.h"
 #include <time.h>
-#include "nsStringGlue.h"
+#include "nsString.h"
 #include "nsDirectoryServiceDefs.h"
 #include "nsMsgUtils.h"
 #include "nsMimeTypes.h"

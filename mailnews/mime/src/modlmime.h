@@ -10,7 +10,7 @@
 #undef Bool
 #endif
 
-#include "nsStringGlue.h"
+#include "nsString.h"
 #include "nsMailHeaders.h"
 #include "nsIMimeStreamConverter.h"
 #include "nsIUnicodeDecoder.h"

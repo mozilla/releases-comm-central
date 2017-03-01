@@ -6,7 +6,7 @@
 #define _nsOutlookStringBundle_H__
 
 #include "nsCRTGlue.h"
-#include "nsStringGlue.h"
+#include "nsString.h"
 
 class nsIStringBundle;
 

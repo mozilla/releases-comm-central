@@ -7,7 +7,7 @@
 
 #include "nsIEncryptedSMIMEURIsSrvc.h"
 #include "nsTArray.h"
-#include "nsStringGlue.h"
+#include "nsString.h"
 
 class nsEncryptedSMIMEURIsService : public nsIEncryptedSMIMEURIsService
 {

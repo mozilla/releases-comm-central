@@ -9,7 +9,7 @@
 
 #include "nsIAbLDAPReplicationService.h"
 #include "nsIAbLDAPReplicationQuery.h"
-#include "nsStringGlue.h"
+#include "nsString.h"
 
 class nsAbLDAPReplicationService : public nsIAbLDAPReplicationService
 {

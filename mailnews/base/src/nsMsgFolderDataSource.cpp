@@ -18,7 +18,7 @@
 #include "nsIRDFNode.h"
 #include "nsEnumeratorUtils.h"
 
-#include "nsStringGlue.h"
+#include "nsString.h"
 #include "nsCOMPtr.h"
 
 #include "nsIMsgMailSession.h"

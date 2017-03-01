@@ -18,7 +18,7 @@
 #include "nsIURIContentListener.h"
 #include "nsIWebProgressListener.h"
 #include "nsWeakReference.h"
-#include "nsStringGlue.h"
+#include "nsString.h"
 
 class nsMsgAttachmentHandler;
 

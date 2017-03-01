@@ -10,7 +10,7 @@
 #include "nsIMsgWindow.h"
 
 #include "nsCOMPtr.h"
-#include "nsStringGlue.h"
+#include "nsString.h"
 
 class nsNNTPProtocol;
 

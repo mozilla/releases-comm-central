@@ -6,7 +6,7 @@
 
 #include "nsLDAPBERValue.h"
 #include "nsMemory.h"
-#include "nsStringGlue.h"
+#include "nsString.h"
 
 NS_IMPL_ISUPPORTS(nsLDAPBERValue, nsILDAPBERValue)
 

@@ -24,7 +24,7 @@
 #include "nsISafeOutputStream.h"
 #include "nsPop3Protocol.h"
 #include "MailNewsTypes.h"
-#include "nsStringGlue.h"
+#include "nsString.h"
 #include "nsIPrompt.h"
 #include "nsIMsgIncomingServer.h"
 #include "nsIMsgPluggableStore.h"

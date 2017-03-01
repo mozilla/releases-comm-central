@@ -6,7 +6,7 @@
 #ifndef NS_IMAPUTILS_H
 #define NS_IMAPUTILS_H
 
-#include "nsStringGlue.h"
+#include "nsString.h"
 #include "nsIMsgIncomingServer.h"
 #include "MailNewsTypes.h"
 #include "nsTArray.h"

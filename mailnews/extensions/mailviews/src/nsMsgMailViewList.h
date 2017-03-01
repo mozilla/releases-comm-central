@@ -13,7 +13,7 @@
 #include "nsCOMArray.h"
 #include "nsIMutableArray.h"
 #include "nsIStringBundle.h"
-#include "nsStringGlue.h"
+#include "nsString.h"
 #include "nsIMsgFilterList.h"
 
 // a mail View is just a name and an array of search terms

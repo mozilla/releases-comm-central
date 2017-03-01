@@ -7,7 +7,7 @@
 #include "MailNewsDLF.h"
 #include "nsIChannel.h"
 #include "plstr.h"
-#include "nsStringGlue.h"
+#include "nsString.h"
 #include "nsICategoryManager.h"
 #include "nsIServiceManager.h"
 #include "nsIStreamConverterService.h"

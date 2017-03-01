@@ -8,7 +8,7 @@
 #define MimeHeaderParser_h__
 
 #include "nsCOMArray.h"
-#include "nsStringGlue.h"
+#include "nsString.h"
 #include "nsTArray.h"
 
 class msgIAddressObject;

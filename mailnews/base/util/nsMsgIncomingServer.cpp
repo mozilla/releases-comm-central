@@ -11,7 +11,7 @@
 
 #include "nsIServiceManager.h"
 #include "nsCOMPtr.h"
-#include "nsStringGlue.h"
+#include "nsString.h"
 #include "nsISupportsPrimitives.h"
 
 #include "nsIMsgBiffManager.h"

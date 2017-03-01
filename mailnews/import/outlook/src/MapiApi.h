@@ -6,7 +6,7 @@
 #define MapiApi_h___
 
 #include "nscore.h"
-#include "nsStringGlue.h"
+#include "nsString.h"
 #include "nsTArray.h"
 
 #include <stdio.h>

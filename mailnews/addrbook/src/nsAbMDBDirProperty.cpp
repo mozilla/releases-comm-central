@@ -5,7 +5,7 @@
 
 #include "nsAbMDBDirProperty.h"	 
 #include "nsIServiceManager.h"
-#include "nsStringGlue.h"
+#include "nsString.h"
 #include "nsCOMPtr.h"
 #include "nsAbBaseCID.h"
 #include "nsAddrDatabase.h"

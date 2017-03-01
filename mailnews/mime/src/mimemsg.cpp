@@ -16,7 +16,7 @@
 #include "nsMimeStringResources.h"
 #include "nsMimeTypes.h"
 #include "nsMsgMessageFlags.h"
-#include "nsStringGlue.h"
+#include "nsString.h"
 #include "mimetext.h"
 #include "mimecryp.h"
 #include "mimetpfl.h"

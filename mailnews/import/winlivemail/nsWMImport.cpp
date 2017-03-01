@@ -10,7 +10,7 @@
 
 */
 #include "nscore.h"
-#include "nsStringGlue.h"
+#include "nsString.h"
 #include "nsMsgUtils.h"
 #include "nsIServiceManager.h"
 #include "nsIImportService.h"
