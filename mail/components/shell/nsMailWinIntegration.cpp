@@ -20,14 +20,6 @@
 #include "nsIProperties.h"
 #include "nsString.h"
 
-#ifndef MOZILLA_INTERNAL_API
-/**
- * The external API expects CaseInsensitiveCompare. Redefine
- * nsCaseInsensitiveStringComparator() so that Equals works.
- */
-#define nsCaseInsensitiveStringComparator() CaseInsensitiveCompare
-#endif
-
 #ifdef _WIN32_WINNT
 #undef _WIN32_WINNT
 #endif

@@ -1031,13 +1031,8 @@ nsAbOSXDirectory::GetCardFromProperty(const char *aProperty,
       rv = card->GetPropertyAsAUTF8String(aProperty, cardValue);
       if (NS_SUCCEEDED(rv))
       {
-#ifdef MOZILLA_INTERNAL_API
         bool equal = aCaseSensitive ? cardValue.Equals(aValue) :
           cardValue.Equals(aValue, nsCaseInsensitiveCStringComparator());
-#else
-        bool equal = aCaseSensitive ? cardValue.Equals(aValue) :
-          cardValue.Equals(aValue, CaseInsensitiveCompare);
-#endif
         if (equal)
           NS_IF_ADDREF(*aResult = card);
       }
@@ -1080,13 +1075,8 @@ nsAbOSXDirectory::GetCardsFromProperty(const char *aProperty,
       rv = card->GetPropertyAsAUTF8String(aProperty, cardValue);
       if (NS_SUCCEEDED(rv))
       {
-#ifdef MOZILLA_INTERNAL_API
         bool equal = aCaseSensitive ? cardValue.Equals(aValue) :
           cardValue.Equals(aValue, nsCaseInsensitiveCStringComparator());
-#else
-        bool equal = aCaseSensitive ? cardValue.Equals(aValue) :
-          cardValue.Equals(aValue, CaseInsensitiveCompare);
-#endif
         if (equal)
           resultArray.AppendObject(card);
       }

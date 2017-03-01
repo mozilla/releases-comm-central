@@ -23,12 +23,6 @@
 #include "msgCore.h"
 #include <algorithm>
 
-#ifndef MOZILLA_INTERNAL_API
-#include "nsMsgI18N.h"
-#define NS_CopyNativeToUnicode(source, dest) \
-        nsMsgI18NConvertToUnicode(nsMsgI18NFileSystemCharset(), source, dest)
-#endif
-
 #define kWhitespace    " \t\b\r\n"
 
 nsTextAddress::nsTextAddress()

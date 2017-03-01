@@ -1052,11 +1052,7 @@ nsresult nsParseMailMessageState::ParseHeaders ()
     }
     if (!header && m_customDBHeaders.Length())
     {
-#ifdef MOZILLA_INTERNAL_API
       nsDependentCSubstring headerStr(buf, end);
-#else
-      nsDependentCSubstring headerStr(buf, end - buf);
-#endif
 
       ToLowerCase(headerStr);
       size_t customHeaderIndex = m_customDBHeaders.IndexOf(headerStr);

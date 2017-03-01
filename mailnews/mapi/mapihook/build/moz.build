@@ -15,7 +15,5 @@ for var in ('REGISTER_PROXY_DLL', 'UNICODE', '_UNICODE'):
 # This produces a compile warning mozilla-config.h(145): warning C4005: '_WIN32_WINNT': macro redefinition
 #DEFINES['_WIN32_WINNT'] = '0x400'
 
-DEFINES['MOZILLA_INTERNAL_API'] = True
-
 DEFFILE = SRCDIR + '/MapiProxy.def'
 

@@ -4,14 +4,8 @@
 #if !defined(INCLUDED_CAL_UTILS_H)
 #define INCLUDED_CAL_UTILS_H
 
-#if defined(MOZILLA_INTERNAL_API)
 #include "nsCRT.h"
 #include "nsString.h"
-#else
-#include "nsMemory.h"
-#include "nsCRTGlue.h"
-#include "nsStringAPI.h"
-#endif
 
 #include "nsAutoPtr.h"
 #include "nsIStringEnumerator.h"

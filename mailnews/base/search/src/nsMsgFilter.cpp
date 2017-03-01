@@ -540,11 +540,9 @@ nsMsgFilter::LogRuleHitGeneric(nsIMsgRuleAction *aFilterAction,
     (void)aMsgHdr->GetMime2DecodedSubject(subjectValue);
 
     nsCString buffer;
-#ifdef MOZILLA_INTERNAL_API
     // this is big enough to hold a log entry.
     // do this so we avoid growing and copying as we append to the log.
     buffer.SetCapacity(512);
-#endif
 
     nsCOMPtr<nsIStringBundleService> bundleService =
       mozilla::services::GetStringBundleService();

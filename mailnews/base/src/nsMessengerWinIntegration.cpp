@@ -43,9 +43,7 @@
 #include "nsComponentManagerUtils.h"
 #include "nsNativeCharsetUtils.h"
 #include "nsMsgUtils.h"
-#ifdef MOZILLA_INTERNAL_API
 #include "mozilla/LookAndFeel.h"
-#endif
 #include "mozilla/Services.h"
 #include "nsIMutableArray.h"
 #include "nsArrayUtils.h"
@@ -83,13 +81,6 @@
 
 #ifndef NIN_BALOONUSERCLICK
 #define NIN_BALLOONUSERCLICK (WM_USER + 5)
-#endif
-
-#ifndef MOZILLA_INTERNAL_API
-// from LookAndFeel.h
-#define NS_ALERT_HORIZONTAL 1
-#define NS_ALERT_LEFT       2
-#define NS_ALERT_TOP        4
 #endif
 
 using namespace mozilla;
@@ -527,45 +518,7 @@ nsresult nsMessengerWinIntegration::ShowNewAlertNotification(bool aUserInitiated
     NS_ENSURE_TRUE(scriptableOrigin, NS_ERROR_FAILURE);
     scriptableOrigin->SetData(0);
     int32_t origin = 0;
-#ifdef MOZILLA_INTERNAL_API
     origin = LookAndFeel::GetInt(LookAndFeel::eIntID_AlertNotificationOrigin);
-#else
-    // Get task bar window handle
-    HWND shellWindow = FindWindowW(L"Shell_TrayWnd", NULL);
-
-    rv = prefBranch->GetIntPref(ALERT_ORIGIN_PREF, &origin);
-    if (NS_FAILED(rv) && (shellWindow != NULL))
-    {
-      // Determine position
-      APPBARDATA appBarData;
-      appBarData.hWnd = shellWindow;
-      appBarData.cbSize = sizeof(appBarData);
-      if (SHAppBarMessage(ABM_GETTASKBARPOS, &appBarData))
-      {
-        // Set alert origin as a bit field - see LookAndFeel.h
-        // 0 represents bottom right, sliding vertically.
-        switch(appBarData.uEdge)
-        {
-          case ABE_LEFT:
-            origin = NS_ALERT_HORIZONTAL | NS_ALERT_LEFT;
-            break;
-          case ABE_RIGHT:
-            origin = NS_ALERT_HORIZONTAL;
-            break;
-          case ABE_TOP:
-            origin = NS_ALERT_TOP;
-            // fall through for the right-to-left handling.
-          case ABE_BOTTOM:
-            // If the task bar is right-to-left,
-            // move the origin to the left
-            if (::GetWindowLong(shellWindow, GWL_EXSTYLE) &
-                  WS_EX_LAYOUTRTL)
-              origin |= NS_ALERT_LEFT;
-            break;
-        }
-      }
-    }
-#endif
     scriptableOrigin->SetData(origin);
 
     rv = argsArray->AppendElement(scriptableOrigin, false);

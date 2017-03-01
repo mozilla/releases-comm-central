@@ -558,9 +558,7 @@ void nsOutlookCompose::UpdateHeaders(CMapiMessageHeaders& oldHeaders, const CMap
 
 void nsOutlookCompose::HackBody(const wchar_t* orig, size_t origLen, nsString& hack)
 {
-#ifdef MOZILLA_INTERNAL_API
   hack.SetCapacity(static_cast<size_t>(origLen*1.4));
-#endif
   hack.Assign(hackBeginW);
   hack.Append(m_hackedPostfix);
 
@@ -722,11 +720,9 @@ nsresult CCompositionFile::ToDest(_OutFn dest, const char* term, int termSize)
 {
   CTermGuard guard(term, termSize);
 
-#ifdef MOZILLA_INTERNAL_API
   // We already know the required string size, so reduce future reallocations
   if (!guard.IsChecking() && !m_convertCRs)
     dest.SetCapacity(m_fileSize - m_fileReadPos);
-#endif
 
   bool wasCR = false;
   char c = 0;
@@ -779,9 +775,7 @@ nsresult CCompositionFile::ToDest(_OutFn dest, const char* term, int termSize)
 class dest_nsCString {
 public:
   dest_nsCString(nsCString& str) : m_str(str) { m_str.Truncate(); }
-#ifdef MOZILLA_INTERNAL_API
   void SetCapacity(int32_t sz) { m_str.SetCapacity(sz); }
-#endif
   nsresult Append(const char* buf, uint32_t count) {
     m_str.Append(buf, count); return NS_OK; }
 private:
@@ -791,9 +785,7 @@ private:
 class dest_Stream {
 public:
   dest_Stream(nsIOutputStream *dest) : m_stream(dest) {}
-#ifdef MOZILLA_INTERNAL_API
   void SetCapacity(int32_t) { /*do nothing*/ }
-#endif
   // const_cast here is due to the poor design of the EscapeFromSpaceLine()
   // that requires a non-constant pointer while doesn't modify its data
   nsresult Append(const char* buf, uint32_t count) {

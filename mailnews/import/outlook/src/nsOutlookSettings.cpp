@@ -31,15 +31,7 @@
 #include <windows.h>
 #include "nsIWindowsRegKey.h"
 #include "nsComponentManagerUtils.h"
-#ifdef MOZILLA_INTERNAL_API
 #include "nsNativeCharsetUtils.h"
-#else
-#include "nsMsgI18N.h"
-#define NS_CopyNativeToUnicode(source, dest) \
-        nsMsgI18NConvertToUnicode(nsMsgI18NFileSystemCharset(), source, dest)
-#define NS_CopyUnicodeToNative(source, dest) \
-        nsMsgI18NConvertFromUnicode(nsMsgI18NFileSystemCharset(), source, dest)
-#endif
 
 class OutlookSettings {
 public:

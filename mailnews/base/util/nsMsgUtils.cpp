@@ -341,64 +341,27 @@ inline uint32_t StringHash(const nsAutoString& str)
                       str.Length() * 2);
 }
 
-#ifndef MOZILLA_INTERNAL_API
-static int GetFindInSetFilter(const char* aChars)
-{
-  uint8_t filter = 0;
-  while (*aChars)
-    filter |= *aChars++;
-  return ~filter;
-}
-#endif
-
 /* Utility functions used in a few places in mailnews */
 int32_t
 MsgFindCharInSet(const nsCString &aString,
                  const char* aChars, uint32_t aOffset)
 {
-#ifdef MOZILLA_INTERNAL_API
   return aString.FindCharInSet(aChars, aOffset);
-#else
-  const char *str;
-  uint32_t len = aString.BeginReading(&str);
-  int filter = GetFindInSetFilter(aChars);
-  for (uint32_t index = aOffset; index < len; index++) {
-    if (!(str[index] & filter) && strchr(aChars, str[index]))
-      return index;
-  }
-  return -1;
-#endif
 }
 
 int32_t
 MsgFindCharInSet(const nsString &aString,
                  const char* aChars, uint32_t aOffset)
 {
-#ifdef MOZILLA_INTERNAL_API
   return aString.FindCharInSet(aChars, aOffset);
-#else
-  const char16_t *str;
-  uint32_t len = aString.BeginReading(&str);
-  int filter = GetFindInSetFilter(aChars);
-  for (uint32_t index = aOffset; index < len; index++) {
-    if (!(str[index] & filter) && strchr(aChars, str[index]))
-      return index;
-  }
-  return -1;
-#endif
 }
 
 static bool ConvertibleToNative(const nsAutoString& str)
 {
     nsAutoCString native;
     nsAutoString roundTripped;
-#ifdef MOZILLA_INTERNAL_API
     NS_CopyUnicodeToNative(str, native);
     NS_CopyNativeToUnicode(native, roundTripped);
-#else
-    nsMsgI18NConvertFromUnicode(nsMsgI18NFileSystemCharset(), str, native);
-    nsMsgI18NConvertToUnicode(nsMsgI18NFileSystemCharset(), native, roundTripped);
-#endif
     return str.Equals(roundTripped);
 }
 
@@ -652,11 +615,7 @@ nsresult NS_MsgCreatePathStringFromFolderURI(const char *aFolderURI,
     if (startSlashPos >= endSlashPos)
       break;
   }
-#ifdef MOZILLA_INTERNAL_API
   return NS_CopyUnicodeToNative(path, aPathCString);
-#else
-  return nsMsgI18NConvertFromUnicode(nsMsgI18NFileSystemCharset(), path, aPathCString);
-#endif
 }
 
 bool NS_MsgStripRE(const char **stringP, uint32_t *lengthP, char **modifiedSubject)
@@ -1502,18 +1461,11 @@ nsresult MsgNewSafeBufferedFileOutputStream(nsIOutputStream **aResult,
 
 bool MsgFindKeyword(const nsCString &keyword, nsCString &keywords, int32_t *aStartOfKeyword, int32_t *aLength)
 {
-#ifdef MOZILLA_INTERNAL_API
 // nsTString_CharT::Find(const nsCString& aString,
 //                       bool aIgnoreCase=false,
 //                       int32_t aOffset=0,
 //                       int32_t aCount=-1 ) const;
 #define FIND_KEYWORD(keywords,keyword,offset) ((keywords).Find((keyword), false, (offset)))
-#else
-// nsAString::Find(const self_type& aStr,
-//                 uint32_t aOffset,
-//                 ComparatorFunc c = DefaultComparator) const;
-#define FIND_KEYWORD(keywords,keyword,offset) ((keywords).Find((keyword), static_cast<uint32_t>(offset)))
-#endif
   // 'keyword' is the single keyword we're looking for
   // 'keywords' is a space delimited list of keywords to be searched,
   // which may be just a single keyword or even be empty
@@ -1601,85 +1553,6 @@ nsresult MsgGetLocalFileFromURI(const nsACString &aUTF8Path, nsIFile **aFile)
   return NS_OK;
 }
 
-#ifndef MOZILLA_INTERNAL_API
-/*
- * Function copied from nsReadableUtils.
- * Migrating to frozen linkage is the only change done
- */
-NS_MSG_BASE bool MsgIsUTF8(const nsACString& aString)
-{
-  const char *done_reading = aString.EndReading();
-
-  int32_t state = 0;
-  bool overlong = false;
-  bool surrogate = false;
-  bool nonchar = false;
-  uint16_t olupper = 0; // overlong byte upper bound.
-  uint16_t slower = 0;  // surrogate byte lower bound.
-
-  const char *ptr = aString.BeginReading();
-
-  while (ptr < done_reading) {
-    uint8_t c;
-
-    if (0 == state) {
-
-      c = *ptr++;
-
-      if ((c & 0x80) == 0x00)
-        continue;
-
-      if ( c <= 0xC1 ) // [80-BF] where not expected, [C0-C1] for overlong.
-        return false;
-      else if ((c & 0xE0) == 0xC0)
-        state = 1;
-      else if ((c & 0xF0) == 0xE0) {
-        state = 2;
-        if ( c == 0xE0 ) { // to exclude E0[80-9F][80-BF]
-          overlong = true;
-          olupper = 0x9F;
-        } else if ( c == 0xED ) { // ED[A0-BF][80-BF] : surrogate codepoint
-          surrogate = true;
-          slower = 0xA0;
-        } else if ( c == 0xEF ) // EF BF [BE-BF] : non-character
-          nonchar = true;
-      } else if ( c <= 0xF4 ) { // XXX replace /w UTF8traits::is4byte when it's updated to exclude [F5-F7].(bug 199090)
-        state = 3;
-        nonchar = true;
-        if ( c == 0xF0 ) { // to exclude F0[80-8F][80-BF]{2}
-          overlong = true;
-          olupper = 0x8F;
-        }
-        else if ( c == 0xF4 ) { // to exclude F4[90-BF][80-BF]
-          // actually not surrogates but codepoints beyond 0x10FFFF
-          surrogate = true;
-          slower = 0x90;
-        }
-      } else
-        return false; // Not UTF-8 string
-    }
-
-    while (ptr < done_reading && state) {
-      c = *ptr++;
-      --state;
-
-      // non-character : EF BF [BE-BF] or F[0-7] [89AB]F BF [BE-BF]
-      if ( nonchar &&  ( !state &&  c < 0xBE ||
-           state == 1 && c != 0xBF  ||
-           state == 2 && 0x0F != (0x0F & c) ))
-        nonchar = false;
-
-      if ((c & 0xC0) != 0x80 || overlong && c <= olupper ||
-           surrogate && slower <= c || nonchar && !state )
-        return false; // Not UTF-8 string
-      overlong = surrogate = false;
-    }
-  }
-  return !state; // state != 0 at the end indicates an invalid UTF-8 seq.
-}
-
-#endif
-
 NS_MSG_BASE void MsgStripQuotedPrintable (unsigned char *src)
 {
   // decode quoted printable text in place
@@ -1758,278 +1631,6 @@ NS_MSG_BASE nsresult MsgEscapeURL(const nsACString &aStr, uint32_t aFlags,
 
   return nu->EscapeURL(aStr, aFlags, aResult);
 }
-
-#ifndef MOZILLA_INTERNAL_API
-
-NS_MSG_BASE char *MsgEscapeHTML(const char *string)
-{
-  char *rv = nullptr;
-  /* XXX Hardcoded max entity len. The +1 is for the trailing null. */
-  uint32_t len = PL_strlen(string);
-  if (len >= (PR_UINT32_MAX / 6))
-    return nullptr;
-
-  rv = (char *)NS_Alloc( (6 * len) + 1 );
-  char *ptr = rv;
-
-  if (rv)
-  {
-    for(; *string != '\0'; string++)
-    {
-      if (*string == '<')
-      {
-        *ptr++ = '&';
-        *ptr++ = 'l';
-        *ptr++ = 't';
-        *ptr++ = ';';
-      }
-      else if (*string == '>')
-      {
-        *ptr++ = '&';
-        *ptr++ = 'g';
-        *ptr++ = 't';
-        *ptr++ = ';';
-      }
-      else if (*string == '&')
-      {
-        *ptr++ = '&';
-        *ptr++ = 'a';
-        *ptr++ = 'm';
-        *ptr++ = 'p';
-        *ptr++ = ';';
-      }
-      else if (*string == '"')
-      {
-        *ptr++ = '&';
-        *ptr++ = 'q';
-        *ptr++ = 'u';
-        *ptr++ = 'o';
-        *ptr++ = 't';
-        *ptr++ = ';';
-      }
-      else if (*string == '\'')
-      {
-        *ptr++ = '&';
-        *ptr++ = '#';
-        *ptr++ = '3';
-        *ptr++ = '9';
-        *ptr++ = ';';
-      }
-      else
-      {
-        *ptr++ = *string;
-      }
-    }
-    *ptr = '\0';
-  }
-  return(rv);
-}
-
-NS_MSG_BASE char16_t *MsgEscapeHTML2(const char16_t *aSourceBuffer,
-                                      int32_t aSourceBufferLen)
-{
-  // if the caller didn't calculate the length
-  if (aSourceBufferLen == -1) {
-    aSourceBufferLen = NS_strlen(aSourceBuffer); // ...then I will
-  }
-
-  /* XXX Hardcoded max entity len. */
-  if (aSourceBufferLen >=
-    ((PR_UINT32_MAX - sizeof(char16_t)) / (6 * sizeof(char16_t))) )
-      return nullptr;
-
-  char16_t *resultBuffer = (char16_t *)moz_xmalloc(aSourceBufferLen *
-                            6 * sizeof(char16_t) + sizeof(char16_t('\0')));
-
-  char16_t *ptr = resultBuffer;
-
-  if (resultBuffer) {
-    int32_t i;
-
-    for(i = 0; i < aSourceBufferLen; i++) {
-      if(aSourceBuffer[i] == '<') {
-        *ptr++ = '&';
-        *ptr++ = 'l';
-        *ptr++ = 't';
-        *ptr++ = ';';
-      } else if(aSourceBuffer[i] == '>') {
-        *ptr++ = '&';
-        *ptr++ = 'g';
-        *ptr++ = 't';
-        *ptr++ = ';';
-      } else if(aSourceBuffer[i] == '&') {
-        *ptr++ = '&';
-        *ptr++ = 'a';
-        *ptr++ = 'm';
-        *ptr++ = 'p';
-        *ptr++ = ';';
-      } else if (aSourceBuffer[i] == '"') {
-        *ptr++ = '&';
-        *ptr++ = 'q';
-        *ptr++ = 'u';
-        *ptr++ = 'o';
-        *ptr++ = 't';
-        *ptr++ = ';';
-      } else if (aSourceBuffer[i] == '\'') {
-        *ptr++ = '&';
-        *ptr++ = '#';
-        *ptr++ = '3';
-        *ptr++ = '9';
-        *ptr++ = ';';
-      } else {
-        *ptr++ = aSourceBuffer[i];
-      }
-    }
-    *ptr = 0;
-  }
-
-  return resultBuffer;
-}
-
-NS_MSG_BASE void MsgCompressWhitespace(nsCString& aString)
-{
-  // This code is frozen linkage specific
-  aString.Trim(" \f\n\r\t\v");
-
-  char *start, *end;
-  aString.BeginWriting(&start, &end);
-
-  for (char *cur = start; cur < end; ++cur) {
-    if (!IS_SPACE(*cur))
-      continue;
-
-    *cur = ' ';
-
-    if (!IS_SPACE(*(cur + 1)))
-      continue;
-
-    // Loop through the white space
-    char *wend = cur + 2;
-    while (IS_SPACE(*wend))
-      ++wend;
-
-    uint32_t wlen = wend - cur - 1;
-
-    // fix "end"
-    end -= wlen;
-
-    // move everything forwards a bit
-    for (char *m = cur + 1; m < end; ++m) {
-      *m = *(m + wlen);
-    }
-  }
-
-  // Set the new length.
-  aString.SetLength(end - start);
-}
-
-
-NS_MSG_BASE void MsgReplaceChar(nsString& str, const char *set, const char16_t replacement)
-{
-  char16_t *c_str = str.BeginWriting();
-  while (*set) {
-    int32_t pos = 0;
-    while ((pos = str.FindChar(*set, pos)) != -1) {
-      c_str[pos++] = replacement;
-    }
-    set++;
-  }
-}
-
-NS_MSG_BASE void MsgReplaceChar(nsCString& str, const char needle, const char replacement)
-{
-  char *c_str = str.BeginWriting();
-  while ((c_str = strchr(c_str, needle))) {
-    *c_str = replacement;
-    c_str++;
-  }
-}
-
-NS_MSG_BASE already_AddRefed<nsIAtom> MsgNewAtom(const char* aString)
-{
-  nsCOMPtr<nsIAtomService> atomService(do_GetService("@mozilla.org/atom-service;1"));
-  nsCOMPtr<nsIAtom> atom;
-
-  if (atomService)
-    atomService->GetAtomUTF8(aString, getter_AddRefs(atom));
-  return atom.forget();
-}
-
-NS_MSG_BASE void MsgReplaceSubstring(nsAString &str, const nsAString &what, const nsAString &replacement)
-{
-  const char16_t* replacement_str;
-  uint32_t replacementLength = replacement.BeginReading(&replacement_str);
-  uint32_t whatLength = what.Length();
-  int32_t i = 0;
-
-  while ((i = str.Find(what, i)) != kNotFound)
-  {
-    str.Replace(i, whatLength, replacement_str, replacementLength);
-    i += replacementLength;
-  }
-}
-
-NS_MSG_BASE void MsgReplaceSubstring(nsACString &str, const char *what, const char *replacement)
-{
-  uint32_t replacementLength = strlen(replacement);
-  uint32_t whatLength = strlen(what);
-  int32_t i = 0;
-
-  /* We have to create nsDependentCString from 'what' because there's no
-   * str.Find(char *what, int offset) but there is only
-   * str.Find(char *what, int length) */
-  nsDependentCString what_dependent(what);
-  while ((i = str.Find(what_dependent, i)) != kNotFound)
-  {
-    str.Replace(i, whatLength, replacement, replacementLength);
-    i += replacementLength;
-  }
-}
-
-/* This class is based on nsInterfaceRequestorAgg from nsInterfaceRequestorAgg.h */
-class MsgInterfaceRequestorAgg : public nsIInterfaceRequestor
-{
-public:
-  NS_DECL_THREADSAFE_ISUPPORTS
-  NS_DECL_NSIINTERFACEREQUESTOR
-
-  MsgInterfaceRequestorAgg(nsIInterfaceRequestor *aFirst,
-                           nsIInterfaceRequestor *aSecond)
-    : mFirst(aFirst)
-    , mSecond(aSecond) {}
-
-  nsCOMPtr<nsIInterfaceRequestor> mFirst, mSecond;
-};
-
-// XXX This needs to support threadsafe refcounting until we fix bug 243591.
-NS_IMPL_ISUPPORTS(MsgInterfaceRequestorAgg, nsIInterfaceRequestor)
-
-NS_IMETHODIMP
-MsgInterfaceRequestorAgg::GetInterface(const nsIID &aIID, void **aResult)
-{
-  nsresult rv = NS_ERROR_NO_INTERFACE;
-  if (mFirst)
-    rv = mFirst->GetInterface(aIID, aResult);
-  if (mSecond && NS_FAILED(rv))
-    rv = mSecond->GetInterface(aIID, aResult);
-  return rv;
-}
-
-/* This function is based on NS_NewInterfaceRequestorAggregation from
- * nsInterfaceRequestorAgg.h */
-NS_MSG_BASE nsresult
-MsgNewInterfaceRequestorAggregation(nsIInterfaceRequestor *aFirst,
-                                    nsIInterfaceRequestor *aSecond,
-                                    nsIInterfaceRequestor **aResult)
-{
-  *aResult = new MsgInterfaceRequestorAgg(aFirst, aSecond);
-  if (!*aResult)
-    return NS_ERROR_OUT_OF_MEMORY;
-  NS_ADDREF(*aResult);
-  return NS_OK;
-}
-
-#endif
 
 NS_MSG_BASE nsresult MsgGetHeadersFromKeys(nsIMsgDatabase *aDB, const nsTArray<nsMsgKey> &aMsgKeys,
                                            nsIMutableArray *aHeaders)
