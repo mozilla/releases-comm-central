@@ -217,7 +217,6 @@ var gBundle;
 
 const DRAGSERVICE_CONTRACTID    = "@mozilla.org/widget/dragservice;1";
 const TRANSFERABLE_CONTRACTID   = "@mozilla.org/widget/transferable;1";
-const ARRAY_CONTRACTID          = "@mozilla.org/supports-array;1";
 const STRING_CONTRACTID         = "@mozilla.org/supports-string;1";
 
 // a number of services I'll need later
