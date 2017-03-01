@@ -823,14 +823,6 @@
       <prefs/>
       <versionRange minVersion="0" maxVersion="*" severity="3"/>
     </emItem>
-    <emItem blockID="i656" id="hdv@vovcacik.addons.mozilla.org">
-      <prefs/>
-      <versionRange minVersion="102.0" maxVersion="102.0" severity="3"/>
-    </emItem>
-    <emItem blockID="i722" id="{9802047e-5a84-4da3-b103-c55995d147d1}">
-      <prefs/>
-      <versionRange minVersion="0" maxVersion="*" severity="3"/>
-    </emItem>
     <emItem blockID="i228" id="crossriderapp5060@crossrider.com">
       <prefs/>
       <versionRange minVersion="0" maxVersion="*" severity="1"/>
@@ -1883,6 +1875,14 @@
     <emItem blockID="i1264" id="suchpony@suchpony.de">
       <prefs/>
       <versionRange minVersion="0" maxVersion="1.6.7" severity="3"/>
+    </emItem>
+    <emItem blockID="i656" id="hdv@vovcacik.addons.mozilla.org">
+      <prefs/>
+      <versionRange minVersion="102.0" maxVersion="102.0" severity="3"/>
+    </emItem>
+    <emItem blockID="i722" id="{9802047e-5a84-4da3-b103-c55995d147d1}">
+      <prefs/>
+      <versionRange minVersion="0" maxVersion="*" severity="3"/>
     </emItem>
   </emItems>
   <pluginItems>
