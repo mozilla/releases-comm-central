@@ -19,13 +19,6 @@ MOZ_REQUIRE_ADDON_SIGNING=0
 # Package js shell
 export MOZ_PACKAGE_JSSHELL=1
 
-# Bug 1340395 requires the following options enabled in order to build
-# due to linking memory issues. This is just a workaround until
-# this is solved permanently (VS2017?)
-CFLAGS="$CFLAGS -FS"
-CXXFLAGS="$CXXFLAGS -FS"
-mk_add_options "export COMPILE_PDB_FLAG=-Fdgenerated.pdb"
-
 . $topsrcdir/build/win32/mozconfig.vs-latest
 
 # Set up mapi includes (must be done after visual studio setup)

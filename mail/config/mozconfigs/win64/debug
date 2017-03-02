@@ -14,13 +14,6 @@ export MOZILLA_OFFICIAL=1
 # Package js shell
 export MOZ_PACKAGE_JSSHELL=1
 
-# Bug 1340395 requires the following options enabled in order to build
-# due to linking memory issues. This is just a workaround until
-# this is solved permanently (VS2017?)
-CFLAGS="$CFLAGS -FS"
-CXXFLAGS="$CXXFLAGS -FS"
-mk_add_options "export COMPILE_PDB_FLAG=-Fdgenerated.pdb"
-
 # Disable checking that add-ons are signed by the trusted root
 MOZ_ADDON_SIGNING=0
 # Disable enforcing that add-ons are signed by the trusted root
