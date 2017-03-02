@@ -1,0 +1,87 @@
+# vim: set filetype=python:
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+EXTRA_JS_MODULES.matrix += [
+    'base-apis.js',
+    'client.js',
+    'content-repo.js',
+    'filter-component.js',
+    'filter.js',
+    'http-api.js',
+    'interactive-auth.js',
+    'matrix.js',
+    'pushprocessor.js',
+    'realtime-callbacks.js',
+    'scheduler.js',
+    'sync.js',
+    'timeline-window.js',
+    'utils.js',
+]
+
+EXTRA_JS_MODULES.matrix.another_json += [
+    'another-json/another-json.js',
+]
+
+EXTRA_JS_MODULES.matrix.browserify += [
+    'browserify/events.js',
+    'browserify/punycode.js',
+    'browserify/url.js',
+]
+
+EXTRA_JS_MODULES.matrix.browserify.querystring += [
+    'browserify/querystring/decode.js',
+    'browserify/querystring/encode.js',
+    'browserify/querystring/index.js',
+]
+
+EXTRA_JS_MODULES.matrix.browser_request += [
+    'browser-request/index.js',
+]
+
+EXTRA_JS_MODULES.matrix.crypto += [
+    'crypto/deviceinfo.js',
+    'crypto/index.js',
+    'crypto/OlmDevice.js',
+    'crypto/olmlib.js',
+]
+
+EXTRA_JS_MODULES.matrix.crypto.algorithms += [
+    'crypto/algorithms/base.js',
+    'crypto/algorithms/index.js',
+    'crypto/algorithms/megolm.js',
+    'crypto/algorithms/olm.js',
+]
+
+EXTRA_JS_MODULES.matrix.models += [
+    'models/event-context.js',
+    'models/event-timeline-set.js',
+    'models/event-timeline.js',
+    'models/event.js',
+    'models/room-member.js',
+    'models/room-state.js',
+    'models/room-summary.js',
+    'models/room.js',
+    'models/search-result.js',
+    'models/user.js',
+]
+
+EXTRA_JS_MODULES.matrix.q += [
+    'q/q.js',
+    'q/queue.js',
+]
+
+EXTRA_JS_MODULES.matrix.store += [
+    'store/memory.js',
+    'store/stub.js',
+    'store/webstorage.js',
+]
+
+EXTRA_JS_MODULES.matrix.store.session += [
+    'store/session/webstorage.js',
+]
+
+EXTRA_JS_MODULES.matrix.webrtc += [
+    'webrtc/call.js',
+]
