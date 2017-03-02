@@ -107,70 +107,6 @@ var folderListener = {
     }
 }
 
-/*
- * Listen for Lightweight Theme styling changes and update the theme accordingly.
- */
-var LightweightThemeListener = {
-  _modifiedStyles: [],
-
-  init: function () {
-    XPCOMUtils.defineLazyGetter(this, "styleSheet", function() {
-      for (let i = document.styleSheets.length - 1; i >= 0; i--) {
-        let sheet = document.styleSheets[i];
-        if (sheet.href == "chrome://messenger/skin/messengerLWTheme.css")
-          return sheet;
-      }
-    });
-
-    Services.obs.addObserver(this, "lightweight-theme-styling-update", false);
-    Services.obs.addObserver(this, "lightweight-theme-optimized", false);
-    if (document.documentElement.hasAttribute("lwtheme"))
-      this.updateStyleSheet(document.documentElement.style.backgroundImage);
-  },
-
-  uninit: function () {
-    Services.obs.removeObserver(this, "lightweight-theme-styling-update");
-    Services.obs.removeObserver(this, "lightweight-theme-optimized");
-  },
-
-  /**
-   * Append the headerImage to the background-image property of all rulesets in
-   * messengerLWTheme.css.
-   *
-   * @param headerImage - a string containing a CSS image for the lightweight
-   * theme header.
-   */
-  updateStyleSheet: function(headerImage) {
-    if (!this.styleSheet)
-      return;
-    for (let i = 0; i < this.styleSheet.cssRules.length; i++) {
-      let rule = this.styleSheet.cssRules[i];
-      if (!rule.style.backgroundImage)
-        continue;
-
-      if (!this._modifiedStyles[i])
-        this._modifiedStyles[i] = { backgroundImage: rule.style.backgroundImage };
-
-      rule.style.backgroundImage = this._modifiedStyles[i].backgroundImage + ", " + headerImage;
-    }
-  },
-
-  // nsIObserver
-  observe: function (aSubject, aTopic, aData) {
-    if ((aTopic != "lightweight-theme-styling-update" && aTopic != "lightweight-theme-optimized") ||
-          !this.styleSheet)
-      return;
-
-    if (aTopic == "lightweight-theme-optimized" && aSubject != window)
-      return;
-
-    let themeData = JSON.parse(aData);
-    if (!themeData)
-      return;
-    this.updateStyleSheet("url(" + themeData.headerURL + ")");
-  },
-};
-
 function ServerContainsFolder(server, folder)
 {
   if (!folder || !server)
@@ -412,8 +348,6 @@ function OnLoadMessenger()
   migrateMailnews();
   // Rig up our TabsInTitlebar early so that we can catch any resize events.
   TabsInTitlebar.init();
-  // Listen for Lightweight Theme styling changes and update the theme accordingly.
-  LightweightThemeListener.init();
   // update the pane config before we exit onload otherwise the user may see a flicker if we poke the document
   // in delayedOnLoadMessenger...
   UpdateMailPaneConfig(false);
@@ -718,8 +652,6 @@ function OnUnloadMessenger()
   TabsInTitlebar.uninit();
 
   ToolbarIconColor.uninit();
-
-  LightweightThemeListener.uninit();
 
   let tabmail = document.getElementById("tabmail");
   tabmail._teardown();

@@ -144,9 +144,13 @@ menu:not(:-moz-lwtheme):-moz-window-inactive {
 .mail-toolbox,
 .contentTabToolbox {
   -moz-appearance: none;
-  border-top: none;
   background-image: linear-gradient(var(--toolbarHighlight), transparent);
   box-shadow: 0 1px 0 rgba(253, 253, 253, 0.45) inset;
+}
+
+.mail-toolbox:not(:-moz-lwtheme),
+.contentTabToolbox:not(:-moz-lwtheme) {
+  background-color: -moz-dialog;
 }
 
 .mail-toolbox::after,
@@ -369,21 +373,12 @@ toolbar[mode="text"] .button-appmenu .toolbarbutton-icon {
 
 .mail-toolbox > toolbar {
   margin-inline-start: 0;
-  border-bottom: none;
   /* force iconsize="small" on these toolbars */
   counter-reset: smallicons;
 }
 
 .mail-toolbox > toolbar:not([type="menubar"]) {
   padding: 1px;
-}
-
-.mail-toolbox > toolbar:not(:-moz-lwtheme),
-#navigation-toolbox > toolbar:not(:-moz-lwtheme),
-.contentTabToolbox:not(:-moz-lwtheme) > toolbar:not(:-moz-lwtheme) {
-  -moz-appearance: none;
-  border-style: none;
-  background-color: transparent;
 }
 
 .chromeclass-toolbar {

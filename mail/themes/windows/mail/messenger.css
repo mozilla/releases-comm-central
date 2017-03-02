@@ -28,6 +28,8 @@
   --toolbarbutton-active-boxshadow: 0 0 0 1px rgba(0, 0, 0, .15) inset;
 
   --toolbarbutton-checkedhover-backgroundcolor: rgba(0, 0, 0, .2);
+
+  --lwt-header-image: none;
 }
 
 toolbox:-moz-lwtheme {

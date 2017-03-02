@@ -33,6 +33,8 @@
   --toolbarbutton-inactive-bordercolor: rgba(0, 0, 0, 0.1);
   --toolbarbutton-inactive-boxshadow: 0 1px 0 hsla(0, 0%, 0%, .05) inset;
   --toolbarbutton-checkedhover-backgroundcolor: hsla(0, 0%, 0%, .09);
+
+  --lwt-header-image: none;
 }
 
 #titlebar {

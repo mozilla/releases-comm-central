@@ -26,6 +26,8 @@
   --toolbarbutton-active-boxshadow: 0 1px 1px rgba(0, 0, 0, .1) inset, 0 0 1px rgba(0, 0, 0, .3) inset;
 
   --toolbarbutton-checkedhover-backgroundcolor: rgba(200, 200, 200, .5);
+
+  --lwt-header-image: none;
 }
 
 #header-view-toolbar[brighttext],

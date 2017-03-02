@@ -276,6 +276,19 @@ menupopup[type="folder"] {
 
 /* Lightweight themes support */
 
+:root:-moz-lwtheme {
+  color: var(--lwt-text-color) !important;
+}
+
+/**
+ * [customization-lwtheme] is actually not used in TB but we leave it in case
+ * it will be moved from browser to toolkit. The expression is always :not().
+ */
+:root:-moz-lwtheme:not([customization-lwtheme]) {
+  background-color: var(--lwt-accent-color) !important;
+  background-image: var(--lwt-header-image) !important;
+}
+
 #messengerWindow:-moz-lwtheme {
   background-repeat: no-repeat;
   background-position: top right;
@@ -284,6 +297,8 @@ menupopup[type="folder"] {
 #status-bar[lwthemefooter="true"] {
   background-repeat: no-repeat;
   background-position: bottom left;
+  background-color: var(--lwt-accent-color);
+  background-image: var(--lwt-header-image);
 }
 
 /* AppButton support */
