@@ -624,7 +624,8 @@ nsSmtpService::CreateServer(nsISmtpServer **aResult)
         entry.key = key.get();
         entry.server = nullptr;
 
-        mSmtpServers.EnumerateForwards(findServerByKey, (void *)&entry);
+        for (nsISmtpServer* s : mSmtpServers)
+          findServerByKey(s, (void *)&entry);
         if (!entry.server) unique=true;
 
     } while (!unique);
@@ -648,7 +649,8 @@ nsSmtpService::GetServerByKey(const char* aKey, nsISmtpServer **aResult)
     findServerByKeyEntry entry;
     entry.key = aKey;
     entry.server = nullptr;
-    mSmtpServers.EnumerateForwards(findServerByKey, (void *)&entry);
+    for (nsISmtpServer* s : mSmtpServers)
+      findServerByKey(s, (void *)&entry);
 
     if (entry.server) {
         NS_ADDREF(*aResult = entry.server);
@@ -743,7 +745,8 @@ nsSmtpService::FindServer(const char *aUsername,
     entry.hostname = aHostname;
     entry.username = aUsername;
 
-    mSmtpServers.EnumerateForwards(findServerByHostname, (void *)&entry);
+    for (nsISmtpServer* s : mSmtpServers)
+      findServerByHostname(s, (void *)&entry);
 
     // entry.server may be null, but that's ok.
     // just return null if no server is found

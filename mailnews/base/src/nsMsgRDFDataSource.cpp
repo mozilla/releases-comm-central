@@ -328,12 +328,16 @@ nsresult nsMsgRDFDataSource::NotifyObservers(nsIRDFResource *subject,
   NS_ASSERTION(!(change && assert),
                "Can't change and assert at the same time!\n");
   nsMsgRDFNotification note = { this, subject, property, newObject, oldObject };
-  if(change)
-    mObservers.EnumerateForwards(changeEnumFunc, &note);
-  else if (assert)
-    mObservers.EnumerateForwards(assertEnumFunc, &note);
-  else
-    mObservers.EnumerateForwards(unassertEnumFunc, &note);
+  if (change) {
+    for (nsIRDFObserver* o : mObservers)
+      changeEnumFunc(o, &note);
+  } else if (assert) {
+    for (nsIRDFObserver* o : mObservers)
+      assertEnumFunc(o, &note);
+  } else {
+    for (nsIRDFObserver* o : mObservers)
+      unassertEnumFunc(o, &note);
+  }
   return NS_OK;
 }
 
