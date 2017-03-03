@@ -476,6 +476,8 @@
 @RESPATH@/components/mozfind.xpt
 #ifdef ENABLE_INTL_API
 @RESPATH@/components/mozintl.xpt
+@RESPATH@/components/mozIntl.manifest
+@RESPATH@/components/mozIntl.js
 #endif
 ; netwerk
 @RESPATH@/components/necko_about.xpt
