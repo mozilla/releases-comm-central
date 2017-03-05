@@ -863,72 +863,75 @@ nsresult nsImapProtocol::SetupWithUrlCallback(nsIProxyInfo* proxyInfo)
 
   nsCOMPtr<nsISocketTransportService> socketService =
     do_GetService(NS_SOCKETTRANSPORTSERVICE_CONTRACTID, &rv);
-  if (NS_SUCCEEDED(rv))
+  if (NS_FAILED(rv))
+    return rv;
+
+  Log("SetupWithUrlCallback", nullptr, "clearing IMAP_CONNECTION_IS_OPEN");
+  ClearFlag(IMAP_CONNECTION_IS_OPEN);
+  const char *connectionType = nullptr;
+
+  if (m_socketType == nsMsgSocketType::SSL)
+    connectionType = "ssl";
+  else if (m_socketType == nsMsgSocketType::alwaysSTARTTLS)
+    connectionType = "starttls";
+  // This can go away once we think everyone is migrated
+  // away from the trySTARTTLS socket type.
+  else if (m_socketType == nsMsgSocketType::trySTARTTLS)
+    connectionType = "starttls";
+
+  const nsACString *socketHost;
+  uint16_t socketPort;
+
+  if (m_overRideUrlConnectionInfo)
   {
-    Log("SetupWithUrlCallback", nullptr, "clearing IMAP_CONNECTION_IS_OPEN");
-    ClearFlag(IMAP_CONNECTION_IS_OPEN);
-    const char *connectionType = nullptr;
+    socketHost = &m_logonHost;
+    socketPort = m_logonPort;
+  }
+  else
+  {
+    socketHost = &m_realHostName;
+    int32_t port = -1;
+    nsCOMPtr<nsIURI> uri = do_QueryInterface(m_runningUrl, &rv);
+    if (NS_FAILED(rv))
+      return rv;
+    uri->GetPort(&port);
+    socketPort = port;
+  }
 
-    if (m_socketType == nsMsgSocketType::SSL)
-      connectionType = "ssl";
-    else if (m_socketType == nsMsgSocketType::alwaysSTARTTLS)
-      connectionType = "starttls";
-    // This can go away once we think everyone is migrated
-    // away from the trySTARTTLS socket type.
-    else if (m_socketType == nsMsgSocketType::trySTARTTLS)
-      connectionType = "starttls";
-
-    const nsACString *socketHost;
-    uint16_t socketPort;
-
-    if (m_overRideUrlConnectionInfo)
-    {
-      socketHost = &m_logonHost;
-      socketPort = m_logonPort;
-    }
-    else
-    {
-      socketHost = &m_realHostName;
-      int32_t port = -1;
-      nsCOMPtr<nsIURI> uri = do_QueryInterface(m_runningUrl);
-      uri->GetPort(&port);
-      socketPort = port;
-    }
-
+  rv = socketService->CreateTransport(&connectionType, connectionType != nullptr,
+                                      *socketHost, socketPort, proxyInfo,
+                                      getter_AddRefs(m_transport));
+  if (NS_FAILED(rv) && m_socketType == nsMsgSocketType::trySTARTTLS)
+  {
+    connectionType = nullptr;
+    m_socketType = nsMsgSocketType::plain;
     rv = socketService->CreateTransport(&connectionType, connectionType != nullptr,
                                         *socketHost, socketPort, proxyInfo,
                                         getter_AddRefs(m_transport));
-    if (NS_FAILED(rv) && m_socketType == nsMsgSocketType::trySTARTTLS)
-    {
-      connectionType = nullptr;
-      m_socketType = nsMsgSocketType::plain;
-      rv = socketService->CreateTransport(&connectionType, connectionType != nullptr,
-                                          *socketHost, socketPort, proxyInfo,
-                                          getter_AddRefs(m_transport));
-    }
-    // remember so we can know whether we can issue a start tls or not...
-    m_connectionType = connectionType;
-    if (m_transport && m_mockChannel)
-    {
-      uint8_t qos;
-      rv = GetQoSBits(&qos);
-      if (NS_SUCCEEDED(rv))
-        m_transport->SetQoSBits(qos);
+  }
 
-      // Ensure that the socket can get the notification callbacks
-      SetSecurityCallbacksFromChannel(m_transport, m_mockChannel);
+  // remember so we can know whether we can issue a start tls or not...
+  m_connectionType = connectionType;
+  if (m_transport && m_mockChannel)
+  {
+    uint8_t qos;
+    rv = GetQoSBits(&qos);
+    if (NS_SUCCEEDED(rv))
+      m_transport->SetQoSBits(qos);
 
-      // open buffered, blocking input stream
-      rv = m_transport->OpenInputStream(nsITransport::OPEN_BLOCKING, 0, 0, getter_AddRefs(m_inputStream));
-      if (NS_FAILED(rv))
-        return rv;
+    // Ensure that the socket can get the notification callbacks
+    SetSecurityCallbacksFromChannel(m_transport, m_mockChannel);
 
-      // open buffered, blocking output stream
-      rv = m_transport->OpenOutputStream(nsITransport::OPEN_BLOCKING, 0, 0, getter_AddRefs(m_outputStream));
-      if (NS_FAILED(rv))
-        return rv;
-      SetFlag(IMAP_CONNECTION_IS_OPEN);
-    }
+    // open buffered, blocking input stream
+    rv = m_transport->OpenInputStream(nsITransport::OPEN_BLOCKING, 0, 0, getter_AddRefs(m_inputStream));
+    if (NS_FAILED(rv))
+      return rv;
+
+    // open buffered, blocking output stream
+    rv = m_transport->OpenOutputStream(nsITransport::OPEN_BLOCKING, 0, 0, getter_AddRefs(m_outputStream));
+    if (NS_FAILED(rv))
+      return rv;
+    SetFlag(IMAP_CONNECTION_IS_OPEN);
   }
 
   return rv;
