@@ -632,6 +632,9 @@ nsMsgFolderDataSource::IsCommandEnabled(nsISupports/*nsISupportsArray<nsIRDFReso
                                         nsISupports/*nsISupportsArray<nsIRDFResource>*/* aArguments,
                                         bool* aResult)
 {
+#if 1
+  return NS_ERROR_NOT_IMPLEMENTED;
+#else
   nsresult rv;
   nsCOMPtr<nsIMsgFolder> folder;
 
@@ -668,6 +671,7 @@ nsMsgFolderDataSource::IsCommandEnabled(nsISupports/*nsISupportsArray<nsIRDFReso
   }
   *aResult = true;
   return NS_OK; // succeeded for all sources
+#endif
 }
 
 NS_IMETHODIMP
@@ -675,6 +679,9 @@ nsMsgFolderDataSource::DoCommand(nsISupports/*nsISupportsArray<nsIRDFResource>*/
                                  nsIRDFResource*   aCommand,
                                  nsISupports/*nsISupportsArray<nsIRDFResource>*/* aArguments)
 {
+#if 1
+  return NS_ERROR_NOT_IMPLEMENTED;
+#else
   nsresult rv = NS_OK;
   nsCOMPtr<nsISupports> supports;
   nsCOMPtr<nsIMsgWindow> window;
@@ -778,6 +785,7 @@ nsMsgFolderDataSource::DoCommand(nsISupports/*nsISupportsArray<nsIRDFResource>*/
   //for the moment return NS_OK, because failure stops entire DoCommand process.
   return rv;
   //return NS_OK;
+#endif
 }
 
 NS_IMETHODIMP nsMsgFolderDataSource::OnItemAdded(nsIMsgFolder *parentItem, nsISupports *item)
@@ -1838,7 +1846,7 @@ nsMsgFolderDataSource::createFolderChildNode(nsIMsgFolder *folder,
   return CallQueryInterface(firstFolder, target);
 }
 
-
+#if 0
 nsresult nsMsgFolderDataSource::DoCopyToFolder(nsIMsgFolder *dstFolder, nsISupportsArray *arguments,
                          nsIMsgWindow *msgWindow, bool isMove)
 {
@@ -2009,6 +2017,7 @@ nsresult nsMsgFolderDataSource::DoNewFolder(nsIMsgFolder *folder, nsISupportsArr
   }
   return rv;
 }
+#endif
 
 nsresult nsMsgFolderDataSource::DoFolderAssert(nsIMsgFolder *folder, nsIRDFResource *property, nsIRDFNode *target)
 {
