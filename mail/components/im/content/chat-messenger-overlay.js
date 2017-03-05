@@ -71,7 +71,7 @@ buddyListContextMenu.prototype = {
                           deleteButton, null, null, null, {}))
       return;
 
-    this.target.delete();
+    this.target.deleteContact();
   }
 };
 
