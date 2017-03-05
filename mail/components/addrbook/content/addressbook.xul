@@ -33,8 +33,7 @@
     onload="OnLoadAddressBook()"
     onunload="OnUnloadAddressBook()"
     lightweightthemes="true"
-    fullscreenbutton="true"
-    lightweightthemesfooter="status-bar">
+    fullscreenbutton="true">
 
   <stringbundleset id="stringbundleset">
     <stringbundle id="bundle_addressBook" src="chrome://messenger/locale/addressbook/addressBook.properties"/>

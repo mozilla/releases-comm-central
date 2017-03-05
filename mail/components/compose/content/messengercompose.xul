@@ -41,8 +41,7 @@
         toggletoolbar="true"
         persist="screenX screenY width height sizemode"
         lightweightthemes="true"
-        fullscreenbutton="true"
-        lightweightthemesfooter="status-bar">
+        fullscreenbutton="true">
 
 <stringbundleset id="stringbundleset">
   <stringbundle id="bundle_composeMsgs" src="chrome://messenger/locale/messengercompose/composeMsgs.properties"/>

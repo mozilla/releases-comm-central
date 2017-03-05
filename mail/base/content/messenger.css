@@ -294,11 +294,11 @@ menupopup[type="folder"] {
   background-position: top right;
 }
 
-#status-bar[lwthemefooter="true"] {
+:root[lwthemefooter="true"] #status-bar:-moz-lwtheme {
   background-repeat: no-repeat;
   background-position: bottom left;
   background-color: var(--lwt-accent-color);
-  background-image: var(--lwt-header-image);
+  background-image: var(--lwt-footer-image);
 }
 
 /* AppButton support */

@@ -37,8 +37,7 @@
         windowtype="mail:messageWindow"
         macanimationtype="document"
         lightweightthemes="true"
-        fullscreenbutton="true"
-        lightweightthemesfooter="status-bar">
+        fullscreenbutton="true">
 
   <stringbundleset id="stringbundleset">
     <stringbundle id="bundle_brand" src="chrome://branding/locale/brand.properties"/>
