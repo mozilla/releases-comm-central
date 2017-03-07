@@ -18,6 +18,7 @@ EXTRA_JS_MODULES += [
     'jsProtoHelper.jsm',
     'NormalizedMap.jsm',
     'socket.jsm',
+    'ToLocaleFormat.jsm',
 ]
 
 EXTRA_PP_JS_MODULES += [

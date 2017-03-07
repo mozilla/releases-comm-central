@@ -41,6 +41,9 @@ XPCOMUtils.defineLazyGetter(this, "TXTToHTML", function() {
   return aTXT => cs.scanTXT(aTXT, cs.kEntities);
 });
 
+XPCOMUtils.defineLazyModuleGetter(this,
+  "ToLocaleFormat", "resource:///modules/ToLocaleFormat.jsm");
+
 var gCurrentTheme = null;
 
 function getChromeFile(aURI)
@@ -338,7 +341,7 @@ var headerFooterReplacements = {
   timeOpened: function(aConv, aFormat) {
     let date = new Date(aConv.startDate / 1000);
     if (aFormat)
-      return date.toLocaleFormat(aFormat);
+      return ToLocaleFormat(aFormat, date);
     else
       return date.toLocaleTimeString();
   }
@@ -357,7 +360,7 @@ var statusMessageReplacements = {
   time: function(aMsg, aFormat) {
     let date = new Date(aMsg.time * 1000);
     if (aFormat)
-      return date.toLocaleFormat(aFormat);
+      return ToLocaleFormat(aFormat, date);
     return date.toLocaleTimeString();
   },
   timestamp: aMsg => aMsg.time,
