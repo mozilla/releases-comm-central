@@ -31,6 +31,7 @@
 #include <ctype.h>
 #include "mozilla/mailnews/Services.h"
 #include "mozilla/Services.h"
+#include "mozilla/Unused.h"
 #include "nsIMIMEInfo.h"
 #include "nsIMsgHeaderParser.h"
 #include "nsIRandomGenerator.h"
@@ -361,7 +362,8 @@ nsresult mime_generate_headers(nsIMsgCompFields *fields,
   if (NS_SUCCEEDED(rv) && pHTTPHandler)
   {
     nsAutoCString userAgentString;
-    pHTTPHandler->GetUserAgent(userAgentString);
+    // Ignore error since we're testing the return value.
+    mozilla::Unused << pHTTPHandler->GetUserAgent(userAgentString);
 
     if (!userAgentString.IsEmpty())
       finalHeaders->SetUnstructuredHeader("User-Agent",

@@ -152,8 +152,9 @@ nsLDAPConnection::Init(nsILDAPURL *aUrl, const nsACString &aBindName,
   if (spacePos != kNotFound)
     mDNSHost.SetLength(spacePos);
 
-  rv = pDNSService->AsyncResolve(mDNSHost, 0, this, curThread,
-                                 getter_AddRefs(mDNSRequest));
+  mozilla::OriginAttributes attrs;
+  rv = pDNSService->AsyncResolveNative(mDNSHost, 0, this, curThread, attrs,
+                                       getter_AddRefs(mDNSRequest));
 
   if (NS_FAILED(rv)) {
     switch (rv) {

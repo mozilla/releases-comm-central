@@ -33,6 +33,7 @@
 #include "nsIArray.h"
 #include "nsArrayUtils.h"
 #include "mozilla/mailnews/MimeHeaderParser.h"
+#include "mozilla/Unused.h"
 
 using namespace mozilla::mailnews;
 
@@ -668,7 +669,8 @@ nsresult nsMsgMdnGenerator::CreateSecondPart()
     if (NS_SUCCEEDED(rv) && pHTTPHandler)
     {
       nsAutoCString userAgentString;
-      pHTTPHandler->GetUserAgent(userAgentString);
+      // Ignore error since we're testing the return value.
+      mozilla::Unused << pHTTPHandler->GetUserAgent(userAgentString);
 
       if (!userAgentString.IsEmpty())
       {
