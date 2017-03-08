@@ -42,9 +42,6 @@ function toArray(aObj) {
  *   nsIArray
  *   nsISimpleEnumerator
  *
- * This intentionally does not support nsIEnumerator as it is obsolete and
- * no longer used in the base code.
- *
  * Note that old-style JS iterators are explicitly not supported in this
  * method, as they are going away. For a limited time, the resulting iterator
  * can be used in a for...in loop, but this is a legacy compatibility shim that
