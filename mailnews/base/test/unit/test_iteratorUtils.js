@@ -76,15 +76,6 @@ function test_fixIterator() {
   }
   do_check_true(i > 0);
 
-  let nsISupportsArray = iteratorUtils.toXPCOMArray(nsIArray, Ci.nsISupportsArray);
-  do_check_eq(nsISupportsArray.Count(), 5);
-
-  i = 0;
-  for (let val in iteratorUtils.fixIterator(nsISupportsArray)) {
-    do_check_eq(val, JSArray[i++]);
-  }
-  do_check_true(i > 0);
-
   // Bug 1126509, test that fixIterator rejects unknown objects.
   let thrown = false;
   let tryIterate = { item: "An object, that is not supported by fixIterator." };

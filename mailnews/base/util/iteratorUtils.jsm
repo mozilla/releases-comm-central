@@ -9,8 +9,6 @@
 
 this.EXPORTED_SYMBOLS = ["fixIterator", "toXPCOMArray", "toArray"];
 
-Components.utils.import("resource://gre/modules/Deprecated.jsm");
-
 var Ci = Components.interfaces;
 
 var JS_HAS_SYMBOLS = typeof Symbol === "function";
@@ -42,7 +40,6 @@ function toArray(aObj) {
  *
  * Currently, we support the following types of XPCOM iterators:
  *   nsIArray
- *   nsISupportsArray
  *   nsISimpleEnumerator
  *
  * This intentionally does not support nsIEnumerator as it is obsolete and
@@ -105,17 +102,6 @@ function fixIterator(aEnum, aIface) {
     })());
   }
 
-  // Try an nsISupportsArray.
-  // This object is deprecated, but we need to keep supporting it
-  // while anything in the base code (including mozilla-central) produces it.
-  if (aEnum instanceof Ci.nsISupportsArray) {
-    return makeDualIterator((function*() {
-      let count = aEnum.Count();
-      for (let i = 0; i < count; i++)
-        yield aEnum.QueryElementAt(i, face);
-    })());
-  }
-
   // How about nsISimpleEnumerator? This one is nice and simple.
   if (aEnum instanceof Ci.nsISimpleEnumerator) {
     return makeDualIterator((function*() {
@@ -141,17 +127,6 @@ function fixIterator(aEnum, aIface) {
  *       XPCOM array.
  */
 function toXPCOMArray(aArray, aInterface) {
-  if (aInterface.equals(Ci.nsISupportsArray)) {
-    Deprecated.warning("nsISupportsArray object is deprecated, avoid creating new ones.",
-                       "https://developer.mozilla.org/en-US/docs/XPCOM_array_guide");
-    let supportsArray = Components.classes["@mozilla.org/supports-array;1"]
-                                  .createInstance(Ci.nsISupportsArray);
-    for (let item of fixIterator(aArray)) {
-      supportsArray.AppendElement(item);
-    }
-    return supportsArray;
-  }
-
   if (aInterface.equals(Ci.nsIMutableArray)) {
     let mutableArray = Components.classes["@mozilla.org/array;1"]
                                  .createInstance(Ci.nsIMutableArray);
