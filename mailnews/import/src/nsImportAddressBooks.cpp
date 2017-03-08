@@ -291,8 +291,7 @@ NS_IMETHODIMP nsImportGenericAddressBooks::SetData(const char *dataId, nsISuppor
 
   if (!PL_strcasecmp(dataId, "addressDestination")) {
     if (item) {
-      nsCOMPtr<nsISupportsCString> abString;
-      item->QueryInterface(NS_GET_IID(nsISupportsCString), getter_AddRefs(abString));
+      nsCOMPtr<nsISupportsCString> abString = do_QueryInterface(item);
       if (abString) {
         if (m_pDestinationUri)
           NS_Free(m_pDestinationUri);

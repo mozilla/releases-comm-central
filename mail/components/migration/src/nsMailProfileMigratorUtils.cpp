@@ -88,7 +88,7 @@ GetProfilePath(nsIProfileStartup* aStartup, nsCOMPtr<nsIFile>& aProfileDir)
       (do_GetService(NS_DIRECTORY_SERVICE_CONTRACTID));
     if (dirSvc) {
       dirSvc->Get(NS_APP_USER_PROFILE_50_DIR, NS_GET_IID(nsIFile),
-                  (void**) getter_AddRefs(aProfileDir));
+                  getter_AddRefs(aProfileDir));
     }
   }
 }

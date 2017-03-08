@@ -85,7 +85,7 @@ nsresult nsMailboxProtocol::Initialize(nsIURI * aURL)
   nsresult rv = NS_OK;
   if (aURL)
   {
-    rv = aURL->QueryInterface(NS_GET_IID(nsIMailboxUrl), (void **) getter_AddRefs(m_runningUrl));
+    m_runningUrl = do_QueryInterface(aURL, &rv);
     if (NS_SUCCEEDED(rv) && m_runningUrl)
     {
       nsCOMPtr <nsIMsgWindow> window;

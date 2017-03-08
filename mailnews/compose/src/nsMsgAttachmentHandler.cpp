@@ -622,8 +622,7 @@ nsMsgAttachmentHandler::SnarfMsgAttachment(nsMsgCompFields *compFields)
       nsAutoCString uri(m_uri);
       uri += (uri.FindChar('?') == kNotFound) ? '?' : '&';
       uri.Append("fetchCompleteMessage=true");
-      nsCOMPtr<nsIStreamListener> strListener;
-      fetcher->QueryInterface(NS_GET_IID(nsIStreamListener), getter_AddRefs(strListener));
+      nsCOMPtr<nsIStreamListener> strListener = do_QueryInterface(fetcher);
 
       // initialize a new stream converter, that uses the strListener as its input
       // obtain the input stream listener from the new converter,

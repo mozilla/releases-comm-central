@@ -476,8 +476,7 @@ NS_IMETHODIMP nsMsgComposeService::GetParamsForMailto(nsIURI * aURI, nsIMsgCompo
   nsresult rv = NS_OK;
   if (aURI)
   {
-    nsCOMPtr<nsIMailtoUrl> aMailtoUrl;
-    rv = aURI->QueryInterface(NS_GET_IID(nsIMailtoUrl), getter_AddRefs(aMailtoUrl));
+    nsCOMPtr<nsIMailtoUrl> aMailtoUrl = do_QueryInterface(aURI, &rv);
     if (NS_SUCCEEDED(rv))
     {
        MSG_ComposeFormat requestedComposeFormat = nsIMsgCompFormat::Default;

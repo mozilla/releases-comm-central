@@ -723,7 +723,7 @@ nsresult nsMsgLocalMailFolder::IsChildOfTrash(bool *result)
 
   nsCOMPtr<nsIMsgFolder> parentFolder;
   nsCOMPtr<nsIMsgFolder> thisFolder;
-  rv = QueryInterface(NS_GET_IID(nsIMsgFolder), (void **) getter_AddRefs(thisFolder));
+  rv = QueryInterface(NS_GET_IID(nsIMsgFolder), getter_AddRefs(thisFolder));
 
   while (!isServer)
   {
