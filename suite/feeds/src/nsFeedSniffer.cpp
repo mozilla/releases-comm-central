@@ -5,6 +5,8 @@
 
 #include "nsFeedSniffer.h"
 
+#include "mozilla/Unused.h"
+
 #include "nsNetCID.h"
 #include "nsXPCOM.h"
 #include "nsCOMPtr.h"
@@ -48,14 +50,15 @@ nsFeedSniffer::ConvertEncodedData(nsIRequest* request,
 {
   nsresult rv = NS_OK;
 
- mDecodedData = "";
- nsCOMPtr<nsIHttpChannel> httpChannel(do_QueryInterface(request));
+  mDecodedData = "";
+  nsCOMPtr<nsIHttpChannel> httpChannel(do_QueryInterface(request));
   if (!httpChannel)
     return NS_ERROR_NO_INTERFACE;
 
   nsAutoCString contentEncoding;
-  httpChannel->GetResponseHeader(NS_LITERAL_CSTRING("Content-Encoding"),
-                                 contentEncoding);
+
+  mozilla::Unused << httpChannel->GetResponseHeader(NS_LITERAL_CSTRING("Content-Encoding"),
+                                      contentEncoding);
   if (!contentEncoding.IsEmpty()) {
     nsCOMPtr<nsIStreamConverterService> converterService(do_GetService(NS_STREAMCONVERTERSERVICE_CONTRACTID));
     if (converterService) {
@@ -206,7 +209,8 @@ nsFeedSniffer::GetMIMETypeFromContent(nsIRequest* request,
 
   // Check that this is a GET request, since you can't subscribe to a POST...
   nsAutoCString method;
-  channel->GetRequestMethod(method);
+  nsresult rv;
+  mozilla::Unused << channel->GetRequestMethod(method);
   if (!method.EqualsLiteral("GET")) {
     sniffedType.Truncate();
     return NS_OK;
@@ -258,8 +262,10 @@ nsFeedSniffer::GetMIMETypeFromContent(nsIRequest* request,
 
     // set the feed header as a response header, since we have good metadata
     // telling us that the feed is supposed to be RSS or Atom
-    channel->SetResponseHeader(NS_LITERAL_CSTRING("X-Moz-Is-Feed"),
-                               NS_LITERAL_CSTRING("1"), false);
+    mozilla::DebugOnly<nsresult> rv = 
+      channel->SetResponseHeader(NS_LITERAL_CSTRING("X-Moz-Is-Feed"),
+                                 NS_LITERAL_CSTRING("1"), false);
+    MOZ_ASSERT(NS_SUCCEEDED(rv));
     sniffedType.AssignLiteral(TYPE_MAYBE_FEED);
     return NS_OK;
   }
@@ -277,7 +283,7 @@ nsFeedSniffer::GetMIMETypeFromContent(nsIRequest* request,
 
   // Now we need to potentially decompress data served with
   // Content-Encoding: gzip
-  nsresult rv = ConvertEncodedData(request, data, length);
+  rv = ConvertEncodedData(request, data, length);
   if (NS_FAILED(rv))
     return rv;
 
