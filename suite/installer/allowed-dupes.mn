@@ -369,8 +369,8 @@ chrome/icons/default/default.png
 chrome/icons/default/main-window.png
 chrome/icons/default/default48.png
 chrome/icons/default/main-window48.png
-seamonkey
-seamonkey-bin
+@MOZ_APP_NAME@
+@MOZ_APP_NAME@-bin
 
 # OSX
 extensions/modern@themes.mozilla.org/chrome/modern/skin/modern/communicator/sidebar/sbpicker-arrow.gif

@@ -16,5 +16,5 @@ icons/default16.png
 # Variants of paths in mozilla/browser/installer/allowed-dupes.mn
 # and mail/installer/allowed-dupes.mn:
 # bug 658850
-instantbird
-instantbird-bin
+@MOZ_APP_NAME@
+@MOZ_APP_NAME@-bin

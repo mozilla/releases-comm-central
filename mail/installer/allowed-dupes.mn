@@ -35,8 +35,8 @@ extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/calendar/content/calend
 
 # Variants of paths in mozilla/browser/installer/allowed-dupes.mn:
 # bug 658850
-thunderbird
-thunderbird-bin
+@MOZ_APP_NAME@
+@MOZ_APP_NAME@-bin
 # devtools reduction is bug 1311178
 chrome/devtools/content/dom/content/dom-view.css
 chrome/devtools/content/dom/dom.html
