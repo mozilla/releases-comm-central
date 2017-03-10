@@ -4,7 +4,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "nsAbOSXUtils.h"
-#include "nsStringGlue.h"
+#include "nsString.h"
 #include "nsAbOSXCard.h"
 #include "nsMemory.h"
 #include "mozilla/ArrayUtils.h"

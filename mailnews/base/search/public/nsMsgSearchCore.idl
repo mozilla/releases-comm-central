@@ -180,7 +180,7 @@ interface nsMsgSearchBooleanOp {
 [ptr] native nsMsgSearchValue(nsMsgSearchValue);
 
 %{C++
-#include "nsStringGlue.h"
+#include "nsString.h"
 
 typedef struct nsMsgSearchValue
 {
