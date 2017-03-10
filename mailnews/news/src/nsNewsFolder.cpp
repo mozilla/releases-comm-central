@@ -1621,13 +1621,11 @@ NS_IMETHODIMP nsMsgNewsFolder::DownloadAllForOffline(nsIUrlListener *listener, n
       }
     }
   }
-  DownloadNewsArticlesToOfflineStore *downloadState = new DownloadNewsArticlesToOfflineStore(msgWindow, mDatabase, this);
-  if (!downloadState)
-    return NS_ERROR_OUT_OF_MEMORY;
+  RefPtr<DownloadNewsArticlesToOfflineStore> downloadState =
+    new DownloadNewsArticlesToOfflineStore(msgWindow, mDatabase, this);
   m_downloadingMultipleMessages = true;
   rv = downloadState->DownloadArticles(msgWindow, this, &srcKeyArray);
   (void) RefreshSizeOnDisk();
-  delete downloadState;
   return rv;
 }
 
@@ -1650,14 +1648,12 @@ NS_IMETHODIMP nsMsgNewsFolder::DownloadMessagesForOffline(nsIArray *messages, ns
     if (NS_SUCCEEDED(rv))
       srcKeyArray.AppendElement(key);
   }
-  DownloadNewsArticlesToOfflineStore *downloadState = new DownloadNewsArticlesToOfflineStore(window, mDatabase, this);
-  if (!downloadState)
-    return NS_ERROR_OUT_OF_MEMORY;
+  RefPtr<DownloadNewsArticlesToOfflineStore> downloadState =
+    new DownloadNewsArticlesToOfflineStore(window, mDatabase, this);
   m_downloadingMultipleMessages = true;
 
   rv = downloadState->DownloadArticles(window, this, &srcKeyArray);
   (void) RefreshSizeOnDisk();
-  delete downloadState;
   return rv;
 }
 
