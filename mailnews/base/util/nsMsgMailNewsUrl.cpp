@@ -26,6 +26,7 @@
 #include "nsMsgUtils.h"
 #include "mozilla/Services.h"
 #include <algorithm>
+#include "nsProxyRelease.h"
 
 nsMsgMailNewsUrl::nsMsgMailNewsUrl()
 {
@@ -51,6 +52,22 @@ nsMsgMailNewsUrl::nsMsgMailNewsUrl()
 nsMsgMailNewsUrl::~nsMsgMailNewsUrl()
 {
   PR_FREEIF(m_errorMessage);
+
+  // In IMAP this URL is created and destroyed on the imap thread,
+  // so we must ensure that releases of XPCOM objects (which might be
+  // implemented by non-threadsafe JS components) are released on the
+  // main thread.
+  NS_ReleaseOnMainThread(m_baseURL.forget());
+  NS_ReleaseOnMainThread(mMimeHeaders.forget());
+  NS_ReleaseOnMainThread(m_searchSession.forget());
+  NS_ReleaseOnMainThread(mMsgHeaderSink.forget());
+
+  nsTObserverArray<nsCOMPtr<nsIUrlListener>>::ForwardIterator iter(mUrlListeners);
+  while (iter.HasMore()) {
+    nsCOMPtr<nsIUrlListener> listener = iter.GetNext();
+    if (listener)
+      NS_ReleaseOnMainThread(listener.forget());
+  }
 }
 
 NS_IMPL_ISUPPORTS(nsMsgMailNewsUrl, nsIMsgMailNewsUrl, nsIURL, nsIURI)
