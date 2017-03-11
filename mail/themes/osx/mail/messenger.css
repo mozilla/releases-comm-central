@@ -20,6 +20,7 @@
                                     linear-gradient(hsla(0, 0%, 100%, .3),
                                     hsla(0, 0%, 100%, .1)) padding-box;
   --toolbarbutton-hover-bordercolor: hsla(0, 0%, 0%, .2);
+  --toolbarbutton-header-bordercolor: hsla(0, 0%, 0%, .2);
   --toolbarbutton-hover-boxshadow: 0 1px 0 hsla(0, 0%, 100%, .5),
                                    0 1px 0 hsla(0, 0%, 100%, .5) inset;
 

@@ -369,7 +369,7 @@ mail-emailaddress[selected="true"] .emailDisplayButton{
   .toolbarbutton-1.msgHeaderView-button > .toolbarbutton-menubutton-button,
   .toolbarbutton-1.msgHeaderView-button > .toolbarbutton-menubutton-dropmarker {
     background: var(--toolbarbutton-hover-background);
-    border-color: var(--toolbarbutton-hover-bordercolor);
+    border-color: var(--toolbarbutton-header-bordercolor);
   }
 
   .toolbarbutton-1.msgHeaderView-button:not([disabled=true]):-moz-any(:hover,[open]) >

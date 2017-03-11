@@ -138,7 +138,7 @@
 
 .toolbarbutton-1.msgHeaderView-button {
   background: var(--toolbarbutton-hover-background);
-  border-color: var(--toolbarbutton-hover-bordercolor);
+  border-color: var(--toolbarbutton-header-bordercolor);
 }
 
 .toolbarbutton-1.msgHeaderView-button:not([disabled=true]):not([checked=true]):not([open]):not(:active):hover {

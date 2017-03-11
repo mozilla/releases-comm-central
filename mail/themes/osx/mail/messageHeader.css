@@ -162,7 +162,7 @@ attachmentlist:focus >attachmentitem[selected="true"] .attachmentcell-size {
   margin: 0;
   margin-inline-start: 4px;
   vertical-align: middle;
-  border: 1px solid var(--toolbarbutton-hover-bordercolor);
+  border: 1px solid var(--toolbarbutton-header-bordercolor);
   border-radius: 3px;
   background: var(--toolbarbutton-hover-background);
 }
