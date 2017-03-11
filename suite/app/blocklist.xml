@@ -815,14 +815,6 @@
       <prefs/>
       <versionRange minVersion="0" maxVersion="*" severity="3"/>
     </emItem>
-    <emItem blockID="i228" id="crossriderapp5060@crossrider.com">
-      <prefs/>
-      <versionRange minVersion="0" maxVersion="*" severity="1"/>
-    </emItem>
-    <emItem blockID="i470" id="extension@FastFreeConverter.com">
-      <prefs/>
-      <versionRange minVersion="0" maxVersion="*" severity="3"/>
-    </emItem>
     <emItem blockID="i1223" id="tmbepff@trendmicro.com">
       <prefs/>
       <versionRange minVersion="9.2" maxVersion="9.2.0.1023" severity="1"/>
@@ -1865,6 +1857,14 @@
       <versionRange minVersion="102.0" maxVersion="102.0" severity="3"/>
     </emItem>
     <emItem blockID="i722" id="{9802047e-5a84-4da3-b103-c55995d147d1}">
+      <prefs/>
+      <versionRange minVersion="0" maxVersion="*" severity="3"/>
+    </emItem>
+    <emItem blockID="i228" id="crossriderapp5060@crossrider.com">
+      <prefs/>
+      <versionRange minVersion="0" maxVersion="*" severity="1"/>
+    </emItem>
+    <emItem blockID="i470" id="extension@FastFreeConverter.com">
       <prefs/>
       <versionRange minVersion="0" maxVersion="*" severity="3"/>
     </emItem>
