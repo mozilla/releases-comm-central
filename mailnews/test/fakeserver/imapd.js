@@ -1591,8 +1591,20 @@ IMAP_RFC3501_handler.prototype = {
     return response;
   },
   _FETCH_INTERNALDATE : function (message) {
-    var response = "INTERNALDATE \"";
-    response += message.date.toLocaleFormat("%d-%b-%Y %H:%M:%S %z");
+    let date = message.date;
+    // Format timestamp as: "%d-%b-%Y %H:%M:%S %z" (%b in English).
+    let year = date.getFullYear().toString();
+    let month = date.toLocaleDateString("en-US", {month: "short"});
+    let day = date.getDate().toString();
+    let hours = date.getHours().toString().padStart(2, "0");
+    let minutes = date.getMinutes().toString().padStart(2, "0");
+    let seconds = date.getSeconds().toString().padStart(2, "0");
+    let offset = date.getTimezoneOffset();
+    let tzoff = Math.floor(Math.abs(offset) / 60) * 100 + Math.abs(offset) % 60;
+    let timeZone = (offset < 0 ? "+" : "-") + tzoff.toString().padStart(4, "0");
+
+    let response = "INTERNALDATE \"";
+    response += `${day}-${month}-${year} ${hours}:${minutes}:${seconds} ${timeZone}`;
     response += "\"";
     return response;
   },
