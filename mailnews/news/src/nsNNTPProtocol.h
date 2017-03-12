@@ -153,7 +153,7 @@ public:
   NS_IMETHOD AsyncOpen2(nsIStreamListener *listener) override;
   NS_IMETHOD GetOriginalURI(nsIURI* *aURI) override;
   NS_IMETHOD SetOriginalURI(nsIURI* aURI) override;
-  void nsNNTPProtocol::PostLoadAssertions();
+  void PostLoadAssertions();
 
   nsresult LoadUrl(nsIURI * aURL, nsISupports * aConsumer) override;
 
