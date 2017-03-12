@@ -490,25 +490,11 @@ nsContextMenu.prototype = {
   },
 
   inspectNode: function() {
-    var tmp = {};
+    let tmp = {};
     Components.utils.import("resource://devtools/shared/Loader.jsm", tmp);
-    var gBrowser = this.browser.ownerDocument.defaultView.gBrowser;
-    var tt = tmp.devtools.TargetFactory.forTab(gBrowser.selectedTab);
-    return gDevTools.showToolbox(tt, "inspector").then(toolbox => {
-      var inspector = toolbox.getCurrentPanel();
-      /* Currently "isRemote" is always false.
-      if (this.isRemote) {
-        this.browser.messageManager
-            .sendAsyncMessage("debug:inspect", {}, { node: this.target });
-        inspector.walker.findInspectingNode().then(nodeFront => {
-          inspector.selection.setNodeFront(nodeFront, "browser-context-menu");
-        });
-      } else {
-        inspector.selection.setNode(this.target, "browser-context-menu");
-      }
-      */
-      inspector.selection.setNode(this.target, "browser-context-menu");
-    });
+    let gBrowser = this.browser.ownerDocument.defaultView.gBrowser;
+    let gDevToolsBrowser = tmp.require("devtools/client/framework/devtools-browser").gDevToolsBrowser;
+    return gDevToolsBrowser.inspectNode(gBrowser.selectedTab, this.target);
   },
 
   // Set various context menu attributes based on the state of the world.
