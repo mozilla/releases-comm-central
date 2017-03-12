@@ -906,6 +906,33 @@ NS_IMETHODIMP nsNNTPProtocol::AsyncOpen2(nsIStreamListener *aListener)
     return AsyncOpen(listener, nullptr);
 }
 
+void nsNNTPProtocol::PostLoadAssertions()
+{
+
+  // Make sure that we have the information we need to be able to run the
+  // URLs
+  NS_ASSERTION(m_nntpServer, "Parsing must result in an m_nntpServer");
+  if (m_typeWanted == ARTICLE_WANTED)
+  {
+    if (m_key != nsMsgKey_None)
+      NS_ASSERTION(m_newsFolder, "ARTICLE_WANTED needs m_newsFolder w/ key");
+    else
+      NS_ASSERTION(!m_messageID.IsEmpty(), "ARTICLE_WANTED needs m_messageID w/o key");
+  }
+  else if (m_typeWanted == CANCEL_WANTED)
+  {
+    NS_ASSERTION(!m_messageID.IsEmpty(), "CANCEL_WANTED needs m_messageID");
+    NS_ASSERTION(m_newsFolder, "CANCEL_WANTED needs m_newsFolder");
+    NS_ASSERTION(m_key != nsMsgKey_None, "CANCEL_WANTED needs m_key");
+  }
+  else if (m_typeWanted == GROUP_WANTED)
+    NS_ASSERTION(m_newsFolder, "GROUP_WANTED needs m_newsFolder");
+  else if (m_typeWanted == SEARCH_WANTED)
+    NS_ASSERTION(!m_searchData.IsEmpty(), "SEARCH_WANTED needs m_searchData");
+  else if (m_typeWanted == IDS_WANTED)
+    NS_ASSERTION(m_newsFolder, "IDS_WANTED needs m_newsFolder");
+}
+
 nsresult nsNNTPProtocol::LoadUrl(nsIURI * aURL, nsISupports * aConsumer)
 {
   NS_ENSURE_ARG_POINTER(aURL);
@@ -1080,36 +1107,17 @@ FAIL:
 
         // Calls LoadUrl in nsNNTPProtocol::OnProxyAvailable
         rv = MsgExamineForProxyAsync(this, this, getter_AddRefs(m_proxyRequest));
-        NS_ENSURE_SUCCESS(rv, rv);
+        if (NS_FAILED(rv)) {
+          rv = LoadUrlInternal(nullptr);
+        }
       }
       else
       {
         rv = nsMsgProtocol::LoadUrl(aURL, aConsumer);
       }
+      if (NS_SUCCEEDED(rv))
+        PostLoadAssertions();
     }
-
-    // Make sure that we have the information we need to be able to run the
-    // URLs
-    NS_ASSERTION(m_nntpServer, "Parsing must result in an m_nntpServer");
-    if (m_typeWanted == ARTICLE_WANTED)
-    {
-      if (m_key != nsMsgKey_None)
-        NS_ASSERTION(m_newsFolder, "ARTICLE_WANTED needs m_newsFolder w/ key");
-      else
-        NS_ASSERTION(!m_messageID.IsEmpty(), "ARTICLE_WANTED needs m_messageID w/o key");
-    }
-    else if (m_typeWanted == CANCEL_WANTED)
-    {
-      NS_ASSERTION(!m_messageID.IsEmpty(), "CANCEL_WANTED needs m_messageID");
-      NS_ASSERTION(m_newsFolder, "CANCEL_WANTED needs m_newsFolder");
-      NS_ASSERTION(m_key != nsMsgKey_None, "CANCEL_WANTED needs m_key");
-    }
-    else if (m_typeWanted == GROUP_WANTED)
-      NS_ASSERTION(m_newsFolder, "GROUP_WANTED needs m_newsFolder");
-    else if (m_typeWanted == SEARCH_WANTED)
-      NS_ASSERTION(!m_searchData.IsEmpty(), "SEARCH_WANTED needs m_searchData");
-    else if (m_typeWanted == IDS_WANTED)
-      NS_ASSERTION(m_newsFolder, "IDS_WANTED needs m_newsFolder");
 
     return rv;
 }
@@ -1120,6 +1128,26 @@ nsNNTPProtocol::OnProxyAvailable(nsICancelable *aRequest, nsIChannel *aChannel,
                                  nsIProxyInfo *aProxyInfo, nsresult aStatus)
 {
   MOZ_ASSERT(aChannel == this, "Should never request a proxy for anyone but ourselves");
+
+  // If we're called with NS_BINDING_ABORTED, we came here via Cancel().
+  // Otherwise, no checking of 'aStatus' here, see
+  // nsHttpChannel::OnProxyAvailable(). Status is non-fatal and we just kick on.
+  if (aStatus == NS_BINDING_ABORTED)
+    return NS_ERROR_FAILURE;
+
+  nsresult rv = LoadUrlInternal(aProxyInfo);
+  if (NS_FAILED(rv)) {
+    return Cancel(rv);
+  }
+
+  PostLoadAssertions();
+
+  return rv;
+}
+
+nsresult
+nsNNTPProtocol::LoadUrlInternal(nsIProxyInfo* aProxyInfo)
+{
   m_proxyRequest = nullptr;
 
   nsCOMPtr<nsIMsgIncomingServer> server = do_QueryInterface(m_nntpServer);
@@ -1152,6 +1180,7 @@ nsNNTPProtocol::OnProxyAvailable(nsICancelable *aRequest, nsIChannel *aChannel,
     aProxyInfo, ir);
 
   rv = nsMsgProtocol::LoadUrl(m_url, m_consumer);
+  NS_ENSURE_SUCCESS(rv, rv);
 
   return rv;
 }
@@ -1196,7 +1225,12 @@ NS_IMETHODIMP nsNNTPProtocol::Cancel(nsresult status)  // handle stop button
 {
     if (m_proxyRequest)
     {
-      m_proxyRequest->Cancel(status);
+      m_proxyRequest->Cancel(NS_BINDING_ABORTED);
+
+      // Note that nsMsgProtocol::Cancel() also calls
+      // nsProtocolProxyService::Cancel(), so no need to call it twice
+      // (although it self-protects against multiple calls).
+      m_proxyRequest = nullptr;
     }
 
     m_nextState = NNTP_ERROR;

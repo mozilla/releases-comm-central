@@ -492,6 +492,7 @@ nsresult nsPop3Protocol::Initialize(nsIURI * aURL)
     if (NS_FAILED(rv))
     {
       rv = InitializeInternal(nullptr);
+      NS_ENSURE_SUCCESS(rv, rv);
     }
     else
     {
@@ -521,11 +522,27 @@ NS_IMETHODIMP
 nsPop3Protocol::OnProxyAvailable(nsICancelable *aRequest, nsIChannel *aChannel,
                                  nsIProxyInfo *aProxyInfo, nsresult aStatus)
 {
-  InitializeInternal(aProxyInfo);
-  return LoadUrlInternal(m_url);
+  // If we're called with NS_BINDING_ABORTED, we came here via Cancel().
+  // Otherwise, no checking of 'aStatus' here, see
+  // nsHttpChannel::OnProxyAvailable(). Status is non-fatal and we just kick on.
+  if (aStatus == NS_BINDING_ABORTED)
+    return NS_ERROR_FAILURE;
+
+  nsresult rv = InitializeInternal(aProxyInfo);
+  if (NS_FAILED(rv)) {
+    Cancel(rv);
+    return rv;
+  }
+
+  rv = LoadUrlInternal(m_url);
+  if (NS_FAILED(rv)) {
+    Cancel(rv);
+  }
+
+  return rv;
 }
 
-nsresult nsPop3Protocol::InitializeInternal(nsIProxyInfo* proxyInfo)
+nsresult nsPop3Protocol::InitializeInternal(nsIProxyInfo* aProxyInfo)
 {
   nsresult rv;
 
@@ -593,11 +610,11 @@ nsresult nsPop3Protocol::InitializeInternal(nsIProxyInfo* proxyInfo)
     m_socketType == nsMsgSocketType::alwaysSTARTTLS)
     connectionType = "starttls";
 
-  rv = OpenNetworkSocketWithInfo(hostName.get(), port, connectionType, proxyInfo, ir);
+  rv = OpenNetworkSocketWithInfo(hostName.get(), port, connectionType, aProxyInfo, ir);
   if (NS_FAILED(rv) && m_socketType == nsMsgSocketType::trySTARTTLS)
   {
     m_socketType = nsMsgSocketType::plain;
-    rv = OpenNetworkSocketWithInfo(hostName.get(), port, nullptr, proxyInfo, ir);
+    rv = OpenNetworkSocketWithInfo(hostName.get(), port, nullptr, aProxyInfo, ir);
   }
 
   return rv;
@@ -1029,7 +1046,12 @@ NS_IMETHODIMP nsPop3Protocol::Cancel(nsresult status)  // handle stop button
 {
   if (m_proxyRequest)
   {
-    m_proxyRequest->Cancel(status);
+    m_proxyRequest->Cancel(NS_BINDING_ABORTED);
+
+    // Note that nsMsgProtocol::Cancel() also calls
+    // nsProtocolProxyService::Cancel(), so no need to call it twice
+    // (although it self-protects against multiple calls).
+    m_proxyRequest = nullptr;
   }
 
   Abort();

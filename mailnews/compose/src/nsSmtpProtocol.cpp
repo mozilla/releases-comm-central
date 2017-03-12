@@ -419,6 +419,8 @@ NS_IMETHODIMP
 nsSmtpProtocol::OnProxyAvailable(nsICancelable *aRequest, nsIChannel *aChannel,
                                  nsIProxyInfo *aProxyInfo, nsresult aStatus)
 {
+  // No checking of 'aStatus' here, see nsHttpChannel::OnProxyAvailable().
+  // Status is non-fatal and we just kick on.
   return InitializeInternal(aProxyInfo);
 }
 
@@ -1932,7 +1934,7 @@ nsresult nsSmtpProtocol::SendQuit(SmtpState aNextStateAfterResponse)
   return SendData("QUIT" CRLF); // send a quit command to close the connection with the server.
 }
 
-nsresult nsSmtpProtocol::LoadUrl(nsIURI * aURL, nsISupports * aConsumer )
+nsresult nsSmtpProtocol::LoadUrl(nsIURI * aURL, nsISupports * aConsumer)
 {
   if (!aURL)
     return NS_OK;

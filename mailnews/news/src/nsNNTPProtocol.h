@@ -153,6 +153,7 @@ public:
   NS_IMETHOD AsyncOpen2(nsIStreamListener *listener) override;
   NS_IMETHOD GetOriginalURI(nsIURI* *aURI) override;
   NS_IMETHOD SetOriginalURI(nsIURI* aURI) override;
+  void nsNNTPProtocol::PostLoadAssertions();
 
   nsresult LoadUrl(nsIURI * aURL, nsISupports * aConsumer) override;
 
@@ -184,6 +185,7 @@ private:
   // and then calls the base class to transmit the data
   nsresult SendData(const char * dataBuffer, bool aSuppressLogging = false) override;
 
+  nsresult LoadUrlInternal(nsIProxyInfo* aProxyInfo);
   nsresult CleanupAfterRunningUrl();
   void Cleanup(); //free char* member variables
 

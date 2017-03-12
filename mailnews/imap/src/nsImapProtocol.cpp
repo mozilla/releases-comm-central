@@ -849,13 +849,30 @@ NS_IMETHODIMP
 nsImapProtocol::OnProxyAvailable(nsICancelable *aRequest, nsIChannel *aChannel,
                                  nsIProxyInfo *aProxyInfo, nsresult aStatus)
 {
-  nsresult rv = SetupWithUrlCallback(aProxyInfo);
-  NS_ENSURE_SUCCESS(rv, rv);
+  // If we're called with NS_BINDING_ABORTED, the IMAP thread already died,
+  // so we can't carry on. Otherwise, no checking of 'aStatus' here, see
+  // nsHttpChannel::OnProxyAvailable(). Status is non-fatal and we just kick on.
+  if (aStatus == NS_BINDING_ABORTED)
+    return NS_ERROR_FAILURE;
 
-  return LoadImapUrlInternal();
+  nsresult rv = SetupWithUrlCallback(aProxyInfo);
+  if (NS_FAILED(rv)) {
+    // Cancel the protocol and be done.
+    if (m_mockChannel)
+      m_mockChannel->Cancel(rv);
+    return rv;
+  }
+
+  rv = LoadImapUrlInternal();
+  if (NS_FAILED(rv)) {
+    if (m_mockChannel)
+      m_mockChannel->Cancel(rv);
+  }
+
+  return rv;
 }
 
-nsresult nsImapProtocol::SetupWithUrlCallback(nsIProxyInfo* proxyInfo)
+nsresult nsImapProtocol::SetupWithUrlCallback(nsIProxyInfo* aProxyInfo)
 {
   m_proxyRequest = nullptr;
 
@@ -899,14 +916,14 @@ nsresult nsImapProtocol::SetupWithUrlCallback(nsIProxyInfo* proxyInfo)
   }
 
   rv = socketService->CreateTransport(&connectionType, connectionType != nullptr,
-                                      *socketHost, socketPort, proxyInfo,
+                                      *socketHost, socketPort, aProxyInfo,
                                       getter_AddRefs(m_transport));
   if (NS_FAILED(rv) && m_socketType == nsMsgSocketType::trySTARTTLS)
   {
     connectionType = nullptr;
     m_socketType = nsMsgSocketType::plain;
     rv = socketService->CreateTransport(&connectionType, connectionType != nullptr,
-                                        *socketHost, socketPort, proxyInfo,
+                                        *socketHost, socketPort, aProxyInfo,
                                         getter_AddRefs(m_transport));
   }
 
@@ -1030,6 +1047,17 @@ private:
   nsCOMPtr<nsIThread> mThread;
 };
 
+class nsImapCancelProxy : public mozilla::Runnable {
+public:
+  nsImapCancelProxy(nsICancelable *aProxyRequest) : m_proxyRequest(aProxyRequest) {
+  }
+  NS_IMETHOD Run() {
+    m_proxyRequest->Cancel(NS_BINDING_ABORTED);
+    return NS_OK;
+  }
+private:
+  nsCOMPtr<nsICancelable> m_proxyRequest;
+};
 
 NS_IMETHODIMP nsImapProtocol::Run()
 {
@@ -1050,7 +1078,11 @@ NS_IMETHODIMP nsImapProtocol::Run()
 
   if (m_proxyRequest)
   {
-    m_proxyRequest->Cancel(NS_BINDING_ABORTED);
+    // Cancel proxy on main thread.
+    RefPtr<nsImapCancelProxy> cancelProxy =
+      new nsImapCancelProxy(m_proxyRequest);
+    NS_DispatchToMainThread(cancelProxy, NS_DISPATCH_SYNC);
+    m_proxyRequest = nullptr;
   }
 
   if (m_runningUrl)
