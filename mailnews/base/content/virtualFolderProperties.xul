@@ -78,7 +78,8 @@
         <hbox align="center">
           <label id="chosenFoldersCount"/>
           <spacer flex="1"/>
-          <button label="&chooseFoldersButton.label;"
+          <button id="folderListPicker"
+                  label="&chooseFoldersButton.label;"
                   accesskey="&chooseFoldersButton.accesskey;"
                   oncommand="chooseFoldersToSearch();"/>
         </hbox>

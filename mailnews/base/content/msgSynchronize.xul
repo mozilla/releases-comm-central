@@ -9,9 +9,9 @@
 <?xml-stylesheet href="chrome://messenger/skin/dialogs.css" type="text/css"?>
 
 <!DOCTYPE dialog SYSTEM "chrome://messenger/locale/msgSynchronize.dtd" >
-<dialog	xmlns:NC="http://home.netscape.com/NC-rdf#"
-        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-        id="msg-synchronizer" 
+<dialog xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        id="msg-synchronizer"
+        windowtype="mailnews:synchronizeOffline"
         title="&MsgSynchronize.label;"
         onload="OnLoad();"
         style="width: 35em;"

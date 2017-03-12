@@ -951,10 +951,10 @@ var AugmentEverybodyWith = {
      * @param aRootPopup  The base popup. The caller is expected to activate it
      *     (by clicking/rightclicking the right widget). We will only wait for it
      *     to open if it is in the process.
-     * @param aActions  A list of objects where each object has a single
-     *     attribute with a single value.  We pick the menu option whose DOM
-     *     node has an attribute with that name and value.  We click whatever we
-     *     find.  We throw if we don't find what you were asking for.
+     * @param aActions  An array of objects where each object has attributes
+     *     with a value defined. We pick the menu item whose DOM node matches
+     *     all the attributes with the specified names and value. We click whatever
+     *     we find. We throw if the element being asked for is not found.
      * @param aKeepOpen  If set to true the popups are not closed after last click.
      *
      * @return  An array of popup elements that were left open. It will be
@@ -979,8 +979,7 @@ var AugmentEverybodyWith = {
          */
         let findMatch = function(aNode) {
           // Ignore some elements and just use their children instead.
-          if (aNode.localName == "hbox" || aNode.localName == "vbox" ||
-              aNode.localName == "splitmenu") {
+          if (aNode.localName == "hbox" || aNode.localName == "vbox" ) {
             for (let i = 0; i < aNode.children.length; i++) {
               let childMatch = findMatch(aNode.children[i]);
               if (childMatch)
@@ -1010,13 +1009,31 @@ var AugmentEverybodyWith = {
             break;
         }
 
-        if (!matchingNode)
+        if (!matchingNode) {
           throw new Error("Did not find matching menu item for action index " +
                           iAction + ": " + JSON.stringify(actionObj));
+        }
 
-        this.click(new elib.Elem(matchingNode));
-        if ("menupopup" in matchingNode) {
-          curPopup = matchingNode.menupopup;
+        if ((matchingNode.localName == "splitmenu") &&
+            ((iAction < aActions.length - 1) || aKeepOpen)) {
+          // For splitmenus, click the submenu arrow to open its menupopup,
+          // unless this is the last item being searched for. In that case,
+          // click the main item.
+          this.click(new elib.Elem(matchingNode.menu));
+        } else
+          this.click(new elib.Elem(matchingNode));
+
+        let newPopup = null;
+        if ("menupopup" in matchingNode)
+          newPopup = matchingNode.menupopup;
+        else if ((matchingNode.localName == "splitmenu") &&
+                 ("menupopup" in matchingNode.menu)) {
+          // We should actually fetch matchingNode.menu.menupopup here,
+          // but it doesn't seem to work.
+          newPopup = matchingNode.querySelector("menupopup");
+        }
+        if (newPopup) {
+          curPopup = newPopup;
           closeStack.push(curPopup);
           utils.waitFor(function() { return curPopup.state == "open"; },
                         "Popup never opened at action depth " + iAction +

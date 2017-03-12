@@ -236,14 +236,12 @@ function subtest_save_search(savc) {
   savc.assertValue(searchVal1, "bar");
 
   // - name the search
-  // I am having no luck with click/type on XUL things. workaround it.
-  savc.e("name").value = "SearchSaved";
-  savc.window.doEnabling();
+  savc.type(savc.eid("name"), "SearchSaved");
 
   // - save it!
   // this will close the dialog, which wait_for_modal_dialog is making sure
   //  happens.
-  savc.window.onOK();
+  savc.window.document.documentElement.acceptDialog();
 }
 
 function test_close_search_window() {

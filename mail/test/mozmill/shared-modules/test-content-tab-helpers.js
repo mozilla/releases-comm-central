@@ -187,8 +187,8 @@ function open_content_tab_with_url(aURL, aClickHandler, aBackground, aController
  * be opened in the foreground. The element is expected to be associated with
  * the given controller.
  *
- * @param aElem The element to click.
- * @param aExpectedURL The URL that is expected to be opened (string).
+ * @param aElem         The element to click or a function that causes the tab to open.
+ * @param aExpectedURL  The URL that is expected to be opened (string).
  * @param [aController] The controller the element is associated with. Defaults
  *                      to |mc|.
  * @returns The newly-opened tab.
@@ -198,7 +198,11 @@ function open_content_tab_with_click(aElem, aExpectedURL, aController) {
     aController = mc;
 
   let preCount = aController.tabmail.tabContainer.childNodes.length;
-  aController.click(new elib.Elem(aElem));
+  if (typeof(aElem) != "function")
+    aController.click(new elib.Elem(aElem));
+  else
+    aElem();
+
   utils.waitFor(() => (
                   aController.tabmail.tabContainer.childNodes.length == preCount + 1),
                 "Timeout waiting for the content tab to open",
