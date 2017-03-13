@@ -117,8 +117,10 @@ function getSeqStampTestItems(aTest) {
                 xMsAptSeq = "X-MICROSOFT-CDO-APPT-SEQUENCE:" + input.item.xMsAptSeq;
             }
             let testItem = cal.createEvent();
-            testItem.icalString = getSeqStampTestIcs([attendee, sequence, dtStamp, xMozReceivedSeq,
-                                                      xMozReceivedStamp, xMsAptSeq]);
+            testItem.icalString = getSeqStampTestIcs([
+                attendee, sequence, dtStamp, xMozReceivedSeq,
+                xMozReceivedStamp, xMsAptSeq
+            ]);
             items.push(testItem);
         } else {
             // in this case, we need to return an attendee

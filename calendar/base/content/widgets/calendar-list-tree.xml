@@ -95,8 +95,10 @@
       <field name="compositeObserver"><![CDATA[
       ({
           listTree: this,
-          QueryInterface: XPCOMUtils.generateQI([Components.interfaces.calICompositeObserver,
-                                                 Components.interfaces.calIObserver]),
+          QueryInterface: XPCOMUtils.generateQI([
+              Components.interfaces.calICompositeObserver,
+              Components.interfaces.calIObserver
+          ]),
 
           // calICompositeObserver
           onCalendarAdded: function(aCalendar) {

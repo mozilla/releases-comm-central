@@ -531,7 +531,6 @@
                   this.handleCommonPreference(aSubject, aTopic, aPreference);
                   break;
           }
-          return;
         ]]></body>
       </method>
 

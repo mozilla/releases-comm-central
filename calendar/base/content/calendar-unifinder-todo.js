@@ -9,7 +9,7 @@
  */
 function prepareCalendarToDoUnifinder() {
     // add listener to update the date filters
-    getViewDeck().addEventListener("dayselect", updateCalendarToDoUnifinder, false);
+    getViewDeck().addEventListener("dayselect", updateCalendarToDoUnifinder);
 
     updateCalendarToDoUnifinder();
 }
@@ -56,5 +56,5 @@ function updateCalendarToDoUnifinder(aFilter) {
  */
 function finishCalendarToDoUnifinder() {
     // remove listeners
-    getViewDeck().removeEventListener("dayselect", updateCalendarToDoUnifinder, false);
+    getViewDeck().removeEventListener("dayselect", updateCalendarToDoUnifinder);
 }

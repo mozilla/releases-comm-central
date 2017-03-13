@@ -43,8 +43,10 @@ calAttendee.prototype = {
             a.isOrganizer = true;
         }
 
-        const allProps = ["id", "commonName", "rsvp", "role",
-                          "participationStatus", "userType"];
+        const allProps = [
+            "id", "commonName", "rsvp", "role",
+            "participationStatus", "userType"
+        ];
         for (let prop of allProps) {
             a[prop] = this[prop];
         }

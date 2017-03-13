@@ -1069,8 +1069,10 @@
         let target = event.originalTarget;
         if (target.className == "role-icon") {
             if (target.getAttribute("disabled") != "true") {
-                const roleCycle = ["REQ-PARTICIPANT", "OPT-PARTICIPANT",
-                                   "NON-PARTICIPANT", "CHAIR"];
+                const roleCycle = [
+                    "REQ-PARTICIPANT", "OPT-PARTICIPANT",
+                    "NON-PARTICIPANT", "CHAIR"
+                ];
 
                 let nextValue = cycle(roleCycle, target.getAttribute("role"));
                 target.setAttribute("role", nextValue);

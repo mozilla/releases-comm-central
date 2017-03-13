@@ -54,7 +54,6 @@
           calView: this,
           observe: function(subj, topic, pref) {
               this.calView.handlePreference(subj, topic, pref);
-              return;
           }
       })
       ]]></field>
@@ -98,7 +97,6 @@
                 for (let occ of occs) {
                     this.calView.doAddItem(occ);
                 }
-                return;
             },
 
             onModifyItem: function(aNewItem, aOldItem) {
@@ -657,11 +655,14 @@
       <method name="updateDaysOffPrefs">
         <body><![CDATA[
           const weekPrefix = "calendar.week.";
-          const prefNames = ["d0sundaysoff", "d1mondaysoff", "d2tuesdaysoff",
-                             "d3wednesdaysoff", "d4thursdaysoff",
-                             "d5fridaysoff", "d6saturdaysoff"];
-          const defaults = ["true", "false", "false", "false",
-                            "false", "false", "true"];
+          const prefNames = [
+              "d0sundaysoff", "d1mondaysoff", "d2tuesdaysoff",
+              "d3wednesdaysoff", "d4thursdaysoff", "d5fridaysoff",
+              "d6saturdaysoff"
+          ];
+          const defaults = [
+              "true", "false", "false", "false", "false", "false", "true"
+          ];
           let daysOff = [];
           for (let i in prefNames) {
               if (Preferences.get(weekPrefix + prefNames[i], defaults[i])) {
@@ -878,13 +879,15 @@
         <setter><![CDATA[
           this.mDate = val;
           let dateFormatter = cal.getDateFormatter();
-          let label = cal.calGetString("calendar", "dayHeaderLabel",
-                                       [dateFormatter.shortDayName(val.weekday),
-                                        dateFormatter.formatDateWithoutYear(val)]);
+          let label = cal.calGetString("calendar", "dayHeaderLabel", [
+              dateFormatter.shortDayName(val.weekday),
+              dateFormatter.formatDateWithoutYear(val)
+          ]);
           this.shortName.setAttribute("value", label);
-          label = cal.calGetString("calendar", "dayHeaderLabel",
-                                   [dateFormatter.dayName(val.weekday),
-                                    dateFormatter.formatDateWithoutYear(val)]);
+          label = cal.calGetString("calendar", "dayHeaderLabel", [
+              dateFormatter.dayName(val.weekday),
+              dateFormatter.formatDateWithoutYear(val)
+          ]);
           this.longName.setAttribute("value", label);
           return val;
         ]]></setter>
@@ -909,8 +912,9 @@
           if (longNameWidth > 0) {
               this.longWeekdayPixels = longNameWidth +
                                        getSummarizedStyleValues(this.longName, ["margin-left", "margin-right"]);
-              this.longWeekdayPixels += getSummarizedStyleValues(this, ["border-left-width",
-                                                                        "padding-left", "padding-right"]);
+              this.longWeekdayPixels += getSummarizedStyleValues(this, [
+                  "border-left-width", "padding-left", "padding-right"
+              ]);
               return this.longWeekdayPixels;
           } else {
               // in this case the weekdaypixels have not yet been layouted;

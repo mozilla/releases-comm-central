@@ -18,7 +18,7 @@ var MODULE_REQUIRES = [
 ];
 
 var os = {};
-Components.utils.import('resource://mozmill/stdlib/os.js', os);
+Components.utils.import("resource://mozmill/stdlib/os.js", os);
 
 function setupModule(module) {
     for (let dep of MODULE_REQUIRES) {
@@ -36,13 +36,12 @@ function test_event_from_eml() {
     let msgc = open_message_from_file(file);
 
     msgc.waitFor(() => {
-        let nb = msgc.window.document.getElementById("imip-bar");
-        if (!nb) {
+        let bar = msgc.window.document.getElementById("imip-bar");
+        if (!bar) {
             throw new Error("Couldn't find imip-bar in DOM.");
         }
-        return (nb.collapsed === false);
+        return (bar.collapsed === false);
     }, "Timed out waiting for IMIP bar to show");
 
     close_window(msgc);
 }
-

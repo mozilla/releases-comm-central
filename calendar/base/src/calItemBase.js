@@ -81,9 +81,11 @@ calItemBase.prototype = {
             let rid = this.recurrenceId;
             let calendar = this.calendar;
             // some unused delim character:
-            this.mHashId = [encodeURIComponent(this.id),
-                            rid ? rid.getInTimezone(cal.UTC()).icalString : "",
-                            calendar ? encodeURIComponent(calendar.id) : ""].join("#");
+            this.mHashId = [
+                encodeURIComponent(this.id),
+                rid ? rid.getInTimezone(cal.UTC()).icalString : "",
+                calendar ? encodeURIComponent(calendar.id) : ""
+            ].join("#");
         }
         return this.mHashId;
     },

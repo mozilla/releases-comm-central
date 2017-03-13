@@ -164,10 +164,10 @@ function compareItemsSpecific(aLeftItem, aRightItem, aPropArray) {
     if (!aPropArray) {
         // left out:  "id", "calendar", "lastModifiedTime", "generation",
         // "stampTime" as these are expected to change
-        aPropArray = ["start", "end", "duration",
-                      "title", "priority", "privacy", "creationDate",
-                      "status", "alarmLastAck",
-                      "recurrenceStartDate"];
+        aPropArray = [
+            "start", "end", "duration", "title", "priority", "privacy",
+            "creationDate", "status", "alarmLastAck", "recurrenceStartDate"
+        ];
     }
     for (let i = 0; i < aPropArray.length; i++) {
         equal(getProps(aLeftItem, aPropArray[i]),

@@ -541,7 +541,7 @@ function createXULElement(elem) {
  */
 function getSummarizedStyleValues(aXULElement, aStyleProps) {
     let retValue = 0;
-    let cssStyleDeclares = document.defaultView.getComputedStyle(aXULElement, null);
+    let cssStyleDeclares = document.defaultView.getComputedStyle(aXULElement);
     for (let prop of aStyleProps) {
         retValue += parseInt(cssStyleDeclares.getPropertyValue(prop), 10);
     }
@@ -557,10 +557,10 @@ function getSummarizedStyleValues(aXULElement, aStyleProps) {
  * @return              An integer value denoting the optimal minimum width
  */
 function getOptimalMinimumWidth(aXULElement) {
-    return getSummarizedStyleValues(aXULElement, ["min-width",
-                                                  "padding-left", "padding-right",
-                                                  "margin-left", "margin-top",
-                                                  "border-left-width", "border-right-width"]);
+    return getSummarizedStyleValues(aXULElement, [
+        "min-width", "padding-left", "padding-right", "margin-left",
+        "margin-top", "border-left-width", "border-right-width"
+    ]);
 }
 
 /**
@@ -576,10 +576,10 @@ function getOptimalMinimumHeight(aXULElement) {
     // the following line of code presumes that the line-height is set to "normal"
     // which is supposed to be a "reasonable distance" between the lines
     let firstEntity = parseInt(1.35 * getSummarizedStyleValues(aXULElement, ["font-size"]), 10);
-    let secondEntity = getSummarizedStyleValues(aXULElement,
-                                                ["padding-bottom", "padding-top",
-                                                "margin-bottom", "margin-top",
-                                                "border-bottom-width", "border-top-width"]);
+    let secondEntity = getSummarizedStyleValues(aXULElement, [
+        "padding-bottom", "padding-top", "margin-bottom", "margin-top",
+        "border-bottom-width", "border-top-width"
+    ]);
     return (firstEntity + secondEntity);
 }
 

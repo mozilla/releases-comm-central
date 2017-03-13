@@ -271,9 +271,9 @@ function addWidgetFor(aItem, aAlarm) {
 
     widget.item = aItem;
     widget.alarm = aAlarm;
-    widget.addEventListener("snooze", onSnoozeAlarm, false);
-    widget.addEventListener("dismiss", onDismissAlarm, false);
-    widget.addEventListener("itemdetails", onItemDetails, false);
+    widget.addEventListener("snooze", onSnoozeAlarm);
+    widget.addEventListener("dismiss", onDismissAlarm);
+    widget.addEventListener("itemdetails", onItemDetails);
 
     setupTitle();
 
@@ -311,9 +311,9 @@ function removeWidgetFor(aItem, aAlarm) {
                                               widget.nextSibling;
             }
 
-            widget.removeEventListener("snooze", onSnoozeAlarm, false);
-            widget.removeEventListener("dismiss", onDismissAlarm, false);
-            widget.removeEventListener("itemdetails", onItemDetails, false);
+            widget.removeEventListener("snooze", onSnoozeAlarm);
+            widget.removeEventListener("dismiss", onDismissAlarm);
+            widget.removeEventListener("itemdetails", onItemDetails);
 
             widget.remove();
             closeIfEmpty();

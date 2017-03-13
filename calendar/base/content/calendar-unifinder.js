@@ -185,7 +185,7 @@ var unifinderObserver = {
  */
 function prepareCalendarUnifinder() {
     // Only load once
-    window.removeEventListener("load", prepareCalendarUnifinder, false);
+    window.removeEventListener("load", prepareCalendarUnifinder);
     let unifinderTree = document.getElementById("unifinder-search-results-tree");
 
     // Add pref observer
@@ -209,7 +209,7 @@ function prepareCalendarUnifinder() {
 
         // Listen for changes in the selected day, so we can update if need be
         let viewDeck = getViewDeck();
-        viewDeck.addEventListener("dayselect", unifinderDaySelect, false);
+        viewDeck.addEventListener("dayselect", unifinderDaySelect);
         viewDeck.addEventListener("itemselect", unifinderItemSelect, true);
 
         // Set up sortDirection and sortActive, in case it persisted
@@ -249,11 +249,11 @@ function finishCalendarUnifinder() {
 
     // Remove pref observer
     let branch = Services.prefs.getBranch("");
-    branch.removeObserver("calendar.", unifinderObserver, false);
+    branch.removeObserver("calendar.", unifinderObserver);
 
     let viewDeck = getViewDeck();
     if (viewDeck) {
-        viewDeck.removeEventListener("dayselect", unifinderDaySelect, false);
+        viewDeck.removeEventListener("dayselect", unifinderDaySelect);
         viewDeck.removeEventListener("itemselect", unifinderItemSelect, true);
     }
 
@@ -955,5 +955,5 @@ function toggleUnifinder() {
     unifinderTreeView.setSelectedItems();
 }
 
-window.addEventListener("load", prepareCalendarUnifinder, false);
-window.addEventListener("unload", finishCalendarUnifinder, false);
+window.addEventListener("load", prepareCalendarUnifinder);
+window.addEventListener("unload", finishCalendarUnifinder);

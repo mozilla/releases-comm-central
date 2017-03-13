@@ -279,8 +279,8 @@ cal.itip = {
 
         let disallowedCounter = false;
         if (foundItems && foundItems.length) {
-             let disallow = foundItems[0].getProperty("X-MICROSOFT-DISALLOW-COUNTER");
-             disallowedCounter = disallow && disallow == "TRUE";
+            let disallow = foundItems[0].getProperty("X-MICROSOFT-DISALLOW-COUNTER");
+            disallowedCounter = disallow && disallow == "TRUE";
         }
         if (rc == Components.interfaces.calIErrors.CAL_IS_READONLY) {
             // No writable calendars, tell the user about it
@@ -302,7 +302,6 @@ cal.itip = {
                                     itipItem.sender
                             );
                             if (attendees.length == 1) {
-                                let replyer = foundItems[0].getAttendeeById(attendees[0].id);
                                 comparison = cal.itip.compareSequence(item, foundItems[0]);
                                 if (comparison == 1) {
                                     data.label = _gs("imipBarCounterErrorText");
@@ -964,6 +963,7 @@ cal.itip = {
         if (aMethod == "DECLINECOUNTER") {
             return sendMessage(aItem, aMethod, aRecipientsList, aAutoResponse);
         }
+        return false;
     }
 };
 

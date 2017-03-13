@@ -32,14 +32,14 @@ function commonInitCalendar() {
     injectCalendarCommandController();
 
     // Set up item and day selection listeners
-    getViewDeck().addEventListener("dayselect", observeViewDaySelect, false);
+    getViewDeck().addEventListener("dayselect", observeViewDaySelect);
     getViewDeck().addEventListener("itemselect", calendarController.onSelectionChanged, true);
 
     // Start alarm service
     Components.classes["@mozilla.org/calendar/alarm-service;1"]
               .getService(Components.interfaces.calIAlarmService)
               .startup();
-    document.getElementById("calsidebar_splitter").addEventListener("command", onCalendarViewResize, false);
+    document.getElementById("calsidebar_splitter").addEventListener("command", onCalendarViewResize);
     window.addEventListener("resize", onCalendarViewResize, true);
 
     // Set up the category colors
@@ -81,7 +81,7 @@ function commonFinishCalendar() {
     // Remove the command controller
     removeCalendarCommandController();
 
-    document.getElementById("calsidebar_splitter").removeEventListener("command", onCalendarViewResize, false);
+    document.getElementById("calsidebar_splitter").removeEventListener("command", onCalendarViewResize);
     window.removeEventListener("resize", onCalendarViewResize, true);
 
     // Clean up the category colors
@@ -150,7 +150,7 @@ var calendarWindowPrefs = {
             win.addEventListener("load", () => {
                 let attributeValue = Preferences.get("calendar.view.useSystemColors", false) && "true";
                 setElementValue(win.document.documentElement, attributeValue, "systemcolors");
-            }, false);
+            });
         }
     }
 };

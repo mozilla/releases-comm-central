@@ -8,16 +8,18 @@ function run_test() {
 
 function testAttachRoundtrip() {
     let storage = getStorageCal();
-    let str = ["BEGIN:VEVENT",
-               "UID:attachItem",
-               "DTSTART:20120101T010101Z",
-               "ATTACH;FMTTYPE=text/calendar;ENCODING=BASE64;FILENAME=test.ics:http://example.com/test.ics",
-               "ATTENDEE;RSVP=TRUE;CUTYPE=INDIVIDUAL;CN=Name;PARTSTAT=ACCEPTED;ROLE=REQ-PARTICIPANT;X-THING=BAR:mailto:test@example.com",
-               "RELATED-TO;RELTYPE=SIBLING;FOO=BAR:VALUE",
-               "RRULE:FREQ=MONTHLY;INTERVAL=2;COUNT=5;BYDAY=MO",
-               "RDATE:20120201T010101Z",
-               "EXDATE:20120301T010101Z",
-               "END:VEVENT"].join("\r\n");
+    let str = [
+        "BEGIN:VEVENT",
+        "UID:attachItem",
+        "DTSTART:20120101T010101Z",
+        "ATTACH;FMTTYPE=text/calendar;ENCODING=BASE64;FILENAME=test.ics:http://example.com/test.ics",
+        "ATTENDEE;RSVP=TRUE;CUTYPE=INDIVIDUAL;CN=Name;PARTSTAT=ACCEPTED;ROLE=REQ-PARTICIPANT;X-THING=BAR:mailto:test@example.com",
+        "RELATED-TO;RELTYPE=SIBLING;FOO=BAR:VALUE",
+        "RRULE:FREQ=MONTHLY;INTERVAL=2;COUNT=5;BYDAY=MO",
+        "RDATE:20120201T010101Z",
+        "EXDATE:20120301T010101Z",
+        "END:VEVENT"
+    ].join("\r\n");
 
     let storageItem = createEventFromIcalString(str);
 

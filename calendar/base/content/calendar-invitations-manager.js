@@ -71,7 +71,7 @@ function InvitationsManager() {
     window.addEventListener("unload", () => {
         // Unload handlers get removed automatically
         this.cancelInvitationsUpdate();
-    }, false);
+    });
 }
 
 InvitationsManager.prototype = {

@@ -65,10 +65,12 @@ calAlarm.prototype = {
             return;
         }
 
-        const objectMembers = ["mAbsoluteDate",
-                               "mOffset",
-                               "mDuration",
-                               "mLastAck"];
+        const objectMembers = [
+            "mAbsoluteDate",
+            "mOffset",
+            "mDuration",
+            "mLastAck"
+        ];
         for (let member of objectMembers) {
             if (this[member] && this[member].isMutable) {
                 this[member].makeImmutable();
@@ -95,19 +97,22 @@ calAlarm.prototype = {
 
         cloned.mImmutable = false;
 
-        const simpleMembers = ["mAction",
-                               "mSummary",
-                               "mDescription",
-                               "mRelated",
-                               "mRepeat"];
+        const simpleMembers = [
+            "mAction",
+            "mSummary",
+            "mDescription",
+            "mRelated",
+            "mRepeat"
+        ];
 
-        const arrayMembers = ["mAttendees",
-                              "mAttachments"];
+        const arrayMembers = ["mAttendees", "mAttachments"];
 
-        const objectMembers = ["mAbsoluteDate",
-                               "mOffset",
-                               "mDuration",
-                               "mLastAck"];
+        const objectMembers = [
+            "mAbsoluteDate",
+            "mOffset",
+            "mDuration",
+            "mLastAck"
+        ];
 
         for (let member of simpleMembers) {
             cloned[member] = this[member];

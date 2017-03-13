@@ -78,8 +78,6 @@ function publishEntireCalendar(aCalendar) {
     args.publishObject = publishObject;
     openDialog("chrome://calendar/content/publishDialog.xul", "caPublishEvents",
                "chrome,titlebar,modal,resizable", args);
-
-    return;
 }
 
 /**

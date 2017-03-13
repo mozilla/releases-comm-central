@@ -103,11 +103,14 @@ function handleTaskContextMenuStateChange(aEvent) {
  */
 function changeMenuForTask(aEvent) {
     // Make sure to update the status of some commands.
-    ["calendar_delete_todo_command",
-     "calendar_toggle_completed_command",
-     "calendar_general-progress_command",
-     "calendar_general-priority_command",
-     "calendar_general-postpone_command"].forEach(goUpdateCommand);
+    let commands = [
+        "calendar_delete_todo_command",
+        "calendar_toggle_completed_command",
+        "calendar_general-progress_command",
+        "calendar_general-priority_command",
+        "calendar_general-postpone_command"
+    ];
+    commands.forEach(goUpdateCommand);
 
     let tasks = getSelectedTasks(aEvent);
     let tasksSelected = (tasks.length > 0);

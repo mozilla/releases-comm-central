@@ -251,9 +251,9 @@ function addTestItems(aCalendar) {
     date.hour -= 47;
     [item, alarm] = createEventWithAlarm(aCalendar, date, date, "-PT15M", "RRULE:FREQ=DAILY");
     item.title="addTestItems Test 7";
-    alarmObserver.expectOccurrences(aCalendar, item, alarm,
-                                   [EXPECT_FIRED, EXPECT_FIRED, EXPECT_TIMER,
-                                    EXPECT_NONE, EXPECT_NONE]);
+    alarmObserver.expectOccurrences(aCalendar, item, alarm, [
+        EXPECT_FIRED, EXPECT_FIRED, EXPECT_TIMER, EXPECT_NONE, EXPECT_NONE
+    ]);
     aCalendar.addItem(item, null);
 
     // monthly repeating event starting 2 months and a day ago. The alarms on the first 2 occurrences

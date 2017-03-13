@@ -8,6 +8,8 @@
  *          rotateShowTimeAs, editShowTimeAs, updateShowTimeAs, editToDoStatus,
  *          postponeTask, toggleTimezoneLinks, toggleLink, attachURL,
  *          onCommandViewToolbar, onCommandCustomize, attachFileByAccountKey,
+ *          onUnloadLightningItemPanel, openNewEvent, openNewTask,
+ *          openNewMessage, openNewCardDialog
  */
 
 // XXX Need to determine which of these we really need here.
@@ -151,7 +153,7 @@ function receiveMessage(aEvent) {
     }
 }
 
-window.addEventListener("message", receiveMessage, false);
+window.addEventListener("message", receiveMessage);
 
 /**
  * Send an asynchronous message to an iframe.  Additional properties of
@@ -181,14 +183,13 @@ function sendMessage(aMessage, aIframeId) {
 function handleWindowClose(aResponse) {
     if (!aResponse) {
         // Cancel was clicked, just leave the window open. We're done.
-        return;
     } else if (gItemTabIdsCopy.length > 0) {
         // There are more unsaved changes in tabs to prompt the user about.
         let nextId = gItemTabIdsCopy.shift();
         sendMessage({ command: "closingWindowWithTabs", id: nextId }, nextId);
     } else {
         // Close the window, there are no more unsaved changes in tabs.
-        window.removeEventListener("close", windowCloseListener, false);
+        window.removeEventListener("close", windowCloseListener);
         window.close();
     }
 }
@@ -226,7 +227,7 @@ function onLoadLightningItemPanel(aIframeId, aUrl) {
         iframeSrc = aUrl;
 
         // Add a listener to detect close events, prompt user about saving changes.
-        window.addEventListener("close", windowCloseListener, false);
+        window.addEventListener("close", windowCloseListener);
     } else {
         // window dialog case
         iframe = document.createElement("iframe");
@@ -735,13 +736,17 @@ function editStatus(aTarget) {
  * @param {string} aArg.status  The new status value
  */
 function updateStatus(aArg) {
-    const statusLabels = ["status-status-tentative-label",
-                          "status-status-confirmed-label",
-                          "status-status-cancelled-label"];
-    const commands = ["cmd_status_none",
-                      "cmd_status_tentative",
-                      "cmd_status_confirmed",
-                      "cmd_status_cancelled"];
+    const statusLabels = [
+        "status-status-tentative-label",
+        "status-status-confirmed-label",
+        "status-status-cancelled-label"
+    ];
+    const commands = [
+        "cmd_status_none",
+        "cmd_status_tentative",
+        "cmd_status_confirmed",
+        "cmd_status_cancelled"
+    ];
     let found = false;
     setBooleanAttribute("status-status", "collapsed", true);
     commands.forEach((aElement, aIndex, aArray) => {

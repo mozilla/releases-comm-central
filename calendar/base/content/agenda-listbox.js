@@ -55,7 +55,7 @@ agendaListbox.init = function() {
     window.addEventListener("unload", () => {
         Services.prefs.removeObserver("calendar.agendaListbox", prefObserver);
         this.uninit();
-    }, false);
+    });
 };
 
 /**
@@ -1102,7 +1102,7 @@ function scheduleNextCurrentEventUpdate(aRefreshCallback, aMsUntil) {
         // Remove observer on unload
         window.addEventListener("unload", () => {
             Services.obs.removeObserver(wakeObserver, "wake_notification");
-        }, false);
+        });
 
         gEventTimer = Components.classes["@mozilla.org/timer;1"]
                                    .createInstance(Components.interfaces.nsITimer);

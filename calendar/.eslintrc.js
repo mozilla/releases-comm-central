@@ -1,9 +1,6 @@
 "use strict";
 
 module.exports = {
-    "extends": [
-        "../mozilla/toolkit/.eslintrc.js"
-    ],
     "rules": {
         // Enforce one true brace style (opening brace on the same line)
         // Allow single line (for now) because of the vast number of changes needed
@@ -24,6 +21,9 @@ module.exports = {
 
         // Enforce one true comma style.
         "comma-style": [2, "last"],
+
+        // We should get better at complexity, but at the moment it is what it is
+        "complexity": [2, 81],
 
         // Enforce curly brace conventions for all control statements.
         "curly": 2,
@@ -157,6 +157,7 @@ module.exports = {
         // Require spaces around operators, except for a|0.
         // Disabled for now given eslint doesn't support default args yet
         // "space-infix-ops": [2, { "int32Hint": true }],
+        "space-infix-ops": 0,
 
         // Require a space around all keywords.
         "keyword-spacing": 2,
@@ -291,6 +292,9 @@ module.exports = {
         // Disallow Initializing to undefined
         "no-undef-init": 2,
 
+        // Don't Disallow Undeclared Variables (for now)
+        "no-undef": 0,
+
         // Disallow control flow statements in finally blocks
         "no-unsafe-finally": 2,
 
@@ -401,6 +405,9 @@ module.exports = {
 
         // Enforce consistent line breaks inside braces
         "object-curly-newline": [2, { multiline: true }],
+
+        // Require Object Literal Shorthand Syntax (consistent for now)
+        "object-shorthand": [2, "consistent"],
 
         // Disallow whitespace before properties
         "no-whitespace-before-property": 2,

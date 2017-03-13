@@ -46,10 +46,10 @@ function serializeEvent_test() {
               "END:VEVENT\n" +
               "END:VCALENDAR\n";
 
-    let expectedIds = ["mailto:user2@example.net",
-                       "mailto:user3@example.net",
-                       "mailto:user4@example.net",
-                       "urn:uuid:user5"];
+    let expectedIds = [
+        "mailto:user2@example.net", "mailto:user3@example.net",
+        "mailto:user4@example.net", "urn:uuid:user5"
+    ];
     let event = createEventFromIcalString(ics);
     let attendees = event.getAttendees({});
 

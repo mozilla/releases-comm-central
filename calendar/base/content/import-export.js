@@ -113,14 +113,11 @@ function loadEventsFromFile(aCalendar) {
         let calendars = cal.getCalendarManager().getCalendars({});
         calendars = calendars.filter(cal.isCalendarWritable);
 
-        if (calendars.length < 1) {
-            // XXX alert something?
-            return;
-        } else if (calendars.length == 1) {
+        if (calendars.length == 1) {
             // There's only one calendar, so it's silly to ask what calendar
             // the user wants to import into.
             putItemsIntoCal(calendars[0], items, filePath);
-        } else {
+        } else if (calendars.length > 1) {
             // Ask what calendar to import into
             let args = {};
             args.onOk = (aCal) => { putItemsIntoCal(aCal, items, filePath); };

@@ -86,29 +86,33 @@ function test_rules() {
                                      "Tue 2nd April 2002\n" +
                          "RRULE:FREQ=WEEKLY;INTERVAL=1;COUNT=6;BYDAY=TU,WE\n" +
                          "DTSTART:20020402T114500\n" +
-                         "DTEND:20020402T124500\n"),
-                         ["20020402T114500", "20020403T114500", "20020409T114500",
-                          "20020410T114500", "20020416T114500", "20020417T114500"]);
+                         "DTEND:20020402T124500\n"), [
+                             "20020402T114500", "20020403T114500",
+                             "20020409T114500", "20020410T114500",
+                             "20020416T114500", "20020417T114500"]);
+
     check_recur(makeEvent("DESCRIPTION:Repeat every thursday starting Tue 2nd April 2002\n" +
                          "RRULE:FREQ=WEEKLY;INTERVAL=1;COUNT=6;BYDAY=TH\n" +
                          "DTSTART:20020402T114500\n" +
-                         "DTEND:20020402T124500\n"),
-                         ["20020402T114500", // DTSTART part of the resulting set
-                          "20020404T114500", "20020411T114500", "20020418T114500",
-                          "20020425T114500", "20020502T114500", "20020509T114500"]);
+                         "DTEND:20020402T124500\n"), [
+                             "20020402T114500", // DTSTART part of the resulting set
+                             "20020404T114500", "20020411T114500", "20020418T114500",
+                             "20020425T114500", "20020502T114500", "20020509T114500"]);
+
     // Bug 469840 -  Recurring Sundays incorrect
     check_recur(makeEvent("DESCRIPTION:RRULE:FREQ=WEEKLY;INTERVAL=2;COUNT=6;BYDAY=WE,SA,SU with DTSTART:20081217T133000\n" +
                          "RRULE:FREQ=WEEKLY;INTERVAL=2;COUNT=6;BYDAY=WE,SA,SU\n" +
                          "DTSTART:20081217T133000\n" +
-                         "DTEND:20081217T143000\n"),
-               ["20081217T133000", "20081220T133000", "20081221T133000",
-                "20081231T133000", "20090103T133000", "20090104T133000"]);
+                         "DTEND:20081217T143000\n"), [
+                             "20081217T133000", "20081220T133000", "20081221T133000",
+                             "20081231T133000", "20090103T133000", "20090104T133000"]);
+
     check_recur(makeEvent("DESCRIPTION:RRULE:FREQ=WEEKLY;INTERVAL=2;COUNT=6;WKST=SU;BYDAY=WE,SA,SU with DTSTART:20081217T133000\n" +
                          "RRULE:FREQ=WEEKLY;INTERVAL=2;COUNT=6;WKST=SU;BYDAY=WE,SA,SU\n" +
                          "DTSTART:20081217T133000\n" +
-                         "DTEND:20081217T143000\n"),
-               ["20081217T133000", "20081220T133000", "20081228T133000",
-                "20081231T133000", "20090103T133000", "20090111T133000"]);
+                         "DTEND:20081217T143000\n"), [
+                             "20081217T133000", "20081220T133000", "20081228T133000",
+                             "20081231T133000", "20090103T133000", "20090111T133000"]);
 
     // bug 353797: occurrences for repeating all day events should stay "all-day"
     check_recur(makeEvent("DESCRIPTION:Allday repeat every thursday starting Tue 2nd April 2002\n" +
@@ -129,17 +133,17 @@ function test_rules() {
     check_recur(makeEvent("DESCRIPTION:Every 11th & 31st of every Month\n" +
                 "RRULE:FREQ=MONTHLY;COUNT=6;BYMONTHDAY=11,31\n" +
                 "DTSTART:20130731T160000\n" +
-                "DTEND:20130731T170000)\n"),
-                ["20130731T160000", "20130811T160000", "20130831T160000",
-                 "20130911T160000", "20131011T160000", "20131031T160000"]);
+                "DTEND:20130731T170000)\n"), [
+                    "20130731T160000", "20130811T160000", "20130831T160000",
+                    "20130911T160000", "20131011T160000", "20131031T160000"]);
 
     // bug 899770: Monthly Recurrences with BYDAY and BYMONTHDAY with more than 2 dates are not working
     check_recur(makeEvent("DESCRIPTION:Every WE & SA the 6th, 20th & 31st\n" +
                 "RRULE:FREQ=MONTHLY;COUNT=6;BYDAY=WE,SA;BYMONTHDAY=6,20,31\n" +
                 "DTSTART:20130706T160000\n" +
-                "DTEND:20130706T170000)\n"),
-                ["20130706T160000", "20130720T160000", "20130731T160000",
-                 "20130831T160000", "20131106T160000", "20131120T160000"]);
+                "DTEND:20130706T170000)\n"), [
+                    "20130706T160000", "20130720T160000", "20130731T160000",
+                    "20130831T160000", "20131106T160000", "20131120T160000"]);
 
     check_recur(makeEvent("DESCRIPTION:Every day, use exdate to exclude the second day\n" +
                          "RRULE:FREQ=DAILY;COUNT=3\n" +
@@ -176,29 +180,32 @@ function test_rules() {
                true); // ignore next occ check, bug 455490
 
     check_recur(createEventFromIcalString("BEGIN:VCALENDAR\nBEGIN:VEVENT\n" +
-                                         "UID:123\n" +
-                                         "DESCRIPTION:Every day, exception put on exdated start day\n" +
-                                         "RRULE:FREQ=DAILY;COUNT=3\n" +
-                                         "DTSTART:20020402T114500Z\n" +
-                                         "EXDATE:20020402T114500Z\n" +
-                                         "END:VEVENT\n" +
-                                         "BEGIN:VEVENT\n" +
-                                         "DTSTART:20020402T114500Z\n" +
-                                         "UID:123\n" +
-                                         "RECURRENCE-ID:20020404T114500Z\n" +
-                                         "END:VEVENT\nEND:VCALENDAR\n"),
+                                          "UID:123\n" +
+                                          "DESCRIPTION:Every day, exception put on exdated start day\n" +
+                                          "RRULE:FREQ=DAILY;COUNT=3\n" +
+                                          "DTSTART:20020402T114500Z\n" +
+                                          "EXDATE:20020402T114500Z\n" +
+                                          "END:VEVENT\n" +
+                                          "BEGIN:VEVENT\n" +
+                                          "DTSTART:20020402T114500Z\n" +
+                                          "UID:123\n" +
+                                          "RECURRENCE-ID:20020404T114500Z\n" +
+                                          "END:VEVENT\nEND:VCALENDAR\n"),
                ["20020402T114500Z", "20020403T114500Z"],
                true /* ignore next occ check, bug 455490 */);
 
     check_recur(createEventFromIcalString("BEGIN:VCALENDAR\nBEGIN:VEVENT\n" +
-                                         "DESCRIPTION:Repeat Daily on weekdays with UNTIL\n" +
-                                         "RRULE:FREQ=DAILY;UNTIL=20111217T220000Z;BYDAY=MO,TU,WE,TH,FR\n" +
-                                         "DTSTART:20111212T220000Z\n" +
-                                         "DTEND:20111212T230000Z\n" +
-                                         "END:VEVENT\nEND:VCALENDAR\n"),
-               ["20111212T220000Z", "20111213T220000Z", "20111214T220000Z", "20111215T220000Z",
-                "20111216T220000Z"],
-               false);
+                                          "DESCRIPTION:Repeat Daily on weekdays with UNTIL\n" +
+                                          "RRULE:FREQ=DAILY;UNTIL=20111217T220000Z;BYDAY=MO,TU,WE,TH,FR\n" +
+                                          "DTSTART:20111212T220000Z\n" +
+                                          "DTEND:20111212T230000Z\n" +
+                                          "END:VEVENT\nEND:VCALENDAR\n"), [
+                                              "20111212T220000Z",
+                                              "20111213T220000Z",
+                                              "20111214T220000Z",
+                                              "20111215T220000Z",
+                                              "20111216T220000Z"
+                                          ], false);
 
     check_recur(createEventFromIcalString("BEGIN:VCALENDAR\nBEGIN:VEVENT\n" +
                                          "DESCRIPTION:Repeat Daily on weekdays with UNTIL and exception\n" +
@@ -206,9 +213,12 @@ function test_rules() {
                                          "EXDATE:20111214T220000Z\n" +
                                          "DTSTART:20111212T220000Z\n" +
                                          "DTEND:20111212T230000Z\n" +
-                                         "END:VEVENT\nEND:VCALENDAR\n"),
-               ["20111212T220000Z", "20111213T220000Z", "20111215T220000Z", "20111216T220000Z"],
-               false);
+                                         "END:VEVENT\nEND:VCALENDAR\n"), [
+                                             "20111212T220000Z",
+                                             "20111213T220000Z",
+                                             "20111215T220000Z",
+                                             "20111216T220000Z"
+                                         ], false);
 
     // Bug 958978: Yearly recurrence, the last day of a specified month.
     check_recur(createEventFromIcalString("BEGIN:VCALENDAR\nBEGIN:VEVENT\n" +
@@ -216,10 +226,14 @@ function test_rules() {
                                           "RRULE:FREQ=YEARLY;COUNT=6;BYMONTHDAY=-1;BYMONTH=2\n" +
                                           "DTSTART:20140228T220000Z\n" +
                                           "DTEND:20140228T230000Z\n" +
-                                          "END:VEVENT\nEND:VCALENDAR\n"),
-                ["20140228T220000Z", "20150228T220000Z", "20160229T220000Z",
-                 "20170228T220000Z", "20180228T220000Z", "20190228T220000Z"],
-                false);
+                                          "END:VEVENT\nEND:VCALENDAR\n"), [
+                                              "20140228T220000Z",
+                                              "20150228T220000Z",
+                                              "20160229T220000Z",
+                                              "20170228T220000Z",
+                                              "20180228T220000Z",
+                                              "20190228T220000Z"
+                                          ], false);
 
     // Bug 958978: Yearly recurrence, the last day of a not specified month.
     check_recur(createEventFromIcalString("BEGIN:VCALENDAR\nBEGIN:VEVENT\n" +
@@ -227,10 +241,14 @@ function test_rules() {
                                           "RRULE:FREQ=YEARLY;COUNT=6;BYMONTHDAY=-1\n" +
                                           "DTSTART:20140430T220000Z\n" +
                                           "DTEND:20140430T230000Z\n" +
-                                          "END:VEVENT\nEND:VCALENDAR\n"),
-                ["20140430T220000Z", "20150430T220000Z", "20160430T220000Z",
-                 "20170430T220000Z", "20180430T220000Z", "20190430T220000Z"],
-                false);
+                                          "END:VEVENT\nEND:VCALENDAR\n"), [
+                                              "20140430T220000Z",
+                                              "20150430T220000Z",
+                                              "20160430T220000Z",
+                                              "20170430T220000Z",
+                                              "20180430T220000Z",
+                                              "20190430T220000Z"
+                                          ], false);
 
     // Bug 958978 - Check a yearly recurrence on every WE and FR of January and March
     //              (more BYMONTH and more BYDAY).
@@ -240,13 +258,26 @@ function test_rules() {
                                          "RRULE:FREQ=YEARLY;COUNT=18;BYMONTH=1,3;BYDAY=WE,FR\n" +
                                          "DTSTART:20140101T150000Z\n" +
                                          "DTEND:20140101T160000Z\n" +
-                                         "END:VEVENT\nEND:VCALENDAR\n"),
-               ["20140101T150000Z", "20140103T150000Z", "20140108T150000Z", "20140110T150000Z",
-                "20140115T150000Z", "20140117T150000Z", "20140122T150000Z", "20140124T150000Z",
-                "20140129T150000Z", "20140131T150000Z",
-                "20140305T150000Z", "20140307T150000Z", "20140312T150000Z", "20140314T150000Z",
-                "20140319T150000Z", "20140321T150000Z", "20140326T150000Z", "20140328T150000Z"],
-               false);
+                                         "END:VEVENT\nEND:VCALENDAR\n"), [
+                                             "20140101T150000Z",
+                                             "20140103T150000Z",
+                                             "20140108T150000Z",
+                                             "20140110T150000Z",
+                                             "20140115T150000Z",
+                                             "20140117T150000Z",
+                                             "20140122T150000Z",
+                                             "20140124T150000Z",
+                                             "20140129T150000Z",
+                                             "20140131T150000Z",
+                                             "20140305T150000Z",
+                                             "20140307T150000Z",
+                                             "20140312T150000Z",
+                                             "20140314T150000Z",
+                                             "20140319T150000Z",
+                                             "20140321T150000Z",
+                                             "20140326T150000Z",
+                                             "20140328T150000Z"
+                                         ], false);
 
     // Bug 958978 - Check a yearly recurrence every day of January (BYMONTH and more BYDAY).
     // Check for all the occurrences in the first year.
@@ -270,11 +301,16 @@ function test_rules() {
                                          "RRULE:FREQ=MONTHLY;COUNT=8;BYDAY=3MO,WE,FR\n" +
                                          "DTSTART:20150102T080000Z\n" +
                                          "DTEND:20150102T090000Z\n" +
-                                         "END:VEVENT\nEND:VCALENDAR\n"),
-               ["20150102T080000Z", "20150107T080000Z", "20150109T080000Z",
-                "20150114T080000Z", "20150116T080000Z", "20150119T080000Z",
-                "20150121T080000Z", "20150123T080000Z"],
-               false);
+                                         "END:VEVENT\nEND:VCALENDAR\n"), [
+                                             "20150102T080000Z",
+                                             "20150107T080000Z",
+                                             "20150109T080000Z",
+                                             "20150114T080000Z",
+                                             "20150116T080000Z",
+                                             "20150119T080000Z",
+                                             "20150121T080000Z",
+                                             "20150123T080000Z"
+                                         ], false);
 
     // Bug 419490 - Monthly recurrence, the fifth Saturday starting from February.
     // Check a monthly rule that specifies a day that is not part of the month
@@ -284,11 +320,11 @@ function test_rules() {
                                          "RRULE:FREQ=MONTHLY;COUNT=6;BYDAY=5SA\n" +
                                          "DTSTART:20150202T080000Z\n" +
                                          "DTEND:20150202T090000Z\n" +
-                                         "END:VEVENT\nEND:VCALENDAR\n"),
-               ["20150202T080000Z",
-                "20150530T080000Z", "20150829T080000Z", "20151031T080000Z",
-                "20160130T080000Z", "20160430T080000Z", "20160730T080000Z"],
-               false);
+                                         "END:VEVENT\nEND:VCALENDAR\n"), [
+                                             "20150202T080000Z", "20150530T080000Z", "20150829T080000Z",
+                                             "20151031T080000Z", "20160130T080000Z", "20160430T080000Z",
+                                             "20160730T080000Z"
+                                         ], false);
 
     // Bug 419490 - Monthly recurrence, the fifth Wednesday every two months starting from February.
     // Check a monthly rule that specifies a day that is not part of the month
@@ -298,11 +334,11 @@ function test_rules() {
                                          "RRULE:FREQ=MONTHLY;INTERVAL=2;COUNT=6;BYDAY=5FR\n" +
                                          "DTSTART:20150202T080000Z\n" +
                                          "DTEND:20150202T090000Z\n" +
-                                         "END:VEVENT\nEND:VCALENDAR\n"),
-               ["20150202T080000Z",
-                "20151030T080000Z", "20160429T080000Z", "20161230T080000Z",
-                "20170630T080000Z", "20171229T080000Z", "20180629T080000Z"],
-               false);
+                                         "END:VEVENT\nEND:VCALENDAR\n"), [
+                                             "20150202T080000Z", "20151030T080000Z", "20160429T080000Z",
+                                             "20161230T080000Z", "20170630T080000Z", "20171229T080000Z",
+                                             "20180629T080000Z"
+                                         ], false);
 
     // Bugs 419490, 958974 - Monthly recurrence, the 2nd Monday, 5th Wednesday and the 5th to last Saturday every month starting from February.
     // Check a monthly rule that specifies a day that is not part of the month
@@ -312,11 +348,11 @@ function test_rules() {
                                          "RRULE:FREQ=MONTHLY;COUNT=7;BYDAY=2MO,-5WE,5SA\n" +
                                          "DTSTART:20150401T080000Z\n" +
                                          "DTEND:20150401T090000Z\n" +
-                                         "END:VEVENT\nEND:VCALENDAR\n"),
-               ["20150401T080000Z",
-                "20150413T080000Z", "20150511T080000Z", "20150530T080000Z",
-                "20150608T080000Z", "20150701T080000Z", "20150713T080000Z"],
-               false);
+                                         "END:VEVENT\nEND:VCALENDAR\n"), [
+                                             "20150401T080000Z", "20150413T080000Z", "20150511T080000Z",
+                                             "20150530T080000Z", "20150608T080000Z", "20150701T080000Z",
+                                             "20150713T080000Z"
+                                         ], false);
 
     // Bug 1146500 - Monthly recurrence, every MO and FR when are odd days starting from the 1st of March.
     // Check the first occurrence when we have BYDAY along with BYMONTHDAY.
@@ -325,10 +361,10 @@ function test_rules() {
                                          "RRULE:FREQ=MONTHLY;BYDAY=MO,FR;BYMONTHDAY=1,3,5,7,9,11,13,15,17,19,21,23,25,27,29,31;COUNT=4\n" +
                                          "DTSTART:20150301T080000Z\n" +
                                          "DTEND:20150301T090000Z\n" +
-                                         "END:VEVENT\nEND:VCALENDAR\n"),
-               ["20150301T080000Z",
-                "20150309T080000Z", "20150313T080000Z", "20150323T080000Z", "20150327T080000Z"],
-               false);
+                                         "END:VEVENT\nEND:VCALENDAR\n"), [
+                                             "20150301T080000Z", "20150309T080000Z", "20150313T080000Z",
+                                             "20150323T080000Z", "20150327T080000Z"
+                                         ], false);
 
     // Bug 1146500 - Monthly recurrence, every MO and FR when are odd days starting from the 1st of April.
     // Check the first occurrence when we have BYDAY along with BYMONTHDAY.
@@ -337,10 +373,10 @@ function test_rules() {
                                          "RRULE:FREQ=MONTHLY;BYDAY=MO,FR;BYMONTHDAY=1,3,5,7,9,11,13,15,17,19,21,23,25,27,29,31;COUNT=4\n" +
                                          "DTSTART:20150401T080000Z\n" +
                                          "DTEND:20150401T090000Z\n" +
-                                         "END:VEVENT\nEND:VCALENDAR\n"),
-               ["20150401T080000Z",
-                "20150403T080000Z", "20150413T080000Z", "20150417T080000Z", "20150427T080000Z"],
-               false);
+                                         "END:VEVENT\nEND:VCALENDAR\n"), [
+                                             "20150401T080000Z", "20150403T080000Z", "20150413T080000Z",
+                                             "20150417T080000Z", "20150427T080000Z"
+                                         ], false);
 
     // Bug 1146500 - Monthly recurrence, every MO and FR when are odd days starting from the 1st of April.
     // Check the first occurrence when we have BYDAY along with BYMONTHDAY.
@@ -349,10 +385,10 @@ function test_rules() {
                                          "RRULE:FREQ=MONTHLY;BYDAY=MO,SA;BYMONTHDAY=1,3,5,7,9,11,13,15,17,19,21,23,25,27,29,31;COUNT=4\n" +
                                          "DTSTART:20150401T080000Z\n" +
                                          "DTEND:20150401T090000Z\n" +
-                                         "END:VEVENT\nEND:VCALENDAR\n"),
-               ["20150401T080000Z",
-                "20150411T080000Z", "20150413T080000Z", "20150425T080000Z", "20150427T080000Z"],
-               false);
+                                         "END:VEVENT\nEND:VCALENDAR\n"), [
+                                             "20150401T080000Z", "20150411T080000Z", "20150413T080000Z",
+                                             "20150425T080000Z", "20150427T080000Z"
+                                         ], false);
 
     // Bug 1146500 - Monthly every SU and FR when are odd days starting from 28 of February (BYDAY and BYMONTHDAY).
     // Check the first occurrence when we have BYDAY along with BYMONTHDAY.
@@ -361,12 +397,12 @@ function test_rules() {
                                          "RRULE:FREQ=MONTHLY;BYDAY=SU,FR;BYMONTHDAY=1,3,5,7,9,11,13,15,17,19,21,23,25,27,29,31;COUNT=9\n" +
                                          "DTSTART:20150228T080000Z\n" +
                                          "DTEND:20150228T090000Z\n" +
-                                         "END:VEVENT\nEND:VCALENDAR\n"),
-               ["20150228T080000Z",
-                "20150301T080000Z", "20150313T080000Z", "20150315T080000Z", "20150327T080000Z",
-                "20150329T080000Z", "20150403T080000Z", "20150405T080000Z", "20150417T080000Z",
-                "20150419T080000Z"],
-               false);
+                                         "END:VEVENT\nEND:VCALENDAR\n"), [
+                                             "20150228T080000Z", "20150301T080000Z", "20150313T080000Z",
+                                             "20150315T080000Z", "20150327T080000Z", "20150329T080000Z",
+                                             "20150403T080000Z", "20150405T080000Z", "20150417T080000Z",
+                                             "20150419T080000Z"
+                                         ], false);
 
     // Bug 1103187 - Monthly recurrence with only MONTHLY tag in the rule. Recurrence day taken
     // from the start date. Check four occurrences.
@@ -375,9 +411,10 @@ function test_rules() {
                                           "RRULE:FREQ=MONTHLY;COUNT=4\n" +
                                           "DTSTART:20160404T080000Z\n" +
                                           "DTEND:20160404T090000Z\n" +
-                                          "END:VEVENT\nEND:VCALENDAR\n"),
-               ["20160404T080000Z", "20160504T080000Z", "20160604T080000Z", "20160704T080000Z"],
-               false);
+                                          "END:VEVENT\nEND:VCALENDAR\n"), [
+                                              "20160404T080000Z", "20160504T080000Z", "20160604T080000Z",
+                                              "20160704T080000Z"
+                                          ], false);
 
     // Bug 1265554 - Monthly recurrence with only MONTHLY tag in the rule. Recurrence on the 31st
     // of the month. Check for 6 occurrences.
@@ -386,10 +423,10 @@ function test_rules() {
                                           "RRULE:FREQ=MONTHLY;COUNT=6\n" +
                                           "DTSTART:20160131T150000Z\n" +
                                           "DTEND:20160131T160000Z\n" +
-                                          "END:VEVENT\nEND:VCALENDAR\n"),
-               ["20160131T150000Z", "20160331T150000Z", "20160531T150000Z",
-                "20160731T150000Z", "20160831T150000Z", "20161031T150000Z"],
-               false);
+                                          "END:VEVENT\nEND:VCALENDAR\n"), [
+                                              "20160131T150000Z", "20160331T150000Z", "20160531T150000Z",
+                                              "20160731T150000Z", "20160831T150000Z", "20161031T150000Z"
+                                          ], false);
 
     // Bug 1265554 - Monthly recurrence with only MONTHLY tag in the rule. Recurrence on the 31st
     // of the month every two months. Check for 6 occurrences.
@@ -398,10 +435,10 @@ function test_rules() {
                                           "RRULE:FREQ=MONTHLY;INTERVAL=2;COUNT=6\n" +
                                           "DTSTART:20151231T150000Z\n" +
                                           "DTEND:20151231T160000Z\n" +
-                                          "END:VEVENT\nEND:VCALENDAR\n"),
-               ["20151231T150000Z", "20160831T150000Z", "20161031T150000Z",
-                "20161231T150000Z", "20170831T150000Z", "20171031T150000Z"],
-               false);
+                                          "END:VEVENT\nEND:VCALENDAR\n"), [
+                                              "20151231T150000Z", "20160831T150000Z", "20161031T150000Z",
+                                              "20161231T150000Z", "20170831T150000Z", "20171031T150000Z"
+                                          ], false);
 
     let item, occ1;
     item = makeEvent("DESCRIPTION:occurrence on day 1 moved between the occurrences " +

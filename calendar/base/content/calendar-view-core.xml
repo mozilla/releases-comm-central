@@ -299,7 +299,6 @@
 
           this.eventNameTextbox.setAttribute("hidden", "true");
           this.eventNameLabel.removeAttribute("hidden");
-          return;
         ]]></body>
       </method>
     </implementation>

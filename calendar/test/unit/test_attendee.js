@@ -50,8 +50,9 @@ function test_values() {
     // Create Attendee
     let attendee1 = cal.createAttendee();
     // Testing attendee set/get.
-    let properties = ["id", "commonName", "rsvp", "role", "participationStatus",
-                      "userType"];
+    let properties = [
+        "id", "commonName", "rsvp", "role", "participationStatus", "userType"
+    ];
     let values = ["myid", "mycn", "TRUE", "CHAIR", "DECLINED", "RESOURCE"];
     // Make sure test is valid
     equal(properties.length, values.length);

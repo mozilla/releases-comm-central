@@ -298,4 +298,4 @@ function taskViewCopyLink(linkNode) {
     }
 }
 
-window.addEventListener("load", taskViewOnLoad, false);
+window.addEventListener("load", taskViewOnLoad);

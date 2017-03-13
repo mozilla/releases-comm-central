@@ -11,12 +11,14 @@ function run_test() {
 
     storage.setProperty("capabilities.propagate-sequence", "true");
 
-    let str = ["BEGIN:VEVENT",
-               "UID:recItem",
-               "SEQUENCE:3",
-               "RRULE:FREQ=WEEKLY",
-               "DTSTART:20120101T010101Z",
-               "END:VEVENT"].join("\r\n");
+    let str = [
+        "BEGIN:VEVENT",
+        "UID:recItem",
+        "SEQUENCE:3",
+        "RRULE:FREQ=WEEKLY",
+        "DTSTART:20120101T010101Z",
+        "END:VEVENT"
+    ].join("\r\n");
 
     let item = createEventFromIcalString(str);
     let rid = cal.createDateTime("20120101T010101Z");

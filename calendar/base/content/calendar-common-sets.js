@@ -436,11 +436,9 @@ var calendarController = {
                     // If calendar is not in foreground, let the default controller take
                     // care. If we don't have a default controller, just continue.
                     this.defaultController.doCommand(aCommand);
-                    return;
                 }
 
         }
-        return;
     },
 
     onEvent: function(aEvent) {
@@ -900,11 +898,15 @@ function calendarUpdateNewItemsCommand() {
     let oldTaskValue = CalendarNewTasksCommandEnabled;
 
     // define command set to update
-    let eventCommands = ["calendar_new_event_command",
-                         "calendar_new_event_context_command"];
-    let taskCommands = ["calendar_new_todo_command",
-                        "calendar_new_todo_context_command",
-                        "calendar_new_todo_todaypane_command"];
+    let eventCommands = [
+        "calendar_new_event_command",
+        "calendar_new_event_context_command"
+    ];
+    let taskCommands = [
+        "calendar_new_todo_command",
+        "calendar_new_todo_context_command",
+        "calendar_new_todo_todaypane_command"
+    ];
 
     // re-calculate command status
     CalendarNewEventsCommandEnabled = false;
@@ -939,11 +941,13 @@ function calendarUpdateDeleteCommand(selectedItems) {
     }
 
     if (CalendarDeleteCommandEnabled != oldValue) {
-        let commands = ["calendar_delete_event_command",
-                        "calendar_delete_todo_command",
-                        "calendar_delete_focused_item_command",
-                        "button_delete",
-                        "cmd_delete"];
+        let commands = [
+            "calendar_delete_event_command",
+            "calendar_delete_todo_command",
+            "calendar_delete_focused_item_command",
+            "button_delete",
+            "cmd_delete"
+        ];
         for (let command of commands) {
             goUpdateCommand(command);
         }

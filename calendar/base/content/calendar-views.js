@@ -213,20 +213,26 @@ function switchToView(aViewType) {
     }
 
     // Set up the labels and accesskeys for the context menu
-    ["calendar-view-context-menu-next",
-     "calendar-view-context-menu-previous",
-     "calendar-go-menu-next",
-     "calendar-go-menu-previous",
-     "appmenu_calendar-go-menu-next",
-     "appmenu_calendar-go-menu-previous"].forEach((x) => {
-         setupViewNode(x, "label");
-         setupViewNode(x, "accesskey");
-     });
+    let ids = [
+        "calendar-view-context-menu-next",
+        "calendar-view-context-menu-previous",
+        "calendar-go-menu-next",
+        "calendar-go-menu-previous",
+        "appmenu_calendar-go-menu-next",
+        "appmenu_calendar-go-menu-previous"
+    ];
+    ids.forEach((x) => {
+        setupViewNode(x, "label");
+        setupViewNode(x, "accesskey");
+    });
 
     // Set up the labels for the view navigation
-    ["previous-view-button",
-     "today-view-button",
-     "next-view-button"].forEach(x => setupViewNode(x, "tooltiptext"));
+    ids = [
+        "previous-view-button",
+        "today-view-button",
+        "next-view-button"
+    ];
+    ids.forEach(x => setupViewNode(x, "tooltiptext"));
 
     try {
         selectedDay = viewDeck.selectedPanel.selectedDay;
@@ -340,7 +346,7 @@ function scheduleMidnightUpdate(aRefreshCallback) {
         // Remove observer on unload
         window.addEventListener("unload", () => {
             Services.obs.removeObserver(wakeObserver, "wake_notification");
-        }, false);
+        });
         gMidnightTimer = Components.classes["@mozilla.org/timer;1"]
                                    .createInstance(Components.interfaces.nsITimer);
     }

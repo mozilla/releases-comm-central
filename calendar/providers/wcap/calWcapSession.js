@@ -839,7 +839,7 @@ calWcapSession.prototype = {
         let alarmEmails = this.getUserPreferences("X-NSCP-WCAP-PREF-ceDefaultAlarmEmail");
         if (alarmEmails.length > 0 && alarmEmails[0].length > 0) {
             for (let email of alarmEmails) {
-                ret = ret.concat(email.split(/[;,]/).map(email => email.trim()));
+                ret = ret.concat(email.split(/[;,]/).map(mail => mail.trim()));
             }
         }
         out_count.value = ret.length;
@@ -1042,19 +1042,21 @@ calWcapSession.prototype = {
                 assureDefault("shared_context", this.m_contextId);
                 assureDefault("name", aCalendar.name);
 
-                const s_colors = ["#FFCCCC", "#FFCC99", "#FFFF99", "#FFFFCC", "#99FF99",
-                                  "#99FFFF", "#CCFFFF", "#CCCCFF", "#FFCCFF", "#FF6666",
-                                  "#FF9966", "#FFFF66", "#FFFF33", "#66FF99", "#33FFFF",
-                                  "#66FFFF", "#9999FF", "#FF99FF", "#FF0000", "#FF9900",
-                                  "#FFCC66", "#FFFF00", "#33FF33", "#66CCCC", "#33CCFF",
-                                  "#6666CC", "#CC66CC", "#CC0000", "#FF6600", "#FFCC33",
-                                  "#FFCC00", "#33CC00", "#00CCCC", "#3366FF", "#6633FF",
-                                  "#CC33CC", "#990000", "#CC6600", "#CC9933", "#999900",
-                                  "#009900", "#339999", "#3333FF", "#6600CC", "#993399",
-                                  "#660000", "#993300", "#996633", "#666600", "#006600",
-                                  "#336666", "#000099", "#333399", "#663366", "#330000",
-                                  "#663300", "#663333", "#333300", "#003300", "#003333",
-                                  "#000066", "#330099", "#330033"];
+                const s_colors = [
+                    "#FFCCCC", "#FFCC99", "#FFFF99", "#FFFFCC", "#99FF99",
+                    "#99FFFF", "#CCFFFF", "#CCCCFF", "#FFCCFF", "#FF6666",
+                    "#FF9966", "#FFFF66", "#FFFF33", "#66FF99", "#33FFFF",
+                    "#66FFFF", "#9999FF", "#FF99FF", "#FF0000", "#FF9900",
+                    "#FFCC66", "#FFFF00", "#33FF33", "#66CCCC", "#33CCFF",
+                    "#6666CC", "#CC66CC", "#CC0000", "#FF6600", "#FFCC33",
+                    "#FFCC00", "#33CC00", "#00CCCC", "#3366FF", "#6633FF",
+                    "#CC33CC", "#990000", "#CC6600", "#CC9933", "#999900",
+                    "#009900", "#339999", "#3333FF", "#6600CC", "#993399",
+                    "#660000", "#993300", "#996633", "#666600", "#006600",
+                    "#336666", "#000099", "#333399", "#663366", "#330000",
+                    "#663300", "#663333", "#333300", "#003300", "#003333",
+                    "#000066", "#330099", "#330033"
+                ];
                 assureDefault("color", s_colors[(new Date()).getUTCMilliseconds() % s_colors.length]);
             }
         } catch (exc) { // never break the listener chain

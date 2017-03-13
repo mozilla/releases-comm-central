@@ -123,16 +123,17 @@ var gAlarmsPane = {
      * playing a sound.
      */
     alarmsPlaySoundPrefChanged: function() {
-        let alarmsPlaySoundPref =
-            document.getElementById("calendar.alarms.playsound");
+        let alarmsPlaySoundPref = document.getElementById("calendar.alarms.playsound");
 
-        let items = [document.getElementById("alarmSoundFileField"),
-                     document.getElementById("calendar.prefs.alarm.sound.useDefault"),
-                     document.getElementById("calendar.prefs.alarm.sound.browse"),
-                     document.getElementById("calendar.prefs.alarm.sound.play")];
+        let items = [
+            document.getElementById("alarmSoundFileField"),
+            document.getElementById("calendar.prefs.alarm.sound.useDefault"),
+            document.getElementById("calendar.prefs.alarm.sound.browse"),
+            document.getElementById("calendar.prefs.alarm.sound.play")
+        ];
 
-        for (let i = 0; i < items.length; i++) {
-            items[i].disabled = !alarmsPlaySoundPref.value;
+        for (let item of items) {
+            item.disabled = !alarmsPlaySoundPref.value;
         }
     }
 };

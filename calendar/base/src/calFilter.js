@@ -181,9 +181,11 @@ calFilter.prototype = {
      * Initializes the predefined filters.
      */
     initDefinedFilters: function() {
-        let filters = ["all", "notstarted", "overdue", "open", "completed", "throughcurrent",
-                       "throughtoday", "throughsevendays", "today", "thisCalendarMonth",
-                       "future", "current", "currentview"];
+        let filters = [
+            "all", "notstarted", "overdue", "open", "completed",
+            "throughcurrent", "throughtoday", "throughsevendays", "today",
+            "thisCalendarMonth", "future", "current", "currentview"
+        ];
         filters.forEach(function(filter) {
             if (!(filter in this.mDefinedFilters)) {
                 this.defineFilter(filter, this.getPreDefinedFilterProperties(filter));

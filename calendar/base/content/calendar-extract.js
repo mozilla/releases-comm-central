@@ -213,16 +213,16 @@ var calendarExtract = {
         if (window.top.document.location == "chrome://messenger/content/messenger.xul") {
             // covers initial load and folder change
             let folderTree = document.getElementById("folderTree");
-            folderTree.addEventListener("select", this.setState, false);
+            folderTree.addEventListener("select", this.setState);
 
             // covers selection change in a folder
             let msgTree = window.top.GetThreadTree();
-            msgTree.addEventListener("select", this.setState, false);
+            msgTree.addEventListener("select", this.setState);
 
             window.addEventListener("unload", () => {
-                folderTree.removeEventListener("select", this.setState, false);
-                msgTree.removeEventListener("select", this.setState, false);
-            }, false);
+                folderTree.removeEventListener("select", this.setState);
+                msgTree.removeEventListener("select", this.setState);
+            });
         }
     },
 
@@ -271,4 +271,4 @@ var calendarExtract = {
     }
 };
 
-window.addEventListener("load", calendarExtract.addListeners.bind(calendarExtract), false);
+window.addEventListener("load", calendarExtract.addListeners.bind(calendarExtract));

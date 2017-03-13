@@ -188,7 +188,7 @@ Extractor.prototype = {
                 let correct = 0;
                 let total = 0;
                 for (let word in words) {
-                    words[word] = words[word].replace(/[()\d,;:?!#\.]/g, "");
+                    words[word] = words[word].replace(/[()\d,;:?!#.]/g, "");
                     if (words[word].length >= 2) {
                         total++;
                         if (spellchecker.check(words[word])) {
@@ -361,8 +361,8 @@ Extractor.prototype = {
     },
 
     extractDayMonthYear: function(pattern, relation) {
-        let alts = this.getRepPatterns(pattern, ["(\\d{1,2})", "(\\d{1,2})",
-                                                 "(\\d{2,4})"]);
+        let alts = this.getRepPatterns(pattern, ["(\\d{1,2})", "(\\d{1,2})", "(\\d{2,4})"]);
+
         let res;
         for (let alt in alts) {
             let positions = alts[alt].positions;
@@ -386,9 +386,10 @@ Extractor.prototype = {
     },
 
     extractDayMonthNameYear: function(pattern, relation) {
-        let alts = this.getRepPatterns(pattern, ["(\\d{1,2})",
-                                                 "(" + this.allMonths + ")",
-                                                 "(\\d{2,4})"]);
+        let alts = this.getRepPatterns(pattern, [
+            "(\\d{1,2})", "(" + this.allMonths + ")", "(\\d{2,4})"
+        ]);
+
         let res;
         for (let alt in alts) {
             let exp = alts[alt].pattern.split(this.marker).join("|");
@@ -431,9 +432,10 @@ Extractor.prototype = {
     },
 
     extractDayMonthName: function(pattern, relation) {
-        let alts = this.getRepPatterns(pattern,
-                                       ["(\\d{1,2}" + this.marker + this.dailyNumbers + ")",
-                                       "(" + this.allMonths + ")"]);
+        let alts = this.getRepPatterns(pattern, [
+            "(\\d{1,2}" + this.marker + this.dailyNumbers + ")",
+            "(" + this.allMonths + ")"
+        ]);
         let res;
         for (let alt in alts) {
             let exp = alts[alt].pattern.split(this.marker).join("|");
@@ -1291,6 +1293,6 @@ Extractor.prototype = {
     },
 
     unescape: function(str) {
-        return str.replace(/\\([\.])/g, "$1");
+        return str.replace(/\\([.])/g, "$1");
     }
 };

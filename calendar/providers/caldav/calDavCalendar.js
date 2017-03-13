@@ -192,11 +192,13 @@ calDavCalendar.prototype = {
     },
 
     get offlineCachedProperties() {
-        return ["mAuthScheme", "mAuthRealm", "mHasWebdavSyncSupport",
-                "mCtag", "mWebdavSyncToken", "mSupportedItemTypes",
-                "mPrincipalUrl", "mCalHomeSet",
-                "mShouldPollInbox", "hasAutoScheduling", "mHaveScheduling",
-                "mCalendarUserAddress", "mOutboxUrl", "hasFreeBusy"];
+        return [
+            "mAuthScheme", "mAuthRealm", "mHasWebdavSyncSupport", "mCtag",
+            "mWebdavSyncToken", "mSupportedItemTypes", "mPrincipalUrl",
+            "mCalHomeSet", "mShouldPollInbox", "hasAutoScheduling",
+            "mHaveScheduling", "mCalendarUserAddress", "mOutboxUrl",
+            "hasFreeBusy"
+        ];
     },
 
     get checkedServerInfo() {
@@ -2162,7 +2164,7 @@ calDavCalendar.prototype = {
         }
 
         // We want a trailing slash, ensure it.
-        let nextNS = aNameSpaceList.pop().replace(/([^\/])$/, "$1/");
+        let nextNS = aNameSpaceList.pop().replace(/([^\/])$/, "$1/"); // eslint-disable-line no-useless-escape
         let requestUri = Services.io.newURI(this.calendarUri.prePath + this.ensureEncodedPath(nextNS));
 
         if (this.verboseLogging()) {
@@ -2199,7 +2201,7 @@ calDavCalendar.prototype = {
 
             let homeSets = caldavXPath(multistatus, "/D:multistatus/D:response/D:propstat/D:prop/C:calendar-home-set/D:href/text()");
             function homeSetMatches(homeSet) {
-                let normalized = homeSet.replace(/([^\/])$/, "$1/");
+                let normalized = homeSet.replace(/([^\/])$/, "$1/"); // eslint-disable-line no-useless-escape
                 let chs = self.mCalHomeSet;
                 return normalized == chs.path || normalized == chs.spec;
             }

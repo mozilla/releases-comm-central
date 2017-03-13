@@ -40,7 +40,7 @@
       <constructor><![CDATA[
         this.setAttribute("autoCheck", "true");
         this.setAttribute("type", "checkbox");
-        this.addEventListener("DOMAttrModified", this.onmodified, false);
+        this.addEventListener("DOMAttrModified", this.onmodified);
       ]]></constructor>
     </implementation>
   </binding>

@@ -149,20 +149,26 @@ var cal = {
         let adapter = template || {};
         switch (iface.name || iface) {
             case "calIObserver":
-                methods = ["onStartBatch", "onEndBatch", "onLoad", "onAddItem",
-                           "onModifyItem", "onDeleteItem", "onError",
-                           "onPropertyChanged", "onPropertyDeleting"];
+                methods = [
+                    "onStartBatch", "onEndBatch", "onLoad", "onAddItem",
+                    "onModifyItem", "onDeleteItem", "onError",
+                    "onPropertyChanged", "onPropertyDeleting"
+                ];
                 break;
             case "calICalendarManagerObserver":
-                methods = ["onCalendarRegistered", "onCalendarUnregistering",
-                           "onCalendarDeleting"];
+                methods = [
+                    "onCalendarRegistered", "onCalendarUnregistering",
+                    "onCalendarDeleting"
+                ];
                 break;
             case "calIOperationListener":
                 methods = ["onGetResult", "onOperationComplete"];
                 break;
             case "calICompositeObserver":
-                methods = ["onCalendarAdded", "onCalendarRemoved",
-                           "onDefaultCalendarChanged"];
+                methods = [
+                    "onCalendarAdded", "onCalendarRemoved",
+                    "onDefaultCalendarChanged"
+                ];
                 break;
             default:
                 methods = [];
@@ -334,7 +340,7 @@ var cal = {
                     let commonName = parts[1].trim();
                     // in case of any special characters in the CN string, we make sure to enclose
                     // it with dquotes - simple spaces don't require dquotes
-                    if (commonName.match(/[\-\[\]{}()*+?.,;\\\^$|#\f\n\r\t\v]/)) {
+                    if (commonName.match(/[-[\]{}()*+?.,;\\^$|#\f\n\r\t\v]/)) {
                         commonName = '"' + commonName.replace(/\\"|"/, "").trim() + '"';
                     }
                     list.push(commonName + parts[2]);

@@ -25,17 +25,19 @@ var TodayPane = {
      * Load Handler, sets up the today pane controls.
      */
     onLoad: function() {
-        TodayPane.paneViews = [cal.calGetString("calendar", "eventsandtasks"),
-                               cal.calGetString("calendar", "tasksonly"),
-                               cal.calGetString("calendar", "eventsonly")];
+        TodayPane.paneViews = [
+            cal.calGetString("calendar", "eventsandtasks"),
+            cal.calGetString("calendar", "tasksonly"),
+            cal.calGetString("calendar", "eventsonly")
+        ];
         agendaListbox.setupCalendar();
         TodayPane.initializeMiniday();
         TodayPane.setShortWeekdays();
 
-        document.getElementById("modeBroadcaster").addEventListener("DOMAttrModified", TodayPane.onModeModified, false);
+        document.getElementById("modeBroadcaster").addEventListener("DOMAttrModified", TodayPane.onModeModified);
         TodayPane.setTodayHeader();
 
-        document.getElementById("today-splitter").addEventListener("command", onCalendarViewResize, false);
+        document.getElementById("today-splitter").addEventListener("command", onCalendarViewResize);
         TodayPane.updateSplitterState();
         TodayPane.previousMode = document.getElementById("modeBroadcaster").getAttribute("mode");
         TodayPane.showTodayPaneStatusLabel();
@@ -49,8 +51,8 @@ var TodayPane = {
      * Unload handler, cleans up the today pane on window unload.
      */
     onUnload: function() {
-        document.getElementById("modeBroadcaster").removeEventListener("DOMAttrModified", TodayPane.onModeModified, false);
-        document.getElementById("today-splitter").removeEventListener("command", onCalendarViewResize, false);
+        document.getElementById("modeBroadcaster").removeEventListener("DOMAttrModified", TodayPane.onModeModified);
+        document.getElementById("today-splitter").removeEventListener("command", onCalendarViewResize);
     },
 
     /**
@@ -150,13 +152,13 @@ var TodayPane = {
         if (element.id == "previous-day-button" ||
              element.id == "next-day-button") {
             // Start switching days by pressing, without release, the navigation buttons
-            element.addEventListener("mouseout", TodayPane.stopSwitching, false);
-            element.addEventListener("mouseup", TodayPane.stopSwitching, false);
+            element.addEventListener("mouseout", TodayPane.stopSwitching);
+            element.addEventListener("mouseup", TodayPane.stopSwitching);
             TodayPane.minidayTimer = setTimeout(TodayPane.updateAdvanceTimer.bind(TodayPane, Event, aDir), 500);
         } else if (element.id == "datevalue-label") {
             // Start switching days by dragging the mouse with a starting point on the day label
-            window.addEventListener("mousemove", TodayPane.onMousemove, false);
-            window.addEventListener("mouseup", TodayPane.stopSwitching, false);
+            window.addEventListener("mousemove", TodayPane.onMousemove);
+            window.addEventListener("mouseup", TodayPane.stopSwitching);
             TodayPane.minidayDrag.startX = aEvent.clientX;
             TodayPane.minidayDrag.startY = aEvent.clientY;
         }
@@ -182,7 +184,7 @@ var TodayPane = {
             }
         } else if (x * x + y * y > 9) {
             // move the mouse a bit before starting the drag session
-            window.addEventListener("mouseout", TodayPane.stopSwitching, false);
+            window.addEventListener("mouseout", TodayPane.stopSwitching);
             TodayPane.minidayDrag.session = true;
             let dragCenterImage = document.getElementById("dragCenter-image");
             dragCenterImage.removeAttribute("hidden");
@@ -254,16 +256,16 @@ var TodayPane = {
              element.id == "next-day-button") {
             TodayPane.switchCounter = 0;
             let button = document.getElementById(element.id);
-            button.removeEventListener("mouseout", TodayPane.stopSwitching, false);
+            button.removeEventListener("mouseout", TodayPane.stopSwitching);
         }
         if (TodayPane.minidayDrag.session) {
-            window.removeEventListener("mouseout", TodayPane.stopSwitching, false);
+            window.removeEventListener("mouseout", TodayPane.stopSwitching);
             TodayPane.minidayDrag.distance = 0;
             document.getElementById("dragCenter-image").setAttribute("hidden", "true");
             TodayPane.minidayDrag.session = false;
         }
-        window.removeEventListener("mousemove", TodayPane.onMousemove, false);
-        window.removeEventListener("mouseup", TodayPane.stopSwitching, false);
+        window.removeEventListener("mousemove", TodayPane.onMousemove);
+        window.removeEventListener("mouseup", TodayPane.stopSwitching);
     },
 
     /**

@@ -179,7 +179,7 @@
 
         // remove the preference observer
         let branch = Services.prefs.getBranch("");
-        branch.removeObserver("calendar.", this, false);
+        branch.removeObserver("calendar.", this);
 
         let widths = "";
         let ordinals = "";

@@ -113,10 +113,12 @@ add_task(function* getItipHeader_test() {
     }, {
         input: {
             method: "METHOD:REPLY\r\n",
-            attendees: ["ATTENDEE;RSVP=TRUE;CN=Attendee1;PARTSTAT=ACCEPTED;" +
-                        "ROLE=REQ-PARTICIPANT:mailto:attendee1@example.net",
-                        "ATTENDEE;RSVP=TRUE;CN=Attendee2;PARTSTAT=DECLINED;" +
-                        "ROLE=REQ-PARTICIPANT:mailto:attendee2@example.net"]
+            attendees: [
+                "ATTENDEE;RSVP=TRUE;CN=Attendee1;PARTSTAT=ACCEPTED;" +
+                "ROLE=REQ-PARTICIPANT:mailto:attendee1@example.net",
+                "ATTENDEE;RSVP=TRUE;CN=Attendee2;PARTSTAT=DECLINED;" +
+                "ROLE=REQ-PARTICIPANT:mailto:attendee2@example.net"
+            ]
         },
         expected: "Attendee1 <attendee1@example.net> has accepted your event invitation."
     }, {
@@ -215,12 +217,12 @@ add_task(function* createInvitationOverlay_test() {
     }, {
         input: {
             description: "DESCRIPTION:Or we can try: <img src=\"document.getElementById(\"imipHtm" +
-                         "l-description-descr\").innerText\" \>\r\n"
+                         "l-description-descr\").innerText\" >\r\n"
         },
         expected: {
             node: "imipHtml-description-content",
             value: "Or we can try: &lt;img src=\"document.getElementById(\"imipHtml-description-d" +
-                   "escr\").innerText\" \&gt;"
+                   "escr\").innerText\" &gt;"
         }
     }, {
         input: { url: "URL:http://www.example.org/event.ics\r\n" },
@@ -473,8 +475,10 @@ add_task(function* compareInvitationOverlay_test() {
         },
         expected: {
             node: "organizer-table",
-            each: ["<span xmlns=\"\" class=\"added\">organizer2@example.net</span>",
-                   "<span xmlns=\"\" class=\"removed\">organizer1@example.net</span>"]
+            each: [
+                "<span xmlns=\"\" class=\"added\">organizer2@example.net</span>",
+                "<span xmlns=\"\" class=\"removed\">organizer1@example.net</span>"
+            ]
         }
     }, {
         input: {
@@ -498,10 +502,12 @@ add_task(function* compareInvitationOverlay_test() {
         },
         expected: {
             node: "attendee-table",
-            each: ["<span xmlns=\"\" class=\"modified\">attendee2@example.net</span>",
-                   "attendee3@example.net",
-                   "<span xmlns=\"\" class=\"added\">attendee4@example.net</span>",
-                   "<span xmlns=\"\" class=\"removed\">attendee1@example.net</span>"]
+            each: [
+                "<span xmlns=\"\" class=\"modified\">attendee2@example.net</span>",
+                "attendee3@example.net",
+                "<span xmlns=\"\" class=\"added\">attendee4@example.net</span>",
+                "<span xmlns=\"\" class=\"removed\">attendee1@example.net</span>"
+            ]
         }
     }];
     // we make sure that the Europe/Berlin timezone and long datetime format is set
@@ -788,6 +794,8 @@ add_task(function* getRfc5322FormattedDate_test() {
 });
 
 add_task(function* parseCounter_test() {
+    // We are disabling this rule for a more consistent display of this data
+    /* eslint-disable object-curly-newline */
     let data = [{
         // #1: basic test to check all currently supported properties
         input: {
@@ -809,7 +817,7 @@ add_task(function* parseCounter_test() {
                 }, {
                     dtStamp: "DTSTAMP:20150909T182048Z"
                 }, {
-                    attach: "COMMENT:Sorry\, I cannot make it that time."
+                    attach: "COMMENT:Sorry, I cannot make it that time."
                 }
             ]
         },
@@ -844,7 +852,7 @@ add_task(function* parseCounter_test() {
                            "Wednesday, September 9, 2015 22:00 Europe/Berlin"]
             }, {
                 property: "COMMENT",
-                proposed: "Sorry\, I cannot make it that time.",
+                proposed: "Sorry, I cannot make it that time.",
                 original: null
             }]
         }
@@ -862,9 +870,10 @@ add_task(function* parseCounter_test() {
                     location: "LOCATION:Room 2"
                 }, {
                     attach: "ATTACH:http://www.example2.com"
-                } ,{
+                }, {
                     dtStamp: "DTSTAMP:20150909T182048Z"
-                }]
+                }
+            ]
         },
         expected: {
             result: { descr: "", type: "OK" },
@@ -1001,7 +1010,8 @@ add_task(function* parseCounter_test() {
         // #8:counterproposal without any difference
         input: {
             existing: [],
-            proposed: [{ method: "METHOD:COUNTER" }] },
+            proposed: [{ method: "METHOD:COUNTER" }]
+        },
         expected: {
             result: {
                 descr: "No difference in counterproposal detected.",
@@ -1010,6 +1020,7 @@ add_task(function* parseCounter_test() {
             differences: []
         }
     }];
+    /* eslint-enable object-curly-newline */
 
     let getItem = function(aProperties) {
         let item = getIcs(true);
@@ -1063,7 +1074,7 @@ add_task(function* parseCounter_test() {
 
     let formatDt = function (aDateTime) {
         let datetime = cal.getDateFormatter().formatDateTime(aDateTime);
-        return datetime += " " + aDateTime.timezone.displayName;
+        return datetime + " " + aDateTime.timezone.displayName;
     };
 
     for (let i = 1; i <= data.length; i++) {
@@ -1086,7 +1097,7 @@ add_task(function* parseCounter_test() {
                         prop && expected[0].proposed.includes(prop),
                         "(test #" + i + ": difference " + aDiff.property + ": proposed '" + prop + "')"
                     );
-                    prop = aDiff.original ? formatDt(aDiff.original) : null
+                    prop = aDiff.original ? formatDt(aDiff.original) : null;
                     ok(
                         prop && expected[0].original.includes(prop),
                         "(test #" + i + ": difference " + aDiff.property + ": original '" + prop + "')"

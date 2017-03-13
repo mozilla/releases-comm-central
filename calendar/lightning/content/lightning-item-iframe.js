@@ -9,7 +9,8 @@
  *          attachmentDblClick, attachmentClick, notifyUser,
  *          removeNotification, chooseRecentTimezone, showTimezonePopup,
  *          attendeeDblClick, attendeeClick, removeAttendee,
- *          removeAllAttendees, sendMailToUndecidedAttendees, checkUntilDate
+ *          removeAllAttendees, sendMailToUndecidedAttendees, checkUntilDate,
+ *          applyValues
  */
 
 Components.utils.import("resource://calendar/modules/calUtils.jsm");
@@ -256,7 +257,7 @@ function receiveMessage(aEvent) {
  * dialog controls from the window's item.
  */
 function onLoad() {
-    window.addEventListener("message", receiveMessage, false);
+    window.addEventListener("message", receiveMessage);
 
     // first of all retrieve the array of
     // arguments this window has been called with.
@@ -1258,15 +1259,12 @@ function getRepeatTypeAndUntilDate(aItem) {
             let rule = cal.wrapInstance(rules[0], Components.interfaces.calIRecurrenceRule);
             if (rule) {
                 switch (rule.type) {
-                    case "DAILY":
-                        if (!checkRecurrenceRule(rule, ["BYSECOND",
-                                                        "BYMINUTE",
-                                                        "BYHOUR",
-                                                        "BYMONTHDAY",
-                                                        "BYYEARDAY",
-                                                        "BYWEEKNO",
-                                                        "BYMONTH",
-                                                        "BYSETPOS"])) {
+                    case "DAILY": {
+                        let byparts = [
+                            "BYSECOND", "BYMINUTE", "BYHOUR", "BYMONTHDAY",
+                            "BYYEARDAY", "BYWEEKNO", "BYMONTH", "BYSETPOS"
+                        ];
+                        if (!checkRecurrenceRule(rule, byparts)) {
                             let ruleComp = rule.getComponent("BYDAY", {});
                             if (rule.interval == 1) {
                                 if (ruleComp.length > 0) {
@@ -1290,17 +1288,15 @@ function getRepeatTypeAndUntilDate(aItem) {
                             }
                         }
                         break;
-                    case "WEEKLY":
-                        if (!checkRecurrenceRule(rule, ["BYSECOND",
-                                                        "BYMINUTE",
-                                                        "BYDAY",
-                                                        "BYHOUR",
-                                                        "BYMONTHDAY",
-                                                        "BYYEARDAY",
-                                                        "BYWEEKNO",
-                                                        "BYMONTH",
-                                                        "BYSETPOS"])) {
-                            let weekType=["weekly", "bi.weekly"];
+                    }
+                    case "WEEKLY": {
+                        let byparts = [
+                            "BYSECOND", "BYMINUTE", "BYDAY", "BYHOUR",
+                            "BYMONTHDAY", "BYYEARDAY", "BYWEEKNO", "BYMONTH",
+                            "BYSETPOS"
+                        ];
+                        if (!checkRecurrenceRule(rule, byparts)) {
+                            let weekType = ["weekly", "bi.weekly"];
                             if ((rule.interval == 1 || rule.interval == 2) &&
                                 (!rule.isFinite || !rule.isByCount)) {
                                 repeatType = weekType[rule.interval - 1];
@@ -1308,38 +1304,35 @@ function getRepeatTypeAndUntilDate(aItem) {
                             }
                         }
                         break;
-                    case "MONTHLY":
-                        if (!checkRecurrenceRule(rule, ["BYSECOND",
-                                                        "BYMINUTE",
-                                                        "BYDAY",
-                                                        "BYHOUR",
-                                                        "BYMONTHDAY",
-                                                        "BYYEARDAY",
-                                                        "BYWEEKNO",
-                                                        "BYMONTH",
-                                                        "BYSETPOS"])) {
+                    }
+                    case "MONTHLY": {
+                        let byparts = [
+                            "BYSECOND", "BYMINUTE", "BYDAY", "BYHOUR",
+                            "BYMONTHDAY", "BYYEARDAY", "BYWEEKNO", "BYMONTH",
+                            "BYSETPOS"
+                        ];
+                        if (!checkRecurrenceRule(rule, byparts)) {
                             if (rule.interval == 1 && (!rule.isFinite || !rule.isByCount)) {
                                 repeatType = "monthly";
                                 updateUntilDate(rule);
                             }
                         }
                         break;
-                    case "YEARLY":
-                        if (!checkRecurrenceRule(rule, ["BYSECOND",
-                                                        "BYMINUTE",
-                                                        "BYDAY",
-                                                        "BYHOUR",
-                                                        "BYMONTHDAY",
-                                                        "BYYEARDAY",
-                                                        "BYWEEKNO",
-                                                        "BYMONTH",
-                                                        "BYSETPOS"])) {
+                    }
+                    case "YEARLY": {
+                        let byparts = [
+                            "BYSECOND", "BYMINUTE", "BYDAY", "BYHOUR",
+                            "BYMONTHDAY", "BYYEARDAY", "BYWEEKNO", "BYMONTH",
+                            "BYSETPOS"
+                        ];
+                        if (!checkRecurrenceRule(rule, byparts)) {
                             if (rule.interval == 1 && (!rule.isFinite || !rule.isByCount)) {
                                 repeatType = "yearly";
                                 updateUntilDate(rule);
                             }
                         }
                         break;
+                    }
                 }
             }
         }
@@ -3649,7 +3642,6 @@ function attendeeDblClick(aEvent) {
     if (aEvent.button == 0) {
         editAttendees();
     }
-    return;
 }
 
 /**

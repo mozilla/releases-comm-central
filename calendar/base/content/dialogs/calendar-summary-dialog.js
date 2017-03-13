@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /* exported onLoad, onAccept, onCancel, updatePartStat, browseDocument,
- *          sendMailToOrganizer
+ *          sendMailToOrganizer, openAttachment
  */
 
 Components.utils.import("resource://calendar/modules/calUtils.jsm");

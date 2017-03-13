@@ -54,16 +54,12 @@ function recurrenceRule2String(recurrenceInfo, startDate, endDate, allDay) {
     if (rrules[0].length == 1) {
         let rule = cal.wrapInstance(rrules[0][0], Components.interfaces.calIRecurrenceRule);
         // Currently we allow only for BYDAY, BYMONTHDAY, BYMONTH rules.
-        if (rule &&
-            !checkRecurrenceRule(rule, ["BYSECOND",
-                                        "BYMINUTE",
-                                        // "BYDAY",
-                                        "BYHOUR",
-                                        // "BYMONTHDAY",
-                                        "BYYEARDAY",
-                                        "BYWEEKNO",
-                                        // "BYMONTH",
-                                        "BYSETPOS"])) {
+        let byparts = [
+            "BYSECOND", "BYMINUTE", /* "BYDAY", */ "BYHOUR", /* "BYMONTHDAY", */
+            "BYYEARDAY", "BYWEEKNO", /* "BYMONTH", */ "BYSETPOS"
+        ];
+
+        if (rule && !checkRecurrenceRule(rule, byparts)) {
             let dateFormatter = cal.getDateFormatter();
             let ruleString;
             if (rule.type == "DAILY") {
@@ -317,47 +313,54 @@ function recurrenceRule2String(recurrenceInfo, startDate, endDate, allDay) {
             if (!endDate || allDay) {
                 if (rule.isFinite) {
                     if (rule.isByCount) {
-                        let countString = getRString("repeatCountAllDay",
-                            [ruleString,
-                             dateFormatter.formatDateShort(startDate)]);
+                        let countString = getRString("repeatCountAllDay", [
+                            ruleString,
+                            dateFormatter.formatDateShort(startDate)
+                        ]);
+
                         detailsString = PluralForm.get(rule.count, countString)
                                                   .replace("#3", rule.count);
                     } else {
                         let untilDate = rule.untilDate.getInTimezone(kDefaultTimezone);
-                        detailsString = getRString("repeatDetailsUntilAllDay",
-                            [ruleString,
-                             dateFormatter.formatDateShort(startDate),
-                             dateFormatter.formatDateShort(untilDate)]);
+                        detailsString = getRString("repeatDetailsUntilAllDay", [
+                            ruleString,
+                            dateFormatter.formatDateShort(startDate),
+                            dateFormatter.formatDateShort(untilDate)
+                        ]);
                     }
                 } else {
-                    detailsString = getRString("repeatDetailsInfiniteAllDay",
-                                               [ruleString,
-                                                dateFormatter.formatDateShort(startDate)]);
+                    detailsString = getRString("repeatDetailsInfiniteAllDay", [
+                        ruleString,
+                        dateFormatter.formatDateShort(startDate)
+                    ]);
                 }
             } else if (rule.isFinite) {
                 if (rule.isByCount) {
-                    let countString = getRString("repeatCount",
-                        [ruleString,
-                         dateFormatter.formatDateShort(startDate),
-                         dateFormatter.formatTime(startDate),
-                         dateFormatter.formatTime(endDate)]);
+                    let countString = getRString("repeatCount", [
+                        ruleString,
+                        dateFormatter.formatDateShort(startDate),
+                        dateFormatter.formatTime(startDate),
+                        dateFormatter.formatTime(endDate)
+                    ]);
                     detailsString = PluralForm.get(rule.count, countString)
                                               .replace("#5", rule.count);
                 } else {
                     let untilDate = rule.untilDate.getInTimezone(kDefaultTimezone);
-                    detailsString = getRString("repeatDetailsUntil",
-                        [ruleString,
-                         dateFormatter.formatDateShort(startDate),
-                         dateFormatter.formatDateShort(untilDate),
-                         dateFormatter.formatTime(startDate),
-                         dateFormatter.formatTime(endDate)]);
+                    detailsString = getRString("repeatDetailsUntil", [
+                        ruleString,
+                        dateFormatter.formatDateShort(startDate),
+                        dateFormatter.formatDateShort(untilDate),
+                        dateFormatter.formatTime(startDate),
+                        dateFormatter.formatTime(endDate)
+                    ]);
                 }
             } else {
-                detailsString = getRString("repeatDetailsInfinite",
-                    [ruleString,
-                     dateFormatter.formatDateShort(startDate),
-                     dateFormatter.formatTime(startDate),
-                     dateFormatter.formatTime(endDate)]);
+                detailsString = getRString("repeatDetailsInfinite", [
+                    ruleString,
+                    dateFormatter.formatDateShort(startDate),
+                    dateFormatter.formatTime(startDate),
+                    dateFormatter.formatTime(endDate)
+                ]);
             }
             return detailsString;
         }

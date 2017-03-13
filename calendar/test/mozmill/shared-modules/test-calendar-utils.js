@@ -435,8 +435,8 @@ function viewBack(controller, n) {
 function deleteCalendars(controller, name) {
     let { eid } = helpersForController(controller);
 
-    let defaultView = eid("messengerWindow").getNode().ownerDocument.defaultView;
-    let manager = defaultView.cal.getCalendarManager();
+    let win = eid("messengerWindow").getNode().ownerGlobal;
+    let manager = win.cal.getCalendarManager();
 
     for (let calendar of manager.getCalendars({})) {
         if (calendar.name == name) {
@@ -454,8 +454,8 @@ function deleteCalendars(controller, name) {
 function createCalendar(controller, name) {
     let { lookup, eid } = helpersForController(controller);
 
-    let defaultView = eid("messengerWindow").getNode().ownerDocument.defaultView;
-    let manager = defaultView.cal.getCalendarManager();
+    let win = eid("messengerWindow").getNode().ownerGlobal;
+    let manager = win.cal.getCalendarManager();
 
     let url = Services.io.newURI("moz-storage-calendar://");
     let calendar = manager.createCalendar("storage", url);

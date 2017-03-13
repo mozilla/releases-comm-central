@@ -39,7 +39,7 @@ ltn.invitation = {
                     break;
                 case "COUNTER":
                     // falls through
-                case "REPLY":
+                case "REPLY": {
                     let attendees = item.getAttendees({});
                     let sender = cal.getAttendeesBySender(attendees, aItipItem.sender);
                     if (sender.length == 1) {
@@ -60,6 +60,7 @@ ltn.invitation = {
                         header = "";
                     }
                     break;
+                }
                 case "DECLINECOUNTER":
                     header = ltn.getString("lightning",
                                            "itipDeclineCounterBody",
@@ -411,8 +412,11 @@ ltn.invitation = {
         aNewDoc = cal.xml.parseString(aNewDoc);
         let doc = aNewDoc.cloneNode(true);
         // elements to consider for comparison
-        ["summary", "location", "when", "canceledOccurrences",
-         "modifiedOccurrences", "organizer", "attendee"].forEach(_compareElement);
+        let elements = [
+            "summary", "location", "when", "canceledOccurrences",
+            "modifiedOccurrences", "organizer", "attendee"
+        ];
+        elements.forEach(_compareElement);
         return cal.xml.serializeDOM(doc);
     },
 

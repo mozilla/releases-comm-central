@@ -749,13 +749,15 @@ upgrade.v3 = function(db, version) { // eslint-disable-line id-length
 
         dropTable(tbl, "cal_items", db);
 
-        let removeEventCols = ["item_type",
-                               "item_type",
-                               "todo_entry",
-                               "todo_due",
-                               "todo_completed",
-                               "todo_complete",
-                               "alarm_id"];
+        let removeEventCols = [
+            "item_type",
+            "item_type",
+            "todo_entry",
+            "todo_due",
+            "todo_completed",
+            "todo_complete",
+            "alarm_id"
+        ];
         deleteColumns(tbl, "cal_events", removeEventCols, db);
 
         addColumn(tbl, "cal_events", "event_start_tz", "VARCHAR", db);
@@ -763,11 +765,13 @@ upgrade.v3 = function(db, version) { // eslint-disable-line id-length
         addColumn(tbl, "cal_events", "alarm_time", "INTEGER", db);
         addColumn(tbl, "cal_events", "alarm_time_tz", "VARCHAR", db);
 
-        let removeTodoCols = ["item_type",
-                              "event_start",
-                              "event_end",
-                              "event_stamp",
-                              "alarm_id"];
+        let removeTodoCols = [
+            "item_type",
+            "event_start",
+            "event_end",
+            "event_stamp",
+            "alarm_id"
+        ];
         deleteColumns(tbl, "cal_todos", removeTodoCols, db);
 
         addColumn(tbl, "cal_todos", "todo_entry_tz", "VARCHAR", db);
@@ -856,24 +860,29 @@ upgrade.v6 = function(db, version) { // eslint-disable-line id-length
 
     beginTransaction(db);
     try {
-        let eventCols = ["id", "title", "privacy", "ical_status",
-                         "recurrence_id_tz", "event_start_tz",
-                         "event_end_tz", "alarm_time_tz"];
+        let eventCols = [
+            "id", "title", "privacy", "ical_status", "recurrence_id_tz",
+            "event_start_tz", "event_end_tz", "alarm_time_tz"
+        ];
         alterTypes(tbl, "cal_events", eventCols, "TEXT", db);
 
-        let todoCols = ["id", "title", "privacy", "ical_status",
-                         "recurrence_id_tz", "todo_entry_tz",
-                         "todo_due_tz", "todo_completed_tz",
-                         "alarm_time_tz"];
+        let todoCols = [
+            "id", "title", "privacy", "ical_status", "recurrence_id_tz",
+            "todo_entry_tz", "todo_due_tz", "todo_completed_tz",
+            "alarm_time_tz"
+        ];
         alterTypes(tbl, "cal_todos", todoCols, "TEXT", db);
 
-        let attendeeCols = ["item_id", "recurrence_id_tz", "attendee_id",
-                            "common_name", "role", "status", "type"];
+        let attendeeCols = [
+            "item_id", "recurrence_id_tz", "attendee_id", "common_name",
+            "role", "status", "type"
+        ];
         alterTypes(tbl, "cal_attendees", attendeeCols, "TEXT", db);
 
-        let recurrenceCols = ["item_id", "recur_type", "dates", "second",
-                              "minute", "hour", "day", "monthday", "yearday",
-                              "weekno", "month", "setpos"];
+        let recurrenceCols = [
+            "item_id", "recur_type", "dates", "second", "minute", "hour",
+            "day", "monthday", "yearday", "weekno", "month", "setpos"
+        ];
         alterTypes(tbl, "cal_recurrence", recurrenceCols, "TEXT", db);
 
         let propertyCols = ["item_id", "recurrence_id_tz", "key"];
@@ -1015,9 +1024,8 @@ upgrade.v13 = function(db, version) {
                 }
             }
         }
-
-        for (let tblid of ["attendees", "recurrence", "properties",
-                           "attachments"]) {
+        let tables = ["attendees", "recurrence", "properties", "attachments"];
+        for (let tblid of tables) {
             addColumn(tbl, "cal_" + tblid, "cal_id", "INTEGER", db);
 
             for (let itemId in calIds) {
@@ -1179,10 +1187,12 @@ upgrade.v16 = function(db, version) {
                              "     WHERE cal_alarms.cal_id = cal_todos.cal_id)");
 
         // Remote obsolete columns
-        let cols = ["alarm_time",
-                    "alarm_time_tz",
-                    "alarm_offset",
-                    "alarm_related"];
+        let cols = [
+            "alarm_time",
+            "alarm_time_tz",
+            "alarm_offset",
+            "alarm_related"
+        ];
         for (let tblid of ["events", "todos"]) {
             deleteColumns(tbl, "cal_" + tblid, cols, db);
         }
@@ -1319,12 +1329,13 @@ upgrade.v19 = function(db, version) {
     LOGdb(db, "Storage: Upgrading to v19");
     beginTransaction(db);
     try {
+        let tables = [
+            "cal_alarms", "cal_attachments", "cal_attendees", "cal_events",
+            "cal_metadata", "cal_properties", "cal_recurrence",
+            "cal_relations", "cal_todos"
+        ];
         // Change types of column to TEXT.
-        for (let tblName of ["cal_alarms", "cal_attachments",
-                             "cal_attendees", "cal_events",
-                             "cal_metadata", "cal_properties",
-                             "cal_recurrence", "cal_relations",
-                             "cal_todos"]) {
+        for (let tblName of tables) {
             alterTypes(tbl, tblName, ["cal_id"], "TEXT", db);
         }
         setDbVersionAndCommit(db, 19);
@@ -1517,9 +1528,10 @@ upgrade.v22 = function(db, version) {
                 }
             }
         });
-        migrateToIcalString(tbl, "cal_attendees", "translateAttendee",
-                            ["attendee_id", "common_name", "rsvp", "role",
-                             "status", "type", "is_organizer", "properties"], db);
+        migrateToIcalString(tbl, "cal_attendees", "translateAttendee", [
+            "attendee_id", "common_name", "rsvp", "role", "status", "type",
+            "is_organizer", "properties"
+        ], db);
 
         // Update recurrence table to using icalString directly
         createFunction(db, "translateRecurrence", 17, {
@@ -1610,11 +1622,11 @@ upgrade.v22 = function(db, version) {
                                  "WHERE t.id = cal_recurrence.item_id " +
                                    "AND t.cal_id = cal_recurrence.cal_id)");
 
-        migrateToIcalString(tbl, "cal_recurrence", "translateRecurrence",
-                            ["recur_index", "recur_type", "is_negative",
-                             "dates", "count", "end_date", "interval", "second",
-                             "minute", "hour", "day", "monthday", "yearday",
-                             "weekno", "month", "setpos", "tmp_date_tz"], db);
+        migrateToIcalString(tbl, "cal_recurrence", "translateRecurrence", [
+            "recur_index", "recur_type", "is_negative", "dates", "count",
+            "end_date", "interval", "second", "minute", "hour", "day",
+            "monthday", "yearday", "weekno", "month", "setpos", "tmp_date_tz"
+        ], db);
 
         setDbVersionAndCommit(db, 22);
     } catch (e) {

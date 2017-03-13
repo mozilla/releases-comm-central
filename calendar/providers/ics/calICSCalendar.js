@@ -686,7 +686,6 @@ calICSCalendar.prototype = {
                     // try to remove the file the next time around.
                 }
             }
-            return;
         }
 
         function purgeOldBackups() {
@@ -705,8 +704,6 @@ calICSCalendar.prototype = {
             } else {
                 purgeBackupsByType(files, "edit");
             }
-
-            return;
         }
 
         function copyToOverwriting(oldFile, newParentDir, newName) {
@@ -820,10 +817,7 @@ calICSCalendar.prototype = {
             // No problem, go and upload something
             cal.ERROR("[calICSCalendar] Backup failed in asyncOpen:" + e);
             aCallback.call(this);
-            return;
         }
-
-        return;
     }
 };
 

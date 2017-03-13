@@ -124,7 +124,6 @@
               this.mValue = date;
               text.value = prettyDate;
               this.fireEvent("command", date);
-              return;
           }
         ]]></body>
       </method>
@@ -284,11 +283,11 @@
         this.kTextBox.firstChild.kDatePicker = this;
         this.kMinimonth = this.kTextBox.firstChild.firstChild;
         this.mInPopup = false;
-        this.kMinimonth.addEventListener("select", this.clickDate, false);
+        this.kMinimonth.addEventListener("select", this.clickDate);
       ]]></constructor>
 
       <destructor><![CDATA[
-          this.kMinimonth.removeEventListener("select", this.clickDate, false);
+          this.kMinimonth.removeEventListener("select", this.clickDate);
       ]]></destructor>
 
       <!-- This property will be overlayed in some extended binding -->

@@ -1348,9 +1348,9 @@
         <body><![CDATA[
           let col = document.calendarEventColumnDragging;
           if (col && event.keyCode == event.DOM_VK_ESCAPE) {
-              window.removeEventListener("mousemove", col.onEventSweepMouseMove, false);
-              window.removeEventListener("mouseup", col.onEventSweepMouseUp, false);
-              window.removeEventListener("keypress", col.onEventSweepKeypress, false);
+              window.removeEventListener("mousemove", col.onEventSweepMouseMove);
+              window.removeEventListener("mouseup", col.onEventSweepMouseUp);
+              window.removeEventListener("keypress", col.onEventSweepKeypress);
 
               let lateralColumns = col.firstLastShadowColumns();
               let column = lateralColumns.firstCol;
@@ -1457,9 +1457,9 @@
                   column.fgboxes.box.removeAttribute("dragging");
               }
 
-              window.removeEventListener("mousemove", col.onEventSweepMouseMove, false);
-              window.removeEventListener("mouseup", col.onEventSweepMouseUp, false);
-              window.removeEventListener("keypress", col.onEventSweepKeypress, false);
+              window.removeEventListener("mousemove", col.onEventSweepMouseMove);
+              window.removeEventListener("mouseup", col.onEventSweepMouseUp);
+              window.removeEventListener("keypress", col.onEventSweepKeypress);
               document.calendarEventColumnDragging = null;
               col.mDragState = null;
 
@@ -1640,9 +1640,9 @@
 
           col.clearMagicScroll();
 
-          window.removeEventListener("mousemove", col.onEventSweepMouseMove, false);
-          window.removeEventListener("mouseup", col.onEventSweepMouseUp, false);
-          window.removeEventListener("keypress", col.onEventSweepKeypress, false);
+          window.removeEventListener("mousemove", col.onEventSweepMouseMove);
+          window.removeEventListener("mouseup", col.onEventSweepMouseUp);
+          window.removeEventListener("keypress", col.onEventSweepKeypress);
 
           document.calendarEventColumnDragging = null;
 
@@ -1914,9 +1914,9 @@
 
           document.calendarEventColumnDragging = this;
 
-          window.addEventListener("mousemove", this.onEventSweepMouseMove, false);
-          window.addEventListener("mouseup", this.onEventSweepMouseUp, false);
-          window.addEventListener("keypress", this.onEventSweepKeypress, false);
+          window.addEventListener("mousemove", this.onEventSweepMouseMove);
+          window.addEventListener("mouseup", this.onEventSweepMouseUp);
+          window.addEventListener("keypress", this.onEventSweepKeypress);
         ]]></body>
       </method>
 
@@ -2089,9 +2089,9 @@
 
         document.calendarEventColumnDragging = this;
 
-        window.addEventListener("mousemove", this.onEventSweepMouseMove, false);
-        window.addEventListener("mouseup", this.onEventSweepMouseUp, false);
-        window.addEventListener("keypress", this.onEventSweepKeypress, false);
+        window.addEventListener("mousemove", this.onEventSweepMouseMove);
+        window.addEventListener("mouseup", this.onEventSweepMouseUp);
+        window.addEventListener("keypress", this.onEventSweepKeypress);
       ]]></handler>
     </handlers>
   </binding>
@@ -2432,7 +2432,6 @@
             // may be click or drag,
             // so wait for mousemove (or mouseout if fast) to start item move drag
             this.mInMouseDown = true;
-            return;
         }
       ]]></handler>
 
@@ -2687,7 +2686,6 @@
                     this.handleCommonPreference(aSubject, aTopic, aPreference);
                     break;
             }
-            return;
         ]]></body>
       </method>
 
@@ -3233,8 +3231,10 @@
           }
 
           let normalelems = ["mainbox", "timebar"];
-          let otherelems = ["labelbox", "labeldaybox", "headertimespacer",
-                            "headerbox", "headerdaybox", "scrollbox", "daybox"];
+          let otherelems = [
+              "labelbox", "labeldaybox", "headertimespacer", "headerbox",
+              "headerdaybox", "scrollbox", "daybox"
+          ];
 
           for (let id of normalelems) {
               document.getAnonymousElementByAttribute(this, "anonid", id).setAttribute("orient", orient);
@@ -3727,7 +3727,7 @@
                              this, "anonid", "headerdaybox");
           if (headerDayBox) {
               // Only do this when there are multiple days
-              let headerDayBoxMaxHeight = parseInt(document.defaultView.getComputedStyle(headerDayBox, null)
+              let headerDayBoxMaxHeight = parseInt(document.defaultView.getComputedStyle(headerDayBox)
                                                            .getPropertyValue("max-height"), 10);
               if (this.getAttribute("orient") == "vertical" &&
                   headerDayBox.boxObject.height >= headerDayBoxMaxHeight) {

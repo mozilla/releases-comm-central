@@ -149,7 +149,7 @@ function testTaskView() {
 
     // verify that tooltip shows status, priority and percent complete
     let toolTipNode = lookup(toolTip).getNode();
-    toolTipNode.ownerDocument.defaultView.showToolTip(toolTipNode, taskTreeNode.getTaskAtRow(0));
+    toolTipNode.ownerGlobal.showToolTip(toolTipNode, taskTreeNode.getTaskAtRow(0));
 
     let toolTipName = lookup(toolTipGrid + "[1]/[0]/[1]");
     let toolTipCalendar = lookup(toolTipGrid + "[1]/[1]/[1]");
@@ -169,7 +169,7 @@ function testTaskView() {
     sleep();
 
     status = utils.getProperty("chrome://calendar/locale/calendar.properties", "taskDetailsStatusCompleted");
-    toolTipNode.ownerDocument.defaultView.showToolTip(toolTipNode, taskTreeNode.getTaskAtRow(0));
+    toolTipNode.ownerGlobal.showToolTip(toolTipNode, taskTreeNode.getTaskAtRow(0));
     controller.assertJS(toolTipStatus.getNode().textContent.toLowerCase() == status.toLowerCase());
 
     // delete task, verify

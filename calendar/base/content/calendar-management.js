@@ -350,8 +350,10 @@ function showOnlyCalendar(aCalendar) {
 }
 
 var compositeObserver = {
-    QueryInterface: XPCOMUtils.generateQI([Components.interfaces.calIObserver,
-                                           Components.interfaces.calICompositeObserver]),
+    QueryInterface: XPCOMUtils.generateQI([
+        Components.interfaces.calIObserver,
+        Components.interfaces.calICompositeObserver
+    ]),
 
     onStartBatch: function() {},
     onEndBatch: function() {},
@@ -420,7 +422,7 @@ var calendarOfflineManager = {
         if (!this.initialized) {
             throw Components.results.NS_ERROR_NOT_INITIALIZED;
         }
-        Services.obs.removeObserver(this, "network:offline-status-changed", false);
+        Services.obs.removeObserver(this, "network:offline-status-changed");
         this.initialized = false;
     },
 

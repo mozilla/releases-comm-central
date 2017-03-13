@@ -331,7 +331,7 @@ function createTodoWithDialog(calendar, dueDate, summary, todo, initialDate) {
  *            {JsObject} result: {
  *                type: {String} "OK"|"OUTDATED"|"NOTLATESTUPDATE"|"ERROR"|"NODIFF"
  *                descr: {String} a technical description of the problem if type is ERROR or NODIFF,
- *                                otherwise an empty string 
+ *                                otherwise an empty string
  *            },
  *            (empty if result.type = "ERROR"|"NODIFF"){Array} differences: [{
  *                property: {String} a property that is subject to the proposal

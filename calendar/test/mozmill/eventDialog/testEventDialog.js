@@ -174,7 +174,7 @@ function testEventDialog() {
         event.click(eventid("button-privacy"));
         event.click(eventid("event-privacy-private-menuitem"));
         let label = eventid("status-privacy-private-box");
-        event.assertJS(event.window.getComputedStyle(label.getNode(), null).getPropertyValue("visibility") == "visible");
+        event.assertJS(event.window.getComputedStyle(label.getNode()).getPropertyValue("visibility") == "visible");
 
         // add attachment and verify added
         handleAddingAttachment(event, eventUrl);

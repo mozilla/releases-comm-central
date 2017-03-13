@@ -778,7 +778,7 @@ function changeOrderForElements(aPropKey, aPropParams) {
     for (let i = 0; i < aPropParams.length; i++) {
         let newEl = document.getElementById(localeOrder[i]);
         if (newEl) {
-            parents[i].appendChild(newEl.parentNode.removeChild(newEl));
+            parents[i].appendChild(newEl);
         } else {
             cal.ERROR("Localization error, could not find node '" + localeOrder[i] + "'. Please have your localizer check the string '" + aPropKey + "'");
         }
@@ -789,16 +789,19 @@ function changeOrderForElements(aPropKey, aPropParams) {
  * Change locale-specific widget order for Edit Recurrence window
  */
 function changeWidgetsOrder() {
-    changeOrderForElements("monthlyOrder",
-                           ["monthly-ordinal",
-                            "monthly-weekday"]);
-    changeOrderForElements("yearlyOrder",
-                           ["yearly-days",
-                            "yearly-period-of-month-label",
-                            "yearly-month-ordinal"]);
-    changeOrderForElements("yearlyOrder2",
-                           ["yearly-ordinal",
-                            "yearly-weekday",
-                            "yearly-period-of-label",
-                            "yearly-month-rule"]);
+    changeOrderForElements("monthlyOrder", [
+        "monthly-ordinal",
+        "monthly-weekday"
+    ]);
+    changeOrderForElements("yearlyOrder", [
+        "yearly-days",
+        "yearly-period-of-month-label",
+        "yearly-month-ordinal"
+    ]);
+    changeOrderForElements("yearlyOrder2", [
+        "yearly-ordinal",
+        "yearly-weekday",
+        "yearly-period-of-label",
+        "yearly-month-rule"
+    ]);
 }

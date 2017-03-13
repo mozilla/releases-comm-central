@@ -282,11 +282,12 @@ calStorageCalendar.prototype = {
                  * @param oldCalId  The old calendar id to look for
                  */
                 let migrateTables = function(db, newCalId, oldCalId) {
-                    for (let tbl of ["cal_alarms", "cal_attachments",
-                                     "cal_attendees", "cal_events",
-                                     "cal_metadata", "cal_properties",
-                                     "cal_recurrence", "cal_relations",
-                                     "cal_todos"]) {
+                    let tables = [
+                        "cal_alarms", "cal_attachments", "cal_attendees",
+                        "cal_events", "cal_metadata", "cal_properties",
+                        "cal_recurrence", "cal_relations", "cal_todos"
+                    ];
+                    for (let tbl of tables) {
                         let stmt;
                         try {
                             stmt = db.createStatement("UPDATE " + tbl +
@@ -1389,10 +1390,11 @@ calStorageCalendar.prototype = {
                 );
 
             // These are only used when deleting an entire calendar
-            let extrasTables = ["cal_attendees", "cal_properties",
-                                "cal_recurrence", "cal_attachments",
-                                "cal_metadata", "cal_relations",
-                                "cal_alarms"];
+            let extrasTables = [
+                "cal_attendees", "cal_properties", "cal_recurrence",
+                "cal_attachments", "cal_metadata", "cal_relations",
+                "cal_alarms"
+            ];
 
             this.mDeleteEventExtras = [];
             this.mDeleteTodoExtras = [];
