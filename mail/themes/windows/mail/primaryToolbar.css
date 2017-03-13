@@ -662,11 +662,6 @@ toolbar:not([mode="text"]) > toolbarpaletteitem > #button-chat > stack {
   margin: 1px;
 }
 
-toolbar[iconsize="large"]:not([mode="text"]) .badgeButton-badge {
-  margin-inline-start: 7px;
-  margin-bottom: 7px;
-}
-
 #palette-box .toolbarbutton-1,
 #palette-box .toolbarbutton-menubutton-button,
 #palette-box .toolbarbutton-menubutton-dropmarker {

@@ -104,11 +104,6 @@ toolbar[mode="text"] #button-chat {
   padding: 0 2px;
 }
 
-toolbar[iconsize="large"] .badgeButton-badge {
-  margin-inline-start: 13px;
-  margin-bottom: 13px;
-}
-
 toolbar[mode="text"] .badgeButton-badge {
   margin: 0;
   margin-bottom: 3px;
