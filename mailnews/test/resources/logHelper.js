@@ -633,7 +633,11 @@ function mark_failure(aRichString) {
     }
     else {
       let jsonThing = _normalize_for_json(richThing);
-      text += "[" + jsonThing.type + " " + jsonThing.name + "]";
+      if (("type" in jsonThing) && ("name" in jsonThing))
+        text += "[" + jsonThing.type + " " + jsonThing.name + "]";
+      else
+        text += "[" + jsonThing + "]";
+
       // hook things up to be json serialized.
       if (!("_jsonMe" in jsonThing))
         jsonThing._jsonMe = true;
