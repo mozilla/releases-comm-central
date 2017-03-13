@@ -415,6 +415,7 @@ FeedParser.prototype =
     return this.parsedItems;
   },
 
+  // TODO: deprecate ATOM_03_NS.
   parseAsAtom: function(aFeed, aDOM)
   {
     // Get the first channel (assuming there is only one per Atom File).
@@ -566,6 +567,8 @@ FeedParser.prototype =
     if (this.isPermanentRedirect(aFeed, null, channel, null))
       return [];
 
+    let contentBase = channel.getAttribute("xml:base");
+
     let tags = this.childrenByTagNameNS(channel, FeedUtils.ATOM_IETF_NS, "title");
     aFeed.title = aFeed.title ||
                   this.stripTags(this.serializeTextConstruct(tags ? tags[0] : null));
@@ -573,8 +576,12 @@ FeedParser.prototype =
     tags = this.childrenByTagNameNS(channel, FeedUtils.ATOM_IETF_NS, "subtitle");
     aFeed.description = this.serializeTextConstruct(tags ? tags[0] : null);
 
+    // Per spec, aFeed.link and contentBase may both end up null here.
     tags = this.childrenByTagNameNS(channel, FeedUtils.ATOM_IETF_NS, "link");
-    aFeed.link = this.findAtomLink("alternate", tags);
+    aFeed.link = this.findAtomLink("self", tags, contentBase) ||
+                 this.findAtomLink("alternate", tags, contentBase);
+    if (!contentBase)
+      contentBase = aFeed.link;
 
     if (!aFeed.title)
     {
@@ -604,16 +611,25 @@ FeedParser.prototype =
       item.feed = aFeed;
       item.enclosures = [];
       item.keywords = [];
+
+      contentBase = itemNode.getAttribute("xml:base") || contentBase;
+
       tags = this.childrenByTagNameNS(itemNode, FeedUtils.ATOM_IETF_NS, "source");
       let source = tags ? tags[0] : null;
 
+      // Per spec, item.link and contentBase may both end up null here.
+      // If <content> is also not present, then <link rel="alternate"> is MUST
+      // but we're lenient.
       tags = this.childrenByTagNameNS(itemNode, FeedUtils.FEEDBURNER_NS, "origLink");
       item.url = this.getNodeValue(tags ? tags[0] : null);
       if (!item.url)
       {
         tags = this.childrenByTagNameNS(itemNode, FeedUtils.ATOM_IETF_NS, "link");
-        item.url = this.findAtomLink("alternate", tags) || aFeed.link;
+        item.url = this.findAtomLink("alternate", tags, contentBase) || aFeed.link;
       }
+      if (!contentBase)
+        contentBase = item.url;
+
       tags = this.childrenByTagNameNS(itemNode, FeedUtils.ATOM_IETF_NS, "id");
       item.id = this.getNodeValue(tags ? tags[0] : null);
       tags = this.childrenByTagNameNS(itemNode, FeedUtils.ATOM_IETF_NS, "summary");
@@ -666,15 +682,24 @@ FeedParser.prototype =
       tags = this.childrenByTagNameNS(itemNode, FeedUtils.ATOM_IETF_NS, "content");
       item.content = this.serializeTextConstruct(tags ? tags[0] : null);
 
+      // Ensure relative links can be resolved and Content-Base set to an
+      // absolute url for the entry. But it's not mandatory that a url is found
+      // for Content-Base, per spec.
       if (item.content)
-        item.xmlContentBase = tags ? tags[0].baseURI : null;
+      {
+        item.xmlContentBase = (tags && tags[0].getAttribute("xml:base")) ||
+                              contentBase;
+      }
       else if (item.description)
       {
         tags = this.childrenByTagNameNS(itemNode, FeedUtils.ATOM_IETF_NS, "summary");
-        item.xmlContentBase = tags ? tags[0].baseURI : null;
+        item.xmlContentBase = (tags && tags[0].getAttribute("xml:base")) ||
+                              contentBase;
       }
       else
-        item.xmlContentBase = itemNode.baseURI;
+      {
+        item.xmlContentBase = contentBase;
+      }
 
       // Handle <link rel="enclosure"> (if present).
       tags = this.childrenByTagNameNS(itemNode, FeedUtils.ATOM_IETF_NS, "link");
@@ -878,7 +903,21 @@ FeedParser.prototype =
     return matchingChildren.length ? matchingChildren : null;
   },
 
-  findAtomLink: function(linkRel, linkElements)
+  /**
+   * Return an absolute link for <entry> relative links. If xml:base is
+   * present in a <feed> attribute or child <link> element attribute, use it;
+   * otherwise the Feed.link will be the relevant <feed> child <link> value
+   * and will be the |baseURI| for <entry> child <link>s if there is no further
+   * xml:base, which may be an attribute of any element.
+   *
+   * @param string linkRel         - the <link> rel attribute value to find.
+   * @param NodeList linkElements  - the nodelist of <links> to search in.
+   * @param string baseURI         - the url to use when resolving relative
+   *                                 links to absolute values.
+   * @return string or null        - absolute url for a <link>, or null if the
+   *                                 rel type is not found.
+   */
+  findAtomLink: function(linkRel, linkElements, baseURI)
   {
     if (!linkElements)
       return null;
@@ -893,9 +932,10 @@ FeedParser.prototype =
           alink.getAttribute("href"))
       {
         // Atom links are interpreted relative to xml:base.
+        let href = alink.getAttribute("href");
+        baseURI = alink.getAttribute("xml:base") || baseURI || href;
         try {
-          return Services.io.newURI(alink.baseURI).
-                             resolve(alink.getAttribute("href"));
+          return Services.io.newURI(baseURI).resolve(href);
         }
         catch (ex) {}
       }
