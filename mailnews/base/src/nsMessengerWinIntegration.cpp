@@ -53,7 +53,7 @@
 #define PROFILE_COMMANDLINE_ARG " -profile "
 
 #define NOTIFICATIONCLASSNAME "MailBiffNotificationMessageWindow"
-#define UNREADMAILNODEKEY "Software\\Microsoft\\Windows\\CurrentVersion\\UnreadMail\\"
+#define UNREADMAILNODEKEY u"Software\\Microsoft\\Windows\\CurrentVersion\\UnreadMail\\"
 #define DOUBLE_QUOTE "\""
 #define MAIL_COMMANDLINE_ARG " -mail"
 #define IDI_MAILBIFF 32576
@@ -961,7 +961,7 @@ nsMessengerWinIntegration::RemoveCurrentFromRegistry()
   {
     if (wcscmp(registryUnreadMailCountKey, currentUnreadMailCountKey.get())==0) {
       nsAutoString deleteKey;
-      deleteKey.Assign(NS_LITERAL_STRING(UNREADMAILNODEKEY).get());
+      deleteKey.Assign(UNREADMAILNODEKEY);
       deleteKey.Append(currentUnreadMailCountKey.get());
 
       if (!deleteKey.IsEmpty()) {

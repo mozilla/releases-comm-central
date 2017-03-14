@@ -568,7 +568,7 @@ nsLDAPService::OnLDAPMessage(nsILDAPMessage *aMessage)
         // log the message
         //
         rv = consoleSvc->LogStringMessage(
-            NS_LITERAL_STRING("LDAP: WARNING: nsLDAPService::OnLDAPMessage(): Unexpected LDAP message received").get());
+            u"LDAP: WARNING: nsLDAPService::OnLDAPMessage(): Unexpected LDAP message received");
         NS_ASSERTION(NS_SUCCEEDED(rv), "nsLDAPService::OnLDAPMessage(): "
                      "consoleSvc->LogStringMessage() failed");
         break;

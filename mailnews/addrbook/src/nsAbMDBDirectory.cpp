@@ -83,7 +83,7 @@ NS_IMETHODIMP nsAbMDBDirectory::Init(const char *aUri)
     NS_ENSURE_SUCCESS(rv, rv);
 
     nsCOMPtr<nsIPrefBranch> prefBranch;
-    rv = prefService->GetBranch(NS_LITERAL_CSTRING(PREF_LDAP_SERVER_TREE_NAME ".").get(),
+    rv = prefService->GetBranch(PREF_LDAP_SERVER_TREE_NAME ".",
                                 getter_AddRefs(prefBranch));
     NS_ENSURE_SUCCESS(rv, rv);
 
