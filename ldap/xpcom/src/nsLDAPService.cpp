@@ -265,8 +265,7 @@ NS_IMETHODIMP nsLDAPService::DeleteServer(const char16_t *aKey)
     // "deleted", so that we can add in a new one with the same ID.
     // This is bug #77669.
     //
-    mServers.Get(nsDependentString(aKey), &entry);
-    if (entry) {
+    if (mServers.Get(nsDependentString(aKey), &entry) && entry) {
         if (entry->GetLeases() > 0) {
             return NS_ERROR_FAILURE;
         }

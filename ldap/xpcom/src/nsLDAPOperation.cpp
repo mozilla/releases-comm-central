@@ -427,7 +427,7 @@ nsLDAPOperation::SearchExt(const nsACString& aBaseDn, int32_t aScope,
         if (NS_FAILED(rv)) {
             MOZ_LOG(gLDAPLogModule, mozilla::LogLevel::Error,
                    ("nsLDAPOperation::SearchExt(): error converting server "
-                    "control array: %x", rv));
+                    "control array: %" PRIx32, static_cast<uint32_t>(rv)));
             return rv;
         }
     }
@@ -438,7 +438,7 @@ nsLDAPOperation::SearchExt(const nsACString& aBaseDn, int32_t aScope,
         if (NS_FAILED(rv)) {
             MOZ_LOG(gLDAPLogModule, mozilla::LogLevel::Error,
                    ("nsLDAPOperation::SearchExt(): error converting client "
-                    "control array: %x", rv));
+                    "control array: %" PRIx32, static_cast<uint32_t>(rv)));
             ldap_controls_free(serverctls);
             return rv;
         }
@@ -697,8 +697,8 @@ nsLDAPOperation::AddExt(const nsACString& aBaseDn,
   if (NS_FAILED(rv)) {
     (void)ldap_abandon_ext(mConnectionHandle, mMsgID, 0, 0);
     MOZ_LOG(gLDAPLogModule, mozilla::LogLevel::Debug,
-           ("nsLDAPOperation::AddExt(): abandoned due to rv %x",
-            rv));
+           ("nsLDAPOperation::AddExt(): abandoned due to rv %" PRIx32,
+            static_cast<uint32_t>(rv)));
   }
   return rv;
 }
@@ -747,8 +747,8 @@ nsLDAPOperation::DeleteExt(const nsACString& aBaseDn)
   if (NS_FAILED(rv)) {
     (void)ldap_abandon_ext(mConnectionHandle, mMsgID, 0, 0);
     MOZ_LOG(gLDAPLogModule, mozilla::LogLevel::Debug,
-           ("nsLDAPOperation::AddExt(): abandoned due to rv %x",
-            rv));
+           ("nsLDAPOperation::AddExt(): abandoned due to rv %" PRIx32,
+            static_cast<uint32_t>(rv)));
   }
   return rv;
 }
@@ -860,8 +860,8 @@ nsLDAPOperation::ModifyExt(const nsACString& aBaseDn,
   if (NS_FAILED(rv)) {
     (void)ldap_abandon_ext(mConnectionHandle, mMsgID, 0, 0);
     MOZ_LOG(gLDAPLogModule, mozilla::LogLevel::Debug,
-           ("nsLDAPOperation::AddExt(): abandoned due to rv %x",
-            rv));
+           ("nsLDAPOperation::AddExt(): abandoned due to rv %" PRIx32,
+            static_cast<uint32_t>(rv)));
   }
   return rv;
 }
@@ -923,8 +923,8 @@ nsLDAPOperation::Rename(const nsACString& aBaseDn,
   if (NS_FAILED(rv)) {
     (void)ldap_abandon_ext(mConnectionHandle, mMsgID, 0, 0);
     MOZ_LOG(gLDAPLogModule, mozilla::LogLevel::Debug,
-           ("nsLDAPOperation::AddExt(): abandoned due to rv %x",
-            rv));
+           ("nsLDAPOperation::AddExt(): abandoned due to rv %" PRIx32,
+            static_cast<uint32_t>(rv)));
   }
   return rv;
 }
