@@ -408,6 +408,8 @@
 @RESPATH@/components/nsComposerCmdLineHandler.manifest
 @RESPATH@/components/nsContentDispatchChooser.js
 @RESPATH@/components/nsContentDispatchChooser.manifest
+@RESPATH@/components/nsHandlerService-json.js
+@RESPATH@/components/nsHandlerService-json.manifest
 @RESPATH@/components/nsContentPrefService.js
 @RESPATH@/components/nsContentPrefService.manifest
 @RESPATH@/components/nsCrashMonitor.js
