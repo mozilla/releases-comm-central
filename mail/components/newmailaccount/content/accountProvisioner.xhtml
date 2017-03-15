@@ -1,4 +1,6 @@
 <!DOCTYPE html [
+  <!ENTITY % globalDTD SYSTEM "chrome://global/locale/global.dtd">
+    %globalDTD;
   <!ENTITY % brandDTD SYSTEM "chrome://branding/locale/brand.dtd">
     %brandDTD;
   <!ENTITY % mainDTD SYSTEM "chrome://messenger/locale/newmailaccount/accountProvisioner.dtd">
@@ -42,7 +44,7 @@
           src="chrome://messenger/content/newmailaccount/accountProvisioner.js">
   </script>
 </head>
-<body>
+<body dir="&locale.dir;">
   <div id="window" class="vbox">
 
     <div id="content" class="boxFlex vbox">
