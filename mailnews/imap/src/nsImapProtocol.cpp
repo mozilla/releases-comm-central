@@ -542,6 +542,7 @@ nsImapProtocol::Initialize(nsIImapHostSessionList * aHostSessionList,
     return NS_ERROR_OUT_OF_MEMORY;
 
   aServer->GetUseIdle(&m_useIdle);
+  aServer->GetForceSelect(&m_forceSelect);
   aServer->GetUseCondStore(&m_useCondStore);
   aServer->GetUseCompressDeflate(&m_useCompressDeflate);
   NS_ADDREF(m_flagState);
@@ -2546,6 +2547,17 @@ void nsImapProtocol::ProcessSelectedStateURL()
         // get new message counts, if any, from server
         if (m_needNoop)
         {
+          // For some IMAP servers, to detect new email we must send imap
+          // SELECT even if already SELECTed on the same mailbox. For other
+          // servers that simply don't support IDLE, doing select here will
+          // cause emails to be properly marked "read" after they have been
+          // read in another email client.
+          if (m_forceSelect)
+          {
+            SelectMailbox(mailboxName.get());
+            selectIssued = true;
+          }
+
           m_noopCount++;
           if ((gPromoteNoopToCheckCount > 0 && (m_noopCount % gPromoteNoopToCheckCount) == 0) ||
             CheckNeeded())
@@ -3008,20 +3020,37 @@ void nsImapProtocol::ProcessSelectedStateURL()
             (ImapOnlineCopyState) ImapOnlineCopyStateType::kFailedCopy;
             if (m_imapMailFolderSink)
               m_imapMailFolderSink->OnlineCopyCompleted(this, copyState);
-
-            // Don't mark msg 'Deleted' for aol servers since we already issued 'xaol-move' cmd.
+            // Don't mark message 'Deleted' for AOL servers or standard imap servers
+            // that support MOVE since we already issued an 'xaol-move' or 'move' command.
             if (GetServerStateParser().LastCommandSuccessful() &&
               (m_imapAction == nsIImapUrl::nsImapOnlineMove) &&
               !(GetServerStateParser().ServerIsAOLServer() ||
                 GetServerStateParser().GetCapabilityFlag() & kHasMoveCapability))
             {
+              // Simulate MOVE for servers that don't support MOVE: do COPY-DELETE-EXPUNGE.
               Store(messageIdString, "+FLAGS (\\Deleted \\Seen)",
                 bMessageIdsAreUids);
               bool storeSuccessful = GetServerStateParser().LastCommandSuccessful();
-
-              if (gExpungeAfterDelete && storeSuccessful)
-                Expunge();
-
+              if (storeSuccessful)
+              {
+                if(gExpungeAfterDelete)
+                {
+                  // This will expunge all emails marked as deleted in mailbox,
+                  // not just the ones marked as deleted above.
+                  Expunge();
+                }
+                else
+                {
+                  // Check if UIDPLUS capable so we can just expunge emails we just
+                  // copied and marked as deleted. This prevents expunging emails
+                  // that other clients may have marked as deleted in the mailbox
+                  // and don't want them to disappear.
+                  if (GetServerStateParser().GetCapabilityFlag() & kUidplusCapability)
+                  {
+                    UidExpunge(messageIdString);
+                  }
+                }
+              }
               if (m_imapMailFolderSink)
               {
                 copyState = storeSuccessful ? (ImapOnlineCopyState) ImapOnlineCopyStateType::kSuccessfulDelete

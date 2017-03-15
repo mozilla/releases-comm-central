@@ -493,6 +493,11 @@ pref("mail.server.default.check_all_folders_for_new", false);
 pref("mail.server.default.inhibitWhiteListingIdentityUser", true);
 // should we inhibit whitelisting of the domain for a server's identities?
 pref("mail.server.default.inhibitWhiteListingIdentityDomain", false);
+// When forceSelect is true, sends extra/redundant imap SELECT when checking for
+// new mail. Needed by some imap servers. Also, if server does not support IDLE,
+// this can help insure messages are marked as "read" after being read in other
+// email clients.
+pref("mail.server.default.forceSelect", false);
 
 // to activate auto-sync feature (preemptive message download for imap) by default
 pref("mail.server.default.autosync_offline_stores",true);

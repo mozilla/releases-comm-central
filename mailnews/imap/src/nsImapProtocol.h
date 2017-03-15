@@ -652,6 +652,7 @@ private:
   bool m_closeNeededBeforeSelect;
   bool m_retryUrlOnError;
   bool m_preferPlainText;
+  bool m_forceSelect;
 
   int32_t m_uidValidity; // stored uid validity for the selected folder.
 

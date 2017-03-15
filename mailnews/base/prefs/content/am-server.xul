@@ -328,6 +328,9 @@
       <checkbox hidden="true" wsm_persist="true" id="imap.overrideNamespaces"
                 prefattribute="value"
                 prefstring="mail.server.%serverkey%.override_namespaces"/>
+      <checkbox hidden="true" wsm_persist="true" id="imap.forceSelect"
+                prefattribute="value"
+                prefstring="mail.server.%serverkey%.forceSelect"/>
     </hbox>
 
     <!-- NNTP -->

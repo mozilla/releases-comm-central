@@ -97,6 +97,12 @@
           </row>
         </rows>
       </grid>
+
+      <separator class="groove"/>
+      <checkbox amsa_persist="true" id="forceSelect"
+                label="&forceSelect.label;"
+                tooltiptext="&forceSelect.tooltip;"
+                accesskey="&forceSelect.accesskey;"/>
     </vbox>
 
 
