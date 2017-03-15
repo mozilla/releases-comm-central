@@ -320,6 +320,7 @@ static bool gHideOtherUsersFromList = false;
 static bool gUseEnvelopeCmd = false;
 static bool gUseLiteralPlus = true;
 static bool gExpungeAfterDelete = false;
+static bool gForceSelect = true; // bug 1231592
 static bool gCheckDeletedBeforeExpunge = false; //bug 235004
 static int32_t gResponseTimeout = 60;
 
@@ -366,8 +367,9 @@ nsresult nsImapProtocol::GlobalInitialization(nsIPrefBranch *aPrefBranch)
     aPrefBranch->GetIntPref("mail.imap.expunge_threshold_number",
                             &gExpungeThreshold);
     aPrefBranch->GetIntPref("mailnews.tcptimeout", &gResponseTimeout);
-    nsCOMPtr<nsIXULAppInfo> appInfo(do_GetService(XULAPPINFO_SERVICE_CONTRACTID));
+    aPrefBranch->GetBoolPref("mail.imap.force_select", &gForceSelect);
 
+    nsCOMPtr<nsIXULAppInfo> appInfo(do_GetService(XULAPPINFO_SERVICE_CONTRACTID));
     if (appInfo)
     {
       nsCString appName, appVersion;
@@ -2543,6 +2545,14 @@ void nsImapProtocol::ProcessSelectedStateURL()
       }
       else
       {
+        // For some misbehaving imap servers, we must send imap SELECT even when
+        // already SELECTed on same mailbox.
+        if (gForceSelect)
+        {
+          SelectMailbox(mailboxName.get());
+          selectIssued = true;
+        }
+
         // get new message counts, if any, from server
         if (m_needNoop)
         {
@@ -3008,20 +3018,37 @@ void nsImapProtocol::ProcessSelectedStateURL()
             (ImapOnlineCopyState) ImapOnlineCopyStateType::kFailedCopy;
             if (m_imapMailFolderSink)
               m_imapMailFolderSink->OnlineCopyCompleted(this, copyState);
-
-            // Don't mark msg 'Deleted' for aol servers since we already issued 'xaol-move' cmd.
+            // Don't mark message 'Deleted' for AOL servers or standard imap servers
+            // that support MOVE since we already issued an 'xaol-move' or 'move' command.
             if (GetServerStateParser().LastCommandSuccessful() &&
               (m_imapAction == nsIImapUrl::nsImapOnlineMove) &&
               !(GetServerStateParser().ServerIsAOLServer() ||
                 GetServerStateParser().GetCapabilityFlag() & kHasMoveCapability))
             {
+              // Simulate MOVE for servers that don't support MOVE: do COPY-DELETE-EXPUNGE.
               Store(messageIdString, "+FLAGS (\\Deleted \\Seen)",
                 bMessageIdsAreUids);
               bool storeSuccessful = GetServerStateParser().LastCommandSuccessful();
-
-              if (gExpungeAfterDelete && storeSuccessful)
-                Expunge();
-
+              if (storeSuccessful)
+              {
+                if(gExpungeAfterDelete)
+                {
+                  // This will expunge all emails marked as deleted in mailbox,
+                  // not just the ones marked as deleted above.
+                  Expunge();
+                }
+                else
+                {
+                  // Check if UIDPLUS capable so we can just expunge emails we just
+                  // copied and marked as deleted. This prevents expunging emails
+                  // that other clients may have marked as deleted in the mailbox
+                  // and don't want them to disappear.
+                  if (GetServerStateParser().GetCapabilityFlag() & kUidplusCapability)
+                  {
+                    UidExpunge(messageIdString);
+                  }
+                }
+              }
               if (m_imapMailFolderSink)
               {
                 copyState = storeSuccessful ? (ImapOnlineCopyState) ImapOnlineCopyStateType::kSuccessfulDelete
