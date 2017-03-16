@@ -635,7 +635,7 @@ nsresult nsMapiHook::PopulateCompFieldsWithConversion(lpnsMapiMessage aMessage,
       platformCharSet.Assign(nsMsgI18NFileSystemCharset());
     rv = ConvertToUnicode(platformCharSet.get(), (char *) aMessage->lpszNoteText, Body);
     if (NS_FAILED(rv)) return rv ;
-    if (Body.Last() != '\n')
+    if (Body.IsEmpty() || Body.Last() != '\n')
       Body.AppendLiteral(CRLF);
 
     rv = aCompFields->SetBody(Body) ;
