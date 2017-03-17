@@ -234,7 +234,6 @@ pref("xpinstall.dialog.progress.skin", "chrome://mozapps/content/extensions/exte
 pref("xpinstall.dialog.progress.chrome", "chrome://mozapps/content/extensions/extensions.xul");
 pref("xpinstall.dialog.progress.type.skin", "Extension:Manager");
 pref("xpinstall.dialog.progress.type.chrome", "Extension:Manager");
-pref("extensions.dss.enabled", false);
 pref("extensions.dss.switchPending", false);
 pref("extensions.ignoreMTimeChanges", false);
 pref("extensions.logging.enabled", false);
