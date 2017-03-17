@@ -76,10 +76,6 @@ minimonth {
   padding-inline-start: 4px;
 }
 
-.minimonth-month-name > .toolbarbutton-text {
-  text-align: right;
-}
-
 .minimonth-month-name > .toolbarbutton-icon,
 .minimonth-year-name > .toolbarbutton-icon {
   display: none;
@@ -111,6 +107,18 @@ minimonth {
 
 .minimonth-nav-btns[dir="0"] {
   list-style-image: url("chrome://calendar-common/skin/widgets/nav-today.svg");
+}
+
+.minimonth-cal-box {
+  border-spacing: 0px;
+}
+
+.minimonth-cal-box th, .minimonth-cal-box td {
+  width: 12.5%; /* 100% / 8 columns */
+}
+
+.minimonth-cal-box th {
+  font-weight: normal;
 }
 
 .minimonth-row-header {

@@ -33,10 +33,6 @@ minimonth {
   -moz-binding: url("chrome://calendar/content/widgets/minimonth.xml#minimonth");
 }
 
-.minimonth-day {
-  -moz-binding: url("chrome://calendar/content/widgets/minimonth.xml#minimonth-day");
-}
-
 minimonth-header {
   -moz-binding: url("chrome://calendar/content/widgets/minimonth.xml#active-minimonth-header");
 }

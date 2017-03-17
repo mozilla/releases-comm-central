@@ -24,8 +24,21 @@
 -->
 <bindings id="xulDatePicker"
           xmlns="http://www.mozilla.org/xbl"
+          xmlns:html="http://www.w3.org/1999/xhtml"
           xmlns:xbl="http://www.mozilla.org/xbl"
           xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+  <binding id="panellist" extends="chrome://global/content/bindings/menulist.xml#menulist-editable">
+    <content sizetopopup="pref">
+      <xul:hbox class="menulist-editable-box textbox-input-box" xbl:inherits="context,disabled,readonly,focused" flex="1">
+        <html:input class="menulist-editable-input" flex="1" anonid="input" allowevents="true"
+                    xbl:inherits="value=label,value,disabled,tabindex,readonly,placeholder"/>
+      </xul:hbox>
+      <xul:dropmarker class="menulist-dropmarker" type="menu"
+                      xbl:inherits="open,disabled,parentfocused=focused"/>
+      <children includes="panel"/>
+    </content>
+  </binding>
 
   <binding id="datetextpicker"
            extends="chrome://calendar/content/datetimepickers/datetimepickers.xml#datetimepicker-base">
@@ -239,17 +252,18 @@
     </resources>
     <content>
       <xul:hbox flex="1" id="hbox" class="datepicker-box-class">
-        <xul:menulist editable="true" sizetopopup="false"
+        <xul:menulist editable="true" type="panel" sizetopopup="false"
                       class="datepicker-text-class"
                       onchange="this.kDatePicker.parseTextBoxDate(true, event);"
                       onkeypress="if (event.keyCode == 13) this.kDatePicker.parseTextBoxDate(true);"
                       xbl:inherits="disabled">
-          <xul:menupopup popupanchor="bottomright" popupalign="topright"
-                         anonid="datepopup"
-                         onpopupshowing="this.parentNode.kDatePicker.onPopup();"
-                         onpopuphiding="this.firstChild.hidePopupList();">
+          <xul:panel popupanchor="bottomright" popupalign="topright"
+                     anonid="datepopup"
+                     onpopupshowing="this.kDatePicker.onPopup();"
+                     onpopupshown="this.firstChild.focusCalendar();"
+                     onpopuphiding="this.firstChild.hidePopupList();">
             <xul:minimonth/>
-          </xul:menupopup>
+          </xul:panel>
         </xul:menulist>
       </xul:hbox>
     </content>
@@ -267,8 +281,8 @@
         }
 
         this.kTextBox.kDatePicker = this; // enable call back to method in Moz1.7
-        this.kTextBox.menupopup.kDatePicker = this;
-        this.kMinimonth = this.kTextBox.menupopup.firstChild;
+        this.kTextBox.firstChild.kDatePicker = this;
+        this.kMinimonth = this.kTextBox.firstChild.firstChild;
         this.mInPopup = false;
         this.kMinimonth.addEventListener("select", this.clickDate, false);
       ]]></constructor>
@@ -328,8 +342,6 @@
           this.mInPopup = true;
           this.kMinimonth.update(this.mValue);
           this.mInPopup = false;
-          // select all to remove cursor since can't type while popped-up
-          this.select();
         ]]></body>
       </method>
 
@@ -383,21 +395,22 @@
   <binding id="datepicker-forever" extends="chrome://calendar/content/datetimepickers/datetimepickers.xml#datepicker">
     <content>
       <xul:hbox flex="1" id="hbox" class="datepicker-box-class">
-        <xul:menulist anonid="foreverMenulist" editable="true" sizetopopup="false"
+        <xul:menulist anonid="foreverMenulist" editable="true" type="panel" sizetopopup="false"
                       class="datepicker-text-class"
                       onchange="this.kDatePicker.parseTextBoxDate(true, event);"
                       onkeypress="if (event.keyCode == 13) this.kDatePicker.parseTextBoxDate(true);"
                       xbl:inherits="disabled">
-          <xul:menupopup popupanchor="bottomright" popupalign="topright"
-                         anonid="datepopup"
-                         onpopupshowing="this.parentNode.kDatePicker.onPopup();"
-                         onpopuphiding="this.firstChild.hidePopupList();">
+          <xul:panel popupanchor="bottomright" popupalign="topright"
+                     anonid="datepopup"
+                     onpopupshowing="this.parentNode.kDatePicker.onPopup();"
+                     onpopupshown="this.firstChild.focusCalendar();"
+                     onpopuphiding="this.firstChild.hidePopupList();">
             <xul:minimonth/>
             <xul:menuseparator/>
-            <xul:menuitem anonid="menuitemForever"
-                          class="datepicker-text-menuItem-class"
-                          oncommand="onMenuitemForever();"/>
-          </xul:menupopup>
+            <xul:button anonid="menuitemForever"
+                        class="datepicker-text-menuItem-class"
+                        oncommand="onMenuitemForever(); this.parentNode.hidePopup();"/>
+          </xul:panel>
         </xul:menulist>
       </xul:hbox>
     </content>
@@ -480,8 +493,6 @@
                   this.menuitemForever.removeAttribute("highlight");
               }
               this.mInPopup = false;
-              // select all to remove cursor since can't type while popped-up
-              this.select();
           }
         ]]></body>
       </method>
