@@ -186,8 +186,7 @@
 }
 
 .tabmail-tab:focus > .tab-stack > .tab-content > .tab-label-container {
-  box-shadow: 0 0 1px -moz-mac-focusring inset,
-              0 0 4px 1px -moz-mac-focusring, 0 0 1.5px 1px -moz-mac-focusring;
+  box-shadow: var(--focus-ring-box-shadow);
 }
 
 .tabmail-tabs {

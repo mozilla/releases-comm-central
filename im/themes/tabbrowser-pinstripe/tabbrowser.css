@@ -6,7 +6,6 @@
 
 %filter substitution
 %define loweredShadow 0 1px rgba(255, 255, 255, .4)
-%define focusRingShadow 0 0 1px -moz-mac-focusring inset, 0 0 4px 1px -moz-mac-focusring, 0 0 1.5px 1px -moz-mac-focusring
 
 @namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
 
@@ -187,7 +186,7 @@ statusbarpanel#statusbar-display {
 }
 
 .tabbrowser-tab:focus > .tab-stack {
-  box-shadow: @focusRingShadow@;
+  box-shadow: var(--focus-ring-box-shadow);
 }
 
 .tabbrowser-tab:not([selected="true"]):not(:hover):not(:-moz-lwtheme) {

@@ -35,8 +35,7 @@
 
 .searchBox[focused] {
   border-color: -moz-mac-focusring;
-  box-shadow: 0 0 1px -moz-mac-focusring inset, 0 0 4px 1px -moz-mac-focusring,
-              0 0 1.5px 1px -moz-mac-focusring;
+  box-shadow: var(--focus-ring-box-shadow);
 }
 
 @media (-moz-mac-yosemite-theme) {
@@ -59,11 +58,6 @@
   .searchBox:-moz-window-inactive {
     box-shadow: none;
     border-color: rgba(0, 0, 0, 0.1);
-  }
-
-  .searchBox[focused] {
-    box-shadow: 0 0 0 0.5px -moz-mac-focusring inset,
-                0 0 0 2px -moz-mac-focusring;
   }
 }
 

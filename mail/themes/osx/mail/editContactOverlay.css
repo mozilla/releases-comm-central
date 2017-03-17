@@ -66,9 +66,7 @@
 #editContactAddressBookList:focus,
 #editContactPanel > hbox > button:focus,
 #editContactPanelBottomButtons > button:focus {
-  outline: 2px solid -moz-mac-focusring;
-  outline-offset: -2px;
-  -moz-outline-radius: 5px;
+  box-shadow: var(--focus-ring-box-shadow);
 }
 
 #editContactAddressBookList[disabled="true"] {
@@ -111,10 +109,8 @@
 }
 
 .editContactTextbox[focused="true"] {
-  border-color: -moz-mac-focusring !important;
-  box-shadow: 0 0 1px -moz-mac-focusring inset,
-              0 0 4px 1px -moz-mac-focusring,
-              0 0 1.5px 1px -moz-mac-focusring;
+  border-color: -moz-mac-focusring;
+  box-shadow: var(--focus-ring-box-shadow);
 }
 
 .editContactTextbox[focused="true"][readonly="true"] {

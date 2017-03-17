@@ -78,7 +78,6 @@ notification > hbox {
 
 %filter substitution
 %define loweredShadow 0 1px rgba(255, 255, 255, .4)
-%define focusRingShadow 0 0 1px -moz-mac-focusring inset, 0 0 4px 1px -moz-mac-focusring, 0 0 1.5px 1px -moz-mac-focusring
 
 %define roundButtonShadow 0 1px rgba(255, 255, 255, .4)
 %define roundButtonPressedShadow inset 0 1px 3px rgba(0, 0, 0, .2), 0 1px rgba(255, 255, 255, .4)
@@ -107,11 +106,11 @@ button {
 }
 
 button:focus {
-  box-shadow: @focusRingShadow@, @roundButtonShadow@;
+  box-shadow: var(--focus-ring-box-shadow), @roundButtonShadow@;
 }
 
 button:active:hover:focus {
-  box-shadow: @focusRingShadow@, @roundButtonPressedShadow@;
+  box-shadow: var(--focus-ring-box-shadow), @roundButtonPressedShadow@;
 }
 
 button:hover:active:not([disabled="true"]) {
