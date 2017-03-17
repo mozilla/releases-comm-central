@@ -206,7 +206,18 @@ var snapshotFormatters = {
       ]);
     }));
   },
+
 /* Not used by TB
+  features: function features(data) {
+    $.append($("features-tbody"), data.map(function(feature) {
+      return $.new("tr", [
+        $.new("td", feature.name),
+        $.new("td", feature.version),
+        $.new("td", feature.id),
+      ]);
+    }));
+  },
+
   experiments: function experiments(data) {
     $.append($("experiments-tbody"), data.map(function(experiment) {
       return $.new("tr", [
