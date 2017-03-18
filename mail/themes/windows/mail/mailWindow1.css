@@ -47,8 +47,7 @@
 
 #folderPane-toolbar {
   border-top-style: none;
-  border-bottom-width: 1px !important;
-  border-bottom-color: ThreeDShadow;
+  border-bottom: 1px solid ThreeDShadow;
 }
 
 /* Give viewPickerPopup a menu look */

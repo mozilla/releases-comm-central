@@ -31,12 +31,6 @@
   background-color: ThreeDShadow;
 }
 
-.mail-toolbox > toolbar,
-.contentTabToolbox > toolbar {
-  -moz-appearance: none;
-  background: transparent;
-}
-
 .mail-toolbox > toolbar {
   /* force iconsize="small" on these toolbars */
   counter-reset: smallicons;

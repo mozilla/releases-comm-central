@@ -63,13 +63,11 @@
 #ab-toolbox:not(:-moz-lwtheme) {
   -moz-appearance: none;
   background-color: -moz-Dialog;
-  border-top: none;
   border-bottom: 1px solid ThreeDShadow;
 }
 
 toolbar:not(:-moz-lwtheme) {
   -moz-appearance: none;
-  border: none;
 }
 
 #ab-toolbox > toolbar {

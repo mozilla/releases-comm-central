@@ -30,10 +30,6 @@
   padding-inline-end: 6px;
 }
 
-.inline-toolbar {
-  -moz-appearance: none;
-}
-
 #expandedBoxSpacer {
   display: block;
   height: 5px;
@@ -378,9 +374,10 @@ toolbar[mode="icons"] > #otherActionsButton > .toolbarbutton-menu-dropmarker >
 }
 
 .inline-toolbar {
+  -moz-appearance: none;
   -moz-box-pack: end;
-  min-width: 50px !important;
-  min-height: 14px !important;
+  min-width: 50px;
+  min-height: 14px;
 }
 
 .inline-toolbar toolbarseparator {

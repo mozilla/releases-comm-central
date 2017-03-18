@@ -45,6 +45,7 @@
 
 .inline-toolbar {
   -moz-appearance: none;
+  -moz-box-pack: end;
   min-height: 0;
   padding: 0;
 }
@@ -274,10 +275,6 @@ toolbar[mode="icons"] > #otherActionsButton > .toolbarbutton-menu-dropmarker {
 .inline-toolbox[doCustomization] .inline-toolbar {
   min-width: 100px;
   min-height: 10px;
-}
-
-.inline-toolbar {
-  -moz-box-pack: end;
 }
 
 .headerName {

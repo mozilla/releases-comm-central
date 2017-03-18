@@ -35,11 +35,6 @@
     margin-bottom: 0;
 }
 
-#task-actions-toolbar {
-    min-width: 50px !important;
-    min-height: 14px !important;
-}
-
 @media (-moz-mac-yosemite-theme) {
     #task-addition-box:-moz-window-inactive {
         border-bottom-color: hsl(0, 0%, 85%);

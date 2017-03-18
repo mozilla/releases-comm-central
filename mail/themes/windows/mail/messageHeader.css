@@ -32,9 +32,7 @@
 
 /* toolbars are optimized to look like OS-provided widgets; override this */
 .inline-toolbox {
-  border-top-width: 0;
   -moz-appearance: none;
-  background-color: transparent;
 }
 
 /* ::::: attachment view ::::: */
@@ -105,7 +103,6 @@
 .inline-toolbar {
   -moz-appearance: none;
   -moz-box-pack: end;
-  border-bottom-width: 0 !important;
 }
 
 .inline-toolbar toolbarpaletteitem toolbarseparator,

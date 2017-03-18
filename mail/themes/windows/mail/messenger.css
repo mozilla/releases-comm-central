@@ -33,22 +33,14 @@
   --lwt-header-image: none;
 }
 
-toolbox:-moz-lwtheme {
-  border-top-width: 0;
-}
-
 .toolbar-primary {
-  border-top: none;
+  -moz-appearance: none;
 }
 
 .menu-iconic > .menu-iconic-left,
 .menuitem-iconic > .menu-iconic-left {
   display: -moz-box;
   padding-top: 0;
-}
-
-#tabbar-toolbar {
-  border: none;
 }
 
 #tabbar-toolbar[customizing="true"] {
@@ -258,10 +250,6 @@ button[type="menu-button"] > button {
   --toolbarbutton-active-boxshadow: 0 0 2px rgba(0, 0, 0, .6) inset;
 
   --toolbarbutton-checkedhover-backgroundcolor: rgba(85%, 85%, 85%, .25);
-}
-
-.toolbar-primary {
-  -moz-appearance: none;
 }
 
 .toolbarbutton-menu-dropmarker {

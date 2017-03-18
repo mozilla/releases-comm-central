@@ -51,8 +51,6 @@
 
 #headers-box {
   -moz-appearance: none;
-  border-top-width: 0;
-  background-color: transparent;
   padding-top: 4px;
   padding-bottom: 2px;
   border-bottom: 1px solid ThreeDShadow;
@@ -257,12 +255,6 @@
 
 #FormatToolbox {
   -moz-appearance: none;
-  border-top-width: 0;
-  background-color: transparent;
-}
-
-#FormatToolbar {
-  background-color: transparent;
 }
 
 #FontFaceSelect {
@@ -586,13 +578,11 @@
 #compose-toolbox:not(:-moz-lwtheme) {
   -moz-appearance: none;
   background-color: -moz-Dialog;
-  border-top: none;
   border-bottom: 1px solid ThreeDShadow;
 }
 
 toolbar:not(:-moz-lwtheme) {
   -moz-appearance: none;
-  border: none;
 }
 
 #compose-toolbox > toolbar {

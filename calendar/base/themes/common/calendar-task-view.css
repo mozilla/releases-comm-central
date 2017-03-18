@@ -89,16 +89,6 @@
 
 /* ::::: task actions toolbar ::::: */
 
-#task-actions-toolbox {
-    border: none;
-}
-
-#task-actions-toolbar {
-    -moz-appearance: none;
-    -moz-box-pack: end;
-    border: none;
-}
-
 #task-actions-toolbar toolbarpaletteitem toolbarseparator,
 #task-actions-toolbar toolbarseparator {
     height: 26px;
