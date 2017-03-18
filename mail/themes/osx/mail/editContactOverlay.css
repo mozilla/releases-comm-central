@@ -39,14 +39,14 @@
 
 /**** HUD style buttons ****/
 
+#editContactAddressBookList,
 #editContactPanel > hbox > button,
-#editContactPanel > hbox > vbox > hbox > button,
-#editContactPanel > #editContactPanelBottomButtons > button {
+#editContactPanelBottomButtons > button {
   -moz-appearance: none;
   color: #434343;
   border-radius: 4px;
-  border: 1px solid #B5B5B5;
-  background: linear-gradient(#FFFFFF, #F2F2F2);
+  border: 1px solid #b5b5b5;
+  background: linear-gradient(#fff, #f2f2f2);
   box-shadow: inset 0 1px rgba(255, 255, 255, 0.8),
               inset 0 0 1px rgba(255, 255, 255, 0.25),
               0 1px rgba(255, 255, 255, 0.3);
@@ -59,67 +59,13 @@
 }
 
 #editContactPanel > hbox > button:hover:active,
-#editContactPanel > hbox > vbox > hbox > button:hover:active,
-#editContactPanel > #editContactPanelBottomButtons > button:hover:active {
+#editContactPanelBottomButtons > button:hover:active {
   box-shadow: inset 0 1px 4px -3px #000, 0 1px rgba(255, 255, 255, 0.3);
 }
 
+#editContactAddressBookList:focus,
 #editContactPanel > hbox > button:focus,
-#editContactPanel > hbox > vbox > hbox > button:focus,
-#editContactPanel > #editContactPanelBottomButtons > button:focus {
-  outline: 2px solid -moz-mac-focusring;
-  outline-offset: -2px;
-  -moz-outline-radius: 100%;
-}
-
-.editContactTextbox {
-  -moz-appearance: none !important;
-  cursor: text;
-  margin: 2px 6px;
-  background: linear-gradient(#FAFAFA, #FFFFFF);
-  background-clip: padding-box;
-  border-radius: 3px;
-  border: 1px solid rgba(0, 0, 0, 0.3);
-  box-shadow: inset 0 1px 1px 1px rgba(0, 0, 0, 0.05),
-              0 1px rgba(255, 255, 255, 0.3);
-  padding: 3px 6px;
-}
-
-.editContactTextbox[readonly="true"] {
-  -moz-appearance: none;
-  border-color: transparent;
-  background: #EDEDED;
-  box-shadow: none;
-}
-
-.editContactTextbox[focused="true"] {
-  border-color: -moz-mac-focusring !important;
-  box-shadow: 0 0 1px -moz-mac-focusring inset,
-              0 0 4px 1px -moz-mac-focusring,
-              0 0 1.5px 1px -moz-mac-focusring;
-}
-
-.editContactTextbox[focused="true"][readonly="true"] {
-  border-color: transparent !important;
-  box-shadow: none;
-}
-
-#editContactAddressBookList {
-  -moz-appearance: none;
-  color: #434343;
-  border-radius: 4px;
-  border: 1px solid #B5B5B5;
-  background: linear-gradient(#FFFFFF, #F2F2F2);
-  box-shadow: inset 0 1px rgba(255, 255, 255, 0.8),
-              inset 0 0 1px rgba(255, 255, 255, 0.25),
-              0 1px rgba(255, 255, 255, 0.3);
-  background-clip: padding-box;
-  background-origin: padding-box;
-  padding: 2px 6px;
-  margin: 0 6px;
-}
-
-#editContactAddressBookList:focus {
+#editContactPanelBottomButtons > button:focus {
   outline: 2px solid -moz-mac-focusring;
   outline-offset: -2px;
   -moz-outline-radius: 5px;
@@ -142,6 +88,38 @@
 
 #editContactAddressBookList > .menulist-dropmarker > .dropmarker-icon {
   list-style-image: url("chrome://global/skin/icons/panel-dropmarker.png");
+}
+
+.editContactTextbox {
+  -moz-appearance: none !important;
+  cursor: text;
+  margin: 2px 6px;
+  background: linear-gradient(#fafafa, #fff);
+  background-clip: padding-box;
+  border-radius: 3px;
+  border: 1px solid rgba(0, 0, 0, 0.3);
+  box-shadow: inset 0 1px 1px 1px rgba(0, 0, 0, 0.05),
+              0 1px rgba(255, 255, 255, 0.3);
+  padding: 3px 6px;
+}
+
+.editContactTextbox[readonly="true"] {
+  -moz-appearance: none;
+  border-color: transparent;
+  background: #ededed;
+  box-shadow: none;
+}
+
+.editContactTextbox[focused="true"] {
+  border-color: -moz-mac-focusring !important;
+  box-shadow: 0 0 1px -moz-mac-focusring inset,
+              0 0 4px 1px -moz-mac-focusring,
+              0 0 1.5px 1px -moz-mac-focusring;
+}
+
+.editContactTextbox[focused="true"][readonly="true"] {
+  border-color: transparent !important;
+  box-shadow: none;
 }
 
 #contactMoveDisabledText {
