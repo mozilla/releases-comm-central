@@ -16,6 +16,7 @@ Cu.import("resource://mozmill/modules/frame.js", frame);
 var SHORT_SLEEP = 100;
 var MID_SLEEP = 500;
 var TIMEOUT_MODAL_DIALOG = 30000;
+var TIMEOUT_MONTHCHANGE = 10000;
 var CALENDARNAME = "Mozmill";
 
 // these are used in EventBox lookup.
@@ -246,21 +247,27 @@ function goToDate(controller, year, month, day) {
             anon({"anonid":"yearcell"})
         `));
 
+        let getYearListitem = function(aYear) {
+            return lookup(`
+                ${miniMonth}/anon({"anonid":"minimonth-header"})/
+                anon({"anonid":"minmonth-popupset"})/anon({"anonid":"years-popup"})/
+                {"label":"${aYear}"}
+            `)
+        };
+
         controller.waitForElement(scrollArrow);
         scrollArrow = scrollArrow.getNode();
 
         for (let i = 0; i < Math.abs(yearDifference); i++) {
             scrollArrow.doCommand();
-            sleep(SHORT_SLEEP);
+            controller.waitForElement(getYearListitem(
+                activeYear - ((i+1)*(yearDifference/Math.abs(yearDifference)))
+            ));
         }
 
         controller.waitForEvents.init(eid("calMinimonth"), ["monthchange"]);
-        controller.click(lookup(`
-            ${miniMonth}/anon({"anonid":"minimonth-header"})/
-            anon({"anonid":"minmonth-popupset"})/anon({"anonid":"years-popup"})/
-            {"label":"${year}"}
-        `));
-        controller.waitForEvents.wait(1000);
+        controller.click(getYearListitem(year));
+        controller.waitForEvents.wait(TIMEOUT_MONTHCHANGE);
     }
 
     if (monthDifference != 0) {
@@ -275,7 +282,7 @@ function goToDate(controller, year, month, day) {
             anon({"anonid":"minmonth-popupset"})/anon({"anonid":"months-popup"})/
             {"index":"${month - 1}"}
         `));
-        controller.waitForEvents.wait(1000);
+        controller.waitForEvents.wait(TIMEOUT_MONTHCHANGE);
     }
 
     let lastDayInFirstRow = lookup(`
