@@ -17,7 +17,6 @@
 #include "nsMsgMimeCID.h"
 #include "nsILineInputStream.h"
 #include "nsMimeTypes.h"
-#include "nsISaveAsCharset.h"
 #include "nsString.h"
 #include "prmem.h"
 #include "plstr.h"
