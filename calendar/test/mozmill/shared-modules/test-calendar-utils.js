@@ -237,7 +237,7 @@ function goToDate(controller, year, month, day) {
         let scrollArrow = lookup(`
             ${miniMonth}/anon({"anonid":"minimonth-header"})/
             anon({"anonid":"minmonth-popupset"})/anon({"anonid":"years-popup"})/
-            [0]/{"class":"autorepeatbutton-${direction}"}`);
+            {"class":"autorepeatbutton-${direction}"}`);
 
         // pick year
         controller.click(lookup(`
@@ -257,7 +257,7 @@ function goToDate(controller, year, month, day) {
         controller.click(lookup(`
             ${miniMonth}/anon({"anonid":"minimonth-header"})/
             anon({"anonid":"minmonth-popupset"})/anon({"anonid":"years-popup"})/
-            [0]/{"value":"${year}"}
+            {"label":"${year}"}
         `));
         controller.waitForEvents.wait(1000);
     }
@@ -272,14 +272,14 @@ function goToDate(controller, year, month, day) {
         controller.waitThenClick(lookup(`
             ${miniMonth}/anon({"anonid":"minimonth-header"})/
             anon({"anonid":"minmonth-popupset"})/anon({"anonid":"months-popup"})/
-            [0]/{"index":"${month - 1}"}
+            {"index":"${month - 1}"}
         `));
         controller.waitForEvents.wait(1000);
     }
 
     let lastDayInFirstRow = lookup(`
-        ${miniMonth}/anon({"anonid":"minimonth-calendar"})/[1]/[7]
-    `).getNode().getAttribute("value");
+        ${miniMonth}/anon({"anonid":"minimonth-calendar"})/[3]/[15]
+    `).getNode().getAttribute("aria-label");
 
     let positionOfFirst = 7 - lastDayInFirstRow;
     let dateColumn = (positionOfFirst + day - 1) % 7;
@@ -287,8 +287,8 @@ function goToDate(controller, year, month, day) {
 
     // pick day
     controller.click(lookup(`
-        ${miniMonth}/anon({"anonid":"minimonth-calendar"})/[${dateRow + 1}]/
-        [${dateColumn + 1}]
+        ${miniMonth}/anon({"anonid":"minimonth-calendar"})/[${(dateRow + 1) * 2 + 1}]/
+        [${(dateColumn + 1) * 2 + 1}]
     `));
     ensureViewLoaded(controller);
 }

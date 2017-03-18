@@ -42,7 +42,7 @@ function testSmokeTest() {
     controller.assertNode(lookup(`
         ${path}/id("ltnSidebar")/id("minimonth-pane")/{"align":"center"}/
         id("calMinimonthBox")/id("calMinimonth")/
-        anon({"anonid":"minimonth-calendar"})/[1]/{"value":"1"}
+        anon({"anonid":"minimonth-calendar"})/[3]/{"aria-label":"1"}
     `));
 
     // check for calendar list
