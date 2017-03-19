@@ -547,3 +547,41 @@ menupopup:not([type="folder"]) > menuseparator {
     background-color: -moz-dialog;
   }
 }
+
+/* Status panel */
+
+.statuspanel-label {
+  margin: 0;
+  padding: 2px 4px;
+  background: -moz-dialog;
+  border: 1px none ThreeDShadow;
+  border-top-style: solid;
+  color: -moz-dialogText;
+  text-shadow: none;
+}
+
+@media (-moz-windows-default-theme) {
+  .statuspanel-label {
+    background: linear-gradient(#fff, #ddd);
+    border-color: #ccc;
+    color: #333;
+  }
+}
+
+.statuspanel-label:-moz-locale-dir(ltr):not([mirror]),
+.statuspanel-label:-moz-locale-dir(rtl)[mirror] {
+  border-right-style: solid;
+  /* disabled for triggering grayscale AA (bug 659213)
+  border-top-right-radius: .3em;
+  */
+  margin-right: 1em;
+}
+
+.statuspanel-label:-moz-locale-dir(rtl):not([mirror]),
+.statuspanel-label:-moz-locale-dir(ltr)[mirror] {
+  border-left-style: solid;
+  /* disabled for triggering grayscale AA (bug 659213)
+  border-top-left-radius: .3em;
+  */
+  margin-left: 1em;
+}

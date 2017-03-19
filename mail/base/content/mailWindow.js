@@ -201,6 +201,7 @@ function InitMsgWindow()
 function nsMsgStatusFeedback()
 {
   this._statusText = document.getElementById("statusText");
+  this._statusPanel = document.getElementById("statusbar-display");
   this._progressBar = document.getElementById("statusbar-icon");
   this._progressBarContainer = document.getElementById("statusbar-progresspanel");
   this._throbber = document.getElementById("throbber-box");
@@ -214,6 +215,7 @@ nsMsgStatusFeedback.prototype =
 {
   // Document elements.
   _statusText: null,
+  _statusPanel: null,
   _progressBar: null,
   _progressBarContainer: null,
   _throbber: null,
@@ -244,7 +246,12 @@ nsMsgStatusFeedback.prototype =
   },
 
   setOverLink: function(link, context) {
-    this._statusText.label = link;
+    if (!document.getElementById("status-bar").hidden) {
+      this._statusText.label = link;
+    } else {
+      // Statusbar invisible: Show link in statuspanel instead.
+      this._statusPanel.label = link;
+    }
   },
 
   // Called before links are navigated to to allow us to retarget them if needed.

@@ -568,6 +568,7 @@
   </panel>
 
   <notificationbox id="mail-notification-box" notificationside="bottom"/>
+  <statuspanel id="statusbar-display" label=""/>
   <statusbar id="status-bar" class="chromeclass-status">
     <statusbarpanel id="unreadMessageCount"/>
     <statusbarpanel id="totalMessageCount"/>

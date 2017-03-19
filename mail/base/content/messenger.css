@@ -344,3 +344,31 @@ preftab:root /* override :root */ {
   -moz-binding: url("chrome://messenger/content/preferences/preferences.xml#preftab");
   -moz-box-orient: vertical;
 }
+
+/* Status panel */
+
+statuspanel {
+  -moz-binding: url("chrome://messenger/content/tabmail.xml#statuspanel");
+  position: fixed;
+  margin-top: -3em;
+  left: 0;
+  z-index: 20;
+  max-width: 50%;
+  transition: opacity 100ms ease-out;
+}
+
+statuspanel:-moz-locale-dir(ltr)[mirror],
+statuspanel:-moz-locale-dir(rtl):not([mirror]) {
+  left: auto;
+  right: 0;
+}
+
+statuspanel[label=""] {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.statuspanel-inner {
+  height: 3em;
+  -moz-box-align: end;
+}
