@@ -447,14 +447,17 @@ nsMsgContentPolicy::IsExposedProtocol(nsIURI *aContentLocation)
   bool isData;
   bool isChrome;
   bool isRes;
+  bool isMozExtension;
   rv = aContentLocation->SchemeIs("chrome", &isChrome);
   NS_ENSURE_SUCCESS(rv, false);
   rv = aContentLocation->SchemeIs("resource", &isRes);
   NS_ENSURE_SUCCESS(rv, false);
   rv = aContentLocation->SchemeIs("data", &isData);
   NS_ENSURE_SUCCESS(rv, false);
+  rv = aContentLocation->SchemeIs("moz-extension", &isMozExtension);
+  NS_ENSURE_SUCCESS(rv, false);
 
-  return isChrome || isRes || isData;
+  return isChrome || isRes || isData || isMozExtension;
 }
 
 /**

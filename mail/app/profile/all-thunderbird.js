@@ -163,6 +163,11 @@ pref("extensions.autoDisableScopes", 15);
 // Enable add-ons installed and owned by the application, like the default theme.
 pref("extensions.startupScanScopes", 4);
 
+// Add-on content security policies.
+pref("extensions.webextensions.base-content-security-policy", "script-src 'self' https://* moz-extension: blob: filesystem: 'unsafe-eval' 'unsafe-inline'; object-src 'self' https://* moz-extension: blob: filesystem:;");
+pref("extensions.webextensions.default-content-security-policy", "script-src 'self'; object-src 'self';");
+
+
 // Allow "legacy" XUL/XPCOM extensions.
 pref("extensions.legacy.enabled", true);
 
