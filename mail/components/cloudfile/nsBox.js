@@ -779,13 +779,14 @@ nsBoxFileUploader.prototype = {
     req.setRequestHeader("Authorization", "Bearer " + this.box._oauth.accessToken);
 
     // Encode the form.
-    let file = new File(this.file);
-    let form = Cc["@mozilla.org/files/formdata;1"]
-                 .createInstance(Ci.nsIDOMFormData);
-    form.append("filename", file, this.file.leafName);
-    form.append("parent_id", this.box._cachedFolderId);
+    File.createFromNsIFile(this.file).then(file => {
+      let form = Cc["@mozilla.org/files/formdata;1"]
+                   .createInstance(Ci.nsIDOMFormData);
+      form.append("filename", file, this.file.leafName);
+      form.append("parent_id", this.box._cachedFolderId);
 
-    req.send(form);
+      req.send(form);
+    });
   },
 
   /**
