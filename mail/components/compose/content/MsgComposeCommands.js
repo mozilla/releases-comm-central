@@ -4597,7 +4597,7 @@ function LoadIdentity(startup)
             if (newCc) {
               // Ensure none of the Ccs are already in To.
               let cc2 = msgCompFields.splitRecipients(newCc, true, {});
-              newCC = cc2.filter(x => !toAddrs.has(x)).join(", ");
+              newCc = cc2.filter(x => !toAddrs.has(x)).join(", ");
               awAddRecipients(msgCompFields, "addr_cc", newCc);
             }
           }
