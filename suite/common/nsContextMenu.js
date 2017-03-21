@@ -1119,10 +1119,10 @@ nsContextMenu.prototype = {
                    true, false, referrerURI, null, null, null,
                    (gPrivate ? true : false));
     else if (this.onImage) {
-        saveImageURL(this.mediaURL, null, "SaveImageTitle", false,
-                     false, referrerURI, null, gContextMenuContentData.contentType,
-                     gContextMenuContentData.contentDisposition,
-                     (gPrivate ? true : false));
+      saveImageURL(this.mediaURL, null, "SaveImageTitle", false,
+                   false, referrerURI, null, gContextMenuContentData.contentType,
+                   gContextMenuContentData.contentDisposition,
+                   (gPrivate ? true : false));
     }
     else if (this.onVideo || this.onAudio) {
       var dialogTitle = this.onVideo ? "SaveVideoTitle" : "SaveAudioTitle";
