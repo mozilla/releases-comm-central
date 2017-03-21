@@ -944,7 +944,7 @@ nsContextMenu.prototype = {
     saveImageURL(canvas.toDataURL("image/jpeg", ""), name, "SaveImageTitle",
                                   true, true,
                                   this.target.ownerDocument.documentURIObject,
-                                  this.target.ownerDocument);
+                                  null, null, null, (gPrivate ? true : false));
   },
 
   // Full screen video playback
@@ -1111,13 +1111,19 @@ nsContextMenu.prototype = {
   // Save URL of clicked-on image, video, or audio.
   saveMedia: function() {
     var doc = this.target.ownerDocument;
+    let referrerURI = doc.documentURIObject;
+
     if (this.onCanvas)
       // Bypass cache, since it's a data: URL.
       saveImageURL(this.target.toDataURL(), "canvas.png", "SaveImageTitle",
-                   true, true, null, doc);
-    else if (this.onImage)
-      saveImageURL(this.mediaURL, null, "SaveImageTitle", false, true,
-                   doc.documentURIObject, doc);
+                   true, false, referrerURI, null, null, null,
+                   (gPrivate ? true : false));
+    else if (this.onImage) {
+        saveImageURL(this.mediaURL, null, "SaveImageTitle", false,
+                     false, referrerURI, null, gContextMenuContentData.contentType,
+                     gContextMenuContentData.contentDisposition,
+                     (gPrivate ? true : false));
+    }
     else if (this.onVideo || this.onAudio) {
       var dialogTitle = this.onVideo ? "SaveVideoTitle" : "SaveAudioTitle";
       this.saveHelper(this.mediaURL, null, dialogTitle, false, doc);
