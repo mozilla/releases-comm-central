@@ -38,6 +38,9 @@
               oncommandupdate="CommandUpdate_AddressBook()">
     <command id="cmd_delete" oncommand="goDoCommand('cmd_delete');"/>
     <command id="cmd_properties" oncommand="goDoCommand('cmd_properties');"/>
+    <command id="cmd_addrTo" oncommand="addSelectedAddresses('addr_to')" disabled="true"/>
+    <command id="cmd_addrCc" oncommand="addSelectedAddresses('addr_cc')" disabled="true"/>
+    <command id="cmd_addrBcc" oncommand="addSelectedAddresses('addr_bcc')" disabled="true"/>
   </commandset>
   <broadcasterset id="cmd_properties-flavors">
     <broadcaster id="cmd_properties-contextMenu" observes="cmd_properties"
@@ -68,13 +71,13 @@
   <menupopup id="cardProperties">
     <menuitem label="&addtoToFieldMenu.label;"
               accesskey="&addtoToFieldMenu.accesskey;"
-              oncommand="addSelectedAddresses('addr_to');"/>
+              command="cmd_addrTo"/>
     <menuitem label="&addtoCcFieldMenu.label;"
               accesskey="&addtoCcFieldMenu.accesskey;"
-              oncommand="addSelectedAddresses('addr_cc');"/>
+              command="cmd_addrCc"/>
     <menuitem label="&addtoBccFieldMenu.label;"
               accesskey="&addtoBccFieldMenu.accesskey;"
-              oncommand="addSelectedAddresses('addr_bcc');"/>
+              command="cmd_addrBcc"/>
     <menuseparator/>
     <menuitem label="&deleteAddrBookCard.label;"
               accesskey="&deleteAddrBookCard.accesskey;"
@@ -145,16 +148,16 @@
         </columns>
         <rows>
           <row id="toButtonBox">
-              <button id="toButton" label="&toButton.label;" accesskey="&toButton.accesskey;"
-                      oncommand="addSelectedAddresses('addr_to')"/>
+                  <button id="toButton" label="&toButton.label;"
+                          accesskey="&toButton.accesskey;" command="cmd_addrTo"/>
           </row>
           <row id="ccButtonBox">
-              <button id="ccButton" label="&ccButton.label;" accesskey="&ccButton.accesskey;"
-                      oncommand="addSelectedAddresses('addr_cc')"/>
+                  <button id="ccButton" label="&ccButton.label;"
+                          accesskey="&ccButton.accesskey;" command="cmd_addrCc"/>
           </row>
           <row id="bccButtonBox">
-              <button id="bccButton" label="&bccButton.label;" accesskey="&bccButton.accesskey;"
-                      oncommand="addSelectedAddresses('addr_bcc')"/>
+                  <button id="bccButton" label="&bccButton.label;"
+                          accesskey="&bccButton.accesskey;" command="cmd_addrBcc"/>
           </row>
         </rows>
       </grid>

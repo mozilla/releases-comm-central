@@ -161,6 +161,12 @@ function UpdateCardView()
 
 function CommandUpdate_AddressBook()
 {
+  // Toggle disable state of to,cc,bcc buttons.
+  let disabled = (GetNumSelectedCards() == 0) ? "true" : "false";
+  document.getElementById("cmd_addrTo").setAttribute("disabled", disabled);
+  document.getElementById("cmd_addrCc").setAttribute("disabled", disabled);
+  document.getElementById("cmd_addrBcc").setAttribute("disabled", disabled);
+
   goUpdateCommand('cmd_delete');
   goUpdateCommand('cmd_properties');
 }
