@@ -14,6 +14,7 @@
 #include "nsInterfaceHashtable.h"
 #include "nsIMutableArray.h"
 #include "nsAbWinHelper.h"
+#include "prlock.h"
 
 struct nsMapiEntry ;
 
