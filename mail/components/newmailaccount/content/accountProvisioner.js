@@ -921,7 +921,9 @@ var EmailAccountProvisioner = {
   beOffline: function EAP_beOffline() {
     let offlineMsg = stringBundle.get("cannotConnect");
     let element = document.getElementById("cannotConnectMessage");
-    element.appendChild(document.createTextNode(offlineMsg));
+    if(!element.hasChildNodes()) {
+      element.appendChild(document.createTextNode(offlineMsg));
+    }
     element.style.display = "block";
     element.style.opacity = 1;
     this.searchEnabled(false);
