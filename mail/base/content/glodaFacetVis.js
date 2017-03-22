@@ -114,7 +114,8 @@ DateFacetVis.prototype = {
     //  we are in year mode or not
     labelTiers.push({
       rules: (span == Span.YEARS) ? rules : scale.ruleValues(Span.YEARS, true),
-      label: ["%Y", "%y", null], // we should not hit the null case...
+      // We should not hit the null member of the array...
+      label: [{ year: "numeric" }, { year: "2-digit" }, null],
       boost: (span == Span.YEARS),
       noFringe: (span == Span.YEARS)
     });
@@ -123,7 +124,7 @@ DateFacetVis.prototype = {
       labelTiers.push({
         rules: scale.ruleValues(Span.MONTHS, true),
         // try to use the full month, falling back to the short month
-        label: ["%B", "%b", null],
+        label: [{ month: "long" }, { month: "short" }, null],
         boost: false
       });
     }
@@ -136,12 +137,12 @@ DateFacetVis.prototype = {
       if (numDays <= this._MAX_DAY_COUNT_LABEL_DISPLAY) {
         labelTiers.push({
           rules: rules,
-          label: ["%d", null],
+          label: [{ day: "numeric" }, null],
           boost: true, noFringe: true
         });
         labelTiers.push({
           rules: rules,
-          label: ["%a", null],
+          label: [{ weekday: "short" }, null],
           boost: true, noFringe: true
         });
       }
@@ -198,7 +199,7 @@ DateFacetVis.prototype = {
           let labelStartDate = labelRules[iRule];
           let labelEndDate = labelRules[iRule + 1];
           let labelText = labelFormat ?
-                            labelStartDate.toLocaleFormat(labelFormat) : null;
+                            labelStartDate.toLocaleDateString(undefined, labelFormat) : null;
           let labelStartNorm = Math.max(0, scale.normalize(labelStartDate));
           let labelEndNorm = Math.min(1, scale.normalize(labelEndDate));
           let labelBudget = (labelEndNorm - labelStartNorm) * width;

@@ -112,6 +112,7 @@
     <implementation implements="nsIActivityListener">
       <constructor>
        <![CDATA[
+        Components.utils.import("resource:///modules/templateUtils.js", this);
         try {
           Components.utils.import("resource:///modules/gloda/log4moz.js");
           let activityManager = Components.classes["@mozilla.org/activity-manager;1"]
@@ -130,8 +131,6 @@
             failed: "failed",
             waitingforinput: "waitingForInput",
             waitingforretry: "waitingForRetry",
-            yesterday: "yesterday",
-            monthDate: "monthDate"
           };
 
           // convert strings to those in the string bundle
@@ -231,48 +230,6 @@
           <![CDATA[
             document.getAnonymousElementByAttribute(this, "anonid",
              anonid).setAttribute('hidden', !visible);
-          ]]>
-        </body>
-      </method>
-      <method name="formatTime">
-        <parameter name="time"/>
-        <body>
-          <![CDATA[
-            let dts = Components.classes["@mozilla.org/intl/scriptabledateformat;1"]
-                                .getService(Components.interfaces.nsIScriptableDateFormat);
-
-            // Figure out when today begins
-            let now = new Date();
-            let today = new Date(now.getFullYear(), now.getMonth(),
-                                 now.getDate());
-
-            // Get the end time to display
-            let end = new Date(parseInt(time));
-
-            // Figure out if the end time is from today, yesterday,
-            // this week, etc.
-            let dateTime;
-            let kDayInMsecs = 24 * 60 * 60 * 1000;
-            let k6DaysInMsecs = 6 * kDayInMsecs;
-            if (end >= today) {
-              // activity finished after today started, show the time
-              dateTime = dts.FormatTime("", dts.timeFormatNoSeconds,
-                                            end.getHours(), end.getMinutes(),0);
-            } else if (today - end < kDayInMsecs) {
-              // activity finished after yesterday started, show yesterday
-              dateTime = this.text.yesterday;
-            } else if (today - end < k6DaysInMsecs) {
-              // activity finished after last week started, show day of week
-              dateTime = end.toLocaleFormat("%A");
-            } else {
-              // activity must have been from some time ago.. show month/day
-              let month = end.toLocaleFormat("%B");
-              // Remove leading 0 by converting the date string to a number
-              let date = Number(end.toLocaleFormat("%d"));
-              dateTime = replaceInsert(this.text.monthDate, 1, month);
-              dateTime = replaceInsert(dateTime, 2, date);
-            }
-            return dateTime;
           ]]>
         </body>
       </method>
@@ -659,7 +616,8 @@
         </getter>
         <setter>
           <![CDATA[
-            this.setAttribute("completionTime", this.formatTime(val));
+            this.setAttribute("completionTime",
+                              this.makeFriendlyDateAgo(new Date(parseInt(val))));
             this.setAttribute("completionTimeTip", this.formatTimeTip(val));
           ]]>
         </setter>
@@ -769,7 +727,8 @@
         </getter>
         <setter>
           <![CDATA[
-            this.setAttribute('dateTime', this.formatTime(val));
+            this.setAttribute("dateTime",
+                              this.makeFriendlyDateAgo(new Date(parseInt(val))));
           ]]>
         </setter>
       </property>

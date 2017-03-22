@@ -278,24 +278,18 @@ function DisplayCardViewPane(realCard)
     var dateStr;
     if (day > 0 && day < 32 && month > 0 && month < 13) {
       var date;
-      // if the year exists, just use Date.toLocaleString
       if (year) {
         // use UTC-based calculations to avoid off-by-one day
         // due to time zone/dst discontinuity
         date = new Date(Date.UTC(year, month - 1, day));
         date.setUTCFullYear(year); // to handle two-digit years properly
-        dateStr = date.toLocaleDateString([], {timeZone: "UTC"});
+        dateStr = date.toLocaleDateString(undefined, {timeZone: "UTC"});
       }
       // if the year doesn't exist, display Month DD (ex. January 01)
       else {
-        date = new Date(saneBirthYear(year), month - 1, day);
-        // toLocaleFormat() seems to have a different implementation than
-        // toLocaleDateString() and returns correct results even when not
-        // passing UTC times; besides, it would not support an options
-        // parameter for {timeZone: "UTC"} anyway.
-        dateStr = date.toLocaleFormat(
-          gAddressBookBundle.getString("dateFormatMonthDay")
-        );
+        date = new Date(Date.UTC(saneBirthYear(year), month - 1, day));
+        dateStr = date.toLocaleDateString(undefined,
+                      { day: "numeric", month: "long", timeZone: "UTC" });
       }
     }
     else if (year)

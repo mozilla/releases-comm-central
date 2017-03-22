@@ -403,10 +403,10 @@ function monthly_archive(keep_structure) {
   let lastMsgHdrMsgId = lastMsgHdr.messageId;
   let firstMsgDate = new Date(firstMsgHdr.date / 1000);
   let firstMsgYear = firstMsgDate.getFullYear().toString();
-  let firstMonthFolderName = firstMsgDate.toLocaleFormat("%Y-%m")
+  let firstMonthFolderName = firstMsgYear + "-" + (firstMsgDate.getMonth() + 1).toString();
   let lastMsgDate = new Date(lastMsgHdr.date / 1000);
   let lastMsgYear = lastMsgDate.getFullYear().toString();
-  let lastMonthFolderName = lastMsgDate.toLocaleFormat("%Y-%m")
+  let lastMonthFolderName = lastMsgYear + "-" + (lastMsgDate.getMonth() + 1).toString();
 
   // Press the archive key. The results should go into two separate months.
   archive_selected_messages();

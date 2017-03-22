@@ -41,10 +41,10 @@ var gTemplateUtilsStrings = new PluralStringFormatter(
  * "yesterday" (localized).  If it's in the last week, it returns the day
  * of the week. If it's before that, it returns the date.
  *
- * @param time
+ * @param time {Date}
  *        the time (better be in the past!)
- * @return The string with a "human-friendly" representation of that time
- *        relative to now.
+ * @return {string}  A "human-friendly" representation of that time
+ *                   relative to now.
  */
 function makeFriendlyDateAgo(time)
 {
@@ -73,13 +73,10 @@ function makeFriendlyDateAgo(time)
     dateTime = gTemplateUtilsStrings.get("yesterday");
   } else if (today - end < k6DaysInMsecs) {
     // activity finished after last week started, show day of week
-    dateTime = end.toLocaleFormat("%A");
+    dateTime = end.toLocaleDateString(undefined, { weekday: "long" });;
   } else if (now.getFullYear() == end.getFullYear()) {
     // activity must have been from some time ago.. show month/day
-    let month = end.toLocaleFormat("%B");
-    // Remove leading 0 by converting the date string to a number
-    let date = Number(end.toLocaleFormat("%d"));
-    dateTime = gTemplateUtilsStrings.get("monthDate", [month, date]);
+    dateTime = end.toLocaleDateString(undefined, { day: "numeric", month: "long" });
   } else {
     // not this year, so show full date format
     dateTime = dts.FormatDate("", dts.dateFormatShort,
