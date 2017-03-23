@@ -8,7 +8,7 @@
 #include "nsNetUtil.h"
 #include "nsCOMPtr.h"
 #include "nsAutoPtr.h"
-#include "nsNullPrincipal.h"
+#include "NullPrincipal.h"
 #include "nsISupportsPrimitives.h"
 #include "plstr.h"
 #include "nsPIDOMWindow.h"
