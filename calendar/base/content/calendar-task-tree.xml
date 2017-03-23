@@ -338,6 +338,8 @@
 
       <field name="mTreeView"><![CDATA[
       ({
+          QueryInterface: XPCOMUtils.generateQI([Components.interfaces.nsITreeView]),
+
           /**
            * Attributes
            */
