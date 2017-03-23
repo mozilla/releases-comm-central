@@ -4,6 +4,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 Components.utils.import("resource://gre/modules/Services.jsm");
+Components.utils.import("resource://gre/modules/AppConstants.jsm");
 Components.utils.import("resource:///modules/mailServices.js");
 
 var gAnyValidIdentity = false; //If there are no valid identities for any account
@@ -437,7 +438,7 @@ function msgNewMailAccount(msgWindow, okCallback, extraData)
   let existingWindow = Services.wm.getMostRecentWindow("mail:autoconfig");
   if (existingWindow) {
     existingWindow.focus();
-  } else {
+  } else if (AppConstants.MOZ_APP_NAME == "thunderbird") {
     // disabling modal for the time being, see 688273 REMOVEME
     window.openDialog("chrome://messenger/content/accountcreation/emailWizard.xul",
                       "AccountSetup", "chrome,titlebar,centerscreen",

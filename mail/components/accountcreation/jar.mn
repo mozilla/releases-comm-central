@@ -1,0 +1,17 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+messenger.jar:
+  content/messenger/accountcreation/accountConfig.js      (content/accountConfig.js)
+  content/messenger/accountcreation/createInBackend.js    (content/createInBackend.js)
+  content/messenger/accountcreation/emailWizard.js        (content/emailWizard.js)
+  content/messenger/accountcreation/emailWizard.xul       (content/emailWizard.xul)
+  content/messenger/accountcreation/fetchConfig.js        (content/fetchConfig.js)
+  content/messenger/accountcreation/fetchhttp.js          (content/fetchhttp.js)
+  content/messenger/accountcreation/guessConfig.js        (content/guessConfig.js)
+  content/messenger/accountcreation/MyBadCertHandler.js   (content/MyBadCertHandler.js)
+  content/messenger/accountcreation/readFromXML.js        (content/readFromXML.js)
+  content/messenger/accountcreation/sanitizeDatatypes.js  (content/sanitizeDatatypes.js)
+  content/messenger/accountcreation/util.js               (content/util.js)
+  content/messenger/accountcreation/verifyConfig.js       (content/verifyConfig.js)
