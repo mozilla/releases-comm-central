@@ -10,8 +10,6 @@
 #include "nsCOMPtr.h"
 #include "nsIServiceManager.h"
 #include "nsIAbCard.h"
-#include "nsILocale.h"
-#include "nsILocaleService.h"
 #include "prmem.h"
 #include "nsCollationCID.h"
 #include "nsIAbManager.h"

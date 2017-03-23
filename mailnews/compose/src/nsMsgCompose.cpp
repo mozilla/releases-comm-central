@@ -48,8 +48,6 @@
 #include "nsMsgBaseCID.h"
 #include "nsMsgMimeCID.h"
 #include "DateTimeFormat.h"
-#include "nsILocaleService.h"
-#include "nsILocale.h"
 #include "nsIMsgComposeService.h"
 #include "nsIMsgComposeProgressParams.h"
 #include "nsMsgUtils.h"

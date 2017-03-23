@@ -27,8 +27,6 @@
 #include "nsIPrompt.h"
 #include "nsIInterfaceRequestor.h"
 #include "nsIInterfaceRequestorUtils.h"
-#include "nsILocale.h"
-#include "nsILocaleService.h"
 #include "nsCollationCID.h"
 #include "nsAbBaseCID.h"
 #include "nsIAbCard.h"
