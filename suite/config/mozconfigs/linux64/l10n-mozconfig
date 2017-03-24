@@ -1,5 +1,9 @@
 . "$topsrcdir/build/unix/mozconfig.linux"
 
+# Disable webrender on Linux buildbot builders to avoid the Rust requirement
+# of libX11 version > 1.4.99.1 (see bug 1350011).
+ac_add_options --disable-webrender
+
 ac_add_options --enable-application=suite
 ac_add_options --with-l10n-base=../../l10n
 ac_add_options --enable-update-channel=${MOZ_UPDATE_CHANNEL}

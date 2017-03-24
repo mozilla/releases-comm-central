@@ -19,6 +19,10 @@ ac_add_options --enable-debug-symbols="-gdwarf-2"
 
 mk_add_options MOZ_MAKE_FLAGS="-j4"
 
+# Disable webrender on Linux buildbot builders to avoid the Rust requirement
+# of libX11 version > 1.4.99.1 (see bug 1350011).
+ac_add_options --disable-webrender
+
 ac_add_options --with-ccache
 ac_add_options --enable-application=im
 # ac_add_options --enable-extensions=purple
