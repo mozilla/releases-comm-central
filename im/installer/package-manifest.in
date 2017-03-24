@@ -232,6 +232,8 @@
 @RESPATH@/components/gtalk.manifest
 @RESPATH@/components/irc.js
 @RESPATH@/components/irc.manifest
+@RESPATH@/components/matrix.js
+@RESPATH@/components/matrix.manifest
 @RESPATH@/components/skype.js
 @RESPATH@/components/skype.manifest
 @RESPATH@/components/twitter.js
