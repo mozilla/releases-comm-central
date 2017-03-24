@@ -4,7 +4,13 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 if CONFIG['OS_ARCH'] == 'WINNT':
-    SOURCES += ['nsWindowsShellService.cpp']
+    SOURCES += [
+        '../../../mozilla/other-licenses/nsis/Contrib/CityHash/cityhash/city.cpp',
+        'nsWindowsShellService.cpp',
+    ]
+    LOCAL_INCLUDES += [
+        '../../../mozilla/other-licenses/nsis/Contrib/CityHash/cityhash',
+    ]
     OS_LIBS += [
         'ole32',
         'version',
