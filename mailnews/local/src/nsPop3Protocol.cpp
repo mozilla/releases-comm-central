@@ -1035,11 +1035,14 @@ void nsPop3Protocol::Abort()
       m_nsIPop3Sink->IncorporateAbort(m_pop3ConData->only_uidl != nullptr);
       m_pop3ConData->msg_closure = nullptr;
   }
-  // need this to close the stream on the inbox.
-  m_nsIPop3Sink->AbortMailDelivery(this);
+  // Need this to close the stream on the inbox. It's possible that
+  // we abort before the POP3 sink was set.
+  if (m_nsIPop3Sink)
+    m_nsIPop3Sink->AbortMailDelivery(this);
   MOZ_LOG(POP3LOGMODULE, LogLevel::Debug,
           (POP3LOG("Clearing running protocol in nsPop3Protocol::Abort()")));
-  m_pop3Server->SetRunningProtocol(nullptr);
+  if (m_pop3Server)
+    m_pop3Server->SetRunningProtocol(nullptr);
 }
 
 NS_IMETHODIMP nsPop3Protocol::Cancel(nsresult status)  // handle stop button
