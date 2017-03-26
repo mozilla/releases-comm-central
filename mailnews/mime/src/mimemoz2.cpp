@@ -525,13 +525,14 @@ BuildAttachmentList(MimeObject *anObject, nsMsgAttachmentData *aAttachData, cons
         skip = false;
     if (skip && child->headers)
     {
-      char * disp = MimeHeaders_get (child->headers,
-                                     HEADER_CONTENT_DISPOSITION,
-                                     true, false);
-      if (MimeHeaders_get_name(child->headers, nullptr) &&
-          (!disp || PL_strcasecmp(disp, "attachment")))
-        // it has a filename and isn't being displayed inline
+      // If it has a filename, we don't skip it regardless of the
+      // content disposition which can be "inline" or "attachment".
+      // Inline parts are not shown when attachments aren't displayed
+      // inline, so the only chance to see the part is as attachment.
+      char * name = MimeHeaders_get_name(child->headers, nullptr);
+      if (name)
         skip = false;
+      PR_FREEIF(name);
     }
 
     found_output = true;
