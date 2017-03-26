@@ -245,7 +245,6 @@ nsLocalMoveCopyMsgTxn::UndoTransactionInternal()
       nsCOMPtr<nsIMutableArray> dstMessages =
         do_CreateInstance(NS_ARRAY_CONTRACTID);
 
-      srcDB->StartBatch();
       for (i = 0; i < count; i++)
       {
         rv = dstDB->GetMsgHdrForKey(m_dstKeyArray[i], 
@@ -268,7 +267,6 @@ nsLocalMoveCopyMsgTxn::UndoTransactionInternal()
           }
         }
       }
-      srcDB->EndBatch();
 
       nsCOMPtr<nsIMsgFolderNotificationService>
         notifier(do_GetService(NS_MSGNOTIFICATIONSERVICE_CONTRACTID));

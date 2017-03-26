@@ -813,7 +813,7 @@ nsMsgNewsFolder::DeleteMessages(nsIArray *messages, nsIMsgWindow *aMsgWindow,
   rv = GetDatabase();
   NS_ENSURE_SUCCESS(rv, rv);
 
-  rv = EnableNotifications(allMessageCountNotifications, false, true);
+  rv = EnableNotifications(allMessageCountNotifications, false);
   if (NS_SUCCEEDED(rv))
   {
     uint32_t count = 0;
@@ -826,7 +826,7 @@ nsMsgNewsFolder::DeleteMessages(nsIArray *messages, nsIMsgWindow *aMsgWindow,
       if (msgHdr)
         rv = mDatabase->DeleteHeader(msgHdr, nullptr, true, true);
     }
-    EnableNotifications(allMessageCountNotifications, true, true);
+    EnableNotifications(allMessageCountNotifications, true);
   }
  
   if (!isMove) 

@@ -1464,11 +1464,11 @@ nsMsgDBFolder::MarkAllMessagesRead(nsIMsgWindow *aMsgWindow)
 
   if (NS_SUCCEEDED(rv))
   {
-    EnableNotifications(allMessageCountNotifications, false, true /*dbBatching*/);
+    EnableNotifications(allMessageCountNotifications, false);
     nsMsgKey *thoseMarked;
     uint32_t numMarked;
     rv = mDatabase->MarkAllRead(&numMarked, &thoseMarked);
-    EnableNotifications(allMessageCountNotifications, true, true /*dbBatching*/);
+    EnableNotifications(allMessageCountNotifications, true);
     NS_ENSURE_SUCCESS(rv, rv);
 
     // Setup a undo-state
@@ -5073,27 +5073,15 @@ nsMsgDBFolder::SetEditableFilterList(nsIMsgFilterList *aFilterList)
 }
 
 /* void enableNotifications (in long notificationType, in boolean enable); */
-NS_IMETHODIMP nsMsgDBFolder::EnableNotifications(int32_t notificationType, bool enable, bool dbBatching)
+NS_IMETHODIMP nsMsgDBFolder::EnableNotifications(int32_t notificationType, bool enable)
 {
   if (notificationType == nsIMsgFolder::allMessageCountNotifications)
   {
     mNotifyCountChanges = enable;
-    // start and stop db batching here. This is under the theory
-    // that any time we want to enable and disable notifications,
-    // we're probably doing something that should be batched.
-    nsCOMPtr <nsIMsgDatabase> database;
-
-    if (dbBatching)  //only if we do dbBatching we need to get db
-      GetMsgDatabase(getter_AddRefs(database));
-
     if (enable)
     {
-      if (database)
-        database->EndBatch();
       UpdateSummaryTotals(true);
     }
-    else if (database)
-      return database->StartBatch();
     return NS_OK;
   }
   return NS_ERROR_NOT_IMPLEMENTED;

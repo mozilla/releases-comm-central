@@ -2970,7 +2970,7 @@ nsMsgDBView::ApplyCommandToIndices(nsMsgViewCommandTypeValue command, nsMsgViewI
     }
   }
 
-  folder->EnableNotifications(nsIMsgFolder::allMessageCountNotifications, false, true /*dbBatching*/);
+  folder->EnableNotifications(nsIMsgFolder::allMessageCountNotifications, false);
 
   // no sense going through the code that handles messages in collasped threads
   // for mark thread read.
@@ -3068,7 +3068,7 @@ nsMsgDBView::ApplyCommandToIndices(nsMsgViewCommandTypeValue command, nsMsgViewI
     }
   }
 
-  folder->EnableNotifications(nsIMsgFolder::allMessageCountNotifications, true, true /*dbBatching*/);
+  folder->EnableNotifications(nsIMsgFolder::allMessageCountNotifications, true);
 
   if (thisIsImapFolder)
   {

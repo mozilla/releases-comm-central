@@ -26,8 +26,6 @@ public:
   NS_IMETHOD DeleteMessages(uint32_t aNumKeys, nsMsgKey* nsMsgKeys,
                             nsIDBChangeListener *instigator) override;
 
-  NS_IMETHOD StartBatch() override;
-  NS_IMETHOD EndBatch() override;
 
   nsresult  Open(nsMsgDBService* aDBService, nsIFile *aSummaryFile, bool create, bool upgrading) override;
   virtual nsMailDatabase  *GetMailDB() {return this;}

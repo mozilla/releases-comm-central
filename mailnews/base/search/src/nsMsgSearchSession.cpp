@@ -656,7 +656,7 @@ nsMsgSearchSession::EnableFolderNotifications(bool aEnable)
     nsCOMPtr<nsIMsgFolder> folder;
     scope->GetFolder(getter_AddRefs(folder));
     if (folder)  //enable msg count notifications
-      folder->EnableNotifications(nsIMsgFolder::allMessageCountNotifications, aEnable, false);
+      folder->EnableNotifications(nsIMsgFolder::allMessageCountNotifications, aEnable);
   }
 }
 

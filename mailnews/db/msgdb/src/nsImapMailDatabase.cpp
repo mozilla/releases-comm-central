@@ -60,17 +60,6 @@ NS_IMETHODIMP nsImapMailDatabase::DeleteMessages(uint32_t aNumKeys, nsMsgKey* ns
   return nsMsgDatabase::DeleteMessages(aNumKeys, nsMsgKeys, instigator);
 }
 
-// override so nsMailDatabase methods that deal with m_folderStream are *not* called
-NS_IMETHODIMP nsImapMailDatabase::StartBatch()
-{
-  return NS_OK;
-}
-
-NS_IMETHODIMP nsImapMailDatabase::EndBatch()
-{
-  return NS_OK;
-}
-
 nsresult nsImapMailDatabase::AdjustExpungedBytesOnDelete(nsIMsgDBHdr *msgHdr)
 {
   uint32_t msgFlags;

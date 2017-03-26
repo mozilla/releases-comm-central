@@ -1917,16 +1917,6 @@ NS_IMETHODIMP nsMsgDatabase::GetMsgHdrForKey(nsMsgKey key, nsIMsgDBHdr **pmsgHdr
   return err;
 }
 
-NS_IMETHODIMP nsMsgDatabase::StartBatch()
-{
-  return NS_OK;
-}
-
-NS_IMETHODIMP nsMsgDatabase::EndBatch()
-{
-  return NS_OK;
-}
-
 NS_IMETHODIMP nsMsgDatabase::DeleteMessage(nsMsgKey key, nsIDBChangeListener *instigator, bool commit)
 {
   nsCOMPtr <nsIMsgDBHdr> msgHdr;

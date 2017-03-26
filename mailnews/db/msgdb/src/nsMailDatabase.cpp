@@ -69,16 +69,6 @@ nsresult nsMailDatabase::GetAllOfflineOpsTable()
   return rv;
 }
 
-NS_IMETHODIMP nsMailDatabase::StartBatch()
-{
-  return NS_OK;
-}
-
-NS_IMETHODIMP nsMailDatabase::EndBatch()
-{
-  SetSummaryValid(true);
-  return NS_OK;
-}
 
 NS_IMETHODIMP nsMailDatabase::DeleteMessages(uint32_t aNumKeys, nsMsgKey* nsMsgKeys, nsIDBChangeListener *instigator)
 {

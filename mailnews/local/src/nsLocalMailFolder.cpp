@@ -1214,7 +1214,7 @@ nsMsgLocalMailFolder::DeleteMessages(nsIArray *messages,
         MarkMsgsOnPop3Server(messages, POP3_DELETE);
 
       nsCOMPtr<nsISupports> msgSupport;
-      rv = EnableNotifications(allMessageCountNotifications, false, true /*dbBatching*/);
+      rv = EnableNotifications(allMessageCountNotifications, false);
       if (NS_SUCCEEDED(rv))
       {
         nsCOMPtr<nsIMsgPluggableStore> msgStore;
@@ -1236,7 +1236,7 @@ nsMsgLocalMailFolder::DeleteMessages(nsIArray *messages,
       // we are the source folder here for a move or shift delete
       //enable notifications because that will close the file stream
       // we've been caching, mark the db as valid, and commit it.
-      EnableNotifications(allMessageCountNotifications, true, true /*dbBatching*/);
+      EnableNotifications(allMessageCountNotifications, true);
       if (!isMove)
         NotifyFolderEvent(NS_SUCCEEDED(rv) ? mDeleteOrMoveMsgCompletedAtom : mDeleteOrMoveMsgFailedAtom);
       if (msgWindow && !isMove)
@@ -1314,9 +1314,9 @@ nsMsgLocalMailFolder::MarkAllMessagesRead(nsIMsgWindow *aMsgWindow)
 
   nsMsgKey *thoseMarked = nullptr;
   uint32_t numMarked = 0;
-  EnableNotifications(allMessageCountNotifications, false, true /*dbBatching*/);
+  EnableNotifications(allMessageCountNotifications, false);
   rv = mDatabase->MarkAllRead(&numMarked, &thoseMarked);
-  EnableNotifications(allMessageCountNotifications, true, true /*dbBatching*/);
+  EnableNotifications(allMessageCountNotifications, true);
   if (NS_FAILED(rv) || !numMarked || !thoseMarked)
     return rv;
 
@@ -1592,7 +1592,7 @@ nsMsgLocalMailFolder::CopyMessages(nsIMsgFolder* srcFolder, nsIArray*
   // the target folder, using getMsgInputStream and getNewMsgOutputStream.
 
   // don't update the counts in the dest folder until it is all over
-  EnableNotifications(allMessageCountNotifications, false, false /*dbBatching*/);  //dest folder doesn't need db batching
+  EnableNotifications(allMessageCountNotifications, false);
 
   // sort the message array by key
   uint32_t numMsgs = 0;
@@ -1692,7 +1692,7 @@ nsMsgLocalMailFolder::CopyMessages(nsIMsgFolder* srcFolder, nsIArray*
   {
     if (isMove)
       srcFolder->NotifyFolderEvent(mDeleteOrMoveMsgFailedAtom);
-    EnableNotifications(allMessageCountNotifications, true, false /*dbBatching*/);  //dest folder doesn't need db batching
+    EnableNotifications(allMessageCountNotifications, true);
   }
   return rv;
 }
@@ -2336,7 +2336,7 @@ NS_IMETHODIMP nsMsgLocalMailFolder::EndCopy(bool aCopySucceeded)
       // are in sync.
       (void) OnCopyCompleted(mCopyState->m_srcSupport, true);
       // enable the dest folder
-      EnableNotifications(allMessageCountNotifications, true, false /*dbBatching*/); //dest folder doesn't need db batching
+      EnableNotifications(allMessageCountNotifications, true);
     }
     return NS_OK;
   }
@@ -2543,7 +2543,7 @@ NS_IMETHODIMP nsMsgLocalMailFolder::EndCopy(bool aCopySucceeded)
         }
 
         // enable the dest folder
-        EnableNotifications(allMessageCountNotifications, true, false /*dbBatching*/); //dest folder doesn't need db batching
+        EnableNotifications(allMessageCountNotifications, true);
         if (srcFolder && !mCopyState->m_isFolder)
         {
           // I'm not too sure of the proper location of this event. It seems to need to be
@@ -2613,7 +2613,7 @@ NS_IMETHODIMP nsMsgLocalMailFolder::EndMove(bool moveSucceeded)
 
     (void) OnCopyCompleted(mCopyState->m_srcSupport, true);
     // enable the dest folder
-    EnableNotifications(allMessageCountNotifications, true, false /*dbBatching*/ );  //dest folder doesn't need db batching
+    EnableNotifications(allMessageCountNotifications, true);
     return NS_OK;
   }
 
@@ -2641,7 +2641,7 @@ NS_IMETHODIMP nsMsgLocalMailFolder::EndMove(bool moveSucceeded)
     AutoCompact(mCopyState->m_msgWindow);
 
     // enable the dest folder
-    EnableNotifications(allMessageCountNotifications, true, false /*dbBatching*/); //dest folder doesn't need db batching
+    EnableNotifications(allMessageCountNotifications, true);
     // I'm not too sure of the proper location of this event. It seems to need to be
     // after the EnableNotifications, or the folder counts can be incorrect
     // during the mDeleteOrMoveMsgCompletedAtom call.

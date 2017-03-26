@@ -16,9 +16,7 @@ public:
   // Perhaps we shouldn't...
   nsImapMailDatabase();
   virtual ~nsImapMailDatabase();
-  
-  NS_IMETHOD    StartBatch() override;
-  NS_IMETHOD    EndBatch() override;
+
   NS_IMETHOD    GetSummaryValid(bool *aResult) override;
   NS_IMETHOD    SetSummaryValid(bool valid = true) override;
   virtual nsresult AdjustExpungedBytesOnDelete(nsIMsgDBHdr *msgHdr) override;

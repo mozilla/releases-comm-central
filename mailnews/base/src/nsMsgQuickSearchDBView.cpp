@@ -92,7 +92,7 @@ NS_IMETHODIMP nsMsgQuickSearchDBView::DoCommand(nsMsgViewCommandTypeValue aComma
   if (aCommand == nsMsgViewCommandType::markAllRead)
   {
     nsresult rv = NS_OK;
-    m_folder->EnableNotifications(nsIMsgFolder::allMessageCountNotifications, false, true /*dbBatching*/);
+    m_folder->EnableNotifications(nsIMsgFolder::allMessageCountNotifications, false);
 
     for (uint32_t i = 0; NS_SUCCEEDED(rv) && i < GetSize(); i++)
     {
@@ -101,7 +101,7 @@ NS_IMETHODIMP nsMsgQuickSearchDBView::DoCommand(nsMsgViewCommandTypeValue aComma
       rv = m_db->MarkHdrRead(msgHdr, true, nullptr);
     }
 
-    m_folder->EnableNotifications(nsIMsgFolder::allMessageCountNotifications, true, true /*dbBatching*/);
+    m_folder->EnableNotifications(nsIMsgFolder::allMessageCountNotifications, true);
 
     nsCOMPtr<nsIMsgImapMailFolder> imapFolder = do_QueryInterface(m_folder);
     if (NS_SUCCEEDED(rv) && imapFolder)

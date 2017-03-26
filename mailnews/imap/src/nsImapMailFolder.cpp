@@ -1902,9 +1902,9 @@ nsImapMailFolder::MarkAllMessagesRead(nsIMsgWindow *aMsgWindow)
   {
     nsMsgKey *thoseMarked;
     uint32_t numMarked;
-    EnableNotifications(allMessageCountNotifications, false, true /*dbBatching*/);
+    EnableNotifications(allMessageCountNotifications, false);
     rv = mDatabase->MarkAllRead(&numMarked, &thoseMarked);
-    EnableNotifications(allMessageCountNotifications, true, true /*dbBatching*/);
+    EnableNotifications(allMessageCountNotifications, true);
     if (NS_SUCCEEDED(rv) && numMarked)
     {
       rv = StoreImapFlags(kImapMsgSeenFlag, true, thoseMarked,
@@ -2293,7 +2293,7 @@ NS_IMETHODIMP nsImapMailFolder::DeleteMessages(nsIArray *messages,
           MarkMessagesImapDeleted(&srcKeyArray, deleteMsgs, database);
         else
         {
-          EnableNotifications(allMessageCountNotifications, false, true /*dbBatching*/);  //"remove it immediately" model
+          EnableNotifications(allMessageCountNotifications, false);  //"remove it immediately" model
           // Notify if this is an actual delete.
           if (!isMove)
           {
@@ -2303,7 +2303,7 @@ NS_IMETHODIMP nsImapMailFolder::DeleteMessages(nsIArray *messages,
           }
           DeleteStoreMessages(messages);
           database->DeleteMessages(srcKeyArray.Length(), srcKeyArray.Elements(), nullptr);
-          EnableNotifications(allMessageCountNotifications, true, true /*dbBatching*/);
+          EnableNotifications(allMessageCountNotifications, true);
         }
         NotifyFolderEvent(mDeleteOrMoveMsgCompletedAtom);
       }
@@ -2806,9 +2806,9 @@ NS_IMETHODIMP nsImapMailFolder::UpdateImapMailboxInfo(nsIImapProtocol* aProtocol
         notifier->NotifyMsgsDeleted(hdrsToDelete);
     }
     DeleteStoreMessages(hdrsToDelete);
-    EnableNotifications(nsIMsgFolder::allMessageCountNotifications, false, false);
+    EnableNotifications(nsIMsgFolder::allMessageCountNotifications, false);
     mDatabase->DeleteMessages(keysToDelete.Length(), keysToDelete.Elements(), nullptr);
-    EnableNotifications(nsIMsgFolder::allMessageCountNotifications, true, false);
+    EnableNotifications(nsIMsgFolder::allMessageCountNotifications, true);
   }
   int32_t numUnreadFromServer;
   aSpec->GetNumUnseenMessages(&numUnreadFromServer);
@@ -5290,7 +5290,7 @@ nsImapMailFolder::OnStopRunningUrl(nsIURI *aUrl, nsresult aExitCode)
                 else
                   MarkMessagesImapDeleted(&srcKeyArray, true, srcDB);
               }
-              srcFolder->EnableNotifications(allMessageCountNotifications, true, true/* dbBatching*/);
+              srcFolder->EnableNotifications(allMessageCountNotifications, true);
               // even if we're showing deleted messages,
               // we still need to notify FE so it will show the imap deleted flag
               srcFolder->NotifyFolderEvent(mDeleteOrMoveMsgCompletedAtom);
@@ -5310,7 +5310,7 @@ nsImapMailFolder::OnStopRunningUrl(nsIURI *aUrl, nsresult aExitCode)
             }
             else
             {
-              srcFolder->EnableNotifications(allMessageCountNotifications, true, true/* dbBatching*/);
+              srcFolder->EnableNotifications(allMessageCountNotifications, true);
               srcFolder->NotifyFolderEvent(mDeleteOrMoveMsgFailedAtom);
             }
 
@@ -7191,7 +7191,7 @@ nsresult nsImapMailFolder::CopyMessagesOffline(nsIMsgFolder* srcFolder,
       nsCString messageIds;
       rv = BuildIdsAndKeyArray(messages, messageIds, srcKeyArray);
       // put fake message in destination db, delete source if move
-      EnableNotifications(nsIMsgFolder::allMessageCountNotifications, false, false);
+      EnableNotifications(nsIMsgFolder::allMessageCountNotifications, false);
       for (uint32_t sourceKeyIndex = 0; NS_SUCCEEDED(stopit) && (sourceKeyIndex < srcCount); sourceKeyIndex++)
       {
         bool messageReturningHome = false;
@@ -7351,7 +7351,7 @@ nsresult nsImapMailFolder::CopyMessagesOffline(nsIMsgFolder* srcFolder,
             msgHdrsCopied->AppendElement(mailHdr, false);
         }
       }
-      EnableNotifications(nsIMsgFolder::allMessageCountNotifications, true, false);
+      EnableNotifications(nsIMsgFolder::allMessageCountNotifications, true);
       RefPtr<nsImapOfflineTxn> addHdrMsgTxn = new
         nsImapOfflineTxn(this, &addedKeys, nullptr, this, isMove, nsIMsgOfflineImapOperation::kAddedHeader,
                          addedHdrs);
@@ -7424,10 +7424,10 @@ nsresult nsImapMailFolder::CopyMessagesOffline(nsIMsgFolder* srcFolder,
   if (isMove && NS_SUCCEEDED(rv) && (deleteToTrash || deleteImmediately))
   {
     DeleteStoreMessages(keysToDelete, srcFolder);
-    srcFolder->EnableNotifications(nsIMsgFolder::allMessageCountNotifications, false, false);
+    srcFolder->EnableNotifications(nsIMsgFolder::allMessageCountNotifications, false);
     sourceMailDB->DeleteMessages(keysToDelete.Length(), keysToDelete.Elements(),
                                  nullptr);
-    srcFolder->EnableNotifications(nsIMsgFolder::allMessageCountNotifications, true, false);
+    srcFolder->EnableNotifications(nsIMsgFolder::allMessageCountNotifications, true);
   }
 
   nsCOMPtr<nsISupports> srcSupport = do_QueryInterface(srcFolder);
@@ -7682,7 +7682,7 @@ nsImapMailFolder::CopyMessages(nsIMsgFolder* srcFolder,
     m_copyState->m_curIndex = m_copyState->m_totalCount;
 
     if (isMove)
-      srcFolder->EnableNotifications(allMessageCountNotifications, false, true/* dbBatching*/);  //disable message count notification
+      srcFolder->EnableNotifications(allMessageCountNotifications, false);  //disable message count notification
 
     nsCOMPtr<nsISupports> copySupport = do_QueryInterface(m_copyState);
     rv = imapService->OnlineMessageCopy(srcFolder, messageIds,
@@ -7717,7 +7717,7 @@ done:
     (void) OnCopyCompleted(srcSupport, rv);
     if (isMove)
     {
-      srcFolder->EnableNotifications(allMessageCountNotifications, true, true/* dbBatching*/);  //enable message count notification
+      srcFolder->EnableNotifications(allMessageCountNotifications, true);  //enable message count notification
       NotifyFolderEvent(mDeleteOrMoveMsgFailedAtom);
     }
   }
