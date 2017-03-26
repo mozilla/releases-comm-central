@@ -91,8 +91,15 @@ MimeLeaf_parse_begin (MimeObject *obj)
 
   /* Initialize a decoder if necessary.
    */
-  if (!obj->encoding)
-  ;
+  if (!obj->encoding ||
+      // If we need the object as "raw" for saving or forwarding,
+      // don't decode message types. Other output formats,
+      // like "display" (nsMimeMessageBodyDisplay), need decoding.
+      (obj->options->format_out == nsMimeOutput::nsMimeMessageRaw &&
+       obj->parent &&
+       (!PL_strcasecmp(obj->parent->content_type, MESSAGE_NEWS) ||
+        !PL_strcasecmp(obj->parent->content_type, MESSAGE_RFC822))))
+    /* no-op */ ;
   else if (!PL_strcasecmp(obj->encoding, ENCODING_BASE64))
   fn = &MimeB64DecoderInit;
   else if (!PL_strcasecmp(obj->encoding, ENCODING_QUOTED_PRINTABLE))
