@@ -71,6 +71,18 @@ nsFolderCompactState::~nsFolderCompactState()
   }
 }
 
+nsresult
+GetBaseStringBundle(nsIStringBundle **aBundle)
+{
+  NS_ENSURE_ARG_POINTER(aBundle);
+  nsCOMPtr<nsIStringBundleService> bundleService =
+    mozilla::services::GetStringBundleService();
+  NS_ENSURE_TRUE(bundleService, NS_ERROR_UNEXPECTED);
+  nsCOMPtr<nsIStringBundle> bundle;
+  return bundleService->CreateBundle(
+    "chrome://messenger/locale/messenger.properties", aBundle);
+}
+
 void nsFolderCompactState::CloseOutputStream()
 {
   if (m_fileStream)
@@ -306,14 +318,38 @@ nsFolderCompactState::Compact(nsIMsgFolder *folder, bool aOfflineStore,
 
 nsresult nsFolderCompactState::ShowStatusMsg(const nsString& aMsg)
 {
-  nsCOMPtr <nsIMsgStatusFeedback> statusFeedback;
-  if (m_window)
-  {
-    m_window->GetStatusFeedback(getter_AddRefs(statusFeedback));
-    if (statusFeedback && !aMsg.IsEmpty())
-      return statusFeedback->SetStatusString(aMsg);
-  }
-  return NS_OK;
+  if (!m_window || aMsg.IsEmpty())
+    return NS_OK;
+
+  nsCOMPtr<nsIMsgStatusFeedback> statusFeedback;
+  nsresult rv = m_window->GetStatusFeedback(getter_AddRefs(statusFeedback));
+  if (NS_FAILED(rv) || !statusFeedback)
+    return NS_OK;
+
+  // Try to prepend account name to the message.
+  nsString statusMessage;
+  do {
+    nsCOMPtr<nsIMsgIncomingServer> server;
+    rv = m_folder->GetServer(getter_AddRefs(server));
+    if (NS_FAILED(rv))
+      break;
+    nsAutoString accountName;
+    rv = server->GetPrettyName(accountName);
+    if (NS_FAILED(rv))
+      break;
+    nsCOMPtr<nsIStringBundle> bundle;
+    rv = GetBaseStringBundle(getter_AddRefs(bundle));
+    if (NS_FAILED(rv))
+      break;
+    const char16_t *params[] = { accountName.get(), aMsg.get() };
+    rv = bundle->FormatStringFromName(u"statusMessage",
+                                      params, 2, getter_Copies(statusMessage));
+  } while (false);
+
+  // If fetching any of the needed info failed, just show the original message.
+  if (NS_FAILED(rv))
+    statusMessage.Assign(aMsg);
+  return statusFeedback->SetStatusString(statusMessage);
 }
 
 nsresult
@@ -616,17 +652,6 @@ nsFolderCompactState::FinishCompact()
   return rv;
 }
 
-nsresult
-GetBaseStringBundle(nsIStringBundle **aBundle)
-{
-  NS_ENSURE_ARG_POINTER(aBundle);
-  nsCOMPtr<nsIStringBundleService> bundleService =
-    mozilla::services::GetStringBundleService();
-  NS_ENSURE_TRUE(bundleService, NS_ERROR_UNEXPECTED);
-  nsCOMPtr<nsIStringBundle> bundle;
-  return bundleService->CreateBundle(
-    "chrome://messenger/locale/messenger.properties", aBundle);
-}
 
 void nsFolderCompactState::CompactCompleted(nsresult exitCode)
 {
