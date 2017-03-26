@@ -3,6 +3,7 @@ ac_add_options --enable-update-channel=${MOZ_UPDATE_CHANNEL}
 ac_add_options --disable-install-strip
 ac_add_options --enable-profiling
 ac_add_options --with-l10n-base=../../l10n
+# Disabling is needed, see bug 1345422 comment #58.
 ac_add_options --disable-compile-environment
 
 # Build lightning locales
