@@ -2,14 +2,16 @@
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
-<!ENTITY autoconfigWizard.title          "Mail Account Setup">
+<!ENTITY autoconfigWizard2.title         "Set Up an Existing Email Account">
 <!ENTITY name.label                      "Your name:">
 <!ENTITY name.accesskey                  "n">
 <!ENTITY name.placeholder                "First Last">
 <!ENTITY name.text                       "Your name, as shown to others">
 <!ENTITY email.label                     "Email address:">
-<!ENTITY email.accesskey                 "l">
-<!ENTITY email.placeholder               "email@example.com">
+<!ENTITY email.accesskey                 "E">
+<!-- LOCALIZATION NOTE(email.placeholder): Domain @example.com must stay in English -->
+<!ENTITY email2.placeholder              "you@example.com">
+<!ENTITY email.text                      "Your existing email address">
 <!ENTITY password.label                  "Password:">
 <!ENTITY password.accesskey              "P">
 <!ENTITY password.placeholder            "Password">
@@ -53,8 +55,8 @@
 <!ENTITY half-manual-test.accesskey      "t">
 <!ENTITY manual-edit.label               "Manual config">
 <!ENTITY manual-edit.accesskey           "M">
-<!ENTITY switch-to-provisioner.label     "Get a new account">
-<!ENTITY switch-to-provisioner.accesskey "G">
+<!ENTITY open-provisioner.label          "Get a new email address…">
+<!ENTITY open-provisioner.accesskey      "g">
 
 
 <!ENTITY warning.label                   "Warning!">

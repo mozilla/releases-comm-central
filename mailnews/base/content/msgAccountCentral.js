@@ -287,10 +287,7 @@ function CreateNewAccount()
 function CreateNewAccountTB(type)
 {
   if (type == "mail") {
-    if (Services.prefs.getBoolPref("mail.provider.enabled"))
-        NewMailAccountProvisioner(null);
-    else
-        AddMailAccount();
+    AddMailAccount();
     return;
   }
 

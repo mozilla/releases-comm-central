@@ -155,11 +155,11 @@
         <hbox>
 #ifdef MOZ_THUNDERBIRD
           <label class="acctCentralText"
-                 value="&newAcct.label;"
+                 value="&setupNewAcct.label;"
                  chromedir="&locale.dir;"/>
 #else
           <label class="acctCentralText acctCentralLinkText"
-                 value="&newAcctLink.label;"
+                 value="&setupNewAcctLink.label;"
                  chromedir="&locale.dir;"
                  onclick="CreateNewAccount();"/>
 #endif
