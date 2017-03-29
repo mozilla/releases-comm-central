@@ -362,7 +362,8 @@ nsresult nsMsgFilterAfterTheFact::OnEndExecution()
     (void)m_callback->OnStopOperation(mFinalResult);
 
   nsresult rv = mFinalResult;
-  MOZ_ASSERT(mNeedsRelease, "OnEndExecution called a second time");
+  // OnEndExecution() can be called a second time when a rule execution fails
+  // and the user is prompted whether he wants to continue.
   if (mNeedsRelease)
   {
     Release(); // release ourselves.
@@ -783,7 +784,14 @@ nsresult nsMsgFilterAfterTheFact::ApplyFilter()
             nsCOMPtr<nsIMsgDBHdr> msgHdr = do_QueryElementAt(m_searchHitHdrs, msgIndex);
             CONTINUE_IF_FALSE(msgHdr, "Could not get msgHdr");
             rv = compService->ReplyWithTemplate(msgHdr, replyTemplateUri.get(), m_msgWindow, server);
-            CONTINUE_IF_FAILURE(rv, "ReplyWithtemplate failed");
+            if (NS_FAILED(rv)) {
+              if (rv == NS_ERROR_ABORT) {
+                m_curFilter->LogRuleHitFail(filterAction, msgHdr, rv, "Sending reply aborted");
+              } else {
+                m_curFilter->LogRuleHitFail(filterAction, msgHdr, rv, "Error sending reply");
+              }
+            }
+            CONTINUE_IF_FAILURE(rv, "ReplyWithTemplate failed");
           }
         }
         break;

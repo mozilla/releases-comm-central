@@ -3745,8 +3745,17 @@ NS_IMETHODIMP nsImapMailFolder::ApplyFilterHit(nsIMsgFilter *filter, nsIMsgWindo
           if (!replyTemplateUri.IsEmpty())
           {
             nsCOMPtr <nsIMsgComposeService> compService = do_GetService (NS_MSGCOMPOSESERVICE_CONTRACTID) ;
-            if (compService)
+            if (compService) {
               rv = compService->ReplyWithTemplate(msgHdr, replyTemplateUri.get(), msgWindow, server);
+              if (NS_FAILED(rv)) {
+                NS_WARNING("ReplyWithTemplate failed");
+                if (rv == NS_ERROR_ABORT) {
+                  filter->LogRuleHitFail(filterAction, msgHdr, rv, "Sending reply aborted");
+                } else {
+                  filter->LogRuleHitFail(filterAction, msgHdr, rv, "Error sending reply");
+                }
+              }
+            }
           }
         }
         break;

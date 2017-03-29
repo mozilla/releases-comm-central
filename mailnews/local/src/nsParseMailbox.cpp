@@ -2199,6 +2199,8 @@ NS_IMETHODIMP nsParseNewMailState::ApplyFilterHit(nsIMsgFilter *filter, nsIMsgWi
           filterAction->GetStrValue(replyTemplateUri);
           m_replyTemplateUri.AppendElement(replyTemplateUri);
           m_msgToForwardOrReply = msgHdr;
+          m_ruleAction = filterAction;
+          m_filter = filter;
         }
         break;
       case nsMsgFilterAction::DeleteFromPop3Server:
@@ -2341,10 +2343,21 @@ nsresult nsParseNewMailState::ApplyForwardAndReplyFilter(nsIMsgWindow *msgWindow
       if (server)
       {
         nsCOMPtr <nsIMsgComposeService> compService = do_GetService (NS_MSGCOMPOSESERVICE_CONTRACTID) ;
-        if (compService)
+        if (compService) {
           rv = compService->ReplyWithTemplate(m_msgToForwardOrReply,
                                               m_replyTemplateUri[i].get(),
                                               msgWindow, server);
+          if (NS_FAILED(rv)) {
+            NS_WARNING("ReplyWithTemplate failed");
+            if (rv == NS_ERROR_ABORT) {
+              m_filter->LogRuleHitFail(m_ruleAction, m_msgToForwardOrReply, rv,
+                                       "Sending reply aborted");
+            } else {
+              m_filter->LogRuleHitFail(m_ruleAction, m_msgToForwardOrReply, rv,
+                                       "Error sending reply");
+            }
+          }
+        }
       }
     }
   }

@@ -24,6 +24,7 @@
 #include "nsAutoPtr.h"
 #include "nsString.h"
 #include "nsIMsgFilterList.h"
+#include "nsIMsgFilter.h"
 #include "nsIMsgFilterHitNotify.h"
 #include "nsIMsgFolderNotificationService.h"
 #include "nsTArray.h"
@@ -262,7 +263,9 @@ protected:
   // these need to be arrays in case we have multiple reply/forward filters.
   nsTArray<nsCString> m_forwardTo;
   nsTArray<nsCString> m_replyTemplateUri;
-  nsCOMPtr <nsIMsgDBHdr> m_msgToForwardOrReply;
+  nsCOMPtr<nsIMsgDBHdr> m_msgToForwardOrReply;
+  nsCOMPtr<nsIMsgFilter> m_filter;
+  nsCOMPtr<nsIMsgRuleAction> m_ruleAction;
 };
 
 #endif
