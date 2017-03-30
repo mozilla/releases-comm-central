@@ -72,7 +72,7 @@ function makeVerifier(aFonts) {
 var gNonCTVerifier = makeVerifier({
   serif: "Times New Roman",
   sans: "Arial",
-  monospace: "Consolas",
+  monospace: "Courier New",
   variableSize: 16,
   fixedSize: 13,
   migrated: false,
