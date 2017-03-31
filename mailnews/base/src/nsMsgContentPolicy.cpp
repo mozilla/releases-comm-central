@@ -239,9 +239,26 @@ nsMsgContentPolicy::ShouldLoad(uint32_t          aContentType,
   // cause content to be rejected.
   *aDecision = nsIContentPolicy::REJECT_REQUEST;
 
-  // if aContentLocation is a protocol we handle (imap, pop3, mailbox, etc)
-  // or is a chrome url, then allow the load
+  // If aContentLocation uses a protocol we handle (imap, pop, mailbox, news),
+  // we require that the load comes from the same scheme/account/server/port.
+  // This is basically a simplyfied "same origin" test.
+  // Pre-paths for example are:
+  // mailbox: mailbox://
+  // imap:    imap://user@domain@server:port
+  // news:    news://server:port
+  nsCOMPtr<nsIMsgMailNewsUrl> mailnewsUrl(do_QueryInterface(aContentLocation));
+  if (mailnewsUrl) {
+    nsCString contentPrePath, requestingPrePath;
+    aContentLocation->GetPrePath(contentPrePath);
+    aRequestingLocation->GetPrePath(requestingPrePath);
+    if (contentPrePath.Equals(requestingPrePath))  {
+      *aDecision = nsIContentPolicy::ACCEPT;
+      return NS_OK;
+    }
+  }
 
+  // If exposed protocol not covered by the test above or protocol that has been
+  // specifically exposed by an add-on, or is a chrome url, then allow the load.
   if (IsExposedProtocol(aContentLocation))
   {
     *aDecision = nsIContentPolicy::ACCEPT;
@@ -388,16 +405,13 @@ nsMsgContentPolicy::IsExposedProtocol(nsIURI *aContentLocation)
   nsresult rv = aContentLocation->GetScheme(contentScheme);
   NS_ENSURE_SUCCESS(rv, false);
 
-  // If you are changing this list, you may need to also consider changing the
-  // list of network.protocol-handler.expose.* prefs in all-thunderbird.js.
+  // Check some exposed protocols. Not all protocols in the list of
+  // network.protocol-handler.expose.* prefs in all-thunderbird.js are
+  // admitted purely based on their scheme.
+  // news, snews, nntp, imap, pop and mailbox are checked before the call
+  // to this function by matching content location and requesting location.
   if (MsgLowerCaseEqualsLiteral(contentScheme, "mailto") ||
-      MsgLowerCaseEqualsLiteral(contentScheme, "news") ||
-      MsgLowerCaseEqualsLiteral(contentScheme, "snews") ||
-      MsgLowerCaseEqualsLiteral(contentScheme, "nntp") ||
-      MsgLowerCaseEqualsLiteral(contentScheme, "imap") ||
       MsgLowerCaseEqualsLiteral(contentScheme, "addbook") ||
-      MsgLowerCaseEqualsLiteral(contentScheme, "pop") ||
-      MsgLowerCaseEqualsLiteral(contentScheme, "mailbox") ||
       MsgLowerCaseEqualsLiteral(contentScheme, "about"))
     return true;
 
