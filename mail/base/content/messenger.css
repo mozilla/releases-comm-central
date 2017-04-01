@@ -8,6 +8,12 @@
 
 @namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
 
+:root {
+  --lwt-additional-images: none;
+  --lwt-background-alignment: right top;
+  --lwt-background-tiling: no-repeat;
+}
+
 /* attachment list styles */
 
 attachmentlist {
@@ -286,12 +292,9 @@ menupopup[type="folder"] {
  */
 :root:-moz-lwtheme:not([customization-lwtheme]) {
   background-color: var(--lwt-accent-color) !important;
-  background-image: var(--lwt-header-image) !important;
-}
-
-#messengerWindow:-moz-lwtheme {
-  background-repeat: no-repeat;
-  background-position: top right;
+  background-image: var(--lwt-header-image), var(--lwt-additional-images) !important;
+  background-position: var(--lwt-background-alignment) !important;
+  background-repeat: var(--lwt-background-tiling) !important;
 }
 
 :root[lwthemefooter="true"] #status-bar:-moz-lwtheme {

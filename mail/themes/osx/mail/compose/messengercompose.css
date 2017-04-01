@@ -10,11 +10,6 @@
 
 @namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
 
-#msgcomposeWindow:-moz-lwtheme {
-  background-repeat: no-repeat;
-  background-position: top right;
-}
-
 #attachmentBucket {
   width: 15em;
   min-width: 15em;
