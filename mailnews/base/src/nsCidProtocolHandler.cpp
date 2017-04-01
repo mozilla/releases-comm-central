@@ -7,6 +7,7 @@
 #include "nsString.h"
 #include "nsIURI.h"
 #include "nsNetCID.h"
+#include "nsNetUtil.h"
 #include "nsComponentManagerUtils.h"
 
 nsCidProtocolHandler::nsCidProtocolHandler()
@@ -37,20 +38,17 @@ NS_IMETHODIMP nsCidProtocolHandler::GetProtocolFlags(uint32_t *aProtocolFlags)
 
 NS_IMETHODIMP nsCidProtocolHandler::NewURI(const nsACString & aSpec, const char *aOriginCharset, nsIURI *aBaseURI, nsIURI **_retval)
 {
-  nsresult rv;
-  nsCOMPtr <nsIURI> url = do_CreateInstance(NS_SIMPLEURI_CONTRACTID, &rv);
-  NS_ENSURE_SUCCESS(rv,rv);
-
   // the right fix is to use the baseSpec (or aBaseUri)
   // and specify the cid, and then fix mime
   // to handle that, like it does with "...&part=1.2"
   // for now, do about blank to prevent spam
   // from popping up annoying alerts about not implementing the cid
   // protocol
-  rv = url->SetSpec(nsDependentCString("about:blank"));
+  nsCOMPtr<nsIURI> url;
+  nsresult rv = NS_NewURI(getter_AddRefs(url), "about:blank");
   NS_ENSURE_SUCCESS(rv,rv);
 
-  NS_IF_ADDREF(*_retval = url);
+  url.forget(_retval);
   return NS_OK;
 }
 
