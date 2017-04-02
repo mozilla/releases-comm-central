@@ -5,7 +5,7 @@
 /**
  * Test that the folder names have account name appended when in "recent" view.
  */
-var MODULE_NAME = "test-folder-names-in-favorite-mode";
+var MODULE_NAME = "test-folder-names-in-recent-mode";
 
 var RELATIVE_ROOT = "../shared-modules";
 var MODULE_REQUIRES = ["folder-display-helpers"];

@@ -9,7 +9,7 @@
 
 // make SOLO_TEST=composition/test-charset-edit.js mozmill-one
 
-var MODULE_NAME = "test-charset-upgrade";
+var MODULE_NAME = "test-charset-edit";
 
 var RELATIVE_ROOT = "../shared-modules";
 var MODULE_REQUIRES = ["folder-display-helpers", "compose-helpers",

@@ -8,7 +8,7 @@
  * to false.
  */
 
-var MODULE_NAME = "test-override-main-menu-collapse";
+var MODULE_NAME = "test-override-mainmenu-collapse";
 var RELATIVE_ROOT = "../shared-modules";
 var MODULE_REQUIRES = ["folder-display-helpers",
                        "window-helpers"];

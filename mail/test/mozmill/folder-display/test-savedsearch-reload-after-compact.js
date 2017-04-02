@@ -7,7 +7,7 @@
  * of local folders.
  */
 
-var MODULE_NAME = 'test-vf-load-after-compact';
+var MODULE_NAME = "test-savedsearch-reload-after-compact";
 
 var RELATIVE_ROOT = '../shared-modules';
 var MODULE_REQUIRES = ['folder-display-helpers', 'window-helpers'];

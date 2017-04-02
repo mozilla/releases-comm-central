@@ -1,3 +1,7 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
 /**
  * The purpose of this test is to ensure that dns prefetch is turned off in
  * the message pane and compose windows. It also checks that dns prefetch is
@@ -5,12 +9,7 @@
  * should be turned back on again.
  */
 
-//
-/* This Source Code Form is subject to the terms of the Mozilla Public
- * License, v. 2.0. If a copy of the MPL was not distributed with this
- * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-
-var MODULE_NAME = 'test-exposed-in-content-tabs';
+var MODULE_NAME = "test-dns-prefetch";
 
 var RELATIVE_ROOT = '../shared-modules';
 var MODULE_REQUIRES = ['folder-display-helpers', 'compose-helpers',

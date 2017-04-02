@@ -13,7 +13,7 @@ var Cu = Components.utils;
 var elib = {};
 Cu.import('resource://mozmill/modules/elementslib.js', elib);
 
-var MODULE_NAME = 'test-dialogs';
+var MODULE_NAME = "test-image-insertion-dialog";
 
 var RELATIVE_ROOT = '../shared-modules';
 var MODULE_REQUIRES = ['folder-display-helpers', 'compose-helpers',

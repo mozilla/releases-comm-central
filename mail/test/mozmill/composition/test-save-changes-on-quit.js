@@ -10,7 +10,7 @@
 
 // make SOLO_TEST=composition/test-save-changes-on-quit.js mozmill-one
 
-var MODULE_NAME = "test-save-changes-on-close";
+var MODULE_NAME = "test-save-changes-on-quit";
 
 var RELATIVE_ROOT = "../shared-modules";
 var MODULE_REQUIRES = ["folder-display-helpers", "compose-helpers",

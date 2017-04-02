@@ -7,7 +7,7 @@
  *  with custom propagateState implementations (currently: tags, text filter.)
  */
 
-var MODULE_NAME = 'test-filter-logic';
+var MODULE_NAME = "test-sticky-filter-logic";
 
 var RELATIVE_ROOT = '../shared-modules';
 

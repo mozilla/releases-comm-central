@@ -8,7 +8,7 @@
 
 // make mozmill-one SOLO_TEST=composition/test-blocked-content.js
 
-var MODULE_NAME = "blocked-content";
+var MODULE_NAME = "test-blocked-content";
 
 var RELATIVE_ROOT = "../shared-modules";
 var MODULE_REQUIRES = [

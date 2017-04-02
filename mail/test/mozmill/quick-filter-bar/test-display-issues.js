@@ -9,7 +9,7 @@
  * the unit test machines (see also testing/machine-configuration.json).
  */
 
-var MODULE_NAME = 'test-keyboard-interface';
+var MODULE_NAME = "test-display-issues";
 
 var RELATIVE_ROOT = '../shared-modules';
 

@@ -8,7 +8,7 @@
 
 // make SOLO_TEST=downloads/test-about-downloads.js mozmill-one
 
-var MODULE_NAME = 'test-about-download';
+var MODULE_NAME = "test-about-downloads";
 
 var RELATIVE_ROOT = "../shared-modules";
 var MODULE_REQUIRES = [ 'attachment-helpers',

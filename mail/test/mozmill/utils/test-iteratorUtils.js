@@ -6,7 +6,7 @@
  * Tests iteratorUtils with items pulled from content into chrome.
  */
 
-var MODULE_NAME = 'test-cloudfile-attachment-item';
+var MODULE_NAME = 'test-iteratorUtils';
 
 var RELATIVE_ROOT = '../shared-modules';
 var MODULE_REQUIRES = ['folder-display-helpers',

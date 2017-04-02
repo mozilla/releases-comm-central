@@ -7,7 +7,7 @@
  * works correctly.
  */
 
-var MODULE_NAME = "test-lightweight-themes";
+var MODULE_NAME = "test-lwthemes";
 
 var RELATIVE_ROOT = '../shared-modules';
 var MODULE_REQUIRES = ['folder-display-helpers', 'content-tab-helpers'];
