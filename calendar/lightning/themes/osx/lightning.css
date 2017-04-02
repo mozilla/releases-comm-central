@@ -48,11 +48,11 @@ radio[pane=paneLightning] {
   }
 }
 
-toolbar[bighttext] #calendar-tab-button {
+#tabs-toolbar[brighttext] #calendar-tab-button {
   list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#calendar-tab-inverted);
 }
 
-toolbar[bighttext] #task-tab-button {
+#tabs-toolbar[brighttext] #task-tab-button {
   list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#task-tab-inverted);
 }
 
