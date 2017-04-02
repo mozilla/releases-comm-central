@@ -9,7 +9,6 @@ ac_add_options --enable-update-channel=${MOZ_UPDATE_CHANNEL}
 ac_add_options --disable-elf-hack
 ac_add_options --enable-profiling
 ac_add_options --enable-calendar
-ac_add_options --enable-alsa
 
 mk_add_options PROFILE_GEN_SCRIPT='$(PYTHON) @MOZ_OBJDIR@/_profile/pgo/profileserver.py'
 

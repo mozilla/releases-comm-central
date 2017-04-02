@@ -5,9 +5,10 @@
 ac_add_options --disable-webrender
 
 ac_add_options --enable-application=suite
+
 ac_add_options --enable-debug
+
 ac_add_options --enable-calendar
-ac_add_options --enable-alsa
 
 mk_add_options PROFILE_GEN_SCRIPT='$(PYTHON) @MOZ_OBJDIR@/_profile/pgo/profileserver.py'
 
