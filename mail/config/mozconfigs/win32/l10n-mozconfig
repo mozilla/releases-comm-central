@@ -3,8 +3,7 @@
 ac_add_options --enable-application=mail
 ac_add_options --enable-update-channel=${MOZ_UPDATE_CHANNEL}
 ac_add_options --with-l10n-base=../../l10n
-# The compile environment is needed for Windows, see bug 1345422.
-# ac_add_options --disable-compile-environment
+ac_add_options --disable-compile-environment
 
 # Build lightning locales
 ac_add_options --enable-calendar
