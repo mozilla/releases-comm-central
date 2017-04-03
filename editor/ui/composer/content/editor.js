@@ -4,6 +4,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 Components.utils.import("resource:///modules/editorUtilities.jsm");
+Components.utils.import("resource://services-common/async.js");
 Components.utils.import("resource://gre/modules/AppConstants.jsm");
 
 /* Main Composer window UI control */
