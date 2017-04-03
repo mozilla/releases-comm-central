@@ -63,6 +63,8 @@ endif
 $(XPI_STAGE_PATH):
 	mkdir -p $@
 
+$(XPI_ZIP_IN): ensure-stage-dir
+
 # Target Directory used for the l10n files
 L10N_TARGET = $(XPI_STAGE_PATH)/$(XPI_NAME)-$(AB_CD)
 

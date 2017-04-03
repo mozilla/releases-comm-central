@@ -19,9 +19,7 @@ SUBMAKEFILES += \
 PWD := $(CURDIR)
 
 # These are defaulted to be compatible with the files the wget-en-US target
-# pulls. You may override them if you provide your own files. You _must_
-# override them when MOZ_PKG_PRETTYNAMES is defined - the defaults will not
-# work in that case.
+# pulls. You may override them if you provide your own files.
 ZIP_IN ?= $(ABS_DIST)/$(PACKAGE)
 WIN32_INSTALLER_IN ?= $(ABS_DIST)/$(PKG_INST_PATH)$(PKG_INST_BASENAME).exe
 RETRIEVE_WINDOWS_INSTALLER = 1
@@ -73,8 +71,6 @@ PP_TARGETS += SEARCH_PLUGINS
 include $(topsrcdir)/config/rules.mk
 
 include $(topsrcdir)/mozilla/toolkit/locales/l10n.mk
-
-$(STAGEDIST): $(DIST)/branding
 
 $(DIST)/branding:
 	$(NSINSTALL) -D $@
@@ -146,23 +142,11 @@ repackage-win32-installer: $(call ESCAPE_WILDCARD,$(WIN32_INSTALLER_IN)) $(SUBMA
 	              $(_ABS_SRCDIR)/suite/installer/windows/app.tag'
 
 ifeq (WINNT,$(OS_ARCH))
-repackage-win32-installer-%: libs-% $(STAGEDIST)
+repackage-win32-installer-%: libs-% unpack
 	@$(MAKE) repackage-win32-installer AB_CD=$* WIN32_INSTALLER_IN='$(WIN32_INSTALLER_IN)'
 else
 repackage-win32-installer-%: ;
 endif
-
-clobber-zip:
-	$(RM) $(STAGEDIST)/chrome/$(AB_CD).jar \
-	  $(STAGEDIST)/chrome/$(AB_CD).manifest \
-	  $(STAGEDIST)/defaults/pref/suite-l10n.js
-	$(RM) -rf $(STAGEDIST)/searchplugins \
-	  $(STAGEDIST)/dictionaries \
-	  $(STAGEDIST)/hyphenation \
-	  $(STAGEDIST)/defaults/profile \
-	  $(STAGEDIST)/chrome/$(AB_CD) \
-	  $(STAGEDIST)/extensions/langpack-$(AB_CD)@* \
-	  $(STAGEDIST)/distribution/extensions/langpack-$(AB_CD)@* \
 
 repackage-zip: repackage-extensions
 

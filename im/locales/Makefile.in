@@ -21,9 +21,7 @@ SUBMAKEFILES += \
 PWD := $(CURDIR)
 
 # These are defaulted to be compatible with the files the wget-en-US target
-# pulls. You may override them if you provide your own files. You _must_
-# override them when MOZ_PKG_PRETTYNAMES is defined - the defaults will not
-# work in that case.
+# pulls. You may override them if you provide your own files.
 ZIP_IN ?= $(ABS_DIST)/$(PACKAGE)
 WIN32_INSTALLER_IN ?= $(ABS_DIST)/$(PKG_INST_PATH)$(PKG_INST_BASENAME).exe
 RETRIEVE_WINDOWS_INSTALLER = 1
@@ -81,8 +79,6 @@ searchplugins:: $(list-txt)
 # Remove installer/sea/ from installer paths.
 PKG_INST_PATH =
 
-$(STAGEDIST): $(DIST)/branding
-
 $(DIST)/branding:
 	$(NSINSTALL) -D $@
 
@@ -114,7 +110,7 @@ repackage-win32-installer: $(WIN32_INSTALLER_IN) $(SUBMAKEFILES)
 	              $(_ABS_SRCDIR)/im/installer/windows/app.tag"
 
 ifeq (WINNT,$(OS_ARCH))
-repackage-win32-installer-%: $(WIN32_INSTALLER_IN) libs-%
+repackage-win32-installer-%: $(WIN32_INSTALLER_IN) libs-% unpack
 	@$(MAKE) repackage-win32-installer AB_CD=$* WIN32_INSTALLER_IN=$(WIN32_INSTALLER_IN)
 else
 repackage-win32-installer-%: ;
@@ -128,15 +124,6 @@ endif
 
 # During repackaging, we never have an universal/ subfolder.
 STAGEPATH =
-
-clobber-zip:
-	$(RM) $(STAGEDIST)/chrome/$(AB_CD).jar \
-	  $(STAGEDIST)/chrome/$(AB_CD).manifest \
-	  $(STAGEDIST)/defaults/pref/all-l10n.js
-	$(RM) -rf $(STAGEDIST)/dictionaries \
-	  $(STAGEDIST)/hyphenation/$(AB_CD) \
-	  $(STAGEDIST)/isp/$(AB_CD) \
-	  $(STAGEDIST)/chrome/$(AB_CD)
 
 langpack: langpack-$(AB_CD)
 
