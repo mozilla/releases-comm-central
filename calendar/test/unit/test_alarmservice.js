@@ -237,26 +237,30 @@ function addTestItems(aCalendar) {
 
     // monthly repeating event starting 2 months and a day ago. The alarms on the first 2 occurrences
     // should be ignored, the alarm on the next occurrence only should fire.
-    // For the first day of a month, the event is going to start three months before on the last day
-    // and if it is a 31st, missing occurrences for next months with 30 days have to be considered.
+    // Missing recurrences of the event in particular days of the year generate exceptions to the
+    // regular sequence of alarms.
     date = cal.now();
-    let expected = [EXPECT_NONE, EXPECT_NONE, EXPECT_FIRED, EXPECT_NONE, EXPECT_NONE];
+    let statusAlarmSequences = {
+        reg: [EXPECT_NONE, EXPECT_NONE, EXPECT_FIRED, EXPECT_NONE, EXPECT_NONE],
+        excep1: [EXPECT_NONE, EXPECT_FIRED, EXPECT_NONE, EXPECT_NONE, EXPECT_NONE],
+        excep2: [EXPECT_NONE, EXPECT_NONE, EXPECT_NONE, EXPECT_NONE, EXPECT_NONE]
+    };
+    let expected = [];
     if (date.day == 1) {
-        let first3Expected = [
-            [EXPECT_NONE, EXPECT_FIRED, EXPECT_NONE],
-            [EXPECT_NONE, EXPECT_NONE, EXPECT_FIRED],
-            [EXPECT_NONE, EXPECT_NONE, EXPECT_NONE],
-            [EXPECT_NONE, EXPECT_FIRED, EXPECT_NONE],
-            [EXPECT_NONE, EXPECT_NONE, EXPECT_FIRED],
-            [EXPECT_NONE, EXPECT_FIRED, EXPECT_NONE],
-            [EXPECT_NONE, EXPECT_NONE, EXPECT_FIRED],
-            [EXPECT_NONE, EXPECT_FIRED, EXPECT_NONE],
-            [EXPECT_NONE, EXPECT_NONE, EXPECT_FIRED],
-            [EXPECT_NONE, EXPECT_NONE, EXPECT_NONE],
-            [EXPECT_NONE, EXPECT_FIRED, EXPECT_NONE],
-            [EXPECT_NONE, EXPECT_NONE, EXPECT_NONE]
-        ];
-        expected = first3Expected[date.month].concat([EXPECT_NONE, EXPECT_NONE]);
+        // Exceptions for missing occurrences on months with 30 days when the event starts on 31st.
+        let sequence = ["excep1", "reg", "excep2", "excep1", "reg", "excep1",
+                        "reg", "excep1", "reg", "excep2", "excep1", "reg"][date.month];
+        expected = statusAlarmSequences[sequence];
+    } else if (date.day == 30 && (date.month == 2 || date.month == 3)) {
+        // Exceptions for missing occurrences or different start date caused by February.
+        let leapYear = date.endOfYear.yearday == 366;
+        expected = leapYear ? statusAlarmSequences.reg : statusAlarmSequences.excep1;
+    } else if (date.day == 31 && date.month == 2) {
+        // Exceptions for missing occurrences caused by February.
+        expected = statusAlarmSequences.excep1;
+    } else {
+        // Regular sequence of alarms expected for all the others days.
+        expected = statusAlarmSequences.reg;
     }
     date.month -= 2;
     date.day -= 1;
