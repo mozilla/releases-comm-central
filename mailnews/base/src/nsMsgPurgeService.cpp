@@ -23,7 +23,7 @@
 #include "nsServiceManagerUtils.h"
 #include "nsArrayUtils.h"
 
-static PRLogModuleInfo *MsgPurgeLogModule = nullptr;
+static mozilla::LazyLogModule MsgPurgeLogModule("MsgPurge");
 
 NS_IMPL_ISUPPORTS(nsMsgPurgeService, nsIMsgPurgeService, nsIMsgSearchNotify)
 
@@ -52,9 +52,6 @@ nsMsgPurgeService::~nsMsgPurgeService()
 NS_IMETHODIMP nsMsgPurgeService::Init()
 {
   nsresult rv;
-
-  if (!MsgPurgeLogModule)
-    MsgPurgeLogModule = PR_NewLogModule("MsgPurge");
 
   // these prefs are here to help QA test this feature
   nsCOMPtr<nsIPrefBranch> prefBranch(do_GetService(NS_PREFSERVICE_CONTRACTID, &rv));

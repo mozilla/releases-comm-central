@@ -46,7 +46,6 @@
 #define TEXTIMPORT_ADDRESS_CONVERTERROR  2006
 
 static NS_DEFINE_IID(kISupportsIID, NS_ISUPPORTS_IID);
-PRLogModuleInfo* TEXTIMPORTLOGMODULE;
 
 class ImportAddressImpl final : public nsIImportAddressBooks
 {
@@ -114,9 +113,6 @@ private:
 
 nsTextImport::nsTextImport()
 {
-  // Init logging module.
-  if (!TEXTIMPORTLOGMODULE)
-    TEXTIMPORTLOGMODULE = PR_NewLogModule("IMPORT");
   IMPORT_LOG0("nsTextImport Module Created\n");
 
   nsImportStringBundle::GetStringBundle(TEXT_MSGS_URL,

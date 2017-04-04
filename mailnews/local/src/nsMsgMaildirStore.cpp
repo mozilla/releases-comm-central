@@ -37,11 +37,10 @@
 #include "nsLocalUndoTxn.h"
 #include "nsIMessenger.h"
 
-static PRLogModuleInfo* MailDirLog;
+static mozilla::LazyLogModule MailDirLog("MailDirStore");
 
 nsMsgMaildirStore::nsMsgMaildirStore()
 {
-  MailDirLog = PR_NewLogModule("MailDirStore");
 }
 
 nsMsgMaildirStore::~nsMsgMaildirStore()

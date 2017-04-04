@@ -7,9 +7,8 @@
 #ifndef TextDebugLog_h___
 #define TextDebugLog_h___
 
-// Use PR_LOG for logging.
 #include "mozilla/Logging.h"
-extern PRLogModuleInfo *TEXTIMPORTLOGMODULE;  // Logging module
+static mozilla::LazyLogModule TEXTIMPORTLOGMODULE("IMPORT");  // Logging module
 
 #define IMPORT_LOG0(x)          MOZ_LOG(TEXTIMPORTLOGMODULE, mozilla::LogLevel::Debug, (x))
 #define IMPORT_LOG1(x, y)       MOZ_LOG(TEXTIMPORTLOGMODULE, mozilla::LogLevel::Debug, (x, y))

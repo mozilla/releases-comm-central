@@ -26,10 +26,7 @@
 #include "nsArrayEnumerator.h"
 #include "nsMsgUtils.h"
 
-#ifdef PR_LOGGING
-static PRLogModuleInfo* gAbOutlookDirectoryLog
-    = PR_NewLogModule("nsAbOutlookDirectoryLog");
-#endif
+static mozilla::LazyLogModule gAbOutlookDirectoryLog("nsAbOutlookDirectoryLog");
 
 #define PRINTF(args) MOZ_LOG(gAbOutlookDirectoryLog, mozilla::LogLevel::Debug, args)
 

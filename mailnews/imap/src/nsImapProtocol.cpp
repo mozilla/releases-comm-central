@@ -58,7 +58,7 @@
 #include "nsIXULAppInfo.h"
 #include "nsSyncRunnableHelpers.h"
 
-PRLogModuleInfo *IMAP;
+static mozilla::LazyLogModule IMAP("IMAP");
 
 // netlib required files
 #include "nsIStreamListener.h"
@@ -504,10 +504,6 @@ nsImapProtocol::nsImapProtocol() : nsMsgProtocol(nullptr),
 
   Configure(gTooFastTime, gIdealTime, gChunkAddSize, gChunkSize,
                     gChunkThreshold, gFetchByChunks);
-
-  // where should we do this? Perhaps in the factory object?
-  if (!IMAP)
-    IMAP = PR_NewLogModule("IMAP");
 }
 
 nsresult nsImapProtocol::Configure(int32_t TooFastTime, int32_t IdealTime,
@@ -4474,10 +4470,6 @@ bool nsImapProtocol::CheckNewMail()
 
 /* static */ void nsImapProtocol::LogImapUrl(const char *logMsg, nsIImapUrl *imapUrl)
 {
-  // nsImapProtocol is not always constructed before this static method is called
-  if (!IMAP)
-    IMAP = PR_NewLogModule("IMAP");
-
   if (MOZ_LOG_TEST(IMAP, LogLevel::Info))
   {
     nsCOMPtr<nsIMsgMailNewsUrl> mailnewsUrl = do_QueryInterface(imapUrl);

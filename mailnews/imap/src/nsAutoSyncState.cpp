@@ -21,7 +21,7 @@
 
 using namespace mozilla;
 
-extern PRLogModuleInfo *gAutoSyncLog;
+static LazyLogModule gAutoSyncLog("ImapAutoSync");
 
 MsgStrategyComparatorAdaptor::MsgStrategyComparatorAdaptor(nsIAutoSyncMsgStrategy* aStrategy, 
   nsIMsgFolder *aFolder, nsIMsgDatabase *aDatabase) : mStrategy(aStrategy), mFolder(aFolder), 

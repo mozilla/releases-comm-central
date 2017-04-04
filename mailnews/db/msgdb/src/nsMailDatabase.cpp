@@ -16,7 +16,7 @@
 #include "nsMsgUtils.h"
 #include "nsIMsgPluggableStore.h"
 
-extern PRLogModuleInfo *IMAPOffline;
+static mozilla::LazyLogModule IMAPOffline("IMAPOFFLINE");
 
 using namespace mozilla;
 
@@ -155,8 +155,6 @@ NS_IMETHODIMP nsMailDatabase::GetOfflineOpForKey(nsMsgKey msgKey, bool create, n
   mdbOid		rowObjectId;
   nsresult err;
 
-  if (!IMAPOffline)
-    IMAPOffline = PR_NewLogModule("IMAPOFFLINE");
   nsresult rv = GetAllOfflineOpsTable();
   NS_ENSURE_SUCCESS(rv, rv);
   
@@ -223,8 +221,6 @@ NS_IMETHODIMP nsMailDatabase::ListAllOfflineOpIds(nsTArray<nsMsgKey> *offlineOpI
   nsresult rv = GetAllOfflineOpsTable();
   NS_ENSURE_SUCCESS(rv, rv);
   nsIMdbTableRowCursor *rowCursor;
-  if (!IMAPOffline)
-    IMAPOffline = PR_NewLogModule("IMAPOFFLINE");
 
   if (m_mdbAllOfflineOpsTable)
   {
@@ -249,7 +245,7 @@ NS_IMETHODIMP nsMailDatabase::ListAllOfflineOpIds(nsTArray<nsMsgKey> *offlineOpI
           {
             nsMsgOfflineImapOperation *logOp = static_cast<nsMsgOfflineImapOperation *>(static_cast<nsIMsgOfflineImapOperation *>(offlineOp.get()));
             if (logOp)
-              logOp->Log(IMAPOffline);
+              logOp->Log();
 
           }
         }

@@ -4,8 +4,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#include "prlog.h"
+#ifndef nsLDAPInternal_h_
+#define nsLDAPInternal_h_
 
-#ifdef PR_LOGGING
-extern PRLogModuleInfo *gLDAPLogModule;    // defn in nsLDAPProtocolModule.cpp
-#endif
+#include "mozilla/Logging.h"
+
+static mozilla::LazyLogModule gLDAPLogModule("ldap");
+
+#endif // nsLDAPInternal_h_

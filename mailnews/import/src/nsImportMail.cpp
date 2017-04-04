@@ -178,10 +178,6 @@ nsImportGenericMail::nsImportGenericMail()
   m_createdFolder = false;
     m_performingMigration = false;
 
-  // Init logging module.
-  if (!IMPORTLOGMODULE)
-    IMPORTLOGMODULE = PR_NewLogModule("IMPORT");
-
   nsresult rv = nsImportStringBundle::GetStringBundle(IMPORT_MSGS_URL, getter_AddRefs(m_stringBundle));
   if (NS_FAILED(rv))
     IMPORT_LOG0("Failed to get string bundle for Importing Mail");

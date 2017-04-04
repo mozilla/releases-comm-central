@@ -7,7 +7,7 @@
 
 #include "mozilla/Logging.h"
 
-extern PRLogModuleInfo *VCARDLOGMODULE;  // Logging module
+static mozilla::LazyLogModule VCARDLOGMODULE("IMPORT");  // Logging module
 
 #define IMPORT_LOG0(x)          MOZ_LOG(VCARDLOGMODULE, mozilla::LogLevel::Debug, (x))
 #define IMPORT_LOG1(x, y)       MOZ_LOG(VCARDLOGMODULE, mozilla::LogLevel::Debug, (x, y))

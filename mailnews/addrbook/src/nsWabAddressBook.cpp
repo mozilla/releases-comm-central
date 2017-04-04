@@ -8,10 +8,7 @@
 #include "mozilla/Logging.h"
 #include <algorithm>
 
-#ifdef PR_LOGGING
-static PRLogModuleInfo* gWabAddressBookLog
-    = PR_NewLogModule("nsWabAddressBookLog");
-#endif
+static mozilla::LazyLogModule gWabAddressBookLog("nsWabAddressBookLog");
 
 #define PRINTF(args) MOZ_LOG(gWabAddressBookLog, mozilla::LogLevel::Debug, args)
 

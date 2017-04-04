@@ -47,7 +47,7 @@
 #include "nsEmbedCID.h"
 #include "mozilla/Logging.h"
 
-extern PRLogModuleInfo *MAPI;
+static mozilla::LazyLogModule MAPI("MAPI");
 
 class nsMAPISendListener : public nsIMsgSendListener
 {

@@ -36,8 +36,6 @@
 #include "nsIMsgSend.h"
 #include "nsMsgUtils.h"
 
-PRLogModuleInfo *IMPORTLOGMODULE = nullptr;
-
 static nsIImportService *  gImportService = nullptr;
 static const char *  kWhitespace = "\b\t\r\n ";
 
@@ -47,9 +45,6 @@ static const char *  kWhitespace = "\b\t\r\n ";
 
 nsImportService::nsImportService() : m_pModules(nullptr)
 {
-  // Init logging module.
-  if (!IMPORTLOGMODULE)
-    IMPORTLOGMODULE = PR_NewLogModule("IMPORT");
   IMPORT_LOG0("* nsImport Service Created\n");
 
   m_didDiscovery = false;

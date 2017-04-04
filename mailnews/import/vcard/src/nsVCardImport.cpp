@@ -24,7 +24,6 @@
 #include "nsVCardAddress.h"
 #include "nsVCardImport.h"
 
-PRLogModuleInfo *VCARDLOGMODULE = nullptr;
 static NS_DEFINE_IID(kISupportsIID, NS_ISUPPORTS_IID);
 
 class ImportVCardAddressImpl : public nsIImportAddressBooks
@@ -94,9 +93,6 @@ private:
 
 nsVCardImport::nsVCardImport()
 {
-  if (!VCARDLOGMODULE)
-    VCARDLOGMODULE = PR_NewLogModule("IMPORT");
-
   nsImportStringBundle::GetStringBundle(
       VCARDIMPORT_MSGS_URL, getter_AddRefs(m_stringBundle));
 

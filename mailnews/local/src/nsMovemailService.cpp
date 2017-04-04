@@ -38,15 +38,9 @@
 #include "nsIOutputStream.h"
 
 #include "mozilla/Logging.h"
-#if defined(PR_LOGGING)
-//
-// export NSPR_LOG_MODULES=Movemail:5
-//
-static PRLogModuleInfo *gMovemailLog = nullptr;
+// export MOZ_LOG_MODULES=Movemail:5
+static mozilla::LazyLogModule gMovemailLog("Movemail");
 #define LOG(args) MOZ_LOG(gMovemailLog, mozilla::LogLevel::Debug, args)
-#else
-#define LOG(args)
-#endif
 
 #define PREF_MAIL_ROOT_MOVEMAIL "mail.root.movemail"            // old - for backward compatibility only
 #define PREF_MAIL_ROOT_MOVEMAIL_REL "mail.root.movemail-rel"
@@ -96,10 +90,6 @@ private:
 
 nsMovemailService::nsMovemailService()
 {
-#if defined(PR_LOGGING)
-  if (!gMovemailLog)
-      gMovemailLog = PR_NewLogModule("Movemail");
-#endif
   LOG(("nsMovemailService created: 0x%p\n", this));
 }
 

@@ -19,7 +19,7 @@
 
 ////////////////// nsImapServerResponseParser /////////////////////////
 
-extern PRLogModuleInfo* IMAP;
+static mozilla::LazyLogModule IMAP("IMAP");
 
 nsImapServerResponseParser::nsImapServerResponseParser(nsImapProtocol &imapProtocolConnection)
                             : nsIMAPGenericParser(),

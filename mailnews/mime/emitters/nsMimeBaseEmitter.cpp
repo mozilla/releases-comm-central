@@ -32,7 +32,7 @@
 #include "mozilla/Services.h"
 #include <algorithm>
 
-static PRLogModuleInfo * gMimeEmitterLogModule = nullptr;
+static mozilla::LazyLogModule gMimeEmitterLogModule("MIME");
 
 #define   MIME_HEADER_URL      "chrome://messenger/locale/mimeheader.properties"
 #define   MIME_URL             "chrome://messenger/locale/mime.properties"
@@ -78,9 +78,6 @@ nsMimeBaseEmitter::nsMimeBaseEmitter()
 
   // This is needed for conversion of I18N Strings...
   mUnicodeConverter = do_GetService(NS_MIME_CONVERTER_CONTRACTID);
-
-  if (!gMimeEmitterLogModule)
-    gMimeEmitterLogModule = PR_NewLogModule("MIME");
 
   // Do prefs last since we can live without this if it fails...
   nsCOMPtr<nsIPrefBranch> pPrefBranch(do_GetService(NS_PREFSERVICE_CONTRACTID));

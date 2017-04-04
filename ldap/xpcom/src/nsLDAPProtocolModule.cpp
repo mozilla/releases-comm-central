@@ -95,15 +95,6 @@ const mozilla::Module::ContractIDEntry kLDAPProtocolContracts[] = {
 static nsresult
 nsLDAPInitialize()
 {
-#ifdef PR_LOGGING
-    gLDAPLogModule = PR_NewLogModule("ldap");
-    if (!gLDAPLogModule) {
-        PR_fprintf(PR_STDERR, 
-                   "nsLDAP_Initialize(): PR_NewLogModule() failed\n");
-        return NS_ERROR_NOT_AVAILABLE;
-    }
-#endif
-
     // use NSPR under the hood for all networking
     //
     int rv = prldap_install_routines( NULL, 1 /* shared */ );
@@ -141,7 +132,3 @@ static const mozilla::Module kLDAPProtocolModule = {
 };
 
 NSMODULE_DEFN(nsLDAPProtocolModule) = &kLDAPProtocolModule;
-
-#ifdef PR_LOGGING
-PRLogModuleInfo *gLDAPLogModule = 0;
-#endif

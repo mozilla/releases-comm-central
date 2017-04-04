@@ -22,7 +22,8 @@
 #include "prprf.h"
 #include "nspr.h"
 
-PRLogModuleInfo *MAILBOX;
+static mozilla::LazyLogModule MAILBOX("MAILBOX");
+
 #include "nsIFileStreams.h"
 #include "nsIStreamTransportService.h"
 #include "nsIStreamConverterService.h"
@@ -51,10 +52,6 @@ nsMailboxProtocol::nsMailboxProtocol(nsIURI * aURI)
     : nsMsgProtocol(aURI)
 {
   m_lineStreamBuffer =nullptr;
-
-  // initialize the pr log if it hasn't been initialiezed already
-  if (!MAILBOX)
-    MAILBOX = PR_NewLogModule("MAILBOX");
 }
 
 nsMailboxProtocol::~nsMailboxProtocol()

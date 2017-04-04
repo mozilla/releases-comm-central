@@ -6,10 +6,7 @@
 
 #include "mozilla/Logging.h"
 
-#ifdef PR_LOGGING
-static PRLogModuleInfo* gMapiAddressBookLog
-    = PR_NewLogModule("nsMapiAddressBookLog");
-#endif
+static mozilla::LazyLogModule gMapiAddressBookLog("nsMapiAddressBookLog");
 
 #define PRINTF(args) MOZ_LOG(gMapiAddressBookLog, mozilla::LogLevel::Debug, args)
 

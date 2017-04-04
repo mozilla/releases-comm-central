@@ -6,9 +6,8 @@
 #ifndef WMDebugLog_h___
 #define WMDebugLog_h___
 
-// Use PR_LOG for logging.
 #include "mozilla/Logging.h"
-extern PRLogModuleInfo *WMLOGMODULE;  // Logging module
+static mozilla::LazyLogModule WMLOGMODULE("IMPORT");  // Logging module
 
 #define IMPORT_LOG0(x)          MOZ_LOG(WMLOGMODULE, mozilla::LogLevel::Debug, (x))
 #define IMPORT_LOG1(x, y)       MOZ_LOG(WMLOGMODULE, mozilla::LogLevel::Debug, (x, y))

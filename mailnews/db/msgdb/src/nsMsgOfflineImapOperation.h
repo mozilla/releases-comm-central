@@ -21,7 +21,7 @@ public:
   nsIMdbRow   *GetMDBRow() {return m_mdbRow;}
   nsresult    GetCopiesFromDB();
   nsresult    SetCopiesToDB();
-  void        Log(PRLogModuleInfo *logFile);
+  void        Log();
 protected:
   virtual ~nsMsgOfflineImapOperation();
   nsresult AddKeyword(const char *aKeyword, nsCString &addList, const char *addProp,

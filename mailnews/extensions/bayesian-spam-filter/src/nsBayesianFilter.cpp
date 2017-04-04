@@ -51,7 +51,7 @@ using namespace mozilla;
 #include <cstdlib> // for std::abs(int/long)
 #include <cmath> // for std::abs(float/double)
 
-static PRLogModuleInfo *BayesianFilterLogModule = nullptr;
+static mozilla::LazyLogModule BayesianFilterLogModule("BayesianFilter");
 
 #define kDefaultJunkThreshold .99 // we override this value via a pref
 static const char* kBayesianFilterTokenDelimiters = " \t\n\r\f.";
@@ -1111,9 +1111,6 @@ NS_IMPL_ISUPPORTS(nsBayesianFilter, nsIMsgFilterPlugin,
 nsBayesianFilter::nsBayesianFilter()
     :   mTrainingDataDirty(false)
 {
-    if (!BayesianFilterLogModule)
-      BayesianFilterLogModule = PR_NewLogModule("BayesianFilter");
-
     int32_t junkThreshold = 0;
     nsresult rv;
     nsCOMPtr<nsIPrefBranch> pPrefBranch(do_GetService(NS_PREFSERVICE_CONTRACTID, &rv));

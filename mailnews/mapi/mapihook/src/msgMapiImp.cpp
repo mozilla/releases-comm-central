@@ -36,14 +36,12 @@
 
 using namespace mozilla::mailnews;
 
-PRLogModuleInfo *MAPI;
+static mozilla::LazyLogModule MAPI("MAPI");
 
 CMapiImp::CMapiImp()
 : m_cRef(1)
 {
     m_Lock = PR_NewLock();
-  if (!MAPI)
-    MAPI = PR_NewLogModule("MAPI");
 }
 
 CMapiImp::~CMapiImp() 

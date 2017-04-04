@@ -13,7 +13,7 @@
 #include "nsIImportMail.h"
 
 // logging facilities
-extern PRLogModuleInfo *APPLEMAILLOGMODULE;
+static mozilla::LazyLogModule APPLEMAILLOGMODULE("APPLEMAILIMPORTLOG");
 
 #define IMPORT_LOG0(x)          MOZ_LOG(APPLEMAILLOGMODULE, mozilla::LogLevel::Debug, (x))
 #define IMPORT_LOG1(x, y)       MOZ_LOG(APPLEMAILLOGMODULE, mozilla::LogLevel::Debug, (x, y))

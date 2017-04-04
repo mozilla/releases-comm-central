@@ -23,7 +23,7 @@
 
 static NS_DEFINE_CID(kStatusBarBiffManagerCID, NS_STATUSBARBIFFMANAGER_CID);
 
-static PRLogModuleInfo *MsgBiffLogModule = nullptr;
+static mozilla::LazyLogModule MsgBiffLogModule("MsgBiff");
 
 NS_IMPL_ISUPPORTS(nsMsgBiffManager, nsIMsgBiffManager,
                    nsIIncomingServerListener, nsIObserver,
@@ -81,9 +81,6 @@ NS_IMETHODIMP nsMsgBiffManager::Init()
   // Ensure status bar biff service has started
   nsCOMPtr<nsIFolderListener> statusBarBiffService = 
     do_GetService(kStatusBarBiffManagerCID, &rv);
-
-  if (!MsgBiffLogModule)
-    MsgBiffLogModule = PR_NewLogModule("MsgBiff");
 
   nsCOMPtr<nsIObserverService> observerService =
     mozilla::services::GetObserverService();

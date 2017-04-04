@@ -37,7 +37,6 @@
 #include "MapiApi.h"
 
 static NS_DEFINE_IID(kISupportsIID,      NS_ISUPPORTS_IID);
-PRLogModuleInfo *OUTLOOKLOGMODULE = nullptr;
 
 class ImportOutlookMailImpl : public nsIImportMail
 {
@@ -138,10 +137,6 @@ private:
 
 nsOutlookImport::nsOutlookImport()
 {
-  // Init logging module.
-  if (!OUTLOOKLOGMODULE)
-    OUTLOOKLOGMODULE = PR_NewLogModule("IMPORT");
-
   IMPORT_LOG0("nsOutlookImport Module Created\n");
 
   nsOutlookStringBundle::GetStringBundle();

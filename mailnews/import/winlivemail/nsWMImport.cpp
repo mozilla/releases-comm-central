@@ -36,7 +36,6 @@
 #include "WMDebugLog.h"
 
 static NS_DEFINE_IID(kISupportsIID, NS_ISUPPORTS_IID);
-PRLogModuleInfo *WMLOGMODULE = nullptr;
 
 class ImportWMMailImpl : public nsIImportMail
 {
@@ -79,9 +78,6 @@ private:
 
 nsWMImport::nsWMImport()
 {
-  // Init logging module.
-  if (!WMLOGMODULE)
-    WMLOGMODULE = PR_NewLogModule("IMPORT");
   IMPORT_LOG0("nsWMImport Module Created\n");
   nsWMStringBundle::GetStringBundle();
 }

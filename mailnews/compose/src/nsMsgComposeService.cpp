@@ -85,7 +85,7 @@
 #define DOMAIN_DELIMITER                           ','
 
 #ifdef MSGCOMP_TRACE_PERFORMANCE
-static PRLogModuleInfo *MsgComposeLogModule = nullptr;
+static mozilla::LazyLogModule MsgComposeLogModule("msgcompose");
 
 static uint32_t GetMessageSizeFromURI(const char * originalMsgURI)
 {
@@ -109,9 +109,6 @@ nsMsgComposeService::nsMsgComposeService()
 // Defaulting the value of mLogComposePerformance to FALSE to prevent logging.
   mLogComposePerformance = false;
 #ifdef MSGCOMP_TRACE_PERFORMANCE
-  if (!MsgComposeLogModule)
-      MsgComposeLogModule = PR_NewLogModule("msgcompose");
-
   mStartTime = PR_IntervalNow();
   mPreviousTime = mStartTime;
 #endif

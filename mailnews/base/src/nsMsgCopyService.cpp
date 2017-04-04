@@ -16,7 +16,7 @@
 #include "nsMsgUtils.h"
 #include "mozilla/Logging.h"
 
-static PRLogModuleInfo *gCopyServiceLog;
+static mozilla::LazyLogModule gCopyServiceLog("MsgCopyService");
 
 // ******************** nsCopySource ******************
 //
@@ -126,7 +126,6 @@ nsCopyRequest::AddNewCopySource(nsIMsgFolder* srcFolder)
 
 nsMsgCopyService::nsMsgCopyService()
 {
-  gCopyServiceLog = PR_NewLogModule("MsgCopyService");
 }
 
 nsMsgCopyService::~nsMsgCopyService()

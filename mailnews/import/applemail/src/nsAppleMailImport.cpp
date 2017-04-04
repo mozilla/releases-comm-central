@@ -23,7 +23,7 @@
 #include "nsAppleMailImport.h"
 #include "nsIOutputStream.h"
 
-PRLogModuleInfo *APPLEMAILLOGMODULE = nullptr;
+static mozilla::LazyLogModule APPLEMAILLOGMODULE("APPLEMAILIMPORTLOG");
 
 // some hard-coded strings
 #define DEFAULT_MAIL_FOLDER "~/Library/Mail/"
@@ -38,10 +38,6 @@ PRLogModuleInfo *APPLEMAILLOGMODULE = nullptr;
 
 nsAppleMailImportModule::nsAppleMailImportModule()
 {
-  // Init logging module.
-  if (!APPLEMAILLOGMODULE)
-    APPLEMAILLOGMODULE = PR_NewLogModule("APPLEMAILIMPORTLOG");
-
   IMPORT_LOG0("nsAppleMailImportModule Created");
 
   nsCOMPtr<nsIStringBundleService> bundleService =

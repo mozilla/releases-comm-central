@@ -43,8 +43,8 @@
 #include "nsIScriptError.h"
 #include "nsIConsoleService.h"
 
-extern PRLogModuleInfo *POP3LOGMODULE; // defined in nsPop3Protocol.cpp
-#define POP3LOG(str) "%s sink: [this=%p] " str, POP3LOGMODULE->name, this
+static mozilla::LazyLogModule POP3LOGMODULE("POP3");
+#define POP3LOG(str) "sink: [this=%p] " str, this
 
 NS_IMPL_ISUPPORTS(nsPop3Sink, nsIPop3Sink)
 
@@ -60,8 +60,6 @@ nsPop3Sink::nsPop3Sink()
     m_outFileStream = nullptr;
     m_uidlDownload = false;
     m_buildMessageUri = false;
-    if (!POP3LOGMODULE)
-      POP3LOGMODULE = PR_NewLogModule("POP3");
 }
 
 nsPop3Sink::~nsPop3Sink()

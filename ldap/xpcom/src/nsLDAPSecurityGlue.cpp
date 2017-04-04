@@ -127,7 +127,7 @@ nsLDAPSSLConnect(const char *hostlist, int defport, int timeout,
     intfd = (*(sessionClosure->realConnect))(hostlist, defport, timeout, 
 					     options, sessionarg, socketargp);
     if ( intfd < 0 ) {
-	PR_LOG(gLDAPLogModule, PR_LOG_DEBUG,
+	MOZ_LOG(gLDAPLogModule, mozilla::LogLevel::Debug,
 	       ("nsLDAPSSLConnect(): standard connect() function returned %d",
 		intfd));
         return intfd;

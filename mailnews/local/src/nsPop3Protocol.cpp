@@ -50,8 +50,8 @@
 
 using namespace mozilla;
 
-PRLogModuleInfo *POP3LOGMODULE = nullptr;
-#define POP3LOG(str) "%s: [this=%p] " str, POP3LOGMODULE->name, this
+static mozilla::LazyLogModule POP3LOGMODULE("POP3");
+#define POP3LOG(str) "[this=%p] " str, this
 
 static int
 net_pop3_remove_messages_marked_delete(PLHashEntry* he,
@@ -461,8 +461,6 @@ nsPop3Protocol::nsPop3Protocol(nsIURI* aURL)
 nsresult nsPop3Protocol::Initialize(nsIURI * aURL)
 {
   nsresult rv = NS_OK;
-  if (!POP3LOGMODULE)
-    POP3LOGMODULE = PR_NewLogModule("POP3");
 
   MOZ_LOG(POP3LOGMODULE, LogLevel::Debug, (POP3LOG("Initialize()")));
 

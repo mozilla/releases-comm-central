@@ -51,7 +51,7 @@
 
 #undef PostMessage // avoid to collision with WinUser.h
 
-static PRLogModuleInfo *SMTPLogModule = nullptr;
+static mozilla::LazyLogModule SMTPLogModule("SMTP");
 
 using namespace mozilla::mailnews;
 
@@ -248,9 +248,6 @@ nsresult nsSmtpProtocol::Initialize(nsIURI * aURL)
 
     m_url = aURL; // Needed in nsMsgAsyncWriteProtocol::UpdateProgress().
     m_urlErrorState = NS_ERROR_FAILURE;
-
-    if (!SMTPLogModule)
-        SMTPLogModule = PR_NewLogModule("SMTP");
 
     if (aURL)
         m_runningURL = do_QueryInterface(aURL);

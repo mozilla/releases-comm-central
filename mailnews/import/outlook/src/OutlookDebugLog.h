@@ -10,9 +10,8 @@
 #define IMPORT_DEBUG  1
 #endif
 
-// Use PR_LOG for logging.
 #include "mozilla/Logging.h"
-extern PRLogModuleInfo *OUTLOOKLOGMODULE;  // Logging module
+static mozilla::LazyLogModule OUTLOOKLOGMODULE("IMPORT");  // Logging module
 
 #define IMPORT_LOG0(x)          MOZ_LOG(OUTLOOKLOGMODULE, mozilla::LogLevel::Debug, (x))
 #define IMPORT_LOG1(x, y)       MOZ_LOG(OUTLOOKLOGMODULE, mozilla::LogLevel::Debug, (x, y))

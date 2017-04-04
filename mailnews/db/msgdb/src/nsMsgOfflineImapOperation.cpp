@@ -10,7 +10,7 @@
 
 using namespace mozilla;
 
-PRLogModuleInfo *IMAPOffline;
+static LazyLogModule IMAPOffline("IMAPOFFLINE");
 
 /* Implementation file */
 NS_IMPL_ISUPPORTS(nsMsgOfflineImapOperation, nsIMsgOfflineImapOperation)
@@ -342,10 +342,8 @@ NS_IMETHODIMP nsMsgOfflineImapOperation::GetPlayingBack(bool *aPlayingBack)
 }
 
 
-void nsMsgOfflineImapOperation::Log(PRLogModuleInfo *logFile)
+void nsMsgOfflineImapOperation::Log()
 {
-  if (!IMAPOffline)
-    IMAPOffline = PR_NewLogModule("IMAPOFFLINE");
   if (!MOZ_LOG_TEST(IMAPOffline, LogLevel::Info))
     return;
   //  const long kMoveResult              = 0x8;

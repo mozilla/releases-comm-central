@@ -110,22 +110,16 @@ char *MSG_UnEscapeSearchUrl (const char *commandSpecificData);
 
 /* Logging stuff */
 
-PRLogModuleInfo* NNTP = NULL;
+static mozilla::LazyLogModule NNTP("NNTP");
 #define out     LogLevel::Info
 
 #define NNTP_LOG_READ(buf) \
-if (NNTP==NULL) \
-    NNTP = PR_NewLogModule("NNTP"); \
 MOZ_LOG(NNTP, out, ("(%p) Receiving: %s", this, buf)) ;
 
 #define NNTP_LOG_WRITE(buf) \
-if (NNTP==NULL) \
-    NNTP = PR_NewLogModule("NNTP"); \
 MOZ_LOG(NNTP, out, ("(%p) Sending: %s", this, buf)) ;
 
 #define NNTP_LOG_NOTE(buf) \
-if (NNTP==NULL) \
-    NNTP = PR_NewLogModule("NNTP"); \
 MOZ_LOG(NNTP, out, ("(%p) %s",this, buf)) ;
 
 const char *const stateLabels[] = {
@@ -269,9 +263,6 @@ nsNNTPProtocol::nsNNTPProtocol(nsINntpIncomingServer *aServer, nsIURI *aURL,
   m_connectionBusy(false),
   m_nntpServer(aServer)
 {
-  if (!NNTP)
-    NNTP = PR_NewLogModule("NNTP");
-
   m_ProxyServer = nullptr;
   m_lineStreamBuffer = nullptr;
   m_responseText = nullptr;
