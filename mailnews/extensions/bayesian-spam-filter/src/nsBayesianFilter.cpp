@@ -27,6 +27,9 @@
 #include "nsIStringEnumerator.h"
 #include "nsIObserverService.h"
 #include "nsIChannel.h"
+#include "nsDependentSubstring.h"
+
+#include "mozilla/ArenaAllocatorExtensions.h" // for ArenaStrdup
 
 using namespace mozilla;
 
@@ -146,12 +149,10 @@ TokenHash::TokenHash(uint32_t aEntrySize)
   : mTokenTable(&gTokenTableOps, aEntrySize, 128)
 {
     mEntrySize = aEntrySize;
-    PL_INIT_ARENA_POOL(&mWordPool, "Words Arena", 16384);
 }
 
 TokenHash::~TokenHash()
 {
-    PL_FinishArenaPool(&mWordPool);
 }
 
 nsresult TokenHash::clearTokens()
@@ -159,18 +160,13 @@ nsresult TokenHash::clearTokens()
     // we re-use the tokenizer when classifying multiple messages,
     // so this gets called after every message classification.
     mTokenTable.ClearAndPrepareForLength(128);
-    PL_FreeArenaPool(&mWordPool);
+    mWordPool.Clear();
     return NS_OK;
 }
 
 char* TokenHash::copyWord(const char* word, uint32_t len)
 {
-    void* result;
-    uint32_t size = 1 + len;
-    PL_ARENA_ALLOCATE(result, &mWordPool, size);
-    if (result)
-        memcpy(result, word, size);
-    return reinterpret_cast<char*>(result);
+    return ArenaStrdup(Substring(word, len), mWordPool);
 }
 
 inline BaseToken* TokenHash::get(const char* word)

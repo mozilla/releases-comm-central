@@ -17,9 +17,7 @@
 #include "nsWeakReference.h"
 #include "nsIObserver.h"
 
-// XXX can't simply byte align arenas, must at least 2-byte align.
-#define PL_ARENA_CONST_ALIGN_MASK 1
-#include "plarena.h"
+#include "mozilla/ArenaAllocator.h"
 
 #define DEFAULT_MIN_INTERVAL_BETWEEN_WRITES             15*60*1000
 
@@ -97,7 +95,7 @@ public:
 
 protected:
     TokenHash(uint32_t entrySize);
-    PLArenaPool mWordPool;
+    mozilla::ArenaAllocator<16384, 2> mWordPool;
     uint32_t mEntrySize;
     PLDHashTable mTokenTable;
     char* copyWord(const char* word, uint32_t len);
