@@ -224,12 +224,33 @@ function addTestItems(aCalendar) {
     });
     aCalendar.addItem(item, null);
 
+    // Bug 1344068 - Alarm with lastAck on exception, should take parent lastAck.
+    // Alarm 15 minutes ago should fire.
+    date = cal.now();
+    [item, alarm] = createEventWithAlarm(aCalendar, date, date, "-PT15M", "RRULE:FREQ=DAILY;COUNT=1");
+    item.title="addTestItems Test 6";
+
+    // Parent item is acknowledged before alarm, so it should fire.
+    let lastAck = item.startDate.clone();
+    lastAck.hour -= 1;
+    item.alarmLastAck = lastAck;
+
+    // Occurrence is acknowledged after alarm (start date), so if the alarm
+    // service wrongly uses the exception occurrence then we catch it.
+    let occ = item.recurrenceInfo.getOccurrenceFor(item.startDate);
+    occ.alarmLastAck = item.startDate.clone();
+    item.recurrenceInfo.modifyException(occ, true);
+
+    alarmObserver.expectOccurrences(aCalendar, item, alarm, [EXPECT_FIRED]);
+    aCalendar.addItem(item, null);
+
+
     // daily repeating event starting almost 2 full days ago. The alarms on the first 2 occurrences
     // should fire, and a timer should be set for the next occurrence only
     date = cal.now();
     date.hour -= 47;
     [item, alarm] = createEventWithAlarm(aCalendar, date, date, "-PT15M", "RRULE:FREQ=DAILY");
-    item.title="addTestItems Test 6";
+    item.title="addTestItems Test 7";
     alarmObserver.expectOccurrences(aCalendar, item, alarm,
                                    [EXPECT_FIRED, EXPECT_FIRED, EXPECT_TIMER,
                                     EXPECT_NONE, EXPECT_NONE]);
@@ -265,7 +286,7 @@ function addTestItems(aCalendar) {
     date.month -= 2;
     date.day -= 1;
     [item, alarm] = createEventWithAlarm(aCalendar, date, date, "-PT15M", "RRULE:FREQ=MONTHLY");
-    item.title="addTestItems Test 7";
+    item.title="addTestItems Test 8";
     alarmObserver.expectOccurrences(aCalendar, item, alarm, expected);
     aCalendar.addItem(item, null);
 }

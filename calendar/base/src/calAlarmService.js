@@ -371,7 +371,7 @@ calAlarmService.prototype = {
                 this.addTimer(aItem, alarm, timeout);
             } else if (showMissed) {
                 // This alarm is in the past.  See if it has been previously ack'd.
-                let lastAck = aItem.alarmLastAck || aItem.parentItem.alarmLastAck;
+                let lastAck = aItem.parentItem.alarmLastAck;
                 if (lastAck && lastAck.compare(alarmDate) >= 0) {
                     // The alarm was previously dismissed or snoozed, no further
                     // action required.
