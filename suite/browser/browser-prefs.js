@@ -782,7 +782,19 @@ pref("security.mixed_content.block_active_content", true);
 // Turn on the CSP 1.0 parser for Content Security Policy headers
 pref("security.csp.speccompliant", true);
 
-pref("geo.wifi.uri", "https://location.services.mozilla.com/v1/geolocate?key=%MOZILLA_API_KEY%");
+pref("geo.wifi.uri", "https://www.googleapis.com/geolocation/v1/geolocate?key=%GOOGLE_API_KEY%");
+
+// Some of these prefs are specified even though they may be redundant; they are given
+// here for clarity and end-user experiments with platform-provided geolocation.
+#ifdef XP_MACOSX
+pref("geo.provider.use_corelocation", false);
+#endif
+#ifdef XP_WIN
+pref("geo.provider.ms-windows-location", false);
+#endif
+#ifdef MOZ_WIDGET_GTK
+pref("geo.provider.use_gpsd", false);
+#endif
 
 // FAQ URLs
 pref("browser.geolocation.warning.infoURL", "http://www.seamonkey-project.org/doc/2.0/geolocation");
