@@ -13,6 +13,9 @@ Cu.import("resource://gre/modules/AddonManager.jsm");
 Cu.import("resource:///modules/distribution.js");
 Cu.import("resource:///modules/mailMigrator.js");
 
+XPCOMUtils.defineLazyModuleGetter(this, "UserAgentOverrides",
+                                  "resource://gre/modules/UserAgentOverrides.jsm");
+
 /**
  * Glue code that should be executed before any windows are opened. Any
  * window-independent helper methods (a la nsBrowserGlue.js) should go in
@@ -47,6 +50,8 @@ MailGlue.prototype = {
     Services.obs.removeObserver(this, "mail-startup-done");
     Services.obs.removeObserver(this, "handle-xul-text-link");
     Services.obs.removeObserver(this, "profile-after-change");
+
+    UserAgentOverrides.uninit()
   },
 
   // nsIObserver implementation
@@ -85,6 +90,8 @@ MailGlue.prototype = {
 
     // handle any migration work that has to happen at profile startup
     MailMigrator.migrateAtProfileStartup();
+
+    UserAgentOverrides.init();
 
     // check if we're in safe mode
     if (Services.appinfo.inSafeMode) {
