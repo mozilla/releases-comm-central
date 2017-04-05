@@ -254,12 +254,9 @@ int32_t nsIMAPBodyShell::Generate(char *partNum)
         m_protocolConnection->AbortMessageDownLoad();
         return 0;
       }
-      else
-      {
-        streamCreated = true;
-      }
+      streamCreated = true;
     }
-    
+
     ////// PASS 3 : GENERATE ///////
     // Generate the message
     if (!GetPseudoInterrupted() && !DeathSignalReceived())
@@ -272,7 +269,6 @@ int32_t nsIMAPBodyShell::Generate(char *partNum)
       m_protocolConnection->AbortMessageDownLoad();
     
     m_generatingPart = NULL;
-    
   }
   
   m_isBeingGenerated = false;
@@ -400,7 +396,7 @@ int32_t nsIMAPBodypart::GenerateMIMEHeader(nsIMAPBodyShell *aShell, bool stream,
     QueuePrefetchMIMEHeader(aShell);
     return 0;
   }
-  else if (m_headerData)
+  if (m_headerData)
   {
     int32_t mimeHeaderLength = 0;
     
@@ -429,11 +425,9 @@ int32_t nsIMAPBodypart::GenerateMIMEHeader(nsIMAPBodyShell *aShell, bool stream,
     
     return mimeHeaderLength;
   }
-  else 
-  {
-    SetIsValid(false);	// prefetch didn't adopt a MIME header
-    return 0;
-  }
+
+  SetIsValid(false);	// prefetch didn't adopt a MIME header
+  return 0;
 }
 
 int32_t nsIMAPBodypart::GeneratePart(nsIMAPBodyShell *aShell, bool stream, bool prefetch)
@@ -450,18 +444,17 @@ int32_t nsIMAPBodypart::GeneratePart(nsIMAPBodyShell *aShell, bool stream, bool 
     }
     return PL_strlen(m_partData);
   }
-  else	// we are fetching and streaming this part's body as we go
+
+  // we are fetching and streaming this part's body as we go
+  if (stream && !aShell->DeathSignalReceived())
   {
-    if (stream && !aShell->DeathSignalReceived())
-    {
-      char *generatingPart = aShell->GetGeneratingPart();
-      bool fetchingSpecificPart = (generatingPart && !PL_strcmp(generatingPart, m_partNumberString));
-      
-      aShell->GetConnection()->Log("SHELL","GENERATE-Part-Inline",m_partNumberString);
-      aShell->GetConnection()->FetchTryChunking(aShell->GetUID(), kMIMEPart, true, m_partNumberString, m_partLength, !fetchingSpecificPart);
-    }
-    return m_partLength;	// the part length has been filled in from the BODYSTRUCTURE response
+    char *generatingPart = aShell->GetGeneratingPart();
+    bool fetchingSpecificPart = (generatingPart && !PL_strcmp(generatingPart, m_partNumberString));
+
+    aShell->GetConnection()->Log("SHELL","GENERATE-Part-Inline",m_partNumberString);
+    aShell->GetConnection()->FetchTryChunking(aShell->GetUID(), kMIMEPart, true, m_partNumberString, m_partLength, !fetchingSpecificPart);
   }
+  return m_partLength;	// the part length has been filled in from the BODYSTRUCTURE response
 }
 
 int32_t nsIMAPBodypart::GenerateBoundary(nsIMAPBodyShell *aShell, bool stream, bool prefetch, bool lastBoundary)
@@ -480,29 +473,24 @@ int32_t nsIMAPBodypart::GenerateBoundary(nsIMAPBodyShell *aShell, bool stream, b
       }
       return PL_strlen(m_boundaryData);
     }
-    else	// the last boundary
+
+    // the last boundary
+    char *lastBoundaryData = PR_smprintf("%s--", m_boundaryData);
+    if (lastBoundaryData)
     {
-      char *lastBoundaryData = PR_smprintf("%s--", m_boundaryData);
-      if (lastBoundaryData)
+      if (stream)
       {
-        if (stream)
-        {
-          aShell->GetConnection()->Log("SHELL","GENERATE-Boundary-Last",m_partNumberString);
-          aShell->GetConnection()->HandleMessageDownLoadLine(lastBoundaryData, false);
-        }
-        int32_t rv = PL_strlen(lastBoundaryData);
-        PR_Free(lastBoundaryData);
-        return rv;
+        aShell->GetConnection()->Log("SHELL","GENERATE-Boundary-Last",m_partNumberString);
+        aShell->GetConnection()->HandleMessageDownLoadLine(lastBoundaryData, false);
       }
-      else
-      {
-        //HandleMemoryFailure();
-        return 0;
-      }
+      int32_t rv = PL_strlen(lastBoundaryData);
+      PR_Free(lastBoundaryData);
+      return rv;
     }
-  }
-  else
+    //HandleMemoryFailure();
     return 0;
+  }
+  return 0;
 }
 
 int32_t nsIMAPBodypart::GenerateEmptyFilling(nsIMAPBodyShell *aShell, bool stream, bool prefetch)
@@ -523,10 +511,8 @@ int32_t nsIMAPBodypart::GenerateEmptyFilling(nsIMAPBodyShell *aShell, bool strea
     }
     return emptyString.Length();
   }
-  else
-    return 0;
+  return 0;
 }
-
 
 // Returns true if the prefs say that this content type should
 // explicitly be kept in when filling in the shell
@@ -534,7 +520,6 @@ bool nsIMAPBodypart::ShouldExplicitlyFetchInline()
 {
 	 return false;
 }
-
 
 // Returns true if the prefs say that this content type should
 // explicitly be left out when filling in the shell
@@ -545,7 +530,6 @@ bool nsIMAPBodypart::ShouldExplicitlyNotFetchInline()
 
 
 ///////////// nsIMAPBodypartLeaf /////////////////////////////
-
 
 nsIMAPBodypartLeaf::nsIMAPBodypartLeaf(char *partNum,
                                        nsIMAPBodypart *parentPart,
@@ -612,8 +596,6 @@ int32_t nsIMAPBodypartLeaf::Generate(nsIMAPBodyShell *aShell, bool stream, bool 
   return m_contentLength;
 }
 
-
-
 // returns true if this part should be fetched inline for generation.
 bool nsIMAPBodypartLeaf::ShouldFetchInline(nsIMAPBodyShell *aShell)
 {
@@ -626,138 +608,128 @@ bool nsIMAPBodypartLeaf::ShouldFetchInline(nsIMAPBodyShell *aShell)
       // This is the part we're generating
       return true;
     }
-    else
-    {
-      // If this is the only body part of a message, and that
-      // message is the part being generated, then this leaf should
-      // be inline as well.
-      if ((m_parentPart->GetType() == IMAP_BODY_MESSAGE_RFC822) &&
+
+    // If this is the only body part of a message, and that
+    // message is the part being generated, then this leaf should
+    // be inline as well.
+    if ((m_parentPart->GetType() == IMAP_BODY_MESSAGE_RFC822) &&
         (!PL_strcmp(m_parentPart->GetPartNumberString(), generatingPart)))
-        return true;
-      
-      // The parent of this part is a multipart
-      if (m_parentPart->GetType() == IMAP_BODY_MULTIPART)
-      {
-        // This is the first text part of a forwarded message
-        // with a multipart body, and that message is being generated,
-        // then generate this part.
-        nsIMAPBodypart *grandParent = m_parentPart->GetParentPart();
-        // grandParent must exist, since multiparts need parents
-        NS_ASSERTION(grandParent, "grandparent doesn't exist for multi-part alt");
-        if (grandParent && 
+      return true;
+
+    // The parent of this part is a multipart
+    if (m_parentPart->GetType() == IMAP_BODY_MULTIPART)
+    {
+      // This is the first text part of a forwarded message
+      // with a multipart body, and that message is being generated,
+      // then generate this part.
+      nsIMAPBodypart *grandParent = m_parentPart->GetParentPart();
+      // grandParent must exist, since multiparts need parents
+      NS_ASSERTION(grandParent, "grandparent doesn't exist for multi-part alt");
+      if (grandParent &&
           (grandParent->GetType() == IMAP_BODY_MESSAGE_RFC822) &&
           (!PL_strcmp(grandParent->GetPartNumberString(), generatingPart)) &&
           (m_partNumberString[PL_strlen(m_partNumberString)-1] == '1') &&
           !PL_strcasecmp(m_bodyType, "text"))
-          return true;	// we're downloading it inline
-        
-        
-        // This is a child of a multipart/appledouble attachment,
-        // and that multipart/appledouble attachment is being generated
-        if (m_parentPart &&
+        return true;	// we're downloading it inline
+
+      // This is a child of a multipart/appledouble attachment,
+      // and that multipart/appledouble attachment is being generated
+      if (m_parentPart &&
           !PL_strcasecmp(m_parentPart->GetBodySubType(), "appledouble") &&
           !PL_strcmp(m_parentPart->GetPartNumberString(), generatingPart))
-          return true;	// we're downloading it inline
+        return true;	// we're downloading it inline
       }
-      
-      // Leave out all other leaves if this isn't the one
-      // we're generating.
-      // Maybe change later to check parents, etc.
-      return false;
-    }
+
+    // Leave out all other leaves if this isn't the one
+    // we're generating.
+    // Maybe change later to check parents, etc.
+    return false;
   }
-  else
+
+  // We are generating the whole message, possibly (hopefully)
+  // leaving out non-inline parts
+  if (ShouldExplicitlyFetchInline())
+    return true;
+  if (ShouldExplicitlyNotFetchInline())
+    return false;
+
+  // If the parent is a message (this is the only body part of that
+  // message), and that message should be inline, then its body
+  // should inherit the inline characteristics of that message
+  if (m_parentPart->GetType() == IMAP_BODY_MESSAGE_RFC822)
+    return m_parentPart->ShouldFetchInline(aShell);
+
+  // View Attachments As Links is on.
+  if (!(aShell->GetContentModified() == IMAP_CONTENT_MODIFIED_VIEW_INLINE))
   {
-    // We are generating the whole message, possibly (hopefully)
-    // leaving out non-inline parts
-    
-    if (ShouldExplicitlyFetchInline())
+    // The last text part is still displayed inline,
+    // even if View Attachments As Links is on.
+    nsIMAPBodypart *grandParentPart = m_parentPart->GetParentPart();
+    if ((mPreferPlainText ||
+         !PL_strcasecmp(m_parentPart->GetBodySubType(), "mixed")) &&
+        !PL_strcmp(m_partNumberString, "1") &&
+        !PL_strcasecmp(m_bodyType, "text"))
+      return true;         // we're downloading it inline
+
+    if ((!PL_strcasecmp(m_parentPart->GetBodySubType(), "alternative") ||
+         (grandParentPart &&
+          !PL_strcasecmp(grandParentPart->GetBodySubType(), "alternative"))) &&
+        !PL_strcasecmp(m_bodyType, "text") &&
+        ((!PL_strcasecmp(m_bodySubType, "plain") && mPreferPlainText) ||
+         (!PL_strcasecmp(m_bodySubType, "html") && !mPreferPlainText)))
       return true;
-    if (ShouldExplicitlyNotFetchInline())
-      return false;
-    
-    // If the parent is a message (this is the only body part of that
-    // message), and that message should be inline, then its body
-    // should inherit the inline characteristics of that message
-    if (m_parentPart->GetType() == IMAP_BODY_MESSAGE_RFC822)
-      return m_parentPart->ShouldFetchInline(aShell);
-    
-    // View Attachments As Links is on.
-    if (!(aShell->GetContentModified() == IMAP_CONTENT_MODIFIED_VIEW_INLINE))
-    {
-      // The last text part is still displayed inline,
-      // even if View Attachments As Links is on.
-      nsIMAPBodypart *grandParentPart = m_parentPart->GetParentPart();
-      if ((mPreferPlainText ||
-           !PL_strcasecmp(m_parentPart->GetBodySubType(), "mixed")) &&
-          !PL_strcmp(m_partNumberString, "1") &&
-          !PL_strcasecmp(m_bodyType, "text"))
-        return true;         // we're downloading it inline
 
-      if ((!PL_strcasecmp(m_parentPart->GetBodySubType(), "alternative") ||
-           (grandParentPart &&
-            !PL_strcasecmp(grandParentPart->GetBodySubType(), "alternative"))) &&
-          !PL_strcasecmp(m_bodyType, "text") &&
-          ((!PL_strcasecmp(m_bodySubType, "plain") && mPreferPlainText) ||
-           (!PL_strcasecmp(m_bodySubType, "html") && !mPreferPlainText)))
-        return true;
+    // This is the first text part of a top-level multipart.
+    // For instance, a message with multipart body, where the first
+    // part is multipart, and this is the first leaf of that first part.
+    if (m_parentPart->GetType() == IMAP_BODY_MULTIPART &&
+        (PL_strlen(m_partNumberString) >= 2) &&
+        !PL_strcmp(m_partNumberString + PL_strlen(m_partNumberString) - 2, ".1") && // this is the first text type on this level
+        (!PL_strcmp(m_parentPart->GetPartNumberString(), "1") || !PL_strcmp(m_parentPart->GetPartNumberString(), "2")) &&
+        !PL_strcasecmp(m_bodyType, "text"))
+      return true;
+    // This is the first text part of a top-level multipart of the toplevelmessage
+    // This 'assumes' the text body is first leaf. This is not required for valid email.
+    // The only other way is to get content-disposition = attachment and exclude those text parts.
+    if (m_parentPart->GetType() == IMAP_BODY_MULTIPART &&
+        !PL_strcasecmp(m_bodyType, "text") &&
+        !PL_strcmp(m_parentPart->GetPartNumberString(), "0") &&
+        !PL_strcmp(m_partNumberString, "1"))
+      return true;
 
-      // This is the first text part of a top-level multipart.
-      // For instance, a message with multipart body, where the first
-      // part is multipart, and this is the first leaf of that first part.
-      if (m_parentPart->GetType() == IMAP_BODY_MULTIPART &&
-          (PL_strlen(m_partNumberString) >= 2) &&
-          !PL_strcmp(m_partNumberString + PL_strlen(m_partNumberString) - 2, ".1") && // this is the first text type on this level
-          (!PL_strcmp(m_parentPart->GetPartNumberString(), "1") || !PL_strcmp(m_parentPart->GetPartNumberString(), "2")) && 
-          !PL_strcasecmp(m_bodyType, "text"))
-        return true;
-      // This is the first text part of a top-level multipart of the toplevelmessage
-      // This 'assumes' the text body is first leaf. This is not required for valid email.
-      // The only other way is to get content-disposition = attachment and exclude those text parts.
-      if (m_parentPart->GetType() == IMAP_BODY_MULTIPART &&
-          !PL_strcasecmp(m_bodyType, "text") &&
-          !PL_strcmp(m_parentPart->GetPartNumberString(), "0") &&
-          !PL_strcmp(m_partNumberString, "1"))
-         return true;
+    // we may have future problems needing tests here
 
-      // we may have future problems needing tests here
-
-      return false;  // we can leave it on the server
-    }
-#ifdef XP_MACOSX
-    // If it is either applesingle, or a resource fork for appledouble
-    if (!PL_strcasecmp(m_contentType, "application/applefile"))
-    {
-      // if it is appledouble
-      if (m_parentPart->GetType() == IMAP_BODY_MULTIPART &&
-        !PL_strcasecmp(m_parentPart->GetBodySubType(), "appledouble"))
-      {
-        // This is the resource fork of a multipart/appledouble.
-        // We inherit the inline attributes of the parent,
-        // which was derived from its OTHER child.  (The data fork.)
-        return m_parentPart->ShouldFetchInline(aShell);
-      }
-      else	// it is applesingle
-      {
-        return false;	// we can leave it on the server
-      }
-    }
-#endif // XP_MACOSX
-    
-    // Leave out parts with type application/*
-    if (!PL_strcasecmp(m_bodyType, "APPLICATION") &&	// If it is of type "application"
-      PL_strncasecmp(m_bodySubType, "x-pkcs7", 7)	// and it's not a signature (signatures are inline)
-      )
-      return false;	// we can leave it on the server
-    if (!PL_strcasecmp(m_bodyType, "AUDIO"))
-      return false;
-    // Here's where we can add some more intelligence -- let's leave out
-    // any other parts that we know we can't display inline.
-    return true;	// we're downloading it inline
+    return false;  // we can leave it on the server
   }
+#ifdef XP_MACOSX
+  // If it is either applesingle, or a resource fork for appledouble
+  if (!PL_strcasecmp(m_contentType, "application/applefile"))
+  {
+    // if it is appledouble
+    if (m_parentPart->GetType() == IMAP_BODY_MULTIPART &&
+        !PL_strcasecmp(m_parentPart->GetBodySubType(), "appledouble"))
+    {
+      // This is the resource fork of a multipart/appledouble.
+      // We inherit the inline attributes of the parent,
+      // which was derived from its OTHER child.  (The data fork.)
+      return m_parentPart->ShouldFetchInline(aShell);
+    }
+    // it is applesingle
+    return false;	// we can leave it on the server
+  }
+#endif // XP_MACOSX
+
+  // Leave out parts with type application/*
+  if (!PL_strcasecmp(m_bodyType, "APPLICATION") &&	// If it is of type "application"
+      PL_strncasecmp(m_bodySubType, "x-pkcs7", 7)	// and it's not a signature (signatures are inline)
+    )
+    return false;	// we can leave it on the server
+  if (!PL_strcasecmp(m_bodyType, "AUDIO"))
+    return false;
+  // Here's where we can add some more intelligence -- let's leave out
+  // any other parts that we know we can't display inline.
+  return true;	// we're downloading it inline
 }
-
-
 
 bool nsIMAPBodypartMultipart::IsLastTextPart(const char *partNumberString)
 {
@@ -872,9 +844,6 @@ int32_t nsIMAPBodypartMessage::Generate(nsIMAPBodyShell *aShell, bool stream, bo
   return m_contentLength;
 }
 
-
-
-
 bool nsIMAPBodypartMessage::ShouldFetchInline(nsIMAPBodyShell *aShell)
 {
   if (m_topLevelMessage)	// the main message should always be defined as "inline"
@@ -890,19 +859,16 @@ bool nsIMAPBodypartMessage::ShouldFetchInline(nsIMAPBodyShell *aShell)
     // to avoid any potential mishap.
     return true;
   }
-  else
-  {
-    // Generating whole message
-    
-    if (ShouldExplicitlyFetchInline())
-      return true;
-    if (ShouldExplicitlyNotFetchInline())
-      return false;
-    
-    
-    // Message types are inline, by default.
+
+  // Generating whole message
+  if (ShouldExplicitlyFetchInline())
     return true;
-  }
+  if (ShouldExplicitlyNotFetchInline())
+    return false;
+
+  // Message types are inline, by default.
+  return true;
+
 }
 
 bool nsIMAPBodypartMessage::PreflightCheckAllInline(nsIMAPBodyShell *aShell)
@@ -941,7 +907,6 @@ nsIMAPBodypart *nsIMAPBodypartMessage::FindPartWithNumber(const char *partNum)
 }
 
 ///////////// nsIMAPBodypartMultipart ////////////////////////
-
 
 nsIMAPBodypartMultipart::nsIMAPBodypartMultipart(char *partNum, nsIMAPBodypart *parentPart) : 
 nsIMAPBodypart(partNum, parentPart)
@@ -989,7 +954,6 @@ nsIMAPBodypartMultipart::SetBodySubType(char *bodySubType)
     m_contentType = PR_smprintf("%s/%s", m_bodyType, m_bodySubType);
 }
 
-
 int32_t nsIMAPBodypartMultipart::Generate(nsIMAPBodyShell *aShell, bool stream, bool prefetch)
 {
   int32_t len = 0;
@@ -1034,7 +998,6 @@ int32_t nsIMAPBodypartMultipart::Generate(nsIMAPBodyShell *aShell, bool stream, 
   return m_contentLength;
 }
 
-
 bool nsIMAPBodypartMultipart::ShouldFetchInline(nsIMAPBodyShell *aShell)
 {
   char *generatingPart = aShell->GetGeneratingPart();
@@ -1047,39 +1010,36 @@ bool nsIMAPBodypartMultipart::ShouldFetchInline(nsIMAPBodyShell *aShell)
     // to avoid any potential mishap.
     return true;
   }
-  else
-  {
-    // Generating whole message
-    
-    if (ShouldExplicitlyFetchInline())
-      return true;
-    if (ShouldExplicitlyNotFetchInline())
-      return false;
 
-    if (!PL_strcasecmp(m_bodySubType, "alternative"))
-      return true;
-
-    nsIMAPBodypart *grandparentPart = m_parentPart->GetParentPart();
-
-    // if we're a multipart sub-part of multipart alternative, we need to 
-    // be fetched because mime will always display us.
-    if (!PL_strcasecmp(m_parentPart->GetBodySubType(), "alternative") &&
-        GetType() == IMAP_BODY_MULTIPART)
-      return true;
-    // If "Show Attachments as Links" is on, and
-    // the parent of this multipart is not a message,
-    // then it's not inline.
-    if (!(aShell->GetContentModified() == IMAP_CONTENT_MODIFIED_VIEW_INLINE) &&
-      (m_parentPart->GetType() != IMAP_BODY_MESSAGE_RFC822) &&
-      (m_parentPart->GetType() == IMAP_BODY_MULTIPART ?
-      (grandparentPart ? grandparentPart->GetType() != IMAP_BODY_MESSAGE_RFC822 : true)
-      : true))
-      return false;
-    
-    // multiparts are always inline (even multipart/appledouble)
-    // (their children might not be, though)
+  // Generating whole message
+  if (ShouldExplicitlyFetchInline())
     return true;
-  }
+  if (ShouldExplicitlyNotFetchInline())
+    return false;
+
+  if (!PL_strcasecmp(m_bodySubType, "alternative"))
+    return true;
+
+  nsIMAPBodypart *grandparentPart = m_parentPart->GetParentPart();
+
+  // if we're a multipart sub-part of multipart alternative, we need to
+  // be fetched because mime will always display us.
+  if (!PL_strcasecmp(m_parentPart->GetBodySubType(), "alternative") &&
+      GetType() == IMAP_BODY_MULTIPART)
+    return true;
+  // If "Show Attachments as Links" is on, and
+  // the parent of this multipart is not a message,
+  // then it's not inline.
+  if (!(aShell->GetContentModified() == IMAP_CONTENT_MODIFIED_VIEW_INLINE) &&
+    (m_parentPart->GetType() != IMAP_BODY_MESSAGE_RFC822) &&
+    (m_parentPart->GetType() == IMAP_BODY_MULTIPART ?
+    (grandparentPart ? grandparentPart->GetType() != IMAP_BODY_MESSAGE_RFC822 : true)
+    : true))
+    return false;
+
+  // multiparts are always inline (even multipart/appledouble)
+  // (their children might not be, though)
+  return true;
 }
 
 bool nsIMAPBodypartMultipart::PreflightCheckAllInline(nsIMAPBodyShell *aShell)
@@ -1117,10 +1077,7 @@ nsIMAPBodypart	*nsIMAPBodypartMultipart::FindPartWithNumber(const char *partNum)
 }
 
 
-
 ///////////// nsIMAPMessageHeaders ////////////////////////////////////
-
-
 
 nsIMAPMessageHeaders::nsIMAPMessageHeaders(char *partNum, nsIMAPBodypart *parentPart) : 
 nsIMAPBodypart(partNum, parentPart)
@@ -1304,7 +1261,6 @@ nsIMAPBodyShell *nsIMAPBodyShellCache::FindShellForUID(nsCString &UID, const cha
 }
 
 ///////////// nsIMAPMessagePartID ////////////////////////////////////
-
 
 nsIMAPMessagePartID::nsIMAPMessagePartID(nsIMAPeFetchFields fields, const char *partNumberString)
 : m_partNumberString(partNumberString),
