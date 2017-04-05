@@ -863,7 +863,7 @@ NS_IMETHODIMP nsImapMailFolder::CreateSubfolder(const nsAString& folderName, nsI
     ThrowAlertMsg("folderExists", msgWindow);
     return NS_MSG_FOLDER_EXISTS;
   }
-  else if (mIsServer && folderName.LowerCaseEqualsLiteral("inbox"))  // Inbox, a special folder
+  if (mIsServer && folderName.LowerCaseEqualsLiteral("inbox"))  // Inbox, a special folder
   {
     ThrowAlertMsg("folderExists", msgWindow);
     return NS_MSG_FOLDER_EXISTS;
@@ -2153,7 +2153,7 @@ nsImapMailFolder::AllocateUidStringFromKeys(nsMsgKey *keys, uint32_t numKeys, ns
       curSequenceEnd = nextKey;
       continue;
     }
-    else if (curSequenceEnd > startSequence)
+    if (curSequenceEnd > startSequence)
     {
       AppendUid(msgIds, startSequence);
       msgIds += ':';
@@ -2310,21 +2310,21 @@ NS_IMETHODIMP nsImapMailFolder::DeleteMessages(nsIArray *messages,
     }
     return rv;
   }
-  else  // have to move the messages to the trash
-  {
-    if(trashFolder)
-    {
-      nsCOMPtr<nsIMsgFolder> srcFolder;
-      nsCOMPtr<nsISupports>srcSupport;
-      uint32_t count = 0;
-      rv = messages->GetLength(&count);
 
-      rv = QueryInterface(NS_GET_IID(nsIMsgFolder), getter_AddRefs(srcFolder));
-      nsCOMPtr<nsIMsgCopyService> copyService = do_GetService(NS_MSGCOPYSERVICE_CONTRACTID, &rv);
-      NS_ENSURE_SUCCESS(rv, rv);
-      rv = copyService->CopyMessages(srcFolder, messages, trashFolder, true, listener, msgWindow, allowUndo);
-    }
+  // have to move the messages to the trash
+  if(trashFolder)
+  {
+    nsCOMPtr<nsIMsgFolder> srcFolder;
+    nsCOMPtr<nsISupports>srcSupport;
+    uint32_t count = 0;
+    rv = messages->GetLength(&count);
+
+    rv = QueryInterface(NS_GET_IID(nsIMsgFolder), getter_AddRefs(srcFolder));
+    nsCOMPtr<nsIMsgCopyService> copyService = do_GetService(NS_MSGCOPYSERVICE_CONTRACTID, &rv);
+    NS_ENSURE_SUCCESS(rv, rv);
+    rv = copyService->CopyMessages(srcFolder, messages, trashFolder, true, listener, msgWindow, allowUndo);
   }
+
   return rv;
 }
 
@@ -4286,8 +4286,8 @@ void nsImapMailFolder::FindKeysToDelete(const nsTArray<nsMsgKey> &existingKeys,
       nsMsgKey doomedKey = existingKeys[keyIndex];
       if ((int32_t) doomedKey <= 0 && doomedKey != nsMsgKey_None)
         continue;
-      else
-        keysToDelete.AppendElement(existingKeys[keyIndex]);
+
+      keysToDelete.AppendElement(existingKeys[keyIndex]);
     }
 
     flagState->GetUidOfMessage(onlineIndex, &uidOfMessage);
@@ -4756,7 +4756,7 @@ nsImapMailFolder::OnlineCopyCompleted(nsIImapProtocol *aProtocol, ImapOnlineCopy
                                       true);
   }
   /* unhandled copystate */
-  else if (m_copyState) // whoops, this is the wrong folder - should use the source folder
+  if (m_copyState) // whoops, this is the wrong folder - should use the source folder
   {
     nsCOMPtr<nsIMsgFolder> srcFolder;
     srcFolder = do_QueryInterface(m_copyState->m_srcSupport, &rv);
@@ -6448,11 +6448,9 @@ bool nsMsgIMAPFolderACL::GetFlagSetInRightsForUser(const nsACString& userName, c
     GetRightsStringForUser(NS_LITERAL_CSTRING(IMAP_ACL_ANYONE_STRING), anyoneFlags);
     if (anyoneFlags.IsEmpty())
       return defaultIfNotFound;
-    else
-      return (anyoneFlags.FindChar(flag) != kNotFound);
+    return (anyoneFlags.FindChar(flag) != kNotFound);
   }
-  else
-    return (flags.FindChar(flag) != kNotFound);
+  return (flags.FindChar(flag) != kNotFound);
 }
 
 bool nsMsgIMAPFolderACL::GetCanUserLookupFolder(const nsACString& userName)
@@ -6599,78 +6597,76 @@ nsresult nsMsgIMAPFolderACL::CreateACLRightsString(nsAString& aRightsString)
     aRightsString.Assign(result);
     return rv;
   }
-  else
+
+  if (GetCanIReadFolder())
   {
-    if (GetCanIReadFolder())
-    {
-      bundle->GetStringFromName("imapAclReadRight",
-                                getter_Copies(curRight));
-      aRightsString.Append(curRight);
-    }
-    if (GetCanIWriteFolder())
-    {
-      if (!aRightsString.IsEmpty()) aRightsString.AppendLiteral(", ");
-      bundle->GetStringFromName("imapAclWriteRight",
-                                getter_Copies(curRight));
-      aRightsString.Append(curRight);
-    }
-    if (GetCanIInsertInFolder())
-    {
-      if (!aRightsString.IsEmpty()) aRightsString.AppendLiteral(", ");
-      bundle->GetStringFromName("imapAclInsertRight",
-                                getter_Copies(curRight));
-      aRightsString.Append(curRight);
-    }
-    if (GetCanILookupFolder())
-    {
-      if (!aRightsString.IsEmpty()) aRightsString.AppendLiteral(", ");
-      bundle->GetStringFromName("imapAclLookupRight",
-                                getter_Copies(curRight));
-      aRightsString.Append(curRight);
-    }
-    if (GetCanIStoreSeenInFolder())
-    {
-      if (!aRightsString.IsEmpty()) aRightsString.AppendLiteral(", ");
-      bundle->GetStringFromName("imapAclSeenRight",
-                                getter_Copies(curRight));
-      aRightsString.Append(curRight);
-    }
-    if (GetCanIDeleteInFolder())
-    {
-      if (!aRightsString.IsEmpty()) aRightsString.AppendLiteral(", ");
-      bundle->GetStringFromName("imapAclDeleteRight",
-                                getter_Copies(curRight));
-      aRightsString.Append(curRight);
-    }
-    if (GetCanIExpungeFolder())
-    {
-      if (!aRightsString.IsEmpty())
-        aRightsString.AppendLiteral(", ");
-      bundle->GetStringFromName("imapAclExpungeRight",
-                                getter_Copies(curRight));
-      aRightsString.Append(curRight);
-    }
-    if (GetCanICreateSubfolder())
-    {
-      if (!aRightsString.IsEmpty()) aRightsString.AppendLiteral(", ");
-      bundle->GetStringFromName("imapAclCreateRight",
-                                getter_Copies(curRight));
-      aRightsString.Append(curRight);
-    }
-    if (GetCanIPostToFolder())
-    {
-      if (!aRightsString.IsEmpty()) aRightsString.AppendLiteral(", ");
-      bundle->GetStringFromName("imapAclPostRight",
-                                getter_Copies(curRight));
-      aRightsString.Append(curRight);
-    }
-    if (GetCanIAdministerFolder())
-    {
-      if (!aRightsString.IsEmpty()) aRightsString.AppendLiteral(", ");
-      bundle->GetStringFromName("imapAclAdministerRight",
-                                getter_Copies(curRight));
-      aRightsString.Append(curRight);
-    }
+    bundle->GetStringFromName("imapAclReadRight",
+                              getter_Copies(curRight));
+    aRightsString.Append(curRight);
+  }
+  if (GetCanIWriteFolder())
+  {
+    if (!aRightsString.IsEmpty()) aRightsString.AppendLiteral(", ");
+    bundle->GetStringFromName("imapAclWriteRight",
+                              getter_Copies(curRight));
+    aRightsString.Append(curRight);
+  }
+  if (GetCanIInsertInFolder())
+  {
+    if (!aRightsString.IsEmpty()) aRightsString.AppendLiteral(", ");
+    bundle->GetStringFromName("imapAclInsertRight",
+                              getter_Copies(curRight));
+    aRightsString.Append(curRight);
+  }
+  if (GetCanILookupFolder())
+  {
+    if (!aRightsString.IsEmpty()) aRightsString.AppendLiteral(", ");
+    bundle->GetStringFromName("imapAclLookupRight",
+                              getter_Copies(curRight));
+    aRightsString.Append(curRight);
+  }
+  if (GetCanIStoreSeenInFolder())
+  {
+    if (!aRightsString.IsEmpty()) aRightsString.AppendLiteral(", ");
+    bundle->GetStringFromName("imapAclSeenRight",
+                              getter_Copies(curRight));
+    aRightsString.Append(curRight);
+  }
+  if (GetCanIDeleteInFolder())
+  {
+    if (!aRightsString.IsEmpty()) aRightsString.AppendLiteral(", ");
+    bundle->GetStringFromName("imapAclDeleteRight",
+                              getter_Copies(curRight));
+    aRightsString.Append(curRight);
+  }
+  if (GetCanIExpungeFolder())
+  {
+    if (!aRightsString.IsEmpty())
+      aRightsString.AppendLiteral(", ");
+    bundle->GetStringFromName("imapAclExpungeRight",
+                              getter_Copies(curRight));
+    aRightsString.Append(curRight);
+  }
+  if (GetCanICreateSubfolder())
+  {
+    if (!aRightsString.IsEmpty()) aRightsString.AppendLiteral(", ");
+    bundle->GetStringFromName("imapAclCreateRight",
+                              getter_Copies(curRight));
+    aRightsString.Append(curRight);
+  }
+  if (GetCanIPostToFolder())
+  {
+    if (!aRightsString.IsEmpty()) aRightsString.AppendLiteral(", ");
+    bundle->GetStringFromName("imapAclPostRight",
+                              getter_Copies(curRight));
+    aRightsString.Append(curRight);
+  }
+  if (GetCanIAdministerFolder())
+  {
+    if (!aRightsString.IsEmpty()) aRightsString.AppendLiteral(", ");
+    bundle->GetStringFromName("imapAclAdministerRight",
+                              getter_Copies(curRight));
+    aRightsString.Append(curRight);
   }
   return rv;
 }

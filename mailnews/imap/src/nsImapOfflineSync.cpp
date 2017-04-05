@@ -1047,8 +1047,7 @@ nsresult nsImapOfflineSync::ProcessNextOperation()
         ProcessNextOperation();
         return NS_OK;
       }
-      else
-        m_currentFolder = nullptr;
+      m_currentFolder = nullptr;
     }
   }
 
@@ -1189,11 +1188,8 @@ nsresult nsImapOfflineDownloader::ProcessNextOperation()
       }
       return ProcessNextOperation(); // recurse and do next server.
     }
-    else
-    {
-      m_allServers = nullptr;
-      m_mailboxupdatesFinished = true;
-    }
+    m_allServers = nullptr;
+    m_mailboxupdatesFinished = true;
   }
 
   while (AdvanceToNextFolder())

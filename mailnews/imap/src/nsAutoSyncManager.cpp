@@ -500,8 +500,8 @@ bool nsAutoSyncManager::DoesQContainAnySiblingOf(const nsCOMArray<nsIAutoSyncSta
     nsresult rv = autoSyncState->GetState(&state);
     if (NS_SUCCEEDED(rv) && aState == state)
       break;
-    else
-      offset++;
+
+    offset++;
   }
   if (aIndex)
     *aIndex = offset;
@@ -579,7 +579,8 @@ NS_IMETHODIMP nsAutoSyncManager::Observe(nsISupports*, const char *aTopic, const
 
     return NS_OK;
   }
-  else if (!PL_strcmp(aTopic, kStartupDoneNotification))
+
+  if (!PL_strcmp(aTopic, kStartupDoneNotification))
   {
     mStartupDone = true; 
   }
@@ -597,8 +598,9 @@ NS_IMETHODIMP nsAutoSyncManager::Observe(nsISupports*, const char *aTopic, const
 
        return StartIdleProcessing();
      }
+
      // we're back from appIdle - if already notIdle, just return;
-     else if (GetIdleState() == notIdle)
+     if (GetIdleState() == notIdle)
        return NS_OK;
 
     SetIdleState(notIdle);
@@ -1047,12 +1049,11 @@ nsresult nsAutoSyncManager::HandleDownloadErrorFor(nsIAutoSyncState *aAutoSyncSt
       nsresult rv = DownloadMessagesForOffline(autoSyncStateObj);
       if (NS_SUCCEEDED(rv))
         break;
-      else if (rv == NS_ERROR_NOT_AVAILABLE)
+      if (rv == NS_ERROR_NOT_AVAILABLE)
         // next folder in the chain also doesn't have any message to download
         // switch to next one if any
         continue;
-      else
-        autoSyncStateObj->TryCurrentGroupAgain(kGroupRetryCount);
+      autoSyncStateObj->TryCurrentGroupAgain(kGroupRetryCount);
     }
   }
   

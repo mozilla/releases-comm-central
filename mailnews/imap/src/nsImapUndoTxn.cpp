@@ -333,11 +333,7 @@ nsImapMoveCopyMsgTxn::UndoMailboxDelete()
         srcDB->SetSummaryValid(true);
         return NS_OK; // always return NS_OK
     }
-    else
-    {
-        rv = NS_ERROR_FAILURE;
-    }
-    return rv;
+    return NS_ERROR_FAILURE;
 }
 
 
@@ -358,11 +354,7 @@ nsImapMoveCopyMsgTxn::RedoMailboxDelete()
         }
         return NS_OK; // always return NS_OK
     }
-    else
-    {
-        rv = NS_ERROR_FAILURE;
-    }
-    return rv;
+    return NS_ERROR_FAILURE;
 }
 
 nsresult nsImapMoveCopyMsgTxn::GetImapDeleteModel(nsIMsgFolder *aFolder, nsMsgImapDeleteModel *aDeleteModel)

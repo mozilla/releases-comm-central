@@ -1775,13 +1775,10 @@ bool nsImapProtocol::ProcessCurrentURL()
             SetConnectionStatus(NS_ERROR_FAILURE);
             return RetryUrl();
           }
-          else
-          {
-            // trySTARTTLS set, but server doesn't have TLS capability,
-            // so downgrade socket type
-            m_imapServerSink->UpdateTrySTARTTLSPref(false);
-            m_socketType = nsMsgSocketType::plain;
-          }
+          // trySTARTTLS set, but server doesn't have TLS capability,
+          // so downgrade socket type
+          m_imapServerSink->UpdateTrySTARTTLSPref(false);
+          m_socketType = nsMsgSocketType::plain;
         }
         logonFailed = !TryToLogon();
         if (m_retryUrlOnError)
@@ -1981,8 +1978,7 @@ nsImapProtocol::GetRunningUrl(nsIURI **result)
     if (result && m_runningUrl)
         return m_runningUrl->QueryInterface(NS_GET_IID(nsIURI), (void**)
                                             result);
-    else
-        return NS_ERROR_NULL_POINTER;
+    return NS_ERROR_NULL_POINTER;
 }
 
 
@@ -1990,9 +1986,7 @@ NS_IMETHODIMP nsImapProtocol::GetRunningImapURL(nsIImapUrl **aImapUrl)
 {
   if (aImapUrl && m_runningUrl)
      return m_runningUrl->QueryInterface(NS_GET_IID(nsIImapUrl), (void**) aImapUrl);
-  else
-    return NS_ERROR_NULL_POINTER;
-
+  return NS_ERROR_NULL_POINTER;
 }
 
 /*
@@ -3161,7 +3155,7 @@ nsresult nsImapProtocol::BeginMessageDownLoad(
     // if we have a mock channel, that means we have a channel listener who wants the
     // message. So set up a pipe. We'll write the messsage into one end of the pipe
     // and they will read it out of the other end.
-    else if (m_channelListener)
+    if (m_channelListener)
     {
       // create a pipe to pump the message into...the output will go to whoever
       // is consuming the message display

@@ -303,13 +303,11 @@ NS_IMETHODIMP nsAutoSyncState::GetNextGroupOfMessages(uint32_t aSuggestedGroupSi
           idx++;
           break;
         }
-        else if ((*aActualGroupSize) + msgSize > aSuggestedGroupSizeLimit)
+        if ((*aActualGroupSize) + msgSize > aSuggestedGroupSizeLimit)
           break;
-        else
-        {
-          group->AppendElement(qhdr, false);
-          *aActualGroupSize += msgSize;
-        }
+
+        group->AppendElement(qhdr, false);
+        *aActualGroupSize += msgSize;
       }// endfor
 
       mLastOffset = mOffset;
@@ -462,14 +460,12 @@ NS_IMETHODIMP nsAutoSyncState::OnStopRunningUrl(nsIURI* aUrl, nsresult aExitCode
       SetState(nsAutoSyncState::stUpdateIssued);
       return imapFolder->UpdateFolderWithListener(nullptr, autoSyncMgrListener);
     }
-    else
-    {
-      ownerFolder->SetMsgDatabase(nullptr);
-      // nothing more to do.
-      SetState(nsAutoSyncState::stCompletedIdle);
-      // autoSyncMgr needs this notification, so manufacture it.
-      return autoSyncMgrListener->OnStopRunningUrl(nullptr, NS_OK);
-    }
+
+    ownerFolder->SetMsgDatabase(nullptr);
+    // nothing more to do.
+    SetState(nsAutoSyncState::stCompletedIdle);
+    // autoSyncMgr needs this notification, so manufacture it.
+    return autoSyncMgrListener->OnStopRunningUrl(nullptr, NS_OK);
   }
   //XXXemre how we recover from this error?
   rv = ownerFolder->ReleaseSemaphore(ownerFolder);

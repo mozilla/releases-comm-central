@@ -371,10 +371,7 @@ NS_IMETHODIMP nsImapUrl::GetOnlineSubDirSeparator(char* separator)
       *separator = m_onlineSubDirSeparator;
       return NS_OK;
   }
-  else
-  {
-      return NS_ERROR_NULL_POINTER;
-  }
+  return NS_ERROR_NULL_POINTER;
 }
 
 NS_IMETHODIMP nsImapUrl::GetNumBytesToFetch(int32_t *aNumBytesToFetch)

@@ -321,61 +321,51 @@ int nsIMAPNamespaceList::UnserializeNamespaces(const char *str, char **prefixes,
   {
     if (str[0] != '"')
       return 1;
-    else
+
+    int count = 0;
+    char *ourstr = PL_strdup(str);
+    char *origOurStr = ourstr;
+    if (ourstr)
     {
-      int count = 0;
-      char *ourstr = PL_strdup(str);
-      char *origOurStr = ourstr;
-      if (ourstr)
+      char *token = NS_strtok(SERIALIZER_SEPARATORS, &ourstr );
+      while (token != nullptr)
       {
-        char *token = NS_strtok(SERIALIZER_SEPARATORS, &ourstr );
-        while (token != nullptr)
-        {
-          token = NS_strtok(SERIALIZER_SEPARATORS, &ourstr );
-          count++;
-        }
-        PR_Free(origOurStr);
+        token = NS_strtok(SERIALIZER_SEPARATORS, &ourstr );
+        count++;
       }
-      return count;
+      PR_Free(origOurStr);
     }
+    return count;
   }
-  else
+
+  if ((str[0] != '"') && (len >= 1))
   {
-    if ((str[0] != '"') && (len >= 1))
-    {
-      prefixes[0] = PL_strdup(str);
-      return 1;
-    }
-    else
-    {
-      int count = 0;
-      char *ourstr = PL_strdup(str);
-      char *origOurStr = ourstr;
-      if (ourstr)
-      {
-        char *token = NS_strtok(SERIALIZER_SEPARATORS, &ourstr );
-        while ((count < len) && (token != nullptr))
-        {
-          
-          char *current = PL_strdup(token), *where = current;
-          if (where[0] == '"')
-            where++;
-          if (where[PL_strlen(where)-1] == '"')
-            where[PL_strlen(where)-1] = 0;
-          prefixes[count] = PL_strdup(where);
-          PR_FREEIF(current);
-          token = NS_strtok(SERIALIZER_SEPARATORS, &ourstr );
-          count++;
-        }
-        PR_Free(origOurStr);
-      }
-      return count;
-    }
+    prefixes[0] = PL_strdup(str);
+    return 1;
   }
+
+  int count = 0;
+  char *ourstr = PL_strdup(str);
+  char *origOurStr = ourstr;
+  if (ourstr)
+  {
+    char *token = NS_strtok(SERIALIZER_SEPARATORS, &ourstr );
+    while ((count < len) && (token != nullptr))
+    {
+      char *current = PL_strdup(token), *where = current;
+      if (where[0] == '"')
+        where++;
+      if (where[PL_strlen(where)-1] == '"')
+        where[PL_strlen(where)-1] = 0;
+      prefixes[count] = PL_strdup(where);
+      PR_FREEIF(current);
+      token = NS_strtok(SERIALIZER_SEPARATORS, &ourstr );
+      count++;
+    }
+    PR_Free(origOurStr);
+  }
+  return count;
 }
-
-
-
 
 char *nsIMAPNamespaceList::AllocateCanonicalFolderName(const char *onlineFolderName, char delimiter)
 {
@@ -398,8 +388,6 @@ char *nsIMAPNamespaceList::AllocateCanonicalFolderName(const char *onlineFolderN
   
   return canonicalPath;
 }
-
-
 
 /*
   GetFolderNameWithoutNamespace takes as input a folder name
@@ -454,7 +442,6 @@ nsIMAPNamespace* nsIMAPNamespaceList::GetNamespaceForFolder(const char *hostName
 
   if (convertedFolderName)
   {
-
     nsCOMPtr<nsIImapHostSessionList> hostSessionList = 
              do_GetService(kCImapHostSessionListCID, &rv);
     if (NS_FAILED(rv)) 
@@ -475,8 +462,7 @@ char *nsIMAPNamespaceList::AllocateServerFolderName(const char *canonicalFolderN
 {
   if (delimiter)
     return nsImapUrl::ReplaceCharsInCopiedString(canonicalFolderName, '/', delimiter);
-  else
-    return NS_strdup(canonicalFolderName);
+  return NS_strdup(canonicalFolderName);
 }
 
 /*
@@ -647,4 +633,3 @@ char *nsIMAPNamespaceList::GenerateFullFolderNameWithDefaultNamespace(const char
   }
   return (fullFolderName);
 }
-

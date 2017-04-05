@@ -1483,36 +1483,35 @@ void nsImapServerResponseParser::envelope_data()
   {
     if (!ContinueParse())
       break;
-    else if (*fNextToken == ')')
+    if (*fNextToken == ')')
     {
       SetSyntaxError(true); // envelope too short
       break;
     }
+
+    nsAutoCString headerLine(EnvelopeTable[tableIndex].name);
+    headerLine += ": ";
+    bool headerNonNil = true;
+    if (EnvelopeTable[tableIndex].type == envelopeString)
+    {
+      nsAutoCString strValue;
+      strValue.Adopt(CreateNilString());
+      if (!strValue.IsEmpty())
+        headerLine.Append(strValue);
+      else
+        headerNonNil = false;
+    }
     else
     {
-      nsAutoCString headerLine(EnvelopeTable[tableIndex].name);
-      headerLine += ": ";
-      bool headerNonNil = true;
-      if (EnvelopeTable[tableIndex].type == envelopeString)
-      {
-        nsAutoCString strValue;
-        strValue.Adopt(CreateNilString());
-        if (!strValue.IsEmpty())
-          headerLine.Append(strValue);
-        else
-          headerNonNil = false;
-      }
-      else
-      {
-        nsAutoCString address;
-        parse_address(address);
-        headerLine += address;
-        if (address.IsEmpty())
-          headerNonNil = false;
-      }
-      if (headerNonNil)
-        fServerConnection.HandleMessageDownLoadLine(headerLine.get(), false);
+      nsAutoCString address;
+      parse_address(address);
+      headerLine += address;
+      if (address.IsEmpty())
+        headerNonNil = false;
     }
+    if (headerNonNil)
+      fServerConnection.HandleMessageDownLoadLine(headerLine.get(), false);
+
     if (ContinueParse())
       AdvanceToNextToken();
   }
@@ -2734,8 +2733,7 @@ nsImapServerResponseParser::bodystructure_part(char *partNum, nsIMAPBodypart *pa
 
   if (fNextToken[1] == '(')
     return bodystructure_multipart(partNum, parentPart);
-  else
-    return bodystructure_leaf(partNum, parentPart);
+  return bodystructure_leaf(partNum, parentPart);
 }
 
 // RFC3501: body-type-1part = (body-type-basic / body-type-msg / body-type-text)

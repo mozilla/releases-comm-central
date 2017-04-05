@@ -2039,32 +2039,31 @@ nsresult nsImapIncomingServer::ResetFoldersToUnverified(nsIMsgFolder *parentFold
     NS_ENSURE_SUCCESS(rv, rv);
     return ResetFoldersToUnverified(rootFolder);
   }
-  else
-  {
-    nsCOMPtr<nsISimpleEnumerator> subFolders;
-    nsCOMPtr<nsIMsgImapMailFolder> imapFolder = do_QueryInterface(parentFolder, &rv);
-    NS_ENSURE_SUCCESS(rv, rv);
-    rv = imapFolder->SetVerifiedAsOnlineFolder(false);
-    rv = parentFolder->GetSubFolders(getter_AddRefs(subFolders));
-    NS_ENSURE_SUCCESS(rv, rv);
 
-    bool moreFolders = false;
-    while (NS_SUCCEEDED(subFolders->HasMoreElements(&moreFolders)) && moreFolders)
+  nsCOMPtr<nsISimpleEnumerator> subFolders;
+  nsCOMPtr<nsIMsgImapMailFolder> imapFolder = do_QueryInterface(parentFolder, &rv);
+  NS_ENSURE_SUCCESS(rv, rv);
+  rv = imapFolder->SetVerifiedAsOnlineFolder(false);
+  rv = parentFolder->GetSubFolders(getter_AddRefs(subFolders));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  bool moreFolders = false;
+  while (NS_SUCCEEDED(subFolders->HasMoreElements(&moreFolders)) && moreFolders)
+  {
+    nsCOMPtr<nsISupports> child;
+    rv = subFolders->GetNext(getter_AddRefs(child));
+    if (NS_SUCCEEDED(rv) && child)
     {
-      nsCOMPtr<nsISupports> child;
-      rv = subFolders->GetNext(getter_AddRefs(child));
-      if (NS_SUCCEEDED(rv) && child)
+      nsCOMPtr<nsIMsgFolder> childFolder = do_QueryInterface(child, &rv);
+      if (NS_SUCCEEDED(rv) && childFolder)
       {
-        nsCOMPtr<nsIMsgFolder> childFolder = do_QueryInterface(child, &rv);
-        if (NS_SUCCEEDED(rv) && childFolder)
-        {
-          rv = ResetFoldersToUnverified(childFolder);
-          if (NS_FAILED(rv))
-            break;
-        }
+        rv = ResetFoldersToUnverified(childFolder);
+        if (NS_FAILED(rv))
+          break;
       }
     }
   }
+
   return rv;
 }
 

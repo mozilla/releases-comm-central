@@ -209,10 +209,9 @@ char *nsIMAPGenericParser::CreateAstring()
 {
   if (*fNextToken == '{')
     return CreateLiteral();		// literal
-  else if (*fNextToken == '"')
+  if (*fNextToken == '"')
     return CreateQuoted();		// quoted
-  else
-    return CreateAtom(true); // atom
+  return CreateAtom(true); // atom
 }
 
 // Create an atom
@@ -274,8 +273,7 @@ char *nsIMAPGenericParser::CreateNilString()
       AdvanceTokenizerStartingPoint((fNextToken - fLineOfTokens) + 3);
     return NULL;
   }
-  else
-    return CreateString();
+  return CreateString();
 }
 
 
@@ -290,16 +288,13 @@ char *nsIMAPGenericParser::CreateString()
     char *rv = CreateLiteral();		// literal
     return (rv);
   }
-  else if (*fNextToken == '"')
+  if (*fNextToken == '"')
   {
     char *rv = CreateQuoted();		// quoted
     return (rv);
   }
-  else
-  {
-    SetSyntaxError(true, "string does not start with '{' or '\"'");
-    return NULL;
-  }
+  SetSyntaxError(true, "string does not start with '{' or '\"'");
+  return NULL;
 }
 
 // This function sets fCurrentTokenPlaceHolder immediately after the end of the
@@ -325,7 +320,7 @@ char *nsIMAPGenericParser::CreateQuoted(bool /*skipToEnd*/)
       SetSyntaxError(true, "no closing '\"' found in quoted");
       return nullptr;
     }
-    else if (returnString.CharAt(charIndex) == '\\')
+    if (returnString.CharAt(charIndex) == '\\')
     {
       // eat the escape character, but keep the escaped character
       returnString.Cut(charIndex, 1);
