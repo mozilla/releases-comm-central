@@ -21,6 +21,11 @@ tabbrowser {
   -moz-binding: url("chrome://navigator/content/tabbrowser.xml#tabbrowser-tabs");
 }
 
+.tabbrowser-tab:-moz-lwtheme:not([customization-lwtheme]) {
+  color: var(--lwt-text-color);
+  text-shadow: var(--lwt-accent-color);
+}
+
 .tabbrowser-arrowscrollbox {
   -moz-binding: url("chrome://navigator/content/tabbrowser.xml#tabbrowser-arrowscrollbox");
 }

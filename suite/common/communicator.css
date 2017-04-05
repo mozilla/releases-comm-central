@@ -134,14 +134,30 @@ textbox[enablehistory="true"] > .autocomplete-history-dropmarker {
 }
 
 /******* lightweight themes *******/
+:root:-moz-lwtheme {
+  color: var(--lwt-text-color) !important
+}
+
+/**
+ * [customization-lwtheme] may or may not be used yet; we leave it in
+ * in case it moves to toolkit in the future.
+ */
+:root:-moz-lwtheme:not([customization-lwtheme]) {
+  background-color: var(--lwt-accent-color) !important;
+  background-image: var(--lwt-header-image) !important;
+}
+
 window[lwtheme="true"] {
   background-repeat: no-repeat;
   background-position: top right;
+  background-image: var(--lwt-header-image);
 }
 
-statusbar[lwthemefooter="true"] {
+:root[lwthemefooter="true"] #status-bar:-moz-lwtheme {
   background-repeat: no-repeat;
   background-position: bottom left;
+  background-color: var(--lwt-accent-color);
+  background-image: var(--lwt-header-image);
 }
 
 /******* sync *******/
