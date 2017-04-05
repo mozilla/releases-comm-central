@@ -23,8 +23,6 @@
 #include "nsAppleMailImport.h"
 #include "nsIOutputStream.h"
 
-static mozilla::LazyLogModule APPLEMAILLOGMODULE("APPLEMAILIMPORTLOG");
-
 // some hard-coded strings
 #define DEFAULT_MAIL_FOLDER "~/Library/Mail/"
 #define POP_MBOX_SUFFIX ".mbox"
