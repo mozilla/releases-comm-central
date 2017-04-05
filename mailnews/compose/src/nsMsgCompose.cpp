@@ -651,6 +651,12 @@ nsMsgCompose::ConvertAndLoadComposeWindow(nsString& aPrefix,
   bool sigOnTop = (reply_on_top == 1 && !sig_bottom);
   bool isForwarded = (mType == nsIMsgCompType::ForwardInline);
 
+  // When in paragraph mode, don't call InsertLineBreak() since that inserts
+  // a full paragraph instead of just a line break since we switched
+  // the default paragraph separator to "p".
+  bool paragraphMode =
+    mozilla::Preferences::GetBool("mail.compose.default_to_paragraph", false);
+
   if (aQuoted)
   {
     mInsertingQuotedContent = true;
@@ -663,8 +669,8 @@ nsMsgCompose::ConvertAndLoadComposeWindow(nsString& aPrefix,
       m_identity->GetReplyOnTop(&reply_on_top);
       if (reply_on_top == 1)
       {
-        // HTML editor eats one line break
-        if (aHTMLEditor)
+        // HTML editor eats one line break but not a whole paragraph.
+        if (aHTMLEditor && !paragraphMode)
           textEditor->InsertLineBreak();
 
         // add one newline if a signature comes before the quote, two otherwise
@@ -677,12 +683,14 @@ nsMsgCompose::ConvertAndLoadComposeWindow(nsString& aPrefix,
         m_identity->GetSigBottom(&sig_bottom);
         m_identity->GetHtmlSigText(prefSigText);
         nsresult rv = m_identity->GetAttachSignature(&attachFile);
-        if (includeSignature && !sig_bottom &&
-            ((NS_SUCCEEDED(rv) && attachFile) || !prefSigText.IsEmpty()))
-          textEditor->InsertLineBreak();
-        else {
-          textEditor->InsertLineBreak();
-          textEditor->InsertLineBreak();
+        if (!paragraphMode || !aHTMLEditor) {
+          if (includeSignature && !sig_bottom &&
+              ((NS_SUCCEEDED(rv) && attachFile) || !prefSigText.IsEmpty()))
+            textEditor->InsertLineBreak();
+          else {
+            textEditor->InsertLineBreak();
+            textEditor->InsertLineBreak();
+          }
         }
       }
 
@@ -712,7 +720,7 @@ nsMsgCompose::ConvertAndLoadComposeWindow(nsString& aPrefix,
     {
       //we cannot add it on top earlier, because TagEmbeddedObjects will mark all images in the signature as "moz-do-not-send"
       if( sigOnTop )
-        m_editor->BeginningOfDocument();
+        MoveToBeginningOfDocument();
 
       if (aHTMLEditor && htmlEditor)
         htmlEditor->InsertHTML(aSignature);
@@ -916,7 +924,8 @@ nsMsgCompose::ConvertAndLoadComposeWindow(nsString& aPrefix,
         selection->Collapse(parent, offset+1);
 
         // insert a break at current selection
-        textEditor->InsertLineBreak();
+        if (!paragraphMode || !aHTMLEditor)
+          textEditor->InsertLineBreak();
 
         // i'm not sure if you need to move the selection back to before the
         // break. expirement.
@@ -934,7 +943,7 @@ nsMsgCompose::ConvertAndLoadComposeWindow(nsString& aPrefix,
       // This should set the cursor to the top!
       default:
       {
-        m_editor->BeginningOfDocument();
+        MoveToBeginningOfDocument();
         break;
       }
     }
