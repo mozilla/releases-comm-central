@@ -326,7 +326,7 @@ void nsMsgBodyHandler::StripHtml (nsCString &pBufInOut)
         else
           if (*pWalkInOut == '>')
             inTag = false;
-          pWalkInOut++;
+      pWalkInOut++;
     }
     *pWalk = 0; // null terminator
     

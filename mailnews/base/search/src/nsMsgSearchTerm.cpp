@@ -415,20 +415,20 @@ NS_IMPL_ISUPPORTS(nsMsgSearchTerm, nsIMsgSearchTerm)
   for (const char *strPtr = str; *strPtr; strPtr++)
     if (*strPtr == '"')
       numQuotes++;
-    int escapedStrLen = PL_strlen(str) + numQuotes;
-    char  *escapedStr = (char *) PR_Malloc(escapedStrLen + 1);
-    if (escapedStr)
+  int escapedStrLen = PL_strlen(str) + numQuotes;
+  char  *escapedStr = (char *) PR_Malloc(escapedStrLen + 1);
+  if (escapedStr)
+  {
+    char *destPtr;
+    for (destPtr = escapedStr; *str; str++)
     {
-      char *destPtr;
-      for (destPtr = escapedStr; *str; str++)
-      {
-        if (*str == '"')
-          *destPtr++ = '\\';
-        *destPtr++ = *str;
-      }
-      *destPtr = '\0';
+      if (*str == '"')
+        *destPtr++ = '\\';
+      *destPtr++ = *str;
     }
-    return escapedStr;
+    *destPtr = '\0';
+  }
+  return escapedStr;
 }
 
 
@@ -440,8 +440,8 @@ nsresult nsMsgSearchTerm::OutputValue(nsCString &outputStr)
     // need to quote strings with ')' and strings starting with '"' or ' '
     // filter code will escape quotes
     if (PL_strchr(m_value.string, ')') ||
-      (m_value.string[0] == ' ') ||
-      (m_value.string[0] == '"'))
+        (m_value.string[0] == ' ') ||
+        (m_value.string[0] == '"'))
     {
       quoteVal = true;
       outputStr += "\"";
@@ -467,7 +467,7 @@ nsresult nsMsgSearchTerm::OutputValue(nsCString &outputStr)
   {
     switch (m_attribute)
     {
-    case nsMsgSearchAttrib::Date:
+      case nsMsgSearchAttrib::Date:
       {
         PRExplodedTime exploded;
         PR_ExplodeTime(m_value.u.date, PR_LocalTimeParameters, &exploded);

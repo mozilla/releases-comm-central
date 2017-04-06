@@ -574,21 +574,21 @@ mime_intl_insert_message_header_1(char        **body,
   else
     NS_MsgSACat(body, ": ");
 
-    // MIME decode header
-    nsAutoCString utf8Value;
-    MIME_DecodeMimeHeader(hdr_value, mailcharset, false, true, utf8Value);
-    if (!utf8Value.IsEmpty()) {
+  // MIME decode header
+  nsAutoCString utf8Value;
+  MIME_DecodeMimeHeader(hdr_value, mailcharset, false, true, utf8Value);
+  if (!utf8Value.IsEmpty()) {
       char *escaped = nullptr;
       if (htmlEdit)
-        escaped = MsgEscapeHTML(utf8Value.get());
+          escaped = MsgEscapeHTML(utf8Value.get());
       NS_MsgSACat(body, escaped ? escaped : utf8Value.get());
       NS_Free(escaped);
-    } else {
-        NS_MsgSACat(body, hdr_value); // raw MIME encoded string
-    }
+  } else {
+      NS_MsgSACat(body, hdr_value); // raw MIME encoded string
+  }
 
   if (htmlEdit)
-    NS_MsgSACat(body, HEADER_END_JUNK);
+      NS_MsgSACat(body, HEADER_END_JUNK);
 }
 
 char *

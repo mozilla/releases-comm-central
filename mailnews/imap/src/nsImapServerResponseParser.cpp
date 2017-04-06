@@ -659,7 +659,7 @@ void nsImapServerResponseParser::response_data()
     case 'E':
       if (!PL_strcasecmp(fNextToken, "ENABLED"))
         enable_data();
-        break;
+      break;
     case 'X':
       if (!PL_strcasecmp(fNextToken, "XSERVERINFO"))
         xserverinfo_data();
@@ -1780,8 +1780,8 @@ void nsImapServerResponseParser::flags()
     while(*fNextToken != ')')
       fNextToken++;
 
-    fCurrentLineContainedFlagInfo = true;	// handled in PostProcessEndOfLine
-    fSavedFlagInfo = messageFlags;
+  fCurrentLineContainedFlagInfo = true;	// handled in PostProcessEndOfLine
+  fSavedFlagInfo = messageFlags;
 }
 
 // RFC3501:  resp-cond-state = ("OK" / "NO" / "BAD") SP resp-text

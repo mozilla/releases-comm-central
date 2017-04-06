@@ -372,9 +372,9 @@ divide_content_headers(const char *headers,
           out = &content_tail;
         else
           out = &message_tail;
-        
-        memcpy(*out, head, (tail-head));
-        *out += (tail-head);
+
+      memcpy(*out, head, (tail-head));
+      *out += (tail-head);
     }
     
     *message_tail = 0;

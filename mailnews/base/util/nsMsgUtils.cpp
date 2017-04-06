@@ -1260,21 +1260,21 @@ NS_MSG_BASE nsresult NS_GetUnicharPreferenceWithDefault(nsIPrefBranch *prefBranc
                                                         const nsAString& defValue,
                                                         nsAString& prefValue)
 {
-    NS_ENSURE_ARG(prefName);
+  NS_ENSURE_ARG(prefName);
 
-    nsCOMPtr<nsIPrefBranch> pbr;
-    if(!prefBranch) {
-        pbr = do_GetService(NS_PREFSERVICE_CONTRACTID);
-        prefBranch = pbr;
-    }
+  nsCOMPtr<nsIPrefBranch> pbr;
+  if(!prefBranch) {
+    pbr = do_GetService(NS_PREFSERVICE_CONTRACTID);
+    prefBranch = pbr;
+  }
 
   nsCOMPtr<nsISupportsString> str;
-    nsresult rv = prefBranch->GetComplexValue(prefName, NS_GET_IID(nsISupportsString), getter_AddRefs(str));
-    if (NS_SUCCEEDED(rv))
+  nsresult rv = prefBranch->GetComplexValue(prefName, NS_GET_IID(nsISupportsString), getter_AddRefs(str));
+  if (NS_SUCCEEDED(rv))
     str->GetData(prefValue);
   else
     prefValue = defValue;
-    return NS_OK;
+  return NS_OK;
 }
 
 NS_MSG_BASE nsresult NS_GetLocalizedUnicharPreferenceWithDefault(nsIPrefBranch *prefBranch,  //can be null, if so uses the root branch

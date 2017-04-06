@@ -512,8 +512,8 @@ MimeMultipartRelated_output_child_p(MimeObject *obj, MimeObject* child)
                (This happens primarily on Windows and Unix.) */
             if (PL_strchr(part, ' ') || PL_strchr(part, '>') || PL_strchr(part, '%'))
               temp = escape_for_mrel_subst(part);
-              MimeHashValue * value = new MimeHashValue(child, temp);
-              PL_HashTableAdd(relobj->hash, absolute, value);
+            MimeHashValue * value = new MimeHashValue(child, temp);
+            PL_HashTableAdd(relobj->hash, absolute, value);
 
             /* rhp - If this part ALSO has a Content-ID we need to put that into
                      the hash table and this is what this code does

@@ -981,15 +981,15 @@ nsMsgNewsFolder::HandleNewsrcLine(const char * line, uint32_t line_size)
     if ((*s == ':') || (*s == '!'))
       break;
 
-    if (*s == 0)
-      /* What is this?? Well, don't just throw it away... */
-      return RememberLine(nsDependentCString(line));
+  if (*s == 0)
+    /* What is this?? Well, don't just throw it away... */
+    return RememberLine(nsDependentCString(line));
 
-    bool subscribed = (*s == ':');
-    setStr = s+1;
+  bool subscribed = (*s == ':');
+  setStr = s+1;
 
-    if (*line == '\0')
-      return 0;
+  if (*line == '\0')
+    return 0;
 
   // previous versions of Communicator poluted the
   // newsrc files with articles

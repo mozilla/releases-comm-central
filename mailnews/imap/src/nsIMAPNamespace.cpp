@@ -42,20 +42,20 @@ void nsIMAPNamespace::SetDelimiter(char delimiter, bool delimiterFilledIn)
 // or the length of the prefix if it is part of this namespace
 int nsIMAPNamespace::MailboxMatchesNamespace(const char *boxname)
 {
-	if (!boxname) return -1;
+    if (!boxname) return -1;
 
-	// If the namespace is part of the boxname
+    // If the namespace is part of the boxname
     if (!m_prefix || !*m_prefix)
         return 0;
 
-	if (PL_strstr(boxname, m_prefix) == boxname)
-		return PL_strlen(m_prefix);
+    if (PL_strstr(boxname, m_prefix) == boxname)
+        return PL_strlen(m_prefix);
 
-	// If the boxname is part of the prefix
-	// (Used for matching Personal mailbox with Personal/ namespace, etc.)
-	if (PL_strstr(m_prefix, boxname) == m_prefix)
-		return PL_strlen(boxname);
-	return -1;
+    // If the boxname is part of the prefix
+    // (Used for matching Personal mailbox with Personal/ namespace, etc.)
+    if (PL_strstr(m_prefix, boxname) == m_prefix)
+        return PL_strlen(boxname);
+    return -1;
 }
 
 

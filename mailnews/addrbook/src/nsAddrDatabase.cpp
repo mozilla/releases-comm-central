@@ -1333,7 +1333,7 @@ NS_IMETHODIMP nsAddrDatabase::CreateNewListCardAndAddToDB(nsIAbDirectory *aList,
   if (notify)
     NotifyCardEntryChange(AB_NotifyInserted, newCard, aList);
 
-    return rv;
+  return rv;
 }
 
 NS_IMETHODIMP nsAddrDatabase::AddListCardColumnsToRow
@@ -1570,29 +1570,29 @@ void nsAddrDatabase::DeleteCardFromAllMailLists(mdb_id cardRowID)
   if (!m_mdbEnv)
     return;
 
-    nsCOMPtr <nsIMdbTableRowCursor> rowCursor;
-    m_mdbPabTable->GetTableRowCursor(m_mdbEnv, -1, getter_AddRefs(rowCursor));
+  nsCOMPtr <nsIMdbTableRowCursor> rowCursor;
+  m_mdbPabTable->GetTableRowCursor(m_mdbEnv, -1, getter_AddRefs(rowCursor));
 
-    if (rowCursor)
+  if (rowCursor)
+  {
+    nsCOMPtr <nsIMdbRow> pListRow;
+    mdb_pos rowPos;
+    do
     {
-        nsCOMPtr <nsIMdbRow> pListRow;
-        mdb_pos rowPos;
-        do
+      nsresult err = rowCursor->NextRow(m_mdbEnv, getter_AddRefs(pListRow), &rowPos);
+
+      if (NS_SUCCEEDED(err) && pListRow)
+      {
+        mdbOid rowOid;
+
+        if (NS_SUCCEEDED(pListRow->GetOid(m_mdbEnv, &rowOid)))
         {
-            nsresult err = rowCursor->NextRow(m_mdbEnv, getter_AddRefs(pListRow), &rowPos);
-
-            if (NS_SUCCEEDED(err) && pListRow)
-            {
-                mdbOid rowOid;
-
-                if (NS_SUCCEEDED(pListRow->GetOid(m_mdbEnv, &rowOid)))
-                {
-                    if (IsListRowScopeToken(rowOid.mOid_Scope))
-                        DeleteCardFromListRow(pListRow, cardRowID);
-                }
-            }
-        } while (pListRow);
-    }
+          if (IsListRowScopeToken(rowOid.mOid_Scope))
+            DeleteCardFromListRow(pListRow, cardRowID);
+        }
+      }
+    } while (pListRow);
+  }
 }
 
 NS_IMETHODIMP nsAddrDatabase::DeleteCard(nsIAbCard *aCard, bool aNotify, nsIAbDirectory *aParent)
@@ -1868,40 +1868,40 @@ NS_IMETHODIMP nsAddrDatabase::PurgeDeletedCardTable()
   if (!m_mdbEnv)
     return NS_ERROR_NULL_POINTER;
 
-    if (m_mdbDeletedCardsTable) {
-        mdb_count cardCount=0;
-        // if not too many cards let it be
-        m_mdbDeletedCardsTable->GetCount(m_mdbEnv, &cardCount);
-        if(cardCount < PURGE_CUTOFF_COUNT)
-            return NS_OK;
-        uint32_t purgeTimeInSec;
-        PRTime2Seconds(PR_Now(), &purgeTimeInSec);
-        purgeTimeInSec -= (182*24*60*60);  // six months in seconds
-        nsCOMPtr<nsIMdbTableRowCursor> rowCursor;
-        nsresult rv = m_mdbDeletedCardsTable->GetTableRowCursor(m_mdbEnv, -1, getter_AddRefs(rowCursor));
-        while(NS_SUCCEEDED(rv)) {
-            nsCOMPtr<nsIMdbRow> currentRow;
-            mdb_pos rowPos;
-            rv = rowCursor->NextRow(m_mdbEnv, getter_AddRefs(currentRow), &rowPos);
-            if(currentRow) {
-                uint32_t deletedTimeStamp = 0;
-                GetIntColumn(currentRow, m_LastModDateColumnToken, &deletedTimeStamp, 0);
-                // if record was deleted more than six months earlier, purge it
-                if(deletedTimeStamp && (deletedTimeStamp < purgeTimeInSec)) {
-                    if(NS_SUCCEEDED(currentRow->CutAllColumns(m_mdbEnv)))
-                        m_mdbDeletedCardsTable->CutRow(m_mdbEnv, currentRow);
-                }
-                else
-                    // since the ordering in Mork is maintained and thus
-                    // the cards added later appear on the top when retrieved
-                    break;
-            }
-            else
-                break; // no more row
+  if (m_mdbDeletedCardsTable) {
+    mdb_count cardCount=0;
+    // if not too many cards let it be
+    m_mdbDeletedCardsTable->GetCount(m_mdbEnv, &cardCount);
+    if(cardCount < PURGE_CUTOFF_COUNT)
+      return NS_OK;
+    uint32_t purgeTimeInSec;
+    PRTime2Seconds(PR_Now(), &purgeTimeInSec);
+    purgeTimeInSec -= (182*24*60*60);  // six months in seconds
+    nsCOMPtr<nsIMdbTableRowCursor> rowCursor;
+    nsresult rv = m_mdbDeletedCardsTable->GetTableRowCursor(m_mdbEnv, -1, getter_AddRefs(rowCursor));
+    while(NS_SUCCEEDED(rv)) {
+      nsCOMPtr<nsIMdbRow> currentRow;
+      mdb_pos rowPos;
+      rv = rowCursor->NextRow(m_mdbEnv, getter_AddRefs(currentRow), &rowPos);
+      if(currentRow) {
+        uint32_t deletedTimeStamp = 0;
+        GetIntColumn(currentRow, m_LastModDateColumnToken, &deletedTimeStamp, 0);
+        // if record was deleted more than six months earlier, purge it
+        if(deletedTimeStamp && (deletedTimeStamp < purgeTimeInSec)) {
+          if(NS_SUCCEEDED(currentRow->CutAllColumns(m_mdbEnv)))
+            m_mdbDeletedCardsTable->CutRow(m_mdbEnv, currentRow);
         }
+        else
+          // since the ordering in Mork is maintained and thus
+          // the cards added later appear on the top when retrieved
+          break;
+      }
+      else
+        break; // no more row
     }
+  }
 
-    return NS_OK;
+  return NS_OK;
 }
 
 NS_IMETHODIMP nsAddrDatabase::EditCard(nsIAbCard *aCard, bool aNotify, nsIAbDirectory *aParent)
@@ -2847,27 +2847,27 @@ nsresult nsAddrDatabase::CreateCardFromDeletedCardsTable(nsIMdbRow* cardRow, mdb
   if (!cardRow || !m_mdbEnv || !result)
     return NS_ERROR_NULL_POINTER;
 
-    nsresult rv = NS_OK;
+  nsresult rv = NS_OK;
 
-    mdbOid outOid;
-    mdb_id rowID = 0;
+  mdbOid outOid;
+  mdb_id rowID = 0;
 
-    if (NS_SUCCEEDED(cardRow->GetOid(m_mdbEnv, &outOid)))
-        rowID = outOid.mOid_Id;
+  if (NS_SUCCEEDED(cardRow->GetOid(m_mdbEnv, &outOid)))
+    rowID = outOid.mOid_Id;
 
-    if(NS_SUCCEEDED(rv))
-    {
-        nsCOMPtr<nsIAbCard> personCard;
-        personCard = do_CreateInstance(NS_ABMDBCARD_CONTRACTID, &rv);
-        NS_ENSURE_SUCCESS(rv,rv);
+  if(NS_SUCCEEDED(rv))
+  {
+    nsCOMPtr<nsIAbCard> personCard;
+    personCard = do_CreateInstance(NS_ABMDBCARD_CONTRACTID, &rv);
+    NS_ENSURE_SUCCESS(rv,rv);
 
-        InitCardFromRow(personCard, cardRow);
-        personCard->SetPropertyAsUint32(kRowIDProperty, rowID);
+    InitCardFromRow(personCard, cardRow);
+    personCard->SetPropertyAsUint32(kRowIDProperty, rowID);
 
-        NS_IF_ADDREF(*result = personCard);
-    }
+    NS_IF_ADDREF(*result = personCard);
+  }
 
-    return rv;
+  return rv;
 }
 
 nsresult nsAddrDatabase::CreateCard(nsIMdbRow* cardRow, mdb_id listRowID, nsIAbCard **result)
@@ -2875,37 +2875,37 @@ nsresult nsAddrDatabase::CreateCard(nsIMdbRow* cardRow, mdb_id listRowID, nsIAbC
   if (!cardRow || !m_mdbEnv || !result)
     return NS_ERROR_NULL_POINTER;
 
-    nsresult rv = NS_OK;
+  nsresult rv = NS_OK;
 
-    mdbOid outOid;
-    mdb_id rowID = 0;
+  mdbOid outOid;
+  mdb_id rowID = 0;
 
-    if (NS_SUCCEEDED(cardRow->GetOid(m_mdbEnv, &outOid)))
-        rowID = outOid.mOid_Id;
+  if (NS_SUCCEEDED(cardRow->GetOid(m_mdbEnv, &outOid)))
+    rowID = outOid.mOid_Id;
 
-    if(NS_SUCCEEDED(rv))
-    {
-        nsCOMPtr<nsIAbCard> personCard;
-      personCard = do_CreateInstance(NS_ABMDBCARD_CONTRACTID, &rv);
-      NS_ENSURE_SUCCESS(rv,rv);
+  if(NS_SUCCEEDED(rv))
+  {
+    nsCOMPtr<nsIAbCard> personCard;
+    personCard = do_CreateInstance(NS_ABMDBCARD_CONTRACTID, &rv);
+    NS_ENSURE_SUCCESS(rv,rv);
 
-        InitCardFromRow(personCard, cardRow);
-        personCard->SetPropertyAsUint32(kRowIDProperty, rowID);
+    InitCardFromRow(personCard, cardRow);
+    personCard->SetPropertyAsUint32(kRowIDProperty, rowID);
 
-        nsAutoCString id;
-        id.AppendInt(rowID);
-        personCard->SetLocalId(id);
+    nsAutoCString id;
+    id.AppendInt(rowID);
+    personCard->SetLocalId(id);
 
-        nsCOMPtr<nsIAbDirectory> abDir(do_QueryReferent(m_dbDirectory));
-        if (abDir)
-         abDir->GetUuid(id);
+    nsCOMPtr<nsIAbDirectory> abDir(do_QueryReferent(m_dbDirectory));
+    if (abDir)
+      abDir->GetUuid(id);
 
-        personCard->SetDirectoryId(id);
+    personCard->SetDirectoryId(id);
 
-        NS_IF_ADDREF(*result = personCard);
-    }
+    NS_IF_ADDREF(*result = personCard);
+  }
 
-    return rv;
+  return rv;
 }
 
 nsresult nsAddrDatabase::CreateABCard(nsIMdbRow* cardRow, mdb_id listRowID, nsIAbCard **result)
@@ -2919,53 +2919,53 @@ nsresult nsAddrDatabase::CreateABListCard(nsIMdbRow* listRow, nsIAbCard **result
   if (!listRow || !m_mdbEnv || !result)
     return NS_ERROR_NULL_POINTER;
 
-    nsresult rv = NS_OK;
+  nsresult rv = NS_OK;
 
-    mdbOid outOid;
-    mdb_id rowID = 0;
+  mdbOid outOid;
+  mdb_id rowID = 0;
 
-    if (NS_SUCCEEDED(listRow->GetOid(m_mdbEnv, &outOid)))
-        rowID = outOid.mOid_Id;
+  if (NS_SUCCEEDED(listRow->GetOid(m_mdbEnv, &outOid)))
+    rowID = outOid.mOid_Id;
 
-    char* listURI = nullptr;
+  char* listURI = nullptr;
 
-    nsAutoString fileName;
-    rv = m_dbName->GetLeafName(fileName);
-    NS_ENSURE_SUCCESS(rv, rv);
-    listURI = PR_smprintf("%s%s/MailList%ld", kMDBDirectoryRoot, NS_ConvertUTF16toUTF8(fileName).get(), rowID);
+  nsAutoString fileName;
+  rv = m_dbName->GetLeafName(fileName);
+  NS_ENSURE_SUCCESS(rv, rv);
+  listURI = PR_smprintf("%s%s/MailList%ld", kMDBDirectoryRoot, NS_ConvertUTF16toUTF8(fileName).get(), rowID);
 
-    nsCOMPtr<nsIAbCard> personCard;
-    nsCOMPtr<nsIAbMDBDirectory> dbm_dbDirectory(do_QueryReferent(m_dbDirectory,
-                                                                 &rv));
-    if (NS_SUCCEEDED(rv) && dbm_dbDirectory)
+  nsCOMPtr<nsIAbCard> personCard;
+  nsCOMPtr<nsIAbMDBDirectory> dbm_dbDirectory(do_QueryReferent(m_dbDirectory,
+                                                               &rv));
+  if (NS_SUCCEEDED(rv) && dbm_dbDirectory)
+  {
+    personCard = do_CreateInstance(NS_ABMDBCARD_CONTRACTID, &rv);
+    NS_ENSURE_SUCCESS(rv,rv);
+
+    if (personCard)
     {
-        personCard = do_CreateInstance(NS_ABMDBCARD_CONTRACTID, &rv);
-        NS_ENSURE_SUCCESS(rv,rv);
+      GetListCardFromDB(personCard, listRow);
 
-        if (personCard)
-        {
-            GetListCardFromDB(personCard, listRow);
+      personCard->SetPropertyAsUint32(kRowIDProperty, rowID);
+      personCard->SetIsMailList(true);
+      personCard->SetMailListURI(listURI);
 
-            personCard->SetPropertyAsUint32(kRowIDProperty, rowID);
-            personCard->SetIsMailList(true);
-            personCard->SetMailListURI(listURI);
+      nsAutoCString id;
+      id.AppendInt(rowID);
+      personCard->SetLocalId(id);
 
-            nsAutoCString id;
-            id.AppendInt(rowID);
-            personCard->SetLocalId(id);
-
-            nsCOMPtr<nsIAbDirectory> abDir(do_QueryReferent(m_dbDirectory));
-            if (abDir)
-             abDir->GetUuid(id);
-            personCard->SetDirectoryId(id);
-        }
-
-        NS_IF_ADDREF(*result = personCard);
+      nsCOMPtr<nsIAbDirectory> abDir(do_QueryReferent(m_dbDirectory));
+      if (abDir)
+        abDir->GetUuid(id);
+      personCard->SetDirectoryId(id);
     }
-    if (listURI)
-        PR_smprintf_free(listURI);
 
-    return rv;
+    NS_IF_ADDREF(*result = personCard);
+  }
+  if (listURI)
+    PR_smprintf_free(listURI);
+
+  return rv;
 }
 
 /* create a sub directory for mailing list in the address book left pane */

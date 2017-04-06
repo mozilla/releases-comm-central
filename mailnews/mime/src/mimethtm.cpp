@@ -110,16 +110,16 @@ MimeInlineTextHTML_parse_begin (MimeObject *obj)
         if (!IS_SPACE(*in) && *in != '"')
           *out++ = *in;
 
-        /* Close the tag and argument. */
-        *out++ = '"';
-        *out++ = '>';
-        *out++ = 0;
+      /* Close the tag and argument. */
+      *out++ = '"';
+      *out++ = '>';
+      *out++ = 0;
 
-        PR_Free(base_hdr);
+      PR_Free(base_hdr);
 
-        status = MimeObject_write(obj, buf, strlen(buf), false);
-        PR_Free(buf);
-        if (status < 0) return status;
+      status = MimeObject_write(obj, buf, strlen(buf), false);
+      PR_Free(buf);
+      if (status < 0) return status;
     }
   }
 

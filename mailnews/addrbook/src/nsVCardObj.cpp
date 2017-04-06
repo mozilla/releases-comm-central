@@ -432,12 +432,12 @@ VObject* addGroup(VObject *o, const char *g)
 
 VObject* addPropValue(VObject *o, const char *p, const char *v)
 {
-    VObject *prop;
-    prop = addProp(o,p);
+  VObject *prop;
+  prop = addProp(o,p);
   if (v) {
     setVObjectUStringZValue_(prop, fakeUnicode(v,0));
     if (needsQuotedPrintable (v)) {
-      if (PL_strcasecmp (VCCardProp, vObjectName(o)) == 0) 
+      if (PL_strcasecmp (VCCardProp, vObjectName(o)) == 0)
         addProp (prop, VCQuotedPrintableProp);
       else
         addProp (o, VCQuotedPrintableProp);
@@ -446,7 +446,7 @@ VObject* addPropValue(VObject *o, const char *p, const char *v)
   else
     setVObjectUStringZValue_(prop, fakeUnicode("",0));
 
-    return prop;
+  return prop;
 }
 
 VObject* addPropSizedValue_(VObject *o, const char *p, const char *v,
