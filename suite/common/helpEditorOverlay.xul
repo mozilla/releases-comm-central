@@ -13,7 +13,7 @@
 
     function doPublishDialogHelpButton()
     {
-     var selTab = document.getElementById('tabBox').selectedTab;
+     var selTab = document.getElementById('TabBox').selectedTab;
 
      if (selTab.id == "PublishTab")
        openHelp('comp-doc-publish-publishtab');
