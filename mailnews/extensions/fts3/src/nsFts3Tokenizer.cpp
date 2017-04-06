@@ -46,12 +46,12 @@ nsFts3Tokenizer::RegisterTokenizer(mozIStorageConnection *connection)
   if (!module)
     return NS_ERROR_FAILURE;
 
-  rv = selectStatement->BindUTF8StringParameter(
+  rv = selectStatement->BindUTF8StringByIndex(
          0, NS_LITERAL_CSTRING("mozporter"));
   NS_ENSURE_SUCCESS(rv, rv);
-  rv = selectStatement->BindBlobParameter(1,
-                                          (uint8_t*)&module,
-                                          sizeof(module));
+  rv = selectStatement->BindBlobByIndex(1,
+                                        (uint8_t*)&module,
+                                        sizeof(module));
   NS_ENSURE_SUCCESS(rv, rv);
 
   bool hasMore;

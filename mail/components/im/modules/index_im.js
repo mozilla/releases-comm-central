@@ -521,7 +521,7 @@ var GlodaIMIndexer = {
   _getIdFromPath: function(aPath) {
     let selectStatement = GlodaDatastore._createAsyncStatement(
       "SELECT id FROM imConversations WHERE path = ?1");
-    selectStatement.bindStringParameter(0, aPath);
+    selectStatement.bindByIndex(0, aPath);
     let id;
     return new Promise((resolve, reject) => {
       selectStatement.executeAsync({
@@ -749,8 +749,8 @@ var GlodaIMIndexer = {
           // so this should work.
           let pathComponents = OS.Path.split(row.getString(1)).components;
           if (pathComponents.length > 4) {
-            updateStatement.bindInt64Parameter(1, row.getInt64(0)); // id
-            updateStatement.bindStringParameter(0,
+            updateStatement.bindByIndex(1, row.getInt64(0)); // id
+            updateStatement.bindByIndex(0,
               pathComponents.slice(-4).join("/")); // Last 4 path components
             updateStatement.executeAsync({
               handleResult: () => {},

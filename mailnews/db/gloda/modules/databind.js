@@ -119,12 +119,7 @@ GlodaDatabind.prototype = {
    *  PRTime representations which may not always be desirable.
    */
   bindByType: function(aStmt, aColDef, aValue) {
-    if (aValue == null)
-      aStmt.bindNullParameter(aColDef[3]);
-    else if (aColDef[1] == "STRING" || aColDef[1] == "TEXT")
-      aStmt.bindStringParameter(aColDef[3], aValue);
-    else
-      aStmt.bindInt64Parameter(aColDef[3], aValue);
+    aStmt.bindByIndex(aColDef[3], aValue);
   },
 
   objFromRow: function(aRow) {
@@ -150,7 +145,7 @@ GlodaDatabind.prototype = {
 
     if (this._insertFulltextStmt) {
       stmt = this._insertFulltextStmt;
-      stmt.bindInt64Parameter(0, aThing[this._idAttr]);
+      stmt.bindByIndex(0, aThing[this._idAttr]);
       for (let colDef of this._tableDef.fulltextColumns) {
         bindByType(stmt, colDef, aThing[colDef[2]]);
       }
@@ -171,7 +166,7 @@ GlodaDatabind.prototype = {
     if (this._updateFulltextStmt) {
       stmt = this._updateFulltextStmt;
       // fulltextColumns doesn't include id/docid, need to explicitly set it
-      stmt.bindInt64Parameter(0, aThing[this._idAttr]);
+      stmt.bindByIndex(0, aThing[this._idAttr]);
       for (let colDef of this._tableDef.fulltextColumns) {
         bindByType(stmt, colDef, aThing[colDef[2]]);
       }
