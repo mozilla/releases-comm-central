@@ -126,12 +126,18 @@ function onCopyOrDragStart(e) {
   }
 
   let html = div.innerHTML;
+  let parserUtils = Components.classes["@mozilla.org/parserutils;1"]
+                      .getService(Components.interfaces.nsIParserUtils);
+  let plain = parserUtils.convertToPlainText(html,
+    Components.interfaces.nsIDocumentEncoder.OutputForPlainTextClipboardCopy, 0);
   if ("clipboardData" in e) { // copy
     e.clipboardData.setData("text/html", html);
+    e.clipboardData.setData("text/plain", plain);
     e.preventDefault();
   }
   else if ("dataTransfer" in e) { // drag
     e.dataTransfer.setData("text/html", html);
+    e.dataTransfer.setData("text/plain", plain);
   }
 }
 
