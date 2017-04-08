@@ -610,7 +610,7 @@
         <parameter name="aAddress"/>
         <body>
           <![CDATA[
-            aEmailNode.setAttribute("label", aAddress.fullAddress || aAddress.displayName);
+            aEmailNode.setAttribute("label", aAddress.fullAddress || aAddress.displayName || "");
             aEmailNode.removeAttribute("tooltiptext");
             aEmailNode.setAttribute("emailAddress", aAddress.emailAddress || "");
             aEmailNode.setAttribute("fullAddress", aAddress.fullAddress || "");
@@ -625,7 +625,7 @@
             // because there's no screen reader support on the Mac.
             if ("labelElement" in this) {
                 let ariaLabel = this.labelElement.value + ": " +
-                                aAddress.fullAddress || aAddress.displayName;
+                                (aAddress.fullAddress || aAddress.displayName || "");
                 aEmailNode.setAttribute("aria-label", ariaLabel);
             }
 
