@@ -375,6 +375,18 @@ Section "Uninstall"
   ; VirtualStore directory.
   ${un.CleanVirtualStore}
 
+  ; Only unregister the dll if the registration points to this installation
+  ReadRegStr $R1 HKCR "CLSID\{0D68D6D0-D93D-4D08-A30D-F00DD1F45B24}\InProcServer32" ""
+  ${If} "$INSTDIR\AccessibleMarshal.dll" == "$R1"
+    ${UnregisterDLL} "$INSTDIR\AccessibleMarshal.dll"
+  ${EndIf}
+
+  ; Only unregister the dll if the registration points to this installation
+  ReadRegStr $R1 HKCR "CLSID\${AccessibleHandlerCLSID}\InprocHandler32" ""
+  ${If} "$INSTDIR\AccessibleHandler.dll" == "$R1"
+    ${UnregisterDLL} "$INSTDIR\AccessibleHandler.dll"
+  ${EndIf}
+
   ; Parse the uninstall log to unregister dll's and remove all installed
   ; files / directories this install is responsible for.
   ${un.ParseUninstallLog}

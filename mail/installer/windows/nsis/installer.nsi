@@ -318,6 +318,16 @@ Section "-Application" APP_IDX
     ${LogMsg} "Registered: $INSTDIR\AccessibleMarshal.dll"
   ${EndIf}
 
+  ClearErrors
+
+  ${RegisterDLL} "$INSTDIR\AccessibleHandler.dll"
+  ${If} ${Errors}
+    ${LogMsg} "** ERROR Registering: $INSTDIR\AccessibleHandler.dll **"
+  ${Else}
+    ${LogUninstall} "DLLReg: \AccessibleHandler.dll"
+    ${LogMsg} "Registered: $INSTDIR\AccessibleHandler.dll"
+  ${EndIf}
+
   ; Write extra files created by the application to the uninstall log so they
   ; will be removed when the application is uninstalled. To remove an empty
   ; directory write a bogus filename to the deepest directory and all empty
