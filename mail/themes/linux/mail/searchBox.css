@@ -10,6 +10,8 @@
 
 .gloda-search-icon {
   list-style-image: url(moz-icon://stock/gtk-find?size=menu);
+  width: 16px;
+  height: 16px;
 }
 
 .gloda-search-icon:-moz-locale-dir(rtl) {

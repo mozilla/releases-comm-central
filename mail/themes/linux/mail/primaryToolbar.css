@@ -313,10 +313,6 @@ toolbar[mode="text"] .button-appmenu .toolbarbutton-icon {
   font-size: 90%;
 }
 
-#mdnBarImage {
-  list-style-image: url("moz-icon://stock/gtk-dialog-question?size=toolbar");
-}
-
 /* AppMenu styling */
 
 .splitmenu-menuitem {

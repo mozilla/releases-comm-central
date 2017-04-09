@@ -244,3 +244,8 @@ menulist:-moz-locale-dir(rtl) > .menulist-label-box {
 toolbar[brighttext] menulist > .menulist-label-box {
   background-image: url("chrome://messenger/skin/icons/toolbarbutton-arrow-inverted.png");
 }
+
+menulist > .menulist-label-box > .menulist-icon {
+  width: 16px;
+  height: 16px;
+}

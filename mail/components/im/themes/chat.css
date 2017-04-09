@@ -604,6 +604,8 @@ imgroup[closed] .twisty {
   -moz-image-region: rect(0, 16px, 16px, 0);
 %else
   list-style-image: url(moz-icon://stock/gtk-find?size=menu);
+  width: 16px;
+  height: 16px;
 %endif
 %endif
 }

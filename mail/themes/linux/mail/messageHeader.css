@@ -99,11 +99,6 @@
   color: #888a85; /* the same color as .headerName */
 }
 
-#attachmentSaveAllSingle,
-#attachmentSaveAllMultiple {
-  list-style-image: url("moz-icon://stock/gtk-save?size=menu");
-}
-
 #attachmentView {
   border-top: 1px solid ThreeDShadow;
 }
