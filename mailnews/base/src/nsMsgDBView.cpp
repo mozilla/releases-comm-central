@@ -530,6 +530,14 @@ nsresult nsMsgDBView::FetchRecipients(nsIMsgDBHdr * aHdr, nsAString &aRecipients
     aRecipientsString.Append(recipient);
   }
 
+  if (numAddresses == 0 && unparsedRecipients.FindChar(':') != kNotFound) {
+    // No addresses and a colon, so an empty group like "undisclosed-recipients: ;".
+    // Add group name so at least something displays.
+    nsString group;
+    CopyUTF8toUTF16(unparsedRecipients, group);
+    aRecipientsString.Assign(group);
+  }
+
   UpdateCachedName(aHdr, "recipient_names", aRecipientsString);
 
   return NS_OK;
