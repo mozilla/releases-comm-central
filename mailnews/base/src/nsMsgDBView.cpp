@@ -504,9 +504,9 @@ nsresult nsMsgDBView::FetchRecipients(nsIMsgDBHdr * aHdr, nsAString &aRecipients
 
   // go through each email address in the recipients and
   // compute its display name.
-  nsString recipient;
   for (uint32_t i = 0; i < numAddresses; i++)
   {
+    nsString recipient;
     nsCString &curAddress = emails[i];
     nsString &curName = names[i];
 
@@ -528,13 +528,6 @@ nsresult nsMsgDBView::FetchRecipients(nsIMsgDBHdr * aHdr, nsAString &aRecipients
       aRecipientsString.Append(NS_LITERAL_STRING(", "));
 
     aRecipientsString.Append(recipient);
-  }
-
-  if (numAddresses == 0 && unparsedRecipients.FindChar(':') != kNotFound) {
-    // No addresses and a colon, so an empty group like "undisclosed-recipients: ;".
-    // Add group name so at least something displays.
-    CopyUTF8toUTF16(unparsedRecipients, recipient);
-    aRecipientsString.Assign(recipient);
   }
 
   UpdateCachedName(aHdr, "recipient_names", aRecipientsString);
