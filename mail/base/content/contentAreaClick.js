@@ -176,13 +176,18 @@ function openLinkExternally(url)
   if (!(uri instanceof Components.interfaces.nsIURI))
     uri = Services.io.newURI(url);
 
-  PlacesUtils.asyncHistory.updatePlaces({
-    uri: uri,
-    visits:  [{
-      visitDate: Date.now() * 1000,
-      transitionType: Components.interfaces.nsINavHistoryService.TRANSITION_LINK
-    }]
-  });
+  // This can fail if there is a problem with the places database.
+  try {
+    PlacesUtils.asyncHistory.updatePlaces({
+      uri: uri,
+      visits:  [{
+        visitDate: Date.now() * 1000,
+        transitionType: Components.interfaces.nsINavHistoryService.TRANSITION_LINK
+      }]
+    });
+  } catch (ex) {
+    Components.utils.reportError(ex);
+  }
 
   Components.classes["@mozilla.org/uriloader/external-protocol-service;1"]
             .getService(Components.interfaces.nsIExternalProtocolService)
