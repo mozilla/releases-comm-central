@@ -1266,13 +1266,13 @@
         <body><![CDATA[
           let firstCol = this; // eslint-disable-line consistent-this
           let lastCol = this; // eslint-disable-line consistent-this
-          let firstIndex = aOffset || this.mDragState.offset;
+          let firstIndex = aOffset == null ? this.mDragState.offset : aOffset;
           let lastIndex = firstIndex;
           while (firstCol.previousSibling && firstIndex > 0) {
               firstCol = firstCol.previousSibling;
               firstIndex--;
           }
-          let lastShadow = aShadows || this.mDragState.shadows;
+          let lastShadow = aShadows == null ? this.mDragState.shadows : aShadows;
           while (lastCol.nextSibling && lastIndex < lastShadow - 1) {
               lastCol = lastCol.nextSibling;
               lastIndex++;
