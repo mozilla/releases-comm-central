@@ -169,7 +169,7 @@
       <prefs/>
       <versionRange minVersion="0" maxVersion="2.0" severity="1">
         <targetApplication id="{3550f703-e582-4d05-9a08-453d09bdfdc6}">
-          <versionRange maxVersion="52.*" minVersion="52.0a1"/>
+          <versionRange maxVersion="*" minVersion="0"/>
         </targetApplication>
       </versionRange>
     </emItem>
@@ -2514,6 +2514,10 @@
       <match exp="(NPSWF32.*\.dll)|(NPSWF64.*\.dll)|(Flash\ Player\.plugin)" name="filename"/>
       <infoURL>https://get.adobe.com/flashplayer/</infoURL>
       <versionRange maxVersion="23.0.0.205" minVersion="23.0.0.185" severity="0" vulnerabilitystatus="1"/>
+    </pluginItem>
+    <pluginItem blockID="97647cd8-03c5-416c-b9d3-cd5ef87ab39f">
+      <match exp="np32dsw_1227197\.dll" name="filename"/>
+      <versionRange maxVersion="12.2.7.197" minVersion="0" severity="0" vulnerabilitystatus="1"/>
     </pluginItem>
     <pluginItem blockID="p932" os="Linux">
       <match exp="libflashplayer\.so" name="filename"/>
