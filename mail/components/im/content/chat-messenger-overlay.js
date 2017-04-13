@@ -450,30 +450,6 @@ var chatHandler = {
       }
     }
   },
-  _makeFriendlyDate: function(aDate) {
-    let dts = Components.classes["@mozilla.org/intl/scriptabledateformat;1"]
-                        .getService(Components.interfaces.nsIScriptableDateFormat);
-
-    // Figure out when today begins
-    let now = new Date();
-    let today = new Date(now.getFullYear(), now.getMonth(),
-                         now.getDate());
-
-    // Figure out if the end time is from today, yesterday,
-    // this week, etc.
-    let kDayInMsecs = 24 * 60 * 60 * 1000;
-    let time = dts.FormatTime("", dts.timeFormatNoSeconds,
-                              aDate.getHours(), aDate.getMinutes(),0);
-    let bundle = document.getElementById("chatBundle");
-    if (aDate >= today)
-      return bundle.getFormattedString("today", [time]);
-    if (today - aDate < kDayInMsecs)
-      return bundle.getFormattedString("yesterday", [time]);
-
-    let date = dts.FormatDate("", dts.dateFormatShort, aDate.getFullYear(),
-                              aDate.getMonth() + 1, aDate.getDate());
-    return bundle.getFormattedString("dateTime", [date, time]);
-  },
 
   /**
    * Display a list of logs into a tree, and optionally handle a default selection.
@@ -1229,16 +1205,17 @@ chatLogTreeView.prototype = {
     let chatBundle = document.getElementById("chatBundle");
     let dateFormatBundle = document.getElementById("bundle_dateformat");
     let placesBundle = document.getElementById("bundle_places");
-    let dts = Cc["@mozilla.org/intl/scriptabledateformat;1"].getService(Ci.nsIScriptableDateFormat);
     let formatDate = function(aDate) {
-      return dts.FormatDate("", dts.dateFormatShort, aDate.getFullYear(),
-                            aDate.getMonth() + 1, aDate.getDate());
+      const dateFormatter = Services.intl.createDateTimeFormat(undefined, {
+        dateStyle: "short"
+      });
+      return dateFormatter.format(aDate);
     };
     let formatDateTime = function(aDate) {
-      return dts.FormatDateTime("", dts.dateFormatShort,
-                                dts.timeFormatNoSeconds, aDate.getFullYear(),
-                                aDate.getMonth() + 1, aDate.getDate(),
-                                aDate.getHours(), aDate.getMinutes(), 0);
+      const dateTimeFormatter = Services.intl.createDateTimeFormat(undefined, {
+        dateStyle: "short", timeStyle: "short"
+      });
+      return dateTimeFormatter.format(aDate);
     };
     let formatMonthYear = function(aDate) {
       let month = formatMonth(aDate);

@@ -236,16 +236,16 @@ chatLogTreeView.prototype = {
     let chatBundle = document.getElementById("bundle_instantbird");
     let dateFormatBundle = document.getElementById("bundle_dateformat");
     let placesBundle = document.getElementById("bundle_places");
-    let dts = Cc["@mozilla.org/intl/scriptabledateformat;1"].getService(Ci.nsIScriptableDateFormat);
+    const dateFormatter = Services.intl.createDateTimeFormat(undefined,
+      { dateStyle: "short" });
+    const dateTimeFormatter = Services.intl.createDateTimeFormat(undefined, {
+      dateStyle: "short", timeStyle: "short"
+    });
     let formatDate = function(aDate) {
-      return dts.FormatDate("", dts.dateFormatShort, aDate.getFullYear(),
-                            aDate.getMonth() + 1, aDate.getDate());
+      return dateFormatter.format(aDate);
     };
     let formatDateTime = function(aDate) {
-      return dts.FormatDateTime("", dts.dateFormatShort,
-                                dts.timeFormatNoSeconds, aDate.getFullYear(),
-                                aDate.getMonth() + 1, aDate.getDate(),
-                                aDate.getHours(), aDate.getMinutes(), 0);
+      return dateTimeFormatter.format(aDate);
     };
     let formatMonthYear = function(aDate) {
       let month = formatMonth(aDate);

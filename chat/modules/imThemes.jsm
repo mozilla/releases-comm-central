@@ -342,8 +342,10 @@ var headerFooterReplacements = {
     let date = new Date(aConv.startDate / 1000);
     if (aFormat)
       return ToLocaleFormat(aFormat, date);
-    else
-      return date.toLocaleTimeString();
+    const timeFormatter = Services.intl.createDateTimeFormat(undefined, {
+      timeStyle: "long"
+    });
+    return timeFormatter.format(date);
   }
 };
 
@@ -361,10 +363,18 @@ var statusMessageReplacements = {
     let date = new Date(aMsg.time * 1000);
     if (aFormat)
       return ToLocaleFormat(aFormat, date);
-    return date.toLocaleTimeString();
+    const timeFormatter = Services.intl.createDateTimeFormat(undefined, {
+      timeStyle: "long"
+    });
+    return timeFormatter.format(date);
   },
   timestamp: aMsg => aMsg.time,
-  shortTime: aMsg => (new Date(aMsg.time * 1000)).toLocaleTimeString(),
+  shortTime: function(aMsg) {
+    const timeFormatter = Services.intl.createDateTimeFormat(undefined, {
+      timeStyle: "long"
+    });
+    return timeFormatter.format(new Date(aMsg.time * 1000));
+  },
   messageClasses: function(aMsg) {
     let msgClass = [];
 

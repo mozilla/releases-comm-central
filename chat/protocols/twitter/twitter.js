@@ -1149,7 +1149,12 @@ Account.prototype = {
       },
       time_zone: null,
       protected: normalizeBool,
-      created_at: aDate => (new Date(aDate)).toLocaleDateString(),
+      created_at: function(aDate) {
+        const dateFormatter = Services.intl.createDateTimeFormat(undefined, {
+          dateStyle: "short"
+        });
+        return dateFormatter.format(new Date(aDate));
+      },
       statuses_count: null,
       friends_count: null,
       followers_count: null,
