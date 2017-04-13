@@ -132,6 +132,7 @@
   margin-top: 0;
   margin-inline-end: 5px;
   background-color: inherit;
+  border-style: solid;
   border-color: transparent;
   -moz-border-top-colors: none;
   -moz-border-left-colors: none;
@@ -145,16 +146,19 @@
 @media (-moz-windows-default-theme) {
   #msgSubject {
     border-width: 1px;
+    border-bottom-color: #a9b7c9;
   }
 
   #msgSubject:hover,
   #msgSubject[focused="true"] {
     background-color: -moz-field;
+    border-color: #a9b7c9;
   }
 }
 
 @media (-moz-windows-default-theme: 0) {
   #msgSubject {
+    border-width: 2px;
     -moz-border-bottom-colors: ThreeDShadow ThreeDHighlight;
   }
 
@@ -794,17 +798,6 @@ toolbar[brighttext] #button-print {
 
 #subjectLabel {
   margin-top: 0;
-}
-
-@media (-moz-windows-default-theme) {
-  #msgSubject {
-    border-bottom-color: #a9b7c9;
-  }
-
-  #msgSubject:hover,
-  #msgSubject[focused="true"] {
-    border-color: #a9b7c9;
-  }
 }
 
 /* ::::: autocomplete icons ::::: */

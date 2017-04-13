@@ -254,7 +254,7 @@ toolbar[brighttext] menulist > .menulist-label-box {
   margin-inline-start: 6px;
   margin-inline-end: 5px;
   background-color: inherit;
-  border-color: transparent;
+  border: 2px solid transparent;
   -moz-border-top-colors: none;
   -moz-border-left-colors: none;
   -moz-border-right-colors: none;
