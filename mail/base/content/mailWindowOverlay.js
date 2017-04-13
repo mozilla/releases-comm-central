@@ -1679,7 +1679,7 @@ BatchMessageMover.prototype = {
       // Convert date to JS date object.
       let msgDate = new Date(msgHdr.date / 1000);
       let msgYear = msgDate.getFullYear().toString();
-      let monthFolderName = msgYear + "-" + (msgDate.getMonth() + 1).toString();
+      let monthFolderName = msgYear + "-" + (msgDate.getMonth() + 1).toString().padStart(2, "0");
 
       let archiveFolderURI;
       let archiveGranularity;
