@@ -237,23 +237,15 @@
         <parameter name="time"/>
         <body>
           <![CDATA[
-            let dts = Components.classes["@mozilla.org/intl/scriptabledateformat;1"]
-                                .getService(Components.interfaces.nsIScriptableDateFormat);
+            const dateTimeFormatter = Services.intl.createDateTimeFormat(undefined, {
+              dateStyle: "long", timeStyle: "short"
+            });
 
             // Get the end time to display
             let end = new Date(parseInt(time));
 
             // Set the tooltip to be the full date and time
-            let dateTimeTip = dts.FormatDateTime("",
-                                                dts.dateFormatLong,
-                                                dts.timeFormatNoSeconds,
-                                                end.getFullYear(),
-                                                end.getMonth() + 1,
-                                                end.getDate(),
-                                                end.getHours(),
-                                                end.getMinutes(),
-                                                0);
-            return dateTimeTip;
+            return dateTimeFormatter.format(end);
           ]]>
         </body>
       </method>

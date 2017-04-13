@@ -22,13 +22,10 @@ function initLocaleShortDateFormat()
   gSearchDateLeadingZeros = true;
 
   try {
-    var dateFormatService = Components.classes["@mozilla.org/intl/scriptabledateformat;1"]
-                                    .getService(Components.interfaces.nsIScriptableDateFormat);
-    var dateString = dateFormatService.FormatDate("", 
-                                                  dateFormatService.dateFormatShort, 
-                                                  1999, 
-                                                  12, 
-                                                  1);
+    const dateFormatter = Services.intl.createDateTimeFormat(undefined,
+      { dateStyle: "short" });
+    var aDate = new Date(1999, 11, 1);
+    var dateString = dateFormatter.format(aDate);
 
     // find out the separator
     var possibleSeparators = "/-.";

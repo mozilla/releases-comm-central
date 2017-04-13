@@ -9,8 +9,6 @@ Components.utils.import("resource://gre/modules/PluralForm.jsm");
 var nsICookie = Components.interfaces.nsICookie;
 
 var gCookiesWindow = {
-  _ds               : Components.classes["@mozilla.org/intl/scriptabledateformat;1"]
-                                .getService(Components.interfaces.nsIScriptableDateFormat),
   _hosts            : {},
   _hostOrder        : [],
   _tree             : null,
@@ -517,14 +515,10 @@ var gCookiesWindow = {
   {
     if (aExpires) {
       var date = new Date(1000 * aExpires);
-      return this._ds.FormatDateTime("", this._ds.dateFormatLong,
-                                     this._ds.timeFormatSeconds,
-                                     date.getFullYear(),
-                                     date.getMonth() + 1,
-                                     date.getDate(),
-                                     date.getHours(),
-                                     date.getMinutes(),
-                                     date.getSeconds());
+      const dateTimeFormatter = Services.intl.createDateTimeFormat(undefined, {
+              dateStyle: "long", timeStyle: "long"
+      });
+      return dateTimeFormatter.format(date);
     }
     return this._bundle.getString("expireAtEndOfSession");
   },

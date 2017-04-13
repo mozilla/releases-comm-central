@@ -278,19 +278,22 @@ function DisplayCardViewPane(realCard)
     var dateStr;
     if (day > 0 && day < 32 && month > 0 && month < 13) {
       var date;
+      var formatter;
       if (year) {
         // use UTC-based calculations to avoid off-by-one day
         // due to time zone/dst discontinuity
         date = new Date(Date.UTC(year, month - 1, day));
         date.setUTCFullYear(year); // to handle two-digit years properly
-        dateStr = date.toLocaleDateString(undefined, {timeZone: "UTC"});
+        formatter = Services.intl.createDateTimeFormat(undefined,
+                      { dateStyle: "long", timeZone: "UTC" });
       }
       // if the year doesn't exist, display Month DD (ex. January 01)
       else {
         date = new Date(Date.UTC(saneBirthYear(year), month - 1, day));
-        dateStr = date.toLocaleDateString(undefined,
-                      { day: "numeric", month: "long", timeZone: "UTC" });
+        formatter = Services.intl.createDateTimeFormat(undefined,
+                      { month: "long", day: "numeric", timeZone: "UTC" });
       }
+      dateStr = formatter.format(date);
     }
     else if (year)
       dateStr = year;
