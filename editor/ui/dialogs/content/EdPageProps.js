@@ -50,22 +50,13 @@ function Startup()
     if(Date.parse(lastmod))
     {
       try {
-        const nsScriptableDateFormat_CONTRACTID = "@mozilla.org/intl/scriptabledateformat;1";
-        const nsIScriptableDateFormat = Components.interfaces.nsIScriptableDateFormat;
-        var dateService = Components.classes[nsScriptableDateFormat_CONTRACTID]
-         .getService(nsIScriptableDateFormat);
+        const dateTimeFormatter = Services.intl.createDateTimeFormat(undefined, {
+          dateStyle: "long", timeStyle: "short"
+        });
 
         var lastModDate = new Date();
         lastModDate.setTime(Date.parse(lastmod));
-        lastmodString =  dateService.FormatDateTime("", 
-                                      dateService.dateFormatLong,
-                                      dateService.timeFormatSeconds,
-                                      lastModDate.getFullYear(),
-                                      lastModDate.getMonth()+1,
-                                      lastModDate.getDate(),
-                                      lastModDate.getHours(),
-                                      lastModDate.getMinutes(),
-                                      lastModDate.getSeconds());
+        lastmodString = dateTimeFormatter.format(lastModDate);
       } catch (e) {}
     }
   }
