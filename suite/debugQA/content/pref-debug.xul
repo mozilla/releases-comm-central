@@ -21,8 +21,6 @@
                   name="print.use_native_print_dialog" type="bool"/>
       <preference id="print.use_global_printsettings"
                   name="print.use_global_printsettings" type="bool"/>
-      <preference id="extensions.dss.enabled"
-                  name="extensions.dss.enabled" type="bool"/>
       <preference id="ui.key.accelKey" name="ui.key.accelKey" type="int"/>
       <preference id="ui.key.menuAccessKey" name="ui.key.menuAccessKey" type="int"/>
     </preferences>
@@ -48,8 +46,6 @@
                 preference="print.use_native_print_dialog"/>
       <checkbox id="printUseGlobalPrintSettings" label="&printUseGlobalPrintSettings.label;"
                 preference="print.use_global_printsettings"/>
-      <checkbox id="dynamicSkinSwitching" label="&dynamicSkinSwitching.label;"
-                preference="extensions.dss.enabled"/>
     </groupbox>
 
 

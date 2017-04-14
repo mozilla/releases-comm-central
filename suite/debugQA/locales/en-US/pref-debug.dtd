@@ -14,7 +14,6 @@
 <!ENTITY debugEnableDump.label           "Enable JavaScript dump() output">
 <!ENTITY debugStrictJavascript.label     "Show strict JavaScript warnings">
 <!ENTITY debugConsoleJavascript.label    "Show chrome JavaScript errors and warnings">
-<!ENTITY dynamicSkinSwitching.label      "Enable Dynamic Skin Switching">
 
 <!-- Debug: Turn on gfx-rendered widgets -->
 <!ENTITY widgetRendering.label "Rendering">
