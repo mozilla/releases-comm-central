@@ -3536,27 +3536,14 @@ function IgnoreMDNResponse()
   gMessageNotificationBar.mdnGenerator.userDeclined();
 }
 
-/***
- * Focus the gloda global search input box on current tab, or,
- * if the search box is hidden, open a new gloda search tab
- * and focus its search box.
- */
 function QuickSearchFocus()
 {
-  if (!Services.prefs.getBoolPref("mailnews.database.global.indexer.enabled")) {
-    // If gloda is disabled, do nothing.
-    return;
-  }
-
   let tabmail = document.getElementById('tabmail');
-  if (!tabmail) {
-    // No tabmail element: This should never happen.
-    return;
-  }
 
   // If we're currently viewing a Gloda tab, drill down to find the
   // built-in search input, and select that.
-  if (tabmail.currentTabInfo.mode.name == "glodaFacet") {
+  if (tabmail
+      && tabmail.currentTabInfo.mode.name == "glodaFacet") {
     let searchInput = tabmail.currentTabInfo
                              .panel
                              .querySelector(".remote-gloda-search");
@@ -3566,38 +3553,16 @@ function QuickSearchFocus()
     return;
   }
 
-  if (tabmail.currentTabInfo.mode.name == "chat") {
+  if (tabmail && tabmail.currentTabInfo.mode.name == "chat") {
     let searchInput = document.getElementById("IMSearchInput");
     if (searchInput)
       searchInput.select();
     return;
   }
 
-  let newTab = true;
-  let globalSearchTextBox = document.getElementById("searchInput");
-  if (globalSearchTextBox) {
-    // Via toolbar customization, globalSearchTextBox can be in different places:
-    // Toolbars, tab bar, menu bar, etc. When the containing elements are hidden,
-    // the searchbox will also be hidden, so clientHeight and clientWidth of the
-    // searchbox or one of its parent will typically be zero and we can test for that.
-    // If globalSearchTextBox is hidden, use a new tab.
-    newTab = false;
-    let element = globalSearchTextBox;
-    while (element) {
-      if ((element.clientHeight == 0) || (element.clientWidth == 0))
-        newTab = true;
-      element = element.parentElement;
-    }
-  }
-
-  if (!newTab) {
-    // Focus and select global search box.
-    globalSearchTextBox.select();
-  } else {
-    // Open a new global search tab.
-    globalSearchTextBox.value = "";
-    globalSearchTextBox.doSearch(true);
-  }
+  var quickSearchTextBox = document.getElementById('searchInput');
+  if (quickSearchTextBox)
+    quickSearchTextBox.select();
 }
 
 /**
