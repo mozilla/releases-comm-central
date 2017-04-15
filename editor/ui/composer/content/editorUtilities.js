@@ -936,3 +936,79 @@ function Clone(obj)
   }
   return clone;
 }
+
+/**
+ * Utility funtions to handle shortended data: URLs in EdColorProps.js and EdImageOverlay.js.
+ */
+
+/**
+ * Is the passed in image URI a shortened data URI?
+ * @return {bool}
+ */
+function isImageDataShortened(aImageData) {
+  return (/^data:/i.test(aImageData) && aImageData.includes("…"));
+}
+
+/**
+ * Event handler for Copy or Cut
+ * @param aEvent  the event
+ */
+function onCopyOrCutShortened(aEvent) {
+  // Put the original data URI onto the clipboard in case the value
+  // is a shortened data URI.
+  let field = aEvent.target;
+  let startPos = field.selectionStart;
+  if (startPos == undefined)
+    return;
+  let endPos = field.selectionEnd;
+  let selection = field.value.substring(startPos, endPos).trim();
+
+  // Test that a) the user selected the whole value,
+  //           b) the value is a data URI,
+  //           c) it contains the ellipsis we added. Otherwise it could be
+  //              a new value that the user pasted in.
+  if (selection == field.value.trim() && isImageDataShortened(selection)) {
+    aEvent.clipboardData.setData("text/plain", field.fullDataURI);
+    if (aEvent.type == "cut") {
+      // We have to cut the selection manually. Since we tested that
+      // everything was selected, we can just reset the field.
+      field.value = "";
+    }
+    aEvent.preventDefault();
+  }
+}
+
+/**
+ * Set up element showing an image URI with a shortened version.
+ * and add event handler for Copy or Cut.
+ *
+ * @param aImageData    the data: URL of the image to be shortened.
+ *                      Note: Original stored in 'aDialogField.fullDataURI'.
+ * @param aDialogField  The field of the dialog to contain the data.
+ * @return {bool}       URL was shortened?
+ */
+function shortenImageData(aImageData, aDialogField) {
+  let shortened = false;
+  aDialogField.value = aImageData.replace(/^(data:.+;base64,)(.*)/i,
+    function(match, nonDataPart, dataPart) {
+      if (dataPart.length <= 35)
+        return match;
+
+      shortened = true;
+      aDialogField.addEventListener("copy", onCopyOrCutShortened);
+      aDialogField.addEventListener("cut", onCopyOrCutShortened);
+      aDialogField.fullDataURI = aImageData;
+      return nonDataPart + dataPart.substring(0, 5) + "…" +
+                           dataPart.substring(dataPart.length - 30);
+    });
+  return shortened;
+}
+
+/**
+ * Return full data URIs for a shortened element.
+ *
+ * @param aDialogField  The field of the dialog containing the data.
+ */
+function restoredImageData(aDialogField) {
+  return aDialogField.fullDataURI;
+}

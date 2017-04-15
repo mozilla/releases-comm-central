@@ -30,8 +30,6 @@ var gOriginalSrc = "";
 var gHaveDocumentUrl = false;
 var gTimerID;
 var gValidateTab;
-var gFullDataURI = null;
-var gListenerAttached = false;
 
 // These must correspond to values in EditorDialog.css for each theme
 // (unfortunately, setting "style" attribute here doesn't work!)
@@ -70,31 +68,6 @@ function ImageStartup()
   gDialog.OkButton          = document.documentElement.getButton("accept");
 }
 
-function onCopyOrCut(event) {
-  // Put the original data URI onto the clipboard in case the value
-  // is a shortened data URI.
-  let startPos = gDialog.srcInput.selectionStart;
-  if (startPos == undefined)
-    return;
-  let endPos = gDialog.srcInput.selectionEnd;
-  let selection = gDialog.srcInput.value.substring(startPos, endPos).trim();
-
-  // Test that a) the user selected the whole value,
-  //           b) the value is a data URI,
-  //           c) it contains the ellipsis we added. Otherwise it could be
-  //              a new value that the user pasted in.
-  if (selection == gDialog.srcInput.value.trim() &&
-      /^data:/i.test(selection) && selection.includes("…")) {
-    event.clipboardData.setData("text/plain", gFullDataURI);
-    if (event.type == "cut") {
-      // We have to cut the selection manually. Since we tested that
-      // everything was selected, we can just reset the field.
-      gDialog.srcInput.value = "";
-    }
-    event.preventDefault();
-  }
-}
-
 // Set dialog widgets with attribute data
 // We get them from globalElement copy so this can be used
 //   by AdvancedEdit(), which is shared by all property dialogs
@@ -106,18 +79,10 @@ function InitImage()
   // For image insertion the 'src' attribute is null.
   if (src) {
     // Shorten data URIs for display.
-    gDialog.srcInput.value = src.replace(/(data:.+;base64,)(.*)/i,
-      function(match, nonDataPart, dataPart) {
-        if (!gListenerAttached) {
-          gDialog.srcInput.addEventListener("copy", onCopyOrCut);
-          gDialog.srcInput.addEventListener("cut", onCopyOrCut);
-          gListenerAttached = true;
-        }
-        gDialog.srcInput.setAttribute("tooltip", "shortenedDataURI");
-        gFullDataURI = src;
-        return nonDataPart + dataPart.substring(0, 5) + "…" +
-                             dataPart.substring(dataPart.length - 30);
-      });
+    if (shortenImageData(src, gDialog.srcInput)) {
+      gDialog.srcInput.removeAttribute("tooltiptext");
+      gDialog.srcInput.setAttribute("tooltip", "shortenedDataURI");
+    }
   }
 
   // Set "Relativize" checkbox according to current URL state
@@ -322,10 +287,9 @@ function LoadPreviewImage()
   var imageSrc = TrimString(gDialog.srcInput.value);
   if (!imageSrc)
     return;
-  if (/^data:/i.test(imageSrc) && imageSrc.includes("…"))
+  if (isImageDataShortened(imageSrc))
   {
-    // Restore URIs from the original.
-    imageSrc = gFullDataURI;
+    imageSrc = restoredImageData(gDialog.srcInput);
   }
 
   try {
@@ -508,10 +472,9 @@ function ValidateImage()
   // We must convert to "file:///" or "http://" format else image doesn't load!
   let src = gDialog.srcInput.value.trim();
 
-  if (/^data:/i.test(src) && src.includes("…"))
+  if (isImageDataShortened(src))
   {
-    // Restore shortened URIs from the original.
-    src = gFullDataURI;
+    src = restoredImageData(gDialog.srcInput);
   }
   else
   {

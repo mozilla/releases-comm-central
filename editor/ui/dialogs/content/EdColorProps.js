@@ -108,10 +108,11 @@ function InitDialog()
   if (/url\((.*)\)/.test( gBackgroundImage ))
     gBackgroundImage = RegExp.$1;
 
-  gDialog.BackgroundImageInput.value = gBackgroundImage;
-
-  if (gBackgroundImage)
+  if (gBackgroundImage) {
+    // Shorten data URIs for display.
+    shortenImageData(gBackgroundImage, gDialog.BackgroundImageInput);
     gDialog.ColorPreview.setAttribute(styleStr, backImageStyle+gBackgroundImage+");");
+  }
 
   SetRelativeCheckbox();
 
@@ -336,13 +337,23 @@ function ValidateAndPreviewImage(ShowErrorMessage)
   var image = TrimString(gDialog.BackgroundImageInput.value);
   if (image)
   {
-    gBackgroundImage = image;
+    if (isImageDataShortened(image))
+    {
+      gBackgroundImage = restoredImageData(gDialog.BackgroundImageInput);
+    }
+    else
+    {
+      gBackgroundImage = image;
 
-    // Display must use absolute URL if possible
-    var displayImage = gHaveDocumentUrl ? MakeAbsoluteUrl(image) : image;
-    styleValue += backImageStyle+displayImage+");";
+      // Display must use absolute URL if possible
+      var displayImage = gHaveDocumentUrl ? MakeAbsoluteUrl(image) : image;
+      styleValue += backImageStyle+displayImage+");";
+    }
   }
-  else gBackgroundImage = null;
+  else
+  {
+    gBackgroundImage = null;
+  }
 
   // Set style on preview (removes image if not valid)
   gDialog.ColorPreview.setAttribute(styleStr, styleValue);
