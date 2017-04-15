@@ -5450,6 +5450,25 @@ function InitEditor()
       gComposeNotificationBar.setBlockedContent(src);
     }
   }, true);
+
+  // Convert mailnews URL back to data: URL.
+  let background = editor.document.body.background;
+  if (background && gMsgCompose.originalMsgURI) {
+    // Check that background has the same URL as the message itself.
+    let msgSvc = Components.classes["@mozilla.org/messenger;1"]
+      .createInstance(Components.interfaces.nsIMessenger)
+      .messageServiceFromURI(gMsgCompose.originalMsgURI);
+    let originalMsgNeckoURI = {};
+    msgSvc.GetUrlForUri(gMsgCompose.originalMsgURI, originalMsgNeckoURI, null);
+    if (background.startsWith(originalMsgNeckoURI.value.spec)) {
+      try {
+        editor.document.body.background = loadBlockedImage(background, true);
+      } catch (e) {
+        // Couldn't load the referenced image.
+        Components.utils.reportError(e);
+      }
+    }
+  }
 }
 
 // This is used as event listener to spellcheck-changed event to update
@@ -5662,11 +5681,12 @@ function onUnblockResource(aURL, aNode) {
  * Convert the blocked content to a data URL and swap the src to that for the
  * elements that were using it.
  *
- * @param {String} aURL - (necko) URL to unblock
- *
- * @throw Error()  if reading the data failed
+ * @param {String}  aURL - (necko) URL to unblock
+ * @param {Bool}    aReturnDataURL - return data: URL instead of processing image
+ * @return {String} the image as data: URL.
+ * @throw Error()   if reading the data failed
  */
-function loadBlockedImage(aURL) {
+function loadBlockedImage(aURL, aReturnDataURL = false) {
   let filename;
   if (/^file:/i.test(aURL)) {
     filename = aURL.substr(aURL.lastIndexOf("/") + 1);
@@ -5716,6 +5736,9 @@ function loadBlockedImage(aURL) {
   let dataURL = "data:" + contentType +
     (filename ? ";filename=" + encodeURIComponent(filename) : "") +
     ";base64," + encoded;
+
+  if (aReturnDataURL)
+    return dataURL;
 
   let editor = GetCurrentEditor();
   for (let img of editor.document.images) {
