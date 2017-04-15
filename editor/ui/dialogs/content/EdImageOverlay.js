@@ -79,10 +79,7 @@ function InitImage()
   // For image insertion the 'src' attribute is null.
   if (src) {
     // Shorten data URIs for display.
-    if (shortenImageData(src, gDialog.srcInput)) {
-      gDialog.srcInput.removeAttribute("tooltiptext");
-      gDialog.srcInput.setAttribute("tooltip", "shortenedDataURI");
-    }
+    shortenImageData(src, gDialog.srcInput);
   }
 
   // Set "Relativize" checkbox according to current URL state

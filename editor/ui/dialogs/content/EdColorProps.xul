@@ -98,9 +98,13 @@
   <spacer class="spacer"/>
   <label control="BackgroundImageInput"
          value="&backgroundImage.label;"
+         tooltiptext="&backgroundImage.tooltip;"
          accesskey="&backgroundImage.accessKey;"/>
+  <tooltip id="shortenedDataURI">
+    <label value="&backgroundImage.shortenedDataURI;"/>
+  </tooltip>
   <textbox id="BackgroundImageInput" class="uri-element" oninput="ChangeBackgroundImage()"
-   tooltiptext="&backgroundImage.tooltip;" flex="1"/>
+           tooltiptext="&backgroundImage.tooltip;" flex="1"/>
   <hbox align="center">
     <!-- from EdDialogOverlay.xul 'for' identifies the textfield to get URL from -->
     <checkbox id="MakeRelativeCheckbox" for="BackgroundImageInput"/>

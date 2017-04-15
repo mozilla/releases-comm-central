@@ -998,6 +998,8 @@ function shortenImageData(aImageData, aDialogField) {
       aDialogField.addEventListener("copy", onCopyOrCutShortened);
       aDialogField.addEventListener("cut", onCopyOrCutShortened);
       aDialogField.fullDataURI = aImageData;
+      aDialogField.removeAttribute("tooltiptext");
+      aDialogField.setAttribute("tooltip", "shortenedDataURI");
       return nonDataPart + dataPart.substring(0, 5) + "…" +
                            dataPart.substring(dataPart.length - 30);
     });
