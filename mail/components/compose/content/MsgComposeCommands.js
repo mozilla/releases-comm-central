@@ -5699,9 +5699,14 @@ function loadBlockedImage(aURL, aReturnDataURL = false) {
   let uri = Services.io.newURI(aURL);
   let contentType;
   if (filename) {
-    contentType = Components.classes["@mozilla.org/mime;1"]
-      .getService(Components.interfaces.nsIMIMEService)
-      .getTypeFromURI(uri);
+    try {
+      contentType = Components.classes["@mozilla.org/mime;1"]
+        .getService(Components.interfaces.nsIMIMEService)
+        .getTypeFromURI(uri);
+    } catch (ex) {
+      contentType = "image/png";
+    }
+
     if (!contentType.startsWith("image/")) {
       // Unsafe to unblock this. It would just be garbage either way.
       throw new Error("Won't unblock; URL=" + aURL +
