@@ -1885,16 +1885,27 @@ function getCompositeCalendar() {
 }
 
 /**
- * Search for already open item dialog.
+ * Search for already open item dialog or tab.
  *
- * @param aItem     The item of the dialog to search for.
+ * @param aItem     The item of the dialog or tab to search for.
  */
 function findItemWindow(aItem) {
+    // check for existing dialog windows
     let list = Services.wm.getEnumerator("Calendar:EventDialog");
     while (list.hasMoreElements()) {
         let dlg = list.getNext();
+        if (dlg.arguments[0] &&
+            dlg.arguments[0].mode == "modify" &&
+            dlg.arguments[0].calendarEvent &&
+            dlg.arguments[0].calendarEvent.hashId == aItem.hashId) {
+            return dlg;
+        }
+    }
+    // check for existing summary windows
+    list = Services.wm.getEnumerator("Calendar:EventSummaryDialog");
+    while (list.hasMoreElements()) {
+        let dlg = list.getNext();
         if (dlg.calendarItem &&
-            dlg.mode == "modify" &&
             dlg.calendarItem.hashId == aItem.hashId) {
             return dlg;
         }
