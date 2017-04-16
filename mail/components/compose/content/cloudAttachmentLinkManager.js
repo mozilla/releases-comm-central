@@ -379,7 +379,7 @@ var gCloudAttachmentLinkManager = {
       paperclip.style.cssFloat = "left";
       paperclip.style.width = "24px";
       paperclip.style.height = "24px";
-      paperclip.src = "chrome://messenger/content/cloudfile/attachment-24.png";
+      paperclip.src = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAABVUlEQVR42mNgGChgbGzMqm9slqFnbHZLz8TsPwoGioHkQGrItgBsOLrBaFjfxCydbAvgLjc2zQNymZCkmPRMzfOhllwj3wKoK9EMB4PQ0FBmJHmgWtM1eqZmS8m1gEHXxGyLnon5WlzyyGyyLMBmwKgFoxYMPgv+gdjq1ta8YL6elRhU/i+1LDgAYuuamidC+Q1geVOzzVSxQN/EPAnKvwLM0cFA+hOYb2TmRIkFH0CaDExNDbS1HXgwim1o2QMKNvIsMDafCtW4DOwLMzM1YJl0ChxUxqaNQCFGsDqgRRB1ppdIssDQ3FwLqPE7ermvY2ysDK8zEEH3RdfYWIPkIlvX1DQaasAvfVPTGBQ5E3MvoPhXiAPMYympFxoQ4W7eA/IBKIhASRRiuOkUiutnoGuzYQYi4b/AOCmjWiMAGFz2QEO3gwwGunoXiE+T1oa5uTkfKeoBW+cLhPF1+Q8AAAAASUVORK5CYII=";
       node.appendChild(paperclip);
 
       let link = this._generateLink(aDocument, aAttachment.name,
@@ -400,9 +400,21 @@ var gCloudAttachmentLinkManager = {
 
       if (aProvider.iconClass) {
         let providerIcon = aDocument.createElement("img");
-        providerIcon.src = aProvider.iconClass;
         providerIcon.style.marginRight = "5px";
         providerIdentity.appendChild(providerIcon);
+
+        if (!/^chrome:\/\//i.test(aProvider.iconClass)) {
+          providerIcon.src = aProvider.iconClass;
+        } else {
+          try {
+            // Let's use the goodness from MsgComposeCommands.js since we're
+            // sitting right in a compose window.
+            providerIcon.src = window.loadBlockedImage(aProvider.iconClass, true);
+          } catch (e) {
+            // Couldn't load the referenced image.
+            Components.utils.reportError(e);
+          }
+        }
       }
 
       if (aProvider.serviceURL) {

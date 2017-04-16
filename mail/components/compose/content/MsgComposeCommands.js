@@ -5688,7 +5688,7 @@ function onUnblockResource(aURL, aNode) {
  */
 function loadBlockedImage(aURL, aReturnDataURL = false) {
   let filename;
-  if (/^file:/i.test(aURL)) {
+  if (/^(file|chrome):/i.test(aURL)) {
     filename = aURL.substr(aURL.lastIndexOf("/") + 1);
   }
   else {

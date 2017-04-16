@@ -5,7 +5,6 @@
 messenger.jar:
 *   content/messenger/cloudfile/addAccountDialog.xul (content/addAccountDialog.xul)
     content/messenger/cloudfile/addAccountDialog.js  (content/addAccountDialog.js)
-    content/messenger/cloudfile/attachment-24.png (content/attachment-24.png)
     content/messenger/cloudfile/emptySettings.xhtml (content/emptySettings.xhtml)
     content/messenger/cloudfile/Box/settings.xhtml (content/Box/settings.xhtml)
     content/messenger/cloudfile/Box/management.xhtml (content/Box/management.xhtml)
