@@ -173,9 +173,10 @@ function _async_driver() {
         let asyncStack = [];
         dump("*******************************************\n");
         dump("Generator explosion!\n");
-        dump("Unhappiness at: " + ex.filename + ":" + ex.lineNumber + "\n");
+        dump("Unhappiness at: " + (ex.fileName || ex.filename) + ":" + ex.lineNumber + "\n");
         dump("Because: " + ex + "\n");
-        dump("Stack:\n  " + ex.stack.replace(/\n/g, "\n  ") + "\n");
+        if (ex.stack)
+          dump("Stack:\n  " + ex.stack.replace(/\n/g, "\n  ") + "\n");
         dump("**** Async Generator Stack source functions:\n");
         for (let i = asyncGeneratorStack.length - 1; i >= 0; i--) {
           dump("  " + asyncGeneratorStack[i][1] + "\n");

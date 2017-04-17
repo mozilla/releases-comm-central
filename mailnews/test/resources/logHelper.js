@@ -478,7 +478,7 @@ function _normalize_for_json(aObj, aDepthAllowed, aJsonMeNotNeeded) {
     return {
       type: "error",
       message: "nsIException: " + aObj.name,
-      fileName: aObj.filename,
+      fileName: aObj.filename, // intentionally lower-case
       lineNumber: aObj.lineNumber,
       name: aObj.name,
       result: aObj.result,
