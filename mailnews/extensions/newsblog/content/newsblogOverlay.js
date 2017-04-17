@@ -199,12 +199,11 @@ var FeedMessageHandler = {
           aMimeMsg.headers["content-base"][0]) {
         let url = aMimeMsg.headers["content-base"], uri;
         try {
-          let converter = Cc["@mozilla.org/intl/scriptableunicodeconverter"]
-                            .createInstance(Ci.nsIScriptableUnicodeConverter);
-          converter.charset = "UTF-8";
-          url = converter.ConvertToUnicode(url);
+          // The message and headers are stored as a string of UTF-8 bytes
+          // and we need to convert that cpp |string| to js UTF-16 explicitly
+          // for idn and non-ascii urls with this api.
+          url = decodeURIComponent(escape(url));
           uri = Services.io.newURI(url);
-          url = uri.spec;
         }
         catch (ex) {
           FeedUtils.log.info("FeedMessageHandler.loadWebPage: " +
@@ -353,10 +352,7 @@ function openComposeWindowForRSSArticle(aMsgComposeWindow, aMsgHdr, aMessageUri,
         if (aMimeMsg && aMimeMsg.headers["content-base"] &&
             aMimeMsg.headers["content-base"][0])
         {
-          let converter = Cc["@mozilla.org/intl/scriptableunicodeconverter"]
-                            .createInstance(Ci.nsIScriptableUnicodeConverter);
-          converter.charset = "UTF-8";
-          let url = converter.ConvertToUnicode(aMimeMsg.headers["content-base"]);
+          let url = decodeURIComponent(escape(aMimeMsg.headers["content-base"]));
           params.composeFields.body = url;
           params.bodyIsLink = true;
           MailServices.compose.OpenComposeWindowWithParams(null, params);

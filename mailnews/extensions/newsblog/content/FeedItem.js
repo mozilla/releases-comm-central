@@ -6,10 +6,7 @@
 function FeedItem()
 {
   this.mDate = FeedUtils.getValidRFC5322Date();
-  this.mUnicodeConverter = Cc["@mozilla.org/intl/scriptableunicodeconverter"].
-                           createInstance(Ci.nsIScriptableUnicodeConverter);
-  this.mParserUtils = Cc["@mozilla.org/parserutils;1"].
-                      getService(Ci.nsIParserUtils);
+  this.mParserUtils = Cc["@mozilla.org/parserutils;1"].getService(Ci.nsIParserUtils);
 }
 
 FeedItem.prototype =
@@ -359,10 +356,10 @@ FeedItem.prototype =
     let folder = this.feed.folder.QueryInterface(Ci.nsIMsgLocalMailFolder);
     let msgFolder = folder.QueryInterface(Ci.nsIMsgFolder);
     msgFolder.gettingNewMessages = true;
-    // Source is a unicode string, we want to save a char * string in
-    // the original charset. So convert back.
-    this.mUnicodeConverter.charset = this.characterSet;
-    let msgDBHdr = folder.addMessage(this.mUnicodeConverter.ConvertFromUnicode(source));
+    // Source is a unicode js string, as UTF-16, and we want to save a
+    // char * cpp |string| as UTF-8 bytes. The source xml doc encoding is utf8.
+    source = unescape(encodeURIComponent(source));
+    let msgDBHdr = folder.addMessage(source);
     msgDBHdr.OrFlags(Ci.nsMsgMessageFlags.FeedMsg);
     msgFolder.gettingNewMessages = false;
     this.tagItem(msgDBHdr, this.keywords);
