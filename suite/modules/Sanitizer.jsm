@@ -5,7 +5,10 @@
 
 var EXPORTED_SYMBOLS = ["Sanitizer"];
 
+Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 Components.utils.import("resource://gre/modules/Services.jsm");
+XPCOMUtils.defineLazyModuleGetter(this, "FormHistory",
+                                  "resource://gre/modules/FormHistory.jsm");
 
 var Sanitizer = {
   get _prefs() {
@@ -87,8 +90,15 @@ var Sanitizer = {
     return this.items[aItemName].willClear;
   },
 
-  canClearItem: function(aItemName) {
-    return this.items[aItemName].canClear;
+  canClearItem: function(aItemName, aCallback, aArg) {
+    var canClear = this.items[aItemName].canClear;
+    if (typeof canClear == "function") {
+      canClear(aCallback, aArg);
+      return false;
+    }
+
+    aCallback(aItemName, canClear, aArg);
+    return canClear;
   },
 
   // this is called on startup and shutdown, to perform pending sanitizations
@@ -238,12 +248,11 @@ var Sanitizer = {
             sideSearchBar.reset();
         }
 
-        var formHistory = Components.classes["@mozilla.org/satchel/form-history;1"]
-                                    .getService(Components.interfaces.nsIFormHistory2);
-        formHistory.removeAllEntries();
+        var change = { op: "remove" };
+        FormHistory.update(change);
       },
 
-      get canClear() {
+      canClear: function(aCallback, aArg) {
         var windowManager = Components.classes['@mozilla.org/appshell/window-mediator;1']
                                       .getService(Components.interfaces.nsIWindowMediator);
         var windows = windowManager.getEnumerator("navigator:browser");
@@ -252,29 +261,42 @@ var Sanitizer = {
           var currentDocument = win.document;
 
           var findBar = currentDocument.getElementById("FindToolbar");
-          if (findBar && findBar.canClear)
-            return true;
+          if (findBar && findBar.hasTransactions) {
+            aCallback("formdata", true, aArg);
+            return false;
+          }
           var searchBar = currentDocument.getElementById("searchbar");
           if (searchBar && searchBar.textbox && searchBar.textbox.editor) {
             var transactionMgr = searchBar.textbox.editor.transactionManager;
             if (searchBar.value ||
                 transactionMgr.numberOfUndoItems ||
-                transactionMgr.numberOfRedoItems)
-              return true;
+                transactionMgr.numberOfRedoItems) {
+              aCallback("formdata", true, aArg);
+              return false;
+            }
           }
           var sideSearchBar = win.BrowserSearch.searchSidebar;
           if (sideSearchBar) {
             var sidebarTm = sideSearchBar.editor.transactionManager;
             if (sideSearchBar.value ||
                 sidebarTm.numberOfUndoItems ||
-                sidebarTm.numberOfRedoItems)
-              return true;
+                sidebarTm.numberOfRedoItems) {
+              aCallback("formdata", true, aArg);
+              return false;
+            }
           }
         }
 
-        var formHistory = Components.classes["@mozilla.org/satchel/form-history;1"]
-                                    .getService(Components.interfaces.nsIFormHistory2);
-        return formHistory.hasEntries;
+        var count = 0;
+        var countDone = {
+          handleResult: aResult => count = aResult,
+          handleError: aError => Components.utils.reportError(aError),
+          handleCompletion(aReason) {
+            aCallback("formdata", !aReason && count, aArg);
+          }
+        };
+        FormHistory.count({}, countDone);
+        return false;
       }
     },
 

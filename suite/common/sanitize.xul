@@ -27,13 +27,14 @@
 
     function onLoad()
     {
-      var sanitizePreferences = document.getElementById("sanitizePreferences");
-      for (var i = 0; i < sanitizePreferences.childNodes.length; ++i) {
-        var preference = sanitizePreferences.childNodes[i];
-        var name = preference.getAttribute("name");
-        preference.checked = Sanitizer.willClearItem(name);
-        if (!Sanitizer.canClearItem(name))
-          preference.disabled = true;
+      var preferences = document.getElementById("sanitizePreferences").childNodes;
+      for (var pref of preferences) {
+        var name = pref.getAttribute("name");
+        pref.checked = Sanitizer.willClearItem(name);
+        Sanitizer.canClearItem(name, function canClearCallback(aItem, aCanClear, aPrefItem) {
+          if (!aCanClear)
+            aPrefItem.disabled = true;
+        }, pref);
       }
     }
 
@@ -42,11 +43,10 @@
       var item = aEvent.target.getAttribute("name");
       Sanitizer.setClearItem(item, aEvent.target.checked);
 
-      var preferences = document.getElementById("sanitizePreferences");
       var found = false;
-      for (var i = 0; i < preferences.childNodes.length; ++i) {
-        var preference = preferences.childNodes[i];
-        if (preference.checked && !preference.disabled) {
+      var preferences = document.getElementById("sanitizePreferences").childNodes;
+      for (var pref of preferences) {
+        if (pref.checked && !pref.disabled) {
           found = true;
           break;
         }
