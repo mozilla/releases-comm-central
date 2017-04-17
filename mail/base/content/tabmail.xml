@@ -472,6 +472,14 @@
             return null;
           }
 
+          // For "glodaFacet" tab mode, if aArgs is omitted,
+          // default to a blank user search.
+          if (aTabModeName=="glodaFacet" && !aArgs) {
+            aArgs = {
+              searcher: new GlodaMsgSearcher(null, "")
+            };
+          }
+
           // Do this so that we don't generate strict warnings
           let background = ("background" in aArgs) && aArgs.background;
 

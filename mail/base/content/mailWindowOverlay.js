@@ -3556,33 +3556,64 @@ function IgnoreMDNResponse()
   gMessageNotificationBar.mdnGenerator.userDeclined();
 }
 
+/***
+ * Focus the gloda global search input box on current tab, or,
+ * if the search box is not available, open a new gloda search tab
+ * (with its search box focused).
+ */
 function QuickSearchFocus()
 {
+  // Default to focusing the search box on the current tab
+  let newTab = false;
+  let searchInput;
   let tabmail = document.getElementById('tabmail');
-
-  // If we're currently viewing a Gloda tab, drill down to find the
-  // built-in search input, and select that.
-  if (tabmail
-      && tabmail.currentTabInfo.mode.name == "glodaFacet") {
-    let searchInput = tabmail.currentTabInfo
-                             .panel
-                             .querySelector(".remote-gloda-search");
-    if (searchInput)
-      searchInput.select();
-
+  if (!tabmail) {
+    // This should never happen.
     return;
   }
 
-  if (tabmail && tabmail.currentTabInfo.mode.name == "chat") {
-    let searchInput = document.getElementById("IMSearchInput");
-    if (searchInput)
-      searchInput.select();
-    return;
+  switch (tabmail.currentTabInfo.mode.name) {
+    case  "glodaFacet":
+      // If we're currently viewing a Gloda tab, drill down to find the
+      // built-in search input, and select that.
+      searchInput = tabmail.currentTabInfo
+                           .panel
+                           .querySelector(".remote-gloda-search");
+      break;
+    case "chat":
+      searchInput = document.getElementById("IMSearchInput");
+      break;
+    default:
+      searchInput = document.getElementById("searchInput");
   }
 
-  var quickSearchTextBox = document.getElementById('searchInput');
-  if (quickSearchTextBox)
-    quickSearchTextBox.select();
+  if (!searchInput) {
+    // If searchInput is not found on current tab (e.g. removed by user),
+    // use a new tab.
+    newTab = true;
+  }
+  else {
+    // The searchInput element exists on current tab.
+    // However, via toolbar customization, it can be in different places:
+    // Toolbars, tab bar, menu bar, etc. If the containing elements are hidden,
+    // searchInput will also be hidden, so clientHeight and clientWidth of the
+    // searchbox or one of its parents will typically be zero and we can test
+    // for that. If searchInput is hidden, use a new tab.
+    let element = searchInput;
+    while (element) {
+      if ((element.clientHeight == 0) || (element.clientWidth == 0))
+        newTab = true;
+      element = element.parentElement;
+    }
+  }
+
+  if (!newTab) {
+    // Focus and select global search box on current tab.
+    searchInput.select();
+  } else {
+    // Open a new global search tab (with focus on its global search box)
+    tabmail.openTab("glodaFacet");
+  }
 }
 
 /**
