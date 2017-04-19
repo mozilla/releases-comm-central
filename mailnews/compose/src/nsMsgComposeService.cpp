@@ -999,6 +999,10 @@ nsMsgComposeService::ForwardMessage(const nsAString &forwardTo,
 
   folder->GetUriForMsg(aMsgHdr, msgUri);
 
+  nsAutoCString uriToOpen(msgUri);
+  uriToOpen += (uriToOpen.FindChar('?') == kNotFound) ? '?' : '&';
+  uriToOpen.Append("fetchCompleteMessage=true");
+
   // get the MsgIdentity for the above key using AccountManager
   nsCOMPtr<nsIMsgAccountManager> accountManager =
     do_GetService (NS_MSGACCOUNTMANAGER_CONTRACTID, &rv);
@@ -1018,10 +1022,10 @@ nsMsgComposeService::ForwardMessage(const nsAString &forwardTo,
   }
 
   if (aForwardType == nsIMsgComposeService::kForwardInline)
-    return RunMessageThroughMimeDraft(msgUri,
+    return RunMessageThroughMimeDraft(uriToOpen,
                                       nsMimeOutput::nsMimeMessageDraftOrTemplate,
                                       identity,
-                                      msgUri.get(), aMsgHdr,
+                                      uriToOpen.get(), aMsgHdr,
                                       true, forwardTo,
                                       false, aMsgWindow);
 
@@ -1045,7 +1049,7 @@ nsMsgComposeService::ForwardMessage(const nsAString &forwardTo,
   pMsgComposeParams->SetFormat(nsIMsgCompFormat::Default);
   pMsgComposeParams->SetIdentity(identity);
   pMsgComposeParams->SetComposeFields(compFields);
-  pMsgComposeParams->SetOriginalMsgURI(msgUri.get());
+  pMsgComposeParams->SetOriginalMsgURI(uriToOpen.get());
   // create the nsIMsgCompose object to send the object
   nsCOMPtr<nsIMsgCompose> pMsgCompose (do_CreateInstance(NS_MSGCOMPOSE_CONTRACTID, &rv));
   NS_ENSURE_SUCCESS(rv, rv);
