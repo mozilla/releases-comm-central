@@ -248,27 +248,10 @@ var stateListener = {
 
       this.editor.enableUndo(false);
 
-      // Delete a <br> if we see one.
-      let deleted2ndBR = false;
-      let currentNode = mailBody.childNodes[start];
-      if (currentNode.nodeName == "BR") {
-        currentNode.remove();
-        currentNode = mailBody.childNodes[start];
-        if (currentNode && currentNode.nodeName == "BR") {
-          currentNode.remove();
-          deleted2ndBR = true;
-        }
-      }
-
       let pElement = this.editor.createElementWithDefaults("p");
       let brElement = this.editor.createElementWithDefaults("br");
       pElement.appendChild(brElement);
       this.editor.insertElementAtSelection(pElement, false);
-
-      if (deleted2ndBR) {
-        let brElement2 = this.editor.createElementWithDefaults("br");
-        this.editor.insertElementAtSelection(brElement2, false);
-      }
 
       // Position into the paragraph.
       selection.collapse(pElement, 0);
@@ -3145,9 +3128,10 @@ function InitEditor(editor)
   editor.returnInParagraphCreatesNewParagraph =
     Services.prefs.getBoolPref("mail.compose.default_to_paragraph") ||
     Services.prefs.getBoolPref("editor.CR_creates_new_p");
-  // Traditionally we want <br> elements for newlines, unless we're
-  // splitting a paragraph (which is not affected by this setting).
-  editor.document.execCommand("defaultparagraphseparator", false, "br");
+  editor.document.execCommand("defaultparagraphseparator", false,
+    gMsgCompose.composeHTML &&
+    Services.prefs.getBoolPref("mail.compose.default_to_paragraph") ?
+                               "p" : "br");
 
   gMsgCompose.initEditor(editor, window.content);
   InlineSpellCheckerUI.init(editor);
