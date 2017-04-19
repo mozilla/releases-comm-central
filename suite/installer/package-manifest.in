@@ -333,6 +333,7 @@
 
 @RESPATH@/components/webBrowser_core.xpt
 @RESPATH@/components/webbrowserpersist.xpt
+@RESPATH@/components/webextensions.xpt
 @RESPATH@/components/webvtt.xpt
 @RESPATH@/components/widget.xpt
 #ifdef XP_MACOSX

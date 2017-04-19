@@ -370,6 +370,7 @@
 @RESPATH@/components/webBrowser_core.xpt
 @RESPATH@/components/windowwatcher.xpt
 @RESPATH@/components/webbrowserpersist.xpt
+@RESPATH@/components/webextensions.xpt
 @RESPATH@/components/commandhandler.xpt
 
 ; jar
