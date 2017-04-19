@@ -1,5 +1,5 @@
 {
-  "version": "2.2016i",
+  "version": "2.2016j",
   "aliases": [
     "AUS Central Standard Time",
     "AUS Eastern Standard Time",
@@ -353,6 +353,7 @@
     "Asia/Aqtau",
     "Asia/Aqtobe",
     "Asia/Ashgabat",
+    "Asia/Atyrau",
     "Asia/Baghdad",
     "Asia/Bahrain",
     "Asia/Baku",
@@ -493,6 +494,7 @@
     "Europe/Samara",
     "Europe/San_Marino",
     "Europe/Sarajevo",
+    "Europe/Saratov",
     "Europe/Simferopol",
     "Europe/Skopje",
     "Europe/Sofia",
