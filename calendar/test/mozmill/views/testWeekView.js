@@ -5,6 +5,8 @@
 var RELATIVE_ROOT = "../shared-modules";
 var MODULE_REQUIRES = ["calendar-utils"];
 
+Components.utils.import("resource://calendar/modules/calUtils.jsm");
+
 var helpersForController, invokeEventDialog, createCalendar, deleteCalendars;
 var CALENDARNAME;
 
@@ -29,8 +31,7 @@ function setupModule(module) {
 }
 
 function testWeekView() {
-    let dateService = Components.classes["@mozilla.org/intl/scriptabledateformat;1"]
-                                .getService(Components.interfaces.nsIScriptableDateFormat);
+    let dateFormatter = cal.getDateFormatter();
     // paths
     let miniMonth = `
         /id("messengerWindow")/id("tabmail-container")/id("tabmail")/
@@ -110,7 +111,9 @@ function testWeekView() {
         `);
         event.waitForElement(startTimeInput);
         event.assertValue(startTimeInput, "8:00");
-        let date = dateService.FormatDate("", dateService.dateFormatShort, 2009, 1, 1);
+        let someTime = cal.createDateTime();
+        someTime.resetTo(2009, 1, 1);
+        let date = dateFormatter.formatDateShort(someDate);
         event.assertValue(eventlookup(`
             ${eventDialog}/id("event-grid-startdate-row")/
             id("event-grid-startdate-picker-box")/id("event-starttime")/

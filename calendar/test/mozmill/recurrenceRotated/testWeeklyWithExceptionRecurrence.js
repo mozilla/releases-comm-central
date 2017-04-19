@@ -5,6 +5,8 @@
 var RELATIVE_ROOT = "../shared-modules";
 var MODULE_REQUIRES = ["calendar-utils"];
 
+Components.utils.import("resource://calendar/modules/calUtils.jsm");
+
 var helpersForController, invokeEventDialog, createCalendar, deleteCalendars;
 var switchToView, goToDate, handleOccurrencePrompt;
 var CALENDARNAME, EVENT_BOX, CANVAS_BOX;
@@ -85,10 +87,10 @@ function testWeeklyWithExceptionRecurrence() {
         `);
 
         event.keypress(startDateInput, "a", { ctrlKey: true });
-        let dateService = Components.classes["@mozilla.org/intl/scriptabledateformat;1"]
-                                    .getService(Components.interfaces.nsIScriptableDateFormat);
-        let ymd = [STARTDATE.getFullYear(), STARTDATE.getMonth() + 1, STARTDATE.getDate()];
-        let startDateString = dateService.FormatDate("", dateService.dateFormatShort, ...ymd);
+
+        let dateFormatter = cal.getDateFormatter();
+
+        let startDateString = dateFormatter.formatDateShort(cal.jsDateToDateTime(STARTDATE, cal.floating()));
         event.type(startDateInput, startDateString);
         // applies startdate change
         event.click(endDateInput);

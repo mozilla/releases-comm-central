@@ -443,40 +443,14 @@ add_task(function* compareInvitationOverlay_test() {
             ignore: ""
         },
         expected: {
-            // time format is platform dependent, so we use alternative result sets here
-            // the first three are to meet configurations running for automated tests, the
-            // following are some flavours that may occur - if you get a failure for this test,
-            // add your pattern here
             node: "imipHtml-when-content",
-            some: ["<span xmlns=\"\" class=\"added\">Wed 9 Sep 2015 02:00 PM – 03:00 PM</span>" +
-                   "<br xmlns=\"\"/>" +
-                   "<span xmlns=\"\" class=\"removed\">Wed 9 Sep 2015 01:00 PM – 02:00 PM</span>",
-
-                   "<span xmlns=\"\" class=\"added\">Wed 9 Sep 2015 2:00 PM – 3:00 PM</span>" +
-                   "<br xmlns=\"\"/>" +
-                   "<span xmlns=\"\" class=\"removed\">Wed 9 Sep 2015 1:00 PM – 2:00 PM</span>",
-
-                   "<span xmlns=\"\" class=\"added\">Wednesday, September 09, 2015 2:00 PM – 3:00 PM</span>" +
+            some: ["<span xmlns=\"\" class=\"added\">Wednesday, September 09, 2015 2:00 PM – 3:00 PM</span>" +
                    "<br xmlns=\"\"/>" +
                    "<span xmlns=\"\" class=\"removed\">Wednesday, September 09, 2015 1:00 PM – 2:00 PM</span>",
 
-                   // do not change the patterns above unless there are related test failures when
-                   // running automated tests
-                   "<span xmlns=\"\" class=\"added\">Wed 09 Sep 2015 2:00 PM – 3:00 PM</span>" +
+                   "<span xmlns=\"\" class=\"added\">Wednesday, September 09, 2015 14:00 – 15:00</span>" +
                    "<br xmlns=\"\"/>" +
-                   "<span xmlns=\"\" class=\"removed\">Wed 09 Sep 2015 1:00 PM – 2:00 PM</span>",
-
-                   "<span xmlns=\"\" class=\"added\">Wednesday, 09 September, 2015 2:00 PM – 3:00 PM</span>" +
-                   "<br xmlns=\"\"/>" +
-                   "<span xmlns=\"\" class=\"removed\">Wednesday, 09 September, 2015 1:00 PM – 2:00 PM</span>",
-
-                   "<span xmlns=\"\" class=\"added\">Wed 9 Sep 2015 14:00 – 15:00</span>" +
-                   "<br xmlns=\"\"/>" +
-                   "<span xmlns=\"\" class=\"removed\">Wed 9 Sep 2015 13:00 – 14:00</span>",
-
-                   "<span xmlns=\"\" class=\"added\">Wed 09 Sep 2015 14:00 – 15:00</span>" +
-                   "<br xmlns=\"\"/>" +
-                   "<span xmlns=\"\" class=\"removed\">Wed 09 Sep 2015 13:00 – 14:00</span>"]
+                   "<span xmlns=\"\" class=\"removed\">Wednesday, September 09, 2015 13:00 – 14:00</span>"]
         }
     }, {
         input: {
@@ -838,22 +812,16 @@ add_task(function* parseCounter_test() {
                 original: "Room 1"
             }, {
                 property: "DTSTART",
-                proposed: ["Thursday, September 10, 2015 9:00 PM Europe/Berlin", // Automation Win
-                           "Thu 10 Sep 2015 9:00 PM Europe/Berlin", // Automation OSX
-                           "Thu 10 Sep 2015 09:00 PM Europe/Berlin", // Automation Linux
-                           "Thu 10 Sep 2015 21:00 Europe/Berlin"], // Local Win 24h
+                proposed: ["Thursday, September 10, 2015 9:00 PM Europe/Berlin",
+                           "Thursday, September 10, 2015 21:00 Europe/Berlin"],
                 original: ["Wednesday, September 09, 2015 9:00 PM Europe/Berlin",
-                           "Wed 9 Sep 2015 9:00 PM Europe/Berlin",
-                           "Wed 9 Sep 2015 09:00 PM Europe/Berlin",
-                           "Wed 9 Sep 2015 21:00 Europe/Berlin"]
+                           "Wednesday, September 09, 2015 21:00 Europe/Berlin"]
             }, {
                 property: "DTEND",
                 proposed: ["Thursday, September 10, 2015 10:00 PM Europe/Berlin",
-                           "Thu 10 Sep 2015 10:00 PM Europe/Berlin",
-                           "Thu 10 Sep 2015 22:00 Europe/Berlin"],
+                           "Thursday, September 10, 2015 22:00 Europe/Berlin"],
                 original: ["Wednesday, September 09, 2015 10:00 PM Europe/Berlin",
-                           "Wed 9 Sep 2015 10:00 PM Europe/Berlin",
-                           "Wed 9 Sep 2015 22:00 Europe/Berlin"]
+                           "Wednesday, September 09, 2015 22:00 Europe/Berlin"]
             }, {
                 property: "COMMENT",
                 proposed: "Sorry\, I cannot make it that time.",

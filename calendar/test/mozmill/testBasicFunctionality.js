@@ -6,6 +6,8 @@ var MODULE_NAME = "testBasicFunctionality";
 var RELATIVE_ROOT = "./shared-modules";
 var MODULE_REQUIRES = ["calendar-utils", "window-helpers"];
 
+Components.utils.import("resource://calendar/modules/calUtils.jsm");
+
 var plan_for_modal_dialog, wait_for_modal_dialog;
 var helpersForController, deleteCalendars, handleNewCalendarWizard;
 var TIMEOUT_MODAL_DIALOG, CALENDARNAME;
@@ -26,8 +28,7 @@ function setupModule(module) {
 }
 
 function testSmokeTest() {
-    let dateService = Components.classes["@mozilla.org/intl/scriptabledateformat;1"]
-                                .getService(Components.interfaces.nsIScriptableDateFormat);
+    let dateFormatter = cal.getDateFormatter();
     let path = `
         /id("messengerWindow")/id("tabmail-container")/id("tabmail")/
         id("tabpanelcontainer")/id("calendarTabPanel")/id("calendarContent")
@@ -59,7 +60,9 @@ function testSmokeTest() {
     controller.assertNode(eid("unifinder-search-field"));
 
     // default view is day view which should have 09:00 label and box
-    let label = dateService.FormatTime("", dateService.timeFormatNoSeconds, 9, 0, 0);
+    let someTime = cal.createDateTime();
+    someTime.resetTo(someTime.year, someTime.month, someTime.day, 9, 0, 0, someTime.timezone);
+    let label = dateFormatter.formatTime(someTime);
     controller.assertNode(lookup(`
         ${path}/id("calendarDisplayDeck")/id("calendar-view-box")/
         id("view-deck")/id("day-view")/anon({"anonid":"mainbox"})/

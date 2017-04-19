@@ -1869,16 +1869,10 @@
       <method name="formatDate">
         <parameter name="aDate"/>
         <body><![CDATA[
-          // workaround for bugs 354073/327869:
-          // aDate.toLocaleFormat("%x") exits application
-          // if year before 1900 (e.g., typo) on MSWindows (due to MS bug).
-          let nsIScriptableDateFormat = Components.interfaces.nsIScriptableDateFormat;
-          let dateService = Components.classes["@mozilla.org/intl/scriptabledateformat;1"]
-                                      .getService(nsIScriptableDateFormat);
-          return dateService.FormatDate("", dateService.dateFormatShort,
-                                        aDate.getFullYear(),
-                                        aDate.getMonth() + 1,
-                                        aDate.getDate());
+          Components.utils.import("resource://calendar/modules/calUtils.jsm");
+
+          let dateFormatter = cal.getDateFormatter();
+          return dateFormatter.formatDateShort(cal.jsDateToDateTime(aDate, cal.floating()));
         ]]></body>
       </method>
 

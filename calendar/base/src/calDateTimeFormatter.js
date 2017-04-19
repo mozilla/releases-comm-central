@@ -5,66 +5,14 @@
 Components.utils.import("resource://gre/modules/Services.jsm");
 Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 Components.utils.import("resource://gre/modules/Preferences.jsm");
-
-var nsIScriptableDateFormat = Components.interfaces.nsIScriptableDateFormat;
+Components.utils.import("resource://calendar/modules/calUtils.jsm");
 
 function calDateTimeFormatter() {
     this.wrappedJSObject = this;
     this.mDateStringBundle = Services.strings.createBundle("chrome://calendar/locale/dateFormat.properties");
-
-    this.mDateService =
-        Components.classes["@mozilla.org/intl/scriptabledateformat;1"]
-                  .getService(nsIScriptableDateFormat);
-
-    // Do does the month or day come first in this locale?
-    this.mMonthFirst = false;
-
-    // If LONG FORMATTED DATE is same as short formatted date,
-    // then OS has poor extended/long date config, so use workaround.
-    this.mUseLongDateService = true;
-    let probeDate =
-        Components.classes["@mozilla.org/calendar/datetime;1"]
-                  .createInstance(Components.interfaces.calIDateTime);
-    probeDate.timezone = UTC();
-    probeDate.year = 2002;
-    probeDate.month = 3;
-    probeDate.day = 5;
-    try {
-        // We're try/catching the calls to nsScriptableDateFormat since it's
-        // outside this module. We're also reusing probeDate rather than
-        // creating 3 discrete calDateTimes for performance.
-        let probeStringA = this.formatDateShort(probeDate);
-        let longProbeString = this.formatDateLong(probeDate);
-        probeDate.month = 4;
-        let probeStringB = this.formatDateShort(probeDate);
-        probeDate.month = 3;
-        probeDate.day = 6;
-        let probeStringC = this.formatDateShort(probeDate);
-
-        // Compare the index of the first differing character between
-        // probeStringA to probeStringB and probeStringA to probeStringC.
-        for (let i = 0; i < probeStringA.length; i++) {
-            if (probeStringA[i] != probeStringB[i]) {
-                this.mMonthFirst = true;
-                break;
-            } else if (probeStringA[i] != probeStringC[i]) {
-                this.mMonthFirst = false;
-                break;
-            }
-        }
-
-        // On Unix extended/long date format may be created using %Ex instead
-        // of %x. Some systems may not support it and return "Ex" or same as
-        // short string. In that case, don't use long date service, use a
-        // workaround hack instead.
-        if (longProbeString == null ||
-            longProbeString.length < 4 ||
-            longProbeString == probeStringA) {
-            this.mUseLongDateService = false;
-        }
-    } catch (e) {
-        this.mUseLongDateService = false;
-    }
+    this.mLocale = Components.classes["@mozilla.org/chrome/chrome-registry;1"]
+                             .getService(Components.interfaces.nsIXULChromeRegistry)
+                             .getSelectedLocale("global", true);
 }
 var calDateTimeFormatterClassID = Components.ID("{4123da9a-f047-42da-a7d0-cc4175b9f36a}");
 var calDateTimeFormatterInterfaces = [Components.interfaces.calIDateTimeFormatter];
@@ -85,51 +33,21 @@ calDateTimeFormatter.prototype = {
     },
 
     formatDateShort: function(aDate) {
-        return this.mDateService.FormatDate("",
-                                            nsIScriptableDateFormat.dateFormatShort,
-                                            aDate.year,
-                                            aDate.month + 1,
-                                            aDate.day);
+        let dtOptions = { year: 'numeric', month: '2-digit', day: '2-digit' };
+        dtOptions = this._addTzOption(aDate, dtOptions);
+        return cal.dateTimeToJsDate(aDate).toLocaleDateString(undefined, dtOptions);
     },
 
     formatDateLong: function(aDate) {
-        let longDate;
-        if (this.mUseLongDateService) {
-            longDate = this.mDateService.FormatDate("",
-                                                    nsIScriptableDateFormat.dateFormatLong,
-                                                    aDate.year,
-                                                    aDate.month + 1,
-                                                    aDate.day);
-            // check whether weekday name appears as in Lightning localization. if not, this is
-            // probably a minority language without OS support, so we should fall back to compose
-            // longDate on our own. May be not needed anymore once bug 441167 is fixed.
-            if (!longDate.includes(this.dayName(aDate.weekday)) &&
-                !longDate.includes(this.shortDayName(aDate.weekday))) {
-                longDate = null;
-                this.mUseLongDateService = false;
-            }
-        }
-        if (longDate == null) {
-            // HACK We are probably on Linux or have a minority localization and want a string in
-            // long format. dateService.dateFormatLong on Linux may return a short string, so
-            // build our own.
-            longDate = cal.calGetString("calendar", "formatDateLong",
-                                        [this.shortDayName(aDate.weekday),
-                                         this.formatDayWithOrdinal(aDate.day),
-                                         this.shortMonthName(aDate.month),
-                                         aDate.year]);
-        }
-        return longDate;
+        let dtOptions = { weekday: 'long', year: 'numeric', month: 'long', day: '2-digit' };
+        dtOptions = this._addTzOption(aDate, dtOptions);
+        return cal.dateTimeToJsDate(aDate).toLocaleDateString(this.mLocale, dtOptions);
     },
 
     formatDateWithoutYear: function(aDate) {
-        // Doing this the hard way, because nsIScriptableDateFormat doesn't
-        // have a way to not include the year.
-        if (this.mMonthFirst) {
-            return this.shortMonthName(aDate.month) + " " + this.formatDayWithOrdinal(aDate.day);
-        } else {
-            return this.formatDayWithOrdinal(aDate.day) + " " + this.shortMonthName(aDate.month);
-        }
+        let dtOptions = { month: 'short', day: 'numeric' };
+        dtOptions = this._addTzOption(aDate, dtOptions);
+        return cal.dateTimeToJsDate(aDate).toLocaleDateString(this.mLocale, dtOptions);
     },
 
     formatTime: function(aDate) {
@@ -137,11 +55,9 @@ calDateTimeFormatter.prototype = {
             return this.mDateStringBundle.GetStringFromName("AllDay");
         }
 
-        return this.mDateService.FormatTime("",
-                                            nsIScriptableDateFormat.timeFormatNoSeconds,
-                                            aDate.hour,
-                                            aDate.minute,
-                                            0);
+        let timeOptions = { hour: 'numeric', minute: '2-digit' };
+        timeOptions = this._addTzOption(aDate, timeOptions);
+        return cal.dateTimeToJsDate(aDate).toLocaleTimeString(undefined, timeOptions);
     },
 
     formatDateTime: function(aDate) {
@@ -154,6 +70,23 @@ calDateTimeFormatter.prototype = {
         } else {
             return formattedDate + " " + formattedTime;
         }
+    },
+
+    /**
+     * _addTzOption adds a timezone to apply on Intl.DateTimeFormat formatting operations to the
+     * provided options argument based on the timezone of the date argument.
+     *
+     * @param  {calIDateTime} aDate    The date object holding the tz information
+     * @param  {JsObject}     aOptions The options object to extend.
+     * @return {JsObject}              The object containing the formatting options.
+     */
+    _addTzOption: function(aDate, aOptions) {
+        let timezone = aDate.timezone;
+        // we set the tz only if we have a valid tz - otherwise localtime will be used on formatting.
+        if (timezone && (timezone.isUTC || timezone.icalComponent)) {
+            aOptions.timeZone = timezone.tzid;
+        }
+        return aOptions;
     },
 
     formatTimeInterval: function(aStartDate, aEndDate) {

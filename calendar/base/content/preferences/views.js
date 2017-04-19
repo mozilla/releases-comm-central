@@ -24,14 +24,19 @@ var gViewsPane = {
      * menulists. This is needed to respect locales that use AM/PM.
      */
     initializeViewStartEndMenus: function() {
+        Components.utils.import("resource://calendar/modules/calUtils.jsm");
         let labelIdStart;
         let labelIdEnd;
-        let timeFormatter = Components.classes["@mozilla.org/intl/scriptabledateformat;1"]
-                                      .getService(Components.interfaces.nsIScriptableDateFormat);
+
+        let calTime = cal.createDateTime();
+        calTime.minute = 0;
+
+        let timeFormatter = cal.getDateFormatter();
+
         // 1 to 23 instead of 0 to 24 to keep midnight & noon as the localized strings
         for (let theHour = 1; theHour <= 23; theHour++) {
-            let time = timeFormatter.FormatTime("", Components.interfaces.nsIScriptableDateFormat
-                                    .timeFormatNoSeconds, theHour, 0, 0);
+            calTime.hour = theHour;
+            let time = timeFormatter.formatTime(calTime);
 
             labelIdStart = "timeStart" + theHour;
             labelIdEnd = "timeEnd" + theHour;

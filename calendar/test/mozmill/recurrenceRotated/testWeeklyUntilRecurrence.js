@@ -5,6 +5,8 @@
 var RELATIVE_ROOT = "../shared-modules";
 var MODULE_REQUIRES = ["calendar-utils"];
 
+Components.utils.import("resource://calendar/modules/calUtils.jsm");
+
 var helpersForController, invokeEventDialog, createCalendar, deleteCalendars;
 var switchToView, goToDate, viewForward, handleOccurrencePrompt;
 var CALENDARNAME, EVENT_BOX, CANVAS_BOX;
@@ -179,10 +181,9 @@ function setRecurrence(recurrence) {
     recurrence.keypress(reclookup(input), "a", { ctrlKey: true });
     recurrence.keypress(reclookup(input), "VK_DELETE", {});
 
-    let dateService = Components.classes["@mozilla.org/intl/scriptabledateformat;1"]
-                                .getService(Components.interfaces.nsIScriptableDateFormat);
-    let ymd = [ENDDATE.getFullYear(), ENDDATE.getMonth() + 1, ENDDATE.getDate()];
-    let endDateString = dateService.FormatDate("", dateService.dateFormatShort, ...ymd);
+    let dateFormatter = cal.getDateFormatter();
+
+    let endDateString = dateFormatter.formatDateShort(cal.jsDateToDateTime(ENDDATE, cal.floating()));
 
     recurrence.type(reclookup(input), endDateString);
 

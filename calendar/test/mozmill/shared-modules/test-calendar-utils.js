@@ -7,6 +7,7 @@ var RELATIVE_ROOT = "../shared-modules";
 var MODULE_REQUIRES = ["window-helpers", "folder-display-helpers", "pref-window-helpers"];
 
 Cu.import("resource://gre/modules/Services.jsm");
+Cu.import("resource://calendar/modules/calUtils.jsm");
 var os = {};
 Cu.import("resource://mozmill/stdlib/os.js", os);
 var frame = {};
@@ -665,8 +666,7 @@ function setData(dialog, iframe, data) {
         anon({"class":"textbox-input-box numberbox-input-box"})/
         anon({"anonid":"input"})
     `);
-    let dateService = Cc["@mozilla.org/intl/scriptabledateformat;1"]
-                        .getService(Components.interfaces.nsIScriptableDateFormat);
+    let dateFormatter = cal.getDateFormatter();
     // wait for input elements' values to be populated
     sleep();
 
@@ -709,12 +709,7 @@ function setData(dialog, iframe, data) {
 
     // startdate
     if (data.startdate != undefined && data.startdate.constructor.name == "Date") {
-        let ymd = [
-            data.startdate.getFullYear(),
-            data.startdate.getMonth() + 1,
-            data.startdate.getDate()
-        ];
-        let startdate = dateService.FormatDate("", dateService.dateFormatShort, ...ymd);
+        let startdate = dateFormatter.formatDateShort(cal.jsDateToDateTime(data.startdate, cal.floating()));
 
         if (!isEvent) {
             dialog.check(iframeId("todo-has-entrydate"), true);
@@ -725,20 +720,14 @@ function setData(dialog, iframe, data) {
 
     // starttime
     if (data.starttime != undefined && data.starttime.constructor.name == "Date") {
-        let hms = [data.starttime.getHours(), data.starttime.getMinutes(), 0];
-        let starttime = dateService.FormatTime("", dateService.timeFormatNoSeconds, ...hms);
+        let starttime = dateFormatter.formatTime(cal.jsDateToDateTime(data.starttime, cal.floating()));
         startTimeInput.getNode().value = starttime;
         sleep();
     }
 
     // enddate
     if (data.enddate != undefined && data.enddate.constructor.name == "Date") {
-        let ymd = [
-            data.enddate.getFullYear(),
-            data.enddate.getMonth() + 1,
-            data.enddate.getDate()
-        ];
-        let enddate = dateService.FormatDate("", dateService.dateFormatShort, ...ymd);
+        let enddate = dateFormatter.formatDateShort(cal.jsDateToDateTime(data.enddate, cal.floating()));
         if (!isEvent) {
             dialog.check(iframeId("todo-has-duedate"), true);
         }
@@ -748,8 +737,7 @@ function setData(dialog, iframe, data) {
 
     // endtime
     if (data.endtime != undefined && data.endtime.constructor.name == "Date") {
-        let hms = [data.endtime.getHours(), data.endtime.getMinutes(), 0];
-        let endtime = dateService.FormatTime("", dateService.timeFormatNoSeconds, ...hms);
+        let endtime = dateFormatter.formatTime(cal.jsDateToDateTime(data.endtime, cal.floating()));
         endTimeInput.getNode().value = endtime;
     }
 
@@ -797,12 +785,7 @@ function setData(dialog, iframe, data) {
 
     // completed on
     if (data.completed != undefined && data.completed.constructor.name == "Date" && !isEvent) {
-        let ymd = [
-            data.completed.getFullYear(),
-            data.completed.getMonth() + 1,
-            data.completed.getDate()
-        ];
-        let completeddate = dateService.FormatDate("", dateService.dateFormatShort, ...ymd);
+        let completeddate = dateFormatter.formatDateShort(cal.jsDateToDateTime(data.completed, cal.floating()));
 
         if (currentStatus == "COMPLETED") {
             completedDateInput.getNode().value = completeddate;

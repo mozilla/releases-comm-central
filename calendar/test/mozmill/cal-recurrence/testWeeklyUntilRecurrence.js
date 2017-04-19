@@ -6,7 +6,7 @@ var MODULE_NAME = "testWeeklyUntilRecurrence";
 var RELATIVE_ROOT = "../shared-modules";
 var MODULE_REQUIRES = ["calendar-utils", "window-helpers"];
 
-Cu.import("resource://calendar/modules/calUtils.jsm");
+Components.utils.import("resource://calendar/modules/calUtils.jsm");
 
 var SHORT_SLEEP, TIMEOUT_MODAL_DIALOG, CALENDARNAME, EVENTPATH, EVENT_BOX;
 var CANVAS_BOX, REC_DLG_DAYS, REC_DLG_ACCEPT, REC_DLG_UNTIL_INPUT;
@@ -170,10 +170,9 @@ function setRecurrence(recurrence) {
     recurrence.keypress(untilInput, "a", { accelKey: true });
     recurrence.keypress(untilInput, "VK_DELETE", {});
 
-    let dateService = Components.classes["@mozilla.org/intl/scriptabledateformat;1"]
-                       .getService(Components.interfaces.nsIScriptableDateFormat);
-    let ymd = [ENDDATE.getFullYear(), ENDDATE.getMonth() + 1, ENDDATE.getDate()];
-    let endDateString = dateService.FormatDate("", dateService.dateFormatShort, ...ymd);
+    let dateFormatter = cal.getDateFormatter();
+
+    let endDateString = dateFormatter.formatDateShort(cal.jsDateToDateTime(ENDDATE, cal.floating()));
     recsleep(SHORT_SLEEP);
     recurrence.type(untilInput, endDateString);
 
