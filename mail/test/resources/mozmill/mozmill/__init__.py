@@ -723,7 +723,7 @@ class CLI(jsbridge.CLI):
                           action="store_true",
                           help="Show all test output.")
         parser.add_option("--timeout", dest="timeout", type="float",
-                          default=60., 
+                          default=120.,
                           help="seconds before harness timeout if no communication is taking place")
         parser.add_option("-m", "--manifest", dest='manifests',
                           action='append',
