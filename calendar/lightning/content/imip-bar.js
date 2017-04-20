@@ -205,7 +205,7 @@ var ltnImipBar = {
                 return false;
             }
             let author = aMsgHdr.mime2DecodedAuthor;
-            let isSentFolder = aMsgHdr.folder && aMsgHdr.folder.flags &
+            let isSentFolder = aMsgHdr.folder.flags &
                                Components.interfaces.nsMsgFolderFlags.SentMail;
             if (author && isSentFolder) {
                 let accounts = MailServices.accounts;
