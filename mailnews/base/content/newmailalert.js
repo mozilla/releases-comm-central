@@ -125,7 +125,7 @@ function showAlert()
   var alertContainer = document.getElementById("alertContainer");
   // Don't fade in if the user opened the alert or the pref is true.
   if (gUserInitiated ||
-      Services.prefs.getBoolPref("alerts.disableSlidingEffect")) {
+      !Services.prefs.getBoolPref("toolkit.cosmeticAnimations.enabled")) {
     alertContainer.setAttribute("noanimation", true);
     setTimeout(closeAlert, gOpenTime);
     return;
