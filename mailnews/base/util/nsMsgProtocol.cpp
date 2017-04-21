@@ -744,6 +744,12 @@ nsMsgProtocol::OnTransportStatus(nsITransport *transport, nsresult status,
   return NS_OK;
 }
 
+NS_IMETHODIMP
+nsMsgProtocol::GetIsDocument(bool *aIsDocument)
+{
+  return NS_GetIsDocumentChannel(this, aIsDocument);
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 // From nsIRequest
 ////////////////////////////////////////////////////////////////////////////////

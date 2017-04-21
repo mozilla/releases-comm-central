@@ -265,6 +265,12 @@ nsNntpMockChannel::SetContentLength(int64_t aLength)
   return NS_OK;
 }
 
+NS_IMETHODIMP
+nsNntpMockChannel::GetIsDocument(bool *aIsDocument)
+{
+  return NS_GetIsDocumentChannel(this, aIsDocument);
+}
+
 ////////////////////////////////////////
 // nsIChannel and nsNNTPProtocol glue //
 ////////////////////////////////////////
