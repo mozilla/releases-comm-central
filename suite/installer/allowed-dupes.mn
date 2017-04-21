@@ -267,7 +267,8 @@ extensions/modern@themes.mozilla.org/chrome/modern/skin/modern/global/media/thro
 chrome/toolkit/skin/classic/global/media/throbber.png
 extensions/modern@themes.mozilla.org/chrome/modern/skin/modern/communicator/brand/throbber-anim.png
 chrome/classic/skin/classic/communicator/brand/throbber-anim.png
-# Lightning
+
+# Lightning Nighly
 extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/skin/linux/lightning/imip.css
 extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/skin/windows/lightning/imip.css
 extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/skin/linux/calendar/calendar-invitations-dialog.css
@@ -286,6 +287,26 @@ extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/calendar-js/calFilter.js
 extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/calendar/content/calendar/calFilter.js
 extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/calendar-js/calUtils.js
 extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/calendar/content/calendar/calUtils.js
+# Lightning Release to Aurora.
+distribution/extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/skin/linux/lightning/imip.css
+distribution/extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/skin/windows/lightning/imip.css
+distribution/extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/skin/linux/calendar/calendar-invitations-dialog.css
+distribution/extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/skin/windows/calendar/calendar-invitations-dialog.css
+distribution/extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/skin/linux/calendar/calendar-alarm-dialog.css
+distribution/extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/skin/windows/calendar/calendar-alarm-dialog.css
+distribution/extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/skin/linux/calendar/calendar-daypicker.css
+distribution/extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/skin/windows/calendar/calendar-daypicker.css
+distribution/extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/skin/linux/calendar/calendar-management.css
+distribution/extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/skin/windows/calendar/calendar-management.css
+distribution/extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/skin/linux/lightning/accountCentral.css
+distribution/extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/skin/windows/lightning/accountCentral.css
+distribution/extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/skin/linux/lightning/lightning-widgets.css
+distribution/extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/skin/windows/lightning/lightning-widgets.css
+distribution/extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/calendar-js/calFilter.js
+distribution/extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/calendar/content/calendar/calFilter.js
+distribution/extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/calendar-js/calUtils.js
+distribution/extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/calendar/content/calendar/calUtils.js
+
 # DOMi
 distribution/extensions/inspector@mozilla.org/chrome/inspector/skin/classic/inspector/titledsplitter-close.gif
 distribution/extensions/inspector@mozilla.org/chrome/inspector/skin/modern/inspector/titledsplitter-close.gif
