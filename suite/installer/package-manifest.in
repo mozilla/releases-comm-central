@@ -645,7 +645,6 @@
 @RESPATH@/res/designmode.css
 @RESPATH@/res/EditorOverride.css
 @RESPATH@/res/grabber.gif
-@RESPATH@/res/langGroups.properties
 @RESPATH@/res/language.properties
 @RESPATH@/res/svg.css
 @RESPATH@/res/table-add-column-after-active.gif

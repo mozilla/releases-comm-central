@@ -682,10 +682,6 @@
 @RESPATH@/res/fonts/*
 @RESPATH@/res/dtd/*
 @RESPATH@/res/html/*
-#if defined(XP_MACOSX) || defined(XP_WIN)
-; For SafariProfileMigrator.js.
-@RESPATH@/res/langGroups.properties
-#endif
 @RESPATH@/res/language.properties
 @RESPATH@/res/entityTables/*
 #ifdef XP_MACOSX
