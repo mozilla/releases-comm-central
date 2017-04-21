@@ -215,9 +215,9 @@ From IronDoc documentation for AddFirst:
 
   void AddFirst(morkLink* in) /*i*/ 
   {
-    ( (mDeque_Head.mLink_Next->mLink_Prev = 
-      (in))->mLink_Next = mDeque_Head.mLink_Next, 
-        ((in)->mLink_Prev = &mDeque_Head)->mLink_Next = (in) );
+    (mDeque_Head.mLink_Next->mLink_Prev = in)->mLink_Next =
+      mDeque_Head.mLink_Next;
+    (in->mLink_Prev = &mDeque_Head)->mLink_Next = in;
   }
 /*
 From IronDoc documentation for AddLast:
@@ -230,9 +230,9 @@ From IronDoc documentation for AddLast:
 
   void AddLast(morkLink* in)
   {
-    ( (mDeque_Head.mLink_Prev->mLink_Next = 
-      (in))->mLink_Prev = mDeque_Head.mLink_Prev, 
-        ((in)->mLink_Next = &mDeque_Head)->mLink_Prev = (in) );
+    (mDeque_Head.mLink_Prev->mLink_Next = in)->mLink_Prev =
+      mDeque_Head.mLink_Prev;
+    (in->mLink_Next = &mDeque_Head)->mLink_Prev = in;
   }
 };
 

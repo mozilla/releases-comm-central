@@ -454,7 +454,7 @@ void Tokenizer::tokenizeHeaders(nsIUTF8StringEnumerator * aHeaderNames, nsIUTF8S
   nsAutoCString headerName; // we'll be normalizing all header names to lower case
   bool hasMore;
  
-  while (aHeaderNames->HasMore(&hasMore), hasMore)
+  while (NS_SUCCEEDED(aHeaderNames->HasMore(&hasMore)) && hasMore)
   {
     aHeaderNames->GetNext(headerName);
     ToLowerCase(headerName);

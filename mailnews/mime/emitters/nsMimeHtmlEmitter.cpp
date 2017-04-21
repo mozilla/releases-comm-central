@@ -190,30 +190,49 @@ nsresult nsMimeHtmlDisplayEmitter::BroadcastHeaders(nsIMsgHeaderSink * aHeaderSi
     if ( (!headerInfo) || (!headerInfo->name) || (!(*headerInfo->name)) || (!headerInfo->value) || (!(*headerInfo->value)))
       continue;
 
-    const char * headerValue = headerInfo->value;
-
     // optimization: if we aren't in view all header view mode, we only show a small set of the total # of headers.
     // don't waste time sending those out to the UI since the UI is going to ignore them anyway.
     if (aHeaderMode != VIEW_ALL_HEADERS && (mFormat != nsMimeOutput::nsMimeMessageFilterSniffer))
     {
-      nsDependentCString headerStr(headerInfo->name);
-      if (PL_strcasecmp("to", headerInfo->name) && PL_strcasecmp("from", headerInfo->name) &&
-          PL_strcasecmp("cc", headerInfo->name) && PL_strcasecmp("newsgroups", headerInfo->name) &&
-          PL_strcasecmp("bcc", headerInfo->name) && PL_strcasecmp("followup-to", headerInfo->name) &&
-          PL_strcasecmp("reply-to", headerInfo->name) && PL_strcasecmp("subject", headerInfo->name) &&
-          PL_strcasecmp("organization", headerInfo->name) && PL_strcasecmp("user-agent", headerInfo->name) &&
-          PL_strcasecmp("content-base", headerInfo->name) && PL_strcasecmp("sender", headerInfo->name) &&
-          PL_strcasecmp("date", headerInfo->name) && PL_strcasecmp("x-mailer", headerInfo->name) &&
-          PL_strcasecmp("content-type", headerInfo->name) && PL_strcasecmp("message-id", headerInfo->name) &&
-          PL_strcasecmp("x-newsreader", headerInfo->name) && PL_strcasecmp("x-mimeole", headerInfo->name) &&
-          PL_strcasecmp("references", headerInfo->name) && PL_strcasecmp("in-reply-to", headerInfo->name) &&
-          PL_strcasecmp("list-post", headerInfo->name) && PL_strcasecmp("delivered-to", headerInfo->name) &&
-          // make headerStr lower case because IndexOf is case-sensitive
-         (!extraExpandedHeadersArray.Length() || (ToLowerCase(headerStr),
-            !extraExpandedHeadersArray.Contains(headerStr))))
-            continue;
+      bool skip = true;
+      const char * headerName = headerInfo->name;
+      // Accept the following:
+      if (!PL_strcasecmp("to",           headerName) ||
+          !PL_strcasecmp("from",         headerName) ||
+          !PL_strcasecmp("cc",           headerName) ||
+          !PL_strcasecmp("newsgroups",   headerName) ||
+          !PL_strcasecmp("bcc",          headerName) ||
+          !PL_strcasecmp("followup-to",  headerName) ||
+          !PL_strcasecmp("reply-to",     headerName) ||
+          !PL_strcasecmp("subject",      headerName) ||
+          !PL_strcasecmp("organization", headerName) ||
+          !PL_strcasecmp("user-agent",   headerName) ||
+          !PL_strcasecmp("content-base", headerName) ||
+          !PL_strcasecmp("sender",       headerName) ||
+          !PL_strcasecmp("date",         headerName) ||
+          !PL_strcasecmp("x-mailer",     headerName) ||
+          !PL_strcasecmp("content-type", headerName) ||
+          !PL_strcasecmp("message-id",   headerName) ||
+          !PL_strcasecmp("x-newsreader", headerName) ||
+          !PL_strcasecmp("x-mimeole",    headerName) ||
+          !PL_strcasecmp("references",   headerName) ||
+          !PL_strcasecmp("in-reply-to",  headerName) ||
+          !PL_strcasecmp("list-post",    headerName) ||
+          !PL_strcasecmp("delivered-to", headerName)) {
+        skip = false;
+      } else if (extraExpandedHeadersArray.Length() > 0) {
+        // Make headerStr lower case because IndexOf is case-sensitive.
+        nsDependentCString headerStr(headerInfo->name);
+        ToLowerCase(headerStr);
+        // Accept if it's an "extra" header.
+        if (extraExpandedHeadersArray.Contains(headerStr))
+          skip = false;
+      }
+      if (skip)
+        continue;
     }
 
+    const char * headerValue = headerInfo->value;
     headerNameEnumerator->Append(headerInfo->name);
     headerValueEnumerator->Append(headerValue);
 

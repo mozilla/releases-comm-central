@@ -4272,7 +4272,8 @@ void nsImapMailFolder::FindKeysToDelete(const nsTArray<nsMsgKey> &existingKeys,
   {
 
     while ((onlineIndex < numMessageInFlagState) &&
-         (flagState->GetUidOfMessage(onlineIndex, &uidOfMessage), (existingKeys[keyIndex] > uidOfMessage) ))
+           NS_SUCCEEDED(flagState->GetUidOfMessage(onlineIndex, &uidOfMessage)) &&
+           (existingKeys[keyIndex] > uidOfMessage))
       onlineIndex++;
 
     flagState->GetUidOfMessage(onlineIndex, &uidOfMessage);

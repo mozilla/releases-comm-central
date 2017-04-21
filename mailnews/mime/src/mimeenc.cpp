@@ -190,7 +190,7 @@ mime_decode_base64_token (const char *in, char *out)
     else if (in[j] >= '0' && in[j] <= '9') c = in[j] - ('0' - 52);
     else if (in[j] == '+')         c = 62;
     else if (in[j] == '/')         c = 63;
-    else if (in[j] == '=')         c = 0, eq_count++;
+    else if (in[j] == '=')         { c = 0; eq_count++; }
     else
     NS_ERROR("Invalid character");
     num = (num << 6) | c;
@@ -358,8 +358,10 @@ mime_decode_uue_buffer (MimeDecoderData *data,
          */
         if (out[-1] == '\r' &&
           input_length > 0 &&
-          *input_buffer == '\n')
-          input_buffer++, input_length--;
+          *input_buffer == '\n') {
+            input_buffer++;
+            input_length--;
+          }
 
         /* We have a line. */
         break;
@@ -590,8 +592,10 @@ mime_decode_yenc_buffer (MimeDecoderData *data,
           /* If we just copied a CR, and an LF is waiting, grab it too. */
           if (out[-1] == '\r' &&
                   input_length > 0 &&
-                  *input_buffer == '\n')
-            input_buffer++, input_length--;
+                  *input_buffer == '\n') {
+            input_buffer++;
+            input_length--;
+          }
 
            /* We have a line. */
            break;

@@ -236,8 +236,7 @@ char *MSG_UnEscapeSearchUrl (const char *commandSpecificData)
 {
   nsAutoCString result(commandSpecificData);
   int32_t slashpos = 0;
-  while (slashpos = result.FindChar('\\', slashpos),
-         slashpos != kNotFound)
+  while ((slashpos = result.FindChar('\\', slashpos)) != kNotFound)
   {
     nsAutoCString hex;
     hex.Assign(Substring(result, slashpos + 1, 2));

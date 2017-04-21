@@ -7905,7 +7905,7 @@ void nsImapProtocol::Search(const char * searchCriteria,
   // wait for the server to respond OK before sending more data
   nsresult rv;
   int32_t crlfIndex;
-  while (crlfIndex = protocolString.Find(CRLF), crlfIndex != kNotFound && !DeathSignalReceived())
+  while ((crlfIndex = protocolString.Find(CRLF)) != kNotFound && !DeathSignalReceived())
   {
     nsAutoCString tempProtocolString;
     tempProtocolString = StringHead(protocolString, crlfIndex + 2);
