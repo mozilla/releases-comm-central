@@ -1379,8 +1379,10 @@ nsresult nsParseMailMessageState::FinalizeHeaders()
     /* Take off <> around message ID. */
     if (id)
     {
-      if (id->length > 0 && id->value[0] == '<')
-        id->length--, id->value++;
+      if (id->length > 0 && id->value[0] == '<') {
+        id->length--;
+        id->value++;
+      }
 
       NS_WARNING_ASSERTION(id->length > 0, "id->length failure in FinalizeHeaders().");
 
