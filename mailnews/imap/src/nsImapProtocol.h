@@ -58,6 +58,7 @@
 #include "nsICacheEntryOpenCallback.h"
 #include "nsIProtocolProxyCallback.h"
 #include "nsICancelable.h"
+#include "nsImapStringBundle.h"
 
 class nsIMAPMessagePartIDArray;
 class nsIMsgIncomingServer;
@@ -125,6 +126,15 @@ private:
 #define IMAP_CLEAN_UP_URL_STATE       0x00000010 // processing clean up url state
 #define IMAP_ISSUED_LANGUAGE_REQUEST  0x00000020 // make sure we only issue the language request once per connection...
 #define IMAP_ISSUED_COMPRESS_REQUEST  0x00000040 // make sure we only request compression once
+
+// There are 3 types of progress strings for items downloaded from IMAP servers.
+// An index is needed to keep track of the current count of the number of each
+// item type downloaded. The IMAP_EMPTY_STRING_INDEX means no string displayed.
+#define IMAP_NUMBER_OF_PROGRESS_STRINGS 4
+#define IMAP_HEADERS_STRING_INDEX       0
+#define IMAP_FLAGS_STRING_INDEX         1
+#define IMAP_MESSAGES_STRING_INDEX      2
+#define IMAP_EMPTY_STRING_INDEX         3
 
 class nsImapProtocol : public nsIImapProtocol,
                        public nsIRunnable,
@@ -246,7 +256,7 @@ public:
   void ProgressEventFunctionUsingName(const char* aMsgId);
   void ProgressEventFunctionUsingNameWithString(const char* aMsgName, const char *
     aExtraInfo);
-  void PercentProgressUpdateEvent(char16_t *message, int64_t currentProgress, int64_t maxProgress);
+  void PercentProgressUpdateEvent(const char16_t *message, int64_t currentProgress, int64_t maxProgress);
   void ShowProgress();
 
   // utility function calls made by the server
@@ -632,15 +642,16 @@ private:
   nsString mAcceptLanguages;
   
   // progress stuff
-  void SetProgressString(const char* stringName);
+  void SetProgressString(uint32_t aStringIndex);
   
-  nsString m_progressString;
-  nsCString     m_progressStringName;
-  int32_t       m_progressIndex;
-  int32_t       m_progressCount;
+  nsString      m_progressStringName;
+  uint32_t      m_stringIndex;
+  int32_t       m_progressCurrentNumber[IMAP_NUMBER_OF_PROGRESS_STRINGS];
+  int32_t       m_progressExpectedNumber;
   nsCString     m_lastProgressStringName;
   int32_t       m_lastPercent;
   int64_t       m_lastProgressTime;
+  nsCOMPtr<nsIStringBundle> m_bundle;
 
   bool m_notifySearchHit;
   bool m_checkForNewMailDownloadsHeaders;

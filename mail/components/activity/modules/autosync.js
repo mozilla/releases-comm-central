@@ -282,10 +282,11 @@ var autosyncModule =
           if (percent > syncItem.percentComplete)
             syncItem.percentComplete = percent;
 
-          let msg = this.bundle.formatStringFromName("autosyncProcessProgress",
+          let msg = this.bundle.formatStringFromName("autosyncProcessProgress2",
                                                  [syncItem.totalDownloaded,
                                                   syncItem.pendingMsgCount,
-                                                  folder.prettiestName], 3);
+                                                  folder.prettiestName,
+                                                  folder.server.prettyName], 4);
 
           process.setProgress(msg, numOfMessages, totalPending);
 

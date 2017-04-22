@@ -33,7 +33,6 @@
 #include "nsIPipe.h"
 #include "nsIMsgFolder.h"
 #include "nsMsgMessageFlags.h"
-#include "nsImapStringBundle.h"
 #include "nsICopyMsgStreamListener.h"
 #include "nsTextFormatter.h"
 #include "nsIMsgHdr.h"
@@ -488,6 +487,9 @@ nsImapProtocol::nsImapProtocol() : nsMsgProtocol(nullptr),
   m_inputStreamBuffer = new nsMsgLineStreamBuffer(OUTPUT_BUFFER_SIZE, true /* allocate new lines */, false /* leave CRLFs on the returned string */);
   m_currentBiffState = nsIMsgFolder::nsMsgBiffState_Unknown;
   m_progressStringName.Truncate();
+  m_stringIndex = IMAP_EMPTY_STRING_INDEX;
+  m_progressExpectedNumber = 0;
+  memset(m_progressCurrentNumber, 0, sizeof m_progressCurrentNumber);
 
   // since these are embedded in the nsImapProtocol object, but passed
   // through proxied xpcom methods, just AddRef them here.
@@ -548,11 +550,10 @@ nsImapProtocol::Initialize(nsIImapHostSessionList * aHostSessionList,
   m_parser.SetFlagState(m_flagState);
 
   // Initialize the empty mime part string on the main thread.
-  nsCOMPtr<nsIStringBundle> bundle;
-  rv = IMAPGetStringBundle(getter_AddRefs(bundle));
+  rv = IMAPGetStringBundle(getter_AddRefs(m_bundle));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  rv = bundle->GetStringFromName(u"imapEmptyMimePart",
+  rv = m_bundle->GetStringFromName(u"imapEmptyMimePart",
     getter_Copies(m_emptyMimePartString));
   NS_ENSURE_SUCCESS(rv, rv);
 
@@ -2525,8 +2526,10 @@ void nsImapProtocol::ProcessSelectedStateURL()
         nsMsgKey *msgIdList = nullptr;
         uint32_t msgCount = 0;
         bool more;
-        m_imapMailFolderSink->GetMsgHdrsToDownload(&more, &m_progressCount,
-                                                   &msgCount, &msgIdList);
+        m_imapMailFolderSink->GetMsgHdrsToDownload(&more,
+                                                   &m_progressExpectedNumber,
+                                                   &msgCount,
+                                                   &msgIdList);
         if (msgIdList)
         {
           FolderHeaderDump(msgIdList, msgCount);
@@ -2637,10 +2640,10 @@ void nsImapProtocol::ProcessSelectedStateURL()
              || m_imapAction == nsIImapUrl::nsImapMsgPreview)
           {
             // multiple messages, fetch them all
-            SetProgressString("imapFolderReceivingMessageOf2");
+            SetProgressString(IMAP_MESSAGES_STRING_INDEX);
 
-            m_progressIndex = 0;
-            m_progressCount = CountMessagesInIdString(messageIdString.get());
+            m_progressCurrentNumber[m_stringIndex] = 0;
+            m_progressExpectedNumber = CountMessagesInIdString(messageIdString.get());
 
             // we need to set this so we'll get the msg from the memory cache.
             if (m_imapAction == nsIImapUrl::nsImapMsgFetchPeek)
@@ -2651,7 +2654,7 @@ void nsImapProtocol::ProcessSelectedStateURL()
               ? kBodyStart : kEveryThingRFC822Peek);
             if (m_imapAction == nsIImapUrl::nsImapMsgPreview)
               HeaderFetchCompleted();
-            SetProgressString(nullptr);
+            SetProgressString(IMAP_EMPTY_STRING_INDEX);
           }
           else
           {
@@ -3066,13 +3069,13 @@ void nsImapProtocol::ProcessSelectedStateURL()
           nsresult rv = m_runningUrl->GetListOfMessageIds(messageIdString);
           if (NS_SUCCEEDED(rv))
           {
-            SetProgressString("imapFolderReceivingMessageOf2");
-            m_progressIndex = 0;
-            m_progressCount = CountMessagesInIdString(messageIdString.get());
+            SetProgressString(IMAP_MESSAGES_STRING_INDEX);
+            m_progressCurrentNumber[m_stringIndex] = 0;
+            m_progressExpectedNumber = CountMessagesInIdString(messageIdString.get());
 
             FetchMessage(messageIdString, kEveryThingRFC822Peek);
 
-            SetProgressString(nullptr);
+            SetProgressString(IMAP_EMPTY_STRING_INDEX);
             if (m_imapMailFolderSink)
             {
               ImapOnlineCopyState copyStatus;
@@ -4247,9 +4250,11 @@ void nsImapProtocol::ProcessMailboxUpdate(bool handlePossibleUndo)
     {
       bool more;
       m_imapMailFolderSink->UpdateImapMailboxInfo(this, new_spec);
-      m_imapMailFolderSink->GetMsgHdrsToDownload(&more, &m_progressCount,
+      m_imapMailFolderSink->GetMsgHdrsToDownload(&more, &m_progressExpectedNumber,
                                                  &msgCount, &msgIdList);
-      m_progressIndex = 0;
+      // Assert that either it's empty string OR it must be header string.
+      MOZ_ASSERT((m_stringIndex == IMAP_EMPTY_STRING_INDEX) || (m_stringIndex == IMAP_HEADERS_STRING_INDEX));
+      m_progressCurrentNumber[m_stringIndex] = 0;
       m_runningUrl->SetMoreHeadersToDownload(more);
       // We're going to be re-running this url if there are more headers.
       if (more)
@@ -4287,8 +4292,10 @@ void nsImapProtocol::ProcessMailboxUpdate(bool handlePossibleUndo)
       bool wasStoringOffline;
       m_runningUrl->GetStoreResultsOffline(&wasStoringOffline);
       m_runningUrl->SetStoreResultsOffline(true);
-      m_progressIndex = 0;
-      m_progressCount = msgCount;
+      // Assert that either it's empty string OR it must be message string.
+      MOZ_ASSERT((m_stringIndex == IMAP_EMPTY_STRING_INDEX) || (m_stringIndex == IMAP_MESSAGES_STRING_INDEX));
+      m_progressCurrentNumber[m_stringIndex] = 0;
+      m_progressExpectedNumber = msgCount;
       FolderMsgDump(msgIdList, msgCount, kEveryThingRFC822Peek);
       m_runningUrl->SetStoreResultsOffline(wasStoringOffline);
     }
@@ -4309,19 +4316,19 @@ void nsImapProtocol::FolderMsgDump(uint32_t *msgUids, uint32_t msgCount, nsIMAPe
   // lets worry about this progress stuff later.
   switch (fields) {
   case kHeadersRFC822andUid:
-    SetProgressString("imapReceivingMessageHeaders2");
+    SetProgressString(IMAP_HEADERS_STRING_INDEX);
     break;
   case kFlags:
-    SetProgressString("imapReceivingMessageFlags2");
+    SetProgressString(IMAP_FLAGS_STRING_INDEX);
     break;
   default:
-    SetProgressString("imapFolderReceivingMessageOf2");
+    SetProgressString(IMAP_MESSAGES_STRING_INDEX);
     break;
   }
 
   FolderMsgDumpLoop(msgUids, msgCount, fields);
 
-  SetProgressString(nullptr);
+  SetProgressString(IMAP_EMPTY_STRING_INDEX);
 }
 
 void nsImapProtocol::WaitForPotentialListOfBodysToFetch(uint32_t **msgIdList, uint32_t &msgCount)
@@ -5174,34 +5181,60 @@ void nsImapProtocol::ResetProgressInfo()
   m_lastProgressStringName.Truncate();
 }
 
-void nsImapProtocol::SetProgressString(const char * stringName)
+void nsImapProtocol::SetProgressString(uint32_t aStringIndex)
 {
-  m_progressStringName.Assign(stringName);
-  if (!m_progressStringName.IsEmpty() && m_imapServerSink)
-    m_imapServerSink->GetImapStringByName(stringName,
-                                          m_progressString);
+  m_stringIndex = aStringIndex;
+  MOZ_ASSERT(m_stringIndex <= IMAP_EMPTY_STRING_INDEX);
+  switch (m_stringIndex)
+  {
+    case IMAP_HEADERS_STRING_INDEX:
+      m_progressStringName = u"imapReceivingMessageHeaders3";
+      break;
+    case IMAP_MESSAGES_STRING_INDEX:
+      m_progressStringName = u"imapFolderReceivingMessageOf3";
+      break;
+    case IMAP_FLAGS_STRING_INDEX:
+      m_progressStringName = u"imapReceivingMessageFlags3";
+      break;
+    case IMAP_EMPTY_STRING_INDEX:
+    default:
+      break;
+  }
 }
 
 void
 nsImapProtocol::ShowProgress()
 {
-  if (!m_progressString.IsEmpty() && !m_progressStringName.IsEmpty())
+  if (m_imapServerSink && (m_stringIndex != IMAP_EMPTY_STRING_INDEX))
   {
-    char16_t *progressString = NULL;
+    nsString progressString;
     const char *mailboxName = GetServerStateParser().GetSelectedMailboxName();
     nsString unicodeMailboxName;
     nsresult rv = CopyMUTF7toUTF16(nsDependentCString(mailboxName),
                                    unicodeMailboxName);
-    if (NS_SUCCEEDED(rv))
+    NS_ENSURE_SUCCESS_VOID(rv);
+
+    int32_t progressCurrentNumber = ++m_progressCurrentNumber[m_stringIndex];
+    nsAutoString progressCurrentNumberString;
+    progressCurrentNumberString.AppendInt(progressCurrentNumber);
+
+    nsAutoString progressExpectedNumberString;
+    progressExpectedNumberString.AppendInt(m_progressExpectedNumber);
+
+    const char16_t *formatStrings[] = {
+      progressCurrentNumberString.get(),
+      progressExpectedNumberString.get(),
+      unicodeMailboxName.get()
+    };
+
+    rv = m_bundle->FormatStringFromName(
+                    m_progressStringName.get(),
+                    formatStrings, 3, getter_Copies(progressString));
+
+    if (NS_SUCCEEDED(rv) && !progressString.IsEmpty())
     {
-      // ### should convert mailboxName to char16_t and change %s to %S in msg text
-      progressString = nsTextFormatter::smprintf(m_progressString.get(),
-                                unicodeMailboxName.get(), ++m_progressIndex, m_progressCount);
-      if (progressString)
-      {
-        PercentProgressUpdateEvent(progressString, m_progressIndex, m_progressCount);
-        nsTextFormatter::smprintf_free(progressString);
-      }
+      PercentProgressUpdateEvent(progressString.get(), progressCurrentNumber,
+                                m_progressExpectedNumber);
     }
   }
 }
@@ -5231,7 +5264,7 @@ nsImapProtocol::ProgressEventFunctionUsingNameWithString(const char* aMsgName,
 }
 
 void
-nsImapProtocol::PercentProgressUpdateEvent(char16_t *message, int64_t currentProgress, int64_t maxProgress)
+nsImapProtocol::PercentProgressUpdateEvent(const char16_t *message, int64_t currentProgress, int64_t maxProgress)
 {
   int64_t nowMS = 0;
   int32_t percent = (100 * currentProgress) / maxProgress;
