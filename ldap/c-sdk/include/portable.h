@@ -423,10 +423,6 @@ int select(int, fd_set *, fd_set *, fd_set *, struct timeval *);
 #define ioctl ioctlsocket
 #define sleep(a) Sleep( a*1000 )
 
-#define EMSGSIZE WSAEMSGSIZE
-#define EWOULDBLOCK WSAEWOULDBLOCK
-#define EHOSTUNREACH WSAEHOSTUNREACH
-
 #ifndef MAXPATHLEN
 #define MAXPATHLEN _MAX_PATH
 #endif
