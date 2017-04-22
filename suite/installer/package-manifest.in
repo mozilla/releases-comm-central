@@ -628,6 +628,7 @@
 @RESPATH@/greprefs.js
 @RESPATH@/defaults/autoconfig/prefcalls.js
 @RESPATH@/defaults/permissions
+@RESPATH@/defaults/blocklists
 ; Warning: changing the path to channel-prefs.js can cause bugs. (Bug 756325)
 @RESPATH@/defaults/pref/channel-prefs.js
 
