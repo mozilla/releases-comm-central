@@ -41,7 +41,7 @@ function init(aEvent)
   }
 
   // XXX FIXME
-  // Include the build ID and display warning if this is an "a#" (nightly or aurora) build
+  // Include the build ID and display warning if this is an "a#" (nightly) build
   let versionField = document.getElementById("version");
   let version = Services.appinfo.version;
   if (/a\d+$/.test(version)) {

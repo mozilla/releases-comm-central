@@ -14,8 +14,8 @@ ifneq (,$(findstring a,$(LIGHTNING_VERSION)))
 DEFINES += -DLIGHTNING_PRERELEASE_VERSION=1
 endif
 
-# Enable nightly updates on aurora and nightly channel
-ifeq (nightly,$(subst aurora,nightly,$(MOZ_UPDATE_CHANNEL)))
+# Enable nightly updates on nightly channel
+ifeq (nightly,$(MOZ_UPDATE_CHANNEL))
 DEFINES += -DLIGHTNING_UPDATE_LOCATION=https://calendar.mozilla.org/update.php
 endif
 
