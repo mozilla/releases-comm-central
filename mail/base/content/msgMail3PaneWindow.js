@@ -695,10 +695,8 @@ function getWindowStateForSessionPersistence()
  *
  * @return true if the restoration was successful, false otherwise.
  */
-function atStartupRestoreTabs(aDontRestoreFirstTab) {
-
-  let state = sessionStoreManager.loadingWindow(window);
-
+async function atStartupRestoreTabs(aDontRestoreFirstTab) {
+  let state = await sessionStoreManager.loadingWindow(window);
   if (state) {
     let tabsState = state.tabs;
     let tabmail = document.getElementById("tabmail");
@@ -707,6 +705,7 @@ function atStartupRestoreTabs(aDontRestoreFirstTab) {
 
   // it's now safe to load extra Tabs.
   setTimeout(loadExtraTabs, 0);
+  sessionStoreManager._restored = true;
   Services.obs.notifyObservers(window, "mail-tabs-session-restored", null);
   return state ? true : false;
 }

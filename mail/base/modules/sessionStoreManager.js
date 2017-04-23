@@ -14,9 +14,7 @@ var Cc = Components.classes;
 var Ci = Components.interfaces;
 var Cu = Components.utils;
 
-Cu.import("resource://gre/modules/AsyncShutdown.jsm");
-Cu.import("resource://gre/modules/NetUtil.jsm");
-Cu.import("resource://gre/modules/osfile.jsm");
+Cu.import("resource://gre/modules/JSONFile.jsm");
 Cu.import("resource://gre/modules/Services.jsm");
 
 /**
@@ -32,6 +30,13 @@ var sessionStoreManager =
 {
   _initialized: false,
 
+  /**
+   * Session restored successfully on startup; use this to test for an early
+   * failed startup which does not restore user tab state to ensure a session
+   * save on close will not overwrite the last good session state.
+   */
+  _restored: false,
+
   _sessionAutoSaveTimer: null,
 
   _sessionAutoSaveTimerIntervalMS: SESSION_AUTO_SAVE_DEFAULT_MS,
@@ -44,12 +49,6 @@ var sessionStoreManager =
   _initialState: null,
 
   /**
-   * The string containing the JSON stringified representation of the last
-   * state we wrote to disk.
-   */
-  _currentStateString: null,
-
-  /**
    * A flag indicating whether the state "just before shutdown" of the current
    * session has been persisted to disk. See |observe| and |unloadingWindow|
    * for justification on why we need this.
@@ -57,9 +56,15 @@ var sessionStoreManager =
   _shutdownStateSaved: false,
 
   /**
-   * Cache the session file async writeAtomic Promise for AsyncShutdown.
+   * The JSONFile store object.
    */
-  _promise: null,
+  get store()
+  {
+    if (this._store)
+      return this._store;
+
+    return this._store = new JSONFile({path: this.sessionFile.path});
+  },
 
   /**
    * Gets the nsIFile used for session storage.
@@ -76,9 +81,9 @@ var sessionStoreManager =
    * the last 3 pane window was closed (e.g., on the mac, closing the last
    * window doesn't shut down the app).
    */
-  _init: function ssm_init()
+  async _init()
   {
-    this._loadSessionFile();
+    await this._loadSessionFile();
 
     // we listen for "quit-application-granted" instead of
     // "quit-application-requested" because other observers of the
@@ -94,43 +99,18 @@ var sessionStoreManager =
    * Loads the session file into _initialState. This should only be called by
    * _init and a unit test.
    */
-  _loadSessionFile: function ssm_loadSessionFile()
+  async _loadSessionFile()
   {
     if (!this.sessionFile.exists())
       return;
 
-    // Read the session state data from file, synchronously.
-    let inStream = Cc["@mozilla.org/network/file-input-stream;1"]
-                   .createInstance(Ci.nsIFileInputStream);
-    inStream.init(this.sessionFile, -1, 0, 0);
-    let data = NetUtil.readInputStreamToString(inStream,
-                                               inStream.available(),
-                                               { charset: "UTF-8" });
-    inStream.close();
+    // Read the session state data from file, asynchronously.
+    // An error on the json file returns an empty object which corresponds
+    // to a null |_initialState|.
+    await this.store.load();
+    this._initialState = this.store.data.toSource() == {}.toSource() ?
+                           null : this.store.data;
 
-    // Clear the current state so that subsequent writes won't think
-    // the state hasn't changed.
-    this._currentStateString = null;
-
-    try {
-      // Parse the session state into a JSON object.
-      this._initialState = JSON.parse(data);
-    }
-    catch (ex) {
-      Cu.reportError("sessionStoreManager: error in session state data, " + ex);
-    }
-
-    if (!data || !this._initialState) {
-      // If the file exists but there is a data read or parse fail, save the
-      // bad file.
-      let errorFile = "session_error_" +
-                      (new Date().toISOString()).replace(/\D/g, "") + ".json";
-      let errorFilePath = OS.Path.join(OS.Constants.Path.profileDir, errorFile);
-      OS.File.move(this.sessionFile.path, errorFilePath)
-             .then(null, error => Cu.reportError("sessionStoreManager: failed to rename " +
-                                                 this.sessionFile.path + " to " +
-                                                 errorFilePath + ": " + error));
-    }
   },
 
   /**
@@ -156,20 +136,22 @@ var sessionStoreManager =
    */
   _saveStateObject: function ssm_saveStateObject(aStateObj)
   {
-    let data = JSON.stringify(aStateObj);
+    if (!this.store) {
+      Cu.reportError("sessionStoreManager: could not create data store from file");
+      return;
+    }
 
+    let currentStateString = JSON.stringify(aStateObj);
+    let storedStateString = this.store.dataReady && this.store.data ?
+                              JSON.stringify(this.store.data) : null;
+
+    // Do not save state (overwrite last good state) in case of a failed startup.
     // Write async to disk only if state changed since last write.
-    if (data == this._currentStateString)
+    if (!this._restored || currentStateString == storedStateString)
       return;
 
-    this._promise = OS.File
-      .writeAtomic(this.sessionFile.path, data,
-                   { tmpPath: this.sessionFile.path + ".tmp",
-                     flush: true })
-      .then(() => sessionStoreManager._currentStateString = data,
-            error => Cu.reportError("sessionStoreManager: error " +
-                                    "storing session state data, " +
-                                    error))
+    this.store.data = aStateObj;
+    this.store.saveSoon();
   },
 
   /**
@@ -238,11 +220,11 @@ var sessionStoreManager =
    * @return a window state object if aWindow was opened as a result of a
    *         session restoration, null otherwise.
    */
-  loadingWindow: function ssm_loadingWindow(aWindow)
+  async loadingWindow(aWindow)
   {
     let firstWindow = !this._initialized || this._shutdownStateSaved;
     if (firstWindow)
-      this._init();
+      await this._init();
 
     // If we are seeing a new 3-pane, we are obviously not in a shutdown
     // state anymore.  (This would happen if all the 3panes got closed but
@@ -326,8 +308,3 @@ var sessionStoreManager =
     }
   }
 };
-
-AsyncShutdown.profileBeforeChange.addBlocker(
-  "sessionStoreManager: session.json",
-  () => { return sessionStoreManager._promise; }
-);

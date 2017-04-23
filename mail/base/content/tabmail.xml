@@ -1065,6 +1065,8 @@
             this.currentTabInfo = this.tabInfo[0];
 
           let tab = this.currentTabInfo;
+          if (!tab)
+            return null;
 
           let browserFunc = tab.mode.getBrowser || tab.mode.tabType.getBrowser;
           if (browserFunc)
