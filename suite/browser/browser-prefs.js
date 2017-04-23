@@ -557,7 +557,7 @@ pref("app.update.timerMinimumDelay", 120);
 // Give the user x seconds to react before showing the big UI. default=8 days
 pref("app.update.promptWaitTime", 691200);
 #else
-// For nightly and aurora builds, before showing the big UI, default=12 hrs
+// For nightly builds, before showing the big UI, default=12 hrs
 pref("app.update.promptWaitTime", 43200);
 #endif
 // Show the Update Checking/Ready UI when the user was idle for x seconds

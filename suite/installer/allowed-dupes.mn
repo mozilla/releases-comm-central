@@ -287,7 +287,7 @@ extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/calendar-js/calFilter.js
 extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/calendar/content/calendar/calFilter.js
 extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/calendar-js/calUtils.js
 extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/calendar/content/calendar/calUtils.js
-# Lightning Release to Aurora.
+# Lightning Release and Beta
 distribution/extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/skin/linux/lightning/imip.css
 distribution/extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/skin/windows/lightning/imip.css
 distribution/extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/skin/linux/calendar/calendar-invitations-dialog.css
