@@ -11,6 +11,7 @@
 #include "nsIMsgHdr.h"
 #include "nsISupportsUtils.h"
 #include "nsMsgBaseCID.h"
+#include "nsMsgUtils.h"
 
 // This file contains an implementation of mailnews URLs in JsAccount.
 
@@ -94,6 +95,38 @@ NS_IMETHODIMP JaBaseCppUrl::GetOriginalSpec(char **aOriginalSpec)
 NS_IMETHODIMP JaBaseCppUrl::SetOriginalSpec(const char *aOriginalSpec)
 {
   mOriginalSpec = aOriginalSpec;
+  return NS_OK;
+}
+
+NS_IMETHODIMP JaBaseCppUrl::GetPrincipalSpec(nsACString& aPrincipalSpec)
+{
+  // URLs contain a lot of query parts. We want need a normalised form:
+  // scheme://server/folder?number=123
+  nsCOMPtr<nsIMsgMailNewsUrl> mailnewsURL;
+  QueryInterface(NS_GET_IID(nsIMsgMailNewsUrl), getter_AddRefs(mailnewsURL));
+
+  nsAutoCString spec;
+  mailnewsURL->GetSpec(spec);
+
+  nsAutoCString queryPart = MsgExtractQueryPart(spec, "number=");
+
+  // Strip any query part beginning with ? & or /;
+  int32_t ind = spec.Find("/;");
+  if (ind != kNotFound)
+    spec.SetLength(ind);
+
+  ind = spec.FindChar('?');
+  if (ind != kNotFound)
+    spec.SetLength(ind);
+
+  ind = spec.FindChar('&');
+  if (ind != kNotFound)
+    spec.SetLength(ind);
+
+  if (!queryPart.IsEmpty())
+    spec += NS_LITERAL_CSTRING("?") + queryPart;
+
+  aPrincipalSpec.Assign(spec);
   return NS_OK;
 }
 

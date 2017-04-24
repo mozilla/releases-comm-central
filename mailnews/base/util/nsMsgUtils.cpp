@@ -2105,3 +2105,24 @@ NS_MSG_BASE nsMsgKey msgKeyFromInt(uint64_t aValue)
   NS_ASSERTION(aValue <= PR_UINT32_MAX, "Msg key value too big!");
   return aValue;
 }
+
+// Helper function to extract a query qualifier.
+nsAutoCString MsgExtractQueryPart(nsAutoCString spec, const char* queryToExtract)
+{
+  nsAutoCString queryPart;
+  int32_t queryIndex = spec.Find(queryToExtract);
+  if (queryIndex == kNotFound)
+    return queryPart;
+
+  int32_t queryEnd = Substring(spec, queryIndex + 1).FindChar('&');
+  if (queryEnd == kNotFound)
+    queryEnd = Substring(spec, queryIndex + 1).FindChar('?');
+  if (queryEnd == kNotFound) {
+    // Nothing follows, so return from where the query qualifier started.
+    queryPart.Assign(Substring(spec, queryIndex));
+  } else {
+    // Return the substring that represents the query qualifier.
+    queryPart.Assign(Substring(spec, queryIndex, queryEnd + 1));
+  }
+  return queryPart;
+}

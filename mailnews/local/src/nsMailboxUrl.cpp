@@ -124,6 +124,40 @@ nsresult nsMailboxUrl::SetMessageSize(uint32_t aMessageSize)
   return NS_OK;
 }
 
+NS_IMETHODIMP nsMailboxUrl::GetPrincipalSpec(nsACString& aPrincipalSpec)
+{
+  nsCOMPtr<nsIMsgMailNewsUrl> mailnewsURL;
+  QueryInterface(NS_GET_IID(nsIMsgMailNewsUrl), getter_AddRefs(mailnewsURL));
+
+  nsAutoCString spec;
+  mailnewsURL->GetSpec(spec);
+
+  // mailbox: URLs contain a lot of query parts. We want need a normalised form:
+  // mailbox://folder?number=nn.
+
+  char* messageKey = extractAttributeValue(spec.get(), "number=");
+
+  // Strip any query part beginning with ? & or /;
+  int32_t ind = spec.Find("/;");
+  if (ind != kNotFound)
+    spec.SetLength(ind);
+
+  ind = spec.FindChar('?');
+  if (ind != kNotFound)
+    spec.SetLength(ind);
+
+  ind = spec.FindChar('&');
+  if (ind != kNotFound)
+    spec.SetLength(ind);
+
+  spec += NS_LITERAL_CSTRING("?number=");
+  spec.Append(messageKey);
+  PR_Free(messageKey);
+
+  aPrincipalSpec.Assign(spec);
+  return NS_OK;
+}
+
 NS_IMETHODIMP nsMailboxUrl::SetUri(const char * aURI)
 {
   mURI= aURI;

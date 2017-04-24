@@ -27,6 +27,7 @@
 #include "mozilla/Services.h"
 #include <algorithm>
 #include "nsProxyRelease.h"
+#include "mozilla/BasePrincipal.h"
 
 nsMsgMailNewsUrl::nsMsgMailNewsUrl()
 {
@@ -36,6 +37,7 @@ nsMsgMailNewsUrl::nsMsgMailNewsUrl()
   m_updatingFolder = false;
   m_msgIsInLocalCache = false;
   m_suppressErrorMsgs = false;
+  m_isPrincipalURL = false;
   mMaxProgress = -1;
   m_baseURL = do_CreateInstance(NS_STANDARDURL_CONTRACTID);
 }
@@ -70,7 +72,59 @@ nsMsgMailNewsUrl::~nsMsgMailNewsUrl()
   }
 }
 
-NS_IMPL_ISUPPORTS(nsMsgMailNewsUrl, nsIMsgMailNewsUrl, nsIURL, nsIURI)
+NS_IMPL_ADDREF(nsMsgMailNewsUrl)
+NS_IMPL_RELEASE(nsMsgMailNewsUrl)
+
+// We want part URLs to QI to nsIURIWithPrincipal so we can give
+// them a "normalised" origin. URLs that already have a "normalised"
+// origin should not QI to nsIURIWithPrincipal.
+NS_INTERFACE_MAP_BEGIN(nsMsgMailNewsUrl)
+  NS_INTERFACE_MAP_ENTRY_AMBIGUOUS(nsISupports, nsIMsgMailNewsUrl)
+  NS_INTERFACE_MAP_ENTRY(nsIMsgMailNewsUrl)
+  NS_INTERFACE_MAP_ENTRY(nsIURL)
+  NS_INTERFACE_MAP_ENTRY(nsIURI)
+  NS_INTERFACE_MAP_ENTRY_CONDITIONAL(nsIURIWithPrincipal, !m_isPrincipalURL)
+NS_INTERFACE_MAP_END
+
+// Support for nsIURIWithPrincipal.
+NS_IMETHODIMP nsMsgMailNewsUrl::GetPrincipal(nsIPrincipal **aPrincipal)
+{
+  MOZ_ASSERT(!m_isPrincipalURL,
+    "nsMsgMailNewsUrl::GetPrincipal() can only be called for non-principal URLs");
+
+  if (!m_principal) {
+    nsCOMPtr <nsIMsgMessageUrl> msgUrl;
+    QueryInterface(NS_GET_IID(nsIMsgMessageUrl), getter_AddRefs(msgUrl));
+
+    nsAutoCString spec;
+    if (!msgUrl || NS_FAILED(msgUrl->GetPrincipalSpec(spec))) {
+      MOZ_ASSERT(false, "Can't get principal spec");
+      // just use the normal spec.
+      GetSpec(spec);
+    }
+
+    nsCOMPtr<nsIURI> uri;
+    nsresult rv = NS_NewURI(getter_AddRefs(uri), spec);
+    NS_ENSURE_SUCCESS(rv, rv);
+    mozilla::OriginAttributes attrs;
+    m_principal = mozilla::BasePrincipal::CreateCodebasePrincipal(uri, attrs);
+  }
+
+  NS_IF_ADDREF(*aPrincipal = m_principal);
+  return NS_OK;
+}
+
+NS_IMETHODIMP nsMsgMailNewsUrl::GetPrincipalUri(nsIURI **aPrincipalURI)
+{
+  NS_ENSURE_ARG_POINTER(aPrincipalURI);
+  if (!m_principal) {
+    nsCOMPtr<nsIPrincipal> p;
+    GetPrincipal(getter_AddRefs(p));
+  }
+  if (!m_principal)
+    return NS_ERROR_NULL_POINTER;
+  return m_principal->GetURI(aPrincipalURI);
+}
 
 ////////////////////////////////////////////////////////////////////////////////////
 // Begin nsIMsgMailNewsUrl specific support
@@ -365,8 +419,23 @@ NS_IMETHODIMP nsMsgMailNewsUrl::SetSpec(const nsACString &aSpec)
     else
       mAttachmentFileName = start+FILENAME_PART_LEN;
   }
+
   // Now, set the rest.
-  return m_baseURL->SetSpec(aSpec);
+  nsresult rv = m_baseURL->SetSpec(aSpec);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  // Check whether the URL is in normalised form.
+  nsCOMPtr <nsIMsgMessageUrl> msgUrl;
+  QueryInterface(NS_GET_IID(nsIMsgMessageUrl), getter_AddRefs(msgUrl));
+
+  nsAutoCString principalSpec;
+  if (!msgUrl || NS_FAILED(msgUrl->GetPrincipalSpec(principalSpec))) {
+    // If we can't get the principal spec, never QI this to nsIURIWithPrincipal.
+    m_isPrincipalURL = true;
+  } else {
+    m_isPrincipalURL = spec.Equals(principalSpec);
+  }
+  return NS_OK;
 }
 
 NS_IMETHODIMP nsMsgMailNewsUrl::GetPrePath(nsACString &aPrePath)

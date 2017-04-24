@@ -384,6 +384,11 @@ NS_MSG_BASE nsMsgKey msgKeyFromInt(uint32_t aValue);
 NS_MSG_BASE nsMsgKey msgKeyFromInt(uint64_t aValue);
 
 /**
+ * Helper function to extract query part from URL spec.
+ */
+nsAutoCString MsgExtractQueryPart(nsAutoCString spec, const char* queryToExtract);
+
+/**
  * Helper macro for defining getter/setters. Ported from nsISupportsObsolete.h
  */
 #define NS_IMPL_GETSET(clazz, attr, type, member) \

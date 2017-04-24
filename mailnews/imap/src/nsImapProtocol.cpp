@@ -9253,27 +9253,6 @@ nsImapMockChannel::OnCacheEntryCheck(nsICacheEntry* entry, nsIApplicationCache* 
   return NS_OK;
 }
 
-// Little helper function to extract a query qualifier.
-static nsAutoCString extractQueryPart(nsAutoCString path, const char* queryToExtract)
-{
-  nsAutoCString queryPart;
-  int32_t queryIndex = path.Find(queryToExtract);
-  if (queryIndex == kNotFound)
-    return queryPart;
-
-  int32_t queryEnd = Substring(path, queryIndex + 1).FindChar('&');
-  if (queryEnd == kNotFound)
-    queryEnd = Substring(path, queryIndex + 1).FindChar('?');
-  if (queryEnd == kNotFound) {
-    // Nothing follows, so return from where the query qualifier started.
-    queryPart.Assign(Substring(path, queryIndex));
-  } else {
-    // Return the substring that represents the query qualifier.
-    queryPart.Assign(Substring(path, queryIndex, queryEnd + 1));
-  }
-  return queryPart;
-}
-
 nsresult nsImapMockChannel::OpenCacheEntry()
 {
   nsresult rv;
@@ -9321,15 +9300,15 @@ nsresult nsImapMockChannel::OpenCacheEntry()
   // ?section=2?part=1.2&filename=A01.JPG&type=image/jpeg&filename=A01.JPG
   // ?part=1.2&type=image/jpeg&filename=IMG_C0030.jpg
   // ?header=quotebody&part=1.2&filename=lijbmghmkilicioj.png
-  nsAutoCString partQuery = extractQueryPart(path, "?part=");
+  nsAutoCString partQuery = MsgExtractQueryPart(path, "?part=");
   if (partQuery.IsEmpty()) {
-    partQuery = extractQueryPart(path, "&part=");
+    partQuery = MsgExtractQueryPart(path, "&part=");
     if (!partQuery.IsEmpty()) {
       // ? indicates a part query, so set the first character to that.
       partQuery.SetCharAt('?', 0);
     }
   }
-  nsAutoCString filenameQuery = extractQueryPart(path, "&filename=");
+  nsAutoCString filenameQuery = MsgExtractQueryPart(path, "&filename=");
 
   // Truncate path at either /; or ?
   int32_t ind = path.FindChar('?');

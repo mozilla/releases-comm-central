@@ -161,6 +161,9 @@ interface nsIMsgMessageUrl : nsISupports {
   attribute boolean AddDummyEnvelope;  
   attribute boolean canonicalLineEnding;
   attribute string originalSpec;
+
+  // This is used when creating a principal for the URL.
+  readonly attribute AUTF8String principalSpec;
   
   /**
    *  A message db header for that message.

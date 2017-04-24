@@ -1185,6 +1185,35 @@ NS_IMETHODIMP nsImapUrl::CloneInternal(uint32_t aRefHandlingMode,
   return rv;
 }
 
+NS_IMETHODIMP nsImapUrl::GetPrincipalSpec(nsACString& aPrincipalSpec)
+{
+  // URLs look like this:
+  // imap://user@domain@server:port/fetch>UID>folder>nn
+  // We simply strip any query part beginning with ? & or /;
+  // Normalised spec: imap://user@domain@server:port/fetch>UID>folder>nn
+  nsCOMPtr<nsIMsgMailNewsUrl> mailnewsURL;
+  QueryInterface(NS_GET_IID(nsIMsgMailNewsUrl), getter_AddRefs(mailnewsURL));
+
+  nsAutoCString spec;
+  mailnewsURL->GetSpec(spec);
+
+  // Strip any query part beginning with ? & or /;
+  int32_t ind = spec.Find("/;");
+  if (ind != kNotFound)
+    spec.SetLength(ind);
+
+  ind = spec.FindChar('?');
+  if (ind != kNotFound)
+    spec.SetLength(ind);
+
+  ind = spec.FindChar('&');
+  if (ind != kNotFound)
+    spec.SetLength(ind);
+
+  aPrincipalSpec.Assign(spec);
+  return NS_OK;
+}
+
 NS_IMETHODIMP nsImapUrl::SetUri(const char * aURI)
 {
   mURI= aURI;

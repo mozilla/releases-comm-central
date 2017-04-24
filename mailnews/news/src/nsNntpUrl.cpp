@@ -302,6 +302,24 @@ NS_IMETHODIMP nsNntpUrl::GetKey(nsMsgKey *key)
   return NS_OK;
 }
 
+NS_IMETHODIMP nsNntpUrl::GetPrincipalSpec(nsACString& aPrincipalSpec)
+{
+  // URLs look like this:
+  // news://server:port/folder?group=ggg&key=nnn [ &part=ppp &filename=fff ].
+  // Just strip the part which will also remove the filename.
+  // Normalised spec: news://server:port/folder?group=ggg&key=nnn
+  nsCOMPtr<nsIMsgMailNewsUrl> mailnewsURL;
+  QueryInterface(NS_GET_IID(nsIMsgMailNewsUrl), getter_AddRefs(mailnewsURL));
+
+  nsAutoCString spec;
+  mailnewsURL->GetSpec(spec);
+  int32_t ind = spec.Find("&part");
+  if (ind != kNotFound)
+    spec.SetLength(ind);
+  aPrincipalSpec.Assign(spec);
+  return NS_OK;
+}
+
 NS_IMETHODIMP nsNntpUrl::SetUri(const char * aURI)
 {
   mURI = aURI;

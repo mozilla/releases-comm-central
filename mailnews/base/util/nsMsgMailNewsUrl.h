@@ -17,6 +17,7 @@
 #include "nsIMimeHeaders.h"
 #include "nsIMsgMailNewsUrl.h"
 #include "nsIURL.h"
+#include "nsIURIWithPrincipal.h"
 #include "nsILoadGroup.h"
 #include "nsIMsgSearchSession.h"
 #include "nsICacheEntry.h"
@@ -36,7 +37,8 @@
 #undef  IMETHOD_VISIBILITY
 #define IMETHOD_VISIBILITY NS_VISIBILITY_DEFAULT
 
-class NS_MSG_BASE nsMsgMailNewsUrl : public nsIMsgMailNewsUrl
+class NS_MSG_BASE nsMsgMailNewsUrl : public nsIMsgMailNewsUrl,
+                                     public nsIURIWithPrincipal
 {
 public:
     nsMsgMailNewsUrl();
@@ -45,11 +47,13 @@ public:
     NS_DECL_NSIMSGMAILNEWSURL
     NS_DECL_NSIURI
     NS_DECL_NSIURL
+    NS_DECL_NSIURIWITHPRINCIPAL
 
 protected:
   virtual ~nsMsgMailNewsUrl();
 
   nsCOMPtr<nsIURL> m_baseURL;
+  nsCOMPtr<nsIPrincipal> m_principal;
   nsWeakPtr m_statusFeedbackWeak;
   nsWeakPtr m_msgWindowWeak;
   nsWeakPtr m_loadGroupWeak;
@@ -63,6 +67,7 @@ protected:
   bool m_updatingFolder;
   bool m_msgIsInLocalCache;
   bool m_suppressErrorMsgs;
+  bool m_isPrincipalURL;
 
   // the following field is really a bit of a hack to make
   // open attachments work. The external applications code sometimes tries to figure out the right
