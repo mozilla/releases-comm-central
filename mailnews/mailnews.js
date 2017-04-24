@@ -90,6 +90,13 @@ pref("mail.db.max_open", 30);
 // Should we allow folders over 4GB in size?
 pref("mailnews.allowMboxOver4GB", true);
 
+// For IMAP caching lift the limits since they are designed for HTML pages.
+// Note that the maximum size of a cache entry is limited by
+// max_entry_size and (capacity >> 3), so devided by 8.
+// Larger messages or attachments won't be cached.
+pref("browser.cache.memory.max_entry_size", 15000); //  15 MB
+pref("browser.cache.memory.capacity",      120000); // 120 MB = 8*15 MB
+
 pref("mail.imap.chunk_size",                65536);
 pref("mail.imap.min_chunk_size_threshold",  98304);
 pref("mail.imap.chunk_fast",                2);
