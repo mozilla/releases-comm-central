@@ -9236,6 +9236,17 @@ nsImapMockChannel::OnCacheEntryCheck(nsICacheEntry* entry, nsIApplicationCache* 
                                      uint32_t* aResult)
 {
   *aResult = nsICacheEntryOpenCallback::ENTRY_WANTED;
+
+  // Check concurrent read: We can't read concurrently since we don't know
+  // that the entry will ever be written successfully. It may be aborted
+  // due to a size limitation. If reading concurrently, the following function
+  // will return NS_ERROR_IN_PROGRESS. Then we tell the cache to wait until
+  // the write is finished.
+  int64_t size = 0;
+  nsresult rv = entry->GetDataSize(&size);
+  if (rv == NS_ERROR_IN_PROGRESS)
+    *aResult = nsICacheEntryOpenCallback::RECHECK_AFTER_WRITE_FINISHED;
+
   return NS_OK;
 }
 
