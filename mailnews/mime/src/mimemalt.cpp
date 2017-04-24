@@ -390,8 +390,9 @@ MimeMultipartAlternative_display_part_p(MimeObject *self,
       prefBranch->GetBoolPref("mailnews.display.prefer_plaintext",
                               &prefer_plaintext);
     }
-    prefer_plaintext = prefer_plaintext
-           && (self->options->format_out != nsMimeOutput::nsMimeMessageSaveAs);
+    prefer_plaintext = prefer_plaintext &&
+           (self->options->format_out != nsMimeOutput::nsMimeMessageSaveAs) &&
+           (self->options->format_out != nsMimeOutput::nsMimeMessageRaw);
 
     priority = MimeMultipartAlternative_prioritize_part(ct, prefer_plaintext);
   }
