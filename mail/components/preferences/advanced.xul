@@ -91,6 +91,10 @@
                   name="mail.purge_threshhold_mb" type="int"/>
       <preference id="browser.cache.disk.capacity"
                   name="browser.cache.disk.capacity" type="int"/>
+      <preference id="browser.cache.disk.smart_size.enabled"
+                  name="browser.cache.disk.smart_size.enabled"
+                  inverted="true"
+                  type="bool"/>
 #ifdef MOZ_UPDATER
       <!-- Update tab -->
       <preference id="app.update.enabled" name="app.update.enabled"
@@ -310,7 +314,14 @@ type="bool"/>
                       label="&clearCacheNow.label;" accesskey="&clearCacheNow.accesskey;"
                       oncommand="gAdvancedPane.clearCache();"/>
             </hbox>
-            <hbox align="center">
+            <hbox>
+              <checkbox preference="browser.cache.disk.smart_size.enabled"
+                        id="allowSmartSize"
+                        onsyncfrompreference="return gAdvancedPane.readSmartSizeEnabled();"
+                        label="&overrideSmartCacheSize.label;"
+                        accesskey="&overrideSmartCacheSize.accesskey;"/>
+            </hbox>
+            <hbox align="center" class="indent">
               <label id="useCacheBefore" control="cacheSize"
                      accesskey="&useCacheBefore.accesskey;" value="&useCacheBefore.label;"/>
               <textbox id="cacheSize" type="number" size="4" max="1024"

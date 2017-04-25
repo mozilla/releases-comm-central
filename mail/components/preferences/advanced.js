@@ -186,6 +186,21 @@ var gAdvancedPane = {
     } catch (e) {}
   },
 
+  updateCacheSizeUI: function (smartSizeEnabled)
+  {
+    document.getElementById("useCacheBefore").disabled = smartSizeEnabled;
+    document.getElementById("cacheSize").disabled = smartSizeEnabled;
+    document.getElementById("useCacheAfter").disabled = smartSizeEnabled;
+  },
+
+  readSmartSizeEnabled: function ()
+  {
+    // The smart_size.enabled preference element is inverted="true", so its
+    // value is the opposite of the actual pref value
+    var disabled = document.getElementById("browser.cache.disk.smart_size.enabled").value;
+    this.updateCacheSizeUI(!disabled);
+  },
+
   /**
    * Converts the cache size from units of KB to units of MB and returns that
    * value.
