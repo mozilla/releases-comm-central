@@ -35,7 +35,7 @@
        title="&importTitle.label;"
        description="&importShortDesc.label;"/>
 
-  <deck id="stateDeck" selectedIndex="0">
+  <deck id="stateDeck" selectedIndex="0" style="min-height: 30em">
     <vbox class="wizard-box">
       <description>&importDescription1.label;</description>
       <description>&importDescription2.label;</description>
