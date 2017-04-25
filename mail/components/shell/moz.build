@@ -13,7 +13,6 @@ DEFINES['MOZ_APP_NAME'] = '"%s"' % CONFIG['MOZ_APP_NAME']
 
 if CONFIG['OS_ARCH'] == 'WINNT':
     SOURCES += [
-        '../../../mozilla/other-licenses/nsis/Contrib/CityHash/cityhash/city.cpp',
         'nsMailWinIntegration.cpp',
     ]
     LOCAL_INCLUDES += [
