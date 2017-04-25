@@ -14,7 +14,7 @@
 <!ENTITY maximumConnectionsNumber.accesskey "M">
 <!ENTITY forceSelect.label "Send IMAP select to server when checking for new mail">
 <!ENTITY forceSelect.tooltip "Some servers need an additional IMAP select so new email is reliably received, or is shown as read after it has been read on another device. Selecting this option will cause some increased network traffic.">
-<!ENTITY forceSelect.accesskey "F">
+<!ENTITY forceSelect.accesskey "S">
 <!-- LOCALIZATION NOTE (namespaceDesc.label): Do not translate "IMAP" -->
 <!ENTITY namespaceDesc.label "These preferences specify the namespaces on your IMAP server">
 <!ENTITY personalNamespace.label "Personal namespace:">
