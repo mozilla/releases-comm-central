@@ -178,7 +178,7 @@ function _synthesizeDragEvent(aType, aWindow, aDispatcher, aDt, aArgs)
   else
     screenY = aDispatcher.boxObject.ScreenY;
 
-  let event = aWindow.document.createEvent("DragEvents");
+  let event = aWindow.document.createEvent("DragEvent");
   event.initDragEvent(aType, true, true, aWindow, 0,
       screenX, screenY, 0, 0, false, false, false, false, 0, null, aDt);
   aDispatcher.dispatchEvent(event);

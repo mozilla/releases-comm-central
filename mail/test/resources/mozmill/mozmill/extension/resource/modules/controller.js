@@ -1232,18 +1232,18 @@ MozMillController.prototype.dragToElement = function(src, dest, offsetX,
   EventUtils.synthesizeMouse(srcElement, offsetX, offsetY, { type: "mousemove" }, aWindow);
   aWindow.removeEventListener("dragstart", trapDrag, true);
 
-  var event = aWindow.document.createEvent("DragEvents");
+  var event = aWindow.document.createEvent("DragEvent");
   event.initDragEvent("dragenter", true, true, aWindow, 0, 0, 0, 0, 0, false, false, false, false, 0, null, dataTransfer);
   destElement.dispatchEvent(event);
 
-  var event = aWindow.document.createEvent("DragEvents");
+  var event = aWindow.document.createEvent("DragEvent");
   event.initDragEvent("dragover", true, true, aWindow, 0, 0, 0, 0, 0, false, false, false, false, 0, null, dataTransfer);
   if (destElement.dispatchEvent(event)) {
     EventUtils.synthesizeMouse(destElement, offsetX, offsetY, { type: "mouseup" }, aWindow);
     return "none";
   }
 
-  event = aWindow.document.createEvent("DragEvents");
+  event = aWindow.document.createEvent("DragEvent");
   event.initDragEvent("drop", true, true, aWindow, 0, 0, 0, 0, 0, false, false, false, false, 0, null, dataTransfer);
   destElement.dispatchEvent(event);
   EventUtils.synthesizeMouse(destElement, offsetX, offsetY, { type: "mouseup" }, aWindow);
