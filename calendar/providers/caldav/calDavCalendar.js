@@ -1556,6 +1556,7 @@ calDavCalendar.prototype = {
     //
 
     oauthConnect: function(authSuccessCb, authFailureCb, aRefresh=false) {
+        let self = this;
         // Use the async prompter to avoid multiple master password prompts
         let promptlistener = {
             onPromptStartAsync: function(callback) {
