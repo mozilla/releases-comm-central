@@ -36,6 +36,7 @@
 #include <algorithm>
 #include "nsIOutputStream.h"
 #include "nsIInputStream.h"
+#include "nsPrintfCString.h"
 
 
 //////////////////////////////////////////////////////////////////////////////
@@ -1100,6 +1101,14 @@ nsOfflineStoreCompactState::OnStopRequest(nsIRequest *request, nsISupports *ctxt
   if (NS_FAILED(rv)) goto done;
   rv = GetMessage(getter_AddRefs(msgHdr));
   if (NS_FAILED(rv)) goto done;
+
+  // This is however an unexpected condition, so let's print a warning.
+  if (rv == NS_MSG_ERROR_MSG_NOT_OFFLINE) {
+    nsAutoCString spec;
+    uri->GetSpec(spec);
+    nsPrintfCString msg("Message expectedly not available offline: %s", spec.get());
+    NS_WARNING(msg.get());
+  }
 
   if (msgHdr)
   {
