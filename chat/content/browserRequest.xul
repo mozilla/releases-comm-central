@@ -30,7 +30,7 @@
     <description id="headerMessage"/>
     </vbox>
   </hbox>
-  <browser type="content" disablehistory="true" src="about:blank" id="requestFrame" flex="1"/>
+  <browser type="content" src="about:blank" id="requestFrame" flex="1"/>
   <statusbar>
     <statusbarpanel id="security-display" crop="end" flex="1"/>
     <statusbarpanel id="security-status" crop="end" collapsed="true"/>
