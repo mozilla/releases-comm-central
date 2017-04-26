@@ -49,6 +49,7 @@
 #include "nsIDocShellLoadInfo.h"
 #include "nsIDocShellTreeItem.h"
 #include "nsIWebNavigation.h"
+#include "nsContentUtils.h"
 
 // mail
 #include "nsIMsgMailNewsUrl.h"
@@ -451,7 +452,8 @@ nsMessenger::OpenURL(const nsACString& aURL)
                        nsIWebNavigation::LOAD_FLAGS_IS_LINK, // Load flags
                        nullptr,                               // Referring URI
                        nullptr,                               // Post stream
-                       nullptr);                              // Extra headers
+                       nullptr,                               // Extra headers
+                       nsContentUtils::GetSystemPrincipal());
   return rv;
 }
 

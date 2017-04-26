@@ -28,6 +28,7 @@
 #include "plbase64.h"
 #include "nsMsgI18N.h"
 #include "nsIWebNavigation.h"
+#include "nsContentUtils.h"
 #include "nsMsgContentPolicy.h"
 #include "nsComponentManagerUtils.h"
 #include "nsServiceManagerUtils.h"
@@ -528,7 +529,8 @@ nsMsgWindow::DisplayHTMLInMessagePane(const nsAString& title, const nsAString& b
 
   return webNav->LoadURI(NS_ConvertASCIItoUTF16(dataSpec).get(),
                          nsIWebNavigation::LOAD_FLAGS_NONE,
-                         nullptr, nullptr, nullptr);
+                         nullptr, nullptr, nullptr,
+                         nsContentUtils::GetSystemPrincipal());
 }
 
 NS_IMPL_GETSET(nsMsgWindow, Stopped, bool, m_stopped)

@@ -35,6 +35,7 @@
 #include "nsIDocShellTreeOwner.h"
 #include "nsIDocShellTreeItem.h"
 #include "nsIWebNavigation.h"
+#include "nsContentUtils.h"
 #include "nsIChannel.h"
 #include "nsIContentViewerFile.h"
 #include "nsServiceManagerUtils.h"
@@ -500,7 +501,8 @@ nsMsgPrintEngine::FireThatLoadOperation(const nsString& uri)
                            nsIWebNavigation::LOAD_FLAGS_NONE, // Load flags
                            nullptr,                            // Referring URI
                            nullptr,                            // Post data
-                           nullptr);                           // Extra headers
+                           nullptr,                            // Extra headers
+                           nsContentUtils::GetSystemPrincipal());
   }
   return rv;
 }
