@@ -83,6 +83,11 @@
   border-top: 1px solid ThreeDShadow;
 }
 
+#attachmentBar {
+  background-color: #fff;
+  color: -moz-dialogtext;
+}
+
 #attachment-splitter {
   min-height: 7px;
   border-top: 1px solid #C8C8C8;
