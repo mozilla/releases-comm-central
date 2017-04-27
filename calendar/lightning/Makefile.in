@@ -5,7 +5,7 @@
 # Calendar builders currently use STRIP_XPI to reduce the binary component in
 # Lightning.
 
-XPI_PKGNAME = lightning-$(LIGHTNING_VERSION).$(AB_CD).$(MOZ_PKG_PLATFORM)
+XPI_PKGNAME = lightning-$(LIGHTNING_VERSION).$(AB_CD)
 XPI_VERSION = $(LIGHTNING_VERSION)
 
 XPI_EM_ID = {e2fda1a4-762b-4020-b5ad-a41df1933103}
@@ -62,7 +62,6 @@ DEFINES += -DTHUNDERBIRD_VERSION=$(THUNDERBIRD_VERSION) \
            -DSEAMONKEY_VERSION=$(SEAMONKEY_VERSION) \
            -DSEAMONKEY_MAXVERSION=$(SEAMONKEY_MAXVERSION) \
            -DLIGHTNING_VERSION=$(LIGHTNING_VERSION) \
-           -DTARGET_PLATFORM=$(OS_TARGET)_$(TARGET_XPCOM_ABI) \
            -DXPI_EM_ID="$(XPI_EM_ID)" \
            $(NULL)
 

@@ -259,10 +259,8 @@
            class="mail-toolbox"
            mode="full"
            defaultmode="full"
-#ifdef XP_MACOSX
            iconsize="small"
            defaulticonsize="small"
-#endif
            labelalign="end"
            defaultlabelalign="end">
 

@@ -286,8 +286,7 @@
             </hbox>
         </groupbox>
 
-#ifndef XP_MACOSX
-        <groupbox>
+        <groupbox id="systemColorsGroupbox">
             <caption label="&pref.accessibility.label;"/>
             <hbox align="center">
                 <checkbox id="systemColors" pack="end"
@@ -296,7 +295,6 @@
                           preference="calendar.view.useSystemColors"/>
             </hbox>
         </groupbox>
-#endif
 
         <groupbox>
             <caption label="&pref.eventsandtasks.label;"/>

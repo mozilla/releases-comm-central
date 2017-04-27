@@ -5,6 +5,7 @@
 Components.utils.import("resource://gre/modules/iteratorUtils.jsm");
 Components.utils.import("resource://gre/modules/Services.jsm");
 Components.utils.import("resource://gre/modules/Preferences.jsm");
+Components.utils.import("resource://gre/modules/AppConstants.jsm");
 
 /* exported commonInitCalendar, commonFinishCalendar */
 
@@ -46,6 +47,15 @@ function commonInitCalendar() {
 
     // Set up window pref observers
     calendarWindowPrefs.init();
+
+    // Set up the available modifiers for each platform.
+    let keys = document.querySelectorAll("#calendar-keys > key");
+    let platform = AppConstants.platform;
+        for (let key of keys) {
+            if (key.hasAttribute("modifiers-" + platform)) {
+                key.setAttribute("modifiers", key.getAttribute("modifiers-" + platform));
+            }
+        }
 
     /* Ensure the new items commands state can be setup properly even when no
      * calendar support refreshes (i.e. the "onLoad" notification) or when none

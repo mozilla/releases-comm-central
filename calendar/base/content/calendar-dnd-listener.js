@@ -7,6 +7,7 @@ Components.utils.import("resource://calendar/modules/calAlarmUtils.jsm");
 Components.utils.import("resource://gre/modules/Services.jsm");
 Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 Components.utils.import("resource://gre/modules/Preferences.jsm");
+Components.utils.import("resource://gre/modules/AppConstants.jsm");
 
 var itemConversion = {
 
@@ -240,10 +241,10 @@ calDNDBaseObserver.prototype = {
         var destCal = getSelectedCalendar();
         switch (bestFlavor.value) {
             case "text/calendar":
-#ifdef XP_MACOSX
-                // Mac likes to convert all \r to \n, we need to reverse this.
-                data = data.data.replace(/\n\n/g, "\r\n");
-#endif
+                if (AppConstants.platform == "macosx") {
+                    // Mac likes to convert all \r to \n, we need to reverse this.
+                    data = data.data.replace(/\n\n/g, "\r\n");
+                }
                 var parser = Components.classes["@mozilla.org/calendar/ics-parser;1"]
                              .createInstance(Components.interfaces.calIIcsParser);
                 parser.parseString(data);

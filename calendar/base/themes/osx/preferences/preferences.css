@@ -124,7 +124,7 @@ prefpane .groupbox-title {
 }
 
 caption {
-    border-bottom: 1px solid #ececec;    
+    border-bottom: 1px solid #ececec;
     padding-top: 4px !important;
     padding-bottom: 0 !important;
     padding-inline-start: 4px !important;
@@ -173,4 +173,8 @@ tabpanels {
 
 tabpanels caption {
     background-color: -moz-Dialog;
+}
+
+#systemColorsGroupbox {
+    display: none;
 }

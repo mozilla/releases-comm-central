@@ -8,6 +8,7 @@ var FIREFOX_UID = "{ec8030f7-c20a-464f-9b0e-13a3a9e97384}";
 Components.utils.import("resource://calendar/modules/calUtils.jsm");
 Components.utils.import("resource://gre/modules/Services.jsm");
 Components.utils.import("resource://gre/modules/Preferences.jsm");
+Components.utils.import("resource://gre/modules/AppConstants.jsm");
 
 //
 // The front-end wizard bits.
@@ -196,16 +197,16 @@ var gDataMigrator = {
         migLOG("DMs: " + DMs.length);
 
         var url = "chrome://calendar/content/calendar-migration-dialog.xul";
-#ifdef XP_MACOSX
-        var win = Services.wm.getMostRecentWindow("Calendar:MigrationWizard");
-        if (win) {
-            win.focus();
+        if (AppConstants.platform == "macosx") {
+            var win = Services.wm.getMostRecentWindow("Calendar:MigrationWizard");
+            if (win) {
+                win.focus();
+            } else {
+                openDialog(url, "migration", "centerscreen,chrome,resizable=no,width=500,height=400", DMs);
+            }
         } else {
-            openDialog(url, "migration", "centerscreen,chrome,resizable=no,width=500,height=400", DMs);
+            openDialog(url, "migration", "modal,centerscreen,chrome,resizable=no,width=500,height=400", DMs);
         }
-#else
-        openDialog(url, "migration", "modal,centerscreen,chrome,resizable=no,width=500,height=400", DMs);
-#endif
     },
 
     /**

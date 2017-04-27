@@ -117,10 +117,8 @@
            class="mail-toolbox"
            mode="full"
            defaultmode="full"
-#ifdef XP_MACOSX
            iconsize="small"
            defaulticonsize="small"
-#endif
            labelalign="end"
            defaultlabelalign="end">
     <toolbarpalette id="CalendarToolbarPalette">
@@ -176,9 +174,7 @@
              fullscreentoolbar="true" mode="full"
              customizable="true"
              context="calendar-toolbar-context"
-#ifdef XP_MACOSX
              iconsize="small"
-#endif
              defaultset="calendar-synchronize-button,calendar-newevent-button,calendar-newtask-button,calendar-edit-button,calendar-delete-button,spring,calendar-appmenu-button"/>
     <toolbarset id="calendarToolbars" context="calendar-toolbar-context"/>
   </toolbox>
@@ -187,10 +183,8 @@
            class="mail-toolbox"
            mode="full"
            defaultmode="full"
-#ifdef XP_MACOSX
            iconsize="small"
            defaulticonsize="small"
-#endif
            labelalign="end"
            defaultlabelalign="end">
     <toolbarpalette id="TaskToolbarPalette">
@@ -236,9 +230,7 @@
              fullscreentoolbar="true" mode="full"
              customizable="true"
              context="task-toolbar-context"
-#ifdef XP_MACOSX
              iconsize="small"
-#endif
              defaultset="task-synchronize-button,task-newevent-button,task-newtask-button,task-edit-button,task-delete-button,spring,task-appmenu-button"/>
     <toolbarset id="taskToolbars" context="task-toolbar-context"/>
   </toolbox>
