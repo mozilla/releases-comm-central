@@ -287,7 +287,7 @@ function goToDate(controller, year, month, day) {
 
     let lastDayInFirstRow = lookup(`
         ${miniMonth}/anon({"anonid":"minimonth-calendar"})/[3]/[15]
-    `).getNode().getAttribute("aria-label");
+    `).getNode().innerHTML;
 
     let positionOfFirst = 7 - lastDayInFirstRow;
     let dateColumn = (positionOfFirst + day - 1) % 7;
