@@ -28,7 +28,7 @@
 #include "plbase64.h"
 #include "nsMsgI18N.h"
 #include "nsIWebNavigation.h"
-#include "nsContentUtils.h"
+#include "NullPrincipal.h"
 #include "nsMsgContentPolicy.h"
 #include "nsComponentManagerUtils.h"
 #include "nsServiceManagerUtils.h"
@@ -527,10 +527,15 @@ nsMsgWindow::DisplayHTMLInMessagePane(const nsAString& title, const nsAString& b
   nsCOMPtr<nsIWebNavigation> webNav(do_QueryInterface(docShell));
   NS_ENSURE_TRUE(webNav, NS_ERROR_FAILURE);
 
+  nsresult rv;
+  nsCOMPtr<nsIPrincipal> nullPrincipal =
+    do_CreateInstance("@mozilla.org/nullprincipal;1", &rv);
+  NS_ENSURE_SUCCESS(rv, rv);
+
   return webNav->LoadURI(NS_ConvertASCIItoUTF16(dataSpec).get(),
                          nsIWebNavigation::LOAD_FLAGS_NONE,
                          nullptr, nullptr, nullptr,
-                         nsContentUtils::GetSystemPrincipal());
+                         nullPrincipal);
 }
 
 NS_IMPL_GETSET(nsMsgWindow, Stopped, bool, m_stopped)

@@ -7,7 +7,7 @@
 
 #include "msgCore.h" // for pre-compiled headers
 #include "nsCOMPtr.h"
-#include "nsIScriptSecurityManager.h"
+#include "nsContentUtils.h"
 #include <stdio.h>
 #include "nscore.h"
 #include "nsIFactory.h"
@@ -317,18 +317,10 @@ nsURLFetcher::FireURLRequest(nsIURI *aURL, nsIFile *localFile, nsIOutputStream *
   nsCOMPtr<nsIURILoader> pURILoader (do_GetService(NS_URI_LOADER_CONTRACTID));
   NS_ENSURE_TRUE(pURILoader, NS_ERROR_FAILURE);
 
-  nsCOMPtr<nsIScriptSecurityManager>
-    secMan(do_GetService(NS_SCRIPTSECURITYMANAGER_CONTRACTID, &rv));
-  NS_ENSURE_SUCCESS(rv,rv);
-
-  nsCOMPtr<nsIPrincipal> systemPrincipal;
-  rv = secMan->GetSystemPrincipal(getter_AddRefs(systemPrincipal));
-  NS_ENSURE_SUCCESS(rv,rv);
-
   nsCOMPtr<nsIChannel> channel;
   rv = NS_NewChannel(getter_AddRefs(channel),
                      aURL,
-                     systemPrincipal,
+                     nsContentUtils::GetSystemPrincipal(),
                      nsILoadInfo::SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
                      nsIContentPolicy::TYPE_OTHER,
                      nullptr, // aLoadGroup
