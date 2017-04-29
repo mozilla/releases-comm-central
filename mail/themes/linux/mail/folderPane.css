@@ -3,13 +3,13 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /* ::::: Folder Pane ::::: */
-treechildren::-moz-tree-image {
+#folderTree > treechildren::-moz-tree-image {
   width: 16px;
   height: 16px;
 }
 
 /* reduce the padding set from messenger.css */
-#folderTree treechildren::-moz-tree-cell-text {
+#folderTree > treechildren::-moz-tree-cell-text {
   padding-inline-start: 2px;
 }
 
