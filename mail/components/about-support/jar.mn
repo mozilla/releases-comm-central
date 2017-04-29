@@ -8,3 +8,4 @@ messenger.jar:
     content/messenger/about-support/export.js                  (content/export.js)
 *   content/messenger/about-support/aboutSupport.xhtml         (content/aboutSupport.xhtml)
     content/messenger/about-support/aboutSupport.js            (content/aboutSupport.js)
+    content/messenger/about-support/aboutSupportOverlay.xul    (aboutSupportOverlay.xul)

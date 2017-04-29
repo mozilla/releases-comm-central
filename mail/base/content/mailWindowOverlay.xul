@@ -23,6 +23,7 @@
 <?xul-overlay href="chrome://messenger/content/macMenuOverlay.xul"?>
 #endif
 <?xul-overlay href="chrome://messenger/content/baseMenuOverlay.xul"?>
+<?xul-overlay href="chrome://messenger/content/about-support/aboutSupportOverlay.xul"?>
 
 <!DOCTYPE overlay [
   <!ENTITY % messengerDTD SYSTEM "chrome://messenger/locale/messenger.dtd">
