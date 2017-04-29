@@ -1045,6 +1045,14 @@
       <prefs/>
       <versionRange minVersion="0" maxVersion="*" severity="1"/>
     </emItem>
+    <emItem blockID="8c8af415-46db-40be-a66e-38e3762493bd" id="{0D2172E4-C5AE-465A-B80D-53A840275B5E}">
+      <prefs/>
+      <versionRange minVersion="0" maxVersion="0.6.999" severity="1">
+        <targetApplication id="{3550f703-e582-4d05-9a08-453d09bdfdc6}">
+          <versionRange maxVersion="*" minVersion="52.0a1"/>
+        </targetApplication>
+      </versionRange>
+    </emItem>
     <emItem blockID="i5" id="support@daemon-tools.cc">
       <prefs/>
       <versionRange minVersion="0" maxVersion="1.0.0.5" severity="1"/>
@@ -1180,7 +1188,7 @@
     </emItem>
     <emItem blockID="9e86d1ff-727a-45e3-9fb6-17f32666daf2" id="msktbird@mcafee.com">
       <prefs/>
-      <versionRange minVersion="0" maxVersion="2.0" severity="1">
+      <versionRange minVersion="0" maxVersion="2.0" severity="3">
         <targetApplication id="{3550f703-e582-4d05-9a08-453d09bdfdc6}">
           <versionRange maxVersion="*" minVersion="0"/>
         </targetApplication>
