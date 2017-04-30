@@ -38,6 +38,9 @@ function installInto(module) {
   module.assert_next_nodes = assert_next_nodes;
   module.assert_previous_nodes = assert_previous_nodes;
   module.wait_for_element_enabled = wait_for_element_enabled;
+  module.check_element_visible = check_element_visible;
+  module.wait_for_element_visible = wait_for_element_visible;
+  module.wait_for_element_invisible = wait_for_element_invisible;
   module.collapse_panes = collapse_panes;
 }
 
@@ -166,6 +169,43 @@ function wait_for_element_enabled(aController, aElement, aEnabled) {
                       "Element should have eventually been " +
                       (aEnabled ? "enabled" : "disabled") +
                       "; id=" + aElement.id);
+}
+
+function check_element_visible(aController, aId) {
+  let element = aController.e(aId);
+  if (!element)
+    return false;
+
+  while (element) {
+    if (element.hidden || element.collapsed ||
+        (element.clientWidth == 0) || (element.clientHeight == 0) ||
+         (aController.window.getComputedStyle(element).display == "none"))
+      return false;
+    element = element.parentElement;
+  }
+  return true;
+}
+
+/**
+ * Wait for a particular element to become fully visible.
+ *
+ * @param aController  the controller parent of the element
+ * @param aId          id of the element to wait for
+ */
+function wait_for_element_visible(aController, aId) {
+  mc.waitFor(function() { return check_element_visible(aController, aId); },
+             "Timed out waiting for element with ID=" + aId + " to become visible");
+}
+
+/**
+ * Wait for a particular element to become fully invisible.
+ *
+ * @param aController  the controller parent of the element
+ * @param aId          id of the element to wait for
+ */
+function wait_for_element_invisible(aController, aId) {
+  mc.waitFor(function() { return !check_element_visible(aController, aId); },
+             "Timed out waiting for element with ID=" + aId + " to become invisible");
 }
 
 /**

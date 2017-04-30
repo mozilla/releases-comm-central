@@ -20,11 +20,7 @@ var MODULE_REQUIRES = ['folder-display-helpers',
                        'keyboard-helpers',
                        'dom-helpers'];
 
-var controller = {};
-var mozmill = {};
 var elib = {};
-Cu.import('resource://mozmill/modules/controller.js', controller);
-Cu.import('resource://mozmill/modules/mozmill.js', mozmill);
 Cu.import('resource://mozmill/modules/elementslib.js', elib);
 Cu.import('resource://gre/modules/Services.jsm');
 Cu.import('resource:///modules/iteratorUtils.jsm');
@@ -60,12 +56,9 @@ var gOldAcceptLangs = Services.prefs.getCharPref(kAcceptedLanguage);
 var gNumAccounts;
 
 function setupModule(module) {
-  collector.getModule('folder-display-helpers').installInto(module);
-  collector.getModule('content-tab-helpers').installInto(module);
-  collector.getModule('window-helpers').installInto(module);
-  collector.getModule('newmailaccount-helpers').installInto(module);
-  collector.getModule('keyboard-helpers').installInto(module);
-  collector.getModule('dom-helpers').installInto(module);
+  for (let lib of MODULE_REQUIRES) {
+    collector.getModule(lib).installInto(module);
+  }
 
   // Make sure we enable the Account Provisioner.
   Services.prefs.setBoolPref(kProvisionerEnabledPref, true);

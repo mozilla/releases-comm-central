@@ -5,7 +5,8 @@
 var MODULE_NAME = "newmailaccount-helpers";
 
 var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers"];
+var MODULE_REQUIRES = ["folder-display-helpers", "keyboard-helpers",
+                       "dom-helpers"];
 
 var elib = {};
 Cu.import('resource://mozmill/modules/elementslib.js', elib);
@@ -14,12 +15,13 @@ Cu.import('resource:///modules/iteratorUtils.jsm');
 Cu.import('resource:///modules/mailServices.js');
 Cu.import('resource://gre/modules/XPCOMUtils.jsm');
 
-var mc, fdh, kbh;
+var mc, fdh, kbh, dh;
 
 function setupModule(module) {
   fdh = collector.getModule('folder-display-helpers');
   fdh.installInto(module);
   kbh = collector.getModule('keyboard-helpers');
+  dh = collector.getModule("dom-helpers");
   mc = fdh.mc;
 }
 
@@ -28,8 +30,6 @@ function installInto(module) {
 
   module.wait_for_provider_list_loaded = wait_for_provider_list_loaded;
   module.wait_for_search_ready = wait_for_search_ready;
-  module.wait_for_element_visible = wait_for_element_visible;
-  module.wait_for_element_invisible = wait_for_element_invisible;
   module.open_provisioner_window = open_provisioner_window;
   module.wait_for_the_wizard_to_be_closed = wait_for_the_wizard_to_be_closed;
   module.assert_links_shown = assert_links_shown;
@@ -59,33 +59,6 @@ function wait_for_search_ready(aController) {
     return !aController.e("name").disabled;
   },
             "Timed out waiting for the search input field to be enabled");
-}
-
-function _element_visible(aController, aId) {
-  let element = aController.e(aId);
-  return element &&
-         !element.hidden &&
-         aController.window.getComputedStyle(element).display != "none";
-}
-
-/* Wait for a particular element to become fully visible.
- */
-function wait_for_element_visible(aController, aId) {
-  mc.waitFor(function() {
-    return _element_visible(aController, aId);
-  },
-             "Timed out waiting for element with ID=" + aId
-             + " to be enabled");
-}
-
-/* Wait for a particular element to become fully invisible.
- */
-function wait_for_element_invisible(aController, aId) {
-  mc.waitFor(function() {
-    return !_element_visible(aController, aId);
-  },
-             "Timed out waiting for element with ID=" + aId
-             + " to become invisible");
 }
 
 /* Opens the account provisioner by selecting it from the File/Edit menu.
@@ -148,10 +121,12 @@ function wait_for_search_results(w) {
 
 /* Waits for the account provisioner to be displaying the offline
  * message.
+ *
+ * @param w  the controller parent of the element
  */
 function wait_to_be_offline(w) {
   mc.waitFor(function() {
-    return _element_visible(w, "cannotConnectMessage");
+    return dh.check_element_visible(w, "cannotConnectMessage");
   }, "Timed out waiting for the account provisioner to be in "
     + "offline mode.");
 }
