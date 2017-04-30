@@ -37,3 +37,8 @@
   padding-top: 0;
   padding-bottom: 1px;
 }
+
+#rssSubscriptionsList > treechildren::-moz-tree-image {
+  width: 16px;
+  height: 16px;
+}
