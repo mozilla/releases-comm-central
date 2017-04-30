@@ -5361,10 +5361,9 @@ function InitEditor()
   // Control insertion of line breaks.
   editor.returnInParagraphCreatesNewParagraph =
     Services.prefs.getBoolPref("editor.CR_creates_new_p");
-  editor.document.execCommand("defaultparagraphseparator", false,
-    gMsgCompose.composeHTML &&
-    Services.prefs.getBoolPref("mail.compose.default_to_paragraph") ?
-                               "p" : "br");
+  // Traditionally we want <br> elements for newlines, unless we're
+  // splitting a paragraph (which is not affected by this setting).
+  editor.document.execCommand("defaultparagraphseparator", false, "br");
 
   editor.QueryInterface(nsIEditorStyleSheets);
   // We use addOverrideStyleSheet rather than addStyleSheet so that we get
