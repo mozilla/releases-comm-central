@@ -10,9 +10,6 @@ Components.utils.import("resource://calendar/modules/calUtils.jsm");
 function calDateTimeFormatter() {
     this.wrappedJSObject = this;
     this.mDateStringBundle = Services.strings.createBundle("chrome://calendar/locale/dateFormat.properties");
-    this.mLocale = Components.classes["@mozilla.org/chrome/chrome-registry;1"]
-                             .getService(Components.interfaces.nsIXULChromeRegistry)
-                             .getSelectedLocale("global", true);
 }
 var calDateTimeFormatterClassID = Components.ID("{4123da9a-f047-42da-a7d0-cc4175b9f36a}");
 var calDateTimeFormatterInterfaces = [Components.interfaces.calIDateTimeFormatter];
@@ -34,20 +31,17 @@ calDateTimeFormatter.prototype = {
 
     formatDateShort: function(aDate) {
         let dtOptions = { year: 'numeric', month: '2-digit', day: '2-digit' };
-        dtOptions = this._addTzOption(aDate, dtOptions);
-        return cal.dateTimeToJsDate(aDate).toLocaleDateString(undefined, dtOptions);
+        return this._inTimezone(aDate, dtOptions);
     },
 
     formatDateLong: function(aDate) {
         let dtOptions = { weekday: 'long', year: 'numeric', month: 'long', day: '2-digit' };
-        dtOptions = this._addTzOption(aDate, dtOptions);
-        return cal.dateTimeToJsDate(aDate).toLocaleDateString(this.mLocale, dtOptions);
+        return this._inTimezone(aDate, dtOptions);
     },
 
     formatDateWithoutYear: function(aDate) {
         let dtOptions = { month: 'short', day: 'numeric' };
-        dtOptions = this._addTzOption(aDate, dtOptions);
-        return cal.dateTimeToJsDate(aDate).toLocaleDateString(this.mLocale, dtOptions);
+        return this._inTimezone(aDate, dtOptions);
     },
 
     formatTime: function(aDate) {
@@ -56,8 +50,7 @@ calDateTimeFormatter.prototype = {
         }
 
         let timeOptions = { hour: 'numeric', minute: '2-digit' };
-        timeOptions = this._addTzOption(aDate, timeOptions);
-        return cal.dateTimeToJsDate(aDate).toLocaleTimeString(undefined, timeOptions);
+        return this._inTimezone(aDate, timeOptions);
     },
 
     formatDateTime: function(aDate) {
@@ -73,20 +66,20 @@ calDateTimeFormatter.prototype = {
     },
 
     /**
-     * _addTzOption adds a timezone to apply on Intl.DateTimeFormat formatting operations to the
-     * provided options argument based on the timezone of the date argument.
+     * _inTimezone returns a string with date formatted
      *
      * @param  {calIDateTime} aDate    The date object holding the tz information
-     * @param  {JsObject}     aOptions The options object to extend.
-     * @return {JsObject}              The object containing the formatting options.
+     * @param  {JsObject}     aOptions The options object for formatting.
+     * @return {String}                The date as a string.
      */
-    _addTzOption: function(aDate, aOptions) {
+    _inTimezone: function(aDate, aOptions) {
         let timezone = aDate.timezone;
         // we set the tz only if we have a valid tz - otherwise localtime will be used on formatting.
         if (timezone && (timezone.isUTC || timezone.icalComponent)) {
             aOptions.timeZone = timezone.tzid;
         }
-        return aOptions;
+
+        return cal.dateTimeToJsDate(aDate).toLocaleString(undefined, aOptions);
     },
 
     formatTimeInterval: function(aStartDate, aEndDate) {
