@@ -1,4 +1,7 @@
-Cu.import("resource:///modules/Sanitizer.jsm", this);
+Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
+Components.utils.import("resource:///modules/Sanitizer.jsm", this);
+XPCOMUtils.defineLazyModuleGetter(this, "FormHistory",
+                                  "resource://gre/modules/FormHistory.jsm");
 
 var sanTests = {
   cache: {
@@ -162,13 +165,45 @@ var sanTests = {
   formdata: {
     desc: "Form history",
     setup: function() {
-      this.forms = Components.classes["@mozilla.org/satchel/form-history;1"]
-                             .getService(Components.interfaces.nsIFormHistory2);
-      this.forms.addEntry("Sanitizer", "Foo");
+      // Adds a form entry to history.
+      function promiseAddFormEntry(aName, aValue) {
+        return new Promise((resolve, reject) =>
+          FormHistory.update({ op: "add", fieldname: aName, value: aValue },
+                             { handleError(error) {
+                                 reject();
+                                 throw new Error("Error occurred updating form history: " + error);
+                               },
+                               handleCompletion(reason) {
+                                 resolve();
+                               }
+                             })
+        )
+      }
+      yield promiseAddFormEntry("Sanitizer", "Foo");
     },
-
     check: function(aShouldBeCleared) {
-      do_check_eq(this.forms.entryExists("Sanitizer", "Foo"), !aShouldBeCleared);
+      // Check if a form name exists.
+      function formNameExists(aName) {
+        return new Promise((resolve, reject) => {
+          let count = 0;
+          FormHistory.count({ fieldname: aName },
+                            { handleResult: result => count = result,
+                              handleError(error) {
+                                reject(error);
+                                throw new Error("Error occurred searching form history: " + error);
+                              },
+                              handleCompletion(reason) {
+                                if (!reason) {
+                                  resolve(count);
+                                }
+                              }
+                            });
+        });
+      }
+
+      // Checking for Sanitizer form history entry creation.
+      let exists = yield formNameExists("Sanitizer");
+      do_check_eq(exists, !aShouldBeCleared);
     }
   },
 

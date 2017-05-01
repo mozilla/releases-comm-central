@@ -1,10 +1,25 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  *  License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
+XPCOMUtils.defineLazyModuleGetter(this, "FormHistory",
+                                  "resource://gre/modules/FormHistory.jsm");
 
 function test() {
   waitForExplicitFinish();
 
+  // This test relies on the form history being empty to start with delete
+  // all the items first.
+  FormHistory.update({ op: "remove" },
+                     { handleError: function (error) {
+                         do_throw("Error occurred updating form history: " + error);
+                       },
+                       handleCompletion: function (reason) { if (!reason) test2(); },
+                     });
+}
+
+function test2()
+{
   let prefService = Components.classes["@mozilla.org/preferences-service;1"]
                               .getService(Components.interfaces.nsIPrefBranch);
 
@@ -28,13 +43,16 @@ function test() {
 
   prefService.setBoolPref("privacy.sanitize.promptOnSanitize", false);
 
-  // Sanitize now so we can test that canClear is correct
+  // Sanitize now so we can test the baseline point.
   s.sanitize();
-  ok(!s.canClearItem("formdata"), "pre-test baseline for sanitizer");
-  textbox.value = "m";
-  ok(s.canClearItem("formdata"), "formdata can be cleared after input");
+  ok(!gFindBar.hasTransactions, "pre-test baseline for sanitizer");
+
+  gFindBar.getElement("findbar-textbox").value = "m";
+  ok(gFindBar.hasTransactions, "formdata can be cleared after input");
+
   s.sanitize();
-  is(textbox.value, "", "findBar textbox should be empty after sanitize");
-  ok(!s.canClearItem("formdata"), "canClear now false after sanitize");
+  is(gFindBar.getElement("findbar-textbox").value, "", "findBar textbox should be empty after sanitize");
+  ok(!gFindBar.hasTransactions, "No transactions after sanitize");
+
   finish();
 }
