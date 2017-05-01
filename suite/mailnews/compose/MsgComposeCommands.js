@@ -11,14 +11,14 @@ Components.utils.import("resource:///modules/mailServices.js");
 /**
  * interfaces
  */
-const nsIMsgCompDeliverMode = Components.interfaces.nsIMsgCompDeliverMode;
-const nsIMsgCompSendFormat = Components.interfaces.nsIMsgCompSendFormat;
-const nsIMsgCompConvertible = Components.interfaces.nsIMsgCompConvertible;
-const nsIMsgCompType = Components.interfaces.nsIMsgCompType;
-const nsIMsgCompFormat = Components.interfaces.nsIMsgCompFormat;
-const nsIAbPreferMailFormat = Components.interfaces.nsIAbPreferMailFormat;
-const nsIPlaintextEditorMail = Components.interfaces.nsIPlaintextEditor;
-const mozISpellCheckingEngine = Components.interfaces.mozISpellCheckingEngine;
+var nsIMsgCompDeliverMode = Components.interfaces.nsIMsgCompDeliverMode;
+var nsIMsgCompSendFormat = Components.interfaces.nsIMsgCompSendFormat;
+var nsIMsgCompConvertible = Components.interfaces.nsIMsgCompConvertible;
+var nsIMsgCompType = Components.interfaces.nsIMsgCompType;
+var nsIMsgCompFormat = Components.interfaces.nsIMsgCompFormat;
+var nsIAbPreferMailFormat = Components.interfaces.nsIAbPreferMailFormat;
+var nsIPlaintextEditorMail = Components.interfaces.nsIPlaintextEditor;
+var mozISpellCheckingEngine = Components.interfaces.mozISpellCheckingEngine;
 
 /**
  * In order to distinguish clearly globals that are initialized once when js load (static globals) and those that need to be
@@ -85,7 +85,7 @@ var gAutoSaveTimeout;
 var gAutoSaveKickedIn;
 var gEditingDraft;
 
-const kComposeAttachDirPrefName = "mail.compose.attach.dir";
+var kComposeAttachDirPrefName = "mail.compose.attach.dir";
 
 function InitializeGlobalVariables()
 {
