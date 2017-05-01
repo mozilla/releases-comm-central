@@ -45,9 +45,6 @@
 #include "mozilla/SizePrintfMacros.h"
 #include "mozilla/Unused.h"
 #include <algorithm>
-#include "nsContentUtils.h"
-#include "jsfriendapi.h"
-#include "nsPrintfCString.h"
 
 using namespace mozilla::mailnews;
 using namespace mozilla;
@@ -3779,25 +3776,6 @@ nsresult nsMsgDatabase::GetUint32Property(nsIMdbRow *row, const char *propertyNa
   nsresult err = NS_OK;
   mdb_token  property_token;
 
-  // Bug 1360873: we might get a crash because m_mdbStore is null.
-  // Let's gather some information to see where it comes from.
-  if (!m_mdbStore) {
-    nsAutoCString annotate(propertyName);
-    JSContext* cx = nsContentUtils::GetCurrentJSContextForThread();
-    if (cx) {
-      JS::AutoSaveExceptionState state(cx);
-      //                                                     args, locals,this props
-      JS::UniqueChars buf = JS::FormatStackDump(cx, nullptr, true, false, false);
-      if (buf) {
-        nsPrintfCString msg("%s: %s", propertyName, buf.get());
-        annotate = msg;
-      }
-      state.restore();
-    }
-    MOZ_REPORT_ASSERTION_FAILURE("!m_mdbStore", __FILE__, __LINE__);
-    MOZ_CRASH_ANNOTATE(annotate.get());
-    MOZ_REALLY_CRASH(__LINE__);
-  }
   err = m_mdbStore->StringToToken(GetEnv(),  propertyName, &property_token);
   if (NS_SUCCEEDED(err))
     err = RowCellColumnToUInt32(row, property_token, result, defaultValue);
