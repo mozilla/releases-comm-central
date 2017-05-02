@@ -105,3 +105,8 @@
 .folderMenuItem .menu-iconic-left {
   visibility: visible;
 }
+
+menulist.folderMenuItem > .menulist-label-box > .menulist-icon {
+  width: 16px;
+  height: 16px;
+}
