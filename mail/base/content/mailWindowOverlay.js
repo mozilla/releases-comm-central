@@ -180,8 +180,7 @@ function InitGoMessagesMenu()
 function view_init()
 {
   let isFeed = gFolderDisplay &&
-               ((gFolderDisplay.displayedFolder &&
-                 gFolderDisplay.displayedFolder.server.type == "rss") ||
+               (FeedMessageHandler.isFeedFolder(gFolderDisplay.displayedFolder) ||
                 gFolderDisplay.selectedMessageIsFeed);
 
   let accountCentralDisplayed = gFolderDisplay.isAccountCentralDisplayed;
@@ -1686,8 +1685,9 @@ BatchMessageMover.prototype = {
       let archiveKeepFolderStructure;
 
       let identity = getIdentityForHeader(msgHdr);
-      if (!identity) {
-        // Some servers (RSS) don't have an identity, so we need to figure
+      if (!identity || FeedMessageHandler.isFeedFolder(msgHdr.folder)) {
+        // If no identity, or a server (RSS) which doesn't have an identity
+        // and doesn't want the default unrelated identity value, figure
         // this out based on the default identity prefs.
         let enabled = Services.prefs.getBoolPref(
           "mail.identity.default.archive_enabled"
@@ -2079,7 +2079,7 @@ function MsgSubscribe()
 {
   var preselectedFolder = GetFirstSelectedMsgFolder();
 
-  if (preselectedFolder && preselectedFolder.server.type == "rss")
+  if (FeedMessageHandler.isFeedFolder(preselectedFolder))
     openSubscriptionsDialog(preselectedFolder); // open feed subscription dialog
   else
     Subscribe(preselectedFolder); // open imap/nntp subscription dialog
