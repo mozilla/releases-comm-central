@@ -60,6 +60,7 @@ public:
   NS_IMETHOD DeleteCards(nsIArray *cards) override;
   NS_IMETHOD HasCard(nsIAbCard *cards, bool *hasCard) override;
   NS_IMETHOD HasDirectory(nsIAbDirectory *dir, bool *hasDir) override;
+  NS_IMETHOD HasMailListWithName(const char16_t *aName, bool *aHasList) override;
   NS_IMETHOD AddMailList(nsIAbDirectory *list, nsIAbDirectory **addedList) override;
   NS_IMETHOD AddCard(nsIAbCard *card, nsIAbCard **addedCard) override;
   NS_IMETHOD ModifyCard(nsIAbCard *aModifiedCard) override;

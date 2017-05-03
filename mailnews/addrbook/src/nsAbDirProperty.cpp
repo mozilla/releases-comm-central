@@ -3,7 +3,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#include "nsAbDirProperty.h"	 
+#include "nsAbDirProperty.h"
 #include "nsAbBaseCID.h"
 #include "nsIAbCard.h"
 #include "nsDirPrefs.h"
@@ -13,6 +13,7 @@
 #include "nsComponentManagerUtils.h"
 #include "prmem.h"
 #include "nsIAbManager.h"
+#include "nsArrayUtils.h"
 
 // From nsDirPrefs
 #define kDefaultPosition 1
@@ -294,6 +295,47 @@ nsAbDirProperty::HasCard(nsIAbCard *cards, bool *hasCard)
 NS_IMETHODIMP
 nsAbDirProperty::HasDirectory(nsIAbDirectory *dir, bool *hasDir)
 { return NS_ERROR_NOT_IMPLEMENTED; }
+
+NS_IMETHODIMP
+nsAbDirProperty::HasMailListWithName(const char16_t *aName, bool *aHasList)
+{
+  NS_ENSURE_ARG_POINTER(aName);
+  NS_ENSURE_ARG_POINTER(aHasList);
+
+  *aHasList = false;
+
+  bool supportsLists = false;
+  nsresult rv = GetSupportsMailingLists(&supportsLists);
+  if (NS_FAILED(rv) || !supportsLists)
+    return NS_OK;
+
+  if (m_IsMailList)
+    return NS_OK;
+
+  nsCOMPtr<nsIMutableArray> addressLists;
+  rv = GetAddressLists(getter_AddRefs(addressLists));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  uint32_t listCount = 0;
+  rv = addressLists->GetLength(&listCount);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  for (uint32_t i = 0; i < listCount; i++)
+  {
+    nsCOMPtr<nsIAbDirectory> listDir(do_QueryElementAt(addressLists, i, &rv));
+    if (NS_SUCCEEDED(rv) && listDir)
+    {
+      nsAutoString listName;
+      rv = listDir->GetDirName(listName);
+      if (NS_SUCCEEDED(rv) && listName.Equals(aName))
+      {
+        *aHasList = true;
+        return NS_OK;
+      }
+    }
+  }
+  return NS_OK;
+}
 
 NS_IMETHODIMP
 nsAbDirProperty::CreateNewDirectory(const nsAString &aDirName,

@@ -587,6 +587,22 @@ NS_IMETHODIMP nsAbMDBDirectory::HasDirectory(nsIAbDirectory *dir, bool *hasDir)
   return rv;
 }
 
+NS_IMETHODIMP nsAbMDBDirectory::HasMailListWithName(const char16_t *aName, bool *aHasList)
+{
+  NS_ENSURE_ARG_POINTER(aHasList);
+
+  nsCOMPtr<nsIAddrDatabase> database;
+  nsresult rv = GetDatabase(getter_AddRefs(database));
+  if (NS_SUCCEEDED(rv))
+  {
+    rv = database->FindMailListbyUnicodeName(aName, aHasList);
+    if (NS_SUCCEEDED(rv) && *aHasList)
+      return NS_OK;
+  }
+
+  return rv;
+}
+
 NS_IMETHODIMP nsAbMDBDirectory::AddMailList(nsIAbDirectory *list, nsIAbDirectory **addedList)
 {
   NS_ENSURE_ARG_POINTER(addedList);

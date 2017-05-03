@@ -120,6 +120,9 @@ interface nsIAbDirectory : nsIAbCollection {
   // Check if directory contains directory
   boolean hasDirectory(in nsIAbDirectory dir);
 
+  // Check if directory contains a mailinglist by name
+  boolean hasMailListWithName(in wstring aName);
+
   /**
    * Adds a card to the database.
    *

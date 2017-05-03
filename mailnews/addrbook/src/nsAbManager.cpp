@@ -466,12 +466,12 @@ NS_IMETHODIMP nsAbManager::GetUserProfileDirectory(nsIFile **userDir)
   return NS_OK;
 }
 
-NS_IMETHODIMP nsAbManager::MailListNameExists(const char16_t *name, bool *exist)
+NS_IMETHODIMP nsAbManager::MailListNameExists(const char16_t *aName, bool *aExists)
 {
   nsresult rv;
-  NS_ENSURE_ARG_POINTER(exist);
+  NS_ENSURE_ARG_POINTER(aExists);
 
-  *exist = false;
+  *aExists = false;
 
   // now get the top-level book
   nsCOMPtr<nsIAbDirectory> topDirectory;
@@ -482,29 +482,23 @@ NS_IMETHODIMP nsAbManager::MailListNameExists(const char16_t *name, bool *exist)
   rv = topDirectory->GetChildNodes(getter_AddRefs(enumerator));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  nsCOMPtr<nsISupports> item;
-  nsCOMPtr<nsIAbMDBDirectory> directory;
-
   bool hasMore;
-  // XXX Make this not MDB specific.
   while (NS_SUCCEEDED(enumerator->HasMoreElements(&hasMore)) && hasMore)
   {
+    nsCOMPtr<nsISupports> item;
     rv = enumerator->GetNext(getter_AddRefs(item));
     NS_ENSURE_SUCCESS(rv, rv);
 
-    directory = do_QueryInterface(item, &rv);
-    if (NS_SUCCEEDED(rv))
-    {
-        nsCOMPtr<nsIAddrDatabase> database;
-      rv = directory->GetDatabase(getter_AddRefs(database));
-        if (NS_SUCCEEDED(rv))
-        {
-        rv = database->FindMailListbyUnicodeName(name, exist);
-        if (NS_SUCCEEDED(rv) && *exist)
-            return NS_OK;
-        }
-      }
-    }
+    nsCOMPtr<nsIAbDirectory> directory = do_QueryInterface(item, &rv);
+    if (NS_FAILED(rv))
+      continue;
+
+    rv = directory->HasMailListWithName(aName, aExists);
+    if (NS_SUCCEEDED(rv) && *aExists)
+      return NS_OK;
+  }
+
+  *aExists = false;
   return NS_OK;
 }
 
