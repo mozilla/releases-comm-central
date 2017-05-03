@@ -6,7 +6,6 @@ messenger.jar:
 % overlay chrome://global/content/viewSource.xul chrome://messenger/content/viewSourceOverlay.xul
 % overlay chrome://global/content/config.xul chrome://messenger/content/configEditorOverlay.xul
 % overlay chrome://editor/content/EdSpellCheck.xul chrome://messenger/content/EdSpellCheckOverlay.xul
-% style chrome://mozapps/content/extensions/extensions.xul chrome://messenger/content/extensionsOverlay.css
 % style chrome://global/content/customizeToolbar.xul chrome://messenger/content/messenger.css
 % style chrome://global/content/customizeToolbar.xul chrome://messenger/skin/
 % style chrome://global/content/customizeToolbar.xul chrome://messenger/skin/addressbook/addressbook.css
@@ -16,7 +15,6 @@ messenger.jar:
 % style chrome://global/content/customizeToolbar.xul chrome://messenger/skin/primaryToolbar.css
     content/messenger/mailWindow.js                 (content/mailWindow.js)
     content/messenger/messageDisplay.js             (content/messageDisplay.js)
-    content/messenger/extensionsOverlay.css         (content/extensionsOverlay.css)
     content/messenger/folderDisplay.js              (content/folderDisplay.js)
     content/messenger/mailWindowOverlay.js          (content/mailWindowOverlay.js)
 *   content/messenger/mailWindowOverlay.xul         (content/mailWindowOverlay.xul)

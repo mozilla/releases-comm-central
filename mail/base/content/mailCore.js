@@ -461,7 +461,7 @@ function openAddonsMgr(aView)
     }
   }
 
-  openContentTab("chrome://mozapps/content/extensions/extensions.xul", "tab", "addons.mozilla.org");
+  openContentTab("about:addons", "tab", "addons.mozilla.org");
 
 
   if (aView) {
