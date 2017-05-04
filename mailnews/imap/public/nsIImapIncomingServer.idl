@@ -25,7 +25,7 @@ interface nsMsgImapDeleteModels
 interface nsIImapIncomingServer : nsISupports {
 
   attribute long maximumConnectionsNumber;
-  attribute boolean forceSelect;
+  attribute ACString forceSelect;
   attribute long timeOutLimits;
   attribute ACString adminUrl;
   attribute ACString serverDirectory;

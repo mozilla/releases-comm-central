@@ -500,11 +500,25 @@ pref("mail.server.default.check_all_folders_for_new", false);
 pref("mail.server.default.inhibitWhiteListingIdentityUser", true);
 // should we inhibit whitelisting of the domain for a server's identities?
 pref("mail.server.default.inhibitWhiteListingIdentityDomain", false);
-// When forceSelect is true, sends extra/redundant imap SELECT when checking for
-// new mail. Needed by some imap servers. Also, if server does not support IDLE,
-// this can help insure messages are marked as "read" after being read in other
-// email clients.
-pref("mail.server.default.forceSelect", false);
+
+// When force_select is "auto" the ID response for the server will be compared to
+// force_select_detect below and, if they compare, an extra imap select will
+// be sent when checking for new mail. If force_select is "no", the extra
+// select will never occur, and, if "yes" it will always occur when checking for
+// new email (both regardless of the ID response string).
+// The extra select insures that new emails are automatically detected by servers
+// requiring it. Also, if a server does not support IDLE, setting this to "yes"
+// can insure messages are marked as "read" after being read in other email clients.
+pref("mail.server.default.force_select", "auto");
+
+// Specify imap ID response substrings that must occur to cause the extra/forced
+// imap select for server(s).  Substrings are comma separated within a given server
+// (all substrings within a server must be found in the ID response string) and
+// servers are semicolon separated. Currently only 1 server type is known
+// to require the extra select -- Openwave server used by Charter-Spectrum ISP.
+pref("mail.imap.force_select_detect", "\"name\" \"Email Mx\",\"vendor\" \"Openwave Messaging\"");
+// Example if ever another server requires the extra select (ID substrings from Yahoo! added):
+//pref("mail.imap.force_select_detect", "\"name\" \"Email Mx\",\"vendor\" \"Openwave Messaging\";\"vendor\" \"Yahoo! Inc.\",\"name\" \"Y!IMAP\";");
 
 // to activate auto-sync feature (preemptive message download for imap) by default
 pref("mail.server.default.autosync_offline_stores",true);

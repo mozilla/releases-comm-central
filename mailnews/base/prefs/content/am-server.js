@@ -133,7 +133,6 @@ function onAdvanced()
     serverSettings.dualUseFolders = document.getElementById("imap.dualUseFolders").checked;
     serverSettings.usingSubscription = document.getElementById("imap.usingSubscription").checked;
     serverSettings.maximumConnectionsNumber = document.getElementById("imap.maximumConnectionsNumber").getAttribute("value");
-    serverSettings.forceSelect = document.getElementById("imap.forceSelect").checked;
     // string prefs
     serverSettings.personalNamespace = document.getElementById("imap.personalNamespace").getAttribute("value");
     serverSettings.publicNamespace = document.getElementById("imap.publicNamespace").getAttribute("value");
@@ -155,7 +154,6 @@ function onAdvanced()
     document.getElementById("imap.dualUseFolders").checked = serverSettings.dualUseFolders;
     document.getElementById("imap.usingSubscription").checked = serverSettings.usingSubscription;
     document.getElementById("imap.maximumConnectionsNumber").setAttribute("value", serverSettings.maximumConnectionsNumber);
-    document.getElementById("imap.forceSelect").checked = serverSettings.forceSelect;
     // string prefs
     document.getElementById("imap.personalNamespace").setAttribute("value", serverSettings.personalNamespace);
     document.getElementById("imap.publicNamespace").setAttribute("value", serverSettings.publicNamespace);

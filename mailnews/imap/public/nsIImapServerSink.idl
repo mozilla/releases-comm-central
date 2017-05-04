@@ -164,4 +164,6 @@ interface nsIImapServerSink : nsISupports {
   void resetServerConnection(in ACString aFolderName);
   /// tell the server if listing using lsub command
   void setServerDoingLsub(in boolean aDoingLsub);
+  /// set force select string
+  void SetServerForceSelect(in ACString forceSelect);
 };

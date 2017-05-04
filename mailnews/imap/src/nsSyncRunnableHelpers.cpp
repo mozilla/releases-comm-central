@@ -455,6 +455,7 @@ NS_SYNCRUNNABLEMETHOD1(ImapServerSink, RemoveServerConnection, nsIImapProtocol *
 NS_SYNCRUNNABLEMETHOD1(ImapServerSink, GetServerShuttingDown, bool *)
 NS_SYNCRUNNABLEMETHOD1(ImapServerSink, ResetServerConnection, const nsACString &)
 NS_SYNCRUNNABLEMETHOD1(ImapServerSink, SetServerDoingLsub, bool)
+NS_SYNCRUNNABLEMETHOD1(ImapServerSink, SetServerForceSelect, const nsACString &)
 
 
 namespace mozilla {
