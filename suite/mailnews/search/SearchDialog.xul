@@ -83,7 +83,7 @@
          <menulist id="searchableFolders" flex="2"
                    class="folderMenuItem"
                    displayformat="verbose">
-           <menupopup class="searchPopup menulist-menupopup"
+           <menupopup class="menulist-menupopup"
                       type="folder"
                       mode="search"
                       showAccountsFileHere="true"
