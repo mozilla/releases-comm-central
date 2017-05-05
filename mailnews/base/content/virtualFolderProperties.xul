@@ -52,6 +52,7 @@
         <textbox id="name" hidden="true"
                  oninput="doEnabling();"/>
         <filefield id="existingName" class="folderMenuItem"
+                   readonly="true"
                    hidden="true" tabindex="0"
                    SpecialFolder="Virtual"/>
         <spring/>

@@ -466,7 +466,7 @@
                 <radio id="FilePhotoType" value="file" label="&PhotoFile.label;"
                        accesskey="&PhotoFile.accesskey;"/>
                 <hbox class="indent">
-                  <filefield id="PhotoFile" maxlength="255" flex="1"/>
+                  <filefield id="PhotoFile" readonly="true" maxlength="255" flex="1"/>
                    <button oncommand="browsePhoto();" id="BrowsePhoto"
                           label="&BrowsePhoto.label;"
                           accesskey="&BrowsePhoto.accesskey;"/>

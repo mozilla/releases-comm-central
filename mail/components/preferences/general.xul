@@ -134,6 +134,7 @@
       <hbox>
         <filefield id="soundUrlLocation"
                    class="indent"
+                   readonly="true"
                    preference="mail.biff.play_sound.url"
                    preference-editable="true"
                    onsyncfrompreference="return gGeneralPane.readSoundLocation();"

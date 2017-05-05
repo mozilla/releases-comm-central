@@ -137,6 +137,7 @@
         <hbox>
           <filefield id="chatSoundUrlLocation"
                      class="indent"
+                     readonly="true"
                      preference="mail.chat.play_sound.url"
                      preference-editable="true"
                      onsyncfrompreference="return gChatPane.readSoundLocation();"

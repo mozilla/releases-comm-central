@@ -76,6 +76,7 @@
                                   accesskey="&pref.calendar.alarms.playsound.accessKey;"/>
                         <filefield id="alarmSoundFileField"
                                    flex="1"
+                                   readonly="true"
                                    preference="calendar.alarms.soundURL"
                                    preference-editable="true"
                                    onsyncfrompreference="return gAlarmsPane.readSoundLocation();"/>

@@ -142,6 +142,7 @@
                      accesskey="&saveTo.accesskey;"
                      aria-labelledby="saveTo downloadFolder"/>
               <filefield id="downloadFolder" flex="1"
+                         readonly="true"
                          preference="browser.download.folderList"
                          preference-editable="true"
                          aria-labelledby="saveTo"

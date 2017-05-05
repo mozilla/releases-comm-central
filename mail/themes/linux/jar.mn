@@ -51,6 +51,7 @@ classic.jar:
   skin/classic/messenger/icons/zoomout.png                    (mail/icons/zoomout.png)
   skin/classic/messenger/icons/zoomout-hover.png              (mail/icons/zoomout-hover.png)
   skin/classic/messenger/dialogs.css                          (mail/dialogs.css)
+  skin/classic/messenger/filefield.css                        (mail/filefield.css)
   skin/classic/messenger/newmailalert.css                     (mail/newmailalert.css)
   skin/classic/messenger/tabmail.css                          (mail/tabmail.css)
   skin/classic/messenger/editContactOverlay.css               (mail/editContactOverlay.css)
@@ -279,3 +280,4 @@ classic.jar:
 % override chrome://global/skin/icons/close.png               chrome://global/skin/icons/close.svg
 % override chrome://mozapps/skin/extensions/extensionGeneric-16.png chrome://messenger/skin/icons/extensionGeneric.svg
 % override chrome://global/skin/netError.css chrome://messenger/skin/aboutNetError.css
+% override chrome://global/skin/filefield.css chrome://messenger/skin/filefield.css
