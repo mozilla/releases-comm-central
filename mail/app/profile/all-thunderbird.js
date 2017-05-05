@@ -410,6 +410,7 @@ pref("browser.send_pings", false);
 pref("browser.chrome.toolbar_tips",         true);
 pref("browser.xul.error_pages.enabled", true);
 pref("browser.xul.error_pages.expert_bad_cert", false);
+pref("gecko.handlerService.defaultHandlersVersion", "chrome://messenger-region/locale/region.properties");
 
 // Attachment download manager settings
 pref("mail.attachment.store.version", 0);
