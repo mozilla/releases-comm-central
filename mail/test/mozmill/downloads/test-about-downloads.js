@@ -123,7 +123,7 @@ function open_about_downloads() {
   mc.waitFor(() => mc.tabmail.tabContainer.childNodes.length == preCount + 1,
              "Timeout waiting for about:downloads tab");
 
-  wait_for_browser_load(newTab.browser, "about:downloads");
+  wait_for_browser_load(newTab.browser, "chrome://messenger/content/downloads/aboutDownloads.xul");
   // We append new tabs at the end, so check the last one.
   let expectedNewTab = mc.tabmail.tabInfo[preCount];
   return expectedNewTab;

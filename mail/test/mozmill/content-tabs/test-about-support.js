@@ -62,7 +62,7 @@ const ABOUT_SUPPORT_ERROR_STRINGS = new Map([[ "text/html",["undefined", "null"]
  */
 function open_about_support() {
   let tab = open_content_tab_with_click(mc.menus.helpMenu.aboutsupport_open,
-                                        "about:support");
+                                        "chrome://messenger/content/about-support/aboutSupport.xhtml");
   // We have one variable that's asynchronously populated -- wait for it to be
   // populated.
   mc.waitFor(() => (tab.browser.contentWindow.gAccountDetails !== undefined),
