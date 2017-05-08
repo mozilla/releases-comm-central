@@ -239,19 +239,32 @@ nsMsgContentPolicy::ShouldLoad(uint32_t          aContentType,
   // cause content to be rejected.
   *aDecision = nsIContentPolicy::REJECT_REQUEST;
 
-  // If aContentLocation uses a protocol we handle (imap, pop, mailbox, news),
-  // we require that the load comes from the same scheme/account/server/port.
-  // This is basically a simplyfied "same origin" test.
-  // Pre-paths for example are:
-  // mailbox: mailbox://
-  // imap:    imap://user@domain@server:port
-  // news:    news://server:port
+  // If aContentLocation uses a protocol we handle, we require that the load
+  // comes from the "normalised" principal which exists for imap, mailbox, news
+  // and other protocols where the URL inherits from nsIMsgMessageUrl.
+  // This is basically a "same origin" test. For other protocols we check the
+  // pre-paths.
+  nsCOMPtr<nsIMsgMessageUrl> contentURL(do_QueryInterface(aContentLocation));
+  if (contentURL) {
+    nsCOMPtr<nsIMsgMessageUrl> requestURL(do_QueryInterface(aRequestingLocation));
+    // If the request URL is not also a message URL, then we don't accept.
+    if (requestURL) {
+      nsCString contentPrincipalSpec, requestPrincipalSpec;
+      contentURL->GetPrincipalSpec(contentPrincipalSpec);
+      requestURL->GetPrincipalSpec(requestPrincipalSpec);
+      if (contentPrincipalSpec.Equals(requestPrincipalSpec))
+        *aDecision = nsIContentPolicy::ACCEPT;
+    }
+    return NS_OK;
+  }
+
+  // Compare pre-paths.
   nsCOMPtr<nsIMsgMailNewsUrl> mailnewsUrl(do_QueryInterface(aContentLocation));
   if (mailnewsUrl) {
     nsCString contentPrePath, requestingPrePath;
     aContentLocation->GetPrePath(contentPrePath);
     aRequestingLocation->GetPrePath(requestingPrePath);
-    if (contentPrePath.Equals(requestingPrePath))  {
+    if (contentPrePath.Equals(requestingPrePath)) {
       *aDecision = nsIContentPolicy::ACCEPT;
       return NS_OK;
     }

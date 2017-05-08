@@ -133,7 +133,8 @@ NS_IMETHODIMP nsMailboxUrl::GetPrincipalSpec(nsACString& aPrincipalSpec)
   mailnewsURL->GetSpec(spec);
 
   // mailbox: URLs contain a lot of query parts. We want need a normalised form:
-  // mailbox://folder?number=nn.
+  // mailbox:///path/to/folder?number=nn.
+  // We also need to translate the second form mailbox://user@domain@server/folder?number=nn.
 
   char* messageKey = extractAttributeValue(spec.get(), "number=");
 
@@ -149,6 +150,18 @@ NS_IMETHODIMP nsMailboxUrl::GetPrincipalSpec(nsACString& aPrincipalSpec)
   ind = spec.FindChar('&');
   if (ind != kNotFound)
     spec.SetLength(ind);
+
+  // Check for format lacking absolute path.
+  if (spec.Find("///") == kNotFound) {
+    nsCString folderPath;
+    nsresult rv = nsLocalURI2Path(kMailboxRootURI, spec.get(), folderPath);
+    if (NS_SUCCEEDED (rv)) {
+      nsAutoCString buf;
+      MsgEscapeURL(folderPath,
+                   nsINetUtil::ESCAPE_URL_DIRECTORY | nsINetUtil::ESCAPE_URL_FORCED, buf);
+      spec = NS_LITERAL_CSTRING("mailbox://") + buf;
+    }
+  }
 
   spec += NS_LITERAL_CSTRING("?number=");
   spec.Append(messageKey);
