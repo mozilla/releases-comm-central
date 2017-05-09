@@ -52,7 +52,6 @@ AboutRedirector.prototype = {
     let newURI = Services.io.newURI(this._redirMap[name].url);
     let channel = Services.io.newChannelFromURIWithLoadInfo(newURI, aLoadInfo);
     channel.originalURI = aURI;
-    aLoadInfo.resultPrincipalURI = aURI;
 
     if (this._redirMap[name].flags & Ci.nsIAboutModule.URI_SAFE_FOR_UNTRUSTED_CONTENT) {
       let principal = Services.scriptSecurityManager.getNoAppCodebasePrincipal(aURI);
