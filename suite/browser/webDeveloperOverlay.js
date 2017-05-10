@@ -184,9 +184,8 @@ var gWebDeveloper = {
     var webIDEEnabled = Services.prefs.getBoolPref("devtools.webide.enabled");
     toggleCmd("Tools:WebIDE", webIDEEnabled);
 
-    var showWebIDEWidget = Services.prefs.getBoolPref("devtools.webide.widget.enabled");
     /* XXXRatty: NOT WORKING YET
-    if (webIDEEnabled && showWebIDEWidget) {
+    if (webIDEEnabled) {
       gDevToolsBrowser.installWebIDEWidget();
     } else {
       gDevToolsBrowser.uninstallWebIDEWidget();
