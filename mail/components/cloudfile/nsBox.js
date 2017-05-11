@@ -213,8 +213,8 @@ nsBox.prototype = {
     }.bind(this);
 
     let onAuthFailure = function() {
-      this._urlListener.onStopRequest(null, null,
-                                      Ci.nsIMsgCloudFileProvider.authErr);
+      aCallback.onStopRequest(null, null,
+                              Ci.nsIMsgCloudFileProvider.authErr);
     }.bind(this);
 
     this.log.info("Checking to see if we're logged in");

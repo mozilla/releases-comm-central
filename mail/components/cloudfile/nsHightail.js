@@ -186,7 +186,6 @@ nsHightail.prototype = {
     }
 
     this._uploadingFile = aFile;
-    this._urlListener = aCallback;
 
     let finish = function() {
       this._finishUpload(aFile, aCallback);
@@ -197,8 +196,8 @@ nsHightail.prototype = {
     }.bind(this);
 
     let onAuthFailure = function() {
-      this._urlListener.onStopRequest(null, null,
-                                      Ci.nsIMsgCloudFileProvider.authErr);
+      aCallback.onStopRequest(null, null,
+                              Ci.nsIMsgCloudFileProvider.authErr);
     }.bind(this);
 
     this.log.info("Checking to see if we're logged in");
