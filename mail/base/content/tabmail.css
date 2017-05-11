@@ -35,11 +35,11 @@
 }
 
 .tab-label-container[textoverflow] {
-  mask-image: linear-gradient(to left, transparent, black 1em);
+  mask-image: linear-gradient(to left, transparent, black 2em);
 }
 
 .tab-label-container[textoverflow]:-moz-locale-dir(rtl) {
-  mask-image: linear-gradient(to right, transparent, black 1em);
+  mask-image: linear-gradient(to right, transparent, black 2em);
 }
 
 .tab-label {
