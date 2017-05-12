@@ -220,12 +220,7 @@ var gSmtpServerListWindow =
 
   openServerEditor: function(aServer)
   {
-    var args = {server: aServer,
-                result: false,
-                addSmtpServer: ""};
-
-    window.openDialog("chrome://messenger/content/SmtpServerEdit.xul",
-                      "smtpEdit", "chrome,titlebar,modal,centerscreen", args);
+    let args = editSMTPServer(aServer);
 
     // now re-select the server which was just added
     if (args.result)

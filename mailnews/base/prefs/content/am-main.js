@@ -52,4 +52,8 @@ function manageIdentities()
     identity = account.defaultIdentity; // refetch the default identity in case it changed
     initIdentityValues(identity);
   }
+
+  // Refresh the SMTP list in case the user changed server properties
+  // from the identity dialog.
+  loadSMTPServerList();
 }

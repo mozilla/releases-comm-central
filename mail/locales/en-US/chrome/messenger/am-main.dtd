@@ -40,3 +40,6 @@
 <!ENTITY smtpName.label "Outgoing Server (SMTP):">
 <!ENTITY smtpName.accesskey "u">
 <!ENTITY smtpDefaultServer.label "Use Default Server">
+
+<!ENTITY smtpEdit.label "Edit SMTP…">
+<!ENTITY smtpEdit.accesskey "P">

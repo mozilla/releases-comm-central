@@ -18,6 +18,8 @@
     <script type="application/javascript" src="chrome://messenger/content/am-identity-edit.js"/>
     <script type="application/javascript" src="chrome://messenger/content/am-main.js"/>
     <script type="application/javascript" src="chrome://messenger/content/am-prefs.js"/>
+    <script type="application/javascript"
+            src="chrome://messenger/content/amUtils.js"/>
 
     <broadcaster id="broadcaster_attachSignature"/>
 
@@ -129,6 +131,10 @@
             <!-- list will be inserted here -->
           </menupopup>
         </menulist>
+        <button id="editSmtp"
+                label="&smtpEdit.label;"
+                accesskey="&smtpEdit.accesskey;"
+                oncommand="editCurrentSMTP();"/>
       </hbox>
     </groupbox>
 

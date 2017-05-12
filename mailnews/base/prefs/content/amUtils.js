@@ -203,3 +203,21 @@ function accountNameExists(aAccountName, aAccountKey)
 
   return false;
 }
+
+/**
+ * Open a dialog to edit properties of an SMTP server.
+ *
+ * @param aServer {nsISmtpServer}  The server to edit.
+ * @return {object}                Object with result member to indicate whether 'OK'
+ *                                 was clicked and addSmtpServer with key of newly created server.
+ */
+function editSMTPServer(aServer) {
+  let args = { server: aServer,
+               result: false,
+               addSmtpServer: "" };
+
+  window.openDialog("chrome://messenger/content/SmtpServerEdit.xul",
+                    "smtpEdit", "chrome,titlebar,modal,centerscreen", args);
+
+  return args;
+}
