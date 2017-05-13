@@ -10,6 +10,7 @@
 Components.utils.import("resource:///modules/activity/activityModules.js");
 Components.utils.import("resource:///modules/attachmentChecker.js");
 Components.utils.import("resource:///modules/cloudFileAccounts.js");
+Components.utils.import("resource:///modules/mimeParser.jsm");
 Components.utils.import("resource:///modules/errUtils.js");
 Components.utils.import("resource:///modules/folderUtils.jsm");
 Components.utils.import("resource:///modules/iteratorUtils.jsm");
@@ -3199,10 +3200,14 @@ function updateSendLock()
   {
     let popupValue = awGetPopupElement(row).value;
     let inputValue = awGetInputElement(row).value.trim();
+    let listNames = null;
     if ((mailTypes.includes(popupValue) &&
+         // a properly looking email address
         (isValidAddress(inputValue) ||
-         MailServices.ab.mailListNameExists(inputValue.replace(/ *<.*>/, "")))) ||
-        ((popupValue == "addr_newsgroups") && (inputValue != "")))
+         // a valid mailing list name in some or our addressbooks
+         ((listNames = MimeParser.parseHeaderField(inputValue, MimeParser.HEADER_ADDRESS)) &&
+          listNames.length > 0 && MailServices.ab.mailListNameExists(listNames[0].name))
+        )) || ((popupValue == "addr_newsgroups") && (inputValue != "")))
     {
       gSendLocked = false;
       break;
