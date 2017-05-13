@@ -266,6 +266,7 @@ tabs {
   -moz-box-pack: center;
   width: 100%;
   height: 100%;
+  pointer-events: none;
 }
 
 #dialogBox {
@@ -280,6 +281,7 @@ tabs {
   display: -moz-box;
   margin: 0;
   padding: 0;
+  pointer-events: auto;
 }
 
 #dialogBox[resizable="true"] {
