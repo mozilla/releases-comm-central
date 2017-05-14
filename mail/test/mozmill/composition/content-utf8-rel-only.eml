@@ -18,6 +18,7 @@ Content-Transfer-Encoding: 8bit
   <body bgcolor="#FFFFFF" text="#000000">
     áóúäöüß<br>
     <img src="cid:part1" id="cidImage" width="10" height="10" alt="">
+    <img src="cid:part1" crossorigin="anonymous" id="cidImageOrigin" width="20" height="20" alt="">
   </body>
 </html>
 
