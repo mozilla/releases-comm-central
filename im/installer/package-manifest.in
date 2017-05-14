@@ -423,7 +423,6 @@
 #endif
 @RESPATH@/components/toolkit_asyncshutdown.xpt
 @RESPATH@/components/toolkit_filewatcher.xpt
-@RESPATH@/components/toolkit_formautofill.xpt
 @RESPATH@/components/toolkit_osfile.xpt
 @RESPATH@/components/toolkit_securityreporter.xpt
 #ifdef NIGHTLY_BUILD
@@ -596,9 +595,6 @@
 ; core platform files
 @RESPATH@/components/FeedProcessor.js
 @RESPATH@/components/FeedProcessor.manifest
-@RESPATH@/components/FormAutofillContentService.js
-@RESPATH@/components/FormAutofillStartup.js
-@RESPATH@/components/formautofill.manifest
 @RESPATH@/components/autocomplete.xpt
 @RESPATH@/components/alerts.xpt
 @RESPATH@/components/jsdebugger.xpt

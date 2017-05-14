@@ -307,7 +307,6 @@
 @RESPATH@/components/toolkit_asyncshutdown.xpt
 @RESPATH@/components/toolkit_filewatcher.xpt
 @RESPATH@/components/toolkit_finalizationwitness.xpt
-@RESPATH@/components/toolkit_formautofill.xpt
 @RESPATH@/components/toolkit_osfile.xpt
 @RESPATH@/components/toolkit_perfmonitoring.xpt
 @RESPATH@/components/toolkit_securityreporter.xpt
@@ -383,9 +382,6 @@
 @RESPATH@/components/WellKnownOpportunisticUtils.manifest
 @RESPATH@/components/FeedWriter.js
 @RESPATH@/components/folderLookupService.js
-@RESPATH@/components/formautofill.manifest
-@RESPATH@/components/FormAutofillContentService.js
-@RESPATH@/components/FormAutofillStartup.js
 @RESPATH@/components/htmlMenuBuilder.js
 @RESPATH@/components/htmlMenuBuilder.manifest
 @RESPATH@/components/jsconsole-clhandler.js

@@ -525,7 +525,6 @@
 @RESPATH@/components/toolkit_asyncshutdown.xpt
 @RESPATH@/components/toolkit_filewatcher.xpt
 @RESPATH@/components/toolkit_finalizationwitness.xpt
-@RESPATH@/components/toolkit_formautofill.xpt
 @RESPATH@/components/toolkit_osfile.xpt
 @RESPATH@/components/toolkit_securityreporter.xpt
 #ifdef NIGHTLY_BUILD
@@ -648,9 +647,6 @@
 @RESPATH@/components/nsFormAutoComplete.js
 @RESPATH@/components/FormHistoryStartup.js
 @RESPATH@/components/nsInputListAutoComplete.js
-@RESPATH@/components/formautofill.manifest
-@RESPATH@/components/FormAutofillContentService.js
-@RESPATH@/components/FormAutofillStartup.js
 @RESPATH@/components/contentAreaDropListener.manifest
 @RESPATH@/components/contentAreaDropListener.js
 @RESPATH@/components/WellKnownOpportunisticUtils.js
