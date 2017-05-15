@@ -16,7 +16,7 @@
 
 static mozilla::LazyLogModule gAbOutlookDirFactoryLog("nsAbOutlookDirFactoryLog");
 
-#define PRINTF(args) MOZ_LOG(nsAbOutlookDirFactoryLog, mozilla::LogLevel::Debug, args)
+#define PRINTF(args) MOZ_LOG(gAbOutlookDirFactoryLog, mozilla::LogLevel::Debug, args)
 
 
 NS_IMPL_ISUPPORTS(nsAbOutlookDirFactory, nsIAbDirFactory)
