@@ -32,7 +32,7 @@ endif
 
 XPI_STAGE_PATH = $(DIST)/$(UNIVERSAL_PATH)xpi-stage
 _ABS_XPI_STAGE_PATH = $(ABS_DIST)/$(UNIVERSAL_PATH)xpi-stage
-ENUS_PKGNAME=$(subst .$(AB_CD).,.en-US.,$(XPI_PKGNAME))
+ENUS_PKGNAME=$(subst .$(AB_CD),.en-US,$(XPI_PKGNAME))
 XPI_ZIP_IN=$(_ABS_XPI_STAGE_PATH)/$(ENUS_PKGNAME).xpi
 
 
@@ -122,11 +122,13 @@ endif
 
 # Calling these targets with prerequisites causes the libs and subsequent
 # targets to be switched in order due to some make voodoo. Therefore we call
-# the targets explicitly, which seems to work better.
+# the targets explicitly, which seems to work better. Also, the
+# target-specific variable are not expanded for dependent targets.
 langpack-%: L10N_XPI_NAME=$(XPI_NAME)-$*
 langpack-%: L10N_XPI_PKGNAME=$(subst $(AB_CD),$*,$(XPI_PKGNAME))
 langpack-%: AB_CD=$*
-langpack-%: ensure-stage-dir
+langpack-%:
+	$(MAKE) AB_CD=$(AB_CD) ensure-stage-dir
 	$(MAKE) L10N_XPI_NAME=$(L10N_XPI_NAME) L10N_XPI_PKGNAME=$(L10N_XPI_PKGNAME) AB_CD=$(AB_CD) \
 	  recreate-platformini repack-stage repack-process-extrafiles libs-$(AB_CD)
 	@echo "Done packaging $(L10N_XPI_PKGNAME).xpi"
