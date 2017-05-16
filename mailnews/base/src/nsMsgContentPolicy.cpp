@@ -27,7 +27,6 @@
 #include "mozilla/mailnews/MimeHeaderParser.h"
 
 static const char kBlockRemoteImages[] = "mailnews.message_display.disable_remote_image";
-static const char kAllowPlugins[] = "mailnews.message_display.allow_plugins";
 static const char kTrustedDomains[] =  "mail.trusteddomains";
 
 using namespace mozilla::mailnews;
@@ -49,7 +48,6 @@ NS_IMPL_ISUPPORTS(nsMsgContentPolicy,
 
 nsMsgContentPolicy::nsMsgContentPolicy()
 {
-  mAllowPlugins = false;
   mBlockRemoteImages = true;
 }
 
@@ -61,7 +59,6 @@ nsMsgContentPolicy::~nsMsgContentPolicy()
   if (NS_SUCCEEDED(rv))
   {
     prefInternal->RemoveObserver(kBlockRemoteImages, this);
-    prefInternal->RemoveObserver(kAllowPlugins, this);
   }
 }
 
@@ -74,9 +71,7 @@ nsresult nsMsgContentPolicy::Init()
   NS_ENSURE_SUCCESS(rv, rv);
 
   prefInternal->AddObserver(kBlockRemoteImages, this, true);
-  prefInternal->AddObserver(kAllowPlugins, this, true);
 
-  prefInternal->GetBoolPref(kAllowPlugins, &mAllowPlugins);
   prefInternal->GetCharPref(kTrustedDomains, getter_Copies(mTrustedMailDomains));
   prefInternal->GetBoolPref(kBlockRemoteImages, &mBlockRemoteImages);
 
@@ -763,7 +758,7 @@ nsresult nsMsgContentPolicy::SetDisableItemsOnMailNewsUrlDocshells(
     NS_ENSURE_SUCCESS(rv, rv);
     rv = docShell->SetAllowContentRetargetingOnChildren(false);
     NS_ENSURE_SUCCESS(rv, rv);
-    rv = docShell->SetAllowPlugins(mAllowPlugins);
+    rv = docShell->SetAllowPlugins(false);
     NS_ENSURE_SUCCESS(rv, rv);
   }
   else {
@@ -865,8 +860,6 @@ NS_IMETHODIMP nsMsgContentPolicy::Observe(nsISupports *aSubject, const char *aTo
 
     if (pref.Equals(kBlockRemoteImages))
       prefBranchInt->GetBoolPref(kBlockRemoteImages, &mBlockRemoteImages);
-    if (pref.Equals(kAllowPlugins))
-      prefBranchInt->GetBoolPref(kAllowPlugins, &mAllowPlugins);
   }
 
   return NS_OK;
@@ -931,7 +924,7 @@ nsMsgContentPolicy::OnLocationChange(nsIWebProgress *aWebProgress,
     NS_ASSERTION(NS_SUCCEEDED(rv),
                  "Failed to set javascript disabled on docShell");
     // Also disable plugins if the preference requires it.
-    rv = docShell->SetAllowPlugins(mAllowPlugins);
+    rv = docShell->SetAllowPlugins(false);
     NS_ASSERTION(NS_SUCCEEDED(rv),
                  "Failed to set plugins disabled on docShell");
   }

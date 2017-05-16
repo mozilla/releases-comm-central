@@ -55,7 +55,6 @@ protected:
   virtual ~nsMsgContentPolicy();
 
   bool     mBlockRemoteImages;
-  bool     mAllowPlugins;
   nsCString mTrustedMailDomains;
   nsCOMPtr<nsIPermissionManager> mPermissionManager;
 

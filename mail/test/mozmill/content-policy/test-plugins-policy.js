@@ -201,14 +201,3 @@ function test_checkContentTab() {
   if (mc.tabmail.tabContainer.childNodes.length != preCount)
     throw new Error("The content tab didn't close");
 }
-
-// Disabled as a bustage fix, see bug 1365319.
-function disabled_3paneWindowAllowed() {
-  Services.prefs.setBoolPref("mailnews.message_display.allow_plugins", true);
-
-  addMsgToFolderAndCheckContent(true);
-}
-
-function disabled_checkStandaloneMessageWindowAllowed() {
-  checkStandaloneMessageWindow(true);
-}

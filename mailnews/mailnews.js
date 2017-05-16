@@ -652,8 +652,6 @@ pref("mailnews.global_html_domains.version", 1);
 /////////////////////////////////////////////////////////////////
 // Privacy Controls for Handling Remote Content
 /////////////////////////////////////////////////////////////////
-// Specific plugins pref just for message content. RSS is not covered by this.
-pref("mailnews.message_display.allow_plugins", false);
 pref("mailnews.message_display.disable_remote_image", true);
 
 /////////////////////////////////////////////////////////////////
