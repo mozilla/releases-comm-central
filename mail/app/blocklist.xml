@@ -2231,6 +2231,11 @@
       <match exp="npdjvu\.dll" name="filename"/>
       <versionRange maxVersion="6.1.4.27993" minVersion="0" severity="0" vulnerabilitystatus="1"/>
     </pluginItem>
+    <pluginItem blockID="911f052b-77a0-46c4-bacf-9a6fd5b2044b" os="Linux">
+      <match exp="libflashplayer\.so" name="filename"/>
+      <infoURL>https://get.adobe.com/flashplayer/</infoURL>
+      <versionRange maxVersion="25.0.0.163" minVersion="25.0.0.127" severity="0" vulnerabilitystatus="1"/>
+    </pluginItem>
     <pluginItem blockID="p1494">
       <match exp="(NPSWF32.*\.dll)|(NPSWF64.*\.dll)|(Flash\ Player\.plugin)" name="filename"/>
       <infoURL>https://get.adobe.com/flashplayer/</infoURL>
@@ -2503,6 +2508,11 @@
       <match exp="(NPSWF32.*\.dll)|(NPSWF64.*\.dll)|(Flash\ Player\.plugin)" name="filename"/>
       <infoURL>https://get.adobe.com/flashplayer/</infoURL>
       <versionRange maxVersion="23.0.0.207" minVersion="23.0.0.205" severity="0" vulnerabilitystatus="1"/>
+    </pluginItem>
+    <pluginItem blockID="ee35afac-d936-4e77-bbb1-bf7d0656f985">
+      <match exp="(NPSWF32.*\.dll)|(NPSWF64.*\.dll)|(Flash\ Player\.plugin)" name="filename"/>
+      <infoURL>https://get.adobe.com/flashplayer/</infoURL>
+      <versionRange maxVersion="25.0.0.163" minVersion="25.0.0.127" severity="0" vulnerabilitystatus="1"/>
     </pluginItem>
     <pluginItem blockID="p1066">
       <match exp="(NPSWF32.*\.dll)|(NPSWF64.*\.dll)|(Flash\ Player\.plugin)" name="filename"/>
