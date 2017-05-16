@@ -153,6 +153,9 @@ pref("extensions.hotfix.certs.2.sha1Fingerprint", "39:E7:2B:7A:5B:CF:37:78:F9:5D
 // constants in AddonManager.jsm for values to use here
 pref("extensions.autoDisableScopes", 15);
 
+// Enable add-ons installed and owned by the application, like the default theme.
+pref("extensions.startupScanScopes", 4);
+
 // Preferences for AMO integration
 pref("extensions.getAddons.cache.enabled", true);
 pref("extensions.getAddons.maxResults", 15);
