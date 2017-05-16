@@ -351,6 +351,15 @@ function doStyleUICommand(cmdStr)
   } catch(e) {}
 }
 
+// Copied from jsmime.js.
+function stringToTypedArray(buffer) {
+  var typedarray = new Uint8Array(buffer.length);
+  for (var i = 0; i < buffer.length; i++) {
+    typedarray[i] = buffer.charCodeAt(i);
+  }
+  return typedarray;
+}
+
 function pokeMultiStateUI(uiID, cmdParams)
 {
   try
@@ -367,6 +376,8 @@ function pokeMultiStateUI(uiID, cmdParams)
       var valuetype = cmdParams.getValueType("state_attribute");
       if (valuetype == Components.interfaces.nsICommandParams.eStringType) {
         desiredAttrib = cmdParams.getCStringValue("state_attribute");
+        // Decode UTF-8, for example for font names in Japanese.
+        desiredAttrib = new TextDecoder("UTF-8").decode(stringToTypedArray(desiredAttrib));
       } else {
         desiredAttrib = cmdParams.getStringValue("state_attribute");
       }
