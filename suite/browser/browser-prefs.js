@@ -683,6 +683,11 @@ pref("privacy.sanitize.promptOnSanitize", true);
 
 pref("privacy.warn_tracking_content", true);
 
+// Switching this on will also spoof our user agent and other potentially
+// fingerprintable preferences to generic Firefox ones (see nsRFPService
+// introduced by bug 1330890 and meta-bug 1329996 dependencies).
+pref("privacy.resistFingerprinting", false);
+
 // Show XUL error pages instead of alerts for errors
 pref("browser.xul.error_pages.enabled", true);
 pref("browser.xul.error_pages.expert_bad_cert", false);
