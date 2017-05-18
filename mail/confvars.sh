@@ -40,7 +40,6 @@ ACCEPTED_MAR_CHANNEL_IDS=thunderbird-comm-central
 # The MAR_CHANNEL_ID must not contain the following 3 characters: ",\t "
 MAR_CHANNEL_ID=thunderbird-comm-central
 MOZ_PROFILE_MIGRATOR=1
-MOZ_JSDOWNLOADS=1
 MOZ_BINARY_EXTENSIONS=1
 MOZ_SEPARATE_MANIFEST_FOR_THEME_OVERRIDES=1
 

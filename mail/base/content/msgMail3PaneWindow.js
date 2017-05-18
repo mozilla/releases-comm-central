@@ -472,7 +472,6 @@ function LoadPostAccountWizard()
   messenger.setWindow(window, msgWindow);
 
   InitPanes();
-  MigrateAttachmentDownloadStore();
   MigrateJunkMailSettings();
   MigrateFolderViews();
   MigrateOpenMessageBehavior();
@@ -1276,24 +1275,6 @@ function MigrateFolderViews()
        }
      }
     Services.prefs.setIntPref("mail.folder.views.version", 1);
-  }
-}
-
-// Thunderbird has been storing old attachment download meta data in downloads.rdf
-// even though there was no way to show or clean up this data. Now that we are using
-// the new download manager in toolkit, we don't want to present this old data.
-// To migrate to the new download manager, remove downloads.rdf.
-function MigrateAttachmentDownloadStore()
-{
-  var attachmentStoreVersion = Services.prefs.getIntPref("mail.attachment.store.version");
-  if (!attachmentStoreVersion)
-  {
-    var downloadsFile = Services.dirsvc.get("DLoads", Components.interfaces.nsIFile);
-    if (downloadsFile && downloadsFile.exists())
-      downloadsFile.remove(false);
-
-    // bump the version so we don't bother doing this again.
-    Services.prefs.setIntPref("mail.attachment.store.version", 1);
   }
 }
 

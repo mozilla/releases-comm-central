@@ -415,7 +415,6 @@ pref("browser.xul.error_pages.enabled", true);
 pref("browser.xul.error_pages.expert_bad_cert", false);
 
 // Attachment download manager settings
-pref("mail.attachment.store.version", 0);
 pref("browser.download.useDownloadDir", false);
 pref("browser.download.folderList", 0);
 pref("browser.download.manager.showAlertOnComplete", false);
