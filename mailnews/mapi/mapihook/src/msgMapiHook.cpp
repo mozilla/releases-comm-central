@@ -433,8 +433,12 @@ nsresult nsMapiHook::PopulateCompFields(lpnsMapiMessage aMessage,
   {
       nsString Body;
       CopyASCIItoUTF16(aMessage->lpszNoteText, Body);
-      if (Body.Last() != '\n')
+      if (Body.IsEmpty() || Body.Last() != '\n')
         Body.AppendLiteral(CRLF);
+
+      // This is needed when Simple MAPI is used without a compose window.
+      if (Body.Find("<html>") == kNotFound)
+        aCompFields->SetForcePlainText(true);
 
       rv = aCompFields->SetBody(Body) ;
   }
@@ -638,6 +642,10 @@ nsresult nsMapiHook::PopulateCompFieldsWithConversion(lpnsMapiMessage aMessage,
     if (Body.IsEmpty() || Body.Last() != '\n')
       Body.AppendLiteral(CRLF);
 
+    // This is needed when Simple MAPI is used without a compose window.
+    if (Body.Find("<html>") == kNotFound)
+      aCompFields->SetForcePlainText(true);
+
     rv = aCompFields->SetBody(Body) ;
   }
 
@@ -793,14 +801,18 @@ nsresult nsMapiHook::ShowComposerWindow (unsigned long aSession, nsIMsgCompField
     nsCOMPtr<nsIMsgComposeParams> pMsgComposeParams (do_CreateInstance(NS_MSGCOMPOSEPARAMS_CONTRACTID, &rv));
     if (NS_FAILED(rv) || (!pMsgComposeParams) ) return rv ;
 
+    // If we found HTML, compose in HTML.
     bool forcePlainText;
     aCompFields->GetForcePlainText(&forcePlainText);
     pMsgComposeParams->SetFormat(forcePlainText ? nsIMsgCompFormat::Default : nsIMsgCompFormat::HTML);
+
     // populate the compose params
     pMsgComposeParams->SetType(nsIMsgCompType::New);
-    pMsgComposeParams->SetFormat(nsIMsgCompFormat::Default);
+
+    // Never force to plain text, the default format will take care of that.
+    aCompFields->SetForcePlainText(false);
     pMsgComposeParams->SetComposeFields(aCompFields);
-    pMsgComposeParams->SetSendListener(sendListener) ;
+    pMsgComposeParams->SetSendListener(sendListener);
 
     /** get the nsIMsgComposeService object to open the compose window **/
     nsCOMPtr <nsIMsgComposeService> compService = do_GetService (NS_MSGCOMPOSESERVICE_CONTRACTID) ;
