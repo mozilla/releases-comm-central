@@ -437,6 +437,7 @@ nsresult nsMapiHook::PopulateCompFields(lpnsMapiMessage aMessage,
         Body.AppendLiteral(CRLF);
 
       // This is needed when Simple MAPI is used without a compose window.
+      // See bug 1366196.
       if (Body.Find("<html>") == kNotFound)
         aCompFields->SetForcePlainText(true);
 
@@ -643,6 +644,7 @@ nsresult nsMapiHook::PopulateCompFieldsWithConversion(lpnsMapiMessage aMessage,
       Body.AppendLiteral(CRLF);
 
     // This is needed when Simple MAPI is used without a compose window.
+    // See bug 1366196.
     if (Body.Find("<html>") == kNotFound)
       aCompFields->SetForcePlainText(true);
 
@@ -810,6 +812,8 @@ nsresult nsMapiHook::ShowComposerWindow (unsigned long aSession, nsIMsgCompField
     pMsgComposeParams->SetType(nsIMsgCompType::New);
 
     // Never force to plain text, the default format will take care of that.
+    // Undo the forcing that happened in PopulateCompFields/PopulateCompFieldsWithConversion.
+    // See bug 1095629 and bug 1366196.
     aCompFields->SetForcePlainText(false);
     pMsgComposeParams->SetComposeFields(aCompFields);
     pMsgComposeParams->SetSendListener(sendListener);
