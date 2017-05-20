@@ -93,7 +93,7 @@ var gSubDialog = {
       try {
         this._closingCallback.call(null, aEvent);
       } catch (ex) {
-        Cu.reportError(ex);
+        Components.utils.reportError(ex);
       }
       this._closingCallback = null;
     }
@@ -272,7 +272,8 @@ var gSubDialog = {
     } else if (frameHeight.endsWith("px")) {
       comparisonFrameHeight = parseFloat(frameHeight, 10);
     } else {
-      Cu.reportError("This dialog (" + this._frame.contentWindow.location.href + ") " +
+      Components.utils.reportError(
+                     "This dialog (" + this._frame.contentWindow.location.href + ") " +
                      "set a height in non-px-non-em units ('" + frameHeight + "'), " +
                      "which is likely to lead to bad sizing in in-content preferences. " +
                      "Please consider changing this.");

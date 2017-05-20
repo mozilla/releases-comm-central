@@ -3,6 +3,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
+XPCOMUtils.defineLazyModuleGetter(this, "LoginHelper", "resource://gre/modules/LoginHelper.jsm");
+
 var gSecurityPane = {
   mPane: null,
   mInitialized: false,
@@ -98,34 +101,12 @@ var gSecurityPane = {
    */
   _initMasterPasswordUI: function ()
   {
-    var noMP = !this._masterPasswordSet();
+    var noMP = !LoginHelper.isMasterPasswordSet();
 
     document.getElementById("changeMasterPassword").disabled = noMP;
 
     document.getElementById("useMasterPassword").checked = !noMP;
   },
-
-
-  /**
-   * Returns true if the user has a master password set and false otherwise.
-   */
-  _masterPasswordSet: function ()
-  {
-    const Cc = Components.classes, Ci = Components.interfaces;
-    var secmodDB = Cc["@mozilla.org/security/pkcs11moduledb;1"].
-                   getService(Ci.nsIPKCS11ModuleDB);
-    var slot = secmodDB.findSlotByName("");
-    if (slot) {
-      var status = slot.status;
-      var hasMP = status != Ci.nsIPKCS11Slot.SLOT_UNINITIALIZED &&
-                  status != Ci.nsIPKCS11Slot.SLOT_READY;
-      return hasMP;
-    } else {
-      // XXX I have no bloody idea what this means
-      return false;
-    }
-  },
-
 
   /**
    * Enables/disables the master password button depending on the state of the
