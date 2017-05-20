@@ -36,8 +36,8 @@
       <preference id="browser.safebrowsing.malware.enabled"
                   name="browser.safebrowsing.malware.enabled"
                   type="bool"/>
-      <preference id="browser.safebrowsing.enabled"
-                  name="browser.safebrowsing.enabled"
+      <preference id="browser.safebrowsing.phishing.enabled"
+                  name="browser.safebrowsing.phishing.enabled"
                   type="bool"/>
     </preferences>
 
@@ -91,7 +91,7 @@
       <checkbox id="blockWebForgeries"
                 label="&blockWebForgeries.label;"
                 accesskey="&blockWebForgeries.accesskey;"
-                preference="browser.safebrowsing.enabled"/>
+                preference="browser.safebrowsing.phishing.enabled"/>
     </groupbox>
   </prefpane>
 </overlay>
