@@ -119,9 +119,10 @@
       </hbox>
 
       <separator class="thin"/>
+
+      <label value="&smtpName.label;" control="identity.smtpServerKey"
+             accesskey="&smtpName.accesskey;"/>
       <hbox align="center">
-        <label value="&smtpName.label;" control="identity.smtpServerKey"
-               accesskey="&smtpName.accesskey;"/>
         <menulist wsm_persist="true" id="identity.smtpServerKey" flex="1"
                   pref="true" preftype="string" prefattribute="value"
                   prefstring="mail.identity.%identitykey%.smtpServer">
@@ -132,8 +133,8 @@
           </menupopup>
         </menulist>
         <button id="editSmtp"
-                label="&smtpEdit.label;"
-                accesskey="&smtpEdit.accesskey;"
+                label="&smtpServerEdit.label;"
+                accesskey="&smtpServerEdit.accesskey;"
                 oncommand="editCurrentSMTP();"/>
       </hbox>
     </groupbox>

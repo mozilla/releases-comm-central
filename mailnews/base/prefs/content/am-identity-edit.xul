@@ -117,10 +117,10 @@
         <groupbox>
           <caption label="&privateData.label;"/>
 
+          <label value="&smtpName.label;"
+                 control="identity.smtpServerKey"
+                 accesskey="&smtpName.accesskey;"/>
           <hbox align="center">
-            <label value="&smtpName.label;"
-                   control="identity.smtpServerKey"
-                   accesskey="&smtpName.accesskey;"/>
             <menulist id="identity.smtpServerKey" flex="1">
               <menupopup id="smtpPopup">
                 <menuitem value=""
@@ -132,8 +132,8 @@
             </menulist>
 
             <button id="editSmtp"
-                    label="&smtpEdit.label;"
-                    accesskey="&smtpEdit.accesskey;"
+                    label="&smtpServerEdit.label;"
+                    accesskey="&smtpServerEdit.accesskey;"
                     oncommand="editCurrentSMTP();"/>
           </hbox>
 
