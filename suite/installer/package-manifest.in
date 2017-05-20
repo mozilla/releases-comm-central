@@ -531,6 +531,10 @@
 @RESPATH@/chrome/webide.manifest
 @RESPATH@/@PREF_DIR@/webide-prefs.js
 
+; [DevTools Shim Files]
+@RESPATH@/chrome/devtools-shim@JAREXT@
+@RESPATH@/chrome/devtools-shim.manifest
+
 ; DevTools
 @RESPATH@/chrome/devtools@JAREXT@
 @RESPATH@/chrome/devtools.manifest

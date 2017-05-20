@@ -305,6 +305,10 @@
 @RESPATH@/defaults/autoconfig/prefcalls.js
 @RESPATH@/components/autoconfig.xpt
 
+; [DevTools Shim Files]
+@RESPATH@/chrome/devtools-shim@JAREXT@
+@RESPATH@/chrome/devtools-shim.manifest
+
 ; DevTools
 @RESPATH@/chrome/devtools@JAREXT@
 @RESPATH@/chrome/devtools.manifest
