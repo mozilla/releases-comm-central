@@ -272,8 +272,21 @@ toolbar[brighttext] #button-print {
   border-color: #C6C6C6;
 }
 
+#msgIdentity[editable="true"] {
+  padding-inline-end: 12px;
+}
+
 #msgIdentity > .menulist-editable-box {
   padding-inline-start: 3px;
+}
+
+#msgIdentity[editable="true"] > menupopup {
+  -moz-appearance: menupopup;
+  margin-inline-start: 0;
+}
+
+#msgIdentity[editable="true"] > menupopup > menuitem {
+  -moz-appearance: menuitem;
 }
 
 #addresses-box {

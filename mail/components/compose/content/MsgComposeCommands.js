@@ -4670,7 +4670,6 @@ function MakeFromFieldEditable(ignoreWarning)
 
   var customizeMenuitem = document.getElementById("cmd_customizeFromAddress");
   customizeMenuitem.setAttribute("disabled", "true");
-  customizeMenuitem.setAttribute("checked", "true");
   var identityElement = document.getElementById("msgIdentity");
   identityElement.removeAttribute("type");
   identityElement.editable = true;
