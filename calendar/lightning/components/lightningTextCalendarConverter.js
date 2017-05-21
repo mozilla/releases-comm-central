@@ -72,10 +72,12 @@ ltnMimeConverter.prototype = {
             }
         }
 
-        if (msgWindow) {
-            let dom = ltn.invitation.createInvitationOverlay(event, itipItem);
-            msgOverlay = cal.xml.serializeDOM(dom);
+        // msgOverlay needs to be defined irrespectively of the existance of msgWindow to not break
+        // printing of invitation emails
+        let dom = ltn.invitation.createInvitationOverlay(event, itipItem);
+        msgOverlay = cal.xml.serializeDOM(dom);
 
+        if (msgWindow) {
             let sinkProps = msgWindow.msgHeaderSink.properties;
             sinkProps.setPropertyAsInterface("itipItem", itipItem);
             sinkProps.setPropertyAsAUTF8String("msgOverlay", msgOverlay);
