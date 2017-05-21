@@ -40,9 +40,6 @@
     <em:homepageURL>https://www.mozilla.org/projects/calendar/</em:homepageURL>
     <em:iconURL>chrome://calendar/skin/cal-icon32.png</em:iconURL>
     <em:optionsURL>chrome://messenger/content/preferences/preferences.xul</em:optionsURL>
-#ifdef LIGHTNING_UPDATE_LOCATION
-    <em:updateURL>@LIGHTNING_UPDATE_LOCATION@?buildID=@MOZ_BUILDID@&amp;appABI=%APP_ABI%&amp;appOS=%APP_OS%&amp;locale=%APP_LOCALE%&amp;appVersion=%APP_VERSION%&amp;appID=%APP_ID%</em:updateURL>
-#endif
     <em:unpack>true</em:unpack>
     <em:strictCompatibility>true</em:strictCompatibility>
   </Description>
