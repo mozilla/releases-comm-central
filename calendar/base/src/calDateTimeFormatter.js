@@ -30,13 +30,11 @@ calDateTimeFormatter.prototype = {
     },
 
     formatDateShort: function(aDate) {
-        let dtOptions = { year: 'numeric', month: '2-digit', day: '2-digit' };
-        return this._inTimezone(aDate, dtOptions);
+        return this._inTimezone(aDate, { dateStyle: "short" });
     },
 
     formatDateLong: function(aDate) {
-        let dtOptions = { weekday: 'long', year: 'numeric', month: 'long', day: '2-digit' };
-        return this._inTimezone(aDate, dtOptions);
+        return this._inTimezone(aDate, { dateStyle: "full" });
     },
 
     formatDateWithoutYear: function(aDate) {
@@ -49,8 +47,7 @@ calDateTimeFormatter.prototype = {
             return this.mDateStringBundle.GetStringFromName("AllDay");
         }
 
-        let timeOptions = { hour: 'numeric', minute: '2-digit' };
-        return this._inTimezone(aDate, timeOptions);
+        return this._inTimezone(aDate, { timeStyle: "short" });
     },
 
     formatDateTime: function(aDate) {
@@ -79,7 +76,8 @@ calDateTimeFormatter.prototype = {
             aOptions.timeZone = timezone.tzid;
         }
 
-        return cal.dateTimeToJsDate(aDate).toLocaleString(undefined, aOptions);
+        let formatter = Services.intl.createDateTimeFormat(undefined, aOptions);
+        return formatter.format(cal.dateTimeToJsDate(aDate));
     },
 
     formatTimeInterval: function(aStartDate, aEndDate) {
