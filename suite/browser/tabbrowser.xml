@@ -449,8 +449,6 @@
             mStateFlags: 0,
             mStatus: 0,
             mMessage: "",
-            mCurProgress: 0,
-            mMaxProgress: 0,
 
             // cache flags for correct status UI update after tab switching
             mTotalProgress: 0,
@@ -480,19 +478,18 @@
             onProgressChange: function (aWebProgress, aRequest,
                                         aCurSelfProgress, aMaxSelfProgress,
                                         aCurTotalProgress, aMaxTotalProgress) {
-              if (aMaxTotalProgress > 0)
-                this.mTab.setAttribute("progress", Math.floor(aCurTotalProgress * 9.9 / aMaxTotalProgress));
+              this.mTotalProgress = aMaxTotalProgress ? aCurTotalProgress / aMaxTotalProgress : 0;
 
-              if (this.mBlank)
+              if (!this._shouldShowProgress(aRequest))
                 return;
 
-              this.mCurProgress = aCurTotalProgress;
-              this.mMaxProgress = aMaxTotalProgress;
+              if (this.mTotalProgress)
+                this.mTab.setAttribute("progress", "true");
 
-              this.mTabBrowser._callProgressListeners(this.mBrowser, "onProgressChange",
-                                                      [aWebProgress, aRequest,
-                                                      aCurSelfProgress, aMaxSelfProgress,
-                                                      aCurTotalProgress, aMaxTotalProgress]);
+              this._callProgressListeners("onProgressChange",
+                                          [aWebProgress, aRequest,
+                                           aCurSelfProgress, aMaxSelfProgress,
+                                           aCurTotalProgress, aMaxTotalProgress]);
             },
 
             onProgressChange64: function (aWebProgress, aRequest,
@@ -1184,23 +1181,12 @@
                                          tabListener.mMessage],
                                         true, false);
 
-            this._callProgressListeners(null, "onProgressChange",
-                                        [this.mCurrentBrowser.webProgress,
-                                         tabListener.mRequest,
-                                         tabListener.mCurProgress,
-                                         tabListener.mMaxProgress,
-                                         tabListener.mCurProgress,
-                                         tabListener.mMaxProgress],
-                                        true, false);
-
             // Also send the onUpdateCurrentBrowser event for compatibility
-            var progress = tabListener.mMaxProgress > 0 ?
-                tabListener.mCurProgress / tabListener.mMaxProgress : 0;
             this._callProgressListeners(null, "onUpdateCurrentBrowser",
                                         [tabListener.mStateFlags,
                                          tabListener.mStatus,
                                          tabListener.mMessage,
-                                         progress],
+                                         tabListener.mTotalProgress],
                                         true, false);
 
             if (this.mAeroPeek)
