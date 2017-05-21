@@ -74,7 +74,7 @@ repack-process-extrafiles: lightning-extrafiles
 lightning-extrafiles: LTN_ABCD_L10NJS=$(call EXPAND_LOCALE_SRCDIR,calendar/locales)/lightning-l10n.js
 lightning-extrafiles: LTN_ANY_L10NJS=$(if $(wildcard $(LTN_ABCD_L10NJS)),$(LTN_ABCD_L10NJS),$(topsrcdir)/calendar/locales/en-US/lightning-l10n.js)
 lightning-extrafiles:
-	$(call py_action,preprocessor,$(PREF_PPFLAGS) $(DEFINES) $(ACDEFINES) $(XULPPFLAGS) $(LTN_ANY_L10NJS) -o $(DIST)/$(UNIVERSAL_PATH)xpi-stage/$(L10N_XPI_NAME)/$(PREF_DIR)/lightning-l10n.js)
+	$(call py_action,preprocessor,$(PREF_PPFLAGS) $(DEFINES) $(ACDEFINES) $(XULPPFLAGS) $(LTN_ANY_L10NJS) -o $(DIST)/xpi-stage/$(L10N_XPI_NAME)/$(PREF_DIR)/lightning-l10n.js)
 
 ident:
 	@printf 'comm_revision '
