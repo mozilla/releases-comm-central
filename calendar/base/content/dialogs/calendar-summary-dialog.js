@@ -75,7 +75,8 @@ function onLoad() {
 
             // make partstat NEEDS-ACTION only available as a option to change to,
             // if the user hasn't ever made a decision prior to opening the dialog
-            if (window.attendee.participationStatus == "NEEDS-ACTION" && cal.isEvent(item)) {
+            let partStat = window.attendee.participationStatus || "NEEDS-ACTION";
+            if (partStat == "NEEDS-ACTION" && cal.isEvent(item)) {
                 document.getElementById("item-participation-needs-action").removeAttribute("hidden");
             }
         }
@@ -245,12 +246,10 @@ function onCancel() {
 function updateInvitationStatus() {
     if (!window.readOnly) {
         if (window.attendee) {
-            let invitationRow =
-                document.getElementById("invitation-row");
+            let invitationRow = document.getElementById("invitation-row");
             invitationRow.removeAttribute("hidden");
-            let statusElement =
-                document.getElementById("item-participation");
-            statusElement.value = window.attendee.participationStatus;
+            let statusElement = document.getElementById("item-participation");
+            statusElement.value = window.attendee.participationStatus || "NEEDS-ACTION";
         }
     }
 }
