@@ -6,6 +6,7 @@
 // Load DownloadUtils module for convertByteUnits
 Components.utils.import("resource://gre/modules/DownloadUtils.jsm");
 Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
+Components.utils.import("resource://gre/modules/AppConstants.jsm");
 
 var gAdvancedPane = {
   mPane: null,
@@ -83,6 +84,47 @@ var gAdvancedPane = {
       if (document.getElementById("checkDefaultButton"))
         document.getElementById("checkDefaultButton").disabled = true;
       this.mShellServiceWorking = false;
+    }
+
+    let distroId = Services.prefs.getCharPref("distribution.id" , "");
+    if (distroId) {
+      let distroVersion = Services.prefs.getCharPref("distribution.version");
+
+      let distroIdField = document.getElementById("distributionId");
+      distroIdField.value = distroId + " - " + distroVersion;
+      distroIdField.style.display = "block";
+
+      let distroAbout = Services.prefs.getStringPref("distribution.about", "");
+      if (distroAbout) {
+        let distroField = document.getElementById("distribution");
+        distroField.value = distroAbout;
+        distroField.style.display = "block";
+      }
+    }
+
+    let version = AppConstants.MOZ_APP_VERSION_DISPLAY;
+
+    // Include the build ID and display warning if this is an "a#" (nightly) build
+    if (/a\d+$/.test(version)) {
+      let buildID = Services.appinfo.appBuildID;
+      let year = buildID.slice(0, 4);
+      let month = buildID.slice(4, 6);
+      let day = buildID.slice(6, 8);
+      version += ` (${year}-${month}-${day})`;
+    }
+
+    // Append "(32-bit)" or "(64-bit)" build architecture to the version number:
+    let bundle = Services.strings.createBundle("chrome://messenger/locale/messenger.properties");
+    let archResource = Services.appinfo.is64Bit
+                       ? "aboutDialog.architecture.sixtyFourBit"
+                       : "aboutDialog.architecture.thirtyTwoBit";
+    let arch = bundle.GetStringFromName(archResource);
+    version += ` (${arch})`;
+
+    document.getElementById("version").textContent = version;
+
+    if (AppConstants.MOZ_UPDATER) {
+      gAppUpdater = new appUpdater();
     }
 
     if (this._loadInContent) {

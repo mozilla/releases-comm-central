@@ -239,3 +239,16 @@ a {
 #provider-account-settings {
   -moz-box-flex: 0;
 }
+
+.update-throbber {
+  width: 16px;
+  min-height: 16px;
+  margin-inline-start: 6px;
+  list-style-image: url("chrome://global/skin/icons/loading.png");
+}
+
+@media (min-resolution: 1.1dppx) {
+  .update-throbber {
+    list-style-image: url("chrome://global/skin/icons/loading@2x.png");
+  }
+}

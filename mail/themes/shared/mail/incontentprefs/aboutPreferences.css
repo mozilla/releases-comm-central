@@ -231,6 +231,15 @@ tabs {
   border-color: #424e5a;
 }
 
+.update-throbber {
+  margin-inline-start: 0;
+  margin-inline-end: 4px;
+}
+
+#releasenotes {
+  margin-inline-start: 6px !important;
+}
+
 #telemetryLearnMore,
 #crashReporterLearnMore {
   margin-inline-end: 4px !important;

@@ -2,7 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-// Note: this file is included in aboutDialog.xul if MOZ_UPDATER is defined.
+// Note: this file is included in aboutDialog.xul and preferences/advanced.xul
+// if MOZ_UPDATER is defined.
 
 Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 Components.utils.import("resource://gre/modules/DownloadUtils.jsm");
@@ -164,6 +165,14 @@ appUpdater.prototype =
     if (button) {
       if (aChildID == "downloadAndInstall") {
         let updateVersion = gAppUpdater.update.displayVersion;
+        // Include the build ID if this is an "a#" (nightly) build
+        if (/a\d+$/.test(updateVersion)) {
+          let buildID = gAppUpdater.update.buildID;
+          let year = buildID.slice(0, 4);
+          let month = buildID.slice(4, 6);
+          let day = buildID.slice(6, 8);
+          updateVersion += ` (${year}-${month}-${day})`;
+        }
         button.label = this.bundle.formatStringFromName("update.downloadAndInstallButton.label", [updateVersion], 1);
         button.accessKey = this.bundle.GetStringFromName("update.downloadAndInstallButton.accesskey");
       }

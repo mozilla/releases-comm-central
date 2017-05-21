@@ -21,11 +21,18 @@
 %searchIntegrationDefaultDTD;
 #endif
 #endif
+#ifdef MOZ_UPDATER
+<!ENTITY % aboutDialogDTD SYSTEM "chrome://messenger/locale/aboutDialog.dtd" >
+%aboutDialogDTD;
+#endif
 ]>
 
 <overlay id="AdvancedPaneOverlay"
          xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
   <prefpane id="paneAdvanced" onpaneload="gAdvancedPane.init();">
+#ifdef MOZ_UPDATER
+    <script type="application/javascript" src="chrome://messenger/content/aboutDialog-appUpdater.js"/>
+#endif
     <script type="application/javascript" src="chrome://messenger/content/preferences/advanced.js"/>
     <script type="application/javascript" src="chrome://communicator/content/utilityOverlay.js"/>
 
@@ -349,35 +356,122 @@ type="bool"/>
 
 #ifdef MOZ_UPDATER
         <!-- Update -->
-        <tabpanel orient="vertical" align="start">
+        <tabpanel orient="vertical">
           <groupbox id="updateApp">
-            <caption label="&updateApp.label;"/>
+            <caption label="&updateApp2.label;"/>
+            <hbox align="center">
+              <vbox>
+                <description>
+                  &updateApp.version.pre;<label id="version"/>&updateApp.version.post;
+#ifndef NIGHTLY_BUILD
+#expand           <label id="releasenotes" class="text-link" href="https://www.mozilla.org/thunderbird/__MOZ_APP_VERSION__/releasenotes/">&releaseNotes.link;</label>
+#endif
+                </description>
+                <description id="distribution" class="text-blurb" hidden="true"/>
+                <description id="distributionId" class="text-blurb" hidden="true"/>
+              </vbox>
+              <spacer flex="1"/>
+              <vbox>
+                <button id="showUpdateHistory"
+                        label="&updateHistory.label;"
+                        accesskey="&updateHistory.accesskey;"
+                        preference="app.update.disable_button.showUpdateHistory"
+                        oncommand="gAdvancedPane.showUpdates();"/>
+              </vbox>
+            </hbox>
+            <vbox id="updateBox">
+              <deck id="updateDeck" orient="vertical">
+                <hbox id="checkForUpdates" align="center">
+                  <spacer flex="1"/>
+                  <button id="checkForUpdatesButton" align="start"
+                          label="&update.checkForUpdatesButton.label;"
+                          accesskey="&update.checkForUpdatesButton.accesskey;"
+                          oncommand="gAppUpdater.checkForUpdates();"/>
+                </hbox>
+                <hbox id="downloadAndInstall" align="center">
+                  <spacer flex="1"/>
+                  <button id="downloadAndInstallButton"
+                          oncommand="gAppUpdater.startDownload();"/>
+                          <!-- label and accesskey will be filled by JS -->
+                </hbox>
+                <hbox id="apply" align="center">
+                  <spacer flex="1"/>
+                  <button id="updateButton"
+                          label="&update.updateButton.label3;"
+                          accesskey="&update.updateButton.accesskey;"
+                          oncommand="gAppUpdater.buttonRestartAfterDownload();"/>
+                </hbox>
+                <hbox id="checkingForUpdates" align="center">
+                  <image class="update-throbber"/><label>&update.checkingForUpdates;</label>
+                  <spacer flex="1"/>
+                  <button label="&update.checkForUpdatesButton.label;"
+                          accesskey="&update.checkForUpdatesButton.accesskey;"
+                          disabled="true"/>
+                </hbox>
+                <hbox id="downloading" align="center">
+                  <image class="update-throbber"/><label>&update.downloading.start;</label><label id="downloadStatus"/><label>&update.downloading.end;</label>
+                </hbox>
+                <hbox id="applying" align="center">
+                  <image class="update-throbber"/><label>&update.applying;</label>
+                </hbox>
+               <hbox id="downloadFailed" align="center">
+                  <label>&update.failed.start;</label><label id="failedLink" class="text-link">&update.failed.linkText;</label><label>&update.failed.end;</label>
+                  <spacer flex="1"/>
+                  <button label="&update.checkForUpdatesButton.label;"
+                          accesskey="&update.checkForUpdatesButton.accesskey;"
+                          oncommand="gAppUpdater.checkForUpdates();"/>
+                </hbox>
+                <hbox id="adminDisabled" align="center">
+                  <label>&update.adminDisabled;</label>
+                  <spacer flex="1"/>
+                  <button label="&update.checkForUpdatesButton.label;"
+                          accesskey="&update.checkForUpdatesButton.accesskey;"
+                          disabled="true"/>
+                </hbox>
+                <hbox id="noUpdatesFound" align="center">
+                  <label>&update.noUpdatesFound;</label>
+                  <spacer flex="1"/>
+                  <button label="&update.checkForUpdatesButton.label;"
+                          accesskey="&update.checkForUpdatesButton.accesskey;"
+                          oncommand="gAppUpdater.checkForUpdates();"/>
+                </hbox>
+                <hbox id="otherInstanceHandlingUpdates" align="center">
+                  <label>&update.otherInstanceHandlingUpdates;</label>
+                  <spacer flex="1"/>
+                  <button label="&update.checkForUpdatesButton.label;"
+                          accesskey="&update.checkForUpdatesButton.accesskey;"
+                          disabled="true"/>
+                </hbox>
+                <hbox id="manualUpdate" align="center">
+                  <label>&update.manual.start;</label><label id="manualLink" class="text-link">&update.manual.linkText;</label><label>&update.manual.end;</label>
+                  <spacer flex="1"/>
+                  <button label="&update.checkForUpdatesButton.label;"
+                          accesskey="&update.checkForUpdatesButton.accesskey;"
+                          disabled="true"/>
+                </hbox>
+                <hbox id="unsupportedSystem" align="center">
+                  <label>&update.unsupported.start;</label><label id="unsupportedLink" class="text-link">&update.unsupported.linkText;</label><label>&update.unsupported.end;</label>
+                  <spacer flex="1"/>
+                  <button label="&update.checkForUpdatesButton.label;"
+                          accesskey="&update.checkForUpdatesButton.accesskey;"
+                          disabled="true"/>
+                </hbox>
+              </deck>
+            </vbox>
+            <separator/>
             <radiogroup id="updateRadioGroup"
+                        align="start"
                         oncommand="gAdvancedPane.updateWritePrefs();">
               <radio value="auto"
                      label="&updateAuto.label;"
                      accesskey="&updateAuto.accesskey;"/>
-              <hbox>
-                <radio value="checkOnly"
-                       label="&updateCheck.label;"
-                       accesskey="&updateCheck.accesskey;"/>
-                <spacer flex="1"/>
-              </hbox>
-              <hbox>
-                <radio value="manual"
-                       label="&updateManual.label;"
-                       accesskey="&updateManual.accesskey;"/>
-                <spacer flex="1"/>
-              </hbox>
+              <radio value="checkOnly"
+                     label="&updateCheck.label;"
+                     accesskey="&updateCheck.accesskey;"/>
+              <radio value="manual"
+                     label="&updateManual.label;"
+                     accesskey="&updateManual.accesskey;"/>
             </radiogroup>
-
-            <hbox>
-              <button id="showUpdateHistory"
-                      label="&updateHistory.label;"
-                      accesskey="&updateHistory.accesskey;"
-                      preference="app.update.disable_button.showUpdateHistory"
-                      oncommand="gAdvancedPane.showUpdates();"/>
-            </hbox>
           </groupbox>
 
 #ifdef MOZ_MAINTENANCE_SERVICE
