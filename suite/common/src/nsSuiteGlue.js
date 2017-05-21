@@ -14,9 +14,6 @@ Components.utils.import("resource:///modules/mailnewsMigrator.js");
 XPCOMUtils.defineLazyModuleGetter(this, "NetUtil",
                                   "resource://gre/modules/NetUtil.jsm");
 
-XPCOMUtils.defineLazyModuleGetter(this, "UserAgentOverrides",
-                                  "resource://gre/modules/UserAgentOverrides.jsm");
-
 XPCOMUtils.defineLazyModuleGetter(this, "FileUtils",
                                   "resource://gre/modules/FileUtils.jsm");
 
@@ -368,8 +365,6 @@ SuiteGlue.prototype = {
       Services.prefs.savePrefFile(null);
     }
 
-    this._setUpUserAgentOverrides();
-
     var timer = Components.classes["@mozilla.org/timer;1"]
                           .createInstance(Components.interfaces.nsITimer);
     timer.init(this, 3000, timer.TYPE_ONE_SHOT);
@@ -500,26 +495,6 @@ SuiteGlue.prototype = {
     }
   },
 
-  _setUpUserAgentOverrides: function ()
-  {
-    UserAgentOverrides.init();
-
-    function addMoodleOverride(aHttpChannel, aOriginalUA)
-    {
-      var cookies;
-      try {
-        cookies = aHttpChannel.getRequestHeader("Cookie");
-      } catch (e) { /* no cookie sent */ }
-
-      if (cookies && cookies.includes("MoodleSession"))
-        return aOriginalUA.replace(/Gecko\/[^ ]*/, "Gecko/20100101");
-      return null;
-    }
-
-    if (Services.prefs.getBoolPref("general.useragent.complexOverride.moodle"))
-      UserAgentOverrides.addComplexOverride(addMoodleOverride);
-  },
-
   // Browser startup complete. All initial windows have opened.
   _onBrowserStartup: function(aWindow)
   {
@@ -577,7 +552,6 @@ SuiteGlue.prototype = {
    */
   _onProfileShutdown: function()
   {
-    UserAgentOverrides.uninit()
   },
 
   _promptForMasterPassword: function()
