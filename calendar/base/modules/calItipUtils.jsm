@@ -1136,8 +1136,7 @@ function sendMessage(aItem, aMethod, aRecipientsList, autoResponse) {
         itipItem.init(cal.getSerializedItem(aSendItem));
         itipItem.responseMethod = aMethod;
         itipItem.targetCalendar = aSendItem.calendar;
-        itipItem.autoResponse = autoResponse && autoResponse.value ? cIII.calIItipItem.AUTO
-                                                                   : cIII.USER;
+        itipItem.autoResponse = autoResponse && autoResponse.value ? cIII.AUTO : cIII.USER;
         if (autoResponse) {
             autoResponse.value = true; // auto every following
         }
