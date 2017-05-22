@@ -2001,6 +2001,9 @@
             var entry = oldSH.getEntryAtIndex(oldSH.index, false)
                              .QueryInterface(Components.interfaces.nsISHEntry)
                              .clone();
+            // The bfcache entry is tightly coupled to the original shistory it
+            // belongs to, better to drop it.
+            entry.abandonBFCacheEntry();
             // don't try to repost data when restoring the tab
             entry.postData = null;
             newSH.addEntry(entry, true);
