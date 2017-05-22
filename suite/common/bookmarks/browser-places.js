@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var StarUI = {
-  _itemId: -1,
+  _itemGuids: -1,
   uri: null,
   _batching: false,
 
@@ -681,15 +681,14 @@ var PlacesMenuDNDHandler = {
 var PlacesStarButton = {
   _hasBookmarksObserver: false,
 
-  uninit: function PSB_uninit()
+  uninit: function BUI_uninit()
   {
     if (this._hasBookmarksObserver) {
       PlacesUtils.bookmarks.removeObserver(this);
     }
 
-    if (this._pendingStmt) {
-      this._pendingStmt.cancel();
-      delete this._pendingStmt;
+    if (this._pendingUpdate) {
+      delete this._pendingUpdate;
     }
   },
 
@@ -703,6 +702,7 @@ var PlacesStarButton = {
     return this._starredTooltip =
       gNavigatorBundle.getString("starButtonOn.tooltip");
   },
+
   get _unstarredTooltip()
   {
     delete this._unstarredTooltip;
@@ -710,54 +710,49 @@ var PlacesStarButton = {
       gNavigatorBundle.getString("starButtonOff.tooltip");
   },
 
-  updateState: function PSB_updateState()
-  {
-    if (this._uri && gBrowser.currentURI.equals(this._uri)) {
-      return;
-    }
-
-    // Reset tracked values.
+  updateStarState: function BUI_updateStarState() {
     this._uri = gBrowser.currentURI;
-    this._itemIds = [];
+    this._itemGuids = [];
+    let aItemGuids = [];
 
-    if (this._pendingStmt) {
-      this._pendingStmt.cancel();
-      delete this._pendingStmt;
-    }
+    // those objects are use to check if we are in the current iteration before
+    // returning any result.
+    let pendingUpdate = this._pendingUpdate = {};
 
-    this._pendingStmt = PlacesUtils.asyncGetBookmarkIds(this._uri, (aItemIds, aURI) => {
-      // Safety check that the bookmarked URI equals the tracked one.
-      if (!aURI.equals(this._uri)) {
-        Components.utils.reportError("PlacesStarButton did not receive current URI");
-        return;
-      }
+    PlacesUtils.bookmarks.fetch({url: this._uri}, b => aItemGuids.push(b.guid))
+      .catch(Components.utils.reportError)
+      .then(() => {
+         if (pendingUpdate != this._pendingUpdate) {
+           return;
+         }
 
-      // It's possible that onItemAdded gets called before the async statement
-      // calls back.  For such an edge case, retain all unique entries from both
-      // arrays.
-      this._itemIds = this._itemIds.filter(
-        id => aItemIds.indexOf(id) == -1
-      ).concat(aItemIds);
-      this._updateStateInternal();
+         // It's possible that onItemAdded gets called before the async statement
+         // calls back.  For such an edge case, retain all unique entries from the
+         // array.
+         this._itemGuids = this._itemGuids.filter(
+           guid => !aItemGuids.includes(guid)
+         ).concat(aItemGuids);
 
-      // Start observing bookmarks if needed.
-      if (!this._hasBookmarksObserver) {
-        try {
-          PlacesUtils.bookmarks.addObserver(this, false);
-          this._hasBookmarksObserver = true;
-        } catch(ex) {
-          Components.utils.reportError("PlacesStarButton failed adding a bookmarks observer: " + ex);
-        }
-      }
+         this._updateStar();
 
-      delete this._pendingStmt;
-    });
+         // Start observing bookmarks if needed.
+         if (!this._hasBookmarksObserver) {
+           try {
+             PlacesUtils.addLazyBookmarkObserver(this);
+             this._hasBookmarksObserver = true;
+           } catch (ex) {
+             Components.utils.reportError("BookmarkingUI failed adding a bookmarks observer: " + ex);
+           }
+         }
+
+         delete this._pendingUpdate;
+       });
   },
 
-  _updateStateInternal: function PSB__updateStateInternal()
+  _updateStar: function BUI__updateStar()
   {
     let starIcon = document.getElementById("star-button");
-    if (this._itemIds.length > 0) {
+    if (this._itemGuids.length > 0) {
       starIcon.setAttribute("starred", "true");
       starIcon.setAttribute("tooltiptext", this._starredTooltip);
     }
@@ -767,53 +762,58 @@ var PlacesStarButton = {
     }
   },
 
-  onClick: function PSB_onClick(aEvent)
+  onClick: function BUI_onClick(aEvent)
   {
     // Ignore clicks on the star while we update its state.
-    if (aEvent.button == 0 && !this._pendingStmt)
-      PlacesCommandHook.bookmarkCurrentPage(this._itemIds.length > 0);
+    if (aEvent.button == 0 && !this._pendingUpdate)
+      PlacesCommandHook.bookmarkCurrentPage(this._itemGuids.length > 0);
   },
 
   // nsINavBookmarkObserver
-  onItemAdded:
-  function PSB_onItemAdded(aItemId, aFolder, aIndex, aItemType, aURI)
-  {
+  onItemAdded(aItemId, aParentId, aIndex, aItemType, aURI, aTitle, aDateAdded, aGuid) {
     if (aURI && aURI.equals(this._uri)) {
       // If a new bookmark has been added to the tracked uri, register it.
-      if (this._itemIds.indexOf(aItemId) == -1) {
-        this._itemIds.push(aItemId);
-        this._updateStateInternal();
+      if (!this._itemGuids.includes(aGuid)) {
+        this._itemGuids.push(aGuid);
+        // Only need to update the UI if it wasn't marked as starred before:
+        if (this._itemGuids.length == 1) {
+          this._updateStar();
+        }
       }
     }
   },
 
-  onItemRemoved:
-  function PSB_onItemRemoved(aItemId, aFolder, aIndex, aItemType)
-  {
-    let index = this._itemIds.indexOf(aItemId);
+  onItemRemoved(aItemId, aParentId, aIndex, aItemType, aURI, aGuid) {
+    let index = this._itemGuids.indexOf(aGuid);
     // If one of the tracked bookmarks has been removed, unregister it.
     if (index != -1) {
-      this._itemIds.splice(index, 1);
-      this._updateStateInternal();
+      this._itemGuids.splice(index, 1);
+      // Only need to update the UI if the page is no longer starred
+      if (this._itemGuids.length == 0) {
+        this._updateStar();
+      }
     }
   },
 
-  onItemChanged:
-  function PSB_onItemChanged(aItemId, aProperty, aIsAnnotationProperty,
-                             aNewValue, aLastModified, aItemType)
-  {
+  onItemChanged(aItemId, aProperty, aIsAnnotationProperty, aNewValue, aLastModified,
+                aItemType, aParentId, aGuid) {
     if (aProperty == "uri") {
-      let index = this._itemIds.indexOf(aItemId);
+      let index = this._itemGuids.indexOf(aGuid);
       // If the changed bookmark was tracked, check if it is now pointing to
       // a different uri and unregister it.
       if (index != -1 && aNewValue != this._uri.spec) {
-        this._itemIds.splice(index, 1);
-        this._updateStateInternal();
-      }
-      // If another bookmark is now pointing to the tracked uri, register it.
-      else if (index == -1 && aNewValue == this._uri.spec) {
-        this._itemIds.push(aItemId);
-        this._updateStateInternal();
+        this._itemGuids.splice(index, 1);
+        // Only need to update the UI if the page is no longer starred
+        if (this._itemGuids.length == 0) {
+          this._updateStar();
+        }
+      } else if (index == -1 && aNewValue == this._uri.spec) {
+        // If another bookmark is now pointing to the tracked uri, register it.
+        this._itemGuids.push(aGuid);
+        // Only need to update the UI if it wasn't marked as starred before:
+        if (this._itemGuids.length == 1) {
+          this._updateStar();
+        }
       }
     }
   },
@@ -826,7 +826,7 @@ var PlacesStarButton = {
 
 
 // This object handles the initialization and uninitialization of the bookmarks
-// toolbar.  updateState is called when the browser window is opened and
+// toolbar.  updateStarState is called when the browser window is opened and
 // after closing the toolbar customization dialog.
 var PlacesToolbarHelper = {
   _place: "place:folder=TOOLBAR",
