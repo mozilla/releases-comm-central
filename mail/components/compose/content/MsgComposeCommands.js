@@ -4341,7 +4341,6 @@ function AttachmentElementHasItems()
 
 function OpenSelectedAttachment()
 {
-  let child;
   let bucket = document.getElementById("attachmentBucket");
   if (bucket.selectedItems.length == 1)
   {
