@@ -7,7 +7,9 @@
 @AB_CD@.jar:
 % locale branding @AB_CD@ %locale/@AB_CD@/branding/
 % locale communicator @AB_CD@ %locale/@AB_CD@/communicator/
-% locale communicator-platform @AB_CD@ %locale/@AB_CD@/communicator-platform/
+% locale communicator-platform @AB_CD@ %locale/@AB_CD@/communicator-platform/gtk/
+% locale communicator-platform @AB_CD@ %locale/@AB_CD@/communicator-platform/mac/ os=Darwin
+% locale communicator-platform @AB_CD@ %locale/@AB_CD@/communicator-platform/win/ os=WINNT
 % locale communicator-region @AB_CD@ %locale/@AB_CD@/communicator-region/
 % locale help @AB_CD@ %locale/@AB_CD@/helpviewer/
 % locale messenger @AB_CD@ %locale/@AB_CD@/messenger/
@@ -17,7 +19,9 @@
 % locale messenger-newsblog @AB_CD@ %locale/@AB_CD@/messenger-newsblog/
 % locale mozldap @AB_CD@ %locale/@AB_CD@/mozldap/
 % locale navigator @AB_CD@ %locale/@AB_CD@/navigator/
-% locale navigator-platform @AB_CD@ %locale/@AB_CD@/navigator-platform/
+% locale navigator-platform @AB_CD@ %locale/@AB_CD@/navigator-platform/gtk/
+% locale navigator-platform @AB_CD@ %locale/@AB_CD@/navigator-platform/mac/ os=Darwin
+% locale navigator-platform @AB_CD@ %locale/@AB_CD@/navigator-platform/win/ os=WINNT
 % locale navigator-region @AB_CD@ %locale/@AB_CD@/navigator-region/
   locale/@AB_CD@/branding/brand.dtd                                         (%chrome/branding/brand.dtd)
   locale/@AB_CD@/branding/brand.properties                                  (%chrome/branding/brand.properties)
@@ -197,7 +201,7 @@
   locale/@AB_CD@/communicator/pref/pref-sync.dtd                            (%chrome/common/pref/pref-sync.dtd)
   locale/@AB_CD@/communicator/pref/pref-tabs.dtd                            (%chrome/common/pref/pref-tabs.dtd)
   locale/@AB_CD@/communicator-platform/mac/pref/platformPrefOverlay.dtd     (%chrome/common/pref/mac/platformPrefOverlay.dtd)
-  locale/@AB_CD@/communicator-platform/unix/pref/platformPrefOverlay.dtd    (%chrome/common/pref/unix/platformPrefOverlay.dtd)
+  locale/@AB_CD@/communicator-platform/gtk/pref/platformPrefOverlay.dtd     (%chrome/common/pref/unix/platformPrefOverlay.dtd)
   locale/@AB_CD@/communicator-platform/win/pref/platformPrefOverlay.dtd     (%chrome/common/pref/win/platformPrefOverlay.dtd)
   locale/@AB_CD@/communicator/profile/profileSelection.dtd                  (%chrome/common/profile/profileSelection.dtd)
   locale/@AB_CD@/communicator/profile/profileSelection.properties           (%chrome/common/profile/profileSelection.properties)
@@ -219,7 +223,7 @@
   locale/@AB_CD@/communicator/sync/syncQuota.dtd                            (%chrome/common/sync/syncQuota.dtd)
   locale/@AB_CD@/communicator/sync/syncQuota.properties                     (%chrome/common/sync/syncQuota.properties)
   locale/@AB_CD@/communicator-platform/win/platformCommunicatorOverlay.dtd  (%chrome/common/win/platformCommunicatorOverlay.dtd)
-  locale/@AB_CD@/communicator-platform/unix/platformCommunicatorOverlay.dtd (%chrome/common/unix/platformCommunicatorOverlay.dtd)
+  locale/@AB_CD@/communicator-platform/gtk/platformCommunicatorOverlay.dtd  (%chrome/common/unix/platformCommunicatorOverlay.dtd)
   locale/@AB_CD@/communicator-platform/mac/platformCommunicatorOverlay.dtd  (%chrome/common/mac/platformCommunicatorOverlay.dtd)
   locale/@AB_CD@/communicator-region/region.properties                      (%chrome/common/region.properties)
   locale/@AB_CD@/messenger/AccountManager.dtd                               (%chrome/mailnews/pref/AccountManager.dtd)
@@ -369,7 +373,7 @@
   locale/@AB_CD@/navigator/taskbar.properties                               (%chrome/browser/taskbar.properties)
   locale/@AB_CD@/navigator/webDeveloper.dtd                                 (%chrome/browser/webDeveloper.dtd)
   locale/@AB_CD@/navigator-platform/mac/platformNavigationBindings.dtd      (%chrome/browser/mac/platformNavigationBindings.dtd)
-  locale/@AB_CD@/navigator-platform/unix/platformNavigationBindings.dtd     (%chrome/browser/unix/platformNavigationBindings.dtd)
+  locale/@AB_CD@/navigator-platform/gtk/platformNavigationBindings.dtd      (%chrome/browser/unix/platformNavigationBindings.dtd)
   locale/@AB_CD@/navigator-platform/win/platformNavigationBindings.dtd      (%chrome/browser/win/platformNavigationBindings.dtd)
   locale/@AB_CD@/navigator-region/region.properties                         (%chrome/browser/region.properties)
   locale/@AB_CD@/pippki/pref-certs.dtd                                      (%chrome/common/pref/pref-certs.dtd)

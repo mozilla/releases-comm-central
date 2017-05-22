@@ -4,7 +4,6 @@
 
 comm.jar:
 % content navigator %content/navigator/
-% content navigator-platform %content/navigator-platform/ platform
 % content navigator-region %content/navigator-region/
    content/navigator/browser.js
    content/navigator/content.js

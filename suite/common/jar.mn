@@ -42,7 +42,6 @@ comm.jar:
 % overlay chrome://messenger/content/mailViewSetup.xul chrome://communicator/content/helpMessengerOverlay.xul
 % overlay chrome://messenger-smime/content/msgCompSecurityInfo.xul chrome://communicator/content/helpMessengerOverlay.xul
 % overlay chrome://messenger-smime/content/msgReadSecurityInfo.xul chrome://communicator/content/helpMessengerOverlay.xul
-% content communicator-platform %content/communicator-platform/ platform
 % content communicator-region %content/communicator-region/
    content/communicator/about.js
    content/communicator/about.xhtml
