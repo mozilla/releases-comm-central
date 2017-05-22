@@ -1786,7 +1786,7 @@ function handleURLBarCommand(aUserAction, aTriggeringEvent)
  *           to discern a keyword or an alias, url will be the input string.
  */
 function getShortcutOrURIAndPostData(url) {
-  return Task.spawn(function* () {
+  return (async function() {
     let mayInheritPrincipal = false;
     let postData = null;
     // Split on the first whitespace.
@@ -1808,7 +1808,7 @@ function getShortcutOrURIAndPostData(url) {
     // from the location bar.
     let entry = null;
     try {
-      entry = yield PlacesUtils.keywords.fetch(keyword);
+      entry = await PlacesUtils.keywords.fetch(keyword);
     } catch (ex) {
       Components.utils.reportError(`Unable to fetch Places keyword "${keyword}": ${ex}`);
     }
@@ -1819,7 +1819,7 @@ function getShortcutOrURIAndPostData(url) {
 
     try {
       [url, postData] =
-        yield BrowserUtils.parseUrlAndPostData(entry.url.href,
+        await BrowserUtils.parseUrlAndPostData(entry.url.href,
                                                entry.postData,
                                                param);
       if (postData) {
@@ -1834,7 +1834,7 @@ function getShortcutOrURIAndPostData(url) {
     }
 
     return { url, postData, mayInheritPrincipal };
-  }).then(data => {
+  })().then(data => {
     return data;
   });
 }
@@ -1880,11 +1880,11 @@ function handleDroppedLink(event, urlOrLinks, name)
       inBackground = !inBackground;
   }
 
-  Task.spawn(function*() {
+  (async function() {
     let urls = [];
     let postDatas = [];
     for (let link of links) {
-      let data = yield getShortcutOrURIAndPostData(link.url);
+      let data = await getShortcutOrURIAndPostData(link.url);
       urls.push(data.url);
       postDatas.push(data.postData);
     }
@@ -1897,7 +1897,7 @@ function handleDroppedLink(event, urlOrLinks, name)
         userContextId,
       });
     }
-  });
+  })();
 
   // If links are dropped in content process, event.preventDefault() should be
   // called in content process.
