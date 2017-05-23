@@ -79,6 +79,7 @@ nsresult nsCMSSecureMessage::CheckUsageOk(
                                nullptr,
                                nullptr,
                                unusedBuiltChain,
+                               nullptr,
                                CertVerifier::FLAG_LOCAL_ONLY) == mozilla::pkix::Success) {
     *aCanBeUsed = true;
   }
