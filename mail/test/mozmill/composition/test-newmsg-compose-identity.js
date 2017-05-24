@@ -151,9 +151,9 @@ function test_editing_identity() {
   compWin.click(compWin.eid("msgIdentity"));
   compWin.click_menus_in_sequence(compWin.e("msgIdentityPopup"),
                                   [ { command: "cmd_customizeFromAddress" } ]);
+  compWin.waitFor(() => compWin.e("msgIdentity").editable);
 
-  compWin.type(compWin.e("msgIdentityPopup").value, identityCustom);
-
+  compWin.type(compWin.eid("msgIdentityPopup"), identityCustom);
   checkCompIdentity(compWin, account.defaultIdentity.key, identityCustom, identityCustom);
   close_compose_window(compWin);
 

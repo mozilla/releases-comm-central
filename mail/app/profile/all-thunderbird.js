@@ -542,6 +542,9 @@ pref("mail.compose.big_attachments.threshold_kb", 5120);
 // their message when the upload is completed
 pref("mail.compose.big_attachments.insert_notification", true);
 
+// While false, display information about editing sending identity in compose.
+pref("mail.compose.warned_about_customize_from", false);
+
 // Instrumentation is currently unfinished, do not enable it.
 // Set this to false to prevent instrumentation from happening, e.g., user
 // has opted out, or an enterprise wants to disable it from the get go.
