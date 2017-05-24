@@ -233,7 +233,7 @@ contact[droptarget] > buddy[dummy] {
 
 .dummyBuddyIcon {
   margin: 1px 3px;
-  list-style-image: url("chrome://mozapps/skin/places/defaultFavicon.png");
+  list-style-image: url("chrome://mozapps/skin/places/defaultFavicon.svg");
 }
 
 .dummyBuddyLabel {

@@ -101,7 +101,7 @@ radio[pane=paneAdvanced] {
   width: 16px;
   height: 16px;
   margin: 0 2px;
-  list-style-image: url("chrome://mozapps/skin/places/defaultFavicon.png");
+  list-style-image: url("chrome://mozapps/skin/places/defaultFavicon.svg");
 }
 
 #cookiesChildren::-moz-tree-image(domainCol, container) {

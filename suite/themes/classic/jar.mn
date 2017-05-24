@@ -492,4 +492,4 @@ classic.jar:
 % override chrome://global/skin/aboutSupport.css                  chrome://communicator/skin/aboutSupport.css
 % override chrome://global/skin/config.css                        chrome://communicator/skin/config.css
 % override chrome://global/skin/in-content/info-pages.css         chrome://communicator/skin/communicator.css
-% override chrome://mozapps/skin/places/defaultFavicon.png        chrome://communicator/skin/bookmarks/bookmark-item.png
+% override chrome://mozapps/skin/places/defaultFavicon.svg        chrome://communicator/skin/bookmarks/bookmark-item.png

@@ -43,7 +43,7 @@ tab[attention],
 /* Tab icons */
 .tabbrowser-tab,
 .alltabs-item > .menu-iconic-left > .menu-iconic-icon {
-  list-style-image: url("chrome://mozapps/skin/places/defaultFavicon.png");
+  list-style-image: url("chrome://mozapps/skin/places/defaultFavicon.svg");
   -moz-image-region: rect(0px, 16px, 16px, 0px);
 }
 
