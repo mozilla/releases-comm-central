@@ -893,9 +893,9 @@ nsresult nsMsgComposeSecure::MimeCryptoHackCerts(const char *aRecipients,
 
   UniqueCERTCertList builtChain;
   if (!mEncryptionCertDBKey.IsEmpty()) {
-    certdb->FindCertByDBKey(mEncryptionCertDBKey,
-                            getter_AddRefs(mSelfEncryptionCert));
-    if (mSelfEncryptionCert &&
+    res = certdb->FindCertByDBKey(mEncryptionCertDBKey,
+                                  getter_AddRefs(mSelfEncryptionCert));
+    if (NS_SUCCEEDED(res) && mSelfEncryptionCert &&
         (certVerifier->VerifyCert(mSelfEncryptionCert->GetCert(),
                                   certificateUsageEmailRecipient,
                                   mozilla::pkix::Now(),
@@ -911,9 +911,9 @@ nsresult nsMsgComposeSecure::MimeCryptoHackCerts(const char *aRecipients,
 
   // same procedure for the signing cert
   if (!mSigningCertDBKey.IsEmpty()) {
-    certdb->FindCertByDBKey(mSigningCertDBKey,
-                            getter_AddRefs(mSelfSigningCert));
-    if (mSelfSigningCert &&
+    res = certdb->FindCertByDBKey(mSigningCertDBKey,
+                                  getter_AddRefs(mSelfSigningCert));
+    if (NS_SUCCEEDED(res) && mSelfSigningCert &&
         (certVerifier->VerifyCert(mSelfSigningCert->GetCert(),
                                   certificateUsageEmailSigner,
                                   mozilla::pkix::Now(),
