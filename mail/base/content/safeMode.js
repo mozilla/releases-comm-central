@@ -14,6 +14,10 @@ function deleteLocalstore() {
   var localstoreFile = Services.dirsvc.get("LStoreS", Components.interfaces.nsIFile);
   if (localstoreFile.exists())
     localstoreFile.remove(false);
+  // Delete the new xulstore file.
+  localstoreFile.leafName = "xulstore.json";
+  if (localstoreFile.exists())
+    localstoreFile.remove(false);
 }
 
 function disableAddons() {

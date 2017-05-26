@@ -158,7 +158,6 @@
 ; Mail Specific Files
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 @RESPATH@/defaults/messenger/mailViews.dat
-@RESPATH@/defaults/profile/localstore.rdf
 @RESPATH@/defaults/profile/prefs.js
 @RESPATH@/defaults/profile/mimeTypes.rdf
 
