@@ -189,7 +189,8 @@ NS_IMETHODIMP nsCMSMessage::GetSignerCert(nsIX509Cert **scert)
     nsDependentCSubstring certDER(
       reinterpret_cast<char*>(si->cert->derCert.data),
       si->cert->derCert.len);
-    certdb->ConstructX509(certDER, getter_AddRefs(cert));
+    nsresult rv = certdb->ConstructX509(certDER, getter_AddRefs(cert));
+    NS_ENSURE_SUCCESS(rv, rv);
   }
   else {
     MOZ_LOG(gPIPNSSLog, LogLevel::Debug, ("nsCMSMessage::GetSignerCert no signer cert, do we have a cert list? %s\n",

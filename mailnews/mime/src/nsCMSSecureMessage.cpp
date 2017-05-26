@@ -121,18 +121,13 @@ DecodeCert(const char *value, nsIX509Cert ** _retval)
 
   nsDependentCSubstring certDER(reinterpret_cast<char*>(data), length);
   nsCOMPtr<nsIX509Cert> cert;
-  certdb->ConstructX509(certDER, getter_AddRefs(cert));
+  rv = certdb->ConstructX509(certDER, getter_AddRefs(cert));
+  NS_ENSURE_SUCCESS(rv, rv);
 
-  if (cert) {
-    *_retval = cert;
-    NS_ADDREF(*_retval);
-  }
-  else {
-    rv = NS_ERROR_FAILURE;
-  }
-
+  cert.forget(_retval);
   free((char*)data);
-  return rv;
+
+  return NS_OK;
 }
 
 // nsCMSSecureMessage::SendMessage
