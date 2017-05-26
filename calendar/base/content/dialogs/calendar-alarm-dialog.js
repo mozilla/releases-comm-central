@@ -217,7 +217,7 @@ function aboveSnoozeLimit(aDuration) {
     let durationUntilLimit = limitTime.subtractDate(currentTime);
     if (aDuration.compare(durationUntilLimit) > 0) {
         let msg = PluralForm.get(LIMIT, cal.calGetString("calendar", "alarmSnoozeLimitExceeded"));
-        showError(msg.replace("#1", LIMIT));
+        cal.showError(msg.replace("#1", LIMIT), window);
         return true;
     }
     return false;

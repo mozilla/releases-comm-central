@@ -128,7 +128,7 @@
         tree.view = this.mTreeView;
 
         // set up our calendar event observer
-        let composite = getCompositeCalendar();
+        let composite = cal.getCompositeCalendar(window);
         composite.addObserver(this.mTaskTreeObserver);
 
         // set up the preference observer
@@ -173,7 +173,7 @@
         Components.utils.import("resource://gre/modules/Services.jsm");
 
         // remove composite calendar observer
-        let composite = getCompositeCalendar();
+        let composite = cal.getCompositeCalendar(window);
         composite.removeObserver(this.mTaskTreeObserver);
 
         // remove the preference observer
@@ -979,7 +979,7 @@
       <method name="refresh">
         <parameter name="aFilter"/>
         <body><![CDATA[
-          let cals = getCompositeCalendar().getCalendars({}) || [];
+          let cals = cal.getCompositeCalendar(window).getCalendars({}) || [];
           for (let calendar of cals) {
               if (!calendar.getProperty("disabled")) {
                   this.refreshFromCalendar(calendar, aFilter);

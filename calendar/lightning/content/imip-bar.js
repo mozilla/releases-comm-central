@@ -339,7 +339,7 @@ var ltnImipBar = {
                         imipBar.setAttribute("label", label);
 
                         if (!Components.isSuccessCode(aStatus)) {
-                            showError(label);
+                            cal.showError(label);
                         }
                     },
                     onGetResult: function(aCalendar, aStatus, aItemType, aDetail, aCount, aItems) {

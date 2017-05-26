@@ -1024,15 +1024,12 @@ function ASSERT(aCondition, aMessage, aCritical) {
 
 /**
  * Uses the prompt service to display an error message.
- * This function cannot be migrated into a module file, because it relies on an outer window object.
  *
  * @param aMsg The message to be shown
+ * @param aWindow The window to show the message in, or null for any window.
  */
-function showError(aMsg) {
-    let wnd = window || null;
-    if (wnd) {
-        Services.prompt.alert(wnd, calGetString("calendar", "genericErrorTitle"), aMsg);
-    }
+function showError(aMsg, aWindow=null) {
+    Services.prompt.alert(aWindow, cal.calGetString("calendar", "genericErrorTitle"), aMsg);
 }
 
 /**
@@ -1859,29 +1856,22 @@ function binaryInsert(itemArray, item, comptor, discardDuplicates) {
 /**
  * Gets the cached instance of the composite calendar.
  *
- * WARNING: Great care should be taken how this function is called. If it is
- * called as "cal.getCompositeCalendar()" then it is called through calUtils.jsm
- * which means there will be one instance per app. If called as
- * "getCompositeCalendar()" from chrome code, then it will get a window-specific
- * composite calendar, which is often what is wanted
+ * @param aWindow       The window to get the composite calendar for.
  */
-function getCompositeCalendar() {
-    if (getCompositeCalendar.mObject === undefined) {
-        getCompositeCalendar.mObject = Components.classes["@mozilla.org/calendar/calendar;1?type=composite"]
-                                                 .createInstance(Components.interfaces.calICompositeCalendar);
-        getCompositeCalendar.mObject.prefPrefix = "calendar-main";
+function getCompositeCalendar(aWindow) {
+    if (typeof aWindow._compositeCalendar == "undefined") {
+        let comp = aWindow._compositeCalendar = Components.classes["@mozilla.org/calendar/calendar;1?type=composite"]
+                                                          .createInstance(Components.interfaces.calICompositeCalendar);
+        comp.prefPrefix = "calendar-main";
 
-        try {
-            if (gCalendarStatusFeedback) {
-                // If we are in a window that has calendar status feedback, set up
-                // our status observer.
-                let chromeWindow = window.QueryInterface(Components.interfaces.nsIDOMChromeWindow);
-                getCompositeCalendar.mObject.setStatusObserver(gCalendarStatusFeedback, chromeWindow);
-            }
-        } catch (exc) { // catch errors in case we run in contexts without status feedback
+        if (typeof aWindow.gCalendarStatusFeedback != "undefined") {
+            // If we are in a window that has calendar status feedback, set
+            // up our status observer.
+            let chromeWindow = aWindow.QueryInterface(Components.interfaces.nsIDOMChromeWindow);
+            comp.setStatusObserver(gCalendarStatusFeedback, chromeWindow);
         }
     }
-    return getCompositeCalendar.mObject;
+    return aWindow._compositeCalendar;
 }
 
 /**

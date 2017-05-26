@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+Components.utils.import("resource://calendar/modules/calUtils.jsm");
 Components.utils.import("resource://calendar/modules/calAlarmUtils.jsm");
 Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 
@@ -153,7 +154,7 @@ var taskEdit = {
             taskEdit.onBlur({ target: taskEditFields[i] });
         }
 
-        getCompositeCalendar().addObserver(taskEdit.compositeObserver);
+        cal.getCompositeCalendar(window).addObserver(taskEdit.compositeObserver);
         taskEdit.observedCalendar = getSelectedCalendar();
     },
 
@@ -161,7 +162,7 @@ var taskEdit = {
      * Window load function to clean up all quick-add fields.
      */
     onUnload: function() {
-        getCompositeCalendar().removeObserver(taskEdit.compositeObserver);
+        cal.getCompositeCalendar(window).removeObserver(taskEdit.compositeObserver);
         taskEdit.observedCalendar = null;
     },
 

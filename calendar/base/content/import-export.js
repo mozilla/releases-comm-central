@@ -87,10 +87,10 @@ function loadEventsFromFile(aCalendar) {
             exception = ex;
             switch (ex.result) {
                 case Components.interfaces.calIErrors.INVALID_TIMEZONE:
-                    showError(cal.calGetString("calendar", "timezoneError", [filePath]));
+                    cal.showError(cal.calGetString("calendar", "timezoneError", [filePath]), window);
                     break;
                 default:
-                    showError(cal.calGetString("calendar", "unableToRead") + filePath + "\n" + ex);
+                    cal.showError(cal.calGetString("calendar", "unableToRead") + filePath + "\n" + ex, window);
             }
         } finally {
             inputStream.close();
@@ -99,7 +99,7 @@ function loadEventsFromFile(aCalendar) {
         if (!items.length && !exception) {
             // the ics did not contain any events, so there's no need to proceed. But we should
             // notify the user about it, if we haven't before.
-            showError(cal.calGetString("calendar", "noItemsInCalendarFile", [filePath]));
+            cal.showError(cal.calGetString("calendar", "noItemsInCalendarFile", [filePath]), window);
             return;
         }
 
@@ -174,9 +174,9 @@ function putItemsIntoCal(destCal, aItems, aFilePath) {
             if (count == aItems.length) {
                 destCal.endBatch();
                 if (!failedCount && duplicateCount) {
-                    showError(calGetString("calendar", "duplicateError", [duplicateCount, aFilePath]));
+                    cal.showError(calGetString("calendar", "duplicateError", [duplicateCount, aFilePath]), window);
                 } else if (failedCount) {
-                    showError(calGetString("calendar", "importItemsFailed", [failedCount, lastError.toString()]));
+                    cal.showError(calGetString("calendar", "importItemsFailed", [failedCount, lastError.toString()]), window);
                 }
             }
         }
@@ -306,7 +306,7 @@ function saveEventsToFile(calendarEventArray, aDefaultFileName) {
                                     null);
             outputStream.close();
         } catch (ex) {
-            showError(calGetString("calendar", "unableToWrite") + filePath);
+            cal.showError(calGetString("calendar", "unableToWrite") + filePath, window);
         }
     }
 }

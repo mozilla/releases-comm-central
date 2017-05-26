@@ -281,7 +281,7 @@ var gDataMigrator = {
                 calendar.name = getRDFAttr(node, "name");
                 calendar.setProperty("color", getRDFAttr(node, "color"));
                 calManager.registerCalendar(calendar);
-                getCompositeCalendar().addCalendar(calendar);
+                cal.getCompositeCalendar(window).addCalendar(calendar);
             }
             aCallback();
         }
@@ -399,7 +399,7 @@ var gDataMigrator = {
                 calendar.name = "iCalendar"+i;
                 i++;
                 calManager.registerCalendar(calendar);
-                getCompositeCalendar().addCalendar(calendar);
+                cal.getCompositeCalendar(window).addCalendar(calendar);
             }
             migLOG("icalMig making callback");
             aCallback();
@@ -437,7 +437,7 @@ var gDataMigrator = {
                     var calendar = gDataMigrator.importICSToStorage(dataStore);
                     calendar.name = "Evolution " + (i++);
                     calManager.registerCalendar(calendar);
-                    getCompositeCalendar().addCalendar(calendar);
+                    cal.getCompositeCalendar(window).addCalendar(calendar);
                 }
                 return dataStore.exists();
             }
@@ -489,7 +489,7 @@ var gDataMigrator = {
                     calManager.registerCalendar(storage);
 
                     if (enabled) {
-                        getCompositeCalendar().addCalendar(storage);
+                        cal.getCompositeCalendar(window).addCalendar(storage);
                     }
                 }
             }
@@ -556,10 +556,10 @@ var gDataMigrator = {
         } catch(ex) {
             switch (ex.result) {
                 case Components.interfaces.calIErrors.INVALID_TIMEZONE:
-                    showError(calGetString("calendar", "timezoneError", [icsFile.path]));
+                    cal.showError(calGetString("calendar", "timezoneError", [icsFile.path]), window);
                     break;
                 default:
-                    showError(calGetString("calendar", "unableToRead") + icsFile.path + "\n"+ ex);
+                    cal.showError(calGetString("calendar", "unableToRead") + icsFile.path + "\n"+ ex, window);
             }
         } finally {
            inputStream.close();

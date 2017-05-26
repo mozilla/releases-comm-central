@@ -439,6 +439,7 @@
       <constructor><![CDATA[
         Components.utils.import("resource://gre/modules/Services.jsm");
         Components.utils.import("resource://gre/modules/Preferences.jsm");
+        Components.utils.import("resource://calendar/modules/calUtils.jsm");
 
         this.mToday = false;
         this.mSelected = false;
@@ -464,7 +465,7 @@
         Components.utils.import("resource://gre/modules/Services.jsm");
 
         if (this.mObservesComposite == true) {
-            getCompositeCalendar().removeObserver(this);
+            cal.getCompositeCalendar(window).removeObserver(this);
         }
 
         // Remove pref observer
@@ -1022,12 +1023,12 @@
         <body><![CDATA[
           if (aFreeBusy == true) {
               if (this.mObservesComposite == false) {
-                  getCompositeCalendar().addObserver(this);
+                  cal.getCompositeCalendar(window).addObserver(this);
                   this.mObservesComposite = true;
                   this.getItems();
               }
           } else if (this.mObservesComposite == true) {
-              getCompositeCalendar().removeObserver(this);
+              cal.getCompositeCalendar(window).removeObserver(this);
               this.mObservesComposite = false;
           }
         ]]></body>
@@ -1064,7 +1065,7 @@
           // The minimonth automatically clears extra styles on a month change.
           // Therefore we only need to fill the minimonth with new info.
 
-          let calendar = aCalendar || getCompositeCalendar();
+          let calendar = aCalendar || cal.getCompositeCalendar(window);
           let filter = calendar.ITEM_FILTER_COMPLETED_ALL |
                        calendar.ITEM_FILTER_CLASS_OCCURRENCES |
                        calendar.ITEM_FILTER_ALL_ITEMS;

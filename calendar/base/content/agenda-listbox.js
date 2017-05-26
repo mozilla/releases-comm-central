@@ -6,6 +6,8 @@ Components.utils.import("resource://gre/modules/Services.jsm");
 Components.utils.import("resource://gre/modules/Preferences.jsm");
 Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 
+Components.utils.import("resource://calendar/modules/calUtils.jsm");
+
 function Synthetic(aOpen, aDuration, aMultiday) {
     this.open = aOpen;
     this.duration = aDuration;
@@ -683,7 +685,7 @@ agendaListbox.refreshCalendarQuery = function(aStart, aEnd, aCalendar) {
 agendaListbox.setupCalendar = function() {
     this.init();
     if (this.calendar == null) {
-        this.calendar = getCompositeCalendar();
+        this.calendar = cal.getCompositeCalendar(window);
     }
     if (this.calendar) {
         // XXX This always gets called, does that happen on purpose?

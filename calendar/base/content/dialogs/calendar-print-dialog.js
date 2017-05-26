@@ -161,7 +161,7 @@ function getPrintSettings(receiverFunc) {
         };
         let filter = getFilter(settings);
         if (filter) {
-            window.opener.getCompositeCalendar().getItems(filter, 0, settings.start, settings.end, listener);
+            cal.getCompositeCalendar(window.opener).getItems(filter, 0, settings.start, settings.end, listener);
         } else {
             // No filter means no items, just complete with the empty list set above
             receiverFunc(settings);

@@ -248,7 +248,7 @@ function switchToView(aViewType) {
     let viewTabs = document.getElementById("view-tabs");
     viewTabs.selectedIndex = getViewDeck().selectedIndex;
 
-    let compositeCal = getCompositeCalendar();
+    let compositeCal = cal.getCompositeCalendar(window);
     if (view.displayCalendar != compositeCal) {
         view.displayCalendar = compositeCal;
         view.timezone = calendarDefaultTimezone();
@@ -651,7 +651,7 @@ function selectAllEvents() {
         }
     };
 
-    let composite = getCompositeCalendar();
+    let composite = cal.getCompositeCalendar(window);
     let filter = composite.ITEM_FILTER_CLASS_OCCURRENCES;
 
     if (currentView().tasksInView) {

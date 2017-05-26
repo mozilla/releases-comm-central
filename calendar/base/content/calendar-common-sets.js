@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 Components.utils.import("resource://gre/modules/Services.jsm");
+Components.utils.import("resource://calendar/modules/calUtils.jsm");
 
 /* exported injectCalendarCommandController, removeCalendarCommandController,
  *          setupContextItemType, minimonthPick, getSelectedItems,
@@ -385,7 +386,7 @@ var calendarController = {
                 break;
 
             case "calendar_reload_remote_calendars":
-                getCompositeCalendar().refresh();
+                cal.getCompositeCalendar(window).refresh();
                 break;
             case "calendar_show_unifinder_command":
                 toggleUnifinder();
