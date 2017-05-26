@@ -57,14 +57,6 @@ $(XPI_ZIP_IN): ensure-stage-dir
 # Target Directory used for the l10n files
 L10N_TARGET = $(XPI_STAGE_PATH)/$(XPI_NAME)-$(AB_CD)
 
-# Short name of the OS used in shipped-locales file. For now osx is the only
-# special case, so assume linux for everything else.
-ifeq (cocoa,$(MOZ_WIDGET_TOOLKIT))
-SHORTOS = osx
-else
-SHORTOS = linux
-endif
-
 # function print_ltnconfig(section,configname)
 print_ltnconfig = $(shell $(PYTHON) $(MOZILLA_SRCDIR)/config/printconfigsetting.py $(XPI_STAGE_PATH)/$(XPI_NAME)/app.ini $1 $2)
 
