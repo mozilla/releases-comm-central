@@ -371,6 +371,8 @@
 @RESPATH@/components/cryptoComponents.manifest
 @RESPATH@/components/devtools-startup.manifest
 @RESPATH@/components/devtools-startup.js
+@RESPATH@/components/aboutdebugging-registration.js
+@RESPATH@/components/aboutdebugging.manifest
 @RESPATH@/components/Downloads.manifest
 @RESPATH@/components/DownloadLegacy.js
 @RESPATH@/components/EditorUtils.manifest
