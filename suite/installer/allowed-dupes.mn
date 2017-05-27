@@ -193,8 +193,6 @@ extensions/modern@themes.mozilla.org/chrome/modern/skin/modern/mozapps/extension
 extensions/modern@themes.mozilla.org/chrome/modern/skin/modern/mozapps/xpinstall/xpinstallItemGeneric.png
 extensions/modern@themes.mozilla.org/chrome/modern/skin/modern/mozapps/extensions/category-discover.png
 chrome/toolkit/skin/classic/mozapps/extensions/category-discover-XP.png
-extensions/modern@themes.mozilla.org/chrome/modern/skin/modern/global/media/videoClickToPlayButton.svg
-chrome/toolkit/skin/classic/global/media/videoClickToPlayButton.svg
 extensions/modern@themes.mozilla.org/chrome/modern/skin/modern/mozapps/extensions/rating-won.png
 chrome/toolkit/skin/classic/mozapps/extensions/rating-won.png
 extensions/modern@themes.mozilla.org/chrome/modern/skin/modern/mozapps/plugins/contentPluginCrashed.png
@@ -240,7 +238,6 @@ extensions/modern@themes.mozilla.org/chrome/modern/skin/modern/global/icons/sslW
 chrome/toolkit/skin/classic/global/icons/sslWarning-XP.png
 extensions/modern@themes.mozilla.org/chrome/modern/skin/modern/messenger/addressbook/icons/contact-generic.png
 chrome/classic/skin/classic/messenger/addressbook/icons/contact-generic.png
-extensions/modern@themes.mozilla.org/chrome/modern/skin/modern/global/media/clicktoplay-bgtexture.png
 extensions/modern@themes.mozilla.org/chrome/modern/skin/modern/communicator/sync/sync-16-throbber.png
 chrome/classic/skin/classic/communicator/sync/sync-16-throbber.png
 extensions/modern@themes.mozilla.org/chrome/modern/skin/modern/global/media/error.png
