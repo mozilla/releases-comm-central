@@ -37,6 +37,16 @@ interface nsIMsgFolder : nsISupports {
   const nsMsgBiffState nsMsgBiffState_NoMail =  1; // No new mail is waiting.
   const nsMsgBiffState nsMsgBiffState_Unknown = 2; // We dunno whether there is new mail.
 
+  /* folder name properties */
+  readonly attribute ACString URI;
+  attribute AString name;
+  attribute AString prettyName;
+  readonly attribute AString abbreviatedName;
+  // [deprecated]
+  readonly attribute AString prettiestName;
+
+  attribute nsIMsgFolder parent;
+
   /// Returns an enumerator containing the messages within the current database.
   readonly attribute nsISimpleEnumerator messages;
 
@@ -45,8 +55,6 @@ interface nsIMsgFolder : nsISupports {
 
   /* get new headers for db */
   void updateFolder(in nsIMsgWindow aWindow);
-
-  readonly attribute AString prettiestName;
 
   /**
    * URL for this folder
@@ -615,14 +623,6 @@ interface nsIMsgFolder : nsISupports {
 
   /* does not persist across sessions */
   attribute nsMsgKey lastMessageLoaded;
-
-  /* old nsIFolder properties and methods */
-  readonly attribute ACString URI;
-  attribute AString name;
-  attribute AString prettyName;
-  readonly attribute AString abbreviatedName;
-
-  attribute nsIMsgFolder parent;
 
   /**
    * Returns an enumerator containing a list of nsIMsgFolder items that are

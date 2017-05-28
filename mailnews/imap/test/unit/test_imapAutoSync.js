@@ -91,7 +91,7 @@ function* test_moveMessageToTargetFolder()
   let observer = gAutoSyncManager.QueryInterface(Ci.nsIObserver);
   observer.observe(null, "mail:appIdle", "back");
   let msgHdr = mailTestUtils.firstMsgHdr(IMAPPump.inbox);
-  do_check_neq(msgHdr, null);
+  do_check_true(msgHdr !== null);
 
   // Now move this message to the target folder.
   let messages = Cc["@mozilla.org/array;1"]

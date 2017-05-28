@@ -102,7 +102,7 @@ function* testDetach()
 
   // Get the message header - detached copy has UID 2.
   let msgHdr = IMAPPump.inbox.GetMessageHeader(2);
-  do_check_neq(msgHdr, null);
+  do_check_true(msgHdr !== null);
   let messageContent = getContentFromMessage(msgHdr);
   do_check_true(messageContent.includes("AttachmentDetached"));
 }

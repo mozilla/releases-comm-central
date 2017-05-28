@@ -80,9 +80,9 @@ var tests = [
     let folder1 = IMAPPump.inbox.getChildNamed("empty 1");
     do_check_eq(folderCount(folder1), 2);
     let folder2 = IMAPPump.inbox.getChildNamed("empty 2");
-    do_check_neq(folder2, null);
+    do_check_true(folder2 !== null);
     // folder 1 and 2 should each now have two messages in them.
-    do_check_neq(folder1, null);
+    do_check_true(folder1 !== null);
     do_check_eq(folderCount(folder2), 2);
     // The local inbox folder should now be empty, since the second
     // operation was a move.

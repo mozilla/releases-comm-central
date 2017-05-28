@@ -38,9 +38,9 @@ function* setup() {
 function check() {
   const gDbService = Cc["@mozilla.org/msgDatabase/msgDBService;1"]
                        .getService(Ci.nsIMsgDBService);
-  do_check_neq(gDbService.cachedDBForFolder(IMAPPump.inbox), null);
-  do_check_eq(gDbService.cachedDBForFolder(gFolder1), null);
-  do_check_eq(gDbService.cachedDBForFolder(gFolder2), null);
+  do_check_true(gDbService.cachedDBForFolder(IMAPPump.inbox) !== null);
+  do_check_true(gDbService.cachedDBForFolder(gFolder1) === null);
+  do_check_true(gDbService.cachedDBForFolder(gFolder2) === null);
 }
 
 function teardown() {

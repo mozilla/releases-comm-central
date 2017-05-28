@@ -45,9 +45,9 @@ var tests = [
     dump("found folder2\n");
     let folder3 = IMAPPump.inbox.getChildNamed("empty 3");
     dump("found folder3\n");
-    do_check_neq(folder1, null);
-    do_check_neq(folder2, null);
-    do_check_neq(folder3, null);
+    do_check_true(folder1 !== null);
+    do_check_true(folder2 !== null);
+    do_check_true(folder3 !== null);
   },
   function* moveImapFolder1() {
     let folders = new Array;
@@ -74,9 +74,9 @@ var tests = [
     dump("found folder2\n");
     let folder3 = folder1.getChildNamed("empty 3");
     dump("found folder3\n");
-    do_check_neq(folder1, null);
-    do_check_neq(folder2, null);
-    do_check_neq(folder3, null);
+    do_check_true(folder1 !== null);
+    do_check_true(folder2 !== null);
+    do_check_true(folder3 !== null);
   },
   function* testImapFolderCopyFailure() {
     let folders = new Array;

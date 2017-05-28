@@ -185,7 +185,7 @@ function* crossStreaming() {
    * before and after streaming.
    */
   let msg2 = fooFolder.msgDatabase.getMsgHdrForMessageID(gMsgId1);
-  do_check_neq(msg2, null);
+  do_check_true(msg2 !== null);
   let msgURI = fooFolder.getUriForMsg(msg2);
   let messenger = Cc["@mozilla.org/messenger;1"].createInstance(Ci.nsIMessenger);
   let msgServ = messenger.messageServiceFromURI(msgURI);

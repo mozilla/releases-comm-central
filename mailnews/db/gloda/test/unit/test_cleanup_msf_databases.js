@@ -53,14 +53,14 @@ function poke_and_verify_msf_closure(aSynthMessage, aGlodaMessage) {
   // get the nsIMsgDBHdr
   let header = aGlodaMessage.folderMessage;
   // if we don't have a header, this test is unlikely to work...
-  do_check_neq(header, null);
+  do_check_true(header !== null);
 
   // we need a reference to the glodaFolder
   let glodaFolder = aGlodaMessage.folder;
 
   // -- check that everyone is tracking things correctly
   // the message's folder should be holding an XPCOM reference to the folder
-  do_check_neq(glodaFolder._xpcomFolder, null);
+  do_check_true(glodaFolder._xpcomFolder !== null);
   // the cleanup timer should now be alive
   do_check_true(GlodaDatastore._folderCleanupActive);
   // live folder count should be one
@@ -71,7 +71,7 @@ function poke_and_verify_msf_closure(aSynthMessage, aGlodaMessage) {
 
   // -- verify that things are still as they were before the cleanup firing
   // the message's folder should be holding an XPCOM reference to the folder
-  do_check_neq(glodaFolder._xpcomFolder, null);
+  do_check_true(glodaFolder._xpcomFolder !== null);
   // the cleanup timer should now be alive
   do_check_true(GlodaDatastore._folderCleanupActive);
   // live folder count should be one
@@ -90,7 +90,7 @@ function poke_and_verify_msf_closure(aSynthMessage, aGlodaMessage) {
 
   // -- verify that cleanup has occurred and the cleanup mechanism shutdown.
   // the message's folder should no longer be holding an XPCOM reference
-  do_check_eq(glodaFolder._xpcomFolder, null);
+  do_check_true(glodaFolder._xpcomFolder === null);
   // the cleanup timer should now be dead
   do_check_false(GlodaDatastore._folderCleanupActive);
   // live folder count should be zero
