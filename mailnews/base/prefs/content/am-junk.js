@@ -57,10 +57,9 @@ function onInit(aPageId, aServerId)
 
   // set up the whitelist UI
   var wList = document.getElementById("whiteListAbURI");
-
   // Ensure the whitelist is empty
-  while (wList.hasChildNodes()) {
-    wList.lastChild.remove();
+  for (let i = wList.itemCount - 1; i >= 0; i--) {
+    wList.removeItemAt(i);
   }
 
   // Populate the listbox with address books
@@ -71,30 +70,25 @@ function onInit(aPageId, aServerId)
     if (ab.isMailList || ab.isRemote)
       continue;
 
-    let abItem = document.createElement("listitem");
-    abItem.setAttribute("type", "checkbox");
-    abItem.setAttribute("class", "listitem-iconic");
-    abItem.setAttribute("label", ab.dirName);
-    abItem.setAttribute("value", ab.URI);
-
-    // Due to bug 448582, we have to use setAttribute to set the
-    // checked value of the listitem.
-    abItem.setAttribute("checked", (currentArray.indexOf(ab.URI) != -1));
-
-    abItems.push(abItem);
+    abItems.push({ label: ab.dirName, URI: ab.URI });
   }
 
   // Sort the list
   function sortFunc(a, b) {
-    return a.getAttribute("label").toLowerCase()
-           > b.getAttribute("label").toLowerCase();
+    return a.label.localeCompare(b.label);
   }
-
   abItems.sort(sortFunc);
 
   // And then append each item to the listbox
-  for (let i = 0; i < abItems.length; i++)
-    wList.appendChild(abItems[i]);
+  for (let abItem of abItems) {
+    let item = wList.appendItem(abItem.label, abItem.URI);
+    item.setAttribute("type", "checkbox");
+    item.setAttribute("class", "listitem-iconic");
+
+    // Due to bug 448582, we have to use setAttribute to set the
+    // checked value of the listitem.
+    item.setAttribute("checked", currentArray.includes(abItem.URI));
+  }
 
   // enable or disable the whitelist
   onAdaptiveJunkToggle();
@@ -158,8 +152,9 @@ function onAdaptiveJunkToggle()
   let wList = document.getElementById("whiteListAbURI");
   let wListDisabled = wList.disabled;
 
-  for (let i = 0; i < wList.getRowCount(); i++)
-    wList.getItemAtIndex(i).disabled = wListDisabled;
+  for (let i = 0; i < wList.getRowCount(); i++) {
+    wList.getItemAtIndex(i).setAttribute("disabled", wListDisabled);
+  }
 }
 
 /**
@@ -207,8 +202,11 @@ function onSaveWhiteList()
 
   for (var i = 0; i < wList.getRowCount(); i++)
   {
+    // Due to bug 448582, do not trust any properties of the listitems
+    // as they may not return the right value or may even not exist.
+    // Always get the attributes only.
     var wlNode = wList.getItemAtIndex(i);
-    if (wlNode.checked) {
+    if (wlNode.getAttribute("checked") == "true") {
       let abURI = wlNode.getAttribute("value");
       wlArray.push(abURI);
     }
@@ -237,10 +235,9 @@ function buildServerFilterMenuList()
 {
   const KEY_ISP_DIRECTORY_LIST = "ISPDL";
   let ispHeaderList = document.getElementById("useServerFilterList");
+
   // Ensure the menulist is empty.
-  while (ispHeaderList.hasChildNodes()) {
-    ispHeaderList.lastChild.remove();
-  }
+  ispHeaderList.removeAllItems();
 
   // Now walk through the isp directories looking for sfd files.
   let ispDirectories = Services.dirsvc.get(KEY_ISP_DIRECTORY_LIST,
