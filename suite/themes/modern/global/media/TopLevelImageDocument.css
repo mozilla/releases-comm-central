@@ -3,9 +3,15 @@
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 @media not print {
+  /* N.B.: Remember to update ImageDocument.css in the tree or reftests may fail! */
+
+  body {
+    color: #eee;
+    background-image: url("chrome://global/skin/media/imagedoc-darknoise.png");
+  }
+
   img.transparent {
-    /* checkerboard background image */
-    background-image: url("chrome://global/skin/media/checkerboard.png");
-    box-shadow: -5px 5px 5px 0px rgba(50, 50, 50, 0.75);
+    background: hsl(0,0%,90%) url("chrome://global/skin/media/imagedoc-lightnoise.png");
+    color: #222;
   }
 }
