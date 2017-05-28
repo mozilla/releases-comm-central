@@ -460,8 +460,6 @@ nsPop3Protocol::nsPop3Protocol(nsIURI* aURL)
 
 nsresult nsPop3Protocol::Initialize(nsIURI * aURL)
 {
-  nsresult rv = NS_OK;
-
   MOZ_LOG(POP3LOGMODULE, LogLevel::Debug, (POP3LOG("Initialize()")));
 
   m_pop3ConData = (Pop3ConData *)PR_NEWZAP(Pop3ConData);
@@ -483,36 +481,12 @@ nsresult nsPop3Protocol::Initialize(nsIURI * aURL)
 
   m_url = do_QueryInterface(aURL);
 
-  bool proxyCallback = false;
-  if (aURL)
-  {
-    rv = MsgExamineForProxyAsync(this, this, getter_AddRefs(m_proxyRequest));
-    if (NS_FAILED(rv))
-    {
-      rv = InitializeInternal(nullptr);
-      NS_ENSURE_SUCCESS(rv, rv);
-    }
-    else
-    {
-      proxyCallback = true;
-    }
-  } // if we got a url...
-
   m_lineStreamBuffer = new nsMsgLineStreamBuffer(OUTPUT_BUFFER_SIZE, true);
-  if(!m_lineStreamBuffer)
-    return NS_ERROR_OUT_OF_MEMORY;
 
   nsCOMPtr<nsIStringBundleService> bundleService =
     mozilla::services::GetStringBundleService();
   NS_ENSURE_TRUE(bundleService, NS_ERROR_UNEXPECTED);
-  rv = bundleService->CreateBundle("chrome://messenger/locale/localMsgs.properties", getter_AddRefs(mLocalBundle));
-
-  if (!proxyCallback)
-  {
-    rv = LoadUrlInternal(m_url);
-  }
-
-  return rv;
+  return bundleService->CreateBundle("chrome://messenger/locale/localMsgs.properties", getter_AddRefs(mLocalBundle));
 }
 
 // nsIProtocolProxyCallback
@@ -1071,7 +1045,22 @@ nsresult nsPop3Protocol::LoadUrl(nsIURI* aURL, nsISupports * /* aConsumer */)
 {
   MOZ_LOG(POP3LOGMODULE, LogLevel::Debug, (POP3LOG("LoadUrl()")));
 
-  return Initialize(aURL);
+  nsresult rv = Initialize(aURL);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  if (aURL)
+  {
+    rv = MsgExamineForProxyAsync(this, this, getter_AddRefs(m_proxyRequest));
+    if (NS_FAILED(rv))
+    {
+      rv = InitializeInternal(nullptr);
+      NS_ENSURE_SUCCESS(rv, rv);
+
+      rv = LoadUrlInternal(m_url);
+    }
+  }
+
+  return rv;
 }
 
 nsresult nsPop3Protocol::LoadUrlInternal(nsIURI* aURL)

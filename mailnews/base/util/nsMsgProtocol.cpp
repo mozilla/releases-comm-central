@@ -771,16 +771,14 @@ NS_IMETHODIMP nsMsgProtocol::GetStatus(nsresult *status)
 
 NS_IMETHODIMP nsMsgProtocol::Cancel(nsresult status)
 {
-  NS_ASSERTION(m_request,"no channel");
-  if (!m_request)
-    return NS_ERROR_FAILURE;
-
   if (m_proxyRequest)
-  {
     m_proxyRequest->Cancel(status);
-  }
 
-  return m_request->Cancel(status);
+  if (m_request)
+    return m_request->Cancel(status);
+
+  NS_WARNING("no request to cancel");
+  return NS_ERROR_NOT_AVAILABLE;
 }
 
 NS_IMETHODIMP nsMsgProtocol::Suspend()
