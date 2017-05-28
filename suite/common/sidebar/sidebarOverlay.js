@@ -714,9 +714,7 @@ function sidebar_overlay_init() {
   sidebarObj.datasource = RDF.GetDataSourceBlocking(sidebarObj.datasource_uri);
   sidebarObj.resource = 'urn:sidebar:current-panel-list';
 
-  sidebarObj.master_datasources = "";
-  sidebarObj.master_datasources = get_remote_datasource_url();
-  sidebarObj.master_datasources += " " + sidebarObj.datasource_uri;
+  sidebarObj.master_datasources = sidebarObj.datasource_uri;
   sidebarObj.master_resource = 'urn:sidebar:master-panel-list';
   sidebarObj.component = gPrivate ? "navigator:browser" :
                          document.documentElement.getAttribute('windowtype');
@@ -914,26 +912,6 @@ function get_sidebar_datasource_uri() {
     debug("Error: Unable to load panels file.\n");
   }
   return null;
-}
-
-// Get the template for the available panels url from preferences.
-// Replace variables in the url:
-//     %LOCALE%  -->  Application locale (e.g. en-US).
-//     %SIDEBAR_VERSION% --> Sidebar file format version (e.g. 0.1).
-function get_remote_datasource_url() {
-  // Can't use formatURLPref(): replace() needs to be done before formatURL(),
-  // otherwise the latter reports an (ignorable) error.
-  // "about:blank": formatURLPref() default value.
-  let url = GetStringPref("sidebar.customize.all_panels.url") || "about:blank";
-  if (url != "about:blank") {
-    url = url.replace(/%SIDEBAR_VERSION%/g, SIDEBAR_VERSION);
-    url = Services.urlFormatter.formatURL(url);
-    // Convert the %LOCALE% value (in the url) to lower case (e.g. en-us).
-    url = url.toLowerCase();
-  }
-
-  debug("Remote url is " + url);
-  return url;
 }
 
 function sidebar_fixup_datasource() {

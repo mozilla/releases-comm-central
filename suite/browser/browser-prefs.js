@@ -640,7 +640,6 @@ pref("browser.taskbar.previews.max", 20);
 pref("browser.taskbar.previews.cachetime", 5);
 #endif
 
-pref("sidebar.customize.all_panels.url", "http://sidebar-rdf.netscape.com/%LOCALE%/sidebar-rdf/%SIDEBAR_VERSION%/all-panels.rdf");
 pref("sidebar.customize.directory.url", "https://edmullen.net/mozilla/moz_sidebar.php");
 pref("sidebar.customize.more_panels.url", "https://edmullen.net/mozilla/moz_sidebar.php");
 pref("sidebar.num_tabs_in_view", 8);
