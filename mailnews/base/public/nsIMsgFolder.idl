@@ -46,6 +46,7 @@ interface nsIMsgFolder : nsISupports {
   /* get new headers for db */
   void updateFolder(in nsIMsgWindow aWindow);
 
+  // [deprecated]
   readonly attribute AString prettiestName;
 
   /**
