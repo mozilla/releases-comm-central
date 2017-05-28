@@ -316,7 +316,7 @@ nsMessengerOSXIntegration::FillToolTipInfo(nsIMsgFolder *aFolder, int32_t aNewCo
       return;
 
     nsString accountName;
-    rootFolder->GetPrettiestName(accountName);
+    rootFolder->GetPrettyName(accountName);
 
     nsCOMPtr<nsIStringBundle> bundle;
     GetStringBundle(getter_AddRefs(bundle));

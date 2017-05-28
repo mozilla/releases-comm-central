@@ -551,7 +551,7 @@ nsPop3Sink::IncorporateBegin(const char* uidlString,
         nsCOMPtr<nsIMsgFolder> localFolder = do_QueryInterface(m_folder);
         nsString folderName;
         if (localFolder)
-          localFolder->GetPrettiestName(folderName);
+          localFolder->GetPrettyName(folderName);
         if (!folderName.IsEmpty()) {
           fprintf(stderr,"(seekdebug) Seek was necessary in IncorporateBegin() for folder %s.\n",
                   NS_ConvertUTF16toUTF8(folderName).get());
@@ -721,7 +721,7 @@ nsresult nsPop3Sink::WriteLineToMailbox(const nsACString& buffer)
         nsCOMPtr<nsIMsgFolder> localFolder = do_QueryInterface(m_folder);
         nsString folderName;
         if (localFolder)
-          localFolder->GetPrettiestName(folderName);
+          localFolder->GetPrettyName(folderName);
         // This merits a console message, it's poor man's telemetry.
         MsgLogToConsole4(
           NS_LITERAL_STRING("Unexpected file position change detected") +

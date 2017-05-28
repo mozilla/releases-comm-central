@@ -41,7 +41,7 @@ function run_test() {
   var folder1 = root.getChildNamed("folder1");
 
   do_check_neq(folder1, folder2);
-  do_check_eq(folder1.prettiestName, "folder1");
+  do_check_eq(folder1.prettyName, "folder1");
 
   var folder2 = root.getChildNamed("FOLDER1");
 

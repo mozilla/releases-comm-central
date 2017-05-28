@@ -663,7 +663,7 @@ void nsMessengerWinIntegration::FillToolTipInfo()
     folder = do_QueryReferent(weakReference);
     if (folder)
     {
-      folder->GetPrettiestName(accountName);
+      folder->GetPrettyName(accountName);
 
       numNewMessages = 0;
       folder->GetNumNewMessages(true, &numNewMessages);

@@ -229,7 +229,7 @@
         let confirmed = Services.prompt.confirm(null,
           bundle.getString(stringBase + "title"),
           bundle.getFormattedString(stringBase + "message",
-                                    [destFolder.prettiestName]));
+                                    [destFolder.prettyName]));
         if (!confirmed)
           return;
 

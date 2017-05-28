@@ -4369,7 +4369,7 @@ nsMsgDBView::GetLocationCollationKey(nsIMsgDBHdr *msgHdr, uint8_t **result, uint
   NS_ENSURE_SUCCESS(rv,rv);
 
   nsString locationString;
-  rv = folder->GetPrettiestName(locationString);
+  rv = folder->GetPrettyName(locationString);
   NS_ENSURE_SUCCESS(rv,rv);
 
   return dbToUse->CreateCollationKey(locationString, len, result);

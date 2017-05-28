@@ -191,12 +191,12 @@ bool nsNewsDownloader::GetNextHdrToRetrieve()
     firstStr.AppendInt(m_numwrote);
     nsAutoString totalStr;
     totalStr.AppendInt(int(m_keysToDownload.Length()));
-    nsString prettiestName;
+    nsString prettyName;
     nsString statusString;
 
-    m_folder->GetPrettiestName(prettiestName);
+    m_folder->GetPrettyName(prettyName);
 
-    const char16_t *formatStrings[3] = { firstStr.get(), totalStr.get(), prettiestName.get() };
+    const char16_t *formatStrings[3] = { firstStr.get(), totalStr.get(), prettyName.get() };
     rv = bundle->FormatStringFromName(u"downloadingArticlesForOffline",
                                       formatStrings, 3, getter_Copies(statusString));
     NS_ENSURE_SUCCESS(rv, false);

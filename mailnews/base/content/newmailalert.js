@@ -47,7 +47,7 @@ function prefillAlertInfo()
   let message = document.getElementById("bundle_messenger")
                         .getString("newMailAlert_message");
   label.value = PluralForm.get(totalNumNewMessages, message)
-                          .replace("#1", rootFolder.prettiestName)
+                          .replace("#1", rootFolder.prettyName)
                           .replace("#2", totalNumNewMessages);
 
   // This is really the root folder and we have to walk through the list to

@@ -74,6 +74,6 @@ function assert_search_window_folder_displayed(aController, aFolder) {
   let currentFolder = aController.currentFolder;
   if (currentFolder != aFolder)
     throw new Error("The search window's selected folder should have been: " +
-                    aFolder.prettiestName + ", but is actually: " +
-                    currentFolder.prettiestName);
+                    aFolder.prettyName + ", but is actually: " +
+                    currentFolder.prettyName);
 }

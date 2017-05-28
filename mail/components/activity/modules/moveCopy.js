@@ -74,7 +74,7 @@ var moveCopyModule =
     if (activities.length > 0 &&
         activities[activities.length-1].id == this.lastMessage.id &&
         this.lastMessage.type == "deleteMail" &&
-        this.lastMessage.folder == folder.prettiestName)
+        this.lastMessage.folder == folder.prettyName)
     {
       displayCount += this.lastMessage.count;
       this.activityMgr.removeActivity(this.lastMessage.id);
@@ -84,8 +84,8 @@ var moveCopyModule =
     let displayText = PluralForm.get(displayCount, this.getString("deletedMessages2"));
     displayText = displayText.replace("#1", displayCount)
     this.lastMessage.count = displayCount;
-    displayText = displayText.replace("#2", folder.prettiestName)
-    this.lastMessage.folder = folder.prettiestName;
+    displayText = displayText.replace("#2", folder.prettyName)
+    this.lastMessage.folder = folder.prettyName;
 
     let statusText = folder.server.prettyName;
 
@@ -126,8 +126,8 @@ var moveCopyModule =
       if (activities.length > 0 &&
           activities[activities.length-1].id == this.lastMessage.id &&
           this.lastMessage.type == (aMove ? "moveMail" : "copyMail") &&
-          this.lastMessage.sourceFolder == folder.prettiestName &&
-          this.lastMessage.destFolder == aDestFolder.prettiestName)
+          this.lastMessage.sourceFolder == folder.prettyName &&
+          this.lastMessage.destFolder == aDestFolder.prettyName)
       {
         displayCount += this.lastMessage.count;
         this.activityMgr.removeActivity(this.lastMessage.id);
@@ -156,10 +156,10 @@ var moveCopyModule =
 
       displayText = displayText.replace("#1", displayCount)
       this.lastMessage.count = displayCount;
-      displayText = displayText.replace("#2", folder.prettiestName)
-      this.lastMessage.sourceFolder = folder.prettiestName;
-      displayText = displayText.replace("#3", aDestFolder.prettiestName)
-      this.lastMessage.destFolder = aDestFolder.prettiestName;
+      displayText = displayText.replace("#2", folder.prettyName)
+      this.lastMessage.sourceFolder = folder.prettyName;
+      displayText = displayText.replace("#3", aDestFolder.prettyName)
+      this.lastMessage.destFolder = aDestFolder.prettyName;
 
       // create an activity event
       let event = new nsActEvent(displayText,
@@ -204,7 +204,7 @@ var moveCopyModule =
     if (aFolder.isSpecialFolder(nsMsgFolderFlags.Trash, false))
       displayText = this.getString("emptiedTrash");
     else
-      displayText = this.getString("deletedFolder").replace("#1", aFolder.prettiestName);
+      displayText = this.getString("deletedFolder").replace("#1", aFolder.prettyName);
 
     // create an activity event
     let event = new nsActEvent(displayText,
@@ -232,8 +232,8 @@ var moveCopyModule =
     else
       displayText = this.getString("copiedFolder");
 
-    displayText = displayText.replace('#1', aSrcFolder.prettiestName);
-    displayText = displayText.replace('#2', aDestFolder.prettiestName);
+    displayText = displayText.replace('#1', aSrcFolder.prettyName);
+    displayText = displayText.replace('#2', aDestFolder.prettyName);
 
     let statusText = '';
     if (aSrcFolder.server != aDestFolder.server)
@@ -261,8 +261,8 @@ var moveCopyModule =
   },
 
   folderRenamed: function(aOrigFolder, aNewFolder) {
-    this.log.info("in folderRenamed, aOrigFolder = "+ aOrigFolder.prettiestName+", aNewFolder = "+
-             aNewFolder.prettiestName);
+    this.log.info("in folderRenamed, aOrigFolder = "+ aOrigFolder.prettyName+", aNewFolder = "+
+             aNewFolder.prettyName);
 
     let displayText;
     let statusText = aNewFolder.server.prettyName;
@@ -272,13 +272,13 @@ var moveCopyModule =
     if (aNewFolder.isSpecialFolder(nsMsgFolderFlags.Trash, true))
     {
       displayText = this.getString("movedFolderToTrash");
-      displayText = displayText.replace("#1", aOrigFolder.prettiestName);
+      displayText = displayText.replace("#1", aOrigFolder.prettyName);
     }
     else
     {
       displayText = this.getString("renamedFolder");
-      displayText = displayText.replace("#1", aOrigFolder.prettiestName);
-      displayText = displayText.replace("#2", aNewFolder.prettiestName);
+      displayText = displayText.replace("#1", aOrigFolder.prettyName);
+      displayText = displayText.replace("#2", aNewFolder.prettyName);
     }
 
     // When renaming a folder, a delete event is always fired first
@@ -316,8 +316,8 @@ var moveCopyModule =
         if (activities.length > 0 &&
             activities[activities.length-1].id == this.lastMessage.id &&
             this.lastMessage.type == "moveMail" &&
-            this.lastMessage.sourceFolder == srcFolder.prettiestName &&
-            this.lastMessage.destFolder == destFolder.prettiestName)
+            this.lastMessage.sourceFolder == srcFolder.prettyName &&
+            this.lastMessage.destFolder == destFolder.prettyName)
         {
           displayCount += this.lastMessage.count;
           this.activityMgr.removeActivity(this.lastMessage.id);
@@ -342,10 +342,10 @@ var moveCopyModule =
 
         displayText = displayText.replace("#1", displayCount)
         this.lastMessage.count = displayCount;
-        displayText = displayText.replace("#2", srcFolder.prettiestName)
-        this.lastMessage.sourceFolder = srcFolder.prettiestName;
-        displayText = displayText.replace("#3", destFolder.prettiestName)
-        this.lastMessage.destFolder = destFolder.prettiestName;
+        displayText = displayText.replace("#2", srcFolder.prettyName)
+        this.lastMessage.sourceFolder = srcFolder.prettyName;
+        displayText = displayText.replace("#3", destFolder.prettyName)
+        this.lastMessage.destFolder = destFolder.prettyName;
 
         // create an activity event
         let event = new nsActEvent(displayText,

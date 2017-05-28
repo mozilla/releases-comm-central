@@ -154,7 +154,7 @@ function run_test()
 
   // Create another folder to move and copy messages around, and force initialization.
   gLocalFolder2 = localAccountUtils.rootFolder.createLocalSubfolder("folder2");
-  let folderName = gLocalFolder2.prettiestName;
+  let folderName = gLocalFolder2.prettyName;
   setColumnStates(gLocalFolder2);
 
   // "Master" do_test_pending(), paired with a do_test_finished() at the end of all the operations.

@@ -647,7 +647,7 @@ var GlodaMsgIndexer = {
     catch (ex) {
       this._log.error("Problem entering folder: " +
                       (this._indexingFolder ?
-                         this._indexingFolder.prettiestName : "unknown") +
+                         this._indexingFolder.prettyName : "unknown") +
                       ", skipping. Error was: " + ex.fileName + ":" +
                       ex.lineNumber + ": " + ex);
       this._indexingGlodaFolder.indexing = false;
@@ -1934,7 +1934,7 @@ var GlodaMsgIndexer = {
       return false;
 
     this._log.info("Queue-ing folder for indexing: " +
-                   aMsgFolder.prettiestName);
+                   aMsgFolder.prettyName);
     let job = new IndexingJob("folder", glodaFolder.id);
     if (aOptions) {
       if ("callback" in aOptions)
@@ -2353,7 +2353,7 @@ var GlodaMsgIndexer = {
                 destDb = aDestFolder.msgDatabase;
               } catch (ex) {
                 this.indexer._log.warn("Destination database for " +
-                                       aDestFolder.prettiestName +
+                                       aDestFolder.prettyName +
                                        " not ready on IMAP move." +
                                        " Gloda corruption possible.");
                 return;
@@ -2565,7 +2565,7 @@ var GlodaMsgIndexer = {
         let delFunc = function(aFolder, indexer) {
           if (indexer._datastore._folderKnown(aFolder)) {
             indexer._log.info("Processing deletion of folder " +
-                              aFolder.prettiestName + ".");
+                              aFolder.prettyName + ".");
             let glodaFolder = GlodaDatastore._mapFolder(aFolder);
             indexer._datastore.markMessagesDeletedByFolderID(glodaFolder.id);
             indexer._datastore.deleteFolderByID(glodaFolder.id);
@@ -2573,7 +2573,7 @@ var GlodaMsgIndexer = {
           }
           else {
             indexer._log.info("Ignoring deletion of folder " +
-                              aFolder.prettiestName +
+                              aFolder.prettyName +
                               " because it is unknown to gloda.");
           }
         };

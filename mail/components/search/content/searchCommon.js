@@ -658,7 +658,7 @@ var SearchSupport =
     folderDeleted: function(aFolder)
     {
       SearchIntegration._log.info("in folderDeleted, folder name = " +
-                                  aFolder.prettiestName);
+                                  aFolder.prettyName);
       let srcFile = SearchIntegration._getSearchPathForFolder(aFolder);
       srcFile.leafName = srcFile.leafName + ".mozmsgs";
       if (srcFile.exists())
@@ -693,8 +693,8 @@ var SearchSupport =
     folderRenamed: function(aOrigFolder, aNewFolder)
     {
       SearchIntegration._log.info("in folderRenamed, aOrigFolder = " +
-                                  aOrigFolder.prettiestName +
-                                  ", aNewFolder = " + aNewFolder.prettiestName);
+                                  aOrigFolder.prettyName +
+                                  ", aNewFolder = " + aNewFolder.prettyName);
       let srcFile = SearchIntegration._getSearchPathForFolder(aOrigFolder);
       srcFile.leafName = srcFile.leafName + ".mozmsgs";
       let destName = aNewFolder.name + ".mozmsgs";

@@ -37,7 +37,7 @@ var NUM_MESSAGES_TO_JUNK = 8;
 function _assert_folder_total_messages(aFolder, aNumMessages) {
   let curMessages = aFolder.getTotalMessages(false);
   if (curMessages != aNumMessages)
-    throw new Error("The folder " + aFolder.prettiestName + " should have " +
+    throw new Error("The folder " + aFolder.prettyName + " should have " +
         aNumMessages + " messages, but actually has " + curMessages +
         " messages.");
 }

@@ -306,10 +306,10 @@ function run_test()
 
   // Create another folder to move and copy messages around, and force initialization.
   gLocalFolder2 = localAccountUtils.rootFolder.createLocalSubfolder("folder2");
-  let folderName = gLocalFolder2.prettiestName;
+  let folderName = gLocalFolder2.prettyName;
   // Create a third folder for more testing.
   gLocalFolder3 = localAccountUtils.rootFolder.createLocalSubfolder("folder3");
-  folderName = gLocalFolder3.prettiestName;
+  folderName = gLocalFolder3.prettyName;
 
   gTestArray.forEach(add_task);
   run_next_test();

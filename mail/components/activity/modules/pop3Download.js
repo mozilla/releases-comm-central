@@ -63,7 +63,7 @@ var pop3DownloadModule =
 
     let displayText = this.bundle
                           .formatStringFromName("pop3EventStartDisplayText",
-                                               [aFolder.prettiestName], 1);
+                                               [aFolder.prettyName], 1);
     // remember the prev activity for this folder, if any.
     this._prevActivityForFolder.set(aFolder.URI,
       this._mostRecentActivityForFolder.get(aFolder.URI));

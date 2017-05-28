@@ -233,12 +233,12 @@ var gAutoSyncListener =
 
   onDownloadError : function(folder) {
     if (folder instanceof Components.interfaces.nsIMsgFolder) {
-      dump("OnDownloadError: " + folder.prettiestName + "\n");
+      dump("OnDownloadError: " + folder.prettyName + "\n");
     }
   },
 
   onDiscoveryQProcessed : function (folder, numOfHdrsProcessed, leftToProcess) {
-    dump("onDiscoveryQProcessed: " + folder.prettiestName + "\n");
+    dump("onDiscoveryQProcessed: " + folder.prettyName + "\n");
     let index = mailTestUtils.non_strict_index_of(this._waitingForDiscoveryList, folder);
     if (index != -1)
       this._waitingForDiscoveryList.splice(index, 1);

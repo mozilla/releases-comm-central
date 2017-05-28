@@ -355,7 +355,7 @@ function verify(event)
     hasExactlyElements(expected[1], event[1]);
 
     // Check: destination folder name matches
-    do_check_eq(expected[2], event[2].prettiestName);
+    do_check_eq(expected[2], event[2].prettyName);
     break;
   case gMFNService.itemEvent:
     // the event string should match

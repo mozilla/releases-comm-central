@@ -159,7 +159,7 @@ bool
 nsMessengerUnixIntegration::BuildNotificationTitle(nsIMsgFolder *aFolder, nsIStringBundle *aBundle, nsString &aTitle)
 {
   nsString accountName;
-  aFolder->GetPrettiestName(accountName);
+  aFolder->GetPrettyName(accountName);
 
   int32_t numNewMessages = 0;
   aFolder->GetNumNewMessages(true, &numNewMessages);

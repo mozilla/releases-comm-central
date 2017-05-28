@@ -804,7 +804,7 @@ function assert_number_of_tabs_open(aNumber) {
 function assert_tab_titled_from(aTab, aWhat) {
   let text;
   if (aWhat instanceof Ci.nsIMsgFolder)
-    text = aWhat.prettiestName;
+    text = aWhat.prettyName;
   else if (aWhat instanceof Ci.nsIMsgDBHdr)
     text = aWhat.mime2DecodedSubject;
 
@@ -2593,7 +2593,7 @@ function _non_strict_index_of(aArray, aSearchElement) {
 }
 
 function _prettify_folder_array(aArray) {
-  return aArray.map(folder => folder.prettiestName).join(", ");
+  return aArray.map(folder => folder.prettyName).join(", ");
 }
 
 /**

@@ -706,7 +706,7 @@ var GlodaIndexer = {
       let indexer = this._indexerWorkerDefs[job.jobType].indexer;
       if ("_indexingFolder" in indexer)
         prettyName = (indexer._indexingFolder != null) ?
-                     indexer._indexingFolder.prettiestName : null;
+                     indexer._indexingFolder.prettyName : null;
       else
         prettyName = null;
 

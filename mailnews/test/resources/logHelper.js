@@ -382,7 +382,7 @@ function _normalize_for_json(aObj, aDepthAllowed, aJsonMeNotNeeded) {
     let flags = aObj.flags;
     return {
       type: "folder",
-      name: aObj.prettiestName,
+      name: aObj.prettyName,
       uri: aObj.URI,
       flags: _explode_flags(aObj.flags,
                             Ci.nsMsgFolderFlags),

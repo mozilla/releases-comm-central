@@ -97,7 +97,7 @@ function configure_message_injection(aInjectionConfig) {
                                            [mis.inboxFolder]);
 
     // Force an initialization of the Inbox folder database.
-    let unused = mis.inboxFolder.prettiestName;
+    let unused = mis.inboxFolder.prettyName;
   }
   else if (mis.injectionConfig.mode == "imap") {
     // Disable autosync in favor of our explicitly forcing downloads of all

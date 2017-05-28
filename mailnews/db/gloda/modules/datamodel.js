@@ -349,8 +349,8 @@ GlodaFolder.prototype = {
     let xpcomFolder = this.getXPCOMFolder(this.kActivityFolderOnlyNoData);
     if (!xpcomFolder)
       return this._prettyName;
-    return xpcomFolder.prettiestName +
-      " (" + xpcomFolder.rootFolder.prettiestName + ")";
+    return xpcomFolder.prettyName +
+      " (" + xpcomFolder.rootFolder.prettyName + ")";
   },
 
   get indexingPriority() {

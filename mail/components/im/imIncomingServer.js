@@ -262,7 +262,6 @@ imIncomingServer.prototype = {
       server: this,
       get URI() { return this.server.serverURI; },
       get prettyName() { return this.server.prettyName; }, // used in the account manager tree
-      get prettiestName() { return this.server.prettyName + " prettiestName"; }, // never displayed?
       get name() { return this.server.prettyName + " name"; }, // never displayed?
       // used in the folder pane tree, if we don't hide the IM accounts:
       get abbreviatedName() { return this.server.prettyName + "abbreviatedName"; },

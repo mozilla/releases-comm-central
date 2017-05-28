@@ -112,9 +112,9 @@ nsNewsAutoCompleteSearch.prototype = {
       let groups = this.cachedServer.rootFolder.subFolders;
       while (groups.hasMoreElements()) {
         let curr = groups.getNext().QueryInterface(Ci.nsIMsgFolder);
-        if (curr.prettiestName.includes(aSearchString)) {
+        if (curr.prettyName.includes(aSearchString)) {
           result._searchResults.push({
-            value: curr.prettiestName,
+            value: curr.prettyName,
             comment: this.cachedServer.prettyName
           });
         }

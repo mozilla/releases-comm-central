@@ -2057,7 +2057,7 @@ var GlodaDatastore = {
                         GlodaFolder.prototype.kFolderFilthy :
                         GlodaFolder.prototype.kFolderClean;
     let folder = new GlodaFolder(this, folderID, folderURI, dirtyStatus,
-                                 aFolder.prettiestName, indexingPriority);
+                                 aFolder.prettyName, indexingPriority);
 
     this._insertFolderLocationStatement.bindByIndex(0, folder.id);
     this._insertFolderLocationStatement.bindByIndex(1, folder.uri);
