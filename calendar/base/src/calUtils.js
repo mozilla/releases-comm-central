@@ -1868,7 +1868,7 @@ function getCompositeCalendar(aWindow) {
             // If we are in a window that has calendar status feedback, set
             // up our status observer.
             let chromeWindow = aWindow.QueryInterface(Components.interfaces.nsIDOMChromeWindow);
-            comp.setStatusObserver(gCalendarStatusFeedback, chromeWindow);
+            comp.setStatusObserver(aWindow.gCalendarStatusFeedback, chromeWindow);
         }
     }
     return aWindow._compositeCalendar;
