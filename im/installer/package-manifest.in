@@ -635,7 +635,6 @@
 @RESPATH@/components/exthelper.xpt
 @RESPATH@/components/windowcreator.xpt
 @RESPATH@/components/windowds.xpt
-@RESPATH@/components/lwbrk.xpt
 @RESPATH@/components/nsINIProcessor.js
 @RESPATH@/components/nsINIProcessor.manifest
 @RESPATH@/components/pluginGlue.manifest

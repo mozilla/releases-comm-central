@@ -762,6 +762,8 @@ void Tokenizer::tokenize(const char* aText)
         tokenize_ascii_word(word);
     else if (isJapanese(word))
         tokenize_japanese_word(word);
+#if 0
+M-C removed this in bug 1368418
     else {
         nsresult rv;
         // use I18N  scanner to break this word into meaningful semantic units.
@@ -793,6 +795,7 @@ void Tokenizer::tokenize(const char* aText)
             }
         }
     }
+#endif
   }
 }
 
