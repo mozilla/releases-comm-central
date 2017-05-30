@@ -148,9 +148,6 @@ private:
     nsresult stripHTML(const nsAString& inString, nsAString& outString);
     // helper function to escape \n, \t, etc from a CString
     void UnescapeCString(nsCString& aCString);
-
-private:
-    nsCOMPtr<nsISemanticUnitScanner> mScanner;
 };
 
 /**
