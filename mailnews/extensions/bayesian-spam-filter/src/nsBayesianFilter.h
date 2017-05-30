@@ -9,7 +9,6 @@
 #include <stdio.h>
 #include "nsCOMPtr.h"
 #include "nsIMsgFilterPlugin.h"
-#include "nsISemanticUnitScanner.h"
 #include "PLDHashTable.h"
 #include "nsITimer.h"
 #include "nsTArray.h"
