@@ -106,7 +106,7 @@ NS_IMETHODIMP JaBaseCppUrl::GetPrincipalSpec(nsACString& aPrincipalSpec)
   QueryInterface(NS_GET_IID(nsIMsgMailNewsUrl), getter_AddRefs(mailnewsURL));
 
   nsAutoCString spec;
-  mailnewsURL->GetSpec(spec);
+  mailnewsURL->GetSpecIgnoringRef(spec);
 
   nsAutoCString queryPart = MsgExtractQueryPart(spec, "number=");
 

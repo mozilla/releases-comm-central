@@ -1195,7 +1195,7 @@ NS_IMETHODIMP nsImapUrl::GetPrincipalSpec(nsACString& aPrincipalSpec)
   QueryInterface(NS_GET_IID(nsIMsgMailNewsUrl), getter_AddRefs(mailnewsURL));
 
   nsAutoCString spec;
-  mailnewsURL->GetSpec(spec);
+  mailnewsURL->GetSpecIgnoringRef(spec);
 
   // Strip any query part beginning with ? & or /;
   int32_t ind = spec.Find("/;");

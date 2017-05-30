@@ -312,7 +312,7 @@ NS_IMETHODIMP nsNntpUrl::GetPrincipalSpec(nsACString& aPrincipalSpec)
   QueryInterface(NS_GET_IID(nsIMsgMailNewsUrl), getter_AddRefs(mailnewsURL));
 
   nsAutoCString spec;
-  mailnewsURL->GetSpec(spec);
+  mailnewsURL->GetSpecIgnoringRef(spec);
   int32_t ind = spec.Find("&part");
   if (ind != kNotFound)
     spec.SetLength(ind);

@@ -130,7 +130,7 @@ NS_IMETHODIMP nsMailboxUrl::GetPrincipalSpec(nsACString& aPrincipalSpec)
   QueryInterface(NS_GET_IID(nsIMsgMailNewsUrl), getter_AddRefs(mailnewsURL));
 
   nsAutoCString spec;
-  mailnewsURL->GetSpec(spec);
+  mailnewsURL->GetSpecIgnoringRef(spec);
 
   // mailbox: URLs contain a lot of query parts. We want need a normalised form:
   // mailbox:///path/to/folder?number=nn.
