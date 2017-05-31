@@ -3393,7 +3393,19 @@ function OnMsgParsed(aUrl)
       continue;
 
     // We have a ref fragment which may reference a node in this document.
-    // Check if the href url matches the document baseURL.
+    // Ensure html in mail anchors work as expected.
+    let anchorId = linkNode.hash.replace("#", "");
+    // Continue if an id (html5) or name attribute value for the ref is not
+    // found in this document.
+    let selector = "#" + anchorId + ", [name='" + anchorId + "']";
+    try {
+      if (!linkNode.ownerDocument.querySelector(selector))
+        continue;
+    } catch (ex) {
+      continue;
+    }
+
+    // Then check if the href url matches the document baseURL.
     if (makeURI(linkNode.href).specIgnoringRef != makeURI(linkNode.baseURI).specIgnoringRef)
       continue;
 
