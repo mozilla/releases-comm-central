@@ -39,7 +39,7 @@ function getLocalStorage(page) {
   var url = "chrome://content/messenger/accountProvisionerStorage/" + page;
 
   var uri = Services.io.newURI(url, "");
-  var principal = Services.scriptSecurityManager.getNoAppCodebasePrincipal(uri);
+  var principal = Services.scriptSecurityManager.createCodebasePrincipal(uri, {});
   return Services.domStorageManager.getLocalStorageForPrincipal(principal, url);
 }
 
