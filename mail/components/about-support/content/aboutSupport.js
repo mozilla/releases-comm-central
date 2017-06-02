@@ -676,7 +676,7 @@ var snapshotFormatters = {
       ]));
     }
 
-    if (AppConstants.platform == "linux") {
+    if ("syscallLog" in data) {
       let syscallBody = $("sandbox-syscalls-tbody");
       let argsHead = $("sandbox-syscalls-argshead");
       for (let syscall of data.syscallLog) {
