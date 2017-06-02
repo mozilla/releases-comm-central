@@ -262,6 +262,10 @@ a {
   margin-top: 1em;
 }
 
+#version {
+  margin-inline-start: 0;
+}
+
 .update-throbber {
   width: 16px;
   min-height: 16px;

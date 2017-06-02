@@ -240,6 +240,10 @@ a {
   -moz-box-flex: 0;
 }
 
+#version {
+  margin-inline-start: 0;
+}
+
 .update-throbber {
   width: 16px;
   min-height: 16px;
