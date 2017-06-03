@@ -395,6 +395,8 @@
 @RESPATH@/components/mozProtocolHandler.manifest
 @RESPATH@/components/multiprocessShims.js
 @RESPATH@/components/addoncompat.manifest
+@RESPATH@/components/utils.manifest
+@RESPATH@/components/simpleServices.js
 @RESPATH@/components/NetworkGeolocationProvider.js
 @RESPATH@/components/NetworkGeolocationProvider.manifest
 @RESPATH@/components/NotificationStorage.js
