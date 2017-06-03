@@ -612,22 +612,9 @@ treechildren::-moz-tree-cell-text(imapdeleted) {
   }
 
   #folderTree {
-    -moz-appearance: none;
-    background-color: -moz-Dialog;
+    background-color: #fafafa;
     border-bottom: none;
     border-left: none;
-  }
-
-  @media (-moz-os-version: windows-win7) {
-    #folderTree {
-      background-color: #eef3fa;
-    }
-  }
-
-  @media (-moz-os-version: windows-win10) {
-    #folderTree {
-      background-color: #fafafa;
-    }
   }
 
   #folderTree treechildren::-moz-tree-cell(dropOn) {
@@ -679,11 +666,6 @@ treechildren::-moz-tree-cell-text(imapdeleted) {
     border-color: rgb(184, 214, 251);
     background-image: linear-gradient(rgba(131, 183, 249, .05), rgba(131, 183, 249, .16));
     background-color: transparent;
-  }
-
-  #status-bar,
-  #folderPane-toolbar {
-    background-color: hsl(210, 75%, 92%);
   }
 }
 

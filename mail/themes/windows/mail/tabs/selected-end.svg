@@ -11,12 +11,6 @@
         height: 100%;
         width: 100%;
       }
-      @media (-moz-windows-default-theme) and (-moz-os-version: windows-vista),
-             (-moz-windows-default-theme) and (-moz-os-version: windows-win7) {
-        #tab-background-fill {
-          background-color: hsl(210,75%,92%);
-        }
-      }
       @media (-moz-os-version: windows-win8),
              (-moz-os-version: windows-win10) {
         #tab-background-fill {

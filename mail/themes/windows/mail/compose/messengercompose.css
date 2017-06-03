@@ -968,14 +968,6 @@ toolbarbutton.formatting-button,
 }
 
 @media (-moz-os-version: windows-win7) and (-moz-windows-default-theme) {
-  #compose-toolbox:not(:-moz-lwtheme) {
-    background-color: hsl(210, 75%, 92%);
-  }
-
-  #composeContentBox {
-    background-color: hsl(210, 75%, 92%);
-  }
-
   #headers-box {
     border-bottom-color: #a9b7c9;
   }
@@ -1008,9 +1000,8 @@ toolbarbutton.formatting-button,
 
   #status-bar {
     -moz-appearance: none;
-    border: none;
+    border-style: none;
     border-top: 1px solid threedshadow;
-    background-color: hsl(210, 75%, 92%);
   }
 }
 

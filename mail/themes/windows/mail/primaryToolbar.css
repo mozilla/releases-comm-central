@@ -946,8 +946,7 @@ toolbar:not([mode="text"]) > toolbarpaletteitem > #button-chat > stack {
 
   #navigation-toolbox > #mail-toolbar-menubar2:not(:-moz-lwtheme) {
     -moz-appearance: none;
-    background-color: hsl(210, 75%, 92%);
-    border-bottom: 1px solid #AABCCF;
+    border-bottom: 1px solid #aabccf;
   }
 
   #mail-toolbar-menubar2:-moz-lwtheme {
@@ -986,11 +985,6 @@ toolbar:not([mode="text"]) > toolbarpaletteitem > #button-chat > stack {
   #appmenuSecondaryPane {
     --appMenu-bg-color: #f1f5fb;
     --appMenu-bg-box-shadow: rgb(204, 214, 234);
-  }
-
-  .mail-toolbox:not(:-moz-lwtheme),
-  .contentTabToolbox:not(:-moz-lwtheme) {
-    background-color: hsl(210, 75%, 92%);
   }
 }
 

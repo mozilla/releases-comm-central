@@ -90,15 +90,6 @@ toolbox > toolbar:last-of-type {
 
 /* ::::: primary toolbar buttons ::::: */
 
-@media (-moz-windows-default-theme) {
-  sidebarheader {
-    -moz-appearance: none;
-    background-color: #f8f8f8;
-    border-top: 0;
-    border-bottom: 1px solid #a9b1b8;
-  }
-}
-
 #button-newcard {
   list-style-image: url("chrome://messenger/skin/addressbook/icons/addressbook-toolbar.svg#newcard");
 }
@@ -158,6 +149,19 @@ toolbox > toolbar:last-of-type {
 
 /* ::::: directory pane adjustments ::::: */
 
+@media (-moz-windows-default-theme) {
+  #dirTree {
+    background-color: #fafafa;
+  }
+
+  sidebarheader {
+    -moz-appearance: none;
+    background-color: #f8f8f8;
+    border-top: 0;
+    border-bottom: 1px solid #a9b1b8;
+  }
+}
+
 /* Don't use the listbox appearance as that gives us a blue-grey top border
    that collides with the primary toolbar border */
 #dirTree {
@@ -211,25 +215,11 @@ toolbox > toolbar:last-of-type {
 }
 
 @media (-moz-os-version: windows-win7) and (-moz-windows-default-theme) {
-  #ab-toolbox:not(:-moz-lwtheme) {
-    background-color: hsl(210, 75%, 92%);
-  }
-
-  #dirTree {
-    background-color: #eef3fa;
-  }
 
   #status-bar {
     -moz-appearance: none;
-    border: none;
+    border-style: none;
     border-top: 1px solid ThreeDShadow;
-    background-color: hsl(210, 75%, 92%);
-  }
-}
-
-@media (-moz-os-version: windows-win10) and (-moz-windows-default-theme) {
-  #dirTree {
-    background-color: #fafafa;
   }
 }
 

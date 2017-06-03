@@ -72,7 +72,6 @@
 @media (-moz-os-version: windows-win7) and (-moz-windows-default-theme) {
   #abContactsPanel {
     -moz-appearance: none;
-    background-color: hsl(210, 75%, 92%);
   }
 
   button,

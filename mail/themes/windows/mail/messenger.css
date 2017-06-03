@@ -16,9 +16,6 @@
   --fgTabBackgroundColor: -moz-dialog;
   --fgTabTextureLWT: var(--fgTabTexture);
 
-  /* Aero-only variables */
-  --customToolbarColor: hsl(210, 75%, 92%);
-
   --toolbarbutton-hover-background: rgba(0, 0, 0, .1);
   --toolbarbutton-hover-bordercolor: rgba(0, 0, 0, .1);
   --toolbarbutton-header-bordercolor: rgba(0, 0, 0, .1);

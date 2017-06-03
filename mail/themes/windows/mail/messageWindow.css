@@ -54,8 +54,7 @@
 @media (-moz-windows-compositor) {
   #status-bar {
     -moz-appearance: none;
-    border: none;
+    border-style: none;
     border-top: 1px solid ThreeDShadow;
-    background-color: hsl(210, 75%, 92%);
   }
 }
