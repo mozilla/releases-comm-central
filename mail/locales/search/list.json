@@ -188,6 +188,13 @@
         ]
       }
     },
+    "kk": {
+      "default": {
+        "visibleDefaultEngines": [
+          "amazondotcom", "aol-web-search", "bing", "twitter", "wikipedia", "yahoo"
+        ]
+      }
+    },
     "ko": {
       "default": {
         "visibleDefaultEngines": [
