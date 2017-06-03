@@ -49,6 +49,20 @@ menu:not(:-moz-lwtheme):-moz-window-inactive {
   #tabs-toolbar:not(:-moz-lwtheme) {
     background-image: none;
   }
+
+  #messengerWindow #mail-menubar > menu {
+    -moz-appearance: none;
+    border-style: none;
+  }
+
+  #messengerWindow #mail-menubar > menu[_moz-menuactive="true"] {
+    background-color: hsla(0, 0%, 0%, .12);
+  }
+
+  #messengerWindow #mail-menubar >
+    menu:-moz-lwtheme-brighttext[_moz-menuactive="true"] {
+    background-color: hsla(0, 0%, 100%, .12);
+  }
 }
 
 /**
