@@ -395,8 +395,6 @@
 @RESPATH@/components/PageThumbsProtocol.js
 @RESPATH@/components/XULStore.js
 @RESPATH@/components/XULStore.manifest
-@RESPATH@/components/messageWakeupService.js
-@RESPATH@/components/messageWakeupService.manifest
 @RESPATH@/components/browser-element.xpt
 @RESPATH@/components/CaptivePortalDetectComponents.manifest
 @RESPATH@/components/captivedetect.js
