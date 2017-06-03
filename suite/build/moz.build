@@ -20,11 +20,3 @@ LOCAL_INCLUDES += [
     '/suite/profile/migration/src',
     '/suite/shell/src',
 ]
-
-if CONFIG['OS_ARCH'] == 'WINNT':
-    OS_LIBS += [
-        'ole32',
-        'shell32',
-    ]
-
-OS_LIBS += CONFIG['TK_LIBS']
