@@ -8,51 +8,25 @@ Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
  * DownloadProgressListener "class" is used to help update download items shown
  * in the Download Manager UI such as displaying amount transferred, transfer
  * rate, and time left for each download.
- *
- * This class implements the nsIDownloadProgressListener interface.
  */
 function DownloadProgressListener() {}
 
 DownloadProgressListener.prototype = {
-  //////////////////////////////////////////////////////////////////////////////
-  //// nsISupports
+  onDownloadAdded: function(aDownload) {
+    gDownloadTreeView.addDownload(aDownload);
 
-  QueryInterface: XPCOMUtils.generateQI([Components.interfaces.nsIDownloadProgressListener]),
-
-  //////////////////////////////////////////////////////////////////////////////
-  //// nsIDownloadProgressListener
-
-  onDownloadStateChange: function(aState, aDownload) {
     // Update window title in-case we don't get all progress notifications
     onUpdateProgress();
-
-    switch (aDownload.state) {
-      case nsIDownloadManager.DOWNLOAD_QUEUED:
-        gDownloadTreeView.addDownload(aDownload);
-        break;
-
-      case nsIDownloadManager.DOWNLOAD_BLOCKED_POLICY:
-        gDownloadTreeView.addDownload(aDownload);
-        // Should fall through, this is a final state but DOWNLOAD_QUEUED
-        // is skipped. See nsDownloadManager::AddDownload.
-      default:
-        gDownloadTreeView.updateDownload(aDownload);
-        break;
-    }
   },
 
-  onProgressChange: function(aWebProgress, aRequest,
-                             aCurSelfProgress, aMaxSelfProgress,
-                             aCurTotalProgress, aMaxTotalProgress, aDownload) {
+  onDownloadChanged: function(aDownload) {
     gDownloadTreeView.updateDownload(aDownload);
 
     // Update window title
     onUpdateProgress();
   },
 
-  onStateChange: function(aWebProgress, aRequest, aState, aStatus, aDownload) {
-  },
-
-  onSecurityChange: function(aWebProgress, aRequest, aState, aDownload) {
+  onDownloadRemoved: function(aDownload) {
+    gDownloadTreeView.removeDownload(aDownload);
   }
 };

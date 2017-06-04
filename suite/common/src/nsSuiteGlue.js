@@ -6,6 +6,7 @@ const XULNS = "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul";
 
 Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 Components.utils.import("resource://gre/modules/Services.jsm");
+Components.utils.import("resource://gre/modules/osfile.jsm");
 Components.utils.import("resource://gre/modules/AddonManager.jsm");
 Components.utils.import("resource://gre/modules/LoginManagerParent.jsm");
 Components.utils.import("resource:///modules/Sanitizer.jsm");
@@ -53,6 +54,41 @@ const DEBUGGER_REMOTE_ENABLED = "devtools.debugger.remote-enabled";
 const DEBUGGER_REMOTE_PORT = "devtools.debugger.remote-port";
 const DEBUGGER_FORCE_LOCAL = "devtools.debugger.force-local";
 const DEBUGGER_WIFI_VISIBLE = "devtools.remote.wifi.visible";
+const DOWNLOAD_MANAGER_URL = "chrome://communicator/content/downloads/downloadmanager.xul";
+const PROGRESS_DIALOG_URL = "chrome://communicator/content/downloads/progressDialog.xul";
+const PREF_FOCUS_WHEN_STARTING = "browser.download.manager.focusWhenStarting";
+const PREF_FLASH_COUNT = "browser.download.manager.flashCount";
+const PREF_DM_BEHAVIOR = "browser.download.manager.behavior";
+
+var gDownloadManager;
+var gDownloadsLoaded;
+var gTaskbarProgress;
+var gWinTaskbar;
+var gDownloadsSummary;
+
+function onSummaryChanged()
+{
+  if (!gTaskbarProgress)
+    return;
+
+  const nsITaskbarProgress = Components.interfaces.nsITaskbarProgress;
+  var currentBytes = gDownloadsSummary.progressCurrentBytes;
+  var totalBytes = gDownloadsSummary.progressTotalBytes;
+  var state = gDownloadsSummary.allHaveStopped ?
+                currentBytes ? nsITaskbarProgress.STATE_PAUSED :
+                               nsITaskbarProgress.STATE_NO_PROGRESS :
+                currentBytes < totalBytes ? nsITaskbarProgress.STATE_NORMAL :
+                             nsITaskbarProgress.STATE_INDETERMINATE;
+  switch (state) {
+    case nsITaskbarProgress.STATE_NO_PROGRESS:
+    case nsITaskbarProgress.STATE_INDETERMINATE:
+      gTaskbarProgress.setProgressState(state, 0, 0);
+      break;
+    default:
+      gTaskbarProgress.setProgressState(state, currentBytes, totalBytes);
+      break;
+  }
+}
 
 // Constructor
 
@@ -165,6 +201,29 @@ SuiteGlue.prototype = {
                   .getService(Components.interfaces.nsIMessageListenerManager)
                   .loadFrameScript("chrome://navigator/content/content.js", true);
         Components.utils.import("resource://gre/modules/NotificationDB.jsm");
+        Components.utils.import("resource://gre/modules/Downloads.jsm");
+        Components.utils.import("resource://gre/modules/DownloadIntegration.jsm");
+        DownloadIntegration.shouldPersistDownload = function() { return true; }
+        Downloads.getList(Downloads.ALL).then(list => list.addView(this))
+                                        .then(() => gDownloadsLoaded = true);
+
+        if ("@mozilla.org/widget/macdocksupport;1" in Components.classes)
+          gTaskbarProgress = Components.classes["@mozilla.org/widget/macdocksupport;1"]
+                                       .getService(Components.interfaces.nsITaskbarProgress);
+        else if ("@mozilla.org/windows-taskbar;1" in Components.classes) {
+          gWinTaskbar = Components.classes["@mozilla.org/windows-taskbar;1"]
+                                  .getService(Components.interfaces.nsIWinTaskbar);
+          if (!gWinTaskbar.available) {
+            gWinTaskbar = null;
+            break;
+          }
+        } else {
+          break;
+        }
+        Downloads.getSummary(Downloads.PUBLIC).then(list => {
+          gDownloadsSummary = list;
+          list.addView(this);
+        });
         break;
       case "sessionstore-windows-restored":
         this._onBrowserStartup(subject);
@@ -1185,9 +1244,86 @@ SuiteGlue.prototype = {
     this.dbgStart();
   },
 
+  // Download view
+  onDownloadAdded: function(aDownload, aNewest)
+  {
+    aDownload.displayName =
+                 aDownload.target.path ? OS.Path.basename(aDownload.target.path)
+                                       : aDownload.source.url;
+    this.onDownloadChanged(aDownload);
+    if (!gDownloadsLoaded)
+      return;
+
+    var behavior = aDownload.source.isPrivate ? 1 :
+                     Services.prefs.getIntPref(PREF_DM_BEHAVIOR);
+    switch (behavior) {
+      case 0:
+        this.showDownloadManager(aDownload);
+        break;
+      case 1:
+        Services.ww.openWindow(null, PROGRESS_DIALOG_URL, null,
+                               "chrome,titlebar,centerscreen,minimizable=yes,dialog=no",
+                               { wrappedJSObject: aDownload });
+        break;
+    }
+
+    return; // No UI for behavior >= 2
+  },
+
+  onDownloadChanged: function(aDownload) {
+    const nsIDownloadManager = Components.interfaces.nsIDownloadManager;
+    aDownload.state =
+                !aDownload.stopped ? nsIDownloadManager.DOWNLOAD_DOWNLOADING :
+                aDownload.succeeded ? nsIDownloadManager.DOWNLOAD_FINISHED :
+                aDownload.error ?  aDownload.error.becauseBlocked ?
+                  nsIDownloadManager.DOWNLOAD_BLOCKED_POLICY :
+                  nsIDownloadManager.DOWNLOAD_FAILED :
+                !aDownload.canceled ? nsIDownloadManager.DOWNLOAD_NOTSTARTED :
+                aDownload.hasPartialData ? nsIDownloadManager.DOWNLOAD_PAUSED :
+                                           nsIDownloadManager.DOWNLOAD_CANCELED;
+    if (gDownloadsLoaded && (aDownload.succeeded || !aDownload.stopped))
+      aDownload.endTime = Date.now();
+  },
+
+  // Download summary
+  onSummaryChanged: onSummaryChanged,
+
   // ------------------------------
   // public nsISuiteGlue members
   // ------------------------------
+
+  showDownloadManager: function(aDownload)
+  {
+    if (!gDownloadManager) {
+      gDownloadManager = Services.ww.openWindow(null, DOWNLOAD_MANAGER_URL,
+                                                null, "all,dialog=no",
+                                                { wrappedJSObject: aDownload });
+      gDownloadManager.addEventListener("load", function() {
+        gDownloadManager.addEventListener("unload", function() {
+          gDownloadManager = null;
+          if (gWinTaskbar)
+            gTaskbarProgress = null;
+        });
+        if (gWinTaskbar) {
+          var docShell = gDownloadManager.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
+                                         .getInterface(Components.interfaces.nsIWebNavigation)
+                                         .QueryInterface(Components.interfaces.nsIDocShell);
+          gTaskbarProgress = gWinTaskbar.getTaskbarProgress(docShell);
+          onSummaryChanged();
+        }
+      });
+    } else if (!aDownload ||
+               Services.prefs.getBoolPref(PREF_FOCUS_WHEN_STARTING)) {
+        gDownloadManager.focus();
+    } else {
+      // This preference may not be set, so defaulting to two.
+      var flashCount = 2;
+      try {
+        flashCount = Services.prefs.getIntPref(PREF_FLASH_COUNT);
+      } catch (e) { }
+      gDownloadManager.getAttentionWithCycleCount(flashCount);
+    }
+  },
 
   sanitize: function(aParentWindow)
   {

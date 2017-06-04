@@ -5,14 +5,13 @@
 Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 Components.utils.import("resource://gre/modules/DownloadUtils.jsm");
 
-// nsIDownloadManager, gDownloadManager, gDownloadListener
-// are defined in downloadmanager.js
-
 var gDownload;
 var gDownloadBundle;
 var gTkDlBundle;
 
+var gDlList;
 var gDlStatus;
+var gDlListener;
 var gDlSize;
 var gTimeElapsed;
 var gProgressMeter;
@@ -20,19 +19,15 @@ var gProgressText;
 var gCloseWhenDone;
 
 var gLastSec = Infinity;
-var gStartTime = 0;
-var gEndTime = Date.now(); // gets corrected below for calls from dlmgr
 var gDlActive = false;
-var gRetrying = false;
 
 function progressStartup() {
-  gDownload = window.arguments[0];
+  gDownload = window.arguments[0].wrappedJSObject;
+  Downloads.getList(gDownload.source.isPrivate ? Downloads.PRIVATE : Downloads.PUBLIC).then(progressAsyncStartup);
+}
 
-  var recentDMWindow = Services.wm.getMostRecentWindow("Download:Manager");
-  if (recentDMWindow &&
-      gDownload.guid in recentDMWindow.gDownloadTreeView._dlMap)
-    // we have been opened by a download manager, get the end time from there
-    gEndTime = recentDMWindow.gDownloadTreeView._dlMap[gDownload.guid].endTime;
+function progressAsyncStartup(aList) {
+  gDlList = aList;
 
   // cache elements to save .getElementById() calls
   gDownloadBundle = document.getElementById("dmBundle");
@@ -52,51 +47,37 @@ function progressStartup() {
   else
     gCloseWhenDone.checked = Services.prefs.getBoolPref("browser.download.progress.closeWhenDone");
 
-  switch (gDownload.state) {
-    case nsIDownloadManager.DOWNLOAD_NOTSTARTED:
-    case nsIDownloadManager.DOWNLOAD_DOWNLOADING:
-    case nsIDownloadManager.DOWNLOAD_PAUSED:
-    case nsIDownloadManager.DOWNLOAD_QUEUED:
-    case nsIDownloadManager.DOWNLOAD_SCANNING:
-      gDlActive = true;
-      break;
-    case nsIDownloadManager.DOWNLOAD_FINISHED:
-      if (gCloseWhenDone.checked && window.arguments[1])
-        window.close();
-    default:
-      gDlActive = false;
-      break;
+  if (gDownload.succeeded) {
+    if (gCloseWhenDone.checked && !window.arguments[1])
+      window.close();
   }
 
   var fName = document.getElementById("fileName");
   var fSource = document.getElementById("fileSource");
   fName.label = gDownload.displayName;
-  fName.tooltipText = gDownload.target.spec;
+  fName.tooltipText = gDownload.target.path;
+  var uri = Services.io.newURI(gDownload.source.url, null, null);
   var fromString;
   try {
-    fromString = gDownload.source.host;
+    fromString = uri.host;
   }
   catch (e) { }
   if (!fromString)
-    fromString = gDownload.source.prePath;
+    fromString = uri.prePath;
   fSource.label = gDownloadBundle.getFormattedString("fromSource", [fromString]);
-  fSource.tooltipText = gDownload.source.spec;
+  fSource.tooltipText = gDownload.source.url;
 
   // The DlProgressListener handles progress notifications.
-  gDownloadListener = new DlProgressListener();
-  gDownloadManager.addPrivacyAwareListener(gDownloadListener);
+  gDlListener = new DlProgressListener();
+  gDlList.addView(gDlListener);
 
   updateDownload();
   updateButtons();
   window.updateCommands("dlstate-change");
-
-  // Send a notification that we finished
-  setTimeout(() =>
-    Services.obs.notifyObservers(window, "download-manager-ui-done", null), 0);
 }
 
 function progressShutdown() {
-  gDownloadManager.removeListener(gDownloadListener);
+  gDlList.removeView(gDlListener);
   window.controllers.removeController(ProgressDlgController);
   if (!gCloseWhenDone.hidden)
     Services.prefs.setBoolPref("browser.download.progress.closeWhenDone",
@@ -104,34 +85,20 @@ function progressShutdown() {
 }
 
 function updateDownload() {
-  switch (gDownload.state) {
-    case nsIDownloadManager.DOWNLOAD_DOWNLOADING:
-      // At this point, we know if we are an indeterminate download or not.
-      if (gDownload.percentComplete == -1) {
-        gProgressText.hidden = true;
-        gProgressMeter.mode = "undetermined";
-      }
-      else if (gProgressText.hidden) {
-        // If it was undetermined before, unhide text and switch mode.
-        gProgressText.hidden = false;
-        gProgressMeter.mode = "determined";
-      }
-    case nsIDownloadManager.DOWNLOAD_NOTSTARTED:
-    case nsIDownloadManager.DOWNLOAD_PAUSED:
-    case nsIDownloadManager.DOWNLOAD_QUEUED:
-    case nsIDownloadManager.DOWNLOAD_SCANNING:
-      gDlActive = true;
-      gProgressMeter.style.opacity = 1;
-      break;
-    default:
-      gDlActive = false;
-      gProgressMeter.style.opacity = 0.5;
-      break;
-  }
-  if (gDownload.size >= 0) {
-    gProgressMeter.value = gDownload.percentComplete;
+  if (gDownload.hasProgress) {
     gProgressText.value = gDownloadBundle.getFormattedString("percentFormat",
-                                                             [gDownload.percentComplete]);
+                                                             [gDownload.progress]);
+    gProgressText.hidden = false;
+    gProgressMeter.value = gDownload.progress;
+    gProgressMeter.mode = "determined";
+  } else {
+    gProgressText.hidden = true;
+    gProgressMeter.mode = "undetermined";
+  }
+  if (gDownload.stopped) {
+    gProgressMeter.style.opacity = 0.5;
+  } else {
+    gProgressMeter.style.opacity = 1;
   }
   // Update window title
   var statusString;
@@ -160,21 +127,22 @@ function updateDownload() {
       statusString = gDownloadBundle.getString("notStarted");
       break;
   }
-  var file = GetFileFromString(gDownload.target.spec);
-  if (gDownload.size > 0) {
+  if (gDownload.hasProgress) {
     document.title = gDownloadBundle.getFormattedString("progressTitlePercent",
-                                                        [gDownload.percentComplete,
-                                                         file.leafName, statusString]);
+                                                        [gDownload.progress,
+                                                         gDownload.displayName,
+                                                         statusString]);
   }
   else {
     document.title = gDownloadBundle.getFormattedString("progressTitle",
-                                                        [file.leafName, statusString]);
+                                                        [gDownload.displayName,
+                                                         statusString]);
   }
 
   // download size
-  var transfer = DownloadUtils.getTransferTotal(gDownload.amountTransferred,
-                                                gDownload.size);
-  if (gDownload.state == nsIDownloadManager.DOWNLOAD_DOWNLOADING) {
+  var transfer = DownloadUtils.getTransferTotal(gDownload.currentBytes,
+                                                gDownload.totalBytes);
+  if (!gDownload.stopped) {
     var [rate, unit] = DownloadUtils.convertByteUnits(gDownload.speed);
     var dlSpeed = gDownloadBundle.getFormattedString("speedFormat", [rate, unit]);
     gDlSize.value = gDownloadBundle.getFormattedString("sizeSpeed",
@@ -184,10 +152,10 @@ function updateDownload() {
     gDlSize.value = transfer;
 
   // download status
-  if (gDlActive) {
+  if (!gDownload.stopped) {
     // Calculate the time remaining if we have valid values
-    var seconds = (gDownload.speed > 0) && (gDownload.size > 0)
-                  ? (gDownload.size - gDownload.amountTransferred) / gDownload.speed
+    var seconds = (gDownload.speed > 0) && (gDownload.totalBytes > 0)
+                  ? (gDownload.totalBytes - gDownload.currentBytes) / gDownload.speed
                   : -1;
     var [timeLeft, newLast] = DownloadUtils.getTimeLeft(seconds, gLastSec);
     gLastSec = newLast;
@@ -212,12 +180,8 @@ function updateDownload() {
   }
 
   // time elapsed
-  if (!gStartTime && gDownload.startTime)
-    gStartTime = Math.round(gDownload.startTime / 1000)
-  if (gDlActive)
-    gEndTime = Date.now();
-  if (gStartTime && gEndTime && (gEndTime > gStartTime)) {
-    var seconds = (gEndTime - gStartTime) / 1000;
+  if (gDownload.startTime && gDownload.endTime && (gDownload.endTime > gDownload.startTime)) {
+    var seconds = (gDownload.endTime - gDownload.startTime) / 1000;
     var [time1, unit1, time2, unit2] =
       DownloadUtils.convertTimeUnits(seconds);
     if (seconds < 3600 || time2 == 0)
@@ -247,27 +211,9 @@ function updateButtons() {
 function DlProgressListener() {}
 
 DlProgressListener.prototype = {
-  //////////////////////////////////////////////////////////////////////////////
-  //// nsISupports
-
-  QueryInterface: XPCOMUtils.generateQI([Components.interfaces.nsIDownloadProgressListener]),
-
-  //////////////////////////////////////////////////////////////////////////////
-  //// nsIDownloadProgressListener
-
-  onDownloadStateChange: function(aState, aDownload) {
-    // first, check if we are retrying and this is the new download starting
-    if (gRetrying &&
-        (aDownload.state == nsIDownloadManager.DOWNLOAD_QUEUED ||
-         aDownload.state == nsIDownloadManager.DOWNLOAD_BLOCKED_POLICY) &&
-        aDownload.source.spec == gDownload.source.spec &&
-        aDownload.target.spec == gDownload.target.spec) {
-      gRetrying = false;
-      gDownload = aDownload;
-    }
+  onDownloadChanged: function(aDownload) {
     if (aDownload == gDownload) {
-      if (gCloseWhenDone.checked &&
-          (aDownload.state == nsIDownloadManager.DOWNLOAD_FINISHED)) {
+      if (gCloseWhenDone.checked && aDownload.succeeded) {
         window.close();
       }
       updateDownload();
@@ -276,17 +222,9 @@ DlProgressListener.prototype = {
     }
   },
 
-  onProgressChange: function(aWebProgress, aRequest,
-                             aCurSelfProgress, aMaxSelfProgress,
-                             aCurTotalProgress, aMaxTotalProgress, aDownload) {
+  onDownloadRemoved: function(aDownload) {
     if (aDownload == gDownload)
-      updateDownload();
-  },
-
-  onStateChange: function(aWebProgress, aRequest, aState, aStatus, aDownload) {
-  },
-
-  onSecurityChange: function(aWebProgress, aRequest, aState, aDownload) {
+      window.close();
   }
 };
 
@@ -309,24 +247,19 @@ var ProgressDlgController = {
   isCommandEnabled: function(aCommand) {
     switch (aCommand) {
       case "cmd_pause":
-        return gDlActive &&
-               gDownload.state != nsIDownloadManager.DOWNLOAD_PAUSED &&
-               gDownload.resumable;
+        return !gDownload.stopped && gDownload.hasPartialData;
       case "cmd_resume":
-        return gDownload.state == nsIDownloadManager.DOWNLOAD_PAUSED &&
-               gDownload.resumable;
+        return gDownload.stopped && gDownload.hasPartialData;
       case "cmd_open":
-        return gDownload.state == nsIDownloadManager.DOWNLOAD_FINISHED &&
-               gDownload.targetFile.exists();
+        return gDownload.succeeded && gDownload.target.exists;
       case "cmd_show":
-        return gDownload.targetFile.exists();
+        return gDownload.target.exists;
       case "cmd_cancel":
-        return gDlActive;
+        return !gDownload.stopped || gDownload.hasPartialData;
       case "cmd_retry":
-        return gDownload.state == nsIDownloadManager.DOWNLOAD_CANCELED ||
-               gDownload.state == nsIDownloadManager.DOWNLOAD_FAILED;
+        return !gDownload.succeeded && gDownload.stopped && !gDownload.hasPartialData;
       case "cmd_openReferrer":
-        return !!gDownload.referrer;
+        return !!gDownload.source.referrer;
       case "cmd_copyLocation":
         return true;
       default:
@@ -337,14 +270,11 @@ var ProgressDlgController = {
   doCommand: function(aCommand) {
     switch (aCommand) {
       case "cmd_pause":
-        gDownload.pause();
+        gDownload.cancel();
         break;
       case "cmd_resume":
-        gDownload.resume();
-        break;
       case "cmd_retry":
-        gRetrying = true;
-        retryDownload(gDownload);
+        gDownload.start();
         break;
       case "cmd_cancel":
         cancelDownload(gDownload);

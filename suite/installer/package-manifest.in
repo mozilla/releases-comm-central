@@ -416,7 +416,6 @@
 @RESPATH@/components/crashmonitor.manifest
 @RESPATH@/components/nsDefaultCLH.js
 @RESPATH@/components/nsDefaultCLH.manifest
-@RESPATH@/components/nsDownloadsStartup.js
 #ifdef MOZ_GTK
 @RESPATH@/components/nsFilePicker.js
 @RESPATH@/components/nsFilePicker.manifest
