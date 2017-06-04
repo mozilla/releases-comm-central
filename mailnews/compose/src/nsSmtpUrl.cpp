@@ -95,6 +95,9 @@ nsresult nsMailtoUrl::ParseMailtoUrl(char * searchPart)
       nsCString decodedName;
       MsgUnescapeString(nsDependentCString(token), 0, decodedName);
 
+      if (decodedName.Length() == 0)
+        break;
+
       switch (NS_ToUpper(decodedName.First()))
       {
         /* DO NOT support attachment= in mailto urls. This poses a security fire hole!!!
