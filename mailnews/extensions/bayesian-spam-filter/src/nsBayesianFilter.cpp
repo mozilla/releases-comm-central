@@ -28,6 +28,7 @@
 #include "nsIObserverService.h"
 #include "nsIChannel.h"
 #include "nsDependentSubstring.h"
+#include "nsLWBrkCIID.h"
 
 #include "mozilla/ArenaAllocatorExtensions.h" // for ArenaStrdup
 
@@ -713,6 +714,61 @@ nsresult Tokenizer::stripHTML(const nsAString& inString, nsAString& outString)
   return utils->ConvertToPlainText(inString, flags, 80, outString);
 }
 
+// Copied from nsSemanticUnitScanner.cpp which was removed in bug 1368418.
+nsresult Tokenizer::ScannerNext(const char16_t *text, int32_t length, int32_t pos, bool isLastBuffer, int32_t *begin, int32_t *end, bool *_retval)
+{
+    if (!mWordBreaker) {
+      nsresult rv;
+      mWordBreaker = do_CreateInstance(NS_WBRK_CONTRACTID, &rv);
+      if (NS_FAILED(rv))
+        return rv;
+    }
+
+    // if we reach the end, just return
+    if (pos >= length) {
+       *begin = pos;
+       *end = pos;
+       *_retval = false;
+       return NS_OK;
+    }
+
+    nsWordBreakClass char_class = nsIWordBreaker::GetClass(text[pos]);
+
+    // If we are in Chinese mode, return one Han letter at a time.
+    // We should not do this if we are in Japanese or Korean mode.
+    if (kWbClassHanLetter == char_class) {
+       *begin = pos;
+       *end = pos+1;
+       *_retval = true;
+       return NS_OK;
+    }
+
+    int32_t next;
+    // Find the next "word".
+    next = mWordBreaker->NextWord(text, (uint32_t) length, (uint32_t) pos);
+
+    // If we don't have enough text to make decision, return.
+    if (next == NS_WORDBREAKER_NEED_MORE_TEXT) {
+       *begin = pos;
+       *end = isLastBuffer ? length : pos;
+       *_retval = isLastBuffer;
+       return NS_OK;
+    }
+
+    // If what we got is space or punct, look at the next break.
+    if ((char_class == kWbClassSpace) || (char_class == kWbClassPunct)) {
+        // If the next "word" is not letters,
+        // call itself recursively with the new pos.
+        return ScannerNext(text, length, next, isLastBuffer, begin, end, _retval);
+    }
+
+    // For the rest, return.
+    *begin = pos;
+    *end = next;
+    *_retval = true;
+    return NS_OK;
+}
+
 void Tokenizer::tokenize(const char* aText)
 {
   MOZ_LOG(BayesianFilterLogModule, LogLevel::Debug, ("tokenize: %s", aText));
@@ -762,40 +818,26 @@ void Tokenizer::tokenize(const char* aText)
         tokenize_ascii_word(word);
     else if (isJapanese(word))
         tokenize_japanese_word(word);
-#if 0
-M-C removed this in bug 1368418
     else {
         nsresult rv;
-        // use I18N  scanner to break this word into meaningful semantic units.
-        if (!mScanner) {
-            mScanner = do_CreateInstance(NS_SEMANTICUNITSCANNER_CONTRACTID, &rv);
-            NS_ASSERTION(NS_SUCCEEDED(rv), "couldn't create semantic unit scanner!");
-            if (NS_FAILED(rv)) {
-                return;
-            }
-        }
-        if (mScanner) {
-            mScanner->Start("UTF-8");
-            // convert this word from UTF-8 into UCS2.
-            NS_ConvertUTF8toUTF16 uword(word);
-            ToLowerCase(uword);
-            const char16_t* utext = uword.get();
-            int32_t len = uword.Length(), pos = 0, begin, end;
-            bool gotUnit;
-            while (pos < len) {
-                rv = mScanner->Next(utext, len, pos, true, &begin, &end, &gotUnit);
-                if (NS_SUCCEEDED(rv) && gotUnit) {
-                    NS_ConvertUTF16toUTF8 utfUnit(utext + begin, end - begin);
-                    add(utfUnit.get());
-                    // advance to end of current unit.
-                    pos = end;
-                } else {
-                    break;
-                }
+        // Convert this word from UTF-8 into UCS2.
+        NS_ConvertUTF8toUTF16 uword(word);
+        ToLowerCase(uword);
+        const char16_t* utext = uword.get();
+        int32_t len = uword.Length(), pos = 0, begin, end;
+        bool gotUnit;
+        while (pos < len) {
+            rv = ScannerNext(utext, len, pos, true, &begin, &end, &gotUnit);
+            if (NS_SUCCEEDED(rv) && gotUnit) {
+                NS_ConvertUTF16toUTF8 utfUnit(utext + begin, end - begin);
+                add(utfUnit.get());
+                // Advance to end of current unit.
+                pos = end;
+            } else {
+                break;
             }
         }
     }
-#endif
   }
 }
 
