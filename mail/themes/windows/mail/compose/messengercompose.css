@@ -264,6 +264,12 @@
   display: none;
 }
 
+toolbarbutton.formatting-button,
+#AlignPopup > menuitem,
+#InsertPopup > menuitem {
+  list-style-image: url("chrome://messenger/skin/messengercompose/format-buttons.png");
+}
+
 #AbsoluteFontSizeButton {
   -moz-image-region: rect(0 320px 16px 304px);
 }
@@ -539,6 +545,30 @@
 #HighlightColorButton[disabled="true"]:hover,
 #HighlightColorButton[disabled="true"]:hover:active {
   -moz-image-region: rect(260px 64px 272px 48px);
+}
+
+@media (-moz-os-version: windows-win7) and (-moz-windows-default-theme: 0) {
+  toolbarbutton.formatting-button {
+    -moz-appearance: none;
+    border-radius: 2px;
+    border: 1px solid transparent;
+    padding: 2px 3px;
+  }
+
+  toolbarbutton.formatting-button:not([checked="true"]):hover {
+    border-top-color: ButtonHighlight;
+    border-inline-start-color: ButtonHighlight;
+    border-bottom-color: ButtonShadow;
+    border-inline-end-color: ButtonShadow;
+  }
+
+  toolbarbutton.formatting-button:hover:active,
+  toolbarbutton.formatting-button[checked="true"] {
+    border-top-color: ButtonShadow;
+    border-inline-start-color: ButtonShadow;
+    border-bottom-color: ButtonHighlight;
+    border-inline-end-color: ButtonHighlight;
+  }
 }
 
 /* ::::: address book sidebar ::::: */
@@ -917,12 +947,6 @@ treechildren::-moz-tree-image(subscribed-news) {
 .aw-menulist > .menulist-label-box > .menulist-label {
   margin: 0 3px !important;
   text-align: end;
-}
-
-toolbarbutton.formatting-button,
-#AlignPopup > menuitem,
-#InsertPopup > menuitem {
-  list-style-image: url("chrome://messenger/skin/messengercompose/format-buttons.png");
 }
 
 /* ::::: address book sidebar ::::: */

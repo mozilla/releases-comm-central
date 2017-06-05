@@ -197,13 +197,26 @@ tabpanels {
 .tabs-alltabs-button:hover:active,
 .tabmail-arrowscrollbox > .scrollbutton-up:not([disabled]):hover,
 .tabmail-arrowscrollbox > stack > .scrollbutton-down:not([disabled]):hover {
-  background-image: linear-gradient(rgba(255, 255, 255, 0),
-                    rgba(255, 255, 255, .5)),
-                    linear-gradient(transparent, rgba(0, 0, 0, .25) 30%),
-                    linear-gradient(transparent, rgba(0, 0, 0, .25) 30%);
-  background-position: 1px -1px, 0 -1px, 100% -1px;
-  background-size: calc(100% - 2px) 100%, 1px 100%, 1px 100%;
-  background-repeat: no-repeat;
+  background: var(--toolbarbutton-active-background);
+}
+
+@media (-moz-windows-glass) {
+  .tabs-alltabs-button:not(:-moz-lwtheme):hover,
+  .tabs-alltabs-button:not(:-moz-lwtheme)[open],
+  .tabs-alltabs-button:not(:-moz-lwtheme):hover:active,
+  .tabmail-arrowscrollbox >
+    .scrollbutton-up:not(:-moz-lwtheme):not([disabled]):hover,
+  .tabmail-arrowscrollbox > stack >
+    .scrollbutton-down:not(:-moz-lwtheme):not([disabled]):hover {
+    background-color: transparent;
+    background-image: linear-gradient(rgba(255, 255, 255, 0),
+                      rgba(255, 255, 255, .5)),
+                      linear-gradient(transparent, rgba(0, 0, 0, .25) 30%),
+                      linear-gradient(transparent, rgba(0, 0, 0, .25) 30%);
+    background-position: 1px -1px, 0 -1px, 100% -1px;
+    background-size: calc(100% - 2px) 100%, 1px 100%, 1px 100%;
+    background-repeat: no-repeat;
+  }
 }
 
 .tabs-alltabs-button {

@@ -347,6 +347,7 @@ mail-emailaddress[selected="true"] .emailDisplayButton{
     -moz-appearance: button;
     padding-top: 1px !important;
     padding-bottom: 1px !important;
+    box-shadow: none !important;
   }
 
   .toolbarbutton-1 > .toolbarbutton-menubutton-dropmarker {
