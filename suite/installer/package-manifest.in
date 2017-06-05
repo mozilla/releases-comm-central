@@ -520,6 +520,10 @@
 ; Modules
 @RESPATH@/modules/*
 
+; [Extensions]
+@RESPATH@/components/extensions-toolkit.manifest
+@RESPATH@/components/extension-process-script.js
+
 ; [Browser Chrome Files]
 @RESPATH@/chrome/comm@JAREXT@
 @RESPATH@/chrome/comm.manifest

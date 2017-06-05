@@ -771,6 +771,10 @@
 @RESPATH@/components/dom_svg.xpt
 @RESPATH@/components/dom_smil.xpt
 
+; [Extensions]
+@RESPATH@/components/extensions-toolkit.manifest
+@RESPATH@/components/extension-process-script.js
+
 ; [Personal Security Manager]
 ;
 ; NSS libraries are signed in the staging directory,
