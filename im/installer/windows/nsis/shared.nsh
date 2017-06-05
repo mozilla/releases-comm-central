@@ -322,6 +322,7 @@
   Push "mozsqlite3.dll"
   Push "xpcom.dll"
   Push "crashreporter.exe"
+  Push "minidump-analyzer.exe"
   Push "pingsender.exe"
   Push "updater.exe"
   Push "xpicleanup.exe"
