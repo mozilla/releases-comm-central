@@ -1266,8 +1266,6 @@ var gMsgEditorCreationObserver =
         updateComposeItems();
       else
         gLastWindowToHaveFocus = null;
-
-      commandManager.removeCommandObserver(this, "obs_documentCreated");
     }
   }
 }
@@ -1340,6 +1338,8 @@ function ComposeUnload()
   document.getElementById("msgcomposeWindow").dispatchEvent(
     new Event("compose-window-unload", { bubbles: false, cancelable: false }));
 
+  GetCurrentCommandManager().removeCommandObserver(gMsgEditorCreationObserver,
+                                                   "obs_documentCreated");
   UnloadCommandUpdateHandlers();
 
   // Stop InlineSpellCheckerUI so personal dictionary is saved
@@ -2476,34 +2476,89 @@ function AttachmentElementHasItems()
 
 function OpenSelectedAttachment()
 {
-  var bucket = GetMsgAttachmentElement();
-  if (bucket.selectedItems.length == 1)
-  {
-    var attachmentUrl = bucket.getSelectedItem(0).attachment.url;
+  let bucket = document.getElementById("attachmentBucket");
+  if (bucket.selectedItems.length == 1) {
+    let attachmentUrl = bucket.getSelectedItem(0).attachment.url;
 
-    var messagePrefix = /^mailbox-message:|^imap-message:|^news-message:/i;
-    if (messagePrefix.test(attachmentUrl))
-    {
-      // we must be dealing with a forwarded attachment, treat this specially
-      var msgHdr = gMessenger.msgHdrFromURI(attachmentUrl);
-      if (msgHdr)
-      {
-        var folderUri = msgHdr.folder.folderURL;
-        window.openDialog("chrome://messenger/content/messageWindow.xul", "_blank", "all,chrome,dialog=no,status,toolbar",
-                          attachmentUrl, folderUri, null);
+    let messagePrefix = /^mailbox-message:|^imap-message:|^news-message:/i;
+    if (messagePrefix.test(attachmentUrl)) {
+      // We must be dealing with a forwarded attachment, treat this special.
+      let msgHdr = gMessenger.msgHdrFromURI(attachmentUrl);
+      if (msgHdr) {
+        MailUtils.openMessageInNewWindow(msgHdr);
       }
-    }
-    else
-    {
-      var editorElement = GetCurrentEditorElement();
-      if (editorElement) {
-        const loadFlags = Components.interfaces.nsIWebNavigation.LOAD_FLAGS_IS_LINK;
-        try {
-          editorElement.webNavigation.loadURI(attachmentUrl, loadFlags, null, null, null);
-        } catch (e) {}
+    } else {
+      // Turn the URL into a nsIURI object then open it.
+      let uri = Services.io.newURI(attachmentUrl);
+      if (uri) {
+        let channel = Services.io.newChannelFromURI2(uri,
+                                                     null,
+                                                     Services.scriptSecurityManager.getSystemPrincipal(),
+                                                     null,
+                                                     Components.interfaces.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
+                                                     Components.interfaces.nsIContentPolicy.TYPE_OTHER);
+        if (channel) {
+          let uriLoader = Components.classes["@mozilla.org/uriloader;1"].getService(Components.interfaces.nsIURILoader);
+          uriLoader.openURI(channel, true, new nsAttachmentOpener());
+        }
       }
     }
   } // if one attachment selected
+}
+
+function nsAttachmentOpener()
+{
+}
+
+nsAttachmentOpener.prototype =
+{
+  QueryInterface: function(iid)
+  {
+    if (iid.equals(Components.interfaces.nsIURIContentListener) ||
+        iid.equals(Components.interfaces.nsIInterfaceRequestor) ||
+        iid.equals(Components.interfaces.nsISupports)) {
+      return this;
+    }
+    throw Components.results.NS_NOINTERFACE;
+  },
+
+  onStartURIOpen: function(uri)
+  {
+    return false;
+  },
+
+  doContent: function(contentType, isContentPreferred, request, contentHandler)
+  {
+    return false;
+  },
+
+  isPreferred: function(contentType, desiredContentType)
+  {
+    return false;
+  },
+
+  canHandleContent: function(contentType, isContentPreferred, desiredContentType)
+  {
+    return false;
+  },
+
+  getInterface: function(iid)
+  {
+    if (iid.equals(Components.interfaces.nsIDOMWindow)) {
+      return window;
+    }
+
+    if (iid.equals(Components.interfaces.nsIDocShell)) {
+      return window.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
+                   .getInterface(Components.interfaces.nsIWebNavigation)
+                   .QueryInterface(Components.interfaces.nsIDocShell);
+    }
+
+    return this.QueryInterface(iid);
+  },
+
+  loadCookie: null,
+  parentContentListener: null
 }
 
 function DetermineHTMLAction(convertible)
