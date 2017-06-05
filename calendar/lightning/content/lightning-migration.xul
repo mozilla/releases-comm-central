@@ -22,7 +22,6 @@
     <script type="application/javascript" src="chrome://calendar/content/calendar-migration-dialog.js"/>
     <script type="application/javascript"><![CDATA[
         function checkOld() {
-            window.removeEventListener("load", checkOld, false);
             var calMgr = Components.classes["@mozilla.org/calendar/manager;1"]
                                    .getService(Components.interfaces.calICalendarManager);
             var cals = calMgr.getCalendars({});
@@ -31,7 +30,7 @@
                 gDataMigrator.checkAndMigrate();
             }
         }
-        window.addEventListener("load", checkOld, false);
+        window.addEventListener("load", checkOld, { capture: false, once: true });
     ]]></script>
 
     <deck id="calendarDisplayDeck"/>

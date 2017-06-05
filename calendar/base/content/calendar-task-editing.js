@@ -147,7 +147,6 @@ var taskEdit = {
      * have the class "task-edit-field".
      */
     onLoad: function(aEvent) {
-        window.removeEventListener("load", taskEdit.onLoad, false);
         // TODO use getElementsByClassName
         let taskEditFields = document.getElementsByAttribute("class", "task-edit-field");
         for (let i = 0; i < taskEditFields.length; i++) {
@@ -247,5 +246,5 @@ var taskEdit = {
     }
 };
 
-window.addEventListener("load", taskEdit.onLoad, false);
-window.addEventListener("unload", taskEdit.onUnload, false);
+window.addEventListener("load", taskEdit.onLoad, { capture: false, once: true });
+window.addEventListener("unload", taskEdit.onUnload, { capture: false, once: true });

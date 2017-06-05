@@ -478,5 +478,5 @@ var TodayPane = {
     }
 };
 
-window.addEventListener("load", TodayPane.onLoad, false);
-window.addEventListener("unload", TodayPane.onUnload, false);
+window.addEventListener("load", TodayPane.onLoad, { capture: false, once: true });
+window.addEventListener("unload", TodayPane.onUnload, { capture: false, once: true });

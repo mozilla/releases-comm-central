@@ -361,10 +361,6 @@ window.addEventListener("load", (e) => {
 
 
 function ltnOnLoad(event) {
-    // nuke the onload, or we get called every time there's
-    // any load that occurs
-    window.removeEventListener("load", ltnOnLoad, false);
-
     // Check if the binary component was loaded
     checkCalendarBinaryComponent();
 
@@ -792,7 +788,7 @@ function calInitMessageMenu() {
 calInitMessageMenu.origFunc = InitMessageMenu;
 InitMessageMenu = calInitMessageMenu;
 
-window.addEventListener("load", ltnOnLoad, false);
+window.addEventListener("load", ltnOnLoad, { capture: false, once: true });
 
 /**
  * Get the toolbox id for the current tab type.

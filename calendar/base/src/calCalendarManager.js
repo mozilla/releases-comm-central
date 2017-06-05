@@ -972,11 +972,9 @@ calMgrCalendarObserver.prototype = {
 
     announceParamBlock: function(paramBlock) {
         function awaitLoad(event) {
-            promptWindow.removeEventListener("load", awaitLoad, false);
-            promptWindow.addEventListener("unload", awaitUnload, false);
+            promptWindow.addEventListener("unload", awaitUnload, { capture: false, once: true });
         }
         let awaitUnload = (event) => {
-            promptWindow.removeEventListener("unload", awaitUnload, false);
             // unloaded (user closed prompt window),
             // remove paramBlock and unload listener.
             try {
@@ -1008,7 +1006,7 @@ calMgrCalendarObserver.prototype = {
         let promptUrl = "chrome://calendar/content/calendar-error-prompt.xul";
         let features = "chrome,dialog=yes,alwaysRaised=yes";
         let promptWindow = Services.ww.openWindow(null, promptUrl, "_blank", features, paramBlock);
-        promptWindow.addEventListener("load", awaitLoad, false);
+        promptWindow.addEventListener("load", awaitLoad, { capture: false, once: true });
     }
 };
 
