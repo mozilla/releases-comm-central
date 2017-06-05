@@ -3,8 +3,6 @@
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
-<!-- Note that this file depends on helper functions in calUtils.js-->
-
 <bindings id="calendar-core-view-bindings"
           xmlns="http://www.mozilla.org/xbl"
           xmlns:html="http://www.w3.org/1999/xhtml"
@@ -162,7 +160,7 @@
           this.setAttribute("calendar-id", item.calendar.id);
           let categoriesArray = item.getCategories({});
           if (categoriesArray.length > 0) {
-              let cssClassesArray = categoriesArray.map(formatStringForCSSRule);
+              let cssClassesArray = categoriesArray.map(cal.formatStringForCSSRule);
               this.setAttribute("categories", cssClassesArray.join(" "));
           }
 
@@ -196,7 +194,7 @@
               this.setAttribute("itemType", "event");
           } else if (cal.isToDo(item)) {
               // progress attribute
-              this.setAttribute("progress", getProgressAtom(item));
+              this.setAttribute("progress", cal.getProgressAtom(item));
               // Attribute for tasks and tasks image.
               this.setAttribute("itemType", "todo");
               if (item.entryDate && !item.dueDate) {
@@ -239,7 +237,7 @@
           if (cal.isInvitation(item)) {
               this.setAttribute("invitation-status", cal.getInvitedAttendee(item).participationStatus);
               this.setAttribute("readonly", "true");
-          } else if (!isCalendarWritable(item.calendar)) {
+          } else if (!cal.isCalendarWritable(item.calendar)) {
               this.setAttribute("readonly", "true");
           }
         ]]></body>
@@ -324,7 +322,7 @@
         // Also, check if the calendar is readOnly or we are offline.
 
         if (this.selected && !(event.ctrlKey || event.metaKey) &&
-              isCalendarWritable(this.mOccurrence.calendar)) {
+              cal.isCalendarWritable(this.mOccurrence.calendar)) {
             if (this.editingTimer) {
                 clearTimeout(this.editingTimer);
             }
@@ -361,7 +359,7 @@
         }
         let item = this.occurrence;
         let isInvitation = item.calendar instanceof Components.interfaces.calISchedulingSupport && item.calendar.isInvitation(item);
-        if (!isCalendarWritable(item.calendar) || !userCanModifyItem(item) || isInvitation) {
+        if (!cal.isCalendarWritable(item.calendar) || !cal.userCanModifyItem(item) || isInvitation) {
             return;
         }
         if (!this.selected) {

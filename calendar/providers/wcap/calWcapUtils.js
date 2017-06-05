@@ -14,12 +14,12 @@ Components.utils.import("resource://gre/modules/Preferences.jsm");
 var g_bShutdown = false;
 
 function initLogging() {
-    initLogging.mLogTimezone = calendarDefaultTimezone();
+    initLogging.mLogTimezone = cal.calendarDefaultTimezone();
     if (initLogging.mLogFilestream) {
         try {
             initLogging.mLogFilestream.close();
         } catch (exc) {
-            ASSERT(false, exc);
+            cal.ASSERT(false, exc);
         }
         initLogging.mLogFilestream = null;
     }
@@ -135,7 +135,7 @@ function logWarning(err, context) {
 
 function logError(err, context) {
     let msg = errorToString(err);
-    Components.utils.reportError(log("error: " + msg + "\nstack:\n" + STACK(10), context, true));
+    Components.utils.reportError(log("error: " + msg + "\nstack:\n" + cal.STACK(10), context, true));
     return msg;
 }
 
@@ -191,7 +191,7 @@ function getIcalUTC(date) {
         if (dtz.isUTC || dtz.isFloating) {
             return date.icalString;
         } else {
-            return date.getInTimezone(UTC()).icalString;
+            return date.getInTimezone(cal.UTC()).icalString;
         }
     }
 }
@@ -201,7 +201,7 @@ function getDatetimeFromIcalString(val) {
         return null;
     }
     // assuming timezone is known:
-    let date = createDateTime();
+    let date = cal.createDateTime();
     date.icalString = val;
     return date;
 }

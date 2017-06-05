@@ -61,8 +61,8 @@ calIcsSerializer.prototype = {
     },
 
     getIcalComponent: function() {
-        let calComp = getIcsService().createIcalComponent("VCALENDAR");
-        calSetProdidVersion(calComp);
+        let calComp = cal.getIcsService().createIcalComponent("VCALENDAR");
+        cal.calSetProdidVersion(calComp);
 
         // xxx todo: think about that the below code doesn't clone the properties/components,
         //           thus ownership is moved to returned VCALENDAR...

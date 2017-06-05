@@ -21,7 +21,7 @@
   <binding id="item-date-row" extends="xul:row">
     <resources>
       <stylesheet src="chrome://calendar/skin/calendar-event-dialog.css"/>
-    </resources>      
+    </resources>
     <content xbl:inherits="mode">
       <xul:label anonid="item-datetime-label"
                  class="headline"
@@ -30,6 +30,11 @@
     </content>
     <implementation>
       <field name="mItem">null</field>
+
+      <constructor><![CDATA[
+        Components.utils.import("resource://calendar/modules/calUtils.jsm");
+      ]]></constructor>
+
       <property name="mode"
                 readonly="true">
         <getter><![CDATA[
@@ -50,10 +55,10 @@
           let itemDateTimeLabel = document.getAnonymousElementByAttribute(this, "anonid", "item-datetime-value");
           let date;
           if (this.mode == "start") {
-              date = this.mItem[calGetStartDateProp(this.mItem)];
+              date = this.mItem[cal.calGetStartDateProp(this.mItem)];
               if (date) {
                   let label;
-                  if (isToDo(this.mItem)) {
+                  if (cal.isToDo(this.mItem)) {
                       label = this.getAttribute("taskStartLabel");
                   } else {
                       label = this.getAttribute("eventStartLabel");
@@ -61,10 +66,10 @@
                   headerLabel.value = label;
               }
           } else {
-              date = this.mItem[calGetEndDateProp(this.mItem)];
+              date = this.mItem[cal.calGetEndDateProp(this.mItem)];
               if (date) {
                   let label;
-                  if (isToDo(this.mItem)) {
+                  if (cal.isToDo(this.mItem)) {
                       label = this.getAttribute("taskDueLabel");
                   } else {
                       label = this.getAttribute("eventEndLabel");
@@ -78,7 +83,7 @@
           } else {
               const kDefaultTimezone = cal.calendarDefaultTimezone();
               let localTime = date.getInTimezone(kDefaultTimezone);
-              let formatter = getDateFormatter();
+              let formatter = cal.getDateFormatter();
               itemDateTimeLabel.value = formatter.formatDateTime(localTime);
               if (!date.timezone.isFloating && date.timezone.tzid != kDefaultTimezone.tzid) {
                   // we additionally display the original datetime with timezone

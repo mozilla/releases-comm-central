@@ -26,7 +26,6 @@
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 
   <script type="application/javascript" src="chrome://calendar/content/calendar-print-dialog.js"/>
-  <script type="application/javascript" src="chrome://calendar/content/calUtils.js"/>
   <script type="application/javascript" src="chrome://calendar/content/calendar-ui-utils.js"/>
   <script type="application/javascript" src="chrome://global/content/printUtils.js"/>
 

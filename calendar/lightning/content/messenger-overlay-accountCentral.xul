@@ -24,7 +24,7 @@
       <hbox>
         <label class="acctCentralText acctCentralLinkText"
                value="&lightning.acctCentral.newCalendar.label;"
-               onclick="window.parent.openCalendarWizard();"/>
+               onclick="window.parent.cal.openCalendarWizard(window);"/>
       </hbox>
     </row>
   </rows>

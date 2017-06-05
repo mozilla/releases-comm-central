@@ -13,6 +13,7 @@ Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 Components.utils.import("resource://gre/modules/Promise.jsm");
 Components.utils.import("resource://gre/modules/Task.jsm");
 Components.utils.import("resource://gre/modules/AddonManager.jsm");
+Components.utils.import("resource://calendar/modules/calUtils.jsm");
 Components.utils.import("resource://calendar/modules/calAsyncUtils.jsm");
 
 var gLastShownCalendarView = null;
@@ -333,11 +334,11 @@ var calendarItemTabType = {
         // and never meant to be persisted or restored. See persistTab.
         if (aState.args && aState.calendarId && aState.itemId) {
             aState.args.initialStartDateValue = aState.initialStartDate
-                ? cal.createDateTime(aState.initialStartDate) : getDefaultStartDate();
+                ? cal.createDateTime(aState.initialStartDate) : cal.getDefaultStartDate();
 
             aState.args.onOk = doTransaction.bind(null, "modify");
 
-            aState.args.calendar = getCalendarManager().getCalendarById(aState.calendarId);
+            aState.args.calendar = cal.getCalendarManager().getCalendarById(aState.calendarId);
             if (aState.args.calendar) {
                 // using wrappedJSObject is a hack that is needed to prevent a proxy error
                 let pcal = cal.async.promisifyCalendar(aState.args.calendar.wrappedJSObject);
@@ -375,7 +376,7 @@ function ltnOnLoad(event) {
 
     // Set up invitations manager
     scheduleInvitationsUpdate(FIRST_DELAY_STARTUP);
-    getCalendarManager().addObserver(gInvitationsCalendarManagerObserver);
+    cal.getCalendarManager().addObserver(gInvitationsCalendarManagerObserver);
 
     let filter = document.getElementById("task-tree-filtergroup");
     filter.value = filter.value || "all";
@@ -553,7 +554,7 @@ function refreshUIBits() {
          });
 
         if (!TodayPane.showsToday()) {
-            TodayPane.setDay(now());
+            TodayPane.setDay(cal.now());
         }
 
         // update the unifinder
@@ -562,7 +563,7 @@ function refreshUIBits() {
         // update today's date on todaypane button
         document.getElementById("calendar-status-todaypane-button").setUpTodayDate();
     } catch (exc) {
-        ASSERT(false, exc);
+        cal.ASSERT(false, exc);
     }
 
     // schedule our next update...
@@ -625,7 +626,7 @@ function LtnObserveDisplayDeckChange(event) {
 }
 
 function ltnFinish() {
-    getCalendarManager().removeObserver(gInvitationsCalendarManagerObserver);
+    cal.getCalendarManager().removeObserver(gInvitationsCalendarManagerObserver);
 
     // Remove listener for mailContext.
     let mailContextPopup = document.getElementById("mailContext");

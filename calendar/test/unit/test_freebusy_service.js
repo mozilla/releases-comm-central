@@ -156,7 +156,7 @@ function test_cancel() {
 // don't need to be. Make assumptions about the implementation instead.
 
 function _clearProviders() {
-    freebusy.wrappedJSObject.mProviders = new calInterfaceBag(Components.interfaces.calIFreeBusyProvider);
+    freebusy.wrappedJSObject.mProviders = new cal.calInterfaceBag(Components.interfaces.calIFreeBusyProvider);
 }
 
 function _countProviders() {

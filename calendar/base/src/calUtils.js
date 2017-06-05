@@ -355,40 +355,44 @@ function userCanRespondToInvitation(aItem) {
 /**
  * Opens the Create Calendar wizard
  *
+ * @param aWindow The window to show the dialog in.
  * @param aCallback  a function to be performed after calendar creation
  */
-function openCalendarWizard(aCallback) {
-    openDialog("chrome://calendar/content/calendarCreation.xul", "caEditServer",
-               // Workaround for Bug 1151440 - the HTML color picker won't work
-               // in linux when opened from modal dialog
-               AppConstants.platform == "linux"
-                   ? "chrome,titlebar,resizable"
-                   : "modal,chrome,titlebar,resizable",
-               aCallback);
+function openCalendarWizard(aWindow, aCallback) {
+    aWindow.openDialog("chrome://calendar/content/calendarCreation.xul", "caEditServer",
+                       // Workaround for Bug 1151440 - the HTML color picker won't work
+                       // in linux when opened from modal dialog
+                       AppConstants.platform == "linux"
+                           ? "chrome,titlebar,resizable"
+                           : "modal,chrome,titlebar,resizable",
+                       aCallback);
 }
 
 /**
  * Opens the calendar properties window for aCalendar
  *
+ * @param aWindow The window to show the dialog in.
  * @param aCalendar  the calendar whose properties should be displayed
  */
-function openCalendarProperties(aCalendar) {
-    openDialog("chrome://calendar/content/calendar-properties-dialog.xul",
-               "CalendarPropertiesDialog",
-               // Workaround for Bug 1151440 - the HTML color picker won't work
-               // in linux when opened from modal dialog
-               AppConstants.platform == "linux"
-                   ? "chrome,titlebar,resizable"
-                   : "modal,chrome,titlebar,resizable",
-               { calendar: aCalendar });
+function openCalendarProperties(aWindow, aCalendar) {
+    aWindow.openDialog("chrome://calendar/content/calendar-properties-dialog.xul",
+                       "CalendarPropertiesDialog",
+                       // Workaround for Bug 1151440 - the HTML color picker won't work
+                       // in linux when opened from modal dialog
+                       AppConstants.platform == "linux"
+                           ? "chrome,titlebar,resizable"
+                           : "modal,chrome,titlebar,resizable",
+                       { calendar: aCalendar });
 }
 
 /**
  * Opens the print dialog
+ *
+ * @param aWindow The window to show the dialog in.
  */
-function calPrint() {
-    openDialog("chrome://calendar/content/calendar-print-dialog.xul", "Print",
-               "centerscreen,chrome,resizable");
+function calPrint(aWindow) {
+    aWindow.openDialog("chrome://calendar/content/calendar-print-dialog.xul", "Print",
+                       "centerscreen,chrome,resizable");
 }
 
 /**

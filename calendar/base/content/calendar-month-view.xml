@@ -3,8 +3,6 @@
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
-<!-- Note that this file depends on helper functions in calUtils.js-->
-
 <!DOCTYPE bindings SYSTEM "chrome://global/locale/global.dtd" >
 
 <bindings id="calendar-month-view-bindings"
@@ -71,12 +69,16 @@
       </xul:vbox>
     </content>
     <implementation>
+      <constructor><![CDATA[
+        Components.utils.import("resource://calendar/modules/calUtils.jsm");
+      ]]></constructor>
+
       <property name="occurrence">
         <getter><![CDATA[
           return this.mOccurrence;
         ]]></getter>
         <setter><![CDATA[
-          ASSERT(!this.mOccurrence, "Code changes needed to set the occurrence twice", true);
+          cal.ASSERT(!this.mOccurrence, "Code changes needed to set the occurrence twice", true);
           this.mOccurrence = val;
           if (cal.isEvent(val)) {
               if (!val.startDate.isDate) {
@@ -84,8 +86,8 @@
                   let formatter = Components.classes["@mozilla.org/calendar/datetime-formatter;1"]
                                             .getService(Components.interfaces.calIDateTimeFormatter);
                   let timezone = this.calendarView ? this.calendarView.mTimezone
-                                                   : calendarDefaultTimezone();
-                  let parentDate = ensureDateTime(this.parentBox.date);
+                                                   : cal.calendarDefaultTimezone();
+                  let parentDate = cal.ensureDateTime(this.parentBox.date);
                   let startTime = val.startDate.getInTimezone(timezone);
                   let endTime = val.endDate.getInTimezone(timezone);
                   let nextDay = parentDate.clone();
@@ -138,6 +140,10 @@
     </content>
 
     <implementation>
+      <constructor><![CDATA[
+        Components.utils.import("resource://calendar/modules/calUtils.jsm");
+      ]]></constructor>
+
       <field name="mDate">null</field>
       <field name="mItemHash">{}</field>
       <field name="mShowMonthLabel">false</field>
@@ -183,7 +189,7 @@
               return val;
           }
           if (val) {
-              this.setAttribute("value", getDateFormatter().formatDateWithoutYear(this.mDate));
+              this.setAttribute("value", cal.getDateFormatter().formatDateWithoutYear(this.mDate));
           } else {
               this.setAttribute("value", this.mDate.day);
           }
@@ -216,7 +222,7 @@
           this.setAttribute("day", aDate.day);
 
           if (this.mShowMonthLabel) {
-              let monthName = calGetString("dateFormat", "month." + (aDate.month + 1) + ".Mmm");
+              let monthName = cal.calGetString("dateFormat", "month." + (aDate.month + 1) + ".Mmm");
               this.setAttribute("value", aDate.day + " " + monthName);
           } else {
               this.setAttribute("value", aDate.day);
@@ -287,8 +293,8 @@
           // Changing the drop day allows to compensate a possible difference.
 
           // Figure out if the timezones cause a days difference.
-          let start = (aItem[calGetStartDateProp(aItem)] ||
-                       aItem[calGetEndDateProp(aItem)]).clone();
+          let start = (aItem[cal.calGetStartDateProp(aItem)] ||
+                       aItem[cal.calGetEndDateProp(aItem)]).clone();
           let dayboxDate = this.mDate.clone();
           if (start.timezone != dayboxDate.timezone) {
               let startInDefaultTz = start.clone().getInTimezone(dayboxDate.timezone);
@@ -322,7 +328,7 @@
         }
       ]]></handler>
       <handler event="wheel"><![CDATA[
-        if (getParentNodeOrThisByAttribute(event.originalTarget, "anonid", "day-label") == null) {
+        if (cal.getParentNodeOrThisByAttribute(event.originalTarget, "anonid", "day-label") == null) {
             if (this.dayitems.scrollHeight > this.dayitems.clientHeight) {
                 event.stopPropagation();
             }
@@ -413,6 +419,7 @@
       <constructor><![CDATA[
         Components.utils.import("resource://gre/modules/Preferences.jsm");
         Components.utils.import("resource://calendar/modules/calViewUtils.jsm");
+        Components.utils.import("resource://calendar/modules/calUtils.jsm");
 
         // Set the preference for the default start of the week
         this.weekStartOffset = Preferences.get("calendar.week.start", 0);
@@ -602,7 +609,7 @@
 
       <property name="selectedDateTime">
         <getter><![CDATA[
-            return getDefaultStartDate(this.selectedDay);
+            return cal.getDefaultStartDate(this.selectedDay);
         ]]></getter>
         <setter><![CDATA[
             this.mClickedTime = val;

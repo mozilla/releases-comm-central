@@ -292,10 +292,10 @@ function appendCalendarItems(aItem, aCalendarMenuParent, aCalendarToUse, aOnComm
         let calendar = calendars[i];
         if (calendar.id == calendarToUse.id ||
             (calendar &&
-             isCalendarWritable(calendar) &&
-             (userCanAddItemsToCalendar(calendar) ||
-              (calendar == aItem.calendar && userCanModifyItem(aItem))) &&
-             isItemSupported(aItem, calendar))) {
+             cal.isCalendarWritable(calendar) &&
+             (cal.userCanAddItemsToCalendar(calendar) ||
+              (calendar == aItem.calendar && cal.userCanModifyItem(aItem))) &&
+             cal.isItemSupported(aItem, calendar))) {
             let menuitem = addMenuItem(aCalendarMenuParent, calendar.name, calendar.name);
             menuitem.calendar = calendar;
             index++;

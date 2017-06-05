@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
+Components.utils.import("resource://calendar/modules/calUtils.jsm");
 
 /* exported gCalendarStatusFeedback */
 
@@ -62,7 +63,7 @@ var gCalendarStatusFeedback = {
                 this.mStatusBar.removeAttribute("collapsed");
                 this.mStatusBar.setAttribute("mode", "determined");
                 this.mStatusBar.value = 0;
-                let commonStatus = calGetString("calendar", "gettingCalendarInfoCommon");
+                let commonStatus = cal.calGetString("calendar", "gettingCalendarInfoCommon");
                 this.showStatusString(commonStatus);
             }
             if (this.mThrobber) {
@@ -98,8 +99,8 @@ var gCalendarStatusFeedback = {
                     this.mCalendars[aCalendar.id] = true;
                     this.mStatusBar.value = parseInt(this.mStatusBar.value, 10) + this.mCalendarStep;
                     this.mCurIndex++;
-                    let curStatus = calGetString("calendar", "gettingCalendarInfoDetail",
-                                                 [this.mCurIndex, this.mCalendarCount]);
+                    let curStatus = cal.calGetString("calendar", "gettingCalendarInfoDetail",
+                                                     [this.mCurIndex, this.mCalendarCount]);
                     this.showStatusString(curStatus);
                 }
             }

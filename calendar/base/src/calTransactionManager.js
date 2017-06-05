@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+Components.utils.import("resource://calendar/modules/calUtils.jsm");
 Components.utils.import("resource://calendar/modules/calItipUtils.jsm");
 Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 
@@ -49,8 +50,8 @@ calTransactionManager.prototype = {
     checkWritable: function(transaction) {
         function checkItem(item) {
             return item && item.calendar &&
-                   isCalendarWritable(item.calendar) &&
-                   userCanAddItemsToCalendar(item.calendar);
+                   cal.isCalendarWritable(item.calendar) &&
+                   cal.userCanAddItemsToCalendar(item.calendar);
         }
 
         let trans = transaction && transaction.wrappedJSObject;

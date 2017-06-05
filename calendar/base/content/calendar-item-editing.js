@@ -389,15 +389,15 @@ function openEventDialog(calendarItem, calendar, mode, callback, job=null, initi
     // Set up some defaults
     mode = mode || "new";
     calendar = calendar || getSelectedCalendar();
-    let calendars = getCalendarManager().getCalendars({});
-    calendars = calendars.filter(isCalendarWritable);
+    let calendars = cal.getCalendarManager().getCalendars({});
+    calendars = calendars.filter(cal.isCalendarWritable);
 
     let isItemSupported;
-    if (isToDo(calendarItem)) {
+    if (cal.isToDo(calendarItem)) {
         isItemSupported = function(aCalendar) {
             return (aCalendar.getProperty("capabilities.tasks.supported") !== false);
         };
-    } else if (isEvent(calendarItem)) {
+    } else if (cal.isEvent(calendarItem)) {
         isItemSupported = function(aCalendar) {
             return (aCalendar.getProperty("capabilities.events.supported") !== false);
         };
@@ -408,7 +408,7 @@ function openEventDialog(calendarItem, calendar, mode, callback, job=null, initi
 
     // Filter out calendar/items that we cannot write to/modify
     if (mode == "new") {
-        calendars = calendars.filter(userCanAddItemsToCalendar);
+        calendars = calendars.filter(cal.userCanAddItemsToCalendar);
     } else { /* modify */
         calendars = calendars.filter((aCalendar) => {
             /* If the calendar is the item calendar, we check that the item
@@ -417,17 +417,17 @@ function openEventDialog(calendarItem, calendar, mode, callback, job=null, initi
              * add items to the current one.
              */
             let isSameCalendar = calendarItem.calendar == aCalendar;
-            let canModify = userCanModifyItem(calendarItem);
-            let canMoveItems = userCanDeleteItemsFromCalendar(calendarItem.calendar) &&
-                               userCanAddItemsToCalendar(aCalendar);
+            let canModify = cal.userCanModifyItem(calendarItem);
+            let canMoveItems = cal.userCanDeleteItemsFromCalendar(calendarItem.calendar) &&
+                               cal.userCanAddItemsToCalendar(aCalendar);
 
             return isSameCalendar ? canModify : canMoveItems;
         });
     }
 
     if (mode == "new" &&
-        (!isCalendarWritable(calendar) ||
-         !userCanAddItemsToCalendar(calendar) ||
+        (!cal.isCalendarWritable(calendar) ||
+         !cal.userCanAddItemsToCalendar(calendar) ||
          !isItemSupported(calendar))) {
         if (calendars.length < 1) {
             // There are no writable calendars or no calendar supports the given
@@ -453,7 +453,7 @@ function openEventDialog(calendarItem, calendar, mode, callback, job=null, initi
     args.mode = mode;
     args.onOk = callback;
     args.job = job;
-    args.initialStartDateValue = initialDate || getDefaultStartDate();
+    args.initialStartDateValue = initialDate || cal.getDefaultStartDate();
     args.counterProposal = counterProposal;
     args.inTab = Preferences.get("calendar.item.editInTab", false);
     args.useNewItemUI = Preferences.get("calendar.item.useNewItemUI", false);
@@ -477,8 +477,8 @@ function openEventDialog(calendarItem, calendar, mode, callback, job=null, initi
 
     // open the dialog modeless
     let url;
-    let isEditable = mode == "modify" && !isInvitation && userCanModifyItem(calendarItem);
-    if (isCalendarWritable(calendar) && (mode == "new" || isEditable)) {
+    let isEditable = mode == "modify" && !isInvitation && cal.userCanModifyItem(calendarItem);
+    if (cal.isCalendarWritable(calendar) && (mode == "new" || isEditable)) {
         if (args.inTab) {
             url = args.useNewItemUI ? "chrome://lightning/content/html-item-editing/lightning-item-iframe.html"
                                     : "chrome://lightning/content/lightning-item-iframe.xul";

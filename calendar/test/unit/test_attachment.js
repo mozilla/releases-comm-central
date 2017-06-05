@@ -26,7 +26,7 @@ function test_hashes() {
     // Setting raw data should give us a BINARY attachment
     equal(attach.getParameter("VALUE"), "BINARY");
 
-    attach.uri = makeURL("http://hello");
+    attach.uri = cal.makeURL("http://hello");
 
     // Setting an uri should delete the value parameter
     equal(attach.getParameter("VALUE"), null);
@@ -46,7 +46,7 @@ function test_uriattach() {
     notEqual(attach.getParameter("VALUE"), "BINARY");
     equal(attach.formatType, "x-moz/test");
     equal(attach.getParameter("FMTTYPE"), "x-moz/test");
-    equal(attach.uri.spec, makeURL("http://hello").spec);
+    equal(attach.uri.spec, cal.makeURL("http://hello").spec);
     equal(attach.rawData, "http://hello");
 }
 

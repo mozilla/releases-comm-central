@@ -8,7 +8,7 @@ function run_test() {
     alarm.action = "DISPLAY";
     alarm.description = "test";
     alarm.related = Ci.calIAlarm.ALARM_RELATED_END;
-    alarm.offset = createDuration("-PT15M");
+    alarm.offset = cal.createDuration("-PT15M");
     if (alarm.icalString.search(/RELATED=END/) == -1) {
         do_throw("Bug 486186: RELATED property missing in VALARM component");
     }

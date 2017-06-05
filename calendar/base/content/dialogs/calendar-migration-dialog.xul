@@ -24,7 +24,6 @@
 
     <script type="application/javascript" src="chrome://calendar/content/calendar-migration-dialog.js"/>
     <script type="application/javascript" src="chrome://calendar/content/import-export.js"/>
-    <script type="application/javascript" src="chrome://calendar/content/calUtils.js"/>
 
     <wizardpage id="wizardPage1"
                 pageid="initialPage"

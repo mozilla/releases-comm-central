@@ -115,7 +115,7 @@
                           <toolbarbutton id="today-button"
                                          class="miniday-nav-buttons"
                                          tooltiptext="&showToday.tooltip;"
-                                         oncommand="TodayPane.setDay(now());"/>
+                                         oncommand="TodayPane.setDay(cal.now());"/>
                           <toolbarbutton id="next-day-button"
                                          class="miniday-nav-buttons"
                                          tooltiptext="&onedayforward.tooltip;"

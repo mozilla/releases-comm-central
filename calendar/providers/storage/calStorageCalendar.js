@@ -771,7 +771,7 @@ calStorageCalendar.prototype = {
                     expandedItems = expandedItems.filter(checkUnrespondedInvitation);
                 }
             } else if ((!wantUnrespondedInvitations || checkUnrespondedInvitation(item)) &&
-                       checkIfInRange(item, aRangeStart, aRangeEnd)) {
+                       cal.checkIfInRange(item, aRangeStart, aRangeEnd)) {
                 // If no occurrences are wanted, check only the parent item.
                 // This will be changed with bug 416975.
                 expandedItems = [item];
@@ -1599,7 +1599,7 @@ calStorageCalendar.prototype = {
             }
         }
 
-        item = createEvent();
+        item = cal.createEvent();
 
         if (row.event_start) {
             item.startDate = newDateTime(row.event_start, row.event_start_tz);
@@ -1635,7 +1635,7 @@ calStorageCalendar.prototype = {
             }
         }
 
-        item = createTodo();
+        item = cal.createTodo();
 
         if (row.todo_entry) {
             item.entryDate = newDateTime(row.todo_entry, row.todo_entry_tz);
@@ -1727,7 +1727,7 @@ calStorageCalendar.prototype = {
                             // for events DTEND/DUE is enforced by calEvent/calTodo, so suppress DURATION:
                             break;
                         case "CATEGORIES": {
-                            let cats = categoriesStringToArray(row.value);
+                            let cats = cal.categoriesStringToArray(row.value);
                             item.setCategories(cats.length, cats);
                             break;
                         }
@@ -1969,7 +1969,7 @@ calStorageCalendar.prototype = {
     },
 
     flushItem: function(item, olditem) {
-        ASSERT(!item.recurrenceId, "no parent item passed!", true);
+        cal.ASSERT(!item.recurrenceId, "no parent item passed!", true);
 
         try {
             this.deleteItemById(olditem ? olditem.id : item.id, true);
@@ -2160,7 +2160,7 @@ calStorageCalendar.prototype = {
         let cats = item.getCategories({});
         if (cats.length > 0) {
             ret = CAL_ITEM_FLAG.HAS_PROPERTIES;
-            this.writeProperty(item, "CATEGORIES", categoriesArrayToString(cats));
+            this.writeProperty(item, "CATEGORIES", cal.categoriesArrayToString(cats));
         }
 
         return ret;
@@ -2465,9 +2465,4 @@ calStorageCalendar.prototype = {
     }
 };
 
-/** Module Registration */
-var scriptLoadOrder = [
-    "calUtils.js",
-];
-
-this.NSGetFactory = cal.loadingNSGetFactory(scriptLoadOrder, [calStorageCalendar], this);
+this.NSGetFactory = XPCOMUtils.generateNSGetFactory([calStorageCalendar]);

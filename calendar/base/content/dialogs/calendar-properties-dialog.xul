@@ -29,7 +29,6 @@
     width="500">
 
   <script type="application/javascript" src="chrome://calendar/content/calendar-properties-dialog.js"/>
-  <script type="application/javascript" src="chrome://calendar/content/calUtils.js"/>
   <script type="application/javascript" src="chrome://calendar/content/calendar-ui-utils.js"/>
 
   <description id="force-disabled-description" hidden="true">&calendarproperties.forceDisabled.label;</description>

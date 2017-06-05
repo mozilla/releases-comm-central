@@ -373,7 +373,7 @@ calFilter.prototype = {
      *                            specified by mStartDate and mEndDate, false otherwise.
      */
     dateRangeFilter: function(aItem) {
-        return checkIfInRange(aItem, this.mStartDate, this.mEndDate);
+        return cal.checkIfInRange(aItem, this.mStartDate, this.mEndDate);
     },
 
     /**

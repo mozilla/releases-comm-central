@@ -73,14 +73,14 @@ var taskEdit = {
         if (calendar.getProperty("capabilities.tasks.supported") === false) {
             taskEdit.setupTaskField(edit,
                                     true,
-                                    calGetString("calendar", "taskEditInstructionsCapability"));
-        } else if (isCalendarWritable(calendar)) {
+                                    cal.calGetString("calendar", "taskEditInstructionsCapability"));
+        } else if (cal.isCalendarWritable(calendar)) {
             edit.showsInstructions = false;
             taskEdit.setupTaskField(edit, false, edit.savedValue || "");
         } else {
             taskEdit.setupTaskField(edit,
                                     true,
-                                    calGetString("calendar", "taskEditInstructionsReadonly"));
+                                    cal.calGetString("calendar", "taskEditInstructionsReadonly"));
         }
     },
 
@@ -107,18 +107,18 @@ var taskEdit = {
         if (calendar.getProperty("capabilities.tasks.supported") === false) {
             taskEdit.setupTaskField(edit,
                                     true,
-                                    calGetString("calendar", "taskEditInstructionsCapability"));
-        } else if (isCalendarWritable(calendar)) {
+                                    cal.calGetString("calendar", "taskEditInstructionsCapability"));
+        } else if (cal.isCalendarWritable(calendar)) {
             if (!edit.showsInstructions) {
                 edit.savedValue = edit.value || "";
             }
             taskEdit.setupTaskField(edit,
                                     false,
-                                    calGetString("calendar", "taskEditInstructions"));
+                                    cal.calGetString("calendar", "taskEditInstructions"));
         } else {
             taskEdit.setupTaskField(edit,
                                     true,
-                                    calGetString("calendar", "taskEditInstructionsReadonly"));
+                                    cal.calGetString("calendar", "taskEditInstructionsReadonly"));
         }
         edit.showsInstructions = true;
     },

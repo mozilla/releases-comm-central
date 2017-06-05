@@ -6,7 +6,6 @@ Components.utils.import("resource://calendar/modules/calUtils.jsm");
 
 var scriptLoadOrder = [
     "calItemBase.js",
-    "calUtils.js",
     "calCachedCalendar.js",
 
     "calAlarm.js",

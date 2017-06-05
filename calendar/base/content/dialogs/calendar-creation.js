@@ -4,6 +4,8 @@
 
 /* exported openLocalCalendar */
 
+Components.utils.import("resource://calendar/modules/calUtils.jsm");
+
 /**
  * Shows the filepicker and creates a new calendar with a local file using the ICS
  * provider.
@@ -11,9 +13,9 @@
 function openLocalCalendar() {
     const nsIFilePicker = Components.interfaces.nsIFilePicker;
     let picker = Components.classes["@mozilla.org/filepicker;1"].createInstance(nsIFilePicker);
-    picker.init(window, calGetString("calendar", "Open"), nsIFilePicker.modeOpen);
+    picker.init(window, cal.calGetString("calendar", "Open"), nsIFilePicker.modeOpen);
     let wildmat = "*.ics";
-    let description = calGetString("calendar", "filterIcs", [wildmat]);
+    let description = cal.calGetString("calendar", "filterIcs", [wildmat]);
     picker.appendFilter(description, wildmat);
     picker.appendFilters(nsIFilePicker.filterAll);
 
@@ -21,7 +23,7 @@ function openLocalCalendar() {
         return;
     }
 
-    let calMgr = getCalendarManager();
+    let calMgr = cal.getCalendarManager();
     let calendars = calMgr.getCalendars({});
     if (calendars.some(x => x.uri == picker.fileURL)) {
         // The calendar already exists, select it and return.
@@ -41,7 +43,7 @@ function openLocalCalendar() {
     if (prettyName && prettyName.length >= 1) {
         name = decodeURIComponent(prettyName[1]);
     } else {
-        name = calGetString("calendar", "untitledCalendarName");
+        name = cal.calGetString("calendar", "untitledCalendarName");
     }
     openCalendar.name = name;
 

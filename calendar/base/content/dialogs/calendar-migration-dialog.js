@@ -248,7 +248,7 @@ var gDataMigrator = {
         // the data describe therein.
         function parseAndMigrate(aDoc, aCallback) {
             // For duplicate detection
-            var calManager = getCalendarManager();
+            var calManager = cal.getCalendarManager();
             var uris = [];
             for (var oldCal of calManager.getCalendars({})) {
                 uris.push(oldCal.uri);
@@ -275,7 +275,7 @@ var gDataMigrator = {
                 } else {
                     // Remote subscription
                     // XXX check for duplicates
-                    var url = makeURL(getRDFAttr(node, "remotePath"));
+                    var url = cal.makeURL(getRDFAttr(node, "remotePath"));
                     calendar = calManager.createCalendar("ics", url);
                 }
                 calendar.name = getRDFAttr(node, "name");
@@ -343,7 +343,7 @@ var gDataMigrator = {
         function icalMigrate(aDataDir, aCallback) {
             aDataDir.append("Sources");
             var dirs = aDataDir.directoryEntries;
-            var calManager = getCalendarManager();
+            var calManager = cal.getCalendarManager();
 
             var i = 1;
             while(dirs.hasMoreElements()) {
@@ -442,7 +442,7 @@ var gDataMigrator = {
                 return dataStore.exists();
             }
 
-            var calManager = getCalendarManager();
+            var calManager = cal.getCalendarManager();
             var dirs = aDataDir.directoryEntries;
             while (dirs.hasMoreElements()) {
                 var dataDir = dirs.getNext().QueryInterface(Components.interfaces.nsIFile);
@@ -540,7 +540,7 @@ var gDataMigrator = {
      */
     importICSToStorage: function migrateIcsStorage(icsFile) {
         const uri = 'moz-storage-calendar://';
-        let calendar = cal.getCalendarManager().createCalendar("storage", makeURL(uri));
+        let calendar = cal.getCalendarManager().createCalendar("storage", cal.makeURL(uri));
         let icsImporter = Components.classes["@mozilla.org/calendar/import;1?type=ics"]
                                     .getService(Components.interfaces.calIImporter);
 
@@ -556,10 +556,10 @@ var gDataMigrator = {
         } catch(ex) {
             switch (ex.result) {
                 case Components.interfaces.calIErrors.INVALID_TIMEZONE:
-                    cal.showError(calGetString("calendar", "timezoneError", [icsFile.path]), window);
+                    cal.showError(cal.calGetString("calendar", "timezoneError", [icsFile.path]), window);
                     break;
                 default:
-                    cal.showError(calGetString("calendar", "unableToRead") + icsFile.path + "\n"+ ex, window);
+                    cal.showError(cal.calGetString("calendar", "unableToRead") + icsFile.path + "\n"+ ex, window);
             }
         } finally {
            inputStream.close();

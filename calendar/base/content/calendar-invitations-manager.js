@@ -127,7 +127,7 @@ InvitationsManager.prototype = {
         this.updateStartDate();
         this.deleteAllItems();
 
-        let cals = getCalendarManager().getCalendars({});
+        let cals = cal.getCalendarManager().getCalendars({});
 
         let opListener = {
             QueryInterface: XPCOMUtils.generateQI([Components.interfaces.calIOperationListener]),
@@ -163,7 +163,7 @@ InvitationsManager.prototype = {
                                                          null,
                                                          null);
                         } catch (exc) {
-                            ERROR(exc);
+                            cal.ERROR(exc);
                         }
                     }
                 }
@@ -191,7 +191,7 @@ InvitationsManager.prototype = {
         };
 
         for (let calendar of cals) {
-            if (!isCalendarWritable(calendar) || calendar.getProperty("disabled")) {
+            if (!cal.isCalendarWritable(calendar) || calendar.getProperty("disabled")) {
                 opListener.onOperationComplete();
                 continue;
             }
@@ -218,7 +218,7 @@ InvitationsManager.prototype = {
                 gInvitationsRequestManager.addRequestStatus(calendar, operation);
             } catch (exc) {
                 opListener.onOperationComplete();
-                ERROR(exc);
+                cal.ERROR(exc);
             }
         }
     },
@@ -379,7 +379,7 @@ InvitationsManager.prototype = {
      * @return      Potential start date.
      */
     getStartDate: function() {
-        let date = now();
+        let date = cal.now();
         date.second = 0;
         date.minute = 0;
         date.hour = 0;
@@ -415,8 +415,7 @@ InvitationsManager.prototype = {
             !item.calendar.isInvitation(item)) {
             return false; // exclude if organizer has invited himself
         }
-        let start = item[calGetStartDateProp(item)] || item[calGetEndDateProp(item)];
-        return (cal.isOpenInvitation(item) &&
-                start.compare(this.mStartDate) >= 0);
+        let start = item[cal.calGetStartDateProp(item)] || item[cal.calGetEndDateProp(item)];
+        return cal.isOpenInvitation(item) && start.compare(this.mStartDate) >= 0;
     }
 };

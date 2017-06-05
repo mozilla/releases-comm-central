@@ -95,7 +95,7 @@ function loadReminders() {
     // Set up a default absolute date. This will be overridden if the selected
     // alarm is absolute.
     let absDate = document.getElementById("reminder-absolute-date");
-    absDate.value = cal.dateTimeToJsDate(getDefaultStartDate());
+    absDate.value = cal.dateTimeToJsDate(cal.getDefaultStartDate());
 
     if (listbox.childNodes.length) {
         // We have reminders, select the first by default. For some reason,
@@ -171,9 +171,9 @@ function setupMaxReminders() {
     if (!setupMaxReminders.notification) {
         let notification = createXULElement("notification");
         let localeErrorString =
-            calGetString("calendar-alarms",
-                         getItemBundleStringName("reminderErrorMaxCountReached"),
-                         [maxReminders]);
+            cal.calGetString("calendar-alarms",
+                             getItemBundleStringName("reminderErrorMaxCountReached"),
+                             [maxReminders]);
         let pluralErrorLabel = PluralForm.get(maxReminders, localeErrorString)
                                          .replace("#1", maxReminders);
 
@@ -353,7 +353,7 @@ function updateReminder(event) {
  * @return              The full string name.
  */
 function getItemBundleStringName(aPrefix) {
-    if (isEvent(window.arguments[0].item)) {
+    if (cal.isEvent(window.arguments[0].item)) {
         return aPrefix + "Event";
     } else {
         return aPrefix + "Task";
@@ -365,7 +365,7 @@ function getItemBundleStringName(aPrefix) {
  * new reminder item.
  */
 function onNewReminder() {
-    let itemType = (isEvent(window.arguments[0].item) ? "event" : "todo");
+    let itemType = (cal.isEvent(window.arguments[0].item) ? "event" : "todo");
     let listbox = document.getElementById("reminder-listbox");
 
     let reminder = cal.createAlarm();

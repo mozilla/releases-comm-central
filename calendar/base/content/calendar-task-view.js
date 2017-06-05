@@ -4,6 +4,7 @@
 
 /* exported taskDetailsView, sendMailToOrganizer, taskViewCopyLink */
 
+Components.utils.import("resource://calendar/modules/calUtils.jsm");
 Components.utils.import("resource://calendar/modules/calRecurrenceUtils.jsm");
 Components.utils.import("resource://gre/modules/Services.jsm");
 Components.utils.import("resource://gre/modules/AppConstants.jsm");
@@ -65,7 +66,7 @@ var taskDetailsView = {
                 let statusDetails = document.getElementById("calendar-task-details-status");
                 switch (status) {
                     case "NEEDS-ACTION": {
-                        statusDetails.value = calGetString(
+                        statusDetails.value = cal.calGetString(
                             "calendar",
                             "taskDetailsStatusNeedsAction");
                         break;
@@ -76,7 +77,7 @@ var taskDetailsView = {
                         if (property != null) {
                             percent = parseInt(property, 10);
                         }
-                        statusDetails.value = calGetString(
+                        statusDetails.value = cal.calGetString(
                             "calendar",
                             "taskDetailsStatusInProgress", [percent]);
                         break;
@@ -84,8 +85,8 @@ var taskDetailsView = {
                     case "COMPLETED": {
                         if (item.completedDate) {
                             let completedDate = item.completedDate.getInTimezone(
-                                                    calendarDefaultTimezone());
-                            statusDetails.value = calGetString(
+                                                    cal.calendarDefaultTimezone());
+                            statusDetails.value = cal.calGetString(
                                 "calendar",
                                 "taskDetailsStatusCompletedOn",
                                 [dateFormatter.formatDateTime(completedDate)]);
@@ -93,7 +94,7 @@ var taskDetailsView = {
                         break;
                     }
                     case "CANCELLED": {
-                        statusDetails.value = calGetString(
+                        statusDetails.value = cal.calGetString(
                             "calendar",
                             "taskDetailsStatusCancelled");
                         break;
@@ -118,7 +119,7 @@ var taskDetailsView = {
             let recurrenceInfo = parentItem.recurrenceInfo;
             let recurStart = parentItem.recurrenceStartDate;
             if (displayElement("calendar-task-details-repeat-row", recurrenceInfo && recurStart)) {
-                let kDefaultTimezone = calendarDefaultTimezone();
+                let kDefaultTimezone = cal.calendarDefaultTimezone();
                 let startDate = recurStart.getInTimezone(kDefaultTimezone);
                 let endDate = item.dueDate ? item.dueDate.getInTimezone(kDefaultTimezone) : null;
                 let detailsString = recurrenceRule2String(recurrenceInfo, startDate, endDate, startDate.isDate);
@@ -223,7 +224,7 @@ function sendMailToOrganizer() {
         let email = cal.getAttendeeEmail(organizer, true);
         let emailSubject = cal.calGetString("calendar-event-dialog", "emailSubjectReply", [item.title]);
         let identity = item.calendar.getProperty("imip.identity");
-        sendMailTo(email, emailSubject, null, identity);
+        cal.sendMailTo(email, emailSubject, null, identity);
     }
 }
 

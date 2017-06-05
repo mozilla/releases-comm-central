@@ -115,7 +115,7 @@ agendaListbox.removePeriodListItem = function(aPeriod) {
 agendaListbox.onCheckboxChange = function(event) {
     let periodCheckbox = event.target;
     let lopen = (periodCheckbox.getAttribute("checked") == "true");
-    let listItem = getParentNodeOrThis(periodCheckbox, "agenda-checkbox-richlist-item");
+    let listItem = cal.getParentNodeOrThis(periodCheckbox, "agenda-checkbox-richlist-item");
     let period = listItem.getItem();
     period.open = lopen;
     // as the agenda-checkboxes are only transient we have to set the "checked"
@@ -221,7 +221,7 @@ agendaListbox.findPeriodsForItem = function(aItem) {
     let retPeriods = [];
     for (let i = 0; i < this.periods.length; i++) {
         if (this.periods[i].open) {
-            if (checkIfInRange(aItem, this.periods[i].start, this.periods[i].end)) {
+            if (cal.checkIfInRange(aItem, this.periods[i].start, this.periods[i].end)) {
                 retPeriods.push(this.periods[i]);
             }
         }
@@ -294,7 +294,7 @@ agendaListbox.addItemBefore = function(aNewItem, aAgendaItem, aPeriod, visible) 
  * @return              The newly created XUL element.
  */
 agendaListbox.addItem = function(aItem) {
-    if (!isEvent(aItem)) {
+    if (!cal.isEvent(aItem)) {
         return null;
     }
     let periods = this.findPeriodsForItem(aItem);
@@ -515,7 +515,7 @@ agendaListbox.deleteItemsFromCalendar = function(aCalendar) {
  */
 agendaListbox.isSameEvent = function(aItem, aCompItem) {
     return aItem.id == aCompItem.id &&
-           aItem[calGetStartDateProp(aItem)].compare(aCompItem[calGetStartDateProp(aCompItem)]) == 0;
+           aItem[cal.calGetStartDateProp(aItem)].compare(aCompItem[cal.calGetStartDateProp(aCompItem)]) == 0;
 };
 
 /**
@@ -707,7 +707,7 @@ agendaListbox.setupCalendar = function() {
  *                        today.
  */
 agendaListbox.refreshPeriodDates = function(newDate) {
-    this.kDefaultTimezone = calendarDefaultTimezone();
+    this.kDefaultTimezone = cal.calendarDefaultTimezone();
     // Today: now until midnight of tonight
     let oldshowstoday = this.showstoday;
     this.showstoday = this.showsToday(newDate);
@@ -723,7 +723,7 @@ agendaListbox.refreshPeriodDates = function(newDate) {
         let curPeriod = this.periods[i];
         newDate.hour = newDate.minute = newDate.second = 0;
         if (i == 0 && this.showstoday) {
-            curPeriod.start = now();
+            curPeriod.start = cal.now();
         } else {
             curPeriod.start = newDate.clone();
         }
@@ -755,7 +755,7 @@ agendaListbox.showsToday = function(aStartDate) {
     if (!lstart) {
         lstart = this.today.start;
     }
-    let lshowsToday = sameDay(now(), lstart);
+    let lshowsToday = cal.sameDay(cal.now(), lstart);
     if (lshowsToday) {
         this.periods = [this.today, this.tomorrow, this.soon];
     } else {
@@ -889,7 +889,7 @@ agendaListbox.calendarObserver.onLoad = function() {
 };
 
 agendaListbox.calendarObserver.onAddItem = function(item) {
-    if (!isEvent(item)) {
+    if (!cal.isEvent(item)) {
         return;
     }
     // get all sub items if it is a recurring item
@@ -913,7 +913,7 @@ agendaListbox.calendarObserver.onDeleteItem = function(item, rebuildFlag) {
 };
 
 agendaListbox.calendarObserver.onLocalDeleteItem = function(item, moveSelection) {
-    if (!isEvent(item)) {
+    if (!cal.isEvent(item)) {
         return false;
     }
     let selectedItemHashId = -1;
@@ -930,7 +930,7 @@ agendaListbox.calendarObserver.onLocalDeleteItem = function(item, moveSelection)
 
 agendaListbox.calendarObserver.onModifyItem = function(newItem, oldItem) {
     let selectedItemHashId = this.onLocalDeleteItem(oldItem, false);
-    if (!isEvent(newItem)) {
+    if (!cal.isEvent(newItem)) {
         return;
     }
     this.onAddItem(newItem);
@@ -996,7 +996,7 @@ agendaListbox.updateSoonSection = function() {
     let soonHeader = document.getElementById("nextweek-header");
     if (soonHeader) {
         soonHeader.setItem(this.soon, true);
-        agendaListbox.refreshPeriodDates(now());
+        agendaListbox.refreshPeriodDates(cal.now());
     }
 };
 
@@ -1015,7 +1015,7 @@ function setCurrentEvent() {
     let msScheduleTime = -1;
     let complistItem = agendaListbox.tomorrow.listItem.previousSibling;
     let removelist = [];
-    let anow = now();
+    let anow = cal.now();
     let msuntillend = 0;
     let msuntillstart = 0;
     let leaveloop;

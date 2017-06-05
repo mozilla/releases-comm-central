@@ -81,18 +81,18 @@ calEvent.prototype = {
     { cal: "DTEND", ics: "endTime" }],
 
     set icalString(value) {
-        this.icalComponent = getIcsService().parseICS(value, null);
+        this.icalComponent = cal.getIcsService().parseICS(value, null);
     },
 
     get icalString() {
-        let calcomp = getIcsService().createIcalComponent("VCALENDAR");
-        calSetProdidVersion(calcomp);
+        let calcomp = cal.getIcsService().createIcalComponent("VCALENDAR");
+        cal.calSetProdidVersion(calcomp);
         calcomp.addSubcomponent(this.icalComponent);
         return calcomp.serializeToICS();
     },
 
     get icalComponent() {
-        let icssvc = getIcsService();
+        let icssvc = cal.getIcsService();
         let icalcomp = icssvc.createIcalComponent("VEVENT");
         this.fillIcalComponentFromBase(icalcomp);
         this.mapPropsToICS(icalcomp, this.icsEventPropMap);

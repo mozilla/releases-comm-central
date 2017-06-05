@@ -907,7 +907,7 @@
 
       <method name="createAttendee">
         <body><![CDATA[
-          let attendee = createAttendee();
+          let attendee = cal.createAttendee();
           attendee.id = "";
           attendee.rsvp = "TRUE";
           attendee.role = "REQ-PARTICIPANT";
@@ -1261,6 +1261,7 @@
 
       <constructor><![CDATA[
         Components.utils.import("resource://gre/modules/Preferences.jsm");
+        Components.utils.import("resource://calendar/modules/calUtils.jsm");
 
         this.initTimeRange();
 
@@ -1279,7 +1280,7 @@
           // we need to convert the date/time in question in
           // order to calculate with hours that are aligned
           // with our timebar display.
-          let kDefaultTimezone = calendarDefaultTimezone();
+          let kDefaultTimezone = cal.calendarDefaultTimezone();
           this.mBaseDate = val.getInTimezone(kDefaultTimezone);
           this.mBaseDate.isDate = true;
           this.mBaseDate.makeImmutable();
@@ -1296,7 +1297,7 @@
           // we need to convert the date/time in question in
           // order to calculate with hours that are aligned
           // with our timebar display.
-          let kDefaultTimezone = calendarDefaultTimezone();
+          let kDefaultTimezone = cal.calendarDefaultTimezone();
           this.mStartDate = val.getInTimezone(kDefaultTimezone);
           this.mStartDate.makeImmutable();
           return val;
@@ -1311,7 +1312,7 @@
           // we need to convert the date/time in question in
           // order to calculate with hours that are aligned
           // with our timebar display.
-          let kDefaultTimezone = calendarDefaultTimezone();
+          let kDefaultTimezone = cal.calendarDefaultTimezone();
           this.mEndDate = val.getInTimezone(kDefaultTimezone);
           if (this.mEndDate.isDate) {
               this.mEndDate.day += 1;

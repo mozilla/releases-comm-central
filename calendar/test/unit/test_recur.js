@@ -509,7 +509,7 @@ function test_interface() {
                          "RDATE:20020401T114500Z\r\n");
 
     let rinfo = item.recurrenceInfo;
-    ok(compareObjects(rinfo.item, item, Components.interfaces.calIEvent));
+    ok(cal.compareObjects(rinfo.item, item, Components.interfaces.calIEvent));
 
     // getRecurrenceItems
     let ritems = rinfo.getRecurrenceItems({});
@@ -559,15 +559,15 @@ function test_interface() {
     rinfo.appendRecurrenceItem(ritems[1]);
     rinfo.insertRecurrenceItemAt(ritems[2], 0);
 
-    ok(compareObjects(ritems[2],
-                                 rinfo.getRecurrenceItemAt(0),
-                                 Components.interfaces.calIRecurrenceItem));
-    ok(compareObjects(ritems[0],
-                                 rinfo.getRecurrenceItemAt(1),
-                                 Components.interfaces.calIRecurrenceItem));
-    ok(compareObjects(ritems[1],
-                                 rinfo.getRecurrenceItemAt(2),
-                                 Components.interfaces.calIRecurrenceItem));
+    ok(cal.compareObjects(ritems[2],
+                          rinfo.getRecurrenceItemAt(0),
+                          Components.interfaces.calIRecurrenceItem));
+    ok(cal.compareObjects(ritems[0],
+                          rinfo.getRecurrenceItemAt(1),
+                          Components.interfaces.calIRecurrenceItem));
+    ok(cal.compareObjects(ritems[1],
+                          rinfo.getRecurrenceItemAt(2),
+                          Components.interfaces.calIRecurrenceItem));
 
 
     // deleteRecurrenceItem
@@ -582,9 +582,9 @@ function test_interface() {
 
     // insertRecurrenceItemAt with exdate
     rinfo.insertRecurrenceItemAt(ritems[1], 1);
-    ok(compareObjects(ritems[1],
-                                 rinfo.getRecurrenceItemAt(1),
-                                 Components.interfaces.calIRecurrenceItem));
+    ok(cal.compareObjects(ritems[1],
+                          rinfo.getRecurrenceItemAt(1),
+                          Components.interfaces.calIRecurrenceItem));
     rinfo.deleteRecurrenceItem(ritems[1]);
 
     // isFinite = true
@@ -814,61 +814,61 @@ function test_immutable() {
 }
 
 function test_rrule_icalstring() {
-    let recRule = createRecurrenceRule();
+    let recRule = cal.createRecurrenceRule();
     recRule.type = "DAILY";
     recRule.interval = 4;
     equal(recRule.icalString, "RRULE:FREQ=DAILY;INTERVAL=4\r\n");
 
-    recRule = createRecurrenceRule();
+    recRule = cal.createRecurrenceRule();
     recRule.type = "DAILY";
     recRule.setComponent("BYDAY", 5, [2, 3, 4, 5, 6]);
     equal(recRule.icalString, "RRULE:FREQ=DAILY;BYDAY=MO,TU,WE,TH,FR\r\n");
     deepEqual(recRule.getComponent("BYDAY", {}), [2, 3, 4, 5, 6]);
 
-    recRule = createRecurrenceRule();
+    recRule = cal.createRecurrenceRule();
     recRule.type = "WEEKLY";
     recRule.interval = 3;
     recRule.setComponent("BYDAY", 3, [2, 4, 6]);
     equal(recRule.icalString, "RRULE:FREQ=WEEKLY;INTERVAL=3;BYDAY=MO,WE,FR\r\n");
     deepEqual(recRule.getComponent("BYDAY", {}), [2, 4, 6]);
 
-    recRule = createRecurrenceRule();
+    recRule = cal.createRecurrenceRule();
     recRule.type = "MONTHLY";
     recRule.setComponent("BYDAY", 7, [2, 3, 4, 5, 6, 7, 1]);
     equal(recRule.icalString, "RRULE:FREQ=MONTHLY;BYDAY=MO,TU,WE,TH,FR,SA,SU\r\n");
     deepEqual(recRule.getComponent("BYDAY", {}), [2, 3, 4, 5, 6, 7, 1]);
 
-    recRule = createRecurrenceRule();
+    recRule = cal.createRecurrenceRule();
     recRule.type = "MONTHLY";
     recRule.setComponent("BYDAY", 1, [10]);
     equal(recRule.icalString, "RRULE:FREQ=MONTHLY;BYDAY=1MO\r\n");
     deepEqual(recRule.getComponent("BYDAY", {}), [10]);
 
-    recRule = createRecurrenceRule();
+    recRule = cal.createRecurrenceRule();
     recRule.type = "MONTHLY";
     recRule.setComponent("BYDAY", 1, [20]);
     equal(recRule.icalString, "RRULE:FREQ=MONTHLY;BYDAY=2WE\r\n");
     deepEqual(recRule.getComponent("BYDAY", {}), [20]);
 
-    recRule = createRecurrenceRule();
+    recRule = cal.createRecurrenceRule();
     recRule.type = "MONTHLY";
     recRule.setComponent("BYDAY", 1, [-22]);
     equal(recRule.icalString, "RRULE:FREQ=MONTHLY;BYDAY=-2FR\r\n");
     deepEqual(recRule.getComponent("BYDAY", {}), [-22]);
 
-    recRule = createRecurrenceRule();
+    recRule = cal.createRecurrenceRule();
     recRule.type = "MONTHLY";
     recRule.setComponent("BYMONTHDAY", 1, [5]);
     equal(recRule.icalString, "RRULE:FREQ=MONTHLY;BYMONTHDAY=5\r\n");
     deepEqual(recRule.getComponent("BYMONTHDAY", {}), [5]);
 
-    recRule = createRecurrenceRule();
+    recRule = cal.createRecurrenceRule();
     recRule.type = "MONTHLY";
     recRule.setComponent("BYMONTHDAY", 3, [1, 9, 17]);
     equal(recRule.icalString, "RRULE:FREQ=MONTHLY;BYMONTHDAY=1,9,17\r\n");
     deepEqual(recRule.getComponent("BYMONTHDAY", {}), [1, 9, 17]);
 
-    recRule = createRecurrenceRule();
+    recRule = cal.createRecurrenceRule();
     recRule.type = "YEARLY";
     recRule.setComponent("BYMONTH", 1, [1]);
     recRule.setComponent("BYMONTHDAY", 1, [3]);
@@ -879,7 +879,7 @@ function test_rrule_icalstring() {
     deepEqual(recRule.getComponent("BYMONTH", {}), [1]);
     deepEqual(recRule.getComponent("BYMONTHDAY", {}), [3]);
 
-    recRule = createRecurrenceRule();
+    recRule = cal.createRecurrenceRule();
     recRule.type = "YEARLY";
     recRule.setComponent("BYMONTH", 1, [4]);
     recRule.setComponent("BYDAY", 1, [3]);
@@ -890,7 +890,7 @@ function test_rrule_icalstring() {
     deepEqual(recRule.getComponent("BYMONTH", {}), [4]);
     deepEqual(recRule.getComponent("BYDAY", {}), [3]);
 
-    recRule = createRecurrenceRule();
+    recRule = cal.createRecurrenceRule();
     recRule.type = "YEARLY";
     recRule.setComponent("BYMONTH", 1, [4]);
     recRule.setComponent("BYDAY", 1, [10]);
@@ -901,7 +901,7 @@ function test_rrule_icalstring() {
     deepEqual(recRule.getComponent("BYMONTH", {}), [4]);
     deepEqual(recRule.getComponent("BYDAY", {}), [10]);
 
-    recRule = createRecurrenceRule();
+    recRule = cal.createRecurrenceRule();
     recRule.type = "YEARLY";
     recRule.setComponent("BYMONTH", 1, [4]);
     recRule.setComponent("BYDAY", 1, [-22]);

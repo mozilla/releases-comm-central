@@ -116,6 +116,7 @@
       <constructor><![CDATA[
         Components.utils.import("resource://gre/modules/PluralForm.jsm");
         Components.utils.import("resource://gre/modules/Services.jsm");
+        Components.utils.import("resource://calendar/modules/calUtils.jsm");
         Components.utils.import("resource://calendar/modules/calItemUtils.jsm");
         Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 
@@ -294,27 +295,27 @@
               if (!dur.isNegative) {
                   let minutes = Math.ceil(dur.inSeconds / 60);
                   if (minutes >= 1440) { // 1 day or more
-                      let dueIn = PluralForm.get(dur.days, calGetString("calendar", "dueInDays"));
+                      let dueIn = PluralForm.get(dur.days, cal.calGetString("calendar", "dueInDays"));
                       return dueIn.replace("#1", dur.days);
                   } else if (minutes >= 60) { // 1 hour or more
-                      let dueIn = PluralForm.get(dur.hours, calGetString("calendar", "dueInHours"));
+                      let dueIn = PluralForm.get(dur.hours, cal.calGetString("calendar", "dueInHours"));
                       return dueIn.replace("#1", dur.hours);
                   } else {
                       // Less than one hour
-                      return calGetString("calendar", "dueInLessThanOneHour");
+                      return cal.calGetString("calendar", "dueInLessThanOneHour");
                   }
               } else if (!aTask.completedDate || !aTask.completedDate.isValid) {
                   // Overdue task
                   let minutes = Math.ceil(-dur.inSeconds / 60);
                   if (minutes >= 1440) { // 1 day or more
-                      let dueIn = PluralForm.get(dur.days, calGetString("calendar", "dueInDays"));
+                      let dueIn = PluralForm.get(dur.days, cal.calGetString("calendar", "dueInDays"));
                       return "-" + dueIn.replace("#1", dur.days);
                   } else if (minutes >= 60) { // 1 hour or more
-                      let dueIn = PluralForm.get(dur.hours, calGetString("calendar", "dueInHours"));
+                      let dueIn = PluralForm.get(dur.hours, cal.calGetString("calendar", "dueInHours"));
                       return "-" + dueIn.replace("#1", dur.hours);
                   } else {
                       // Less than one hour
-                      return calGetString("calendar", "dueInLessThanOneHour");
+                      return cal.calGetString("calendar", "dueInLessThanOneHour");
                   }
               }
           }
@@ -514,11 +515,11 @@
               } else if (item.priority > 5 && item.priority < 10) {
                   properties.push("lowpriority");
               }
-              properties.push(getProgressAtom(item));
+              properties.push(cal.getProgressAtom(item));
 
               // Add calendar name and id atom
-              properties.push("calendar-" + formatStringForCSSRule(item.calendar.name));
-              properties.push("calendarid-" + formatStringForCSSRule(item.calendar.id));
+              properties.push("calendar-" + cal.formatStringForCSSRule(item.calendar.name));
+              properties.push("calendarid-" + cal.formatStringForCSSRule(item.calendar.id));
 
               // Add item status atom
               if (item.status) {
@@ -532,7 +533,7 @@
 
               // Task categories
               properties = properties.concat(item.getCategories({})
-                                                 .map(formatStringForCSSRule));
+                                                 .map(cal.formatStringForCSSRule));
 
               return properties.join(" ");
           },
@@ -589,13 +590,13 @@
               switch (aCol.element.getAttribute("itemproperty")) {
                   case "title":
                       // return title, or "Untitled" if empty/null
-                      return (task.title ? task.title.replace(/\n/g, " ") : calGetString("calendar", "eventUntitled"));
+                      return (task.title ? task.title.replace(/\n/g, " ") : cal.calGetString("calendar", "eventUntitled"));
                   case "entryDate":
-                      return task.recurrenceInfo ? calGetString("dateFormat", "Repeating") : this._formatDateTime(task.entryDate);
+                      return task.recurrenceInfo ? cal.calGetString("dateFormat", "Repeating") : this._formatDateTime(task.entryDate);
                   case "dueDate":
-                      return task.recurrenceInfo ? calGetString("dateFormat", "Repeating") : this._formatDateTime(task.dueDate);
+                      return task.recurrenceInfo ? cal.calGetString("dateFormat", "Repeating") : this._formatDateTime(task.dueDate);
                   case "completedDate":
-                      return task.recurrenceInfo ? calGetString("dateFormat", "Repeating") : this._formatDateTime(task.completedDate);
+                      return task.recurrenceInfo ? cal.calGetString("dateFormat", "Repeating") : this._formatDateTime(task.completedDate);
                   case "percentComplete":
                       return (task.percentComplete > 0 ? task.percentComplete + "%" : "");
                   case "categories":
@@ -728,7 +729,7 @@
 
           onDoubleClick: function(event) {
               if (event.button == 0) {
-                  let initialDate = getDefaultStartDate(this.binding.getInitialDate());
+                  let initialDate = cal.getDefaultStartDate(this.binding.getInitialDate());
                   let col = {};
                   let item = this._getItemFromEvent(event, col);
                   if (item) {
@@ -808,7 +809,7 @@
 
               // datetime is from todo object, it is not a javascript date
               if (aDateTime && aDateTime.isValid) {
-                  let dateTime = aDateTime.getInTimezone(calendarDefaultTimezone());
+                  let dateTime = aDateTime.getInTimezone(cal.calendarDefaultTimezone());
                   return dateFormatter.formatDateTime(dateTime);
               }
               return "";
@@ -1017,7 +1018,7 @@
               let sortType = cal.getSortTypeForSortKey(cal.sortEntry.mSortKey);
 
               // sort (key,item) entries
-              cal.sortEntry.mSortStartedDate = now();
+              cal.sortEntry.mSortStartedDate = cal.now();
               let entries = this.mTaskArray.map(cal.sortEntry, cal.sortEntry);
               entries.sort(cal.sortEntryComparer(sortType, modifier));
               this.mTaskArray = entries.map(cal.sortEntryItem);
@@ -1043,7 +1044,7 @@
       <method name="getInitialDate">
         <body><![CDATA[
           let initialDate = currentView().selectedDay;
-          return initialDate ? initialDate : now();
+          return initialDate ? initialDate : cal.now();
         ]]></body>
       </method>
 
@@ -1168,7 +1169,7 @@
                 region.intersectRect(bodyBox.x, bodyBox.y, bodyBox.width, bodyBox.height);
             }
         } catch (ex) {
-            ASSERT(false, "Error while building selection region: " + ex + "\n");
+            cal.ASSERT(false, "Error while building selection region: " + ex + "\n");
             region = null;
         }
         invokeEventDragSession(item, event.target);
@@ -1179,17 +1180,22 @@
 
   <binding id="calendar-task-tree-todaypane" extends="chrome://calendar/content/calendar-task-tree.xml#calendar-task-tree">
     <implementation>
+      <constructor><![CDATA[
+        Components.utils.import("resource://calendar/modules/calUtils.jsm");
+      ]]></constructor>
+
       <method name="getInitialDate">
         <body><![CDATA[
-          let initialDate = agendaListbox.today ? agendaListbox.today.start : now();
-          return initialDate ? initialDate : now();
+          let initialDate = agendaListbox.today ? agendaListbox.today.start : cal.now();
+          return initialDate ? initialDate : cal.now();
         ]]></body>
       </method>
+
       <method name="updateFilter">
         <parameter name="aFilter"/>
         <body><![CDATA[
           this.mFilter.selectedDate = agendaListbox.today && agendaListbox.today.start ?
-                                      agendaListbox.today.start : now();
+                                      agendaListbox.today.start : cal.now();
           this.doUpdateFilter(aFilter);
         ]]></body>
       </method>

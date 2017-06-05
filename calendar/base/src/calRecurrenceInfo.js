@@ -11,7 +11,7 @@ function getRidKey(date) {
     }
     let timezone = date.timezone;
     if (!timezone.isUTC && !timezone.isFloating) {
-        date = date.getInTimezone(UTC());
+        date = date.getInTimezone(cal.UTC());
     }
     return date.icalString;
 }
@@ -124,7 +124,7 @@ calRecurrenceInfo.prototype = {
     set item(value) {
         this.ensureMutable();
 
-        value = calTryWrappedJSObject(value);
+        value = cal.calTryWrappedJSObject(value);
         this.mBaseItem = value;
         // patch exception's parentItem:
         for (let ex in this.mExceptionMap) {
@@ -286,9 +286,9 @@ calRecurrenceInfo.prototype = {
                     negMap[getRidKey(rdate)] = true;
                 }
             } else {
-                WARN("Item '" + this.mBaseItem.title + "'" +
-                     (this.mBaseItem.calendar ? " (" + this.mBaseItem.calendar.name + ")" : "") +
-                     " has an infinite negative rule (EXRULE)");
+                cal.WARN("Item '" + this.mBaseItem.title + "'" +
+                         (this.mBaseItem.calendar ? " (" + this.mBaseItem.calendar.name + ")" : "") +
+                         " has an infinite negative rule (EXRULE)");
             }
         }
 
@@ -364,7 +364,7 @@ calRecurrenceInfo.prototype = {
             // hangs", bail out after 100 runs. If this happens, it is most
             // likely a bug.
             if (bailCounter++ > 100) {
-                ERROR("Could not find next occurrence after 100 runs!");
+                cal.ERROR("Could not find next occurrence after 100 runs!");
                 return null;
             }
 
@@ -407,7 +407,7 @@ calRecurrenceInfo.prototype = {
         // recurrence start. Since rangeStart cannot be null for recurrence
         // items like calIRecurrenceRule, we need to work around by supplying a
         // very early date. Again, this might have a high performance penalty.
-        let early = createDateTime();
+        let early = cal.createDateTime();
         early.icalString = "00000101T000000Z";
 
         let rids = this.calculateDates(early,
@@ -428,8 +428,8 @@ calRecurrenceInfo.prototype = {
         }
 
         // workaround for UTC- timezones
-        let rangeStart = ensureDateTime(aRangeStart);
-        let rangeEnd = ensureDateTime(aRangeEnd);
+        let rangeStart = cal.ensureDateTime(aRangeStart);
+        let rangeEnd = cal.ensureDateTime(aRangeEnd);
 
         // If aRangeStart falls in the middle of an occurrence, libical will
         // not return that occurrence when we go and ask for an
@@ -459,20 +459,20 @@ calRecurrenceInfo.prototype = {
         let occurrenceMap = {};
         for (let ex in this.mExceptionMap) {
             let item = this.mExceptionMap[ex];
-            let occDate = checkIfInRange(item, aRangeStart, aRangeEnd, true);
+            let occDate = cal.checkIfInRange(item, aRangeStart, aRangeEnd, true);
             occurrenceMap[ex] = true;
             if (occDate) {
-                binaryInsert(dates, { id: item.recurrenceId, rstart: occDate }, ridDateSortComptor);
+                cal.binaryInsert(dates, { id: item.recurrenceId, rstart: occDate }, ridDateSortComptor);
             }
         }
 
         // DTSTART/DUE is always part of the (positive) expanded set:
         // DTSTART always equals RECURRENCE-ID for items expanded from RRULE
-        let baseOccDate = checkIfInRange(this.mBaseItem, aRangeStart, aRangeEnd, true);
+        let baseOccDate = cal.checkIfInRange(this.mBaseItem, aRangeStart, aRangeEnd, true);
         let baseOccDateKey = getRidKey(baseOccDate);
         if (baseOccDate && !occurrenceMap[baseOccDateKey]) {
             occurrenceMap[baseOccDateKey] = true;
-            binaryInsert(dates, { id: baseOccDate, rstart: baseOccDate }, ridDateSortComptor);
+            cal.binaryInsert(dates, { id: baseOccDate, rstart: baseOccDate }, ridDateSortComptor);
         }
 
         // if both range start and end are specified, we ask for all of the occurrences,
@@ -521,7 +521,7 @@ calRecurrenceInfo.prototype = {
                 }
                 // TODO if cur_dates[] is also sorted, then this binary
                 // search could be optimized further
-                binaryInsert(dates, { id: date, rstart: date }, ridDateSortComptor);
+                cal.binaryInsert(dates, { id: date, rstart: date }, ridDateSortComptor);
                 occurrenceMap[dateKey] = true;
             }
         }
@@ -675,16 +675,16 @@ calRecurrenceInfo.prototype = {
     modifyException: function(anItem, aTakeOverOwnership) {
         this.ensureBaseItem();
 
-        anItem = calTryWrappedJSObject(anItem);
+        anItem = cal.calTryWrappedJSObject(anItem);
 
         if (anItem.parentItem.calendar != this.mBaseItem.calendar &&
             anItem.parentItem.id != this.mBaseItem.id) {
-            ERROR("recurrenceInfo::addException: item parentItem != this.mBaseItem (calendar/id)!");
+            cal.ERROR("recurrenceInfo::addException: item parentItem != this.mBaseItem (calendar/id)!");
             throw Components.results.NS_ERROR_INVALID_ARG;
         }
 
         if (anItem.recurrenceId == null) {
-            ERROR("recurrenceInfo::addException: item with null recurrenceId!");
+            cal.ERROR("recurrenceInfo::addException: item with null recurrenceId!");
             throw Components.results.NS_ERROR_INVALID_ARG;
         }
 
@@ -744,7 +744,7 @@ calRecurrenceInfo.prototype = {
         }
 
         // convert both dates to UTC since subtractDate is not timezone aware.
-        let timeDiff = aNewStartTime.getInTimezone(UTC()).subtractDate(aOldStartTime.getInTimezone(UTC()));
+        let timeDiff = aNewStartTime.getInTimezone(cal.UTC()).subtractDate(aOldStartTime.getInTimezone(cal.UTC()));
 
         let rdates = {};
 

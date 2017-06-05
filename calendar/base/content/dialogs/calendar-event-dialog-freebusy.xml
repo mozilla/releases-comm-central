@@ -425,6 +425,7 @@
 
       <constructor><![CDATA[
         Components.utils.import("resource://gre/modules/Preferences.jsm");
+        Components.utils.import("resource://calendar/modules/calUtils.jsm");
 
         let args = window.arguments[0];
         let startTime = args.startTime;
@@ -436,7 +437,7 @@
         // of the timebar starts. The range is the number of days
         // we should be able to show. The start- and enddate
         // is the time the event is scheduled for.
-        let kDefaultTimezone = calendarDefaultTimezone();
+        let kDefaultTimezone = cal.calendarDefaultTimezone();
         this.startDate = startTime.getInTimezone(kDefaultTimezone);
         this.endDate = endTime.getInTimezone(kDefaultTimezone);
         this.mRange = Number(this.getAttribute("range"));
@@ -484,7 +485,7 @@
           let startTime = args.startTime;
           let endTime = args.endTime;
 
-          let kDefaultTimezone = calendarDefaultTimezone();
+          let kDefaultTimezone = cal.calendarDefaultTimezone();
           this.startDate = startTime.getInTimezone(kDefaultTimezone);
           this.endDate = endTime.getInTimezone(kDefaultTimezone);
 
@@ -688,6 +689,7 @@
 
       <constructor><![CDATA[
         Components.utils.import("resource://gre/modules/Preferences.jsm");
+        Components.utils.import("resource://calendar/modules/calUtils.jsm");
 
         this.initTimeRange();
         this.mRange = Number(this.getAttribute("range"));
@@ -761,7 +763,7 @@
               // (temporarily clean the display) we keep the last know result.
               this.mEntries = aEntries;
 
-              let kDefaultTimezone = calendarDefaultTimezone();
+              let kDefaultTimezone = cal.calendarDefaultTimezone();
 
               let start = this.mStartDate.clone();
               start.hour = 0;
@@ -914,7 +916,7 @@
           let newEndTime = newTime.clone();
           newEndTime.addDuration(duration);
 
-          let kDefaultTimezone = calendarDefaultTimezone();
+          let kDefaultTimezone = cal.calendarDefaultTimezone();
 
           if (this.mEntries) {
               for (let entry of this.mEntries) {
@@ -1074,6 +1076,7 @@
 
       <constructor><![CDATA[
         Components.utils.import("resource://gre/modules/Preferences.jsm");
+        Components.utils.import("resource://calendar/modules/calUtils.jsm");
 
         this.initTimeRange();
 
@@ -1143,7 +1146,7 @@
           let startTime = args.startTime;
           let endTime = args.endTime;
 
-          let kDefaultTimezone = calendarDefaultTimezone();
+          let kDefaultTimezone = cal.calendarDefaultTimezone();
           this.startDate = startTime.getInTimezone(kDefaultTimezone);
           this.endDate = endTime.getInTimezone(kDefaultTimezone);
 
@@ -1264,7 +1267,7 @@
       <!-- updateFreeBusy(), implementation of the core functionality of this binding -->
       <method name="updateFreeBusy">
         <body><![CDATA[
-          let fbService = getFreeBusyService();
+          let fbService = cal.getFreeBusyService();
           for (let i = 1; i <= this.mMaxFreeBusy; i++) {
               // Retrieve the string from the appropriate row
               let freebusy = this.getFreeBusyElement(i);

@@ -47,6 +47,7 @@
     <implementation>
       <field name="kCheckbox">null</field>;
       <constructor><![CDATA[
+        Components.utils.import("resource://calendar/modules/calUtils.jsm");
         this.kCheckbox = document.getAnonymousElementByAttribute(this, "anonid", "agenda-checkbox-widget");
       ]]></constructor>
 
@@ -72,9 +73,9 @@
                   }
               }
           } else if (synthetic.duration == 1) {
-              this.kCheckbox.label = getDateFormatter().formatDate(synthetic.start);
+              this.kCheckbox.label = cal.getDateFormatter().formatDate(synthetic.start);
           } else {
-              this.kCheckbox.label = getDateFormatter().formatInterval(synthetic.start, synthetic.end);
+              this.kCheckbox.label = cal.getDateFormatter().formatInterval(synthetic.start, synthetic.end);
           }
         ]]></body>
       </method>
@@ -110,6 +111,7 @@
       <field name="mAllDayItem">null</field>;
 
       <constructor><![CDATA[
+        Components.utils.import("resource://calendar/modules/calUtils.jsm");
         this.mAllDayItem = document.getAnonymousElementByAttribute(this, "anonid", "allday-item");
       ]]></constructor>
 
@@ -123,10 +125,10 @@
           let periodStartDate = aPeriod.start.clone();
           periodStartDate.isDate = true;
           let periodEndDate = aPeriod.end;
-          let startDate = this.mOccurrence[calGetStartDateProp(this.mOccurrence)]
-                              .getInTimezone(calendarDefaultTimezone());
-          let endDate = this.mOccurrence[calGetEndDateProp(this.mOccurrence)]
-                            .getInTimezone(calendarDefaultTimezone());
+          let startDate = this.mOccurrence[cal.calGetStartDateProp(this.mOccurrence)]
+                              .getInTimezone(cal.calendarDefaultTimezone());
+          let endDate = this.mOccurrence[cal.calGetEndDateProp(this.mOccurrence)]
+                            .getInTimezone(cal.calendarDefaultTimezone());
           let endPreviousDay = endDate.clone();
           endPreviousDay.day--;
           // Show items's date for long periods but also for "Upcoming"
@@ -203,16 +205,16 @@
           this.mOccurrence = aItem;
           this.setAttribute("status", aItem.status);
           let dateFormatter = Components.classes["@mozilla.org/calendar/datetime-formatter;1"]
-                                .getService(Components.interfaces.calIDateTimeFormatter);
+                                        .getService(Components.interfaces.calIDateTimeFormatter);
 
           let periodStartDate = aPeriod.start.clone();
           periodStartDate.isDate = true;
           let periodEndDate = aPeriod.end.clone();
           periodEndDate.day--;
-          let start = this.mOccurrence[calGetStartDateProp(this.mOccurrence)]
-                          .getInTimezone(calendarDefaultTimezone());
-          let end = this.mOccurrence[calGetEndDateProp(this.mOccurrence)]
-                        .getInTimezone(calendarDefaultTimezone());
+          let start = this.mOccurrence[cal.calGetStartDateProp(this.mOccurrence)]
+                          .getInTimezone(cal.calendarDefaultTimezone());
+          let end = this.mOccurrence[cal.calGetEndDateProp(this.mOccurrence)]
+                        .getInTimezone(cal.calendarDefaultTimezone());
           let startDate = start.clone();
           startDate.isDate = true;
           let endDate = end.clone();
@@ -243,8 +245,8 @@
               iconType = "end";
               if (endAtMidnight) {
                   duration = dateFormatter.formatDate(endDate) + " ";
-                  duration = longFormat ? duration + calGetString("dateFormat", "midnight")
-                                        : calGetString("dateFormat", "midnight");
+                  duration = longFormat ? duration + cal.calGetString("dateFormat", "midnight")
+                                        : cal.calGetString("dateFormat", "midnight");
               } else {
                   duration = longFormat ? dateFormatter.formatDateTime(end)
                                         : dateFormatter.formatTime(end);

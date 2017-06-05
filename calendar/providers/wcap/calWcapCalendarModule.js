@@ -68,7 +68,6 @@ function initWcapProvider() {
 
 /** Module Registration */
 var scriptLoadOrder = [
-    "calUtils.js",
     "calWcapUtils.js",
     "calWcapErrors.js",
     "calWcapRequest.js",

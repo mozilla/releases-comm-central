@@ -436,7 +436,7 @@ function deleteCalendars(controller, name) {
     let { eid } = helpersForController(controller);
 
     let defaultView = eid("messengerWindow").getNode().ownerDocument.defaultView;
-    let manager = defaultView.getCalendarManager();
+    let manager = defaultView.cal.getCalendarManager();
 
     for (let calendar of manager.getCalendars({})) {
         if (calendar.name == name) {
@@ -455,9 +455,9 @@ function createCalendar(controller, name) {
     let { lookup, eid } = helpersForController(controller);
 
     let defaultView = eid("messengerWindow").getNode().ownerDocument.defaultView;
-    let manager = defaultView.getCalendarManager();
+    let manager = defaultView.cal.getCalendarManager();
 
-    let url = defaultView.makeURL("moz-storage-calendar://");
+    let url = defaultView.cal.makeURL("moz-storage-calendar://");
     let calendar = manager.createCalendar("storage", url);
     calendar.name = name;
     manager.registerCalendar(calendar);

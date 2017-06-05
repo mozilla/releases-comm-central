@@ -20,8 +20,6 @@
                 src="chrome://calendar/content/preferences/general.js"/>
         <script type="application/javascript"
                 src="chrome://calendar/content/calendar-ui-utils.js"/>
-        <script type="application/javascript"
-                src="chrome://calendar/content/calUtils.js"/>
 
         <!-- Get the localized text for use in the .js -->
         <script type="application/javascript">

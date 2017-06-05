@@ -6,6 +6,8 @@
  *          onCancel, onSubscribe, onUnsubscribe
  */
 
+Components.utils.import("resource://calendar/modules/calUtils.jsm");
+
 /**
  * Cancels any pending search operations.
  */
@@ -76,9 +78,9 @@ function onAccept() {
         if (checked != richListItem.subscribed) {
             let calendar = richListItem.calendar;
             if (checked) {
-                getCalendarManager().registerCalendar(calendar);
+                cal.getCalendarManager().registerCalendar(calendar);
             } else {
-                getCalendarManager().unregisterCalendar(calendar);
+                cal.getCalendarManager().unregisterCalendar(calendar);
             }
         }
     }
@@ -101,7 +103,7 @@ function onSearch() {
     richListBox.clear();
 
     let registeredCals = {};
-    for (let calendar of getCalendarManager().getCalendars({})) {
+    for (let calendar of cal.getCalendarManager().getCalendars({})) {
         registeredCals[calendar.id] = true;
     }
 
@@ -123,8 +125,8 @@ function onSearch() {
         }
     };
 
-    let operation = getCalendarSearchService().searchForCalendars(document.getElementById("search-textbox").value,
-                                                           0 /* hints */, 50, opListener);
+    let operation = cal.getCalendarSearchService().searchForCalendars(document.getElementById("search-textbox").value,
+                                                                      0 /* hints */, 50, opListener);
     if (operation && operation.isPending) {
         gCurrentSearchOperation = op;
         document.getElementById("status-deck").selectedIndex = 1;

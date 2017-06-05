@@ -38,7 +38,7 @@ var calendarViewController = {
         if (aStartTime && aEndTime && !aStartTime.isDate && !aEndTime.isDate) {
             let item = cal.createEvent();
             setDefaultItemValues(item, aCalendar, aStartTime, aEndTime);
-            item.title = calGetString("calendar", "newEvent");
+            item.title = cal.calGetString("calendar", "newEvent");
             doTransaction("add", item, item.calendar, null, null);
         } else {
             createEventWithDialog(aCalendar, aStartTime, null, null, null, aForceAllday);
@@ -67,7 +67,7 @@ var calendarViewController = {
 
             if (aNewStartTime || aNewEndTime) {
                 // Yay for variable names that make this next line look silly
-                if (isEvent(instance)) {
+                if (cal.isEvent(instance)) {
                     if (aNewStartTime && instance.startDate) {
                         instance.startDate = aNewStartTime;
                     }
@@ -120,7 +120,7 @@ var calendarViewController = {
         // it, filter out any items that have readonly calendars, so that
         // checking for one total item below also works out if all but one item
         // are readonly.
-        let occurrences = aOccurrences.filter(item => isCalendarWritable(item.calendar));
+        let occurrences = aOccurrences.filter(item => cal.isCalendarWritable(item.calendar));
 
         for (let itemToDelete of occurrences) {
             if (aUseParentItems) {
@@ -233,11 +233,11 @@ function switchToView(aViewType) {
         currentSelection = viewDeck.selectedPanel.getSelectedItems({});
     } catch (ex) {
         // This dies if no view has even been chosen this session, but that's
-        // ok because we'll just use now() below.
+        // ok because we'll just use cal.now() below.
     }
 
     if (!selectedDay) {
-        selectedDay = now();
+        selectedDay = cal.now();
     }
 
     // Anyone wanting to plug in a view needs to follow this naming scheme
@@ -251,7 +251,7 @@ function switchToView(aViewType) {
     let compositeCal = cal.getCompositeCalendar(window);
     if (view.displayCalendar != compositeCal) {
         view.displayCalendar = compositeCal;
-        view.timezone = calendarDefaultTimezone();
+        view.timezone = cal.calendarDefaultTimezone();
         view.controller = calendarViewController;
     }
 
@@ -412,7 +412,7 @@ var categoryManagement = {
         for (let i in categories) {
             let category = categories[i];
             if (category.search(/[^_0-9a-z-]/) != -1) {
-                let categoryFix = formatStringForCSSRule(category);
+                let categoryFix = cal.formatStringForCSSRule(category);
                 if (categoryPrefBranch.prefHasUserValue(categoryFix)) {
                     categories.splice(i, 1); // remove illegal name
                 } else {
@@ -678,27 +678,27 @@ cal.navigationBar = {
         let docTitle = "";
         if (aStartDate) {
             let intervalLabel = document.getElementById("intervalDescription");
-            let firstWeekNo = getWeekInfoService().getWeekTitle(aStartDate);
+            let firstWeekNo = cal.getWeekInfoService().getWeekTitle(aStartDate);
             let secondWeekNo = firstWeekNo;
             let weekLabel = document.getElementById("calendarWeek");
             if (aStartDate.nativeTime == aEndDate.nativeTime) {
-                intervalLabel.value = getDateFormatter().formatDate(aStartDate);
+                intervalLabel.value = cal.getDateFormatter().formatDate(aStartDate);
             } else {
                 intervalLabel.value = currentView().getRangeDescription();
-                secondWeekNo = getWeekInfoService().getWeekTitle(aEndDate);
+                secondWeekNo = cal.getWeekInfoService().getWeekTitle(aEndDate);
             }
             if (secondWeekNo == firstWeekNo) {
-                weekLabel.value = calGetString("calendar", "singleShortCalendarWeek", [firstWeekNo]);
-                weekLabel.tooltipText = calGetString("calendar", "singleLongCalendarWeek", [firstWeekNo]);
+                weekLabel.value = cal.calGetString("calendar", "singleShortCalendarWeek", [firstWeekNo]);
+                weekLabel.tooltipText = cal.calGetString("calendar", "singleLongCalendarWeek", [firstWeekNo]);
             } else {
-                weekLabel.value = calGetString("calendar", "severalShortCalendarWeeks", [firstWeekNo, secondWeekNo]);
-                weekLabel.tooltipText = calGetString("calendar", "severalLongCalendarWeeks", [firstWeekNo, secondWeekNo]);
+                weekLabel.value = cal.calGetString("calendar", "severalShortCalendarWeeks", [firstWeekNo, secondWeekNo]);
+                weekLabel.tooltipText = cal.calGetString("calendar", "severalLongCalendarWeeks", [firstWeekNo, secondWeekNo]);
             }
             docTitle = intervalLabel.value;
         }
         if (document.getElementById("modeBroadcaster").getAttribute("mode") == "calendar") {
             document.title = (docTitle ? docTitle + " - " : "") +
-                calGetString("brand", "brandFullName", null, "branding");
+                cal.calGetString("brand", "brandFullName", null, "branding");
         }
         let viewTabs = document.getElementById("view-tabs");
         viewTabs.selectedIndex = getViewDeck().selectedIndex;

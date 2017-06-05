@@ -8,6 +8,8 @@
  *          tasksToMail, tasksToEvents, toggleCompleted,
  */
 
+Components.utils.import("resource://calendar/modules/calUtils.jsm");
+
 /**
  * Add registered calendars to the given menupopup. Removes all previous
  * children.
@@ -26,7 +28,7 @@ function addCalendarNames(aEvent) {
     let tasksSelected = (tasks.length > 0);
     if (tasksSelected) {
         let selIndex = appendCalendarItems(tasks[0], calendarMenuPopup, null, "contextChangeTaskCalendar(event);");
-        if (isPropertyValueSame(tasks, "calendar") && (selIndex > -1)) {
+        if (cal.isPropertyValueSame(tasks, "calendar") && (selIndex > -1)) {
             calendarMenuPopup.childNodes[selIndex].setAttribute("checked", "true");
         }
     }
@@ -56,7 +58,7 @@ function changeContextMenuForTask(aEvent) {
         (idnode == "calendar-task-tree");
 
     let tasksSelected = (items.length > 0);
-    applyAttributeToMenuChildren(aEvent.target, "disabled", (!tasksSelected));
+    cal.applyAttributeToMenuChildren(aEvent.target, "disabled", !tasksSelected);
     if (calendarController.isCommandEnabled("calendar_new_todo_command") &&
         calendarController.isCommandEnabled("calendar_new_todo_todaypane_command")) {
         document.getElementById("calendar_new_todo_command").removeAttribute("disabled");
@@ -72,8 +74,8 @@ function changeContextMenuForTask(aEvent) {
 
     // make sure the filter menu is enabled
     document.getElementById("task-context-menu-filter-todaypane").removeAttribute("disabled");
-    applyAttributeToMenuChildren(document.getElementById("task-context-menu-filter-todaypane-popup"),
-                                 "disabled", false);
+    cal.applyAttributeToMenuChildren(document.getElementById("task-context-menu-filter-todaypane-popup"),
+                                     "disabled", false);
 
     changeMenuForTask(aEvent);
 
@@ -111,7 +113,7 @@ function changeMenuForTask(aEvent) {
     let tasksSelected = (tasks.length > 0);
     if (tasksSelected) {
         let cmd = document.getElementById("calendar_toggle_completed_command");
-        if (isPropertyValueSame(tasks, "isCompleted")) {
+        if (cal.isPropertyValueSame(tasks, "isCompleted")) {
             setBooleanAttribute(cmd, "checked", tasks[0].isCompleted);
         } else {
             setBooleanAttribute(cmd, "checked", false);

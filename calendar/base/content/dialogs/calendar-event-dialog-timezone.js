@@ -24,10 +24,10 @@ function onLoad() {
 
     // floating and UTC (if supported) at the top:
     if (args.calendar.getProperty("capabilities.timezones.floating.supported") !== false) {
-        addMenuItem(tzMenuPopup, floating().displayName, floating().tzid);
+        addMenuItem(tzMenuPopup, cal.floating().displayName, cal.floating().tzid);
     }
     if (args.calendar.getProperty("capabilities.timezones.UTC.supported") !== false) {
-        addMenuItem(tzMenuPopup, UTC().displayName, UTC().tzid);
+        addMenuItem(tzMenuPopup, cal.UTC().displayName, cal.UTC().tzid);
     }
 
     let enumerator = tzProvider.timezoneIds;
@@ -50,7 +50,7 @@ function onLoad() {
 
     let index = findTimezone(window.time.timezone);
     if (index < 0) {
-        index = findTimezone(calendarDefaultTimezone());
+        index = findTimezone(cal.calendarDefaultTimezone());
         if (index < 0) {
             index = 0;
         }

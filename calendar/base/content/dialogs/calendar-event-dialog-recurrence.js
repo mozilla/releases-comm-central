@@ -28,7 +28,7 @@ function onLoad() {
     gStartTime = args.startTime;
     gEndTime = args.endTime;
     let preview = document.getElementById("recurrence-preview");
-    preview.dateTime = gStartTime.getInTimezone(calendarDefaultTimezone());
+    preview.dateTime = gStartTime.getInTimezone(cal.calendarDefaultTimezone());
 
     onChangeCalendar(calendar);
 
@@ -56,7 +56,7 @@ function onLoad() {
         }
     }
     if (!rule) {
-        rule = createRecurrenceRule();
+        rule = cal.createRecurrenceRule();
         rule.type = "DAILY";
         rule.interval = 1;
         rule.count = -1;
@@ -132,7 +132,7 @@ function initializeControls(rule) {
     let byDayRuleComponent = rule.getComponent("BYDAY", {});
     let byMonthDayRuleComponent = rule.getComponent("BYMONTHDAY", {});
     let byMonthRuleComponent = rule.getComponent("BYMONTH", {});
-    let kDefaultTimezone = calendarDefaultTimezone();
+    let kDefaultTimezone = cal.calendarDefaultTimezone();
     let startDate = gStartTime.getInTimezone(kDefaultTimezone);
 
     // "DAILY" ruletype
@@ -276,10 +276,10 @@ function onSave(item) {
         }
         recurrenceInfo.item = item;
     } else {
-        recurrenceInfo = createRecurrenceInfo(item);
+        recurrenceInfo = cal.createRecurrenceInfo(item);
     }
 
-    let recRule = createRecurrenceRule();
+    let recRule = cal.createRecurrenceRule();
     const ALL_WEEKDAYS = [2, 3, 4, 5, 6, 7, 1]; // The sequence MO,TU,WE,TH,FR,SA,SU.
     switch (deckNumber) {
         case 0: {
@@ -468,7 +468,7 @@ function disableOrEnable(item) {
         disableRecurrenceFields("disable-on-occurrence");
     } else if (gIsReadOnly) {
         disableRecurrenceFields("disable-on-readonly");
-    } else if (isToDo(item) && !gStartTime) {
+    } else if (cal.isToDo(item) && !gStartTime) {
         disableRecurrenceFields("disable-on-readonly");
     } else {
         enableRecurrenceFields("disable-on-readonly");
@@ -595,8 +595,8 @@ function updatePreview() {
     // need to break the encapsulation, as we do it here. But we need the item
     // to contain the startdate in order to calculate the recurrence preview.
     item = item.clone();
-    let kDefaultTimezone = calendarDefaultTimezone();
-    if (isEvent(item)) {
+    let kDefaultTimezone = cal.calendarDefaultTimezone();
+    if (cal.isEvent(item)) {
         let startDate = gStartTime.getInTimezone(kDefaultTimezone);
         let endDate = gEndTime.getInTimezone(kDefaultTimezone);
         if (startDate.isDate) {
@@ -606,7 +606,7 @@ function updatePreview() {
         item.startDate = startDate;
         item.endDate = endDate;
     }
-    if (isToDo(item)) {
+    if (cal.isToDo(item)) {
         let entryDate = gStartTime;
         if (entryDate) {
             entryDate = entryDate.getInTimezone(kDefaultTimezone);
@@ -761,9 +761,9 @@ function changeOrderForElements(aPropKey, aPropParams) {
     }
 
     try {
-        localeOrder = calGetString("calendar-event-dialog",
-                                   aPropKey,
-                                   aPropParams);
+        localeOrder = cal.calGetString("calendar-event-dialog",
+                                       aPropKey,
+                                       aPropParams);
 
         localeOrder = localeOrder.split(" ");
     } catch (ex) {

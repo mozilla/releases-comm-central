@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+Components.utils.import("resource://calendar/modules/calUtils.jsm");
 Components.utils.import("resource://calendar/modules/calProviderUtils.jsm");
 Components.utils.import("resource://gre/modules/Services.jsm");
 Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
@@ -201,7 +202,7 @@ calCachedCalendar.prototype = {
                         break;
                     }
                     case "storage": {
-                        let file = getCalendarDirectory();
+                        let file = cal.getCalendarDirectory();
                         file.append("cache.sqlite");
                         cachedCalendar.uri = Services.io.newFileURI(file);
                         cachedCalendar.id = this.id;

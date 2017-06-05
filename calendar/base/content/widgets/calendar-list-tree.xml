@@ -44,7 +44,7 @@
           // Now that we have a composite calendar, we can get all calendars
           // from the calendar manager.
           this.mAddingFromComposite = true;
-          let calendars = sortCalendarArray(getCalendarManager().getCalendars({}));
+          let calendars = sortCalendarArray(cal.getCalendarManager().getCalendars({}));
           calendars.forEach(this.addCalendar, this);
           this.mAddingFromComposite = false;
 
@@ -156,9 +156,9 @@
             return;
         }
         if (calendar) {
-            openCalendarProperties(calendar);
+            cal.openCalendarProperties(window, calendar);
         } else {
-            openCalendarWizard();
+            cal.openCalendarWizard(window);
         }
       ]]></handler>
     </handlers>

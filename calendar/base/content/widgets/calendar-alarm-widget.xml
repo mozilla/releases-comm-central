@@ -92,9 +92,9 @@
               if (startDate) {
                   // A Task with a start or due date, show with label
                   startDate = startDate.getInTimezone(cal.calendarDefaultTimezone());
-                  dateLabel.textContent = calGetString("calendar",
-                                                       "alarmStarts",
-                                                       [formatter.formatDateTime(startDate)]);
+                  dateLabel.textContent = cal.calGetString("calendar",
+                                                           "alarmStarts",
+                                                           [formatter.formatDateTime(startDate)]);
               } else {
                   // If the task has no start date, then format the alarm date.
                   dateLabel.textContent = formatter.formatDateTime(this.mAlarm.alarmDate);
@@ -122,10 +122,10 @@
           let item = this.mItem;
           let relativeDateLabel = document.getAnonymousElementByAttribute(this, "anonid", "alarm-relative-date-label");
           let relativeDateString;
-          let startDate = item[calGetStartDateProp(item)] || item[calGetEndDateProp(item)];
+          let startDate = item[cal.calGetStartDateProp(item)] || item[cal.calGetEndDateProp(item)];
           if (startDate) {
-              startDate = startDate.getInTimezone(calendarDefaultTimezone());
-              let currentDate = now();
+              startDate = startDate.getInTimezone(cal.calendarDefaultTimezone());
+              let currentDate = cal.now();
               let sinceDayStart = (currentDate.hour * 3600) + (currentDate.minute * 60);
 
               currentDate.second = 0;
@@ -136,19 +136,19 @@
 
               if (this.mAlarmToday) {
                   // The alarm is today
-                  relativeDateString = calGetString("calendar",
-                                                    "alarmTodayAt",
-                                                    [formatter.formatTime(startDate)]);
+                  relativeDateString = cal.calGetString("calendar",
+                                                        "alarmTodayAt",
+                                                        [formatter.formatTime(startDate)]);
               } else if (sinceAlarm <= sinceDayStart - 86400 && sinceAlarm > sinceDayStart - 172800) {
                   // The alarm is tomorrow
-                  relativeDateString = calGetString("calendar",
-                                                    "alarmTomorrowAt",
-                                                    [formatter.formatTime(startDate)]);
+                  relativeDateString = cal.calGetString("calendar",
+                                                        "alarmTomorrowAt",
+                                                        [formatter.formatTime(startDate)]);
               } else if (sinceAlarm < sinceDayStart + 86400 && sinceAlarm > sinceDayStart) {
                   // The alarm is yesterday
-                  relativeDateString = calGetString("calendar",
-                                                    "alarmYesterdayAt",
-                                                    [formatter.formatTime(startDate)]);
+                  relativeDateString = cal.calGetString("calendar",
+                                                        "alarmYesterdayAt",
+                                                        [formatter.formatTime(startDate)]);
               } else {
                   // The alarm is way back
                   relativeDateString = [formatter.formatDateTime(startDate)];
@@ -244,6 +244,7 @@
     <implementation>
       <constructor><![CDATA[
         Components.utils.import("resource://gre/modules/Preferences.jsm");
+        Components.utils.import("resource://calendar/modules/calUtils.jsm");
 
         let snoozePref = Preferences.get("calendar.alarms.defaultsnoozelength", 0);
         if (snoozePref <= 0) {

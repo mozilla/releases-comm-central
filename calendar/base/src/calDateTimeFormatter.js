@@ -102,15 +102,15 @@ calDateTimeFormatter.prototype = {
     formatInterval: function(aStartDate, aEndDate) {
         // Check for tasks without start and/or due date
         if (aEndDate == null && aStartDate == null) {
-            return calGetString("calendar", "datetimeIntervalTaskWithoutDate");
+            return cal.calGetString("calendar", "datetimeIntervalTaskWithoutDate");
         } else if (aEndDate == null) {
             let startDateString = this.formatDate(aStartDate);
             let startTime = this.formatTime(aStartDate);
-            return calGetString("calendar", "datetimeIntervalTaskWithoutDueDate", [startDateString, startTime]);
+            return cal.calGetString("calendar", "datetimeIntervalTaskWithoutDueDate", [startDateString, startTime]);
         } else if (aStartDate == null) {
             let endDateString = this.formatDate(aEndDate);
             let endTime = this.formatTime(aEndDate);
-            return calGetString("calendar", "datetimeIntervalTaskWithoutStartDate", [endDateString, endTime]);
+            return cal.calGetString("calendar", "datetimeIntervalTaskWithoutStartDate", [endDateString, endTime]);
         }
         // Here there are only events or tasks with both start and due date.
         // make sure start and end use the same timezone when formatting intervals:
@@ -151,17 +151,17 @@ calDateTimeFormatter.prototype = {
                 if (startTime == endTime) {
                     // End time is on the same time as start, so we can leave out the end time
                     // "5 Jan 2006 13:00"
-                    return calGetString("calendar", "datetimeIntervalOnSameDateTime", [startDateString, startTime]);
+                    return cal.calGetString("calendar", "datetimeIntervalOnSameDateTime", [startDateString, startTime]);
                 } else {
                     // still include end time
                     // "5 Jan 2006 13:00 - 17:00"
-                    return calGetString("calendar", "datetimeIntervalOnSameDay", [startDateString, startTime, endTime]);
+                    return cal.calGetString("calendar", "datetimeIntervalOnSameDay", [startDateString, startTime, endTime]);
                 }
             } else {
                 // Spanning multiple days, so need to include date and time
                 // for start and end
                 // "5 Jan 2006 13:00 - 7 Jan 2006 9:00"
-                return calGetString("calendar", "datetimeIntervalOnSeveralDays", [startDateString, startTime, endDateString, endTime]);
+                return cal.calGetString("calendar", "datetimeIntervalOnSeveralDays", [startDateString, startTime, endDateString, endTime]);
             }
         }
     },
@@ -173,9 +173,9 @@ calDateTimeFormatter.prototype = {
     },
 
     _getItemDates: function(aItem) {
-        let start = aItem[calGetStartDateProp(aItem)];
-        let end = aItem[calGetEndDateProp(aItem)];
-        let kDefaultTimezone = calendarDefaultTimezone();
+        let start = aItem[cal.calGetStartDateProp(aItem)];
+        let end = aItem[cal.calGetEndDateProp(aItem)];
+        let kDefaultTimezone = cal.calendarDefaultTimezone();
         // Check for tasks without start and/or due date
         if (start) {
             start = start.getInTimezone(kDefaultTimezone);

@@ -82,7 +82,7 @@ calICSCalendar.prototype = {
     },
 
     get displayName() {
-        return calGetString("calendar", "icsName");
+        return cal.calGetString("calendar", "icsName");
     },
 
     createCalendar: function() {
@@ -582,11 +582,11 @@ calICSCalendar.prototype = {
     },
 
     unlock: function(errCode) {
-        ASSERT(this.locked, "unexpected!");
+        cal.ASSERT(this.locked, "unexpected!");
 
         this.mModificationActions.forEach((action) => {
             let args = action.opCompleteArgs;
-            ASSERT(args, "missing onOperationComplete call!");
+            cal.ASSERT(args, "missing onOperationComplete call!");
             let listener = action.listener;
             if (listener) {
                 if (Components.isSuccessCode(args[1]) &&
@@ -1111,9 +1111,4 @@ fileHooks.prototype = {
     }
 };
 
-/** Module Registration */
-var scriptLoadOrder = [
-    "calUtils.js",
-];
-
-this.NSGetFactory = cal.loadingNSGetFactory(scriptLoadOrder, [calICSCalendar], this);
+this.NSGetFactory = XPCOMUtils.generateNSGetFactory([calICSCalendar]);

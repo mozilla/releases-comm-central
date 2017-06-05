@@ -2,8 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-// New code must not load/import calUtils.js, but should use calUtils.jsm.
-
 var gCalThreadingEnabled;
 
 Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
@@ -17,10 +15,6 @@ Components.classes["@mozilla.org/calendar/backend-loader;1"].getService();
 
 this.EXPORTED_SYMBOLS = ["cal"];
 var cal = {
-    // new code should land here,
-    // and more code should be moved from calUtils.js into this object to avoid
-    // clashes with other extensions
-
     getDragService: generateServiceAccessor("@mozilla.org/widget/dragservice;1",
                                                 Components.interfaces.nsIDragService),
 
@@ -180,7 +174,7 @@ var cal = {
             date = item.endDate.clone();
             date.addDuration(offset);
             item.endDate = date;
-        } else /* isToDo */ {
+        } else /* cal.isToDo */ {
             if (item.entryDate) {
                 let date = item.entryDate.clone();
                 date.addDuration(offset);
@@ -781,25 +775,25 @@ var cal = {
      */
     moveItem: function(aOldItem, aNewDate) {
         let newItem = aOldItem.clone();
-        let start = (aOldItem[calGetStartDateProp(aOldItem)] ||
-                     aOldItem[calGetEndDateProp(aOldItem)]).clone();
+        let start = (aOldItem[cal.calGetStartDateProp(aOldItem)] ||
+                     aOldItem[cal.calGetEndDateProp(aOldItem)]).clone();
         let isDate = start.isDate;
         start.resetTo(aNewDate.year, aNewDate.month, aNewDate.day,
                       start.hour, start.minute, start.second,
                       start.timezone);
         start.isDate = isDate;
-        if (newItem[calGetStartDateProp(newItem)]) {
-            newItem[calGetStartDateProp(newItem)] = start;
+        if (newItem[cal.calGetStartDateProp(newItem)]) {
+            newItem[cal.calGetStartDateProp(newItem)] = start;
             let oldDuration = aOldItem.duration;
             if (oldDuration) {
-                let oldEnd = aOldItem[calGetEndDateProp(aOldItem)];
+                let oldEnd = aOldItem[cal.calGetEndDateProp(aOldItem)];
                 let newEnd = start.clone();
                 newEnd.addDuration(oldDuration);
                 newEnd = newEnd.getInTimezone(oldEnd.timezone);
-                newItem[calGetEndDateProp(newItem)] = newEnd;
+                newItem[cal.calGetEndDateProp(newItem)] = newEnd;
             }
-        } else if (newItem[calGetEndDateProp(newItem)]) {
-            newItem[calGetEndDateProp(newItem)] = start;
+        } else if (newItem[cal.calGetEndDateProp(newItem)]) {
+            newItem[cal.calGetEndDateProp(newItem)] = start;
         }
         return newItem;
     },
@@ -812,19 +806,19 @@ var cal = {
      * @return              The modified item
      */
     setItemToAllDay: function(aItem, aIsDate) {
-        let start = aItem[calGetStartDateProp(aItem)];
-        let end = aItem[calGetEndDateProp(aItem)];
+        let start = aItem[cal.calGetStartDateProp(aItem)];
+        let end = aItem[cal.calGetEndDateProp(aItem)];
         if (start || end) {
             let item = aItem.clone();
             if (start && (start.isDate != aIsDate)) {
                 start = start.clone();
                 start.isDate = aIsDate;
-                item[calGetStartDateProp(item)] = start;
+                item[cal.calGetStartDateProp(item)] = start;
             }
             if (end && (end.isDate != aIsDate)) {
                 end = end.clone();
                 end.isDate = aIsDate;
-                item[calGetEndDateProp(item)] = end;
+                item[cal.calGetEndDateProp(item)] = end;
             }
             return item;
         } else {

@@ -152,9 +152,9 @@ function test_audio_alarm() {
 
     // Test attachments
     let sound = cal.createAttachment();
-    sound.uri = makeURL("file:///sound.wav");
+    sound.uri = cal.makeURL("file:///sound.wav");
     let sound2 = cal.createAttachment();
-    sound2.uri = makeURL("file:///sound2.wav");
+    sound2.uri = cal.makeURL("file:///sound2.wav");
 
     // Adding an attachment should work
     alarm.addAttachment(sound);
@@ -227,9 +227,9 @@ function test_custom_alarm() {
 
     // Test for attachments
     let attach1 = cal.createAttachment();
-    attach1.uri = makeURL("file:///example.txt");
+    attach1.uri = cal.makeURL("file:///example.txt");
     let attach2 = cal.createAttachment();
-    attach2.uri = makeURL("file:///example2.txt");
+    attach2.uri = cal.makeURL("file:///example2.txt");
 
     alarm.addAttachment(attach1);
     alarm.addAttachment(attach2);
@@ -263,7 +263,7 @@ function test_repeat() {
     equal(alarm.repeat, 0);
 
     // Both REPEAT and DURATION should be accessible, when the two are set.
-    alarm.repeatOffset = createDuration();
+    alarm.repeatOffset = cal.createDuration();
     notEqual(alarm.repeatOffset, null);
     notEqual(alarm.repeat, 0);
 
@@ -313,7 +313,7 @@ function test_xprop() {
     alarm.action = "DISPLAY";
     alarm.description = "test";
     alarm.related = Ci.calIAlarm.ALARM_RELATED_START;
-    alarm.offset = createDuration("-PT5M");
+    alarm.offset = cal.createDuration("-PT5M");
     ok(alarm.icalComponent.serializeToICS().includes(date.icalString));
 
     alarm.deleteProperty("X-MOZ-LASTACK");
@@ -331,12 +331,12 @@ function test_dates() {
 
     // Set an offset and check it
     alarm.related = Ci.calIAlarm.ALARM_RELATED_START;
-    let offset = createDuration("-PT5M");
+    let offset = cal.createDuration("-PT5M");
     alarm.offset = offset;
     equal(alarm.alarmDate, null);
     equal(alarm.offset, offset);
     try {
-        alarm.alarmDate = createDateTime();
+        alarm.alarmDate = cal.createDateTime();
         passed = false;
     } catch (e) {
         passed = true;
@@ -352,7 +352,7 @@ function test_dates() {
     equal(alarm.alarmDate, alarmDate);
     equal(alarm.offset, null);
     try {
-        alarm.offset = createDuration();
+        alarm.offset = cal.createDuration();
         passed = false;
     } catch (e) {
         passed = true;
@@ -370,8 +370,8 @@ var propMap = {
     action: "X-TEST",
     description: "description",
     summary: "summary",
-    offset: createDuration("PT4M"),
-    repeatOffset: createDuration("PT1M")
+    offset: cal.createDuration("PT4M"),
+    repeatOffset: cal.createDuration("PT1M")
 };
 var clonePropMap = {
     related: Ci.calIAlarm.ALARM_RELATED_END,
@@ -379,8 +379,8 @@ var clonePropMap = {
     action: "X-CHANGED",
     description: "description-changed",
     summary: "summary-changed",
-    offset: createDuration("PT5M"),
-    repeatOffset: createDuration("PT2M")
+    offset: cal.createDuration("PT5M"),
+    repeatOffset: cal.createDuration("PT2M")
 };
 
 function test_immutable() {

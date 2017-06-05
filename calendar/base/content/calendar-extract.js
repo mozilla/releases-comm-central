@@ -191,9 +191,9 @@ var calendarExtract = {
                     dueDate.setMinutes(endGuess.minute);
                 }
 
-                setItemProperty(item, "entryDate", cal.jsDateToDateTime(date, dtz));
+                cal.setItemProperty(item, "entryDate", cal.jsDateToDateTime(date, dtz));
                 if (endGuess.year != null) {
-                    setItemProperty(item, "dueDate", cal.jsDateToDateTime(dueDate, dtz));
+                    cal.setItemProperty(item, "dueDate", cal.jsDateToDateTime(dueDate, dtz));
                 }
             }
 

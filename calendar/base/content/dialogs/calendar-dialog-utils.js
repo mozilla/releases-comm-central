@@ -11,6 +11,7 @@ Components.utils.import("resource://gre/modules/PluralForm.jsm");
 Components.utils.import("resource://gre/modules/Services.jsm");
 Components.utils.import("resource://gre/modules/iteratorUtils.jsm");
 
+Components.utils.import("resource://calendar/modules/calUtils.jsm");
 Components.utils.import("resource://calendar/modules/calAlarmUtils.jsm");
 Components.utils.import("resource://calendar/modules/calIteratorUtils.jsm");
 Components.utils.import("resource://calendar/modules/calRecurrenceUtils.jsm");
@@ -139,7 +140,7 @@ function editReminder() {
     args.item = window.calendarItem;
     args.timezone = window.gStartTimezone ||
                     window.gEndTimezone ||
-                    calendarDefaultTimezone();
+                    cal.calendarDefaultTimezone();
 
     args.calendar = getCurrentCalendar();
 
@@ -456,7 +457,7 @@ function commonUpdateReminder(aSuppressDialogs) {
     // approach as with recurring tasks. in case the reminder is related
     // to the entry date we check the entry date automatically and disable
     // the checkbox. the same goes for end related reminder and the due date.
-    if (isToDo(window.calendarItem)) {
+    if (cal.isToDo(window.calendarItem)) {
         // In general, (re-)enable the due/entry checkboxes. This will be
         // changed in case the alarms are related to START/END below.
         enableElementWithLock("todo-has-duedate", "reminder-lock");
@@ -533,7 +534,7 @@ function updateLink() {
     } else {
         let handler, uri;
         try {
-            uri = makeURL(itemUrlString);
+            uri = cal.makeURL(itemUrlString);
             handler = Services.io.getProtocolHandler(uri.scheme);
         } catch (e) {
             // No protocol handler for the given protocol, or invalid uri

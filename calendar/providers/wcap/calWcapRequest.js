@@ -21,6 +21,7 @@
 
 Components.utils.import("resource://gre/modules/Services.jsm");
 Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
+Components.utils.import("resource://calendar/modules/calUtils.jsm");
 
 function generateRequestId() {
     if (!generateRequestId.mRequestPrefix) {
@@ -438,7 +439,7 @@ function stringToIcal(session, data, expectedErrno) {
     }
     let icalRootComp;
     try {
-        icalRootComp = getIcsService().parseICS(data, session /* implements calITimezoneProvider */);
+        icalRootComp = cal.getIcsService().parseICS(data, session /* implements calITimezoneProvider */);
     } catch (exc) { // map into more useful error string:
         throw new Components.Exception("error parsing ical data!", calIErrors.ICS_PARSE);
     }

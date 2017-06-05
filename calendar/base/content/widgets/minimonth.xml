@@ -134,7 +134,9 @@
       <field name="mScrollYearsHandler">null</field>
       <field name="mPixelScrollDelta">0</field>
       <constructor><![CDATA[
-        this.kMinimonth = getParentNodeOrThis(this, "minimonth");
+        Components.utils.import("resource://calendar/modules/calUtils.jsm");
+
+        this.kMinimonth = cal.getParentNodeOrThis(this, "minimonth");
         document.getAnonymousElementByAttribute(this, "anonid", "back-button").kMinimonth = this.kMinimonth;
         document.getAnonymousElementByAttribute(this, "anonid", "today-button").kMinimonth = this.kMinimonth;
         document.getAnonymousElementByAttribute(this, "anonid", "forward-button").kMinimonth = this.kMinimonth;
@@ -186,7 +188,7 @@
       <method name="onMonthsPopupCommand">
         <parameter name="aItem"/>
         <body><![CDATA[
-          let popup = getParentNodeOrThis(aItem, "menupopup");
+          let popup = cal.getParentNodeOrThis(aItem, "menupopup");
           let triggerNode = popup.triggerNode || popup.anchorNode;
           let deck = triggerNode.parentNode;
 
@@ -238,7 +240,7 @@
       <method name="scrollYears">
         <parameter name="event"/>
         <body><![CDATA[
-          let yearPopup = getParentNodeOrThis(event.target, "menupopup");
+          let yearPopup = cal.getParentNodeOrThis(event.target, "menupopup");
           const pixelThreshold = 75;
           if (yearPopup) {
               let monthList = yearPopup.getElementsByAttribute("class", "minimonth-list");
@@ -576,8 +578,8 @@
               // Skip transparent events
               return;
           }
-          let start = aOccurrence[calGetStartDateProp(aOccurrence)] || aOccurrence.dueDate;
-          let end = aOccurrence[calGetEndDateProp(aOccurrence)] || start;
+          let start = aOccurrence[cal.calGetStartDateProp(aOccurrence)] || aOccurrence.dueDate;
+          let end = aOccurrence[cal.calGetEndDateProp(aOccurrence)] || start;
           if (!start) {
               return;
           }
@@ -756,7 +758,7 @@
           for (i = 0; i < 7; i++) {
               // if available, use UILocale days, else operating system format
               try {
-                  dayList[i] = calGetString("dateFormat",
+                  dayList[i] = cal.calGetString("dateFormat",
                                "day." + (tempDate.getDay() + 1) + ".short");
               } catch (e) {
                   dayList[i] = tempDate.toLocaleDateString(undefined, { weekday: 'short' });
@@ -868,11 +870,11 @@
           if (aDate.getFullYear() != (this.mValue || this.mExtraDate).getFullYear()) {
               let monthName = cal.formatMonth(aDate.getMonth() + 1,
                                               "calendar", "monthInYear");
-              let label = calGetString("calendar", "monthInYear",
+              let label = cal.calGetString("calendar", "monthInYear",
                                        [monthName, aDate.getFullYear()]);
               calbox.setAttribute("aria-label", label);
           } else {
-              calbox.setAttribute("aria-label", calGetString("dateFormat",
+              calbox.setAttribute("aria-label", cal.calGetString("dateFormat",
                                   "month." + (aDate.getMonth() + 1) + ".name"));
           }
 

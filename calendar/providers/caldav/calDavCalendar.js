@@ -157,7 +157,7 @@ calDavCalendar.prototype = {
     },
 
     get displayName() {
-        return calGetString("calendar", "caldavName");
+        return cal.calGetString("calendar", "caldavName");
     },
 
     createCalendar: function() {
@@ -640,7 +640,7 @@ calDavCalendar.prototype = {
             return;
         }
 
-        if (!isItemSupported(aItem, this)) {
+        if (!cal.isItemSupported(aItem, this)) {
             notifyListener(Components.results.NS_ERROR_FAILURE,
                            "Server does not support item type");
             return;
@@ -1335,7 +1335,7 @@ calDavCalendar.prototype = {
             let opListener = {
                 QueryInterface: XPCOMUtils.generateQI([Components.interfaces.calIOperationListener]),
                 onGetResult: function(calendar, status, itemType, detail, count, items) {
-                    ASSERT(false, "unexpected!");
+                    cal.ASSERT(false, "unexpected!");
                 },
                 onOperationComplete: function(opCalendar, opStatus, opType, opId, opDetail) {
                     self.mACLEntry = opDetail;
@@ -1473,7 +1473,7 @@ calDavCalendar.prototype = {
     },
 
     firstInRealm: function() {
-        let calendars = getCalendarManager().getCalendars({});
+        let calendars = cal.getCalendarManager().getCalendars({});
         for (let i = 0; i < calendars.length; i++) {
             if (calendars[i].type != "caldav" || calendars[i].getProperty("disabled")) {
                 continue;
@@ -1998,7 +1998,7 @@ calDavCalendar.prototype = {
                     // This may have already been set by fetchCachedMetaData,
                     // we only want to add the freebusy provider once.
                     self.hasFreeBusy = true;
-                    getFreeBusyService().addProvider(self);
+                    cal.getFreeBusyService().addProvider(self);
                 }
                 self.findPrincipalNS(aChangeLogListener);
             } else {
@@ -2168,7 +2168,7 @@ calDavCalendar.prototype = {
 
         // We want a trailing slash, ensure it.
         let nextNS = aNameSpaceList.pop().replace(/([^\/])$/, "$1/");
-        let requestUri = makeURL(this.calendarUri.prePath + this.ensureEncodedPath(nextNS));
+        let requestUri = cal.makeURL(this.calendarUri.prePath + this.ensureEncodedPath(nextNS));
 
         if (this.verboseLogging()) {
             cal.LOG("CalDAV: send: " + queryMethod + " " + requestUri.spec + "\n" + queryXml);
@@ -2417,20 +2417,20 @@ calDavCalendar.prototype = {
 
         let organizer = this.calendarUserAddress;
 
-        let fbQuery = getIcsService().createIcalComponent("VCALENDAR");
-        calSetProdidVersion(fbQuery);
-        let prop = getIcsService().createIcalProperty("METHOD");
+        let fbQuery = cal.getIcsService().createIcalComponent("VCALENDAR");
+        cal.calSetProdidVersion(fbQuery);
+        let prop = cal.getIcsService().createIcalProperty("METHOD");
         prop.value = "REQUEST";
         fbQuery.addProperty(prop);
-        let fbComp = getIcsService().createIcalComponent("VFREEBUSY");
-        fbComp.stampTime = now().getInTimezone(UTC());
-        prop = getIcsService().createIcalProperty("ORGANIZER");
+        let fbComp = cal.getIcsService().createIcalComponent("VFREEBUSY");
+        fbComp.stampTime = cal.now().getInTimezone(cal.UTC());
+        prop = cal.getIcsService().createIcalProperty("ORGANIZER");
         prop.value = organizer;
         fbComp.addProperty(prop);
-        fbComp.startTime = aRangeStart.getInTimezone(UTC());
-        fbComp.endTime = aRangeEnd.getInTimezone(UTC());
+        fbComp.startTime = aRangeStart.getInTimezone(cal.UTC());
+        fbComp.endTime = aRangeEnd.getInTimezone(cal.UTC());
         fbComp.uid = cal.getUUID();
-        prop = getIcsService().createIcalProperty("ATTENDEE");
+        prop = cal.getIcsService().createIcalProperty("ATTENDEE");
         prop.setParameter("PARTSTAT", "NEEDS-ACTION");
         prop.setParameter("ROLE", "REQ-PARTICIPANT");
         prop.setParameter("CUTYPE", "INDIVIDUAL");
@@ -2745,7 +2745,7 @@ calDavCalendar.prototype = {
             let serializer = Components.classes["@mozilla.org/calendar/ics-serializer;1"]
                                        .createInstance(Components.interfaces.calIIcsSerializer);
             serializer.addItems([item], 1);
-            let methodProp = getIcsService().createIcalProperty("METHOD");
+            let methodProp = cal.getIcsService().createIcalProperty("METHOD");
             methodProp.value = aItipItem.responseMethod;
             serializer.addProperty(methodProp);
 
@@ -2987,7 +2987,6 @@ calDavObserver.prototype = {
 
 /** Module Registration */
 var scriptLoadOrder = [
-    "calUtils.js",
     "calDavRequestHandlers.js"
 ];
 

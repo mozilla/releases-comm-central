@@ -36,6 +36,8 @@
       <field name="mDateTime">null</field>
 
       <constructor><![CDATA[
+        Components.utils.import("resource://calendar/modules/calUtils.jsm");
+
         this.mResizeHandler = this.onResize.bind(this);
         window.addEventListener("resize", this.mResizeHandler, true);
       ]]></constructor>
@@ -51,7 +53,7 @@
         ]]></setter>
         <getter><![CDATA[
             if (this.mDateTime == null) {
-                this.mDateTime = now();
+                this.mDateTime = cal.now();
             }
             return this.mDateTime;
         ]]></getter>

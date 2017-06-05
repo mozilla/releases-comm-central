@@ -56,7 +56,7 @@ calAttachment.prototype = {
             // If this is not binary data, its likely an uri. Attempt to convert
             // and throw otherwise.
             try {
-                uri = makeURL(this.mData);
+                uri = cal.makeURL(this.mData);
             } catch (e) {
                 // Its possible that the uri contains malformed data. Often
                 // callers don't expect an exception here, so we just catch

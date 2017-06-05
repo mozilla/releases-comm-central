@@ -1042,7 +1042,7 @@ add_task(function* parseCounter_test() {
     };
 
     let formatDt = function (aDateTime) {
-        let datetime = getDateFormatter().formatDateTime(aDateTime);
+        let datetime = cal.getDateFormatter().formatDateTime(aDateTime);
         return datetime += " " + aDateTime.timezone.displayName;
     };
 

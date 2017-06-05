@@ -8,7 +8,7 @@ Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 function calAttendee() {
     this.wrappedJSObject = this;
-    this.mProperties = new calPropertyBag();
+    this.mProperties = new cal.calPropertyBag();
 }
 
 var calAttendeeClassID = Components.ID("{5c8dcaa3-170c-4a73-8142-d531156f664d}");
@@ -84,7 +84,7 @@ calAttendee.prototype = {
 
         // Reset the property bag for the parameters, it will be re-initialized
         // from the ical property.
-        this.mProperties = new calPropertyBag();
+        this.mProperties = new cal.calPropertyBag();
 
         for (let [name, value] of cal.ical.paramIterator(icalatt)) {
             if (!promotedProps[name]) {

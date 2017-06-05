@@ -82,7 +82,7 @@ var unifinderObserver = {
     },
 
     onAddItem: function(aItem) {
-        if (isEvent(aItem) &&
+        if (cal.isEvent(aItem) &&
             !gUnifinderNeedsRefresh &&
             unifinderTreeView.mFilter.isItemInFilters(aItem)
             ) {
@@ -96,7 +96,7 @@ var unifinderObserver = {
     },
 
     onDeleteItem: function(aDeletedItem) {
-        if (isEvent(aDeletedItem) && !gUnifinderNeedsRefresh) {
+        if (cal.isEvent(aDeletedItem) && !gUnifinderNeedsRefresh) {
             this.removeItemFromTree(aDeletedItem);
         }
     },
@@ -198,7 +198,7 @@ function prepareCalendarUnifinder() {
         let ccalendar = cal.getCompositeCalendar(window);
         ccalendar.addObserver(unifinderObserver);
 
-        kDefaultTimezone = calendarDefaultTimezone();
+        kDefaultTimezone = cal.calendarDefaultTimezone();
 
         // Set up the filter
         unifinderTreeView.mFilter = new calFilter();
@@ -343,7 +343,7 @@ function unifinderSelect(event) {
             try {
                 selectedItems.push(unifinderTreeView.getItemAt(i));
             } catch (e) {
-                WARN("Error getting Event from row: " + e + "\n");
+                cal.WARN("Error getting Event from row: " + e + "\n");
             }
         }
     }
@@ -553,7 +553,7 @@ var unifinderTreeView = {
             let sortType = cal.getSortTypeForSortKey(sortKey);
             // sort (key,item) entries
             cal.sortEntry.mSortKey = sortKey;
-            cal.sortEntry.mSortStartedDate = now();
+            cal.sortEntry.mSortStartedDate = cal.now();
             let entries = this.eventArray.map(cal.sortEntry, cal.sortEntry);
             entries.sort(cal.sortEntryComparer(sortType, modifier));
             this.eventArray = entries.map(cal.sortEntryItem);
@@ -693,7 +693,7 @@ var unifinderTreeView = {
         }
 
         // Add calendar name atom
-        properties.push("calendar-" + formatStringForCSSRule(item.calendar.name));
+        properties.push("calendar-" + cal.formatStringForCSSRule(item.calendar.name));
 
         // Add item status atom
         if (item.status) {
@@ -707,7 +707,7 @@ var unifinderTreeView = {
 
         // Task categories
         properties = properties.concat(item.getCategories({})
-                                           .map(formatStringForCSSRule));
+                                           .map(cal.formatStringForCSSRule));
 
         return properties.join(" ");
     },

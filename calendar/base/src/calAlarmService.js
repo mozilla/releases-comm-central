@@ -31,7 +31,7 @@ function calAlarmService() {
 
     this.mLoadedCalendars = {};
     this.mTimerMap = {};
-    this.mObservers = new calListenerBag(Components.interfaces.calIAlarmServiceObserver);
+    this.mObservers = new cal.calListenerBag(Components.interfaces.calIAlarmServiceObserver);
 
     this.calendarObserver = {
         alarmService: this,
@@ -144,7 +144,7 @@ calAlarmService.prototype = {
     get timezone() {
         // TODO Do we really need this? Do we ever set the timezone to something
         // different than the default timezone?
-        return this.mTimezone || calendarDefaultTimezone();
+        return this.mTimezone || cal.calendarDefaultTimezone();
     },
 
     set timezone(aTimezone) {
@@ -221,9 +221,9 @@ calAlarmService.prototype = {
                                  .getService(Components.interfaces.nsIObserver);
         notifier.observe(null, "alarm-service-startup", null);
 
-        getCalendarManager().addObserver(this.calendarManagerObserver);
+        cal.getCalendarManager().addObserver(this.calendarManagerObserver);
 
-        for (let calendar of getCalendarManager().getCalendars({})) {
+        for (let calendar of cal.getCalendarManager().getCalendars({})) {
             this.observeCalendar(calendar);
         }
 
@@ -251,9 +251,9 @@ calAlarmService.prototype = {
                 // We don't set timers for every future alarm, only those within 6 hours
                 let end = now.clone();
                 end.hour += kHoursBetweenUpdates;
-                this.alarmService.mRangeEnd = end.getInTimezone(UTC());
+                this.alarmService.mRangeEnd = end.getInTimezone(cal.UTC());
 
-                this.alarmService.findAlarms(getCalendarManager().getCalendars({}),
+                this.alarmService.findAlarms(cal.getCalendarManager().getCalendars({}),
                                              start, until);
             }
         };
@@ -330,7 +330,7 @@ calAlarmService.prototype = {
                 alarmDate = alarmDate.getInTimezone(this.timezone);
                 alarmDate.isDate = false;
             }
-            alarmDate = alarmDate.getInTimezone(UTC());
+            alarmDate = alarmDate.getInTimezone(cal.UTC());
 
             // Check for snooze
             let snoozeDate;
@@ -353,7 +353,7 @@ calAlarmService.prototype = {
             let now = nowUTC();
             if (alarmDate.timezone.isFloating) {
                 now = cal.now();
-                now.timezone = floating();
+                now.timezone = cal.floating();
             }
 
             if (alarmDate.compare(now) >= 0) {

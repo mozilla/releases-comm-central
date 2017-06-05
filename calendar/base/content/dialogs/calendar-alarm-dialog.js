@@ -230,7 +230,7 @@ function setupTitle() {
     let alarmRichlist = document.getElementById("alarm-richlist");
     let reminders = alarmRichlist.childNodes.length;
 
-    let title = PluralForm.get(reminders, calGetString("calendar", "alarmWindowTitle.label"));
+    let title = PluralForm.get(reminders, cal.calGetString("calendar", "alarmWindowTitle.label"));
     document.title = title.replace("#1", reminders);
 }
 
@@ -250,8 +250,8 @@ function widgetAlarmComptor(aItem, aWidgetItem) {
     }
 
     // Get the dates to compare
-    let aDate = aItem[calGetStartDateProp(aItem)];
-    let bDate = aWidgetItem[calGetStartDateProp(aWidgetItem)];
+    let aDate = aItem[cal.calGetStartDateProp(aItem)];
+    let bDate = aWidgetItem[cal.calGetStartDateProp(aWidgetItem)];
 
     return aDate.compare(bDate);
 }

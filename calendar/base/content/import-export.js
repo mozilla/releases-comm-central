@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
+Components.utils.import("resource://calendar/modules/calUtils.jsm");
 
 /* exported loadEventsFromFile, exportEntireCalendar */
 
@@ -24,7 +25,7 @@ function loadEventsFromFile(aCalendar) {
     let picker = Components.classes["@mozilla.org/filepicker;1"]
                            .createInstance(nsIFilePicker);
     picker.init(window,
-                calGetString("calendar", "filepickerTitleImport"),
+                cal.calGetString("calendar", "filepickerTitleImport"),
                 nsIFilePicker.modeOpen);
     picker.defaultExtension = "ics";
 
@@ -109,7 +110,7 @@ function loadEventsFromFile(aCalendar) {
         }
 
         let calendars = cal.getCalendarManager().getCalendars({});
-        calendars = calendars.filter(isCalendarWritable);
+        calendars = calendars.filter(cal.isCalendarWritable);
 
         if (calendars.length < 1) {
             // XXX alert something?
@@ -123,7 +124,7 @@ function loadEventsFromFile(aCalendar) {
             let args = {};
             args.onOk = (aCal) => { putItemsIntoCal(aCal, items, filePath); };
             args.calendars = calendars;
-            args.promptText = calGetString("calendar", "importPrompt");
+            args.promptText = cal.calGetString("calendar", "importPrompt");
             openDialog("chrome://calendar/content/chooseCalendarDialog.xul",
                        "_blank", "chrome,titlebar,modal,resizable", args);
         }
@@ -174,9 +175,9 @@ function putItemsIntoCal(destCal, aItems, aFilePath) {
             if (count == aItems.length) {
                 destCal.endBatch();
                 if (!failedCount && duplicateCount) {
-                    cal.showError(calGetString("calendar", "duplicateError", [duplicateCount, aFilePath]), window);
+                    cal.showError(cal.calGetString("calendar", "duplicateError", [duplicateCount, aFilePath]), window);
                 } else if (failedCount) {
-                    cal.showError(calGetString("calendar", "importItemsFailed", [failedCount, lastError.toString()]), window);
+                    cal.showError(cal.calGetString("calendar", "importItemsFailed", [failedCount, lastError.toString()]), window);
                 }
             }
         }
@@ -220,7 +221,7 @@ function saveEventsToFile(calendarEventArray, aDefaultFileName) {
                        .createInstance(nsIFilePicker);
 
     picker.init(window,
-                calGetString("calendar", "filepickerTitleExport"),
+                cal.calGetString("calendar", "filepickerTitleExport"),
                 nsIFilePicker.modeSave);
 
     if (aDefaultFileName && aDefaultFileName.length && aDefaultFileName.length > 0) {
@@ -228,7 +229,7 @@ function saveEventsToFile(calendarEventArray, aDefaultFileName) {
     } else if (calendarEventArray.length == 1 && calendarEventArray[0].title) {
         picker.defaultString = calendarEventArray[0].title;
     } else {
-        picker.defaultString = calGetString("calendar", "defaultFileName");
+        picker.defaultString = cal.calGetString("calendar", "defaultFileName");
     }
 
     picker.defaultExtension = "ics";
@@ -306,7 +307,7 @@ function saveEventsToFile(calendarEventArray, aDefaultFileName) {
                                     null);
             outputStream.close();
         } catch (ex) {
-            cal.showError(calGetString("calendar", "unableToWrite") + filePath, window);
+            cal.showError(cal.calGetString("calendar", "unableToWrite") + filePath, window);
         }
     }
 }
@@ -340,7 +341,7 @@ function exportEntireCalendar(aCalendar) {
         getItemsFromCal(aCalendar);
     } else {
         let count = {};
-        let calendars = getCalendarManager().getCalendars(count);
+        let calendars = cal.getCalendarManager().getCalendars(count);
 
         if (count.value == 1) {
             // There's only one calendar, so it's silly to ask what calendar
@@ -350,7 +351,7 @@ function exportEntireCalendar(aCalendar) {
             // Ask what calendar to import into
             let args = {};
             args.onOk = getItemsFromCal;
-            args.promptText = calGetString("calendar", "exportPrompt");
+            args.promptText = cal.calGetString("calendar", "exportPrompt");
             openDialog("chrome://calendar/content/chooseCalendarDialog.xul",
                        "_blank", "chrome,titlebar,modal,resizable", args);
         }

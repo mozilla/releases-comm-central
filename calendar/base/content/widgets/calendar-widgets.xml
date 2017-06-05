@@ -46,6 +46,10 @@
       </xul:listbox>
     </content>
     <implementation>
+      <constructor><![CDATA[
+        Components.utils.import("resource://calendar/modules/calUtils.jsm");
+      ]]></constructor>
+
       <field name="_maxCount">0</field>
 
       <property name="categories" readonly="true">
@@ -180,7 +184,7 @@
         <parameter name="aItem"/>
         <body><![CDATA[
           let categoryListbox = document.getAnonymousElementByAttribute(this, "anonid", "categories-listbox");
-          let categoryList = getPrefCategoriesArray();
+          let categoryList = cal.getPrefCategoriesArray();
 
           cal.sortArrayByLocaleCollator(categoryList);
 
@@ -234,12 +238,13 @@
 
     <implementation>
       <constructor><![CDATA[
+        Components.utils.import("resource://calendar/modules/calUtils.jsm");
         this.setUpTodayDate();
       ]]></constructor>
 
       <method name="setUpTodayDate">
         <body><![CDATA[
-          let dayNumber = calGetString("dateFormat", "day." + cal.now().day + ".number");
+          let dayNumber = cal.calGetString("dateFormat", "day." + cal.now().day + ".number");
           document.getAnonymousElementByAttribute(this, "anonid", "day-label").value = dayNumber;
         ]]></body>
       </method>
@@ -520,6 +525,10 @@
       <field name="mDropShadows">[]</field>
       <field name="mCalendarView">null</field>
 
+      <constructor><![CDATA[
+        Components.utils.import("resource://calendar/modules/calUtils.jsm");
+      ]]></constructor>
+
       <!-- The ViewController that supports the interface 'calICalendarView'-->
       <property name="calendarView"
                 onget="return this.mCalendarView;"
@@ -682,7 +691,7 @@
                                  .createInstance(Components.interfaces.nsITransferable);
         transfer.init(null);
 
-        if (isEvent(item)) {
+        if (cal.isEvent(item)) {
             transfer.addDataFlavor("application/x-moz-cal-event");
         } else {
             transfer.addDataFlavor("application/x-moz-cal-task");

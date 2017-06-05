@@ -52,11 +52,11 @@ function onLoad() {
     window.attendees = item.getAttendees({});
 
     let calendar = cal.wrapInstance(item.calendar, Components.interfaces.calISchedulingSupport);
-    window.readOnly = !(isCalendarWritable(calendar) &&
-                        (userCanModifyItem(item) ||
+    window.readOnly = !(cal.isCalendarWritable(calendar) &&
+                        (cal.userCanModifyItem(item) ||
                          (calendar &&
                           item.calendar.isInvitation(item) &&
-                          userCanRespondToInvitation(item))));
+                          cal.userCanRespondToInvitation(item))));
     if (!window.readOnly && calendar) {
         let attendee = calendar.getInvitedAttendee(item);
         if (attendee) {
@@ -306,7 +306,7 @@ function updateRepeatDetails() {
     repeatDetails.setAttribute("collapsed", "true");
 
     // Try to create a descriptive string from the rule(s).
-    let kDefaultTimezone = calendarDefaultTimezone();
+    let kDefaultTimezone = cal.calendarDefaultTimezone();
     let startDate = item.startDate || item.entryDate;
     let endDate = item.endDate || item.dueDate;
     startDate = startDate ? startDate.getInTimezone(kDefaultTimezone) : null;
@@ -378,7 +378,7 @@ function sendMailToOrganizer() {
     let email = cal.getAttendeeEmail(organizer, true);
     let emailSubject = cal.calGetString("calendar-event-dialog", "emailSubjectReply", [item.title]);
     let identity = item.calendar.getProperty("imip.identity");
-    sendMailTo(email, emailSubject, null, identity);
+    cal.sendMailTo(email, emailSubject, null, identity);
 }
 
 /**

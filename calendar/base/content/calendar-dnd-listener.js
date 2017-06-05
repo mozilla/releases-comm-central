@@ -187,7 +187,7 @@ var itemConversion = {
  * @class calDNDBaseObserver
  */
 function calDNDBaseObserver() {
-    ASSERT(false, "Inheriting objects call calDNDBaseObserver!");
+    cal.ASSERT(false, "Inheriting objects call calDNDBaseObserver!");
 }
 
 calDNDBaseObserver.prototype = {
@@ -255,7 +255,7 @@ calDNDBaseObserver.prototype = {
                 if (!droppedUrl)
                     return;
 
-                var url = makeURL(droppedUrl);
+                var url = cal.makeURL(droppedUrl);
 
                 var localFileInstance = Components.classes["@mozilla.org/file/local;1"]
                                         .createInstance(Components.interfaces.nsILocalFile);
@@ -328,7 +328,7 @@ calDNDBaseObserver.prototype = {
                 this.onDropMessage(messenger.msgHdrFromURI(data));
                 break;
             default:
-                ASSERT(false, "unknown data flavour:" + bestFlavor.value+'\n');
+                cal.ASSERT(false, "unknown data flavour:" + bestFlavor.value+'\n');
                 break;
         }
     },
@@ -420,7 +420,7 @@ calMailButtonDNDObserver.prototype = {
             let item = aItems[0];
             let recipients = cal.getRecipientList(item.getAttendees({}));
             let identity = item.calendar.getProperty("imip.identity");
-            sendMailTo(recipients, item.title, item.getProperty("DESCRIPTION"), identity);
+            cal.sendMailTo(recipients, item.title, item.getProperty("DESCRIPTION"), identity);
         }
     },
 
@@ -461,7 +461,7 @@ calCalendarButtonDNDObserver.prototype = {
     onDropItems: function(aItems) {
         for (var item of aItems) {
             var newItem = item;
-            if (isToDo(item)) {
+            if (cal.isToDo(item)) {
                 newItem = itemConversion.eventFromTask(item);
             }
             createEventWithDialog(null, null, null, null, newItem);
@@ -479,7 +479,7 @@ calCalendarButtonDNDObserver.prototype = {
      * @param aMessage     The message to handle.
      */
     onDropMessage: function(aMessage) {
-        var newItem = createEvent();
+        var newItem = cal.createEvent();
         itemConversion.calendarItemFromMessage(newItem, aMessage);
         createEventWithDialog(null, null, null, null, newItem);
     }
@@ -510,7 +510,7 @@ calTaskButtonDNDObserver.prototype = {
     onDropItems: function(aItems) {
         for (var item of aItems) {
             var newItem = item;
-            if (isEvent(item)) {
+            if (cal.isEvent(item)) {
                 newItem = itemConversion.taskFromEvent(item);
             }
             createTodoWithDialog(null, null, null, newItem);
@@ -526,7 +526,7 @@ calTaskButtonDNDObserver.prototype = {
      * @param aMessage     The message to handle.
      */
     onDropMessage: function(aMessage) {
-        var todo = createTodo();
+        var todo = cal.createTodo();
         itemConversion.calendarItemFromMessage(todo, aMessage);
         createTodoWithDialog(null, null, null, todo);
     }
@@ -555,15 +555,15 @@ function invokeEventDragSession(aItem, aXULBox) {
                 aOutData.value = aItem;
                 aOutDataLen.value = 1;
             } else {
-                ASSERT(false, "error:" + aInFlavor);
+                cal.ASSERT(false, "error:" + aInFlavor);
             }
         }
     };
 
-    if (isEvent(aItem)) {
+    if (cal.isEvent(aItem)) {
       transfer.addDataFlavor("application/vnd.x-moz-cal-event");
       transfer.setTransferData("application/vnd.x-moz-cal-event", flavourProvider, 0);
-    } else if (isToDo(aItem)) {
+    } else if (cal.isToDo(aItem)) {
       transfer.addDataFlavor("application/vnd.x-moz-cal-task");
       transfer.setTransferData("application/vnd.x-moz-cal-task", flavourProvider, 0);
     }

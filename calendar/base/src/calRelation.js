@@ -14,7 +14,7 @@ Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
  */
 function calRelation() {
     this.wrappedJSObject = this;
-    this.mProperties = new calPropertyBag();
+    this.mProperties = new cal.calPropertyBag();
 }
 var calRelationClassID = Components.ID("{76810fae-abad-4019-917a-08e95d5bbd68}");
 var calRelationInterfaces = [Components.interfaces.calIRelation];
@@ -50,7 +50,7 @@ calRelation.prototype = {
     },
 
     get icalProperty() {
-        let icssvc = getIcsService();
+        let icssvc = cal.getIcsService();
         let icalatt = icssvc.createIcalProperty("RELATED-TO");
         if (this.mId) {
             icalatt.value = this.mId;
@@ -79,7 +79,7 @@ calRelation.prototype = {
     set icalProperty(attProp) {
         // Reset the property bag for the parameters, it will be re-initialized
         // from the ical property.
-        this.mProperties = new calPropertyBag();
+        this.mProperties = new cal.calPropertyBag();
 
         if (attProp.value) {
             this.mId = attProp.value;

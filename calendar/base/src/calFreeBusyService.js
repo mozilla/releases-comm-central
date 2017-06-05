@@ -3,12 +3,13 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
+Components.utils.import("resource://calendar/modules/calUtils.jsm");
 
 function calFreeBusyListener(numOperations, finalListener) {
     this.mFinalListener = finalListener;
     this.mNumOperations = numOperations;
 
-    this.opGroup = new calOperationGroup(() => {
+    this.opGroup = new cal.calOperationGroup(() => {
         this.notifyResult(null);
     });
 }
@@ -51,7 +52,7 @@ calFreeBusyListener.prototype = {
 
 function calFreeBusyService() {
     this.wrappedJSObject = this;
-    this.mProviders = new calInterfaceBag(Components.interfaces.calIFreeBusyProvider);
+    this.mProviders = new cal.calInterfaceBag(Components.interfaces.calIFreeBusyProvider);
 }
 var calFreeBusyServiceClassID = Components.ID("{29c56cd5-d36e-453a-acde-0083bd4fe6d3}");
 var calFreeBusyServiceInterfaces = [

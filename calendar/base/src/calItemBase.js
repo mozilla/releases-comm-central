@@ -45,7 +45,7 @@ calItemBase.prototype = {
      */
     initItemBase: function() {
         this.wrappedJSObject = this;
-        this.mProperties = new calPropertyBag();
+        this.mProperties = new cal.calPropertyBag();
         this.mPropertyParams = {};
         this.mProperties.setProperty("CREATED", cal.jsDateToDateTime(new Date()));
     },
@@ -82,7 +82,7 @@ calItemBase.prototype = {
             let calendar = this.calendar;
             // some unused delim character:
             this.mHashId = [encodeURIComponent(this.id),
-                            rid ? rid.getInTimezone(UTC()).icalString : "",
+                            rid ? rid.getInTimezone(cal.UTC()).icalString : "",
                             calendar ? encodeURIComponent(calendar.id) : ""].join("#");
         }
         return this.mHashId;
@@ -116,7 +116,7 @@ calItemBase.prototype = {
     },
     set recurrenceInfo(value) {
         this.modify();
-        return (this.mRecurrenceInfo = calTryWrappedJSObject(value));
+        return (this.mRecurrenceInfo = cal.calTryWrappedJSObject(value));
     },
 
     // attribute calIItemBase parentItem;
@@ -127,7 +127,7 @@ calItemBase.prototype = {
         if (this.mImmutable) {
             throw Components.results.NS_ERROR_OBJECT_IS_IMMUTABLE;
         }
-        return (this.mParentItem = calTryWrappedJSObject(value));
+        return (this.mParentItem = cal.calTryWrappedJSObject(value));
     },
 
     /**
@@ -144,7 +144,7 @@ calItemBase.prototype = {
     initializeProxy: function(aParentItem, aRecurrenceId) {
         this.mIsProxy = true;
 
-        aParentItem = calTryWrappedJSObject(aParentItem);
+        aParentItem = cal.calTryWrappedJSObject(aParentItem);
         this.mParentItem = aParentItem;
         this.mCalendar = aParentItem.mCalendar;
         this.recurrenceId = aRecurrenceId;
@@ -251,11 +251,11 @@ calItemBase.prototype = {
         cloned.mImmutable = false;
         cloned.mACLEntry = this.mACLEntry;
         cloned.mIsProxy = this.mIsProxy;
-        cloned.mParentItem = calTryWrappedJSObject(aNewParent) || this.mParentItem;
+        cloned.mParentItem = cal.calTryWrappedJSObject(aNewParent) || this.mParentItem;
         cloned.mHashId = this.mHashId;
         cloned.mCalendar = this.mCalendar;
         if (this.mRecurrenceInfo) {
-            cloned.mRecurrenceInfo = calTryWrappedJSObject(this.mRecurrenceInfo.clone());
+            cloned.mRecurrenceInfo = cal.calTryWrappedJSObject(this.mRecurrenceInfo.clone());
             cloned.mRecurrenceInfo.item = cloned;
         }
 
@@ -270,7 +270,7 @@ calItemBase.prototype = {
             cloned.mAttendees.push(att.clone());
         }
 
-        cloned.mProperties = new calPropertyBag();
+        cloned.mProperties = new cal.calPropertyBag();
         for (let [name, value] of this.mProperties) {
             if (value instanceof Components.interfaces.calIDateTime) {
                 value = value.clone();
@@ -325,7 +325,7 @@ calItemBase.prototype = {
     set alarmLastAck(aValue) {
         this.modify();
         if (aValue && !aValue.timezone.isUTC) {
-            aValue = aValue.getInTimezone(UTC());
+            aValue = aValue.getInTimezone(cal.UTC());
         }
         return (this.mAlarmLastAck = aValue);
     },
@@ -827,7 +827,7 @@ calItemBase.prototype = {
 
         // re-initializing from scratch -- no light proxy anymore:
         this.mIsProxy = false;
-        this.mProperties = new calPropertyBag();
+        this.mProperties = new cal.calPropertyBag();
         this.mPropertyParams = {};
 
         this.mapPropsFromICS(icalcomp, this.icsBasePropMap);
@@ -1083,7 +1083,7 @@ calItemBase.prototype = {
             return this.recurrenceInfo.getOccurrences(aStartDate, aEndDate, 0, aCount);
         }
 
-        if (checkIfInRange(this, aStartDate, aEndDate)) {
+        if (cal.checkIfInRange(this, aStartDate, aEndDate)) {
             aCount.value = 1;
             return [this];
         }

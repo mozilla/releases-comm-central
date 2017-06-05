@@ -275,12 +275,12 @@ var calendarController = {
             // Common Commands
             case "calendar_new_event_command":
                 createEventWithDialog(getSelectedCalendar(),
-                                      getDefaultStartDate(currentView().selectedDay));
+                                      cal.getDefaultStartDate(currentView().selectedDay));
                 break;
             case "calendar_new_event_context_command": {
                 let newStart = currentView().selectedDateTime;
                 if (!newStart) {
-                    newStart = getDefaultStartDate(currentView().selectedDay);
+                    newStart = cal.getDefaultStartDate(currentView().selectedDay);
                 }
                 createEventWithDialog(getSelectedCalendar(), newStart,
                                       null, null, null,
@@ -295,7 +295,7 @@ var calendarController = {
                 if (!focusedElement && this.defaultController && !this.isCalendarInForeground()) {
                     this.defaultController.doCommand(aCommand);
                 } else {
-                    let focusedRichListbox = getParentNodeOrThis(focusedElement, "richlistbox");
+                    let focusedRichListbox = cal.getParentNodeOrThis(focusedElement, "richlistbox");
                     if (focusedRichListbox && focusedRichListbox.id == "agenda-listbox") {
                         agendaListbox.editSelectedItem();
                     } else if (focusedElement && focusedElement.className == "calendar-task-tree") {
@@ -314,7 +314,7 @@ var calendarController = {
                 if (!focusedElement && this.defaultController && !this.isCalendarInForeground()) {
                     this.defaultController.doCommand(aCommand);
                 } else {
-                    let focusedRichListbox = getParentNodeOrThis(focusedElement, "richlistbox");
+                    let focusedRichListbox = cal.getParentNodeOrThis(focusedElement, "richlistbox");
                     if (focusedRichListbox && focusedRichListbox.id == "agenda-listbox") {
                         agendaListbox.deleteSelectedItem(false);
                     } else if (focusedElement && focusedElement.className == "calendar-task-tree") {
@@ -328,12 +328,12 @@ var calendarController = {
             case "calendar_new_todo_command":
                 createTodoWithDialog(getSelectedCalendar(),
                                      null, null, null,
-                                     getDefaultStartDate(currentView().selectedDay));
+                                     cal.getDefaultStartDate(currentView().selectedDay));
                 break;
             case "calendar_new_todo_context_command": {
                 let initialDate = currentView().selectedDateTime;
                 if (!initialDate || initialDate.isDate) {
-                    initialDate = getDefaultStartDate(currentView().selectedDay);
+                    initialDate = cal.getDefaultStartDate(currentView().selectedDay);
                 }
                 createTodoWithDialog(getSelectedCalendar(),
                                      null, null, null,
@@ -343,23 +343,23 @@ var calendarController = {
             case "calendar_new_todo_todaypane_command":
                 createTodoWithDialog(getSelectedCalendar(),
                                      null, null, null,
-                                     getDefaultStartDate(agendaListbox.today.start));
+                                     cal.getDefaultStartDate(agendaListbox.today.start));
                 break;
             case "calendar_delete_todo_command":
                 deleteToDoCommand();
                 break;
             case "calendar_modify_todo_command":
-                modifyTaskFromContext(null, getDefaultStartDate(currentView().selectedDay));
+                modifyTaskFromContext(null, cal.getDefaultStartDate(currentView().selectedDay));
                 break;
             case "calendar_modify_todo_todaypane_command":
-                modifyTaskFromContext(null, getDefaultStartDate(agendaListbox.today.start));
+                modifyTaskFromContext(null, cal.getDefaultStartDate(agendaListbox.today.start));
                 break;
 
             case "calendar_new_calendar_command":
-                openCalendarWizard();
+                cal.openCalendarWizard(window);
                 break;
             case "calendar_edit_calendar_command":
-                openCalendarProperties(getSelectedCalendar());
+                cal.openCalendarProperties(window, getSelectedCalendar());
                 break;
             case "calendar_delete_calendar_command":
                 promptDeleteCalendar(getSelectedCalendar());
@@ -540,7 +540,7 @@ var calendarController = {
      * Returns a boolean indicating if all calendars are readonly.
      */
     get all_readonly() {
-        let calMgr = getCalendarManager();
+        let calMgr = cal.getCalendarManager();
         return (calMgr.readOnlyCalendarCount == calMgr.calendarCount);
     },
 
@@ -548,7 +548,7 @@ var calendarController = {
      * Returns a boolean indicating if all calendars are local
      */
     get no_network_calendars() {
-        return (getCalendarManager().networkCalendarCount == 0);
+        return (cal.getCalendarManager().networkCalendarCount == 0);
     },
 
     /**
@@ -556,7 +556,7 @@ var calendarController = {
      * network access.
      */
     get has_local_calendars() {
-        let calMgr = getCalendarManager();
+        let calMgr = cal.getCalendarManager();
         return (calMgr.networkCalendarCount < calMgr.calendarCount);
     },
 
@@ -565,7 +565,7 @@ var calendarController = {
      * network access.
      */
     get has_cached_calendars() {
-        let calMgr = getCalendarManager();
+        let calMgr = cal.getCalendarManager();
         let calendars = calMgr.getCalendars({});
         for (let calendar of calendars) {
             if (calendar.getProperty("cache.enabled") || calendar.getProperty("cache.always")) {
@@ -579,7 +579,7 @@ var calendarController = {
      * Returns a boolean indicating that there is only one calendar left.
      */
     get last_calendar() {
-        return (getCalendarManager().calendarCount < 2);
+        return (cal.getCalendarManager().calendarCount < 2);
     },
 
     /**
@@ -588,10 +588,10 @@ var calendarController = {
     get all_local_calendars_readonly() {
         // We might want to speed this part up by keeping track of this in the
         // calendar manager.
-        let calendars = getCalendarManager().getCalendars({});
+        let calendars = cal.getCalendarManager().getCalendars({});
         let count = calendars.length;
         for (let calendar of calendars) {
-            if (!isCalendarWritable(calendar)) {
+            if (!cal.isCalendarWritable(calendar)) {
                 count--;
             }
         }
@@ -645,7 +645,7 @@ var calendarController = {
     get todo_items_writable() {
         let selectedTasks = getSelectedTasks();
         for (let task of selectedTasks) {
-            if (isCalendarWritable(task.calendar)) {
+            if (cal.isCalendarWritable(task.calendar)) {
                 return true;
             }
         }
@@ -742,7 +742,7 @@ var calendarController2 = {
                 break;
             case "button_print":
             case "cmd_print":
-                calPrint();
+                cal.calPrint(window);
                 break;
 
             // Thunderbird commands
@@ -817,17 +817,17 @@ function setupContextItemType(event, items) {
     function adaptModificationMenuItem(aMenuItemId, aItemType) {
         let menuItem = document.getElementById(aMenuItemId);
         if (menuItem) {
-            menuItem.setAttribute("label", calGetString("calendar", "delete" + aItemType + "Label"));
-            menuItem.setAttribute("accesskey", calGetString("calendar", "delete" + aItemType + "Accesskey"));
+            menuItem.setAttribute("label", cal.calGetString("calendar", "delete" + aItemType + "Label"));
+            menuItem.setAttribute("accesskey", cal.calGetString("calendar", "delete" + aItemType + "Accesskey"));
         }
     }
-    if (items.some(isEvent) && items.some(isToDo)) {
+    if (items.some(cal.isEvent) && items.some(cal.isToDo)) {
         event.target.setAttribute("type", "mixed");
         adaptModificationMenuItem("calendar-item-context-menu-delete-menuitem", "Item");
-    } else if (items.length && isEvent(items[0])) {
+    } else if (items.length && cal.isEvent(items[0])) {
         event.target.setAttribute("type", "event");
         adaptModificationMenuItem("calendar-item-context-menu-delete-menuitem", "Event");
-    } else if (items.length && isToDo(items[0])) {
+    } else if (items.length && cal.isToDo(items[0])) {
         event.target.setAttribute("type", "todo");
         adaptModificationMenuItem("calendar-item-context-menu-delete-menuitem", "Task");
     } else {
@@ -909,7 +909,7 @@ function calendarUpdateNewItemsCommand() {
     // re-calculate command status
     CalendarNewEventsCommandEnabled = false;
     CalendarNewTasksCommandEnabled = false;
-    let calendars = cal.getCalendarManager().getCalendars({}).filter(cal.isCalendarWritable).filter(userCanAddItemsToCalendar);
+    let calendars = cal.getCalendarManager().getCalendars({}).filter(cal.isCalendarWritable).filter(cal.userCanAddItemsToCalendar);
     if (calendars.some(cal.isEventCalendar)) {
         CalendarNewEventsCommandEnabled = true;
     }
@@ -932,7 +932,7 @@ function calendarUpdateDeleteCommand(selectedItems) {
 
     /* we must disable "delete" when at least one item cannot be deleted */
     for (let item of selectedItems) {
-        if (!userCanDeleteItemsFromCalendar(item.calendar)) {
+        if (!cal.userCanDeleteItemsFromCalendar(item.calendar)) {
             CalendarDeleteCommandEnabled = false;
             break;
         }

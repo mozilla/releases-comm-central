@@ -28,7 +28,6 @@
         height="300">
   <script type="application/javascript" src="chrome://calendar/content/calendar-alarm-dialog.js"/>
   <script type="application/javascript" src="chrome://calendar/content/calendar-item-editing.js"/>
-  <script type="application/javascript" src="chrome://calendar/content/calUtils.js"/>
 
   <richlistbox id="alarm-richlist" flex="1" onselect="onSelectAlarm(event)"/>
 

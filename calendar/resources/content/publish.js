@@ -43,7 +43,7 @@ function publishCalendarDataDialogResponse(CalendarPublishObject, aProgressDialo
 function publishEntireCalendar(aCalendar) {
     if (!aCalendar) {
         let count = {};
-        let calendars = getCalendarManager().getCalendars(count);
+        let calendars = cal.getCalendarManager().getCalendars(count);
 
         if (count.value == 1) {
             // Do not ask user for calendar if only one calendar exists
@@ -55,7 +55,7 @@ function publishEntireCalendar(aCalendar) {
             // Therefore return after openDialog().
             let args = {};
             args.onOk = publishEntireCalendar;
-            args.promptText = calGetString("calendar", "publishPrompt");
+            args.promptText = cal.calGetString("calendar", "publishPrompt");
             openDialog("chrome://calendar/content/chooseCalendarDialog.xul",
                        "_blank", "chrome,titlebar,modal,resizable", args);
             return;
@@ -123,7 +123,7 @@ function publishItemArray(aItemArray, aPath, aProgressDialog) {
     let inputStream;
     let storageStream;
 
-    let icsURL = makeURL(aPath);
+    let icsURL = cal.makeURL(aPath);
 
     let channel = Services.io.newChannelFromURI2(icsURL,
                                                  null,
@@ -166,7 +166,7 @@ function publishItemArray(aItemArray, aPath, aProgressDialog) {
                                .createInstance(Components.interfaces.calIIcsSerializer);
     serializer.addItems(aItemArray, aItemArray.length);
     // Outlook requires METHOD:PUBLISH property:
-    let methodProp = getIcsService().createIcalProperty("METHOD");
+    let methodProp = cal.getIcsService().createIcalProperty("METHOD");
     methodProp.value = "PUBLISH";
     serializer.addProperty(methodProp);
     serializer.serializeToStream(outputStream);
@@ -180,7 +180,7 @@ function publishItemArray(aItemArray, aPath, aProgressDialog) {
         channel.asyncOpen(publishingListener, aProgressDialog);
     } catch (e) {
         let props = Services.strings.createBundle("chrome://calendar/locale/calendar.properties");
-        Services.prompt.alert(null, calGetString("calendar", "genericErrorTitle"),
+        Services.prompt.alert(null, cal.calGetString("calendar", "genericErrorTitle"),
                               props.formatStringFromName("otherPutError", [e.message], 1));
     }
 }
@@ -219,11 +219,11 @@ var publishingListener = {
         }
 
         if (channel && !requestSucceeded) {
-            Services.prompt.alert(null, calGetString("calendar", "genericErrorTitle"),
+            Services.prompt.alert(null, cal.calGetString("calendar", "genericErrorTitle"),
                                   props.formatStringFromName("httpPutError", [channel.responseStatus, channel.responseStatusText], 2));
         } else if (!channel && !Components.isSuccessCode(request.status)) {
             // XXX this should be made human-readable.
-            Services.prompt.alert(null, calGetString("calendar", "genericErrorTitle"),
+            Services.prompt.alert(null, cal.calGetString("calendar", "genericErrorTitle"),
                                   props.formatStringFromName("otherPutError", [request.status.toString(16)], 1));
         }
     },

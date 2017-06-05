@@ -61,19 +61,19 @@
       <constructor><![CDATA[
         Components.utils.import("resource://calendar/modules/calUtils.jsm");
         let goButton = document.getAnonymousElementByAttribute(this, "anonid", "date-go-button");
-        goButton.setAttribute("label", calGetString("calendar", "go"));
+        goButton.setAttribute("label", cal.calGetString("calendar", "go"));
         // Load the stuff we're going to use to parse written dates
         this.mRelativeDates = [
             { word: cal.calGetString("calendar", "today").toLowerCase(), offset: 0 },
             { word: cal.calGetString("calendar", "yesterday").toLowerCase(), offset: -1 },
             { word: cal.calGetString("calendar", "tomorrow").toLowerCase(), offset: 1 }];
         for (let i = 1; i <= 7; i++) {
-            this.mDayNames.push(calGetString("dateFormat", "day." + i + ".name").toLowerCase());
+            this.mDayNames.push(cal.calGetString("dateFormat", "day." + i + ".name").toLowerCase());
         }
 
         for (let i = 1; i <= 12; i++) {
-            this.mMonthLongNames.push(calGetString("dateFormat", "month." + i + ".name").toLowerCase());
-            this.mMonthShortNames.push(calGetString("dateFormat", "month." + i + ".Mmm").toLowerCase());
+            this.mMonthLongNames.push(cal.calGetString("dateFormat", "month." + i + ".name").toLowerCase());
+            this.mMonthShortNames.push(cal.calGetString("dateFormat", "month." + i + ".Mmm").toLowerCase());
         }
 
         // note that some languages have different conjugations of
@@ -86,7 +86,7 @@
 
         // Set the value to today
         let text = document.getAnonymousElementByAttribute(this, "anonid", "date-textbox");
-        text.value = calGetString("calendar", "today");
+        text.value = cal.calGetString("calendar", "today");
       ]]></constructor>
 
       <property name="value">
@@ -419,7 +419,9 @@
       <field name="mForeverStr">null</field>
 
       <constructor><![CDATA[
-        this.mForeverStr = calGetString("calendar-event-dialog", "eventRecurrenceForeverLabel");
+        Components.utils.import("resource://calendar/modules/calUtils.jsm");
+
+        this.mForeverStr = cal.calGetString("calendar-event-dialog", "eventRecurrenceForeverLabel");
         document.getAnonymousElementByAttribute(this, "anonid", "menuitemForever")
                 .setAttribute("label", this.mForeverStr);
       ]]></constructor>
@@ -1455,6 +1457,8 @@
     </resources>
     <implementation>
       <constructor><![CDATA[
+        Components.utils.import("resource://calendar/modules/calUtils.jsm");
+
         this.initDateFormat();
         this.initTimeFormat();
       ]]></constructor>
@@ -1598,12 +1602,12 @@
         <parameter name="aValue"/>
         <body><![CDATA[
           try {
-              let noon = calGetString("dateFormat", "noon");
+              let noon = cal.calGetString("dateFormat", "noon");
               if (aValue.toLowerCase() == noon.toLowerCase()) {
                   return new Date(0, 0, 0, 12, 0, 0, 0);
               }
 
-              let midnight = calGetString("dateFormat", "midnight");
+              let midnight = cal.calGetString("dateFormat", "midnight");
               if (aValue.toLowerCase() == midnight.toLowerCase()) {
                   return new Date(0, 0, 0, 0, 0, 0, 0);
               }
@@ -1869,8 +1873,6 @@
       <method name="formatDate">
         <parameter name="aDate"/>
         <body><![CDATA[
-          Components.utils.import("resource://calendar/modules/calUtils.jsm");
-
           let dateFormatter = cal.getDateFormatter();
           return dateFormatter.formatDateShort(cal.jsDateToDateTime(aDate, cal.floating()));
         ]]></body>

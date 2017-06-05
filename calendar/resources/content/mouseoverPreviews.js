@@ -20,6 +20,8 @@
  *  Used by all grid views.
  */
 
+Components.utils.import("resource://calendar/modules/calUtils.jsm");
+
 function onMouseOverItem(occurrenceBoxMouseEvent) {
     if ("occurrence" in occurrenceBoxMouseEvent.currentTarget) {
         // occurrence of repeating event or todo
@@ -33,9 +35,9 @@ function onMouseOverItem(occurrenceBoxMouseEvent) {
 function showToolTip(aToolTip, aItem) {
     if (aItem) {
         let holderBox;
-        if (isEvent(aItem)) {
+        if (cal.isEvent(aItem)) {
             holderBox = getPreviewForEvent(aItem);
-        } else if (isToDo(aItem)) {
+        } else if (cal.isToDo(aItem)) {
             holderBox = getPreviewForTask(aItem);
         }
         if (holderBox) {
@@ -94,11 +96,11 @@ function getPreviewForTask(toDoItem) {
 
             // These cut-offs should match calendar-event-dialog.js
             if (priorityInteger >= 1 && priorityInteger <= 4) {
-                priorityString = calGetString("calendar", "highPriority"); // high priority
+                priorityString = cal.calGetString("calendar", "highPriority"); // high priority
             } else if (priorityInteger == 5) {
-                priorityString = calGetString("calendar", "normalPriority"); // normal priority
+                priorityString = cal.calGetString("calendar", "normalPriority"); // normal priority
             } else {
-                priorityString = calGetString("calendar", "lowPriority"); // low priority
+                priorityString = cal.calGetString("calendar", "lowPriority"); // low priority
             }
             boxAppendLabeledText(vbox, "tooltipPriority", priorityString);
             hasHeader = true;
@@ -203,11 +205,11 @@ function getEventStatusString(calendarEvent) {
     switch (calendarEvent.status) {
         // Event status value keywords are specified in RFC2445sec4.8.1.11
         case "TENTATIVE":
-            return calGetString("calendar", "statusTentative");
+            return cal.calGetString("calendar", "statusTentative");
         case "CONFIRMED":
-            return calGetString("calendar", "statusConfirmed");
+            return cal.calGetString("calendar", "statusConfirmed");
         case "CANCELLED":
-            return calGetString("calendar", "eventStatusCancelled");
+            return cal.calGetString("calendar", "eventStatusCancelled");
         default:
             return "";
     }
@@ -218,13 +220,13 @@ function getToDoStatusString(iCalToDo) {
     switch (iCalToDo.status) {
         // Todo status keywords are specified in RFC2445sec4.8.1.11
         case "NEEDS-ACTION":
-            return calGetString("calendar", "statusNeedsAction");
+            return cal.calGetString("calendar", "statusNeedsAction");
         case "IN-PROCESS":
-            return calGetString("calendar", "statusInProcess");
+            return cal.calGetString("calendar", "statusInProcess");
         case "CANCELLED":
-            return calGetString("calendar", "todoStatusCancelled");
+            return cal.calGetString("calendar", "todoStatusCancelled");
         case "COMPLETED":
-            return calGetString("calendar", "statusCompleted");
+            return cal.calGetString("calendar", "statusCompleted");
         default:
             return "";
     }
@@ -260,8 +262,8 @@ function boxAppendBody(box, textString) {
  * and to header grid append a row containing localized Label: date.
  */
 function boxAppendLabeledDateTime(box, labelProperty, date) {
-    date = date.getInTimezone(calendarDefaultTimezone());
-    let formattedDateTime = getDateFormatter().formatDateTime(date);
+    date = date.getInTimezone(cal.calendarDefaultTimezone());
+    let formattedDateTime = cal.getDateFormatter().formatDateTime(date);
     boxAppendLabeledText(box, labelProperty, formattedDateTime);
 }
 
@@ -273,7 +275,7 @@ function boxAppendLabeledDateTime(box, labelProperty, date) {
  * @param item              the event or task
  */
 function boxAppendLabeledDateTimeInterval(box, labelProperty, item) {
-    let dateString = getDateFormatter().formatItemInterval(item);
+    let dateString = cal.getDateFormatter().formatItemInterval(item);
     boxAppendLabeledText(box, labelProperty, dateString);
 }
 
@@ -310,7 +312,7 @@ function boxInitializeHeaderGrid(box) {
  * @param textString        value of header field.
  */
 function boxAppendLabeledText(box, labelProperty, textString) {
-    let labelText = calGetString("calendar", labelProperty);
+    let labelText = cal.calGetString("calendar", labelProperty);
     let rows = box.getElementsByTagNameNS(box.namespaceURI, "rows")[0];
     let row = document.createElement("row");
 
@@ -351,7 +353,7 @@ function getCurrentNextOrPreviousRecurrence(calendarEvent) {
 
     // To find current event when now is during event, look for occurrence
     // starting duration ago.
-    let probeTime = now();
+    let probeTime = cal.now();
     probeTime.addDuration(dur);
 
     let occ = calendarEvent.recurrenceInfo.getNextOccurrence(probeTime);

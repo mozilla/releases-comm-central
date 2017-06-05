@@ -63,6 +63,4 @@
         </prefpane>
     </prefwindow>
 
-    <script type="application/javascript"
-            src="chrome://calendar/content/calUtils.js"/>
 </overlay>

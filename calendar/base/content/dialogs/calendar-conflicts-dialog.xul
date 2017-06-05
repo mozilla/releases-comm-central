@@ -14,7 +14,6 @@
         persist="screenX screenY"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
   <script type="application/javascript" src="chrome://calendar/content/mouseoverPreviews.js"/>
-  <script type="application/javascript" src="chrome://calendar/content/calUtils.js"/>
   <script type="application/javascript"><![CDATA[
     Components.utils.import("resource://calendar/modules/calUtils.jsm");
     function onLoad() {

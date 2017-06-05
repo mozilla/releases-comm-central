@@ -243,9 +243,9 @@
         this.showCompleted = (document.getElementById(kShowCompleted)
                                 .getAttribute("checked") == "true");
 
-        this.mTimezone = calendarDefaultTimezone();
+        this.mTimezone = cal.calendarDefaultTimezone();
         let alarmService = Components.classes["@mozilla.org/calendar/alarm-service;1"]
-                           .getService(Components.interfaces.calIAlarmService);
+                                     .getService(Components.interfaces.calIAlarmService);
         alarmService.addObserver(this.mObserver);
         this.setAttribute("type", this.type);
         this.mResizeHandler = () => {
@@ -268,7 +268,7 @@
             this.mCalendar.removeObserver(this.mObserver);
         }
         let alarmService = Components.classes["@mozilla.org/calendar/alarm-service;1"]
-                           .getService(Components.interfaces.calIAlarmService);
+                                     .getService(Components.interfaces.calIAlarmService);
         alarmService.removeObserver(this.mObserver);
         this.viewBroadcaster.removeEventListener(this.getAttribute("type") + "viewresized", this.mResizeHandler, true);
         Services.prefs.removeObserver("calendar.", this.mPrefObserver);
@@ -385,7 +385,7 @@
 
       <method name="getRangeDescription">
         <body><![CDATA[
-          return getDateFormatter().formatInterval(this.rangeStartDate, this.rangeEndDate);
+          return cal.getDateFormatter().formatInterval(this.rangeStartDate, this.rangeEndDate);
         ]]></body>
       </method>
 
@@ -635,7 +635,7 @@
                   this.updateDaysOffPrefs();
                   break;
               case "calendar.timezone.local":
-                  this.timezone = calendarDefaultTimezone();
+                  this.timezone = cal.calendarDefaultTimezone();
                   this.refreshView();
                   break;
               case "calendar.alarms.indicator.show":
@@ -865,8 +865,8 @@
         <getter>return this.mWeekday;</getter>
         <setter><![CDATA[
           this.mWeekday = val % 7;
-          this.longName.value = getDateFormatter().dayName(val);
-          this.shortName.value = getDateFormatter().shortDayName(val);
+          this.longName.value = cal.getDateFormatter().dayName(val);
+          this.shortName.value = cal.getDateFormatter().shortDayName(val);
           return this.mWeekday;
         ]]></setter>
       </property>

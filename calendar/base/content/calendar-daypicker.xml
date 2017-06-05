@@ -244,6 +244,7 @@
       </property>
 
       <constructor><![CDATA[
+        Components.utils.import("resource://calendar/modules/calUtils.jsm");
         let mainbox =
             document.getAnonymousElementByAttribute(
                 this, "anonid", "mainbox");
@@ -257,7 +258,7 @@
                 child.calendar = this;
             }
         }
-        let labelLastDay = calGetString("calendar-event-dialog", "eventRecurrenceMonthlyLastDayLabel");
+        let labelLastDay = cal.calGetString("calendar-event-dialog", "eventRecurrenceMonthlyLastDayLabel");
         child.setAttribute("label", labelLastDay);
       ]]></constructor>
     </implementation>

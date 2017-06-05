@@ -12,6 +12,9 @@
   <binding id="calendar-day-view"
            extends="chrome://calendar/content/calendar-multiday-view.xml#calendar-multiday-view">
     <implementation implements="calICalendarView">
+      <constructor><![CDATA[
+        Components.utils.import("resource://calendar/modules/calUtils.jsm");
+      ]]></constructor>
       <property name="observerID">
         <getter><![CDATA[
           return "day-view-observer";
@@ -42,7 +45,7 @@
               currentDay.day += aNumber;
               this.goToDay(currentDay);
           } else {
-              this.goToDay(now());
+              this.goToDay(cal.now());
           }
         ]]></body>
       </method>
@@ -53,6 +56,8 @@
            extends="chrome://calendar/content/calendar-multiday-view.xml#calendar-multiday-view">
     <implementation implements="calICalendarView">
       <constructor><![CDATA[
+        Components.utils.import("resource://calendar/modules/calUtils.jsm");
+
         // add a listener for the mode change
         this.mModeHandler = (event) => {
             if (event.attrName == "mode") {
@@ -107,7 +112,7 @@
               date.day += 7 * aNumber;
               this.goToDay(date);
           } else {
-              this.goToDay(now());
+              this.goToDay(cal.now());
           }
         ]]></body>
       </method>
@@ -118,6 +123,7 @@
     <implementation implements="calICalendarView">
       <constructor><![CDATA[
         Components.utils.import("resource://gre/modules/Preferences.jsm");
+        Components.utils.import("resource://calendar/modules/calUtils.jsm");
         this.mWeeksInView = Preferences.get("calendar.weeks.inview", 4);
       ]]></constructor>
 
@@ -211,7 +217,7 @@
               savedSelectedDay.day += 7 * aNumber;
               this.selectedDay = savedSelectedDay;
           } else {
-              let date = now();
+              let date = cal.now();
               this.goToDay(date);
               this.selectedDay = date;
           }
@@ -222,6 +228,10 @@
 
   <binding id="calendar-month-view" extends="chrome://calendar/content/calendar-month-view.xml#calendar-month-base-view">
     <implementation implements="calICalendarView">
+      <constructor><![CDATA[
+        Components.utils.import("resource://calendar/modules/calUtils.jsm");
+      ]]></constructor>
+
       <property name="observerID">
         <getter><![CDATA[
           return "month-view-observer";
@@ -244,7 +254,7 @@
         <body><![CDATA[
           let monthName = cal.formatMonth(this.rangeStartDate.month + 1,
                                           "calendar", "monthInYear");
-          return calGetString("calendar", "monthInYear", [monthName, this.rangeStartDate.year]);
+          return cal.calGetString("calendar", "monthInYear", [monthName, this.rangeStartDate.year]);
          ]]></body>
        </method>
       <method name="moveView">
@@ -278,7 +288,7 @@
 
               this.selectedDay = newSelectedDay;
           } else {
-              let date = now();
+              let date = cal.now();
               this.goToDay(date);
               this.selectedDay = date;
           }

@@ -222,7 +222,7 @@ function parseUri(aUri) {
     let uri;
     try {
         // Test if the entered uri can be parsed.
-        uri = makeURL(aUri);
+        uri = cal.makeURL(aUri);
     } catch (ex) {
         return [errorConstants.INVALID_URI, null];
     }

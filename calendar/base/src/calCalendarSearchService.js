@@ -2,12 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+Components.utils.import("resource://calendar/modules/calUtils.jsm");
+
 function calCalendarSearchListener(numOperations, finalListener) {
     this.mFinalListener = finalListener;
     this.mNumOperations = numOperations;
     this.mResults = [];
 
-    this.opGroup = new calOperationGroup(() => {
+    this.opGroup = new cal.calOperationGroup(() => {
         this.notifyResult(null);
     });
 }
@@ -44,7 +46,7 @@ calCalendarSearchListener.prototype = {
 
 function calCalendarSearchService() {
     this.wrappedJSObject = this;
-    this.mProviders = new calInterfaceBag(Components.interfaces.calICalendarSearchProvider);
+    this.mProviders = new cal.calInterfaceBag(Components.interfaces.calICalendarSearchProvider);
 }
 var calCalendarSearchServiceClassID = Components.ID("{f5f743cd-8997-428e-bc1b-644e73f61203}");
 var calCalendarSearchServiceInterfaces = [

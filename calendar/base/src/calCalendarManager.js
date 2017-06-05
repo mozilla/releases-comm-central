@@ -15,8 +15,8 @@ var MIN_INT = -MAX_INT;
 
 function calCalendarManager() {
     this.wrappedJSObject = this;
-    this.mObservers = new calListenerBag(Components.interfaces.calICalendarManagerObserver);
-    this.mCalendarObservers = new calListenerBag(Components.interfaces.calIObserver);
+    this.mObservers = new cal.calListenerBag(Components.interfaces.calICalendarManagerObserver);
+    this.mCalendarObservers = new cal.calListenerBag(Components.interfaces.calIObserver);
 }
 
 var calCalendarManagerClassID = Components.ID("{f42585e7-e736-4600-985d-9624c1c51992}");
@@ -403,11 +403,11 @@ calCalendarManager.prototype = {
     alertAndQuit: function() {
         // We want to include the extension name in the error message rather
         // than blaming Thunderbird.
-        let hostAppName = calGetString("brand", "brandShortName", null, "branding");
-        let calAppName = calGetString("lightning", "brandShortName", null, "lightning");
-        let errorBoxTitle = calGetString("calendar", "tooNewSchemaErrorBoxTitle", [calAppName]);
-        let errorBoxText = calGetString("calendar", "tooNewSchemaErrorBoxTextLightning", [calAppName, hostAppName]);
-        let errorBoxButtonLabel = calGetString("calendar", "tooNewSchemaButtonRestart", [hostAppName]);
+        let hostAppName = cal.calGetString("brand", "brandShortName", null, "branding");
+        let calAppName = cal.calGetString("lightning", "brandShortName", null, "lightning");
+        let errorBoxTitle = cal.calGetString("calendar", "tooNewSchemaErrorBoxTitle", [calAppName]);
+        let errorBoxText = cal.calGetString("calendar", "tooNewSchemaErrorBoxTextLightning", [calAppName, hostAppName]);
+        let errorBoxButtonLabel = cal.calGetString("calendar", "tooNewSchemaButtonRestart", [hostAppName]);
 
         let promptSvc = Services.prompt;
 
@@ -460,10 +460,10 @@ calCalendarManager.prototype = {
                     this.alertAndQuit();
                     return null;
                 case Components.interfaces.calIErrors.STORAGE_UNKNOWN_TIMEZONES_ERROR:
-                    uiMessage = calGetString("calendar", "unknownTimezonesError", [uri.spec]);
+                    uiMessage = cal.calGetString("calendar", "unknownTimezonesError", [uri.spec]);
                     break;
                 default:
-                    uiMessage = calGetString("calendar", "unableToCreateProvider", [uri.spec]);
+                    uiMessage = cal.calGetString("calendar", "unableToCreateProvider", [uri.spec]);
                     break;
             }
             // Log the original exception via error console to provide more debug info
@@ -944,7 +944,7 @@ calMgrCalendarObserver.prototype = {
                 message = props.GetStringFromName("icsMalformedError");
                 break;
             case calIErrors.MODIFICATION_FAILED:
-                errMsg = calGetString("calendar", "errorWriting", [aCalendar.name]);
+                errMsg = cal.calGetString("calendar", "errorWriting", [aCalendar.name]);
                 // falls through
             default:
                 message = aMessage;
@@ -956,8 +956,8 @@ calMgrCalendarObserver.prototype = {
         paramBlock.SetString(2, message);
 
         this.storedReadOnly = this.calendar.readOnly;
-        let errorCode = calGetString("calendar", "errorCode", [errCode]);
-        let errorDescription = calGetString("calendar", "errorDescription", [message]);
+        let errorCode = cal.calGetString("calendar", "errorCode", [errCode]);
+        let errorDescription = cal.calGetString("calendar", "errorDescription", [message]);
         let summary = errMsg + " " + errorCode + ". " + errorDescription;
 
         // Log warnings in error console.

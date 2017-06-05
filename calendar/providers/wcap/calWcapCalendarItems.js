@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
+Components.utils.import("resource://calendar/modules/calUtils.jsm");
 Components.utils.import("resource://calendar/modules/calAlarmUtils.jsm");
 Components.utils.import("resource://calendar/modules/calIteratorUtils.jsm");
 
@@ -54,9 +55,9 @@ calWcapCalendar.prototype.getRecurrenceParams = function(item, out_rrules, out_r
             } else if (rDateInstance) {
                 // cs does not accept DATEs here:
                 if (isNeg) {
-                    out_exdates.value.push(getIcalUTC(ensureDateTime(rDateInstance.date)));
+                    out_exdates.value.push(getIcalUTC(cal.ensureDateTime(rDateInstance.date)));
                 } else {
-                    out_rdates.value.push(getIcalUTC(ensureDateTime(rDateInstance.date)));
+                    out_rdates.value.push(getIcalUTC(cal.ensureDateTime(rDateInstance.date)));
                 }
             } else {
                 this.notifyError(NS_ERROR_UNEXPECTED,
@@ -237,7 +238,7 @@ function equalDatetimes(one, two) {
 function identicalDatetimes(one, two) {
     return (!one && !two) ||
             (equalDatetimes(one, two) &&
-             compareObjects(one.timezone, two.timezone));
+             cal.compareObjects(one.timezone, two.timezone));
 }
 
 // @return null if nothing has changed else value to be written
@@ -318,7 +319,7 @@ calWcapCalendar.prototype.storeItem = function(bAddItem, item, oldItem, request)
         return ret || "";
     };
 
-    let bIsEvent = isEvent(item);
+    let bIsEvent = cal.isEvent(item);
     let bIsParent = isParent(item);
 
     let method = METHOD_PUBLISH;
@@ -553,7 +554,7 @@ calWcapCalendar.prototype.storeItem = function(bAddItem, item, oldItem, request)
         if (bIsParent) {
             params += "&mod=4"; // THIS AND ALL INSTANCES
         } else {
-            params += "&mod=1&rid=" + getIcalUTC(ensureDateTime(item.recurrenceId)); // THIS INSTANCE
+            params += "&mod=1&rid=" + getIcalUTC(cal.ensureDateTime(item.recurrenceId)); // THIS INSTANCE
         }
 
         params += "&method=" + method;
@@ -713,7 +714,7 @@ calWcapCalendar.prototype.modifyItem = function(newItem, oldItem, listener) {
                                                  request.unlockPending();
                                              }
                                          },
-                                         stringToXml, isEvent(newItem) ? "deleteevents_by_id" : "deletetodos_by_id",
+                                         stringToXml, cal.isEvent(newItem) ? "deleteevents_by_id" : "deletetodos_by_id",
                                          params, calIWcapCalendar.AC_COMP_WRITE);
                 return request;
             }
@@ -751,7 +752,7 @@ calWcapCalendar.prototype.deleteItem = function(item, listener) {
             params += "&mod=4&rid=0";
         } else { // delete THIS INSTANCE:
             // cs does not accept DATE here:
-            params += "&mod=1&rid=" + getIcalUTC(ensureDateTime(item.recurrenceId));
+            params += "&mod=1&rid=" + getIcalUTC(cal.ensureDateTime(item.recurrenceId));
         }
 
         let orgCalId = getCalId(item.organizer);
@@ -773,7 +774,7 @@ calWcapCalendar.prototype.deleteItem = function(item, listener) {
                                          log("deleteItem(): " + getWcapRequestStatusString(xml), this);
                                      }
                                  },
-                                 stringToXml, isEvent(item) ? "deleteevents_by_id" : "deletetodos_by_id",
+                                 stringToXml, cal.isEvent(item) ? "deleteevents_by_id" : "deletetodos_by_id",
                                  params, calIWcapCalendar.AC_COMP_WRITE);
     } catch (exc) {
         request.execRespFunc(exc);
@@ -793,7 +794,7 @@ calWcapCalendar.prototype.patchTimezone = function(subComp, attr, xpropOrTz) {
             let tzid = subComp.getFirstProperty(xpropOrTz);
             if (tzid) {
                 timezone = this.session.getTimezone(tzid.value);
-                ASSERT(timezone, "timezone not found: " + tzid);
+                cal.ASSERT(timezone, "timezone not found: " + tzid);
             }
         } else {
             timezone = xpropOrTz;
@@ -846,13 +847,13 @@ calWcapCalendar.prototype.parseItems = function(
         switch (subComp.componentType) {
             case "VEVENT": {
                 this.patchTimezone(subComp, "endTime", dtstart ? dtstart.timezone : "X-NSCP-DTEND-TZID");
-                item = createEvent();
+                item = cal.createEvent();
                 item.icalComponent = subComp;
                 break;
             }
             case "VTODO": {
                 this.patchTimezone(subComp, "dueTime", dtstart ? dtstart.timezone : "X-NSCP-DUE-TZID");
-                item = createTodo();
+                item = cal.createTodo();
                 item.icalComponent = subComp;
                 switch (itemFilter & calICalendar.ITEM_FILTER_COMPLETED_ALL) {
                     case calICalendar.ITEM_FILTER_COMPLETED_YES:
@@ -898,7 +899,7 @@ calWcapCalendar.prototype.parseItems = function(
                 unexpandedItems.push(item);
                 uid2parent[item.id] = item;
             } else if ((maxResults == 0 || items.length < maxResults) &&
-                       checkIfInRange(item, rangeStart, rangeEnd)) {
+                       cal.checkIfInRange(item, rangeStart, rangeEnd)) {
                 if (LOG_LEVEL > 2) {
                     log("item: " + item.title + "\n" + item.icalString, this);
                 }
@@ -915,12 +916,12 @@ calWcapCalendar.prototype.parseItems = function(
         let parent = uid2parent[item.id];
 
         if (!parent) { // a parentless one, fake a master and override it's occurrence
-            parent = isEvent(item) ? createEvent() : createTodo();
+            parent = cal.isEvent(item) ? cal.createEvent() : cal.createTodo();
             parent.id = item.id;
             parent.calendar = this.superCalendar;
             parent.setProperty("DTSTART", item.recurrenceId);
             parent.setProperty("X-MOZ-FAKED-MASTER", "1"); // this tag might be useful in the future
-            parent.recurrenceInfo = createRecurrenceInfo(parent);
+            parent.recurrenceInfo = cal.createRecurrenceInfo(parent);
             fakedParents[item.id] = true;
             uid2parent[item.id] = parent;
             items.push(parent);
@@ -1122,8 +1123,8 @@ function getItemFilterParams(itemFilter) {
 }
 
 calWcapCalendar.prototype.getItems = function(itemFilter, maxResults, rangeStart, rangeEnd, listener) {
-    rangeStart = ensureDateTime(rangeStart);
-    rangeEnd = ensureDateTime(rangeEnd);
+    rangeStart = cal.ensureDateTime(rangeStart);
+    rangeEnd = cal.ensureDateTime(rangeEnd);
     let zRangeStart = getIcalUTC(rangeStart);
     let zRangeEnd = getIcalUTC(rangeEnd);
 
@@ -1198,7 +1199,7 @@ calWcapCalendar.prototype.getItems = function(itemFilter, maxResults, rangeStart
                                     }
                                     let items = [];
                                     for (let entry of result) {
-                                        let item = createEvent();
+                                        let item = cal.createEvent();
                                         item.id = g_busyPhantomItemUuidPrefix + getIcalUTC(entry.interval.start);
                                         item.calendar = this.superCalendar;
                                         item.title = g_busyItemTitle;

@@ -119,7 +119,7 @@
       <!-- constructor -->
       <constructor><![CDATA[
         Components.utils.import("resource://calendar/modules/calUtils.jsm");
-        this.mDateFormatter = getDateFormatter();
+        this.mDateFormatter = cal.getDateFormatter();
       ]]></constructor>
 
       <!-- methods -->

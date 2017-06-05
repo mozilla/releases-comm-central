@@ -153,7 +153,7 @@ calWcapSession.prototype = {
             m_index: 0,
             getNext: function() {
                 if (this.m_index >= tzids) {
-                    ASSERT(false, "calWcapSession::timezoneIds enumerator!");
+                    cal.ASSERT(false, "calWcapSession::timezoneIds enumerator!");
                     throw Components.results.NS_ERROR_UNEXPECTED;
                 }
                 return tzids[this.m_index++];
@@ -166,9 +166,9 @@ calWcapSession.prototype = {
     getTimezone: function(tzid) {
         switch (tzid) {
             case "floating":
-                return floating();
+                return cal.floating();
             case "UTC":
-                return UTC();
+                return cal.UTC();
             default:
                 if (this.m_serverTimezones) {
                     return this.m_serverTimezones[tzid];
@@ -216,8 +216,8 @@ calWcapSession.prototype = {
 
             if (timedOutSessionId) {
                 log("reconnecting due to session timeout...", this);
-                getFreeBusyService().removeProvider(this);
-                getCalendarSearchService().removeProvider(this);
+                cal.getFreeBusyService().removeProvider(this);
+                cal.getCalendarSearchService().removeProvider(this);
             }
 
             this.getSessionId_(null, // don't couple to parent request parent may be cancelled
@@ -225,8 +225,8 @@ calWcapSession.prototype = {
                                    log("getSessionId_resp_(): " + sessionId, this);
                                    if (!err) {
                                        this.m_sessionId = sessionId;
-                                       getFreeBusyService().addProvider(this);
-                                       getCalendarSearchService().addProvider(this);
+                                       cal.getFreeBusyService().addProvider(this);
+                                       cal.getCalendarSearchService().addProvider(this);
                                    }
 
                                    let queue = this.m_loginQueue;
@@ -387,8 +387,8 @@ calWcapSession.prototype = {
             // WTF.
             url = (this.sessionUri.spec + "logout.wcap?fmt-out=text%2Fxml&id=" + this.m_sessionId);
             this.m_sessionId = null;
-            getFreeBusyService().removeProvider(this);
-            getCalendarSearchService().removeProvider(this);
+            cal.getFreeBusyService().removeProvider(this);
+            cal.getCalendarSearchService().removeProvider(this);
         }
         this.m_credentials = null;
 
@@ -925,8 +925,8 @@ calWcapSession.prototype = {
 
     // calIFreeBusyProvider:
     getFreeBusyIntervals: function(calId, rangeStart, rangeEnd, busyTypes, listener) {
-        rangeStart = ensureDateTime(rangeStart);
-        rangeEnd = ensureDateTime(rangeEnd);
+        rangeStart = cal.ensureDateTime(rangeStart);
+        rangeEnd = cal.ensureDateTime(rangeEnd);
         let zRangeStart = getIcalUTC(rangeStart);
         let zRangeEnd = getIcalUTC(rangeEnd);
 
@@ -1069,8 +1069,8 @@ calWcapSession.prototype = {
             // then remove all subscribed calendars:
             aCalendar = this.belongsTo(aCalendar);
             if (aCalendar && aCalendar.isDefaultCalendar) {
-                getFreeBusyService().removeProvider(this);
-                getCalendarSearchService().removeProvider(this);
+                cal.getFreeBusyService().removeProvider(this);
+                cal.getCalendarSearchService().removeProvider(this);
                 let registeredCalendars = this.getRegisteredCalendars();
                 for (let regCal of registeredCalendars) {
                     try {

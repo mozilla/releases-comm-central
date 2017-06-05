@@ -117,7 +117,7 @@ function initHomeCalendar() {
     let composite = cal.getCompositeCalendar(window);
     let url = cal.makeURL("moz-storage-calendar://");
     let homeCalendar = calMgr.createCalendar("storage", url);
-    homeCalendar.name = calGetString("calendar", "homeCalendarName");
+    homeCalendar.name = cal.calGetString("calendar", "homeCalendarName");
     calMgr.registerCalendar(homeCalendar);
     Preferences.set("calendar.list.sortOrder", homeCalendar.id);
     composite.addCalendar(homeCalendar);
@@ -173,9 +173,9 @@ function calendarListTooltipShowing(event) {
     if (calendar) {
         let currentStatus = calendar.getProperty("currentStatus");
         if (!Components.isSuccessCode(currentStatus)) {
-            tooltipText = calGetString("calendar", "tooltipCalendarDisabled", [calendar.name]);
+            tooltipText = cal.calGetString("calendar", "tooltipCalendarDisabled", [calendar.name]);
         } else if (calendar.readOnly) {
-            tooltipText = calGetString("calendar", "tooltipCalendarReadOnly", [calendar.name]);
+            tooltipText = cal.calGetString("calendar", "tooltipCalendarReadOnly", [calendar.name]);
         }
     }
     setElementValue("calendar-list-tooltip", tooltipText, "label");
@@ -192,7 +192,7 @@ function calendarListSetupContextMenu(event) {
     let col = {};
     let row = {};
     let calendar;
-    let calendars = getCalendarManager().getCalendars({});
+    let calendars = cal.getCalendarManager().getCalendars({});
     let treeNode = document.getElementById("calendar-list-tree-widget");
     let composite = cal.getCompositeCalendar(window);
 
@@ -219,7 +219,7 @@ function calendarListSetupContextMenu(event) {
     document.getElementById("list-calendars-context-menu").contextCalendar = calendar;
 
     // Only enable calendar search if there's actually the chance of finding something:
-    let hasProviders = getCalendarSearchService().getProviders({}).length < 1 && "true";
+    let hasProviders = cal.getCalendarSearchService().getProviders({}).length < 1 && "true";
     setElementValue("list-calendars-context-find", hasProviders, "collapsed");
 
     if (calendar) {

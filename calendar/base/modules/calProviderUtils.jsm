@@ -305,9 +305,6 @@ cal.getEmailIdentityOfCalendar = function(aCalendar, outAccount) {
 cal.fromRFC3339 = function(aStr, aTimezone) {
     // XXX I have not covered leapseconds (matches[8]), this might need to
     // be done. The only reference to leap seconds I found is bug 227329.
-    //
-
-    // Create a DateTime instance (calUtils.js)
     let dateTime = cal.createDateTime();
 
     // Killer regex to parse RFC3339 dates
