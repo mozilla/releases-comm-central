@@ -14,9 +14,9 @@
 "unpack": true
 },
 {
-"version": "sccache rev 7a3847276d05deb564cb84a16b8c551b690aaa3e",
-"size": 1628305,
-"digest": "09c6b9407978a4ffa0638b412cde9517ebbdb9c8e8449f4dc6745f4da5c8025e29b4c99dfa1ddb84623d0dde8a3aac513f73e92fdb3a148e4c9a4e7931907964",
+"version": "sccache rev d3aa1116844b50c03015266d2f48235509fa7deb",
+"size": 1638872,
+"digest": "6c6727b239318187acf7d8bf4ceb7f669a7a680c1cb2bc3ceac8b198cdb562f91e3d046efe3c867c1e7d4c61af8d094c3da3b90ea77034d54677fd0ae44eacce",
 "algorithm": "sha512",
 "visibility": "public",
 "filename": "sccache2.tar.bz2",
@@ -31,11 +31,20 @@
 "unpack": true
 },
 {
+"version": "makecab rev d2bc6797648b7a834782714a55d339d2fd4e58c8",
+"size": 297118,
+"digest": "196ac6a567c85559957dfe511c3d8654d23c94d5603259e19ccafe9d71e0e4ccee63ccc9a778f2699654b786cda54266108b7d4db543d01bb0b42545b4e6ec75",
 "algorithm": "sha512",
 "visibility": "public",
 "filename": "makecab.tar.bz2",
-"unpack": true,
-"digest": "da1f7685e5bc49a5ffbe5b4a3678ac7a58a0e125031726d30e2bacbbffa53d6efb9fd9f00d6dff5b54cff9412a103efa564c2af6f8fccc63082f6939181769f8",
-"size": 296777
+"unpack": true
+},
+{
+"version": "clang 5.0pre/r293859",
+"size": 309009013,
+"digest": "cd3ed31acefd185f441632158dde73538c62bab7ebf2a8ec630985ab345938ec522983721ddb1bead1de22d5ac1571d50a958ae002364d739f2a78c6e7244222",
+"algorithm": "sha512",
+"filename": "clang.tar.bz2",
+"unpack": true
 }
 ]
