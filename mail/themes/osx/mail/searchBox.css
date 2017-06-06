@@ -12,17 +12,25 @@
   margin-top: 3px;
   margin-bottom: 2px;
   -moz-appearance: none;
+  background-clip: padding-box;
+  border: 1px solid hsla(240,5%,5%,.25);
+  border-radius: var(--toolbarbutton-border-radius);
+  box-shadow: 0 1px 4px rgba(0,0,0,.05);
   font: icon;
   height: 24px;
-  box-shadow: 0 1px 0 hsla(0, 0%, 100%, 0.2),
-              inset 0 0 1px hsla(0, 0%, 0%, 0.05),
-              inset 0 1px 2px hsla(0, 0%, 0%, 0.1);
   padding: 1px;
-  border: 1px solid;
-  border-color: hsla(0, 0%, 0%, 0.35) hsla(0, 0%, 0%, 0.25) hsla(0, 0%, 0%, 0.15);
-  border-radius: 10000px;
-  background-image: linear-gradient(hsl(0, 0%, 97%), hsl(0, 0%, 100%));
-  background-clip: padding-box;
+}
+
+.searchBox:hover,
+#view-task-edit-field:hover,
+#unifinder-task-edit-field:hover {
+  border-color: hsla(240,5%,5%,.35);
+  box-shadow: 0 1px 6px rgba(0,0,0,.1), 0 0 1px rgba(0,0,0,.1);
+}
+
+.searchBox[focused="true"] {
+  border-color: -moz-mac-focusring;
+  box-shadow: var(--focus-ring-box-shadow);
 }
 
 /* special treatment because this boxes are on the main toolbars */
@@ -32,40 +40,23 @@
   margin-top: 2px;
   margin-bottom: 3px;
 }
-
-.searchBox[focused] {
-  border-color: -moz-mac-focusring;
-  box-shadow: var(--focus-ring-box-shadow);
+#searchInput:-moz-lwtheme,
+#IMSearchInput:-moz-lwtheme,
+#peopleSearchInput:-moz-lwtheme,
+.remote-gloda-search:-moz-lwtheme {
+  background-color: hsla(0,0%,100%,.8);
+  color: black;
 }
 
-@media (-moz-mac-yosemite-theme) {
-  .searchBox {
-    box-shadow: none;
-    border-color: rgba(0, 0, 0, 0.2);
-    border-radius: 3px;
-    background-image: none;
-  }
-
-  /* special treatment because this boxes are on the main toolbars */
-  #searchInput:not([focused]):not(:-moz-window-inactive),
-  #IMSearchInput:not([focused]):not(:-moz-window-inactive),
-  #peopleSearchInput:not([focused]):not(:-moz-window-inactive),
-  .remote-gloda-search:not([focused]):not(:-moz-window-inactive) {
-    border-color: #fff;
-    box-shadow: 0 1px 0 0 rgba(0, 0, 0, 0.2);
-  }
-
-  .searchBox:-moz-window-inactive {
-    box-shadow: none;
-    border-color: rgba(0, 0, 0, 0.1);
-  }
-}
-
-#searchInput:-moz-lwtheme:not([focused]),
-#IMSearchInput:-moz-lwtheme:not([focused]),
-#peopleSearchInput:-moz-lwtheme:not([focused]),
-.remote-gloda-search:-moz-lwtheme:not([focused]) {
-  opacity: .9;
+#searchInput:-moz-lwtheme:hover,
+#searchInput:-moz-lwtheme[focused="true"],
+#IMSearchInput:-moz-lwtheme:hover,
+#IMSearchInput:-moz-lwtheme[focused="true"],
+#peopleSearchInput:-moz-lwtheme:hover,
+#peopleSearchInput:-moz-lwtheme[focused="true"],
+.remote-gloda-search:-moz-lwtheme:hover,
+.remote-gloda-search:-moz-lwtheme[focused="true"] {
+  background-color: white;
 }
 
 .searchBox[type="search"] {

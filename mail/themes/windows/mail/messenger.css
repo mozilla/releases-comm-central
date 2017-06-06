@@ -16,6 +16,7 @@
   --fgTabBackgroundColor: -moz-dialog;
   --fgTabTextureLWT: var(--fgTabTexture);
 
+  --toolbarbutton-border-radius: 2px;
   --toolbarbutton-hover-background: rgba(0, 0, 0, .1);
   --toolbarbutton-hover-bordercolor: rgba(0, 0, 0, .1);
   --toolbarbutton-header-bordercolor: rgba(0, 0, 0, .1);
@@ -438,7 +439,7 @@ menulist > menupopup:not([type="folder"]) > menuseparator {
   .toolbarbutton-1:not([type="menu-button"]),
   .toolbarbutton-1 > .toolbarbutton-menubutton-button,
   .toolbarbutton-1 > .toolbarbutton-menubutton-dropmarker {
-    border-radius: 2px;
+    border-radius: var(--toolbarbutton-border-radius);
   }
 
   .toolbarbutton-1 > .toolbarbutton-menubutton-button:-moz-locale-dir(ltr),

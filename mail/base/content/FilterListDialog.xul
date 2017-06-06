@@ -5,6 +5,7 @@
 
 <?xml-stylesheet href="chrome://messenger/skin/filterDialog.css" type="text/css"?>
  <?xml-stylesheet href="chrome://messenger/skin/folderMenus.css" type="text/css"?>
+ <?xml-stylesheet href="chrome://messenger/skin/searchBox.css" type="text/css"?>
 
 <!DOCTYPE window [
 <!ENTITY % filtersDTD SYSTEM "chrome://messenger/locale/FilterListDialog.dtd">%filtersDTD;
@@ -45,6 +46,7 @@
                  oncommand="onFilterFolderClick(event.target._folder);"/>
     </menulist>
     <textbox id="searchBox"
+             class="searchBox"
              flex="1"
              type="search"
              oncommand="rebuildFilterList();"

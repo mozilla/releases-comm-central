@@ -70,19 +70,24 @@
 #view-task-edit-field,
 #unifinder-task-edit-field {
   -moz-appearance: none;
-  border: 1px solid ThreeDShadow;
+  background-clip: padding-box;
+  border: 1px solid hsla(240,5%,5%,.25);
+  border-radius: var(--toolbarbutton-border-radius);
+  box-shadow: 0 1px 4px rgba(0,0,0,.05);
   padding-inline-end: 2px;
   padding-inline-start: 2px;
-}
-
-.searchBox,
-#view-task-edit-field,
-#unifinder-task-edit-field {
-  background-clip: padding-box;
   min-height: 24px;
   margin-top: 1px;
   margin-bottom: 1px;
   width: 25em;
+}
+
+@media (-moz-windows-default-theme: 0) {
+  .searchBox:not(:-moz-lwtheme):not([focused="true"]),
+  #view-task-edit-field:not(:-moz-lwtheme):not([focused="true"]),
+  #unifinder-task-edit-field:not(:-moz-lwtheme):not([focused="true"]) {
+    border-color: ThreeDShadow;
+  }
 }
 
 #searchInput,
@@ -92,61 +97,17 @@
   margin-bottom: -1px;
 }
 
-.searchBox[focused],
-#view-task-edit-field[focused],
-#unifinder-task-edit-field[focused] {
+.searchBox:hover,
+#view-task-edit-field:hover,
+#unifinder-task-edit-field:hover {
+  border-color: hsla(240,5%,5%,.35);
+  box-shadow: 0 1px 6px rgba(0,0,0,.1), 0 0 1px rgba(0,0,0,.1);
+}
+
+.searchBox[focused="true"],
+#view-task-edit-field[focused="true"],
+#unifinder-task-edit-field[focused="true"]  {
   border-color: Highlight;
-}
-
-@media (-moz-os-version: windows-win7) and (-moz-windows-default-theme) {
-  .searchBox,
-  #view-task-edit-field,
-  #unifinder-task-edit-field {
-    border-radius: 2px;
-  }
-}
-
-@media (-moz-os-version: windows-win7) and (-moz-windows-default-theme),
-       (-moz-os-version: windows-win8) and (-moz-windows-default-theme) {
-  .searchBox,
-  #view-task-edit-field,
-  #unifinder-task-edit-field {
-    border-color: hsla(210, 54%, 20%, .25) hsla(210, 54%, 20%, .27)
-                  hsla(210, 54%, 20%, .3);
-    box-shadow: 0 1px 0 hsla(0, 0%, 0%, .01) inset,
-                0 1px 0 hsla(0, 0%, 100%, .1);
-  }
-
-  .searchBox:hover,
-  #view-task-edit-field:hover,
-  #unifinder-task-edit-field:hover {
-    border-color: hsla(210, 54%, 20%, .35) hsla(210, 54%, 20%, .37)
-                  hsla(210, 54%, 20%, .4);
-  }
-}
-
-@media (-moz-os-version: windows-win10) and (-moz-windows-default-theme) {
-  .searchBox,
-  #view-task-edit-field,
-  #unifinder-task-edit-field {
-    border-radius: 1px;
-    border-color: hsl(0, 0%, 90%);
-    transition-property: border-color;
-    transition-duration: .1s;
-  }
-
-  .searchBox:hover,
-  #view-task-edit-field:hover,
-  #unifinder-task-edit-field:hover {
-    border-color: hsl(0, 0%, 80%);
-  }
-
-  .searchBox[focused],
-  #view-task-edit-field[focused],
-  #unifinder-task-edit-field[focused] {
-    border-color: Highlight;
-    box-shadow: 0 0 0 1px Highlight inset;
-  }
 }
 
 /* special treatment because this boxes are on the main toolbars */
@@ -161,40 +122,17 @@
 #IMSearchInput:-moz-lwtheme,
 #peopleSearchInput:-moz-lwtheme,
 .remote-gloda-search:-moz-lwtheme {
-  border-color: rgba(0, 0, 0, .32);
+  background-color: hsla(0,0%,100%,.8);
   color: black;
 }
 
 #searchInput:-moz-lwtheme:hover,
+#searchInput:-moz-lwtheme[focused="true"],
 #IMSearchInput:-moz-lwtheme:hover,
+#IMSearchInput:-moz-lwtheme[focused="true"],
 #peopleSearchInput:-moz-lwtheme:hover,
-.remote-gloda-search:-moz-lwtheme:hover {
-  background-color: rgba(255,255,255,.9);
-}
-
-#searchInput:-moz-lwtheme:not([focused]),
-#IMSearchInput:-moz-lwtheme:not([focused]),
-#peopleSearchInput:-moz-lwtheme:not([focused]),
-.remote-gloda-search:-moz-lwtheme:not([focused]) {
-  opacity: .85;
-}
-
-#searchInput:-moz-lwtheme[focused],
-#IMSearchInput:-moz-lwtheme[focused],
-#peopleSearchInput:-moz-lwtheme[focused],
-.remote-gloda-search:-moz-lwtheme[focused] {
-  box-shadow: none;
-  border-color: rgba(0, 0, 0, .32);
+#peopleSearchInput:-moz-lwtheme[focused="true"],
+.remote-gloda-search:-moz-lwtheme:hover,
+.remote-gloda-search:-moz-lwtheme[focused="true"] {
   background-color: white;
-}
-
-@media (-moz-windows-glass) {
-  #tabbar-toolbar #searchInput:not(:-moz-lwtheme):not([focused]) {
-    background-color: rgba(255, 255, 255, .725);
-    border-color: rgba(0, 0, 0, .32);
-  }
-
-  #tabbar-toolbar #searchInput:not(:-moz-lwtheme):not([focused]):hover {
-    background-color: rgba(255, 255, 255, .9);
-  }
 }

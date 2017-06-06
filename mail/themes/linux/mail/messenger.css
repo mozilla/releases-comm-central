@@ -16,6 +16,7 @@
   --fgTabTextureLWT: var(--fgTabTexture);
   --fgTabBackgroundColor: -moz-dialog;
 
+  --toolbarbutton-border-radius: 2px;
   --toolbarbutton-text-color: #222;
   --toolbarbutton-hover-background: rgba(255, 255, 255, .5) linear-gradient(rgba(255, 255, 255, .5), transparent);
   --toolbarbutton-hover-bordercolor: rgba(0, 0, 0, .25);
@@ -124,7 +125,7 @@ toolbox[labelalign="end"] .toolbarbutton-1[type="menu"] {
   margin: 1px;
   padding: 1px 6px;
   border: 1px solid transparent;
-  border-radius: 2px;
+  border-radius: var(--toolbarbutton-border-radius);
   transition-property: background-color, border-color;
   transition-duration: 150ms;
 }

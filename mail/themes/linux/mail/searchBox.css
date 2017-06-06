@@ -45,16 +45,25 @@
 #view-task-edit-field,
 #unifinder-task-edit-field  {
   -moz-appearance: none;
-  padding: 3px;
-  border: 1px solid ThreeDShadow;
-  border-radius: 2px;
   background-clip: padding-box;
+  background-color: moz-field;
+  border: 1px solid ThreeDShadow;
+  border-radius: var(--toolbarbutton-border-radius);
+  box-shadow: 0 1px 4px rgba(0,0,0,.05);
+  padding: 3px;
   margin: 0 3px;
 }
 
-.searchBox[focused],
-#view-task-edit-field[focused],
-#unifinder-task-edit-field[focused]  {
+.searchBox:hover,
+#view-task-edit-field:hover,
+#unifinder-task-edit-field:hover {
+  border-color: hsla(240,5%,5%,.35);
+  box-shadow: 0 1px 6px rgba(0,0,0,.1), 0 0 1px rgba(0,0,0,.1);
+}
+
+.searchBox[focused="true"],
+#view-task-edit-field[focused="true"],
+#unifinder-task-edit-field[focused="true"]  {
   border-color: Highlight;
 }
 
@@ -63,14 +72,17 @@
 #IMSearchInput:-moz-lwtheme,
 #peopleSearchInput:-moz-lwtheme,
 .remote-gloda-search:-moz-lwtheme {
-  background-color: rgba(255, 255, 255, 0.8);
+  background-color: hsla(0,0%,100%,.8);
   color: black;
-  border-color: rgba(0, 0, 0, 0.3);
 }
 
-#searchInput:-moz-lwtheme[focused],
-#IMSearchInput:-moz-lwtheme[focused],
-#peopleSearchInput:-moz-lwtheme[focused],
-.remote-gloda-search:-moz-lwtheme[focused] {
+#searchInput:-moz-lwtheme:hover,
+#searchInput:-moz-lwtheme[focused="true"],
+#IMSearchInput:-moz-lwtheme:hover,
+#IMSearchInput:-moz-lwtheme[focused="true"],
+#peopleSearchInput:-moz-lwtheme:hover,
+#peopleSearchInput:-moz-lwtheme[focused="true"],
+.remote-gloda-search:-moz-lwtheme:hover,
+.remote-gloda-search:-moz-lwtheme[focused="true"] {
   background-color: white;
 }

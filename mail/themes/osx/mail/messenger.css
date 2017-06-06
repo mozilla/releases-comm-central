@@ -16,6 +16,7 @@
   --fgTabTextureLWT: linear-gradient(transparent 2px, rgba(254, 254, 254, .72) 2px, var(--toolbarColorLWT));
   --fgTabBackgroundColor: transparent;
 
+  --toolbarbutton-border-radius: 3px;
   --toolbarbutton-hover-background: hsla(0, 0%, 100%, .1)
                                     linear-gradient(hsla(0, 0%, 100%, .3),
                                     hsla(0, 0%, 100%, .1)) padding-box;
@@ -78,7 +79,7 @@
   background: none;
   box-shadow: none;
   border: 1px transparent solid;
-  border-radius: 3px;
+  border-radius: var(--toolbarbutton-border-radius);
   transition-property: background, border-color;
   transition-duration: 250ms;
 }
@@ -89,7 +90,7 @@
   height: 22px;
   padding: 0 4px;
   border: 1px transparent solid;
-  border-radius: 3px;
+  border-radius: var(--toolbarbutton-border-radius);
   transition-property: background, border-color;
   transition-duration: 250ms;
 }
@@ -403,7 +404,7 @@ notification[value="addon-install-blocked"] > button,
 notification[value="addon-install-failed"] > button,
 notification[value="addon-install-complete"] > button {
   padding: 1px 4px;
-  border-radius: 3px;
+  border-radius: var(--toolbarbutton-border-radius);
   border: 1px solid rgba(60, 73, 97, 0.5);
   box-shadow: inset 0 1px rgba(255, 255, 255, 0.25),
               0 1px rgba(255, 255, 255, 0.25);
