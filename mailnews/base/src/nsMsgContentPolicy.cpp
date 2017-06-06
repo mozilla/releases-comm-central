@@ -25,6 +25,7 @@
 #include "nsMsgUtils.h"
 #include "nsThreadUtils.h"
 #include "mozilla/mailnews/MimeHeaderParser.h"
+#include "nsINntpUrl.h"
 
 static const char kBlockRemoteImages[] = "mailnews.message_display.disable_remote_image";
 static const char kTrustedDomains[] =  "mail.trusteddomains";
@@ -234,35 +235,51 @@ nsMsgContentPolicy::ShouldLoad(uint32_t          aContentType,
   // cause content to be rejected.
   *aDecision = nsIContentPolicy::REJECT_REQUEST;
 
-  // If aContentLocation uses a protocol we handle, we require that the load
-  // comes from the "normalised" principal which exists for imap, mailbox, news
-  // and other protocols where the URL inherits from nsIMsgMessageUrl.
-  // This is basically a "same origin" test. For other protocols we check the
-  // pre-paths.
+  // We want to establish the following:
+  // \--------\  requester    |               |              |
+  // content   \------------\ |               |              |
+  // requested               \| mail message  | news message | http(s)/data etc.
+  // -------------------------+---------------+--------------+------------------
+  // mail message content     | load if same  | don't load   | don't load
+  // mailbox, imap, JsAccount | message (1)   | (2)          | (3)
+  // -------------------------+---------------+--------------+------------------
+  // news message             | don't load (4)| load (5)     | load (6)
+  // -------------------------+---------------+--------------+------------------
+  // http(s)/data, etc.       | (default)     | (default)    | (default)
+  // -------------------------+---------------+--------------+------------------
   nsCOMPtr<nsIMsgMessageUrl> contentURL(do_QueryInterface(aContentLocation));
   if (contentURL) {
-    nsCOMPtr<nsIMsgMessageUrl> requestURL(do_QueryInterface(aRequestingLocation));
-    // If the request URL is not also a message URL, then we don't accept.
-    if (requestURL) {
-      nsCString contentPrincipalSpec, requestPrincipalSpec;
-      contentURL->GetPrincipalSpec(contentPrincipalSpec);
-      requestURL->GetPrincipalSpec(requestPrincipalSpec);
-      if (contentPrincipalSpec.Equals(requestPrincipalSpec))
-        *aDecision = nsIContentPolicy::ACCEPT;
+    nsCOMPtr<nsINntpUrl> contentNntpURL(do_QueryInterface(aContentLocation));
+    if (!contentNntpURL) {
+      // Mail message (mailbox, imap or JsAccount) content requested, for example
+      // a message part, like an image:
+      // To load mail message content the requester must have the same
+      // "normalised" principal. This is basically a "same origin" test, it
+      // protects against cross-loading of mail message content from
+      // other mail or news messages.
+      nsCOMPtr<nsIMsgMessageUrl> requestURL(do_QueryInterface(aRequestingLocation));
+      // If the request URL is not also a message URL, then we don't accept.
+      if (requestURL) {
+        nsCString contentPrincipalSpec, requestPrincipalSpec;
+        nsresult rv1 = contentURL->GetPrincipalSpec(contentPrincipalSpec);
+        nsresult rv2 = requestURL->GetPrincipalSpec(requestPrincipalSpec);
+        if (NS_SUCCEEDED(rv1) && NS_SUCCEEDED(rv2) &&
+            contentPrincipalSpec.Equals(requestPrincipalSpec))
+          *aDecision = nsIContentPolicy::ACCEPT; // (1)
+      }
+      return NS_OK; // (2) and (3)
     }
-    return NS_OK;
-  }
 
-  // Compare pre-paths.
-  nsCOMPtr<nsIMsgMailNewsUrl> mailnewsUrl(do_QueryInterface(aContentLocation));
-  if (mailnewsUrl) {
-    nsCString contentPrePath, requestingPrePath;
-    aContentLocation->GetPrePath(contentPrePath);
-    aRequestingLocation->GetPrePath(requestingPrePath);
-    if (contentPrePath.Equals(requestingPrePath)) {
-      *aDecision = nsIContentPolicy::ACCEPT;
-      return NS_OK;
+    // News message content requested. Don't accept request coming
+    // from a mail message since it would access the news server.
+    nsCOMPtr<nsIMsgMessageUrl> requestURL(do_QueryInterface(aRequestingLocation));
+    if (requestURL) {
+      nsCOMPtr<nsINntpUrl> requestNntpURL(do_QueryInterface(aRequestingLocation));
+      if (!requestNntpURL)
+        return NS_OK; // (4)
     }
+    *aDecision = nsIContentPolicy::ACCEPT; // (5) and (6)
+    return NS_OK;
   }
 
   // If exposed protocol not covered by the test above or protocol that has been
@@ -416,7 +433,7 @@ nsMsgContentPolicy::IsExposedProtocol(nsIURI *aContentLocation)
   // Check some exposed protocols. Not all protocols in the list of
   // network.protocol-handler.expose.* prefs in all-thunderbird.js are
   // admitted purely based on their scheme.
-  // news, snews, nntp, imap, pop and mailbox are checked before the call
+  // news, snews, nntp, imap and mailbox are checked before the call
   // to this function by matching content location and requesting location.
   if (MsgLowerCaseEqualsLiteral(contentScheme, "mailto") ||
       MsgLowerCaseEqualsLiteral(contentScheme, "addbook") ||
