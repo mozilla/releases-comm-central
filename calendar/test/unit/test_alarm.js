@@ -152,9 +152,9 @@ function test_audio_alarm() {
 
     // Test attachments
     let sound = cal.createAttachment();
-    sound.uri = cal.makeURL("file:///sound.wav");
+    sound.uri = Services.io.newURI("file:///sound.wav");
     let sound2 = cal.createAttachment();
-    sound2.uri = cal.makeURL("file:///sound2.wav");
+    sound2.uri = Services.io.newURI("file:///sound2.wav");
 
     // Adding an attachment should work
     alarm.addAttachment(sound);
@@ -227,9 +227,9 @@ function test_custom_alarm() {
 
     // Test for attachments
     let attach1 = cal.createAttachment();
-    attach1.uri = cal.makeURL("file:///example.txt");
+    attach1.uri = Services.io.newURI("file:///example.txt");
     let attach2 = cal.createAttachment();
-    attach2.uri = cal.makeURL("file:///example2.txt");
+    attach2.uri = Services.io.newURI("file:///example2.txt");
 
     alarm.addAttachment(attach1);
     alarm.addAttachment(attach2);

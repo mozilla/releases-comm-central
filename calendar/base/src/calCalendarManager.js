@@ -679,7 +679,7 @@ calCalendarManager.prototype = {
                         continue;
                     }
 
-                    let uri = cal.makeURL(curi);
+                    let uri = Services.io.newURI(curi);
                     let calendar = this.createCalendar(ctype, uri);
                     if (calendar) {
                         calendar.id = id;

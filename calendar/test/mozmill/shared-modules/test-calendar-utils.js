@@ -457,7 +457,7 @@ function createCalendar(controller, name) {
     let defaultView = eid("messengerWindow").getNode().ownerDocument.defaultView;
     let manager = defaultView.cal.getCalendarManager();
 
-    let url = defaultView.cal.makeURL("moz-storage-calendar://");
+    let url = Services.io.newURI("moz-storage-calendar://");
     let calendar = manager.createCalendar("storage", url);
     calendar.name = name;
     manager.registerCalendar(calendar);

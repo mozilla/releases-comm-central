@@ -255,7 +255,7 @@ calDNDBaseObserver.prototype = {
                 if (!droppedUrl)
                     return;
 
-                var url = cal.makeURL(droppedUrl);
+                var url = Services.io.newURI(droppedUrl);
 
                 var localFileInstance = Components.classes["@mozilla.org/file/local;1"]
                                         .createInstance(Components.interfaces.nsILocalFile);

@@ -8,6 +8,7 @@
  */
 
 Components.utils.import("resource://calendar/modules/calUtils.jsm");
+Components.utils.import("resource://gre/modules/Services.jsm");
 
 var gCalendar;
 
@@ -222,7 +223,7 @@ function parseUri(aUri) {
     let uri;
     try {
         // Test if the entered uri can be parsed.
-        uri = cal.makeURL(aUri);
+        uri = Services.io.newURI(aUri);
     } catch (ex) {
         return [errorConstants.INVALID_URI, null];
     }

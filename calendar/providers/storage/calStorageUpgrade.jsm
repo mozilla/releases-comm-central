@@ -1446,7 +1446,7 @@ upgrade.v22 = function(db, version) {
                     let [aData, aFmtType, aEncoding] = mapStorageArgs(storArgs);
 
                     let attach = cal.createAttachment();
-                    attach.uri = cal.makeURL(aData);
+                    attach.uri = Services.io.newURI(aData);
                     attach.formatType = aFmtType;
                     attach.encoding = aEncoding;
                     return attach.icalString;

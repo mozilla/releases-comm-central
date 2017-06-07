@@ -4,6 +4,7 @@
 
 Components.utils.import("resource://calendar/modules/calUtils.jsm");
 Components.utils.import("resource://calendar/modules/calIteratorUtils.jsm");
+Components.utils.import("resource://gre/modules/Services.jsm");
 Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 //
@@ -56,7 +57,7 @@ calAttachment.prototype = {
             // If this is not binary data, its likely an uri. Attempt to convert
             // and throw otherwise.
             try {
-                uri = cal.makeURL(this.mData);
+                uri = Services.io.newURI(this.mData);
             } catch (e) {
                 // Its possible that the uri contains malformed data. Often
                 // callers don't expect an exception here, so we just catch

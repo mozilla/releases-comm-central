@@ -534,7 +534,7 @@ function updateLink() {
     } else {
         let handler, uri;
         try {
-            uri = cal.makeURL(itemUrlString);
+            uri = Services.io.newURI(itemUrlString);
             handler = Services.io.getProtocolHandler(uri.scheme);
         } catch (e) {
             // No protocol handler for the given protocol, or invalid uri

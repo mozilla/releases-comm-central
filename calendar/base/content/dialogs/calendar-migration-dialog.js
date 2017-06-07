@@ -275,7 +275,7 @@ var gDataMigrator = {
                 } else {
                     // Remote subscription
                     // XXX check for duplicates
-                    var url = cal.makeURL(getRDFAttr(node, "remotePath"));
+                    var url = Services.io.newURI(getRDFAttr(node, "remotePath"));
                     calendar = calManager.createCalendar("ics", url);
                 }
                 calendar.name = getRDFAttr(node, "name");
@@ -540,7 +540,7 @@ var gDataMigrator = {
      */
     importICSToStorage: function migrateIcsStorage(icsFile) {
         const uri = 'moz-storage-calendar://';
-        let calendar = cal.getCalendarManager().createCalendar("storage", cal.makeURL(uri));
+        let calendar = cal.getCalendarManager().createCalendar("storage", Services.io.newURI(uri));
         let icsImporter = Components.classes["@mozilla.org/calendar/import;1?type=ics"]
                                     .getService(Components.interfaces.calIImporter);
 

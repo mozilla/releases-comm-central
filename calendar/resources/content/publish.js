@@ -123,7 +123,7 @@ function publishItemArray(aItemArray, aPath, aProgressDialog) {
     let inputStream;
     let storageStream;
 
-    let icsURL = cal.makeURL(aPath);
+    let icsURL = Services.io.newURI(aPath);
 
     let channel = Services.io.newChannelFromURI2(icsURL,
                                                  null,

@@ -115,7 +115,7 @@ function loadCalendarManager() {
 function initHomeCalendar() {
     let calMgr = cal.getCalendarManager();
     let composite = cal.getCompositeCalendar(window);
-    let url = cal.makeURL("moz-storage-calendar://");
+    let url = Services.io.newURI("moz-storage-calendar://");
     let homeCalendar = calMgr.createCalendar("storage", url);
     homeCalendar.name = cal.calGetString("calendar", "homeCalendarName");
     calMgr.registerCalendar(homeCalendar);

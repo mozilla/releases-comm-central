@@ -71,7 +71,7 @@ function getWcapSessionFor(calendar, uri) {
             session.defaultCalendar = defaultCal;
             // eslint-disable-next-line array-bracket-spacing
             let [defaultSpec, ] = splitUriParams(defaultCal.uri);
-            session.uri = cal.makeURL(defaultSpec);
+            session.uri = Services.io.newURI(defaultSpec);
             session.credentials.userId = defaultCal.getProperty("user_id");
             log("default calendar found.", defaultCal);
 

@@ -102,7 +102,7 @@ calAlarmMonitor.prototype = {
                 try {
                     let soundURL = Preferences.get("calendar.alarms.soundURL", null);
                     if (soundURL && soundURL.length > 0) {
-                        soundURL = cal.makeURL(soundURL);
+                        soundURL = Services.io.newURI(soundURL);
                         this.mSound.play(soundURL);
                     } else {
                         this.mSound.beep();

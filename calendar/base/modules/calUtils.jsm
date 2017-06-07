@@ -902,7 +902,7 @@ var cal = {
     },
 
     /**
-     * Wraps an instance. Replaces calInstanceOf from calUtils.js
+     * Wraps an instance, making sure the xpcom wrapped object is used.
      *
      * @param aObj the object under consideration
      * @param aInterface the interface to be wrapped
@@ -918,7 +918,7 @@ var cal = {
      * foo = cal.wrapInstance(foo, Ci.nsIBar);
      * if (foo) {
      *   foo.barMethod();
-     *   }
+     * }
      *
      */
     wrapInstance: function(aObj, aInterface) {

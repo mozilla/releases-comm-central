@@ -531,8 +531,7 @@ calDavCalendar.prototype = {
         // Build the nsIURI by specifying a string with a fully encoded path
         // the end result will be something like this:
         // http://caldav.example.com:8080/some%20path/insert%20string.ics
-        let url = cal.makeURL(baseUri.prePath + this.ensureEncodedPath(decodedPath) + (this.mUriParams || ""));
-        return url;
+        return Services.io.newURI(baseUri.prePath + this.ensureEncodedPath(decodedPath) + (this.mUriParams || ""));
     },
 
     get mLocationPath() {
@@ -2168,7 +2167,7 @@ calDavCalendar.prototype = {
 
         // We want a trailing slash, ensure it.
         let nextNS = aNameSpaceList.pop().replace(/([^\/])$/, "$1/");
-        let requestUri = cal.makeURL(this.calendarUri.prePath + this.ensureEncodedPath(nextNS));
+        let requestUri = Services.io.newURI(this.calendarUri.prePath + this.ensureEncodedPath(nextNS));
 
         if (this.verboseLogging()) {
             cal.LOG("CalDAV: send: " + queryMethod + " " + requestUri.spec + "\n" + queryXml);

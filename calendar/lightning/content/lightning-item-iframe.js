@@ -1959,9 +1959,9 @@ function attachURL() {
                                    null,
                                    { value: 0 })) {
             try {
-                // If something bogus was entered, cal.makeURL may fail.
+                // If something bogus was entered, Services.io.newURI may fail.
                 let attachment = cal.createAttachment();
-                attachment.uri = cal.makeURL(result.value);
+                attachment.uri = Services.io.newURI(result.value);
                 addAttachment(attachment);
             } catch (e) {
                 // TODO We might want to show a warning instead of just not
@@ -2039,7 +2039,7 @@ function attachFile(cloudProvider) {
             // ... and add the attachment.
             let attachment = cal.createAttachment();
             if (cloudProvider) {
-                attachment.uri = cal.makeURL(uriSpec);
+                attachment.uri = Services.io.newURI(uriSpec);
             } else {
                 // TODO read file into attachment
             }
@@ -2059,7 +2059,7 @@ function attachFile(cloudProvider) {
 function lastDirectory(aFileUri) {
     if (aFileUri) {
         // Act similar to a setter, save the passed uri.
-        let uri = cal.makeURL(aFileUri);
+        let uri = Services.io.newURI(aFileUri);
         let file = uri.QueryInterface(Components.interfaces.nsIFileURL).file;
         lastDirectory.mValue = file.parent.QueryInterface(Components.interfaces.nsILocalFile);
     }
@@ -2107,7 +2107,7 @@ function uploadCloudAttachment(attachment, cloudProvider, listItem) {
         onStopRequest: function(aRequest, aContext, aStatusCode) {
             if (Components.isSuccessCode(aStatusCode)) {
                 delete gAttachMap[attachment.hashId];
-                attachment.uri = cal.makeURL(cloudProvider.urlForFile(file));
+                attachment.uri = Services.io.newURI(cloudProvider.urlForFile(file));
                 attachment.setParameter("FILENAME", file.leafName);
                 attachment.setParameter("PROVIDER", cloudProvider.type);
                 listItem.setAttribute("label", file.leafName);
@@ -3485,7 +3485,7 @@ function showOrHideItemURL(aShow, aUrl) {
         let handler;
         let uri;
         try {
-            uri = cal.makeURL(aUrl);
+            uri = Services.io.newURI(aUrl);
             handler = Services.io.getProtocolHandler(uri.scheme);
         } catch (e) {
             // No protocol handler for the given protocol, or invalid uri

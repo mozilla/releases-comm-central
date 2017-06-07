@@ -17,18 +17,16 @@
  *          isCalendarWritable, userCanAddItemsToCalendar,
  *          userCanDeleteItemsFromCalendar, attendeeMatchesAddresses,
  *          userCanRespondToInvitation, openCalendarWizard,
- *          openCalendarProperties, calPrint, makeURL, calRadioGroupSelectItem,
- *          isItemSupported, calInstanceOf, getPrefSafe, setPref,
- *          setLocalizedPref, getLocalizedPref, getPrefCategoriesArray,
+ *          openCalendarProperties, calPrint, calRadioGroupSelectItem,
+ *          isItemSupported, getPrefCategoriesArray,
  *          setPrefCategoriesFromArray, compareItems, calTryWrappedJSObject,
- *          compareArrays, doQueryInterface, setDefaultStartEndHour, LOG, WARN,
- *          ERROR, showError, getContrastingTextColor, calGetEndDateProp,
- *          checkIfInRange, getProgressAtom, sendMailTo, sameDay,
- *          calSetProdidVersion, applyAttributeToMenuChildren,
- *          isPropertyValueSame, getParentNodeOrThis,
- *          getParentNodeOrThisByAttribute, setItemProperty,
- *          calIterateEmailIdentities, compareItemContent, binaryInsert,
- *          getCompositeCalendar, findItemWindow
+ *          compareArrays, setDefaultStartEndHour, LOG, WARN, ERROR, showError,
+ *          getContrastingTextColor, calGetEndDateProp, checkIfInRange,
+ *          getProgressAtom, sendMailTo, sameDay, calSetProdidVersion,
+ *          applyAttributeToMenuChildren, isPropertyValueSame,
+ *          getParentNodeOrThis, getParentNodeOrThisByAttribute,
+ *          setItemProperty, calIterateEmailIdentities, compareItemContent,
+ *          binaryInsert, getCompositeCalendar, findItemWindow
  */
 
 Components.utils.import("resource:///modules/mailServices.js");
@@ -400,17 +398,6 @@ function calPrint(aWindow) {
  */
 
 /**
- * Takes a string and returns an nsIURI
- *
- * @param aUriString  the string of the address to for the spec of the nsIURI
- *
- * @returns  an nsIURI whose spec is aUriString
- */
-function makeURL(aUriString) {
-    return Services.io.newURI(aUriString);
-}
-
-/**
  * Returns a calIDateTime that corresponds to the current time in the user's
  * default timezone.
  */
@@ -455,19 +442,6 @@ function isItemSupported(aItem, aCalendar) {
 }
 
 /**
- * @deprecated This function has been replaced by cal.wrapInstance()
- */
-function calInstanceOf(aObject, aInterface) {
-    if (!calInstanceOf.warningIssued) {
-        cal.WARN("Use of calInstanceOf() is deprecated and will be removed " +
-                 "with the next release. Use cal.wrapInstance() instead.\n" +
-                 cal.STACK(10));
-        calInstanceOf.warningIssued = true;
-    }
-    return (cal.wrapInstance(aObject, aInterface) != null);
-}
-
-/**
  * Determines whether or not the aObject is a calIEvent
  *
  * @param aObject  the object to test
@@ -485,88 +459,6 @@ function isEvent(aObject) {
  */
 function isToDo(aObject) {
     return (cal.wrapInstance(aObject, Components.interfaces.calITodo) != null);
-}
-
-/**
- * Normal get*Pref calls will throw if the pref is undefined.  This function
- * will get a bool, int, or string pref.  If the pref is undefined, it will
- * return aDefault.
- *
- * @param aPrefName   the (full) name of preference to get
- * @param aDefault    (optional) the value to return if the pref is undefined
- */
-function getPrefSafe(aPrefName, aDefault) {
-    if (!getPrefSafe.warningIssued) {
-        cal.WARN("Use of getPrefSafe() is deprecated and will be removed " +
-                 "with the next release. Use Preferences.get() instead.\n" +
-                 cal.STACK(10));
-        getPrefSafe.warningIssued = true;
-    }
-
-    return Preferences.get(aPrefName, aDefault);
-}
-
-/**
- * Wrapper for setting prefs of various types.
- *
- * @param aPrefName   the (full) name of preference to set
- * @param aPrefValue  the value to set the pref to
- * @param aPrefType   (optional) the type of preference to set.
- *                    Valid values are: BOOL, INT, and CHAR
- */
-function setPref(aPrefName, aPrefValue, aPrefType) {
-    if (!setPref.warningIssued) {
-        cal.WARN("Use of setPref() is deprecated and will be removed " +
-                 "with the next release. Use Preferences.set() instead.\n" +
-                 cal.STACK(10));
-        setPref.warningIssued = true;
-    }
-
-    let prefValue = aPrefValue;
-
-    if (aPrefType == "BOOL") {
-        prefValue = Boolean(prefValue);
-    } else if (aPrefType == "INT") {
-        prefValue = Number(prefValue);
-    } else if (aPrefType == "CHAR") {
-        prefValue = String(prefValue);
-    }
-
-    return Preferences.set(aPrefName, prefValue);
-}
-
-/**
- * Helper function to set a localized (complex) pref from a given string
- *
- * @param aPrefName   the (full) name of preference to set
- * @param aString     the string to which the preference value should be set
- */
-function setLocalizedPref(aPrefName, aString) {
-    if (!setLocalizedPref.warningIssued) {
-        cal.WARN("Use of setLocalizedPref() is deprecated and will be removed " +
-                 "with the next release. Use Preferences.set() instead.\n" +
-                 cal.STACK(10));
-        setLocalizedPref.warningIssued = true;
-    }
-
-    return Preferences.set(aPrefName, aString);
-}
-
-/**
- * Like getPrefSafe, except for complex prefs (those used for localized data).
- *
- * @param aPrefName   the (full) name of preference to get
- * @param aDefault    (optional) the value to return if the pref is undefined
- */
-function getLocalizedPref(aPrefName, aDefault) {
-    if (!getLocalizedPref.warningIssued) {
-        cal.WARN("Use of getLocalizedPref() is deprecated and will be removed " +
-                 "with the next release. Use Preferences.get() instead.\n" +
-                 cal.STACK(10));
-        getLocalizedPref.warningIssued = true;
-    }
-
-    return Preferences.get(aPrefName, aDefault);
 }
 
 /**
@@ -805,59 +697,6 @@ function compareArrays(aOne, aTwo, compareFunc) {
         }
     }
     return true;
-}
-
-/**
- * Takes care of all QueryInterface business, including calling the QI of any
- * existing parent prototypes.
- *
- * @deprecated
- * @param aSelf         The object the QueryInterface is being made to
- * @param aProto        Caller's prototype object
- * @param aIID          The IID to check for
- * @param aList         (Optional if aClassInfo is specified) An array of
- *                        interfaces from Components.interfaces
- * @param aClassInfo    (Optional) an Object containing the class info for this
- *                        prototype.
- */
-function doQueryInterface(aSelf, aProto, aIID, aList, aClassInfo) {
-    if (!doQueryInterface.warningIssued) {
-        cal.WARN("Use of doQueryInterface() is deprecated and will be removed " +
-                 "with the next release. Use XPCOMUtils.generateQI() instead.\n" +
-                 cal.STACK(10));
-        doQueryInterface.warningIssued = true;
-    }
-
-    if (aClassInfo) {
-        if (aIID.equals(Components.interfaces.nsIClassInfo)) {
-            return aClassInfo;
-        }
-        if (!aList) {
-            aList = aClassInfo.getInterfaces({});
-        }
-    }
-
-    if (aList) {
-        for (let iid of aList) {
-            if (aIID.equals(iid)) {
-                return aSelf;
-            }
-        }
-    }
-
-    if (aIID.equals(Components.interfaces.nsISupports)) {
-        return aSelf;
-    }
-
-    if (aProto) {
-        let base = aProto.__proto__;
-        if (base && base.QueryInterface) {
-            // Try to QI the base prototype
-            return base.QueryInterface.call(aSelf, aIID);
-        }
-    }
-
-    throw Components.results.NS_ERROR_NO_INTERFACE;
 }
 
 /**
