@@ -5391,7 +5391,7 @@ nsImapMailFolder::OnStopRunningUrl(nsIURI *aUrl, nsresult aExitCode)
 
                 // For pluggable stores that do not support compaction, we need
                 // to delete the messages now.
-                bool supportsCompaction;
+                bool supportsCompaction = false;
                 uint32_t numHdrs = 0;
                 nsCOMPtr<nsIMsgPluggableStore> offlineStore;
                 (void) GetMsgStore(getter_AddRefs(offlineStore));

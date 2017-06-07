@@ -37,7 +37,8 @@ const char sAddrbookProperties[] = "chrome://messenger/locale/addressbook/addres
 enum EAppendType {
   eAppendLine,
   eAppendLabel,
-  eAppendCityStateZip
+  eAppendCityStateZip,
+  eAppendUndefined
 };
 
 struct AppendItem {
@@ -1033,6 +1034,7 @@ nsresult nsAbCardProperty::AppendCityStateZip(const AppendItem &aItem,
 
   item.mColumn = statePropName;
   item.mLabel = "";
+  item.mAppendType = eAppendUndefined;
 
   rv = AppendLine(item, aConv, stateResult);
   NS_ENSURE_SUCCESS(rv,rv);
