@@ -630,7 +630,7 @@ void nsMsgDatabase::RemoveHdrFromCache(nsIMsgDBHdr *hdr, nsMsgKey key)
   if (key == nsMsgKey_None)
     hdr->GetMessageKey(&key);
 
-    m_cachedHeaders.Remove(key);
+  m_cachedHeaders.Remove(key);
 }
 
 bool nsMsgDatabase::GetHdrFromUseCache(nsMsgKey key, nsIMsgDBHdr* *result)
