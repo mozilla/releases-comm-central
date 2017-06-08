@@ -76,8 +76,12 @@ def main(args=None):
   # create the virtualenv and install packages
   env = os.environ.copy()
   env.pop('PYTHONHOME', None)
-  # The --no-site-packages is because of https://github.com/pypa/virtualenv/issues/165
   returncode = call([sys.executable, os.path.join('virtualenv', 'virtualenv.py'),
+                     # Without this, virtualenv.py may attempt to contact the outside
+                     # world and search for or download a newer version of pip,
+                     # setuptools, or wheel. This is bad for security, reproducibility,
+                     # and speed.
+                     "--no-download",
                      destination], env=env)
   if returncode:
     print 'Failure to install virtualenv'
