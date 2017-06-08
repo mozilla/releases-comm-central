@@ -2845,6 +2845,8 @@ function ComposeUnload()
   document.getElementById("msgcomposeWindow").dispatchEvent(
     new Event("compose-window-unload", { bubbles: false, cancelable: false }));
 
+  GetCurrentCommandManager().removeCommandObserver(gMsgEditorCreationObserver,
+                                                   "obs_documentCreated");
   UnloadCommandUpdateHandlers();
 
   // Stop gSpellChecker so personal dictionary is saved
