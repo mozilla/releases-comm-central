@@ -1442,7 +1442,7 @@
               </menupopup>
             </menu>
             <menuitem id="appmenu_getNextNMsgs"
-                      label="&getNextNMsgCmd.label;"
+                      label="&getNextNMsgCmd2.label;"
                       command="cmd_getNextNMessages"/>
             <menuitem id="appmenu_sendUnsentMsgs"
                       label="&sendUnsentCmd.label;"
@@ -2365,7 +2365,8 @@
               <menuseparator/>
             </menupopup>
           </menu>
-          <menuitem id="menu_getnextnmsg" label="&getNextNMsgCmd.label;" accesskey="&getNextNMsgCmd.accesskey;"
+          <menuitem id="menu_getnextnmsg" label="&getNextNMsgCmd2.label;"
+                    accesskey="&getNextNMsgCmd2.accesskey;"
                     command="cmd_getNextNMessages"/>
           <menuitem id="menu_sendunsentmsgs" label="&sendUnsentCmd.label;"
                     accesskey="&sendUnsentCmd.accesskey;" command="cmd_sendUnsentMsgs"/>
