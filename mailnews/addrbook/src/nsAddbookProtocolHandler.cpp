@@ -27,6 +27,7 @@
 #include "nsIAsyncOutputStream.h"
 #include "nsIPipe.h"
 #include "nsIPrincipal.h"
+#include "nsIInputStream.h"
 
 nsAddbookProtocolHandler::nsAddbookProtocolHandler()
 {
@@ -99,10 +100,11 @@ nsAddbookProtocolHandler::GenerateXMLOutputChannel( nsString &aOutput,
   rv = inStr->SetData(utf8String.get(), utf8String.Length());
   NS_ENSURE_SUCCESS(rv, rv);
 
+  nsCOMPtr<nsIInputStream> stream(do_QueryInterface(inStr));
   if (aLoadInfo) {
     return NS_NewInputStreamChannelInternal(_retval,
                                             aURI,
-                                            inStr,
+                                            stream,
                                             NS_LITERAL_CSTRING("text/xml"),
                                             EmptyCString(),
                                             aLoadInfo);
@@ -116,7 +118,7 @@ nsAddbookProtocolHandler::GenerateXMLOutputChannel( nsString &aOutput,
 
   return NS_NewInputStreamChannel(_retval,
                                   aURI,
-                                  inStr,
+                                  stream,
                                   nullPrincipal,
                                   nsILoadInfo::SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
                                   nsIContentPolicy::TYPE_OTHER,
