@@ -77,6 +77,7 @@
 #include "locale.h"
 #include "nsStringStream.h"
 #include "nsIInputStreamPump.h"
+#include "nsIInputStream.h"
 #include "nsIChannel.h"
 
 /* for logging to Error Console */
@@ -1923,8 +1924,10 @@ MsgStreamMsgHeaders(nsIInputStream *aInputStream, nsIStreamListener *aConsumer)
         do_CreateInstance("@mozilla.org/io/string-input-stream;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
   hdrsStream->SetData(msgHeaders.get(), msgHeaders.Length());
+  nsCOMPtr<nsIInputStream> stream(do_QueryInterface(hdrsStream));
+
   nsCOMPtr<nsIInputStreamPump> pump;
-  rv = NS_NewInputStreamPump(getter_AddRefs(pump), hdrsStream);
+  rv = NS_NewInputStreamPump(getter_AddRefs(pump), stream);
   NS_ENSURE_SUCCESS(rv, rv);
 
   return pump->AsyncRead(aConsumer, nullptr);

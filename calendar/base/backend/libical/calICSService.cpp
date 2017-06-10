@@ -1001,7 +1001,7 @@ calIcalComponent::SerializeToICSStream(nsIInputStream **aStreamResult)
     nsresult rv = Serialize(&icalstr);
     NS_ENSURE_SUCCESS(rv, rv);
 
-    nsCOMPtr<nsIStringInputStream> const aStringStream(
+    nsCOMPtr<nsIStringInputStream> aStringStream(
         do_CreateInstance(NS_STRINGINPUTSTREAM_CONTRACTID, &rv));
     NS_ENSURE_SUCCESS(rv, rv);
     // copies the string into the input stream that's handed back.
@@ -1009,8 +1009,7 @@ calIcalComponent::SerializeToICSStream(nsIInputStream **aStreamResult)
     // it's one of libical's ring buffers
     rv = aStringStream->SetData(icalstr, -1);
     NS_ENSURE_SUCCESS(rv, rv);
-    NS_ADDREF(*aStreamResult = aStringStream);
-    return rv;
+    return CallQueryInterface(aStringStream, aStreamResult);
 }
 
 nsresult
