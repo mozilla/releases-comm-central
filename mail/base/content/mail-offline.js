@@ -203,9 +203,10 @@ var MailOfflineMgr = {
    */
   updateOfflineUI: function(aIsOffline)
   {
-    document.getElementById('goOfflineMenuItem').setAttribute("checked", aIsOffline);
-    document.getElementById('appmenu_goOffline').setAttribute("checked", aIsOffline);
-    var statusBarPanel = document.getElementById('offline-status');
+    document.getElementById("goOfflineMenuItem").setAttribute("checked", aIsOffline);
+    if (document.getElementById("appmenu_goOffline"))
+      document.getElementById("appmenu_goOffline").setAttribute("checked", aIsOffline);
+    var statusBarPanel = document.getElementById("offline-status");
     if (aIsOffline)
     {
       statusBarPanel.setAttribute("offline", "true");
