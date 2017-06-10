@@ -38,6 +38,15 @@ class RunTestListOptions(optparse.OptionParser):
                         help = "The path to the symbol files from build_symbols")
         defaults["symbols"] = ""
 
+        self.add_option("--total-chunks",
+                        action = "store", type = "int", dest = "total_chunks",
+                        help="how many chunks to split the tests up into")
+        defaults["total_chunks"] = 1
+        self.add_option("--this-chunk",
+                        action = "store", type = "int", dest = "this_chunk",
+                        help="which chunk to run between 1 and --total-chunks")
+        defaults["this_chunk"] = 1
+
         self.add_option("--plugins-path",
                         action = "store", type = "string", dest = "plugins",
                         help = "The path to the plugins folder for the test profiles")
@@ -70,8 +79,17 @@ totalTestErrors = 0
 totalTestPasses = 0
 totalDirectories = 0
 
-f = open(options.list, 'rt')
-for directory in f:
+tests = open(options.list, "rt").readlines()
+
+if options.total_chunks > 1:
+    tests_per_chunk = float(len(tests)) / options.total_chunks
+    start = int(round((options.this_chunk - 1) * tests_per_chunk))
+    end = int(round(options.this_chunk * tests_per_chunk))
+
+    tests = (t for t in tests[start:end])
+
+
+for directory in tests:
     log.info("INFO | (runtestlist.py) | Running directory: %s",
              directory.rstrip())
     if options.dir != "":
