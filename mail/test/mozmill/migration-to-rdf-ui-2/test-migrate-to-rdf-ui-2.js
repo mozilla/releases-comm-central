@@ -44,7 +44,8 @@ function test_collapsed_removed() {
  * the width defined in localstore.rdf (which, in this case, is 500px).
  * localstore.rdf was converted to XULStore.json in bug 559505
  */
-function test_width_persisted() {
+// Temporarily disabled, see bug 1371898.
+function disabled_width_persisted() {
   const EXPECTED_WIDTH = 500; // Set in localstore.rdf, found in this directory
   let fpbWidth = mc.e("folderPaneBox").width;
   assert_equals(EXPECTED_WIDTH, fpbWidth,
