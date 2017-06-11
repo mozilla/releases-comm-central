@@ -456,6 +456,15 @@ MimeMultipartAlternative_prioritize_part(char *content_type,
     return PRIORITY_TEXT_UNKNOWN;
   }
 
+  // Guard against rogue messages with incorrect MIME structure and
+  // don't show images when plain text is requested.
+  if (!PL_strncasecmp(content_type, "image", 5)) {
+    if (prefer_plaintext)
+      return PRIORITY_UNDISPLAYABLE;
+    else
+      return PRIORITY_LOW;
+  }
+
   return PRIORITY_NORMAL;
 }
 

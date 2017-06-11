@@ -104,6 +104,10 @@ function test_view() {
   // Now some cases that don't work yet.
   // 9) multipart/related with embedded multipart/alternative
   checkSingleMessage("./test-rel-alt.eml",                 "HTML Body",  "HTML Body");
+
+  // Bug 1367156: Rogue message which has an image as the last part.
+  checkSingleMessage("./test-alt-rogue.eml",               "Plain Text", "HTML Body");
+  checkSingleMessage("./test-alt-rogue2.eml",              "Plain Text", "HTML Body");
 }
 
 function teardownModule() {
