@@ -1,0 +1,103 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+basepath = "../.."
+
+locales = [
+    "ca",
+    "cs",
+    "da",
+    "de",
+    "en-GB",
+    "es-AR",
+    "es-ES",
+    "fi",
+    "fr",
+    "gl",
+    "hu",
+    "it",
+    "ja",
+    "ja-JP-mac",
+    "ka",
+    "lt",
+    "nb-NO",
+    "nl",
+    "pl",
+    "pt-BR",
+    "pt-PT",
+    "ro",
+    "ru",
+    "si",
+    "sk",
+    "sv-SE",
+    "tr",
+    "uk",
+    "zh-CN",
+    "zh-TW",
+]
+
+[env]
+    l = "{l10n_base}/{locale}/"
+    mozilla = "mozilla"
+
+
+[[paths]]
+    reference = "suite/locales/en-US/**"
+    l10n = "{l}suite/**"
+
+[[paths]]
+    reference = "editor/ui/locales/en-US/**"
+    l10n = "{l}editor/ui/**"
+
+[[paths]]
+    reference = "{mozilla}/services/sync/locales/en-US/**"
+    l10n = "{l}services/sync/**"
+
+
+[[includes]]
+    path = "{mozilla}/devtools/client/locales/l10n.toml"
+
+[[includes]]
+    path = "{mozilla}/toolkit/locales/l10n.toml"
+
+
+# ignore MOZ_LANGPACK_CONTRIBUTORS
+[[filters]]
+    path = "{l}suite/defines.inc"
+    key = "MOZ_LANGPACK_CONTRIBUTORS"
+    action = "ignore"
+
+# defines.inc and all-l10n.js can be missing completely
+[[filters]]
+    path = [
+        "{l}suite/defines.inc",
+        "{l}suite/suite-l10n.js",
+    ]
+    action = "ignore"
+
+# search prefs don't have the same number for all locales
+[[filters]]
+    path = "{l}suite/chrome/common/region.properties"
+    key = "re:browser\\.search\\.order\\.[1-9].*"
+    action = "ignore"
+
+# content handler prefs don't have the same number for all locales
+[[filters]]
+    path = "{l}suite/chrome/browser/region.properties"
+    key = "re:browser\\.contentHandlers\\.types\\.[0-5].*"
+    action = "ignore"
+
+# search plugins are different per locale, ignore file difference
+[[filters]]
+    path = "{l}suite/searchplugins/*.xml"
+    action = "ignore"
+
+# extra data and help images are optional
+[[filters]]
+    path = [
+        "{l}suite/profile/bookmarks.extra",
+        "{l}suite/profile/panels.extra",
+        "{l}suite/chrome/common/help/images/*.*",
+    ]
+    action = "ignore"

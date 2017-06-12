@@ -23,6 +23,10 @@ WIN32_INSTALLER_IN ?= $(ABS_DIST)/$(PKG_INST_PATH)$(PKG_INST_BASENAME).exe
 RETRIEVE_WINDOWS_INSTALLER = 1
 
 MOZ_LANGPACK_EID=langpack-$(AB_CD)@thunderbird.mozilla.org
+# For Nightly, we know where to get the builds from to do local repacks
+ifdef NIGHTLY_BUILD
+EN_US_BINARY_URL=https://archive.mozilla.org/pub/thunderbird/nightly/latest-comm-central
+endif
 
 L10N_PREF_JS_EXPORTS = $(call MERGE_FILE,all-l10n.js)
 L10N_PREF_JS_EXPORTS_PATH = $(FINAL_TARGET)/$(PREF_DIR)
@@ -178,13 +182,6 @@ ifeq (WINNT, $(OS_ARCH))
 endif
 # Set the permissions that the folders will have in ftp once uploaded
 	chmod -vR 775 $(UPLOAD_DIR)
-
-merge-%:
-ifdef LOCALE_MERGEDIR
-	$(RM) -rf $(LOCALE_MERGEDIR)
-	$(MOZILLA_SRCDIR)/mach compare-locales --merge-dir $(LOCALE_MERGEDIR) --l10n-ini $(srcdir)/l10n.ini $*
-endif
-	@echo
 
 # test target, depends on make package
 # try to repack x-test, with just toolkit/defines.inc being there

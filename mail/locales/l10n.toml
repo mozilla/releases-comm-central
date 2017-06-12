@@ -1,0 +1,122 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+basepath = "../.."
+
+locales = [
+    "af",
+    "ar",
+    "ast",
+    "be",
+    "bg",
+    "bn-BD",
+    "br",
+    "ca",
+    "cs",
+    "cy",
+    "da",
+    "de",
+    "dsb",
+    "el",
+    "en-GB",
+    "es-AR",
+    "es-ES",
+    "et",
+    "eu",
+    "fi",
+    "fr",
+    "fy-NL",
+    "ga-IE",
+    "gd",
+    "gl",
+    "he",
+    "hr",
+    "hsb",
+    "hu",
+    "hy-AM",
+    "id",
+    "is",
+    "it",
+    "ja",
+    "ja-JP-mac",
+    "ka",
+    "kab",
+    "ko",
+    "lt",
+    "nb-NO",
+    "nl",
+    "nn-NO",
+    "pa-IN",
+    "pl",
+    "pt-BR",
+    "pt-PT",
+    "rm",
+    "ro",
+    "ru",
+    "si",
+    "sk",
+    "sl",
+    "sq",
+    "sr",
+    "sv-SE",
+    "ta-LK",
+    "tr",
+    "uk",
+    "vi",
+    "zh-CN",
+    "zh-TW",
+]
+
+[env]
+    l = "{l10n_base}/{locale}/"
+    mozilla = "mozilla"
+
+
+[[paths]]
+    reference = "mail/locales/en-US/**"
+    l10n = "{l}mail/**"
+
+[[paths]]
+    reference = "chat/locales/en-US/**"
+    l10n = "{l}chat/**"
+
+[[paths]]
+    reference = "editor/ui/locales/en-US/**"
+    l10n = "{l}editor/ui/**"
+
+[[paths]]
+    reference = "other-licenses/branding/thunderbird/locales/en-US/**"
+    l10n = "{l}other-licenses/branding/thunderbird/**"
+
+[[includes]]
+    path = "{mozilla}/devtools/client/locales/l10n.toml"
+
+[[includes]]
+    path = "{mozilla}/toolkit/locales/l10n.toml"
+
+
+# ignore MOZ_LANGPACK_CONTRIBUTORS
+[[filters]]
+    path = "{l}mail/defines.inc"
+    key = "MOZ_LANGPACK_CONTRIBUTORS"
+    action = "ignore"
+
+# defines.inc and all-l10n.js can be missing completely
+[[filters]]
+    path = [
+        "{l}mail/defines.inc",
+        "{l}mail/all-l10n.js",
+    ]
+    action = "ignore"
+
+# search prefs don't have the same number for all locales
+[[filters]]
+    path = "{l}mail/chrome/messenger-region/region.properties"
+    key = "re:browser\\.search\\.order\\.[1-9].*"
+    action = "ignore"
+
+# search plugins are different per locale, ignore file difference
+[[filters]]
+    path = "{l}mail/searchplugins/*.xml"
+    action = "ignore"

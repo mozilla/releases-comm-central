@@ -1,0 +1,89 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+basepath = "../.."
+
+locales = [
+    "ar",
+    "bg",
+    "br",
+    "ca",
+    "cs",
+    "cy",
+    "da",
+    "de",
+    "dsb",
+    "en-GB",
+    "es-AR",
+    "es-ES",
+    "et",
+    "eu",
+    "fi",
+    "fr",
+    "fy-NL",
+    "ga-IE",
+    "gd",
+    "gl",
+    "he",
+    "hr",
+    "hsb",
+    "hu",
+    "id",
+    "is",
+    "it",
+    "ja",
+    "ja-JP-mac",
+    "ka",
+    "kab",
+    "ko",
+    "lt",
+    "nb-NO",
+    "nl",
+    "nn-NO",
+    "pa-IN",
+    "pl",
+    "pt-PT",
+    "rm",
+    "ro",
+    "ru",
+    "sk",
+    "sl",
+    "sq",
+    "sv-SE",
+    "tr",
+    "uk",
+    "zh-CN",
+    "zh-TW",
+]
+
+[env]
+    l = "{l10n_base}/{locale}/"
+
+[[paths]]
+    reference = "calendar/locales/en-US/**"
+    l10n = "{l}calendar/**"
+
+# Timezone properties don't have to be translated
+[[filters]]
+    path = "{l}calendar/chrome/calendar/timezones.properties"
+    key = "re:."
+    action = "warning"
+
+# Noun class entries do not have to be translated
+[[filters]]
+    path = "{l}calendar/chrome/calendar/calendar-event-dialog.properties"
+    key = "re:.*Nounclass[1-9].*"
+    action = "ignore"
+
+# most extraction related strings are not required
+[[filters]]
+    path = "{l}calendar/chrome/calendar/calendar-extract.properties"
+    key = "re:.*from\\.today.*"
+    action = "warning"
+
+# Provider for Google Calendar AMO strings do not have to be translated
+[[filters]]
+    path = "{l}calendar/chrome/calendar/providers/gdata/amo.properties"
+    key = "re:."
+    action = "warning"

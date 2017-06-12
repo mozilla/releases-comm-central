@@ -37,6 +37,14 @@ hg-bundle::
 l10n-check::
 	@$(MAKE) -C mail/locales l10n-check
 
+wget-en-US:
+	$(MAKE) -C mail/locales wget-en-US
+
+# make -j1 because dependencies in l10n build targets don't work
+# with parallel builds
+merge-% installers-% langpack-% chrome-%:
+	$(MAKE) -j1 -C mail/locales $@
+
 ifdef ENABLE_TESTS
 include $(topsrcdir)/../mail/testsuite-targets.mk
 endif

@@ -20,14 +20,15 @@ def test(mod, path, entity=None):
   if entity is None:
     # missing and obsolete files
     return ("ignore" if (re.match(r"searchplugins\/.+\.xml", path) or
+                         path == "profile/bookmarks.extra" or
+                         path == "profile/panels.extra" or
+                         path == "defines.inc" or
+                         path == "suite-l10n.js" or
                          re.match(r"chrome\/common\/help\/images\/[A-Za-z-_]+\.[a-z]+", path))
             else "error")
   if path == "defines.inc":
     return ("ignore" if (entity == "MOZ_LANGPACK_CONTRIBUTORS")
             else "error")
-  if path == "profile/bookmarks.extra" or path == "profile/panels.extra":
-    # ignore files for additional bookmarks and panels
-    return "ignore"
 
   if path == "chrome/common/region.properties":
     return ("ignore" if (re.match(r"browser\.search\.order\.[1-9]", entity))
