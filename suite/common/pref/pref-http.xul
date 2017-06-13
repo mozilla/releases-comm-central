@@ -12,18 +12,10 @@
     <preferences>
       <preference id="network.http.version"
                   name="network.http.version"
-                  type="string"
-                  onchange="CheckPipelining();"/>
-      <preference id="network.http.pipelining"
-                  name="network.http.pipelining"
-                  type="bool"/>
+                  type="string"/>
       <preference id="network.http.proxy.version"
                   name="network.http.proxy.version"
-                  type="string"
-                  onchange="CheckPipeliningProxy();"/>
-      <preference id="network.http.proxy.pipelining"
-                  name="network.http.proxy.pipelining"
-                  type="bool"/>
+                  type="string"/>
       <preference id="general.useragent.compatMode.firefox"
                   name="general.useragent.compatMode.firefox"
                   type="bool"/>
@@ -47,13 +39,6 @@
                    label="&prefEnableHTTP11.label;"
                    accesskey="&prefEnableHTTP11.accesskey;"/>
           </radiogroup>
-
-          <separator class="thin"/>
-
-          <checkbox id="enablePipelining"
-                    label="&prefEnablePipelining.label;"
-                    accesskey="&prefEnablePipelining.accesskey;"
-                    preference="network.http.pipelining"/>
         </vbox>
       </groupbox>
 
@@ -69,18 +54,9 @@
                    label="&prefEnableHTTP11.label;"
                    accesskey="&prefEnableHTTP11Proxy.accesskey;"/>
           </radiogroup>
-
-          <separator class="thin"/>
-
-          <checkbox id="enablePipeliningProxy"
-                    label="&prefEnablePipelining.label;"
-                    accesskey="&prefEnablePipeliningProxy.accesskey;"
-                    preference="network.http.proxy.pipelining"/>
         </vbox>
       </groupbox>
     </hbox>
-
-    <description>&prefPipeWarning;</description>
 
     <separator class="thin"/>
 

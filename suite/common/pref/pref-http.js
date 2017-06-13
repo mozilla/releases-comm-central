@@ -7,25 +7,7 @@ var gLightningUAold;
 
 function Startup()
 {
-  CheckPipelining();
-  CheckPipeliningProxy();
   CheckLightningUA();
-}
-
-function CheckPipelining()
-{
-  var prefHTTPVersion = document.getElementById("network.http.version");
-
-  var enabled = prefHTTPVersion.value == "1.1";
-  EnableElementById("enablePipelining", enabled, false);
-}
-
-function CheckPipeliningProxy()
-{
-  var prefHTTPVersion = document.getElementById("network.http.proxy.version");
-
-  var enabled = prefHTTPVersion.value == "1.1";
-  EnableElementById("enablePipeliningProxy", enabled, false);
 }
 
 // Lightning adds a UA token if calendar.useragent.extra is not empty.
