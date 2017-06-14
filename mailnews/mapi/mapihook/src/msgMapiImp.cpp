@@ -167,7 +167,7 @@ STDMETHODIMP CMapiImp::Login(unsigned long aUIArg, LOGIN_PW_TYPE aLogin, LOGIN_P
 
     nsMAPIConfiguration *pConfig = nsMAPIConfiguration::GetMAPIConfiguration();
     if (pConfig != nullptr)
-        nResult = pConfig->RegisterSession(aUIArg, wwc(aLogin), wwc(aPassWord),
+        nResult = pConfig->RegisterSession(aUIArg, char16ptr_t(aLogin), char16ptr_t(aPassWord),
                                            (aFlags & MAPI_FORCE_DOWNLOAD), bNewSession,
                                            &nSession_Id, id_key.get());
     switch (nResult)

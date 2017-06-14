@@ -514,7 +514,7 @@ BOOL nsAbWinHelper::SetPropertyUString(const nsMapiEntry& aObject, ULONG aProper
 
     value.ulPropTag = aPropertyTag ;
     if (PROP_TYPE(aPropertyTag) == PT_UNICODE) {
-        value.Value.lpszW = wwc(const_cast<char16_t *>(aValue)) ;
+        value.Value.lpszW = reinterpret_cast<wchar_t*>(const_cast<char16_t *>(aValue));
     }
     else if (PROP_TYPE(aPropertyTag) == PT_STRING8) {
         alternativeValue = NS_LossyConvertUTF16toASCII(aValue);

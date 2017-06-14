@@ -633,8 +633,8 @@ void ExtractMetaCharset(const wchar_t* body, int bodySz, /*out*/nsCString& chars
   const wchar_t* chset_end = std::find_first_of(chset_pos, eohd_pos, term,
                                                 term_end);
   if (chset_end != eohd_pos)
-    LossyCopyUTF16toASCII(Substring(wwc(const_cast<wchar_t *>(chset_pos)),
-                                    wwc(const_cast<wchar_t *>(chset_end))),
+    LossyCopyUTF16toASCII(Substring(char16ptr_t(chset_pos),
+                                    char16ptr_t(chset_end)),
                                     charset);
 }
 
