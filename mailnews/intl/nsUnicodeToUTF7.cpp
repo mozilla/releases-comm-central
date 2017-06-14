@@ -16,7 +16,6 @@
 // Class nsBasicUTF7Encoder [implementation]
 
 nsBasicUTF7Encoder::nsBasicUTF7Encoder(char aLastChar, char aEscChar)
-: nsEncoderSupport(5)
 {
   mLastChar = aLastChar;
   mEscChar = aEscChar;
@@ -262,7 +261,7 @@ NS_IMETHODIMP nsBasicUTF7Encoder::Reset()
   mEncoding = ENC_DIRECT;
   mEncBits = 0;
   mEncStep = 0;
-  return nsEncoderSupport::Reset();
+  return NS_OK;
 }
 
 //----------------------------------------------------------------------

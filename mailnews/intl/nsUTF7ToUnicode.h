@@ -16,7 +16,7 @@
  * @created         03/Jun/1999
  * @author  Catalin Rotaru [CATA]
  */
-class nsBasicUTF7Decoder : public nsBufferDecoderSupport
+class nsBasicUTF7Decoder
 {
 public:
 
@@ -24,6 +24,8 @@ public:
    * Class constructor.
    */
   nsBasicUTF7Decoder(char aLastChar, char aEscChar);
+  NS_IMETHOD ConvertNoBuff(const char * aSrc, int32_t * aSrcLength,
+      char16_t * aDest, int32_t * aDestLength);
 
 protected:
 
@@ -43,8 +45,6 @@ protected:
   //--------------------------------------------------------------------
   // Subclassing of nsBufferDecoderSupport class [declaration]
 
-  NS_IMETHOD ConvertNoBuff(const char * aSrc, int32_t * aSrcLength,
-      char16_t * aDest, int32_t * aDestLength);
   NS_IMETHOD Reset();
 };
 

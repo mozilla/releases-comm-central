@@ -15,7 +15,7 @@
  * @created         03/Jun/1999
  * @author  Catalin Rotaru [CATA]
  */
-class nsBasicUTF7Encoder : public nsEncoderSupport
+class nsBasicUTF7Encoder
 {
 public:
 
@@ -23,6 +23,9 @@ public:
    * Class constructor.
    */
   nsBasicUTF7Encoder(char aLastChar, char aEscChar);
+  NS_IMETHOD ConvertNoBuffNoErr(const char16_t * aSrc, int32_t * aSrcLength,
+      char * aDest, int32_t * aDestLength);
+  NS_IMETHOD FinishNoBuff(char * aDest, int32_t * aDestLength);
 
 protected:
 
@@ -44,9 +47,6 @@ protected:
   //--------------------------------------------------------------------
   // Subclassing of nsEncoderSupport class [declaration]
 
-  NS_IMETHOD ConvertNoBuffNoErr(const char16_t * aSrc, int32_t * aSrcLength,
-      char * aDest, int32_t * aDestLength);
-  NS_IMETHOD FinishNoBuff(char * aDest, int32_t * aDestLength);
   NS_IMETHOD Reset();
 };
 

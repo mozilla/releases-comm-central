@@ -138,16 +138,9 @@ NS_MSG_BASE void nsMsgI18NConvertRawBytesToUTF8(const nsCString& inString,
                                                 const char* charset,
                                                 nsACString& outString);
 
-// inline forwarders to avoid littering with 'x-imap4-.....'
-inline nsresult CopyUTF16toMUTF7(const nsString &aSrc, nsACString& aDest)
-{
-    return nsMsgI18NConvertFromUnicode("x-imap4-modified-utf7", aSrc, aDest);
-}
-
-inline nsresult CopyMUTF7toUTF16(const nsCString& aSrc, nsAString& aDest)
-{
-    return nsMsgI18NConvertToUnicode("x-imap4-modified-utf7", aSrc, aDest);
-}
+// Convert between UTF-16 and modified UTF-7 used for IMAP.
+NS_MSG_BASE nsresult CopyUTF16toMUTF7(const nsString &aSrc, nsACString& aDest);
+NS_MSG_BASE nsresult CopyMUTF7toUTF16(const nsCString& aSrc, nsAString& aDest);
 
 inline nsresult ConvertToUnicode(const char* charset,
                                  const nsCString &aSrc, nsAString& aDest)

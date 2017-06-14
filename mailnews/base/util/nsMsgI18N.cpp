@@ -26,6 +26,9 @@
 #include "nsComponentManagerUtils.h"
 #include "nsUnicharUtils.h"
 #include "nsIFileStreams.h"
+#include "../../intl/nsMUTF7ToUnicode.h"
+#include "../../intl/nsUnicodeToMUTF7.h"
+
 //
 // International functions necessary for composition
 //
@@ -77,6 +80,43 @@ nsresult nsMsgI18NConvertToUnicode(const char* aCharset,
     return NS_ERROR_UCONV_NOCONV;
   return encoding->DecodeWithoutBOMHandlingAndWithoutReplacement(inString,
                                                                  outString);
+}
+
+nsresult CopyUTF16toMUTF7(const nsString &aSrc, nsACString& aDest)
+{
+  #define IMAP_UTF7_BUF_LENGTH 100
+  nsUnicodeToMUTF7 converter;
+  static char buffer[IMAP_UTF7_BUF_LENGTH];
+  char16_t *in = (char16_t *)aSrc.get();
+  int32_t inLen = aSrc.Length();
+  int32_t outLen;
+  aDest.Truncate();
+  while (inLen > 0) {
+    outLen = IMAP_UTF7_BUF_LENGTH;
+    int32_t remaining = inLen;
+    converter.ConvertNoBuffNoErr(in, &remaining, buffer, &outLen);
+    aDest.Append(buffer, outLen);
+    in += remaining;
+    inLen -= remaining;
+  }
+  outLen = IMAP_UTF7_BUF_LENGTH;
+  converter.FinishNoBuff(buffer, &outLen);
+  if (outLen > 0)
+    aDest.Append(buffer, outLen);
+  return NS_OK;
+}
+
+nsresult CopyMUTF7toUTF16(const nsCString& aSrc, nsAString& aDest)
+{
+  // UTF-7 encoding size cannot be larger than the size in UTF-16.
+  nsMUTF7ToUnicode converter;
+  int32_t inLen = aSrc.Length();
+  int32_t outLen = inLen;
+  aDest.SetCapacity(outLen);
+  converter.ConvertNoBuff(aSrc.get(), &inLen, aDest.BeginWriting(), &outLen);
+  MOZ_ASSERT(inLen == aSrc.Length(), "UTF-7 should not produce a longer output");
+  aDest.SetLength(outLen);
+  return NS_OK;
 }
 
 // Charset used by the file system.

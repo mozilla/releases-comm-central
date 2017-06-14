@@ -12,7 +12,6 @@
 // Class nsBasicUTF7Decoder [implementation]
 
 nsBasicUTF7Decoder::nsBasicUTF7Decoder(char aLastChar, char aEscChar)
-: nsBufferDecoderSupport(1)
 {
   mLastChar = aLastChar;
   mEscChar = aEscChar;
@@ -216,7 +215,7 @@ NS_IMETHODIMP nsBasicUTF7Decoder::Reset()
   mEncoding = ENC_DIRECT;
   mEncBits = 0;
   mEncStep = 0;
-  return nsBufferDecoderSupport::Reset();
+  return NS_OK;
 }
 
 //----------------------------------------------------------------------
