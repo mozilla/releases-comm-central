@@ -46,7 +46,7 @@ nsresult nsMsgI18NConvertFromUnicode(const char* aCharset,
   auto encoding = mozilla::Encoding::ForLabelNoReplacement(nsDependentCString(aCharset));
   if (!encoding) {
     return NS_ERROR_UCONV_NOCONV;
-  } else if (encoding == UTF_16LE_ENCODING || UTF_16BE_ENCODING) {
+  } else if (encoding == UTF_16LE_ENCODING || encoding == UTF_16BE_ENCODING) {
     // We shouldn't ever ship anything in these encodings.
     return NS_ERROR_UCONV_NOCONV;
   }
@@ -69,6 +69,11 @@ nsresult nsMsgI18NConvertToUnicode(const char* aCharset,
 {
   if (inString.IsEmpty()) {
     outString.Truncate();
+    return NS_OK;
+  }
+  else if (!*aCharset) {
+    // Despite its name, it also works for Latin-1.
+    CopyASCIItoUTF16(inString, outString);
     return NS_OK;
   }
   else if (!PL_strcasecmp(aCharset, "UTF-8")) {
