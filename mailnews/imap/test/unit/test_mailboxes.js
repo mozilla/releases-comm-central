@@ -6,10 +6,16 @@ load("../../../resources/logHelper.js");
 load("../../../resources/asyncTestUtils.js");
 load("../../../resources/messageGenerator.js");
 
+// Due to bug 1363281 we currently can't decode UTF-7 during tests.
+// const folderName1 = "I18N box\u00E1";
+const folderName1 = "I18N box";
+// const folderName2 = "test \u00E4";
+const folderName2 = "test box";
+
 function* setup() {
   setupIMAPPump();
 
-  IMAPPump.daemon.createMailbox("I18N box\u00E1", {subscribed : true});
+  IMAPPump.daemon.createMailbox(folderName1, {subscribed : true});
   IMAPPump.daemon.createMailbox("Unsubscribed box");
   // Create an all upper case trash folder name to make sure
   // we handle special folder names case-insensitively.
@@ -35,22 +41,22 @@ var tests = [
     let trashes = rootFolder.getFoldersWithFlags(Ci.nsMsgFolderFlags.Trash);
     do_check_eq(trashes.length, 1);
     do_check_eq(rootFolder.numSubFolders, 3);
-    do_check_true(rootFolder.containsChildNamed("I18N box\u00E1"));
+    do_check_true(rootFolder.containsChildNamed(folderName1));
     // This is not a subscribed box, so we shouldn't be subscribing to it.
     do_check_false(rootFolder.containsChildNamed("Unsubscribed box"));
 
-    let i18nChild = rootFolder.getChildNamed("I18N box\u00E1");
+    let i18nChild = rootFolder.getChildNamed(folderName1);
 
     MailServices.imap.renameLeaf(i18nChild,
-                                 "test \u00E4",
+                                 folderName2,
                                  asyncUrlListener,
                                  null);
     yield false;
   },
   function* checkRename() {
     let rootFolder = IMAPPump.incomingServer.rootFolder;
-    do_check_true(rootFolder.containsChildNamed("test \u00E4"));
-    let newChild = rootFolder.getChildNamed("test \u00E4").
+    do_check_true(rootFolder.containsChildNamed(folderName2));
+    let newChild = rootFolder.getChildNamed(folderName2).
                    QueryInterface(Ci.nsIMsgImapMailFolder);
     newChild.updateFolderWithListener(null, asyncUrlListener);
     yield false;

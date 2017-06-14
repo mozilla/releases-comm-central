@@ -8,11 +8,8 @@
 Components.utils.import("resource:///modules/jsmime.jsm");
 
 var tests = [
-  ["=?UTF-7?Q?+AKM-1?=", "\u00A31"],
-  ["=?UTF-7?Q?+AK?= =?UTF-7?Q?M-1?=", "\u00A31"],
   ["=?UTF-8?Q?=C2?=", ""],
   ["=?NotARealCharset?Q?text?=", "=?NotARealCharset?Q?text?="],
-  ["=?x-mac-croatian?Q?=E9?=", "\u00C8"],
   ["\xC2\xA31", "\u00A31", "ISO-8859-2"],
   ["\xA31", "\u01411", "ISO-8859-2"],
   ["\xC21", "\u00C21", "ISO-8859-1"],
