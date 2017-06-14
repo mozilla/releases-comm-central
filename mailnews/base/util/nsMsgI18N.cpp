@@ -114,7 +114,7 @@ nsresult CopyMUTF7toUTF16(const nsCString& aSrc, nsAString& aDest)
   int32_t outLen = inLen;
   aDest.SetCapacity(outLen);
   converter.ConvertNoBuff(aSrc.get(), &inLen, aDest.BeginWriting(), &outLen);
-  MOZ_ASSERT(inLen == aSrc.Length(), "UTF-7 should not produce a longer output");
+  MOZ_ASSERT(inLen == (int32_t)aSrc.Length(), "UTF-7 should not produce a longer output");
   aDest.SetLength(outLen);
   return NS_OK;
 }
