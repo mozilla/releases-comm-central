@@ -48,8 +48,6 @@ nsImportService::nsImportService() : m_pModules(nullptr)
   IMPORT_LOG0("* nsImport Service Created\n");
 
   m_didDiscovery = false;
-  m_pDecoder = nullptr;
-  m_pEncoder = nullptr;
 
   nsresult rv = nsImportStringBundle::GetStringBundle(IMPORT_MSGS_URL, getter_AddRefs(m_stringBundle));
   if (NS_FAILED(rv))
@@ -59,9 +57,6 @@ nsImportService::nsImportService() : m_pModules(nullptr)
 
 nsImportService::~nsImportService()
 {
-  NS_IF_RELEASE(m_pDecoder);
-  NS_IF_RELEASE(m_pEncoder);
-
   gImportService = nullptr;
 
     if (m_pModules != nullptr)

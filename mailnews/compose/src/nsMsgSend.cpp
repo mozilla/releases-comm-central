@@ -1601,7 +1601,7 @@ nsMsgComposeAndSend::GetBodyFromEditor()
 
   if (aCharset && *aCharset)
   {
-    rv = nsMsgI18NConvertFromUnicode(aCharset, nsDependentString(bodyText), outCString, false, true);
+    rv = nsMsgI18NConvertFromUnicode(aCharset, nsDependentString(bodyText), outCString, true);
     bool isAsciiOnly = NS_IsAscii(outCString.get()) &&
       !nsMsgI18Nstateful_charset(mCompFields->GetCharacterSet());
     if (mCompFields->GetForceMsgEncoding())
@@ -1644,7 +1644,7 @@ nsMsgComposeAndSend::GetBodyFromEditor()
     {
       nsCString newBody;
       rv = nsMsgI18NConvertFromUnicode(aCharset,
-        nsDependentString(origHTMLBody), newBody, false, true);
+        nsDependentString(origHTMLBody), newBody, true);
       if (NS_SUCCEEDED(rv))
       {
         mOriginalHTMLBody = ToNewCString(newBody);

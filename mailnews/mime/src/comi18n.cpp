@@ -62,47 +62,6 @@ MIME_detect_charset(const char *aBuf, int32_t aLength, const char** aCharset)
   return res;
 }
 
-//Get unicode decoder(from inputcharset to unicode) for aInputCharset
-nsresult
-MIME_get_unicode_decoder(const char* aInputCharset, nsIUnicodeDecoder **aDecoder)
-{
-  nsresult res;
-
-  // get charset converters.
-  nsCOMPtr<nsICharsetConverterManager> ccm =
-           do_GetService(NS_CHARSETCONVERTERMANAGER_CONTRACTID, &res);
-  if (NS_SUCCEEDED(res)) {
-
-    // create a decoder (conv to unicode), ok if failed if we do auto detection
-    if (!*aInputCharset || !PL_strcasecmp("us-ascii", aInputCharset))
-      res = ccm->GetUnicodeDecoderRaw("ISO-8859-1", aDecoder);
-    else
-      // GetUnicodeDecoderInternal in order to support UTF-7 messages
-      //
-      // XXX this means that even HTML messages in UTF-7 will be decoded
-      res = ccm->GetUnicodeDecoderInternal(aInputCharset, aDecoder);
-  }
-
-  return res;
-}
-
-//Get unicode encoder(from unicode to inputcharset) for aOutputCharset
-nsresult
-MIME_get_unicode_encoder(const char* aOutputCharset, nsIUnicodeEncoder **aEncoder)
-{
-  nsresult res;
-
-  // get charset converters.
-  nsCOMPtr<nsICharsetConverterManager> ccm =
-           do_GetService(NS_CHARSETCONVERTERMANAGER_CONTRACTID, &res);
-  if (NS_SUCCEEDED(res) && *aOutputCharset) {
-      // create a encoder (conv from unicode)
-      res = ccm->GetUnicodeEncoder(aOutputCharset, aEncoder);
-  }
-
-  return res;
-}
-
 } /* end of extern "C" */
 // END PUBLIC INTERFACE
 

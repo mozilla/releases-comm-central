@@ -304,12 +304,12 @@ nsresult nsAbQueryStringToExpression::CreateBooleanConditionString (
         nsString attributeUCS2;
         nsString valueUCS2;
 
-        rv = textToSubURI->UnEscapeAndConvert("UTF-8",
-            attribute, getter_Copies(attributeUCS2));
+        rv = textToSubURI->UnEscapeAndConvert(nsDependentCString("UTF-8"),
+            nsDependentCString(attribute), attributeUCS2);
         NS_ENSURE_SUCCESS(rv, rv);
 
-        rv = textToSubURI->UnEscapeAndConvert("UTF-8",
-            value, getter_Copies(valueUCS2));
+        rv = textToSubURI->UnEscapeAndConvert(nsDependentCString("UTF-8"),
+            nsDependentCString(value), valueUCS2);
         NS_ENSURE_SUCCESS(rv, rv);
 
         NS_ConvertUTF16toUTF8 attributeUTF8(attributeUCS2);

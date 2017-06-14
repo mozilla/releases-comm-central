@@ -808,135 +808,29 @@ mime_file_type (const char *filename, void *stream_closure)
   return retType;
 }
 
-int ConvertUsingEncoderAndDecoder(const char *stringToUse, int32_t inLength,
-                                  nsIUnicodeEncoder *encoder, nsIUnicodeDecoder *decoder,
-                                  char **pConvertedString, int32_t *outLength)
+int ConvertToUTF8(const char *stringToUse, int32_t inLength,
+                  const char *input_charset,
+                  nsACString& outString)
 {
-  // buffer size 144 =
-  // 72 (default line len for compose)
-  // times 2 (converted byte len might be larger)
-  const int klocalbufsize = 144;
-  // do the conversion
-  char16_t *unichars;
-  int32_t unicharLength;
-  int32_t srcLen = inLength;
-  int32_t dstLength = 0;
-  char *dstPtr;
-  nsresult rv;
+  nsresult rv = NS_OK;
 
-  // use this local buffer if possible
-  char16_t localbuf[klocalbufsize+1];
-  if (inLength > klocalbufsize) {
-    rv = decoder->GetMaxLength(stringToUse, srcLen, &unicharLength);
-    // allocate temporary buffer to hold unicode string
-    unichars = new char16_t[unicharLength];
-  }
-  else {
-    unichars = localbuf;
-    unicharLength = klocalbufsize+1;
-  }
-  if (unichars == nullptr) {
-    rv = NS_ERROR_OUT_OF_MEMORY;
-  }
-  else {
-    // convert to unicode, replacing failed chars with 0xFFFD as in
-    // the methode used in nsXMLHttpRequest::ConvertBodyToText and nsScanner::Append
-    //
-    // We will need several pass to convert the whole string if it has invalid characters
-    // 'totalChars' is where the sum of the number of converted characters will be done
-    // 'dataLen' is the number of character left to convert
-    // 'outLen' is the number of characters still available in the output buffer as input of decoder->Convert
-    // and the number of characters written in it as output.
-    int32_t totalChars = 0,
-            inBufferIndex = 0,
-            outBufferIndex = 0;
-    int32_t dataLen = srcLen,
-            outLen = unicharLength;
-
-    do {
-      int32_t inBufferLength = dataLen;
-      rv = decoder->Convert(&stringToUse[inBufferIndex],
-                           &inBufferLength,
-                           &unichars[outBufferIndex],
-                           &outLen);
-      totalChars += outLen;
-      // Done if conversion successful
-      if (NS_SUCCEEDED(rv))
-          break;
-
-      // We consume one byte, replace it with U+FFFD
-      // and try the conversion again.
-      outBufferIndex += outLen;
-      unichars[outBufferIndex++] = char16_t(0xFFFD);
-      // totalChars is updated here
-      outLen = unicharLength - (++totalChars);
-
-      inBufferIndex += inBufferLength + 1;
-      dataLen -= inBufferLength + 1;
-
-      decoder->Reset();
-
-      // If there is not at least one byte available after the one we
-      // consumed, we're done
-    } while ( dataLen > 0 );
-
-    rv = encoder->GetMaxLength(unichars, totalChars, &dstLength);
-    // allocale an output buffer
-    dstPtr = (char *) PR_Malloc(dstLength + 1);
-    if (dstPtr == nullptr) {
-      rv = NS_ERROR_OUT_OF_MEMORY;
-    }
-    else {
-      int32_t buffLength = dstLength;
-      // convert from unicode
-      rv = encoder->SetOutputErrorBehavior(nsIUnicodeEncoder::kOnError_Replace, nullptr, '?');
-      if (NS_SUCCEEDED(rv)) {
-        rv = encoder->Convert(unichars, &totalChars, dstPtr, &dstLength);
-        if (NS_SUCCEEDED(rv)) {
-          int32_t finLen = buffLength - dstLength;
-          rv = encoder->Finish((char *)(dstPtr+dstLength), &finLen);
-          if (NS_SUCCEEDED(rv)) {
-            dstLength += finLen;
-          }
-          dstPtr[dstLength] = '\0';
-          *pConvertedString = dstPtr;       // set the result string
-          *outLength = dstLength;
-        }
-      }
-    }
-    if (inLength > klocalbufsize)
-      delete [] unichars;
+  auto encoding = mozilla::Encoding::ForLabel(nsDependentCString(input_charset));
+  if (!encoding) {
+    // Assume input is UTF-8.
+    encoding = UTF_8_ENCODING;
   }
 
+  rv = encoding->DecodeWithoutBOMHandling(nsDependentCString(stringToUse, inLength), outString);
   return NS_SUCCEEDED(rv) ? 0 : -1;
 }
 
-
 static int
 mime_convert_charset (const char *input_line, int32_t input_length,
-                      const char *input_charset, const char *output_charset,
-                      char **output_ret, int32_t *output_size_ret,
-                      void *stream_closure, nsIUnicodeDecoder *decoder, nsIUnicodeEncoder *encoder)
+                      const char *input_charset,
+                      nsACString& convertedString,
+                      void *stream_closure)
 {
-  int32_t res = -1;
-  char  *convertedString = NULL;
-  int32_t convertedStringLen = 0;
-  if (encoder && decoder)
-  {
-    res = ConvertUsingEncoderAndDecoder(input_line, input_length, encoder, decoder, &convertedString, &convertedStringLen);
-  }
-  if (res != 0)
-  {
-      *output_ret = 0;
-      *output_size_ret = 0;
-  }
-  else
-  {
-    *output_ret = (char *) convertedString;
-    *output_size_ret = convertedStringLen;
-  }
-
-  return 0;
+  return ConvertToUTF8(input_line, input_length, input_charset, convertedString);
 }
 
 static int

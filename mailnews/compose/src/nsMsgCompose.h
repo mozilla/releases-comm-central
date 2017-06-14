@@ -18,7 +18,6 @@
 #include "nsIAbDirectory.h"
 #include "nsIWebProgressListener.h"
 #include "nsIMimeConverter.h"
-#include "nsIUnicodeDecoder.h"
 #include "nsIMsgFolder.h"
 #include "nsIDOMNode.h"
 #include "mozIDOMWindow.h"
@@ -191,9 +190,7 @@ private:
     nsCOMPtr<nsIMsgDBHdr>       mOrigMsgHdr;
     nsString                    mCiteReference;
     nsCOMPtr<nsIMimeConverter>  mMimeConverter;
-    nsCOMPtr<nsIUnicodeDecoder> mUnicodeDecoder;
     int32_t                     mUnicodeBufferCharacterLength;
-    char16_t*                   mUnicodeConversionBuffer;
     bool                        mQuoteOriginal;
     nsCString                   mHtmlToQuote;
 };

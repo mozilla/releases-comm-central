@@ -65,9 +65,6 @@ struct MimeInlineText {
   char *cbuffer;      /* Buffer used for charset conversion. */
   int32_t cbuffer_size;
 
-  nsCOMPtr<nsIUnicodeDecoder> inputDecoder;
-  nsCOMPtr<nsIUnicodeEncoder> utf8Encoder;
-
   bool    inputAutodetect;
   bool    initializeCharset;
   int32_t lastLineInDam;

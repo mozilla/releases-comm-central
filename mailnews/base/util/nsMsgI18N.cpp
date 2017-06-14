@@ -33,152 +33,50 @@
 nsresult nsMsgI18NConvertFromUnicode(const char* aCharset,
                                      const nsString& inString,
                                      nsACString& outString,
-                                     bool aIsCharsetCanonical,
                                      bool aReportUencNoMapping)
 {
   if (inString.IsEmpty()) {
     outString.Truncate();
     return NS_OK;
   }
-  // Note: This will hide a possible error if the Unicode contains more than one
-  // charset, e.g. Latin1 + Japanese.
-  else if (!aReportUencNoMapping && (!*aCharset ||
-             !PL_strcasecmp(aCharset, "us-ascii") ||
-             !PL_strcasecmp(aCharset, "ISO-8859-1"))) {
-    LossyCopyUTF16toASCII(inString, outString);
-    return NS_OK;
-  }
-  else if (!PL_strcasecmp(aCharset, "UTF-8")) {
-    CopyUTF16toUTF8(inString, outString);
-    return NS_OK;
+
+  auto encoding = mozilla::Encoding::ForLabelNoReplacement(nsDependentCString(aCharset));
+  if (!encoding) {
+    return NS_ERROR_UCONV_NOCONV;
+  } else if (encoding == UTF_16LE_ENCODING || UTF_16BE_ENCODING) {
+    // We shouldn't ever ship anything in these encodings.
+    return NS_ERROR_UCONV_NOCONV;
   }
 
+  const mozilla::Encoding* actualEncoding;
   nsresult rv;
-  nsCOMPtr <nsICharsetConverterManager> ccm = do_GetService(NS_CHARSETCONVERTERMANAGER_CONTRACTID, &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
-  nsCOMPtr <nsIUnicodeEncoder> encoder;
+  mozilla::Tie(rv, actualEncoding) = encoding->Encode(inString, outString);
+  mozilla::Unused << actualEncoding;
 
-  // get an unicode converter
-  if (aIsCharsetCanonical)  // optimize for modified UTF-7 used by IMAP
-    rv = ccm->GetUnicodeEncoderRaw(aCharset, getter_AddRefs(encoder));
-  else
-    rv = ccm->GetUnicodeEncoder(aCharset, getter_AddRefs(encoder));
-  NS_ENSURE_SUCCESS(rv, rv);
-  // Must set behavior to kOnError_Signal if we want to receive the
-  // NS_ERROR_UENC_NOMAPPING signal, should it occur.
-  int32_t behavior = aReportUencNoMapping ? nsIUnicodeEncoder::kOnError_Signal:
-    nsIUnicodeEncoder::kOnError_Replace;
-  rv = encoder->SetOutputErrorBehavior(behavior, nullptr, '?');
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  const char16_t *originalSrcPtr = inString.get();
-  const char16_t *currentSrcPtr = originalSrcPtr;
-  int32_t originalUnicharLength = inString.Length();
-  int32_t srcLength;
-  int32_t dstLength;
-  char localbuf[512+10]; // We have seen cases were the buffer was overrun
-                         // by two (!!) bytes (Bug 1255863).
-                         // So give it ten bytes more for now to avoid a crash.
-  int32_t consumedLen = 0;
-
-  bool mappingFailure = false;
-  outString.Truncate();
-  // convert
-  while (consumedLen < originalUnicharLength) {
-    srcLength = originalUnicharLength - consumedLen;  
-    dstLength = 512;
-    rv = encoder->Convert(currentSrcPtr, &srcLength, localbuf, &dstLength);
-#ifdef DEBUG
-    if (dstLength > 512) {
-      char warning[100];
-      sprintf(warning, "encoder->Convert() returned %d bytes. Limit = 512", dstLength);
-      NS_WARNING(warning);
-    }
-#endif
-    if (rv == NS_ERROR_UENC_NOMAPPING) {
-      mappingFailure = true;
-    }
-    if (NS_FAILED(rv) || dstLength == 0)
-      break;
-    outString.Append(localbuf, dstLength);
-
-    currentSrcPtr += srcLength;
-    consumedLen = currentSrcPtr - originalSrcPtr; // src length used so far
+  if (rv == NS_OK_HAD_REPLACEMENTS) {
+    rv = aReportUencNoMapping ? NS_ERROR_UENC_NOMAPPING : NS_OK;
   }
-  dstLength = 512; // Reset available buffer size.
-  rv = encoder->Finish(localbuf, &dstLength);
-  if (NS_SUCCEEDED(rv)) {
-    if (dstLength)
-      outString.Append(localbuf, dstLength);
-    return !mappingFailure ? rv: NS_ERROR_UENC_NOMAPPING;
-  }
+
   return rv;
 }
 
 nsresult nsMsgI18NConvertToUnicode(const char* aCharset,
                                    const nsCString& inString, 
-                                   nsAString& outString,
-                                   bool aIsCharsetCanonical)
+                                   nsAString& outString)
 {
   if (inString.IsEmpty()) {
     outString.Truncate();
     return NS_OK;
   }
-  else if (!*aCharset || !PL_strcasecmp(aCharset, "us-ascii") ||
-           !PL_strcasecmp(aCharset, "ISO-8859-1")) {
-    // Despite its name, it also works for Latin-1.
-    CopyASCIItoUTF16(inString, outString);
-    return NS_OK;
-  }
   else if (!PL_strcasecmp(aCharset, "UTF-8")) {
-    if (MsgIsUTF8(inString)) {
-      nsAutoString tmp;
-      CopyUTF8toUTF16(inString, tmp);
-      if (!tmp.IsEmpty() && tmp.First() == char16_t(0xFEFF))
-        tmp.Cut(0, 1);
-      outString.Assign(tmp);
-      return NS_OK;
-    }
-    NS_WARNING("Invalid UTF-8 string");
-    return NS_ERROR_UNEXPECTED;
+    return UTF_8_ENCODING->DecodeWithBOMRemoval(inString, outString);
   }
 
-  nsresult rv;
-  nsCOMPtr <nsICharsetConverterManager> ccm = do_GetService(NS_CHARSETCONVERTERMANAGER_CONTRACTID, &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  nsCOMPtr <nsIUnicodeDecoder> decoder;
-
-  // get an unicode converter
-  if (aIsCharsetCanonical)  // optimize for modified UTF-7 used by IMAP
-    rv = ccm->GetUnicodeDecoderRaw(aCharset, getter_AddRefs(decoder));
-  else
-    rv = ccm->GetUnicodeDecoderInternal(aCharset, getter_AddRefs(decoder));
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  const char *originalSrcPtr = inString.get();
-  const char *currentSrcPtr = originalSrcPtr;
-  int32_t originalLength = inString.Length();
-  int32_t srcLength;
-  int32_t dstLength;
-  char16_t localbuf[512];
-  int32_t consumedLen = 0;
-
-  outString.Truncate();
-
-  // convert
-  while (consumedLen < originalLength) {
-    srcLength = originalLength - consumedLen;  
-    dstLength = 512;
-    rv = decoder->Convert(currentSrcPtr, &srcLength, localbuf, &dstLength);
-    if (NS_FAILED(rv) || dstLength == 0)
-      break;
-    outString.Append(localbuf, dstLength);
-
-    currentSrcPtr += srcLength;
-    consumedLen = currentSrcPtr - originalSrcPtr; // src length used so far
-  }
-  return rv;
+  auto encoding = mozilla::Encoding::ForLabelNoReplacement(nsDependentCString(aCharset));
+  if (!encoding)
+    return NS_ERROR_UCONV_NOCONV;
+  return encoding->DecodeWithoutBOMHandlingAndWithoutReplacement(inString,
+                                                                 outString);
 }
 
 // Charset used by the file system.
@@ -266,57 +164,41 @@ bool nsMsgI18Nmultibyte_charset(const char *charset)
   return result;
 }
 
-bool nsMsgI18Ncheck_data_in_charset_range(const char *charset, const char16_t* inString, char **fallbackCharset)
+bool nsMsgI18Ncheck_data_in_charset_range(const char *charset, const char16_t* inString)
 {
   if (!charset || !*charset || !inString || !*inString)
     return true;
 
-  nsresult res;
-  bool result = true;
+  bool res = true;
+
+  auto encoding = mozilla::Encoding::ForLabelNoReplacement(nsDependentCString(charset));
+  if (!encoding)
+    return false;
+  auto encoder = encoding->NewEncoder();
+
+  uint8_t buffer[512];
+  auto src = mozilla::MakeStringSpan(inString);
+  auto dst = mozilla::MakeSpan(buffer);
+  while (true) {
+    uint32_t result;
+    size_t read;
+    size_t written;
+    mozilla::Tie(result, read, written) =
+      encoder->EncodeFromUTF16WithoutReplacement(src, dst, false);
+    if (result == mozilla::kInputEmpty) {
+      // All converted successfully.
+      break;
+    } else if (result != mozilla::kOutputFull) {
+      // Didn't use all the input but the outout isn't full, hence
+      // there was an unencodable character.
+      res = false;
+      break;
+    }
+    src = src.From(read);
+    // dst = dst.From(written); // Just overwrite output since we don't need it.
+  }
   
-  nsCOMPtr <nsICharsetConverterManager> ccm = do_GetService(NS_CHARSETCONVERTERMANAGER_CONTRACTID, &res);
-
-  if (NS_SUCCEEDED(res)) {
-    nsCOMPtr <nsIUnicodeEncoder> encoder;
-
-    // get an unicode converter
-    res = ccm->GetUnicodeEncoderRaw(charset, getter_AddRefs(encoder));
-    if(NS_SUCCEEDED(res)) {
-      const char16_t *originalPtr = inString;
-      int32_t originalLen = NS_strlen(inString);
-      const char16_t *currentSrcPtr = originalPtr;
-      char localBuff[512];
-      int32_t consumedLen = 0;
-      int32_t srcLen;
-      int32_t dstLength;
-
-      // convert from unicode
-      while (consumedLen < originalLen) {
-        srcLen = originalLen - consumedLen;
-        dstLength = 512;
-        res = encoder->Convert(currentSrcPtr, &srcLen, localBuff, &dstLength);
-        if (NS_ERROR_UENC_NOMAPPING == res) {
-          result = false;
-          break;
-        }
-        else if (NS_FAILED(res) || (0 == dstLength))
-          break;
-
-        currentSrcPtr += srcLen;
-        consumedLen = currentSrcPtr - originalPtr; // src length used so far
-      }
-    }    
-  }
-
-  // if the conversion was not successful then try fallback to other charsets
-  if (!result && fallbackCharset) {
-    nsCString convertedString;
-    res = nsMsgI18NConvertFromUnicode(*fallbackCharset,
-      nsDependentString(inString), convertedString, false, true);
-    result = (NS_SUCCEEDED(res) && NS_ERROR_UENC_NOMAPPING != res);
-  }
-
-  return result;
+  return res;
 }
 
 // Simple parser to parse META charset. 

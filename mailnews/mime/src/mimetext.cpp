@@ -177,8 +177,6 @@ MimeInlineText_finalize (MimeObject *obj)
   obj->clazz->parse_eof (obj, false);
   obj->clazz->parse_end (obj, false);
 
-  text->inputDecoder = nullptr;
-  text->utf8Encoder = nullptr;
   PR_FREEIF(text->charset);
 
   /* Should have been freed by parse_eof, but just in case... */
@@ -337,8 +335,7 @@ static int
 MimeInlineText_convert_and_parse_line(char *line, int32_t length, MimeObject *obj)
 {
   int status;
-  char *converted = 0;
-  int32_t converted_len = 0;
+  nsAutoCString converted;
   
   MimeInlineText *text = (MimeInlineText *) obj;
 
@@ -353,7 +350,6 @@ MimeInlineText_convert_and_parse_line(char *line, int32_t length, MimeObject *ob
       {
         //if meta tag specified charset is different from our detected result, use meta charset.
         //but we don't want to redo previous lines
-        MIME_get_unicode_decoder(textHTML->charset, getter_AddRefs(text->inputDecoder));
         PR_FREEIF(text->charset);
         text->charset = strdup(textHTML->charset);
 
@@ -364,51 +360,20 @@ MimeInlineText_convert_and_parse_line(char *line, int32_t length, MimeObject *ob
     }
   }
 
-  //initiate decoder if not yet
-  if (text->inputDecoder == nullptr)
-    MIME_get_unicode_decoder(text->charset, getter_AddRefs(text->inputDecoder));
-  // If no decoder found, use ""UTF-8"", that will map most non-US-ASCII chars as invalid
-  // A pure-ASCII only decoder would be better, but there is none
-  if (text->inputDecoder == nullptr)
-    MIME_get_unicode_decoder("UTF-8", getter_AddRefs(text->inputDecoder));
-  if (text->utf8Encoder == nullptr)
-    MIME_get_unicode_encoder("UTF-8", getter_AddRefs(text->utf8Encoder));
+  status = obj->options->charset_conversion_fn(line, length,
+                       text->charset,
+                       converted,
+                       obj->options->stream_closure);
 
-  bool useInputCharsetConverter = obj->options->m_inputCharsetToUnicodeDecoder && !PL_strcasecmp(text->charset, obj->options->charsetForCachedInputDecoder.get());
-
-  if (useInputCharsetConverter)
-    status = obj->options->charset_conversion_fn(line, length,
-                         text->charset,
-                         "UTF-8",
-                         &converted,
-                         &converted_len,
-                         obj->options->stream_closure, obj->options->m_inputCharsetToUnicodeDecoder,
-                       obj->options->m_unicodeToUTF8Encoder);
-  else
-    status = obj->options->charset_conversion_fn(line, length,
-                         text->charset,
-                       "UTF-8",
-                         &converted,
-                         &converted_len,
-                         obj->options->stream_closure, (nsIUnicodeDecoder*)text->inputDecoder,
-                         (nsIUnicodeEncoder*)text->utf8Encoder);
-
-  if (status < 0)
+  if (status == 0)
   {
-    PR_FREEIF(converted);
-    return status;
-  }
-
-  if (converted)
-  {
-    line = converted;
-    length = converted_len;
+    line = (char *) converted.get();
+    length = converted.Length();
   }
 
   /* Now that the line has been converted, call the subclass's parse_line
    method with the decoded data. */
   status = obj->clazz->parse_line(line, length, obj);
-  PR_FREEIF(converted);
 
   return status;
 }

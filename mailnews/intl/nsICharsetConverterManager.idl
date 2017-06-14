@@ -7,8 +7,7 @@
 #include "nsIAtom.idl"
 
 %{ C++
-#include "nsIUnicodeDecoder.h"
-#include "nsIUnicodeEncoder.h"
+#include "mozilla/Encoding.h"
 
 // XXX change to NS_CHARSETCONVERTERMANAGER_CID
 #define NS_ICHARSETCONVERTERMANAGER_CID \
@@ -17,61 +16,17 @@
 #define NS_CHARSETCONVERTERMANAGER_CONTRACTID "@mozilla.org/charset-converter-manager;1"
 %}
 
-interface nsIUnicodeDecoder;
-interface nsIUnicodeEncoder;
 interface nsIUTF8StringEnumerator;
 
-/**
- * DON'T ADD NEW USES OF THIS INTERFACE TO MOZILLA-CENTRAL. Use 
- * mozilla::dom::EncodingUtils instead.
- *
- * Here Charsets are identified by ASCII strings. Charset alias
- * resolution is provided by default in most methods. "Raw"
- * versions that do not need this resolution are also provided.
- *
- * @deprecated Use mozilla::dom::EncodingUtils in mozilla-central instead.
- * @created         21/Feb/2000
- * @author  Catalin Rotaru [CATA]
- */
 [scriptable, uuid(a0550d46-8d9c-47dd-acc7-c083620dff12)]
 interface nsICharsetConverterManager : nsISupports
 {
-    /**
-     * Get the Unicode decoder for the given charset.
-     * The "Raw" version skips charset alias resolution
-     */
-    [noscript] nsIUnicodeDecoder getUnicodeDecoder(in string charset);
-    [noscript] nsIUnicodeDecoder getUnicodeDecoderRaw(in string charset);
-    [noscript] nsIUnicodeDecoder getUnicodeDecoderInternal(in string charset);
-
-    /**
-     * Get the Unicode encoder for the given charset.
-     * The "Raw" version skips charset alias resolution
-     */
-    [noscript] nsIUnicodeEncoder getUnicodeEncoder(in string charset);
-    [noscript] nsIUnicodeEncoder getUnicodeEncoderRaw(in string charset);
-
     /**
      * A shortcut to calling nsICharsetAlias to do alias resolution
      * @throws if aCharset is an unknown charset.
      */
     ACString getCharsetAlias(in string aCharset);
     
-    /**
-     * Get the complete list of available decoders.
-     */
-    nsIUTF8StringEnumerator getDecoderList();
-
-    /**
-     * Get the complete list of available encoders.
-     */
-    nsIUTF8StringEnumerator getEncoderList();
-
-    /**
-     * Get the complete list of available charset detectors.
-     */
-    nsIUTF8StringEnumerator GetCharsetDetectorList();
-
     /**
      * Get the human-readable name for the given charset.
      * @throws if aCharset is an unknown charset.

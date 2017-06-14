@@ -13,8 +13,7 @@
 #include "nsString.h"
 #include "nsMailHeaders.h"
 #include "nsIMimeStreamConverter.h"
-#include "nsIUnicodeDecoder.h"
-#include "nsIUnicodeEncoder.h"
+#include "mozilla/Encoding.h"
 #include "nsIPrefBranch.h"
 #include "mozITXTToHTMLConv.h"
 #include "nsCOMPtr.h"
@@ -137,9 +136,6 @@ public:
   mozITXTToHTMLConv   *conv;        // For text conversion...
   nsCOMPtr<nsIPrefBranch> m_prefBranch; /* prefBranch-service */
   nsMimeOutputType    format_out;   // The format out type
-  nsCString           charsetForCachedInputDecoder;
-  nsCOMPtr<nsIUnicodeDecoder>   m_inputCharsetToUnicodeDecoder;
-  nsCOMPtr<nsIUnicodeEncoder>   m_unicodeToUTF8Encoder;
 
   const char *url;      /* Base URL for the document.  This string should
                  be freed by the caller, after the parser
@@ -231,7 +227,7 @@ public:
    `input_length' is how long it is.
    `input_charset' is a string representing the charset of this string (as
      specified by MIME headers.)
-   `output_charset' is the charset to which conversion is desired.
+   The conversion is always to UTF-8.
    `output_ret' is where a newly-malloced string is returned.  It may be
      NULL if no translation is needed.
    `output_size_ret' is how long the returned string is (it need not be
@@ -239,9 +235,8 @@ public:
    */
   int (*charset_conversion_fn) (const char *input_line,
                 int32_t input_length, const char *input_charset,
-                const char *output_charset,
-                char **output_ret, int32_t *output_size_ret,
-                void *stream_closure, nsIUnicodeDecoder *decoder, nsIUnicodeEncoder *encoder);
+                nsACString& output_ret,
+                void *stream_closure);
 
   /* If true, perform both charset-conversion and decoding of
    MIME-2 header fields (using RFC-1522 encoding.)

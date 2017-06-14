@@ -38,8 +38,6 @@ private:
     nsImportModuleList * m_pModules;
   bool m_didDiscovery;
   nsCString m_sysCharset;
-  nsIUnicodeDecoder * m_pDecoder;
-  nsIUnicodeEncoder * m_pEncoder;
   nsCOMPtr<nsIStringBundle> m_stringBundle;
 };
 

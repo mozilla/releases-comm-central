@@ -1557,7 +1557,7 @@ nsresult nsNNTPProtocol::SendListSearchesResponse(nsIInputStream * inputStream, 
         if (NS_FAILED(m_nntpServer->GetCharset(charset)) ||
             NS_FAILED(nsMsgI18NConvertToUnicode(charset.get(),
                                                 nsDependentCString(line),
-                                                lineUtf16, true)))
+                                                lineUtf16)))
             CopyUTF8toUTF16(nsDependentCString(line), lineUtf16);
 
     m_nntpServer->AddSearchableGroup(lineUtf16);
@@ -2684,7 +2684,7 @@ nsresult nsNNTPProtocol::ProcessNewsgroups(nsIInputStream * inputStream, uint32_
     if (NS_SUCCEEDED(m_nntpServer->GetCharset(charset)) &&
         NS_SUCCEEDED(nsMsgI18NConvertToUnicode(charset.get(),
                                                nsDependentCString(line),
-                                               lineUtf16, true)))
+                                               lineUtf16)))
       m_nntpServer->SetGroupNeedsExtraInfo(NS_ConvertUTF16toUTF8(lineUtf16),
                                            true);
     else

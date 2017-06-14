@@ -560,11 +560,6 @@ const char* CpToCharset(unsigned int cp)
   return 0; // not found
 }
 
-// We don't use nsMsgI18Ncheck_data_in_charset_range because it returns true
-// even if there's no such charset:
-// 1. result initialized by true and returned if, eg, GetUnicodeEncoderRaw fail
-// 2. it uses GetUnicodeEncoderRaw(), not GetUnicodeEncoder() (to normalize the
-//    charset string) (see nsMsgI18N.cpp)
 // This function returns true only if the unicode (utf-16) text can be
 // losslessly represented in specified charset
 bool CMapiMessage::CheckBodyInCharsetRange(const char* charset)
@@ -573,42 +568,33 @@ bool CMapiMessage::CheckBodyInCharsetRange(const char* charset)
     return true;
   if (!_stricmp(charset, "utf-8"))
     return true;
-  if (!_stricmp(charset, "utf-7"))
-    return true;
 
-  nsresult rv;
-  static nsCOMPtr<nsICharsetConverterManager> ccm =
-    do_GetService(NS_CHARSETCONVERTERMANAGER_CONTRACTID, &rv);
-  NS_ENSURE_SUCCESS(rv, false);
-  nsCOMPtr<nsIUnicodeEncoder> encoder;
+  auto encoding = mozilla::Encoding::ForLabelNoReplacement(nsDependentCString(charset));
+  if (!encoding)
+    return false;
+  auto encoder = encoding->NewEncoder();
 
-  // get an unicode converter
-  rv = ccm->GetUnicodeEncoder(charset, getter_AddRefs(encoder));
-  NS_ENSURE_SUCCESS(rv, false);
-  rv = encoder->SetOutputErrorBehavior(nsIUnicodeEncoder::kOnError_Signal, nullptr, 0);
-  NS_ENSURE_SUCCESS(rv, false);
-
-  const char16_t *txt = m_body.get();
-  int32_t txtLen = m_body.Length();
-  const char16_t *currentSrcPtr = txt;
-  int srcLength;
-  int dstLength;
-  char localbuf[512];
-  int consumedLen = 0;
-
-  // convert
-  while (consumedLen < txtLen) {
-    srcLength = txtLen - consumedLen;
-    dstLength = sizeof(localbuf)/sizeof(localbuf[0]);
-    rv = encoder->Convert(currentSrcPtr, &srcLength, localbuf, &dstLength);
-    if (rv == NS_ERROR_UENC_NOMAPPING)
-      return false;
-    if (NS_FAILED(rv) || dstLength == 0)
+  uint8_t buffer[512];
+  auto src = mozilla::MakeSpan(m_body);
+  auto dst = mozilla::MakeSpan(buffer);
+  while (true) {
+    uint32_t result;
+    size_t read;
+    size_t written;
+    mozilla::Tie(result, read, written) =
+      encoder->EncodeFromUTF16WithoutReplacement(src, dst, false);
+    if (result == mozilla::kInputEmpty) {
+      // All converted successfully.
       break;
-
-    currentSrcPtr += srcLength;
-    consumedLen = currentSrcPtr - txt; // src length used so far
+    } else if (result != mozilla::kOutputFull) {
+      // Didn't use all the input but the outout isn't full, hence
+      // there was an unencodable character.
+      return false;
+    }
+    src = src.From(read);
+    // dst = dst.From(written); // Just overwrite output since we don't need it.
   }
+
   return true;
 }
 

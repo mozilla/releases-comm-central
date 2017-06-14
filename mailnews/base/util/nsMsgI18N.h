@@ -52,8 +52,7 @@ NS_MSG_BASE bool nsMsgI18Nmultibyte_charset(const char *charset);
  * @return            True if the string can be converted within the charset range.
  *                    False if one or more characters cannot be converted to the target charset.
  */
-NS_MSG_BASE bool      nsMsgI18Ncheck_data_in_charset_range(const char *charset, const char16_t* inString,
-                                                           char **fallbackCharset=nullptr);
+NS_MSG_BASE bool      nsMsgI18Ncheck_data_in_charset_range(const char *charset, const char16_t* inString);
 
 /**
  * Return charset name of file system (OS dependent).
@@ -75,7 +74,6 @@ NS_MSG_BASE void nsMsgI18NTextFileCharset(nsACString& aCharset);
  * @param charset     [IN] Charset name.
  * @param inString    [IN] Unicode string to convert.
  * @param outString   [OUT] Converted output string.
- * @param aIsCharsetCanonical  [IN] Whether the charset is canonical or not.
  * @param aReportUencNoMapping [IN] Set encoder to report (instead of using
  *                                  replacement char on errors). Set to true
  *                                  to receive NS_ERROR_UENC_NOMAPPING when
@@ -86,8 +84,6 @@ NS_MSG_BASE void nsMsgI18NTextFileCharset(nsACString& aCharset);
 NS_MSG_BASE nsresult nsMsgI18NConvertFromUnicode(const char* aCharset,
                                                  const nsString& inString,
                                                  nsACString& outString,
-                                                 bool aIsCharsetCanonical =
-                                                        false,
                                                  bool reportUencNoMapping =
                                                         false);
 /**
@@ -100,9 +96,7 @@ NS_MSG_BASE nsresult nsMsgI18NConvertFromUnicode(const char* aCharset,
  */
 NS_MSG_BASE nsresult nsMsgI18NConvertToUnicode(const char* aCharset,
                                                const nsCString& inString,
-                                               nsAString& outString,
-                                               bool aIsCharsetCanonical =
-                                                      false);
+                                               nsAString& outString);
 /**
  * Parse for META charset.
  *
@@ -147,14 +141,12 @@ NS_MSG_BASE void nsMsgI18NConvertRawBytesToUTF8(const nsCString& inString,
 // inline forwarders to avoid littering with 'x-imap4-.....'
 inline nsresult CopyUTF16toMUTF7(const nsString &aSrc, nsACString& aDest)
 {
-    return nsMsgI18NConvertFromUnicode("x-imap4-modified-utf7", aSrc,
-                                       aDest, true);
+    return nsMsgI18NConvertFromUnicode("x-imap4-modified-utf7", aSrc, aDest);
 }
 
 inline nsresult CopyMUTF7toUTF16(const nsCString& aSrc, nsAString& aDest)
 {
-    return nsMsgI18NConvertToUnicode("x-imap4-modified-utf7", aSrc,
-                                     aDest, true);
+    return nsMsgI18NConvertToUnicode("x-imap4-modified-utf7", aSrc, aDest);
 }
 
 inline nsresult ConvertToUnicode(const char* charset,

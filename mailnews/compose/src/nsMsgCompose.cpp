@@ -1332,7 +1332,7 @@ NS_IMETHODIMP nsMsgCompose::SendMsg(MSG_DeliverMode deliverMode, nsIMsgIdentity 
     // Convert body to mail charset
     nsCString outCString;
     rv = nsMsgI18NConvertFromUnicode(m_compFields->GetCharacterSet(),
-      msgBody, outCString, false, true);
+      msgBody, outCString, true);
     bool isAsciiOnly = NS_IsAscii(outCString.get()) &&
       !nsMsgI18Nstateful_charset(m_compFields->GetCharacterSet());
     if (m_compFields->GetForceMsgEncoding())
@@ -2296,8 +2296,6 @@ NS_IMETHODIMP nsMsgCompose::GetOriginalMsgURI(char ** originalMsgURI)
 ////////////////////////////////////////////////////////////////////////////////////
 QuotingOutputStreamListener::~QuotingOutputStreamListener()
 {
-  if (mUnicodeConversionBuffer)
-    free(mUnicodeConversionBuffer);
 }
 
 QuotingOutputStreamListener::QuotingOutputStreamListener(const char * originalMsgURI,
@@ -2316,7 +2314,6 @@ QuotingOutputStreamListener::QuotingOutputStreamListener(const char * originalMs
   mIdentity = identity;
   mOrigMsgHdr = originalMsgHdr;
   mUnicodeBufferCharacterLength = 0;
-  mUnicodeConversionBuffer = nullptr;
   mQuoteOriginal = quoteOriginal;
   mHtmlToQuote = htmlToQuote;
   mQuote = msgQuote;
@@ -3052,92 +3049,12 @@ NS_IMETHODIMP QuotingOutputStreamListener::OnDataAvailable(nsIRequest *request,
 NS_IMETHODIMP QuotingOutputStreamListener::AppendToMsgBody(const nsCString &inStr)
 {
   nsresult rv = NS_OK;
-
-  if (!inStr.IsEmpty())
-  {
-    // Create unicode decoder.
-    if (!mUnicodeDecoder)
-    {
-      nsCOMPtr<nsICharsetConverterManager> ccm =
-               do_GetService(NS_CHARSETCONVERTERMANAGER_CONTRACTID, &rv);
-      if (NS_SUCCEEDED(rv))
-      {
-        rv = ccm->GetUnicodeDecoderRaw("UTF-8",
-                                       getter_AddRefs(mUnicodeDecoder));
-      }
-    }
-
+  if (!inStr.IsEmpty()) {
+    nsAutoString tmp;
+    rv = UTF_8_ENCODING->DecodeWithoutBOMHandling(inStr, tmp);
     if (NS_SUCCEEDED(rv))
-    {
-      int32_t unicharLength;
-      int32_t inputLength = inStr.Length();
-      rv = mUnicodeDecoder->GetMaxLength(inStr.get(), inStr.Length(), &unicharLength);
-      if (NS_SUCCEEDED(rv))
-      {
-        // Use this local buffer if possible.
-        const int32_t kLocalBufSize = 4096;
-        char16_t localBuf[kLocalBufSize];
-        char16_t *unichars = localBuf;
-
-        if (unicharLength > kLocalBufSize)
-        {
-          // Otherwise, use the buffer of the class.
-          if (!mUnicodeConversionBuffer ||
-              unicharLength > mUnicodeBufferCharacterLength)
-          {
-            if (mUnicodeConversionBuffer)
-              free(mUnicodeConversionBuffer);
-            mUnicodeConversionBuffer = (char16_t *) moz_xmalloc(unicharLength * sizeof(char16_t));
-            if (!mUnicodeConversionBuffer)
-            {
-              mUnicodeBufferCharacterLength = 0;
-              return NS_ERROR_OUT_OF_MEMORY;
-            }
-            mUnicodeBufferCharacterLength = unicharLength;
-          }
-          unichars = mUnicodeConversionBuffer;
-        }
-
-        int32_t consumedInputLength = 0;
-        int32_t originalInputLength = inputLength;
-        const char *inputBuffer = inStr.get();
-        int32_t convertedOutputLength = 0;
-        int32_t outputBufferLength = unicharLength;
-        char16_t *originalOutputBuffer = unichars;
-        do
-        {
-          rv = mUnicodeDecoder->Convert(inputBuffer, &inputLength, unichars, &unicharLength);
-          if (NS_SUCCEEDED(rv))
-          {
-            convertedOutputLength += unicharLength;
-            break;
-          }
-
-          // if we failed, we consume one byte, replace it with a question mark
-          // and try the conversion again.
-          unichars += unicharLength;
-          *unichars = (char16_t)'?';
-          unichars++;
-          unicharLength++;
-
-          mUnicodeDecoder->Reset();
-
-          inputBuffer += ++inputLength;
-          consumedInputLength += inputLength;
-          inputLength = originalInputLength - consumedInputLength;  // update input length to convert
-          convertedOutputLength += unicharLength;
-          unicharLength = outputBufferLength - unicharLength;       // update output length
-
-        } while (NS_FAILED(rv) &&
-                 (originalInputLength > consumedInputLength) &&
-                 (outputBufferLength > convertedOutputLength));
-
-        if (convertedOutputLength > 0)
-          mMsgBody.Append(originalOutputBuffer, convertedOutputLength);
-      }
-    }
+      mMsgBody.Append(tmp);
   }
-
   return rv;
 }
 

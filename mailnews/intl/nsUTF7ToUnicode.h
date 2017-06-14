@@ -6,7 +6,6 @@
 #ifndef nsUTF7ToUnicode_h___
 #define nsUTF7ToUnicode_h___
 
-#include "nsUCSupport.h"
 
 //----------------------------------------------------------------------
 // Class nsBasicUTF7Decoder [declaration]

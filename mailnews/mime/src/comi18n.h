@@ -6,10 +6,7 @@
 #define _COMI18N_LOADED_H_
 
 #include "msgCore.h"
-
-class nsIUnicodeDecoder;
-class nsIUnicodeEncoder;
-
+#include "mozilla/Encoding.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -31,8 +28,6 @@ void MIME_DecodeMimeHeader(const char *header, const char *default_charset,
                            nsACString &result);
 
 nsresult MIME_detect_charset(const char *aBuf, int32_t aLength, const char** aCharset);
-nsresult MIME_get_unicode_decoder(const char* aInputCharset, nsIUnicodeDecoder **aDecoder);
-nsresult MIME_get_unicode_encoder(const char* aOutputCharset, nsIUnicodeEncoder **aEncoder);
 
 #ifdef __cplusplus
 } /* extern "C" */
