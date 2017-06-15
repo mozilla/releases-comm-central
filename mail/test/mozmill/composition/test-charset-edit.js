@@ -126,20 +126,26 @@ function test_wrong_reply_charset() {
 
 /**
  * Test that replying to bad charsets don't screw up the existing text.
+ * UTF-16 can be decoded but is not a valid reply charset.
  */
 function test_no_mojibake() {
   let folder = draftsFolder;
-  let nonASCII = "ケツァルコアトル";
-  let UTF7 = "+MLEwxDChMOswszCiMMgw6w-";
+  let nonASCII = "€€€"; // U+20AC
+  let UTF16    = "\xAC\x20\xAC\x20\xAC\x20";
   let msg0 = create_message({
-    bodyPart: new SyntheticPartLeaf(UTF7, {charset: "utf-7"})
+    bodyPart: new SyntheticPartLeaf(UTF16, {charset: "UTF-16LE"})
   });
   add_message_to_folder(folder, msg0);
   be_in_folder(folder);
   let msg = select_click_row(0);
   assert_selected_and_displayed(mc, msg);
-  assert_equals(getMsgHeaders(msg).get("").charset, "utf-7");
-  assert_equals(getMsgHeaders(msg, true).get("").trim(), nonASCII);
+  assert_equals(getMsgHeaders(msg).get("").charset, "UTF-16LE");
+  // We need to check for includes() here since the message
+  // also contains CRLF, which is interepreted as invalid UTF-16.
+  // UTF-16 isn't the perfect charset for this test, but after UTF-7 is no
+  // longer supported, it's the only one which can be decoded but is invalid
+  // to use.
+  assert_true(getMsgHeaders(msg, true).get("").includes(nonASCII));
 
   let rwc = open_compose_with_reply();
   // Ctrl+S = save as draft.
@@ -147,11 +153,12 @@ function test_no_mojibake() {
   close_compose_window(rwc);
 
   let draftMsg = select_click_row(1);
-  assert_equals(getMsgHeaders(draftMsg).get("").charset, "UTF-8");
+  assert_equals(getMsgHeaders(draftMsg).get("").charset.toUpperCase(), "UTF-8");
   let text = getMsgHeaders(draftMsg, true).get("");
+  // Delete message first before throwing so subsequent tests are not affected.
+  press_delete(mc);
   if (!text.includes(nonASCII))
     throw new Error("Expected to find " + nonASCII + " in " + text);
-  press_delete(mc); // Delete message
 
   // Edit the original message. Charset should be UTF-8 now.
   msg = select_click_row(0);
@@ -165,8 +172,8 @@ function test_no_mojibake() {
   rwc.keypress(null, "s", {shiftKey: false, accelKey: true});
   close_compose_window(rwc);
   msg = select_click_row(0);
-  assert_equals(getMsgHeaders(msg).get("").charset, "UTF-8");
-  assert_equals(getMsgHeaders(msg, true).get("").trim(), nonASCII);
+  assert_equals(getMsgHeaders(msg).get("").charset.toUpperCase(), "UTF-8");
+  assert_true(getMsgHeaders(msg, true).get("").includes(nonASCII));
   press_delete(mc); // Delete message
 }
 
