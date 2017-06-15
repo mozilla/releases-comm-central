@@ -820,7 +820,7 @@ int ConvertToUTF8(const char *stringToUse, int32_t inLength,
     encoding = UTF_8_ENCODING;
   }
 
-  rv = encoding->DecodeWithoutBOMHandling(nsDependentCString(stringToUse, inLength), outString);
+  rv = encoding->DecodeWithoutBOMHandling(nsDependentCSubstring(stringToUse, inLength), outString);
   return NS_SUCCEEDED(rv) ? 0 : -1;
 }
 
