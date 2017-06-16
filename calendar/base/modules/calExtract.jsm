@@ -1281,7 +1281,7 @@ Extractor.prototype = {
 
         // past dates are kept for containment checks
         if (this.isPastDate(dateGuess, this.now)) {
-            guess.relation = "notadatetime";
+            dateGuess.relation = "notadatetime";
         }
         this.collected.push(dateGuess);
     },
