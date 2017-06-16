@@ -88,7 +88,7 @@ var WinJumpList = {
       else
         throw "Unknown jumplist item type: " + currentItem.type;
 
-      items.appendElement(item, false);
+      items.appendElement(item);
     }
 
     try {

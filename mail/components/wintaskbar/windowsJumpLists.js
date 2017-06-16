@@ -5,12 +5,13 @@
 
 var EXPORTED_SYMBOLS = ["WinTaskbarJumpList"];
 
-Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
-Components.utils.import("resource://gre/modules/Services.jsm");
-Components.utils.import("resource:///modules/iteratorUtils.jsm");
+const Cc = Components.classes;
+const Ci = Components.interfaces;
+const Cu = Components.utils;
 
-var Cc = Components.classes;
-var Ci = Components.interfaces;
+Cu.import("resource://gre/modules/XPCOMUtils.jsm");
+Cu.import("resource://gre/modules/Services.jsm");
+Cu.import("resource:///modules/iteratorUtils.jsm");
 
 // Prefs
 var PREF_TASKBAR_BRANCH    = "mail.taskbar.lists.";
@@ -25,10 +26,6 @@ XPCOMUtils.defineLazyGetter(this, "_stringBundle", function () {
 XPCOMUtils.defineLazyServiceGetter(this, "_taskbarService",
                                    "@mozilla.org/windows-taskbar;1",
                                    "nsIWinTaskbar");
-
-XPCOMUtils.defineLazyServiceGetter(this, "_winShellService",
-                                   "@mozilla.org/mail/shell-service;1",
-                                   "nsIWindowsShellService");
 
 XPCOMUtils.defineLazyGetter(this, "_prefs", function() {
   return Services.prefs.getBranch(PREF_TASKBAR_BRANCH);
@@ -71,16 +68,6 @@ var WinTaskbarJumpList = {
     if (!this._initTaskbar())
       return;
 
-    // Win shell shortcut maintenance. If we've gone through an update,
-    // this will update any pinned taskbar shortcuts. Not specific to
-    // jump lists, but this was a convienent place to call it.
-    try {
-      // dev builds may not have helper.exe, ignore failures.
-      this._shortcutMaintenance();
-    }
-    catch (ex) {
-    }
-
     // Store our task list config data
     this._tasks = gTasks;
 
@@ -106,10 +93,6 @@ var WinTaskbarJumpList = {
     this._shuttingDown = true;
 
     this._free();
-  },
-
-  _shortcutMaintenance: function WTBJL__maintenace() {
-    _winShellService.shortcutMaintenance();
   },
 
   /**
@@ -223,8 +206,8 @@ var WinTaskbarJumpList = {
   },
 
   _initObs: function WTBJL__initObs() {
-    Services.obs.addObserver(this, "profile-before-change", false);
-    _prefs.addObserver("", this, false);
+    Services.obs.addObserver(this, "profile-before-change");
+    _prefs.addObserver("", this);
   },
 
   _freeObs: function WTBJL__freeObs() {
