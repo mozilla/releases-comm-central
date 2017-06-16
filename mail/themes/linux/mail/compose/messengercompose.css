@@ -461,6 +461,7 @@ treechildren::-moz-tree-image(subscribed-news) {
 }
 
 #msgIdentity:hover,
+#msgIdentity:focus,
 #msgIdentity[focused="true"] {
   background-color: -moz-field;
   -moz-border-top-colors: ThreeDShadow ThreeDHighlight;

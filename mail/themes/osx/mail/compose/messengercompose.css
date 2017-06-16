@@ -267,6 +267,7 @@ toolbar[brighttext] #button-print {
 }
 
 #msgIdentity:hover,
+#msgIdentity:focus,
 #msgIdentity[focused="true"] {
   background-color: white;
   border-color: #C6C6C6;
