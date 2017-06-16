@@ -149,9 +149,11 @@ var WinTaskbarJumpList = {
   },
 
   _commitBuild: function WTBJL__commitBuild() {
-    if (!this._builder.commitListBuild()) {
-      this._builder.abortListBuild();
-    }
+    this._builder.commitListBuild(succeed => {
+      if (!succeed) {
+        this._builder.abortListBuild();
+      }
+    });
   },
 
   _buildTasks: function WTBJL__buildTasks() {

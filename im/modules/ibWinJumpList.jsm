@@ -98,12 +98,16 @@ var WinJumpList = {
 
       this.winJumpListBuilder.addListToBuild(
         Ci.nsIJumpListBuilder.JUMPLIST_CATEGORY_TASKS, items);
-
-      // Send the list to Windows
-      this.winJumpListBuilder.commitListBuild();
     } catch (e) {
       Cu.reportError(e);
     }
+
+    // Send the list to Windows
+    this.winJumpListBuilder.commitListBuild(succeed => {
+      if (!succeed) {
+        Cu.reportError("commitListBuild failed");
+      }
+    });
   },
 
   reset: function WJL_reset() {
