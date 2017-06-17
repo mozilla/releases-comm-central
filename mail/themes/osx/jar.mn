@@ -74,6 +74,7 @@ classic.jar:
   skin/classic/messenger/addressbook/abResultsPane.css           (mail/addrbook/abResultsPane.css)
   skin/classic/messenger/addressbook/icons/abcard.png            (mail/addrbook/abcard.png)
   skin/classic/messenger/addressbook/icons/ablist.png            (mail/addrbook/ablist.png)
+  skin/classic/messenger/addressbook/icons/menu.svg              (../shared/mail/icons/menu.svg)
   skin/classic/messenger/addressbook/icons/contact-generic.png             (mail/addrbook/contact-generic.png)
   skin/classic/messenger/addressbook/icons/contact-generic@2x.png          (mail/addrbook/contact-generic@2x.png)
   skin/classic/messenger/addressbook/icons/contact-generic-tiny.png        (mail/addrbook/contact-generic-tiny.png)

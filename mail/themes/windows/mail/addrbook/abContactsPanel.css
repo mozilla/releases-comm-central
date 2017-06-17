@@ -24,18 +24,34 @@
   background-color: transparent;
 }
 
+#abContextMenuButton {
+  margin-top: -4px 4px 0 !important;
+  list-style-image: url("chrome://messenger/skin/addressbook/icons/menu.svg");
+}
+
+#abContextMenuButton > .toolbarbutton-icon {
+  margin-inline-end: 0;
+  width: 11px;
+  height: 11px;
+}
+
+#abContextMenuButton > .toolbarbutton-text {
+  display: none;
+}
+
 #abResultsTree {
   border-inline-end: none;
-  border-bottom: 1px solid #A9B1B8;
+  border-bottom: 1px solid #a9b1b8;
 }
 
 @media (-moz-windows-default-theme) {
   button,
+  #abContextMenuButton,
   #addressbookList {
     -moz-appearance: none;
     margin: 1px 4px;
     padding: 1px 5px !important;
-    border: 1px solid;
+    border: 1px solid transparent;
   }
 
   button,
@@ -48,12 +64,14 @@
   }
 
   button:hover,
+  #abContextMenuButton:hover,
   #addressbookList:not([open="true"]):hover {
     background: var(--toolbarbutton-active-background);
     border-color: var(--toolbarbutton-active-bordercolor);
   }
 
   button:hover:active,
+  #abContextMenuButton:hover:active,
   #addressbookList[open="true"] {
     background: var(--toolbarbutton-active-background);
     border-color: var(--toolbarbutton-active-bordercolor);

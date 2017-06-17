@@ -12,39 +12,80 @@ function GetAbViewListener()
   return null;
 }
 
-function contactsListOnClick(event)
+/**
+ * Handle the context menu event of results tree (right-click, context menu key
+ * press, etc.). Show the respective context menu for selected contact(s) or
+ * results tree blank space (work around for XUL tree bug 1331377).
+ *
+ * @param aEvent  a context menu event (right-click, context menu key press, etc.)
+ */
+function contactsListOnContextMenu(aEvent) {
+  let target = aEvent.originalTarget;
+  let contextMenuID;
+  let positionArray;
+
+  // For right-click on column header or column picker, don't show context menu.
+  if (target.localName == "treecol" ||
+      target.localName == "treecolpicker") {
+    return;
+  }
+
+  // On treechildren, if there's no selection, show "sidebarAbContextMenu".
+  if (gAbView.selection.count == 0) {
+    contextMenuID = gAbResultsTree.getAttribute("contextNoSelection");
+    // If "sidebarAbContextMenu" menu was activated by keyboard,
+    // position it in the topleft corner of gAbResultsTree.
+    if (!aEvent.button) {
+      positionArray = [gAbResultsTree, "overlap", 0, 0, true];
+    }
+  // If there's a selection, show "cardProperties" context menu.
+  } else {
+    contextMenuID = gAbResultsTree.getAttribute("contextSelection");
+  }
+  showContextMenu(contextMenuID, aEvent, positionArray);
+}
+
+/**
+ * Handle the click event of the results tree (workaround for XUL tree
+ * bug 1331377).
+ *
+ * @param aEvent  a click event
+ */
+function contactsListOnClick(aEvent)
 {
   CommandUpdate_AddressBook();
 
-  // we only care about button 0 (left click) events
-  if (event.button != 0)
-    return;
+  let target = aEvent.originalTarget;
 
-  var target = event.originalTarget;
-  if (target.localName == "treecol") {
-    var sortDirection = target.getAttribute("sortDirection") == kDefaultDescending ?
+  // Left click on column header: Change sort direction.
+  if (target.localName == "treecol" && aEvent.button == 0) {
+    let sortDirection = target.getAttribute("sortDirection") == kDefaultDescending ?
                         kDefaultAscending : kDefaultDescending;
     SortAndUpdateIndicators(target.id, sortDirection);
+    return;
   }
-  else if (target.localName == "treechildren" && event.detail == 2) {
-    var contactsTree = document.getElementById("abResultsTree");
-    var row = contactsTree.treeBoxObject.getRowAt(event.clientX, event.clientY);
-    if (row == -1 || row > contactsTree.view.rowCount-1)
-      // double clicking on a non valid row should not add any entry
-      return;
-
-    // ok, go ahead and add the entry
-    addSelectedAddresses('addr_to');
-  }
-}
-
-function contactsListOnKeyPress(aEvent)
-{
-  switch (aEvent.key) {
-    case "Enter":
-      if (aEvent.altKey) {
-        goDoCommand("cmd_properties");
+  // Any click on gAbResultsTree view (rows or blank space).
+  if (target.localName == "treechildren") {
+    let row = gAbResultsTree.treeBoxObject.getRowAt(aEvent.clientX, aEvent.clientY);
+    if (row < 0 || row >= gAbResultsTree.view.rowCount) {
+      // Any click on results tree whitespace.
+      if ((aEvent.detail == 1 && aEvent.button == 0) || aEvent.button == 2) {
+        // Single left click or any right click on results tree blank space:
+        // Clear selection. This also triggers on the first click of any
+        // double-click, but that's ok. MAC OS X doesn't return event.detail==1
+        // for single right click, so we also let this trigger for the second
+        // click of right double-click.
+        gAbView.selection.clearSelection();
+        return;
       }
+    } else {
+      // Any click on results tree rows.
+      if (aEvent.button == 0 && aEvent.detail == 2) {
+        // Double-click on a row: Go ahead and add the entry.
+        addSelectedAddresses("addr_to");
+        return;
+      }
+    }
   }
 }
 
@@ -190,4 +231,20 @@ function onEnterInSearchBar()
   }
 
   SetAbView(searchURI);
+}
+
+/**
+ * Open a menupopup as a context menu
+ *
+ * @param aContextMenuID The ID of a menupopup to be shown as context menu
+ * @param aEvent         The event which triggered this.
+ * @param positionArray  An optional array containing the parameters for openPopup() method;
+ *                       if omitted, mouse pointer position will be used.
+ */
+function showContextMenu(aContextMenuID, aEvent, aPositionArray) {
+  let theContextMenu = document.getElementById(aContextMenuID);
+  if (!aPositionArray) {
+    aPositionArray = [null, "", aEvent.clientX, aEvent.clientY, true];
+  }
+  theContextMenu.openPopup(...aPositionArray);
 }

@@ -16,6 +16,22 @@
   background-color: transparent;
 }
 
+#abContextMenuButton {
+  -moz-appearance: button;
+  margin-top: -4px;
+  margin-inline-end: 1px;
+  list-style-image: url("chrome://messenger/skin/addressbook/icons/menu.svg");
+}
+
+#abContextMenuButton > .toolbarbutton-icon {
+  width: 11px;
+  height: 11px;
+}
+
+#abContextMenuButton > .toolbarbutton-text {
+  display: none;
+}
+
 #results_box {
   background-color: transparent;
 }
