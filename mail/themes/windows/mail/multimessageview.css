@@ -33,6 +33,10 @@
   background-image: url("chrome://messenger/skin/icons/flag-col.png");
 }
 
+.toolbarbutton-1.msgHeaderView-button {
+  color: -moz-dialogtext;
+}
+
 @media (-moz-windows-default-theme) {
   .toolbarbutton-1.msgHeaderView-button {
     background-image: linear-gradient(-moz-dialog, -moz-dialog);
