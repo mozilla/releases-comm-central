@@ -8,20 +8,46 @@
   padding-top: 1px;
 }
 
-.gloda-search-icon {
-  list-style-image: url(moz-icon://stock/gtk-find?size=menu);
-  width: 16px;
-  height: 16px;
+.gloda-search-icon,
+.textbox-search-icon {
+  list-style-image: url(chrome://messenger/skin/icons/search-glass.svg);
+  -moz-context-properties: fill;
+  fill: currentColor;
+  opacity: 0.54;
 }
 
 .gloda-search-icon:-moz-locale-dir(rtl) {
   transform: scaleX(-1);
 }
 
-.gloda-search-icon[searchbutton]:not([disabled]) {
+.gloda-search-icon:not([disabled]) {
   cursor: pointer;
 }
 
+.gloda-search-icon:not([disabled]):hover {
+  opacity: 1;
+}
+
+.gloda-search-icon:not([disabled]):hover:active {
+  transform: scale(0.85);
+}
+
+.textbox-search-clear {
+  list-style-image: url(chrome://messenger/skin/icons/search-close.svg);
+  -moz-context-properties: fill;
+  fill: currentColor;
+  opacity: 0.8;
+}
+
+.textbox-search-clear:not([disabled]):hover {
+  -moz-image-region: auto;
+  opacity: 1;
+}
+
+.textbox-search-clear:not([disabled]):hover:active {
+  -moz-image-region: auto;
+  transform: scale(0.8);
+}
 
 /* things from xul.css that only exist if Thunderbird did not define
  * AUTOCOMPLETE_OLD_STYLE
