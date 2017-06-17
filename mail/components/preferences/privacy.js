@@ -9,9 +9,6 @@ var gPrivacyPane = {
 
   init: function()
   {
-    if (this._loadInContent) {
-      gSubDialog.init();
-    }
   },
 
   /**

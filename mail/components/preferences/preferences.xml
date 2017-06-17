@@ -25,44 +25,45 @@
              closebuttonlabel="&preferencesCloseButton.label;"
              closebuttonaccesskey="&preferencesCloseButton.accesskey;"
              role="dialog">
-      <xul:hbox id="prefBox" flex="1">
-        <xul:windowdragbox orient="vertical">
-          <xul:radiogroup anonid="selector" orient="vertical" class="paneSelector chromeclass-toolbar"
-                          role="listbox"/> <!-- Expose to accessibility APIs as a listbox -->
-        </xul:windowdragbox>
-        <xul:hbox id="preferencesContainer" flex="1">
-          <xul:hbox class="paneDeckContainer" flex="1">
-            <xul:deck anonid="paneDeck" flex="1">
-              <children includes="prefpane"/>
-            </xul:deck>
-            <xul:vbox id="dialogOverlay"
-                      align="center"
-                      pack="center">
-              <xul:vbox id="dialogContainer">
-                <xul:groupbox id="dialogBox"
-                              orient="vertical"
-                              pack="end"
-                              role="dialog"
-                              aria-labelledby="dialogTitle">
-                  <xul:caption class="titlebar"
-                               flex="1"
-                               align="center">
-                    <xul:label id="dialogTitle"
-                               class="title" flex="1">
-                    </xul:label>
-                    <xul:button id="dialogClose"
-                                class="close-icon"/>
-                  </xul:caption>
-                  <xul:browser id="dialogFrame"
-                               name="dialogFrame"
-                               autoscroll="false"
-                               disablehistory="true"/>
-                </xul:groupbox>
-              </xul:vbox>
-            </xul:vbox>
+      <xul:stack flex="1">
+        <xul:hbox id="prefBox" flex="1">
+          <xul:windowdragbox orient="vertical">
+            <xul:radiogroup anonid="selector" orient="vertical" class="paneSelector chromeclass-toolbar"
+                            role="listbox"/> <!-- Expose to accessibility APIs as a listbox -->
+          </xul:windowdragbox>
+          <xul:hbox id="preferencesContainer" flex="1">
+            <xul:hbox class="paneDeckContainer" flex="1">
+              <xul:deck anonid="paneDeck" flex="1">
+                <children includes="prefpane"/>
+              </xul:deck>
+            </xul:hbox>
           </xul:hbox>
         </xul:hbox>
-      </xul:hbox>
+        <xul:stack id="dialogStack" hidden="true"/>
+        <xul:vbox id="dialogTemplate"
+                  class="dialogOverlay"
+                  align="center"
+                  pack="center"
+                  topmost="true"
+                  hidden="true">
+            <xul:groupbox class="dialogBox"
+                          orient="vertical"
+                          pack="end"
+                          role="dialog"
+                          aria-labelledby="dialogTitle">
+              <xul:caption class="titlebar"
+                           flex="1"
+                           align="center">
+                <xul:label class="dialogTitle" flex="1"></xul:label>
+                <xul:button class="dialogClose close-icon"
+                            aria-label="&preferencesCloseButton.label;"/>
+              </xul:caption>
+              <xul:browser class="dialogFrame"
+                           autoscroll="false"
+                           disablehistory="true"/>
+            </xul:groupbox>
+        </xul:vbox>
+      </xul:stack>
       <xul:hbox anonid="dlg-buttons" class="prefWindow-dlgbuttons"
                 pack="end">
         <xul:button dlgtype="extra2" class="dialog-button" hidden="true"/>

@@ -30,6 +30,7 @@
          windowtype="Mail:Preferences"
          xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
          xmlns:xhtml="http://www.w3.org/1999/xhtml"
+         onload="gSubDialog.init();"
 #ifdef XP_WIN
          title="&prefWindow.titleWin;">
 #endif

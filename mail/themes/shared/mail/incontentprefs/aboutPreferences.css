@@ -260,25 +260,14 @@ tabs {
  * Dialog
  */
 
-#dialogOverlay {
-  position: absolute;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  background-color: rgba(0,0,0,0.5);
+.dialogOverlay {
   visibility: hidden;
 }
-
-#dialogContainer {
-  -moz-box-align: center;
-  -moz-box-pack: center;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
+.dialogOverlay[topmost="true"] {
+  background-color: rgba(0,0,0,0.5);
 }
 
-#dialogBox {
+.dialogBox {
   background-color: #fbfbfb;
   color: #424e5a;
   font-size: 14px;
@@ -290,23 +279,22 @@ tabs {
   display: -moz-box;
   margin: 0;
   padding: 0;
-  pointer-events: auto;
 }
 
-#dialogBox[resizable="true"] {
+.dialogBox[resizable="true"] {
   resize: both;
   overflow: hidden;
   min-height: 20em;
   min-width: 66ch;
 }
 
-#dialogBox > .groupbox-title {
+.dialogBox > .groupbox-title {
   padding: 3.5px 0;
   background-color: #f1f1f1;
   border-bottom: 1px solid #c1c1c1;
 }
 
-#dialogTitle {
+.dialogTitle {
   text-align: center;
 }
 
@@ -319,12 +307,12 @@ tabs {
   min-width: 18px;
 }
 
-#dialogBox > .groupbox-body {
+.dialogBox > .groupbox-body {
   -moz-appearance: none;
   padding: 20px;
 }
 
-#dialogFrame {
+.dialogFrame {
   -moz-box-flex: 1;
   /* Default dialog dimensions */
   height: 12em;

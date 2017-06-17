@@ -75,9 +75,6 @@ var gCategoriesPane = {
             "mail.preferences.inContent",
             false
         );
-        if (this.mLoadInContent) {
-            gSubDialog.init();
-        }
     },
 
     /**

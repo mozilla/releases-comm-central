@@ -25,10 +25,6 @@ var gDisplayPane = {
       menulist.selectedIndex = 0;
     }
 
-    if (this._loadInContent) {
-      gSubDialog.init();
-    }
-
     this.mInitialized = true;
 
     this.mTagListBox = document.getElementById("tagList");

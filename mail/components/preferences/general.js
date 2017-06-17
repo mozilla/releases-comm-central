@@ -17,10 +17,6 @@ var gGeneralPane = {
     this.updatePlaySound();
     this.updateCustomizeAlert();
     this.updateWebSearch();
-
-    if (this._loadInContent) {
-      gSubDialog.init();
-    }
   },
 
   /**

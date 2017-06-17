@@ -31,10 +31,6 @@ var gSecurityPane = {
         document.getElementById("securityPrefs").selectedIndex = preference.value;
     }
 
-    if (this._loadInContent) {
-      gSubDialog.init();
-    }
-
     this.mInitialized = true;
   },
 

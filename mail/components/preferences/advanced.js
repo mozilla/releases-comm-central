@@ -127,10 +127,6 @@ var gAdvancedPane = {
       gAppUpdater = new appUpdater();
     }
 
-    if (this._loadInContent) {
-      gSubDialog.init();
-    }
-
     this.mInitialized = true;
   },
 

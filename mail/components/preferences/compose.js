@@ -35,10 +35,6 @@ var gComposePane = {
         document.getElementById("composePrefs").selectedIndex = preference.value;
     }
 
-    if (this._loadInContent) {
-      gSubDialog.init();
-    }
-
     this.mInitialized = true;
   },
 

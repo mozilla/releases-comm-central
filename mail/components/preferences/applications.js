@@ -419,9 +419,6 @@ var gApplicationsTabController = {
     }
 
     let loadInContent = Services.prefs.getBoolPref("mail.preferences.inContent");
-    if (loadInContent) {
-      gSubDialog.init();
-    }
 
     this.mInitialized = true;
   },
