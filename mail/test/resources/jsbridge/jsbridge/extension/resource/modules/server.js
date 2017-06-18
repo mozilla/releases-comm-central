@@ -212,8 +212,7 @@ function Session (transport) {
       this.outputstream = transport.openOutputStream(Ci.nsITransport.OPEN_BLOCKING, 0, 0);
       this.outstream = Cc['@mozilla.org/intl/converter-output-stream;1']
                     .createInstance(Ci.nsIConverterOutputStream);
-      this.outstream.init(this.outputstream, 'UTF-8', BUFFER_SIZE,
-                    Ci.nsIConverterOutputStream.DEFAULT_REPLACEMENT_CHARACTER);
+      this.outstream.init(this.outputstream, 'UTF-8');
       this.stream = transport.openInputStream(0, 0, 0);
       this.instream = Cc['@mozilla.org/intl/converter-input-stream;1']
           .createInstance(Ci.nsIConverterInputStream);

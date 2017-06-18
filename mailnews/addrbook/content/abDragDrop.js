@@ -32,7 +32,7 @@ var abFlavorDataProvider = {
       var ofStream = Components.classes["@mozilla.org/network/file-output-stream;1"].createInstance(Components.interfaces.nsIFileOutputStream);
       ofStream.init(localFile, -1, -1, 0);
       var converter = Components.classes["@mozilla.org/intl/converter-output-stream;1"].createInstance(Components.interfaces.nsIConverterOutputStream);
-      converter.init(ofStream, null, 0, 0);
+      converter.init(ofStream, null);
       converter.writeString(vCard);
       converter.close();
 

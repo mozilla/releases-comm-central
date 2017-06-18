@@ -392,7 +392,7 @@ var gDataMigrator = {
                 stream.init(tempFile, 0x2A, parseInt("0600", 8), 0);
                 var convStream = Components.classes["@mozilla.org/intl/converter-output-stream;1"]
                                 .createInstance(Components.interfaces.nsIConverterOutputStream);
-                convStream.init(stream, 'UTF-8', 0, 0x0000);
+                convStream.init(stream, 'UTF-8');
                 convStream.writeString(str);
 
                 var calendar = gDataMigrator.importICSToStorage(tempFile);

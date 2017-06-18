@@ -855,7 +855,7 @@ SocketAppender.prototype = {
 
       let uniOutputStream = Cc["@mozilla.org/intl/converter-output-stream;1"]
                               .createInstance(Ci.nsIConverterOutputStream);
-      uniOutputStream.init(outputStream, "utf-8", 0, 0x0000);
+      uniOutputStream.init(outputStream, "utf-8");
 
       this.__nos = uniOutputStream;
     } catch (ex) {

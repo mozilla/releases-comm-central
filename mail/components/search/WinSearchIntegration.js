@@ -243,7 +243,7 @@ var SearchIntegration =
         outputFileStream.init(this._outputFile, -1, -1, 0);
         this._outputStream = Cc["@mozilla.org/intl/converter-output-stream;1"]
                                .createInstance(Ci.nsIConverterOutputStream);
-        this._outputStream.init(outputFileStream, "UTF-8", 0, 0x0000);
+        this._outputStream.init(outputFileStream, "UTF-8");
       }
       catch (ex) { this._onDoneStreaming(false); }
     },

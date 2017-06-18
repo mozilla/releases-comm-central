@@ -109,7 +109,7 @@ calHtmlExporter.prototype = {
         // Convert the javascript string to an array of bytes, using the utf8 encoder
         let convStream = Components.classes["@mozilla.org/intl/converter-output-stream;1"]
                                    .createInstance(Components.interfaces.nsIConverterOutputStream);
-        convStream.init(aStream, "UTF-8", 0, 0x0000);
+        convStream.init(aStream, "UTF-8");
         convStream.writeString(cal.xml.serializeDOM(document));
     }
 };
