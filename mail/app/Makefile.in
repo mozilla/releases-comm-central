@@ -153,6 +153,11 @@ tools repackage:: $(PROGRAM)
 	$(MKDIR) -p $(DIST)/$(MOZ_MACBUNDLE_NAME)/Contents/Library/Spotlight
 	rsync -a --copy-unsafe-links $(DIST)/package/thunderbird.mdimporter $(DIST)/$(MOZ_MACBUNDLE_NAME)/Contents/Library/Spotlight
 	cp -RL $(DIST)/branding/thunderbird.icns $(DIST)/$(MOZ_MACBUNDLE_NAME)/Contents/Resources/thunderbird.icns
+	$(MKDIR) -p $(DIST)/$(MOZ_MACBUNDLE_NAME)/Contents/Library/LaunchServices
+ifdef MOZ_UPDATER
+	mv -f $(DIST)/$(MOZ_MACBUNDLE_NAME)/Contents/MacOS/updater.app/Contents/MacOS/org.mozilla.updater $(DIST)/$(MOZ_MACBUNDLE_NAME)/Contents/Library/LaunchServices
+	ln -s ../../../../Library/LaunchServices/org.mozilla.updater $(DIST)/$(MOZ_MACBUNDLE_NAME)/Contents/MacOS/updater.app/Contents/MacOS/org.mozilla.updater
+endif
 	printf APPLMOZM > $(DIST)/$(MOZ_MACBUNDLE_NAME)/Contents/PkgInfo
 endif
 

@@ -40,6 +40,7 @@
 #ifdef XP_MACOSX
 ; Mac bundle stuff
 @APPNAME@/Contents/Info.plist
+@APPNAME@/Contents/Library/LaunchServices
 @APPNAME@/Contents/PkgInfo
 @APPNAME@/Contents/Library/Spotlight/thunderbird.mdimporter/
 @RESPATH@/thunderbird.icns
