@@ -13,27 +13,18 @@ const XUL_NS = "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul";
 // Object to attach commonly-used widgets (all dialogs should use this)
 var gDialog = {};
 
-const kOutputEncodeBasicEntities = Components.interfaces.nsIDocumentEncoder.OutputEncodeBasicEntities;
-const kOutputEncodeHTMLEntities = Components.interfaces.nsIDocumentEncoder.OutputEncodeHTMLEntities;
-const kOutputEncodeLatin1Entities = Components.interfaces.nsIDocumentEncoder.OutputEncodeLatin1Entities;
-const kOutputEncodeW3CEntities = Components.interfaces.nsIDocumentEncoder.OutputEncodeW3CEntities;
-const kOutputFormatted = Components.interfaces.nsIDocumentEncoder.OutputFormatted;
-const kOutputLFLineBreak = Components.interfaces.nsIDocumentEncoder.OutputLFLineBreak;
-const kOutputSelectionOnly = Components.interfaces.nsIDocumentEncoder.OutputSelectionOnly;
-const kOutputWrap = Components.interfaces.nsIDocumentEncoder.OutputWrap;
+var kOutputEncodeBasicEntities = Components.interfaces.nsIDocumentEncoder.OutputEncodeBasicEntities;
+var kOutputEncodeHTMLEntities = Components.interfaces.nsIDocumentEncoder.OutputEncodeHTMLEntities;
+var kOutputEncodeLatin1Entities = Components.interfaces.nsIDocumentEncoder.OutputEncodeLatin1Entities;
+var kOutputEncodeW3CEntities = Components.interfaces.nsIDocumentEncoder.OutputEncodeW3CEntities;
+var kOutputFormatted = Components.interfaces.nsIDocumentEncoder.OutputFormatted;
+var kOutputLFLineBreak = Components.interfaces.nsIDocumentEncoder.OutputLFLineBreak;
+var kOutputSelectionOnly = Components.interfaces.nsIDocumentEncoder.OutputSelectionOnly;
+var kOutputWrap = Components.interfaces.nsIDocumentEncoder.OutputWrap;
 
 var gStringBundle;
 var gFilePickerDirectory;
 
-var gOS = "";
-const gWin = "Win";
-const gUNIX = "UNIX";
-const gMac = "Mac";
-
-const kWebComposerWindowID = "editorWindow";
-const kMailComposerWindowID = "msgcomposeWindow";
-
-var gIsHTMLEditor;
 /************* Message dialogs ***************/
 
 // Optional: Caller may supply text to substitue for "Ok" and/or "Cancel"
@@ -866,26 +857,6 @@ function InsertUsernameIntoUrl(urlspec, username)
   } catch (e) {}
 
   return urlspec;
-}
-
-function GetOS()
-{
-  if (gOS)
-    return gOS;
-
-  var platform = navigator.platform.toLowerCase();
-
-  if (platform.includes("win"))
-    gOS = gWin;
-  else if (platform.includes("mac"))
-    gOS = gMac;
-  else if (platform.includes("unix") || platform.includes("linux") || platform.includes("sun"))
-    gOS = gUNIX;
-  else
-    gOS = "";
-  // Add other tests?
-
-  return gOS;
 }
 
 function ConvertRGBColorIntoHEXColor(color)

@@ -4,27 +4,27 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 Components.utils.import("resource:///modules/editorUtilities.jsm");
+Components.utils.import("resource://gre/modules/AppConstants.jsm");
 
 /* Main Composer window UI control */
 
 var gComposerWindowControllerID = 0;
 var prefAuthorString = "";
 
-const kDisplayModeNormal = 0;
-const kDisplayModeAllTags = 1;
-const kDisplayModeSource = 2;
-const kDisplayModePreview = 3;
+var kDisplayModeNormal = 0;
+var kDisplayModeAllTags = 1;
+var kDisplayModeSource = 2;
+var kDisplayModePreview = 3;
+
 const kDisplayModeMenuIDs = ["viewNormalMode", "viewAllTagsMode", "viewSourceMode", "viewPreviewMode"];
 const kDisplayModeTabIDS = ["NormalModeButton", "TagModeButton", "SourceModeButton", "PreviewModeButton"];
 const kNormalStyleSheet = "chrome://editor/content/EditorContent.css";
 const kAllTagsStyleSheet = "chrome://editor/content/EditorAllTags.css";
 const kContentEditableStyleSheet = "resource://gre/res/contenteditable.css";
 
-const kTextMimeType = "text/plain";
-const kHTMLMimeType = "text/html";
-const kXHTMLMimeType = "application/xhtml+xml";
-
-const nsIWebNavigation = Components.interfaces.nsIWebNavigation;
+var kTextMimeType = "text/plain";
+var kHTMLMimeType = "text/html";
+var kXHTMLMimeType = "application/xhtml+xml";
 
 var gPreviousNonSourceDisplayMode = 1;
 var gEditorDisplayMode = -1;
@@ -55,11 +55,11 @@ var gLastFocusNodeWasSelected = false;
 // These must be kept in synch with the XUL <options> lists
 var gFontSizeNames = ["xx-small","x-small","small","medium","large","x-large","xx-large"];
 
-const nsIFilePicker = Components.interfaces.nsIFilePicker;
+var nsIFilePicker = Components.interfaces.nsIFilePicker;
 
-const kEditorToolbarPrefs = "editor.toolbars.showbutton.";
-const kUseCssPref         = "editor.use_css";
-const kCRInParagraphsPref = "editor.CR_creates_new_p";
+var kEditorToolbarPrefs = "editor.toolbars.showbutton.";
+var kUseCssPref         = "editor.use_css";
+var kCRInParagraphsPref = "editor.CR_creates_new_p";
 
 function ShowHideToolbarSeparators(toolbar) {
   // Make sure the toolbar actually exists.
@@ -405,11 +405,11 @@ function EditorLoadUrl(url)
 {
   try {
     if (url)
-      GetCurrentEditorElement().webNavigation.loadURI(url, // uri string
-             nsIWebNavigation.LOAD_FLAGS_BYPASS_CACHE,     // load flags
-             null,                                         // referrer
-             null,                                         // post-data stream
-             null);
+      GetCurrentEditorElement().webNavigation.loadURI(url,                // uri string
+         Components.interfaces.nsIWebNavigation.LOAD_FLAGS_BYPASS_CACHE,  // load flags
+         null,                                                            // referrer
+         null,                                                            // post-data stream
+         null);
   } catch (e) { dump(" EditorLoadUrl failed: "+e+"\n"); }
 }
 
@@ -445,7 +445,7 @@ function EditorSharedStartup()
     commandManager.addCommandObserver(gEditorDocumentObserver, "cmd_bold");
   } catch (e) { dump(e); }
 
-  var isMac = (GetOS() == gMac);
+  var isMac = AppConstants.platform == "macosx";
 
   // Set platform-specific hints for how to select cells
   // Mac uses "Cmd", all others use "Ctrl"
