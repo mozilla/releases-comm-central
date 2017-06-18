@@ -471,7 +471,7 @@
     ${LogHeader} "DLL Registration"
   !endif
   ClearErrors
-  RegDLL "$INSTDIR\MapiProxy_InUse.dll"
+  ${RegisterDLL} "$INSTDIR\MapiProxy_InUse.dll"
   !ifndef NO_LOG
     ${If} ${Errors}
       ${LogMsg} "** ERROR Registering: $INSTDIR\MapiProxy_InUse.dll **"
@@ -555,13 +555,12 @@
   ; that wins: On install and software update when helper.exe runs with the
   ; /PostUpdate argument. On setting the application as the system's default
   ; application using Window's "Set program access and defaults".
-
   !ifndef NO_LOG
     ${LogHeader} "DLL Registration"
   !endif
   ClearErrors
-  RegDLL "$INSTDIR\MapiProxy_InUse.dll"
-  !ifndef NO_LOG  
+  ${RegisterDLL} "$INSTDIR\MapiProxy_InUse.dll"
+  !ifndef NO_LOG
     ${If} ${Errors}
       ${LogMsg} "** ERROR Registering: $INSTDIR\MapiProxy_InUse.dll **"
     ${Else}
