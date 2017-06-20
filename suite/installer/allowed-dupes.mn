@@ -184,6 +184,8 @@ extensions/modern@themes.mozilla.org/chrome/modern/skin/modern/communicator/icon
 chrome/classic/skin/classic/communicator/icons/smileys/smiley-cry.png
 extensions/modern@themes.mozilla.org/chrome/modern/skin/modern/messenger/icons/junk.png
 chrome/classic/skin/classic/messenger/icons/junk.png
+chrome/devtools/modules/devtools/client/themes/toolbars.css
+chrome/devtools/skin/toolbars.css
 modules/devtools/client/framework/gDevTools.jsm
 modules/devtools/gDevTools.jsm
 extensions/modern@themes.mozilla.org/chrome/modern/skin/modern/mozapps/extensions/rating-not-won.png
