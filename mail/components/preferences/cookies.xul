@@ -18,7 +18,6 @@
         onunload="gCookiesWindow.uninit();"
         persist="screenX screenY width height">
 
-  <script src="chrome://messenger/content/preferences/permissionsutils.js"/>
   <script src="chrome://messenger/content/preferences/cookies.js"/>
 
   <stringbundle id="bundlePreferences"
