@@ -3,7 +3,7 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 modern.jar:
-% override chrome://mozapps/skin/places/defaultFavicon.svg chrome://communicator/skin/bookmarks/bookmark-item.png
+% override chrome://mozapps/skin/places/defaultFavicon.svg chrome://communicator/skin/bookmarks/bookmark-item.svg
 % skin communicator modern/1.0 %skin/modern/communicator/
 % skin editor modern/1.0 %skin/modern/editor/
 % skin global modern/1.0 %skin/modern/global/
@@ -38,8 +38,7 @@ modern.jar:
   skin/modern/communicator/bookmarks/bookmark-folder-open.gif      (communicator/bookmarks/bookmark-folder-open.gif)
   skin/modern/communicator/bookmarks/bookmark-item-dis.gif         (communicator/bookmarks/bookmark-item-dis.gif)
   skin/modern/communicator/bookmarks/bookmark-item-updated.gif     (communicator/bookmarks/bookmark-item-updated.gif)
-  skin/modern/communicator/bookmarks/bookmark-item.gif             (communicator/bookmarks/bookmark-item.gif)
-  skin/modern/communicator/bookmarks/bookmark-item.png             (communicator/bookmarks/bookmark-item.png)
+  skin/modern/communicator/bookmarks/bookmark-item.svg             (communicator/bookmarks/bookmark-item.svg)
   skin/modern/communicator/bookmarks/bookmarks.css                 (communicator/bookmarks/bookmarks.css)
   skin/modern/communicator/bookmarks/bookmarksManager.css          (communicator/bookmarks/bookmarksManager.css)
   skin/modern/communicator/bookmarks/bookmarksMenu.png             (communicator/bookmarks/bookmarksMenu.png)

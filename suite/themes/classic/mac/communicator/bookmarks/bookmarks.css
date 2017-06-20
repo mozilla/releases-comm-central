@@ -19,7 +19,7 @@ treechildren::-moz-tree-image(title) {
 .bookmark-item,
 treechildren::-moz-tree-image(Name),
 treechildren::-moz-tree-image(title) {
-  list-style-image: url("chrome://communicator/skin/bookmarks/bookmark-item.png");
+  list-style-image: url("chrome://communicator/skin/bookmarks/bookmark-item.svg");
 }
 
 .bookmark-item[container="true"],
@@ -55,7 +55,7 @@ treechildren::-moz-tree-image(title, livemarkItem) {
 
 .bookmark-item[container][livemark] .bookmark-item[visited],
 treechildren::-moz-tree-image(title, livemarkItem, visited) {
-  list-style-image: url("chrome://communicator/skin/bookmarks/bookmark-item.png");
+  list-style-image: url("chrome://communicator/skin/bookmarks/bookmark-item.svg");
 }
 
 treechildren::-moz-tree-image(container, OrganizerQuery_AllBookmarks) {

@@ -37,7 +37,7 @@ textbox[autocompletesearch="history file"] .autocomplete-treebody::-moz-tree-ima
 }
 
 textbox[autocompletesearch="history file"] .autocomplete-treebody::-moz-tree-image(treecolAutoCompleteValue, file) {
-  list-style-image: url("chrome://communicator/skin/bookmarks/bookmark-item.png");
+  list-style-image: url("chrome://communicator/skin/bookmarks/bookmark-item.svg");
 }
 
 /* ::::: online/offline icons ::::: */

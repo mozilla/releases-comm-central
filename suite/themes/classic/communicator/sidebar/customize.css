@@ -7,7 +7,7 @@
 
 .treecell-panel
 {
- list-style-image: url("chrome://communicator/skin/bookmarks/bookmark-item.gif");
+ list-style-image: url("chrome://communicator/skin/bookmarks/bookmark-item.svg");
 }
 
 .treecell-panel[haslink="true"],

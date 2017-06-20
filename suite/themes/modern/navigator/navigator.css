@@ -679,7 +679,7 @@ toolbar[mode="icons"] #search-button > .button-box > .button-text {
 }
 
 #page-proxy-button {
-  list-style-image: url("chrome://communicator/skin/bookmarks/bookmark-item.gif"); 
+  list-style-image: url("chrome://communicator/skin/bookmarks/bookmark-item.svg"); 
 } 
 
 #page-proxy-favicon {
