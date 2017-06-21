@@ -31,7 +31,7 @@ protected:
         mString(icsString), mProvider(tzProvider),
         mMainThread(mainThread), mWorkerThread(workerThread)
       {
-        mListener = new nsMainThreadPtrHolder<calIIcsComponentParsingListener>(listener);
+        mListener = new nsMainThreadPtrHolder<calIIcsComponentParsingListener>("calICSService::mListener", listener);
       }
 
       NS_DECL_NSIRUNNABLE

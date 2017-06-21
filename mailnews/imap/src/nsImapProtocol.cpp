@@ -102,7 +102,7 @@ class AutoProxyReleaseMsgWindow
     {}
     ~AutoProxyReleaseMsgWindow()
     {
-      NS_ReleaseOnMainThread(dont_AddRef(mMsgWindow));
+      NS_ReleaseOnMainThread("AutoProxyReleaseMsgWindow::mMsgWindow", dont_AddRef(mMsgWindow));
     }
     nsIMsgWindow** StartAssignment()
     {
@@ -989,7 +989,7 @@ void nsImapProtocol::ReleaseUrlState(bool rerunning)
       {
         // Proxy the release of the channel to the main thread.  This is something
         // that the xpcom proxy system should do for us!
-        NS_ReleaseOnMainThread(m_mockChannel.forget());
+        NS_ReleaseOnMainThread("nsImapProtocol::m_mockChannel", m_mockChannel.forget());
       }
     }
   }
@@ -1004,7 +1004,7 @@ void nsImapProtocol::ReleaseUrlState(bool rerunning)
     MutexAutoLock mon(mLock);
     if (m_channelListener)
     {
-      NS_ReleaseOnMainThread(m_channelListener.forget());
+      NS_ReleaseOnMainThread("nsImapProtocol::m_channelListener", m_channelListener.forget());
     }
   }
   m_channelInputStream = nullptr;
@@ -1034,7 +1034,7 @@ void nsImapProtocol::ReleaseUrlState(bool rerunning)
   // properly get released back on the UI thread.
   if (mailnewsurl)
   {
-    NS_ReleaseOnMainThread(mailnewsurl.forget());
+    NS_ReleaseOnMainThread("nsImapProtocol::m_runningUrl", mailnewsurl.forget());
   }
   saveFolderSink = nullptr;
 }
@@ -1092,7 +1092,7 @@ NS_IMETHODIMP nsImapProtocol::Run()
 
   if (m_runningUrl)
   {
-    NS_ReleaseOnMainThread(m_runningUrl.forget());
+    NS_ReleaseOnMainThread("nsImapProtocol::m_runningUrl", m_runningUrl.forget());
   }
 
   // close streams via UI thread if it's not already done
@@ -1111,7 +1111,7 @@ NS_IMETHODIMP nsImapProtocol::Run()
   // Release protocol object on the main thread to avoid destruction of 'this'
   // on the IMAP thread, which causes grief for weak references.
   nsCOMPtr<nsIImapProtocol> releaseOnMain(this);
-  NS_ReleaseOnMainThread(releaseOnMain.forget());
+  NS_ReleaseOnMainThread("nsImapProtocol::this", releaseOnMain.forget());
   return NS_OK;
 }
 
@@ -1889,7 +1889,7 @@ bool nsImapProtocol::ProcessCurrentURL()
       if (NS_FAILED(rv))
         MOZ_LOG(IMAP, LogLevel::Info, ("CopyNextStreamMessage failed: %" PRIx32 "\n", static_cast<uint32_t>(rv)));
 
-      NS_ReleaseOnMainThread(copyState.forget());
+      NS_ReleaseOnMainThread("nsImapProtocol, copyState", copyState.forget());
     }
     // we might need this to stick around for IDLE support
     m_imapMailFolderSink = imapMailFolderSink;

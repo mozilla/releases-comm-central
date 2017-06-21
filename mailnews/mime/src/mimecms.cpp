@@ -285,7 +285,7 @@ nsSMimeVerificationListener::nsSMimeVerificationListener(const char *aFromAddr, 
                                                          const char *aSenderAddr, const char *aSenderName,
                                                          nsIMsgSMIMEHeaderSink *aHeaderSink, int32_t aMimeNestingLevel)
 {
-  mHeaderSink = new nsMainThreadPtrHolder<nsIMsgSMIMEHeaderSink>(aHeaderSink);
+  mHeaderSink = new nsMainThreadPtrHolder<nsIMsgSMIMEHeaderSink>("nsSMimeVerificationListener::mHeaderSink", aHeaderSink);
   mSinkIsNull = !aHeaderSink;
   mMimeNestingLevel = aMimeNestingLevel;
 

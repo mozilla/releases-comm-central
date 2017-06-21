@@ -611,7 +611,7 @@ nsLDAPConnectionRunnable::nsLDAPConnectionRunnable(int32_t aOperationID,
 nsLDAPConnectionRunnable::~nsLDAPConnectionRunnable()
 {
   if (mConnection) {
-    NS_ReleaseOnMainThread(mConnection.forget());
+    NS_ReleaseOnMainThread("nsLDAPConnectionRunnable::mConnection", mConnection.forget());
   }
 }
 

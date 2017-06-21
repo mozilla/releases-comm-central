@@ -59,16 +59,16 @@ nsMsgMailNewsUrl::~nsMsgMailNewsUrl()
   // so we must ensure that releases of XPCOM objects (which might be
   // implemented by non-threadsafe JS components) are released on the
   // main thread.
-  NS_ReleaseOnMainThread(m_baseURL.forget());
-  NS_ReleaseOnMainThread(mMimeHeaders.forget());
-  NS_ReleaseOnMainThread(m_searchSession.forget());
-  NS_ReleaseOnMainThread(mMsgHeaderSink.forget());
+  NS_ReleaseOnMainThread("nsMsgMailNewsUrl::m_baseURL", m_baseURL.forget());
+  NS_ReleaseOnMainThread("nsMsgMailNewsUrl::mMimeHeaders", mMimeHeaders.forget());
+  NS_ReleaseOnMainThread("nsMsgMailNewsUrl::m_searchSession", m_searchSession.forget());
+  NS_ReleaseOnMainThread("nsMsgMailNewsUrl::mMsgHeaderSink", mMsgHeaderSink.forget());
 
   nsTObserverArray<nsCOMPtr<nsIUrlListener>>::ForwardIterator iter(mUrlListeners);
   while (iter.HasMore()) {
     nsCOMPtr<nsIUrlListener> listener = iter.GetNext();
     if (listener)
-      NS_ReleaseOnMainThread(listener.forget());
+      NS_ReleaseOnMainThread("nsMsgMailNewsUrl::mUrlListeners", listener.forget());
   }
 }
 
