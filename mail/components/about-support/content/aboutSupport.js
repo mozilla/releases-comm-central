@@ -380,6 +380,17 @@ var snapshotFormatters = {
       }
     }
 
+    if ((AppConstants.NIGHTLY_BUILD || AppConstants.MOZ_DEV_EDITION) && AppConstants.platform != "macosx") {
+      let gpuDeviceResetButton = $.new("button");
+
+      gpuDeviceResetButton.addEventListener("click", function() {
+        windowUtils.triggerDeviceReset();
+      });
+
+      gpuDeviceResetButton.textContent = strings.GetStringFromName("gpuDeviceResetButton");
+      addRow("diagnostics", "Device Reset", [gpuDeviceResetButton]);
+    }
+
     // graphics-failures-tbody tbody
     if ("failures" in data) {
       // If indices is there, it should be the same length as failures,
@@ -620,6 +631,10 @@ var snapshotFormatters = {
   accessibility: function accessibility(data) {
     $("a11y-activated").textContent = data.isActive;
     $("a11y-force-disabled").textContent = data.forceDisabled || 0;
+    let a11yHandlerUsed = $("a11y-handler-used");
+    if (a11yHandlerUsed) {
+      a11yHandlerUsed.textContent = data.handlerUsed;
+    }
   },
 
   libraryVersions: function libraryVersions(data) {
