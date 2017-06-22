@@ -8,6 +8,7 @@
 #include "nsAbOSXUtils.h"
 #include "nsAutoPtr.h"
 #include "nsIAbManager.h"
+#include "nsObjCExceptions.h"
 #include "nsServiceManagerUtils.h"
 
 #include <AddressBook/AddressBook.h>
@@ -195,6 +196,8 @@ nsAbOSXCard::GetURI(nsACString &aURI)
 nsresult
 nsAbOSXCard::Update(bool aNotify)
 {
+  NS_OBJC_BEGIN_TRY_ABORT_BLOCK_NSRESULT;
+
   ABAddressBook *addressBook = [ABAddressBook sharedAddressBook];
 
   const char *uid = &((mURI.get())[16]);
@@ -391,6 +394,8 @@ nsAbOSXCard::Update(bool aNotify)
     SetPropertyAsUint32("LastModifiedDate",
                         uint32_t([date timeIntervalSince1970]));
     // XXX No way to notify about this?
-  
+
   return NS_OK;
+
+  NS_OBJC_END_TRY_ABORT_BLOCK_NSRESULT;
 }
