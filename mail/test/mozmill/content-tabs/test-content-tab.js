@@ -65,7 +65,9 @@ function test_spellcheck_in_content_tabs() {
   mc.click(new elementslib.Elem(textarea));
   // Bug 364914 causes textareas to not be spell checked until they have been
   // focused at last once, so give the event loop a chance to spin.
-  mc.sleep(0);
+  // Since bug 1370754 the inline spell checker waits 1 second, so let's
+  // wait 2 seconds to be on the safe side.
+  mc.sleep(2000);
   mc.rightClick(new elementslib.Elem(textarea));
   assert_element_visible("mailContext-spell-dictionaries");
   assert_element_visible("mailContext-spell-check-enabled");
@@ -93,8 +95,6 @@ function test_spellcheck_in_content_tabs() {
   assert_true(suggestions.length == 0, "But I just taught you this word!");
   close_popup(mc, eidMailContext);
 }
-// XXX Currently the spellcheck test has focus issues on non-Mac
-test_spellcheck_in_content_tabs.EXCLUDED_PLATFORMS = ['winnt', 'linux'];
 
 function test_content_tab_context_menu() {
   let tabmail = mc.tabmail;
