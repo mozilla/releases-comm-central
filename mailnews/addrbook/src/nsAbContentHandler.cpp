@@ -13,6 +13,8 @@
 #include "plstr.h"
 #include "nsPIDOMWindow.h"
 #include "mozIDOMWindow.h"
+#include "nsIDocShell.h"
+#include "nsIDocShellTreeItem.h"
 #include "nsMsgUtils.h"
 #include "nsIMsgVCardService.h"
 #include "nsIAbCard.h"
@@ -89,9 +91,14 @@ nsAbContentHandler::HandleContent(const char *aContentType,
             ifptr->SetData(cardFromVCard);
             ifptr->SetDataIID(&NS_GET_IID(nsIAbCard));
 
-            nsCOMPtr<nsPIDOMWindowOuter> dialogWindow;
+            // Find a privileged chrome window to open the dialog from.
+            nsCOMPtr<nsIDocShell> docShell(parentWindow->GetDocShell());
+            nsCOMPtr<nsIDocShellTreeItem> root;
+            docShell->GetRootTreeItem(getter_AddRefs(root));
+            nsCOMPtr<nsPIDOMWindowOuter> window(do_GetInterface(root));
 
-            rv = parentWindow->OpenDialog(
+            nsCOMPtr<nsPIDOMWindowOuter> dialogWindow;
+            rv = window->OpenDialog(
                 NS_LITERAL_STRING("chrome://messenger/content/addressbook/abNewCardDialog.xul"),
                 EmptyString(),
                 NS_LITERAL_STRING("chrome,resizable=no,titlebar,modal,centerscreen"),
