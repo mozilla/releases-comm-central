@@ -211,7 +211,7 @@ nsNetscapeProfileMigratorBase::GetSignonFileName(bool aReplace, char** aFileName
     nsCOMPtr<nsIFile> sourcePrefsName;
     mSourceProfile->Clone(getter_AddRefs(sourcePrefsName));
     sourcePrefsName->Append(FILE_NAME_PREFS_5X);
-    psvc->ReadUserPrefs(sourcePrefsName);
+    psvc->ReadUserPrefsFromFile(sourcePrefsName);
 
     nsCOMPtr<nsIPrefBranch> branch(do_QueryInterface(psvc));
     rv = branch->GetCharPref("signon.SignonFileName", aFileName);

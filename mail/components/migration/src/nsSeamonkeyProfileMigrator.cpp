@@ -320,7 +320,7 @@ nsSeamonkeyProfileMigrator::TransformPreferences(const nsAString& aSourcePrefFil
   nsCOMPtr<nsIFile> sourcePrefsFile;
   mSourceProfile->Clone(getter_AddRefs(sourcePrefsFile));
   sourcePrefsFile->Append(aSourcePrefFileName);
-  psvc->ReadUserPrefs(sourcePrefsFile);
+  psvc->ReadUserPrefsFromFile(sourcePrefsFile);
 
   nsCOMPtr<nsIPrefBranch> branch(do_QueryInterface(psvc));
   for (transform = gTransforms; transform < end; ++transform)
