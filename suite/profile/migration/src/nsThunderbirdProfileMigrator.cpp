@@ -470,7 +470,7 @@ nsThunderbirdProfileMigrator::TransformPreferences(
   nsCOMPtr<nsIFile> sourcePrefsFile;
   mSourceProfile->Clone(getter_AddRefs(sourcePrefsFile));
   sourcePrefsFile->AppendNative(nsDependentCString(aSourcePrefFileName));
-  psvc->ReadUserPrefsFromFile(sourcePrefsFile);
+  psvc->ReadUserPrefs(sourcePrefsFile);
 
   nsCOMPtr<nsIPrefBranch> branch(do_QueryInterface(psvc));
   for (transform = gTransforms; transform < end; ++transform)
@@ -540,7 +540,7 @@ nsThunderbirdProfileMigrator::TransformPreferences(
   // Don't use nullptr here as we're too early in the cycle for the prefs
   // service to get its default file (because the NS_GetDirectoryService items
   // aren't fully set up yet).
-  psvc->ReadUserPrefsFromFile(targetPrefsFile);
+  psvc->ReadUserPrefs(targetPrefsFile);
 
   for (transform = gTransforms; transform < end; ++transform)
     transform->prefSetterFunc(transform, branch);
