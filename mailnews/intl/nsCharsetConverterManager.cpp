@@ -56,9 +56,9 @@ nsresult LoadExtensibleBundle(const char* aCategory,
 }
 
 static
-nsresult GetBundleValue(nsIStringBundle * aBundle, 
-                        const char * aName, 
-                        const nsAFlatString& aProp, 
+nsresult GetBundleValue(nsIStringBundle * aBundle,
+                        const char * aName,
+                        const nsString& aProp,
                         char16_t ** aResult)
 {
   nsAutoString key; 
@@ -71,9 +71,9 @@ nsresult GetBundleValue(nsIStringBundle * aBundle,
 }
 
 static
-nsresult GetBundleValue(nsIStringBundle * aBundle, 
-                        const char * aName, 
-                        const nsAFlatString& aProp, 
+nsresult GetBundleValue(nsIStringBundle * aBundle,
+                        const char * aName,
+                        const nsString& aProp,
                         nsAString& aResult)
 {
   nsresult rv = NS_OK;
