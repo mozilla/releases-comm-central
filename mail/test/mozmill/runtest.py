@@ -510,8 +510,9 @@ def dumpRichResults():
         print '##### MOZMILL-RICH-FAILURES-END #####'
 
 def checkCrashesAtExit():
-    if mozcrash.check_for_crashes(os.path.join(PROFILE_DIR, 'minidumps'), SYMBOLS_PATH,
-                                  TEST_NAME):
+    if mozcrash.check_for_crashes(dump_directory=os.path.join(PROFILE_DIR, 'minidumps'),
+                                  symbols_path=SYMBOLS_PATH,
+                                  test_name=TEST_NAME):
         print >> sys.stderr, 'TinderboxPrint: ' + TEST_NAME + '<br/><em class="testfail">CRASH</em>'
         sys.exit(1)
 
