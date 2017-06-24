@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+
+<!DOCTYPE html [
+  <!ENTITY % htmlDTD
+    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "DTD/xhtml1-strict.dtd">
+  %htmlDTD;
+  <!ENTITY % netErrorDTD
+    SYSTEM "chrome://messenger/locale/newsError.dtd">
+  %netErrorDTD;
+  <!ENTITY % globalDTD
+    SYSTEM "chrome://global/locale/global.dtd">
+  %globalDTD;
+]>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>&newsError.title;</title>
+    <link rel="stylesheet" href="chrome://global/skin/netError.css" type="text/css" media="all" />
+    <!-- If the location of the favicon is changed here, the FAVICON_ERRORPAGE_URL symbol in
+         toolkit/components/places/src/nsFaviconService.h should be updated. -->
+    <link rel="icon" type="image/png" id="favicon" href="chrome://global/skin/icons/warning-16.png"/>
+    <script type="application/javascript;version=1.8"><![CDATA[
+      // Error url must be formatted like this:
+      //   about:newserror?r=response&m=messageid&k=messagekey&f=folderuri
+      // "r" is required; "m" and "f" are optional, but "k" always comes with "m".
+
+      var folderUri;
+
+      function removeExpired() {
+        document.location.href = folderUri + "?list-ids";
+      }
+
+      function initPage() {
+        let uri = document.documentURI;
+        let query = uri.slice(uri.indexOf("?")+1);
+        let params = {};
+        for (let [,piece] in Iterator(query.split("&"))) {
+          let [key, value] = piece.split("=");
+          params[key] = decodeURIComponent(value);
+        }
+
+        document.getElementById("ngResp").textContent = params.r;
+
+        if ("m" in params) {
+          document.getElementById("msgId").textContent = params.m;
+          document.getElementById("msgKey").textContent = params.k;
+        } else {
+          document.getElementById("messageIdDesc").hidden = true;
+        }
+
+        if ("f" in params) {
+          folderUri = params.f;
+        } else {
+          document.getElementById("errorTryAgain").hidden = true;
+        }
+      }
+    ]]></script>
+  </head>
+
+  <body dir="&locale.dir;">
+    <div id="errorPageContainer">
+      <div id="errorTitle">
+        <h1 id="errorTitleText">&articleNotFound.title;</h1>
+      </div>
+      <div id="errorLongContent">
+        <div id="errorShortDesc">
+          <p id="errorShortDescText"><b>&articleNotFound.desc;</b></p>
+        </div>
+        <div id="errorLongDesc">
+          <ul>
+            <li>&serverResponded.title; <span id="ngResp"/></li>
+            <li>&articleExpired.title;</li>
+            <li id="messageIdDesc">&trySearching.title; &lt;<span id="msgId"/>&gt; (<span id="msgKey"/>)</li>
+          </ul>
+        </div>
+      </div>
+      <!-- This button really means "remove all expired articles", but we use
+           the "errorTryAgain" id to piggyback on toolkit's CSS. -->
+      <button id="errorTryAgain"
+              onclick="removeExpired();">&removeExpiredArticles.title;</button>
+    </div>
+    <script type="application/javascript">initPage();</script>
+  </body>
+</html>

@@ -17,6 +17,8 @@ AboutRedirector.prototype = {
   // value as a record with url and flags entries. Note that each addition here
   // should be coupled with a corresponding addition in mailComponents.manifest.
   _redirMap: {
+    "newserror": {url: "chrome://messenger/content/newsError.xhtml",
+                  flags: Ci.nsIAboutModule.ALLOW_SCRIPT},
     "rights": {url: "chrome://messenger/content/aboutRights.xhtml",
                flags: (Ci.nsIAboutModule.ALLOW_SCRIPT |
                        Ci.nsIAboutModule.URI_SAFE_FOR_UNTRUSTED_CONTENT)},

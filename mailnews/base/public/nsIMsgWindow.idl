@@ -14,6 +14,7 @@ interface nsIMsgHeaderSink;
 interface nsIPrompt;
 interface nsIInterfaceRequestor;
 interface nsIAuthPrompt;
+interface nsIPrincipal;
 
 [scriptable, uuid(7B8F4A65-CFC4-4b3f-BF5C-152AA8D5CD10)]
 interface nsIMsgWindowCommands : nsISupports {
@@ -56,7 +57,9 @@ interface nsIMsgWindow : nsISupports {
    * protocol channels to handle things like bad cert exceptions.
    */
   attribute nsIInterfaceRequestor notificationCallbacks;
-  
+
+  void displayURIInMessagePane(in wstring uri, in boolean clearMsgHdr, in nsIPrincipal principal);
+
   void displayHTMLInMessagePane(in AString title, in AString body, in boolean clearMsgHdr);
 
   readonly attribute nsIPrompt promptDialog;

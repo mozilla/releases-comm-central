@@ -29,6 +29,7 @@
 #include "mozilla/Attributes.h"
 #include "mozilla/Services.h"
 #include "mozilla/mailnews/MimeHeaderParser.h"
+#include "nsContentUtils.h"
 
 #include "prprf.h"
 #include <algorithm>
@@ -451,7 +452,7 @@ NS_IMETHODIMP nsNNTPProtocol::SetIsBusy(bool aIsBusy)
 {
   MOZ_LOG(NNTP, LogLevel::Info,("(%p) setting busy to %d",this, aIsBusy));
   m_connectionBusy = aIsBusy;
-  
+
   // Maybe we could load another URI.
   if (!aIsBusy && m_nntpServer)
     m_nntpServer->PrepareForNextUrl(this);
@@ -1960,32 +1961,21 @@ nsresult nsNNTPProtocol::SendFirstNNTPCommandResponse()
       FinishMemCacheEntry(false);  // cleanup mem cache entry
 
     if (NS_SUCCEEDED(rv) && !group_name.IsEmpty() && !savingArticleOffline) {
-      nsString titleStr;
-      rv = GetNewsStringByName("htmlNewsErrorTitle", getter_Copies(titleStr));
-      NS_ENSURE_SUCCESS(rv,rv);
-
-      nsString newsErrorStr;
-      rv = GetNewsStringByName("htmlNewsError", getter_Copies(newsErrorStr));
-      NS_ENSURE_SUCCESS(rv,rv);
-      nsAutoString errorHtml;
-      errorHtml.Append(newsErrorStr);
-
-      errorHtml.AppendLiteral("<b>");
-      errorHtml.Append(NS_ConvertASCIItoUTF16(m_responseText));
-      errorHtml.AppendLiteral("</b><p>");
-
-      rv = GetNewsStringByName("articleExpired", getter_Copies(newsErrorStr));
-      NS_ENSURE_SUCCESS(rv,rv);
-      errorHtml.Append(newsErrorStr);
-
-      char outputBuffer[OUTPUT_BUFFER_SIZE];
+      nsCString uri(NS_LITERAL_CSTRING("about:newserror?r="));
+      nsCString escapedResponse;
+      MsgEscapeURL(nsDependentCString(m_responseText), nsINetUtil::ESCAPE_URL_QUERY, escapedResponse);
+      uri.Append(escapedResponse);
 
       if ((m_key != nsMsgKey_None) && m_newsFolder) {
         nsCString messageID;
+        nsCString escapedMessageID;
         rv = m_newsFolder->GetMessageIdForKey(m_key, messageID);
         if (NS_SUCCEEDED(rv)) {
-          PR_snprintf(outputBuffer, OUTPUT_BUFFER_SIZE,"<P>&lt;%.512s&gt; (%lu)", messageID.get(), m_key);
-          errorHtml.Append(NS_ConvertASCIItoUTF16(outputBuffer));
+          uri.AppendLiteral("&m=");
+          MsgEscapeURL(messageID, nsINetUtil::ESCAPE_URL_QUERY, escapedMessageID);
+          uri.Append(escapedMessageID);
+          uri.AppendLiteral("&k=");
+          uri.AppendInt(m_key);
         }
       }
 
@@ -1993,19 +1983,15 @@ nsresult nsNNTPProtocol::SendFirstNNTPCommandResponse()
         nsCOMPtr <nsIMsgFolder> folder = do_QueryInterface(m_newsFolder, &rv);
         if (NS_SUCCEEDED(rv) && folder) {
           nsCString folderURI;
+          nsCString escapedFolderURI;
           rv = folder->GetURI(folderURI);
           if (NS_SUCCEEDED(rv)) {
-            PR_snprintf(outputBuffer,OUTPUT_BUFFER_SIZE,"<P> <A HREF=\"%s?list-ids\">", folderURI.get());
+            uri.AppendLiteral("&f=");
+            MsgEscapeURL(folderURI, nsINetUtil::ESCAPE_URL_QUERY, escapedFolderURI);
+            uri.Append(escapedFolderURI);
           }
         }
       }
-
-      errorHtml.Append(NS_ConvertASCIItoUTF16(outputBuffer));
-
-      rv = GetNewsStringByName("removeExpiredArtLinkText", getter_Copies(newsErrorStr));
-      NS_ENSURE_SUCCESS(rv,rv);
-      errorHtml.Append(newsErrorStr);
-      errorHtml.AppendLiteral("</A> </P>");
 
       if (!m_msgWindow) {
         nsCOMPtr<nsIMsgMailNewsUrl> mailnewsurl = do_QueryInterface(m_runningURL);
@@ -2021,7 +2007,8 @@ nsresult nsNNTPProtocol::SendFirstNNTPCommandResponse()
       // call nsDocShell::Stop(STOP_NETWORK), which will eventually
       // call nsNNTPProtocol::Cancel(), which will close the socket.
       // we need to fix this, since the connection is still valid.
-      rv = m_msgWindow->DisplayHTMLInMessagePane(titleStr, errorHtml, true);
+      rv = m_msgWindow->DisplayURIInMessagePane(NS_ConvertASCIItoUTF16(uri).get(), true,
+                                                nsContentUtils::GetSystemPrincipal());
       NS_ENSURE_SUCCESS(rv,rv);
     }
     // let's take the opportunity of removing the hdr from the db so we don't try to download
@@ -2034,7 +2021,6 @@ nsresult nsNNTPProtocol::SendFirstNNTPCommandResponse()
     }
     return NS_ERROR_FAILURE;
   }
-
 }
 
 nsresult nsNNTPProtocol::SendGroupForArticle()
@@ -2355,7 +2341,7 @@ nsresult nsNNTPProtocol::BeginAuthorization()
     // Get the key to coalesce auth prompts.
     bool singleSignon = false;
     m_nntpServer->GetSingleSignon(&singleSignon);
-    
+
     nsCString queueKey;
     nsCOMPtr<nsIMsgIncomingServer> server = do_QueryInterface(m_nntpServer);
     server->GetKey(queueKey);
@@ -2521,7 +2507,7 @@ NS_IMETHODIMP nsNNTPProtocol::OnPromptStart(bool *authAvailable)
 {
   NS_ENSURE_ARG_POINTER(authAvailable);
   NS_ENSURE_STATE(m_nextState == NNTP_SUSPENDED);
-  
+
   if (!m_newsFolder)
   {
     // If we don't have a news folder, we may have been closed already.
@@ -2557,7 +2543,7 @@ NS_IMETHODIMP nsNNTPProtocol::OnPromptAuthAvailable()
 NS_IMETHODIMP nsNNTPProtocol::OnPromptCanceled()
 {
   NS_ENSURE_STATE(m_nextState == NNTP_SUSPENDED);
- 
+
   // We previously suspended the request; now resume it to read input
   if (m_request)
     m_request->Resume();
@@ -3227,7 +3213,7 @@ nsresult nsNNTPProtocol::XhdrSend()
     m_nextState = NNTP_FIGURE_NEXT_CHUNK;
     return NS_OK;
   }
-  
+
   char outputBuffer[OUTPUT_BUFFER_SIZE];
   PR_snprintf(outputBuffer, OUTPUT_BUFFER_SIZE, "XHDR %s %d-%d" CRLF,
               header.get(), m_firstArticle, m_lastArticle);
@@ -3250,7 +3236,7 @@ nsresult nsNNTPProtocol::XhdrResponse(nsIInputStream *inputStream)
     SetFlag(NNTP_NO_XOVER_SUPPORT);
     return NS_OK;
   }
-  
+
   char *line, *lineToFree;
   nsresult rv;
   uint32_t status = 1;
@@ -3709,7 +3695,7 @@ nsresult nsNNTPProtocol::DoCancel()
   }
   else
     confirmCancelResult = 0; // Default to Yes.
-    
+
   if (confirmCancelResult != 0) {
       // they cancelled the cancel
       status = MK_NNTP_NOT_CANCELLED;

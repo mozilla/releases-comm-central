@@ -250,19 +250,19 @@ NS_IMETHODIMP nsMsgWindow::SetRootDocShell(nsIDocShell * aDocShell)
   nsCOMPtr<nsIWebProgressListener> contentPolicyListener =
     do_GetService(NS_MSGCONTENTPOLICY_CONTRACTID, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
-  
+
   // remove the content policy webProgressListener from the root doc shell
   // we're currently holding, so we don't keep listening for loads that
   // we don't care about
   if (mRootDocShellWeak) {
-    nsCOMPtr<nsIWebProgress> oldWebProgress = 
+    nsCOMPtr<nsIWebProgress> oldWebProgress =
       do_QueryReferent(mRootDocShellWeak, &rv);
     if (NS_SUCCEEDED(rv)) {
       rv = oldWebProgress->RemoveProgressListener(contentPolicyListener);
       NS_ASSERTION(NS_SUCCEEDED(rv), "failed to remove old progress listener");
-    } 
+    }
   }
-  
+
   // Query for the doc shell and release it
   mRootDocShellWeak = nullptr;
   if (aDocShell)
@@ -274,13 +274,13 @@ NS_IMETHODIMP nsMsgWindow::SetRootDocShell(nsIDocShell * aDocShell)
     nsCOMPtr<nsIURIContentListener> listener(do_GetInterface(messagePaneDocShell));
     if (listener)
       listener->SetParentContentListener(this);
-  
+
     // set the contentPolicy webProgressListener on the root docshell for this
     // window so that it can allow JavaScript for non-message content
-    nsCOMPtr<nsIWebProgress> docShellProgress = 
+    nsCOMPtr<nsIWebProgress> docShellProgress =
       do_QueryInterface(aDocShell, &rv);
     NS_ENSURE_SUCCESS(rv, rv);
-    
+
     rv = docShellProgress->AddProgressListener(contentPolicyListener,
                                                nsIWebProgress::NOTIFY_LOCATION);
     NS_ENSURE_SUCCESS(rv, rv);
@@ -500,11 +500,26 @@ NS_IMETHODIMP nsMsgWindow::SetPromptDialog(nsIPrompt* aPromptDialog)
 }
 
 NS_IMETHODIMP
-nsMsgWindow::DisplayHTMLInMessagePane(const nsAString& title, const nsAString& body, bool clearMsgHdr)
+nsMsgWindow::DisplayURIInMessagePane(const char16_t *uri, bool clearMsgHdr, nsIPrincipal *principal)
 {
   if (clearMsgHdr && mMsgWindowCommands)
     mMsgWindowCommands->ClearMsgPane();
 
+  nsCOMPtr <nsIDocShell> docShell;
+  GetMessageWindowDocShell(getter_AddRefs(docShell));
+  NS_ENSURE_TRUE(docShell, NS_ERROR_FAILURE);
+
+  nsCOMPtr<nsIWebNavigation> webNav(do_QueryInterface(docShell));
+  NS_ENSURE_TRUE(webNav, NS_ERROR_FAILURE);
+
+  return webNav->LoadURI(uri, nsIWebNavigation::LOAD_FLAGS_NONE,
+                         nullptr, nullptr, nullptr,
+                         principal);
+}
+
+NS_IMETHODIMP
+nsMsgWindow::DisplayHTMLInMessagePane(const nsAString& title, const nsAString& body, bool clearMsgHdr)
+{
   nsString htmlStr;
   htmlStr.Append(NS_LITERAL_STRING("<html><head><meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"></head><body>"));
   htmlStr.Append(body);
@@ -520,22 +535,13 @@ nsMsgWindow::DisplayHTMLInMessagePane(const nsAString& title, const nsAString& b
 
   PR_FREEIF(encodedHtml);
 
-  nsCOMPtr <nsIDocShell> docShell;
-  GetMessageWindowDocShell(getter_AddRefs(docShell));
-  NS_ENSURE_TRUE(docShell, NS_ERROR_FAILURE);
-
-  nsCOMPtr<nsIWebNavigation> webNav(do_QueryInterface(docShell));
-  NS_ENSURE_TRUE(webNav, NS_ERROR_FAILURE);
-
   nsresult rv;
   nsCOMPtr<nsIPrincipal> nullPrincipal =
     do_CreateInstance("@mozilla.org/nullprincipal;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  return webNav->LoadURI(NS_ConvertASCIItoUTF16(dataSpec).get(),
-                         nsIWebNavigation::LOAD_FLAGS_NONE,
-                         nullptr, nullptr, nullptr,
-                         nullPrincipal);
+  return DisplayURIInMessagePane(NS_ConvertASCIItoUTF16(dataSpec).get(),
+                                 clearMsgHdr, nullPrincipal);
 }
 
 NS_IMPL_GETSET(nsMsgWindow, Stopped, bool, m_stopped)
