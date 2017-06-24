@@ -563,8 +563,8 @@
             // Find the locale strings for the AM/PM prefix/suffix.
             let amTime = new Date(2000, 0, 1, 6, 12, 34);
             let pmTime = new Date(2000, 0, 1, 18, 12, 34);
-            amTime = amTime.toLocaleFormat(this.kTimeFormatString);
-            pmTime = pmTime.toLocaleFormat(this.kTimeFormatString);
+            amTime = amTime.toLocaleString(undefined, this.kTimeFormatObject);
+            pmTime = pmTime.toLocaleString(undefined, this.kTimeFormatObject);
             let amLabel = this.parseTimeRegExp.exec(amTime)[this.ampmIndex] || "AM";
             let pmLabel = this.parseTimeRegExp.exec(pmTime)[this.ampmIndex] || "PM";
 
@@ -1459,6 +1459,7 @@
       <constructor><![CDATA[
         Components.utils.import("resource://calendar/modules/calUtils.jsm");
 
+        this.kTimeFormatObject = { hour: "numeric", minute: "2-digit" };
         this.initDateFormat();
         this.initTimeFormat();
       ]]></constructor>
@@ -1779,9 +1780,9 @@
               new RegExp("^(" + anyAmPmExpr + ")?\\s?" + digitsExpr + "(" + anyAmPmExpr + ")?\\s*$");
           const PRE_INDEX = 1, HR_INDEX = 2, MIN_INDEX = 4, SEC_INDEX = 6, POST_INDEX = 8; // eslint-disable-line no-unused-vars
           let amProbeTime = new Date(2000, 0, 1, 6, 12, 34);
-          let amProbeString = amProbeTime.toLocaleFormat("%X");
+          let amProbeString = amProbeTime.toLocaleTimeString();
           let pmProbeTime = new Date(2000, 0, 1, 18, 12, 34);
-          let pmProbeString = pmProbeTime.toLocaleFormat("%X");
+          let pmProbeString = pmProbeTime.toLocaleTimeString();
           let amFormatExpr = null, pmFormatExpr = null;
           if (amProbeString != pmProbeString) {
               let amProbeArray = probeTimeRegExp.exec(amProbeString);
@@ -1858,31 +1859,20 @@
               new RegExp("(" + ampmExpr + ")?\\s?" + digitsExpr + "(" + ampmExpr + ")?\\s*$");
           this.amRegExp = new RegExp("^(?:" + amExpr + ")$");
           this.pmRegExp = new RegExp("^(?:" + pmExpr + ")$");
-          // build time display format that mimics "%x" format without seconds
-          let ampmSep = (pmProbeString.includes(" ") ? " " : "");
-          if (this.ampmIndex == PRE_INDEX) {
-              this.kTimeFormatString = "%p" + ampmSep + "%I:%M";
-          } else if (this.ampmIndex == POST_INDEX) {
-              this.kTimeFormatString = "%I:%M" + ampmSep + "%p";
-          } else {
-              this.kTimeFormatString = "%H:%M";
-          }
         ]]></body>
       </method>
 
       <method name="formatDate">
         <parameter name="aDate"/>
         <body><![CDATA[
-          let dateFormatter = cal.getDateFormatter();
-          return dateFormatter.formatDateShort(cal.jsDateToDateTime(aDate, cal.floating()));
+          return cal.getDateFormatter().formatDateShort(cal.jsDateToDateTime(aDate, cal.floating()));
         ]]></body>
       </method>
 
       <method name="formatTime">
         <parameter name="aValue"/>
         <body><![CDATA[
-          // remove leading zero in hours before colon in xx01:23pmxx
-          return aValue.toLocaleFormat(this.kTimeFormatString).replace(/0(\d):/, "$1:");
+          return aValue.toLocaleTimeString(undefined, this.kTimeFormatObject);
         ]]></body>
       </method>
     </implementation>

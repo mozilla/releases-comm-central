@@ -29,7 +29,7 @@ var localeEn = {
     dateDayIndex:    2,
     dateMonthIndex:  1,
     dateYearIndex:   3,
-    dateFormat:      "%m/%d/%y",
+    dateFormat:      { year: "2-digit", month: "2-digit", day: "2-digit" },
 
     timeRe:          /^(\d+):(\d+):(\d+) (\w+)$/,
     timeHourIndex:   1,
@@ -38,7 +38,7 @@ var localeEn = {
     timeAmPmIndex:   4,
     timeAmString:    "AM",
     timePmString:    "PM",
-    timeFormat:      "%I:%M:%S %p"
+    timeFormat:      { hour: "2-digit", minute: "2-digit", second: "2-digit" }
 };
 
 var localeNl = {
@@ -63,13 +63,11 @@ var localeNl = {
     dateDayIndex:     1,
     dateMonthIndex:   2,
     dateYearIndex:    3,
-    dateFormat:       "%d-%m-%y",
 
     timeRe:           /^(\d+):(\d+):(\d+)$/,
     timeHourIndex:    1,
     timeMinuteIndex:  2,
-    timeSecondIndex:  3,
-    timeFormat:       "%H:%M:%S"
+    timeSecondIndex:  3
 };
 
 var locales = [localeEn, localeNl];
@@ -428,11 +426,14 @@ calOutlookCSVExporter.prototype = {
 
     exportToStream: function(aStream, aCount, aItems) {
         // Helper functions
-        function dateString(aDateTime) { return cal.dateTimeToJsDate(aDateTime).toLocaleFormat(localeEn.dateFormat); }
-        function timeString(aDateTime) { return cal.dateTimeToJsDate(aDateTime).toLocaleFormat(localeEn.timeFormat); }
+        function dateString(aDateTime) {
+            return cal.dateTimeToJsDate(aDateTime).toLocaleString("en-US", localeEn.dateFormat);
+        }
+        function timeString(aDateTime) {
+            return cal.dateTimeToJsDate(aDateTime).toLocaleString("en-US", localeEn.timeFormat);
+        }
         function txtString(aString) { return aString || ""; }
 
-        let str = "";
         let headers = [];
         // Not using a loop here, since we need to be sure the order here matches
         // with the orders the field data is added later on
@@ -450,7 +451,7 @@ calOutlookCSVExporter.prototype = {
         headers.push(localeEn.headLocation);
         headers.push(localeEn.headPrivate);
         headers = headers.map(hdr => '"' + hdr + '"');
-        str = headers.join(",");
+        let str = headers.join(",");
         str += exportLineEnding;
         aStream.write(str, str.length);
 
