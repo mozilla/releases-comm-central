@@ -1881,6 +1881,7 @@ calStorageCalendar.prototype = {
     },
 
     getRecurrenceItemFromRow: function(row, item) {
+        let ritem;
         let prop = cal.getIcsService().createIcalPropertyFromString(row.icalString);
         switch (prop.propertyName) {
             case "RDATE":
