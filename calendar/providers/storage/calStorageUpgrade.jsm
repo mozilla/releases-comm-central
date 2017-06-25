@@ -169,7 +169,7 @@ function getVersion(db) {
         throw reportErrorAndRollback(db, e);
     } finally {
         if (selectSchemaVersion) {
-            selectSchemaVersion.reset();
+            selectSchemaVersion.finalize();
         }
     }
 
@@ -361,7 +361,7 @@ function ensureUpdatedTimezones(db) {
     try {
         version = (selectTzVersion.executeStep() ? selectTzVersion.row.version : null);
     } finally {
-        selectTzVersion.reset();
+        selectTzVersion.finalize();
     }
 
     let versionComp = 1;
@@ -403,7 +403,7 @@ function ensureUpdatedTimezones(db) {
             cal.ERROR("Error updating timezones: " + e +
                       "\nDB Error " + lastErrorString(db));
         } finally {
-            getZones.reset();
+            getZones.finalize();
         }
 
         beginTransaction(db);
@@ -1011,7 +1011,7 @@ upgrade.v13 = function(db, version) {
                         calIds[stmt.row.id] = stmt.row.cal_id;
                     }
                 } finally {
-                    stmt.reset();
+                    stmt.finalize();
                 }
             }
         }
