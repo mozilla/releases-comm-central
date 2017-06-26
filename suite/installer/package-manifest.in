@@ -136,6 +136,10 @@
 #endif
 #endif
 @BINPATH@/@DLL_PREFIX@lgpllibs@DLL_SUFFIX@
+#ifdef MOZ_FFVPX
+@BINPATH@/@DLL_PREFIX@mozavutil@DLL_SUFFIX@
+@BINPATH@/@DLL_PREFIX@mozavcodec@DLL_SUFFIX@
+#endif
 #ifdef MOZ_GTK3
 @BINPATH@/@DLL_PREFIX@mozgtk@DLL_SUFFIX@
 @BINPATH@/gtk2/@DLL_PREFIX@mozgtk@DLL_SUFFIX@
@@ -403,6 +407,7 @@
 @RESPATH@/components/nsAsyncShutdown.manifest
 @RESPATH@/components/nsAsyncShutdown.js
 @RESPATH@/components/nsBlocklistService.js
+@RESPATH@/components/nsBlocklistServiceContent.js
 @RESPATH@/components/nsBrowserContentHandler.js
 @RESPATH@/components/nsComposerCmdLineHandler.js
 @RESPATH@/components/nsComposerCmdLineHandler.manifest
