@@ -382,7 +382,8 @@ class nsOnLDAPMessageRunnable : public Runnable
 {
 public:
   nsOnLDAPMessageRunnable(nsLDAPMessage *aMsg, bool aClear)
-    : m_msg(aMsg)
+    : Runnable("nsOnLDAPMessageRunnable")
+    , m_msg(aMsg)
     , m_clear(aClear)
   {}
   NS_DECL_NSIRUNNABLE

@@ -531,7 +531,8 @@ class RemoteContentNotifierEvent : public mozilla::Runnable
 public:
   RemoteContentNotifierEvent(nsIMsgWindow *aMsgWindow, nsIMsgDBHdr *aMsgHdr,
                              nsIURI *aContentURI)
-    : mMsgWindow(aMsgWindow), mMsgHdr(aMsgHdr), mContentURI(aContentURI)
+    : mozilla::Runnable("RemoteContentNotifierEvent")
+    , mMsgWindow(aMsgWindow), mMsgHdr(aMsgHdr), mContentURI(aContentURI)
   {}
 
   NS_IMETHOD Run()

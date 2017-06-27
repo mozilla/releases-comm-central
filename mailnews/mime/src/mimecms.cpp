@@ -258,6 +258,7 @@ SignedStatusRunnable::SignedStatusRunnable(const nsMainThreadPtrHandle<nsIMsgSMI
                                            int32_t aNestingLevel,
                                            int32_t aSignatureStatus,
                                            nsIX509Cert *aSignerCert) :
+  mozilla::Runnable("SignedStatusRunnable"),
   m_sink(aSink), m_nestingLevel(aNestingLevel),
   m_signatureStatus(aSignatureStatus), m_signerCert(aSignerCert)
 {

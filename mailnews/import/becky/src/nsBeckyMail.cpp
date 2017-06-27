@@ -389,6 +389,7 @@ private:
 
 ImportMessageRunnable::ImportMessageRunnable(nsIFile *aMessageFile,
                                              nsIMsgFolder *aFolder) :
+  mozilla::Runnable("ImportMessageRunnable"),
   mMessageFile(aMessageFile), mFolder(aFolder)
 {
 }

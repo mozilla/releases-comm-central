@@ -656,7 +656,7 @@ class nsPrintMsgWindowEvent : public mozilla::Runnable
 {
 public:
   nsPrintMsgWindowEvent(nsMsgPrintEngine *mpe)
-    : mMsgPrintEngine(mpe)
+    : mozilla::Runnable("nsPrintMsgWindowEvent"), mMsgPrintEngine(mpe)
   {}
 
   NS_IMETHOD Run()
@@ -675,7 +675,7 @@ class nsStartNextPrintOpEvent : public mozilla::Runnable
 {
 public:
   nsStartNextPrintOpEvent(nsMsgPrintEngine *mpe)
-    : mMsgPrintEngine(mpe)
+    : mozilla::Runnable("nsStartNextPrintOpEvent"), mMsgPrintEngine(mpe)
   {}
 
   NS_IMETHOD Run()

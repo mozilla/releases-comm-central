@@ -996,7 +996,7 @@ private:
 };
 
 GetSubFoldersRunnable::GetSubFoldersRunnable(nsIMsgFolder *aFolder) :
-  m_folder(aFolder)
+  mozilla::Runnable("GetSubFoldersRunnable"), m_folder(aFolder)
 {
 }
 
@@ -1028,6 +1028,7 @@ protected:
 GetChildNamedRunnable::GetChildNamedRunnable(nsIMsgFolder *aFolder,
                                              const nsAString & aName,
                                              nsIMsgFolder **aChild) :
+  mozilla::Runnable("GetChildNamedRunnable"),
   m_folder(aFolder), m_name(aName), m_child(aChild)
 {
 }
@@ -1057,7 +1058,7 @@ protected:
 };
 
 GetParentRunnable::GetParentRunnable(nsIMsgFolder *aFolder, nsIMsgFolder **aParent) :
-  m_folder(aFolder), m_parent(aParent)
+  mozilla::Runnable("GetParentRunnable"), m_folder(aFolder), m_parent(aParent)
 {
 }
 
@@ -1088,6 +1089,7 @@ protected:
 ContainsChildNamedRunnable::ContainsChildNamedRunnable(nsIMsgFolder *aFolder,
                                                        const nsAString &aName,
                                                        bool *aResult) :
+  mozilla::Runnable("ContainsChildNamedRunnable"),
   m_folder(aFolder), m_name(aName), m_result(aResult)
 {
 }
@@ -1125,7 +1127,8 @@ protected:
 GenerateUniqueSubfolderNameRunnable::GenerateUniqueSubfolderNameRunnable(
   nsIMsgFolder *aFolder, const nsAString& aPrefix, nsIMsgFolder *aOtherFolder,
   nsAString& aName)
-  : m_folder(aFolder), m_prefix(aPrefix), m_otherFolder(aOtherFolder), m_name(aName)
+  : mozilla::Runnable("GenerateUniqueSubfolderNameRunnable")
+  , m_folder(aFolder), m_prefix(aPrefix), m_otherFolder(aOtherFolder), m_name(aName)
 {
 }
 
@@ -1158,7 +1161,7 @@ protected:
 
 CreateSubfolderRunnable::CreateSubfolderRunnable(nsIMsgFolder *aFolder,
                                                  const nsAString &aName) :
-  m_folder(aFolder), m_name(aName)
+  mozilla::Runnable("CreateSubfolderRunnable"), m_folder(aFolder), m_name(aName)
 {
 }
 
@@ -1185,7 +1188,7 @@ protected:
 };
 
 ForceDBClosedRunnable::ForceDBClosedRunnable(nsIMsgFolder *aFolder) :
-  m_folder(aFolder)
+  mozilla::Runnable("ForceDBClosedRunnable"), m_folder(aFolder)
 {
 }
 

@@ -304,6 +304,7 @@ nsProxySendRunnable::nsProxySendRunnable(nsIMsgIdentity *aIdentity,
                                          nsIArray *aLoadedAttachments,
                                          nsIArray *aEmbeddedAttachments,
                                          nsIMsgSendListener *aListener) :
+  mozilla::Runnable("nsProxySendRunnable"),
   m_identity(aIdentity), m_compFields(aMsgFields),
   m_isDraft(aIsDraft), m_bodyType(aBodyType),
   m_body(aBody), m_loadedAttachments(aLoadedAttachments),

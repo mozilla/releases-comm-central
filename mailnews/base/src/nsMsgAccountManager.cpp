@@ -2508,7 +2508,8 @@ class VFChangeListenerEvent : public mozilla::Runnable
 public:
   VFChangeListenerEvent(VirtualFolderChangeListener *vfChangeListener,
                         nsIMsgFolder *virtFolder, nsIMsgDatabase *virtDB)
-    : mVFChangeListener(vfChangeListener), mFolder(virtFolder), mDB(virtDB)
+    : mozilla::Runnable("VFChangeListenerEvent")
+    , mVFChangeListener(vfChangeListener), mFolder(virtFolder), mDB(virtDB)
   {}
 
   NS_IMETHOD Run()

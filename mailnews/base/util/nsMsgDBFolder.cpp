@@ -1800,7 +1800,8 @@ class AutoCompactEvent : public mozilla::Runnable
 {
 public:
   AutoCompactEvent(nsIMsgWindow *aMsgWindow, nsMsgDBFolder *aFolder)
-    : mMsgWindow(aMsgWindow), mFolder(aFolder)
+    : mozilla::Runnable("AutoCompactEvent")
+    , mMsgWindow(aMsgWindow), mFolder(aFolder)
   {}
 
   NS_IMETHOD Run()
