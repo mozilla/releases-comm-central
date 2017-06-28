@@ -919,14 +919,9 @@ NS_IMETHODIMP nsMsgSaveAsListener::OnDataAvailable(nsIRequest* request,
       if (lastCharInPrevBuf == '\r' && *start == '\n')
         start++;
 
-      end = PL_strchr(start, '\r');
-      if (!end)
-          end = PL_strchr(start, '\n');
-      else if (*(end+1) == '\n' && linebreak_len == 0)
-          linebreak_len = 2;
-
-      if (linebreak_len == 0) // not initialize yet
-          linebreak_len = 1;
+      end = PL_strpbrk(start, "\r\n");
+      if (end)
+        linebreak_len = (end[0] == '\r' && end[1] == '\n') ? 2 : 1;
 
       count -= readCount;
       maxReadCount = SAVE_BUF_SIZE - m_leftOver;
@@ -955,9 +950,9 @@ NS_IMETHODIMP nsMsgSaveAsListener::OnDataAvailable(nsIRequest* request,
               m_leftOver = 0;
               break;
           }
-          end = PL_strchr(start, '\r');
-          if (!end)
-              end = PL_strchr(start, '\n');
+          end = PL_strpbrk(start, "\r\n");
+          if (end)
+            linebreak_len = (end[0] == '\r' && end[1] == '\n') ? 2 : 1;
           if (start && !end)
           {
               m_leftOver -= (start - m_dataBuffer);
