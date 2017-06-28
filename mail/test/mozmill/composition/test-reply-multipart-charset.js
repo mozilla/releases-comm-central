@@ -97,11 +97,9 @@ function subtest_replyEditAsNewForward_charset(aAction, aFile, aCharset,
     break;
   }
 
-  // Check the charset in the compose window. Somehow the property
-  // is returned lower case.
+  // Check the charset in the compose window.
   let charset = fwdWin.e("content-frame").contentDocument.charset;
-  assert_equals(charset, aCharset.toLowerCase(),
-                "Compose window has the wrong charset");
+  assert_equals(charset, aCharset, "Compose window has the wrong charset");
   close_compose_window(fwdWin);
 
   press_delete(mc);
