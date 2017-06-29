@@ -411,7 +411,7 @@ var MigrationWizard = {
 
     Services.prefs.resetPrefs();
 
-    Services.prefs.readUserPrefs(targetPrefsFile);
+    Services.prefs.readUserPrefsFromFile(targetPrefsFile);
 
     return Services.prefs.prefHasUserValue("browser.startup.homepage");
   }

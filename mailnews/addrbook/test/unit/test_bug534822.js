@@ -14,7 +14,7 @@ function run_test() {
   specialPrefs = profileDir;
   specialPrefs.append("bug534822prefs.js");
 
-  Services.prefs.readUserPrefs(specialPrefs);
+  Services.prefs.readUserPrefsFromFile(specialPrefs);
 
   // Now load the ABs and check we've got all of them.
   let dirs = MailServices.ab.directories;

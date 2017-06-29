@@ -124,7 +124,7 @@ nsNetscapeProfileMigratorBase::GetSourceHasHomePageURL()
   mSourceProfile->Clone(getter_AddRefs(sourcePrefsFile));
   sourcePrefsFile->AppendNative(NS_LITERAL_CSTRING(FILE_NAME_PREFS));
 
-  psvc->ReadUserPrefs(sourcePrefsFile);
+  psvc->ReadUserPrefsFromFile(sourcePrefsFile);
 
   nsCOMPtr<nsIPrefBranch> branch(do_QueryInterface(psvc));
 
@@ -145,7 +145,7 @@ nsNetscapeProfileMigratorBase::CopyHomePageData(bool aReplace)
   nsCOMPtr<nsIFile> sourcePrefsFile;
   mSourceProfile->Clone(getter_AddRefs(sourcePrefsFile));
   sourcePrefsFile->AppendNative(nsDependentCString(FILE_NAME_PREFS));
-  psvc->ReadUserPrefs(sourcePrefsFile);
+  psvc->ReadUserPrefsFromFile(sourcePrefsFile);
 
   PBStructArray homepageBranch;
   ReadBranch("browser.startup.homepage", psvc, homepageBranch);
@@ -161,7 +161,7 @@ nsNetscapeProfileMigratorBase::CopyHomePageData(bool aReplace)
   // Don't use nullptr here as we're too early in the cycle for the prefs
   // service to get its default file (because the NS_GetDirectoryService items
   // aren't fully set up yet).
-  psvc->ReadUserPrefs(targetPrefsFile);
+  psvc->ReadUserPrefsFromFile(targetPrefsFile);
 
   WriteBranch("browser.startup.homepage", psvc, homepageBranch);
 
