@@ -18,7 +18,6 @@
 
 #include "trayIToolkit.h"
 #include "trayPlatform.h"
-#include "nsXPCOMStrings.h"
 #include "nsIObserver.h"
 
 
