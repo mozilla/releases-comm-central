@@ -8,7 +8,7 @@
 Components.utils.import("resource:///modules/jsmime.jsm");
 
 var tests = [
-  ["=?UTF-8?Q?=C2?=", ""],
+  ["=?UTF-8?Q?=C2?=", "\uFFFD"], // Replacement character for invalid input.
   ["=?NotARealCharset?Q?text?=", "=?NotARealCharset?Q?text?="],
   ["\xC2\xA31", "\u00A31", "ISO-8859-2"],
   ["\xA31", "\u01411", "ISO-8859-2"],
