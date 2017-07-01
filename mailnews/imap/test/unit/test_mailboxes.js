@@ -6,11 +6,9 @@ load("../../../resources/logHelper.js");
 load("../../../resources/asyncTestUtils.js");
 load("../../../resources/messageGenerator.js");
 
-// Due to bug 1363281 we currently can't decode UTF-7 during tests.
-// const folderName1 = "I18N box\u00E1";
-const folderName1 = "I18N box";
-// const folderName2 = "test \u00E4";
-const folderName2 = "test box";
+// The following folder names are not pure ASCII and will be MUTF-7 encoded.
+const folderName1 = "I18N box\u00E1"; // I18N boxá
+const folderName2 = "test \u00E4";    // test ä
 
 function* setup() {
   setupIMAPPump();

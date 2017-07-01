@@ -301,11 +301,10 @@ imapMailbox.prototype = {
            this.name;
   },
   get displayName() {
-    // We should decode the folder name from the modified UTF-7 used by IMAP,
-    // but after bug 1363281 / bug 1261841 there isn't a scriptable
-    // converter any more. Since folder names are mostly ASCII, we just
-    // skip the conversion for now.
-    return this.fullName;
+    let manager = Cc['@mozilla.org/charset-converter-manager;1']
+                    .getService(Ci.nsICharsetConverterManager);
+    // Escape backslash and double-quote with another backslash before encoding.
+    return manager.unicodeToMutf7(this.fullName.replace(/([\\"])/g, '\\$1'));
   },
   get allChildren() {
     return this._children.reduce(function (arr, elem) {
@@ -584,10 +583,9 @@ function formatArg(argument, spec) {
   if (spec == "atom") {
     argument = argument.toUpperCase();
   } else if (spec == "mailbox") {
-    // We should decode the argument from the modified UTF-7 used by IMAP,
-    // but after bug 1363281 / bug 1261841 there isn't a scriptable
-    // converter any more. Since folder names are mostly ASCII, we just
-    // skip the conversion for now.
+    let manager = Cc['@mozilla.org/charset-converter-manager;1']
+                    .getService(Ci.nsICharsetConverterManager);
+    argument = manager.mutf7ToUnicode(argument);
   } else if (spec == "string") {
     // Do nothing
   } else if (spec == "flag") {

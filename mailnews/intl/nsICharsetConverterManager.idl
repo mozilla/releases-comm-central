@@ -60,4 +60,10 @@ interface nsICharsetConverterManager : nsISupports
      */
     nsIAtom getCharsetLangGroup(in string aCharset);
     nsIAtom getCharsetLangGroupRaw(in string aCharset);
+
+    /**
+     * Support for Modified UTF-7 (MUTF-7) used by IMAP.
+     */
+    AString mutf7ToUnicode(in string aMutf7);
+    ACString unicodeToMutf7(in wstring aUnicode);
 };

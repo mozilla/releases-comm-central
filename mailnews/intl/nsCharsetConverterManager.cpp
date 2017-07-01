@@ -17,6 +17,7 @@
 #include "nsComponentManagerUtils.h"
 #include "nsISupportsPrimitives.h"
 #include "nsServiceManagerUtils.h"
+#include "../base/util/nsMsgI18N.h"
 
 // just for CONTRACTIDs
 #include "nsCharsetConverterManager.h"
@@ -195,4 +196,16 @@ nsCharsetConverterManager::GetCharsetLangGroupRaw(const char * aCharset,
   }
 
   return rv;
+}
+
+NS_IMETHODIMP
+nsCharsetConverterManager::Mutf7ToUnicode(const char* aSrc, nsAString& aDest)
+{
+  return CopyMUTF7toUTF16(nsDependentCString(aSrc), aDest);
+}
+
+NS_IMETHODIMP
+nsCharsetConverterManager::UnicodeToMutf7(const char16_t* aSrc, nsACString& aDest)
+{
+  return CopyUTF16toMUTF7(nsDependentString(aSrc), aDest);
 }
