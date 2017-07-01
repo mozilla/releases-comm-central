@@ -1,0 +1,41 @@
+From - Tue Jun 20 20:58:09 2017
+X-Account-Key: account1
+X-UIDL: UID111111-1111111111
+X-Mozilla-Status: 0001
+X-Mozilla-Status2: 00000000
+X-Mozilla-Keys:                                                                                 
+Delivery-date: Tue, 20 Jun 2017 20:46:01 +0200
+MIME-Version: 1.0
+Message-ID: <vcard@link.invalid>
+From: <meister@mail.example.com>
+To: Hugo <hugo@example.com>
+Subject: Click on inline vCard and hang
+Content-Type: multipart/mixed;
+ boundary=sgnirk-111111111111111
+Date: Tue, 20 Jun 2017 20:45:48 +0200
+
+--sgnirk-111111111111111
+Content-Type: text/html; charset=UTF-8
+
+<html><head></head>
+<body>
+<div style="font-family: Verdana;font-size: 12.0px;">
+<div>
+<div>
+<div>Hallo Hugo</div>
+
+<div>Set attachments to inline display and click on the addbook: link in the vCard.</div>
+
+</div></div></body></html>
+--sgnirk-111111111111111
+Content-Type: text/x-vcard; charset=UTF-8
+Content-Disposition: attachment; filename="Meister.vcf"
+
+BEGIN:VCARD
+VERSION:3.0
+FN:Meister
+EMAIL;TYPE=WORK,PREF:meister@example.com
+END:VCARD
+
+--sgnirk-111111111111111--
+

@@ -11,6 +11,7 @@
 
 <dialog xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
     id="abcardWindow"
+    windowtype="mailnews:newcarddialog"
     onload="OnLoadNewCard()"
     ondialogaccept="return NewCardOKButton();">
 
