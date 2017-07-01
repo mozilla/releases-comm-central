@@ -615,7 +615,7 @@ function decodeRFC2047Words(headerValue) {
    * easily close over the lastCharset/currentDecoder variables, needed for
    * handling bad RFC 2047 productions properly.
    */
-  function decode2047Token(token) {
+  function decode2047Token(token, isLastToken) {
     let tokenParts = token.split("?");
 
     // If it's obviously not a valid token, return false immediately.
@@ -659,6 +659,7 @@ function decodeRFC2047Words(headerValue) {
     }
 
     // Make the buffer be a typed array for what follows
+    let stringBuffer = buffer;
     buffer = mimeutils.stringToTypedArray(buffer);
 
     // If we cannot reuse the last decoder, flush out whatever remains.
@@ -683,7 +684,17 @@ function decodeRFC2047Words(headerValue) {
     // RFC 2047 tokens aren't supposed to break in the middle of a multibyte
     // character, a lot of software messes up and does so because it's hard not
     // to (see headeremitter.js for exactly how hard!).
-    return output + currentDecoder.decode(buffer, {stream: true});
+    // We must not stream ISO-2022-JP if the buffer switches back to
+    // the ASCII state, that is, ends in "ESC(B".
+    // Also, we shouldn't do streaming on the last token.
+    let doStreaming;
+    if (isLastToken ||
+        (charset.toUpperCase() == "ISO-2022-JP" &&
+         stringBuffer.endsWith("\x1B(B")))
+      doStreaming = {stream: false};
+    else
+      doStreaming = {stream: true};
+    return output + currentDecoder.decode(buffer, doStreaming);
   }
 
   // The first step of decoding is to split the string into RFC 2047 and
@@ -692,9 +703,16 @@ function decodeRFC2047Words(headerValue) {
   // some amount of semantic checking, so that malformed RFC 2047 tokens will
   // get ignored earlier.
   let components = headerValue.split(/(=\?[^?]*\?[BQbq]\?[^?]*\?=)/);
+
+  // Find last RFC 2047 token.
+  let lastRFC2047Index = -1;
+  for (let i = 0; i < components.length; i++) {
+    if (components[i].substring(0, 2) == "=?")
+      lastRFC2047Index = i;
+  }
   for (let i = 0; i < components.length; i++) {
     if (components[i].substring(0, 2) == "=?") {
-      let decoded = decode2047Token(components[i]);
+      let decoded = decode2047Token(components[i], i == lastRFC2047Index);
       if (decoded !== false) {
         // If 2047 decoding succeeded for this bit, rewrite the original value
         // with the proper decoding.

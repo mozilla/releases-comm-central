@@ -626,6 +626,11 @@ suite('headerparser', function () {
         "=?UTF-8?Q?f=C3=BCr?="],
       // We don't decode unrecognized charsets (This one is actually UTF-8).
       ["=??B?Sy4gSC4gdm9uIFLDvGRlbg==?=", "=??B?Sy4gSC4gdm9uIFLDvGRlbg==?="],
+
+      // Test for bug 1374149 with ISO-2022-JP where we shouldn't stream
+      // if the first token ends in ESC(B.
+      // GyRCJCIbKEI= is the base64 encoding of ESC$B$"ESC(B.
+      ["=?ISO-2022-JP?B?GyRCJCIbKEI=?==?ISO-2022-JP?B?GyRCJCIbKEI=?=", "ああ"],
     ];
     header_tests.forEach(function (data) {
       arrayTest(data, function () {
