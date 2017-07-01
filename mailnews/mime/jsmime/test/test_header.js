@@ -631,6 +631,14 @@ suite('headerparser', function () {
       // if the first token ends in ESC(B.
       // GyRCJCIbKEI= is the base64 encoding of ESC$B$"ESC(B.
       ["=?ISO-2022-JP?B?GyRCJCIbKEI=?==?ISO-2022-JP?B?GyRCJCIbKEI=?=", "ああ"],
+
+      // Tolerate invalid split of character, € = 0xE2 0x82 0xAC in UTF-8.  
+      ["Split =?UTF-8?Q?=E2?= =?UTF-8?Q?=82=AC?= after first byte",
+        "Split € after first byte"], 
+      ["Split =?UTF-8?Q?=E2=82?= =?UTF-8?Q?=AC?= after second byte",
+        "Split € after second byte"], 
+      ["Byte missing =?UTF-8?Q?=E2=82?=",
+        "Byte missing \ufffd"], // Replacement character for invalid input.
     ];
     header_tests.forEach(function (data) {
       arrayTest(data, function () {
