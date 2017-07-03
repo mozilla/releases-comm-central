@@ -48,6 +48,10 @@
   -moz-binding: url("chrome://communicator/content/bindings/toolbar.xml#grippytoolbar-primary");
 }
 
+#throbber-box {
+  -moz-window-dragging: drag;
+}
+
 /* ::::: grippies ::::: */
 
 grippy {

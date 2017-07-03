@@ -203,6 +203,7 @@ toolbar[mode="text"] > #window-controls > toolbarbutton > .toolbarbutton-icon {
 .nav-bar-class {
   -moz-box-align: center;
   min-width: 0px;
+  -moz-window-dragging: drag;
 }
 
 #urlbar > .autocomplete-textbox-container {
