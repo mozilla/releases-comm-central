@@ -233,21 +233,6 @@ toolbar[brighttext] #button-print {
   border-bottom: 0px solid;
 }
 
-#identityLabel {
-  margin: 1px 0;
-  margin-inline-end: 4px;
-  padding: 1px;
-  background-color: transparent;
-  border: 1px solid transparent;
-  border-radius: 2px;
-  transition: background-color .25s ease-in;
-}
-
-#identityLabel:hover {
-  background-color: rgba(150, 150, 150, .4);
-  border-color: rgba(149, 165, 166, 0.3);
-}
-
 #msgIdentity {
   margin: 0;
   margin-inline-end: 1px;

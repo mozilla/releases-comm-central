@@ -427,23 +427,6 @@ treechildren::-moz-tree-image(subscribed-news) {
   padding-top: 3px;
 }
 
-#identityLabel {
-  -moz-appearance: none;
-  margin-inline-end: 3px;
-  margin-top: 2px;
-  margin-bottom: 0;
-  padding: 3px 5px;
-  color: ButtonText;
-  background-color: transparent;
-  border: 1px solid transparent;
-  transition: background-color .25s ease-in;
-}
-
-#identityLabel:hover {
-  border-color: rgba(125, 125, 125, .4);
-  background-color: rgba(125, 125, 125, .4);
-}
-
 #msgIdentity {
   -moz-appearance: none;
   -moz-box-align: center;
