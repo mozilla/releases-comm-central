@@ -4855,6 +4855,10 @@ nsMsgComposeAndSend::GetSendBody(nsAString& aBody)
   nsCString charSet;
   if (mCompFields)
     mCompFields->GetCharacterSet(getter_Copies(charSet));
+  if (!m_attachment1_body) {
+    aBody.Truncate();
+    return NS_OK;
+  }
   return ConvertToUnicode(charSet.get(), m_attachment1_body, aBody);
 }
 
