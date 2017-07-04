@@ -105,8 +105,11 @@ nsresult nsMsgPurgeService::SetupNextPurge()
     mPurgeTimer->Cancel();
 
   mPurgeTimer = do_CreateInstance("@mozilla.org/timer;1");
-  mPurgeTimer->InitWithFuncCallback(OnPurgeTimer, (void*)this, timeInMSUint32,
-    nsITimer::TYPE_ONE_SHOT);
+  mPurgeTimer->InitWithNamedFuncCallback(OnPurgeTimer,
+                                         (void*)this,
+                                         timeInMSUint32,
+                                         nsITimer::TYPE_ONE_SHOT,
+                                         "nsMsgPurgeService::OnPurgeTimer");
 
   return NS_OK;
 }

@@ -122,8 +122,9 @@ NS_IMETHODIMP nsMsgBiffManager::Observe(nsISupports *aSubject, const char *aTopi
   {
     // wait 10 seconds after waking up to start biffing again.
     mBiffTimer = do_CreateInstance("@mozilla.org/timer;1");
-    mBiffTimer->InitWithFuncCallback(OnBiffTimer, (void*)this, 10000,
-                                     nsITimer::TYPE_ONE_SHOT);
+    mBiffTimer->InitWithNamedFuncCallback(OnBiffTimer, (void*)this, 10000,
+                                          nsITimer::TYPE_ONE_SHOT,
+                                          "nsMsgBiffManager::OnBiffTimer");
   }
   return NS_OK;
 }
@@ -293,8 +294,9 @@ nsresult nsMsgBiffManager::SetupNextBiff()
 
     MOZ_LOG(MsgBiffLogModule, mozilla::LogLevel::Info, ("setting %d timer\n", timeInMSUint32));
     mBiffTimer = do_CreateInstance("@mozilla.org/timer;1");
-    mBiffTimer->InitWithFuncCallback(OnBiffTimer, (void*)this, timeInMSUint32, 
-                                     nsITimer::TYPE_ONE_SHOT);
+    mBiffTimer->InitWithNamedFuncCallback(OnBiffTimer, (void*)this, timeInMSUint32,
+                                          nsITimer::TYPE_ONE_SHOT,
+                                          "nsMsgBiffManager::OnBiffTimer");
 
   }
   return NS_OK;

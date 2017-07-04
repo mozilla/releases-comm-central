@@ -269,8 +269,10 @@ nsresult nsNntpIncomingServer::SetupNewsrcSaveTimer()
   if(mNewsrcSaveTimer)
     mNewsrcSaveTimer->Cancel();
   mNewsrcSaveTimer = do_CreateInstance("@mozilla.org/timer;1");
-  mNewsrcSaveTimer->InitWithFuncCallback(OnNewsrcSaveTimer, (void*)this, timeInMSUint32,
-                                           nsITimer::TYPE_REPEATING_SLACK);
+  mNewsrcSaveTimer->InitWithNamedFuncCallback(OnNewsrcSaveTimer, (void*)this,
+                                              timeInMSUint32,
+                                              nsITimer::TYPE_REPEATING_SLACK,
+                                              "nsNntpIncomingServer::OnNewsrcSaveTimer");
   return NS_OK;
 }
 

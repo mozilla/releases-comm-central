@@ -2079,7 +2079,10 @@ void nsBayesianFilter::observeMessage(
         MOZ_LOG(
             BayesianFilterLogModule, LogLevel::Debug,
             ("starting training data flush timer %i msec", mMinFlushInterval));
-        mTimer->InitWithFuncCallback(nsBayesianFilter::TimerCallback, this, mMinFlushInterval, nsITimer::TYPE_ONE_SHOT);
+        mTimer->InitWithNamedFuncCallback(nsBayesianFilter::TimerCallback,
+                                          this, mMinFlushInterval,
+                                          nsITimer::TYPE_ONE_SHOT,
+                                          "nsBayesianFilter::TimerCallback");
     }
 }
 

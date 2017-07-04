@@ -253,8 +253,10 @@ void nsAutoSyncManager::InitTimer()
     mTimer = do_CreateInstance(NS_TIMER_CONTRACTID, &rv);
     NS_ASSERTION(NS_SUCCEEDED(rv), "failed to create timer in nsAutoSyncManager");
 
-    mTimer->InitWithFuncCallback(TimerCallback, (void *) this, 
-                                 kTimerIntervalInMs, nsITimer::TYPE_REPEATING_SLACK);
+    mTimer->InitWithNamedFuncCallback(TimerCallback, (void *) this,
+                                      kTimerIntervalInMs,
+                                      nsITimer::TYPE_REPEATING_SLACK,
+                                      "nsAutoSyncManager::TimerCallback");
   }
 }
 

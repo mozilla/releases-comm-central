@@ -1272,8 +1272,9 @@ nsresult MaildirStoreParser::StartTimer()
   nsresult rv;
   m_timer = do_CreateInstance("@mozilla.org/timer;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
-  m_timer->InitWithFuncCallback(TimerCallback, (void *) this, 0,
-                                          nsITimer::TYPE_REPEATING_SLACK);
+  m_timer->InitWithNamedFuncCallback(TimerCallback, (void *) this, 0,
+                                     nsITimer::TYPE_REPEATING_SLACK,
+                                     "MaildirStoreParser::TimerCallback");
   return NS_OK;
 }
 

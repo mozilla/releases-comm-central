@@ -497,8 +497,9 @@ nsresult nsMsgSearchSession::StartTimer()
 
   m_backgroundTimer = do_CreateInstance("@mozilla.org/timer;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
-  m_backgroundTimer->InitWithFuncCallback(TimerCallback, (void *) this, 0,
-                                          nsITimer::TYPE_REPEATING_SLACK);
+  m_backgroundTimer->InitWithNamedFuncCallback(TimerCallback, (void *) this, 0,
+                                               nsITimer::TYPE_REPEATING_SLACK,
+                                               "nsMsgSearchSession::TimerCallback");
   TimerCallback(m_backgroundTimer, this);
   return NS_OK;
 }

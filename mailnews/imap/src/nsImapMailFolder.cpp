@@ -7635,9 +7635,12 @@ nsImapMailFolder::CopyMessages(nsIMsgFolder* srcFolder,
         if (!srcImapFolder->m_pendingPlaybackReq)
           return NS_ERROR_OUT_OF_MEMORY;
       }
-              
-      srcImapFolder->m_playbackTimer->InitWithFuncCallback(PlaybackTimerCallback, (void *) srcImapFolder->m_pendingPlaybackReq, 
-                                        PLAYBACK_TIMER_INTERVAL_IN_MS, nsITimer::TYPE_ONE_SHOT);
+
+      srcImapFolder->m_playbackTimer->InitWithNamedFuncCallback(PlaybackTimerCallback,
+                                                                (void *) srcImapFolder->m_pendingPlaybackReq,
+                                                                PLAYBACK_TIMER_INTERVAL_IN_MS,
+                                                                nsITimer::TYPE_ONE_SHOT,
+                                                                "nsImapMailFolder::PlaybackTimerCallback");
     }
     return rv;
   }
