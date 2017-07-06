@@ -1725,7 +1725,7 @@ MsgExamineForProxyAsync(nsIChannel *channel, nsIProtocolProxyCallback *listener,
     do_GetService(NS_PROTOCOLPROXYSERVICE_CONTRACTID, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  return pps->AsyncResolve(channel, 0, listener, result);
+  return pps->AsyncResolve(channel, 0, listener, nullptr, result);
 }
 
 NS_MSG_BASE nsresult MsgPromptLoginFailed(nsIMsgWindow *aMsgWindow,
