@@ -632,13 +632,20 @@ suite('headerparser', function () {
       // GyRCJCIbKEI= is the base64 encoding of ESC$B$"ESC(B.
       ["=?ISO-2022-JP?B?GyRCJCIbKEI=?==?ISO-2022-JP?B?GyRCJCIbKEI=?=", "ああ"],
 
-      // Tolerate invalid split of character, € = 0xE2 0x82 0xAC in UTF-8.  
+      // Tolerate invalid split of character, € = 0xE2 0x82 0xAC in UTF-8.
       ["Split =?UTF-8?Q?=E2?= =?UTF-8?Q?=82=AC?= after first byte",
-        "Split € after first byte"], 
+        "Split € after first byte"],
       ["Split =?UTF-8?Q?=E2=82?= =?UTF-8?Q?=AC?= after second byte",
-        "Split € after second byte"], 
+        "Split € after second byte"],
       ["Byte missing =?UTF-8?Q?=E2=82?=",
         "Byte missing \ufffd"], // Replacement character for invalid input.
+
+      // Test for bug 1301989: Tolerate invalid base64 encoding.
+      ["=?us-ascii?B?YWJjZA==?=", "abcd"],    // correct
+      ["=?us-ascii?B?YWJjZA=?=",  "abc"],     // not a multiple of 4
+      ["=?us-ascii?B?Y=WJjZA==?=", "abcd"],   // invalid =
+      ["=?us-ascii?B?Y=WJj==ZA==?=", "abcd"], // invalid =
+      ["=?us-ascii?B?YWJjZA===?=", "abcd"],   // excess = at the end, see bug 227290.
     ];
     header_tests.forEach(function (data) {
       arrayTest(data, function () {

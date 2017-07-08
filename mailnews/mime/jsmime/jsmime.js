@@ -58,6 +58,8 @@ function decode_qp(buffer, more) {
 function decode_base64(buffer, more) {
   // Drop all non-base64 characters
   let sanitize = buffer.replace(/[^A-Za-z0-9+\/=]/g,'');
+  // Remove harmful `=' chars in the middle.
+  sanitize = sanitize.replace(/=+([A-Za-z0-9+\/])/g, '$1');
   // We need to encode in groups of 4 chars. If we don't have enough, leave the
   // excess for later. If there aren't any more, drop enough to make it 4.
   let excess = sanitize.length % 4;
@@ -634,12 +636,6 @@ function decodeRFC2047Words(headerValue) {
       // an illegal token.
       if (/[^A-Za-z0-9+\/=]/.exec(text))
         return false;
-
-      // Base64 strings must be a length of multiple 4, but it seems that some
-      // mailers accidentally insert one too many `=' chars. Gracefully handle
-      // this case; see bug 227290 for more information.
-      if (text.length % 4 == 1 && text.charAt(text.length - 1) == '=')
-        text = text.slice(0, -1);
 
       // Decode the string
       buffer = mimeutils.decode_base64(text, false)[0];
