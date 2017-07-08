@@ -514,8 +514,6 @@
 @RESPATH@/components/txEXSLTRegExFunctions.manifest
 @RESPATH@/components/UnifiedComplete.js
 @RESPATH@/components/Weave.js
-@RESPATH@/components/webideCli.js
-@RESPATH@/components/webideComponents.manifest
 @RESPATH@/components/WebContentConverter.js
 @RESPATH@/components/WebVTT.manifest
 @RESPATH@/components/WebVTTParserWrapper.js
