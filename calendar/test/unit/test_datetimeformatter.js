@@ -8,7 +8,12 @@ function run_test() {
     do_calendar_startup(run_next_test);
 }
 
-// this test assumes the timezone of your system is not set to Pacific/Fakaofo or equivalent
+// This test assumes the timezone of your system is not set to Pacific/Fakaofo or equivalent.
+
+// Time format is platform dependent, so we use alternative result sets here in 'expected'.
+// The first two meet configurations running for automated tests,
+// the first one is for Windows, the second one for Linux and Mac, unless otherwise noted.
+// If you get a failure for this test, add your pattern here.
 
 add_task(function* formatDate_test() {
     let data = [{
@@ -17,14 +22,14 @@ add_task(function* formatDate_test() {
             timezone: "Pacific/Fakaofo",
             dateformat: 0 // long
         },
-        expected: "Saturday, April 01, 2017"
+        expected: ["Saturday, April 01, 2017", "Saturday, April 1, 2017"]
     }, {
         input: {
             datetime: "20170401T180000",
             timezone: "Pacific/Fakaofo",
             dateformat: 1 // short
         },
-        expected: "04/01/2017"
+        expected: ["4/1/2017", "4/1/17"]
     }];
 
     let dateformat = Preferences.get("calendar.date.format", 0);
@@ -43,8 +48,11 @@ add_task(function* formatDate_test() {
 
         let dtFormatter = Components.classes["@mozilla.org/calendar/datetime-formatter;1"]
                                     .getService(Components.interfaces.calIDateTimeFormatter);
-
-        equal(dtFormatter.formatDate(date), test.expected, "(test #" + i + ")");
+        let formatted = dtFormatter.formatDate(date);
+        ok(
+            test.expected.includes(formatted),
+            "(test #" + i + ": result '" + formatted + "', expected '" + test.expected + "')"
+        );
     }
     // let's reset the preferences
     Preferences.set("calendar.timezone.local", tzlocal);
@@ -57,49 +65,49 @@ add_task(function* formatDateShort_test() {
             datetime: "20170401T180000",
             timezone: "Pacific/Fakaofo"
         },
-        expected: "04/01/2017"
+        expected: ["4/1/2017", "4/1/17"]
     }, {
         input: {
             datetime: "20170401T180000",
             timezone: "Pacific/Kiritimati"
         },
-        expected: "04/01/2017"
+        expected: ["4/1/2017", "4/1/17"]
     }, {
         input: {
             datetime: "20170401T180000",
             timezone: "UTC"
         },
-        expected: "04/01/2017"
+        expected: ["4/1/2017", "4/1/17"]
     }, {
         input: {
             datetime: "20170401T180000",
             timezone: "floating"
         },
-        expected: "04/01/2017"
+        expected: ["4/1/2017", "4/1/17"]
     }, {
         input: {
             datetime: "20170401",
             timezone: "Pacific/Fakaofo"
         },
-        expected: "04/01/2017"
+        expected: ["4/1/2017", "4/1/17"]
     }, {
         input: {
             datetime: "20170401",
             timezone: "Pacific/Kiritimati"
         },
-        expected: "04/01/2017"
+        expected: ["4/1/2017", "4/1/17"]
     }, {
         input: {
             datetime: "20170401",
             timezone: "UTC"
         },
-        expected: "04/01/2017"
+        expected: ["4/1/2017", "4/1/17"]
     }, {
         input: {
             datetime: "20170401",
             timezone: "floating"
         },
-        expected: "04/01/2017"
+        expected: ["4/1/2017", "4/1/17"]
     }];
 
     let dateformat = Preferences.get("calendar.date.format", 0);
@@ -120,7 +128,11 @@ add_task(function* formatDateShort_test() {
         let dtFormatter = Components.classes["@mozilla.org/calendar/datetime-formatter;1"]
                                     .getService(Components.interfaces.calIDateTimeFormatter);
 
-        equal(dtFormatter.formatDateShort(date), test.expected, "(test #" + i + ")");
+        let formatted = dtFormatter.formatDateShort(date);
+        ok(
+            test.expected.includes(formatted),
+            "(test #" + i + ": result '" + formatted + "', expected '" + test.expected + "')"
+        );
     }
     // let's reset the preferences
     Preferences.set("calendar.timezone.local", tzlocal);
@@ -133,49 +145,49 @@ add_task(function* formatDateLong_test() {
             datetime: "20170401T180000",
             timezone: "Pacific/Fakaofo"
         },
-        expected: "Saturday, April 01, 2017"
+        expected: ["Saturday, April 01, 2017", "Saturday, April 1, 2017"]
     }, {
         input: {
             datetime: "20170401T180000",
             timezone: "Pacific/Kiritimati"
         },
-        expected: "Saturday, April 01, 2017"
+        expected: ["Saturday, April 01, 2017", "Saturday, April 1, 2017"]
     }, {
         input: {
             datetime: "20170401T180000",
             timezone: "UTC"
         },
-        expected: "Saturday, April 01, 2017"
+        expected: ["Saturday, April 01, 2017", "Saturday, April 1, 2017"]
     }, {
         input: {
             datetime: "20170401T180000",
             timezone: "floating"
         },
-        expected: "Saturday, April 01, 2017"
+        expected: ["Saturday, April 01, 2017", "Saturday, April 1, 2017"]
     }, {
         input: {
             datetime: "20170401",
             timezone: "Pacific/Fakaofo"
         },
-        expected: "Saturday, April 01, 2017"
+        expected: ["Saturday, April 01, 2017", "Saturday, April 1, 2017"]
     }, {
         input: {
             datetime: "20170401",
             timezone: "Pacific/Kiritimati"
         },
-        expected: "Saturday, April 01, 2017"
+        expected: ["Saturday, April 01, 2017", "Saturday, April 1, 2017"]
     }, {
         input: {
             datetime: "20170401",
             timezone: "UTC"
         },
-        expected: "Saturday, April 01, 2017"
+        expected: ["Saturday, April 01, 2017", "Saturday, April 1, 2017"]
     }, {
         input: {
             datetime: "20170401",
             timezone: "floating"
         },
-        expected: "Saturday, April 01, 2017"
+        expected: ["Saturday, April 01, 2017", "Saturday, April 1, 2017"]
     }];
 
     let dateformat = Preferences.get("calendar.date.format", 0);
@@ -196,7 +208,11 @@ add_task(function* formatDateLong_test() {
         let dtFormatter = Components.classes["@mozilla.org/calendar/datetime-formatter;1"]
                                     .getService(Components.interfaces.calIDateTimeFormatter);
 
-        equal(dtFormatter.formatDateLong(date), test.expected, "(test #" + i + ")");
+        let formatted = dtFormatter.formatDateLong(date);
+        ok(
+            test.expected.includes(formatted),
+            "(test #" + i + ": result '" + formatted + "', expected '" + test.expected + "')"
+        );
     }
     // let's reset the preferences
     Preferences.set("calendar.timezone.local", tzlocal);
@@ -285,25 +301,25 @@ add_task(function* formatTime_test() {
             datetime: "20170401T090000",
             timezone: "Pacific/Fakaofo"
         },
-        expected: "9:00 AM"
+        expected: ["9:00 AM", "09:00"] // Windows+Mac, Linux.
     }, {
         input: {
             datetime: "20170401T090000",
             timezone: "Pacific/Kiritimati"
         },
-        expected: "9:00 AM"
+        expected: ["9:00 AM", "09:00"]
     }, {
         input: {
             datetime: "20170401T180000",
             timezone: "UTC"
         },
-        expected: "6:00 PM"
+        expected: ["6:00 PM", "18:00"]
     }, {
         input: {
             datetime: "20170401T180000",
             timezone: "floating"
         },
-        expected: "6:00 PM"
+        expected: ["6:00 PM", "18:00"]
     }, {
         input: {
             datetime: "20170401",
@@ -327,7 +343,11 @@ add_task(function* formatTime_test() {
         let dtFormatter = Components.classes["@mozilla.org/calendar/datetime-formatter;1"]
                                     .getService(Components.interfaces.calIDateTimeFormatter);
 
-        equal(dtFormatter.formatTime(date), test.expected, "(test #" + i + ")");
+        let formatted = dtFormatter.formatTime(date);
+        ok(
+            test.expected.includes(formatted),
+            "(test #" + i + ": result '" + formatted + "', expected '" + test.expected + "')"
+        );
     }
     // let's reset the preferences
     Preferences.set("calendar.timezone.local", tzlocal);
