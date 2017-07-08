@@ -297,13 +297,23 @@ treechildren::-moz-tree-cell-text(imapdeleted) {
     }
 
     @media (-moz-windows-default-theme) {
-      #messengerWindow[tabsintitlebar] > #navigation-toolbox:not(:-moz-lwtheme) {
-        background-color: #a8cbdb;
+      #navigation-toolbox:not(:-moz-lwtheme) {
+        background-color: #d1d1d1;
       }
 
-      #messengerWindow:-moz-window-inactive > #navigation-toolbox:not(:-moz-lwtheme),
-      #messengerWindow:not([tabsintitlebar]) > #navigation-toolbox:not(:-moz-lwtheme) {
-        background-color: #d1d1d1;
+      @media (-moz-windows-accent-color-in-titlebar: 0) {
+        #messengerWindow[tabsintitlebar] >
+          #navigation-toolbox:not(:-moz-window-inactive):not(:-moz-lwtheme) {
+          background-color: #a8cbdb;
+        }
+      }
+
+      @media (-moz-windows-accent-color-in-titlebar) {
+        #messengerWindow[tabsintitlebar] >
+          #navigation-toolbox:not(:-moz-window-inactive):not(:-moz-lwtheme) {
+          background-color: -moz-win-accentcolor;
+          color: -moz-win-accentcolortext;
+        }
       }
     }
 
@@ -324,6 +334,14 @@ treechildren::-moz-tree-cell-text(imapdeleted) {
       padding: 10px 17px;
       -moz-context-properties: stroke;
       stroke: black;
+    }
+
+    @media (-moz-windows-default-theme) {
+      @media (-moz-windows-accent-color-in-titlebar) {
+        .titlebar-button:not(:-moz-window-inactive):not(:-moz-lwtheme) {
+          stroke: -moz-win-accentcolortext;
+        }
+      }
     }
 
     #messengerWindow[sizemode=maximized] .titlebar-button {
@@ -647,6 +665,12 @@ treechildren::-moz-tree-cell-text(imapdeleted) {
 }
 
 @media (-moz-os-version: windows-win7) and (-moz-windows-default-theme) {
+  @media (-moz-windows-glass: 0) {
+    #messengerWindow:not([tabsintitlebar]) > #navigation-toolbox:not(:-moz-lwtheme) {
+      background-color: #d1d1d1;
+    }
+  }
+
   menulist {
     border-radius: 2px;
   }
@@ -704,6 +728,10 @@ treechildren::-moz-tree-cell-text(imapdeleted) {
 }
 
 @media (-moz-os-version: windows-win8) and (-moz-windows-default-theme) {
+  #messengerWindow:not([tabsintitlebar]) > #navigation-toolbox:not(:-moz-lwtheme) {
+    background-color: #d1d1d1;
+  }
+
   #viewPickerPopup menu[_moz-menuactive="true"],
   #viewPickerPopup menuitem[_moz-menuactive="true"] {
     color: -moz-DialogText;

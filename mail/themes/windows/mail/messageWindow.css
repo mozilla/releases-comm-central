@@ -19,7 +19,7 @@
 
 #messagepanebox {
   text-shadow: none;
-  background-color: -moz-dialog;
+  background-color: -moz-Dialog;
 }
 
 #mail-toolbox:-moz-lwtheme {
@@ -56,5 +56,11 @@
     -moz-appearance: none;
     border-style: none;
     border-top: 1px solid ThreeDShadow;
+  }
+}
+
+@media (-moz-os-version: windows-win10) and (-moz-windows-default-theme) {
+  #menubar-items > #mail-menubar > menu {
+    -moz-appearance: menuitem;
   }
 }

@@ -20,35 +20,14 @@
  * Tab
  */
 
-@media (-moz-os-version: windows-win8),
-       (-moz-os-version: windows-win10) {
-  @media (-moz-windows-default-theme: 0) {
-    #tabs-toolbar:not(:-moz-lwtheme) {
-      color: CaptionText;
-    }
-
-    #tabs-toolbar:not(:-moz-lwtheme):-moz-window-inactive,
-    #messengerWindow:not([tabsintitlebar])
-      .tabmail-tab:not([selected]):not(:-moz-lwtheme):-moz-window-inactive {
-      color: InactiveCaptionText;
-    }
-  }
-}
-
 @media (min-resolution: 1.1dppx) {
   .tab-throbber {
     list-style-image: url("chrome://global/skin/icons/loading@2x.png") !important;
   }
 }
 
-#messengerWindow[tabsintitlebar]
 .tabmail-tab:not([selected]):not(:-moz-lwtheme) {
-  color: CaptionText;
-}
-
-#messengerWindow[tabsintitlebar]
-.tabmail-tab:not([selected]):not(:-moz-lwtheme):-moz-window-inactive {
-  color: InactiveCaptionText;
+  color: inherit;
 }
 
 .tabmail-tab[busy],
@@ -252,6 +231,14 @@ tabpanels {
   .tabs-closebutton > .toolbarbutton-icon,
   .tab-close-button > .toolbarbutton-icon {
     width: 20px;
+  }
+}
+
+@media (-moz-os-version: windows-win10) and (-moz-windows-default-theme) {
+  .tab-label:-moz-window-inactive {
+    /* Calculated to match the opacity change of Windows Explorer
+       titlebar text change for inactive windows. */
+    opacity: .6;
   }
 }
 

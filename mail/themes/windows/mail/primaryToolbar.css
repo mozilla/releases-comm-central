@@ -27,13 +27,15 @@
   margin-top: 15px;
 }
 
-#messengerWindow[tabsintitlebar] #mail-menubar > menu:not(:-moz-lwtheme) {
-  color: CaptionText;
-}
+@media (-moz-windows-compositor: 0),
+       (-moz-windows-default-theme: 0) {
+  #messengerWindow[tabsintitlebar] > #navigation-toolbox:not(:-moz-lwtheme) {
+    color: CaptionText;
+  }
 
-#messengerWindow[tabsintitlebar] #mail-menubar >
-menu:not(:-moz-lwtheme):-moz-window-inactive {
-  color: InactiveCaptionText;
+  #messengerWindow[tabsintitlebar] > #navigation-toolbox:not(:-moz-lwtheme):-moz-window-inactive {
+    color: InactiveCaptionText;
+  }
 }
 
 #navigation-toolbox {
@@ -46,20 +48,21 @@ menu:not(:-moz-lwtheme):-moz-window-inactive {
 }
 
 @media (-moz-os-version: windows-win10) and (-moz-windows-default-theme) {
+
   #tabs-toolbar:not(:-moz-lwtheme) {
     background-image: none;
   }
 
-  #messengerWindow #mail-menubar > menu {
+  #menubar-items > #mail-menubar > menu {
     -moz-appearance: none;
     border-style: none;
   }
 
-  #messengerWindow #mail-menubar > menu[_moz-menuactive="true"] {
+  #menubar-items > #mail-menubar > menu[_moz-menuactive="true"] {
     background-color: hsla(0, 0%, 0%, .12);
   }
 
-  #messengerWindow #mail-menubar >
+  #menubar-items > #mail-menubar >
     menu:-moz-lwtheme-brighttext[_moz-menuactive="true"] {
     background-color: hsla(0, 0%, 100%, .12);
   }
@@ -710,16 +713,6 @@ toolbar:not([mode="text"]) > toolbarpaletteitem > #button-chat > stack {
     background-color: transparent !important
   }
 
-  #messengerWindow[tabsintitlebar]:not([inFullscreen])
-  #tabs-toolbar:not(:-moz-lwtheme) {
-    color: CaptionText;
-  }
-
-  #messengerWindow[tabsintitlebar]:not([inFullscreen])
-  #tabs-toolbar:not(:-moz-lwtheme):-moz-window-inactive {
-    color: InactiveCaptionText;
-  }
-
   #messengerWindow[tabsintitlebar] #titlebar:-moz-lwtheme {
     visibility: hidden;
   }
@@ -924,6 +917,7 @@ toolbar:not([mode="text"]) > toolbarpaletteitem > #button-chat > stack {
 @media (-moz-windows-default-theme: 0) {
   #messengerWindow[tabsintitlebar] #mail-menubar > menu {
     -moz-appearance: none;
+    color: inherit;
   }
 }
 
@@ -937,6 +931,20 @@ toolbar:not([mode="text"]) > toolbarpaletteitem > #button-chat > stack {
   #navigation-toolbox:not(:-moz-lwtheme),
   .glodaTabToolbar {
     color: black;
+  }
+
+  #mail-menubar > menu:not(:-moz-lwtheme) {
+    color: inherit;
+  }
+
+  /* Use a different color only on Windows 8 and higher for inactive windows.
+   * On Win 7, the menubar fog disappears for inactive windows, and renders gray
+   * illegible.
+   */
+  @media not all and (-moz-os-version: windows-win7) {
+    #mail-toolbar-menubar2:not(:-moz-lwtheme):-moz-window-inactive {
+      color: ThreeDShadow;
+    }
   }
 }
 
@@ -953,12 +961,10 @@ toolbar:not([mode="text"]) > toolbarpaletteitem > #button-chat > stack {
   #mail-toolbar-menubar2 {
     -moz-box-ordinal-group: 20;
     -moz-window-dragging: no-drag;
-  }
-
-  #mail-toolbar-menubar2 {
     box-shadow: 0 1px 0 rgba(253, 253, 253, 0.45) inset;
     background-image: linear-gradient(var(--toolbarHighlight),
                                       var(--toolbarHighlight));
+    background-color: -moz-dialog;
     padding-bottom: 1px !important;
     padding-top: 2px;
   }
@@ -1011,6 +1017,24 @@ toolbar:not([mode="text"]) > toolbarpaletteitem > #button-chat > stack {
   }
 }
 
+@media (-moz-os-version: windows-win8) {
+  @media (-moz-windows-default-theme) {
+    #messengerWindow[darkwindowframe="true"]:not(:-moz-lwtheme):not(:-moz-window-inactive) >
+      #navigation-toolbox {
+      color: white;
+    }
+  }
+  @media (-moz-windows-default-theme: 0) {
+    #messengerWindow > #navigation-toolbox:not(:-moz-lwtheme) {
+      color: CaptionText;
+    }
+
+    #messengerWindow > #navigation-toolbox:not(:-moz-lwtheme):-moz-window-inactive {
+      color: InactiveCaptionText;
+    }
+  }
+}
+
 @media (-moz-os-version: windows-win8),
        (-moz-os-version: windows-win10) {
   #appmenuSecondaryPane {
@@ -1034,17 +1058,9 @@ toolbar:not([mode="text"]) > toolbarpaletteitem > #button-chat > stack {
   }
 
   @media (-moz-windows-default-theme: 0) {
-    #messengerWindow:not([tabsintitlebar]) #tabs-toolbar:not(:-moz-lwtheme),
     #messengerWindow:not([tabsintitlebar]) #mail-menubar >
       menu:not(:-moz-lwtheme) {
-      color: CaptionText;
-    }
-
-    #messengerWindow:not([tabsintitlebar])
-      #tabs-toolbar:not(:-moz-lwtheme):-moz-window-inactive,
-    #messengerWindow:not([tabsintitlebar]) #mail-menubar >
-      menu:not(:-moz-lwtheme):-moz-window-inactive {
-      color: InactiveCaptionText;
+      color: inherit;
     }
 
     #messengerWindow:not([tabsintitlebar]) #mail-menubar > menu {
