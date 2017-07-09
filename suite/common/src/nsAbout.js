@@ -24,8 +24,6 @@ About.prototype = {
   feedsURI: "chrome://communicator/content/feeds/subscribe.xhtml",
   lifeFlags: SCRIPT | UNTRUSTED | HIDE,
   lifeURI: "chrome://communicator/content/aboutLife.xhtml",
-  newserrorFlags: SCRIPT | HIDE,
-  newserrorURI: "chrome://messenger/content/newsError.xhtml",
   privatebrowsingFlags: SCRIPT,
   privatebrowsingURI: "chrome://communicator/content/aboutPrivateBrowsing.xul",
   rightsFlags: SCRIPT | UNTRUSTED,
