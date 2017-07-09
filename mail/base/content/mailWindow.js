@@ -649,7 +649,7 @@ function nsBrowserAccess() { }
 nsBrowserAccess.prototype = {
   QueryInterface: XPCOMUtils.generateQI([Components.interfaces.nsIBrowserDOMWindow]),
 
-  openURI: function (aURI, aOpener, aWhere, aFlags) {
+  openURI: function (aURI, aOpener, aWhere, aFlags, aTriggeringPrincipal = null) {
     const nsIBrowserDOMWindow = Components.interfaces.nsIBrowserDOMWindow;
     let isExternal = !!(aFlags & nsIBrowserDOMWindow.OPEN_EXTERNAL);
     if (isExternal && aURI && aURI.schemeIs("chrome")) {
@@ -704,7 +704,7 @@ nsBrowserAccess.prototype = {
         }
         newWindow.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
                  .getInterface(Components.interfaces.nsIWebNavigation)
-                 .loadURI(aURI.spec, loadflags, referrer, null, null);
+                 .loadURI(aURI.spec, loadflags, referrer, null, null, aTriggeringPrincipal);
       }
       if (needToFocusWin || (!loadInBackground && isExternal))
         newWindow.focus();
