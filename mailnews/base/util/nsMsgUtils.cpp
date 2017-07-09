@@ -2077,7 +2077,7 @@ ConvertBufToPlainText(nsString &aConBuf, bool formatFlowed, bool delsp,
       wrapWidth = 10;
   }
 
-  uint32_t converterFlags = 0;
+  uint32_t converterFlags = nsIDocumentEncoder::OutputPersistNBSP;
   if (formatFlowed)
     converterFlags |= nsIDocumentEncoder::OutputFormatFlowed;
   if (delsp)
