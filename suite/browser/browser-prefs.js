@@ -593,6 +593,16 @@ pref("extensions.update.autoUpdateDefault", true); // Download and install autom
 // constants in AddonManager.jsm for values to use here.
 pref("extensions.autoDisableScopes", 15);
 
+// Enable add-ons installed and owned by the application, like the default theme.
+pref("extensions.startupScanScopes", 4);
+
+pref("extensions.legacy.enabled", true);
+// Extensions that should not be flagged as legacy in about:addons
+// {972ce4c6-7e08-4474-a285-3208198ce6fd} default theme
+// {59c81df5-4b7a-477b-912d-4e0fdf64e5f2} chatZilla
+// {e2fda1a4-762b-4020-b5ad-a41df1933103} calendar
+pref("extensions.legacy.exceptions", "{972ce4c6-7e08-4474-a285-3208198ce6fd},debugQA@mozilla.org,modern@themes.mozilla.org,inspector@mozilla.org,{59c81df5-4b7a-477b-912d-4e0fdf64e5f2},{e2fda1a4-762b-4020-b5ad-a41df1933103}");
+
 // Preferences for AMO integration
 pref("extensions.getAddons.cache.enabled", true);  // also toggles personalized recommendations
 pref("extensions.getAddons.maxResults", 15);
