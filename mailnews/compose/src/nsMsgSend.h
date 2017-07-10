@@ -133,6 +133,7 @@
 #include "nsMsgAttachmentData.h"
 #include "nsIMsgFilterService.h"
 #include "nsIMsgOperationListener.h"
+#include "nsMsgIncomingServer.h"
 
 //
 // Some necessary defines...
@@ -197,6 +198,9 @@ public:
 
 
   nsresult SendToMagicFolder(nsMsgDeliverMode flag);
+
+  // For the folderURL return the corresponding pointer to the incoming server.
+  nsresult GetIncomingServer(const char *folderURL, nsIMsgIncomingServer **aServer);
 
   // Check to see if it's ok to save msgs to the configured folder.
   bool CanSaveMessagesToFolder(const char *folderURL);

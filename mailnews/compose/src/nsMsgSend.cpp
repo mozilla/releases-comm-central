@@ -3626,31 +3626,52 @@ nsMsgComposeAndSend::DeliverAsNewsExit(nsIURI *aUrl, nsresult aExitCode)
   return NS_OK;
 }
 
-bool nsMsgComposeAndSend::CanSaveMessagesToFolder(const char *folderURL)
+nsresult
+nsMsgComposeAndSend::GetIncomingServer(const char *folderURL, nsIMsgIncomingServer **aServer)
 {
   nsresult rv;
   nsCOMPtr<nsIRDFService> rdf(do_GetService("@mozilla.org/rdf/rdf-service;1", &rv));
   if (NS_FAILED(rv))
-    return false;
+    return rv;
 
   nsCOMPtr<nsIRDFResource> resource;
   rv = rdf->GetResource(nsDependentCString(folderURL), getter_AddRefs(resource));
   if (NS_FAILED(rv))
-    return false;
+    return rv;
 
   nsCOMPtr <nsIMsgFolder> thisFolder;
   thisFolder = do_QueryInterface(resource, &rv);
   if (NS_FAILED(rv) || !thisFolder)
-    return false;
+    return rv;
 
   nsCOMPtr<nsIMsgIncomingServer> server;
   rv = thisFolder->GetServer(getter_AddRefs(server));
-  if (NS_FAILED(rv) || !server)
+  if (NS_FAILED(rv))
+    return rv;
+  if (!server)
+    return NS_ERROR_NULL_POINTER;
+
+  server.forget(aServer);
+  return NS_OK;
+}
+
+bool
+nsMsgComposeAndSend::CanSaveMessagesToFolder(const char *folderURL)
+{
+  bool canSave = false;
+  // Get pointer to server.
+  nsCOMPtr<nsIMsgIncomingServer> server;
+  nsresult rv = GetIncomingServer(folderURL, getter_AddRefs(server));
+  if (NS_FAILED(rv))
     return false;
 
   // See if we are allowed to save/file msgs to this folder.
-  bool canSave;
-  rv = server->GetCanFileMessagesOnServer(&canSave);
+  if (server)
+  {
+    rv = server->GetCanFileMessagesOnServer(&canSave);
+    if (NS_FAILED(rv))
+      canSave = false;
+  }
   return canSave;
 }
 
@@ -3832,26 +3853,113 @@ nsMsgComposeAndSend::NotifyListenerOnStopCopy(nsresult aStatus)
     rv = bundleService->CreateBundle("chrome://messenger/locale/messengercompose/composeMsgs.properties", getter_AddRefs(bundle));
     NS_ENSURE_SUCCESS(rv, rv);
 
-    nsString msg;
-    const char16_t *formatStrings[] = { mSavedToFolderName.get() };
-
-    rv = bundle->FormatStringFromName(u"errorSavingMsg",
-                                      formatStrings, 1,
-                                      getter_Copies(msg));
+    // Obtain account name for local folders.
+    nsString localFoldersAccountName;
+    nsCOMPtr<nsIMsgAccountManager> accountManager =
+      do_GetService(NS_MSGACCOUNTMANAGER_CONTRACTID, &rv);
     if (NS_SUCCEEDED(rv))
     {
-      bool retry = false;
-      nsMsgAskBooleanQuestionByString(prompt, msg.get(), &retry, nullptr);
-      if (retry)
+      nsCOMPtr<nsIMsgIncomingServer> server;
+      rv = accountManager->GetLocalFoldersServer(getter_AddRefs(server));
+      if (NS_SUCCEEDED(rv))
+        rv = server->GetPrettyName(localFoldersAccountName);
+    }
+    if (NS_FAILED(rv) || localFoldersAccountName.IsEmpty())
+    {
+      // Unable to obtain localFoldersAccountName.
+      Fail(NS_OK, nullptr, &aStatus);
+      return NS_ERROR_FAILURE;
+    }
+
+    // Get the user account name where "save to" failed.
+    nsString accountName;
+    const char* fcc = mCompFields->GetFcc();
+    if (fcc && *fcc)
+    {
+      nsCOMPtr<nsIMsgIncomingServer> server;
+      rv = GetIncomingServer(fcc, getter_AddRefs(server));
+      if (NS_SUCCEEDED(rv) && server)
+        rv = server->GetPrettyName(accountName);
+    }
+    else
+      rv = NS_ERROR_FAILURE;
+    if (NS_FAILED(rv) || accountName.IsEmpty())
+    {
+      // Unable to obtain accountName.
+      Fail(NS_OK, nullptr, &aStatus);
+      return NS_ERROR_FAILURE;
+    }
+
+    const char16_t *formatStrings[] = { mSavedToFolderName.get(), accountName.get(),
+                                        localFoldersAccountName.get() };
+
+    nsString msg;
+    switch (m_deliver_mode)
+    {
+      case nsMsgDeliverNow:
+      case nsMsgSendUnsent:
+        rv = bundle->FormatStringFromName(u"promptToSaveSentLocally",
+                                          formatStrings, 3,
+                                          getter_Copies(msg));
+        break;
+      case nsMsgSaveAsDraft:
+        rv = bundle->FormatStringFromName(u"promptToSaveDraftLocally",
+                                          formatStrings, 3,
+                                          getter_Copies(msg));
+        break;
+      case nsMsgSaveAsTemplate:
+        rv = bundle->FormatStringFromName(u"promptToSaveTemplateLocally",
+                                          formatStrings, 3,
+                                          getter_Copies(msg));
+        break;
+      default:
+        rv = NS_ERROR_UNEXPECTED;
+    }
+    NS_ENSURE_SUCCESS(rv, rv);
+    int32_t buttonPressed = 0;
+    bool showCheckBox = false;
+    uint32_t buttonFlags = (nsIPrompt::BUTTON_POS_0 * nsIPrompt::BUTTON_TITLE_IS_STRING) +
+                           (nsIPrompt::BUTTON_POS_1 * nsIPrompt::BUTTON_TITLE_CANCEL) +
+                           (nsIPrompt::BUTTON_POS_2 * nsIPrompt::BUTTON_TITLE_SAVE);
+    nsString dialogTitle, buttonLabelRetry;
+    bundle->GetStringFromName(u"SaveDialogTitle", getter_Copies(dialogTitle));
+    bundle->GetStringFromName(u"buttonLabelRetry", getter_Copies(buttonLabelRetry));
+    prompt->ConfirmEx(dialogTitle.get(), msg.get(), buttonFlags, buttonLabelRetry.get(),
+                      nullptr, nullptr, nullptr, &showCheckBox, &buttonPressed);
+    if (buttonPressed == 0)
+    {
+      // retry button clicked
+      mSendProgress = nullptr; // this was canceled, so we need to clear it.
+      return SendToMagicFolder(m_deliver_mode);
+    }
+
+    bool saveLocally = (buttonPressed == 2);
+
+    if (saveLocally)
+    {
+      // Try to save to Local Folders/<account name>.
+      // Pass in "nsMsgDeliverNow" so draft saves too. Also, fcc pointer
+      // is nullptr to tell function to save to local folders and not the
+      // configured fcc.
+      rv = MimeDoFCC(mTempFile,
+                     nsIMsgSend::nsMsgDeliverNow,
+                     mCompFields->GetBcc(),
+                     nullptr,
+                     mCompFields->GetNewspostUrl());
+
+      if (NS_FAILED(rv))
       {
-        mSendProgress = nullptr; // this was cancelled, so we need to clear it.
-        return SendToMagicFolder(m_deliver_mode);
+        // Save to Local Folders failed. Inform the user.
+        nsCOMPtr<nsIPrompt> prompt;
+        GetDefaultPrompt(getter_AddRefs(prompt));
+        nsMsgDisplayMessageByName(prompt, u"saveToLocalFoldersFailed");
       }
     }
 
-    // We failed, and the user decided not to retry. So we're just going to
-    // fail out. However, give Fail a success code so that it doesn't prompt
-    // the user a second time as they already know about the failure.
+    // Failure detected when user saved to default folder and the user did not
+    // retry; instead the user saved to Local Folders or canceled the save. So
+    // just call Fail() with a success code so that it doesn't prompt the user
+    // again since the user already knows about the failure and has reacted.
     Fail(NS_OK, nullptr, &aStatus);
   }
 
@@ -4215,21 +4323,13 @@ nsMsgComposeAndSend::MimeDoFCC(nsIFile          *input_file,
   char          *ibuffer = nullptr;
   uint32_t      n;
   bool          folderIsLocal = true;
-  nsCString     turi;
+  nsCString     tmpUri;
   char16_t     *printfString = nullptr;
   nsString msg;
   nsCOMPtr<nsIMsgFolder> folder;
 
-  // Before continuing, just check the user has not cancel the operation
   if (mSendProgress)
-  {
-    bool canceled = false;
-    mSendProgress->GetProcessCanceledByUser(&canceled);
-    if (canceled)
-      return NS_ERROR_ABORT;
-    else
-      mSendProgress->OnProgressChange(nullptr, nullptr, 0, 0, 0, -1);
-  }
+    mSendProgress->OnProgressChange(nullptr, nullptr, 0, 0, 0, -1);
 
   //
   // Ok, this is here to keep track of this for 2 copy operations...
@@ -4296,10 +4396,90 @@ nsMsgComposeAndSend::MimeDoFCC(nsIFile          *input_file,
     GetExistingFolder(nsDependentCString(fcc_header), getter_AddRefs(folder));
 
   if ((mode == nsMsgDeliverNow || mode == nsMsgSendUnsent) && folder)
-    turi = fcc_header;
+  {
+    tmpUri = fcc_header;
+  }
+  else if (!fcc_header)
+  {
+    // Set fcc_header to a special folder in Local Folders "account" since can't
+    // save to Sent mbox, typically because imap connection is down. This
+    // folder is created if it doesn't yet exist.
+
+    nsCString folder;
+    // First, in folder string, obtain the uri for the local folders account
+    // which is typically "mailbox://nobody@Local%20Folders/"
+    nsCOMPtr<nsIMsgAccountManager> accountManager =
+      do_GetService(NS_MSGACCOUNTMANAGER_CONTRACTID, &rv);
+    if (NS_SUCCEEDED(rv) && accountManager)
+    {
+      nsCOMPtr<nsIMsgIncomingServer> server;
+      rv = accountManager->GetLocalFoldersServer(getter_AddRefs(server));
+      if (NS_SUCCEEDED(rv) && server)
+      {
+        nsCOMPtr<nsIMsgFolder> rootFolder;
+        rv = server->GetRootMsgFolder(getter_AddRefs(rootFolder));
+        if (NS_SUCCEEDED(rv) && rootFolder)
+        {
+          rv = rootFolder->GetURI(folder);
+          folder.Append("/");
+        }
+      }
+    }
+    if (NS_FAILED(rv) || folder.IsEmpty())
+    {
+      status = NS_ERROR_FAILURE;
+      goto FAIL;
+    }
+
+    // Now append the special folder name folder to the local folder uri.
+    switch (m_deliver_mode)
+    {
+      case nsMsgDeliverNow:
+      case nsMsgSendUnsent:
+      case nsMsgSaveAsDraft:
+      case nsMsgSaveAsTemplate:
+        // Typically, this appends "Sent-", "Drafts-" or "Templates-" to folder
+        // and then has the account name appended, e.g., .../Sent-MyImapAccount.
+        folder.Append(NS_ConvertUTF16toUTF8(mSavedToFolderName));
+        folder.Append("-");
+        break;
+      default:
+        status = NS_ERROR_FAILURE;
+        goto FAIL;
+    }
+
+    // Get the account name where the "save to" failed.
+    nsString accountName;
+    const char* fcc = mCompFields->GetFcc();
+    if (fcc && *fcc)
+    {
+      nsCOMPtr<nsIMsgIncomingServer> server;
+      rv = GetIncomingServer(fcc, getter_AddRefs(server));
+      if (NS_SUCCEEDED(rv) && server)
+      {
+        rv = server->GetPrettyName(accountName);
+      }
+    }
+    else
+      rv = NS_ERROR_FAILURE;
+    if (NS_FAILED(rv) || accountName.IsEmpty())
+    {
+      status = NS_ERROR_FAILURE;
+      goto FAIL;
+    }
+
+    // Now append the imap account name (escaped) to the folder uri.
+    nsCString escAccountName;
+    MsgEscapeString(NS_ConvertUTF16toUTF8(accountName), nsINetUtil::ESCAPE_URL_PATH, escAccountName);
+    folder += escAccountName;
+    fcc_header = ToNewCString(folder);
+    tmpUri = fcc_header;
+  }
   else
-    GetFolderURIFromUserPrefs(mode, mUserIdentity, turi);
-  status = MessageFolderIsLocal(mUserIdentity, mode, turi.get(), &folderIsLocal);
+  {
+    GetFolderURIFromUserPrefs(mode, mUserIdentity, tmpUri);
+  }
+  status = MessageFolderIsLocal(mUserIdentity, mode, tmpUri.get(), &folderIsLocal);
   if (NS_FAILED(status))
     goto FAIL;
 
@@ -4312,7 +4492,7 @@ nsMsgComposeAndSend::MimeDoFCC(nsIFile          *input_file,
     if (rdfService)
     {
       nsCOMPtr<nsIRDFResource> res;
-      rdfService->GetResource(turi, getter_AddRefs(res));
+      rdfService->GetResource(tmpUri, getter_AddRefs(res));
       nsCOMPtr<nsIMsgFolder> folder = do_QueryInterface(res);
       if (folder)
         folder->GetName(mSavedToFolderName);
@@ -4644,7 +4824,7 @@ FAIL:
   if (NS_SUCCEEDED(status))
   {
     // If we are here, time to start the async copy service operation!
-    status = StartMessageCopyOperation(mCopyFile, mode, turi);
+    status = StartMessageCopyOperation(mCopyFile, mode, tmpUri);
   }
   return status;
 }
