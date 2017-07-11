@@ -20,3 +20,7 @@ mk_add_options ALWAYS_RUN_CLIENT_PY=1
 
 # XXX hack to work around dsymutil failing on OSX builds (bug 1380381, 1382262)
 ac_add_options RUSTFLAGS='-C debuginfo=1'
+
+# Disable stylo.
+# https://bugzilla.mozilla.org/show_bug.cgi?id=1380171
+ac_add_options --disable-stylo
