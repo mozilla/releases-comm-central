@@ -147,31 +147,6 @@ nsMsgContentPolicy::ShouldLoad(uint32_t          aContentType,
                                nsIPrincipal     *aRequestPrincipal,
                                int16_t          *aDecision)
 {
-  nsAutoCString spec;
-  aContentLocation->GetSpec(spec);
-  printf("=== nsMsgContentPolicy::ShouldLoad: URI=|%s|\n", spec.get());
-  if (spec.Find("part=") != kNotFound) {
-    printf("=== nsMsgContentPolicy::ShouldLoad: this is a message part\n");
-  }
-  if (aRequestingLocation)
-   printf("=== aRequestingLocation = %s\n", aRequestingLocation->GetSpecOrDefault().get());
-  
-  if (aRequestPrincipal) {
-    bool sp = nsContentUtils::IsSystemPrincipal(aRequestPrincipal);
-    bool cp = aRequestPrincipal->GetIsCodebasePrincipal();
-    bool np = aRequestPrincipal->GetIsNullPrincipal();
-    printf("=== nsMsgContentPolicy::ShouldLoad: Request Principal Sys/Code/Null Principal: %d/%d/%d\n",
-    sp?1:0, cp?1:0, np?1:0);
-    if (cp) {
-      nsCOMPtr<nsIURI> principalURI;
-      aRequestPrincipal->GetURI(getter_AddRefs(principalURI));
-      nsAutoCString principalURISpec;
-      principalURI->GetSpec(principalURISpec);
-      printf("=== nsMsgContentPolicy::ShouldLoad: CodebasePrincipal=|%s|\n", principalURISpec.get());
-    }
-  } else
-    printf("=== nsMsgContentPolicy::ShouldLoad: Request Principal is NULL\n");
-
   nsresult rv = NS_OK;
   // The default decision at the start of the function is to accept the load.
   // Once we have checked the content type and the requesting location, then
@@ -187,7 +162,7 @@ nsMsgContentPolicy::ShouldLoad(uint32_t          aContentType,
 
   NS_ENSURE_ARG_POINTER(aContentLocation);
 
-#if 0
+#ifdef DEBUG_MsgContentPolicy
   fprintf(stderr, "aContentType: %d\naContentLocation = %s\n",
           aContentType,
           aContentLocation->GetSpecOrDefault().get());
@@ -205,7 +180,7 @@ nsMsgContentPolicy::ShouldLoad(uint32_t          aContentType,
   rv = rootDocShell->GetAppType(&appType);
   // We only want to deal with mailnews
   if (NS_FAILED(rv) || appType != nsIDocShell::APP_TYPE_MAIL)
-    { printf("=== returning (1) %d\n", (int) *aDecision); return NS_OK; }
+    return NS_OK;
 #endif
 
   switch(aContentType) {
@@ -222,21 +197,20 @@ nsMsgContentPolicy::ShouldLoad(uint32_t          aContentType,
     // sorry, because OnLocationChange isn't guaranteed to necessarily be called
     // soon enough to disable it in time (though bz says it _should_ be called
     // soon enough "in all sane cases").
-    printf("=== nsMsgContentPolicy::ShouldLoad calling SetDisableItemsOnMailNewsUrlDocshells\n");
     rv = SetDisableItemsOnMailNewsUrlDocshells(aContentLocation,
                                                aRequestingContext);
     // if something went wrong during the tweaking, reject this content
     if (NS_FAILED(rv)) {
       NS_WARNING("Failed to set disable items on docShells");
       *aDecision = nsIContentPolicy::REJECT_TYPE;
-      printf("=== returning (2) %d\n", (int)*aDecision); return NS_OK;
+      return NS_OK;
     }
     break;
 
   case nsIContentPolicy::TYPE_CSP_REPORT:
     // We cannot block CSP reports.
     *aDecision = nsIContentPolicy::ACCEPT;
-    printf("=== returning (3A) %d\n", (int) *aDecision); return NS_OK;
+    return NS_OK;
     break;
 
   default:
@@ -247,7 +221,7 @@ nsMsgContentPolicy::ShouldLoad(uint32_t          aContentType,
   // that can happen.  Also keep in mind that the default policy used for a
   // failure code is ACCEPT.
   if (!aRequestingLocation)
-    { printf("=== returning no request location\n"); return NS_ERROR_INVALID_POINTER; }
+    return NS_ERROR_INVALID_POINTER;
 
 #ifdef DEBUG_MsgContentPolicy
   fprintf(stderr, "aRequestingLocation = %s\n", aRequestingLocation->GetSpecOrDefault().get());
@@ -255,7 +229,7 @@ nsMsgContentPolicy::ShouldLoad(uint32_t          aContentType,
 
   // If the requesting location is safe, accept the content location request.
   if (IsSafeRequestingLocation(aRequestingLocation))
-    { printf("=== returning on safe\n"); return rv; }
+    return rv;
 
   // Now default to reject so early returns via NS_ENSURE_SUCCESS
   // cause content to be rejected.
@@ -277,7 +251,6 @@ nsMsgContentPolicy::ShouldLoad(uint32_t          aContentType,
   if (contentURL) {
     nsCOMPtr<nsINntpUrl> contentNntpURL(do_QueryInterface(aContentLocation));
     if (!contentNntpURL) {
-      printf("=== content NOT news\n");
       // Mail message (mailbox, imap or JsAccount) content requested, for example
       // a message part, like an image:
       // To load mail message content the requester must have the same
@@ -290,26 +263,23 @@ nsMsgContentPolicy::ShouldLoad(uint32_t          aContentType,
         nsCString contentPrincipalSpec, requestPrincipalSpec;
         nsresult rv1 = contentURL->GetPrincipalSpec(contentPrincipalSpec);
         nsresult rv2 = requestURL->GetPrincipalSpec(requestPrincipalSpec);
-        printf("=== content principal spec: |%s|\n", contentPrincipalSpec.get());
-        printf("=== request principal spec: |%s|\n", requestPrincipalSpec.get());
         if (NS_SUCCEEDED(rv1) && NS_SUCCEEDED(rv2) &&
             contentPrincipalSpec.Equals(requestPrincipalSpec))
           *aDecision = nsIContentPolicy::ACCEPT; // (1)
       }
-      printf("=== returning (3B) %d\n", (int) *aDecision); return NS_OK; // (2) and (3)
+      return NS_OK; // (2) and (3)
     }
 
-    printf("=== content IS news\n");
     // News message content requested. Don't accept request coming
     // from a mail message since it would access the news server.
     nsCOMPtr<nsIMsgMessageUrl> requestURL(do_QueryInterface(aRequestingLocation));
     if (requestURL) {
       nsCOMPtr<nsINntpUrl> requestNntpURL(do_QueryInterface(aRequestingLocation));
       if (!requestNntpURL)
-        { printf("=== returning (3C) %d\n", (int) *aDecision); return NS_OK; } // (4)
+        return NS_OK; // (4)
     }
     *aDecision = nsIContentPolicy::ACCEPT; // (5) and (6)
-    printf("=== returning (3D) %d\n", (int) *aDecision); return NS_OK;
+    return NS_OK;
   }
 
   // If exposed protocol not covered by the test above or protocol that has been
@@ -317,19 +287,19 @@ nsMsgContentPolicy::ShouldLoad(uint32_t          aContentType,
   if (IsExposedProtocol(aContentLocation))
   {
     *aDecision = nsIContentPolicy::ACCEPT;
-    printf("=== returning (4) %d\n", (int) *aDecision); return NS_OK;
+    return NS_OK;
   }
 
   // never load unexposed protocols except for http, https and file.
   // Protocols like ftp are always blocked.
   if (ShouldBlockUnexposedProtocol(aContentLocation))
-    { printf("=== returning (5) %d\n", (int)*aDecision); return NS_OK;}
+    return NS_OK;
 
   // If we are allowing all remote content...
   if (!mBlockRemoteImages)
   {
     *aDecision = nsIContentPolicy::ACCEPT;
-    printf("=== returning (6) %d\n", (int) *aDecision); return NS_OK;
+    return NS_OK;
   }
 
   // Extract the windowtype to handle compose windows separately from mail
@@ -342,7 +312,7 @@ nsMsgContentPolicy::ShouldLoad(uint32_t          aContentType,
     {
       ComposeShouldLoad(msgCompose, aRequestingContext, aContentLocation,
                         aDecision);
-      printf("=== returning (7) %d\n", (int) *aDecision); return NS_OK;
+      return NS_OK;
     }
   }
 
@@ -359,7 +329,7 @@ nsMsgContentPolicy::ShouldLoad(uint32_t          aContentType,
     rv = GetOriginatingURIForContext(aRequestingContext,
                                      getter_AddRefs(originatorLocation));
     if (NS_SUCCEEDED(rv) && !originatorLocation)
-      { printf("=== returning (8) %d\n", (int) *aDecision); return NS_OK; }
+      return NS_OK;
   }
   NS_ENSURE_SUCCESS(rv, NS_OK);
 
@@ -374,7 +344,7 @@ nsMsgContentPolicy::ShouldLoad(uint32_t          aContentType,
   nsresult rv2 = originatorLocation->SchemeIs("https", &isHttps);
   if (NS_SUCCEEDED(rv) && NS_SUCCEEDED(rv2) && (isHttp || isHttps))
   {
-    printf("=== returning (9) %d\n", (int)*aDecision); return NS_OK;
+    *aDecision = nsIContentPolicy::ACCEPT;
     return NS_OK;
   }
 
@@ -389,19 +359,19 @@ nsMsgContentPolicy::ShouldLoad(uint32_t          aContentType,
     case nsIPermissionManager::ALLOW_ACTION:
     {
       *aDecision = nsIContentPolicy::ACCEPT;
-      printf("=== returning (10) %d\n", (int) *aDecision); return NS_OK;
+      return NS_OK;
     }
     case nsIPermissionManager::DENY_ACTION:
     {
       *aDecision = nsIContentPolicy::REJECT_REQUEST;
-      printf("=== returning (11) %d\n", (int) *aDecision); return NS_OK;
+      return NS_OK;
     }
   }
 
   // The default decision is still to reject.
   ShouldAcceptContentForPotentialMsg(originatorLocation, aContentLocation,
                                      aDecision);
-  printf("=== returning (12) %d\n", (int) *aDecision); return NS_OK;
+  return NS_OK;
 }
 
 /**
@@ -752,9 +722,6 @@ already_AddRefed<nsIMsgCompose> nsMsgContentPolicy::GetMsgComposeForContext(nsIS
 nsresult nsMsgContentPolicy::SetDisableItemsOnMailNewsUrlDocshells(
   nsIURI *aContentLocation, nsISupports *aRequestingContext)
 {
-  nsAutoCString spec;
-  aContentLocation->GetSpec(spec);
-  printf("=== SetDisableItemsOnMailNewsUrlDocshells: URI=|%s|\n", spec.get());
   // XXX if this class changes so that this method can be called from
   // ShouldProcess, and if it's possible for this to be null when called from
   // ShouldLoad, but not in the corresponding ShouldProcess call,
@@ -763,7 +730,6 @@ nsresult nsMsgContentPolicy::SetDisableItemsOnMailNewsUrlDocshells(
   // If there's no docshell to get to, there's nowhere for the JavaScript to
   // run, so we're already safe and don't need to disable anything.
   if (!aRequestingContext) {
-    printf("=== SetDisableItemsOnMailNewsUrlDocshells: bailing early (1)\n");
     return NS_OK;
   }
 
@@ -773,7 +739,6 @@ nsresult nsMsgContentPolicy::SetDisableItemsOnMailNewsUrlDocshells(
   if (NS_FAILED(rv) && !isAllowedContent) {
     // If it's not a mailnews url or allowed content url (http[s]|file) then
     // bail; otherwise set whether js and plugins are allowed.
-    printf("=== SetDisableItemsOnMailNewsUrlDocshells: bailing early (2)\n");
     return NS_OK;
   }
 
