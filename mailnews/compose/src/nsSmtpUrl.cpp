@@ -600,6 +600,24 @@ nsMailtoUrl::GetSpecIgnoringRef(nsACString &result)
 }
 
 NS_IMETHODIMP
+nsMailtoUrl::GetDisplaySpec(nsACString& aUnicodeSpec)
+{
+  return GetSpec(aUnicodeSpec);
+}
+
+NS_IMETHODIMP
+nsMailtoUrl::GetDisplayHostPort(nsACString& aUnicodeHostPort)
+{
+  return GetHostPort(aUnicodeHostPort);
+}
+
+NS_IMETHODIMP
+nsMailtoUrl::GetDisplayHost(nsACString& aUnicodeHost)
+{
+  return GetHost(aUnicodeHost);
+}
+
+NS_IMETHODIMP
 nsMailtoUrl::GetHasRef(bool *result)
 {
   return m_baseURL->GetHasRef(result);

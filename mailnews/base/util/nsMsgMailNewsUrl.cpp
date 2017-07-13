@@ -585,6 +585,24 @@ nsMsgMailNewsUrl::GetSpecIgnoringRef(nsACString &result)
 }
 
 NS_IMETHODIMP
+nsMsgMailNewsUrl::GetDisplaySpec(nsACString& aUnicodeSpec)
+{
+  return GetSpec(aUnicodeSpec);
+}
+
+NS_IMETHODIMP
+nsMsgMailNewsUrl::GetDisplayHostPort(nsACString& aUnicodeHostPort)
+{
+  return GetHostPort(aUnicodeHostPort);
+}
+
+NS_IMETHODIMP
+nsMsgMailNewsUrl::GetDisplayHost(nsACString& aUnicodeHost)
+{
+  return GetHost(aUnicodeHost);
+}
+
+NS_IMETHODIMP
 nsMsgMailNewsUrl::GetHasRef(bool *result)
 {
   return m_baseURL->GetHasRef(result);

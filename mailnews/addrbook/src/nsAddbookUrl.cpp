@@ -290,6 +290,24 @@ nsAddbookUrl::GetSpecIgnoringRef(nsACString &result)
 }
 
 NS_IMETHODIMP
+nsAddbookUrl::GetDisplaySpec(nsACString& aUnicodeSpec)
+{
+  return GetSpec(aUnicodeSpec);
+}
+
+NS_IMETHODIMP
+nsAddbookUrl::GetDisplayHostPort(nsACString& aUnicodeHostPort)
+{
+  return GetHostPort(aUnicodeHostPort);
+}
+
+NS_IMETHODIMP
+nsAddbookUrl::GetDisplayHost(nsACString& aUnicodeHost)
+{
+  return GetHost(aUnicodeHost);
+}
+
+NS_IMETHODIMP
 nsAddbookUrl::GetHasRef(bool *result)
 {
   return m_baseURL->GetHasRef(result);

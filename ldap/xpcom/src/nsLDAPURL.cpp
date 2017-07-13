@@ -719,6 +719,24 @@ nsLDAPURL::GetSpecIgnoringRef(nsACString &result)
 }
 
 NS_IMETHODIMP
+nsLDAPURL::GetDisplaySpec(nsACString& aUnicodeSpec)
+{
+  return GetSpec(aUnicodeSpec);
+}
+
+NS_IMETHODIMP
+nsLDAPURL::GetDisplayHostPort(nsACString& aUnicodeHostPort)
+{
+  return GetHostPort(aUnicodeHostPort);
+}
+
+NS_IMETHODIMP
+nsLDAPURL::GetDisplayHost(nsACString& aUnicodeHost)
+{
+  return GetHost(aUnicodeHost);
+}
+
+NS_IMETHODIMP
 nsLDAPURL::GetHasRef(bool *result)
 {
   return mBaseURL->GetHasRef(result);
