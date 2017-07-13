@@ -73,7 +73,6 @@ del pyver
 
 import os
 from optparse import OptionParser, OptionValueError
-import urllib2
 import re
 
 topsrcdir = os.path.dirname(__file__)
@@ -417,9 +416,6 @@ o.add_option("--skip-mozilla", dest="skip_mozilla",
 o.add_option("--mozilla-rev", dest="mozilla_rev",
              default=None,
              help="Revision of Mozilla repository to update to. If not present, MOZILLA_REV from the environment will be used. If that doesn't exist the default is: \"" + get_DEFAULT_tag('MOZILLA_REV') + "\"")
-o.add_option("--known-good", dest="known_good",
-             action="store_true", default=False,
-             help="Use the last known-good Mozilla repository revision.")
 
 o.add_option("--inspector-repo", dest="inspector_repo",
              default=None,
@@ -585,18 +581,6 @@ def fixup_inspector_repo_options(options):
         options.inspector_rev = get_DEFAULT_tag("INSPECTOR_REV")
 
 
-def get_last_known_good_mozilla_rev():
-    kg_url = "http://build.mozillamessaging.com/buildbot/production/known-good-revisions/mozilla-central.txt"
-    try:
-        rev = urllib2.urlopen(kg_url).read().strip()
-    except IOError, err:
-        sys.exit("Error: could not fetch '%s' (%s)" % (kg_url, err))
-    if re.search(r'^[a-f0-9]+$', rev) and len(rev) == 12:
-        return rev
-    else:
-        sys.exit("Error: invalid contents fetched from %s: '%s'" %
-                 (kg_url, rev))
-
 try:
     (options, (action,)) = o.parse_args()
 except ValueError:
@@ -621,11 +605,6 @@ if action in ('checkout', 'co'):
         do_hg_pull('.', options.comm_repo, options.hg, options.comm_rev)
 
     if not options.skip_mozilla:
-        if options.known_good and options.mozilla_rev is None:
-            print "Fetching last known good mozilla revision"
-            options.mozilla_rev = get_last_known_good_mozilla_rev()
-            print "Setting mozilla_rev to '%s'" % options.mozilla_rev
-
         fixup_mozilla_repo_options(options)
         do_hg_pull('mozilla', options.mozilla_repo, options.hg,
                    options.mozilla_rev, options.hgtool, options.hgtool1)
