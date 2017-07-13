@@ -3,10 +3,6 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-
-# Warning, this file must be compatible with Python 2.4, for our
-# various tools, such as http://mxr.mozilla.org/ see-also: Bug 601207
-
 # Repo Defaults
 # 'REV' controls the default rev for All the various repo's
 # Define x_REV to override. Where x can be one of:
@@ -66,13 +62,12 @@ SWITCH_MOZILLA_REPO_REPLACE = '%s://hg.mozilla.org/mozilla-central/'
 SWITCH_MOZILLA_BASE_REV = "GECKO_1_9_1_BASE"
 
 import sys
-# Test Python Version. 2.4 required for `import subprocess`
 pyver = sys.version_info
-if pyver[0] <= 1 or (pyver[0] == 2 and pyver[1] < 4):
-    sys.exit("ERROR: Python 2.4 or newer required")
+if pyver[0] <= 1 or (pyver[0] == 2 and pyver[1] < 7):
+    sys.exit("ERROR: Python 2.7 or newer required")
 elif pyver[0] >= 3:
     # Python series 3 will syntax error here, Hack needed per Bug 601649c#8
-    print "ERROR: Python series 3 is not supported, use series 2 >= 2.4"
+    print "ERROR: Python series 3 is not supported, use python 2.7"
     sys.exit()  # Do an explicit sys.exit for code clarity.
 del pyver
 
@@ -87,36 +82,7 @@ if topsrcdir == '':
 
 TREE_STATE_FILE = os.path.join(topsrcdir, '.treestate')
 
-try:
-    from subprocess import check_call
-except ImportError:
-    import subprocess
-
-    def check_call(*popenargs, **kwargs):
-        retcode = subprocess.call(*popenargs, **kwargs)
-        if retcode:
-            cmd = kwargs.get("args")
-            if cmd is None:
-                cmd = popenargs[0]
-                raise Exception("Command '%s' returned non-zero exit status %i" % (cmd, retcode))
-
-try:
-    from subprocess import check_output
-except ImportError:
-    import subprocess
-
-    def check_output(*popenargs, **kwargs):
-        if 'stdout' in kwargs:
-            raise ValueError('stdout argument not allowed, it will be overridden.')
-        process = subprocess.Popen(stdout=subprocess.PIPE, *popenargs, **kwargs)
-        output, unused_err = process.communicate()
-        retcode = process.poll()
-        if retcode:
-            cmd = kwargs.get("args")
-            if cmd is None:
-                cmd = popenargs[0]
-            raise CalledProcessError(retcode, cmd, output=output)
-        return output
+from subprocess import check_call, check_output
 
 
 def check_call_output(cmd, *args, **kwargs):
