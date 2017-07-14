@@ -76,6 +76,7 @@
 #include "mozilla/mailnews/MimeHeaderParser.h"
 #include "mozilla/Preferences.h"
 #include "mozilla/ErrorResult.h"
+#include "mozilla/dom/HTMLImageElement.h"
 #include "nsStreamConverter.h"
 #include "nsISelection.h"
 #include "nsJSEnvironment.h"
@@ -262,7 +263,6 @@ bool nsMsgCompose::IsEmbeddedObjectSafe(const char * originalScheme,
 {
   nsresult rv;
 
-  nsCOMPtr<nsIDOMHTMLImageElement> image;
   nsCOMPtr<nsIDOMHTMLLinkElement> link;
   nsCOMPtr<nsIDOMHTMLAnchorElement> anchor;
   nsAutoString objURL;
@@ -270,10 +270,12 @@ bool nsMsgCompose::IsEmbeddedObjectSafe(const char * originalScheme,
   if (!object || !originalScheme || !originalPath) //having a null host is ok...
     return false;
 
-  if ((image = do_QueryInterface(object)))
+  nsCOMPtr<Element> imageElement = do_QueryInterface(object);
+  RefPtr<mozilla::dom::HTMLImageElement> image =
+    mozilla::dom::HTMLImageElement::FromContentOrNull(imageElement);
+  if (image)
   {
-    if (NS_FAILED(image->GetSrc(objURL)))
-      return false;
+    image->GetSrc(objURL);
   }
   else if ((link = do_QueryInterface(object)))
   {
@@ -374,7 +376,9 @@ nsresult nsMsgCompose::ResetUrisForEmbeddedObjects()
         if (!domElement)
           continue;
 
-        nsCOMPtr<nsIDOMHTMLImageElement> image = do_QueryInterface(domElement);
+        nsCOMPtr<Element> imageElement = do_QueryInterface(domElement);
+        RefPtr<mozilla::dom::HTMLImageElement> image =
+          mozilla::dom::HTMLImageElement::FromContentOrNull(imageElement);
         if (!image)
           continue;
         nsCString partNum;
@@ -448,7 +452,8 @@ nsresult nsMsgCompose::ResetUrisForEmbeddedObjects()
           restOfUrl.SetCharAt('?', 0);
         AppendUTF8toUTF16(spec, newSrc);
         newSrc.Append(restOfUrl);
-        image->SetSrc(newSrc);
+        IgnoredErrorResult rv2;
+        image->SetSrc(newSrc, rv2);
       }
     }
   }

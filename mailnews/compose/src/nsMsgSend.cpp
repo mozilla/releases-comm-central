@@ -78,6 +78,7 @@
 #include "mozilla/Attributes.h"
 #include "mozilla/mailnews/MimeEncoder.h"
 #include "mozilla/mailnews/MimeHeaderParser.h"
+#include "mozilla/dom/HTMLImageElement.h"
 #include "nsIMutableArray.h"
 #include "nsIMsgFilterService.h"
 #include "nsIMsgProtocolInfo.h"
@@ -1292,7 +1293,9 @@ nsMsgComposeAndSend::GetEmbeddedObjectInfo(nsIDOMNode *node, nsMsgAttachmentData
   // our query interface here and see what we come up with
   nsCOMPtr<nsIDOMHTMLBodyElement>     body = (do_QueryInterface(node));
   // XXX convert to use nsIImageLoadingContent?
-  nsCOMPtr<nsIDOMHTMLImageElement>    image = (do_QueryInterface(node));
+  nsCOMPtr<Element> imageElement = do_QueryInterface(node);
+  RefPtr<mozilla::dom::HTMLImageElement> image =
+    mozilla::dom::HTMLImageElement::FromContentOrNull(imageElement);
   nsCOMPtr<nsIDOMHTMLLinkElement>     link = (do_QueryInterface(node));
   nsCOMPtr<nsIDOMHTMLAnchorElement>   anchor = (do_QueryInterface(node));
 
@@ -1316,8 +1319,7 @@ nsMsgComposeAndSend::GetEmbeddedObjectInfo(nsIDOMNode *node, nsMsgAttachmentData
     nsString    tDesc;
 
     // Create the URI
-    if (NS_FAILED(image->GetSrc(tUrl)))
-      return NS_ERROR_FAILURE;
+    image->GetSrc(tUrl);
     if (tUrl.IsEmpty())
       return NS_OK;
 
@@ -1360,12 +1362,10 @@ nsMsgComposeAndSend::GetEmbeddedObjectInfo(nsIDOMNode *node, nsMsgAttachmentData
     }
     isImage = true;
 
-    rv = image->GetName(tName);
-    NS_ENSURE_SUCCESS(rv, rv);
+    image->GetName(tName);
 
     LossyCopyUTF16toASCII(tName, attachment->m_realName);
-    rv = image->GetLongDesc(tDesc);
-    NS_ENSURE_SUCCESS(rv, rv);
+    image->GetLongDesc(tDesc);
     attachment->m_description = NS_LossyConvertUTF16toASCII(tDesc); // XXX i18n
   }
   else if (link)        // Is this a link?
@@ -1842,7 +1842,9 @@ nsMsgComposeAndSend::ProcessMultipartRelated(int32_t *aMailboxCount, int32_t *aN
       // Now, we know the types of objects this node can be, so we will do
       // our query interface here and see what we come up with
       nsCOMPtr<nsIDOMHTMLBodyElement>     body = (do_QueryInterface(domSaveArray[j].node));
-      nsCOMPtr<nsIDOMHTMLImageElement>    image = (do_QueryInterface(domSaveArray[j].node));
+      nsCOMPtr<Element> imageElement = do_QueryInterface(domSaveArray[j].node);
+      RefPtr<mozilla::dom::HTMLImageElement> image =
+        mozilla::dom::HTMLImageElement::FromContentOrNull(imageElement);
       nsCOMPtr<nsIDOMHTMLLinkElement>     link = (do_QueryInterface(domSaveArray[j].node));
       nsCOMPtr<nsIDOMHTMLAnchorElement>   anchor = (do_QueryInterface(domSaveArray[j].node));
 
@@ -1859,7 +1861,8 @@ nsMsgComposeAndSend::ProcessMultipartRelated(int32_t *aMailboxCount, int32_t *aN
       else if (image)
       {
         image->GetSrc(domURL);
-        image->SetSrc(newSpec);
+        IgnoredErrorResult rv2;
+        image->SetSrc(newSpec, rv2);
       }
       else if (body)
       {
@@ -1887,7 +1890,9 @@ nsMsgComposeAndSend::ProcessMultipartRelated(int32_t *aMailboxCount, int32_t *aN
     // Now, we know the types of objects this node can be, so we will do
     // our query interface here and see what we come up with
     nsCOMPtr<nsIDOMHTMLBodyElement>     body = (do_QueryInterface(domSaveArray[i].node));
-    nsCOMPtr<nsIDOMHTMLImageElement>    image = (do_QueryInterface(domSaveArray[i].node));
+    nsCOMPtr<Element> imageElement = do_QueryInterface(domSaveArray[i].node);
+    RefPtr<mozilla::dom::HTMLImageElement> image =
+      mozilla::dom::HTMLImageElement::FromContentOrNull(imageElement);
     nsCOMPtr<nsIDOMHTMLLinkElement>     link = (do_QueryInterface(domSaveArray[i].node));
     nsCOMPtr<nsIDOMHTMLAnchorElement>   anchor = (do_QueryInterface(domSaveArray[i].node));
 
@@ -1897,8 +1902,10 @@ nsMsgComposeAndSend::ProcessMultipartRelated(int32_t *aMailboxCount, int32_t *aN
       anchor->SetHref(NS_ConvertASCIItoUTF16(domSaveArray[i].url));
     else if (link)
       link->SetHref(NS_ConvertASCIItoUTF16(domSaveArray[i].url));
-    else if (image)
-      image->SetSrc(NS_ConvertASCIItoUTF16(domSaveArray[i].url));
+    else if (image) {
+      IgnoredErrorResult rv2;
+      image->SetSrc(NS_ConvertASCIItoUTF16(domSaveArray[i].url), rv2);
+    }
     else if (body)
       body->SetBackground(NS_ConvertASCIItoUTF16(domSaveArray[i].url));
 
