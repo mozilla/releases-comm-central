@@ -615,7 +615,7 @@ nsBeckyMail::ImportMailbox(nsIImportMailboxDescriptor *aSource,
   nsAutoString successMessage;
   const char16_t *format = { name.get() };
   rv =
-      nsBeckyStringBundle::FormatStringFromName(u"BeckyImportMailboxSuccess",
+      nsBeckyStringBundle::FormatStringFromName("BeckyImportMailboxSuccess",
                                                 &format,
                                                 1,
                                                 getter_Copies(successMessage));

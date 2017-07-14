@@ -577,7 +577,7 @@ nsMsgFilter::LogRuleHitGeneric(nsIMsgRuleAction *aFilterAction,
       const char16_t *logErrorFormatStrings[2] = { tErrmsg16.get(),  tcode16.get()};
       nsString filterFailureWarningPrefix;
       rv = bundle->FormatStringFromName(
-                      u"filterFailureWarningPrefix",
+                      "filterFailureWarningPrefix",
                       logErrorFormatStrings, 2,
                       getter_Copies(filterFailureWarningPrefix));
       NS_ENSURE_SUCCESS(rv, rv);
@@ -588,7 +588,7 @@ nsMsgFilter::LogRuleHitGeneric(nsIMsgRuleAction *aFilterAction,
     const char16_t *filterLogDetectFormatStrings[4] = { filterName.get(), authorValue.get(), subjectValue.get(), dateValue.get() };
     nsString filterLogDetectStr;
     rv = bundle->FormatStringFromName(
-      u"filterLogDetectStr",
+      "filterLogDetectStr",
       filterLogDetectFormatStrings, 4,
       getter_Copies(filterLogDetectStr));
     NS_ENSURE_SUCCESS(rv, rv);
@@ -611,7 +611,7 @@ nsMsgFilter::LogRuleHitGeneric(nsIMsgRuleAction *aFilterAction,
       nsString logMoveStr;
       rv = bundle->FormatStringFromName(
         (actionType == nsMsgFilterAction::MoveToFolder) ?
-          u"logMoveStr" : u"logCopyStr",
+          "logMoveStr" : "logCopyStr",
         logMoveFormatStrings, 2,
         getter_Copies(logMoveStr));
       NS_ENSURE_SUCCESS(rv, rv);
@@ -627,15 +627,15 @@ nsMsgFilter::LogRuleHitGeneric(nsIMsgRuleAction *aFilterAction,
         customAction->GetName(filterActionName);
       if (filterActionName.IsEmpty())
         bundle->GetStringFromName(
-                  u"filterMissingCustomAction",
+                  "filterMissingCustomAction",
                   getter_Copies(filterActionName));
       buffer += NS_ConvertUTF16toUTF8(filterActionName);
     }
     else
     {
       nsString actionValue;
-      nsAutoString filterActionID;
-      filterActionID = NS_LITERAL_STRING("filterAction");
+      nsAutoCString filterActionID;
+      filterActionID = NS_LITERAL_CSTRING("filterAction");
       filterActionID.AppendInt(actionType);
       rv = bundle->GetStringFromName(filterActionID.get(), getter_Copies(actionValue));
       NS_ENSURE_SUCCESS(rv, rv);

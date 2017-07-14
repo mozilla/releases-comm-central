@@ -62,13 +62,13 @@ nsresult GetBundleValue(nsIStringBundle * aBundle,
                         const nsString& aProp,
                         char16_t ** aResult)
 {
-  nsAutoString key; 
+  nsAutoString key;
 
   key.AssignWithConversion(aName);
   ToLowerCase(key); // we lowercase the main comparison key
   key.Append(aProp);
 
-  return aBundle->GetStringFromName(key.get(), aResult);
+  return aBundle->GetStringFromName(NS_ConvertUTF16toUTF8(key).get(), aResult);
 }
 
 static

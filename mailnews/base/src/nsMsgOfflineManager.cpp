@@ -249,7 +249,7 @@ nsresult nsMsgOfflineManager::ShowStatus(const char *statusMsgName)
   }
 
   nsString statusString;
-  nsresult res = mStringBundle->GetStringFromName(NS_ConvertASCIItoUTF16(statusMsgName).get(),
+  nsresult res = mStringBundle->GetStringFromName(statusMsgName,
 						  getter_Copies(statusString));
 
   if (NS_SUCCEEDED(res) && m_statusFeedback)

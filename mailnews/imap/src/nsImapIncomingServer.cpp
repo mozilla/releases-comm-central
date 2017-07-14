@@ -1866,7 +1866,7 @@ nsImapIncomingServer::FEAlert(const nsAString& aAlertString,
       const char16_t *params[] = { hostName.get(), tempString.get() };
 
       rv = m_stringBundle->FormatStringFromName(
-        u"imapServerAlert",
+        "imapServerAlert",
         params, 2, getter_Copies(message));
       if (NS_SUCCEEDED(rv))
         return AlertUser(message, aUrl);
@@ -1905,7 +1905,7 @@ nsImapIncomingServer::FEAlertWithName(const char* aMsgName, nsIMsgMailNewsUrl *a
     {
       const char16_t *params[] = { hostName.get() };
       rv = m_stringBundle->FormatStringFromName(
-        NS_ConvertASCIItoUTF16(aMsgName).get(),
+        aMsgName,
         params, 1,getter_Copies(message));
       if (NS_SUCCEEDED(rv))
         return AlertUser(message, aUrl);
@@ -1951,7 +1951,7 @@ NS_IMETHODIMP  nsImapIncomingServer::FEAlertFromServer(const nsACString& aServer
     nullptr
   };
 
-  nsString msgName;
+  const char* msgName;
   int32_t numStrings;
   nsString fullMessage;
   nsCOMPtr<nsIImapUrl> imapUrl = do_QueryInterface(aUrl);
@@ -1974,12 +1974,12 @@ NS_IMETHODIMP  nsImapIncomingServer::FEAlertFromServer(const nsACString& aServer
     if (folder)
       folder->GetPrettyName(folderName);
     numStrings = 3;
-    msgName.AssignLiteral("imapFolderCommandFailed");
+    msgName = "imapFolderCommandFailed";
     formatStrings[1] = folderName.get();
   }
   else
   {
-    msgName.AssignLiteral("imapServerCommandFailed");
+    msgName = "imapServerCommandFailed";
     numStrings = 2;
   }
 
@@ -1989,7 +1989,7 @@ NS_IMETHODIMP  nsImapIncomingServer::FEAlertFromServer(const nsACString& aServer
   NS_ENSURE_SUCCESS(rv, rv);
   if (m_stringBundle)
   {
-    rv = m_stringBundle->FormatStringFromName(msgName.get(),
+    rv = m_stringBundle->FormatStringFromName(msgName,
       formatStrings, numStrings, getter_Copies(fullMessage));
     NS_ENSURE_SUCCESS(rv, rv);
   }
@@ -2018,9 +2018,7 @@ nsImapIncomingServer::GetImapStringByName(const char* msgName, nsAString& aStrin
   if (m_stringBundle)
   {
     nsString res_str;
-    rv = m_stringBundle->GetStringFromName(
-       NS_ConvertASCIItoUTF16(msgName).get(),
-       getter_Copies(res_str));
+    rv = m_stringBundle->GetStringFromName(msgName, getter_Copies(res_str));
     aString.Assign(res_str);
     if (NS_SUCCEEDED(rv))
       return rv;
@@ -2207,7 +2205,7 @@ nsImapIncomingServer::PromptPassword(nsIMsgWindow *aMsgWindow,
 
   nsString passwordText;
   rv = m_stringBundle->FormatStringFromName(
-    u"imapEnterServerPasswordPrompt",
+    "imapEnterServerPasswordPrompt",
     formatStrings, 2, getter_Copies(passwordText));
   NS_ENSURE_SUCCESS(rv, rv);
 
@@ -2946,7 +2944,7 @@ nsImapIncomingServer::GetFormattedStringFromName(const nsAString& aValue,
 
     nsString result;
     rv = m_stringBundle->FormatStringFromName(
-      NS_ConvertASCIItoUTF16(aName).get(),
+      aName,
       formatStrings, 1, getter_Copies(result));
     aResult.Assign(result);
   }

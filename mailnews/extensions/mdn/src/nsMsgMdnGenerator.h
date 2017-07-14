@@ -52,8 +52,8 @@ private:
   nsresult SendMdnMsg();
 
   // string bundle helper methods
-  nsresult GetStringFromName(const char16_t *aName, char16_t **aResultString);
-  nsresult FormatStringFromName(const char16_t *aName,
+  nsresult GetStringFromName(const char *aName, char16_t **aResultString);
+  nsresult FormatStringFromName(const char *aName,
                                 const char16_t *aString,
                                 char16_t **aResultString);
 

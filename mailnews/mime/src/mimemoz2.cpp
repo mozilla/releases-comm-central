@@ -1926,7 +1926,7 @@ MimeGetStringByName(const char16_t *stringName)
   if (stringBundle)
   {
     nsString v;
-    if (NS_SUCCEEDED(stringBundle->GetStringFromName(stringName, getter_Copies(v))))
+    if (NS_SUCCEEDED(stringBundle->GetStringFromName(NS_ConvertUTF16toUTF8(stringName).get(), getter_Copies(v))))
       return ToNewUTF8String(v);
   }
 

@@ -190,12 +190,12 @@ nsresult nsMsgComposeSecure::GetSMIMEBundleString(const char16_t *name,
 
   NS_ENSURE_TRUE(InitializeSMIMEBundle(), NS_ERROR_FAILURE);
 
-  return mSMIMEBundle->GetStringFromName(name, getter_Copies(outString));
+  return mSMIMEBundle->GetStringFromName(NS_ConvertUTF16toUTF8(name).get(), getter_Copies(outString));
 }
 
 nsresult
 nsMsgComposeSecure::
-SMIMEBundleFormatStringFromName(const char16_t *name,
+SMIMEBundleFormatStringFromName(const char *name,
                                 const char16_t **params,
                                 uint32_t numParams,
                                 char16_t **outString)
@@ -243,7 +243,7 @@ void nsMsgComposeSecure::SetError(nsIMsgSendReport *sendReport, const char16_t *
   }
 }
 
-void nsMsgComposeSecure::SetErrorWithParam(nsIMsgSendReport *sendReport, const char16_t *bundle_string, const char *param)
+void nsMsgComposeSecure::SetErrorWithParam(nsIMsgSendReport *sendReport, const char *bundle_string, const char *param)
 {
   if (!sendReport || !bundle_string || !param)
     return;
@@ -559,7 +559,7 @@ nsresult nsMsgComposeSecure::MimeInitEncryption(bool aSign, nsIMsgSendReport *se
   if (!sMIMEBundle)
     return NS_ERROR_FAILURE;
 
-  sMIMEBundle->GetStringFromName(u"mime_smimeEncryptedContentDesc",
+  sMIMEBundle->GetStringFromName("mime_smimeEncryptedContentDesc",
                                  getter_Copies(mime_smime_enc_content_desc));
   NS_ConvertUTF16toUTF8 enc_content_desc_utf8(mime_smime_enc_content_desc);
 
@@ -675,7 +675,7 @@ nsresult nsMsgComposeSecure::MimeFinishMultipartSigned (bool aOuter, nsIMsgSendR
   if (!sMIMEBundle)
     return NS_ERROR_FAILURE;
 
-  sMIMEBundle->GetStringFromName(u"mime_smimeSignatureContentDesc",
+  sMIMEBundle->GetStringFromName("mime_smimeSignatureContentDesc",
                                  getter_Copies(mime_smime_sig_content_desc));
 
   NS_ConvertUTF16toUTF8 sig_content_desc_utf8(mime_smime_sig_content_desc);
@@ -970,7 +970,7 @@ nsresult nsMsgComposeSecure::MimeCryptoHackCerts(const char *aRecipients,
         // Failure to find a valid encryption cert is fatal.
         // Here I assume that mailbox is ascii rather than utf8.
         SetErrorWithParam(sendReport,
-                          u"MissingRecipientEncryptionCert",
+                          "MissingRecipientEncryptionCert",
                           mailboxes[i].get());
 
         return res;

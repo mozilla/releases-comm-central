@@ -478,13 +478,11 @@ nsresult NS_MsgHashIfNecessary(nsAutoString &name)
 
 nsresult FormatFileSize(int64_t size, bool useKB, nsAString &formattedSize)
 {
-  NS_NAMED_LITERAL_STRING(byteAbbr, "byteAbbreviation2");
-  NS_NAMED_LITERAL_STRING(kbAbbr,   "kiloByteAbbreviation2");
-  NS_NAMED_LITERAL_STRING(mbAbbr,   "megaByteAbbreviation2");
-  NS_NAMED_LITERAL_STRING(gbAbbr,   "gigaByteAbbreviation2");
-
-  const char16_t *sizeAbbrNames[] = {
-    byteAbbr.get(), kbAbbr.get(), mbAbbr.get(), gbAbbr.get()
+  const char *sizeAbbrNames[] = {
+    "byteAbbreviation2",
+    "kiloByteAbbreviation2",
+    "megaByteAbbreviation2",
+    "gigaByteAbbreviation2",
   };
 
   nsresult rv;
@@ -1765,7 +1763,7 @@ NS_MSG_BASE nsresult MsgPromptLoginFailed(nsIMsgWindow *aMsgWindow,
   NS_ConvertUTF8toUTF16 userNameUTF16(aUsername);
   const char16_t *formatStrings[] = { hostNameUTF16.get(), userNameUTF16.get() };
 
-  rv = bundle->FormatStringFromName(u"mailServerLoginFailed2",
+  rv = bundle->FormatStringFromName("mailServerLoginFailed2",
                                     formatStrings, 2,
                                     getter_Copies(message));
   NS_ENSURE_SUCCESS(rv, rv);
@@ -1774,24 +1772,24 @@ NS_MSG_BASE nsresult MsgPromptLoginFailed(nsIMsgWindow *aMsgWindow,
   if (aAccountname.IsEmpty()) {
     // Account name may be empty e.g. on a SMTP server.
     rv = bundle->GetStringFromName(
-      u"mailServerLoginFailedTitle", getter_Copies(title));
+      "mailServerLoginFailedTitle", getter_Copies(title));
   } else {
     const char16_t *formatStrings[] = { aAccountname.BeginReading() };
     rv = bundle->FormatStringFromName(
-      u"mailServerLoginFailedTitleWithAccount",
+      "mailServerLoginFailedTitleWithAccount",
       formatStrings, 1, getter_Copies(title));
   }
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsString button0;
   rv = bundle->GetStringFromName(
-    u"mailServerLoginFailedRetryButton",
+    "mailServerLoginFailedRetryButton",
     getter_Copies(button0));
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsString button2;
   rv = bundle->GetStringFromName(
-    u"mailServerLoginFailedEnterNewPasswordButton",
+    "mailServerLoginFailedEnterNewPasswordButton",
     getter_Copies(button2));
   NS_ENSURE_SUCCESS(rv, rv);
 

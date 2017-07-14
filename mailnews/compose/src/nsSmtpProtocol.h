@@ -165,7 +165,7 @@ private:
     // Communication methods --> Reading and writing protocol
     ////////////////////////////////////////////////////////////////////////////////////////
 
-    void UpdateStatus(const char16_t* aStatusName);
+    void UpdateStatus(const char* aStatusName);
     void UpdateStatusWithString(const char16_t * aStatusString);
 
     ////////////////////////////////////////////////////////////////////////////////////////

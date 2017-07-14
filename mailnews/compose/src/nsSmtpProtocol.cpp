@@ -94,7 +94,7 @@ nsresult nsExplainErrorDetails(nsISmtpUrl * aSmtpUrl, nsresult aCode, ...)
 
   va_start (args, aCode);
 
-  const char16_t* exitString;
+  const char* exitString;
 #ifdef __GNUC__
 // Temporary workaroung until bug 783526 is fixed.
 #pragma GCC diagnostic push
@@ -103,7 +103,7 @@ nsresult nsExplainErrorDetails(nsISmtpUrl * aSmtpUrl, nsresult aCode, ...)
   switch (aCode)
   {
     case NS_ERROR_ILLEGAL_LOCALPART:
-      bundle->GetStringFromName(u"errorIllegalLocalPart",
+      bundle->GetStringFromName("errorIllegalLocalPart",
                                 getter_Copies(eMsg));
       msg = nsTextFormatter::vsmprintf(eMsg.get(), args);
       break;
@@ -123,7 +123,7 @@ nsresult nsExplainErrorDetails(nsISmtpUrl * aSmtpUrl, nsresult aCode, ...)
       break;
     default:
       NS_WARNING("falling to default error code");
-      bundle->GetStringFromName(u"communicationsError", getter_Copies(eMsg));
+      bundle->GetStringFromName("communicationsError", getter_Copies(eMsg));
       msg = nsTextFormatter::smprintf(eMsg.get(), aCode);
       break;
   }
@@ -572,7 +572,7 @@ NS_IMETHODIMP nsSmtpProtocol::OnStopRequest(nsIRequest *request, nsISupports *ct
 // End of nsIStreamListenerSupport
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-void nsSmtpProtocol::UpdateStatus(const char16_t* aStatusName)
+void nsSmtpProtocol::UpdateStatus(const char* aStatusName)
 {
   if (m_statusFeedback)
   {
@@ -1848,7 +1848,7 @@ nsresult nsSmtpProtocol::SendDataResponse()
   m_nextState = SMTP_SEND_POST_DATA;
   ClearFlag(SMTP_PAUSE_FOR_READ);   /* send data directly */
 
-  UpdateStatus(u"smtpDeliveringMail");
+  UpdateStatus("smtpDeliveringMail");
 
   {
 //      m_runningURL->GetBodySize(&m_totalMessageSize);
@@ -1871,7 +1871,7 @@ void nsSmtpProtocol::SendMessageInFile()
   // for now, we are always done at this point..we aren't making multiple calls
   // to post data...
 
-  UpdateStatus(u"smtpDeliveringMail");
+  UpdateStatus("smtpDeliveringMail");
   m_nextState = SMTP_RESPONSE;
   m_nextStateAfterResponse = SMTP_SEND_MESSAGE_RESPONSE;
 }
@@ -1916,7 +1916,7 @@ nsresult nsSmtpProtocol::SendMessageResponse()
     return(NS_ERROR_SENDING_MESSAGE);
   }
 
-  UpdateStatus(u"smtpMailSent");
+  UpdateStatus("smtpMailSent");
 
   /* else */
   return SendQuit();
@@ -2219,11 +2219,11 @@ nsSmtpProtocol::PromptForPassword(nsISmtpServer *aSmtpServer, nsISmtpUrl *aSmtpU
   nsString passwordPromptString;
   if(formatStrings[1])
     rv = composeStringBundle->FormatStringFromName(
-      u"smtpEnterPasswordPromptWithUsername",
+      "smtpEnterPasswordPromptWithUsername",
       formatStrings, 2, getter_Copies(passwordPromptString));
   else
     rv = composeStringBundle->FormatStringFromName(
-      u"smtpEnterPasswordPrompt",
+      "smtpEnterPasswordPrompt",
       formatStrings, 1, getter_Copies(passwordPromptString));
   NS_ENSURE_SUCCESS(rv, rv);
 
@@ -2233,7 +2233,7 @@ nsSmtpProtocol::PromptForPassword(nsISmtpServer *aSmtpServer, nsISmtpUrl *aSmtpU
 
   nsString passwordTitle;
   rv = composeStringBundle->GetStringFromName(
-    u"smtpEnterPasswordPromptTitle",
+    "smtpEnterPasswordPromptTitle",
     getter_Copies(passwordTitle));
   NS_ENSURE_SUCCESS(rv,rv);
 

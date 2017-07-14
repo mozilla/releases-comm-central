@@ -674,7 +674,7 @@ NS_IMETHODIMP nsSpamSettings::LogJunkHit(nsIMsgDBHdr *aMsgHdr, bool aMoveMessage
   const char16_t *junkLogDetectFormatStrings[3] = { authorValue.get(), subjectValue.get(), dateValue.get() };
   nsString junkLogDetectStr;
   rv = bundle->FormatStringFromName(
-    u"junkLogDetectStr",
+    "junkLogDetectStr",
     junkLogDetectFormatStrings, 3,
     getter_Copies(junkLogDetectStr));
   NS_ENSURE_SUCCESS(rv, rv);
@@ -696,7 +696,7 @@ NS_IMETHODIMP nsSpamSettings::LogJunkHit(nsIMsgDBHdr *aMsgHdr, bool aMoveMessage
     const char16_t *logMoveFormatStrings[2] = { msgIdValue.get(), junkFolderURIValue.get() };
     nsString logMoveStr;
     rv = bundle->FormatStringFromName(
-      u"logMoveStr",
+      "logMoveStr",
       logMoveFormatStrings, 2,
       getter_Copies(logMoveStr));
     NS_ENSURE_SUCCESS(rv, rv);

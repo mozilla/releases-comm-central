@@ -333,7 +333,7 @@ nsMessengerOSXIntegration::FillToolTipInfo(nsIMsgFolder *aFolder, int32_t aNewCo
         nsAutoString numNotDisplayedText;
         numNotDisplayedText.AppendInt(numNotDisplayed);
         const char16_t *formatStrings[3] = { numNewMsgsText.get(), authors.get(), numNotDisplayedText.get() };
-        bundle->FormatStringFromName(u"macBiffNotification_messages_extra",
+        bundle->FormatStringFromName("macBiffNotification_messages_extra",
                                      formatStrings,
                                      3,
                                      getter_Copies(finalText));
@@ -344,7 +344,7 @@ nsMessengerOSXIntegration::FillToolTipInfo(nsIMsgFolder *aFolder, int32_t aNewCo
 
         if (aNewCount == 1)
         {
-          bundle->FormatStringFromName(u"macBiffNotification_message",
+          bundle->FormatStringFromName("macBiffNotification_message",
                                        formatStrings,
                                        2,
                                        getter_Copies(finalText));
@@ -368,7 +368,7 @@ nsMessengerOSXIntegration::FillToolTipInfo(nsIMsgFolder *aFolder, int32_t aNewCo
           }
         }
         else
-          bundle->FormatStringFromName(u"macBiffNotification_messages",
+          bundle->FormatStringFromName("macBiffNotification_messages",
                                        formatStrings,
                                        2,
                                        getter_Copies(finalText));
@@ -626,7 +626,7 @@ nsMessengerOSXIntegration::GetNewMailAuthors(nsIMsgFolder* aFolder,
     if (NS_SUCCEEDED(rv))
     {
       nsString listSeparator;
-      bundle->GetStringFromName(u"macBiffNotification_separator", getter_Copies(listSeparator));
+      bundle->GetStringFromName("macBiffNotification_separator", getter_Copies(listSeparator));
 
       int32_t displayed = 0;
       for (int32_t i = numNewKeys - 1; i >= 0; i--, aNewCount--)

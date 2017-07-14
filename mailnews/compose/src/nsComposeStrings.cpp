@@ -4,7 +4,7 @@
 
 #include "nsComposeStrings.h"
 
-const char16_t* errorStringNameForErrorCode(nsresult aCode)
+const char* errorStringNameForErrorCode(nsresult aCode)
 {
 #ifdef __GNUC__
 // Temporary workaroung until bug 783526 is fixed.
@@ -14,101 +14,101 @@ const char16_t* errorStringNameForErrorCode(nsresult aCode)
   switch(aCode)
   {
     case NS_MSG_UNABLE_TO_OPEN_FILE:
-      return u"unableToOpenFile";
+      return "unableToOpenFile";
     case NS_MSG_UNABLE_TO_OPEN_TMP_FILE:
-      return u"unableToOpenTmpFile";
+      return "unableToOpenTmpFile";
     case NS_MSG_UNABLE_TO_SAVE_TEMPLATE:
-      return u"unableToSaveTemplate";
+      return "unableToSaveTemplate";
     case NS_MSG_UNABLE_TO_SAVE_DRAFT:
-      return u"unableToSaveDraft";
+      return "unableToSaveDraft";
     case NS_MSG_COULDNT_OPEN_FCC_FOLDER:
-      return u"couldntOpenFccFolder";
+      return "couldntOpenFccFolder";
     case NS_MSG_NO_SENDER:
-      return u"noSender";
+      return "noSender";
     case NS_MSG_NO_RECIPIENTS:
-      return u"noRecipients";
+      return "noRecipients";
     case NS_MSG_ERROR_WRITING_FILE:
-      return u"errorWritingFile";
+      return "errorWritingFile";
     case NS_ERROR_SENDING_FROM_COMMAND:
-      return u"errorSendingFromCommand";
+      return "errorSendingFromCommand";
     case NS_ERROR_SENDING_DATA_COMMAND:
-      return u"errorSendingDataCommand";
+      return "errorSendingDataCommand";
     case NS_ERROR_SENDING_MESSAGE:
-      return u"errorSendingMessage";
+      return "errorSendingMessage";
     case NS_ERROR_POST_FAILED:
-      return u"postFailed";
+      return "postFailed";
     case NS_ERROR_QUEUED_DELIVERY_FAILED:
-      return u"errorQueuedDeliveryFailed";
+      return "errorQueuedDeliveryFailed";
     case NS_ERROR_SEND_FAILED:
-      return u"sendFailed";
+      return "sendFailed";
     case NS_ERROR_SMTP_SERVER_ERROR:
-      return u"smtpServerError";
+      return "smtpServerError";
     case NS_MSG_UNABLE_TO_SEND_LATER:
-      return u"unableToSendLater";
+      return "unableToSendLater";
     case NS_ERROR_COMMUNICATIONS_ERROR:
-      return u"communicationsError";
+      return "communicationsError";
     case NS_ERROR_BUT_DONT_SHOW_ALERT:
-      return u"dontShowAlert";
+      return "dontShowAlert";
     case NS_ERROR_TCP_READ_ERROR:
-      return u"tcpReadError";
+      return "tcpReadError";
     case NS_ERROR_COULD_NOT_GET_USERS_MAIL_ADDRESS:
-      return u"couldNotGetUsersMailAddress";
+      return "couldNotGetUsersMailAddress";
     case NS_ERROR_MIME_MPART_ATTACHMENT_ERROR:
-      return u"mimeMpartAttachmentError";
+      return "mimeMpartAttachmentError";
     case NS_MSG_FAILED_COPY_OPERATION:
-      return u"failedCopyOperation";
+      return "failedCopyOperation";
     case NS_ERROR_NNTP_NO_CROSS_POSTING:
-      return u"nntpNoCrossPosting";
+      return "nntpNoCrossPosting";
     case NS_MSG_CANCELLING:
-      return u"msgCancelling";
+      return "msgCancelling";
     case NS_ERROR_SEND_FAILED_BUT_NNTP_OK:
-      return u"sendFailedButNntpOk";
+      return "sendFailedButNntpOk";
     case NS_MSG_ERROR_READING_FILE:
-      return u"errorReadingFile";
+      return "errorReadingFile";
     case NS_MSG_ERROR_ATTACHING_FILE:
-      return u"errorAttachingFile";
+      return "errorAttachingFile";
     case NS_ERROR_SMTP_GREETING:
-      return u"incorrectSmtpGreeting";
+      return "incorrectSmtpGreeting";
     case NS_ERROR_SENDING_RCPT_COMMAND:
-      return u"errorSendingRcptCommand";
+      return "errorSendingRcptCommand";
     case NS_ERROR_STARTTLS_FAILED_EHLO_STARTTLS:
-      return u"startTlsFailed";
+      return "startTlsFailed";
     case NS_ERROR_SMTP_PASSWORD_UNDEFINED:
-      return u"smtpPasswordUndefined";
+      return "smtpPasswordUndefined";
     case NS_ERROR_SMTP_TEMP_SIZE_EXCEEDED:
-      return u"smtpTempSizeExceeded";
+      return "smtpTempSizeExceeded";
     case NS_ERROR_SMTP_PERM_SIZE_EXCEEDED_1:
-      return u"smtpPermSizeExceeded1";
+      return "smtpPermSizeExceeded1";
     case NS_ERROR_SMTP_PERM_SIZE_EXCEEDED_2:
-      return u"smtpPermSizeExceeded2";
+      return "smtpPermSizeExceeded2";
     case NS_ERROR_SMTP_SEND_FAILED_UNKNOWN_SERVER:
-      return u"smtpSendFailedUnknownServer";
+      return "smtpSendFailedUnknownServer";
     case NS_ERROR_SMTP_SEND_FAILED_REFUSED:
-      return u"smtpSendRequestRefused";
+      return "smtpSendRequestRefused";
     case NS_ERROR_SMTP_SEND_FAILED_INTERRUPTED:
-      return u"smtpSendInterrupted";
+      return "smtpSendInterrupted";
     case NS_ERROR_SMTP_SEND_FAILED_TIMEOUT:
-      return u"smtpSendTimeout";
+      return "smtpSendTimeout";
     case NS_ERROR_SMTP_SEND_FAILED_UNKNOWN_REASON:
-      return u"smtpSendFailedUnknownReason";
+      return "smtpSendFailedUnknownReason";
     case NS_ERROR_SMTP_AUTH_CHANGE_ENCRYPT_TO_PLAIN_NO_SSL:
-      return u"smtpHintAuthEncryptToPlainNoSsl";
+      return "smtpHintAuthEncryptToPlainNoSsl";
     case NS_ERROR_SMTP_AUTH_CHANGE_ENCRYPT_TO_PLAIN_SSL:
-      return u"smtpHintAuthEncryptToPlainSsl";
+      return "smtpHintAuthEncryptToPlainSsl";
     case NS_ERROR_SMTP_AUTH_CHANGE_PLAIN_TO_ENCRYPT:
-      return u"smtpHintAuthPlainToEncrypt";
+      return "smtpHintAuthPlainToEncrypt";
     case NS_ERROR_SMTP_AUTH_FAILURE:
-      return u"smtpAuthFailure";
+      return "smtpAuthFailure";
     case NS_ERROR_SMTP_AUTH_GSSAPI:
-      return u"smtpAuthGssapi";
+      return "smtpAuthGssapi";
     case NS_ERROR_SMTP_AUTH_MECH_NOT_SUPPORTED:
-      return u"smtpAuthMechNotSupported";
+      return "smtpAuthMechNotSupported";
     case NS_ERROR_SMTP_AUTH_NOT_SUPPORTED:
-      return u"smtpAuthenticationNotSupported";
+      return "smtpAuthenticationNotSupported";
     case NS_ERROR_ILLEGAL_LOCALPART:
-      return u"illegalLocalPart";
+      return "illegalLocalPart";
     default:
-      return u"sendFailed";
+      return "sendFailed";
   }
 #ifdef __GNUC__
 #pragma GCC diagnostic pop

@@ -343,7 +343,7 @@ nsresult nsFolderCompactState::ShowStatusMsg(const nsString& aMsg)
     if (NS_FAILED(rv))
       break;
     const char16_t *params[] = { accountName.get(), aMsg.get() };
-    rv = bundle->FormatStringFromName(u"statusMessage",
+    rv = bundle->FormatStringFromName("statusMessage",
                                       params, 2, getter_Copies(statusMessage));
   } while (false);
 
@@ -687,7 +687,7 @@ void nsFolderCompactState::ShowDoneStatus()
     nsAutoString expungedAmount;
     FormatFileSize(m_totalExpungedBytes, true, expungedAmount);
     const char16_t* params[] = { expungedAmount.get() };
-    rv = bundle->FormatStringFromName(u"compactingDone",
+    rv = bundle->FormatStringFromName("compactingDone",
                                       params, 1, getter_Copies(statusString));
 
     if (!statusString.IsEmpty() && NS_SUCCEEDED(rv))

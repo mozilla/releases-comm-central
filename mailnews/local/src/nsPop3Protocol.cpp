@@ -652,16 +652,15 @@ nsresult nsPop3Protocol::FormatCounterString(const nsString &stringName,
     count2String.get()
   };
 
-  return mLocalBundle->FormatStringFromName(stringName.get(),
+  return mLocalBundle->FormatStringFromName(NS_ConvertUTF16toUTF8(stringName).get(),
                                             formatStrings, 2,
                                             getter_Copies(resultString));
 }
 
-void nsPop3Protocol::UpdateStatus(const char16_t *aStatusName)
+void nsPop3Protocol::UpdateStatus(const char *aStatusName)
 {
   nsString statusMessage;
-  mLocalBundle->GetStringFromName(aStatusName,
-                                  getter_Copies(statusMessage));
+  mLocalBundle->GetStringFromName(aStatusName, getter_Copies(statusMessage));
   UpdateStatusWithString(statusMessage.get());
 }
 
@@ -892,19 +891,19 @@ NS_IMETHODIMP nsPop3Protocol::OnPromptStart(bool *aResult)
       }
     }
     mLocalBundle->FormatStringFromName(
-      u"pop3PreviouslyEnteredPasswordIsInvalidPrompt",
+      "pop3PreviouslyEnteredPasswordIsInvalidPrompt",
       passwordParams, 2, getter_Copies(passwordPrompt));
   }
   else
     // Otherwise this is the first time we've asked about the server's
     // password so show a first time prompt.
     mLocalBundle->FormatStringFromName(
-      u"pop3EnterPasswordPrompt",
+      "pop3EnterPasswordPrompt",
       passwordParams, 2, getter_Copies(passwordPrompt));
 
   nsString passwordTitle;
   mLocalBundle->GetStringFromName(
-    u"pop3EnterPasswordPromptTitle",
+    "pop3EnterPasswordPromptTitle",
     getter_Copies(passwordTitle));
 
   // Now go and get the password.
@@ -1328,7 +1327,7 @@ nsPop3Protocol::Error(const char* err_code,
     const char16_t *titleParams[] = { accountName.get() };
     nsString dialogTitle;
     mLocalBundle->FormatStringFromName(
-      u"pop3ErrorDialogTitle",
+      "pop3ErrorDialogTitle",
       titleParams, 1, getter_Copies(dialogTitle));
     nsCOMPtr<nsIMsgMailNewsUrl> mailnewsUrl = do_QueryInterface(m_url, &rv);
     // we handle "pop3TmpDownloadError" earlier...
@@ -1345,10 +1344,10 @@ nsPop3Protocol::Error(const char* err_code,
               nsString alertString;
               // Format the alert string if parameter list isn't empty
               if (params)
-                mLocalBundle->FormatStringFromName(NS_ConvertASCIItoUTF16(err_code).get(),
+                mLocalBundle->FormatStringFromName(err_code,
                                                    params, length, getter_Copies(alertString));
               else
-                mLocalBundle->GetStringFromName(NS_ConvertASCIItoUTF16(err_code).get(),
+                mLocalBundle->GetStringFromName(err_code,
                                                 getter_Copies(alertString));
               if (m_pop3ConData->command_succeeded)  //not a server error message
                 dialog->Alert(dialogTitle.get(), alertString.get());
@@ -1366,7 +1365,7 @@ nsPop3Protocol::Error(const char* err_code,
                   CopyASCIItoUTF16(hostName, hostStr);
                   const char16_t *params[] = { hostStr.get() };
                   mLocalBundle->FormatStringFromName(
-                    u"pop3ServerSaid",
+                    "pop3ServerSaid",
                     params, 1, getter_Copies(serverSaidPrefix));
                 }
 
@@ -3515,7 +3514,7 @@ nsPop3Protocol::TopResponse(nsIInputStream* inputStream, uint32_t length)
 
     nsString statusTemplate;
     mLocalBundle->GetStringFromName(
-      u"pop3ServerDoesNotSupportTopCommand",
+      "pop3ServerDoesNotSupportTopCommand",
       getter_Copies(statusTemplate));
     if (!statusTemplate.IsEmpty())
     {
@@ -3893,7 +3892,7 @@ nsresult nsPop3Protocol::ProcessProtocolState(nsIURI * url, nsIInputStream * aIn
       break;
 
     case POP3_AUTH_GSSAPI_FIRST:
-      UpdateStatus(u"hostContact");
+      UpdateStatus("hostContact");
       status = AuthGSSAPIResponse(true);
       break;
 
@@ -3911,7 +3910,7 @@ nsresult nsPop3Protocol::ProcessProtocolState(nsIURI * url, nsIInputStream * aIn
       break;
 
     case POP3_FINISH_OBTAIN_PASSWORD_BEFORE_USERNAME:
-      UpdateStatus(u"hostContact");
+      UpdateStatus("hostContact");
       status = SendUsername();
       break;
 
@@ -4019,7 +4018,7 @@ nsresult nsPop3Protocol::ProcessProtocolState(nsIURI * url, nsIInputStream * aIn
 
           if (m_totalDownloadSize <= 0)
           {
-            UpdateStatus(u"noNewMessages");
+            UpdateStatus("noNewMessages");
             /* There are no new messages.  */
           }
           else

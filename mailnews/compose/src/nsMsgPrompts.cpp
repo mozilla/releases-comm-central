@@ -15,7 +15,7 @@
 #include "mozilla/Services.h"
 
 nsresult
-nsMsgGetMessageByName(const char16_t* aName, nsString& aResult)
+nsMsgGetMessageByName(const char* aName, nsString& aResult)
 {
   nsresult rv;
   nsCOMPtr<nsIStringBundleService> bundleService =
@@ -32,7 +32,7 @@ nsMsgGetMessageByName(const char16_t* aName, nsString& aResult)
 }
 
 static nsresult
-nsMsgBuildMessageByName(const char16_t *aName, nsIFile *aFile, nsString& aResult)
+nsMsgBuildMessageByName(const char *aName, nsIFile *aFile, nsString& aResult)
 {
   NS_ENSURE_ARG_POINTER(aFile);
   nsresult rv;
@@ -54,17 +54,17 @@ nsMsgBuildMessageByName(const char16_t *aName, nsIFile *aFile, nsString& aResult
 nsresult
 nsMsgBuildMessageWithFile(nsIFile *aFile, nsString& aResult)
 {
-  return nsMsgBuildMessageByName(u"unableToOpenFile", aFile, aResult);
+  return nsMsgBuildMessageByName("unableToOpenFile", aFile, aResult);
 }
 
 nsresult
 nsMsgBuildMessageWithTmpFile(nsIFile *aFile, nsString& aResult)
 {
-  return nsMsgBuildMessageByName(u"unableToOpenTmpFile", aFile, aResult);
+  return nsMsgBuildMessageByName("unableToOpenTmpFile", aFile, aResult);
 }
 
 nsresult
-nsMsgDisplayMessageByName(nsIPrompt *aPrompt, const char16_t* aName, const char16_t *windowTitle)
+nsMsgDisplayMessageByName(nsIPrompt *aPrompt, const char* aName, const char16_t *windowTitle)
 {
   nsString msg;
   nsMsgGetMessageByName(aName, msg);

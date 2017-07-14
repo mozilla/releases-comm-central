@@ -1494,18 +1494,18 @@ NS_IMETHODIMP nsMsgCompose::SendMsg(MSG_DeliverMode deliverMode, nsIMsgIdentity 
       switch (deliverMode)
       {
         case nsIMsgCompDeliverMode::Later:
-          nsMsgDisplayMessageByName(prompt, u"unableToSendLater");
+          nsMsgDisplayMessageByName(prompt, "unableToSendLater");
           break;
         case nsIMsgCompDeliverMode::AutoSaveAsDraft:
         case nsIMsgCompDeliverMode::SaveAsDraft:
-          nsMsgDisplayMessageByName(prompt, u"unableToSaveDraft");
+          nsMsgDisplayMessageByName(prompt, "unableToSaveDraft");
           break;
         case nsIMsgCompDeliverMode::SaveAsTemplate:
-          nsMsgDisplayMessageByName(prompt, u"unableToSaveTemplate");
+          nsMsgDisplayMessageByName(prompt, "unableToSaveTemplate");
           break;
 
         default:
-          nsMsgDisplayMessageByName(prompt, u"sendFailed");
+          nsMsgDisplayMessageByName(prompt, "sendFailed");
           break;
       }
     }
@@ -2182,7 +2182,7 @@ nsresult nsMsgCompose::CreateMessage(const char * originalMsgURI,
                 rv = bundleService->CreateBundle("chrome://messenger/locale/messengercompose/composeMsgs.properties",
                                                  getter_AddRefs(composeBundle));
                 NS_ENSURE_SUCCESS(rv, rv);
-                composeBundle->GetStringFromName(u"messageAttachmentSafeName",
+                composeBundle->GetStringFromName("messageAttachmentSafeName",
                                                  getter_Copies(sanitizedSubj));
               }
               else
@@ -2853,7 +2853,7 @@ NS_IMETHODIMP QuotingOutputStreamListener::OnStopRequest(nsIRequest *request, ns
           nsCOMPtr<nsPIDOMWindowOuter> composeWindow = nsPIDOMWindowOuter::From(domWindow);
           if (composeWindow)
             composeWindow->GetPrompter(getter_AddRefs(prompt));
-          nsMsgDisplayMessageByName(prompt, u"followupToSenderMessage");
+          nsMsgDisplayMessageByName(prompt, "followupToSenderMessage");
 
           if (!replyTo.IsEmpty())
           {
@@ -4056,7 +4056,7 @@ NS_IMETHODIMP nsMsgComposeSendListener::OnStateChange(nsIWebProgress *aWebProgre
             getter_AddRefs(bundle));
           NS_ENSURE_SUCCESS(rv, rv);
           nsString msg;
-          bundle->GetStringFromName(u"msgCancelling", getter_Copies(msg));
+          bundle->GetStringFromName("msgCancelling", getter_Copies(msg));
           progress->OnStatusChange(nullptr, nullptr, NS_OK, msg.get());
         }
       }

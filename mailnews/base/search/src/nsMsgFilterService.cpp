@@ -216,7 +216,7 @@ nsMsgFilterService::GetStringFromBundle(const char *aMsgName, char16_t **aResult
   nsCOMPtr <nsIStringBundle> bundle;
   nsresult rv = GetFilterStringBundle(getter_AddRefs(bundle));
   if (NS_SUCCEEDED(rv) && bundle)
-    rv = bundle->GetStringFromName(NS_ConvertASCIItoUTF16(aMsgName).get(), aResult);
+    rv = bundle->GetStringFromName(aMsgName, aResult);
   return rv;
 
 }
@@ -1181,7 +1181,7 @@ bool nsMsgFilterAfterTheFact::ContinueExecutionPrompt()
   {
     filterName.get()
   };
-  nsresult rv = bundle->FormatStringFromName(u"continueFilterExecution",
+  nsresult rv = bundle->FormatStringFromName("continueFilterExecution",
                                              formatStrings, 1, getter_Copies(confirmText));
   if (NS_FAILED(rv))
     return false;

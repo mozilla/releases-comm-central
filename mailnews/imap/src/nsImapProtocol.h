@@ -645,7 +645,7 @@ private:
   // progress stuff
   void SetProgressString(uint32_t aStringIndex);
   
-  nsString      m_progressStringName;
+  nsCString     m_progressStringName;
   uint32_t      m_stringIndex;
   int32_t       m_progressCurrentNumber[IMAP_NUMBER_OF_PROGRESS_STRINGS];
   int32_t       m_progressExpectedNumber;

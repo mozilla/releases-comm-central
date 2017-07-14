@@ -1019,7 +1019,7 @@ nsresult nsNNTPProtocol::LoadUrl(nsIURI * aURL, nsISupports * aConsumer)
       const char16_t *formatStrings[1] = { unescapedName.get() };
 
       rv = bundle->FormatStringFromName(
-        u"autoSubscribeText", formatStrings, 1,
+        "autoSubscribeText", formatStrings, 1,
         getter_Copies(confirmText));
       NS_ENSURE_SUCCESS(rv,rv);
 
@@ -2811,7 +2811,7 @@ nsresult nsNNTPProtocol::ReadNewsList(nsIInputStream * inputStream, uint32_t len
       NS_ConvertASCIItoUTF16 rateStr(rate_buf);
 
       const char16_t *formatStrings[3] = { numGroupsStr.get(), bytesStr.get(), rateStr.get()};
-      rv = bundle->FormatStringFromName(u"bytesReceived",
+      rv = bundle->FormatStringFromName("bytesReceived",
         formatStrings, 3,
         getter_Copies(statusString));
 
@@ -3415,11 +3415,8 @@ nsresult nsNNTPProtocol::GetNewsStringByName(const char *aName, char16_t **aStri
 
   if (m_stringBundle)
   {
-    nsAutoString unicodeName;
-    CopyASCIItoUTF16(nsDependentCString(aName), unicodeName);
-
     char16_t *ptrv = nullptr;
-    rv = m_stringBundle->GetStringFromName(unicodeName.get(), &ptrv);
+    rv = m_stringBundle->GetStringFromName(aName, &ptrv);
 
     if (NS_FAILED(rv))
     {
@@ -3583,7 +3580,7 @@ nsresult nsNNTPProtocol::DoCancel()
   NS_ENSURE_TRUE(brandBundle, NS_ERROR_FAILURE);
 
   nsString brandFullName;
-  rv = brandBundle->GetStringFromName(u"brandFullName",
+  rv = brandBundle->GetStringFromName("brandFullName",
                                       getter_Copies(brandFullName));
   NS_ENSURE_SUCCESS(rv,rv);
   NS_ConvertUTF16toUTF8 appName(brandFullName);

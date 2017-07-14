@@ -22,8 +22,7 @@ IMAPGetStringByName(const char* stringName, char16_t **aString)
   nsCOMPtr <nsIStringBundle> sBundle;
   nsresult rv = IMAPGetStringBundle(getter_AddRefs(sBundle));
   if (NS_SUCCEEDED(rv) && sBundle)
-    rv = sBundle->GetStringFromName(NS_ConvertASCIItoUTF16(stringName).get(),
-                                    aString);
+    rv = sBundle->GetStringFromName(stringName, aString);
   return rv;
 }
 

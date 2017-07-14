@@ -326,7 +326,7 @@ nsMessenger::PromptIfFileExists(nsIFile *file)
       rv = InitStringBundle();
       NS_ENSURE_SUCCESS(rv, rv);
     }
-    rv = mStringBundle->FormatStringFromName(u"fileExists",
+    rv = mStringBundle->FormatStringFromName("fileExists",
                                              pathFormatStrings, 1,
                                              getter_Copies(errorMessage));
     NS_ENSURE_SUCCESS(rv, rv);
@@ -844,7 +844,7 @@ nsMessenger::SaveOneAttachment(const char * aContentType, const char * aURL,
     nsString filterName;
     const char16_t *extensionParam[] = { extension.get() };
     rv = mStringBundle->FormatStringFromName(
-      u"saveAsType", extensionParam, 1, getter_Copies(filterName));
+      "saveAsType", extensionParam, 1, getter_Copies(filterName));
     NS_ENSURE_SUCCESS(rv, rv);
 
     extension.Insert(NS_LITERAL_STRING("*."), 0);
@@ -2045,7 +2045,7 @@ nsMessenger::GetString(const nsString& aStringName, nsString& aValue)
     rv = InitStringBundle();
 
   if (mStringBundle)
-    rv = mStringBundle->GetStringFromName(aStringName.get(), getter_Copies(aValue));
+    rv = mStringBundle->GetStringFromName(NS_ConvertUTF16toUTF8(aStringName).get(), getter_Copies(aValue));
   else
     rv = NS_ERROR_FAILURE;
 
@@ -3070,8 +3070,8 @@ nsMessenger::PromptIfDeleteAttachments(bool aSaveFirst,
 
   // format the message and display
   nsString promptMessage;
-  const char16_t * propertyName = aSaveFirst ?
-    u"detachAttachments" : u"deleteAttachments";
+  const char * propertyName = aSaveFirst ?
+    "detachAttachments" : "deleteAttachments";
   rv = mStringBundle->FormatStringFromName(propertyName, formatStrings, 1,getter_Copies(promptMessage));
   NS_ENSURE_SUCCESS(rv, rv);
 

@@ -208,7 +208,7 @@ nsMimeBaseEmitter::MimeGetStringByName(const char *aHeaderName)
   {
     nsString val;
 
-    res = m_headerStringBundle->GetStringFromName(NS_ConvertASCIItoUTF16(aHeaderName).get(),
+    res = m_headerStringBundle->GetStringFromName(aHeaderName,
                                                   getter_Copies(val));
 
     if (NS_FAILED(res))

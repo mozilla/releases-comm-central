@@ -294,7 +294,7 @@ void nsMsgMailboxParser::UpdateStatusText (const char* stringName)
       return;
     nsString finalString;
     const char16_t * stringArray[] = { m_folderName.get() };
-    rv = bundle->FormatStringFromName(NS_ConvertASCIItoUTF16(stringName).get(),
+    rv = bundle->FormatStringFromName(stringName,
                                       stringArray, 1, getter_Copies(finalString));
     m_statusFeedback->ShowStatusString(finalString);
   }

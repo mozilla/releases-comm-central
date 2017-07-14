@@ -1306,12 +1306,12 @@ NS_IMETHODIMP nsAbView::SwapFirstNameLastName()
             nsString dnLnFn;
             nsString dnFnLn;
             const char16_t *nameString[2];
-            const char16_t *formatString;
+            const char *formatString;
 
             // The format should stays the same before/after we swap the names
             formatString = displayNameLastnamefirst ?
-                              u"lastFirstFormat" :
-                              u"firstLastFormat";
+                              "lastFirstFormat" :
+                              "firstLastFormat";
 
             // Generate both ln/fn and fn/ln combination since we need both later
             // to check to see if the current display name was edited

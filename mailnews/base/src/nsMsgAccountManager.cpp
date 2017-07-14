@@ -1285,7 +1285,7 @@ nsMsgAccountManager::LoadAccounts()
        * be a Local Folders account, since 2.0 has a bug where duplicate Local
        * Folders accounts are created.
        */
-      nsCOMPtr<nsIMsgIncomingServer>& server = iter.Data();    // njn: rename
+      nsCOMPtr<nsIMsgIncomingServer>& server = iter.Data();
       nsCString type;
       server->GetType(type);
       if (type.EqualsLiteral("pop3"))
@@ -2300,7 +2300,7 @@ nsresult nsMsgAccountManager::GetLocalFoldersPrettyName(nsString &localFoldersNa
                                     getter_AddRefs(bundle));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  return bundle->GetStringFromName(u"localFolders", getter_Copies(localFoldersName));
+  return bundle->GetStringFromName("localFolders", getter_Copies(localFoldersName));
 }
 
 NS_IMETHODIMP

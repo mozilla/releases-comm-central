@@ -72,6 +72,6 @@
 
 #define NS_ERROR_ILLEGAL_LOCALPART                  NS_MSG_GENERATE_FAILURE(12601)
 
-const char16_t* errorStringNameForErrorCode(nsresult aCode);
+const char* errorStringNameForErrorCode(nsresult aCode);
 
 #endif /* _nsComposeStrings_H__ */

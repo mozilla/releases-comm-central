@@ -65,8 +65,7 @@ char16_t *nsImportStringBundle::GetStringByName(const char *aName,
   if (aBundle)
   {
     char16_t *ptrv = nullptr;
-    nsresult rv = aBundle->GetStringFromName(
-        NS_ConvertUTF8toUTF16(aName).get(), &ptrv);
+    nsresult rv = aBundle->GetStringFromName(aName, &ptrv);
 
     if (NS_SUCCEEDED(rv) && ptrv)
       return ptrv;

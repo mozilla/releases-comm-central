@@ -1551,7 +1551,7 @@ char16_t *FormatStringWithHostNameByName(const char16_t* stringName, nsIMsgMailN
 
   NS_ConvertASCIItoUTF16 hostStr(hostName);
   const char16_t *params[] = { hostStr.get() };
-  rv = sBundle->FormatStringFromName(stringName, params, 1, &ptrv);
+  rv = sBundle->FormatStringFromName(NS_ConvertUTF16toUTF8(stringName).get(), params, 1, &ptrv);
   NS_ENSURE_SUCCESS(rv, nullptr);
 
   return ptrv;

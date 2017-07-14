@@ -58,7 +58,7 @@ static nsCString determineMimePart(MimeObject* obj);
 
 
 #define PGPMIME_PROPERTIES_URL        "chrome://messenger/locale/pgpmime.properties"
-#define PGPMIME_STR_NOT_SUPPORTED_ID  u"pgpMimeNeedsAddon"
+#define PGPMIME_STR_NOT_SUPPORTED_ID  "pgpMimeNeedsAddon"
 #define PGPMIME_URL_PREF              "mail.pgpmime.addon_url"
 
 static void PgpMimeGetNeedsAddonString(nsCString &aResult)

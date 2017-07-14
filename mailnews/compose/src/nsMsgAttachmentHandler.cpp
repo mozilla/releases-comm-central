@@ -1165,10 +1165,10 @@ nsMsgAttachmentHandler::UrlExit(nsresult status, const char16_t* aMsg)
     NS_ConvertUTF8toUTF16 UTF16params(params);
     const char16_t* formatParams[] = { UTF16params.get() };
     if (mode == nsIMsgSend::nsMsgSaveAsDraft || mode == nsIMsgSend::nsMsgSaveAsTemplate)
-      bundle->FormatStringFromName(u"failureOnObjectEmbeddingWhileSaving",
+      bundle->FormatStringFromName("failureOnObjectEmbeddingWhileSaving",
                                    formatParams, 1, getter_Copies(msg));
     else
-      bundle->FormatStringFromName(u"failureOnObjectEmbeddingWhileSending",
+      bundle->FormatStringFromName("failureOnObjectEmbeddingWhileSending",
                                    formatParams, 1, getter_Copies(msg));
 
     nsCOMPtr<nsIPrompt> aPrompt;

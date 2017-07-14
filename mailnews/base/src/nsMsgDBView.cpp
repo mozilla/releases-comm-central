@@ -223,7 +223,7 @@ char16_t * nsMsgDBView::GetString(const char16_t *aStringName)
   }
 
   if (mMessengerStringBundle)
-    res = mMessengerStringBundle->GetStringFromName(aStringName, &ptrv);
+    res = mMessengerStringBundle->GetStringFromName(NS_ConvertUTF16toUTF8(aStringName).get(), &ptrv);
 
   if ( NS_SUCCEEDED(res) && (ptrv) )
     return ptrv;

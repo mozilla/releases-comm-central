@@ -137,10 +137,10 @@ nsMovemailService::Error(const char* errorCode,
   nsString errStr;
   // Format the error string if necessary
   if (params)
-    bundle->FormatStringFromName(NS_ConvertASCIItoUTF16(errorCode).get(),
+    bundle->FormatStringFromName(errorCode,
                                  params, length, getter_Copies(errStr));
   else
-    bundle->GetStringFromName(NS_ConvertASCIItoUTF16(errorCode).get(),
+    bundle->GetStringFromName(errorCode,
                               getter_Copies(errStr));
 
   if (!errStr.IsEmpty()) {

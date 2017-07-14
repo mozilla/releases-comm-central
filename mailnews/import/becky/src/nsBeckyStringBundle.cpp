@@ -40,7 +40,7 @@ nsBeckyStringBundle::EnsureStringBundle(void)
 }
 
 char16_t *
-nsBeckyStringBundle::GetStringByName(const char16_t *aName)
+nsBeckyStringBundle::GetStringByName(const char *aName)
 {
   EnsureStringBundle();
 
@@ -52,7 +52,7 @@ nsBeckyStringBundle::GetStringByName(const char16_t *aName)
 }
 
 nsresult
-nsBeckyStringBundle::FormatStringFromName(const char16_t *name,
+nsBeckyStringBundle::FormatStringFromName(const char *name,
                                           const char16_t **params,
                                           uint32_t length,
                                           char16_t **_retval)

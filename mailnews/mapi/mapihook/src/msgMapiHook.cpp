@@ -147,22 +147,20 @@ bool nsMapiHook::DisplayLoginDialog(bool aLogin, char16_t **aUsername,
 
     nsString brandName;
     rv = brandBundle->GetStringFromName(
-                       u"brandFullName",
+                       "brandFullName",
                        getter_Copies(brandName));
     if (NS_FAILED(rv)) return false;
 
     nsString loginTitle;
     const char16_t *brandStrings[] = { brandName.get() };
-    NS_NAMED_LITERAL_STRING(loginTitlePropertyTag, "loginTitle");
-    const char16_t *dTitlePropertyTag = loginTitlePropertyTag.get();
-    rv = bundle->FormatStringFromName(dTitlePropertyTag, brandStrings, 1,
+    rv = bundle->FormatStringFromName("loginTitle", brandStrings, 1,
                                       getter_Copies(loginTitle));
     if (NS_FAILED(rv)) return false;
 
     if (aLogin)
     {
       nsString loginText;
-      rv = bundle->GetStringFromName(u"loginTextwithName",
+      rv = bundle->GetStringFromName("loginTextwithName",
                                      getter_Copies(loginText));
       if (NS_FAILED(rv) || loginText.IsEmpty()) return false;
 
@@ -176,10 +174,7 @@ bool nsMapiHook::DisplayLoginDialog(bool aLogin, char16_t **aUsername,
       //nsString loginString;
       nsString loginText;
       const char16_t *userNameStrings[] = { *aUsername };
-
-      NS_NAMED_LITERAL_STRING(loginTextPropertyTag, "loginText");
-      const char16_t *dpropertyTag = loginTextPropertyTag.get();
-      rv = bundle->FormatStringFromName(dpropertyTag, userNameStrings, 1,
+      rv = bundle->FormatStringFromName("loginText", userNameStrings, 1,
                                         getter_Copies(loginText));
       if (NS_FAILED(rv)) return false;
 
@@ -256,13 +251,13 @@ nsMapiHook::IsBlindSendAllowed()
   if (NS_FAILED(rv) || !bundle) return false;
 
   nsString warningMsg;
-  rv = bundle->GetStringFromName(u"mapiBlindSendWarning",
-                                      getter_Copies(warningMsg));
+  rv = bundle->GetStringFromName("mapiBlindSendWarning",
+                                 getter_Copies(warningMsg));
   if (NS_FAILED(rv)) return false;
 
   nsString dontShowAgainMessage;
-  rv = bundle->GetStringFromName(u"mapiBlindSendDontShowAgain",
-                                      getter_Copies(dontShowAgainMessage));
+  rv = bundle->GetStringFromName("mapiBlindSendDontShowAgain",
+                                 getter_Copies(dontShowAgainMessage));
   if (NS_FAILED(rv)) return false;
 
   nsCOMPtr<nsIPromptService> dlgService(do_GetService(NS_PROMPTSERVICE_CONTRACTID, &rv));

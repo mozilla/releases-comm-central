@@ -560,7 +560,7 @@ nsImapProtocol::Initialize(nsIImapHostSessionList * aHostSessionList,
   rv = IMAPGetStringBundle(getter_AddRefs(m_bundle));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  rv = m_bundle->GetStringFromName(u"imapEmptyMimePart",
+  rv = m_bundle->GetStringFromName("imapEmptyMimePart",
     getter_Copies(m_emptyMimePartString));
   NS_ENSURE_SUCCESS(rv, rv);
 
@@ -5201,13 +5201,13 @@ void nsImapProtocol::SetProgressString(uint32_t aStringIndex)
   switch (m_stringIndex)
   {
     case IMAP_HEADERS_STRING_INDEX:
-      m_progressStringName = u"imapReceivingMessageHeaders3";
+      m_progressStringName = "imapReceivingMessageHeaders3";
       break;
     case IMAP_MESSAGES_STRING_INDEX:
-      m_progressStringName = u"imapFolderReceivingMessageOf3";
+      m_progressStringName = "imapFolderReceivingMessageOf3";
       break;
     case IMAP_FLAGS_STRING_INDEX:
-      m_progressStringName = u"imapReceivingMessageFlags3";
+      m_progressStringName = "imapReceivingMessageFlags3";
       break;
     case IMAP_EMPTY_STRING_INDEX:
     default:

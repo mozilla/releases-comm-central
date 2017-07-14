@@ -1921,15 +1921,15 @@ nsresult nsMsgDBFolder::HandleAutoCompactEvent(nsIMsgWindow *aWindow)
           nsAutoString compactSize;
           FormatFileSize(totalExpungedBytes, true, compactSize);
           const char16_t* params[] = { compactSize.get() };
-          rv = bundle->GetStringFromName(u"autoCompactAllFoldersTitle", getter_Copies(dialogTitle));
+          rv = bundle->GetStringFromName("autoCompactAllFoldersTitle", getter_Copies(dialogTitle));
           NS_ENSURE_SUCCESS(rv, rv);
-          rv = bundle->FormatStringFromName(u"autoCompactAllFoldersText",
+          rv = bundle->FormatStringFromName("autoCompactAllFoldersText",
                                             params, 1, getter_Copies(confirmString));
           NS_ENSURE_SUCCESS(rv, rv);
-          rv = bundle->GetStringFromName(u"autoCompactAlwaysAskCheckbox",
+          rv = bundle->GetStringFromName("autoCompactAlwaysAskCheckbox",
                                          getter_Copies(checkboxText));
           NS_ENSURE_SUCCESS(rv, rv);
-          rv = bundle->GetStringFromName(u"compactNowButton",
+          rv = bundle->GetStringFromName("compactNowButton",
                                          getter_Copies(buttonCompactNowText));
           NS_ENSURE_SUCCESS(rv, rv);
           bool alwaysAsk = true; // "Always ask..." - checked by default.
@@ -2925,27 +2925,27 @@ nsMsgDBFolder::initializeStrings()
                                    getter_AddRefs(bundle));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  bundle->GetStringFromName(u"inboxFolderName",
+  bundle->GetStringFromName("inboxFolderName",
                             &kLocalizedInboxName);
-  bundle->GetStringFromName(u"trashFolderName",
+  bundle->GetStringFromName("trashFolderName",
                             &kLocalizedTrashName);
-  bundle->GetStringFromName(u"sentFolderName",
+  bundle->GetStringFromName("sentFolderName",
                             &kLocalizedSentName);
-  bundle->GetStringFromName(u"draftsFolderName",
+  bundle->GetStringFromName("draftsFolderName",
                             &kLocalizedDraftsName);
-  bundle->GetStringFromName(u"templatesFolderName",
+  bundle->GetStringFromName("templatesFolderName",
                             &kLocalizedTemplatesName);
-  bundle->GetStringFromName(u"junkFolderName",
+  bundle->GetStringFromName("junkFolderName",
                             &kLocalizedJunkName);
-  bundle->GetStringFromName(u"outboxFolderName",
+  bundle->GetStringFromName("outboxFolderName",
                             &kLocalizedUnsentName);
-  bundle->GetStringFromName(u"archivesFolderName",
+  bundle->GetStringFromName("archivesFolderName",
                             &kLocalizedArchivesName);
 
   nsCOMPtr<nsIStringBundle> brandBundle;
   rv = bundleService->CreateBundle("chrome://branding/locale/brand.properties", getter_AddRefs(bundle));
   NS_ENSURE_SUCCESS(rv, rv);
-  bundle->GetStringFromName(u"brandShortName",
+  bundle->GetStringFromName("brandShortName",
                             &kLocalizedBrandShortName);
   return NS_OK;
 }
@@ -3855,7 +3855,7 @@ nsMsgDBFolder::ConfirmAutoFolderRename(nsIMsgWindow *msgWindow,
   };
 
   nsString confirmString;
-  rv = bundle->FormatStringFromName(u"confirmDuplicateFolderRename",
+  rv = bundle->FormatStringFromName("confirmDuplicateFolderRename",
                                     formatStrings, 3, getter_Copies(confirmString));
   if (NS_WARN_IF(NS_FAILED(rv))) {
     return false;
@@ -5203,7 +5203,7 @@ nsMsgDBFolder::GetStringFromBundle(const char *msgName, nsString& aResult)
   nsCOMPtr <nsIStringBundle> bundle;
   rv = GetBaseStringBundle(getter_AddRefs(bundle));
   if (NS_SUCCEEDED(rv) && bundle)
-    rv = bundle->GetStringFromName(NS_ConvertASCIItoUTF16(msgName).get(), getter_Copies(aResult));
+    rv = bundle->GetStringFromName(msgName, getter_Copies(aResult));
   return rv;
 }
 
@@ -5240,7 +5240,7 @@ nsMsgDBFolder::GetStringWithFolderNameFromBundle(const char * msgName, nsAString
     };
 
     nsString resultStr;
-    rv = bundle->FormatStringFromName(NS_ConvertASCIItoUTF16(msgName).get(),
+    rv = bundle->FormatStringFromName(msgName,
                                       formatStrings, 2, getter_Copies(resultStr));
     if (NS_SUCCEEDED(rv))
       aResult.Assign(resultStr);

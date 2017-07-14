@@ -99,7 +99,7 @@ nsMsgMdnGenerator::~nsMsgMdnGenerator()
 {
 }
 
-nsresult nsMsgMdnGenerator::FormatStringFromName(const char16_t *aName,
+nsresult nsMsgMdnGenerator::FormatStringFromName(const char *aName,
                                                  const char16_t *aString,
                                                  char16_t **aResultString)
 {
@@ -121,7 +121,7 @@ nsresult nsMsgMdnGenerator::FormatStringFromName(const char16_t *aName,
     return rv;
 }
 
-nsresult nsMsgMdnGenerator::GetStringFromName(const char16_t *aName,
+nsresult nsMsgMdnGenerator::GetStringFromName(const char *aName,
                                                char16_t **aResultString)
 {
     DEBUG_MDN("nsMsgMdnGenerator::GetStringFromName");
@@ -472,7 +472,7 @@ nsresult nsMsgMdnGenerator::CreateFirstPart()
 
     parm = PR_smprintf("From: %s" CRLF, convbuf ? convbuf : m_email.get());
 
-    rv = FormatStringFromName(u"MsgMdnMsgSentTo", NS_ConvertASCIItoUTF16(m_email).get(),
+    rv = FormatStringFromName("MsgMdnMsgSentTo", NS_ConvertASCIItoUTF16(m_email).get(),
                             getter_Copies(firstPart1));
     if (NS_FAILED(rv))
         return rv;
@@ -494,32 +494,32 @@ nsresult nsMsgMdnGenerator::CreateFirstPart()
     {
     case nsIMsgMdnGenerator::eDisplayed:
         rv = GetStringFromName(
-            u"MdnDisplayedReceipt",
+            "MdnDisplayedReceipt",
             getter_Copies(receipt_string));
         break;
     case nsIMsgMdnGenerator::eDispatched:
         rv = GetStringFromName(
-            u"MdnDispatchedReceipt",
+            "MdnDispatchedReceipt",
             getter_Copies(receipt_string));
         break;
     case nsIMsgMdnGenerator::eProcessed:
         rv = GetStringFromName(
-            u"MdnProcessedReceipt",
+            "MdnProcessedReceipt",
             getter_Copies(receipt_string));
         break;
     case nsIMsgMdnGenerator::eDeleted:
         rv = GetStringFromName(
-            u"MdnDeletedReceipt",
+            "MdnDeletedReceipt",
             getter_Copies(receipt_string));
         break;
     case nsIMsgMdnGenerator::eDenied:
         rv = GetStringFromName(
-            u"MdnDeniedReceipt",
+            "MdnDeniedReceipt",
             getter_Copies(receipt_string));
         break;
     case nsIMsgMdnGenerator::eFailed:
         rv = GetStringFromName(
-            u"MdnFailedReceipt",
+            "MdnFailedReceipt",
             getter_Copies(receipt_string));
         break;
     default:
@@ -595,32 +595,32 @@ report-type=disposition-notification;\r\n\tboundary=\"%s\"" CRLF CRLF,
     {
     case nsIMsgMdnGenerator::eDisplayed:
         rv = GetStringFromName(
-            u"MsgMdnDisplayed",
+            "MsgMdnDisplayed",
             getter_Copies(firstPart2));
         break;
     case nsIMsgMdnGenerator::eDispatched:
         rv = GetStringFromName(
-            u"MsgMdnDispatched",
+            "MsgMdnDispatched",
             getter_Copies(firstPart2));
         break;
     case nsIMsgMdnGenerator::eProcessed:
         rv = GetStringFromName(
-            u"MsgMdnProcessed",
+            "MsgMdnProcessed",
             getter_Copies(firstPart2));
         break;
     case nsIMsgMdnGenerator::eDeleted:
         rv = GetStringFromName(
-            u"MsgMdnDeleted",
+            "MsgMdnDeleted",
             getter_Copies(firstPart2));
         break;
     case nsIMsgMdnGenerator::eDenied:
         rv = GetStringFromName(
-            u"MsgMdnDenied",
+            "MsgMdnDenied",
             getter_Copies(firstPart2));
         break;
     case nsIMsgMdnGenerator::eFailed:
         rv = GetStringFromName(
-            u"MsgMdnFailed",
+            "MsgMdnFailed",
             getter_Copies(firstPart2));
         break;
     default:
@@ -1078,25 +1078,25 @@ NS_IMETHODIMP nsMsgMdnGenerator::OnStopRunningUrl(nsIURI *url,
     if (NS_SUCCEEDED(aExitCode))
       return NS_OK;
 
-    const char16_t* exitString;
+    const char* exitString;
 
     switch (aExitCode)
     {
       case NS_ERROR_UNKNOWN_HOST:
       case NS_ERROR_UNKNOWN_PROXY_HOST:
-        exitString = u"smtpSendFailedUnknownServer";
+        exitString = "smtpSendFailedUnknownServer";
         break;
       case NS_ERROR_CONNECTION_REFUSED:
       case NS_ERROR_PROXY_CONNECTION_REFUSED:
-        exitString = u"smtpSendRequestRefused";
+        exitString = "smtpSendRequestRefused";
         break;
       case NS_ERROR_NET_INTERRUPT:
       case NS_ERROR_ABORT: // we have no proper string for error code NS_ERROR_ABORT in compose bundle
-        exitString = u"smtpSendInterrupted";
+        exitString = "smtpSendInterrupted";
         break;
       case NS_ERROR_NET_TIMEOUT:
       case NS_ERROR_NET_RESET:
-        exitString = u"smtpSendTimeout";
+        exitString = "smtpSendTimeout";
         break;
       default:
         exitString = errorStringNameForErrorCode(aExitCode);
@@ -1130,7 +1130,7 @@ NS_IMETHODIMP nsMsgMdnGenerator::OnStopRunningUrl(nsIURI *url,
     nsString failed_msg, dialogTitle;
 
     bundle->FormatStringFromName(exitString, params, 1, getter_Copies(failed_msg));
-    bundle->GetStringFromName(u"sendMessageErrorTitle", getter_Copies(dialogTitle));
+    bundle->GetStringFromName("sendMessageErrorTitle", getter_Copies(dialogTitle));
 
     nsCOMPtr<nsIPrompt> dialog;
     rv = m_window->GetPromptDialog(getter_AddRefs(dialog));

@@ -261,12 +261,12 @@ nsresult nsAbLDAPProcessChangeLogData::GetAuthData()
         return rv ;
 
     nsString title;
-    rv = bundle->GetStringFromName(u"AuthDlgTitle", getter_Copies(title));
+    rv = bundle->GetStringFromName("AuthDlgTitle", getter_Copies(title));
     if (NS_FAILED (rv)) 
         return rv ;
 
     nsString desc;
-    rv = bundle->GetStringFromName(u"AuthDlgDesc", getter_Copies(desc));
+    rv = bundle->GetStringFromName("AuthDlgDesc", getter_Copies(desc));
     if (NS_FAILED (rv)) 
         return rv ;
 

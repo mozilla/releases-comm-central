@@ -299,7 +299,7 @@ private:
 
   // progress state information
   void UpdateProgressPercent(int64_t totalDone, int64_t total);
-  void UpdateStatus(const char16_t *aStatusName);
+  void UpdateStatus(const char *aStatusName);
   void UpdateStatusWithString(const char16_t *aString);
   nsresult FormatCounterString(const nsString &stringName,
                                uint32_t count1,

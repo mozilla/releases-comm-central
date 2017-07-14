@@ -10,8 +10,8 @@ class nsIStringBundle;
 
 class nsBeckyStringBundle final {
 public:
-  static char16_t *GetStringByName(const char16_t *name);
-  static nsresult FormatStringFromName(const char16_t *name,
+  static char16_t *GetStringByName(const char *name);
+  static nsresult FormatStringFromName(const char *name,
                                        const char16_t **params,
                                        uint32_t length,
                                        char16_t **_retval);

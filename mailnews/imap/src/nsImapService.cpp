@@ -2749,7 +2749,7 @@ NS_IMETHODIMP nsImapService::NewChannel2(nsIURI *aURI,
       const char16_t *formatStrings[1] = { unescapedName.get() };
 
       rv = bundle->FormatStringFromName(
-        u"imapSubscribePrompt",
+        "imapSubscribePrompt",
         formatStrings, 1, getter_Copies(confirmText));
       NS_ENSURE_SUCCESS(rv,rv);
 
