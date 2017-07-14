@@ -51,7 +51,7 @@ nsBeckyImport::GetName(char16_t **aName)
 {
   NS_ENSURE_ARG_POINTER(aName);
   *aName =
-    nsBeckyStringBundle::GetStringByName(u"BeckyImportName");
+    nsBeckyStringBundle::GetStringByName("BeckyImportName");
   return NS_OK;
 }
 
@@ -60,7 +60,7 @@ nsBeckyImport::GetDescription(char16_t **aDescription)
 {
   NS_ENSURE_ARG_POINTER(aDescription);
   *aDescription =
-    nsBeckyStringBundle::GetStringByName(u"BeckyImportDescription");
+    nsBeckyStringBundle::GetStringByName("BeckyImportDescription");
   return NS_OK;
 }
 
@@ -96,7 +96,7 @@ nsBeckyImport::GetMailImportInterface(nsISupports **aInterface)
   generic->SetData("mailInterface", importer);
 
   nsString name;
-  name.Adopt(nsBeckyStringBundle::GetStringByName(u"BeckyImportName"));
+  name.Adopt(nsBeckyStringBundle::GetStringByName("BeckyImportName"));
 
   nsCOMPtr<nsISupportsString> nameString(do_CreateInstance(NS_SUPPORTS_STRING_CONTRACTID, &rv));
   NS_ENSURE_SUCCESS(rv, rv);

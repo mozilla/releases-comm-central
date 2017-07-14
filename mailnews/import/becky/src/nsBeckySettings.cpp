@@ -55,7 +55,7 @@ nsBeckySettings::AutoLocate(char16_t **aDescription,
   NS_ENSURE_ARG_POINTER(_retval);
 
   *aDescription =
-    nsBeckyStringBundle::GetStringByName(u"BeckyImportName");
+    nsBeckyStringBundle::GetStringByName("BeckyImportName");
   *aLocation = nullptr;
   *_retval = false;
 
