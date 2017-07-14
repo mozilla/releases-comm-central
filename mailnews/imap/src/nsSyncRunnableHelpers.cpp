@@ -474,7 +474,7 @@ OAuth2ThreadHelper::~OAuth2ThreadHelper()
 {
   if (mOAuth2Support)
   {
-    NS_ReleaseOnMainThread("OAuth2ThreadHelper::mOAuth2Support", mOAuth2Support.forget());
+    NS_ReleaseOnMainThreadSystemGroup("OAuth2ThreadHelper::mOAuth2Support", mOAuth2Support.forget());
   }
 }
 

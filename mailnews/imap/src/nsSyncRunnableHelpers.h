@@ -36,7 +36,7 @@ public:
 
 private:
   ~StreamListenerProxy() {
-    NS_ReleaseOnMainThread("StreamListenerProxy::mReceiver", mReceiver.forget());
+    NS_ReleaseOnMainThreadSystemGroup("StreamListenerProxy::mReceiver", mReceiver.forget());
   }
   nsCOMPtr<nsIStreamListener> mReceiver;
 };
@@ -55,7 +55,7 @@ public:
 
 private:
   ~ImapMailFolderSinkProxy() {
-    NS_ReleaseOnMainThread("ImapMailFolderSinkProxy::mReceiver", mReceiver.forget());
+    NS_ReleaseOnMainThreadSystemGroup("ImapMailFolderSinkProxy::mReceiver", mReceiver.forget());
   }
   nsCOMPtr<nsIImapMailFolderSink> mReceiver;
 };
@@ -74,7 +74,7 @@ public:
 
 private:
   ~ImapServerSinkProxy() {
-    NS_ReleaseOnMainThread("ImapServerSinkProxy::mReceiver", mReceiver.forget());
+    NS_ReleaseOnMainThreadSystemGroup("ImapServerSinkProxy::mReceiver", mReceiver.forget());
   }
   nsCOMPtr<nsIImapServerSink> mReceiver;
 };
@@ -94,7 +94,7 @@ public:
 
 private:
   ~ImapMessageSinkProxy() {
-    NS_ReleaseOnMainThread("ImapMessageSinkProxy::mReceiver", mReceiver.forget());
+    NS_ReleaseOnMainThreadSystemGroup("ImapMessageSinkProxy::mReceiver", mReceiver.forget());
   }
   nsCOMPtr<nsIImapMessageSink> mReceiver;
 };
@@ -113,7 +113,7 @@ public:
 
 private:
   ~ImapProtocolSinkProxy() {
-    NS_ReleaseOnMainThread("ImapProtocolSinkProxy::mReceiver", mReceiver.forget());
+    NS_ReleaseOnMainThreadSystemGroup("ImapProtocolSinkProxy::mReceiver", mReceiver.forget());
   }
   nsCOMPtr<nsIImapProtocolSink> mReceiver;
 };
