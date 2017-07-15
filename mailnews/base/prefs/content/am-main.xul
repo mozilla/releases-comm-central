@@ -31,7 +31,7 @@
       <textbox wsm_persist="true" size="30" id="server.prettyName"
                prefstring="mail.server.%serverkey%.name"/>
     </hbox>
-    
+
     <separator class="thin"/>
 
     <groupbox style="width: 20em !important;" flex="1">
@@ -53,7 +53,7 @@
           <row align="center">
             <label value="&email.label;" control="identity.email"
                    accesskey="&email.accesskey;"/>
-            <textbox wsm_persist="true" id="identity.email" 
+            <textbox wsm_persist="true" id="identity.email"
                      prefstring="mail.identity.%identitykey%.useremail" class="uri-element"/>
           </row>
           <row align="center">
@@ -79,7 +79,7 @@
         </rows>
       </grid>
 
-      <hbox class="indent" flex="1">
+      <hbox class="indent" flex="1" style="min-height: 50px;">
         <textbox wsm_persist="true" id="identity.htmlSigText" multiline="true" wrap="off" rows="4" flex="1"
                  prefstring="mail.identity.%identitykey%.htmlSigText" class="signatureBox"/>
       </hbox>
@@ -98,7 +98,7 @@
                  observes="broadcaster_attachSignature"
                  prefstring="mail.identity.%identitykey%.sig_file" class="uri-element"/>
         <button class="push" name="browse" label="&choose.label;"
-                accesskey="&choose.accesskey;" 
+                accesskey="&choose.accesskey;"
                 oncommand="selectFile()"
                 observes="broadcaster_attachSignature"
                 wsm_persist="true" id="identity.sigbrowsebutton"
@@ -110,7 +110,7 @@
                   accesskey="&attachVCard.accesskey;"
                   prefattribute="value"
                   prefstring="mail.identity.%identitykey%.attach_vcard"/>
-        <button class="push" name="editVCard" label="&editVCard.label;"  
+        <button class="push" name="editVCard" label="&editVCard.label;"
                 accesskey="&editVCard.accesskey;"
                 oncommand="editVCard()"/>
         <label hidden="true" wsm_persist="true" id="identity.escapedVCard"
