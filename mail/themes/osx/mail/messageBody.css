@@ -91,6 +91,13 @@ img[overflowing][shrinktofit] {
   height: auto !important;
 }
 
+@media print {
+  img[shrinktofit] {
+    max-width: 100% !important;
+    height: auto !important;
+  }
+}
+
 /* ::::: vcard ::::: */
 
 .moz-vcard-table {
