@@ -10,9 +10,6 @@ Components.utils.import("resource://gre/modules/DownloadUtils.jsm");
 
 // locally loaded services
 var gLocSvc = {};
-XPCOMUtils.defineLazyServiceGetter(gLocSvc, "date",
-                                   "@mozilla.org/intl/scriptabledateformat;1",
-                                   "nsIScriptableDateFormat");
 XPCOMUtils.defineLazyModuleGetter(gLocSvc, "FormHistory",
                                   "resource://gre/modules/FormHistory.jsm",
                                   "FormHistory");
@@ -982,11 +979,11 @@ var gCookies = {
       // See bug 238045 for details.
       let expiry = "";
       try {
-        expiry = gLocSvc.date.FormatDateTime("", gLocSvc.date.dateFormatLong,
-                                             gLocSvc.date.timeFormatSeconds,
-                                             date.getFullYear(), date.getMonth()+1,
-                                             date.getDate(), date.getHours(),
-                                             date.getMinutes(), date.getSeconds());
+        const dtOptions = { year: "numeric", month: "long", day: "numeric",
+                            hour: "numeric", minute: "numeric",
+                            second: "numeric", timeZoneName: "short",
+                            weekday: "short" };
+        expiry =  date.toLocaleString(undefined, dtOptions);
       }
       catch (e) {}
       return expiry;
@@ -2854,11 +2851,11 @@ var gFormdata = {
       // See bug 238045 for details.
       let dtString = "";
       try {
-        dtString = gLocSvc.date.FormatDateTime("", gLocSvc.date.dateFormatLong,
-                                               gLocSvc.date.timeFormatSeconds,
-                                               date.getFullYear(), date.getMonth()+1,
-                                               date.getDate(), date.getHours(),
-                                               date.getMinutes(), date.getSeconds());
+        const dtOptions = { year: "numeric", month: "long", day: "numeric",
+                            hour: "numeric", minute: "numeric",
+                            second: "numeric", timeZoneName: "short",
+                            weekday: "short" };
+        dtString =  date.toLocaleString(undefined, dtOptions);
       }
       catch (e) {}
       return dtString;

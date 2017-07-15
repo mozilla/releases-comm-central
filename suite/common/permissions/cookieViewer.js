@@ -38,14 +38,6 @@ function Startup() {
   promptservice = Components.classes["@mozilla.org/embedcomp/prompt-service;1"]
                             .getService(Components.interfaces.nsIPromptService);
 
-  // intialize gDateService
-  if (!gDateService) {
-    const nsScriptableDateFormat_CONTRACTID = "@mozilla.org/intl/scriptabledateformat;1";
-    const nsIScriptableDateFormat = Components.interfaces.nsIScriptableDateFormat;
-    gDateService = Components.classes[nsScriptableDateFormat_CONTRACTID]
-      .getService(nsIScriptableDateFormat);
-  }
-
   // intialize string bundle
   cookieBundle = document.getElementById("cookieBundle");
 
@@ -175,11 +167,11 @@ function GetExpiresString(expires) {
     // see bug 238045 for details
     var expiry = "";
     try {
-      expiry = gDateService.FormatDateTime("", gDateService.dateFormatLong,
-                                           gDateService.timeFormatSeconds,
-                                           date.getFullYear(), date.getMonth()+1,
-                                           date.getDate(), date.getHours(),
-                                           date.getMinutes(), date.getSeconds());
+      const dtOptions = { year: "numeric", month: "long", day: "numeric",
+                          hour: "numeric", minute: "numeric",
+                          second: "numeric", timeZoneName: "short",
+                          weekday: "short" };
+      expiry =  date.toLocaleString(undefined, dtOptions);
     } catch(ex) {
       // do nothing
     }

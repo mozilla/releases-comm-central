@@ -268,17 +268,22 @@ FeedWriter.prototype = {
    *          A date as extracted from a feed entry. (entry.updated)
    */
   _parseDate: function parseDate(dateString) {
-    // Make sure the date we're given is valid.
-    if (isNaN(Date.parse(dateString)))
-      return null;
-
     // Convert the date into the user's local time zone.
     var dateObj = new Date(dateString);
-    var dateService = Components.classes["@mozilla.org/intl/scriptabledateformat;1"]
-                                .getService(Components.interfaces.nsIScriptableDateFormat);
-    return dateService.FormatDateTime("", dateService.dateFormatLong, dateService.timeFormatNoSeconds,
-                                      dateObj.getFullYear(), dateObj.getMonth()+1, dateObj.getDate(),
-                                      dateObj.getHours(), dateObj.getMinutes(), dateObj.getSeconds());
+    // Make sure the date we're given is valid.
+    if (!dateObj.getTime())
+      return false;
+
+    return this._dateFormatter.format(dateObj);
+  },
+
+  __dateFormatter: null,
+  get _dateFormatter() {
+    if (!this.__dateFormatter) {
+      const dtOptions = { timeStyle: "short", dateStyle: "long" };
+      this.__dateFormatter = Services.intl.createDateTimeFormat(undefined, dtOptions);
+    }
+    return this.__dateFormatter;
   },
 
   /**

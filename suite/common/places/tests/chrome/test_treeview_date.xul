@@ -69,8 +69,6 @@
       var bh = hs.QueryInterface(Ci.nsIBrowserHistory);
       var bs = Cc["@mozilla.org/browser/nav-bookmarks-service;1"].
                getService(Ci.nsINavBookmarksService);
-      var ds = Cc["@mozilla.org/intl/scriptabledateformat;1"].
-               getService(Ci.nsIScriptableDateFormat);
 
       var iosvc = Cc["@mozilla.org/network/io-service;1"].
                   getService(Ci.nsIIOService);
@@ -125,24 +123,19 @@
               case "date":
                 var timeObj = new Date(node.time / 1000);
                 // Default is short date format.
-                var dateFormat = Ci.nsIScriptableDateFormat.dateFormatShort;
+                let dtOptions = { year: '2-digit', month: 'numeric',
+                                  day: 'numeric', hour: 'numeric',
+                                  minute: 'numeric' };
                 // For today's visits we don't show date portion.
                 if (node.uri == "http://at.midnight.com/" ||
-                    node.uri == "http://after.midnight.com/")
-                  dateFormat = Ci.nsIScriptableDateFormat.dateFormatNone;
-                else if (node.uri == "http://before.midnight.com/")
-                  dateFormat = Ci.nsIScriptableDateFormat.dateFormatShort;
-                else {
+                    node.uri == "http://after.midnight.com/") {
+                  dtOptions = { hour: 'numeric', minute: 'numeric' };
+                } else if (node.uri != "http://before.midnight.com/") {
                   // Avoid to test spurious uris, due to how the test works
                   // a redirecting uri could be put in the tree while we test.
                   break;
                 }
-                var timeStr = ds.FormatDateTime("", dateFormat,
-                      Ci.nsIScriptableDateFormat.timeFormatNoSeconds,
-                      timeObj.getFullYear(), timeObj.getMonth() + 1,
-                      timeObj.getDate(), timeObj.getHours(),
-                      timeObj.getMinutes(), timeObj.getSeconds())
-
+                var timeStr = timeObj.toLocaleString(locale, dtOptions);
                 is(text, timeStr, "Date format is correct");
                 break;
               case "visitCount":

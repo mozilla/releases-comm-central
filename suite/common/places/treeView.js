@@ -15,14 +15,6 @@ function PlacesTreeView(aFlatList, aOnOpenFlatContainer, aController) {
 }
 
 PlacesTreeView.prototype = {
-  __dateService: null,
-  get _dateService() {
-    if (!this.__dateService) {
-      this.__dateService = Components.classes["@mozilla.org/intl/scriptabledateformat;1"]
-                                     .getService(Components.interfaces.nsIScriptableDateFormat);
-    }
-    return this.__dateService;
-  },
 
   QueryInterface: function PTV_QueryInterface(aIID) {
     if (aIID.equals(Components.interfaces.nsITreeView) ||
@@ -469,17 +461,36 @@ PlacesTreeView.prototype = {
     let midnight = now - (now % MS_PER_DAY);
     midnight += new Date(midnight).getTimezoneOffset() * MS_PER_MINUTE;
 
-    const nsIScriptableDateFormat = Components.interfaces.nsIScriptableDateFormat;
-    let dateFormat = timeMs >= midnight ?
-                      nsIScriptableDateFormat.dateFormatNone :
-                      nsIScriptableDateFormat.dateFormatShort;
-
     let timeObj = new Date(timeMs);
-    return (this._dateService.FormatDateTime("", dateFormat,
-      nsIScriptableDateFormat.timeFormatNoSeconds,
-      timeObj.getFullYear(), timeObj.getMonth() + 1,
-      timeObj.getDate(), timeObj.getHours(),
-      timeObj.getMinutes(), timeObj.getSeconds()));
+    return timeMs >= midnight ? this._todayFormatter.format(timeObj)
+                              : this._dateFormatter.format(timeObj);
+  },
+
+  // We use a different formatter for times within the current day,
+  // so we cache both a "today" formatter and a general date formatter.
+  __todayFormatter: null,
+  get _todayFormatter() {
+    if (!this.__todayFormatter) {
+      const locale = Components.classes["@mozilla.org/chrome/chrome-registry;1"]
+                               .getService(Components.interfaces.nsIXULChromeRegistry)
+                               .getSelectedLocale("global", true);
+      const dtOptions = { hour: 'numeric', minute: 'numeric' };
+      this.__todayFormatter = new Intl.DateTimeFormat(locale, dtOptions);
+    }
+    return this.__todayFormatter;
+  },
+
+  __dateFormatter: null,
+  get _dateFormatter() {
+    if (!this.__dateFormatter) {
+      const locale = Components.classes["@mozilla.org/chrome/chrome-registry;1"]
+                               .getService(Components.interfaces.nsIXULChromeRegistry)
+                               .getSelectedLocale("global", true);
+      const dtOptions = { year: '2-digit', month: 'numeric', day: 'numeric',
+                          hour: 'numeric', minute: 'numeric' };
+      this.__dateFormatter = new Intl.DateTimeFormat(locale, dtOptions);
+    }
+    return this.__dateFormatter;
   },
 
   COLUMN_TYPE_UNKNOWN: 0,

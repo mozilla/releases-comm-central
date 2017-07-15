@@ -12,14 +12,6 @@ function PlacesTreeView() {
 }
 
 PlacesTreeView.prototype = {
-  __dateService: null,
-  get _dateService() {
-    if (!this.__dateService) {
-      this.__dateService = Components.classes["@mozilla.org/intl/scriptabledateformat;1"]
-                                     .getService(Components.interfaces.nsIScriptableDateFormat);
-    }
-    return this.__dateService;
-  },
 
   QueryInterface: function PTV_QueryInterface(aIID) {
     if (aIID.equals(Components.interfaces.nsITreeView) ||
@@ -424,31 +416,49 @@ PlacesTreeView.prototype = {
   },
 
   _convertPRTimeToString: function PTV__convertPRTimeToString(aTime) {
-    var timeInMilliseconds = aTime / 1000; // PRTime is in microseconds
-    var timeObj = new Date(timeInMilliseconds);
+    const MS_PER_MINUTE = 60000;
+    const MS_PER_DAY = 86400000;
+    let timeMs = aTime / 1000; // PRTime is in microseconds
 
-    // Check if it is today and only display the time.  Only bother
-    // checking for today if it's within the last 24 hours, since
-    // computing midnight is not really cheap. Sometimes we may get dates
-    // in the future, so always show those.
-    var ago = Date.now() - timeInMilliseconds;
-    var dateFormat = Components.interfaces.nsIScriptableDateFormat.dateFormatShort;
-    if (ago > -10000 && ago < (1000 * 24 * 60 * 60)) {
-      var midnight = new Date();
-      midnight.setHours(0);
-      midnight.setMinutes(0);
-      midnight.setSeconds(0);
-      midnight.setMilliseconds(0);
+    // Date is calculated starting from midnight, so the modulo with a day are
+    // milliseconds from today's midnight.
+    // getTimezoneOffset corrects that based on local time, notice midnight
+    // can have a different offset during DST-change days.
+    let dateObj = new Date();
+    let now = dateObj.getTime() - dateObj.getTimezoneOffset() * MS_PER_MINUTE;
+    let midnight = now - (now % MS_PER_DAY);
+    midnight += new Date(midnight).getTimezoneOffset() * MS_PER_MINUTE;
 
-      if (timeInMilliseconds > midnight.getTime())
-        dateFormat = Components.interfaces.nsIScriptableDateFormat.dateFormatNone;
+    let timeObj = new Date(timeMs);
+    return timeMs >= midnight ? this._todayFormatter.format(timeObj)
+                              : this._dateFormatter.format(timeObj);
+  },
+
+  // We use a different formatter for times within the current day,
+  // so we cache both a "today" formatter and a general date formatter.
+  __todayFormatter: null,
+  get _todayFormatter() {
+    if (!this.__todayFormatter) {
+      const locale = Components.classes["@mozilla.org/chrome/chrome-registry;1"]
+                               .getService(Components.interfaces.nsIXULChromeRegistry)
+                               .getSelectedLocale("global", true);
+      const dtOptions = { hour: 'numeric', minute: 'numeric' };
+      this.__todayFormatter = new Intl.DateTimeFormat(locale, dtOptions);
     }
+    return this.__todayFormatter;
+  },
 
-    return (this._dateService.FormatDateTime("", dateFormat,
-      Components.interfaces.nsIScriptableDateFormat.timeFormatNoSeconds,
-      timeObj.getFullYear(), timeObj.getMonth() + 1,
-      timeObj.getDate(), timeObj.getHours(),
-      timeObj.getMinutes(), timeObj.getSeconds()));
+  __dateFormatter: null,
+  get _dateFormatter() {
+    if (!this.__dateFormatter) {
+      const locale = Components.classes["@mozilla.org/chrome/chrome-registry;1"]
+                               .getService(Components.interfaces.nsIXULChromeRegistry)
+                               .getSelectedLocale("global", true);
+      const dtOptions = { year: '2-digit', month: 'numeric', day: 'numeric',
+                          hour: 'numeric', minute: 'numeric' };
+      this.__dateFormatter = new Intl.DateTimeFormat(locale, dtOptions);
+    }
+    return this.__dateFormatter;
   },
 
   // nsINavHistoryResultObserver

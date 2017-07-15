@@ -1307,18 +1307,14 @@ function formatNumber(number)
 
 function formatDate(datestr, unknown)
 {
-  // scriptable date formatter, for pretty printing dates
-  var dateService = Components.classes["@mozilla.org/intl/scriptabledateformat;1"]
-                              .getService(Components.interfaces.nsIScriptableDateFormat);
-
   var date = new Date(datestr);
   if (!date.valueOf())
     return unknown;
 
-  return dateService.FormatDateTime("", dateService.dateFormatLong,
-                                    dateService.timeFormatSeconds,
-                                    date.getFullYear(), date.getMonth()+1, date.getDate(),
-                                    date.getHours(), date.getMinutes(), date.getSeconds());
+  const dtOptions = { year: "numeric", month: "long", day: "numeric",
+                      hour: "numeric", minute: "numeric", second: "numeric",
+                      timeZoneName: "short", weekday: "short" };
+  return date.toLocaleString(undefined, dtOptions);
 }
 
 function getSelectedItems(linksMode)
