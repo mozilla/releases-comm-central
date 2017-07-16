@@ -170,21 +170,21 @@ function testWeeklyWithExceptionRecurrence() {
         tuesPath.replace("dayIndex", "2").replace("eventIndex", "2") + EVENTPATH
     ));
 
-    // check not present node after we are sure the existing ones are displayed.
+    // wait for the last occurrence because this appears latest.
+    controller.waitForElement(lookupEventBox("week", EVENT_BOX, null, 6, HOUR));
+    controller.assertNodeNotExist(lookupEventBox("week", EVENT_BOX, null, 1, HOUR));
     controller.assertNodeNotExist(lookupEventBox("week", EVENT_BOX, null, 2, HOUR));
-
     controller.assertNode(lookupEventBox("week", EVENT_BOX, null, 4, HOUR));
     controller.assertNodeNotExist(lookupEventBox("week", EVENT_BOX, null, 5, HOUR));
-    controller.assertNode(lookupEventBox("week", EVENT_BOX, null, 6, HOUR));
     controller.assertNodeNotExist(lookupEventBox("week", EVENT_BOX, null, 7, HOUR));
 
     viewForward(controller, 1);
-    controller.waitForElement(lookupEventBox("week", EVENT_BOX, null, 2, HOUR));
+    controller.waitForElement(lookupEventBox("week", EVENT_BOX, null, 6, HOUR));
     controller.assertNodeNotExist(lookupEventBox("week", EVENT_BOX, null, 1, HOUR));
+    controller.assertNode(lookupEventBox("week", EVENT_BOX, null, 2, HOUR));
     controller.assertNode(lookupEventBox("week", EVENT_BOX, null, 3, HOUR));
     controller.assertNode(lookupEventBox("week", EVENT_BOX, null, 4, HOUR));
     controller.assertNodeNotExist(lookupEventBox("week", EVENT_BOX, null, 5, HOUR));
-    controller.assertNode(lookupEventBox("week", EVENT_BOX, null, 6, HOUR));
     controller.assertNodeNotExist(lookupEventBox("week", EVENT_BOX, null, 7, HOUR));
 
     // multiweek view
