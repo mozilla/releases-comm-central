@@ -1,0 +1,58 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+/* Because this sheet is loaded synchronously while the user is waiting for the
+   compose window to appear, it must not @import a ton of other things, and
+   especially must not trigger network access. */
+
+/* ===== messageQuotes.css =================================================
+  == Shared styles such as block quote colors and signature style
+  == between the message body during
+  == message display and the mail editor instance for mail compose.
+  ======================================================================= */
+
+/* workaround for MS Outlook mails where the line-height is set to 0 */
+body {
+  line-height: initial !important;
+}
+
+/* ::::: signature ::::: */
+
+@media not print {
+  div.moz-text-flowed > div.moz-txt-sig,
+  div.moz-text-plain > pre > div.moz-txt-sig,
+  pre.moz-signature {
+    opacity: 0.6;
+  }
+}
+
+/* ::::: Turn on borders and padding for quotes. ::::: */
+blockquote[type=cite] {
+  padding: 0.4ex 1ex;
+  margin: 1ex;
+  border-width: 0px 0px 0px 2px;
+  border-style: none none none solid;
+  border-radius: 2px;
+}
+
+/* ::::: Colorize block quote borders. We only go 5 levels deep. ::::: */
+blockquote[type=cite] {
+  border-color: rgb(131, 165, 201); /* 65% */}
+
+blockquote[type=cite] blockquote[type=cite] {
+  border-color: rgb(149, 178, 208); /* 70% */
+}
+
+blockquote[type=cite] blockquote[type=cite] blockquote[type=cite] {
+  border-color: rgb(166, 190, 216); /* 75% */
+}
+
+blockquote[type=cite] blockquote[type=cite] blockquote[type=cite] blockquote[type=cite] {
+
+  border-color: rgb(184, 203, 224); /* 80% */
+}
+
+blockquote[type=cite] blockquote[type=cite] blockquote[type=cite] blockquote[type=cite] blockquote[type=cite] {
+  border-color: rgb(202, 216, 232); /* 85% */
+}
