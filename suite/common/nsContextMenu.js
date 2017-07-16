@@ -29,6 +29,11 @@ XPCOMUtils.defineLazyGetter(this, "PageMenuParent", function() {
   return new tmp.PageMenuParent();
 });
 
+XPCOMUtils.defineLazyModuleGetter(this, "DevToolsShim",
+  "chrome://devtools-shim/content/DevToolsShim.jsm");
+XPCOMUtils.defineLazyModuleGetter(this, "findCssSelector",
+  "resource://gre/modules/css-selector.js");
+
 function nsContextMenu(aXulMenu, aIsShift, aEvent) {
   this.shouldDisplay = true;
   this.initMenu(aXulMenu, aIsShift, aEvent);
@@ -220,8 +225,9 @@ nsContextMenu.prototype = {
     this.showItem("context-viewsource", showView);
     this.showItem("context-viewinfo", showView);
 
-    var showInspect = "gDevTools" in window &&
-                      Services.prefs.getBoolPref("devtools.inspector.enabled");
+    var showInspect = DevToolsShim.isInstalled() &&
+                      "gDevTools" in window &&
+                      Services.prefs.getBoolPref("devtools.inspector.enabled", false);
     this.showItem("inspect-separator", showInspect);
     this.showItem("context-inspect", showInspect);
 
@@ -489,12 +495,33 @@ nsContextMenu.prototype = {
     this.showItem("context-media-sep-commands", onMedia);
   },
 
+  /**
+   * Retrieve the array of CSS selectors corresponding to the provided node. The first item
+   * of the array is the selector of the node in its owner document. Additional items are
+   * used if the node is inside a frame, each representing the CSS selector for finding the
+   * frame element in its parent document.
+   *
+   * This format is expected by DevTools in order to handle the Inspect Node context menu
+   * item.
+   *
+   * @param  {Node}
+   *         The node for which the CSS selectors should be computed
+   * @return {Array} array of css selectors (strings).
+   */
+  getNodeSelectors: function(node) {
+    let selectors = [];
+    while (node) {
+      selectors.push(findCssSelector(node));
+      node = node.ownerGlobal.frameElement;
+    }
+
+    return selectors;
+  },
+
   inspectNode: function() {
-    let tmp = {};
-    Components.utils.import("resource://devtools/shared/Loader.jsm", tmp);
     let gBrowser = this.browser.ownerDocument.defaultView.gBrowser;
-    let gDevToolsBrowser = tmp.require("devtools/client/framework/devtools-browser").gDevToolsBrowser;
-    return gDevToolsBrowser.inspectNode(gBrowser.selectedTab, this.target);
+    return DevToolsShim.inspectNode(gBrowser.selectedTab,
+                                    this.getNodeSelectors(this.target));
   },
 
   // Set various context menu attributes based on the state of the world.
