@@ -353,48 +353,6 @@ distribution/extensions/inspector@mozilla.org/chrome/inspector/skin/classic/insp
 distribution/extensions/inspector@mozilla.org/chrome/inspector/skin/modern/inspector/viewers/accessibleProps/accessibleProps.css
 distribution/extensions/inspector@mozilla.org/chrome/inspector/skin/classic/inspector/viewers/styleRules/styleRules.css
 distribution/extensions/inspector@mozilla.org/chrome/inspector/skin/modern/inspector/viewers/styleRules/styleRules.css
-# This is currently ineffective probably due to a bug in the toolkit find-dupes.py.
-# The inspector locale files are still reported as duplicate for now.
-distribution/extensions/inspector@mozilla.org/chrome/inspector/locale/en-GB/inspector/editing.dtd
-distribution/extensions/inspector@mozilla.org/chrome/inspector/locale/en-US/inspector/editing.dtd
-distribution/extensions/inspector@mozilla.org/chrome/inspector/locale/en-GB/inspector/inspector.properties
-distribution/extensions/inspector@mozilla.org/chrome/inspector/locale/en-US/inspector/inspector.properties
-distribution/extensions/inspector@mozilla.org/chrome/inspector/locale/en-GB/inspector/inspector.dtd
-distribution/extensions/inspector@mozilla.org/chrome/inspector/locale/en-US/inspector/inspector.dtd
-distribution/extensions/inspector@mozilla.org/chrome/inspector/locale/en-GB/inspector/tasksOverlay.dtd
-distribution/extensions/inspector@mozilla.org/chrome/inspector/locale/en-US/inspector/tasksOverlay.dtd
-distribution/extensions/inspector@mozilla.org/chrome/inspector/locale/en-GB/inspector/viewer-registry.dtd
-distribution/extensions/inspector@mozilla.org/chrome/inspector/locale/en-US/inspector/viewer-registry.dtd
-distribution/extensions/inspector@mozilla.org/chrome/inspector/locale/en-GB/inspector/viewers/accessibleProps.properties
-distribution/extensions/inspector@mozilla.org/chrome/inspector/locale/en-US/inspector/viewers/accessibleProps.properties
-distribution/extensions/inspector@mozilla.org/chrome/inspector/locale/en-GB/inspector/viewers/computedStyle.dtd
-distribution/extensions/inspector@mozilla.org/chrome/inspector/locale/en-US/inspector/viewers/computedStyle.dtd
-distribution/extensions/inspector@mozilla.org/chrome/inspector/locale/en-GB/inspector/viewers/stylesheets.dtd
-distribution/extensions/inspector@mozilla.org/chrome/inspector/locale/en-US/inspector/viewers/stylesheets.dtd
-distribution/extensions/inspector@mozilla.org/chrome/inspector/locale/en-GB/inspector/viewers/accessibleTree.dtd
-distribution/extensions/inspector@mozilla.org/chrome/inspector/locale/en-US/inspector/viewers/accessibleTree.dtd
-distribution/extensions/inspector@mozilla.org/chrome/inspector/locale/en-GB/inspector/viewers/usedFontFaces.dtd
-distribution/extensions/inspector@mozilla.org/chrome/inspector/locale/en-US/inspector/viewers/usedFontFaces.dtd
-distribution/extensions/inspector@mozilla.org/chrome/inspector/locale/en-GB/inspector/viewers/accessibleRelations.dtd
-distribution/extensions/inspector@mozilla.org/chrome/inspector/locale/en-US/inspector/viewers/accessibleRelations.dtd
-distribution/extensions/inspector@mozilla.org/chrome/inspector/locale/en-GB/inspector/viewers/boxModel.dtd
-distribution/extensions/inspector@mozilla.org/chrome/inspector/locale/en-US/inspector/viewers/boxModel.dtd
-distribution/extensions/inspector@mozilla.org/chrome/inspector/locale/en-GB/inspector/viewers/accessibleEvent.dtd
-distribution/extensions/inspector@mozilla.org/chrome/inspector/locale/en-US/inspector/viewers/accessibleEvent.dtd
-distribution/extensions/inspector@mozilla.org/chrome/inspector/locale/en-GB/inspector/viewers/accessibleEvents.properties
-distribution/extensions/inspector@mozilla.org/chrome/inspector/locale/en-US/inspector/viewers/accessibleEvents.properties
-distribution/extensions/inspector@mozilla.org/chrome/inspector/locale/en-GB/inspector/viewers/xblBindings.dtd
-distribution/extensions/inspector@mozilla.org/chrome/inspector/locale/en-US/inspector/viewers/xblBindings.dtd
-distribution/extensions/inspector@mozilla.org/chrome/inspector/locale/en-GB/inspector/viewers/jsObject.dtd
-distribution/extensions/inspector@mozilla.org/chrome/inspector/locale/en-US/inspector/viewers/jsObject.dtd
-distribution/extensions/inspector@mozilla.org/chrome/inspector/locale/en-GB/inspector/viewers/styleRules.dtd
-distribution/extensions/inspector@mozilla.org/chrome/inspector/locale/en-US/inspector/viewers/styleRules.dtd
-distribution/extensions/inspector@mozilla.org/chrome/inspector/locale/en-GB/inspector/viewers/accessibleEvents.dtd
-distribution/extensions/inspector@mozilla.org/chrome/inspector/locale/en-US/inspector/viewers/accessibleEvents.dtd
-distribution/extensions/inspector@mozilla.org/chrome/inspector/locale/en-GB/inspector/viewers/accessibleProps.dtd
-distribution/extensions/inspector@mozilla.org/chrome/inspector/locale/en-US/inspector/viewers/accessibleProps.dtd
-distribution/extensions/inspector@mozilla.org/chrome/inspector/locale/en-GB/inspector/viewers/domNode.dtd
-distribution/extensions/inspector@mozilla.org/chrome/inspector/locale/en-US/inspector/viewers/domNode.dtd
 
 # Linux
 chrome/icons/default/default16.png
