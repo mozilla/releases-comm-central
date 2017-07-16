@@ -278,12 +278,10 @@
       <method name="properFormatTime">
         <parameter name="aTime"/>
         <body><![CDATA[
-          const dateServ = Components.classes["@mozilla.org/intl/scriptabledateformat;1"]
-                                     .getService(Components.interfaces.nsIScriptableDateFormat);
-          let errorTime = new Date(aTime);
-          return dateServ.FormatDateTime("", dateServ.dateFormatShort, dateServ.timeFormatSeconds,
-              errorTime.getFullYear(), errorTime.getMonth() + 1, errorTime.getDate(),
-              errorTime.getHours(), errorTime.getMinutes(), errorTime.getSeconds());
+          const dateServ = Services.intl.createDateTimeFormat(undefined, {
+            dateStyle: "short", timeStyle: "short"
+          });
+          return dateServ.format(aTime);
         ]]></body>
       </method>
 
