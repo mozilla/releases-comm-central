@@ -1888,7 +1888,11 @@ nsresult nsMsgCompose::CreateMessage(const char * originalMsgURI,
       {
         nsCString queuedDisposition;
         msgDBHdr->GetStringProperty(QUEUED_DISPOSITION_PROPERTY, getter_Copies(queuedDisposition));
-        mOriginalMsgURI.Assign(originalMsgURI);
+        // We need to retrieve the original URI from the database so we can
+        // set the disposition flags correctly if the draft is a reply or forwarded message.
+        nsCString originalMsgURIfromDB;
+        msgDBHdr->GetStringProperty(ORIG_URI_PROPERTY, getter_Copies(originalMsgURIfromDB));
+        mOriginalMsgURI = originalMsgURIfromDB;
         if (!queuedDisposition.IsEmpty())
         {
           if (queuedDisposition.Equals("replied"))

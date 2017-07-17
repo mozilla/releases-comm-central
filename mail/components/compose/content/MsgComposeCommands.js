@@ -56,6 +56,7 @@ var gSpellChecker = new InlineSpellChecker();
  * we need to release them when the window closes.
  */
 var gMsgCompose;
+var gOriginalMsgURI;
 var gWindowLocked;
 var gSendLocked;
 var gContentChanged;
@@ -118,6 +119,7 @@ function InitializeGlobalVariables()
                          .createInstance(Components.interfaces.nsIMessenger);
 
   gMsgCompose = null;
+  gOriginalMsgURI = null;
   gWindowLocked = false;
   gContentChanged = false;
   gSubjectChanged = false;
@@ -151,6 +153,7 @@ function ReleaseGlobalVariables()
   gCurrentIdentity = null;
   gCharsetConvertManager = null;
   gMsgCompose = null;
+  gOriginalMsgURI = null;
   gMessenger = null;
   gDisableAttachmentReminder = false;
   _gComposeBundle = null;
@@ -2625,6 +2628,13 @@ function ComposeStartup(aParams)
 
   // Get the <editor> element to startup an editor
   var editorElement = GetCurrentEditorElement();
+
+  // Remember the original message URI. When editing a draft which is a reply
+  // or forwarded message, this gets overwritten by the ancestor's message URI so
+  // the disposition flags ("replied" or "forwarded") can be set on the ancestor.
+  // For our purposes we need the URI of the message being processed, not its
+  // original ancestor.
+  gOriginalMsgURI = params.originalMsgURI;
   gMsgCompose = MailServices.compose.initCompose(params, window, editorElement.docShell);
 
   gMsgCompose.addMsgSendListener(gSendListener);
@@ -5410,12 +5420,12 @@ function InitEditor()
       // We're already loading this, or tried so unsuccesfully.
       return;
     }
-    if (gMsgCompose.originalMsgURI) {
+    if (gOriginalMsgURI) {
       let msgSvc = Components.classes["@mozilla.org/messenger;1"]
         .createInstance(Components.interfaces.nsIMessenger)
-        .messageServiceFromURI(gMsgCompose.originalMsgURI);
+        .messageServiceFromURI(gOriginalMsgURI);
       let originalMsgNeckoURI = {};
-      msgSvc.GetUrlForUri(gMsgCompose.originalMsgURI, originalMsgNeckoURI, null);
+      msgSvc.GetUrlForUri(gOriginalMsgURI, originalMsgNeckoURI, null);
       if (src.startsWith(originalMsgNeckoURI.value.spec)) {
         // Reply/Forward/Edit Draft/Edit as New can contain references to
         // images in the original message. Load those and make them data: URLs
@@ -5442,13 +5452,13 @@ function InitEditor()
 
   // Convert mailnews URL back to data: URL.
   let background = editor.document.body.background;
-  if (background && gMsgCompose.originalMsgURI) {
+  if (background && gOriginalMsgURI) {
     // Check that background has the same URL as the message itself.
     let msgSvc = Components.classes["@mozilla.org/messenger;1"]
       .createInstance(Components.interfaces.nsIMessenger)
-      .messageServiceFromURI(gMsgCompose.originalMsgURI);
+      .messageServiceFromURI(gOriginalMsgURI);
     let originalMsgNeckoURI = {};
-    msgSvc.GetUrlForUri(gMsgCompose.originalMsgURI, originalMsgNeckoURI, null);
+    msgSvc.GetUrlForUri(gOriginalMsgURI, originalMsgNeckoURI, null);
     if (background.startsWith(originalMsgNeckoURI.value.spec)) {
       try {
         editor.document.body.background = loadBlockedImage(background, true);
