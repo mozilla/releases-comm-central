@@ -121,15 +121,20 @@
 }
 
 /* ::::: attached images ::::: */
+
+.moz-attached-image-container {
+  text-align: center;
+}
+
 .moz-attached-image {
   image-orientation: from-image;
 }
 
-.moz-attached-image[overflowing="true"] { 
+.moz-attached-image[overflowing="true"] {
   cursor: zoom-out;
 }
 
-.moz-attached-image[isshrunk="true"] { 
+.moz-attached-image[isshrunk="true"] {
   cursor: zoom-in;
   max-width: 100%;
 }

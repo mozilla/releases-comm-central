@@ -1091,9 +1091,9 @@ mime_image_make_image_html(void *image_closure)
 
   const char *prefix;
   /* Wouldn't it be nice if attributes were case-sensitive? */
-  const char *scaledPrefix = "<P><CENTER><IMG CLASS=\"moz-attached-image\" shrinktofit=\"yes\" SRC=\"";
-  const char *unscaledPrefix = "<P><CENTER><IMG CLASS=\"moz-attached-image\" SRC=\"";
-  const char *suffix = "\"></CENTER><P>";
+  const char *scaledPrefix = "<DIV CLASS=\"moz-attached-image-container\"><IMG CLASS=\"moz-attached-image\" shrinktofit=\"yes\" SRC=\"";
+  const char *unscaledPrefix = "<DIV CLASS=\"moz-attached-image-container\"><IMG CLASS=\"moz-attached-image\" SRC=\"";
+  const char *suffix = "\"></DIV>";
   const char *url;
   char *buf;
 
@@ -1102,7 +1102,7 @@ mime_image_make_image_html(void *image_closure)
 
   /* Internal-external-reconnect only works when going to the screen. */
   if (!mid->istream)
-    return strdup("<P><CENTER><IMG SRC=\"resource://gre-resources/loading-image.png\" ALT=\"[Image]\"></CENTER><P>");
+    return strdup("<DIV CLASS=\"moz-attached-image-container\"><IMG SRC=\"resource://gre-resources/loading-image.png\" ALT=\"[Image]\"></DIV>");
 
   nsCOMPtr<nsIPrefBranch> prefBranch;
   nsCOMPtr<nsIPrefService> prefSvc(do_GetService(NS_PREFSERVICE_CONTRACTID));
