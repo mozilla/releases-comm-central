@@ -301,7 +301,7 @@
 .tabmail-arrowscrollbox > .arrowscrollbox-overflow-end-indicator:not([collapsed]) {
   background-image: url("chrome://messenger/skin/tabs/overflow-indicator.png");
   background-size: 100% 100%;
-  width: 14px;
+  width: 19px;
   margin-bottom: 1px;
   pointer-events: none;
   position: relative;
@@ -315,11 +315,11 @@
 
 .tabmail-arrowscrollbox > .arrowscrollbox-overflow-start-indicator:not([collapsed]) {
   margin-inline-start: -2px;
-  margin-inline-end: -12px;
+  margin-inline-end: -17px;
 }
 
 .tabmail-arrowscrollbox > .arrowscrollbox-overflow-end-indicator:not([collapsed]) {
-  margin-inline-start: -12px;
+  margin-inline-start: -17px;
   margin-inline-end: -2px;
 }
 
