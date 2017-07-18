@@ -110,16 +110,12 @@ NS_IMETHODIMP JaBaseCppUrl::GetPrincipalSpec(nsACString& aPrincipalSpec)
 
   nsAutoCString queryPart = MsgExtractQueryPart(spec, "number=");
 
-  // Strip any query part beginning with ? & or /;
+  // Strip any query part beginning with ? or /;
   int32_t ind = spec.Find("/;");
   if (ind != kNotFound)
     spec.SetLength(ind);
 
   ind = spec.FindChar('?');
-  if (ind != kNotFound)
-    spec.SetLength(ind);
-
-  ind = spec.FindChar('&');
   if (ind != kNotFound)
     spec.SetLength(ind);
 

@@ -1197,16 +1197,12 @@ NS_IMETHODIMP nsImapUrl::GetPrincipalSpec(nsACString& aPrincipalSpec)
   nsAutoCString spec;
   mailnewsURL->GetSpecIgnoringRef(spec);
 
-  // Strip any query part beginning with ? & or /;
+  // Strip any query part beginning with ? or /;
   int32_t ind = spec.Find("/;");
   if (ind != kNotFound)
     spec.SetLength(ind);
 
   ind = spec.FindChar('?');
-  if (ind != kNotFound)
-    spec.SetLength(ind);
-
-  ind = spec.FindChar('&');
   if (ind != kNotFound)
     spec.SetLength(ind);
 
