@@ -26,28 +26,13 @@
   margin-inline-end: 2px;
 }
 
-.gloda-search-icon,
-.textbox-search-icon {
+.textbox-search-icon[searchbutton],
+.searchBox > .autocomplete-textbox-container > .autocomplete-icon,
+textbox:not([searchbutton]) > .textbox-input-box > .textbox-search-sign {
   list-style-image: url(chrome://messenger/skin/icons/search-glass.svg);
   -moz-context-properties: fill;
   fill: currentColor;
   opacity: 0.54;
-}
-
-.gloda-search-icon:-moz-locale-dir(rtl) {
-  transform: scaleX(-1);
-}
-
-.gloda-search-icon:not([disabled]) {
-  cursor: pointer;
-}
-
-.gloda-search-icon:not([disabled]):hover {
-  opacity: 1;
-}
-
-.gloda-search-icon:not([disabled]):hover:active {
-  transform: scale(0.85);
 }
 
 .textbox-search-clear {
