@@ -311,7 +311,7 @@ function run_test()
   gLocalFolder3 = localAccountUtils.rootFolder.createLocalSubfolder("folder3");
   folderName = gLocalFolder3.prettyName;
 
-  gTestArray.forEach(add_task);
+  gTestArray.forEach(x => add_task(x));
   run_next_test();
 }
 

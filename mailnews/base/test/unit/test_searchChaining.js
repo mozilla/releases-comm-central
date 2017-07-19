@@ -86,6 +86,6 @@ var tests = [
 ];
 
 function run_test() {
-  tests.forEach(add_task);
+  tests.forEach(x => add_task(x));
   run_next_test();
 }

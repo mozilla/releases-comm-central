@@ -55,6 +55,6 @@ function run_test() {
   localAccountUtils.loadLocalMailAccount();
   Services.prefs.setIntPref("mail.strictly_mime.parm_folding", 0);
 
-  tests.forEach(add_task);
+  tests.forEach(x => add_task(x));
   run_next_test();
 }

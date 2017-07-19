@@ -117,7 +117,7 @@ function run_test()
 {
   for (let store of gPluggableStores) {
     add_task(setup_store(store));
-    gTestArray.forEach(add_task);
+    gTestArray.forEach(x => add_task(x));
   }
 
   add_task(exitTest);

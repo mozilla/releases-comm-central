@@ -113,7 +113,7 @@ function run_test()
   gCopyFolder = localAccountUtils.rootFolder.createLocalSubfolder("CopyFolder");
   gMoveFolder = localAccountUtils.rootFolder.createLocalSubfolder("MoveFolder");
 
-  gTestArray.forEach(add_task);
+  gTestArray.forEach(x => add_task(x));
 
   run_next_test();
 }

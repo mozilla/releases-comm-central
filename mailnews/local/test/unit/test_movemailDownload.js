@@ -75,7 +75,7 @@ function run_test()
   for (let index = 0; index < localAccountUtils.pluggableStores.length; index++) {
     add_task(setup(localAccountUtils.pluggableStores[index],
                    hostName + "-" + index));
-    gTestArray.forEach(add_task);
+    gTestArray.forEach(x => add_task(x));
   }
 
   run_next_test();

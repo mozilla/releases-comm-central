@@ -549,6 +549,6 @@ var tests = [
 function run_test() {
   // Ensure we have at least one mail account
   localAccountUtils.loadLocalMailAccount();
-  tests.forEach(add_task);
+  tests.forEach(x => add_task(x));
   run_next_test();
 }

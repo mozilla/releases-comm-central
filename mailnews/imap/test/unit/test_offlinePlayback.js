@@ -136,6 +136,6 @@ function *setup() {
 
 function run_test() {
   Services.prefs.setBoolPref("mail.server.default.autosync_offline_stores", false);
-  tests.forEach(add_task);
+  tests.forEach(x => add_task(x));
   run_next_test();
 }

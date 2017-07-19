@@ -59,7 +59,7 @@ var gTestArray =
 
 function run_test() {
   Services.prefs.setBoolPref("mail.server.default.autosync_offline_stores", false);
-  gTestArray.forEach(add_task);
+  gTestArray.forEach(x => add_task(x));
   run_next_test();
 }
 
