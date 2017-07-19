@@ -880,6 +880,8 @@
 
           this.mDayMap = {};
           let defaultTz = cal.calendarDefaultTimezone();
+          let dateFormatter =
+              Services.intl.createDateTimeFormat(undefined, { dateStyle: "long" });
           for (let k = 1; k < 7; k++) {
               // Set the week number.
               let firstElement = this._getCalBoxNode(k, 0);
@@ -928,14 +930,12 @@
                       day.setAttribute("extra", "true");
                   }
 
-                  let labelDateOptions = { day: 'numeric' };
-                  if (aDate.getMonth() != date.getMonth()) {
-                      labelDateOptions.month = 'long';
+                  if (aDate.getMonth() == date.getMonth() &&
+                      aDate.getFullYear() == date.getFullYear()) {
+                      day.setAttribute("aria-label", date.toLocaleDateString(undefined, { day: "numeric" }));
+                  } else {
+                      day.setAttribute("aria-label", dateFormatter.format(date));
                   }
-                  if (aDate.getFullYear() != date.getFullYear()) {
-                      labelDateOptions.year = 'numeric';
-                  }
-                  day.setAttribute("aria-label", date.toLocaleDateString(undefined, labelDateOptions));
 
                   day.date = new Date(date);
                   day.textContent = date.getDate();
@@ -1085,8 +1085,9 @@
         <body><![CDATA[
           var label;
           if (this.mValue) {
-              let labelDateOptions = { day: 'numeric', month: 'long', year: 'numeric' };
-              label = this.mValue.toLocaleDateString(undefined, labelDateOptions);
+              let dateFormatter =
+                  Services.intl.createDateTimeFormat(undefined, { dateStyle: "long" });
+              label = dateFormatter.format(this.mValue);
           } else {
               label = cal.calGetString("calendar", "minimonthNoSelectedDate");
           }
