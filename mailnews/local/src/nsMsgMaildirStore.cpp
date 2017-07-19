@@ -965,6 +965,7 @@ NS_IMETHODIMP
 nsMsgMaildirStore::CopyMessages(bool aIsMove, nsIArray *aHdrArray,
                                nsIMsgFolder *aDstFolder,
                                nsIMsgCopyServiceListener *aListener,
+                               nsIArray **aDstHdrs,
                                nsITransaction **aUndoAction,
                                bool *aCopyDone)
 {
@@ -1123,6 +1124,7 @@ nsMsgMaildirStore::CopyMessages(bool aIsMove, nsIArray *aHdrArray,
   if (aListener)
     aListener->OnStopCopy(NS_OK);
   msgTxn.forget(aUndoAction);
+  dstHdrs.forget(aDstHdrs);
   return NS_OK;
 }
 

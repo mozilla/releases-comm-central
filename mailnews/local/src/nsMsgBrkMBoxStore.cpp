@@ -768,12 +768,15 @@ NS_IMETHODIMP
 nsMsgBrkMBoxStore::CopyMessages(bool isMove, nsIArray *aHdrArray,
                                nsIMsgFolder *aDstFolder,
                                nsIMsgCopyServiceListener *aListener,
+                               nsIArray **aDstHdrs,
                                nsITransaction **aUndoAction,
                                bool *aCopyDone)
 {
   NS_ENSURE_ARG_POINTER(aHdrArray);
   NS_ENSURE_ARG_POINTER(aDstFolder);
+  NS_ENSURE_ARG_POINTER(aDstHdrs);
   NS_ENSURE_ARG_POINTER(aCopyDone);
+  *aDstHdrs = nullptr;
   *aUndoAction = nullptr;
   *aCopyDone = false;
   return NS_OK;

@@ -214,6 +214,7 @@ interface nsIMsgPluggableStore : nsISupports {
    * @param aHdrArray array of nsIMsgDBHdr's, all in the same folder
    * @param aDstFolder folder to move/copy the messages to.
    * @param aListener listener to notify of copy status.
+   * @param aDstHdrs array of nsIMsgDBHdr's in the destination folder.
    * @param[out,optional] aUndoAction transaction to provide undo, if
    * the store does the copy itself.
    * @return true if messages were copied, false if the core code should
@@ -223,6 +224,7 @@ interface nsIMsgPluggableStore : nsISupports {
                        in nsIArray aHdrArray,
                        in nsIMsgFolder aDstFolder,
                        in nsIMsgCopyServiceListener aListener,
+                       out nsIArray aDstHdrs,
                        out nsITransaction aUndoAction);
 
   /**

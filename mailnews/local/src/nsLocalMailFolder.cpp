@@ -1570,8 +1570,10 @@ nsMsgLocalMailFolder::CopyMessages(nsIMsgFolder* srcFolder, nsIArray*
   rv = GetMsgStore(getter_AddRefs(msgStore));
   NS_ENSURE_SUCCESS(rv, rv);
   nsCOMPtr<nsITransaction> undoTxn;
+  nsCOMPtr<nsIArray> dstHdrs;
   rv = msgStore->CopyMessages(isMove, messages, this, listener,
-                              getter_AddRefs(undoTxn), &storeDidCopy);
+                              getter_AddRefs(dstHdrs), getter_AddRefs(undoTxn),
+                              &storeDidCopy);
   if (storeDidCopy)
   {
     NS_ASSERTION(undoTxn, "if store does copy, it needs to add undo action");
@@ -1586,6 +1588,25 @@ nsMsgLocalMailFolder::CopyMessages(nsIMsgFolder* srcFolder, nsIArray*
       srcFolder->NotifyFolderEvent(NS_SUCCEEDED(rv) ? mDeleteOrMoveMsgCompletedAtom :
                                                       mDeleteOrMoveMsgFailedAtom);
 
+    if (NS_SUCCEEDED(rv)) {
+      // If the store did the copy, like maildir, we need to mark messages on the server.
+      // Otherwise that's done in EndMove().
+      nsCOMPtr <nsIMsgLocalMailFolder> localDstFolder;
+      QueryInterface(NS_GET_IID(nsIMsgLocalMailFolder), getter_AddRefs(localDstFolder));
+      if (localDstFolder)
+      {
+        // If we are the trash and a local msg is being moved to us, mark the source
+        // for delete from server, if so configured.
+        if (mFlags & nsMsgFolderFlags::Trash)
+        {
+          // If we're deleting on all moves, we'll mark this message for deletion when
+          // we call DeleteMessages on the source folder. So don't mark it for deletion
+          // here, in that case.
+          if (!GetDeleteFromServerOnMove())
+            localDstFolder->MarkMsgsOnPop3Server(dstHdrs, POP3_DELETE);
+        }
+      }
+    }
     return rv;
   }
   // If the store doesn't do the copy, we'll stream the source messages into
