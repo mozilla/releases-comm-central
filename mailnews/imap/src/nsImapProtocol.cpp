@@ -5928,7 +5928,7 @@ nsresult nsImapProtocol::AuthLogin(const char *userName, const nsCString &passwo
   else if (flag & kHasAuthPlainCapability)
   {
     MOZ_LOG(IMAP, LogLevel::Debug, ("PLAIN auth"));
-    PR_snprintf(m_dataOutputBuf, OUTPUT_BUFFER_SIZE, "%s authenticate plain" CRLF, GetServerCommandTag());
+    PR_snprintf(m_dataOutputBuf, OUTPUT_BUFFER_SIZE, "%s authenticate PLAIN" CRLF, GetServerCommandTag());
     rv = SendData(m_dataOutputBuf);
     NS_ENSURE_SUCCESS(rv, rv);
     currentCommand = PL_strdup(m_dataOutputBuf); /* StrAllocCopy(currentCommand, GetOutputBuffer()); */
@@ -5955,7 +5955,7 @@ nsresult nsImapProtocol::AuthLogin(const char *userName, const nsCString &passwo
   else if (flag & kHasAuthLoginCapability)
   {
     MOZ_LOG(IMAP, LogLevel::Debug, ("LOGIN auth"));
-    PR_snprintf(m_dataOutputBuf, OUTPUT_BUFFER_SIZE, "%s authenticate login" CRLF, GetServerCommandTag());
+    PR_snprintf(m_dataOutputBuf, OUTPUT_BUFFER_SIZE, "%s authenticate LOGIN" CRLF, GetServerCommandTag());
     rv = SendData(m_dataOutputBuf);
     NS_ENSURE_SUCCESS(rv, rv);
     currentCommand = PL_strdup(m_dataOutputBuf);
