@@ -25,7 +25,7 @@ RETRIEVE_WINDOWS_INSTALLER = 1
 MOZ_LANGPACK_EID=langpack-$(AB_CD)@thunderbird.mozilla.org
 # For Nightly, we know where to get the builds from to do local repacks
 ifdef NIGHTLY_BUILD
-EN_US_BINARY_URL=https://archive.mozilla.org/pub/thunderbird/nightly/latest-comm-central
+export EN_US_BINARY_URL ?= https://archive.mozilla.org/pub/thunderbird/nightly/latest-comm-central
 endif
 
 L10N_PREF_JS_EXPORTS = $(call MERGE_FILE,all-l10n.js)
@@ -83,7 +83,14 @@ searchplugins:: $(list-json)
 $(DIST)/branding:
 	$(NSINSTALL) -D $@
 
+libs-%: AB_CD=$*
 libs-%:
+# merge if we're not en-US. Conditional function because
+# we need the current value of AB_CD.
+	$(if $(filter en-US,$(AB_CD)),, @$(MAKE) merge-$*)
+ifdef MOZ_CALENDAR
+	$(if $(filter en-US,$(AB_CD)),, @$(MAKE) -C ../../calendar/lightning merge-$*)
+endif
 	$(NSINSTALL) -D $(DIST)/install
 	@$(MAKE) -C $(DEPTH)/toolkit/locales libs-$*  XPI_ROOT_APPID='$(XPI_ROOT_APPID)'
 	@$(MAKE) -C $(DEPTH)/devtools/client/locales AB_CD=$* XPI_NAME=locale-$* XPI_ROOT_APPID='$(XPI_ROOT_APPID)'
@@ -189,26 +196,26 @@ l10n-check::
 	$(RM) -rf x-test
 	$(NSINSTALL) -D x-test/toolkit
 	echo '#define MOZ_LANG_TITLE Just testing' > x-test/toolkit/defines.inc
-	$(MAKE) installers-x-test L10NBASEDIR='$(PWD)' LOCALE_MERGEDIR='$(PWD)/mergedir'
+	$(MAKE) installers-x-test L10NBASEDIR='$(PWD)'
 
 ifdef MOZ_CALENDAR
 LIGHTNING_PATH=$(DEPTH)/calendar/lightning
 GDATA_PATH=$(DEPTH)/calendar/providers/gdata
 
 define run-calendar-rule
-$(MAKE) -C $(LIGHTNING_PATH) LOCALE_MERGEDIR=$(LOCALE_MERGEDIR) $(subst calendar-,,$@)
-$(MAKE) -C $(GDATA_PATH) LOCALE_MERGEDIR=$(LOCALE_MERGEDIR) $(subst calendar-,,$@)
+$(MAKE) -C $(LIGHTNING_PATH) $(subst calendar-,,$@) AB_CD=$(AB_CD)
+$(MAKE) -C $(GDATA_PATH) $(subst calendar-,,$@) AB_CD=$(AB_CD)
 endef
 
 # Add calendar targets for pattern rules. Unfortunately multiple pattern rules
 # on the left hand side do something different with make, therefore we need to
 # write a line for each target.
-calendar-merge-%:
-	$(run-calendar-rule)
 calendar-clobber-%:
 	$(run-calendar-rule)
+calendar-langpack-%: AB_CD=$*
 calendar-langpack-%:
 	$(run-calendar-rule)
+calendar-repackage-zip-%: AB_CD=$*
 calendar-repackage-zip-%:
 	$(run-calendar-rule)
 calendar-wget-en-US:
@@ -231,12 +238,13 @@ unpack: calendar-unpack
 upload: calendar-upload
 
 # Hook into the pattern rules, this will be used later on in the installers-% target.
-CALENDAR_INSTALLERS_TARGETS = calendar-merge-% calendar-clobber-% calendar-langpack-% calendar-repackage-zip-%
+CALENDAR_INSTALLERS_TARGETS = calendar-clobber-% calendar-langpack-% calendar-repackage-zip-%
 endif
 
 # This is a generic target that will make a langpack, repack ZIP (+tarball)
 # builds, and repack and installer if applicable. It is called from the
 # tinderbox scripts. Alter it with caution.
 INSTALLERS_TARGETS = clobber-% $(CALENDAR_INSTALLERS_TARGETS) langpack-% repackage-win32-installer-% repackage-zip-%
+installers-%: IS_LANGUAGE_REPACK=1
 installers-%: $(INSTALLERS_TARGETS)
 	@echo 'repackaging done'
