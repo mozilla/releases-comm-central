@@ -46,7 +46,7 @@
 }
 
 .tabmail-tab[type="preferencesTab"] {
-  list-style-image: url("chrome://mozapps/skin/extensions/utilities.svg#utilities");
+  list-style-image: url("chrome://mozapps/skin/extensions/utilities.svg");
 }
 
 .tab-background-middle {
@@ -72,11 +72,9 @@
 .tab-icon-image {
   height: 16px;
   width: 16px;
-}
-
-.tab-throbber,
-.tab-icon-image {
   margin-inline-end: 6px;
+  -moz-context-properties: fill;
+  fill: currentColor;
 }
 
 .tab-label {
