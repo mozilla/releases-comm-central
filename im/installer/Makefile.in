@@ -13,6 +13,9 @@ MOZ_PKG_MANIFEST_P = $(srcdir)/package-manifest.in
 ifndef SYSTEM_LIBXUL
 MOZ_PKG_FATAL_WARNINGS = 1
 endif
+
+DEFINES += -DPKG_LOCALE_MANIFEST=$(topobjdir)/im/locales/locale-manifest.in
+
 MOZ_PKG_DUPEFLAGS = \
 	-f $(srcdir)/allowed-dupes.mn \
 	-f $(commtopsrcdir)/mail/installer/allowed-dupes.mn \

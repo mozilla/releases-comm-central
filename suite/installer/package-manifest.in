@@ -43,8 +43,6 @@
 #endif
 
 [@AB_CD@]
-@RESPATH@/chrome/@AB_CD@@JAREXT@
-@RESPATH@/chrome/@AB_CD@.manifest
 @RESPATH@/defaults/messenger/mailViews.dat
 @RESPATH@/defaults/profile/bookmarks.html
 @RESPATH@/defaults/profile/chrome/*
@@ -63,6 +61,10 @@
 #ifdef MOZ_UPDATER
 @RESPATH@/update.locale
 @RESPATH@/updater.ini
+#endif
+
+#ifdef PKG_LOCALE_MANIFEST
+#include @PKG_LOCALE_MANIFEST@
 #endif
 
 [xpcom]
