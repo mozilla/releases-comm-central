@@ -481,8 +481,8 @@ menulist > menupopup:not([type="folder"]) > menuseparator {
 .statuspanel-label {
   margin: 0;
   padding: 2px 4px;
-  background: -moz-dialog;
-  border: 1px none ThreeDShadow;
+  background-color: -moz-dialog;
+  border: 1px none ThreeDLightShadow;
   border-top-style: solid;
   color: -moz-dialogText;
   text-shadow: none;
@@ -490,9 +490,8 @@ menulist > menupopup:not([type="folder"]) > menuseparator {
 
 @media (-moz-windows-default-theme) {
   .statuspanel-label {
-    background: linear-gradient(#fff, #ddd);
-    border-color: #ccc;
-    color: #333;
+    background-color: #f9f9fa;
+    color: #444;
   }
 }
 

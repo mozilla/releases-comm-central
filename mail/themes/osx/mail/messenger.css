@@ -548,10 +548,10 @@ button[type="menu-button"] > dropmarker {
 .statuspanel-label {
   margin: 0;
   padding: 2px 4px;
-  background: linear-gradient(#fff, #ddd);
-  border: 1px none #ccc;
+  background-color: #f9f9fa;
+  border: 1px none #ddd;
   border-top-style: solid;
-  color: #333;
+  color: #444;
   text-shadow: none;
 }
 

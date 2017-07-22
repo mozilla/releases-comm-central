@@ -531,7 +531,7 @@ menulist[editable="true"] > .menulist-dropmarker {
 .statuspanel-label {
   margin: 0;
   padding: 2px 4px;
-  background: -moz-dialog;
+  background-color: -moz-dialog;
   border: 1px none ThreeDShadow;
   border-top-style: solid;
   color: -moz-dialogText;
