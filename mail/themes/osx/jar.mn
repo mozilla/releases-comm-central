@@ -181,6 +181,7 @@ classic.jar:
   skin/classic/messenger/icons/message-mail.png                  (mail/icons/message-mail.png)
   skin/classic/messenger/icons/message-mail@2x.png               (mail/icons/message-mail@2x.png)
   skin/classic/messenger/icons/multicolor.png                    (mail/icons/multicolor.png)
+  skin/classic/messenger/icons/search-glass.svg                  (../shared/mail/icons/search-glass.svg)
   skin/classic/messenger/icons/toolbarbutton-arrow.png           (../shared/mail/icons/toolbarbutton-arrow.png)
   skin/classic/messenger/icons/toolbarbutton-arrow@2x.png        (../shared/mail/icons/toolbarbutton-arrow@2x.png)
   skin/classic/messenger/icons/toolbarbutton-arrow-inverted.png  (../shared/mail/icons/toolbarbutton-arrow-inverted.png)

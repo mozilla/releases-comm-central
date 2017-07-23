@@ -13,14 +13,15 @@
                                     transparent 1px);
 }
 
+#tabs-toolbar:not(:-moz-lwtheme) {
+  color: #333;
+  text-shadow: 0 1px rgba(255, 255, 255, 0.4);
+}
+
 @media (-moz-mac-yosemite-theme) {
   #tabs-toolbar {
     margin-bottom: -1px;
   }
-}
-
-.tabmail-arrowscrollbox {
-  margin-bottom: -1px;
 }
 
 /**
@@ -38,13 +39,8 @@
   list-style-image: url("chrome://messenger/skin/icons/item.png");
 }
 
-.tab-throbber {
-  list-style-image: url("chrome://global/skin/icons/loading.png") !important;
-  -moz-image-region: auto !important;
-}
-
-.tabmail-tab[type="glodaSearch"] {
-  list-style-image: url("chrome://messenger/skin/icons/search-tab.png");
+.tabmail-tab[type="glodaSearch"] .tab-stack > .tab-content > .tab-icon-image {
+  transform: scaleX(-1);
 }
 
 /* image preloading hack */
@@ -72,10 +68,6 @@
       url(tabs/background-end@2x.png),
       url(tabs/background-middle@2x.png),
       url(tabs/background-start@2x.png);
-  }
-
-  .tab-throbber {
-    list-style-image: url("chrome://global/skin/icons/loading@2x.png") !important;
   }
 
   .tabmail-tab[type="glodaSearch"] {
@@ -180,7 +172,8 @@
   border: none;
 }
 
-.tabmail-tab:not(:-moz-lwtheme) {
+/* override the selected tab toolkit color/text-shadow */
+.tabmail-tab[selected="true"]:not(:-moz-lwtheme) {
   color: #333;
   text-shadow: 0 1px rgba(255, 255, 255, 0.4);
 }
@@ -251,6 +244,10 @@ tabmail > tabbox > tabpanels {
     -moz-image-region: rect(0, 128px, 32px, 96px);
   }
 }
+
+/**
+ * Tab Scrollbox Arrow Buttons
+ */
 
 .tabmail-arrowscrollbox > .scrollbutton-up,
 .tabmail-arrowscrollbox > .scrollbutton-down-stack > .scrollbutton-down {
@@ -370,15 +367,6 @@ tabmail > tabbox > tabpanels {
   list-style-image: url("chrome://messenger/skin/icons/item.png");
 }
 
-.alltabs-item[selected="true"] {
-  font-weight: bold;
-}
-
-.alltabs-item[busy] {
-  list-style-image: url("chrome://global/skin/icons/loading.png") !important;
-  -moz-image-region: auto !important;
-}
-
 @media (min-resolution: 1.1dppx) {
   .tabs-alltabs-button {
     list-style-image: url(chrome://messenger/skin/tabs/alltabs-box-bkgnd-icon@2x.png);
@@ -397,8 +385,4 @@ tabmail > tabbox > tabpanels {
   alltabs-item[busy] {
     list-style-image: url("chrome://global/skin/icons/loading@2x.png") !important;
   }
-}
-
-tabpanels.plain {
-  background-color: transparent;
 }

@@ -12,33 +12,9 @@
   color: inherit;
 }
 
-.tabmail-arrowscrollbox {
-  margin-bottom: -1px;
-}
-
 /**
  * Tab
  */
-
-@media (min-resolution: 1.1dppx) {
-  .tab-throbber {
-    list-style-image: url("chrome://global/skin/icons/loading@2x.png") !important;
-  }
-}
-
-.tabmail-tab:not([selected]):not(:-moz-lwtheme) {
-  color: inherit;
-}
-
-.tabmail-tab[busy],
-.tabmail-tab[thinking] {
-  list-style-image: url("chrome://global/skin/icons/loading.png") !important;
-  -moz-image-region: auto !important;
-}
-
-.tabmail-tab[type="glodaSearch"] {
-  list-style-image: url("chrome://global/skin/icons/Search-glass.png");
-}
 
 @media (-moz-os-version: windows-win10) {
   #tabs-toolbar:not(:-moz-lwtheme) {
@@ -272,12 +248,4 @@ tabpanels {
 .alltabs-item {
   list-style-image: url("chrome://global/skin/icons/folder-item.png");
   -moz-image-region: rect(0px, 16px, 16px, 0px);
-}
-
-.alltabs-item[selected="true"] {
-  font-weight: bold;
-}
-
-.alltabs-item[busy] {
-  list-style-image: url("chrome://global/skin/icons/loading.png") !important;
 }

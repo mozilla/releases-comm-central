@@ -27,10 +27,6 @@
   color: inherit;
 }
 
-.tabmail-arrowscrollbox {
-  margin-bottom: -1px;
-}
-
 tabpanels {
   -moz-appearance: none;
   background-color: transparent;
@@ -44,15 +40,6 @@ tabpanels {
   list-style-image: url("moz-icon://stock/gtk-file?size=menu");
 }
 
-.tab-throbber {
-  list-style-image: url("chrome://global/skin/icons/loading.png") !important;
-  -moz-image-region: auto !important;
-}
-
-.tabmail-tab[type="glodaSearch"] {
-  list-style-image: url(moz-icon://stock/gtk-find?size=menu);
-}
-
 .tabmail-tab > .tab-stack > .tab-content > .tab-label-container {
   /* tabmail-tab focus ring */
   border: 1px dotted transparent;
@@ -61,14 +48,6 @@ tabpanels {
 
 .tabmail-tab[selected]:focus > .tab-stack > .tab-content > .tab-label-container {
   border-color: -moz-DialogText;
-}
-
-.tabmail-tab:not(:-moz-lwtheme) > .tab-stack > .tab-content > .tab-label-container {
-  color: -moz-MenuBarText;
-}
-
-.tabmail-tab[selected]:not(:-moz-lwtheme) > .tab-stack > .tab-content > .tab-label-container {
-  color: -moz-DialogText;
 }
 
 /* Tab drag and drop */
@@ -144,18 +123,12 @@ tabpanels {
   opacity: 0;
 }
 
-/* All tabs menupopup */
+/**
+ * All Tabs Menupopup
+ */
+
 .alltabs-item {
   list-style-image: url("moz-icon://stock/gtk-file?size=menu");
-}
-
-.alltabs-item[selected] {
-  font-weight: bold;
-}
-
-.alltabs-item[busy] {
-  list-style-image: url("chrome://global/skin/icons/loading.png") !important;
-  -moz-image-region: auto !important;
 }
 
 .tabs-alltabs-button {
