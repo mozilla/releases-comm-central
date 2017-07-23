@@ -25,7 +25,7 @@
 }
 
 #abContextMenuButton {
-  margin-top: -4px 4px 0 !important;
+  margin-top: -4px !important;
   list-style-image: url("chrome://messenger/skin/addressbook/icons/menu.svg");
 }
 
