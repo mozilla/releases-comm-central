@@ -279,7 +279,7 @@
         <parameter name="aTime"/>
         <body><![CDATA[
           const dateServ = Services.intl.createDateTimeFormat(undefined, {
-            dateStyle: "short", timeStyle: "short"
+            dateStyle: "short", timeStyle: "long"
           });
           return dateServ.format(aTime);
         ]]></body>
