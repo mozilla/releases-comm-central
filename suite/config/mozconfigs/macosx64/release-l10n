@@ -1,13 +1,20 @@
-. "$topsrcdir/build/mozconfig.common"
+. $topsrcdir/build/macosx/mozconfig.common
 
 ac_add_options --with-l10n-base=../../l10n
 ac_add_options --enable-application=suite
 ac_add_options --enable-update-channel=${MOZ_UPDATE_CHANNEL}
+ac_add_options --disable-install-strip
+
+# Build lightning locales
+ac_add_options --enable-calendar
+
+# Disabling is needed, see bug 1345422 comment #58.
+ac_add_options --disable-compile-environment
+
+# Needed to enable breakpad in application.ini
+export MOZILLA_OFFICIAL=1
 
 # Disable checking that add-ons are signed by the trusted root
 MOZ_ADDON_SIGNING=0
 # Disable enforcing that add-ons are signed by the trusted root
 MOZ_REQUIRE_SIGNING=0
-
-# Build lightning locales
-ac_add_options --enable-calendar

@@ -1,12 +1,3 @@
-# Big Hack that unsets CC / CXX so that mozconfig.common doesn't get
-# mixed up with host/target CPUs when trying to work out how to do the
-# universal build. When we redo the build system (bug 648979) this will
-# go away.
-if test -e "$topsrcdir/suite/config/version.txt"; then
-  unset CC
-  unset CXX
-fi
-
 . $topsrcdir/build/macosx/mozconfig.common
 
 ac_add_options --enable-application=suite
@@ -15,6 +6,9 @@ ac_add_options --disable-install-strip
 ac_add_options --enable-profiling
 ac_add_options --enable-calendar
 
+# Package js shell
+export MOZ_PACKAGE_JSSHELL=1
+
 # Needed to enable breakpad in application.ini
 export MOZILLA_OFFICIAL=1
 
@@ -22,3 +16,5 @@ export MOZILLA_OFFICIAL=1
 MOZ_ADDON_SIGNING=0
 # Disable enforcing that add-ons are signed by the trusted root
 MOZ_REQUIRE_SIGNING=0
+
+ac_add_options --with-ccache

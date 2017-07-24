@@ -6,7 +6,6 @@ ac_add_options --disable-webrender
 
 ac_add_options --enable-application=suite
 ac_add_options --enable-update-channel=${MOZ_UPDATE_CHANNEL}
-ac_add_options --disable-elf-hack
 ac_add_options --enable-profiling
 ac_add_options --enable-calendar
 
@@ -14,6 +13,9 @@ mk_add_options PROFILE_GEN_SCRIPT='$(PYTHON) @MOZ_OBJDIR@/_profile/pgo/profilese
 
 # Needed to enable breakpad in application.ini
 export MOZILLA_OFFICIAL=1
+
+# Package js shell
+export MOZ_PACKAGE_JSSHELL=1
 
 # Disable checking that add-ons are signed by the trusted root
 MOZ_ADDON_SIGNING=0

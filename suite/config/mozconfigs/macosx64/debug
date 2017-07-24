@@ -1,8 +1,7 @@
 . $topsrcdir/build/macosx/mozconfig.common
 
-ac_add_options --enable-debug
-
 ac_add_options --enable-application=suite
+ac_add_options --enable-debug
 ac_add_options --enable-calendar
 
 # Needed to enable breakpad in application.ini
@@ -12,3 +11,8 @@ export MOZILLA_OFFICIAL=1
 MOZ_ADDON_SIGNING=0
 # Disable enforcing that add-ons are signed by the trusted root
 MOZ_REQUIRE_SIGNING=0
+
+# Package js shell
+export MOZ_PACKAGE_JSSHELL=1
+
+ac_add_options --with-ccache
