@@ -28,9 +28,9 @@
 }
 
 #today-splitter {
-  border-inline-end: 1px solid ThreeDShadow;
+  border-inline-start: 1px solid ThreeDShadow;
   /* make only the splitter border visible */
-  margin-inline-start: -5px;
+  margin-inline-end: -5px;
 }
 
 #calsidebar_splitter[state="collapsed"] {
