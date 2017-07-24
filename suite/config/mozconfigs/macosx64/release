@@ -15,3 +15,9 @@ MOZ_REQUIRE_SIGNING=0
 
 # Package js shell
 export MOZ_PACKAGE_JSSHELL=1
+
+# Disable stylo.
+# https://bugzilla.mozilla.org/show_bug.cgi?id=1380171
+ac_add_options --disable-stylo
+
+unset LLVM_CONFIG
