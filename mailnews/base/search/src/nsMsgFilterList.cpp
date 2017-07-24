@@ -582,7 +582,7 @@ nsresult nsMsgFilterList::LoadTextFilters(nsIInputStream *aStream)
           char16_t *unicodeString =
             nsTextFormatter::smprintf(unicodeFormatter, value.get());
           filter->SetFilterName(nsDependentString(unicodeString));
-          nsTextFormatter::smprintf_free(unicodeString);
+          free(unicodeString);
         }
         m_curFilter = filter;
         m_filters.AppendElement(filter);

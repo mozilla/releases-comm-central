@@ -789,7 +789,7 @@ void nsImportGenericAddressBooks::ReportError(const char16_t *pName,
   char16_t *pFmt = nsImportStringBundle::GetStringByID(IMPORT_ERROR_GETABOOK, aBundle);
   char16_t *pText = nsTextFormatter::smprintf(pFmt, pName);
   pStream->Append(pText);
-  nsTextFormatter::smprintf_free(pText);
+  free(pText);
   NS_Free(pFmt);
   pStream->AppendLiteral(MSG_LINEBREAK);
 }

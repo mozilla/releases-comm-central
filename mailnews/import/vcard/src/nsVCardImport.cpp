@@ -296,7 +296,7 @@ void ImportVCardAddressImpl::ReportSuccess(
 
   char16_t *pText = nsTextFormatter::smprintf(pFmt, name.get());
   pStream->Append(pText);
-  nsTextFormatter::smprintf_free(pText);
+  free(pText);
   NS_Free(pFmt);
   pStream->Append(char16_t('\n'));
 }
@@ -312,7 +312,7 @@ void ImportVCardAddressImpl::ReportError(
   char16_t *pFmt = nsImportStringBundle::GetStringByName(errorName, pBundle);
   char16_t *pText = nsTextFormatter::smprintf(pFmt, name.get());
   pStream->Append(pText);
-  nsTextFormatter::smprintf_free(pText);
+  free(pText);
   NS_Free(pFmt);
   pStream->Append(char16_t('\n'));
 }

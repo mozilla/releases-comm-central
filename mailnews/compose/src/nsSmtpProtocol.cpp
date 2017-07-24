@@ -134,7 +134,7 @@ nsresult nsExplainErrorDetails(nsISmtpUrl * aSmtpUrl, nsresult aCode, ...)
   if (msg)
   {
     rv = dialog->Alert(nullptr, msg);
-    nsTextFormatter::smprintf_free(msg);
+    free(msg);
   }
 
   va_end (args);

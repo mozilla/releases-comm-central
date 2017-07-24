@@ -3524,7 +3524,7 @@ nsPop3Protocol::TopResponse(nsIInputStream* inputStream, uint32_t length)
 
       statusString = nsTextFormatter::smprintf(statusTemplate.get(), hostName.get());
       UpdateStatusWithString(statusString);
-      nsTextFormatter::smprintf_free(statusString);
+      free(statusString);
     }
 
     if (m_prefAuthMethods != POP3_HAS_AUTH_USER &&

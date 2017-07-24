@@ -739,7 +739,7 @@ nsMimeBaseEmitter::GenerateDateString(const char * dateString,
                                   (senderoffset / 60 * 100) +
                                   (senderoffset % 60));
       formattedDateString.Append(tzstring);
-      nsTextFormatter::smprintf_free(tzstring);
+      free(tzstring);
     }
 
     CopyUTF16toUTF8(formattedDateString, formattedDate);

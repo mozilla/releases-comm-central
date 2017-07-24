@@ -339,7 +339,7 @@ void ImportAddressImpl::ReportSuccess(nsString& name, nsString *pStream,
 
   char16_t *pText = nsTextFormatter::smprintf(pFmt, name.get());
   pStream->Append(pText);
-  nsTextFormatter::smprintf_free(pText);
+  free(pText);
   NS_Free(pFmt);
   pStream->Append(char16_t('\n'));
 }
@@ -354,7 +354,7 @@ void ImportAddressImpl::ReportError(int32_t errorNum, nsString& name,
   char16_t *pFmt = nsImportStringBundle::GetStringByID(errorNum, pBundle);
   char16_t *pText = nsTextFormatter::smprintf(pFmt, name.get());
   pStream->Append(pText);
-  nsTextFormatter::smprintf_free(pText);
+  free(pText);
   NS_Free(pFmt);
   pStream->Append(char16_t('\n'));
 }
