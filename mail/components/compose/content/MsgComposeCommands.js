@@ -5560,11 +5560,6 @@ function goUpdateMailMenuItems(commandset)
  * notificationbox below the composed message content.
  */
 var gComposeNotificationBar = {
-  get stringBundle() {
-    delete this.stringBundle;
-    return this.stringBundle = document.getElementById("bundle_composeMsgs");
-  },
-
   get brandBundle() {
     delete this.brandBundle;
     return this.brandBundle = document.getElementById("brandBundle");
@@ -5577,9 +5572,9 @@ var gComposeNotificationBar = {
 
   setBlockedContent: function(aBlockedURI) {
     let brandName = this.brandBundle.getString("brandShortName");
-    let buttonLabel = this.stringBundle.getString((AppConstants.platform == "win") ?
+    let buttonLabel = getComposeBundle().getString((AppConstants.platform == "win") ?
       "blockedContentPrefLabel" : "blockedContentPrefLabelUnix");
-    let buttonAccesskey = this.stringBundle.getString((AppConstants.platform == "win") ?
+    let buttonAccesskey = getComposeBundle().getString((AppConstants.platform == "win") ?
       "blockedContentPrefAccesskey" : "blockedContentPrefAccesskeyUnix");
 
     let buttons = [{
@@ -5598,7 +5593,7 @@ var gComposeNotificationBar = {
       urls.push(aBlockedURI);
     popup.value = urls.join(" ");
 
-    let msg = this.stringBundle.getFormattedString(
+    let msg = getComposeBundle().getFormattedString(
       "blockedContentMessage", [brandName, brandName]);
     msg = PluralForm.get(urls.length, msg);
 
@@ -5627,8 +5622,6 @@ var gComposeNotificationBar = {
 function onBlockedContentOptionsShowing(aEvent) {
   let urls = aEvent.target.value ? aEvent.target.value.split(" ") : [];
 
-  let composeBundle = document.getElementById("bundle_composeMsgs");
-
   // Out with the old...
   let childNodes = aEvent.target.childNodes;
   for (let i = childNodes.length - 1; i >= 0; i--) {
@@ -5639,7 +5632,7 @@ function onBlockedContentOptionsShowing(aEvent) {
   for (let url of urls) {
     let menuitem = document.createElement("menuitem");
     menuitem.setAttribute("label",
-      composeBundle.getFormattedString("blockedAllowResource", [url]));
+      getComposeBundle().getFormattedString("blockedAllowResource", [url]));
     menuitem.setAttribute("crop", "center");
     menuitem.setAttribute("value", url);
     menuitem.setAttribute("oncommand",
