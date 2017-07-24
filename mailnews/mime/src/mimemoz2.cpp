@@ -1089,14 +1089,6 @@ mime_image_make_image_html(void *image_closure)
   mime_image_stream_data *mid =
     (mime_image_stream_data *) image_closure;
 
-  const char *prefix;
-  /* Wouldn't it be nice if attributes were case-sensitive? */
-  const char *scaledPrefix = "<DIV CLASS=\"moz-attached-image-container\"><IMG CLASS=\"moz-attached-image\" shrinktofit=\"yes\" SRC=\"";
-  const char *unscaledPrefix = "<DIV CLASS=\"moz-attached-image-container\"><IMG CLASS=\"moz-attached-image\" SRC=\"";
-  const char *suffix = "\"></DIV>";
-  const char *url;
-  char *buf;
-
   PR_ASSERT(mid);
   if (!mid) return 0;
 
@@ -1104,6 +1096,15 @@ mime_image_make_image_html(void *image_closure)
   if (!mid->istream)
     return strdup("<DIV CLASS=\"moz-attached-image-container\"><IMG SRC=\"resource://gre-resources/loading-image.png\" ALT=\"[Image]\"></DIV>");
 
+  const char *prefix;
+  const char *url;
+  char *buf;
+  /* Wouldn't it be nice if attributes were case-sensitive? */
+  const char *scaledPrefix = "<DIV CLASS=\"moz-attached-image-container\"><IMG CLASS=\"moz-attached-image\" shrinktofit=\"yes\" SRC=\"";
+  const char *suffix = "\"></DIV>";
+  // Thunderbird doesn't have this pref.
+#ifdef MOZ_SUITE
+  const char *unscaledPrefix = "<DIV CLASS=\"moz-attached-image-container\"><IMG CLASS=\"moz-attached-image\" SRC=\"";
   nsCOMPtr<nsIPrefBranch> prefBranch;
   nsCOMPtr<nsIPrefService> prefSvc(do_GetService(NS_PREFSERVICE_CONTRACTID));
   bool resize = true;
@@ -1113,6 +1114,9 @@ mime_image_make_image_html(void *image_closure)
   if (prefBranch)
     prefBranch->GetBoolPref("mail.enable_automatic_image_resizing", &resize); // ignore return value
   prefix = resize ? scaledPrefix : unscaledPrefix;
+#else
+  prefix = scaledPrefix;
+#endif
 
   if ( (!mid->url) || (!(*mid->url)) )
     url = "";
