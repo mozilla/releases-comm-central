@@ -17,7 +17,7 @@ Cu.import("resource://mozmill/modules/controller.js", controller);
 var jumlib = {};
 Cu.import("resource://mozmill/modules/jum.js", jumlib);
 
-Cu.import("resource:///modules/FileUtils.jsm");
+Cu.import("resource://gre/modules/FileUtils.jsm");
 Cu.import("resource:///modules/sessionStoreManager.js");
 Cu.import("resource://gre/modules/Services.jsm");
 

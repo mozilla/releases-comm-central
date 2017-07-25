@@ -11,7 +11,7 @@
 
 Components.utils.import("resource:///modules/mailServices.js");
 Components.utils.import("resource://gre/modules/Services.jsm");
-Components.utils.import("resource://gre/modules/JXON.js");
+Components.utils.import("resource:///modules/JXON.js");
 
 
 function fetchConfigFromDisk(domain, successCallback, errorCallback)

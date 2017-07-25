@@ -16,7 +16,7 @@ var MODULE_REQUIRES = ["folder-display-helpers",
                          "window-helpers"];
 
 Cu.import("resource://gre/modules/Services.jsm");
-Cu.import("resource://gre/modules/mailServices.js");
+Cu.import("resource:///modules/mailServices.js");
 Cu.import("resource:///modules/IOUtils.js");
 
 var statusHeader = "X-Mozilla-Status: ";
