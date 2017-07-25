@@ -1,0 +1,7 @@
+# Common statements that are applicable to Windows x86 and x64.
+
+ac_add_options --with-google-api-keyfile=c:/builds/google-api.key
+
+# SeaMonkey uses the google api key for Geolocation services
+# See Bug 1352850 - Switch to Google for Geolocation services
+# ac_add_options --with-mozilla-api-keyfile=c:/builds/mozilla-desktop-geoloc-api.key

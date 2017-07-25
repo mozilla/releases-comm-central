@@ -1,5 +1,6 @@
 . "$topsrcdir/build/mozconfig.win-common"
 . "$topsrcdir/build/mozconfig.common"
+. "$topsrcdir/suite/config/mozconfigs/mozconfig.win.common"
 
 ac_add_options --enable-application=suite
 ac_add_options --enable-update-channel=${MOZ_UPDATE_CHANNEL}
