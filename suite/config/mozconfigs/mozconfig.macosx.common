@@ -1,0 +1,9 @@
+# Common statements that are applicable to macOS x64.
+
+# Same location as on Linux so no need to distingush when doing
+# a macOS cross compile on Linux.
+ac_add_options --with-google-api-keyfile=/builds/google-api.key
+
+# SeaMonkey uses the google api key for Geolocation services.
+# See Bug 1352850 - Switch to Google for Geolocation services.
+# ac_add_options --with-mozilla-api-keyfile=/builds/mozilla-desktop-geoloc-api.key
