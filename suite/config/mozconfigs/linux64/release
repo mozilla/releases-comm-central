@@ -1,5 +1,4 @@
 . "$topsrcdir/build/unix/mozconfig.linux"
-. "$topsrcdir/suite/config/mozconfig.linux.common"
 
 # Disable webrender on Linux buildbot builders to avoid the Rust requirement
 # of libX11 version > 1.4.99.1 (see bug 1350011).
