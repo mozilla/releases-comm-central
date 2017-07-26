@@ -5412,7 +5412,8 @@ nsresult nsMsgCompose::TagConvertible(nsIDOMElement *node,  int32_t *_retval)
 
     nsCOMPtr<nsIDOMNode> pItem;
 
-    // style attribute on any element can change layout in any way, so that is not convertible.
+    // A style attribute on any element can change layout in any way,
+    // so that is not convertible.
     nsAutoString attribValue;
     if (NS_SUCCEEDED(node->GetAttribute(NS_LITERAL_STRING("style"), attribValue)) &&
         !attribValue.IsEmpty())
@@ -5432,6 +5433,7 @@ nsresult nsMsgCompose::TagConvertible(nsIDOMElement *node,  int32_t *_retval)
       *_retval = nsIMsgCompConvertible::No;
       return NS_OK;
     }
+
     // ID attributes can contain attached style/context or be target of links
     // so we should preserve them.
     if (NS_SUCCEEDED(node->GetAttribute(NS_LITERAL_STRING("id"), attribValue)) &&
@@ -5440,6 +5442,15 @@ nsresult nsMsgCompose::TagConvertible(nsIDOMElement *node,  int32_t *_retval)
       *_retval = nsIMsgCompConvertible::No;
       return NS_OK;
     }
+
+    // Alignment is not convertible; editor currently uses this.
+    if (NS_SUCCEEDED(node->GetAttribute(NS_LITERAL_STRING("align"), attribValue)) &&
+        !attribValue.IsEmpty())
+    {
+      *_retval = nsIMsgCompConvertible::No;
+      return NS_OK;
+    }
+
     if      ( // some "simple" elements without "style" attribute
               element.LowerCaseEqualsLiteral("br") ||
               element.LowerCaseEqualsLiteral("p") ||
