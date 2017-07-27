@@ -7,7 +7,7 @@
 // javascript msgFolder.
 
 Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
-Components.utils.import("resource://gre/modules/jsaccount/JSAccountUtils.jsm");
+Components.utils.import("resource:///modules/jsaccount/JSAccountUtils.jsm");
 Components.utils.import("resource://testing-common/mailnews/testJaBaseMsgFolder.jsm");
 
 // Constructor

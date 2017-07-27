@@ -5,7 +5,7 @@
 
 // Tests of override functionality using a demo "foo" type url.
 
-Cu.import("resource://gre/modules/jsaccount/JaBaseUrl.jsm");
+Cu.import("resource:///modules/jsaccount/JaBaseUrl.jsm");
 
 var extraInterfaces = [
                        Ci.msgIFooUrl,

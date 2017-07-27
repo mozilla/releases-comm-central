@@ -14,8 +14,8 @@ var Cu = Components.utils;
 var CE = Components.Exception;
 
 Cu.import("resource://gre/modules/XPCOMUtils.jsm");
-Cu.import("resource://gre/modules/jsaccount/JSAccountUtils.jsm");
-Cu.import("resource://gre/modules/jsaccount/JaBaseUrl.jsm");
+Cu.import("resource:///modules/jsaccount/JSAccountUtils.jsm");
+Cu.import("resource:///modules/jsaccount/JaBaseUrl.jsm");
 
 const ATTACHMENT_QUERY = "part=1.";
 

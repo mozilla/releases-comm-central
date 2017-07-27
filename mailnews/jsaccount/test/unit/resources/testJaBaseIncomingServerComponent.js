@@ -7,7 +7,7 @@
 // javascript IncomingServer.
 
 Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
-Components.utils.import("resource://gre/modules/jsaccount/JSAccountUtils.jsm");
+Components.utils.import("resource:///modules/jsaccount/JSAccountUtils.jsm");
 Components.utils.import("resource://testing-common/mailnews/testJaBaseIncomingServer.jsm");
 dump("\n\ntestJaBaseIncomingServerComponent.js\n\n");
 

@@ -12,7 +12,7 @@ var Cr = Components.results;
 var Cu = Components.utils;
 
 Cu.import("resource://gre/modules/XPCOMUtils.jsm");
-Cu.import("resource://gre/modules/jsaccount/JSAccountUtils.jsm");
+Cu.import("resource:///modules/jsaccount/JSAccountUtils.jsm");
 
 // A partial JavaScript implementation of the base server methods.
 
