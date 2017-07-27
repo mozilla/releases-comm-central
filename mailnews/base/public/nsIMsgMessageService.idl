@@ -212,6 +212,8 @@ interface nsIMsgMessageService : nsISupports {
   /**
    * Determines whether a message is in the memory cache. Local folders
    * don't implement this.
+   * The URL needs to address a message, not a message part, all query
+   * qualifiers will be stripped before looking up the entry in the cache.
    *
    * @param aUrl The URL of the message, possibly with an appropriate command in it
    * @param aFolder The folder this message is in

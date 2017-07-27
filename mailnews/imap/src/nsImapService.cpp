@@ -1267,11 +1267,21 @@ NS_IMETHODIMP nsImapService::IsMsgInMemCache(nsIURI *aUrl,
   // Poke around in the memory cache
   if (mCacheStorage)
   {
-    // XXX: No truncation after a possible '?' done here?
     nsAutoCString urlSpec;
-    aUrl->GetAsciiSpec(urlSpec);
-    if (urlSpec.RFindChar('?') != kNotFound)
-      NS_WARNING ("nsImapService::IsMsgInMemCache found ? in URL");
+    aUrl->GetSpec(urlSpec);
+
+    // Strip any query qualifiers.
+    bool truncated = false;
+    int32_t ind = urlSpec.FindChar('?');
+    if (ind != kNotFound) {
+      urlSpec.SetLength(ind);
+      truncated = true;
+    }
+    ind = urlSpec.Find("/;");
+    if (ind != kNotFound) {
+      urlSpec.SetLength(ind);
+      truncated = true;
+    }
 
     nsresult rv;
     nsCOMPtr<nsIImapMailFolderSink> folderSink(do_QueryInterface(aImapMailFolder, &rv));
@@ -1285,7 +1295,14 @@ NS_IMETHODIMP nsImapService::IsMsgInMemCache(nsIURI *aUrl,
     extension.AppendInt(uidValidity, 16);
 
     bool exists;
-    rv = mCacheStorage->Exists(aUrl, extension, &exists);
+    if (truncated) {
+      nsCOMPtr<nsIURI> newUri;
+      aUrl->Clone(getter_AddRefs(newUri));
+      newUri->SetSpec(urlSpec);
+      rv = mCacheStorage->Exists(newUri, extension, &exists);
+    } else {
+      rv = mCacheStorage->Exists(aUrl, extension, &exists);
+    }
     if (NS_SUCCEEDED(rv) && exists) {
       *aResult = true;
     }
