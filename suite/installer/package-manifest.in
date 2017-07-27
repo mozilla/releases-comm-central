@@ -533,20 +533,10 @@
 @RESPATH@/chrome/toolkit@JAREXT@
 @RESPATH@/chrome/toolkit.manifest
 
-; [Webide Files]
-@RESPATH@/chrome/webide@JAREXT@
-@RESPATH@/chrome/webide.manifest
-@RESPATH@/@PREF_DIR@/webide-prefs.js
-
 ; [DevTools Shim Files]
 @RESPATH@/chrome/devtools-shim@JAREXT@
 @RESPATH@/chrome/devtools-shim.manifest
-
-; DevTools
-@RESPATH@/chrome/devtools@JAREXT@
-@RESPATH@/chrome/devtools.manifest
-@RESPATH@/@PREF_DIR@/devtools.js
-@RESPATH@/@PREF_DIR@/debugger.js
+@RESPATH@/@PREF_DIR@/devtools-startup-prefs.js
 
 ; classic theme
 @RESPATH@/chrome/classic@JAREXT@
