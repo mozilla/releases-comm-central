@@ -42,7 +42,6 @@
 #include "nsIMemoryReporter.h"
 #include "mozilla/mailnews/MimeHeaderParser.h"
 #include "mozilla/mailnews/Services.h"
-#include "mozilla/SizePrintfMacros.h"
 #include "mozilla/Unused.h"
 #include <algorithm>
 
@@ -811,7 +810,7 @@ void nsMsgDBService::AddToCache(nsMsgDatabase* pMessageDB)
 void nsMsgDBService::DumpCache()
 {
   nsMsgDatabase* db = nullptr;
-  MOZ_LOG(DBLog, LogLevel::Info, ("%" PRIuSIZE " open DBs\n", m_dbCache.Length()));
+  MOZ_LOG(DBLog, LogLevel::Info, ("%zu open DBs\n", m_dbCache.Length()));
   for (uint32_t i = 0; i < m_dbCache.Length(); i++)
   {
     db = m_dbCache.ElementAt(i);

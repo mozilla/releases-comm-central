@@ -89,13 +89,5 @@ MailNewsDLF::CreateInstanceForDocument(nsISupports* aContainer,
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 
-NS_IMETHODIMP
-MailNewsDLF::CreateBlankDocument(nsILoadGroup* aLoadGroup,
-                                 nsIPrincipal* aPrincipal,
-                                 nsIDocument** aDocument)
-{
-  return NS_ERROR_NOT_IMPLEMENTED;
-}
-
 }
 }

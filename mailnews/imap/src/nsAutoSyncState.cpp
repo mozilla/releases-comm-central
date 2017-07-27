@@ -17,7 +17,6 @@
 #include "nsIMutableArray.h"
 #include "nsArrayUtils.h"
 #include "mozilla/Logging.h"
-#include "mozilla/SizePrintfMacros.h"
 
 using namespace mozilla;
 
@@ -367,7 +366,7 @@ NS_IMETHODIMP nsAutoSyncState::ProcessExistingHeaders(uint32_t aNumOfHdrsToProce
     nsCString folderName;
     folder->GetURI(folderName);
     MOZ_LOG(gAutoSyncLog, LogLevel::Debug,
-          ("%" PRIuSIZE " messages will be added into the download q of folder %s\n",
+          ("%zu messages will be added into the download q of folder %s\n",
             msgKeys.Length(), folderName.get()));
 
     rv = PlaceIntoDownloadQ(msgKeys);
