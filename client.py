@@ -63,8 +63,8 @@ SWITCH_MOZILLA_BASE_REV = "GECKO_1_9_1_BASE"
 
 import sys
 pyver = sys.version_info
-if pyver[0] <= 1 or (pyver[0] == 2 and pyver[1] < 7):
-    sys.exit("ERROR: Python 2.7 or newer required")
+if pyver[0] <= 1 or (pyver[0] == 2 and pyver[1] < 6):
+    sys.exit("ERROR: Python 2.6 or newer required")
 elif pyver[0] >= 3:
     # Python series 3 will syntax error here, Hack needed per Bug 601649c#8
     print "ERROR: Python series 3 is not supported, use python 2.7"
