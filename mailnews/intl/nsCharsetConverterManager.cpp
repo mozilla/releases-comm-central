@@ -64,7 +64,7 @@ nsresult GetBundleValue(nsIStringBundle * aBundle,
 {
   nsAutoString key;
 
-  key.AssignWithConversion(aName);
+  CopyASCIItoUTF16(aName, key);
   ToLowerCase(key); // we lowercase the main comparison key
   key.Append(aProp);
 
