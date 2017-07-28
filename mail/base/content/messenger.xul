@@ -268,7 +268,7 @@
                iconsize="small" defaulticonsize="small" lockiconsize="true"
                defaultset=""/>
 
-      <toolbarbutton class="tabs-alltabs-button"
+      <toolbarbutton class="toolbarbutton-1 tabs-alltabs-button"
                      id="alltabs-button"
                      type="menu"
                      hidden="true"

@@ -441,23 +441,6 @@ notification[type="critical"] .messageCloseButton:not(:hover) {
   -moz-appearance: -moz-window-titlebar;
 }
 
-/* We modify the .tabs-alltabs-button to make it seem like a titlebar button */
-#messengerWindow[tabsintitlebar="true"]:not([sizemode="fullscreen"]) >
-  #navigation-toolbox > #tabs-toolbar  > .tabs-alltabs-button {
-  margin-bottom: 8px;
-  opacity: .8;
-}
-
-#messengerWindow[tabsintitlebar="true"]:not([sizemode="fullscreen"]) >
-  #navigation-toolbox > #tabs-toolbar  > .tabs-alltabs-button:hover {
-  opacity: 1;
-}
-
-#messengerWindow[tabsintitlebar="true"]:not([sizemode="fullscreen"]):-moz-window-inactive >
-  #navigation-toolbox > #tabs-toolbar  > .tabs-alltabs-button {
-  opacity: .5;
-}
-
 #messengerWindow:not([tabsintitlebar]) #titlebar-buttonbox-container {
   margin-top: 3px;
   margin-inline-start: 7px;

@@ -88,34 +88,21 @@ tabpanels {
  * Tab Scrollbox Arrow Buttons
  */
 
+.tabmail-arrowscrollbox > .scrollbutton-up,
+.tabmail-arrowscrollbox > stack > .scrollbutton-down,
 .tabmail-arrowscrollbox > .scrollbutton-up > .toolbarbutton-icon,
 .tabmail-arrowscrollbox > stack > .scrollbutton-down > .toolbarbutton-icon {
   -moz-appearance: none;
 }
 
-.tabmail-arrowscrollbox > .scrollbutton-up,
-.tabmail-arrowscrollbox > stack > .scrollbutton-down {
-  -moz-appearance: none;
-  list-style-image: url(tabs/arrow-left.png);
-}
-
-#tabs-toolbar[brighttext] .tabmail-arrowscrollbox > .scrollbutton-up,
-#tabs-toolbar[brighttext] .tabmail-arrowscrollbox > stack > .scrollbutton-down {
-  list-style-image: url(tabs/arrow-left-inverted.png);
+.tabmail-arrowscrollbox > .scrollbutton-up:not([disabled]):hover,
+.tabmail-arrowscrollbox > stack > .scrollbutton-down:not([disabled]):hover {
+  background: var(--toolbarbutton-active-background);
 }
 
 .tabmail-arrowscrollbox > .scrollbutton-up[disabled],
 .tabmail-arrowscrollbox > stack > .scrollbutton-down[disabled] {
   opacity: .4;
-}
-
-.tabmail-arrowscrollbox > .scrollbutton-up > .toolbarbutton-icon:-moz-locale-dir(rtl),
-.tabmail-arrowscrollbox > stack > .scrollbutton-down > .toolbarbutton-icon:-moz-locale-dir(ltr) {
-  transform: scaleX(-1);
-}
-
-.tabmail-arrowscrollbox > .scrollbutton-down {
-  transition: 1s background-color ease-out;
 }
 
 .tabs-alltabs-box-animate {
@@ -132,22 +119,12 @@ tabpanels {
 }
 
 .tabs-alltabs-button {
-  margin-bottom: 1px;
-}
-
-.tabs-alltabs-button > .toolbarbutton-menu-dropmarker {
-  -moz-appearance: none !important;
-  margin-bottom: -1px;
-  padding-inline-start: 0 !important;
-  list-style-image: url("chrome://messenger/skin/icons/dropmarker.svg");
-}
-
-.tabs-alltabs-button:hover > .toolbarbutton-menu-dropmarker {
-  list-style-image: url("chrome://messenger/skin/icons/dropmarker-hover.svg");
+  min-width: 24px;
+  padding-right: 1px;
+  padding-left: 1px;
 }
 
 .tabs-alltabs-button > .toolbarbutton-icon {
-  display: none;
   margin-inline-end: 0;
 }
 

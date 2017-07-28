@@ -315,6 +315,22 @@
   transition: opacity 100ms ease;
 }
 
+/**
+ * Tab Scrollbox Arrow Buttons
+ */
+
+.tabmail-arrowscrollbox > .scrollbutton-up,
+.tabmail-arrowscrollbox > stack > .scrollbutton-down {
+  list-style-image: url("chrome://messenger/skin/icons/arrow-left.svg");
+  -moz-context-properties: fill;
+  fill: currentColor;
+}
+
+.tabmail-arrowscrollbox > .scrollbutton-up:-moz-locale-dir(rtl),
+.tabmail-arrowscrollbox > stack > .scrollbutton-down:-moz-locale-dir(ltr) {
+  transform: scaleX(-1);
+}
+
 /* Tab Overflow */
 .tabmail-arrowscrollbox > .arrowscrollbox-overflow-start-indicator:not([collapsed]),
 .tabmail-arrowscrollbox > .arrowscrollbox-overflow-end-indicator:not([collapsed]) {
@@ -352,6 +368,26 @@
   transition: opacity 150ms ease;
 }
 
+/**
+ * All Tabs Button
+ */
+
+#alltabs-button {
+  list-style-image: url("chrome://messenger/skin/icons/arrow-dropdown.svg");
+  -moz-context-properties: fill;
+  fill: currentColor;
+}
+
+#alltabs-button .toolbarbutton-icon {
+  width: 16px;
+  height: 16px;
+}
+
+#alltabs-button > .toolbarbutton-text,
+#alltabs-button > .toolbarbutton-menu-dropmarker {
+  display: none;
+}
+
 /* All Tabs Menupopup */
 
 .alltabs-item[selected] {
@@ -361,6 +397,14 @@
 .alltabs-item[busy] {
   list-style-image: url("chrome://global/skin/icons/loading.png") !important;
   -moz-image-region: auto !important;
+}
+
+.alltabs-item > .menu-iconic-left {
+  fill: MenuText;
+}
+
+.alltabs-item[_moz-menuactive="true"] > .menu-iconic-left {
+  fill: -moz-menuhovertext;
 }
 
 /* Content Tabs */
