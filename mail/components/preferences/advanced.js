@@ -7,11 +7,14 @@
 Components.utils.import("resource://gre/modules/DownloadUtils.jsm");
 Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 Components.utils.import("resource://gre/modules/AppConstants.jsm");
+Components.utils.import("resource://gre/modules/InlineSpellChecker.jsm");
 
 var gAdvancedPane = {
   mPane: null,
   mInitialized: false,
   mShellServiceWorking: false,
+  mInlineSpellChecker: null,
+  mBundle: null,
 
   _loadInContent: Services.prefs.getBoolPref("mail.preferences.inContent"),
 
@@ -19,6 +22,9 @@ var gAdvancedPane = {
   {
     this.mPane = document.getElementById("paneAdvanced");
     this.updateCompactOptions();
+    this.mInlineSpellChecker = new InlineSpellChecker();
+    this.mBundle = document.getElementById("bundlePreferences");
+    this.formatLocaleSetLabels();
 
     if (!(("arguments" in window) && window.arguments[1]))
     {
@@ -561,5 +567,28 @@ updateWritePrefs: function ()
   {
     if (AppConstants.MOZ_TELEMETRY_REPORTING)
       this._setupLearnMoreLink("toolkit.telemetry.infoURL", "telemetryLearnMore");
+  },
+
+  formatLocaleSetLabels: function() {
+    const localeService =
+      Components.classes["@mozilla.org/intl/localeservice;1"]
+                .getService(Components.interfaces.mozILocaleService);
+    const osprefs =
+      Components.classes["@mozilla.org/intl/ospreferences;1"]
+                .getService(Components.interfaces.mozIOSPreferences);
+    let appLocale = localeService.getAppLocalesAsBCP47()[0];
+    let rsLocale = osprefs.getRegionalPrefsLocales()[0];
+    appLocale = this.mInlineSpellChecker.getDictionaryDisplayName(appLocale);
+    rsLocale = this.mInlineSpellChecker.getDictionaryDisplayName(rsLocale);
+    let appLocaleRadio = document.getElementById("appLocale");
+    let rsLocaleRadio = document.getElementById("rsLocale");
+    let appLocaleLabel = this.mBundle.getFormattedString("appLocale.label",
+                                                         [appLocale]);
+    let rsLocaleLabel = this.mBundle.getFormattedString("rsLocale.label",
+                                                        [rsLocale]);
+    appLocaleRadio.setAttribute("label", appLocaleLabel);
+    rsLocaleRadio.setAttribute("label", rsLocaleLabel);
+    appLocaleRadio.accessKey = this.mBundle.getString("appLocale.accesskey");
+    rsLocaleRadio.accessKey = this.mBundle.getString("rsLocale.accesskey");
   },
 };

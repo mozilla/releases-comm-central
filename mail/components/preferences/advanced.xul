@@ -47,6 +47,9 @@
       <preference id="general.smoothScroll"
                   name="general.smoothScroll"
                   type="bool"/>
+      <preference id="intl.regional_prefs.use_os_locales"
+                  name="intl.regional_prefs.use_os_locales"
+                  type="bool"/>
 
       <preference id="mailnews.database.global.indexer.enabled"
                   name="mailnews.database.global.indexer.enabled"
@@ -183,6 +186,29 @@ type="bool"/>
                         accesskey="&useSmoothScrolling.accesskey;"
                         preference="general.smoothScroll"/>
               <spacer flex="1"/>
+            </hbox>
+          </groupbox>
+
+          <!-- Date and time formatting -->
+          <groupbox>
+            <caption label="&dateTimeFormatting.label;"/>
+            <hbox>
+            <radiogroup id="formatLocale"
+                        preference="intl.regional_prefs.use_os_locales"
+                        orient="vertical">
+              <hbox>
+                <radio id="appLocale"
+                       value="false"/>
+                       <!-- label and accesskey will be set dynamically -->
+                <spacer flex="1"/>
+              </hbox>
+              <hbox>
+                <radio id="rsLocale"
+                       value="true"/>
+                       <!-- label and accesskey will be set dynamically -->
+                <spacer flex="1"/>
+              </hbox>
+            </radiogroup>
             </hbox>
           </groupbox>
 
