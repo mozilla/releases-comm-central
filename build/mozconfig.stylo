@@ -1,2 +1,3 @@
-# Tell the build system where to find llvm-config for builds on automation.
-export LLVM_CONFIG="${TOOLTOOL_DIR:-$topsrcdir}/clang/bin/llvm-config"
+# Disable stylo.
+# https://bugzilla.mozilla.org/show_bug.cgi?id=1380171
+ac_add_options --disable-stylo
