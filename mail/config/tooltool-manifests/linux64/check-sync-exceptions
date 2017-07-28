@@ -1,0 +1,4 @@
+# Bug 1385085
+# Since mozilla-central switchted to using taskcluster toolchain dependencies,
+# we need to keep the last version gcc in tooltool available for linux builds.
+releng.manifest
