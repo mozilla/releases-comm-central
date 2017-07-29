@@ -5443,8 +5443,17 @@ nsresult nsMsgCompose::TagConvertible(nsIDOMElement *node,  int32_t *_retval)
       return NS_OK;
     }
 
-    // Alignment is not convertible; editor currently uses this.
+    // Alignment is not convertible to plaintext; editor currently uses this.
     if (NS_SUCCEEDED(node->GetAttribute(NS_LITERAL_STRING("align"), attribValue)) &&
+        !attribValue.IsEmpty())
+    {
+      *_retval = nsIMsgCompConvertible::No;
+      return NS_OK;
+    }
+
+    // Title attribute is not convertible to plaintext;
+    // this also preserves any links with titles.
+    if (NS_SUCCEEDED(node->GetAttribute(NS_LITERAL_STRING("title"), attribValue)) &&
         !attribValue.IsEmpty())
     {
       *_retval = nsIMsgCompConvertible::No;
