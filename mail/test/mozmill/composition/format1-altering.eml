@@ -11,12 +11,11 @@ Content-Transfer-Encoding: 7bit
     <title>title</title>
   </head>
   <body bgcolor="#FFFFFF" text="#000000">
-    Line 1<br>
-<p>
-    Line 2
-</p>
-    <pre class="moz-signature" cols="72">-- 
-      Signature block
+    <h1>heading</h1>
+    <hr>
+    <pre>
+    Pre line 1
+    Pre line 2
     </pre>
   </body>
 </html>

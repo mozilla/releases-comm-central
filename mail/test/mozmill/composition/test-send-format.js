@@ -14,8 +14,6 @@ var MODULE_NAME = "test-send-format";
 var RELATIVE_ROOT = "../shared-modules";
 var MODULE_REQUIRES = ["folder-display-helpers", "compose-helpers", "window-helpers"];
 
-Cu.import("resource://gre/modules/Services.jsm");
-Cu.import("resource:///modules/mailServices.js");
 var os = {};
 Cu.import('resource://mozmill/stdlib/os.js', os);
 
@@ -46,6 +44,9 @@ function checkMsgFile(aFilePath, aConvertibility) {
  */
 function test_msg_convertibility() {
   checkMsgFile("./format1-plain.eml", nsIMsgCompConvertible.Plain);
+
+  // Bug 1385636
+  checkMsgFile("./format1-altering.eml", nsIMsgCompConvertible.Altering);
 
   // Bug 584313
   checkMsgFile("./format2-style-attr.eml", nsIMsgCompConvertible.No);

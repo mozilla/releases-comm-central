@@ -5420,14 +5420,21 @@ nsresult nsMsgCompose::TagConvertible(nsIDOMElement *node,  int32_t *_retval)
     }
 
     // moz-* classes are used internally by the editor and mail composition
-    // (like moz-cite or moz-signature). Those can be discarded.
+    // (like moz-cite-prefix or moz-signature). Those can be discarded.
     // But any other ones are unconvertible. Style can be attached to them or any
     // other context (e.g. in microformats).
     if (NS_SUCCEEDED(node->GetAttribute(NS_LITERAL_STRING("class"), attribValue)) &&
-        !attribValue.IsEmpty() &&
-        !StringBeginsWith(attribValue, NS_LITERAL_STRING("moz-"), nsCaseInsensitiveStringComparator()))
+        !attribValue.IsEmpty())
     {
-      *_retval = nsIMsgCompConvertible::No;
+      if (StringBeginsWith(attribValue, NS_LITERAL_STRING("moz-"), nsCaseInsensitiveStringComparator())) {
+        // We assume that anything with a moz-* class is convertible regardless of the tag,
+        // because we add, for example, class="moz-signature" to HTML messages and we still want
+        // to be able to downgrade them.
+        *_retval = nsIMsgCompConvertible::Plain;
+      } else {
+        *_retval = nsIMsgCompConvertible::No;
+      }
+
       return NS_OK;
     }
 
@@ -5457,10 +5464,11 @@ nsresult nsMsgCompose::TagConvertible(nsIDOMElement *node,  int32_t *_retval)
       return NS_OK;
     }
 
-    if      ( // some "simple" elements without "style" attribute
+    if      ( // Considered convertible to plaintext: Some "simple" elements
+              // without non-convertible attributes like style, class, id,
+              // or align (see above).
               element.LowerCaseEqualsLiteral("br") ||
               element.LowerCaseEqualsLiteral("p") ||
-              element.LowerCaseEqualsLiteral("pre") ||
               element.LowerCaseEqualsLiteral("tt") ||
               element.LowerCaseEqualsLiteral("html") ||
               element.LowerCaseEqualsLiteral("head") ||
@@ -5491,6 +5499,7 @@ nsresult nsMsgCompose::TagConvertible(nsIDOMElement *node,  int32_t *_retval)
               element.LowerCaseEqualsLiteral("h5") ||
               element.LowerCaseEqualsLiteral("h6") ||
               element.LowerCaseEqualsLiteral("hr") ||
+              element.LowerCaseEqualsLiteral("pre") ||
               (
                 mConvertStructs
                 &&
