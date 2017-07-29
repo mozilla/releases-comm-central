@@ -147,31 +147,33 @@ calOutlookCSVImporter.prototype = {
         args.fieldList = header;
 
         let knownIndxs;
-        for (let locale of locales) {
+        let locale = localeEn;
+        for (let loc of locales) {
             knownIndxs = 0;
             args.titleIndex = 0;
             args.startDateIndex = 0;
             for (let i = 1; i <= header.length; ++i) {
                 switch (header[i - 1]) {
                     /* eslint-disable max-statements-per-line */
-                    case locale.headTitle: args.titleIndex = i; knownIndxs++; break;
-                    case locale.headStartDate: args.startDateIndex = i; knownIndxs++; break;
-                    case locale.headStartTime: args.startTimeIndex = i; knownIndxs++; break;
-                    case locale.headEndDate: args.endDateIndex = i; knownIndxs++; break;
-                    case locale.headEndTime: args.endTimeIndex = i; knownIndxs++; break;
-                    case locale.headAllDayEvent: args.allDayIndex = i; knownIndxs++; break;
-                    case locale.headAlarm: args.alarmIndex = i; knownIndxs++; break;
-                    case locale.headAlarmDate: args.alarmDateIndex = i; knownIndxs++; break;
-                    case locale.headAlarmTime: args.alarmTimeIndex = i; knownIndxs++; break;
-                    case locale.headCategories: args.categoriesIndex = i; knownIndxs++; break;
-                    case locale.headDescription: args.descriptionIndex = i; knownIndxs++; break;
-                    case locale.headLocation: args.locationIndex = i; knownIndxs++; break;
-                    case locale.headPrivate: args.privateIndex = i; knownIndxs++; break;
+                    case loc.headTitle: args.titleIndex = i; knownIndxs++; break;
+                    case loc.headStartDate: args.startDateIndex = i; knownIndxs++; break;
+                    case loc.headStartTime: args.startTimeIndex = i; knownIndxs++; break;
+                    case loc.headEndDate: args.endDateIndex = i; knownIndxs++; break;
+                    case loc.headEndTime: args.endTimeIndex = i; knownIndxs++; break;
+                    case loc.headAllDayEvent: args.allDayIndex = i; knownIndxs++; break;
+                    case loc.headAlarm: args.alarmIndex = i; knownIndxs++; break;
+                    case loc.headAlarmDate: args.alarmDateIndex = i; knownIndxs++; break;
+                    case loc.headAlarmTime: args.alarmTimeIndex = i; knownIndxs++; break;
+                    case loc.headCategories: args.categoriesIndex = i; knownIndxs++; break;
+                    case loc.headDescription: args.descriptionIndex = i; knownIndxs++; break;
+                    case loc.headLocation: args.locationIndex = i; knownIndxs++; break;
+                    case loc.headPrivate: args.privateIndex = i; knownIndxs++; break;
                     /* eslint-enable max-statements-per-line */
                 }
             }
             // Were both mandatory fields recognized?
             if (args.titleIndex != 0 && args.startDateIndex != 0) {
+                locale = loc;
                 break;
             }
         }
@@ -374,7 +376,7 @@ calOutlookCSVImporter.prototype = {
         let datepart = aLocale.dateRe.exec(aDate);
         let timepart = aLocale.timeRe.exec(aTime);
 
-        if (!datepart || !timepart) {
+        if (!datepart) {
             return null;
         }
 
