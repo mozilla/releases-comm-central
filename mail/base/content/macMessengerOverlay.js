@@ -79,3 +79,18 @@ function writeNewMessageDock()
     Components.interfaces.nsIMsgCompFormat.Default, null, null);
 }
 
+/**
+ * Open the address book window
+ */
+function openAddressBookDock()
+{
+  let win = Services.wm.getMostRecentWindow("mail:addressbook");
+  if (win) {
+    win.focus();
+  } else {
+    let ww = Components.classes["@mozilla.org/embedcomp/window-watcher;1"].
+                                getService(Components.interfaces.nsIWindowWatcher);
+    ww.openWindow(null, "chrome://messenger/content/addressbook/addressbook.xul", null,
+                  "chrome,extrachrome,menubar,resizable,scrollbars,status,toolbar", null);
+  }
+}
