@@ -4,6 +4,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 Components.utils.import("resource://gre/modules/Services.jsm");
+Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
+Components.utils.import("resource://gre/modules/AppConstants.jsm");
+Components.utils.import("resource://gre/modules/PluralForm.jsm");
+Components.utils.import("resource://gre/modules/InlineSpellChecker.jsm");
 Components.utils.import("resource:///modules/folderUtils.jsm");
 Components.utils.import("resource:///modules/iteratorUtils.jsm");
 Components.utils.import("resource:///modules/mailServices.js");
@@ -50,6 +54,7 @@ var gMessenger = Components.classes["@mozilla.org/messenger;1"]
  */
 var gHideMenus;
 var gMsgCompose;
+var gOriginalMsgURI;
 var gAccountManager;
 var gWindowLocked;
 var gContentChanged;
@@ -92,6 +97,7 @@ function InitializeGlobalVariables()
   gAccountManager = Components.classes["@mozilla.org/messenger/account-manager;1"].getService(Components.interfaces.nsIMsgAccountManager);
 
   gMsgCompose = null;
+  gOriginalMsgURI = null;
   gWindowLocked = false;
   gContentChanged = false;
   gCurrentIdentity = null;
@@ -123,6 +129,7 @@ function ReleaseGlobalVariables()
   gCurrentIdentity = null;
   gCharsetConvertManager = null;
   gMsgCompose = null;
+  gOriginalMsgURI = null;
   gMailSession = null;
 }
 
@@ -987,6 +994,137 @@ function handleMailtoArgs(mailtoUrl)
 
   return null;
 }
+/**
+ * Handle ESC keypress from composition window for
+ * notifications with close button in the
+ * attachmentNotificationBox.
+ */
+function handleEsc()
+{
+  let activeElement = document.activeElement;
+
+  // If findbar is visible and the focus is in the message body,
+  // hide it. (Focus on the findbar is handled by findbar itself).
+  let findbar = document.getElementById("FindToolbar");
+  if (findbar && !findbar.hidden && activeElement.id == "content-frame") {
+    findbar.close();
+    return;
+  }
+
+  // If there is a notification in the attachmentNotificationBox
+  // AND focus is in message body, subject field or on the notification,
+  // hide it.
+  let notification = document.getElementById("attachmentNotificationBox")
+                             .currentNotification;
+  if (notification && (activeElement.id == "content-frame" ||
+      activeElement.parentNode.parentNode.id == "msgSubject" ||
+      notification.contains(activeElement) ||
+      activeElement.classList.contains("messageCloseButton"))) {
+    notification.close();
+  }
+}
+
+/**
+ * On paste or drop, we may want to modify the content before inserting it into
+ * the editor, replacing file URLs with data URLs when appropriate.
+ */
+function onPasteOrDrop(e) {
+  // For paste use e.clipboardData, for drop use e.dataTransfer.
+  let dataTransfer = ("clipboardData" in e) ? e.clipboardData : e.dataTransfer;
+
+  if (!dataTransfer.types.includes("text/html")) {
+    return;
+  }
+
+  if (!gMsgCompose.composeHTML) {
+    // We're in the plain text editor. Nothing to do here.
+    return;
+  }
+
+  let html = dataTransfer.getData("text/html");
+  let doc = (new DOMParser()).parseFromString(html, "text/html");
+  let tmpD = Services.dirsvc.get("TmpD", Components.interfaces.nsIFile);
+  let pendingConversions = 0;
+  let needToPreventDefault = true;
+  for (let img of doc.images) {
+    if (!/^file:/i.test(img.src)) {
+      // Doesn't start with file:. Nothing to do here.
+      continue;
+    }
+
+    // This may throw if the URL is invalid for the OS.
+    let nsFile;
+    try {
+      nsFile = Services.io.getProtocolHandler("file")
+                 .QueryInterface(Components.interfaces.nsIFileProtocolHandler)
+                 .getFileFromURLSpec(img.src);
+    } catch (ex) {
+      continue;
+    }
+
+    if (!nsFile.exists()) {
+      continue;
+    }
+
+    if (!tmpD.contains(nsFile)) {
+       // Not anywhere under the temp dir.
+      continue;
+    }
+
+    let contentType = Components.classes["@mozilla.org/mime;1"]
+                        .getService(Components.interfaces.nsIMIMEService)
+                        .getTypeFromFile(nsFile);
+    if (!contentType.startsWith("image/")) {
+      continue;
+    }
+
+    // If we ever get here, we need to prevent the default paste or drop since
+    // the code below will do its own insertion.
+    if (needToPreventDefault) {
+      e.preventDefault();
+      needToPreventDefault = false;
+    }
+
+    File.createFromNsIFile(nsFile).then(function(file) {
+      if (file.lastModified < (Date.now() - 60000)) {
+        // Not put in temp in the last minute. May be something other than
+        // a copy-paste. Let's not allow that.
+        return;
+      }
+
+      let doTheInsert = function() {
+        // Now run it through sanitation to make sure there wasn't any
+        // unwanted things in the content.
+        let ParserUtils = Components.classes["@mozilla.org/parserutils;1"]
+                            .getService(Components.interfaces.nsIParserUtils);
+        let html2 = ParserUtils.sanitize(doc.documentElement.innerHTML,
+                                         ParserUtils.SanitizerAllowStyle);
+        getBrowser().contentDocument.execCommand("insertHTML", false, html2);
+      }
+
+      // Everything checks out. Convert file to data URL.
+      let reader = new FileReader();
+      reader.addEventListener("load", function() {
+        let dataURL = reader.result;
+        pendingConversions--;
+        img.src = dataURL;
+        if (pendingConversions == 0) {
+          doTheInsert();
+        }
+      });
+
+      reader.addEventListener("error", function() {
+        pendingConversions--;
+        if (pendingConversions == 0) {
+          doTheInsert();
+        }
+      });
+
+      pendingConversions++;
+      reader.readAsDataURL(file);
+    });
+  }
+}
 
 function ComposeStartup(aParams)
 {
@@ -1017,6 +1155,9 @@ function ComposeStartup(aParams)
           .setAttribute("lang", getPref("spellchecker.dictionary"));
 
   var identityList = GetMsgIdentityElement();
+
+  document.addEventListener("paste", onPasteOrDrop, false);
+  document.addEventListener("drop", onPasteOrDrop, false);
 
   if (identityList)
     FillIdentityList(identityList);
@@ -1111,6 +1252,13 @@ function ComposeStartup(aParams)
   {
     // Get the <editor> element to startup an editor
     var editorElement = GetCurrentEditorElement();
+
+    // Remember the original message URI. When editing a draft which is a reply
+    // or forwarded message, this gets overwritten by the ancestor's message URI so
+    // the disposition flags ("replied" or "forwarded") can be set on the ancestor.
+    // For our purposes we need the URI of the message being processed, not its
+    // original ancestor.
+    gOriginalMsgURI = params.originalMsgURI;
     gMsgCompose = sMsgComposeService.initCompose(params, window,
                                                  editorElement.docShell);
     if (gMsgCompose)
@@ -3149,6 +3297,88 @@ function InitEditor(editor)
   // Listen for spellchecker changes, set the document language to the
   // dictionary picked by the user via the right-click menu in the editor.
   document.addEventListener("spellcheck-changed", updateDocumentLanguage);
+
+  // XXX: the error event fires twice for each load. Why??
+  editor.document.body.addEventListener("error", function(event) {
+    if (event.target.localName != "img") {
+      return;
+    }
+
+    if (event.target.getAttribute("moz-do-not-send") == "true") {
+      return;
+    }
+
+    let src = event.target.src;
+
+    if (!src) {
+      return;
+    }
+
+    if (!/^file:/i.test(src)) {
+      // Check if this is a protocol that can fetch parts.
+      let protocol = src.substr(0, src.indexOf(":")).toLowerCase();
+      if (!(Services.io.getProtocolHandler(protocol) instanceof
+            Components.interfaces.nsIMsgMessageFetchPartService)) {
+        // Can't fetch parts, don't try to load.
+        return;
+      }
+    }
+
+    if (event.target.classList.contains("loading-internal")) {
+      // We're already loading this, or tried so unsuccesfully.
+      return;
+    }
+
+    if (gOriginalMsgURI) {
+      let msgSvc = Components.classes["@mozilla.org/messenger;1"]
+                     .createInstance(Components.interfaces.nsIMessenger)
+                     .messageServiceFromURI(gOriginalMsgURI);
+      let originalMsgNeckoURI = {};
+      msgSvc.GetUrlForUri(gOriginalMsgURI, originalMsgNeckoURI, null);
+
+      if (src.startsWith(originalMsgNeckoURI.value.spec)) {
+        // Reply/Forward/Edit Draft/Edit as New can contain references to
+        // images in the original message. Load those and make them data: URLs
+        // now.
+        event.target.classList.add("loading-internal");
+        try {
+          loadBlockedImage(src);
+        } catch (e) {
+          // Couldn't load the referenced image.
+          Components.utils.reportError(e);
+        }
+      }
+      else {
+        // Appears to reference a random message. Notify and keep blocking.
+        gComposeNotificationBar.setBlockedContent(src);
+      }
+    }
+    else {
+      // For file:, and references to parts of random messages, show the
+      // blocked content notification.
+      gComposeNotificationBar.setBlockedContent(src);
+    }
+  }, true);
+
+  // Convert mailnews URL back to data: URL.
+  let background = editor.document.body.background;
+  if (background && gOriginalMsgURI) {
+    // Check that background has the same URL as the message itself.
+    let msgSvc = Components.classes["@mozilla.org/messenger;1"]
+                   .createInstance(Components.interfaces.nsIMessenger)
+                   .messageServiceFromURI(gOriginalMsgURI);
+    let originalMsgNeckoURI = {};
+    msgSvc.GetUrlForUri(gOriginalMsgURI, originalMsgNeckoURI, null);
+
+    if (background.startsWith(originalMsgNeckoURI.value.spec)) {
+      try {
+        editor.document.body.background = loadBlockedImage(background, true);
+      } catch (e) {
+        // Couldn't load the referenced image.
+        Components.utils.reportError(e);
+      }
+    }
+  }
 }
 
 /**
@@ -3213,5 +3443,200 @@ function getPref(aPrefName, aIsComplex)
       return Services.prefs.getCharPref(aPrefName);
     default: // includes nsIPrefBranch.PREF_INVALID
       return null;
+  }
+}
+
+/**
+ * Object to handle message related notifications that are showing in a
+ * notificationbox below the composed message content.
+ */
+var gComposeNotificationBar = {
+
+  get notificationBar() {
+    delete this.notificationBar;
+    return this.notificationBar = document.getElementById("attachmentNotificationBox");
+  },
+
+  setBlockedContent: function(aBlockedURI) {
+    let brandName = sBrandBundle.getString("brandShortName");
+    let buttonLabel = sComposeMsgsBundle.getString("blockedContentPrefLabel");
+    let buttonAccesskey = sComposeMsgsBundle.getString("blockedContentPrefAccesskey");
+
+    let buttons = [{
+      label: buttonLabel,
+      accessKey: buttonAccesskey,
+      popup: "blockedContentOptions",
+      callback: function(aNotification, aButton) {
+        return true; // keep notification open
+      }
+    }];
+
+    // The popup value is a space separated list of all the blocked urls.
+    let popup = document.getElementById("blockedContentOptions");
+    let urls = popup.value ? popup.value.split(" ") : [];
+    if (!urls.includes(aBlockedURI)) {
+      urls.push(aBlockedURI);
+    }
+    popup.value = urls.join(" ");
+
+    let msg = sComposeMsgsBundle.getFormattedString("blockedContentMessage",
+                                                    [brandName, brandName]);
+    msg = PluralForm.get(urls.length, msg);
+
+    if (!this.isShowingBlockedContentNotification()) {
+      this.notificationBar
+          .appendNotification(msg, "blockedContent", null,
+                              this.notificationBar.PRIORITY_WARNING_MEDIUM,
+                              buttons);
+    }
+    else {
+      this.notificationBar.getNotificationWithValue("blockedContent")
+                          .setAttribute("label", msg);
+    }
+  },
+
+  isShowingBlockedContentNotification: function() {
+    return !!this.notificationBar.getNotificationWithValue("blockedContent");
+  },
+
+  clearNotifications: function(aValue) {
+    this.notificationBar.removeAllNotifications(true);
+  }
+};
+
+/**
+ * Populate the menuitems of what blocked content to unblock.
+ */
+function onBlockedContentOptionsShowing(aEvent) {
+  let urls = aEvent.target.value ? aEvent.target.value.split(" ") : [];
+
+  // Out with the old...
+  let childNodes = aEvent.target.childNodes;
+  for (let i = childNodes.length - 1; i >= 0; i--) {
+    childNodes[i].remove();
+  }
+
+  // ... and in with the new.
+  for (let url of urls) {
+    let menuitem = document.createElement("menuitem");
+    let fString = sComposeMsgsBundle.getFormattedString("blockedAllowResource",
+                                                        [url]);
+    menuitem.setAttribute("label", fString);
+    menuitem.setAttribute("crop", "center");
+    menuitem.setAttribute("value", url);
+    menuitem.setAttribute("oncommand",
+                          "onUnblockResource(this.value, this.parentNode);");
+    aEvent.target.appendChild(menuitem);
+  }
+}
+
+/**
+ * Handle clicking the "Load <url>" in the blocked content notification bar.
+ * @param {String} aURL - the URL that was unblocked
+ * @param {Node} aNode  - the node holding as value the URLs of the blocked
+ *                        resources in the message (space separated).
+ */
+function onUnblockResource(aURL, aNode) {
+  try {
+    loadBlockedImage(aURL);
+  } catch (e) {
+    // Couldn't load the referenced image.
+    Components.utils.reportError(e);
+  } finally {
+    // Remove it from the list on success and failure.
+    let urls = aNode.value.split(" ");
+    for (let i = 0; i < urls.length; i++) {
+      if (urls[i] == aURL) {
+        urls.splice(i, 1);
+        aNode.value = urls.join(" ");
+        if (urls.length == 0) {
+          gComposeNotificationBar.clearNotifications();
+        }
+        break;
+      }
+    }
+  }
+}
+
+/**
+ * Convert the blocked content to a data URL and swap the src to that for the
+ * elements that were using it.
+ *
+ * @param {String}  aURL - (necko) URL to unblock
+ * @param {Bool}    aReturnDataURL - return data: URL instead of processing image
+ * @return {String} the image as data: URL.
+ * @throw Error()   if reading the data failed
+ */
+function loadBlockedImage(aURL, aReturnDataURL = false) {
+  let filename;
+  if (/^(file|chrome):/i.test(aURL)) {
+    filename = aURL.substr(aURL.lastIndexOf("/") + 1);
+  }
+  else {
+    let fnMatch = /[?&;]filename=([^?&]+)/.exec(aURL);
+    filename = (fnMatch && fnMatch[1]) || "";
+  }
+
+  filename = decodeURIComponent(filename);
+  let uri = Services.io.newURI(aURL);
+  let contentType;
+  if (filename) {
+    try {
+      contentType = Components.classes["@mozilla.org/mime;1"]
+                      .getService(Components.interfaces.nsIMIMEService)
+                      .getTypeFromURI(uri);
+    } catch (ex) {
+      contentType = "image/png";
+    }
+
+    if (!contentType.startsWith("image/")) {
+      // Unsafe to unblock this. It would just be garbage either way.
+      throw new Error("Won't unblock; URL=" + aURL +
+                      ", contentType=" + contentType);
+    }
+  }
+  else {
+    // Assuming image/png is the best we can do.
+    contentType = "image/png";
+  }
+
+  let channel =
+    Services.io.newChannelFromURI2(uri,
+      null,
+      Services.scriptSecurityManager.getSystemPrincipal(),
+      null,
+      Components.interfaces.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
+      Components.interfaces.nsIContentPolicy.TYPE_OTHER);
+
+  let inputStream = channel.open();
+  let stream = Components.classes["@mozilla.org/binaryinputstream;1"]
+                 .createInstance(Components.interfaces.nsIBinaryInputStream);
+  stream.setInputStream(inputStream);
+  let streamData = "";
+  try {
+    while (stream.available() > 0) {
+      streamData += stream.readBytes(stream.available());
+    }
+  } catch(e) {
+    stream.close();
+    throw new Error("Couln't read all data from URL=" + aURL + " (" + e +")");
+  }
+  stream.close();
+
+  let encoded = btoa(streamData);
+  let dataURL = "data:" + contentType +
+                (filename ? ";filename=" + encodeURIComponent(filename) : "") +
+                ";base64," + encoded;
+
+  if (aReturnDataURL) {
+    return dataURL;
+  }
+
+  let editor = GetCurrentEditor();
+  for (let img of editor.document.images) {
+    if (img.src == aURL) {
+      img.src = dataURL; // Swap to data URL.
+      img.classList.remove("loading-internal");
+    }
   }
 }

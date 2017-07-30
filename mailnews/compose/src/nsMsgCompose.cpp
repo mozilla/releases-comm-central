@@ -1032,9 +1032,6 @@ nsMsgCompose::Initialize(nsIMsgComposeParams *aParams,
     if (NS_FAILED(rv)) return rv;
 
     m_baseWindow = do_QueryInterface(treeOwner);
-#ifdef MOZ_SUITE
-    window->GetDocShell()->SetAppType(nsIDocShell::APP_TYPE_EDITOR);
-#endif
   }
 
   MSG_ComposeFormat format;

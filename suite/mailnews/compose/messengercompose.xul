@@ -147,6 +147,7 @@
   <key keycode="VK_F6" oncommand="SwitchElementFocus(event);" modifiers="control,shift"/>
   <key keycode="VK_F6" oncommand="SwitchElementFocus(event);" modifiers="shift"/>
   <key keycode="VK_F6" oncommand="SwitchElementFocus(event);"/>
+  <key keycode="VK_ESCAPE" oncommand="handleEsc();"/>
 </keyset>
 <keyset id="editorKeys"/>
 <keyset id="composeKeys">
@@ -183,6 +184,10 @@
                 command="cmd_attachPage"/>
     </menupopup>
   </popupset>
+
+  <menupopup id="blockedContentOptions" value=""
+             onpopupshowing="onBlockedContentOptionsShowing(event);">
+  </menupopup>
 
   <vbox id="titlebar"/>
 
@@ -647,6 +652,13 @@
             context="contentAreaContextMenu"/>
   </vbox>
 </hbox>
+
+  <hbox>
+    <notificationbox id="attachmentNotificationBox"
+                     flex="1"
+                     notificationside="bottom"/>
+  </hbox>
+
 
   <statusbar id="status-bar" class="chromeclass-status">
     <statusbarpanel id="component-bar"/>

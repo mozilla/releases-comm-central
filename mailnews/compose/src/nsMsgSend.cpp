@@ -1442,16 +1442,6 @@ nsMsgComposeAndSend::GetEmbeddedObjectInfo(nsIDOMNode *node, nsMsgAttachmentData
     return NS_OK;
   }
 
-#ifdef MOZ_SUITE
-  bool isFile =
-    (NS_SUCCEEDED(attachment->m_url->SchemeIs("file", &isFile)) && isFile);
-  if (isFile)
-  {
-    *acceptObject = mozDoNotSendAttr.IsEmpty() ||
-      mozDoNotSendAttr.LowerCaseEqualsLiteral("false");
-    return NS_OK;
-  }
-#endif
   return NS_OK;
 }
 
