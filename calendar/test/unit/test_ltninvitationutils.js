@@ -1072,7 +1072,7 @@ add_task(function* parseCounter_test() {
         return createEventFromIcalString(item);
     };
 
-    let formatDt = function (aDateTime) {
+    let formatDt = function(aDateTime) {
         let datetime = cal.getDateFormatter().formatDateTime(aDateTime);
         return datetime + " " + aDateTime.timezone.displayName;
     };
