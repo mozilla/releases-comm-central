@@ -390,8 +390,7 @@ function onLoad() {
 
     // This causes the app to ask if the window should be closed when the
     // application is closed.
-    Services.obs.addObserver(eventDialogQuitObserver,
-                             "quit-application-requested", false);
+    Services.obs.addObserver(eventDialogQuitObserver, "quit-application-requested");
 
     // Normally, Enter closes a <dialog>. We want this to rather on Ctrl+Enter.
     // Stopping event propagation doesn't seem to work, so just overwrite the

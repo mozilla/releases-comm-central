@@ -70,9 +70,9 @@ function initLogging() {
                 }
             }
         };
-        Services.prefs.addObserver("calendar.wcap.log_level", initLogging.mLogPrefObserver, false);
-        Services.prefs.addObserver("calendar.wcap.log_file", initLogging.mLogPrefObserver, false);
-        Services.prefs.addObserver("calendar.debug.log", initLogging.mLogPrefObserver, false);
+        Services.prefs.addObserver("calendar.wcap.log_level", initLogging.mLogPrefObserver);
+        Services.prefs.addObserver("calendar.wcap.log_file", initLogging.mLogPrefObserver);
+        Services.prefs.addObserver("calendar.debug.log", initLogging.mLogPrefObserver);
 
         let appObserver = { // nsIObserver:
             observe: function(subject, topic, data) {
@@ -81,7 +81,7 @@ function initLogging() {
                 }
             }
         };
-        Services.obs.addObserver(appObserver, "quit-application", false);
+        Services.obs.addObserver(appObserver, "quit-application");
     }
 }
 

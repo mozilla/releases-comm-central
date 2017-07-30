@@ -251,7 +251,7 @@
         };
         this.viewBroadcaster.addEventListener(this.getAttribute("type") + "viewresized", this.mResizeHandler, true);
         // add a preference observer to monitor changes
-        Services.prefs.addObserver("calendar.", this.mPrefObserver, false);
+        Services.prefs.addObserver("calendar.", this.mPrefObserver);
         this.weekStartOffset = Preferences.get("calendar.week.start", 0);
         this.updateDaysOffPrefs();
         this.mPendingRefreshJobs = new Map();

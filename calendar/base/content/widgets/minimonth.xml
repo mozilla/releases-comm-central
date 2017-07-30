@@ -460,7 +460,7 @@
 
         // Add pref observer
         let branch = Services.prefs.getBranch("");
-        branch.addObserver("calendar.", this, false);
+        branch.addObserver("calendar.", this);
       ]]></constructor>
 
       <destructor><![CDATA[

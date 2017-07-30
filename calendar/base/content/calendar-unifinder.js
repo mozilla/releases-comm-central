@@ -190,7 +190,7 @@ function prepareCalendarUnifinder() {
 
     // Add pref observer
     let branch = Services.prefs.getBranch("");
-    branch.addObserver("calendar.", unifinderObserver, false);
+    branch.addObserver("calendar.", unifinderObserver);
 
     // Check if this is not the hidden window, which has no UI elements
     if (unifinderTree) {

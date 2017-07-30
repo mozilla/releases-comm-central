@@ -7,9 +7,8 @@ Components.utils.import("resource://gre/modules/Services.jsm");
 var ltnSuiteUtils = {
 
     addStartupObserver: function() {
-        Services.obs.addObserver(this.startupObserver, "lightning-startup-done", false);
-        Services.obs.addObserver(this.startupObserver, "calendar-taskview-startup-done",
-                        false);
+        Services.obs.addObserver(this.startupObserver, "lightning-startup-done");
+        Services.obs.addObserver(this.startupObserver, "calendar-taskview-startup-done");
     },
 
     startupObserver: {

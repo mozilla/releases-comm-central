@@ -52,12 +52,12 @@ calCalendarManager.prototype = {
         this.mReadonlyCalendarCount = 0;
         this.mCalendarCount = 0;
 
-        Services.obs.addObserver(this, "http-on-modify-request", false);
+        Services.obs.addObserver(this, "http-on-modify-request");
 
         // We only add the observer if the pref is set and only check for the
         // pref on startup to avoid checking for every http request
         if (Preferences.get("calendar.network.multirealm", false)) {
-            Services.obs.addObserver(this, "http-on-examine-response", false);
+            Services.obs.addObserver(this, "http-on-examine-response");
         }
 
         aCompleteListener.onResult(null, Components.results.NS_OK);
@@ -87,7 +87,7 @@ calCalendarManager.prototype = {
 
 
     setupOfflineObservers: function() {
-        Services.obs.addObserver(this, "network:offline-status-changed", false);
+        Services.obs.addObserver(this, "network:offline-status-changed");
     },
 
     cleanupOfflineObservers: function() {

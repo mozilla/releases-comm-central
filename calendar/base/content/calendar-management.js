@@ -412,7 +412,7 @@ var calendarOfflineManager = {
         if (this.initialized) {
             throw Components.results.NS_ERROR_ALREADY_INITIALIZED;
         }
-        Services.obs.addObserver(this, "network:offline-status-changed", false);
+        Services.obs.addObserver(this, "network:offline-status-changed");
 
         this.updateOfflineUI(!this.isOnline());
         this.initialized = true;

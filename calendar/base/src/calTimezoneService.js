@@ -272,7 +272,7 @@ calTimezoneService.prototype = {
     setupObservers: function() {
         if (!this.mHasSetupObservers) {
             // Now set up the observer
-            Services.prefs.addObserver("calendar.timezone.local", this, false);
+            Services.prefs.addObserver("calendar.timezone.local", this);
             this.mHasSetupObservers = true;
         }
     },

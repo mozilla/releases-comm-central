@@ -119,7 +119,7 @@ function onLoad() {
             }
         }
     };
-    Services.prefs.addObserver("calendar.", prefObserver, false);
+    Services.prefs.addObserver("calendar.", prefObserver);
     window.addEventListener("unload", () => {
         Services.prefs.removeObserver("calendar.", prefObserver);
     });

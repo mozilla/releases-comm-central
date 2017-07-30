@@ -83,7 +83,7 @@ ltnMimeConverter.prototype = {
             sinkProps.setPropertyAsAUTF8String("msgOverlay", msgOverlay);
 
             // Notify the observer that the itipItem is available
-            Services.obs.notifyObservers(null, "onItipItemCreation", 0);
+            Services.obs.notifyObservers(null, "onItipItemCreation");
         }
         return msgOverlay;
     }

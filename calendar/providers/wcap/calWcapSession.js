@@ -102,7 +102,7 @@ function calWcapSession(contextId) {
     this.m_loginQueue = [];
 
     // listen for shutdown, being logged out:
-    Services.obs.addObserver(this, "quit-application", false /* don't hold weakly */);
+    Services.obs.addObserver(this, "quit-application");
     cal.getCalendarManager().addObserver(this);
 }
 var calWcapSessionClassID = Components.ID("{cbf803fd-4469-4999-ae39-367af1c7b077}");

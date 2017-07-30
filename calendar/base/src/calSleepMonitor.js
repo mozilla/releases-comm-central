@@ -32,7 +32,7 @@ calSleepMonitor.prototype = {
         let now = Date.now();
         if (now - this.expected > this.tolerance) {
             cal.LOG("[calSleepMonitor] Sleep cycle detected, notifying observers.");
-            Services.obs.notifyObservers(null, "wake_notification", null);
+            Services.obs.notifyObservers(null, "wake_notification");
         }
         this.expected = now + this.interval;
     },
@@ -60,7 +60,7 @@ calSleepMonitor.prototype = {
             cal.LOG("[calSleepMonitor] Starting sleep monitor.");
             this.start();
 
-            Services.obs.addObserver(this, "quit-application", false);
+            Services.obs.addObserver(this, "quit-application");
         } else if (aTopic == "quit-application") {
             cal.LOG("[calSleepMonitor] Stopping sleep monitor.");
             this.stop();

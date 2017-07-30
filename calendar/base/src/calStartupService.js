@@ -49,9 +49,9 @@ calStartupService.prototype = {
      * Sets up the needed observers for noticing startup/shutdown
      */
     setupObservers: function() {
-        Services.obs.addObserver(this, "profile-after-change", false);
-        Services.obs.addObserver(this, "profile-before-change", false);
-        Services.obs.addObserver(this, "xpcom-shutdown", false);
+        Services.obs.addObserver(this, "profile-after-change");
+        Services.obs.addObserver(this, "profile-before-change");
+        Services.obs.addObserver(this, "xpcom-shutdown");
     },
 
     started: false,
@@ -73,7 +73,7 @@ calStartupService.prototype = {
         let notify = {
             startup: function(aCompleteListener) {
                 self.started = true;
-                Services.obs.notifyObservers(null, "calendar-startup-done", null);
+                Services.obs.notifyObservers(null, "calendar-startup-done");
                 aCompleteListener.onResult(null, Components.results.NS_OK);
             },
             shutdown: function(aCompleteListener) {

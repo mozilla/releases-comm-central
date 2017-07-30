@@ -242,7 +242,7 @@ function do_calendar_startup(callback) {
         callback();
     } else {
         do_test_pending();
-        Services.obs.addObserver(obs, "calendar-startup-done", false);
+        Services.obs.addObserver(obs, "calendar-startup-done");
         if (_profileInitialized) {
             Services.obs.notifyObservers(null, "profile-after-change", "xpcshell-do-get-profile");
         } else {

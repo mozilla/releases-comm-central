@@ -399,7 +399,7 @@ function ltnOnLoad(event) {
 
     ltnIntegrationCheck();
 
-    Services.obs.notifyObservers(window, "lightning-startup-done", false);
+    Services.obs.notifyObservers(window, "lightning-startup-done");
 }
 
 /**

@@ -116,7 +116,7 @@ var calendarWindowPrefs = {
 
     /** Initialize the preference observers */
     init: function() {
-        Services.prefs.addObserver("calendar.view.useSystemColors", this, false);
+        Services.prefs.addObserver("calendar.view.useSystemColors", this);
         Services.ww.registerNotification(this);
 
         // Trigger setting pref on all open windows

@@ -358,7 +358,7 @@ calStorageCalendar.prototype = {
         }
 
         this.initDB();
-        Services.obs.addObserver(this, "profile-before-change", false);
+        Services.obs.addObserver(this, "profile-before-change");
     },
 
     observe: function(aSubject, aTopic, aData) {

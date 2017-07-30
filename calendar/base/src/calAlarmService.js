@@ -210,9 +210,9 @@ calAlarmService.prototype = {
             return;
         }
 
-        Services.obs.addObserver(this, "profile-after-change", false);
-        Services.obs.addObserver(this, "xpcom-shutdown", false);
-        Services.obs.addObserver(this, "wake_notification", false);
+        Services.obs.addObserver(this, "profile-after-change");
+        Services.obs.addObserver(this, "xpcom-shutdown");
+        Services.obs.addObserver(this, "wake_notification");
 
         /* Tell people that we're alive so they can start monitoring alarms.
          */

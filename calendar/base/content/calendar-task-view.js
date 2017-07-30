@@ -281,7 +281,7 @@ function taskViewOnLoad() {
     let toolbarset = document.getElementById("customToolbars");
     toolbox.toolbarset = toolbarset;
 
-    Services.obs.notifyObservers(window, "calendar-taskview-startup-done", false);
+    Services.obs.notifyObservers(window, "calendar-taskview-startup-done");
 }
 
 /**

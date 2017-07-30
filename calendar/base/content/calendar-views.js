@@ -341,7 +341,7 @@ function scheduleMidnightUpdate(aRefreshCallback) {
         };
 
         // Add observer
-        Services.obs.addObserver(wakeObserver, "wake_notification", false);
+        Services.obs.addObserver(wakeObserver, "wake_notification");
 
         // Remove observer on unload
         window.addEventListener("unload", () => {
@@ -433,7 +433,7 @@ var categoryManagement = {
         // Add color information to the stylesheets.
         categories.forEach(categoryManagement.updateStyleSheetForCategory,
                            categoryManagement);
-        categoryPrefBranch.addObserver("", categoryManagement, false);
+        categoryPrefBranch.addObserver("", categoryManagement);
     },
 
     cleanupCategories: function() {

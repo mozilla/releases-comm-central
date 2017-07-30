@@ -134,7 +134,7 @@
 
         // set up the preference observer
         let branch = Services.prefs.getBranch("");
-        branch.addObserver("calendar.", this, false);
+        branch.addObserver("calendar.", this);
 
 
         // we want to make several attributes on the column

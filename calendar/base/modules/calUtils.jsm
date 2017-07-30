@@ -959,7 +959,7 @@ var cal = {
                 }
             }
         };
-        Services.obs.addObserver(observer, topic, false /* don't hold weakly */);
+        Services.obs.addObserver(observer, topic);
     },
 
     /**

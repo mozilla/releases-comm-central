@@ -52,7 +52,7 @@ var ltnImipBar = {
         };
 
         // Set up our observers
-        Services.obs.addObserver(ltnImipBar, "onItipItemCreation", false);
+        Services.obs.addObserver(ltnImipBar, "onItipItemCreation");
     },
 
     /**

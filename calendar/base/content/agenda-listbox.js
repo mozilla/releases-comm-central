@@ -49,7 +49,7 @@ agendaListbox.init = function() {
             }
         }
     };
-    Services.prefs.addObserver("calendar.agendaListbox", prefObserver, false);
+    Services.prefs.addObserver("calendar.agendaListbox", prefObserver);
 
     // Make sure the agenda listbox is unloaded
     window.addEventListener("unload", () => {
@@ -1097,7 +1097,7 @@ function scheduleNextCurrentEventUpdate(aRefreshCallback, aMsUntil) {
             }
         };
         // Add observer
-        Services.obs.addObserver(wakeObserver, "wake_notification", false);
+        Services.obs.addObserver(wakeObserver, "wake_notification");
 
         // Remove observer on unload
         window.addEventListener("unload", () => {
