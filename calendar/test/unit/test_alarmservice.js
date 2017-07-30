@@ -269,8 +269,12 @@ function addTestItems(aCalendar) {
     let expected = [];
     if (date.day == 1) {
         // Exceptions for missing occurrences on months with 30 days when the event starts on 31st.
-        let sequence = ["excep1", "reg", "excep2", "excep1", "reg", "excep1",
-                        "reg", "excep1", "reg", "excep2", "excep1", "reg"][date.month];
+        let sequence = [
+            "excep1", "reg", "excep2",
+            "excep1", "reg", "excep1",
+            "reg", "excep1", "reg",
+            "excep2", "excep1", "reg"
+        ][date.month];
         expected = statusAlarmSequences[sequence];
     } else if (date.day == 30 && (date.month == 2 || date.month == 3)) {
         // Exceptions for missing occurrences or different start date caused by February.

@@ -88,7 +88,7 @@ var gAlarmsPane = {
 
         picker.open(rv => {
             if (rv != nsIFilePicker.returnOK || !picker.file) {
-               return;
+                return;
             }
             document.getElementById("calendar.alarms.soundURL").value = picker.fileURL.spec;
             document.getElementById("alarmSoundCheckbox").checked = true;
