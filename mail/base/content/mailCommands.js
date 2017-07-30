@@ -188,7 +188,8 @@ function ComposeMessage(type, format, folder, messageArray)
         type == msgComposeType.ReplyToGroup ||
         type == msgComposeType.ReplyToSenderAndGroup ||
         type == msgComposeType.ReplyToList) {
-      let displayKey = ("messageKey" in gMessageDisplay.displayedMessage) ?
+      let displayKey = (gMessageDisplay.displayedMessage &&
+                        "messageKey" in gMessageDisplay.displayedMessage) ?
         gMessageDisplay.displayedMessage.messageKey : null;
       if (msgKey != displayKey) {
         // Not replying to the displayed message, so remove the selection
