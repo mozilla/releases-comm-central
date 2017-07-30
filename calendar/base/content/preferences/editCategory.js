@@ -15,7 +15,7 @@ var customColorSelected = false;
 function editCategoryLoad() {
     let winArg = window.arguments[0];
     let color = winArg.color || cal.hashColor(winArg.category);
-    let hasColor = (winArg.color != null);
+    let hasColor = !!winArg.color;
     document.getElementById("categoryName").value = winArg.category;
     document.getElementById("categoryColor").value = color;
     document.getElementById("useColor").checked = hasColor;

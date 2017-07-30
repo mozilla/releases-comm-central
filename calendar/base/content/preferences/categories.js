@@ -147,12 +147,8 @@ var gCategoriesPane = {
     editCategory: function() {
         let list = document.getElementById("categorieslist");
         let categoryNameFix = cal.formatStringForCSSRule(gCategoryList[list.selectedIndex]);
-        let currentColor = null;
-        try {
-            currentColor = categoryPrefBranch.getCharPref(categoryNameFix);
-        } catch (ex) {
-            // If the pref doesn't exist, don't bail out here.
-        }
+        let currentColor = categoryPrefBranch.getCharPref(categoryNameFix, "");
+
         let params = {
             title: editTitle,
             category: gCategoryList[list.selectedIndex],
@@ -287,13 +283,7 @@ var gCategoriesPane = {
      * @param categoryNameFix     The formatted category name.
      */
     backupData: function(categoryNameFix) {
-        let currentColor;
-        try {
-            currentColor = categoryPrefBranch.getCharPref(categoryNameFix);
-        } catch (ex) {
-            dump("Exception caught in 'backupData': " + ex + "\n");
-            currentColor = "##NEW";
-        }
+        let currentColor = categoryPrefBranch.getCharPref(categoryNameFix, "##NEW");
 
         for (let i = 0; i < parent.backupPrefList.length; i++) {
             if (categoryNameFix == parent.backupPrefList[i].name) {
