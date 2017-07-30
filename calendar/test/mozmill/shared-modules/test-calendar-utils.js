@@ -252,7 +252,7 @@ function goToDate(controller, year, month, day) {
                 ${miniMonth}/anon({"anonid":"minimonth-header"})/
                 anon({"anonid":"minmonth-popupset"})/anon({"anonid":"years-popup"})/
                 {"label":"${aYear}"}
-            `)
+            `);
         };
 
         controller.waitForElement(scrollArrow);
