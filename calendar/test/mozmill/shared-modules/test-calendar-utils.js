@@ -213,7 +213,7 @@ function switchToView(controller, view) {
  * @param day           1-based index of a day
  */
 function goToDate(controller, year, month, day) {
-    let { eid, lookup, sleep } = helpersForController(controller);
+    let { eid, lookup } = helpersForController(controller);
 
     let miniMonth = `
         /id("messengerWindow")/id("tabmail-container")/id("tabmail")/
