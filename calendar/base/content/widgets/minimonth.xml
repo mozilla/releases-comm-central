@@ -761,10 +761,10 @@
                   dayList[i] = cal.calGetString("dateFormat",
                                "day." + (tempDate.getDay() + 1) + ".short");
               } catch (e) {
-                  dayList[i] = tempDate.toLocaleDateString(undefined, { weekday: 'short' });
+                  dayList[i] = tempDate.toLocaleDateString(undefined, { weekday: "short" });
                   useOSFormat = true;
               }
-              longDayList[i] = tempDate.toLocaleDateString(undefined, { weekday: 'long' });
+              longDayList[i] = tempDate.toLocaleDateString(undefined, { weekday: "long" });
               tempDate.setDate(tempDate.getDate() + 1);
           }
 
@@ -1268,7 +1268,7 @@
       <method name="onDayActivate">
         <parameter name="aEvent"/>
         <body><![CDATA[
-          if (aEvent.originalTarget.className == 'minimonth-day') {
+          if (aEvent.originalTarget.className == "minimonth-day") {
               // the associated date might change when setting this.value if month changes
               let date = aEvent.originalTarget.date;
               if (!this.mIsReadOnly) {
@@ -1289,7 +1289,7 @@
         <parameter name="aMonths"/>
         <parameter name="aDays"/>
         <body><![CDATA[
-          if (aEvent.originalTarget.className == 'minimonth-day') {
+          if (aEvent.originalTarget.className == "minimonth-day") {
               this.moveByOffset(aYears, aMonths, aDays);
               aEvent.stopPropagation();
               aEvent.preventDefault();
@@ -1348,7 +1348,7 @@
                action="this.onDayMovement(event, 1, 0, 0);" phase="target"/>
       <handler event="keypress" keycode="VK_ESCAPE"
                phase="target"><![CDATA[
-        if (event.originalTarget.className == 'minimonth-day') {
+        if (event.originalTarget.className == "minimonth-day") {
             this.focusDate(this.mValue || this.mExtraDate);
             event.stopPropagation();
             event.preventDefault();
@@ -1356,7 +1356,7 @@
       ]]></handler>
       <handler event="keypress" keycode="VK_HOME"
                phase="target"><![CDATA[
-        if (event.originalTarget.className == 'minimonth-day') {
+        if (event.originalTarget.className == "minimonth-day") {
             let today = new Date();
             this.update(today);
             this.focusDate(today);

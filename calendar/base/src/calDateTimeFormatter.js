@@ -38,7 +38,7 @@ calDateTimeFormatter.prototype = {
     },
 
     formatDateWithoutYear: function(aDate) {
-        let dtOptions = { month: 'short', day: 'numeric' };
+        let dtOptions = { month: "short", day: "numeric" };
         return this._inTimezone(aDate, dtOptions);
     },
 
