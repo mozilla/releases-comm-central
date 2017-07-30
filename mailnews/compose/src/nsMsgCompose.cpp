@@ -5457,11 +5457,10 @@ nsresult nsMsgCompose::TagConvertible(nsIDOMElement *node,  int32_t *_retval)
       return NS_OK;
     }
 
-    if      ( // Considered convertible to plaintext: Some "simple" elements
-              // without non-convertible attributes like style, class, id,
-              // or align (see above).
+    if      ( // some "simple" elements without "style" attribute
               element.LowerCaseEqualsLiteral("br") ||
               element.LowerCaseEqualsLiteral("p") ||
+              element.LowerCaseEqualsLiteral("pre") ||
               element.LowerCaseEqualsLiteral("tt") ||
               element.LowerCaseEqualsLiteral("html") ||
               element.LowerCaseEqualsLiteral("head") ||
@@ -5492,7 +5491,6 @@ nsresult nsMsgCompose::TagConvertible(nsIDOMElement *node,  int32_t *_retval)
               element.LowerCaseEqualsLiteral("h5") ||
               element.LowerCaseEqualsLiteral("h6") ||
               element.LowerCaseEqualsLiteral("hr") ||
-              element.LowerCaseEqualsLiteral("pre") ||
               (
                 mConvertStructs
                 &&
