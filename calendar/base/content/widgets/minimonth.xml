@@ -1083,7 +1083,7 @@
 
       <method name="updateAccessibleLabel">
         <body><![CDATA[
-          var label;
+          let label;
           if (this.mValue) {
               let dateFormatter =
                   Services.intl.createDateTimeFormat(undefined, { dateStyle: "long" });
@@ -1252,7 +1252,7 @@
         <parameter name="aMonths"/>
         <parameter name="aDays"/>
         <body><![CDATA[
-          var day = new Date(this.mFocused.date.getFullYear() + aYears,
+          let day = new Date(this.mFocused.date.getFullYear() + aYears,
                              this.mFocused.date.getMonth() + aMonths,
                              this.mFocused.date.getDate() + aDays);
           this.focusDate(day);
