@@ -297,7 +297,7 @@ ltn.invitation = {
         function _content2Child(aToNode, aType, aText = "", aClear = true) {
             let nodeDoc = aToNode.ownerDocument;
             if (aClear && aToNode.hasChildNodes()) {
-                aToNode.removeChild(aToNode.firstChild);
+                aToNode.firstChild.remove();
             }
             let n = nodeDoc.createElement(aType.toLowerCase() == "newline" ? "br" : "span");
             switch (aType) {
