@@ -489,7 +489,7 @@ function deleteColumns(tblData, tblName, colNameArray, db) {
  */
 function copyTable(tblData, tblName, newTblName, db, condition, selectOptions) {
     function objcopy(obj) {
-        return eval(obj.toSource());
+        return JSON.parse(JSON.stringify(obj));
     }
 
     tblData[newTblName] = objcopy(tblData[tblName]);
