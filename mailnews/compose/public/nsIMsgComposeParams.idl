@@ -38,6 +38,12 @@ interface nsIMsgCompType {
      * so therefore does not use Resent-* headers.
      */
     const long Redirect                 = 14;
+
+    /**
+     * Add this value to a reply type to suppress quoting the current selection
+     * which may not belong to the message being replied to.
+     */
+    const long ReplyIgnoreQuote         = 100;
 };
 
 

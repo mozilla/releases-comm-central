@@ -370,6 +370,13 @@ nsMsgComposeService::OpenComposeWindow(const char *msgComposeWindowURL, nsIMsgDB
 {
   nsresult rv;
 
+  // Check for any reply type that wants to ignore the quote.
+  bool ignoreQuote = false;
+  if (type >= nsIMsgCompType::ReplyIgnoreQuote) {
+    type -= nsIMsgCompType::ReplyIgnoreQuote;
+    ignoreQuote = true;
+  }
+
   nsCOMPtr<nsIMsgIdentity> identity = aIdentity;
   if (!identity)
     GetDefaultIdentity(getter_AddRefs(identity));
@@ -403,12 +410,13 @@ nsMsgComposeService::OpenComposeWindow(const char *msgComposeWindowURL, nsIMsgDB
       pMsgComposeParams->SetIdentity(identity);
 
       // When doing a reply (except with a template) see if there's a selection that we should quote
-      if (type == nsIMsgCompType::Reply ||
-          type == nsIMsgCompType::ReplyAll ||
-          type == nsIMsgCompType::ReplyToSender ||
-          type == nsIMsgCompType::ReplyToGroup ||
-          type == nsIMsgCompType::ReplyToSenderAndGroup ||
-          type == nsIMsgCompType::ReplyToList)
+      if (!ignoreQuote &&
+          (type == nsIMsgCompType::Reply ||
+           type == nsIMsgCompType::ReplyAll ||
+           type == nsIMsgCompType::ReplyToSender ||
+           type == nsIMsgCompType::ReplyToGroup ||
+           type == nsIMsgCompType::ReplyToSenderAndGroup ||
+           type == nsIMsgCompType::ReplyToList))
       {
         nsAutoCString selHTML;
         if (NS_SUCCEEDED(GetOrigWindowSelection(type, aMsgWindow, selHTML)))

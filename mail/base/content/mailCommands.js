@@ -164,26 +164,50 @@ function GetMsgKeyFromURI(uri) {
   return (match) ? match[1] : null;
 }
 
-// type is a nsIMsgCompType and format is a nsIMsgCompFormat
+/**
+ * Compose a message.
+ *
+ * @param type   nsIMsgCompType    Type of composition (new message, reply, draft, etc.)
+ * @param format nsIMsgCompFormat  Requested format (plain text, html, default)
+ * @param folder nsIMsgFolder      Folder where the original message is stored
+ * @param messageArray             Array of messages to process, often only holding one element.
+ */
 function ComposeMessage(type, format, folder, messageArray)
 {
+  let msgComposeType = Components.interfaces.nsIMsgCompType;
+  let ignoreQuote = false;
+  let msgKey;
   if (messageArray && messageArray.length == 1) {
-    if (GetMsgKeyFromURI(messageArray[0]) != gMessageDisplay.keyForCharsetOverride) {
+    msgKey = GetMsgKeyFromURI(messageArray[0]);
+    if (msgKey != gMessageDisplay.keyForCharsetOverride) {
       msgWindow.charsetOverride = false;
+    }
+    if (type == msgComposeType.Reply ||
+        type == msgComposeType.ReplyAll ||
+        type == msgComposeType.ReplyToSender ||
+        type == msgComposeType.ReplyToGroup ||
+        type == msgComposeType.ReplyToSenderAndGroup ||
+        type == msgComposeType.ReplyToList) {
+      let displayKey = ("messageKey" in gMessageDisplay.displayedMessage) ?
+        gMessageDisplay.displayedMessage.messageKey : null;
+      if (msgKey != displayKey) {
+        // Not replying to the displayed message, so remove the selection
+        // in order not to quote from the wrong message.
+        ignoreQuote = true;
+      }
     }
   }
 
   // Check if the draft is already open in another window. If it is, just focus the window.
-  if (type == Components.interfaces.nsIMsgCompType.Draft && messageArray.length == 1) {
+  if (type == msgComposeType.Draft && messageArray.length == 1) {
     // We'll search this uri in the opened windows.
-    let messageKey = GetMsgKeyFromURI(messageArray[0]);
     let wenum = Services.wm.getEnumerator("");
     while (wenum.hasMoreElements()) {
       let w = wenum.getNext();
       // Check if it is a compose window.
       if (w.document.defaultView.gMsgCompose && w.document.defaultView.gMsgCompose.compFields.draftId) {
         let wKey = GetMsgKeyFromURI(w.document.defaultView.gMsgCompose.compFields.draftId);
-        if (wKey == messageKey) {
+        if (wKey == msgKey) {
           // Found ! just focus it...
           w.focus();
           // ...and nothing to do anymore.
@@ -192,7 +216,6 @@ function ComposeMessage(type, format, folder, messageArray)
       }
     }
   }
-  var msgComposeType = Components.interfaces.nsIMsgCompType;
   var identity = null;
   var newsgroup = null;
   var hdr;
@@ -279,7 +302,10 @@ function ComposeMessage(type, format, folder, messageArray)
         }
         else
         {
+          // Replies come here.
           let hdrIdentity = getIdentityForHeader(hdr, type);
+          if (ignoreQuote)
+            type += msgComposeType.ReplyIgnoreQuote;
           MailServices.compose.OpenComposeWindow(null, hdr, messageUri, type,
                                                  format, hdrIdentity, msgWindow);
         }
