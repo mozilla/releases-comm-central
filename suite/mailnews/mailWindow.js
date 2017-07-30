@@ -156,14 +156,15 @@ function onCopyOrDragStart(e) {
 
 function CreateMailWindowGlobals()
 {
-  // get the messenger instance
+  // Get the messenger instance.
   messenger = Components.classes["@mozilla.org/messenger;1"]
                         .createInstance(Components.interfaces.nsIMessenger);
 
-  //Create windows status feedback
+  // Create windows status feedback
   // set the JS implementation of status feedback before creating the c++ one..
   window.MsgStatusFeedback = new nsMsgStatusFeedback();
-  // double register the status feedback object as the xul browser window implementation
+  // Double register the status feedback object as the xul browser window 
+  // implementation.
   window.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
         .getInterface(Components.interfaces.nsIWebNavigation)
         .QueryInterface(Components.interfaces.nsIDocShellTreeItem).treeOwner

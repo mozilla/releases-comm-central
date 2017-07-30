@@ -53,106 +53,106 @@
         width="640" height="480"
         persist="screenX screenY width height sizemode">
 
-<stringbundleset id="stringbundleset">
-  <stringbundle id="bundle_composeMsgs" src="chrome://messenger/locale/messengercompose/composeMsgs.properties"/>
-  <stringbundle id="bundle_messenger" src="chrome://messenger/locale/messenger.properties"/>
-  <stringbundle id="bundle_offlinePrompts" src="chrome://messenger/locale/offline.properties"/>
-  <stringbundle id="languageBundle" src="chrome://global/locale/languageNames.properties"/>
-  <stringbundle id="brandBundle" src="chrome://branding/locale/brand.properties"/>
-</stringbundleset>
+  <stringbundleset id="stringbundleset">
+    <stringbundle id="bundle_composeMsgs" src="chrome://messenger/locale/messengercompose/composeMsgs.properties"/>
+    <stringbundle id="bundle_messenger" src="chrome://messenger/locale/messenger.properties"/>
+    <stringbundle id="bundle_offlinePrompts" src="chrome://messenger/locale/offline.properties"/>
+    <stringbundle id="languageBundle" src="chrome://global/locale/languageNames.properties"/>
+    <stringbundle id="brandBundle" src="chrome://branding/locale/brand.properties"/>
+  </stringbundleset>
 
-<script type="application/javascript" src="chrome://communicator/content/contentAreaClick.js"/>
-<script type="application/javascript" src="chrome://global/content/printUtils.js"/>
-<script type="application/javascript" src="chrome://messenger/content/accountUtils.js"/>
-<script type="application/javascript" src="chrome://messenger/content/widgetglue.js"/>
-<script type="application/javascript" src="chrome://messenger/content/mail-offline.js"/>
-<script type="application/javascript" src="chrome://editor/content/editor.js"/>
-<script type="application/javascript" src="chrome://messenger/content/messengercompose/MsgComposeCommands.js"/>
+  <script type="application/javascript" src="chrome://communicator/content/contentAreaClick.js"/>
+  <script type="application/javascript" src="chrome://global/content/printUtils.js"/>
+  <script type="application/javascript" src="chrome://messenger/content/accountUtils.js"/>
+  <script type="application/javascript" src="chrome://messenger/content/widgetglue.js"/>
+  <script type="application/javascript" src="chrome://messenger/content/mail-offline.js"/>
+  <script type="application/javascript" src="chrome://editor/content/editor.js"/>
+  <script type="application/javascript" src="chrome://messenger/content/messengercompose/MsgComposeCommands.js"/>
 
-<!-- drag and drop -->
-<script type="application/javascript" src="chrome://global/content/nsDragAndDrop.js"/>
+  <!-- drag and drop -->
+  <script type="application/javascript" src="chrome://global/content/nsDragAndDrop.js"/>
 
-<commandset id="composeCommands">
-  <commandset id="msgComposeCommandUpdate"
-    commandupdater="true"
-    events="focus"
-    oncommandupdate="CommandUpdate_MsgCompose()"/>
+  <commandset id="composeCommands">
+    <commandset id="msgComposeCommandUpdate"
+                commandupdater="true"
+                events="focus"
+                oncommandupdate="CommandUpdate_MsgCompose()"/>
 
-  <commandset id="editorCommands"/>
-  <commandset id="commonEditorMenuItems"/>
-  <commandset id="composerMenuItems"/>
-  <commandset id="composerEditMenuItems"/>
-  <commandset id="composerStyleMenuItems"/>
-  <commandset id="composerTableMenuItems"/>
-  <commandset id="composerListMenuItems"/>
-  <commandset id="tasksCommands"/>
-  <!-- File Menu -->
-  <command id="cmd_attachFile" oncommand="goDoCommand('cmd_attachFile')"/>
-  <command id="cmd_attachPage" oncommand="goDoCommand('cmd_attachPage')"/>
-  <command id="cmd_attachVCard" checked="false" oncommand="ToggleAttachVCard(event.target)"/>
-  <command id="cmd_save" oncommand="goDoCommand('cmd_save')"/>
-  <command id="cmd_saveAsFile" oncommand="goDoCommand('cmd_saveAsFile')"/>
-  <command id="cmd_saveAsDraft" oncommand="goDoCommand('cmd_saveAsDraft')"/>
-  <command id="cmd_saveAsTemplate" oncommand="goDoCommand('cmd_saveAsTemplate')"/>
-  <command id="cmd_sendButton" oncommand="goDoCommand('cmd_sendButton')"/>
-  <command id="cmd_sendNow" oncommand="goDoCommand('cmd_sendNow')"/>
-  <command id="cmd_sendWithCheck" oncommand="goDoCommand('cmd_sendWithCheck')"/>
-  <command id="cmd_sendLater" oncommand="goDoCommand('cmd_sendLater')"/>
+    <commandset id="editorCommands"/>
+    <commandset id="commonEditorMenuItems"/>
+    <commandset id="composerMenuItems"/>
+    <commandset id="composerEditMenuItems"/>
+    <commandset id="composerStyleMenuItems"/>
+    <commandset id="composerTableMenuItems"/>
+    <commandset id="composerListMenuItems"/>
+    <commandset id="tasksCommands"/>
+    <!-- File Menu -->
+    <command id="cmd_attachFile" oncommand="goDoCommand('cmd_attachFile')"/>
+    <command id="cmd_attachPage" oncommand="goDoCommand('cmd_attachPage')"/>
+    <command id="cmd_attachVCard" checked="false" oncommand="ToggleAttachVCard(event.target)"/>
+    <command id="cmd_save" oncommand="goDoCommand('cmd_save')"/>
+    <command id="cmd_saveAsFile" oncommand="goDoCommand('cmd_saveAsFile')"/>
+    <command id="cmd_saveAsDraft" oncommand="goDoCommand('cmd_saveAsDraft')"/>
+    <command id="cmd_saveAsTemplate" oncommand="goDoCommand('cmd_saveAsTemplate')"/>
+    <command id="cmd_sendButton" oncommand="goDoCommand('cmd_sendButton')"/>
+    <command id="cmd_sendNow" oncommand="goDoCommand('cmd_sendNow')"/>
+    <command id="cmd_sendWithCheck" oncommand="goDoCommand('cmd_sendWithCheck')"/>
+    <command id="cmd_sendLater" oncommand="goDoCommand('cmd_sendLater')"/>
 
-  <!-- Edit Menu -->
-  <!--command id="cmd_pasteQuote"/  DO NOT INCLUDE THOSE COMMANDS ELSE THE EDIT MENU WILL BE BROKEN! -->
-  <!--command id="cmd_find"/-->
-  <!--command id="cmd_findNext"/-->
-  <!--command id="cmd_findReplace"/-->
-  <command id="cmd_rewrap"
-           label="&editRewrapCmd.label;"
-           accesskey="&editRewrapCmd.accesskey;"
-           oncommand="goDoCommand('cmd_rewrap');"/>
-  <command id="cmd_renameAttachment" oncommand="goDoCommand('cmd_renameAttachment')" disabled="true"/>
-  <command id="cmd_openAttachment" oncommand="goDoCommand('cmd_openAttachment')"/>
-  <command id="cmd_account"
-           label="&accountManagerCmd.label;"
-           accesskey="&accountManagerCmd.accesskey;"
-           oncommand="goDoCommand('cmd_account');"/>
+    <!-- Edit Menu -->
+    <!--command id="cmd_pasteQuote"/  DO NOT INCLUDE THOSE COMMANDS ELSE THE EDIT MENU WILL BE BROKEN! -->
+    <!--command id="cmd_find"/-->
+    <!--command id="cmd_findNext"/-->
+    <!--command id="cmd_findReplace"/-->
+    <command id="cmd_rewrap"
+             label="&editRewrapCmd.label;"
+             accesskey="&editRewrapCmd.accesskey;"
+             oncommand="goDoCommand('cmd_rewrap');"/>
+    <command id="cmd_renameAttachment" oncommand="goDoCommand('cmd_renameAttachment')" disabled="true"/>
+    <command id="cmd_openAttachment" oncommand="goDoCommand('cmd_openAttachment')"/>
+    <command id="cmd_account"
+             label="&accountManagerCmd.label;"
+             accesskey="&accountManagerCmd.accesskey;"
+             oncommand="goDoCommand('cmd_account');"/>
 
-  <!-- Options Menu -->
-  <command id="cmd_selectAddress" oncommand="goDoCommand('cmd_selectAddress')"/>
-  <command id="cmd_outputFormat" oncommand="OutputFormatMenuSelect(event.target)"/>
-  <command id="cmd_quoteMessage" oncommand="goDoCommand('cmd_quoteMessage')"/>
-</commandset>
+    <!-- Options Menu -->
+    <command id="cmd_selectAddress" oncommand="goDoCommand('cmd_selectAddress')"/>
+    <command id="cmd_outputFormat" oncommand="OutputFormatMenuSelect(event.target)"/>
+    <command id="cmd_quoteMessage" oncommand="goDoCommand('cmd_quoteMessage')"/>
+  </commandset>
 
-<broadcasterset id="composeBroadcasters">
-  <broadcaster id="Communicator:WorkMode"/>
-  <broadcaster id="args" value="editorType=default"/>
-</broadcasterset>
+  <broadcasterset id="composeBroadcasters">
+    <broadcaster id="Communicator:WorkMode"/>
+    <broadcaster id="args" value="editorType=default"/>
+  </broadcasterset>
 
-<broadcasterset id="mainBroadcasterSet"/>
+  <broadcasterset id="mainBroadcasterSet"/>
 
-<keyset id="tasksKeys">
-  <!-- File Menu -->
-  <key id="key_send" keycode="&sendCmd.keycode;" observes="cmd_sendWithCheck" modifiers="accel"/>
-  <key id="key_sendLater" keycode="&sendLaterCmd.keycode;" observes="cmd_sendLater" modifiers="accel, shift"/>
+  <keyset id="tasksKeys">
+    <!-- File Menu -->
+    <key id="key_send" keycode="&sendCmd.keycode;" observes="cmd_sendWithCheck" modifiers="accel"/>
+    <key id="key_sendLater" keycode="&sendLaterCmd.keycode;" observes="cmd_sendLater" modifiers="accel, shift"/>
 
-  <!-- Edit Menu -->
-  <key id="key_rewrap" key="&editRewrapCmd.key;" command="cmd_rewrap" modifiers="accel"/>
+    <!-- Edit Menu -->
+    <key id="key_rewrap" key="&editRewrapCmd.key;" command="cmd_rewrap" modifiers="accel"/>
 
-  <!-- Options Menu -->
-  <!-- key id="key_selectAddresses" key="&selectAddressCmd.key;" command="cmd_selectAddress"/ -->
+    <!-- Options Menu -->
+    <!-- key id="key_selectAddresses" key="&selectAddressCmd.key;" command="cmd_selectAddress"/ -->
 
-  <key id="showHideSidebar"/>
-  <!-- Tab/F6 Keys -->
-  <key keycode="VK_TAB" oncommand="SwitchElementFocus(event);" modifiers="control"/>
-  <key keycode="VK_TAB" oncommand="SwitchElementFocus(event);" modifiers="control,shift"/>
-  <key keycode="VK_F6" oncommand="SwitchElementFocus(event);" modifiers="control"/>
-  <key keycode="VK_F6" oncommand="SwitchElementFocus(event);" modifiers="control,shift"/>
-  <key keycode="VK_F6" oncommand="SwitchElementFocus(event);" modifiers="shift"/>
-  <key keycode="VK_F6" oncommand="SwitchElementFocus(event);"/>
-  <key keycode="VK_ESCAPE" oncommand="handleEsc();"/>
-</keyset>
-<keyset id="editorKeys"/>
-<keyset id="composeKeys">
-  <key id="key_renameAttachment"/>
-</keyset>
+    <key id="showHideSidebar"/>
+    <!-- Tab/F6 Keys -->
+    <key keycode="VK_TAB" oncommand="SwitchElementFocus(event);" modifiers="control"/>
+    <key keycode="VK_TAB" oncommand="SwitchElementFocus(event);" modifiers="control,shift"/>
+    <key keycode="VK_F6" oncommand="SwitchElementFocus(event);" modifiers="control"/>
+    <key keycode="VK_F6" oncommand="SwitchElementFocus(event);" modifiers="control,shift"/>
+    <key keycode="VK_F6" oncommand="SwitchElementFocus(event);" modifiers="shift"/>
+    <key keycode="VK_F6" oncommand="SwitchElementFocus(event);"/>
+    <key keycode="VK_ESCAPE" oncommand="handleEsc();"/>
+  </keyset>
+  <keyset id="editorKeys"/>
+  <keyset id="composeKeys">
+    <key id="key_renameAttachment"/>
+  </keyset>
 
   <popupset id="contentAreaContextSet"/>
 
@@ -632,26 +632,26 @@
     <observes element="MsgHeadersToolbar" attribute="collapsed"/>
   </splitter>
 
-<!-- sidebar/toolbar/content/status -->
-<hbox id="sidebar-parent" flex="1">
-  <!-- From sidebarOverlay.xul -->
-  <vbox id="sidebar-box" class="chromeclass-extrachrome" hidden="true"/>
-  <splitter id="sidebar-splitter" class="chromeclass-extrachrome" hidden="true"/>
+  <!-- sidebar/toolbar/content/status -->
+  <hbox id="sidebar-parent" flex="1">
+    <!-- From sidebarOverlay.xul -->
+    <vbox id="sidebar-box" class="chromeclass-extrachrome" hidden="true"/>
+    <splitter id="sidebar-splitter" class="chromeclass-extrachrome" hidden="true"/>
 
-  <!-- The mail message body frame -->
-  <vbox id="appcontent" flex="1">
-    <findbar id="FindToolbar" browserid="content-frame"/>
-    <editor id="content-frame"
-            type="content"
-            primary="true"
-            src="about:blank"
-            name="browser.message.body"
-            minheight="100"
-            flex="1"
-            ondblclick="EditorDblClick(event);"
-            context="contentAreaContextMenu"/>
-  </vbox>
-</hbox>
+    <!-- The mail message body frame -->
+    <vbox id="appcontent" flex="1">
+      <findbar id="FindToolbar" browserid="content-frame"/>
+      <editor id="content-frame"
+              type="content"
+              primary="true"
+              src="about:blank"
+              name="browser.message.body"
+              minheight="100"
+              flex="1"
+              ondblclick="EditorDblClick(event);"
+              context="contentAreaContextMenu"/>
+    </vbox>
+  </hbox>
 
   <hbox>
     <notificationbox id="attachmentNotificationBox"
@@ -659,14 +659,13 @@
                      notificationside="bottom"/>
   </hbox>
 
-
   <statusbar id="status-bar" class="chromeclass-status">
     <statusbarpanel id="component-bar"/>
     <statusbarpanel id="statusText" flex="1"/>
-    <statusbarpanel class="statusbarpanel-progress" id="statusbar-progresspanel" collapsed="true">
+    <statusbarpanel id="statusbar-progresspanel" class="statusbarpanel-progress" collapsed="true">
       <progressmeter id="compose-progressmeter" class="progressmeter-statusbar" mode="normal" value="0"/>
     </statusbarpanel>
-    <statusbarpanel checkfunc="MailCheckBeforeOfflineChange()" id="offline-status" class="statusbarpanel-iconic"/>
+    <statusbarpanel id="offline-status" class="statusbarpanel-iconic" checkfunc="MailCheckBeforeOfflineChange()"/>
   </statusbar>
 
 </window>

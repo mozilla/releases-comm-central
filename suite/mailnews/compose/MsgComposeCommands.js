@@ -1163,10 +1163,12 @@ function ComposeStartup(aParams)
     FillIdentityList(identityList);
 
   if (!params) {
-    // This code will go away soon as now arguments are passed to the window using a object of type nsMsgComposeParams instead of a string
-
-    params = Components.classes["@mozilla.org/messengercompose/composeparams;1"].createInstance(Components.interfaces.nsIMsgComposeParams);
-    params.composeFields = Components.classes["@mozilla.org/messengercompose/composefields;1"].createInstance(Components.interfaces.nsIMsgCompFields);
+    // This code will go away soon as now arguments are passed to the window
+    // using a object of type nsMsgComposeParams instead of a string.
+    params = Components.classes["@mozilla.org/messengercompose/composeparams;1"]
+               .createInstance(Components.interfaces.nsIMsgComposeParams);
+    params.composeFields = Components.classes["@mozilla.org/messengercompose/composefields;1"]
+                             .createInstance(Components.interfaces.nsIMsgCompFields);
 
     if (args) { //Convert old fashion arguments into params
       var composeFields = params.composeFields;
