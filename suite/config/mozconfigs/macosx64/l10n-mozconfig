@@ -18,3 +18,6 @@ export MOZILLA_OFFICIAL=1
 MOZ_ADDON_SIGNING=0
 # Disable enforcing that add-ons are signed by the trusted root
 MOZ_REQUIRE_SIGNING=0
+
+# XXX hack to work around dsymutil failing on OSX builds (bug 1380381, 1385855)
+ac_add_options RUSTFLAGS='-C debuginfo=1'

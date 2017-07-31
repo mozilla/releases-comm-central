@@ -19,3 +19,6 @@ MOZ_ADDON_SIGNING=0
 MOZ_REQUIRE_SIGNING=0
 
 ac_add_options --with-ccache
+
+# XXX hack to work around dsymutil failing on OSX builds (bug 1380381, 1385855)
+ac_add_options RUSTFLAGS='-C debuginfo=1'
