@@ -48,6 +48,9 @@
   ; VirtualStore directory.
   ${CleanVirtualStore}
 
+  ; Register AccessibleHandler.dll with COM (this writes to HKLM)
+  ${RegisterAccessibleHandler}
+
   ; Remove talkback if it is present (remove after bug 386760 is fixed)
   ${If} ${FileExists} "$INSTDIR\extensions\talkback@mozilla.org\"
     RmDir /r "$INSTDIR\extensions\talkback@mozilla.org\"
@@ -265,6 +268,11 @@
 !macroend
 !define SetUninstallKeys "!insertmacro SetUninstallKeys"
 
+!macro RegisterAccessibleHandler
+  ${RegisterDLL} "$INSTDIR\AccessibleHandler.dll"
+!macroend
+!define RegisterAccessibleHandler "!insertmacro RegisterAccessibleHandler"
+
 ; Removes various registry entries for reasons noted below (does not use SHCTX).
 !macro RemoveDeprecatedKeys
   ; Remove the app compatibility registry key
@@ -313,7 +321,9 @@
   ; should be ${FileMainEXE} so if it is in use the CheckForFilesInUse macro
   ; returns after the first check.
   Push "end"
+  Push "AccessibleHandler.dll"
   Push "AccessibleMarshal.dll"
+  Push "IA2Marshal.dll"
   Push "freebl3.dll"
   Push "nssckbi.dll"
   Push "nspr4.dll"

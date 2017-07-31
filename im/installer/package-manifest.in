@@ -361,7 +361,10 @@
 #ifdef ACCESSIBILITY
 @RESPATH@/components/accessibility.xpt
 #ifdef XP_WIN32
+@BINPATH@/Accessible.tlb
+@BINPATH@/AccessibleHandler.dll
 @BINPATH@/AccessibleMarshal.dll
+@BINPATH@/IA2Marshal.dll
 #endif
 #endif
 
