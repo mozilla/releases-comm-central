@@ -964,7 +964,6 @@ toolbar:not([mode="text"]) > toolbarpaletteitem > #button-chat > stack {
     box-shadow: 0 1px 0 rgba(253, 253, 253, 0.45) inset;
     background-image: linear-gradient(var(--toolbarHighlight),
                                       var(--toolbarHighlight));
-    background-color: -moz-dialog;
     padding-bottom: 1px !important;
     padding-top: 2px;
   }
@@ -976,6 +975,7 @@ toolbar:not([mode="text"]) > toolbarpaletteitem > #button-chat > stack {
   #navigation-toolbox > #mail-toolbar-menubar2:not(:-moz-lwtheme) {
     -moz-appearance: none;
     border-bottom: 1px solid #aabccf;
+    background-color: -moz-dialog;
   }
 
   #mail-toolbar-menubar2:-moz-lwtheme {
