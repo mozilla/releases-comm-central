@@ -281,20 +281,6 @@ toolbar[brighttext] #button-chat-accounts {
   list-style-image: url("chrome://messenger/skin/icons/chat-toolbar.svg#accounts-inverted");
 }
 
-.tabmail-tab[type="chat"],
-.alltabs-item[type="chat"] {
-  list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#chat");
-}
-
-.tabmail-tab[type="chat"] > .tab-stack > .tab-content > .tab-icon-image {
-  width: 18px;
-  height: 18px;
-  margin-top: 0;
-  margin-inline-end: 5px;
-  margin-bottom: -1px;
-  margin-inline-start: -1px;
-}
-
 #statusTypeIcon[status="available"],
 #statusTypeAvailable,
 .statusTypeIcon[status="available"],
@@ -426,10 +412,5 @@ richlistitem[state="disconnected"] .accountStateIcon {
 
   #button-chat-accounts {
     list-style-image: url("chrome://messenger/skin/icons/chat-toolbar.svg#accounts-flat");
-  }
-
-  .tabmail-tab[type="chat"],
-  .alltabs-item[type="chat"] {
-    list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#chat-flat");
   }
 }

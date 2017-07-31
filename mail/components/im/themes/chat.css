@@ -643,3 +643,10 @@ toolbar[mode="text"] #statusTypeIcon > .toolbarbutton-icon {
   border-color: ThreeDShadow;
   background-color: -moz-field;
 }
+
+.tabmail-tab[type="chat"],
+.alltabs-item[type="chat"] {
+  list-style-image: url("chrome://messenger/skin/icons/chat.svg");
+  -moz-context-properties: fill;
+  fill: currentColor;
+}
