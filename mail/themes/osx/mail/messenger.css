@@ -39,7 +39,7 @@
   --lwt-header-image: none;
 }
 
-#titlebar {
+#messengerWindow:not([tabsintitlebar]) #titlebar {
   height: 22px;
 }
 
@@ -56,10 +56,6 @@
   #tabmail:-moz-window-inactive {
     border-top-color: rgba(0, 0, 0, 0.05);
   }
-}
-
-#messengerWindow[tabsintitlebar="true"] #titlebar-content {
-  margin-bottom: 9px;
 }
 
 #messengerWindow:not([tabsintitlebar="true"]) >
@@ -437,33 +433,24 @@ notification[type="critical"] .messageCloseButton:not(:hover) {
 
 /* ::::: Tabs in Titlebar :::::: */
 
+#messengerWindow[tabsintitlebar="true"] > #titlebar {
+  min-height: 30px;
+}
+
 #messengerWindow[tabsintitlebar="true"]:not(:-moz-lwtheme) > #titlebar {
   -moz-appearance: -moz-window-titlebar;
 }
 
-#messengerWindow:not([tabsintitlebar]) #titlebar-buttonbox-container {
+#messengerWindow:not([tabsintitlebar]) > #titlebar > #titlebar-content > #titlebar-buttonbox-container {
   margin-top: 3px;
-  margin-inline-start: 7px;
 }
 
-#messengerWindow[tabsintitlebar="true"] #titlebar-buttonbox-container,
-#messengerWindow[tabsintitlebar="true"] #titlebar-fullscreen-button {
-  position: relative;
-  margin-top: 11px;
-  margin-bottom: 3px;
-  padding-bottom: 0px;
+#messengerWindow[tabsintitlebar] > #titlebar > #titlebar-content > #titlebar-buttonbox-container,
+#messengerWindow[tabsintitlebar] > #titlebar > #titlebar-content > #titlebar-fullscreen-button {
+  margin-top: 6px;
 }
 
-@media (-moz-mac-yosemite-theme) {
-  #messengerWindow[tabsintitlebar="true"][sizemode="fullscreen"] #titlebar-buttonbox-container,
-  #messengerWindow[tabsintitlebar="true"][sizemode="fullscreen"] #titlebar-fullscreen-button {
-    margin-top: 0px;
-    margin-bottom: 0px;
-    padding-bottom: 14px;
-  }
-}
-
-#messengerWindow[tabsintitlebar="true"] #titlebar-spacer {
+#titlebar-spacer {
   pointer-events: none;
 }
 
@@ -473,18 +460,19 @@ notification[type="critical"] .messageCloseButton:not(:hover) {
 
 /* NB: these would be margin-inline-start/end if it wasn't for the fact that OS X
  * doesn't reverse the order of the items in the titlebar in RTL mode. */
-#messengerWindow[tabsintitlebar="true"] .titlebar-placeholder[type="caption-buttons"],
-#messengerWindow[tabsintitlebar="true"] #titlebar-buttonbox {
+.titlebar-placeholder[type="caption-buttons"],
+#titlebar-buttonbox {
   margin-left: 7px;
 }
 
-#messengerWindow[tabsintitlebar="true"] .titlebar-placeholder[type="fullscreen-button"] {
+.titlebar-placeholder[type="fullscreen-button"],
+#titlebar-fullscreen-button {
   margin-right: 7px;
+  margin-left: 7px;
 }
 
 #titlebar-fullscreen-button {
   -moz-appearance: -moz-mac-fullscreen-button;
-  margin-right: 7px;
 }
 
 #titlebar-buttonbox {

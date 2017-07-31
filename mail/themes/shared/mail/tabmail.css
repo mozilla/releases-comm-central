@@ -32,6 +32,15 @@
   margin-bottom: -1px;
 }
 
+.tabmail-tabs {
+  min-height: var(--tabHeight);
+}
+
+:root[tabsintitlebar][sizemode=normal] #mail-toolbar-menubar2[autohide=true] ~
+  #tabs-toolbar > #tabbar-toolbar {
+  padding-inline-start: 40px;
+}
+
 .tabmail-tab {
   -moz-appearance: none;
   -moz-box-align: stretch;

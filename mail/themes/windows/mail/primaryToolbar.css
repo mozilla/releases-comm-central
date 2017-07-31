@@ -13,22 +13,16 @@
 
 @namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
 
-/* We want a 4px gap between the tabs-toolbar and the mail-toolbar-menubar2
-   when the toolbar-menu is displayed, and a 16px gap when it is not. 1px is
-   taken care of by the (light) outer shadow of the tab, the remaining 3/15
-   are these margins. */
-#mail-toolbar-menubar2:not([autohide="true"]) ~ #tabs-toolbar,
-#mail-toolbar-menubar2[autohide="true"]:not([inactive]) ~ #tabs-toolbar {
-  margin-top: 3px;
-}
-
-#messengerWindow[tabsintitlebar][sizemode="normal"]
-#mail-toolbar-menubar2[autohide="true"][inactive] ~ #tabs-toolbar {
-  margin-top: 15px;
-}
-
 @media (-moz-windows-compositor: 0),
        (-moz-windows-default-theme: 0) {
+/* We want a 4px gap between the tabs-toolbar and the mail-toolbar-menubar2
+   when the toolbar-menu is displayed. 1px is taken care of by the (light)
+   outer shadow of the tab, the remaining 3 is these margins. */
+  #mail-toolbar-menubar2:not([autohide="true"]) ~ #tabs-toolbar,
+  #mail-toolbar-menubar2[autohide="true"]:not([inactive]) ~ #tabs-toolbar {
+    margin-top: 3px;
+  }
+
   #messengerWindow[tabsintitlebar] > #navigation-toolbox:not(:-moz-lwtheme) {
     color: CaptionText;
   }
@@ -40,6 +34,10 @@
 
 #navigation-toolbox {
   -moz-appearance: none;
+}
+
+:root[sizemode="maximized"] #tabs-toolbar {
+  margin-top: -1px;
 }
 
 #tabs-toolbar {
@@ -997,16 +995,6 @@ toolbar:not([mode="text"]) > toolbarpaletteitem > #button-chat > stack {
     top: 50%;
     width: -moz-available;
     z-index: -1;
-  }
-
-  #messengerWindow[tabsintitlebar][sizemode="normal"] > #navigation-toolbox >
-  #tabs-toolbar {
-    margin-top: 16px !important;
-  }
-
-  #messengerWindow[tabsintitlebar][sizemode="maximized"] > #navigation-toolbox >
-  #tabs-toolbar {
-    margin-top: 0 !important;
   }
 }
 

@@ -17,6 +17,7 @@ Components.utils.import("resource:///modules/sessionStoreManager.js");
 Components.utils.import("resource:///modules/summaryFrameManager.js");
 Components.utils.import("resource:///modules/MailUtils.js");
 Components.utils.import("resource://gre/modules/Services.jsm");
+Components.utils.import("resource://gre/modules/AppConstants.jsm");
 Components.utils.import("resource://gre/modules/Color.jsm");
 
 /* This is where functions related to the 3 pane window are kept */
@@ -354,18 +355,18 @@ function OnLoadMessenger()
   UpdateMailPaneConfig(false);
   document.loadBindingDocument('chrome://global/content/bindings/textbox.xml');
 
-#ifdef XP_WIN
-  // On Win8 set an attribute when the window frame color is too dark for black text.
-  if (window.matchMedia("(-moz-os-version: windows-win8)").matches &&
-      window.matchMedia("(-moz-windows-default-theme)").matches) {
-    let windowFrameColor = new Color(...Cu.import("resource:///modules/Windows8WindowFrameColor.jsm", {})
-                                          .Windows8WindowFrameColor.get());
-    // Default to black for foreground text.
-    if (!windowFrameColor.isContrastRatioAcceptable(new Color(0, 0, 0))) {
-      document.documentElement.setAttribute("darkwindowframe", "true");
+  if (AppConstants.platform == "win") {
+    // On Win8 set an attribute when the window frame color is too dark for black text.
+    if (window.matchMedia("(-moz-os-version: windows-win8)").matches &&
+        window.matchMedia("(-moz-windows-default-theme)").matches) {
+      let windowFrameColor = new Color(...Cu.import("resource:///modules/Windows8WindowFrameColor.jsm", {})
+                                            .Windows8WindowFrameColor.get());
+      // Default to black for foreground text.
+      if (!windowFrameColor.isContrastRatioAcceptable(new Color(0, 0, 0))) {
+        document.documentElement.setAttribute("darkwindowframe", "true");
+      }
     }
   }
-#endif
 
   ToolbarIconColor.init();
 
@@ -1660,69 +1661,68 @@ function InitPageMenu(menuPopup, event) {
 
 var TabsInTitlebar = {
   init: function () {
-#ifdef CAN_DRAW_IN_TITLEBAR
-    // Don't trust the initial value of the sizemode attribute; wait for the
-    // resize event.
-    this._readPref();
-    Services.prefs.addObserver(this._drawInTitlePref, this, false);
-    Services.prefs.addObserver(this._autoHidePref, this, false);
+    if (AppConstants.CAN_DRAW_IN_TITLEBAR) {
+      // Don't trust the initial value of the sizemode attribute; wait for the
+      // resize event.
+      this._readPref();
+      Services.prefs.addObserver(this._drawInTitlePref, this, false);
+      Services.prefs.addObserver(this._autoHidePref, this, false);
 
-    this.allowedBy("sizemode", false);
-    window.addEventListener("resize", function (event) {
-      if (event.target != window)
-        return;
-      TabsInTitlebar.allowedBy("sizemode", true);
-    }, false);
+      this.allowedBy("sizemode", false);
+      window.addEventListener("resize", function (event) {
+        if (event.target != window)
+          return;
+        TabsInTitlebar.allowedBy("sizemode", true);
+      }, false);
 
-    // We need to update the appearance of the titlebar when the menu changes
-    // from the active to the inactive state. We can't, however, rely on
-    // DOMMenuBarInactive, because the menu fires this event and then removes
-    // the inactive attribute after an event-loop spin.
-    //
-    // Because updating the appearance involves sampling the heights and
-    // margins of various elements, it's important that the layout be more or
-    // less settled before updating the titlebar. So instead of listening to
-    // DOMMenuBarActive and DOMMenuBarInactive, we use a MutationObserver to
-    // watch the "invalid" attribute directly.
-    let menu = document.getElementById("mail-toolbar-menubar2");
-    this._menuObserver = new MutationObserver(this._onMenuMutate);
-    this._menuObserver.observe(menu, {attributes: true});
+      // We need to update the appearance of the titlebar when the menu changes
+      // from the active to the inactive state. We can't, however, rely on
+      // DOMMenuBarInactive, because the menu fires this event and then removes
+      // the inactive attribute after an event-loop spin.
+      //
+      // Because updating the appearance involves sampling the heights and
+      // margins of various elements, it's important that the layout be more or
+      // less settled before updating the titlebar. So instead of listening to
+      // DOMMenuBarActive and DOMMenuBarInactive, we use a MutationObserver to
+      // watch the "invalid" attribute directly.
+      let menu = document.getElementById("mail-toolbar-menubar2");
+      this._menuObserver = new MutationObserver(this._onMenuMutate);
+      this._menuObserver.observe(menu, {attributes: true});
 
-    let sizeMode = document.getElementById("messengerWindow");
-    this._sizeModeObserver = new MutationObserver(this._onSizeModeMutate);
-    this._sizeModeObserver.observe(sizeMode, {attributes: true});
+      let sizeMode = document.getElementById("messengerWindow");
+      this._sizeModeObserver = new MutationObserver(this._onSizeModeMutate);
+      this._sizeModeObserver.observe(sizeMode, {attributes: true});
 
-    this._initialized = true;
-#endif
+      this._initialized = true;
+    }
   },
 
   allowedBy: function (condition, allow) {
-#ifdef CAN_DRAW_IN_TITLEBAR
-    if (allow) {
-      if (condition in this._disallowed) {
-        delete this._disallowed[condition];
-        this._update(true);
-      }
-    } else {
-      if (!(condition in this._disallowed)) {
-        this._disallowed[condition] = null;
-        this._update(true);
+    if (AppConstants.CAN_DRAW_IN_TITLEBAR) {
+      if (allow) {
+        if (condition in this._disallowed) {
+          delete this._disallowed[condition];
+          this._update(true);
+        }
+      } else {
+        if (!(condition in this._disallowed)) {
+          this._disallowed[condition] = null;
+          this._update(true);
+        }
       }
     }
-#endif
   },
 
   updateAppearance: function updateAppearance(aForce) {
-#ifdef CAN_DRAW_IN_TITLEBAR
-    this._update(aForce);
-#endif
+    if (AppConstants.CAN_DRAW_IN_TITLEBAR) {
+      this._update(aForce);
+    }
   },
 
   get enabled() {
     return document.documentElement.getAttribute("tabsintitlebar") == "true";
   },
 
-#ifdef CAN_DRAW_IN_TITLEBAR
   observe: function (subject, topic, data) {
     if (topic == "nsPref:changed")
       this._readPref();
@@ -1802,31 +1802,38 @@ var TabsInTitlebar = {
 
       // Get the full height of the tabs toolbar:
       let tabsToolbar = $("tabs-toolbar");
-      let fullTabsHeight = rect(tabsToolbar).height;
+      let tabsStyles = window.getComputedStyle(tabsToolbar);
+      let fullTabsHeight = rect(tabsToolbar).height + verticalMargins(tabsStyles);
       let gNavToolbox = $("navigation-toolbox");
       // Buttons first:
       let captionButtonsBoxWidth = rect($("titlebar-buttonbox")).width;
 
-#ifdef XP_MACOSX
-      let secondaryButtonWidth = rect($("titlebar-fullscreen-button")).width;
-#endif
-
-      // Get the height and margins separately for the menubar
-      let menuHeight = rect(menubar).height;
-      let menuStyles = window.getComputedStyle(menubar);
-      let fullMenuHeight = verticalMargins(menuStyles) + menuHeight;
-      let tabsStyles = window.getComputedStyle(tabsToolbar);
-      fullTabsHeight += verticalMargins(tabsStyles);
-
-      // If the #tabmail overlaps the tabbar using negative margins, we need to
-      // take those into account so we don't overlap it
-      let tabmailMarginTop = parseFloat(window.getComputedStyle($("tabmail")).marginTop);
-      tabmailMarginTop = Math.min(tabmailMarginTop, 0);
+      let secondaryButtonsWidth, menuHeight, fullMenuHeight, menuStyles;
+      if (AppConstants.platform == "macosx") {
+        secondaryButtonsWidth = rect($("titlebar-fullscreen-button")).width;
+        // No need to look up the menubar stuff on OS X:
+        menuHeight = 0;
+        fullMenuHeight = 0;
+      } else {
+        // Otherwise, get the height and margins separately for the menubar
+        menuHeight = rect(menubar).height;
+        menuStyles = window.getComputedStyle(menubar);
+        fullMenuHeight = verticalMargins(menuStyles) + menuHeight;
+      }
 
       // And get the height of what's in the titlebar:
       let titlebarContentHeight = rect(titlebarContent).height;
 
       // Begin setting CSS properties which will cause a reflow
+
+      if (AppConstants.isPlatformAndVersionAtLeast("win", "10.0")) {
+        if (!menuHeight && window.windowState == window.STATE_MAXIMIZED) {
+          titlebarContentHeight = Math.max(titlebarContentHeight, fullTabsHeight);
+          $("titlebar-buttonbox").style.height = titlebarContentHeight + "px";
+        } else {
+          $("titlebar-buttonbox").style.removeProperty("height");
+        }
+      }
 
       // If the menubar is around (menuHeight is non-zero), try to adjust
       // its full height (i.e. including margins) to match the titlebar,
@@ -1862,47 +1869,29 @@ var TabsInTitlebar = {
       let tabAndMenuHeight = fullTabsHeight + fullMenuHeight;
 
       if (tabAndMenuHeight > titlebarContentHeight) {
-        // We need to increase the titlebar content's outer height
-        // (ie including margins) to match the tab and menu height:
+        // We need to increase the titlebar content's outer height (ie including
+        // margins) to match the tab and menu height:
         let extraMargin = tabAndMenuHeight - titlebarContentHeight;
-        // We need to reduce the height by the amount of navbar overlap
-        // (this value is 0 or negative):
-        extraMargin += tabmailMarginTop;
-        // On non-OSX, we can just use bottom margin:
-#ifndef XP_MACOSX
-        titlebarContent.style.marginBottom = extraMargin + "px";
-#endif
+        if (AppConstants.platform != "macosx") {
+          titlebarContent.style.marginBottom = extraMargin + "px";
+        }
         titlebarContentHeight += extraMargin;
       } else {
         titlebarContent.style.removeProperty("margin-bottom");
       }
 
-      // Then we bring up the titlebar by the same amount, but we add any
-      // negative margin:
-      titlebar.style.marginBottom = "-" + titlebarContentHeight + "px";
+      // Then add a negative margin to the titlebar, so that the following elements
+      // will overlap it by the greater of the titlebar height or the tabstrip+menu.
+      let maxTitlebarOrTabsHeight = Math.max(titlebarContentHeight, tabAndMenuHeight);
+      titlebar.style.marginBottom = "-" + maxTitlebarOrTabsHeight + "px";
 
       // Finally, size the placeholders:
-#ifdef XP_MACOSX
-      this._sizePlaceholder("fullscreen-button", secondaryButtonWidth);
-#endif
+      if (AppConstants.platform == "macosx") {
+        this._sizePlaceholder("fullscreen-button", secondaryButtonWidth);
+      }
 
       this._sizePlaceholder("caption-buttons", captionButtonsBoxWidth);
 
-      if (!this._draghandles) {
-        this._draghandles = {};
-        let tmp = {};
-        Components.utils.import("resource://gre/modules/WindowDraggingUtils.jsm", tmp);
-
-        let mouseDownCheck = function () {
-          return !this._dragBindingAlive && TabsInTitlebar.enabled;
-        };
-
-        this._draghandles.tabsToolbar = new tmp.WindowDraggingElement(tabsToolbar);
-        this._draghandles.tabsToolbar.mouseDownCheck = mouseDownCheck;
-
-        this._draghandles.navToolbox = new tmp.WindowDraggingElement(gNavToolbox);
-        this._draghandles.navToolbox.mouseDownCheck = mouseDownCheck;
-      }
     } else {
       document.documentElement.removeAttribute("tabsintitlebar");
       updateTitlebarDisplay();
@@ -1921,55 +1910,51 @@ var TabsInTitlebar = {
     Array.from(document.querySelectorAll(".titlebar-placeholder[type='"+ type +"']"))
          .forEach(node => node.width = width);
   },
-#endif
 
   uninit: function () {
-#ifdef CAN_DRAW_IN_TITLEBAR
-    this._initialized = false;
-    Services.prefs.removeObserver(this._drawInTitlePref, this);
-    Services.prefs.removeObserver(this._autoHidePref, this);
-    this._menuObserver.disconnect();
-#endif
+    if (AppConstants.CAN_DRAW_IN_TITLEBAR) {
+      this._initialized = false;
+      Services.prefs.removeObserver(this._drawInTitlePref, this);
+      Services.prefs.removeObserver(this._autoHidePref, this);
+      this._menuObserver.disconnect();
+    }
   }
 };
 
-#ifdef CAN_DRAW_IN_TITLEBAR
-function updateTitlebarDisplay() {
-
-#ifdef XP_MACOSX
-    // OS X and the other platforms differ enough to necessitate this kind of
-    // special-casing. Like the other platforms where we CAN_DRAW_IN_TITLEBAR,
-    // we draw in the OS X titlebar when putting the tabs up there. However, OS X
-    // also draws in the titlebar when a lightweight theme is applied, regardless
-    // of whether or not the tabs are drawn in the titlebar.
-    if (TabsInTitlebar.enabled) {
-      document.documentElement.setAttribute("chromemargin-nonlwtheme", "0,2,2,2");
-      document.documentElement.setAttribute("chromemargin", "0,2,2,2");
-      document.documentElement.setAttribute("tabsintitlebar", "true");
-    } else {
-      // We set chromemargin-nonlwtheme to "" instead of removing it as a way of
-      // making sure that LightweightThemeConsumer doesn't take it upon itself to
-      // detect this value again if and when we do a lwtheme state change.
-      document.documentElement.setAttribute("chromemargin-nonlwtheme", "");
-      let hasLWTheme = document.documentElement.hasAttribute("lwtheme");
-      if (hasLWTheme) {
+if (AppConstants.CAN_DRAW_IN_TITLEBAR) {
+  function updateTitlebarDisplay() {
+    if (AppConstants.platform == "macosx") {
+      // OS X and the other platforms differ enough to necessitate this kind of
+      // special-casing. Like the other platforms where we CAN_DRAW_IN_TITLEBAR,
+      // we draw in the OS X titlebar when putting the tabs up there. However, OS X
+      // also draws in the titlebar when a lightweight theme is applied, regardless
+      // of whether or not the tabs are drawn in the titlebar.
+      if (TabsInTitlebar.enabled) {
+        document.documentElement.setAttribute("chromemargin-nonlwtheme", "0,2,2,2");
         document.documentElement.setAttribute("chromemargin", "0,2,2,2");
+        document.documentElement.setAttribute("tabsintitlebar", "true");
       } else {
-        document.documentElement.removeAttribute("chromemargin");
+        // We set chromemargin-nonlwtheme to "" instead of removing it as a way of
+        // making sure that LightweightThemeConsumer doesn't take it upon itself to
+        // detect this value again if and when we do a lwtheme state change.
+        document.documentElement.setAttribute("chromemargin-nonlwtheme", "");
+        let hasLWTheme = document.documentElement.hasAttribute("lwtheme");
+        if (hasLWTheme) {
+          document.documentElement.setAttribute("chromemargin", "0,2,2,2");
+        } else {
+          document.documentElement.removeAttribute("chromemargin");
+        }
       }
+    } else {
+       document.getElementById("titlebar").hidden = !TabsInTitlebar.enabled;
+
+       if (TabsInTitlebar.enabled)
+         document.documentElement.setAttribute("chromemargin", "0,2,2,2");
+       else
+         document.documentElement.removeAttribute("chromemargin");
     }
-
-#else
-  document.getElementById("titlebar").hidden = !TabsInTitlebar.enabled;
-
-  if (TabsInTitlebar.enabled)
-    document.documentElement.setAttribute("chromemargin", "0,2,2,2");
-  else
-    document.documentElement.removeAttribute("chromemargin");
-
-#endif
+  }
 }
-#endif
 
 /* Draw */
 function onTitlebarMaxClick() {
