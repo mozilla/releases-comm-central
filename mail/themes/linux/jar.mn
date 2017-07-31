@@ -280,7 +280,6 @@ classic.jar:
   skin/classic/messenger/shared/accountProvisioner.css         (../shared/mail/accountProvisioner.css)
   skin/classic/messenger/shared/addressbook.css               (../shared/mail/addressbook.css)
 [extensions/{972ce4c6-7e08-4474-a285-3208198ce6fd}] chrome.jar:
-% override chrome://global/skin/icons/close.png               chrome://global/skin/icons/close.svg
 % override chrome://mozapps/skin/extensions/extensionGeneric-16.png chrome://messenger/skin/icons/extensionGeneric.svg
 % override chrome://global/skin/netError.css chrome://messenger/skin/aboutNetError.css
 % override chrome://global/skin/filefield.css chrome://messenger/skin/filefield.css

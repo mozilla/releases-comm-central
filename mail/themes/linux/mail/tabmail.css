@@ -58,30 +58,7 @@ tabpanels {
 
 /* Tabstrip close button */
 .tabs-closebutton {
-  border: none;
   margin-top: 1px;
-}
-
-/* In-tab close button */
-.tab-close-button {
-  list-style-image: none;
-}
-
-.tabs-closebutton:not(:hover),
-.tab-close-button:not([selected]):not(:hover) {
-  background-image: -moz-image-rect(url("chrome://global/skin/icons/close.svg"), 0, 64, 16, 48);
-}
-
-.tabs-closebutton:not(:hover):-moz-lwtheme-brighttext,
-.tab-close-button:not(:hover):-moz-lwtheme-brighttext,
-#tabs-toolbar[brighttext] .tabs-closebutton:not(:hover),
-#tabs-toolbar[brighttext] .tab-close-button:not([selected]):not(:hover) {
-  background-image: -moz-image-rect(url("chrome://global/skin/icons/close.svg"), 0, 80, 16, 64);
-}
-
-.tabs-closebutton:not(:hover):-moz-lwtheme-darktext,
-.tab-close-button:not([selected]):not(:hover):-moz-lwtheme-darktext {
-  background-image: -moz-image-rect(url("chrome://global/skin/icons/close.svg"), 0, 96, 16, 80);
 }
 
 /**

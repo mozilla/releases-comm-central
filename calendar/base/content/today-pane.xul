@@ -42,7 +42,7 @@
                          oncommand="TodayPane.cyclePaneView(1);"/>
         </modehbox>
         <spacer id="buttonspacer"/>
-        <toolbarbutton id="today-closer" class="today-closebutton"
+        <toolbarbutton id="today-closer" class="today-closebutton close-icon"
                        oncommand="document.getElementById('today-pane-panel').setVisible(false, true, true);
                                   TodayPane.setTodayHeader();
                                   TodayPane.updateSplitterState();"/>

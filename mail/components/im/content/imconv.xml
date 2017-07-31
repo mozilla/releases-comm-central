@@ -27,7 +27,7 @@
         <xul:label anonid="unreadCount" class="convUnreadCount"
                    crop="end" mousethrough="never" flex="1000000"
                    xbl:inherits="value=unreadCount"/>
-        <xul:button anonid="closeConversationButton" class="closeConversationButton"
+        <xul:button anonid="closeConversationButton" class="closeConversationButton close-icon"
                     tooltiptext="&closeConversationButton.tooltip;"/>
       </xul:hbox>
     </content>

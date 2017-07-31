@@ -56,7 +56,7 @@
                    flex="1"/>
         </box>
         <toolbarbutton id="unifinder-closer"
-                       class="unifinder-closebutton"
+                       class="unifinder-closebutton close-icon"
                        command="calendar_show_unifinder_command"
                        tooltiptext="&calendar.unifinder.close.tooltip;"/>
       </hbox>

@@ -62,21 +62,6 @@
   max-width: 18px;
 }
 
-.today-closebutton {
-  list-style-image: url("chrome://global/skin/icons/close.png");
-  -moz-appearance: none;
-  border: none !important;
-  padding: 2px;
-}
-
-.today-closebutton:not([selected]):not(:hover):-moz-lwtheme-brighttext {
-  list-style-image: url("chrome://global/skin/icons/close-inverted.png");
-}
-
-.today-closebutton > .toolbarbutton-icon {
-  margin-inline-end: 0px; /* override toolkit's default value */
-}
-
 #today-none-box {
   border-top: 1px solid ThreeDShadow;
 }
@@ -108,10 +93,10 @@
   }
 
   #today-pane-panel:-moz-lwtheme > sidebarheader {
-    background-color: rgba(255, 255, 255, 0.3);
-    background-image: linear-gradient(rgba(255, 255, 255, 0.5),
-                      rgba(255, 255, 255, 0) 28px);
-    border-top: 1px solid rgba(253, 253, 253, 0.45);
+    background-image: linear-gradient(rgba(255, 255, 255, 0.4),
+                      rgba(255, 255, 255, 0.4));
+    background-color: transparent;
+    border-top-color: transparent;
   }
 
   sidebarheader > spacer {
@@ -130,23 +115,6 @@
 
   .today-pane-cycler {
     margin-top: -1px;
-  }
-}
-
-@media (-moz-os-version: windows-win8),
-       (-moz-os-version: windows-win10) {
-  .today-closebutton {
-    padding-top: 0;
-    padding-bottom: 0;
-    -moz-image-region: rect(0 20px 20px 0);
-  }
-
-  .today-closebutton:hover {
-    -moz-image-region: rect(0 40px 20px 20px);
-  }
-
-  .today-closebutton:hover:active {
-    -moz-image-region: rect(0 60px 20px 40px);
   }
 }
 

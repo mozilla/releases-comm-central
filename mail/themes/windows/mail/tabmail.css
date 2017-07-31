@@ -73,31 +73,6 @@ tabpanels {
  * close buttons
  */
 
-.tabs-closebutton,
-.tab-close-button {
-  -moz-appearance: none;
-  border: none;
-}
-
-/* Invert the unhovered close tab icons on bright-text tabs */
-@media not all and (min-resolution: 1.1dppx) {
-  .tab-close-button:-moz-lwtheme-brighttext,
-  .tabs-closebutton:-moz-lwtheme-brighttext,
-  #tabs-toolbar[brighttext] .tabs-closebutton,
-  #tabs-toolbar[brighttext] .tab-close-button:not([selected=true]) {
-    list-style-image: url("chrome://global/skin/icons/close-inverted.png");
-  }
-}
-
-@media (min-resolution: 1.1dppx) {
-  .tab-close-button:-moz-lwtheme-brighttext,
-  .tabs-closebutton:-moz-lwtheme-brighttext,
-  #tabs-toolbar[brighttext] .tabs-closebutton,
-  #tabs-toolbar[brighttext] .tab-close-button:not([selected=true]) {
-    list-style-image: url("chrome://global/skin/icons/close-inverted@2x.png");
-  }
-}
-
 .tabs-closebutton-box > .tabs-closebutton {
   margin-top: 1px;
   padding: 0 2px;
@@ -181,14 +156,6 @@ tabpanels {
 
 .tabs-alltabs-button > hbox > .toolbarbutton-menu-dropmarker {
   display: none;
-}
-
-@media (-moz-os-version: windows-win8),
-       (-moz-os-version: windows-win10) {
-  .tabs-closebutton > .toolbarbutton-icon,
-  .tab-close-button > .toolbarbutton-icon {
-    width: 20px;
-  }
 }
 
 @media (-moz-os-version: windows-win10) and (-moz-windows-default-theme) {

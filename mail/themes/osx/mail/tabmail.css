@@ -205,44 +205,16 @@ tabmail > tabbox > tabpanels {
   padding-inline-start: 26px;
 }
 
-/* Tabstrip close button */
+/**
+ * Tabstrip close button
+ */
 
 .tabs-closebutton {
-  -moz-box-align: stretch;
   margin-top: 1px;
-  padding-inline-end: 4px;
-  border: none;
 }
 
 .tabs-closebutton:hover > .toolbarbutton-icon {
   background-image: none !important;
-}
-
-/**
- * In-tab close button
- */
-
-.tab-close-button > .toolbarbutton-icon {
-  margin-inline-end: 0px !important;
-}
-
-.tab-close-button {
-  -moz-appearance: none;
-  border: none !important;
-  background: none;
-  cursor: default;
-}
-
-#tabs-toolbar[brighttext] .tabs-closebutton:not([selected=true]):not(:hover),
-#tabs-toolbar[brighttext] .tab-close-button.close-icon:not([selected=true]):not(:hover) {
-  -moz-image-region: rect(0, 64px, 16px, 48px);
-}
-
-@media (min-resolution: 1.1dppx) {
-  #tabs-toolbar[brighttext] .tabs-closebutton:not([selected=true]):not(:hover),
-  #tabs-toolbar[brighttext] .tab-close-button.close-icon:not([selected=true]):not(:hover) {
-    -moz-image-region: rect(0, 128px, 32px, 96px);
-  }
 }
 
 /**

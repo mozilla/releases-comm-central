@@ -11,12 +11,6 @@
     height: 30px;
 }
 
-.unifinder-closebutton {
-    border-right-color: transparent;
-    border-left-color: transparent;
-    background-color: transparent;
-}
-
 .unifinder-closebutton > .toolbarbutton-text {
     display: none;
 }

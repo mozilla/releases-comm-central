@@ -6,8 +6,7 @@
 
 #today-pane-panel:-moz-lwtheme > sidebarheader {
   text-shadow: none;
-  background-color: rgba(255, 255, 255, 0.3);
-  background-image: linear-gradient(rgba(255, 255, 255, 0.32), rgba(255, 255, 255, 0) 19px);
+  background-color: rgba(253, 253, 253, 0.45);
 }
 
 .today-pane-cycler,
@@ -42,14 +41,6 @@
 #previous-day-button:-moz-locale-dir(ltr),
 #next-day-button:-moz-locale-dir(rtl) {
   transform: scaleX(-1);
-}
-
-.today-closebutton {
-  list-style-image: url("chrome://global/skin/icons/close.png");
-}
-
-.today-closebutton:not([selected]):not(:hover):-moz-lwtheme-brighttext {
-  -moz-image-region: rect(0 64px 16px 48px);
 }
 
 .today-closebutton > .toolbarbutton-text {

@@ -568,22 +568,6 @@ toolbarbutton.formatting-button,
   background-color: -moz-Dialog;
 }
 
-.ab-closebutton {
-  list-style-image: url("chrome://global/skin/icons/close-win7.png");
-  -moz-image-region: rect(0 16px 16px 0);
-  -moz-appearance: none;
-  border: none !important;
-  padding: 2px;
-}
-
-.ab-closebutton:hover {
-  -moz-image-region: rect(0 32px 16px 16px);
-}
-
-.ab-closebutton:hover:active {
-  -moz-image-region: rect(0 48px 16px 32px);
-}
-
 .ab-closebutton > .toolbarbutton-icon {
   margin-inline-end: 0; /* override toolkit's default value */
 }

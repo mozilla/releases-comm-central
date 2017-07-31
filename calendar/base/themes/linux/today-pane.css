@@ -13,7 +13,8 @@
 }
 
 #today-pane-panel:-moz-lwtheme > sidebarheader {
-  background-image: linear-gradient(rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0) 19px);
+  background-color: transparent;
+  background-image: linear-gradient(rgba(255, 255, 255, 0.4), rgba(255, 255, 255, 0.4));
 }
 
 #today-pane-splitter {
@@ -75,21 +76,6 @@
 
 #miniday-dropdown-button {
   max-width: 18px;
-}
-
-.today-closebutton {
-  list-style-image: url("chrome://global/skin/icons/close.png");
-  -moz-appearance: none;
-  border: none !important;
-  padding: 2px;
-}
-
-.today-closebutton:not([selected]):not(:hover):-moz-lwtheme-brighttext {
-  -moz-image-region: rect(0 80px 16px 64px);
-}
-
-.today-closebutton > .toolbarbutton-icon {
-  margin-inline-end: 0px; /* override toolkit's default value */
 }
 
 #todaypane-new-event-button {

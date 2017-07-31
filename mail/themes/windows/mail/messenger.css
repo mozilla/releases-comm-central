@@ -170,18 +170,6 @@ treechildren::-moz-tree-cell-text {
   }
 }
 
-/* ::::: Notifications ::::: */
-
-notification[type="critical"] .messageCloseButton {
-  list-style-image: url("chrome://global/skin/icons/close-inverted.png");
-}
-
-@media (min-resolution: 1.1dppx) {
-  notification[type="critical"] .messageCloseButton {
-    list-style-image: url("chrome://global/skin/icons/close-inverted@2x.png");
-  }
-}
-
 /* Give menupopup[type="folder"] a menu look */
 menupopup[type="folder"] {
   -moz-appearance: menupopup;

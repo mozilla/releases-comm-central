@@ -102,18 +102,6 @@
     padding-inline-start: 0;
 }
 
-.today-closebutton {
-  -moz-image-region: rect(0 16px 16px 0);
-}
-
-.today-closebutton:hover {
-  -moz-image-region: rect(0 32px 16px 16px);
-}
-
-.today-closebutton:hover:active {
-  -moz-image-region: rect(0 48px 16px 32px);
-}
-
 #agenda-toolbar {
   border: none;
   padding: 1px;

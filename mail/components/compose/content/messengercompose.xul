@@ -901,7 +901,7 @@
       <sidebarheader id="sidebarHeader" align="center">
         <label id="sidebar-title" value="&addressesSidebarTitle.label;"/>
         <spacer flex="1"/>
-        <toolbarbutton class="ab-closebutton" oncommand="toggleAddressPicker();"/>
+        <toolbarbutton class="ab-closebutton close-icon" oncommand="toggleAddressPicker();"/>
       </sidebarheader>
       <browser id="sidebar" flex="1" src="" disablehistory="true"
                style="min-width: 150px; width: 200px; max-width: 400px;"/>

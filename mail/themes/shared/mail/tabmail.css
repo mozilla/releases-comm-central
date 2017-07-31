@@ -103,6 +103,7 @@
   margin-inline-start: 1px;
   margin-inline-end: -2px;
   padding: 0;
+  -moz-image-region: auto;
 }
 
 .tab-background {

@@ -245,23 +245,3 @@ richlistitem[state="disconnected"] .accountStateIcon {
   margin-right: -2px;
   margin-bottom: 18px;
 }
-
-@media (min-resolution: 2dppx) {
-  .closeConversationButton {
-    list-style-image: url("chrome://global/skin/icons/close@2x.png");
-    -moz-image-region: rect(0, 32px, 32px, 0);
-  }
-
-  .closeConversationButton:hover {
-    -moz-image-region: rect(0, 64px, 32px, 32px);
-  }
-
-  .closeConversationButton:hover:active {
-    -moz-image-region: rect(0, 96px, 32px, 64px);
-  }
-
-  .closeConversationButton > .button-image-icon {
-    width: 16px;
-    height: 16px;
-  }
-}
