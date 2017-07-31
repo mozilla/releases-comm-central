@@ -299,13 +299,25 @@ Section "-Application" APP_IDX
   ; application installed is uninstalled AccessibleMarshal.dll will no longer be
   ; registered. bug 338878
   ${LogHeader} "DLL Registration"
+
   ClearErrors
+
   ${RegisterDLL} "$INSTDIR\AccessibleMarshal.dll"
   ${If} ${Errors}
     ${LogMsg} "** ERROR Registering: $INSTDIR\AccessibleMarshal.dll **"
   ${Else}
     ${LogUninstall} "DLLReg: \AccessibleMarshal.dll"
     ${LogMsg} "Registered: $INSTDIR\AccessibleMarshal.dll"
+  ${EndIf}
+
+  ClearErrors
+
+  ${RegisterDLL} "$INSTDIR\AccessibleHandler.dll"
+  ${If} ${Errors}
+    ${LogMsg} "** ERROR Registering: $INSTDIR\AccessibleHandler.dll **"
+  ${Else}
+    ${LogUninstall} "DLLReg: \AccessibleHandler.dll"
+    ${LogMsg} "Registered: $INSTDIR\AccessibleHandler.dll"
   ${EndIf}
 
   ; Write extra files created by the application to the uninstall log so they
@@ -319,8 +331,6 @@ Section "-Application" APP_IDX
   ${LogUninstall} "File: \install_status.log"
   ${LogUninstall} "File: \install_wizard.log"
   ${LogUninstall} "File: \updates.xml"
-
-  ClearErrors
 
   ; Default for creating Start Menu folder and shortcuts
   ; (1 = create, 0 = don't create)

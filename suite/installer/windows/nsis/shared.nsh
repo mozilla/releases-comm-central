@@ -75,6 +75,9 @@
   ; Remove files that may be left behind by the application in the
   ; VirtualStore directory.
   ${CleanVirtualStore}
+
+  ; Register AccessibleHandler.dll with COM (this writes to HKLM)
+  ${RegisterAccessibleHandler}
 !macroend
 !define PostUpdate "!insertmacro PostUpdate"
 
@@ -755,6 +758,11 @@
 !define UpdateProtocolHandlers "!insertmacro UpdateProtocolHandlers"
 !insertmacro RegCleanAppHandler
 
+!macro RegisterAccessibleHandler
+  ${RegisterDLL} "$INSTDIR\AccessibleHandler.dll"
+!macroend
+!define RegisterAccessibleHandler "!insertmacro RegisterAccessibleHandler"
+
 ; Removes various registry entries for reasons noted below (does not use SHCTX).
 !macro RemoveDeprecatedKeys
   StrCpy $0 "SOFTWARE\Classes"
@@ -982,7 +990,9 @@
   ; should be ${FileMainEXE} so if it is in use the CheckForFilesInUse macro
   ; returns after the first check.
   Push "end"
+  Push "AccessibleHandler.dll"
   Push "AccessibleMarshal.dll"
+  Push "IA2Marshal.dll"
   Push "freebl3.dll"
   Push "nssckbi.dll"
   Push "nspr4.dll"
