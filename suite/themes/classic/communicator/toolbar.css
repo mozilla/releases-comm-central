@@ -8,6 +8,53 @@
 
 @namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
 
+/* Restore Windows Classic fallbacks removed by bug 1343196 */
+
+@media (-moz-windows-classic) {
+
+  /* ::::: toolbox ::::: */
+
+  toolbox {
+    background-color: -moz-Dialog;
+    border-top: 2px solid;
+    -moz-border-top-colors: ThreeDShadow ThreeDHighlight;
+  }
+
+  /* ::::: toolbar & menubar ::::: */
+
+  toolbar {
+    border-top: 1px solid ThreeDHighlight;
+    border-bottom: 1px solid ThreeDShadow;
+  }
+
+  toolbar:first-child, menubar {
+    border-bottom: 1px solid ThreeDShadow;
+    border-top: 0px !important;
+  }
+
+/* ::::: lightweight theme ::::: */
+ 
+  menubar:-moz-lwtheme,
+  toolbox:-moz-lwtheme,
+  toolbar:-moz-lwtheme {
+    background: none;
+    border-color: transparent;
+  }
+
+  /* ::::: toolbar decorations ::::: */
+
+  toolbarseparator {
+    border-top: 2px solid transparent;
+    border-bottom: 2px solid transparent;
+    border-left: 3px solid transparent;
+    border-right: 3px solid transparent;
+    -moz-border-left-colors  : transparent transparent ThreeDShadow;
+    -moz-border-right-colors : transparent transparent ThreeDHighlight;
+  }
+}
+
+/* End restore Windows Classic fallbacks removed by bug 1343196 */
+
 toolbar[type="menubar"]:not([autohide="true"]):not([xpfe="false"]):not(:-moz-lwtheme):-moz-system-metric(menubar-drag) {
   -moz-binding: url("chrome://communicator/content/bindings/toolbar.xml#grippytoolbar-drag");
 }

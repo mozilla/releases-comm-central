@@ -8,6 +8,61 @@
 
 @namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
 
+/* Restore Windows Classic fallbacks removed by bug 1340495 */
+
+@media (-moz-windows-classic) {
+
+  /* ::::: toolbarbutton ::::: */
+
+  toolbarbutton {
+    border: 1px solid transparent;
+    background-color: transparent;
+  }
+
+  toolbarbutton:hover:not([disabled="true"]) {
+    border-color: ThreeDHighlight ThreeDShadow ThreeDShadow ThreeDHighlight;
+  }
+
+  toolbarbutton:hover:active:not([disabled="true"]),
+  toolbarbutton[open="true"]:hover,
+  toolbarbutton[open="true"] {
+    border-color: ThreeDShadow ThreeDHighlight ThreeDHighlight ThreeDShadow;
+  }
+
+  toolbarbutton[checked="true"]:not([disabled="true"]) {
+    border-color: ThreeDShadow ThreeDHighlight ThreeDHighlight ThreeDShadow;
+    background-color: rgba(255,255,255,0.5);
+  }
+
+  /* ::::: toolbarbutton menu ::::: */
+
+  .toolbarbutton-menu-dropmarker {
+    border: none !important;
+    background-color: transparent !important;
+  }
+
+  /* ::::: toolbarbutton menu-button ::::: */
+
+  toolbarbutton[type="menu-button"],
+  toolbarbutton[type="menu-button"]:hover,
+  toolbarbutton[type="menu-button"]:hover:active,
+  toolbarbutton[type="menu-button"][open="true"],
+  toolbarbutton[type="menu-button"][disabled="true"],
+  toolbarbutton[type="menu-button"][disabled="true"]:hover,
+  toolbarbutton[type="menu-button"][disabled="true"]:hover:active {
+    border-style: none;
+  }
+
+  /* .......... dropmarker .......... */
+
+  .toolbarbutton-menubutton-dropmarker {
+    background-color: transparent;
+  }
+
+}
+
+/* End restore Windows Classic fallbacks removed by bug 1340495 */
+
 /* ::::: large toolbar buttons ::::: */
 
 .toolbarbutton-1,
