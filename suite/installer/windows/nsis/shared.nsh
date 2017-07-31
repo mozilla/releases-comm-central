@@ -8,7 +8,7 @@
   ; Remove registry entries for non-existent apps and for apps that point to our
   ; install location in the Software\Mozilla key and uninstall registry entries
   ; that point to our install location for both HKCU and HKLM.
-  SetShellVarContext current  ; Set SHCTX to the current user (e.g. HKCU) 
+  SetShellVarContext current  ; Set SHCTX to the current user (e.g. HKCU)
   ${RegCleanMain} "Software\Mozilla"
   ${RegCleanUninstall}
   ${UpdateProtocolHandlers}
@@ -131,7 +131,7 @@
 
     SetShellVarContext current  ; Set SHCTX to the current user (e.g. HKCU)
     ${SetHandlersBrowser}
-  ${EndUnless} 
+  ${EndUnless}
 
   ClearErrors
   ${GetOptions} "$R0" "Mail" $R1
@@ -201,7 +201,7 @@
   ${RemoveDeprecatedKeys}
   SetShellVarContext all      ; Set SHCTX to all users (e.g. HKLM)
   ; Make sure that the MapiProxy and the mozMapi32 dll copies exist as we will
-  ; use those to register as default mail app. When using a ZIP build, the DLL 
+  ; use those to register as default mail app. When using a ZIP build, the DLL
   ; copies might not exist yet
   IfFileExists "$INSTDIR\MapiProxy_InUse.dll" +2 +1
   CopyFiles /SILENT "$INSTDIR\MapiProxy.dll" "$INSTDIR\MapiProxy_InUse.dll"
@@ -418,7 +418,7 @@
   WriteRegStr HKLM "$0\Capabilities" "ApplicationIcon" "$8,0"
   WriteRegStr HKLM "$0\Capabilities" "ApplicationName" "${BrandShortName}"
 
-  WriteRegStr HKLM "$0\Capabilities\FileAssociations" ".htm"   "SeaMonkeyHTML" 
+  WriteRegStr HKLM "$0\Capabilities\FileAssociations" ".htm"   "SeaMonkeyHTML"
   WriteRegStr HKLM "$0\Capabilities\FileAssociations" ".html"  "SeaMonkeyHTML"
   WriteRegStr HKLM "$0\Capabilities\FileAssociations" ".shtml" "SeaMonkeyHTML"
   WriteRegStr HKLM "$0\Capabilities\FileAssociations" ".xht"   "SeaMonkeyHTML"
@@ -527,7 +527,7 @@
   ; Protocols
   StrCpy $1 "$\"$8$\" -compose $\"%1$\""
   ${AddHandlerValues} "$0\Protocols\mailto" "$1" "$8,0" "${AppRegNameMail} URL" "true" ""
- 
+
   ; Vista Capabilities registry keys
   WriteRegStr HKLM "$0\Capabilities" "ApplicationDescription" "$(REG_APP_DESC)"
   WriteRegStr HKLM "$0\Capabilities" "ApplicationIcon" "$8,0"
@@ -582,7 +582,7 @@
   WriteRegStr HKLM "$1\MozillaMapi\CurVer" "" "MozillaMapi.1"
   WriteRegStr HKLM "$1\MozillaMapi.1" "" "Mozilla MAPI"
   WriteRegStr HKLM "$1\MozillaMapi.1\CLSID" "" "{29F458BE-8866-11D5-A3DD-00B0D0F3BAA7}"
-  
+
   ; Mail shell/open/command
   WriteRegStr HKLM "$0\shell\open\command" "" "$\"$8$\" -mail"
 
@@ -769,11 +769,11 @@
   ; Remove support for launching gopher urls from the shell during install or
   ; update if the DefaultIcon is from seamonkey.exe.
   ${RegCleanAppHandler} "gopher"
-  
+
   ; Remove support for launching chrome urls from the shell during install or
   ; update if the DefaultIcon is from seamonkey.exe (Bug 301073).
   ${RegCleanAppHandler} "chrome"
-  
+
   ; Delete gopher from Capabilities\URLAssociations if it is present.
   ${StrFilter} "${FileMainEXE}" "+" "" "" $R9
   StrCpy $0 "Software\Clients\StartMenuInternet\$R9"
