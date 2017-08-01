@@ -287,9 +287,8 @@ nsMsgFilterList::ApplyFiltersToHdr(nsMsgFilterTypeType filterType,
   nsresult rv = GetFilterCount(&filterCount);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  nsMsgSearchScopeTerm* scope = new nsMsgSearchScopeTerm(nullptr, nsMsgSearchScope::offlineMail, folder);
-  scope->AddRef();
-  if (!scope) return NS_ERROR_OUT_OF_MEMORY;
+  RefPtr<nsMsgSearchScopeTerm> scope =
+    new nsMsgSearchScopeTerm(nullptr, nsMsgSearchScope::offlineMail, folder);
 
   for (uint32_t filterIndex = 0; filterIndex < filterCount; filterIndex++)
   {
@@ -322,7 +321,6 @@ nsMsgFilterList::ApplyFiltersToHdr(nsMsgFilterTypeType filterType,
       }
     }
   }
-  scope->Release();
   return rv;
 }
 
