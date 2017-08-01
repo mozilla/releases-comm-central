@@ -197,7 +197,6 @@ nsImapMailFolder::nsImapMailFolder() :
     m_folderQuotaUsedKB(0),
     m_folderQuotaMaxKB(0)
 {
-  m_moveCoalescer = nullptr;
   m_boxFlags = 0;
   m_uidValidity = kUidUnknown;
   m_numServerRecentMessages = 0;
@@ -214,7 +213,6 @@ nsImapMailFolder::nsImapMailFolder() :
 
 nsImapMailFolder::~nsImapMailFolder()
 {
-  NS_IF_RELEASE(m_moveCoalescer);
   delete m_folderACL;
     
   // cleanup any pending request
@@ -2579,7 +2577,7 @@ NS_IMETHODIMP nsImapMailFolder::Shutdown(bool shutdownChildren)
   m_initialized = false;
   // mPath is used to decide if folder pathname needs to be reconstructed in GetPath().
   mPath = nullptr;
-  NS_IF_RELEASE(m_moveCoalescer);
+  m_moveCoalescer = nullptr;
   m_msgParser = nullptr;
   if (m_playbackTimer)
   {
@@ -7801,7 +7799,6 @@ nsresult nsImapFolderCopyState::AdvanceToNextFolder(nsresult aStatus)
   {
     if (m_newDestFolder)
       m_newDestFolder->OnCopyCompleted(m_origSrcFolder, aStatus);
-    Release();
   }
   else
   {
@@ -7826,7 +7823,6 @@ nsImapFolderCopyState::OnStopRunningUrl(nsIURI *aUrl, nsresult aExitCode)
   {
     if (m_copySrvcListener)
       m_copySrvcListener->OnStopCopy(aExitCode);
-    Release();
     return aExitCode; // or NS_OK???
   }
   nsresult rv = NS_OK;
@@ -7945,7 +7941,6 @@ NS_IMETHODIMP nsImapFolderCopyState::OnStopCopy(nsresult aStatus)
     (void) m_copySrvcListener->OnStopCopy(aStatus);
     m_copySrvcListener = nullptr;
   }
-  Release();
 
   return NS_OK;
 }
@@ -8074,8 +8069,8 @@ nsImapMailFolder::CopyFolder(nsIMsgFolder* srcFolder,
   }
   else // copying folder (should only be across server?)
   {
-    nsImapFolderCopyState *folderCopier = new nsImapFolderCopyState(this, srcFolder, isMoveFolder, msgWindow, listener);
-    NS_ADDREF(folderCopier); // it owns itself.
+    RefPtr<nsImapFolderCopyState> folderCopier =
+      new nsImapFolderCopyState(this, srcFolder, isMoveFolder, msgWindow, listener);
     return folderCopier->StartNextCopy();
   }
   return rv;
@@ -9025,11 +9020,7 @@ nsImapMailFolder::SetFilterList(nsIMsgFilterList *aMsgFilterList)
 nsresult nsImapMailFolder::GetMoveCoalescer()
 {
   if (!m_moveCoalescer)
-  {
     m_moveCoalescer = new nsImapMoveCoalescer(this, nullptr /* msgWindow */);
-    NS_ENSURE_TRUE (m_moveCoalescer, NS_ERROR_OUT_OF_MEMORY);
-    m_moveCoalescer->AddRef();
-  }
   return NS_OK;
 }
 

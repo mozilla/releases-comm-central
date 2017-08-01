@@ -459,7 +459,7 @@ protected:
   nsCOMPtr<nsIMsgFilterPlugin> m_filterPlugin;  // XXX should be a list
   // used with filter plugins to know when we've finished classifying and can playback moves
   bool m_msgMovedByFilter;
-  nsImapMoveCoalescer *m_moveCoalescer; // strictly owned by the nsImapMailFolder
+  RefPtr<nsImapMoveCoalescer> m_moveCoalescer; // strictly owned by the nsImapMailFolder
   nsCOMPtr<nsIMutableArray> m_junkMessagesToMarkAsRead;
   /// list of keys to be moved to the junk folder
   nsTArray<nsMsgKey> mSpamKeysToMove;
