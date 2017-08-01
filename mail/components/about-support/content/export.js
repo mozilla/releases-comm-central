@@ -21,12 +21,6 @@ function createWarning() {
   ]);
 }
 
-function getLoadContext() {
-  return window.QueryInterface(Ci.nsIInterfaceRequestor)
-               .getInterface(Ci.nsIWebNavigation)
-               .QueryInterface(Ci.nsILoadContext);
-}
-
 function getClipboardTransferable() {
   // Get the HTML and text representations for the important part of the page.
   let hidePrivateData = !document.getElementById("check-show-private-data").checked;
@@ -56,7 +50,9 @@ function getClipboardTransferable() {
   return transferable;
 }
 
-function copyToClipboard() {
+// This function intentionally has the same name as the one in aboutSupport.js
+// so that the one here is called.
+function copyContentsToClipboard() {
   let transferable = getClipboardTransferable();
   // Store the data into the clipboard.
   Services.clipboard.setData(transferable, null, Services.clipboard.kGlobalClipboard);

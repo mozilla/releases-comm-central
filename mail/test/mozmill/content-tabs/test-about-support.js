@@ -95,6 +95,7 @@ function find_private_element(aTab) {
                  .querySelector("#accounts-table td.data-private~td.data-private");
   assert_true(elem != null);
   assert_true(elem.textContent.length > 0);
+  assert_equals(get_content_tab_element_display(aTab,elem), "none");
   return elem;
 }
 
