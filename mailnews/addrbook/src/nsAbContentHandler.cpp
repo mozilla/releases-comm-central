@@ -54,7 +54,7 @@ nsAbContentHandler::HandleContent(const char *aContentType,
     if (uri)
     {
         nsAutoCString path;
-        rv = uri->GetPath(path);
+        rv = uri->GetPathQueryRef(path);
         NS_ENSURE_SUCCESS(rv,rv);
 
         const char *startOfVCard = strstr(path.get(), "add?vcard=");

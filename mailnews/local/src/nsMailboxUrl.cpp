@@ -411,7 +411,7 @@ nsresult nsMailboxUrl::ParseUrl()
     NS_ENSURE_SUCCESS(rv, rv);
   }
 
-  GetPath(m_file);
+  GetPathQueryRef(m_file);
   return NS_OK;
 }
 

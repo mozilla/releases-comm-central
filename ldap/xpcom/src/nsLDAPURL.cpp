@@ -304,15 +304,15 @@ nsLDAPURL::SetPort(int32_t aPort)
   return mBaseURL->SetPort(aPort);
 }
 
-NS_IMETHODIMP nsLDAPURL::GetPath(nsACString &_retval)
+NS_IMETHODIMP nsLDAPURL::GetPathQueryRef(nsACString &_retval)
 {
   if (!mBaseURL)
     return NS_ERROR_NOT_INITIALIZED;
 
-  return mBaseURL->GetPath(_retval);
+  return mBaseURL->GetPathQueryRef(_retval);
 }
 
-NS_IMETHODIMP nsLDAPURL::SetPath(const nsACString &aPath)
+NS_IMETHODIMP nsLDAPURL::SetPathQueryRef(const nsACString &aPath)
 {
   if (!mBaseURL)
     return NS_ERROR_NOT_INITIALIZED;
@@ -320,7 +320,7 @@ NS_IMETHODIMP nsLDAPURL::SetPath(const nsACString &aPath)
   nsresult rv = SetPathInternal(PromiseFlatCString(aPath));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  return mBaseURL->SetPath(aPath);
+  return mBaseURL->SetPathQueryRef(aPath);
 }
 
 NS_IMETHODIMP nsLDAPURL::GetAsciiSpec(nsACString &_retval)
@@ -477,7 +477,7 @@ NS_IMETHODIMP nsLDAPURL::SetDn(const nsACString& aDn)
   GetPathInternal(newPath);
 
   // and update the base url
-  return mBaseURL->SetPath(newPath);
+  return mBaseURL->SetPathQueryRef(newPath);
 }
 
 NS_IMETHODIMP nsLDAPURL::GetAttributes(nsACString &aAttributes)
@@ -523,7 +523,7 @@ NS_IMETHODIMP nsLDAPURL::SetAttributes(const nsACString &aAttributes)
   GetPathInternal(newPath);
 
   // and update the base url
-  return mBaseURL->SetPath(newPath);
+  return mBaseURL->SetPathQueryRef(newPath);
 }
 
 nsresult nsLDAPURL::SetAttributeArray(char** aAttributes)
@@ -578,7 +578,7 @@ NS_IMETHODIMP nsLDAPURL::AddAttribute(const nsACString &aAttribute)
   GetPathInternal(newPath);
 
   // and update the base url
-  return mBaseURL->SetPath(newPath);
+  return mBaseURL->SetPathQueryRef(newPath);
 }
 
 NS_IMETHODIMP nsLDAPURL::RemoveAttribute(const nsACString &aAttribute)
@@ -609,7 +609,7 @@ NS_IMETHODIMP nsLDAPURL::RemoveAttribute(const nsACString &aAttribute)
   GetPathInternal(newPath);
 
   // and update the base url
-  return mBaseURL->SetPath(newPath);
+  return mBaseURL->SetPathQueryRef(newPath);
 }
 
 NS_IMETHODIMP nsLDAPURL::HasAttribute(const nsACString &aAttribute,
@@ -649,7 +649,7 @@ NS_IMETHODIMP nsLDAPURL::SetScope(int32_t aScope)
   GetPathInternal(newPath);
 
   // and update the base url
-  return mBaseURL->SetPath(newPath);
+  return mBaseURL->SetPathQueryRef(newPath);
 }
 
 NS_IMETHODIMP nsLDAPURL::GetFilter(nsACString& _retval)
@@ -672,7 +672,7 @@ NS_IMETHODIMP nsLDAPURL::SetFilter(const nsACString& aFilter)
   GetPathInternal(newPath);
 
   // and update the base url
-  return mBaseURL->SetPath(newPath);
+  return mBaseURL->SetPathQueryRef(newPath);
 }
 
 NS_IMETHODIMP nsLDAPURL::GetOptions(uint32_t *_retval)

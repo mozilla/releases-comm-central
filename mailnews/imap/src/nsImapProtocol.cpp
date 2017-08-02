@@ -9398,7 +9398,7 @@ nsresult nsImapMockChannel::OpenCacheEntry()
   nsCOMPtr<nsIURI> newUri;
   m_url->Clone(getter_AddRefs(newUri));
   nsAutoCString path;
-  newUri->GetPath(path);
+  newUri->GetPathQueryRef(path);
 
   // First we need to "normalise" the URL by extracting ?part= and &filename.
   // The path should only contain: ?part=x.y&filename=file.ext
@@ -9428,7 +9428,7 @@ nsresult nsImapMockChannel::OpenCacheEntry()
   if (partQuery.IsEmpty())
   {
     // Not looking for a part. That's the easy part.
-    newUri->SetPath(path);
+    newUri->SetPathQueryRef(path);
     return cacheStorage->AsyncOpenURI(newUri, extension, cacheAccess, this);
   }
 
@@ -9444,7 +9444,7 @@ nsresult nsImapMockChannel::OpenCacheEntry()
     mTryingToReadPart = false;
 
     // Note that part extraction was already set the first time.
-    newUri->SetPath(path + partQuery + filenameQuery);
+    newUri->SetPathQueryRef(path + partQuery + filenameQuery);
     return cacheStorage->AsyncOpenURI(newUri, extension, cacheAccess, this);
   }
 
@@ -9453,7 +9453,7 @@ nsresult nsImapMockChannel::OpenCacheEntry()
 
   // Check whether part is in the cache.
   bool exists = false;
-  newUri->SetPath(path + partQuery + filenameQuery);
+  newUri->SetPathQueryRef(path + partQuery + filenameQuery);
   rv = cacheStorage->Exists(newUri, extension, &exists);
   NS_ENSURE_SUCCESS(rv, rv);
   if (exists) {
@@ -9461,13 +9461,13 @@ nsresult nsImapMockChannel::OpenCacheEntry()
   }
 
   // Let's see whether we have the entire message instead.
-  newUri->SetPath(path);
+  newUri->SetPathQueryRef(path);
   rv = cacheStorage->Exists(newUri, extension, &exists);
   NS_ENSURE_SUCCESS(rv, rv);
 
   if (!exists) {
     // The entire message is not in the cache. Request the part.
-    newUri->SetPath(path + partQuery + filenameQuery);
+    newUri->SetPathQueryRef(path + partQuery + filenameQuery);
     return cacheStorage->AsyncOpenURI(newUri, extension, cacheAccess, this);
   }
 

@@ -520,14 +520,14 @@ NS_IMETHODIMP nsMsgMailNewsUrl::SetPort(int32_t aPort)
   return m_baseURL->SetPort(aPort);
 }
 
-NS_IMETHODIMP nsMsgMailNewsUrl::GetPath(nsACString &aPath)
+NS_IMETHODIMP nsMsgMailNewsUrl::GetPathQueryRef(nsACString &aPath)
 {
-  return m_baseURL->GetPath(aPath);
+  return m_baseURL->GetPathQueryRef(aPath);
 }
 
-NS_IMETHODIMP nsMsgMailNewsUrl::SetPath(const nsACString &aPath)
+NS_IMETHODIMP nsMsgMailNewsUrl::SetPathQueryRef(const nsACString &aPath)
 {
-  return m_baseURL->SetPath(aPath);
+  return m_baseURL->SetPathQueryRef(aPath);
 }
 
 NS_IMETHODIMP nsMsgMailNewsUrl::GetAsciiHost(nsACString &aHostA)

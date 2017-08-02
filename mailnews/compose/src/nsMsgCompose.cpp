@@ -306,7 +306,7 @@ bool nsMsgCompose::IsEmbeddedObjectSafe(const char * originalScheme,
         if (NS_SUCCEEDED(rv) && (host.IsEmpty() || originalHost || host.Equals(originalHost, nsCaseInsensitiveCStringComparator())))
         {
           nsAutoCString path;
-          rv = uri->GetPath(path);
+          rv = uri->GetPathQueryRef(path);
           if (NS_SUCCEEDED(rv))
           {
             const char * query = strrchr(path.get(), '?');
@@ -499,7 +499,7 @@ nsresult nsMsgCompose::TagEmbeddedObjects(nsIEditorMailSupport *aEditor)
     {
       originalUrl->GetScheme(originalScheme);
       originalUrl->GetAsciiHost(originalHost);
-      originalUrl->GetPath(originalPath);
+      originalUrl->GetPathQueryRef(originalPath);
     }
   }
 

@@ -196,7 +196,7 @@ nsresult nsNntpUrl::ParseNntpURL()
 nsresult nsNntpUrl::DetermineNewsAction()
 {
   nsAutoCString path;
-  nsresult rv = nsMsgMailNewsUrl::GetPath(path);
+  nsresult rv = nsMsgMailNewsUrl::GetPathQueryRef(path);
   NS_ENSURE_SUCCESS(rv,rv);
 
   nsAutoCString query;

@@ -3134,7 +3134,7 @@ nsMsgDBFolder::parseURI(bool needServer)
   if (!mIsServerIsValid)
   {
     nsAutoCString path;
-    rv = url->GetPath(path);
+    rv = url->GetPathQueryRef(path);
     if (NS_SUCCEEDED(rv))
       mIsServer = path.EqualsLiteral("/");
     mIsServerIsValid = true;

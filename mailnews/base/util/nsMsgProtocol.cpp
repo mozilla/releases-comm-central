@@ -175,7 +175,7 @@ nsresult nsMsgProtocol::GetFileFromURL(nsIURI * aURL, nsIFile **aResult)
   NS_ENSURE_ARG_POINTER(aResult);
   // extract the file path from the uri...
   nsAutoCString urlSpec;
-  aURL->GetPath(urlSpec);
+  aURL->GetPathQueryRef(urlSpec);
   urlSpec.Insert(NS_LITERAL_CSTRING("file://"), 0);
   nsresult rv;
 

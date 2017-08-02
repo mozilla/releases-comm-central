@@ -291,7 +291,7 @@ nsresult nsMailtoUrl::ParseUrl()
 {
   // we can get the path from the simple url.....
   nsCString escapedPath;
-  m_baseURL->GetPath(escapedPath);
+  m_baseURL->GetPathQueryRef(escapedPath);
 
   int32_t startOfSearchPart = escapedPath.FindChar('?');
   if (startOfSearchPart >= 0)
@@ -477,14 +477,14 @@ NS_IMETHODIMP nsMailtoUrl::SetPort(int32_t aPort)
 	return ParseUrl();
 }
 
-NS_IMETHODIMP nsMailtoUrl::GetPath(nsACString &aPath)
+NS_IMETHODIMP nsMailtoUrl::GetPathQueryRef(nsACString &aPath)
 {
-	return m_baseURL->GetPath(aPath);
+	return m_baseURL->GetPathQueryRef(aPath);
 }
 
-NS_IMETHODIMP nsMailtoUrl::SetPath(const nsACString &aPath)
+NS_IMETHODIMP nsMailtoUrl::SetPathQueryRef(const nsACString &aPath)
 {
-	m_baseURL->SetPath(aPath);
+	m_baseURL->SetPathQueryRef(aPath);
 	return ParseUrl();
 }
 

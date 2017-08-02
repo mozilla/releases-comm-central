@@ -1614,7 +1614,7 @@ GenerateFileNameFromURI(nsIURI *aURL)
   char        *cp = nullptr;
   char        *cp1 = nullptr;
 
-  rv = aURL->GetPath(file);
+  rv = aURL->GetPathQueryRef(file);
   if ( NS_SUCCEEDED(rv) && !file.IsEmpty())
   {
     char *newFile = ToNewCString(file);

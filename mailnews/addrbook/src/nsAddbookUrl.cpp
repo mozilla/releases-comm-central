@@ -39,7 +39,7 @@ nsresult nsAddbookUrl::ParseUrl()
 {
   nsAutoCString pathStr;
 
-  nsresult rv = m_baseURL->GetPath(pathStr);
+  nsresult rv = m_baseURL->GetPathQueryRef(pathStr);
   NS_ENSURE_SUCCESS(rv,rv);
 
   if (strstr(pathStr.get(), "?action=print"))
@@ -141,14 +141,14 @@ NS_IMETHODIMP nsAddbookUrl::SetPort(int32_t aPort)
   return m_baseURL->SetPort(aPort);
 }
 
-NS_IMETHODIMP nsAddbookUrl::GetPath(nsACString &aPath)
+NS_IMETHODIMP nsAddbookUrl::GetPathQueryRef(nsACString &aPath)
 {
-  return m_baseURL->GetPath(aPath);
+  return m_baseURL->GetPathQueryRef(aPath);
 }
 
-NS_IMETHODIMP nsAddbookUrl::SetPath(const nsACString &aPath)
+NS_IMETHODIMP nsAddbookUrl::SetPathQueryRef(const nsACString &aPath)
 {
-  m_baseURL->SetPath(aPath);
+  m_baseURL->SetPathQueryRef(aPath);
   return ParseUrl();
 }
 

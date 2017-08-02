@@ -214,7 +214,7 @@ nsAddbookProtocolHandler::GeneratePrintOutput(nsIAddbookUrl *addbookUrl,
   NS_ENSURE_ARG_POINTER(addbookUrl);
 
   nsAutoCString uri;
-  nsresult rv = addbookUrl->GetPath(uri);
+  nsresult rv = addbookUrl->GetPathQueryRef(uri);
   NS_ENSURE_SUCCESS(rv,rv);
 
   /* turn

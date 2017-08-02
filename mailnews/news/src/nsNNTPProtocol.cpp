@@ -832,11 +832,11 @@ nsresult nsNNTPProtocol::OpenCacheEntry()
   nsCOMPtr<nsIURI> newUri;
   uri->Clone(getter_AddRefs(newUri));
   nsAutoCString path;
-  newUri->GetPath(path);
+  newUri->GetPathQueryRef(path);
   int32_t pos = path.FindChar('?');
   if (pos != kNotFound) {
     path.SetLength(pos);
-    newUri->SetPath(path);
+    newUri->SetPathQueryRef(path);
   }
   return cacheStorage->AsyncOpenURI(newUri, EmptyCString(), nsICacheStorage::OPEN_NORMALLY, this);
 }

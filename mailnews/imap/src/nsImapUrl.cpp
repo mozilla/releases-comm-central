@@ -231,7 +231,7 @@ nsresult nsImapUrl::ParseUrl()
   GetUserPass(m_userName);
 
   nsAutoCString imapPartOfUrl;
-  rv = GetPath(imapPartOfUrl);
+  rv = GetPathQueryRef(imapPartOfUrl);
   nsAutoCString unescapedImapPartOfUrl;
   MsgUnescapeString(imapPartOfUrl, 0, unescapedImapPartOfUrl);
   if (NS_SUCCEEDED(rv) && !unescapedImapPartOfUrl.IsEmpty())

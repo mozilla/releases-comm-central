@@ -559,7 +559,7 @@ nsNntpService::GetFolderFromUri(const char *aUri, nsIMsgFolder **aFolder)
   NS_ENSURE_SUCCESS(rv,rv);
 
   nsAutoCString path;
-  rv = uri->GetPath(path);
+  rv = uri->GetPathQueryRef(path);
   NS_ENSURE_SUCCESS(rv,rv);
 
   nsCOMPtr <nsIMsgAccountManager> accountManager = do_GetService(NS_MSGACCOUNTMANAGER_CONTRACTID, &rv);
@@ -977,7 +977,7 @@ nsNntpService::GetServerForUri(nsIURI *aUri, nsINntpIncomingServer **aServer)
   rv = aUri->GetAsciiHost(hostName);
   rv = aUri->GetScheme(scheme);
   rv = aUri->GetPort(&port);
-  rv = aUri->GetPath(path);
+  rv = aUri->GetPathQueryRef(path);
 
   nsCOMPtr <nsIMsgAccountManager> accountManager = do_GetService(NS_MSGACCOUNTMANAGER_CONTRACTID, &rv);
   NS_ENSURE_SUCCESS(rv,rv);
@@ -1516,11 +1516,11 @@ NS_IMETHODIMP nsNntpService::IsMsgInMemCache(nsIURI *aUrl,
     nsCOMPtr <nsIURI> newUri;
     aUrl->Clone(getter_AddRefs(newUri));
     nsAutoCString path;
-    newUri->GetPath(path);
+    newUri->GetPathQueryRef(path);
     int32_t pos = path.FindChar('?');
     if (pos != kNotFound) {
       path.SetLength(pos);
-      newUri->SetPath(path);
+      newUri->SetPathQueryRef(path);
     }
     bool exists;
     rv = mCacheStorage->Exists(newUri, EmptyCString(), &exists);
