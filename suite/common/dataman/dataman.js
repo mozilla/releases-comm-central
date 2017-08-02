@@ -979,11 +979,9 @@ var gCookies = {
       // See bug 238045 for details.
       let expiry = "";
       try {
-        const dtOptions = { year: "numeric", month: "long", day: "numeric",
-                            hour: "numeric", minute: "numeric",
-                            second: "numeric", timeZoneName: "short",
-                            weekday: "short" };
-        expiry =  date.toLocaleString(undefined, dtOptions);
+        const dateTimeFormatter = Services.intl.createDateTimeFormat(undefined, {
+                                  dateStyle: "full", timeStyle: "long" });
+        expiry = dateTimeFormatter.format(date);
       }
       catch (e) {}
       return expiry;
@@ -2851,11 +2849,9 @@ var gFormdata = {
       // See bug 238045 for details.
       let dtString = "";
       try {
-        const dtOptions = { year: "numeric", month: "long", day: "numeric",
-                            hour: "numeric", minute: "numeric",
-                            second: "numeric", timeZoneName: "short",
-                            weekday: "short" };
-        dtString =  date.toLocaleString(undefined, dtOptions);
+        const dateTimeFormatter = Services.intl.createDateTimeFormat(undefined, {
+                                  dateStyle: "full", timeStyle: "long" });
+        dtString = dateTimeFormatter.format(date);
       }
       catch (e) {}
       return dtString;

@@ -4,6 +4,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+Components.utils.import("resource://gre/modules/Services.jsm");
+
 var kObserverService;
 
 // interface variables
@@ -167,11 +169,9 @@ function GetExpiresString(expires) {
     // see bug 238045 for details
     var expiry = "";
     try {
-      const dtOptions = { year: "numeric", month: "long", day: "numeric",
-                          hour: "numeric", minute: "numeric",
-                          second: "numeric", timeZoneName: "short",
-                          weekday: "short" };
-      expiry =  date.toLocaleString(undefined, dtOptions);
+      const dateTimeFormatter = Services.intl.createDateTimeFormat(undefined, {
+                                dateStyle: "full", timeStyle: "long" });
+      expiry = dateTimeFormatter.format(date);
     } catch(ex) {
       // do nothing
     }

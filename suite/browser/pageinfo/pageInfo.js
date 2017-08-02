@@ -1311,10 +1311,9 @@ function formatDate(datestr, unknown)
   if (!date.valueOf())
     return unknown;
 
-  const dtOptions = { year: "numeric", month: "long", day: "numeric",
-                      hour: "numeric", minute: "numeric", second: "numeric",
-                      timeZoneName: "short", weekday: "short" };
-  return date.toLocaleString(undefined, dtOptions);
+  const dateTimeFormatter = Services.intl.createDateTimeFormat(undefined, {
+                            dateStyle: "full", timeStyle: "long"});
+  return dateTimeFormatter.format(date);
 }
 
 function getSelectedItems(linksMode)

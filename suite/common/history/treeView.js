@@ -439,11 +439,8 @@ PlacesTreeView.prototype = {
   __todayFormatter: null,
   get _todayFormatter() {
     if (!this.__todayFormatter) {
-      const locale = Components.classes["@mozilla.org/chrome/chrome-registry;1"]
-                               .getService(Components.interfaces.nsIXULChromeRegistry)
-                               .getSelectedLocale("global", true);
-      const dtOptions = { hour: 'numeric', minute: 'numeric' };
-      this.__todayFormatter = new Intl.DateTimeFormat(locale, dtOptions);
+      const dtOptions = { timeStyle: "short" };
+      this.__todayFormatter = Services.intl.createDateTimeFormat(undefined, dtOptions);
     }
     return this.__todayFormatter;
   },
@@ -451,12 +448,8 @@ PlacesTreeView.prototype = {
   __dateFormatter: null,
   get _dateFormatter() {
     if (!this.__dateFormatter) {
-      const locale = Components.classes["@mozilla.org/chrome/chrome-registry;1"]
-                               .getService(Components.interfaces.nsIXULChromeRegistry)
-                               .getSelectedLocale("global", true);
-      const dtOptions = { year: '2-digit', month: 'numeric', day: 'numeric',
-                          hour: 'numeric', minute: 'numeric' };
-      this.__dateFormatter = new Intl.DateTimeFormat(locale, dtOptions);
+      const dtOptions = { dateStyle: "short", timeStyle: "short" };
+      this.__dateFormatter = Services.intl.createDateTimeFormat(undefined, dtOptions);
     }
     return this.__dateFormatter;
   },
