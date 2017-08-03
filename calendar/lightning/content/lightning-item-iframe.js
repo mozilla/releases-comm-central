@@ -2777,8 +2777,7 @@ function updateUntildateRecRule(recRule) {
         recRule.untilDate = repeatUntilDate.clone();
         gUntilDate = repeatUntilDate.clone().getInTimezone(defaultTimezone);
     } else {
-        // Rule that recurs forever.
-        recRule.count = -1;
+        // Rule that recurs forever or with a "count" number of recurrences.
         gUntilDate = null;
     }
 }
