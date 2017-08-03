@@ -29,3 +29,7 @@ ac_add_options --disable-stdcxx-compat
 # Run client.py
 mk_add_options CLIENT_PY_ARGS="$([ -f $topsrcdir/build/client.py-l10n-args ] && cat $topsrcdir/build/client.py-l10n-args)"
 mk_add_options ALWAYS_RUN_CLIENT_PY=1
+
+# Bug 1387239
+# Use bzip2 mar update compression, to allow upgrading of older nightly builds.
+mk_add_options "export MAR_OLD_FORMAT=1"
