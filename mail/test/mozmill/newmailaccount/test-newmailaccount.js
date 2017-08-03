@@ -939,7 +939,7 @@ function test_internal_link_opening_behaviour() {
 
   // We should load the target page in the current tab browser.
   wait_for_browser_load(tab.browser, function(aURL) {
-    return aURL.host == "localhost" && aURL.path == "/target.html";
+    return aURL.host == "localhost" && aURL.pathQueryRef == "/target.html";
   });
   // Now close the tab.
   mc.tabmail.closeTab(tab);
@@ -958,7 +958,7 @@ function test_window_open_link_opening_behaviour() {
   // tab and be focused.
   let newTabLink = doc.getElementById("newtab");
   open_content_tab_with_click(newTabLink, function(aURL) {
-    return aURL.host == "localhost" && aURL.path == "/target.html";
+    return aURL.host == "localhost" && aURL.pathQueryRef == "/target.html";
   });
 
   // Close the new tab.

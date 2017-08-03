@@ -307,7 +307,7 @@ calStorageCalendar.prototype = {
                 };
 
                 let id = 0;
-                let path = this.uri.path;
+                let path = this.uri.pathQueryRef;
                 let pos = path.indexOf("?id=");
 
                 if (pos == -1) {
@@ -323,7 +323,7 @@ calStorageCalendar.prototype = {
                 } else {
                     // There is an "id" parameter in the uri. This calendar
                     // has not been migrated to using the uuid as its cal_id.
-                    pos = this.uri.path.indexOf("?id=");
+                    pos = this.uri.pathQueryRef.indexOf("?id=");
                     if (pos == -1) {
                         this.mDB.rollbackTransaction();
                     } else {

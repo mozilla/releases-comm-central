@@ -35,7 +35,7 @@ AboutRedirector.prototype = {
    */
   _getModuleName: function AboutRedirector__getModuleName(aURI) {
     // Strip out the first ? or #, and anything following it
-    let name = (/[^?#]+/.exec(aURI.path))[0];
+    let name = (/[^?#]+/.exec(aURI.pathQueryRef))[0];
     return name.toLowerCase();
   },
 

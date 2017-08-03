@@ -526,7 +526,7 @@ calDavCalendar.prototype = {
         // Build a string containing the full path, decoded, so it looks like
         // this:
         // /some path/insert string.ics
-        let decodedPath = this.ensureDecodedPath(baseUri.path) + (aInsertString || "");
+        let decodedPath = this.ensureDecodedPath(baseUri.pathQueryRef) + (aInsertString || "");
 
         // Build the nsIURI by specifying a string with a fully encoded path
         // the end result will be something like this:
@@ -535,7 +535,7 @@ calDavCalendar.prototype = {
     },
 
     get mLocationPath() {
-        return this.ensureDecodedPath(this.calendarUri.path);
+        return this.ensureDecodedPath(this.calendarUri.pathQueryRef);
     },
 
     getItemLocationPath: function(aItem) {
@@ -681,7 +681,7 @@ calDavCalendar.prototype = {
                     cal.LOG("CalDAV: Item added to " + self.name + " successfully");
 
                     let uriComponentParts = self.makeUri().path.replace(/\/{2,}/g, "/").split("/").length;
-                    let targetParts = request.URI.path.split("/");
+                    let targetParts = request.URI.pathQueryRef.split("/");
                     targetParts.splice(0, uriComponentParts - 1);
 
                     self.mItemInfoCache[parentItem.id] = { locationPath: targetParts.join("/") };
@@ -892,7 +892,7 @@ calDavCalendar.prototype = {
             eventUri = this.makeUri(this.mItemInfoCache[aItem.id].locationPath);
         }
 
-        if (eventUri.path == this.calendarUri.path) {
+        if (eventUri.pathQueryRef == this.calendarUri.pathQueryRef) {
             notifyListener(Components.results.NS_ERROR_FAILURE,
                            "eventUri and calendarUri paths are the same, " +
                            "will not go on to delete entire calendar");
@@ -925,7 +925,7 @@ calDavCalendar.prototype = {
                 //
                 if (responseStatus == 204 || responseStatus == 200 || responseStatus == 404) {
                     if (!aFromInbox) {
-                        let decodedPath = self.ensureDecodedPath(eventUri.path);
+                        let decodedPath = self.ensureDecodedPath(eventUri.pathQueryRef);
                         delete self.mHrefIndex[decodedPath];
                         delete self.mItemInfoCache[aItem.id];
                         cal.LOG("CalDAV: Item deleted successfully from calendar " + self.name);
@@ -1038,9 +1038,9 @@ calDavCalendar.prototype = {
     addTargetCalendarItem: function(path, calData, aUri, etag, aListener) {
         let parser = Components.classes["@mozilla.org/calendar/ics-parser;1"]
                                .createInstance(Components.interfaces.calIIcsParser);
-        // aUri.path may contain double slashes whereas path does not
+        // aUri.pathQueryRef may contain double slashes whereas path does not
         // this confuses our counting, so remove multiple successive slashes
-        let strippedUriPath = aUri.path.replace(/\/{2,}/g, "/");
+        let strippedUriPath = aUri.pathQueryRef.replace(/\/{2,}/g, "/");
         let uriPathComponentLength = strippedUriPath.split("/").length;
         try {
             parser.parseString(calData);
@@ -1269,7 +1269,7 @@ calDavCalendar.prototype = {
         let locationPath = this.getItemLocationPath(aItem);
         let itemUri = this.makeUri(locationPath);
 
-        let multiget = new multigetSyncHandler([this.ensureDecodedPath(itemUri.path)],
+        let multiget = new multigetSyncHandler([this.ensureDecodedPath(itemUri.pathQueryRef)],
                                                this,
                                                this.makeUri(),
                                                null,
@@ -2206,10 +2206,10 @@ calDavCalendar.prototype = {
             }
             function createBoxUrl(path) {
                 let url = self.mUri.clone();
-                url.path = self.ensureDecodedPath(path);
+                url.pathQueryRef = self.ensureDecodedPath(path);
                 // Make sure the uri has a / at the end, as we do with the calendarUri.
-                if (url.path.charAt(url.path.length - 1) != "/") {
-                    url.path += "/";
+                if (url.pathQueryRef.charAt(url.pathQueryRef.length - 1) != "/") {
+                    url.pathQueryRef += "/";
                 }
                 return url;
             }
@@ -2669,7 +2669,7 @@ calDavCalendar.prototype = {
             // item was successful
             if (aStatus == 0) { // aStatus undocumented; 0 seems to indicate no error
                 let delUri = self.calendarUri.clone();
-                delUri.path = self.ensureEncodedPath(aPath);
+                delUri.pathQueryRef = self.ensureEncodedPath(aPath);
                 self.doDeleteItem(aItem, null, true, true, delUri);
             }
         };

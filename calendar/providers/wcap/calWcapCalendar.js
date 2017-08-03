@@ -105,7 +105,7 @@ calWcapCalendar.prototype = {
     },
     set uri(thatUri) {
         this.m_uri = thatUri.clone();
-        let path = thatUri.path;
+        let path = thatUri.pathQueryRef;
         let qmPos = path.indexOf("?");
         if (qmPos != -1) {
             let pos = path.indexOf("?calid=", qmPos);

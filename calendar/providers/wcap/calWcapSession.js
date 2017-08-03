@@ -568,7 +568,7 @@ calWcapSession.prototype = {
                         if (calendar === null) {
                             calendar = new calWcapCalendar(this);
                             let uri = this.uri.clone();
-                            uri.path += "?calid=" + encodeURIComponent(calId);
+                            uri.pathQueryRef += "?calid=" + encodeURIComponent(calId);
                             calendar.uri = uri;
                         }
                         if (calendar) {
@@ -896,7 +896,7 @@ calWcapSession.prototype = {
                                 } else {
                                     calendar = new calWcapCalendar(this, node);
                                     let uri = this.uri.clone();
-                                    uri.path += "?calid=" + encodeURIComponent(calId);
+                                    uri.pathQueryRef += "?calid=" + encodeURIComponent(calId);
                                     calendar.uri = uri;
                                 }
                                 ret.push(calendar);

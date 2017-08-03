@@ -96,7 +96,7 @@ function run_test() {
     do_check_eq(url.host, ldapURLs[part].host);
     do_check_eq(url.asciiHost, ldapURLs[part].asciiHost);
     do_check_eq(url.port, ldapURLs[part].port);
-    do_check_eq(url.path, ldapURLs[part].path);
+    do_check_eq(url.pathQueryRef, ldapURLs[part].path);
     do_check_eq(url.prePath, ldapURLs[part].prePath);
     do_check_eq(url.hostPort, ldapURLs[part].hostPort);
     // XXX nsLDAPURL ought to have classinfo.

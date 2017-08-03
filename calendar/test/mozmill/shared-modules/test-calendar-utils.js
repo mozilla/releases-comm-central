@@ -521,7 +521,7 @@ function handleNewCalendarWizard(wizard, name, data = undefined) {
             let calendarFile = Services.dirsvc.get("TmpD", Ci.nsIFile);
             calendarFile.append(name + ".ics");
             let fileURI = Services.io.newFileURI(calendarFile);
-            data.network.location = fileURI.prePath + fileURI.path;
+            data.network.location = fileURI.prePath + fileURI.pathQueryRef;
         }
         wizard.type(wizardlookup(`
             /id("calendar-wizard")/{"pageid":"locationPage"}/[1]/[1]/

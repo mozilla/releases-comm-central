@@ -86,7 +86,7 @@ FooUrl.prototype = {
   cloneInternal: function(aRefHandle, aRef)
   {
     let uriClone = this.cppBase.cloneInternal(aRefHandle, aRef);
-    uriClone.path = uriClone.path.toUpperCase();
+    uriClone.pathQueryRef = uriClone.pathQueryRef.toUpperCase();
     return uriClone;
   },
 
