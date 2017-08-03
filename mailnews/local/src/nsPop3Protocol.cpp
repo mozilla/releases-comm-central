@@ -548,7 +548,8 @@ nsresult nsPop3Protocol::InitializeInternal(nsIProxyInfo* aProxyInfo)
   if (m_socketType != nsMsgSocketType::plain)
   {
     nsCOMPtr<nsIMsgWindow> msgwin;
-    mailnewsUrl->GetMsgWindow(getter_AddRefs(msgwin));
+    if (mailnewsUrl)
+      mailnewsUrl->GetMsgWindow(getter_AddRefs(msgwin));
     if (!msgwin)
       GetTopmostMsgWindow(getter_AddRefs(msgwin));
     if (msgwin)
