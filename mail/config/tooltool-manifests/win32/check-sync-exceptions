@@ -1,0 +1,4 @@
+# Bug 1387227
+# mozilla-central started using xz to compress mar files. comm-central's
+# windows buildbots don't install it, so install it via tooltool
+releng.manifest

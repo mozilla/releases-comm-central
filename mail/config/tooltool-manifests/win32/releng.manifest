@@ -37,5 +37,12 @@
     "algorithm": "sha512",
     "filename": "clang.tar.bz2",
     "unpack": true
+  },
+  {
+    "size": 216733,
+    "digest": "7debd8ce46955eae345ebdf2ee6df3bfc3f3a547af1306f7fb099e38750f5ed9412af7155017574fc796f2bb8f37b5b7c4f91d838fa3dc422a776c230ba2d64b",
+    "algorithm": "sha512",
+    "filename": "xz.tar.bz2",
+    "unpack": true
   }
 ]
