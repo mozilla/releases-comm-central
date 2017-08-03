@@ -10,7 +10,6 @@ DIRS += [
     'base',
     'locales',
     'extensions',
-    'steel',
     'themes',
     'app',
 ]

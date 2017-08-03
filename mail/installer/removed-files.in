@@ -499,7 +499,6 @@ uninstall/uninstall.exe
   @DIR_MACOS@components/offlineStartup.js
   @DIR_MACOS@components/PlacesCategoriesStarter.js
   @DIR_MACOS@components/smime-service.js
-  @DIR_MACOS@components/steelApplication.js
   @DIR_MACOS@components/storage-Legacy.js
   @DIR_MACOS@components/storage-mozStorage.js
   @DIR_MACOS@components/txEXSLTRegExFunctions.js
@@ -1146,7 +1145,6 @@ uninstall/uninstall.exe
   @DIR_MACOS@components/shellservice.xpt
   @DIR_MACOS@components/shistory.xpt
   @DIR_MACOS@components/spellchecker.xpt
-  @DIR_MACOS@components/steel.xpt
   @DIR_MACOS@components/storage.xpt
   @DIR_MACOS@components/toolkitprofile.xpt
   @DIR_MACOS@components/txmgr.xpt
@@ -1178,7 +1176,6 @@ uninstall/uninstall.exe
   @DIR_MACOS@components/xultmpl.xpt
   @DIR_MACOS@components/zipwriter.xpt
   #ifdef XP_MACOSX
-    @DIR_MACOS@components/steel.xpt
     @DIR_MACOS@components/necko_wifi.xpt
     @DIR_MACOS@components/widget_cocoa.xpt
   #else

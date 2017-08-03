@@ -178,7 +178,6 @@
 @RESPATH@/components/mime.xpt
 @RESPATH@/components/mimeJSComponents.js
 @RESPATH@/components/msgMime.manifest
-@RESPATH@/components/steel.xpt
 @RESPATH@/components/msgAsyncPrompter.js
 @RESPATH@/components/msgbase.xpt
 @RESPATH@/components/msgBase.manifest
@@ -252,8 +251,6 @@
 @RESPATH@/components/shell.manifest
 @RESPATH@/components/offlineStartup.js
 @RESPATH@/components/offlineStartup.manifest
-@RESPATH@/components/steelApplication.js
-@RESPATH@/components/steelApplication.manifest
 
 
 @RESPATH@/components/mdn-service.js
