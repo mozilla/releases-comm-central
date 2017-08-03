@@ -85,18 +85,21 @@ unpack: $(XPI_ZIP_IN)
 langpack-en-US:
 	@echo "Skipping $@ as en-US is the default"
 
-merge-%: AB_CD=$*
 merge-%:
-	$(RM) -rf $(REAL_LOCALE_MERGEDIR)/calendar
+ifdef LOCALE_MERGEDIR
+	$(RM) -rf $(LOCALE_MERGEDIR)/calendar
 	$(MOZILLA_SRCDIR)/mach compare-locales \
-	    --merge-dir $(REAL_LOCALE_MERGEDIR) \
+	    --merge-dir $(LOCALE_MERGEDIR) \
 	    --l10n-ini $(topsrcdir)/calendar/locales/l10n.ini \
 	    $*
 
 	# This file requires a bugfix with string changes, see bug 1154448
 	[ -f $(L10NBASEDIR)/$*/calendar/chrome/calendar/calendar-extract.properties ] && \
-	  $(RM) $(REAL_LOCALE_MERGEDIR)/calendar/chrome/calendar/calendar-extract.properties \
+	  $(RM) $(LOCALE_MERGEDIR)/calendar/chrome/calendar/calendar-extract.properties \
 	  || true
+else
+	@echo "Not merging Lightning locales due to missing LOCALE_MERGEDIR"
+endif
 
 # Calling these targets with prerequisites causes the libs and subsequent
 # targets to be switched in order due to some make voodoo. Therefore we call
@@ -133,9 +136,7 @@ repack-stage:
 # so that we can ensure we get the right xpi that gets repacked.
 libs-%: FINAL_XPI_NAME=$(if $(L10N_XPI_NAME),$(L10N_XPI_NAME),$(XPI_NAME))
 libs-%: FINAL_XPI_PKGNAME=$(if $(L10N_XPI_PKGNAME),$(L10N_XPI_PKGNAME),$(XPI_PKGNAME))
-libs-%: AB_CD=$*
 libs-%:
-	@$(MAKE) merge-$*
 	$(MAKE) -C locales libs AB_CD=$* FINAL_TARGET=$(ABS_DIST)/xpi-stage/$(FINAL_XPI_NAME) \
 	  XPI_NAME=$(FINAL_XPI_NAME) XPI_PKGNAME=$(FINAL_XPI_PKGNAME) USE_EXTENSION_MANIFEST=1
 	$(MAKE) -C locales tools AB_CD=$* FINAL_TARGET=$(ABS_DIST)/xpi-stage/$(FINAL_XPI_NAME) \
@@ -161,8 +162,6 @@ recreate-platformini: $(DIST)/bin/platform.ini
 # Lightning uses Thunderbird's build machinery, so we need to hack the post
 # upload command to use Lightning's directories and version.
 upload: upload-$(AB_CD)
-
-upload-%: AB_CD=$*
 upload-%: LTN_UPLOAD_CMD := $(patsubst $(THUNDERBIRD_VERSION)%,$(LIGHTNING_VERSION),$(subst thunderbird,calendar/lightning,$(POST_UPLOAD_CMD)))
 upload-%: stage_upload
 	POST_UPLOAD_CMD="$(LTN_UPLOAD_CMD)" \
