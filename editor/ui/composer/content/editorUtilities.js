@@ -537,8 +537,8 @@ function MakeRelativeUrl(url)
 
   // Get just the file path part of the urls
   // XXX Should we use GetCurrentEditor().documentCharacterSet for 2nd param ?
-  let docPath = Services.io.newURI(docUrl, GetCurrentEditor().documentCharacterSet).path;
-  let urlPath = Services.io.newURI(inputUrl, GetCurrentEditor().documentCharacterSet).path;
+  let docPath = Services.io.newURI(docUrl, GetCurrentEditor().documentCharacterSet).pathQueryRef;
+  let urlPath = Services.io.newURI(inputUrl, GetCurrentEditor().documentCharacterSet).pathQueryRef;
 
   // We only return "urlPath", so we can convert
   //  the entire docPath for case-insensitive comparisons

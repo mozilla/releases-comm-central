@@ -680,7 +680,7 @@ calDavCalendar.prototype = {
                     // 204 = HTTP "No Content"
                     cal.LOG("CalDAV: Item added to " + self.name + " successfully");
 
-                    let uriComponentParts = self.makeUri().path.replace(/\/{2,}/g, "/").split("/").length;
+                    let uriComponentParts = self.makeUri().pathQueryRef.replace(/\/{2,}/g, "/").split("/").length;
                     let targetParts = request.URI.pathQueryRef.split("/");
                     targetParts.splice(0, uriComponentParts - 1);
 
