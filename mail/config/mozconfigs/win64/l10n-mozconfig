@@ -33,7 +33,3 @@ mk_add_options ALWAYS_RUN_CLIENT_PY=1
 
 # Use the TOOLTOOL provided xz for mar generation.
 mk_add_options "export XZ=$TOOLTOOL_DIR/xz/xz.exe"
-
-# Bug 1387239
-# Use bzip2 mar update compression, to allow upgrading of older nightly builds.
-mk_add_options "export MAR_OLD_FORMAT=1"
