@@ -10,6 +10,7 @@
 #include "nsAbBaseCID.h"
 #include "nsComponentManagerUtils.h"
 #include "nsAutoPtr.h"
+#include "mozilla/Encoding.h"
 
 /////////////////////////////////////////////////////////////////////////////////////
 // addbook url definition
@@ -167,11 +168,6 @@ NS_IMETHODIMP nsAddbookUrl::GetAsciiSpec(nsACString &aSpecA)
   return m_baseURL->GetAsciiSpec(aSpecA);
 }
 
-NS_IMETHODIMP nsAddbookUrl::GetOriginCharset(nsACString &aOriginCharset)
-{
-    return m_baseURL->GetOriginCharset(aOriginCharset);
-}
-
 NS_IMETHODIMP nsAddbookUrl::SchemeIs(const char *aScheme, bool *_retval)
 {
   return m_baseURL->SchemeIs(aScheme, _retval);
@@ -270,6 +266,12 @@ NS_IMETHODIMP
 nsAddbookUrl::SetQuery(const nsACString &aQuery)
 {
   return m_baseURL->SetQuery(aQuery);
+}
+
+NS_IMETHODIMP
+nsAddbookUrl::SetQueryWithEncoding(const nsACString &aQuery, const mozilla::Encoding* aEncoding)
+{
+  return m_baseURL->SetQueryWithEncoding(aQuery, aEncoding);
 }
 
 NS_IMETHODIMP nsAddbookUrl::EqualsExceptRef(nsIURI *other, bool *_retval)

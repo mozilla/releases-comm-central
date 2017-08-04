@@ -16,6 +16,7 @@
 #include "nsServiceManagerUtils.h"
 #include "nsCRT.h"
 #include "nsAutoPtr.h"
+#include "mozilla/Encoding.h"
 
 /////////////////////////////////////////////////////////////////////////////////////
 // mailto url definition
@@ -503,11 +504,6 @@ NS_IMETHODIMP nsMailtoUrl::GetAsciiSpec(nsACString &aSpecA)
 	return m_baseURL->GetAsciiSpec(aSpecA);
 }
 
-NS_IMETHODIMP nsMailtoUrl::GetOriginCharset(nsACString &aOriginCharset)
-{
-    return m_baseURL->GetOriginCharset(aOriginCharset);
-}
-
 NS_IMETHODIMP nsMailtoUrl::SchemeIs(const char *aScheme, bool *_retval)
 {
 	return m_baseURL->SchemeIs(aScheme, _retval);
@@ -645,6 +641,12 @@ NS_IMETHODIMP
 nsMailtoUrl::SetQuery(const nsACString &aQuery)
 {
   return m_baseURL->SetQuery(aQuery);
+}
+
+NS_IMETHODIMP
+nsMailtoUrl::SetQueryWithEncoding(const nsACString &aQuery, const mozilla::Encoding* aEncoding)
+{
+  return m_baseURL->SetQueryWithEncoding(aQuery, aEncoding);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////

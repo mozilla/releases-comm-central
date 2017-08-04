@@ -28,6 +28,7 @@
 #include <algorithm>
 #include "nsProxyRelease.h"
 #include "mozilla/BasePrincipal.h"
+#include "mozilla/Encoding.h"
 
 nsMsgMailNewsUrl::nsMsgMailNewsUrl()
 {
@@ -545,11 +546,6 @@ NS_IMETHODIMP nsMsgMailNewsUrl::GetAsciiSpec(nsACString &aSpecA)
     return m_baseURL->GetAsciiSpec(aSpecA);
 }
 
-NS_IMETHODIMP nsMsgMailNewsUrl::GetOriginCharset(nsACString &aOriginCharset)
-{
-    return m_baseURL->GetOriginCharset(aOriginCharset);
-}
-
 NS_IMETHODIMP nsMsgMailNewsUrl::GetBaseURI(nsIURI **aBaseURI)
 {
   NS_ENSURE_ARG_POINTER(aBaseURI);
@@ -759,6 +755,12 @@ NS_IMETHODIMP nsMsgMailNewsUrl::GetQuery(nsACString &aQuery)
 NS_IMETHODIMP nsMsgMailNewsUrl::SetQuery(const nsACString &aQuery)
 {
   return m_baseURL->SetQuery(aQuery);
+}
+
+NS_IMETHODIMP
+nsMsgMailNewsUrl::SetQueryWithEncoding(const nsACString &aQuery, const mozilla::Encoding* aEncoding)
+{
+  return m_baseURL->SetQueryWithEncoding(aQuery, aEncoding);
 }
 
 NS_IMETHODIMP nsMsgMailNewsUrl::GetRef(nsACString &aRef)

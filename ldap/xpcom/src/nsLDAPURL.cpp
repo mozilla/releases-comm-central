@@ -12,6 +12,7 @@
 #include "nsComponentManagerUtils.h"
 #include "nsIStandardURL.h"
 #include "nsMsgUtils.h"
+#include "mozilla/Encoding.h"
 
 // The two schemes we support, LDAP and LDAPS
 //
@@ -347,14 +348,6 @@ nsLDAPURL::GetAsciiHostPort(nsACString &_retval)
     return NS_ERROR_NOT_INITIALIZED;
 
   return mBaseURL->GetAsciiHostPort(_retval);
-}
-
-NS_IMETHODIMP nsLDAPURL::GetOriginCharset(nsACString &result)
-{
-  if (!mBaseURL)
-    return NS_ERROR_NOT_INITIALIZED;
-
-  return mBaseURL->GetOriginCharset(result);
 }
 
 // boolean equals (in nsIURI other)
@@ -764,4 +757,10 @@ NS_IMETHODIMP
 nsLDAPURL::SetQuery(const nsACString &aQuery)
 {
   return mBaseURL->SetQuery(aQuery);
+}
+
+NS_IMETHODIMP
+nsLDAPURL::SetQueryWithEncoding(const nsACString &aQuery, const mozilla::Encoding* aEncoding)
+{
+  return mBaseURL->SetQueryWithEncoding(aQuery, aEncoding);
 }
