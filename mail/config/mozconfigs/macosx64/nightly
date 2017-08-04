@@ -39,7 +39,3 @@ mk_add_options ALWAYS_RUN_CLIENT_PY=1
 
 # XXX hack to work around dsymutil failing on OSX builds (bug 1380381, 1382262)
 ac_add_options RUSTFLAGS='-C debuginfo=1'
-
-# Bug 1387239
-# Use bzip2 mar update compression, to allow upgrading of older nightly builds.
-mk_add_options "export MAR_OLD_FORMAT=1"

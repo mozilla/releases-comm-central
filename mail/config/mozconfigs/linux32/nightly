@@ -32,7 +32,3 @@ mk_add_options CLIENT_PY_ARGS="$([ -f $topsrcdir/build/client.py-args ] && cat $
 mk_add_options ALWAYS_RUN_CLIENT_PY=1
 
 . "$topsrcdir/build/mozconfig.cache"
-
-# Bug 1387239
-# Use bzip2 mar update compression, to allow upgrading of older nightly builds.
-mk_add_options "export MAR_OLD_FORMAT=1"
