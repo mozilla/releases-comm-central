@@ -39,7 +39,7 @@ About.prototype = {
   QueryInterface: XPCOMUtils.generateQI([Components.interfaces.nsIAboutModule]),
 
   getModule: function(aURI) {
-    return aURI.path.replace(/-|\W.*$/g, "").toLowerCase();
+    return aURI.pathQueryRef.replace(/-|\W.*$/g, "").toLowerCase();
   },
 
   getURIFlags: function(aURI) {
