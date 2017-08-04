@@ -145,8 +145,13 @@ imcontact[aliasing] .contactDisplayName {
 }
 
 .closeConversationButton {
-  margin-inline-end: 0;
+  margin-inline-end: 2px;
   -moz-stack-sizing: ignore;
+}
+
+.closeConversationButton > .button-image-icon {
+  width: 16px;
+  height: 16px;
 }
 
 
