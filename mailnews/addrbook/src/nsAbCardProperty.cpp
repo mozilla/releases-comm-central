@@ -733,7 +733,7 @@ nsresult nsAbCardProperty::ConvertToBase64EncodedXML(nsACString &result)
     rv = stringBundleService->CreateBundle(sAddrbookProperties, getter_AddRefs(bundle));
     if (NS_SUCCEEDED(rv)) {
       nsString addrBook;
-      rv = bundle->GetStringFromName("addressBook", getter_Copies(addrBook));
+      rv = bundle->GetStringFromName("addressBook", addrBook);
       if (NS_SUCCEEDED(rv)) {
         xmlStr.AppendLiteral("<title xmlns=\"http://www.w3.org/1999/xhtml\">");
         xmlStr.Append(addrBook);
@@ -825,7 +825,7 @@ nsresult nsAbCardProperty::ConvertToXMLPrintData(nsAString &aXMLSubstr)
     xmlStr.AppendLiteral("<section><sectiontitle>");
 
     nsString headingAddresses;
-    rv = bundle->GetStringFromName("headingAddresses", getter_Copies(headingAddresses));
+    rv = bundle->GetStringFromName("headingAddresses", headingAddresses);
     NS_ENSURE_SUCCESS(rv, rv);
 
     xmlStr.Append(headingAddresses);
@@ -913,7 +913,7 @@ nsresult nsAbCardProperty::AppendSection(const AppendItem *aArray, int16_t aCoun
 
   if (!sectionIsEmpty && !aHeading.IsEmpty()) {
     nsString heading;
-    rv = aBundle->GetStringFromName(NS_ConvertUTF16toUTF8(aHeading).get(), getter_Copies(heading));
+    rv = aBundle->GetStringFromName(NS_ConvertUTF16toUTF8(aHeading).get(), heading);
     NS_ENSURE_SUCCESS(rv, rv);
 
     aResult.AppendLiteral("<sectiontitle>");
@@ -991,7 +991,7 @@ nsresult nsAbCardProperty::AppendLabel(const AppendItem &aItem,
   if (NS_FAILED(rv) || attrValue.IsEmpty())
     return NS_OK;
 
-  rv = aBundle->GetStringFromName(aItem.mLabel, getter_Copies(label));
+  rv = aBundle->GetStringFromName(aItem.mLabel, label);
   NS_ENSURE_SUCCESS(rv, rv);
 
   aResult.AppendLiteral("<labelrow><label>");
@@ -1048,18 +1048,18 @@ nsresult nsAbCardProperty::AppendCityStateZip(const AppendItem &aItem,
 
   if (!cityResult.IsEmpty() && !stateResult.IsEmpty() && !zipResult.IsEmpty()) {
     const char16_t *formatStrings[] = { cityResult.get(), stateResult.get(), zipResult.get() };
-    rv = aBundle->FormatStringFromName("cityAndStateAndZip", formatStrings, ArrayLength(formatStrings), getter_Copies(formattedString));
+    rv = aBundle->FormatStringFromName("cityAndStateAndZip", formatStrings, ArrayLength(formatStrings), formattedString);
     NS_ENSURE_SUCCESS(rv,rv);
   }
   else if (!cityResult.IsEmpty() && !stateResult.IsEmpty() && zipResult.IsEmpty()) {
     const char16_t *formatStrings[] = { cityResult.get(), stateResult.get() };
-    rv = aBundle->FormatStringFromName("cityAndStateNoZip", formatStrings, ArrayLength(formatStrings), getter_Copies(formattedString));
+    rv = aBundle->FormatStringFromName("cityAndStateNoZip", formatStrings, ArrayLength(formatStrings), formattedString);
     NS_ENSURE_SUCCESS(rv,rv);
   }
   else if ((!cityResult.IsEmpty() && stateResult.IsEmpty() && !zipResult.IsEmpty()) ||
           (cityResult.IsEmpty() && !stateResult.IsEmpty() && !zipResult.IsEmpty())) {
     const char16_t *formatStrings[] = { cityResult.IsEmpty() ? stateResult.get() : cityResult.get(), zipResult.get() };
-    rv = aBundle->FormatStringFromName("cityOrStateAndZip", formatStrings, ArrayLength(formatStrings), getter_Copies(formattedString));
+    rv = aBundle->FormatStringFromName("cityOrStateAndZip", formatStrings, ArrayLength(formatStrings), formattedString);
     NS_ENSURE_SUCCESS(rv,rv);
   }
   else {
@@ -1114,13 +1114,13 @@ NS_IMETHODIMP nsAbCardProperty::GenerateName(int32_t aGenerateFormat,
       const char16_t *stringParams[2] = {lastName.get(), firstName.get()};
 
       rv = bundle->FormatStringFromName("lastFirstFormat",
-                                        stringParams, 2, getter_Copies(result));
+                                        stringParams, 2, result);
     }
     else {
       const char16_t *stringParams[2] = {firstName.get(), lastName.get()};
 
       rv = bundle->FormatStringFromName("firstLastFormat",
-                                        stringParams, 2, getter_Copies(result));
+                                        stringParams, 2, result);
     }
     NS_ENSURE_SUCCESS(rv, rv); 
 

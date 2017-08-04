@@ -317,7 +317,7 @@ nsNNTPNewsgroupList::GetRangeOfArtsToDownload(nsIMsgWindow *aMsgWindow,
     rv = bundleService->CreateBundle(NEWS_MSGS_URL, getter_AddRefs(bundle));
     NS_ENSURE_SUCCESS(rv, rv);
 
-    rv = bundle->GetStringFromName("noNewMessages", getter_Copies(statusString));
+    rv = bundle->GetStringFromName("noNewMessages", statusString);
     NS_ENSURE_SUCCESS(rv, rv);
 
     SetProgressStatus(statusString.get());
@@ -886,7 +886,7 @@ nsNNTPNewsgroupList::FinishXOVERLINE(int status, int *newstatus)
       NS_ENSURE_SUCCESS(rv, rv);
 
       const char16_t *formatStrings[2] = { firstStr.get(), lastStr.get() };
-      rv = bundle->FormatStringFromName("downloadingArticles", formatStrings, 2, getter_Copies(statusString));
+      rv = bundle->FormatStringFromName("downloadingArticles", formatStrings, 2, statusString);
       NS_ENSURE_SUCCESS(rv, rv);
 
       SetProgressStatus(statusString.get());
@@ -1254,7 +1254,7 @@ nsNNTPNewsgroupList::SetProgressStatus(const char16_t *aMessage)
       NS_ENSURE_SUCCESS_VOID(rv);
       const char16_t *params[] = { accountName.get(), aMessage };
       bundle->FormatStringFromName("statusMessage",
-                                   params, 2, getter_Copies(statusMessage));
+                                   params, 2, statusMessage);
 
       feedback->ShowStatusString(statusMessage);
     }
@@ -1296,14 +1296,14 @@ nsNNTPNewsgroupList::UpdateStatus(bool filtering, int32_t numDLed, int32_t totTo
     const char16_t *formatStrings[4] = { header.get(),
       numDownloadedStr.get(), totalToDownloadStr.get(), newsgroupName.get() };
     rv = bundle->FormatStringFromName("newNewsgroupFilteringHeaders",
-      formatStrings, 4, getter_Copies(statusString));
+      formatStrings, 4, statusString);
   }
   else
   {
     const char16_t *formatStrings[3] = { numDownloadedStr.get(),
       totalToDownloadStr.get(), newsgroupName.get() };
     rv = bundle->FormatStringFromName("newNewsgroupHeaders",
-      formatStrings, 3, getter_Copies(statusString));
+      formatStrings, 3, statusString);
   }
   if (!NS_SUCCEEDED(rv))
     return;

@@ -87,16 +87,16 @@ static NS_DEFINE_CID(kRDFServiceCID, NS_RDFSERVICE_CID);
 
 nsICollation * nsMsgDBFolder::gCollationKeyGenerator = nullptr;
 
-char16_t *nsMsgDBFolder::kLocalizedInboxName;
-char16_t *nsMsgDBFolder::kLocalizedTrashName;
-char16_t *nsMsgDBFolder::kLocalizedSentName;
-char16_t *nsMsgDBFolder::kLocalizedDraftsName;
-char16_t *nsMsgDBFolder::kLocalizedTemplatesName;
-char16_t *nsMsgDBFolder::kLocalizedUnsentName;
-char16_t *nsMsgDBFolder::kLocalizedJunkName;
-char16_t *nsMsgDBFolder::kLocalizedArchivesName;
+nsString nsMsgDBFolder::kLocalizedInboxName;
+nsString nsMsgDBFolder::kLocalizedTrashName;
+nsString nsMsgDBFolder::kLocalizedSentName;
+nsString nsMsgDBFolder::kLocalizedDraftsName;
+nsString nsMsgDBFolder::kLocalizedTemplatesName;
+nsString nsMsgDBFolder::kLocalizedUnsentName;
+nsString nsMsgDBFolder::kLocalizedJunkName;
+nsString nsMsgDBFolder::kLocalizedArchivesName;
 
-char16_t *nsMsgDBFolder::kLocalizedBrandShortName;
+nsString nsMsgDBFolder::kLocalizedBrandShortName;
 
 nsrefcnt nsMsgDBFolder::mInstanceCount=0;
 
@@ -157,15 +157,6 @@ nsMsgDBFolder::~nsMsgDBFolder(void)
 
   if (--mInstanceCount == 0) {
     NS_IF_RELEASE(gCollationKeyGenerator);
-    NS_Free(kLocalizedInboxName);
-    NS_Free(kLocalizedTrashName);
-    NS_Free(kLocalizedSentName);
-    NS_Free(kLocalizedDraftsName);
-    NS_Free(kLocalizedTemplatesName);
-    NS_Free(kLocalizedUnsentName);
-    NS_Free(kLocalizedJunkName);
-    NS_Free(kLocalizedArchivesName);
-    NS_Free(kLocalizedBrandShortName);
 
 #define MSGDBFOLDER_ATOM(name_, value_) NS_RELEASE(name_);
 #include "nsMsgDBFolderAtomList.h"
@@ -1921,16 +1912,16 @@ nsresult nsMsgDBFolder::HandleAutoCompactEvent(nsIMsgWindow *aWindow)
           nsAutoString compactSize;
           FormatFileSize(totalExpungedBytes, true, compactSize);
           const char16_t* params[] = { compactSize.get() };
-          rv = bundle->GetStringFromName("autoCompactAllFoldersTitle", getter_Copies(dialogTitle));
+          rv = bundle->GetStringFromName("autoCompactAllFoldersTitle", dialogTitle);
           NS_ENSURE_SUCCESS(rv, rv);
           rv = bundle->FormatStringFromName("autoCompactAllFoldersText",
-                                            params, 1, getter_Copies(confirmString));
+                                            params, 1, confirmString);
           NS_ENSURE_SUCCESS(rv, rv);
           rv = bundle->GetStringFromName("autoCompactAlwaysAskCheckbox",
-                                         getter_Copies(checkboxText));
+                                         checkboxText);
           NS_ENSURE_SUCCESS(rv, rv);
           rv = bundle->GetStringFromName("compactNowButton",
-                                         getter_Copies(buttonCompactNowText));
+                                         buttonCompactNowText);
           NS_ENSURE_SUCCESS(rv, rv);
           bool alwaysAsk = true; // "Always ask..." - checked by default.
           int32_t buttonPressed = 0;
@@ -2925,28 +2916,19 @@ nsMsgDBFolder::initializeStrings()
                                    getter_AddRefs(bundle));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  bundle->GetStringFromName("inboxFolderName",
-                            &kLocalizedInboxName);
-  bundle->GetStringFromName("trashFolderName",
-                            &kLocalizedTrashName);
-  bundle->GetStringFromName("sentFolderName",
-                            &kLocalizedSentName);
-  bundle->GetStringFromName("draftsFolderName",
-                            &kLocalizedDraftsName);
-  bundle->GetStringFromName("templatesFolderName",
-                            &kLocalizedTemplatesName);
-  bundle->GetStringFromName("junkFolderName",
-                            &kLocalizedJunkName);
-  bundle->GetStringFromName("outboxFolderName",
-                            &kLocalizedUnsentName);
-  bundle->GetStringFromName("archivesFolderName",
-                            &kLocalizedArchivesName);
+  bundle->GetStringFromName("inboxFolderName", kLocalizedInboxName);
+  bundle->GetStringFromName("trashFolderName", kLocalizedTrashName);
+  bundle->GetStringFromName("sentFolderName", kLocalizedSentName);
+  bundle->GetStringFromName("draftsFolderName", kLocalizedDraftsName);
+  bundle->GetStringFromName("templatesFolderName", kLocalizedTemplatesName);
+  bundle->GetStringFromName("junkFolderName", kLocalizedJunkName);
+  bundle->GetStringFromName("outboxFolderName", kLocalizedUnsentName);
+  bundle->GetStringFromName("archivesFolderName", kLocalizedArchivesName);
 
   nsCOMPtr<nsIStringBundle> brandBundle;
   rv = bundleService->CreateBundle("chrome://branding/locale/brand.properties", getter_AddRefs(bundle));
   NS_ENSURE_SUCCESS(rv, rv);
-  bundle->GetStringFromName("brandShortName",
-                            &kLocalizedBrandShortName);
+  bundle->GetStringFromName("brandShortName", kLocalizedBrandShortName);
   return NS_OK;
 }
 
@@ -3404,21 +3386,21 @@ NS_IMETHODIMP nsMsgDBFolder::SetPrettyName(const nsAString& name)
 
   //Set pretty name only if special flag is set and if it the default folder name
   if (mFlags & nsMsgFolderFlags::Inbox && name.LowerCaseEqualsLiteral("inbox"))
-    rv = SetName(nsDependentString(kLocalizedInboxName));
+    rv = SetName(kLocalizedInboxName);
   else if (mFlags & nsMsgFolderFlags::SentMail && name.LowerCaseEqualsLiteral("sent"))
-    rv = SetName(nsDependentString(kLocalizedSentName));
+    rv = SetName(kLocalizedSentName);
   else if (mFlags & nsMsgFolderFlags::Drafts && name.LowerCaseEqualsLiteral("drafts"))
-    rv = SetName(nsDependentString(kLocalizedDraftsName));
+    rv = SetName(kLocalizedDraftsName);
   else if (mFlags & nsMsgFolderFlags::Templates && name.LowerCaseEqualsLiteral("templates"))
-    rv = SetName(nsDependentString(kLocalizedTemplatesName));
+    rv = SetName(kLocalizedTemplatesName);
   else if (mFlags & nsMsgFolderFlags::Trash && name.LowerCaseEqualsLiteral("trash"))
-    rv = SetName(nsDependentString(kLocalizedTrashName));
+    rv = SetName(kLocalizedTrashName);
   else if (mFlags & nsMsgFolderFlags::Queue && name.LowerCaseEqualsLiteral("unsent messages"))
-    rv = SetName(nsDependentString(kLocalizedUnsentName));
+    rv = SetName(kLocalizedUnsentName);
   else if (mFlags & nsMsgFolderFlags::Junk && name.LowerCaseEqualsLiteral("junk"))
-    rv = SetName(nsDependentString(kLocalizedJunkName));
+    rv = SetName(kLocalizedJunkName);
   else if (mFlags & nsMsgFolderFlags::Archive && name.LowerCaseEqualsLiteral("archives"))
-    rv = SetName(nsDependentString(kLocalizedArchivesName));
+    rv = SetName(kLocalizedArchivesName);
   else
     rv = SetName(name);
   return rv;
@@ -3856,7 +3838,7 @@ nsMsgDBFolder::ConfirmAutoFolderRename(nsIMsgWindow *msgWindow,
 
   nsString confirmString;
   rv = bundle->FormatStringFromName("confirmDuplicateFolderRename",
-                                    formatStrings, 3, getter_Copies(confirmString));
+                                    formatStrings, 3, confirmString);
   if (NS_WARN_IF(NS_FAILED(rv))) {
     return false;
   }
@@ -5203,7 +5185,7 @@ nsMsgDBFolder::GetStringFromBundle(const char *msgName, nsString& aResult)
   nsCOMPtr <nsIStringBundle> bundle;
   rv = GetBaseStringBundle(getter_AddRefs(bundle));
   if (NS_SUCCEEDED(rv) && bundle)
-    rv = bundle->GetStringFromName(msgName, getter_Copies(aResult));
+    rv = bundle->GetStringFromName(msgName, aResult);
   return rv;
 }
 
@@ -5236,12 +5218,12 @@ nsMsgDBFolder::GetStringWithFolderNameFromBundle(const char * msgName, nsAString
     const char16_t *formatStrings[] =
     {
       folderName.get(),
-      kLocalizedBrandShortName
+      kLocalizedBrandShortName.get()
     };
 
     nsString resultStr;
     rv = bundle->FormatStringFromName(msgName,
-                                      formatStrings, 2, getter_Copies(resultStr));
+                                      formatStrings, 2, resultStr);
     if (NS_SUCCEEDED(rv))
       aResult.Assign(resultStr);
   }

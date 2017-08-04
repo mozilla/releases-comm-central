@@ -1911,7 +1911,7 @@ MimeGetStringByID(int32_t stringID)
   if (stringBundle)
   {
     nsString v;
-    if (NS_SUCCEEDED(stringBundle->GetStringFromID(stringID, getter_Copies(v))))
+    if (NS_SUCCEEDED(stringBundle->GetStringFromID(stringID, v)))
       return ToNewUTF8String(v);
   }
 
@@ -1930,7 +1930,7 @@ MimeGetStringByName(const char16_t *stringName)
   if (stringBundle)
   {
     nsString v;
-    if (NS_SUCCEEDED(stringBundle->GetStringFromName(NS_ConvertUTF16toUTF8(stringName).get(), getter_Copies(v))))
+    if (NS_SUCCEEDED(stringBundle->GetStringFromName(NS_ConvertUTF16toUTF8(stringName).get(), v)))
       return ToNewUTF8String(v);
   }
 

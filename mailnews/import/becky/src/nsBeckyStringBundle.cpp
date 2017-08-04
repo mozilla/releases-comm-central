@@ -44,18 +44,20 @@ nsBeckyStringBundle::GetStringByName(const char *aName)
 {
   EnsureStringBundle();
 
-  char16_t *string = nullptr;
-  if (mBundle)
-    mBundle->GetStringFromName(aName, &string);
+  if (mBundle) {
+    nsAutoString string;
+    mBundle->GetStringFromName(aName, string);
+    return ToNewUnicode(string);
+  }
 
-  return string;
+  return nullptr;
 }
 
 nsresult
 nsBeckyStringBundle::FormatStringFromName(const char *name,
                                           const char16_t **params,
                                           uint32_t length,
-                                          char16_t **_retval)
+                                          nsAString& _retval)
 {
   EnsureStringBundle();
 

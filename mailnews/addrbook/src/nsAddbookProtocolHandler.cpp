@@ -287,7 +287,7 @@ nsAddbookProtocolHandler::BuildDirectoryXML(nsIAbDirectory *aDirectory,
     rv = stringBundleService->CreateBundle("chrome://messenger/locale/addressbook/addressBook.properties", getter_AddRefs(bundle));
     if (NS_SUCCEEDED(rv)) {
       nsString addrBook;
-      rv = bundle->GetStringFromName("addressBook", getter_Copies(addrBook));
+      rv = bundle->GetStringFromName("addressBook", addrBook);
       if (NS_SUCCEEDED(rv)) {
         aOutput.AppendLiteral("<title xmlns=\"http://www.w3.org/1999/xhtml\">");
         aOutput.Append(addrBook);

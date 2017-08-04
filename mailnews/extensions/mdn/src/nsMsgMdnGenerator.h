@@ -52,10 +52,10 @@ private:
   nsresult SendMdnMsg();
 
   // string bundle helper methods
-  nsresult GetStringFromName(const char *aName, char16_t **aResultString);
+  nsresult GetStringFromName(const char *aName, nsAString& aResultString);
   nsresult FormatStringFromName(const char *aName,
                                 const char16_t *aString,
-                                char16_t **aResultString);
+                                nsAString& aResultString);
 
   // other helper methods
   nsresult InitAndProcess(bool *needToAskUser);

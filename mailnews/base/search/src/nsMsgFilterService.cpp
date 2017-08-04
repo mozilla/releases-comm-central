@@ -209,16 +209,13 @@ nsresult nsMsgFilterService::AlertBackingUpFilterFile(nsIMsgWindow *aMsgWindow)
 }
 
 nsresult //Do not use this routine if you have to call it very often because it creates a new bundle each time
-nsMsgFilterService::GetStringFromBundle(const char *aMsgName, char16_t **aResult)
+nsMsgFilterService::GetStringFromBundle(const char *aMsgName, nsAString& aResult)
 {
-  NS_ENSURE_ARG_POINTER(aResult);
-
   nsCOMPtr <nsIStringBundle> bundle;
   nsresult rv = GetFilterStringBundle(getter_AddRefs(bundle));
   if (NS_SUCCEEDED(rv) && bundle)
     rv = bundle->GetStringFromName(aMsgName, aResult);
   return rv;
-
 }
 
 nsresult
@@ -241,7 +238,7 @@ nsresult
 nsMsgFilterService::ThrowAlertMsg(const char*aMsgName, nsIMsgWindow *aMsgWindow)
 {
   nsString alertString;
-  nsresult rv = GetStringFromBundle(aMsgName, getter_Copies(alertString));
+  nsresult rv = GetStringFromBundle(aMsgName, alertString);
   nsCOMPtr<nsIMsgWindow> msgWindow(do_QueryInterface(aMsgWindow));
   if (!msgWindow) {
     nsCOMPtr<nsIMsgMailSession> mailSession ( do_GetService(NS_MSGMAILSESSION_CONTRACTID, &rv));
@@ -1182,7 +1179,7 @@ bool nsMsgFilterAfterTheFact::ContinueExecutionPrompt()
     filterName.get()
   };
   nsresult rv = bundle->FormatStringFromName("continueFilterExecution",
-                                             formatStrings, 1, getter_Copies(confirmText));
+                                             formatStrings, 1, confirmText);
   if (NS_FAILED(rv))
     return false;
   bool returnVal = false;

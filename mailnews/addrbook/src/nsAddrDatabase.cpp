@@ -412,11 +412,11 @@ nsresult nsAddrDatabase::DisplayAlert(const char16_t *titleName, const char16_t 
 
   nsString alertMessage;
   rv = bundle->FormatStringFromName(NS_ConvertUTF16toUTF8(alertStringName).get(), formatStrings, numFormatStrings,
-    getter_Copies(alertMessage));
+    alertMessage);
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsString alertTitle;
-  rv = bundle->GetStringFromName(NS_ConvertUTF16toUTF8(titleName).get(), getter_Copies(alertTitle));
+  rv = bundle->GetStringFromName(NS_ConvertUTF16toUTF8(titleName).get(), alertTitle);
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsIPromptService> prompter =

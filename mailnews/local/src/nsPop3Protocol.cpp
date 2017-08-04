@@ -655,13 +655,13 @@ nsresult nsPop3Protocol::FormatCounterString(const nsString &stringName,
 
   return mLocalBundle->FormatStringFromName(NS_ConvertUTF16toUTF8(stringName).get(),
                                             formatStrings, 2,
-                                            getter_Copies(resultString));
+                                            resultString);
 }
 
 void nsPop3Protocol::UpdateStatus(const char *aStatusName)
 {
   nsString statusMessage;
-  mLocalBundle->GetStringFromName(aStatusName, getter_Copies(statusMessage));
+  mLocalBundle->GetStringFromName(aStatusName, statusMessage);
   UpdateStatusWithString(statusMessage.get());
 }
 
@@ -886,19 +886,19 @@ NS_IMETHODIMP nsPop3Protocol::OnPromptStart(bool *aResult)
     }
     mLocalBundle->FormatStringFromName(
       "pop3PreviouslyEnteredPasswordIsInvalidPrompt",
-      passwordParams, 2, getter_Copies(passwordPrompt));
+      passwordParams, 2, passwordPrompt);
   }
   else
     // Otherwise this is the first time we've asked about the server's
     // password so show a first time prompt.
     mLocalBundle->FormatStringFromName(
       "pop3EnterPasswordPrompt",
-      passwordParams, 2, getter_Copies(passwordPrompt));
+      passwordParams, 2, passwordPrompt);
 
   nsString passwordTitle;
   mLocalBundle->GetStringFromName(
     "pop3EnterPasswordPromptTitle",
-    getter_Copies(passwordTitle));
+    passwordTitle);
 
   // Now go and get the password.
   if (!passwordPrompt.IsEmpty() && !passwordTitle.IsEmpty())
@@ -1322,7 +1322,7 @@ nsPop3Protocol::Error(const char* err_code,
     nsString dialogTitle;
     mLocalBundle->FormatStringFromName(
       "pop3ErrorDialogTitle",
-      titleParams, 1, getter_Copies(dialogTitle));
+      titleParams, 1, dialogTitle);
     nsCOMPtr<nsIMsgMailNewsUrl> mailnewsUrl = do_QueryInterface(m_url, &rv);
     // we handle "pop3TmpDownloadError" earlier...
     if (strcmp(err_code, "pop3TmpDownloadError") && NS_SUCCEEDED(rv))
@@ -1339,10 +1339,9 @@ nsPop3Protocol::Error(const char* err_code,
               // Format the alert string if parameter list isn't empty
               if (params)
                 mLocalBundle->FormatStringFromName(err_code,
-                                                   params, length, getter_Copies(alertString));
+                                                   params, length, alertString);
               else
-                mLocalBundle->GetStringFromName(err_code,
-                                                getter_Copies(alertString));
+                mLocalBundle->GetStringFromName(err_code, alertString);
               if (m_pop3ConData->command_succeeded)  //not a server error message
                 dialog->Alert(dialogTitle.get(), alertString.get());
               else
@@ -1360,7 +1359,7 @@ nsPop3Protocol::Error(const char* err_code,
                   const char16_t *params[] = { hostStr.get() };
                   mLocalBundle->FormatStringFromName(
                     "pop3ServerSaid",
-                    params, 1, getter_Copies(serverSaidPrefix));
+                    params, 1, serverSaidPrefix);
                 }
 
                 nsAutoString message(alertString);
@@ -3509,7 +3508,7 @@ nsPop3Protocol::TopResponse(nsIInputStream* inputStream, uint32_t length)
     nsString statusTemplate;
     mLocalBundle->GetStringFromName(
       "pop3ServerDoesNotSupportTopCommand",
-      getter_Copies(statusTemplate));
+      statusTemplate);
     if (!statusTemplate.IsEmpty())
     {
       nsAutoCString hostName;

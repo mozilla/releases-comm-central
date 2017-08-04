@@ -1540,7 +1540,6 @@ char16_t *FormatStringWithHostNameByName(const char16_t* stringName, nsIMsgMailN
   rv = sBundleService->CreateBundle(MSGS_URL, getter_AddRefs(sBundle));
   NS_ENSURE_SUCCESS(rv, nullptr);
 
-  char16_t *ptrv = nullptr;
   nsCOMPtr<nsIMsgIncomingServer> server;
   rv = msgUri->GetServer(getter_AddRefs(server));
   NS_ENSURE_SUCCESS(rv, nullptr);
@@ -1551,10 +1550,11 @@ char16_t *FormatStringWithHostNameByName(const char16_t* stringName, nsIMsgMailN
 
   NS_ConvertASCIItoUTF16 hostStr(hostName);
   const char16_t *params[] = { hostStr.get() };
-  rv = sBundle->FormatStringFromName(NS_ConvertUTF16toUTF8(stringName).get(), params, 1, &ptrv);
+  nsAutoString str;
+  rv = sBundle->FormatStringFromName(NS_ConvertUTF16toUTF8(stringName).get(), params, 1, str);
   NS_ENSURE_SUCCESS(rv, nullptr);
 
-  return ptrv;
+  return ToNewUnicode(str);
 }
 
 // vim: ts=2 sw=2

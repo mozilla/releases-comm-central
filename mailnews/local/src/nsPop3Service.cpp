@@ -467,10 +467,10 @@ void nsPop3Service::AlertServerBusy(nsIMsgMailNewsUrl *url)
   nsString dialogTitle;
   bundle->FormatStringFromName(
     "pop3ServerBusy",
-    params, 1, getter_Copies(alertString));
+    params, 1, alertString);
   bundle->FormatStringFromName(
     "pop3ErrorDialogTitle",
-    params, 1, getter_Copies(dialogTitle));
+    params, 1, dialogTitle);
   if (!alertString.IsEmpty())
     dialog->Alert(dialogTitle.get(), alertString.get());
 }

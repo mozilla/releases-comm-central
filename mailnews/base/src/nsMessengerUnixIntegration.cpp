@@ -178,7 +178,7 @@ nsMessengerUnixIntegration::BuildNotificationTitle(nsIMsgFolder *aFolder, nsIStr
   aBundle->FormatStringFromName(numNewMessages == 1 ?
                                   "newMailNotification_message" :
                                   "newMailNotification_messages",
-                                formatStrings, 2, getter_Copies(aTitle));
+                                formatStrings, 2, aTitle);
   return true;
 }
 
@@ -296,7 +296,7 @@ nsMessengerUnixIntegration::BuildNotificationBody(nsIMsgDBHdr *aHdr,
       subject.get(), author.get()
     };
     aBundle->FormatStringFromName("newMailNotification_messagetitle",
-        formatStrings, 2, getter_Copies(msgTitle));
+        formatStrings, 2, msgTitle);
     alertBody.Append(msgTitle);
   }
   else if (showSubject)

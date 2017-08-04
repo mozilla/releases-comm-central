@@ -1987,7 +1987,7 @@ nsresult nsMsgFolderDataSource::DoDeleteFromFolder(nsIMsgFolder *folder, nsISupp
         nsString confirmMsg;
         rv = sBundleService->CreateBundle(MESSENGER_STRING_URL, getter_AddRefs(sMessengerStringBundle));
         NS_ENSURE_SUCCESS(rv, rv);
-        sMessengerStringBundle->GetStringFromName("confirmSavedSearchDeleteMessage", getter_Copies(confirmMsg));
+        sMessengerStringBundle->GetStringFromName("confirmSavedSearchDeleteMessage", confirmMsg);
 
         nsCOMPtr<nsIPrompt> dialog;
         rv = msgWindow->GetPromptDialog(getter_AddRefs(dialog));

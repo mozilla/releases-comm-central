@@ -440,7 +440,7 @@ nsresult mime_generate_headers(nsIMsgCompFields *fields,
           {
             nsString undisclosedRecipients;
             rv = composeStringBundle->GetStringFromName("undisclosedRecipients",
-                                                        getter_Copies(undisclosedRecipients));
+                                                        undisclosedRecipients);
             if (NS_SUCCEEDED(rv) && !undisclosedRecipients.IsEmpty())
             {
               nsCOMPtr<nsIMsgHeaderParser> headerParser(

@@ -71,7 +71,7 @@ private:
   nsresult SMIMEBundleFormatStringFromName(const char *name,
 					   const char16_t **params,
 					   uint32_t numParams,
-					   char16_t **outString);
+					   nsAString& outString);
   nsresult ExtractEncryptionState(nsIMsgIdentity * aIdentity, nsIMsgCompFields * aComposeFields, bool * aSignMessage, bool * aEncrypt);
 
   mimeDeliveryCryptoState mCryptoState;

@@ -211,7 +211,7 @@ nsresult nsMsgDBView::InitLabelStrings()
 char16_t * nsMsgDBView::GetString(const char16_t *aStringName)
 {
   nsresult    res = NS_ERROR_UNEXPECTED;
-  char16_t   *ptrv = nullptr;
+  nsAutoString str;
 
   if (!mMessengerStringBundle)
   {
@@ -223,10 +223,10 @@ char16_t * nsMsgDBView::GetString(const char16_t *aStringName)
   }
 
   if (mMessengerStringBundle)
-    res = mMessengerStringBundle->GetStringFromName(NS_ConvertUTF16toUTF8(aStringName).get(), &ptrv);
+    res = mMessengerStringBundle->GetStringFromName(NS_ConvertUTF16toUTF8(aStringName).get(), str);
 
-  if ( NS_SUCCEEDED(res) && (ptrv) )
-    return ptrv;
+  if (NS_SUCCEEDED(res))
+    return ToNewUnicode(str);
   else
     return NS_strdup(aStringName);
 }

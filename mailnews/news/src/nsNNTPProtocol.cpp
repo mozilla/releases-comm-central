@@ -1020,7 +1020,7 @@ nsresult nsNNTPProtocol::LoadUrl(nsIURI * aURL, nsISupports * aConsumer)
 
       rv = bundle->FormatStringFromName(
         "autoSubscribeText", formatStrings, 1,
-        getter_Copies(confirmText));
+        confirmText);
       NS_ENSURE_SUCCESS(rv,rv);
 
       bool confirmResult = false;
@@ -2806,7 +2806,7 @@ nsresult nsNNTPProtocol::ReadNewsList(nsIInputStream * inputStream, uint32_t len
       const char16_t *formatStrings[3] = { numGroupsStr.get(), bytesStr.get(), rateStr.get()};
       rv = bundle->FormatStringFromName("bytesReceived",
         formatStrings, 3,
-        getter_Copies(statusString));
+        statusString);
 
       rv = msgStatusFeedback->ShowStatusString(statusString);
       if (NS_FAILED(rv)) {
@@ -3372,8 +3372,8 @@ nsresult nsNNTPProtocol::GetNewsStringByID(int32_t stringID, char16_t **aString)
   }
 
   if (m_stringBundle) {
-    char16_t *ptrv = nullptr;
-    rv = m_stringBundle->GetStringFromID(stringID, &ptrv);
+    nsAutoString str;
+    rv = m_stringBundle->GetStringFromID(stringID, str);
 
     if (NS_FAILED(rv)) {
       resultString.AssignLiteral("[StringID");
@@ -3382,7 +3382,7 @@ nsresult nsNNTPProtocol::GetNewsStringByID(int32_t stringID, char16_t **aString)
       *aString = ToNewUnicode(resultString);
     }
     else {
-      *aString = ptrv;
+      *aString = ToNewUnicode(str);
     }
   }
   else {
@@ -3408,8 +3408,8 @@ nsresult nsNNTPProtocol::GetNewsStringByName(const char *aName, char16_t **aStri
 
   if (m_stringBundle)
   {
-    char16_t *ptrv = nullptr;
-    rv = m_stringBundle->GetStringFromName(aName, &ptrv);
+    nsAutoString str;
+    rv = m_stringBundle->GetStringFromName(aName, str);
 
     if (NS_FAILED(rv))
     {
@@ -3420,7 +3420,7 @@ nsresult nsNNTPProtocol::GetNewsStringByName(const char *aName, char16_t **aStri
     }
     else
     {
-      *aString = ptrv;
+      *aString = ToNewUnicode(str);
     }
   }
   else
@@ -3573,8 +3573,7 @@ nsresult nsNNTPProtocol::DoCancel()
   NS_ENSURE_TRUE(brandBundle, NS_ERROR_FAILURE);
 
   nsString brandFullName;
-  rv = brandBundle->GetStringFromName("brandFullName",
-                                      getter_Copies(brandFullName));
+  rv = brandBundle->GetStringFromName("brandFullName", brandFullName);
   NS_ENSURE_SUCCESS(rv,rv);
   NS_ConvertUTF16toUTF8 appName(brandFullName);
 

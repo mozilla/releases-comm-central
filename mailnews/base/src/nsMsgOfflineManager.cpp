@@ -249,8 +249,7 @@ nsresult nsMsgOfflineManager::ShowStatus(const char *statusMsgName)
   }
 
   nsString statusString;
-  nsresult res = mStringBundle->GetStringFromName(statusMsgName,
-						  getter_Copies(statusString));
+  nsresult res = mStringBundle->GetStringFromName(statusMsgName, statusString);
 
   if (NS_SUCCEEDED(res) && m_statusFeedback)
     m_statusFeedback->ShowStatusString(statusString);

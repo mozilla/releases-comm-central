@@ -336,7 +336,7 @@ nsMessengerOSXIntegration::FillToolTipInfo(nsIMsgFolder *aFolder, int32_t aNewCo
         bundle->FormatStringFromName("macBiffNotification_messages_extra",
                                      formatStrings,
                                      3,
-                                     getter_Copies(finalText));
+                                     finalText);
       }
       else
       {
@@ -347,7 +347,7 @@ nsMessengerOSXIntegration::FillToolTipInfo(nsIMsgFolder *aFolder, int32_t aNewCo
           bundle->FormatStringFromName("macBiffNotification_message",
                                        formatStrings,
                                        2,
-                                       getter_Copies(finalText));
+                                       finalText);
           // Since there is only 1 message, use the most recent mail's URI instead of the folder's
           nsCOMPtr<nsIMsgDatabase> db;
           rv = aFolder->GetMsgDatabase(getter_AddRefs(db));
@@ -371,7 +371,7 @@ nsMessengerOSXIntegration::FillToolTipInfo(nsIMsgFolder *aFolder, int32_t aNewCo
           bundle->FormatStringFromName("macBiffNotification_messages",
                                        formatStrings,
                                        2,
-                                       getter_Copies(finalText));
+                                       finalText);
       }
       ShowAlertMessage(accountName, finalText, uri);
     } // if we got a bundle
@@ -626,7 +626,7 @@ nsMessengerOSXIntegration::GetNewMailAuthors(nsIMsgFolder* aFolder,
     if (NS_SUCCEEDED(rv))
     {
       nsString listSeparator;
-      bundle->GetStringFromName("macBiffNotification_separator", getter_Copies(listSeparator));
+      bundle->GetStringFromName("macBiffNotification_separator", listSeparator);
 
       int32_t displayed = 0;
       for (int32_t i = numNewKeys - 1; i >= 0; i--, aNewCount--)

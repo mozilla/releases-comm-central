@@ -208,8 +208,7 @@ nsMimeBaseEmitter::MimeGetStringByName(const char *aHeaderName)
   {
     nsString val;
 
-    res = m_headerStringBundle->GetStringFromName(aHeaderName,
-                                                  getter_Copies(val));
+    res = m_headerStringBundle->GetStringFromName(aHeaderName, val);
 
     if (NS_FAILED(res))
       return nullptr;
@@ -244,8 +243,7 @@ nsMimeBaseEmitter::MimeGetStringByID(int32_t aID)
   if (m_stringBundle)
   {
     nsString val;
-
-    res = m_stringBundle->GetStringFromID(aID, getter_Copies(val));
+    res = m_stringBundle->GetStringFromID(aID, val);
 
     if (NS_FAILED(res))
       return nullptr;

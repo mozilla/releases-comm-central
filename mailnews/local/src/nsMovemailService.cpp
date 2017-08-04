@@ -138,10 +138,9 @@ nsMovemailService::Error(const char* errorCode,
   // Format the error string if necessary
   if (params)
     bundle->FormatStringFromName(errorCode,
-                                 params, length, getter_Copies(errStr));
+                                 params, length, errStr);
   else
-    bundle->GetStringFromName(errorCode,
-                              getter_Copies(errStr));
+    bundle->GetStringFromName(errorCode, errStr);
 
   if (!errStr.IsEmpty()) {
     dialog->Alert(nullptr, errStr.get());

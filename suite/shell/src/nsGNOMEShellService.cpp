@@ -94,8 +94,7 @@ GetBrandName(nsACString& aBrandName)
   NS_ENSURE_TRUE(brandBundle, rv);
 
   nsString brandName;
-  rv = brandBundle->GetStringFromName("brandShortName",
-                                      getter_Copies(brandName));
+  rv = brandBundle->GetStringFromName("brandShortName", brandName);
   NS_ENSURE_SUCCESS(rv, rv);
 
   CopyUTF16toUTF8(brandName, aBrandName);

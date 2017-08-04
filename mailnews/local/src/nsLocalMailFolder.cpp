@@ -848,19 +848,19 @@ nsresult nsMsgLocalMailFolder::ConfirmFolderDeletion(nsIMsgWindow *aMsgWindow,
       nsAutoString deleteFolderDialogTitle;
       rv = bundle->GetStringFromName(
         "pop3DeleteFolderDialogTitle",
-        getter_Copies(deleteFolderDialogTitle));
+        deleteFolderDialogTitle);
       NS_ENSURE_SUCCESS(rv, rv);
 
       nsAutoString deleteFolderButtonLabel;
       rv = bundle->GetStringFromName(
         "pop3DeleteFolderButtonLabel",
-        getter_Copies(deleteFolderButtonLabel));
+        deleteFolderButtonLabel);
       NS_ENSURE_SUCCESS(rv, rv);
 
       nsAutoString confirmationStr;
       rv = bundle->FormatStringFromName(
         "pop3MoveFolderToTrash", formatStrings, 1,
-        getter_Copies(confirmationStr));
+        confirmationStr);
       NS_ENSURE_SUCCESS(rv, rv);
 
       nsCOMPtr<nsIPrompt> dialog(do_GetInterface(docShell));
@@ -3347,7 +3347,7 @@ nsresult nsMsgLocalMailFolder::DisplayMoveCopyStatusMsg()
         (mCopyState->m_isMove) ?
         "movingMessagesStatus" :
         "copyingMessagesStatus",
-        stringArray, 3, getter_Copies(finalString));
+        stringArray, 3, finalString);
       int64_t nowMS = PR_IntervalToMilliseconds(PR_IntervalNow());
 
       // only update status/progress every half second

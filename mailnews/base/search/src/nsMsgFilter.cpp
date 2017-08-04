@@ -579,7 +579,7 @@ nsMsgFilter::LogRuleHitGeneric(nsIMsgRuleAction *aFilterAction,
       rv = bundle->FormatStringFromName(
                       "filterFailureWarningPrefix",
                       logErrorFormatStrings, 2,
-                      getter_Copies(filterFailureWarningPrefix));
+                      filterFailureWarningPrefix);
       NS_ENSURE_SUCCESS(rv, rv);
       buffer += NS_ConvertUTF16toUTF8(filterFailureWarningPrefix);
       buffer += "\n";
@@ -590,7 +590,7 @@ nsMsgFilter::LogRuleHitGeneric(nsIMsgRuleAction *aFilterAction,
     rv = bundle->FormatStringFromName(
       "filterLogDetectStr",
       filterLogDetectFormatStrings, 4,
-      getter_Copies(filterLogDetectStr));
+      filterLogDetectStr);
     NS_ENSURE_SUCCESS(rv, rv);
 
     buffer += NS_ConvertUTF16toUTF8(filterLogDetectStr);
@@ -613,7 +613,7 @@ nsMsgFilter::LogRuleHitGeneric(nsIMsgRuleAction *aFilterAction,
         (actionType == nsMsgFilterAction::MoveToFolder) ?
           "logMoveStr" : "logCopyStr",
         logMoveFormatStrings, 2,
-        getter_Copies(logMoveStr));
+        logMoveStr);
       NS_ENSURE_SUCCESS(rv, rv);
 
       buffer += NS_ConvertUTF16toUTF8(logMoveStr);
@@ -628,7 +628,7 @@ nsMsgFilter::LogRuleHitGeneric(nsIMsgRuleAction *aFilterAction,
       if (filterActionName.IsEmpty())
         bundle->GetStringFromName(
                   "filterMissingCustomAction",
-                  getter_Copies(filterActionName));
+                  filterActionName);
       buffer += NS_ConvertUTF16toUTF8(filterActionName);
     }
     else
@@ -637,7 +637,7 @@ nsMsgFilter::LogRuleHitGeneric(nsIMsgRuleAction *aFilterAction,
       nsAutoCString filterActionID;
       filterActionID = NS_LITERAL_CSTRING("filterAction");
       filterActionID.AppendInt(actionType);
-      rv = bundle->GetStringFromName(filterActionID.get(), getter_Copies(actionValue));
+      rv = bundle->GetStringFromName(filterActionID.get(), actionValue);
       NS_ENSURE_SUCCESS(rv, rv);
 
       buffer += NS_ConvertUTF16toUTF8(actionValue);

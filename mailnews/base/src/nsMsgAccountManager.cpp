@@ -2300,7 +2300,7 @@ nsresult nsMsgAccountManager::GetLocalFoldersPrettyName(nsString &localFoldersNa
                                     getter_AddRefs(bundle));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  return bundle->GetStringFromName("localFolders", getter_Copies(localFoldersName));
+  return bundle->GetStringFromName("localFolders", localFoldersName);
 }
 
 NS_IMETHODIMP

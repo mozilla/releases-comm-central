@@ -56,14 +56,26 @@ NS_IMPL_ISUPPORTS(nsAppleMailImportModule, nsIImportModule)
 
 NS_IMETHODIMP nsAppleMailImportModule::GetName(char16_t **aName)
 {
-  return mBundle ?
-    mBundle->GetStringFromName("ApplemailImportName", aName) : NS_ERROR_FAILURE;
+  if (!mBundle) {
+    return NS_ERROR_FAILURE;
+  }
+  nsAutoString name;
+  nsresult rv = mBundle->GetStringFromName("ApplemailImportName", name);
+  NS_ENSURE_SUCCESS(rv, rv);
+  *aName = ToNewUnicode(name);
+  return rv;
 }
 
 NS_IMETHODIMP nsAppleMailImportModule::GetDescription(char16_t **aName)
 {
-  return mBundle ?
-    mBundle->GetStringFromName("ApplemailImportDescription", aName) : NS_ERROR_FAILURE;
+  if (!mBundle) {
+    return NS_ERROR_FAILURE;
+  }
+  nsAutoString name;
+  nsresult rv = mBundle->GetStringFromName("ApplemailImportDescription", name);
+  NS_ENSURE_SUCCESS(rv, rv);
+  *aName = ToNewUnicode(name);
+  return rv;
 }
 
 NS_IMETHODIMP nsAppleMailImportModule::GetSupports(char **aSupports)
@@ -96,7 +108,7 @@ NS_IMETHODIMP nsAppleMailImportModule::GetImportInterface(const char *aImportTyp
         rv = impSvc->CreateNewGenericMail(getter_AddRefs(generic));
         if (NS_SUCCEEDED(rv)) {
           nsAutoString name;
-          rv = mBundle->GetStringFromName("ApplemailImportName", getter_Copies(name));
+          rv = mBundle->GetStringFromName("ApplemailImportName", name);
           NS_ENSURE_SUCCESS(rv, rv);
 
           nsCOMPtr<nsISupportsString> nameString(do_CreateInstance(NS_SUPPORTS_STRING_CONTRACTID, &rv));
@@ -587,7 +599,7 @@ void nsAppleMailImportMail::ReportStatus(const char16_t* aErrorName, nsString &a
   // get (and format, if needed) the error string from the bundle
   nsAutoString outString;
   const char16_t *fmt = { aName.get() };
-  nsresult rv = mBundle->FormatStringFromName(NS_ConvertUTF16toUTF8(aErrorName).get(), &fmt, 1, getter_Copies(outString));
+  nsresult rv = mBundle->FormatStringFromName(NS_ConvertUTF16toUTF8(aErrorName).get(), &fmt, 1, outString);
   // write it out the stream
   if (NS_SUCCEEDED(rv)) {
     aStream.Append(outString);

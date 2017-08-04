@@ -310,8 +310,7 @@ NS_IMETHODIMP nsMsgSendReport::DisplayReport(nsIPrompt *prompt, bool showErrorOn
       return NS_OK;
     }
 
-    bundle->GetStringFromName("sendMessageErrorTitle",
-                              getter_Copies(dialogTitle));
+    bundle->GetStringFromName("sendMessageErrorTitle", dialogTitle);
 
     const char* preStrName = "sendFailed";
     bool askToGoBackToCompose = false;
@@ -343,14 +342,13 @@ NS_IMETHODIMP nsMsgSendReport::DisplayReport(nsIPrompt *prompt, bool showErrorOn
         askToGoBackToCompose = (mDeliveryMode == nsIMsgCompDeliverMode::Now);
         break;
     }
-    bundle->GetStringFromName(preStrName, getter_Copies(dialogMessage));
+    bundle->GetStringFromName(preStrName, dialogMessage);
 
     //Do we already have an error message?
     if (!askToGoBackToCompose && currMessage.IsEmpty())
     {
       //we don't have an error description but we can put a generic explanation
-      bundle->GetStringFromName("genericFailureExplanation",
-                                getter_Copies(currMessage));
+      bundle->GetStringFromName("genericFailureExplanation", currMessage);
     }
 
     if (!currMessage.IsEmpty())
@@ -368,8 +366,7 @@ NS_IMETHODIMP nsMsgSendReport::DisplayReport(nsIPrompt *prompt, bool showErrorOn
     {
       bool oopsGiveMeBackTheComposeWindow = true;
       nsString text1;
-      bundle->GetStringFromName("returnToComposeWindowQuestion",
-                                getter_Copies(text1));
+      bundle->GetStringFromName("returnToComposeWindowQuestion", text1);
       if (!dialogMessage.IsEmpty())
         dialogMessage.AppendLiteral("\n");
       dialogMessage.Append(text1);
@@ -410,16 +407,14 @@ NS_IMETHODIMP nsMsgSendReport::DisplayReport(nsIPrompt *prompt, bool showErrorOn
         break;
     }
 
-    bundle->GetStringFromName(title, getter_Copies(dialogTitle));
-    bundle->GetStringFromName(messageName,
-                              getter_Copies(dialogMessage));
+    bundle->GetStringFromName(title, dialogTitle);
+    bundle->GetStringFromName(messageName, dialogMessage);
 
     //Do we have an error message...
     if (currMessage.IsEmpty())
     {
       //we don't have an error description but we can put a generic explanation
-      bundle->GetStringFromName("genericFailureExplanation",
-                                getter_Copies(currMessage));
+      bundle->GetStringFromName("genericFailureExplanation", currMessage);
     }
 
     if (!currMessage.IsEmpty())

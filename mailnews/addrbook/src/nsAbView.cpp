@@ -1319,12 +1319,12 @@ NS_IMETHODIMP nsAbView::SwapFirstNameLastName()
             nameString[0] = ln.get();
             nameString[1] = fn.get();
             rv = bundle->FormatStringFromName(formatString,
-                                              nameString, 2, getter_Copies(dnLnFn));
+                                              nameString, 2, dnLnFn);
             NS_ENSURE_SUCCESS(rv, rv);
             nameString[0] = fn.get();
             nameString[1] = ln.get();
             rv = bundle->FormatStringFromName(formatString,
-                                              nameString, 2, getter_Copies(dnFnLn));
+                                              nameString, 2, dnFnLn);
             NS_ENSURE_SUCCESS(rv, rv);
 
             // Get the current display name

@@ -517,8 +517,7 @@ nsresult FormatFileSize(int64_t size, bool useKB, nsAString &formattedSize)
 
   // Grab the string for the appropriate unit
   nsString sizeAbbr;
-  rv = bundle->GetStringFromName(sizeAbbrNames[unitIndex],
-                                 getter_Copies(sizeAbbr));
+  rv = bundle->GetStringFromName(sizeAbbrNames[unitIndex], sizeAbbr);
   NS_ENSURE_SUCCESS(rv, rv);
 
   // Get rid of insignificant bits by truncating to 1 or 0 decimal points
@@ -1765,32 +1764,32 @@ NS_MSG_BASE nsresult MsgPromptLoginFailed(nsIMsgWindow *aMsgWindow,
 
   rv = bundle->FormatStringFromName("mailServerLoginFailed2",
                                     formatStrings, 2,
-                                    getter_Copies(message));
+                                    message);
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsString title;
   if (aAccountname.IsEmpty()) {
     // Account name may be empty e.g. on a SMTP server.
     rv = bundle->GetStringFromName(
-      "mailServerLoginFailedTitle", getter_Copies(title));
+      "mailServerLoginFailedTitle", title);
   } else {
     const char16_t *formatStrings[] = { aAccountname.BeginReading() };
     rv = bundle->FormatStringFromName(
       "mailServerLoginFailedTitleWithAccount",
-      formatStrings, 1, getter_Copies(title));
+      formatStrings, 1, title);
   }
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsString button0;
   rv = bundle->GetStringFromName(
     "mailServerLoginFailedRetryButton",
-    getter_Copies(button0));
+    button0);
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsString button2;
   rv = bundle->GetStringFromName(
     "mailServerLoginFailedEnterNewPasswordButton",
-    getter_Copies(button2));
+    button2);
   NS_ENSURE_SUCCESS(rv, rv);
 
   bool dummyValue = false;

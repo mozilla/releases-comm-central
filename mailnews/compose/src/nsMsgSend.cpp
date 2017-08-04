@@ -564,8 +564,7 @@ nsMsgComposeAndSend::GatherMimeAttachments()
 
   NS_ASSERTION (m_attachment_pending_count == 0, "m_attachment_pending_count != 0");
 
-  mComposeBundle->GetStringFromName("assemblingMessage",
-                                    getter_Copies(msg));
+  mComposeBundle->GetStringFromName("assemblingMessage", msg);
   SetStatusMessage( msg );
 
   /* First, open the message file.
@@ -931,8 +930,7 @@ nsMsgComposeAndSend::GatherMimeAttachments()
   }
 
   // Tell the user we are creating the message...
-  mComposeBundle->GetStringFromName("creatingMailMessage",
-                                    getter_Copies(msg));
+  mComposeBundle->GetStringFromName("creatingMailMessage", msg);
   SetStatusMessage( msg );
 
   // OK, now actually write the structure we've carefully built up.
@@ -974,8 +972,7 @@ nsMsgComposeAndSend::GatherMimeAttachments()
     }
   }
 
-  mComposeBundle->GetStringFromName("assemblingMessageDone",
-                                    getter_Copies(msg));
+  mComposeBundle->GetStringFromName("assemblingMessageDone", msg);
   SetStatusMessage(msg);
 
   if (m_dont_deliver_p && mListener)
@@ -2523,7 +2520,7 @@ nsMsgComposeAndSend::HackAttachments(nsIArray *attachments,
         formatParams[0] = attachmentFileName.get();
       }
       mComposeBundle->FormatStringFromName("gatheringAttachment",
-                                           formatParams, 1, getter_Copies(msg));
+                                           formatParams, 1, msg);
 
       if (!msg.IsEmpty())
       {
@@ -2552,7 +2549,7 @@ nsMsgComposeAndSend::HackAttachments(nsIArray *attachments,
           const char16_t *params[] = { attachmentFileName.get() };
           mComposeBundle->FormatStringFromName("errorAttachingFile",
                                                params, 1,
-                                               getter_Copies(errorMsg));
+                                               errorMsg);
           mSendReport->SetMessage(nsIMsgSendReport::process_Current, errorMsg.get(), false);
           mSendReport->SetError(nsIMsgSendReport::process_Current,
                                 NS_MSG_ERROR_ATTACHING_FILE,
@@ -3042,7 +3039,7 @@ nsMsgComposeAndSend::Init(
   }
 
   // Tell the user we are assembling the message...
-  mComposeBundle->GetStringFromName("assemblingMailInformation", getter_Copies(msg));
+  mComposeBundle->GetStringFromName("assemblingMailInformation", msg);
   SetStatusMessage(msg);
   if (mSendReport)
     mSendReport->SetCurrentProcess(nsIMsgSendReport::process_BuildMessage);
@@ -3246,7 +3243,7 @@ nsMsgComposeAndSend::DeliverMessage()
     FormatFileSize(fileSize, true, formattedFileSize);
     const char16_t* params[] = { formattedFileSize.get() };
     mComposeBundle->FormatStringFromName("largeMessageSendWarning",
-                                         params, 1, getter_Copies(msg));
+                                         params, 1, msg);
 
     if (!msg.IsEmpty())
     {
@@ -3404,7 +3401,7 @@ nsMsgComposeAndSend::DeliverFileAsMail()
 
     // Tell the user we are sending the message!
     nsString msg;
-    mComposeBundle->GetStringFromName("sendingMessage", getter_Copies(msg));
+    mComposeBundle->GetStringFromName("sendingMessage", msg);
     SetStatusMessage(msg);
     nsCOMPtr<nsIMsgStatusFeedback> msgStatus (do_QueryInterface(mSendProgress));
     // if the sendProgress isn't set, let's use the member variable.
@@ -3453,8 +3450,7 @@ nsMsgComposeAndSend::DeliverFileAsNews()
 
     // Tell the user we are posting the message!
     nsString msg;
-    mComposeBundle->GetStringFromName("postingMessage",
-                                      getter_Copies(msg));
+    mComposeBundle->GetStringFromName("postingMessage", msg);
     SetStatusMessage(msg);
 
     nsCOMPtr <nsIMsgMailSession> mailSession = do_GetService(NS_MSGMAILSESSION_CONTRACTID, &rv);
@@ -3517,10 +3513,8 @@ nsMsgComposeAndSend::Fail(nsresult aFailureCode, const char16_t *aErrorMsg,
 }
 
 nsresult
-nsMsgComposeAndSend::FormatStringWithSMTPHostNameByName(const char* aMsgName, char16_t **aString)
+nsMsgComposeAndSend::FormatStringWithSMTPHostNameByName(const char* aMsgName, nsAString& aString)
 {
-  NS_ENSURE_ARG(aString);
-
   nsresult rv;
   nsCOMPtr<nsISmtpService> smtpService(do_GetService(NS_SMTPSERVICE_CONTRACTID, &rv));
   NS_ENSURE_SUCCESS(rv,rv);
@@ -3563,9 +3557,9 @@ nsMsgComposeAndSend::DoDeliveryExitProcessing(nsIURI * aUri, nsresult aExitCode,
         aExitCode == NS_ERROR_SMTP_AUTH_CHANGE_ENCRYPT_TO_PLAIN_SSL ||
         aExitCode == NS_ERROR_SMTP_AUTH_CHANGE_PLAIN_TO_ENCRYPT ||
         aExitCode == NS_ERROR_STARTTLS_FAILED_EHLO_STARTTLS) {
-      FormatStringWithSMTPHostNameByName(exitString, getter_Copies(eMsg));
+      FormatStringWithSMTPHostNameByName(exitString, eMsg);
     } else {
-      mComposeBundle->GetStringFromName(exitString, getter_Copies(eMsg));
+      mComposeBundle->GetStringFromName(exitString, eMsg);
     }
 
     Fail(aExitCode, eMsg.get(), &aExitCode);
@@ -3832,9 +3826,9 @@ nsMsgComposeAndSend::NotifyListenerOnStopCopy(nsresult aStatus)
   // Set a status message...
   nsString msg;
   if (NS_SUCCEEDED(aStatus))
-    mComposeBundle->GetStringFromName("copyMessageComplete", getter_Copies(msg));
+    mComposeBundle->GetStringFromName("copyMessageComplete", msg);
   else
-    mComposeBundle->GetStringFromName("copyMessageFailed", getter_Copies(msg));
+    mComposeBundle->GetStringFromName("copyMessageFailed", msg);
 
   SetStatusMessage(msg);
   nsCOMPtr<nsIPrompt> prompt;
@@ -3897,17 +3891,17 @@ nsMsgComposeAndSend::NotifyListenerOnStopCopy(nsresult aStatus)
       case nsMsgSendUnsent:
         rv = bundle->FormatStringFromName("promptToSaveSentLocally",
                                           formatStrings, 3,
-                                          getter_Copies(msg));
+                                          msg);
         break;
       case nsMsgSaveAsDraft:
         rv = bundle->FormatStringFromName("promptToSaveDraftLocally",
                                           formatStrings, 3,
-                                          getter_Copies(msg));
+                                          msg);
         break;
       case nsMsgSaveAsTemplate:
         rv = bundle->FormatStringFromName("promptToSaveTemplateLocally",
                                           formatStrings, 3,
-                                          getter_Copies(msg));
+                                          msg);
         break;
       default:
         rv = NS_ERROR_UNEXPECTED;
@@ -3919,8 +3913,8 @@ nsMsgComposeAndSend::NotifyListenerOnStopCopy(nsresult aStatus)
                            (nsIPrompt::BUTTON_POS_1 * nsIPrompt::BUTTON_TITLE_CANCEL) +
                            (nsIPrompt::BUTTON_POS_2 * nsIPrompt::BUTTON_TITLE_SAVE);
     nsString dialogTitle, buttonLabelRetry;
-    bundle->GetStringFromName("SaveDialogTitle", getter_Copies(dialogTitle));
-    bundle->GetStringFromName("buttonLabelRetry", getter_Copies(buttonLabelRetry));
+    bundle->GetStringFromName("SaveDialogTitle", dialogTitle);
+    bundle->GetStringFromName("buttonLabelRetry", buttonLabelRetry);
     prompt->ConfirmEx(dialogTitle.get(), msg.get(), buttonFlags, buttonLabelRetry.get(),
                       nullptr, nullptr, nullptr, &showCheckBox, &buttonPressed);
     if (buttonPressed == 0)
@@ -4014,15 +4008,15 @@ nsMsgComposeAndSend::OnStopOperation(nsresult aStatus)
   // Set a status message...
   nsString msg;
   if (NS_SUCCEEDED(aStatus))
-    mComposeBundle->GetStringFromName("filterMessageComplete", getter_Copies(msg));
+    mComposeBundle->GetStringFromName("filterMessageComplete", msg);
   else
-    mComposeBundle->GetStringFromName("filterMessageFailed", getter_Copies(msg));
+    mComposeBundle->GetStringFromName("filterMessageFailed", msg);
 
   SetStatusMessage(msg);
 
   if (NS_FAILED(aStatus))
   {
-    nsresult rv = mComposeBundle->GetStringFromName("errorFilteringMsg", getter_Copies(msg));
+    nsresult rv = mComposeBundle->GetStringFromName("errorFilteringMsg", msg);
     if (NS_SUCCEEDED(rv))
     {
       nsCOMPtr<nsIPrompt> prompt;
@@ -4481,8 +4475,7 @@ nsMsgComposeAndSend::MimeDoFCC(nsIFile          *input_file,
     goto FAIL;
 
   // Tell the user we are copying the message...
-  mComposeBundle->GetStringFromName("copyMessageStart",
-                                    getter_Copies(msg));
+  mComposeBundle->GetStringFromName("copyMessageStart", msg);
   if (!msg.IsEmpty())
   {
     nsCOMPtr<nsIRDFService> rdfService = do_GetService(kRDFServiceCID);

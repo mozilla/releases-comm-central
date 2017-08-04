@@ -87,8 +87,7 @@ nsMsgStatusFeedback::OnStateChange(nsIWebProgress* aWebProgress,
       m_lastPercent = 0;
       StartMeteors();
       nsString loadingDocument;
-      rv = mBundle->GetStringFromName("documentLoading",
-                                      getter_Copies(loadingDocument));
+      rv = mBundle->GetStringFromName("documentLoading", loadingDocument);
       if (NS_SUCCEEDED(rv))
         ShowStatusString(loadingDocument);
     }
@@ -141,8 +140,7 @@ nsMsgStatusFeedback::OnStateChange(nsIWebProgress* aWebProgress,
       }
       StopMeteors();
       nsString documentDone;
-      rv = mBundle->GetStringFromName("documentDone",
-                                      getter_Copies(documentDone));
+      rv = mBundle->GetStringFromName("documentDone", documentDone);
       if (NS_SUCCEEDED(rv))
         ShowStatusString(documentDone);
     }
@@ -278,7 +276,7 @@ NS_IMETHODIMP nsMsgStatusFeedback::OnStatus(nsIRequest *request, nsISupports* ct
     mozilla::services::GetStringBundleService();
   NS_ENSURE_TRUE(sbs, NS_ERROR_UNEXPECTED);
   nsString str;
-  rv = sbs->FormatStatusMessage(aStatus, aStatusArg, getter_Copies(str));
+  rv = sbs->FormatStatusMessage(aStatus, aStatusArg, str);
   NS_ENSURE_SUCCESS(rv, rv);
 
   // prefixing the account name to the status message if status message isn't blank
@@ -292,7 +290,7 @@ NS_IMETHODIMP nsMsgStatusFeedback::OnStatus(nsIRequest *request, nsISupports* ct
                                   str.get() };
     rv = bundle->FormatStringFromName(
       "statusMessage",
-      params, 2, getter_Copies(statusMessage));
+      params, 2, statusMessage);
     NS_ENSURE_SUCCESS(rv, rv);
   }
   else

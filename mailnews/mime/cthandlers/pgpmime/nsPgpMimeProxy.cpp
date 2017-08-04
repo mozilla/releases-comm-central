@@ -88,7 +88,7 @@ static void PgpMimeGetNeedsAddonString(nsCString &aResult)
 
   nsString result;
   rv = stringBundle->FormatStringFromName(PGPMIME_STR_NOT_SUPPORTED_ID,
-                                          formatStrings, 1, getter_Copies(result));
+                                          formatStrings, 1, result);
   if (NS_FAILED(rv))
     return;
   aResult = NS_ConvertUTF16toUTF8(result);

@@ -344,7 +344,7 @@ nsresult nsFolderCompactState::ShowStatusMsg(const nsString& aMsg)
       break;
     const char16_t *params[] = { accountName.get(), aMsg.get() };
     rv = bundle->FormatStringFromName("statusMessage",
-                                      params, 2, getter_Copies(statusMessage));
+                                      params, 2, statusMessage);
   } while (false);
 
   // If fetching any of the needed info failed, just show the original message.
@@ -688,7 +688,7 @@ void nsFolderCompactState::ShowDoneStatus()
     FormatFileSize(m_totalExpungedBytes, true, expungedAmount);
     const char16_t* params[] = { expungedAmount.get() };
     rv = bundle->FormatStringFromName("compactingDone",
-                                      params, 1, getter_Copies(statusString));
+                                      params, 1, statusString);
 
     if (!statusString.IsEmpty() && NS_SUCCEEDED(rv))
       ShowStatusMsg(statusString);

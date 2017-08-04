@@ -281,27 +281,20 @@ nsMsgAccountManagerDataSource::GetTarget(nsIRDFResource *source,
 
     nsString pageTitle;
     if (source == kNC_PageTitleServer)
-      mStringBundle->GetStringFromName("prefPanel-server",
-                                       getter_Copies(pageTitle));
+      mStringBundle->GetStringFromName("prefPanel-server", pageTitle);
 
     else if (source == kNC_PageTitleCopies)
-      mStringBundle->GetStringFromName("prefPanel-copies",
-                                       getter_Copies(pageTitle));
+      mStringBundle->GetStringFromName("prefPanel-copies", pageTitle);
     else if (source == kNC_PageTitleSynchronization)
-      mStringBundle->GetStringFromName("prefPanel-synchronization",
-                                       getter_Copies(pageTitle));
+      mStringBundle->GetStringFromName("prefPanel-synchronization", pageTitle);
     else if (source == kNC_PageTitleDiskSpace)
-      mStringBundle->GetStringFromName("prefPanel-diskspace",
-                                       getter_Copies(pageTitle));
+      mStringBundle->GetStringFromName("prefPanel-diskspace", pageTitle);
     else if (source == kNC_PageTitleAddressing)
-      mStringBundle->GetStringFromName("prefPanel-addressing",
-                                       getter_Copies(pageTitle));
+      mStringBundle->GetStringFromName("prefPanel-addressing", pageTitle);
     else if (source == kNC_PageTitleSMTP)
-      mStringBundle->GetStringFromName("prefPanel-smtp",
-                                       getter_Copies(pageTitle));
+      mStringBundle->GetStringFromName("prefPanel-smtp", pageTitle);
     else if (source == kNC_PageTitleJunk)
-      mStringBundle->GetStringFromName("prefPanel-junk",
-                                       getter_Copies(pageTitle));
+      mStringBundle->GetStringFromName("prefPanel-junk", pageTitle);
 
     else {
       // if it's a server, use the pretty name
@@ -349,7 +342,7 @@ nsMsgAccountManagerDataSource::GetTarget(nsIRDFResource *source,
         nsAutoCString panelTitleName;
         panelTitleName.AssignLiteral("prefPanel-");
         panelTitleName.Append(sourceValue + strlen(NC_RDF_PAGETITLE_PREFIX));
-        bundle->GetStringFromName(panelTitleName.get(), getter_Copies(pageTitle));
+        bundle->GetStringFromName(panelTitleName.get(), pageTitle);
       }
     }
     str = pageTitle.get();

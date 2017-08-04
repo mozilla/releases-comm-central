@@ -545,7 +545,7 @@ NS_IMETHODIMP nsAbManager::ExportAddressBook(mozIDOMWindowProxy *aParentWin, nsI
 
   nsString title;
   rv = bundle->FormatStringFromName("ExportAddressBookNameTitle", formatStrings,
-                                    ArrayLength(formatStrings), getter_Copies(title));
+                                    ArrayLength(formatStrings), title);
   NS_ENSURE_SUCCESS(rv, rv);
 
   rv = filePicker->Init(aParentWin, title, nsIFilePicker::modeSave);
@@ -556,31 +556,31 @@ NS_IMETHODIMP nsAbManager::ExportAddressBook(mozIDOMWindowProxy *aParentWin, nsI
   nsString filterString;
 
   // CSV: System charset and UTF-8.
-  rv = bundle->GetStringFromName("CSVFilesSysCharset", getter_Copies(filterString));
+  rv = bundle->GetStringFromName("CSVFilesSysCharset", filterString);
   NS_ENSURE_SUCCESS(rv, rv);
   rv = filePicker->AppendFilter(filterString, NS_LITERAL_STRING("*.csv"));
   NS_ENSURE_SUCCESS(rv, rv);
-  rv = bundle->GetStringFromName("CSVFilesUTF8", getter_Copies(filterString));
+  rv = bundle->GetStringFromName("CSVFilesUTF8", filterString);
   NS_ENSURE_SUCCESS(rv, rv);
   rv = filePicker->AppendFilter(filterString, NS_LITERAL_STRING("*.csv"));
   NS_ENSURE_SUCCESS(rv, rv);
 
   // Tab separated: System charset and UTF-8.
-  rv = bundle->GetStringFromName("TABFilesSysCharset", getter_Copies(filterString));
+  rv = bundle->GetStringFromName("TABFilesSysCharset", filterString);
   NS_ENSURE_SUCCESS(rv, rv);
   rv = filePicker->AppendFilter(filterString, NS_LITERAL_STRING("*.tab; *.txt"));
   NS_ENSURE_SUCCESS(rv, rv);
-  rv = bundle->GetStringFromName("TABFilesUTF8", getter_Copies(filterString));
+  rv = bundle->GetStringFromName("TABFilesUTF8", filterString);
   NS_ENSURE_SUCCESS(rv, rv);
   rv = filePicker->AppendFilter(filterString, NS_LITERAL_STRING("*.tab; *.txt"));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  rv = bundle->GetStringFromName("VCFFiles", getter_Copies(filterString));
+  rv = bundle->GetStringFromName("VCFFiles", filterString);
   NS_ENSURE_SUCCESS(rv, rv);
   rv = filePicker->AppendFilter(filterString, NS_LITERAL_STRING("*.vcf"));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  rv = bundle->GetStringFromName("LDIFFiles", getter_Copies(filterString));
+  rv = bundle->GetStringFromName("LDIFFiles", filterString);
   NS_ENSURE_SUCCESS(rv, rv);
   rv = filePicker->AppendFilter(filterString, NS_LITERAL_STRING("*.ldi; *.ldif"));
   NS_ENSURE_SUCCESS(rv, rv);
@@ -714,7 +714,7 @@ nsAbManager::ExportDirectoryToDelimitedText(nsIAbDirectory *aDirectory,
 
       // We don't need to truncate the string here as getter_Copies will
       // do that for us.
-      if (NS_FAILED(bundle->GetStringFromID(EXPORT_ATTRIBUTES_TABLE[i].plainTextStringID, getter_Copies(columnName))))
+      if (NS_FAILED(bundle->GetStringFromID(EXPORT_ATTRIBUTES_TABLE[i].plainTextStringID, columnName)))
         columnName.AppendInt(EXPORT_ATTRIBUTES_TABLE[i].plainTextStringID);
 
       rv = nsMsgI18NConvertFromUnicode(useUTF8 ? "UTF-8" : nsMsgI18NFileSystemCharset(),

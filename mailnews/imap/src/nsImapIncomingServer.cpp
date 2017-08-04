@@ -1867,7 +1867,7 @@ nsImapIncomingServer::FEAlert(const nsAString& aAlertString,
 
       rv = m_stringBundle->FormatStringFromName(
         "imapServerAlert",
-        params, 2, getter_Copies(message));
+        params, 2, message);
       if (NS_SUCCEEDED(rv))
         return AlertUser(message, aUrl);
     }
@@ -1906,7 +1906,7 @@ nsImapIncomingServer::FEAlertWithName(const char* aMsgName, nsIMsgMailNewsUrl *a
       const char16_t *params[] = { hostName.get() };
       rv = m_stringBundle->FormatStringFromName(
         aMsgName,
-        params, 1,getter_Copies(message));
+        params, 1,message);
       if (NS_SUCCEEDED(rv))
         return AlertUser(message, aUrl);
     }
@@ -1990,7 +1990,7 @@ NS_IMETHODIMP  nsImapIncomingServer::FEAlertFromServer(const nsACString& aServer
   if (m_stringBundle)
   {
     rv = m_stringBundle->FormatStringFromName(msgName,
-      formatStrings, numStrings, getter_Copies(fullMessage));
+      formatStrings, numStrings, fullMessage);
     NS_ENSURE_SUCCESS(rv, rv);
   }
 
@@ -2018,7 +2018,7 @@ nsImapIncomingServer::GetImapStringByName(const char* msgName, nsAString& aStrin
   if (m_stringBundle)
   {
     nsString res_str;
-    rv = m_stringBundle->GetStringFromName(msgName, getter_Copies(res_str));
+    rv = m_stringBundle->GetStringFromName(msgName, res_str);
     aString.Assign(res_str);
     if (NS_SUCCEEDED(rv))
       return rv;
@@ -2205,7 +2205,7 @@ nsImapIncomingServer::PromptPassword(nsIMsgWindow *aMsgWindow,
   nsString passwordText;
   rv = m_stringBundle->FormatStringFromName(
     "imapEnterServerPasswordPrompt",
-    formatStrings, 2, getter_Copies(passwordText));
+    formatStrings, 2, passwordText);
   NS_ENSURE_SUCCESS(rv, rv);
 
   rv = GetPasswordWithUI(passwordText, passwordTitle, aMsgWindow, aPassword);
@@ -2944,7 +2944,7 @@ nsImapIncomingServer::GetFormattedStringFromName(const nsAString& aValue,
     nsString result;
     rv = m_stringBundle->FormatStringFromName(
       aName,
-      formatStrings, 1, getter_Copies(result));
+      formatStrings, 1, result);
     aResult.Assign(result);
   }
   return rv;

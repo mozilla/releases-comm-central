@@ -2189,7 +2189,7 @@ nsresult nsMsgCompose::CreateMessage(const char * originalMsgURI,
                                                  getter_AddRefs(composeBundle));
                 NS_ENSURE_SUCCESS(rv, rv);
                 composeBundle->GetStringFromName("messageAttachmentSafeName",
-                                                 getter_Copies(sanitizedSubj));
+                                                 sanitizedSubj);
               }
               else
                 sanitizedSubj.Assign(subject);
@@ -4062,7 +4062,7 @@ NS_IMETHODIMP nsMsgComposeSendListener::OnStateChange(nsIWebProgress *aWebProgre
             getter_AddRefs(bundle));
           NS_ENSURE_SUCCESS(rv, rv);
           nsString msg;
-          bundle->GetStringFromName("msgCancelling", getter_Copies(msg));
+          bundle->GetStringFromName("msgCancelling", msg);
           progress->OnStatusChange(nullptr, nullptr, NS_OK, msg.get());
         }
       }

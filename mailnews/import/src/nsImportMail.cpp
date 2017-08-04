@@ -905,11 +905,10 @@ bool nsImportGenericMail::CreateFolder(nsIMsgFolder **ppFolder)
     const char16_t *moduleName[] = { m_pName.get() };
     rv = bundle->FormatStringFromName("ImportModuleFolderName",
                                       moduleName, 1,
-                                      getter_Copies(folderName));
+                                      folderName);
   }
   else {
-    rv = bundle->GetStringFromName("DefaultFolderName",
-                                   getter_Copies(folderName));
+    rv = bundle->GetStringFromName("DefaultFolderName", folderName);
   }
   if (NS_FAILED(rv)) {
       IMPORT_LOG0("*** Failed to get Folder Name!\n");

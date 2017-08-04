@@ -769,7 +769,7 @@ nsresult nsPop3Sink::HandleTempDownloadFailed(nsIMsgWindow *msgWindow)
   const char16_t *params[] = { fromStr.get(), subjectStr.get() };
   bundle->FormatStringFromName(
     "pop3TmpDownloadError",
-    params, 2, getter_Copies(confirmString));
+    params, 2, confirmString);
   nsCOMPtr<mozIDOMWindowProxy> parentWindow;
   nsCOMPtr<nsIPromptService> promptService = do_GetService(NS_PROMPTSERVICE_CONTRACTID);
   nsCOMPtr<nsIDocShell> docShell;

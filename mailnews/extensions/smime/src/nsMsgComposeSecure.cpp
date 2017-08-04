@@ -190,7 +190,7 @@ nsresult nsMsgComposeSecure::GetSMIMEBundleString(const char16_t *name,
 
   NS_ENSURE_TRUE(InitializeSMIMEBundle(), NS_ERROR_FAILURE);
 
-  return mSMIMEBundle->GetStringFromName(NS_ConvertUTF16toUTF8(name).get(), getter_Copies(outString));
+  return mSMIMEBundle->GetStringFromName(NS_ConvertUTF16toUTF8(name).get(), outString);
 }
 
 nsresult
@@ -198,15 +198,14 @@ nsMsgComposeSecure::
 SMIMEBundleFormatStringFromName(const char *name,
                                 const char16_t **params,
                                 uint32_t numParams,
-                                char16_t **outString)
+                                nsAString& outString)
 {
   NS_ENSURE_ARG_POINTER(name);
 
   if (!InitializeSMIMEBundle())
     return NS_ERROR_FAILURE;
 
-  return mSMIMEBundle->FormatStringFromName(name, params,
-                                            numParams, outString);
+  return mSMIMEBundle->FormatStringFromName(name, params, numParams, outString);
 }
 
 bool nsMsgComposeSecure::InitializeSMIMEBundle()
@@ -263,7 +262,7 @@ void nsMsgComposeSecure::SetErrorWithParam(nsIMsgSendReport *sendReport, const c
   res = SMIMEBundleFormatStringFromName(bundle_string,
                                         params,
                                         1,
-                                        getter_Copies(errorString));
+                                        errorString);
 
   if (NS_SUCCEEDED(res) && !errorString.IsEmpty())
   {
@@ -560,7 +559,7 @@ nsresult nsMsgComposeSecure::MimeInitEncryption(bool aSign, nsIMsgSendReport *se
     return NS_ERROR_FAILURE;
 
   sMIMEBundle->GetStringFromName("mime_smimeEncryptedContentDesc",
-                                 getter_Copies(mime_smime_enc_content_desc));
+                                 mime_smime_enc_content_desc);
   NS_ConvertUTF16toUTF8 enc_content_desc_utf8(mime_smime_enc_content_desc);
 
   nsCOMPtr<nsIMimeConverter> mimeConverter =
@@ -676,7 +675,7 @@ nsresult nsMsgComposeSecure::MimeFinishMultipartSigned (bool aOuter, nsIMsgSendR
     return NS_ERROR_FAILURE;
 
   sMIMEBundle->GetStringFromName("mime_smimeSignatureContentDesc",
-                                 getter_Copies(mime_smime_sig_content_desc));
+                                 mime_smime_sig_content_desc);
 
   NS_ConvertUTF16toUTF8 sig_content_desc_utf8(mime_smime_sig_content_desc);
 

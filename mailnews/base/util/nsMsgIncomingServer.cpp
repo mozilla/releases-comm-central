@@ -1642,8 +1642,8 @@ NS_IMETHODIMP nsMsgIncomingServer::DisplayOfflineMsg(nsIMsgWindow *aMsgWindow)
   {
     nsString errorMsgTitle;
     nsString errorMsgBody;
-    bundle->GetStringFromName("nocachedbodybody2", getter_Copies(errorMsgBody));
-    bundle->GetStringFromName("nocachedbodytitle", getter_Copies(errorMsgTitle));
+    bundle->GetStringFromName("nocachedbodybody2", errorMsgBody);
+    bundle->GetStringFromName("nocachedbodytitle", errorMsgTitle);
     aMsgWindow->DisplayHTMLInMessagePane(errorMsgTitle, errorMsgBody, true);
   }
 

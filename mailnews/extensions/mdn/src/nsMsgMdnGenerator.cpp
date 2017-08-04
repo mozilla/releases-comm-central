@@ -101,7 +101,7 @@ nsMsgMdnGenerator::~nsMsgMdnGenerator()
 
 nsresult nsMsgMdnGenerator::FormatStringFromName(const char *aName,
                                                  const char16_t *aString,
-                                                 char16_t **aResultString)
+                                                 nsAString& aResultString)
 {
     DEBUG_MDN("nsMsgMdnGenerator::FormatStringFromName");
 
@@ -122,7 +122,7 @@ nsresult nsMsgMdnGenerator::FormatStringFromName(const char *aName,
 }
 
 nsresult nsMsgMdnGenerator::GetStringFromName(const char *aName,
-                                               char16_t **aResultString)
+                                              nsAString& aResultString)
 {
     DEBUG_MDN("nsMsgMdnGenerator::GetStringFromName");
 
@@ -473,7 +473,7 @@ nsresult nsMsgMdnGenerator::CreateFirstPart()
     parm = PR_smprintf("From: %s" CRLF, convbuf ? convbuf : m_email.get());
 
     rv = FormatStringFromName("MsgMdnMsgSentTo", NS_ConvertASCIItoUTF16(m_email).get(),
-                            getter_Copies(firstPart1));
+                            firstPart1);
     if (NS_FAILED(rv))
         return rv;
 
@@ -495,32 +495,32 @@ nsresult nsMsgMdnGenerator::CreateFirstPart()
     case nsIMsgMdnGenerator::eDisplayed:
         rv = GetStringFromName(
             "MdnDisplayedReceipt",
-            getter_Copies(receipt_string));
+            receipt_string);
         break;
     case nsIMsgMdnGenerator::eDispatched:
         rv = GetStringFromName(
             "MdnDispatchedReceipt",
-            getter_Copies(receipt_string));
+            receipt_string);
         break;
     case nsIMsgMdnGenerator::eProcessed:
         rv = GetStringFromName(
             "MdnProcessedReceipt",
-            getter_Copies(receipt_string));
+            receipt_string);
         break;
     case nsIMsgMdnGenerator::eDeleted:
         rv = GetStringFromName(
             "MdnDeletedReceipt",
-            getter_Copies(receipt_string));
+            receipt_string);
         break;
     case nsIMsgMdnGenerator::eDenied:
         rv = GetStringFromName(
             "MdnDeniedReceipt",
-            getter_Copies(receipt_string));
+            receipt_string);
         break;
     case nsIMsgMdnGenerator::eFailed:
         rv = GetStringFromName(
             "MdnFailedReceipt",
-            getter_Copies(receipt_string));
+            receipt_string);
         break;
     default:
         rv = NS_ERROR_INVALID_ARG;
@@ -596,32 +596,32 @@ report-type=disposition-notification;\r\n\tboundary=\"%s\"" CRLF CRLF,
     case nsIMsgMdnGenerator::eDisplayed:
         rv = GetStringFromName(
             "MsgMdnDisplayed",
-            getter_Copies(firstPart2));
+            firstPart2);
         break;
     case nsIMsgMdnGenerator::eDispatched:
         rv = GetStringFromName(
             "MsgMdnDispatched",
-            getter_Copies(firstPart2));
+            firstPart2);
         break;
     case nsIMsgMdnGenerator::eProcessed:
         rv = GetStringFromName(
             "MsgMdnProcessed",
-            getter_Copies(firstPart2));
+            firstPart2);
         break;
     case nsIMsgMdnGenerator::eDeleted:
         rv = GetStringFromName(
             "MsgMdnDeleted",
-            getter_Copies(firstPart2));
+            firstPart2);
         break;
     case nsIMsgMdnGenerator::eDenied:
         rv = GetStringFromName(
             "MsgMdnDenied",
-            getter_Copies(firstPart2));
+            firstPart2);
         break;
     case nsIMsgMdnGenerator::eFailed:
         rv = GetStringFromName(
             "MsgMdnFailed",
-            getter_Copies(firstPart2));
+            firstPart2);
         break;
     default:
         rv = NS_ERROR_INVALID_ARG;
@@ -1129,8 +1129,8 @@ NS_IMETHODIMP nsMsgMdnGenerator::OnStopRunningUrl(nsIURI *url,
 
     nsString failed_msg, dialogTitle;
 
-    bundle->FormatStringFromName(exitString, params, 1, getter_Copies(failed_msg));
-    bundle->GetStringFromName("sendMessageErrorTitle", getter_Copies(dialogTitle));
+    bundle->FormatStringFromName(exitString, params, 1, failed_msg);
+    bundle->GetStringFromName("sendMessageErrorTitle", dialogTitle);
 
     nsCOMPtr<nsIPrompt> dialog;
     rv = m_window->GetPromptDialog(getter_AddRefs(dialog));

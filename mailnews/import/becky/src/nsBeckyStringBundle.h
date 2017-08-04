@@ -14,7 +14,7 @@ public:
   static nsresult FormatStringFromName(const char *name,
                                        const char16_t **params,
                                        uint32_t length,
-                                       char16_t **_retval);
+                                       nsAString& _retval);
   static nsIStringBundle * GetStringBundle(void); // don't release
   static void EnsureStringBundle(void);
   static void Cleanup(void);

@@ -573,7 +573,7 @@ nsMsgPrintEngine::GetString(const char16_t *aStringName, nsString& outStr)
   }
 
   if (mStringBundle)
-    mStringBundle->GetStringFromName(NS_ConvertUTF16toUTF8(aStringName).get(), getter_Copies(outStr));
+    mStringBundle->GetStringFromName(NS_ConvertUTF16toUTF8(aStringName).get(), outStr);
   return;
 }
 

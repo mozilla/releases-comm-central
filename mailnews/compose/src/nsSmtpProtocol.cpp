@@ -103,8 +103,7 @@ nsresult nsExplainErrorDetails(nsISmtpUrl * aSmtpUrl, nsresult aCode, ...)
   switch (aCode)
   {
     case NS_ERROR_ILLEGAL_LOCALPART:
-      bundle->GetStringFromName("errorIllegalLocalPart",
-                                getter_Copies(eMsg));
+      bundle->GetStringFromName("errorIllegalLocalPart", eMsg);
       msg = nsTextFormatter::vsmprintf(eMsg.get(), args);
       break;
     case NS_ERROR_SMTP_SERVER_ERROR:
@@ -118,12 +117,12 @@ nsresult nsExplainErrorDetails(nsISmtpUrl * aSmtpUrl, nsresult aCode, ...)
     case NS_ERROR_SENDING_MESSAGE:
     case NS_ERROR_SMTP_GREETING:
       exitString = errorStringNameForErrorCode(aCode);
-      bundle->GetStringFromName(exitString, getter_Copies(eMsg));
+      bundle->GetStringFromName(exitString, eMsg);
       msg = nsTextFormatter::vsmprintf(eMsg.get(), args);
       break;
     default:
       NS_WARNING("falling to default error code");
-      bundle->GetStringFromName("communicationsError", getter_Copies(eMsg));
+      bundle->GetStringFromName("communicationsError", eMsg);
       msg = nsTextFormatter::smprintf(eMsg.get(), aCode);
       break;
   }
@@ -583,7 +582,7 @@ void nsSmtpProtocol::UpdateStatus(const char* aStatusName)
     nsresult rv = bundleService->CreateBundle("chrome://messenger/locale/messengercompose/composeMsgs.properties", getter_AddRefs(bundle));
     if (NS_FAILED(rv)) return;
     nsString msg;
-    bundle->GetStringFromName(aStatusName, getter_Copies(msg));
+    bundle->GetStringFromName(aStatusName, msg);
     UpdateStatusWithString(msg.get());
   }
 }
@@ -2220,11 +2219,11 @@ nsSmtpProtocol::PromptForPassword(nsISmtpServer *aSmtpServer, nsISmtpUrl *aSmtpU
   if(formatStrings[1])
     rv = composeStringBundle->FormatStringFromName(
       "smtpEnterPasswordPromptWithUsername",
-      formatStrings, 2, getter_Copies(passwordPromptString));
+      formatStrings, 2, passwordPromptString);
   else
     rv = composeStringBundle->FormatStringFromName(
       "smtpEnterPasswordPrompt",
-      formatStrings, 1, getter_Copies(passwordPromptString));
+      formatStrings, 1, passwordPromptString);
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsIAuthPrompt> netPrompt;
@@ -2234,7 +2233,7 @@ nsSmtpProtocol::PromptForPassword(nsISmtpServer *aSmtpServer, nsISmtpUrl *aSmtpU
   nsString passwordTitle;
   rv = composeStringBundle->GetStringFromName(
     "smtpEnterPasswordPromptTitle",
-    getter_Copies(passwordTitle));
+    passwordTitle);
   NS_ENSURE_SUCCESS(rv,rv);
 
   rv = aSmtpServer->GetPasswordWithUI(passwordPromptString.get(), passwordTitle.get(),

@@ -146,22 +146,19 @@ bool nsMapiHook::DisplayLoginDialog(bool aLogin, char16_t **aUsername,
     if (NS_FAILED(rv)) return false;
 
     nsString brandName;
-    rv = brandBundle->GetStringFromName(
-                       "brandFullName",
-                       getter_Copies(brandName));
+    rv = brandBundle->GetStringFromName("brandFullName", brandName);
     if (NS_FAILED(rv)) return false;
 
     nsString loginTitle;
     const char16_t *brandStrings[] = { brandName.get() };
     rv = bundle->FormatStringFromName("loginTitle", brandStrings, 1,
-                                      getter_Copies(loginTitle));
+                                      loginTitle);
     if (NS_FAILED(rv)) return false;
 
     if (aLogin)
     {
       nsString loginText;
-      rv = bundle->GetStringFromName("loginTextwithName",
-                                     getter_Copies(loginText));
+      rv = bundle->GetStringFromName("loginTextwithName", loginText);
       if (NS_FAILED(rv) || loginText.IsEmpty()) return false;
 
       bool dummyValue = false;
@@ -175,7 +172,7 @@ bool nsMapiHook::DisplayLoginDialog(bool aLogin, char16_t **aUsername,
       nsString loginText;
       const char16_t *userNameStrings[] = { *aUsername };
       rv = bundle->FormatStringFromName("loginText", userNameStrings, 1,
-                                        getter_Copies(loginText));
+                                        loginText);
       if (NS_FAILED(rv)) return false;
 
       bool dummyValue = false;
@@ -251,13 +248,12 @@ nsMapiHook::IsBlindSendAllowed()
   if (NS_FAILED(rv) || !bundle) return false;
 
   nsString warningMsg;
-  rv = bundle->GetStringFromName("mapiBlindSendWarning",
-                                 getter_Copies(warningMsg));
+  rv = bundle->GetStringFromName("mapiBlindSendWarning", warningMsg);
   if (NS_FAILED(rv)) return false;
 
   nsString dontShowAgainMessage;
   rv = bundle->GetStringFromName("mapiBlindSendDontShowAgain",
-                                 getter_Copies(dontShowAgainMessage));
+                                 dontShowAgainMessage);
   if (NS_FAILED(rv)) return false;
 
   nsCOMPtr<nsIPromptService> dlgService(do_GetService(NS_PROMPTSERVICE_CONTRACTID, &rv));

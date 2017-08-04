@@ -256,7 +256,7 @@ NS_IMETHODIMP nsMsgProgress::OnStatus(nsIRequest *request, nsISupports* ctxt,
     mozilla::services::GetStringBundleService();
   NS_ENSURE_TRUE(sbs, NS_ERROR_UNEXPECTED);
   nsString str;
-  rv = sbs->FormatStatusMessage(aStatus, aStatusArg, getter_Copies(str));
+  rv = sbs->FormatStatusMessage(aStatus, aStatusArg, str);
   NS_ENSURE_SUCCESS(rv, rv);
   return ShowStatusString(str);
 }

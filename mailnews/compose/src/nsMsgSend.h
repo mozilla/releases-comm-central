@@ -189,7 +189,7 @@ public:
   NS_IMETHOD  DeliverFileAsMail();
   NS_IMETHOD  DeliverFileAsNews();
   void        DoDeliveryExitProcessing(nsIURI * aUrl, nsresult aExitCode, bool aCheckForMail);
-  nsresult    FormatStringWithSMTPHostNameByName(const char* aMsgName, char16_t **aString);
+  nsresult    FormatStringWithSMTPHostNameByName(const char* aMsgName, nsAString& aString);
 
   nsresult    DoFcc();
   nsresult    StartMessageCopyOperation(nsIFile          *aFileSpec,

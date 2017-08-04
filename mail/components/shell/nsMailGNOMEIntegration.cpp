@@ -309,8 +309,7 @@ nsMailGNOMEIntegration::MakeDefault(const char* const *aProtocols,
     NS_ENSURE_SUCCESS(rv, rv);
 
     nsString brandShortName;
-    brandBundle->GetStringFromName("brandShortName",
-                                   getter_Copies(brandShortName));
+    brandBundle->GetStringFromName("brandShortName", brandShortName);
 
     // use brandShortName as the application id.
     NS_ConvertUTF16toUTF8 id(brandShortName);

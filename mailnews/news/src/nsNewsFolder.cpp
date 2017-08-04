@@ -1236,8 +1236,7 @@ nsMsgNewsFolder::GetAuthenticationCredentials(nsIMsgWindow *aMsgWindow,
     {
       // Format the prompt text strings
       nsString promptTitle, promptText;
-      bundle->GetStringFromName("enterUserPassTitle",
-        getter_Copies(promptTitle));
+      bundle->GetStringFromName("enterUserPassTitle", promptTitle);
 
       nsString serverName;
       nsCOMPtr<nsIMsgIncomingServer> server;
@@ -1259,11 +1258,11 @@ nsMsgNewsFolder::GetAuthenticationCredentials(nsIMsgWindow *aMsgWindow,
       if (singleSignon)
         bundle->FormatStringFromName(
           "enterUserPassServer",
-          &params[1], 1, getter_Copies(promptText));
+          &params[1], 1, promptText);
       else
         bundle->FormatStringFromName(
           "enterUserPassGroup",
-          params, 2, getter_Copies(promptText));
+          params, 2, promptText);
 
       // Fill the signon url for the dialog
       nsString signonURL;

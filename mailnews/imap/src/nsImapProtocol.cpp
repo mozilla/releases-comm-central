@@ -560,8 +560,7 @@ nsImapProtocol::Initialize(nsIImapHostSessionList * aHostSessionList,
   rv = IMAPGetStringBundle(getter_AddRefs(m_bundle));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  rv = m_bundle->GetStringFromName("imapEmptyMimePart",
-    getter_Copies(m_emptyMimePartString));
+  rv = m_bundle->GetStringFromName("imapEmptyMimePart", m_emptyMimePartString);
   NS_ENSURE_SUCCESS(rv, rv);
 
   // Now initialize the thread for the connection
@@ -5236,7 +5235,7 @@ nsImapProtocol::ShowProgress()
 
     rv = m_bundle->FormatStringFromName(
                     m_progressStringName.get(),
-                    formatStrings, 3, getter_Copies(progressString));
+                    formatStrings, 3, progressString);
 
     if (NS_SUCCEEDED(rv) && !progressString.IsEmpty())
     {

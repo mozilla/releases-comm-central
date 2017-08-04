@@ -1582,7 +1582,7 @@ nsNntpIncomingServer::GroupNotFound(nsIMsgWindow *aMsgWindow,
   rv = bundle->FormatStringFromName(
                     "autoUnsubscribeText",
                     formatStrings, 2,
-                    getter_Copies(confirmText));
+                    confirmText);
   NS_ENSURE_SUCCESS(rv,rv);
 
   bool confirmResult = false;

@@ -28,7 +28,7 @@ nsMsgGetMessageByName(const char* aName, nsString& aResult)
     getter_AddRefs(bundle));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  return bundle->GetStringFromName(aName, getter_Copies(aResult));
+  return bundle->GetStringFromName(aName, aResult);
 }
 
 static nsresult
@@ -48,7 +48,7 @@ nsMsgBuildMessageByName(const char *aName, nsIFile *aFile, nsString& aResult)
   aFile->GetPath(path);
 
   const char16_t *params[1] = {path.get()};
-  return bundle->FormatStringFromName(aName, params, 1, getter_Copies(aResult));
+  return bundle->FormatStringFromName(aName, params, 1, aResult);
 }
 
 nsresult

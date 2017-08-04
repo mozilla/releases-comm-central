@@ -100,8 +100,7 @@ NS_IMETHODIMP nsAbLDAPListenerBase::OnLDAPInit(nsILDAPConnection *aConn, nsresul
     // get the title for the authentication prompt
     //
     nsString authPromptTitle;
-    rv = ldapBundle->GetStringFromName("authPromptTitle",
-                                       getter_Copies(authPromptTitle));
+    rv = ldapBundle->GetStringFromName("authPromptTitle", authPromptTitle);
     if (NS_FAILED(rv))
     {
       NS_ERROR("nsAbLDAPListenerBase::OnLDAPInit(): error getting"
@@ -136,7 +135,7 @@ NS_IMETHODIMP nsAbLDAPListenerBase::OnLDAPInit(nsILDAPConnection *aConn, nsresul
     rv = ldapBundle->FormatStringFromName("authPromptText",
                                           hostArray,
                                           sizeof(hostArray) / sizeof(const char16_t *),
-                                          getter_Copies(authPromptText));
+                                          authPromptText);
     if (NS_FAILED(rv))
     {
       NS_ERROR("nsAbLDAPListenerBase::OnLDAPInit():"

@@ -676,7 +676,7 @@ NS_IMETHODIMP nsSpamSettings::LogJunkHit(nsIMsgDBHdr *aMsgHdr, bool aMoveMessage
   rv = bundle->FormatStringFromName(
     "junkLogDetectStr",
     junkLogDetectFormatStrings, 3,
-    getter_Copies(junkLogDetectStr));
+    junkLogDetectStr);
   NS_ENSURE_SUCCESS(rv, rv);
 
   buffer += NS_ConvertUTF16toUTF8(junkLogDetectStr);
@@ -698,7 +698,7 @@ NS_IMETHODIMP nsSpamSettings::LogJunkHit(nsIMsgDBHdr *aMsgHdr, bool aMoveMessage
     rv = bundle->FormatStringFromName(
       "logMoveStr",
       logMoveFormatStrings, 2,
-      getter_Copies(logMoveStr));
+      logMoveStr);
     NS_ENSURE_SUCCESS(rv, rv);
 
     buffer += NS_ConvertUTF16toUTF8(logMoveStr);

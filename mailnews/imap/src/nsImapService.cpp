@@ -2767,7 +2767,7 @@ NS_IMETHODIMP nsImapService::NewChannel2(nsIURI *aURI,
 
       rv = bundle->FormatStringFromName(
         "imapSubscribePrompt",
-        formatStrings, 1, getter_Copies(confirmText));
+        formatStrings, 1, confirmText);
       NS_ENSURE_SUCCESS(rv,rv);
 
       bool confirmResult = false;
