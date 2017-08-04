@@ -317,6 +317,7 @@
 ; [DevTools Shim Files]
 @RESPATH@/chrome/devtools-shim@JAREXT@
 @RESPATH@/chrome/devtools-shim.manifest
+@RESPATH@/@PREF_DIR@/devtools-startup-prefs.js
 
 ; DevTools
 @RESPATH@/chrome/devtools@JAREXT@
