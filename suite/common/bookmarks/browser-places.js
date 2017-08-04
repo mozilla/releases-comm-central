@@ -738,7 +738,7 @@ var PlacesStarButton = {
          // Start observing bookmarks if needed.
          if (!this._hasBookmarksObserver) {
            try {
-             PlacesUtils.addLazyBookmarkObserver(this);
+             PlacesUtils.bookmarks.addObserver(this);
              this._hasBookmarksObserver = true;
            } catch (ex) {
              Components.utils.reportError("BookmarkingUI failed adding a bookmarks observer: " + ex);
