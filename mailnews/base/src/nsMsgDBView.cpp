@@ -68,9 +68,9 @@ char16_t * nsMsgDBView::kRepliedString = nullptr;
 char16_t * nsMsgDBView::kForwardedString = nullptr;
 char16_t * nsMsgDBView::kNewString = nullptr;
 
-nsDateFormatSelector  nsMsgDBView::m_dateFormatDefault = kDateFormatShort;
-nsDateFormatSelector  nsMsgDBView::m_dateFormatThisWeek = kDateFormatShort;
-nsDateFormatSelector  nsMsgDBView::m_dateFormatToday = kDateFormatNone;
+mozilla::nsDateFormatSelector  nsMsgDBView::m_dateFormatDefault = mozilla::kDateFormatShort;
+mozilla::nsDateFormatSelector  nsMsgDBView::m_dateFormatThisWeek = mozilla::kDateFormatShort;
+mozilla::nsDateFormatSelector  nsMsgDBView::m_dateFormatToday = mozilla::kDateFormatNone;
 
 static const uint32_t kMaxNumSortColumns = 2;
 
@@ -587,7 +587,7 @@ nsresult nsMsgDBView::FetchDate(nsIMsgDBHdr * aHdr, nsAString &aDateString, bool
   // if the message is from the last week, show the day of the week.   (i.e. Mon 3:15 pm)
   // in all other cases, show the full date (03/19/01 3:15 pm)
 
-  nsDateFormatSelector dateFormat = m_dateFormatDefault;
+  mozilla::nsDateFormatSelector dateFormat = m_dateFormatDefault;
   if (explodedCurrentTime.tm_year == explodedMsgTime.tm_year &&
       explodedCurrentTime.tm_month == explodedMsgTime.tm_month &&
       explodedCurrentTime.tm_mday == explodedMsgTime.tm_mday)
@@ -623,7 +623,7 @@ nsresult nsMsgDBView::FetchDate(nsIMsgDBHdr * aHdr, nsAString &aDateString, bool
 
   if (NS_SUCCEEDED(rv))
     rv = mozilla::DateTimeFormat::FormatPRTime(dateFormat,
-                                               kTimeFormatNoSeconds,
+                                               mozilla::kTimeFormatNoSeconds,
                                                dateOfMsg,
                                                aDateString);
 
@@ -7888,7 +7888,8 @@ nsMsgDBView::FindIndexOfMsgHdr(nsIMsgDBHdr *aMsgHdr, bool aExpand, nsMsgViewInde
   return NS_OK;
 }
 
-static void getDateFormatPref( nsIPrefBranch* _prefBranch, const char* _prefLocalName, nsDateFormatSelector& _format )
+static void
+getDateFormatPref( nsIPrefBranch* _prefBranch, const char* _prefLocalName, mozilla::nsDateFormatSelector& _format )
 {
   // read
   int32_t nFormatSetting( 0 );
@@ -7896,18 +7897,19 @@ static void getDateFormatPref( nsIPrefBranch* _prefBranch, const char* _prefLoca
   if ( NS_SUCCEEDED( result ) )
   {
     // translate
-    nsDateFormatSelector res( nFormatSetting );
+    mozilla::nsDateFormatSelector res;
+    res = static_cast<mozilla::nsDateFormatSelector>(nFormatSetting);
     // transfer if valid
-    if ( ( res >= kDateFormatNone ) && ( res <= kDateFormatWeekday ) )
+    if ( ( res >= mozilla::kDateFormatNone ) && ( res <= mozilla::kDateFormatWeekday ) )
       _format = res;
   }
 }
 
 nsresult nsMsgDBView::InitDisplayFormats()
 {
-  m_dateFormatDefault   = kDateFormatShort;
-  m_dateFormatThisWeek  = kDateFormatShort;
-  m_dateFormatToday     = kDateFormatNone;
+  m_dateFormatDefault   = mozilla::kDateFormatShort;
+  m_dateFormatThisWeek  = mozilla::kDateFormatShort;
+  m_dateFormatToday     = mozilla::kDateFormatNone;
 
   nsresult rv = NS_OK;
   nsCOMPtr<nsIPrefService> prefs = do_GetService(NS_PREFSERVICE_CONTRACTID, &rv);

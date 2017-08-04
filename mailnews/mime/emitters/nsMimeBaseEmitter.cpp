@@ -709,20 +709,20 @@ nsMimeBaseEmitter::GenerateDateString(const char * dateString,
 
   // If we want short dates, check if the message is from today, and if so
   // only show the time (e.g. 3:15 pm).
-  nsDateFormatSelector dateFormat = kDateFormatShort;
+  mozilla::nsDateFormatSelector dateFormat = mozilla::kDateFormatShort;
   if (!showDateForToday &&
       explodedCurrentTime.tm_year == explodedCompTime.tm_year &&
       explodedCurrentTime.tm_month == explodedCompTime.tm_month &&
       explodedCurrentTime.tm_mday == explodedCompTime.tm_mday)
   {
     // same day...
-    dateFormat = kDateFormatNone;
+    dateFormat = mozilla::kDateFormatNone;
   }
 
   nsAutoString formattedDateString;
 
   rv = mozilla::DateTimeFormat::FormatPRExplodedTime(dateFormat,
-                                                     kTimeFormatNoSeconds,
+                                                     mozilla::kTimeFormatNoSeconds,
                                                      &explodedCompTime,
                                                      formattedDateString);
 

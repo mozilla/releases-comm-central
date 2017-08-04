@@ -36,26 +36,12 @@ function StringBundle(url) {
 
 StringBundle.prototype = {
   /**
-   * the locale associated with the application
-   * @type nsILocale
-   * @private
-   */
-  get _appLocale() {
-    try {
-      return Services.locale.getApplicationLocale();
-    }
-    catch(ex) {
-      return null;
-    }
-  },
-
-  /**
    * the wrapped nsIStringBundle
    * @type nsIStringBundle
    * @private
    */
   get _stringBundle() {
-    let stringBundle = Services.strings.createBundle(this.url, this._appLocale);
+    let stringBundle = Services.strings.createBundle(this.url);
     this.__defineGetter__("_stringBundle", () => stringBundle);
     return this._stringBundle;
   },
@@ -132,16 +118,6 @@ StringBundle.prototype = {
   },
   set src(newVal) {
     this.url = newVal;
-  },
-
-  /**
-   * the locale associated with the application
-   * @deprecated because it has never been used outside the XBL binding itself,
-   * and consumers should obtain it directly from the locale service anyway.
-   * @type nsILocale
-   */
-  get appLocale() {
-    return this._appLocale;
   },
 
   /**
