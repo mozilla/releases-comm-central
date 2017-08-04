@@ -30,3 +30,6 @@ mk_export_correct_style INCLUDE
 # Run client.py
 mk_add_options CLIENT_PY_ARGS="$([ -f $topsrcdir/build/client.py-l10n-args ] && cat $topsrcdir/build/client.py-l10n-args)"
 mk_add_options ALWAYS_RUN_CLIENT_PY=1
+
+# Use the TOOLTOOL provided xz for mar generation.
+mk_add_options "export XZ=$TOOLTOOL_DIR/xz/xz.exe"
