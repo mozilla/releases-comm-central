@@ -16,7 +16,6 @@
 #include "nsIConsoleService.h"
 #include "nsServiceManagerUtils.h"
 #include "nsIClassInfoImpl.h"
-#include "nsIProgrammingLanguage.h"
 #include "nsCOMPtr.h"
 
 #include "calBaseCID.h"

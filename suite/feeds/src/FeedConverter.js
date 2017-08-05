@@ -129,7 +129,6 @@ FeedConverter.prototype = {
      Components.interfaces.nsIRequestObserver,
      Components.interfaces.nsISupports]),
   classID: Components.ID("{88592f45-3866-4c8e-9d8a-ab58b290fcf7}"),
-  implementationLanguage: Components.interfaces.nsIProgrammingLanguage.JAVASCRIPT,
 
   /**
    * See nsIStreamConverter.idl
@@ -465,8 +464,7 @@ FeedResultService.prototype = {
 
   QueryInterface: XPCOMUtils.generateQI([Components.interfaces.nsIFeedResultService,
                                          Components.interfaces.nsISupports]),
-  classID: Components.ID("{e5b05e9d-f037-48e4-b9a4-b99476582927}"),
-  implementationLanguage: Components.interfaces.nsIProgrammingLanguage.JAVASCRIPT
+  classID: Components.ID("{e5b05e9d-f037-48e4-b9a4-b99476582927}")
 };
 
 /**
@@ -544,8 +542,7 @@ GenericProtocolHandler.prototype = {
   },
 
   QueryInterface: XPCOMUtils.generateQI([Components.interfaces.nsIProtocolHandler,
-                                         Components.interfaces.nsISupports]),
-  implementationLanguage: Components.interfaces.nsIProgrammingLanguage.JAVASCRIPT
+                                         Components.interfaces.nsISupports])
 };
 
 function FeedProtocolHandler() {

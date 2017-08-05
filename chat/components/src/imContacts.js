@@ -243,7 +243,6 @@ Tag.prototype = {
     return interfaces;
   },
   getHelperForLanguage: language => null,
-  implementationLanguage: Ci.nsIProgrammingLanguage.JAVASCRIPT,
   flags: 0,
   QueryInterface: XPCOMUtils.generateQI([Ci.imITag, Ci.nsIClassInfo])
 };
@@ -377,7 +376,6 @@ var otherContactsTag = {
     return interfaces;
   },
   getHelperForLanguage: language => null,
-  implementationLanguage: Ci.nsIProgrammingLanguage.JAVASCRIPT,
   flags: 0,
   QueryInterface: XPCOMUtils.generateQI([Ci.imITag, Ci.nsIObserver, Ci.nsIClassInfo])
 };
@@ -912,7 +910,6 @@ Contact.prototype = {
     return interfaces;
   },
   getHelperForLanguage: language => null,
-  implementationLanguage: Ci.nsIProgrammingLanguage.JAVASCRIPT,
   flags: 0,
   QueryInterface: XPCOMUtils.generateQI([Ci.imIContact, Ci.nsIClassInfo])
 };
@@ -1229,7 +1226,6 @@ Buddy.prototype = {
     return interfaces;
   },
   getHelperForLanguage: language => null,
-  implementationLanguage: Ci.nsIProgrammingLanguage.JAVASCRIPT,
   flags: 0,
   QueryInterface: XPCOMUtils.generateQI([Ci.imIBuddy, Ci.nsIClassInfo])
 };
