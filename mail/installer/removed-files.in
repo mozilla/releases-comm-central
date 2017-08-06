@@ -619,12 +619,6 @@ uninstall/uninstall.exe
   @DIR_MACOS@res/designmode.css
   @DIR_MACOS@res/dtd/mathml.dtd
   @DIR_MACOS@res/dtd/xhtml11.dtd
-  @DIR_MACOS@res/entityTables/html40Latin1.properties
-  @DIR_MACOS@res/entityTables/html40Special.properties
-  @DIR_MACOS@res/entityTables/html40Symbols.properties
-  @DIR_MACOS@res/entityTables/htmlEntityVersions.properties
-  @DIR_MACOS@res/entityTables/mathml20.properties
-  @DIR_MACOS@res/entityTables/transliterate.properties
   @DIR_MACOS@res/fonts/mathfont.properties
   @DIR_MACOS@res/fonts/mathfontSTIXNonUnicode.properties
   @DIR_MACOS@res/fonts/mathfontSTIXSize1.properties

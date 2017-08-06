@@ -251,7 +251,6 @@ res/cursors/CVS/Root
 res/cursors/CVS/Tag
 #endif /* XP_MACOSX */
 res/dtd/mathml.dtd
-res/entityTables/mathml20.properties
 res/fonts/mathfont.properties
 res/fonts/mathfontSTIXNonUnicode.properties
 res/fonts/mathfontSTIXSize1.properties

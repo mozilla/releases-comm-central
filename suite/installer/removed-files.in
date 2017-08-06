@@ -1115,13 +1115,6 @@ Throbber-small.gif
   @DIR_MACOS@res/dtd/xhtml11.dtd
   @DIR_MACOS@res/html/
   @DIR_MACOS@res/html/folder.png
-  @DIR_MACOS@res/entityTables/
-  @DIR_MACOS@res/entityTables/html40Latin1.properties
-  @DIR_MACOS@res/entityTables/html40Special.properties
-  @DIR_MACOS@res/entityTables/html40Symbols.properties
-  @DIR_MACOS@res/entityTables/htmlEntityVersions.properties
-  @DIR_MACOS@res/entityTables/mathml20.properties
-  @DIR_MACOS@res/entityTables/transliterate.properties
   #ifdef MOZ_UPDATER
     @DIR_MACOS@update.locale
   #endif
