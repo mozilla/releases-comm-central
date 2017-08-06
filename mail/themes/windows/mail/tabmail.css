@@ -4,6 +4,11 @@
 
 @import url("chrome://messenger/skin/shared/tabmail.css");
 
+:root[tabsintitlebar][sizemode=normal] #mail-toolbar-menubar2[autohide=true] ~
+  #tabs-toolbar > #tabbar-toolbar {
+  margin-inline-start: 40px;
+}
+
 /**
  * Tabmail Tabs
  */
@@ -15,34 +20,6 @@
 /**
  * Tab
  */
-
-@media (-moz-os-version: windows-win10) {
-  #tabs-toolbar:not(:-moz-lwtheme) {
-    --tabBackgroundImage: url(chrome://messenger/skin/tabs/background-start-win10.png),
-                          url(chrome://messenger/skin/tabs/background-middle-win10.png),
-                          url(chrome://messenger/skin/tabs/background-end-win10.png);
-  }
-
-  @media (min-resolution: 1.1dppx) {
-    #tabs-toolbar:not(:-moz-lwtheme) {
-      --tabBackgroundImage: url(chrome://messenger/skin/tabs/background-start-win10@2x.png),
-                            url(chrome://messenger/skin/tabs/background-middle-win10@2x.png),
-                            url(chrome://messenger/skin/tabs/background-end-win10@2x.png);
-    }
-  }
-
-  @media (-moz-windows-default-theme) {
-    #tabs-toolbar:not(:-moz-lwtheme) {
-      --tab-stroke-background-size: 0 0;
-    }
-
-    /* Remove border between tab strip and navigation toolbar on Windows 10+ */
-    .tab-background-end[selected=true]:not(:-moz-lwtheme)::after,
-    .tab-background-start[selected=true]:not(:-moz-lwtheme)::after {
-      content: none;
-    }
-  }
-}
 
 .tabmail-tab {
   list-style-image: url("chrome://global/skin/icons/folder-item.png");
@@ -65,7 +42,7 @@ tabpanels {
 
 /* Tab DnD indicator */
 .tab-drop-indicator {
-  list-style-image: url(tabs/dragIndicator.png);
+  list-style-image: url(icons/dragIndicator.png);
   margin-bottom: -11px;
 }
 
@@ -116,6 +93,15 @@ tabpanels {
 }
 
 @media (-moz-windows-glass) {
+  #mail-toolbar-menubar2:not([inactive=true]) ~ #tabs-toolbar {
+    margin-top: 1px;
+  }
+
+  #mail-toolbar-menubar2:not([autohide=true]) ~ #tabs-toolbar > .tabmail-tabs >
+    .tabmail-tab > .tab-stack > .tab-background {
+    border-top-style: none;
+  }
+
   #alltabs-button:not(:-moz-lwtheme):not([disabled]) {
     border-color: transparent;
     margin-top: 0;

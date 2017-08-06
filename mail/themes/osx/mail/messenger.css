@@ -11,10 +11,14 @@
 @import url("chrome://messenger/skin/shared/messenger.css");
 
 :root {
-  --fgTabTexture: linear-gradient(transparent 2px, hsl(0, 0%, 99%) 2px, hsl(0, 0%, 93%));
-  --toolbarColorLWT: rgba(253, 253, 253, 0.45);
-  --fgTabTextureLWT: linear-gradient(transparent 2px, rgba(254, 254, 254, .72) 2px, var(--toolbarColorLWT));
-  --fgTabBackgroundColor: transparent;
+  --tab-min-height: 29px;
+  --tabs-border: rgba(0,0,0,.3);
+
+  --toolbar-non-lwt-bgcolor: #f9f9fa;
+  --toolbar-non-lwt-textcolor: #0c0c0d;
+  --toolbar-non-lwt-bgimage: none;
+  --toolbar-bgcolor: var(--toolbar-non-lwt-bgcolor);
+  --toolbar-bgimage: var(--toolbar-non-lwt-bgimage);
 
   --toolbarbutton-border-radius: 3px;
   --toolbarbutton-hover-background: hsla(0, 0%, 100%, .1)
@@ -39,22 +43,25 @@
   --lwt-header-image: none;
 }
 
+:root:-moz-window-inactive {
+  --toolbar-bgcolor: -moz-mac-chrome-inactive;
+}
+
+:root:-moz-lwtheme {
+  --toolbar-bgcolor: rgba(255,255,255,.4);
+  --toolbar-bgimage: none;
+}
+
 #messengerWindow:not([tabsintitlebar]) #titlebar {
   height: 22px;
 }
 
 @media (-moz-mac-yosemite-theme) {
-  :root:-moz-window-inactive {
-    --fgTabTexture: linear-gradient(transparent 2px, hsl(0, 0%, 99%) 2px, hsl(0, 0%, 97%));
+  :root:not(:-moz-lwtheme) {
+    --tabs-border: rgba(0,0,0,.2);
   }
-
-  #tabmail {
-    border-top: solid 1px rgba(0, 0, 0, 0.2);
-    border-bottom: solid 1px rgba(0, 0, 0, 0.2);
-  }
-
-  #tabmail:-moz-window-inactive {
-    border-top-color: rgba(0, 0, 0, 0.05);
+  :root:not(:-moz-lwtheme):-moz-window-inactive {
+    --tabs-border: rgba(0,0,0,.05);
   }
 }
 
@@ -462,6 +469,7 @@ notification[type="critical"] .messageCloseButton:not(:hover) {
  * doesn't reverse the order of the items in the titlebar in RTL mode. */
 .titlebar-placeholder[type="caption-buttons"],
 #titlebar-buttonbox {
+  margin-right: 7px;
   margin-left: 7px;
 }
 

@@ -1532,15 +1532,11 @@
            extends="chrome://global/content/bindings/tabbox.xml#tab">
     <content closetabtext="&closeTab.label;" context="tabContextMenu">
       <xul:stack class="tab-stack" flex="1">
-        <xul:hbox xbl:inherits="pinned,selected,titlechanged"
+        <xul:vbox xbl:inherits="pinned,selected,titlechanged"
                   class="tab-background">
-          <xul:hbox xbl:inherits="pinned,selected,titlechanged"
-                    class="tab-background-start"/>
-          <xul:hbox xbl:inherits="pinned,selected,titlechanged"
-                    class="tab-background-middle"/>
-          <xul:hbox xbl:inherits="pinned,selected,titlechanged"
-                    class="tab-background-end"/>
-        </xul:hbox>
+        <xul:hbox xbl:inherits="selected=visuallyselected"
+                  class="tab-line"/>
+      </xul:vbox>
         <xul:hbox xbl:inherits="pinned,selected,titlechanged"
                   class="tab-content" align="center">
           <xul:image xbl:inherits="fadein,pinned,busy,progress,selected"

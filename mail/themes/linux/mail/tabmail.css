@@ -15,8 +15,6 @@
 #tabs-toolbar {
   -moz-appearance: none;
   padding: 0;
-  background-image: linear-gradient(to top, hsla(0, 0%, 0%, .3) 1px,
-                                    transparent 1px);
 }
 
 #tabs-toolbar:not(:-moz-lwtheme) {
@@ -52,7 +50,7 @@ tabpanels {
 
 /* Tab drag and drop */
 .tab-drop-indicator {
-  list-style-image: url(tabs/dragIndicator.png);
+  list-style-image: url(icons/dragIndicator.png);
   margin-bottom: -11px;
 }
 

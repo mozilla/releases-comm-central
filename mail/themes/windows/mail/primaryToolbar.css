@@ -36,21 +36,7 @@
   -moz-appearance: none;
 }
 
-:root[sizemode="maximized"] #tabs-toolbar {
-  margin-top: -1px;
-}
-
-#tabs-toolbar {
-  background-image: linear-gradient(to top, hsla(209, 67%, 12%, 0.35) 1px,
-                                    transparent 1px);
-}
-
 @media (-moz-os-version: windows-win10) and (-moz-windows-default-theme) {
-
-  #tabs-toolbar:not(:-moz-lwtheme) {
-    background-image: none;
-  }
-
   #menubar-items > #mail-menubar > menu {
     -moz-appearance: none;
     border-style: none;
@@ -156,13 +142,9 @@
 .mail-toolbox,
 .contentTabToolbox {
   -moz-appearance: none;
-  background-image: linear-gradient(var(--toolbarHighlight), transparent);
+  background-color: var(--toolbar-bgcolor);
+  background-image: var(--toolbar-bgimage);
   box-shadow: 0 1px 0 rgba(253, 253, 253, 0.45) inset;
-}
-
-.mail-toolbox:not(:-moz-lwtheme),
-.contentTabToolbox:not(:-moz-lwtheme) {
-  background-color: -moz-dialog;
 }
 
 .mail-toolbox::after,
@@ -170,7 +152,7 @@
   content: "";
   display: -moz-box;
   height: 1px;
-  background-color: ThreeDShadow;
+  border-bottom: 1px solid ThreeDShadow;
 }
 
 .mail-toolbox > toolbar:-moz-lwtheme,
@@ -951,7 +933,7 @@ toolbar:not([mode="text"]) > toolbarpaletteitem > #button-chat > stack {
 @media (-moz-windows-glass) {
   .mail-toolbox::after,
   .contentTabToolbox::after {
-    background-color: #aabccf;
+    border-bottom-color: #aabccf;
   }
 
   #tabs-toolbar {
@@ -962,8 +944,8 @@ toolbar:not([mode="text"]) > toolbarpaletteitem > #button-chat > stack {
     -moz-box-ordinal-group: 20;
     -moz-window-dragging: no-drag;
     box-shadow: 0 1px 0 rgba(253, 253, 253, 0.45) inset;
-    background-image: linear-gradient(var(--toolbarHighlight),
-                                      var(--toolbarHighlight));
+    background-image: var(--toolbar-bgimage);
+    background-color: var(--toolbar-bgcolor);
     padding-bottom: 1px !important;
     padding-top: 2px;
   }
@@ -975,11 +957,6 @@ toolbar:not([mode="text"]) > toolbarpaletteitem > #button-chat > stack {
   #navigation-toolbox > #mail-toolbar-menubar2:not(:-moz-lwtheme) {
     -moz-appearance: none;
     border-bottom: 1px solid #aabccf;
-    background-color: -moz-dialog;
-  }
-
-  #mail-toolbar-menubar2:-moz-lwtheme {
-    background-image: linear-gradient(var(--toolbarHighlight), var(--toolbarHighlight));
   }
 
   #tabs-toolbar:not(:-moz-lwtheme) {
@@ -1035,12 +1012,6 @@ toolbar:not([mode="text"]) > toolbarpaletteitem > #button-chat > stack {
   .mail-toolbox,
   .contentTabToolbox {
     box-shadow: none;
-    background-image: linear-gradient(var(--toolbarHighlight), var(--toolbarHighlight));
-  }
-
-  .mail-toolbox:not(:-moz-lwtheme),
-  .contentTabToolbox:not(:-moz-lwtheme) {
-    background-image: none;
   }
 
   #mail-toolbar-menubar2 {
@@ -1069,7 +1040,7 @@ toolbar:not([mode="text"]) > toolbarpaletteitem > #button-chat > stack {
 
   .mail-toolbox::after,
   .contentTabToolbox::after {
-    background-color: #c2c2c2;
+    border-bottom-color: #c2c2c2;
   }
 
   #button-getmsg {

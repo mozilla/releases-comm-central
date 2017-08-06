@@ -11,11 +11,14 @@
 @import url("chrome://messenger/skin/shared/messenger.css");
 
 :root {
-  --toolbarHighlight: rgba(255, 255, 255, 0.4);
-  --fgTabTexture: linear-gradient(transparent, transparent 2px, var(--toolbarHighlight) 2px, var(--toolbarHighlight));
-  --fgTabBackgroundColor: -moz-dialog;
-  --fgTabTextureLWT: var(--fgTabTexture);
+  --tab-min-height: 29px;
+  --tabs-border: threedshadow;
 
+  --toolbar-non-lwt-bgcolor: -moz-dialog;
+  --toolbar-non-lwt-textcolor: -moz-dialogtext;
+  --toolbar-non-lwt-bgimage: linear-gradient(rgba(255,255,255,.15), rgba(255,255,255,.15));
+  --toolbar-bgcolor: var(--toolbar-non-lwt-bgcolor);
+  --toolbar-bgimage: var(--toolbar-non-lwt-bgimage);
   --toolbarbutton-border-radius: 2px;
   --toolbarbutton-hover-background: rgba(0, 0, 0, .1);
   --toolbarbutton-hover-bordercolor: rgba(0, 0, 0, .1);
@@ -29,6 +32,23 @@
   --toolbarbutton-checkedhover-backgroundcolor: rgba(0, 0, 0, .2);
 
   --lwt-header-image: none;
+}
+
+@media (-moz-windows-default-theme) {
+  :root {
+    --tabs-border: rgba(0,0,0,.3);
+
+    --toolbar-non-lwt-bgcolor: #f9f9fa;
+    --toolbar-non-lwt-textcolor: #0c0c0d;
+    --toolbar-non-lwt-bgimage: none;
+  }
+}
+
+:root:-moz-lwtheme {
+  --tabs-border: rgba(0,0,0,.3);
+
+  --toolbar-bgcolor: rgba(255,255,255,.4);
+  --toolbar-bgimage: none;
 }
 
 .toolbar-primary {
@@ -440,13 +460,6 @@ menulist > menupopup:not([type="folder"]) > menuseparator {
   .toolbarbutton-1 > .toolbarbutton-menubutton-dropmarker:-moz-locale-dir(ltr) {
     border-top-left-radius: 0;
     border-bottom-left-radius: 0;
-  }
-}
-
-@media (-moz-os-version: windows-win8),
-       (-moz-os-version: windows-win10) {
-  :root:not(:-moz-lwtheme) {
-    --fgTabTexture: linear-gradient(transparent, transparent)
   }
 }
 

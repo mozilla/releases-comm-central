@@ -26,10 +26,6 @@
   -moz-binding: url("chrome://messenger/content/tabmail.xml#tabmail-close-tab-button");
 }
 
-.tab-stack {
-  vertical-align: top;
-}
-
 .tab-label-container {
   overflow: hidden;
 }

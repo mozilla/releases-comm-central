@@ -250,6 +250,8 @@ treechildren::-moz-tree-cell-text(imapdeleted) {
 @media (-moz-windows-compositor) {
   #tabmail-container {
     -moz-appearance: -moz-win-exclude-glass;
+    position: relative;
+    z-index: 1;
   }
 
   @media (-moz-os-version: windows-win7),

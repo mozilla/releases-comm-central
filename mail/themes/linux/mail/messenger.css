@@ -12,9 +12,15 @@
 
 :root {
   --toolbarHighlight: rgba(255, 255, 255, .4);
-  --fgTabTexture: linear-gradient(transparent 2px, var(--toolbarHighlight) 2px, var(--toolbarHighlight));
-  --fgTabTextureLWT: var(--fgTabTexture);
-  --fgTabBackgroundColor: -moz-dialog;
+
+  --tab-min-height: 29px;
+  --tabs-border: rgba(0,0,0,.3);
+
+  --toolbar-non-lwt-bgcolor: -moz-dialog;
+  --toolbar-non-lwt-textcolor: -moz-dialogtext;
+  --toolbar-non-lwt-bgimage: linear-gradient(rgba(255,255,255,.15), rgba(255,255,255,.15));
+  --toolbar-bgcolor: var(--toolbar-non-lwt-bgcolor);
+  --toolbar-bgimage: var(--toolbar-non-lwt-bgimage);
 
   --toolbarbutton-border-radius: 2px;
   --toolbarbutton-text-color: #222;
@@ -30,6 +36,11 @@
   --toolbarbutton-checkedhover-backgroundcolor: rgba(200, 200, 200, .5);
 
   --lwt-header-image: none;
+}
+
+:root:-moz-lwtheme {
+  --toolbar-bgcolor: rgba(255,255,255,.4);
+  --toolbar-bgimage: none;
 }
 
 #header-view-toolbar[brighttext],

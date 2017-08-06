@@ -18,9 +18,8 @@
 .mail-toolbox,
 .contentTabToolbox {
   -moz-appearance: none;
-  background-image: linear-gradient(var(--toolbarHighlight),
-                                    var(--toolbarHighlight));
-  box-shadow: 0 1px 0 rgba(255, 255, 255, .3) inset;
+  background-color: var(--toolbar-bgcolor);
+  background-image: var(--toolbar-bgimage);
 }
 
 .mail-toolbox::after,
@@ -28,7 +27,12 @@
   content: "";
   display: -moz-box;
   height: 1px;
-  background-color: ThreeDShadow;
+  border-bottom: 1px solid ThreeDShadow;
+}
+
+.mail-toolbox:-moz-lwtheme::after,
+.contentTabToolbox:-moz-lwtheme::after {
+  border-bottom-color: rgba(0,0,0,.3);
 }
 
 .mail-toolbox > toolbar {
