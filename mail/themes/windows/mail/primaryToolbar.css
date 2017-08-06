@@ -380,7 +380,9 @@ toolbar[mode="text"] .button-appmenu .toolbarbutton-icon {
 }
 
 #appmenu_addons {
-  list-style-image: url("chrome://messenger/skin/icons/extensionGeneric.svg");
+  list-style-image: url("chrome://mozapps/skin/extensions/extensionGeneric-16.svg");
+  -moz-context-properties: fill;
+  fill: currentColor;
 }
 
 .mail-toolbox > toolbar {
