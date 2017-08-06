@@ -164,7 +164,7 @@ nsHightail.prototype = {
   /**
    * Attempt to upload a file to Hightail's servers.
    *
-   * @param aFile an nsILocalFile for uploading.
+   * @param aFile an nsIFile for uploading.
    * @param aCallback an nsIRequestObserver for monitoring the start and
    *                  stop states of the upload procedure.
    */
@@ -221,7 +221,7 @@ nsHightail.prototype = {
    * for a file. First, ensures that the file size is not too large, and that
    * we won't exceed our storage quota, and then kicks off the upload.
    *
-   * @param aFile the nsILocalFile to upload
+   * @param aFile the nsIFile to upload
    * @param aCallback the nsIRequestObserver for monitoring the start and stop
    *                  states of the upload procedure.
    */
@@ -271,7 +271,7 @@ nsHightail.prototype = {
   /**
    * Cancels an in-progress file upload.
    *
-   * @param aFile the nsILocalFile being uploaded.
+   * @param aFile the nsIFile being uploaded.
    */
   cancelFileUpload: function(aFile) {
     this.log.info("in cancel upload");
@@ -388,7 +388,7 @@ nsHightail.prototype = {
   /**
    * Returns the sharing URL for some uploaded file.
    *
-   * @param aFile the nsILocalFile to get the URL for.
+   * @param aFile the nsIFile to get the URL for.
    */
   urlForFile: function(aFile) {
     return this._urlsForFiles[aFile.path];
@@ -663,7 +663,7 @@ nsHightail.prototype = {
   /**
    * Attempts to delete an uploaded file.
    *
-   * @param aFile the nsILocalFile to delete.
+   * @param aFile the nsIFile to delete.
    * @param aCallback an nsIRequestObserver for monitoring the start and stop
    *                  states of the delete procedure.
    */

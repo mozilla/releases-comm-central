@@ -7,7 +7,7 @@ Components.utils.import("resource://gre/modules/Downloads.jsm");
 
 const nsIDownloadManager = Components.interfaces.nsIDownloadManager;
 const nsLocalFile = Components.Constructor("@mozilla.org/file/local;1",
-                                           Components.interfaces.nsILocalFile,
+                                           Components.interfaces.nsIFile,
                                            "initWithPath");
 
 var gDownloadTree;
@@ -210,7 +210,7 @@ function showDownload(aDownload)
   } catch (e) {
     // If reveal fails for some reason (e.g., it's not implemented on unix or
     // the file doesn't exist), try using the parent if we have it.
-    var parent = file.parent.QueryInterface(Components.interfaces.nsILocalFile);
+    var parent = file.parent.QueryInterface(Components.interfaces.nsIFile);
 
     try {
       // "Double click" the parent directory to show where the file should be

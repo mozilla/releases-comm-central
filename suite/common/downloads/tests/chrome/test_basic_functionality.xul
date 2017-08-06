@@ -206,7 +206,7 @@ function test_properDownloadData(aWin)
     var filePath = ioSvc.newURI(DownloadData[i].target, null, null)
                         .QueryInterface(Components.interfaces.nsIFileURL)
                         .file.clone()
-                        .QueryInterface(Components.interfaces.nsILocalFile)
+                        .QueryInterface(Components.interfaces.nsIFile)
                         .path;
     is(statusBar.label, filePath,
        "Download targets match up");

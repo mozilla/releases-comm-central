@@ -32,7 +32,7 @@ var gChatPane = {
 
   convertURLToLocalFile: function(aFileURL)
   {
-    // convert the file url into a nsILocalFile
+    // convert the file url into a nsIFile
     if (aFileURL)
     {
       return Services.io.getProtocolHandler("file")
@@ -101,7 +101,7 @@ var gChatPane = {
     let ret = fp.show();
     if (ret == nsIFilePicker.returnOK)
     {
-      // convert the nsILocalFile into a nsIFile url
+      // convert the nsIFile into a nsIFile url
       document.getElementById("mail.chat.play_sound.url").value = fp.fileURL.spec;
       this.readSoundLocation(); // XXX We shouldn't have to be doing this by hand
       this.updatePlaySound();

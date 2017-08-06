@@ -35,7 +35,7 @@ function initLogging() {
             try {
                 // set up file:
                 let logFile = Components.classes["@mozilla.org/file/local;1"]
-                                        .createInstance(Components.interfaces.nsILocalFile);
+                                        .createInstance(Components.interfaces.nsIFile);
                 logFile.initWithPath(logFileName);
                 // create output stream:
                 let logFileStream = Components.classes["@mozilla.org/network/file-output-stream;1"]

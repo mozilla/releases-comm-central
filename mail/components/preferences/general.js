@@ -76,7 +76,7 @@ var gGeneralPane = {
 
   convertURLToLocalFile: function(aFileURL)
   {
-    // convert the file url into a nsILocalFile
+    // convert the file url into a nsIFile
     if (aFileURL)
     {
       return Services.io
@@ -148,7 +148,7 @@ var gGeneralPane = {
     var ret = fp.show();
     if (ret == nsIFilePicker.returnOK)
     {
-      // convert the nsILocalFile into a nsIFile url
+      // convert the nsIFile into a nsIFile url
       document.getElementById("mail.biff.play_sound.url").value = fp.fileURL.spec;
       this.readSoundLocation(); // XXX We shouldn't have to be doing this by hand
       this.updatePlaySound();

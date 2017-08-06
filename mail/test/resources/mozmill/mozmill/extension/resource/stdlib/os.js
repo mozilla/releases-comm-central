@@ -52,7 +52,7 @@ function listDirectory (file) {
 
 function getFileForPath (path) {
   var file = Components.classes["@mozilla.org/file/local;1"]
-                       .createInstance(Components.interfaces.nsILocalFile);
+                       .createInstance(Components.interfaces.nsIFile);
   file.initWithPath(path);
   return file;
 }

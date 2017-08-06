@@ -2253,7 +2253,7 @@ var FeedSubscriptions = {
  *
  * @param  bool aList - if true, exporting as list; if false (default)
  *                      exporting feeds in folder structure - used for title.
- * @return nsILocalFile or null.
+ * @return nsIFile or null.
  */
   opmlPickSaveAsFile: function(aList)
   {
@@ -2269,7 +2269,7 @@ var FeedSubscriptions = {
 
     fp.defaultString = fileName;
     fp.defaultExtension = "opml";
-    if (this.opmlLastSaveAsDir && (this.opmlLastSaveAsDir instanceof Ci.nsILocalFile))
+    if (this.opmlLastSaveAsDir && (this.opmlLastSaveAsDir instanceof Ci.nsIFile))
       fp.displayDirectory = this.opmlLastSaveAsDir;
 
     let opmlFilterText = FeedUtils.strings.GetStringFromName(
@@ -2291,7 +2291,7 @@ var FeedSubscriptions = {
 /**
  * Import feeds opml file Open filepicker function.
  *
- * @return nsILocalFile or null.
+ * @return nsIFile or null.
  */
   opmlPickOpenFile: function()
   {
@@ -2299,7 +2299,7 @@ var FeedSubscriptions = {
     let fp = Cc["@mozilla.org/filepicker;1"].createInstance(Ci.nsIFilePicker);
 
     fp.defaultString = "";
-    if (this.opmlLastOpenDir && (this.opmlLastOpenDir instanceof Ci.nsILocalFile))
+    if (this.opmlLastOpenDir && (this.opmlLastOpenDir instanceof Ci.nsIFile))
       fp.displayDirectory = this.opmlLastOpenDir;
 
     let opmlFilterText = FeedUtils.strings.GetStringFromName(
@@ -2536,7 +2536,7 @@ var FeedSubscriptions = {
  * Import opml file into a feed account.  Used by the Subscribe dialog and
  * the Import wizard.
  *
- * @param  nsILocalFile aFile           - the opml file.
+ * @param  nsIFile aFile                - the opml file.
  * @param  nsIMsgIncomingServer aServer - the account server.
  * @param  func aCallback               - callback function.
  *

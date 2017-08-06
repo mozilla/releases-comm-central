@@ -450,7 +450,7 @@ SuiteGlue.prototype = {
       // Migrate remote content exceptions for email addresses which are
       // encoded as chrome URIs.
       let permissionsDB =
-        Services.dirsvc.get("ProfD", Components.interfaces.nsILocalFile);
+        Services.dirsvc.get("ProfD", Components.interfaces.nsIFile);
       permissionsDB.append("permissions.sqlite");
       let db = Services.storage.openDatabase(permissionsDB);
 
@@ -513,7 +513,7 @@ SuiteGlue.prototype = {
   _copyDefaultProfileFiles: function()
   {
     // Copy default chrome example files if they do not exist in the current profile.
-    var profileDir = Services.dirsvc.get("ProfD", Components.interfaces.nsILocalFile);
+    var profileDir = Services.dirsvc.get("ProfD", Components.interfaces.nsIFile);
     profileDir.append("chrome");
 
     // The chrome directory in the current/new profile already exists so no copying.
@@ -970,7 +970,7 @@ SuiteGlue.prototype = {
       else {
         // We have created a new database but we don't have any backup available.
         importBookmarks = true;
-        var bookmarksHTMLFile = Services.dirsvc.get("BMarks", Components.interfaces.nsILocalFile);
+        var bookmarksHTMLFile = Services.dirsvc.get("BMarks", Components.interfaces.nsIFile);
         if (bookmarksHTMLFile.exists()) {
           // If bookmarks.html is available in current profile import it...
           importBookmarksHTML = true;
@@ -1012,7 +1012,7 @@ SuiteGlue.prototype = {
       }
       else {
         // Get bookmarks.html file location.
-        var bookmarksFile = Services.dirsvc.get("BMarks", Components.interfaces.nsILocalFile);
+        var bookmarksFile = Services.dirsvc.get("BMarks", Components.interfaces.nsIFile);
         if (bookmarksFile.exists())
           bookmarksURI = Services.io.newFileURI(bookmarksFile);
       }
@@ -1079,7 +1079,7 @@ SuiteGlue.prototype = {
         // potential hangs (bug 518683).  The asynchronous shutdown operations
         // will then be handled by a shutdown service (bug 435058).
         var shutdownComplete = false;
-        BookmarkHTMLUtils.exportToFile(Services.dirsvc.get("BMarks", Components.interfaces.nsILocalFile)).then(
+        BookmarkHTMLUtils.exportToFile(Services.dirsvc.get("BMarks", Components.interfaces.nsIFile)).then(
           function onSuccess() {
             shutdownComplete = true;
           },
@@ -1173,13 +1173,13 @@ SuiteGlue.prototype = {
 
     try {
       Services.prefs.setComplexValue("browser.download.lastDir",
-                                     Components.interfaces.nsILocalFile,
+                                     Components.interfaces.nsIFile,
                                      Services.prefs.getComplexValue("browser.download.dir",
-                                                                    Components.interfaces.nsILocalFile));
+                                                                    Components.interfaces.nsIFile));
     } catch (ex) {
       // Ensure that even if we don't end up migrating to a lastDir that we
       // don't attempt another update. This will throw when QI'ed to
-      // nsILocalFile, but it does fallback gracefully.
+      // nsIFile, but it does fallback gracefully.
       Services.prefs.setCharPref("browser.download.lastDir", "");
     }
 

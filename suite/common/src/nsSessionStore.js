@@ -225,7 +225,7 @@ SessionStoreService.prototype = {
     gRestoreTabsProgressListener.ss = this;
 
     // get file references
-    this._sessionFile = Services.dirsvc.get("ProfD", Components.interfaces.nsILocalFile);
+    this._sessionFile = Services.dirsvc.get("ProfD", Components.interfaces.nsIFile);
     this._sessionFileBackup = this._sessionFile.clone();
     this._sessionFile.append("sessionstore.json");
     this._sessionFileBackup.append("sessionstore.bak");

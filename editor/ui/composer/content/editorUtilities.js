@@ -436,7 +436,7 @@ function SetFilePickerDirectory(filePicker, fileType)
       gFilePickerDirectory = filePicker.displayDirectory;
 
       let location = Services.prefs.getComplexValue("editor.lastFileLocation."+fileType,
-                                                    Components.interfaces.nsILocalFile);
+                                                    Components.interfaces.nsIFile);
       if (location)
         filePicker.displayDirectory = location;
     }
@@ -452,10 +452,10 @@ function SaveFilePickerDirectory(filePicker, fileType)
     try {
       var fileDir;
       if (filePicker.file.parent)
-        fileDir = filePicker.file.parent.QueryInterface(Components.interfaces.nsILocalFile);
+        fileDir = filePicker.file.parent.QueryInterface(Components.interfaces.nsIFile);
 
         Services.prefs.setComplexValue("editor.lastFileLocation." + fileType,
-                                       Components.interfaces.nsILocalFile, fileDir);
+                                       Components.interfaces.nsIFile, fileDir);
 
         Services.prefs.savePrefFile(null);
     } catch (e) {}

@@ -1389,7 +1389,7 @@ messageFlavorDataProvider.prototype = {
     let destDirPrimitive = {};
     aTransferable.getTransferData("application/x-moz-file-promise-dir",
                                   destDirPrimitive, dataSize);
-    let destDirectory = destDirPrimitive.value.QueryInterface(Components.interfaces.nsILocalFile);
+    let destDirectory = destDirPrimitive.value.QueryInterface(Components.interfaces.nsIFile);
     let file = destDirectory.clone();
     file.append(fileName);
 

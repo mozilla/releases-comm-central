@@ -80,7 +80,7 @@ function fixFile(file) {
   fstream.close();
 
   let targetFile = Cc["@mozilla.org/file/local;1"]
-                     .createInstance(Ci.nsILocalFile);
+                     .createInstance(Ci.nsIFile);
   targetFile.initWithFile(do_get_profile());
   targetFile.append(file.leafName);
   let ostream = Cc["@mozilla.org/network/file-output-stream;1"]
@@ -91,17 +91,17 @@ function fixFile(file) {
   return targetFile;
 }
 
-var copyListener = 
+var copyListener =
 {
   OnStartCopy: function() {},
   OnProgress: function(aProgress, aProgressMax) {},
   SetMessageKey: function(aKey) {},
   SetMessageId: function(aMessageId) {},
-  OnStopCopy: function(aStatus) 
+  OnStopCopy: function(aStatus)
   {
     var fileName = Files.shift();
     if (fileName)
-    { 
+    {
       var file = fixFile(do_get_file(fileName));
       MailServices.copy.CopyFileMessage(file, localAccountUtils.inboxFolder, null,
                                         false, 0, "", copyListener, null);

@@ -209,7 +209,7 @@ var checkChrome = function() {
  var saveFile = function(w, content, filename){
    //define the file interface
    var file = Components.classes["@mozilla.org/file/local;1"]
-                        .createInstance(Components.interfaces.nsILocalFile);
+                        .createInstance(Components.interfaces.nsIFile);
    //point it at the file we want to get at
    file.initWithPath(filename);
 
@@ -244,7 +244,7 @@ var checkChrome = function() {
        if (thefile.path.indexOf(".js") == -1){
          //define the file interface
          var file = Components.classes["@mozilla.org/file/local;1"]
-                              .createInstance(Components.interfaces.nsILocalFile);
+                              .createInstance(Components.interfaces.nsIFile);
          //point it at the file we want to get at
          file.initWithPath(thefile.path+".js");
          var thefile = file;
@@ -293,7 +293,7 @@ var checkChrome = function() {
  var getFile = function(path){
    //define the file interface
    var file = Components.classes["@mozilla.org/file/local;1"]
-                        .createInstance(Components.interfaces.nsILocalFile);
+                        .createInstance(Components.interfaces.nsIFile);
    //point it at the file we want to get at
    file.initWithPath(path);
    // define file stream interfaces

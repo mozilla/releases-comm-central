@@ -58,7 +58,7 @@ SessionStartup.prototype = {
   init: function sss_init() {
     // get file references
     let sessionFile = Services.dirsvc.get("ProfD",
-                                          Components.interfaces.nsILocalFile);
+                                          Components.interfaces.nsIFile);
     sessionFile.append("sessionstore.json");
 
     let doResumeSession = Services.prefs.getBoolPref("browser.sessionstore.resume_session_once") ||

@@ -50,7 +50,7 @@ var MailUtils =
    * the search result corresponding to a mozeml/wdseml file, we need to figure
    * out the folder using the file's path.
    *
-   * @param aFile the nsILocalFile to convert to a folder
+   * @param aFile the nsIFile to convert to a folder
    * @returns the nsIMsgFolder corresponding to aFile, or null if the folder
    *          isn't found
    */

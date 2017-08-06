@@ -368,7 +368,7 @@ var nsBrowserContentHandler = {
       // This will throw when a profile has not been selected.
       var fl = Components.classes["@mozilla.org/file/directory_service;1"]
                          .getService(Components.interfaces.nsIProperties);
-      fl.get("ProfD", Components.interfaces.nsILocalFile);
+      fl.get("ProfD", Components.interfaces.nsIFile);
     } catch (e) {
       cmdLine.preventDefault = true;
       throw Components.results.NS_ERROR_ABORT;

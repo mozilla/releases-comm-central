@@ -751,7 +751,7 @@ nsFlavorDataProvider.prototype =
       var dirPrimitive = {};
       aTransferable.getTransferData("application/x-moz-file-promise-dir",
                                     dirPrimitive, dataSize);
-      var destDirectory = dirPrimitive.value.QueryInterface(Components.interfaces.nsILocalFile);
+      var destDirectory = dirPrimitive.value.QueryInterface(Components.interfaces.nsIFile);
 
       // now save the attachment to the specified location
       // XXX: we need more information than just the attachment url to save it,

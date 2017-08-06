@@ -36,16 +36,16 @@ var gPrivacyPane = {
   {
     let Cc = Components.classes;
     let Ci = Components.interfaces;
-    
+
     // Log folder is "'profile directory'/logs"
-    var logFolder = Services.dirsvc.get("ProfD", Ci.nsILocalFile);
+    var logFolder = Services.dirsvc.get("ProfD", Ci.nsIFile);
     logFolder.append("logs");
 
     try {
       logFolder.reveal();
     } catch (e) {
       // Adapted the workaround of Firefox' Download Manager for some *ix systems
-      let parent = logFolder.parent.QueryInterface(Ci.nsILocalFile);
+      let parent = logFolder.parent.QueryInterface(Ci.nsIFile);
       if (!parent)
        return;
 

@@ -172,7 +172,7 @@ function GetLocalFilePref(aName)
 {
   try {
     return Services.prefs.getComplexValue(aName,
-               Components.interfaces.nsILocalFile);
+               Components.interfaces.nsIFile);
   } catch (e) {}
   return null;
 }
@@ -182,7 +182,7 @@ function GetLocalFilePref(aName)
   */
 function GetDesktopFolder()
 {
-  return Services.dirsvc.get("Desk", Components.interfaces.nsILocalFile);
+  return Services.dirsvc.get("Desk", Components.interfaces.nsIFile);
 }
 
 /**
@@ -1829,7 +1829,7 @@ function GetFileFromString(aString)
                               .createInstance(Components.interfaces.nsICommandLine);
   let uri = commandLine.resolveURI(aString);
   return uri instanceof Components.interfaces.nsIFileURL ?
-         uri.file.QueryInterface(Components.interfaces.nsILocalFile) : null;
+         uri.file.QueryInterface(Components.interfaces.nsIFile) : null;
 }
 
 function CopyImage()

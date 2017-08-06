@@ -682,7 +682,7 @@ calICSCalendar.prototype = {
                     file.remove(false);
                 } catch (ex) {
                     // This can fail because of some crappy code in
-                    // nsILocalFile.  That's not the end of the world.  We can
+                    // nsIFile.  That's not the end of the world.  We can
                     // try to remove the file the next time around.
                 }
             }

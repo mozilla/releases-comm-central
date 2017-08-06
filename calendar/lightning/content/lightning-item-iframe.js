@@ -2016,7 +2016,7 @@ function attachFile(cloudProvider) {
 
         // Create the attachment
         while (files.hasMoreElements()) {
-            let file = files.getNext().QueryInterface(Components.interfaces.nsILocalFile);
+            let file = files.getNext().QueryInterface(Components.interfaces.nsIFile);
 
             let fileHandler = Services.io.getProtocolHandler("file")
                                          .QueryInterface(Components.interfaces.nsIFileProtocolHandler);
@@ -2053,7 +2053,7 @@ function lastDirectory(aFileUri) {
         // Act similar to a setter, save the passed uri.
         let uri = Services.io.newURI(aFileUri);
         let file = uri.QueryInterface(Components.interfaces.nsIFileURL).file;
-        lastDirectory.mValue = file.parent.QueryInterface(Components.interfaces.nsILocalFile);
+        lastDirectory.mValue = file.parent.QueryInterface(Components.interfaces.nsIFile);
     }
 
     // In any case, return the value

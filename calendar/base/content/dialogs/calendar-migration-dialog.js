@@ -269,7 +269,7 @@ var gDataMigrator = {
                 if (getRDFAttr(node, "remote") == "false") {
                     migLOG("not remote");
                     var localFile = Components.classes["@mozilla.org/file/local;1"]
-                                    .createInstance(Components.interfaces.nsILocalFile);
+                                    .createInstance(Components.interfaces.nsIFile);
                     localFile.initWithPath(getRDFAttr(node, "path"));
                     calendar = gDataMigrator.importICSToStorage(localFile);
                 } else {
@@ -290,7 +290,7 @@ var gDataMigrator = {
 
         // Look in our current profile directory, in case we're upgrading in
         // place
-        var profileDir = this.dirService.get("ProfD", Components.interfaces.nsILocalFile);
+        var profileDir = this.dirService.get("ProfD", Components.interfaces.nsIFile);
         profileDir.append("Calendar");
         if (profileDir.exists()) {
             migLOG("Found old extension directory in current app");
@@ -404,7 +404,7 @@ var gDataMigrator = {
             migLOG("icalMig making callback");
             aCallback();
         }
-        var profileDir = this.dirService.get("ProfD", Components.interfaces.nsILocalFile);
+        var profileDir = this.dirService.get("ProfD", Components.interfaces.nsIFile);
         var icalSpec = profileDir.path;
         var diverge = icalSpec.indexOf("Thunderbird");
         if (diverge == -1) {
@@ -412,7 +412,7 @@ var gDataMigrator = {
         }
         icalSpec = icalSpec.substr(0, diverge);
         var icalFile = Components.classes["@mozilla.org/file/local;1"]
-                   .createInstance(Components.interfaces.nsILocalFile);
+                   .createInstance(Components.interfaces.nsIFile);
         icalFile.initWithPath(icalSpec);
         icalFile.append("Application Support");
 
@@ -454,7 +454,7 @@ var gDataMigrator = {
             aCallback();
         }
 
-        var evoDir = this.dirService.get("Home", Components.interfaces.nsILocalFile);
+        var evoDir = this.dirService.get("Home", Components.interfaces.nsIFile);
         evoDir.append(".evolution");
         evoDir.append("calendar");
         evoDir.append("local");
@@ -502,7 +502,7 @@ var gDataMigrator = {
         }
 
         let maildir = this.dirService.get("LocalAppData",
-                                          Components.interfaces.nsILocalFile);
+                                          Components.interfaces.nsIFile);
 
         maildir.append("Microsoft");
         maildir.append("Windows Calendar");
@@ -601,7 +601,7 @@ var gDataMigrator = {
      * @see getFirefoxProfile
      */
     getThunderbirdProfile: function gdm_getTB() {
-        let profileRoot = this.dirService.get("DefProfRt", Components.interfaces.nsILocalFile);
+        let profileRoot = this.dirService.get("DefProfRt", Components.interfaces.nsIFile);
         migLOG("searching for Thunderbird in " + profileRoot.path);
         return profileRoot.exists() ? profileRoot : null;
     },
@@ -619,7 +619,7 @@ var gDataMigrator = {
      */
     getNormalProfile: function gdm_getNorm(aAppName) {
         var localFile;
-        var profileRoot = this.dirService.get("DefProfRt", Components.interfaces.nsILocalFile);
+        var profileRoot = this.dirService.get("DefProfRt", Components.interfaces.nsIFile);
         migLOG("profileRoot = " + profileRoot.path);
 
         switch (this.mPlatform) {

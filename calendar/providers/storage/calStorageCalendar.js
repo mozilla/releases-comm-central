@@ -209,7 +209,7 @@ calStorageCalendar.prototype = {
 
             // First, we need to check if this is from 0.9, i.e we need to
             // migrate from storage.sdb to local.sqlite.
-            let storageSdb = Services.dirsvc.get("ProfD", Components.interfaces.nsILocalFile);
+            let storageSdb = Services.dirsvc.get("ProfD", Components.interfaces.nsIFile);
             storageSdb.append("storage.sdb");
             this.mDB = Services.storage.openDatabase(storageSdb);
             if (this.mDB.tableExists("cal_events")) {

@@ -233,7 +233,7 @@ function DropOnFolderTree(aRow, aOrientation)
     for (let i = 0; i < count; i++)
     {
       let extFile = dt.mozGetDataAt("application/x-moz-file", i)
-                      .QueryInterface(Components.interfaces.nsILocalFile);
+                      .QueryInterface(Components.interfaces.nsIFile);
       if (extFile.isFile() && /\.eml$/i.test(extFile.leafName))
         gCopyService.CopyFileMessage(extFile, targetFolder, null, false, 1,
                                      "", null, msgWindow);

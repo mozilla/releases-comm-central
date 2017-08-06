@@ -684,7 +684,7 @@ var buddyList = {
         document.getElementById("changeUserIconPanel").hidePopup();
         writeFile.then(function() {
           let userIconFile = Cc["@mozilla.org/file/local;1"]
-                             .createInstance(Ci.nsILocalFile);
+                             .createInstance(Ci.nsIFile);
           userIconFile.initWithPath(newName);
           Services.core.globalUserStatus.setUserIcon(userIconFile);
           userIconFile.remove(newName);

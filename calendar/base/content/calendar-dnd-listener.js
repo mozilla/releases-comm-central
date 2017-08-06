@@ -258,7 +258,7 @@ calDNDBaseObserver.prototype = {
                 var url = Services.io.newURI(droppedUrl);
 
                 var localFileInstance = Components.classes["@mozilla.org/file/local;1"]
-                                        .createInstance(Components.interfaces.nsILocalFile);
+                                        .createInstance(Components.interfaces.nsIFile);
                 localFileInstance.initWithPath(url.pathQueryRef);
 
                 var inputStream = Components.classes["@mozilla.org/network/file-input-stream;1"]

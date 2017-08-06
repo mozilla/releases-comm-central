@@ -520,7 +520,7 @@ function guessSystemTimezone() {
     function symbolicLinkTarget(filepath) {
         try {
             let file = Components.classes["@mozilla.org/file/local;1"]
-                                 .createInstance(Components.interfaces.nsILocalFile);
+                                 .createInstance(Components.interfaces.nsIFile);
             file.initWithPath(filepath);
             file.QueryInterface(Components.interfaces.nsIFile);
             if (!file.exists() || !file.isSymlink() || !file.target.match(tzRegex)) {
@@ -539,7 +539,7 @@ function guessSystemTimezone() {
         // or "" if no file or no matching line.
         try {
             let file = Components.classes["@mozilla.org/file/local;1"]
-                                 .createInstance(Components.interfaces.nsILocalFile);
+                                 .createInstance(Components.interfaces.nsIFile);
             file.initWithPath(filepath);
             file.QueryInterface(Components.interfaces.nsIFile);
             if (!file.exists()) {

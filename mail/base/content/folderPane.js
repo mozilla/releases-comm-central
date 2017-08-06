@@ -765,7 +765,7 @@ var gFolderTreeView = {
         return false;
       for (let i = 0; i < dt.mozItemCount; i++) {
         let extFile = dt.mozGetDataAt("application/x-moz-file", i)
-                        .QueryInterface(Ci.nsILocalFile);
+                        .QueryInterface(Ci.nsIFile);
         return extFile.isFile();
       }
     }
@@ -853,7 +853,7 @@ var gFolderTreeView = {
     else if (types.includes("application/x-moz-file")) {
       for (let i = 0; i < count; i++) {
         let extFile = dt.mozGetDataAt("application/x-moz-file", i)
-                        .QueryInterface(Ci.nsILocalFile);
+                        .QueryInterface(Ci.nsIFile);
         if (extFile.isFile()) {
           let len = extFile.leafName.length;
           if (len > 4 && extFile.leafName.toLowerCase().endsWith(".eml"))

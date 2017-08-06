@@ -870,7 +870,7 @@ function GetTypePermFromId(aId)
 function CheckForVisibility(aEvent, aNode)
 {
   CheckPermissionsMenu("popup", aNode);
-  
+
   var uri = getBrowser().currentURI;
   var allowBlocking = Services.prefs.getBoolPref("dom.disable_open_during_load");
 
@@ -1479,14 +1479,14 @@ function selectFileToOpen(label, prefRoot)
   // use a pref to remember the displayDirectory selected by the user.
   try {
     fp.displayDirectory = Services.prefs.getComplexValue(lastDirPref,
-                              Components.interfaces.nsILocalFile);
+                              Components.interfaces.nsIFile);
   } catch (ex) {
   }
 
   if (fp.show() == nsIFilePicker.returnOK) {
     Services.prefs.setIntPref(filterIndexPref, fp.filterIndex);
     Services.prefs.setComplexValue(lastDirPref,
-                                   Components.interfaces.nsILocalFile,
+                                   Components.interfaces.nsIFile,
                                    fp.file.parent);
     fileURL = fp.fileURL;
   }

@@ -7,12 +7,12 @@ function test() {
 
   var file = Components.classes["@mozilla.org/file/directory_service;1"]
                .getService(Components.interfaces.nsIProperties)
-               .get("TmpD", Components.interfaces.nsILocalFile);
+               .get("TmpD", Components.interfaces.nsIFile);
   file.append("346337_test1.file");
   let filePath1 = file.path;
   file = Components.classes["@mozilla.org/file/directory_service;1"]
              .getService(Components.interfaces.nsIProperties)
-             .get("TmpD", Components.interfaces.nsILocalFile);
+             .get("TmpD", Components.interfaces.nsIFile);
   file.append("346337_test2.file");
   let filePath2 = file.path;
 

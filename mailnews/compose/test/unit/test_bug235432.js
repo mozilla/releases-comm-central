@@ -43,7 +43,7 @@ var gCopyListener =
  * A utility wrapper of nsIMsgCopyService.CopyFileMessage to copy a message
  * into local inbox folder.
  *
- * @param aMessageFile     An instance of nsILocalFile to copy.
+ * @param aMessageFile     An instance of nsIFile to copy.
  * @param aMessageFlags    Message flags which will be set after message is
  *                         copied
  * @param aMessageKeyword  Keywords which will be set for newly copied

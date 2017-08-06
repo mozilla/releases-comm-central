@@ -157,7 +157,7 @@ var WinTaskbarJumpList = {
    */
 
   _createHandlerAppItem: function WTBJL__createHandlerAppItem(aTask) {
-    let file = Services.dirsvc.get("XCurProcD", Ci.nsILocalFile);
+    let file = Services.dirsvc.get("XCurProcD", Ci.nsIFile);
 
     // XXX where can we grab this from in the build? Do we need to?
     file.append("thunderbird.exe");

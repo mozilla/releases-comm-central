@@ -88,7 +88,7 @@ var loadTestResources = function () {
 
 var loadFile = function(path, collector) {
   var file = Components.classes["@mozilla.org/file/local;1"]
-                       .createInstance(Components.interfaces.nsILocalFile);
+                       .createInstance(Components.interfaces.nsIFile);
   file.initWithPath(path);
   var uri = ios.newFileURI(file).spec;
 
@@ -353,7 +353,7 @@ Collector.prototype.getModule = function (name) {
 Collector.prototype.getServer = function (port, basePath) {
   if (basePath) {
     var lp = Cc["@mozilla.org/file/local;1"]
-             .createInstance(Ci.nsILocalFile);
+             .createInstance(Ci.nsIFile);
     lp.initWithPath(basePath);
   }
 
@@ -401,7 +401,7 @@ Collector.prototype.addHttpResource = function (directory, ns) {
   }
 
   var lp = Components.classes["@mozilla.org/file/local;1"].
-           createInstance(Components.interfaces.nsILocalFile);
+           createInstance(Components.interfaces.nsIFile);
   lp.initWithPath(os.abspath(directory, this.current_file));
   this.httpd.registerDirectory(ns, lp);
 
@@ -724,7 +724,7 @@ function registerModule(name, path) {
                                 .QueryInterface(Components.interfaces.nsIResProtocolHandler);
 
   let modulesFile = Components.classes["@mozilla.org/file/local;1"]
-                              .createInstance(Components.interfaces.nsILocalFile);
+                              .createInstance(Components.interfaces.nsIFile);
   modulesFile.initWithPath(path);
   protocolHandler.setSubstitution(name, ios.newFileURI(modulesFile));
 }

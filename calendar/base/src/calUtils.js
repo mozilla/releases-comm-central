@@ -240,7 +240,7 @@ function formatStringForCSSRule(aString) {
  */
 function getCalendarDirectory() {
     if (getCalendarDirectory.mDir === undefined) {
-        let dir = Services.dirsvc.get("ProfD", Components.interfaces.nsILocalFile);
+        let dir = Services.dirsvc.get("ProfD", Components.interfaces.nsIFile);
         dir.append("calendar-data");
         if (!dir.exists()) {
             try {

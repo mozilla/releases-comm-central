@@ -26,13 +26,13 @@ var gAlarmsPane = {
     },
 
     /**
-     * Converts the given file url to a nsILocalFile
+     * Converts the given file url to a nsIFile
      *
      * @param aFileURL    A string with a file:// url.
-     * @return            The corresponding nsILocalFile.
+     * @return            The corresponding nsIFile.
      */
     convertURLToLocalFile: function(aFileURL) {
-        // Convert the file url into a nsILocalFile
+        // Convert the file url into a nsIFile
         if (aFileURL) {
             let fph = Services.io
                          .getProtocolHandler("file")

@@ -123,7 +123,7 @@ var WinJumpList = {
 
   _getHandlerAppItem: function WJL__getHandlerAppItem(aName, aDescription,
                                                       aArgs, aIconIndex) {
-    var file = Services.dirsvc.get("XCurProcD", Ci.nsILocalFile);
+    var file = Services.dirsvc.get("XCurProcD", Ci.nsIFile);
 
     // XXX where can we grab this from in the build? Do we need to?
     file.append("instantbird.exe");

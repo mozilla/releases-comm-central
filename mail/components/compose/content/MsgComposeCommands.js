@@ -1515,7 +1515,7 @@ function attachToCloud(aProvider)
       return;
 
     let files = Array.from(fixIterator(fp.files,
-                             Components.interfaces.nsILocalFile))
+                             Components.interfaces.nsIFile))
     let attachments = files.map(f => FileToAttachment(f));
 
     let i = 0;
@@ -2527,9 +2527,9 @@ function ComposeStartup(aParams)
         composeFields.newshost = args.newshost;
       if (args.message) {
         let msgFile = Components.classes["@mozilla.org/file/local;1"]
-                        .createInstance(Components.interfaces.nsILocalFile);
+                        .createInstance(Components.interfaces.nsIFile);
         if (OS.Path.dirname(args.message) == ".") {
-          let workingDir = Services.dirsvc.get("CurWorkD", Components.interfaces.nsILocalFile);
+          let workingDir = Services.dirsvc.get("CurWorkD", Components.interfaces.nsIFile);
           args.message = OS.Path.join(workingDir.path, OS.Path.basename(args.message));
         }
         msgFile.initWithPath(args.message);
@@ -4001,7 +4001,7 @@ function GetLastAttachDirectory()
   return lastDirectory;
 }
 
-// attachedLocalFile must be a nsILocalFile
+// attachedLocalFile must be a nsIFile
 function SetLastAttachDirectory(attachedLocalFile)
 {
   try {
@@ -4036,7 +4036,7 @@ function AttachFile()
     let file;
     let attachments = [];
 
-    for (file of fixIterator(fp.files, Components.interfaces.nsILocalFile))
+    for (file of fixIterator(fp.files, Components.interfaces.nsIFile))
       attachments.push(FileToAttachment(file));
 
     AddAttachments(attachments);
@@ -4045,9 +4045,9 @@ function AttachFile()
 }
 
 /**
- * Convert an nsILocalFile instance into an nsIMsgAttachment.
+ * Convert an nsIFile instance into an nsIMsgAttachment.
  *
- * @param file the nsILocalFile
+ * @param file the nsIFile
  * @return an attachment pointing to the file
  */
 function FileToAttachment(file)

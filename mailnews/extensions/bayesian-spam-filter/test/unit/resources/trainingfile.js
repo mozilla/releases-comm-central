@@ -14,34 +14,34 @@ function TrainingData() {
   const Cc = Components.classes;
   const Ci = Components.interfaces;
   const CC = Components.Constructor;
-   
+
   // public methods
-  
+
   this.read = read;
-  
+
   // public variables
-  
+
   this.mGoodTokens = 0;
   this.mJunkTokens = 0;
   this.mGoodMessages = 0;
   this.mJunkMessages = 0;
   this.mGoodCounts = new Object;
   this.mJunkCounts = new Object;
-  
+
   // helper functions
 
   function getJunkStatFile() {
     var sBaseDir = Services.dirsvc.get("ProfD", Ci.nsIFile);
-    var CFileByFile = new CC("@mozilla.org/file/local;1", "nsILocalFile", "initWithFile");
+    var CFileByFile = new CC("@mozilla.org/file/local;1", "nsIFile", "initWithFile");
     var oFile = new CFileByFile(sBaseDir);
     oFile.append("training.dat");
     return oFile;
   }
-  
+
   function getBinStream(oFile) {
-  
+
     if (oFile && oFile.exists())
-    { 
+    {
       var oUri = Services.io.newFileURI(oFile);
       // open stream (channel)
       let channel = Services.io.newChannelFromURI2(oUri,

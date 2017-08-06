@@ -468,7 +468,7 @@ var PlacesOrganizer = {
 
     var dirSvc = Components.classes["@mozilla.org/file/directory_service;1"]
                            .getService(Components.interfaces.nsIProperties);
-    var backupsDir = dirSvc.get("Desk", Components.interfaces.nsILocalFile);
+    var backupsDir = dirSvc.get("Desk", Components.interfaces.nsIFile);
     fp.displayDirectory = backupsDir;
 
     fp.defaultString = PlacesBackups.getFilenameForDate();

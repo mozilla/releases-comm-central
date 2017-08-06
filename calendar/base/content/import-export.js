@@ -286,12 +286,12 @@ function saveEventsToFile(calendarEventArray, aDefaultFileName) {
             filePath += "." + exporter.getFileTypes({})[0].defaultExtension;
         }
 
-        const nsILocalFile = Components.interfaces.nsILocalFile;
+        const nsIFile = Components.interfaces.nsIFile;
         const nsIFileOutputStream = Components.interfaces.nsIFileOutputStream;
 
         let outputStream;
         let localFileInstance = Components.classes["@mozilla.org/file/local;1"]
-                                          .createInstance(nsILocalFile);
+                                          .createInstance(nsIFile);
         localFileInstance.initWithPath(filePath);
 
         outputStream = Components.classes["@mozilla.org/network/file-output-stream;1"]

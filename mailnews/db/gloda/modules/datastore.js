@@ -499,7 +499,7 @@ function ExplainedStatementProcessor(aDumpPath) {
   this._objsWritten = 0;
 
   let filePath = Cc["@mozilla.org/file/local;1"]
-                   .createInstance(Ci.nsILocalFile);
+                   .createInstance(Ci.nsIFile);
   filePath.initWithPath(aDumpPath);
 
   this._ostream = Cc["@mozilla.org/network/file-output-stream;1"]

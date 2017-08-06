@@ -38,11 +38,11 @@ InstantbirdProfileMigrator.prototype = {
       var path = parser.getString(section, "Path");
       var prof;
       if (isRelative == "1") {
-        prof = root.clone().QueryInterface(Ci.nsILocalFile);
+        prof = root.clone().QueryInterface(Ci.nsIFile);
         prof.setRelativeDescriptor(root, path);
       }
       else {
-        prof = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsILocalFile)
+        prof = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile)
                                               .initWithPath(path);
       }
       var currentProfile = profileService.createProfile(prof, null, name);

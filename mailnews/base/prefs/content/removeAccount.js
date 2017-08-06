@@ -60,7 +60,7 @@ function enableRemove() {
  */
 function openLocalDirectory() {
   let nsLocalFile = Components.Constructor("@mozilla.org/file/local;1",
-                                           "nsILocalFile", "initWithPath");
+                                           "nsIFile", "initWithPath");
   let localDir = gServer.localPath.path;
   try {
     new nsLocalFile(localDir).reveal();

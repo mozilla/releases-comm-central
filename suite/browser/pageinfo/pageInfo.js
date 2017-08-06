@@ -851,7 +851,7 @@ function getSelectedImage(tree)
 
 function selectSaveFolder()
 {
-  const nsILocalFile = Components.interfaces.nsILocalFile;
+  const nsIFile = Components.interfaces.nsIFile;
   const nsIFilePicker = Components.interfaces.nsIFilePicker;
   var fp = Components.classes["@mozilla.org/filepicker;1"]
                      .createInstance(nsIFilePicker);
@@ -870,7 +870,7 @@ function selectSaveFolder()
   var ret = fp.show();
 
   if (ret == nsIFilePicker.returnOK)
-    return fp.file.QueryInterface(nsILocalFile);
+    return fp.file.QueryInterface(nsIFile);
   return null;
 }
 

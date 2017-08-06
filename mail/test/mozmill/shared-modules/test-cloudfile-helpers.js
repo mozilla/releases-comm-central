@@ -56,7 +56,7 @@ function getFile(aFilename, aRoot) {
 }
 
 /**
- * Helper function for getting the nsILocalFile's for some files located
+ * Helper function for getting the nsIFile's for some files located
  * in a subdirectory of the test directory.
  *
  * @param aFiles an array of filename strings for files underneath the test

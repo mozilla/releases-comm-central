@@ -9,7 +9,7 @@ function test() {
 
   var file = Components.classes["@mozilla.org/file/directory_service;1"]
              .getService(Components.interfaces.nsIProperties)
-             .get("TmpD", Components.interfaces.nsILocalFile);
+             .get("TmpD", Components.interfaces.nsIFile);
   file.append("466937_test.file");
   let testPath = file.path;
 

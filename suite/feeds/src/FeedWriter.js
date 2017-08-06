@@ -655,7 +655,7 @@ FeedWriter.prototype = {
       if (fp.show() == Components.interfaces.nsIFilePicker.returnOK) {
         this._selectedApp = fp.file;
         if (this._selectedApp) {
-          var file = Services.dirsvc.get("XREExeF", Components.interfaces.nsILocalFile);
+          var file = Services.dirsvc.get("XREExeF", Components.interfaces.nsIFile);
           if (fp.file.leafName != file.leafName) {
             this._initMenuItemWithFile(this._selectedAppMenuItem,
                                        this._selectedApp);
@@ -780,7 +780,7 @@ FeedWriter.prototype = {
         try {
           this._selectedApp =
             Services.prefs.getComplexValue(getPrefAppForType(feedType),
-                                           Components.interfaces.nsILocalFile);
+                                           Components.interfaces.nsIFile);
         }
         catch(ex) {
           this._selectedApp = null;
@@ -846,7 +846,7 @@ FeedWriter.prototype = {
     menuItem.setAttribute("handlerType", "client");
     try {
       this._selectedApp = Services.prefs.getComplexValue(getPrefAppForType(feedType),
-                                                         Components.interfaces.nsILocalFile);
+                                                         Components.interfaces.nsIFile);
 
       if (this._selectedApp.exists())
         this._initMenuItemWithFile(menuItem, this._selectedApp);
@@ -1138,12 +1138,12 @@ FeedWriter.prototype = {
     else {
       switch (selectedItem.getAttribute("anonid")) {
         case "selectedAppMenuItem":
-          Services.prefs.setComplexValue(getPrefAppForType(feedType), Components.interfaces.nsILocalFile,
+          Services.prefs.setComplexValue(getPrefAppForType(feedType), Components.interfaces.nsIFile,
                                          this._selectedApp);
           Services.prefs.setCharPref(getPrefReaderForType(feedType), "client");
           break;
         case "defaultHandlerMenuItem":
-          Services.prefs.setComplexValue(getPrefAppForType(feedType), Components.interfaces.nsILocalFile,
+          Services.prefs.setComplexValue(getPrefAppForType(feedType), Components.interfaces.nsIFile,
                                          this._defaultSystemReader);
           Services.prefs.setCharPref(getPrefReaderForType(feedType), "client");
           break;

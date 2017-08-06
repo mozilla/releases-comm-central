@@ -2851,7 +2851,7 @@ function load_via_src_path(aPath, aModule) {
     let fullPath = os.abspath(aPath, os.getFileForPath(srcPath));
 
     let file = Cc["@mozilla.org/file/local;1"]
-                 .createInstance(Ci.nsILocalFile);
+                 .createInstance(Ci.nsIFile);
     file.initWithPath(fullPath);
 
     if (file.exists()) {

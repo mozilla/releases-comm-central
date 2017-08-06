@@ -105,7 +105,7 @@ var logWindow = {
       FullZoom.applyPrefValue();
       browser.docShell.forcedCharset =
         browser.mAtomService.getAtom("UTF-8");
-      let file = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsILocalFile);
+      let file = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);
       file.initWithPath(log.path);
       browser.loadURI(Services.io.newFileURI(file).spec);
     }
