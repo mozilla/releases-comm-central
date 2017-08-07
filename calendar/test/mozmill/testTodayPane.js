@@ -132,7 +132,7 @@ function testTodayPane() {
         /id("messengerWindow")/id("navigation-toolbox")/id("tabs-toolbar")/
         id("tabcontainer")/{"first-tab":"true","type":"folder"}/
         anon({"class":"tab-stack"})/{"class":"tab-background"}/
-        {"class":"tab-background-middle"}
+        {"class":"tab-line"}
     `));
     sleep();
 
