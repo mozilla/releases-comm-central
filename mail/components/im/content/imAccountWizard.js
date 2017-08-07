@@ -395,9 +395,9 @@ var accountWizard = {
     let prefURL = PREF_EXTENSIONS_GETMOREPROTOCOLSURL;
     var getMore = document.getElementById("getMoreProtocols");
     var showGetMore = false;
-    const nsIPrefBranch2 = Components.interfaces.nsIPrefBranch2;
+    const nsIPrefBranch = Components.interfaces.nsIPrefBranch;
 
-    if (Services.prefs.getPrefType(prefURL) != nsIPrefBranch2.PREF_INVALID) {
+    if (Services.prefs.getPrefType(prefURL) != nsIPrefBranch.PREF_INVALID) {
       try {
         var getMoreURL = Services.urlFormatter.formatURLPref(prefURL);
         getMore.setAttribute("getMoreURL", getMoreURL);

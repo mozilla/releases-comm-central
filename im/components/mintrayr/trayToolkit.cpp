@@ -23,7 +23,7 @@
 #include "nsIObserverService.h"
 
 #include "nsIPrefService.h"
-#include "nsIPrefBranch2.h"
+#include "nsIPrefBranch.h"
 
 #ifdef WIN32
 #define strcasecmp stricmp
@@ -37,7 +37,7 @@ bool DoMinimizeWindow(mozIDOMWindow *window, eMinimizeActions action)
     return false;
   }
 
-  nsCOMPtr<nsIPrefBranch2> prefs(do_GetService(NS_PREFSERVICE_CONTRACTID));
+  nsCOMPtr<nsIPrefBranch> prefs(do_GetService(NS_PREFSERVICE_CONTRACTID));
   if (prefs) {
     PRInt32 whenToMinimize = 0;
     prefs->GetIntPref("extensions.mintrayr.minimizeon", &whenToMinimize);

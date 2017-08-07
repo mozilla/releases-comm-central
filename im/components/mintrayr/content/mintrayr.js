@@ -40,7 +40,7 @@ var gMinTrayR = {
     this.trayService.watchMinimize(window);
 
     this._prefs = Services.prefs.getBranch("extensions.mintrayr.")
-                                .QueryInterface(Components.interfaces.nsIPrefBranch2);
+                                .QueryInterface(Components.interfaces.nsIPrefBranch);
     this._prefs.addObserver("alwaysShowTrayIcon", this, false);
 
     // Add a listener to minimize the window on startup once it has been
