@@ -499,8 +499,8 @@ MimeHeaders_get_parameter (const char *header_value, const char *parm_name,
   return NS_SUCCEEDED(rv) ? PL_strdup(result.get()) : nullptr;
 }
 
-#define MimeHeaders_write(OPT,NAME,DATA,LENGTH) \
-    MimeOptions_write((OPT), (NAME), (DATA), (LENGTH), true);
+#define MimeHeaders_write(HDRS,OPT,DATA,LENGTH) \
+    MimeOptions_write((HDRS), (OPT), (DATA), (LENGTH), true);
 
 
 #define MimeHeaders_grow_obuffer(hdrs, desired_size) \
@@ -816,20 +816,16 @@ MimeHeaders_write_raw_headers (MimeHeaders *hdrs, MimeDisplayOptions *opt,
     if (status < 0) return 0;
   }
 
-  nsCString name;
-  name.Adopt(MimeHeaders_get_name(hdrs, opt));
-  MimeHeaders_convert_header_value(opt, name, false);
-
   if (!dont_write_content_type)
   {
     char nl[] = MSG_LINEBREAK;
     if (hdrs)
     {
-      status = MimeHeaders_write(opt, name, hdrs->all_headers,
+      status = MimeHeaders_write(hdrs, opt, hdrs->all_headers,
                                  hdrs->all_headers_fp);
       if (status < 0) return status;
     }
-    status = MimeHeaders_write(opt, name, nl, strlen(nl));
+    status = MimeHeaders_write(hdrs, opt, nl, strlen(nl));
     if (status < 0) return status;
   }
   else if (hdrs)
@@ -850,7 +846,7 @@ MimeHeaders_write_raw_headers (MimeHeaders *hdrs, MimeDisplayOptions *opt,
       continue;
 
       /* Write out this (possibly multi-line) header. */
-      status = MimeHeaders_write(opt, name, head, end - head);
+      status = MimeHeaders_write(hdrs, opt, head, end - head);
       if (status < 0) return status;
     }
   }

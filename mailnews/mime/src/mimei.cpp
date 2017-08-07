@@ -1680,7 +1680,7 @@ mime_parse_url_options(const char *url, MimeDisplayOptions *options)
  */
 
 int
-MimeOptions_write(MimeDisplayOptions *opt, nsCString &name, const char *data,
+MimeOptions_write(MimeHeaders *hdrs, MimeDisplayOptions *opt, const char *data,
                   int32_t length, bool user_visible_p)
 {
   int status = 0;
@@ -1703,6 +1703,10 @@ MimeOptions_write(MimeDisplayOptions *opt, nsCString &name, const char *data,
       int lstatus = opt->output_fn(sep, strlen(sep), closure);
       opt->state->separator_suppressed_p = false;
       if (lstatus < 0) return lstatus;
+
+      nsCString name;
+      name.Adopt(MimeHeaders_get_name(hdrs, opt));
+      MimeHeaders_convert_header_value(opt, name, false);
 
       if (!name.IsEmpty()) {
           sep = "<LEGEND CLASS=\"mimeAttachmentHeaderName\">";
@@ -1767,10 +1771,7 @@ MimeObject_write(MimeObject *obj, const char *output, int32_t length,
     NS_ASSERTION(obj->options->state->first_data_written_p, "1.1 <rhp@netscape.com> 19 Mar 1999 12:00");
   }
 
-  nsCString name;
-  name.Adopt(MimeHeaders_get_name(obj->headers, obj->options));
-  MimeHeaders_convert_header_value(obj->options, name, false);
-  return MimeOptions_write(obj->options, name, output, length, user_visible_p);
+  return MimeOptions_write(obj->headers, obj->options, output, length, user_visible_p);
 }
 
 int

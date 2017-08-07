@@ -397,7 +397,8 @@ extern int MimeObject_output_init(MimeObject *obj, const char *content_type);
  */
 extern int MimeObject_write(MimeObject *, const char *data, int32_t length,
                             bool user_visible_p);
-extern int MimeOptions_write(MimeDisplayOptions *, nsCString &name,
+extern int MimeOptions_write(MimeHeaders *,
+                             MimeDisplayOptions *,
                              const char *data, int32_t length,
                              bool user_visible_p);
 
