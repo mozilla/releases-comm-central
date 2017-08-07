@@ -48,11 +48,11 @@ char16_t *nsWMStringBundle::GetStringByID(int32_t stringID)
     m_pBundle = GetStringBundle();
 
   if (m_pBundle) {
-    char16_t *ptrv = nullptr;
-    nsresult rv = m_pBundle->GetStringFromID(stringID, &ptrv);
+    nsAutoString str;
+    nsresult rv = m_pBundle->GetStringFromID(stringID, str);
 
-    if (NS_SUCCEEDED(rv) && ptrv)
-      return ptrv;
+    if (NS_SUCCEEDED(rv))
+      return ToNewUnicode(str);
   }
 
   nsString resultString;
