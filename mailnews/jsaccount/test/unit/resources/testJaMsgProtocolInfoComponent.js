@@ -29,7 +29,7 @@ testJaMsgProtocolInfo.prototype = {
     let typedir = Services.dirsvc.get(NS_APP_USER_PROFILE_50_DIR, Ci.nsIFile);
     typedir.append("TestFoo");
     if (!typedir.exists())
-      typedir.create(Ci.nsIFile.DIRECTORY_TYPE, parseInt("0600", 8));
+      typedir.create(Ci.nsIFile.DIRECTORY_TYPE, parseInt("0700", 8));
     this._defaultLocalPath = typedir;
     return typedir;
   },
