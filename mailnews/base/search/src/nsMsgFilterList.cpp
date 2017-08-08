@@ -577,10 +577,10 @@ nsresult nsMsgFilterList::LoadTextFilters(nsIInputStream *aStream)
         else
         {
           // ### fix me - this is silly.
-          char16_t *unicodeString =
-            nsTextFormatter::smprintf(unicodeFormatter, value.get());
-          filter->SetFilterName(nsDependentString(unicodeString));
-          free(unicodeString);
+          nsString unicodeString;
+          nsTextFormatter::ssprintf(unicodeString, unicodeFormatter,
+                                    value.get());
+          filter->SetFilterName(unicodeString);
         }
         m_curFilter = filter;
         m_filters.AppendElement(filter);

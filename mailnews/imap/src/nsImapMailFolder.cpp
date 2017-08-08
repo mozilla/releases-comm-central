@@ -6714,9 +6714,9 @@ nsImapMailFolder::ProgressStatusString(nsIImapProtocol* aProtocol,
     {
       if (extraInfo)
       {
-        char16_t *printfString = nsTextFormatter::smprintf(progressMsg.get(), extraInfo);
-        if (printfString)
-          progressMsg.Adopt(printfString);
+        nsString printfString;
+        nsTextFormatter::ssprintf(printfString, progressMsg.get(), extraInfo);
+        progressMsg = printfString;
       }
 
       DisplayStatusMsg(imapUrl, progressMsg);

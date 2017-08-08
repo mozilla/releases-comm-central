@@ -4315,7 +4315,7 @@ nsMsgComposeAndSend::MimeDoFCC(nsIFile          *input_file,
   uint32_t      n;
   bool          folderIsLocal = true;
   nsCString     tmpUri;
-  char16_t     *printfString = nullptr;
+  nsString      printfString;
   nsString msg;
   nsCOMPtr<nsIMsgFolder> folder;
 
@@ -4488,14 +4488,11 @@ nsMsgComposeAndSend::MimeDoFCC(nsIFile          *input_file,
         folder->GetName(mSavedToFolderName);
     }
     if (!mSavedToFolderName.IsEmpty())
-      printfString = nsTextFormatter::smprintf(msg.get(), mSavedToFolderName.get());
+      nsTextFormatter::ssprintf(printfString, msg.get(),
+                                mSavedToFolderName.get());
     else
-      printfString = nsTextFormatter::smprintf(msg.get(), "?");
-    if (printfString)
-    {
-      SetStatusMessage(nsDependentString(printfString));
-      PR_Free(printfString);
-    }
+      nsTextFormatter::ssprintf(printfString, msg.get(), "?");
+    SetStatusMessage(printfString);
   }
 
   if (folderIsLocal)

@@ -732,12 +732,11 @@ nsMimeBaseEmitter::GenerateDateString(const char * dateString,
       int32_t senderoffset = (explodedMsgTime.tm_params.tp_gmt_offset +
                               explodedMsgTime.tm_params.tp_dst_offset) / 60;
       // append offset to date string
-      char16_t *tzstring =
-        nsTextFormatter::smprintf(u" %+05d",
-                                  (senderoffset / 60 * 100) +
-                                  (senderoffset % 60));
+      nsString tzstring;
+      nsTextFormatter::ssprintf(tzstring, u" %+05d",
+                                (senderoffset / 60 * 100) +
+                                (senderoffset % 60));
       formattedDateString.Append(tzstring);
-      free(tzstring);
     }
 
     CopyUTF16toUTF8(formattedDateString, formattedDate);

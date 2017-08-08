@@ -81,7 +81,7 @@ nsresult nsExplainErrorDetails(nsISmtpUrl * aSmtpUrl, nsresult aCode, ...)
   aSmtpUrl->GetPrompt(getter_AddRefs(dialog));
   NS_ENSURE_TRUE(dialog, NS_ERROR_FAILURE);
 
-  char16_t *  msg;
+  nsString msg;
   nsString eMsg;
   nsCOMPtr<nsIStringBundleService> bundleService =
     mozilla::services::GetStringBundleService();
@@ -104,7 +104,7 @@ nsresult nsExplainErrorDetails(nsISmtpUrl * aSmtpUrl, nsresult aCode, ...)
   {
     case NS_ERROR_ILLEGAL_LOCALPART:
       bundle->GetStringFromName("errorIllegalLocalPart", eMsg);
-      msg = nsTextFormatter::vsmprintf(eMsg.get(), args);
+      nsTextFormatter::vssprintf(msg, eMsg.get(), args);
       break;
     case NS_ERROR_SMTP_SERVER_ERROR:
     case NS_ERROR_TCP_READ_ERROR:
@@ -118,23 +118,19 @@ nsresult nsExplainErrorDetails(nsISmtpUrl * aSmtpUrl, nsresult aCode, ...)
     case NS_ERROR_SMTP_GREETING:
       exitString = errorStringNameForErrorCode(aCode);
       bundle->GetStringFromName(exitString, eMsg);
-      msg = nsTextFormatter::vsmprintf(eMsg.get(), args);
+      nsTextFormatter::vssprintf(msg, eMsg.get(), args);
       break;
     default:
       NS_WARNING("falling to default error code");
       bundle->GetStringFromName("communicationsError", eMsg);
-      msg = nsTextFormatter::smprintf(eMsg.get(), aCode);
+      nsTextFormatter::ssprintf(msg, eMsg.get(), aCode);
       break;
   }
 #ifdef __GNUC__
 #pragma GCC diagnostic pop
 #endif
 
-  if (msg)
-  {
-    rv = dialog->Alert(nullptr, msg);
-    free(msg);
-  }
+  rv = dialog->Alert(nullptr, msg.get());
 
   va_end (args);
 

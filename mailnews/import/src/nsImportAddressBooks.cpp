@@ -787,9 +787,9 @@ void nsImportGenericAddressBooks::ReportError(const char16_t *pName,
     return;
   // load the error string
   char16_t *pFmt = nsImportStringBundle::GetStringByID(IMPORT_ERROR_GETABOOK, aBundle);
-  char16_t *pText = nsTextFormatter::smprintf(pFmt, pName);
+  nsString pText;
+  nsTextFormatter::ssprintf(pText, pFmt, pName);
   pStream->Append(pText);
-  free(pText);
   NS_Free(pFmt);
   pStream->AppendLiteral(MSG_LINEBREAK);
 }

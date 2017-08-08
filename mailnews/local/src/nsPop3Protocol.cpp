@@ -3512,12 +3512,12 @@ nsPop3Protocol::TopResponse(nsIInputStream* inputStream, uint32_t length)
     if (!statusTemplate.IsEmpty())
     {
       nsAutoCString hostName;
-      char16_t * statusString = nullptr;
+      nsString statusString;
       m_url->GetHost(hostName);
 
-      statusString = nsTextFormatter::smprintf(statusTemplate.get(), hostName.get());
-      UpdateStatusWithString(statusString);
-      free(statusString);
+      nsTextFormatter::ssprintf(statusString, statusTemplate.get(),
+                                hostName.get());
+      UpdateStatusWithString(statusString.get());
     }
 
     if (m_prefAuthMethods != POP3_HAS_AUTH_USER &&

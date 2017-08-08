@@ -294,9 +294,9 @@ void ImportVCardAddressImpl::ReportSuccess(
   char16_t *pFmt = nsImportStringBundle::GetStringByName(
       "vCardImportAddressSuccess", pBundle);
 
-  char16_t *pText = nsTextFormatter::smprintf(pFmt, name.get());
+  nsString pText;
+  nsTextFormatter::ssprintf(pText, pFmt, name.get());
   pStream->Append(pText);
-  free(pText);
   NS_Free(pFmt);
   pStream->Append(char16_t('\n'));
 }
@@ -310,9 +310,9 @@ void ImportVCardAddressImpl::ReportError(
 
   // load the error string
   char16_t *pFmt = nsImportStringBundle::GetStringByName(errorName, pBundle);
-  char16_t *pText = nsTextFormatter::smprintf(pFmt, name.get());
+  nsString pText;
+  nsTextFormatter::ssprintf(pText, pFmt, name.get());
   pStream->Append(pText);
-  free(pText);
   NS_Free(pFmt);
   pStream->Append(char16_t('\n'));
 }

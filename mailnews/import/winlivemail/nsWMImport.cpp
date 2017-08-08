@@ -200,9 +200,9 @@ void ImportWMMailImpl::ReportSuccess(nsString& name, int32_t count, nsString *pS
     return;
   // load the success string
   char16_t *pFmt = nsWMStringBundle::GetStringByID(WMIMPORT_MAILBOX_SUCCESS);
-  char16_t *pText = nsTextFormatter::smprintf(pFmt, name.get(), count);
+  nsString pText;
+  nsTextFormatter::ssprintf(pText, pFmt, name.get(), count);
   pStream->Append(pText);
-  free(pText);
   nsWMStringBundle::FreeString(pFmt);
   AddLinebreak(pStream);
 }
@@ -213,9 +213,9 @@ void ImportWMMailImpl::ReportError(int32_t errorNum, nsString& name, nsString *p
     return;
   // load the error string
   char16_t *pFmt = nsWMStringBundle::GetStringByID(errorNum);
-  char16_t *pText = nsTextFormatter::smprintf(pFmt, name.get());
+  nsString pText;
+  nsTextFormatter::ssprintf(pText, pFmt, name.get());
   pStream->Append(pText);
-  free(pText);
   nsWMStringBundle::FreeString(pFmt);
   AddLinebreak(pStream);
 }

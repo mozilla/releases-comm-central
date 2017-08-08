@@ -600,9 +600,9 @@ void nsImportGenericMail::ReportError(int32_t id, const char16_t *pName, nsStrin
 
   // load the error string
   char16_t *pFmt = nsImportStringBundle::GetStringByID(id, aBundle);
-  char16_t *pText = nsTextFormatter::smprintf(pFmt, pName);
+  nsString pText;
+  nsTextFormatter::ssprintf(pText, pFmt, pName);
   pStream->Append(pText);
-  free(pText);
   NS_Free(pFmt);
   pStream->Append(NS_ConvertASCIItoUTF16(MSG_LINEBREAK));
 }

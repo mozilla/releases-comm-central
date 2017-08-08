@@ -349,9 +349,9 @@ void ImportOutlookMailImpl::ReportSuccess(nsString& name, int32_t count, nsStrin
     return;
   // load the success string
   char16_t *pFmt = nsOutlookStringBundle::GetStringByID(OUTLOOKIMPORT_MAILBOX_SUCCESS);
-  char16_t *pText = nsTextFormatter::smprintf(pFmt, name.get(), count);
+  nsString pText;
+  nsTextFormatter::ssprintf(pText, pFmt, name.get(), count);
   pStream->Append(pText);
-  free(pText);
   nsOutlookStringBundle::FreeString(pFmt);
   AddLinebreak(pStream);
 }
@@ -362,9 +362,9 @@ void ImportOutlookMailImpl::ReportError(int32_t errorNum, nsString& name, nsStri
     return;
   // load the error string
   char16_t *pFmt = nsOutlookStringBundle::GetStringByID(errorNum);
-  char16_t *pText = nsTextFormatter::smprintf(pFmt, name.get());
+  nsString pText;
+  nsTextFormatter::ssprintf(pText, pFmt, name.get());
   pStream->Append(pText);
-  free(pText);
   nsOutlookStringBundle::FreeString(pFmt);
   AddLinebreak(pStream);
 }
@@ -576,9 +576,9 @@ void ImportOutlookAddressImpl::ReportSuccess(nsString& name, nsString *pStream)
     return;
   // load the success string
   char16_t *pFmt = nsOutlookStringBundle::GetStringByID(OUTLOOKIMPORT_ADDRESS_SUCCESS);
-  char16_t *pText = nsTextFormatter::smprintf(pFmt, name.get());
+  nsString pText;
+  nsTextFormatter::ssprintf(pText, pFmt, name.get());
   pStream->Append(pText);
-  free(pText);
   nsOutlookStringBundle::FreeString(pFmt);
   ImportOutlookMailImpl::AddLinebreak(pStream);
 }
