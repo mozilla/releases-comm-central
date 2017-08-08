@@ -666,8 +666,15 @@ NS_IMETHODIMP nsMsgMailNewsUrl::Resolve(const nsACString &relativePath, nsACStri
   // everything else shouldn't be resolved against mailnews urls.
   nsresult rv = NS_OK;
 
-  if (!relativePath.IsEmpty() && relativePath.First() == '#') // an anchor
-    return m_baseURL->Resolve(relativePath, result);
+  if (relativePath.IsEmpty())
+  {
+    // Return base URL.
+    rv = GetSpec(result);
+  }
+  else if (!relativePath.IsEmpty() && relativePath.First() == '#') // an anchor
+  {
+    rv = m_baseURL->Resolve(relativePath, result);
+  }
   else
   {
     // if relativePath is a complete url with it's own scheme then allow it...
