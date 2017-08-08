@@ -467,7 +467,7 @@ NS_IMETHODIMP nsMessenger::LaunchExternalURL(const nsACString& aURL)
 
   nsCOMPtr<nsIExternalProtocolService> extProtService = do_GetService(NS_EXTERNALPROTOCOLSERVICE_CONTRACTID, &rv);
   NS_ENSURE_SUCCESS(rv,rv);
-  return extProtService->LoadUrl(uri);
+  return extProtService->LoadURI(uri, nullptr);
 }
 
 NS_IMETHODIMP

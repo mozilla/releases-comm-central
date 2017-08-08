@@ -4047,21 +4047,21 @@ NS_IMETHODIMP nsImapMailFolder::FolderPrivileges(nsIMsgWindow *window)
   if (!m_adminUrl.IsEmpty())
   {
     nsCOMPtr<nsIExternalProtocolService> extProtService = do_GetService(NS_EXTERNALPROTOCOLSERVICE_CONTRACTID);
-    if (extProtService) 
+    if (extProtService)
     {
       nsAutoCString scheme;
       nsCOMPtr<nsIURI> uri;
       if (NS_FAILED(rv = NS_NewURI(getter_AddRefs(uri), m_adminUrl.get())))
         return rv;
       uri->GetScheme(scheme);
-      if (!scheme.IsEmpty()) 
+      if (!scheme.IsEmpty())
       {
         // if the URL scheme does not correspond to an exposed protocol, then we
         // need to hand this link click over to the external protocol handler.
         bool isExposed;
         rv = extProtService->IsExposedProtocol(scheme.get(), &isExposed);
-        if (NS_SUCCEEDED(rv) && !isExposed) 
-          return extProtService->LoadUrl(uri);
+        if (NS_SUCCEEDED(rv) && !isExposed)
+          return extProtService->LoadURI(uri, nullptr);
       }
     }
   }

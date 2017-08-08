@@ -35,10 +35,6 @@
 #include "nsIAuthPrompt.h"
 #include "nsMsgUtils.h"
 
-// used to dispatch urls to default protocol handlers
-#include "nsCExternalHandlerService.h"
-#include "nsIExternalProtocolService.h"
-
 static NS_DEFINE_CID(kTransactionManagerCID, NS_TRANSACTIONMANAGER_CID);
 
 NS_IMPL_ISUPPORTS(nsMsgWindow,
