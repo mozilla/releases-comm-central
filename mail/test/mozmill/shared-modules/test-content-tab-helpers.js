@@ -98,10 +98,7 @@ var gMockExtProtSvc = {
   },
 
   loadURI: function(aURI, aWindowContext) {
-  },
-
-  loadUrl: function(aURL) {
-    this._loadedURLs.push(aURL.spec);
+    this._loadedURLs.push(aURI.spec);
   },
 
   setProtocolHandlerDefaults: function(aHandlerInfo, aOSHandlerExists) {

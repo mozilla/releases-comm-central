@@ -1641,9 +1641,9 @@ static nsresult fixCharset(nsCString &aCharset)
 }
 
 // This used to be called BEFORE editor was created
-//  (it did the loadUrl that triggered editor creation)
+//  (it did the loadURI that triggered editor creation)
 // It is called from JS after editor creation
-//  (loadUrl is done in JS)
+//  (loadURI is done in JS)
 NS_IMETHODIMP nsMsgCompose::InitEditor(nsIEditor* aEditor, mozIDOMWindowProxy* aContentWindow)
 {
   NS_ENSURE_ARG_POINTER(aEditor);

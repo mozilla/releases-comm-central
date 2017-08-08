@@ -2268,7 +2268,7 @@ function openAttachment() {
         let externalLoader = Components.classes["@mozilla.org/uriloader/external-protocol-service;1"]
                                        .getService(Components.interfaces.nsIExternalProtocolService);
         // TODO There should be a nicer dialog
-        externalLoader.loadUrl(attURI);
+        externalLoader.loadURI(attURI);
     }
 }
 

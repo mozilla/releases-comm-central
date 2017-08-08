@@ -16,6 +16,6 @@ window.open = function(aUrl) {
     defaultOpen.apply(this, arguments);
   else {
     Cc["@mozilla.org/uriloader/external-protocol-service;1"]
-      .getService(Ci.nsIExternalProtocolService).loadUrl(uri);
+      .getService(Ci.nsIExternalProtocolService).loadURI(uri);
   }
 };

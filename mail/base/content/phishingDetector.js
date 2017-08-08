@@ -153,7 +153,7 @@ var gPhishingDetector = {
      let uri = Services.io.newURI(reportUrl);
      let protocolSvc = Components.classes["@mozilla.org/uriloader/external-protocol-service;1"]
                        .getService(Components.interfaces.nsIExternalProtocolService);
-     protocolSvc.loadUrl(uri);
+     protocolSvc.loadURI(uri);
    },
 
   /**

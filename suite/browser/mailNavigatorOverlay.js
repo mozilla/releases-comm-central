@@ -64,7 +64,7 @@ function openExternalMailer(url, title) {
                                      + encodeURIComponent(title) : "mailto:";
   var uri = Services.io.newURI(mailto);
 
-  extProtocolSvc.loadUrl(uri);
+  extProtocolSvc.loadURI(uri);
 }
 
 function openNewCardDialog()

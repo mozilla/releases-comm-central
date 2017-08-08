@@ -29,7 +29,7 @@ mailContentHandler.prototype = {
   openInExternal: function mch_OpenInExternal(uri) {
     Cc["@mozilla.org/uriloader/external-protocol-service;1"]
       .getService(Ci.nsIExternalProtocolService)
-      .loadUrl(uri);
+      .loadURI(uri);
   },
 
   // nsIContentHandler

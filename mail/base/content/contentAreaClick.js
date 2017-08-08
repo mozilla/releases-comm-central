@@ -191,7 +191,7 @@ function openLinkExternally(url)
 
   Components.classes["@mozilla.org/uriloader/external-protocol-service;1"]
             .getService(Components.interfaces.nsIExternalProtocolService)
-            .loadUrl(uri);
+            .loadURI(uri);
 }
 
 /**

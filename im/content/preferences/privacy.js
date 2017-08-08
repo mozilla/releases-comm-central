@@ -58,7 +58,7 @@ var gPrivacyPane = {
        let uri = Services.io.newFileURI(parent);
        let protocolSvc = Cc["@mozilla.org/uriloader/external-protocol-service;1"].
                          getService(Ci.nsIExternalProtocolService);
-       protocolSvc.loadUrl(uri);
+       protocolSvc.loadURI(uri);
       }
     }
   },

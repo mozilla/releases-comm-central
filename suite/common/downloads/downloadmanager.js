@@ -196,7 +196,7 @@ function openDownload(aDownload)
     var uri = Services.io.newFileURI(file);
     var protocolSvc = Components.classes["@mozilla.org/uriloader/external-protocol-service;1"]
                                 .getService(Components.interfaces.nsIExternalProtocolService);
-    protocolSvc.loadUrl(uri);
+    protocolSvc.loadURI(uri);
   }
 }
 
@@ -221,7 +221,7 @@ function showDownload(aDownload)
       var uri = Services.io.newFileURI(parent);
       var protocolSvc = Components.classes["@mozilla.org/uriloader/external-protocol-service;1"]
                                   .getService(Components.interfaces.nsIExternalProtocolService);
-      protocolSvc.loadUrl(uri);
+      protocolSvc.loadURI(uri);
     }
   }
 }

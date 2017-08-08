@@ -166,7 +166,7 @@
                         getService(Components.interfaces.nsIIOService);
         Components.classes["@mozilla.org/uriloader/external-protocol-service;1"]
                   .getService(Components.interfaces.nsIExternalProtocolService)
-                  .loadUrl(ioService.newURI(aEvent.target.href, null, null));
+                  .loadURI(ioService.newURI(aEvent.target.href, null, null));
       }
 
     ]]>

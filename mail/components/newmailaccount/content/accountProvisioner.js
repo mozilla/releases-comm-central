@@ -228,7 +228,7 @@ var EmailAccountProvisioner = {
           e.target.classList.contains("external")) {
         e.preventDefault();
         let uri = e.target.getAttribute("href");
-        opener.loadUrl(Services.io.newURI(uri, "UTF-8"));
+        opener.loadURI(Services.io.newURI(uri, "UTF-8"));
       }
     });
 

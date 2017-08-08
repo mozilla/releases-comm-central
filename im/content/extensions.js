@@ -28,7 +28,7 @@ var addonsRegister = {
         open.apply(this, arguments);
       else {
         Cc["@mozilla.org/uriloader/external-protocol-service;1"]
-          .getService(Ci.nsIExternalProtocolService).loadUrl(uri);
+          .getService(Ci.nsIExternalProtocolService).loadURI(uri);
       }
     };
   },

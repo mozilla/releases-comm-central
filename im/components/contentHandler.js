@@ -49,7 +49,7 @@ contentHandler.prototype = {
 
     Cc["@mozilla.org/uriloader/external-protocol-service;1"]
       .getService(Ci.nsIExternalProtocolService)
-      .loadUrl(aRequest.URI);
+      .loadURI(aRequest.URI);
     aRequest.cancel(Cr.NS_BINDING_ABORTED);
   },
 
