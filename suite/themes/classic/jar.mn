@@ -104,6 +104,7 @@ classic.jar:
   skin/classic/communicator/icons/question-48.png                       (communicator/icons/question-48.png)
   skin/classic/communicator/icons/warning-24.png                        (communicator/icons/warning-24.png)
 #endif
+  skin/classic/communicator/about.css                                   (communicator/about.css)
   skin/classic/communicator/aboutSupport.css                            (communicator/aboutSupport.css)
   skin/classic/communicator/brand.css                                   (communicator/brand.css)
   skin/classic/communicator/blockedSite.css                             (communicator/blockedSite.css)
@@ -491,6 +492,7 @@ classic.jar:
   skin/classic/navigator/icons/tab-drag-indicator.gif                   (navigator/icons/tab-drag-indicator.gif)
   skin/classic/navigator/icons/tab-new.gif                              (navigator/icons/tab-new.gif)
 [extensions/{972ce4c6-7e08-4474-a285-3208198ce6fd}] chrome.jar:
+% override chrome://global/skin/about.css                         chrome://communicator/skin/about.css
 % override chrome://global/skin/aboutSupport.css                  chrome://communicator/skin/aboutSupport.css
 % override chrome://global/skin/config.css                        chrome://communicator/skin/config.css
 % override chrome://global/skin/in-content/info-pages.css         chrome://communicator/skin/communicator.css
