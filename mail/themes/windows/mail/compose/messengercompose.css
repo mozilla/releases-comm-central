@@ -576,10 +576,23 @@ toolbarbutton.formatting-button,
   display: none;
 }
 
-#compose-toolbox:not(:-moz-lwtheme) {
+#compose-toolbox {
   -moz-appearance: none;
-  background-color: -moz-Dialog;
+  background-color: var(--toolbar-bgcolor);
   border-bottom: 1px solid ThreeDShadow;
+}
+
+@media (-moz-windows-default-theme) {
+  @media (-moz-os-version: windows-win8),
+         (-moz-os-version: windows-win10) {
+    #compose-toolbox {
+      border-bottom-color: #c2c2c2;
+    }
+  }
+}
+
+#compose-toolbox:-moz-lwtheme {
+  background-color: transparent;
 }
 
 toolbar:not(:-moz-lwtheme) {
@@ -953,11 +966,6 @@ treechildren::-moz-tree-image(subscribed-news) {
 }
 
 @media (-moz-os-version: windows-win7) {
-  #compose-toolbox:not(:-moz-lwtheme) {
-  background-image: linear-gradient(rgba(255, 255, 255, .5),
-                    rgba(255, 255, 255, 0));
-  }
-
   #attachmentNotificationBox > notification .messageImage {
     background-image: url(chrome://messenger/skin/messengercompose/compose-toolbar.svg#attach);
   }

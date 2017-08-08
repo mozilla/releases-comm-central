@@ -16,6 +16,16 @@
   min-width: 15em;
 }
 
+#compose-toolbox {
+  -moz-appearance: none;
+  background-color: var(--toolbar-bgcolor);
+  border-bottom: 1px solid ThreeDShadow;
+}
+
+#compose-toolbox:-moz-lwtheme {
+  background-color: transparent;
+}
+
 #compose-toolbox > toolbar {
   /* force iconsize="small" on these toolbars */
   counter-reset: smallicons;

@@ -60,10 +60,23 @@
 
 /* :::: Toolbar :::: */
 
-#ab-toolbox:not(:-moz-lwtheme) {
+#ab-toolbox {
   -moz-appearance: none;
-  background-color: -moz-Dialog;
+  background-color: var(--toolbar-bgcolor);
   border-bottom: 1px solid ThreeDShadow;
+}
+
+@media (-moz-windows-default-theme) {
+  @media (-moz-os-version: windows-win8),
+         (-moz-os-version: windows-win10) {
+    #ab-toolbox {
+      border-bottom-color: #c2c2c2;
+    }
+  }
+}
+
+#ab-toolbox:-moz-lwtheme {
+  background-color: transparent;
 }
 
 toolbar:not(:-moz-lwtheme) {
@@ -204,13 +217,6 @@ toolbox > toolbar:last-of-type {
     color: black;
     text-shadow: 0 0 .7em white, 0 0 .7em white, 0 1px 0 rgba(255, 255, 255, .4);
     border-bottom-color: #aabccf;
-  }
-}
-
-@media (-moz-os-version: windows-win7) {
-  #ab-toolbox:not(:-moz-lwtheme) {
-  background-image: linear-gradient(rgba(255, 255, 255, .5),
-                    rgba(255, 255, 255, 0));
   }
 }
 

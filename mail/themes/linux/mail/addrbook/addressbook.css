@@ -9,6 +9,16 @@
 @import url("chrome://messenger/skin/");
 @import url("chrome://messenger/skin/shared/addressbook.css");
 
+#ab-toolbox {
+  -moz-appearance: none;
+  background-color: var(--toolbar-bgcolor);
+  border-bottom: 1px solid hsl(0, 0%, 60%);
+}
+
+#ab-toolbox:-moz-lwtheme {
+  background-color: transparent;
+}
+
 #ab-toolbox > toolbar {
   /* force iconsize="small" on these toolbars */
   counter-reset: smallicons;
