@@ -94,8 +94,8 @@ pref("mailnews.allowMboxOver4GB", true);
 // Note that the maximum size of a cache entry is limited by
 // max_entry_size and (capacity >> 3), so devided by 8.
 // Larger messages or attachments won't be cached.
-pref("browser.cache.memory.max_entry_size", 15000); //  15 MB
-pref("browser.cache.memory.capacity",      120000); // 120 MB = 8*15 MB
+pref("browser.cache.memory.max_entry_size", 25000); //  25 MB
+pref("browser.cache.memory.capacity",      200000); // 200 MB = 8*25 MB
 
 pref("mail.imap.chunk_size",                65536);
 pref("mail.imap.min_chunk_size_threshold",  98304);
