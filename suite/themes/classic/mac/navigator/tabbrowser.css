@@ -200,7 +200,7 @@ tabpanels {
 .tabs-closebutton {
   margin: 3px;
   padding: 1px;
-  list-style-image: url("chrome://global/skin/icons/close.png");
+  list-style-image: url("chrome://navigator/skin/icons/close.png");
   -moz-image-region: rect(0, 16px, 16px, 0);
 }
 
