@@ -1073,7 +1073,6 @@ uninstall/uninstall.exe
   @DIR_MACOS@components/embed_base.xpt
   @DIR_MACOS@components/extensions.xpt
   @DIR_MACOS@components/exthandler.xpt
-  @DIR_MACOS@components/exthelper.xpt
   @DIR_MACOS@components/fastfind.xpt
   @DIR_MACOS@components/feeds.xpt
   @DIR_MACOS@components/find.xpt

@@ -136,7 +136,6 @@ components/editor.xpt
 components/embed_base.xpt
 components/extensions.xpt
 components/exthandler.xpt
-components/exthelper.xpt
 components/fastfind.xpt
 components/feeds.xpt
 #ifndef XP_WIN
