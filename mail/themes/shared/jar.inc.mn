@@ -1,0 +1,44 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+# This is not a complete / proper jar manifest. It is included by the
+# actual theme-specific manifests, so that shared resources need only
+# be specified once. As a result, the source file paths are relative
+# to the location of the actual manifest.
+
+  skin/classic/messenger/aboutNetError.css                    (../shared/mail/aboutNetError.css)
+  skin/classic/messenger/aboutSupport.css                     (../shared/mail/aboutSupport.css)
+  skin/classic/messenger/addressbook/icons/addressbook-toolbar.svg (../shared/mail/icons/addressbook-toolbar.svg)
+  skin/classic/messenger/addressbook/icons/menu.svg           (../shared/mail/icons/menu.svg)
+  skin/classic/messenger/icons/arrow-dropdown.svg             (../shared/mail/icons/arrow-dropdown.svg)
+  skin/classic/messenger/icons/arrow-left.svg                 (../shared/mail/icons/arrow-left.svg)
+  skin/classic/messenger/icons/blacklist.svg                  (../shared/mail/icons/blacklist.svg)
+  skin/classic/messenger/icons/cert-error.svg                 (../shared/mail/icons/cert-error.svg)
+  skin/classic/messenger/icons/chat.svg                       (../shared/mail/icons/chat.svg)
+  skin/classic/messenger/icons/chat-toolbar.svg               (../shared/mail/icons/chat-toolbar.svg)
+  skin/classic/messenger/icons/correspondents.svg             (../shared/mail/icons/correspondents.svg)
+  skin/classic/messenger/icons/mail-toolbar.svg               (../shared/mail/icons/mail-toolbar.svg)
+  skin/classic/messenger/icons/search-glass.svg               (../shared/mail/icons/search-glass.svg)
+  skin/classic/messenger/icons/toolbarbutton-arrow.png        (../shared/mail/icons/toolbarbutton-arrow.png)
+  skin/classic/messenger/icons/toolbarbutton-arrow@2x.png     (../shared/mail/icons/toolbarbutton-arrow@2x.png)
+  skin/classic/messenger/icons/toolbarbutton-arrow-inverted.png (../shared/mail/icons/toolbarbutton-arrow-inverted.png)
+  skin/classic/messenger/icons/toolbarbutton-arrow-inverted@2x.png (../shared/mail/icons/toolbarbutton-arrow-inverted@2x.png)
+  skin/classic/messenger/messengercompose/compose-toolbar.svg (../shared/mail/icons/compose-toolbar.svg)
+  skin/classic/messenger/shared/accountProvisioner.css        (../shared/mail/accountProvisioner.css)
+  skin/classic/messenger/shared/addressbook.css               (../shared/mail/addressbook.css)
+  skin/classic/messenger/shared/in-content/dialog.css         (../shared/mail/incontentprefs/dialog.css)
+  skin/classic/messenger/shared/in-content/aboutPreferences.css (../shared/mail/incontentprefs/aboutPreferences.css)
+  skin/classic/messenger/shared/in-content/icons.svg          (../shared/mail/incontentprefs/icons.svg)
+  skin/classic/messenger/shared/mailWindow1.css               (../shared/mail/mailWindow1.css)
+  skin/classic/messenger/shared/messageHeader.css             (../shared/mail/messageHeader.css)
+  skin/classic/messenger/shared/messenger.css                 (../shared/mail/messenger.css)
+  skin/classic/messenger/shared/tabmail.css                   (../shared/mail/tabmail.css)
+#ifndef XP_MACOSX
+  skin/classic/messenger/icons/search-close.svg               (../shared/mail/icons/search-close.svg)
+#else
+  skin/classic/messenger/addressbook/icons/addressbook-toolbar-osxlion.svg (../shared/mail/icons/addressbook-toolbar-osxlion.svg)
+  skin/classic/messenger/icons/mail-toolbar-osxlion.svg       (../shared/mail/icons/mail-toolbar-osxlion.svg)
+  skin/classic/messenger/icons/chat-toolbar-osxlion.svg       (../shared/mail/icons/chat-toolbar-osxlion.svg)
+  skin/classic/messenger/messengercompose/compose-toolbar-osxlion.svg (../shared/mail/icons/compose-toolbar-osxlion.svg)
+#endif
