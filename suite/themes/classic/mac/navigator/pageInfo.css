@@ -11,7 +11,7 @@
 
 windowdragbox {
   min-height: 20px;
-  -moz-appearance: -moz-mac-unified-toolbar;
+  -moz-appearance: toolbar;
   -moz-box-align: center;
 }
 
