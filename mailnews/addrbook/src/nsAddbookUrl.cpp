@@ -310,6 +310,12 @@ nsAddbookUrl::GetDisplayHost(nsACString& aUnicodeHost)
 }
 
 NS_IMETHODIMP
+nsAddbookUrl::GetDisplayPrePath(nsACString& aPrePath)
+{
+  return GetPrePath(aPrePath);
+}
+
+NS_IMETHODIMP
 nsAddbookUrl::GetHasRef(bool *result)
 {
   return m_baseURL->GetHasRef(result);

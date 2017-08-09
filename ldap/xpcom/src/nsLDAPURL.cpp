@@ -730,6 +730,12 @@ nsLDAPURL::GetDisplayHost(nsACString& aUnicodeHost)
 }
 
 NS_IMETHODIMP
+nsLDAPURL::GetDisplayPrePath(nsACString& aPrePath)
+{
+  return GetPrePath(aPrePath);
+}
+
+NS_IMETHODIMP
 nsLDAPURL::GetHasRef(bool *result)
 {
   return mBaseURL->GetHasRef(result);

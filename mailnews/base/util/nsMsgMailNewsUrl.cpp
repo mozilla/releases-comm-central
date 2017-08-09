@@ -599,6 +599,12 @@ nsMsgMailNewsUrl::GetDisplayHost(nsACString& aUnicodeHost)
 }
 
 NS_IMETHODIMP
+nsMsgMailNewsUrl::GetDisplayPrePath(nsACString& aPrePath)
+{
+  return GetPrePath(aPrePath);
+}
+
+NS_IMETHODIMP
 nsMsgMailNewsUrl::GetHasRef(bool *result)
 {
   return m_baseURL->GetHasRef(result);

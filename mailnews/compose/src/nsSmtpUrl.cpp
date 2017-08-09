@@ -614,6 +614,12 @@ nsMailtoUrl::GetDisplayHost(nsACString& aUnicodeHost)
 }
 
 NS_IMETHODIMP
+nsMailtoUrl::GetDisplayPrePath(nsACString& aPrePath)
+{
+  return GetPrePath(aPrePath);
+}
+
+NS_IMETHODIMP
 nsMailtoUrl::GetHasRef(bool *result)
 {
   return m_baseURL->GetHasRef(result);
