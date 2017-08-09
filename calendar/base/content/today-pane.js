@@ -39,6 +39,10 @@ var TodayPane = {
         TodayPane.updateSplitterState();
         TodayPane.previousMode = document.getElementById("modeBroadcaster").getAttribute("mode");
         TodayPane.showTodayPaneStatusLabel();
+        // Workaround for bug 1360914. For unknown reasons, setTodayHeader() sets
+        // the selectedIndex of the "monthNameContainer" deck to a wrong value so
+        // the miniday needs to be initialized again.
+        TodayPane.initializeMiniday();
     },
 
     /**
@@ -107,13 +111,8 @@ var TodayPane = {
             this.setMonthDescription(monthlabel, i, kYEARINIT, kCALWEEKINIT);
         }
 
-        let now = cal.now();
-        // Workaround for bug 1070491. Show the correct month and year
-        // after startup even if deck's selectedIndex is reset to 0.
-        this.setMonthDescription(childNodes[0], now.month, now.year, kCALWEEKINIT);
-
         agendaListbox.addListener(this);
-        this.setDay(now);
+        this.setDay(cal.now());
     },
 
     /**
@@ -320,13 +319,8 @@ var TodayPane = {
         let weekdisplaydeck = document.getElementById("weekdayNameContainer");
         let childNodes = weekdisplaydeck.childNodes;
 
-        // Workaround for bug 1070491. Show the correct weekday after
-        // startup even if deck's selectedIndex is reset to 0.
-        let weekday = cal.now().weekday + 1;
-        childNodes[0].setAttribute("value", cal.calGetString("dateFormat", "day." + weekday + ".Mmm"));
-
-        for (let i = 1; i < childNodes.length; i++) {
-            childNodes[i].setAttribute("value", cal.calGetString("dateFormat", "day." + i + ".Mmm"));
+        for (let i = 0; i < childNodes.length; i++) {
+            childNodes[i].setAttribute("value", cal.calGetString("dateFormat","day." + (i+1) + ".Mmm"));
         }
     },
 
@@ -355,7 +349,7 @@ var TodayPane = {
         daylabel.value = this.start.day;
 
         let weekdaylabel = document.getElementById("weekdayNameContainer");
-        weekdaylabel.selectedIndex = this.start.weekday + 1;
+        weekdaylabel.selectedIndex = this.start.weekday;
 
         let monthnamedeck = document.getElementById("monthNameContainer");
         monthnamedeck.selectedIndex = this.start.month;
