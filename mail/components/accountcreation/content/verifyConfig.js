@@ -30,7 +30,7 @@
  */
 
 Components.utils.import("resource:///modules/mailServices.js");
-Components.utils.import("resource://gre/modules/OAuth2Providers.jsm");
+Components.utils.import("resource:///modules/OAuth2Providers.jsm");
 
 if (typeof gEmailWizardLogger == "undefined") {
   Cu.import("resource:///modules/gloda/log4moz.js");

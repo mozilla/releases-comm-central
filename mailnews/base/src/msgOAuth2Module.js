@@ -8,8 +8,8 @@ var Cc = Components.classes;
 var Ci = Components.interfaces;
 var Cr = Components.results;
 
-Components.utils.import("resource://gre/modules/OAuth2.jsm");
-Components.utils.import("resource://gre/modules/OAuth2Providers.jsm");
+Components.utils.import("resource:///modules/OAuth2.jsm");
+Components.utils.import("resource:///modules/OAuth2Providers.jsm");
 Components.utils.import("resource://gre/modules/Preferences.jsm");
 Components.utils.import("resource://gre/modules/Services.jsm");
 Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");

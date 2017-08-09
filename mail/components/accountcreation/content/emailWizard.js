@@ -6,7 +6,7 @@
 Components.utils.import("resource:///modules/mailServices.js");
 Components.utils.import("resource://gre/modules/Services.jsm");
 Components.utils.import("resource:///modules/hostnameUtils.jsm");
-Components.utils.import("resource://gre/modules/OAuth2Providers.jsm");
+Components.utils.import("resource:///modules/OAuth2Providers.jsm");
 
 /**
  * This is the dialog opened by menu File | New account | Mail... .
