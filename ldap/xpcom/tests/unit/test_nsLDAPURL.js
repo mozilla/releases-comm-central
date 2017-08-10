@@ -20,6 +20,10 @@ const ldapURLs =
       path: "/dc=test",
       prePath: "ldap://localhost",
       hostPort: "localhost",
+      displaySpec: "ldap://localhost/dc=test",
+      displayPrePath: "ldap://localhost",
+      displayHost: "localhost",
+      displayHostPort: "localhost",
       dn: "dc=test",
       scope: Ci.nsILDAPURL.SCOPE_BASE,
       filter: "(objectclass=*)",
@@ -35,6 +39,10 @@ const ldapURLs =
       path: "/dc=test,dc=abc??sub?(objectclass=*)",
       prePath: "ldap://localhost" + portAdpt,
       hostPort: "localhost" + portAdpt,
+      displaySpec: "ldap://localhost" + portAdpt + "/dc=test,dc=abc??sub?(objectclass=*)",
+      displayPrePath: "ldap://localhost",
+      displayHost: "localhost",
+      displayHostPort: "localhost" + portAdpt,
       dn: "dc=test,dc=abc",
       scope: Ci.nsILDAPURL.SCOPE_SUBTREE,
       filter: "(objectclass=*)",
@@ -50,6 +58,10 @@ const ldapURLs =
       path: "/dc=tes%E6%97%A5t??one?(oc=xyz)",
       prePath: "ldap://xn--wgv71a309e.jp" + portAdpt,
       hostPort: "xn--wgv71a309e.jp" + portAdpt,
+      displaySpec: "ldap://\u65e5\u672c\u8a93.jp" + portAdpt + "/dc=tes%E6%97%A5t??one?(oc=xyz)",
+      displayPrePath: "ldap://\u65e5\u672c\u8a93.jp" + portAdpt,
+      displayHost: "\u65e5\u672c\u8a93.jp",
+      displayHostPort: "\u65e5\u672c\u8a93.jp" + portAdpt,
       dn: "dc=tes\u65e5t",
       scope: Ci.nsILDAPURL.SCOPE_ONELEVEL,
       filter: "(oc=xyz)",
@@ -65,6 +77,10 @@ const ldapURLs =
       path: "/dc=test",
       prePath: "ldaps://localhost",
       hostPort: "localhost",
+      displaySpec: "ldaps://localhost/dc=test",
+      displayPrePath: "ldaps://localhost",
+      displayHost: "localhost",
+      displayHostPort: "localhost",
       dn: "dc=test",
       scope: Ci.nsILDAPURL.SCOPE_BASE,
       filter: "(objectclass=*)",
@@ -96,6 +112,10 @@ function run_test() {
     Assert.equal(url.pathQueryRef, ldapURLs[part].path);
     Assert.equal(url.prePath, ldapURLs[part].prePath);
     Assert.equal(url.hostPort, ldapURLs[part].hostPort);
+    Assert.equal(url.displaySpec, ldapURLs[part].displaySpec);
+    Assert.equal(url.displayPrePath, ldapURLs[part].displayPrePath);
+    Assert.equal(url.displayHost, ldapURLs[part].displayHost);
+    Assert.equal(url.displayHostPort, ldapURLs[part].displayHostPort);
     // XXX nsLDAPURL ought to have classinfo.
     url = url.QueryInterface(Ci.nsILDAPURL);
     Assert.equal(url.dn, ldapURLs[part].dn);

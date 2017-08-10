@@ -694,25 +694,25 @@ nsLDAPURL::GetSpecIgnoringRef(nsACString &result)
 NS_IMETHODIMP
 nsLDAPURL::GetDisplaySpec(nsACString& aUnicodeSpec)
 {
-  return GetSpec(aUnicodeSpec);
+  return mBaseURL->GetDisplaySpec(aUnicodeSpec);
 }
 
 NS_IMETHODIMP
 nsLDAPURL::GetDisplayHostPort(nsACString& aUnicodeHostPort)
 {
-  return GetHostPort(aUnicodeHostPort);
+  return mBaseURL->GetDisplayHostPort(aUnicodeHostPort);
 }
 
 NS_IMETHODIMP
 nsLDAPURL::GetDisplayHost(nsACString& aUnicodeHost)
 {
-  return GetHost(aUnicodeHost);
+  return mBaseURL->GetDisplayHost(aUnicodeHost);
 }
 
 NS_IMETHODIMP
 nsLDAPURL::GetDisplayPrePath(nsACString& aPrePath)
 {
-  return GetPrePath(aPrePath);
+  return mBaseURL->GetDisplayPrePath(aPrePath);
 }
 
 NS_IMETHODIMP
