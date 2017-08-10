@@ -231,6 +231,7 @@
 @RESPATH@/components/extensions.xpt
 @RESPATH@/components/extensions.manifest
 @RESPATH@/components/exthandler.xpt
+@RESPATH@/components/exthelper.xpt
 @RESPATH@/components/fastfind.xpt
 @RESPATH@/components/feeds.xpt
 #ifdef MOZ_GTK
