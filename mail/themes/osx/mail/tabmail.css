@@ -23,10 +23,8 @@
  */
 
 .tab-label {
-  -moz-box-flex: 1;
   margin-top: 1px;
   margin-bottom: 0;
-  text-align: center;
 }
 
 .tabmail-tab {
