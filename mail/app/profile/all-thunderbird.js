@@ -160,6 +160,9 @@ pref("extensions.autoDisableScopes", 15);
 // Enable add-ons installed and owned by the application, like the default theme.
 pref("extensions.startupScanScopes", 4);
 
+// Allow "legacy" XUL/XPCOM extensions.
+pref("extensions.legacy.enabled", true);
+
 // Preferences for AMO integration
 pref("extensions.getAddons.cache.enabled", true);
 pref("extensions.getAddons.maxResults", 15);
@@ -202,9 +205,6 @@ pref("services.kinto.update_enabled", true);
 // 1 = allow "Man In The Middle" (local proxy, web filter, etc.) for certificate
 //     pinning checks.
 pref("security.cert_pinning.enforcement_level", 1);
-
-// Enables some extra Extension System Logging (can reduce performance)
-pref("extensions.logging.enabled", false);
 
 // Symmetric (can be overridden by individual extensions) update preferences.
 // e.g.
