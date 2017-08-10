@@ -59,7 +59,7 @@ GopherProtocol.prototype = {
     chan.originalURI = inputURI;
     chan.owner = Components.classes["@mozilla.org/scriptsecuritymanager;1"]
                            .getService(Components.interfaces.nsIScriptSecurityManager)
-                           .getCodebasePrincipal(inputURI);
+                           .createCodebasePrincipal(inputURI, {});
     return chan;
   }
 };

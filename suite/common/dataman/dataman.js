@@ -2677,7 +2677,7 @@ var gStorage = {
         if (!/:/.test(testHost))
           testHost = "http://" + testHost;
         let uri = Services.io.newURI(testHost);
-        let principal = gLocSvc.ssm.getCodebasePrincipal(uri);
+        let principal = gLocSvc.ssm.createCodebasePrincipal(uri, {});
         let storage = gLocSvc.domstoremgr
                              .getLocalStorageForPrincipal(principal, "");
         storage.clear();
