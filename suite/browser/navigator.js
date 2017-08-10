@@ -2623,7 +2623,7 @@ function updateFileUploadItem()
 function isBidiEnabled()
 {
   // first check the pref.
-  if (getBoolPref("bidi.browser.ui", false)) {
+  if (GetBoolPref("bidi.browser.ui", false)) {
     return true;
   }
 
