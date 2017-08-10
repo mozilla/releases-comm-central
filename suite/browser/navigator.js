@@ -2622,21 +2622,18 @@ function updateFileUploadItem()
 
 function isBidiEnabled()
 {
-  var rv = false;
-
-  var systemLocale;
-  try {
-    systemLocale = Services.locale.getSystemLocale()
-                                  .getCategory("NSILOCALE_CTYPE");
-    rv = /^(he|ar|syr|fa|ur)-/.test(systemLocale);
-  } catch (e) {}
-
-  if (!rv) {
-    // check the overriding pref
-    rv = Services.prefs.getBoolPref("bidi.browser.ui");
+  // first check the pref.
+  if (getBoolPref("bidi.browser.ui", false)) {
+    return true;
   }
 
-  return rv;
+  // now see if the app locale is an RTL one.
+  const isRTL = Services.locale.isAppLocaleRTL;
+
+  if (isRTL) {
+    Services.prefs.setBoolPref("bidi.browser.ui", true);
+  }
+  return isRTL;
 }
 
 function SwitchDocumentDirection(aWindow)
