@@ -240,8 +240,8 @@ let headersToTest = [
 ];
 
 // used to get the accessible object for a DOM node
-let gAccRetrieval = Cc["@mozilla.org/accessibleRetrieval;1"].
-                    getService(Ci.nsIAccessibleRetrieval);
+let gAccService = Cc["@mozilla.org/accessibilityService;1"].
+                  getService(Ci.nsIAccessibilityService);
 
 /**
  * Use the information from aHeaderInfo to verify that screenreaders will
@@ -255,7 +255,7 @@ function verify_header_a11y(aHeaderInfo) {
   // XXX Don't use eval here.
   let headerValueElement = eval(aHeaderInfo.headerValueElement);
 
-  let headerAccessible = gAccRetrieval.getAccessibleFor(headerValueElement)
+  let headerAccessible = gAccService.getAccessibleFor(headerValueElement);
   if (headerAccessible.role != aHeaderInfo.expectedRole) {
     throw new Error("role for " + aHeaderInfo.headerName + " was " +
                     headerAccessible.role + "; should have been " +
