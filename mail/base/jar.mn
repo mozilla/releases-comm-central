@@ -117,6 +117,9 @@ messenger.jar:
 # the following files are mail-specific overrides
 *   content/messenger/license.html                  (/mozilla/toolkit/content/license.html)
 % override chrome://global/content/license.html chrome://messenger/content/license.html
+# L10n resource overrides
+% override chrome://mozapps/locale/downloads/settingsChange.dtd chrome://messenger/locale/downloads/settingsChange.dtd
+% override chrome://global/locale/netError.dtd chrome://messenger/locale/netError.dtd
 
 comm.jar:
 % content communicator %content/communicator/
