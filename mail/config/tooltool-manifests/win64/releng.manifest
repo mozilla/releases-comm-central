@@ -32,14 +32,6 @@
     "size": 297118
   },
   {
-    "version": "clang 5.0pre/r293859",
-    "size": 313862839,
-    "digest": "44dee70d525ea93952af27f943d1cc773311970c31d971d2bc2e3437cce0c899f3a03ddd8e42e86f1b4fd9ab1c4bc1767cdb0406eb4b3934ae4fc272dab830dc",
-    "algorithm": "sha512",
-    "filename": "clang.tar.bz2",
-    "unpack": true
-  },
-  {
     "size": 216733,
     "digest": "7debd8ce46955eae345ebdf2ee6df3bfc3f3a547af1306f7fb099e38750f5ed9412af7155017574fc796f2bb8f37b5b7c4f91d838fa3dc422a776c230ba2d64b",
     "algorithm": "sha512",
