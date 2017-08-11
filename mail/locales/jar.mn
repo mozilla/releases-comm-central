@@ -2,13 +2,13 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+# Note: All overrides should go to mail/base/jar.mn in order to avoid
+# having to create the same override entry for each locale.
 
 #filter substitution
 
 @AB_CD@.jar:
 % locale messenger @AB_CD@ %locale/@AB_CD@/messenger/
-% override chrome://mozapps/locale/downloads/settingsChange.dtd chrome://messenger/locale/downloads/settingsChange.dtd
-% override chrome://global/locale/netError.dtd chrome://messenger/locale/netError.dtd
   locale/@AB_CD@/messenger/aboutDialog.dtd                              (%chrome/messenger/aboutDialog.dtd)
   locale/@AB_CD@/messenger/aboutDownloads.dtd                           (%chrome/messenger/aboutDownloads.dtd)
   locale/@AB_CD@/messenger/aboutRights.dtd                              (%chrome/messenger/aboutRights.dtd)
@@ -21,7 +21,7 @@
   locale/@AB_CD@/messenger/accountCreationModel.properties              (%chrome/messenger/accountCreationModel.properties)
   locale/@AB_CD@/messenger/accountCreationUtil.properties               (%chrome/messenger/accountCreationUtil.properties)
   locale/@AB_CD@/messenger/charsetTitles.properties                     (%chrome/messenger/charsetTitles.properties)
-  locale/@AB_CD@/messenger/systemIntegrationDialog.dtd                  (%chrome/messenger/systemIntegrationDialog.dtd)  
+  locale/@AB_CD@/messenger/systemIntegrationDialog.dtd                  (%chrome/messenger/systemIntegrationDialog.dtd)
   locale/@AB_CD@/messenger/virtualFolderProperties.dtd                  (%chrome/messenger/virtualFolderProperties.dtd)
   locale/@AB_CD@/messenger/virtualFolderListDialog.dtd                  (%chrome/messenger/virtualFolderListDialog.dtd)
   locale/@AB_CD@/messenger/multimessageview.properties                  (%chrome/messenger/multimessageview.properties)
