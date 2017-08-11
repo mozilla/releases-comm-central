@@ -16,7 +16,6 @@ var CC = Components.Constructor;
 var Cu = Components.utils;
 
 Cu.import("resource://gre/modules/XPCOMUtils.jsm");
-Cu.import("resource://gre/modules/Promise.jsm");
 Cu.import("resource:///modules/mailServices.js");
 
 /**
@@ -273,7 +272,7 @@ PromiseTestUtils.PromiseSearchNotify = function(aSearchSession, aWrapped) {
     this._reject = reject;
   });
 }
- 
+
 PromiseTestUtils.PromiseSearchNotify.prototype = {
   QueryInterface: XPCOMUtils.generateQI([Ci.nsIMsgSearchNotify]),
   onSearchHit: function(aHeader, aFolder) {

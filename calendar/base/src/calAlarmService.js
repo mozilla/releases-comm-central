@@ -7,7 +7,6 @@ Components.utils.import("resource://calendar/modules/calAlarmUtils.jsm");
 Components.utils.import("resource://gre/modules/Services.jsm");
 Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 Components.utils.import("resource://gre/modules/Preferences.jsm");
-Components.utils.import("resource://gre/modules/Promise.jsm");
 Components.utils.import("resource://gre/modules/PromiseUtils.jsm");
 
 var kHoursBetweenUpdates = 6;

@@ -3,7 +3,6 @@
  * POP3 unit test using the testing file POP3Pump.js
  */
 load("../../../resources/POP3pump.js");
-Components.utils.import("resource://gre/modules/Promise.jsm");
 
 var testSubjects = ["[Bug 397009] A filter will let me tag, but not untag",
                     "Hello, did you receive my bugmail?"];

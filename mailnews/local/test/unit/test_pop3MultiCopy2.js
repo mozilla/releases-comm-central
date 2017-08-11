@@ -7,7 +7,6 @@
  */
 
 load("../../../resources/POP3pump.js");
-Components.utils.import("resource://gre/modules/Promise.jsm");
 Components.utils.import("resource://testing-common/mailnews/PromiseTestUtils.jsm");
 
 Services.prefs.setCharPref("mail.serverDefaultStoreContractID",
@@ -34,7 +33,7 @@ add_task(function* setupFolders() {
   dump("testFolder is at " + gTestFolder.filePath.path + "\n");
   yield gPOP3Pump.run();
 });
-  
+
 add_task(function* maildirToMbox() {
   // Test for multiple message copy for maildir->mbox.
 
