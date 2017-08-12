@@ -1157,6 +1157,7 @@
         <rdf:li><rdf:Description ID="tools-js_console" nc:name="Error Console" nc:link="developer_tools.xhtml#js_console"/> </rdf:li>
         <rdf:li><rdf:Description ID="tools-inspector" nc:name="DOM Inspector" nc:link="developer_tools.xhtml#inspector"/> </rdf:li>
         <rdf:li><rdf:Description ID="tools-devtools" nc:name="Developer Tools" nc:link="developer_tools.xhtml#devtools"/> </rdf:li>
+        <rdf:li><rdf:Description ID="tools-webide" nc:name="WebIDE" nc:link="developer_tools.xhtml#webide"/> </rdf:li>
       </rdf:Seq>
     </nc:subheadings>
 </rdf:Description>
