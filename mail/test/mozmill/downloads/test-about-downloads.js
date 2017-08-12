@@ -158,7 +158,7 @@ function save_attachment_files() {
 /**
  * Test that all downloaded files are showed up in the list.
  */
-function test_save_attachment_files_in_list() {
+function disabled_test_save_attachment_files_in_list() {
   save_attachment_files();
 
   mc.tabmail.switchToTab(downloadsTab);
@@ -188,7 +188,7 @@ function test_save_attachment_files_in_list() {
  * Test that 'remove' in context menu removes surely the target file from
  * the list.
  */
-function test_remove_file() {
+function disabled_test_remove_file() {
   test_save_attachment_files_in_list();
 
   let list = content_tab_e(downloadsTab, "msgDownloadsRichListBox");
@@ -217,7 +217,7 @@ function test_remove_file() {
 /**
  * Test that removing multiple files surely removes the files.
  */
-function test_remove_multiple_files() {
+function disabled_test_remove_multiple_files() {
   test_save_attachment_files_in_list();
 
   let list = content_tab_e(downloadsTab, "msgDownloadsRichListBox");
@@ -253,7 +253,7 @@ function test_remove_multiple_files() {
 /**
  * Test that 'clearDownloads" in context menu purges all files in the list.
  */
-function test_clear_all_files() {
+function disabled_test_clear_all_files() {
   test_save_attachment_files_in_list();
   downloadsView.waitForFinish();
 
