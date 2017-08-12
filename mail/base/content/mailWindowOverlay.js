@@ -491,8 +491,12 @@ function InitMessageMenu()
   // not in a folder.
   document.getElementById("tagMenu").disabled = !messageStoredInternally;
 
-  // Hide "Edit Draft Message" menus if we're not in a draft folder.
-  updateHiddenStateForEditDraftMsgCmd();
+  // Show "Edit Draft Message" menus only in a drafts folder; otherwise hide them.
+  showCommandInSpecialFolder("cmd_editDraftMsg",
+                             Components.interfaces.nsMsgFolderFlags.Drafts);
+  // Show "New Message from Template" menus only in a templates folder; otherwise hide them.
+  showCommandInSpecialFolder("cmd_newMsgFromTemplate",
+                             Components.interfaces.nsMsgFolderFlags.Templates);
 
   // Initialize the Open Message menuitem
   var winType = document.documentElement.getAttribute('windowtype');
@@ -552,8 +556,12 @@ function InitAppMessageMenu()
   // not in a folder.
   document.getElementById("appmenu_tagMenu").disabled = !messageStoredInternally;
 
-  // Hide "Edit Draft Message" menus if we're not in a draft folder.
-  updateHiddenStateForEditDraftMsgCmd();
+  // Show "Edit Draft Message" menus only in a drafts folder; otherwise hide them.
+  showCommandInSpecialFolder("cmd_editDraftMsg",
+                             Components.interfaces.nsMsgFolderFlags.Drafts);
+  // Show "New Message from Template" menus only in a templates folder; otherwise hide them.
+  showCommandInSpecialFolder("cmd_newMsgFromTemplate",
+                             Components.interfaces.nsMsgFolderFlags.Templates);
 
   // Initialize the Open Message menuitem
   let winType = document.documentElement.getAttribute('windowtype');
@@ -577,17 +585,22 @@ function InitAppMessageMenu()
 }
 
 /**
- * Hides the "Edit Draft Message" menuitems for messages which are not in a draft folder.
+ * Show folder-specific menu items only for messages in special folders, e.g.
+ * show 'cmd_editDraftMsg' in Drafts folder, or
+ * show 'cmd_newMsgFromTemplate' in Templates folder.
+ *
+ * aCommandId   the ID of a command to be shown in folders having aFolderFlag
+ * aFolderFlag  the nsMsgFolderFlag that the folder must have to show the command
  */
-function updateHiddenStateForEditDraftMsgCmd()
+function showCommandInSpecialFolder(aCommandId, aFolderFlag)
 {
   let msg = gFolderDisplay.selectedMessage;
   let folder = gFolderDisplay.displayedFolder;
-  let inDraftFolder = (msg && msg.folder &&  // Need to check folder since messages
-                                             // opened from file have none.
-                       msg.folder.isSpecialFolder(nsMsgFolderFlags.Drafts, true)) ||
-                      (folder && folder.getFlag(nsMsgFolderFlags.Drafts));
-  document.getElementById("cmd_editDraftMsg").setAttribute("hidden", !inDraftFolder);
+  let inSpecialFolder = (msg &&
+                         msg.folder &&  // Check folder as messages opened from file have none.
+                         msg.folder.isSpecialFolder(aFolderFlag, true)) ||
+                        (folder && folder.getFlag(aFolderFlag));
+  document.getElementById(aCommandId).setAttribute("hidden", !inSpecialFolder);
 }
 
 /**
@@ -1989,6 +2002,11 @@ function MsgEditMessageAsNew(aEvent)
 function MsgEditDraftMessage(aEvent)
 {
   composeMsgByType(Components.interfaces.nsIMsgCompType.Draft, aEvent);
+}
+
+function MsgNewMessageFromTemplate(aEvent)
+{
+  composeMsgByType(Components.interfaces.nsIMsgCompType.Template, aEvent);
 }
 
 function MsgComposeDraftMessage()

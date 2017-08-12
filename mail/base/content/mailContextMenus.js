@@ -80,8 +80,12 @@ function fillMailContextMenu(event)
 
   updateCheckedStateForIgnoreAndWatchThreadCmds();
 
-  // Hide "Edit Draft Message" menus if we're not in a draft folder.
-  updateHiddenStateForEditDraftMsgCmd();
+  // Show "Edit Draft Message" menus only in a drafts folder; otherwise hide them.
+  showCommandInSpecialFolder("cmd_editDraftMsg",
+                             Components.interfaces.nsMsgFolderFlags.Drafts);
+  // Show "New Message from Template" menus only in a templates folder; otherwise hide them.
+  showCommandInSpecialFolder("cmd_newMsgFromTemplate",
+                             Components.interfaces.nsMsgFolderFlags.Templates);
 
   gContextMenu = new nsContextMenu(event.target, event.shiftKey);
   return gContextMenu.shouldDisplay;

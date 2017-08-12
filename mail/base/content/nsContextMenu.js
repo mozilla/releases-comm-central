@@ -262,6 +262,7 @@ nsContextMenu.prototype = {
         "mailContext-openConversation", "mailContext-openContainingFolder",
         "mailContext-archive", "mailContext-replySender",
         "mailContext-editAsNew", "mailContext-editDraftMsg",
+        "mailContext-newMsgFromTemplate",
         "mailContext-replyNewsgroup", "mailContext-replyAll",
         "mailContext-replyList", "mailContext-forward",
         "mailContext-forwardAsMenu", "mailContext-multiForwardAsAttachment",
@@ -298,6 +299,9 @@ nsContextMenu.prototype = {
     this.setSingleSelection("mailContext-editAsNew");
     this.setSingleSelection("mailContext-editDraftMsg",
                             document.getElementById("cmd_editDraftMsg")
+                                    .getAttribute("hidden") != "true");
+    this.setSingleSelection("mailContext-newMsgFromTemplate",
+                            document.getElementById("cmd_newMsgFromTemplate")
                                     .getAttribute("hidden") != "true");
     this.setSingleSelection("mailContext-replyNewsgroup", this.isNewsgroup);
     this.setSingleSelection("mailContext-replyAll");

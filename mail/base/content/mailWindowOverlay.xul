@@ -250,7 +250,8 @@
   <command id="cmd_forwardInline" oncommand="MsgForwardAsInline(event)"/>
   <command id="cmd_forwardAttachment" oncommand="MsgForwardAsAttachment(event);"/>
   <command id="cmd_editAsNew" oncommand="goDoCommand('cmd_editAsNew')"/>
-  <command id="cmd_editDraftMsg" oncommand="goDoCommand('cmd_editDraftMsg')"/>
+  <command id="cmd_editDraftMsg" oncommand="MsgEditDraftMessage(event);"/>
+  <command id="cmd_newMsgFromTemplate" oncommand="MsgNewMessageFromTemplate(event);"/>
   <command id="cmd_openMessage" oncommand="goDoCommand('cmd_openMessage')"/>
   <command id="cmd_openConversation" oncommand="goDoCommand('cmd_openConversation')"/>
   <command id="cmd_moveToFolderAgain" oncommand="goDoCommand('cmd_moveToFolderAgain')"/>
@@ -427,6 +428,7 @@
   <key id="key_replylist" key="&replyToListMsgCmd.key;"              oncommand="goDoCommand('cmd_replylist')" modifiers="accel, shift"/>
   <key id="key_forward" key="&forwardMsgCmd.key;"                    oncommand="goDoCommand('cmd_forward')" modifiers="accel"/>
   <key id="key_editAsNew" key="&editAsNewMsgCmd.key;"                oncommand="goDoCommand('cmd_editAsNew')" modifiers="accel"/>
+  <key id="key_newMsgFromTemplate" keycode="&newMsgFromTemplateCmd.keycode;"/><!-- for display on menus only -->
   <key id="key_watchThread" key="&watchThreadMenu.key;"              oncommand="goDoCommand('cmd_watchThread')" />
   <key id="key_killThread" key="&killThreadMenu.key;"                oncommand="goDoCommand('cmd_killThread')" />
   <key id="key_killSubthread" key="&killSubthreadMenu.key;"          oncommand="goDoCommand('cmd_killSubthread')" modifiers="shift" />
@@ -676,6 +678,14 @@
         </menupopup>
     </menu>
 
+    <menuitem id="mailContext-editDraftMsg"
+              label="&contextEditDraftMsg.label;"
+              default="true"
+              oncommand="MsgEditDraftMessage(event);"/>
+    <menuitem id="mailContext-newMsgFromTemplate"
+              label="&contextNewMsgFromTemplate.label;"
+              default="true"
+              oncommand="MsgNewMessageFromTemplate(event);"/>
     <menuseparator id="mailContext-sep-open"/>
     <menuitem id="mailContext-media-play"
               label="&contextPlay.label;"
@@ -755,9 +765,6 @@
               label="&contextEditMsgAsNew.label;"
               accesskey="&contextEditMsgAsNew.accesskey;"
               oncommand="MsgEditMessageAsNew(event);"/>
-    <menuitem id="mailContext-editDraftMsg"
-              label="&contextEditDraftMsg.label;"
-              oncommand="MsgEditDraftMessage(event);"/>
     <menuseparator id="mailContext-sep-reply"/>
     <menu id="mailContext-tags" label="&tagMenu.label;" accesskey="&tagMenu.accesskey;">
       <menupopup id="mailContext-tagpopup"
@@ -1941,6 +1948,10 @@
                       label="&editDraftMsgCmd.label;"
                       accesskey="&editDraftMsgCmd.accesskey;"
                       command="cmd_editDraftMsg"/>
+            <menuitem id="appmenu_newMsgFromTemplateCmd"
+                      label="&newMsgFromTemplateCmd.label;"
+                      key="key_newMsgFromTemplate"
+                      command="cmd_newMsgFromTemplate"/>
             <menuseparator id="appmenu_messageMenuAfterCompositionCommandsSeparator"/>
             <menuitem id="appmenu_openMessageWindowMenuitem"
                       label="&openMessageWindowCmd.label;"
@@ -2836,6 +2847,10 @@
                       label="&editDraftMsgCmd.label;"
                       accesskey="&editDraftMsgCmd.accesskey;"
                       command="cmd_editDraftMsg"/>
+            <menuitem id="menu_newMsgFromTemplate"
+                      label="&newMsgFromTemplateCmd.label;"
+                      key="key_newMsgFromTemplate"
+                      command="cmd_newMsgFromTemplate"/>
             <menuseparator id="messageMenuAfterCompositionCommandsSeparator"/>
             <menuitem id="openMessageWindowMenuitem" label="&openMessageWindowCmd.label;"
                       command="cmd_openMessage"
