@@ -366,6 +366,8 @@ var ResultsPaneController =
       case "cmd_selectAll":
       case "cmd_delete":
       case "button_delete":
+      case "cmd_printcardpreview":
+      case "cmd_printcard":
       case "cmd_properties":
       case "cmd_newlist":
       case "cmd_newCard":
@@ -414,6 +416,9 @@ var ResultsPaneController =
           }
         }
         return (enabled && (numSelected > 0));
+      case "cmd_printcardpreview":
+      case "cmd_printcard":
+        return (GetNumSelectedCards() > 0);
       case "cmd_properties":
         // Temporary fix for SeaMonkey (see bug  1318852).
         // goSetLabelAccesskeyTooltiptext() is only defined in mail/.
