@@ -19,7 +19,6 @@
 
 <!ENTITY responsiveDesignTool.label      "Responsive Design View">
 <!ENTITY responsiveDesignTool.accesskey  "R">
-<!ENTITY responsiveDesignTool.commandkey "M">
 
 <!ENTITY eyedropper.label                "Eyedropper">
 <!ENTITY eyedropper.accesskey            "y">

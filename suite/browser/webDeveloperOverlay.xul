@@ -99,8 +99,6 @@
          command="Tools:BrowserToolbox"/>
     <key id="key_devToolbar" keycode="&devToolbar.keycode;" modifiers="shift" keytext="&devToolbar.keytext;"
          command="Tools:DevToolbarFocus"/>
-    <key id="key_responsiveUI" key="&responsiveDesignTool.commandkey;" modifiers="accel,shift"
-         command="Tools:ResponsiveUI"/>
     <key id="key_webide" keycode="&webide.keycode;" modifiers="shift" keytext="&webide.keytext;"
          command="Tools:WebIDE"/>
     <key id="key_devToolboxMenuItem" keytext="&devToolboxMenuItem.keytext;" key="&devToolboxMenuItem.keytext;" modifiers="accel,shift"
