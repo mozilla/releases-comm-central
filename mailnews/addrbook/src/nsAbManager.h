@@ -14,6 +14,7 @@
 #include "nsInterfaceHashtable.h"
 #include "nsIAbDirFactoryService.h"
 #include "nsIAbDirectory.h"
+#include "nsIFilePicker.h"
 
 class nsIAbLDAPAttributeMap;
 
@@ -61,6 +62,26 @@ private:
     int operator==(const abListener &aListener) const {
       return mListener == aListener.mListener;
     }
+  };
+
+  class nsFilePickerShownCallback
+    : public nsIFilePickerShownCallback
+  {
+    virtual ~nsFilePickerShownCallback()
+    { }
+
+  public:
+    nsFilePickerShownCallback(nsAbManager* aInput,
+                              nsIFilePicker* aFilePicker,
+                              nsIAbDirectory *aDirectory);
+    NS_DECL_ISUPPORTS
+
+    NS_IMETHOD Done(int16_t aResult) override;
+
+  private:
+    nsCOMPtr<nsIFilePicker> mFilePicker;
+    RefPtr<nsAbManager> mAbManager;
+    RefPtr<nsIAbDirectory> mDirectory;
   };
 
   nsTObserverArray<abListener> mListeners;
