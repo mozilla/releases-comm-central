@@ -28,7 +28,7 @@ var gDownloadDirSection = {
       customDirPref.value = currentDirPref.value = file;
       let folderListPref = document.getElementById("browser.download.folderList");
       folderListPref.value = this._fileToIndex(file);
-    }
+    });
   },
 
   onReadUseDownloadDir: function ()

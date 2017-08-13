@@ -153,7 +153,7 @@ var gGeneralPane = {
       document.getElementById("mail.biff.play_sound.url").value = fp.fileURL.spec;
       this.readSoundLocation(); // XXX We shouldn't have to be doing this by hand
       this.updatePlaySound();
-    };
+    });
   },
 
   updatePlaySound: function()
