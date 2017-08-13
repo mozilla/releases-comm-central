@@ -1887,7 +1887,7 @@ var TabsInTitlebar = {
 
       // Finally, size the placeholders:
       if (AppConstants.platform == "macosx") {
-        this._sizePlaceholder("fullscreen-button", secondaryButtonWidth);
+        this._sizePlaceholder("fullscreen-button", secondaryButtonsWidth);
       }
 
       this._sizePlaceholder("caption-buttons", captionButtonsBoxWidth);
