@@ -24,9 +24,10 @@ var kActionUsePlugin = 5;
 var APP_ICON_ATTR_NAME = "appHandlerIcon";
 
 // CloudFile account tools used by gCloudFileTab.
-Components.utils.import("resource://gre/modules/Services.jsm");
 Components.utils.import("resource:///modules/cloudFileAccounts.js");
+Components.utils.import("resource://gre/modules/Services.jsm");
 Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
+Components.utils.import("resource://gre/modules/AppConstants.jsm");
 
 //****************************************************************************//
 // Utilities
@@ -835,7 +836,7 @@ var gApplicationsPane = {
   // We use these counts to determine whether or not to annotate descriptions
   // with their types to distinguish duplicate descriptions from each other.
   // A hash of integer counts, indexed by string description.
-  _visibleTypeDescriptionCount: [],
+  _visibleTypeDescriptionCount: new Map(),
 
 
   //**************************************************************************//
@@ -1036,8 +1037,8 @@ var gApplicationsPane = {
 
   _rebuildVisibleTypes: function() {
     // Reset the list of visible types and the visible type description counts.
-    this._visibleTypes = [];
-    this._visibleTypeDescriptionCount = [];
+    this._visibleTypes.length = 0;
+    this._visibleTypeDescriptionCount.clear();
 
     // Get the preferences that help determine what types to show.
     var showPlugins = Services.prefs.getBoolPref(PREF_SHOW_PLUGINS_IN_LIST);
@@ -1066,10 +1067,9 @@ var gApplicationsPane = {
       // We couldn't find any reason to exclude the type, so include it.
       this._visibleTypes.push(handlerInfo);
 
-      if (handlerInfo.description in this._visibleTypeDescriptionCount)
-        this._visibleTypeDescriptionCount[handlerInfo.description]++;
-      else
-        this._visibleTypeDescriptionCount[handlerInfo.description] = 1;
+      let descCount = this._visibleTypeDescriptionCount.has(handlerInfo.description) ?
+        (this._visibleTypeDescriptionCount.get(handlerInfo.description) + 1) : 1;
+      this._visibleTypeDescriptionCount.set(handlerInfo.description, descCount);
     }
   },
 
@@ -1150,7 +1150,7 @@ var gApplicationsPane = {
     }
     exts.sort();
     exts = exts.join(", ");
-    if (this._visibleTypeDescriptionCount[aHandlerInfo.description] > 0) {
+    if (this._visibleTypeDescriptionCount.has(aHandlerInfo.description)) {
       if (exts)
         return this._prefsBundle.getFormattedString("typeDetailsWithTypeAndExt",
                                                     [aHandlerInfo.type,
