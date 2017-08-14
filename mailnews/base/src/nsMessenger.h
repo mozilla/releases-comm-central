@@ -73,7 +73,7 @@ private:
                          nsIFile **aSaveAsFile);
 
   nsresult GetSaveToDir(nsIFile **aSaveToDir);
-  nsresult ShowPicker(nsIFilePicker *aPicker, short *aResult);
+  nsresult ShowPicker(nsIFilePicker *aPicker, int16_t *aResult);
 
   class nsFilePickerShownCallback
     : public nsIFilePickerShownCallback

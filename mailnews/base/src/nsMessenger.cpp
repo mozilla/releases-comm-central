@@ -318,7 +318,7 @@ nsMessenger::nsFilePickerShownCallback::Done(int16_t aResult)
   return NS_OK;
 }
 
-nsresult nsMessenger::ShowPicker(nsIFilePicker *aPicker, short *aResult)
+nsresult nsMessenger::ShowPicker(nsIFilePicker *aPicker, int16_t *aResult)
 {
   nsCOMPtr<nsIFilePickerShownCallback> callback =
     new nsMessenger::nsFilePickerShownCallback();
