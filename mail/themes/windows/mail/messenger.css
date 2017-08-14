@@ -11,7 +11,7 @@
 @import url("chrome://messenger/skin/shared/messenger.css");
 
 :root {
-  --tab-min-height: 29px;
+  --tab-min-height: 30px;
   --tabs-border: threedshadow;
 
   --toolbar-non-lwt-bgcolor: -moz-dialog;

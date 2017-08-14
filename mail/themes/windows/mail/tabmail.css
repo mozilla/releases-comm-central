@@ -93,10 +93,6 @@ tabpanels {
 }
 
 @media (-moz-windows-glass) {
-  #mail-toolbar-menubar2:not([inactive=true]) ~ #tabs-toolbar {
-    margin-top: 1px;
-  }
-
   #mail-toolbar-menubar2:not([autohide=true]) ~ #tabs-toolbar > .tabmail-tabs >
     .tabmail-tab > .tab-stack > .tab-background {
     border-top-style: none;

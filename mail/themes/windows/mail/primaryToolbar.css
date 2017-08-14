@@ -744,10 +744,6 @@ toolbar:not([mode="text"]) > toolbarpaletteitem > #button-chat > stack {
 }
 
 @media (-moz-windows-default-theme) {
-  #messengerWindow[tabsintitlebar][sizemode="normal"] #mail-toolbar-menubar2 {
-    margin-top: 1px;
-  }
-
   #appmenuSecondaryPane menupopup {
     -moz-appearance: none;
     background-color: var(--appMenu-bg-color);
@@ -948,10 +944,6 @@ toolbar:not([mode="text"]) > toolbarpaletteitem > #button-chat > stack {
     background-color: var(--toolbar-bgcolor);
     padding-bottom: 1px !important;
     padding-top: 2px;
-  }
-
-  #messengerWindow[tabsintitlebar][sizemode="normal"] #mail-toolbar-menubar2 {
-    margin-top: 0;
   }
 
   #navigation-toolbox > #mail-toolbar-menubar2:not(:-moz-lwtheme) {

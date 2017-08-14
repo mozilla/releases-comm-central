@@ -333,7 +333,7 @@ treechildren::-moz-tree-cell-text(imapdeleted) {
     .titlebar-button {
       border: none;
       margin: 0 !important;
-      padding: 10px 17px;
+      padding: 9px 17px;
       -moz-context-properties: stroke;
       stroke: black;
     }
@@ -344,11 +344,6 @@ treechildren::-moz-tree-cell-text(imapdeleted) {
           stroke: -moz-win-accentcolortext;
         }
       }
-    }
-
-    #messengerWindow[sizemode=maximized] .titlebar-button {
-      padding-top: 8px;
-      padding-bottom: 8px;
     }
 
     .titlebar-button > .toolbarbutton-icon {
