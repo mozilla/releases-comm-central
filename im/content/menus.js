@@ -56,7 +56,7 @@ var menus = {
 
   errors: function debug_errors() {
     let { require } = Components.utils.import("resource://devtools/shared/Loader.jsm", {});
-    let HUDService = require("devtools/client/webconsole/hudservice");
+    let { HUDService } = require("devtools/client/webconsole/hudservice");
     HUDService.openBrowserConsoleOrFocus();
   },
 

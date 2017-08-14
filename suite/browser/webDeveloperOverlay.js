@@ -63,7 +63,7 @@ Object.defineProperty(this, "HUDService", {
   get() {
     var tmp = {};
     Components.utils.import("resource://devtools/shared/Loader.jsm", tmp);
-    return tmp.require("devtools/client/webconsole/hudservice");
+    return tmp.require("devtools/client/webconsole/hudservice").HUDService;
   },
   configurable: true,
   enumerable: true

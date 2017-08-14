@@ -38,7 +38,7 @@ DevToolsStartup.prototype = {
     var { devtools, require, DevToolsLoader } = Cu.import("resource://devtools/shared/Loader.jsm", {});
     var { DebuggerServer } = require("devtools/server/main");
     var { gDevTools } = require("devtools/client/framework/devtools");
-    var HUDService = require("devtools/client/webconsole/hudservice");
+    var { HUDService } = require("devtools/client/webconsole/hudservice");
 
     if (DebuggerServer.chromeWindowType != "mail:3pane") {
       // Set up the server chrome window type, make sure it can't be set
