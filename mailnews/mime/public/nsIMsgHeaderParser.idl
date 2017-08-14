@@ -186,7 +186,7 @@ interface nsIMsgHeaderParser : nsISupports {
                               [optional] out unsigned long count,
                               [retval, array, size_is(count)] out msgIAddressObject addresses);
 
-  [deprecated] void parseHeadersWithArray(in wstring aLine,
+  /* @deprecated */ void parseHeadersWithArray(in wstring aLine,
                              [array, size_is(count)] out wstring aEmailAddresses,
                              [array, size_is(count)] out wstring aNames,
                              [array, size_is(count)] out wstring aFullNames,
@@ -201,7 +201,7 @@ interface nsIMsgHeaderParser : nsISupports {
    * @return               A comma-separated list of just the mailbox parts
    *                       of the email-addresses.
    */
-  [deprecated] ACString extractHeaderAddressMailboxes(in ACString aLine);
+  /* @deprecated */ ACString extractHeaderAddressMailboxes(in ACString aLine);
 
   /**
    * Given a string which contains a list of Header addresses, returns a
@@ -212,7 +212,7 @@ interface nsIMsgHeaderParser : nsISupports {
    * @return               A comma-separated list of just the name parts
    *                       of the addresses.
    */
-  [deprecated] AUTF8String extractHeaderAddressNames(in AUTF8String aLine);
+  /* @deprecated */ AUTF8String extractHeaderAddressNames(in AUTF8String aLine);
 
   /*
    * Like extractHeaderAddressNames, but only returns the first name in the
@@ -222,7 +222,7 @@ interface nsIMsgHeaderParser : nsISupports {
    * @param aLine          The header line to parse.
    * @return               The first name found in the list.
    */
-  [deprecated] AUTF8String extractHeaderAddressName(in AUTF8String aLine);
+  /* @deprecated */ AUTF8String extractHeaderAddressName(in AUTF8String aLine);
 
   /**
    * Given a name and email address, produce a string that is suitable for
@@ -230,6 +230,6 @@ interface nsIMsgHeaderParser : nsISupports {
    *
    * @note This is a temporary method.
    */
-  [deprecated] AString makeMimeAddress(in AString aName, in AString aEmail);
+  /* @deprecated */ AString makeMimeAddress(in AString aName, in AString aEmail);
 };
 
