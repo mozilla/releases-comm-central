@@ -370,10 +370,7 @@ nsMessenger::PromptIfFileExists(nsIFile *file)
       }
 
       int16_t dialogReturn;
-      // Temporary bustage fix, see bug 1341211 - nsMessenger::PromptIfFileExists()
-      // rv = filePicker->Show(&dialogReturn);
-      dialogReturn = nsIFilePicker::returnCancel;
-      rv = NS_ERROR_FAILURE;
+      rv = filePicker->Show(&dialogReturn);
       if (NS_FAILED(rv) || dialogReturn == nsIFilePicker::returnCancel) {
         // XXX todo
         // don't overload the return value like this
@@ -860,10 +857,7 @@ nsMessenger::SaveOneAttachment(const char * aContentType, const char * aURL,
   if (NS_SUCCEEDED(rv) && lastSaveDir)
     filePicker->SetDisplayDirectory(lastSaveDir);
 
-  // Temporary bustage fix, see bug 1341211 - nsMessenger::SaveOneAttachment()
-  // rv = filePicker->Show(&dialogReturn);
-  dialogResult = nsIFilePicker::returnCancel;
-  rv = NS_ERROR_FAILURE;
+  rv = filePicker->Show(&dialogResult);
   if (NS_FAILED(rv) || dialogResult == nsIFilePicker::returnCancel)
     return rv;
 
@@ -933,10 +927,7 @@ nsMessenger::SaveAllAttachments(uint32_t count,
   if (NS_SUCCEEDED(rv) && lastSaveDir)
     filePicker->SetDisplayDirectory(lastSaveDir);
 
-  // Temporary bustage fix, see bug 1341211 - nsMessenger::SaveAllAttachments()
-  // rv = filePicker->Show(&dialogReturn);
-  dialogResult = nsIFilePicker::returnCancel;
-  rv = NS_ERROR_FAILURE;
+  rv = filePicker->Show(&dialogResult);
   if (NS_FAILED(rv) || dialogResult == nsIFilePicker::returnCancel)
     return rv;
 
@@ -1259,10 +1250,7 @@ nsMessenger::GetSaveAsFile(const nsAString& aMsgFilename, int32_t *aSaveAsFileTy
     filePicker->SetDisplayDirectory(lastSaveDir);
 
   nsCOMPtr<nsIFile> localFile;
-  // Temporary bustage fix, see bug 1341211 - nsMessenger::GetSaveAsFile()
-  // rv = filePicker->Show(&dialogReturn);
-  dialogResult = nsIFilePicker::returnCancel;
-  rv = NS_ERROR_FAILURE;
+  rv = filePicker->Show(&dialogResult);
   NS_ENSURE_SUCCESS(rv, rv);
   if (dialogResult == nsIFilePicker::returnCancel)
   {
@@ -1350,10 +1338,7 @@ nsMessenger::GetSaveToDir(nsIFile **aSaveDir)
     filePicker->SetDisplayDirectory(lastSaveDir);
 
   int16_t dialogResult;
-  // Temporary bustage fix, see bug 1341211 - nsMessenger::GetSaveToDir()
-  // rv = filePicker->Show(&dialogReturn);
-  dialogResult = nsIFilePicker::returnCancel;
-  rv = NS_ERROR_FAILURE;
+  rv = filePicker->Show(&dialogResult);
   if (NS_FAILED(rv) || dialogResult == nsIFilePicker::returnCancel)
   {
     // We'll indicate this by setting the outparam to null.
