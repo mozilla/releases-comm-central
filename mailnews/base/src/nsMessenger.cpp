@@ -86,7 +86,6 @@
 #include "nsIMimeConverter.h"
 
 // Save As
-#include "nsIFilePicker.h"
 #include "nsIStringBundle.h"
 #include "nsIPrefService.h"
 #include "nsIPrefBranch.h"
@@ -304,6 +303,42 @@ NS_IMETHODIMP nsMessenger::SetDisplayCharset(const nsACString& aCharset)
   return NS_OK;
 }
 
+NS_IMPL_ISUPPORTS(nsMessenger::nsFilePickerShownCallback,
+                  nsIFilePickerShownCallback)
+nsMessenger::nsFilePickerShownCallback::nsFilePickerShownCallback()
+{
+  mPickerDone = false;
+}
+
+NS_IMETHODIMP
+nsMessenger::nsFilePickerShownCallback::Done(int16_t aResult)
+{
+  mResult = aResult;
+  mPickerDone = true;
+  return NS_OK;
+}
+
+nsresult nsMessenger::ShowPicker(nsIFilePicker *aPicker, short *aResult)
+{
+  nsCOMPtr<nsIFilePickerShownCallback> callback =
+    new nsMessenger::nsFilePickerShownCallback();
+  nsFilePickerShownCallback *cb =
+    static_cast<nsFilePickerShownCallback*>(callback.get());
+
+  nsresult rv;
+  rv = aPicker->Open(callback);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  // Spin the event loop until the callback was called.
+  nsCOMPtr<nsIThread> thread(do_GetCurrentThread());
+  while (!cb->mPickerDone) {
+    NS_ProcessPendingEvents(thread);
+  }
+
+  *aResult = cb->mResult;
+  return NS_OK;
+}
+
 nsresult
 nsMessenger::PromptIfFileExists(nsIFile *file)
 {
@@ -370,7 +405,7 @@ nsMessenger::PromptIfFileExists(nsIFile *file)
       }
 
       int16_t dialogReturn;
-      rv = filePicker->Show(&dialogReturn);
+      rv = ShowPicker(filePicker, &dialogReturn);
       if (NS_FAILED(rv) || dialogReturn == nsIFilePicker::returnCancel) {
         // XXX todo
         // don't overload the return value like this
@@ -857,7 +892,7 @@ nsMessenger::SaveOneAttachment(const char * aContentType, const char * aURL,
   if (NS_SUCCEEDED(rv) && lastSaveDir)
     filePicker->SetDisplayDirectory(lastSaveDir);
 
-  rv = filePicker->Show(&dialogResult);
+  rv = ShowPicker(filePicker, &dialogResult);
   if (NS_FAILED(rv) || dialogResult == nsIFilePicker::returnCancel)
     return rv;
 
@@ -927,7 +962,7 @@ nsMessenger::SaveAllAttachments(uint32_t count,
   if (NS_SUCCEEDED(rv) && lastSaveDir)
     filePicker->SetDisplayDirectory(lastSaveDir);
 
-  rv = filePicker->Show(&dialogResult);
+  rv = ShowPicker(filePicker, &dialogResult);
   if (NS_FAILED(rv) || dialogResult == nsIFilePicker::returnCancel)
     return rv;
 
@@ -1250,7 +1285,7 @@ nsMessenger::GetSaveAsFile(const nsAString& aMsgFilename, int32_t *aSaveAsFileTy
     filePicker->SetDisplayDirectory(lastSaveDir);
 
   nsCOMPtr<nsIFile> localFile;
-  rv = filePicker->Show(&dialogResult);
+  rv = ShowPicker(filePicker, &dialogResult);
   NS_ENSURE_SUCCESS(rv, rv);
   if (dialogResult == nsIFilePicker::returnCancel)
   {
@@ -1338,7 +1373,7 @@ nsMessenger::GetSaveToDir(nsIFile **aSaveDir)
     filePicker->SetDisplayDirectory(lastSaveDir);
 
   int16_t dialogResult;
-  rv = filePicker->Show(&dialogResult);
+  rv = ShowPicker(filePicker, &dialogResult);
   if (NS_FAILED(rv) || dialogResult == nsIFilePicker::returnCancel)
   {
     // We'll indicate this by setting the outparam to null.

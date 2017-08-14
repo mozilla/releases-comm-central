@@ -14,6 +14,7 @@
 #include "nsIDocShell.h"
 #include "nsIStringBundle.h"
 #include "nsIFile.h"
+#include "nsIFilePicker.h"
 #include "nsWeakReference.h"
 #include "mozIDOMWindow.h"
 #include "nsTArray.h"
@@ -72,6 +73,24 @@ private:
                          nsIFile **aSaveAsFile);
 
   nsresult GetSaveToDir(nsIFile **aSaveToDir);
+  nsresult ShowPicker(nsIFilePicker *aPicker, short *aResult);
+
+  class nsFilePickerShownCallback
+    : public nsIFilePickerShownCallback
+  {
+    virtual ~nsFilePickerShownCallback()
+    { }
+
+  public:
+    nsFilePickerShownCallback();
+    NS_DECL_ISUPPORTS
+
+    NS_IMETHOD Done(int16_t aResult) override;
+
+  public:
+    bool mPickerDone;
+    int16_t mResult;
+  };
 
   nsString mId;
   nsCOMPtr<nsITransactionManager> mTxnMgr;
