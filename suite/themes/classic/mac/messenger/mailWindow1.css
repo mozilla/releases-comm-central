@@ -35,14 +35,6 @@
   background-color: -moz-dialog;
 }
 
-#folderPaneBox {
-  background-color: #D6DDE5;
-}
-
-#folderPaneBox:-moz-window-inactive {
-  background-color: #E8E8E8;
-}
-
 #searchToolbar {
   -moz-appearance: none;
   background-color: #CDCDCD;
@@ -91,7 +83,11 @@
 
 #folderTree {
   min-width: 1px;
-  background-color: transparent;
+  -moz-appearance: -moz-mac-source-list;
+}
+
+.tree-stack > .tree-rows > .tree-bodybox {
+  border: none;
 }
 
 #folderTree > treechildren::-moz-tree-row {
@@ -99,11 +95,77 @@
 }
 
 #folderTree > treechildren::-moz-tree-row(selected) {
-  background-color: -moz-mac-secondaryhighlight;
+  -moz-appearance: -moz-mac-source-list-selection;
 }
 
 #folderTree > treechildren::-moz-tree-row(selected, focus) {
-  background-color: Highlight;
+  -moz-appearance: -moz-mac-active-source-list-selection;
+}
+
+#folderTree > treechildren::-moz-tree-cell-text(selected) {
+  color: #FFFFFF;
+}
+
+#folderTree > treechildren::-moz-tree-twisty {
+  -moz-appearance: none;
+  width: 16px;
+  padding-bottom: 1px;
+  padding-inline-end: 4px;
+  list-style-image: url("chrome://global/skin/tree/arrow-disclosure.svg#arrow-disclosure-collapsed");
+}
+
+#folderTree > treechildren::-moz-tree-twisty(closed, selected) {
+  list-style-image: url("chrome://global/skin/tree/arrow-disclosure.svg#arrow-disclosure-collapsed-inverted");
+}
+
+#folderTree > treechildren::-moz-tree-twisty(open) {
+  list-style-image: url("chrome://global/skin/tree/arrow-disclosure.svg#arrow-disclosure-expanded");
+}
+
+#folderTree > treechildren::-moz-tree-twisty(open, selected) {
+  list-style-image: url("chrome://global/skin/tree/arrow-disclosure.svg#arrow-disclosure-expanded-inverted");
+}
+
+#folderTree > treechildren:-moz-locale-dir(rtl)::-moz-tree-twisty(closed) {
+  list-style-image: url("chrome://global/skin/tree/arrow-disclosure.svg#arrow-disclosure-collapsed-rtl");
+}
+
+#folderTree > treechildren:-moz-locale-dir(rtl)::-moz-tree-twisty(closed, selected) {
+  list-style-image: url("chrome://global/skin/tree/arrow-disclosure.svg#arrow-disclosure-collapsed-inverted-rtl");
+}
+
+@media (-moz-mac-yosemite-theme) {
+  #folderTree > treechildren::-moz-tree-cell-text(selected) {
+    color: -moz-dialogtext;
+  }
+
+  #folderTree > treechildren::-moz-tree-cell-text(selected, focus) {
+    color: #FFFFFF;
+  }
+
+  #folderTree > treechildren::-moz-tree-twisty(closed, selected) {
+    list-style-image: url("chrome://global/skin/tree/arrow-disclosure.svg#arrow-disclosure-collapsed");
+  }
+
+  #folderTree > treechildren::-moz-tree-twisty(closed, selected, focus) {
+    list-style-image: url("chrome://global/skin/tree/arrow-disclosure.svg#arrow-disclosure-collapsed-inverted");
+  }
+
+  #folderTree > treechildren::-moz-tree-twisty(open, selected) {
+    list-style-image: url("chrome://global/skin/tree/arrow-disclosure.svg#arrow-disclosure-expanded");
+  }
+
+  #folderTree > treechildren::-moz-tree-twisty(open, selected, focus) {
+    list-style-image: url("chrome://global/skin/tree/arrow-disclosure.svg#arrow-disclosure-expanded-inverted");
+  }
+
+  #folderTree > treechildren:-moz-locale-dir(rtl)::-moz-tree-twisty(closed, selected) {
+    list-style-image: url("chrome://global/skin/tree/arrow-disclosure.svg#arrow-disclosure-collapsed-rtl");
+  }
+
+  #folderTree > treechildren:-moz-locale-dir(rtl)::-moz-tree-twisty(closed, selected, focus) {
+    list-style-image: url("chrome://global/skin/tree/arrow-disclosure.svg#arrow-disclosure-collapsed-inverted-rtl")
+  }
 }
 
 #threadTree {

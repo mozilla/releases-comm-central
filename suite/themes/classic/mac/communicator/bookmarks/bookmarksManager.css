@@ -3,9 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #placesList {
-  border: none;
   padding: 0;
-  background-color: transparent;
+  -moz-appearance: -moz-mac-source-list;
 }
 
 #placesList > treechildren::-moz-tree-row {
@@ -13,11 +12,77 @@
 }
 
 #placesList > treechildren::-moz-tree-row(selected) {
-  background-color: -moz-mac-secondaryhighlight;
+  -moz-appearance: -moz-mac-source-list-selection;
 }
 
 #placesList > treechildren::-moz-tree-row(selected, focus) {
-  background-color: Highlight;
+  -moz-appearance: -moz-mac-active-source-list-selection;
+}
+
+#placesList > treechildren::-moz-tree-cell-text(selected) {
+  color: #FFFFFF;
+}
+
+#placesList > treechildren::-moz-tree-twisty {
+  -moz-appearance: none;
+  width: 16px;
+  padding-bottom: 1px;
+  padding-inline-end: 4px;
+  list-style-image: url("chrome://global/skin/tree/arrow-disclosure.svg#arrow-disclosure-collapsed");
+}
+
+#placesList > treechildren::-moz-tree-twisty(closed, selected) {
+  list-style-image: url("chrome://global/skin/tree/arrow-disclosure.svg#arrow-disclosure-collapsed-inverted");
+}
+
+#placesList > treechildren::-moz-tree-twisty(open) {
+  list-style-image: url("chrome://global/skin/tree/arrow-disclosure.svg#arrow-disclosure-expanded");
+}
+
+#placesList > treechildren::-moz-tree-twisty(open, selected) {
+  list-style-image: url("chrome://global/skin/tree/arrow-disclosure.svg#arrow-disclosure-expanded-inverted");
+}
+
+#placesList > treechildren:-moz-locale-dir(rtl)::-moz-tree-twisty(closed) {
+  list-style-image: url("chrome://global/skin/tree/arrow-disclosure.svg#arrow-disclosure-collapsed-rtl");
+}
+
+#placesList > treechildren:-moz-locale-dir(rtl)::-moz-tree-twisty(closed, selected) {
+  list-style-image: url("chrome://global/skin/tree/arrow-disclosure.svg#arrow-disclosure-collapsed-inverted-rtl");
+}
+
+@media (-moz-mac-yosemite-theme) {
+  #placesList > treechildren::-moz-tree-cell-text(selected) {
+    color: -moz-dialogtext;
+  }
+
+  #placesList > treechildren::-moz-tree-cell-text(selected, focus) {
+    color: #FFFFFF;
+  }
+
+  #placesList > treechildren::-moz-tree-twisty(closed, selected) {
+    list-style-image: url("chrome://global/skin/tree/arrow-disclosure.svg#arrow-disclosure-collapsed");
+  }
+
+  #placesList > treechildren::-moz-tree-twisty(closed, selected, focus) {
+    list-style-image: url("chrome://global/skin/tree/arrow-disclosure.svg#arrow-disclosure-collapsed-inverted");
+  }
+
+  #placesList > treechildren::-moz-tree-twisty(open, selected) {
+    list-style-image: url("chrome://global/skin/tree/arrow-disclosure.svg#arrow-disclosure-expanded");
+  }
+
+  #placesList > treechildren::-moz-tree-twisty(open, selected, focus) {
+    list-style-image: url("chrome://global/skin/tree/arrow-disclosure.svg#arrow-disclosure-expanded-inverted");
+  }
+
+  #placesList > treechildren:-moz-locale-dir(rtl)::-moz-tree-twisty(closed, selected) {
+    list-style-image: url("chrome://global/skin/tree/arrow-disclosure.svg#arrow-disclosure-collapsed-rtl");
+  }
+
+  #placesList > treechildren:-moz-locale-dir(rtl)::-moz-tree-twisty(closed, selected, focus) {
+    list-style-image: url("chrome://global/skin/tree/arrow-disclosure.svg#arrow-disclosure-collapsed-inverted-rtl")
+  }
 }
 
 #placeContent {
@@ -43,14 +108,6 @@
   border-width: 0 1px 0 0;
   background-image: none;
   min-width: 1px;
-}
-
-#placesView {
-  background-color: #D6DDE5;
-}
-
-#placesView:-moz-window-inactive {
-  background-color: #E8E8E8;
 }
 
 /* This splitter is always disabled and contains a grippy... see bug 591779 */
