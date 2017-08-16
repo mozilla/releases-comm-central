@@ -15,8 +15,63 @@ Components.classes["@mozilla.org/calendar/backend-loader;1"].getService();
 
 this.EXPORTED_SYMBOLS = ["cal"];
 var cal = {
-    getDragService: generateServiceAccessor("@mozilla.org/widget/dragservice;1",
-                                                Components.interfaces.nsIDragService),
+    // These functions exist to reduce boilerplate code for creating instances
+    // as well as getting services and other (cached) objects.
+    createEvent: _instance("@mozilla.org/calendar/event;1",
+                           Components.interfaces.calIEvent,
+                           "icalString"),
+    createTodo: _instance("@mozilla.org/calendar/todo;1",
+                          Components.interfaces.calITodo,
+                          "icalString"),
+    createDateTime: _instance("@mozilla.org/calendar/datetime;1",
+                              Components.interfaces.calIDateTime,
+                              "icalString"),
+    createDuration: _instance("@mozilla.org/calendar/duration;1",
+                              Components.interfaces.calIDuration,
+                              "icalString"),
+    createAttendee: _instance("@mozilla.org/calendar/attendee;1",
+                              Components.interfaces.calIAttendee,
+                              "icalString"),
+    createAttachment: _instance("@mozilla.org/calendar/attachment;1",
+                                Components.interfaces.calIAttachment,
+                                "icalString"),
+    createAlarm: _instance("@mozilla.org/calendar/alarm;1",
+                           Components.interfaces.calIAlarm,
+                           "icalString"),
+    createRelation: _instance("@mozilla.org/calendar/relation;1",
+                              Components.interfaces.calIRelation,
+                              "icalString"),
+    createRecurrenceDate: _instance("@mozilla.org/calendar/recurrence-date;1",
+                                    Components.interfaces.calIRecurrenceDate,
+                                    "icalString"),
+    createRecurrenceRule: _instance("@mozilla.org/calendar/recurrence-rule;1",
+                                    Components.interfaces.calIRecurrenceRule,
+                                    "icalString"),
+    createRecurrenceInfo: _instance("@mozilla.org/calendar/recurrence-info;1",
+                                    Components.interfaces.calIRecurrenceInfo,
+                                    "item"),
+    getCalendarManager: _service("@mozilla.org/calendar/manager;1",
+                                 Components.interfaces.calICalendarManager),
+    getIcsService: _service("@mozilla.org/calendar/ics-service;1",
+                            Components.interfaces.calIICSService),
+    getTimezoneService: _service("@mozilla.org/calendar/timezone-service;1",
+                                 Components.interfaces.calITimezoneService),
+    getCalendarSearchService: _service("@mozilla.org/calendar/calendarsearch-service;1",
+                                       Components.interfaces.calICalendarSearchProvider),
+    getFreeBusyService: _service("@mozilla.org/calendar/freebusy-service;1",
+                                 Components.interfaces.calIFreeBusyService),
+    getWeekInfoService: _service("@mozilla.org/calendar/weekinfo-service;1",
+                                 Components.interfaces.calIWeekInfoService),
+    getDateFormatter: _service("@mozilla.org/calendar/datetime-formatter;1",
+                               Components.interfaces.calIDateTimeFormatter),
+    getDragService: _service("@mozilla.org/widget/dragservice;1",
+                             Components.interfaces.nsIDragService),
+
+    UTC: _cached(() => cal.getTimezoneService().UTC),
+    floating: _cached(() => cal.getTimezoneService().floating),
+    calendarDefaultTimezone: function() {
+        return cal.getTimezoneService().defaultTimezone;
+    },
 
     /**
      * Loads an array of calendar scripts into the passed scope.
@@ -953,7 +1008,58 @@ var cal = {
     registerForShutdownCleanup: shutdownCleanup
 };
 
-// local to this module;
+// following functions are local to this module:
+
+/**
+ * Returns a function that provides cached access to whatever the passed
+ * function returns.
+ *
+ * @param {function} func   The function to call for the value
+ * @return {function}       A function that returns the (possibly cached) value
+ */
+function _cached(func) {
+    let thing;
+    return function() {
+        if (typeof thing == "undefined") {
+            thing = func();
+        }
+        return thing;
+    };
+}
+
+/**
+ * Returns a function that provides access to the given service.
+ *
+ * @param cid           The contract id to create
+ * @param iid           The interface id to create with
+ * @return {function}   A function that returns the given service
+ */
+function _service(cid, iid) {
+    return function() {
+        return Components.classes[cid].getService(iid);
+    };
+}
+
+/**
+ * Returns a function that creates an instance of the given component and
+ * optionally initializes it using the property name passed.
+ *
+ * @param cid           The contract id to create
+ * @param iid           The interface id to create with
+ * @param prop          The property name used for initialization
+ * @return {function}   A function that creates the given instance, which takes an
+ *                          initialization value.
+ */
+function _instance(cid, iid, prop) {
+    return function(propval) {
+        let thing = Components.classes[cid].createInstance(iid);
+        if (propval) {
+            thing[prop] = propval;
+        }
+        return thing;
+    };
+}
+
 // will be used to clean up global objects on shutdown
 // some objects have cyclic references due to wrappers
 function shutdownCleanup(obj, prop) {
@@ -971,19 +1077,6 @@ function shutdownCleanup(obj, prop) {
         });
     }
     shutdownCleanup.mEntries.push({ mObj: obj, mProp: prop });
-}
-
-// local to this module;
-// will be used to generate service accessor functions
-function generateServiceAccessor(id, iface) {
-    // eslint-disable-next-line func-names
-    return function this_() {
-        if (!("mService" in this_)) {
-            this_.mService = Components.classes[id].getService(iface);
-            shutdownCleanup(this_, "mService");
-        }
-        return this_.mService;
-    };
 }
 
 // Interim import of all symbols into cal:

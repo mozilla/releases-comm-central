@@ -7,13 +7,7 @@
  * that loading this file twice in the same scope will throw errors.
  */
 
-
-/* exported createEvent, createTodo, createDateTime, createDuration, createAttendee,
- *          createAttachment, createAlarm, createRelation,
- *          createRecurrenceDate, createRecurrenceRule, createRecurrenceInfo,
- *          getCalendarManager, getIcsService, getCalendarSearchService,
- *          getFreeBusyService, getWeekInfoService, getDateFormatter, UTC,
- *          floating, saveRecentTimezone, getCalendarDirectory,
+/* exported saveRecentTimezone, getCalendarDirectory,
  *          isCalendarWritable, userCanAddItemsToCalendar,
  *          userCanDeleteItemsFromCalendar, attendeeMatchesAddresses,
  *          userCanRespondToInvitation, openCalendarWizard,
@@ -34,112 +28,6 @@ Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 Components.utils.import("resource://gre/modules/Services.jsm");
 Components.utils.import("resource://gre/modules/Preferences.jsm");
 Components.utils.import("resource://gre/modules/AppConstants.jsm");
-
-function _calIcalCreator(cid, iid) {
-    return function(icalString) {
-        let thing = Components.classes[cid].createInstance(iid);
-        if (icalString) {
-            thing.icalString = icalString;
-        }
-        return thing;
-    };
-}
-
-var createEvent = _calIcalCreator("@mozilla.org/calendar/event;1",
-                                  Components.interfaces.calIEvent);
-var createTodo = _calIcalCreator("@mozilla.org/calendar/todo;1",
-                                 Components.interfaces.calITodo);
-var createDateTime = _calIcalCreator("@mozilla.org/calendar/datetime;1",
-                                     Components.interfaces.calIDateTime);
-var createDuration = _calIcalCreator("@mozilla.org/calendar/duration;1",
-                                     Components.interfaces.calIDuration);
-var createAttendee = _calIcalCreator("@mozilla.org/calendar/attendee;1",
-                                     Components.interfaces.calIAttendee);
-var createAttachment = _calIcalCreator("@mozilla.org/calendar/attachment;1",
-                                       Components.interfaces.calIAttachment);
-var createAlarm = _calIcalCreator("@mozilla.org/calendar/alarm;1",
-                                  Components.interfaces.calIAlarm);
-var createRelation = _calIcalCreator("@mozilla.org/calendar/relation;1",
-                                     Components.interfaces.calIRelation);
-var createRecurrenceDate = _calIcalCreator("@mozilla.org/calendar/recurrence-date;1",
-                                           Components.interfaces.calIRecurrenceDate);
-var createRecurrenceRule = _calIcalCreator("@mozilla.org/calendar/recurrence-rule;1",
-                                           Components.interfaces.calIRecurrenceRule);
-
-/* Returns a clean new calIRecurrenceInfo */
-function createRecurrenceInfo(aItem) {
-    let recInfo = Components.classes["@mozilla.org/calendar/recurrence-info;1"]
-                            .createInstance(Components.interfaces.calIRecurrenceInfo);
-    recInfo.item = aItem;
-    return recInfo;
-}
-
-/* Shortcut to the calendar-manager service */
-function getCalendarManager() {
-    return Components.classes["@mozilla.org/calendar/manager;1"]
-                     .getService(Components.interfaces.calICalendarManager);
-}
-
-/* Shortcut to the ICS service */
-function getIcsService() {
-    return Components.classes["@mozilla.org/calendar/ics-service;1"]
-                     .getService(Components.interfaces.calIICSService);
-}
-
-/* Shortcut to the timezone service */
-function getTimezoneService() {
-    return Components.classes["@mozilla.org/calendar/timezone-service;1"]
-                     .getService(Components.interfaces.calITimezoneService);
-}
-
-/* Shortcut to calendar search service */
-function getCalendarSearchService() {
-    return Components.classes["@mozilla.org/calendar/calendarsearch-service;1"]
-                     .getService(Components.interfaces.calICalendarSearchProvider);
-}
-
-/* Shortcut to the freebusy service */
-function getFreeBusyService() {
-    return Components.classes["@mozilla.org/calendar/freebusy-service;1"]
-                     .getService(Components.interfaces.calIFreeBusyService);
-}
-
-/* Shortcut to week info service */
-function getWeekInfoService() {
-    return Components.classes["@mozilla.org/calendar/weekinfo-service;1"]
-                     .getService(Components.interfaces.calIWeekInfoService);
-}
-
-/* Shortcut to date formatter service */
-function getDateFormatter() {
-    return Components.classes["@mozilla.org/calendar/datetime-formatter;1"]
-                     .getService(Components.interfaces.calIDateTimeFormatter);
-}
-
-// @return the UTC timezone.
-function UTC() {
-    if (UTC.mObject === undefined) {
-        UTC.mObject = getTimezoneService().UTC;
-    }
-    return UTC.mObject;
-}
-
-// @return the floating timezone.
-function floating() {
-    if (floating.mObject === undefined) {
-        floating.mObject = getTimezoneService().floating;
-    }
-    return floating.mObject;
-}
-
-/**
- * Function to get the best guess at a user's default timezone.
- *
- * @return user's default timezone.
- */
-function calendarDefaultTimezone() {
-    return getTimezoneService().defaultTimezone;
-}
 
 /**
  * Makes sure the given timezone id is part of the list of recent timezones.
@@ -608,7 +496,7 @@ function calGetString(aBundleName, aStringName, aParams, aComponent="calendar") 
  */
 function getUUID() {
     let uuidGen = Components.classes["@mozilla.org/uuid-generator;1"]
-                  .getService(Components.interfaces.nsIUUIDGenerator);
+                            .getService(Components.interfaces.nsIUUIDGenerator);
     // generate uuids without braces to avoid problems with
     // CalDAV servers that don't support filenames with {}
     return uuidGen.generateUUID().toString().replace(/[{}]/g, "");
