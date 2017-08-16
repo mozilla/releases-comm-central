@@ -272,16 +272,6 @@ interface nsIAddrDatabase : nsIAddrDBAnnouncer {
   wstring getCardValue(in nsIAbCard card, in string name);
 
   /**
-   * Returns an array of the deleted cards currently stored in the mork file.
-   */
-  readonly attribute nsIArray deletedCardList;
-
-  /**
-   * Returns the count of the deleted card currently stored in the mork file.
-   */
-  readonly attribute unsigned long deletedCardCount;
-
-  /**
    * Add the column representing the card to the mailing list row
    * in the database.
    *

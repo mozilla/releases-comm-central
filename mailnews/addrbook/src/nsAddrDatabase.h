@@ -66,10 +66,6 @@ public:
   NS_IMETHOD AddCardRowToDB(nsIMdbRow *newRow) override;
   NS_IMETHOD AddLdifListMember(nsIMdbRow* row, const char * value) override;
 
-  NS_IMETHOD GetDeletedCardList(nsIArray **aResult) override;
-  NS_IMETHOD GetDeletedCardCount(uint32_t *aCount) override;
-  NS_IMETHOD PurgeDeletedCardTable();
-
   NS_IMETHOD AddFirstName(nsIMdbRow * row, const char * value) override
   { return AddCharStringColumn(row, m_FirstNameColumnToken, value); }
 
@@ -318,9 +314,6 @@ protected:
   nsresult      InitNewDB();
   nsresult      InitMDBInfo();
   nsresult      InitPabTable();
-  nsresult      InitDeletedCardsTable(bool aCreate);
-  nsresult      AddRowToDeletedCardsTable(nsIAbCard *card, nsIMdbRow **pCardRow);
-  nsresult      DeleteRowFromDeletedCardsTable(nsIMdbRow *pCardRow);
 
   nsresult      InitLastRecorKey();
   nsresult      GetDataRow(nsIMdbRow **pDataRow);
@@ -336,9 +329,9 @@ protected:
   nsIMdbEnv   *m_mdbEnv;  // to be used in all the db calls.
   nsIMdbStore *m_mdbStore;
   nsIMdbTable *m_mdbPabTable;
-  nsIMdbTable *m_mdbDeletedCardsTable;
   nsCOMPtr<nsIFile> m_dbName;
   bool          m_mdbTokensInitialized;
+  bool          m_mdbDeletedCardsTableRemoved;
   nsTObserverArray<nsIAddrDBListener*> m_ChangeListeners;
 
   mdb_kind      m_PabTableKind;
@@ -428,7 +421,7 @@ private:
                                mdb_column findColumn, bool bIsCard,
                                bool aCaseInsensitive, nsIMdbRow **findRow,
                                mdb_pos *aRowPos);
-  bool HasRowButDeletedForCharColumn(const char16_t *unicodeStr, mdb_column findColumn, bool aIsCard, nsIMdbRow **aFindRow);
+  bool HasRowForCharColumn(const char16_t *unicodeStr, mdb_column findColumn, bool aIsCard, nsIMdbRow **aFindRow);
   nsresult OpenInternal(nsIFile *aMabFile, bool aCreate, nsIAddrDatabase **pCardDB);
   nsresult AlertAboutCorruptMabFile(const char16_t *aOldFileName, const char16_t *aNewFileName);
   nsresult AlertAboutLockedMabFile(const char16_t *aFileName);
