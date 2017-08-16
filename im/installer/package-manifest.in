@@ -552,8 +552,8 @@
 @RESPATH@/components/nsURLFormatter.js
 @RESPATH@/components/nsURLFormatter.manifest
 @RESPATH@/components/urlformatter.xpt
-@RESPATH@/components/nsContentPrefService.js
-@RESPATH@/components/nsContentPrefService.manifest
+@RESPATH@/components/ContentPrefService2.js
+@RESPATH@/components/ContentPrefService2.manifest
 
 ; [Extensions]
 @RESPATH@/components/extensions-toolkit.manifest

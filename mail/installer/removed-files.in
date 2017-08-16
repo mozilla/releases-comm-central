@@ -457,7 +457,6 @@ uninstall/uninstall.exe
   @DIR_MACOS@components/nsBadCertHandler.js
   @DIR_MACOS@components/nsBlocklistService.js
   @DIR_MACOS@components/nsContentDispatchChooser.js
-  @DIR_MACOS@components/nsContentPrefService.js
   @DIR_MACOS@components/nsDefaultCLH.js
   @DIR_MACOS@components/nsDownloadManagerUI.js
   #ifdef XP_UNIX

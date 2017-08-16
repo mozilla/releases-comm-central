@@ -658,7 +658,6 @@ Throbber-small.gif
   @DIR_MACOS@components/nsBrowserContentHandler.js
   @DIR_MACOS@components/nsComposerCmdLineHandler.js
   @DIR_MACOS@components/nsContentDispatchChooser.js
-  @DIR_MACOS@components/nsContentPrefService.js
   @DIR_MACOS@components/nsDefaultCLH.js
   @DIR_MACOS@components/nsDOMIdentity.js
   #ifdef UNIX_BUT_NOT_MAC
