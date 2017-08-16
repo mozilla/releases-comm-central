@@ -346,9 +346,21 @@ function nsBrowserAccess() {
 }
 
 nsBrowserAccess.prototype = {
+  createContentWindow(aURI, aOpener, aWhere, aFlags, aTriggeringPrincipal = null) {
+    return this.getContentWindowOrOpenURI(null, aOpener, aWhere, aFlags,
+                                          aTriggeringPrincipal);
+  },
 
-  openURI: function openURI(aURI, aOpener, aWhere, aFlags) {
+  openURI: function (aURI, aOpener, aWhere, aFlags, aTriggeringPrincipal = null) {
+    if (!aURI) {
+      Components.utils.reportError("openURI should only be called with a valid URI");
+      throw Components.results.NS_ERROR_FAILURE;
+    }
+    return this.getContentWindowOrOpenURI(aURI, aOpener, aWhere, aFlags,
+                                          aTriggeringPrincipal);
+  },
 
+  getContentWindowOrOpenURI(aURI, aOpener, aWhere, aFlags, aTriggeringPrincipal) {
     var isExternal = !!(aFlags & nsIBrowserDOMWindow.OPEN_EXTERNAL);
 
     if (aOpener && isExternal) {
