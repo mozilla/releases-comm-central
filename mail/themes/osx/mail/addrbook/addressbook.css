@@ -116,8 +116,12 @@
 }
 
 @media not all and (-moz-mac-yosemite-theme) {
-  #dirTree treechildren::-moz-tree-cell-text(selected, focus) {
+  #dirTree treechildren::-moz-tree-row(selected, focus) {
     -moz-appearance: -moz-mac-active-source-list-selection;
+  }
+
+  #dirTree treechildren::-moz-tree-cell-text(selected) {
+    color: white;
   }
 }
 
@@ -185,8 +189,12 @@ splitter {
 }
 
 @media not all and (-moz-mac-yosemite-theme) {
-  #abResultsTree treechildren::-moz-tree-cell-text(selected, focus) {
+  #abResultsTree treechildren::-moz-tree-row(selected, focus) {
     -moz-appearance: -moz-mac-active-source-list-selection;
+  }
+
+  #abResultsTree treechildren::-moz-tree-cell-text(selected) {
+    color: white;
   }
 }
 
