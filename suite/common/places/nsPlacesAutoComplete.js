@@ -1167,7 +1167,6 @@ nsPlacesAutoComplete.prototype = {
     }
 
     let entryTitle = aRow.getResultByIndex(kQueryIndexTitle) || "";
-    let entryFavicon = "";
     let entryBookmarked = aRow.getResultByIndex(kQueryIndexBookmarked);
     let entryBookmarkTitle = entryBookmarked ?
       aRow.getResultByIndex(kQueryIndexBookmarkTitle) : null;
@@ -1215,7 +1214,7 @@ nsPlacesAutoComplete.prototype = {
       }
     }
 
-    this._addToResults(entryId, url, title, entryFavicon, action + style);
+    this._addToResults(entryId, url, title, action + style);
     return true;
   },
 
@@ -1254,13 +1253,11 @@ nsPlacesAutoComplete.prototype = {
    *        The URI spec for the entry.
    * @param aTitle
    *        The title to give the entry.
-   * @param aFaviconSpec
-   *        The favicon to give to the entry.
    * @param aStyle
    *        Indicates how the entry should be styled when displayed.
    */
   _addToResults: function PAC_addToResults(aPlaceId, aURISpec, aTitle,
-                                           aFaviconSpec, aStyle)
+                                           aStyle)
   {
     // Add this to our internal tracker to ensure duplicates do not end up in
     // the result.  _usedPlaces is an Object that is being used as a set.
@@ -1271,13 +1268,7 @@ nsPlacesAutoComplete.prototype = {
     this._usedPlaces[aPlaceId || aURISpec] = true;
 
     // Obtain the favicon for this URI.
-    let favicon;
-    if (aFaviconSpec) {
-      let uri = NetUtil.newURI(aFaviconSpec);
-      favicon = PlacesUtils.favicons.getFaviconLinkForIcon(uri).spec;
-    }
-    favicon = favicon || PlacesUtils.favicons.defaultFavicon.spec;
-
+    let favicon = "page-icon:" + aURISpec;
     this._result.appendMatch(aURISpec, aTitle, favicon, aStyle);
   },
 
