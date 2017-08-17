@@ -94,11 +94,20 @@ textbox:not([searchbutton]) > .textbox-input-box > .textbox-search-sign {
   }
 }
 
+/* Add margins to show the hover box-shadow */
 #searchInput,
 #IMSearchInput,
 #peopleSearchInput {
-  margin-top: -1px;
-  margin-bottom: -1px;
+  margin-top: 3px;
+  margin-bottom: 3px;
+}
+
+/* Balance the margins from child's textbox */
+#gloda-search,
+#gloda-im-search,
+#search-container {
+  margin-top: -3px;
+  margin-bottom: -3px;
 }
 
 .searchBox:hover,
@@ -119,7 +128,7 @@ textbox:not([searchbutton]) > .textbox-input-box > .textbox-search-sign {
 #IMSearchInput,
 #peopleSearchInput,
 .remote-gloda-search {
-  min-height: 28px;
+  min-height: 26px;
 }
 
 #searchInput:-moz-lwtheme,
