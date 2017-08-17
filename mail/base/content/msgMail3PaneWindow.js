@@ -1809,7 +1809,9 @@ var TabsInTitlebar = {
       // then later set the properties affecting layout together in a batch.
 
       // Get the height of the tabs toolbar:
-      let tabsHeight = rect($("tabs-toolbar")).height;
+      let tabsToolbar = $("tabs-toolbar");
+      let tabsStyles = window.getComputedStyle(tabsToolbar);
+      let fullTabsHeight = rect($("tabs-toolbar")).height + verticalMargins(tabsStyles);
       // Buttons first:
       let captionButtonsBoxWidth = rect($("titlebar-buttonbox")).width;
 
@@ -1835,7 +1837,7 @@ var TabsInTitlebar = {
       // tab strip height if we're not showing a menu bar.
       if (AppConstants.isPlatformAndVersionAtLeast("win", "10.0")) {
         if (!menuHeight) {
-          titlebarContentHeight = tabsHeight;
+          titlebarContentHeight = fullTabsHeight;
           $("titlebar-buttonbox").style.height = titlebarContentHeight + "px";
         }
       }
@@ -1871,7 +1873,7 @@ var TabsInTitlebar = {
 
       // Next, we calculate how much we need to stretch the titlebar down to
       // go all the way to the bottom of the tab strip, if necessary.
-      let tabAndMenuHeight = tabsHeight + fullMenuHeight;
+      let tabAndMenuHeight = fullTabsHeight + fullMenuHeight;
 
       if (tabAndMenuHeight > titlebarContentHeight) {
         // We need to increase the titlebar content's outer height (ie including
