@@ -92,6 +92,16 @@ function installInto(module) {
   module.augment_controller = augment_controller;
 }
 
+function getWindowTypeOrId(aWindowElem) {
+  let windowType = aWindowElem.getAttribute("windowtype");
+  // Ignore types that start with "prompt:". This prefix gets added in
+  // toolkit/components/prompts/src/CommonDialog.jsm since bug 1388238.
+  if (windowType && !windowType.startsWith("prompt:"))
+    return windowType;
+
+  return aWindowElem.getAttribute("id");
+}
+
 /**
  * Return the "windowtype" or "id" for the given xul window if it is available.
  * If not, return null.
@@ -103,7 +113,7 @@ function getWindowTypeForXulWindow(aXULWindow, aBusyOk) {
   if (aXULWindow.document &&
       aXULWindow.document.documentElement &&
       aXULWindow.document.documentElement.hasAttribute("windowtype"))
-    return aXULWindow.document.documentElement.getAttribute("windowtype");
+    return getWindowTypeOrId(aXULWindow.document.documentElement);
 
   let docshell = aXULWindow.docShell;
   // we need the docshell to exist...
@@ -126,8 +136,7 @@ function getWindowTypeForXulWindow(aXULWindow, aBusyOk) {
     return null;
 
   // finally, we can now have a windowtype!
-  let windowType = outerDoc.documentElement.getAttribute("windowtype") ||
-                   outerDoc.documentElement.getAttribute("id");
+  let windowType = getWindowTypeOrId(outerDoc.documentElement);
 
   if (windowType)
     return windowType;
@@ -382,9 +391,7 @@ var WindowWatcher = {
   },
 
   planForWindowClose: function WindowWatcher_planForWindowClose(aXULWindow) {
-    let windowType =
-      aXULWindow.document.documentElement.getAttribute("windowtype") ||
-      aXULWindow.document.documentElement.getAttribute("id");
+    let windowType = getWindowTypeOrId(aXULWindow.document.documentElement);
     this.waitingList.set(windowType, aXULWindow);
     this.waitingForClose = windowType;
   },
@@ -479,6 +486,7 @@ var WindowWatcher = {
                 [getWindowTypeForXulWindow(aXULWindow, true) +
                    " (" + getUniqueIdForXulWindow(aXULWindow) + ")",
                    "active?", Services.focus.focusedWindow == aXULWindow]);
+
     if (!this.consider(aXULWindow))
       this.monitorWindowLoad(aXULWindow);
   },
@@ -511,9 +519,7 @@ var WindowWatcher = {
   onCloseWindow: function WindowWatcher_onCloseWindow(aXULWindow) {
     let domWindow = aXULWindow.docShell.QueryInterface(Ci.nsIInterfaceRequestor)
                                        .getInterface(Ci.nsIDOMWindow);
-    let windowType =
-      domWindow.document.documentElement.getAttribute("windowtype") ||
-      domWindow.document.documentElement.getAttribute("id");
+    let windowType = getWindowTypeOrId(domWindow.document.documentElement);
     mark_action("winhelp", "onCloseWindow",
                 [getWindowTypeForXulWindow(aXULWindow, true) +
                    " (" + getUniqueIdForXulWindow(aXULWindow) + ")"]);
@@ -1546,8 +1552,7 @@ function getWindowDescribeyFromEvent(event) {
        .QueryInterface(Ci.nsIInterfaceRequestor)
        .getInterface(Ci.nsIDOMWindow);
   var docElem = owningWin.document.documentElement;
-  return (docElem.getAttribute("windowtype") ||
-          docElem.getAttribute("id") || "mysterious") +
+  return (getWindowTypeOrId(docElem) || "mysterious") +
          " (" + (UNIQUE_WINDOW_ID_ATTR in owningWin ?
                    owningWin[UNIQUE_WINDOW_ID_ATTR] :
                    "n/a") + ")";
@@ -1683,8 +1688,7 @@ var gNextOneUpUniqueID = 0;
  */
 function augment_controller(aController, aWindowType) {
   if (aWindowType === undefined)
-    aWindowType =
-      aController.window.document.documentElement.getAttribute("windowtype");
+    aWindowType = getWindowTypeOrId(aController.window.document.documentElement);
 
   _augment_helper(aController, AugmentEverybodyWith);
   if (PerWindowTypeAugmentations[aWindowType])
@@ -1855,8 +1859,7 @@ function captureWindowStatesForErrorReporting(normalizeForJsonFunc) {
   while (enumerator.hasMoreElements()) {
     let win = enumerator.getNext().QueryInterface(Ci.nsIDOMWindow);
 
-    let winId = win.document.documentElement.getAttribute("windowtype") ||
-                win.document.documentElement.getAttribute("id") ||
+    let winId = getWindowTypeOrId(win.document.documentElement) ||
                 ("unnamed:" + iWin);
 
     let openPopups =
