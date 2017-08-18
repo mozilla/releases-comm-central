@@ -3,11 +3,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #tabs-toolbar {
-  --tab-separator-opacity: 0.2;
+  --tab-line-color: highlight;
+  --tab-toolbar-overlap: 1px;
 }
 
-#tabs-toolbar[brighttext] {
-  --tab-separator-opacity: 0.4;
+#tabs-toolbar:-moz-lwtheme {
+  --tab-line-color: var(--lwt-accent-color);
 }
 
 #tabs-toolbar {
@@ -99,7 +100,7 @@
   background-clip: padding-box;
 }
 
-#mail-toolbar-menubar2:not([autohide=true]) ~ #tabs-toolbar > .tabmail-tabs >
+#mail-toolbar-menubar2[toolbarname]:not([autohide=true]) ~ #tabs-toolbar > .tabmail-tabs >
   .tabmail-tab > .tab-stack > .tab-background {
   border-top-style: solid;
 }
@@ -108,13 +109,17 @@
   border-left-style: solid;
   border-right-style: solid;
   border-color: var(--tabs-border);
+  border-image: linear-gradient(var(--tabs-border),
+                                var(--tabs-border) calc(100% - 1px - var(--tab-toolbar-overlap)),
+                                transparent calc(100% - 1px - var(--tab-toolbar-overlap)));
+  border-image-slice: 1;
   background-color: var(--toolbar-bgcolor);
   background-image: var(--toolbar-bgimage);
   background-repeat: repeat-x;
 }
 
 .tab-line[selected=true] {
-  background-color: Highlight;
+  background-color: var(--tab-line-color);
 }
 
 /*
@@ -186,8 +191,13 @@
 
 .tabmail-tab:not([selected]):not(:hover) +
 .tabmail-tab:not([selected]):not(:hover)::before {
-  opacity: var(--tab-separator-opacity);
+  opacity: 0.2;
   transition: opacity 100ms ease;
+}
+
+:root[tabsintitlebar] #tabs-toolbar > .tabmail-tabs > .tabmail-tab::before {
+  margin-top: 0;
+  margin-bottom: 1px;
 }
 
 /**
