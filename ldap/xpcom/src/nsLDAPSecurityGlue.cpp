@@ -178,7 +178,7 @@ nsLDAPSSLConnect(const char *hostlist, int defport, int timeout,
                                         defport,
                                         nullptr,
                                         mozilla::OriginAttributes(),
-                                        0,
+                                        0, 0,
                                         socketInfo.soinfo_prfd,
                                         getter_AddRefs(securityInfo));
     if (NS_FAILED(rv)) {
