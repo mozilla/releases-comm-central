@@ -1221,7 +1221,7 @@ NS_IMETHODIMP nsImapUrl::GetUri(char** aURI)
   else
   {
     *aURI = nullptr;
-    uint32_t key = m_listOfMessageIds ? atoi(m_listOfMessageIds) : 0;
+    uint32_t key = m_listOfMessageIds ? strtoul(m_listOfMessageIds, nullptr, 10) : 0;
     nsCString canonicalPath;
     AllocateCanonicalPath(m_sourceCanonicalFolderPathSubString, m_onlineSubDirSeparator, (getter_Copies(canonicalPath)));
     nsCString fullFolderPath("/");

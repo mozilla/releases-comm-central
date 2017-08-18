@@ -561,7 +561,7 @@ void nsImapServerResponseParser::response_data()
             AdvanceToNextToken();
             if (fNextToken)
             {
-              fStatusNextUID = atoi(fNextToken);
+              fStatusNextUID = strtoul(fNextToken, nullptr, 10);
               // if this token ends in ')', then it is the last token
               // else we advance
               if ( *(fNextToken + strlen(fNextToken) - 1) == ')')
@@ -573,7 +573,7 @@ void nsImapServerResponseParser::response_data()
             AdvanceToNextToken();
             if (fNextToken)
             {
-              fStatusExistingMessages = atoi(fNextToken);
+              fStatusExistingMessages = strtoul(fNextToken, nullptr, 10);
               // if this token ends in ')', then it is the last token
               // else we advance
               if ( *(fNextToken + strlen(fNextToken) - 1) == ')')
@@ -585,7 +585,7 @@ void nsImapServerResponseParser::response_data()
             AdvanceToNextToken();
             if (fNextToken)
             {
-              fStatusUnseenMessages = atoi(fNextToken);
+              fStatusUnseenMessages = strtoul(fNextToken, nullptr, 10);
               // if this token ends in ')', then it is the last token
               // else we advance
               if ( *(fNextToken + strlen(fNextToken) - 1) == ')')
@@ -597,7 +597,7 @@ void nsImapServerResponseParser::response_data()
             AdvanceToNextToken();
             if (fNextToken)
             {
-              fStatusRecentMessages = atoi(fNextToken);
+              fStatusRecentMessages = strtoul(fNextToken, nullptr, 10);
               // if this token ends in ')', then it is the last token
               // else we advance
               if ( *(fNextToken + strlen(fNextToken) - 1) == ')')
@@ -1070,7 +1070,7 @@ void nsImapServerResponseParser::msg_fetch()
       AdvanceToNextToken();
       if (ContinueParse())
       {
-        fCurrentResponseUID = atoi(fNextToken);
+        fCurrentResponseUID = strtoul(fNextToken, nullptr, 10);
         if (fCurrentResponseUID > fHighestRecordedUID)
           fHighestRecordedUID = fCurrentResponseUID;
         // size came before UID
@@ -1233,7 +1233,7 @@ void nsImapServerResponseParser::msg_fetch()
         {
           bool sendEndMsgDownload = (GetDownloadingHeaders()
                                         && fReceivedHeaderOrSizeForUID == CurrentResponseUID());
-          fSizeOfMostRecentMessage = atoi(fNextToken);
+          fSizeOfMostRecentMessage = strtoul(fNextToken, nullptr, 10);
           fReceivedHeaderOrSizeForUID = CurrentResponseUID();
           if (sendEndMsgDownload)
           {
@@ -1969,7 +1969,7 @@ void nsImapServerResponseParser::resp_text_code()
       AdvanceToNextToken();
       if (ContinueParse())
       {
-        fFolderUIDValidity = atoi(fNextToken);
+        fFolderUIDValidity = strtoul(fNextToken, nullptr, 10);
         fHighestRecordedUID = 0;
         AdvanceToNextToken();
       }
@@ -1979,7 +1979,7 @@ void nsImapServerResponseParser::resp_text_code()
       AdvanceToNextToken();
       if (ContinueParse())
       {
-        fNumberOfUnseenMessages = atoi(fNextToken);
+        fNumberOfUnseenMessages = strtoul(fNextToken, nullptr, 10);
         AdvanceToNextToken();
       }
     }
@@ -1988,7 +1988,7 @@ void nsImapServerResponseParser::resp_text_code()
       AdvanceToNextToken();
       if (ContinueParse())
       {
-        fStatusNextUID = atoi(fNextToken);
+        fStatusNextUID = strtoul(fNextToken, nullptr, 10);
         AdvanceToNextToken();
       }
     }
@@ -2004,7 +2004,7 @@ void nsImapServerResponseParser::resp_text_code()
         AdvanceToNextToken();
         if (ContinueParse())
         {
-          fCurrentResponseUID = atoi(fNextToken);
+          fCurrentResponseUID = strtoul(fNextToken, nullptr, 10);
           AdvanceToNextToken();
         }
       }

@@ -260,7 +260,7 @@ NS_IMETHODIMP nsImapService::GetUrlForUri(const char *aMessageURI,
     NS_ENSURE_SUCCESS(rv, rv);
     nsCOMPtr <nsIMsgMailNewsUrl> mailnewsUrl = do_QueryInterface(imapUrl);
     bool useLocalCache = false;
-    folder->HasMsgOffline(atoi(msgKey.get()), &useLocalCache);
+    folder->HasMsgOffline(strtoul(msgKey.get(), nullptr, 10), &useLocalCache);
     mailnewsUrl->SetMsgIsInLocalCache(useLocalCache);
 
     nsCOMPtr<nsIURI> url = do_QueryInterface(imapUrl);
@@ -583,7 +583,8 @@ nsresult nsImapService::FetchMimePart(nsIImapUrl *aImapUrl,
   if (aImapMailFolder && msgurl && !messageIdentifierList.IsEmpty())
   {
     bool useLocalCache = false;
-    aImapMailFolder->HasMsgOffline(atoi(nsCString(messageIdentifierList).get()), &useLocalCache);
+    aImapMailFolder->HasMsgOffline(strtoul(nsCString(messageIdentifierList).get(), nullptr, 10),
+                                   &useLocalCache);
     msgurl->SetMsgIsInLocalCache(useLocalCache);
   }
   rv = aImapUrl->SetImapMessageSink(aImapMessage);
@@ -722,7 +723,7 @@ NS_IMETHODIMP nsImapService::CopyMessage(const char *aSrcMailboxURI,
       nsAutoCString urlSpec;
       char hierarchyDelimiter = GetHierarchyDelimiter(folder);
       bool hasMsgOffline = false;
-      nsMsgKey key = atoi(msgKey.get());
+      nsMsgKey key = strtoul(msgKey.get(), nullptr, 10);
 
       rv = CreateStartOfImapUrl(nsDependentCString(aSrcMailboxURI), getter_AddRefs(imapUrl),
                                 folder, aUrlListener, urlSpec, hierarchyDelimiter);
@@ -913,7 +914,7 @@ NS_IMETHODIMP nsImapService::SaveMessageToDisk(const char *aMessageURI,
   bool hasMsgOffline = false;
 
   if (folder)
-    folder->HasMsgOffline(atoi(msgKey.get()), &hasMsgOffline);
+    folder->HasMsgOffline(strtoul(msgKey.get(), nullptr, 10), &hasMsgOffline);
 
   nsAutoCString urlSpec;
   char hierarchyDelimiter = GetHierarchyDelimiter(folder);
@@ -2621,7 +2622,8 @@ NS_IMETHODIMP nsImapService::NewURI(const nsACString &aSpec,
       if (!messageIdString.IsEmpty())
       {
         bool useLocalCache = false;
-        msgFolder->HasMsgOffline(atoi(messageIdString.get()), &useLocalCache);
+        msgFolder->HasMsgOffline(strtoul(messageIdString.get(), nullptr, 10),
+                                 &useLocalCache);
         mailnewsUrl->SetMsgIsInLocalCache(useLocalCache);
       }
     }

@@ -2107,7 +2107,7 @@ bool nsImapProtocol::TryToRunUrlLocally(nsIURI *aURL, nsISupports *aConsumer)
     mailnewsUrl->GetFolder(getter_AddRefs(folder));
     NS_ENSURE_TRUE(folder, false);
 
-    folder->HasMsgOffline(atoi(messageIdString.get()), &useLocalCache);
+    folder->HasMsgOffline(strtoul(messageIdString.get(), nullptr, 10), &useLocalCache);
     mailnewsUrl->SetMsgIsInLocalCache(useLocalCache);
     // We're downloading a single message for offline use, and it's
     // already offline. So we shouldn't do anything, but we do
@@ -2704,7 +2704,7 @@ void nsImapProtocol::ProcessSelectedStateURL()
                   foundShell->SetConnection(this);
                   GetServerStateParser().UseCachedShell(foundShell);
                   //Set the current uid in server state parser (in case it was used for new mail msgs earlier).
-                  GetServerStateParser().SetCurrentResponseUID((uint32_t)atoi(messageIdString.get()));
+                  GetServerStateParser().SetCurrentResponseUID(strtoul(messageIdString.get(), nullptr, 10));
                   foundShell->Generate(imappart);
                   GetServerStateParser().UseCachedShell(NULL);
                 }
@@ -2776,7 +2776,7 @@ void nsImapProtocol::ProcessSelectedStateURL()
                     foundShell->SetConnection(this);
                     GetServerStateParser().UseCachedShell(foundShell);
                     //Set the current uid in server state parser (in case it was used for new mail msgs earlier).
-                    GetServerStateParser().SetCurrentResponseUID((uint32_t)atoi(messageIdString.get()));
+                    GetServerStateParser().SetCurrentResponseUID(strtoul(messageIdString.get(), nullptr, 10));
                     foundShell->Generate(NULL);
                     GetServerStateParser().UseCachedShell(NULL);
                   }
@@ -2798,7 +2798,7 @@ void nsImapProtocol::ProcessSelectedStateURL()
                 && m_imapAction != nsIImapUrl::nsImapMsgPreview
                 && m_imapAction != nsIImapUrl::nsImapMsgFetchPeek)
             {
-              uint32_t uid = atoi(messageIdString.get());
+              uint32_t uid = strtoul(messageIdString.get(), nullptr, 10);
               int32_t index;
               bool foundIt;
               imapMessageFlagsType flags = m_flagState->GetMessageFlagsFromUID(uid, &foundIt, &index);
