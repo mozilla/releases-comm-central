@@ -82,6 +82,9 @@
   ${MigrateTaskBarShortcut}
 
   ${RemoveDeprecatedKeys}
+  ; The following macro call is disabled until we are ready for the 32bit to
+  ; 64bit migration. See meta bug 634233 and enabling bug 1390850.
+  ; ${Set32to64DidMigrateReg}
 
   ${SetAppKeys}
   ${SetUninstallKeys}
@@ -428,6 +431,73 @@
   WriteRegStr ${RegKey} "Software\RegisteredApplications" "${AppRegNameMail}" "$0\Capabilities"
 !macroend
 !define SetClientsMail "!insertmacro SetClientsMail"
+
+; Add registry keys to support the Thunderbird 32 bit to 64 bit migration.
+; These registry entries are not removed on uninstall at this time. After the
+; Thunderbird 32 bit to 64 bit migration effort is completed these registry
+; entries can be removed during install, post update, and uninstall.
+!macro Set32to64DidMigrateReg
+  ${GetLongPath} "$INSTDIR" $1
+  ; These registry keys are always in the 32 bit hive since they are never
+  ; needed by a Thunderbird 64 bit install unless it has been updated from
+  ; Thunderbird 32 bit.
+  SetRegView 32
+
+!ifdef HAVE_64BIT_BUILD
+
+  ; Running Thunderbird 64 bit on Windows 64 bit
+  ClearErrors
+  ReadRegDWORD $2 HKLM "Software\Mozilla\${AppName}\32to64DidMigrate" "$1"
+  ; If there were no errors then the system was updated from Thunderbird 32 bit
+  ; to Thunderbird 64 bit and if the value is already 1 then the registry value
+  ; has already been updated in the HKLM registry.
+  ${IfNot} ${Errors}
+  ${AndIf} $2 != 1
+    ClearErrors
+    WriteRegDWORD HKLM "Software\Mozilla\${AppName}\32to64DidMigrate" "$1" 1
+    ${If} ${Errors}
+      ; There was an error writing to HKLM so just write it to HKCU
+      WriteRegDWORD HKCU "Software\Mozilla\${AppName}\32to64DidMigrate" "$1" 1
+    ${Else}
+      ; This will delete the value from HKCU if it exists
+      DeleteRegValue HKCU "Software\Mozilla\${AppName}\32to64DidMigrate" "$1"
+    ${EndIf}
+  ${EndIf}
+
+  ClearErrors
+  ReadRegDWORD $2 HKCU "Software\Mozilla\${AppName}\32to64DidMigrate" "$1"
+  ; If there were no errors then the system was updated from Thunderbird 32 bit
+  ; to Thunderbird 64 bit and if the value is already 1 then the registry value
+  ; has already been updated in the HKCU registry.
+  ${IfNot} ${Errors}
+  ${AndIf} $2 != 1
+    WriteRegDWORD HKCU "Software\Mozilla\${AppName}\32to64DidMigrate" "$1" 1
+  ${EndIf}
+
+!else
+
+  ; Running Thunderbird 32 bit
+  ${If} ${RunningX64}
+    ; Running Thunderbird 32 bit on a Windows 64 bit system
+    ClearErrors
+    ReadRegDWORD $2 HKLM "Software\Mozilla\${AppName}\32to64DidMigrate" "$1"
+    ; If there were errors the value doesn't exist yet.
+    ${If} ${Errors}
+      ClearErrors
+      WriteRegDWORD HKLM "Software\Mozilla\${AppName}\32to64DidMigrate" "$1" 0
+      ; If there were errors write the value in HKCU.
+      ${If} ${Errors}
+        WriteRegDWORD HKCU "Software\Mozilla\${AppName}\32to64DidMigrate" "$1" 0
+      ${EndIf}
+    ${EndIf}
+  ${EndIf}
+
+!endif
+
+  ClearErrors
+  SetRegView lastused
+!macroend
+!define Set32to64DidMigrateReg "!insertmacro Set32to64DidMigrateReg"
 
 ; XXXrstrong - there are several values that will be overwritten by and
 ; overwrite other installs of the same application.
