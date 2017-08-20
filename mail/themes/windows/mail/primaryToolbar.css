@@ -387,12 +387,6 @@ toolbar[mode="text"] .button-appmenu .toolbarbutton-icon {
 
 @media (-moz-windows-glass: 0) {
   #tabbar-toolbar .toolbarbutton-1,
-  #tabbar-toolbar .toolbarbutton-menubutton-button,
-  #tabbar-toolbar .toolbarbutton-menubutton-dropmarker {
-    margin-bottom: 0;
-  }
-
-  #tabbar-toolbar .toolbarbutton-1,
   #tabbar-toolbar .toolbarbutton-menubutton-button {
     padding-inline-start: 4px !important;
     padding-inline-end: 4px !important;
@@ -403,16 +397,11 @@ toolbar[mode="text"] .button-appmenu .toolbarbutton-icon {
   #tabbar-toolbar:not(:-moz-lwtheme) .toolbarbutton-1,
   #tabbar-toolbar:not(:-moz-lwtheme) .toolbarbutton-menubutton-button,
   #tabbar-toolbar:not(:-moz-lwtheme) .toolbarbutton-menubutton-dropmarker {
-    margin: 0 0 -1px;
+    margin: 0;
     padding: 0 3px !important;
     border: none;
     border-radius: 0;
     box-shadow: none;
-  }
-
-  #tabbar-toolbar:not(:-moz-lwtheme) .toolbarbutton-menubutton-button,
-  #tabbar-toolbar:not(:-moz-lwtheme) .toolbarbutton-menubutton-dropmarker {
-    margin: 0;
   }
 
   #tabbar-toolbar:not(:-moz-lwtheme) .toolbarbutton-1 >
