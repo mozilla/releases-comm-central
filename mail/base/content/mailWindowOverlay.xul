@@ -249,7 +249,7 @@
   <command id="cmd_forward" oncommand="MsgForwardMessage(event);"/>
   <command id="cmd_forwardInline" oncommand="MsgForwardAsInline(event)"/>
   <command id="cmd_forwardAttachment" oncommand="MsgForwardAsAttachment(event);"/>
-  <command id="cmd_editAsNew" oncommand="goDoCommand('cmd_editAsNew')"/>
+  <command id="cmd_editAsNew" oncommand="MsgEditMessageAsNew(event);"/>
   <command id="cmd_editDraftMsg" oncommand="MsgEditDraftMessage(event);"/>
   <command id="cmd_newMsgFromTemplate" oncommand="MsgNewMessageFromTemplate(event);"/>
   <command id="cmd_openMessage" oncommand="goDoCommand('cmd_openMessage')"/>

@@ -1088,6 +1088,32 @@ mime_insert_forwarded_message_headers(char            **body,
 }
 
 static void
+convert_plaintext_body_to_html(char **body, uint32_t bodyLen)
+{
+  // We need to convert the plain/text to HTML in order to escape any HTML markup
+  char *escapedBody = MsgEscapeHTML(*body);
+  if (escapedBody)
+  {
+    PR_Free(*body);
+    *body = escapedBody;
+    bodyLen = strlen(*body);
+  }
+
+   // +13 chars for <pre> & </pre> tags and CRLF
+  uint32_t newbodylen = bodyLen + 14;
+  char* newbody = (char *)PR_MALLOC (newbodylen);
+  if (newbody)
+  {
+    *newbody = 0;
+    PL_strcatn(newbody, newbodylen, "<PRE>");
+    PL_strcatn(newbody, newbodylen, *body);
+    PL_strcatn(newbody, newbodylen, "</PRE>" CRLF);
+    PR_Free(*body);
+    *body = newbody;
+  }
+}
+
+static void
 mime_parse_stream_complete (nsMIMESession *stream)
 {
   mime_draft_data *mdd = (mime_draft_data *) stream->data_object;
@@ -1408,28 +1434,7 @@ mime_parse_stream_complete (nsMIMESession *stream)
             if (body && composeFormat == nsIMsgCompFormat::PlainText)
             {
               // ... but the message body is currently plain text.
-
-              //We need to convert the plain/text to HTML in order to escape any HTML markup
-              char *escapedBody = MsgEscapeHTML(body);
-              if (escapedBody)
-              {
-                PR_Free(body);
-                body = escapedBody;
-                bodyLen = strlen(body);
-              }
-
-               //+13 chars for <pre> & </pre> tags and CRLF
-              uint32_t newbodylen = bodyLen + 14;
-              char* newbody = (char *)PR_MALLOC (newbodylen);
-              if (newbody)
-              {
-                *newbody = 0;
-                PL_strcatn(newbody, newbodylen, "<PRE>");
-                PL_strcatn(newbody, newbodylen, body);
-                PL_strcatn(newbody, newbodylen, "</PRE>" CRLF);
-                PR_Free(body);
-                body = newbody;
-              }
+              convert_plaintext_body_to_html(&body, bodyLen);
             }
             // Body is now HTML, set the format too (so headers are inserted in
             // correct format).
@@ -1454,6 +1459,67 @@ mime_parse_stream_complete (nsMIMESession *stream)
 
       }
 
+      MSG_ComposeType msgComposeType = 0;  // Keep compilers happy.
+      if (mdd->format_out == nsMimeOutput::nsMimeMessageEditorTemplate)
+      {
+        if (PL_strstr(mdd->url_name, "&redirect=true"))
+          msgComposeType = nsIMsgCompType::Redirect;
+        else if (PL_strstr(mdd->url_name, "&editasnew=true"))
+          msgComposeType = nsIMsgCompType::EditAsNew;
+        else
+          msgComposeType = nsIMsgCompType::Template;
+      }
+
+      if (body && msgComposeType == nsIMsgCompType::EditAsNew)
+      {
+        // When editing as new, we respect the identities preferred format
+        // which can be overridden.
+        if (mdd->identity)
+        {
+          bool identityComposeHTML;
+          mdd->identity->GetComposeHtml(&identityComposeHTML);
+
+          if (composeFormat == nsIMsgCompFormat::HTML &&
+              identityComposeHTML == mdd->overrideComposeFormat)
+          {
+            // We we have HTML:
+            // If they want HTML and they want to override it (true == true)
+            // or they don't want HTML and they don't want to override it
+            // (false == false), then convert. Conversion happens below.
+            convertToPlainText = true;
+            composeFormat = nsIMsgCompFormat::PlainText;
+          }
+          else if (composeFormat == nsIMsgCompFormat::PlainText &&
+                   identityComposeHTML != mdd->overrideComposeFormat)
+          {
+            // We have plain text:
+            // If they want HTML and they don't want to override it (true != false)
+            // or they don't want HTML and they want to override it
+            // (false != true), then convert.
+            convert_plaintext_body_to_html(&body, bodyLen);
+            composeFormat = nsIMsgCompFormat::HTML;
+          }
+        }
+      }
+      else if (body && mdd->overrideComposeFormat &&
+               (msgComposeType == nsIMsgCompType::Template ||
+                !mdd->forwardInline)) // Draft processing.
+      {
+        // When using a template and overriding, the user gets the
+        // "other" format.
+        if (composeFormat == nsIMsgCompFormat::PlainText)
+        {
+          convert_plaintext_body_to_html(&body, bodyLen);
+          composeFormat = nsIMsgCompFormat::HTML;
+        }
+        else
+        {
+          // Conversion happens below.
+          convertToPlainText = true;
+          composeFormat = nsIMsgCompFormat::PlainText;
+        }
+      }
+
       // convert from UTF-8 to UTF-16
       if (body)
       {
@@ -1468,13 +1534,9 @@ mime_parse_stream_complete (nsMIMESession *stream)
       //
       if (mdd->format_out == nsMimeOutput::nsMimeMessageEditorTemplate)
       {
-        MSG_ComposeType msgComposeType;
-        if (PL_strstr(mdd->url_name, "&redirect=true"))
-          msgComposeType = nsIMsgCompType::Redirect;
-        else if (PL_strstr(mdd->url_name, "&editasnew=true"))
-          msgComposeType = nsIMsgCompType::EditAsNew;
-        else
-          msgComposeType = nsIMsgCompType::Template;
+        if (convertToPlainText)
+          fields->ConvertBodyToPlainText();
+
         CreateTheComposeWindow(fields, newAttachData, msgComposeType,
                                composeFormat, mdd->identity,
                                mdd->originalMsgURI, mdd->origMsgHdr);
@@ -1502,6 +1564,8 @@ mime_parse_stream_complete (nsMIMESession *stream)
         }
         else
         {
+          if (convertToPlainText)
+            fields->ConvertBodyToPlainText();
           fields->SetDraftId(mdd->url_name);
           CreateTheComposeWindow(fields, newAttachData, nsIMsgCompType::Draft, composeFormat, mdd->identity, mdd->originalMsgURI, mdd->origMsgHdr);
         }
