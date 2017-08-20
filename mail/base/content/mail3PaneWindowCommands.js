@@ -136,6 +136,7 @@ var DefaultController =
       case "cmd_editAsNew":
       case "cmd_editDraftMsg":
       case "cmd_newMsgFromTemplate":
+      case "cmd_editTemplateMsg":
       case "cmd_createFilterFromMenu":
       case "cmd_delete":
       case "cmd_cancel":
@@ -334,6 +335,7 @@ var DefaultController =
       case "cmd_editAsNew":
       case "cmd_editDraftMsg":
       case "cmd_newMsgFromTemplate":
+      case "cmd_editTemplateMsg":
       case "cmd_openMessage":
       case "button_print":
       case "cmd_print":
@@ -655,6 +657,9 @@ var DefaultController =
         break;
       case "cmd_newMsgFromTemplate":
         MsgNewMessageFromTemplate(null);
+        break;
+      case "cmd_editTemplateMsg":
+        MsgEditTemplateMessage(null);
         break;
       case "cmd_createFilterFromMenu":
         MsgCreateFilter();

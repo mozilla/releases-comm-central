@@ -252,6 +252,7 @@
   <command id="cmd_editAsNew" oncommand="MsgEditMessageAsNew(event);"/>
   <command id="cmd_editDraftMsg" oncommand="MsgEditDraftMessage(event);"/>
   <command id="cmd_newMsgFromTemplate" oncommand="MsgNewMessageFromTemplate(event);"/>
+  <command id="cmd_editTemplateMsg" oncommand="MsgEditTemplateMessage(event);"/>
   <command id="cmd_openMessage" oncommand="goDoCommand('cmd_openMessage')"/>
   <command id="cmd_openConversation" oncommand="goDoCommand('cmd_openConversation')"/>
   <command id="cmd_moveToFolderAgain" oncommand="goDoCommand('cmd_moveToFolderAgain')"/>
@@ -765,6 +766,10 @@
               label="&contextEditMsgAsNew.label;"
               accesskey="&contextEditMsgAsNew.accesskey;"
               oncommand="MsgEditMessageAsNew(event);"/>
+    <menuitem id="mailContext-editTemplateMsg"
+              label="&contextEditTemplate.label;"
+              accesskey="&contextEditTemplate.accesskey;"
+              oncommand="MsgEditTemplateMessage(event);"/>
     <menuseparator id="mailContext-sep-reply"/>
     <menu id="mailContext-tags" label="&tagMenu.label;" accesskey="&tagMenu.accesskey;">
       <menupopup id="mailContext-tagpopup"
@@ -1953,12 +1958,14 @@
                       command="cmd_editAsNew"/>
             <menuitem id="appmenu_editDraftMsg"
                       label="&editDraftMsgCmd.label;"
-                      accesskey="&editDraftMsgCmd.accesskey;"
                       command="cmd_editDraftMsg"/>
             <menuitem id="appmenu_newMsgFromTemplateCmd"
                       label="&newMsgFromTemplateCmd.label;"
                       key="key_newMsgFromTemplate"
                       command="cmd_newMsgFromTemplate"/>
+            <menuitem id="appmenu_editTemplateMsgCmd"
+                      label="&editTemplateMsgCmd.label;"
+                      command="cmd_editTemplate"/>
             <menuseparator id="appmenu_messageMenuAfterCompositionCommandsSeparator"/>
             <menuitem id="appmenu_openMessageWindowMenuitem"
                       label="&openMessageWindowCmd.label;"
@@ -2858,6 +2865,10 @@
                       label="&newMsgFromTemplateCmd.label;"
                       key="key_newMsgFromTemplate"
                       command="cmd_newMsgFromTemplate"/>
+            <menuitem id="menu_editTemplate"
+                      label="&editTemplateMsgCmd.label;"
+                      accesskey="&editTemplateMsgCmd.accesskey;"
+                      command="cmd_editTemplateMsg"/>
             <menuseparator id="messageMenuAfterCompositionCommandsSeparator"/>
             <menuitem id="openMessageWindowMenuitem" label="&openMessageWindowCmd.label;"
                       command="cmd_openMessage"

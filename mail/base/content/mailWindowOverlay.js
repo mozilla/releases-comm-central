@@ -494,8 +494,11 @@ function InitMessageMenu()
   // Show "Edit Draft Message" menus only in a drafts folder; otherwise hide them.
   showCommandInSpecialFolder("cmd_editDraftMsg",
                              Components.interfaces.nsMsgFolderFlags.Drafts);
-  // Show "New Message from Template" menus only in a templates folder; otherwise hide them.
+  // Show "New Message from Template" and "Edit Template" menus only in a
+  // templates folder; otherwise hide them.
   showCommandInSpecialFolder("cmd_newMsgFromTemplate",
+                             Components.interfaces.nsMsgFolderFlags.Templates);
+  showCommandInSpecialFolder("cmd_editTemplateMsg",
                              Components.interfaces.nsMsgFolderFlags.Templates);
 
   // Initialize the Open Message menuitem
@@ -559,8 +562,11 @@ function InitAppMessageMenu()
   // Show "Edit Draft Message" menus only in a drafts folder; otherwise hide them.
   showCommandInSpecialFolder("cmd_editDraftMsg",
                              Components.interfaces.nsMsgFolderFlags.Drafts);
-  // Show "New Message from Template" menus only in a templates folder; otherwise hide them.
+  // Show "New Message from Template" and "Edit Template" menus only in a
+  // templates folder; otherwise hide them.
   showCommandInSpecialFolder("cmd_newMsgFromTemplate",
+                             Components.interfaces.nsMsgFolderFlags.Templates);
+  showCommandInSpecialFolder("cmd_editTemplateMsg",
                              Components.interfaces.nsMsgFolderFlags.Templates);
 
   // Initialize the Open Message menuitem
@@ -2007,6 +2013,11 @@ function MsgEditDraftMessage(aEvent)
 function MsgNewMessageFromTemplate(aEvent)
 {
   composeMsgByType(Components.interfaces.nsIMsgCompType.Template, aEvent);
+}
+
+function MsgEditTemplateMessage(aEvent)
+{
+  composeMsgByType(Components.interfaces.nsIMsgCompType.Draft, aEvent);
 }
 
 function MsgComposeDraftMessage()

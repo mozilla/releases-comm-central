@@ -261,11 +261,11 @@ nsContextMenu.prototype = {
         "mailContext-openNewWindow", "threadPaneContext-openNewTab",
         "mailContext-openConversation", "mailContext-openContainingFolder",
         "mailContext-archive", "mailContext-replySender",
-        "mailContext-editAsNew", "mailContext-editDraftMsg",
-        "mailContext-newMsgFromTemplate",
         "mailContext-replyNewsgroup", "mailContext-replyAll",
         "mailContext-replyList", "mailContext-forward",
         "mailContext-forwardAsMenu", "mailContext-multiForwardAsAttachment",
+        "mailContext-editAsNew", "mailContext-editDraftMsg",
+        "mailContext-newMsgFromTemplate", "mailContext-editTemplateMsg",
         "mailContext-copyMessageUrl", "mailContext-moveMenu",
         "mailContext-copyMenu", "mailContext-moveToFolderAgain",
         "mailContext-ignoreThread", "mailContext-ignoreSubthread",
@@ -296,6 +296,11 @@ nsContextMenu.prototype = {
                   this.numSelectedMessages == 1);
 
     this.setSingleSelection("mailContext-replySender");
+    this.setSingleSelection("mailContext-replyNewsgroup", this.isNewsgroup);
+    this.setSingleSelection("mailContext-replyAll");
+    this.setSingleSelection("mailContext-replyList");
+    this.setSingleSelection("mailContext-forward");
+    this.setSingleSelection("mailContext-forwardAsMenu");
     this.setSingleSelection("mailContext-editAsNew");
     this.setSingleSelection("mailContext-editDraftMsg",
                             document.getElementById("cmd_editDraftMsg")
@@ -303,11 +308,9 @@ nsContextMenu.prototype = {
     this.setSingleSelection("mailContext-newMsgFromTemplate",
                             document.getElementById("cmd_newMsgFromTemplate")
                                     .getAttribute("hidden") != "true");
-    this.setSingleSelection("mailContext-replyNewsgroup", this.isNewsgroup);
-    this.setSingleSelection("mailContext-replyAll");
-    this.setSingleSelection("mailContext-replyList");
-    this.setSingleSelection("mailContext-forward");
-    this.setSingleSelection("mailContext-forwardAsMenu");
+    this.setSingleSelection("mailContext-editTemplateMsg",
+                            document.getElementById("cmd_editTemplateMsg")
+                                    .getAttribute("hidden") != "true");
 
     this.showItem("mailContext-multiForwardAsAttachment",
                   this.numSelectedMessages > 1 && this.inThreadPane &&
