@@ -367,10 +367,12 @@ toolbar[mode="icons"] > #otherActionsButton > .toolbarbutton-menu-dropmarker >
 #CustomizeToolbarWindow toolbarpaletteitem > #otherActionsButton >
   .toolbarbutton-icon {
   display: -moz-box;
-  width: 7px;
+  width: 9px;
   padding-top: 5px;
   padding-bottom: 5px;
-  list-style-image: url(chrome://messenger/skin/icons/toolbarbutton-dropmarker.png);
+  list-style-image: url("chrome://messenger/skin/icons/toolbarbutton-arrow.svg");
+  -moz-context-properties: fill;
+  fill: currentColor;
 }
 
 .inline-toolbox[doCustomization] .inline-toolbar {

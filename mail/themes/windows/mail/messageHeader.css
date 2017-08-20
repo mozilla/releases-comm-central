@@ -541,7 +541,9 @@ toolbar[brighttext] #attachmentSaveAllMultiple {
   width: 9px;
   padding-top: 4px;
   padding-bottom: 4px;
-  list-style-image: url("chrome://messenger/skin/icons/toolbarbutton-arrow.png");
+  list-style-image: url("chrome://messenger/skin/icons/toolbarbutton-arrow.svg");
+  -moz-context-properties: fill;
+  fill: currentColor;
 }
 
 .inline-toolbar toolbarpaletteitem toolbarseparator,

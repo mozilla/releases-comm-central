@@ -237,18 +237,24 @@ toolbar[brighttext] #button-print {
   margin: 0;
   margin-inline-end: 1px;
   padding-inline-start: 3px;
-  background: transparent;
+  padding-inline-end: 12px;
   line-height: 1;
   border: 1px solid transparent;
   border-bottom-color: #C6C6C6;
   border-radius: 2px;
   -moz-appearance: none;
-  background: url("chrome://global/skin/arrow/arrow-dn.gif") no-repeat right;
+  background-color: transparent;
+  background-repeat: no-repeat;
+  background-position: calc(100% - 3px) center;
+  background-size: 9px 7px;
+  background-image: url("chrome://messenger/skin/icons/toolbarbutton-arrow.svg");
+  -moz-context-properties: fill;
+  fill: currentColor;
   transition: border .2s, background-color .2s;
 }
 
 #msgIdentity:-moz-locale-dir(rtl) {
-  background-position: left;
+  background-position: 3px center;
 }
 
 #msgIdentity:hover,
@@ -256,10 +262,6 @@ toolbar[brighttext] #button-print {
 #msgIdentity[focused="true"] {
   background-color: white;
   border-color: #C6C6C6;
-}
-
-#msgIdentity[editable="true"] {
-  padding-inline-end: 12px;
 }
 
 #msgIdentity > .menulist-editable-box {
@@ -273,6 +275,10 @@ toolbar[brighttext] #button-print {
 
 #msgIdentity[editable="true"] > menupopup > menuitem {
   -moz-appearance: menuitem;
+}
+
+#msgIdentityPopup {
+  margin-inline-start: initial;
 }
 
 #addresses-box {
@@ -476,12 +482,17 @@ treechildren::-moz-tree-image(subscribed-news) {
   background-color: rgba(200, 200, 200, .4) !important;
   border: rgba(149, 165, 166, .3) 1px solid;
   border-radius: 2px;
-  background: url("chrome://global/skin/arrow/arrow-dn.gif") no-repeat left;
+  background-repeat: no-repeat;
+  background-position: 3px center;
+  background-size: 9px 7px;
+  background-image: url("chrome://messenger/skin/icons/toolbarbutton-arrow.svg");
+  -moz-context-properties: fill;
+  fill: currentColor;
   transition: background-color .25s ease-in;
 }
 
 .aw-menulist:-moz-locale-dir(rtl) {
-  background-position: right;
+  background-position: calc(100% - 3px) center;
 }
 
 .aw-menulist:-moz-window-inactive {
@@ -593,14 +604,15 @@ toolbarbutton.formatting-button:not(:hover):-moz-window-inactive
 
 toolbarbutton.formatting-button > .toolbarbutton-menu-dropmarker,
 toolbarbutton.formatting-button > .toolbarbutton-menubutton-dropmarker {
-  list-style-image: url(chrome://messenger/skin/icons/toolbarbutton-arrow.png);
+  list-style-image: url(chrome://messenger/skin/icons/toolbarbutton-arrow.svg);
+  -moz-context-properties: fill;
+  fill: currentColor;
 }
 
-@media (min-resolution: 2dppx) {
-  toolbarbutton.formatting-button > .toolbarbutton-menu-dropmarker,
-  toolbarbutton.formatting-button > .toolbarbutton-menubutton-dropmarker {
-    list-style-image: url(chrome://messenger/skin/icons/toolbarbutton-arrow@2x.png) !important;
-  }
+toolbarbutton.toolbarbutton-1 .toolbarbutton-menu-dropmarker > .dropmarker-icon,
+toolbarbutton.toolbarbutton-1 > .toolbarbutton-menubutton-dropmarker > .dropmarker-icon {
+  width: 9px;
+  height: 7px;
 }
 
 #FormatToolbar > toolbarbutton > .toolbarbutton-text {

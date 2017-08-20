@@ -205,19 +205,18 @@ toolbox[labelalign="end"] .toolbarbutton-1[type="menu"] {
 
 .toolbarbutton-1 .toolbarbutton-menu-dropmarker > .dropmarker-icon,
 .toolbarbutton-1 > .toolbarbutton-menubutton-dropmarker > .dropmarker-icon {
-  width: 9px;
+  width: 17px;
   height: 7px;
-  background: url("chrome://messenger/skin/icons/toolbarbutton-arrow.png") no-repeat center;
+  background-image: url("chrome://messenger/skin/icons/toolbarbutton-arrow.svg");
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: 9px 7px;
+  -moz-context-properties: fill;
+  fill: currentColor;
 }
 
-.toolbarbutton-1 > .toolbarbutton-menubutton-dropmarker > .dropmarker-icon {
-  margin-right: 6px;
-  margin-left: 6px;
-}
-
-toolbar[brighttext] .toolbarbutton-1 .toolbarbutton-menu-dropmarker > .dropmarker-icon,
-toolbar[brighttext] .toolbarbutton-1 > .toolbarbutton-menubutton-dropmarker > .dropmarker-icon {
-  background-image: url("chrome://messenger/skin/icons/toolbarbutton-arrow-inverted.png");
+.toolbarbutton-1 > .toolbarbutton-menu-dropmarker {
+  width: 9px;
 }
 
 .toolbarbutton-1:not(:hover):not(:active):not([open]) > .toolbarbutton-menubutton-dropmarker::before {

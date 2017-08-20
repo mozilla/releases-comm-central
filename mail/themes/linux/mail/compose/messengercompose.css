@@ -1,4 +1,3 @@
-
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
@@ -196,15 +195,14 @@ menulist > .menulist-label-box {
   padding-inline-end: 12px;
   background-repeat: no-repeat;
   background-position: right;
-  background-image: url("chrome://messenger/skin/icons/toolbarbutton-arrow.png");
+  background-size: 9px 7px;
+  background-image: url("chrome://messenger/skin/icons/toolbarbutton-arrow.svg");
+  -moz-context-properties: fill;
+  fill: currentColor;
 }
 
 menulist:-moz-locale-dir(rtl) > .menulist-label-box {
   background-position: left;
-}
-
-toolbar[brighttext] menulist > .menulist-label-box {
-  background-image: url("chrome://messenger/skin/icons/toolbarbutton-arrow-inverted.png");
 }
 
 /* ::::: special toolbar colors ::::: */
@@ -472,7 +470,10 @@ treechildren::-moz-tree-image(subscribed-news) {
   height: 1.4em;
   background-repeat: no-repeat;
   background-position: right;
-  background-image: url("chrome://messenger/skin/icons/toolbarbutton-arrow.png");
+  background-size: 9px 7px;
+  background-image: url("chrome://messenger/skin/icons/toolbarbutton-arrow.svg");
+  -moz-context-properties: fill;
+  fill: currentColor;
 }
 
 #msgIdentity[editable="true"] > .menulist-dropmarker {
