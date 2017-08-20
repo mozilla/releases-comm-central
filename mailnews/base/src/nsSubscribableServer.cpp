@@ -494,83 +494,81 @@ nsSubscribableServer::AddChildNode(SubscribeTreeNode *parent, const char *name, 
 
         return NS_OK;
     }
-    else {
-        if (parent->cachedChild) {
-            if (strcmp(parent->cachedChild->name,name) == 0) {
-                *child = parent->cachedChild;
-                return NS_OK;
-            }
-        }
 
-        SubscribeTreeNode *current = parent->firstChild;
-
-        /*
-         * insert in reverse alphabetical order
-         * this will reduce the # of strcmps
-         * since this is faster assuming:
-         *  1) the hostinfo.dat feeds us the groups in alphabetical order
-         *     since we control the hostinfo.dat file, we can guarantee this.
-         *  2) the server gives us the groups in alphabetical order
-         *     we can't guarantee this, but it seems to be a common thing
-         *
-         * because we have firstChild, lastChild, nextSibling, prevSibling
-         * we can efficiently reverse the order when dumping to hostinfo.dat
-         * or to GetTargets()
-         */
-        int32_t compare = strcmp(current->name, name);
-
-        while (current && (compare != 0)) {
-            if (compare < 0) {
-                // CreateNode will set the parent->cachedChild
-                rv = CreateNode(parent, name, child);
-                NS_ENSURE_SUCCESS(rv,rv);
-
-                (*child)->nextSibling = current;
-                (*child)->prevSibling = current->prevSibling;
-                current->prevSibling = (*child);
-                if (!(*child)->prevSibling) {
-                    parent->firstChild = (*child);
-                }
-                else {
-                    (*child)->prevSibling->nextSibling = (*child);
-                }
-
-                rv = NotifyAssert(parent, kNC_Child, *child);
-                NS_ENSURE_SUCCESS(rv,rv);
-                return NS_OK;
-            }
-            current = current->nextSibling;
-            if (current) {
-                NS_ASSERTION(current->name, "no name!");
-                compare = strcmp(current->name,name);
-            }
-            else {
-                compare = -1; // anything but 0, since that would be a match
-            }
-        }
-
-        if (compare == 0) {
-            // already exists;
-            *child = current;
-
-            // set the cachedChild
-            parent->cachedChild = *child;
+    if (parent->cachedChild) {
+        if (strcmp(parent->cachedChild->name,name) == 0) {
+            *child = parent->cachedChild;
             return NS_OK;
         }
+    }
 
-        // CreateNode will set the parent->cachedChild
-        rv = CreateNode(parent, name, child);
-        NS_ENSURE_SUCCESS(rv,rv);
+    SubscribeTreeNode *current = parent->firstChild;
 
-        (*child)->prevSibling = parent->lastChild;
-        (*child)->nextSibling = nullptr;
-        parent->lastChild->nextSibling = *child;
-        parent->lastChild = *child;
+    /*
+     * insert in reverse alphabetical order
+     * this will reduce the # of strcmps
+     * since this is faster assuming:
+     *  1) the hostinfo.dat feeds us the groups in alphabetical order
+     *     since we control the hostinfo.dat file, we can guarantee this.
+     *  2) the server gives us the groups in alphabetical order
+     *     we can't guarantee this, but it seems to be a common thing
+     *
+     * because we have firstChild, lastChild, nextSibling, prevSibling
+     * we can efficiently reverse the order when dumping to hostinfo.dat
+     * or to GetTargets()
+     */
+    int32_t compare = strcmp(current->name, name);
 
-        rv = NotifyAssert(parent, kNC_Child, *child);
-        NS_ENSURE_SUCCESS(rv,rv);
+    while (current && (compare != 0)) {
+        if (compare < 0) {
+            // CreateNode will set the parent->cachedChild
+            rv = CreateNode(parent, name, child);
+            NS_ENSURE_SUCCESS(rv,rv);
+
+            (*child)->nextSibling = current;
+            (*child)->prevSibling = current->prevSibling;
+            current->prevSibling = (*child);
+            if (!(*child)->prevSibling) {
+                parent->firstChild = (*child);
+            }
+            else {
+                (*child)->prevSibling->nextSibling = (*child);
+            }
+
+            rv = NotifyAssert(parent, kNC_Child, *child);
+            NS_ENSURE_SUCCESS(rv,rv);
+            return NS_OK;
+        }
+        current = current->nextSibling;
+        if (current) {
+            NS_ASSERTION(current->name, "no name!");
+            compare = strcmp(current->name,name);
+        }
+        else {
+            compare = -1; // anything but 0, since that would be a match
+        }
+    }
+
+    if (compare == 0) {
+        // already exists;
+        *child = current;
+
+        // set the cachedChild
+        parent->cachedChild = *child;
         return NS_OK;
     }
+
+    // CreateNode will set the parent->cachedChild
+    rv = CreateNode(parent, name, child);
+    NS_ENSURE_SUCCESS(rv,rv);
+
+    (*child)->prevSibling = parent->lastChild;
+    (*child)->nextSibling = nullptr;
+    parent->lastChild->nextSibling = *child;
+    parent->lastChild = *child;
+
+    rv = NotifyAssert(parent, kNC_Child, *child);
+    NS_ENSURE_SUCCESS(rv,rv);
     return NS_OK;
 }
 

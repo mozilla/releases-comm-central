@@ -1141,7 +1141,7 @@ static int yylex() {
 		    continue;
 		    }
 		case EOF: return 0;
-		    break;
+		    break;  // XXX Fix break after return.
 		default: {
 		    lexPushLookaheadc(c);
 		    if (isalpha(c)) {
@@ -1162,12 +1162,17 @@ static int yylex() {
 			/* unknown token */
 			return 0;
 			}
-		    break;
+		    break;  // XXX Fix break after return.
 		    }
 		}
 	    }
 	}
-    return 0;
+    // This code is completely unreadable due to incorrect indentation and
+    // use of tabs which appear to be 4 spaces wide.
+    // In bug 1392057 it turns out that the following return statement is
+    // not executed since there is a |return 0;| above, so let's remove it
+    // as a bustage fix.
+    // return 0;
     }
 
 

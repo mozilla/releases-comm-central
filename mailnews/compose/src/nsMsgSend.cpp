@@ -3266,11 +3266,11 @@ nsMsgComposeAndSend::DeliverMessage()
 
     return DeliverFileAsNews();   /* will call DeliverFileAsMail if it needs to */
   }
-  else if (mail_p)
+
+  if (mail_p)
     return DeliverFileAsMail();
-  else
-    return NS_ERROR_UNEXPECTED;
-  return NS_OK;
+
+  return NS_ERROR_UNEXPECTED;
 }
 
 

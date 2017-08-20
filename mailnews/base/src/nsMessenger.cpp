@@ -345,92 +345,83 @@ nsMessenger::PromptIfFileExists(nsIFile *file)
   nsresult rv = NS_ERROR_FAILURE;
   bool exists;
   file->Exists(&exists);
-  if (exists)
-  {
-    nsCOMPtr<nsIPrompt> dialog(do_GetInterface(mDocShell));
-    if (!dialog) return rv;
-    nsAutoString path;
-    bool dialogResult = false;
-    nsString errorMessage;
-
-    file->GetPath(path);
-    const char16_t *pathFormatStrings[] = { path.get() };
-
-    if (!mStringBundle)
-    {
-      rv = InitStringBundle();
-      NS_ENSURE_SUCCESS(rv, rv);
-    }
-    rv = mStringBundle->FormatStringFromName("fileExists",
-                                             pathFormatStrings, 1,
-                                             errorMessage);
-    NS_ENSURE_SUCCESS(rv, rv);
-    rv = dialog->Confirm(nullptr, errorMessage.get(), &dialogResult);
-    NS_ENSURE_SUCCESS(rv, rv);
-
-    if (dialogResult)
-    {
-      return NS_OK; // user says okay to replace
-    }
-    else
-    {
-      // if we don't re-init the path for redisplay the picker will
-      // show the full path, not just the file name
-      nsCOMPtr<nsIFile> currentFile = do_CreateInstance("@mozilla.org/file/local;1");
-      if (!currentFile) return NS_ERROR_FAILURE;
-
-      rv = currentFile->InitWithPath(path);
-      NS_ENSURE_SUCCESS(rv, rv);
-
-      nsAutoString leafName;
-      currentFile->GetLeafName(leafName);
-      if (!leafName.IsEmpty())
-        path.Assign(leafName); // path should be a copy of leafName
-
-      nsCOMPtr<nsIFilePicker> filePicker =
-        do_CreateInstance("@mozilla.org/filepicker;1", &rv);
-      NS_ENSURE_SUCCESS(rv, rv);
-      nsString saveAttachmentStr;
-      GetString(NS_LITERAL_STRING("SaveAttachment"), saveAttachmentStr);
-      filePicker->Init(mWindow,
-                       saveAttachmentStr,
-                       nsIFilePicker::modeSave);
-      filePicker->SetDefaultString(path);
-      filePicker->AppendFilters(nsIFilePicker::filterAll);
-
-      nsCOMPtr <nsIFile> lastSaveDir;
-      rv = GetLastSaveDirectory(getter_AddRefs(lastSaveDir));
-      if (NS_SUCCEEDED(rv) && lastSaveDir) {
-        filePicker->SetDisplayDirectory(lastSaveDir);
-      }
-
-      int16_t dialogReturn;
-      rv = ShowPicker(filePicker, &dialogReturn);
-      if (NS_FAILED(rv) || dialogReturn == nsIFilePicker::returnCancel) {
-        // XXX todo
-        // don't overload the return value like this
-        // change this function to have an out boolean
-        // that we check to see if the user cancelled
-        return NS_ERROR_FAILURE;
-      }
-
-      nsCOMPtr<nsIFile> localFile;
-
-      rv = filePicker->GetFile(getter_AddRefs(localFile));
-      NS_ENSURE_SUCCESS(rv, rv);
-
-      rv = SetLastSaveDirectory(localFile);
-      NS_ENSURE_SUCCESS(rv,rv);
-
-      // reset the file to point to the new path
-      return file->InitWithFile(localFile);
-    }
-  }
-  else
-  {
+  if (!exists)
     return NS_OK;
+
+  nsCOMPtr<nsIPrompt> dialog(do_GetInterface(mDocShell));
+  if (!dialog) return rv;
+  nsAutoString path;
+  bool dialogResult = false;
+  nsString errorMessage;
+
+  file->GetPath(path);
+  const char16_t *pathFormatStrings[] = { path.get() };
+
+  if (!mStringBundle)
+  {
+    rv = InitStringBundle();
+    NS_ENSURE_SUCCESS(rv, rv);
   }
-  return rv;
+  rv = mStringBundle->FormatStringFromName("fileExists",
+                                           pathFormatStrings, 1,
+                                           errorMessage);
+  NS_ENSURE_SUCCESS(rv, rv);
+  rv = dialog->Confirm(nullptr, errorMessage.get(), &dialogResult);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  if (dialogResult)
+    return NS_OK; // user says okay to replace
+
+  // if we don't re-init the path for redisplay the picker will
+  // show the full path, not just the file name
+  nsCOMPtr<nsIFile> currentFile = do_CreateInstance("@mozilla.org/file/local;1");
+  if (!currentFile) return NS_ERROR_FAILURE;
+
+  rv = currentFile->InitWithPath(path);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  nsAutoString leafName;
+  currentFile->GetLeafName(leafName);
+  if (!leafName.IsEmpty())
+    path.Assign(leafName); // path should be a copy of leafName
+
+  nsCOMPtr<nsIFilePicker> filePicker =
+    do_CreateInstance("@mozilla.org/filepicker;1", &rv);
+  NS_ENSURE_SUCCESS(rv, rv);
+  nsString saveAttachmentStr;
+  GetString(NS_LITERAL_STRING("SaveAttachment"), saveAttachmentStr);
+  filePicker->Init(mWindow,
+                   saveAttachmentStr,
+                   nsIFilePicker::modeSave);
+  filePicker->SetDefaultString(path);
+  filePicker->AppendFilters(nsIFilePicker::filterAll);
+
+  nsCOMPtr <nsIFile> lastSaveDir;
+  rv = GetLastSaveDirectory(getter_AddRefs(lastSaveDir));
+  if (NS_SUCCEEDED(rv) && lastSaveDir) {
+    filePicker->SetDisplayDirectory(lastSaveDir);
+  }
+
+  int16_t dialogReturn;
+  rv = ShowPicker(filePicker, &dialogReturn);
+  if (NS_FAILED(rv) || dialogReturn == nsIFilePicker::returnCancel) {
+    // XXX todo
+    // don't overload the return value like this
+    // change this function to have an out boolean
+    // that we check to see if the user cancelled
+    return NS_ERROR_FAILURE;
+  }
+
+  nsCOMPtr<nsIFile> localFile;
+
+  rv = filePicker->GetFile(getter_AddRefs(localFile));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  rv = SetLastSaveDirectory(localFile);
+  NS_ENSURE_SUCCESS(rv,rv);
+
+  // reset the file to point to the new path
+  return file->InitWithFile(localFile);
 }
 
 NS_IMETHODIMP
@@ -2398,7 +2389,6 @@ static int CompareAttachmentPartId(const char * aAttachUrlLeft, const char * aAt
     ++partIdRight;
   }
   while (true);
-  return 0;
 }
 
 // ------------------------------------
