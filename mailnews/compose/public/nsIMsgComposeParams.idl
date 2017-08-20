@@ -40,6 +40,12 @@ interface nsIMsgCompType {
     const long Redirect                 = 14;
 
     /**
+     * Used to compose a new message from an existing message. Links
+     * are sanitized since the message could be from external sources.
+     */
+    const long EditAsNew                = 15;
+
+    /**
      * Add this value to a reply type to suppress quoting the current selection
      * which may not belong to the message being replied to.
      */

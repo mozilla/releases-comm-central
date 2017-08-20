@@ -326,6 +326,7 @@ var stateListener = {
     case Components.interfaces.nsIMsgCompType.Draft:
     case Components.interfaces.nsIMsgCompType.Template:
     case Components.interfaces.nsIMsgCompType.Redirect:
+    case Components.interfaces.nsIMsgCompType.EditAsNew:
       break;
 
     default:
@@ -5310,6 +5311,7 @@ var gAttachmentNotifier =
          gComposeType == nsIMsgCompType.NewsPost ||
          gComposeType == nsIMsgCompType.Draft ||
          gComposeType == nsIMsgCompType.Template ||
+         gComposeType == nsIMsgCompType.EditAsNew ||
          gComposeType == nsIMsgCompType.MailToUrl))))
       mailData = subject + " " + mailData;
 

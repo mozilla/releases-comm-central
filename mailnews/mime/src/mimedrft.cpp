@@ -1468,10 +1468,13 @@ mime_parse_stream_complete (nsMIMESession *stream)
       //
       if (mdd->format_out == nsMimeOutput::nsMimeMessageEditorTemplate)
       {
-        MSG_ComposeType msgComposeType = PL_strstr(mdd->url_name,
-                                                   "&redirect=true") ?
-                                         nsIMsgCompType::Redirect :
-                                         nsIMsgCompType::Template;
+        MSG_ComposeType msgComposeType;
+        if (PL_strstr(mdd->url_name, "&redirect=true"))
+          msgComposeType = nsIMsgCompType::Redirect;
+        else if (PL_strstr(mdd->url_name, "&editasnew=true"))
+          msgComposeType = nsIMsgCompType::EditAsNew;
+        else
+          msgComposeType = nsIMsgCompType::Template;
         CreateTheComposeWindow(fields, newAttachData, msgComposeType,
                                composeFormat, mdd->identity,
                                mdd->originalMsgURI, mdd->origMsgHdr);

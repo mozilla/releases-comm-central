@@ -384,14 +384,20 @@ nsMsgComposeService::OpenComposeWindow(const char *msgComposeWindowURL, nsIMsgDB
   /* Actually, the only way to implement forward inline is to simulate a template message.
      Maybe one day when we will have more time we can change that
   */
-  if (type == nsIMsgCompType::ForwardInline || type == nsIMsgCompType::Draft || type == nsIMsgCompType::Template
-    || type == nsIMsgCompType::ReplyWithTemplate || type == nsIMsgCompType::Redirect)
+  if (type == nsIMsgCompType::ForwardInline || type == nsIMsgCompType::Draft ||
+      type == nsIMsgCompType::Template || type == nsIMsgCompType::ReplyWithTemplate ||
+      type == nsIMsgCompType::Redirect || type == nsIMsgCompType::EditAsNew)
   {
     nsAutoCString uriToOpen(originalMsgURI);
     uriToOpen += (uriToOpen.FindChar('?') == kNotFound) ? '?' : '&';
     uriToOpen.Append("fetchCompleteMessage=true");
+
+    // The compose type that gets transmitted to a compose window open in mime
+    // is communicated using url query parameters here.
     if (type == nsIMsgCompType::Redirect)
       uriToOpen.Append("&redirect=true");
+    else if (type == nsIMsgCompType::EditAsNew)
+      uriToOpen.Append("&editasnew=true");
 
     return LoadDraftOrTemplate(uriToOpen, type == nsIMsgCompType::ForwardInline || type == nsIMsgCompType::Draft ?
                                nsMimeOutput::nsMimeMessageDraftOrTemplate : nsMimeOutput::nsMimeMessageEditorTemplate,

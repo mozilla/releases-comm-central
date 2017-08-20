@@ -122,7 +122,8 @@ function getIdentityForHeader(hdr, type)
   let hintForIdentity = "";
   if (type == Components.interfaces.nsIMsgCompType.ReplyToList)
     hintForIdentity = findDeliveredToIdentityEmail();
-  else if (type == Components.interfaces.nsIMsgCompType.Template)
+  else if (type == Components.interfaces.nsIMsgCompType.Template ||
+           type == Components.interfaces.nsIMsgCompType.EditAsNew)
     hintForIdentity = hdr.author;
   else
     hintForIdentity = hdr.recipients + "," + hdr.ccList + "," +
