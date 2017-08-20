@@ -107,6 +107,7 @@ toolbox[labelalign="end"] .toolbarbutton-1[type="menu-button"]
 }
 
 .toolbarbutton-1[checked="true"] {
+  color: inherit;
   padding: 1px 5px !important;
 }
 
