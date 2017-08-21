@@ -342,53 +342,53 @@ char *yyname[] = {
 "END_VCAL","BEGIN_VEVENT","END_VEVENT","BEGIN_VTODO","END_VTODO","ID","STRING",
 };
 char *yyrule[] = {
-"$accept : mime",
-"mime : vobjects",
-"$$1 :",
-"vobjects : vobject $$1 vobjects",
-"vobjects : vobject",
-"vobject : vcard",
-"vobject : vcal",
-"$$2 :",
-"vcard : BEGIN_VCARD $$2 items END_VCARD",
-"$$3 :",
-"vcard : BEGIN_VCARD $$3 END_VCARD",
-"items : item items",
-"items : item",
-"$$4 :",
-"item : prop COLON $$4 values LINESEP",
-"item : error",
-"$$5 :",
-"prop : name $$5 attr_params",
-"prop : name",
-"attr_params : attr_param attr_params",
-"attr_params : attr_param",
-"attr_param : SEMICOLON attr",
-"attr : name",
-"attr : name EQ name",
-"name : ID",
-"$$6 :",
-"values : value SEMICOLON $$6 values",
-"values : value",
-"value : STRING",
-"value :",
-"$$7 :",
-"vcal : BEGIN_VCAL $$7 calitems END_VCAL",
-"$$8 :",
-"vcal : BEGIN_VCAL $$8 END_VCAL",
-"calitems : calitem calitems",
-"calitems : calitem",
-"calitem : eventitem",
-"calitem : todoitem",
-"calitem : items",
-"$$9 :",
-"eventitem : BEGIN_VEVENT $$9 items END_VEVENT",
-"$$10 :",
-"eventitem : BEGIN_VEVENT $$10 END_VEVENT",
-"$$11 :",
-"todoitem : BEGIN_VTODO $$11 items END_VTODO",
-"$$12 :",
-"todoitem : BEGIN_VTODO $$12 END_VTODO",
+  "$accept : mime",
+  "mime : vobjects",
+  "$$1 :",
+  "vobjects : vobject $$1 vobjects",
+  "vobjects : vobject",
+  "vobject : vcard",
+  "vobject : vcal",
+  "$$2 :",
+  "vcard : BEGIN_VCARD $$2 items END_VCARD",
+  "$$3 :",
+  "vcard : BEGIN_VCARD $$3 END_VCARD",
+  "items : item items",
+  "items : item",
+  "$$4 :",
+  "item : prop COLON $$4 values LINESEP",
+  "item : error",
+  "$$5 :",
+  "prop : name $$5 attr_params",
+  "prop : name",
+  "attr_params : attr_param attr_params",
+  "attr_params : attr_param",
+  "attr_param : SEMICOLON attr",
+  "attr : name",
+  "attr : name EQ name",
+  "name : ID",
+  "$$6 :",
+  "values : value SEMICOLON $$6 values",
+  "values : value",
+  "value : STRING",
+  "value :",
+  "$$7 :",
+  "vcal : BEGIN_VCAL $$7 calitems END_VCAL",
+  "$$8 :",
+  "vcal : BEGIN_VCAL $$8 END_VCAL",
+  "calitems : calitem calitems",
+  "calitems : calitem",
+  "calitem : eventitem",
+  "calitem : todoitem",
+  "calitem : items",
+  "$$9 :",
+  "eventitem : BEGIN_VEVENT $$9 items END_VEVENT",
+  "$$10 :",
+  "eventitem : BEGIN_VEVENT $$10 END_VEVENT",
+  "$$11 :",
+  "todoitem : BEGIN_VTODO $$11 items END_VTODO",
+  "$$12 :",
+  "todoitem : BEGIN_VTODO $$12 END_VTODO",
 };
 #endif
 #define yyclearin (yychar=(-1))
@@ -539,7 +539,7 @@ static void lexPopMode(int top)
 static int lexWithinMode(enum LexMode mode) {
   unsigned long i;
   for (i=0;i<lexBuf.lexModeStackTop;i++)
-  if (mode == lexBuf.lexModeStack[i]) return 1;
+    if (mode == lexBuf.lexModeStack[i]) return 1;
   return 0;
 }
 
@@ -855,7 +855,6 @@ static void finiLex() {
   PR_FREEIF(lexBuf.strs);
 }
 
-
 /******************************************************************************/
 /* This parses and converts the base64 format for binary encoding into
  * a decoded buffer (allocated with new).  See RFC 1521.
@@ -985,71 +984,71 @@ static int match_begin_end_name(int end) {
 }
 
 static char* lexGetQuotedPrintable()
-  {
+{
   char cur;
-  /*  unsigned long len = 0; */
+  /* unsigned long len = 0; */
 
   lexClearToken();
   do {
-  cur = lexGetc();
-  switch (cur) {
-  case '=': {
-    int c = 0;
-    int next[2];
-    int tab [1];
-    int i;
-    for (i = 0; i < 2; i++) {
-      next[i] = lexGetc();
-      if (next[i] >= '0' && next[i] <= '9')
-        c = c * 16 + next[i] - '0';
-      else if (next[i] >= 'A' && next[i] <= 'F')
-        c = c * 16 + next[i] - 'A' + 10;
-      else
-        break;
-    }
-    if (i == 0) {
-      /* single '=' follow by LINESEP is continuation sign? */
-      if (next[0] == '\n') {
-        tab[0] = lexGetc();
-        if (tab[0] == '\t')
-          lexSkipWhite();
-        ++mime_lineNum;
+    cur = lexGetc();
+    switch (cur) {
+    case '=': {
+      int c = 0;
+      int next[2];
+      int tab [1];
+      int i;
+      for (i = 0; i < 2; i++) {
+        next[i] = lexGetc();
+        if (next[i] >= '0' && next[i] <= '9')
+          c = c * 16 + next[i] - '0';
+        else if (next[i] >= 'A' && next[i] <= 'F')
+          c = c * 16 + next[i] - 'A' + 10;
+        else
+          break;
       }
-       else {
-        lexAppendc(cur);
-        /* lexPushLookaheadc('=');
-        goto EndString; */
+      if (i == 0) {
+        /* single '=' follow by LINESEP is continuation sign? */
+        if (next[0] == '\n') {
+          tab[0] = lexGetc();
+          if (tab[0] == '\t')
+            lexSkipWhite();
+          ++mime_lineNum;
+        }
+         else {
+          lexAppendc(cur);
+          /* lexPushLookaheadc('=');
+          goto EndString; */
+        }
       }
+      else if (i == 1) {
+        lexPushLookaheadc(next[1]);
+        lexPushLookaheadc(next[0]);
+        lexAppendc('=');
+      } else {
+        lexAppendc(c);
+      }
+      break;
+    } /* '=' */
+    case '\n': {
+      lexPushLookaheadc('\n');
+      goto EndString;
     }
-    else if (i == 1) {
-      lexPushLookaheadc(next[1]);
-      lexPushLookaheadc(next[0]);
-      lexAppendc('=');
-    } else {
-      lexAppendc(c);
+    case ';': {
+      lexPushLookaheadc(';');
+      goto EndString;
     }
-    break;
-  } /* '=' */
-  case '\n': {
-    lexPushLookaheadc('\n');
-    goto EndString;
-  }
-  case ';': {
-    lexPushLookaheadc(';');
-    goto EndString;
-  }
-  case (char)EOF:
-    break;
-  default:
-    lexAppendc(cur);
-    break;
-  } /* switch */
-} while (cur != (char)EOF);
+    case (char)EOF:
+      break;
+    default:
+      lexAppendc(cur);
+      break;
+    } /* switch */
+  } while (cur != (char)EOF);
 
 EndString:
   lexAppendc(0);
   return lexStr();
-  } /* LexQuotedPrintable */
+} /* LexQuotedPrintable */
 
 static int yylex() {
   /* int token = 0; */
