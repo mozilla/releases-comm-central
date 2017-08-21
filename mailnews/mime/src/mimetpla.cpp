@@ -193,10 +193,10 @@ MimeInlineTextPlain_parse_begin (MimeObject *obj)
               openingDiv += '\"';
             }
           }
-          openingDiv += "><pre wrap>\n";
+          openingDiv += "><pre wrap class=\"moz-quote-pre\">\n";
         }
         else
-          openingDiv = "<pre wrap>\n";
+          openingDiv = "<pre wrap class=\"moz-quote-pre\">\n";
 
       /* text/plain objects always have separators before and after them.
        Note that this is not the case for text/enriched objects. */
@@ -369,14 +369,14 @@ MimeInlineTextPlain_parse_line (const char *line, int32_t length, MimeObject *ob
         else
           prefaceResultStr += "<blockquote type=cite>";
       }
-      prefaceResultStr += "<pre wrap>\n";
+      prefaceResultStr += "<pre wrap class=\"moz-quote-pre\">\n";
     }
     else if (text->mCiteLevel < oldCiteLevel)
     {
       prefaceResultStr += "</pre>";
       for (uint32_t i = 0; i < oldCiteLevel - text->mCiteLevel; i++)
         prefaceResultStr += "</blockquote>";
-      prefaceResultStr += "<pre wrap>\n";
+      prefaceResultStr += "<pre wrap class=\"moz-quote-pre\">\n";
     }
 
     // Write plain text quoting tags
