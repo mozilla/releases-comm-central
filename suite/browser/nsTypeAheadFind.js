@@ -79,9 +79,7 @@ typeAheadFind.prototype = {
       // It's now safe to get our pref branch.
       this.mPrefs = Services.prefs.getBranch("accessibility.typeaheadfind.");
       // We need to add our event listeners to all windows.
-      Components.classes["@mozilla.org/embedcomp/window-watcher;1"]
-                .getService(Components.interfaces.nsIWindowWatcher)
-                .registerNotification(this);
+      Services.ww.registerNotification(this);
       // We also need to listen for find again commands
       Components.classes["@mozilla.org/observer-service;1"]
                 .getService(Components.interfaces.nsIObserverService)

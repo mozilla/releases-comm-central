@@ -2,6 +2,8 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+Components.utils.import("resource://gre/modules/Services.jsm");
+
 # Set the default content pack to the Mozilla content pack. Use the
 # setHelpFileURI function to set this value.
 var helpFileURI;
@@ -29,15 +31,15 @@ function openHelp(topic, contentPack)
     params.SetNumberStrings(2);
     params.SetString(0, helpFileURI);
     params.SetString(1, topic);
-    const ww = Components.classes["@mozilla.org/embedcomp/window-watcher;1"]
-                         .getService(Components.interfaces.nsIWindowWatcher);
 #ifdef XP_WIN
 #define HELP_ALWAYS_RAISED_TOGGLE
 #endif
 #ifdef HELP_ALWAYS_RAISED_TOGGLE
-    ww.openWindow(null, "chrome://help/content/help.xul", "_blank", "chrome,all,alwaysRaised,dialog=no", params);
+    Services.ww.openWindow(null, "chrome://help/content/help.xul", "_blank",
+                           "chrome,all,alwaysRaised,dialog=no", params);
 #else
-    ww.openWindow(null, "chrome://help/content/help.xul", "_blank", "chrome,all,dialog=no", params);
+    Services.ww.openWindow(null, "chrome://help/content/help.xul", "_blank",
+                           "chrome,all,dialog=no", params);
 #endif
   }
 }

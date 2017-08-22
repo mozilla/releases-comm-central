@@ -41,14 +41,14 @@ var Sanitizer = {
         item.willClear = itemPrefs.getBoolPref(itemName);
     }
     if (this._prefs.getBoolPref("promptOnSanitize")) {
-      var ww = Components.classes["@mozilla.org/embedcomp/window-watcher;1"]
-                         .getService(Components.interfaces.nsIWindowWatcher);
       // make this an app-modal window on Mac.
       var win = "nsILocalFileMac" in Components.interfaces ? null
                                                            : aParentWindow;
-      ww.openWindow(win,
-                    "chrome://communicator/content/sanitize.xul", "Sanitize",
-                    "chrome,titlebar,centerscreen,dialog,modal", null);
+      Services.ww.openWindow(win,
+                             "chrome://communicator/content/sanitize.xul",
+                             "Sanitize",
+                             "chrome,titlebar,centerscreen,dialog,modal",
+                             null);
     }
   },
 

@@ -26,7 +26,6 @@ const nsIPrefLocalizedString  = Components.interfaces.nsIPrefLocalizedString;
 const nsISupportsString       = Components.interfaces.nsISupportsString;
 const nsIURIFixup             = Components.interfaces.nsIURIFixup;
 const nsIWindowMediator       = Components.interfaces.nsIWindowMediator;
-const nsIWindowWatcher        = Components.interfaces.nsIWindowWatcher;
 const nsIWebNavigationInfo    = Components.interfaces.nsIWebNavigationInfo;
 
 const NS_ERROR_WONT_HANDLE_CONTENT = 0x805d0001;
@@ -163,12 +162,10 @@ function getURLToLoad()
 
 function openWindow(parent, url, features, arg)
 {
-  var wwatch = Components.classes["@mozilla.org/embedcomp/window-watcher;1"]
-                         .getService(nsIWindowWatcher);
   var argstring = Components.classes["@mozilla.org/supports-string;1"]
                             .createInstance(nsISupportsString);
   argstring.data = arg;
-  return wwatch.openWindow(parent, url, "", features, argstring);
+  return Services.ww.openWindow(parent, url, "", features, argstring);
 }
 
 function openPreferences()
@@ -231,10 +228,8 @@ function doSearch(aSearchTerm, aFeatures) {
 
   // XXXbsmedberg: use handURIToExistingBrowser to obey tabbed-browsing
   // preferences, but need nsIBrowserDOMWindow extensions
-  var wwatch = Components.classes["@mozilla.org/embedcomp/window-watcher;1"]
-                         .getService(nsIWindowWatcher);
-
-  return wwatch.openWindow(null, getBrowserURL(), "_blank", aFeatures, sa);
+  return Services.ww.openWindow(null, getBrowserURL(), "_blank", aFeatures,
+                                sa);
 }
 
 var nsBrowserContentHandler = {

@@ -120,13 +120,11 @@ nsDownloadManagerUI.prototype = {
         manager = TOOLKIT_MANAGER_URL;
     } catch(ex) {}
 
-    var ww = Cc["@mozilla.org/embedcomp/window-watcher;1"].
-             getService(Ci.nsIWindowWatcher);
-    ww.openWindow(parent,
-                  manager,
-                  null,
-                  "all,dialog=no",
-                  params);
+    Services.ww.openWindow(parent,
+                           manager,
+                           null,
+                           "all,dialog=no",
+                           params);
   },
 
   showProgress: function showProgress(aWindowContext, aDownload, aReason)
@@ -153,13 +151,11 @@ nsDownloadManagerUI.prototype = {
     reason.data = aReason;
     params.appendElement(reason, false);
 
-    var ww = Cc["@mozilla.org/embedcomp/window-watcher;1"].
-             getService(Ci.nsIWindowWatcher);
-    ww.openWindow(parent,
-                  "chrome://communicator/content/downloads/progressDialog.xul",
-                  null,
-                  "chrome,titlebar,centerscreen,minimizable=yes,dialog=no",
-                  params);
+    Services.ww.openWindow(parent,
+      "chrome://communicator/content/downloads/progressDialog.xul",
+      null,
+      "chrome,titlebar,centerscreen,minimizable=yes,dialog=no",
+      params);
   },
   //////////////////////////////////////////////////////////////////////////////
   //// nsISupports

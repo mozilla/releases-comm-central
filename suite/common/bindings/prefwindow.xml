@@ -118,6 +118,8 @@
     <implementation>
       <constructor>
         <![CDATA[
+          Components.utils.import("resource://gre/modules/Services.jsm");
+
           // grab the first child tree and try to tie it to the prefpanes
           var tree = this.getElementsByTagName('tree')[0];
           this.initNavigationTree(tree);
@@ -439,9 +441,11 @@
             params.SetNumberStrings(2);
             params.SetString(0, helpFileURI);
             params.SetString(1, topic);
-            const ww = Components.classes["@mozilla.org/embedcomp/window-watcher;1"]
-                                 .getService(Components.interfaces.nsIWindowWatcher);
-            ww.openWindow(null, "chrome://help/content/help.xul", "_blank", "chrome,all,alwaysRaised,dialog=no", params);
+            Services.ww.openWindow(null,
+                                   "chrome://help/content/help.xul",
+                                   "_blank", 
+                                   "chrome,all,alwaysRaised,dialog=no",
+                                   params);
           }
         ]]>
         </body>

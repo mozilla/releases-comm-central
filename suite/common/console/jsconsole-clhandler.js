@@ -6,6 +6,7 @@
 const Cc = Components.classes;
 const Ci = Components.interfaces;
 Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
+Components.utils.import("resource://gre/modules/Services.jsm");
 
 function jsConsoleHandler() {}
 jsConsoleHandler.prototype = {
@@ -17,10 +18,9 @@ jsConsoleHandler.prototype = {
              getService(Ci.nsIWindowMediator);
     var console = wm.getMostRecentWindow("suite:console");
     if (!console) {
-      var wwatch = Cc["@mozilla.org/embedcomp/window-watcher;1"].
-                   getService(Ci.nsIWindowWatcher);
-      wwatch.openWindow(null, "chrome://communicator/content/console/console.xul", 
-                        "_blank", "chrome,dialog=no,all", cmdLine);
+      Services.ww.openWindow(null,
+        "chrome://communicator/content/console/console.xul", 
+        "_blank", "chrome,dialog=no,all", cmdLine);
     } else {
       console.focus(); // the Error console was already open
     }
