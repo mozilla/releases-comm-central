@@ -1500,7 +1500,6 @@ function openUILinkIn(url, where, aAllowThirdPartyFixup, aPostData, aReferrerURI
 
   var aRelatedToCurrent;
   var aInitiatingDoc;
-  var aIsUTF8;
   if (arguments.length == 3 &&
       arguments[2] != null &&
       typeof arguments[2] == "object") {
@@ -1510,7 +1509,6 @@ function openUILinkIn(url, where, aAllowThirdPartyFixup, aPostData, aReferrerURI
     aReferrerURI          = params.referrerURI;
     aRelatedToCurrent     = params.relatedToCurrent;
     aInitiatingDoc        = params.initiatingDoc ? params.initiatingDoc : document;
-    aIsUTF8               = params.isUTF8;
   }
 
   if (where == "save") {
@@ -1520,7 +1518,7 @@ function openUILinkIn(url, where, aAllowThirdPartyFixup, aPostData, aReferrerURI
 
   if (where == "private") {
     window.openDialog(getBrowserURL(), "_blank", "private,chrome,all,dialog=no",
-                      url, null, null, aPostData, aAllowThirdPartyFixup, aIsUTF8);
+                      url, null, null, aPostData, aAllowThirdPartyFixup);
     return null;
   }
 
@@ -1528,7 +1526,7 @@ function openUILinkIn(url, where, aAllowThirdPartyFixup, aPostData, aReferrerURI
 
   if (!w || where == "window") {
     return window.openDialog(getBrowserURL(), "_blank", "chrome,all,dialog=no", url,
-                             null, null, aPostData, aAllowThirdPartyFixup, aIsUTF8);
+                             null, null, aPostData, aAllowThirdPartyFixup);
   }
 
   var loadInBackground = GetBoolPref("browser.tabs.loadInBackground", false);
@@ -1539,7 +1537,7 @@ function openUILinkIn(url, where, aAllowThirdPartyFixup, aPostData, aReferrerURI
 
   switch (where) {
   case "current":
-    w.loadURI(url, aReferrerURI, aPostData, aAllowThirdPartyFixup, aIsUTF8);
+    w.loadURI(url, aReferrerURI, aPostData, aAllowThirdPartyFixup);
     w.content.focus();
     break;
   case "tabfocused":
@@ -1556,7 +1554,6 @@ function openUILinkIn(url, where, aAllowThirdPartyFixup, aPostData, aReferrerURI
                 postData: aPostData,
                 allowThirdPartyFixup: aAllowThirdPartyFixup,
                 relatedToCurrent: aRelatedToCurrent,
-                isUTF8: aIsUTF8
               });
     if (!loadInBackground) {
       browser.selectedTab = tab;
