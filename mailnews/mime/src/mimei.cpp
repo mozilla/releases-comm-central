@@ -1715,7 +1715,7 @@ MimeOptions_write(MimeHeaders *hdrs, MimeDisplayOptions *opt, const char *data,
           if (lstatus < 0) return lstatus;
 
           nsCString escapedName;
-          escapedName.Adopt(MsgEscapeHTML(name.get()));
+          nsAppendEscapedHTML(name, escapedName);
 
           lstatus = opt->output_fn(escapedName.get(),
                                    escapedName.Length(), closure);

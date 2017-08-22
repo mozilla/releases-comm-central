@@ -380,23 +380,21 @@ MimeExternalBody_parse_eof (MimeObject *obj, bool abort_p)
       while (IS_SPACE(*s)) s++;
       if (*s)
       {
-        char *s2;
         const char *pre = "<P><PRE>";
         const char *suf = "</PRE>";
         int32_t i;
         for(i = strlen(s)-1; i >= 0 && IS_SPACE(s[i]); i--)
           s[i] = 0;
-        s2 = MsgEscapeHTML(s);
-        if (!s2) goto FAIL;
-        body = (char *) PR_MALLOC(strlen(pre) + strlen(s2) +
+        nsCString s2;
+        nsAppendEscapedHTML(nsDependentCString(s), s2);
+        body = (char *) PR_MALLOC(strlen(pre) + s2.Length() +
                                   strlen(suf) + 1);
         if (!body)
         {
-          NS_Free(s2);
           goto FAIL;
         }
         PL_strcpy(body, pre);
-        PL_strcat(body, s2);
+        PL_strcat(body, s2.get());
         PL_strcat(body, suf);
       }
     }
@@ -405,8 +403,8 @@ MimeExternalBody_parse_eof (MimeObject *obj, bool abort_p)
     newopt->headers = (all_headers_p ? MimeHeadersAll : MimeHeadersSome);
 
 FAIL:
-      if (hdrs)
-        MimeHeaders_free(hdrs);
+    if (hdrs)
+      MimeHeaders_free(hdrs);
     PR_FREEIF(h);
     PR_FREEIF(lname);
     PR_FREEIF(lurl);

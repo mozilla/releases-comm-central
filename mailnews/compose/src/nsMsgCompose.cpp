@@ -4131,14 +4131,10 @@ nsMsgCompose::ConvertTextToHTML(nsIFile *aSigFile, nsString &aSigData)
   // Ok, once we are here, we need to escape the data to make sure that
   // we don't do HTML stuff with plain text sigs.
   //
-  char16_t *escaped = MsgEscapeHTML2(origBuf.get(), origBuf.Length());
-  if (escaped)
-  {
-    aSigData.Append(escaped);
-    NS_Free(escaped);
-  }
-  else
-    aSigData.Append(origBuf);
+  nsCString escapedUTF8;
+  nsAppendEscapedHTML(NS_ConvertUTF16toUTF8(origBuf), escapedUTF8);
+  aSigData.Append(NS_ConvertUTF8toUTF16(escapedUTF8));
+
   return NS_OK;
 }
 
@@ -4526,14 +4522,9 @@ nsMsgCompose::ProcessSignature(nsIMsgIdentity *identity, bool aQuoted, nsString 
     {
       if (!htmlSig)
       {
-        char16_t* escaped = MsgEscapeHTML2(prefSigText.get(), prefSigText.Length());
-        if (escaped)
-        {
-          sigData.Append(escaped);
-          NS_Free(escaped);
-        }
-        else
-          sigData.Append(prefSigText);
+        nsCString escapedUTF8;
+        nsAppendEscapedHTML(NS_ConvertUTF16toUTF8(prefSigText), escapedUTF8);
+        sigData.Append(NS_ConvertUTF8toUTF16(escapedUTF8));
       }
       else {
         ReplaceFileURLs(prefSigText);

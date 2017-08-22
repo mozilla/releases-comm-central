@@ -311,18 +311,10 @@ nsMimeHtmlDisplayEmitter::EndHeader(const nsACString &name)
     const char * val = GetHeaderValue(HEADER_SUBJECT); // do not free this value
     if (val)
     {
-      char * subject = MsgEscapeHTML(val);
-      if (subject)
-      {
-        int32_t bufLen = strlen(subject) + 16;
-        char *buf = new char[bufLen];
-        if (!buf)
-          return NS_ERROR_OUT_OF_MEMORY;
-        PR_snprintf(buf, bufLen, "<title>%s</title>", subject);
-        UtilityWriteCRLF(buf);
-        delete [] buf;
-        free(subject);
-      }
+      nsCString subject("<title>");
+      nsAppendEscapedHTML(nsDependentCString(val), subject);
+      subject.AppendLiteral("</title>");
+      UtilityWriteCRLF(subject.get());
     }
 
     // Stylesheet info!
@@ -442,7 +434,7 @@ nsMimeHtmlDisplayEmitter::StartAttachmentInBody(const nsACString &name,
 
       UtilityWrite("<legend class=\"mimeAttachmentHeaderName\">");
       nsCString escapedName;
-      escapedName.Adopt(MsgEscapeHTML(NS_ConvertUTF16toUTF8(attachmentsHeader).get()));
+      nsAppendEscapedHTML(NS_ConvertUTF16toUTF8(attachmentsHeader), escapedName);
       UtilityWrite(escapedName.get());
       UtilityWrite("</legend>");
     }

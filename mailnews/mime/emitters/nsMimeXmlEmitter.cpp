@@ -54,20 +54,18 @@ nsMimeXmlEmitter::WriteXMLHeader(const char *msgID)
   if ( (!msgID) || (!*msgID) )
     msgID = "none";
 
-  char  *newValue = MsgEscapeHTML(msgID);
-  if (!newValue)
-    return NS_ERROR_OUT_OF_MEMORY;
+  nsCString newValue;
+  nsAppendEscapedHTML(nsDependentCString(msgID), newValue);
 
   UtilityWrite("<?xml version=\"1.0\"?>");
 
   UtilityWriteCRLF("<?xml-stylesheet href=\"chrome://messagebody/skin/messageBody.css\" type=\"text/css\"?>");
 
   UtilityWrite("<message id=\"");
-  UtilityWrite(newValue);
+  UtilityWrite(newValue.get());
   UtilityWrite("\">");
 
   mXMLHeaderStarted = true;
-  PR_FREEIF(newValue);
   return NS_OK;
 }
 
@@ -78,9 +76,8 @@ nsMimeXmlEmitter::WriteXMLTag(const char *tagName, const char *value)
     return NS_OK;
 
   char  *upCaseTag = NULL;
-  char  *newValue = MsgEscapeHTML(value);
-  if (!newValue)
-    return NS_OK;
+  nsCString newValue;
+  nsAppendEscapedHTML(nsDependentCString(value), newValue);
 
   nsCString newTagName(tagName);
   newTagName.StripWhitespace();
@@ -110,11 +107,10 @@ nsMimeXmlEmitter::WriteXMLTag(const char *tagName, const char *value)
 
   // Now write out the actual value itself and move on!
   //
-  UtilityWrite(newValue);
+  UtilityWrite(newValue.get());
   UtilityWrite("</header>");
 
   NS_Free(upCaseTag);
-  PR_FREEIF(newValue);
 
   return NS_OK;
 }

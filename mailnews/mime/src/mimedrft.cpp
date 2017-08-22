@@ -578,11 +578,13 @@ mime_intl_insert_message_header_1(char        **body,
   nsAutoCString utf8Value;
   MIME_DecodeMimeHeader(hdr_value, mailcharset, false, true, utf8Value);
   if (!utf8Value.IsEmpty()) {
-      char *escaped = nullptr;
-      if (htmlEdit)
-          escaped = MsgEscapeHTML(utf8Value.get());
-      NS_MsgSACat(body, escaped ? escaped : utf8Value.get());
-      NS_Free(escaped);
+      if (htmlEdit) {
+        nsCString escaped;
+        nsAppendEscapedHTML(utf8Value, escaped);
+        NS_MsgSACat(body, escaped.get());
+      } else {
+        NS_MsgSACat(body, utf8Value.get());
+      }
   } else {
       NS_MsgSACat(body, hdr_value); // raw MIME encoded string
   }
@@ -1091,11 +1093,12 @@ static void
 convert_plaintext_body_to_html(char **body, uint32_t bodyLen)
 {
   // We need to convert the plain/text to HTML in order to escape any HTML markup
-  char *escapedBody = MsgEscapeHTML(*body);
-  if (escapedBody)
+  nsCString escapedBody;
+  nsAppendEscapedHTML(nsDependentCString(*body), escapedBody);
+  if (!escapedBody.IsEmpty())
   {
     PR_Free(*body);
-    *body = escapedBody;
+    *body = strdup(escapedBody.get());
     bodyLen = strlen(*body);
   }
 

@@ -337,10 +337,6 @@ ConvertBufToPlainText(nsString &aConBuf, bool formatFlowed, bool delsp,
         (str).RFindChar(ch, len)
 #define MsgCompressWhitespace(str) \
         (str).CompressWhitespace()
-#define MsgEscapeHTML(str) \
-        nsEscapeHTML(str)
-#define MsgEscapeHTML2(buffer, len) \
-        nsEscapeHTML2(buffer, len)
 #define MsgReplaceSubstring(str, what, replacement) \
         (str).ReplaceSubstring(what, replacement)
 #define MsgIsUTF8(str) \

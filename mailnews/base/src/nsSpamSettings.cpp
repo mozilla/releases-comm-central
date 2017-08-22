@@ -746,13 +746,11 @@ NS_IMETHODIMP nsSpamSettings::LogJunkString(const char *string)
   // HTML-escape the log for security reasons.
   // We don't want someone to send us a message with a subject with
   // HTML tags, especially <script>.
-  char *escapedBuffer = MsgEscapeHTML(string);
-  if (!escapedBuffer)
-    return NS_ERROR_OUT_OF_MEMORY;
+  nsCString escapedBuffer;
+  nsAppendEscapedHTML(nsDependentCString(string), escapedBuffer);
 
-  uint32_t escapedBufferLen = strlen(escapedBuffer);
-  rv = logStream->Write(escapedBuffer, escapedBufferLen, &writeCount);
-  PR_Free(escapedBuffer);
+  uint32_t escapedBufferLen = escapedBuffer.Length();
+  rv = logStream->Write(escapedBuffer.get(), escapedBufferLen, &writeCount);
   NS_ENSURE_SUCCESS(rv,rv);
   NS_ASSERTION(writeCount == escapedBufferLen, "failed to write out log hit");
 

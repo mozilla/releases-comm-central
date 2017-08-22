@@ -519,12 +519,9 @@ NS_IMETHODIMP nsMsgComposeService::GetParamsForMailto(nsIURI * aURI, nsIMsgCompo
       {
         if (composeHTMLFormat)
         {
-          char *escaped = MsgEscapeHTML(bodyPart.get());
-          if (!escaped)
-            return NS_ERROR_OUT_OF_MEMORY;
-
-          CopyUTF8toUTF16(nsDependentCString(escaped), sanitizedBody);
-          free(escaped);
+          nsCString escaped;
+          nsAppendEscapedHTML(bodyPart, escaped);
+          CopyUTF8toUTF16(escaped, sanitizedBody);
         }
         else
           CopyUTF8toUTF16(bodyPart, rawBody);
