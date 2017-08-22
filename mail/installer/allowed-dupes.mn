@@ -13,8 +13,6 @@ chrome/messenger/content/messenger/cloudfile/Hightail/management.js
 chrome/devtools/modules/devtools/client/themes/splitters.css
 chrome/devtools/skin/splitters.css
 chrome/icons/default/default48.png
-chrome/toolkit/skin/classic/global/icons/find-next-arrow.svg
-chrome/classic/skin/classic/messenger/icons/arrow-dropdown.svg
 # calendar addon
 extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/skin/linux/lightning/imip.css
 extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/skin/windows/lightning/imip.css
