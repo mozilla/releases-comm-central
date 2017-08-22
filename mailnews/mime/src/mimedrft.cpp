@@ -1098,8 +1098,8 @@ convert_plaintext_body_to_html(char **body, uint32_t bodyLen)
   if (!escapedBody.IsEmpty())
   {
     PR_Free(*body);
-    *body = strdup(escapedBody.get());
-    bodyLen = strlen(*body);
+    *body = ToNewCString(escapedBody);
+    bodyLen = escapedBody.Length();
   }
 
    // +13 chars for <pre> & </pre> tags and CRLF
