@@ -1861,7 +1861,6 @@ function getPostDataStream(aStringData, aKeyword, aEncKeyword, aType)
   var mimeStream = Components.classes["@mozilla.org/network/mime-input-stream;1"]
                              .createInstance(Components.interfaces.nsIMIMEInputStream);
   mimeStream.addHeader("Content-Type", aType);
-  mimeStream.addContentLength = true;
   mimeStream.setData(dataStream);
   return mimeStream.QueryInterface(Components.interfaces.nsIInputStream);
 }
