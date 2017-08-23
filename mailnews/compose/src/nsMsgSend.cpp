@@ -27,7 +27,6 @@
 #include "nsMsgCopy.h"
 #include "nsUnicharUtils.h"
 #include "nsMsgPrompts.h"
-#include "nsIDOMHTMLBodyElement.h"
 #include "nsIDOMHTMLImageElement.h"
 #include "nsIDOMHTMLLinkElement.h"
 #include "nsIDOMHTMLAnchorElement.h"
@@ -79,6 +78,7 @@
 #include "mozilla/mailnews/MimeEncoder.h"
 #include "mozilla/mailnews/MimeHeaderParser.h"
 #include "mozilla/dom/HTMLImageElement.h"
+#include "mozilla/dom/HTMLBodyElement.h"
 #include "nsIMutableArray.h"
 #include "nsIMsgFilterService.h"
 #include "nsIMsgProtocolInfo.h"
@@ -1286,15 +1286,25 @@ nsMsgComposeAndSend::GetEmbeddedObjectInfo(nsIDOMNode *node, nsMsgAttachmentData
   if (!(mozDoNotSendAttr.IsEmpty() || mozDoNotSendAttr.LowerCaseEqualsLiteral("false")))
     return NS_OK;
 
+  // Sadly M-C don't offer mozilla::dom::HTMLBodyElement::FromContentOrNull()
+  // so we could do:
+  // nsCOMPtr<Element> bodyElement = do_QueryInterface(node);
+  // RefPtr<mozilla::dom::HTMLBodyElement> body =
+  //   mozilla::dom::HTMLBodyElement::FromContentOrNull(bodyElement);
+  // like we do for images. So we do things the hard way.
+#define getHTMLBodyElement(n) \
+  (n->IsHTMLElement(nsGkAtoms::body) ? static_cast<mozilla::dom::HTMLBodyElement*>(n.get()) : nullptr)
+
   // Now, we know the types of objects this node can be, so we will do
   // our query interface here and see what we come up with
-  nsCOMPtr<nsIDOMHTMLBodyElement>     body = (do_QueryInterface(node));
+  nsCOMPtr<nsINode> tempNode = do_QueryInterface(node);
+  RefPtr<mozilla::dom::HTMLBodyElement> body = getHTMLBodyElement(tempNode);
   // XXX convert to use nsIImageLoadingContent?
   nsCOMPtr<Element> imageElement = do_QueryInterface(node);
   RefPtr<mozilla::dom::HTMLImageElement> image =
     mozilla::dom::HTMLImageElement::FromContentOrNull(imageElement);
-  nsCOMPtr<nsIDOMHTMLLinkElement>     link = (do_QueryInterface(node));
-  nsCOMPtr<nsIDOMHTMLAnchorElement>   anchor = (do_QueryInterface(node));
+  nsCOMPtr<nsIDOMHTMLLinkElement>   link = do_QueryInterface(node);
+  nsCOMPtr<nsIDOMHTMLAnchorElement> anchor = do_QueryInterface(node);
 
   // First, try to see if the body as a background image
   if (body)
@@ -1828,12 +1838,13 @@ nsMsgComposeAndSend::ProcessMultipartRelated(int32_t *aMailboxCount, int32_t *aN
 
       // Now, we know the types of objects this node can be, so we will do
       // our query interface here and see what we come up with
-      nsCOMPtr<nsIDOMHTMLBodyElement>     body = (do_QueryInterface(domSaveArray[j].node));
+      nsCOMPtr<nsINode> tempNode = do_QueryInterface(domSaveArray[j].node);
+      RefPtr<mozilla::dom::HTMLBodyElement> body = getHTMLBodyElement(tempNode);
       nsCOMPtr<Element> imageElement = do_QueryInterface(domSaveArray[j].node);
       RefPtr<mozilla::dom::HTMLImageElement> image =
         mozilla::dom::HTMLImageElement::FromContentOrNull(imageElement);
-      nsCOMPtr<nsIDOMHTMLLinkElement>     link = (do_QueryInterface(domSaveArray[j].node));
-      nsCOMPtr<nsIDOMHTMLAnchorElement>   anchor = (do_QueryInterface(domSaveArray[j].node));
+      nsCOMPtr<nsIDOMHTMLLinkElement>   link = do_QueryInterface(domSaveArray[j].node);
+      nsCOMPtr<nsIDOMHTMLAnchorElement> anchor = do_QueryInterface(domSaveArray[j].node);
 
       if (anchor)
       {
@@ -1876,12 +1887,13 @@ nsMsgComposeAndSend::ProcessMultipartRelated(int32_t *aMailboxCount, int32_t *aN
 
     // Now, we know the types of objects this node can be, so we will do
     // our query interface here and see what we come up with
-    nsCOMPtr<nsIDOMHTMLBodyElement>     body = (do_QueryInterface(domSaveArray[i].node));
+    nsCOMPtr<nsINode> tempNode = do_QueryInterface(domSaveArray[i].node);
+    RefPtr<mozilla::dom::HTMLBodyElement> body = getHTMLBodyElement(tempNode);
     nsCOMPtr<Element> imageElement = do_QueryInterface(domSaveArray[i].node);
     RefPtr<mozilla::dom::HTMLImageElement> image =
       mozilla::dom::HTMLImageElement::FromContentOrNull(imageElement);
-    nsCOMPtr<nsIDOMHTMLLinkElement>     link = (do_QueryInterface(domSaveArray[i].node));
-    nsCOMPtr<nsIDOMHTMLAnchorElement>   anchor = (do_QueryInterface(domSaveArray[i].node));
+    nsCOMPtr<nsIDOMHTMLLinkElement>   link = do_QueryInterface(domSaveArray[i].node);
+    nsCOMPtr<nsIDOMHTMLAnchorElement> anchor = do_QueryInterface(domSaveArray[i].node);
 
       // STRING USE WARNING: hoisting the following conversion might save code-space, since it happens along every path
 
