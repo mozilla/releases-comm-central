@@ -7,8 +7,8 @@
 #MailPreferences {
   -moz-appearance: none;
   font-size: 12px;
-  background-color: #fbfbfb;
-  color: #424e5a;
+  background-color: var(--in-content-page-background);
+  color: var(--in-content-page-color);
 }
 
 /* Don't show the Close button on tab content */
@@ -16,24 +16,36 @@
   display: none;
 }
 
+#MailPreferences groupbox,
+#MailPreferences deck,
+#MailPreferences description {
+  font-size: 1.3rem;
+}
+
+input,
+description.indent,
+.indent > description {
+  font-size: 1.18rem !important;
+}
+
 #prefBox {
   position: relative;
 }
 
 #prefBox > windowdragbox {
-  background-color: #424e5a;
-  border-inline-end: 1px solid rgba(0, 0, 0, 0.20);
+  background-color: #ebebef;
+  width: 240px;
 }
 
 caption > label {
   font-size: 1.3rem;
-  font-weight: bold;
+  font-weight: 600;
   line-height: 22px;
   margin: 0 !important;
 }
 
 #preferencesContainer {
-  padding: 40px 48px;
+  padding: 40px 28px;
   overflow: auto;
 }
 
@@ -55,10 +67,10 @@ caption > label {
 
 .paneSelector {
   -moz-appearance: none;
-  background-color: #424e5a;
+  background-color: transparent;
   background-image: none;
   border-bottom: none;
-  padding: 39px 0 0;
+  padding: 40px 0 0;
   margin: 0;
   max-height: 100vh;
   overflow-x: auto;
@@ -67,28 +79,24 @@ caption > label {
 radio[pane] {
   -moz-box-orient: horizontal;
   -moz-appearance: none;
-  color: #c1c1c1;
+  width: 240px;
+  color: var(--in-content-category-text);
   border-right-width: 0;
   border-left-width: 0;
+  margin-inline-start: 34px;
   margin-inline-end: 0;
-  padding-inline-start: 15px;
-  padding-inline-end: 21px;
-  min-height: 40px;
+  padding: 5px 10px;
+  min-height: 44px;
   transition: background-color 150ms;
 }
 
-radio[pane]:hover {
-  color: #c1c1c1;
-  background-color: #5e6972;
-  background-image: none;
+radio[pane][selected] {
+  color: var(--in-content-category-text-selected);
+  background: none;
 }
 
-radio[pane][selected] {
-  background-image: none;
-  background-color: #343f48;
-  color: #f2f2f2;
-  padding-inline-start: 11px; /* compensate the 4px border */
-  border-inline-start: solid 4px #ff9500;
+radio[pane]:not([selected]):hover {
+  background: var(--in-content-category-hover);
 }
 
 radio[pane]:hover::before,
@@ -98,68 +106,83 @@ radio[pane][selected]::before {
 
 .paneButtonLabel {
   line-height: 22px;
-  font: message-box;
-  font-size: 1.25rem;
+  font-size: 1.45rem;
   padding-bottom: 2px;
   padding-inline-start: 9px;
   margin: 0;
-}
-
-@media (max-width: 800px) {
-  radio[pane] {
-    min-width: 54px;
-    padding-inline-end: 15px;
-  }
-
-  .paneButtonLabel {
-    display: none;
-  }
+  -moz-user-select: none;
 }
 
 .paneButtonIcon {
   width: 24px;
   height: 24px;
-  -moz-image-region: auto;
+  -moz-context-properties: fill, fill-opacity;
+  fill: currentColor;
+  fill-opacity: 0.8;
+}
+
+radio[pane][selected] > .paneButtonIcon {
+  fill-opacity: 1;
+}
+
+@media (max-width: 830px) {
+  #prefBox > windowdragbox {
+    width: 118px;
+  }
+
+  .paneButtonLabel {
+    display: none;
+  }
+
+  radio[pane] {
+    min-width: 44px;
+    margin-inline-end: 40px;
+  }
+
+  #preferencesContainer {
+    padding-inline-start: 0;
+    padding-inline-end: 10px;
+  }
 }
 
 radio[pane=paneGeneral] > .paneButtonIcon {
-  list-style-image: url("chrome://messenger/skin/shared/in-content/icons.svg#general");
+  list-style-image: url("chrome://messenger/skin/shared/in-content/general.svg");
 }
 
 radio[pane=paneDisplay] > .paneButtonIcon {
-  list-style-image: url("chrome://messenger/skin/shared/in-content/icons.svg#display");
+  list-style-image: url("chrome://messenger/skin/shared/in-content/display.svg");
 }
 
 radio[pane=paneApplications] > .paneButtonIcon {
-  list-style-image: url("chrome://messenger/skin/shared/in-content/icons.svg#applications");
+  list-style-image: url("chrome://messenger/skin/shared/in-content/attachment.svg");
 }
 
 radio[pane=panePrivacy] > .paneButtonIcon {
-  list-style-image: url("chrome://messenger/skin/shared/in-content/icons.svg#privacy");
+  list-style-image: url("chrome://messenger/skin/shared/in-content/privacy.svg");
 }
 
 radio[pane=paneSecurity]> .paneButtonIcon {
-  list-style-image: url("chrome://messenger/skin/shared/in-content/icons.svg#security");
+  list-style-image: url("chrome://messenger/skin/shared/in-content/security.svg");
 }
 
 radio[pane=paneCompose] > .paneButtonIcon {
-  list-style-image: url("chrome://messenger/skin/shared/in-content/icons.svg#compose");
+  list-style-image: url("chrome://messenger/skin/shared/in-content/compose.svg");
 }
 
 radio[pane=paneAdvanced] > .paneButtonIcon {
-  list-style-image: url("chrome://messenger/skin/shared/in-content/icons.svg#advanced");
+  list-style-image: url("chrome://messenger/skin/shared/in-content/advanced.svg");
 }
 
 radio[pane=paneChat] > .paneButtonIcon {
-  list-style-image: url("chrome://messenger/skin/shared/in-content/icons.svg#chat");
+  list-style-image: url("chrome://messenger/skin/shared/in-content/chat.svg");
 }
 
 radio[pane=paneLightning] > .paneButtonIcon {
-  list-style-image: url("chrome://messenger/skin/shared/in-content/icons.svg#calendar");
+  list-style-image: url("chrome://messenger/skin/shared/in-content/calendar.svg");
 }
 
 radio[pane=paneAccount] > .paneButtonIcon {
-  list-style-image: url("chrome://messenger/skin/shared/in-content/icons.svg#account");
+  list-style-image: url("chrome://messenger/skin/shared/in-content/account.svg");
 }
 
 /* Applications Pane Styles */
