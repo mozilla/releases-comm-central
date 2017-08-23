@@ -1309,14 +1309,14 @@ nsMsgComposeAndSend::GetEmbeddedObjectInfo(nsIDOMNode *node, nsMsgAttachmentData
   // First, try to see if the body as a background image
   if (body)
   {
-    nsAutoString    tUrl;
-    if (NS_SUCCEEDED(body->GetBackground(tUrl)))
-    {
-      nsAutoCString turlC;
-      CopyUTF16toUTF8(tUrl, turlC);
-      if (NS_FAILED(nsMsgNewURL(getter_AddRefs(attachment->m_url), turlC.get())))
-        return NS_OK;
-    }
+    mozilla::dom::DOMString tUrl;
+    body->GetBackground(tUrl);
+    if (tUrl.AsAString().IsEmpty())
+      return NS_OK;
+    nsAutoCString turlC;
+    CopyUTF16toUTF8(tUrl.AsAString(), turlC);
+    if (NS_FAILED(nsMsgNewURL(getter_AddRefs(attachment->m_url), turlC.get())))
+      return NS_OK;
     isImage = true;
   }
   else if (image)        // Is this an image?
@@ -1864,8 +1864,11 @@ nsMsgComposeAndSend::ProcessMultipartRelated(int32_t *aMailboxCount, int32_t *aN
       }
       else if (body)
       {
-        body->GetBackground(domURL);
-        body->SetBackground(newSpec);
+        mozilla::dom::DOMString background;
+        body->GetBackground(background);
+        domURL = background.AsAString();
+        IgnoredErrorResult rv2;
+        body->SetBackground(newSpec, rv2);
       }
 
       if (!domURL.IsEmpty())
@@ -1905,8 +1908,10 @@ nsMsgComposeAndSend::ProcessMultipartRelated(int32_t *aMailboxCount, int32_t *aN
       IgnoredErrorResult rv2;
       image->SetSrc(NS_ConvertASCIItoUTF16(domSaveArray[i].url), rv2);
     }
-    else if (body)
-      body->SetBackground(NS_ConvertASCIItoUTF16(domSaveArray[i].url));
+    else if (body) {
+      IgnoredErrorResult rv2;
+      body->SetBackground(NS_ConvertASCIItoUTF16(domSaveArray[i].url), rv2);
+    }
 
     free(domSaveArray[i].url);
   }
