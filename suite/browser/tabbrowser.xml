@@ -2414,6 +2414,8 @@
               if (aEvent.shiftKey)
                 bgLoad = !bgLoad;
 
+              let triggeringPrincipal = browserDragAndDrop.getTriggeringPrincipal(aEvent);
+
               var tab = null;
               tabIndex = this.getDropOnIndex(aEvent);
               if (tabIndex != -1) {

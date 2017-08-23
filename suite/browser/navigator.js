@@ -2974,3 +2974,21 @@ function onViewSecurityContextMenu()
 {
   document.getElementById("viewCertificate").disabled = !getCert();
 }
+
+var browserDragAndDrop = {
+  canDropLink: aEvent => Services.droppedLinkHandler.canDropLink(aEvent, true),
+
+  dragOver(aEvent) {
+    if (this.canDropLink(aEvent)) {
+      aEvent.preventDefault();
+    }
+  },
+
+  getTriggeringPrincipal(aEvent) {
+    return Services.droppedLinkHandler.getTriggeringPrincipal(aEvent);
+  },
+
+  dropLinks(aEvent, aDisallowInherit) {
+    return Services.droppedLinkHandler.dropLinks(aEvent, aDisallowInherit);
+  }
+};
