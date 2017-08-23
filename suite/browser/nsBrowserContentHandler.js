@@ -187,7 +187,7 @@ function getBrowserURL()
   return "chrome://navigator/content/navigator.xul";
 }
 
-function handURIToExistingBrowser(aUri, aLocation, aFeatures)
+function handURIToExistingBrowser(aUri, aLocation, aFeatures, aTriggeringPrincipal)
 {
   if (!shouldLoadURI(aUri))
     return;
@@ -200,7 +200,8 @@ function handURIToExistingBrowser(aUri, aLocation, aFeatures)
   }
 
   navWin.browserDOMWindow.openURI(aUri, null, aLocation,
-                                  nsIBrowserDOMWindow.OPEN_EXTERNAL);
+                                  nsIBrowserDOMWindow.OPEN_EXTERNAL,
+                                  aTriggeringPrincipal);
 }
 
 function doSearch(aSearchTerm, aFeatures) {
@@ -282,7 +283,8 @@ var nsBrowserContentHandler = {
           else if (RegExp.$3 == "new-tab")
             location = nsIBrowserDOMWindow.OPEN_NEWTAB;
 
-          handURIToExistingBrowser(uri, location, features);
+          handURIToExistingBrowser(uri, location, features,
+                                   Services.scriptSecurityManager.getSystemPrincipal());
           break;
 
         case "mailto":
@@ -383,7 +385,8 @@ var nsBrowserContentHandler = {
           urlParam = resolveURIInternal(cmdLine, urlParam);
           handURIToExistingBrowser(urlParam,
                                    nsIBrowserDOMWindow.OPEN_DEFAULTWINDOW,
-                                   features);
+                                   features,
+                                   Services.scriptSecurityManager.getSystemPrincipal());
         }
         cmdLine.preventDefault = true;
       }
@@ -396,7 +399,8 @@ var nsBrowserContentHandler = {
         var uri = resolveURIInternal(cmdLine, param);
         handURIToExistingBrowser(uri,
                                  nsIBrowserDOMWindow.OPEN_NEWWINDOW,
-                                 features);
+                                 features,
+                                 Services.scriptSecurityManager.getSystemPrincipal());
         cmdLine.preventDefault = true;
       }
     } catch (e) {
@@ -407,7 +411,8 @@ var nsBrowserContentHandler = {
         var uri = resolveURIInternal(cmdLine, param);
         handURIToExistingBrowser(uri,
                                  nsIBrowserDOMWindow.OPEN_NEWTAB,
-                                 features);
+                                 features,
+                                 Services.scriptSecurityManager.getSystemPrincipal());
         cmdLine.preventDefault = true;
       }
     } catch (e) {
@@ -434,7 +439,8 @@ var nsBrowserContentHandler = {
         fileParam = resolveURIInternal(cmdLine, fileParam);
         handURIToExistingBrowser(fileParam,
                                  nsIBrowserDOMWindow.OPEN_DEFAULTWINDOW,
-                                 features);
+                                 features,
+                                 Services.scriptSecurityManager.getSystemPrincipal());
         cmdLine.preventDefault = true;
       }
     } catch (e) {
@@ -461,7 +467,8 @@ var nsBrowserContentHandler = {
           arg = resolveURIInternal(cmdLine, arg);
           handURIToExistingBrowser(arg,
                                    nsIBrowserDOMWindow.OPEN_DEFAULTWINDOW,
-                                   features);
+                                   features,
+                                   Services.scriptSecurityManager.getSystemPrincipal());
           cmdLine.preventDefault = true;
         } catch (e) {
         }
@@ -620,7 +627,8 @@ var nsBrowserContentHandler = {
     request.QueryInterface(nsIChannel);
     handURIToExistingBrowser(request.URI,
                              nsIBrowserDOMWindow.OPEN_DEFAULTWINDOW,
-                             "chrome,all,dialog=no");
+                             "chrome,all,dialog=no",
+                             request.loadInfo.triggeringPrincipal);
     request.cancel(Components.results.NS_BINDING_ABORTED);
   },
 

@@ -395,7 +395,8 @@ nsBrowserAccess.prototype = {
                             : Components.interfaces.nsIScriptSecurityManager.DEFAULT_USER_CONTEXT_ID;
         let openerWindow = (aFlags & nsIBrowserDOMWindow.OPEN_NO_OPENER) ? null : aOpener;
 
-        var newTab = gBrowser.loadOneTab(uri, {inBackground: bgLoad,
+        var newTab = gBrowser.loadOneTab(uri, {triggeringPrincipal: aTriggeringPrincipal,
+                                               inBackground: bgLoad,
                                                fromExternal: isExternal,
                                                relatedToCurrent: isRelated,
                                                referrerURI: referrer,
@@ -417,6 +418,7 @@ nsBrowserAccess.prototype = {
                                                   flags: loadflags,
                                                   referrerURI: referrer,
                                                   userContextId: userContextId,
+                                                  triggeringPrincipal: aTriggeringPrincipal,
                                                  });
           }
           return content;
