@@ -8,7 +8,6 @@
 
 #include "nsISupports.h"
 #include "nsCOMPtr.h"
-#include "nsXPIDLString.h"
 #include "nsIInterfaceRequestor.h"
 #include "nsICMSMessage.h"
 #include "nsICMSMessage2.h"
