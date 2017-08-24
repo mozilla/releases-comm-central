@@ -148,8 +148,7 @@ interface nsIAbManager : nsISupports
   readonly attribute nsIFile userProfileDirectory;
 
   /**
-   * Finds out if the mailing list name exists in any *mork/MDB* based
-   * address book
+   * Finds out if the mailing list name exists in any address book.
    *
    * @param  aName      The name of the list to try and find.
    *

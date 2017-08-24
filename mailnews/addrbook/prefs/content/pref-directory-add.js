@@ -7,6 +7,7 @@
 Components.utils.import("resource://gre/modules/Services.jsm");
 Components.utils.import("resource:///modules/mailServices.js");
 Components.utils.import("resource:///modules/hostnameUtils.jsm");
+Components.utils.import("resource:///modules/iteratorUtils.jsm");
 
 var gCurrentDirectory = null;
 var gReplicationBundle = null;
@@ -285,18 +286,35 @@ function hasCharacters(number)
 function onAccept()
 {
   try {
-    var pref_string_content = "";
-    var pref_string_title = "";
+    let pref_string_content = "";
+    let pref_string_title = "";
 
-    var description = document.getElementById("description").value;
-    var hostname = cleanUpHostName(document.getElementById("hostname").value);
-    var port = document.getElementById("port").value;
-    var secure = document.getElementById("secure");
-    var results = document.getElementById("results").value;
-    var errorValue = null;
-    var saslMechanism = "";
-    if ((!description) || (description.trim() == ""))
+    let description = document.getElementById("description").value.trim();
+    let hostname = cleanUpHostName(document.getElementById("hostname").value);
+    let port = document.getElementById("port").value;
+    let secure = document.getElementById("secure");
+    let results = document.getElementById("results").value;
+    let errorValue = null;
+    let errorArg = null;
+    let saslMechanism = "";
+
+    let findDupeName = function(newName) {
+      // Do not allow an already existing name.
+      for (let ab of fixIterator(MailServices.ab.directories,
+                                 Components.interfaces.nsIAbDirectory)) {
+        if ((ab.dirName.toLowerCase() == newName.toLowerCase()) &&
+            (!gCurrentDirectory || (ab.URI != gCurrentDirectory.URI))) {
+          return ab.dirName;
+        }
+      }
+      return null;
+    };
+
+    if (!description)
       errorValue = "invalidName";
+    else if ((errorArg = findDupeName(description))) {
+      errorValue = "duplicateNameText";
+    }
     else if (!isLegalHostNameOrIP(hostname))
       errorValue = "invalidHostname";
     // XXX write isValidDn and call it on the dn string here?
@@ -304,6 +322,7 @@ function onAccept()
       errorValue = "invalidPortNumber";
     else if (results && hasCharacters(results))
       errorValue = "invalidResults";
+
     if (!errorValue) {
       // XXX Due to the LDAP c-sdk pass a dummy url to the IO service, then
       // update the parts (bug 473351).
@@ -351,23 +370,27 @@ function onAccept()
       window.opener.gNewServer = description;
       // set window.opener.gUpdate to true so that LDAP Directory Servers
       // dialog gets updated
-      window.opener.gUpdate = true; 
+      window.opener.gUpdate = true;
     } else {
-      var addressBookBundle = document.getElementById("bundle_addressBook");
+      let addressBookBundle = document.getElementById("bundle_addressBook");
 
-      Services.prompt.alert(window,
-                            document.title,
-                            addressBookBundle.getString(errorValue));
+      let errorText;
+      if (errorArg)
+        errorText = addressBookBundle.getFormattedString(errorValue, [errorArg])
+      else
+        errorText = addressBookBundle.getString(errorValue);
+
+      Services.prompt.alert(window, document.title, errorText);
       return false;
     }
   } catch (outer) {
-    dump("Internal error in pref-directory-add.js:onAccept() " + outer + "\n");
+    Components.utils.reportError("Internal error in pref-directory-add.js:onAccept() " + outer);
   }
   return true;
 }
 
 function onCancel()
-{  
+{
   window.opener.gUpdate = false;
 }
 
