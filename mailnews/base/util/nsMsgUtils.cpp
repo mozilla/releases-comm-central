@@ -63,7 +63,6 @@
 #include "nsIArray.h"
 #include "nsIMsgSearchTerm.h"
 #include "nsTextFormatter.h"
-#include "nsIAtomService.h"
 #include "nsIStreamListener.h"
 #include "nsReadLine.h"
 #include "nsICharsetDetectionObserver.h"

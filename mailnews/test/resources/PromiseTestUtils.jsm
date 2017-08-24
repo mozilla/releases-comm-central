@@ -164,9 +164,6 @@ PromiseTestUtils.PromiseStreamListener.prototype = {
 var nsIMFNService = Ci.nsIMsgFolderNotificationService;
 PromiseTestUtils.promiseFolderEvent = function promiseFolderEvent(folder, event) {
   return new Promise( (resolve, reject) => {
-    let eventAtom = Cc["@mozilla.org/atom-service;1"]
-                      .getService(Ci.nsIAtomService)
-                      .getAtom(event);
     let folderListener = {
       QueryInterface: XPCOMUtils.generateQI([Ci.nsIFolderListener]),
       OnItemEvent: function onItemEvent(aEventFolder, aEvent) {
