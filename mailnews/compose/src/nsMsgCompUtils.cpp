@@ -1533,7 +1533,7 @@ msg_pick_real_name (nsMsgAttachmentHandler *attachment, const char16_t *proposed
 
 // Utility to create a nsIURI object...
 nsresult
-nsMsgNewURL(nsIURI** aInstancePtrResult, const char * aSpec)
+nsMsgNewURL(nsIURI** aInstancePtrResult, const nsCString& aSpec)
 {
   nsresult rv = NS_OK;
   if (nullptr == aInstancePtrResult)
@@ -1541,7 +1541,7 @@ nsMsgNewURL(nsIURI** aInstancePtrResult, const char * aSpec)
   nsCOMPtr<nsIIOService> pNetService =
     mozilla::services::GetIOService();
   NS_ENSURE_TRUE(pNetService, NS_ERROR_UNEXPECTED);
-  if (PL_strstr(aSpec, "://") == nullptr && strncmp(aSpec, "data:", 5))
+  if (aSpec.Find("://") == kNotFound && !StringBeginsWith(aSpec, NS_LITERAL_CSTRING("data:")))
   {
     //XXXjag Temporary fix for bug 139362 until the real problem(bug 70083) get fixed
     nsAutoCString uri(NS_LITERAL_CSTRING("http://"));
@@ -1549,7 +1549,7 @@ nsMsgNewURL(nsIURI** aInstancePtrResult, const char * aSpec)
     rv = pNetService->NewURI(uri, nullptr, nullptr, aInstancePtrResult);
   }
   else
-    rv = pNetService->NewURI(nsDependentCString(aSpec), nullptr, nullptr, aInstancePtrResult);
+    rv = pNetService->NewURI(aSpec, nullptr, nullptr, aInstancePtrResult);
   return rv;
 }
 
@@ -1591,7 +1591,7 @@ nsMsgParseURLHost(const char *url)
   nsIURI        *workURI = nullptr;
   nsresult      rv;
 
-  rv = nsMsgNewURL(&workURI, url);
+  rv = nsMsgNewURL(&workURI, nsDependentCString(url));
   if (NS_FAILED(rv) || !workURI)
     return nullptr;
 

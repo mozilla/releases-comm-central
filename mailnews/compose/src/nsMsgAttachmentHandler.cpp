@@ -980,7 +980,7 @@ nsMsgAttachmentHandler::ConvertToAppleEncoding(const nsCString &aFileURI,
       return NS_ERROR_OUT_OF_MEMORY;
     }
 
-    if (NS_FAILED(nsMsgNewURL(getter_AddRefs(mURL), newURLSpec.get())))
+    if (NS_FAILED(nsMsgNewURL(getter_AddRefs(mURL), newURLSpec)))
     {
       PR_FREEIF(separator);
       return NS_ERROR_OUT_OF_MEMORY;
