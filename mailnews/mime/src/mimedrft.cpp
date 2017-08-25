@@ -1090,30 +1090,145 @@ mime_insert_forwarded_message_headers(char            **body,
 }
 
 static void
-convert_plaintext_body_to_html(char **body, uint32_t bodyLen)
+convert_plaintext_body_to_html(char **body)
 {
-  // We need to convert the plain/text to HTML in order to escape any HTML markup
+  // We need to convert the plain/text to HTML in order to escape any HTML markup.
   nsCString escapedBody;
   nsAppendEscapedHTML(nsDependentCString(*body), escapedBody);
-  if (!escapedBody.IsEmpty())
-  {
-    PR_Free(*body);
-    *body = ToNewCString(escapedBody);
-    bodyLen = escapedBody.Length();
+
+  nsCString newBody;
+  char *q = escapedBody.BeginWriting();
+  char *p;
+  int prevQuoteLevel = 0;
+  bool isFlowed = false;
+  bool haveSig = false;
+
+  // First detect whether this appears to be flowed or not.
+  p = q;
+  while (*p) {
+    // At worst we read the null byte terminator.
+    if (*p == ' ' && (*(p+1) == '\r' || *(p+1) == '\n')) {
+      // This looks flowed, but don't get fooled by a signature separator:
+      // --space
+      if (p-3 >= q && (*(p-3) == '\r' || *(p-3) == '\n') &&
+          *(p-2) == '-' && *(p-1) == '-') {
+        p++;
+        continue;
+      }
+      if (p-2 == q &&
+          *(p-2) == '-' && *(p-1) == '-') {
+        p++;
+        continue;
+      }
+      isFlowed = true;
+      break;
+    }
+    p++;
   }
 
-   // +13 chars for <pre> & </pre> tags and CRLF
-  uint32_t newbodylen = bodyLen + 14;
-  char* newbody = (char *)PR_MALLOC (newbodylen);
-  if (newbody)
-  {
-    *newbody = 0;
-    PL_strcatn(newbody, newbodylen, "<PRE>");
-    PL_strcatn(newbody, newbodylen, *body);
-    PL_strcatn(newbody, newbodylen, "</PRE>" CRLF);
-    PR_Free(*body);
-    *body = newbody;
+  while (*q) {
+    p = q;
+    // Detect quotes. A quote character is a ">" which was escaped to &gt;.
+    // In non-flowed messages the quote character can be optionally followed by a space.
+    // Examples:
+    // Level 0
+    //  > Level 0 (with leading space)
+    // > Level 1
+    // >  > Level 1 (with leading space, note the two spaces between the quote characters)
+    // >> Level 2
+    // > > Level 2 (only when non-flowed, otherwise Level 1 with leading space)
+    // >>> Level 3
+    // > > >  Level 3 (with leading space, only when non-flowed, otherwise Level 1)
+    int quoteLevel = 0;
+    while (strncmp(p, "&gt;", 4) == 0) {
+      p += 4;
+      if (!isFlowed && *p == ' ')
+        p++;
+      quoteLevel++;
+    }
+
+    // Eat space following quote character, for non-flowed already eaten above.
+    if (quoteLevel > 0 && isFlowed && *p == ' ')
+      p++;
+
+    // Close any open signatures if we find a quote. Strange, that shouldn't happen.
+    if (quoteLevel > 0 && haveSig) {
+      newBody.AppendLiteral("</pre>");
+      haveSig = false;
+    }
+    if (quoteLevel > prevQuoteLevel) {
+      while (prevQuoteLevel < quoteLevel) {
+        if (isFlowed)
+          newBody.AppendLiteral("<blockquote type=\"cite\">");
+        else
+          newBody.AppendLiteral("<blockquote type=\"cite\"><pre wrap class=\"moz-quote-pre\">");
+        prevQuoteLevel++;
+      }
+    } else if (quoteLevel < prevQuoteLevel) {
+      while (prevQuoteLevel > quoteLevel) {
+        if (isFlowed)
+          newBody.AppendLiteral("</blockquote>");
+        else
+          newBody.AppendLiteral("</pre></blockquote>");
+        prevQuoteLevel--;
+      }
+    }
+    // Position after the quote.
+    q = p;
+
+    // Detect signature.
+    bool forceBR = false;
+    if (quoteLevel == 0) {
+      if (strncmp(q, "-- \r", 4) == 0 || strncmp(q, "-- \n", 4) == 0) {
+        haveSig = true;
+        forceBR = true;
+        newBody.AppendLiteral("<pre class=\"moz-signature\">");
+      }
+    }
+
+    bool seenSpace = false;
+    while (*p && *p != '\r' && *p != '\n') {
+      seenSpace = (*p == ' ');
+      p++;
+      continue;
+    }
+    if (!*p) {
+      // We're at the end of the string.
+      if (p > q) {
+        // Copy last bit over.
+        newBody.Append(q);
+      }
+      break;
+    }
+    if (*p == '\r' && *(p+1) == '\n') { // At worst we read the null byte terminator.
+      // Skip the CR in CRLF.
+      *p = 0; // don't copy skipped \r.
+      p++;
+    }
+    *p = 0;
+    newBody.Append(q);
+    if (!isFlowed || !seenSpace || forceBR)
+      newBody.AppendLiteral("<br>");
+    q = p + 1;
   }
+
+  // Close all open quotes.
+  while (prevQuoteLevel > 0) {
+    if (isFlowed)
+      newBody.AppendLiteral("</blockquote>");
+    else
+      newBody.AppendLiteral("</pre></blockquote>");
+    prevQuoteLevel--;
+  }
+
+  // Close any open signatures.
+  if (haveSig) {
+    newBody.AppendLiteral("</pre>");
+    haveSig = false;
+  }
+
+  PR_Free(*body);
+  *body = ToNewCString(newBody);
 }
 
 static void
@@ -1437,7 +1552,7 @@ mime_parse_stream_complete (nsMIMESession *stream)
             if (body && composeFormat == nsIMsgCompFormat::PlainText)
             {
               // ... but the message body is currently plain text.
-              convert_plaintext_body_to_html(&body, bodyLen);
+              convert_plaintext_body_to_html(&body);
             }
             // Body is now HTML, set the format too (so headers are inserted in
             // correct format).
@@ -1499,7 +1614,7 @@ mime_parse_stream_complete (nsMIMESession *stream)
             // If they want HTML and they don't want to override it (true != false)
             // or they don't want HTML and they want to override it
             // (false != true), then convert.
-            convert_plaintext_body_to_html(&body, bodyLen);
+            convert_plaintext_body_to_html(&body);
             composeFormat = nsIMsgCompFormat::HTML;
           }
         }
@@ -1512,7 +1627,7 @@ mime_parse_stream_complete (nsMIMESession *stream)
         // "other" format.
         if (composeFormat == nsIMsgCompFormat::PlainText)
         {
-          convert_plaintext_body_to_html(&body, bodyLen);
+          convert_plaintext_body_to_html(&body);
           composeFormat = nsIMsgCompFormat::HTML;
         }
         else
