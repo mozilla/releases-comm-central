@@ -746,9 +746,7 @@
             var whereToOpen = this._prefs.getIntPref("browser.link.open_external");
 
             if (whereToOpen != nsIBrowserDOMWindow.OPEN_NEWWINDOW) {
-              var windowManager = Components.classes['@mozilla.org/appshell/window-mediator;1']
-                                            .getService(Components.interfaces.nsIWindowMediator);
-              browserWin = windowManager.getMostRecentWindow("navigator:browser");
+              browserWin = Services.wm.getMostRecentWindow("navigator:browser");
             }
 
             if (!browserWin) {
@@ -1996,6 +1994,8 @@
       </method>
       <constructor>
         <![CDATA[
+          Components.utils.import("resource://gre/modules/Services.jsm");
+
           var os = Components.classes["@mozilla.org/observer-service;1"]
                              .getService(Components.interfaces.nsIObserverService);
           os.addObserver(this, "indexedDB-permissions-prompt", false);

@@ -230,9 +230,7 @@ var Sanitizer = {
     formdata: {
       clear: function() {
         // Clear undo history of all search and find bars.
-        var windowManager = Components.classes['@mozilla.org/appshell/window-mediator;1']
-                                      .getService(Components.interfaces.nsIWindowMediator);
-        var windows = windowManager.getEnumerator("navigator:browser");
+        var windows = Services.wm.getEnumerator("navigator:browser");
         while (windows.hasMoreElements()) {
           var win = windows.getNext();
           var currentDocument = win.document;
@@ -253,9 +251,7 @@ var Sanitizer = {
       },
 
       canClear: function(aCallback, aArg) {
-        var windowManager = Components.classes['@mozilla.org/appshell/window-mediator;1']
-                                      .getService(Components.interfaces.nsIWindowMediator);
-        var windows = windowManager.getEnumerator("navigator:browser");
+        var windows = Services.wm.getEnumerator("navigator:browser");
         while (windows.hasMoreElements()) {
           var win = windows.getNext();
           var currentDocument = win.document;

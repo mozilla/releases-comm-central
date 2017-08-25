@@ -79,9 +79,7 @@ function runTest()
   const DLMGR_UI_DONE = "download-manager-ui-done";
 
   // Close the UI if necessary
-  var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
-                     .getService(Components.interfaces.nsIWindowMediator);
-  var win = wm.getMostRecentWindow("Download:Manager");
+  var win = Services.wm.getMostRecentWindow("Download:Manager");
   if (win) win.close();
 
   var testPhase = 0;

@@ -157,9 +157,7 @@ function test()
   dm.DBConnection.executeSimpleSQL("DELETE FROM moz_downloads");
 
   // See if the DM is already open, and if it is, close it!
-  var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
-                     .getService(Components.interfaces.nsIWindowMediator);
-  var win = wm.getMostRecentWindow("Download:Manager");
+  var win = Services.wm.getMostRecentWindow("Download:Manager");
   if (win)
     win.close();
 

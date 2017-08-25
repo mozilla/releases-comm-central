@@ -24,9 +24,7 @@ Console.prototype = {
   },
 
   open: function cs_open() {
-    var wMediator = Components.classes["@mozilla.org/appshell/window-mediator;1"]
-                              .getService(Ci.nsIWindowMediator);
-    var console = wMediator.getMostRecentWindow("global:console");
+    var console = Services.wm.getMostRecentWindow("global:console");
     if (!console) {
       Services.ww.openWindow(null, "chrome://global/content/console.xul",
                              "_blank", "chrome,dialog=no,all", null);

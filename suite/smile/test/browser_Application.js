@@ -1,5 +1,8 @@
 const Ci = Components.interfaces;
 const Cc = Components.classes;
+const Cu = Components.utils;
+
+Cu.import("resource://gre/modules/Services.jsm");
 
 // This listens for the next opened window and checks it is of the right url.
 // opencallback is called when the new window is fully loaded
@@ -64,8 +67,7 @@ function test() {
   ok(Application.name, "Check to see if a name exists for the Application");
   ok(Application.version, "Check to see if a version exists for the Application");
 
-  var wMediator = Cc["@mozilla.org/appshell/window-mediator;1"].getService(Ci.nsIWindowMediator);
-  var console = wMediator.getMostRecentWindow("suite:console");
+  var console = Services.wm.getMostRecentWindow("suite:console");
   waitForExplicitFinish();
   ok(!console, "Console should not already be open");
 

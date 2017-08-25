@@ -57,7 +57,7 @@ nsDownloadManagerUI.prototype = {
 
   getAttention: function getAttention()
   {
-    var window = this.recentWindow;
+    var window = Services.wm.getMostRecentWindow("Download:Manager");
     if (!window)
       throw Cr.NS_ERROR_UNEXPECTED;
 
@@ -72,17 +72,10 @@ nsDownloadManagerUI.prototype = {
 
   //////////////////////////////////////////////////////////////////////////////
   //// nsISuiteDownloadManagerUI
-
-  get recentWindow() {
-    var wm = Cc["@mozilla.org/appshell/window-mediator;1"].
-             getService(Ci.nsIWindowMediator);
-    return wm.getMostRecentWindow("Download:Manager");
-  },
-
   showManager: function showManager(aWindowContext, aDownload, aReason)
   {
     // First we see if it is already visible
-    let window = this.recentWindow;
+    let window = Services.wm.getMostRecentWindow("Download:Manager");
     if (window) {
       var prefs = Cc["@mozilla.org/preferences-service;1"].
                   getService(Ci.nsIPrefBranch);

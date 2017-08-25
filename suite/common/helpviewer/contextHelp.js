@@ -52,10 +52,7 @@ function setHelpFileURI(rdfURI)
 
 # Locate existing help window for this content pack.
 function locateHelpWindow(contentPack) {
-    const windowManagerInterface = Components
-        .classes['@mozilla.org/appshell/window-mediator;1'].getService()
-        .QueryInterface(Components.interfaces.nsIWindowMediator);
-    const iterator = windowManagerInterface.getEnumerator("suite:help");
+    const iterator = Services.wm.getEnumerator("suite:help");
     var topWindow = null;
     var aWindow;
 

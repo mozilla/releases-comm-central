@@ -346,9 +346,7 @@ var DownloadTaskbarProgressUpdater =
   _onActiveWindowUnload: function DTPU_onActiveWindowUnload(aTaskbarProgress)
   {
     if (this._activeTaskbarProgress == aTaskbarProgress) {
-      let windowMediator = Cc["@mozilla.org/appshell/window-mediator;1"].
-                           getService(Ci.nsIWindowMediator);
-      let windows = windowMediator.getEnumerator(null);
+      let windows = Services.wm.getEnumerator(null);
       let newActiveWindow = null;
       if (windows.hasMoreElements()) {
         newActiveWindow = windows.getNext().QueryInterface(Ci.nsIDOMWindow);

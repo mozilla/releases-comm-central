@@ -14,9 +14,7 @@ jsConsoleHandler.prototype = {
     if (!cmdLine.handleFlag("suiteconsole", false))
       return;
 
-    var wm = Cc["@mozilla.org/appshell/window-mediator;1"].
-             getService(Ci.nsIWindowMediator);
-    var console = wm.getMostRecentWindow("suite:console");
+    var console = Services.wm.getMostRecentWindow("suite:console");
     if (!console) {
       Services.ww.openWindow(null,
         "chrome://communicator/content/console/console.xul", 

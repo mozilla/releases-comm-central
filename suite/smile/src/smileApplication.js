@@ -6,6 +6,7 @@ const Ci = Components.interfaces;
 const Cc = Components.classes;
 
 Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
+Components.utils.import("resource://gre/modules/Services.jsm");
 
 const APPLICATION_CID = Components.ID("{c9ba8f65-c936-4ac6-a859-8936832b0c12}");
 const APPLICATION_CONTRACTID = "@mozilla.org/smile/application;1";
@@ -44,9 +45,7 @@ var Utilities = {
   },
 
   get windowMediator() {
-    let windowMediator =
-      Components.classes["@mozilla.org/appshell/window-mediator;1"]
-                .getService(Components.interfaces.nsIWindowMediator);
+    let windowMediator = Services.wm;
     this.__defineGetter__("windowMediator", () => windowMediator);
     return this.windowMediator;
   },
@@ -782,7 +781,7 @@ Application.prototype = {
 
   get windows() {
     var win = [];
-    var browserEnum = Utilities.windowMediator.getEnumerator("navigator:browser");
+    var browserEnum = Services.wm.getEnumerator("navigator:browser");
 
     while (browserEnum.hasMoreElements())
       win.push(getWindow(browserEnum.getNext()));
@@ -791,7 +790,7 @@ Application.prototype = {
   },
 
   get activeWindow() {
-    return getWindow(Utilities.windowMediator.getMostRecentWindow("navigator:browser"));
+    return getWindow(Services.wm.getMostRecentWindow("navigator:browser"));
   },
 
   // For steelIApplication compatibility.

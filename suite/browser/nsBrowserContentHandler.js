@@ -170,19 +170,12 @@ function openWindow(parent, url, features, arg)
 
 function openPreferences()
 {
-  var win = getMostRecentWindow("mozilla:preferences");
+  var win = Services.wm.getMostRecentWindow("mozilla:preferences");
   if (win)
     win.focus();
   else
     openWindow(null, "chrome://communicator/content/pref/preferences.xul",
                "chrome,titlebar,dialog=no,resizable", "");
-}
-
-function getMostRecentWindow(aType)
-{
-  var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
-                     .getService(nsIWindowMediator);
-  return wm.getMostRecentWindow(aType);
 }
 
 function getBrowserURL()
@@ -199,7 +192,7 @@ function handURIToExistingBrowser(uri, location, features)
   if (!shouldLoadURI(uri))
     return;
 
-  var navWin = getMostRecentWindow("navigator:browser");
+  var navWin = Services.wm.getMostRecentWindow("navigator:browser");
   if (navWin)
     navWin.browserDOMWindow.openURI(uri, null, location,
                                     nsIBrowserDOMWindow.OPEN_EXTERNAL);
