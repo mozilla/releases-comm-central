@@ -20,6 +20,7 @@
   skin/classic/messenger/icons/chat-toolbar.svg               (../shared/mail/icons/chat-toolbar.svg)
   skin/classic/messenger/icons/correspondents.svg             (../shared/mail/icons/correspondents.svg)
   skin/classic/messenger/icons/mail-toolbar.svg               (../shared/mail/icons/mail-toolbar.svg)
+  skin/classic/messenger/icons/overflow-indicator.png         (../shared/mail/icons/overflow-indicator.png)
   skin/classic/messenger/icons/search-glass.svg               (../shared/mail/icons/search-glass.svg)
   skin/classic/messenger/icons/toolbarbutton-arrow.svg        (../shared/mail/icons/toolbarbutton-arrow.svg)
   skin/classic/messenger/messengercompose/compose-toolbar.svg (../shared/mail/icons/compose-toolbar.svg)
