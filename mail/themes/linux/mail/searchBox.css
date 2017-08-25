@@ -83,8 +83,8 @@ textbox:not([searchbutton]) > .textbox-input-box > .textbox-search-sign {
 #IMSearchInput:-moz-lwtheme,
 #peopleSearchInput:-moz-lwtheme,
 .remote-gloda-search:-moz-lwtheme {
-  background-color: hsla(0,0%,100%,.8);
-  color: black;
+  background-color: var(--url-and-searchbar-background-color, hsla(0,0%,100%,.8));
+  color: var(--url-and-searchbar-color, black);
 }
 
 #searchInput:-moz-lwtheme:hover,
@@ -95,5 +95,5 @@ textbox:not([searchbutton]) > .textbox-input-box > .textbox-search-sign {
 #peopleSearchInput:-moz-lwtheme[focused="true"],
 .remote-gloda-search:-moz-lwtheme:hover,
 .remote-gloda-search:-moz-lwtheme[focused="true"] {
-  background-color: white;
+  background-color: var(--url-and-searchbar-background-color, white);
 }
