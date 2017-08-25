@@ -330,19 +330,10 @@ function SetDocumentTitle(title)
   } catch (e) {}
 }
 
-var gAtomService;
-function GetAtomService()
-{
-  gAtomService = Components.classes["@mozilla.org/atom-service;1"].getService(Components.interfaces.nsIAtomService);
-}
-
 function EditorGetTextProperty(property, attribute, value, firstHas, anyHas, allHas)
 {
   try {
-    if (!gAtomService) GetAtomService();
-    var propAtom = gAtomService.getAtom(property);
-
-    return GetCurrentEditor().getInlinePropertyWithAttrValue(propAtom,
+    return GetCurrentEditor().getInlinePropertyWithAttrValue(property,
                                 attribute, value, firstHas, anyHas, allHas);
   }
   catch(e) {}
@@ -351,10 +342,7 @@ function EditorGetTextProperty(property, attribute, value, firstHas, anyHas, all
 function EditorSetTextProperty(property, attribute, value)
 {
   try {
-    if (!gAtomService) GetAtomService();
-    var propAtom = gAtomService.getAtom(property);
-
-    GetCurrentEditor().setInlineProperty(propAtom, attribute, value);
+    GetCurrentEditor().setInlineProperty(property, attribute, value);
     if ("gContentWindow" in window)
       window.gContentWindow.focus();
   }
@@ -364,10 +352,7 @@ function EditorSetTextProperty(property, attribute, value)
 function EditorRemoveTextProperty(property, attribute)
 {
   try {
-    if (!gAtomService) GetAtomService();
-    var propAtom = gAtomService.getAtom(property);
-
-    GetCurrentEditor().removeInlineProperty(propAtom, attribute);
+    GetCurrentEditor().removeInlineProperty(property, attribute);
     if ("gContentWindow" in window)
       window.gContentWindow.focus();
   }
