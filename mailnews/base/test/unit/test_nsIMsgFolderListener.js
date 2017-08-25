@@ -108,7 +108,7 @@ gMFListener.prototype =
       MailServices.mfn.removeListener(this);
   },
 
-  itemEvent: function (aItem, aEvent, aData)
+  itemEvent: function (aItem, aEvent, aData, aString)
   {
     do_check_eq(this.mReceived & nsIMFNService.itemEvent, 0);
     this.mReceived |= nsIMFNService.itemEvent;
@@ -128,7 +128,7 @@ function NotifyMsgFolderListeners()
   MailServices.mfn.notifyFolderDeleted(null);
   MailServices.mfn.notifyFolderMoveCopyCompleted(null, null, null);
   MailServices.mfn.notifyFolderRenamed(null, null);
-  MailServices.mfn.notifyItemEvent(null, null, null);
+  MailServices.mfn.notifyItemEvent(null, null, null, null);
 }
 
 function run_test()

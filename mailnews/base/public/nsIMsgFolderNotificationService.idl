@@ -94,5 +94,6 @@ interface nsIMsgFolderNotificationService : nsISupports {
   // extensibility hook
   void notifyItemEvent(in nsISupports aItem,
                        in ACString aEvent,
-                       in nsISupports aData);
+                       in nsISupports aData,
+                       in AUTF8String aString);
 };

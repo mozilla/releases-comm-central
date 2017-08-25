@@ -106,8 +106,8 @@ var _folderEventLogHelper_msgFolderListener = {
     mark_action("msgEvent", "folderRenamed", [aOrigFolder, "to", aNewFolder]);
   },
 
-  itemEvent: function felh_itemEvent(aItem, aEvent, aData) {
-    mark_action("msgEvent", "itemEvent", [aItem, aEvent, aData]);
+  itemEvent: function felh_itemEvent(aItem, aEvent, aData, aString) {
+    mark_action("msgEvent", "itemEvent", [aItem, aEvent, aData, aString]);
   }
 };
 

@@ -221,13 +221,11 @@ SyntheticMessageSet.prototype = {
       msgHdr.setStringProperty("junkscore", junkscore);
     };
 
-    let atomService = Cc["@mozilla.org/atom-service;1"].
-                        getService(Ci.nsIAtomService);
-    let atom = atomService.getAtom(aIsJunk ? "junk" : "notjunk");
+    let str = aIsJunk ? "junk" : "notjunk";
     let xpcomHdrArray = toXPCOMArray(msgHdrs, Ci.nsIMutableArray);
     MailServices.mfn.notifyItemEvent(xpcomHdrArray,
                                      "JunkStatusChanged",
-                                     atom);
+                                     null, str);
   },
 
   /**

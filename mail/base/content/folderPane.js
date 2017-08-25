@@ -2524,7 +2524,8 @@ var gFolderTreeController = {
       gFolderDisplay.view.close();
 
       // Send a notification that we are triggering a database rebuild.
-      MailServices.mfn.notifyItemEvent(folder, "FolderReindexTriggered", null);
+      MailServices.mfn.notifyItemEvent(folder, "FolderReindexTriggered", null,
+                                       null);
 
       folder.msgDatabase.summaryValid = false;
 

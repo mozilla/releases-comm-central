@@ -198,7 +198,7 @@ interface nsIMsgFolderListener : nsISupports {
    *    point.  This is not guaranteed to be a comprehensive source of junk
    *    notification events; right now any time an nsMsgDBView marks things as
    *    junk/non-junk a notification is produced.  aItem is an nsIArray of
-   *    messages, aData is either a "junk" or "notjunk" atom if all of the
+   *    messages, aString is either a "junk" or "notjunk" string if all of the
    *    messages have the same state.
    *
    * - UnincorporatedMessageMoved: A messages received via POP was moved
@@ -207,6 +207,8 @@ interface nsIMsgFolderListener : nsISupports {
    * @param aItem The item the event takes place on
    * @param aEvent String describing the event
    * @param aData Data relevant to the event
+   * @param aData String relevant to the event
    */
-  void itemEvent(in nsISupports aItem, in ACString aEvent, in nsISupports aData);
+  void itemEvent(in nsISupports aItem, in ACString aEvent,
+                 in nsISupports aData, in AUTF8String aString);
 };

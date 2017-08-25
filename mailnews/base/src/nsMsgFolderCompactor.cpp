@@ -454,7 +454,8 @@ nsresult nsFolderCompactState::StartCompacting()
   if (notifier)
     notifier->NotifyItemEvent(m_folder,
                               NS_LITERAL_CSTRING("FolderCompactStart"),
-                              nullptr);
+                              nullptr,
+                              EmptyCString());
 
   // TODO: test whether sorting the messages (m_keyArray) by messageOffset
   // would improve performance on large files (less seeks).
@@ -642,7 +643,8 @@ nsFolderCompactState::FinishCompact()
   if (notifier)
     notifier->NotifyItemEvent(m_folder,
                               NS_LITERAL_CSTRING("FolderCompactFinish"),
-                              nullptr);
+                              nullptr,
+                              EmptyCString());
   m_folder->NotifyCompactCompleted();
 
   if (m_compactAll)

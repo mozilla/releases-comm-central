@@ -231,7 +231,8 @@ NS_IMETHODIMP nsRssIncomingServer::FolderRenamed(nsIMsgFolder *aOrigFolder,
 
 NS_IMETHODIMP nsRssIncomingServer::ItemEvent(nsISupports *aItem,
                                              const nsACString &aEvent,
-                                             nsISupports *aData)
+                                             nsISupports *aData,
+                                             const nsACString &aString)
 {
   return NS_ERROR_NOT_IMPLEMENTED;
 }

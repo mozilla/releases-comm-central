@@ -704,10 +704,12 @@ var SearchSupport =
         srcFile.moveTo(null, destName);
     },
 
-    itemEvent: function(aItem, aEvent, aData)
+    itemEvent: function(aItem, aEvent, aData, aString)
     {
       SearchIntegration._log.info("in itemEvent, aItem = " + aItem +
-                                  ", aEvent = " + aEvent + ", aData = " + aData);
+                                  ", aEvent = " + aEvent +
+                                  ", aData = " + aData +
+                                  ", aString = " + aString);
     }
   },
 

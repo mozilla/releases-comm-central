@@ -160,10 +160,12 @@ var gMFListener =
     }
   },
 
-  itemEvent: function(aFolder, aEvent, aBetterBeNull)
+  itemEvent: function(aFolder, aEvent, aBetterBeNull, aBetterBeEmpty)
   {
-    // we currently require the third argument to be null...
+    // we currently require the third argument to be null, and the fourth to be
+    // empty...
     do_check_eq(aBetterBeNull, null);
+    do_check_eq(aBetterBeEmpty, "");
     verify([gMFNService.itemEvent, aFolder, aEvent]);
     if (gExpectedEvents.length == 0)
     {

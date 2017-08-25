@@ -55,9 +55,6 @@
 using namespace mozilla::mailnews;
 nsrefcnt nsMsgDBView::gInstanceCount  = 0;
 
-nsIAtom * nsMsgDBView::kJunkMsgAtom = nullptr;
-nsIAtom * nsMsgDBView::kNotJunkMsgAtom = nullptr;
-
 char16_t * nsMsgDBView::kHighestPriorityString = nullptr;
 char16_t * nsMsgDBView::kHighPriorityString = nullptr;
 char16_t * nsMsgDBView::kLowestPriorityString = nullptr;
@@ -153,9 +150,6 @@ nsMsgDBView::nsMsgDBView()
 
 void nsMsgDBView::InitializeAtomsAndLiterals()
 {
-  kJunkMsgAtom = MsgNewAtom("junk").take();
-  kNotJunkMsgAtom = MsgNewAtom("notjunk").take();
-
   // priority strings
   kHighestPriorityString = GetString(u"priorityHighest");
   kHighPriorityString = GetString(u"priorityHigh");
@@ -177,9 +171,6 @@ nsMsgDBView::~nsMsgDBView()
   gInstanceCount--;
   if (gInstanceCount <= 0)
   {
-    NS_IF_RELEASE(kJunkMsgAtom);
-    NS_IF_RELEASE(kNotJunkMsgAtom);
-
     NS_Free(kHighestPriorityString);
     NS_Free(kHighPriorityString);
     NS_Free(kLowestPriorityString);
@@ -3071,8 +3062,10 @@ nsMsgDBView::ApplyCommandToIndices(nsMsgViewCommandTypeValue command, nsMsgViewI
       if (notifier)
         notifier->NotifyItemEvent(messages,
                                   NS_LITERAL_CSTRING("JunkStatusChanged"),
-                                  (command == nsMsgViewCommandType::junk) ?
-                                    kJunkMsgAtom : kNotJunkMsgAtom);
+                                  nullptr,
+                                  (command == nsMsgViewCommandType::junk)
+                                  ? NS_LITERAL_CSTRING("junk")
+                                  : NS_LITERAL_CSTRING("notjunk"));
     }
   }
 

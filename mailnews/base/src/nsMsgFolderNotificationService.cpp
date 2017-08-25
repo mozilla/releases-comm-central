@@ -164,9 +164,9 @@ NS_IMETHODIMP nsMsgFolderNotificationService::NotifyFolderRenamed(nsIMsgFolder *
   return NS_OK;
 }
 
-/* void notifyItemEvent (in nsISupports aItem, in string aEvent, in nsISupports aData); */
-NS_IMETHODIMP nsMsgFolderNotificationService::NotifyItemEvent(nsISupports *aItem, const nsACString &aEvent, nsISupports *aData)
+/* void notifyItemEvent (in nsISupports aItem, in string aEvent, in nsISupports aData, in AUTF8String aString); */
+NS_IMETHODIMP nsMsgFolderNotificationService::NotifyItemEvent(nsISupports *aItem, const nsACString &aEvent, nsISupports *aData, const nsACString &aString)
 {
-  NOTIFY_MSGFOLDER_LISTENERS(itemEvent, ItemEvent, (aItem, aEvent, aData));
+  NOTIFY_MSGFOLDER_LISTENERS(itemEvent, ItemEvent, (aItem, aEvent, aData, aString));
   return NS_OK;
 }

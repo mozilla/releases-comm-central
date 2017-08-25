@@ -2684,7 +2684,7 @@ var GlodaMsgIndexer = {
      * - JunkStatusChanged: We mark the messages that have had their junk
      *    state change to be reindexed.
      */
-    itemEvent: function gloda_indexer_itemEvent(aItem, aEvent, aData) {
+    itemEvent: function gloda_indexer_itemEvent(aItem, aEvent, aData, aString) {
       // Compact and Reindex are close enough that we can reuse the same code
       //  with one minor difference.
       if (aEvent == "FolderCompactStart" ||

@@ -298,7 +298,7 @@ var moveCopyModule =
     this.activityMgr.addActivity(event);
   },
 
-  itemEvent: function(aItem, aEvent, aData) {
+  itemEvent: function(aItem, aEvent, aData, aString) {
     if (aEvent == "UnincorporatedMessageMoved") {
       let srcFolder = aItem.QueryInterface(Components.interfaces.nsIMsgFolder);
       let msgHdr = aData.QueryInterface(Components.interfaces.nsIMsgDBHdr);

@@ -857,7 +857,8 @@ nsMsgMaildirStore::MoveNewlyDownloadedMessage(nsIMsgDBHdr *aHdr,
     if (notifier) {
       notifier->NotifyItemEvent(folder,
                                 NS_LITERAL_CSTRING("UnincorporatedMessageMoved"),
-                                newHdr);
+                                newHdr,
+                                EmptyCString());
     }
   }
 
