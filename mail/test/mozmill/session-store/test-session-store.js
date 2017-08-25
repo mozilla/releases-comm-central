@@ -14,8 +14,6 @@ var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers"];
 
 var controller = {};
 Cu.import("resource://mozmill/modules/controller.js", controller);
-var jumlib = {};
-Cu.import("resource://mozmill/modules/jum.js", jumlib);
 
 Cu.import("resource://gre/modules/FileUtils.jsm");
 Cu.import("resource:///modules/sessionStoreManager.js");
@@ -50,7 +48,7 @@ function readFile() {
 
 function waitForFileRefresh() {
   controller.sleep(kSaveDelayMs + asyncFileWriteDelayMS);
-  jumlib.assert(sessionStoreManager.sessionFile.exists(),
+  assert_true(sessionStoreManager.sessionFile.exists(),
                 "file should exist");
 }
 
@@ -104,7 +102,7 @@ function test_periodic_session_persistence_simple() {
   if (sessionFile.exists())
     sessionFile.remove(false);
 
-  jumlib.assert(!sessionFile.exists(), "file should not exist");
+  assert_false(sessionFile.exists(), "file should not exist");
 
   // change some state to guarantee the file will be recreated
   // if periodic session persistence works
@@ -129,7 +127,7 @@ function test_periodic_nondirty_session_persistence() {
   // since we didn't change the state of the session, the session file
   // should not be re-created
   controller.sleep(kSaveDelayMs + asyncFileWriteDelayMS);
-  jumlib.assert(!sessionFile.exists(), "file should not exist");
+  assert_false(sessionFile.exists(), "file should not exist");
 }
 
 function test_single_3pane_periodic_session_persistence() {
@@ -145,12 +143,12 @@ function test_single_3pane_periodic_session_persistence() {
 
   // load the saved state from disk
   let loadedState = readFile();
-  jumlib.assert(loadedState, "previously saved state should be non-null");
+  assert_true(loadedState, "previously saved state should be non-null");
 
   // get the state object for the one and only one 3pane window
   let windowState = loadedState.windows[0];
-  jumlib.assert(JSON.stringify(windowState) == JSON.stringify(state),
-                "saved state and loaded state should be equal");
+  assert_true(JSON.stringify(windowState) == JSON.stringify(state),
+              "saved state and loaded state should be equal");
 }
 
 function test_restore_single_3pane_persistence() {
@@ -368,15 +366,16 @@ function test_multiple_3pane_periodic_session_persistence() {
 
   // load the saved state from disk
   let loadedState = readFile();
-  jumlib.assert(loadedState, "previously saved state should be non-null");
+  assert_true(loadedState, "previously saved state should be non-null");
 
-  jumlib.assert(loadedState.windows.length == state.length,
+  assert_equals(loadedState.windows.length, state.length,
           "number of windows in saved state and loaded state should be equal");
 
-  for (var i = 0; i < state.length; ++i)
-    jumlib.assert(
-            JSON.stringify(loadedState.windows[i]) == JSON.stringify(state[i]),
-            "saved state and loaded state should be equal");
+  for (let i = 0; i < state.length; ++i) {
+    assert_true(
+      JSON.stringify(loadedState.windows[i]) == JSON.stringify(state[i]),
+      "saved state and loaded state should be equal");
+  }
 
   // close all but one 3pane window
   enumerator = Services.wm.getEnumerator("mail:3pane");
@@ -401,15 +400,15 @@ async function test_bad_session_file_simple() {
 
   // since the session file is bad, the session store manager's state field
   // should be null
-  jumlib.assert(!sessionStoreManager._initialState,
-                "saved state is bad so state object should be null");
+  assert_false(sessionStoreManager._initialState,
+               "saved state is bad so state object should be null");
 
   // Wait for bad file async rename to finish.
   controller.sleep(kSaveDelayMs + asyncFileWriteDelayMS);
 
   // The bad session file should now not exist.
-  jumlib.assert(!sessionStoreManager.sessionFile.exists(),
-                "file should not exist");
+  assert_false(sessionStoreManager.sessionFile.exists(),
+               "file should not exist");
 }
 
 function test_clean_shutdown_session_persistence_simple() {
@@ -439,15 +438,15 @@ function test_clean_shutdown_session_persistence_simple() {
 
   // load the saved state from disk
   let loadedState = readFile();
-  jumlib.assert(loadedState, "previously saved state should be non-null");
+  assert_true(loadedState, "previously saved state should be non-null");
 
-  jumlib.assert(1 == loadedState.windows.length,
+  assert_equals(loadedState.windows.length, 1,
           "only the state of the last 3pane window should have been saved");
 
   // get the state object for the one and only one 3pane window
   let windowState = loadedState.windows[0];
-  jumlib.assert(JSON.stringify(windowState) == JSON.stringify(lastWindowState),
-                "saved state and loaded state should be equal");
+  assert_true(JSON.stringify(windowState) == JSON.stringify(lastWindowState),
+              "saved state and loaded state should be equal");
 
 
   open3PaneWindow();

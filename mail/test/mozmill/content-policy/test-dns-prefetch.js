@@ -14,12 +14,6 @@ var MODULE_NAME = "test-dns-prefetch";
 var RELATIVE_ROOT = '../shared-modules';
 var MODULE_REQUIRES = ['folder-display-helpers', 'compose-helpers',
                        'content-tab-helpers'];
-var jumlib = {};
-Components.utils.import("resource://mozmill/modules/jum.js", jumlib);
-var elib = {};
-Components.utils.import('resource://mozmill/modules/elementslib.js', elib);
-
-Components.utils.import("resource://gre/modules/Services.jsm");
 
 var folder = null;
 var composeHelper = null;

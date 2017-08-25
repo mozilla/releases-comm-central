@@ -12,10 +12,6 @@ var MODULE_NAME = 'test-exposed-in-content-tabs';
 var RELATIVE_ROOT = '../shared-modules';
 var MODULE_REQUIRES = ['folder-display-helpers', 'compose-helpers',
                        'content-tab-helpers'];
-var jumlib = {};
-Components.utils.import("resource://mozmill/modules/jum.js", jumlib);
-var elib = {};
-Components.utils.import('resource://mozmill/modules/elementslib.js', elib);
 
 var folder = null;
 var composeHelper = null;

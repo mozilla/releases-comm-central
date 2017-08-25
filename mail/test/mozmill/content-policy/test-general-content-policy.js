@@ -26,8 +26,7 @@ var MODULE_REQUIRES = ['folder-display-helpers', 'window-helpers',
                          'compose-helpers', 'content-tab-helpers',
                          'keyboard-helpers',
                          'notificationbox-helpers'];
-var jumlib = {};
-Components.utils.import("resource://mozmill/modules/jum.js", jumlib);
+
 var elib = {};
 Components.utils.import('resource://mozmill/modules/elementslib.js', elib);
 var os = {};
