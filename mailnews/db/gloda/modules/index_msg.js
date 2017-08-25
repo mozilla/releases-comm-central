@@ -37,10 +37,6 @@ Cu.import("resource:///modules/gloda/indexer.js");
 
 Cu.import("resource:///modules/gloda/mimemsg.js");
 
-XPCOMUtils.defineLazyServiceGetter(this, "atomService",
-                                   "@mozilla.org/atom-service;1",
-                                   "nsIAtomService");
-
 // Components.results does not have mailnews error codes!
 var NS_MSG_ERROR_FOLDER_SUMMARY_OUT_OF_DATE = 0x80550005;
 
@@ -2769,29 +2765,6 @@ var GlodaMsgIndexer = {
       this.indexer = aIndexer;
     },
 
-    // We explicitly know about these things rather than bothering with some
-    // form of registration scheme because these aren't going to change much.
-    get _kFolderLoadedAtom() {
-      delete this._kFolderLoadedAtom;
-      return this._kFolderLoadedAtom = atomService.getAtom("FolderLoaded");
-    },
-    get _kKeywordsAtom() {
-      delete this._kKeywordsAtom;
-      return this._kKeywordsAtom = atomService.getAtom("Keywords");
-    },
-    get _kStatusAtom() {
-      delete this._kStatusAtom;
-      return this._kStatusAtom = atomService.getAtom("Status");
-    },
-    get _kFlaggedAtom() {
-      delete this._kFlaggedAtom;
-      return this._kFlaggedAtom = atomService.getAtom("Flagged");
-    },
-    get _kFolderFlagAtom() {
-      delete this._kFolderFlagAtom;
-      return this._kFolderFlagAtom = atomService.getAtom("FolderFlag");
-    },
-
     OnItemAdded: function gloda_indexer_OnItemAdded(aParentItem, aItem) {
     },
     OnItemRemoved: function gloda_indexer_OnItemRemoved(aParentItem, aItem) {
@@ -2806,7 +2779,7 @@ var GlodaMsgIndexer = {
      */
     OnItemIntPropertyChanged: function gloda_indexer_OnItemIntPropertyChanged(
                                 aFolderItem, aProperty, aOldValue, aNewValue) {
-      if (aProperty !== this._kFolderFlagAtom)
+      if (aProperty.toString() !== "FolderFlag")
         return;
       if (!GlodaMsgIndexer.shouldIndexFolder(aFolderItem))
         return;
@@ -2830,14 +2803,15 @@ var GlodaMsgIndexer = {
      */
     OnItemPropertyFlagChanged: function gloda_indexer_OnItemPropertyFlagChanged(
                                 aMsgHdr, aProperty, aOldValue, aNewValue) {
-      if (aProperty == this._kKeywordsAtom ||
+      let propertyString = aProperty.toString();
+      if (propertyString == "Keywords" ||
           // We could care less about the new flag changing.
-          (aProperty == this._kStatusAtom &&
+          (propertyString == "Status" &&
            (aOldValue ^ aNewValue) != nsMsgMessageFlags.New &&
            // We do care about IMAP deletion, but msgsDeleted tells us that, so
            //  ignore IMAPDeleted too...
            (aOldValue ^ aNewValue) != nsMsgMessageFlags.IMAPDeleted) ||
-          aProperty == this._kFlaggedAtom) {
+          propertyString == "Flagged") {
         GlodaMsgIndexer._reindexChangedMessages([aMsgHdr], true);
       }
     },
@@ -2847,7 +2821,7 @@ var GlodaMsgIndexer = {
      *  (asynchronous) processing before they could be opened.
      */
     OnItemEvent: function gloda_indexer_OnItemEvent(aFolder, aEvent) {
-      if (aEvent == this._kFolderLoadedAtom)
+      if (aEvent.toString() == "FolderLoaded")
         this.indexer._onFolderLoaded(aFolder);
     },
   },

@@ -58,12 +58,9 @@ function* test_cancel() {
   let db = folder.msgDatabase;
   let hdr = db.GetMsgHdrForKey(4);
 
-  let atomService = Cc['@mozilla.org/atom-service;1']
-                      .getService(Ci.nsIAtomService);
-  let kDeleteAtom = atomService.getAtom("DeleteOrMoveMsgCompleted");
   let folderListener = {
     OnItemEvent: function(aEventFolder, aEvent) {
-      if (aEvent == kDeleteAtom) {
+      if (aEvent.toString() == "DeleteOrMoveMsgCompleted") {
         MailServices.mailSession.RemoveFolderListener(this);
       }
     }

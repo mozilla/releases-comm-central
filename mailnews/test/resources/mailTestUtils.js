@@ -454,13 +454,9 @@ var mailTestUtils = {
       aCallbackArgs, aSomeoneElseWillTriggerTheUpdate) {
     // register for the folder loaded notification ahead of time... even though
     //  we may not need it...
-    let atomService = Cc["@mozilla.org/atom-service;1"]
-                        .getService(Ci.nsIAtomService);
-    let kFolderLoadedAtom = atomService.getAtom("FolderLoaded");
-
     let folderListener = {
       OnItemEvent: function (aEventFolder, aEvent) {
-        if (aEvent == kFolderLoadedAtom && aFolder.URI == aEventFolder.URI) {
+        if (aEvent.toString() == "FolderLoaded" && aFolder.URI == aEventFolder.URI) {
           MailServices.mailSession.RemoveFolderListener(this);
           aCallback.apply(aCallbackThis, aCallbackArgs);
         }

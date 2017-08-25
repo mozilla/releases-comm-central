@@ -18,9 +18,6 @@ Components.utils.import("resource:///modules/mailServices.js");
 
 setupIMAPPump();
 
-var kBiffStateAtom = Cc["@mozilla.org/atom-service;1"]
-                         .getService(Ci.nsIAtomService)
-                         .getAtom("BiffState");
 // Dummy message window so we can say the inbox is open in a window.
 var dummyMsgWindow =
 {
@@ -32,7 +29,7 @@ var dummyMsgWindow =
 var gFolderListener = {
   _gotNewMailBiff: false,
   OnItemIntPropertyChanged : function(aItem, aProperty, aOldValue, aNewValue) {
-    if (aProperty == kBiffStateAtom &&
+    if (aProperty.toString() == "BiffState" &&
         aNewValue == Ci.nsIMsgFolder.nsMsgBiffState_NewMail) {
       this._gotNewMailBiff = true;
       async_driver();
