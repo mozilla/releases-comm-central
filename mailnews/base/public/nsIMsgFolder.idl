@@ -674,27 +674,27 @@ interface nsIMsgFolder : nsISupports {
 
   void AddFolderListener(in nsIFolderListener listener);
   void RemoveFolderListener(in nsIFolderListener listener);
-  void NotifyPropertyChanged(in nsIAtom property,
+  void NotifyPropertyChanged(in ACString property,
                              in ACString oldValue,
                              in ACString newValue);
-  void NotifyIntPropertyChanged(in nsIAtom property,
+  void NotifyIntPropertyChanged(in ACString property,
                                 in long long oldValue,
                                 in long long newValue);
-  void NotifyBoolPropertyChanged(in nsIAtom property,
+  void NotifyBoolPropertyChanged(in ACString property,
                                  in boolean oldValue,
                                  in boolean newValue);
   void NotifyPropertyFlagChanged(in nsIMsgDBHdr item,
-                                 in nsIAtom property,
+                                 in ACString property,
                                  in unsigned long oldValue,
                                  in unsigned long newValue);
-  void NotifyUnicharPropertyChanged(in nsIAtom property,
+  void NotifyUnicharPropertyChanged(in ACString property,
                                     in AString oldValue,
                                     in AString newValue);
 
   void NotifyItemAdded(in nsISupports item);
   void NotifyItemRemoved(in nsISupports item);
 
-  void NotifyFolderEvent(in nsIAtom event);
+  void NotifyFolderEvent(in ACString event);
 
   //  void NotifyFolderLoaded();
   //  void NotifyDeleteOrMoveMessagesCompleted(in nsIMsgFolder folder);

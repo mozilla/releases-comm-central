@@ -15,7 +15,6 @@
 #include "nsInterfaceRequestorAgg.h"
 #include "nsILoadGroup.h"
 #include "nsIArray.h"
-#include "nsIAtom.h"
 #include "nsINetUtil.h"
 #include "nsIRequest.h"
 #include "nsILoadInfo.h"
@@ -345,10 +344,6 @@ ConvertBufToPlainText(nsString &aConBuf, bool formatFlowed, bool delsp,
         NS_NewInterfaceRequestorAggregation(aFirst, aSecond, aResult)
 #define MsgNewNotificationCallbacksAggregation(aCallbacks, aLoadGroup, aResult) \
         NS_NewNotificationCallbacksAggregation(aCallbacks, aLoadGroup, aResult)
-#define MsgGetAtom(aString) \
-        NS_Atomize(aString)
-#define MsgNewAtom(aString) \
-        NS_Atomize(aString)
 #define MsgReplaceChar(aString, aNeedle, aReplacement) \
         (aString).ReplaceChar(aNeedle, aReplacement)
 #define MsgFind(str, what, ignore_case, offset) \

@@ -13,6 +13,7 @@
 #include "nsIMsgIdentity.h"
 #include "nsIMsgAccount.h"
 #include "nsIMsgFolder.h"
+#include "nsMsgDBFolder.h"
 #include "nsIMsgWindow.h"
 #include "nsCOMPtr.h"
 #include "nsMsgBaseCID.h"
@@ -239,12 +240,8 @@ static nsresult Create()
 
 nsMessengerWinIntegration::nsMessengerWinIntegration()
 {
-  mDefaultServerAtom = MsgGetAtom("DefaultServer");
-  mTotalUnreadMessagesAtom = MsgGetAtom("TotalUnreadMessages");
-
   mUnreadTimerActive = false;
 
-  mBiffStateAtom = MsgGetAtom("BiffState");
   mBiffIconVisible = false;
   mSuppressBiffIcon = false;
   mAlertInProgress = false;
@@ -367,13 +364,13 @@ nsMessengerWinIntegration::Init()
 }
 
 NS_IMETHODIMP
-nsMessengerWinIntegration::OnItemPropertyChanged(nsIMsgFolder *, nsIAtom *, char const *, char const *)
+nsMessengerWinIntegration::OnItemPropertyChanged(nsIMsgFolder *, const nsACString &, char const *, char const *)
 {
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsMessengerWinIntegration::OnItemUnicharPropertyChanged(nsIMsgFolder *, nsIAtom *, const char16_t *, const char16_t *)
+nsMessengerWinIntegration::OnItemUnicharPropertyChanged(nsIMsgFolder *, const nsACString &, const char16_t *, const char16_t *)
 {
   return NS_OK;
 }
@@ -795,7 +792,7 @@ void nsMessengerWinIntegration::GenericShellNotify(DWORD aMessage)
 }
 
 NS_IMETHODIMP
-nsMessengerWinIntegration::OnItemPropertyFlagChanged(nsIMsgDBHdr *item, nsIAtom *property, uint32_t oldFlag, uint32_t newFlag)
+nsMessengerWinIntegration::OnItemPropertyFlagChanged(nsIMsgDBHdr *item, const nsACString &property, uint32_t oldFlag, uint32_t newFlag)
 {
   return NS_OK;
 }
@@ -808,11 +805,11 @@ nsMessengerWinIntegration::OnItemAdded(nsIMsgFolder *, nsISupports *)
 
 NS_IMETHODIMP
 nsMessengerWinIntegration::OnItemBoolPropertyChanged(nsIMsgFolder *aItem,
-                                                         nsIAtom *aProperty,
+                                                         const nsACString &aProperty,
                                                          bool aOldValue,
                                                          bool aNewValue)
 {
-  if (aProperty == mDefaultServerAtom) {
+  if (aProperty.Equals(kDefaultServer)) {
     nsresult rv;
 
     // this property changes multiple times
@@ -837,16 +834,16 @@ nsMessengerWinIntegration::OnItemBoolPropertyChanged(nsIMsgFolder *aItem,
 }
 
 NS_IMETHODIMP
-nsMessengerWinIntegration::OnItemEvent(nsIMsgFolder *, nsIAtom *)
+nsMessengerWinIntegration::OnItemEvent(nsIMsgFolder *, const nsACString &)
 {
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsMessengerWinIntegration::OnItemIntPropertyChanged(nsIMsgFolder *aItem, nsIAtom *aProperty, int64_t aOldValue, int64_t aNewValue)
+nsMessengerWinIntegration::OnItemIntPropertyChanged(nsIMsgFolder *aItem, const nsACString &aProperty, int64_t aOldValue, int64_t aNewValue)
 {
   // if we got new mail show a icon in the system tray
-  if (mBiffStateAtom == aProperty && mFoldersWithNewMail)
+  if (aProperty.Equals(kBiffState) && mFoldersWithNewMail)
   {
     nsCOMPtr<nsIWeakReference> weakFolder = do_GetWeakReference(aItem);
     uint32_t indexInNewArray;
@@ -896,7 +893,7 @@ nsMessengerWinIntegration::OnItemIntPropertyChanged(nsIMsgFolder *aItem, nsIAtom
     }
   } // if the biff property changed
 
-  if (aProperty == mTotalUnreadMessagesAtom) {
+  if (aProperty.Equals(kTotalUnreadMessages)) {
     nsCString itemURI;
     nsresult rv;
     rv = aItem->GetURI(itemURI);

@@ -20,6 +20,7 @@
 #include "nsMsgUtils.h"
 #include "nsIMsgHdr.h"
 #include "nsIMsgFolder.h"
+#include "nsMsgDBFolder.h"
 #include "nsServiceManagerUtils.h"
 #include "mozilla/Services.h"
 #include "nsMsgUtils.h"
@@ -36,8 +37,6 @@ nsMsgStatusFeedback::nsMsgStatusFeedback() :
   if (bundleService)
     bundleService->CreateBundle("chrome://messenger/locale/messenger.properties",
                                 getter_AddRefs(mBundle));
-
-  m_msgLoadedAtom = MsgGetAtom("msgLoaded");
 }
 
 nsMsgStatusFeedback::~nsMsgStatusFeedback()
@@ -133,7 +132,7 @@ nsMsgStatusFeedback::OnStateChange(nsIWebProgress* aWebProgress,
               // not sending this notification is not a fatal error...
               (void) msgUrl->GetMessageHeader(getter_AddRefs(msgHdr));
               if (msgFolder && msgHdr)
-                msgFolder->NotifyPropertyFlagChanged(msgHdr, m_msgLoadedAtom, 0, 1);
+                msgFolder->NotifyPropertyFlagChanged(msgHdr, kMsgLoaded, 0, 1);
             }
           }
         }

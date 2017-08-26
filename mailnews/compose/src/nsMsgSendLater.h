@@ -15,6 +15,7 @@
 #include "nsTObserverArray.h"
 #include "nsIObserver.h"
 #include "nsITimer.h"
+#include "nsCOMPtr.h"
 #include "nsIMsgShutdown.h"
 
 ////////////////////////////////////////////////////////////////////////////////////

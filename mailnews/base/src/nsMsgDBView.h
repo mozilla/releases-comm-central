@@ -127,9 +127,6 @@ protected:
   static char16_t* kLowPriorityString;
   static char16_t* kNormalPriorityString;
 
-  static nsIAtom* kJunkMsgAtom;
-  static nsIAtom* kNotJunkMsgAtom;
-
   static char16_t* kReadString;
   static char16_t* kRepliedString;
   static char16_t* kForwardedString;

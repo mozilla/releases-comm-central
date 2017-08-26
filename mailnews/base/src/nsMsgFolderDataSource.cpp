@@ -28,6 +28,7 @@
 #include "nsIMsgHdr.h"
 #include "nsTraceRefcnt.h"
 #include "nsIMsgFolder.h" // TO include biffState enum. Change to bool later...
+#include "nsMsgDBFolder.h"
 #include "nsIMutableArray.h"
 #include "nsIPop3IncomingServer.h"
 #include "nsINntpIncomingServer.h"
@@ -102,20 +103,6 @@ nsIRDFResource* nsMsgFolderDataSource::kNC_EmptyTrash= nullptr;
 
 nsrefcnt nsMsgFolderDataSource::gFolderResourceRefCnt = 0;
 
-nsIAtom * nsMsgFolderDataSource::kBiffStateAtom = nullptr;
-nsIAtom * nsMsgFolderDataSource::kSortOrderAtom = nullptr;
-nsIAtom * nsMsgFolderDataSource::kNewMessagesAtom = nullptr;
-nsIAtom * nsMsgFolderDataSource::kTotalMessagesAtom = nullptr;
-nsIAtom * nsMsgFolderDataSource::kTotalUnreadMessagesAtom = nullptr;
-nsIAtom * nsMsgFolderDataSource::kFolderSizeAtom = nullptr;
-nsIAtom * nsMsgFolderDataSource::kNameAtom = nullptr;
-nsIAtom * nsMsgFolderDataSource::kSynchronizeAtom = nullptr;
-nsIAtom * nsMsgFolderDataSource::kOpenAtom = nullptr;
-nsIAtom * nsMsgFolderDataSource::kIsDeferredAtom = nullptr;
-nsIAtom * nsMsgFolderDataSource::kIsSecureAtom = nullptr;
-nsIAtom * nsMsgFolderDataSource::kCanFileMessagesAtom = nullptr;
-nsIAtom * nsMsgFolderDataSource::kInVFEditSearchScopeAtom = nullptr;
-
 static const uint32_t kDisplayBlankCount = 0xFFFFFFFE;
 static const uint32_t kDisplayQuestionCount = 0xFFFFFFFF;
 static const int64_t kDisplayBlankCount64 = -2;
@@ -184,20 +171,6 @@ nsMsgFolderDataSource::nsMsgFolderDataSource()
     rdf->GetResource(NS_LITERAL_CSTRING(NC_RDF_COMPACTALL), &kNC_CompactAll);
     rdf->GetResource(NS_LITERAL_CSTRING(NC_RDF_RENAME), &kNC_Rename);
     rdf->GetResource(NS_LITERAL_CSTRING(NC_RDF_EMPTYTRASH), &kNC_EmptyTrash);
-
-    kTotalMessagesAtom           = MsgNewAtom("TotalMessages").take();
-    kTotalUnreadMessagesAtom     = MsgNewAtom("TotalUnreadMessages").take();
-    kFolderSizeAtom              = MsgNewAtom("FolderSize").take();
-    kBiffStateAtom               = MsgNewAtom("BiffState").take();
-    kSortOrderAtom               = MsgNewAtom("SortOrder").take();
-    kNewMessagesAtom             = MsgNewAtom("NewMessages").take();
-    kNameAtom                    = MsgNewAtom("Name").take();
-    kSynchronizeAtom             = MsgNewAtom("Synchronize").take();
-    kOpenAtom                    = MsgNewAtom("open").take();
-    kIsDeferredAtom              = MsgNewAtom("isDeferred").take();
-    kIsSecureAtom                = MsgNewAtom("isSecure").take();
-    kCanFileMessagesAtom         = MsgNewAtom("canFileMessages").take();
-    kInVFEditSearchScopeAtom     = MsgNewAtom("inVFEditSearchScope").take();
   }
 
   CreateLiterals(rdf);
@@ -262,20 +235,6 @@ nsMsgFolderDataSource::~nsMsgFolderDataSource (void)
     NS_RELEASE2(kNC_UnreadFolders, refcnt);
     NS_RELEASE2(kNC_FavoriteFolders, refcnt);
     NS_RELEASE2(kNC_RecentFolders, refcnt);
-
-    NS_RELEASE(kTotalMessagesAtom);
-    NS_RELEASE(kTotalUnreadMessagesAtom);
-    NS_RELEASE(kFolderSizeAtom);
-    NS_RELEASE(kBiffStateAtom);
-    NS_RELEASE(kSortOrderAtom);
-    NS_RELEASE(kNewMessagesAtom);
-    NS_RELEASE(kNameAtom);
-    NS_RELEASE(kSynchronizeAtom);
-    NS_RELEASE(kOpenAtom);
-    NS_RELEASE(kIsDeferredAtom);
-    NS_RELEASE(kIsSecureAtom);
-    NS_RELEASE(kCanFileMessagesAtom);
-    NS_RELEASE(kInVFEditSearchScopeAtom);
   }
 }
 
@@ -812,7 +771,7 @@ nsresult nsMsgFolderDataSource::OnItemAddedOrRemoved(nsIMsgFolder *parentItem, n
 
 NS_IMETHODIMP
 nsMsgFolderDataSource::OnItemPropertyChanged(nsIMsgFolder *resource,
-                                             nsIAtom *property,
+                                             const nsACString &property,
                                              const char *oldValue,
                                              const char *newValue)
 
@@ -822,20 +781,20 @@ nsMsgFolderDataSource::OnItemPropertyChanged(nsIMsgFolder *resource,
 
 NS_IMETHODIMP
 nsMsgFolderDataSource::OnItemIntPropertyChanged(nsIMsgFolder *folder,
-                                                nsIAtom *property,
+                                                const nsACString &property,
                                                 int64_t oldValue,
                                                 int64_t newValue)
 {
   nsCOMPtr<nsIRDFResource> resource(do_QueryInterface(folder));
-  if (kTotalMessagesAtom == property)
+  if (property.Equals(kTotalMessages))
     OnTotalMessagePropertyChanged(resource, oldValue, newValue);
-  else if (kTotalUnreadMessagesAtom == property)
+  else if (property.Equals(kTotalUnreadMessages))
     OnUnreadMessagePropertyChanged(resource, oldValue, newValue);
-  else if (kFolderSizeAtom == property)
+  else if (property.Equals(kFolderSize))
     OnFolderSizePropertyChanged(resource, oldValue, newValue);
-  else if (kSortOrderAtom == property)
+  else if (property.Equals(kSortOrder))
     OnFolderSortOrderPropertyChanged(resource, oldValue, newValue);
-  else if (kBiffStateAtom == property) {
+  else if (property.Equals(kBiffState)) {
     // be careful about skipping if oldValue == newValue
     // see the comment in nsMsgFolder::SetBiffState() about filters
 
@@ -850,12 +809,12 @@ nsMsgFolderDataSource::OnItemIntPropertyChanged(nsIMsgFolder *folder,
 
 NS_IMETHODIMP
 nsMsgFolderDataSource::OnItemUnicharPropertyChanged(nsIMsgFolder *folder,
-                                                    nsIAtom *property,
+                                                    const nsACString &property,
                                                     const char16_t *oldValue,
                                                     const char16_t *newValue)
 {
   nsCOMPtr<nsIRDFResource> resource(do_QueryInterface(folder));
-  if (kNameAtom == property)
+  if (property.Equals(kName))
   {
     int32_t numUnread;
     folder->GetNumUnread(false, &numUnread);
@@ -868,7 +827,7 @@ nsMsgFolderDataSource::OnItemUnicharPropertyChanged(nsIMsgFolder *folder,
 
 NS_IMETHODIMP
 nsMsgFolderDataSource::OnItemBoolPropertyChanged(nsIMsgFolder *folder,
-                                                 nsIAtom *property,
+                                                 const nsACString &property,
                                                  bool oldValue,
                                                  bool newValue)
 {
@@ -876,19 +835,19 @@ nsMsgFolderDataSource::OnItemBoolPropertyChanged(nsIMsgFolder *folder,
   if (newValue != oldValue) {
     nsIRDFNode* literalNode = newValue?kTrueLiteral:kFalseLiteral;
     nsIRDFNode* oldLiteralNode = oldValue?kTrueLiteral:kFalseLiteral;
-    if (kNewMessagesAtom == property)
+    if (property.Equals(kNewMessages))
       NotifyPropertyChanged(resource, kNC_NewMessages, literalNode);
-    else if (kSynchronizeAtom == property)
+    else if (property.Equals(kSynchronize))
       NotifyPropertyChanged(resource, kNC_Synchronize, literalNode);
-    else if (kOpenAtom == property)
+    else if (property.Equals(kOpen))
       NotifyPropertyChanged(resource, kNC_Open, literalNode);
-    else if (kIsDeferredAtom == property)
+    else if (property.Equals(kIsDeferred))
       NotifyPropertyChanged(resource, kNC_IsDeferred, literalNode, oldLiteralNode);
-    else if (kIsSecureAtom == property)
+    else if (property.Equals(kIsSecure))
       NotifyPropertyChanged(resource, kNC_IsSecure, literalNode, oldLiteralNode);
-    else if (kCanFileMessagesAtom == property)
+    else if (property.Equals(kCanFileMessages))
       NotifyPropertyChanged(resource, kNC_CanFileMessages, literalNode, oldLiteralNode);
-    else if (kInVFEditSearchScopeAtom == property)
+    else if (property.Equals(kInVFEditSearchScope))
       NotifyPropertyChanged(resource, kNC_InVFEditSearchScope, literalNode);
   }
 
@@ -897,7 +856,7 @@ nsMsgFolderDataSource::OnItemBoolPropertyChanged(nsIMsgFolder *folder,
 
 NS_IMETHODIMP
 nsMsgFolderDataSource::OnItemPropertyFlagChanged(nsIMsgDBHdr *item,
-                                                 nsIAtom *property,
+                                                 const nsACString &property,
                                                  uint32_t oldFlag,
                                                  uint32_t newFlag)
 {
@@ -905,7 +864,7 @@ nsMsgFolderDataSource::OnItemPropertyFlagChanged(nsIMsgDBHdr *item,
 }
 
 NS_IMETHODIMP
-nsMsgFolderDataSource::OnItemEvent(nsIMsgFolder *aFolder, nsIAtom *aEvent)
+nsMsgFolderDataSource::OnItemEvent(nsIMsgFolder *aFolder, const nsACString &aEvent)
 {
   return NS_OK;
 }

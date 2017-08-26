@@ -26,6 +26,7 @@
 #include "prprf.h"
 #include "nsIMsgFolderCache.h"
 #include "nsMsgUtils.h"
+#include "nsMsgDBFolder.h"
 #include "nsIFile.h"
 #include "nsIURL.h"
 #include "nsNetCID.h"
@@ -823,7 +824,7 @@ nsMsgAccountManager::notifyDefaultServerChange(nsIMsgAccount *aOldAccount,
     if (NS_SUCCEEDED(rv) && server) {
       rv = server->GetRootFolder(getter_AddRefs(rootFolder));
       if (NS_SUCCEEDED(rv) && rootFolder)
-        rootFolder->NotifyBoolPropertyChanged(kDefaultServerAtom,
+        rootFolder->NotifyBoolPropertyChanged(kDefaultServer,
                                               true, false);
     }
   }
@@ -834,7 +835,7 @@ nsMsgAccountManager::notifyDefaultServerChange(nsIMsgAccount *aOldAccount,
     if (NS_SUCCEEDED(rv) && server) {
       rv = server->GetRootFolder(getter_AddRefs(rootFolder));
       if (NS_SUCCEEDED(rv) && rootFolder)
-        rootFolder->NotifyBoolPropertyChanged(kDefaultServerAtom,
+        rootFolder->NotifyBoolPropertyChanged(kDefaultServer,
                                               false, true);
     }
   }
@@ -1042,9 +1043,6 @@ nsMsgAccountManager::LoadAccounts()
   // ignore it.
   if (m_shutdownInProgress || m_haveShutdown)
     return NS_ERROR_FAILURE;
-
-  kDefaultServerAtom = MsgGetAtom("DefaultServer");
-  mFolderFlagAtom = MsgGetAtom("FolderFlag");
 
   //Ensure biff service has started
   nsCOMPtr<nsIMsgBiffManager> biffService =
@@ -1507,9 +1505,6 @@ NS_IMETHODIMP
 nsMsgAccountManager::UnloadAccounts()
 {
   // release the default account
-  kDefaultServerAtom = nullptr;
-  mFolderFlagAtom = nullptr;
-
   m_defaultAccount=nullptr;
   for (auto iter = m_incomingServers.Iter(); !iter.Done(); iter.Next()) {
     nsCOMPtr<nsIMsgIncomingServer>& server = iter.Data();
@@ -3488,18 +3483,18 @@ NS_IMETHODIMP nsMsgAccountManager::OnItemRemoved(nsIMsgFolder *parentItem, nsISu
   return rv;
 }
 
-NS_IMETHODIMP nsMsgAccountManager::OnItemPropertyChanged(nsIMsgFolder *item, nsIAtom *property, const char *oldValue, const char *newValue)
+NS_IMETHODIMP nsMsgAccountManager::OnItemPropertyChanged(nsIMsgFolder *item, const nsACString &property, const char *oldValue, const char *newValue)
 {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 
 NS_IMETHODIMP
 nsMsgAccountManager::OnItemIntPropertyChanged(nsIMsgFolder *aFolder,
-                                              nsIAtom *aProperty,
+                                              const nsACString &aProperty,
                                               int64_t oldValue,
                                               int64_t newValue)
 {
-  if (aProperty == mFolderFlagAtom)
+  if (aProperty.Equals(kFolderFlag))
   {
     uint32_t smartFlagsChanged = (oldValue ^ newValue) &
       (nsMsgFolderFlags::SpecialUse & ~nsMsgFolderFlags::Queue);
@@ -3593,23 +3588,23 @@ nsMsgAccountManager::RemoveFolderFromSmartFolder(nsIMsgFolder *aFolder,
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgAccountManager::OnItemBoolPropertyChanged(nsIMsgFolder *item, nsIAtom *property, bool oldValue, bool newValue)
+NS_IMETHODIMP nsMsgAccountManager::OnItemBoolPropertyChanged(nsIMsgFolder *item, const nsACString &property, bool oldValue, bool newValue)
 {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 
-NS_IMETHODIMP nsMsgAccountManager::OnItemUnicharPropertyChanged(nsIMsgFolder *item, nsIAtom *property, const char16_t *oldValue, const char16_t *newValue)
+NS_IMETHODIMP nsMsgAccountManager::OnItemUnicharPropertyChanged(nsIMsgFolder *item, const nsACString &property, const char16_t *oldValue, const char16_t *newValue)
 {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 
 
-NS_IMETHODIMP nsMsgAccountManager::OnItemPropertyFlagChanged(nsIMsgDBHdr *item, nsIAtom *property, uint32_t oldFlag, uint32_t newFlag)
+NS_IMETHODIMP nsMsgAccountManager::OnItemPropertyFlagChanged(nsIMsgDBHdr *item, const nsACString &property, uint32_t oldFlag, uint32_t newFlag)
 {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 
-NS_IMETHODIMP nsMsgAccountManager::OnItemEvent(nsIMsgFolder *aFolder, nsIAtom *aEvent)
+NS_IMETHODIMP nsMsgAccountManager::OnItemEvent(nsIMsgFolder *aFolder, const nsACString &aEvent)
 {
   return NS_ERROR_NOT_IMPLEMENTED;
 }

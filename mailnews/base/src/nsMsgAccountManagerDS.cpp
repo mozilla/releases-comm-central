@@ -15,6 +15,7 @@
 #include "nsIServiceManager.h"
 #include "nsMsgRDFUtils.h"
 #include "nsIMsgFolder.h"
+#include "nsMsgDBFolder.h"
 #include "nsMsgBaseCID.h"
 
 #include "nsICategoryManager.h"
@@ -82,8 +83,6 @@ nsIRDFResource* nsMsgAccountManagerDataSource::kNC_PageTitleJunk=nullptr;
 
 // common literals
 nsIRDFLiteral* nsMsgAccountManagerDataSource::kTrueLiteral = nullptr;
-
-nsIAtom* nsMsgAccountManagerDataSource::kDefaultServerAtom = nullptr;
 
 nsrefcnt nsMsgAccountManagerDataSource::gAccountManagerResourceRefCnt = 0;
 
@@ -160,8 +159,6 @@ nsMsgAccountManagerDataSource::nsMsgAccountManagerDataSource()
     // eventually these need to exist in some kind of array
     // that's easily extensible
     getRDFService()->GetResource(NS_LITERAL_CSTRING(NC_RDF_SETTINGS), &kNC_Settings);
-
-    kDefaultServerAtom = MsgNewAtom("DefaultServer").take();
   }
 }
 
@@ -203,8 +200,6 @@ nsMsgAccountManagerDataSource::~nsMsgAccountManagerDataSource()
     // that's easily extensible
     NS_IF_RELEASE(kNC_Settings);
 
-
-    NS_IF_RELEASE(kDefaultServerAtom);
     mAccountArcsOut = nullptr;
     mAccountRootArcsOut = nullptr;
   }
@@ -1112,13 +1107,13 @@ nsMsgAccountManagerDataSource::OnServerChanged(nsIMsgIncomingServer *server)
 }
 
 nsresult
-nsMsgAccountManagerDataSource::OnItemPropertyChanged(nsIMsgFolder *, nsIAtom *, char const *, char const *)
+nsMsgAccountManagerDataSource::OnItemPropertyChanged(nsIMsgFolder *, const nsACString &, char const *, char const *)
 {
   return NS_OK;
 }
 
 nsresult
-nsMsgAccountManagerDataSource::OnItemUnicharPropertyChanged(nsIMsgFolder *, nsIAtom *, const char16_t *, const char16_t *)
+nsMsgAccountManagerDataSource::OnItemUnicharPropertyChanged(nsIMsgFolder *, const nsACString &, const char16_t *, const char16_t *)
 {
   return NS_OK;
 }
@@ -1130,7 +1125,7 @@ nsMsgAccountManagerDataSource::OnItemRemoved(nsIMsgFolder *, nsISupports *)
 }
 
 nsresult
-nsMsgAccountManagerDataSource::OnItemPropertyFlagChanged(nsIMsgDBHdr *, nsIAtom *, uint32_t, uint32_t)
+nsMsgAccountManagerDataSource::OnItemPropertyFlagChanged(nsIMsgDBHdr *, const nsACString &, uint32_t, uint32_t)
 {
   return NS_OK;
 }
@@ -1144,11 +1139,11 @@ nsMsgAccountManagerDataSource::OnItemAdded(nsIMsgFolder *, nsISupports *)
 
 nsresult
 nsMsgAccountManagerDataSource::OnItemBoolPropertyChanged(nsIMsgFolder *aItem,
-                                                         nsIAtom *aProperty,
+                                                         const nsACString &aProperty,
                                                          bool aOldValue,
                                                          bool aNewValue)
 {
-  if (aProperty == kDefaultServerAtom) {
+  if (aProperty.Equals(kDefaultServer)) {
     nsCOMPtr<nsIRDFResource> resource(do_QueryInterface(aItem));
     NotifyObservers(resource, kNC_IsDefaultServer, kTrueLiteral, nullptr, aNewValue, false);
   }
@@ -1156,13 +1151,13 @@ nsMsgAccountManagerDataSource::OnItemBoolPropertyChanged(nsIMsgFolder *aItem,
 }
 
 nsresult
-nsMsgAccountManagerDataSource::OnItemEvent(nsIMsgFolder *, nsIAtom *)
+nsMsgAccountManagerDataSource::OnItemEvent(nsIMsgFolder *, const nsACString &)
 {
   return NS_OK;
 }
 
 nsresult
-nsMsgAccountManagerDataSource::OnItemIntPropertyChanged(nsIMsgFolder *, nsIAtom *, int64_t, int64_t)
+nsMsgAccountManagerDataSource::OnItemIntPropertyChanged(nsIMsgFolder *, const nsACString &, int64_t, int64_t)
 {
   return NS_OK;
 }

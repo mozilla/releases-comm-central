@@ -4,7 +4,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "nsISupports.idl"
-#include "nsIAtom.idl"
 
 interface nsIMsgFolder;
 interface nsIMsgDBHdr;
@@ -23,7 +22,7 @@ interface nsIFolderListener : nsISupports {
   
   const folderListenerNotifyFlagValue propertyChanged = 0x4;
   void OnItemPropertyChanged(in nsIMsgFolder aItem,
-                             in nsIAtom aProperty,
+                             in ACString aProperty,
                              in string aOldValue,
                              in string aNewValue);
   
@@ -31,30 +30,30 @@ interface nsIFolderListener : nsISupports {
   // While this property handles long long (64bit wide) values,
   // the Javascript engine will only pass values up to 2^53 to the consumers.
   void OnItemIntPropertyChanged(in nsIMsgFolder aItem,
-                                in nsIAtom aProperty,
+                                in ACString aProperty,
                                 in long long aOldValue,
                                 in long long aNewValue);
   
   const folderListenerNotifyFlagValue boolPropertyChanged = 0x10;
   void OnItemBoolPropertyChanged(in nsIMsgFolder aItem,
-                                 in nsIAtom aProperty,
+                                 in ACString aProperty,
                                  in boolean aOldValue,
                                  in boolean aNewValue);
   
   const folderListenerNotifyFlagValue unicharPropertyChanged = 0x20;
   void OnItemUnicharPropertyChanged(in nsIMsgFolder aItem,
-                                    in nsIAtom aProperty,
+                                    in ACString aProperty,
                                     in wstring aOldValue,
                                     in wstring aNewValue);
   
   const folderListenerNotifyFlagValue propertyFlagChanged = 0x40;
   void OnItemPropertyFlagChanged(in nsIMsgDBHdr aItem,
-                                 in nsIAtom aProperty,
+                                 in ACString aProperty,
                                  in unsigned long aOldFlag,
                                  in unsigned long aNewFlag);
 
   const folderListenerNotifyFlagValue event = 0x80;
-  void OnItemEvent(in nsIMsgFolder aItem, in nsIAtom aEvent);
+  void OnItemEvent(in nsIMsgFolder aItem, in ACString aEvent);
   
   const folderListenerNotifyFlagValue all = 0xFFFFFFFF; 
 

@@ -18,6 +18,7 @@
 #include "nsMsgBaseCID.h"
 #include "nsMsgDBCID.h"
 #include "nsIMsgFolder.h"
+#include "nsMsgDBFolder.h"
 #include "nsIMsgFolderCache.h"
 #include "nsIMsgPluggableStore.h"
 #include "nsIMsgFolderCacheElement.h"
@@ -1771,8 +1772,7 @@ NS_IMETHODIMP nsMsgIncomingServer::SetSocketType(int32_t aSocketType)
   bool isSecureNew = (aSocketType == nsMsgSocketType::alwaysSTARTTLS ||
                         aSocketType == nsMsgSocketType::SSL);
   if ((isSecureOld != isSecureNew) && m_rootFolder) {
-    nsCOMPtr <nsIAtom> isSecureAtom = MsgGetAtom("isSecure");
-    m_rootFolder->NotifyBoolPropertyChanged(isSecureAtom,
+    m_rootFolder->NotifyBoolPropertyChanged(kIsSecure,
                                             isSecureOld, isSecureNew);
   }
   return NS_OK;

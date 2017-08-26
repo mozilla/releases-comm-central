@@ -90,8 +90,6 @@ private:
 
   bool m_accountsLoaded;
   nsCOMPtr <nsIMsgFolderCache> m_msgFolderCache;
-  nsCOMPtr<nsIAtom> kDefaultServerAtom;
-  nsCOMPtr<nsIAtom> mFolderFlagAtom;
   nsTArray<nsCOMPtr<nsIMsgAccount> > m_accounts;
   nsInterfaceHashtable<nsCStringHashKey, nsIMsgIdentity> m_identities;
   nsInterfaceHashtable<nsCStringHashKey, nsIMsgIncomingServer> m_incomingServers;

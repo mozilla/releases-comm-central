@@ -14,7 +14,6 @@
 #include "nsITreeSelection.h"
 #include "nsTArray.h"
 #include "nsIAbDirectory.h"
-#include "nsIAtom.h"
 #include "nsICollation.h"
 #include "nsIAbListener.h"
 #include "nsIObserver.h"

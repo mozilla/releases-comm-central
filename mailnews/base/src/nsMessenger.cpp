@@ -2288,38 +2288,38 @@ NS_IMETHODIMP nsMessenger::OnItemRemoved(nsIMsgFolder *parentItem, nsISupports *
   return NS_OK;
 }
 
-/* void OnItemPropertyChanged (in nsIMsgFolder item, in nsIAtom property, in string oldValue, in string newValue); */
-NS_IMETHODIMP nsMessenger::OnItemPropertyChanged(nsIMsgFolder *item, nsIAtom *property, const char *oldValue, const char *newValue)
+/* void OnItemPropertyChanged (in nsIMsgFolder item, in ACString property, in string oldValue, in string newValue); */
+NS_IMETHODIMP nsMessenger::OnItemPropertyChanged(nsIMsgFolder *item, const nsACString &property, const char *oldValue, const char *newValue)
 {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 
-/* void OnItemIntPropertyChanged (in nsIMsgFolder item, in nsIAtom property, in long long oldValue, in long long newValue); */
-NS_IMETHODIMP nsMessenger::OnItemIntPropertyChanged(nsIMsgFolder *item, nsIAtom *property, int64_t oldValue, int64_t newValue)
+/* void OnItemIntPropertyChanged (in nsIMsgFolder item, in ACString property, in long long oldValue, in long long newValue); */
+NS_IMETHODIMP nsMessenger::OnItemIntPropertyChanged(nsIMsgFolder *item, const nsACString &property, int64_t oldValue, int64_t newValue)
 {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 
-/* void OnItemBoolPropertyChanged (in nsIMsgFolder item, in nsIAtom property, in boolean oldValue, in boolean newValue); */
-NS_IMETHODIMP nsMessenger::OnItemBoolPropertyChanged(nsIMsgFolder *item, nsIAtom *property, bool oldValue, bool newValue)
+/* void OnItemBoolPropertyChanged (in nsIMsgFolder item, in ACString property, in boolean oldValue, in boolean newValue); */
+NS_IMETHODIMP nsMessenger::OnItemBoolPropertyChanged(nsIMsgFolder *item, const nsACString &property, bool oldValue, bool newValue)
 {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 
-/* void OnItemUnicharPropertyChanged (in nsIMsgFolder item, in nsIAtom property, in wstring oldValue, in wstring newValue); */
-NS_IMETHODIMP nsMessenger::OnItemUnicharPropertyChanged(nsIMsgFolder *item, nsIAtom *property, const char16_t *oldValue, const char16_t *newValue)
+/* void OnItemUnicharPropertyChanged (in nsIMsgFolder item, in ACString property, in wstring oldValue, in wstring newValue); */
+NS_IMETHODIMP nsMessenger::OnItemUnicharPropertyChanged(nsIMsgFolder *item, const nsACString &property, const char16_t *oldValue, const char16_t *newValue)
 {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 
-/* void OnItemPropertyFlagChanged (in nsIMsgDBHdr item, in nsIAtom property, in unsigned long oldFlag, in unsigned long newFlag); */
-NS_IMETHODIMP nsMessenger::OnItemPropertyFlagChanged(nsIMsgDBHdr *item, nsIAtom *property, uint32_t oldFlag, uint32_t newFlag)
+/* void OnItemPropertyFlagChanged (in nsIMsgDBHdr item, in ACString property, in unsigned long oldFlag, in unsigned long newFlag); */
+NS_IMETHODIMP nsMessenger::OnItemPropertyFlagChanged(nsIMsgDBHdr *item, const nsACString &property, uint32_t oldFlag, uint32_t newFlag)
 {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 
-/* void OnItemEvent (in nsIMsgFolder item, in nsIAtom event); */
-NS_IMETHODIMP nsMessenger::OnItemEvent(nsIMsgFolder *item, nsIAtom *event)
+/* void OnItemEvent (in nsIMsgFolder item, in string event); */
+NS_IMETHODIMP nsMessenger::OnItemEvent(nsIMsgFolder *item, const nsACString &event)
 {
   return NS_ERROR_NOT_IMPLEMENTED;
 }

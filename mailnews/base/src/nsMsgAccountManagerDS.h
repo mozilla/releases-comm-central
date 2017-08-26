@@ -122,8 +122,6 @@ protected:
 
   static nsIRDFLiteral* kTrueLiteral;
 
-  static nsIAtom* kDefaultServerAtom;
-
   static nsrefcnt gAccountManagerResourceRefCnt;
 
   static nsresult getAccountArcs(nsIMutableArray **aResult);

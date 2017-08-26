@@ -14,7 +14,6 @@
 #include "nsIProgressEventSink.h"
 #include "nsIStringBundle.h"
 #include "nsWeakReference.h"
-#include "nsIAtom.h"
 
 class nsMsgStatusFeedback : public nsIMsgStatusFeedback,
                             public nsIProgressEventSink,
@@ -44,7 +43,6 @@ protected:
   nsWeakPtr mJSStatusFeedbackWeak;
 
   nsCOMPtr<nsIStringBundle> mBundle;
-  nsCOMPtr <nsIAtom> m_msgLoadedAtom;
 };
 
 #endif // _nsMsgStatusFeedback_h

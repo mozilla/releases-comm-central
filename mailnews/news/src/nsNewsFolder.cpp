@@ -336,7 +336,7 @@ nsMsgNewsFolder::UpdateFolder(nsIMsgWindow *aWindow)
   }
   // We're not getting messages because either get_messages_on_select is
   // false or we're offline. Send an immediate folder loaded notification.
-  NotifyFolderEvent(mFolderLoadedAtom);
+  NotifyFolderEvent(kFolderLoaded);
   (void) RefreshSizeOnDisk();
   return NS_OK;
 }
@@ -748,7 +748,7 @@ NS_IMETHODIMP nsMsgNewsFolder::RefreshSizeOnDisk()
   // We set size to unknown to force it to get recalculated from disk.
   mFolderSize = kSizeUnknown;
   if (NS_SUCCEEDED(GetSizeOnDisk(&mFolderSize)))
-    NotifyIntPropertyChanged(kFolderSizeAtom, oldFolderSize, mFolderSize);
+    NotifyIntPropertyChanged(kFolderSize, oldFolderSize, mFolderSize);
   return NS_OK;
 }
 
@@ -830,8 +830,8 @@ nsMsgNewsFolder::DeleteMessages(nsIArray *messages, nsIMsgWindow *aMsgWindow,
   }
  
   if (!isMove) 
-    NotifyFolderEvent(NS_SUCCEEDED(rv) ? mDeleteOrMoveMsgCompletedAtom :
-      mDeleteOrMoveMsgFailedAtom);
+    NotifyFolderEvent(NS_SUCCEEDED(rv) ? kDeleteOrMoveMsgCompleted :
+      kDeleteOrMoveMsgFailed);
 
   (void) RefreshSizeOnDisk();
 
@@ -1565,13 +1565,13 @@ NS_IMETHODIMP nsMsgNewsFolder::RemoveMessages(nsTArray<nsMsgKey> &aMsgKeys)
 
 NS_IMETHODIMP nsMsgNewsFolder::CancelComplete()
 {
-  NotifyFolderEvent(mDeleteOrMoveMsgCompletedAtom);
+  NotifyFolderEvent(kDeleteOrMoveMsgCompleted);
   return NS_OK;
 }
 
 NS_IMETHODIMP nsMsgNewsFolder::CancelFailed()
 {
-  NotifyFolderEvent(mDeleteOrMoveMsgFailedAtom);
+  NotifyFolderEvent(kDeleteOrMoveMsgFailed);
   return NS_OK;
 }
 
@@ -1752,12 +1752,9 @@ NS_IMETHODIMP nsMsgNewsFolder::GetMessageIdForKey(nsMsgKey key, nsACString& resu
 NS_IMETHODIMP nsMsgNewsFolder::SetSortOrder(int32_t order)
 {
   int32_t oldOrder = mSortOrder;
-  
-  mSortOrder = order;
-  nsCOMPtr<nsIAtom> sortOrderAtom = MsgGetAtom("SortOrder");
-  // What to do if the atom can't be allocated?
-  NotifyIntPropertyChanged(sortOrderAtom, oldOrder, order);
-  
+
+  NotifyIntPropertyChanged(kSortOrder, oldOrder, order);
+
   return NS_OK;
 }
 

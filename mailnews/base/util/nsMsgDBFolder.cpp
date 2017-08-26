@@ -100,15 +100,48 @@ nsString nsMsgDBFolder::kLocalizedBrandShortName;
 
 nsrefcnt nsMsgDBFolder::mInstanceCount=0;
 
-NS_IMPL_ISUPPORTS_INHERITED(nsMsgDBFolder, nsRDFResource, 
+// We define strings for folder properties and events.
+// Properties:
+NS_NAMED_LITERAL_CSTRING(kBiffState, "BiffState");
+NS_NAMED_LITERAL_CSTRING(kCanFileMessages, "CanFileMessages");
+NS_NAMED_LITERAL_CSTRING(kDefaultServer, "DefaultServer");
+NS_NAMED_LITERAL_CSTRING(kFlagged, "Flagged");
+NS_NAMED_LITERAL_CSTRING(kFolderFlag, "FolderFlag");
+NS_NAMED_LITERAL_CSTRING(kFolderSize, "FolderSize");
+NS_NAMED_LITERAL_CSTRING(kInVFEditSearchScope, "inVFEditSearchScope");
+NS_NAMED_LITERAL_CSTRING(kIsDeferred, "isDeferred");
+NS_NAMED_LITERAL_CSTRING(kIsSecure, "isSecure");
+NS_NAMED_LITERAL_CSTRING(kJunkStatusChanged, "JunkStatusChanged");
+NS_NAMED_LITERAL_CSTRING(kKeywords, "Keywords");
+NS_NAMED_LITERAL_CSTRING(kMRMTimeChanged, "MRMTimeChanged");
+NS_NAMED_LITERAL_CSTRING(kMsgLoaded, "msgLoaded");
+NS_NAMED_LITERAL_CSTRING(kName, "Name");
+NS_NAMED_LITERAL_CSTRING(kNewMailReceived, "NewMailReceived");
+NS_NAMED_LITERAL_CSTRING(kNewMessages, "NewMessages");
+NS_NAMED_LITERAL_CSTRING(kOpen, "open");
+NS_NAMED_LITERAL_CSTRING(kSortOrder, "SortOrder");
+NS_NAMED_LITERAL_CSTRING(kStatus, "Status");
+NS_NAMED_LITERAL_CSTRING(kSynchronize, "Synchronize");
+NS_NAMED_LITERAL_CSTRING(kTotalMessages, "TotalMessages");
+NS_NAMED_LITERAL_CSTRING(kTotalUnreadMessages, "TotalUnreadMessages");
+
+// Events:
+NS_NAMED_LITERAL_CSTRING(kAboutToCompact, "AboutToCompact");
+NS_NAMED_LITERAL_CSTRING(kCompactCompleted, "CompactCompleted");
+NS_NAMED_LITERAL_CSTRING(kDeleteOrMoveMsgCompleted, "DeleteOrMoveMsgCompleted");
+NS_NAMED_LITERAL_CSTRING(kDeleteOrMoveMsgFailed, "DeleteOrMoveMsgFailed");
+NS_NAMED_LITERAL_CSTRING(kFiltersApplied, "FiltersApplied");
+NS_NAMED_LITERAL_CSTRING(kFolderCreateCompleted, "FolderCreateCompleted");
+NS_NAMED_LITERAL_CSTRING(kFolderCreateFailed, "FolderCreateFailed");
+NS_NAMED_LITERAL_CSTRING(kFolderLoaded, "FolderLoaded");
+NS_NAMED_LITERAL_CSTRING(kNumNewBiffMessages, "NumNewBiffMessages");
+NS_NAMED_LITERAL_CSTRING(kRenameCompleted, "RenameCompleted");
+
+NS_IMPL_ISUPPORTS_INHERITED(nsMsgDBFolder, nsRDFResource,
                              nsISupportsWeakReference, nsIMsgFolder,
                              nsIDBChangeListener, nsIUrlListener,
                              nsIJunkMailClassificationListener,
                              nsIMsgTraitClassificationListener)
-
-#define MSGDBFOLDER_ATOM(name_, value_) nsIAtom* nsMsgDBFolder::name_ = nullptr;
-#include "nsMsgDBFolderAtomList.h"
-#undef MSGDBFOLDER_ATOM
 
 nsMsgDBFolder::nsMsgDBFolder(void)
 : mAddListener(true),
@@ -132,9 +165,6 @@ nsMsgDBFolder::nsMsgDBFolder(void)
   mInVFEditSearchScope (false)
 {
   if (mInstanceCount++ <=0) {
-#define MSGDBFOLDER_ATOM(name_, value_) name_ = MsgNewAtom(value_).take();
-#include "nsMsgDBFolderAtomList.h"
-#undef MSGDBFOLDER_ATOM
     initializeStrings();
     createCollationKeyGenerator();
     gtimeOfLastPurgeCheck = 0;
@@ -157,10 +187,6 @@ nsMsgDBFolder::~nsMsgDBFolder(void)
 
   if (--mInstanceCount == 0) {
     NS_IF_RELEASE(gCollationKeyGenerator);
-
-#define MSGDBFOLDER_ATOM(name_, value_) NS_RELEASE(name_);
-#include "nsMsgDBFolderAtomList.h"
-#undef MSGDBFOLDER_ATOM
   }
   //shutdown but don't shutdown children.
   Shutdown(false);
@@ -460,7 +486,7 @@ NS_IMETHODIMP nsMsgDBFolder::SetHasNewMessages(bool curNewMessages)
       SetMRUTime();
     bool oldNewMessages = mNewMessages;
     mNewMessages = curNewMessages;
-    NotifyBoolPropertyChanged(kNewMessagesAtom, oldNewMessages, curNewMessages);
+    NotifyBoolPropertyChanged(kNewMessages, oldNewMessages, curNewMessages);
   }
 
   return NS_OK;
@@ -689,14 +715,14 @@ nsresult nsMsgDBFolder::SendFlagNotifications(nsIMsgDBHdr *item, uint32_t oldFla
   if((changedFlags & nsMsgMessageFlags::Read)  && (changedFlags & nsMsgMessageFlags::New))
   {
     //..so..if the msg is read in the folder and the folder has new msgs clear the account level and status bar biffs.
-    rv = NotifyPropertyFlagChanged(item, kStatusAtom, oldFlags, newFlags);
+    rv = NotifyPropertyFlagChanged(item, kStatus, oldFlags, newFlags);
     rv = SetBiffState(nsMsgBiffState_NoMail);
   }
   else if(changedFlags & (nsMsgMessageFlags::Read | nsMsgMessageFlags::Replied | nsMsgMessageFlags::Forwarded
     | nsMsgMessageFlags::IMAPDeleted | nsMsgMessageFlags::New | nsMsgMessageFlags::Offline))
-    rv = NotifyPropertyFlagChanged(item, kStatusAtom, oldFlags, newFlags);
+    rv = NotifyPropertyFlagChanged(item, kStatus, oldFlags, newFlags);
   else if((changedFlags & nsMsgMessageFlags::Marked))
-    rv = NotifyPropertyFlagChanged(item, kFlaggedAtom, oldFlags, newFlags);
+    rv = NotifyPropertyFlagChanged(item, kFlagged, oldFlags, newFlags);
   return rv;
 }
 
@@ -983,7 +1009,7 @@ nsMsgDBFolder::OnReadChanged(nsIDBChangeListener * aInstigator)
 NS_IMETHODIMP
 nsMsgDBFolder::OnJunkScoreChanged(nsIDBChangeListener * aInstigator)
 {
-  NotifyFolderEvent(mJunkStatusChangedAtom);
+  NotifyFolderEvent(kJunkStatusChanged);
   return NS_OK;
 }
 
@@ -1502,7 +1528,7 @@ nsMsgDBFolder::OnStopRunningUrl(nsIURI *aUrl, nsresult aExitCode)
   {
     bool updatingFolder = false;
     if (NS_SUCCEEDED(mailUrl->GetUpdatingFolder(&updatingFolder)) && updatingFolder)
-      NotifyFolderEvent(mFolderLoadedAtom);
+      NotifyFolderEvent(kFolderLoaded);
 
     // be sure to remove ourselves as a url listener
     mailUrl->UnRegisterListener(this);
@@ -1949,8 +1975,7 @@ nsresult nsMsgDBFolder::HandleAutoCompactEvent(nsIMsgWindow *aWindow)
 
         if (okToCompact)
         {
-          nsCOMPtr <nsIAtom> aboutToCompactAtom = MsgGetAtom("AboutToCompact");
-          NotifyFolderEvent(aboutToCompactAtom);
+          NotifyFolderEvent(kAboutToCompact);
 
          if (localExpungedBytes > 0)
          {
@@ -3435,7 +3460,7 @@ NS_IMETHODIMP nsMsgDBFolder::SetName(const nsAString& name)
   {
     mName = name;
     // old/new value doesn't matter here
-    NotifyUnicharPropertyChanged(kNameAtom, name, name);
+    NotifyUnicharPropertyChanged(kName, name, name);
   }
   return NS_OK;
 }
@@ -3986,7 +4011,6 @@ nsresult nsMsgDBFolder::GetBackupSummaryFile(nsIFile **aBackupFile, const nsACSt
 NS_IMETHODIMP nsMsgDBFolder::Rename(const nsAString& aNewName, nsIMsgWindow *msgWindow)
 {
   nsCOMPtr<nsIFile> oldPathFile;
-  nsCOMPtr<nsIAtom> folderRenameAtom;
   nsresult rv = GetFilePath(getter_AddRefs(oldPathFile));
   if (NS_FAILED(rv))
     return rv;
@@ -4076,8 +4100,7 @@ NS_IMETHODIMP nsMsgDBFolder::Rename(const nsAString& aNewName, nsIMsgWindow *msg
         parentFolder->PropagateDelete(this, false, msgWindow);
         parentFolder->NotifyItemAdded(newFolder);
       }
-      folderRenameAtom = MsgGetAtom("RenameCompleted");
-      newFolder->NotifyFolderEvent(folderRenameAtom);
+      newFolder->NotifyFolderEvent(kRenameCompleted);
     }
   }
   return rv;
@@ -4161,10 +4184,10 @@ NS_IMETHODIMP nsMsgDBFolder::UpdateSummaryTotals(bool force)
 
     //Need to notify listeners that total count changed.
     if(oldTotalMessages != newTotalMessages)
-      NotifyIntPropertyChanged(kTotalMessagesAtom, oldTotalMessages, newTotalMessages);
+      NotifyIntPropertyChanged(kTotalMessages, oldTotalMessages, newTotalMessages);
 
     if(oldUnreadMessages != newUnreadMessages)
-      NotifyIntPropertyChanged(kTotalUnreadMessagesAtom, oldUnreadMessages, newUnreadMessages);
+      NotifyIntPropertyChanged(kTotalUnreadMessages, oldUnreadMessages, newUnreadMessages);
 
     FlushToFolderCache();
   }
@@ -4266,7 +4289,7 @@ NS_IMETHODIMP nsMsgDBFolder::ChangeNumPendingUnread(int32_t delta)
       nsresult rv = GetDBFolderInfoAndDB(getter_AddRefs(folderInfo), getter_AddRefs(db));
       if (NS_SUCCEEDED(rv) && folderInfo)
         folderInfo->SetImapUnreadPendingMessages(mNumPendingUnreadMessages);
-      NotifyIntPropertyChanged(kTotalUnreadMessagesAtom, oldUnreadMessages, newUnreadMessages);
+      NotifyIntPropertyChanged(kTotalUnreadMessages, oldUnreadMessages, newUnreadMessages);
     }
   }
   return NS_OK;
@@ -4285,7 +4308,7 @@ NS_IMETHODIMP nsMsgDBFolder::ChangeNumPendingTotalMessages(int32_t delta)
     nsresult rv = GetDBFolderInfoAndDB(getter_AddRefs(folderInfo), getter_AddRefs(db));
     if (NS_SUCCEEDED(rv) && folderInfo)
       folderInfo->SetImapTotalPendingMessages(mNumPendingTotalMessages);
-    NotifyIntPropertyChanged(kTotalMessagesAtom, oldTotalMessages, newTotalMessages);
+    NotifyIntPropertyChanged(kTotalMessages, oldTotalMessages, newTotalMessages);
   }
   return NS_OK;
 }
@@ -4365,19 +4388,19 @@ NS_IMETHODIMP nsMsgDBFolder::OnFlagChange(uint32_t flag)
       db->Commit(nsMsgDBCommitType::kLargeCommit);
 
     if (mFlags & flag)
-      NotifyIntPropertyChanged(mFolderFlagAtom, mFlags & ~flag, mFlags);
+      NotifyIntPropertyChanged(kFolderFlag, mFlags & ~flag, mFlags);
     else
-      NotifyIntPropertyChanged(mFolderFlagAtom, mFlags | flag, mFlags);
+      NotifyIntPropertyChanged(kFolderFlag, mFlags | flag, mFlags);
 
     if (flag & nsMsgFolderFlags::Offline)
     {
       bool newValue = mFlags & nsMsgFolderFlags::Offline;
-      rv = NotifyBoolPropertyChanged(kSynchronizeAtom, !newValue, !!newValue);
+      rv = NotifyBoolPropertyChanged(kSynchronize, !newValue, !!newValue);
     }
     else if (flag & nsMsgFolderFlags::Elided)
     {
       bool newValue = mFlags & nsMsgFolderFlags::Elided;
-      rv = NotifyBoolPropertyChanged(kOpenAtom, !!newValue, !newValue);
+      rv = NotifyBoolPropertyChanged(kOpen, !!newValue, !newValue);
     }
   }
   return rv;
@@ -4533,7 +4556,7 @@ NS_IMETHODIMP nsMsgDBFolder::GetSizeOnDisk(int64_t *size)
 
 NS_IMETHODIMP nsMsgDBFolder::SetSizeOnDisk(int64_t aSizeOnDisk)
 {
-  NotifyIntPropertyChanged(kFolderSizeAtom, mFolderSize, aSizeOnDisk);
+  NotifyIntPropertyChanged(kFolderSize, mFolderSize, aSizeOnDisk);
   mFolderSize = aSizeOnDisk;
   return NS_OK;
 }
@@ -4590,14 +4613,14 @@ NS_IMETHODIMP nsMsgDBFolder::SetBiffState(uint32_t aBiffState)
     if (server)
       server->SetBiffState(aBiffState);
 
-    NotifyIntPropertyChanged(kBiffStateAtom, oldBiffState, aBiffState);
+    NotifyIntPropertyChanged(kBiffState, oldBiffState, aBiffState);
   }
   else if (aBiffState == oldBiffState && aBiffState == nsMsgBiffState_NewMail)
   {
     // The folder has been updated, so update the MRUTime
     SetMRUTime();
     // biff is already set, but notify that there is additional new mail for the folder
-    NotifyIntPropertyChanged(kNewMailReceivedAtom, 0, mNumNewBiffMessages);
+    NotifyIntPropertyChanged(kNewMailReceived, 0, mNumNewBiffMessages);
   }
   else if (aBiffState == nsMsgBiffState_NoMail)
   {
@@ -4642,7 +4665,7 @@ NS_IMETHODIMP nsMsgDBFolder::SetNumNewMessages(int32_t aNumNewMessages)
     oldNumMessagesStr.AppendInt(oldNumMessages);
     nsAutoCString newNumMessagesStr;
     newNumMessagesStr.AppendInt(aNumNewMessages);
-    NotifyPropertyChanged(kNumNewBiffMessagesAtom, oldNumMessagesStr, newNumMessagesStr);
+    NotifyPropertyChanged(kNumNewBiffMessages, oldNumMessagesStr, newNumMessagesStr);
   }
   return NS_OK;
 }
@@ -4891,7 +4914,7 @@ NS_IMETHODIMP nsMsgDBFolder::CopyDataDone()
 }
 
 NS_IMETHODIMP
-nsMsgDBFolder::NotifyPropertyChanged(nsIAtom *aProperty,
+nsMsgDBFolder::NotifyPropertyChanged(const nsACString &aProperty,
                                      const nsACString& aOldValue,
                                      const nsACString& aNewValue)
 {
@@ -4912,7 +4935,7 @@ nsMsgDBFolder::NotifyPropertyChanged(nsIAtom *aProperty,
 }
 
 NS_IMETHODIMP
-nsMsgDBFolder::NotifyUnicharPropertyChanged(nsIAtom *aProperty,
+nsMsgDBFolder::NotifyUnicharPropertyChanged(const nsACString &aProperty,
                                           const nsAString& aOldValue,
                                           const nsAString& aNewValue)
 {
@@ -4934,13 +4957,13 @@ nsMsgDBFolder::NotifyUnicharPropertyChanged(nsIAtom *aProperty,
 }
 
 NS_IMETHODIMP
-nsMsgDBFolder::NotifyIntPropertyChanged(nsIAtom *aProperty, int64_t aOldValue,
+nsMsgDBFolder::NotifyIntPropertyChanged(const nsACString &aProperty, int64_t aOldValue,
                                         int64_t aNewValue)
 {
   // Don't send off count notifications if they are turned off.
   if (!mNotifyCountChanges &&
-      ((aProperty == kTotalMessagesAtom) ||
-       (aProperty == kTotalUnreadMessagesAtom)))
+      (aProperty.Equals(kTotalMessages)  ||
+       aProperty.Equals(kTotalUnreadMessages)))
     return NS_OK;
 
   NS_OBSERVER_ARRAY_NOTIFY_OBSERVERS(mListeners, nsIFolderListener,
@@ -4957,7 +4980,7 @@ nsMsgDBFolder::NotifyIntPropertyChanged(nsIAtom *aProperty, int64_t aOldValue,
 }
 
 NS_IMETHODIMP
-nsMsgDBFolder::NotifyBoolPropertyChanged(nsIAtom* aProperty,
+nsMsgDBFolder::NotifyBoolPropertyChanged(const nsACString &aProperty,
                                          bool aOldValue, bool aNewValue)
 {
   NS_OBSERVER_ARRAY_NOTIFY_OBSERVERS(mListeners, nsIFolderListener,
@@ -4974,7 +4997,7 @@ nsMsgDBFolder::NotifyBoolPropertyChanged(nsIAtom* aProperty,
 }
 
 NS_IMETHODIMP
-nsMsgDBFolder::NotifyPropertyFlagChanged(nsIMsgDBHdr *aItem, nsIAtom *aProperty,
+nsMsgDBFolder::NotifyPropertyFlagChanged(nsIMsgDBHdr *aItem, const nsACString &aProperty,
                                          uint32_t aOldValue, uint32_t aNewValue)
 {
   NS_OBSERVER_ARRAY_NOTIFY_OBSERVERS(mListeners, nsIFolderListener,
@@ -5023,7 +5046,7 @@ nsresult nsMsgDBFolder::NotifyItemRemoved(nsISupports *aItem)
   return folderListenerManager->OnItemRemoved(this, aItem);
 }
 
-nsresult nsMsgDBFolder::NotifyFolderEvent(nsIAtom* aEvent)
+nsresult nsMsgDBFolder::NotifyFolderEvent(const nsACString &aEvent)
 {
   NS_OBSERVER_ARRAY_NOTIFY_OBSERVERS(mListeners, nsIFolderListener,
                                      OnItemEvent,
@@ -5408,7 +5431,7 @@ NS_IMETHODIMP nsMsgDBFolder::SetInVFEditSearchScope (bool aInVFEditSearchScope, 
 {
   bool oldInVFEditSearchScope = mInVFEditSearchScope;
   mInVFEditSearchScope = aInVFEditSearchScope;
-  NotifyBoolPropertyChanged(kInVFEditSearchScopeAtom, oldInVFEditSearchScope, mInVFEditSearchScope);
+  NotifyBoolPropertyChanged(kInVFEditSearchScope, oldInVFEditSearchScope, mInVFEditSearchScope);
   return NS_OK;
 }
 
@@ -5753,8 +5776,7 @@ void nsMsgDBFolder::UpdateTimestamps(bool allowUndo)
       if (!isArchive)
       {
         SetMRMTime();
-        nsCOMPtr<nsIAtom> MRMTimeChangedAtom = MsgGetAtom("MRMTimeChanged");
-        NotifyFolderEvent(MRMTimeChangedAtom);
+        NotifyFolderEvent(kMRMTimeChanged);
       }
     }
   }

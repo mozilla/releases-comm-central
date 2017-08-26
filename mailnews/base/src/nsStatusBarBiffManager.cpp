@@ -13,6 +13,7 @@
 #include "nsIMsgMailSession.h"
 #include "MailNewsTypes.h"
 #include "nsIMsgFolder.h" // TO include biffState enum. Change to bool later...
+#include "nsMsgDBFolder.h"
 #include "nsIFileChannel.h"
 #include "nsIPrefService.h"
 #include "nsIPrefBranch.h"
@@ -27,8 +28,6 @@
 //
 NS_IMPL_ISUPPORTS(nsStatusBarBiffManager, nsIStatusBarBiffManager, nsIFolderListener, nsIObserver)
 
-nsIAtom * nsStatusBarBiffManager::kBiffStateAtom = nullptr;
-
 nsStatusBarBiffManager::nsStatusBarBiffManager()
 : mInitialized(false), mCurrentBiffState(nsIMsgFolder::nsMsgBiffState_Unknown)
 {
@@ -36,7 +35,6 @@ nsStatusBarBiffManager::nsStatusBarBiffManager()
 
 nsStatusBarBiffManager::~nsStatusBarBiffManager()
 {
-    NS_IF_RELEASE(kBiffStateAtom);
 }
 
 #define NEW_MAIL_PREF_BRANCH             "mail.biff."
@@ -56,8 +54,6 @@ nsresult nsStatusBarBiffManager::Init()
     return NS_ERROR_ALREADY_INITIALIZED;
 
   nsresult rv;
-
-  kBiffStateAtom = MsgNewAtom("BiffState").take();
 
   nsCOMPtr<nsIMsgMailSession> mailSession = 
     do_GetService(NS_MSGMAILSESSION_CONTRACTID, &rv); 
@@ -173,15 +169,15 @@ nsStatusBarBiffManager::OnItemRemoved(nsIMsgFolder *parentItem, nsISupports *ite
 }
 
 NS_IMETHODIMP 
-nsStatusBarBiffManager::OnItemPropertyChanged(nsIMsgFolder *item, nsIAtom *property, const char *oldValue, const char *newValue)
+nsStatusBarBiffManager::OnItemPropertyChanged(nsIMsgFolder *item, const nsACString &property, const char *oldValue, const char *newValue)
 {
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsStatusBarBiffManager::OnItemIntPropertyChanged(nsIMsgFolder *item, nsIAtom *property, int64_t oldValue, int64_t newValue)
+nsStatusBarBiffManager::OnItemIntPropertyChanged(nsIMsgFolder *item, const nsACString &property, int64_t oldValue, int64_t newValue)
 {
-  if (kBiffStateAtom == property && mCurrentBiffState != newValue) {
+  if (property.Equals(kBiffState) && mCurrentBiffState != newValue) {
     // if we got new mail, attempt to play a sound.
     // if we fail along the way, don't return.
     // we still need to update the UI.    
@@ -208,25 +204,25 @@ nsStatusBarBiffManager::OnItemIntPropertyChanged(nsIMsgFolder *item, nsIAtom *pr
 }
 
 NS_IMETHODIMP 
-nsStatusBarBiffManager::OnItemBoolPropertyChanged(nsIMsgFolder *item, nsIAtom *property, bool oldValue, bool newValue)
+nsStatusBarBiffManager::OnItemBoolPropertyChanged(nsIMsgFolder *item, const nsACString &property, bool oldValue, bool newValue)
 {
   return NS_OK;
 }
 
 NS_IMETHODIMP 
-nsStatusBarBiffManager::OnItemUnicharPropertyChanged(nsIMsgFolder *item, nsIAtom *property, const char16_t *oldValue, const char16_t *newValue)
+nsStatusBarBiffManager::OnItemUnicharPropertyChanged(nsIMsgFolder *item, const nsACString &property, const char16_t *oldValue, const char16_t *newValue)
 {
   return NS_OK;
 }
 
 NS_IMETHODIMP 
-nsStatusBarBiffManager::OnItemPropertyFlagChanged(nsIMsgDBHdr *item, nsIAtom *property, uint32_t oldFlag, uint32_t newFlag)
+nsStatusBarBiffManager::OnItemPropertyFlagChanged(nsIMsgDBHdr *item, const nsACString &property, uint32_t oldFlag, uint32_t newFlag)
 {
   return NS_OK;
 }
 
 NS_IMETHODIMP 
-nsStatusBarBiffManager::OnItemEvent(nsIMsgFolder *item, nsIAtom *event)
+nsStatusBarBiffManager::OnItemEvent(nsIMsgFolder *item, const nsACString &event)
 {
   return NS_OK;
 }

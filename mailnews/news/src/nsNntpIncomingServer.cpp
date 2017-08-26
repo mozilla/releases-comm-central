@@ -105,10 +105,6 @@ nsNntpIncomingServer::nsNntpIncomingServer()
   mPostingAllowed = false;
   mLastUpdatedTime = 0;
 
-  // these atoms are used for subscribe search
-  mSubscribedAtom = MsgGetAtom("subscribed");
-  mNntpAtom = MsgGetAtom("nntp");
-
   // we have server wide and per group filters
   m_canHaveFilters = true;
 

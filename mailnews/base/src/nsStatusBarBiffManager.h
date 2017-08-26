@@ -33,9 +33,6 @@ private:
   nsCString mServerType;
   nsCOMPtr<nsISound> mSound;
   nsresult PlayBiffSound(const char *aPrefBranch);
-
-protected:
-  static nsIAtom* kBiffStateAtom;
 };
 
 

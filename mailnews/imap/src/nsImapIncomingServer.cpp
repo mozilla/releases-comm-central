@@ -1377,9 +1377,7 @@ NS_IMETHODIMP nsImapIncomingServer::OnlineFolderRename(nsIMsgWindow *msgWindow, 
         rv = GetFolder(tmpNewName, getter_AddRefs(newFolder));
         if (NS_SUCCEEDED(rv))
         {
-          nsCOMPtr <nsIAtom> folderRenameAtom;
-          folderRenameAtom = MsgGetAtom("RenameCompleted");
-          newFolder->NotifyFolderEvent(folderRenameAtom);
+          newFolder->NotifyFolderEvent(kRenameCompleted);
         }
       }
     }

@@ -8,7 +8,6 @@ EXPORTS += [
     'nsMsgCompressIStream.h',
     'nsMsgCompressOStream.h',
     'nsMsgDBFolder.h',
-    'nsMsgDBFolderAtomList.h',
     'nsMsgI18N.h',
     'nsMsgIdentity.h',
     'nsMsgIncomingServer.h',

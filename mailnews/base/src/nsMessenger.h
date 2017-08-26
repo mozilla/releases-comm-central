@@ -12,6 +12,7 @@
 #include "nsITransactionManager.h"
 #include "nsIFile.h"
 #include "nsIDocShell.h"
+#include "nsString.h"
 #include "nsIStringBundle.h"
 #include "nsIFile.h"
 #include "nsIFilePicker.h"

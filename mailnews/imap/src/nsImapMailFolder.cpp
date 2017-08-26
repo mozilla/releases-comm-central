@@ -827,13 +827,13 @@ NS_IMETHODIMP nsImapMailFolder::UpdateFolderWithListener(nsIMsgWindow *aMsgWindo
     if (rv == NS_MSG_ERROR_OFFLINE || rv == NS_BINDING_ABORTED)
     {
       rv = NS_OK;
-      NotifyFolderEvent(mFolderLoadedAtom);
+      NotifyFolderEvent(kFolderLoaded);
     }
   }
   else if (NS_SUCCEEDED(rv))  // tell the front end that the folder is loaded if we're not going to
   {                           // actually run a url.
     if (!m_updatingFolder)    // if we're already running an update url, we'll let that one send the folder loaded
-      NotifyFolderEvent(mFolderLoadedAtom);
+      NotifyFolderEvent(kFolderLoaded);
   }
   return rv;
 }
@@ -1007,20 +1007,17 @@ NS_IMETHODIMP nsImapMailFolder::CreateClientSubfolderInfo(const nsACString& fold
 
   if (!suppressNotification)
   {
-    nsCOMPtr <nsIAtom> folderCreateAtom;
     if(NS_SUCCEEDED(rv) && child)
     {
       NotifyItemAdded(child);
-      folderCreateAtom = MsgGetAtom("FolderCreateCompleted");
-      child->NotifyFolderEvent(folderCreateAtom);
+      child->NotifyFolderEvent(kFolderCreateCompleted);
       nsCOMPtr<nsIMsgFolderNotificationService> notifier(do_GetService(NS_MSGNOTIFICATIONSERVICE_CONTRACTID));
       if (notifier)
         notifier->NotifyFolderAdded(child);
     }
     else
     {
-      folderCreateAtom = MsgGetAtom("FolderCreateFailed");
-      NotifyFolderEvent(folderCreateAtom);
+      NotifyFolderEvent(kFolderCreateFailed);
     }
   }
   return rv;
@@ -2303,7 +2300,7 @@ NS_IMETHODIMP nsImapMailFolder::DeleteMessages(nsIArray *messages,
           database->DeleteMessages(srcKeyArray.Length(), srcKeyArray.Elements(), nullptr);
           EnableNotifications(allMessageCountNotifications, true);
         }
-        NotifyFolderEvent(mDeleteOrMoveMsgCompletedAtom);
+        NotifyFolderEvent(kDeleteOrMoveMsgCompleted);
       }
     }
     return rv;
@@ -3153,7 +3150,7 @@ nsresult nsImapMailFolder::NormalEndHeaderParseStream(nsIImapProtocol *aProtocol
           m_filterList->ApplyFiltersToHdr(nsMsgFilterType::InboxRule, newMsgHdr,
                                           this, mDatabase, headers, headersSize,
                                           this, msgWindow);
-          NotifyFolderEvent(mFiltersAppliedAtom);
+          NotifyFolderEvent(kFiltersApplied);
         }
       }
     }
@@ -4682,7 +4679,7 @@ nsImapMailFolder::NormalEndMsgWriteStream(nsMsgKey uidOfMessage,
       m_filterList->ApplyFiltersToHdr(nsMsgFilterType::InboxRule, newMsgHdr,
                                       this, mDatabase, nullptr, 0, this,
                                       msgWindow);
-      NotifyFolderEvent(mFiltersAppliedAtom);
+      NotifyFolderEvent(kFiltersApplied);
     }
     // Process filter plugins and other items normally done at the end of
     // HeaderFetchCompleted.
@@ -4759,7 +4756,7 @@ nsImapMailFolder::OnlineCopyCompleted(nsIImapProtocol *aProtocol, ImapOnlineCopy
     nsCOMPtr<nsIMsgFolder> srcFolder;
     srcFolder = do_QueryInterface(m_copyState->m_srcSupport, &rv);
     if (srcFolder)
-      srcFolder->NotifyFolderEvent(mDeleteOrMoveMsgCompletedAtom);
+      srcFolder->NotifyFolderEvent(kDeleteOrMoveMsgCompleted);
   }
   else
     rv = NS_ERROR_FAILURE;
@@ -4877,7 +4874,7 @@ nsresult nsImapMailFolder::SyncFlags(nsIImapFlagAndUidState *flagState)
   {
     int64_t oldFolderSize = mFolderSize;
     mFolderSize = newFolderSize;
-    NotifyIntPropertyChanged(kFolderSizeAtom, oldFolderSize, mFolderSize);
+    NotifyIntPropertyChanged(kFolderSize, oldFolderSize, mFolderSize);
   }
 
   return NS_OK;
@@ -5301,7 +5298,7 @@ nsImapMailFolder::OnStopRunningUrl(nsIURI *aUrl, nsresult aExitCode)
               srcFolder->EnableNotifications(allMessageCountNotifications, true);
               // even if we're showing deleted messages,
               // we still need to notify FE so it will show the imap deleted flag
-              srcFolder->NotifyFolderEvent(mDeleteOrMoveMsgCompletedAtom);
+              srcFolder->NotifyFolderEvent(kDeleteOrMoveMsgCompleted);
               // is there a way to see that we think we have new msgs?
               nsCOMPtr<nsIPrefBranch> prefBranch(do_GetService(NS_PREFSERVICE_CONTRACTID, &rv));
               if (NS_SUCCEEDED(rv))
@@ -5319,7 +5316,7 @@ nsImapMailFolder::OnStopRunningUrl(nsIURI *aUrl, nsresult aExitCode)
             else
             {
               srcFolder->EnableNotifications(allMessageCountNotifications, true);
-              srcFolder->NotifyFolderEvent(mDeleteOrMoveMsgFailedAtom);
+              srcFolder->NotifyFolderEvent(kDeleteOrMoveMsgFailed);
             }
 
           }
@@ -5486,9 +5483,7 @@ nsImapMailFolder::OnStopRunningUrl(nsIURI *aUrl, nsresult aExitCode)
       case nsIImapUrl::nsImapRenameFolder:
         if (NS_FAILED(aExitCode))
         {
-          nsCOMPtr <nsIAtom> folderRenameAtom;
-          folderRenameAtom = MsgGetAtom("RenameCompleted");
-          NotifyFolderEvent(folderRenameAtom);
+          NotifyFolderEvent(kRenameCompleted);
         }
         break;
       case nsIImapUrl::nsImapDeleteAllMsgs:
@@ -5532,9 +5527,7 @@ nsImapMailFolder::OnStopRunningUrl(nsIURI *aUrl, nsresult aExitCode)
       case nsIImapUrl::nsImapCreateFolder:
         if (NS_FAILED(aExitCode))  //if success notification already done
         {
-          nsCOMPtr <nsIAtom> folderCreateAtom;
-          folderCreateAtom = MsgGetAtom("FolderCreateFailed");
-          NotifyFolderEvent(folderCreateAtom);
+          NotifyFolderEvent(kFolderCreateFailed);
         }
         break;
       case nsIImapUrl::nsImapSubscribe:
@@ -6817,7 +6810,7 @@ nsImapMailFolder::CopyNextStreamMessage(bool copySucceeded, nsISupports *copySta
         // been deleted.
         nsCOMPtr<nsIMsgLocalMailFolder> popFolder(do_QueryInterface(srcFolder));
         if (popFolder)   //needed if move pop->imap to notify FE
-          srcFolder->NotifyFolderEvent(mDeleteOrMoveMsgCompletedAtom);
+          srcFolder->NotifyFolderEvent(kDeleteOrMoveMsgCompleted);
       }
     }
   }
@@ -7428,8 +7421,8 @@ nsresult nsImapMailFolder::CopyMessagesOffline(nsIMsgFolder* srcFolder,
 
   if (isMove)
     srcFolder->NotifyFolderEvent(NS_SUCCEEDED(rv) ?
-                                 mDeleteOrMoveMsgCompletedAtom :
-                                 mDeleteOrMoveMsgFailedAtom);
+                                 kDeleteOrMoveMsgCompleted :
+                                 kDeleteOrMoveMsgFailed);
   return rv;
 }
 
@@ -7714,7 +7707,7 @@ done:
     if (isMove)
     {
       srcFolder->EnableNotifications(allMessageCountNotifications, true);  //enable message count notification
-      NotifyFolderEvent(mDeleteOrMoveMsgFailedAtom);
+      NotifyFolderEvent(kDeleteOrMoveMsgFailed);
     }
   }
   return rv;

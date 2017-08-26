@@ -1474,7 +1474,7 @@ nsMsgSendLater::OnItemRemoved(nsIMsgFolder *aParentItem, nsISupports *aItem)
 }
 
 NS_IMETHODIMP
-nsMsgSendLater::OnItemPropertyChanged(nsIMsgFolder *aItem, nsIAtom *aProperty,
+nsMsgSendLater::OnItemPropertyChanged(nsIMsgFolder *aItem, const nsACString &aProperty,
                                       const char* aOldValue,
                                       const char* aNewValue)
 {
@@ -1482,14 +1482,14 @@ nsMsgSendLater::OnItemPropertyChanged(nsIMsgFolder *aItem, nsIAtom *aProperty,
 }
 
 NS_IMETHODIMP
-nsMsgSendLater::OnItemIntPropertyChanged(nsIMsgFolder *aItem, nsIAtom *aProperty,
+nsMsgSendLater::OnItemIntPropertyChanged(nsIMsgFolder *aItem, const nsACString &aProperty,
                                          int64_t aOldValue, int64_t aNewValue)
 {
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsMsgSendLater::OnItemBoolPropertyChanged(nsIMsgFolder *aItem, nsIAtom *aProperty,
+nsMsgSendLater::OnItemBoolPropertyChanged(nsIMsgFolder *aItem, const nsACString &aProperty,
                                           bool aOldValue, bool aNewValue)
 {
   return NS_OK;
@@ -1497,7 +1497,7 @@ nsMsgSendLater::OnItemBoolPropertyChanged(nsIMsgFolder *aItem, nsIAtom *aPropert
 
 NS_IMETHODIMP
 nsMsgSendLater::OnItemUnicharPropertyChanged(nsIMsgFolder *aItem,
-                                             nsIAtom *aProperty,
+                                             const nsACString &aProperty,
                                              const char16_t* aOldValue,
                                              const char16_t* aNewValue)
 {
@@ -1505,14 +1505,14 @@ nsMsgSendLater::OnItemUnicharPropertyChanged(nsIMsgFolder *aItem,
 }
 
 NS_IMETHODIMP
-nsMsgSendLater::OnItemPropertyFlagChanged(nsIMsgDBHdr *aItem, nsIAtom *aProperty,
+nsMsgSendLater::OnItemPropertyFlagChanged(nsIMsgDBHdr *aItem, const nsACString &aProperty,
                                           uint32_t aOldValue, uint32_t aNewValue)
 {
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsMsgSendLater::OnItemEvent(nsIMsgFolder* aItem, nsIAtom *aEvent)
+nsMsgSendLater::OnItemEvent(nsIMsgFolder* aItem, const nsACString &aEvent)
 {
   return NS_OK;
 }

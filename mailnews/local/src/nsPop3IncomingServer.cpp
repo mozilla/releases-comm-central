@@ -24,6 +24,7 @@
 #include "nsServiceManagerUtils.h"
 #include "nsIMutableArray.h"
 #include "nsMsgUtils.h"
+#include "nsMsgDBFolder.h"
 #include "nsComponentManagerUtils.h"
 #include "mozilla/Likely.h"
 
@@ -227,11 +228,9 @@ NS_IMETHODIMP nsPop3IncomingServer::SetDeferredToAccount(const nsACString& aAcco
       // if isDeferred state has changed, send notification
       if (aAccountKey.IsEmpty() != deferredToAccount.IsEmpty())
       {
-        nsCOMPtr <nsIAtom> deferAtom = MsgGetAtom("isDeferred");
-        nsCOMPtr <nsIAtom> canFileAtom = MsgGetAtom("CanFileMessages");
-        folderListenerManager->OnItemBoolPropertyChanged(rootFolder, deferAtom,
+        folderListenerManager->OnItemBoolPropertyChanged(rootFolder, kIsDeferred,
                   !deferredToAccount.IsEmpty(), deferredToAccount.IsEmpty());
-        folderListenerManager->OnItemBoolPropertyChanged(rootFolder, canFileAtom,
+        folderListenerManager->OnItemBoolPropertyChanged(rootFolder, kCanFileMessages,
                   deferredToAccount.IsEmpty(), !deferredToAccount.IsEmpty());
 
         // this hack causes the account manager ds to send notifications to the

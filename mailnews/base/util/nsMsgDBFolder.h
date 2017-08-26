@@ -14,7 +14,6 @@
 #include "nsIMsgDatabase.h"
 #include "nsIMsgIncomingServer.h"
 #include "nsCOMPtr.h"
-#include "nsStaticAtom.h"
 #include "nsIDBChangeListener.h"
 #include "nsIMsgPluggableStore.h"
 #include "nsIURL.h"
@@ -31,6 +30,44 @@
 #include "nsMsgKeySet.h"
 #include "nsMsgMessageFlags.h"
 #include "nsIMsgFilterPlugin.h"
+
+// We declare strings for folder properties and events.
+// Properties:
+extern const nsLiteralCString kBiffState;
+extern const nsLiteralCString kCanFileMessages;
+extern const nsLiteralCString kDefaultServer;
+extern const nsLiteralCString kFlagged;
+extern const nsLiteralCString kFolderFlag;
+extern const nsLiteralCString kFolderSize;
+extern const nsLiteralCString kInVFEditSearchScope;
+extern const nsLiteralCString kIsDeferred;
+extern const nsLiteralCString kIsSecure;
+extern const nsLiteralCString kJunkStatusChanged;
+extern const nsLiteralCString kKeywords;
+extern const nsLiteralCString kMRMTimeChanged;
+extern const nsLiteralCString kMsgLoaded;
+extern const nsLiteralCString kName;
+extern const nsLiteralCString kNewMailReceived;
+extern const nsLiteralCString kNewMessages;
+extern const nsLiteralCString kOpen;
+extern const nsLiteralCString kSortOrder;
+extern const nsLiteralCString kStatus;
+extern const nsLiteralCString kSynchronize;
+extern const nsLiteralCString kTotalMessages;
+extern const nsLiteralCString kTotalUnreadMessages;
+
+// Events:
+extern const nsLiteralCString kAboutToCompact;
+extern const nsLiteralCString kCompactCompleted;
+extern const nsLiteralCString kDeleteOrMoveMsgCompleted;
+extern const nsLiteralCString kDeleteOrMoveMsgFailed;
+extern const nsLiteralCString kFiltersApplied;
+extern const nsLiteralCString kFolderCreateCompleted;
+extern const nsLiteralCString kFolderCreateFailed;
+extern const nsLiteralCString kFolderLoaded;
+extern const nsLiteralCString kNumNewBiffMessages;
+extern const nsLiteralCString kRenameCompleted;
+
 class nsIMsgFolderCacheElement;
 class nsICollation;
 class nsMsgKeySetU;
@@ -71,9 +108,10 @@ public:
   nsresult GetBackupSummaryFile(nsIFile **result, const nsACString& newName);
   nsresult GetMsgPreviewTextFromStream(nsIMsgDBHdr *msgHdr, nsIInputStream *stream);
   nsresult HandleAutoCompactEvent(nsIMsgWindow *aMsgWindow);
+
 protected:
   virtual ~nsMsgDBFolder();
-  
+
   virtual nsresult CreateBaseMessageURI(const nsACString& aURI);
 
   void compressQuotesInMsgSnippet(const nsString& aMessageText, nsAString& aCompressedQuotesStr);
@@ -88,7 +126,6 @@ protected:
   nsresult SetWarnFilterChanged(bool aVal);
   nsresult CreateCollationKey(const nsString &aSource,  uint8_t **aKey, uint32_t *aLength);
 
-protected:
   // all children will override this to create the right class of object.
   virtual nsresult CreateChildFromURI(const nsCString &uri, nsIMsgFolder **folder) = 0;
   virtual nsresult ReadDBFolderInfo(bool force);
@@ -152,7 +189,6 @@ protected:
                               nsIMsgFolder *srcFolder,
                               nsIMutableArray* messages);
 
-protected:
   nsCOMPtr<nsIMsgDatabase> mDatabase;
   nsCOMPtr<nsIMsgDatabase> mBackupDatabase;
   nsCString mCharset;
@@ -172,7 +208,6 @@ protected:
   nsCOMPtr <nsIMsgDownloadSettings> m_downloadSettings;
   static NS_MSG_BASE_STATIC_MEMBER_(nsrefcnt) mInstanceCount;
 
-protected:
   uint32_t mFlags;
   nsWeakPtr mParent;     //This won't be refcounted for ownership reasons.
   int32_t mNumUnreadMessages;        /* count of unread messages (-1 means unknown; -2 means unknown but we already tried to find out.) */
@@ -237,12 +272,9 @@ protected:
   static NS_MSG_BASE_STATIC_MEMBER_(nsString) kLocalizedArchivesName;
 
   static NS_MSG_BASE_STATIC_MEMBER_(nsString) kLocalizedBrandShortName;
-  
-#define MSGDBFOLDER_ATOM(name_, value) static NS_MSG_BASE_STATIC_MEMBER_(nsIAtom*) name_;
-#include "nsMsgDBFolderAtomList.h"
-#undef MSGDBFOLDER_ATOM
 
   static NS_MSG_BASE_STATIC_MEMBER_(nsICollation*) gCollationKeyGenerator;
+
 
   // store of keys that have a processing flag set
   struct

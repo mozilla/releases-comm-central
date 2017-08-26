@@ -12,7 +12,6 @@
 #include "nsIMutableArray.h"
 #include "nsIStringBundle.h"
 #include "nsIObserver.h"
-#include "nsIAtom.h"
 #include "nsDataHashtable.h"
 #include "nsTArray.h"
 
@@ -53,8 +52,6 @@ private:
   nsresult PutMRUTimestampForFolder(nsIMsgFolder *aFolder, uint32_t aLastMRUTime);
 
   nsCOMPtr<nsIMutableArray> mFoldersWithNewMail;  // keep track of all the root folders with pending new mail
-  nsCOMPtr<nsIAtom> mBiffStateAtom;
-  nsCOMPtr<nsIAtom> mNewMailReceivedAtom;
   bool mAlertInProgress;
   nsDataHashtable<nsCStringHashKey, uint32_t> mLastMRUTimes; // We keep track of the last time we did a new mail notification for each account
   nsTArray<nsCString> mFetchingURIs;

@@ -12,9 +12,10 @@
 #include "nsIMsgIdentity.h"
 #include "nsIMsgAccount.h"
 #include "nsIMsgFolder.h"
+#include "nsMsgFolderFlags.h"
+#include "nsMsgDBFolder.h"
 #include "nsCOMPtr.h"
 #include "nsMsgBaseCID.h"
-#include "nsMsgFolderFlags.h"
 #include "nsDirectoryServiceDefs.h"
 #include "nsIDirectoryService.h"
 #include "MailNewsTypes.h"
@@ -159,8 +160,6 @@ static void openMailWindow(const nsCString& aUri)
 
 nsMessengerOSXIntegration::nsMessengerOSXIntegration()
 {
-  mBiffStateAtom = MsgGetAtom("BiffState");
-  mNewMailReceivedAtom = MsgGetAtom("NewMailReceived");
   mUnreadTotal = 0;
   mUnreadChat = 0;
 }
@@ -192,13 +191,13 @@ nsMessengerOSXIntegration::Init()
 }
 
 NS_IMETHODIMP
-nsMessengerOSXIntegration::OnItemPropertyChanged(nsIMsgFolder *, nsIAtom *, char const *, char const *)
+nsMessengerOSXIntegration::OnItemPropertyChanged(nsIMsgFolder *, const nsACString &, char const *, char const *)
 {
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsMessengerOSXIntegration::OnItemUnicharPropertyChanged(nsIMsgFolder *, nsIAtom *, const char16_t *, const char16_t *)
+nsMessengerOSXIntegration::OnItemUnicharPropertyChanged(nsIMsgFolder *, const nsACString &, const char16_t *, const char16_t *)
 {
   return NS_OK;
 }
@@ -410,7 +409,7 @@ nsMessengerOSXIntegration::ShowAlertMessage(const nsAString& aAlertTitle,
 
 NS_IMETHODIMP
 nsMessengerOSXIntegration::OnItemIntPropertyChanged(nsIMsgFolder *aFolder,
-                                                    nsIAtom *aProperty,
+                                                    const nsACString &aProperty,
                                                     int64_t aOldValue,
                                                     int64_t aNewValue)
 {
@@ -438,7 +437,7 @@ nsMessengerOSXIntegration::OnItemIntPropertyChanged(nsIMsgFolder *aFolder,
     childFolder->GetNumNewMessages(true, &numNewMessages);
     FillToolTipInfo(childFolder, numNewMessages);
   }
-  else if (mNewMailReceivedAtom == aProperty)
+  else if (aProperty.Equals(kNewMailReceived))
   {
     FillToolTipInfo(aFolder, aNewValue);
   }
@@ -565,7 +564,7 @@ nsMessengerOSXIntegration::BadgeDockIcon()
 }
 
 NS_IMETHODIMP
-nsMessengerOSXIntegration::OnItemPropertyFlagChanged(nsIMsgDBHdr *item, nsIAtom *property, uint32_t oldFlag, uint32_t newFlag)
+nsMessengerOSXIntegration::OnItemPropertyFlagChanged(nsIMsgDBHdr *item, const nsACString &property, uint32_t oldFlag, uint32_t newFlag)
 {
   return NS_OK;
 }
@@ -578,15 +577,15 @@ nsMessengerOSXIntegration::OnItemAdded(nsIMsgFolder *, nsISupports *)
 
 NS_IMETHODIMP
 nsMessengerOSXIntegration::OnItemBoolPropertyChanged(nsIMsgFolder *aItem,
-                                                         nsIAtom *aProperty,
-                                                         bool aOldValue,
-                                                         bool aNewValue)
+                                                     const nsACString &aProperty,
+                                                     bool aOldValue,
+                                                     bool aNewValue)
 {
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsMessengerOSXIntegration::OnItemEvent(nsIMsgFolder *, nsIAtom *)
+nsMessengerOSXIntegration::OnItemEvent(nsIMsgFolder *, const nsACString &)
 {
   return NS_OK;
 }

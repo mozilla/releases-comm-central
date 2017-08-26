@@ -22,7 +22,6 @@
 #include "nsIFile.h"
 #include "nsITreeView.h"
 #include "nsITreeSelection.h"
-#include "nsIAtom.h"
 #include "nsCOMArray.h"
 
 #include "nsNntpMockChannel.h"
@@ -106,8 +105,6 @@ private:
     // we need to keep track of them so we know what to show as "checked"
     // in the search view
     nsTArray<nsCString> mTempSubscribed;
-    nsCOMPtr<nsIAtom> mSubscribedAtom;
-    nsCOMPtr<nsIAtom> mNntpAtom;
 
     nsCOMPtr<nsITreeBoxObject> mTree;
     nsCOMPtr<nsITreeSelection> mTreeSelection;

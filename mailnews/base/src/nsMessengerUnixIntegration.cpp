@@ -43,6 +43,7 @@
 #include "nsNativeCharsetUtils.h"
 #include "nsToolkitCompsCID.h"
 #include "nsMsgUtils.h"
+#include "nsMsgDBFolder.h"
 #include "msgCore.h"
 #include "nsCOMArray.h"
 #include "nsIMutableArray.h"
@@ -105,8 +106,6 @@ static void openMailWindow(const nsACString& aFolderUri)
 
 nsMessengerUnixIntegration::nsMessengerUnixIntegration()
 {
-  mBiffStateAtom = MsgGetAtom("BiffState");
-  mNewMailReceivedAtom = MsgGetAtom("NewMailReceived");
   mAlertInProgress = false;
   mFoldersWithNewMail = do_CreateInstance(NS_ARRAY_CONTRACTID);
 }
@@ -125,13 +124,13 @@ nsMessengerUnixIntegration::Init()
 }
 
 NS_IMETHODIMP
-nsMessengerUnixIntegration::OnItemPropertyChanged(nsIMsgFolder *, nsIAtom *, char const *, char const *)
+nsMessengerUnixIntegration::OnItemPropertyChanged(nsIMsgFolder *, const nsACString &, char const *, char const *)
 {
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsMessengerUnixIntegration::OnItemUnicharPropertyChanged(nsIMsgFolder *, nsIAtom *, const char16_t *, const char16_t *)
+nsMessengerUnixIntegration::OnItemUnicharPropertyChanged(nsIMsgFolder *, const nsACString &, const char16_t *, const char16_t *)
 {
   return NS_OK;
 }
@@ -644,7 +643,7 @@ nsresult nsMessengerUnixIntegration::GetFirstFolderWithNewMail(nsACString& aFold
 }
 
 NS_IMETHODIMP
-nsMessengerUnixIntegration::OnItemPropertyFlagChanged(nsIMsgDBHdr *item, nsIAtom *property, uint32_t oldFlag, uint32_t newFlag)
+nsMessengerUnixIntegration::OnItemPropertyFlagChanged(nsIMsgDBHdr *item, const nsACString &property, uint32_t oldFlag, uint32_t newFlag)
 {
   return NS_OK;
 }
@@ -657,25 +656,25 @@ nsMessengerUnixIntegration::OnItemAdded(nsIMsgFolder *, nsISupports *)
 
 NS_IMETHODIMP
 nsMessengerUnixIntegration::OnItemBoolPropertyChanged(nsIMsgFolder *aItem,
-                                                         nsIAtom *aProperty,
-                                                         bool aOldValue,
-                                                         bool aNewValue)
+                                                      const nsACString &aProperty,
+                                                      bool aOldValue,
+                                                      bool aNewValue)
 {
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsMessengerUnixIntegration::OnItemEvent(nsIMsgFolder *, nsIAtom *)
+nsMessengerUnixIntegration::OnItemEvent(nsIMsgFolder *, const nsACString &)
 {
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsMessengerUnixIntegration::OnItemIntPropertyChanged(nsIMsgFolder *aItem, nsIAtom *aProperty, int64_t aOldValue, int64_t aNewValue)
+nsMessengerUnixIntegration::OnItemIntPropertyChanged(nsIMsgFolder *aItem, const nsACString &aProperty, int64_t aOldValue, int64_t aNewValue)
 {
   nsCString atomName;
   // if we got new mail show an icon in the system tray
-  if (mBiffStateAtom == aProperty && mFoldersWithNewMail)
+  if (aProperty.Equals(kBiffState) && mFoldersWithNewMail)
   {
     nsCOMPtr<nsIWeakReference> weakFolder = do_GetWeakReference(aItem);
     uint32_t indexInNewArray;
@@ -706,7 +705,7 @@ nsMessengerUnixIntegration::OnItemIntPropertyChanged(nsIMsgFolder *aItem, nsIAto
       }
     }
   } // if the biff property changed
-  else if (mNewMailReceivedAtom == aProperty)
+  else if (aProperty.Equals(kNewMailReceived))
   {
     FillToolTipInfo();
   }

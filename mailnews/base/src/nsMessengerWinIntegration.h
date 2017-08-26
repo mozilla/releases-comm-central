@@ -13,7 +13,6 @@
 
 #include "nsIMessengerOSIntegration.h"
 #include "nsIFolderListener.h"
-#include "nsIAtom.h"
 #include "nsITimer.h"
 #include "nsCOMPtr.h"
 #include "nsString.h"
@@ -61,7 +60,6 @@ private:
 
   nsresult GetStringBundle(nsIStringBundle **aBundle);
   nsCOMPtr<nsIMutableArray> mFoldersWithNewMail;  // keep track of all the root folders with pending new mail
-  nsCOMPtr<nsIAtom> mBiffStateAtom;
   uint32_t mCurrentBiffState;
 
   bool mBiffIconVisible;
@@ -85,8 +83,6 @@ private:
   static void OnUnreadCountUpdateTimer(nsITimer *timer, void *osIntegration);
   nsresult UpdateUnreadCount();
 
-  nsCOMPtr <nsIAtom> mDefaultServerAtom;
-  nsCOMPtr <nsIAtom> mTotalUnreadMessagesAtom;
   nsCOMPtr <nsITimer> mUnreadCountUpdateTimer;
 
   nsCString mInboxURI;
