@@ -1051,7 +1051,7 @@ nsHightailFileUploader.prototype = {
       this._bufStream.init(this._fstream, 4096);
       // nsIXMLHttpRequest's nsIVariant handling requires that we QI
       // to nsIInputStream.
-      req.send(this._bufStream.QueryInterface(Ci.nsIInputStream));
+      req.sendInputStream(this._bufStream.QueryInterface(Ci.nsIInputStream));
     } catch (ex) {
       this.cleanupTempFile();
       this.log.error(ex);
