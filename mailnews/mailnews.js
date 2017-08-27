@@ -14,6 +14,10 @@ pref("mailnews.logComposePerformance", false);
 pref("mail.wrap_long_lines",                true);
 pref("mail.inline_attachments",             true);
 pref("mail.reply_quote_inline",             false);
+// When in a message the List-Post header contains the content of the Reply-To
+// (which is called "Reply-To Munging") we override the Reply-To header with
+// the From header.
+pref("mail.override_list_reply_to", true);
 
 // hidden pref for controlling if the user agent string
 // is displayed in the message pane or not...

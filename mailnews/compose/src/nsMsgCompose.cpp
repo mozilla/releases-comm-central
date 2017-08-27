@@ -2507,6 +2507,9 @@ NS_IMETHODIMP QuotingOutputStreamListener::OnStopRequest(nsIRequest *request, ns
   if (!mCiteReference.IsEmpty())
     compose->SetCiteReference(mCiteReference);
 
+  bool overrideReplyTo =
+    mozilla::Preferences::GetBool("mail.override_list_reply_to", true);
+
   if (mHeaders && (type == nsIMsgCompType::Reply ||
                    type == nsIMsgCompType::ReplyAll ||
                    type == nsIMsgCompType::ReplyToList ||
@@ -2755,7 +2758,8 @@ NS_IMETHODIMP QuotingOutputStreamListener::OnStopRequest(nsIRequest *request, ns
         {
           // default reply behaviour then
 
-          if (!listPost.IsEmpty() && replyTo.Find(listPost) != kNotFound)
+          if (overrideReplyTo &&
+              !listPost.IsEmpty() && replyTo.Find(listPost) != kNotFound)
           {
             // Reply-To munging in this list post. Reply to From instead,
             // as the user can choose Reply List if that's what he wants.
@@ -2800,7 +2804,8 @@ NS_IMETHODIMP QuotingOutputStreamListener::OnStopRequest(nsIRequest *request, ns
           {
             allTo.Assign(replyTo);
             needToRemoveDup = true;
-            if (!listPost.IsEmpty() && replyTo.Find(listPost) != kNotFound)
+            if (overrideReplyTo &&
+                !listPost.IsEmpty() && replyTo.Find(listPost) != kNotFound)
             {
               // Reply-To munging in this list. Add From to recipients, it's the
               // lesser evil...
