@@ -70,7 +70,7 @@ caption > label {
   background-color: transparent;
   background-image: none;
   border-bottom: none;
-  padding: 40px 0 0;
+  padding: 54px 0 0;
   margin: 0;
   max-height: 100vh;
   overflow-x: auto;
@@ -87,7 +87,7 @@ radio[pane] {
   margin-inline-start: 34px;
   margin-inline-end: 0;
   padding: 5px 10px;
-  min-height: 44px;
+  min-height: 40px;
   transition: background-color 150ms;
 }
 
@@ -146,12 +146,13 @@ radio[pane][selected] > .paneButtonIcon {
 
   radio[pane] {
     min-width: 44px;
-    margin-inline-end: 40px;
+    padding-inline-start: 13px; /* make icons align center */
+    margin-inline-end: 35px;
   }
 
   #preferencesContainer {
-    padding-inline-start: 0;
-    padding-inline-end: 10px;
+    padding-inline-start: 15px;
+    padding-inline-end: 15px;
   }
 }
 
