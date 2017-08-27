@@ -2779,7 +2779,7 @@ var GlodaMsgIndexer = {
      */
     OnItemIntPropertyChanged: function gloda_indexer_OnItemIntPropertyChanged(
                                 aFolderItem, aProperty, aOldValue, aNewValue) {
-      if (aProperty.toString() !== "FolderFlag")
+      if (aProperty !== "FolderFlag")
         return;
       if (!GlodaMsgIndexer.shouldIndexFolder(aFolderItem))
         return;
@@ -2803,15 +2803,14 @@ var GlodaMsgIndexer = {
      */
     OnItemPropertyFlagChanged: function gloda_indexer_OnItemPropertyFlagChanged(
                                 aMsgHdr, aProperty, aOldValue, aNewValue) {
-      let propertyString = aProperty.toString();
-      if (propertyString == "Keywords" ||
+      if (aProperty == "Keywords" ||
           // We could care less about the new flag changing.
-          (propertyString == "Status" &&
+          (aProperty == "Status" &&
            (aOldValue ^ aNewValue) != nsMsgMessageFlags.New &&
            // We do care about IMAP deletion, but msgsDeleted tells us that, so
            //  ignore IMAPDeleted too...
            (aOldValue ^ aNewValue) != nsMsgMessageFlags.IMAPDeleted) ||
-          propertyString == "Flagged") {
+          aProperty == "Flagged") {
         GlodaMsgIndexer._reindexChangedMessages([aMsgHdr], true);
       }
     },
@@ -2821,7 +2820,7 @@ var GlodaMsgIndexer = {
      *  (asynchronous) processing before they could be opened.
      */
     OnItemEvent: function gloda_indexer_OnItemEvent(aFolder, aEvent) {
-      if (aEvent.toString() == "FolderLoaded")
+      if (aEvent == "FolderLoaded")
         this.indexer._onFolderLoaded(aFolder);
     },
   },

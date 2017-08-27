@@ -29,7 +29,7 @@ var dummyMsgWindow =
 var gFolderListener = {
   _gotNewMailBiff: false,
   OnItemIntPropertyChanged : function(aItem, aProperty, aOldValue, aNewValue) {
-    if (aProperty.toString() == "BiffState" &&
+    if (aProperty == "BiffState" &&
         aNewValue == Ci.nsIMsgFolder.nsMsgBiffState_NewMail) {
       this._gotNewMailBiff = true;
       async_driver();

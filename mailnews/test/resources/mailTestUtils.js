@@ -456,7 +456,7 @@ var mailTestUtils = {
     //  we may not need it...
     let folderListener = {
       OnItemEvent: function (aEventFolder, aEvent) {
-        if (aEvent.toString() == "FolderLoaded" && aFolder.URI == aEventFolder.URI) {
+        if (aEvent == "FolderLoaded" && aFolder.URI == aEventFolder.URI) {
           MailServices.mailSession.RemoveFolderListener(this);
           aCallback.apply(aCallbackThis, aCallbackArgs);
         }

@@ -60,7 +60,7 @@ function* test_cancel() {
 
   let folderListener = {
     OnItemEvent: function(aEventFolder, aEvent) {
-      if (aEvent.toString() == "DeleteOrMoveMsgCompleted") {
+      if (aEvent == "DeleteOrMoveMsgCompleted") {
         MailServices.mailSession.RemoveFolderListener(this);
       }
     }

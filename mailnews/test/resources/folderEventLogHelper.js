@@ -140,7 +140,7 @@ var _folderEventLogHelper_folderListener = {
       aMsgHdr, aProperty, aOldValue, aNewValue) {
     mark_action("msgEvent", "OnItemPropertyFlagChanged",
                 ["Header", aMsgHdr,
-                 "had property " + aProperty.toString() + " have the " +
+                 "had property " + aProperty + " have the " +
                  "following bits change: " +
                  _explode_flags(aOldValue ^ aNewValue,
                                 Components.interfaces.nsMsgMessageFlags)]);
@@ -152,7 +152,7 @@ var _folderEventLogHelper_folderListener = {
    */
   OnItemEvent: function felh_OnItemEvent(aFolder, aEvent) {
     mark_action("msgEvent", "OnItemEvent",
-                [aFolder, aEvent.toString()]);
+                [aFolder, aEvent]);
   },
 };
 

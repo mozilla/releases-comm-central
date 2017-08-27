@@ -232,14 +232,12 @@ var gFolderListener = {
 
   OnItemEvent: function(folder, event)
   {
-    var eventType = event.toString();
-
-    if (eventType == "FolderCreateCompleted")
+    if (event == "FolderCreateCompleted")
     {
       gActionTargetElement.selectFolder(folder);
       SetBusyCursor(window, false);
     }
-    else if (eventType == "FolderCreateFailed")
+    else if (event == "FolderCreateFailed")
       SetBusyCursor(window, false);
   }
 }

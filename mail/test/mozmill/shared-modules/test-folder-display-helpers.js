@@ -1727,7 +1727,7 @@ var FolderListener = {
       aFolder, aEvent) {
     if (!this.watchingFor)
       return;
-    if (this.watchingFor.includes(aEvent.toString())) {
+    if (this.watchingFor.includes(aEvent)) {
       this.watchingFor = null;
       this.sawEvents = true;
     }

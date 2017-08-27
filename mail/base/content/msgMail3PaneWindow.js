@@ -68,7 +68,7 @@ var folderListener = {
 
     OnItemIntPropertyChanged: function(item, property, oldValue, newValue) {
       if (item == gFolderDisplay.displayedFolder) {
-        if(property.toString() == "TotalMessages" || property.toString() == "TotalUnreadMessages") {
+        if(property == "TotalMessages" || property == "TotalUnreadMessages") {
           UpdateStatusMessageCounts(gFolderDisplay.displayedFolder);
         }
       }
@@ -80,8 +80,7 @@ var folderListener = {
     OnItemPropertyFlagChanged: function(item, property, oldFlag, newFlag) { },
 
     OnItemEvent: function(folder, event) {
-      var eventType = event.toString();
-      if (eventType == "ImapHdrDownloaded") {
+      if (event == "ImapHdrDownloaded") {
         if (folder) {
           var imapFolder = folder.QueryInterface(Components.interfaces.nsIMsgImapMailFolder);
           if (imapFolder) {
@@ -103,7 +102,7 @@ var folderListener = {
           }
         }
       }
-      else if (eventType == "JunkStatusChanged") {
+      else if (event == "JunkStatusChanged") {
         HandleJunkStatusChanged(folder);
       }
     }

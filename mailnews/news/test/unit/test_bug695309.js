@@ -66,11 +66,11 @@ function* trigger_bug() {
   // We also need a callback to know that folders have been loaded.
   let folderListener = {
     OnItemEvent: function (item, event) {
-      dump(event.toString() + " triggered for " + item.prettyName + "!\n\n\n");
-      if (event.toString() == "FolderLoaded" &&
+      dump(event + " triggered for " + item.prettyName + "!\n\n\n");
+      if (event == "FolderLoaded" &&
           item.prettyName == "test.subscribe.simple") {
         folder.getNewMessages(null, asyncUrlListener);
-      } else if (event.toString() == "FolderLoaded" && item == folder) {
+      } else if (event == "FolderLoaded" && item == folder) {
         async_driver();
       }
     },

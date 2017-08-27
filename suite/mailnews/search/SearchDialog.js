@@ -200,12 +200,10 @@ var gFolderListener = {
     OnItemPropertyFlagChanged: function(item, property, oldFlag, newFlag) {},
 
     OnItemEvent: function(folder, event) {
-        var eventType = event.toString();
-
-        if (eventType == "DeleteOrMoveMsgCompleted") {
+        if (event == "DeleteOrMoveMsgCompleted") {
             HandleDeleteOrMoveMessageCompleted(folder);
         }
-        else if (eventType == "DeleteOrMoveMsgFailed") {
+        else if (event == "DeleteOrMoveMsgFailed") {
             HandleDeleteOrMoveMessageFailed(folder);
         }
     }

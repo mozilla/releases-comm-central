@@ -125,8 +125,7 @@ var folderListener =
     // handle the currently visible folder
     if (item == gMsgFolderSelected)
     {
-      let prop = property.toString();
-      if (prop == "TotalMessages" || prop == "TotalUnreadMessages")
+      if (property == "TotalMessages" || property == "TotalUnreadMessages")
       {
         UpdateStatusMessageCounts(gMsgFolderSelected);
         item = item.QueryInterface(Components.interfaces.nsIRDFResource);
@@ -154,8 +153,7 @@ var folderListener =
   },
 
     OnItemEvent: function(folder, event) {
-      var eventType = event.toString();
-      if (eventType == "FolderLoaded") {
+      if (event == "FolderLoaded") {
         if (folder) {
           const nsMsgFolderFlags = Components.interfaces.nsMsgFolderFlags;
           var scrolled = false;
@@ -263,7 +261,7 @@ var folderListener =
           }
         }
       }
-      else if (eventType == "ImapHdrDownloaded") {
+      else if (event == "ImapHdrDownloaded") {
         if (folder) {
           var imapFolder = folder.QueryInterface(Components.interfaces.nsIMsgImapMailFolder);
           if (imapFolder) {
@@ -285,23 +283,23 @@ var folderListener =
           }
         }
       }
-      else if (eventType == "DeleteOrMoveMsgCompleted") {
+      else if (event == "DeleteOrMoveMsgCompleted") {
         HandleDeleteOrMoveMsgCompleted(folder);
       }
-      else if (eventType == "DeleteOrMoveMsgFailed") {
+      else if (event == "DeleteOrMoveMsgFailed") {
         HandleDeleteOrMoveMsgFailed(folder);
       }
-      else if (eventType == "AboutToCompact") {
+      else if (event == "AboutToCompact") {
         if (gDBView)
           gCurrentlyDisplayedMessage = gDBView.currentlyDisplayedMessage;
       }
-      else if (eventType == "CompactCompleted") {
+      else if (event == "CompactCompleted") {
         HandleCompactCompleted(folder);
       }
-      else if (eventType == "RenameCompleted") {
+      else if (event == "RenameCompleted") {
         SelectFolder(folder.URI);
       }
-      else if (eventType == "JunkStatusChanged") {
+      else if (event == "JunkStatusChanged") {
         HandleJunkStatusChanged(folder);
       }
     }

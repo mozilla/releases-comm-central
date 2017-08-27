@@ -37,7 +37,7 @@ var folderListener = {
   OnItemPropertyChanged: function(item, property, oldValue, newValue) {},
   OnItemIntPropertyChanged: function(item, property, oldValue, newValue) {
     if (item.URI == gCurrentFolderUri) {
-      if (property.toString() == "TotalMessages" || property.toString() == "TotalUnreadMessages") {
+      if (property == "TotalMessages" || property == "TotalUnreadMessages") {
         UpdateStandAloneMessageCounts();
       }
     }
@@ -47,13 +47,11 @@ var folderListener = {
   OnItemPropertyFlagChanged: function(item, property, oldFlag, newFlag) {},
 
   OnItemEvent: function(folder, event) {
-    var eventType = event.toString();
-
-    if (eventType == "DeleteOrMoveMsgCompleted")
+    if (event == "DeleteOrMoveMsgCompleted")
       HandleDeleteOrMoveMsgCompleted(folder);
-    else if (eventType == "DeleteOrMoveMsgFailed")
+    else if (event == "DeleteOrMoveMsgFailed")
       HandleDeleteOrMoveMsgFailed(folder);
-    else if (eventType == "FolderLoaded") {
+    else if (event == "FolderLoaded") {
       if (folder) {
         var uri = folder.URI;
         if (uri == gCurrentFolderToRerootForStandAlone) {
@@ -65,7 +63,7 @@ var folderListener = {
         }
       }
     }
-    else if (eventType == "JunkStatusChanged") {
+    else if (event == "JunkStatusChanged") {
       HandleJunkStatusChanged(folder);
     }
   }
