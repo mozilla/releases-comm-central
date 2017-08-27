@@ -126,6 +126,7 @@ radio[pane][selected]::before {
 .paneButtonIcon {
   width: 24px;
   height: 24px;
+  -moz-image-region: auto;
   -moz-context-properties: fill, fill-opacity;
   fill: currentColor;
   fill-opacity: 0.8;
