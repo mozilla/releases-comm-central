@@ -165,17 +165,6 @@ menulist.folderMenuItem menu:not(.folderMenuItem) {
   padding-bottom: 3px;
 }
 
-#PopupGlodaAutocomplete {
-  -moz-appearance: none;
-  margin-top: -1px;
-  border-width: 1px;
-  -moz-border-top-colors: ThreeDShadow;
-  -moz-border-right-colors: ThreeDShadow;
-  -moz-border-bottom-colors: ThreeDShadow;
-  -moz-border-left-colors: ThreeDShadow;
-  background-color: -moz-Field;
-}
-
 #status-bar:-moz-lwtheme {
   padding-bottom: 1px;
 }
@@ -446,12 +435,6 @@ menulist > menupopup:not([type="folder"]) > menuseparator {
   .toolbarbutton-1 > .toolbarbutton-menubutton-dropmarker:-moz-locale-dir(ltr) {
     border-top-left-radius: 0;
     border-bottom-left-radius: 0;
-  }
-}
-
-@media (-moz-os-version: windows-win10) and (-moz-windows-default-theme) {
-  #PopupGlodaAutocomplete:not(:-moz-lwtheme) {
-    margin-top: -2px;
   }
 }
 

@@ -14,7 +14,7 @@
   -moz-appearance: none;
   background-clip: padding-box;
   border: 1px solid hsla(240,5%,5%,.25);
-  border-radius: var(--toolbarbutton-border-radius);
+  border-radius: 3px;
   box-shadow: 0 1px 4px rgba(0,0,0,.05);
   font: icon;
   height: 24px;
@@ -108,4 +108,31 @@
 .autocomplete-history-dropmarker[enablehistory="true"] {
   display: -moz-box;
   -moz-binding: url("chrome://global/content/bindings/autocomplete.xml#history-dropmarker");
+}
+
+#PopupGlodaAutocomplete {
+  margin-top: -1px;
+  color: -moz-FieldText;
+  background-color: -moz-Field;
+  -moz-appearance: none;
+}
+
+#PopupGlodaAutocomplete > .autocomplete-richlistbox {
+  padding: 2px 0;
+}
+
+.autocomplete-richlistitem[type^="gloda-"] {
+  margin-right: 2px;
+  margin-left: 2px;
+  padding-inline-start: 12px;
+  border-radius: 2px;
+}
+
+.autocomplete-richlistitem[type^="gloda-"]:hover {
+  background-color: hsla(210,4%,10%,.07);
+}
+
+.autocomplete-richlistitem[type^="gloda-"][selected] {
+  background-color: Highlight;
+  color: HighlightText;
 }
