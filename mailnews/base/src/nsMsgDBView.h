@@ -20,7 +20,6 @@
 #include "nsIMsgThread.h"
 #include "DateTimeFormat.h"
 #include "nsIDOMElement.h"
-#include "nsIAtom.h"
 #include "nsIImapIncomingServer.h"
 #include "nsIWeakReference.h"
 #include "nsIMsgFilterPlugin.h"
@@ -359,11 +358,10 @@ protected:
   bool NonDummyMsgSelected(nsMsgViewIndex * indices, int32_t numIndices);
   char16_t * GetString(const char16_t *aStringName);
   nsresult GetPrefLocalizedString(const char *aPrefName, nsString& aResult);
-  nsresult GetLabelPrefStringAndAtom(const char *aPrefName, nsString& aColor, nsIAtom** aColorAtom);
   nsresult AppendKeywordProperties(const nsACString& keywords, nsAString& properties, bool addSelectedTextProperty);
   nsresult InitLabelStrings(void);
   nsresult CopyDBView(nsMsgDBView *aNewMsgDBView, nsIMessenger *aMessengerInstance, nsIMsgWindow *aMsgWindow, nsIMsgDBViewCommandUpdater *aCmdUpdater);
-  void InitializeAtomsAndLiterals();
+  void InitializeLiterals();
   virtual int32_t FindLevelInThread(nsIMsgDBHdr *msgHdr, nsMsgViewIndex startOfThread, nsMsgViewIndex viewIndex);
   nsresult GetImapDeleteModel(nsIMsgFolder *folder);
   nsresult UpdateDisplayMessage(nsMsgViewIndex viewPosition);
@@ -431,8 +429,6 @@ protected:
   // used for the preference labels
   nsString mLabelPrefDescriptions[PREF_LABELS_MAX];
   nsString mLabelPrefColors[PREF_LABELS_MAX];
-  // used to cache the atoms created for each color to be displayed
-  static nsIAtom* mLabelPrefColorAtoms[PREF_LABELS_MAX];
 
   // used to determine when to start and end
   // junk plugin batches

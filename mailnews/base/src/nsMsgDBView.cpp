@@ -140,7 +140,7 @@ nsMsgDBView::nsMsgDBView()
   // initialize any static atoms or unicode strings
   if (gInstanceCount == 0)
   {
-    InitializeAtomsAndLiterals();
+    InitializeLiterals();
     InitDisplayFormats();
   }
 
@@ -148,7 +148,7 @@ nsMsgDBView::nsMsgDBView()
   gInstanceCount++;
 }
 
-void nsMsgDBView::InitializeAtomsAndLiterals()
+void nsMsgDBView::InitializeLiterals()
 {
   // priority strings
   kHighestPriorityString = GetString(u"priorityHighest");
