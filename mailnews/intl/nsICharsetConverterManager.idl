@@ -4,7 +4,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "nsISupports.idl"
-#include "nsIAtom.idl"
 
 %{ C++
 #include "mozilla/Encoding.h"
@@ -58,8 +57,8 @@ interface nsICharsetConverterManager : nsISupports
      * @throws if aCharset is an unknown charset.
      * @return the language code for the character encoding.
      */
-    nsIAtom getCharsetLangGroup(in string aCharset);
-    nsIAtom getCharsetLangGroupRaw(in string aCharset);
+    AUTF8String getCharsetLangGroup(in string aCharset);
+    AUTF8String getCharsetLangGroupRaw(in string aCharset);
 
     /**
      * Support for Modified UTF-7 (MUTF-7) used by IMAP.

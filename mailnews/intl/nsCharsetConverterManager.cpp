@@ -165,8 +165,8 @@ nsCharsetConverterManager::GetCharsetData(const char * aCharset,
 }
 
 NS_IMETHODIMP
-nsCharsetConverterManager::GetCharsetLangGroup(const char * aCharset, 
-                                               nsIAtom** aResult)
+nsCharsetConverterManager::GetCharsetLangGroup(const char * aCharset,
+                                               nsACString& aResult)
 {
   // resolve the charset first
   nsAutoCString charset;
@@ -180,19 +180,17 @@ nsCharsetConverterManager::GetCharsetLangGroup(const char * aCharset,
 }
 
 NS_IMETHODIMP
-nsCharsetConverterManager::GetCharsetLangGroupRaw(const char * aCharset, 
-                                                  nsIAtom** aResult)
+nsCharsetConverterManager::GetCharsetLangGroupRaw(const char * aCharset,
+                                                  nsACString& aResult)
 {
-
-  *aResult = nullptr;
   nsAutoString langGroup;
   // fully qualify to possibly avoid vtable call
   nsresult rv = nsCharsetConverterManager::GetCharsetData(
       aCharset, u".LangGroup", langGroup);
 
   if (NS_SUCCEEDED(rv)) {
-    ToLowerCase(langGroup); // use lowercase for all language atoms
-    *aResult = NS_Atomize(langGroup).take();
+    ToLowerCase(langGroup); // use lowercase for all language groups
+    aResult = NS_ConvertUTF16toUTF8(langGroup);
   }
 
   return rv;

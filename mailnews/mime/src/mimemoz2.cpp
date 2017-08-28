@@ -2011,7 +2011,6 @@ nsresult GetMailNewsFont(MimeObject *obj, bool styleFixed,  int32_t *fontPixelSi
       charset.Assign(text->charset);
 
     nsCOMPtr<nsICharsetConverterManager> charSetConverterManager2;
-    nsCOMPtr<nsIAtom> langGroupAtom;
     nsAutoCString prefStr;
 
     ToLowerCase(charset);
@@ -2021,10 +2020,7 @@ nsresult GetMailNewsFont(MimeObject *obj, bool styleFixed,  int32_t *fontPixelSi
       return rv;
 
     // get a language, e.g. x-western, ja
-    rv = charSetConverterManager2->GetCharsetLangGroup(charset.get(), getter_AddRefs(langGroupAtom));
-    if (NS_FAILED(rv))
-      return rv;
-    rv = langGroupAtom->ToUTF8String(fontLang);
+    rv = charSetConverterManager2->GetCharsetLangGroup(charset.get(), fontLang);
     if (NS_FAILED(rv))
       return rv;
 
