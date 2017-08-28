@@ -222,7 +222,11 @@ menulist:-moz-locale-dir(rtl) > .menulist-label-box {
 
 /* ::::: attachment reminder ::::: */
 
-#attachmentNotificationBox > notification .messageImage {
+#attachmentNotificationBox b {
+  font-weight: bold;
+}
+
+#attachmentNotificationBox > notification[image="null"] .messageImage {
   width: 18px;
   height: 18px;
   background-image: url(chrome://messenger/skin/messengercompose/compose-toolbar.svg#attach);

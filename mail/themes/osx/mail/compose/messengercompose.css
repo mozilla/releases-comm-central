@@ -100,7 +100,7 @@ toolbar[nowindowdrag="true"] {
     list-style-image: url("chrome://messenger/skin/messengercompose/compose-toolbar-osxlion.svg#print");
   }
 
-  #attachmentNotificationBox > notification .messageImage {
+  #attachmentNotificationBox > notification[image="null"] .messageImage {
     background-image: url("chrome://messenger/skin/messengercompose/compose-toolbar-osxlion.svg#attach");
   }
 }
@@ -151,7 +151,7 @@ toolbar[nowindowdrag="true"] {
     list-style-image: url("chrome://messenger/skin/messengercompose/compose-toolbar.svg#print-flat");
   }
 
-  #attachmentNotificationBox > notification .messageImage {
+  #attachmentNotificationBox > notification[image="null"] .messageImage {
     background-image: url("chrome://messenger/skin/messengercompose/compose-toolbar.svg#attach-flat");
   }
 }
@@ -301,7 +301,11 @@ toolbar[brighttext] #button-print {
 
 /* ::::: attachment reminder ::::: */
 
-#attachmentNotificationBox > notification .messageImage {
+#attachmentNotificationBox b {
+  font-weight: bold;
+}
+
+#attachmentNotificationBox > notification[image="null"] .messageImage {
   width: 18px;
   height: 18px;
 }
