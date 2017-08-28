@@ -5,8 +5,8 @@
 /*** Panel and outer controls ***/
 
 #aboutDownloads {
-  background-color: #f1f1f1;
-  color: #424e5a;
+  background-color: #f9f9fa;
+  color: #0c0c0d;
   padding: 18px;
 }
 
@@ -20,6 +20,7 @@
   /** The default listbox appearance comes with an unwanted margin. **/
   -moz-appearance: none;
   margin: 0;
+  border: 1px solid hsla(210,4%,10%,.14);
 }
 
 #msgDownloadsRichListBox > richlistitem.download {

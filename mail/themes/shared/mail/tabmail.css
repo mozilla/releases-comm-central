@@ -299,10 +299,6 @@
 
 /* Content Tabs */
 .contentTabToolbox {
-  height: 0;
-}
-
-.contentTabInstance[disablechrome] .contentTabToolbox {
   display: none;
 }
 
