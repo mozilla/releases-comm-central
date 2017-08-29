@@ -1752,6 +1752,7 @@ NS_IMETHODIMP nsMsgNewsFolder::GetMessageIdForKey(nsMsgKey key, nsACString& resu
 NS_IMETHODIMP nsMsgNewsFolder::SetSortOrder(int32_t order)
 {
   int32_t oldOrder = mSortOrder;
+  mSortOrder = order;
 
   NotifyIntPropertyChanged(kSortOrder, oldOrder, order);
 
