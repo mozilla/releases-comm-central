@@ -25,8 +25,15 @@ var ITERATOR_SYMBOL = JS_HAS_SYMBOLS ? Symbol.iterator : "@@iterator";
  * @param aObj        The object to convert
  */
 function toArray(aObj) {
+  // Iterable object
   if (ITERATOR_SYMBOL in aObj) {
     return Array.from(aObj);
+  }
+
+  // New style generator function
+  if ((typeof aObj == "function") && (typeof aObj.constructor == "function")
+      && (aObj.constructor.name == "GeneratorFunction")) {
+    return [...aObj()];
   }
 
   // We got something unexpected, notify the caller loudly.

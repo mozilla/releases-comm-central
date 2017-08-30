@@ -23,7 +23,7 @@
     <!-- If the location of the favicon is changed here, the FAVICON_ERRORPAGE_URL symbol in
          toolkit/components/places/src/nsFaviconService.h should be updated. -->
     <link rel="icon" type="image/png" id="favicon" href="chrome://global/skin/icons/warning-16.png"/>
-    <script type="application/javascript;version=1.8"><![CDATA[
+    <script type="application/javascript"><![CDATA[
       // Error url must be formatted like this:
       //   about:newserror?r=response&m=messageid&k=messagekey&f=folderuri
       // "r" is required; "m" and "f" are optional, but "k" always comes with "m".
@@ -38,7 +38,7 @@
         let uri = document.documentURI;
         let query = uri.slice(uri.indexOf("?")+1);
         let params = {};
-        for (let [,piece] in Iterator(query.split("&"))) {
+        for (let piece of query.split("&")) {
           let [key, value] = piece.split("=");
           params[key] = decodeURIComponent(value);
         }
