@@ -159,7 +159,7 @@
                  chromedir="&locale.dir;"/>
 #else
           <label class="acctCentralText acctCentralLinkText"
-                 value="&setupNewAcctLink.label;"
+                 value="&newAcctLink.label;"
                  chromedir="&locale.dir;"
                  onclick="CreateNewAccount();"/>
 #endif
