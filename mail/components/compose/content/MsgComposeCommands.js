@@ -4077,9 +4077,9 @@ function AttachFile()
 
   fp.appendFilters(nsIFilePicker.filterAll);
   fp.open(rv => {
-    if (rv != Components.interfaces.nsIFilePicker.returnOK || !fp.file) {
+    if (rv != Components.interfaces.nsIFilePicker.returnOK || !fp.files)
       return;
-    }
+
     let file;
     let attachments = [];
 
