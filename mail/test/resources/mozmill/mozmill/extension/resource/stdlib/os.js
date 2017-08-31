@@ -79,8 +79,7 @@ function abspath (rel, file) {
 function getPlatform () {
   var xulRuntime = Components.classes["@mozilla.org/xre/app-info;1"]
                    .getService(Components.interfaces.nsIXULRuntime);
-  mPlatform = xulRuntime.OS.toLowerCase();
-  return mPlatform;
+  return xulRuntime.OS.toLowerCase();
 }
 
 

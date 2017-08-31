@@ -97,7 +97,7 @@ var waitFor = utils.waitFor;
 var waitForEval = utils.waitForEval;
 
 
-waitForEvents = function() {}
+var waitForEvents = function() {}
 
 waitForEvents.prototype = {
   /**
@@ -1333,14 +1333,14 @@ function browserAdditions (controller) {
   }
 }
 
-controllerAdditions = {
+var controllerAdditions = {
   'Browser:Preferences':preferencesAdditions,
   'navigator:browser'  :browserAdditions,
 }
 
 var withs = {}; Components.utils.import('resource://mozmill/stdlib/withs.js', withs);
 
-MozMillAsyncTest = function (timeout) {
+var MozMillAsyncTest = function (timeout) {
   if (timeout == undefined) {
     this.timeout = 6000;
   } else {

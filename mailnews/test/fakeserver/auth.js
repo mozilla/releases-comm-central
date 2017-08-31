@@ -120,7 +120,7 @@ var AuthCRAM = {
     dump("AUTH CRAM-MD5 line -" + line + "-\n");
     line = atob(line);
     dump("base64 decoded -" + line + "-\n");
-    sp = line.split(" ");
+    var sp = line.split(" ");
     if (sp.length != 2)
       throw "Expected one space";
     var result = {};

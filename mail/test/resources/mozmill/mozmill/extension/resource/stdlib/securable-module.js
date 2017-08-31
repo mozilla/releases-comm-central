@@ -360,13 +360,13 @@
      global.SecurableModule = exports;
    } else if (global.exports) {
      // We're being loaded in a SecurableModule.
-     for (name in exports) {
+     for (let name in exports) {
        global.exports[name] = exports[name];
      }
    } else {
      // We're being loaded in a JS module.
      global.EXPORTED_SYMBOLS = [];
-     for (name in exports) {
+     for (let name in exports) {
        global.EXPORTED_SYMBOLS.push(name);
        global[name] = exports[name];
      }

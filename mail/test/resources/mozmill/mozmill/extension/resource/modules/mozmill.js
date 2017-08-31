@@ -85,7 +85,7 @@ var aConsoleService = Components.classes["@mozilla.org/consoleservice;1"].
     getService(Components.interfaces.nsIConsoleService);
 
 
-applicationDictionary = {
+var applicationDictionary = {
   "{718e30fb-e89b-41dd-9da7-e25a45638b28}": "Sunbird",
   "{92650c4d-4b8e-4d2a-b7eb-24ecf4f6b63a}": "SeaMonkey",
   "{ec8030f7-c20a-464f-9b0e-13a3a9e97384}": "Firefox",
@@ -187,7 +187,7 @@ function getAddrbkController () {
   }
 }
 
-MozMillAsyncTest = controller.MozMillAsyncTest;
+var MozMillAsyncTest = controller.MozMillAsyncTest;
 
 function firePythonCallback (method, obj) {
   frame.events.fireEvent("firePythonCallback", {"method":method, "arg":obj, "fire_now":true, "filename":frame.events.currentModule.__file__});

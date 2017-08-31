@@ -88,9 +88,7 @@ AsyncRead.prototype.onDataAvailable = function (request, context, inputStream, o
   this.session.receive(str.value);
 }
 
-
-
-globalRegistry = {};
+var globalRegistry = {};
 
 function Bridge (session) {
   this.session = session;
@@ -131,7 +129,7 @@ Bridge.prototype._describe = function (obj) {
       var type = "array";
     }
     response.attributes = [];
-    for (i in obj) {
+    for (var i in obj) {
       response.attributes = response.attributes.concat(i);
     }
   }
@@ -201,7 +199,7 @@ Bridge.prototype.execFunction = function (uuid, func, args) {
   }
 }
 
-backstage = this;
+var backstage = this;
 
 function Session (transport) {
   this.transpart = transport;
@@ -263,7 +261,7 @@ Session.prototype.onOutput = function(string) {
 Session.prototype.onQuit = function() {
   this.instream.close();
   this.outstream.close();
-  sessions.remove(session);
+  sessions.remove(this.session);
 };
 Session.prototype.encodeOut = function (obj) {
   try {
@@ -325,7 +323,7 @@ Server.prototype.onStopListening = function (serv, status) {
 // Stub function
 }
 Server.prototype.onSocketAccepted = function (serv, transport) {
-  session = new Session(transport)
+  var session = new Session(transport)
   sessions.add(session);
 }
 

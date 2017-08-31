@@ -192,7 +192,7 @@ PromiseTestUtils.promiseFolderNotification = function(folder, listenerMethod) {
     mfnListener[listenerMethod] = function() {
       let args = Array.from(arguments);
       let flag = true;
-      for (arg of args) {
+      for (let arg of args) {
         if (folder && arg instanceof Ci.nsIMsgFolder) {
           if (arg == folder) {
             flag = true;
