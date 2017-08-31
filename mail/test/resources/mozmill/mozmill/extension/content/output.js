@@ -86,7 +86,7 @@ var createCell = function (t, obj, message) {
 
     var createTree = function(obj){
       var mainDiv = document.createElement('div');
-      for (prop in obj){
+      for (let prop in obj){
         var newDiv = document.createElement('div');
         newDiv.style.position = "relative";
         newDiv.style.height = "15px";
@@ -106,7 +106,7 @@ var createCell = function (t, obj, message) {
       return mainDiv;
     }
     //iterate the properties creating output entries for them
-    for (prop in message){
+    for (let prop in message){
       if (typeof message[prop] == "object"){
         var newDiv = createTree(message[prop]);
       }

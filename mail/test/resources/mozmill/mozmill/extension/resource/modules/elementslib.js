@@ -344,8 +344,8 @@ var _byAttrib = function (parent, attributes) {
   var nodes = parent.childNodes;
   for (var i in nodes) {
     var n = nodes[i];
-    requirementPass = 0;
-    requirementLength = 0;
+    var requirementPass = 0;
+    var requirementLength = 0;
     for (var a in attributes) {
       requirementLength++;
       try {
@@ -379,8 +379,8 @@ var _byAnonAttrib = function (_document, parent, attributes) {
   function resultsForNodes (nodes) {
     for (var i in nodes) {
       var n = nodes[i];
-      requirementPass = 0;
-      requirementLength = 0;
+      var requirementPass = 0;
+      var requirementLength = 0;
       for (var a in attributes) {
         requirementLength++;
         if (n.getAttribute(a) == attributes[a]) {
@@ -428,7 +428,7 @@ Lookup.prototype.exists = function () {
 Lookup.prototype.getNode = function () {
   var expSplit = smartSplit(this.expression).filter(e => e != '');
   expSplit.unshift(this._view.document)
-  _document = this._view.document;
+  var _document = this._view.document;
   var nCases = {'id':_byID, 'name':_byName, 'attrib':_byAttrib, 'index':_byIndex};
   var aCases = {'name':_anonByName, 'attrib':_anonByAttrib, 'index':_anonByIndex};
   var reduceLookup = function (parent, exp) {

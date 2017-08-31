@@ -246,8 +246,7 @@ function get_mailing_list_from_address_book(aAddressBook, aDirName)
  */
 function load_contacts_into_address_book(aAddressBook, aContacts)
 {
-  for (contact of aContacts) {
-
+  for (let contact of aContacts) {
     if (!(contact instanceof Ci.nsIAbCard))
       contact = create_contact(contact.email,
                                contact.displayName, true);

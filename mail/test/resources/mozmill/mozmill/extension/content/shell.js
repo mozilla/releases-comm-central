@@ -14,7 +14,7 @@ var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
            .getService(Components.interfaces.nsIWindowMediator);
 
 var dir = function(obj){
- for (prop in obj){
+ for (let prop in obj){
     shell.send(prop);
   }
 }
@@ -73,8 +73,8 @@ var shell = new function(){
       shell.windows = [];
       windows = shell.windows;
       var c = 1;
-      while(enumerator.hasMoreElements()) {
-        var win = enumerator.getNext();
+      while (enumerator.hasMoreElements()) {
+        let win = enumerator.getNext();
         shell.windows.push(win);
         c++;
       }
@@ -92,7 +92,7 @@ var shell = new function(){
 
     case 'windows':
       shell.getWindows();
-      for (win in shell.windows){
+      for (let win in shell.windows) {
         shell.send( win+'. '+shell.windows[win].document.documentElement.getAttribute('windowtype') + ': ' + shell.windows[win].title);
       }
       shell.sendCmd(cmd);
@@ -103,7 +103,7 @@ var shell = new function(){
       if (cmdArr[1]){
         try {
           var arg = eval(cmdArr[1]);
-          for (prop in arg){
+          for (let prop in arg) {
             shell.send(prop);
           }
         } catch(err){
@@ -111,7 +111,7 @@ var shell = new function(){
         }
       }
       else {
-        for (prop in that){
+        for (let prop in that) {
           shell.send(prop);
         }
       }

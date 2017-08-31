@@ -146,11 +146,11 @@ DomInspectorConnector.prototype.dxOff = function() {
     this.lastEvent.target.style.outline = "";
   }
 
-  for (var win of utils.getWindows()) {
+  for (let win of utils.getWindows()) {
     this.dxRecursiveUnBind(win, 'click');
   }
 
-  for (win of utils.getWindows()) {
+  for (let win of utils.getWindows()) {
     this.dxRecursiveUnBind(win, 'dblclick');
   }
 

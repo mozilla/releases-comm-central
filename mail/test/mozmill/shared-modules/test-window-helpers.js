@@ -1516,14 +1516,14 @@ function describeEventElementInHierarchy(aNode) {
  */
 function _findFrameElementForWindowInWindow(win, parentWin) {
   let elems = parentWin.document.getElementsByTagName("iframe"), i;
-  for (i = 0; i < elems.length; i++) {
+  for (let i = 0; i < elems.length; i++) {
     // (Must not use === because XPConnect uses wrapper identicality when
     //  we do that.)
     if (elems[i].contentWindow == win)
       return elems[i];
   }
   elems = parentWin.document.getElementsByTagName("browser");
-  for (i = 0; i < elems.length; i++) {
+  for (let i = 0; i < elems.length; i++) {
     if (elems[i].contentWindow == win)
       return elems[i];
   }
