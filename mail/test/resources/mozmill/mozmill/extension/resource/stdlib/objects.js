@@ -39,7 +39,7 @@ var EXPORTED_SYMBOLS = ['getLength', ];//'compare'];
 
 var getLength = function (obj) {
   var len = 0;
-  for (i in obj) {
+  for (var i in obj) {
     len++;
   }
   return len;
@@ -69,7 +69,7 @@ var getLength = function (obj) {
 //     if ([x for (x in obj1)].length != [x for (x in obj2)].length) {
 //       return false;
 //     }
-//     for (i in obj1) {
+//     for (var i in obj1) {
 //       recursion++;
 //       var result = compare(obj1[i], obj2[i], depth, recursion);
 //       objectsLogger.info(i+' in recursion '+result);

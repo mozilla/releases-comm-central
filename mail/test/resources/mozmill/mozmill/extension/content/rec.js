@@ -120,7 +120,7 @@ var cleanupEventsArray = function (recorder_array) {
   }
 
   // Remove change events with '' as value
-  for (i in recorder_array) {
+  for (var i in recorder_array) {
     var x = recorder_array[i];
     if (x['evt'].type ==  "change") {
       if (x['evt'].target.value == '') {
@@ -141,7 +141,7 @@ var cleanupEventsArray = function (recorder_array) {
   } catch(err){}
 
   // Remove any actions in the mozmill window
-  for (i in recorder_array) {
+  for (var i in recorder_array) {
     var inspected = recorder_array[i]['inspected'];
     if (inspected.controllerText == 'new mozmill.controller.MozMillController(mozmill.utils.getWindowByTitle("MozMill IDE"))') {
       indexesForRemoval.push(i);
@@ -149,7 +149,7 @@ var cleanupEventsArray = function (recorder_array) {
   }
 
   var narray = [];
-  for (i in recorder_array) {
+  for (var i in recorder_array) {
     if (!arrays.inArray(indexesForRemoval, i)) {
       narray.push(recorder_array[i]);
     }
@@ -186,7 +186,7 @@ var getRecordedScript = function (recorder_array) {
   }
 
   var rscript = ['var setupModule = function(module) {',];
-  for (i in setup) {
+  for (var i in setup) {
     rscript.push("  "+setup[i]+' = '+i+';')
   }
   rscript.push('}')

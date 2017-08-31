@@ -38,7 +38,7 @@
 var EXPORTED_SYMBOLS = ['inArray', 'getSet', 'indexOf', 'rindexOf', 'compare'];
 
 function inArray (array, value) {
-  for (i in array) {
+  for (var i in array) {
     if (value == array[i]) {
       return true;
     }
@@ -48,7 +48,7 @@ function inArray (array, value) {
 
 function getSet (array) {
   var narray = [];
-  for (i in array) {
+  for (var i in array) {
     if ( !inArray(narray, array[i]) ) {
       narray.push(array[i]);
     }
@@ -57,7 +57,7 @@ function getSet (array) {
 }
 
 function indexOf (array, v, offset) {
-  for (i in array) {
+  for (var i in array) {
     if (offset == undefined || i >= offset) {
       if ( !isNaN(i) && array[i] == v) {
         return new Number(i);
@@ -68,10 +68,10 @@ function indexOf (array, v, offset) {
 }
 
 function rindexOf (array, v) {
-  var l = array.length;
-  for (i in array) {
+  var l = array.length - 1;
+  for (var i in array) {
     if (!isNaN(i)) {
-      var i = new Number(i)
+      i = new Number(i);
     }
     if (!isNaN(i) && array[l - i] == v) {
       return l - i;
@@ -84,7 +84,7 @@ function compare (array, carray) {
   if (array.length != carray.length) {
     return false;
   }
-  for (i in array) {
+  for (var i in array) {
     if (array[i] != carray[i]) {
       return false;
     }
