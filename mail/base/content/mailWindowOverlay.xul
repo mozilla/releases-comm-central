@@ -1204,9 +1204,8 @@
             </menupopup>
           </menu>
         </hbox>
-        <splitmenu id="appmenu_find"
-                   label="&findMenu.label;"
-                   command="cmd_find">
+        <menu id="appmenu_find"
+              label="&findMenu.label;">
           <menupopup id="appmenu_FindPopup">
             <menuitem id="appmenu_findCmd"
                       label="&findCmd.label;"
@@ -1225,7 +1224,7 @@
                       label="&searchAddressesCmd.label;"
                       oncommand="MsgSearchAddresses()"/>
           </menupopup>
-        </splitmenu>
+        </menu>
         <splitmenu id="appmenu_print"
                    iconic="true"
                    label="&printCmd.label;"
