@@ -3091,7 +3091,7 @@ var gMessageNotificationBar =
 
     if (!this.isShowingRemoteContentNotification()) {
       this.msgNotificationBar.appendNotification(remoteContentMsg, "remoteContent",
-        "chrome://messenger/skin/icons/remote-blocked.png",
+        "chrome://messenger/skin/icons/remote-blocked.svg",
         this.msgNotificationBar.PRIORITY_WARNING_MEDIUM,
         buttons);
     }

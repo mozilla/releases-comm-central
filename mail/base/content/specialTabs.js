@@ -1343,7 +1343,7 @@ var specialTabs = {
       let notificationID = aTopic;
       let brandShortName = brandBundle.getString("brandShortName");
       let notificationName, messageString, buttons;
-      const iconURL = "chrome://messenger/skin/icons/update.png";
+      const iconURL = "chrome://mozapps/skin/extensions/extensionGeneric-16.svg";
 
       switch (aTopic) {
       case "addon-install-disabled":

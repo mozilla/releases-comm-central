@@ -802,8 +802,7 @@ toolbar[brighttext] #button-print {
 }
 
 #attachmentNotificationBox > notification[image="null"] .messageImage {
-  width: 18px;
-  height: 18px;
+  background-image: url("chrome://messenger/skin/icons/attach.svg");
 }
 
 #compose-toolbar-sizer {
@@ -969,12 +968,6 @@ treechildren::-moz-tree-image(subscribed-news) {
   z-index: 10;
 }
 
-@media (-moz-os-version: windows-win7) {
-  #attachmentNotificationBox > notification[image="null"] .messageImage {
-    background-image: url(chrome://messenger/skin/messengercompose/compose-toolbar.svg#attach);
-  }
-}
-
 @media (-moz-os-version: windows-win7) and (-moz-windows-default-theme) {
   #headers-box {
     border-bottom-color: #a9b7c9;
@@ -1016,15 +1009,6 @@ treechildren::-moz-tree-image(subscribed-news) {
   #msgIdentity > .menulist-dropmarker > .dropmarker-icon {
     list-style-image: url("chrome://messenger/skin/icons/dropmarker.svg#win8");
   }
-
-  #attachmentNotificationBox > notification[image="null"] .messageImage {
-    background-image: url(chrome://messenger/skin/messengercompose/compose-toolbar.svg#attach-flat);
-  }
-}
-
-.notification-button {
-  margin-top: 2px;
-  margin-bottom: 2px;
 }
 
 @media (-moz-os-version: windows-win8) and (-moz-windows-default-theme),
