@@ -3708,6 +3708,7 @@ void nsImapProtocol::FetchTryChunking(const nsCString &messageIds,
     (downloadSize > (uint32_t) m_chunkThreshold))
   {
     uint32_t startByte = 0;
+    m_curFetchSize = m_chunkSize;
     GetServerStateParser().ClearLastFetchChunkReceived();
     while (!DeathSignalReceived() && !GetPseudoInterrupted() &&
       !GetServerStateParser().GetLastFetchChunkReceived() &&
