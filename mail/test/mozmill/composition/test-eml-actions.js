@@ -19,10 +19,14 @@ Cu.import("resource:///modules/mailServices.js");
 var elib = {};
 Cu.import("resource://mozmill/modules/elementslib.js", elib);
 
+var gDrafts;
+
 function setupModule(module) {
-  collector.getModule("folder-display-helpers").installInto(module);
-  collector.getModule("window-helpers").installInto(module);
-  collector.getModule("compose-helpers").installInto(module);
+  for (let lib of MODULE_REQUIRES) {
+    collector.getModule(lib).installInto(module);
+  }
+
+  gDrafts = get_special_folder(Ci.nsMsgFolderFlags.Drafts, true);
 }
 
 /**
@@ -41,8 +45,7 @@ function test_reply_to_eml_save_as_draft() {
   replyWin.keypress(null, "s", {shiftKey: false, accelKey: true});
 
   // Drafts folder should exist now.
-  let draftsFolder = get_special_folder(Ci.nsMsgFolderFlags.Drafts);
-  be_in_folder(draftsFolder);
+  be_in_folder(gDrafts);
   let draftMsg = select_click_row(0);
   if (!draftMsg)
     throw new Error("No draft saved!");
@@ -68,8 +71,7 @@ function test_forward_eml_save_as_draft() {
   replyWin.keypress(null, "s", {shiftKey: false, accelKey: true});
 
   // Drafts folder should exist now.
-  let draftsFolder = get_special_folder(Ci.nsMsgFolderFlags.Drafts);
-  be_in_folder(draftsFolder);
+  be_in_folder(gDrafts);
   let draftMsg = select_click_row(0);
   if (!draftMsg)
     throw new Error("No draft saved!");

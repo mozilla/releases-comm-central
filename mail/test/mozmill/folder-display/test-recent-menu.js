@@ -101,7 +101,7 @@ function test_delete_message() {
 function test_archive_message() {
   archive_selected_messages();
   // We've archived a message - we should still just have folder2 in the menu.
-  let archive = get_special_folder(Ci.nsMsgFolderFlags.Archive, false);
+  let archive = get_special_folder(Ci.nsMsgFolderFlags.Archive, false, false);
   let archives = archive.descendants;
   be_in_folder(archives.queryElementAt(0, Ci.nsIMsgFolder));
   right_click_on_row(0);

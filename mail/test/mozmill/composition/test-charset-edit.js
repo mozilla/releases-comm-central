@@ -25,14 +25,14 @@ Cu.import("resource://mozmill/modules/elementslib.js", elib);
 var utils = {};
 Cu.import("resource://mozmill/modules/utils.js", utils);
 
-var draftsFolder;
+var gDrafts;
 
 function setupModule(module) {
   for (let req of MODULE_REQUIRES) {
     collector.getModule(req).installInto(module);
   }
 
-  draftsFolder = get_special_folder(Ci.nsMsgFolderFlags.Drafts, true);
+  gDrafts = get_special_folder(Ci.nsMsgFolderFlags.Drafts, true);
 
   // Ensure reply charset isn't UTF-8, otherwise there's no need to upgrade,
   // which is what this test tests.
@@ -88,7 +88,7 @@ function getMsgHeaders(aMsgHdr, aGetText=false) {
  * not be UTF-8 in this test).
  */
 function test_wrong_reply_charset() {
-  let folder = draftsFolder;
+  let folder = gDrafts;
   let msg0 = create_message({
     bodyPart: new SyntheticPartLeaf("Some text",
       {charset: "x-mac-croatian"})
@@ -129,7 +129,7 @@ function test_wrong_reply_charset() {
  * UTF-16 can be decoded but is not a valid reply charset.
  */
 function test_no_mojibake() {
-  let folder = draftsFolder;
+  let folder = gDrafts;
   let nonASCII = "€€€"; // U+20AC
   let UTF16    = "\xAC\x20\xAC\x20\xAC\x20";
   let msg0 = create_message({

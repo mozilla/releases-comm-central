@@ -17,15 +17,15 @@ var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers", "compose-help
 Cu.import('resource://gre/modules/Services.jsm');
 Cu.import("resource:///modules/mailServices.js");
 
-var draftsFolder;
-var outboxFolder;
+var gDrafts;
+var gOutbox;
 
 function setupModule(module) {
   for (let req of MODULE_REQUIRES) {
     collector.getModule(req).installInto(module);
   }
-  draftsFolder = get_special_folder(Ci.nsMsgFolderFlags.Drafts, true);
-  outboxFolder = get_special_folder(Ci.nsMsgFolderFlags.Queue);
+  gDrafts = get_special_folder(Ci.nsMsgFolderFlags.Drafts, true);
+  gOutbox = get_special_folder(Ci.nsMsgFolderFlags.Queue);
 
   // Ensure reply charset isn't UTF-8, otherwise there's no need to upgrade,
   //  which is what this test tests.
@@ -58,7 +58,7 @@ function test_encoding_upgrade_html_compose() {
   // Ctrl+S = save as draft.
   compWin.keypress(null, "s", {shiftKey: false, accelKey: true});
 
-  be_in_folder(draftsFolder);
+  be_in_folder(gDrafts);
   let draftMsg = select_click_row(0);
 
   // Charset should still be the default.
@@ -81,7 +81,7 @@ function test_encoding_upgrade_html_compose() {
   // Ctrl+S = save as draft.
   compWin.keypress(null, "s", {shiftKey: false, accelKey: true});
 
-  be_in_folder(draftsFolder);
+  be_in_folder(gDrafts);
   let draftMsg2 = select_click_row(0);
   // Charset should have be upgraded to UTF-8.
   assert_equals(draftMsg2.Charset, "UTF-8");
@@ -99,7 +99,7 @@ function test_encoding_upgrade_html_compose() {
   compWin.window.goDoCommand("cmd_sendLater");
   wait_for_window_close();
 
-  be_in_folder(outboxFolder);
+  be_in_folder(gOutbox);
   let outMsg = select_click_row(0);
   let outMsgContent = get_msg_source(outMsg, true);
 
@@ -140,7 +140,7 @@ function test_encoding_upgrade_plaintext_compose() {
   // Ctrl+S = Save as Draft.
   compWin.keypress(null, "s", {shiftKey: false, accelKey: true});
 
-  be_in_folder(draftsFolder);
+  be_in_folder(gDrafts);
   let draftMsg = select_click_row(0);
 
   // Charset should still be the default.
@@ -153,7 +153,7 @@ function test_encoding_upgrade_plaintext_compose() {
   // Ctrl+S = Save as Draft.
   compWin.keypress(null, "s", {shiftKey: false, accelKey: true});
 
-  be_in_folder(draftsFolder);
+  be_in_folder(gDrafts);
   let draftMsg2 = select_click_row(0);
   // Charset should have be upgraded to UTF-8.
   assert_equals(draftMsg2.Charset, "UTF-8");
@@ -171,7 +171,7 @@ function test_encoding_upgrade_plaintext_compose() {
   compWin.window.goDoCommand("cmd_sendLater");
   wait_for_window_close();
 
-  be_in_folder(outboxFolder);
+  be_in_folder(gOutbox);
   let outMsg = select_click_row(0);
   let outMsgContent = get_msg_source(outMsg, true);
 

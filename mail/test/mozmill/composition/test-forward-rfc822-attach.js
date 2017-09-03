@@ -19,14 +19,14 @@ Cu.import("resource:///modules/mailServices.js");
 var os = {};
 Cu.import('resource://mozmill/stdlib/os.js', os);
 
-var draftsFolder;
+var gDrafts;
 
 function setupModule(module) {
   for (let lib of MODULE_REQUIRES) {
     collector.getModule(lib).installInto(module);
   }
 
-  draftsFolder = get_special_folder(Ci.nsMsgFolderFlags.Drafts, true);
+  gDrafts = get_special_folder(Ci.nsMsgFolderFlags.Drafts, true);
 }
 
 function forwardDirect(aFilePath, aExpectedText) {
@@ -42,7 +42,7 @@ function forwardDirect(aFilePath, aExpectedText) {
   close_compose_window(cwc);
   close_window(msgc);
 
-  be_in_folder(draftsFolder);
+  be_in_folder(gDrafts);
   let draftMsg = select_click_row(0);
 
   let draftMsgContent = get_msg_source(draftMsg);

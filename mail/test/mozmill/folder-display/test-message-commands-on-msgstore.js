@@ -225,20 +225,11 @@ function test_mark_messages_forwarded() {
                nsMsgMessageFlags.Read);
 }
 
-function clear_folder(aFolder) {
-  be_in_folder(aFolder);
-  let msgCount = 0;
-  while ((msgCount = aFolder.getTotalMessages(false)) > 0) {
-    let curMessage = select_click_row(0);
-    press_delete(mc)
-  }
-}
-
 function teardownModule(module) {
   Services.prefs.setBoolPref("mailnews.mark_message_read.auto", gAutoRead);
   // Clear all the created messages.
   be_in_folder(gInbox.parent);
-  clear_folder(gInbox);
-  clear_folder(gOutbox);
+  empty_folder(gInbox);
+  empty_folder(gOutbox);
   gInbox.server.rootFolder.emptyTrash(null, null);
 }

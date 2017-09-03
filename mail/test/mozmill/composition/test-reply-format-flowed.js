@@ -19,14 +19,14 @@ Cu.import("resource:///modules/mailServices.js");
 var os = {};
 Cu.import('resource://mozmill/stdlib/os.js', os);
 
-var draftsFolder;
+var gDrafts;
 
 function setupModule(module) {
   for (let lib of MODULE_REQUIRES) {
     collector.getModule(lib).installInto(module);
   }
 
-  draftsFolder = get_special_folder(Ci.nsMsgFolderFlags.Drafts, true);
+  gDrafts = get_special_folder(Ci.nsMsgFolderFlags.Drafts, true);
 
   Services.prefs.setBoolPref("mail.identity.id1.compose_html", false);
 }
@@ -47,7 +47,7 @@ function subtest_reply_format_flowed(aFlowed) {
   close_compose_window(cwc);
 
   // Now check the message content in the drafts folder.
-  be_in_folder(draftsFolder);
+  be_in_folder(gDrafts);
   let message = select_click_row(0);
   let messageContent = get_msg_source(message);
 

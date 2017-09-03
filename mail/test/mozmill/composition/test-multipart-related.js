@@ -23,13 +23,13 @@ Cu.import("resource://mozmill/modules/elementslib.js", elib);
 var utils = {};
 Cu.import("resource://mozmill/modules/utils.js", utils);
 
-var draftsFolder;
+var gDrafts;
 
 function setupModule(module) {
   for (let req of MODULE_REQUIRES) {
     collector.getModule(req).installInto(module);
   }
-  draftsFolder = get_special_folder(Ci.nsMsgFolderFlags.Drafts, true);
+  gDrafts = get_special_folder(Ci.nsMsgFolderFlags.Drafts, true);
 }
 
 /**
@@ -103,7 +103,7 @@ function test_basic_multipart_related() {
   close_compose_window(compWin);
 
   // Make sure that the headers are right on this one.
-  be_in_folder(draftsFolder);
+  be_in_folder(gDrafts);
   let draftMsg = select_click_row(0);
   let {headers, text} = getMsgHeaders(draftMsg, true);
   assert_equals(headers.get("").contentType.type, "multipart/related");

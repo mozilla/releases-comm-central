@@ -18,6 +18,7 @@ Components.utils.import("resource://gre/modules/Services.jsm");
 var composeHelper = null;
 var cwc = null; // compose window controller
 var folder;
+var gDrafts;
 
 var setupModule = function (module) {
   let fdh = collector.getModule("folder-display-helpers");
@@ -32,6 +33,8 @@ var setupModule = function (module) {
   folder = create_folder("Test");
   thread1 = create_thread(10);
   add_sets_to_folders([folder], [thread1]);
+
+  gDrafts = get_special_folder(Ci.nsMsgFolderFlags.Drafts, true);
 
   // Don't create paragraphs in the test.
   // The test checks for the first DOM node and expects a text and not
@@ -67,8 +70,7 @@ function forward_selected_messages_and_go_to_drafts_folder(f) {
   wait_for_window_close();
 
   // Visit the existing Drafts folder.
-  let draftsFolder = get_special_folder(Ci.nsMsgFolderFlags.Drafts);
-  be_in_folder(draftsFolder);
+  be_in_folder(gDrafts);
 }
 
 function test_forward_inline () {

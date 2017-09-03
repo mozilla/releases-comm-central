@@ -402,26 +402,33 @@ function create_virtual_folder() {
 
 /**
  * Get special folder having a folder flag under Local Folders.
+ * This function clears the contents of the folder by default.
  *
  * @param aFolderFlag  Folder flag of the required folder.
  * @param aCreate      Create the folder if it does not exist yet.
+ * @param aEmpty       Set to false if messages from the folder must not be emptied.
  */
-function get_special_folder(aFolderFlag, aCreate = false) {
+function get_special_folder(aFolderFlag, aCreate = false, aServer, aEmpty = true) {
   let folderNames = new Map([[ Ci.nsMsgFolderFlags.Drafts, "Drafts" ],
                              [ Ci.nsMsgFolderFlags.Templates, "Templates" ],
-                             [ Ci.nsMsgFolderFlags.Queue, "Outbox" ]
+                             [ Ci.nsMsgFolderFlags.Queue, "Outbox" ],
+                             [ Ci.nsMsgFolderFlags.Inbox, "Inbox" ],
                             ]);
 
-  let folder = MailServices.accounts
-                           .localFoldersServer
-                           .rootFolder
-                           .getFolderWithFlags(aFolderFlag);
+  let folder = (aServer ? aServer : MailServices.accounts.localFoldersServer)
+                        .rootFolder
+                        .getFolderWithFlags(aFolderFlag);
 
   if (!folder && aCreate) {
     folder = create_folder(folderNames.get(aFolderFlag), [aFolderFlag]);
   }
   if (!folder)
     throw new Error("Special folder not found");
+
+  // Ensure the folder is empty so that each test file can puts its new messages in it
+  // and they are always at reliable positions (starting from 0).
+  if (aEmpty)
+    empty_folder(folder);
 
   return folder;
 }
@@ -1464,6 +1471,27 @@ function press_delete(aController, aModifiers) {
   aController.keypress(aController == mc ? mc.eThreadTree : null,
                        "VK_DELETE", aModifiers || {});
   wait_for_folder_events();
+}
+
+/**
+ * Delete all messages in the given folder.
+ * (called empty_folder similarly to emptyTrash method on root folder)
+ *
+ * @param aFolder     Folder to empty.
+ * @param aController The controller in whose context to do this, defaults to
+ *                    |mc| if omitted.
+ */
+function empty_folder(aFolder, aController = mc) {
+  if (!aFolder)
+    throw new Error("No folder for emptying given");
+
+  be_in_folder(aFolder);
+  let msgCount;
+  while ((msgCount = aFolder.getTotalMessages(false)) > 0) {
+    select_click_row(0, aController);
+    press_delete(aController);
+    aController.waitFor(() => (aFolder.getTotalMessages(false) < msgCount));
+  }
 }
 
 /**

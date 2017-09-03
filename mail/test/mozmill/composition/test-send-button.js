@@ -27,7 +27,7 @@ var setupModule = function (module) {
   // up for this test.
   let server = MailServices.accounts.FindServer("tinderbox", FAKE_SERVER_HOSTNAME, "pop3");
   account = MailServices.accounts.FindAccountForServer(server);
-  let inbox = server.rootFolder.getChildNamed("Inbox");
+  let inbox = get_special_folder(Ci.nsMsgFolderFlags.Inbox, false, server);
   be_in_folder(inbox);
 };
 

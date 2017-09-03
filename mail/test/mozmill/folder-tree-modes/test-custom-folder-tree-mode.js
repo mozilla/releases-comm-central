@@ -13,13 +13,15 @@ var MODULE_NAME = "test-custom-folder-tree-mode";
 var RELATIVE_ROOT = "../shared-modules";
 var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers"];
 
-var folder;
+var gInbox;
 
 function setupModule(module) {
-  let fdh = collector.getModule("folder-display-helpers");
-  fdh.installInto(module);
-  let wh = collector.getModule("window-helpers");
-  wh.installInto(module);
+  for (let lib of MODULE_REQUIRES) {
+    collector.getModule(lib).installInto(module);
+  }
+
+  let server = MailServices.accounts.FindServer("tinderbox", FAKE_SERVER_HOSTNAME, "pop3");
+  gInbox = get_special_folder(Ci.nsMsgFolderFlags.Inbox, false, server);
 }
 
 // Provided by the extension in test-extension
@@ -29,12 +31,9 @@ var kTestModeID = "testmode";
  * Switch to the mode and verify that it displays correctly.
  */
 function test_switch_to_test_mode() {
-  let server = MailServices.accounts.FindServer("tinderbox", FAKE_SERVER_HOSTNAME, "pop3");
-  folder = server.rootFolder.getChildNamed("Inbox");
-
   mc.folderTreeView.mode = kTestModeID;
   assert_folder_mode(kTestModeID);
-  assert_folder_visible(folder);
+  assert_folder_visible(gInbox);
 }
 
 /**
@@ -44,14 +43,14 @@ function test_switch_to_test_mode() {
 function test_open_new_window_with_custom_mode() {
   // Our selection may get lost while changing modes, and be_in_folder is
   // not sufficient to ensure actual selection.
-  mc.folderTreeView.selectFolder(folder);
+  mc.folderTreeView.selectFolder(gInbox);
 
   plan_for_new_window("mail:3pane");
   mc.window.MsgOpenNewWindowForFolder(null, -1);
   let mc2 = wait_for_new_window("mail:3pane");
 
   assert_folder_mode(kTestModeID, mc2);
-  assert_folder_visible(folder, mc2);
+  assert_folder_visible(gInbox, mc2);
 
   close_window(mc2);
 }

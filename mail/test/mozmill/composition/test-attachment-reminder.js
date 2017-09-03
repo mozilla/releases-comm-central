@@ -23,11 +23,16 @@ Cu.import("resource:///modules/mailServices.js");
 var kBoxId = "attachmentNotificationBox";
 var kNotificationId = "attachmentReminder";
 var kReminderPref = "mail.compose.attachment_reminder";
+var gDrafts;
+var gOutbox;
 
 function setupModule(module) {
   for (let lib of MODULE_REQUIRES) {
     collector.getModule(lib).installInto(module);
   }
+
+  gDrafts = get_special_folder(Ci.nsMsgFolderFlags.Drafts, true);
+  gOutbox = get_special_folder(Ci.nsMsgFolderFlags.Queue);
 
   assert_true(Services.prefs.getBoolPref(kReminderPref));
 }
@@ -315,8 +320,7 @@ function test_manual_attachment_reminder() {
   close_compose_window(cwc);
 
   // The draft message was saved into Local Folders/Drafts.
-  let drafts = get_special_folder(Ci.nsMsgFolderFlags.Drafts);
-  be_in_folder(drafts);
+  be_in_folder(gDrafts);
 
   select_click_row(0);
   // Wait for the notification with the Edit button.
@@ -576,8 +580,7 @@ function test_reminder_in_draft() {
   wait_for_modal_dialog("commonDialog");
 
   // The draft message was saved into Local Folders/Drafts.
-  let drafts = get_special_folder(Ci.nsMsgFolderFlags.Drafts);
-  be_in_folder(drafts);
+  be_in_folder(gDrafts);
 
   select_click_row(0);
   // Wait for the notification with the Edit button.
@@ -656,8 +659,7 @@ function test_disabling_attachment_reminder() {
   wait_for_window_close();
 
   // There should be no alert so it is saved in Outbox.
-  let outbox = get_special_folder(Ci.nsMsgFolderFlags.Queue);
-  be_in_folder(outbox);
+  be_in_folder(gOutbox);
 
   select_click_row(0);
   // Delete the leftover outgoing message.

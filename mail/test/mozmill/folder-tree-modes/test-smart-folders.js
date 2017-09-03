@@ -157,7 +157,7 @@ function test_folder_flag_changes() {
   select_click_row(0);
   archive_selected_messages();
   let pop3Server = MailServices.accounts.FindServer("tinderbox", FAKE_SERVER_HOSTNAME, "pop3");
-  let pop3Inbox = pop3Server.rootFolder.getChildNamed("Inbox");
+  let pop3Inbox = get_special_folder(Ci.nsMsgFolderFlags.Inbox, false, pop3Server);
   make_new_sets_in_folder(pop3Inbox, [{count: 1}]);
   mc.folderTreeView.selectFolder(pop3Inbox);
   select_click_row(0);

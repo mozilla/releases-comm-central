@@ -33,7 +33,7 @@ var kDefaultSig = "This is my signature.\n\nCheck out my website sometime!";
 var kFiles = ['./data/testFile1', './data/testFile2'];
 var kLines = ["This is a line of text", "and here's another!"];
 
-var gFolder, gOldHtmlPref, gOldSigPref;
+var gInbox, gOldHtmlPref, gOldSigPref;
 
 function setupModule(module) {
   for (let lib of MODULE_REQUIRES) {
@@ -44,8 +44,8 @@ function setupModule(module) {
   // of the fake "tinderbox" account.
   let server = MailServices.accounts.FindServer("tinderbox", FAKE_SERVER_HOSTNAME,
                                                 "pop3");
-  gFolder = server.rootFolder.getChildNamed("Inbox");
-  add_message_to_folder(gFolder, create_message());
+  gInbox = get_special_folder(Ci.nsMsgFolderFlags.Inbox, false, server);
+  add_message_to_folder(gInbox, create_message());
 
   gMockFilePickReg.register();
   gMockCloudfileManager.register();
@@ -106,7 +106,7 @@ function wait_for_attachment_urls(aController, aNumUrls) {
 
 /**
  * Helper function that sets up the mock file picker for a series of files,
- * spawns a reply window for the first message in the gFolder, optionally
+ * spawns a reply window for the first message in the gInbox, optionally
  * types some strings into the compose window, and then attaches some
  * Filelinks.
  *
@@ -123,7 +123,7 @@ function prepare_some_attachments_and_reply(aText, aFiles) {
   let provider = new MockCloudfileAccount();
   provider.init("someKey");
 
-  be_in_folder(gFolder);
+  be_in_folder(gInbox);
   let msg = select_click_row(0);
   assert_selected_and_displayed(mc, msg);
 
@@ -137,7 +137,7 @@ function prepare_some_attachments_and_reply(aText, aFiles) {
 
 /**
  * Helper function that sets up the mock file picker for a series of files,
- * spawns an inline forward compose window for the first message in the gFolder,
+ * spawns an inline forward compose window for the first message in the gInbox,
  * optionally types some strings into the compose window, and then attaches
  * some Filelinks.
  *
@@ -154,7 +154,7 @@ function prepare_some_attachments_and_forward(aText, aFiles) {
   let provider = new MockCloudfileAccount();
   provider.init("someKey");
 
-  be_in_folder(gFolder);
+  be_in_folder(gInbox);
   let msg = select_click_row(0);
   assert_selected_and_displayed(mc, msg);
 
