@@ -46,10 +46,12 @@ ifdef NIGHTLY_BUILD
 # On nightly builds, install as a global extension in
 # dist/bin/extensions/
 XPI_INSTALL_EXTENSION = $(XPI_EM_ID)
+LTN_DIST_DIR =
 else
 # For beta and release builds, install as a distribution extension in
 # dist/bin/distribution/extensions/
 INSTALL_EXTENSION_ID = $(XPI_EM_ID)
+LTN_DIST_DIR = distribution/
 endif
 
 DEFINES += -DTHUNDERBIRD_VERSION=$(THUNDERBIRD_VERSION) \
