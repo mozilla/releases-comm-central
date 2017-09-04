@@ -35,10 +35,7 @@ DEFINES += -DNIGHTLY_BUILD=1
 endif
 
 ifdef MOZ_CALENDAR
-DEFINES += -DMOZ_CALENDAR=1 \
-           -DLTN_DIST_DIR='$(LTN_DIST_DIR)' \
-           $(NULL)
-MOZ_PKG_DUPEFLAGS += -f $(topsrcdir)/calendar/lightning/allowed-dupes.mn
+DEFINES += -DMOZ_CALENDAR=1
 endif
 
 ifdef MOZ_DEBUG
