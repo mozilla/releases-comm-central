@@ -141,7 +141,7 @@ function test_no_mojibake() {
   assert_selected_and_displayed(mc, msg);
   assert_equals(getMsgHeaders(msg).get("").charset, "UTF-16LE");
   // We need to check for includes() here since the message
-  // also contains CRLF, which is interepreted as invalid UTF-16.
+  // also contains CRLF, which is interpreted as invalid UTF-16.
   // UTF-16 isn't the perfect charset for this test, but after UTF-7 is no
   // longer supported, it's the only one which can be decoded but is invalid
   // to use.
