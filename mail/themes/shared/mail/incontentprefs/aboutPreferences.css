@@ -16,18 +16,6 @@
   display: none;
 }
 
-#MailPreferences groupbox,
-#MailPreferences deck,
-#MailPreferences description {
-  font-size: 1.3rem;
-}
-
-input,
-description.indent,
-.indent > description {
-  font-size: 1.18rem !important;
-}
-
 #prefBox {
   position: relative;
 }

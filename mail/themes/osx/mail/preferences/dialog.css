@@ -15,11 +15,7 @@ description,
 .tab-text,
 .tree-rows,
 caption > label {
-  font-size: 1.3em;
-}
-
-button {
-  font-size: 1em;
+  font-size: 1.3rem;
 }
 
 caption {
