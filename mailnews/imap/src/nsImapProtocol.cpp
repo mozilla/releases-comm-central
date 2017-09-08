@@ -7762,7 +7762,7 @@ bool nsImapProtocol::GetListSubscribedIsBrokenOnServer()
   if (GetServerStateParser().GetServerID().Find("\"NAME\" \"Zimbra\"", CaseInsensitiveCompare) != kNotFound) {
     nsCString serverID(GetServerStateParser().GetServerID());
     int start = serverID.Find("\"VERSION\" \"", CaseInsensitiveCompare) + 11;
-    int length = serverID.Find("\" ", start, CaseInsensitiveCompare);
+    int length = serverID.Find("\" ", /* aIgnoreCase = */ true, start);
     const nsDependentCSubstring serverVersionSubstring = Substring(serverID, start, length);
     nsCString serverVersionStr(serverVersionSubstring);
     Version serverVersion(serverVersionStr.get());

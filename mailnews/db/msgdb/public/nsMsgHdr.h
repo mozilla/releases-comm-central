@@ -14,7 +14,6 @@
 #include "nsTArray.h"
 
 class nsMsgDatabase;
-class nsCString;
 class nsIMsgThread;
 
 class nsMsgHdr : public nsIMsgDBHdr {

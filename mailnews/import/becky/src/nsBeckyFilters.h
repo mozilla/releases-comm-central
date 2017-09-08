@@ -8,12 +8,12 @@
 
 #include "nsIImportFilters.h"
 #include "nsIFile.h"
+#include "nsString.h"
 #include "nsIMsgIncomingServer.h"
 #include "nsMsgFilterCore.h"
 
 class nsIMsgFilter;
 class nsIMsgRuleAction;
-class nsCString;
 
 class nsBeckyFilters final : public nsIImportFilters
 {

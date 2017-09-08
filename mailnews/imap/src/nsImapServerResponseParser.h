@@ -21,7 +21,6 @@ class nsIMAPBodyShell;
 class nsIMAPBodypart;
 class nsImapSearchResultIterator;
 class nsImapFlagAndUidState;
-class nsCString;
 
 #include "nsIMAPGenericParser.h"
 

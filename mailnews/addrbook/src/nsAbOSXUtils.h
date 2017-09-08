@@ -9,8 +9,6 @@
 #include <Foundation/NSString.h>
 #include "nsString.h"
 
-class nsString;
-class nsCString;
 class nsAbCardProperty;
 
 NSString *WrapString(const nsString &aString);
