@@ -751,10 +751,7 @@ nsMsgBrkMBoxStore::GetMsgInputStream(nsIMsgFolder *aMsgFolder,
   else
     *aOffset = ParseUint64Str(PromiseFlatCString(aMsgToken).get());
   *aReusable = true;
-  nsCString URI;
   nsCOMPtr<nsIFile> mboxFile;
-
-  aMsgFolder->GetURI(URI);
   aMsgFolder->GetFilePath(getter_AddRefs(mboxFile));
   return NS_NewLocalFileInputStream(aResult, mboxFile);
 }
