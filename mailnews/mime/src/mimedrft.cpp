@@ -97,7 +97,7 @@ mime_draft_data::mime_draft_data() : url_name(nullptr), format_out(0),
 nsresult
 nsMsgCreateTempFile(const char *tFileName, nsIFile **tFile)
 {
-  if ((!tFileName) || (!*tFileName))
+  if (!tFileName || !*tFileName)
     tFileName = SAFE_TMP_FILENAME;
 
   nsresult rv = GetSpecialDirectoryWithFileName(NS_OS_TEMP_DIR,
@@ -137,7 +137,7 @@ mime_dump_attachments(nsMsgAttachmentData *attachData)
   int32_t     i = 0;
   class nsMsgAttachmentData  *tmp = attachData;
 
-  while ((tmp) && (tmp->m_url))
+  while (tmp && tmp->m_url)
   {
     printf("Real Name         : %s\n", tmp->m_realName.get());
 
@@ -1915,7 +1915,7 @@ mime_decompose_file_init_fn(void *stream_closure, MimeHeaders *headers)
 
   if (!contLoc && !newAttachment->m_realName.IsEmpty())
     workURLSpec = ToNewCString(newAttachment->m_realName);
-  if ((contLoc) && (!workURLSpec))
+  if (contLoc && !workURLSpec)
     workURLSpec = strdup(contLoc);
 
   PR_FREEIF(contLoc);
