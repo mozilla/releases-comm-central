@@ -876,35 +876,35 @@ nsresult nsSmtpProtocol::SendEhloResponse(nsIInputStream * inputStream, uint32_t
           SetFlag(SMTP_AUTH);
 
           if (responseLine.Find(NS_LITERAL_CSTRING("GSSAPI"),
-                                CaseInsensitiveCompare) >= 0)
+                                /* ignoreCase = */ true) >= 0)
             SetFlag(SMTP_AUTH_GSSAPI_ENABLED);
 
           if (responseLine.Find(NS_LITERAL_CSTRING("CRAM-MD5"),
-                                CaseInsensitiveCompare) >= 0)
+                                /* ignoreCase = */ true) >= 0)
             SetFlag(SMTP_AUTH_CRAM_MD5_ENABLED);
 
           if (responseLine.Find(NS_LITERAL_CSTRING("NTLM"),
-                                CaseInsensitiveCompare) >= 0)
+                                /* ignoreCase = */ true) >= 0)
             SetFlag(SMTP_AUTH_NTLM_ENABLED);
 
           if (responseLine.Find(NS_LITERAL_CSTRING("MSN"),
-                                CaseInsensitiveCompare) >= 0)
+                                /* ignoreCase = */ true) >= 0)
             SetFlag(SMTP_AUTH_MSN_ENABLED);
 
           if (responseLine.Find(NS_LITERAL_CSTRING("PLAIN"),
-                                CaseInsensitiveCompare) >= 0)
+                                /* ignoreCase = */ true) >= 0)
             SetFlag(SMTP_AUTH_PLAIN_ENABLED);
 
           if (responseLine.Find(NS_LITERAL_CSTRING("LOGIN"),
-                                CaseInsensitiveCompare) >= 0)
+                                /* ignoreCase = */ true) >= 0)
             SetFlag(SMTP_AUTH_LOGIN_ENABLED);
 
           if (responseLine.Find(NS_LITERAL_CSTRING("EXTERNAL"),
-                                CaseInsensitiveCompare) >= 0)
+                                /* ignoreCase = */ true) >= 0)
             SetFlag(SMTP_AUTH_EXTERNAL_ENABLED);
 
           if (responseLine.Find(NS_LITERAL_CSTRING("XOAUTH2"),
-                                CaseInsensitiveCompare) >= 0)
+                                /* ignoreCase = */ true) >= 0)
             SetFlag(SMTP_AUTH_OAUTH2_ENABLED);
         }
         else if (StringBeginsWith(responseLine, NS_LITERAL_CSTRING("SIZE"), nsCaseInsensitiveCStringComparator()))

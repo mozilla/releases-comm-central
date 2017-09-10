@@ -1156,7 +1156,7 @@ nsresult nsMsgFilterList::ComputeArbitraryHeaders()
       {
         if (m_arbitraryHeaders.IsEmpty())
           m_arbitraryHeaders.Assign(arbitraryHeader);
-        else if (m_arbitraryHeaders.Find(arbitraryHeader, CaseInsensitiveCompare) == -1)
+        else if (m_arbitraryHeaders.Find(arbitraryHeader, /* ignoreCase = */ true) == -1)
         {
           m_arbitraryHeaders.Append(" ");
           m_arbitraryHeaders.Append(arbitraryHeader);

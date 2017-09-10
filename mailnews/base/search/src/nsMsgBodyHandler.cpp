@@ -353,7 +353,7 @@ void nsMsgBodyHandler::SniffPossibleMIMEHeader(nsCString &line)
 
   if (StringBeginsWith(lowerCaseLine, NS_LITERAL_CSTRING("content-type:")))
   {
-    if (lowerCaseLine.Find("text/html", CaseInsensitiveCompare) != -1)
+    if (lowerCaseLine.Find("text/html", /* ignoreCase = */ true) != -1)
       m_partIsHtml = true;
     // Strenuous edge case: a message/rfc822 is equivalent to the content type
     // of whatever the message is. Headers should be ignored here. Even more
@@ -364,8 +364,8 @@ void nsMsgBodyHandler::SniffPossibleMIMEHeader(nsCString &line)
     // MIME type. message/rfc822 is best treated as a multipart with no proper
     // boundary; since we only use boundaries for retriggering the headers,
     // the lack of one can safely be ignored.
-    else if (lowerCaseLine.Find("multipart/", CaseInsensitiveCompare) != -1 ||
-        lowerCaseLine.Find("message/", CaseInsensitiveCompare) != -1)
+    else if (lowerCaseLine.Find("multipart/", /* ignoreCase = */ true) != -1 ||
+             lowerCaseLine.Find("message/", /* ignoreCase = */ true) != -1)
     {
       if (m_isMultipart)
       {
@@ -377,15 +377,15 @@ void nsMsgBodyHandler::SniffPossibleMIMEHeader(nsCString &line)
       }
       m_isMultipart = true;
     }
-    else if (lowerCaseLine.Find("text/", CaseInsensitiveCompare) == -1)
+    else if (lowerCaseLine.Find("text/", /* ignoreCase = */ true) == -1)
       m_partIsText = false; // We have disproved our assumption
   }
 
   // TODO: make this work for nested multiparts (requires some redesign)
   if (m_isMultipart && boundary.IsEmpty() &&
-      lowerCaseLine.Find("boundary=", CaseInsensitiveCompare) != -1)
+      lowerCaseLine.Find("boundary=", /* ignoreCase = */ true) != -1)
   {
-    int32_t start = lowerCaseLine.Find("boundary=", CaseInsensitiveCompare);
+    int32_t start = lowerCaseLine.Find("boundary=", /* ignoreCase = */ true);
     start += 9;
     if (line[start] == '\"')
       start++;
@@ -399,7 +399,7 @@ void nsMsgBodyHandler::SniffPossibleMIMEHeader(nsCString &line)
 
   if (StringBeginsWith(lowerCaseLine,
                        NS_LITERAL_CSTRING("content-transfer-encoding:")) &&
-      lowerCaseLine.Find(ENCODING_BASE64, CaseInsensitiveCompare) != kNotFound)
+      lowerCaseLine.Find(ENCODING_BASE64, /* ignoreCase = */ true) != kNotFound)
     m_base64part = true;
 }
 

@@ -477,8 +477,8 @@ mime_draft_process_attachments(mime_draft_data *mdd)
   bool bodyAsAttachment = false;
   if (mdd->messageBody &&
       !mdd->messageBody->m_type.IsEmpty() &&
-      mdd->messageBody->m_type.Find("text/html", CaseInsensitiveCompare) == -1 &&
-      mdd->messageBody->m_type.Find("text/plain", CaseInsensitiveCompare) == -1 &&
+      mdd->messageBody->m_type.Find("text/html", /* ignoreCase = */ true) == -1 &&
+      mdd->messageBody->m_type.Find("text/plain", /* ignoreCase = */ true) == -1 &&
       !mdd->messageBody->m_type.LowerCaseEqualsLiteral("text"))
      bodyAsAttachment = true;
 
@@ -518,7 +518,7 @@ mime_draft_process_attachments(mime_draft_data *mdd)
         if (!tmpFile->m_realName.IsEmpty())
           tmp->m_realName = tmpFile->m_realName;
         else {
-          if (tmpFile->m_type.Find(MESSAGE_RFC822, CaseInsensitiveCompare) != -1)
+          if (tmpFile->m_type.Find(MESSAGE_RFC822, /* ignoreCase = */ true) != -1)
             // we have the odd case of processing an e-mail that had an unnamed
             // eml message attached
             tmp->m_realName = "ForwardedMessage.eml";
@@ -1471,9 +1471,9 @@ mime_parse_stream_complete(nsMIMESession *stream)
       MSG_ComposeFormat composeFormat = nsIMsgCompFormat::Default;
       if (!mdd->messageBody->m_type.IsEmpty())
       {
-        if(mdd->messageBody->m_type.Find("text/html", CaseInsensitiveCompare) != -1)
+        if(mdd->messageBody->m_type.Find("text/html", /* ignoreCase = */ true) != -1)
           composeFormat = nsIMsgCompFormat::HTML;
-        else if (mdd->messageBody->m_type.Find("text/plain", CaseInsensitiveCompare) != -1 ||
+        else if (mdd->messageBody->m_type.Find("text/plain", /* ignoreCase = */ true) != -1 ||
                  mdd->messageBody->m_type.LowerCaseEqualsLiteral("text"))
           composeFormat = nsIMsgCompFormat::PlainText;
         else

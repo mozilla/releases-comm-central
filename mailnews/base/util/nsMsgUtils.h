@@ -322,11 +322,6 @@ ConvertBufToPlainText(nsString &aConBuf, bool formatFlowed, bool delsp,
 #include "nsEscape.h"
 
 /**
- * The internal API expects nsCaseInsensitiveC?StringComparator() and true.
- * Redefine CaseInsensitiveCompare so that Find works.
- */
-#define CaseInsensitiveCompare true
-/**
  * The following methods are not exposed to the external API, but when we're
  * using the internal API we can simply redirect the calls appropriately.
  */

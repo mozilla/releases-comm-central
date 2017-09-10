@@ -914,7 +914,7 @@ nsresult nsMsgMdnGenerator::InitAndProcess(bool *needToAskUser)
                   continue;
                 ident->GetEmail(identEmail);
                 if (!mailTo.IsEmpty() && !identEmail.IsEmpty() &&
-                    mailTo.Find(identEmail, CaseInsensitiveCompare) != kNotFound)
+                    mailTo.Find(identEmail, /* ignoreCase = */ true) != kNotFound)
                 {
                   m_identity = ident;
                   break;
@@ -930,7 +930,7 @@ nsresult nsMsgMdnGenerator::InitAndProcess(bool *needToAskUser)
                     continue;
                   ident->GetEmail(identEmail);
                   if (!mailCC.IsEmpty() && !identEmail.IsEmpty() &&
-                      mailCC.Find(identEmail, CaseInsensitiveCompare) != kNotFound)
+                      mailCC.Find(identEmail, /* ignoreCase = */ true) != kNotFound)
                   {
                     m_identity = ident;
                     break;

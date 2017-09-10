@@ -716,7 +716,7 @@ nsresult nsMsgDBView::FetchKeywords(nsIMsgDBHdr *aHdr, nsACString &keywordString
   {
     nsAutoCString labelStr("$label");
     labelStr.Append((char) (label + '0'));
-    if (keywords.Find(labelStr, CaseInsensitiveCompare) == -1)
+    if (keywords.Find(labelStr, /* ignoreCase = */ true) == -1)
     {
       if (!keywords.IsEmpty())
         keywords.Append(' ');
@@ -790,7 +790,7 @@ nsresult nsMsgDBView::FetchTags(nsIMsgDBHdr *aHdr, nsAString &aTagString)
   {
     nsAutoCString labelStr("$label");
     labelStr.Append((char) (label + '0'));
-    if (keywords.Find(labelStr, CaseInsensitiveCompare) == -1)
+    if (keywords.Find(labelStr, /* ignoreCase = */ true) == -1)
       FetchLabel(aHdr, tags);
   }
 

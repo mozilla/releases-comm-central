@@ -2273,25 +2273,25 @@ void nsNNTPProtocol::ParseHeaderForCancel(char *buf)
 
     switch (header.First()) {
     case 'F': case 'f':
-        if (header.Find("From", CaseInsensitiveCompare) == 0) {
+        if (header.Find("From", /* ignoreCase = */ true) == 0) {
             PR_FREEIF(m_cancelFromHdr);
       m_cancelFromHdr = ToNewCString(value);
         }
         break;
     case 'M': case 'm':
-        if (header.Find("Message-ID", CaseInsensitiveCompare) == 0) {
+        if (header.Find("Message-ID", /* ignoreCase = */ true) == 0) {
             PR_FREEIF(m_cancelID);
       m_cancelID = ToNewCString(value);
         }
         break;
     case 'N': case 'n':
-        if (header.Find("Newsgroups", CaseInsensitiveCompare) == 0) {
+        if (header.Find("Newsgroups", /* ignoreCase = */ true) == 0) {
             PR_FREEIF(m_cancelNewsgroups);
       m_cancelNewsgroups = ToNewCString(value);
         }
         break;
      case 'D': case 'd':
-        if (header.Find("Distributions", CaseInsensitiveCompare) == 0) {
+        if (header.Find("Distributions", /* ignoreCase = */ true) == 0) {
             PR_FREEIF(m_cancelDistribution);
       m_cancelDistribution = ToNewCString(value);
         }

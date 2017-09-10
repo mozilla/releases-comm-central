@@ -573,7 +573,7 @@ nsMsgAttachmentHandler::SnarfMsgAttachment(nsMsgCompFields *compFields)
   nsresult rv = NS_ERROR_INVALID_ARG;
   nsCOMPtr <nsIMsgMessageService> messageService;
 
-  if (m_uri.Find("-message:", CaseInsensitiveCompare) != -1)
+  if (m_uri.Find("-message:", /* ignoreCase = */ true) != -1)
   {
     nsCOMPtr <nsIFile> tmpFile;
     rv = nsMsgCreateTempFile("nsmail.tmp", getter_AddRefs(tmpFile));

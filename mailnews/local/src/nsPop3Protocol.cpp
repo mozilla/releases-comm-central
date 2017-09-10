@@ -1570,22 +1570,22 @@ int32_t nsPop3Protocol::CapaResponse(nsIInputStream* inputStream,
         nsAutoCString responseLine;
         responseLine.Assign(line + 5);
 
-        if (responseLine.Find("PLAIN", CaseInsensitiveCompare) >= 0)
+        if (responseLine.Find("PLAIN", /* ignoreCase = */ true) >= 0)
             SetCapFlag(POP3_HAS_AUTH_PLAIN);
 
-        if (responseLine.Find("LOGIN", CaseInsensitiveCompare) >= 0)
+        if (responseLine.Find("LOGIN", /* ignoreCase = */ true) >= 0)
             SetCapFlag(POP3_HAS_AUTH_LOGIN);
 
-        if (responseLine.Find("GSSAPI", CaseInsensitiveCompare) >= 0)
+        if (responseLine.Find("GSSAPI", /* ignoreCase = */ true) >= 0)
             SetCapFlag(POP3_HAS_AUTH_GSSAPI);
 
-        if (responseLine.Find("CRAM-MD5", CaseInsensitiveCompare) >= 0)
+        if (responseLine.Find("CRAM-MD5", /* ignoreCase = */ true) >= 0)
           SetCapFlag(POP3_HAS_AUTH_CRAM_MD5);
 
-        if (responseLine.Find("NTLM", CaseInsensitiveCompare) >= 0)
+        if (responseLine.Find("NTLM", /* ignoreCase = */ true) >= 0)
           SetCapFlag(POP3_HAS_AUTH_NTLM);
 
-        if (responseLine.Find("MSN", CaseInsensitiveCompare) >= 0)
+        if (responseLine.Find("MSN", /* ignoreCase = */ true) >= 0)
           SetCapFlag(POP3_HAS_AUTH_NTLM|POP3_HAS_AUTH_MSN);
 
         m_pop3Server->SetPop3CapabilityFlags(m_pop3ConData->capability_flags);

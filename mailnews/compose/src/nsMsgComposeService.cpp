@@ -899,8 +899,8 @@ NS_IMETHODIMP nsMsgComposeService::ReplyWithTemplate(nsIMsgDBHdr *aMsgHdr, const
     nsAutoCString identityEmail;
     anIdentity->GetEmail(identityEmail);
 
-    if (recipients.Find(identityEmail, CaseInsensitiveCompare) != kNotFound ||
-        ccList.Find(identityEmail, CaseInsensitiveCompare) != kNotFound)
+    if (recipients.Find(identityEmail, /* ignoreCase = */ true) != kNotFound ||
+        ccList.Find(identityEmail, /* ignoreCase = */ true) != kNotFound)
     {
       identity = anIdentity;
       break;

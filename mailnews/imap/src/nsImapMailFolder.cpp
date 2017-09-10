@@ -4795,15 +4795,15 @@ nsresult nsImapMailFolder::HandleCustomFlags(nsMsgKey uidOfMessage,
   ToLowerCase(keywords);
   bool messageClassified = true;
   // Mac Mail uses "NotJunk"
-  if (keywords.Find("NonJunk", CaseInsensitiveCompare) != kNotFound ||
-      keywords.Find("NotJunk", CaseInsensitiveCompare) != kNotFound)
+  if (keywords.Find("NonJunk", /* ignoreCase = */ true) != kNotFound ||
+      keywords.Find("NotJunk", /* ignoreCase = */ true) != kNotFound)
   {
     nsAutoCString msgJunkScore;
     msgJunkScore.AppendInt(nsIJunkMailPlugin::IS_HAM_SCORE);
     mDatabase->SetStringProperty(uidOfMessage, "junkscore", msgJunkScore.get());
   }
   // ### TODO: we really should parse the keywords into space delimited keywords before checking
-  else if (keywords.Find("Junk", CaseInsensitiveCompare) != kNotFound)
+  else if (keywords.Find("Junk", /* ignoreCase = */ true) != kNotFound)
   {
     uint32_t newFlags;
     dbHdr->AndFlags(~nsMsgMessageFlags::New, &newFlags);
@@ -9703,7 +9703,7 @@ NS_IMETHODIMP nsImapMailFolder::GetOfflineMsgFolder(nsMsgKey msgKey, nsIMsgFolde
           if (labelNames[i].Equals("\"\\\\Sent\""))
              rv = rootFolder->GetFolderWithFlags(nsMsgFolderFlags::SentMail,
                                                  getter_AddRefs(subMsgFolder));
-          if (labelNames[i].Find("[Imap]/", CaseInsensitiveCompare) != kNotFound)
+          if (labelNames[i].Find("[Imap]/", /* ignoreCase = */ true) != kNotFound)
           {
             MsgReplaceSubstring(labelNames[i], "[Imap]/", "");
             imapRootFolder->FindOnlineSubFolder(labelNames[i], getter_AddRefs(subFolder));

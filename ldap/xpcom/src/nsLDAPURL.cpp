@@ -559,7 +559,7 @@ NS_IMETHODIMP nsLDAPURL::AddAttribute(const nsACString &aAttribute)
     // Check to see if the attribute is already stored. If it is, then also
     // check to see if it is the last attribute in the string, or if the next
     // character is a comma, this means we won't match substrings.
-    int32_t pos = mAttributes.Find(findAttribute, CaseInsensitiveCompare);
+    int32_t pos = mAttributes.Find(findAttribute, /* ignoreCase = */ true);
     if (pos != -1)
       return NS_OK;
 
@@ -590,7 +590,7 @@ NS_IMETHODIMP nsLDAPURL::RemoveAttribute(const nsACString &aAttribute)
     mAttributes.Truncate();
   else
   {
-    int32_t pos = mAttributes.Find(findAttribute, CaseInsensitiveCompare);
+    int32_t pos = mAttributes.Find(findAttribute, /* ignoreCase = */ true);
     if (pos == -1)
       return NS_OK;
 
@@ -614,7 +614,7 @@ NS_IMETHODIMP nsLDAPURL::HasAttribute(const nsACString &aAttribute,
   findAttribute.Append(aAttribute);
   findAttribute.Append(',');
 
-  *_retval = mAttributes.Find(findAttribute, CaseInsensitiveCompare) != -1;
+  *_retval = mAttributes.Find(findAttribute, /* ignoreCase = */ true) != -1;
   return NS_OK;
 }
 
