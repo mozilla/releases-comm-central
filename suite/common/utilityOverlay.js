@@ -1505,6 +1505,7 @@ function openUILinkIn(url, where, aAllowThirdPartyFixup, aPostData, aReferrerURI
       allowThirdPartyFixup: aAllowThirdPartyFixup,
       postData: aPostData,
       referrerURI: aReferrerURI,
+      referrerPolicy: Components.interfaces.nsIHttpChannel.REFERRER_POLICY_UNSET,
     };
   }
 
@@ -1527,6 +1528,8 @@ function openLinkIn(url, where, params)
   var aRelatedToCurrent     = params.relatedToCurrent;
   var aInitiatingDoc = params.initiatingDoc ? params.initiatingDoc : document;
 
+  var aReferrerPolicy       = ("referrerPolicy" in params ?
+        params.referrerPolicy : Ci.nsIHttpChannel.REFERRER_POLICY_UNSET);
   var aUserContextId        = params.userContextId;
   var aPrincipal            = params.originPrincipal;
   var aTriggeringPrincipal  = params.triggeringPrincipal;
@@ -1582,6 +1585,10 @@ function openLinkIn(url, where, params)
       referrerURISupports.data = aReferrerURI.spec;
     }
 
+    var referrerPolicySupports = Cc["@mozilla.org/supports-PRUint32;1"].
+                                 createInstance(Ci.nsISupportsPRUint32);
+    referrerPolicySupports.data = aReferrerPolicy;
+
     var userContextIdSupports = Cc["@mozilla.org/supports-PRUint32;1"].
                                  createInstance(Ci.nsISupportsPRUint32);
     userContextIdSupports.data = aUserContextId;
@@ -1590,6 +1597,7 @@ function openLinkIn(url, where, params)
     sa.appendElement(referrerURISupports);
     sa.appendElement(aPostData);
     sa.appendElement(allowThirdPartyFixupSupports);
+    sa.appendElement(referrerPolicySupports);
     sa.appendElement(userContextIdSupports);
     sa.appendElement(aPrincipal);
     sa.appendElement(aTriggeringPrincipal);
@@ -1620,6 +1628,7 @@ function openLinkIn(url, where, params)
       triggeringPrincipal: aTriggeringPrincipal,
       flags,
       referrerURI: aReferrerURI,
+      referrerPolicy: aReferrerPolicy,
       postData: aPostData,
       userContextId: aUserContextId
     });
@@ -1637,6 +1646,7 @@ function openLinkIn(url, where, params)
     var browser = w.getBrowser();
     var tab = browser.addTab(url, {
                 referrerURI: aReferrerURI,
+                referrerPolicy: aReferrerPolicy,
                 postData: aPostData,
                 allowThirdPartyFixup: aAllowThirdPartyFixup,
                 relatedToCurrent: aRelatedToCurrent,

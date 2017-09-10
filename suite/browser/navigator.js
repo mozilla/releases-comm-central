@@ -376,15 +376,16 @@ nsBrowserAccess.prototype = {
         aWhere = Services.prefs.getIntPref("browser.link.open_newwindow");
     }
 
-    var referrer = aOpener ? aOpener.QueryInterface(nsIInterfaceRequestor)
+    let referrer = aOpener ? aOpener.QueryInterface(nsIInterfaceRequestor)
                                     .getInterface(nsIWebNavigation)
                                     .currentURI : null;
+    let referrerPolicy = Components.interfaces.nsIHttpChannel.REFERRER_POLICY_UNSET;
     var uri = aURI ? aURI.spec : "about:blank";
 
     switch (aWhere) {
       case nsIBrowserDOMWindow.OPEN_NEWWINDOW:
         return window.openDialog(getBrowserURL(), "_blank", "all,dialog=no",
-                                 uri, null, referrer);
+                                 uri, null, null);
       case nsIBrowserDOMWindow.OPEN_NEWTAB:
         var bgLoad = Services.prefs.getBoolPref("browser.tabs.loadDivertedInBackground");
         var isRelated = referrer ? true : false;
@@ -396,10 +397,11 @@ nsBrowserAccess.prototype = {
         let openerWindow = (aFlags & nsIBrowserDOMWindow.OPEN_NO_OPENER) ? null : aOpener;
 
         var newTab = gBrowser.loadOneTab(uri, {triggeringPrincipal: aTriggeringPrincipal,
+                                               referrerURI: referrer,
+                                               referrerPolicy,
                                                inBackground: bgLoad,
                                                fromExternal: isExternal,
                                                relatedToCurrent: isRelated,
-                                               referrerURI: referrer,
                                                userContextId: userContextId,
                                                opener: openerWindow,
                                               });
@@ -417,6 +419,7 @@ nsBrowserAccess.prototype = {
             gBrowser.loadURIWithFlags(aURI.spec, {
                                                   flags: loadflags,
                                                   referrerURI: referrer,
+                                                  referrerPolicy,
                                                   userContextId: userContextId,
                                                   triggeringPrincipal: aTriggeringPrincipal,
                                                  });
@@ -656,12 +659,16 @@ function Startup()
           referrerURI = null;
         }
       }
+      let referrerPolicy = (window.arguments[5] != undefined ?
+          window.arguments[5] : Components.interfaces.nsIHttpChannel.REFERRER_POLICY_UNSET);
+
       let userContextId = (window.arguments[6] != undefined ?
           window.arguments[6] : Components.interfaces.nsIScriptSecurityManager.DEFAULT_USER_CONTEXT_ID);
 
       try {
         openLinkIn(uriToLoad, "current",
                    { referrerURI,
+                     referrerPolicy,
                      postData: window.arguments[3] || null,
                      allowThirdPartyFixup: window.arguments[4] || false,
                      userContextId,
