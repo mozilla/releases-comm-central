@@ -3,12 +3,41 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
+Components.utils.import("resource://gre/modules/Services.jsm");
+
+ /**
+ * This returns the key for any node/details object.
+ *
+ * @param nodeOrDetails
+ *        A node, or an object containing the following properties:
+ *        - uri
+ *        - time
+ *        - itemId
+ *        In case any of these is missing, an empty string will be returned. This is
+ *        to facilitate easy delete statements which occur due to assignment to items in `this._rows`,
+ *        since the item we are deleting may be undefined in the array.
+ *
+ * @return key or empty string.
+ */
+function makeNodeDetailsKey(nodeOrDetails) {
+  if (nodeOrDetails &&
+      typeof nodeOrDetails === "object" &&
+      "uri" in nodeOrDetails &&
+      "time" in nodeOrDetails &&
+      "itemId" in nodeOrDetails) {
+    return `${nodeOrDetails.uri}*${nodeOrDetails.time}*${nodeOrDetails.itemId}`;
+  }
+  return "";
+}
+
 function PlacesTreeView() {
   this._tree = null;
   this._result = null;
   this._selection = null;
-  this._rows = [];
   this._rootNode = null;
+  this._rows = [];
+  this._nodeDetails = new Map();
 }
 
 PlacesTreeView.prototype = {
@@ -150,8 +179,11 @@ PlacesTreeView.prototype = {
       }
     }
 
-    if (row != -1)
+    if (row != -1) {
+      this._nodeDetails.delete(makeNodeDetailsKey(this._rows[row]));
+      this._nodeDetails.set(makeNodeDetailsKey(aNode), aNode);
       this._rows[row] = aNode;
+    }
 
     return row;
   },
@@ -196,16 +228,27 @@ PlacesTreeView.prototype = {
 
     // If there's no container prior to the given row, it's a child of
     // the root node (remember: all containers are listed in the rows array).
-    if (!rowNode)
-      return this._rows[aRow] = this._rootNode.getChild(aRow);
+    if (!rowNode) {
+      let newNode = this._rootNode.getChild(aRow);
+      this._nodeDetails.delete(makeNodeDetailsKey(this._rows[aRow]));
+      this._nodeDetails.set(makeNodeDetailsKey(newNode), newNode);
+      return this._rows[aRow] = newNode;
+    }
 
     // Unset elements may exist only in plain containers.  Thus, if the nearest
     // node is a container, it's the row's parent, otherwise, it's a sibling.
-    if (rowNode instanceof Components.interfaces.nsINavHistoryContainerResultNode)
-      return this._rows[aRow] = rowNode.getChild(aRow - row - 1);
+    if (rowNode instanceof Components.interfaces.nsINavHistoryContainerResultNode) {
+      let newNode = rowNode.getChild(aRow - row - 1);
+      this._nodeDetails.delete(makeNodeDetailsKey(this._rows[aRow]));
+      this._nodeDetails.set(makeNodeDetailsKey(newNode), newNode);
+      return this._rows[aRow] = newNode;
+    }
 
     let [parent, parentRow] = this._getParentByChildRow(row);
-    return this._rows[aRow] = parent.getChild(aRow - parentRow - 1);
+    let newNode = parent.getChild(aRow - parentRow - 1);
+    this._nodeDetails.delete(makeNodeDetailsKey(this._rows[aRow]));
+    this._nodeDetails.set(makeNodeDetailsKey(newNode), newNode);
+    return this._rows[aRow] = newNode;
   },
 
   /**
@@ -235,6 +278,12 @@ PlacesTreeView.prototype = {
     // each loop iteration.
     var cc = aContainer.childCount;
     var newElements = new Array(cc);
+
+    // We need to clean up the node details from aFirstChildRow + 1 to the end of rows.
+    for (let i = aFirstChildRow + 1; i < this._rows.length; i++) {
+      this._nodeDetails.delete(makeNodeDetailsKey(this._rows[i]));
+    }
+
     this._rows = this._rows.splice(0, aFirstChildRow)
                            .concat(newElements, this._rows);
 
@@ -250,6 +299,8 @@ PlacesTreeView.prototype = {
 
       var row = aFirstChildRow + rowsInserted;
 
+      this._nodeDetails.delete(makeNodeDetailsKey(this._rows[row]));
+      this._nodeDetails.set(makeNodeDetailsKey(curChild), curChild);
       this._rows[row] = curChild;
       rowsInserted++;
 
@@ -353,8 +404,9 @@ PlacesTreeView.prototype = {
       // invisible.
       let ancestors = PlacesUtils.nodeAncestors(aOldNode);
       for (let ancestor of ancestors) {
-        if (!ancestor.containerOpen)
+        if (!ancestor.containerOpen) {
           return -1;
+        }
       }
 
       return this._getRowForNode(aOldNode, true);
@@ -365,10 +417,8 @@ PlacesTreeView.prototype = {
     // the old node, we'll select the first one after refresh.  There's
     // nothing we could do about that, because aOldNode.parent is
     // gone by the time invalidateContainer is called.
-    var newNode = aUpdatedContainer.findNodeByDetails(aOldNode.uri,
-                                                      aOldNode.time,
-                                                      aOldNode.itemId,
-                                                      true);
+    let newNode = this._nodeDetails.get(makeNodeDetailsKey(aOldNode));
+
     if (!newNode)
       return -1;
 
@@ -506,6 +556,7 @@ PlacesTreeView.prototype = {
       }
     }
 
+    this._nodeDetails.set(makeNodeDetailsKey(aNode), aNode);
     this._rows.splice(row, 0, aNode);
     this._tree.rowCountChanged(row, 1);
 
@@ -549,7 +600,9 @@ PlacesTreeView.prototype = {
 
     // Remove the node and its children, if any.
     var count = this._countVisibleRowsForNodeAtRow(oldRow);
-    this._rows.splice(oldRow, count);
+    for (let splicedNode of this._rows.splice(oldRow, count)) {
+      this._nodeDetails.delete(makeNodeDetailsKey(splicedNode));
+    }
     this._tree.rowCountChanged(oldRow, -count);
 
     // Redraw the parent if its twisty state has changed.
@@ -597,7 +650,9 @@ PlacesTreeView.prototype = {
     }
 
     // Remove node and its children, if any, from the old position.
-    this._rows.splice(oldRow, count);
+    for (let splicedNode of this._rows.splice(oldRow, count)) {
+      this._nodeDetails.delete(makeNodeDetailsKey(splicedNode));
+    }
     this._tree.rowCountChanged(oldRow, -count);
 
     // Insert the node into the new position
@@ -622,13 +677,22 @@ PlacesTreeView.prototype = {
     this.invalidateNode(aNode);
   },
 
-  nodeURIChanged: function PTV_nodeURIChanged(aNode, aOldURI) { },
+  nodeURIChanged: function PTV_nodeURIChanged(aNode, aOldURI) {
+    this._nodeDetails.delete(makeNodeDetailsKey({uri: aOldURI,
+                                                 itemId: aNode.itemId,
+                                                 time: aNode.time}));
+    this._nodeDetails.set(makeNodeDetailsKey(aNode), aNode);
+  },
 
   nodeIconChanged: function PTV_nodeIconChanged(aNode) { },
 
   nodeHistoryDetailsChanged:
   function PTV_nodeHistoryDetailsChanged(aNode, aOldVisitDate,
                                          aOldVisitCount) {
+    this._nodeDetails.delete(makeNodeDetailsKey({uri: aNode.uri,
+                                                 itemId: aNode.itemId,
+                                                 time: aOldVisitDate}));
+    this._nodeDetails.set(makeNodeDetailsKey(aNode), aNode);
     this.invalidateNode(aNode);
   },
 
@@ -659,6 +723,7 @@ PlacesTreeView.prototype = {
 
       // If the root node is now closed, the tree is empty.
       if (!this._rootNode.containerOpen) {
+        this._nodeDetails.clear();
         this._rows = [];
         if (replaceCount)
           this._tree.rowCountChanged(startReplacement, -replaceCount);
@@ -686,7 +751,9 @@ PlacesTreeView.prototype = {
     this.selection.selectEventsSuppressed = true;
 
     // First remove the old elements
-    this._rows.splice(startReplacement, replaceCount);
+    for (let splicedNode of this._rows.splice(startReplacement, replaceCount)) {
+      this._nodeDetails.delete(makeNodeDetailsKey(splicedNode));
+    }
 
     // If the container is now closed, we're done.
     if (!aContainer.containerOpen) {
