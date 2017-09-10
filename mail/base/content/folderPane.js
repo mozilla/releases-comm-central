@@ -886,6 +886,10 @@ var gFolderTreeView = {
     this._currentTransfer = aEvent.dataTransfer;
   },
 
+  _onDragDrop: function ftv_onDragDrop(aEvent) {
+    this._currentTransfer = aEvent.dataTransfer;
+  },
+
   /**
    * CSS files will cue off of these.  Note that we reach into the rowMap's
    * items so that custom data-displays can define their own properties

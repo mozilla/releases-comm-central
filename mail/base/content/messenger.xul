@@ -337,6 +337,7 @@
                     disableKeyNavigation="true"
                     ondragstart="gFolderTreeView._onDragStart(event);"
                     ondragover="gFolderTreeView._onDragOver(event);"
+                    ondrop="gFolderTreeView._onDragDrop(event);"
                     ondblclick="gFolderTreeView.onDoubleClick(event);"
                     onselect="FolderPaneSelectionChange();">
                 <treecols id="folderPaneCols">
