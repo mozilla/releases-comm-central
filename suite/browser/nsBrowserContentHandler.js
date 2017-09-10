@@ -187,17 +187,20 @@ function getBrowserURL()
   return "chrome://navigator/content/navigator.xul";
 }
 
-function handURIToExistingBrowser(uri, location, features)
+function handURIToExistingBrowser(aUri, aLocation, aFeatures)
 {
-  if (!shouldLoadURI(uri))
+  if (!shouldLoadURI(aUri))
     return;
 
   var navWin = Services.wm.getMostRecentWindow("navigator:browser");
-  if (navWin)
-    navWin.browserDOMWindow.openURI(uri, null, location,
-                                    nsIBrowserDOMWindow.OPEN_EXTERNAL);
-  else
-    openWindow(null, getBrowserURL(), features, uri.spec);
+  if (!navWin) {
+    // if we couldn't load it in an existing window, open a new one
+    openWindow(null, getBrowserURL(), aFeatures, aUri.spec);
+    return;
+  }
+
+  navWin.browserDOMWindow.openURI(aUri, null, aLocation,
+                                  nsIBrowserDOMWindow.OPEN_EXTERNAL);
 }
 
 function doSearch(aSearchTerm, aFeatures) {
@@ -391,7 +394,9 @@ var nsBrowserContentHandler = {
     try {
       while ((param = cmdLine.handleFlagWithParam("new-window", false)) != null) {
         var uri = resolveURIInternal(cmdLine, param);
-        handURIToExistingBrowser(uri, nsIBrowserDOMWindow.OPEN_NEWWINDOW, features);
+        handURIToExistingBrowser(uri,
+                                 nsIBrowserDOMWindow.OPEN_NEWWINDOW,
+                                 features);
         cmdLine.preventDefault = true;
       }
     } catch (e) {
@@ -400,7 +405,9 @@ var nsBrowserContentHandler = {
     try {
       while ((param = cmdLine.handleFlagWithParam("new-tab", false)) != null) {
         var uri = resolveURIInternal(cmdLine, param);
-        handURIToExistingBrowser(uri, nsIBrowserDOMWindow.OPEN_NEWTAB, features);
+        handURIToExistingBrowser(uri,
+                                 nsIBrowserDOMWindow.OPEN_NEWTAB,
+                                 features);
         cmdLine.preventDefault = true;
       }
     } catch (e) {
@@ -424,9 +431,11 @@ var nsBrowserContentHandler = {
     try {
       var fileParam = cmdLine.handleFlagWithParam("file", false);
       if (fileParam) {
-       fileParam = resolveURIInternal(cmdLine, fileParam);
-       handURIToExistingBrowser(fileParam, nsIBrowserDOMWindow.OPEN_DEFAULTWINDOW, features);
-       cmdLine.preventDefault = true;
+        fileParam = resolveURIInternal(cmdLine, fileParam);
+        handURIToExistingBrowser(fileParam,
+                                 nsIBrowserDOMWindow.OPEN_DEFAULTWINDOW,
+                                 features);
+        cmdLine.preventDefault = true;
       }
     } catch (e) {
     }
@@ -450,7 +459,9 @@ var nsBrowserContentHandler = {
       if (!/^-/.test(arg)) {
         try {
           arg = resolveURIInternal(cmdLine, arg);
-          handURIToExistingBrowser(arg, nsIBrowserDOMWindow.OPEN_DEFAULTWINDOW, features);
+          handURIToExistingBrowser(arg,
+                                   nsIBrowserDOMWindow.OPEN_DEFAULTWINDOW,
+                                   features);
           cmdLine.preventDefault = true;
         } catch (e) {
         }
@@ -608,7 +619,8 @@ var nsBrowserContentHandler = {
 
     request.QueryInterface(nsIChannel);
     handURIToExistingBrowser(request.URI,
-      nsIBrowserDOMWindow.OPEN_DEFAULTWINDOW, "chrome,all,dialog=no");
+                             nsIBrowserDOMWindow.OPEN_DEFAULTWINDOW,
+                             "chrome,all,dialog=no");
     request.cancel(Components.results.NS_BINDING_ABORTED);
   },
 

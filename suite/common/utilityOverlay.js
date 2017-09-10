@@ -1474,10 +1474,11 @@ function whereToOpenLink(e, ignoreButton, ignoreSave, ignoreBackground)
 /* openUILinkIn opens a URL in a place specified by the parameter |where|.
  *
  * |where| can be:
- *  "current"     current tab            (if there aren't any browser windows, then in a new window instead)
- *  "tab"         new tab                (if there aren't any browser windows, then in a new window instead)
+ *  "current"     current tab (if there aren't any browser windows, then in a new window instead)
+ *  "tab"         new tab     (if there aren't any browser windows, then in a new window instead)
  *  "tabshifted"  same as "tab" but in background if default is to select new tabs, and vice versa
  *  "tabfocused"  same as "tab" but explicitly focus new tab
+ *  "private"     private browsing window
  *  "window"      new window
  *  "save"        save to disk (with no filename hint!)
  *
@@ -1492,30 +1493,50 @@ function whereToOpenLink(e, ignoreButton, ignoreSave, ignoreBackground)
  *   referrerURI          (nsIURI)
  *   relatedToCurrent     (boolean)
  *   initiatingDoc        (document)
+ *   userContextId        (unsigned int)
  */
-function openUILinkIn(url, where, aAllowThirdPartyFixup, aPostData, aReferrerURI)
+function openUILinkIn(url, where, aAllowThirdPartyFixup, aPostData, aReferrerURI) {
+  var params;
+
+  if (arguments.length == 3 && typeof arguments[2] == "object") {
+    params = aAllowThirdPartyFixup;
+  } else {
+    params = {
+      allowThirdPartyFixup: aAllowThirdPartyFixup,
+      postData: aPostData,
+      referrerURI: aReferrerURI,
+    };
+  }
+
+  params.fromChrome = true;
+
+  openLinkIn(url, where, params);
+}
+
+function openLinkIn(url, where, params)
 {
   if (!where || !url)
     return null;
 
-  var aRelatedToCurrent;
-  var aInitiatingDoc;
-  if (arguments.length == 3 &&
-      arguments[2] != null &&
-      typeof arguments[2] == "object") {
-    let params = arguments[2];
-    aAllowThirdPartyFixup = params.allowThirdPartyFixup;
-    aPostData             = params.postData;
-    aReferrerURI          = params.referrerURI;
-    aRelatedToCurrent     = params.relatedToCurrent;
-    aInitiatingDoc        = params.initiatingDoc ? params.initiatingDoc : document;
-  }
+  const Cc = Components.classes;
+  const Ci = Components.interfaces;
+
+  var aAllowThirdPartyFixup = params.allowThirdPartyFixup;
+  var aPostData             = params.postData;
+  var aReferrerURI          = params.referrerURI;
+  var aRelatedToCurrent     = params.relatedToCurrent;
+  var aInitiatingDoc = params.initiatingDoc ? params.initiatingDoc : document;
+
+  var aUserContextId        = params.userContextId;
+  var aPrincipal            = params.originPrincipal;
+  var aTriggeringPrincipal  = params.triggeringPrincipal;
 
   if (where == "save") {
     saveURL(url, null, null, true, true, aReferrerURI, aInitiatingDoc);
     return null;
   }
 
+  // TODO fix this properly with pricipals and referrers intact
   if (where == "private") {
     window.openDialog(getBrowserURL(), "_blank", "private,chrome,all,dialog=no",
                       url, null, null, aPostData, aAllowThirdPartyFixup);
@@ -1524,9 +1545,60 @@ function openUILinkIn(url, where, aAllowThirdPartyFixup, aPostData, aReferrerURI
 
   var w = getTopWin();
 
+  // Teach the principal about the right OA to use, e.g. in case when
+  // opening a link in a new private window, or in a new container tab.
+  // Please note we do not have to do that for SystemPrincipals and we
+  // can not do it for NullPrincipals since NullPrincipals are only
+  // identical if they actually are the same object (See Bug: 1346759)
+  function useOAForPrincipal(principal) {
+    if (principal && principal.isCodebasePrincipal) {
+      let attrs = {
+        userContextId: aUserContextId,
+      };
+      return Services.scriptSecurityManager.createCodebasePrincipal(principal.URI, attrs);
+    }
+    return principal;
+  }
+  aPrincipal = useOAForPrincipal(aPrincipal);
+  aTriggeringPrincipal = useOAForPrincipal(aTriggeringPrincipal);
+
   if (!w || where == "window") {
-    return window.openDialog(getBrowserURL(), "_blank", "chrome,all,dialog=no", url,
-                             null, null, aPostData, aAllowThirdPartyFixup);
+    // This propagates to window.arguments.
+    var sa = Cc["@mozilla.org/array;1"].
+             createInstance(Ci.nsIMutableArray);
+
+    var wuri = Cc["@mozilla.org/supports-string;1"].
+               createInstance(Ci.nsISupportsString);
+    wuri.data = url;
+
+    var allowThirdPartyFixupSupports = Cc["@mozilla.org/supports-PRBool;1"].
+                                       createInstance(Ci.nsISupportsPRBool);
+    allowThirdPartyFixupSupports.data = aAllowThirdPartyFixup;
+
+    var referrerURISupports = null;
+    if (aReferrerURI) {
+      referrerURISupports = Cc["@mozilla.org/supports-string;1"].
+                            createInstance(Ci.nsISupportsString);
+      referrerURISupports.data = aReferrerURI.spec;
+    }
+
+    var userContextIdSupports = Cc["@mozilla.org/supports-PRUint32;1"].
+                                 createInstance(Ci.nsISupportsPRUint32);
+    userContextIdSupports.data = aUserContextId;
+
+    sa.appendElement(wuri);
+    sa.appendElement(referrerURISupports);
+    sa.appendElement(aPostData);
+    sa.appendElement(allowThirdPartyFixupSupports);
+    sa.appendElement(userContextIdSupports);
+    sa.appendElement(aPrincipal);
+    sa.appendElement(aTriggeringPrincipal);
+
+    let features = "chrome,dialog=no,all";
+
+    const sourceWindow = (w || window);
+    Services.ww.openWindow(sourceWindow, getBrowserURL(), null, features, sa);
+    return;
   }
 
   var loadInBackground = GetBoolPref("browser.tabs.loadInBackground", false);
@@ -1537,9 +1609,23 @@ function openUILinkIn(url, where, aAllowThirdPartyFixup, aPostData, aReferrerURI
 
   switch (where) {
   case "current":
-    w.loadURI(url, aReferrerURI, aPostData, aAllowThirdPartyFixup);
+    let flags = Ci.nsIWebNavigation.LOAD_FLAGS_NONE;
+
+    if (aAllowThirdPartyFixup) {
+      flags |= Ci.nsIWebNavigation.LOAD_FLAGS_ALLOW_THIRD_PARTY_FIXUP;
+      flags |= Ci.nsIWebNavigation.LOAD_FLAGS_FIXUP_SCHEME_TYPOS;
+    }
+
+    w.getBrowser().loadURIWithFlags(url, {
+      triggeringPrincipal: aTriggeringPrincipal,
+      flags,
+      referrerURI: aReferrerURI,
+      postData: aPostData,
+      userContextId: aUserContextId
+    });
     w.content.focus();
     break;
+
   case "tabfocused":
     // forces tab to be focused
     loadInBackground = true;
@@ -1554,11 +1640,15 @@ function openUILinkIn(url, where, aAllowThirdPartyFixup, aPostData, aReferrerURI
                 postData: aPostData,
                 allowThirdPartyFixup: aAllowThirdPartyFixup,
                 relatedToCurrent: aRelatedToCurrent,
+                userContextId: aUserContextId,
+                originPrincipal: aPrincipal,
+                triggeringPrincipal: aTriggeringPrincipal,
               });
     if (!loadInBackground) {
       browser.selectedTab = tab;
       w.content.focus();
     }
+
     break;
   }
 
