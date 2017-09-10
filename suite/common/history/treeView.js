@@ -611,13 +611,13 @@ PlacesTreeView.prototype = {
     this.invalidateNode(aNode);
   },
 
-  nodeURIChanged: function PTV_nodeURIChanged(aNode, aNewURI) { },
+  nodeURIChanged: function PTV_nodeURIChanged(aNode, aOldURI) { },
 
   nodeIconChanged: function PTV_nodeIconChanged(aNode) { },
 
   nodeHistoryDetailsChanged:
-  function PTV_nodeHistoryDetailsChanged(aNode, aUpdatedVisitDate,
-                                         aUpdatedVisitCount) {
+  function PTV_nodeHistoryDetailsChanged(aNode, aOldVisitDate,
+                                         aOldVisitCount) {
     this.invalidateNode(aNode);
   },
 
