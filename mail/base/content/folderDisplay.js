@@ -1354,9 +1354,8 @@ FolderDisplayWidget.prototype = {
       browser.contentDocument.body.hidden = true;
 
     UpdateMailToolbar("FolderDisplayWidget displayed message changed");
-    let viewIndex = this.view.dbView.currentlyDisplayedMessage;
-    let msgHdr = (viewIndex != nsMsgViewIndex_None) ?
-                   this.view.dbView.getMsgHdrAt(viewIndex) : null;
+    let selected = this.view.dbView.getSelectedMsgHdrs();
+    let msgHdr = selected.length ? selected[0] : null;
     this.messageDisplay.onDisplayingMessage(msgHdr);
 
     // Although deletes should now be so fast that the user has no time to do
