@@ -208,14 +208,14 @@ function DisplayCardViewPane(realCard)
   visible = hasScreenName || visible;
   visible = HandleLink(data.cvEmail2, zSecondaryEmail, card.getProperty("SecondEmail"), data.cvEmail2Box, "mailto:" + card.getProperty("SecondEmail")) || visible;
 
-	// Home section
-	visible = cvSetNode(data.cvHomeAddress, card.getProperty("HomeAddress"));
-	visible = cvSetNode(data.cvHomeAddress2, card.getProperty("HomeAddress2")) || visible;
-	visible = cvSetCityStateZip(data.cvHomeCityStZip, card.getProperty("HomeCity"), card.getProperty("HomeState"), card.getProperty("HomeZipCode")) || visible;
-	visible = cvSetNode(data.cvHomeCountry, card.getProperty("HomeCountry")) || visible;
+  // Home section
+  visible = cvSetNode(data.cvHomeAddress, card.getProperty("HomeAddress"));
+  visible = cvSetNode(data.cvHomeAddress2, card.getProperty("HomeAddress2")) || visible;
+  visible = cvSetCityStateZip(data.cvHomeCityStZip, card.getProperty("HomeCity"), card.getProperty("HomeState"), card.getProperty("HomeZipCode")) || visible;
+  visible = cvSetNode(data.cvHomeCountry, card.getProperty("HomeCountry")) || visible;
 
-  mapURLList = data.cvHomeMapIt.firstChild;
-  if (addressVisible)
+  let mapURLList = data.cvHomeMapIt.firstChild;
+  if (visible)
     mapURLList.initMapAddressFromCard(card, "Home");
 
   cvSetVisible(data.cvbHomeMapItBox, !!mapURLList.mapURL);
