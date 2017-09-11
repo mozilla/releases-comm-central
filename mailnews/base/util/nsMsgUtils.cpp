@@ -2110,15 +2110,15 @@ nsAutoCString MsgExtractQueryPart(nsAutoCString spec, const char* queryToExtract
   if (queryIndex == kNotFound)
     return queryPart;
 
-  int32_t queryEnd = Substring(spec, queryIndex + 1).FindChar('&');
+  int32_t queryEnd = spec.FindChar('&', queryIndex + 1);
   if (queryEnd == kNotFound)
-    queryEnd = Substring(spec, queryIndex + 1).FindChar('?');
+    queryEnd = spec.FindChar('?', queryIndex + 1);
   if (queryEnd == kNotFound) {
     // Nothing follows, so return from where the query qualifier started.
     queryPart.Assign(Substring(spec, queryIndex));
   } else {
     // Return the substring that represents the query qualifier.
-    queryPart.Assign(Substring(spec, queryIndex, queryEnd + 1));
+    queryPart.Assign(Substring(spec, queryIndex, queryEnd - queryIndex));
   }
   return queryPart;
 }
