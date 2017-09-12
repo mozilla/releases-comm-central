@@ -73,8 +73,7 @@ nsresult nsMailboxService::ParseMailbox(nsIMsgWindow *aMsgWindow, nsIFile *aMail
 
     if (aURL)
     {
-      *aURL = url;
-      NS_IF_ADDREF(*aURL);
+      url.forget(aURL);
     }
   }
 

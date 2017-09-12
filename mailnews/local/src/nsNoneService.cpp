@@ -64,12 +64,10 @@ nsNoneService::GetDefaultLocalPath(nsIFile ** aResult)
         rv = NS_SetPersistentFile(PREF_MAIL_ROOT_NONE_REL, PREF_MAIL_ROOT_NONE, localFile);
         NS_ASSERTION(NS_SUCCEEDED(rv), "Failed to set root dir pref.");
     }
-        
-    NS_IF_ADDREF(*aResult = localFile);
-    return NS_OK;
 
+    localFile.forget(aResult);
+    return NS_OK;
 }
-    
 
 NS_IMETHODIMP
 nsNoneService::GetServerIID(nsIID* *aServerIID)

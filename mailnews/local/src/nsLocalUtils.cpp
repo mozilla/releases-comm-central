@@ -49,7 +49,7 @@ nsGetMailboxServer(const char *uriStr, nsIMsgIncomingServer** aResult)
   rv = accountManager->FindServerByURI(aUrl, false,
                                   getter_AddRefs(none_server));
   if (NS_SUCCEEDED(rv)) {
-    NS_ADDREF(*aResult = none_server);
+    none_server.forget(aResult);
     return rv;
   }
   
@@ -60,7 +60,7 @@ nsGetMailboxServer(const char *uriStr, nsIMsgIncomingServer** aResult)
                                   getter_AddRefs(rss_server));
   if (NS_SUCCEEDED(rv))
   {
-     NS_ADDREF(*aResult = rss_server);
+     rss_server.forget(aResult);
      return rv;
   }
 #ifdef HAVE_MOVEMAIL
@@ -70,7 +70,7 @@ nsGetMailboxServer(const char *uriStr, nsIMsgIncomingServer** aResult)
   rv = accountManager->FindServerByURI(aUrl, false,
                                   getter_AddRefs(movemail_server));
   if (NS_SUCCEEDED(rv)) {
-    NS_ADDREF(*aResult = movemail_server);
+    movemail_server.forget(aResult);
     return rv;
   }
 #endif /* HAVE_MOVEMAIL */
@@ -94,7 +94,7 @@ nsGetMailboxServer(const char *uriStr, nsIMsgIncomingServer** aResult)
   }
   if (NS_SUCCEEDED(rv)) 
   {
-    NS_ADDREF(*aResult = server);
+    server.forget(aResult);
     return rv;
   }
 
@@ -107,13 +107,9 @@ nsLocalURI2Server(const char* uriStr,
                   nsIMsgIncomingServer ** aResult)
 {
   nsresult rv;
-
-
   nsCOMPtr<nsIMsgIncomingServer> server;
   rv = nsGetMailboxServer(uriStr, getter_AddRefs(server));
-
-  NS_IF_ADDREF(*aResult = server);
-
+  server.forget(aResult);
   return rv;
 }
 

@@ -138,7 +138,7 @@ nsresult nsPop3Service::GetMail(bool downloadNewMail,
     rv = RunPopUrl(server, url);
 
   if (aURL) // we already have a ref count on pop3url...
-    NS_IF_ADDREF(*aURL = url);
+    url.forget(aURL);
 
   return rv;
 }
@@ -557,7 +557,7 @@ nsPop3Service::GetDefaultLocalPath(nsIFile **aResult)
         NS_ASSERTION(NS_SUCCEEDED(rv), "Failed to set root dir pref.");
     }
 
-    NS_IF_ADDREF(*aResult = localFile);
+    localFile.forget(aResult);
     return NS_OK;
 }
 

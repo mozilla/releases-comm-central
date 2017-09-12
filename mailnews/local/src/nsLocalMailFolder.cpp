@@ -3742,7 +3742,7 @@ nsMsgLocalMailFolder::AddMessageBatch(uint32_t aMessageCount,
       newMailParser->EndMsgDownload();
       hdrArray->AppendElement(newHdr, false);
     }
-    NS_ADDREF(*aHdrArray = hdrArray);
+    hdrArray.forget(aHdrArray);
   }
   ReleaseSemaphore(static_cast<nsIMsgLocalMailFolder*>(this));
   return rv;

@@ -38,10 +38,9 @@ NS_IMETHODIMP nsRssService::GetDefaultLocalPath(nsIFile * *aDefaultLocalPath)
     if (NS_SUCCEEDED(rv) && !exists)
         rv = localFile->Create(nsIFile::DIRECTORY_TYPE, 0775);
     if (NS_FAILED(rv)) return rv;
-   
-    NS_IF_ADDREF(*aDefaultLocalPath = localFile);
-    return NS_OK;
 
+    localFile.forget(aDefaultLocalPath);
+    return NS_OK;
 }
 
 NS_IMETHODIMP nsRssService::SetDefaultLocalPath(nsIFile * aDefaultLocalPath)

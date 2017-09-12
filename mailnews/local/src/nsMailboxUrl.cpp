@@ -94,8 +94,7 @@ nsresult nsMailboxUrl::GetMailboxCopyHandler(nsIStreamListener ** aMailboxCopyHa
 
   if (aMailboxCopyHandler)
   {
-    *aMailboxCopyHandler = m_mailboxCopyHandler;
-    NS_IF_ADDREF(*aMailboxCopyHandler);
+    NS_IF_ADDREF(*aMailboxCopyHandler = m_mailboxCopyHandler);
   }
 
   return  NS_OK;

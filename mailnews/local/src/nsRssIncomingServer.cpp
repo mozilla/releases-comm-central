@@ -70,7 +70,7 @@ nsresult nsRssIncomingServer::FillInDataSourcePath(const nsAString& aDataSourceN
 
   // Append the name of the subscriptions data source.
   rv = localFile->Append(aDataSourceName);
-  NS_IF_ADDREF(*aLocation = localFile);
+  localFile.forget(aLocation);
   return rv;
 }
 
