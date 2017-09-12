@@ -154,8 +154,7 @@ nsMimeHtmlDisplayEmitter::GetHeaderSink(nsIMsgHeaderSink ** aHeaderSink)
     }
   }
 
-  *aHeaderSink = mHeaderSink;
-  NS_IF_ADDREF(*aHeaderSink);
+  NS_IF_ADDREF(*aHeaderSink = mHeaderSink);
   return rv;
 }
 

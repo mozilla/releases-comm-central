@@ -117,11 +117,10 @@ NS_IMETHODIMP nsSMimeJSHelper::GetRecipientCertsInfo(
         if (NS_SUCCEEDED(certdb->FindCertByEmailAddress(
                            email_lowercase, getter_AddRefs(cert))))
         {
-          *iCert = cert;
-          NS_ADDREF(*iCert);
+          cert.forget(iCert);
 
           nsCOMPtr<nsIX509CertValidity> validity;
-          rv = cert->GetValidity(getter_AddRefs(validity));
+          rv = (*iCert)->GetValidity(getter_AddRefs(validity));
 
           if (NS_SUCCEEDED(rv)) {
             nsString id, ed;

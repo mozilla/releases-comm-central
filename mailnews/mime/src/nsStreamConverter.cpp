@@ -803,12 +803,9 @@ NS_IMETHODIMP
 nsStreamConverter::GetIdentity(nsIMsgIdentity * *aIdentity)
 {
   if (!aIdentity) return NS_ERROR_NULL_POINTER;
-  /*
-  We don't have an identity for the local folders account,
-    we will return null but it is not an error!
-  */
-    *aIdentity = mIdentity;
-    NS_IF_ADDREF(*aIdentity);
+  // We don't have an identity for the local folders account,
+  // we will return null but it is not an error!
+  NS_IF_ADDREF(*aIdentity = mIdentity);
   return NS_OK;
 }
 

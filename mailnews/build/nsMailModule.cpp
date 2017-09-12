@@ -804,11 +804,9 @@ static nsresult nsVCardMimeContentTypeHandlerConstructor(nsISupports *aOuter,
     rv = NS_ERROR_NO_AGGREGATION;
     return rv;
   }
-  inst = new nsMimeContentTypeHandler("text/x-vcard", &MIME_VCardCreateContentTypeHandlerClass);
-  if (inst == NULL)
-    return NS_ERROR_OUT_OF_MEMORY;
 
-  NS_ADDREF(inst);
+  NS_ADDREF(inst = new nsMimeContentTypeHandler(
+                   "text/x-vcard", &MIME_VCardCreateContentTypeHandlerClass));
   rv = inst->QueryInterface(aIID,aResult);
   NS_RELEASE(inst);
 

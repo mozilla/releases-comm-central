@@ -417,8 +417,7 @@ CreateCompositionFields(const char        *from,
     cFields->SetNewspostUrl(!val.IsEmpty() ? val.get() : newspost_url);
   }
 
-  *_retval = cFields;
-  NS_IF_ADDREF(*_retval);
+  cFields.forget(_retval);
 
   return rv;
 }

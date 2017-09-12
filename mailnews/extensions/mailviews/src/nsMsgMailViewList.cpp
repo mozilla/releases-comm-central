@@ -120,7 +120,7 @@ NS_IMETHODIMP nsMsgMailView::CreateTerm(nsIMsgSearchTerm **aResult)
 {
     NS_ENSURE_ARG_POINTER(aResult);
     nsCOMPtr<nsIMsgSearchTerm> searchTerm = do_CreateInstance("@mozilla.org/messenger/searchTerm;1");
-    NS_IF_ADDREF(*aResult = searchTerm);
+    searchTerm.forget(aResult);
     return NS_OK;
 }
 
@@ -180,11 +180,7 @@ NS_IMETHODIMP nsMsgMailViewList::RemoveMailView(nsIMsgMailView * aMailView)
 NS_IMETHODIMP nsMsgMailViewList::CreateMailView(nsIMsgMailView ** aMailView)
 {
     NS_ENSURE_ARG_POINTER(aMailView);
-
-    nsMsgMailView * mailView = new nsMsgMailView;
-    NS_ENSURE_TRUE(mailView, NS_ERROR_OUT_OF_MEMORY);
-
-    NS_IF_ADDREF(*aMailView = mailView);
+    NS_ADDREF(*aMailView = new nsMsgMailView);
     return NS_OK;
 }
 

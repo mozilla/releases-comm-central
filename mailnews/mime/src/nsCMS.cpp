@@ -861,8 +861,7 @@ NS_IMETHODIMP nsCMSDecoder::Finish(nsICMSMessage ** aCMSMsg)
     // we gave it on construction.
     // Make sure the context will live long enough.
     obj->referenceContext(m_ctx);
-    *aCMSMsg = obj;
-    NS_ADDREF(*aCMSMsg);
+    NS_ADDREF(*aCMSMsg = obj);
   }
   return NS_OK;
 }

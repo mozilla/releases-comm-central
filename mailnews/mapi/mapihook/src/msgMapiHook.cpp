@@ -105,12 +105,7 @@ NS_IMPL_ISUPPORTS(nsMAPISendListener, nsIMsgSendListener)
 nsresult nsMAPISendListener::CreateMAPISendListener( nsIMsgSendListener **ppListener)
 {
     NS_ENSURE_ARG_POINTER(ppListener) ;
-
-    *ppListener = new nsMAPISendListener();
-    if (! *ppListener)
-        return NS_ERROR_OUT_OF_MEMORY;
-
-    NS_ADDREF(*ppListener);
+    NS_ADDREF(*ppListener = new nsMAPISendListener());
     return NS_OK;
 }
 

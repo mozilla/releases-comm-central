@@ -108,6 +108,6 @@ nsGlodaRankerFunction::OnFunctionCall(mozIStorageValueArray *aArguments,
   rv = result->SetAsDouble(score);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  NS_ADDREF(*_result = result);
+  result.forget(_result);
   return NS_OK;
 }
