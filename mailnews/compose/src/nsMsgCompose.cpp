@@ -1743,8 +1743,7 @@ nsMsgCompose::GetDomWindow(mozIDOMWindowProxy * *aDomWindow)
 
 nsresult nsMsgCompose::GetCompFields(nsIMsgCompFields * *aCompFields)
 {
-  *aCompFields = (nsIMsgCompFields*)m_compFields;
-  NS_IF_ADDREF(*aCompFields);
+  NS_IF_ADDREF(*aCompFields = (nsIMsgCompFields*)m_compFields);
   return NS_OK;
 }
 
@@ -2257,16 +2256,14 @@ nsresult nsMsgCompose::CreateMessage(const char * originalMsgURI,
 NS_IMETHODIMP nsMsgCompose::GetProgress(nsIMsgProgress **_retval)
 {
   NS_ENSURE_ARG_POINTER(_retval);
-  *_retval = mProgress;
-  NS_IF_ADDREF(*_retval);
+  NS_IF_ADDREF(*_retval = mProgress);
   return NS_OK;
 }
 
 NS_IMETHODIMP nsMsgCompose::GetMessageSend(nsIMsgSend **_retval)
 {
   NS_ENSURE_ARG_POINTER(_retval);
-  *_retval = mMsgSend;
-  NS_IF_ADDREF(*_retval);
+  NS_IF_ADDREF(*_retval = mMsgSend);
   return NS_OK;
 }
 
@@ -3858,7 +3855,6 @@ nsresult
 nsMsgComposeSendListener::GetMsgFolder(nsIMsgCompose *compObj, nsIMsgFolder **msgFolder)
 {
   nsresult rv;
-  nsCOMPtr<nsIMsgFolder> aMsgFolder;
   nsCString folderUri;
 
   rv = compObj->GetSavedFolderURI(getter_Copies(folderUri));
@@ -3871,9 +3867,9 @@ nsMsgComposeSendListener::GetMsgFolder(nsIMsgCompose *compObj, nsIMsgFolder **ms
   rv = rdfService->GetResource(folderUri, getter_AddRefs(resource));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  aMsgFolder = do_QueryInterface(resource, &rv);
+  nsCOMPtr<nsIMsgFolder> folder = do_QueryInterface(resource, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
-  NS_IF_ADDREF(*msgFolder = aMsgFolder);
+  folder.forget(msgFolder);
   return rv;
 }
 

@@ -661,8 +661,7 @@ NS_IMETHODIMP nsMsgCompFields::ConvertBodyToPlainText()
 NS_IMETHODIMP nsMsgCompFields::GetSecurityInfo(nsISupports ** aSecurityInfo)
 {
   NS_ENSURE_ARG_POINTER(aSecurityInfo);
-  *aSecurityInfo = mSecureCompFields;
-  NS_IF_ADDREF(*aSecurityInfo);
+  NS_IF_ADDREF(*aSecurityInfo = mSecureCompFields);
   return NS_OK;
 }
 

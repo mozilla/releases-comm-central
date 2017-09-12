@@ -154,8 +154,7 @@ nsURLFetcher::SetParentContentListener(nsIURIContentListener* aParent)
 NS_IMETHODIMP 
 nsURLFetcher::GetLoadCookie(nsISupports ** aLoadCookie)
 {
-  *aLoadCookie = mLoadCookie;
-  NS_IF_ADDREF(*aLoadCookie);
+  NS_IF_ADDREF(*aLoadCookie = mLoadCookie);
   return NS_OK;
 }
 

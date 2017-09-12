@@ -742,8 +742,7 @@ NS_IMETHODIMP
 nsSmtpUrl::GetSenderIdentity(nsIMsgIdentity **aSenderIdentity)
 {
   NS_ENSURE_ARG_POINTER(aSenderIdentity);
-  *aSenderIdentity = m_senderIdentity;
-  NS_ADDREF(*aSenderIdentity);
+  NS_ADDREF(*aSenderIdentity = m_senderIdentity);
   return NS_OK;
 }
 
@@ -768,8 +767,7 @@ nsSmtpUrl::GetPrompt(nsIPrompt **aNetPrompt)
 {
     NS_ENSURE_ARG_POINTER(aNetPrompt);
     NS_ENSURE_TRUE(m_netPrompt, NS_ERROR_NULL_POINTER);
-    *aNetPrompt = m_netPrompt;
-    NS_ADDREF(*aNetPrompt);
+    NS_ADDREF(*aNetPrompt = m_netPrompt);
     return NS_OK;
 }
 
@@ -786,8 +784,7 @@ nsSmtpUrl::GetAuthPrompt(nsIAuthPrompt **aNetAuthPrompt)
 {
     NS_ENSURE_ARG_POINTER(aNetAuthPrompt);
     NS_ENSURE_TRUE(m_netAuthPrompt, NS_ERROR_NULL_POINTER);
-    *aNetAuthPrompt = m_netAuthPrompt;
-    NS_ADDREF(*aNetAuthPrompt);
+    NS_ADDREF(*aNetAuthPrompt = m_netAuthPrompt);
     return NS_OK;
 }
 
@@ -804,8 +801,7 @@ nsSmtpUrl::GetNotificationCallbacks(nsIInterfaceRequestor** aCallbacks)
 {
     NS_ENSURE_ARG_POINTER(aCallbacks);
     NS_ENSURE_TRUE(m_callbacks, NS_ERROR_NULL_POINTER);
-    *aCallbacks = m_callbacks;
-    NS_ADDREF(*aCallbacks);
+    NS_ADDREF(*aCallbacks = m_callbacks);
     return NS_OK;
 }
 
@@ -822,7 +818,6 @@ nsSmtpUrl::GetSmtpServer(nsISmtpServer ** aSmtpServer)
 {
     NS_ENSURE_ARG_POINTER(aSmtpServer);
     NS_ENSURE_TRUE(m_smtpServer, NS_ERROR_NULL_POINTER);
-    *aSmtpServer = m_smtpServer;
-    NS_ADDREF(*aSmtpServer);
+    NS_ADDREF(*aSmtpServer = m_smtpServer);
     return NS_OK;
 }

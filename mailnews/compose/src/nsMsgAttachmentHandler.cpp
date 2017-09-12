@@ -1360,8 +1360,7 @@ nsresult
 nsMsgAttachmentHandler::GetMimeDeliveryState(nsIMsgSend** _retval)
 {
   NS_ENSURE_ARG(_retval);
-  *_retval = m_mime_delivery_state;
-  NS_IF_ADDREF(*_retval);
+  NS_IF_ADDREF(*_retval = m_mime_delivery_state);
   return NS_OK;
 }
 

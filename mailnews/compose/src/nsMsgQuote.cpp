@@ -49,8 +49,7 @@ NS_IMETHODIMP nsMsgQuoteListener::GetMsgQuote(nsIMsgQuote ** aMsgQuote)
   if (aMsgQuote)
   {
     nsCOMPtr<nsIMsgQuote> msgQuote = do_QueryReferent(mMsgQuote);
-    *aMsgQuote = msgQuote;
-    NS_IF_ADDREF(*aMsgQuote);
+    msgQuote.forget(aMsgQuote);
   }
   else
     rv = NS_ERROR_NULL_POINTER;
@@ -91,8 +90,7 @@ NS_IMETHODIMP nsMsgQuote::GetStreamListener(nsIMsgQuotingOutputStreamListener **
   nsresult rv = NS_OK;
   if (aStreamListener)
   {
-    *aStreamListener = mStreamListener;
-    NS_IF_ADDREF(*aStreamListener);
+    NS_IF_ADDREF(*aStreamListener = mStreamListener);
   }
   else
     rv = NS_ERROR_NULL_POINTER;
@@ -209,8 +207,7 @@ nsMsgQuote::GetQuoteListener(nsIMimeStreamConverterListener** aQuoteListener)
 {
     if (!aQuoteListener || !mQuoteListener)
         return NS_ERROR_NULL_POINTER;
-    *aQuoteListener = mQuoteListener;
-    NS_ADDREF(*aQuoteListener);
+    NS_ADDREF(*aQuoteListener = mQuoteListener);
     return NS_OK;
 }
 
@@ -219,7 +216,6 @@ nsMsgQuote::GetQuoteChannel(nsIChannel** aQuoteChannel)
 {
     if (!aQuoteChannel || !mQuoteChannel)
         return NS_ERROR_NULL_POINTER;
-    *aQuoteChannel = mQuoteChannel;
-    NS_ADDREF(*aQuoteChannel);
+    NS_ADDREF(*aQuoteChannel = mQuoteChannel);
     return NS_OK;
 }
