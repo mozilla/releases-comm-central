@@ -762,10 +762,10 @@ nsMsgCompose::ConvertAndLoadComposeWindow(nsString& aPrefix,
       }
       mInsertingQuotedContent = false;
 
-      // when forwarding a message as inline, tag any embedded objects
-      // which refer to local images or files so we know not to include
-      // send them
-      if (isForwarded)
+      // When forwarding a message as inline, or editing as new (which could
+      // contain unsanitized remote content), tag any embedded objects
+      // with moz-do-not-send=true so they don't get attached upon send.
+      if (isForwarded || mType == nsIMsgCompType::EditAsNew)
         (void)TagEmbeddedObjects(mailEditor);
 
       if (!aSignature.IsEmpty())
