@@ -17,4 +17,4 @@ OS_LIBS += [
 RCINCLUDE = 'WSEnable.rc'
 
 # This isn't XPCOM code, but it wants to use STL so disable STL wrappers
-DISABLE_STL_WRAPPING = True
+DisableStlWrapping()

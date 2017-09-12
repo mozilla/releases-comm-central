@@ -74,7 +74,7 @@ if CONFIG['MOZ_GPSD']:
 if CONFIG['MOZ_LINUX_32_SSE2_STARTUP_ERROR']:
     DEFINES['MOZ_LINUX_32_SSE2_STARTUP_ERROR'] = True
 
-DISABLE_STL_WRAPPING = True
+DisableStlWrapping()
 
 JS_PREFERENCE_PP_FILES += [
     'profile/all-instantbird.js',
