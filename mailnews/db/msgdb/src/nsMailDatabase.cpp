@@ -184,10 +184,8 @@ NS_IMETHODIMP nsMailDatabase::GetOfflineOpForKey(nsMsgKey msgKey, bool create, n
     
     if (NS_SUCCEEDED(err) && offlineOpRow)
     {
-      *offlineOp = new nsMsgOfflineImapOperation(this, offlineOpRow);
-      if (*offlineOp)
-        (*offlineOp)->SetMessageKey(msgKey);
-      NS_IF_ADDREF(*offlineOp);
+      NS_IF_ADDREF(*offlineOp = new nsMsgOfflineImapOperation(this, offlineOpRow));
+      (*offlineOp)->SetMessageKey(msgKey);
     }
     if (!hasOid && m_dbFolderInfo)
     {
@@ -373,8 +371,7 @@ NS_IMETHODIMP nsMsgOfflineOpEnumerator::GetNext(nsISupports **aItem)
   {
     if (mResultOp) 
     {
-      *aItem = mResultOp;
-      NS_ADDREF(*aItem);
+      NS_ADDREF(*aItem = mResultOp);
       mNextPrefetched = false;
     }
   }

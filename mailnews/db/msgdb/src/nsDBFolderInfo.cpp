@@ -928,8 +928,7 @@ NS_IMETHODIMP nsDBFolderInfo::GetTransferInfo(nsIDBFolderInfo **transferInfo)
   NS_ENSURE_ARG_POINTER(transferInfo);
 
   nsTransferDBFolderInfo *newInfo = new nsTransferDBFolderInfo;
-  *transferInfo = newInfo;
-  NS_ADDREF(newInfo);
+  NS_ADDREF(*transferInfo = newInfo);
 
   mdb_count numCells;
   mdbYarn cellYarn;
