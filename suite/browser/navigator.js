@@ -420,7 +420,6 @@ nsBrowserAccess.prototype = {
                                                   flags: loadflags,
                                                   referrerURI: referrer,
                                                   referrerPolicy,
-                                                  userContextId: userContextId,
                                                   triggeringPrincipal: aTriggeringPrincipal,
                                                  });
           }
