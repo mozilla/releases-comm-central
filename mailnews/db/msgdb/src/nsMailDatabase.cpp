@@ -281,21 +281,17 @@ NS_IMETHODIMP nsMailDatabase::ListAllOfflineDeletes(nsTArray<nsMsgKey> *offlineD
       if (NS_SUCCEEDED(err))
       {
         offlineOpRow->GetOid(GetEnv(), &outOid);
-        nsIMsgOfflineImapOperation *offlineOp = new nsMsgOfflineImapOperation(this, offlineOpRow);
-        if (offlineOp)
-        {
-          NS_ADDREF(offlineOp);
-          imapMessageFlagsType newFlags;
-          nsOfflineImapOperationType opType;
-          
-          offlineOp->GetOperation(&opType);
-          offlineOp->GetNewFlags(&newFlags);
-          if (opType & nsIMsgOfflineImapOperation::kMsgMoved || 
-            ((opType & nsIMsgOfflineImapOperation::kFlagsChanged) 
-            && (newFlags & nsIMsgOfflineImapOperation::kMsgMarkedDeleted)))
-            offlineDeletes->AppendElement(outOid.mOid_Id);
-          NS_RELEASE(offlineOp);
-        }
+        RefPtr<nsIMsgOfflineImapOperation> offlineOp = new nsMsgOfflineImapOperation(this, offlineOpRow);
+        imapMessageFlagsType newFlags;
+        nsOfflineImapOperationType opType;
+
+        offlineOp->GetOperation(&opType);
+        offlineOp->GetNewFlags(&newFlags);
+        if (opType & nsIMsgOfflineImapOperation::kMsgMoved ||
+          ((opType & nsIMsgOfflineImapOperation::kFlagsChanged)
+          && (newFlags & nsIMsgOfflineImapOperation::kMsgMarkedDeleted)))
+          offlineDeletes->AppendElement(outOid.mOid_Id);
+
         offlineOpRow->Release();
       }
     }

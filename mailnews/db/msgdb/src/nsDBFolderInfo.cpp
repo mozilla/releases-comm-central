@@ -47,7 +47,7 @@ static const char * kLocaleColumnName = "locale";
 #define kMAILNEWS_DEFAULT_CHARSET_OVERRIDE    "mailnews.force_charset_override"
 static nsCString* gDefaultCharacterSet = nullptr;
 static bool       gDefaultCharacterOverride;
-static nsIObserver *gFolderCharsetObserver = nullptr;
+static RefPtr<nsIObserver> gFolderCharsetObserver;
 
 // observer for charset related preference notification
 class nsFolderCharsetObserver : public nsIObserver {
@@ -103,7 +103,7 @@ NS_IMETHODIMP nsFolderCharsetObserver::Observe(nsISupports *aSubject, const char
   {
     rv = prefBranch->RemoveObserver(kMAILNEWS_VIEW_DEFAULT_CHARSET, this);
     rv = prefBranch->RemoveObserver(kMAILNEWS_DEFAULT_CHARSET_OVERRIDE, this);
-    NS_IF_RELEASE(gFolderCharsetObserver);
+    gFolderCharsetObserver = nullptr;
     delete gDefaultCharacterSet;
     gDefaultCharacterSet = nullptr;
   }
@@ -192,7 +192,6 @@ nsDBFolderInfo::nsDBFolderInfo(nsMsgDatabase *mdb)
       // register prefs callbacks
       if (gFolderCharsetObserver)
       {
-        NS_ADDREF(gFolderCharsetObserver);
         rv = prefBranch->AddObserver(kMAILNEWS_VIEW_DEFAULT_CHARSET, gFolderCharsetObserver, false);
         rv = prefBranch->AddObserver(kMAILNEWS_DEFAULT_CHARSET_OVERRIDE, gFolderCharsetObserver, false);
 

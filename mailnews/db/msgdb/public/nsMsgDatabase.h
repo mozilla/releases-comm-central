@@ -327,7 +327,7 @@ protected:
   virtual nsresult      InitMDBInfo();
 
   nsCOMPtr <nsIMsgFolder> m_folder;
-  nsDBFolderInfo      *m_dbFolderInfo;
+  RefPtr<nsDBFolderInfo>  m_dbFolderInfo;
   nsMsgKey      m_nextPseudoMsgKey;
   nsIMdbEnv     *m_mdbEnv;  // to be used in all the db calls.
   nsIMdbStore   *m_mdbStore;

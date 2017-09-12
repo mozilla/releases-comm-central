@@ -974,8 +974,8 @@ nsMsgDatabase::~nsMsgDatabase()
   // the reference will be a dangling one soon.
   if (m_dbFolderInfo)
     m_dbFolderInfo->ReleaseExternalReferences();
+  m_dbFolderInfo = nullptr;
 
-  NS_IF_RELEASE(m_dbFolderInfo);
   if (m_mdbAllMsgHeadersTable)
     m_mdbAllMsgHeadersTable->Release();
 
@@ -1113,7 +1113,7 @@ nsresult nsMsgDatabase::CheckForErrors(nsresult err, bool sync,
   if (deleteInvalidDB)
   {
     // this will make the db folder info release its ref to the mail db...
-    NS_IF_RELEASE(m_dbFolderInfo);
+    m_dbFolderInfo = nullptr;
     ForceClosed();
     if (err == NS_MSG_ERROR_FOLDER_SUMMARY_OUT_OF_DATE)
       summaryFile->Remove(false);
@@ -1282,7 +1282,7 @@ NS_IMETHODIMP nsMsgDatabase::ForceClosed()
   // make sure dbFolderInfo isn't holding onto mork stuff because mork db is going away
   if (m_dbFolderInfo)
     m_dbFolderInfo->ReleaseExternalReferences();
-  NS_IF_RELEASE(m_dbFolderInfo);
+  m_dbFolderInfo = nullptr;
 
   err = CloseMDB(true);  // Backup DB will try to recover info, so commit
   ClearCachedObjects(true);
@@ -1460,7 +1460,6 @@ nsresult nsMsgDatabase::InitNewDB()
     nsDBFolderInfo *dbFolderInfo = new nsDBFolderInfo(this);
     if (dbFolderInfo)
     {
-      NS_ADDREF(dbFolderInfo);
       err = dbFolderInfo->AddToNewMDB();
       dbFolderInfo->SetVersion(GetCurVersion());
       dbFolderInfo->SetBooleanProperty("forceReparse", false);
@@ -1534,7 +1533,6 @@ nsresult nsMsgDatabase::InitExistingDB()
       m_dbFolderInfo = new nsDBFolderInfo(this);
       if (m_dbFolderInfo)
       {
-        NS_ADDREF(m_dbFolderInfo);
         err = m_dbFolderInfo->InitFromExistingDB();
       }
     }
@@ -1802,7 +1800,7 @@ NS_IMETHODIMP nsMsgDatabase::DeleteHeader(nsIMsgDBHdr *msg, nsIDBChangeListener 
   bool hdrWasNew = m_newSet.BinaryIndexOf(key) != m_newSet.NoIndex;
   m_newSet.RemoveElement(key);
 
-  if (m_dbFolderInfo != NULL)
+  if (m_dbFolderInfo)
   {
     bool isRead;
     m_dbFolderInfo->ChangeNumMessages(-1);
@@ -3010,10 +3008,10 @@ protected:
     virtual ~nsMsgDBThreadEnumerator();
     nsresult          GetTableCursor(void);
     nsresult          PrefetchNext();
-    nsMsgDatabase*              mDB;
-    nsCOMPtr <nsIMdbPortTableCursor>  mTableCursor;
-    nsIMsgThread*                 mResultThread;
-    bool                        mDone;
+    nsMsgDatabase*    mDB;
+    nsCOMPtr<nsIMdbPortTableCursor>  mTableCursor;
+    RefPtr<nsIMsgThread> mResultThread;
+    bool              mDone;
     bool              mNextPrefetched;
     nsMsgDBThreadEnumeratorFilter     mFilter;
 };
@@ -3030,7 +3028,7 @@ nsMsgDBThreadEnumerator::nsMsgDBThreadEnumerator(nsMsgDatabase* db,
 nsMsgDBThreadEnumerator::~nsMsgDBThreadEnumerator()
 {
   mTableCursor = nullptr;
-  NS_IF_RELEASE(mResultThread);
+  mResultThread = nullptr;
   if (mDB)
     mDB->RemoveListener(this);
 }
@@ -3075,7 +3073,7 @@ NS_IMETHODIMP nsMsgDBThreadEnumerator::OnParentChanged(nsMsgKey aKeyChanged, nsM
 NS_IMETHODIMP nsMsgDBThreadEnumerator::OnAnnouncerGoingAway(nsIDBChangeAnnouncer *instigator)
 {
   mTableCursor = nullptr;
-  NS_IF_RELEASE(mResultThread);
+  mResultThread = nullptr;
   mDB->RemoveListener(this);
   mDB = nullptr;
   return NS_OK;
@@ -3149,7 +3147,6 @@ nsresult nsMsgDBThreadEnumerator::PrefetchNext()
   }
   while (true)
   {
-    NS_IF_RELEASE(mResultThread);
     mResultThread = nullptr;
     rv = mTableCursor->NextTable(mDB->GetEnv(), getter_AddRefs(table));
     if (!table)
@@ -3173,7 +3170,6 @@ nsresult nsMsgDBThreadEnumerator::PrefetchNext()
     if (mResultThread)
     {
       uint32_t numChildren = 0;
-      NS_ADDREF(mResultThread);
       mResultThread->GetNumChildren(&numChildren);
       // we've got empty thread; don't tell caller about it.
       if (numChildren == 0)
@@ -3318,7 +3314,7 @@ NS_IMETHODIMP nsMsgDatabase::AddNewHdrToDB(nsIMsgDBHdr *newHdr, bool notify)
       newHdr->AndFlags(~nsMsgMessageFlags::New, &newFlags);  // make sure not filed out
       AddToNewList(key);
     }
-    if (m_dbFolderInfo != NULL)
+    if (m_dbFolderInfo)
     {
       m_dbFolderInfo->ChangeNumMessages(1);
       bool isRead = true;
