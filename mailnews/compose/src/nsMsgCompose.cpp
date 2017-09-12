@@ -193,8 +193,6 @@ nsMsgCompose::nsMsgCompose()
 
 nsMsgCompose::~nsMsgCompose()
 {
-  NS_IF_RELEASE(m_compFields);
-  NS_IF_RELEASE(mQuoteStreamListener);
 }
 
 /* the following macro actually implement addref, release and query interface for our component. */
@@ -1799,17 +1797,11 @@ nsresult nsMsgCompose::CreateMessage(const char * originalMsgURI,
 
   if (compFields)
   {
-    NS_IF_RELEASE(m_compFields);
     m_compFields = reinterpret_cast<nsMsgCompFields*>(compFields);
-    NS_ADDREF(m_compFields);
   }
   else
   {
     m_compFields = new nsMsgCompFields();
-    if (m_compFields)
-      NS_ADDREF(m_compFields);
-    else
-      return NS_ERROR_OUT_OF_MEMORY;
   }
 
   if (m_identity && mType != nsIMsgCompType::Draft)
@@ -3257,10 +3249,6 @@ nsMsgCompose::QuoteMessage(const char *msgURI)
                                     false,
                                     mHtmlToQuote);
 
-  if (!mQuoteStreamListener)
-    return NS_ERROR_FAILURE;
-  NS_ADDREF(mQuoteStreamListener);
-
   mQuoteStreamListener->SetComposeObj(this);
 
   rv = mQuote->QuoteMessage(msgURI, false, mQuoteStreamListener,
@@ -3309,10 +3297,6 @@ nsMsgCompose::QuoteOriginalMessage() // New template
                                     mCharsetOverride || mAnswerDefaultCharset,
                                     true,
                                     mHtmlToQuote);
-
-  if (!mQuoteStreamListener)
-    return NS_ERROR_FAILURE;
-  NS_ADDREF(mQuoteStreamListener);
 
   mQuoteStreamListener->SetComposeObj(this);
 

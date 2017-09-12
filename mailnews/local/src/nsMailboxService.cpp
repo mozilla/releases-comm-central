@@ -425,19 +425,17 @@ nsresult nsMailboxService::RunMailboxUrl(nsIURI * aMailboxUrl, nsISupports * aDi
 {
   // create a protocol instance to run the url..
   nsresult rv = NS_OK;
-  nsMailboxProtocol * protocol = new nsMailboxProtocol(aMailboxUrl);
+  RefPtr<nsMailboxProtocol> protocol = new nsMailboxProtocol(aMailboxUrl);
 
   if (protocol)
   {
     rv = protocol->Initialize(aMailboxUrl);
     if (NS_FAILED(rv))
     {
-      delete protocol;
+      protocol = nullptr;
       return rv;
     }
-    NS_ADDREF(protocol);
     rv = protocol->LoadUrl(aMailboxUrl, aDisplayConsumer);
-    NS_RELEASE(protocol); // after loading, someone else will have a ref cnt on the mailbox
   }
 
   return rv;

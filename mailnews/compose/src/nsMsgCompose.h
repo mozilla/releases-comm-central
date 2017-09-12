@@ -112,10 +112,10 @@ protected:
   mozIDOMWindowProxy                        *m_window;
   nsCOMPtr<nsIDocShell>                     mDocShell;
   nsCOMPtr<nsIBaseWindow>                   m_baseWindow;
-  nsMsgCompFields                           *m_compFields;
+  RefPtr<nsMsgCompFields>                   m_compFields;
   nsCOMPtr<nsIMsgIdentity>                  m_identity;
   bool                                      m_composeHTML;
-  QuotingOutputStreamListener               *mQuoteStreamListener;
+  RefPtr<QuotingOutputStreamListener>       mQuoteStreamListener;
   nsCOMPtr<nsIOutputStream>                 mBaseStream;
 
   nsCOMPtr<nsIMsgSend>                      mMsgSend;           // for composition back end

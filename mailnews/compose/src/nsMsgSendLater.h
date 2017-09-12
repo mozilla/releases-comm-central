@@ -36,7 +36,7 @@ public:
 
 private:
   virtual ~SendOperationListener();
-  nsMsgSendLater *mSendLater;
+  RefPtr<nsMsgSendLater> mSendLater;
 };
 
 class nsMsgSendLater: public nsIMsgSendLater,
