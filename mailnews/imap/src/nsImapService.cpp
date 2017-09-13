@@ -3322,13 +3322,11 @@ NS_IMETHODIMP nsImapService::PlaybackAllOfflineOperations(nsIMsgWindow *aMsgWind
 NS_IMETHODIMP nsImapService::DownloadAllOffineImapFolders(nsIMsgWindow *aMsgWindow, 
                                                           nsIUrlListener *aListener)
 {
-  nsImapOfflineDownloader *downloadForOffline = new nsImapOfflineDownloader(aMsgWindow, aListener);
+  RefPtr<nsImapOfflineDownloader> downloadForOffline = new nsImapOfflineDownloader(aMsgWindow, aListener);
   if (downloadForOffline)
   {
     // hold reference to this so it won't get deleted out from under itself.
-    NS_ADDREF(downloadForOffline); 
     nsresult rv = downloadForOffline->ProcessNextOperation();
-    NS_RELEASE(downloadForOffline);
     return rv;
   }
   return NS_ERROR_OUT_OF_MEMORY;

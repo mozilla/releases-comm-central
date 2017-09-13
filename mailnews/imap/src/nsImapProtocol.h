@@ -466,7 +466,7 @@ private:
   // connection has timed out, this will be set to FALSE.
   bool m_safeToCloseConnection;
 
-  nsImapFlagAndUidState  *m_flagState;
+  RefPtr<nsImapFlagAndUidState> m_flagState;
   nsMsgBiffState        m_currentBiffState;
   // manage the IMAP server command tags
   // 11 = enough memory for the decimal representation of MAX_UINT + trailing nul
@@ -670,8 +670,8 @@ private:
   int32_t m_uidValidity; // stored uid validity for the selected folder.
 
   enum EMailboxHierarchyNameState {
-    kNoOperationInProgress,
-      kDiscoverBaseFolderInProgress,
+      kNoOperationInProgress,
+      // kDiscoverBaseFolderInProgress, - Unused. Keeping for historical reasons.
       kDiscoverTrashFolderInProgress,
       kDeleteSubFoldersInProgress,
       kListingForInfoOnly,

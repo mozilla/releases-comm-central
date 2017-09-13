@@ -77,7 +77,7 @@ public:
 
   // create a struct mailbox_spec from our info, used in
   // libmsg c interface
-  nsImapMailboxSpec *CreateCurrentMailboxSpec(const char *mailboxName = nullptr);
+  already_AddRefed<nsImapMailboxSpec> CreateCurrentMailboxSpec(const char *mailboxName = nullptr);
 
   // Resets the flags state.
   void ResetFlagInfo();
@@ -261,7 +261,7 @@ private:
   // The connection object
   nsImapProtocol &fServerConnection;
 
-  nsIImapHostSessionList *fHostSessionList;
+  RefPtr<nsIImapHostSessionList> fHostSessionList;
   nsTArray<nsMsgKey> fCopyResponseKeyArray;
 };
 
