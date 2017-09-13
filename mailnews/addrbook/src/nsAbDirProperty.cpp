@@ -219,8 +219,7 @@ NS_IMETHODIMP nsAbDirProperty::GetAddressLists(nsIMutableArray * *aAddressLists)
     NS_ENSURE_SUCCESS(rv, rv);
   }
 
-  *aAddressLists = m_AddressList;
-  NS_ADDREF(*aAddressLists);
+  NS_ADDREF(*aAddressLists = m_AddressList);
   return NS_OK;
 }
 

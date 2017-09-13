@@ -266,7 +266,7 @@ NS_IMETHODIMP nsAbManager::GetDirectory(const nsACString &aURI,
   {
     rv = GetRootDirectory(getter_AddRefs(directory));
     NS_ENSURE_SUCCESS(rv, rv);
-    NS_IF_ADDREF(*aResult = directory);
+    directory.forget(aResult);
     return NS_OK;
   }
 
@@ -303,7 +303,7 @@ NS_IMETHODIMP nsAbManager::GetDirectory(const nsACString &aURI,
     if (!isQuery)
       mAbStore.Put(aURI, directory);
   }
-  NS_IF_ADDREF(*aResult = directory);
+  directory.forget(aResult);
 
   return NS_OK;
 }
@@ -1383,7 +1383,7 @@ NS_IMETHODIMP nsAbManager::EscapedVCardToAbCard(const char *aEscapedVCardStr, ns
           NS_WARNING("Parse of vCard failed");
     }
 
-    NS_IF_ADDREF(*aCard = cardFromVCard);
+    cardFromVCard.forget(aCard);
     return NS_OK;
 }
 

@@ -149,7 +149,7 @@ NS_IMETHODIMP DirPrefObserver::Observe(nsISupports *aSubject, const char *aTopic
 }
 
 // A pointer to the pref observer
-static DirPrefObserver *prefObserver = nullptr;
+static RefPtr<DirPrefObserver> prefObserver;
 
 static nsresult DIR_GetDirServers()
 {
@@ -167,11 +167,6 @@ static nsresult DIR_GetDirServers()
       if (NS_FAILED(rv))
         return rv;
       prefObserver = new DirPrefObserver();
-
-      if (!prefObserver)
-        return NS_ERROR_OUT_OF_MEMORY;
-
-      NS_ADDREF(prefObserver);
 
       pbi->AddObserver(PREF_LDAP_SERVER_TREE_NAME, prefObserver, true);
     }
@@ -236,8 +231,8 @@ nsresult DIR_ShutDown()  /* FEs should call this when the app is shutting down. 
   * We'll reset our callback the first time DIR_GetDirServers() is called
   * after we've switched profiles.
   */
-  NS_IF_RELEASE(prefObserver);
-  
+  prefObserver = nullptr;
+
   return NS_OK;
 }
 

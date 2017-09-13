@@ -675,7 +675,7 @@ NS_IMETHODIMP nsAbLDAPDirectory::GetReplicationFile(nsIFile **aResult)
   rv = profileDir->AppendNative(fileName);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  NS_ADDREF(*aResult = profileDir);
+  profileDir.forget(aResult);
 
   return NS_OK;
 }
@@ -775,7 +775,7 @@ NS_IMETHODIMP nsAbLDAPDirectory::AddCard(nsIAbCard *aUpdatedCard,
                 EmptyCString(), EmptyCString());
   NS_ENSURE_SUCCESS(rv, rv);
 
-  NS_ADDREF(*aAddedCard = copyToCard);
+  copyToCard.forget(aAddedCard);
   return NS_OK;
 }
 

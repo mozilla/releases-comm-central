@@ -50,7 +50,7 @@ nsresult nsAbQueryStringToExpression::Convert (
     nsCOMPtr<nsIAbBooleanExpression> e(do_QueryInterface(s, &rv));
     NS_ENSURE_SUCCESS(rv, rv);
 
-    NS_IF_ADDREF(*expression = e);
+    e.forget(expression);
     return rv;
 }
 
@@ -98,7 +98,7 @@ nsresult nsAbQueryStringToExpression::ParseExpression (
         rv = ParseExpressions (index, e);
         NS_ENSURE_SUCCESS(rv, rv);
 
-        NS_IF_ADDREF(*expression = e);
+        e.forget(expression);
     }
     // Case" "(*)"
     else if (*indexBracket == ')')
@@ -110,7 +110,7 @@ nsresult nsAbQueryStringToExpression::ParseExpression (
             getter_AddRefs(conditionString));
         NS_ENSURE_SUCCESS(rv, rv);
 
-        NS_IF_ADDREF(*expression = conditionString);
+        conditionString.forget(expression);
     }
 
     if (**index != ')')
@@ -188,7 +188,7 @@ nsresult nsAbQueryStringToExpression::ParseCondition (
         getter_AddRefs (c));
     NS_ENSURE_SUCCESS(rv, rv);
 
-    NS_IF_ADDREF(*conditionString = c);
+    c.forget(conditionString);
     return NS_OK;
 }
 
@@ -250,9 +250,8 @@ nsresult nsAbQueryStringToExpression::CreateBooleanExpression(
     nsCOMPtr <nsIAbBooleanExpression> expr = do_CreateInstance(NS_BOOLEANEXPRESSION_CONTRACTID, &rv);
     NS_ENSURE_SUCCESS(rv, rv);
 
-    NS_IF_ADDREF(*expression = expr);
-    
     rv = expr->SetOperation (op);
+    expr.forget(expression);
     return rv;
 }
 
@@ -328,10 +327,7 @@ nsresult nsAbQueryStringToExpression::CreateBooleanConditionString (
         rv = cs->SetValue (valueUCS2.get ());
         NS_ENSURE_SUCCESS(rv, rv);
     }
-            
 
-    NS_IF_ADDREF(*conditionString = cs);
+    cs.forget(conditionString);
     return NS_OK;
 }
-
-

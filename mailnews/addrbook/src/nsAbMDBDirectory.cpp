@@ -321,7 +321,7 @@ NS_IMETHODIMP nsAbMDBDirectory::AddDirectory(const char *uriName, nsIAbDirectory
 
   if (mSubDirectories.IndexOf(directory) == -1)
     mSubDirectories.AppendObject(directory);
-  NS_IF_ADDREF(*childDir = directory);
+  directory.forget(childDir);
   return rv;
 }
 
@@ -344,7 +344,7 @@ NS_IMETHODIMP nsAbMDBDirectory::GetDatabaseFile(nsIFile **aResult)
   rv = dbFile->AppendNative(fileName);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  NS_ADDREF(*aResult = dbFile);
+  dbFile.forget(aResult);
 
   return NS_OK;
 }
@@ -656,7 +656,7 @@ NS_IMETHODIMP nsAbMDBDirectory::AddMailList(nsIAbDirectory *list, nsIAbDirectory
     NotifyItemAdded(newList);
   }
 
-  NS_IF_ADDREF(*addedList = newList);
+  newList.forget(addedList);
   return rv;
 }
 

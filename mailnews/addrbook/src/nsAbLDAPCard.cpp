@@ -187,7 +187,7 @@ NS_IMETHODIMP nsAbLDAPCard::GetLDAPMessageInfo(
     }
   }
 
-  NS_ADDREF(*aLDAPAddMessageInfo = modArray);
+  modArray.forget(aLDAPAddMessageInfo);
 
   return NS_OK;
 }
