@@ -18,10 +18,6 @@ var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers",
 
 Components.utils.import("resource://gre/modules/Services.jsm");
 
-// We can't initialize them h because the global scope is read far too
-// early.
-var Cc, Ci;
-
 var gFontEnumerator;
 
 // We'll test with Western. Unicode has issues on Windows (bug 550443).
@@ -34,21 +30,21 @@ var gRealFontLists = {};
 var kFontTypes = ["serif", "sans-serif", "monospace"];
 
 function setupModule(module) {
-  let fdh = collector.getModule("folder-display-helpers");
-  fdh.installInto(module);
-  let wh = collector.getModule("window-helpers");
-  wh.installInto(module);
-  let pwh = collector.getModule("pref-window-helpers");
-  pwh.installInto(module);
+  for (let lib of MODULE_REQUIRES) {
+    collector.getModule(lib).installInto(module);
+  }
 
-  Cc = Components.classes;
-  Ci = Components.interfaces;
+  let finished = false;
+  buildFontList().then(() => finished = true, Cu.reportError);
+  mc.waitFor(() => finished, "Timeout waiting for font enumeration to complete.");
+}
 
-  gFontEnumerator = Cc["@mozilla.org/gfx/fontenumerator;1"]
-                      .createInstance(Ci.nsIFontEnumerator);
+async function buildFontList() {
+  gFontEnumerator = Components.classes["@mozilla.org/gfx/fontenumerator;1"]
+                      .createInstance(Components.interfaces.nsIFontEnumerator);
   for (let fontType of kFontTypes) {
     gRealFontLists[fontType] =
-      gFontEnumerator.EnumerateFonts(kLanguage, fontType, {});
+      await gFontEnumerator.EnumerateFontsAsync(kLanguage, fontType);
     if (gRealFontLists[fontType].length == 0)
       throw new Error("No fonts found for language " + kLanguage +
                       " and font type " + fontType + ".");
@@ -82,6 +78,11 @@ function _verify_fonts_displayed(aSerif, aSansSerif, aMonospace) {
 
   // Now verify the advanced dialog.
   function verify_advanced(fontc) {
+    // The font pickers are populated async so we need to wait for it.
+    for (let fontElemId of ["serif", "sans-serif", "monospace"]) {
+      fontc.waitFor(() => fontc.e(fontElemId).value != "",
+                    "Timeout waiting for font picker " + fontElemId + " to populate.");
+    }
     assert_fonts_equal("serif", aSerif, fontc.e("serif").value);
     assert_fonts_equal("sans-serif", aSansSerif, fontc.e("sans-serif").value);
     assert_fonts_equal("monospace", aMonospace, fontc.e("monospace").value);
@@ -118,7 +119,7 @@ function test_font_name_displayed() {
   }
 
   let fontTypes = kFontTypes.map(fontType => expected[fontType]);
-  _verify_fonts_displayed.apply(null, fontTypes);
+  _verify_fonts_displayed(...fontTypes);
 }
 
 // Fonts definitely not present on a computer -- we simply use UUIDs. These
@@ -165,5 +166,5 @@ function test_font_name_not_present() {
   }
 
   let fontTypes = kFontTypes.map(fontType => expected[fontType]);
-  _verify_fonts_displayed.apply(null, fontTypes);
+  _verify_fonts_displayed(...fontTypes);
 }
