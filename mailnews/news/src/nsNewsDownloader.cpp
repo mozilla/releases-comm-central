@@ -334,13 +334,11 @@ nsMsgDownloadAllNewsgroups::nsMsgDownloadAllNewsgroups(nsIMsgWindow *window, nsI
   m_window = window;
   m_listener = listener;
   m_downloaderForGroup = new DownloadMatchingNewsArticlesToNewsDB(window, nullptr, nullptr, this);
-  NS_IF_ADDREF(m_downloaderForGroup);
   m_downloadedHdrsForCurGroup = false;
 }
 
 nsMsgDownloadAllNewsgroups::~nsMsgDownloadAllNewsgroups()
 {
-  NS_IF_RELEASE(m_downloaderForGroup);
 }
 
 NS_IMETHODIMP nsMsgDownloadAllNewsgroups::OnStartRunningUrl(nsIURI* url)

@@ -110,7 +110,7 @@ protected:
   bool     AdvanceToNextGroup();
   nsresult DownloadMsgsForCurrentGroup();
 
-  DownloadMatchingNewsArticlesToNewsDB *m_downloaderForGroup;
+  RefPtr<DownloadMatchingNewsArticlesToNewsDB> m_downloaderForGroup;
 
   nsCOMPtr <nsIMsgFolder> m_currentFolder;
   nsCOMPtr <nsIMsgWindow> m_window;
