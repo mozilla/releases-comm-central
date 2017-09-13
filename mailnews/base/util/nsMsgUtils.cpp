@@ -150,10 +150,10 @@ nsresult GetMessageServiceFromURI(const nsACString& uri, nsIMsgMessageService **
   rv = GetMessageServiceContractIDForURI(PromiseFlatCString(uri).get(), contractID);
   NS_ENSURE_SUCCESS(rv,rv);
 
-  nsCOMPtr <nsIMsgMessageService> msgService = do_GetService(contractID.get(), &rv);
+  nsCOMPtr<nsIMsgMessageService> msgService = do_GetService(contractID.get(), &rv);
   NS_ENSURE_SUCCESS(rv,rv);
 
-  NS_IF_ADDREF(*aMessageService = msgService);
+  msgService.forget(aMessageService);
   return rv;
 }
 
@@ -1209,8 +1209,7 @@ NS_MSG_BASE nsresult NS_GetPersistentFile(const char *relPrefName,
 
     if (localFile) {
         localFile->Normalize();
-        *aFile = localFile;
-        NS_ADDREF(*aFile);
+        localFile.forget(aFile);
         return NS_OK;
     }
 
@@ -1353,7 +1352,7 @@ nsresult GetSummaryFileLocation(nsIFile* fileLocation, nsIFile** summaryLocation
   rv = newSummaryLocation->SetLeafName(fileName);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  NS_IF_ADDREF(*summaryLocation = newSummaryLocation);
+  newSummaryLocation.forget(summaryLocation);
   return NS_OK;
 }
 

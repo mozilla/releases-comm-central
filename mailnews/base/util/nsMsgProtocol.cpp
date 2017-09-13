@@ -495,8 +495,7 @@ NS_IMETHODIMP nsMsgProtocol::SetLoadGroup(nsILoadGroup * aLoadGroup)
 
 NS_IMETHODIMP nsMsgProtocol::GetOriginalURI(nsIURI* *aURI)
 {
-    *aURI = m_originalUrl ? m_originalUrl : m_url;
-    NS_IF_ADDREF(*aURI);
+    NS_IF_ADDREF(*aURI = m_originalUrl ? m_originalUrl : m_url);
     return NS_OK;
 }
 
@@ -508,8 +507,7 @@ NS_IMETHODIMP nsMsgProtocol::SetOriginalURI(nsIURI* aURI)
 
 NS_IMETHODIMP nsMsgProtocol::GetURI(nsIURI* *aURI)
 {
-    *aURI = m_url;
-    NS_IF_ADDREF(*aURI);
+    NS_IF_ADDREF(*aURI = m_url);
     return NS_OK;
 }
 
@@ -662,8 +660,7 @@ NS_IMETHODIMP nsMsgProtocol::GetName(nsACString &result)
 
 NS_IMETHODIMP nsMsgProtocol::GetOwner(nsISupports * *aPrincipal)
 {
-  *aPrincipal = mOwner;
-  NS_IF_ADDREF(*aPrincipal);
+  NS_IF_ADDREF(*aPrincipal = mOwner);
   return NS_OK;
 }
 
@@ -675,15 +672,13 @@ NS_IMETHODIMP nsMsgProtocol::SetOwner(nsISupports * aPrincipal)
 
 NS_IMETHODIMP nsMsgProtocol::GetLoadGroup(nsILoadGroup * *aLoadGroup)
 {
-  *aLoadGroup = m_loadGroup;
-  NS_IF_ADDREF(*aLoadGroup);
+  NS_IF_ADDREF(*aLoadGroup = m_loadGroup);
   return NS_OK;
 }
 
 NS_IMETHODIMP nsMsgProtocol::GetLoadInfo(nsILoadInfo **aLoadInfo)
 {
-  *aLoadInfo = m_loadInfo;
-  NS_IF_ADDREF(*aLoadInfo);
+  NS_IF_ADDREF(*aLoadInfo = m_loadInfo);
   return NS_OK;
 }
 
@@ -696,8 +691,7 @@ NS_IMETHODIMP nsMsgProtocol::SetLoadInfo(nsILoadInfo *aLoadInfo)
 NS_IMETHODIMP
 nsMsgProtocol::GetNotificationCallbacks(nsIInterfaceRequestor* *aNotificationCallbacks)
 {
-  *aNotificationCallbacks = mCallbacks.get();
-  NS_IF_ADDREF(*aNotificationCallbacks);
+  NS_IF_ADDREF(*aNotificationCallbacks = mCallbacks.get());
   return NS_OK;
 }
 

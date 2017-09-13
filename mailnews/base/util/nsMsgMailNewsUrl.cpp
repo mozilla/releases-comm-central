@@ -379,8 +379,7 @@ NS_IMETHODIMP nsMsgMailNewsUrl::SetSearchSession(nsIMsgSearchSession *aSearchSes
 NS_IMETHODIMP nsMsgMailNewsUrl::GetSearchSession(nsIMsgSearchSession **aSearchSession)
 {
   NS_ENSURE_ARG(aSearchSession);
-  *aSearchSession = m_searchSession;
-  NS_IF_ADDREF(*aSearchSession);
+  NS_IF_ADDREF(*aSearchSession = m_searchSession);
   return NS_OK;
 }
 
@@ -819,8 +818,7 @@ NS_IMETHODIMP nsMsgMailNewsUrl::GetMemCacheEntry(nsICacheEntry **memCacheEntry)
 
   if (m_memCacheEntry)
   {
-    *memCacheEntry = m_memCacheEntry;
-    NS_ADDREF(*memCacheEntry);
+    NS_ADDREF(*memCacheEntry = m_memCacheEntry);
   }
   else
   {

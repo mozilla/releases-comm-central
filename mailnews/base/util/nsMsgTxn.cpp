@@ -248,9 +248,8 @@ NS_IMETHODIMP nsMsgTxn::Merge(nsITransaction *aTransaction, bool *aDidMerge)
 nsresult nsMsgTxn::GetMsgWindow(nsIMsgWindow **msgWindow)
 {
     if (!msgWindow || !m_msgWindow)
-        return NS_ERROR_NULL_POINTER;
-    *msgWindow = m_msgWindow;
-    NS_ADDREF (*msgWindow);
+      return NS_ERROR_NULL_POINTER;
+    NS_ADDREF(*msgWindow = m_msgWindow);
     return NS_OK;
 }
 

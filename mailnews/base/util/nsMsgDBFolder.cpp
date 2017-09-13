@@ -1342,7 +1342,7 @@ nsresult nsMsgDBFolder::GetFolderCacheKey(nsIFile **aFile, bool createDBIfMissin
       }
     }
   }
-  NS_IF_ADDREF(*aFile = dbPath);
+  dbPath.forget(aFile);
   return rv;
 }
 
@@ -3525,8 +3525,7 @@ NS_IMETHODIMP nsMsgDBFolder::GetChildWithURI(const nsACString& uri, bool deep, b
                                                    : uri.Equals(folderURI));
       if (equal)
       {
-        *child = folder;
-        NS_ADDREF(*child);
+        folder.forget(child);
         return NS_OK;
       }
       if (deep)
@@ -4445,7 +4444,7 @@ NS_IMETHODIMP nsMsgDBFolder::GetFoldersWithFlags(uint32_t aFlags, nsIArray** aRe
   NS_ENSURE_SUCCESS(rv, rv);
 
   ListFoldersWithFlags(aFlags, array);
-  NS_ADDREF(*aResult = array);
+  array.forget(aResult);
   return NS_OK;
 }
 
