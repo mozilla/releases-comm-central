@@ -1750,8 +1750,7 @@ NS_IMETHODIMP
 nsMsgSearchTerm::GetValue(nsIMsgSearchValue **aResult)
 {
     NS_ENSURE_ARG_POINTER(aResult);
-    *aResult = new nsMsgSearchValueImpl(&m_value);
-    NS_IF_ADDREF(*aResult);
+    NS_ADDREF(*aResult = new nsMsgSearchValueImpl(&m_value));
     return NS_OK;
 }
 
@@ -1872,7 +1871,7 @@ nsMsgSearchScopeTerm::GetSearchSession(nsIMsgSearchSession** aResult)
 {
     NS_ENSURE_ARG_POINTER(aResult);
     nsCOMPtr<nsIMsgSearchSession> searchSession = do_QueryReferent (m_searchSession);
-    NS_IF_ADDREF(*aResult = searchSession);
+    searchSession.forget(aResult);
     return NS_OK;
 }
 

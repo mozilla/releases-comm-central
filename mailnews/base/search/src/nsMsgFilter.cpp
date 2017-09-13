@@ -252,11 +252,7 @@ NS_IMETHODIMP
 nsMsgFilter::CreateTerm(nsIMsgSearchTerm **aResult)
 {
     NS_ENSURE_ARG_POINTER(aResult);
-    nsMsgSearchTerm *term = new nsMsgSearchTerm;
-    NS_ENSURE_TRUE(term, NS_ERROR_OUT_OF_MEMORY);
-
-    *aResult = static_cast<nsIMsgSearchTerm*>(term);
-    NS_ADDREF(*aResult);
+    NS_ADDREF(*aResult = new nsMsgSearchTerm);
     return NS_OK;
 }
 
@@ -264,11 +260,7 @@ NS_IMETHODIMP
 nsMsgFilter::CreateAction(nsIMsgRuleAction **aAction)
 {
   NS_ENSURE_ARG_POINTER(aAction);
-  nsMsgRuleAction *action = new nsMsgRuleAction;
-  NS_ENSURE_TRUE(action, NS_ERROR_OUT_OF_MEMORY);
-
-  *aAction = static_cast<nsIMsgRuleAction*>(action);
-  NS_ADDREF(*aAction);
+  NS_ADDREF(*aAction = new nsMsgRuleAction);
   return NS_OK;
 }
 
@@ -385,8 +377,8 @@ nsMsgFilter::GetActionAt(uint32_t aIndex, nsIMsgRuleAction **aAction)
   NS_ENSURE_ARG_POINTER(aAction);
   NS_ENSURE_ARG(aIndex < m_actionList.Length());
 
-  NS_ENSURE_TRUE(*aAction = m_actionList[aIndex], NS_ERROR_ILLEGAL_VALUE);
-  NS_IF_ADDREF(*aAction);
+  NS_ENSURE_TRUE(m_actionList[aIndex], NS_ERROR_ILLEGAL_VALUE);
+  NS_IF_ADDREF(*aAction = m_actionList[aIndex]);
   return NS_OK;
 }
 

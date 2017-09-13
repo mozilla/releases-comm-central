@@ -45,8 +45,7 @@ nsMsgSearchValueImpl::GetFolder(nsIMsgFolder* *aResult)
 {
   NS_ENSURE_ARG_POINTER(aResult);
   NS_ENSURE_TRUE(mValue.attribute == nsMsgSearchAttrib::FolderInfo, NS_ERROR_ILLEGAL_VALUE);
-  *aResult = mValue.u.folder;
-  NS_IF_ADDREF(*aResult);
+  NS_IF_ADDREF(*aResult = mValue.u.folder);
   return NS_OK;
 }
 

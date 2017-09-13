@@ -83,8 +83,7 @@ NS_IMETHODIMP
 nsMsgSearchSession::GetSearchTerms(nsIMutableArray **aResult)
 {
     NS_ENSURE_ARG_POINTER(aResult);
-    *aResult = m_termList;
-    NS_ADDREF(*aResult);
+    NS_ADDREF(*aResult = m_termList);
     return NS_OK;
 }
 
@@ -98,13 +97,9 @@ nsMsgSearchSession::SetSearchTerms(nsIMutableArray *aSearchTerms)
 NS_IMETHODIMP
 nsMsgSearchSession::CreateTerm(nsIMsgSearchTerm **aResult)
 {
-    NS_ENSURE_ARG_POINTER(aResult);
-    nsMsgSearchTerm *term = new nsMsgSearchTerm;
-    NS_ENSURE_TRUE(term, NS_ERROR_OUT_OF_MEMORY);
-
-    *aResult = static_cast<nsIMsgSearchTerm*>(term);
-    NS_ADDREF(*aResult);
-    return NS_OK;
+  NS_ENSURE_ARG_POINTER(aResult);
+  NS_ADDREF(*aResult = new nsMsgSearchTerm);
+  return NS_OK;
 }
 
 NS_IMETHODIMP nsMsgSearchSession::RegisterListener(nsIMsgSearchNotify *aListener,
@@ -170,8 +165,7 @@ nsMsgSearchSession::GetNthSearchScope(int32_t which,
   NS_ENSURE_ARG(scopeTerm);
 
   *scopeId = scopeTerm->m_attribute;
-  *folder = scopeTerm->m_folder;
-  NS_IF_ADDREF(*folder);
+  NS_IF_ADDREF(*folder = scopeTerm->m_folder);
   return NS_OK;
 }
 

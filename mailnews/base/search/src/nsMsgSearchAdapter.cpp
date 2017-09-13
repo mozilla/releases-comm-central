@@ -1070,7 +1070,7 @@ NS_IMETHODIMP nsMsgSearchValidityManager::GetTable (int whichTable, nsIMsgSearch
     rv = NS_MSG_ERROR_INVALID_SEARCH_TERM;
   }
 
-  NS_IF_ADDREF(*ppOutTable);
+  NS_IF_ADDREF(*ppOutTable); // Was populated from member variable.
   return rv;
 }
 
@@ -1142,10 +1142,7 @@ nsresult
 nsMsgSearchValidityManager::NewTable(nsIMsgSearchValidityTable **aTable)
 {
   NS_ENSURE_ARG_POINTER(aTable);
-  *aTable = new nsMsgSearchValidityTable;
-  if (!*aTable)
-    return NS_ERROR_OUT_OF_MEMORY;
-  NS_ADDREF(*aTable);
+  NS_ADDREF(*aTable = new nsMsgSearchValidityTable);
   return NS_OK;
 }
 

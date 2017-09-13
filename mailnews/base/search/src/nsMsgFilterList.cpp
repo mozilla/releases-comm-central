@@ -52,13 +52,10 @@ NS_IMETHODIMP nsMsgFilterList::CreateFilter(const nsAString &name,class nsIMsgFi
 {
   NS_ENSURE_ARG_POINTER(aFilter);
 
-  nsMsgFilter *filter = new nsMsgFilter;
-  NS_ENSURE_TRUE(filter, NS_ERROR_OUT_OF_MEMORY);
+  NS_ADDREF(*aFilter = new nsMsgFilter);
 
-  NS_ADDREF(*aFilter = filter);
-
-  filter->SetFilterName(name);
-  filter->SetFilterList(this);
+  (*aFilter)->SetFilterName(name);
+  (*aFilter)->SetFilterList(this);
 
   return NS_OK;
 }
@@ -69,8 +66,7 @@ NS_IMETHODIMP nsMsgFilterList::GetFolder(nsIMsgFolder **aFolder)
 {
   NS_ENSURE_ARG_POINTER(aFolder);
 
-  *aFolder = m_folder;
-  NS_IF_ADDREF(*aFolder);
+  NS_IF_ADDREF(*aFolder = m_folder);
   return NS_OK;
 }
 
@@ -206,7 +202,7 @@ nsMsgFilterList::GetLogFile(nsIFile **aFile)
     rv = filterLogFile->SetLeafName(filterLogName);
     NS_ENSURE_SUCCESS(rv,rv);
 
-    NS_IF_ADDREF(*aFile = filterLogFile);
+    filterLogFile.forget(aFile);
   }
   else {
     rv = server->GetLocalPath(aFile);
@@ -949,12 +945,11 @@ nsMsgFilterList::GetFilterNamed(const nsAString &aName, nsIMsgFilter **aResult)
         filter->GetFilterName(filterName);
         if (filterName.Equals(aName))
         {
-            *aResult = filter;
+            filter.forget(aResult);
             break;
         }
     }
 
-    NS_IF_ADDREF(*aResult);
     return NS_OK;
 }
 

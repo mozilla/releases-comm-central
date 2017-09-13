@@ -108,7 +108,6 @@ NS_IMETHODIMP nsMsgFilterService::OpenFilterList(nsIFile *aFilterFile,
   NS_ENSURE_TRUE(fileStream, NS_ERROR_OUT_OF_MEMORY);
 
   RefPtr<nsMsgFilterList> filterList = new nsMsgFilterList();
-  NS_ENSURE_TRUE(filterList, NS_ERROR_OUT_OF_MEMORY);
   filterList->SetFolder(rootFolder);
 
   // temporarily tell the filter where its file path is
@@ -143,7 +142,7 @@ NS_IMETHODIMP nsMsgFilterService::OpenFilterList(nsIFile *aFilterFile,
       ThrowAlertMsg("invalidCustomHeader", aMsgWindow);
   }
 
-  NS_ADDREF(*resultFilterList = filterList);
+  filterList.forget(resultFilterList);
   return rv;
 }
 
@@ -230,7 +229,7 @@ nsMsgFilterService::GetFilterStringBundle(nsIStringBundle **aBundle)
   if (bundleService)
     bundleService->CreateBundle("chrome://messenger/locale/filter.properties",
                                  getter_AddRefs(bundle));
-  NS_IF_ADDREF(*aBundle = bundle);
+  bundle.forget(aBundle);
   return NS_OK;
 }
 
@@ -334,7 +333,7 @@ nsMsgFilterAfterTheFact::nsMsgFilterAfterTheFact(nsIMsgWindow *aMsgWindow,
   m_filters->GetFilterCount(&m_numFilters);
   m_folders->GetLength(&m_numFolders);
 
-  NS_ADDREF(this); // we own ourselves, and will release ourselves when execution is done.
+  NS_ADDREF_THIS(); // we own ourselves, and will release ourselves when execution is done.
   mNeedsRelease = true;
 
   m_searchHitHdrs = do_CreateInstance(NS_ARRAY_CONTRACTID);
@@ -363,7 +362,7 @@ nsresult nsMsgFilterAfterTheFact::OnEndExecution()
   // and the user is prompted whether he wants to continue.
   if (mNeedsRelease)
   {
-    Release(); // release ourselves.
+    NS_RELEASE_THIS(); // release ourselves.
     mNeedsRelease = false;
   }
   return rv;
@@ -893,10 +892,9 @@ NS_IMETHODIMP nsMsgFilterService::GetTempFilterList(nsIMsgFolder *aFolder, nsIMs
   NS_ENSURE_ARG_POINTER(aFilterList);
 
   nsMsgFilterList *filterList = new nsMsgFilterList;
-  NS_ENSURE_TRUE(filterList, NS_ERROR_OUT_OF_MEMORY);
-  NS_ADDREF(*aFilterList = filterList);
-  (*aFilterList)->SetFolder(aFolder);
+  filterList->SetFolder(aFolder);
   filterList->m_temporaryList = true;
+  NS_ADDREF(*aFilterList = filterList);
   return NS_OK;
 }
 
