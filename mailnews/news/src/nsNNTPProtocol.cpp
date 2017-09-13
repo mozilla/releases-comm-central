@@ -597,8 +597,7 @@ nsNntpCacheStreamListener::OnDataAvailable(nsIRequest *request, nsISupports * aC
 NS_IMETHODIMP nsNNTPProtocol::GetOriginalURI(nsIURI* *aURI)
 {
     // News does not seem to have the notion of an original URI (See Bug #193317)
-    *aURI = m_url;
-    NS_IF_ADDREF(*aURI);
+    NS_IF_ADDREF(*aURI = m_url);
     return NS_OK;
 }
 

@@ -138,8 +138,6 @@ nsNntpIncomingServer::CreateRootFolderFromUri(const nsCString &serverUri,
                                               nsIMsgFolder **rootFolder)
 {
   nsMsgNewsFolder *newRootFolder = new nsMsgNewsFolder;
-  if (!newRootFolder)
-    return NS_ERROR_OUT_OF_MEMORY;
   NS_ADDREF(*rootFolder = newRootFolder);
   newRootFolder->Init(serverUri.get());
   return NS_OK;
@@ -151,8 +149,7 @@ nsNntpIncomingServer::GetNewsrcFilePath(nsIFile **aNewsrcFilePath)
   nsresult rv;
   if (mNewsrcFilePath)
   {
-    *aNewsrcFilePath = mNewsrcFilePath;
-    NS_IF_ADDREF(*aNewsrcFilePath);
+    NS_IF_ADDREF(*aNewsrcFilePath = mNewsrcFilePath);
     return NS_OK;
   }
 
@@ -549,8 +546,8 @@ nsNntpIncomingServer::GetNntpConnection(nsIURI * aUri, nsIMsgWindow *aMsgWindow,
 
   if (connection)
   {
-    NS_IF_ADDREF(*aNntpConnection = connection);
-    connection->SetIsCachedConnection(true);
+    connection.forget(aNntpConnection);
+    (*aNntpConnection)->SetIsCachedConnection(true);
   }
   else if (cnt < maxConnections)
   {
@@ -586,8 +583,6 @@ nsNntpIncomingServer::GetNntpChannel(nsIURI *aURI, nsIMsgWindow *aMsgWindow,
 
   // No protocol? We need our mock channel.
   nsNntpMockChannel *channel = new nsNntpMockChannel(aURI, aMsgWindow);
-  if (!channel)
-    return NS_ERROR_OUT_OF_MEMORY;
   NS_ADDREF(*aChannel = channel);
 
   m_queuedChannels.AppendElement(channel);
@@ -1709,8 +1704,7 @@ nsNntpIncomingServer::GetRowCount(int32_t *aRowCount)
 NS_IMETHODIMP
 nsNntpIncomingServer::GetSelection(nsITreeSelection * *aSelection)
 {
-  *aSelection = mTreeSelection;
-  NS_IF_ADDREF(*aSelection);
+  NS_IF_ADDREF(*aSelection = mTreeSelection);
   return NS_OK;
 }
 

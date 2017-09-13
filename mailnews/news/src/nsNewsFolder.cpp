@@ -448,8 +448,6 @@ NS_IMETHODIMP nsMsgNewsFolder::SetNewsrcHasChanged(bool newsrcHasChanged)
 nsresult nsMsgNewsFolder::CreateChildFromURI(const nsCString &uri, nsIMsgFolder **folder)
 {
   nsMsgNewsFolder *newFolder = new nsMsgNewsFolder;
-  if (!newFolder)
-    return NS_ERROR_OUT_OF_MEMORY;
   NS_ADDREF(*folder = newFolder);
   newFolder->Init(uri.get());
   return NS_OK;
@@ -663,12 +661,15 @@ nsMsgNewsFolder::GetDBFolderInfoAndDB(nsIDBFolderInfo **folderInfo, nsIMsgDataba
   NS_ENSURE_ARG_POINTER(db);
   nsresult openErr;
   openErr = GetDatabase();
-  *db = mDatabase;
-  if (mDatabase) {
-    NS_ADDREF(*db);
-    if (NS_SUCCEEDED(openErr))
-      openErr = (*db)->GetDBFolderInfo(folderInfo);
+  if (!mDatabase) {
+    *db = nullptr;
+    return openErr;
   }
+
+  NS_ADDREF(*db = mDatabase);
+
+  if (NS_SUCCEEDED(openErr))
+    openErr = (*db)->GetDBFolderInfo(folderInfo);
   return openErr;
 }
 
