@@ -811,8 +811,7 @@ nsImapIncomingServer::GetImapConnection(nsIImapUrl * aImapUrl,
   // if we got here and we have a connection, then we should return it!
   if (canRunUrlImmediately && connection)
   {
-    *aImapConnection = connection;
-    NS_IF_ADDREF(*aImapConnection);
+    connection.forget(aImapConnection);
   }
   else if (canRunButBusy)
   {
@@ -831,8 +830,7 @@ nsImapIncomingServer::GetImapConnection(nsIImapUrl * aImapUrl,
     rv = CreateProtocolInstance(aImapConnection);
   else if (freeConnection)
   {
-    *aImapConnection = freeConnection;
-    NS_IF_ADDREF(*aImapConnection);
+    freeConnection.forget(aImapConnection);
   }
   else // cannot get anyone to handle the url queue it
   {
@@ -1037,8 +1035,6 @@ nsImapIncomingServer::CreateRootFolderFromUri(const nsCString &serverUri,
                                               nsIMsgFolder **rootFolder)
 {
   nsImapMailFolder *newRootFolder = new nsImapMailFolder;
-  if (!newRootFolder)
-    return NS_ERROR_OUT_OF_MEMORY;
   newRootFolder->Init(serverUri.get());
   NS_ADDREF(*rootFolder = newRootFolder);
   return NS_OK;

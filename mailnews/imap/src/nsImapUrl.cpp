@@ -126,7 +126,7 @@ NS_IMETHODIMP nsImapUrl::GetFolder(nsIMsgFolder **aMsgFolder)
   NS_ENSURE_ARG_POINTER(m_imapFolder);
 
   nsCOMPtr<nsIMsgFolder> folder = do_QueryReferent(m_imapFolder);
-  NS_IF_ADDREF(*aMsgFolder = folder);
+  folder.forget(aMsgFolder);
   return NS_OK;
 }
 
@@ -152,8 +152,7 @@ NS_IMETHODIMP nsImapUrl::GetImapMailFolderSink(nsIImapMailFolderSink **
       return NS_ERROR_NULL_POINTER; // no assert, so don't use NS_ENSURE_POINTER.
 
     nsCOMPtr<nsIImapMailFolderSink> folderSink = do_QueryReferent(m_imapMailFolderSink);
-    *aImapMailFolderSink = folderSink;
-    NS_IF_ADDREF(*aImapMailFolderSink);
+    folderSink.forget(aImapMailFolderSink);
     return NS_OK;
 }
 
@@ -170,8 +169,7 @@ NS_IMETHODIMP nsImapUrl::GetImapMessageSink(nsIImapMessageSink ** aImapMessageSi
     NS_ENSURE_ARG_POINTER(m_imapMessageSink);
 
     nsCOMPtr<nsIImapMessageSink> messageSink = do_QueryReferent(m_imapMessageSink);
-    *aImapMessageSink = messageSink;
-    NS_IF_ADDREF(*aImapMessageSink);
+    messageSink.forget(aImapMessageSink);
     return NS_OK;
 }
 
@@ -188,8 +186,7 @@ NS_IMETHODIMP nsImapUrl::GetImapServerSink(nsIImapServerSink ** aImapServerSink)
     NS_ENSURE_ARG_POINTER(m_imapServerSink);
 
     nsCOMPtr<nsIImapServerSink> serverSink = do_QueryReferent(m_imapServerSink);
-    *aImapServerSink = serverSink;
-    NS_IF_ADDREF(*aImapServerSink);
+    serverSink.forget(aImapServerSink);
     return NS_OK;
 }
 
@@ -1117,8 +1114,7 @@ NS_IMETHODIMP nsImapUrl::GetCopyState(nsISupports** copyState)
 {
   NS_ENSURE_ARG_POINTER(copyState);
   MutexAutoLock mon(mLock);
-  *copyState = m_copyState;
-  NS_IF_ADDREF(*copyState);
+  NS_IF_ADDREF(*copyState = m_copyState);
 
   return NS_OK;
 }

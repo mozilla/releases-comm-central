@@ -432,7 +432,7 @@ NS_IMETHODIMP nsImapService::DisplayMessage(const char *aMessageURI,
     // This happens with forward inline of a message/rfc822 attachment opened in
     // a standalone msg window.
     // So, just cut to the chase and call AsyncOpen on a channel.
-    nsCOMPtr <nsIURI> uri;
+    nsCOMPtr<nsIURI> uri;
     messageURI.Cut(typeIndex, sizeof("&type=application/x-message-display") - 1);
     rv = NS_NewURI(getter_AddRefs(uri), messageURI.get());
     NS_ENSURE_SUCCESS(rv, rv);
@@ -2858,7 +2858,7 @@ NS_IMETHODIMP nsImapService::NewChannel2(nsIURI *aURI,
     }
   }
   if (NS_SUCCEEDED(rv))
-    NS_IF_ADDREF(*aRetVal = channel);
+    channel.forget(aRetVal);
   return rv;
 }
 

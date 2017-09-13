@@ -148,11 +148,9 @@ NS_IMETHODIMP nsMsgImapHdrXferInfo::GetHeader(int32_t hdrIndex, nsIImapHeaderInf
   // wrong.
   NS_ENSURE_TRUE(hdrIndex < m_nextFreeHdrInfo, NS_ERROR_NULL_POINTER);
 
-  *aResult = m_hdrInfos.SafeObjectAt(hdrIndex);
+  NS_IF_ADDREF(*aResult = m_hdrInfos.SafeObjectAt(hdrIndex));
   if (!*aResult)
     return NS_ERROR_NULL_POINTER;
-
-  NS_ADDREF(*aResult);
   return NS_OK;
 }
 
@@ -9094,8 +9092,7 @@ NS_IMETHODIMP nsImapMockChannel::Close()
 
 NS_IMETHODIMP nsImapMockChannel::GetProgressEventSink(nsIProgressEventSink ** aProgressEventSink)
 {
-  *aProgressEventSink = mProgressEventSink;
-  NS_IF_ADDREF(*aProgressEventSink);
+  NS_IF_ADDREF(*aProgressEventSink = mProgressEventSink);
   return NS_OK;
 }
 
@@ -9107,15 +9104,13 @@ NS_IMETHODIMP nsImapMockChannel::SetProgressEventSink(nsIProgressEventSink * aPr
 
 NS_IMETHODIMP  nsImapMockChannel::GetChannelListener(nsIStreamListener **aChannelListener)
 {
-  *aChannelListener = m_channelListener;
-  NS_IF_ADDREF(*aChannelListener);
+  NS_IF_ADDREF(*aChannelListener = m_channelListener);
   return NS_OK;
 }
 
 NS_IMETHODIMP  nsImapMockChannel::GetChannelContext(nsISupports **aChannelContext)
 {
-  *aChannelContext = m_channelContext;
-  NS_IF_ADDREF(*aChannelContext);
+  NS_IF_ADDREF(*aChannelContext = m_channelContext);
   return NS_OK;
 }
 
@@ -9130,15 +9125,13 @@ NS_IMETHODIMP nsImapMockChannel::SetLoadGroup(nsILoadGroup * aLoadGroup)
 
 NS_IMETHODIMP nsImapMockChannel::GetLoadGroup(nsILoadGroup * *aLoadGroup)
 {
-  *aLoadGroup = m_loadGroup;
-  NS_IF_ADDREF(*aLoadGroup);
+  NS_IF_ADDREF(*aLoadGroup = m_loadGroup);
   return NS_OK;
 }
 
 NS_IMETHODIMP nsImapMockChannel::GetLoadInfo(nsILoadInfo * *aLoadInfo)
 {
-  *aLoadInfo = m_loadInfo;
-  NS_IF_ADDREF(*aLoadInfo);
+  NS_IF_ADDREF(*aLoadInfo = m_loadInfo);
   return NS_OK;
 }
 
@@ -9152,8 +9145,7 @@ NS_IMETHODIMP nsImapMockChannel::GetOriginalURI(nsIURI* *aURI)
 {
   // IMap does not seem to have the notion of an original URI :-(
   //  *aURI = m_originalUrl ? m_originalUrl : m_url;
-  *aURI = m_url;
-  NS_IF_ADDREF(*aURI);
+  NS_IF_ADDREF(*aURI = m_url);
   return NS_OK;
 }
 
@@ -9167,8 +9159,7 @@ NS_IMETHODIMP nsImapMockChannel::SetOriginalURI(nsIURI* aURI)
 
 NS_IMETHODIMP nsImapMockChannel::GetURI(nsIURI* *aURI)
 {
-  *aURI = m_url;
-  NS_IF_ADDREF(*aURI);
+  NS_IF_ADDREF(*aURI = m_url);
   return NS_OK ;
 }
 
@@ -9942,8 +9933,7 @@ nsImapMockChannel::SetContentLength(int64_t aContentLength)
 
 NS_IMETHODIMP nsImapMockChannel::GetOwner(nsISupports * *aPrincipal)
 {
-  *aPrincipal = mOwner;
-  NS_IF_ADDREF(*aPrincipal);
+  NS_IF_ADDREF(*aPrincipal = mOwner);
   return NS_OK;
 }
 
@@ -10037,8 +10027,7 @@ NS_IMETHODIMP nsImapMockChannel::Resume()
 NS_IMETHODIMP
 nsImapMockChannel::GetNotificationCallbacks(nsIInterfaceRequestor* *aNotificationCallbacks)
 {
-  *aNotificationCallbacks = mCallbacks.get();
-  NS_IF_ADDREF(*aNotificationCallbacks);
+  NS_IF_ADDREF(*aNotificationCallbacks = mCallbacks.get());
   return NS_OK;
 }
 

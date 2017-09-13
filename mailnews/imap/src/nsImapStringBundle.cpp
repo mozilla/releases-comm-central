@@ -38,7 +38,6 @@ IMAPGetStringBundle(nsIStringBundle **aBundle)
   if (!stringService) return NS_ERROR_NULL_POINTER;
   nsCOMPtr<nsIStringBundle> stringBundle;
   rv = stringService->CreateBundle(IMAP_MSGS_URL, getter_AddRefs(stringBundle));
-  *aBundle = stringBundle;
-  NS_IF_ADDREF(*aBundle);
+  stringBundle.forget(aBundle);
   return rv;
 }
