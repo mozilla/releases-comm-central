@@ -1106,6 +1106,7 @@
                     collapsed="true">
       <progressmeter id="compose-progressmeter" class="progressmeter-statusbar" mode="normal" value="0"/>
     </statusbarpanel>
+    <statusbarpanel id="encodingStatusPanel" tooltiptext="&encodingStatusPanel.tooltip;"/>
     <statusbarpanel id="statusLanguageText" tooltiptext="&statusLanguageText.tooltip;"/>
   </statusbar>
 

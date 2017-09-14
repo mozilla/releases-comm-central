@@ -186,7 +186,10 @@ function updateEditableFields(aDisable)
 
 var PrintPreviewListener = {
   getPrintPreviewBrowser: function() {
-    var browser = document.getElementById("cppBrowser");
+    let browser = document.getElementById("cppBrowser");
+    if (!gChromeState)
+      gChromeState = new Object;
+    preparePrintPreviewTitleHeader();
     if (!browser) {
       browser = document.createElement("browser");
       browser.setAttribute("id", "cppBrowser");
@@ -237,44 +240,72 @@ function SidebarGetState() {
   return "visible";
 }
 
+/**
+ * Prepare title header for the print (preview) document.
+ */
+function preparePrintPreviewTitleHeader() {
+  // For title header of print (preview), use message content document title
+  // if existing, otherwise message subject. To apply the message subject,
+  // we temporarily change the title of message content document before going
+  // into print preview (workaround for bug 1396455).
+  let msgDocument = getBrowser().contentDocument;
+  let msgSubject = GetMsgSubjectElement().value.trim() ||
+                   getComposeBundle().getString("defaultSubject");
+  gChromeState.msgDocumentHadTitle = !!msgDocument.querySelector('title');
+  gChromeState.msgDocumentTitle = msgDocument.title;
+  msgDocument.title = msgDocument.title || msgSubject;
+}
+
+/**
+ * When going in and out of Print Preview, hide or show respective UI elements.
+ *
+ * @param aHide  true:  Hide UI elements to go into print preview mode.
+ *               false: Restore UI elements to their previous state to exit
+ *                      print preview mode.
+ */
 function toggleAffectedChrome(aHide)
 {
-  // chrome to toggle includes:
+  // Chrome to toggle includes:
   //   (*) menubar
   //   (*) toolbox
+  //   (*) message headers box
   //   (*) sidebar
   //   (*) statusbar
-  if (!gChromeState)
-    gChromeState = new Object;
+  let statusbar = document.getElementById("status-bar");
 
-  var statusbar = document.getElementById("status-bar");
-
-  // sidebar states map as follows:
+  // Contacts Sidebar states map as follows:
   //   hidden    => hide/show nothing
   //   collapsed => hide/show only the splitter
   //   shown     => hide/show the splitter and the box
+
   if (aHide)
   {
-    // going into print preview mode
+    // Going into print preview mode.
+    SetComposeWindowTitle(true);
+    // Hide headers box, Contacts Sidebar, and Status Bar
+    // after remembering their current state where applicable.
     document.getElementById("headers-box").hidden = true;
     gChromeState.sidebar = SidebarGetState();
-    let subject = document.getElementById("msgSubject").value;
-    if (subject)
-      document.title = subject;
     SidebarSetState("hidden");
-
-    // deal with the Status Bar
     gChromeState.statusbarWasHidden = statusbar.hidden;
     statusbar.hidden = true;
   }
   else
   {
-    // restoring normal mode (i.e., leaving print preview mode)
+    // Restoring normal mode (i.e. leaving print preview mode).
     SetComposeWindowTitle();
+    // Restore original "empty" HTML document title of the message, or remove
+    // the temporary title tag altogether if there was none before.
+    let msgDocument = getBrowser().contentDocument;
+    if (!gChromeState.msgDocumentHadTitle) {
+      msgDocument.querySelector('title').remove();
+    } else {
+      msgDocument.title = gChromeState.msgDocumentTitle;
+    }
+
+    // Restore Contacts Sidebar, headers box, and Status Bar.
     SidebarSetState(gChromeState.sidebar);
     document.getElementById("headers-box").hidden = false;
-
-    // restore the Status Bar
     statusbar.hidden = gChromeState.statusbarWasHidden;
   }
 
@@ -2918,12 +2949,21 @@ function SetDocumentCharacterSet(aCharset)
 {
   if (gMsgCompose) {
     gMsgCompose.SetDocumentCharset(aCharset);
-    SetComposeWindowTitle();
+    updateEncodingInStatusBar();
   }
   else
     dump("Compose has not been created!\n");
 }
 
+/**
+ * Return the full display string for any non-default text encoding of the
+ * current composition (friendly name plus official character set name).
+ * For the default text encoding, return empty string (""), to reduce
+ * ux-complexity, e.g. for the default Status Bar display.
+ * Note: The default is retrieved from mailnews.send_default_charset.
+ *
+ * @return string representation of non-default charset, otherwise "".
+ */
 function GetCharsetUIString()
 {
   // The charset here is already the canonical charset (not an alias).
@@ -2933,11 +2973,11 @@ function GetCharsetUIString()
 
   if (charset.toLowerCase() != gMsgCompose.compFields.defaultCharacterSet.toLowerCase()) {
     try {
-      return " - " + gCharsetConvertManager.getCharsetTitle(charset);
+      return gCharsetConvertManager.getCharsetTitle(charset);
     }
     catch(e) { // Not a canonical charset after all...
-      Components.utils.reportError("Not charset title for charset=" + charset);
-      return " - " + charset;
+      Components.utils.reportError("No charset title for charset=" + charset);
+      return charset;
     }
   }
   return "";
@@ -3669,35 +3709,6 @@ function OnShowDictionaryMenu(aTarget)
     language.setAttribute("checked", true);
 }
 
-function updateLanguageInStatusBar()
-{
-  InitLanguageMenu();
-  let languageMenuList = document.getElementById("languageMenuList");
-  let statusLanguageText = document.getElementById("statusLanguageText");
-  if (!languageMenuList || !statusLanguageText) {
-    return;
-  }
-
-  let language = document.documentElement.getAttribute("lang");
-  let item = languageMenuList.firstChild;
-
-  // No status display, if there is only one or no spelling dictionary available.
-  if (item == languageMenuList.lastChild) {
-    statusLanguageText.collapsed = true;
-    statusLanguageText.label = "";
-    return;
-  }
-
-  statusLanguageText.collapsed = false;
-  while (item) {
-    if (item.getAttribute("value") == language) {
-      statusLanguageText.label = item.getAttribute("label");
-      break;
-    }
-    item = item.nextSibling;
-  }
-}
-
 /**
  * Change the language of the composition and if we are using inline
  * spell check, recheck the message with the new dictionary.
@@ -3732,6 +3743,47 @@ function ChangeLanguage(event)
     }
   }
   event.stopPropagation();
+}
+
+function updateLanguageInStatusBar()
+{
+  InitLanguageMenu();
+  let languageMenuList = document.getElementById("languageMenuList");
+  let statusLanguageText = document.getElementById("statusLanguageText");
+  if (!languageMenuList || !statusLanguageText) {
+    return;
+  }
+
+  let language = document.documentElement.getAttribute("lang");
+  let item = languageMenuList.firstChild;
+
+  // No status display, if there is only one or no spelling dictionary available.
+  if (item == languageMenuList.lastChild) {
+    statusLanguageText.collapsed = true;
+    statusLanguageText.label = "";
+    return;
+  }
+
+  statusLanguageText.collapsed = false;
+  while (item) {
+    if (item.getAttribute("value") == language) {
+      statusLanguageText.label = item.getAttribute("label");
+      break;
+    }
+    item = item.nextSibling;
+  }
+}
+
+function updateEncodingInStatusBar()
+{
+  let encodingUIString = GetCharsetUIString();
+  let encodingStatusPanel = document.getElementById("encodingStatusPanel");
+  if (!encodingStatusPanel) {
+    return;
+  }
+
+  // Update status display; no status display for default text encoding.
+  encodingStatusPanel.collapsed = !(encodingStatusPanel.label = encodingUIString);
 }
 
 function ToggleReturnReceipt(target)
@@ -3884,15 +3936,22 @@ function AdjustFocus()
   }
 }
 
-function SetComposeWindowTitle()
-{
-  var newTitle = GetMsgSubjectElement().value;
-
-  if (newTitle == "" )
-    newTitle = getComposeBundle().getString("defaultSubject");
-
-  newTitle += GetCharsetUIString();
-  document.title = getComposeBundle().getString("windowTitlePrefix") + " " + newTitle;
+/**
+ * Set the compose window title with flavors (Write | Print Preview).
+ *
+ * @param isPrintPreview (optional) true:  Set title for 'Print Preview' window.
+ *                                  false: Set title for 'Write' window (default).
+ */
+function SetComposeWindowTitle(isPrintPreview = false) {
+  let aStringName = isPrintPreview ? "windowTitlePrintPreview"
+                                   : "windowTitleWrite";
+  let subject = GetMsgSubjectElement().value.trim() ||
+                getComposeBundle().getString("defaultSubject");
+  let brandBundle = document.getElementById("brandBundle");
+  let brandShortName = brandBundle.getString("brandShortName");
+  let newTitle = getComposeBundle().getFormattedString(aStringName,
+                                                       [subject, brandShortName]);
+  document.title = newTitle;
 }
 
 // Check for changes to document and allow saving before closing
