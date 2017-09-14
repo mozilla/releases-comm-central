@@ -1511,7 +1511,7 @@ calDavCalendar.prototype = {
         }
 
         if (this.mHasWebdavSyncSupport) {
-            webDavSync = new webDavSyncHandler(this, aUri, aChangeLogListener);
+            let webDavSync = new webDavSyncHandler(this, aUri, aChangeLogListener);
             webDavSync.doWebDAVSync();
             return;
         }
@@ -1844,7 +1844,7 @@ calDavCalendar.prototype = {
                 "/D:multistatus/D:response/D:propstat/D:prop/C:supported-calendar-component-set/C:comp/@*[local-name()='name']");
             if (supportedComponents && supportedComponents.length) {
                 self.mSupportedItemTypes = [];
-                for (compName of supportedComponents) {
+                for (let compName of supportedComponents) {
                     if (self.mGenerallySupportedItemTypes.includes(compName)) {
                         self.mSupportedItemTypes.push(compName);
                     }
