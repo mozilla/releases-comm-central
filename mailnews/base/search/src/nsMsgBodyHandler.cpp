@@ -31,15 +31,15 @@ nsMsgBodyHandler::nsMsgBodyHandler (nsIMsgSearchScopeTerm * scope,
     m_numLocalLines += 3;
   m_msgHdr = msg;
   m_db = db;
-  
+
   // the following are variables used when the body handler is handling stuff from filters....through this constructor, that is not the
   // case so we set them to NULL.
   m_headers = NULL;
   m_headersSize = 0;
   m_Filtering = false; // make sure we set this before we call initialize...
-  
+
   Initialize();  // common initialization stuff
-  OpenLocalFolder();      
+  OpenLocalFolder();
 }
 
 nsMsgBodyHandler::nsMsgBodyHandler(nsIMsgSearchScopeTerm * scope,
@@ -60,9 +60,9 @@ nsMsgBodyHandler::nsMsgBodyHandler(nsIMsgSearchScopeTerm * scope,
   m_db = db;
   m_headersSize = headersSize;
   m_Filtering = Filtering;
-  
+
   Initialize();
-  
+
   if (m_Filtering)
     m_headers = headers;
   else
@@ -108,7 +108,7 @@ int32_t nsMsgBodyHandler::GetNextLine (nsCString &buf)
          length = GetNextLocalLine (nextLine); // (2) POP
       }
     }
-    
+
     if (length < 0)
       break; // eof in
 
@@ -149,24 +149,24 @@ int32_t nsMsgBodyHandler::GetNextFilterLine(nsCString &buf)
     // #mscott. Ugly hack! filter headers list have CRs & LFs inside the NULL delimited list of header
     // strings. It is possible to have: To NULL CR LF From. We want to skip over these CR/LFs if they start
     // at the beginning of what we think is another header.
-    
+
     while (m_headersSize > 0 && (m_headers[0] == '\r' || m_headers[0] == '\n' || m_headers[0] == ' ' || m_headers[0] == '\0'))
     {
       m_headers++;  // skip over these chars...
       m_headersSize--;
     }
-    
+
     if (m_headersSize > 0)
     {
       numBytesCopied = strlen(m_headers) + 1 ;
       buf.Assign(m_headers);
-      m_headers += numBytesCopied;  
-      // be careful...m_headersSize is unsigned. Don't let it go negative or we overflow to 2^32....*yikes*  
+      m_headers += numBytesCopied;
+      // be careful...m_headersSize is unsigned. Don't let it go negative or we overflow to 2^32....*yikes*
       if (m_headersSize < numBytesCopied)
         m_headersSize = 0;
       else
         m_headersSize -= numBytesCopied;  // update # bytes we have read from the headers list
-      
+
       return (int32_t) numBytesCopied;
     }
   }
@@ -197,13 +197,13 @@ int32_t nsMsgBodyHandler::GetNextLocalLine(nsCString &buf)
         return buf.Length();
     }
   }
-  
+
   return -1;
 }
 
 /**
  * This method applies a sequence of transformations to the line.
- * 
+ *
  * It applies the following sequences in order
  * * Removes headers if the searcher doesn't want them
  *   (sets m_pastHeaders)
@@ -228,7 +228,7 @@ int32_t nsMsgBodyHandler::ApplyTransformations (const nsCString &line, int32_t l
 {
   int32_t newLength = length;
   eatThisLine = false;
-  
+
   if (!m_pastHeaders)  // line is a line from the message headers
   {
     if (m_stripHeaders)
@@ -237,9 +237,9 @@ int32_t nsMsgBodyHandler::ApplyTransformations (const nsCString &line, int32_t l
     // We have already grabbed all worthwhile information from the headers,
     // so there is no need to keep track of the current lines
     buf.Assign(line);
-   
+
     SniffPossibleMIMEHeader(buf);
-    
+
     m_pastHeaders = buf.IsEmpty() || buf.First() == '\r' ||
       buf.First() == '\n';
 
@@ -249,7 +249,7 @@ int32_t nsMsgBodyHandler::ApplyTransformations (const nsCString &line, int32_t l
   // Check to see if this is the boundary string
   if (m_isMultipart && StringBeginsWith(line, boundary))
   {
-    if (m_base64part && m_partIsText) 
+    if (m_base64part && m_partIsText)
     {
       Base64Decode(buf);
       // Work on the parsed string
@@ -279,7 +279,7 @@ int32_t nsMsgBodyHandler::ApplyTransformations (const nsCString &line, int32_t l
 
     return buf.Length();
   }
- 
+
   if (!m_partIsText)
   {
     // Ignore non-text parts
@@ -295,7 +295,7 @@ int32_t nsMsgBodyHandler::ApplyTransformations (const nsCString &line, int32_t l
     eatThisLine = true;
     return buf.Length();
   }
-    
+
   // ... but there's no point if we're not parsing base64.
   buf.Assign(line);
   if (m_stripHtml && m_partIsHtml)
@@ -303,7 +303,7 @@ int32_t nsMsgBodyHandler::ApplyTransformations (const nsCString &line, int32_t l
     StripHtml (buf);
     newLength = buf.Length();
   }
-  
+
   return newLength;
 }
 
@@ -313,7 +313,7 @@ void nsMsgBodyHandler::StripHtml (nsCString &pBufInOut)
   if (pBuf)
   {
     char *pWalk = pBuf;
-    
+
     char *pWalkInOut = (char *) pBufInOut.get();
     bool inTag = false;
     while (*pWalkInOut) // throw away everything inside < >
@@ -329,7 +329,7 @@ void nsMsgBodyHandler::StripHtml (nsCString &pBufInOut)
       pWalkInOut++;
     }
     *pWalk = 0; // null terminator
-    
+
     pBufInOut.Adopt(pBuf);
   }
 }
@@ -425,6 +425,6 @@ void nsMsgBodyHandler::Base64Decode (nsCString &pBufInOut)
   while (offset != -1) {
     pBufInOut.Replace(offset, 1, ' ');
     offset = pBufInOut.FindChar('\r', offset);
-  } 
+  }
 }
 

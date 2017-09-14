@@ -63,7 +63,7 @@ protected:
   nsTArray<nsCOMPtr<nsIMsgFilter> > m_filters;
   nsCString m_arbitraryHeaders;
   nsCOMPtr<nsIFile> m_defaultFile;
-  nsCString m_unparsedFilterBuffer; //holds one entire filter unparsed 
+  nsCString m_unparsedFilterBuffer; //holds one entire filter unparsed
 
 private:
   nsresult TruncateLog();

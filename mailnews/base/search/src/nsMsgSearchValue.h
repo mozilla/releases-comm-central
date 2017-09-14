@@ -15,12 +15,12 @@ class nsMsgSearchValueImpl : public nsIMsgSearchValue {
 
     NS_DECL_ISUPPORTS
     NS_DECL_NSIMSGSEARCHVALUE
-        
+
   private:
     virtual ~nsMsgSearchValueImpl();
-                                  
+
     nsMsgSearchValue mValue;
-        
+
 };
 
 #endif

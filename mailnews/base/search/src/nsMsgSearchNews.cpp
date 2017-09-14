@@ -333,7 +333,7 @@ void nsMsgSearchNews::CollateHits()
   }
   uint32_t candidateCount = 0;
   uint32_t candidate = m_candidateHits[0];
-  for (uint32_t index = 0; index < size; ++index)   
+  for (uint32_t index = 0; index < size; ++index)
   {
     uint32_t possibleCandidate = m_candidateHits[index];
     if (candidate == possibleCandidate)
@@ -421,7 +421,7 @@ nsresult nsMsgSearchValidityManager::InitNewsTable()
     m_newsTable->SetAvailable (nsMsgSearchAttrib::Size, nsMsgSearchOp::IsLessThan, 1);
     m_newsTable->SetEnabled   (nsMsgSearchAttrib::Size, nsMsgSearchOp::IsLessThan, 1);
 #endif
-    
+
     m_newsTable->SetAvailable (nsMsgSearchAttrib::OtherHeader, nsMsgSearchOp::Contains, 1);
     m_newsTable->SetEnabled   (nsMsgSearchAttrib::OtherHeader, nsMsgSearchOp::Contains, 1);
     m_newsTable->SetAvailable (nsMsgSearchAttrib::OtherHeader, nsMsgSearchOp::Is, 1);

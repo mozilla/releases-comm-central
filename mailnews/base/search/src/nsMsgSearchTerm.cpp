@@ -784,7 +784,7 @@ nsresult nsMsgSearchTerm::MatchArbitraryHeader (nsIMsgSearchScopeTerm *scope,
 
   // We will allow accumulation of received headers;
   bool isReceivedHeader = m_arbitraryHeader.EqualsLiteral("received");
-  
+
   while (searchingHeaders)
   {
     if (bodyHandler->GetNextLine(buf) < 0 || EMPTY_MESSAGE_LINE(buf))
@@ -1477,7 +1477,7 @@ nsresult nsMsgSearchTerm::MatchJunkPercent(uint32_t aJunkPercent, bool *pResult)
   *pResult = result;
   return rv;
 }
-  
+
 
 nsresult nsMsgSearchTerm::MatchLabel(nsMsgLabelValue aLabelValue, bool *pResult)
 {
@@ -1504,7 +1504,7 @@ nsresult nsMsgSearchTerm::MatchLabel(nsMsgLabelValue aLabelValue, bool *pResult)
   return rv;
 }
 
-// MatchStatus () is not only used for nsMsgMessageFlags but also for 
+// MatchStatus () is not only used for nsMsgMessageFlags but also for
 // nsMsgFolderFlags (both being 'unsigned long')
 nsresult nsMsgSearchTerm::MatchStatus(uint32_t statusToMatch, bool *pResult)
 {
