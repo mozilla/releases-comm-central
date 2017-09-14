@@ -558,8 +558,7 @@ NS_IMETHODIMP nsMsgGroupThreadEnumerator::HasMoreElements(bool *aResult)
 
 NS_IMETHODIMP nsMsgGroupThread::EnumerateMessages(nsMsgKey parentKey, nsISimpleEnumerator* *result)
 {
-  nsMsgGroupThreadEnumerator* e = new nsMsgGroupThreadEnumerator(this, parentKey, nullptr, nullptr);
-  NS_ADDREF(*result = e);
+  NS_ADDREF(*result = new nsMsgGroupThreadEnumerator(this, parentKey, nullptr, nullptr));
   return NS_OK;
 }
 

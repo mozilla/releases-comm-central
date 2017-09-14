@@ -55,8 +55,7 @@ nsMsgOfflineManager::~nsMsgOfflineManager()
 NS_IMETHODIMP nsMsgOfflineManager::GetWindow(nsIMsgWindow * *aWindow)
 {
   NS_ENSURE_ARG(aWindow);
-  *aWindow = m_window;
-  NS_IF_ADDREF(*aWindow);
+  NS_IF_ADDREF(*aWindow = m_window);
   return NS_OK;
 }
 NS_IMETHODIMP nsMsgOfflineManager::SetWindow(nsIMsgWindow * aWindow)

@@ -49,10 +49,6 @@ nsMsgQuickSearchDBView::CloneDBView(nsIMessenger *aMessengerInstance,
                                     nsIMsgDBView **_retval)
 {
   nsMsgQuickSearchDBView* newMsgDBView = new nsMsgQuickSearchDBView();
-
-  if (!newMsgDBView)
-    return NS_ERROR_OUT_OF_MEMORY;
-
   nsresult rv = CopyDBView(newMsgDBView, aMessengerInstance, aMsgWindow, aCmdUpdater);
   NS_ENSURE_SUCCESS(rv, rv);
 
@@ -431,12 +427,12 @@ nsresult nsMsgQuickSearchDBView::GetFirstMessageHdrToDisplayInThread(nsIMsgThrea
   else
     threadHdr->GetThreadKey(&threadRootKey);
 
-  nsCOMPtr <nsIMsgDBHdr> retHdr;
+  nsCOMPtr<nsIMsgDBHdr> retHdr;
 
   // iterate over thread, finding mgsHdr in view with the lowest level.
   for (uint32_t childIndex = 0; childIndex < numChildren; childIndex++)
   {
-    nsCOMPtr <nsIMsgDBHdr> child;
+    nsCOMPtr<nsIMsgDBHdr> child;
     rv = threadHdr->GetChildHdrAt(childIndex, getter_AddRefs(child));
     if (NS_SUCCEEDED(rv) && child)
     {
@@ -482,7 +478,7 @@ nsresult nsMsgQuickSearchDBView::GetFirstMessageHdrToDisplayInThread(nsIMsgThrea
       }
     }
   }
-  NS_IF_ADDREF(*result = retHdr);
+  retHdr.forget(result);
   return NS_OK; 
 }
 

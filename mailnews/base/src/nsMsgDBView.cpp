@@ -1018,8 +1018,7 @@ NS_IMETHODIMP nsMsgDBView::GetRowCount(int32_t *aRowCount)
 
 NS_IMETHODIMP nsMsgDBView::GetSelection(nsITreeSelection * *aSelection)
 {
-  *aSelection = mTreeSelection;
-  NS_IF_ADDREF(*aSelection);
+  NS_IF_ADDREF(*aSelection = mTreeSelection);
   return NS_OK;
 }
 
@@ -1624,8 +1623,7 @@ nsresult nsMsgDBView::GetMsgHdrForViewIndex(nsMsgViewIndex index, nsIMsgDBHdr **
 
   if (key == m_cachedMsgKey)
   {
-    *msgHdr = m_cachedHdr;
-    NS_IF_ADDREF(*msgHdr);
+    NS_IF_ADDREF(*msgHdr = m_cachedHdr);
   }
   else
   {
@@ -7780,9 +7778,6 @@ nsMsgDBView::CloneDBView(nsIMessenger *aMessengerInstance, nsIMsgWindow *aMsgWin
 {
   nsMsgDBView* newMsgDBView = new nsMsgDBView();
 
-  if (!newMsgDBView)
-    return NS_ERROR_OUT_OF_MEMORY;
-
   nsresult rv = CopyDBView(newMsgDBView, aMessengerInstance, aMsgWindow, aCmdUpdater);
   NS_ENSURE_SUCCESS(rv,rv);
 
@@ -7963,7 +7958,7 @@ NS_IMETHODIMP nsMsgDBView::nsMsgViewHdrEnumerator::GetNext(nsISupports **aItem)
   nsCOMPtr<nsIMsgDBHdr> nextHdr;
 
   nsresult rv = m_view->GetMsgHdrForViewIndex(m_curHdrIndex++, getter_AddRefs(nextHdr));
-  NS_IF_ADDREF(*aItem = nextHdr);
+  nextHdr.forget(aItem);
   return rv;
 }
 

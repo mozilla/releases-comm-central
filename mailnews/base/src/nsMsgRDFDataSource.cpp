@@ -284,8 +284,7 @@ NS_IMETHODIMP nsMsgRDFDataSource::GetWindow(nsIMsgWindow * *aWindow)
   if(!aWindow)
     return NS_ERROR_NULL_POINTER;
 
-  *aWindow = mWindow;
-  NS_IF_ADDREF(*aWindow);
+  NS_IF_ADDREF(*aWindow = mWindow);
   return NS_OK;
 }
 

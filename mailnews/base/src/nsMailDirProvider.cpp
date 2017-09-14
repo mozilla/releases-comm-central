@@ -126,7 +126,7 @@ nsMailDirProvider::GetFiles(const char *aKey,
   rv = NS_NewUnionEnumerator(getter_AddRefs(combinedEnumerator), directoryEnumerator, extensionsEnum);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  NS_IF_ADDREF(*aResult = new AppendingEnumerator(combinedEnumerator));
+  NS_ADDREF(*aResult = new AppendingEnumerator(combinedEnumerator));
   return NS_SUCCESS_AGGREGATE_RESULT;
 }
 

@@ -73,10 +73,6 @@ NS_IMETHODIMP
 nsMsgThreadsWithUnreadDBView::CloneDBView(nsIMessenger *aMessengerInstance, nsIMsgWindow *aMsgWindow, nsIMsgDBViewCommandUpdater *aCmdUpdater, nsIMsgDBView **_retval)
 {
   nsMsgThreadsWithUnreadDBView* newMsgDBView = new nsMsgThreadsWithUnreadDBView();
-
-  if (!newMsgDBView)
-    return NS_ERROR_OUT_OF_MEMORY;
-
   nsresult rv = CopyDBView(newMsgDBView, aMessengerInstance, aMsgWindow, aCmdUpdater);
   NS_ENSURE_SUCCESS(rv,rv);
 
@@ -158,10 +154,6 @@ NS_IMETHODIMP
 nsMsgWatchedThreadsWithUnreadDBView::CloneDBView(nsIMessenger *aMessengerInstance, nsIMsgWindow *aMsgWindow, nsIMsgDBViewCommandUpdater *aCmdUpdater, nsIMsgDBView **_retval)
 {
   nsMsgWatchedThreadsWithUnreadDBView* newMsgDBView = new nsMsgWatchedThreadsWithUnreadDBView();
-
-  if (!newMsgDBView)
-    return NS_ERROR_OUT_OF_MEMORY;
-
   nsresult rv = CopyDBView(newMsgDBView, aMessengerInstance, aMsgWindow, aCmdUpdater);
   NS_ENSURE_SUCCESS(rv,rv);
 

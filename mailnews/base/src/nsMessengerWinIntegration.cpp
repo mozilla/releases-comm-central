@@ -390,7 +390,7 @@ nsresult nsMessengerWinIntegration::GetStringBundle(nsIStringBundle **aBundle)
   nsCOMPtr<nsIStringBundle> bundle;
   bundleService->CreateBundle("chrome://messenger/locale/messenger.properties",
                               getter_AddRefs(bundle));
-  NS_IF_ADDREF(*aBundle = bundle);
+  bundle.forget(aBundle);
   return NS_OK;
 }
 

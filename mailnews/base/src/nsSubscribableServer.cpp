@@ -331,10 +331,7 @@ NS_IMETHODIMP
 nsSubscribableServer::GetSubscribeListener(nsISubscribeListener **aListener)
 {
 	if (!aListener) return NS_ERROR_NULL_POINTER;
-	if (mSubscribeListener) {
-			*aListener = mSubscribeListener;
-			NS_ADDREF(*aListener);
-	}
+	NS_IF_ADDREF(*aListener = mSubscribeListener);
 	return NS_OK;
 }
 

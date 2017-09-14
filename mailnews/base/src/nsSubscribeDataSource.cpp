@@ -161,15 +161,15 @@ nsSubscribeDataSource::GetTarget(nsIRDFResource *source,
         rv = server->IsSubscribed(relativePath, &isSubscribed);
         NS_ENSURE_SUCCESS(rv,rv);
     
-        NS_IF_ADDREF(*target = (isSubscribed ? kTrueLiteral : kFalseLiteral));
+        NS_IF_ADDREF(*target = isSubscribed ? kTrueLiteral : kFalseLiteral);
         return NS_OK;
     }
     else if (property == kNC_Subscribable.get()) {
         bool isSubscribable;
         rv = server->IsSubscribable(relativePath, &isSubscribable);
         NS_ENSURE_SUCCESS(rv,rv);
-        
-        NS_IF_ADDREF(*target = (isSubscribable ? kTrueLiteral : kFalseLiteral));
+
+        NS_IF_ADDREF(*target = isSubscribable ? kTrueLiteral : kFalseLiteral);
         return NS_OK;
     }
     else if (property == kNC_ServerType.get()) {

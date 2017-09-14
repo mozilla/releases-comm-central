@@ -38,9 +38,6 @@ NS_IMETHODIMP nsMsgFolderCacheElement::SetKey(const nsACString& aFolderKey)
 void nsMsgFolderCacheElement::SetOwningCache(nsMsgFolderCache *owningCache)
 {
   m_owningCache = owningCache;
-  // circular reference, don't do it.
-  //  if (owningCache)
-  //    NS_ADDREF(owningCache);
 }
 
 NS_IMETHODIMP nsMsgFolderCacheElement::GetStringProperty(const char *propertyName, nsACString& result)

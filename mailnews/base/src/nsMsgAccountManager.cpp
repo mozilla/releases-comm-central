@@ -927,7 +927,7 @@ nsMsgAccountManager::GetAccounts(nsIArray **_retval)
     }
     accounts->AppendElement(existingAccount, false);
   }
-  NS_IF_ADDREF(*_retval = accounts);
+  accounts.forget(_retval);
   return NS_OK;
 }
 
@@ -1983,7 +1983,7 @@ nsMsgAccountManager::findServerInternal(const nsACString& username,
       if (!aRealFlag)
         SetLastServerFound(server, hostname, username, port, type);
 
-      NS_ADDREF(*aResult = server);
+      NS_ADDREF(*aResult = server);  // Was populated from member variable.
       return NS_OK;
     }
   }

@@ -1091,8 +1091,7 @@ nsMsgFolderDataSource::createServerIsDeferredNode(nsIMsgFolder* folder,
       isDeferred = !deferredToServer.IsEmpty();
     }
   }
-  *target = (isDeferred) ? kTrueLiteral : kFalseLiteral;
-  NS_IF_ADDREF(*target);
+  NS_IF_ADDREF(*target = isDeferred ? kTrueLiteral : kFalseLiteral);
   return NS_OK;
 }
 
@@ -1110,11 +1109,7 @@ nsMsgFolderDataSource::createFolderCanCreateFoldersOnServerNode(nsIMsgFolder* fo
   rv = server->GetCanCreateFoldersOnServer(&canCreateFoldersOnServer);
   if (NS_FAILED(rv)) return rv;
 
-  if (canCreateFoldersOnServer)
-    *target = kTrueLiteral;
-  else
-    *target = kFalseLiteral;
-  NS_IF_ADDREF(*target);
+  NS_IF_ADDREF(*target = canCreateFoldersOnServer ? kTrueLiteral : kFalseLiteral);
 
   return NS_OK;
 }
@@ -1133,8 +1128,7 @@ nsMsgFolderDataSource::createFolderCanFileMessagesOnServerNode(nsIMsgFolder* fol
   rv = server->GetCanFileMessagesOnServer(&canFileMessagesOnServer);
   if (NS_FAILED(rv)) return rv;
 
-  *target = (canFileMessagesOnServer) ? kTrueLiteral : kFalseLiteral;
-  NS_IF_ADDREF(*target);
+  NS_IF_ADDREF(*target = canFileMessagesOnServer ? kTrueLiteral : kFalseLiteral);
 
   return NS_OK;
 }
@@ -1151,11 +1145,7 @@ nsMsgFolderDataSource::createFolderIsServerNode(nsIMsgFolder* folder,
 
   *target = nullptr;
 
-  if (isServer)
-    *target = kTrueLiteral;
-  else
-    *target = kFalseLiteral;
-  NS_IF_ADDREF(*target);
+  NS_IF_ADDREF(*target = isServer ? kTrueLiteral : kFalseLiteral);
   return NS_OK;
 }
 
@@ -1168,8 +1158,7 @@ nsMsgFolderDataSource::createFolderNoSelectNode(nsIMsgFolder* folder,
   rv = folder->GetNoSelect(&noSelect);
   if (NS_FAILED(rv)) return rv;
 
-  *target = (noSelect) ? kTrueLiteral : kFalseLiteral;
-  NS_IF_ADDREF(*target);
+  NS_IF_ADDREF(*target = noSelect ? kTrueLiteral : kFalseLiteral);
   return NS_OK;
 }
 
@@ -1180,8 +1169,7 @@ nsMsgFolderDataSource::createInVFEditSearchScopeNode(nsIMsgFolder* folder,
   bool inVFEditSearchScope = false;
   folder->GetInVFEditSearchScope(&inVFEditSearchScope);
 
-  *target = inVFEditSearchScope ? kTrueLiteral : kFalseLiteral;
-  NS_IF_ADDREF(*target);
+  NS_IF_ADDREF(*target = inVFEditSearchScope ? kTrueLiteral : kFalseLiteral);
   return NS_OK;
 }
 
@@ -1192,8 +1180,7 @@ nsMsgFolderDataSource::createFolderVirtualNode(nsIMsgFolder* folder,
   uint32_t folderFlags;
   folder->GetFlags(&folderFlags);
 
-  *target = (folderFlags & nsMsgFolderFlags::Virtual) ? kTrueLiteral : kFalseLiteral;
-  NS_IF_ADDREF(*target);
+  NS_IF_ADDREF(*target = (folderFlags & nsMsgFolderFlags::Virtual) ? kTrueLiteral : kFalseLiteral);
   return NS_OK;
 }
 
@@ -1207,8 +1194,7 @@ nsMsgFolderDataSource::createFolderImapSharedNode(nsIMsgFolder* folder,
   rv = folder->GetImapShared(&imapShared);
   if (NS_FAILED(rv)) return rv;
 
-  *target = (imapShared) ? kTrueLiteral : kFalseLiteral;
-  NS_IF_ADDREF(*target);
+  NS_IF_ADDREF(*target = imapShared ? kTrueLiteral : kFalseLiteral);
   return NS_OK;
 }
 
@@ -1222,10 +1208,7 @@ nsMsgFolderDataSource::createFolderSynchronizeNode(nsIMsgFolder* folder,
   rv = folder->GetFlag(nsMsgFolderFlags::Offline, &sync);
   if (NS_FAILED(rv)) return rv;
 
-  *target = nullptr;
-
-  *target = (sync) ? kTrueLiteral : kFalseLiteral;
-  NS_IF_ADDREF(*target);
+  NS_IF_ADDREF(*target = sync ? kTrueLiteral : kFalseLiteral);
   return NS_OK;
 }
 
@@ -1248,9 +1231,10 @@ nsMsgFolderDataSource::createFolderSyncDisabledNode(nsIMsgFolder* folder,
   rv = server->GetType(serverType);
   if (NS_FAILED(rv)) return rv;
 
-  *target = isServer || MsgLowerCaseEqualsLiteral(serverType, "none") || MsgLowerCaseEqualsLiteral(serverType, "pop3") ?
-            kTrueLiteral : kFalseLiteral;
-  NS_IF_ADDREF(*target);
+  NS_IF_ADDREF(*target = (isServer || MsgLowerCaseEqualsLiteral(serverType, "none") ||
+                                      MsgLowerCaseEqualsLiteral(serverType, "pop3")) ?
+              kTrueLiteral : kFalseLiteral
+  );
   return NS_OK;
 }
 
@@ -1268,8 +1252,7 @@ nsMsgFolderDataSource::createCanSearchMessages(nsIMsgFolder* folder,
   rv = server->GetCanSearchMessages(&canSearchMessages);
   if (NS_FAILED(rv)) return rv;
 
-  *target = (canSearchMessages) ? kTrueLiteral : kFalseLiteral;
-  NS_IF_ADDREF(*target);
+  NS_IF_ADDREF(*target = canSearchMessages ? kTrueLiteral : kFalseLiteral);
 
   return NS_OK;
 }
@@ -1291,9 +1274,7 @@ nsMsgFolderDataSource::createFolderOpenNode(nsIMsgFolder *folder, nsIRDFNode **t
   if (NS_FAILED(rv))
     return rv;
 
-  *target = (closed) ? kFalseLiteral : kTrueLiteral;
-
-  NS_IF_ADDREF(*target);
+  NS_IF_ADDREF(*target = closed ? kFalseLiteral : kTrueLiteral);
   return NS_OK;
 }
 
@@ -1312,8 +1293,7 @@ nsMsgFolderDataSource::createFolderIsSecureNode(nsIMsgFolder* folder,
     NS_ENSURE_SUCCESS(rv, rv);
   }
 
-  *target = (isSecure) ? kTrueLiteral : kFalseLiteral;
-  NS_IF_ADDREF(*target);
+  NS_IF_ADDREF(*target = isSecure ? kTrueLiteral : kFalseLiteral);
   return NS_OK;
 }
 
@@ -1327,8 +1307,7 @@ nsMsgFolderDataSource::createFolderCanSubscribeNode(nsIMsgFolder* folder,
   rv = folder->GetCanSubscribe(&canSubscribe);
   if (NS_FAILED(rv)) return rv;
 
-  *target = (canSubscribe) ? kTrueLiteral : kFalseLiteral;
-  NS_IF_ADDREF(*target);
+  NS_IF_ADDREF(*target = canSubscribe ? kTrueLiteral : kFalseLiteral);
   return NS_OK;
 }
 
@@ -1341,8 +1320,7 @@ nsMsgFolderDataSource::createFolderSupportsOfflineNode(nsIMsgFolder* folder,
   rv = folder->GetSupportsOffline(&supportsOffline);
   NS_ENSURE_SUCCESS(rv,rv);
 
-  *target = (supportsOffline) ? kTrueLiteral : kFalseLiteral;
-  NS_IF_ADDREF(*target);
+  NS_IF_ADDREF(*target = supportsOffline ? kTrueLiteral : kFalseLiteral);
   return NS_OK;
 }
 
@@ -1355,8 +1333,7 @@ nsMsgFolderDataSource::createFolderCanFileMessagesNode(nsIMsgFolder* folder,
   rv = folder->GetCanFileMessages(&canFileMessages);
   if (NS_FAILED(rv)) return rv;
 
-  *target = (canFileMessages) ? kTrueLiteral : kFalseLiteral;
-  NS_IF_ADDREF(*target);
+  NS_IF_ADDREF(*target = canFileMessages ? kTrueLiteral : kFalseLiteral);
   return NS_OK;
 }
 
@@ -1369,8 +1346,7 @@ nsMsgFolderDataSource::createFolderCanCreateSubfoldersNode(nsIMsgFolder* folder,
   rv = folder->GetCanCreateSubfolders(&canCreateSubfolders);
   if (NS_FAILED(rv)) return rv;
 
-  *target = (canCreateSubfolders) ? kTrueLiteral : kFalseLiteral;
-  NS_IF_ADDREF(*target);
+  NS_IF_ADDREF(*target = canCreateSubfolders ? kTrueLiteral : kFalseLiteral);
   return NS_OK;
 }
 
@@ -1382,8 +1358,7 @@ nsMsgFolderDataSource::createFolderCanRenameNode(nsIMsgFolder* folder,
   nsresult rv = folder->GetCanRename(&canRename);
   if (NS_FAILED(rv)) return rv;
 
-  *target = (canRename) ? kTrueLiteral : kFalseLiteral;
-  NS_IF_ADDREF(*target);
+  NS_IF_ADDREF(*target = canRename ? kTrueLiteral : kFalseLiteral);
   return NS_OK;
 }
 
@@ -1395,8 +1370,7 @@ nsMsgFolderDataSource::createFolderCanCompactNode(nsIMsgFolder* folder,
   nsresult rv = folder->GetCanCompact(&canCompact);
   if (NS_FAILED(rv)) return rv;
 
-  *target = (canCompact) ? kTrueLiteral : kFalseLiteral;
-  NS_IF_ADDREF(*target);
+  NS_IF_ADDREF(*target = canCompact ? kTrueLiteral : kFalseLiteral);
   return NS_OK;
 }
 

@@ -155,13 +155,15 @@ nsresult nsMsgXFViewThread::AddHdr(nsIMsgDBHdr *newHdr,
   }
   if (parent)
   {
-    if (outParent)
-      NS_ADDREF(*outParent = parent);
     uint32_t parentLevel = m_levels[parentIndex];
     nsMsgKey parentKey;
     parent->GetMessageKey(&parentKey);
     nsCOMPtr<nsIMsgFolder> parentFolder;
     parent->GetFolder(getter_AddRefs(parentFolder));
+
+    if (outParent)
+      parent.forget(outParent);
+
     // iterate over our parents' children until we find one we're older than,
     // and insert ourselves before it, or as the last child. In other words,
     // insert, sorted by date.
@@ -239,7 +241,7 @@ nsresult nsMsgXFViewThread::AddHdr(nsIMsgDBHdr *newHdr,
       m_levels.AppendElement(1);
       m_folders.AppendObject(newHdrFolder);
       if (outParent)
-        NS_IF_ADDREF(*outParent = rootHdr);
+        rootHdr.forget(outParent);
       whereInserted = m_keys.Length() -1;
     }
   }
@@ -466,7 +468,7 @@ NS_IMETHODIMP nsMsgXFViewThread::GetFirstUnreadChild(nsIMsgDBHdr **aResult)
         rv = db->IsRead(msgKey, &isRead);
       if (NS_SUCCEEDED(rv) && !isRead)
       {
-        NS_ADDREF(*aResult = child);
+        child.forget(aResult);
         break;
       }
     }

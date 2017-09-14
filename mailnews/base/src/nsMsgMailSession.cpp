@@ -488,7 +488,7 @@ nsMsgMailSession::GetDataFilesDir(const char* dirName, nsIFile **dataFilesDir)
   if (NS_SUCCEEDED(rv))
     rv = GetSelectedLocaleDataDir(defaultsDir);
 
-  NS_IF_ADDREF(*dataFilesDir = defaultsDir);
+  defaultsDir.forget(dataFilesDir);
 
   return rv;
 }

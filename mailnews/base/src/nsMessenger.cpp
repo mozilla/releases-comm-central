@@ -1624,10 +1624,7 @@ NS_IMETHODIMP
 nsMessenger::GetTransactionManager(nsITransactionManager* *aTxnMgr)
 {
   NS_ENSURE_TRUE(mTxnMgr && aTxnMgr, NS_ERROR_NULL_POINTER);
-
-  *aTxnMgr = mTxnMgr;
-  NS_ADDREF(*aTxnMgr);
-
+  NS_ADDREF(*aTxnMgr = mTxnMgr);
   return NS_OK;
 }
 
@@ -2137,9 +2134,8 @@ nsMessenger::GetLastSaveDirectory(nsIFile **aLastSaveDir)
   // this can fail, and it will, on the first time we call it, as there is no default for this pref.
   nsCOMPtr <nsIFile> localFile;
   rv = prefBranch->GetComplexValue(MESSENGER_SAVE_DIR_PREF_NAME, NS_GET_IID(nsIFile), getter_AddRefs(localFile));
-  if (NS_SUCCEEDED(rv)) {
-    NS_IF_ADDREF(*aLastSaveDir = localFile);
-  }
+  if (NS_SUCCEEDED(rv))
+    localFile.forget(aLastSaveDir);
   return rv;
 }
 

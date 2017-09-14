@@ -766,8 +766,7 @@ nsMsgAccountManagerDataSource::getAccountArcs(nsIMutableArray **aResult)
     mAccountArcsOut->AppendElement(kNC_PageTag, false);
   }
 
-  *aResult = mAccountArcsOut;
-  NS_IF_ADDREF(*aResult);
+  NS_IF_ADDREF(*aResult = mAccountArcsOut);
   return NS_OK;
 }
 
@@ -791,8 +790,7 @@ nsMsgAccountManagerDataSource::getAccountRootArcs(nsIMutableArray **aResult)
     mAccountRootArcsOut->AppendElement(kNC_PageTag, false);
   }
 
-  *aResult = mAccountRootArcsOut;
-  NS_IF_ADDREF(*aResult);
+  NS_IF_ADDREF(*aResult = mAccountRootArcsOut);
   return NS_OK;
 }
 

@@ -24,8 +24,7 @@ nsresult createNode(const char16_t *str, nsIRDFNode **node, nsIRDFService *rdfSe
   }
 
   if (NS_SUCCEEDED(rv)) {
-    *node = value;
-    NS_IF_ADDREF(*node);
+    value.forget(node);
   }
   return rv;
 }
@@ -38,8 +37,7 @@ nsresult createIntNode(int32_t value, nsIRDFNode **node, nsIRDFService *rdfServi
   nsCOMPtr<nsIRDFInt> num;
   rv = rdfService->GetIntLiteral(value, getter_AddRefs(num));
   if(NS_SUCCEEDED(rv)) {
-    *node = num;
-    NS_IF_ADDREF(*node);
+    num.forget(node);
   }
   return rv;
 }
@@ -53,7 +51,7 @@ nsresult createBlobNode(uint8_t *value, uint32_t &length, nsIRDFNode **node, nsI
   nsCOMPtr<nsIRDFBlob> blob;
   nsresult rv = rdfService->GetBlobLiteral(value, length, getter_AddRefs(blob));
   NS_ENSURE_SUCCESS(rv,rv);
-  NS_IF_ADDREF(*node = blob);
+  blob.forget(node);
   return rv;
 }
 
