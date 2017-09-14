@@ -420,6 +420,11 @@
            onpopupshowing="onBlockedContentOptionsShowing(event);">
 </menupopup>
 
+<menupopup id="languageMenuList"
+           oncommand="ChangeLanguage(event);"
+           onpopupshowing="OnShowDictionaryMenu(event.target);">
+</menupopup>
+
 #ifdef XP_MACOSX
   <vbox id="titlebar">
     <hbox id="titlebar-content">
@@ -794,9 +799,9 @@
                id="spellingButton" label="&spellingButton.label;"
                tooltiptext="&spellingButton.tooltip;"
                command="cmd_spelling">
-      <!-- this popup gets dynamically generated -->
-      <menupopup id="languageMenuList" oncommand="ChangeLanguage(event);"
-                 onpopupshowing="OnShowDictionaryMenu(event.target);"/>
+      <!-- workaround for the bug that split menu doesn't take popup="popupID" -->
+      <menupopup onpopupshowing="event.preventDefault();
+                                 showLanguagePopup('spellingButton');"/>
     </toolbarbutton>
 
     <toolbarbutton class="toolbarbutton-1" type="menu-button"
@@ -1107,7 +1112,12 @@
       <progressmeter id="compose-progressmeter" class="progressmeter-statusbar" mode="normal" value="0"/>
     </statusbarpanel>
     <statusbarpanel id="encodingStatusPanel" tooltiptext="&encodingStatusPanel.tooltip;"/>
-    <statusbarpanel id="statusLanguageText" tooltiptext="&statusLanguageText.tooltip;"/>
+    <statusbarpanel id="spellCheckStatusPanel">
+      <toolbarbutton id="languageStatusButton"
+                     tooltiptext="&languageStatusButton.tooltip;"
+                     oncommand="showLanguagePopup('languageStatusButton','before_start');">
+      </toolbarbutton>
+    </statusbarpanel>
   </statusbar>
 
 </window>

@@ -3655,6 +3655,19 @@ function onRecipientsChanged(aAutomatic)
   updateSendCommands(true);
 }
 
+/**
+ * Show the menu list of available spellcheck languages
+ *
+ * aAnchorID  the ID of an element to which the popup should be anchored
+ * aPosition  (optional) a single-word alignment value for the position attribute
+ *            of openPopup() method, defaults to "after_start" if omitted.
+ */
+function showLanguagePopup(aAnchorID, aPosition = "after_start") {
+  let aAnchorNode = document.getElementById(aAnchorID);
+  let languageMenuList = document.getElementById("languageMenuList");
+  languageMenuList.openPopup(aAnchorNode, aPosition, 0, 0, false, false);
+}
+
 function InitLanguageMenu()
 {
   var languageMenuList = document.getElementById('languageMenuList');
@@ -3749,8 +3762,9 @@ function updateLanguageInStatusBar()
 {
   InitLanguageMenu();
   let languageMenuList = document.getElementById("languageMenuList");
-  let statusLanguageText = document.getElementById("statusLanguageText");
-  if (!languageMenuList || !statusLanguageText) {
+  let spellCheckStatusPanel = document.getElementById("spellCheckStatusPanel");
+  let languageStatusButton = document.getElementById("languageStatusButton");
+  if (!languageMenuList || !spellCheckStatusPanel || !languageStatusButton) {
     return;
   }
 
@@ -3759,15 +3773,15 @@ function updateLanguageInStatusBar()
 
   // No status display, if there is only one or no spelling dictionary available.
   if (item == languageMenuList.lastChild) {
-    statusLanguageText.collapsed = true;
-    statusLanguageText.label = "";
+    spellCheckStatusPanel.collapsed = true;
+    languageStatusButton.label = "";
     return;
   }
 
-  statusLanguageText.collapsed = false;
+  spellCheckStatusPanel.collapsed = false;
   while (item) {
     if (item.getAttribute("value") == language) {
-      statusLanguageText.label = item.getAttribute("label");
+      languageStatusButton.label = item.getAttribute("label");
       break;
     }
     item = item.nextSibling;

@@ -133,7 +133,7 @@
 <!ENTITY checkSpellingCmd2.key "p">
 <!ENTITY checkSpellingCmd2.key2 "VK_F7">
 <!ENTITY checkSpellingCmd2.accesskey "h">
-<!ENTITY enableInlineSpellChecker.label "Spell Check As You Type">
+<!ENTITY enableInlineSpellChecker.label "Spellcheck As You Type">
 <!ENTITY enableInlineSpellChecker.accesskey "S">
 <!ENTITY quoteCmd.label "Quote Message">
 <!ENTITY quoteCmd.accesskey "Q">
@@ -310,5 +310,5 @@
 <!ENTITY customizeFromAddress.accesskey "A">
 
 <!-- Status Bar -->
-<!ENTITY statusLanguageText.tooltip "Spell checking language">
+<!ENTITY languageStatusButton.tooltip "Spellcheck language">
 <!ENTITY encodingStatusPanel.tooltip "Text encoding">
