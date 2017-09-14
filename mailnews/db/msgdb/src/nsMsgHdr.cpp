@@ -103,6 +103,7 @@ nsresult nsMsgHdr::InitFlags()
 
 nsMsgHdr::~nsMsgHdr()
 {
+  NS_IF_RELEASE(m_mdbRow);
   if (m_mdb)
     m_mdb->RemoveHdrFromUseCache(this, m_messageKey);
   NS_IF_RELEASE(m_mdb);

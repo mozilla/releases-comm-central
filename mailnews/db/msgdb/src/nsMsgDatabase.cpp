@@ -651,6 +651,11 @@ void nsMsgDatabase::AddHdrToUseCache(nsMsgHdr *hdr, nsMsgKey key)
 
 void nsMsgDatabase::ClearUseHdrCache()
 {
+  // Clear out m_mdbRow member variable - the db is going away, which means
+  // that this member variable might very well point to a mork db that is gone.
+  for (auto iter = m_headersInUse.ConstIter(); !iter.Done(); iter.Next()) {
+    NS_IF_RELEASE(iter.Data()->m_mdbRow);
+  }
   m_headersInUse.Clear();
 }
 
