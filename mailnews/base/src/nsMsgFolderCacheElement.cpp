@@ -16,9 +16,6 @@ nsMsgFolderCacheElement::nsMsgFolderCacheElement()
 
 nsMsgFolderCacheElement::~nsMsgFolderCacheElement()
 {
-  NS_IF_RELEASE(m_mdbRow);
-  // circular reference, don't do it.
-  // NS_IF_RELEASE(m_owningCache);
 }
 
 NS_IMPL_ISUPPORTS(nsMsgFolderCacheElement, nsIMsgFolderCacheElement)
@@ -154,7 +151,5 @@ NS_IMETHODIMP nsMsgFolderCacheElement::SetInt64Property(const char *propertyName
 
 void nsMsgFolderCacheElement::SetMDBRow(nsIMdbRow *row)
 {
-  if (m_mdbRow)
-    NS_RELEASE(m_mdbRow);
-  NS_IF_ADDREF(m_mdbRow = row);
+  m_mdbRow = row;
 }

@@ -345,7 +345,7 @@ protected:
   nsresult                Prefetch();
 
   nsCOMPtr<nsIMsgDBHdr>   mResultHdr;
-  nsMsgGroupThread*       mThread;
+  RefPtr<nsMsgGroupThread> mThread;
   nsMsgKey                mThreadParentKey;
   nsMsgKey                mFirstMsgKey;
   int32_t                 mChildIndex;
@@ -417,13 +417,10 @@ nsMsgGroupThreadEnumerator::nsMsgGroupThreadEnumerator(nsMsgGroupThread *thread,
     }
   }
 #endif
-
-  NS_ADDREF(thread);
 }
 
 nsMsgGroupThreadEnumerator::~nsMsgGroupThreadEnumerator()
 {
-    NS_RELEASE(mThread);
 }
 
 NS_IMPL_ISUPPORTS(nsMsgGroupThreadEnumerator, nsISimpleEnumerator)
@@ -660,21 +657,20 @@ nsresult nsMsgGroupThread::GetChildHdrForKey(nsMsgKey desiredKey, nsIMsgDBHdr **
   uint32_t childIndex;
   for (childIndex = 0; childIndex < numChildren; childIndex++)
   {
-    rv = GetChildHdrAt(childIndex, result);
-    if (NS_SUCCEEDED(rv) && *result)
+    nsCOMPtr<nsIMsgDBHdr> child;
+    rv = GetChildHdrAt(childIndex, getter_AddRefs(child));
+    if (NS_SUCCEEDED(rv) && child)
     {
       nsMsgKey msgKey;
       // we're only doing one level of threading, so check if caller is
       // asking for children of the first message in the thread or not.
       // if not, we will tell him there are no children.
-      (*result)->GetMessageKey(&msgKey);
+      child->GetMessageKey(&msgKey);
 
-      if (msgKey == desiredKey)
+      if (msgKey == desiredKey) {
+        child.forget(result);
         break;
-
-      // XXX Hack: since GetChildHdrAt() addref'ed result, we need to
-      // release any unwanted result before continuing in the loop.
-      NS_RELEASE(*result);
+      }
     }
   }
   if (resultIndex)

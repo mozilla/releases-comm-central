@@ -373,9 +373,6 @@ nsMsgPrintEngine::ShowProgressDialog(bool aIsForPrinting, bool& aDoNotify)
 
         if (showProgressDialog) 
         {
-          nsIWebProgressListener* wpl = static_cast<nsIWebProgressListener*>(mPrintProgressListener.get());
-          NS_ASSERTION(wpl, "nsIWebProgressListener is NULL!");
-          NS_ADDREF(wpl);
           nsString msg;
           if (mIsDoingPrintPreview) {
             GetString(u"LoadingMailMsgForPrintPreview", msg);

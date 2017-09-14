@@ -672,8 +672,6 @@ nsresult nsMessenger::SaveAttachment(nsIFile *aFile,
   // This instance will be held onto by the listeners, and will be released once 
   // the transfer has been completed.
   RefPtr<nsSaveMsgListener> saveListener(new nsSaveMsgListener(aFile, this, aListener));
-  if (!saveListener)
-    return NS_ERROR_OUT_OF_MEMORY;
 
   saveListener->m_contentType = aContentType;
   if (saveState)
@@ -1042,7 +1040,7 @@ nsMessenger::SaveAs(const nsACString& aURI, bool aAsFile,
 {
   nsCOMPtr<nsIMsgMessageService> messageService;
   nsCOMPtr<nsIUrlListener> urlListener;
-  nsSaveMsgListener *saveListener = nullptr;
+  RefPtr<nsSaveMsgListener> saveListener;
   nsCOMPtr<nsIURI> url;
   nsCOMPtr<nsIStreamListener> convertedListener;
   int32_t saveAsFileType = EML_FILE_TYPE;
@@ -1090,11 +1088,7 @@ nsMessenger::SaveAs(const nsACString& aURI, bool aAsFile,
 
     // After saveListener goes out of scope, the listener will be owned by
     // whoever the listener is registered with, usually a URL.
-    RefPtr<nsSaveMsgListener> saveListener = new nsSaveMsgListener(saveAsFile, this, nullptr);
-    if (!saveListener) {
-      rv = NS_ERROR_OUT_OF_MEMORY;
-      goto done;
-    }
+    saveListener = new nsSaveMsgListener(saveAsFile, this, nullptr);
     rv = saveListener->QueryInterface(NS_GET_IID(nsIUrlListener), getter_AddRefs(urlListener));
     if (NS_FAILED(rv))
       goto done;
@@ -1189,10 +1183,6 @@ nsMessenger::SaveAs(const nsACString& aURI, bool aAsFile,
     // The saveListener is owned by whoever we ultimately register the
     // listener with, generally a URL.
     saveListener = new nsSaveMsgListener(tmpFile, this, nullptr);
-    if (!saveListener) {
-      rv = NS_ERROR_OUT_OF_MEMORY;
-      goto done;
-    }
 
     if (aIdentity)
       rv = aIdentity->GetStationeryFolder(saveListener->m_templateUri);
@@ -1218,7 +1208,6 @@ nsMessenger::SaveAs(const nsACString& aURI, bool aAsFile,
 done:
   if (NS_FAILED(rv))
   {
-    NS_IF_RELEASE(saveListener);
     Alert("saveMessageFailed");
   }
   return rv;
@@ -1430,18 +1419,11 @@ nsMessenger::SaveMessages(uint32_t aCount,
       return rv;
     }
 
-    nsSaveMsgListener *saveListener = new nsSaveMsgListener(saveToFile, this, nullptr);
-    if (!saveListener) {
-      NS_IF_RELEASE(saveListener);
-      Alert("saveMessageFailed");
-      return NS_ERROR_OUT_OF_MEMORY;
-    }
-    NS_ADDREF(saveListener);
+    RefPtr<nsSaveMsgListener> saveListener = new nsSaveMsgListener(saveToFile, this, nullptr);
 
     rv = saveListener->QueryInterface(NS_GET_IID(nsIUrlListener),
                                       getter_AddRefs(urlListener));
     if (NS_FAILED(rv)) {
-      NS_IF_RELEASE(saveListener);
       Alert("saveMessageFailed");
       return rv;
     }
@@ -1453,7 +1435,6 @@ nsMessenger::SaveMessages(uint32_t aCount,
                                            urlListener, getter_AddRefs(dummyNull),
                                            true, mMsgWindow);
     if (NS_FAILED(rv)) {
-      NS_IF_RELEASE(saveListener);
       Alert("saveMessageFailed");
       return rv;
     }
