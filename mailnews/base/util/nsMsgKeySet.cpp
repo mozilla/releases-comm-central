@@ -265,7 +265,7 @@ nsMsgKeySet::FirstNonMember ()
 }
 
 
-nsresult 
+nsresult
 nsMsgKeySet::Output(char **outputStr)
 {
   NS_ENSURE_ARG(outputStr);
@@ -347,7 +347,7 @@ nsMsgKeySet::Output(char **outputStr)
   return NS_OK;
 }
 
-int32_t 
+int32_t
 nsMsgKeySet::GetLastMember()
 {
   if (m_length > 1)
@@ -386,7 +386,7 @@ void nsMsgKeySet::SetLastMember(int32_t newHighWaterMark)
           curHighWater = (rangeLength + rangeStart - 1);
           if (curHighWater > newHighWaterMark)
           {
-            if (rangeStart > newHighWaterMark)  
+            if (rangeStart > newHighWaterMark)
             {
               m_length -= 2;  // throw away whole range
             }
@@ -407,7 +407,7 @@ void nsMsgKeySet::SetLastMember(int32_t newHighWaterMark)
             // prevent the infinite loop
             // see bug #13062
             break;
-          }  
+          }
         }
         else if (m_data[m_length - 1] > newHighWaterMark)  // no, so last number must be last member
         {
@@ -416,19 +416,19 @@ void nsMsgKeySet::SetLastMember(int32_t newHighWaterMark)
         else
           break;
       }
-      else 
+      else
         break;
     }
-    // well, the whole range is probably invalid, because the server probably re-ordered ids, 
+    // well, the whole range is probably invalid, because the server probably re-ordered ids,
     // but what can you do?
 #ifdef NEWSRC_DOES_HOST_STUFF
-    if (m_host) 
+    if (m_host)
       m_host->MarkDirty();
 #endif
   }
 }
 
-int32_t 
+int32_t
 nsMsgKeySet::GetFirstMember()
 {
   if (m_length > 1)
@@ -501,7 +501,7 @@ nsMsgKeySet::Optimize()
 
       /* Copy it over */
       *output_tail++ = *input_tail++;
-      *output_tail++ = *input_tail++;        
+      *output_tail++ = *input_tail++;
     } else {
       /* it's a literal */
       from = *input_tail;
@@ -649,7 +649,7 @@ nsMsgKeySet::Add(int32_t number)
 #ifdef DEBUG_MSGKEYSET
     printf("add %d\n",number);
 #endif
-    
+
   size = m_length;
   head = m_data;
   tail = head;
@@ -704,7 +704,7 @@ nsMsgKeySet::Add(int32_t number)
      avoiding massive duplication of code, simply insert a literal here and
      then run the optimizer.
      */
-  int mid = (tail - head); 
+  int mid = (tail - head);
 
   if (m_data_size <= m_length + 1) {
     int endo = end - head;
@@ -1027,7 +1027,7 @@ nsMsgKeySet::CountMissingInRange(int32_t range_start, int32_t range_end)
 }
 
 
-int 
+int
 nsMsgKeySet::FirstMissingRange(int32_t min, int32_t max,
                   int32_t* first, int32_t* last)
 {
@@ -1074,7 +1074,7 @@ nsMsgKeySet::FirstMissingRange(int32_t min, int32_t max,
       *last = b < max ? b : max;
       return 0;
     }
-  } 
+  }
   /* We found no holes in the newsrc that overlaps the range, nor did we hit
      something read beyond the end of the range.  So, the great infinite
      range of unread articles at the end of any newsrc line intersects the
@@ -1087,7 +1087,7 @@ nsMsgKeySet::FirstMissingRange(int32_t min, int32_t max,
 
 // I'm guessing we didn't include this because we didn't think we're going
 // to need it. I'm not so sure. I'm putting it in for now.
-int 
+int
 nsMsgKeySet::LastMissingRange(int32_t min, int32_t max,
                   int32_t* first, int32_t* last)
 {

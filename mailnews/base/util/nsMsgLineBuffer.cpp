@@ -34,8 +34,7 @@ nsresult nsByteArray::GrowBuffer(uint32_t desired_size, uint32_t quantum)
     uint32_t increment = desired_size - m_bufferSize;
     if (increment < quantum) /* always grow by a minimum of N bytes */
       increment = quantum;
-    
-    
+
     new_buf = (m_buffer
       ? (char *) PR_REALLOC (m_buffer, (m_bufferSize + increment))
       : (char *) PR_MALLOC (m_bufferSize + increment));
@@ -51,7 +50,7 @@ nsresult nsByteArray::AppendString(const char *string)
 {
   uint32_t strLength = (string) ? PL_strlen(string) : 0;
   return AppendBuffer(string, strLength);
-  
+
 }
 
 nsresult nsByteArray::AppendBuffer(const char *buffer, uint32_t length)
@@ -142,13 +141,13 @@ nsresult nsMsgLineBuffer::BufferInput(const char *net_buffer, int32_t net_buffer
             }
           }
         }
-        
+
         /* Ensure room in the net_buffer and append some or all of the current
            chunk of data to it. */
         {
             const char *end = (newline ? newline : net_buffer_end);
             uint32_t desired_size = (end - net_buffer) + m_bufferPos + 1;
-            
+
             if (desired_size >= m_bufferSize)
             {
                 status = GrowBuffer (desired_size, 1024);
@@ -158,19 +157,19 @@ nsresult nsMsgLineBuffer::BufferInput(const char *net_buffer, int32_t net_buffer
             memcpy (m_buffer + m_bufferPos, net_buffer, (end - net_buffer));
             m_bufferPos += (end - net_buffer);
         }
-        
+
         /* Now m_buffer contains either a complete line, or as complete
            a line as we have read so far.
-           
+
            If we have a line, process it, and then remove it from `m_buffer'.
            Then go around the loop again, until we drain the incoming data.
-           */
+         */
         if (!newline)
             return NS_OK;
 
         if (NS_FAILED(ConvertAndSendBuffer()))
           return NS_ERROR_FAILURE;
-        
+
         net_buffer_size -= (newline - net_buffer);
         net_buffer = newline;
         m_bufferPos = 0;
@@ -193,16 +192,16 @@ nsresult nsMsgLineBuffer::ConvertAndSendBuffer()
     int32_t length = m_bufferPos;
 
     char* newline;
-    
+
     PR_ASSERT(buf && length > 0);
-    if (!buf || length <= 0) 
+    if (!buf || length <= 0)
         return NS_ERROR_FAILURE;
     newline = buf + length;
-    
+
     PR_ASSERT(newline[-1] == '\r' || newline[-1] == '\n');
     if (newline[-1] != '\r' && newline[-1] != '\n')
         return NS_ERROR_FAILURE;
-    
+
     if (m_convertNewlinesP)
     {
 #if (MSG_LINEBREAK_LEN == 1)
@@ -230,7 +229,7 @@ nsresult nsMsgLineBuffer::ConvertAndSendBuffer()
         buf[length - 1] = MSG_LINEBREAK[1];
       }
 #endif
-    }    
+    }
     return (m_handler) ? m_handler->HandleLine(buf, length) : HandleLine(buf, length);
 }
 
@@ -247,10 +246,10 @@ nsresult nsMsgLineBuffer::FlushLastLine()
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // This is a utility class used to efficiently extract lines from an input stream by buffering
-// read but unprocessed stream data in a buffer. 
+// read but unprocessed stream data in a buffer.
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-nsMsgLineStreamBuffer::nsMsgLineStreamBuffer(uint32_t aBufferSize, bool aAllocateNewLines, bool aEatCRLFs, char aLineToken) 
+nsMsgLineStreamBuffer::nsMsgLineStreamBuffer(uint32_t aBufferSize, bool aAllocateNewLines, bool aEatCRLFs, char aLineToken)
            : m_eatCRLFs(aEatCRLFs), m_allocateNewLines(aAllocateNewLines), m_lineToken(aLineToken)
 {
   NS_PRECONDITION(aBufferSize > 0, "invalid buffer size!!!");
@@ -296,10 +295,10 @@ void nsMsgLineStreamBuffer::ClearBuffer()
 
 char * nsMsgLineStreamBuffer::ReadNextLine(nsIInputStream * aInputStream, uint32_t &aNumBytesInLine, bool &aPauseForMoreData, nsresult *prv, bool addLineTerminator)
 {
-  // try to extract a line from m_inputBuffer. If we don't have an entire line, 
+  // try to extract a line from m_inputBuffer. If we don't have an entire line,
   // then read more bytes out from the stream. If the stream is empty then wait
   // on the monitor for more data to come in.
-  
+
   NS_PRECONDITION(m_dataBuffer && m_dataBufferSize > 0, "invalid input arguments for read next line from input");
 
   if (prv)
@@ -309,10 +308,10 @@ char * nsMsgLineStreamBuffer::ReadNextLine(nsIInputStream * aInputStream, uint32
   aNumBytesInLine = 0;
   char * endOfLine = nullptr;
   char * startOfLine = m_dataBuffer+m_startPos;
-  
+
   if (m_numBytesInBuffer > 0) // any data in our internal buffer?
     endOfLine = PL_strchr(startOfLine, m_lineToken); // see if we already have a line ending...
-  
+
   // it's possible that we got here before the first time we receive data from the server
   // so aInputStream will be nullptr...
   if (!endOfLine && aInputStream) // get some more data from the server
@@ -366,7 +365,7 @@ char * nsMsgLineStreamBuffer::ReadNextLine(nsIInputStream * aInputStream, uint32
       }
       NS_ASSERTION(m_startPos == 0, "m_startPos should be 0 .....\n");
     }
-    
+
     uint32_t numBytesToCopy = std::min(uint64_t(numFreeBytesInBuffer - 1) /* leave one for a null terminator */, numBytesInStream);
     if (numBytesToCopy > 0)
     {
@@ -389,18 +388,18 @@ char * nsMsgLineStreamBuffer::ReadNextLine(nsIInputStream * aInputStream, uint32
       endOfLine = PL_strchr(startOfNewData, m_lineToken);
     }
   }
-  
+
   // okay, now check again for endOfLine.
   if (endOfLine)
   {
     if (!m_eatCRLFs)
       endOfLine += 1; // count for LF or CR
-    
+
     aNumBytesInLine = endOfLine - startOfLine;
-    
+
     if (m_eatCRLFs && aNumBytesInLine > 0 && startOfLine[aNumBytesInLine-1] == '\r') // Remove the CR in a CRLF sequence
       aNumBytesInLine--;
-    
+
     // PR_CALLOC zeros out the allocated line
     char* newLine = (char*) PR_CALLOC(aNumBytesInLine + (addLineTerminator ? MSG_LINEBREAK_LEN : 0) + 1);
     if (!newLine)
@@ -409,27 +408,27 @@ char * nsMsgLineStreamBuffer::ReadNextLine(nsIInputStream * aInputStream, uint32
       aPauseForMoreData = true;
       return nullptr;
     }
-    
+
     memcpy(newLine, startOfLine, aNumBytesInLine); // copy the string into the new line buffer
     if (addLineTerminator)
     {
       memcpy(newLine + aNumBytesInLine, MSG_LINEBREAK, MSG_LINEBREAK_LEN);
       aNumBytesInLine += MSG_LINEBREAK_LEN;
     }
-    
+
     if (m_eatCRLFs)
       endOfLine += 1; // advance past LF or CR if we haven't already done so...
-    
-    // now we need to update the data buffer to go past the line we just read out. 
+
+    // now we need to update the data buffer to go past the line we just read out.
     m_numBytesInBuffer -= (endOfLine - startOfLine);
     if (m_numBytesInBuffer)
       m_startPos = endOfLine - m_dataBuffer;
     else
       m_startPos = 0;
-    
+
     return newLine;
   }
-  
+
   aPauseForMoreData = true;
   return nullptr; // if we somehow got here. we don't have another line in the buffer yet...need to wait for more data...
 }

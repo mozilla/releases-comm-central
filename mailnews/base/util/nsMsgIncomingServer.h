@@ -48,7 +48,7 @@ protected:
   virtual ~nsMsgIncomingServer();
   nsCString m_serverKey;
 
-  // Sets m_password, if password found. Can return NS_ERROR_ABORT if the 
+  // Sets m_password, if password found. Can return NS_ERROR_ABORT if the
   // user cancels the master password dialog.
   nsresult GetPasswordWithoutUI();
 

@@ -11,7 +11,7 @@
 // anything suitable (nsStrImpl might be, when it's done). nsIByteBuffer
 // would do, if I had a stream for input, which I don't.
 
-class NS_MSG_BASE nsByteArray 
+class NS_MSG_BASE nsByteArray
 {
 public:
   nsByteArray();
@@ -40,24 +40,24 @@ class NS_MSG_BASE nsMsgLineBuffer : public nsMsgLineBufferHandler
 {
 public:
   nsMsgLineBuffer(nsMsgLineBufferHandler *handler, bool convertNewlinesP);
-  
+
   virtual    ~nsMsgLineBuffer();
   nsresult    BufferInput(const char *net_buffer, int32_t net_buffer_size);
   // Not sure why anyone cares, by NNTPHost seems to want to know the buf pos.
   uint32_t    GetBufferPos() {return m_bufferPos;}
-  
+
   virtual nsresult HandleLine(const char *line, uint32_t line_length);
   // flush last line, though it won't be CRLF terminated.
   virtual nsresult FlushLastLine();
 protected:
   nsMsgLineBuffer(bool convertNewlinesP);
-  
+
   nsresult ConvertAndSendBuffer();
   void SetLookingForCRLF(bool b);
-  
+
   nsMsgLineBufferHandler *m_handler;
   bool        m_convertNewlinesP;
-  bool        m_lookingForCRLF; 
+  bool        m_lookingForCRLF;
 };
 
 // I'm adding this utility class here for lack of a better place. This utility class is similar to nsMsgLineBuffer
@@ -71,20 +71,20 @@ class NS_MSG_BASE nsMsgLineStreamBuffer
 {
 public:
   // aBufferSize -- size of the buffer you want us to use for buffering stream data
-  // aEndOfLinetoken -- The delimiter string to be used for determining the end of line. This 
+  // aEndOfLinetoken -- The delimiter string to be used for determining the end of line. This
   //              allows us to parse platform specific end of line endings by making it
   //            a parameter.
-  // aAllocateNewLines -- true if you want calls to ReadNextLine to allocate new memory for the line. 
+  // aAllocateNewLines -- true if you want calls to ReadNextLine to allocate new memory for the line.
   //            if false, the char * returned is just a ptr into the buffer. Subsequent calls to
   //            ReadNextLine will alter the data so your ptr only has a life time of a per call.
-  // aEatCRLFs  -- true if you don't want to see the CRLFs on the lines returned by ReadNextLine. 
+  // aEatCRLFs  -- true if you don't want to see the CRLFs on the lines returned by ReadNextLine.
   //         false if you do want to see them.
   // aLineToken -- Specify the line token to look for, by default is LF ('\n') which cover as well CRLF. If
   //            lines are terminated with a CR only, you need to set aLineToken to CR ('\r')
-  nsMsgLineStreamBuffer(uint32_t aBufferSize, bool aAllocateNewLines, 
+  nsMsgLineStreamBuffer(uint32_t aBufferSize, bool aAllocateNewLines,
                         bool aEatCRLFs = true, char aLineToken = '\n'); // specify the size of the buffer you want the class to use....
   virtual ~nsMsgLineStreamBuffer();
-  
+
   // Caller must free the line returned using PR_Free
   // aEndOfLinetoken -- delimiter used to denote the end of a line.
   // aNumBytesInLine -- The number of bytes in the line returned

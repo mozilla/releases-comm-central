@@ -47,7 +47,7 @@ NS_MSG_BASE bool nsMsgI18Nmultibyte_charset(const char *charset);
  * @param inString    [IN] Input unicode string to be examined.
  * @param fallbackCharset [OUT]
  *                         null if fallback charset is not needed.
- *                         Otherwise, a fallback charset name may be set if that was used for the conversion. 
+ *                         Otherwise, a fallback charset name may be set if that was used for the conversion.
  *                         Caller is responsible for freeing the memory.
  * @return            True if the string can be converted within the charset range.
  *                    False if one or more characters cannot be converted to the target charset.
@@ -124,7 +124,7 @@ NS_MSG_BASE nsresult nsMsgI18NShrinkUTF8Str(const nsCString &inString,
  * @param inString   [IN] Input raw octets
  * @param outString  [OUT] Output UTF-16 string
  */
-NS_MSG_BASE void nsMsgI18NConvertRawBytesToUTF16(const nsCString& inString, 
+NS_MSG_BASE void nsMsgI18NConvertRawBytesToUTF16(const nsCString& inString,
                                                  const char* charset,
                                                  nsAString& outString);
 
@@ -134,7 +134,7 @@ NS_MSG_BASE void nsMsgI18NConvertRawBytesToUTF16(const nsCString& inString,
  * @param inString   [IN] Input raw octets
  * @param outString  [OUT] Output UTF-8 string
  */
-NS_MSG_BASE void nsMsgI18NConvertRawBytesToUTF8(const nsCString& inString, 
+NS_MSG_BASE void nsMsgI18NConvertRawBytesToUTF8(const nsCString& inString,
                                                 const char* charset,
                                                 nsACString& outString);
 
@@ -160,13 +160,13 @@ inline nsresult ConvertFromUnicode(const char* charset,
     return nsMsgI18NConvertFromUnicode(charset, aSrc, aDest);
 }
 
-inline void ConvertRawBytesToUTF16(const nsCString& inString, 
+inline void ConvertRawBytesToUTF16(const nsCString& inString,
                                    const char* charset, nsAString& outString)
 {
     return nsMsgI18NConvertRawBytesToUTF16(inString, charset, outString);
 }
 
-inline void ConvertRawBytesToUTF16(const char* inString, 
+inline void ConvertRawBytesToUTF16(const char* inString,
                                    const char* charset, nsAString& outString)
 {
     return nsMsgI18NConvertRawBytesToUTF16(nsDependentCString(inString),
@@ -174,7 +174,7 @@ inline void ConvertRawBytesToUTF16(const char* inString,
                                            outString);
 }
 
-inline void ConvertRawBytesToUTF8(const nsCString& inString, 
+inline void ConvertRawBytesToUTF8(const nsCString& inString,
                                   const char* charset, nsACString& outString)
 {
     return nsMsgI18NConvertRawBytesToUTF8(inString, charset, outString);

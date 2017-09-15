@@ -40,7 +40,7 @@ nsresult nsMsgCompressOStream::InitOutputStream(nsIOutputStream *rawStream)
   // perl's Compress::Raw::Zlib manual says:
   // -WindowBits [...]
   //  To compress an RFC 1951 data stream, set WindowBits to -MAX_WBITS.
-  if (deflateInit2(&m_zstream, Z_DEFAULT_COMPRESSION, Z_DEFLATED, 
+  if (deflateInit2(&m_zstream, Z_DEFAULT_COMPRESSION, Z_DEFLATED,
                    -MAX_WBITS, MAX_MEM_LEVEL, Z_DEFAULT_STRATEGY) != Z_OK)
     return NS_ERROR_FAILURE;
 
@@ -104,10 +104,10 @@ nsMsgCompressOStream::Write(const char *buf, uint32_t count, uint32_t *result)
     }
 
   // http://www.zlib.net/manual.html says:
-  // If deflate returns with avail_out == 0, this function must be 
+  // If deflate returns with avail_out == 0, this function must be
   // called again with the same value of the flush parameter and
-  // more output space (updated avail_out), until the flush is 
-  // complete (deflate returns with non-zero avail_out). 
+  // more output space (updated avail_out), until the flush is
+  // complete (deflate returns with non-zero avail_out).
   } while (!m_zstream.avail_out);
 
   *result = count;
@@ -120,7 +120,7 @@ nsMsgCompressOStream::Flush(void)
 {
   if (!m_oStream)
     return NS_BASE_STREAM_CLOSED;
-  
+
   return m_oStream->Flush();
 }
 

@@ -28,7 +28,7 @@
 #undef  IMETHOD_VISIBILITY
 #define IMETHOD_VISIBILITY NS_VISIBILITY_DEFAULT
 
-class NS_MSG_BASE nsMsgTxn : public nsITransaction, 
+class NS_MSG_BASE nsMsgTxn : public nsITransaction,
                              public nsIWritablePropertyBag,
                              public nsIWritablePropertyBag2
 {
@@ -42,7 +42,7 @@ public:
     NS_IMETHOD UndoTransaction(void) override = 0;
 
     NS_IMETHOD RedoTransaction(void) override = 0;
-    
+
     NS_IMETHOD GetIsTransient(bool *aIsTransient) override;
 
     NS_IMETHOD Merge(nsITransaction *aTransaction, bool *aDidMerge) override;
@@ -50,7 +50,7 @@ public:
     nsresult GetMsgWindow(nsIMsgWindow **msgWindow);
     nsresult SetMsgWindow(nsIMsgWindow *msgWindow);
     nsresult SetTransactionType(uint32_t txnType);
- 
+
     NS_DECL_THREADSAFE_ISUPPORTS
     NS_DECL_NSIPROPERTYBAG
     NS_DECL_NSIPROPERTYBAG2

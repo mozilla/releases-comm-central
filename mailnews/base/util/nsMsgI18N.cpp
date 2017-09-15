@@ -64,7 +64,7 @@ nsresult nsMsgI18NConvertFromUnicode(const char* aCharset,
 }
 
 nsresult nsMsgI18NConvertToUnicode(const char* aCharset,
-                                   const nsCString& inString, 
+                                   const nsCString& inString,
                                    nsAString& outString)
 {
   if (inString.IsEmpty()) {
@@ -130,7 +130,7 @@ const char * nsMsgI18NFileSystemCharset()
   /* Get a charset used for the file. */
   static nsAutoCString fileSystemCharset;
 
-  if (fileSystemCharset.IsEmpty()) 
+  if (fileSystemCharset.IsEmpty())
   {
     nsresult rv;
     nsCOMPtr <nsIPlatformCharset> platformCharset = do_GetService(NS_PLATFORMCHARSET_CONTRACTID, &rv);
@@ -139,7 +139,7 @@ const char * nsMsgI18NFileSystemCharset()
                                            fileSystemCharset);
         }
 
-    if (NS_FAILED(rv)) 
+    if (NS_FAILED(rv))
       fileSystemCharset.Assign("ISO-8859-1");
   }
   return fileSystemCharset.get();
@@ -162,7 +162,7 @@ void nsMsgI18NTextFileCharset(nsACString& aCharset)
 
 // MIME encoder, output string should be freed by PR_FREE
 // XXX : fix callers later to avoid allocation and copy
-char * nsMsgI18NEncodeMimePartIIStr(const char *header, bool structured, const char *charset, int32_t fieldnamelen, bool usemime) 
+char * nsMsgI18NEncodeMimePartIIStr(const char *header, bool structured, const char *charset, int32_t fieldnamelen, bool usemime)
 {
   // No MIME, convert to the outgoing mail charset.
   if (false == usemime) {
@@ -242,49 +242,49 @@ bool nsMsgI18Ncheck_data_in_charset_range(const char *charset, const char16_t* i
     src = src.From(read);
     // dst = dst.From(written); // Just overwrite output since we don't need it.
   }
-  
+
   return res;
 }
 
-// Simple parser to parse META charset. 
-// It only supports the case when the description is within one line. 
-const char * 
-nsMsgI18NParseMetaCharset(nsIFile* file) 
-{ 
+// Simple parser to parse META charset.
+// It only supports the case when the description is within one line.
+const char *
+nsMsgI18NParseMetaCharset(nsIFile* file)
+{
   static char charset[nsIMimeConverter::MAX_CHARSET_NAME_LENGTH+1];
 
-  *charset = '\0'; 
+  *charset = '\0';
 
   bool isDirectory = false;
   file->IsDirectory(&isDirectory);
   if (isDirectory) {
     NS_ERROR("file is a directory");
-    return charset; 
+    return charset;
   }
 
   nsresult rv;
   nsCOMPtr <nsIFileInputStream> fileStream = do_CreateInstance(NS_LOCALFILEINPUTSTREAM_CONTRACTID, &rv);
   NS_ENSURE_SUCCESS(rv, charset);
-  
+
   rv = fileStream->Init(file, PR_RDONLY, 0664, false);
   nsCOMPtr <nsILineInputStream> lineStream = do_QueryInterface(fileStream, &rv);
 
   nsCString curLine;
   bool more = true;
-  while (NS_SUCCEEDED(rv) && more) { 
-    rv = lineStream->ReadLine(curLine, &more); 
-    if (curLine.IsEmpty()) 
-      continue; 
+  while (NS_SUCCEEDED(rv) && more) {
+    rv = lineStream->ReadLine(curLine, &more);
+    if (curLine.IsEmpty())
+      continue;
 
     ToUpperCase(curLine);
 
-    if (curLine.Find("/HEAD") != -1) 
-      break; 
+    if (curLine.Find("/HEAD") != -1)
+      break;
 
-    if (curLine.Find("META") != -1 && 
-       curLine.Find("HTTP-EQUIV") != -1 && 
-        curLine.Find("CONTENT-TYPE") != -1 && 
-       curLine.Find("CHARSET") != -1) { 
+    if (curLine.Find("META") != -1 &&
+        curLine.Find("HTTP-EQUIV") != -1 &&
+        curLine.Find("CONTENT-TYPE") != -1 &&
+        curLine.Find("CHARSET") != -1) {
       char *cp = (char *) PL_strchr(PL_strstr(curLine.get(), "CHARSET"), '=');
       char *token = nullptr;
       if (cp)
@@ -292,7 +292,7 @@ nsMsgI18NParseMetaCharset(nsIFile* file)
         char *newStr = cp + 1;
         token = NS_strtok(" \"\'", &newStr);
       }
-      if (token) { 
+      if (token) {
         PL_strncpy(charset, token, sizeof(charset));
         charset[sizeof(charset)-1] = '\0';
 
@@ -301,16 +301,16 @@ nsMsgI18NParseMetaCharset(nsIFile* file)
         // so we can say that the charset label must be incorrect for
         // the .html if we actually see those charsets parsed
         // and we should ignore them
-        if (!PL_strncasecmp("UTF-16", charset, sizeof("UTF-16")-1) || 
+        if (!PL_strncasecmp("UTF-16", charset, sizeof("UTF-16")-1) ||
             !PL_strncasecmp("UTF-32", charset, sizeof("UTF-32")-1))
           charset[0] = '\0';
 
         break;
-      } 
-    } 
-  } 
+      }
+    }
+  }
 
-  return charset; 
+  return charset;
 }
 
 nsresult nsMsgI18NShrinkUTF8Str(const nsCString &inString,
@@ -346,7 +346,7 @@ nsresult nsMsgI18NShrinkUTF8Str(const nsCString &inString,
   return NS_OK;
 }
 
-void nsMsgI18NConvertRawBytesToUTF16(const nsCString& inString, 
+void nsMsgI18NConvertRawBytesToUTF16(const nsCString& inString,
                                      const char* charset,
                                      nsAString& outString)
 {
@@ -372,7 +372,7 @@ void nsMsgI18NConvertRawBytesToUTF16(const nsCString& inString,
   }
 }
 
-void nsMsgI18NConvertRawBytesToUTF8(const nsCString& inString, 
+void nsMsgI18NConvertRawBytesToUTF8(const nsCString& inString,
                                     const char* charset,
                                     nsACString& outString)
 {

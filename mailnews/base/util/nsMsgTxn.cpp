@@ -25,7 +25,7 @@ NS_INTERFACE_MAP_BEGIN(nsMsgTxn)
   NS_INTERFACE_MAP_ENTRY(nsIWritablePropertyBag2)
 NS_INTERFACE_MAP_END
 
-nsMsgTxn::nsMsgTxn() 
+nsMsgTxn::nsMsgTxn()
 {
   m_txnType = 0;
 }
@@ -77,7 +77,7 @@ NS_IMETHODIMP nsMsgTxn::DeleteProperty(const nsAString& name)
 // This is same as nsSimpleProperty but for external API use.
 //
 
-class nsMailSimpleProperty final : public nsIProperty 
+class nsMailSimpleProperty final : public nsIProperty
 {
 public:
   nsMailSimpleProperty(const nsAString& aName, nsIVariant* aValue)
@@ -146,7 +146,7 @@ IMPL_GETSETPROPERTY_AS(Uint64, uint64_t)
 IMPL_GETSETPROPERTY_AS(Double, double)
 IMPL_GETSETPROPERTY_AS(Bool, bool)
 
-NS_IMETHODIMP nsMsgTxn::GetPropertyAsAString(const nsAString & prop, 
+NS_IMETHODIMP nsMsgTxn::GetPropertyAsAString(const nsAString & prop,
                                              nsAString & _retval)
 {
   nsIVariant* v = mPropertyHash.GetWeak(prop);
@@ -155,7 +155,7 @@ NS_IMETHODIMP nsMsgTxn::GetPropertyAsAString(const nsAString & prop,
   return v->GetAsAString(_retval);
 }
 
-NS_IMETHODIMP nsMsgTxn::GetPropertyAsACString(const nsAString & prop, 
+NS_IMETHODIMP nsMsgTxn::GetPropertyAsACString(const nsAString & prop,
                                               nsACString & _retval)
 {
   nsIVariant* v = mPropertyHash.GetWeak(prop);
@@ -164,7 +164,7 @@ NS_IMETHODIMP nsMsgTxn::GetPropertyAsACString(const nsAString & prop,
   return v->GetAsACString(_retval);
 }
 
-NS_IMETHODIMP nsMsgTxn::GetPropertyAsAUTF8String(const nsAString & prop, 
+NS_IMETHODIMP nsMsgTxn::GetPropertyAsAUTF8String(const nsAString & prop,
                                                  nsACString & _retval)
 {
   nsIVariant* v = mPropertyHash.GetWeak(prop);
@@ -192,7 +192,7 @@ NS_IMETHODIMP nsMsgTxn::GetPropertyAsInterface(const nsAString & prop,
   return val->QueryInterface(aIID, _retval);
 }
 
-NS_IMETHODIMP nsMsgTxn::SetPropertyAsAString(const nsAString & prop, 
+NS_IMETHODIMP nsMsgTxn::SetPropertyAsAString(const nsAString & prop,
                                              const nsAString & value)
 {
   nsCOMPtr<nsIWritableVariant> var = new nsVariant();
@@ -200,7 +200,7 @@ NS_IMETHODIMP nsMsgTxn::SetPropertyAsAString(const nsAString & prop,
   return SetProperty(prop, var);
 }
 
-NS_IMETHODIMP nsMsgTxn::SetPropertyAsACString(const nsAString & prop, 
+NS_IMETHODIMP nsMsgTxn::SetPropertyAsACString(const nsAString & prop,
                                               const nsACString & value)
 {
   nsCOMPtr<nsIWritableVariant> var = new nsVariant();
@@ -208,7 +208,7 @@ NS_IMETHODIMP nsMsgTxn::SetPropertyAsACString(const nsAString & prop,
   return SetProperty(prop, var);
 }
 
-NS_IMETHODIMP nsMsgTxn::SetPropertyAsAUTF8String(const nsAString & prop, 
+NS_IMETHODIMP nsMsgTxn::SetPropertyAsAUTF8String(const nsAString & prop,
                                                  const nsACString & value)
 {
   nsCOMPtr<nsIWritableVariant> var = new nsVariant();
@@ -216,7 +216,7 @@ NS_IMETHODIMP nsMsgTxn::SetPropertyAsAUTF8String(const nsAString & prop,
   return SetProperty(prop, var);
 }
 
-NS_IMETHODIMP nsMsgTxn::SetPropertyAsInterface(const nsAString & prop, 
+NS_IMETHODIMP nsMsgTxn::SetPropertyAsInterface(const nsAString & prop,
                                                nsISupports* value)
 {
   nsCOMPtr<nsIWritableVariant> var = new nsVariant();
@@ -266,9 +266,9 @@ nsMsgTxn::SetTransactionType(uint32_t txnType)
   return SetPropertyAsUint32(NS_LITERAL_STRING("type"), txnType);
 }
 
-/*none of the callers pass null aFolder, 
+/*none of the callers pass null aFolder,
   we always initialize aResult (before we pass in) for the case where the key is not in the db*/
-nsresult 
+nsresult
 nsMsgTxn::CheckForToggleDelete(nsIMsgFolder *aFolder, const nsMsgKey &aMsgKey, bool *aResult)
 {
   NS_ENSURE_ARG(aResult);

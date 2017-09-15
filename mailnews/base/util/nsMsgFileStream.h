@@ -18,8 +18,8 @@ public:
 
   NS_DECL_ISUPPORTS
 
-  NS_IMETHOD Available(uint64_t *_retval) override; 
-  NS_IMETHOD Read(char * aBuf, uint32_t aCount, uint32_t *_retval) override; 
+  NS_IMETHOD Available(uint64_t *_retval) override;
+  NS_IMETHOD Read(char * aBuf, uint32_t aCount, uint32_t *_retval) override;
   NS_IMETHOD ReadSegments(nsWriteSegmentFun aWriter, void * aClosure, uint32_t aCount, uint32_t *_retval) override;
   NS_DECL_NSIOUTPUTSTREAM
   NS_DECL_NSISEEKABLESTREAM

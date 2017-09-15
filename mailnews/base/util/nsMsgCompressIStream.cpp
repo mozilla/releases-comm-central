@@ -46,7 +46,7 @@ nsresult nsMsgCompressIStream::InitInputStream(nsIInputStream *rawStream)
   m_zstream.zfree = Z_NULL;
   m_zstream.opaque = Z_NULL;
 
-  // http://zlib.net/manual.html is rather silent on the topic, but 
+  // http://zlib.net/manual.html is rather silent on the topic, but
   // perl's Compress::Raw::Zlib manual says:
   // -WindowBits
   //  To compress an RFC 1951 data stream, set WindowBits to -MAX_WBITS.
@@ -65,7 +65,7 @@ nsresult nsMsgCompressIStream::DoInflation()
   m_zstream.avail_out = BUFFER_SIZE;
   int zr = inflate(&m_zstream, Z_SYNC_FLUSH);
 
-  // inflate() should normally be called until it returns 
+  // inflate() should normally be called until it returns
   // Z_STREAM_END or an error, and Z_BUF_ERROR just means
   // unable to progress any further (possible if we filled
   // an output buffer exactly)
@@ -73,13 +73,13 @@ nsresult nsMsgCompressIStream::DoInflation()
     zr = Z_OK;
 
   // otherwise it's an error
-  if (zr != Z_OK) 
+  if (zr != Z_OK)
     return NS_ERROR_FAILURE;
 
   // http://www.zlib.net/manual.html says:
-  // If inflate returns Z_OK and with zero avail_out, it must be called 
+  // If inflate returns Z_OK and with zero avail_out, it must be called
   // again after making room in the output buffer because there might be
-  // more output pending. 
+  // more output pending.
   m_inflateAgain = m_zstream.avail_out ? false : true;
 
   // set the pointer to the start of the buffer, and the count to how
@@ -124,7 +124,7 @@ NS_IMETHODIMP nsMsgCompressIStream::CloseWithStatus(nsresult reason)
 /* unsigned long long available (); */
 NS_IMETHODIMP nsMsgCompressIStream::Available(uint64_t *aResult)
 {
-  if (!m_iStream) 
+  if (!m_iStream)
     return NS_BASE_STREAM_CLOSED;
 
   // check if there's anything still in flight
@@ -141,7 +141,7 @@ NS_IMETHODIMP nsMsgCompressIStream::Available(uint64_t *aResult)
     return NS_OK;
   }
 
-  // this value isn't accurate, but will give a good true/false 
+  // this value isn't accurate, but will give a good true/false
   // indication for idle purposes, and next read will fill
   // m_dataleft, so we'll have an accurate count for the next call.
   return m_iStream->Available(aResult);
@@ -150,17 +150,17 @@ NS_IMETHODIMP nsMsgCompressIStream::Available(uint64_t *aResult)
 /* [noscript] unsigned long read (in charPtr aBuf, in unsigned long aCount); */
 NS_IMETHODIMP nsMsgCompressIStream::Read(char * aBuf, uint32_t aCount, uint32_t *aResult)
 {
-  if (!m_iStream) 
+  if (!m_iStream)
   {
     *aResult = 0;
     return NS_OK;
   }
-  
+
   // There are two stages of buffering:
   // * m_zbuf contains the compressed data from the remote server
   // * m_databuf contains the uncompressed raw bytes for consumption
   //   by the local client.
-  // 
+  //
   // Each buffer will only be filled when the following buffers
   // have been entirely consumed.
   //
@@ -174,7 +174,7 @@ NS_IMETHODIMP nsMsgCompressIStream::Read(char * aBuf, uint32_t aCount, uint32_t 
   while (!m_dataleft)
   {
     // get some more data if we don't already have any
-    if (!m_inflateAgain) 
+    if (!m_inflateAgain)
     {
       uint32_t bytesRead;
       nsresult rv = m_iStream->Read(m_zbuf.get(), (uint32_t)BUFFER_SIZE, &bytesRead);

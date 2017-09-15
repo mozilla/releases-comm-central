@@ -24,7 +24,7 @@ NS_IMPL_ISUPPORTS(nsImapMoveCoalescer, nsIUrlListener)
 
 nsImapMoveCoalescer::nsImapMoveCoalescer(nsIMsgFolder *sourceFolder, nsIMsgWindow *msgWindow)
 {
-  m_sourceFolder = sourceFolder; 
+  m_sourceFolder = sourceFolder;
   m_msgWindow = msgWindow;
   m_hasPendingMoves = false;
 }
@@ -165,7 +165,7 @@ nsTArray<nsMsgKey> *nsImapMoveCoalescer::GetKeyBucket(uint32_t keyArrayIndex)
 
 NS_IMPL_ISUPPORTS(nsMoveCoalescerCopyListener, nsIMsgCopyServiceListener)
 
-nsMoveCoalescerCopyListener::nsMoveCoalescerCopyListener(nsImapMoveCoalescer * coalescer, 
+nsMoveCoalescerCopyListener::nsMoveCoalescerCopyListener(nsImapMoveCoalescer * coalescer,
                                                          nsIMsgFolder *destFolder)
 {
   m_destFolder = destFolder;
@@ -213,7 +213,7 @@ NS_IMETHODIMP nsMoveCoalescerCopyListener::OnStopCopy(nsresult aStatus)
       m_destFolder->GetFlags(&folderFlags);
       if (!(folderFlags & (nsMsgFolderFlags::Junk | nsMsgFolderFlags::Trash)))
       {
-        nsCOMPtr<nsIImapService> imapService = do_GetService(NS_IMAPSERVICE_CONTRACTID, &rv); 
+        nsCOMPtr<nsIImapService> imapService = do_GetService(NS_IMAPSERVICE_CONTRACTID, &rv);
         NS_ENSURE_SUCCESS(rv, rv);
         nsCOMPtr <nsIURI> url;
         nsCOMPtr <nsIUrlListener> listener = do_QueryInterface(m_coalescer);

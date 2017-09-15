@@ -35,14 +35,14 @@ private:
   double fStartCpuTimeSecs;
   /// CPU-clock stop time in seconds (of CPU time used since app start)
   double fStopCpuTimeSecs;
-  /// Total wall-clock time elapsed in seconds. 
+  /// Total wall-clock time elapsed in seconds.
   double fTotalRealTimeSecs;
   /// Total CPU time elapsed in seconds.
   double fTotalCpuTimeSecs;
 
   /// Is the timer running?
   bool fRunning;
-  
+
   static double GetRealTime();
   static double GetCPUTime();
 };

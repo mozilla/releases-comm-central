@@ -366,7 +366,7 @@ NS_IMETHODIMP nsMsgDBFolder::RemoveBackupMsgDatabase()
   }
 
   return backupDBFile->Remove(false);
-}  
+}
 
 NS_IMETHODIMP nsMsgDBFolder::StartFolderLoading(void)
 {
@@ -1014,7 +1014,7 @@ nsMsgDBFolder::OnJunkScoreChanged(nsIDBChangeListener * aInstigator)
 }
 
 NS_IMETHODIMP
-nsMsgDBFolder::OnHdrPropertyChanged(nsIMsgDBHdr *aHdrToChange, bool aPreChange, uint32_t *aStatus, 
+nsMsgDBFolder::OnHdrPropertyChanged(nsIMsgDBHdr *aHdrToChange, bool aPreChange, uint32_t *aStatus,
                                    nsIDBChangeListener *aInstigator)
 {
   /* do nothing.  if you care about this, override it.*/
@@ -2458,7 +2458,7 @@ nsMsgDBFolder::OnMessageTraitsClassified(const char *aMsgURI,
 {
   if (!aMsgURI) // This signifies end of batch
     return NS_OK; // We are not handling batching
-  
+
   nsresult rv;
   nsCOMPtr <nsIMsgDBHdr> msgHdr;
   rv = GetMsgDBHdrFromURI(aMsgURI, getter_AddRefs(msgHdr));
@@ -4175,7 +4175,7 @@ NS_IMETHODIMP nsMsgDBFolder::UpdateSummaryTotals(bool force)
   int32_t oldTotalMessages = mNumTotalMessages + mNumPendingTotalMessages;
   //We need to read this info from the database
   nsresult rv = ReadDBFolderInfo(force);
-  
+
   if (NS_SUCCEEDED(rv))
   {
     int32_t newUnreadMessages = mNumUnreadMessages + mNumPendingUnreadMessages;
@@ -4639,7 +4639,7 @@ NS_IMETHODIMP nsMsgDBFolder::GetNumNewMessages(bool deep, int32_t *aNumNewMessag
   int32_t numNewMessages = (!deep || ! (mFlags & nsMsgFolderFlags::Virtual))
     ? mNumNewBiffMessages : 0;
   if (deep)
-  { 
+  {
     int32_t count = mSubFolders.Count();
     for (int32_t i = 0; i < count; i++)
     {
@@ -5399,7 +5399,7 @@ nsresult
 nsMsgDBFolder::CreateCollationKey(const nsString &aSource,  uint8_t **aKey, uint32_t *aLength)
 {
   NS_ENSURE_TRUE(gCollationKeyGenerator, NS_ERROR_NULL_POINTER);
-  return gCollationKeyGenerator->AllocateRawSortKey(nsICollation::kCollationCaseInSensitive, aSource, 
+  return gCollationKeyGenerator->AllocateRawSortKey(nsICollation::kCollationCaseInSensitive, aSource,
                                                     aKey, aLength);
 }
 
@@ -5756,7 +5756,7 @@ nsresult nsMsgDBFolder::GetMsgPreviewTextFromStream(nsIMsgDBHdr *msgHdr, nsIInpu
   msgHdr->GetCharset(getter_Copies(charset));
   nsAutoCString contentType;
   nsresult rv = GetMsgTextFromStream(stream, charset, 4096, 255, true, true, contentType, msgBody);
-  // replaces all tabs and line returns with a space, 
+  // replaces all tabs and line returns with a space,
   // then trims off leading and trailing white space
   MsgCompressWhitespace(msgBody);
   msgHdr->SetStringProperty("preview", msgBody.get());
@@ -5835,7 +5835,7 @@ NS_IMETHODIMP nsMsgDBFolder::AddKeywordsToMessages(nsIArray *aMessages, const ns
       // in the case of filters running on incoming pop3 mail with quarantining
       // turned on, the message key is wrong.
       mDatabase->SetStringPropertyByHdr(message, "keywords", keywords.get());
-      
+
       if (addCount)
         NotifyPropertyFlagChanged(message, kKeywords, 0, addCount);
     }
@@ -5920,7 +5920,7 @@ NS_IMETHODIMP nsMsgDBFolder::GetProcessingFlags(nsMsgKey aKey, uint32_t *aFlags)
     if (mProcessingFlag[i].keys && mProcessingFlag[i].keys->IsMember(aKey))
       *aFlags |= mProcessingFlag[i].bit;
   return NS_OK;
-}  
+}
 
 NS_IMETHODIMP nsMsgDBFolder::OrProcessingFlags(nsMsgKey aKey, uint32_t mask)
 {
@@ -5928,7 +5928,7 @@ NS_IMETHODIMP nsMsgDBFolder::OrProcessingFlags(nsMsgKey aKey, uint32_t mask)
     if (mProcessingFlag[i].bit & mask && mProcessingFlag[i].keys)
       mProcessingFlag[i].keys->Add(aKey);
   return NS_OK;
-}  
+}
 
 NS_IMETHODIMP nsMsgDBFolder::AndProcessingFlags(nsMsgKey aKey, uint32_t mask)
 {

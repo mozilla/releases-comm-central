@@ -77,7 +77,7 @@ NS_MSG_BASE nsresult FormatFileSize(int64_t size, bool useKB, nsAString &formatt
  * @param aScheme scheme of the uri
  * @param[optional] aIsNewsFolder is this a news folder?
  */
-NS_MSG_BASE nsresult 
+NS_MSG_BASE nsresult
 NS_MsgCreatePathStringFromFolderURI(const char *aFolderURI,
                                     nsCString& aPathString,
                                     const nsCString &aScheme,
@@ -91,12 +91,12 @@ NS_MsgCreatePathStringFromFolderURI(const char *aFolderURI,
  *
  * @return true if it made a change (in which case the caller should look to
  *         modifiedSubject for the result) and false otherwise (in which
- *         case the caller should look at stringp/length for the result) 
+ *         case the caller should look at stringp/length for the result)
  *
  * @note In the case of a true return value, the string is not altered:
  *       the pointer to its head is merely advanced, and the length
  *       correspondingly decreased.
- * 
+ *
  * @note This API is insane and should be fixed.
  */
 NS_MSG_BASE bool NS_MsgStripRE(const char **stringP, uint32_t *lengthP, char **modifiedSubject=nullptr);
@@ -220,7 +220,7 @@ NS_MSG_BASE bool MsgIsUTF8(const nsACString& aString);
 NS_MSG_BASE nsresult MsgEscapeString(const nsACString &aStr,
                                      uint32_t aType, nsACString &aResult);
 
-NS_MSG_BASE nsresult MsgUnescapeString(const nsACString &aStr, 
+NS_MSG_BASE nsresult MsgUnescapeString(const nsACString &aStr,
                                        uint32_t aFlags, nsACString &aResult);
 
 NS_MSG_BASE nsresult MsgEscapeURL(const nsACString &aStr, uint32_t aFlags,

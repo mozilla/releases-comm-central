@@ -51,13 +51,13 @@ public:
   // nsIChannel support
   NS_DECL_NSICHANNEL
   NS_DECL_NSIREQUEST
-  
+
   NS_DECL_NSISTREAMLISTENER
   NS_DECL_NSIREQUESTOBSERVER
   NS_DECL_NSITRANSPORTEVENTSINK
 
   // LoadUrl -- A protocol typically overrides this function, sets up any local state for the url and
-  // then calls the base class which opens the socket if it needs opened. If the socket is 
+  // then calls the base class which opens the socket if it needs opened. If the socket is
   // already opened then we just call ProcessProtocolState to start the churning process.
   // aConsumer is the consumer for the url. It can be null if this argument is not appropriate
   virtual nsresult LoadUrl(nsIURI * aURL, nsISupports * aConsumer = nullptr);
@@ -94,20 +94,20 @@ protected:
 
   // a Protocol typically overrides this method. They free any of their own connection state and then
   // they call up into the base class to free the generic connection objects
-  virtual nsresult CloseSocket(); 
+  virtual nsresult CloseSocket();
 
   virtual nsresult SetupTransportState(); // private method used by OpenNetworkSocket and OpenFileSocket
 
-  // ProcessProtocolState - This is the function that gets churned by calls to OnDataAvailable. 
+  // ProcessProtocolState - This is the function that gets churned by calls to OnDataAvailable.
   // As data arrives on the socket, OnDataAvailable calls ProcessProtocolState.
-  
-  virtual nsresult ProcessProtocolState(nsIURI * url, nsIInputStream * inputStream, 
+
+  virtual nsresult ProcessProtocolState(nsIURI * url, nsIInputStream * inputStream,
                                         uint64_t sourceOffset, uint32_t length) = 0;
 
-  // SendData -- Writes the data contained in dataBuffer into the current output stream. 
+  // SendData -- Writes the data contained in dataBuffer into the current output stream.
   // It also informs the transport layer that this data is now available for transmission.
   // Returns a positive number for success, 0 for failure (not all the bytes were written to the
-  // stream, etc). 
+  // stream, etc).
     // aSuppressLogging is a hint that sensitive data is being sent and should not be logged
   virtual nsresult SendData(const char * dataBuffer, bool aSuppressLogging = false);
 
@@ -120,12 +120,12 @@ protected:
 
   nsresult DoGSSAPIStep1(const char *service, const char *username, nsCString &response);
   nsresult DoGSSAPIStep2(nsCString &commandResponse, nsCString &response);
-  // Ouput stream for writing commands to the socket  
+  // Ouput stream for writing commands to the socket
   nsCOMPtr<nsIOutputStream>   m_outputStream;   // this will be obtained from the transport interface
   nsCOMPtr<nsIInputStream>    m_inputStream;
 
   // Ouput stream for writing commands to the socket
-  nsCOMPtr<nsITransport>  m_transport; 
+  nsCOMPtr<nsITransport>  m_transport;
   nsCOMPtr<nsIRequest>    m_request;
   nsCOMPtr<nsICancelable> m_proxyRequest;
 
@@ -159,7 +159,7 @@ protected:
   nsCString m_lastPasswordSent; // used to prefill the password prompt
 
   // private helper routine used by subclasses to quickly get a reference to the correct prompt dialog
-  // for a mailnews url. 
+  // for a mailnews url.
   nsresult GetPromptDialogFromUrl(nsIMsgMailNewsUrl * aMsgUrl, nsIPrompt ** aPromptDialog);
 
   // if a url isn't going to result in any content then we want to suppress calls to
@@ -180,10 +180,10 @@ public:
   NS_IMETHOD Cancel(nsresult status) override;
 
   nsMsgAsyncWriteProtocol(nsIURI * aURL);
-  
+
   // temporary over ride...
   virtual nsresult PostMessage(nsIURI* url, nsIFile *postFile) override;
-  
+
   // over ride the following methods from the base class
   virtual nsresult SetupTransportState() override;
   virtual nsresult SendData(const char * dataBuffer, bool aSuppressLogging = false) override;
@@ -196,12 +196,12 @@ public:
   nsCOMPtr<nsIOutputStreamCallback> mProvider;
   nsCOMPtr<nsIThread>               mProviderThread;
 
-  // because we are reading the post data in asychronously, it's possible that we aren't sending it 
-  // out fast enough and the reading gets blocked. The following set of state variables are used to 
+  // because we are reading the post data in asychronously, it's possible that we aren't sending it
+  // out fast enough and the reading gets blocked. The following set of state variables are used to
   // track this.
   bool    mSuspendedRead;
   bool    mInsertPeriodRequired; // do we need to insert a '.' as part of the unblocking process
-   
+
   nsresult ProcessIncomingPostData(nsIInputStream *inStr, uint32_t count);
   nsresult UnblockPostReader();
   nsresult UpdateSuspendedReadBytes(uint32_t aNewBytes, bool aAddToPostPeriodByteCount);
@@ -210,10 +210,10 @@ public:
 
   // these two routines are used to pause and resume our loading of the file containing the contents
   // we are trying to post. We call these routines when we aren't sending the bits out fast enough
-  // to keep up with the file read. 
+  // to keep up with the file read.
   nsresult SuspendPostFileRead();
-  nsresult ResumePostFileRead(); 
-  nsresult UpdateSuspendedReadBytes(uint32_t aNewBytes); 
+  nsresult ResumePostFileRead();
+  nsresult UpdateSuspendedReadBytes(uint32_t aNewBytes);
   void UpdateProgress(uint32_t aNewBytes);
   nsMsgFilePostHelper * mFilePostHelper; // needs to be a weak reference
 protected:
@@ -222,17 +222,17 @@ protected:
   // the streams for the pipe used to queue up data for the async write calls to the server.
   // we actually re-use the same mOutStream variable in our parent class for the output
   // stream to the socket channel. So no need for a new variable here.
-  nsCOMPtr<nsIInputStream>  mInStream;    
+  nsCOMPtr<nsIInputStream>  mInStream;
   nsCOMPtr<nsIInputStream>  mPostDataStream;
-  uint32_t                  mSuspendedReadBytes;   // remaining # of bytes we need to read before   
+  uint32_t                  mSuspendedReadBytes;   // remaining # of bytes we need to read before
                                                    // the input stream becomes unblocked
-  uint32_t                  mSuspendedReadBytesPostPeriod; // # of bytes which need processed after we insert a '.' before 
+  uint32_t                  mSuspendedReadBytesPostPeriod; // # of bytes which need processed after we insert a '.' before
                                                            // the input stream becomes unblocked.
   int64_t   mFilePostSize; // used for file size, we post a single message in a file
   uint32_t  mNumBytesPosted; // used for determining progress on posting files
   bool      mGenerateProgressNotifications; // set during a post operation after we've started sending the post data...
 
-  virtual nsresult CloseSocket() override; 
+  virtual nsresult CloseSocket() override;
 };
 
 #undef  IMETHOD_VISIBILITY

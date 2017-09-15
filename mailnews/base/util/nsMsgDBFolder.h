@@ -8,7 +8,7 @@
 
 #include "mozilla/Attributes.h"
 #include "msgCore.h"
-#include "nsIMsgFolder.h" 
+#include "nsIMsgFolder.h"
 #include "nsRDFResource.h"
 #include "nsIDBFolderInfo.h"
 #include "nsIMsgDatabase.h"
@@ -72,10 +72,10 @@ class nsIMsgFolderCacheElement;
 class nsICollation;
 class nsMsgKeySetU;
 
- /* 
+ /*
   * nsMsgDBFolder
   * class derived from nsMsgFolder for those folders that use an nsIMsgDatabase
-  */ 
+  */
 
 #undef IMETHOD_VISIBILITY
 #define IMETHOD_VISIBILITY NS_VISIBILITY_DEFAULT
@@ -88,7 +88,7 @@ class NS_MSG_BASE nsMsgDBFolder: public nsRDFResource,
                                  public nsIJunkMailClassificationListener,
                                  public nsIMsgTraitClassificationListener
 {
-public: 
+public:
   nsMsgDBFolder(void);
   NS_DECL_ISUPPORTS_INHERITED
   NS_DECL_NSIMSGFOLDER
@@ -96,7 +96,7 @@ public:
   NS_DECL_NSIURLLISTENER
   NS_DECL_NSIJUNKMAILCLASSIFICATIONLISTENER
   NS_DECL_NSIMSGTRAITCLASSIFICATIONLISTENER
-  
+
   NS_IMETHOD WriteToFolderCacheElem(nsIMsgFolderCacheElement *element);
   NS_IMETHOD ReadFromFolderCacheElem(nsIMsgFolderCacheElement *element);
 
@@ -224,7 +224,7 @@ protected:
 
   nsWeakPtr mServer;
 
-  // These values are used for tricking the front end into thinking that we have more 
+  // These values are used for tricking the front end into thinking that we have more
   // messages than are really in the DB.  This is usually after and IMAP message copy where
   // we don't want to do an expensive select until the user actually opens that folder
   int32_t mNumPendingUnreadMessages;
@@ -240,7 +240,7 @@ protected:
   nsTArray<nsMsgKey> m_saveNewMsgs;
 
   // These are the set of new messages for a folder who has had
-  // its db closed, without the user reading the folder. This 
+  // its db closed, without the user reading the folder. This
   // happens with pop3 mail filtered to a different local folder.
   nsTArray<nsMsgKey> m_newMsgs;
 

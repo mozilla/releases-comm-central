@@ -31,13 +31,13 @@ nsMsgReadStateTxn::Init(nsIMsgFolder *aParentFolder,
   return nsMsgTxn::Init();
 }
 
-NS_IMETHODIMP 
+NS_IMETHODIMP
 nsMsgReadStateTxn::UndoTransaction()
 {
   return MarkMessages(false);
 }
 
-NS_IMETHODIMP 
+NS_IMETHODIMP
 nsMsgReadStateTxn::RedoTransaction()
 {
   return MarkMessages(true);
@@ -47,14 +47,14 @@ NS_IMETHODIMP
 nsMsgReadStateTxn::MarkMessages(bool aAsRead)
 {
   nsresult rv;
-  nsCOMPtr<nsIMutableArray> messageArray = 
+  nsCOMPtr<nsIMutableArray> messageArray =
     do_CreateInstance(NS_ARRAY_CONTRACTID, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
   uint32_t length = mMarkedMessages.Length();
   for (uint32_t i = 0; i < length; i++) {
     nsCOMPtr<nsIMsgDBHdr> curMsgHdr;
-    rv = mParentFolder->GetMessageHeader(mMarkedMessages[i], 
+    rv = mParentFolder->GetMessageHeader(mMarkedMessages[i],
                                          getter_AddRefs(curMsgHdr));
     if (NS_SUCCEEDED(rv) && curMsgHdr) {
       messageArray->AppendElement(curMsgHdr, false);

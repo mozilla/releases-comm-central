@@ -31,7 +31,7 @@ ErrorAccordingToNSPR()
     }
 }
 
-nsMsgFileStream::nsMsgFileStream() 
+nsMsgFileStream::nsMsgFileStream()
 {
   mFileDesc = nullptr;
   mSeekedToEnd = false;
@@ -74,7 +74,7 @@ nsMsgFileStream::Tell(int64_t *result)
 {
   if (mFileDesc == nullptr)
     return NS_BASE_STREAM_CLOSED;
-  
+
   int64_t cnt = PR_Seek64(mFileDesc, 0, PR_SEEK_CUR);
   if (cnt == int64_t(-1)) {
     return ErrorAccordingToNSPR();
@@ -104,9 +104,9 @@ NS_IMETHODIMP nsMsgFileStream::Close()
 /* unsigned long long available (); */
 NS_IMETHODIMP nsMsgFileStream::Available(uint64_t *aResult)
 {
-  if (!mFileDesc) 
+  if (!mFileDesc)
     return NS_BASE_STREAM_CLOSED;
-  
+
   int64_t avail = PR_Available64(mFileDesc);
   if (avail == -1)
     return ErrorAccordingToNSPR();
@@ -118,16 +118,16 @@ NS_IMETHODIMP nsMsgFileStream::Available(uint64_t *aResult)
 /* [noscript] unsigned long read (in charPtr aBuf, in unsigned long aCount); */
 NS_IMETHODIMP nsMsgFileStream::Read(char * aBuf, uint32_t aCount, uint32_t *aResult)
 {
-  if (!mFileDesc) 
+  if (!mFileDesc)
   {
     *aResult = 0;
     return NS_OK;
   }
-  
+
   int32_t bytesRead = PR_Read(mFileDesc, aBuf, aCount);
   if (bytesRead == -1)
     return ErrorAccordingToNSPR();
-  
+
   *aResult = bytesRead;
   return NS_OK;
 }
@@ -150,7 +150,7 @@ nsMsgFileStream::Write(const char *buf, uint32_t count, uint32_t *result)
 {
   if (mFileDesc == nullptr)
     return NS_BASE_STREAM_CLOSED;
-  
+
   int32_t cnt = PR_Write(mFileDesc, buf, count);
   if (cnt == -1) {
     return ErrorAccordingToNSPR();
@@ -164,9 +164,9 @@ nsMsgFileStream::Flush(void)
 {
   if (mFileDesc == nullptr)
     return NS_BASE_STREAM_CLOSED;
-  
+
   int32_t cnt = PR_Sync(mFileDesc);
-  if (cnt == -1) 
+  if (cnt == -1)
     return ErrorAccordingToNSPR();
 
   return NS_OK;

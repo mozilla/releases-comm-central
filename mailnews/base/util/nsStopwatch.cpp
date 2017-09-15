@@ -19,11 +19,11 @@
 /*
  * This basis for the logic in this file comes from (will used to come from):
  *  (mozilla/)modules/libutil/public/stopwatch.cpp.
- *  
+ *
  * It was no longer used in the mozilla tree, and is being migrated to
  * comm-central where we actually have a need for it.  ("Being" in the sense
  * that it will not be removed immediately from mozilla-central.)
- * 
+ *
  * Simplification and general clean-up has been performed and the fix for
  * bug 96669 has been integrated.
  */
