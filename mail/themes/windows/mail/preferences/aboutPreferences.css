@@ -4,6 +4,16 @@
 
 @import url("chrome://messenger/skin/shared/in-content/aboutPreferences.css");
 
+html *,
+page *,
+window * {
+  font-size: 1.25rem;
+}
+
+caption > label:not(.dialogTitle) {
+  font-size: 1.42rem;
+}
+
 @media not all and (-moz-windows-default-theme) {
   .paneButtonIcon {
     fill: ThreeDHighlight;

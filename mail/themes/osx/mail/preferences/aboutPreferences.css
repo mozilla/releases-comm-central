@@ -4,6 +4,16 @@
 
 @import url("chrome://messenger/skin/shared/in-content/aboutPreferences.css");
 
+html *,
+page *,
+window * {
+  font-size: 1.36rem;
+}
+
+caption > label:not(.dialogTitle) {
+  font-size: 1.55rem;
+}
+
 prefpane .groupbox-title {
   background: none;
   margin-bottom: 0;
