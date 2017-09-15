@@ -301,8 +301,7 @@ cal.auth.Prompt.prototype = {
         let self = this;
         let promptlistener = {
             onPromptStart: function() {
-                res = self.promptAuth(aChannel, aLevel, aAuthInfo);
-
+                let res = self.promptAuth(aChannel, aLevel, aAuthInfo);
                 if (res) {
                     gAuthCache.setAuthInfo(hostKey, aAuthInfo);
                     this.onPromptAuthAvailable();
