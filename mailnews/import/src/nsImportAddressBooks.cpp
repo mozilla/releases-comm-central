@@ -174,15 +174,11 @@ NS_IMPL_ISUPPORTS(nsImportGenericAddressBooks, nsIImportGeneric)
 
 NS_IMETHODIMP nsImportGenericAddressBooks::GetData(const char *dataId, nsISupports **_retval)
 {
-  NS_PRECONDITION(_retval != nullptr, "null ptr");
-  if (!_retval)
-    return NS_ERROR_NULL_POINTER;
-
+  NS_ENSURE_ARG_POINTER(_retval);
   nsresult rv;
   *_retval = nullptr;
   if (!PL_strcasecmp(dataId, "addressInterface")) {
-    *_retval = m_pInterface;
-    NS_IF_ADDREF(m_pInterface);
+    NS_IF_ADDREF(*_retval = m_pInterface);
   }
 
   if (!PL_strcasecmp(dataId, "addressLocation")) {
@@ -201,17 +197,16 @@ NS_IMETHODIMP nsImportGenericAddressBooks::GetData(const char *dataId, nsISuppor
 
   if (!PL_strcasecmp(dataId, "addressDestination")) {
     if (m_pDestinationUri) {
-            nsCOMPtr<nsISupportsCString> abString = do_CreateInstance(NS_SUPPORTS_CSTRING_CONTRACTID, &rv);
-            NS_ENSURE_SUCCESS(rv, rv);
-            abString->SetData(nsDependentCString(m_pDestinationUri));
-            NS_IF_ADDREF(*_retval = abString);
+      nsCOMPtr<nsISupportsCString> abString = do_CreateInstance(NS_SUPPORTS_CSTRING_CONTRACTID, &rv);
+      NS_ENSURE_SUCCESS(rv, rv);
+      abString->SetData(nsDependentCString(m_pDestinationUri));
+      abString.forget(_retval);
     }
   }
 
   if (!PL_strcasecmp(dataId, "fieldMap")) {
     if (m_pFieldMap) {
-      *_retval = m_pFieldMap;
-      m_pFieldMap->AddRef();
+      NS_ADDREF(*_retval = m_pFieldMap);
     }
     else {
       if (m_pInterface && m_pLocation) {
@@ -220,8 +215,7 @@ NS_IMETHODIMP nsImportGenericAddressBooks::GetData(const char *dataId, nsISuppor
         if (needsIt) {
           GetDefaultFieldMap();
           if (m_pFieldMap) {
-            *_retval = m_pFieldMap;
-            m_pFieldMap->AddRef();
+            NS_ADDREF(*_retval = m_pFieldMap);
           }
         }
       }
@@ -249,8 +243,7 @@ NS_IMETHODIMP nsImportGenericAddressBooks::GetData(const char *dataId, nsISuppor
         return rv;
       if (found) {
         data->SetData(nsDependentString(pData));
-        *_retval = data;
-        NS_ADDREF(*_retval);
+        data.forget(_retval);
       }
       NS_Free(pData);
     }

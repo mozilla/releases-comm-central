@@ -45,10 +45,7 @@ nsresult
 nsBeckyMail::Create(nsIImportMail **aImport)
 {
   NS_ENSURE_ARG_POINTER(aImport);
-
-  *aImport = new nsBeckyMail();
-
-  NS_ADDREF(*aImport);
+  NS_ADDREF(*aImport = new nsBeckyMail());
   return NS_OK;
 }
 

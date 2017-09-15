@@ -197,11 +197,7 @@ nsresult ImportAddressImpl::Create(nsIImportAddressBooks** aImport,
                                    nsIStringBundle* aStringBundle)
 {
   NS_ENSURE_ARG_POINTER(aImport);
-  *aImport = new ImportAddressImpl(aStringBundle);
-  if (! *aImport)
-    return NS_ERROR_OUT_OF_MEMORY;
-
-  NS_ADDREF(*aImport);
+  NS_ADDREF(*aImport = new ImportAddressImpl(aStringBundle));
   return NS_OK;
 }
 

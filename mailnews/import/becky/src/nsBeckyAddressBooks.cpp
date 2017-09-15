@@ -29,10 +29,7 @@ nsresult
 nsBeckyAddressBooks::Create(nsIImportAddressBooks **aImport)
 {
   NS_ENSURE_ARG_POINTER(aImport);
-
-  *aImport = new nsBeckyAddressBooks();
-
-  NS_ADDREF(*aImport);
+  NS_ADDREF(*aImport = new nsBeckyAddressBooks());
   return NS_OK;
 }
 

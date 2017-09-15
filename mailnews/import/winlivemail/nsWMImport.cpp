@@ -155,9 +155,7 @@ NS_IMETHODIMP nsWMImport::GetImportInterface(const char *pImportType,
 nsresult ImportWMMailImpl::Create(nsIImportMail** aImport)
 {
   NS_ENSURE_ARG_POINTER(aImport);
-  *aImport = new ImportWMMailImpl();
-  NS_ENSURE_TRUE(*aImport, NS_ERROR_OUT_OF_MEMORY);
-  NS_ADDREF(*aImport);
+  NS_ADDREF(*aImport = new ImportWMMailImpl());
   return NS_OK;
 }
 

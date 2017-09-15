@@ -264,15 +264,8 @@ NS_IMETHODIMP nsOutlookImport::GetImportInterface(const char *pImportType, nsISu
 /////////////////////////////////////////////////////////////////////////////////
 nsresult ImportOutlookMailImpl::Create(nsIImportMail** aImport)
 {
-  NS_PRECONDITION(aImport != nullptr, "null ptr");
-  if (! aImport)
-    return NS_ERROR_NULL_POINTER;
-
-  *aImport = new ImportOutlookMailImpl();
-  if (! *aImport)
-    return NS_ERROR_OUT_OF_MEMORY;
-
-  NS_ADDREF(*aImport);
+  NS_ENSURE_ARG_POINTER(aImport);
+  NS_ADDREF(*aImport = new ImportOutlookMailImpl());
   return NS_OK;
 }
 
@@ -321,7 +314,7 @@ NS_IMETHODIMP ImportOutlookMailImpl::GetDefaultLocation(nsIFile **ppLoc, bool *f
     return rv;
 
   *found = true;
-  NS_IF_ADDREF(*ppLoc = resultFile);
+  resultFile.forget(ppLoc);
   *userVerify = false;
 
   return NS_OK;
@@ -453,15 +446,8 @@ NS_IMETHODIMP ImportOutlookMailImpl::TranslateFolderName(const nsAString & aFold
 
 nsresult ImportOutlookAddressImpl::Create(nsIImportAddressBooks** aImport)
 {
-  NS_PRECONDITION(aImport != nullptr, "null ptr");
-  if (! aImport)
-    return NS_ERROR_NULL_POINTER;
-
-  *aImport = new ImportOutlookAddressImpl();
-  if (! *aImport)
-    return NS_ERROR_OUT_OF_MEMORY;
-
-  NS_ADDREF(*aImport);
+  NS_ENSURE_ARG_POINTER(aImport);
+  NS_ADDREF(*aImport = new ImportOutlookAddressImpl());
   return NS_OK;
 }
 

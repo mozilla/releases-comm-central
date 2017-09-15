@@ -162,14 +162,8 @@ NS_IMPL_ISUPPORTS(OutlookSendListener, nsIMsgSendListener)
 
 nsresult OutlookSendListener::CreateSendListener(nsIMsgSendListener **ppListener)
 {
-  NS_PRECONDITION(ppListener != nullptr, "null ptr");
   NS_ENSURE_ARG_POINTER(ppListener);
-
-  *ppListener = new OutlookSendListener();
-  if (! *ppListener)
-    return NS_ERROR_OUT_OF_MEMORY;
-
-  NS_ADDREF(*ppListener);
+  NS_ADDREF(*ppListener = new OutlookSendListener());
   return NS_OK;
 }
 

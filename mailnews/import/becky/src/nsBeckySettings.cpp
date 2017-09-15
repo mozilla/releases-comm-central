@@ -30,10 +30,7 @@ nsresult
 nsBeckySettings::Create(nsIImportSettings **aImport)
 {
   NS_ENSURE_ARG_POINTER(aImport);
-
-  *aImport = new nsBeckySettings();
-
-  NS_ADDREF(*aImport);
+  NS_ADDREF(*aImport = new nsBeckySettings());
   return NS_OK;
 }
 

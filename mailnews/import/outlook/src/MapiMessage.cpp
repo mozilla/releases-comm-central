@@ -1170,7 +1170,6 @@ nsresult CMapiMessage::GetAttachments(nsIArray **aArray)
   nsresult rv;
   nsCOMPtr<nsIMutableArray> attachments (do_CreateInstance(NS_ARRAY_CONTRACTID, &rv));
   NS_ENSURE_SUCCESS(rv, rv);
-  NS_IF_ADDREF(*aArray = attachments);
 
   for (std::vector<attach_data*>::const_iterator it = m_stdattachments.begin();
        it != m_stdattachments.end(); it++) {
@@ -1183,6 +1182,7 @@ nsresult CMapiMessage::GetAttachments(nsIArray **aArray)
     a->SetType(nsDependentCString((*it)->type));
     attachments->AppendElement(a, false);
   }
+  attachments.forget(aArray);
   return rv;
 }
 

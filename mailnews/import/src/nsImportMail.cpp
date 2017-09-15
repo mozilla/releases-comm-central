@@ -206,22 +206,17 @@ NS_IMPL_ISUPPORTS(nsImportGenericMail, nsIImportGeneric)
 NS_IMETHODIMP nsImportGenericMail::GetData(const char *dataId, nsISupports **_retval)
 {
   nsresult rv = NS_OK;
-
-  NS_PRECONDITION(_retval != nullptr, "null ptr");
-  if (!_retval)
-    return NS_ERROR_NULL_POINTER;
+  NS_ENSURE_ARG_POINTER(_retval);
 
   *_retval = nullptr;
   if (!PL_strcasecmp(dataId, "mailInterface")) {
-    *_retval = m_pInterface;
-    NS_IF_ADDREF(m_pInterface);
+    NS_IF_ADDREF(*_retval = m_pInterface);
   }
 
   if (!PL_strcasecmp(dataId, "mailBoxes")) {
     if (!m_pMailboxes)
       GetDefaultMailboxes();
-    *_retval = m_pMailboxes;
-    NS_IF_ADDREF(m_pMailboxes);
+    NS_IF_ADDREF(*_retval = m_pMailboxes);
   }
 
   if (!PL_strcasecmp(dataId, "mailLocation")) {
@@ -237,10 +232,10 @@ NS_IMETHODIMP nsImportGenericMail::GetData(const char *dataId, nsISupports **_re
   }
 
   if (!PL_strcasecmp(dataId, "migration")) {
-        nsCOMPtr<nsISupportsPRBool> migrationString = do_CreateInstance(NS_SUPPORTS_PRBOOL_CONTRACTID, &rv);
-        NS_ENSURE_SUCCESS(rv, rv);
-        migrationString->SetData(m_performingMigration);
-        NS_IF_ADDREF(*_retval = migrationString);
+    nsCOMPtr<nsISupportsPRBool> migrationString = do_CreateInstance(NS_SUPPORTS_PRBOOL_CONTRACTID, &rv);
+    NS_ENSURE_SUCCESS(rv, rv);
+    migrationString->SetData(m_performingMigration);
+    migrationString.forget(_retval);
   }
 
   if (!PL_strcasecmp(dataId, "currentMailbox")) {
@@ -252,7 +247,7 @@ NS_IMETHODIMP nsImportGenericMail::GetData(const char *dataId, nsISupports **_re
     if (m_pThreadData) {
       GetMailboxName(m_pThreadData->currentMailbox, data);
     }
-    NS_ADDREF(*_retval = data);
+    data.forget(_retval);
   }
 
   return rv;
