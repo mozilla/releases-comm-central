@@ -1459,6 +1459,7 @@
     <implementation>
       <constructor><![CDATA[
         Components.utils.import("resource://calendar/modules/calUtils.jsm");
+        Components.utils.import("resource://gre/modules/Services.jsm");
 
         this.kTimeFormatObject = { timeStyle: "short" };
         this.initDateFormat();

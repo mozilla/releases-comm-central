@@ -19,7 +19,7 @@
       <constructor><![CDATA[
         Components.utils.import("resource://calendar/modules/calUtils.jsm");
 
-        this.mPopupHandler = () => { this.schangeMenuByPropertyName(); };
+        this.mPopupHandler = () => { this.changeMenuByPropertyName(); };
         this.mParentMenuPopup = cal.getParentNodeOrThis(this, "menupopup");
         this.mParentMenuPopup.addEventListener("popupshowing", this.mPopupHandler, true);
       ]]></constructor>
