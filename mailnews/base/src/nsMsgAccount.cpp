@@ -251,7 +251,7 @@ nsMsgAccount::GetDefaultIdentity(nsIMsgIdentity **aDefaultIdentity)
     return NS_OK;
 
   nsCOMPtr<nsIMsgIdentity> identity = do_QueryElementAt(m_identities, 0, &rv);
-  identity.swap(*aDefaultIdentity);
+  identity.forget(aDefaultIdentity);
   return rv;
 }
 

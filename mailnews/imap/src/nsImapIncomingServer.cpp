@@ -1316,7 +1316,7 @@ nsresult nsImapIncomingServer::GetFolder(const nsACString& name, nsIMsgFolder** 
       {
         nsCOMPtr<nsIMsgFolder> folder(do_QueryInterface(res, &rv));
         if (NS_SUCCEEDED(rv) && folder)
-          folder.swap(*pFolder);
+          folder.forget(pFolder);
       }
     }
   }
@@ -3272,7 +3272,7 @@ nsImapIncomingServer::GetMsgFolderFromURI(nsIMsgFolder *aFolderResource,
       msgFolder = aFolderResource;
   }
 
-  msgFolder.swap(*aFolder);
+  msgFolder.forget(aFolder);
   return NS_OK;
 }
 

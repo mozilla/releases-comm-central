@@ -803,7 +803,7 @@ nsMessenger::SaveAttachmentToFolder(const nsACString& contentType, const nsACStr
 #endif
 
   rv = SaveAttachment(attachmentDestination, url, messageUri, contentType, nullptr, nullptr);
-  attachmentDestination.swap(*aOutFile);
+  attachmentDestination.forget(aOutFile);
   return rv;
 }
 
@@ -1326,7 +1326,7 @@ nsMessenger::GetSaveAsFile(const nsAString& aMsgFilename, int32_t *aSaveAsFileTy
   }
 
   *aSaveAsFile = nullptr;
-  localFile.swap(*aSaveAsFile);
+  localFile.forget(aSaveAsFile);
   return NS_OK;
 }
 
@@ -1369,7 +1369,7 @@ nsMessenger::GetSaveToDir(nsIFile **aSaveDir)
   NS_ENSURE_SUCCESS(rv, rv);
 
   *aSaveDir = nullptr;
-  dir.swap(*aSaveDir);
+  dir.forget(aSaveDir);
   return NS_OK;
 }
 

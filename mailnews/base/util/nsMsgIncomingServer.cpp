@@ -927,7 +927,7 @@ nsMsgIncomingServer::GetLocalPath(nsIFile **aLocalPath)
   rv = SetLocalPath(localPath);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  localPath.swap(*aLocalPath);
+  localPath.forget(aLocalPath);
   return NS_OK;
 }
 

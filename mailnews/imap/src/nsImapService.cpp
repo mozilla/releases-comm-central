@@ -890,7 +890,7 @@ nsresult nsImapService::DecomposeImapURI(const nsACString &aMessageURI,
   nsCOMPtr<nsIMsgFolder> msgFolder = do_QueryInterface(res);
   NS_ENSURE_TRUE(msgFolder, NS_ERROR_FAILURE);
 
-  msgFolder.swap(*aFolder);
+  msgFolder.forget(aFolder);
 
   return NS_OK;
 }
@@ -2223,7 +2223,7 @@ nsresult nsImapService::GetImapConnectionAndLoadUrl(nsIImapUrl *aImapUrl,
   if (aURL)
   {
     nsCOMPtr<nsIURI> msgUrlUri = do_QueryInterface(msgUrl);
-    msgUrlUri.swap(*aURL);
+    msgUrlUri.forget(aURL);
   }
 
   if (NS_SUCCEEDED(rv) && aMsgIncomingServer)
@@ -2638,7 +2638,7 @@ NS_IMETHODIMP nsImapService::NewURI(const nsACString &aSpec,
   // we got an imap url, so be sure to return it...
   nsCOMPtr<nsIURI> imapUri = do_QueryInterface(aImapUrl);
 
-  imapUri.swap(*aRetVal);
+  imapUri.forget(aRetVal);
 
   return rv;
 }
@@ -2896,7 +2896,7 @@ NS_IMETHODIMP nsImapService::GetDefaultLocalPath(nsIFile **aResult)
     NS_ASSERTION(NS_SUCCEEDED(rv), "Failed to set root dir pref.");
   }
 
-  localFile.swap(*aResult);
+  localFile.forget(aResult);
   return NS_OK;
 }
 

@@ -490,7 +490,7 @@ nsSmtpService::createKeyedServer(const char *key, nsISmtpServer** aResult)
     }
 
     if (aResult) 
-       server.swap(*aResult);
+       server.forget(aResult);
     
     return NS_OK;
 }

@@ -247,7 +247,7 @@ NS_IMETHODIMP nsMsgMailNewsUrl::GetMsgWindow(nsIMsgWindow **aMsgWindow)
   *aMsgWindow = nullptr;
 
   nsCOMPtr<nsIMsgWindow> msgWindow(do_QueryReferent(m_msgWindowWeak));
-  msgWindow.swap(*aMsgWindow);
+  msgWindow.forget(aMsgWindow);
   return *aMsgWindow ? NS_OK : NS_ERROR_NULL_POINTER;
 }
 
@@ -274,7 +274,7 @@ NS_IMETHODIMP nsMsgMailNewsUrl::GetStatusFeedback(nsIMsgStatusFeedback **aMsgFee
   else
   {
     nsCOMPtr<nsIMsgStatusFeedback> statusFeedback(do_QueryReferent(m_statusFeedbackWeak));
-    statusFeedback.swap(*aMsgFeedback);
+    statusFeedback.forget(aMsgFeedback);
   }
   return *aMsgFeedback ? NS_OK : NS_ERROR_NULL_POINTER;
 }
@@ -317,7 +317,7 @@ NS_IMETHODIMP nsMsgMailNewsUrl::GetLoadGroup(nsILoadGroup **aLoadGroup)
       m_loadGroupWeak = do_GetWeakReference(loadGroup);
     }
   }
-  loadGroup.swap(*aLoadGroup);
+  loadGroup.forget(aLoadGroup);
   return *aLoadGroup ? NS_OK : NS_ERROR_NULL_POINTER;
 }
 

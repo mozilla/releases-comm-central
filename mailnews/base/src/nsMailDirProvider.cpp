@@ -84,7 +84,7 @@ nsMailDirProvider::GetFile(const char *aKey, bool *aPersist,
     rv = EnsureDirectory(file);
 
   *aPersist = true;
-  file.swap(*aResult);
+  file.forget(aResult);
 
   return rv;
 }

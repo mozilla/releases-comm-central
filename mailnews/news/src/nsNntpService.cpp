@@ -383,7 +383,7 @@ nsNntpService::FetchMessage(nsIMsgFolder *folder, nsMsgKey key, nsIMsgWindow *aM
   NS_ENSURE_SUCCESS(rv,rv);
 
   if (aURL)
-    url.swap(*aURL);
+    url.forget(aURL);
   return rv;
 }
 
@@ -593,7 +593,7 @@ nsNntpService::GetFolderFromUri(const char *aUri, nsIMsgFolder **aFolder)
                                  getter_AddRefs(subFolder));
   NS_ENSURE_SUCCESS(rv,rv);
 
-  subFolder.swap(*aFolder);
+  subFolder.forget(aFolder);
   return NS_OK;
 }
 

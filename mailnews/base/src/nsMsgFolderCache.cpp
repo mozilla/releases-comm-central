@@ -258,7 +258,7 @@ NS_IMETHODIMP nsMsgFolderCache::GetCacheElement(const nsACString& pathKey, bool 
 
   nsCOMPtr<nsIMsgFolderCacheElement> folderCacheEl;
   m_cacheElements.Get(pathKey, getter_AddRefs(folderCacheEl));
-  folderCacheEl.swap(*result);
+  folderCacheEl.forget(result);
 
   if (*result)
     return NS_OK;
@@ -352,7 +352,7 @@ nsresult nsMsgFolderCache::AddCacheElement(const nsACString& key, nsIMdbRow *row
   folderCacheEl->SetKey(hashStrKey);
   m_cacheElements.Put(hashStrKey, folderCacheEl);
   if (result)
-    folderCacheEl.swap(*result);
+    folderCacheEl.forget(result);
   return NS_OK;
 }
 

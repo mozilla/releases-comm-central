@@ -982,7 +982,7 @@ NS_IMETHODIMP nsMsgGroupView::GetThreadContainingMsgHdr(nsIMsgDBHdr *msgHdr, nsI
   {
     nsCOMPtr<nsIMsgThread> thread;
     m_groupsTable.Get(hashKey, getter_AddRefs(thread));
-    thread.swap(*pThread);
+    thread.forget(pThread);
   }
   return (*pThread) ? NS_OK : NS_ERROR_FAILURE;
 }

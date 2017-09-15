@@ -926,7 +926,7 @@ nsresult nsMsgDBFolder::CreateFileForDB(const nsAString& userLeafName, nsIFile *
   proposedDBName.SetLength(proposedDBName.Length() - NS_LITERAL_CSTRING(SUMMARY_SUFFIX).Length());
   dbPath->SetLeafName(proposedDBName);
 
-  dbPath.swap(*dbFile);
+  dbPath.forget(dbFile);
   return NS_OK;
 }
 
@@ -3027,7 +3027,7 @@ nsMsgDBFolder::FindSubFolder(const nsACString& aEscapedSubFolderName, nsIMsgFold
   if (NS_FAILED(rv))
     return rv;
 
-  folder.swap(*aFolder);
+  folder.forget(aFolder);
   return NS_OK;
 }
 
@@ -3085,7 +3085,7 @@ NS_IMETHODIMP nsMsgDBFolder::GetParent(nsIMsgFolder **aParent)
 {
   NS_ENSURE_ARG_POINTER(aParent);
   nsCOMPtr<nsIMsgFolder> parent = do_QueryReferent(mParent);
-  parent.swap(*aParent);
+  parent.forget(aParent);
   return NS_OK;
 }
 
@@ -3122,7 +3122,7 @@ NS_IMETHODIMP nsMsgDBFolder::GetServer(nsIMsgIncomingServer ** aServer)
     rv = parseURI(true);
     server = do_QueryReferent(mServer);
   }
-  server.swap(*aServer);
+  server.forget(aServer);
   return *aServer ? NS_OK : NS_ERROR_FAILURE;
 }
 
@@ -3788,7 +3788,7 @@ NS_IMETHODIMP nsMsgDBFolder::AddSubfolder(const nsAString& name,
   if (folder)
     mSubFolders.AppendObject(folder);
 
-  folder.swap(*child);
+  folder.forget(child);
   // at this point we must be ok and we don't want to return failure in case
   // GetIsServer failed.
   return NS_OK;
@@ -3936,7 +3936,7 @@ nsresult nsMsgDBFolder::CreateDirectoryForFolder(nsIFile **resultFile)
     }
   }
   if (NS_SUCCEEDED(rv))
-    path.swap(*resultFile);
+    path.forget(resultFile);
   return rv;
 }
 
@@ -3966,7 +3966,7 @@ nsresult nsMsgDBFolder::CreateBackupDirectory(nsIFile **resultFile)
                       path->Create(nsIFile::DIRECTORY_TYPE, 0700);
   }
   if (NS_SUCCEEDED(rv))
-    path.swap(*resultFile);
+    path.forget(resultFile);
   return rv;
 }
 
@@ -4003,7 +4003,7 @@ nsresult nsMsgDBFolder::GetBackupSummaryFile(nsIFile **aBackupFile, const nsACSt
   rv = GetSummaryFileLocation(backupDBDummyFolder, getter_AddRefs(backupDBFile));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  backupDBFile.swap(*aBackupFile);
+  backupDBFile.forget(aBackupFile);
   return NS_OK;
 }
 
@@ -4698,7 +4698,7 @@ nsMsgDBFolder::GetFilePath(nsIFile * *aFile)
   if (!mPath)
     parseURI(true);
   rv = file->InitWithFile(mPath);
-  file.swap(*aFile);
+  file.forget(aFile);
   return NS_OK;
 }
 
@@ -5196,7 +5196,7 @@ nsMsgDBFolder::GetBaseStringBundle(nsIStringBundle **aBundle)
   nsCOMPtr<nsIStringBundle> bundle;
   bundleService->CreateBundle("chrome://messenger/locale/messenger.properties",
                                  getter_AddRefs(bundle));
-  bundle.swap(*aBundle);
+  bundle.forget(aBundle);
   return NS_OK;
 }
 

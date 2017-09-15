@@ -1530,6 +1530,6 @@ nsresult OutlookCardForURI(const nsACString &aUri, nsIAbCard **newCard)
     card->SetPropertyAsUint32(kBirthDayProperty, day);
   }
 
-  card.swap(*newCard);
+  card.forget(newCard);
   return NS_OK;
 }

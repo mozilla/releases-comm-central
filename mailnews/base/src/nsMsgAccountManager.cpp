@@ -398,7 +398,7 @@ nsMsgAccountManager::GetIdentity(const nsACString& key, nsIMsgIdentity **_retval
     nsCOMPtr<nsIMsgIdentity> identity;
     m_identities.Get(key, getter_AddRefs(identity));
     if (identity)
-      identity.swap(*_retval);
+      identity.forget(_retval);
     else // identity doesn't exist. create it.
       rv = createKeyedIdentity(key, _retval);
   }
@@ -421,7 +421,7 @@ nsMsgAccountManager::createKeyedIdentity(const nsACString& key,
 
   identity->SetKey(key);
   m_identities.Put(key, identity);
-  identity.swap(*aIdentity);
+  identity.forget(aIdentity);
   return NS_OK;
 }
 
@@ -617,7 +617,7 @@ nsMsgAccountManager::createKeyedServer(const nsACString& key,
     rootFolder->AddFolderListener(iter.GetNext());
   }
 
-  server.swap(*aServer);
+  server.forget(aServer);
   return NS_OK;
 }
 
@@ -1735,7 +1735,7 @@ nsMsgAccountManager::createKeyedAccount(const nsCString& key,
   }
 
   m_prefs->SetCharPref(PREF_MAIL_ACCOUNTMANAGER_ACCOUNTS, mAccountKeyList.get());
-  account.swap(*aAccount);
+  account.forget(aAccount);
   return NS_OK;
 }
 
@@ -1763,7 +1763,7 @@ nsMsgAccountManager::GetAccount(const nsACString& aKey, nsIMsgAccount **aAccount
     account->GetKey(key);
     if (key.Equals(aKey))
     {
-      account.swap(*aAccount);
+      account.forget(aAccount);
       break;
     }
   }
@@ -2082,7 +2082,7 @@ nsMsgAccountManager::GetFirstIdentityForServer(nsIMsgIncomingServer *aServer, ns
   {
     nsCOMPtr<nsIMsgIdentity> identity(do_QueryElementAt(identities, 0, &rv));
     NS_ENSURE_SUCCESS(rv, rv);
-    identity.swap(*aIdentity);
+    identity.forget(aIdentity);
   }
   else
     *aIdentity = nullptr;

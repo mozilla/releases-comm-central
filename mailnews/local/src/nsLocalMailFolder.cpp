@@ -570,13 +570,10 @@ nsMsgLocalMailFolder::CreateSubfolderInternal(const nsAString& folderName,
 
   if (NS_SUCCEEDED(rv))
   {
-    nsCOMPtr<nsIMsgFolder> child = *aNewFolder;
     //we need to notify explicitly the flag change because it failed when we did AddSubfolder
-    child->OnFlagChange(mFlags);
-    child->SetPrettyName(folderName);  //because empty trash will create a new trash folder
-    NotifyItemAdded(child);
-    if (aNewFolder)
-      child.swap(*aNewFolder);
+    (*aNewFolder)->OnFlagChange(mFlags);
+    (*aNewFolder)->SetPrettyName(folderName);  //because empty trash will create a new trash folder
+    NotifyItemAdded(*aNewFolder);
   }
 
   return rv;

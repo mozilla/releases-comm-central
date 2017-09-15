@@ -150,7 +150,7 @@ nsresult nsMessengerUnixIntegration::GetStringBundle(nsIStringBundle **aBundle)
   nsCOMPtr<nsIStringBundle> bundle;
   bundleService->CreateBundle("chrome://messenger/locale/messenger.properties",
                               getter_AddRefs(bundle));
-  bundle.swap(*aBundle);
+  bundle.forget(aBundle);
   return NS_OK;
 }
 

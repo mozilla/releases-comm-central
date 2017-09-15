@@ -202,7 +202,7 @@ nsMsgNewsFolder::AddNewsgroup(const nsACString &name, const nsACString& setStr,
 
   mSubFolders.AppendObject(folder);
   folder->SetParent(this);
-  folder.swap(*child);
+  folder.forget(child);
   return rv;
 }
 
@@ -1517,7 +1517,7 @@ nsMsgNewsFolder::GetNntpServer(nsINntpIncomingServer **result)
   nsCOMPtr<nsINntpIncomingServer> nntpServer = do_QueryInterface(server, &rv);
   if (NS_FAILED(rv))
     return rv;
-  nntpServer.swap(*result);
+  nntpServer.forget(result);
   return NS_OK;
 }
 

@@ -251,7 +251,7 @@ NS_IMETHODIMP nsMsgMaildirStore::CreateFolder(nsIMsgFolder *aParent,
       rv = NS_MSG_CANT_CREATE_FOLDER;
     }
   }
-  child.swap(*aResult);
+  child.forget(aResult);
   return rv;
 }
 

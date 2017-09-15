@@ -1145,7 +1145,7 @@ NS_IMETHODIMP nsImapUrl::GetMockChannel(nsIImapMockChannel ** aChannel)
   NS_WARNING_ASSERTION(NS_IsMainThread(), "should only access mock channel on ui thread");
   *aChannel = nullptr;
   nsCOMPtr<nsIImapMockChannel> channel(do_QueryReferent(m_channelWeakPtr));
-  channel.swap(*aChannel);
+  channel.forget(aChannel);
   return *aChannel ? NS_OK : NS_ERROR_FAILURE;
 }
 

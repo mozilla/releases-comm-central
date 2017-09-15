@@ -290,7 +290,7 @@ nsMessengerOSXIntegration::GetStringBundle(nsIStringBundle **aBundle)
   nsCOMPtr<nsIStringBundle> bundle;
   if (bundleService && NS_SUCCEEDED(rv))
     bundleService->CreateBundle("chrome://messenger/locale/messenger.properties", getter_AddRefs(bundle));
-  bundle.swap(*aBundle);
+  bundle.forget(aBundle);
   return rv;
 }
 

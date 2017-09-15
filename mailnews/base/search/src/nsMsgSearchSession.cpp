@@ -330,7 +330,7 @@ NS_IMETHODIMP nsMsgSearchSession::GetWindow(nsIMsgWindow **aWindow)
   NS_ENSURE_ARG_POINTER(aWindow);
   *aWindow = nullptr;
   nsCOMPtr<nsIMsgWindow> msgWindow(do_QueryReferent(m_msgWindowWeak));
-  msgWindow.swap(*aWindow);
+  msgWindow.forget(aWindow);
   return NS_OK;
 }
 

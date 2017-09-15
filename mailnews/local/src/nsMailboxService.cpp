@@ -562,7 +562,7 @@ NS_IMETHODIMP nsMailboxService::NewURI(const nsACString &aSpec,
   {
     (void) aMsgUri->SetSpec(aSpec);
   }
-  aMsgUri.swap(*_retval);
+  aMsgUri.forget(_retval);
 
   return rv;
 }
