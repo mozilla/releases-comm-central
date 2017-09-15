@@ -43,12 +43,12 @@ private:
   ~ShutdownObserver() {}
 
   void ShutdownServices();
-  static ShutdownObserver *sShutdownObserver;
+  static RefPtr<ShutdownObserver> sShutdownObserver;
   static bool sShuttingDown;
 };
 
 bool ShutdownObserver::sShuttingDown = false;
-ShutdownObserver *ShutdownObserver::sShutdownObserver = nullptr;
+RefPtr<ShutdownObserver> ShutdownObserver::sShutdownObserver = nullptr;
 }
 
 #define MOZ_SERVICE(NAME, TYPE, CONTRACT_ID) \
@@ -84,7 +84,6 @@ void ShutdownObserver::EnsureInitialized()
   if (!sShutdownObserver)
   {
     sShutdownObserver = new ShutdownObserver;
-    sShutdownObserver->AddRef();
     nsCOMPtr<nsIObserverService> obs(mozilla::services::GetObserverService());
     MOZ_ASSERT(obs, "This should never be null");
     obs->AddObserver(sShutdownObserver, "xpcom-shutdown-threads", false);
@@ -95,7 +94,6 @@ void ShutdownObserver::ShutdownServices()
 {
   sShuttingDown = true;
   MOZ_ASSERT(sShutdownObserver, "Shutting down twice?");
-  sShutdownObserver->Release();
   sShutdownObserver = nullptr;
 #define MOZ_SERVICE(NAME, TYPE, CONTRACT_ID) NS_IF_RELEASE(g##NAME);
 #include "mozilla/mailnews/ServiceList.h"

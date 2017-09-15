@@ -29,7 +29,7 @@ nsMsgHdr::nsMsgHdr(nsMsgDatabase *db, nsIMdbRow *dbRow)
   m_mdbRow = dbRow;
   if(m_mdb)
   {
-    m_mdb->AddRef();
+    NS_ADDREF(m_mdb);  // Released in DTOR.
     mdbOid outOid;
     if (dbRow && NS_SUCCEEDED(dbRow->GetOid(m_mdb->GetEnv(), &outOid)))
     {

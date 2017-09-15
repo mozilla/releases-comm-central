@@ -596,14 +596,14 @@ NS_IMETHODIMP nsAddrDatabase::ForceClosed()
     nsCOMPtr<nsIAddrDatabase> aDb(do_QueryInterface(this, &err));
 
     // make sure someone has a reference so object won't get deleted out from under us.
-    AddRef();
+    NS_ADDREF_THIS();
     NotifyAnnouncerGoingAway();
     // OK, remove from cache first and close the store.
     RemoveFromCache(this);
 
     err = CloseMDB(false);    // since we're about to delete it, no need to commit.
     NS_IF_RELEASE(m_mdbStore);
-    Release();
+    NS_RELEASE_THIS();
     return err;
 }
 

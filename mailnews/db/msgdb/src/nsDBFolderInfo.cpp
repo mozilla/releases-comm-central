@@ -211,7 +211,6 @@ nsDBFolderInfo::nsDBFolderInfo(nsMsgDatabase *mdb)
   {
     nsresult err;
 
-    //		mdb->AddRef();
     err = m_mdb->GetStore()->StringToToken(mdb->GetEnv(), kDBFolderInfoScope, &m_rowScopeToken);
     if (NS_SUCCEEDED(err))
     {

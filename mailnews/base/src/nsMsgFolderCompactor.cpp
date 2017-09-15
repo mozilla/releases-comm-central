@@ -465,7 +465,7 @@ nsresult nsFolderCompactState::StartCompacting()
   {
     nsCOMPtr<nsIURI> notUsed;
     ShowCompactingStatusMsg();
-    AddRef();
+    NS_ADDREF_THIS();
     rv = m_messageService->CopyMessages(m_size, m_keyArray->m_keys.Elements(),
                                         m_folder, this,
                                         false, nullptr, m_window,
@@ -474,7 +474,6 @@ nsresult nsFolderCompactState::StartCompacting()
   else
   { // no messages to copy with
     FinishCompact();
-//    Release(); // we don't "own" ourselves yet.
   }
   return rv;
 }
@@ -777,7 +776,7 @@ nsFolderCompactState::OnStopRequest(nsIRequest *request, nsISupports *ctxt,
       ReleaseFolderLock();
     }
   }
-  Release(); // kill self
+  NS_RELEASE_THIS(); // kill self
   return status;
 }
 
@@ -1145,7 +1144,7 @@ nsOfflineStoreCompactState::OnStopRequest(nsIRequest *request, nsISupports *ctxt
     // no more to copy finish it up
     ReleaseFolderLock();
     FinishCompact();
-    Release(); // kill self
+    NS_RELEASE_THIS(); // kill self
   }
 
 done:
@@ -1153,7 +1152,7 @@ done:
     m_status = rv; // set the status to rv so the destructor can remove the
                    // temp folder and database
     ReleaseFolderLock();
-    Release(); // kill self
+    NS_RELEASE_THIS(); // kill self
     return rv;
   }
   return rv;
@@ -1304,7 +1303,7 @@ nsresult nsOfflineStoreCompactState::StartCompacting()
   nsresult rv = NS_OK;
   if (m_size > 0 && m_curIndex == 0)
   {
-    AddRef(); // we own ourselves, until we're done, anyway.
+    NS_ADDREF_THIS(); // we own ourselves, until we're done, anyway.
     ShowCompactingStatusMsg();
     bool done = false;
     rv = CopyNextMessage(done);

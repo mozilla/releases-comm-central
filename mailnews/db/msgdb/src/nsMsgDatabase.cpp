@@ -1282,7 +1282,7 @@ NS_IMETHODIMP nsMsgDatabase::ForceClosed()
   nsresult  err = NS_OK;
 
   // make sure someone has a reference so object won't get deleted out from under us.
-  AddRef();
+  NS_ADDREF_THIS();
   NotifyAnnouncerGoingAway();
   // make sure dbFolderInfo isn't holding onto mork stuff because mork db is going away
   if (m_dbFolderInfo)
@@ -1311,7 +1311,7 @@ if (m_mdbAllMsgHeadersTable)
   // better not be any listeners, because we're going away.
   NS_ASSERTION(m_ChangeListeners.IsEmpty(), "shouldn't have any listeners left");
 
-  Release();
+  NS_RELEASE_THIS();
   return err;
 }
 
@@ -4491,13 +4491,13 @@ nsresult nsMsgDatabase::AddNewThread(nsMsgHdr *msgHdr)
   msgHdr->SetThreadId(threadKey);
   if (threadHdr)
   {
-    threadHdr->AddRef();
+    NS_ADDREF(threadHdr);
     // err = msgHdr->GetSubject(subject);
     // threadHdr->SetThreadKey(msgHdr->m_messageKey);
     // threadHdr->SetSubject(subject.get());
     // need to add the thread table to the db.
     AddToThread(msgHdr, threadHdr, nullptr, false);
-    threadHdr->Release();
+    NS_RELEASE(threadHdr);
   }
   return err;
 }

@@ -70,7 +70,5 @@ nsBeckyStringBundle::FormatStringFromName(const char *name,
 void
 nsBeckyStringBundle::Cleanup(void)
 {
-  if (mBundle)
-    mBundle->Release();
-  mBundle = nullptr;
+  NS_IF_RELEASE(mBundle);
 }
