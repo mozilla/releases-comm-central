@@ -103,6 +103,7 @@
 
 #dirTree {
   -moz-appearance: -moz-mac-source-list;
+  -moz-font-smoothing-background-color: -moz-mac-source-list;
   border-inline-end: 1px solid #bdbdbd;
 }
 
@@ -113,11 +114,13 @@
 
 #dirTree treechildren::-moz-tree-row(selected) {
   -moz-appearance: -moz-mac-source-list-selection;
+  -moz-font-smoothing-background-color: -moz-mac-source-list-selection;
 }
 
 @media not all and (-moz-mac-yosemite-theme) {
   #dirTree treechildren::-moz-tree-row(selected, focus) {
     -moz-appearance: -moz-mac-active-source-list-selection;
+    -moz-font-smoothing-background-color: -moz-mac-active-source-list-selection;
   }
 
   #dirTree treechildren::-moz-tree-cell-text(selected) {
@@ -178,6 +181,7 @@ splitter {
 
 #abResultsTree {
   -moz-appearance: -moz-mac-source-list;
+  -moz-font-smoothing-background-color: -moz-mac-source-list;
 }
 
 #abResultsTree treechildren::-moz-tree-row {
@@ -186,11 +190,13 @@ splitter {
 
 #abResultsTree treechildren::-moz-tree-row(selected) {
   -moz-appearance: -moz-mac-source-list-selection;
+  -moz-font-smoothing-background-color: -moz-mac-source-list-selection;
 }
 
 @media not all and (-moz-mac-yosemite-theme) {
   #abResultsTree treechildren::-moz-tree-row(selected, focus) {
     -moz-appearance: -moz-mac-active-source-list-selection;
+    -moz-font-smoothing-background-color: -moz-mac-active-source-list-selection;
   }
 
   #abResultsTree treechildren::-moz-tree-cell-text(selected) {

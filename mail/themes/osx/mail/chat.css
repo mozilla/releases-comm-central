@@ -77,6 +77,7 @@
 /* Adaptation of #folderPaneBox/#folderPaneTree from osx/mail/mailWindow1.css */
 #listPaneBox {
   -moz-appearance: -moz-mac-source-list;
+  -moz-font-smoothing-background-color: -moz-mac-source-list;
 }
 
 #listPaneBox > * {
@@ -218,6 +219,7 @@ richlistitem[state="disconnected"] .accountStateIcon {
 @media not all and (-moz-mac-yosemite-theme) {
   :-moz-any(imconv, imcontact, imgroup)[selected] {
     -moz-appearance: -moz-mac-active-source-list-selection;
+    -moz-font-smoothing-background-color: -moz-mac-active-source-list-selection;
   }
 }
 
@@ -228,6 +230,7 @@ richlistitem[state="disconnected"] .accountStateIcon {
 
   :-moz-any(imconv, imcontact, imgroup)[selected] {
     -moz-appearance: -moz-mac-source-list-selection;
+    -moz-font-smoothing-background-color: -moz-mac-source-list-selection;
   }
 }
 

@@ -56,6 +56,10 @@
   text-shadow: 0 1px rgba(255, 255, 255, 0.4);
 }
 
+.tabmail-tab[selected="true"] {
+  -moz-font-smoothing-background-color: var(--toolbar-bgcolor);
+}
+
 .tabmail-tab:focus > .tab-stack > .tab-content > .tab-label-container {
   box-shadow: var(--focus-ring-box-shadow);
 }
