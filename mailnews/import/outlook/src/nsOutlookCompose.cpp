@@ -119,7 +119,6 @@ class OutlookSendListener : public nsIMsgSendListener
 public:
   OutlookSendListener() {
     m_done = false;
-    m_location = nullptr;
   }
 
   // nsISupports interface
@@ -149,13 +148,13 @@ public:
   NS_IMETHOD OnGetDraftFolderURI(const char *aFolderURI) {return NS_OK;}
 
   static nsresult CreateSendListener(nsIMsgSendListener **ppListener);
-  void Reset() { m_done = false; NS_IF_RELEASE(m_location);}
+  void Reset() { m_done = false; m_location = nullptr; }
 
 public:
-  virtual ~OutlookSendListener() { NS_IF_RELEASE(m_location); }
+  virtual ~OutlookSendListener() {}
 
   bool m_done;
-  nsIFile * m_location;
+  nsCOMPtr<nsIFile> m_location;
 };
 
 NS_IMPL_ISUPPORTS(OutlookSendListener, nsIMsgSendListener)
@@ -183,16 +182,11 @@ nsresult OutlookSendListener::CreateSendListener(nsIMsgSendListener **ppListener
 
 nsOutlookCompose::nsOutlookCompose()
 {
-  m_pListener = nullptr;
-  m_pMsgFields = nullptr;
-
   m_optimizationBuffer = new char[FILE_IO_BUFFER_SIZE];
 }
 
 nsOutlookCompose::~nsOutlookCompose()
 {
-  NS_IF_RELEASE(m_pListener);
-  NS_IF_RELEASE(m_pMsgFields);
   if (m_pIdentity) {
     nsresult rv = m_pIdentity->ClearAllValues();
     NS_ASSERTION(NS_SUCCEEDED(rv),"failed to clear values");
@@ -202,7 +196,7 @@ nsOutlookCompose::~nsOutlookCompose()
   delete[] m_optimizationBuffer;
 }
 
-nsIMsgIdentity * nsOutlookCompose::m_pIdentity = nullptr;
+nsCOMPtr<nsIMsgIdentity> nsOutlookCompose::m_pIdentity = nullptr;
 
 nsresult nsOutlookCompose::CreateIdentity(void)
 {
@@ -213,7 +207,7 @@ nsresult nsOutlookCompose::CreateIdentity(void)
   nsCOMPtr<nsIMsgAccountManager> accMgr =
     do_GetService(NS_MSGACCOUNTMANAGER_CONTRACTID, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
-  rv = accMgr->CreateIdentity(&m_pIdentity);
+  rv = accMgr->CreateIdentity(getter_AddRefs(m_pIdentity));
   nsString name;
   name.AssignLiteral("Import Identity");
   if (m_pIdentity) {
@@ -225,19 +219,18 @@ nsresult nsOutlookCompose::CreateIdentity(void)
 
 void nsOutlookCompose::ReleaseIdentity()
 {
-  NS_IF_RELEASE(m_pIdentity);
+  m_pIdentity = nullptr;
 }
 
 nsresult nsOutlookCompose::CreateComponents(void)
 {
   nsresult rv = NS_OK;
 
-  NS_IF_RELEASE(m_pMsgFields);
   if (!m_pListener && NS_SUCCEEDED(rv))
-    rv = OutlookSendListener::CreateSendListener(&m_pListener);
+    rv = OutlookSendListener::CreateSendListener(getter_AddRefs(m_pListener));
 
   if (NS_SUCCEEDED(rv)) {
-      rv = CallCreateInstance(kMsgCompFieldsCID, &m_pMsgFields);
+      m_pMsgFields = do_CreateInstance(kMsgCompFieldsCID, &rv);
     if (NS_SUCCEEDED(rv) && m_pMsgFields) {
       // IMPORT_LOG0("nsOutlookCompose - CreateComponents succeeded\n");
       m_pMsgFields->SetForcePlainText(false);
@@ -325,7 +318,7 @@ nsresult nsOutlookCompose::ComposeTheMessage(nsMsgDeliverMode mode, CMapiMessage
                         embeddedObjects,
                         m_pListener);                 // listener
 
-  OutlookSendListener *pListen = (OutlookSendListener *)m_pListener;
+  OutlookSendListener *pListen = static_cast<OutlookSendListener *>(m_pListener.get());
   if (NS_FAILED(rv)) {
     IMPORT_LOG1("*** Error, CreateAndSendMessage FAILED: 0x%lx\n", rv);
   }

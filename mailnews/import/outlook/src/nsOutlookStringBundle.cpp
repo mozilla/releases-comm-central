@@ -14,25 +14,18 @@
 
 #define OUTLOOK_MSGS_URL       "chrome://messenger/locale/outlookImportMsgs.properties"
 
-nsIStringBundle *  nsOutlookStringBundle::m_pBundle = nullptr;
+nsCOMPtr<nsIStringBundle> nsOutlookStringBundle::m_pBundle = nullptr;
 
-nsIStringBundle *nsOutlookStringBundle::GetStringBundle(void)
+void nsOutlookStringBundle::GetStringBundle(void)
 {
   if (m_pBundle)
-    return m_pBundle;
-
-  char*        propertyURL = OUTLOOK_MSGS_URL;
-  nsIStringBundle*  sBundle = nullptr;
+    return;
 
   nsCOMPtr<nsIStringBundleService> sBundleService =
     mozilla::services::GetStringBundleService();
   if (sBundleService) {
-    sBundleService->CreateBundle(propertyURL, &sBundle);
+    sBundleService->CreateBundle(OUTLOOK_MSGS_URL, getter_AddRefs(m_pBundle));
   }
-
-  m_pBundle = sBundle;
-
-  return sBundle;
 }
 
 void nsOutlookStringBundle::GetStringByID(int32_t stringID, nsString& result)
@@ -45,7 +38,7 @@ void nsOutlookStringBundle::GetStringByID(int32_t stringID, nsString& result)
 char16_t *nsOutlookStringBundle::GetStringByID(int32_t stringID)
 {
   if (m_pBundle)
-    m_pBundle = GetStringBundle();
+    GetStringBundle();
 
   if (m_pBundle) {
     nsAutoString str;
@@ -65,7 +58,5 @@ char16_t *nsOutlookStringBundle::GetStringByID(int32_t stringID)
 
 void nsOutlookStringBundle::Cleanup(void)
 {
-  if (m_pBundle)
-    m_pBundle->Release();
   m_pBundle = nullptr;
 }

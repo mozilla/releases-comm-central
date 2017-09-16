@@ -160,14 +160,13 @@ nsresult nsOutlookMail::GetMailFolders(nsIArray **pArray)
   }
 
   // Create the mailbox descriptors for the list of folders
-  nsIImportMailboxDescriptor *  pID;
-  nsISupports *          pInterface;
+  nsCOMPtr<nsIImportMailboxDescriptor> pID;
   nsString            name;
   nsString            uniName;
 
   for (i = 0; i < m_folderList.GetSize(); i++) {
     pFolder = m_folderList.GetItem(i);
-    rv = impSvc->CreateNewMailboxDescriptor(&pID);
+    rv = impSvc->CreateNewMailboxDescriptor(getter_AddRefs(pID));
     if (NS_SUCCEEDED(rv)) {
       pID->SetDepth(pFolder->GetDepth());
       pID->SetIdentifier(i);
@@ -176,10 +175,8 @@ nsresult nsOutlookMail::GetMailFolders(nsIArray **pArray)
       pID->SetDisplayName(name.get());
 
       pID->SetSize(1000);
-      rv = pID->QueryInterface(kISupportsIID, (void **) &pInterface);
+      nsCOMPtr<nsISupports> pInterface(do_QueryInterface(pID));
       array->AppendElement(pInterface, false);
-      pInterface->Release();
-      pID->Release();
     }
   }
   array.forget(pArray);
@@ -263,25 +260,22 @@ nsresult nsOutlookMail::GetAddressBooks(nsIArray **pArray)
   }
 
   // Create the mailbox descriptors for the list of folders
-  nsIImportABDescriptor *      pID;
-  nsISupports *          pInterface;
+  nsCOMPtr<nsIImportABDescriptor> pID;
   nsString            name;
   nsString            list;
 
   for (i = 0; i < m_addressList.GetSize(); i++) {
     pFolder = m_addressList.GetItem(i);
     if (!pFolder->IsStore()) {
-      rv = impSvc->CreateNewABDescriptor(&pID);
+      rv = impSvc->CreateNewABDescriptor(getter_AddRefs(pID));
       if (NS_SUCCEEDED(rv)) {
         pID->SetIdentifier(i);
         pFolder->GetDisplayName(name);
         MakeAddressBookNameUnique(name, list);
         pID->SetPreferredName(name);
         pID->SetSize(100);
-        rv = pID->QueryInterface(kISupportsIID, (void **) &pInterface);
+        nsCOMPtr<nsISupports> pInterface(do_QueryInterface(pID));
         array->AppendElement(pInterface, false);
-        pInterface->Release();
-        pID->Release();
       }
     }
   }

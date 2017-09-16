@@ -15,11 +15,11 @@ public:
                                        const char16_t **params,
                                        uint32_t length,
                                        nsAString& _retval);
-  static nsIStringBundle * GetStringBundle(void); // don't release
+  static void GetStringBundle(void);
   static void EnsureStringBundle(void);
   static void Cleanup(void);
 private:
-  static nsIStringBundle *mBundle;
+  static nsCOMPtr<nsIStringBundle> mBundle;
 };
 
 #define BECKYIMPORT_NAME                     2000

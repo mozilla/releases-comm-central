@@ -145,22 +145,21 @@ NS_IMETHODIMP nsVCardImport::GetImportInterface(
   if (!strcmp(pImportType, "addressbook")) {
     nsresult rv;
     // create the nsIImportMail interface and return it!
-    nsIImportAddressBooks *pAddress = nullptr;
-    nsIImportGeneric *pGeneric = nullptr;
-    rv = ImportVCardAddressImpl::Create(&pAddress, m_stringBundle);
+    nsCOMPtr<nsIImportAddressBooks> pAddress;
+    nsCOMPtr<nsIImportGeneric> pGeneric;
+    rv = ImportVCardAddressImpl::Create(getter_AddRefs(pAddress), m_stringBundle);
     if (NS_SUCCEEDED(rv)) {
       nsCOMPtr<nsIImportService> impSvc(
           do_GetService(NS_IMPORTSERVICE_CONTRACTID, &rv));
       if (NS_SUCCEEDED(rv)) {
-        rv = impSvc->CreateNewGenericAddressBooks(&pGeneric);
+        rv = impSvc->CreateNewGenericAddressBooks(getter_AddRefs(pGeneric));
         if (NS_SUCCEEDED(rv)) {
           pGeneric->SetData("addressInterface", pAddress);
-          rv = pGeneric->QueryInterface(kISupportsIID, (void **)ppInterface);
+          nsCOMPtr<nsISupports> pInterface(do_QueryInterface(pGeneric));
+          pInterface.forget(ppInterface);
         }
       }
     }
-    NS_IF_RELEASE(pAddress);
-    NS_IF_RELEASE(pGeneric);
     return rv;
   }
   return NS_ERROR_NOT_AVAILABLE;

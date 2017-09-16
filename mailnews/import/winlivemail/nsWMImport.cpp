@@ -139,12 +139,12 @@ NS_IMETHODIMP nsWMImport::GetImportInterface(const char *pImportType,
   nsresult rv;
 
   if (!strcmp(pImportType, "settings")) {
-    nsIImportSettings *pSettings = nullptr;
-    rv = nsWMSettings::Create(&pSettings);
+    nsCOMPtr<nsIImportSettings> pSettings;
+    rv = nsWMSettings::Create(getter_AddRefs(pSettings));
     if (NS_SUCCEEDED(rv)) {
-      pSettings->QueryInterface(kISupportsIID, (void **)ppInterface);
+      nsCOMPtr<nsISupports> pInterface(do_QueryInterface(pSettings));
+      pInterface.forget(ppInterface);
     }
-    NS_IF_RELEASE(pSettings);
     return rv;
   }
 

@@ -46,9 +46,9 @@ private:
   char16_t m_delim;
   int32_t m_LFCount;
   int32_t m_CRCount;
-  nsIAddrDatabase *m_database;
-  nsIImportFieldMap *m_fieldMap;
-  nsCOMPtr<nsIImportService> m_pService;
+  nsCOMPtr<nsIAddrDatabase>   m_database;
+  nsCOMPtr<nsIImportFieldMap> m_fieldMap;
+  nsCOMPtr<nsIImportService>  m_pService;
 };
 
 

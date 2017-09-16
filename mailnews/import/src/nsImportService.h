@@ -56,17 +56,17 @@ public:
   const char16_t *GetDescription(void) { return m_description.get();}
   const char *  GetSupports(void) { return m_supports.get();}
 
-  nsIImportModule *  GetModule(bool keepLoaded = false); // Adds ref
+  void        GetModule(nsIImportModule **);
   void        ReleaseModule(void);
 
   bool        SupportsThings(const char *pThings);
 
 private:
-    nsCID m_cid;
+  nsCID m_cid;
   nsString m_name;
   nsString m_description;
   nsCString m_supports;
-  nsIImportModule *m_pModule;
+  nsCOMPtr<nsIImportModule> m_pModule;
 };
 
 class nsImportModuleList {

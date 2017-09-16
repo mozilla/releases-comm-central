@@ -204,13 +204,13 @@ NS_IMETHODIMP nsOutlookImport::GetImportInterface(const char *pImportType, nsISu
   nsresult  rv;
   if (!strcmp(pImportType, "mail")) {
     // create the nsIImportMail interface and return it!
-    nsIImportMail *  pMail = nullptr;
-    nsIImportGeneric *pGeneric = nullptr;
-    rv = ImportOutlookMailImpl::Create(&pMail);
+    nsCOMPtr<nsIImportMail> pMail;
+    nsCOMPtr<nsIImportGeneric> pGeneric;
+    rv = ImportOutlookMailImpl::Create(getter_AddRefs(pMail));
     if (NS_SUCCEEDED(rv)) {
       nsCOMPtr<nsIImportService> impSvc(do_GetService(NS_IMPORTSERVICE_CONTRACTID, &rv));
       if (NS_SUCCEEDED(rv)) {
-        rv = impSvc->CreateNewGenericMail(&pGeneric);
+        rv = impSvc->CreateNewGenericMail(getter_AddRefs(pGeneric));
         if (NS_SUCCEEDED(rv)) {
           pGeneric->SetData("mailInterface", pMail);
           nsString name;
@@ -219,42 +219,41 @@ NS_IMETHODIMP nsOutlookImport::GetImportInterface(const char *pImportType, nsISu
           if (NS_SUCCEEDED(rv)) {
             nameString->SetData(name);
             pGeneric->SetData("name", nameString);
-            rv = pGeneric->QueryInterface(kISupportsIID, (void **)ppInterface);
+            nsCOMPtr<nsISupports> pInterface(do_QueryInterface(pGeneric));
+            pInterface.forget(ppInterface);
           }
         }
       }
     }
-    NS_IF_RELEASE(pMail);
-    NS_IF_RELEASE(pGeneric);
     return rv;
   }
 
   if (!strcmp(pImportType, "addressbook")) {
     // create the nsIImportAddressBook interface and return it!
-    nsIImportAddressBooks *  pAddress = nullptr;
-    nsIImportGeneric *    pGeneric = nullptr;
-    rv = ImportOutlookAddressImpl::Create(&pAddress);
+    nsCOMPtr<nsIImportAddressBooks> pAddress;
+    nsCOMPtr<nsIImportGeneric> pGeneric;
+    rv = ImportOutlookAddressImpl::Create(getter_AddRefs(pAddress));
     if (NS_SUCCEEDED(rv)) {
       nsCOMPtr<nsIImportService> impSvc(do_GetService(NS_IMPORTSERVICE_CONTRACTID, &rv));
       if (NS_SUCCEEDED(rv)) {
-        rv = impSvc->CreateNewGenericAddressBooks(&pGeneric);
+        rv = impSvc->CreateNewGenericAddressBooks(getter_AddRefs(pGeneric));
         if (NS_SUCCEEDED(rv)) {
           pGeneric->SetData("addressInterface", pAddress);
-          rv = pGeneric->QueryInterface(kISupportsIID, (void **)ppInterface);
+          nsCOMPtr<nsISupports> pInterface(do_QueryInterface(pGeneric));
+          pInterface.forget(ppInterface);
         }
       }
     }
-    NS_IF_RELEASE(pAddress);
-    NS_IF_RELEASE(pGeneric);
     return rv;
   }
 
   if (!strcmp(pImportType, "settings")) {
-    nsIImportSettings *pSettings = nullptr;
-    rv = nsOutlookSettings::Create(&pSettings);
-    if (NS_SUCCEEDED(rv))
-      pSettings->QueryInterface(kISupportsIID, (void **)ppInterface);
-    NS_IF_RELEASE(pSettings);
+    nsCOMPtr<nsIImportSettings> pSettings;
+    rv = nsOutlookSettings::Create(getter_AddRefs(pSettings));
+    if (NS_SUCCEEDED(rv)) {
+      nsCOMPtr<nsISupports> pInterface(do_QueryInterface(pSettings));
+      pInterface.forget(ppInterface);
+    }
     return rv;
   }
 

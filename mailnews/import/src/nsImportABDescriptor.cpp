@@ -14,14 +14,8 @@ nsresult nsImportABDescriptor::Create(nsISupports *aOuter, REFNSIID aIID, void *
   if (aOuter)
     return NS_ERROR_NO_AGGREGATION;
 
-  nsImportABDescriptor *it = new nsImportABDescriptor();
-  if (it == nullptr)
-    return NS_ERROR_OUT_OF_MEMORY;
-
-  NS_ADDREF(it);
-  nsresult rv = it->QueryInterface(aIID, aResult);
-  NS_RELEASE(it);
-  return rv;
+  RefPtr<nsImportABDescriptor> it = new nsImportABDescriptor();
+  return it->QueryInterface(aIID, aResult);
 }
 
 NS_IMPL_ISUPPORTS(nsImportABDescriptor, nsIImportABDescriptor)

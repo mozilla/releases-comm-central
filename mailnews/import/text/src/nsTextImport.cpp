@@ -169,21 +169,20 @@ NS_IMETHODIMP nsTextImport::GetImportInterface(const char *pImportType, nsISuppo
 
   if (!strcmp(pImportType, "addressbook")) {
     // create the nsIImportMail interface and return it!
-    nsIImportAddressBooks * pAddress = nullptr;
-    nsIImportGeneric * pGeneric = nullptr;
-    rv = ImportAddressImpl::Create(&pAddress, m_stringBundle);
+    nsCOMPtr<nsIImportAddressBooks> pAddress;
+    nsCOMPtr<nsIImportGeneric> pGeneric;
+    rv = ImportAddressImpl::Create(getter_AddRefs(pAddress), m_stringBundle);
     if (NS_SUCCEEDED(rv)) {
       nsCOMPtr<nsIImportService> impSvc(do_GetService(NS_IMPORTSERVICE_CONTRACTID, &rv));
       if (NS_SUCCEEDED(rv)) {
-        rv = impSvc->CreateNewGenericAddressBooks(&pGeneric);
+        rv = impSvc->CreateNewGenericAddressBooks(getter_AddRefs(pGeneric));
         if (NS_SUCCEEDED(rv)) {
           pGeneric->SetData("addressInterface", pAddress);
-          rv = pGeneric->QueryInterface(kISupportsIID, (void **)ppInterface);
+          nsCOMPtr<nsISupports> pInterface(do_QueryInterface(pGeneric));
+          pInterface.forget(ppInterface);
         }
       }
     }
-    NS_IF_RELEASE(pAddress);
-    NS_IF_RELEASE(pGeneric);
     return rv;
   }
   return NS_ERROR_NOT_AVAILABLE;
@@ -295,8 +294,7 @@ NS_IMETHODIMP ImportAddressImpl::FindAddressBooks(nsIFile *pLoc, nsIArray **ppAr
     name.SetLength(idx);
   }
 
-  nsCOMPtr<nsIImportABDescriptor>  desc;
-  nsISupports * pInterface;
+  nsCOMPtr<nsIImportABDescriptor> desc;
 
   nsCOMPtr<nsIImportService> impSvc(do_GetService(NS_IMPORTSERVICE_CONTRACTID, &rv));
   if (NS_FAILED(rv)) {
@@ -311,9 +309,8 @@ NS_IMETHODIMP ImportAddressImpl::FindAddressBooks(nsIFile *pLoc, nsIArray **ppAr
     desc->SetPreferredName(name);
     desc->SetSize((uint32_t) sz);
     desc->SetAbFile(m_fileLoc);
-    rv = desc->QueryInterface(kISupportsIID, (void **) &pInterface);
+    nsCOMPtr<nsISupports> pInterface(do_QueryInterface(desc));
     array->AppendElement(pInterface, false);
-    pInterface->Release();
   }
   if (NS_FAILED(rv)) {
     IMPORT_LOG0("*** Error creating address book descriptor for text import\n");

@@ -51,9 +51,9 @@ private:
   // End Bug 593907
 
 private:
-  nsIMsgSendListener *  m_pListener;
-  nsIMsgCompFields *    m_pMsgFields;
-  static nsIMsgIdentity *    m_pIdentity;
+  nsCOMPtr<nsIMsgSendListener> m_pListener;
+  nsCOMPtr<nsIMsgCompFields> m_pMsgFields;
+  static nsCOMPtr<nsIMsgIdentity> m_pIdentity;
   char* m_optimizationBuffer;
   nsCOMPtr<nsIImportService>  m_pImportService;
 

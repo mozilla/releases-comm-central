@@ -16,27 +16,25 @@
 
 #define BECKY_MESSAGES_URL "chrome://messenger/locale/beckyImportMsgs.properties"
 
-nsIStringBundle *nsBeckyStringBundle::mBundle = nullptr;
+nsCOMPtr<nsIStringBundle> nsBeckyStringBundle::mBundle = nullptr;
 
-nsIStringBundle *
+void
 nsBeckyStringBundle::GetStringBundle(void)
 {
   if (mBundle)
-    return mBundle;
+    return;
 
   nsresult rv;
   nsCOMPtr<nsIStringBundleService> bundleService = do_GetService(NS_STRINGBUNDLE_CONTRACTID, &rv);
   if (NS_SUCCEEDED(rv) && bundleService)
-    rv = bundleService->CreateBundle(BECKY_MESSAGES_URL, &mBundle);
-
-  return mBundle;
+    rv = bundleService->CreateBundle(BECKY_MESSAGES_URL, getter_AddRefs(mBundle));
 }
 
 void
 nsBeckyStringBundle::EnsureStringBundle(void)
 {
   if (!mBundle)
-    (void) GetStringBundle();
+    GetStringBundle();
 }
 
 char16_t *
@@ -70,5 +68,5 @@ nsBeckyStringBundle::FormatStringFromName(const char *name,
 void
 nsBeckyStringBundle::Cleanup(void)
 {
-  NS_IF_RELEASE(mBundle);
+  mBundle = nullptr;
 }
