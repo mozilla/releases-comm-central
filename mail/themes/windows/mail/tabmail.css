@@ -93,6 +93,10 @@ tabpanels {
 }
 
 @media (-moz-windows-glass) {
+  :root[tabsintitlebar][sizemode=normal] #tabs-toolbar {
+    margin-top: 6px;
+  }
+
   #mail-toolbar-menubar2:not([autohide=true]) ~ #tabs-toolbar > .tabmail-tabs >
     .tabmail-tab > .tab-stack > .tab-background {
     border-top-style: none;
@@ -137,6 +141,15 @@ tabpanels {
 
 .tabs-alltabs-button > hbox > .toolbarbutton-menu-dropmarker {
   display: none;
+}
+
+@media (-moz-os-version: windows-win7) and (-moz-windows-default-theme) {
+  @media (-moz-windows-glass: 0) {
+    :root[tabsintitlebar][sizemode=normal] #mail-toolbar-menubar2[autohide=true][inactive] ~
+      #tabs-toolbar {
+      margin-top: 6px;
+    }
+  }
 }
 
 @media (-moz-os-version: windows-win10) and (-moz-windows-default-theme) {
