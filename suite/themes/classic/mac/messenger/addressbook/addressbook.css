@@ -204,6 +204,7 @@ toolbar[iconsize="small"] > #button-abdelete[disabled] {
 
 #dirTree {
   -moz-appearance: -moz-mac-source-list;
+  -moz-font-smoothing-background-color: -moz-mac-source-list;
 }
 
 .tree-stack > .tree-rows > .tree-bodybox {
@@ -216,10 +217,12 @@ toolbar[iconsize="small"] > #button-abdelete[disabled] {
 
 #dirTree > treechildren::-moz-tree-row(selected) {
   -moz-appearance: -moz-mac-source-list-selection;
+  -moz-font-smoothing-background-color: -moz-mac-source-list-selection;
 }
 
 #dirTree > treechildren::-moz-tree-row(selected, focus) {
   -moz-appearance: -moz-mac-active-source-list-selection;
+  -moz-font-smoothing-background-color: -moz-mac-active-source-list-selection;
 }
 
 #dirTree > treechildren::-moz-tree-cell-text(selected) {
