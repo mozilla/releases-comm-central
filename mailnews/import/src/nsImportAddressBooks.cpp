@@ -239,6 +239,7 @@ NS_IMETHODIMP nsImportGenericAddressBooks::SetData(const char *dataId, nsISuppor
     return NS_ERROR_NULL_POINTER;
 
   if (!PL_strcasecmp(dataId, "addressInterface")) {
+    m_pInterface = nullptr;
     if (item)
       m_pInterface = do_QueryInterface(item);
   }
@@ -270,6 +271,7 @@ NS_IMETHODIMP nsImportGenericAddressBooks::SetData(const char *dataId, nsISuppor
   }
 
   if (!PL_strcasecmp(dataId, "fieldMap")) {
+    m_pFieldMap = nullptr;
     if (item)
       m_pFieldMap = do_QueryInterface(item);
   }
