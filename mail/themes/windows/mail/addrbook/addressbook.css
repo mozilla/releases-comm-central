@@ -75,10 +75,6 @@
   }
 }
 
-#ab-toolbox:-moz-lwtheme {
-  background-color: transparent;
-}
-
 toolbar:not(:-moz-lwtheme) {
   -moz-appearance: none;
 }

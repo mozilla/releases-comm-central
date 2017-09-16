@@ -147,6 +147,12 @@
   box-shadow: 0 1px 0 rgba(253, 253, 253, 0.45) inset;
 }
 
+.mail-toolbox:-moz-lwtheme,
+.contentTabToolbox:-moz-lwtheme {
+  color: var(--toolbar-color, inherit);
+  box-shadow: none;
+}
+
 .mail-toolbox::after,
 .contentTabToolbox::after {
   content: "";
@@ -933,6 +939,12 @@ toolbar:not([mode="text"]) > toolbarpaletteitem > #button-chat > stack {
     background-color: var(--toolbar-bgcolor);
     padding-bottom: 1px !important;
     padding-top: 2px;
+  }
+
+  #mail-toolbar-menubar2:-moz-lwtheme {
+    background-color: var(--toolbar-bgcolor);
+    color: var(--toolbar-color, inherit);
+    box-shadow: none;
   }
 
   #navigation-toolbox > #mail-toolbar-menubar2:not(:-moz-lwtheme) {

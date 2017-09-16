@@ -592,7 +592,8 @@ toolbarbutton.formatting-button,
 }
 
 #compose-toolbox:-moz-lwtheme {
-  background-color: transparent;
+  background-color: var(--toolbar-bgcolor);
+  color: var(--toolbar-color, inherit);
 }
 
 toolbar:not(:-moz-lwtheme) {

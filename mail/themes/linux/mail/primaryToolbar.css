@@ -22,6 +22,11 @@
   background-image: var(--toolbar-bgimage);
 }
 
+.mail-toolbox:-moz-lwtheme,
+.contentTabToolbox:-moz-lwtheme {
+  color: var(--toolbar-color, inherit);
+}
+
 .mail-toolbox::after,
 .contentTabToolbox::after {
   content: "";

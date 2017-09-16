@@ -42,6 +42,13 @@ toolbar[printpreview="true"] {
   list-style-image: url("chrome://messenger/skin/icons/notloading.png");
 }
 
+/* ::::: Status bar ::::: */
+
+#status-bar:-moz-lwtheme {
+  background-color: var(--toolbar-bgcolor);
+  color: var(--toolbar-color, inherit);
+}
+
 /* ::::: online/offline icons ::::: */
 
 #offline-status[offline="true"] {

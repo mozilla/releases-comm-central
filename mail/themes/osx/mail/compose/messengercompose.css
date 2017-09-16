@@ -10,6 +10,12 @@
 
 @namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
 
+#compose-toolbox:-moz-lwtheme {
+  -moz-appearance: none;
+  background-color: var(--toolbar-bgcolor);
+  color: var(--toolbar-color, inherit);
+}
+
 #attachmentBucket {
   width: 15em;
   min-width: 15em;
