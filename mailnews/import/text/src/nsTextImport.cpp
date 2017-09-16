@@ -45,8 +45,6 @@
 #define TEXTIMPORT_ADDRESS_BADSOURCEFILE 2005
 #define TEXTIMPORT_ADDRESS_CONVERTERROR  2006
 
-static NS_DEFINE_IID(kISupportsIID, NS_ISUPPORTS_IID);
-
 class ImportAddressImpl final : public nsIImportAddressBooks
 {
 public:

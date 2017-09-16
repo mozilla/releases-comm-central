@@ -36,8 +36,6 @@
 
 #include "MapiApi.h"
 
-static NS_DEFINE_IID(kISupportsIID,      NS_ISUPPORTS_IID);
-
 class ImportOutlookMailImpl : public nsIImportMail
 {
 public:

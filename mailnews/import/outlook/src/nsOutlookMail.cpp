@@ -31,8 +31,6 @@
 #include "nsMsgI18N.h"
 #include "nsNetUtil.h"
 
-static NS_DEFINE_IID(kISupportsIID,      NS_ISUPPORTS_IID);
-
 /* ------------ Address book stuff ----------------- */
 typedef struct {
   int32_t    mozField;
