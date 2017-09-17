@@ -8690,10 +8690,8 @@ bool nsImapProtocol::TryToLogon()
 
           if (m_prefAuthMethods & kHasXOAuth2Capability)
           {
-            // OAuth2 failed. We don't have an error message for this, and we
-            // in a string freeze, so use a generic error message. Entering
-            // a password does not help.
-            AlertUserEventUsingName("imapUnknownHostError");
+            // OAuth2 failed. Entering password does not help.
+            AlertUserEventUsingName("imapOAuth2Error");
             break;
           }
 
