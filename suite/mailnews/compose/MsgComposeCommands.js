@@ -151,6 +151,15 @@ function enableEditableFields()
 
 }
 
+/**
+ * Small helper function to check whether the node passed in is a signature.
+ * Note that a text node is not a DOM element, hence .localName can't be used.
+ */
+function isSignature(aNode) {
+  return ["DIV","PRE"].includes(aNode.nodeName) &&
+         aNode.classList.contains("moz-signature");
+}
+
 var stateListener = {
   NotifyComposeFieldsReady: function() {
     ComposeFieldsReady();
@@ -218,6 +227,9 @@ var stateListener = {
     if (this.useParagraph) {
       this.editor.enableUndo(false);
 
+      let mailDoc = document.getElementById("content-frame").contentDocument;
+      let mailBody = mailDoc.querySelector("body");
+      this.editor.selection.collapse(mailBody, 0);
       let pElement = this.editor.createElementWithDefaults("p");
       let brElement = this.editor.createElementWithDefaults("br");
       pElement.appendChild(brElement);
@@ -239,6 +251,11 @@ var stateListener = {
       let mailDoc = document.getElementById("content-frame").contentDocument;
       let mailBody = mailDoc.querySelector("body");
       let selection = this.editor.selection;
+
+      // Make sure the selection isn't inside the signature.
+      if (isSignature(mailBody.firstChild))
+        selection.collapse(mailBody, 0);
+
       let range = selection.getRangeAt(0);
       let start = range.startOffset;
 

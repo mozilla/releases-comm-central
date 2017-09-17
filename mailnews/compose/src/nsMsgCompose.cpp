@@ -4434,10 +4434,8 @@ nsMsgCompose::ProcessSignature(nsIMsgIdentity *identity, bool aQuoted, nsString 
   if (!preopen)
     return NS_ERROR_OUT_OF_MEMORY;
 
-#ifdef MOZ_THUNDERBIRD
   bool paragraphMode =
     mozilla::Preferences::GetBool("mail.compose.default_to_paragraph", false);
-#endif
 
   if (imageSig)
   {
@@ -4445,9 +4443,7 @@ nsMsgCompose::ProcessSignature(nsIMsgIdentity *identity, bool aQuoted, nsString 
     // should put in the appropriate HTML for inclusion, otherwise, do nothing.
     if (m_composeHTML)
     {
-#ifdef MOZ_THUNDERBIRD
       if (!paragraphMode)
-#endif
         sigOutput.AppendLiteral(htmlBreak);
       sigOutput.AppendLiteral(htmlsigopen);
       if ((mType == nsIMsgCompType::NewsPost || !suppressSigSep) &&
@@ -4533,9 +4529,7 @@ nsMsgCompose::ProcessSignature(nsIMsgIdentity *identity, bool aQuoted, nsString 
   {
     if (m_composeHTML)
     {
-#ifdef MOZ_THUNDERBIRD
       if (!paragraphMode)
-#endif
         sigOutput.AppendLiteral(htmlBreak);
 
       if (htmlSig)
