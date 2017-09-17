@@ -226,7 +226,8 @@ nsresult nsOutlookCompose::CreateComponents(void)
 {
   nsresult rv = NS_OK;
 
-  if (!m_pListener && NS_SUCCEEDED(rv))
+  m_pMsgFields = nullptr;
+  if (!m_pListener)
     rv = OutlookSendListener::CreateSendListener(getter_AddRefs(m_pListener));
 
   if (NS_SUCCEEDED(rv)) {

@@ -383,6 +383,7 @@ void nsImportGenericAddressBooks::GetDefaultFieldMap(void)
     rv = m_pInterface->InitFieldMap(m_pFieldMap);
   if (NS_FAILED(rv)) {
     IMPORT_LOG0("*** Error: Unable to initialize field map\n");
+    m_pFieldMap = nullptr;
   }
 }
 
