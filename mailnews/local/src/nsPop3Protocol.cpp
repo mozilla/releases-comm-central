@@ -982,7 +982,7 @@ NS_IMETHODIMP nsPop3Protocol::OnStopRequest(nsIRequest *aRequest, nsISupports * 
     m_pop3ConData->next_state = POP3_ERROR_DONE;
     ProcessProtocolState(nullptr, nullptr, 0, 0);
 
-    if (NS_FAILED(aStatus))
+    if (NS_FAILED(aStatus) && aStatus != NS_BINDING_ABORTED)
       nsMsgProtocol::ShowAlertMessage(msgUrl, aStatus);
 
     return NS_OK;
