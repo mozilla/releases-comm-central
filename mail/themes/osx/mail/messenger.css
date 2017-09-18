@@ -383,11 +383,6 @@ treechildren::-moz-tree-cell-text {
 
 /* ::::: Notifications ::::: */
 
-notification[value="addon-install-complete"] {
-  color: black;
-  background-color: #ADB5C3;
-}
-
 notification[value="addon-install-blocked"] > button,
 notification[value="addon-install-failed"] > button,
 notification[value="addon-install-complete"] > button {
@@ -411,16 +406,6 @@ notification[value="addon-install-complete"] > button:active:hover {
   background-image: linear-gradient(rgba(45, 54, 71, 0.3),
                                     rgba(45, 54, 71, 0.1));
   border-color: rgba(60, 73, 97, 0.7);
-}
-
-notification[type="critical"] .messageCloseButton:not(:hover) {
-  -moz-image-region: rect(0, 64px, 16px, 48px);
-}
-
-@media (min-resolution: 2dppx) {
-  notification[type="critical"] .messageCloseButton:not(:hover) {
-    -moz-image-region: rect(0, 128px, 32px, 96px);
-  }
 }
 
 /* ::::: Tabs in Titlebar :::::: */
