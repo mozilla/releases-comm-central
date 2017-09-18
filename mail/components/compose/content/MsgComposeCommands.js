@@ -3726,20 +3726,19 @@ function OnShowDictionaryMenu(aTarget)
  * Change the language of the composition and if we are using inline
  * spell check, recheck the message with the new dictionary.
  *
- * @param event  Event of selecting an item in the spelling button menulist popup.
+ * Note: called from the "Check Spelling" panel in SelectLanguage().
+ * @param aLang  New language to set.
  */
-function ChangeLanguage(event)
+function ComposeChangeLanguage(aLang)
 {
-  let newLang = event.target.value;
-
-  if (document.documentElement.getAttribute("lang") != newLang) {
+  if (document.documentElement.getAttribute("lang") != aLang) {
     // Update the document language as well (needed to synchronise
     // the subject).
-    document.documentElement.setAttribute("lang", newLang);
+    document.documentElement.setAttribute("lang", aLang);
 
     let spellChecker = gSpellChecker.mInlineSpellChecker.spellChecker;
     if (spellChecker) {
-      spellChecker.SetCurrentDictionary(newLang);
+      spellChecker.SetCurrentDictionary(aLang);
 
       // now check the document over again with the new dictionary
       if (gSpellChecker.enabled) {
@@ -3755,6 +3754,17 @@ function ChangeLanguage(event)
       }
     }
   }
+}
+
+/**
+ * Change the language of the composition and if we are using inline
+ * spell check, recheck the message with the new dictionary.
+ *
+ * @param event  Event of selecting an item in the spelling button menulist popup.
+ */
+function ChangeLanguage(event)
+{
+  ComposeChangeLanguage(event.target.value);
   event.stopPropagation();
 }
 

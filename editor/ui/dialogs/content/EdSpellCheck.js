@@ -372,7 +372,12 @@ function SelectLanguage()
     // For compose windows we need to set the "lang" attribute so the
     // core editor uses the correct dictionary for the inline spell check.
     if (window.arguments[1]) {
-      window.opener.document.documentElement.setAttribute("lang", item.value);
+      if ("ComposeChangeLanguage" in window.opener) {
+        // We came here from a compose window.
+        window.opener.ComposeChangeLanguage(item.value);
+      } else {
+        window.opener.document.documentElement.setAttribute("lang", item.value);
+      }
     }
     gLastSelectedLang = item;
   }
