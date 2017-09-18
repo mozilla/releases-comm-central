@@ -957,6 +957,8 @@ NS_IMETHODIMP nsPop3Protocol::OnStopRequest(nsIRequest *aRequest, nsISupports * 
   // the protocol object.
   if (m_socketIsOpen)
   {
+    nsCOMPtr<nsIMsgMailNewsUrl> msgUrl = do_QueryInterface(m_url);
+
     // Check if the connection was dropped before getting back an auth error.
     // If we got the auth error, the next state would be
     // POP3_OBTAIN_PASSWORD_EARLY.
@@ -979,6 +981,10 @@ NS_IMETHODIMP nsPop3Protocol::OnStopRequest(nsIRequest *aRequest, nsISupports * 
       m_loadGroup->RemoveRequest(static_cast<nsIRequest *>(this), nullptr, aStatus);
     m_pop3ConData->next_state = POP3_ERROR_DONE;
     ProcessProtocolState(nullptr, nullptr, 0, 0);
+
+    if (NS_FAILED(aStatus))
+      nsMsgProtocol::ShowAlertMessage(msgUrl, aStatus);
+
     return NS_OK;
   }
   nsresult rv = nsMsgProtocol::OnStopRequest(aRequest, aContext, aStatus);

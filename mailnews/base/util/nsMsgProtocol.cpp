@@ -328,6 +328,46 @@ NS_IMETHODIMP nsMsgProtocol::OnStartRequest(nsIRequest *request, nsISupports *ct
   return rv;
 }
 
+void nsMsgProtocol::ShowAlertMessage(nsIMsgMailNewsUrl *aMsgUrl, nsresult aStatus)
+{
+  const char16_t* errorString = nullptr;
+  switch (aStatus)
+  {
+  case NS_ERROR_UNKNOWN_HOST:
+  case NS_ERROR_UNKNOWN_PROXY_HOST:
+     errorString = u"unknownHostError";
+     break;
+  case NS_ERROR_CONNECTION_REFUSED:
+  case NS_ERROR_PROXY_CONNECTION_REFUSED:
+     errorString = u"connectionRefusedError";
+     break;
+  case NS_ERROR_NET_TIMEOUT:
+     errorString = u"netTimeoutError";
+     break;
+  default:
+     // Leave the string as nullptr.
+     break;
+  }
+
+  NS_ASSERTION(errorString, "unknown error, but don't alert user.");
+  if (errorString)
+  {
+    nsString errorMsg;
+    errorMsg.Adopt(FormatStringWithHostNameByName(errorString, aMsgUrl));
+    if (errorMsg.IsEmpty())
+    {
+      errorMsg.Assign(NS_LITERAL_STRING("[StringID "));
+      errorMsg.Append(errorString);
+      errorMsg.AppendLiteral("?]");
+    }
+
+    nsCOMPtr<nsIMsgMailSession> mailSession =
+      do_GetService(NS_MSGMAILSESSION_CONTRACTID);
+    if (mailSession)
+      mailSession->AlertUser(errorMsg, aMsgUrl);
+  }
+}
+
 // stop binding is a "notification" informing us that the stream associated with aURL is going away.
 NS_IMETHODIMP nsMsgProtocol::OnStopRequest(nsIRequest *request, nsISupports *ctxt, nsresult aStatus)
 {
@@ -342,7 +382,7 @@ NS_IMETHODIMP nsMsgProtocol::OnStopRequest(nsIRequest *request, nsISupports *ctx
   nsCOMPtr <nsIMsgMailNewsUrl> msgUrl = do_QueryInterface(ctxt, &rv);
   if (NS_SUCCEEDED(rv) && msgUrl)
   {
-    rv = msgUrl->SetUrlState(false, aStatus);
+    rv = msgUrl->SetUrlState(false, aStatus);  // Always returns NS_OK.
     if (m_loadGroup)
       m_loadGroup->RemoveRequest(static_cast<nsIRequest *>(this), nullptr, aStatus);
 
@@ -355,45 +395,7 @@ NS_IMETHODIMP nsMsgProtocol::OnStopRequest(nsIRequest *request, nsISupports *ctx
     // bugs #30775 and #30648 relate to this
     if (!m_channelContext && NS_FAILED(aStatus) &&
         (aStatus != NS_BINDING_ABORTED))
-    {
-      const char16_t* errorString = nullptr;
-      switch (aStatus)
-      {
-          case NS_ERROR_UNKNOWN_HOST:
-          case NS_ERROR_UNKNOWN_PROXY_HOST:
-             errorString = u"unknownHostError";
-             break;
-          case NS_ERROR_CONNECTION_REFUSED:
-          case NS_ERROR_PROXY_CONNECTION_REFUSED:
-             errorString = u"connectionRefusedError";
-             break;
-          case NS_ERROR_NET_TIMEOUT:
-             errorString = u"netTimeoutError";
-             break;
-          default:
-             // Leave the string as nullptr.
-             break;
-      }
-
-      NS_ASSERTION(errorString, "unknown error, but don't alert user.");
-      if (errorString)
-      {
-        nsString errorMsg;
-        errorMsg.Adopt(FormatStringWithHostNameByName(errorString, msgUrl));
-        if (errorMsg.IsEmpty())
-        {
-          errorMsg.Assign(NS_LITERAL_STRING("[StringID "));
-          errorMsg.Append(errorString);
-          errorMsg.AppendLiteral("?]");
-        }
-
-        nsCOMPtr<nsIMsgMailSession> mailSession =
-          do_GetService(NS_MSGMAILSESSION_CONTRACTID, &rv);
-        NS_ENSURE_SUCCESS(rv, rv);
-
-        rv = mailSession->AlertUser(errorMsg, msgUrl);
-      }
-    } // if we got an error code
+      ShowAlertMessage(msgUrl, aStatus);
   } // if we have a mailnews url.
 
   // Drop notification callbacks to prevent cycles.

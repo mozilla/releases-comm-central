@@ -63,6 +63,7 @@ public:
   virtual nsresult LoadUrl(nsIURI * aURL, nsISupports * aConsumer = nullptr);
 
   virtual nsresult SetUrl(nsIURI * aURL); // sometimes we want to set the url before we load it
+  void ShowAlertMessage(nsIMsgMailNewsUrl *aMsgUrl, nsresult aStatus);
 
   // Flag manipulators
   virtual bool TestFlag  (uint32_t flag) {return flag & m_flags;}
