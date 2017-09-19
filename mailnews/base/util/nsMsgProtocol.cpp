@@ -344,6 +344,12 @@ void nsMsgProtocol::ShowAlertMessage(nsIMsgMailNewsUrl *aMsgUrl, nsresult aStatu
   case NS_ERROR_NET_TIMEOUT:
      errorString = u"netTimeoutError";
      break;
+  case NS_ERROR_NET_RESET:
+     errorString = u"netResetError";
+     break;
+  case NS_ERROR_NET_INTERRUPT:
+     errorString = u"netInterruptError";
+     break;
   default:
      // Leave the string as nullptr.
      break;
