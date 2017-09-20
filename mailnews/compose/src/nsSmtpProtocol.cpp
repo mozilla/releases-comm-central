@@ -104,7 +104,7 @@ nsresult nsExplainErrorDetails(nsISmtpUrl * aSmtpUrl, nsresult aCode, ...)
   {
     case NS_ERROR_ILLEGAL_LOCALPART:
       bundle->GetStringFromName("errorIllegalLocalPart", eMsg);
-      nsTextFormatter::vssprintf(msg, eMsg.get(), args);
+      // nsTextFormatter::vssprintf(msg, eMsg.get(), args);
       break;
     case NS_ERROR_SMTP_SERVER_ERROR:
     case NS_ERROR_TCP_READ_ERROR:
@@ -118,7 +118,7 @@ nsresult nsExplainErrorDetails(nsISmtpUrl * aSmtpUrl, nsresult aCode, ...)
     case NS_ERROR_SMTP_GREETING:
       exitString = errorStringNameForErrorCode(aCode);
       bundle->GetStringFromName(exitString, eMsg);
-      nsTextFormatter::vssprintf(msg, eMsg.get(), args);
+      // nsTextFormatter::vssprintf(msg, eMsg.get(), args);
       break;
     default:
       NS_WARNING("falling to default error code");
