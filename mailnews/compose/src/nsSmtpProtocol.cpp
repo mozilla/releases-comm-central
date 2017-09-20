@@ -21,6 +21,7 @@
 #include "nsISmtpServer.h"
 #include "prtime.h"
 #include "mozilla/Logging.h"
+#include "nsPrintfCString.h"
 #include "prerror.h"
 #include "prprf.h"
 #include "prmem.h"
@@ -71,11 +72,10 @@ using namespace mozilla::mailnews;
 ///////////////////////////////////////////////////////////////////////////////////////////
 
 /* based on in NET_ExplainErrorDetails in mkmessag.c */
-nsresult nsExplainErrorDetails(nsISmtpUrl * aSmtpUrl, nsresult aCode, ...)
+nsresult nsExplainErrorDetails(nsISmtpUrl * aSmtpUrl, nsresult aCode,
+                               const char* arg1, const char* arg2)
 {
   NS_ENSURE_ARG(aSmtpUrl);
-
-  va_list args;
 
   nsCOMPtr<nsIPrompt> dialog;
   aSmtpUrl->GetPrompt(getter_AddRefs(dialog));
@@ -92,8 +92,6 @@ nsresult nsExplainErrorDetails(nsISmtpUrl * aSmtpUrl, nsresult aCode, ...)
     getter_AddRefs(bundle));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  va_start (args, aCode);
-
   const char* exitString;
 #ifdef __GNUC__
 // Temporary workaroung until bug 783526 is fixed.
@@ -104,7 +102,7 @@ nsresult nsExplainErrorDetails(nsISmtpUrl * aSmtpUrl, nsresult aCode, ...)
   {
     case NS_ERROR_ILLEGAL_LOCALPART:
       bundle->GetStringFromName("errorIllegalLocalPart", eMsg);
-      nsTextFormatter::vssprintf(msg, eMsg.get(), args);
+      nsTextFormatter::ssprintf(msg, eMsg.get(), arg1, arg2);
       break;
     case NS_ERROR_SMTP_SERVER_ERROR:
     case NS_ERROR_TCP_READ_ERROR:
@@ -118,12 +116,15 @@ nsresult nsExplainErrorDetails(nsISmtpUrl * aSmtpUrl, nsresult aCode, ...)
     case NS_ERROR_SMTP_GREETING:
       exitString = errorStringNameForErrorCode(aCode);
       bundle->GetStringFromName(exitString, eMsg);
-      nsTextFormatter::vssprintf(msg, eMsg.get(), args);
+      if (aCode == NS_ERROR_SMTP_PERM_SIZE_EXCEEDED_1)
+        nsTextFormatter::ssprintf(msg, eMsg.get(), atoi(arg1), arg2);
+      else
+        nsTextFormatter::ssprintf(msg, eMsg.get(), arg1, arg2);
       break;
     default:
       NS_WARNING("falling to default error code");
       bundle->GetStringFromName("communicationsError", eMsg);
-      nsTextFormatter::ssprintf(msg, eMsg.get(), aCode);
+      nsTextFormatter::ssprintf(msg, eMsg.get(), static_cast<uint32_t>(aCode));
       break;
   }
 #ifdef __GNUC__
@@ -131,8 +132,6 @@ nsresult nsExplainErrorDetails(nsISmtpUrl * aSmtpUrl, nsresult aCode, ...)
 #endif
 
   rv = dialog->Alert(nullptr, msg.get());
-
-  va_end (args);
 
   return rv;
 }
@@ -376,7 +375,7 @@ nsresult nsSmtpProtocol::Initialize(nsIURI * aURL)
             // passed down a compose window - we might be sending in the
             // background!
             rv = nsExplainErrorDetails(m_runningURL,
-                                       NS_ERROR_ILLEGAL_LOCALPART, start);
+                                       NS_ERROR_ILLEGAL_LOCALPART, start, nullptr);
             NS_ASSERTION(NS_SUCCEEDED(rv), "failed to explain illegal localpart");
             m_urlErrorState = NS_ERROR_BUT_DONT_SHOW_ALERT;
             return NS_ERROR_BUT_DONT_SHOW_ALERT;
@@ -671,7 +670,7 @@ nsresult nsSmtpProtocol::ExtensionLoginResponse(nsIInputStream * inputStream, ui
     nsresult rv =
 #endif
     nsExplainErrorDetails(m_runningURL, NS_ERROR_SMTP_GREETING,
-                          m_responseText.get());
+                          m_responseText.get(), nullptr);
     NS_ASSERTION(NS_SUCCEEDED(rv), "failed to explain SMTP error");
 
     m_urlErrorState = NS_ERROR_BUT_DONT_SHOW_ALERT;
@@ -703,7 +702,7 @@ nsresult nsSmtpProtocol::SendHeloResponse(nsIInputStream * inputStream, uint32_t
     rv =
 #endif
     nsExplainErrorDetails(m_runningURL, NS_ERROR_SMTP_SERVER_ERROR,
-                          m_responseText.get());
+                          m_responseText.get(), nullptr);
     NS_ASSERTION(NS_SUCCEEDED(rv), "failed to explain SMTP error");
 
     m_urlErrorState = NS_ERROR_BUT_DONT_SHOW_ALERT;
@@ -844,7 +843,7 @@ nsresult nsSmtpProtocol::SendEhloResponse(nsIInputStream * inputStream, uint32_t
             nsresult rv =
 #endif
             nsExplainErrorDetails(m_runningURL, NS_ERROR_SMTP_SERVER_ERROR,
-                                  m_responseText.get());
+                                  m_responseText.get(), nullptr);
             NS_ASSERTION(NS_SUCCEEDED(rv), "failed to explain SMTP error");
 
             m_urlErrorState = NS_ERROR_BUT_DONT_SHOW_ALERT;
@@ -928,7 +927,8 @@ nsresult nsSmtpProtocol::SendEhloResponse(nsIInputStream * inputStream, uint32_t
         nsresult rv =
 #endif
         nsExplainErrorDetails(m_runningURL,
-                              NS_ERROR_SMTP_PERM_SIZE_EXCEEDED_1, m_sizelimit);
+                              NS_ERROR_SMTP_PERM_SIZE_EXCEEDED_1,
+                              nsPrintfCString("%" PRId32, m_sizelimit).get(), nullptr);
         NS_ASSERTION(NS_SUCCEEDED(rv), "failed to explain SMTP error");
 
         m_urlErrorState = NS_ERROR_BUT_DONT_SHOW_ALERT;
@@ -1672,7 +1672,7 @@ nsresult nsSmtpProtocol::SendMailResponse()
     else
       errorcode = NS_ERROR_SENDING_FROM_COMMAND;
 
-    rv = nsExplainErrorDetails(m_runningURL, errorcode, m_responseText.get());
+    rv = nsExplainErrorDetails(m_runningURL, errorcode, m_responseText.get(), nullptr);
     NS_ASSERTION(NS_SUCCEEDED(rv), "failed to explain SMTP error");
 
     m_urlErrorState = NS_ERROR_BUT_DONT_SHOW_ALERT;
@@ -1773,9 +1773,9 @@ nsresult nsSmtpProtocol::SendRecipientResponse()
       errorcode = NS_ERROR_SENDING_RCPT_COMMAND;
 
     if (errorcode == NS_ERROR_SENDING_RCPT_COMMAND) {
-      rv = nsExplainErrorDetails(
-        m_runningURL, errorcode, NS_ConvertUTF8toUTF16(m_responseText).get(),
-        NS_ConvertUTF8toUTF16(m_addresses[m_addressesLeft - 1]).get());
+      rv = nsExplainErrorDetails(m_runningURL, errorcode,
+                                 m_responseText.get(),
+                                 m_addresses[m_addressesLeft - 1].get());
     } else {
       rv = nsExplainErrorDetails(m_runningURL, errorcode,
                                  m_responseText.get(),
@@ -1833,7 +1833,7 @@ nsresult nsSmtpProtocol::SendDataResponse()
   {
     mozilla::DebugOnly<nsresult> rv = nsExplainErrorDetails(m_runningURL,
                                                             NS_ERROR_SENDING_DATA_COMMAND,
-                                                            m_responseText.get());
+                                                            m_responseText.get(), nullptr);
     NS_ASSERTION(NS_SUCCEEDED(rv), "failed to explain SMTP error");
 
     m_urlErrorState = NS_ERROR_BUT_DONT_SHOW_ALERT;
@@ -1904,7 +1904,7 @@ nsresult nsSmtpProtocol::SendMessageResponse()
   {
     mozilla::DebugOnly<nsresult> rv = nsExplainErrorDetails(m_runningURL,
                                                             NS_ERROR_SENDING_MESSAGE,
-                                                            m_responseText.get());
+                                                            m_responseText.get(), nullptr);
     NS_ASSERTION(NS_SUCCEEDED(rv), "failed to explain SMTP error");
 
     m_urlErrorState = NS_ERROR_BUT_DONT_SHOW_ALERT;
