@@ -110,8 +110,7 @@
 }
 
 .tab-background[selected=true] {
-  border-left-style: solid;
-  border-right-style: solid;
+  border-inline-end-style: solid;
   border-color: var(--tabs-border);
   border-image: linear-gradient(var(--tabs-border),
                                 var(--tabs-border) calc(100% - 1px - var(--tab-toolbar-overlap)),

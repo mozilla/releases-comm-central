@@ -26,6 +26,10 @@
   -moz-image-region: rect(0px, 16px, 16px, 0px);
 }
 
+.tabmail-tab:not(:first-child) > .tab-stack > .tab-background[selected=true] {
+  border-inline-start-style: solid;
+}
+
 tabpanels {
   -moz-appearance: none;
   background-color: transparent;
@@ -152,11 +156,12 @@ tabpanels {
   }
 }
 
-@media (-moz-os-version: windows-win10) and (-moz-windows-default-theme) {
-  .tab-label:-moz-window-inactive {
-    /* Calculated to match the opacity change of Windows Explorer
-       titlebar text change for inactive windows. */
-    opacity: .6;
+@media (-moz-windows-glass),
+       (-moz-os-version: windows-win8) and (-moz-windows-default-theme) {
+  :root[sizemode=normal] .tabmail-tab:first-child > .tab-stack >
+    .tab-background[selected=true] {
+    border-inline-start-style: solid;
+    border-inline-start-color: rgba(10%, 10%, 10%, .4);
   }
 }
 
@@ -166,6 +171,14 @@ tabpanels {
   #messengerWindow[darkwindowframe="true"]
   .tabmail-tab:not([selected="true"]):not(:-moz-lwtheme):not(:-moz-window-inactive) {
     color: white;
+  }
+}
+
+@media (-moz-os-version: windows-win10) and (-moz-windows-default-theme) {
+  .tab-label:-moz-window-inactive {
+    /* Calculated to match the opacity change of Windows Explorer
+       titlebar text change for inactive windows. */
+    opacity: .6;
   }
 }
 
