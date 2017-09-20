@@ -131,6 +131,13 @@ pref("app.support.baseURL", "https://support.live.mozillamessaging.com/%LOCALE%/
 // Show error messages in error console.
 pref("javascript.options.showInConsole", true);
 
+// Workaround for bug 1401528.
+// If true, reuse the same global for (almost) everything loaded by the component
+// loader (JS components, JSMs, etc). This saves memory, but makes it possible
+// for the scripts to interfere with each other.  A restart is required for this
+// to take effect.
+pref("jsloader.shareGlobal", false);
+
 // Controls enabling of the extension system logging (can reduce performance)
 pref("extensions.logging.enabled", false);
 
