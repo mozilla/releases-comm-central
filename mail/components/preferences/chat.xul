@@ -41,8 +41,8 @@
 
     <!-- Startup -->
     <hbox align="center">
-      <label value="&startupAction.label;" accesskey="&startupAction.accesskey;"
-             control="messengerStartupAction"/>
+      <label id ="chatStartupAction" value="&startupAction.label;"
+             accesskey="&startupAction.accesskey;" control="messengerStartupAction"/>
       <menulist id="messengerStartupAction" preference="messenger.startup.action">
         <menupopup>
           <menuitem label="&startupOffline.label;"     value="0"/>

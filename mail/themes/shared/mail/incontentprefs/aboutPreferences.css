@@ -45,6 +45,12 @@ caption > label {
   line-height: 22px;
 }
 
+tabpanel > label,
+tabpanel > description,
+tabpanel > hbox > description {
+  margin-inline-start: 0;
+}
+
 /* Web search menulist */
 #defaultWebSearch > .menulist-label-box > .menulist-icon[src] {
   margin-inline-start: 5px;
@@ -266,6 +272,14 @@ tabs {
 #telemetryLearnMore,
 #crashReporterLearnMore {
   margin-inline-end: 4px !important;
+}
+
+/* Remove the start margin to align these elements */
+#addCloudFileAccount,
+#chatStartupAction,
+#defaults-itemtype-menulist,
+#manageCertificatesButton {
+  margin-inline-start: 0;
 }
 
 /**
