@@ -871,7 +871,7 @@ public:
     return NS_OK;
   }
 
-  NS_IMETHOD CollectReports(nsIMemoryReporterCallback*aCb,
+  NS_IMETHOD CollectReports(nsIHandleReportCallback* aCb,
                             nsISupports* aClosure,
                             bool aAnonymize) override
   {
