@@ -490,7 +490,9 @@ nsMessengerOSXIntegration::BounceDockIcon()
     if (domWindow)
     {
       nsCOMPtr<nsIDOMChromeWindow> chromeWindow(do_QueryInterface(domWindow));
-      chromeWindow->GetAttention();
+      // Temporay fix, see https://bugzilla.mozilla.org/show_bug.cgi?id=1401487#c3
+      // chromeWindow->GetAttention();
+      chromeWindow = nullptr;  // avoid unused variable warning.
     }
   }
   return NS_OK;
