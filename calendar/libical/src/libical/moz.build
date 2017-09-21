@@ -36,3 +36,9 @@ FINAL_LIBRARY = 'xul'
 LOCAL_INCLUDES += [
     '../..'
 ]
+
+DEFINES['HAVE_CONFIG_H'] = True
+DEFINES['HAVE_SNPRINTF'] = True
+
+if CONFIG['OS_TARGET'] == 'Darwin':
+    DEFINES['__USE_BSD'] = '1'
