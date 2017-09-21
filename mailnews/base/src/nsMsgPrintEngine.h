@@ -82,7 +82,7 @@ protected:
   int32_t                      mMsgInx;
 
   // Progress Dialog
-  
+
   nsCOMPtr<nsIPrintingPromptService> mPrintPromptService;
   nsCOMPtr<nsIWebProgressListener> mPrintProgressListener;
   nsCOMPtr<nsIPrintProgress>       mPrintProgress;

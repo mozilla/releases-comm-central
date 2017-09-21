@@ -66,7 +66,7 @@ NS_IMETHODIMP nsMsgBiffManager::Init()
   mInited = true;
   nsresult rv;
 
-  nsCOMPtr<nsIMsgAccountManager> accountManager = 
+  nsCOMPtr<nsIMsgAccountManager> accountManager =
   do_GetService(NS_MSGACCOUNTMANAGER_CONTRACTID, &rv);
   if (NS_SUCCEEDED(rv))
     accountManager->AddIncomingServerListener(this);
@@ -79,7 +79,7 @@ NS_IMETHODIMP nsMsgBiffManager::Init()
   }
 
   // Ensure status bar biff service has started
-  nsCOMPtr<nsIFolderListener> statusBarBiffService = 
+  nsCOMPtr<nsIFolderListener> statusBarBiffService =
     do_GetService(kStatusBarBiffManagerCID, &rv);
 
   nsCOMPtr<nsIObserverService> observerService =
@@ -94,7 +94,7 @@ NS_IMETHODIMP nsMsgBiffManager::Init()
 
 NS_IMETHODIMP nsMsgBiffManager::Shutdown()
 {
-  if (mBiffTimer) 
+  if (mBiffTimer)
   {
     mBiffTimer->Cancel();
     mBiffTimer = nullptr;
@@ -319,7 +319,7 @@ nsresult nsMsgBiffManager::PerformBiff()
     {
       bool serverBusy = false;
       bool serverRequiresPassword = true;
-      bool passwordPromptRequired; 
+      bool passwordPromptRequired;
 
       current.server->GetPasswordPromptRequired(&passwordPromptRequired);
       current.server->GetServerBusy(&serverBusy);

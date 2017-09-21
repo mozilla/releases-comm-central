@@ -97,8 +97,8 @@ nsMailDirProvider::GetFiles(const char *aKey,
     return NS_ERROR_FAILURE;
 
   // The list of isp directories includes the isp directory
-  // in the current process dir (i.e. <path to thunderbird.exe>\isp and 
-  // <path to thunderbird.exe>\isp\locale 
+  // in the current process dir (i.e. <path to thunderbird.exe>\isp and
+  // <path to thunderbird.exe>\isp\locale
   // and isp and isp\locale for each active extension
 
   nsCOMPtr<nsIProperties> dirSvc =
@@ -183,7 +183,7 @@ nsMailDirProvider::AppendingEnumerator::GetNext(nsISupports* *aResult)
         rv = mNextWithLocale->Exists(&exists);
         if (NS_FAILED(rv) || !exists)
           mNextWithLocale = nullptr; // clear out mNextWithLocale, so we don't try to iterate over it
-      } 
+      }
       break;
     }
 

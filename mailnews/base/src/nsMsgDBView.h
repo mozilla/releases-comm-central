@@ -142,7 +142,7 @@ protected:
   bool          mSuppressChangeNotification;
   bool          mGoForwardEnabled;
   bool          mGoBackEnabled;
-  
+
   virtual const char * GetViewName(void) {return "MsgDBView"; }
   nsresult FetchAuthor(nsIMsgDBHdr * aHdr, nsAString &aAuthorString);
   nsresult FetchRecipients(nsIMsgDBHdr * aHdr, nsAString &aRecipientsString);
@@ -168,17 +168,17 @@ protected:
 
   // Save and Restore Selection are a pair of routines you should
   // use when performing an operation which is going to change the view
-  // and you want to remember the selection. (i.e. for sorting). 
+  // and you want to remember the selection. (i.e. for sorting).
   // Call SaveAndClearSelection and we'll give you an array of msg keys for
-  // the current selection. We also freeze and clear the selection. 
-  // When you are done changing the view, 
+  // the current selection. We also freeze and clear the selection.
+  // When you are done changing the view,
   // call RestoreSelection passing in the same array
   // and we'll restore the selection AND unfreeze selection in the UI.
   nsresult SaveAndClearSelection(nsMsgKey *aCurrentMsgKey, nsTArray<nsMsgKey> &aMsgKeyArray);
   nsresult RestoreSelection(nsMsgKey aCurrentmsgKey, nsTArray<nsMsgKey> &aMsgKeyArray);
 
   // this is not safe to use when you have a selection
-  // RowCountChanged() will call AdjustSelection() 
+  // RowCountChanged() will call AdjustSelection()
   // it should be called after SaveAndClearSelection() and before
   // RestoreSelection()
   nsresult AdjustRowCount(int32_t rowCountBeforeSort, int32_t rowCountAfterSort);
@@ -201,7 +201,7 @@ protected:
 
   virtual void InsertMsgHdrAt(nsMsgViewIndex index, nsIMsgDBHdr *hdr,
                               nsMsgKey msgKey, uint32_t flags, uint32_t level);
-  virtual void SetMsgHdrAt(nsIMsgDBHdr *hdr, nsMsgViewIndex index, 
+  virtual void SetMsgHdrAt(nsIMsgDBHdr *hdr, nsMsgViewIndex index,
                               nsMsgKey msgKey, uint32_t flags, uint32_t level);
   virtual bool InsertEmptyRows(nsMsgViewIndex viewIndex, int32_t numRows);
   virtual void RemoveRows(nsMsgViewIndex viewIndex, int32_t numRows);
@@ -342,7 +342,7 @@ protected:
   nsresult EncodeColumnSort(nsString &columnSortString);
   nsresult DecodeColumnSort(nsString &columnSortString);
   // for view navigation
-  nsresult NavigateFromPos(nsMsgNavigationTypeValue motion, nsMsgViewIndex startIndex, nsMsgKey *pResultKey, 
+  nsresult NavigateFromPos(nsMsgNavigationTypeValue motion, nsMsgViewIndex startIndex, nsMsgKey *pResultKey,
               nsMsgViewIndex *pResultIndex, nsMsgViewIndex *pThreadIndex, bool wrap);
   nsresult FindNextFlagged(nsMsgViewIndex startIndex, nsMsgViewIndex *pResultIndex);
   nsresult FindFirstNew(nsMsgViewIndex *pResultIndex);
@@ -387,7 +387,7 @@ protected:
   // if we're deleting messages, we want to hold off loading messages on selection changed until the delete is done
   // and we want to batch notifications.
   bool m_deletingRows;
-  // for certain special folders 
+  // for certain special folders
   // and decendents of those folders
   // (like the "Sent" folder, "Sent/Old Sent")
   // the Sender column really shows recipients.
@@ -424,7 +424,7 @@ protected:
   nsWeakPtr mMessengerWeak;
   nsWeakPtr mMsgWindowWeak;
   nsCOMPtr<nsIMsgDBViewCommandUpdater> mCommandUpdater; // we push command update notifications to the UI from this.
-  nsCOMPtr<nsIStringBundle> mMessengerStringBundle;  
+  nsCOMPtr<nsIStringBundle> mMessengerStringBundle;
 
   // used for the preference labels
   nsString mLabelPrefDescriptions[PREF_LABELS_MAX];
@@ -438,12 +438,12 @@ protected:
   // batch/series of batches of messages manually marked
   // as junk
   nsCOMPtr<nsIMutableArray> mJunkHdrs;
-  
+
   nsTArray<uint32_t> mIndicesToNoteChange;
 
   nsTHashtable<nsCStringHashKey> mEmails;
 
-  // the saved search views keep track of the XX most recently deleted msg ids, so that if the 
+  // the saved search views keep track of the XX most recently deleted msg ids, so that if the
   // delete is undone, we can add the msg back to the search results, even if it no longer
   // matches the search criteria (e.g., a saved search over unread messages).
   // We use mRecentlyDeletedArrayIndex to treat the array as a list of the XX
@@ -452,11 +452,11 @@ protected:
   uint32_t mRecentlyDeletedArrayIndex;
   void RememberDeletedMsgHdr(nsIMsgDBHdr *msgHdr);
   bool WasHdrRecentlyDeleted(nsIMsgDBHdr *msgHdr);
-  
+
   //these hold pointers (and IDs) for the nsIMsgCustomColumnHandler object that constitutes the custom column handler
   nsCOMArray <nsIMsgCustomColumnHandler> m_customColumnHandlers;
   nsTArray<nsString> m_customColumnHandlerIDs;
-  
+
   nsIMsgCustomColumnHandler* GetColumnHandler(const char16_t*);
   nsIMsgCustomColumnHandler* GetCurColumnHandler();
   bool CustomColumnsInSortAndNotRegistered();

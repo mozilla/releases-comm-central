@@ -44,7 +44,7 @@ class nsSubscribableServer : public nsISubscribableServer
 
   NS_DECL_THREADSAFE_ISUPPORTS
   NS_DECL_NSISUBSCRIBABLESERVER
-  
+
 private:
   virtual ~nsSubscribableServer();
 

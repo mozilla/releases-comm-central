@@ -38,7 +38,7 @@ nsMsgServiceProviderService::Init()
   nsresult rv;
   nsCOMPtr<nsIRDFService> rdf = do_GetService(kRDFServiceCID, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
-  
+
   mInnerDataSource = do_CreateInstance(kRDFCompositeDataSourceCID, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
@@ -66,7 +66,7 @@ void nsMsgServiceProviderService::LoadISPFiles()
 
   bool hasMore;
   nsCOMPtr<nsIFile> ispDirectory;
-  while (NS_SUCCEEDED(ispDirectories->HasMoreElements(&hasMore)) && hasMore) 
+  while (NS_SUCCEEDED(ispDirectories->HasMoreElements(&hasMore)) && hasMore)
   {
     nsCOMPtr<nsISupports> elem;
     ispDirectories->GetNext(getter_AddRefs(elem));
@@ -126,7 +126,7 @@ nsMsgServiceProviderService::LoadDataSource(const char *aURI)
   nsCOMPtr<nsIRDFRemoteDataSource> remote =
       do_QueryInterface(ds, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
-  
+
   rv = remote->Init(aURI);
   NS_ENSURE_SUCCESS(rv, rv);
   // for now load synchronously (async seems to be busted)

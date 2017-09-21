@@ -32,7 +32,7 @@ private:
   nsCOMPtr <nsIOutputStream> mLogStream;
   nsCOMPtr<nsIFile> mLogFile;
 
-  int32_t mLevel; 
+  int32_t mLevel;
   int32_t mPurgeInterval;
   int32_t mMoveTargetMode;
 
@@ -40,7 +40,7 @@ private:
   bool mUseWhiteList;
   bool mMoveOnSpam;
   bool mUseServerFilter;
-  
+
   nsCString mActionTargetAccount;
   nsCString mActionTargetFolder;
   nsCString mWhiteListAbURI;

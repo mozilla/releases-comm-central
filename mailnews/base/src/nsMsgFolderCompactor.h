@@ -72,7 +72,7 @@ protected:
   uint64_t m_startOfNewMsg; // offset in mailbox of new message
   char m_dataBuffer[COMPACTOR_READ_BUFF_SIZE + 1]; // temp data buffer for copying message
   nsresult m_status; // the status of the copying operation
-  nsCOMPtr <nsIMsgMessageService> m_messageService; // message service for copying 
+  nsCOMPtr <nsIMsgMessageService> m_messageService; // message service for copying
   nsCOMPtr<nsIArray> m_folderArray; // folders we are compacting, if compacting multiple.
   nsCOMPtr <nsIMsgWindow> m_window;
   nsCOMPtr <nsIMsgDBHdr> m_curSrcHdr;

@@ -224,7 +224,7 @@ nsMsgAccountManagerDataSource::Init()
   nsCOMPtr<nsIMsgAccountManager> am;
 
   // get a weak ref to the account manager
-  if (!mAccountManager) 
+  if (!mAccountManager)
   {
     am = do_GetService(NS_MSGACCOUNTMANAGER_CONTRACTID, &rv);
     mAccountManager = do_GetWeakReference(am);
@@ -232,7 +232,7 @@ nsMsgAccountManagerDataSource::Init()
   else
     am = do_QueryReferent(mAccountManager);
 
-  if (am) 
+  if (am)
   {
     am->AddIncomingServerListener(this);
     am->AddRootFolderListener(this);
@@ -269,7 +269,7 @@ nsMsgAccountManagerDataSource::GetTarget(nsIRDFResource *source,
 
   nsAutoString str;
   if (property == kNC_Name || property == kNC_FolderTreeName ||
-      property == kNC_FolderTreeSimpleName) 
+      property == kNC_FolderTreeSimpleName)
   {
     rv = getStringBundle();
     NS_ENSURE_SUCCESS(rv, rv);
@@ -365,7 +365,7 @@ nsMsgAccountManagerDataSource::GetTarget(nsIRDFResource *source,
         rv = getServerForFolderNode(source, getter_AddRefs(server));
         if (server)
           server->GetAccountManagerChrome(str);
-        else 
+        else
           str.AssignLiteral("am-main.xul");
       }
       else {
@@ -708,7 +708,7 @@ nsMsgAccountManagerDataSource::createSettingsResources(nsIRDFResource *aSource,
     NS_ENSURE_SUCCESS(rv,rv);
 
     // currently there is no offline without diskspace
-    if (offlineSupportLevel >= OFFLINE_SUPPORT_LEVEL_REGULAR) 
+    if (offlineSupportLevel >= OFFLINE_SUPPORT_LEVEL_REGULAR)
       aNodeArray->AppendObject(kNC_PageTitleSynchronization);
     else if (supportsDiskSpace)
       aNodeArray->AppendObject(kNC_PageTitleDiskSpace);
@@ -1042,11 +1042,11 @@ nsMsgAccountManagerDataSource::getServerForFolderNode(nsIRDFNode *aResource,
 {
   nsresult rv;
   nsCOMPtr<nsIMsgFolder> folder = do_QueryInterface(aResource, &rv);
-  if (NS_SUCCEEDED(rv)) 
+  if (NS_SUCCEEDED(rv))
   {
     bool isServer;
     rv = folder->GetIsServer(&isServer);
-    if (NS_SUCCEEDED(rv) && isServer) 
+    if (NS_SUCCEEDED(rv) && isServer)
       return folder->GetServer(aResult);
   }
   return NS_ERROR_FAILURE;

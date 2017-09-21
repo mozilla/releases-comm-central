@@ -38,7 +38,7 @@ public:
     bool m_processed;
 };
 
-class nsCopyRequest 
+class nsCopyRequest
 {
 public:
     nsCopyRequest();
@@ -46,7 +46,7 @@ public:
 
     nsresult Init(nsCopyRequestType type, nsISupports* aSupport,
                   nsIMsgFolder* dstFolder,
-                  bool bVal, uint32_t newMsgFlags, 
+                  bool bVal, uint32_t newMsgFlags,
                   const nsACString &newMsgKeywords,
                   nsIMsgCopyServiceListener* listener,
                   nsIMsgWindow *msgWindow, bool allowUndo);
@@ -72,7 +72,7 @@ class nsMsgCopyService : public nsIMsgCopyService
 public:
   nsMsgCopyService();
 
-  NS_DECL_THREADSAFE_ISUPPORTS 
+  NS_DECL_THREADSAFE_ISUPPORTS
 
   NS_DECL_NSIMSGCOPYSERVICE
 
@@ -91,4 +91,4 @@ private:
 };
 
 
-#endif 
+#endif

@@ -72,9 +72,9 @@ nsMsgQuickSearchDBView::CopyDBView(nsMsgDBView *aNewMsgDBView,
 
 nsresult nsMsgQuickSearchDBView::DeleteMessages(nsIMsgWindow *window, nsMsgViewIndex *indices, int32_t numIndices, bool deleteStorage)
 {
-  for (nsMsgViewIndex i = 0; i < (nsMsgViewIndex) numIndices; i++) 
+  for (nsMsgViewIndex i = 0; i < (nsMsgViewIndex) numIndices; i++)
   {
-    nsCOMPtr<nsIMsgDBHdr> msgHdr; 
+    nsCOMPtr<nsIMsgDBHdr> msgHdr;
     (void) GetMsgHdrForViewIndex(indices[i],getter_AddRefs(msgHdr));
     if (msgHdr)
       RememberDeletedMsgHdr(msgHdr);
@@ -93,7 +93,7 @@ NS_IMETHODIMP nsMsgQuickSearchDBView::DoCommand(nsMsgViewCommandTypeValue aComma
     for (uint32_t i = 0; NS_SUCCEEDED(rv) && i < GetSize(); i++)
     {
       nsCOMPtr<nsIMsgDBHdr> msgHdr;
-      m_db->GetMsgHdrForKey(m_keys[i],getter_AddRefs(msgHdr)); 
+      m_db->GetMsgHdrForKey(m_keys[i],getter_AddRefs(msgHdr));
       rv = m_db->MarkHdrRead(msgHdr, true, nullptr);
     }
 
@@ -101,7 +101,7 @@ NS_IMETHODIMP nsMsgQuickSearchDBView::DoCommand(nsMsgViewCommandTypeValue aComma
 
     nsCOMPtr<nsIMsgImapMailFolder> imapFolder = do_QueryInterface(m_folder);
     if (NS_SUCCEEDED(rv) && imapFolder)
-      rv = imapFolder->StoreImapFlags(kImapMsgSeenFlag, true, m_keys.Elements(), 
+      rv = imapFolder->StoreImapFlags(kImapMsgSeenFlag, true, m_keys.Elements(),
                                       m_keys.Length(), nullptr);
 
     m_db->SetSummaryValid(true);
@@ -114,7 +114,7 @@ NS_IMETHODIMP nsMsgQuickSearchDBView::DoCommand(nsMsgViewCommandTypeValue aComma
 NS_IMETHODIMP nsMsgQuickSearchDBView::GetViewType(nsMsgViewTypeValue *aViewType)
 {
     NS_ENSURE_ARG_POINTER(aViewType);
-    *aViewType = nsMsgViewType::eShowQuickSearchResults; 
+    *aViewType = nsMsgViewType::eShowQuickSearchResults;
     return NS_OK;
 }
 
@@ -163,7 +163,7 @@ nsresult nsMsgQuickSearchDBView::OnNewHeader(nsIMsgDBHdr *newHdr, nsMsgKey aPare
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgQuickSearchDBView::OnHdrFlagsChanged(nsIMsgDBHdr *aHdrChanged, uint32_t aOldFlags, 
+NS_IMETHODIMP nsMsgQuickSearchDBView::OnHdrFlagsChanged(nsIMsgDBHdr *aHdrChanged, uint32_t aOldFlags,
                                        uint32_t aNewFlags, nsIDBChangeListener *aInstigator)
 {
   nsresult rv = nsMsgGroupView::OnHdrFlagsChanged(aHdrChanged, aOldFlags, aNewFlags, aInstigator);
@@ -174,7 +174,7 @@ NS_IMETHODIMP nsMsgQuickSearchDBView::OnHdrFlagsChanged(nsIMsgDBHdr *aHdrChanged
   {
     // if we're displaying a single folder virtual folder for an imap folder,
     // the search criteria might be on message body, and we might not have the
-    // message body offline, in which case we can't tell if the message 
+    // message body offline, in which case we can't tell if the message
     // matched or not. But if the unread flag changed, we need to update the
     // unread counts. Normally, VirtualFolderChangeListener::OnHdrFlagsChanged will
     // handle this, but it won't work for body criteria when we don't have the
@@ -192,7 +192,7 @@ NS_IMETHODIMP nsMsgQuickSearchDBView::OnHdrFlagsChanged(nsIMsgDBHdr *aHdrChanged
           rv = searchSession->MatchHdr(aHdrChanged, m_db, &newMatch);
           aHdrChanged->SetFlags(aOldFlags);
           rv = searchSession->MatchHdr(aHdrChanged, m_db, &oldMatch);
-          aHdrChanged->SetFlags(aNewFlags); 
+          aHdrChanged->SetFlags(aNewFlags);
           // if it doesn't match the criteria, VirtualFolderChangeListener::OnHdrFlagsChanged
           // won't tweak the read/unread counts. So do it here:
           if (!oldMatch && !newMatch)
@@ -288,7 +288,7 @@ nsMsgQuickSearchDBView::OnSearchHit(nsIMsgDBHdr* aMsgHdr, nsIMsgFolder *folder)
   // Is FindKey going to be expensive here? A lot of hits could make
   // it a little bit slow to search through the view for every hit.
   if (m_cacheEmpty || FindKey(key, false) == nsMsgViewIndex_None)
-    return AddHdr(aMsgHdr); 
+    return AddHdr(aMsgHdr);
   else
     return NS_OK;
 }
@@ -351,7 +351,7 @@ nsMsgQuickSearchDBView::OnSearchDone(nsresult status)
   }
   if (m_sortType != nsMsgViewSortType::byThread)//we do not find levels for the results.
   {
-    m_sortValid = false;       //sort the results 
+    m_sortValid = false;       //sort the results
     Sort(m_sortType, m_sortOrder);
   }
   if (m_viewFolder && (m_viewFolder != m_folder))
@@ -376,7 +376,7 @@ nsMsgQuickSearchDBView::OnNewSearch()
   uint32_t folderFlags = 0;
   if (m_viewFolder)
     m_viewFolder->GetFlags(&folderFlags);
-  // check if it's a virtual folder - if so, we should get the cached hits 
+  // check if it's a virtual folder - if so, we should get the cached hits
   // from the db, and set a flag saying that we're using cached values.
   if (folderFlags & nsMsgFolderFlags::Virtual)
   {
@@ -479,7 +479,7 @@ nsresult nsMsgQuickSearchDBView::GetFirstMessageHdrToDisplayInThread(nsIMsgThrea
     }
   }
   retHdr.forget(result);
-  return NS_OK; 
+  return NS_OK;
 }
 
 nsresult nsMsgQuickSearchDBView::SortThreads(nsMsgViewSortTypeValue sortType, nsMsgViewSortOrderValue sortOrder)
@@ -488,7 +488,7 @@ nsresult nsMsgQuickSearchDBView::SortThreads(nsMsgViewSortTypeValue sortType, ns
   if (m_viewFlags & nsMsgViewFlagsType::kGroupBySort)
     return NS_OK;
   // iterate over the messages in the view, getting the thread id's
-  // sort m_keys so we can quickly find if a key is in the view. 
+  // sort m_keys so we can quickly find if a key is in the view.
   m_keys.Sort();
   // array of the threads' root hdr keys.
   nsTArray<nsMsgKey> threadRootIds;
@@ -576,7 +576,7 @@ nsresult
 nsMsgQuickSearchDBView::ListCollapsedChildren(nsMsgViewIndex viewIndex,
                                               nsIMutableArray *messageArray)
 {
-  nsCOMPtr<nsIMsgThread> threadHdr; 
+  nsCOMPtr<nsIMsgThread> threadHdr;
   nsresult rv = GetThreadContainingIndex(viewIndex, getter_AddRefs(threadHdr));
   NS_ENSURE_SUCCESS(rv, rv);
   uint32_t numChildren;
@@ -647,7 +647,7 @@ nsresult nsMsgQuickSearchDBView::ListIdsInThread(nsIMsgThread *threadHdr, nsMsgV
         {
           uint32_t childFlags;
           msgHdr->GetFlags(&childFlags);
-          InsertMsgHdrAt(viewIndex, msgHdr, msgKey, childFlags, 
+          InsertMsgHdrAt(viewIndex, msgHdr, msgKey, childFlags,
                         FindLevelInThread(msgHdr, startOfThreadViewIndex, viewIndex));
           if (! (rootFlags & MSG_VIEW_FLAG_HASCHILDREN))
             m_flags[startOfThreadViewIndex] = rootFlags | MSG_VIEW_FLAG_HASCHILDREN;
@@ -676,7 +676,7 @@ nsMsgQuickSearchDBView::ListIdsInThreadOrder(nsIMsgThread *threadHdr,
   nsCOMPtr <nsISimpleEnumerator> msgEnumerator;
   nsresult rv = threadHdr->EnumerateMessages(parentKey, getter_AddRefs(msgEnumerator));
   NS_ENSURE_SUCCESS(rv, rv);
-  
+
   // We use the numChildren as a sanity check on the thread structure.
   uint32_t numChildren;
   (void) threadHdr->GetNumChildren(&numChildren);
@@ -766,7 +766,7 @@ nsresult nsMsgQuickSearchDBView::ExpansionDelta(nsMsgViewIndex index, int32_t *e
   if (!(m_viewFlags & nsMsgViewFlagsType::kThreadedDisplay))
     return NS_OK;
 
-  nsCOMPtr<nsIMsgThread> threadHdr; 
+  nsCOMPtr<nsIMsgThread> threadHdr;
   nsresult rv = GetThreadContainingIndex(index, getter_AddRefs(threadHdr));
   NS_ENSURE_SUCCESS(rv, rv);
   uint32_t numChildren;
@@ -802,15 +802,15 @@ nsresult nsMsgQuickSearchDBView::ExpansionDelta(nsMsgViewIndex index, int32_t *e
   return NS_OK;
 }
 
-NS_IMETHODIMP 
-nsMsgQuickSearchDBView::OpenWithHdrs(nsISimpleEnumerator *aHeaders, 
+NS_IMETHODIMP
+nsMsgQuickSearchDBView::OpenWithHdrs(nsISimpleEnumerator *aHeaders,
                                      nsMsgViewSortTypeValue aSortType,
-                                     nsMsgViewSortOrderValue aSortOrder, 
+                                     nsMsgViewSortOrderValue aSortOrder,
                                      nsMsgViewFlagsTypeValue aViewFlags,
                                      int32_t *aCount)
 {
   if (aViewFlags & nsMsgViewFlagsType::kGroupBySort)
-    return nsMsgGroupView::OpenWithHdrs(aHeaders, aSortType, aSortOrder, 
+    return nsMsgGroupView::OpenWithHdrs(aHeaders, aSortType, aSortOrder,
                                         aViewFlags, aCount);
 
   m_sortType = aSortType;
@@ -827,7 +827,7 @@ nsMsgQuickSearchDBView::OpenWithHdrs(nsISimpleEnumerator *aHeaders,
     if (NS_SUCCEEDED(rv) && supports)
     {
       msgHdr = do_QueryInterface(supports);
-      AddHdr(msgHdr); 
+      AddHdr(msgHdr);
     }
     else
       break;
@@ -848,7 +848,7 @@ NS_IMETHODIMP nsMsgQuickSearchDBView::SetViewFlags(nsMsgViewFlagsTypeValue aView
   return rv;
 }
 
-nsresult 
+nsresult
 nsMsgQuickSearchDBView::GetMessageEnumerator(nsISimpleEnumerator **enumerator)
 {
   return GetViewEnumerator(enumerator);

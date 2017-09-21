@@ -76,8 +76,8 @@ NS_IMETHODIMP nsMsgXFViewThread::GetNumUnreadChildren (uint32_t *aNumUnreadChild
   return NS_OK;
 }
 
-NS_IMETHODIMP 
-nsMsgXFViewThread::AddChild(nsIMsgDBHdr *aNewHdr, nsIMsgDBHdr *aInReplyTo, 
+NS_IMETHODIMP
+nsMsgXFViewThread::AddChild(nsIMsgDBHdr *aNewHdr, nsIMsgDBHdr *aInReplyTo,
                             bool aThreadInThread, nsIDBChangeAnnouncer *aAnnouncer)
 {
   uint32_t whereInserted;
@@ -173,7 +173,7 @@ nsresult nsMsgXFViewThread::AddHdr(nsIMsgDBHdr *newHdr,
     nsMsgViewIndex i;
     nsMsgViewIndex insertIndex = m_keys.Length();
     uint32_t insertLevel = parentLevel + 1;
-    for (i = parentIndex; 
+    for (i = parentIndex;
          i < m_keys.Length() && (i == (nsMsgViewIndex)parentIndex || m_levels[i] >= parentLevel);
          i++)
     {
@@ -224,7 +224,7 @@ nsresult nsMsgXFViewThread::AddHdr(nsIMsgDBHdr *newHdr,
       *outParent = nullptr;
     nsCOMPtr<nsIMsgDBHdr> rootHdr;
     GetChildHdrAt(0, getter_AddRefs(rootHdr));
-    // If the new header is a parent of the root then it should be promoted. 
+    // If the new header is a parent of the root then it should be promoted.
     if (rootHdr && IsHdrParentOf(newHdr, rootHdr))
     {
       m_keys.InsertElementAt(0, newHdrKey);
@@ -246,7 +246,7 @@ nsresult nsMsgXFViewThread::AddHdr(nsIMsgDBHdr *newHdr,
     }
   }
 
-  // ### TODO handle the case where the root header starts 
+  // ### TODO handle the case where the root header starts
   // with Re, and the new one doesn't, and is earlier. In that
   // case, we want to promote the new header to root.
 
@@ -263,7 +263,7 @@ nsresult nsMsgXFViewThread::AddHdr(nsIMsgDBHdr *newHdr,
 //    {
 //      topLevelHdr->GetDate(&topLevelHdrDate);
 //      if (newHdrDate < topLevelHdrDate)
-      
+
 //    }
 //  }
   return NS_OK;
@@ -309,7 +309,7 @@ NS_IMETHODIMP nsMsgXFViewThread::RemoveChildHdr(nsIMsgDBHdr *child, nsIDBChangeA
       uint8_t levelRemoved = m_keys[childIndex];
       // Adjust the levels of all the children of this header
       nsMsgViewIndex i;
-      for (i = childIndex + 1; 
+      for (i = childIndex + 1;
                i < m_keys.Length() && m_levels[i] > levelRemoved; i++)
             m_levels[i] = m_levels[i] - 1;
 
@@ -372,7 +372,7 @@ void nsMsgXFViewThread::ChangeChildCount(int32_t delta)
   m_numChildren += delta;
 }
 
-bool nsMsgXFViewThread::IsHdrParentOf(nsIMsgDBHdr *possibleParent, 
+bool nsMsgXFViewThread::IsHdrParentOf(nsIMsgDBHdr *possibleParent,
                                         nsIMsgDBHdr *possibleChild)
 {
   uint16_t referenceToCheck = 0;
@@ -399,19 +399,19 @@ bool nsMsgXFViewThread::IsHdrParentOf(nsIMsgDBHdr *possibleParent,
   return false;
 }
 
-NS_IMETHODIMP nsMsgXFViewThread::GetNewestMsgDate(uint32_t *aResult) 
+NS_IMETHODIMP nsMsgXFViewThread::GetNewestMsgDate(uint32_t *aResult)
 {
   // if this hasn't been set, figure it out by enumerating the msgs in the thread.
   if (!m_newestMsgDate)
   {
     uint32_t numChildren;
     nsresult rv = NS_OK;
-  
+
     GetNumChildren(&numChildren);
 
     if ((int32_t) numChildren < 0)
       numChildren = 0;
- 
+
     for (uint32_t childIndex = 0; childIndex < numChildren; childIndex++)
     {
       nsCOMPtr<nsIMsgDBHdr> child;
@@ -429,7 +429,7 @@ NS_IMETHODIMP nsMsgXFViewThread::GetNewestMsgDate(uint32_t *aResult)
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgXFViewThread::SetNewestMsgDate(uint32_t aNewestMsgDate) 
+NS_IMETHODIMP nsMsgXFViewThread::SetNewestMsgDate(uint32_t aNewestMsgDate)
 {
   m_newestMsgDate = aNewestMsgDate;
   return NS_OK;
@@ -446,12 +446,12 @@ NS_IMETHODIMP nsMsgXFViewThread::GetFirstUnreadChild(nsIMsgDBHdr **aResult)
   NS_ENSURE_ARG(aResult);
   uint32_t numChildren;
   nsresult rv = NS_OK;
-  
+
   GetNumChildren(&numChildren);
 
   if ((int32_t) numChildren < 0)
     numChildren = 0;
-  
+
   for (uint32_t childIndex = 0; childIndex < numChildren; childIndex++)
   {
     nsCOMPtr<nsIMsgDBHdr> child;
@@ -460,7 +460,7 @@ NS_IMETHODIMP nsMsgXFViewThread::GetFirstUnreadChild(nsIMsgDBHdr **aResult)
     {
       nsMsgKey msgKey;
       child->GetMessageKey(&msgKey);
-      
+
       bool isRead;
       nsCOMPtr<nsIMsgDatabase> db;
       nsresult rv = m_folders[childIndex]->GetMsgDatabase(getter_AddRefs(db));

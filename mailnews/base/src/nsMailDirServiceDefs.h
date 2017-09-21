@@ -27,5 +27,5 @@
 #define NS_APP_MESSENGER_FOLDER_CACHE_50_FILE   "MFCaF"
 
 #define ISP_DIRECTORY_LIST                 "ISPDL"
-      
+
 #endif

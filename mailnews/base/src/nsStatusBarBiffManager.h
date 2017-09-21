@@ -22,7 +22,7 @@ public:
   NS_DECL_NSISTATUSBARBIFFMANAGER
   NS_DECL_NSIOBSERVER
 
-  nsStatusBarBiffManager(); 
+  nsStatusBarBiffManager();
   nsresult Init();
 
 private:

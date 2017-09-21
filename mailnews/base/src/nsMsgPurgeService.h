@@ -22,7 +22,7 @@ class nsMsgPurgeService
 		public nsIMsgSearchNotify
 {
 public:
-	nsMsgPurgeService(); 
+	nsMsgPurgeService();
 
 	NS_DECL_ISUPPORTS
   NS_DECL_NSIMSGPURGESERVICE

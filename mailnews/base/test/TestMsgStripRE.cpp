@@ -29,7 +29,7 @@ testStripRe(const char *encodedInput, char *expectedOutput,
   const char *encodedInout = encodedInput;
   uint32_t length = strlen(encodedInout);
   didModify = NS_MsgStripRE(&encodedInout, &length, &modifiedSubject);
-  
+
   // make sure we got the right results
   if (didModify != expectedDidModify)
     return 2;
@@ -60,8 +60,8 @@ int main(int argc, char** argv)
                                      &rv));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  // create an nsISupportsString and stuff our literal into it   
-  nsCOMPtr<nsISupportsString> rePrefixes = 
+  // create an nsISupportsString and stuff our literal into it
+  nsCOMPtr<nsISupportsString> rePrefixes =
     do_CreateInstance("@mozilla.org/supports-string;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
@@ -73,11 +73,11 @@ int main(int argc, char** argv)
   NS_ENSURE_SUCCESS(rv, rv);
 
   // set localizedRe pref
-  rv = prefBranch->SetComplexValue("mailnews.localizedRe", 
+  rv = prefBranch->SetComplexValue("mailnews.localizedRe",
                                    NS_GET_IID(nsISupportsString), rePrefixes);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  // run our tests 
+  // run our tests
   struct testInfo testInfoStructs[] = {
     {"SV: =?ISO-8859-1?Q?=C6blegr=F8d?=", "=?ISO-8859-1?Q?=C6blegr=F8d?=",
      true},
@@ -85,7 +85,7 @@ int main(int argc, char** argv)
      true},
 
      // Note that in the next two tests, the only ISO-8859-1 chars are in the
-     // localizedRe piece, so once they've been stripped, the re-encoding process 
+     // localizedRe piece, so once they've been stripped, the re-encoding process
      // simply writes out ASCII rather than an ISO-8859-1 encoded string with
      // no actual ISO-8859-1 special characters, which seems reasonable.
     {"=?ISO-8859-1?Q?=C6=D8=C5=3A_Foo_bar?=", "Foo bar", true},
@@ -108,6 +108,6 @@ int main(int argc, char** argv)
   if (allTestsPassed) {
     passed("all tests passed\n");
   }
-  
+
   return allTestsPassed ? 0 : 2;
 }

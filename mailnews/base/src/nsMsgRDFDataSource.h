@@ -46,11 +46,11 @@ class nsMsgRDFDataSource : public nsIRDFDataSource,
   static bool unassertEnumFunc(nsIRDFObserver *aObserver, void *aData);
   static bool changeEnumFunc(nsIRDFObserver *aObserver, void *aData);
   nsresult  NotifyObservers(nsIRDFResource *subject, nsIRDFResource *property,
-                            nsIRDFNode *newObject, nsIRDFNode *oldObject, 
+                            nsIRDFNode *newObject, nsIRDFNode *oldObject,
                             bool assert, bool change);
 
-  virtual nsresult NotifyPropertyChanged(nsIRDFResource *resource, 
-                    nsIRDFResource *propertyResource, nsIRDFNode *newNode, 
+  virtual nsresult NotifyPropertyChanged(nsIRDFResource *resource,
+                    nsIRDFResource *propertyResource, nsIRDFNode *newNode,
                     nsIRDFNode *oldNode = nullptr);
 
   nsCOMPtr<nsIMsgWindow> mWindow;

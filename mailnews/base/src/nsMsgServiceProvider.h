@@ -18,10 +18,10 @@ class nsMsgServiceProviderService : public nsIRDFDataSource
   nsMsgServiceProviderService();
 
   nsresult Init();
-  
+
   NS_DECL_ISUPPORTS
   NS_FORWARD_NSIRDFDATASOURCE(mInnerDataSource->)
-  
+
  private:
   virtual ~nsMsgServiceProviderService();
 

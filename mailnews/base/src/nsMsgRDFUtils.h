@@ -97,7 +97,7 @@ nsresult createIntNode(int32_t value, nsIRDFNode **node, nsIRDFService *rdfServi
 //Given an nsIRDFBlob creates an nsIRDFNode that is really an blob literal.
 nsresult createBlobNode(uint8_t *value, uint32_t &length,  nsIRDFNode **node, nsIRDFService *rdfService);
 
-//s Assertion for a datasource that will just call GetTarget on property.  When all of our 
+//s Assertion for a datasource that will just call GetTarget on property.  When all of our
 //datasource derive from our datasource baseclass, this should be moved there and the first
 //parameter will no longer be needed.
 nsresult GetTargetHasAssertion(nsIRDFDataSource *dataSource, nsIRDFResource* folderResource,

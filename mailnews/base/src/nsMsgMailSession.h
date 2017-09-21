@@ -25,8 +25,8 @@
 // The mail session is a replacement for the old 4.x MSG_Master object. It contains
 // mail session generic information such as the user's current mail identity, ....
 // I'm starting this off as an empty interface and as people feel they need to
-// add more information to it, they can. I think this is a better approach than 
-// trying to port over the old MSG_Master in its entirety as that had a lot of 
+// add more information to it, they can. I think this is a better approach than
+// trying to port over the old MSG_Master in its entirety as that had a lot of
 // cruft in it....
 //////////////////////////////////////////////////////////////////////////////////
 
@@ -81,16 +81,16 @@ class nsMsgShutdownService : public nsIMsgShutdownService,
 {
 public:
   nsMsgShutdownService();
-  
+
   NS_DECL_ISUPPORTS
   NS_DECL_NSIMSGSHUTDOWNSERVICE
   NS_DECL_NSIURLLISTENER
   NS_DECL_NSIOBSERVER
-    
+
 protected:
   nsresult ProcessNextTask();
   void AttemptShutdown();
-  
+
 private:
   virtual ~nsMsgShutdownService();
 

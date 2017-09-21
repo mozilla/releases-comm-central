@@ -31,7 +31,7 @@ public:
   void      ChangeUnreadChildCount(int32_t delta);
   void      ChangeChildCount(int32_t delta);
 
-  nsresult  AddHdr(nsIMsgDBHdr *newHdr, bool reparentChildren, 
+  nsresult  AddHdr(nsIMsgDBHdr *newHdr, bool reparentChildren,
                    uint32_t &whereInserted, nsIMsgDBHdr **outParent);
   int32_t   HdrIndex(nsIMsgDBHdr *hdr);
   uint32_t  ChildLevelAt(uint32_t msgIndex) {return m_levels[msgIndex];}

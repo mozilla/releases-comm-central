@@ -32,13 +32,13 @@ class nsMsgAccountManagerDataSource : public nsMsgRDFDataSource,
 {
 
 public:
-    
+
   nsMsgAccountManagerDataSource();
   virtual nsresult Init() override;
 
   virtual void Cleanup() override;
   // service manager shutdown method
-  
+
   NS_DECL_ISUPPORTS_INHERITED
   NS_DECL_NSIFOLDERLISTENER
   NS_DECL_NSIINCOMINGSERVERLISTENER
@@ -60,7 +60,7 @@ public:
                           bool *_retval) override;
   NS_IMETHOD HasArcOut(nsIRDFResource *source, nsIRDFResource *aArc,
                        bool *result) override;
-    
+
 protected:
   virtual ~nsMsgAccountManagerDataSource();
 
@@ -72,16 +72,16 @@ protected:
   nsresult HasAssertionAccountRoot(nsIRDFResource *aProperty,
                                    nsIRDFNode *aTarget,
                                    bool aTruthValue, bool *_retval);
-  
+
   bool isDefaultServer(nsIMsgIncomingServer *aServer);
   bool supportsFilters(nsIMsgIncomingServer *aServer);
   bool canGetMessages(nsIMsgIncomingServer *aServer);
   bool canGetIncomingMessages(nsIMsgIncomingServer *aServer);
-  
+
   static bool isContainment(nsIRDFResource *aProperty);
   nsresult getServerForFolderNode(nsIRDFNode *aResource,
                                   nsIMsgIncomingServer **aResult);
-  
+
   nsresult createRootResources(nsIRDFResource *aProperty,
                                nsCOMArray<nsIRDFResource> *aNodeArray);
   nsresult createSettingsResources(nsIRDFResource *aSource,
@@ -101,10 +101,10 @@ protected:
   static nsIRDFResource* kNC_SupportsFilters;
   static nsIRDFResource* kNC_CanGetMessages;
   static nsIRDFResource* kNC_CanGetIncomingMessages;
-  
+
   static nsIRDFResource* kNC_Child;
   static nsIRDFResource* kNC_AccountRoot;
-  
+
   static nsIRDFResource* kNC_Account;
   static nsIRDFResource* kNC_Server;
   static nsIRDFResource* kNC_Identity;
@@ -126,7 +126,7 @@ protected:
 
   static nsresult getAccountArcs(nsIMutableArray **aResult);
   static nsresult getAccountRootArcs(nsIMutableArray **aResult);
-  
+
 private:
   nsresult serverHasIdentities(nsIMsgIncomingServer *aServer, bool *aResult);
   nsresult getStringBundle();

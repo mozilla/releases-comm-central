@@ -32,9 +32,9 @@ public:
   NS_IMETHOD CopyDBView(nsMsgDBView *aNewMsgDBView, nsIMessenger *aMessengerInstance,
                         nsIMsgWindow *aMsgWindow, nsIMsgDBViewCommandUpdater *aCmdUpdater);
   NS_IMETHOD Close() override;
-  NS_IMETHOD OnHdrDeleted(nsIMsgDBHdr *aHdrDeleted, nsMsgKey aParentKey, int32_t aFlags, 
+  NS_IMETHOD OnHdrDeleted(nsIMsgDBHdr *aHdrDeleted, nsMsgKey aParentKey, int32_t aFlags,
                           nsIDBChangeListener *aInstigator) override;
-  NS_IMETHOD OnHdrFlagsChanged(nsIMsgDBHdr *aHdrChanged, uint32_t aOldFlags, 
+  NS_IMETHOD OnHdrFlagsChanged(nsIMsgDBHdr *aHdrChanged, uint32_t aOldFlags,
                                uint32_t aNewFlags, nsIDBChangeListener *aInstigator) override;
 
   NS_IMETHOD LoadMessageByViewIndex(nsMsgViewIndex aViewIndex) override;
@@ -52,7 +52,7 @@ protected:
   nsresult GetAgeBucketValue(nsIMsgDBHdr *aMsgHdr, uint32_t * aAgeBucket, bool rcvDate = false); // helper function to get the age bucket for a hdr, useful when grouped by date
   nsresult OnNewHeader(nsIMsgDBHdr *newHdr, nsMsgKey aParentKey, bool /*ensureListed*/) override;
   virtual int32_t FindLevelInThread(nsIMsgDBHdr *msgHdr, nsMsgViewIndex startOfThread, nsMsgViewIndex viewIndex) override;
-  nsMsgViewIndex ThreadIndexOfMsg(nsMsgKey msgKey, 
+  nsMsgViewIndex ThreadIndexOfMsg(nsMsgKey msgKey,
                                   nsMsgViewIndex msgIndex = nsMsgViewIndex_None,
                                   int32_t *pThreadCount = NULL,
                                   uint32_t *pFlags = NULL) override;

@@ -10,10 +10,10 @@ class nsMessengerContentHandler : public nsIContentHandler
 {
 public:
   nsMessengerContentHandler();
-  
+
   NS_DECL_ISUPPORTS
   NS_DECL_NSICONTENTHANDLER
-    
+
 private:
   virtual ~nsMessengerContentHandler();
   nsresult OpenWindow(nsIURI* aURI);

@@ -21,7 +21,7 @@ class nsMessengerBootstrap :
 public:
   nsMessengerBootstrap();
 
-  NS_DECL_THREADSAFE_ISUPPORTS  
+  NS_DECL_THREADSAFE_ISUPPORTS
   NS_DECL_NSIMESSENGERWINDOWSERVICE
 
 private:

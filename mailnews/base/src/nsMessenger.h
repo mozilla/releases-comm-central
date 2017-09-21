@@ -27,14 +27,14 @@ class nsMessenger : public nsIMessenger, public nsSupportsWeakReference, public 
 public:
   nsMessenger();
 
-  NS_DECL_ISUPPORTS  
+  NS_DECL_ISUPPORTS
   NS_DECL_NSIMESSENGER
   NS_DECL_NSIFOLDERLISTENER
 
   nsresult Alert(const char * stringName);
 
   nsresult SaveAttachment(nsIFile *file, const nsACString& unescapedUrl,
-                          const nsACString& messageUri, const nsACString& contentType, 
+                          const nsACString& messageUri, const nsACString& contentType,
                           void *closure, nsIUrlListener *aListener);
   nsresult PromptIfFileExists(nsIFile *file);
   nsresult DetachAttachments(uint32_t aCount,

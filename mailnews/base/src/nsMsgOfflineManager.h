@@ -26,17 +26,17 @@ class nsMsgOfflineManager
 public:
 
   nsMsgOfflineManager();
-  
+
   NS_DECL_THREADSAFE_ISUPPORTS
- 
+
   /* nsIMsgOfflineManager methods */
-  
+
   NS_DECL_NSIMSGOFFLINEMANAGER
-  NS_DECL_NSIOBSERVER  
+  NS_DECL_NSIOBSERVER
   NS_DECL_NSIURLLISTENER
   NS_DECL_NSIMSGSENDLATERLISTENER
 
-  typedef enum 
+  typedef enum
   {
     eStarting = 0,
 	  eSynchronizingOfflineImapChanges = 1,
@@ -47,7 +47,7 @@ public:
     eNoState = 6  // we're not doing anything
   } offlineManagerState;
 
-  typedef enum 
+  typedef enum
   {
     eGoingOnline = 0,
     eDownloadingForOffline = 1,

@@ -51,7 +51,7 @@ protected:
   // let's not make this a strong ref - we don't own it.
   nsWeakPtr mRootDocShellWeak;
   nsWeakPtr mMessageWindowDocShellWeak;
-  nsWeakPtr mDomWindow; 
+  nsWeakPtr mDomWindow;
 
   nsCString mMailCharacterSet;
   bool      mCharsetOverride;

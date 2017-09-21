@@ -28,7 +28,7 @@ class nsMsgBiffManager
     public nsSupportsWeakReference
 {
 public:
-  nsMsgBiffManager(); 
+  nsMsgBiffManager();
 
   NS_DECL_ISUPPORTS
   NS_DECL_NSIMSGBIFFMANAGER

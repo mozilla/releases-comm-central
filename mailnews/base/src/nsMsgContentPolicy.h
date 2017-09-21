@@ -7,7 +7,7 @@
  * nsMsgContentPolicy enforces the specified content policy on images, js, plugins, etc.
  * This is the class used to determine what elements in a message should be loaded.
  *
- * nsMsgCookiePolicy enforces our cookie policy for mail and RSS messages. 
+ * nsMsgCookiePolicy enforces our cookie policy for mail and RSS messages.
  ***********************************************************************************/
 
 #ifndef _nsMsgContentPolicy_H_
@@ -44,13 +44,13 @@ public:
   nsMsgContentPolicy();
 
   nsresult Init();
-    
+
   NS_DECL_ISUPPORTS
   NS_DECL_NSICONTENTPOLICY
   NS_DECL_NSIOBSERVER
   NS_DECL_NSIWEBPROGRESSLISTENER
   NS_DECL_NSIMSGCONTENTPOLICY
-  
+
 protected:
   virtual ~nsMsgContentPolicy();
 
@@ -72,7 +72,7 @@ protected:
                                           nsIURI *aContentLocation,
                                           int16_t *aDecision);
   void ComposeShouldLoad(nsIMsgCompose *aMsgCompose,
-                         nsISupports *aRequestingContext, 
+                         nsISupports *aRequestingContext,
                          nsIURI *aContentLocation, int16_t *aDecision);
   already_AddRefed<nsIMsgCompose> GetMsgComposeForContext(nsISupports *aRequestingContext);
 

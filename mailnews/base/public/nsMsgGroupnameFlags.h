@@ -30,7 +30,7 @@
 												  of this group.  Whether those
 												  chilren are visible in this
 												  list is determined by the
-												  above "ELIDED" flag. 
+												  above "ELIDED" flag.
 												  Setting this to the same value
 												  as an nsMsgFolderFlags IMAP server,
 												  since an IMAP _server_ will never

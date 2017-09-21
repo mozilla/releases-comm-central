@@ -39,11 +39,11 @@ static nsresult GetMessage(nsIURI *aURL, nsIMsgDBHdr **message)
   nsCOMPtr <nsIMsgMessageService> msgMessageService;
   rv = GetMessageServiceFromURI(uri, getter_AddRefs(msgMessageService));
   NS_ENSURE_SUCCESS(rv,rv);
-  if (!msgMessageService) 
+  if (!msgMessageService)
     return NS_ERROR_FAILURE;
 
   rv = msgMessageService->MessageURIToMsgHdr(uri.get(), message);
-  return rv; 
+  return rv;
 }
 
 nsCopyMessageStreamListener::nsCopyMessageStreamListener()

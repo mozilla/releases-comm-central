@@ -23,7 +23,7 @@
   {0xf62f3d3a, 0x1dd1, 0x11b2, \
     {0xa5, 0x16, 0xef, 0xad, 0xb1, 0x31, 0x61, 0x5c}}
 
-class nsIStringBundle; 
+class nsIStringBundle;
 
 class nsMessengerWinIntegration : public nsIMessengerOSIntegration,
                                   public nsIFolderListener,
@@ -51,7 +51,7 @@ private:
   nsresult AlertClickedSimple();
 #endif
 
-  void InitializeBiffStatusIcon(); 
+  void InitializeBiffStatusIcon();
   void FillToolTipInfo();
   void GenericShellNotify(DWORD aMessage);
   void DestroyBiffIcon();
@@ -66,8 +66,8 @@ private:
   bool mBiffIconInitialized;
   bool mSuppressBiffIcon;
   bool mAlertInProgress;
-  
-  // "might" because we don't know until we check 
+
+  // "might" because we don't know until we check
   // what type of server is associated with the default account
   bool            mDefaultAccountMightHaveAnInbox;
 

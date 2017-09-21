@@ -32,7 +32,7 @@ public:
 private:
   virtual ~nsSubscribeDataSource();
   nsCOMPtr <nsIRDFResource>      kNC_Child;
-  nsCOMPtr <nsIRDFResource>      kNC_Name;    
+  nsCOMPtr <nsIRDFResource>      kNC_Name;
   nsCOMPtr <nsIRDFResource>      kNC_LeafName;
   nsCOMPtr <nsIRDFResource>      kNC_Subscribed;
   nsCOMPtr <nsIRDFResource>      kNC_Subscribable;

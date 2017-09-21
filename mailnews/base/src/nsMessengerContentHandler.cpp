@@ -69,7 +69,7 @@ NS_IMETHODIMP nsMessengerContentHandler::HandleContent(const char * aContentType
 nsresult nsMessengerContentHandler::OpenWindow(nsIURI* aURI)
 {
   NS_ENSURE_ARG_POINTER(aURI);
-  
+
   nsCOMPtr<nsIWindowWatcher> wwatch = do_GetService("@mozilla.org/embedcomp/window-watcher;1");
   if (!wwatch)
     return NS_ERROR_FAILURE;

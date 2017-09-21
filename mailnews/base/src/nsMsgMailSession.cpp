@@ -361,7 +361,7 @@ NS_IMETHODIMP nsMsgMailSession::RemoveMsgWindow(nsIMsgWindow *msgWindow)
   if (!mWindows.Count())
   {
     nsresult rv;
-    nsCOMPtr<nsIMsgAccountManager> accountManager = 
+    nsCOMPtr<nsIMsgAccountManager> accountManager =
       do_GetService(NS_MSGACCOUNTMANAGER_CONTRACTID, &rv);
     if (NS_FAILED(rv))
       return rv;
@@ -518,7 +518,7 @@ nsMsgShutdownService::~nsMsgShutdownService()
   nsCOMPtr<nsIObserverService> observerService =
     mozilla::services::GetObserverService();
   if (observerService)
-  {  
+  {
     observerService->RemoveObserver(this, "quit-application-requested");
     observerService->RemoveObserver(this, "quit-application-granted");
     observerService->RemoveObserver(this, "quit-application");
@@ -536,7 +536,7 @@ nsresult nsMsgShutdownService::ProcessNextTask()
 
     nsCOMPtr<nsIMsgShutdownTask> curTask = mShutdownTasks[mTaskIndex];
     nsString taskName;
-    curTask->GetCurrentTaskName(taskName); 
+    curTask->GetCurrentTaskName(taskName);
     SetStatusText(taskName);
 
     nsCOMPtr<nsIMsgMailSession> mailSession = do_GetService(NS_MSGMAILSESSION_CONTRACTID);
@@ -602,7 +602,7 @@ NS_IMETHODIMP nsMsgShutdownService::Observe(nsISupports *aSubject,
   if (!strcmp(aTopic, "quit-application-granted"))
   {
     // Quit application has been requested and granted, therefore we will shut
-    // down. 
+    // down.
     mProcessedShutdown = true;
     return NS_OK;
   }
@@ -619,7 +619,7 @@ NS_IMETHODIMP nsMsgShutdownService::Observe(nsISupports *aSubject,
   nsCOMPtr<nsIObserverService> observerService =
     mozilla::services::GetObserverService();
   NS_ENSURE_STATE(observerService);
-  
+
   nsCOMPtr<nsISimpleEnumerator> listenerEnum;
   nsresult rv = observerService->EnumerateObservers("msg-shutdown", getter_AddRefs(listenerEnum));
   if (NS_SUCCEEDED(rv) && listenerEnum)
@@ -633,7 +633,7 @@ NS_IMETHODIMP nsMsgShutdownService::Observe(nsISupports *aSubject,
     {
       nsCOMPtr<nsISupports> curObject;
       listenerEnum->GetNext(getter_AddRefs(curObject));
-      
+
       nsCOMPtr<nsIMsgShutdownTask> curTask = do_QueryInterface(curObject);
       if (curTask)
       {
@@ -642,34 +642,34 @@ NS_IMETHODIMP nsMsgShutdownService::Observe(nsISupports *aSubject,
         if (shouldRunTask)
           mShutdownTasks.AppendObject(curTask);
       }
-      
+
       listenerEnum->HasMoreElements(&hasMore);
     }
 
     if (mShutdownTasks.Count() < 1)
       return NS_ERROR_FAILURE;
-    
+
     mTaskIndex = 0;
-    
+
     mMsgProgress = do_CreateInstance(NS_MSGPROGRESS_CONTRACTID);
     NS_ENSURE_TRUE(mMsgProgress, NS_ERROR_FAILURE);
-    
+
     nsCOMPtr<nsIMsgMailSession> mailSession = do_GetService(NS_MSGMAILSESSION_CONTRACTID);
     NS_ENSURE_TRUE(mailSession, NS_ERROR_FAILURE);
 
     nsCOMPtr<nsIMsgWindow> topMsgWindow;
     mailSession->GetTopmostMsgWindow(getter_AddRefs(topMsgWindow));
-    
+
     nsCOMPtr<mozIDOMWindowProxy> internalDomWin;
     if (topMsgWindow)
       topMsgWindow->GetDomWindow(getter_AddRefs(internalDomWin));
-    
+
     if (!internalDomWin)
     {
-      // First see if there is a window open. 
+      // First see if there is a window open.
       nsCOMPtr<nsIWindowMediator> winMed = do_GetService(NS_WINDOWMEDIATOR_CONTRACTID);
       winMed->GetMostRecentWindow(nullptr, getter_AddRefs(internalDomWin));
-      
+
       //If not use the hidden window.
       if (!internalDomWin)
       {
@@ -691,8 +691,8 @@ NS_IMETHODIMP nsMsgShutdownService::Observe(nsISupports *aSubject,
         mQuitMode |= nsIAppStartup::eRestart;
     }
 
-    mMsgProgress->OpenProgressDialog(internalDomWin, topMsgWindow, 
-                                     "chrome://messenger/content/shutdownWindow.xul", 
+    mMsgProgress->OpenProgressDialog(internalDomWin, topMsgWindow,
+                                     "chrome://messenger/content/shutdownWindow.xul",
                                      false, nullptr);
 
     if (mQuitForced)
@@ -710,7 +710,7 @@ NS_IMETHODIMP nsMsgShutdownService::Observe(nsISupports *aSubject,
       }
     }
   }
-  
+
   return NS_OK;
 }
 

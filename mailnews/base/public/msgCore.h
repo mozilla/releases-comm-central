@@ -50,7 +50,7 @@ class nsIMsgFolder;
  *
  * for example:
  * #define NS_MSG_ERROR_NO_SUCH_FOLDER NS_MSG_GENERATE_FAILURE(4)
- * 
+ *
  */
 
 /* use these routines to generate error values */
@@ -141,11 +141,11 @@ NS_ERROR_GENERATE_FAILURE(NS_ERROR_MODULE_MAILNEWS, value)
 
 #define NS_MSG_ERROR_COPY_FOLDER_ABORTED NS_MSG_GENERATE_FAILURE(26)
 // this error means a url was queued but never run because one of the urls
-// it was queued after failed. We send an OnStopRunningUrl with this error code 
+// it was queued after failed. We send an OnStopRunningUrl with this error code
 // so the listeners can know that we didn't run the url.
 #define NS_MSG_ERROR_URL_ABORTED NS_MSG_GENERATE_FAILURE(27)
 #define NS_MSG_CUSTOM_HEADERS_OVERFLOW NS_MSG_GENERATE_FAILURE(28) //when num of custom headers exceeds 50
-#define NS_MSG_INVALID_CUSTOM_HEADER NS_MSG_GENERATE_FAILURE(29) //when custom header has invalid characters (as per rfc 2822) 
+#define NS_MSG_INVALID_CUSTOM_HEADER NS_MSG_GENERATE_FAILURE(29) //when custom header has invalid characters (as per rfc 2822)
 
 #define NS_MSG_USER_NOT_AUTHENTICATED NS_MSG_GENERATE_FAILURE(30) // when local caches are password protect and user isn't auth
 

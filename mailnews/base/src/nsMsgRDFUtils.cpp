@@ -18,7 +18,7 @@ nsresult createNode(const char16_t *str, nsIRDFNode **node, nsIRDFService *rdfSe
 
   if (str) {
     rv = rdfService->GetLiteral(str, getter_AddRefs(value));
-  } 
+  }
   else {
     rv = rdfService->GetLiteral(EmptyString().get(), getter_AddRefs(value));
   }
@@ -32,8 +32,8 @@ nsresult createNode(const char16_t *str, nsIRDFNode **node, nsIRDFService *rdfSe
 nsresult createIntNode(int32_t value, nsIRDFNode **node, nsIRDFService *rdfService)
 {
   *node = nullptr;
-  nsresult rv; 
-  if (!rdfService) return NS_ERROR_NULL_POINTER;  
+  nsresult rv;
+  if (!rdfService) return NS_ERROR_NULL_POINTER;
   nsCOMPtr<nsIRDFInt> num;
   rv = rdfService->GetIntLiteral(value, getter_AddRefs(num));
   if(NS_SUCCEEDED(rv)) {
@@ -46,7 +46,7 @@ nsresult createBlobNode(uint8_t *value, uint32_t &length, nsIRDFNode **node, nsI
 {
   NS_ENSURE_ARG_POINTER(node);
   NS_ENSURE_ARG_POINTER(rdfService);
-  
+
   *node = nullptr;
   nsCOMPtr<nsIRDFBlob> blob;
   nsresult rv = rdfService->GetBlobLiteral(value, length, getter_AddRefs(blob));
@@ -59,9 +59,9 @@ nsresult GetTargetHasAssertion(nsIRDFDataSource *dataSource, nsIRDFResource* fol
                                nsIRDFResource *property,bool tv, nsIRDFNode *target,bool* hasAssertion)
 {
   NS_ENSURE_ARG_POINTER(hasAssertion);
-  
+
   nsCOMPtr<nsIRDFNode> currentTarget;
-  
+
   nsresult rv = dataSource->GetTarget(folderResource, property,tv, getter_AddRefs(currentTarget));
   if(NS_SUCCEEDED(rv))
   {
@@ -73,8 +73,8 @@ nsresult GetTargetHasAssertion(nsIRDFDataSource *dataSource, nsIRDFResource* fol
   }
   else
     rv = NS_NOINTERFACE;
-  
+
   return rv;
-  
+
 }
 

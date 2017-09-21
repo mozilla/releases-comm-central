@@ -35,8 +35,8 @@ protected:
   nsresult  RerootThread(nsIMsgDBHdr *newParentOfOldRoot, nsIMsgDBHdr *oldRoot, nsIDBChangeAnnouncer *announcer);
 
   virtual nsMsgViewIndex AddMsgHdrInDateOrder(nsIMsgDBHdr *child, nsMsgDBView *view);
-  virtual nsMsgViewIndex GetInsertIndexFromView(nsMsgDBView *view, 
-                                          nsIMsgDBHdr *child, 
+  virtual nsMsgViewIndex GetInsertIndexFromView(nsMsgDBView *view,
+                                          nsIMsgDBHdr *child,
                                           nsMsgViewSortOrderValue threadSortOrder);
   nsresult ReparentNonReferenceChildrenOf(nsIMsgDBHdr *topLevelHdr, nsMsgKey newParentKey,
                                                             nsIDBChangeAnnouncer *announcer);
@@ -49,7 +49,7 @@ protected:
   virtual void SetMsgHdrAt(nsMsgViewIndex index, nsIMsgDBHdr *hdr);
   virtual nsMsgViewIndex FindMsgHdr(nsIMsgDBHdr *hdr);
 
-  nsMsgKey        m_threadKey; 
+  nsMsgKey        m_threadKey;
   uint32_t        m_numUnreadChildren;	
   uint32_t        m_flags;
   nsMsgKey        m_threadRootKey;
@@ -75,10 +75,10 @@ protected:
                               nsIMsgDBHdr *hdr) override;
   virtual void SetMsgHdrAt(nsMsgViewIndex index, nsIMsgDBHdr *hdr) override;
   virtual nsMsgViewIndex FindMsgHdr(nsIMsgDBHdr *hdr) override;
-  virtual nsMsgViewIndex AddMsgHdrInDateOrder(nsIMsgDBHdr *child, 
+  virtual nsMsgViewIndex AddMsgHdrInDateOrder(nsIMsgDBHdr *child,
                                               nsMsgDBView *view) override;
-  virtual nsMsgViewIndex GetInsertIndexFromView(nsMsgDBView *view, 
-                                          nsIMsgDBHdr *child, 
+  virtual nsMsgViewIndex GetInsertIndexFromView(nsMsgDBView *view,
+                                          nsIMsgDBHdr *child,
                                           nsMsgViewSortOrderValue threadSortOrder
                                                 ) override;
 

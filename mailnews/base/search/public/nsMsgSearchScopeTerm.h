@@ -21,15 +21,15 @@ class nsMsgSearchScopeTerm : public nsIMsgSearchScopeTerm
 public:
   nsMsgSearchScopeTerm (nsIMsgSearchSession *, nsMsgSearchScopeValue, nsIMsgFolder *);
   nsMsgSearchScopeTerm ();
-  
+
   NS_DECL_ISUPPORTS
   NS_DECL_NSIMSGSEARCHSCOPETERM
-    
+
   nsresult TimeSlice (bool *aDone);
   nsresult InitializeAdapter (nsIArray *termList);
-  
+
   char *GetStatusBarName ();
-  
+
   nsMsgSearchScopeValue m_attribute;
   char *m_name;
   nsCOMPtr <nsIMsgFolder> m_folder;

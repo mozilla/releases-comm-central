@@ -29,11 +29,11 @@ public:
   NS_IMETHOD SetSearchSession(nsIMsgSearchSession *aSearchSession) override;
 
   virtual const char *GetViewName(void) override { return "SearchView"; }
-  NS_IMETHOD Open(nsIMsgFolder *folder, nsMsgViewSortTypeValue sortType, nsMsgViewSortOrderValue sortOrder, 
+  NS_IMETHOD Open(nsIMsgFolder *folder, nsMsgViewSortTypeValue sortType, nsMsgViewSortOrderValue sortOrder,
         nsMsgViewFlagsTypeValue viewFlags, int32_t *pCount) override;
   NS_IMETHOD CloneDBView(nsIMessenger *aMessengerInstance, nsIMsgWindow *aMsgWindow,
                          nsIMsgDBViewCommandUpdater *aCmdUpdater, nsIMsgDBView **_retval) override;
-  NS_IMETHOD CopyDBView(nsMsgDBView *aNewMsgDBView, nsIMessenger *aMessengerInstance, 
+  NS_IMETHOD CopyDBView(nsMsgDBView *aNewMsgDBView, nsIMessenger *aMessengerInstance,
                         nsIMsgWindow *aMsgWindow, nsIMsgDBViewCommandUpdater *aCmdUpdater) override;
   NS_IMETHOD Close() override;
   NS_IMETHOD GetViewType(nsMsgViewTypeValue *aViewType) override;
@@ -45,12 +45,12 @@ public:
   NS_IMETHOD DoCommand(nsMsgViewCommandTypeValue command) override;
   NS_IMETHOD DoCommandWithFolder(nsMsgViewCommandTypeValue command, nsIMsgFolder *destFolder) override;
   NS_IMETHOD GetHdrForFirstSelectedMessage(nsIMsgDBHdr **hdr) override;
-  NS_IMETHOD OpenWithHdrs(nsISimpleEnumerator *aHeaders, 
+  NS_IMETHOD OpenWithHdrs(nsISimpleEnumerator *aHeaders,
                           nsMsgViewSortTypeValue aSortType,
-                          nsMsgViewSortOrderValue aSortOrder, 
+                          nsMsgViewSortOrderValue aSortOrder,
                           nsMsgViewFlagsTypeValue aViewFlags,
                           int32_t *aCount) override;
-  NS_IMETHOD OnHdrDeleted(nsIMsgDBHdr *aHdrDeleted, nsMsgKey aParentKey, 
+  NS_IMETHOD OnHdrDeleted(nsIMsgDBHdr *aHdrDeleted, nsMsgKey aParentKey,
                           int32_t aFlags, nsIDBChangeListener *aInstigator) override;
   NS_IMETHOD OnHdrFlagsChanged(nsIMsgDBHdr *aHdrChanged, uint32_t aOldFlags,
                                uint32_t aNewFlags, nsIDBChangeListener *aInstigator) override;
@@ -72,8 +72,8 @@ protected:
   virtual ~nsMsgSearchDBView();
   virtual void InternalClose() override;
   virtual nsresult HashHdr(nsIMsgDBHdr *msgHdr, nsString& aHashKey) override;
-  virtual nsresult ListIdsInThread(nsIMsgThread *threadHdr, 
-                                   nsMsgViewIndex startOfThreadViewIndex, 
+  virtual nsresult ListIdsInThread(nsIMsgThread *threadHdr,
+                                   nsMsgViewIndex startOfThreadViewIndex,
                                    uint32_t *pNumListed) override;
   nsresult FetchLocation(int32_t aRow, nsAString& aLocationString);
   virtual nsresult AddHdrFromFolder(nsIMsgDBHdr *msgHdr, nsIMsgFolder *folder);
@@ -99,7 +99,7 @@ protected:
   virtual nsresult ApplyCommandToIndicesWithFolder(nsMsgViewCommandTypeValue command, nsMsgViewIndex* indices,
                     int32_t numIndices, nsIMsgFolder *destFolder) override;
   void MoveThreadAt(nsMsgViewIndex threadIndex);
-  
+
   virtual nsresult GetMessageEnumerator(nsISimpleEnumerator **enumerator) override;
   virtual nsresult InsertHdrFromFolder(nsIMsgDBHdr *msgHdr, nsIMsgFolder *folder);
 
@@ -122,7 +122,7 @@ protected:
   // used for assigning thread id's to xfview threads.
   nsMsgKey m_nextThreadId;
   // this maps message-ids and reference message ids to
-  // the corresponding nsMsgXFViewThread object. If we're 
+  // the corresponding nsMsgXFViewThread object. If we're
   // doing subject threading, we would throw subjects
   // into the same table.
   nsInterfaceHashtable <nsCStringHashKey, nsIMsgThread> m_threadsTable;

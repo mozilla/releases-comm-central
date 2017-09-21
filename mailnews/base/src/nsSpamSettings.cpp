@@ -362,7 +362,7 @@ NS_IMETHODIMP nsSpamSettings::Initialize(nsIMsgIncomingServer *aServer)
     NS_ENSURE_SUCCESS(rv, rv);
 
     nsAutoCString accountKey;
-    if (account) 
+    if (account)
       account->GetKey(accountKey);
 
     // Loop through all accounts, adding emails from this account, as well as
@@ -531,7 +531,7 @@ NS_IMETHODIMP nsSpamSettings::GetSpamFolderURI(char **aSpamFolderURI)
 
   // see nsMsgFolder::SetPrettyName() for where the pretty name is set.
 
-  // Check for an existing junk folder - this will do a case-insensitive 
+  // Check for an existing junk folder - this will do a case-insensitive
   // search by URI - if we find a junk folder, use its URI.
   nsCOMPtr<nsIMsgFolder> junkFolder;
   folderURI.Append("/Junk");

@@ -32,10 +32,10 @@ nsMsgXFVirtualFolderDBView::~nsMsgXFVirtualFolderDBView()
 {
 }
 
-NS_IMETHODIMP nsMsgXFVirtualFolderDBView::Open(nsIMsgFolder *folder, 
-                                               nsMsgViewSortTypeValue sortType, 
-                                               nsMsgViewSortOrderValue sortOrder, 
-                                               nsMsgViewFlagsTypeValue viewFlags, 
+NS_IMETHODIMP nsMsgXFVirtualFolderDBView::Open(nsIMsgFolder *folder,
+                                               nsMsgViewSortTypeValue sortType,
+                                               nsMsgViewSortOrderValue sortOrder,
+                                               nsMsgViewFlagsTypeValue viewFlags,
                                                int32_t *pCount)
 {
   m_viewFolder = folder;
@@ -195,7 +195,7 @@ void nsMsgXFVirtualFolderDBView::UpdateCacheAndViewForFolder(nsIMsgFolder *folde
       nsCOMPtr<nsIMsgDBHdr> badHdr;
       for (uint32_t badHitIndex = 0; badHitIndex < numBadHits; badHitIndex++)
       {
-        // ### of course, this isn't quite right, since we should be 
+        // ### of course, this isn't quite right, since we should be
         // using FindHdr, and we shouldn't be expanding the threads.
         db->GetMsgHdrForKey(badHits[badHitIndex], getter_AddRefs(badHdr));
         // let nsMsgSearchDBView decide what to do about this header
@@ -268,7 +268,7 @@ nsMsgXFVirtualFolderDBView::OnSearchHit(nsIMsgDBHdr* aMsgHdr, nsIMsgFolder *aFol
   if (!m_doingQuickSearch)
   {
     m_viewFolder->GetURI(searchUri);
-    dbToUse->HdrIsInCache(searchUri.get(), aMsgHdr, &hdrInCache);    
+    dbToUse->HdrIsInCache(searchUri.get(), aMsgHdr, &hdrInCache);
   }
   if (!m_doingSearch || !m_curFolderHasCachedHits || !hdrInCache)
   {
@@ -332,7 +332,7 @@ nsMsgXFVirtualFolderDBView::OnSearchDone(nsresult status)
   dbFolderInfo->SetNumMessages(m_totalMessagesInView);
   m_viewFolder->UpdateSummaryTotals(true); // force update from db.
   virtDatabase->Commit(nsMsgDBCommitType::kLargeCommit);
-  if (!m_sortValid && m_sortType != nsMsgViewSortType::byThread && 
+  if (!m_sortValid && m_sortType != nsMsgViewSortType::byThread &&
       !(m_viewFlags & nsMsgViewFlagsType::kThreadedDisplay))
   {
     m_sortValid = false;       //sort the results
@@ -504,7 +504,7 @@ NS_IMETHODIMP nsMsgXFVirtualFolderDBView::SetViewFlags(nsMsgViewFlagsTypeValue a
 }
 
 
-nsresult 
+nsresult
 nsMsgXFVirtualFolderDBView::GetMessageEnumerator(nsISimpleEnumerator **enumerator)
 {
   return GetViewEnumerator(enumerator);

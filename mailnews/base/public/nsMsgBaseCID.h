@@ -59,7 +59,7 @@
 
 //
 // nsMsgAccountManager
-// 
+//
 #define NS_MSGACCOUNTMANAGER_CONTRACTID \
   "@mozilla.org/messenger/account-manager;1"
 
@@ -288,7 +288,7 @@
 //
 #define NS_MSGSERVICEPROVIDERSERVICE_CONTRACTID \
   NS_RDF_DATASOURCE_CONTRACTID_PREFIX "ispdefaults"
-  
+
 /* 10998cef-d7f2-4772-b7db-bd097454984c */
 #define NS_MSGSERVICEPROVIDERSERVICE_CID \
 { 0x10998cef, 0xd7f2, 0x4772, \
@@ -320,7 +320,7 @@
 /* 00e89c82-1dd2-11b2-9a1c-e75995d7d595 */
 #define NS_SUBSCRIBEDATASOURCE_CID \
 { 0x00e89c82, 0x1dd2, 0x11b2, \
-  { 0x9a, 0x1c, 0xe7, 0x59, 0x95, 0xd7, 0xd5, 0x95}} 
+  { 0x9a, 0x1c, 0xe7, 0x59, 0x95, 0xd7, 0xd5, 0x95}}
 
 #define NS_MSGLOCALFOLDERCOMPACTOR_CONTRACTID \
   "@mozilla.org/messenger/localfoldercompactor;1"
@@ -401,7 +401,7 @@
     {0xb6, 0x9e, 0x2f, 0x88, 0x76, 0x99, 0x03, 0x04}}
 //
 // nsMsgAccountManager
-// 
+//
 #define NS_MSGOFFLINEMANAGER_CONTRACTID \
   "@mozilla.org/messenger/offline-manager;1"
 
@@ -413,7 +413,7 @@
 
 //
 // nsMsgProgress
-// 
+//
 #define NS_MSGPROGRESS_CONTRACTID \
   "@mozilla.org/messenger/progress;1"
 
@@ -424,7 +424,7 @@
 
 //
 // nsSpamSettings
-// 
+//
 #define NS_SPAMSETTINGS_CONTRACTID \
   "@mozilla.org/messenger/spamsettings;1"
 
@@ -455,8 +455,8 @@
   0xf1f7cbcd, 0xd5e3, 0x45a0, \
   {0xaa, 0x2d, 0xce, 0xcf, 0x1a, 0x95, 0xab, 0x03}}
 
-// 
-// nsMessengerOSIntegration 
+//
+// nsMessengerOSIntegration
 //
 #define NS_MESSENGEROSINTEGRATION_CONTRACTID \
   "@mozilla.org/messenger/osintegration;1"
@@ -472,9 +472,9 @@
  0xb3db9392, 0x1b15, 0x48ba,      \
  {0xa1, 0x36, 0x0c, 0xc3, 0xdb, 0x13, 0xd8, 0x7b }}
 
-// 
+//
 // Mail Directory Provider
-// 
+//
 #define NS_MAILDIRPROVIDER_CONTRACTID \
   "@mozilla.org/mail/dir-provider;1"
 

@@ -494,7 +494,7 @@ nsresult nsMsgTagService::MigrateLabelsToTags()
     NS_FREE_XPCOM_ISUPPORTS_POINTER_ARRAY(numTags, tagArray);
     gMigratingKeys = false;
   }
-  else 
+  else
   {
     nsCOMPtr<nsIPrefBranch> prefRoot(do_GetService(NS_PREFSERVICE_CONTRACTID));
     nsCOMPtr<nsIPrefLocalizedString> pls;

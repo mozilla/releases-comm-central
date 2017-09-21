@@ -11,7 +11,7 @@
 nsMsgThreadsWithUnreadDBView::nsMsgThreadsWithUnreadDBView()
 : m_totalUnwantedMessagesInView(0)
 {
-  
+
 }
 
 nsMsgThreadsWithUnreadDBView::~nsMsgThreadsWithUnreadDBView()

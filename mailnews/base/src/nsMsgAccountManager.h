@@ -3,7 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
- * This Original Code has been modified by IBM Corporation. Modifications made by IBM 
+ * This Original Code has been modified by IBM Corporation. Modifications made by IBM
  * described herein are Copyright (c) International Business Machines Corporation, 2000.
  * Modifications to Mozilla code or documentation identified per MPL Section 3.3
  *
@@ -71,13 +71,13 @@ class nsMsgAccountManager: public nsIMsgAccountManager,
 public:
 
   nsMsgAccountManager();
-  
+
   NS_DECL_THREADSAFE_ISUPPORTS
- 
+
   /* nsIMsgAccountManager methods */
-  
+
   NS_DECL_NSIMSGACCOUNTMANAGER
-  NS_DECL_NSIOBSERVER  
+  NS_DECL_NSIOBSERVER
   NS_DECL_NSIURLLISTENER
   NS_DECL_NSIFOLDERLISTENER
 

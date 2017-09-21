@@ -31,7 +31,7 @@ nsSubscribeDataSource::~nsSubscribeDataSource()
 {
 }
 
-NS_IMPL_ISUPPORTS(nsSubscribeDataSource, nsIRDFDataSource, nsISubscribeDataSource) 
+NS_IMPL_ISUPPORTS(nsSubscribeDataSource, nsIRDFDataSource, nsISubscribeDataSource)
 
 nsresult
 nsSubscribeDataSource::Init()
@@ -75,7 +75,7 @@ nsSubscribeDataSource::Init()
 	return NS_OK;
 }
 
-NS_IMETHODIMP 
+NS_IMETHODIMP
 nsSubscribeDataSource::GetURI(char * *aURI)
 {
   if ((*aURI = strdup("rdf:subscribe")) == nullptr)
@@ -84,7 +84,7 @@ nsSubscribeDataSource::GetURI(char * *aURI)
     return NS_OK;
 }
 
-NS_IMETHODIMP 
+NS_IMETHODIMP
 nsSubscribeDataSource::GetSource(nsIRDFResource *property, nsIRDFNode *target, bool tv, nsIRDFResource **source)
 {
     NS_PRECONDITION(property != nullptr, "null ptr");
@@ -153,14 +153,14 @@ nsSubscribeDataSource::GetTarget(nsIRDFResource *source,
         nsCOMPtr <nsIRDFResource> childResource;
         rv = mRDFService->GetResource(childUri, getter_AddRefs(childResource));
         NS_ENSURE_SUCCESS(rv,rv);
-        
+
         return childResource->QueryInterface(NS_GET_IID(nsIRDFNode), (void**) target);
     }
     else if (property == kNC_Subscribed.get()) {
         bool isSubscribed;
         rv = server->IsSubscribed(relativePath, &isSubscribed);
         NS_ENSURE_SUCCESS(rv,rv);
-    
+
         NS_IF_ADDREF(*target = isSubscribed ? kTrueLiteral : kFalseLiteral);
         return NS_OK;
     }
@@ -184,15 +184,15 @@ nsSubscribeDataSource::GetTarget(nsIRDFResource *source,
 
         if (!serverType)
           rv = NS_RDF_NO_VALUE;
-        if (rv == NS_RDF_NO_VALUE) 
+        if (rv == NS_RDF_NO_VALUE)
           return rv;
         return serverType->QueryInterface(NS_GET_IID(nsIRDFNode), (void**) target);
     }
     else if (property == kNC_LeafName.get()) {
         nsString leafNameStr;
-        rv = server->GetLeafName(relativePath, leafNameStr); 
+        rv = server->GetLeafName(relativePath, leafNameStr);
         NS_ENSURE_SUCCESS(rv,rv);
-   
+
         nsCOMPtr<nsIRDFLiteral> leafName;
         rv = mRDFService->GetLiteral(leafNameStr.get(), getter_AddRefs(leafName));
         NS_ENSURE_SUCCESS(rv,rv);
@@ -254,7 +254,7 @@ nsSubscribeDataSource::GetTargets(nsIRDFResource *source,
         nsString leafNameStr;
         rv = server->GetLeafName(relativePath, leafNameStr);
         NS_ENSURE_SUCCESS(rv,rv);
-    
+
         nsCOMPtr<nsIRDFLiteral> leafName;
         rv = mRDFService->GetLiteral(leafNameStr.get(), getter_AddRefs(leafName));
         NS_ENSURE_SUCCESS(rv,rv);
@@ -379,12 +379,12 @@ nsSubscribeDataSource::GetServerAndRelativePathFromResource(nsIRDFResource *sour
     nsCString serverURI;
     rv = incomingServer->GetServerURI(serverURI);
     NS_ENSURE_SUCCESS(rv,rv);
- 
+
     uint32_t serverURILen = serverURI.Length();
     if (serverURILen == strlen(sourceURI))
       *relativePath = nullptr;
     else {
-      // XXX : perhaps, have to unescape before returning 
+      // XXX : perhaps, have to unescape before returning
       *relativePath = strdup(sourceURI + serverURILen + 1);
       if (!*relativePath)
         return NS_ERROR_OUT_OF_MEMORY;
@@ -465,13 +465,13 @@ nsSubscribeDataSource::HasAssertion(nsIRDFResource *source,
 }
 
 
-NS_IMETHODIMP 
+NS_IMETHODIMP
 nsSubscribeDataSource::HasArcIn(nsIRDFNode *aNode, nsIRDFResource *aArc, bool *result)
 {
     return NS_ERROR_NOT_IMPLEMENTED;
 }
 
-NS_IMETHODIMP 
+NS_IMETHODIMP
 nsSubscribeDataSource::HasArcOut(nsIRDFResource *source, nsIRDFResource *aArc, bool *result)
 {
     nsresult rv = NS_OK;
@@ -636,7 +636,7 @@ nsSubscribeDataSource::EndUpdateBatch()
 
 
 
-NS_IMETHODIMP 
+NS_IMETHODIMP
 nsSubscribeDataSource::GetSources(nsIRDFResource *aProperty, nsIRDFNode *aTarget, bool aTruthValue, nsISimpleEnumerator **_retval)
 {
   NS_ASSERTION(false, "Not implemented");

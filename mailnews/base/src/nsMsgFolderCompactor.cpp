@@ -100,7 +100,7 @@ void nsFolderCompactState::CleanupTempFilesAfterError()
   if (m_db)
     m_db->ForceClosed();
   nsCOMPtr <nsIFile> summaryFile;
-  GetSummaryFileLocation(m_file, getter_AddRefs(summaryFile)); 
+  GetSummaryFileLocation(m_file, getter_AddRefs(summaryFile));
   m_file->Remove(false);
   summaryFile->Remove(false);
 }
@@ -154,7 +154,7 @@ NS_IMETHODIMP nsFolderCompactState::CompactFolders(nsIArray *aArrayOfFoldersToCo
   }
   if (!m_folderArray)
     return NS_OK;
- 
+
   m_compactAll = true;
   m_compactOfflineAlso = aOfflineFolderArray != nullptr;
   if (m_compactOfflineAlso)
@@ -166,9 +166,9 @@ NS_IMETHODIMP nsFolderCompactState::CompactFolders(nsIArray *aArrayOfFoldersToCo
                                                          m_folderIndex, &rv);
 
   if (NS_SUCCEEDED(rv) && firstFolder)
-    Compact(firstFolder, m_compactingOfflineFolders, aUrlListener, 
+    Compact(firstFolder, m_compactingOfflineFolders, aUrlListener,
             aMsgWindow);   //start with first folder from here.
-  
+
   return rv;
 }
 
@@ -386,7 +386,7 @@ nsFolderCompactState::Init(nsIMsgFolder *folder, const char *baseMsgUri, nsIMsgD
   m_curIndex = 0;
 
   rv = MsgNewBufferedFileOutputStream(getter_AddRefs(m_fileStream), m_file, -1, 00600);
-  if (NS_FAILED(rv)) 
+  if (NS_FAILED(rv))
     m_folder->ThrowAlertMsg("compactFolderWriteFailed", m_window);
   else
     rv = GetMessageServiceFromURI(nsDependentCString(baseMsgUri),
@@ -440,12 +440,12 @@ nsresult nsFolderCompactState::StartCompacting()
 {
   nsCOMPtr<nsIMsgPluggableStore> msgStore;
   nsCOMPtr<nsIMsgIncomingServer> server;
-  
+
   nsresult rv = m_folder->GetServer(getter_AddRefs(server));
   NS_ENSURE_SUCCESS(rv, rv);
   rv = server->GetMsgStore(getter_AddRefs(msgStore));
   NS_ENSURE_SUCCESS(rv, rv);
-  
+
   // Notify that compaction is beginning.  We do this even if there are no
   // messages to be copied because the summary database still gets blown away
   // which is still pretty interesting.  (And we like consistency.)
@@ -650,7 +650,7 @@ nsFolderCompactState::FinishCompact()
     rv = CompactNextFolder();
   else
     CompactCompleted(rv);
-      
+
   return rv;
 }
 
@@ -785,7 +785,7 @@ nsFolderCompactState::OnDataAvailable(nsIRequest *request, nsISupports *ctxt,
                                       nsIInputStream *inStr,
                                       uint64_t sourceOffset, uint32_t count)
 {
-  if (!m_fileStream || !inStr) 
+  if (!m_fileStream || !inStr)
     return NS_ERROR_FAILURE;
 
   nsresult rv = NS_OK;
@@ -810,7 +810,7 @@ nsFolderCompactState::OnDataAvailable(nsIRequest *request, nsISupports *ctxt,
       {
         (void) m_curSrcHdr->GetFlags(&msgFlags);
         (void) m_curSrcHdr->GetStatusOffset(&statusOffset);
-        
+
         if (statusOffset == 0)
           m_needStatusLine = true;
         // x-mozilla-status lines should be at the start of the headers, and the code
@@ -820,7 +820,7 @@ nsFolderCompactState::OnDataAvailable(nsIRequest *request, nsISupports *ctxt,
         {
           checkForKeyword = false;
           NS_ASSERTION(false, "status offset past end of read buffer size");
-          
+
         }
       }
     }
@@ -828,18 +828,18 @@ nsFolderCompactState::OnDataAvailable(nsIRequest *request, nsISupports *ctxt,
   }
   uint32_t maxReadCount, readCount, writeCount;
   uint32_t bytesWritten;
-  
+
   while (NS_SUCCEEDED(rv) && (int32_t) count > 0)
   {
     maxReadCount = count > sizeof(m_dataBuffer) - 1 ? sizeof(m_dataBuffer) - 1 : count;
     writeCount = 0;
     rv = inStr->Read(m_dataBuffer, maxReadCount, &readCount);
-    
+
     // if status offset is past the number of bytes we read, it's probably bogus,
     // and we shouldn't do any of the keyword stuff.
     if (statusOffset + X_MOZILLA_STATUS_LEN > readCount)
       checkForKeyword = false;
-    
+
     if (NS_SUCCEEDED(rv))
     {
       if (checkForKeyword)
@@ -860,9 +860,9 @@ nsFolderCompactState::OnDataAvailable(nsIRequest *request, nsISupports *ctxt,
       if (m_needStatusLine)
       {
         m_needStatusLine = false;
-        // we need to parse out the "From " header, write it out, then 
-        // write out the x-mozilla-status headers, and set the 
-        // status offset of the dest hdr for later use 
+        // we need to parse out the "From " header, write it out, then
+        // write out the x-mozilla-status headers, and set the
+        // status offset of the dest hdr for later use
         // in OnEndCopy).
         if (!strncmp(m_dataBuffer, "From ", 5))
         {
@@ -993,7 +993,7 @@ nsFolderCompactState::OnDataAvailable(nsIRequest *request, nsISupports *ctxt,
       {
         NS_ASSERTION(false, "bad block offset");
         // not sure what to do to handle this.
-      
+
       }
       m_fileStream->Write(m_dataBuffer + blockOffset, readCount - blockOffset, &bytesWritten);
       writeCount += bytesWritten;
@@ -1157,7 +1157,7 @@ done:
   }
   return rv;
 }
- 
+
 
 nsresult
 nsOfflineStoreCompactState::FinishCompact()
@@ -1193,10 +1193,10 @@ nsOfflineStoreCompactState::FinishCompact()
   m_folder->UpdateSummaryTotals(true);
   m_db->SetSummaryValid(true);
 
-    // remove the old folder 
+    // remove the old folder
   path->Remove(false);
 
-    // rename the copied folder to be the original folder 
+    // rename the copied folder to be the original folder
   m_file->MoveToNative((nsIFile *) nullptr, leafName);
 
   ShowStatusMsg(EmptyString());
@@ -1320,7 +1320,7 @@ nsOfflineStoreCompactState::OnDataAvailable(nsIRequest *request, nsISupports *ct
                                             nsIInputStream *inStr,
                                             uint64_t sourceOffset, uint32_t count)
 {
-  if (!m_fileStream || !inStr) 
+  if (!m_fileStream || !inStr)
     return NS_ERROR_FAILURE;
 
   nsresult rv = NS_OK;
