@@ -39,7 +39,7 @@ NS_IMPL_ISUPPORTS(nsURLFetcher,
                    nsISupportsWeakReference)
 
 
-/* 
+/*
  * Inherited methods for nsMimeConverter
  */
 nsURLFetcher::nsURLFetcher()
@@ -59,10 +59,10 @@ nsURLFetcher::nsURLFetcher()
 nsURLFetcher::~nsURLFetcher()
 {
   mStillRunning = false;
-  
+
   PR_FREEIF(mBuffer);
   // Remove the DocShell as a listener of the old WebProgress...
-  if (mLoadCookie) 
+  if (mLoadCookie)
   {
     nsCOMPtr<nsIWebProgress> webProgress(do_QueryInterface(mLoadCookie));
 
@@ -78,13 +78,13 @@ NS_IMETHODIMP nsURLFetcher::GetInterface(const nsIID & aIID, void * *aInstancePt
 }
 
 // nsIURIContentListener support
-NS_IMETHODIMP 
+NS_IMETHODIMP
 nsURLFetcher::OnStartURIOpen(nsIURI* aURI, bool* aAbortOpen)
 {
    return NS_OK;
 }
 
-NS_IMETHODIMP 
+NS_IMETHODIMP
 nsURLFetcher::IsPreferred(const char * aContentType,
                                 char ** aDesiredContentType,
                                 bool * aCanHandleContent)
@@ -94,7 +94,7 @@ nsURLFetcher::IsPreferred(const char * aContentType,
                           aCanHandleContent);
 }
 
-NS_IMETHODIMP 
+NS_IMETHODIMP
 nsURLFetcher::CanHandleContent(const char * aContentType,
                                 bool aIsContentPreferred,
                                 char ** aDesiredContentType,
@@ -107,9 +107,9 @@ nsURLFetcher::CanHandleContent(const char * aContentType,
     // since we explicilty loaded the url, we always want to handle it!
     *aCanHandleContent = true;
   return NS_OK;
-} 
+}
 
-NS_IMETHODIMP 
+NS_IMETHODIMP
 nsURLFetcher::DoContent(const nsACString& aContentType,
                       bool aIsContentPreferred,
                       nsIRequest *request,
@@ -138,31 +138,31 @@ nsURLFetcher::DoContent(const nsACString& aContentType,
   return rv;
 }
 
-NS_IMETHODIMP 
+NS_IMETHODIMP
 nsURLFetcher::GetParentContentListener(nsIURIContentListener** aParent)
 {
   *aParent = nullptr;
   return NS_OK;
 }
 
-NS_IMETHODIMP 
+NS_IMETHODIMP
 nsURLFetcher::SetParentContentListener(nsIURIContentListener* aParent)
 {
   return NS_OK;
 }
 
-NS_IMETHODIMP 
+NS_IMETHODIMP
 nsURLFetcher::GetLoadCookie(nsISupports ** aLoadCookie)
 {
   NS_IF_ADDREF(*aLoadCookie = mLoadCookie);
   return NS_OK;
 }
 
-NS_IMETHODIMP 
+NS_IMETHODIMP
 nsURLFetcher::SetLoadCookie(nsISupports * aLoadCookie)
 {
   // Remove the DocShell as a listener of the old WebProgress...
-  if (mLoadCookie) 
+  if (mLoadCookie)
   {
     nsCOMPtr<nsIWebProgress> webProgress(do_QueryInterface(mLoadCookie));
 
@@ -173,11 +173,11 @@ nsURLFetcher::SetLoadCookie(nsISupports * aLoadCookie)
   mLoadCookie = aLoadCookie;
 
   // Add the DocShell as a listener to the new WebProgress...
-  if (mLoadCookie) 
+  if (mLoadCookie)
   {
     nsCOMPtr<nsIWebProgress> webProgress(do_QueryInterface(mLoadCookie));
 
-    if (webProgress) 
+    if (webProgress)
       webProgress->AddProgressListener(this, nsIWebProgress::NOTIFY_STATE_ALL);
   }
   return NS_OK;
@@ -194,7 +194,7 @@ nsURLFetcher::StillRunning(bool *running)
 
 // Methods for nsIStreamListener...
 nsresult
-nsURLFetcher::OnDataAvailable(nsIRequest *request, nsISupports * ctxt, nsIInputStream *aIStream, 
+nsURLFetcher::OnDataAvailable(nsIRequest *request, nsISupports * ctxt, nsIInputStream *aIStream,
                               uint64_t sourceOffset, uint32_t aLength)
 {
   /* let our converter or consumer process the data */
@@ -205,7 +205,7 @@ nsURLFetcher::OnDataAvailable(nsIRequest *request, nsISupports * ctxt, nsIInputS
 }
 
 
-// Methods for nsIStreamObserver 
+// Methods for nsIStreamObserver
 nsresult
 nsURLFetcher::OnStartRequest(nsIRequest *request, nsISupports *ctxt)
 {
@@ -265,7 +265,7 @@ nsURLFetcher::OnStopRequest(nsIRequest *request, nsISupports * ctxt, nsresult aS
   {
     mOutStream->Close();
     mOutStream = nullptr;
-  
+
     /* In case of multipart/x-mixed-replace, we need to truncate the file to the current part size */
     if (MsgLowerCaseEqualsLiteral(mConverterContentType, MULTIPART_MIXED_REPLACE))
     {
@@ -281,10 +281,10 @@ nsURLFetcher::OnStopRequest(nsIRequest *request, nsISupports * ctxt, nsresult aS
   return NS_OK;
 }
 
-nsresult 
-nsURLFetcher::Initialize(nsIFile *localFile, 
+nsresult
+nsURLFetcher::Initialize(nsIFile *localFile,
                          nsIOutputStream *outputStream,
-                         nsAttachSaveCompletionCallback cb, 
+                         nsAttachSaveCompletionCallback cb,
                          nsMsgAttachmentHandler *tagData)
 {
   if (!outputStream || !localFile)
@@ -298,7 +298,7 @@ nsURLFetcher::Initialize(nsIFile *localFile,
 }
 
 nsresult
-nsURLFetcher::FireURLRequest(nsIURI *aURL, nsIFile *localFile, nsIOutputStream *outputStream, 
+nsURLFetcher::FireURLRequest(nsIURI *aURL, nsIFile *localFile, nsIOutputStream *outputStream,
                              nsAttachSaveCompletionCallback cb, nsMsgAttachmentHandler *tagData)
 {
   nsresult rv;
@@ -308,7 +308,7 @@ nsURLFetcher::FireURLRequest(nsIURI *aURL, nsIFile *localFile, nsIOutputStream *
 
   //check to see if aURL is a local file or not
   aURL->SchemeIs("file", &mIsFile);
-  
+
   // we're about to fire a new url request so make sure the on stop request flag is cleared...
   mOnStopRequestProcessed = false;
 
@@ -385,7 +385,7 @@ nsURLFetcher::OnLocationChange(nsIWebProgress* aWebProgress,
   return NS_OK;
 }
 
-NS_IMETHODIMP 
+NS_IMETHODIMP
 nsURLFetcher::OnStatusChange(nsIWebProgress* aWebProgress,
                              nsIRequest* aRequest,
                              nsresult aStatus,
@@ -395,9 +395,9 @@ nsURLFetcher::OnStatusChange(nsIWebProgress* aWebProgress,
   return NS_OK;
 }
 
-NS_IMETHODIMP 
-nsURLFetcher::OnSecurityChange(nsIWebProgress *aWebProgress, 
-                               nsIRequest *aRequest, 
+NS_IMETHODIMP
+nsURLFetcher::OnSecurityChange(nsIWebProgress *aWebProgress,
+                               nsIRequest *aRequest,
                                uint32_t state)
 {
   NS_NOTREACHED("notification excluded in AddProgressListener(...)");

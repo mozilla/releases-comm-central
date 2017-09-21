@@ -40,7 +40,7 @@ protected:
                          const nsACString& newRef, nsIURI** _retval);
 
   nsCOMPtr<nsIURI> m_baseURL;
-    
+
   // data retrieved from parsing the url: (Note the url could be a post from file or it could be in the url)
   nsCString m_toPart;
   nsCString m_ccPart;

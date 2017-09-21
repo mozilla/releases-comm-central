@@ -33,18 +33,18 @@ public:
 class nsILocalFileMac;
 class nsIZipWriter;
 
-/* Simple utility class that will synchronously zip any file 
+/* Simple utility class that will synchronously zip any file
    (or folder hierarchy) you give it. */
 class nsSimpleZipper
 {
   public:
-    
+
     // Synchronously zips the input file/folder and writes all
     // data to the output file.
     static nsresult Zip(nsIFile *aInputFile, nsIFile *aOutputFile);
-  
+
   private:
-    
+
     // Recursively adds the file or folder to aZipWriter.
     static nsresult AddToZip(nsIZipWriter *aZipWriter,
                              nsIFile *aFile,
@@ -77,10 +77,10 @@ public:
   nsresult              PickCharset();
   void                  AnalyzeSnarfedFile ();      // Analyze a previously-snarfed file.
                                                     // (Currently only used for plaintext
-                                                    // converted from HTML.) 
+                                                    // converted from HTML.)
   nsresult              Abort();
   nsresult              UrlExit(nsresult status, const char16_t* aMsg);
-  
+
   // if there's an intermediate temp file left, takes care to remove it from disk.
   //
   // NOTE: this takes care of the mEncodedWorkingFile temp file, but not mTmpFile which seems
@@ -96,8 +96,8 @@ private:
   void                  AnalyzeDataChunk (const char *chunk, int32_t chunkSize);
   nsresult              LoadDataFromFile(nsIFile *file, nsString &sigData, bool charsetConversion); //A similar function already exist in nsMsgCompose!
 #ifdef XP_MACOSX
-  nsresult              ConvertToAppleEncoding(const nsCString &aFileSpecURI, 
-                                               const nsCString &aFilePath, 
+  nsresult              ConvertToAppleEncoding(const nsCString &aFileSpecURI,
+                                               const nsCString &aFilePath,
                                                nsILocalFileMac *aSourceFile);
   // zips this attachment and does the work to make this attachment handler handle it properly.
   nsresult ConvertToZipFile(nsILocalFileMac *aSourceFile);
@@ -107,12 +107,12 @@ private:
   //
 public:
   nsCOMPtr<nsIURI> mURL;
-  nsCOMPtr<nsIFile>        mTmpFile;         // The temp file to which we save it 
-  nsCOMPtr<nsIOutputStream>  mOutFile;          
+  nsCOMPtr<nsIFile>        mTmpFile;         // The temp file to which we save it
+  nsCOMPtr<nsIOutputStream>  mOutFile;
   nsCOMPtr<nsIRequest> mRequest; // The live request used while fetching an attachment
   nsMsgCompFields       *mCompFields;       // Message composition fields for the sender
   bool                  m_bogus_attachment; // This is to catch problem children...
-  
+
 #ifdef XP_MACOSX
   // if we need to encode this file into for example an appledouble, or zip file,
   // this file is our working file. currently only needed on mac.
@@ -123,19 +123,19 @@ public:
   nsCString m_xMacCreator;   // Mac file creator
 
   bool m_done;
-  nsCString m_charset;         // charset name 
+  nsCString m_charset;         // charset name
   nsCString m_contentId;      // This is for mutipart/related Content-ID's
   nsCString m_type;            // The real type, once we know it.
   nsCString m_typeParam;      // Any addition parameters to add to the content-type (other than charset, macType and maccreator)
   nsCString m_overrideType;   // The type we should assume it to be
                                             // or 0, if we should get it from the
                                             // server)
-  nsCString m_overrideEncoding; // Goes along with override_type 
+  nsCString m_overrideEncoding; // Goes along with override_type
 
-  nsCString m_desiredType;    // The type it should be converted to. 
+  nsCString m_desiredType;    // The type it should be converted to.
   nsCString m_description;     // For Content-Description header
   nsCString m_realName;       // The name for the headers, if different
-                                            // from the URL. 
+                                            // from the URL.
   nsCString m_encoding;        // The encoding, once we've decided. */
   bool                  m_already_encoded_p; // If we attach a document that is already
                                              // encoded, we just pass it through.
@@ -150,7 +150,7 @@ public:
                                            doing a cleartext forward of a message that was
                                            originally encrypted. */
 
-  bool                  mDeleteFile;      // If this is true, Delete the file...its 
+  bool                  mDeleteFile;      // If this is true, Delete the file...its
                                           // NOT the original file!
 
   bool                  mMHTMLPart;           // This is true if its an MHTML part, otherwise, false
@@ -172,7 +172,7 @@ public:
   uint32_t              m_highbit_count;
   uint32_t              m_ctl_count;
   uint32_t              m_null_count;
-  uint8_t               m_have_cr, m_have_lf, m_have_crlf; 
+  uint8_t               m_have_cr, m_have_lf, m_have_crlf;
   bool                  m_prev_char_was_cr;
   uint32_t              m_current_column;
   uint32_t              m_max_column;

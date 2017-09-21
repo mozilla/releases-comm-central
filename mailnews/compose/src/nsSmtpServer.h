@@ -17,7 +17,7 @@ class nsSmtpServer : public nsISmtpServer,
 {
 public:
     nsSmtpServer();
-    
+
     NS_DECL_ISUPPORTS
     NS_DECL_NSISMTPSERVER
 
@@ -26,7 +26,7 @@ private:
     nsCString mKey;
     nsCOMPtr<nsIPrefBranch> mPrefBranch;
     nsCOMPtr<nsIPrefBranch> mDefPrefBranch;
-                                                                                                                                               
+
     nsresult getPrefs();
     void getIntPrefWithDefault(const char *prefName, int32_t *val,
                                int32_t defval);

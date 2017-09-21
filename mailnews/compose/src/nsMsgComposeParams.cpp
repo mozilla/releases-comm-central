@@ -23,7 +23,7 @@ nsMsgComposeParams::~nsMsgComposeParams()
 NS_IMETHODIMP nsMsgComposeParams::GetType(MSG_ComposeType *aType)
 {
   NS_ENSURE_ARG_POINTER(aType);
-  
+
   *aType = mType;
   return NS_OK;
 }
@@ -37,7 +37,7 @@ NS_IMETHODIMP nsMsgComposeParams::SetType(MSG_ComposeType aType)
 NS_IMETHODIMP nsMsgComposeParams::GetFormat(MSG_ComposeFormat *aFormat)
 {
   NS_ENSURE_ARG_POINTER(aFormat);
-  
+
   *aFormat = mFormat;
   return NS_OK;
 }
@@ -51,7 +51,7 @@ NS_IMETHODIMP nsMsgComposeParams::SetFormat(MSG_ComposeFormat aFormat)
 NS_IMETHODIMP nsMsgComposeParams::GetOriginalMsgURI(char * *aOriginalMsgURI)
 {
   NS_ENSURE_ARG_POINTER(aOriginalMsgURI);
-  
+
   *aOriginalMsgURI = ToNewCString(mOriginalMsgUri);
   return NS_OK;
 }
@@ -104,7 +104,7 @@ NS_IMETHODIMP nsMsgComposeParams::SetHtmlToQuote(const nsACString& aHtmlToQuote)
 NS_IMETHODIMP nsMsgComposeParams::GetComposeFields(nsIMsgCompFields * *aComposeFields)
 {
   NS_ENSURE_ARG_POINTER(aComposeFields);
-  
+
   if (mComposeFields)
   {
      NS_ADDREF(*aComposeFields = mComposeFields);
@@ -123,7 +123,7 @@ NS_IMETHODIMP nsMsgComposeParams::SetComposeFields(nsIMsgCompFields * aComposeFi
 NS_IMETHODIMP nsMsgComposeParams::GetBodyIsLink(bool *aBodyIsLink)
 {
   NS_ENSURE_ARG_POINTER(aBodyIsLink);
-  
+
   *aBodyIsLink = mBodyIsLink;
   return NS_OK;
 }
@@ -137,7 +137,7 @@ NS_IMETHODIMP nsMsgComposeParams::SetBodyIsLink(bool aBodyIsLink)
 NS_IMETHODIMP nsMsgComposeParams::GetSendListener(nsIMsgSendListener * *aSendListener)
 {
   NS_ENSURE_ARG_POINTER(aSendListener);
-  
+
   if (mSendListener)
   {
      NS_ADDREF(*aSendListener = mSendListener);
@@ -156,7 +156,7 @@ NS_IMETHODIMP nsMsgComposeParams::SetSendListener(nsIMsgSendListener * aSendList
 NS_IMETHODIMP nsMsgComposeParams::GetSmtpPassword(char * *aSmtpPassword)
 {
   NS_ENSURE_ARG_POINTER(aSmtpPassword);
-  
+
   *aSmtpPassword = ToNewCString(mSMTPPassword);
   return NS_OK;
 }

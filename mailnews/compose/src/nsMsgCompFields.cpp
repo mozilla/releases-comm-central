@@ -60,7 +60,7 @@ static_assert(MOZ_ARRAY_LENGTH(kHeaders) ==
 
 NS_IMPL_ISUPPORTS(nsMsgCompFields, nsIMsgCompFields, msgIStructuredHeaders,
   msgIWritableStructuredHeaders)
- 
+
 nsMsgCompFields::nsMsgCompFields()
 : mStructuredHeaders(do_CreateInstance(NS_ISTRUCTUREDHEADERS_CONTRACTID))
 {

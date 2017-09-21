@@ -21,7 +21,7 @@ nsMsgComposeProgressParams::~nsMsgComposeProgressParams()
 NS_IMETHODIMP nsMsgComposeProgressParams::GetSubject(char16_t * *aSubject)
 {
   NS_ENSURE_ARG(aSubject);
-  
+
   *aSubject = ToNewUnicode(m_subject);
   return NS_OK;
 }
@@ -35,7 +35,7 @@ NS_IMETHODIMP nsMsgComposeProgressParams::SetSubject(const char16_t * aSubject)
 NS_IMETHODIMP nsMsgComposeProgressParams::GetDeliveryMode(MSG_DeliverMode *aDeliveryMode)
 {
   NS_ENSURE_ARG(aDeliveryMode);
-  
+
   *aDeliveryMode = m_deliveryMode;
   return NS_OK;
 }

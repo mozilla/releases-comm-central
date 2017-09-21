@@ -29,28 +29,28 @@ public:
 	NS_DECL_ISUPPORTS
 
 	////////////////////////////////////////////////////////////////////////
-	// we suppport the nsISmtpService interface 
-	////////////////////////////////////////////////////////////////////////    
+	// we suppport the nsISmtpService interface
+	////////////////////////////////////////////////////////////////////////
 	NS_DECL_NSISMTPSERVICE
 
 	//////////////////////////////////////////////////////////////////////////
-	// we suppport the nsIProtocolHandler interface 
+	// we suppport the nsIProtocolHandler interface
 	//////////////////////////////////////////////////////////////////////////
   NS_DECL_NSIPROTOCOLHANDLER
 
 protected:
     nsresult loadSmtpServers();
 
-    
+
 private:
 	virtual ~nsSmtpService();
     static bool findServerByKey(nsISmtpServer *aServer, void *aData);
     static bool findServerByHostname(nsISmtpServer *aServer, void *aData);
-    
+
     nsresult createKeyedServer(const char* key,
                                nsISmtpServer **aResult = nullptr);
     nsresult saveKeyList();
-    
+
     nsCOMArray<nsISmtpServer> mSmtpServers;
     nsCOMPtr<nsISmtpServer> mDefaultSmtpServer;
     nsCOMPtr<nsISmtpServer> mSessionDefaultServer;

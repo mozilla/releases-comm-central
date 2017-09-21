@@ -9,12 +9,12 @@
 #include "nsCOMPtr.h"
 class nsMsgComposeParams : public nsIMsgComposeParams
 {
-public: 
+public:
   nsMsgComposeParams();
 
   NS_DECL_ISUPPORTS
   NS_DECL_NSIMSGCOMPOSEPARAMS
-  
+
 private:
   virtual ~nsMsgComposeParams();
   MSG_ComposeType               mType;

@@ -7,7 +7,7 @@
 
 class nsMsgComposeProgressParams : public nsIMsgComposeProgressParams
 {
-public: 
+public:
 	NS_DECL_ISUPPORTS
   NS_DECL_NSIMSGCOMPOSEPROGRESSPARAMS
 

@@ -84,7 +84,7 @@ nsMsgSendReport::nsMsgSendReport()
   for (i = 0; i <= SEND_LAST_PROCESS; i ++)
     mProcessReport[i] = new nsMsgProcessReport();
 
-  Reset(); 
+  Reset();
 }
 
 nsMsgSendReport::~nsMsgSendReport()
@@ -259,7 +259,7 @@ NS_IMETHODIMP nsMsgSendReport::DisplayReport(nsIPrompt *prompt, bool showErrorOn
   {
     //TODO need to display a generic hardcoded message
     mAlreadyDisplayReport = true;
-    return NS_OK;  
+    return NS_OK;
   }
 
   nsString dialogTitle;

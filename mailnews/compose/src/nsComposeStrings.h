@@ -6,7 +6,7 @@
   String Ids used by mailnews\compose
   To Do: Convert the callers to use names instead of ids and then make this file obsolete.
  */
- 
+
 #ifndef _nsComposeStrings_H__
 #define _nsComposeStrings_H__
 

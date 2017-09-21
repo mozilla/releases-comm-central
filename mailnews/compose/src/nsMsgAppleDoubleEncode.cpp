@@ -28,9 +28,9 @@
 
 
 void	
-MacGetFileType(nsIFile   *fs, 
-               bool         *useDefault, 
-               char         **fileType, 
+MacGetFileType(nsIFile   *fs,
+               bool         *useDefault,
+               char         **fileType,
                char         **encoding)
 {
 	if ((fs == NULL) || (fileType == NULL) || (encoding == NULL))
@@ -63,15 +63,15 @@ MacGetFileType(nsIFile   *fs,
     if (NS_SUCCEEDED(NS_NewFileURI(getter_AddRefs(tURI), fs)) && tURI)
     {
       nsCOMPtr<nsIMIMEService> mimeFinder (do_GetService(NS_MIMESERVICE_CONTRACTID, &rv));
-      if (NS_SUCCEEDED(rv) && mimeFinder) 
+      if (NS_SUCCEEDED(rv) && mimeFinder)
       {
         nsAutoCString mimeType;
         rv = mimeFinder->GetTypeFromURI(tURI, mimeType);
-        if (NS_SUCCEEDED(rv)) 
+        if (NS_SUCCEEDED(rv))
         {
           *fileType = ToNewCString(mimeType);
           return;
-        }        
+        }
       }
     }
 
@@ -125,9 +125,9 @@ int ap_encode_init( appledouble_encode_object *p_ap_encode_obj,
 **			errors	:	otherwise.
 */
 int ap_encode_next(
-	appledouble_encode_object* p_ap_encode_obj, 
-	char 	*to_buff, 
-	int32_t 	buff_size, 
+	appledouble_encode_object* p_ap_encode_obj,
+	char 	*to_buff,
+	int32_t 	buff_size,
 	int32_t* 	real_size)
 {
 	int status;
@@ -140,7 +140,7 @@ int ap_encode_next(
 	p_ap_encode_obj->pos_outbuff = 0;
 	
 	/*
-	**	first copy the outstandind data in the overflow buff to the out buffer. 
+	**	first copy the outstandind data in the overflow buff to the out buffer.
 	*/
 	if (p_ap_encode_obj->s_overflow)
 	{
@@ -154,7 +154,7 @@ int ap_encode_next(
 	}
 
 	/*
-	** go the next processing stage based on the current state. 
+	** go the next processing stage based on the current state.
 	*/
 	switch (p_ap_encode_obj->state)
 	{
@@ -162,12 +162,12 @@ int ap_encode_next(
 			/*
 			** We are in the  starting position, fill out the header.
 			*/
-			status = fill_apple_mime_header(p_ap_encode_obj); 
+			status = fill_apple_mime_header(p_ap_encode_obj);
 			if (status != noErr)
 				break;					/* some error happens */
 				
 			p_ap_encode_obj->state = kDoingHeaderPortion;
-			status = ap_encode_header(p_ap_encode_obj, true); 
+			status = ap_encode_header(p_ap_encode_obj, true);
 										/* it is the first time to calling 		*/							
 			if (status == errDone)
 			{
@@ -248,7 +248,7 @@ int ap_encode_next(
 */
 
 int ap_encode_end(
-	appledouble_encode_object *p_ap_encode_obj, 
+	appledouble_encode_object *p_ap_encode_obj,
 	bool is_aborting)
 {
 	/*

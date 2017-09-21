@@ -4,7 +4,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* 
+/*
 *   AppleDouble.h
 *	-------------
 *
@@ -40,18 +40,18 @@
 #define errDecoding		-1
 
 /*
-** The envirment block data type. 
+** The envirment block data type.
 */
-enum 
-{ 
-	kInit, 
-	kDoingHeaderPortion, 
-	kDoneHeaderPortion, 
-	kDoingDataPortion, 
-	kDoneDataPortion 
+enum
+{
+	kInit,
+	kDoingHeaderPortion,
+	kDoneHeaderPortion,
+	kDoingDataPortion,
+	kDoneDataPortion
 };
 
-typedef struct _appledouble_encode_object 
+typedef struct _appledouble_encode_object
 {
     char    fname[256];
     FSIORefNum fileId;				/* the id for the open file (data/resource fork) */
@@ -70,50 +70,50 @@ typedef struct _appledouble_encode_object
 
 	char 	*outbuff;			/* the outbuff by the caller.           		*/
 	int		s_outbuff;			/* the size of the buffer.						*/
-	int		pos_outbuff;		/* the offset in the current buffer.			*/ 
+	int		pos_outbuff;		/* the offset in the current buffer.			*/
 
 } appledouble_encode_object;
 
 /* The possible content transfer encodings */
 
-enum 
-{ 
+enum
+{
 	kEncodeNone,
 	kEncodeQP,
 	kEncodeBase64,
 	kEncodeUU
 };
 
-enum 
-{ 
+enum
+{
 	kGeneralMine,
 	kAppleDouble,
 	kAppleSingle
 };
 
-enum 
-{ 
+enum
+{
 	kInline,
 	kDontCare
 };
 
-enum 
-{ 
+enum
+{
 	kHeaderPortion,
 	kDataPortion
 };
 
 /* the decode states.	*/
-enum 
-{ 
+enum
+{
 	kBeginParseHeader = 3,
 	kParsingHeader,
 	kBeginSeekBoundary,
 	kSeekingBoundary,
-	kBeginHeaderPortion, 
-	kProcessingHeaderPortion, 
-	kBeginDataPortion, 
-	kProcessingDataPortion, 
+	kBeginHeaderPortion,
+	kProcessingHeaderPortion,
+	kBeginDataPortion,
+	kProcessingDataPortion,
 	kFinishing
 };
 
@@ -126,7 +126,7 @@ enum
 	kEnd
 };
 
-typedef struct _appledouble_decode_object 
+typedef struct _appledouble_decode_object
 {
 	int		is_binary;
 	int		is_apple_single;	/* if the object encoded is in apple single		*/
@@ -145,7 +145,7 @@ typedef struct _appledouble_decode_object
 	
 	int		rksize;				/* the resource fork size count.				*/
 	int		dksize;				/* the data fork size count.					*/
-	 
+	
 	int		status;				/* the error code if anyerror happens.			*/
 	char 	b_leftover[256];
 	int		s_leftover;
@@ -161,7 +161,7 @@ typedef struct _appledouble_decode_object
 
 	char 	*inbuff;			/* the outbuff by the caller.           		*/
 	int		s_inbuff;			/* the size of the buffer.						*/
-	int		pos_inbuff;			/* the offset in the current buffer.			*/ 
+	int		pos_inbuff;			/* the offset in the current buffer.			*/
 
 
 	nsCOMPtr <nsIFile> tmpFile;		/* the temp file to hold the decode data fork 	*/
@@ -178,11 +178,11 @@ typedef struct _appledouble_decode_object
 
 PR_BEGIN_EXTERN_C
 
-int ap_encode_init(appledouble_encode_object *p_ap_encode_obj, 
+int ap_encode_init(appledouble_encode_object *p_ap_encode_obj,
 					const char* fname,
 					char* separator);
 
-int ap_encode_next(appledouble_encode_object* p_ap_encode_obj, 
+int ap_encode_next(appledouble_encode_object* p_ap_encode_obj,
 					char 	*to_buff,
 					int32_t 	buff_size,
 					int32_t*	real_size);
@@ -195,11 +195,11 @@ int ap_decode_init(appledouble_decode_object* p_ap_decode_obj,
 					bool	write_as_bin_hex,
 					void  	*closure);
 
-int ap_decode_next(appledouble_decode_object* p_ap_decode_obj, 
-					char 	*in_buff, 
+int ap_decode_next(appledouble_decode_object* p_ap_decode_obj,
+					char 	*in_buff,
 					int32_t 	buff_size);
 
-int ap_decode_end(appledouble_decode_object* p_ap_decode_obj, 
+int ap_decode_end(appledouble_decode_object* p_ap_decode_obj,
 				 	bool is_aborting);
 
 PR_END_EXTERN_C

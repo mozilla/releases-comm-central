@@ -111,7 +111,7 @@ NS_IMETHODIMP nsMsgComposeContentHandler::HandleContent(const char * aContentTyp
     rv = aChannel->GetURI(getter_AddRefs(aUri));
     if (aUri)
     {
-      nsCOMPtr<nsIMsgComposeService> composeService = 
+      nsCOMPtr<nsIMsgComposeService> composeService =
                do_GetService(kMsgComposeServiceCID, &rv);
       if (NS_SUCCEEDED(rv))
         rv = composeService->OpenComposeWindowWithURI(nullptr, aUri, identity);

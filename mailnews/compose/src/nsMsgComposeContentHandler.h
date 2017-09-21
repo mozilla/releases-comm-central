@@ -8,7 +8,7 @@
 
 class nsMsgComposeContentHandler : public nsIContentHandler
 {
-public: 
+public:
 	nsMsgComposeContentHandler();
 
 	NS_DECL_ISUPPORTS

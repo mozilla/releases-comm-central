@@ -18,7 +18,7 @@
 #define ad_codes_h
 
 /*
-** applefile definitions used 
+** applefile definitions used
 */
 #if PRAGMA_STRUCT_ALIGN
   #pragma options align=mac68k
@@ -41,7 +41,7 @@
 /*
 ** data type used in the encoder/decoder.
 */
-typedef struct ap_header 
+typedef struct ap_header
 {
 	int32_t 	magic;
 	int32_t	version;
@@ -50,7 +50,7 @@ typedef struct ap_header
 
 } ap_header;
 
-typedef struct ap_entry 
+typedef struct ap_entry
 {
 	int32_t  id;
 	int32_t	offset;
@@ -58,7 +58,7 @@ typedef struct ap_entry
 	
 } ap_entry;
 
-typedef struct ap_dates 
+typedef struct ap_dates
 {
 	int32_t create, modify, backup, access;
 
@@ -98,7 +98,7 @@ int  ap_decode_process_header(appledouble_decode_object* p_ap_decode_obj, bool f
 int  ap_decode_process_data(  appledouble_decode_object* p_ap_decode_obj, bool firstime);
 
 PR_END_EXTERN_C
- 
+
 #if PRAGMA_STRUCT_ALIGN
   #pragma options align=reset
 #endif

@@ -17,12 +17,12 @@
 #include "nsICommandLineHandler.h"
 #define ICOMMANDLINEHANDLER nsICommandLineHandler
 
-class nsMsgComposeService : 
+class nsMsgComposeService :
   public nsIMsgComposeService,
   public ICOMMANDLINEHANDLER,
   public nsSupportsWeakReference
 {
-public: 
+public:
 	nsMsgComposeService();
 
 	NS_DECL_ISUPPORTS
@@ -38,8 +38,8 @@ private:
 	virtual ~nsMsgComposeService();
   bool mLogComposePerformance;
 
-  nsresult LoadDraftOrTemplate(const nsACString& aMsgURI, nsMimeOutputType aOutType, 
-                               nsIMsgIdentity * aIdentity, const char * aOriginalMsgURI, 
+  nsresult LoadDraftOrTemplate(const nsACString& aMsgURI, nsMimeOutputType aOutType,
+                               nsIMsgIdentity * aIdentity, const char * aOriginalMsgURI,
                                nsIMsgDBHdr * aOrigMsgHdr, bool aForwardInline,
                                bool overrideComposeFormat,
                                nsIMsgWindow *aMsgWindow);

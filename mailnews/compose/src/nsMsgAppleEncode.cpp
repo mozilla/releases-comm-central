@@ -27,13 +27,13 @@
 /*
 **	Local Functions prototypes.
 */
-static int output64chunk( appledouble_encode_object* p_ap_encode_obj, 
+static int output64chunk( appledouble_encode_object* p_ap_encode_obj,
 				int c1, int c2, int c3, int pads);
 				
-static int to64(appledouble_encode_object* p_ap_encode_obj, 
-				char	*p, 
+static int to64(appledouble_encode_object* p_ap_encode_obj,
+				char	*p,
 				int 	in_size);
- 
+
 static int finish64(appledouble_encode_object* p_ap_encode_obj);
 
 
@@ -49,8 +49,8 @@ int write_stream(
 {	
 	if (p_ap_encode_obj->pos_outbuff + len < p_ap_encode_obj->s_outbuff)
 	{
-		memcpy(p_ap_encode_obj->outbuff + p_ap_encode_obj->pos_outbuff, 
-		       out_string, 
+		memcpy(p_ap_encode_obj->outbuff + p_ap_encode_obj->pos_outbuff,
+		       out_string,
 		       len);
 		p_ap_encode_obj->pos_outbuff += len;
 		return noErr;
@@ -62,8 +62,8 @@ int write_stream(
 		*/
 		int s_len = p_ap_encode_obj->s_outbuff - p_ap_encode_obj->pos_outbuff;
 		
-		memcpy(p_ap_encode_obj->outbuff + p_ap_encode_obj->pos_outbuff, 
-		       out_string, 
+		memcpy(p_ap_encode_obj->outbuff + p_ap_encode_obj->pos_outbuff,
+		       out_string,
 		       s_len);
 		memcpy(p_ap_encode_obj->b_overflow + p_ap_encode_obj->s_overflow,
 		       out_string + s_len,
@@ -82,7 +82,7 @@ int fill_apple_mime_header(
 	
 #if 0	
 //	strcpy(tmpstr, "Content-Type: multipart/mixed; boundary=\"-\"\n\n---\n");
-//	status = write_stream(p_ap_encode_env, 
+//	status = write_stream(p_ap_encode_env,
 //						tmpstr,
 //						strlen(tmpstr));
 //	if (status != noErr)
@@ -107,7 +107,7 @@ int fill_apple_mime_header(
 	PR_snprintf(tmpstr, sizeof(tmpstr), "--%s" CRLF, p_ap_encode_obj->boundary);
 	status = write_stream(p_ap_encode_obj, (const char*)tmpstr, strlen(tmpstr));
 	return status;
-} 
+}
 
 int ap_encode_file_infor(
 	appledouble_encode_object *p_ap_encode_obj)
@@ -119,7 +119,7 @@ int ap_encode_file_infor(
 	long 		comlen;
 	char 		comment[256];
 	int	 		status;
-    
+
     nsCOMPtr <nsIFile> resFile;
     NS_NewNativeLocalFile(nsDependentCString(p_ap_encode_obj->fname), true,
                           getter_AddRefs(resFile));
@@ -156,18 +156,18 @@ int ap_encode_file_infor(
 	vinfo.ioReqCount 	= sizeof (vp);
 	comlen = 0;
 	if (PBHGetVolParmsSync((HParmBlkPtr) &vinfo) == noErr &&
-		((vp.vMAttrib >> bHasDesktopMgr) & 1)) 
+		((vp.vMAttrib >> bHasDesktopMgr) & 1))
 	{
 		DTPBRec 	dtp;
 		memset((void *) &dtp, '\0', sizeof (dtp));
 		dtp.ioVRefNum = fpb->ioVRefNum;
-		if (PBDTGetPath(&dtp) == noErr) 
+		if (PBDTGetPath(&dtp) == noErr)
 		{
 			dtp.ioCompletion = nil;
 			dtp.ioDTBuffer = (Ptr) comment;
 			dtp.ioNamePtr  = fpb->ioNamePtr;
 			dtp.ioDirID    = fpb->ioFlParID;
-			if (PBDTGetCommentSync(&dtp) == noErr) 
+			if (PBDTGetCommentSync(&dtp) == noErr)
 				comlen = dtp.ioDTActCount;
 		}
 	}
@@ -203,20 +203,20 @@ int ap_encode_file_infor(
     entries[5].length = catalogInfo.dataLogicalSize;
 
 	/* correct the link in the entries. */
-	for (i = 1; i < NUM_ENTRIES; ++i) 
+	for (i = 1; i < NUM_ENTRIES; ++i)
 	{
 		entries[i].offset = entries[i-1].offset + entries[i-1].length;
 	}
 	status = to64(p_ap_encode_obj,
 					(char *) entries,
-					sizeof (ap_entry) * head.entries); 
+					sizeof (ap_entry) * head.entries);
 	if (status != noErr)
 		return status;
 
 	/* write name */
 	status = to64(p_ap_encode_obj,
 					(char *) leafname.get(),
-					leafname.Length()); 
+					leafname.Length());
 	if (status != noErr)
 		return status;
 	
@@ -226,7 +226,7 @@ int ap_encode_file_infor(
 					sizeof (FInfo));
 	if (status != noErr)
 		return status;
-					  
+					
 	status = to64(p_ap_encode_obj,
 					(char *) &catalogInfo.extFinderInfo,
 					sizeof (FXInfo));
@@ -240,7 +240,7 @@ int ap_encode_file_infor(
     dates.access = catalogInfo.accessDate.lowSeconds + CONVERT_TIME;
 	status = to64(p_ap_encode_obj,
 					(char *) &dates,
-					sizeof (ap_dates)); 
+					sizeof (ap_dates));
 	if (status != noErr)
 		return status;
 	
@@ -269,7 +269,7 @@ int ap_encode_file_infor(
 **
 */
 int ap_encode_header(
-	appledouble_encode_object* p_ap_encode_obj, 
+	appledouble_encode_object* p_ap_encode_obj,
 	bool    firstime)
 {
 	char   	rd_buff[256];
@@ -280,13 +280,13 @@ int ap_encode_header(
 	
 	if (firstime)
 	{
-    PL_strcpy(rd_buff, 
+    PL_strcpy(rd_buff,
 			"Content-Type: application/applefile\r\nContent-Transfer-Encoding: base64\r\n\r\n");
 		status = write_stream(p_ap_encode_obj, (const char*)rd_buff, strlen(rd_buff));
 		if (status != noErr)
 			return status;
 			
-		status = ap_encode_file_infor(p_ap_encode_obj); 
+		status = ap_encode_file_infor(p_ap_encode_obj);
 		if (status != noErr)
 			return status;
 		
@@ -338,10 +338,10 @@ int ap_encode_header(
 			return status;
 		
 		/*
-		** write out the boundary 
+		** write out the boundary
 		*/
 		PR_snprintf(rd_buff, sizeof(rd_buff),
-						CRLF "--%s" CRLF, 
+						CRLF "--%s" CRLF,
 						p_ap_encode_obj->boundary);
 					
 		status = write_stream(p_ap_encode_obj, (const char*)rd_buff, strlen(rd_buff));
@@ -390,22 +390,22 @@ static const char *magic_look(char *inbuff, int numread)
 {
     int i, j;
 
-	for (i=0; i<num_magic; i++) 
+	for (i=0; i<num_magic; i++)
 	{
-	   	if (magic[i].len == 0) 
+	   	if (magic[i].len == 0)
 	   		magic[i].len = strlen(magic[i].num);
 	}
 
-    for (i=0; i<num_magic; i++) 
+    for (i=0; i<num_magic; i++)
     {
-		if (numread >= magic[i].len) 
+		if (numread >= magic[i].len)
 		{
-	    	for (j=0; j<magic[i].len; j++) 
+	    	for (j=0; j<magic[i].len; j++)
 	    	{
 				if (inbuff[j] != magic[i].num[j]) break;
 	    	}
 	    	
-	    	if (j == magic[i].len) 
+	    	if (j == magic[i].len)
 	    		return magic[i].name;
 		}
     }
@@ -421,7 +421,7 @@ static const char *magic_look(char *inbuff, int numread)
 **
 */
 int ap_encode_data(
-	appledouble_encode_object* p_ap_encode_obj, 
+	appledouble_encode_object* p_ap_encode_obj,
 	bool firstime)
 {
 	char   		rd_buff[256];
@@ -465,8 +465,8 @@ int ap_encode_data(
       in_count = 0;
       retval = ::FSReadFork(fileId, fsFromStart, 0, 256, rd_buff, &in_count);
       magic_type = magic_look(rd_buff, in_count);
-      
-      /* don't forget to rewind the index to start point. */ 
+
+      /* don't forget to rewind the index to start point. */
       ::FSSetForkPosition(fileId, fsFromStart, 0);
       /* and reset retVal just in case... */
       if (retval == eofErr)
@@ -526,7 +526,7 @@ int ap_encode_data(
 		/* write out the boundary 	*/
 		
 		PR_snprintf(rd_buff, sizeof(rd_buff),
-						CRLF "--%s--" CRLF CRLF, 
+						CRLF "--%s--" CRLF CRLF,
 						p_ap_encode_obj->boundary);
 	
 		status = write_stream(p_ap_encode_obj, (const char*)rd_buff, strlen(rd_buff));
@@ -540,19 +540,19 @@ int ap_encode_data(
 static char basis_64[] =
    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
-/* 
+/*
 **	convert the stream in the inbuff to 64 format and put it in the out buff.
 **  To make the life easier, the caller will responcable of the cheking of the outbuff's bundary.
 */
-static int 
-to64(appledouble_encode_object* p_ap_encode_obj, 
-	char	*p, 
-	int 	in_size) 
+static int
+to64(appledouble_encode_object* p_ap_encode_obj,
+	char	*p,
+	int 	in_size)
 {
 	int 	status;
     int c1, c2, c3, ct;
     unsigned char *inbuff = (unsigned char*)p;
-    
+
 	ct = p_ap_encode_obj->ct;			/* the char count left last time. */
 	
 	/*
@@ -592,21 +592,21 @@ to64(appledouble_encode_object* p_ap_encode_obj,
 			break;
 	}
 	
-    while (in_size >= 0) 
+    while (in_size >= 0)
     {
-    	status = output64chunk(p_ap_encode_obj, 
-    							c1, 
-    							c2, 
-    							c3, 
+    	status = output64chunk(p_ap_encode_obj,
+    							c1,
+    							c2,
+    							c3,
     							0);
     	if (status != noErr)
     		return status;
     		
     	ct += 4;
-        if (ct > 71) 
-        { 
-        	status = write_stream(p_ap_encode_obj, 
-        						CRLF, 
+        if (ct > 71)
+        {
+        	status = write_stream(p_ap_encode_obj,
+        						CRLF,
         						2);
         	if (status != noErr)
         		return status;
@@ -645,7 +645,7 @@ to64(appledouble_encode_object* p_ap_encode_obj,
 /*
 ** clear the left base64 encodes.
 */
-static int 
+static int
 finish64(appledouble_encode_object* p_ap_encode_obj)
 {
 	int status;
@@ -655,17 +655,17 @@ finish64(appledouble_encode_object* p_ap_encode_obj)
 		case 0:
 			break;
 		case 1:
-			status = output64chunk(p_ap_encode_obj, 
-									p_ap_encode_obj->c1, 
-									0, 
-									0, 
+			status = output64chunk(p_ap_encode_obj,
+									p_ap_encode_obj->c1,
+									0,
+									0,
 									2);
 			break;
 		case 2:
-			status = output64chunk(p_ap_encode_obj, 
-									p_ap_encode_obj->c1, 
-									p_ap_encode_obj->c2, 
-									0, 
+			status = output64chunk(p_ap_encode_obj,
+									p_ap_encode_obj->c1,
+									p_ap_encode_obj->c2,
+									0,
 									1);
 			break;
 	}
@@ -676,7 +676,7 @@ finish64(appledouble_encode_object* p_ap_encode_obj)
 }
 
 static int output64chunk(
-	appledouble_encode_object* p_ap_encode_obj, 
+	appledouble_encode_object* p_ap_encode_obj,
 	int c1, int c2, int c3, int pads)
 {
 	char tmpstr[32];
@@ -684,17 +684,17 @@ static int output64chunk(
 	
     *p++ = basis_64[c1>>2];
     *p++ = basis_64[((c1 & 0x3)<< 4) | ((c2 & 0xF0) >> 4)];
-    if (pads == 2) 
+    if (pads == 2)
     {
         *p++ = '=';
         *p++ = '=';
-    } 
-    else if (pads) 
+    }
+    else if (pads)
     {
         *p++ = basis_64[((c2 & 0xF) << 2) | ((c3 & 0xC0) >>6)];
         *p++ = '=';
-    } 
-    else 
+    }
+    else
     {
         *p++ = basis_64[((c2 & 0xF) << 2) | ((c3 & 0xC0) >>6)];
         *p++ = basis_64[c3 & 0x3F];

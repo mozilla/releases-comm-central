@@ -12,7 +12,7 @@
 #include "nsIMsgSend.h"
 #include "nsIMsgCompUtils.h"
 
-class nsIPrompt; 
+class nsIPrompt;
 
 #define ANY_SERVER "anyfolder://"
 
@@ -45,7 +45,7 @@ char        *nsMsgCreateTempFileName(const char *tFileName);
 
 
 //
-// Various utilities for building parts of MIME encoded 
+// Various utilities for building parts of MIME encoded
 // messages during message composition
 //
 

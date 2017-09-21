@@ -19,7 +19,7 @@
 #include "nsIMsgShutdown.h"
 
 ////////////////////////////////////////////////////////////////////////////////////
-// This is the listener class for the send operation. We have to create this class 
+// This is the listener class for the send operation. We have to create this class
 // to listen for message send completion and eventually notify the caller
 ////////////////////////////////////////////////////////////////////////////////////
 class nsMsgSendLater;
@@ -83,20 +83,20 @@ public:
   void NotifyListenersOnMessageSendError(uint32_t aCurrentMessage,
                                          nsresult aStatus,
                                          const char16_t *aMsg);
-  void EndSendMessages(nsresult aStatus, const char16_t *aMsg, 
+  void EndSendMessages(nsresult aStatus, const char16_t *aMsg,
                        uint32_t aTotalTried, uint32_t aSuccessful);
 
   bool OnSendStepFinished(nsresult aStatus);
   void OnCopyStepFinished(nsresult aStatus);
 
-  // counters and things for enumeration 
+  // counters and things for enumeration
   uint32_t                  mTotalSentSuccessfully;
   uint32_t                  mTotalSendCount;
   nsCOMArray<nsIMsgDBHdr> mMessagesToSend;
   nsCOMPtr<nsISimpleEnumerator> mEnumerator;
   nsCOMPtr<nsIMsgFolder>    mMessageFolder;
   nsCOMPtr<nsIMsgStatusFeedback> mFeedback;
- 
+
   // Private Information
 private:
   virtual ~nsMsgSendLater();

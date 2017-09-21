@@ -32,7 +32,7 @@ struct nsMsgMailList;
 
 class nsMsgCompose : public nsIMsgCompose, public nsSupportsWeakReference
 {
- public: 
+ public:
 
   nsMsgCompose();
 
@@ -104,10 +104,10 @@ protected:
    */
   nsresult LookupAddressBook(RecipientsArray &recipientList);
   bool IsLastWindow();
- 
+
        // Helper function. Parameters are not checked.
   bool                                      mConvertStructs;    // for TagConvertible
-  
+
   nsCOMPtr<nsIEditor>                       m_editor;
   mozIDOMWindowProxy                        *m_window;
   nsCOMPtr<nsIDocShell>                     mDocShell;
@@ -196,7 +196,7 @@ private:
 };
 
 ////////////////////////////////////////////////////////////////////////////////////
-// This is the listener class for the send operation. We have to create this class 
+// This is the listener class for the send operation. We have to create this class
 // to listen for message send completion and eventually notify the caller
 ////////////////////////////////////////////////////////////////////////////////////
 class nsMsgComposeSendListener : public nsIMsgComposeSendListener, public nsIMsgSendListener, public nsIMsgCopyServiceListener, public nsIWebProgressListener
@@ -212,10 +212,10 @@ public:
 
   // nsIMsgSendListener interface
   NS_DECL_NSIMSGSENDLISTENER
-  
+
   // nsIMsgCopyServiceListener interface
   NS_DECL_NSIMSGCOPYSERVICELISTENER
-  
+
   // nsIWebProgressListener interface
   NS_DECL_NSIWEBPROGRESSLISTENER
 

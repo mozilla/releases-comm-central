@@ -36,7 +36,7 @@ public:
 
     virtual nsresult  SetType(const char* type);
     const char        *GetType() {return m_type;}
-    
+
     const char        *GetCharsetName() {return m_charset_name;}
 
     virtual nsresult  SetOtherHeaders(const char* other);
@@ -65,7 +65,7 @@ public:
 	nsMsgSendPart       *DetachChild(int32_t which);
 
 	virtual nsresult    SetMainPart(bool value);
-	bool                IsMainPart() 
+	bool                IsMainPart()
                       {
                         return m_mainpart;
                       }

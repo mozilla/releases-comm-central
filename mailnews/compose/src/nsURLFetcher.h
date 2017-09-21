@@ -24,12 +24,12 @@ class nsMsgAttachmentHandler;
 
 class nsURLFetcher : public nsIURLFetcher,
                      public nsIStreamListener,
-                     public nsIURIContentListener, 
+                     public nsIURIContentListener,
                      public nsIInterfaceRequestor,
                      public nsIWebProgressListener,
                      public nsSupportsWeakReference
-{ 
-public: 
+{
+public:
   nsURLFetcher();
 
   /* this macro defines QueryInterface, AddRef and Release for this class */
@@ -43,7 +43,7 @@ public:
 
   // Methods for nsIRequestObserver
   NS_DECL_NSIREQUESTOBSERVER
-  
+
   // Methods for nsIURICOntentListener
   NS_DECL_NSIURICONTENTLISTENER
 
@@ -75,7 +75,7 @@ private:
   bool                            mIsFile;        // This is used to check whether the URI is a local file.
 
   friend class nsURLFetcherStreamConsumer;
-}; 
+};
 
 
 /**
@@ -95,7 +95,7 @@ public:
 private:
   virtual ~nsURLFetcherStreamConsumer();
   nsURLFetcher* mURLFetcher;
-}; 
+};
 
 
 #endif /* nsURLFetcher_h_ */

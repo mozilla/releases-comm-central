@@ -5,7 +5,7 @@
 #ifndef __nsMsgQuote_h__
 #define __nsMsgQuote_h__
 
-#include "nsIMsgQuote.h" 
+#include "nsIMsgQuote.h"
 #include "nsIMsgMessageService.h"
 #include "nsIStreamListener.h"
 #include "nsIMimeStreamConverter.h"
@@ -32,7 +32,7 @@ private:
 };
 
 class nsMsgQuote: public nsIMsgQuote, public nsSupportsWeakReference {
-public: 
+public:
   nsMsgQuote();
 
   NS_DECL_THREADSAFE_ISUPPORTS
@@ -40,7 +40,7 @@ public:
 
 private:
   virtual ~nsMsgQuote();
-  // 
+  //
   // Implementation data...
   //
   nsCOMPtr<nsIMsgQuotingOutputStreamListener> mStreamListener;

@@ -24,7 +24,7 @@
 class   nsMsgCopy;
 
 ////////////////////////////////////////////////////////////////////////////////////
-// This is the listener class for the copy operation. We have to create this class 
+// This is the listener class for the copy operation. We have to create this class
 // to listen for message copy completion and eventually notify the caller
 ////////////////////////////////////////////////////////////////////////////////////
 class CopyListener : public nsIMsgCopyServiceListener
@@ -36,17 +36,17 @@ public:
   NS_DECL_THREADSAFE_ISUPPORTS
 
   NS_IMETHOD OnStartCopy() override;
-  
+
   NS_IMETHOD OnProgress(uint32_t aProgress, uint32_t aProgressMax) override;
 
   NS_IMETHOD SetMessageKey(nsMsgKey aMessageKey) override;
 
   NS_IMETHOD GetMessageId(nsACString& aMessageId) override;
-  
+
   NS_IMETHOD OnStopCopy(nsresult aStatus) override;
 
   NS_IMETHOD SetMsgComposeAndSendObject(nsIMsgSend *obj);
-  
+
   bool                            mCopyInProgress;
 
 private:
@@ -73,7 +73,7 @@ public:
   //////////////////////////////////////////////////////////////////////
   //
   nsresult              StartCopyOperation(nsIMsgIdentity       *aUserIdentity,
-                                           nsIFile          *aFile, 
+                                           nsIFile          *aFile,
                                            nsMsgDeliverMode     aMode,
                                            nsIMsgSend           *aMsgSendObj,
                                            const char           *aSavePref,
@@ -90,7 +90,7 @@ public:
   nsresult	GetSentFolder(nsIMsgIdentity *userIdentity,  nsIMsgFolder **msgFolder, bool *waitForUrl);
   nsresult   CreateIfMissing(nsIMsgFolder **folder, bool *waitForUrl);
 
-  
+
   //
   // Vars for implementation...
   //
@@ -107,12 +107,12 @@ private:
 };
 
 // Useful function for the back end...
-nsresult	LocateMessageFolder(nsIMsgIdentity   *userIdentity, 
+nsresult	LocateMessageFolder(nsIMsgIdentity   *userIdentity,
                                        nsMsgDeliverMode aFolderType,
                                        const char       *aSaveURI,
 				       nsIMsgFolder **msgFolder);
 
-nsresult	MessageFolderIsLocal(nsIMsgIdentity   *userIdentity, 
+nsresult	MessageFolderIsLocal(nsIMsgIdentity   *userIdentity,
                                        nsMsgDeliverMode aFolderType,
                                        const char       *aSaveURI,
 				       bool		*aResult);
