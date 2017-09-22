@@ -4855,98 +4855,95 @@ var envelopeDragObserver = {
 
   onDrop: function (aEvent, aData, aDragSession)
     {
-      var dataList = aData.dataList;
-      var dataListLength = dataList.length;
-      var errorTitle;
-      var attachment;
-      var errorMsg;
-      var attachments = [];
+      let dataList = aData.dataList;
+      let attachments = [];
 
-      for (let i = 0; i < dataListLength; i++)
+      for (let dataListObj of dataList)
       {
-        var item = dataList[i].first;
-        var prettyName;
-        var size;
-        var rawData = item.data;
+        let item = dataListObj.first;
+        let rawData = item.data;
+        let isValidAttachment = false;
+        let prettyName;
+        let size;
 
-        // We could be dropping an attachment OR an address, check and do the right thing..
-
-        if (item.flavour.contentType == "text/x-moz-url" ||
-            item.flavour.contentType == "text/x-moz-message" ||
-            item.flavour.contentType == "application/x-moz-file")
+        // We could be dropping an attachment of various flavours OR an address;
+        // check and do the right thing.
+        // Note that case blocks {...} are recommended to avoid redeclaration errors
+        // when using 'let'.
+        switch (item.flavour.contentType)
         {
-          if (item.flavour.contentType == "application/x-moz-file")
-          {
+          // Process attachments.
+          case "application/x-moz-file": {
+            isValidAttachment = true;
             let fileHandler = Services.io
                                       .getProtocolHandler("file")
                                       .QueryInterface(Components.interfaces.nsIFileProtocolHandler);
 
             size = rawData.fileSize;
             rawData = fileHandler.getURLSpecFromFile(rawData);
+            break;
           }
-          else if (item.flavour.contentType == "text/x-moz-message")
-          {
-            size = gMessenger.messageServiceFromURI(rawData)
-                             .messageURIToMsgHdr(rawData).messageSize;
+
+          case "text/x-moz-message": {
+            isValidAttachment = true;
+            let msgHdr = gMessenger.messageServiceFromURI(rawData)
+                                   .messageURIToMsgHdr(rawData);
+            prettyName = msgHdr.mime2DecodedSubject + ".eml";
+            size = msgHdr.messageSize;
+            break;
           }
-          else
-          {
-            var pieces = rawData.split("\n");
+
+          case "text/x-moz-url": {
+            let pieces = rawData.split("\n");
             rawData = pieces[0];
             if (pieces.length > 1)
               prettyName = pieces[1];
             if (pieces.length > 2)
               size = parseInt(pieces[2]);
-          }
 
-          var isValid = true;
-          if (item.flavour.contentType == "text/x-moz-url") {
-            // if this is a url (or selected text)
-            // see if it's a valid url by checking
-            // if we can extract a scheme
-            // using Services.io
-            //
-            // also skip mailto:, since it doesn't make sense
-            // to attach and send mailto urls
+            // If this is a URL (or selected text), check if it's a valid URL
+            // by checking if we can extract a scheme using Services.io.
+            // Don't attach invalid or mailto: URLs.
             try {
               let scheme = Services.io.extractScheme(rawData);
-              // don't attach mailto: urls
-              if (scheme == "mailto")
-                isValid = false;
+              if (scheme != "mailto")
+                isValidAttachment = true;
             }
-            catch (ex) {
-              isValid = false;
-            }
+            catch (ex) {}
+            break;
           }
 
-          if (isValid) {
-            let attachment = Components.classes["@mozilla.org/messengercompose/attachment;1"]
-                                       .createInstance(Components.interfaces.nsIMsgAttachment);
-            attachment.url = rawData;
-            attachment.name = prettyName;
+          // Process address: Drop it into recipient field.
+          case "text/x-moz-address": {
+            if (rawData) {
+              DropRecipient(aEvent.target, rawData);
 
-            if (size !== undefined)
-              attachment.size = size;
-
-            attachments.push(attachment);
+              // Since we are now using ondrop (eDrop) instead of previously using
+              // ondragdrop (eLegacyDragDrop), we must prevent the default
+              // which is dropping the address text into the widget.
+              // Note that stopPropagation() is called by our caller in
+              // nsDragAndDrop.js.
+              aEvent.preventDefault();
+            }
+            break;
           }
         }
-        else if (item.flavour.contentType == "text/x-moz-address")
-        {
-          // process the address
-          if (rawData) {
-            DropRecipient(aEvent.target, rawData);
 
-            // Since we are now using ondrop (eDrop) instead of previously using
-            // ondragdrop (eLegacyDragDrop), we must prevent the default
-            // which is dropping the address text into the widget.
-            // Note that stopPropagation() is called by our caller in
-            // nsDragAndDrop.js.
-            aEvent.preventDefault();
-          }
+        // Create the attachment and add it to attachments array.
+        if (isValidAttachment) {
+          let attachment = Components.classes["@mozilla.org/messengercompose/attachment;1"]
+                                     .createInstance(Components.interfaces.nsIMsgAttachment);
+          attachment.url = rawData;
+          attachment.name = prettyName;
+
+          if (size !== undefined)
+            attachment.size = size;
+
+          attachments.push(attachment);
         }
       }
 
+      // Add attachments if any.
       if (attachments.length > 0)
         AddAttachments(attachments);
     },
@@ -4956,7 +4953,7 @@ var envelopeDragObserver = {
       if (aFlavour.contentType != "text/x-moz-address")
       {
         // make sure the attachment box is visible during drag over
-        var attachmentBox = document.getElementById("attachments-box");
+        let attachmentBox = document.getElementById("attachments-box");
         UpdateAttachmentBucket(true);
       }
       else
@@ -4971,7 +4968,7 @@ var envelopeDragObserver = {
 
   getSupportedFlavours: function ()
     {
-      var flavourSet = new FlavourSet();
+      let flavourSet = new FlavourSet();
       // Prefer "text/x-moz-address", so when an address from the address book
       // is dragged, this flavour is tested first. Otherwise the attachment
       // bucket would open since the addresses also carry the
