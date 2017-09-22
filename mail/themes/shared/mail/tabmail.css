@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #tabs-toolbar {
-  --tab-line-color: highlight;
   --tab-toolbar-overlap: 1px;
 }
 

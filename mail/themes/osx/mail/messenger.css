@@ -13,6 +13,7 @@
 :root {
   --tab-min-height: 30px;
   --tabs-border: rgba(0,0,0,.3);
+  --tab-line-color: #0a84ff;
 
   --toolbar-non-lwt-bgcolor: #f9f9fa;
   --toolbar-non-lwt-textcolor: #0c0c0d;
