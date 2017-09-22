@@ -1030,6 +1030,9 @@ nsMsgGroupView::CellTextForColumn(int32_t aRow,
 NS_IMETHODIMP
 nsMsgGroupView::LoadMessageByViewIndex(nsMsgViewIndex aViewIndex)
 {
+  if (!IsValidIndex(aViewIndex))
+    return NS_MSG_INVALID_DBVIEW_INDEX;
+
   if (m_flags[aViewIndex] & MSG_VIEW_FLAG_DUMMY)
   {
     // If we used to have one item selected, and now we have more than one,
@@ -1083,22 +1086,6 @@ nsMsgGroupView::FindLevelInThread(nsIMsgDBHdr *msgHdr,
     return nsMsgDBView::FindLevelInThread(msgHdr, startOfThread, viewIndex);
 
   return (startOfThread == viewIndex) ? 0 : 1;
-}
-
-
-nsMsgViewIndex
-nsMsgGroupView::ThreadIndexOfMsg(nsMsgKey msgKey,
-                                 nsMsgViewIndex msgIndex /* = nsMsgViewIndex_None */,
-                                 int32_t *pThreadCount /* = NULL */,
-                                 uint32_t *pFlags /* = NULL */)
-{
-  if (msgIndex != nsMsgViewIndex_None && GroupViewUsesDummyRow())
-  {
-    // This case is all we care about at this point.
-    if (m_flags[msgIndex] & MSG_VIEW_FLAG_ISTHREAD)
-      return msgIndex;
-  }
-  return nsMsgDBView::ThreadIndexOfMsg(msgKey, msgIndex, pThreadCount, pFlags);
 }
 
 bool

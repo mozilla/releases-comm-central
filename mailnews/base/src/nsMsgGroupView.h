@@ -52,10 +52,6 @@ protected:
   nsresult GetAgeBucketValue(nsIMsgDBHdr *aMsgHdr, uint32_t * aAgeBucket, bool rcvDate = false); // helper function to get the age bucket for a hdr, useful when grouped by date
   nsresult OnNewHeader(nsIMsgDBHdr *newHdr, nsMsgKey aParentKey, bool /*ensureListed*/) override;
   virtual int32_t FindLevelInThread(nsIMsgDBHdr *msgHdr, nsMsgViewIndex startOfThread, nsMsgViewIndex viewIndex) override;
-  nsMsgViewIndex ThreadIndexOfMsg(nsMsgKey msgKey,
-                                  nsMsgViewIndex msgIndex = nsMsgViewIndex_None,
-                                  int32_t *pThreadCount = NULL,
-                                  uint32_t *pFlags = NULL) override;
 
   // Returns true if we are grouped by a sort attribute that uses a dummy row.
   bool GroupViewUsesDummyRow();
@@ -76,4 +72,3 @@ private:
 };
 
 #endif
-
