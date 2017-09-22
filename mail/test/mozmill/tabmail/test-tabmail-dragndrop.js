@@ -73,7 +73,7 @@ function test_tab_reorder_setup_globals() {
  * It opens aditional movable and closable tabs. The picks the first
  * movable tab and drops it onto the third movable tab.
  */
-function disabled_test_tab_reorder_tabbar(){
+function test_tab_reorder_tabbar(){
 
   // Ensure only one tab is open, otherwise our test most likey fail anyway.
   mc.tabmail.closeOtherTabs(0);
@@ -142,7 +142,7 @@ function disabled_test_tab_reorder_tabbar(){
 /**
  * Tests drag'n'drop tab reordering between windows
  */
-function disabled_test_tab_reorder_window(){
+function test_tab_reorder_window(){
 
   // Ensure only one tab is open, otherwise our test most likey fail anyway.
   mc.tabmail.closeOtherTabs(0);
@@ -202,7 +202,7 @@ function disabled_test_tab_reorder_window(){
 /**
  * Tests detaching tabs into windows via drag'n'drop
  */
-function disabled_test_tab_reorder_detach(){
+function test_tab_reorder_detach(){
 
   // Ensure only one tab is open, otherwise our test most likey fail anyway.
   mc.tabmail.closeOtherTabs(0);
@@ -411,8 +411,8 @@ function teardownTest(test)
 
   switch(test)
   {
-    case disabled_test_tab_reorder_detach :
-    case disabled_test_tab_reorder_window :
+    case test_tab_reorder_detach :
+    case test_tab_reorder_window :
       // Some test cases open new windows, thus we need to ensure all
       // opened windows get closed.
 
@@ -428,7 +428,7 @@ function teardownTest(test)
 
        // fall through!
 
-    case disabled_test_tab_reorder_tabbar :
+    case test_tab_reorder_tabbar :
 
     case test_tab_recentlyClosed :
     case test_tab_undo :

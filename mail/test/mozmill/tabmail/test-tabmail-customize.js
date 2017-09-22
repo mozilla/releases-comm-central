@@ -53,7 +53,7 @@ function test_open_context_menu() {
  * the tab bar, they're redirected to the toolbar directly to the right of
  * the tab bar.
  */
-function disabled_test_redirects_toolbarbutton_drops() {
+function test_redirects_toolbarbutton_drops() {
   Services.prefs.setBoolPref("toolkit.customization.unsafe_drag_events", true);
   // Restore the default buttons to get defined starting conditions.
   gCDHelper.restoreDefaultButtons(mc);

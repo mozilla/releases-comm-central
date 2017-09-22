@@ -145,7 +145,7 @@ function test_customize_header_toolbar_check_default()
 /**
  *  Test header pane toolbar customization: Reorder buttons
  */
-function disabled_test_customize_header_toolbar_reorder_buttons()
+function test_customize_header_toolbar_reorder_buttons()
 {
   // To avoid undrawn buttons on the toolbar, change pane layout to wide view.
   setWideView();
@@ -201,7 +201,7 @@ function disabled_test_customize_header_toolbar_reorder_buttons()
  *  Test header pane toolbar customization: Change buttons in
  *  separate mail window
  */
-function disabled_test_customize_header_toolbar_separate_window()
+function test_customize_header_toolbar_separate_window()
 {
   Services.prefs.setBoolPref("toolkit.customization.unsafe_drag_events", true);
   let curMessage = select_message_in_folder(0);
@@ -274,7 +274,7 @@ function disabled_test_customize_header_toolbar_separate_window()
 /**
  *  Test header pane toolbar customization: Remove buttons
  */
-function disabled_test_customize_header_toolbar_remove_buttons()
+function test_customize_header_toolbar_remove_buttons()
 {
   Services.prefs.setBoolPref("toolkit.customization.unsafe_drag_events", true);
   // Save currentset of toolbar for adding the buttons back
