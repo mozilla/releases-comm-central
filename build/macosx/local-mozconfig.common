@@ -9,26 +9,27 @@ if [ "x$IS_NIGHTLY" = "xyes" ]; then
 fi
 . "$topsrcdir/build/mozconfig.common"
 
-if [ -d "$topsrcdir/clang" ]; then
+if [ -d $TOOLTOOL_DIR/clang ]; then
+    true
+elif [ -d "$topsrcdir/clang" ]; then
     # mozilla-central based build
-    export CC=$topsrcdir/clang/bin/clang
-    export CXX=$topsrcdir/clang/bin/clang++
-    export LLVMCONFIG=$topsrcdir/clang/bin/llvm-config
-    export DSYMUTIL=$topsrcdir/clang/bin/llvm-dsymutil
-    # Use an updated linker.
-    ldflags="-B$topsrcdir/cctools/bin"
-    export AR=$topsrcdir/cctools/bin/ar
-    export RANLIB=$topsrcdir/cctools/bin/ranlib
+    TOOLTOOL_DIR=$topsrcdir
 elif [ -d "$topsrcdir/../clang" ]; then
-    # comm-central based build
-    export CC=$topsrcdir/../clang/bin/clang
-    export CXX=$topsrcdir/../clang/bin/clang++
-    export LLVMCONFIG=$topsrcdir/../clang/bin/llvm-config
-    export DSYMUTIL=$topsrcdir/../clang/bin/llvm-dsymutil
+    TOOLTOOL_DIR=$topsrcdir/..
+else
+    echo "Don't know where we are; can't find clang. topsrcdir: $topsrcdir"
+fi
+
+if [ -d $TOOLTOOL_DIR ]; then
+    export CC="$TOOLTOOL_DIR/clang/bin/clang"
+    export CXX="$TOOLTOOL_DIR/clang/bin/clang++"
+    export CPP="$TOOLTOOL_DIR/clang/bin/clang -E"
+    export LLVMCONFIG=$TOOLTOOL_DIR/clang/bin/llvm-config
+    export DSYMUTIL=$TOOLTOOL_DIR/clang/bin/llvm-dsymutil
     # Use an updated linker.
-    ldflags="-B$topsrcdir/../cctools/bin"
-    export AR=$topsrcdir/../cctools/bin/ar
-    export RANLIB=$topsrcdir/../cctools/bin/ranlib
+    ldflags="-B$TOOLTOOL_DIR/cctools/bin "
+    export AR=$TOOLTOOL_DIR/cctools/bin/ar
+    export RANLIB=$TOOLTOOL_DIR/cctools/bin/ranlib
 fi
 
 # Ensure the updated linker doesn't generate things our older build tools
