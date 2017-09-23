@@ -271,7 +271,7 @@ var gDomains = {
       loaderInstance.next();
     }
 
-    function loader() {
+    function* loader() {
       // Add domains for all cookies we find.
       gDataman.debugMsg("Add cookies to domain list: " + Date.now()/1000);
       gDomains.ignoreUpdate = true;
@@ -350,6 +350,7 @@ var gDomains = {
       gDomains.loadView();
       yield undefined;
     }
+
     loaderInstance = loader();
     setTimeout(nextStep, 0);
   },
@@ -367,7 +368,8 @@ var gDomains = {
     function nextStep() {
       loaderInstance.next();
     }
-    function loader() {
+
+    function* loader() {
       if (gDataman.viewToLoad.length) {
         if (gDataman.viewToLoad[0] == "" && gDataman.viewToLoad.length > 1) {
           let sType = gDataman.viewToLoad[1].substr(0,1).toUpperCase() +
@@ -460,6 +462,7 @@ var gDomains = {
       Services.obs.notifyObservers(window, "dataman-loaded", null);
       yield undefined;
     }
+
     loaderInstance = loader();
     setTimeout(nextStep, 0);
   },
