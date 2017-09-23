@@ -198,7 +198,7 @@ function addPageBook(aURI, aTitle, aBook, aTags, aKey, aTransitionType, aNoVisit
   gNextTestSetupTasks.push([task_addPageBook, arguments]);
 }
 
-function* task_addPageBook(aURI, aTitle, aBook, aTags, aKey, aTransitionType, aNoVisit)
+async function task_addPageBook(aURI, aTitle, aBook, aTags, aKey, aTransitionType, aNoVisit)
 {
   // Add a page entry for the current uri
   gPages[aURI] = [aURI, aBook != undefined ? aBook : aTitle, aTags];
@@ -212,7 +212,7 @@ function* task_addPageBook(aURI, aTitle, aBook, aTags, aKey, aTransitionType, aN
 
   // Add the page and a visit if we need to
   if (!aNoVisit) {
-    yield PlacesTestUtils.addVisits({
+    await PlacesTestUtils.addVisits({
       uri: uri,
       transition: aTransitionType || TRANSITION_LINK,
       visitDate: gDate,
@@ -230,7 +230,7 @@ function* task_addPageBook(aURI, aTitle, aBook, aTags, aKey, aTransitionType, aN
 
     // Add a keyword to the bookmark if we need to
     if (aKey != undefined)
-      yield PlacesUtils.keywords.insert({url: uri.spec, keyword: aKey});
+      await PlacesUtils.keywords.insert({url: uri.spec, keyword: aKey});
 
     // Add tags if we need to
     if (aTags != undefined && aTags.length > 0) {
@@ -266,10 +266,10 @@ function run_test() {
   if (func)
     func();
 
-  Task.spawn(function* () {
+  (async function() {
     // Iterate over all tasks and execute them
     for (let [fn, args] of gNextTestSetupTasks) {
-      yield fn.apply(this, args);
+      await fn.apply(this, args);
     }
 
     // Clean up to allow tests to register more functions.
@@ -278,9 +278,9 @@ function run_test() {
     // At this point frecency could still be updating due to latest pages
     // updates.  This is not a problem in real life, but autocomplete tests
     // should return reliable resultsets, thus we have to wait.
-    yield PlacesTestUtils.promiseAsyncUpdates();
+    await PlacesTestUtils.promiseAsyncUpdates();
 
-  }).then(() => ensure_results(search, expected),
+  })().then(() => ensure_results(search, expected),
           do_report_unexpected_exception);
 }
 
@@ -302,10 +302,10 @@ function markTyped(aURIs, aTitle)
   gNextTestSetupTasks.push([task_markTyped, arguments]);
 }
 
-function* task_markTyped(aURIs, aTitle)
+async function task_markTyped(aURIs, aTitle)
 {
   for (let uri of aURIs) {
-    yield PlacesTestUtils.addVisits({
+    await PlacesTestUtils.addVisits({
       uri: toURI(kURIs[uri]),
       transition: TRANSITION_TYPED,
       title: kTitles[aTitle]

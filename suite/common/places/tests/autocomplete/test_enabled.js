@@ -32,7 +32,7 @@ function setSearch(aSearch) {
   prefs.setBoolPref("browser.urlbar.autocomplete.enabled", !!aSearch);
 }
 
-add_task(function* test_sync_enabled() {
+add_task(async function test_sync_enabled() {
   // Initialize autocomplete component.
   Cc["@mozilla.org/autocomplete/search;1?name=history"]
     .getService(Ci.mozIPlacesAutoComplete);

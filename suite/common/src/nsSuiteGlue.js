@@ -33,8 +33,6 @@ XPCOMUtils.defineLazyModuleGetter(this, "BookmarkHTMLUtils",
 XPCOMUtils.defineLazyModuleGetter(this, "BookmarkJSONUtils",
                                   "resource://gre/modules/BookmarkJSONUtils.jsm");
 
-XPCOMUtils.defineLazyModuleGetter(this, "Task",
-                                  "resource://gre/modules/Task.jsm");
 
 XPCOMUtils.defineLazyGetter(this, "DebuggerServer", () => {
   var tmp = {};
@@ -918,11 +916,11 @@ SuiteGlue.prototype = {
    *   Set to true by safe-mode dialog to indicate we must restore default
    *   bookmarks.
    */
-  _initPlaces: Task.async(function(aInitialMigrationPerformed) {
+  async _initPlaces(aInitialMigrationPerformed) {
     // We must instantiate the history service since it will tell us if we
     // need to import or restore bookmarks due to first-run, corruption or
     // forced migration (due to a major schema change).
-    var bookmarksBackupFile = yield PlacesBackups.getMostRecentBackup();
+    var bookmarksBackupFile = await PlacesBackups.getMostRecentBackup();
 
     // If the database is corrupt or has been newly created we should
     // import bookmarks. Same if we don't have any JSON backups, which
@@ -961,7 +959,7 @@ SuiteGlue.prototype = {
       // Get latest JSON backup.
       if (bookmarksBackupFile) {
         // Restore from JSON backup.
-        yield BookmarkJSONUtils.importFromFile(bookmarksBackupFile, true);
+        await BookmarkJSONUtils.importFromFile(bookmarksBackupFile, true);
         importBookmarks = false;
       }
       else if (dbStatus == PlacesUtils.history.DATABASE_STATUS_OK) {
@@ -1052,7 +1050,7 @@ SuiteGlue.prototype = {
       this._idleService.addIdleObserver(this, BOOKMARKS_BACKUP_IDLE_TIME);
       this._isIdleObserver = true;
     }
-  }),
+  },
 
   /**
    * Places shut-down tasks

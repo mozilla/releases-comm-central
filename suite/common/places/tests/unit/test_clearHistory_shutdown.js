@@ -76,7 +76,7 @@ function run_test() {
   run_next_test();
 }
 
-add_task(function test_execute() {
+add_task(async function test_execute() {
   do_test_pending();
 
   print("Initialize suiteglue before Places");
@@ -101,7 +101,7 @@ add_task(function test_execute() {
 
   print("Add visits.");
   for (let aUrl of URIS) {
-    yield promiseAddVisits({uri: uri(aUrl), visitDate: timeInMicroseconds++,
+    await promiseAddVisits({uri: uri(aUrl), visitDate: timeInMicroseconds++,
                             transition: PlacesUtils.history.TRANSITION_TYPED})
   }
   print("Add cache.");

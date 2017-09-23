@@ -32,7 +32,7 @@ function test() {
  * their state at least once.
  */
 
-function runTests() {
+async function runTests() {
   let win;
 
   // Wait until the new window has been opened.
@@ -44,7 +44,7 @@ function runTests() {
 
   // Set the new browser state that will
   // restore a window with two slowly loading tabs.
-  yield SessionStore.setBrowserState(JSON.stringify(TEST_STATE));
+  await SessionStore.setBrowserState(JSON.stringify(TEST_STATE));
 
   // The window has now been opened. Check the state that is returned,
   // this should come from the cache while the window isn't restored, yet.
@@ -53,7 +53,7 @@ function runTests() {
 
   // The history has now been restored and the tabs are loading. The data must
   // now come from the window, if it's correctly been marked as dirty before.
-  yield whenDelayedStartupFinished(win, next);
+  await whenDelayedStartupFinished(win, next);
   info("the delayed startup has finished");
   checkWindows();
 }

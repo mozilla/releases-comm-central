@@ -7,8 +7,6 @@ Components.utils.import("resource://gre/modules/Services.jsm");
 
 XPCOMUtils.defineLazyModuleGetter(this, "PlacesUtils",
                                   "resource://gre/modules/PlacesUtils.jsm");
-XPCOMUtils.defineLazyModuleGetter(this, "Task",
-                                  "resource://gre/modules/Task.jsm");
 const Ci = Components.interfaces;
 const Cc = Components.classes;
 
@@ -121,14 +119,14 @@ var gEngineManagerDialog = {
     tree.startEditing(index, column);
   },
 
-  editKeyword: Task.async(function* (aEngine, aNewKeyword) {
+  async editKeyword(aEngine, aNewKeyword) {
     let keyword = aNewKeyword.trim();
     if (keyword) {
       let eduplicate = false;
       let dupName = "";
 
       // Check for duplicates in Places keywords.
-      let bduplicate = !!(yield PlacesUtils.keywords.fetch(keyword));
+      let bduplicate = !!(await PlacesUtils.keywords.fetch(keyword));
 
       // Check for duplicates in changes we haven't committed yet
       let engines = gEngineView._engineStore.engines;
@@ -156,7 +154,7 @@ var gEngineManagerDialog = {
     gEngineView._engineStore.changeEngine(aEngine, "alias", keyword);
     gEngineView.invalidate();
     return true;
-  }),
+  },
 
   onSelect: function engineManager_onSelect() {
     // Buttons only work if an engine is selected and it's not the last engine,

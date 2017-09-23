@@ -20,7 +20,7 @@ function run_test()
   run_next_test();
 }
 
-add_task(function* test_autocomplete_on_value_removed()
+add_task(async function test_autocomplete_on_value_removed()
 {
   // QI to nsIAutoCompleteSimpleResultListener
   var listener = Cc["@mozilla.org/autocomplete/search;1?name=history"].
@@ -28,7 +28,7 @@ add_task(function* test_autocomplete_on_value_removed()
 
   // add history visit
   var testUri = uri("http://foo.mozilla.com/");
-  yield PlacesTestUtils.addVisits({
+  await PlacesTestUtils.addVisits({
     uri: testUri,
     referrer: uri("http://mozilla.com/")
   });

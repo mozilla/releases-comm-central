@@ -6,18 +6,18 @@ XPCOMUtils.defineLazyModuleGetter(this, "FormHistory",
 var sanTests = {
   cache: {
     desc: "Cache",
-    setup: function() {
+    async setup() {
       var entry = null;
       this.cs = Services.cache.createSession("SanitizerTest", Components.interfaces.nsICache.STORE_ANYWHERE, true);
-      entry = yield promiseOpenCacheEntry("http://santizer.test", Components.interfaces.nsICache.ACCESS_READ_WRITE, this.cs);
+      entry = await promiseOpenCacheEntry("http://santizer.test", Components.interfaces.nsICache.ACCESS_READ_WRITE, this.cs);
       entry.setMetaDataElement("Foo", "Bar");
       entry.markValid();
       entry.close();
     },
 
-    check: function(aShouldBeCleared) {
+    async check(aShouldBeCleared) {
       let entry = null;
-      entry = yield promiseOpenCacheEntry("http://santizer.test", Components.interfaces.nsICache.ACCESS_READ, this.cs);
+      entry = await promiseOpenCacheEntry("http://santizer.test", Components.interfaces.nsICache.ACCESS_READ, this.cs);
 
       if (entry) {
         entry.close();
@@ -29,19 +29,19 @@ var sanTests = {
 
   offlineApps: {
     desc: "Offline app cache",
-    setup: function() {
+    async setup() {
       //XXX test offline DOMStorage
       var entry = null;
       this.cs = Services.cache.createSession("SanitizerTest", Components.interfaces.nsICache.STORE_OFFLINE, true);
-      entry = yield promiseOpenCacheEntry("http://santizer.test", Components.interfaces.nsICache.ACCESS_READ_WRITE, this.cs);
+      entry = await promiseOpenCacheEntry("http://santizer.test", Components.interfaces.nsICache.ACCESS_READ_WRITE, this.cs);
       entry.setMetaDataElement("Foo", "Bar");
       entry.markValid();
       entry.close();
     },
 
-    check: function(aShouldBeCleared) {
+    async check(aShouldBeCleared) {
       var entry = null;
-      entry = yield promiseOpenCacheEntry("http://santizer.test", Components.interfaces.nsICache.ACCESS_READ, this.cs);
+      entry = await promiseOpenCacheEntry("http://santizer.test", Components.interfaces.nsICache.ACCESS_READ, this.cs);
       if (entry) {
         entry.close();
       }
@@ -72,11 +72,11 @@ var sanTests = {
 
   history: {
     desc: "History",
-    setup: function() {
+    async setup() {
       var ios = Components.classes["@mozilla.org/network/io-service;1"]
                           .getService(Components.interfaces.nsIIOService);
       var uri = ios.newURI("http://sanitizer.test/");
-      yield promiseAddVisits({
+      await promiseAddVisits({
         uri: uri,
         title: "Sanitizer!"
       });
@@ -164,7 +164,7 @@ var sanTests = {
 
   formdata: {
     desc: "Form history",
-    setup: function() {
+    async setup() {
       // Adds a form entry to history.
       function promiseAddFormEntry(aName, aValue) {
         return new Promise((resolve, reject) =>
@@ -179,9 +179,9 @@ var sanTests = {
                              })
         )
       }
-      yield promiseAddFormEntry("Sanitizer", "Foo");
+      await promiseAddFormEntry("Sanitizer", "Foo");
     },
-    check: function(aShouldBeCleared) {
+    async check(aShouldBeCleared) {
       // Check if a form name exists.
       function formNameExists(aName) {
         return new Promise((resolve, reject) => {
@@ -202,7 +202,7 @@ var sanTests = {
       }
 
       // Checking for Sanitizer form history entry creation.
-      let exists = yield formNameExists("Sanitizer");
+      let exists = await formNameExists("Sanitizer");
       do_check_eq(exists, !aShouldBeCleared);
     }
   },
@@ -303,7 +303,7 @@ var sanTests = {
   }
 }
 
-function fullSanitize() {
+async function fullSanitize() {
   do_print("Now doing a full sanitize run");
   var prefs = Services.prefs.getBranch("privacy.item.");
 
@@ -311,7 +311,7 @@ function fullSanitize() {
 
   for (var testName in sanTests) {
     var test = sanTests[testName];
-    yield test.setup();
+    await test.setup();
     prefs.setBoolPref(testName, true);
   }
 
@@ -319,7 +319,7 @@ function fullSanitize() {
 
   for (var testName in sanTests) {
     var test = sanTests[testName];
-    yield test.check(true);
+    await test.check(true);
     do_print(test.desc + " data cleared by full sanitize");
     try {
       prefs.clearUserPref(testName);
@@ -336,19 +336,19 @@ function run_test()
   run_next_test();
 }
 
-add_task(function test_browser_sanitizer()
+add_task(async function test_browser_sanitizer()
 {
   for (var testName in sanTests) {
     let test = sanTests[testName];
     dump("\nExecuting test: " + testName + "\n" + "*** " + test.desc + "\n");
-    yield test.setup();
-    yield test.check(false);
+    await test.setup();
+    await test.check(false);
 
     do_check_true(Sanitizer.items[testName].canClear);
     Sanitizer.items[testName].clear();
     do_print(test.desc + " data cleared");
 
-    yield test.check(true);
+    await test.check(true);
   }
 });
 
