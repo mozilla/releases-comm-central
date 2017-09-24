@@ -13,9 +13,19 @@ var kAskForOnlineState  = 1;
 var kAlwaysOnline       = 2;
 var kAlwaysOffline      = 3;
 var kAutomatic          = 4;
-var   gStartingUp         = true;
-var   gOfflineStartupMode; //0 = remember last state, 1 = ask me, 2 == online, 3 == offline, 4 = automatic
+var gStartingUp         = true;
+var gOfflineStartupMode;  //0 = remember last state, 1 = ask me, 2 == online, 3 == offline, 4 = automatic
+var gDebugLog;
 
+////////////////////////////////////////////////////////////////////////
+//
+//   Debug helper
+//
+////////////////////////////////////////////////////////////////////////
+if (!kDebug)
+  gDebugLog = function(m) {};
+else
+  gDebugLog = function(m) {dump("\t *** nsOfflineStartup: " + m + "\n");};
 
 ////////////////////////////////////////////////////////////////////////
 //
@@ -34,7 +44,7 @@ var nsOfflineStartup =
 {
   onProfileStartup: function()
   {
-    debug("onProfileStartup");
+    gDebugLog("onProfileStartup");
 
     if (gStartingUp)
     {
@@ -42,7 +52,7 @@ var nsOfflineStartup =
       // if checked, the "work offline" checkbox overrides
       if (Services.io.offline && !Services.io.manageOfflineStatus)
       {
-        debug("already offline!");
+        gDebugLog("already offline!");
         return;
       }
     }
@@ -92,7 +102,7 @@ var nsOfflineStartup =
         (Services.prompt.BUTTON_POS_0 * Services.prompt.BUTTON_TITLE_IS_STRING) +
         (Services.prompt.BUTTON_POS_1 * Services.prompt.BUTTON_TITLE_IS_STRING),
         button0Text, button1Text, null, null, checkVal);
-      debug ("result = " + result + "\n");
+      gDebugLog("result = " + result + "\n");
       Services.io.manageOfflineStatus = manageOfflineStatus && result != 1;
       Services.io.offline = result == 1;
       if (result != 1 && wasOffline)
@@ -102,11 +112,11 @@ var nsOfflineStartup =
 
   observe: function(aSubject, aTopic, aData)
   {
-    debug("observe: " + aTopic);
+    gDebugLog("observe: " + aTopic);
 
     if (aTopic == "profile-change-net-teardown")
     {
-      debug("remembering offline state");
+      gDebugLog("remembering offline state");
       Services.prefs.setBoolPref("network.online", !Services.io.offline);
     }
     else if (aTopic == "app-startup")
@@ -155,16 +165,6 @@ nsOfflineStartupModule.prototype =
     }
   }
 };
-
-////////////////////////////////////////////////////////////////////////
-//
-//   Debug helper
-//
-////////////////////////////////////////////////////////////////////////
-if (!kDebug)
-  debug = function(m) {};
-else
-  debug = function(m) {dump("\t *** nsOfflineStartup: " + m + "\n");};
 
 var components = [nsOfflineStartupModule];
 var NSGetFactory = XPCOMUtils.generateNSGetFactory(components);
