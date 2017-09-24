@@ -10,27 +10,26 @@ Components.utils.import("resource:///modules/FeedUtils.jsm");
 Components.utils.import("resource:///modules/folderUtils.jsm");
 Components.utils.import("resource:///modules/mailServices.js");
 
-const kClassicMailLayout  = 0;
-const kWideMailLayout     = 1;
-const kVerticalMailLayout = 2;
+var kClassicMailLayout  = 0;
+var kWideMailLayout     = 1;
+var kVerticalMailLayout = 2;
 
-const kMouseButtonLeft   = 0;
-const kMouseButtonMiddle = 1;
-const kMouseButtonRight  = 2;
+var kMouseButtonLeft   = 0;
+var kMouseButtonMiddle = 1;
+var kMouseButtonRight  = 2;
 
 // Per message header flags to keep track of whether the user is allowing remote
 // content for a particular message.
 // if you change or add more values to these constants, be sure to modify
 // the corresponding definitions in nsMsgContentPolicy.cpp
-const kNoRemoteContentPolicy = 0;
-const kBlockRemoteContent = 1;
-const kAllowRemoteContent = 2;
+var kNoRemoteContentPolicy = 0;
+var kBlockRemoteContent = 1;
+var kAllowRemoteContent = 2;
 
-const kIsAPhishMessage = 0;
-const kNotAPhishMessage = 1;
+var kIsAPhishMessage = 0;
+var kNotAPhishMessage = 1;
 
-const kMsgForwardAsAttachment = 0;
-const kMsgForwardInline = 2;
+var kMsgForwardAsAttachment = 0;
 
 var gMessengerBundle;
 var gOfflineManager;

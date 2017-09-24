@@ -268,7 +268,7 @@ function OnUnloadMsgHeaderPane()
     { bubbles: false, cancelable: true }));
 }
 
-const MsgHdrViewObserver =
+var MsgHdrViewObserver =
 {
   observe: function(subject, topic, prefName)
   {
