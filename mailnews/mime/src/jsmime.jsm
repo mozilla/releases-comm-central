@@ -54,7 +54,11 @@ FakeTextDecoder.prototype = {
   },
 };
 
+var {TextDecoder} = Components.utils.getGlobalForObject(
+  Components.utils.import("resource://gre/modules/Services.jsm", {}));
+
 var RealTextDecoder = TextDecoder;
+
 function FallbackTextDecoder(charset, options) {
   try {
     return new RealTextDecoder(charset, options);
