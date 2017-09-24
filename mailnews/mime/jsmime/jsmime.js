@@ -2527,10 +2527,12 @@ for (let [header, encoder] of structuredHeaders.encoders) {
   addStructuredEncoder(header, encoder);
 }
 
-/// Clamp a value in the range [min, max], defaulting to def if it is undefined.
-function clamp(value, min, max, def) {
-  if (value === undefined)
+/// Clamp a value in the range [min, max], defaulting to def
+/// if the object[property] does not contain the value.
+function clamp(object, property, min, max, def) {
+  if (!(property in object))
     return def;
+  let value = object[property];
   if (value < min)
     return min;
   if (value > max)
@@ -2603,8 +2605,8 @@ function HeaderEmitter(handler, options) {
   // allow for breathing room as well. The default of 78 for the soft margin is
   // recommended by RFC 5322; the default of 332 for the hard margin ensures
   // that UTF-8 encoding the output never violates the 998 octet limit.
-  this._softMargin = clamp(options.softMargin, 30, 900, 78);
-  this._hardMargin = clamp(options.hardMargin, this._softMargin, 998, 332);
+  this._softMargin = clamp(options, "softMargin", 30, 900, 78);
+  this._hardMargin = clamp(options, "hardMargin", this._softMargin, 998, 332);
 
   /**
    * The index of the last preferred breakable position in the current line.
