@@ -217,7 +217,7 @@ menulist:-moz-locale-dir(rtl) > .menulist-label-box {
 }
 
 #attachmentBucketSize {
-  color: #888a85;
+  color: GrayText;
   padding-inline-end: 1px;
 }
 
@@ -481,6 +481,11 @@ treechildren::-moz-tree-image(subscribed-news) {
 
 #msgIdentity[editable="true"] > .menulist-dropmarker {
   display: none;
+}
+
+#msgIdentityPopup > menuitem[_moz-menuactive="true"] > .menu-description {
+  color: HighlightText;
+  opacity: .7;
 }
 
 /* ::::: format toolbar ::::: */

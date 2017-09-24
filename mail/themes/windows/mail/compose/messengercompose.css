@@ -93,6 +93,11 @@
   }
 }
 
+#msgIdentityPopup > menuitem[_moz-menuactive="true"] > .menu-description {
+  color: HighlightText;
+  opacity: .7;
+}
+
 /* ::::: attachment reminder ::::: */
 
 #attachmentReminderText {
@@ -795,7 +800,7 @@ toolbar[brighttext] #button-print {
 }
 
 #attachmentBucketSize {
-  color: #888a85;
+  color: GrayText;
 }
 
 #attachmentNotificationBox b {
