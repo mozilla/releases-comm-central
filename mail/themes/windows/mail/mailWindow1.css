@@ -266,6 +266,10 @@ treechildren::-moz-tree-cell-text(imapdeleted) {
       display: none;
     }
 
+    #messengerWindow[sizemode="normal"] #titlebar-buttonbox:-moz-lwtheme {
+      margin-top: -2px;
+    }
+
     #messengerWindow[sizemode="maximized"] #titlebar-buttonbox {
       margin-inline-end: 3px;
     }
@@ -485,10 +489,6 @@ treechildren::-moz-tree-cell-text(imapdeleted) {
         list-style-image: url(chrome://messenger/skin/window-controls/close-highcontrast.svg);
       }
     }
-  }
-
-  #messengerWindow[sizemode="normal"] #titlebar-buttonbox:-moz-lwtheme {
-    margin-top: -2px;
   }
 
   #mail-toolbar-menubar2 > .titlebar-placeholder {
