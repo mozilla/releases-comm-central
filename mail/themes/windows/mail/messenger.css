@@ -21,6 +21,7 @@
   --toolbar-bgcolor: var(--toolbar-non-lwt-bgcolor);
   --toolbar-bgimage: var(--toolbar-non-lwt-bgimage);
   --toolbarbutton-border-radius: 2px;
+  --toolbarbutton-icon-fill-opacity: 1;
   --toolbarbutton-hover-background: rgba(0, 0, 0, .1);
   --toolbarbutton-hover-bordercolor: rgba(0, 0, 0, .1);
   --toolbarbutton-header-bordercolor: rgba(0, 0, 0, .1);
@@ -43,6 +44,8 @@
     --toolbar-non-lwt-bgcolor: #f9f9fa;
     --toolbar-non-lwt-textcolor: #0c0c0d;
     --toolbar-non-lwt-bgimage: none;
+
+    --toolbarbutton-icon-fill-opacity: 1;
   }
 }
 
@@ -82,6 +85,9 @@
 
 .toolbarbutton-1 {
   -moz-box-orient: vertical;
+  -moz-context-properties: fill, fill-opacity;
+  fill: currentColor;
+  fill-opacity: var(--toolbarbutton-icon-fill-opacity);
 }
 
 toolbox[labelalign="end"] .toolbarbutton-1,

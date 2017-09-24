@@ -81,7 +81,7 @@ tabpanels {
 
 .tabmail-arrowscrollbox > .scrollbutton-up[disabled],
 .tabmail-arrowscrollbox > stack > .scrollbutton-down[disabled] {
-  opacity: .4;
+  --toolbarbutton-icon-fill-opacity: .4;
 }
 
 .tabs-alltabs-box-animate {

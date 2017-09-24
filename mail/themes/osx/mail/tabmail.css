@@ -149,7 +149,7 @@ tabmail > tabbox > tabpanels {
 
 .tabmail-arrowscrollbox > .scrollbutton-up[disabled="true"],
 .tabmail-arrowscrollbox > stack > .scrollbutton-down[disabled="true"] {
-  opacity: .5;
+  --toolbarbutton-icon-fill-opacity: .5;
   background-image: none;
 }
 

@@ -208,9 +208,11 @@
 
 .tabmail-arrowscrollbox > .scrollbutton-up,
 .tabmail-arrowscrollbox > stack > .scrollbutton-down {
+  color: inherit;
   list-style-image: url("chrome://messenger/skin/icons/arrow-left.svg");
-  -moz-context-properties: fill;
+  -moz-context-properties: fill, fill-opacity;
   fill: currentColor;
+  fill-opacity: var(--toolbarbutton-icon-fill-opacity);
 }
 
 .tabmail-arrowscrollbox > .scrollbutton-up:-moz-locale-dir(rtl),
@@ -266,8 +268,6 @@
 
 #alltabs-button {
   list-style-image: url("chrome://messenger/skin/icons/arrow-dropdown.svg");
-  -moz-context-properties: fill;
-  fill: currentColor;
 }
 
 #alltabs-button .toolbarbutton-icon {

@@ -78,7 +78,7 @@ tabpanels {
 
 .tabmail-arrowscrollbox > .scrollbutton-up[disabled],
 .tabmail-arrowscrollbox > stack > .scrollbutton-down[disabled] {
-  opacity: .4;
+  --toolbarbutton-icon-fill-opacity: .4;
 }
 
 .tabmail-arrowscrollbox > .scrollbutton-up:-moz-locale-dir(rtl),

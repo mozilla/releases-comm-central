@@ -24,6 +24,7 @@
   --toolbar-bgimage: var(--toolbar-non-lwt-bgimage);
 
   --toolbarbutton-border-radius: 2px;
+  --toolbarbutton-icon-fill-opacity: 1;
   --toolbarbutton-text-color: #222;
   --toolbarbutton-hover-background: rgba(255, 255, 255, .5) linear-gradient(rgba(255, 255, 255, .5), transparent);
   --toolbarbutton-hover-bordercolor: rgba(0, 0, 0, .25);
@@ -100,6 +101,9 @@ menulist > menupopup >
 
 .toolbarbutton-1 {
   -moz-box-orient: vertical;
+  -moz-context-properties: fill, fill-opacity;
+  fill: currentColor;
+  fill-opacity: var(--toolbarbutton-icon-fill-opacity);
 }
 
 .toolbarbutton-1:-moz-lwtheme,
