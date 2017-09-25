@@ -642,7 +642,7 @@ nsMsgIncomingServer::ToString(nsAString& aResult)
 {
   aResult.AssignLiteral("[nsIMsgIncomingServer: ");
   aResult.Append(NS_ConvertASCIItoUTF16(m_serverKey));
-  aResult.AppendLiteral("]");
+  aResult.Append(']');
   return NS_OK;
 }
 

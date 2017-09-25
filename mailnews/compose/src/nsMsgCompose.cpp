@@ -1204,11 +1204,11 @@ nsMsgCompose::SendMsgToServer(MSG_DeliverMode deliverMode, nsIMsgIdentity *ident
 
     // First parameter: account key. This may be null.
     sendParms.AppendASCII(accountKey && *accountKey ? accountKey : "");
-    sendParms.AppendLiteral(",");
+    sendParms.Append(',');
 
     // Second parameter: deliverMode.
     sendParms.AppendInt(deliverMode);
-    sendParms.AppendLiteral(",");
+    sendParms.Append(',');
 
     // Third parameter: identity (as identity key).
     nsAutoCString identityKey;
@@ -1951,7 +1951,7 @@ nsresult nsMsgCompose::CreateMessage(const char * originalMsgURI,
           msgHdr->GetStringReference(i, ref);
           if (!ref.IsEmpty())
           {
-            reference.AppendLiteral("<");
+            reference.Append('<');
             reference.Append(ref);
             reference.AppendLiteral("> ");
           }
@@ -1959,9 +1959,9 @@ nsresult nsMsgCompose::CreateMessage(const char * originalMsgURI,
         reference.Trim(" ", false, true);
       }
       msgHdr->GetMessageId(getter_Copies(messageId));
-      reference.AppendLiteral("<");
+      reference.Append('<');
       reference.Append(messageId);
-      reference.AppendLiteral(">");
+      reference.Append('>');
       m_compFields->SetReferences(reference.get());
     }
 

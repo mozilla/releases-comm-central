@@ -299,11 +299,11 @@ nsresult nsIMAPNamespaceList::SerializeNamespaces(char **prefixes, int len,
   for (int i = 0; i < len; i++)
   {
     if (i > 0)
-      serializedNamespaces.AppendLiteral(",");
+      serializedNamespaces.Append(',');
 
-    serializedNamespaces.AppendLiteral("\"");
+    serializedNamespaces.Append('"');
     serializedNamespaces.Append(prefixes[i]);
-    serializedNamespaces.AppendLiteral("\"");
+    serializedNamespaces.Append('"');
   }
   return NS_OK;
 }

@@ -1160,7 +1160,7 @@ nsMsgAttachmentHandler::UrlExit(nsresult status, const char16_t* aMsg)
         params = unescapedUrl;
     }
     else
-      params.AssignLiteral("?");
+      params.Assign('?');
 
     NS_ConvertUTF8toUTF16 UTF16params(params);
     const char16_t* formatParams[] = { UTF16params.get() };

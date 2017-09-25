@@ -596,7 +596,7 @@ nsSmtpServer::GetServerURIInternal(const bool aIncludeUsername)
       MsgEscapeString(username, nsINetUtil::ESCAPE_XALPHAS, escapedUsername);
       // not all servers have a username
       uri.Append(escapedUsername);
-      uri.AppendLiteral("@");
+      uri.Append('@');
     }
   }
 

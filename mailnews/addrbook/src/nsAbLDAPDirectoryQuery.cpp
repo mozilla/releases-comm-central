@@ -471,13 +471,13 @@ NS_IMETHODIMP nsAbLDAPDirectoryQuery::DoQuery(nsIAbDirectory *aDirectory,
     //
     if (urlFilter[0] != '(')
     {
-      searchFilter = NS_LITERAL_CSTRING("(&(");
+      searchFilter.AssignLiteral("(&(");
       searchFilter.Append(urlFilter);
-      searchFilter.AppendLiteral(")");
+      searchFilter.Append(')');
     }
     else
     {
-      searchFilter = NS_LITERAL_CSTRING("(&");
+      searchFilter.AssignLiteral("(&");
       searchFilter.Append(urlFilter);
     }
   

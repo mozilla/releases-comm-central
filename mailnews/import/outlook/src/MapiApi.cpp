@@ -1535,7 +1535,7 @@ void CMapiFolderList::AddItem(CMapiFolder *pFolder)
 void CMapiFolderList::ChangeName(nsString& name)
 {
   if (name.IsEmpty()) {
-    name.AssignLiteral("1");
+    name.Assign('1');
     return;
   }
   char16_t lastC = name.Last();
@@ -1544,7 +1544,7 @@ void CMapiFolderList::ChangeName(nsString& name)
     if (lastC > '9') {
       lastC = '1';
       name.SetCharAt(lastC, name.Length() - 1);
-      name.AppendLiteral("0");
+      name.Append('0');
     }
     else {
       name.SetCharAt(lastC, name.Length() - 1);

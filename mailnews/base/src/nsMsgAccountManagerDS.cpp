@@ -430,17 +430,17 @@ nsMsgAccountManagerDataSource::GetTarget(nsIRDFResource *source,
         if (source == kNC_PageTitleSMTP)
           str.AssignLiteral("900000000");
         else if (source == kNC_PageTitleServer)
-          str.AssignLiteral("1");
+          str.Assign('1');
         else if (source == kNC_PageTitleCopies)
-          str.AssignLiteral("2");
+          str.Assign('2');
         else if (source == kNC_PageTitleAddressing)
-          str.AssignLiteral("3");
+          str.Assign('3');
         else if (source == kNC_PageTitleSynchronization)
-          str.AssignLiteral("4");
+          str.Assign('4');
         else if (source == kNC_PageTitleDiskSpace)
-          str.AssignLiteral("4");
+          str.Assign('4');
         else if (source == kNC_PageTitleJunk)
-          str.AssignLiteral("5");
+          str.Assign('5');
         else {
           // allow for the accountmanager to be dynamically extended
           // all the other pages come after the standard ones

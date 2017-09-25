@@ -1176,10 +1176,10 @@ nsresult nsAbManager::AppendDNForCard(const char *aProperty, nsIAbCard *aCard, n
 
   if (!displayName.IsEmpty()) {
     cnStr += NS_ConvertUTF8toUTF16(ldapAttributeName).get();
-    cnStr.AppendLiteral("=");
+    cnStr.Append('=');
     cnStr.Append(displayName);
     if (!email.IsEmpty()) {
-      cnStr.AppendLiteral(",");
+      cnStr.Append(',');
     }
   }
 
@@ -1189,7 +1189,7 @@ nsresult nsAbManager::AppendDNForCard(const char *aProperty, nsIAbCard *aCard, n
 
   if (!email.IsEmpty()) {
     cnStr += NS_ConvertUTF8toUTF16(ldapAttributeName).get();
-    cnStr.AppendLiteral("=");
+    cnStr.Append('=');
     cnStr.Append(email);
   }
 

@@ -1580,9 +1580,9 @@ nsMsgDBFolder::GetRetentionSettings(nsIMsgRetentionSettings **settings)
           if (useServerRetention.EqualsLiteral("1") != useServerDefaults)
           {
             if (useServerDefaults)
-              useServerRetention.AssignLiteral("1");
+              useServerRetention.Assign('1');
             else
-              useServerRetention.AssignLiteral("0");
+              useServerRetention.Assign('0');
             SetStringProperty(kUseServerRetentionProp, useServerRetention);
           }
         }
@@ -1609,12 +1609,12 @@ NS_IMETHODIMP nsMsgDBFolder::SetRetentionSettings(nsIMsgRetentionSettings *setti
   settings->GetUseServerDefaults(&useServerDefaults);
   if (useServerDefaults)
   {
-    useServerRetention.AssignLiteral("1");
+    useServerRetention.Assign('1');
     m_retentionSettings = nullptr;
   }
   else
   {
-    useServerRetention.AssignLiteral("0");
+    useServerRetention.Assign('0');
     m_retentionSettings = settings;
   }
   SetStringProperty(kUseServerRetentionProp, useServerRetention);

@@ -79,7 +79,7 @@ nsMsgIdentity::GetIdentityName(nsAString& idName)
   { // TODO: this should be localizable
     idName.AppendLiteral(" (");
     idName.Append(label);
-    idName.AppendLiteral(")");
+    idName.Append(')');
   }
 
   if (!idName.IsEmpty())
@@ -113,7 +113,7 @@ nsMsgIdentity::ToString(nsAString& aResult)
 {
   aResult.AssignLiteral("[nsIMsgIdentity: ");
   aResult.Append(NS_ConvertASCIItoUTF16(mKey));
-  aResult.AppendLiteral("]");
+  aResult.Append(']');
   return NS_OK;
 }
 
@@ -248,7 +248,7 @@ nsMsgIdentity::GetDoBccList(nsACString& aValue)
 
   if (bccOthers && !others.IsEmpty()) {
     if (bccSelf)
-      aValue.AppendLiteral(",");
+      aValue.Append(',');
     aValue.Append(others);
   }
 

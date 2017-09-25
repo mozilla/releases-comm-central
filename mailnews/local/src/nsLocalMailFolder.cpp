@@ -2304,7 +2304,7 @@ nsMsgLocalMailFolder::CopyHdrPropertiesWithSkipList(nsIMsgDBHdr *destHdr,
   // We'll add spaces at beginning and end so we can search for space-name-space
   nsCString dontPreserveEx(NS_LITERAL_CSTRING(" "));
   dontPreserveEx.Append(skipList);
-  dontPreserveEx.AppendLiteral(" ");
+  dontPreserveEx.Append(' ');
 
   nsAutoCString property;
   nsCString sourceString;
@@ -2314,7 +2314,7 @@ nsMsgLocalMailFolder::CopyHdrPropertiesWithSkipList(nsIMsgDBHdr *destHdr,
     propertyEnumerator->GetNext(property);
     nsAutoCString propertyEx(NS_LITERAL_CSTRING(" "));
     propertyEx.Append(property);
-    propertyEx.AppendLiteral(" ");
+    propertyEx.Append(' ');
     if (dontPreserveEx.Find(propertyEx) != -1) // -1 is not found
       continue;
 

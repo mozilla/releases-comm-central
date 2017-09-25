@@ -73,27 +73,27 @@ nsresult nsAbBoolExprToLDAPFilter::FilterExpression (
         }
     }
 
-    filter.AppendLiteral("(");
+    filter.Append('(');
     switch (operation)
     {
         case nsIAbBooleanOperationTypes::AND:
-            filter.AppendLiteral("&");
+            filter.Append('&');
             rv = FilterExpressions (map, childExpressions, filter, flags);
             break;
         case nsIAbBooleanOperationTypes::OR:
-            filter.AppendLiteral("|");
+            filter.Append('|');
             rv = FilterExpressions (map, childExpressions, filter, flags);
             break;
         case nsIAbBooleanOperationTypes::NOT:
             if (count > 1)
                 return NS_ERROR_FAILURE;
-            filter.AppendLiteral("!");
+            filter.Append('!');
             rv = FilterExpressions (map, childExpressions, filter, flags);
             break;
         default:
             break;
     }
-    filter.AppendLiteral(")");
+    filter.Append(')');
 
     return rv;
 }
@@ -168,12 +168,12 @@ nsresult nsAbBoolExprToLDAPFilter::FilterCondition (
             filter.AppendLiteral("=*))");
             break;
         case nsIAbBooleanConditionTypes::Exists:
-            filter.AppendLiteral("("); 
+            filter.Append('('); 
             filter.Append(ldapAttr);
             filter.AppendLiteral("=*)");
             break;
         case nsIAbBooleanConditionTypes::Contains:
-            filter.AppendLiteral("(");
+            filter.Append('(');
             filter.Append(ldapAttr);
             filter.AppendLiteral("=*");
             filter.Append(vUTF8);
@@ -187,53 +187,53 @@ nsresult nsAbBoolExprToLDAPFilter::FilterCondition (
             filter.AppendLiteral("*))");
             break;
         case nsIAbBooleanConditionTypes::Is:
-            filter.AppendLiteral("(");
+            filter.Append('(');
             filter.Append(ldapAttr);
-            filter.AppendLiteral("=");
+            filter.Append('=');
             filter.Append(vUTF8);
-            filter.AppendLiteral(")");
+            filter.Append(')');
             break;
         case nsIAbBooleanConditionTypes::IsNot:
             filter.AppendLiteral("(!(");
             filter.Append(ldapAttr);
-            filter.AppendLiteral("=");
+            filter.Append('=');
             filter.Append(vUTF8);
             filter.AppendLiteral("))");
             break;
         case nsIAbBooleanConditionTypes::BeginsWith:
-            filter.AppendLiteral("(");
+            filter.Append('(');
             filter.Append(ldapAttr);
-            filter.AppendLiteral("=");
+            filter.Append('=');
             filter.Append(vUTF8);
             filter.AppendLiteral("*)");
             break;
         case nsIAbBooleanConditionTypes::EndsWith:
-            filter.AppendLiteral("(");
+            filter.Append('(');
             filter.Append(ldapAttr);
             filter.AppendLiteral("=*");
             filter.Append(vUTF8);
-            filter.AppendLiteral(")");
+            filter.Append(')');
             break;
         case nsIAbBooleanConditionTypes::LessThan:
-            filter.AppendLiteral("(");
+            filter.Append('(');
             filter.Append(ldapAttr);
             filter.AppendLiteral("<=");
             filter.Append(vUTF8);
-            filter.AppendLiteral(")");
+            filter.Append(')');
             break;
         case nsIAbBooleanConditionTypes::GreaterThan:
-            filter.AppendLiteral("(");
+            filter.Append('(');
             filter.Append(ldapAttr);
             filter.AppendLiteral(">=");
             filter.Append(vUTF8);
-            filter.AppendLiteral(")");
+            filter.Append(')');
             break;
         case nsIAbBooleanConditionTypes::SoundsLike:
-            filter.AppendLiteral("(");
+            filter.Append('(');
             filter.Append(ldapAttr);
             filter.AppendLiteral("~=");
             filter.Append(vUTF8);
-            filter.AppendLiteral(")");
+            filter.Append(')');
             break;
         case nsIAbBooleanConditionTypes::RegExp:
             break;

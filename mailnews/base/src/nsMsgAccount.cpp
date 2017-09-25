@@ -421,7 +421,7 @@ nsMsgAccount::ToString(nsAString& aResult)
   nsAutoString val;
   aResult.AssignLiteral("[nsIMsgAccount: ");
   aResult.Append(NS_ConvertASCIItoUTF16(m_accountKey));
-  aResult.AppendLiteral("]");
+  aResult.Append(']');
   return NS_OK;
 }
 

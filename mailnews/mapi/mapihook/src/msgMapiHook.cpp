@@ -669,7 +669,7 @@ nsresult nsMapiHook::PopulateCompFieldsForSendDocs(nsIMsgCompFields * aCompField
 
   // only 1 file is to be sent, no delim specified
   if (strDelimChars.IsEmpty())
-      strDelimChars.AssignLiteral(";");
+      strDelimChars.Assign(';');
 
   int32_t offset = 0 ;
   int32_t FilePathsLen = strFilePaths.Length() ;

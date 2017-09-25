@@ -260,24 +260,24 @@ nsresult NS_MsgGetPriorityValueString(
   switch (p)
   {
     case nsMsgPriority::highest:
-      outValueString.AssignLiteral("1");
+      outValueString.Assign('1');
       break;
     case nsMsgPriority::high:
-      outValueString.AssignLiteral("2");
+      outValueString.Assign('2');
       break;
     case nsMsgPriority::normal:
-      outValueString.AssignLiteral("3");
+      outValueString.Assign('3');
       break;
     case nsMsgPriority::low:
-      outValueString.AssignLiteral("4");
+      outValueString.Assign('4');
       break;
     case nsMsgPriority::lowest:
-      outValueString.AssignLiteral("5");
+      outValueString.Assign('5');
       break;
     case nsMsgPriority::none:
     case nsMsgPriority::notSet:
       // Note: '0' is a "fake" value; we expect to never be in this case.
-      outValueString.AssignLiteral("0");
+      outValueString.Assign('0');
       break;
     default:
       NS_ASSERTION(false, "invalid priority value");
@@ -540,7 +540,7 @@ nsresult FormatFileSize(int64_t size, bool useKB, nsAString &formattedSize)
 #endif
     NS_ConvertUTF8toUTF16 decimalSeparator(decimalPoint);
     if (decimalSeparator.IsEmpty())
-      decimalSeparator.AssignLiteral(".");
+      decimalSeparator.Assign('.');
 
     formattedSize.Replace(separatorPos, 1, decimalSeparator);
   }

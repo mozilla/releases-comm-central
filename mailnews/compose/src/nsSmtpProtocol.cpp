@@ -502,7 +502,7 @@ void nsSmtpProtocol::AppendHelloArgument(nsACString& aResult)
                   if (family == nsINetAddr::FAMILY_INET6) // IPv6 style address?
                       aResult.AppendLiteral("[IPv6:");
                   else
-                      aResult.AppendLiteral("[");
+                      aResult.Append('[');
 
                   aResult.Append(ipAddressString);
                   aResult.Append(']');

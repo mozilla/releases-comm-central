@@ -848,7 +848,7 @@ nsresult nsMsgSearchTerm::MatchArbitraryHeader (nsIMsgSearchScopeTerm *scope,
       // any continuation whitespace is converted to a single space. This includes both a continuation line, or a
       //  second value of the same header (eg the received header)
       if (!headerFullValue.IsEmpty())
-        headerFullValue.AppendLiteral(" ");
+        headerFullValue.Append(' ');
       headerFullValue.Append(nsDependentCString(headerValue));
     }
   }

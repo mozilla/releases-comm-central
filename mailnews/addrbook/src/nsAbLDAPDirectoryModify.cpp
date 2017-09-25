@@ -276,7 +276,7 @@ nsresult nsAbModifyLDAPMessageListener::OnLDAPMessageRenameResult(nsILDAPMessage
   // Rename succeeded, now update the card DN and
   // process the main task
   mCardDN.Assign(mNewRDN);
-  mCardDN.AppendLiteral(",");
+  mCardDN.Append(',');
   mCardDN.Append(mNewBaseDN);
      
   printf("LDAP rename succeeded\n");

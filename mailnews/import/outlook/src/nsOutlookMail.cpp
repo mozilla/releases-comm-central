@@ -184,7 +184,7 @@ nsresult nsOutlookMail::GetMailFolders(nsIArray **pArray)
 bool nsOutlookMail::IsAddressBookNameUnique(nsString& name, nsString& list)
 {
   nsString    usedName;
-  usedName.AppendLiteral("[");
+  usedName.Append('[');
   usedName.Append(name);
   usedName.AppendLiteral("],");
 
@@ -205,7 +205,7 @@ void nsOutlookMail::MakeAddressBookNameUnique(nsString& name, nsString& list)
   }
 
   name = newName;
-  list.AppendLiteral("[");
+  list.Append('[');
   list.Append(name);
   list.AppendLiteral("],");
 }

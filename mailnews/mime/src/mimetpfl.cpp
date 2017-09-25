@@ -580,7 +580,7 @@ static void Convert_whitespace(const char16_t a_current_char,
 
   while(number_of_space--) {
     // a_out_string += ' '; gives error
-    a_out_string.AppendLiteral(" ");
+    a_out_string.Append(' ');
   }
 
   return;

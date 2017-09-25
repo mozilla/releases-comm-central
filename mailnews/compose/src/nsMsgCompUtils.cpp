@@ -481,7 +481,7 @@ nsresult mime_generate_headers(nsIMsgCompFields *fields,
       // Output format: [X-Priority: <pValue> (<pName>)]
       priorityValueString.AppendLiteral(" (");
       priorityValueString += priorityName;
-      priorityValueString.AppendLiteral(")");
+      priorityValueString.Append(')');
       finalHeaders->SetRawHeader("X-Priority", priorityValueString, nullptr);
     }
   }

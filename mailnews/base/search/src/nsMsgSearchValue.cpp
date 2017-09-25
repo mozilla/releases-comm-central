@@ -110,7 +110,7 @@ nsMsgSearchValueImpl::ToString(nsAString &aResult)
         NS_ERROR("Unknown search value type");
     }
 
-    aResult.AppendLiteral("]");
+    aResult.Append(']');
 
     return NS_OK;
 }

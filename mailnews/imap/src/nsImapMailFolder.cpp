@@ -7455,7 +7455,7 @@ void nsImapMailFolder::SetPendingAttributes(nsIArray* messages, bool aIsMove)
   // We'll add spaces at beginning and end so we can search for space-name-space
   nsCString dontPreserveEx(NS_LITERAL_CSTRING(" "));
   dontPreserveEx.Append(dontPreserve);
-  dontPreserveEx.AppendLiteral(" ");
+  dontPreserveEx.Append(' ');
 
   // these properties are set as integers below, so don't set them again
   // in the iteration through the properties
@@ -7506,7 +7506,7 @@ void nsImapMailFolder::SetPendingAttributes(nsIArray* messages, bool aIsMove)
         propertyEnumerator->GetNext(property);
         nsAutoCString propertyEx(NS_LITERAL_CSTRING(" "));
         propertyEx.Append(property);
-        propertyEx.AppendLiteral(" ");
+        propertyEx.Append(' ');
         if (dontPreserveEx.Find(propertyEx) != kNotFound)
           continue;
 

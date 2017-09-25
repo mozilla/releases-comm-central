@@ -227,10 +227,10 @@ NS_IMETHODIMP nsAbLDAPCard::BuildRdn(nsIAbLDAPAttributeMap *aAttributeMap,
     }
   
     aRdn.Append(attr);
-    aRdn.AppendLiteral("=");
+    aRdn.Append('=');
     aRdn.Append(propvalue);
     if (i < aAttrCount - 1)
-      aRdn.AppendLiteral("+");
+      aRdn.Append('+');
   }
   return NS_OK;
 }

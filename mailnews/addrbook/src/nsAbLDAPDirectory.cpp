@@ -129,7 +129,7 @@ NS_IMETHODIMP nsAbLDAPDirectory::GetChildCards(nsISimpleEnumerator** result)
       localDirectoryURI.Append(fileName);
       if (mIsQueryURI) 
       {
-        localDirectoryURI.AppendLiteral("?");
+        localDirectoryURI.Append('?');
         localDirectoryURI.Append(mQueryString);
       }
 
@@ -760,7 +760,7 @@ NS_IMETHODIMP nsAbLDAPDirectory::AddCard(nsIAbCard *aUpdatedCard,
   rv = card->BuildRdn(attrMap, rdnAttrs.GetSize(), rdnAttrs.GetArray(),
     cardDN);
   NS_ENSURE_SUCCESS(rv, rv);
-  cardDN.AppendLiteral(",");
+  cardDN.Append(',');
   cardDN.Append(baseDN);
 
   rv = card->SetDn(cardDN);
@@ -880,7 +880,7 @@ NS_IMETHODIMP nsAbLDAPDirectory::ModifyCard(nsIAbCard *aUpdatedCard)
   {
     // Build and store the new DN
     nsAutoCString newDN(newRDN);
-    newDN.AppendLiteral(",");
+    newDN.Append(',');
     newDN.Append(baseDN);
     
     rv = card->SetDn(newDN);
