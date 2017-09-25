@@ -24,28 +24,28 @@ class nsMsgDatabase;
 
 // I think these getters and setters really need to go through mdb and not rely on the object
 // caching the values. If this somehow turns out to be prohibitively expensive, we can invent
-// some sort of dirty mechanism, but I think it turns out that these values will be cached by 
+// some sort of dirty mechanism, but I think it turns out that these values will be cached by
 // the MSG_FolderInfo's anyway.
 class nsDBFolderInfo : public nsIDBFolderInfo
 {
 public:
   friend class nsMsgDatabase;
-  
+
   nsDBFolderInfo(nsMsgDatabase *mdb);
-  
+
   NS_DECL_ISUPPORTS
     // interface methods.
     NS_DECL_NSIDBFOLDERINFO
     // create the appropriate table and row in a new db.
     nsresult			AddToNewMDB();
   // accessor methods.
-  
+
   bool      TestFlag(int32_t flags);
   int16_t   GetIMAPHierarchySeparator() ;
   void      SetIMAPHierarchySeparator(int16_t hierarchyDelimiter) ;
   void      ChangeImapTotalPendingMessages(int32_t delta);
   void      ChangeImapUnreadPendingMessages(int32_t delta) ;
-  
+
   nsresult      InitFromExistingDB();
   // get and set arbitrary property, aka row cell value.
   nsresult SetPropertyWithToken(mdb_token aProperty, const nsAString &propertyStr);
@@ -93,18 +93,18 @@ protected:
 
   uint16_t    m_version;                // for upgrading...
   int16_t     m_IMAPHierarchySeparator;	// imap path separator
-  
+
   // mail only (for now)
-  
+
   // IMAP only
   int32_t     m_ImapUidValidity;
   int32_t     m_totalPendingMessages;
   int32_t     m_unreadPendingMessages;
-  
+
   // news only (for now)
   nsMsgKey    m_expiredMark;		// Highest invalid article number in group - for expiring
   // the db folder info will have to know what db and row it belongs to, since it is really
-  // just a wrapper around the singleton folder info row in the mdb. 
+  // just a wrapper around the singleton folder info row in the mdb.
   nsMsgDatabase *m_mdb;
   nsIMdbTable   *m_mdbTable;	// singleton table in db
   nsIMdbRow     *m_mdbRow;	// singleton row in table;
@@ -112,7 +112,7 @@ protected:
   nsCString     m_charSet;
   bool          m_charSetOverride;
   bool          m_mdbTokensInitialized;
-  
+
   mdb_token     m_rowScopeToken;
   mdb_token     m_tableKindToken;
   // tokens for the pre-set columns - we cache these for speed, which may be silly
@@ -124,7 +124,7 @@ protected:
   mdb_token     m_expungedBytesColumnToken;
   mdb_token     m_folderDateColumnToken;
   mdb_token     m_highWaterMessageKeyColumnToken;
-  
+
   mdb_token     m_imapUidValidityColumnToken;
   mdb_token     m_totalPendingMessagesColumnToken;
   mdb_token     m_unreadPendingMessagesColumnToken;

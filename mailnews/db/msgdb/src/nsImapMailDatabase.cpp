@@ -53,7 +53,7 @@ void nsImapMailDatabase::UpdateFolderFlag(nsIMsgDBHdr * /* msgHdr */, bool /* bS
 {
 }
 
-// We override this to avoid our parent class (nsMailDatabase)'s 
+// We override this to avoid our parent class (nsMailDatabase)'s
 // grabbing of the folder semaphore, and bailing on failure.
 NS_IMETHODIMP nsImapMailDatabase::DeleteMessages(uint32_t aNumKeys, nsMsgKey* nsMsgKeys, nsIDBChangeListener *instigator)
 {
@@ -182,7 +182,7 @@ nsresult nsImapMailDatabase::GetRowForPendingHdr(nsIMsgDBHdr *pendingHdr,
     // now we need to add cells to the row to remember the messageid, property and property value, and flags.
     // Then, when hdrs are added to the db, we'll check if they have a matching message-id, and if so,
     // set the property and flags
-    // XXX we already fetched messageId from the pending hdr, could it have changed by the time we get here? 
+    // XXX we already fetched messageId from the pending hdr, could it have changed by the time we get here?
     nsCString messageId;
     pendingHdr->GetMessageId(getter_Copies(messageId));
     // we're just going to ignore messages without a message-id. They should be rare. If SPAM messages often

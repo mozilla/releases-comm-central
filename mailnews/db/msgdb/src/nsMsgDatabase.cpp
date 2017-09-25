@@ -272,7 +272,7 @@ NS_IMETHODIMP nsMsgDBService::OpenMore(nsIMsgDatabase *aDB,
 }
 
 /**
- * When a db is opened, we need to hook up any pending listeners for 
+ * When a db is opened, we need to hook up any pending listeners for
  * that db, and notify them.
  */
 void nsMsgDBService::HookupPendingListeners(nsIMsgDatabase *db,
@@ -368,7 +368,7 @@ NS_IMETHODIMP nsMsgDBService::CreateNewDB(nsIMsgFolder *aFolder,
                                           nsIMsgDatabase **_retval)
 {
   NS_ENSURE_ARG(aFolder);
-  
+
   nsCOMPtr <nsIMsgIncomingServer> incomingServer;
   nsresult rv = aFolder->GetServer(getter_AddRefs(incomingServer));
   NS_ENSURE_SUCCESS(rv, rv);
@@ -381,7 +381,7 @@ NS_IMETHODIMP nsMsgDBService::CreateNewDB(nsIMsgFolder *aFolder,
   incomingServer->GetLocalDatabaseType(localDatabaseType);
   nsAutoCString dbContractID(NS_MSGDB_CONTRACTID);
   dbContractID.Append(localDatabaseType.get());
-  
+
   nsCOMPtr <nsIMsgDatabase> msgDB = do_CreateInstance(dbContractID.get(), &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
@@ -880,7 +880,7 @@ public:
     return aCb->Callback(EmptyCString(), path,
                          nsIMemoryReporter::KIND_HEAP,
                          nsIMemoryReporter::UNITS_BYTES,
-                         mDatabase->SizeOfIncludingThis(GetMallocSize),           
+                         mDatabase->SizeOfIncludingThis(GetMallocSize),
                          NS_LITERAL_CSTRING("Memory used for the folder database."),
                          aClosure);
   }
@@ -1174,7 +1174,7 @@ nsresult nsMsgDatabase::OpenMDB(const char *dbName, bool create, bool sync)
         ret = NS_MSG_ERROR_FOLDER_SUMMARY_MISSING;
       }
       // If m_thumb is set, we're asynchronously opening the db already.
-      else if (!m_thumb) 
+      else if (!m_thumb)
       {
         mdbOpenPolicy inOpenPolicy;
         mdb_bool  canOpen;
@@ -1828,7 +1828,7 @@ NS_IMETHODIMP nsMsgDatabase::DeleteHeader(nsIMsgDBHdr *msg, nsIDBChangeListener 
   RemoveHeaderFromThread(msgHdr);
   if (notify)
   {
-    // If deleted hdr was new, restore the new flag on flags 
+    // If deleted hdr was new, restore the new flag on flags
     // so saved searches will know to reduce their new msg count.
     if (hdrWasNew)
       flags |= nsMsgMessageFlags::New;
@@ -2278,7 +2278,7 @@ nsMsgDatabase::SetUint32PropertyByHdr(nsIMsgDBHdr *aMsgHdr,
     return NS_OK;
 
   // Don't do notifications if message not yet added to database.
-  bool notify = true;  
+  bool notify = true;
   nsMsgKey key = nsMsgKey_None;
   aMsgHdr->GetMessageKey(&key);
   ContainsKey(key, &notify);
@@ -2471,7 +2471,7 @@ NS_IMETHODIMP nsMsgDatabase::MarkHdrRead(nsIMsgDBHdr *msgHdr, bool bRead,
   {
     nsMsgKey msgKey;
     msgHdr->GetMessageKey(&msgKey);
-    
+
     bool inDB = false;
     (void)ContainsKey(msgKey, &inDB);
 
@@ -2858,7 +2858,7 @@ nsMsgDatabase::GetFilterEnumerator(nsIArray *searchTerms, bool aReverse,
                                    nsISimpleEnumerator **aResult)
 {
   NS_ENSURE_ARG_POINTER(aResult);
-  RefPtr<nsMsgFilteredDBEnumerator> e = 
+  RefPtr<nsMsgFilteredDBEnumerator> e =
     new nsMsgFilteredDBEnumerator(this, m_mdbAllMsgHeadersTable, aReverse,
                                   searchTerms);
 
@@ -3047,10 +3047,10 @@ NS_IMETHODIMP nsMsgDBThreadEnumerator::OnHdrFlagsChanged(nsIMsgDBHdr *aHdrChange
     return NS_OK;
 }
 
-//void OnHdrPropertyChanged(in nsIMsgDBHdr aHdrToChange, in bool aPreChange, 
+//void OnHdrPropertyChanged(in nsIMsgDBHdr aHdrToChange, in bool aPreChange,
 // inout uint32_t aStatus, in nsIDBChangeListener aInstigator);
 NS_IMETHODIMP
-nsMsgDBThreadEnumerator::OnHdrPropertyChanged(nsIMsgDBHdr *aHdrToChange, bool aPreChange, uint32_t *aStatus, 
+nsMsgDBThreadEnumerator::OnHdrPropertyChanged(nsIMsgDBHdr *aHdrToChange, bool aPreChange, uint32_t *aStatus,
                                          nsIDBChangeListener * aInstigator)
 {
   return NS_OK;
@@ -3848,8 +3848,8 @@ nsresult nsMsgDatabase::SetUint64Property(nsIMdbRow *row,
   return err;
 }
 
-nsresult nsMsgDatabase::GetBooleanProperty(nsIMdbRow *row, const char *propertyName, 
-                                     bool *result, 
+nsresult nsMsgDatabase::GetBooleanProperty(nsIMdbRow *row, const char *propertyName,
+                                     bool *result,
                                      bool defaultValue /* = false */)
 {
   uint32_t res;
@@ -3858,7 +3858,7 @@ nsresult nsMsgDatabase::GetBooleanProperty(nsIMdbRow *row, const char *propertyN
   return rv;
 }
 
-nsresult nsMsgDatabase::SetBooleanProperty(nsIMdbRow *row, const char *propertyName, 
+nsresult nsMsgDatabase::SetBooleanProperty(nsIMdbRow *row, const char *propertyName,
                                     bool propertyVal)
 {
   return SetUint32Property(row, propertyName, (uint32_t) propertyVal);
@@ -3955,7 +3955,7 @@ void nsMsgDatabase::AddMsgRefsToHash(nsIMsgDBHdr *msgHdr)
   for (int32_t i = 0; i < numReferences; i++)
   {
     nsAutoCString reference;
-    
+
     msgHdr->GetStringReference(i, reference);
     if (reference.IsEmpty())
       break;
@@ -3979,7 +3979,7 @@ void nsMsgDatabase::RemoveMsgRefsFromHash(nsIMsgDBHdr *msgHdr)
   for (int32_t i = 0; i < numReferences; i++)
   {
     nsAutoCString reference;
-    
+
     msgHdr->GetStringReference(i, reference);
     if (reference.IsEmpty())
       break;
@@ -4192,7 +4192,7 @@ nsIMsgThread *nsMsgDatabase::GetThreadForMessageId(nsCString &msgId)
 {
   nsIMsgThread *thread = NULL;
   nsMsgKey threadId;
-  
+
   if (NS_SUCCEEDED(GetRefFromHash(msgId, &threadId)))
     thread = GetThreadForThreadId(threadId);
 

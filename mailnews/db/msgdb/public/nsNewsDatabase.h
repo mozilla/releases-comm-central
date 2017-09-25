@@ -20,7 +20,7 @@ class nsNewsDatabase : public nsMsgDatabase , public nsINewsDatabase
 public:
   nsNewsDatabase();
 
-  NS_DECL_ISUPPORTS_INHERITED 
+  NS_DECL_ISUPPORTS_INHERITED
   NS_DECL_NSINEWSDATABASE
 
   NS_IMETHOD Close(bool forceCommit) override;
@@ -38,12 +38,12 @@ public:
 
   virtual nsresult    ExpireUpTo(nsMsgKey expireKey);
   virtual nsresult    ExpireRange(nsMsgKey startRange, nsMsgKey endRange);
- 
+
   virtual bool        SetHdrReadFlag(nsIMsgDBHdr *msgHdr, bool bRead) override;
- 
+
   virtual nsresult  AdjustExpungedBytesOnDelete(nsIMsgDBHdr *msgHdr) override;
   nsresult          SyncWithReadSet();
-  
+
   NS_IMETHOD GetDefaultViewFlags(nsMsgViewFlagsTypeValue *aDefaultViewFlags) override;
   NS_IMETHOD GetDefaultSortType(nsMsgViewSortTypeValue *aDefaultSortType) override;
   NS_IMETHOD GetDefaultSortOrder(nsMsgViewSortOrderValue *aDefaultSortOrder) override;

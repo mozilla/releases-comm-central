@@ -39,16 +39,16 @@ protected:
   nsresult              ChangeUnreadChildCount(int32_t delta);
   nsresult              RemoveChild(nsMsgKey msgKey);
   nsresult              SetThreadRootKey(nsMsgKey threadRootKey);
-  nsresult              GetChildHdrForKey(nsMsgKey desiredKey, 
-                                          nsIMsgDBHdr **result, int32_t *resultIndex); 
+  nsresult              GetChildHdrForKey(nsMsgKey desiredKey,
+                                          nsIMsgDBHdr **result, int32_t *resultIndex);
   nsresult              RerootThread(nsIMsgDBHdr *newParentOfOldRoot, nsIMsgDBHdr *oldRoot, nsIDBChangeAnnouncer *announcer);
   nsresult              ReparentChildrenOf(nsMsgKey oldParent, nsMsgKey newParent, nsIDBChangeAnnouncer *announcer);
-  
+
   nsresult              ReparentNonReferenceChildrenOf(nsIMsgDBHdr *topLevelHdr, nsMsgKey newParentKey,
                                                        nsIDBChangeAnnouncer *announcer);
   nsresult              ReparentMsgsWithInvalidParent(uint32_t numChildren, nsMsgKey threadParentKey);
 
-  nsMsgKey              m_threadKey; 
+  nsMsgKey              m_threadKey;
   uint32_t              m_numChildren;
   uint32_t              m_numUnreadChildren;
   uint32_t              m_flags;
