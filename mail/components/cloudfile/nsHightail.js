@@ -15,6 +15,8 @@ Cu.import("resource://gre/modules/Services.jsm");
 Cu.import("resource:///modules/gloda/log4moz.js");
 Cu.import("resource:///modules/cloudFileAccounts.js");
 
+Cu.importGlobalProperties(["XMLHttpRequest"]);
+
 var gServerUrl = "https://dpi.yousendit.com"; // Production url
 // test url var gServerUrl = "https://test2-api.yousendit.com";
 
@@ -324,8 +326,7 @@ nsHightail.prototype = {
     this.log.info("getting user info");
     let args = "?email=" + this._userName + "&";
 
-    let req = Cc["@mozilla.org/xmlextras/xmlhttprequest;1"]
-                .createInstance(Ci.nsIXMLHttpRequest);
+    let req = new XMLHttpRequest();
     req.open("GET", gServerUrl + kUserInfoPath + args + kUrlTail, true);
 
     req.onload = function() {
@@ -448,8 +449,7 @@ nsHightail.prototype = {
     let args = "?email=" + aEmailAddress + "&password=" + aPassword + "&firstname="
                + aFirstName + "&lastname=" + aLastName + "&";
 
-    let req = Cc["@mozilla.org/xmlextras/xmlhttprequest;1"]
-                .createInstance(Ci.nsIXMLHttpRequest);
+    let req = new XMLHttpRequest();
 
     req.open("POST", gServerUrl + kUserInfoPath + args + kUrlTail, true);
 
@@ -529,8 +529,7 @@ nsHightail.prototype = {
 
     let args = "?includeFiles=false&includeFolders=true&";
 
-    let req = Cc["@mozilla.org/xmlextras/xmlhttprequest;1"]
-                .createInstance(Ci.nsIXMLHttpRequest);
+    let req = new XMLHttpRequest();
 
     req.open("GET",
              gServerUrl + kFolderPath + aFolderId + args + kUrlTail,
@@ -579,8 +578,7 @@ nsHightail.prototype = {
 
     let args = "?name=" + aName + "&parentId=" + aParent + "&";
 
-    let req = Cc["@mozilla.org/xmlextras/xmlhttprequest;1"]
-                .createInstance(Ci.nsIXMLHttpRequest);
+    let req = new XMLHttpRequest();
 
     req.open("POST", gServerUrl + kFolderPath.replace(/\/$/, '') + args + kUrlTail, true);
 
@@ -681,8 +679,7 @@ nsHightail.prototype = {
       throw Cr.NS_ERROR_FAILURE;
     }
 
-    let req = Cc["@mozilla.org/xmlextras/xmlhttprequest;1"]
-                .createInstance(Ci.nsIXMLHttpRequest);
+    let req = new XMLHttpRequest();
 
     let args = kFolderFilePath + uploadInfo.fileId + "?";
 
@@ -814,8 +811,7 @@ nsHightail.prototype = {
       this._password = this.getPassword(this._userName, !aWithUI);
     let args = "?email=" + this._userName + "&password=" + this._password + "&";
     this.log.info("Sending login information...");
-    let req = Cc["@mozilla.org/xmlextras/xmlhttprequest;1"]
-                .createInstance(Ci.nsIXMLHttpRequest);
+    let req = new XMLHttpRequest();
     let curDate = Date.now().toString();
 
     req.open("POST", gServerUrl + kAuthPath + args + kUrlTail, true);
@@ -917,8 +913,7 @@ nsHightailFileUploader.prototype = {
    * @param failureCallback the callback fired if getting the URL fails
    */
   _prepareToSend: function(successCallback, failureCallback) {
-    let req = Cc["@mozilla.org/xmlextras/xmlhttprequest;1"]
-                .createInstance(Ci.nsIXMLHttpRequest);
+    let req = new XMLHttpRequest();
 
     req.open("POST", gServerUrl + kFolderInitUploadPath + "?" + kUrlTail, true);
 
@@ -958,8 +953,7 @@ nsHightailFileUploader.prototype = {
    * the upload of the file to Hightail.
    */
   _uploadFile: function() {
-    let req = Cc["@mozilla.org/xmlextras/xmlhttprequest;1"]
-                .createInstance(Ci.nsIXMLHttpRequest);
+    let req = new XMLHttpRequest();
 
     let curDate = Date.now().toString();
     this.log.info("upload url = " + this._urlInfo.uploadUrl[0]);
@@ -1008,7 +1002,7 @@ nsHightailFileUploader.prototype = {
     // Since js doesn't like binary data in strings, we're going to create
     // a temp file consisting of the message preamble, the file contents, and
     // the post script, and pass a stream based on that file to
-    // nsIXMLHttpRequest.send().
+    // XMLHttpRequest.send().
 
     try {
       this._tempFile = this.getTempFile(this.file.leafName);
@@ -1049,7 +1043,7 @@ nsHightailFileUploader.prototype = {
       this._bufStream = Cc["@mozilla.org/network/buffered-input-stream;1"]
                         .createInstance(Ci.nsIBufferedInputStream);
       this._bufStream.init(this._fstream, 4096);
-      // nsIXMLHttpRequest's nsIVariant handling requires that we QI
+      // XMLHttpRequest's nsIVariant handling requires that we QI
       // to nsIInputStream.
       req.sendInputStream(this._bufStream.QueryInterface(Ci.nsIInputStream));
     } catch (ex) {
@@ -1082,8 +1076,7 @@ nsHightailFileUploader.prototype = {
    */
   _commitSend: function() {
     this.log.info("commit sending file " + this._urlInfo.fileId);
-    let req = Cc["@mozilla.org/xmlextras/xmlhttprequest;1"]
-                .createInstance(Ci.nsIXMLHttpRequest);
+    let req = new XMLHttpRequest();
     let args = "?name=" + this.file.leafName +
                "&fileId=" + this._urlInfo.fileId +
                "&parentId=" + this.hightail._folderId + "&";
@@ -1160,8 +1153,7 @@ nsHightailFileUploader.prototype = {
    * @param aFailureCallback called if url is not found
    */
   _findDownloadUrl: function(aFileId, aSuccessCallback, aFailureCallback) {
-    let req = Cc["@mozilla.org/xmlextras/xmlhttprequest;1"]
-                .createInstance(Ci.nsIXMLHttpRequest);
+    let req = new XMLHttpRequest();
 
     req.open("GET", gServerUrl + kFolderFilePath + aFileId, true);
 

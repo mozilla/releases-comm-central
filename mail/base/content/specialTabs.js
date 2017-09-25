@@ -549,8 +549,7 @@ var specialTabs = {
                                        iconUri.spec);
     });
 
-    let request = Cc["@mozilla.org/xmlextras/xmlhttprequest;1"]
-                    .createInstance(Ci.nsIXMLHttpRequest);
+    let request = new XMLHttpRequest();
     request.open("GET", url, true);
     request.responseType = "document";
     request.onload = onDownload;

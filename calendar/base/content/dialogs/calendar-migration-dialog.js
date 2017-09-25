@@ -10,6 +10,8 @@ Components.utils.import("resource://gre/modules/Services.jsm");
 Components.utils.import("resource://gre/modules/Preferences.jsm");
 Components.utils.import("resource://gre/modules/AppConstants.jsm");
 
+Components.utils.importGlobalProperties(["XMLHttpRequest"]);
+
 //
 // The front-end wizard bits.
 //
@@ -232,8 +234,7 @@ var gDataMigrator = {
             // Let this be a lesson to anyone designing APIs. The RDF API is so
             // impossibly confusing that it's actually simpler/cleaner/shorter
             // to simply parse as XML and use the better DOM APIs.
-            var req = Components.classes["@mozilla.org/xmlextras/xmlhttprequest;1"]
-                      .createInstance(Components.interfaces.nsIXMLHttpRequest);
+            var req = new XMLHttpRequest();
             req.open('GET', "file://" + dataSource.path, true);
             req.onreadystatechange = function calext_onreadychange() {
                 if (req.readyState == 4) {

@@ -20,6 +20,8 @@ Cu.import("resource:///modules/errUtils.js");
 Cu.import("resource://gre/modules/Services.jsm");
 Cu.import("resource:///modules/mailServices.js");
 
+Cu.importGlobalProperties(["XMLHttpRequest"]);
+
 /* :::::::: The Module ::::::::::::::: */
 
 var mailInstrumentationManager =
@@ -159,8 +161,7 @@ var mailInstrumentationManager =
   },
 
   _postData: function minst_postData() {
-    let req = Cc["@mozilla.org/xmlextras/xmlhttprequest;1"]
-                .createInstance(Ci.nsIXMLHttpRequest);
+    let req = new XMLHttpRequest();
     let url = Services.prefs.getCharPref("mail.instrumentation.postUrl");
     if (!url.length)
       return;

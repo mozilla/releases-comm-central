@@ -6,6 +6,8 @@
 
 Components.utils.import("resource://calendar/modules/calUtils.jsm");
 
+Components.utils.importGlobalProperties(["XMLHttpRequest"]);
+
 this.EXPORTED_SYMBOLS = ["cal"];
 cal.xml = {} || cal.xml;
 
@@ -132,9 +134,7 @@ cal.xml.parseString = function(str, docUri, baseUri) {
  * @return          The DOM Document resulting from the file.
  */
 cal.xml.parseFile = function(uri) {
-    let req = Components.classes["@mozilla.org/xmlextras/xmlhttprequest;1"]
-                        .createInstance(Components.interfaces.nsIXMLHttpRequest);
-
+    let req = new XMLHttpRequest();
     req.open("GET", uri, false);
     req.overrideMimeType("text/xml");
     req.send(null);

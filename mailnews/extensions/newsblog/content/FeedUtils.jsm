@@ -15,6 +15,8 @@ Cu.import("resource://gre/modules/FileUtils.jsm");
 Cu.import("resource://gre/modules/Services.jsm");
 Cu.import("resource://gre/modules/XPCOMUtils.jsm");
 
+Cu.importGlobalProperties(["XMLHttpRequest"]);
+
 Services.scriptloader.loadSubScript("chrome://messenger-newsblog/content/Feed.js");
 Services.scriptloader.loadSubScript("chrome://messenger-newsblog/content/FeedItem.js");
 Services.scriptloader.loadSubScript("chrome://messenger-newsblog/content/feed-parser.js");
@@ -1414,8 +1416,7 @@ var FeedUtils = {
     let fileUrl = Services.io.getProtocolHandler("file")
                              .QueryInterface(Ci.nsIFileProtocolHandler)
                              .getURLSpecFromFile(file);
-    let request = Cc["@mozilla.org/xmlextras/xmlhttprequest;1"]
-                    .createInstance(Ci.nsIXMLHttpRequest);
+    let request = new XMLHttpRequest();
     request.open("GET", fileUrl, false);
     request.responseType = "document";
     request.send();

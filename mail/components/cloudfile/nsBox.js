@@ -17,7 +17,7 @@ Cu.import("resource:///modules/cloudFileAccounts.js");
 Cu.import("resource:///modules/OAuth2.jsm");
 Cu.import("resource://gre/modules/Http.jsm");
 
-Cu.importGlobalProperties(["File"]);
+Cu.importGlobalProperties(["File", "XMLHttpRequest"]);
 
 var gServerUrl = "https://api.box.com/2.0/";
 var gUploadUrl = "https://upload.box.com/api/2.0/";
@@ -698,8 +698,7 @@ nsBoxFileUploader.prototype = {
     this.box._uploadInfo[this.file.path] = {};
     this.box._uploadInfo[this.file.path].uploadUrl = requestUrl;
 
-    let req = Cc["@mozilla.org/xmlextras/xmlhttprequest;1"]
-                .createInstance(Ci.nsIXMLHttpRequest);
+    let req = new XMLHttpRequest();
 
     let curDate = Date.now().toString();
     this.log.info("upload url = " + requestUrl);

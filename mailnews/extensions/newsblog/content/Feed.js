@@ -155,8 +155,7 @@ Feed.prototype =
       }
     }
 
-    this.request = Cc["@mozilla.org/xmlextras/xmlhttprequest;1"].
-                   createInstance(Ci.nsIXMLHttpRequest);
+    this.request = new XMLHttpRequest();
     // Must set onProgress before calling open.
     this.request.onprogress = this.onProgress;
     this.request.open("GET", this.url, true);
