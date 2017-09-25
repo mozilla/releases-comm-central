@@ -2890,9 +2890,9 @@ nsDelAttachListener::StartProcessing(nsMessenger * aMessenger, nsIMsgWindow * aM
   {
     if (u > 0)
     {
-      sHeader.Append(",");
+      sHeader.Append(',');
       if (detaching)
-        detachToHeader.Append(",");
+        detachToHeader.Append(',');
     }
     partId = GetAttachmentPartId(mAttach->mAttachmentArray[u].mUrl);
     nextField = PL_strchr(partId, '&');

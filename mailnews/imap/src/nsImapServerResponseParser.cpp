@@ -679,7 +679,7 @@ void nsImapServerResponseParser::response_data()
           {
             AdvanceToNextToken();
             customCommandResponse.Append(fNextToken);
-            customCommandResponse.Append(" ");
+            customCommandResponse.Append(' ');
           }
           fServerConnection.GetCurrentUrl()->SetCustomCommandResult(customCommandResponse);
         }
@@ -1529,7 +1529,7 @@ void nsImapServerResponseParser::xaolenvelope_data()
         {
           // xaol envelope switches the From with the To, so we switch them back and
           // create a fake from line From: user@aol.com
-          fromLine.Append("To: ");
+          fromLine.AppendLiteral("To: ");
           nsAutoCString fakeFromLine(NS_LITERAL_CSTRING("From: "));
           fakeFromLine.Append(fServerConnection.GetImapUserName());
           fakeFromLine.Append(NS_LITERAL_CSTRING("@aol.com"));
@@ -1537,7 +1537,7 @@ void nsImapServerResponseParser::xaolenvelope_data()
         }
         else
         {
-          fromLine.Append("From: ");
+          fromLine.AppendLiteral("From: ");
         }
         parse_address(fromLine);
         fServerConnection.HandleMessageDownLoadLine(fromLine.get(), false);

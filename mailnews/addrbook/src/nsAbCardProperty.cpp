@@ -128,7 +128,7 @@ NS_IMPL_ISUPPORTS(nsAbCardProperty, nsIAbCard, nsIAbItem)
 NS_IMETHODIMP nsAbCardProperty::GetUuid(nsACString &uuid)
 {
   // If we have indeterminate sub-ids, return an empty uuid.
-  if (m_directoryId.Equals("") || m_localId.Equals(""))
+  if (m_directoryId.IsEmpty() || m_localId.IsEmpty())
   {
     uuid.Truncate();
     return NS_OK;

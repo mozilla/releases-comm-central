@@ -141,7 +141,7 @@ nsMsgPrintEngine::OnStateChange(nsIWebProgress* aWebProgress,
 
             if (NS_SUCCEEDED(originalURI->GetSpec(spec)))
             {
-              if (spec.Equals("about:blank"))
+              if (spec.EqualsLiteral("about:blank"))
               {
                 return StartNextPrintOperation();
               }

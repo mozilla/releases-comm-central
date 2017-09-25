@@ -104,7 +104,7 @@ nsMsgProtocol::GetQoSBits(uint8_t *aQoSBits)
 
   nsAutoCString prefName("mail.");
   prefName.Append(protocol);
-  prefName.Append(".qos");
+  prefName.AppendLiteral(".qos");
 
   nsresult rv;
   nsCOMPtr<nsIPrefBranch> prefBranch = do_GetService(NS_PREFSERVICE_CONTRACTID, &rv);

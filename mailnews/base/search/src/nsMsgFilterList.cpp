@@ -179,7 +179,7 @@ nsMsgFilterList::GetLogFile(nsIFile **aFile)
   // mcom.test.msf
   // since the log is an html file we make it
   // mcom.test.htm
-  if (type.Equals("nntp") && !isServer)
+  if (type.EqualsLiteral("nntp") && !isServer)
   {
     nsCOMPtr<nsIFile> thisFolder;
     rv = m_folder->GetFilePath(getter_AddRefs(thisFolder));
@@ -405,7 +405,7 @@ int nsMsgFilterList::SkipWhitespace(nsIInputStream *aStream)
 
 bool nsMsgFilterList::StrToBool(nsCString &str)
 {
-  return str.Equals("yes") ;
+  return str.EqualsLiteral("yes");
 }
 
 int nsMsgFilterList::LoadAttrib(nsMsgFilterFileAttribValue &attrib, nsIInputStream *aStream)
@@ -1153,7 +1153,7 @@ nsresult nsMsgFilterList::ComputeArbitraryHeaders()
           m_arbitraryHeaders.Assign(arbitraryHeader);
         else if (m_arbitraryHeaders.Find(arbitraryHeader, /* ignoreCase = */ true) == -1)
         {
-          m_arbitraryHeaders.Append(" ");
+          m_arbitraryHeaders.Append(' ');
           m_arbitraryHeaders.Append(arbitraryHeader);
         }
       }

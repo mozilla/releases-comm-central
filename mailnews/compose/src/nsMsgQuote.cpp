@@ -144,11 +144,11 @@ nsMsgQuote::QuoteMessage(const char *msgURI, bool quoteHeaders,
     queryPart.Append('&');
 
   if (headersOnly) /* We don't need to quote the message body but we still need to extract the headers */
-    queryPart.Append("header=only");
+    queryPart.AppendLiteral("header=only");
   else if (quoteHeaders)
-    queryPart.Append("header=quote");
+    queryPart.AppendLiteral("header=quote");
   else
-    queryPart.Append("header=quotebody");
+    queryPart.AppendLiteral("header=quotebody");
   rv = mailNewsUrl->SetQuery(queryPart);
   NS_ENSURE_SUCCESS(rv,rv);
 

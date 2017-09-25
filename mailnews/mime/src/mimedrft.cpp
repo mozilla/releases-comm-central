@@ -1996,7 +1996,7 @@ mime_decompose_file_init_fn(void *stream_closure, MimeHeaders *headers)
 
       if (NS_SUCCEEDED(rv) && !fileExtension.IsEmpty())
       {
-        newAttachName.Append(".");
+        newAttachName.Append('.');
         newAttachName.Append(fileExtension);
         extensionAdded = true;
       }
@@ -2004,7 +2004,7 @@ mime_decompose_file_init_fn(void *stream_closure, MimeHeaders *headers)
 
     if (!extensionAdded)
     {
-      newAttachName.Append(".tmp");
+      newAttachName.AppendLiteral(".tmp");
     }
 
     nsMsgCreateTempFile(newAttachName.get(), getter_AddRefs(tmpFile));

@@ -815,7 +815,7 @@ nsNntpIncomingServer::WriteHostInfoFile()
   // XXX TODO: missing some formatting, see the 4.x code
   nsAutoCString header("# News host information file.");
   WriteLine(hostInfoStream, header);
-  header.Assign("# This is a generated file!  Do not edit.");
+  header.AssignLiteral("# This is a generated file!  Do not edit.");
   WriteLine(hostInfoStream, header);
   header.Truncate();
   WriteLine(hostInfoStream, header);

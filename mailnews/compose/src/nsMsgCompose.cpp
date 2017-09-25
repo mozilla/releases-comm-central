@@ -1789,7 +1789,7 @@ nsresult nsMsgCompose::CreateMessage(const char * originalMsgURI,
     {
       // nsURLFetcher will check for "realtype=message/rfc822" and will set the
       // content type to message/rfc822 in the forwarded message.
-      msgUri.Append("&realtype=message/rfc822");
+      msgUri.AppendLiteral("&realtype=message/rfc822");
     }
     originalMsgURI = msgUri.get();
   }
@@ -1883,9 +1883,9 @@ nsresult nsMsgCompose::CreateMessage(const char * originalMsgURI,
         mOriginalMsgURI = originalMsgURIfromDB;
         if (!queuedDisposition.IsEmpty())
         {
-          if (queuedDisposition.Equals("replied"))
+          if (queuedDisposition.EqualsLiteral("replied"))
              mDraftDisposition = nsIMsgFolder::nsMsgDispositionState_Replied;
-          else if (queuedDisposition.Equals("forward"))
+          else if (queuedDisposition.EqualsLiteral("forward"))
              mDraftDisposition = nsIMsgFolder::nsMsgDispositionState_Forwarded;
         }
       }
@@ -3397,7 +3397,7 @@ NS_IMETHODIMP nsMsgCompose::RememberQueuedDisposition()
     m_identity->GetKey(identityKey);
 
     int32_t insertIndex = StringBeginsWith(msgUri, NS_LITERAL_CSTRING("mailbox")) ? 7 : 4;
-    msgUri.Insert("-message", insertIndex); // "mailbox/imap: -> "mailbox/imap-message:"
+    msgUri.InsertLiteral("-message", insertIndex); // "mailbox/imap: -> "mailbox/imap-message:"
     msgUri.Append('#');
     msgUri.AppendInt(msgKey);
     nsCOMPtr <nsIMsgDBHdr> msgHdr;
@@ -4172,13 +4172,13 @@ nsMsgCompose::LoadDataFromFile(nsIFile *file, nsString &sigData,
 
   if (sigEncoding.IsEmpty()) {
     if (aAllowUTF8 && MsgIsUTF8(nsDependentCString(readBuf))) {
-      sigEncoding.Assign("UTF-8");
+      sigEncoding.AssignLiteral("UTF-8");
     }
     else if (sigEncoding.IsEmpty() && aAllowUTF16 &&
              readSize % 2 == 0 && readSize >= 2 &&
              ((readBuf[0] == char(0xFE) && readBuf[1] == char(0xFF)) ||
               (readBuf[0] == char(0xFF) && readBuf[1] == char(0xFE)))) {
-      sigEncoding.Assign("UTF-16");
+      sigEncoding.AssignLiteral("UTF-16");
     }
     else {
       //default to platform encoding for plain text files w/o meta charset

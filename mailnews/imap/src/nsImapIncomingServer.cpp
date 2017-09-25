@@ -1116,7 +1116,7 @@ NS_IMETHODIMP nsImapIncomingServer::PossibleImapMailbox(const nsACString& folder
     tokenStr.Assign(tempFolderName);
 
   if ((int32_t(PL_strcasecmp(tokenStr.get(), "INBOX"))==0) && (strcmp(tokenStr.get(), "INBOX") != 0))
-    changedStr.Append("INBOX");
+    changedStr.AppendLiteral("INBOX");
   else
     changedStr.Append(tokenStr);
 

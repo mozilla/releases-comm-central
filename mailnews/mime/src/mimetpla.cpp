@@ -49,13 +49,13 @@ MimeTextBuildPrefixCSS(int32_t    quotedSizeSetting,   // mail.quoted_size
   case 0:     // regular
     break;
   case 1:     // bold
-    style.Append("font-weight: bold; ");
+    style.AppendLiteral("font-weight: bold; ");
     break;
   case 2:     // italic
-    style.Append("font-style: italic; ");
+    style.AppendLiteral("font-style: italic; ");
     break;
   case 3:     // bold-italic
-    style.Append("font-weight: bold; font-style: italic; ");
+    style.AppendLiteral("font-weight: bold; font-style: italic; ");
     break;
   }
 
@@ -64,10 +64,10 @@ MimeTextBuildPrefixCSS(int32_t    quotedSizeSetting,   // mail.quoted_size
   case 0:     // regular
     break;
   case 1:     // large
-    style.Append("font-size: large; ");
+    style.AppendLiteral("font-size: large; ");
     break;
   case 2:     // small
-    style.Append("font-size: small; ");
+    style.AppendLiteral("font-size: small; ");
     break;
   }
 

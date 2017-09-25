@@ -679,7 +679,7 @@ nsresult nsMsgMdnGenerator::CreateSecondPart()
         PR_GetSystemInfo(PR_SI_HOSTNAME_UNTRUNCATED, hostName, sizeof hostName);
         if ((hostName[0] != '\0') && (strchr(hostName, '.') != NULL))
         {
-          userAgentString.Insert("; ", 0);
+          userAgentString.InsertLiteral("; ", 0);
           userAgentString.Insert(nsDependentCString(hostName), 0);
         }
 

@@ -1779,11 +1779,11 @@ nsresult nsMsgDBFolder::EndNewOfflineMessage()
 #ifdef _DEBUG
        nsAutoCString message("Offline message too small: messageSize=");
        message.AppendInt(messageSize);
-       message.Append(" curStorePos=");
+       message.AppendLiteral(" curStorePos=");
        message.AppendInt(curStorePos);
-       message.Append(" numOfflineMsgLines=");
+       message.AppendLiteral(" numOfflineMsgLines=");
        message.AppendInt(m_numOfflineMsgLines);
-       message.Append(" bytesAdded=");
+       message.AppendLiteral(" bytesAdded=");
        message.AppendInt(m_bytesAddedToLocalMsg);
        NS_ERROR(message.get());
 #endif

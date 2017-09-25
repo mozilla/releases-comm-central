@@ -285,7 +285,7 @@ nsresult
 nsImapMoveCopyMsgTxn::AddDstKey(nsMsgKey aKey)
 {
     if (!m_dstMsgIdString.IsEmpty())
-        m_dstMsgIdString.Append(",");
+        m_dstMsgIdString.Append(',');
     m_dstMsgIdString.AppendInt((int32_t) aKey);
     return NS_OK;
 }

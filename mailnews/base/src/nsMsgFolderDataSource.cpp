@@ -2069,7 +2069,7 @@ nsresult nsMsgFlatFolderDataSource::Init()
   NS_ENSURE_TRUE(rdf, NS_ERROR_FAILURE);
   nsCOMPtr<nsIRDFResource> source;
   nsAutoCString dsUri(m_dsName);
-  dsUri.Append(":/");
+  dsUri.AppendLiteral(":/");
   rdf->GetResource(dsUri, getter_AddRefs(m_rootResource));
 
   return nsMsgFolderDataSource::Init();

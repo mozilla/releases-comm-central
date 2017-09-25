@@ -3418,7 +3418,7 @@ nsresult nsMsgDatabase::GetEffectiveCharset(nsIMdbRow *row, nsACString &resultCh
   m_dbFolderInfo->GetCharacterSetOverride(&characterSetOverride);
   nsresult rv = RowCellColumnToCharPtr(row, m_messageCharSetColumnToken, getter_Copies(resultCharset));
   if (NS_FAILED(rv) || resultCharset.IsEmpty() ||
-      resultCharset.Equals("us-ascii") || characterSetOverride)
+      resultCharset.EqualsLiteral("us-ascii") || characterSetOverride)
   {
     rv = m_dbFolderInfo->GetEffectiveCharacterSet(resultCharset);
   }

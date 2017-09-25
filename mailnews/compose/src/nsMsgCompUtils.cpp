@@ -612,7 +612,7 @@ mime_generate_attachment_headers (const char *type,
     {
       charset.Assign(nsMsgI18NFileSystemCharset());
       if (!nsMsgI18Ncheck_data_in_charset_range(charset.get(), realName.get()))
-        charset.Assign("UTF-8"); // set to UTF-8 if fails again
+        charset.AssignLiteral("UTF-8"); // set to UTF-8 if fails again
     }
 
     encodedRealName = RFC2231ParmFolding("filename", charset, nullptr,
@@ -628,12 +628,12 @@ mime_generate_attachment_headers (const char *type,
   }
 
   nsCString buf;  // very likely to be longer than 64 characters
-  buf.Append("Content-Type: ");
+  buf.AppendLiteral("Content-Type: ");
   buf.Append(type);
   if (type_param && *type_param)
   {
     if (*type_param != ';')
-      buf.Append("; ");
+      buf.AppendLiteral("; ");
     buf.Append(type_param);
   }
 
@@ -680,7 +680,7 @@ mime_generate_attachment_headers (const char *type,
          (PL_strcasecmp(encoding, ENCODING_BASE64) != 0)) &&
          (*charset_label))
     {
-      buf.Append("; charset=");
+      buf.AppendLiteral("; charset=");
       buf.Append(charset_label);
     }
   }
@@ -694,9 +694,9 @@ mime_generate_attachment_headers (const char *type,
       bool flowed, delsp, formatted, disallowBreaks;
       GetSerialiserFlags(bodyCharset, &flowed, &delsp, &formatted, &disallowBreaks);
       if(flowed)
-        buf.Append("; format=flowed");
+        buf.AppendLiteral("; format=flowed");
       if (delsp)
-        buf.Append("; delsp=yes");
+        buf.AppendLiteral("; delsp=yes");
       // else
       // {
       // Don't add a markup. Could use
@@ -708,15 +708,15 @@ mime_generate_attachment_headers (const char *type,
   }
 
   if (x_mac_type && *x_mac_type) {
-    buf.Append("; x-mac-type=\"");
+    buf.AppendLiteral("; x-mac-type=\"");
     buf.Append(x_mac_type);
-    buf.Append("\"");
+    buf.Append('"');
   }
 
   if (x_mac_creator && *x_mac_creator) {
-    buf.Append("; x-mac-creator=\"");
+    buf.AppendLiteral("; x-mac-creator=\"");
     buf.Append(x_mac_creator);
-    buf.Append("\"");
+    buf.Append('"');
   }
 
 #ifdef EMIT_NAME_IN_CONTENT_TYPE
@@ -732,9 +732,9 @@ mime_generate_attachment_headers (const char *type,
         PR_FREEIF(nameValue);
         nameValue = encodedRealName;
       }
-      buf.Append(";\r\n name=\"");
+      buf.AppendLiteral(";\r\n name=\"");
       buf.Append(nameValue);
-      buf.Append("\"");
+      buf.Append('"');
       if (nameValue != encodedRealName)
         PR_FREEIF(nameValue);
     }
@@ -742,14 +742,14 @@ mime_generate_attachment_headers (const char *type,
 #endif /* EMIT_NAME_IN_CONTENT_TYPE */
   buf.Append(CRLF);
 
-  buf.Append("Content-Transfer-Encoding: ");
+  buf.AppendLiteral("Content-Transfer-Encoding: ");
   buf.Append(encoding);
   buf.Append(CRLF);
 
   if (description && *description) {
     char *s = mime_fix_header (description);
     if (s) {
-      buf.Append("Content-Description: ");
+      buf.AppendLiteral("Content-Description: ");
       buf.Append(s);
       buf.Append(CRLF);
       PR_Free(s);
@@ -758,9 +758,9 @@ mime_generate_attachment_headers (const char *type,
 
   if ( (content_id) && (*content_id) )
   {
-    buf.Append("Content-ID: <");
+    buf.AppendLiteral("Content-ID: <");
     buf.Append(content_id);
-    buf.Append(">");
+    buf.Append('>');
     buf.Append(CRLF);
   }
 
@@ -774,19 +774,19 @@ mime_generate_attachment_headers (const char *type,
       NS_ASSERTION(NS_SUCCEEDED(rv), "failed to get mail.content_disposition_type");
     }
 
-    buf.Append("Content-Disposition: ");
+    buf.AppendLiteral("Content-Disposition: ");
 
     // If this is an attachment which is part of the message body and therefore has a
     // Content-ID (e.g, image in HTML msg), then Content-Disposition has to be inline
     if (content_id && *content_id)
-      buf.Append("inline");
+      buf.AppendLiteral("inline");
     else if (pref_content_disposition == 1)
-      buf.Append("attachment");
+      buf.AppendLiteral("attachment");
     else
       if (pref_content_disposition == 2 &&
           (!PL_strcasecmp(type, TEXT_PLAIN) ||
           (period && !PL_strcasecmp(period, ".txt"))))
-        buf.Append("attachment");
+        buf.AppendLiteral("attachment");
 
       /* If this document is an anonymous binary file or a vcard,
       then always show it as an attachment, never inline. */
@@ -794,11 +794,11 @@ mime_generate_attachment_headers (const char *type,
         if (!PL_strcasecmp(type, APPLICATION_OCTET_STREAM) ||
             !PL_strcasecmp(type, TEXT_VCARD) ||
             !PL_strcasecmp(type, APPLICATION_DIRECTORY)) /* text/x-vcard synonym */
-          buf.Append("attachment");
+          buf.AppendLiteral("attachment");
         else
-          buf.Append("inline");
+          buf.AppendLiteral("inline");
 
-    buf.Append(";\r\n ");
+    buf.AppendLiteral(";\r\n ");
     buf.Append(encodedRealName);
     buf.Append(CRLF);
   }
@@ -806,7 +806,7 @@ mime_generate_attachment_headers (const char *type,
     if (type &&
         (!PL_strcasecmp (type, MESSAGE_RFC822) ||
         !PL_strcasecmp (type, MESSAGE_NEWS)))
-      buf.Append("Content-Disposition: inline" CRLF);
+      buf.AppendLiteral("Content-Disposition: inline" CRLF);
 
 #ifdef GENERATE_CONTENT_BASE
   /* If this is an HTML document, and we know the URL it originally
@@ -840,9 +840,9 @@ mime_generate_attachment_headers (const char *type,
       prefs->GetBoolPref("mail.use_content_location_on_send", &useContentLocation);
 
     if (useContentLocation)
-      buf.Append("Content-Location: \"");
+      buf.AppendLiteral("Content-Location: \"");
     else
-      buf.Append("Content-Base: \"");
+      buf.AppendLiteral("Content-Base: \"");
     /* rhp - Pref for Content-Location usage */
 
 /* rhp: this is to work with the Content-Location stuff */
@@ -859,13 +859,13 @@ CONTENT_LOC_HACK:
       }
 
       if (*s == ' ')
-        buf.Append("%20");
+        buf.AppendLiteral("%20");
       else if (*s == '\t')
-        buf.Append("%09");
+        buf.AppendLiteral("%09");
       else if (*s == '\n')
-        buf.Append("%0A");
+        buf.AppendLiteral("%0A");
       else if (*s == '\r')
-        buf.Append("%0D");
+        buf.AppendLiteral("%0D");
       else {
 	      tmp[0]=*s;
 	      buf.Append(tmp);
@@ -873,11 +873,11 @@ CONTENT_LOC_HACK:
       s++;
       col += (buf.Length() - ot);
     }
-    buf.Append("\"" CRLF);
+    buf.AppendLiteral("\"" CRLF);
 
     /* rhp: this is to try to get around this fun problem with Content-Location */
     if (!useContentLocation) {
-      buf.Append("Content-Location: \"");
+      buf.AppendLiteral("Content-Location: \"");
       s = base_url;
       col = 0;
       useContentLocation = true;

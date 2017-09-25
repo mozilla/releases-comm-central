@@ -211,10 +211,10 @@ nsAbAddressCollector::AutoCollectScreenName(nsIAbCard *aCard,
   // username@cs.com (Compuserve)
   // username@netscape.net (Netscape webmail)
   // are all AIM screennames.  autocollect that info.
-  if (domain.Equals("aol.com") || domain.Equals("cs.com") ||
-      domain.Equals("netscape.net"))
+  if (domain.EqualsLiteral("aol.com") || domain.EqualsLiteral("cs.com") ||
+      domain.EqualsLiteral("netscape.net"))
     aCard->SetPropertyAsAUTF8String(kScreenNameProperty, Substring(aEmail, 0, atPos));
-  else if (domain.Equals("gmail.com") || domain.Equals("googlemail.com"))
+  else if (domain.EqualsLiteral("gmail.com") || domain.EqualsLiteral("googlemail.com"))
     aCard->SetPropertyAsAUTF8String(kGtalkProperty, Substring(aEmail, 0, atPos));
 }
 

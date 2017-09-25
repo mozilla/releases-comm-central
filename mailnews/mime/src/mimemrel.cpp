@@ -478,7 +478,7 @@ MimeMultipartRelated_output_child_p(MimeObject *obj, MimeObject* child)
             part therfore we will have to hope the datafork is the second one!
           */
           if (mime_typep(child, (MimeObjectClass *) &mimeMultipartAppleDoubleClass))
-            partnum.Append(".2");
+            partnum.AppendLiteral(".2");
 
           char* part;
           if (!imappartnum.IsEmpty())

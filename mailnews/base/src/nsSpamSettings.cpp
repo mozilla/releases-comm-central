@@ -534,7 +534,7 @@ NS_IMETHODIMP nsSpamSettings::GetSpamFolderURI(char **aSpamFolderURI)
   // Check for an existing junk folder - this will do a case-insensitive
   // search by URI - if we find a junk folder, use its URI.
   nsCOMPtr<nsIMsgFolder> junkFolder;
-  folderURI.Append("/Junk");
+  folderURI.AppendLiteral("/Junk");
   if (NS_SUCCEEDED(server->GetMsgFolderFromURI(nullptr, folderURI,
                                                getter_AddRefs(junkFolder))) &&
       junkFolder)
@@ -583,7 +583,7 @@ NS_IMETHODIMP nsSpamSettings::GetServerFilterFile(nsIFile ** aFile)
     nsresult rv;
     nsAutoCString serverFilterFileName;
     GetServerFilterName(serverFilterFileName);
-    serverFilterFileName.Append(".sfd");
+    serverFilterFileName.AppendLiteral(".sfd");
 
     nsCOMPtr<nsIProperties> dirSvc = do_GetService(NS_DIRECTORY_SERVICE_CONTRACTID, &rv);
     NS_ENSURE_SUCCESS(rv, rv);

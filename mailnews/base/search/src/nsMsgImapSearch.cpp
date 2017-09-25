@@ -129,7 +129,7 @@ nsresult nsMsgSearchOnlineMail::Encode (nsCString& pEncoding,
     asciiOnly ?  usAsciiCharSet.get(): destCharset, false);
   if (NS_SUCCEEDED(err))
   {
-    pEncoding.Append("SEARCH");
+    pEncoding.AppendLiteral("SEARCH");
     if (csname)
       pEncoding.Append(csname);
     pEncoding.Append(imapTerms);

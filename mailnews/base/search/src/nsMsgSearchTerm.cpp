@@ -514,7 +514,7 @@ nsresult nsMsgSearchTerm::OutputValue(nsCString &outputStr)
       }
     case nsMsgSearchAttrib::HasAttachmentStatus:
       {
-        outputStr.Append("true");  // don't need anything here, really
+        outputStr.AppendLiteral("true");  // don't need anything here, really
         break;
       }
     case nsMsgSearchAttrib::Size:

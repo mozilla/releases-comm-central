@@ -244,10 +244,10 @@ NS_IMETHODIMP nsAbLDAPDirectory::SetLDAPURL(nsILDAPURL *aUrl)
   // listeners get updated correctly.
 
   // See if they both start with ldaps: or ldap:
-  bool newIsNotSecure = StringHead(tempLDAPURL, 5).Equals("ldap:");
+  bool newIsNotSecure = StringBeginsWith(tempLDAPURL, NS_LITERAL_CSTRING("ldap:"));
 
   if (oldUrl.IsEmpty() ||
-      StringHead(oldUrl, 5).Equals("ldap:") != newIsNotSecure)
+      StringBeginsWith(oldUrl, NS_LITERAL_CSTRING("ldap:")) != newIsNotSecure)
   {
     // They don't so its time to send round an update.
     nsCOMPtr<nsIAbManager> abManager = do_GetService(NS_ABMANAGER_CONTRACTID, &rv);

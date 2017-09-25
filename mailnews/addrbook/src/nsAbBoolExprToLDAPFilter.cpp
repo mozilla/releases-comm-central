@@ -68,7 +68,7 @@ nsresult nsAbBoolExprToLDAPFilter::FilterExpression (
             rv = childCondition->GetName (getter_Copies (name));
             NS_ENSURE_SUCCESS(rv, rv);
 
-            if(name.Equals("card:nsIAbCard"))
+            if (name.EqualsLiteral("card:nsIAbCard"))
                 return NS_OK;
         }
     }
@@ -175,7 +175,7 @@ nsresult nsAbBoolExprToLDAPFilter::FilterCondition (
         case nsIAbBooleanConditionTypes::Contains:
             filter.AppendLiteral("(");
             filter.Append(ldapAttr);
-            filter.Append("=*");
+            filter.AppendLiteral("=*");
             filter.Append(vUTF8);
             filter.AppendLiteral("*)");
             break;

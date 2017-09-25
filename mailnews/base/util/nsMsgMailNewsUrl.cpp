@@ -214,10 +214,10 @@ NS_IMETHODIMP nsMsgMailNewsUrl::GetServer(nsIMsgIncomingServer ** aIncomingServe
     if (NS_SUCCEEDED(rv))
     {
         if (scheme.EqualsLiteral("pop"))
-          scheme.Assign("pop3");
+          scheme.AssignLiteral("pop3");
         // we use "nntp" in the server list so translate it here.
         if (scheme.EqualsLiteral("news"))
-          scheme.Assign("nntp");
+          scheme.AssignLiteral("nntp");
         url->SetScheme(scheme);
         nsCOMPtr<nsIMsgAccountManager> accountManager =
                  do_GetService(NS_MSGACCOUNTMANAGER_CONTRACTID, &rv);

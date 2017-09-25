@@ -222,7 +222,7 @@ nsNntpService::DisplayMessage(const char* aMessageURI, nsISupports * aDisplayCon
   // rhp: If we are displaying this message for the purposes of printing, append
   // the magic operand.
   if (mPrintingOperation)
-    urlStr.Append("?header=print");
+    urlStr.AppendLiteral("?header=print");
 
   nsNewsAction action = nsINntpUrl::ActionFetchArticle;
   if (mOpenAttachmentOperation)

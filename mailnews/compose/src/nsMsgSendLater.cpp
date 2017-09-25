@@ -856,7 +856,7 @@ nsresult nsMsgSendLater::SetOrigMsgDisposition()
         if (msgFolder)
         {
           nsMsgDispositionState dispositionSetting = nsIMsgFolder::nsMsgDispositionState_Replied;
-          if (queuedDisposition.Equals("forwarded"))
+          if (queuedDisposition.EqualsLiteral("forwarded"))
             dispositionSetting = nsIMsgFolder::nsMsgDispositionState_Forwarded;
 
           msgFolder->AddMessageDispositionState(msgHdr, dispositionSetting);

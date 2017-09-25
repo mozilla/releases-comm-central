@@ -382,14 +382,14 @@ nsPgpMimeProxy::Finish() {
       return NS_ERROR_FAILURE;
 
     nsCString temp;
-    temp.Append("Content-Type: text/html\r\nCharset: UTF-8\r\n\r\n<html><body>");
-    temp.Append("<BR><text=\"#000000\" bgcolor=\"#FFFFFF\" link=\"#FF0000\" vlink=\"#800080\" alink=\"#0000FF\">");
-    temp.Append("<center><table BORDER=1 ><tr><td><CENTER>");
+    temp.AppendLiteral("Content-Type: text/html\r\nCharset: UTF-8\r\n\r\n<html><body>");
+    temp.AppendLiteral("<BR><text=\"#000000\" bgcolor=\"#FFFFFF\" link=\"#FF0000\" vlink=\"#800080\" alink=\"#0000FF\">");
+    temp.AppendLiteral("<center><table BORDER=1 ><tr><td><CENTER>");
 
     nsCString tString;
     PgpMimeGetNeedsAddonString(tString);
     temp.Append(tString);
-    temp.Append("</CENTER></td></tr></table></center><BR></body></html>\r\n");
+    temp.AppendLiteral("</CENTER></td></tr></table></center><BR></body></html>\r\n");
 
     PR_SetError(0,0);
     int status = mOutputFun(temp.get(), temp.Length(), mOutputClosure);

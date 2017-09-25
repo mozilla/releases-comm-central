@@ -498,7 +498,7 @@ void Tokenizer::tokenizeHeaders(nsIUTF8StringEnumerator * aHeaderNames, nsIUTF8S
     switch (headerName.First())
     {
     case 'c':
-        if (headerName.Equals("content-type"))
+        if (headerName.EqualsLiteral("content-type"))
         {
           nsresult rv;
           nsCOMPtr<nsIMIMEHeaderParam> mimehdrpar = do_GetService(NS_MIMEHEADERPARAM_CONTRACTID, &rv);
@@ -520,7 +520,7 @@ void Tokenizer::tokenizeHeaders(nsIUTF8StringEnumerator * aHeaderNames, nsIUTF8S
         }
         break;
     case 'r':
-      if (headerName.Equals("received"))
+      if (headerName.EqualsLiteral("received"))
       {
         // look for the string "may be forged" in the received headers. sendmail sometimes adds this hint
         // This does not compile on linux yet. Need to figure out why. Commenting out for now
@@ -531,7 +531,7 @@ void Tokenizer::tokenizeHeaders(nsIUTF8StringEnumerator * aHeaderNames, nsIUTF8S
       // leave out reply-to
       break;
     case 's':
-        if (headerName.Equals("subject"))
+        if (headerName.EqualsLiteral("subject"))
         {
           // we want to tokenize the subject
           addTokenForHeader(headerName.get(), headerValue, true);
@@ -541,7 +541,7 @@ void Tokenizer::tokenizeHeaders(nsIUTF8StringEnumerator * aHeaderNames, nsIUTF8S
         break;
     case 'x': // (2) X-Mailer / user-agent works best if it is untokenized, just fold the case and any leading/trailing white space
         // all headers beginning with x-mozilla are being changed by us, so ignore
-        if (Substring(headerName, 0, 9).Equals("x-mozilla"))
+        if (StringBeginsWith(headerName, NS_LITERAL_CSTRING("x-mozilla")))
           break;
         // fall through
         MOZ_FALLTHROUGH;

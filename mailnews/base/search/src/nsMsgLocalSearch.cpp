@@ -440,7 +440,7 @@ nsresult nsMsgSearchOfflineMail::ProcessSearchTerm(nsIMsgDBHdr *msgToMatch,
         {
           // Make sure we pass along the "Re: " part of the subject if this is a reply.
           nsCString reString;
-          reString.Assign("Re: ");
+          reString.AssignLiteral("Re: ");
           reString.Append(matchString);
           err = aTerm->MatchRfc2047String(reString, charset, charsetOverride, &result);
         }
@@ -552,7 +552,7 @@ nsresult nsMsgSearchOfflineMail::ProcessSearchTerm(nsIMsgDBHdr *msgToMatch,
           {
             if (!keywords.IsEmpty())
               keywords.Append(' ');
-            keywords.Append("$label");
+            keywords.AppendLiteral("$label");
             keywords.Append(label + '0');
           }
           err = aTerm->MatchKeyword(keywords, &result);

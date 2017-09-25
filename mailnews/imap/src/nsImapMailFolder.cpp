@@ -3253,7 +3253,7 @@ NS_IMETHODIMP nsImapMailFolder::BeginCopy(nsIMsgDBHdr *message)
       nsMsgKey msgKey;
       message->GetMessageKey(&msgKey);
       tmpFileName.AppendInt(msgKey);
-      tmpFileName.Append(".txt");
+      tmpFileName.AppendLiteral(".txt");
       m_copyState->m_tmpFile->SetNativeLeafName(tmpFileName);
       rv = m_copyState->m_tmpFile->CreateUnique(nsIFile::NORMAL_FILE_TYPE, 00600);
       if (NS_FAILED(rv))
@@ -9085,7 +9085,7 @@ nsImapMailFolder::SetJunkScoreForMessages(nsIArray *aMessages, const nsACString&
     nsTArray<nsMsgKey> keys;
     nsresult rv = BuildIdsAndKeyArray(aMessages, messageIds, keys);
     NS_ENSURE_SUCCESS(rv, rv);
-    StoreCustomKeywords(nullptr, aJunkScore.Equals("0") ? NS_LITERAL_CSTRING("NonJunk") : NS_LITERAL_CSTRING("Junk"), EmptyCString(), keys.Elements(),
+    StoreCustomKeywords(nullptr, aJunkScore.EqualsLiteral("0") ? NS_LITERAL_CSTRING("NonJunk") : NS_LITERAL_CSTRING("Junk"), EmptyCString(), keys.Elements(),
       keys.Length(), nullptr);
     if (mDatabase)
       mDatabase->Commit(nsMsgDBCommitType::kLargeCommit);
@@ -9685,22 +9685,22 @@ NS_IMETHODIMP nsImapMailFolder::GetOfflineMsgFolder(nsMsgKey msgKey, nsIMsgFolde
         if (NS_SUCCEEDED(rv) && (rootFolder))
         {
           nsCOMPtr<nsIMsgImapMailFolder> imapRootFolder = do_QueryInterface(rootFolder);
-          if (labelNames[i].Equals("\"\\\\Draft\""))
+          if (labelNames[i].EqualsLiteral("\"\\\\Draft\""))
              rv = rootFolder->GetFolderWithFlags(nsMsgFolderFlags::Drafts,
                                                  getter_AddRefs(subMsgFolder));
-          if (labelNames[i].Equals("\"\\\\Inbox\""))
+          if (labelNames[i].EqualsLiteral("\"\\\\Inbox\""))
              rv = rootFolder->GetFolderWithFlags(nsMsgFolderFlags::Inbox,
                                                  getter_AddRefs(subMsgFolder));
-          if (labelNames[i].Equals("\"\\\\All Mail\""))
+          if (labelNames[i].EqualsLiteral("\"\\\\All Mail\""))
              rv = rootFolder->GetFolderWithFlags(nsMsgFolderFlags::Archive,
                                                  getter_AddRefs(subMsgFolder));
-          if (labelNames[i].Equals("\"\\\\Trash\""))
+          if (labelNames[i].EqualsLiteral("\"\\\\Trash\""))
              rv = rootFolder->GetFolderWithFlags(nsMsgFolderFlags::Trash,
                                                  getter_AddRefs(subMsgFolder));
-          if (labelNames[i].Equals("\"\\\\Spam\""))
+          if (labelNames[i].EqualsLiteral("\"\\\\Spam\""))
              rv = rootFolder->GetFolderWithFlags(nsMsgFolderFlags::Junk,
                                                  getter_AddRefs(subMsgFolder));
-          if (labelNames[i].Equals("\"\\\\Sent\""))
+          if (labelNames[i].EqualsLiteral("\"\\\\Sent\""))
              rv = rootFolder->GetFolderWithFlags(nsMsgFolderFlags::SentMail,
                                                  getter_AddRefs(subMsgFolder));
           if (labelNames[i].Find("[Imap]/", /* ignoreCase = */ true) != kNotFound)

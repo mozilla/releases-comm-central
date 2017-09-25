@@ -1085,7 +1085,7 @@ nsMsgComposeAndSend::PreProcessPart(nsMsgAttachmentHandler  *ma,
   // so we don't show it as an attachment.
   if (ma->mSendViaCloud)
   {
-    type.Assign("application/octet-stream");
+    type.AssignLiteral("application/octet-stream");
     realName.Truncate();
   }
   hdrs = mime_generate_attachment_headers (type.get(),
@@ -1127,12 +1127,12 @@ nsMsgComposeAndSend::PreProcessPart(nsMsgAttachmentHandler  *ma,
     // don't leak user file paths or account keys to recipients.
     if (m_deliver_mode == nsMsgSaveAsDraft)
     {
-      draftInfo.Append("; provider=");
+      draftInfo.AppendLiteral("; provider=");
       draftInfo.Append(ma->mCloudProviderKey.get());
-      draftInfo.Append("; file=");
+      draftInfo.AppendLiteral("; file=");
       draftInfo.Append(urlSpec.get());
     }
-    draftInfo.Append("; name=");
+    draftInfo.AppendLiteral("; name=");
     draftInfo.Append(ma->m_realName.get());
     draftInfo.Append(CRLF);
     part->AppendOtherHeaders(draftInfo.get());
@@ -2109,7 +2109,7 @@ nsMsgComposeAndSend::AddCompFieldLocalAttachments()
                     nsAutoCString type;
                     mimeFinder->GetTypeFromExtension(fileExt, type);
   #ifndef XP_MACOSX
-                    if (!type.Equals("multipart/appledouble"))  // can't do apple double on non-macs
+                    if (!type.EqualsLiteral("multipart/appledouble"))  // can't do apple double on non-macs
   #endif
                     m_attachments[newLoc]->m_type = type;
                   }
@@ -2126,7 +2126,7 @@ nsMsgComposeAndSend::AddCompFieldLocalAttachments()
                       nsAutoCString type;
                       mimeFinder->GetTypeFromExtension(fileExt, type);
   #ifndef XP_MACOSX
-                    if (!type.Equals("multipart/appledouble"))  // can't do apple double on non-macs
+                    if (!type.EqualsLiteral("multipart/appledouble"))  // can't do apple double on non-macs
   #endif
                       m_attachments[newLoc]->m_type = type;
                     // rtf and vcs files may look like text to sniffers,
@@ -2689,7 +2689,7 @@ nsMsgComposeAndSend::InitCompositionFields(nsMsgCompFields *fields,
                   rv = incomingServer->GetCharValue("type", incomingServerType);
                   // Exclude RSS accounts, as they falsely report
                   // 'canFileMessages' = true
-                  if (NS_SUCCEEDED(rv) && !incomingServerType.Equals("rss"))
+                  if (NS_SUCCEEDED(rv) && !incomingServerType.EqualsLiteral("rss"))
                   {
                     bool fccReplyFollowsParent;
                     rv = mUserIdentity->GetFccReplyFollowsParent(
@@ -4430,7 +4430,7 @@ nsMsgComposeAndSend::MimeDoFCC(nsIFile          *input_file,
         if (NS_SUCCEEDED(rv) && rootFolder)
         {
           rv = rootFolder->GetURI(folder);
-          folder.Append("/");
+          folder.Append('/');
         }
       }
     }
@@ -4450,7 +4450,7 @@ nsMsgComposeAndSend::MimeDoFCC(nsIFile          *input_file,
         // Typically, this appends "Sent-", "Drafts-" or "Templates-" to folder
         // and then has the account name appended, e.g., .../Sent-MyImapAccount.
         folder.Append(NS_ConvertUTF16toUTF8(mSavedToFolderName));
-        folder.Append("-");
+        folder.Append('-');
         break;
       default:
         status = NS_ERROR_FAILURE;

@@ -190,22 +190,22 @@ nsBeckySettings::SetupSmtpServer(nsISmtpServer **aServer)
   mParser->GetString(NS_LITERAL_CSTRING("Account"),
                      NS_LITERAL_CSTRING("SSLSMTP"),
                      value);
-  if (value.Equals("1"))
+  if (value.EqualsLiteral("1"))
     server->SetSocketType(nsMsgSocketType::SSL);
 
   mParser->GetString(NS_LITERAL_CSTRING("Account"),
                      NS_LITERAL_CSTRING("SMTPAUTH"),
                      value);
-  if (value.Equals("1")) {
+  if (value.EqualsLiteral("1")) {
     mParser->GetString(NS_LITERAL_CSTRING("Account"),
                        NS_LITERAL_CSTRING("SMTPAUTHMODE"),
                        value);
     nsMsgAuthMethodValue authMethod = nsMsgAuthMethod::none;
-    if (value.Equals("1")) {
+    if (value.EqualsLiteral("1")) {
       authMethod = nsMsgAuthMethod::passwordEncrypted;
-    } else if (value.Equals("2") ||
-               value.Equals("4") ||
-               value.Equals("6")) {
+    } else if (value.EqualsLiteral("2") ||
+               value.EqualsLiteral("4") ||
+               value.EqualsLiteral("6")) {
       authMethod = nsMsgAuthMethod::passwordCleartext;
     } else {
       authMethod = nsMsgAuthMethod::anything;
@@ -228,13 +228,13 @@ nsBeckySettings::SetPop3ServerProperties(nsIMsgIncomingServer *aServer)
                      NS_LITERAL_CSTRING("POP3Auth"),
                      value); // 0: plain, 1: APOP, 2: CRAM-MD5, 3: NTLM
   nsMsgAuthMethodValue authMethod;
-  if (value.IsEmpty() || value.Equals("0")) {
+  if (value.IsEmpty() || value.EqualsLiteral("0")) {
     authMethod = nsMsgAuthMethod::passwordCleartext;
-  } else if (value.Equals("1")) {
+  } else if (value.EqualsLiteral("1")) {
     authMethod = nsMsgAuthMethod::old;
-  } else if (value.Equals("2")) {
+  } else if (value.EqualsLiteral("2")) {
     authMethod = nsMsgAuthMethod::passwordEncrypted;
-  } else if (value.Equals("3")) {
+  } else if (value.EqualsLiteral("3")) {
     authMethod = nsMsgAuthMethod::NTLM;
   } else {
     authMethod = nsMsgAuthMethod::none;
@@ -244,7 +244,7 @@ nsBeckySettings::SetPop3ServerProperties(nsIMsgIncomingServer *aServer)
   mParser->GetString(NS_LITERAL_CSTRING("Account"),
                      NS_LITERAL_CSTRING("LeaveServer"),
                      value);
-  if (value.Equals("1")) {
+  if (value.EqualsLiteral("1")) {
     pop3Server->SetLeaveMessagesOnServer(true);
     nsresult rv = mParser->GetString(NS_LITERAL_CSTRING("Account"),
                                      NS_LITERAL_CSTRING("KeepDays"),
@@ -271,7 +271,7 @@ nsBeckySettings::SetupIncomingServer(nsIMsgIncomingServer **aServer)
                      NS_LITERAL_CSTRING("Protocol"),
                      value);
   nsCString protocol;
-  if (value.Equals("1")) {
+  if (value.EqualsLiteral("1")) {
     protocol = NS_LITERAL_CSTRING("imap");
   } else {
     protocol = NS_LITERAL_CSTRING("pop3");
@@ -305,7 +305,7 @@ nsBeckySettings::SetupIncomingServer(nsIMsgIncomingServer **aServer)
     mParser->GetString(NS_LITERAL_CSTRING("Account"),
                        NS_LITERAL_CSTRING("SSLPOP"),
                        value);
-    if (value.Equals("1"))
+    if (value.EqualsLiteral("1"))
       isSecure = true;
   } else if (protocol.EqualsLiteral("imap")) {
     rv = mParser->GetString(NS_LITERAL_CSTRING("Account"),
@@ -318,7 +318,7 @@ nsBeckySettings::SetupIncomingServer(nsIMsgIncomingServer **aServer)
     mParser->GetString(NS_LITERAL_CSTRING("Account"),
                        NS_LITERAL_CSTRING("SSLIMAP"),
                        value);
-    if (value.Equals("1"))
+    if (value.EqualsLiteral("1"))
       isSecure = true;
   }
 
@@ -329,7 +329,7 @@ nsBeckySettings::SetupIncomingServer(nsIMsgIncomingServer **aServer)
   mParser->GetString(NS_LITERAL_CSTRING("Account"),
                      NS_LITERAL_CSTRING("CheckInt"),
                      value);
-  if (value.Equals("1"))
+  if (value.EqualsLiteral("1"))
     server->SetDoBiff(true);
   rv = mParser->GetString(NS_LITERAL_CSTRING("Account"),
                           NS_LITERAL_CSTRING("CheckEvery"),

@@ -1624,7 +1624,7 @@ nsresult nsParseMailMessageState::FinalizeHeaders()
           for (uint32_t i = 0; i < newKeywordArray.Length(); i++)
           {
             if (i)
-              newKeywords.Append(" ");
+              newKeywords.Append(' ');
             newKeywords.Append(newKeywordArray[i]);
           }
           m_newMsgHdr->SetStringProperty("keywords", newKeywords.get());

@@ -989,7 +989,7 @@ void buildAbWinUri(const char *aScheme, uint32_t aType, nsCString& aUri)
     switch(aType) {
     case nsAbWinType_Outlook: aUri.Append(kOutlookStub) ; break ; 
     case nsAbWinType_OutlookExp: aUri.Append(kOutlookExpStub) ; break ;
-    default: aUri.Assign("") ;
+    default: aUri.AssignLiteral("") ;
     }
 }
 

@@ -353,7 +353,7 @@ static void UpdateCachedName(nsIMsgDBHdr *aHdr, const char *header_field,
 
   // save version number
   newCachedName.AppendInt(currentDisplayNameVersion);
-  newCachedName.Append("|");
+  newCachedName.Append('|');
 
   // save name
   newCachedName.Append(NS_ConvertUTF16toUTF8(newName));

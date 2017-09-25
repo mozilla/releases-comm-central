@@ -449,7 +449,7 @@ GenerateAttachmentData(MimeObject *object, const char *aMessageURL, MimeDisplayO
 
   if (!tmp->m_realName.IsEmpty() && !tmp->m_isExternalAttachment)
   {
-    urlString.Append("&filename=");
+    urlString.AppendLiteral("&filename=");
     nsAutoCString aResult;
     if (NS_SUCCEEDED(MsgEscapeString(tmp->m_realName,
                                      nsINetUtil::ESCAPE_XALPHAS, aResult)))
@@ -458,10 +458,10 @@ GenerateAttachmentData(MimeObject *object, const char *aMessageURL, MimeDisplayO
       urlString.Append(tmp->m_realName);
     if (tmp->m_realType.EqualsLiteral("message/rfc822") &&
            !StringEndsWith(urlString, NS_LITERAL_CSTRING(".eml"), nsCaseInsensitiveCStringComparator()))
-      urlString.Append(".eml");
+      urlString.AppendLiteral(".eml");
   } else if (tmp->m_isExternalAttachment) {
     // Allows the JS mime emitter to figure out the part information.
-    urlString.Append("?part=");
+    urlString.AppendLiteral("?part=");
     urlString.Append(part);
   } else if (tmp->m_realType.LowerCaseEqualsLiteral(MESSAGE_RFC822)) {
     // Special case...if this is a enclosed RFC822 message, give it a nice
@@ -472,7 +472,7 @@ GenerateAttachmentData(MimeObject *object, const char *aMessageURL, MimeDisplayO
       subject.Assign(object->headers->munged_subject);
       MimeHeaders_convert_header_value(options, subject, false);
       tmp->m_realName.Assign(subject);
-      tmp->m_realName.Append(".eml");
+      tmp->m_realName.AppendLiteral(".eml");
     }
     else
       tmp->m_realName = "ForwardedMessage.eml";
@@ -669,7 +669,7 @@ NotifyEmittersOfAttachmentList(MimeDisplayOptions     *opt,
     // - If we're asking for all body parts and NOT asking for metadata only,
     //   display it.
     // - Otherwise, skip it.
-    if (!tmp->m_disposition.Equals("attachment") && tmp->m_displayableInline &&
+    if (!tmp->m_disposition.EqualsLiteral("attachment") && tmp->m_displayableInline &&
         (tmp->m_realName.IsEmpty() || (!tmp->m_hasFilename &&
         (opt->html_as_p != 4 || opt->metadata_only))))
     {
@@ -2006,7 +2006,7 @@ nsresult GetMailNewsFont(MimeObject *obj, bool styleFixed,  int32_t *fontPixelSi
       ((MimeInlineTextClass*)&mimeInlineTextClass)->initialize_charset(obj);
 
     if (!text->charset || !(*text->charset))
-      charset.Assign("us-ascii");
+      charset.AssignLiteral("us-ascii");
     else
       charset.Assign(text->charset);
 

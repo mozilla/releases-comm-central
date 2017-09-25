@@ -361,7 +361,7 @@ IsEndOfHeaders(const nsCString &aLine)
 static inline bool
 IsEndOfMessage(const nsCString &aLine)
 {
-  return aLine.Equals(".");
+  return aLine.EqualsLiteral(".");
 }
 
 class ImportMessageRunnable: public mozilla::Runnable

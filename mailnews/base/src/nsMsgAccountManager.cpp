@@ -1303,7 +1303,7 @@ nsMsgAccountManager::LoadAccounts()
             nsCString accountPref("mail.account.");
             nsCString dupAccountServerKey;
             accountPref.Append(dupAccountKey);
-            accountPref.Append(".server");
+            accountPref.AppendLiteral(".server");
             nsCOMPtr<nsIPrefService> prefservice(
               do_GetService(NS_PREFSERVICE_CONTRACTID, &rv));
             if (NS_FAILED(rv)) {
@@ -1322,7 +1322,7 @@ nsMsgAccountManager::LoadAccounts()
             nsCOMPtr<nsIPrefBranch> serverPrefBranch;
             nsCString serverKeyPref(PREF_MAIL_SERVER_PREFIX);
             serverKeyPref.Append(dupAccountServerKey);
-            serverKeyPref.Append(".");
+            serverKeyPref.Append('.');
             rv = prefservice->GetBranch(serverKeyPref.get(),
                                         getter_AddRefs(serverPrefBranch));
             if (NS_FAILED(rv)) {
@@ -2950,7 +2950,7 @@ NS_IMETHODIMP nsMsgAccountManager::LoadVirtualFolders()
           version = buffer.ToInteger(&irv);
           continue;
         }
-        if (Substring(buffer, 0, 4).Equals("uri="))
+        if (StringBeginsWith(buffer, NS_LITERAL_CSTRING("uri=")))
         {
           buffer.Cut(0, 4);
           dbFolderInfo = nullptr;
@@ -3014,7 +3014,7 @@ NS_IMETHODIMP nsMsgAccountManager::LoadVirtualFolders()
             } while (!grandParent && !isServer);
           }
         }
-        else if (dbFolderInfo && Substring(buffer, 0, 6).Equals("scope="))
+        else if (dbFolderInfo && StringBeginsWith(buffer, NS_LITERAL_CSTRING("scope=")))
         {
           buffer.Cut(0, 6);
           // if this is a cross folder virtual folder, we have a list of folders uris,
@@ -3026,15 +3026,15 @@ NS_IMETHODIMP nsMsgAccountManager::LoadVirtualFolders()
             AddVFListenersForVF(virtualFolder, buffer, rdf, msgDBService);
           }
         }
-        else if (dbFolderInfo && Substring(buffer, 0, 6).Equals("terms="))
+        else if (dbFolderInfo && StringBeginsWith(buffer, NS_LITERAL_CSTRING("terms=")))
         {
           buffer.Cut(0, 6);
           dbFolderInfo->SetCharProperty("searchStr", buffer);
         }
-        else if (dbFolderInfo && Substring(buffer, 0, 13).Equals("searchOnline="))
+        else if (dbFolderInfo && StringBeginsWith(buffer, NS_LITERAL_CSTRING("searchOnline=")))
         {
           buffer.Cut(0, 13);
-          dbFolderInfo->SetBooleanProperty("searchOnline", buffer.Equals("true"));
+          dbFolderInfo->SetBooleanProperty("searchOnline", buffer.EqualsLiteral("true"));
         }
         else if (dbFolderInfo &&
                  Substring(buffer, 0, SEARCH_FOLDER_FLAG_LEN + 1)

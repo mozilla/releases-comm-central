@@ -947,7 +947,7 @@ nsMsgIncomingServer::GetMsgStore(nsIMsgPluggableStore **aMsgStore)
     GetCharValue("storeContractID", storeContractID);
     if (storeContractID.IsEmpty())
     {
-      storeContractID.Assign("@mozilla.org/msgstore/berkeleystore;1");
+      storeContractID.AssignLiteral("@mozilla.org/msgstore/berkeleystore;1");
       SetCharValue("storeContractID", storeContractID);
     }
 

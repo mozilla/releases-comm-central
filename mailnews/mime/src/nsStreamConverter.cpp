@@ -372,7 +372,7 @@ nsStreamConverter::DetermineOutputFormat(const char *aUrl, nsMimeOutputType *aNe
 
   // is this is a part that should just come out raw
   const char *part = FindQueryElementData(queryPart, "part=");
-  if (part && !mToType.Equals("application/vnd.mozilla.xul+xml"))
+  if (part && !mToType.EqualsLiteral("application/vnd.mozilla.xul+xml"))
   {
     // default for parts
     mOutputFormat = "raw";
@@ -394,13 +394,13 @@ nsStreamConverter::DetermineOutputFormat(const char *aUrl, nsMimeOutputType *aNe
       // and make sure we only get our own value.
       char *nextField = PL_strchr(typeField, '&');
       mRealContentType.Assign(typeField, nextField ? nextField - typeField : -1);
-      if (mRealContentType.Equals("message/rfc822"))
+      if (mRealContentType.EqualsLiteral("message/rfc822"))
       {
         mRealContentType = "application/x-message-display";
         mOutputFormat = "text/html";
         *aNewType = nsMimeOutput::nsMimeMessageBodyDisplay;
       }
-      else if (mRealContentType.Equals("application/x-message-display"))
+      else if (mRealContentType.EqualsLiteral("application/x-message-display"))
       {
         mRealContentType = "";
         mOutputFormat = "text/html";
@@ -685,7 +685,7 @@ NS_IMETHODIMP nsStreamConverter::GetContentType(char **aOutputContentType)
   //  (1) check to see if we have a real content type...use it first...
   if (!mRealContentType.IsEmpty())
     *aOutputContentType = ToNewCString(mRealContentType);
-  else if (mOutputFormat.Equals("raw"))
+  else if (mOutputFormat.EqualsLiteral("raw"))
     *aOutputContentType = (char *) nsMemory::Clone(UNKNOWN_CONTENT_TYPE, sizeof(UNKNOWN_CONTENT_TYPE));
   else
     *aOutputContentType = ToNewCString(mOutputFormat);

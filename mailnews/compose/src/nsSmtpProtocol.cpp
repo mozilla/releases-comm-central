@@ -780,12 +780,12 @@ nsresult nsSmtpProtocol::SendHeloResponse(nsIInputStream * inputStream, uint32_t
     rv = prefBranch->GetBoolPref("mail.strictly_mime", &strictlyMime);
 
     if (!strictlyMime)
-      buffer.Append(" BODY=8BITMIME");
+      buffer.AppendLiteral(" BODY=8BITMIME");
   }
 
   if (TestFlag(SMTP_EHLO_SIZE_ENABLED))
   {
-    buffer.Append(" SIZE=");
+    buffer.AppendLiteral(" SIZE=");
     buffer.AppendInt(m_totalMessageSize);
   }
   buffer += CRLF;

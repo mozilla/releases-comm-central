@@ -732,7 +732,7 @@ bool CMapiMessage::FetchBody(void)
     }
   }
   if (!bFoundCharset) // Everything else failed, let's use the lossless utf-8...
-    m_mimeCharset.Assign("utf-8");
+    m_mimeCharset.AssignLiteral("utf-8");
 
   MAPI_DUMP_STRING(m_body.get());
   MAPI_TRACE0("\r\n");

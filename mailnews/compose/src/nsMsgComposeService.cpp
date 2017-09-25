@@ -390,14 +390,14 @@ nsMsgComposeService::OpenComposeWindow(const char *msgComposeWindowURL, nsIMsgDB
   {
     nsAutoCString uriToOpen(originalMsgURI);
     uriToOpen += (uriToOpen.FindChar('?') == kNotFound) ? '?' : '&';
-    uriToOpen.Append("fetchCompleteMessage=true");
+    uriToOpen.AppendLiteral("fetchCompleteMessage=true");
 
     // The compose type that gets transmitted to a compose window open in mime
     // is communicated using url query parameters here.
     if (type == nsIMsgCompType::Redirect)
-      uriToOpen.Append("&redirect=true");
+      uriToOpen.AppendLiteral("&redirect=true");
     else if (type == nsIMsgCompType::EditAsNew)
-      uriToOpen.Append("&editasnew=true");
+      uriToOpen.AppendLiteral("&editasnew=true");
 
     return LoadDraftOrTemplate(uriToOpen, type == nsIMsgCompType::ForwardInline || type == nsIMsgCompType::Draft ?
                                nsMimeOutput::nsMimeMessageDraftOrTemplate : nsMimeOutput::nsMimeMessageEditorTemplate,
@@ -1012,7 +1012,7 @@ nsMsgComposeService::ForwardMessage(const nsAString &forwardTo,
 
   nsAutoCString uriToOpen(msgUri);
   uriToOpen += (uriToOpen.FindChar('?') == kNotFound) ? '?' : '&';
-  uriToOpen.Append("fetchCompleteMessage=true");
+  uriToOpen.AppendLiteral("fetchCompleteMessage=true");
 
   // get the MsgIdentity for the above key using AccountManager
   nsCOMPtr<nsIMsgAccountManager> accountManager =

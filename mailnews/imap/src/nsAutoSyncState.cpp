@@ -513,7 +513,7 @@ NS_IMETHODIMP nsAutoSyncState::SetState(int32_t aState)
   }
   nsCString logStr("Sync State set to ");
   logStr.Append(stateStrings[aState]);
-  logStr.Append(" for ");
+  logStr.AppendLiteral(" for ");
   LogOwnerFolderName(logStr.get());
   return NS_OK;
 }

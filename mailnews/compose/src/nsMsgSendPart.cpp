@@ -157,7 +157,7 @@ nsresult nsMsgSendPart::AddChild(nsMsgSendPart* child)
   m_children[m_numchildren - 1] = child;
   child->m_parent = this;
   nsCString partNum(m_partNum);
-  partNum.Append(".");
+  partNum.Append('.');
   partNum.AppendInt(m_numchildren);
   child->m_partNum = partNum;
   return NS_OK;

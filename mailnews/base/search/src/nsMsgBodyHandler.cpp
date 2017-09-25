@@ -393,7 +393,7 @@ void nsMsgBodyHandler::SniffPossibleMIMEHeader(nsCString &line)
     if (end == -1)
       end = line.Length();
 
-    boundary.Assign("--");
+    boundary.AssignLiteral("--");
     boundary.Append(Substring(line,start,end-start));
   }
 
