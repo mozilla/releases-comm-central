@@ -1509,7 +1509,7 @@ var Gloda = {
     if (aSubjectNounDef.queryClass !== undefined) {
       let constrainer;
       let canQuery = true;
-      if (aAttrDef.special == this.kSpecialFulltext) {
+      if (("special" in aAttrDef) && (aAttrDef.special == this.kSpecialFulltext)) {
         constrainer = function() {
           let constraint = [GlodaDatastore.kConstraintFulltext, aAttrDef];
           for (let iArg = 0; iArg < arguments.length; iArg++) {
@@ -1565,7 +1565,7 @@ var Gloda = {
       // - string LIKE helper for special on-row attributes: fooLike
       // (it is impossible to store a string as an indexed attribute, which is
       //  why we do this for on-row only.)
-      if (aAttrDef.special == this.kSpecialString) {
+      if (("special" in aAttrDef) && (aAttrDef.special == this.kSpecialString)) {
         let likeConstrainer = function() {
           let constraint = [GlodaDatastore.kConstraintStringLike, aAttrDef];
           for (let iArg = 0; iArg < arguments.length; iArg++) {
@@ -1815,22 +1815,22 @@ var Gloda = {
         this._attrProviderOrderByNoun[subjectType].push(aAttrDef.provider);
         if (aAttrDef.provider.optimize)
           this._attrOptimizerOrderByNoun[subjectType].push(aAttrDef.provider);
-        this._attrProvidersByNoun[subjectType][aAttrDef.provider] = [];
+        this._attrProvidersByNoun[subjectType][aAttrDef.provider.providerName] = [];
       }
-      this._attrProvidersByNoun[subjectType][aAttrDef.provider].push(aAttrDef);
+      this._attrProvidersByNoun[subjectType][aAttrDef.provider.providerName].push(aAttrDef);
 
       subjectNounDef.attribsByBoundName[aAttrDef.boundName] = aAttrDef;
       if (aAttrDef.domExpose)
         subjectNounDef.domExposeAttribsByBoundName[aAttrDef.boundName] =
           aAttrDef;
 
-      if (aAttrDef.special & this.kSpecialColumn)
+      if (("special" in aAttrDef) && (aAttrDef.special & this.kSpecialColumn))
         subjectNounDef.specialLoadAttribs.push(aAttrDef);
 
       // if this is a parent column attribute, make note of it so that if we
       //  need to do an inverse references lookup, we know what column we are
       //  issuing against.
-      if (aAttrDef.special === this.kSpecialColumnParent) {
+      if (("special" in aAttrDef) && (aAttrDef.special === this.kSpecialColumnParent)) {
         subjectNounDef.parentColumnAttr = aAttrDef;
       }
 

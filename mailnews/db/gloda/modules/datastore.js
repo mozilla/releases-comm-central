@@ -336,11 +336,13 @@ QueryFromQueryCallback.prototype = {
               let query = new nounDef.queryClass();
               query.id.apply(query, Object.keys(notFound));
 
+              // we fully expect/allow for there being no such subcollection yet.
+              let subCollection = (nounDef.id in this.collection.masterCollection.subCollections) ?
+                                  this.collection.masterCollection.subCollections[nounDef.id] : undefined;
               this.collection.masterCollection.subCollections[nounDef.id] =
                 GlodaDatastore.queryFromQuery(query, QueryFromQueryResolver,
                   this.collection,
-                  // we fully expect/allow for there being no such subcollection yet.
-                  this.collection.masterCollection.subCollections[nounDef.id],
+                  subCollection,
                   this.collection.masterCollection,
                   {becomeExplicit: true});
             }
@@ -357,11 +359,13 @@ QueryFromQueryCallback.prototype = {
             // we want to constrain using the parent column
             let queryConstrainer = query[nounDef.parentColumnAttr.boundName];
             queryConstrainer.apply(query, Object.keys(inverseReferences));
+            // we fully expect/allow for there being no such subcollection yet.
+            let subCollection = (nounDef.id in this.collection.masterCollection.subCollections) ?
+                                this.collection.masterCollection.subCollections[nounDef.id] : undefined;
             this.collection.masterCollection.subCollections[nounDef.id] =
               GlodaDatastore.queryFromQuery(query, QueryFromQueryResolver,
                 this.collection,
-                // we fully expect/allow for there being no such subcollection yet.
-                this.collection.masterCollection.subCollections[nounDef.id],
+                subCollection,
                 this.collection.masterCollection,
                 {becomeExplicit: true});
           }
@@ -2569,7 +2573,7 @@ var GlodaDatastore = {
     ums.executeAsync(this.trackAsync());
 
     if (aMessage.folderID !== null) {
-      if (aMessage._isNew === true)
+      if (("_isNew" in aMessage) && (aMessage._isNew === true))
         this._insertMessageText(aMessage);
       else
         this._updateMessageText(aMessage);
@@ -3350,13 +3354,14 @@ var GlodaDatastore = {
               //  that gets mad if we have too many strings... so we use our
               //  own escaping logic.  correctly escaping is easy, but it still
               //  feels wrong to do it. (just double the quote character...)
-              if (attrDef.special == this.kSpecialString)
+              if (("special" in attrDef) && (attrDef.special == this.kSpecialString)) {
                 clausePart += valueColumnName + " IN (" +
                   values.map(v => "'" + v.replace(/\'/g, "''") + "'").
                   join(",") + "))";
-              else
+              } else {
                 clausePart += valueColumnName + " IN (" + values.join(",") +
                               "))";
+              }
             }
             else
               clausePart += ")";
@@ -3545,7 +3550,7 @@ var GlodaDatastore = {
     for (let attrib of aItem.NOUN_DEF.specialLoadAttribs) {
       let objectNounDef = attrib.objectNounDef;
 
-      if (attrib.special === this.kSpecialColumnChildren) {
+      if (("special" in attrib) && (attrib.special === this.kSpecialColumnChildren)) {
         let invReferences = aInverseReferencesByNounID[objectNounDef.id];
         if (invReferences === undefined)
           invReferences = aInverseReferencesByNounID[objectNounDef.id] = {};
@@ -3558,7 +3563,7 @@ var GlodaDatastore = {
           hasDeps = true;
         }
       }
-      else if (attrib.special === this.kSpecialColumnParent) {
+      else if (("special" in attrib) && (attrib.special === this.kSpecialColumnParent)) {
         let references = aReferencesByNounID[objectNounDef.id];
         if (references === undefined)
           references = aReferencesByNounID[objectNounDef.id] = {};
