@@ -517,9 +517,9 @@ NS_IMETHODIMP
 nsMsgWindow::DisplayHTMLInMessagePane(const nsAString& title, const nsAString& body, bool clearMsgHdr)
 {
   nsString htmlStr;
-  htmlStr.Append(NS_LITERAL_STRING("<html><head><meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"></head><body>"));
+  htmlStr.AppendLiteral(u"<html><head><meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"></head><body>");
   htmlStr.Append(body);
-  htmlStr.Append(NS_LITERAL_STRING("</body></html>"));
+  htmlStr.AppendLiteral(u"</body></html>");
 
   char *encodedHtml = PL_Base64Encode(NS_ConvertUTF16toUTF8(htmlStr).get(), 0, nullptr);
   if (!encodedHtml)

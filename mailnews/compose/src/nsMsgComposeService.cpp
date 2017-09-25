@@ -737,9 +737,9 @@ NS_IMETHODIMP nsMsgTemplateReplyHelper::OnStopRunningUrl(nsIURI *aUrl, nsresult 
   subject.Append(templateSubject);
   if (!replySubject.IsEmpty())
   {
-    subject.Append(NS_LITERAL_STRING(" (was: "));
+    subject.AppendLiteral(u" (was: ");
     subject.Append(replySubject);
-    subject.Append(NS_LITERAL_STRING(")"));
+    subject.Append(u')');
   }
 
   compFields->SetSubject(subject);

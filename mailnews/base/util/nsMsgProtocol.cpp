@@ -362,9 +362,9 @@ void nsMsgProtocol::ShowAlertMessage(nsIMsgMailNewsUrl *aMsgUrl, nsresult aStatu
     errorMsg.Adopt(FormatStringWithHostNameByName(errorString, aMsgUrl));
     if (errorMsg.IsEmpty())
     {
-      errorMsg.Assign(NS_LITERAL_STRING("[StringID "));
+      errorMsg.AssignLiteral(u"[StringID ");
       errorMsg.Append(errorString);
-      errorMsg.AppendLiteral("?]");
+      errorMsg.AppendLiteral(u"?]");
     }
 
     nsCOMPtr<nsIMsgMailSession> mailSession =

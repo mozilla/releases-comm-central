@@ -1013,7 +1013,7 @@ nsresult nsMsgFolderDataSource::CreateUnreadMessagesNameString(int32_t unreadMes
   //Only do this if unread messages are positive
   if(unreadMessages > 0)
   {
-    nameString.Append(NS_LITERAL_STRING(" ("));
+    nameString.AppendLiteral(u" (");
     nameString.AppendInt(unreadMessages);
     nameString.Append(u')');
   }

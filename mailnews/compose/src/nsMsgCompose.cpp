@@ -2123,7 +2123,7 @@ nsresult nsMsgCompose::CreateMessage(const char * originalMsgURI,
             }
             mQuotingToFollow = true;
 
-            subject.Insert(NS_LITERAL_STRING("Re: "), 0);
+            subject.InsertLiteral(u"Re: ", 0);
             m_compFields->SetSubject(subject);
 
             // Setup quoting callbacks for later...
@@ -2157,7 +2157,7 @@ nsresult nsMsgCompose::CreateMessage(const char * originalMsgURI,
 
             msgHdr->GetFlags(&flags);
             if (flags & nsMsgMessageFlags::HasRe)
-              subject.Insert(NS_LITERAL_STRING("Re: "), 0);
+              subject.InsertLiteral(u"Re: ", 0);
 
             // Setup quoting callbacks for later...
             mQuotingToFollow = false;  //We don't need to quote the original message.
@@ -2212,7 +2212,7 @@ nsresult nsMsgCompose::CreateMessage(const char * originalMsgURI,
               }
               else
               {
-                subject.Insert(NS_LITERAL_STRING("Fwd: "), 0);
+                subject.InsertLiteral(u"Fwd: ", 0);
               }
               m_compFields->SetSubject(subject);
             }
@@ -3186,7 +3186,7 @@ bool IsInDomainList(const nsAString &aDomain, const nsAString &aDomainList)
       return true;
 
     nsAutoString dotDomain;
-    dotDomain.Assign(NS_LITERAL_STRING("."));
+    dotDomain.Assign(u'.');
     dotDomain.Append(domain);
     if (StringEndsWith(aDomain, dotDomain, nsCaseInsensitiveStringComparator()))
       return true;

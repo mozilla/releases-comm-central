@@ -5519,7 +5519,7 @@ NS_IMETHODIMP nsMsgDBFolder::GetMsgTextFromStream(nsIInputStream *stream, const 
     // this is in violation of the RFC for multipart/digest, though
     // Also, if we've just passed an end boundary, we're going to ignore this.
     if (!justPassedEndBoundary && contentTypeHdr.IsEmpty())
-      contentType.Assign(NS_LITERAL_STRING("text/plain"));
+      contentType.AssignLiteral(u"text/plain");
     else
       mimeHdrParam->GetParameter(contentTypeHdr, nullptr, EmptyCString(), false, nullptr, contentType);
 

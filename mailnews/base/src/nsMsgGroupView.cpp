@@ -1004,15 +1004,15 @@ nsMsgGroupView::CellTextForColumn(int32_t aRow,
         formattedCountUnrMsg.AppendInt(numUnrMsg);
 
         // Add text to header.
-        aValue.Append(NS_LITERAL_STRING(" ("));
+        aValue.AppendLiteral(u" (");
         if (numUnrMsg)
         {
           aValue.Append(formattedCountUnrMsg);
-          aValue.Append(NS_LITERAL_STRING("/"));
+          aValue.Append(u'/');
         }
 
         aValue.Append(formattedCountMsg);
-        aValue.Append(NS_LITERAL_STRING(")"));
+        aValue.Append(u')');
       }
     }
     else if (aColumnName[0] == 't' && aColumnName[1] == 'o')

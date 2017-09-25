@@ -516,7 +516,7 @@ nsresult nsMsgDBView::FetchRecipients(nsIMsgDBHdr * aHdr, nsAString &aRecipients
 
     // add ', ' between each recipient
     if (i != 0)
-      aRecipientsString.Append(NS_LITERAL_STRING(", "));
+      aRecipientsString.AppendLiteral(u", ");
 
     aRecipientsString.Append(recipient);
   }

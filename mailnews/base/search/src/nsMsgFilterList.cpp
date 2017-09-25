@@ -197,7 +197,7 @@ nsMsgFilterList::GetLogFile(nsIFile **aFile)
     rv = filterLogFile->GetLeafName(filterLogName);
     NS_ENSURE_SUCCESS(rv,rv);
 
-    filterLogName.Append(NS_LITERAL_STRING(".htm"));
+    filterLogName.AppendLiteral(u".htm");
 
     rv = filterLogFile->SetLeafName(filterLogName);
     NS_ENSURE_SUCCESS(rv,rv);

@@ -526,7 +526,7 @@ nsMessenger::LoadURL(mozIDOMWindowProxy *aWin, const nsACString& aURL)
     NS_ENSURE_SUCCESS(rv, rv);
     file->GetFileSize(&fileSize);
     uriString.Replace(0, 5, NS_LITERAL_STRING("mailbox:"));
-    uriString.Append(NS_LITERAL_STRING("&number=0"));
+    uriString.AppendLiteral(u"&number=0");
     loadingFromFile = true;
     getDummyMsgHdr = true;
   }
@@ -871,7 +871,7 @@ nsMessenger::SaveOneAttachment(const char * aContentType, const char * aURL,
       "saveAsType", extensionParam, 1, filterName);
     NS_ENSURE_SUCCESS(rv, rv);
 
-    extension.Insert(NS_LITERAL_STRING("*."), 0);
+    extension.InsertLiteral(u"*.", 0);
     filePicker->AppendFilter(filterName, extension);
   }
 
