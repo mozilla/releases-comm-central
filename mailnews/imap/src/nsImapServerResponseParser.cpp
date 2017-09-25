@@ -1532,7 +1532,7 @@ void nsImapServerResponseParser::xaolenvelope_data()
           fromLine.AppendLiteral("To: ");
           nsAutoCString fakeFromLine(NS_LITERAL_CSTRING("From: "));
           fakeFromLine.Append(fServerConnection.GetImapUserName());
-          fakeFromLine.Append(NS_LITERAL_CSTRING("@aol.com"));
+          fakeFromLine.AppendLiteral("@aol.com");
           fServerConnection.HandleMessageDownLoadLine(fakeFromLine.get(), false);
         }
         else

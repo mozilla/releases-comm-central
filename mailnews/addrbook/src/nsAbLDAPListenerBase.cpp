@@ -257,7 +257,7 @@ NS_IMETHODIMP nsAbLDAPListenerBase::OnLDAPInit(nsILDAPConnection *aConn, nsresul
     rv = mDirectoryUrl->GetAsciiHost(service);
     NS_ENSURE_SUCCESS(rv, rv);
 
-    service.Insert(NS_LITERAL_CSTRING("ldap@"), 0);
+    service.InsertLiteral("ldap@", 0);
 
     nsCOMPtr<nsIAuthModule> authModule =
       do_CreateInstance(NS_AUTH_MODULE_CONTRACTID_PREFIX "sasl-gssapi", &rv);

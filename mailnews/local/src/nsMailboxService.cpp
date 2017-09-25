@@ -170,7 +170,7 @@ nsresult nsMailboxService::FetchMessage(const char* aMessageURI,
     NS_ENSURE_SUCCESS(rv, rv);
     file->GetFileSize(&fileSize);
     uriString.Replace(0, 5, NS_LITERAL_CSTRING("mailbox:"));
-    uriString.Append(NS_LITERAL_CSTRING("&number=0"));
+    uriString.AppendLiteral("&number=0");
     rv = NS_NewURI(getter_AddRefs(url), uriString);
     NS_ENSURE_SUCCESS(rv, rv);
 

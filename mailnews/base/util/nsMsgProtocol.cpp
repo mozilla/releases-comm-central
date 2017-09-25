@@ -176,7 +176,7 @@ nsresult nsMsgProtocol::GetFileFromURL(nsIURI * aURL, nsIFile **aResult)
   // extract the file path from the uri...
   nsAutoCString urlSpec;
   aURL->GetPathQueryRef(urlSpec);
-  urlSpec.Insert(NS_LITERAL_CSTRING("file://"), 0);
+  urlSpec.InsertLiteral("file://", 0);
   nsresult rv;
 
 // dougt - there should be an easier way!

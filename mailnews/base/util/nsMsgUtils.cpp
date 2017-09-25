@@ -1917,7 +1917,7 @@ MsgStreamMsgHeaders(nsIInputStream *aInputStream, nsIStreamListener *aConsumer)
     if (curLine.IsEmpty())
       break;
     msgHeaders.Append(curLine);
-    msgHeaders.Append(NS_LITERAL_CSTRING("\r\n"));
+    msgHeaders.AppendLiteral("\r\n");
   }
   lineBuffer = nullptr;
   nsCOMPtr<nsIStringInputStream> hdrsStream =

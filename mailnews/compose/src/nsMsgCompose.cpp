@@ -2138,18 +2138,18 @@ nsresult nsMsgCompose::CreateMessage(const char * originalMsgURI,
             if (isFirstPass)
             {
               nsAutoCString reference;
-              reference.Append(NS_LITERAL_CSTRING("<"));
+              reference.Append('<');
               reference.Append(messageId);
-              reference.Append(NS_LITERAL_CSTRING(">"));
+              reference.Append('>');
               m_compFields->SetReferences(reference.get());
             }
             else
             {
               nsAutoCString references;
               m_compFields->GetReferences(getter_Copies(references));
-              references.Append(NS_LITERAL_CSTRING(" <"));
+              references.AppendLiteral(" <");
               references.Append(messageId);
-              references.Append(NS_LITERAL_CSTRING(">"));
+              references.Append('>');
               m_compFields->SetReferences(references.get());
             }
 

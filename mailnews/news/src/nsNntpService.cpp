@@ -1617,7 +1617,7 @@ nsNntpService::Handle(nsICommandLine* aCmdLine)
 NS_IMETHODIMP
 nsNntpService::GetHelpInfo(nsACString& aResult)
 {
-  aResult.Assign(NS_LITERAL_CSTRING("  -news              Open the news client.\n"));
+  aResult.AssignLiteral("  -news              Open the news client.\n");
   return NS_OK;
 }
 

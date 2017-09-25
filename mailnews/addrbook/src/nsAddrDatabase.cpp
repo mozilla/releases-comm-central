@@ -354,7 +354,7 @@ NS_IMETHODIMP nsAddrDatabase::Open
     rv = dummyBackupMabFile->GetNativeLeafName(dummyBackupMabFileName);
     NS_ENSURE_SUCCESS(rv, rv);
 
-    dummyBackupMabFileName.Append(NS_LITERAL_CSTRING(".bak"));
+    dummyBackupMabFileName.AppendLiteral(".bak");
 
     rv = dummyBackupMabFile->SetNativeLeafName(dummyBackupMabFileName);
     NS_ENSURE_SUCCESS(rv, rv);

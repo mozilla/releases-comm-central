@@ -8780,9 +8780,9 @@ void nsImapProtocol::GetQuotaDataIfSupported(const char *aBoxName)
   IncrementCommandTagNumber();
 
   nsAutoCString quotacommand(GetServerCommandTag());
-  quotacommand.Append(NS_LITERAL_CSTRING(" getquotaroot \""));
+  quotacommand.AppendLiteral(" getquotaroot \"");
   quotacommand.Append(escapedName);
-  quotacommand.Append(NS_LITERAL_CSTRING("\"" CRLF));
+  quotacommand.AppendLiteral("\"" CRLF);
 
   NS_ASSERTION(m_imapMailFolderSink, "m_imapMailFolderSink is null!");
   if (m_imapMailFolderSink)

@@ -1134,7 +1134,7 @@ static void writeGroup(OFile *fp, VObject *o)
   nsAutoCString buf(NAME_OF(o));
 
   while ((o=isAPropertyOf(o,VCGroupingProp)) != 0) {
-    buf.Insert(NS_LITERAL_CSTRING("."), 0);
+    buf.InsertLiteral(".", 0);
     buf.Insert(STRINGZ_VALUE_OF(o), 0);
   }
   appendsOFile(fp, buf.get());

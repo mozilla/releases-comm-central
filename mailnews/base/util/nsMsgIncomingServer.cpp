@@ -2274,7 +2274,7 @@ nsMsgIncomingServer::GetForcePropertyEmpty(const char *aPropertyName, bool *_ret
 {
   NS_ENSURE_ARG_POINTER(_retval);
   nsAutoCString nameEmpty(aPropertyName);
-  nameEmpty.Append(NS_LITERAL_CSTRING(".empty"));
+  nameEmpty.AppendLiteral(".empty");
   nsCString value;
   GetCharValue(nameEmpty.get(), value);
   *_retval = value.EqualsLiteral("true");
@@ -2285,7 +2285,7 @@ NS_IMETHODIMP
 nsMsgIncomingServer::SetForcePropertyEmpty(const char *aPropertyName, bool aValue)
 {
  nsAutoCString nameEmpty(aPropertyName);
- nameEmpty.Append(NS_LITERAL_CSTRING(".empty"));
+ nameEmpty.AppendLiteral(".empty");
  return SetCharValue(nameEmpty.get(),
    aValue ? NS_LITERAL_CSTRING("true") : NS_LITERAL_CSTRING(""));
 }

@@ -1318,7 +1318,7 @@ nsMsgComposeService::RunMessageThroughMimeDraft(
   {
     // We loaded a .eml file from a file: url. Construct equivalent mailbox url.
     mailboxUri.Replace(0, 5, NS_LITERAL_CSTRING("mailbox:"));
-    mailboxUri.Append(NS_LITERAL_CSTRING("&number=0"));
+    mailboxUri.AppendLiteral("&number=0");
     // Need this to prevent nsMsgCompose::TagEmbeddedObjects from setting
     // inline images as moz-do-not-send.
     mimeConverter->SetOriginalMsgURI(mailboxUri.get());

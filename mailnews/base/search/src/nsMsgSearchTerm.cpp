@@ -1822,11 +1822,11 @@ NS_IMPL_GETSET(nsMsgSearchTerm, EndsGrouping, bool, mEndsGrouping)
 void nsMsgSearchTerm::ToLowerCaseExceptSpecials(nsACString &aValue)
 {
   if (aValue.LowerCaseEqualsLiteral("sender"))
-    aValue.Assign(NS_LITERAL_CSTRING("Sender"));
+    aValue.AssignLiteral("Sender");
   else if (aValue.LowerCaseEqualsLiteral("date"))
-    aValue.Assign(NS_LITERAL_CSTRING("Date"));
+    aValue.AssignLiteral("Date");
   else if (aValue.LowerCaseEqualsLiteral("status"))
-    aValue.Assign(NS_LITERAL_CSTRING("Status"));
+    aValue.AssignLiteral("Status");
   else
     ToLowerCase(aValue);
 }

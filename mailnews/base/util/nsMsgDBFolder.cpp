@@ -2222,7 +2222,7 @@ nsMsgDBFolder::GetForcePropertyEmpty(const char *aPropertyName, bool *_retval)
 {
   NS_ENSURE_ARG_POINTER(_retval);
   nsAutoCString nameEmpty(aPropertyName);
-  nameEmpty.Append(NS_LITERAL_CSTRING(".empty"));
+  nameEmpty.AppendLiteral(".empty");
   nsCString value;
   GetStringProperty(nameEmpty.get(), value);
   *_retval = value.EqualsLiteral("true");
@@ -2233,7 +2233,7 @@ NS_IMETHODIMP
 nsMsgDBFolder::SetForcePropertyEmpty(const char *aPropertyName, bool aValue)
 {
  nsAutoCString nameEmpty(aPropertyName);
- nameEmpty.Append(NS_LITERAL_CSTRING(".empty"));
+ nameEmpty.AppendLiteral(".empty");
  return SetStringProperty(nameEmpty.get(),
    aValue ? NS_LITERAL_CSTRING("true") : NS_LITERAL_CSTRING(""));
 }
@@ -2485,7 +2485,7 @@ nsMsgDBFolder::OnMessageTraitsClassified(const char *aMsgURI,
       continue; // junk is processed by the junk listener
     nsAutoCString traitId;
     rv = traitService->GetId(aTraits[i], traitId);
-    traitId.Insert(NS_LITERAL_CSTRING("bayespercent/"), 0);
+    traitId.InsertLiteral("bayespercent/", 0);
     nsAutoCString strPercent;
     strPercent.AppendInt(aPercents[i]);
     mDatabase->SetStringPropertyByHdr(msgHdr, traitId.get(), strPercent.get());
@@ -5497,7 +5497,7 @@ NS_IMETHODIMP nsMsgDBFolder::GetMsgTextFromStream(nsIInputStream *stream, const 
       if (curLine.IsEmpty())
         break;
       msgHeaders.Append(curLine);
-      msgHeaders.Append(NS_LITERAL_CSTRING("\r\n"));
+      msgHeaders.AppendLiteral("\r\n");
       bytesRead += curLine.Length();
       if (bytesRead > bytesToRead)
         break;
@@ -5576,7 +5576,7 @@ NS_IMETHODIMP nsMsgDBFolder::GetMsgTextFromStream(nsIInputStream *stream, const 
     {
       boundary.Assign(boundaryStack.ElementAt(count - 1));
       endBoundary.Assign(boundary);
-      endBoundary.Append(NS_LITERAL_CSTRING("--"));
+      endBoundary.AppendLiteral("--");
     }
     while (more)
     {
@@ -5608,7 +5608,7 @@ NS_IMETHODIMP nsMsgDBFolder::GetMsgTextFromStream(nsIInputStream *stream, const 
       {
         msgText.Append(curLine);
         if (!isBase64)
-          msgText.Append(NS_LITERAL_CSTRING("\r\n"));
+          msgText.AppendLiteral("\r\n");
       }
 
       bytesRead += curLine.Length();
