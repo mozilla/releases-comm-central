@@ -625,11 +625,9 @@
 @RESPATH@/components/directory.xpt
 @RESPATH@/components/layout_xul_tree.xpt
 @RESPATH@/components/mozfind.xpt
-#ifdef ENABLE_INTL_API
 @RESPATH@/components/mozintl.xpt
 @RESPATH@/components/mozIntl.manifest
 @RESPATH@/components/mozIntl.js
-#endif
 @RESPATH@/components/mimetype.xpt
 @RESPATH@/components/parentalcontrols.xpt
 #ifdef MOZ_WEBRTC
