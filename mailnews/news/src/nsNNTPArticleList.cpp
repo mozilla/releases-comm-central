@@ -89,7 +89,7 @@ nsNNTPArticleList::FinishAddingArticleKeys()
   if (m_dbIndex < m_idsInDB.Length())
     m_idsDeleted.AppendElements(&m_idsInDB[m_dbIndex],
       m_idsInDB.Length() - m_dbIndex);
-  
+
   if (m_idsDeleted.Length())
     m_newsFolder->RemoveMessages(m_idsDeleted);
 

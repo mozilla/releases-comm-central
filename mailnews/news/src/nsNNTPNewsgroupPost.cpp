@@ -85,7 +85,7 @@ nsNNTPNewsgroupPost::SetPostMessageFile(nsIFile * aPostMessageFile)
   return NS_OK;
 }
 
-nsresult 
+nsresult
 nsNNTPNewsgroupPost::GetPostMessageFile(nsIFile ** aPostMessageFile)
 {
   if (aPostMessageFile)

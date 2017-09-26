@@ -829,8 +829,8 @@ nsMsgNewsFolder::DeleteMessages(nsIArray *messages, nsIMsgWindow *aMsgWindow,
     }
     EnableNotifications(allMessageCountNotifications, true);
   }
- 
-  if (!isMove) 
+
+  if (!isMove)
     NotifyFolderEvent(NS_SUCCEEDED(rv) ? kDeleteOrMoveMsgCompleted :
       kDeleteOrMoveMsgFailed);
 
@@ -881,7 +881,7 @@ NS_IMETHODIMP nsMsgNewsFolder::CancelMessage(nsIMsgDBHdr *msgHdr,
   rv = GetUriForMsg(msgHdr, messageURI);
   NS_ENSURE_SUCCESS(rv,rv);
 
-  return nntpService->CancelMessage(cancelURL.get(), messageURI.get(), nullptr /* consumer */, nullptr, 
+  return nntpService->CancelMessage(cancelURL.get(), messageURI.get(), nullptr /* consumer */, nullptr,
                                     aMsgWindow, nullptr);
 }
 
@@ -1300,7 +1300,7 @@ nsMsgNewsFolder::GetAuthenticationCredentials(nsIMsgWindow *aMsgWindow,
       }
     }
   }
-  
+
   *validCredentials = !(mGroupUsername.IsEmpty() || mGroupPassword.IsEmpty());
   return NS_OK;
 }
@@ -1372,7 +1372,7 @@ NS_IMETHODIMP nsMsgNewsFolder::MoveFolder(nsIMsgFolder *aNewsgroupToMove, nsIMsg
     if (aOrientation > 0)
       indexRefNewsgroup++;
     indexMin = indexRefNewsgroup;
-    indexMax = indexNewsgroupToMove; 
+    indexMax = indexNewsgroupToMove;
   }
 
   // move NewsgroupToMove to new index and set new sort order
@@ -1387,11 +1387,11 @@ NS_IMETHODIMP nsMsgNewsFolder::MoveFolder(nsIMsgFolder *aNewsgroupToMove, nsIMsg
     // indexRefNewsgroup is already set up correctly.
     mSubFolders.InsertObjectAt(newsgroup, indexRefNewsgroup);
   }
-  
+
   for (uint32_t i = indexMin; i <= indexMax; i++)
     mSubFolders[i]->SetSortOrder(kNewsSortOffset + i);
 
-  NotifyItemAdded(aNewsgroupToMove);  
+  NotifyItemAdded(aNewsgroupToMove);
 
   // write changes back to file
   nsCOMPtr<nsINntpIncomingServer> nntpServer;

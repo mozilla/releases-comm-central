@@ -60,7 +60,7 @@ public:
 
   NS_IMETHOD DeleteMessages(nsIArray *messages,
                             nsIMsgWindow *msgWindow, bool deleteStorage,
-                            bool isMove, nsIMsgCopyServiceListener* listener, 
+                            bool isMove, nsIMsgCopyServiceListener* listener,
                             bool allowUndo) override;
   NS_IMETHOD GetNewMessages(nsIMsgWindow *aWindow,
                             nsIUrlListener *aListener) override;

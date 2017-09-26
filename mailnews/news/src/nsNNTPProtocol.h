@@ -367,7 +367,7 @@ private:
   // XHDR, XOVER, HEAD filtering process handlers
   // These are ordered by the rough order of usage
   /////////////////////////////////////////////////////////////////////////////
- 
+
   /**
    * The first step in the filtering process, the state NNTP_XOVER_BEGIN.
    * This method sets up m_newsgroupList.
@@ -428,14 +428,14 @@ private:
    * This state, NNTP_READ_GROUP, is the control for the HEAD processor.
    * It sends the HEAD command and increments the article number until it is
    * finished. WARNING: HEAD is REALLY SLOW.
-   * Followed by: NNTP_FIGURE_NEXT_CHUNK   when it is finished 
+   * Followed by: NNTP_FIGURE_NEXT_CHUNK   when it is finished
    *              NNTP_READ_GROUP_RESPONSE when it is not
    */
   nsresult ReadHeaders();
   /**
    * This state, NNTP_READ_GROUP_RESPONSE, checks if the article exists.
    * Because it is required by NNTP, if it doesn't work, the only problem would
-   * be that the article doesn't exist. Passes off article number data to 
+   * be that the article doesn't exist. Passes off article number data to
    * nsNNTPNewsgroupList.
    * Followed by: NNTP_READ_GROUP_BODY     if the article exists
    *              NNTP_READ_GROUP          if it doesn't.

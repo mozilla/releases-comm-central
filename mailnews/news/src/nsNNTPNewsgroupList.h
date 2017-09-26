@@ -62,7 +62,7 @@ private:
   virtual  ~nsNNTPNewsgroupList();
 
   nsresult CleanUp();
-     
+
   bool    m_finishingXover;
 
 #ifdef HAVE_CHANGELISTENER
@@ -87,7 +87,7 @@ protected:
   nsCOMPtr <nsIMsgNewsFolder> m_newsFolder;
   nsCOMPtr <nsIMsgDatabase> m_newsDB;
   nsCOMPtr <nsINntpUrl> m_runningURL;
- 
+
   /**
    * The last message that we have processed (XOVER or HEAD).
    */
@@ -100,7 +100,7 @@ protected:
    * The endpoints of the message chunk we are capable of downloading.
    */
   int32_t m_firstMsgToDownload, m_lastMsgToDownload;
-  
+
   struct MSG_NewsKnown m_knownArts;
   nsMsgKeySet *m_set;
 
@@ -119,6 +119,6 @@ private:
   bool m_addHdrToDB;
 
 };
-    
+
 #endif /* nsNNTPNewsgroupListState_h___ */
 

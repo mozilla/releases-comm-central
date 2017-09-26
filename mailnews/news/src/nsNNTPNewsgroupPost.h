@@ -42,13 +42,13 @@
 #define HEADER_LAST                 IDX_HEADER_MESSAGEID
 
 class nsNNTPNewsgroupPost : public nsINNTPNewsgroupPost {
-    
+
 public:
     nsNNTPNewsgroupPost();
-    
+
     NS_DECL_ISUPPORTS
     NS_DECL_NSINNTPNEWSGROUPPOST
-    
+
 private:
     virtual ~nsNNTPNewsgroupPost();
 

@@ -432,7 +432,7 @@ NS_IMETHODIMP
 nsNntpUrl::GetServer(nsIMsgIncomingServer **aServer)
 {
   NS_ENSURE_ARG_POINTER(aServer);
-  
+
   nsresult rv;
   nsAutoCString scheme, user, host;
 
@@ -454,10 +454,10 @@ nsNntpUrl::GetServer(nsIMsgIncomingServer **aServer)
   // either one. We'll assume it's an internal one first, though.
   bool isNews = scheme.EqualsLiteral("news") || scheme.EqualsLiteral("snews");
   bool isNntp = scheme.EqualsLiteral("nntp") || scheme.EqualsLiteral("nntps");
-  
+
   bool tryReal = isNntp;
 
-  nsCOMPtr<nsIMsgAccountManager> accountManager = 
+  nsCOMPtr<nsIMsgAccountManager> accountManager =
     do_GetService(NS_MSGACCOUNTMANAGER_CONTRACTID, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 

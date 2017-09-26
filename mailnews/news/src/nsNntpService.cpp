@@ -245,7 +245,7 @@ nsNntpService::DisplayMessage(const char* aMessageURI, nsISupports * aDisplayCon
   if (folder)
   {
     nsCOMPtr<nsIMsgIncomingServer> server;
-    // We need to set the port on the url, just like 
+    // We need to set the port on the url, just like
     // nsNNTPProtocol::Initialize does, so the specs will be the same.
     // we can ignore errors here - worst case, we'll display the
     // "message not available" message.
@@ -1198,7 +1198,7 @@ NS_IMETHODIMP nsNntpService::GetProtocolFlags(uint32_t *aUritype)
       | ORIGIN_IS_FULL_SPEC
 #endif
     ;
-  
+
     return NS_OK;
 }
 
