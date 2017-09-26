@@ -923,7 +923,7 @@ nsresult nsMsgDBFolder::CreateFileForDB(const nsAString& userLeafName, nsIFile *
     dbPath->GetLeafName(proposedDBName);
   }
   // now, take the ".msf" off
-  proposedDBName.SetLength(proposedDBName.Length() - NS_LITERAL_CSTRING(SUMMARY_SUFFIX).Length());
+  proposedDBName.SetLength(proposedDBName.Length() - NS_LITERAL_STRING(SUMMARY_SUFFIX).Length());
   dbPath->SetLeafName(proposedDBName);
 
   dbPath.forget(dbFile);
@@ -3911,7 +3911,7 @@ nsresult nsMsgDBFolder::CreateDirectoryForFolder(nsIFile **resultFile)
     int32_t idx = leafName.RFindChar('.');
     if (idx != -1)
       ext = Substring(leafName, idx);
-    if (!ext.EqualsLiteral(FOLDER_SUFFIX))
+    if (!ext.EqualsLiteral(FOLDER_SUFFIX8))  // No overload for char16_t available.
       pathIsDirectory = false;
   }
 

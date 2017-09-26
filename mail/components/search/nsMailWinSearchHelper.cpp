@@ -91,7 +91,7 @@ NS_IMETHODIMP nsMailWinSearchHelper::GetFoldersInCrawlScope(bool* aResult)
     // Form a URL as required by the crawl scope manager
     nsString subdirURL(NS_LITERAL_STRING("file:///"));
     subdirURL.Append(subdirPath);
-    subdirURL.Append(NS_LITERAL_STRING("\\"));
+    subdirURL.Append('\\');
 
     BOOL included;
     if (FAILED(crawlScopeManager->IncludedInCrawlScope(subdirURL.get(), &included)))

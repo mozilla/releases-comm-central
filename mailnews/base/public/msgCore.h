@@ -24,12 +24,13 @@ class nsIMsgFolder;
 /*
  * The suffix we use for the mail summary file.
  */
-#define SUMMARY_SUFFIX ".msf"
+#define SUMMARY_SUFFIX u".msf"
 
 /*
  * The suffix we use for folder subdirectories.
  */
-#define FOLDER_SUFFIX ".sbd"
+#define FOLDER_SUFFIX u".sbd"
+#define FOLDER_SUFFIX8 ".sbd"
 
 /*
  * These are folder property strings, which are used in several places.

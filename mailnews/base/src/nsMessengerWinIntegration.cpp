@@ -51,12 +51,12 @@
 
 #include "nsToolkitCompsCID.h"
 #include <stdlib.h>
-#define PROFILE_COMMANDLINE_ARG " -profile "
+#define PROFILE_COMMANDLINE_ARG u" -profile "
 
 #define NOTIFICATIONCLASSNAME "MailBiffNotificationMessageWindow"
 #define UNREADMAILNODEKEY u"Software\\Microsoft\\Windows\\CurrentVersion\\UnreadMail\\"
-#define DOUBLE_QUOTE "\""
-#define MAIL_COMMANDLINE_ARG " -mail"
+#define DOUBLE_QUOTE '"'
+#define MAIL_COMMANDLINE_ARG u" -mail"
 #define IDI_MAILBIFF 32576
 #define UNREAD_UPDATE_INTERVAL	(20 * 1000)	// 20 seconds
 #define ALERT_CHROME_URL "chrome://messenger/content/newmailalert.xul"
@@ -995,14 +995,14 @@ nsMessengerWinIntegration::UpdateRegistryWithCurrent()
   // ""<absolute path to application>" -p foo -mail" where absolute
   // path to application is extracted from mAppName
   nsAutoString commandLinerForAppLaunch;
-  commandLinerForAppLaunch.Assign(NS_LITERAL_STRING(DOUBLE_QUOTE));
+  commandLinerForAppLaunch.Assign(DOUBLE_QUOTE);
   commandLinerForAppLaunch.Append(mAppName);
-  commandLinerForAppLaunch.Append(NS_LITERAL_STRING(DOUBLE_QUOTE));
-  commandLinerForAppLaunch.Append(NS_LITERAL_STRING(PROFILE_COMMANDLINE_ARG));
-  commandLinerForAppLaunch.Append(NS_LITERAL_STRING(DOUBLE_QUOTE));
+  commandLinerForAppLaunch.Append(DOUBLE_QUOTE);
+  commandLinerForAppLaunch.AppendLiteral(PROFILE_COMMANDLINE_ARG);
+  commandLinerForAppLaunch.Append(DOUBLE_QUOTE);
   commandLinerForAppLaunch.Append(mProfilePath);
-  commandLinerForAppLaunch.Append(NS_LITERAL_STRING(DOUBLE_QUOTE));
-  commandLinerForAppLaunch.Append(NS_LITERAL_STRING(MAIL_COMMANDLINE_ARG));
+  commandLinerForAppLaunch.Append(DOUBLE_QUOTE);
+  commandLinerForAppLaunch.AppendLiteral(MAIL_COMMANDLINE_ARG);
 
   if (!commandLinerForAppLaunch.IsEmpty())
   {

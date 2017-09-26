@@ -241,7 +241,7 @@ nsresult nsImapMailFolder::AddDirectorySeparator(nsIFile *path)
     // see if there's a dir with the same name ending with .sbd
     nsAutoString leafName;
     path->GetLeafName(leafName);
-    leafName.Append(NS_LITERAL_STRING(FOLDER_SUFFIX));
+    leafName.AppendLiteral(FOLDER_SUFFIX);
     path->SetLeafName(leafName);
   }
 
