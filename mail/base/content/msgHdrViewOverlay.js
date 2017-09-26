@@ -2398,7 +2398,8 @@ function toggleAttachmentList(expanded, updateFocus)
 
   if (expanded) {
     attachmentList.collapsed = false;
-    attachmentSplitter.collapsed = false;
+    if (!attachmentView.collapsed)
+      attachmentSplitter.collapsed = false;
     attachmentBar.setAttribute("tooltiptext", bundle.getString(
       "collapseAttachmentPaneTooltip"));
 
