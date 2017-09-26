@@ -1,0 +1,4 @@
+# Install OSX Bug 1400533
+# Until we are cross-building OSX or the OS on the build workers are updated,
+# we need to use a newer SDK than the installed SDK.
+local-mozconfig.common
