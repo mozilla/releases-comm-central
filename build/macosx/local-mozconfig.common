@@ -20,14 +20,25 @@ else
     echo "Don't know where we are; can't find clang. topsrcdir: $topsrcdir"
 fi
 
+if [ -d $TOOLTOOL_DIR/MacOSX10.10.sdk ]; then
+    export CROSS_SYSROOT=$TOOLTOOL_DIR/MacOSX10.10.sdk
+    CROSS_PRIVATE_FRAMEWORKS=$CROSS_SYSROOT/System/Library/PrivateFrameworks
+    FLAGS="-isysroot $CROSS_SYSROOT"
+    ldflags="-Wl,-syslibroot,$CROSS_SYSROOT "
+    export BINDGEN_CFLAGS="$FLAGS"
+    ac_add_options --with-macos-private-frameworks=$CROSS_PRIVATE_FRAMEWORKS
+else
+    FLAGS=""
+fi
+
 if [ -d $TOOLTOOL_DIR ]; then
-    export CC="$TOOLTOOL_DIR/clang/bin/clang"
-    export CXX="$TOOLTOOL_DIR/clang/bin/clang++"
-    export CPP="$TOOLTOOL_DIR/clang/bin/clang -E"
+    export CC="$TOOLTOOL_DIR/clang/bin/clang $FLAGS"
+    export CXX="$TOOLTOOL_DIR/clang/bin/clang++ $FLAGS"
+    export CPP="$TOOLTOOL_DIR/clang/bin/clang $FLAGS -E"
     export LLVMCONFIG=$TOOLTOOL_DIR/clang/bin/llvm-config
     export DSYMUTIL=$TOOLTOOL_DIR/clang/bin/llvm-dsymutil
     # Use an updated linker.
-    ldflags="-B$TOOLTOOL_DIR/cctools/bin "
+    ldflags="$ldflags -B$TOOLTOOL_DIR/cctools/bin "
     export AR=$TOOLTOOL_DIR/cctools/bin/ar
     export RANLIB=$TOOLTOOL_DIR/cctools/bin/ranlib
 fi
