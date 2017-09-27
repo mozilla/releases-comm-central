@@ -28,8 +28,6 @@
 #include "nsUnicharUtils.h"
 #include "nsMsgPrompts.h"
 #include "nsIDOMHTMLImageElement.h"
-#include "nsIDOMHTMLLinkElement.h"
-#include "nsIDOMHTMLAnchorElement.h"
 #include "nsCExternalHandlerService.h"
 #include "nsIMIMEService.h"
 #include "nsIDocument.h"
@@ -77,8 +75,10 @@
 #include "mozilla/Attributes.h"
 #include "mozilla/mailnews/MimeEncoder.h"
 #include "mozilla/mailnews/MimeHeaderParser.h"
-#include "mozilla/dom/HTMLImageElement.h"
+#include "mozilla/dom/HTMLAnchorElement.h"
 #include "mozilla/dom/HTMLBodyElement.h"
+#include "mozilla/dom/HTMLImageElement.h"
+#include "mozilla/dom/HTMLLinkElement.h"
 #include "nsIMutableArray.h"
 #include "nsIMsgFilterService.h"
 #include "nsIMsgProtocolInfo.h"
@@ -86,6 +86,7 @@
 #include "mozilla/Preferences.h"
 
 using namespace mozilla;
+using namespace mozilla::dom;
 using namespace mozilla::mailnews;
 
 static NS_DEFINE_CID(kRDFServiceCID, NS_RDFSERVICE_CID);
@@ -1299,22 +1300,23 @@ nsMsgComposeAndSend::GetEmbeddedObjectInfo(nsIDOMNode *node, nsMsgAttachmentData
   // our query interface here and see what we come up with
   nsCOMPtr<nsINode> tempNode = do_QueryInterface(node);
   RefPtr<mozilla::dom::HTMLBodyElement> body = getHTMLBodyElement(tempNode);
-  // XXX convert to use nsIImageLoadingContent?
-  nsCOMPtr<Element> imageElement = do_QueryInterface(node);
-  RefPtr<mozilla::dom::HTMLImageElement> image =
-    mozilla::dom::HTMLImageElement::FromContentOrNull(imageElement);
-  nsCOMPtr<nsIDOMHTMLLinkElement>   link = do_QueryInterface(node);
-  nsCOMPtr<nsIDOMHTMLAnchorElement> anchor = do_QueryInterface(node);
+
+  nsCOMPtr<Element> nodeAsElement = do_QueryInterface(node);
+  RefPtr<HTMLImageElement>  image  = HTMLImageElement::FromContentOrNull(nodeAsElement);
+  RefPtr<HTMLLinkElement>   link   = HTMLLinkElement::FromContentOrNull(nodeAsElement);
+  RefPtr<HTMLAnchorElement> anchor = HTMLAnchorElement::FromContentOrNull(nodeAsElement);
 
   // First, try to see if the body as a background image
   if (body)
   {
-    mozilla::dom::DOMString tUrl;
-    body->GetBackground(tUrl);
-    if (tUrl.AsAString().IsEmpty())
+    DOMString tUrl;
+    body->GetBackground(tUrl);  // XXX Todo: Need overload here.
+    nsString tUrl2;
+    tUrl.ToString(tUrl2);
+    if (tUrl2.IsEmpty())
       return NS_OK;
     nsAutoCString turlC;
-    CopyUTF16toUTF8(tUrl.AsAString(), turlC);
+    CopyUTF16toUTF8(tUrl2, turlC);
     if (NS_FAILED(nsMsgNewURL(getter_AddRefs(attachment->m_url), turlC)))
       return NS_OK;
     isImage = true;
@@ -1380,8 +1382,7 @@ nsMsgComposeAndSend::GetEmbeddedObjectInfo(nsIDOMNode *node, nsMsgAttachmentData
     nsString    tUrl;
 
     // Create the URI
-    rv = link->GetHref(tUrl);
-    NS_ENSURE_SUCCESS(rv, rv);
+    link->GetHref(tUrl);
     if (tUrl.IsEmpty())
       return NS_OK;
     nsAutoCString turlC;
@@ -1392,11 +1393,9 @@ nsMsgComposeAndSend::GetEmbeddedObjectInfo(nsIDOMNode *node, nsMsgAttachmentData
   else if (anchor)
   {
     nsString    tUrl;
-    nsString    tName;
 
     // Create the URI
-    rv = anchor->GetHref(tUrl);
-    NS_ENSURE_SUCCESS(rv, rv);
+    anchor->GetHref(tUrl);
     if (tUrl.IsEmpty())
       return NS_OK;
     nsAutoCString turlC;
@@ -1405,9 +1404,11 @@ nsMsgComposeAndSend::GetEmbeddedObjectInfo(nsIDOMNode *node, nsMsgAttachmentData
     // <a href="skype:some-name?call" title="Skype">Some Name</a>
     if (NS_FAILED(nsMsgNewURL(getter_AddRefs(attachment->m_url), turlC)))
       return NS_OK;
-    rv = anchor->GetName(tName);
-    NS_ENSURE_SUCCESS(rv, rv);
-    LossyCopyUTF16toASCII(tName, attachment->m_realName);
+    DOMString tName;
+    anchor->GetName(tName);  // XXX Todo: Need overload here.
+    nsString tName2;
+    tName.ToString(tName2);
+    LossyCopyUTF16toASCII(tName2, attachment->m_realName);
   }
   else
   {
@@ -1840,34 +1841,33 @@ nsMsgComposeAndSend::ProcessMultipartRelated(int32_t *aMailboxCount, int32_t *aN
       // our query interface here and see what we come up with
       nsCOMPtr<nsINode> tempNode = do_QueryInterface(domSaveArray[j].node);
       RefPtr<mozilla::dom::HTMLBodyElement> body = getHTMLBodyElement(tempNode);
-      nsCOMPtr<Element> imageElement = do_QueryInterface(domSaveArray[j].node);
-      RefPtr<mozilla::dom::HTMLImageElement> image =
-        mozilla::dom::HTMLImageElement::FromContentOrNull(imageElement);
-      nsCOMPtr<nsIDOMHTMLLinkElement>   link = do_QueryInterface(domSaveArray[j].node);
-      nsCOMPtr<nsIDOMHTMLAnchorElement> anchor = do_QueryInterface(domSaveArray[j].node);
 
+      nsCOMPtr<Element> nodeAsElement = do_QueryInterface(domSaveArray[j].node);
+      RefPtr<HTMLImageElement>  image  = HTMLImageElement::FromContentOrNull(nodeAsElement);
+      RefPtr<HTMLLinkElement>   link   = HTMLLinkElement::FromContentOrNull(nodeAsElement);
+      RefPtr<HTMLAnchorElement> anchor = HTMLAnchorElement::FromContentOrNull(nodeAsElement);
+
+      IgnoredErrorResult rv2;
       if (anchor)
       {
         anchor->GetHref(domURL);
-        anchor->SetHref(newSpec);
+        anchor->SetHref(newSpec, rv2);
       }
       else if (link)
       {
         link->GetHref(domURL);
-        link->SetHref(newSpec);
+        link->SetHref(newSpec, rv2);
       }
       else if (image)
       {
         image->GetSrc(domURL);
-        IgnoredErrorResult rv2;
         image->SetSrc(newSpec, rv2);
       }
       else if (body)
       {
-        mozilla::dom::DOMString background;
-        body->GetBackground(background);
-        domURL = background.AsAString();
-        IgnoredErrorResult rv2;
+        DOMString background;
+        body->GetBackground(background);  // XXX Todo: Need overload here.
+        background.ToString(domURL);
         body->SetBackground(newSpec, rv2);
       }
 
@@ -1892,24 +1892,23 @@ nsMsgComposeAndSend::ProcessMultipartRelated(int32_t *aMailboxCount, int32_t *aN
     // our query interface here and see what we come up with
     nsCOMPtr<nsINode> tempNode = do_QueryInterface(domSaveArray[i].node);
     RefPtr<mozilla::dom::HTMLBodyElement> body = getHTMLBodyElement(tempNode);
-    nsCOMPtr<Element> imageElement = do_QueryInterface(domSaveArray[i].node);
-    RefPtr<mozilla::dom::HTMLImageElement> image =
-      mozilla::dom::HTMLImageElement::FromContentOrNull(imageElement);
-    nsCOMPtr<nsIDOMHTMLLinkElement>   link = do_QueryInterface(domSaveArray[i].node);
-    nsCOMPtr<nsIDOMHTMLAnchorElement> anchor = do_QueryInterface(domSaveArray[i].node);
+
+    nsCOMPtr<Element> nodeAsElement = do_QueryInterface(domSaveArray[i].node);
+    RefPtr<HTMLImageElement>  image  = HTMLImageElement::FromContentOrNull(nodeAsElement);
+    RefPtr<HTMLLinkElement>   link   = HTMLLinkElement::FromContentOrNull(nodeAsElement);
+    RefPtr<HTMLAnchorElement> anchor = HTMLAnchorElement::FromContentOrNull(nodeAsElement);
 
       // STRING USE WARNING: hoisting the following conversion might save code-space, since it happens along every path
 
-    if (anchor)
-      anchor->SetHref(NS_ConvertASCIItoUTF16(domSaveArray[i].url));
-    else if (link)
-      link->SetHref(NS_ConvertASCIItoUTF16(domSaveArray[i].url));
-    else if (image) {
-      IgnoredErrorResult rv2;
+    IgnoredErrorResult rv2;
+    if (anchor) {
+      anchor->SetHref(NS_ConvertASCIItoUTF16(domSaveArray[i].url), rv2);
+    } else if (link) {
+      link->SetHref(NS_ConvertASCIItoUTF16(domSaveArray[i].url), rv2);
+    } else if (image) {
       image->SetSrc(NS_ConvertASCIItoUTF16(domSaveArray[i].url), rv2);
     }
     else if (body) {
-      IgnoredErrorResult rv2;
       body->SetBackground(NS_ConvertASCIItoUTF16(domSaveArray[i].url), rv2);
     }
 

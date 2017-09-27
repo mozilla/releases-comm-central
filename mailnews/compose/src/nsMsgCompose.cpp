@@ -9,8 +9,6 @@
 #include "nsIDOMNodeList.h"
 #include "nsIDOMText.h"
 #include "nsIDOMHTMLImageElement.h"
-#include "nsIDOMHTMLLinkElement.h"
-#include "nsIDOMHTMLAnchorElement.h"
 #include "nsPIDOMWindow.h"
 #include "mozIDOMWindow.h"
 #include "nsISelectionController.h"
@@ -75,7 +73,9 @@
 #include "mozilla/mailnews/MimeHeaderParser.h"
 #include "mozilla/Preferences.h"
 #include "mozilla/ErrorResult.h"
+#include "mozilla/dom/HTMLAnchorElement.h"
 #include "mozilla/dom/HTMLImageElement.h"
+#include "mozilla/dom/HTMLLinkElement.h"
 #include "nsStreamConverter.h"
 #include "nsISelection.h"
 #include "nsJSEnvironment.h"
@@ -85,6 +85,7 @@
 #include "nsIFileURL.h"
 
 using namespace mozilla;
+using namespace mozilla::dom;
 using namespace mozilla::mailnews;
 
 static nsresult GetReplyHeaderInfo(int32_t* reply_header_type,
@@ -260,30 +261,22 @@ bool nsMsgCompose::IsEmbeddedObjectSafe(const char * originalScheme,
 {
   nsresult rv;
 
-  nsCOMPtr<nsIDOMHTMLLinkElement> link;
-  nsCOMPtr<nsIDOMHTMLAnchorElement> anchor;
   nsAutoString objURL;
 
   if (!object || !originalScheme || !originalPath) //having a null host is ok...
     return false;
 
-  nsCOMPtr<Element> imageElement = do_QueryInterface(object);
-  RefPtr<mozilla::dom::HTMLImageElement> image =
-    mozilla::dom::HTMLImageElement::FromContentOrNull(imageElement);
+  nsCOMPtr<Element> objectAsElement = do_QueryInterface(object);
+  RefPtr<HTMLImageElement>  image  = HTMLImageElement::FromContentOrNull(objectAsElement);
+  RefPtr<HTMLLinkElement>   link   = HTMLLinkElement::FromContentOrNull(objectAsElement);
+  RefPtr<HTMLAnchorElement> anchor = HTMLAnchorElement::FromContentOrNull(objectAsElement);
+
   if (image)
-  {
     image->GetSrc(objURL);
-  }
-  else if ((link = do_QueryInterface(object)))
-  {
-    if (NS_FAILED(link->GetHref(objURL)))
-      return false;
-  }
-  else if ((anchor = do_QueryInterface(object)))
-  {
-    if (NS_FAILED(anchor->GetHref(objURL)))
-      return false;
-  }
+  else if (link)
+    link->GetHref(objURL);
+  else if (anchor)
+    anchor->GetHref(objURL);
   else
     return false;
 
