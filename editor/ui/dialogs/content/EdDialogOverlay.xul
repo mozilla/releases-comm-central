@@ -51,11 +51,10 @@
   tooltiptext = "&makeUrlRelative.tooltip;"/>
 
 <vbox id="LinkLocationBox">
-  <label control="hrefInput" accesskey="&LinkURLEditField.accessKey;" width="1">&LinkURLEditField.label;</label>
+  <label control="hrefInput" accesskey="&LinkURLEditField2.accessKey;" width="1">&LinkURLEditField2.label;</label>
   <textbox id="hrefInput" type="autocomplete"
            autocompletesearch="unifiedcomplete" timeout="50" maxrows="6"
-           enablehistory="true" class="uri-element padded"
-           oninput="ChangeLinkLocation();">
+           class="uri-element padded" oninput="ChangeLinkLocation();">
     <menupopup class="autocomplete-history-popup"
                popupalign="topleft" popupanchor="bottomleft"
                oncommand="this.parentNode.value = event.target.getAttribute('label'); ChangeLinkLocation();"/>
