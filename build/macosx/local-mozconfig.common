@@ -27,6 +27,9 @@ if [ -d $TOOLTOOL_DIR/MacOSX10.10.sdk ]; then
     ldflags="-Wl,-syslibroot,$CROSS_SYSROOT "
     export BINDGEN_CFLAGS="$FLAGS"
     ac_add_options --with-macos-private-frameworks=$CROSS_PRIVATE_FRAMEWORKS
+    # Since we are manually providing an SDK, don't check for xcode being installed.
+    # See https://bugzilla.mozilla.org/show_bug.cgi?id=1366564
+    ac_add_options --disable-xcode-checks
 else
     FLAGS=""
 fi
