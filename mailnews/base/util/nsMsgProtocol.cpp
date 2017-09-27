@@ -9,7 +9,7 @@
 #include "nsIMsgMailNewsUrl.h"
 #include "nsIMsgMailSession.h"
 #include "nsMsgBaseCID.h"
-#include "nsIStreamTransportService2.h"
+#include "nsIStreamTransportService.h"
 #include "nsISocketTransportService.h"
 #include "nsISocketTransport.h"
 #include "nsILoadGroup.h"
@@ -208,8 +208,8 @@ nsresult nsMsgProtocol::OpenFileSocket(nsIURI * aURL, uint32_t aStartPosition, i
   if (NS_FAILED(rv)) return rv;
 
   // create input stream transport
-  nsCOMPtr<nsIStreamTransportService2> sts =
-      do_GetService(NS_STREAMTRANSPORTSERVICE2_CONTRACTID, &rv);
+  nsCOMPtr<nsIStreamTransportService> sts =
+      do_GetService(NS_STREAMTRANSPORTSERVICE_CONTRACTID, &rv);
   if (NS_FAILED(rv)) return rv;
 
   rv = sts->CreateInputTransport(stream, int64_t(aStartPosition),

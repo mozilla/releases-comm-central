@@ -533,18 +533,4 @@
 #define MOZ_NEWMAILNOTIFICATIONSERVICE_CONTRACTID \
   "@mozilla.org/newMailNotificationService;1"
 
-//
-// Service implementing nsIStreamTransportService2,
-// forked from nsIStreamTransportService.
-//
-#define NS_STREAMTRANSPORTSERVICE2_CONTRACTID \
-    "@mozilla.org/mailnews/stream-transport-service2;1"
-#define NS_STREAMTRANSPORTSERVICE2_CID \
-{ /* 80f305e1-a04b-4795-97af-72a86681c76c */         \
-    0x80f305e1,                                      \
-    0xa04b,                                          \
-    0x4795,                                          \
-    {0x97, 0xaf, 0x72, 0xa8, 0x66, 0x81, 0xc7, 0x6c} \
-}
-
 #endif // nsMessageBaseCID_h__

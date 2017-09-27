@@ -30,8 +30,6 @@ MOZ_SERVICE(MimeConverter,     nsIMimeConverter,
             "@mozilla.org/messenger/mimeconverter;1")
 MOZ_SERVICE(MFNService,        nsIMsgFolderNotificationService,
             "@mozilla.org/messenger/msgnotificationservice;1")
-MOZ_SERVICE(StreamTransportService2, nsIStreamTransportService2,
-            "@mozilla.org/mailnews/stream-transport-service2;1")
 MOZ_SERVICE(NntpService,       nsINntpService,
             "@mozilla.org/messenger/nntpservice;1")
 MOZ_SERVICE(Pop3Service,       nsIPop3Service,

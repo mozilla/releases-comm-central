@@ -97,9 +97,6 @@
 #include "nsMsgMaildirStore.h"
 #include "nsMsgTagService.h"
 #include "nsMsgFolderNotificationService.h"
-#include "nsIThreadPool.h"
-#include "nsStreamTransportService2.h"
-typedef mozilla::net::nsStreamTransportService2 nsStreamTransportService2;
 #include "nsMailDirProvider.h"
 
 #ifdef XP_WIN
@@ -370,7 +367,6 @@ NS_GENERIC_FACTORY_CONSTRUCTOR(nsMsgProgress)
 NS_GENERIC_FACTORY_CONSTRUCTOR(nsSpamSettings)
 NS_GENERIC_FACTORY_CONSTRUCTOR(nsMsgTagService)
 NS_GENERIC_FACTORY_CONSTRUCTOR(nsMsgFolderNotificationService)
-NS_GENERIC_FACTORY_CONSTRUCTOR_INIT(nsStreamTransportService2, Init)
 NS_GENERIC_FACTORY_CONSTRUCTOR(nsCidProtocolHandler)
 NS_GENERIC_FACTORY_CONSTRUCTOR(nsMailDirProvider)
 NS_GENERIC_FACTORY_CONSTRUCTOR(nsMsgShutdownService)
@@ -434,7 +430,6 @@ NS_DEFINE_NAMED_CID(NS_SPAMSETTINGS_CID);
 NS_DEFINE_NAMED_CID(NS_CIDPROTOCOL_CID);
 NS_DEFINE_NAMED_CID(NS_MSGTAGSERVICE_CID);
 NS_DEFINE_NAMED_CID(NS_MSGNOTIFICATIONSERVICE_CID);
-NS_DEFINE_NAMED_CID(NS_STREAMTRANSPORTSERVICE2_CID);
 #ifdef XP_WIN
 NS_DEFINE_NAMED_CID(NS_MESSENGERWININTEGRATION_CID);
 #endif
@@ -907,7 +902,6 @@ const mozilla::Module::CIDEntry kMailNewsCIDs[] = {
   { &kNS_CIDPROTOCOL_CID, false, NULL, nsCidProtocolHandlerConstructor},
   { &kNS_MSGTAGSERVICE_CID, false, NULL, nsMsgTagServiceConstructor},
   { &kNS_MSGNOTIFICATIONSERVICE_CID, false, NULL, nsMsgFolderNotificationServiceConstructor},
-  { &kNS_STREAMTRANSPORTSERVICE2_CID, false, NULL, nsStreamTransportService2Constructor},
 #ifdef XP_WIN
   { &kNS_MESSENGERWININTEGRATION_CID, false, NULL, nsMessengerWinIntegrationConstructor},
 #endif
@@ -1122,7 +1116,6 @@ const mozilla::Module::ContractIDEntry kMailNewsContracts[] = {
   { NS_CIDPROTOCOLHANDLER_CONTRACTID, &kNS_CIDPROTOCOL_CID },
   { NS_MSGTAGSERVICE_CONTRACTID, &kNS_MSGTAGSERVICE_CID },
   { NS_MSGNOTIFICATIONSERVICE_CONTRACTID, &kNS_MSGNOTIFICATIONSERVICE_CID },
-  { NS_STREAMTRANSPORTSERVICE2_CONTRACTID, &kNS_STREAMTRANSPORTSERVICE2_CID },
 #ifdef XP_WIN
   { NS_MESSENGEROSINTEGRATION_CONTRACTID, &kNS_MESSENGERWININTEGRATION_CID },
 #endif
