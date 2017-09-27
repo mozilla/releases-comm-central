@@ -237,7 +237,7 @@ nsMsgSearchDBView::OnHdrDeleted(nsIMsgDBHdr *aHdrDeleted,
         if (rootHdr)
         {
           nsMsgViewIndex threadIndex = GetThreadRootIndex(rootHdr);
-          if (threadIndex != nsMsgViewIndex_None)
+          if (IsValidIndex(threadIndex))
             AndExtraFlag(threadIndex, ~(MSG_VIEW_FLAG_ISTHREAD |
                                         nsMsgMessageFlags::Elided |
                                         MSG_VIEW_FLAG_HASCHILDREN));
@@ -465,10 +465,11 @@ nsMsgSearchDBView::AddHdrFromFolder(nsIMsgDBHdr *msgHdr,
     {
       viewThread->AddHdr(msgHdr, false, posInThread, getter_AddRefs(parent));
       nsMsgViewIndex insertIndex = GetIndexForThread(msgHdr);
-      NS_ASSERTION(insertIndex == m_levels.Length() || !m_levels[insertIndex],
+      NS_ASSERTION(insertIndex == m_levels.Length() ||
+                   (IsValidIndex(insertIndex) && !m_levels[insertIndex]),
                    "inserting into middle of thread");
       if (insertIndex == nsMsgViewIndex_None)
-        return NS_ERROR_FAILURE;
+        return NS_MSG_INVALID_DBVIEW_INDEX;
 
       if (!(m_viewFlags & nsMsgViewFlagsType::kExpandAll))
         msgFlags |= nsMsgMessageFlags::Elided;
@@ -478,15 +479,17 @@ nsMsgSearchDBView::AddHdrFromFolder(nsIMsgDBHdr *msgHdr,
     }
     else
     {
-      // get the thread root index before we add the header, because adding
+      // Get the thread root index before we add the header, because adding
       // the header can change the sort position.
       nsMsgViewIndex threadIndex = GetThreadRootIndex(threadRoot);
       viewThread->AddHdr(msgHdr, msgIsReferredTo, posInThread, getter_AddRefs(parent));
-      if (threadIndex == nsMsgViewIndex_None)
+      if (!IsValidIndex(threadIndex))
       {
         NS_ERROR("couldn't find thread index for newly inserted header");
-        return NS_OK; // not really OK, but not failure exactly.
+        // Not really OK, but not failure exactly.
+        return NS_OK;
       }
+
       NS_ASSERTION(!m_levels[threadIndex], "threadRoot incorrect, or level incorrect");
 
       bool moveThread = false;
@@ -503,7 +506,7 @@ nsMsgSearchDBView::AddHdrFromFolder(nsIMsgDBHdr *msgHdr,
       {
         if (parent)
         {
-          // since we know posInThread, we just want to insert the new hdr
+          // Since we know posInThread, we just want to insert the new hdr
           // at threadIndex + posInThread, and then rebuild the view until we
           // get to a sibling of the new hdr.
           uint8_t newMsgLevel = viewThread->ChildLevelAt(posInThread);
@@ -520,8 +523,8 @@ nsMsgSearchDBView::AddHdrFromFolder(nsIMsgDBHdr *msgHdr,
 
         }
         else
-        // The new header is the root, so we need to adjust all the children.
         {
+          // The new header is the root, so we need to adjust all the children.
           InsertMsgHdrAt(threadIndex, msgHdr, msgKey, msgFlags, 0);
 
           NoteChange(threadIndex, 1, nsMsgViewNotificationCode::insertOrDelete);
@@ -636,9 +639,10 @@ void nsMsgSearchDBView::MoveThreadAt(nsMsgViewIndex threadIndex)
   nsMsgDBView::RemoveByIndex(threadIndex);
   m_folders.RemoveObjectAt(threadIndex);
   nsMsgViewIndex newIndex = GetIndexForThread(threadHdr);
-  NS_ASSERTION(newIndex == m_levels.Length() || !m_levels[newIndex],
+  NS_ASSERTION(newIndex == m_levels.Length() ||
+               (IsValidIndex(newIndex) && !m_levels[newIndex]),
                "inserting into middle of thread");
-  if (newIndex == nsMsgViewIndex_None)
+  if (!IsValidIndex(newIndex))
     newIndex = 0;
 
   nsMsgKey msgKey;
