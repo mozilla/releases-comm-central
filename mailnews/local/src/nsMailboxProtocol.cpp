@@ -34,6 +34,7 @@ static mozilla::LazyLogModule MAILBOX("MAILBOX");
 #include "nsIMimeHeaders.h"
 #include "nsIMsgPluggableStore.h"
 #include "nsISeekableStream.h"
+#include "SlicedInputStream.h"
 
 #include "nsIMsgMdnGenerator.h"
 
@@ -69,8 +70,9 @@ nsresult nsMailboxProtocol::OpenMultipleMsgTransport(uint64_t offset, int32_t si
   NS_ENSURE_SUCCESS(rv, rv);
 
   // XXX 64-bit
-  rv = serv->CreateInputTransport(m_multipleMsgMoveCopyStream, int64_t(offset),
-                                  int64_t(size), false,
+  RefPtr<SlicedInputStream> slicedStream =
+    new SlicedInputStream(m_multipleMsgMoveCopyStream, offset, uint64_t(size));
+  rv = serv->CreateInputTransport(slicedStream, false,
                                   getter_AddRefs(m_transport));
 
   return rv;
@@ -158,8 +160,9 @@ nsresult nsMailboxProtocol::Initialize(nsIURI * aURL)
                 m_multipleMsgMoveCopyStream = stream;
               else
                 reusable = false;
-              rv = sts->CreateInputTransport(stream, offset,
-                                             int64_t(aMsgSize), !reusable,
+              RefPtr<SlicedInputStream> slicedStream =
+                new SlicedInputStream(stream, uint64_t(offset), uint64_t(aMsgSize));
+              rv = sts->CreateInputTransport(slicedStream, !reusable,
                                              getter_AddRefs(m_transport));
 
               m_socketIsOpen = false;
@@ -313,8 +316,9 @@ NS_IMETHODIMP nsMailboxProtocol::OnStopRequest(nsIRequest *request, nsISupports 
                     if (NS_SUCCEEDED(rv))
                     {
                       m_readCount = msgSize;
-                      rv = sts->CreateInputTransport(stream, msgOffset,
-                                                     int64_t(msgSize), true,
+                      RefPtr<SlicedInputStream> slicedStream =
+                        new SlicedInputStream(stream, msgOffset, uint64_t(msgSize));
+                      rv = sts->CreateInputTransport(slicedStream, true,
                                                      getter_AddRefs(m_transport));
                     }
                   }

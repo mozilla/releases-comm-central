@@ -41,6 +41,7 @@
 #include "mozilla/Services.h"
 #include <algorithm>
 #include "nsContentSecurityManager.h"
+#include "SlicedInputStream.h"
 
 #undef PostMessage // avoid to collision with WinUser.h
 
@@ -212,8 +213,9 @@ nsresult nsMsgProtocol::OpenFileSocket(nsIURI * aURL, uint32_t aStartPosition, i
       do_GetService(NS_STREAMTRANSPORTSERVICE_CONTRACTID, &rv);
   if (NS_FAILED(rv)) return rv;
 
-  rv = sts->CreateInputTransport(stream, int64_t(aStartPosition),
-                                 int64_t(aReadCount), true,
+  RefPtr<SlicedInputStream> slicedStream =
+    new SlicedInputStream(stream, uint64_t(aStartPosition), uint64_t(aReadCount));
+  rv = sts->CreateInputTransport(slicedStream, true,
                                  getter_AddRefs(m_transport));
 
   m_socketIsOpen = false;
