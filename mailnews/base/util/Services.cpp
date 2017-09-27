@@ -21,6 +21,7 @@
 #include "nsIMsgDatabase.h"
 #include "nsIMsgFilterService.h"
 #include "nsIMsgFolderNotificationService.h"
+#include "nsIStreamTransportService2.h"
 #include "nsIMsgHeaderParser.h"
 #include "nsIMsgMailSession.h"
 #include "nsIMsgTagService.h"

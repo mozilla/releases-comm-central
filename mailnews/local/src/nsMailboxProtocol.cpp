@@ -12,6 +12,7 @@
 #include "nsIMsgDatabase.h"
 #include "nsIMsgHdr.h"
 #include "nsMsgLineBuffer.h"
+#include "nsMsgBaseCID.h"
 #include "nsMsgDBCID.h"
 #include "nsIMsgMailNewsUrl.h"
 #include "nsICopyMsgStreamListener.h"
@@ -25,7 +26,7 @@
 static mozilla::LazyLogModule MAILBOX("MAILBOX");
 
 #include "nsIFileStreams.h"
-#include "nsIStreamTransportService.h"
+#include "nsIStreamTransportService2.h"
 #include "nsIStreamConverterService.h"
 #include "nsIIOService.h"
 #include "nsNetUtil.h"
@@ -64,8 +65,8 @@ nsresult nsMailboxProtocol::OpenMultipleMsgTransport(uint64_t offset, int32_t si
 {
   nsresult rv;
 
-  nsCOMPtr<nsIStreamTransportService> serv =
-      do_GetService(NS_STREAMTRANSPORTSERVICE_CONTRACTID, &rv);
+  nsCOMPtr<nsIStreamTransportService2> serv =
+      do_GetService(NS_STREAMTRANSPORTSERVICE2_CONTRACTID, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
   // XXX 64-bit
@@ -149,8 +150,8 @@ nsresult nsMailboxProtocol::Initialize(nsIURI * aURL)
               NS_ENSURE_SUCCESS(rv, rv);
               seekableStream->Tell(&offset);
               // create input stream transport
-              nsCOMPtr<nsIStreamTransportService> sts =
-                  do_GetService(NS_STREAMTRANSPORTSERVICE_CONTRACTID, &rv);
+              nsCOMPtr<nsIStreamTransportService2> sts =
+                  do_GetService(NS_STREAMTRANSPORTSERVICE2_CONTRACTID, &rv);
               if (NS_FAILED(rv)) return rv;
               m_readCount = aMsgSize;
               // Save the stream for reuse, but only for multiple URLs.
@@ -307,8 +308,8 @@ NS_IMETHODIMP nsMailboxProtocol::OnStopRequest(nsIRequest *request, nsISupports 
                   if (NS_SUCCEEDED(rv))
                   {
                     // create input stream transport
-                    nsCOMPtr<nsIStreamTransportService> sts =
-                        do_GetService(NS_STREAMTRANSPORTSERVICE_CONTRACTID, &rv);
+                    nsCOMPtr<nsIStreamTransportService2> sts =
+                        do_GetService(NS_STREAMTRANSPORTSERVICE2_CONTRACTID, &rv);
 
                     if (NS_SUCCEEDED(rv))
                     {
