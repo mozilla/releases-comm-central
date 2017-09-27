@@ -1149,35 +1149,35 @@ nsMsgDBView::ReloadMessage()
 nsresult
 nsMsgDBView::UpdateDisplayMessage(nsMsgViewIndex viewPosition)
 {
+  if (!mCommandUpdater)
+    return NS_OK;
+
+  if (!IsValidIndex(viewPosition))
+    return NS_MSG_INVALID_DBVIEW_INDEX;
+
+  // Get the subject and the folder for the message and inform the front
+  // end that we changed the message we are currently displaying.
   nsresult rv;
-  if (mCommandUpdater)
+  nsCOMPtr <nsIMsgDBHdr> msgHdr;
+  rv = GetMsgHdrForViewIndex(viewPosition, getter_AddRefs(msgHdr));
+  NS_ENSURE_SUCCESS(rv,rv);
+
+  nsString subject;
+  FetchSubject(msgHdr, m_flags[viewPosition], subject);
+
+  nsCString keywords;
+  rv = msgHdr->GetStringProperty("keywords", getter_Copies(keywords));
+  NS_ENSURE_SUCCESS(rv,rv);
+
+  nsCOMPtr<nsIMsgFolder> folder = m_viewFolder ? m_viewFolder : m_folder;
+
+  mCommandUpdater->DisplayMessageChanged(folder, subject, keywords);
+
+  if (folder)
   {
-    // Get the subject and the folder for the message and inform the front
-    // end that we changed the message we are currently displaying.
-    if (viewPosition != nsMsgViewIndex_None)
-    {
-      nsCOMPtr <nsIMsgDBHdr> msgHdr;
-      rv = GetMsgHdrForViewIndex(viewPosition, getter_AddRefs(msgHdr));
-      NS_ENSURE_SUCCESS(rv,rv);
-
-      nsString subject;
-      FetchSubject(msgHdr, m_flags[viewPosition], subject);
-
-      nsCString keywords;
-      rv = msgHdr->GetStringProperty("keywords", getter_Copies(keywords));
-      NS_ENSURE_SUCCESS(rv,rv);
-
-      nsCOMPtr<nsIMsgFolder> folder = m_viewFolder ? m_viewFolder : m_folder;
-
-      mCommandUpdater->DisplayMessageChanged(folder, subject, keywords);
-
-      if (folder)
-      {
-        rv = folder->SetLastMessageLoaded(m_keys[viewPosition]);
-        NS_ENSURE_SUCCESS(rv,rv);
-      }
-    } // if view position is valid
-  } // if we have an updater
+    rv = folder->SetLastMessageLoaded(m_keys[viewPosition]);
+    NS_ENSURE_SUCCESS(rv,rv);
+  }
 
   return NS_OK;
 }
@@ -1192,10 +1192,8 @@ nsMsgDBView::LoadMessageByMsgKey(nsMsgKey aMsgKey)
 NS_IMETHODIMP
 nsMsgDBView::LoadMessageByViewIndex(nsMsgViewIndex aViewIndex)
 {
-  NS_ASSERTION(aViewIndex != nsMsgViewIndex_None,
-               "trying to load nsMsgViewIndex_None");
-  if (aViewIndex == nsMsgViewIndex_None)
-    return NS_ERROR_UNEXPECTED;
+  if (!IsValidIndex(aViewIndex))
+    return NS_MSG_INVALID_DBVIEW_INDEX;
 
   nsCString uri;
   nsresult rv = GetURIForViewIndex(aViewIndex, uri);
@@ -2644,7 +2642,7 @@ nsMsgDBView::SetSuppressMsgDisplay(bool aSuppressDisplay)
     // Get the view indexfor the currently selected message.
     nsMsgViewIndex viewIndex;
     nsresult rv = GetViewIndexForFirstSelectedMsg(&viewIndex);
-    if (NS_SUCCEEDED(rv) && viewIndex != nsMsgViewIndex_None)
+    if (NS_SUCCEEDED(rv))
       LoadMessageByViewIndex(viewIndex);
   }
 
@@ -5662,6 +5660,9 @@ nsresult
 nsMsgDBView::ExpandAndSelectThreadByIndex(nsMsgViewIndex index,
                                           bool augment)
 {
+  if (!IsValidIndex(index))
+    return NS_MSG_INVALID_DBVIEW_INDEX;
+
   nsresult rv;
 
   nsMsgViewIndex threadIndex;
