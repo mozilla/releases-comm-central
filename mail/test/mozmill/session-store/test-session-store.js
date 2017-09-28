@@ -15,9 +15,6 @@ var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers"];
 var controller = {};
 Cu.import("resource://mozmill/modules/controller.js", controller);
 
-var utils = {};
-Cu.import('resource://mozmill/modules/utils.js', utils);
-
 Cu.import("resource://gre/modules/FileUtils.jsm");
 Cu.import("resource:///modules/sessionStoreManager.js");
 Cu.import("resource://gre/modules/Services.jsm");
@@ -28,7 +25,7 @@ var folderA, folderB;
 var kSaveDelayMs = 1500;
 
 // With async file writes, use a delay larger than the session autosave timer.
-var asyncFileWriteDelayMS = 2000;
+var asyncFileWriteDelayMS = 1000;
 
 /* ........ Helper Functions ................*/
 
@@ -406,8 +403,11 @@ async function test_bad_session_file_simple() {
   assert_false(sessionStoreManager._initialState,
                "saved state is bad so state object should be null");
 
+  // Wait for bad file async rename to finish.
+  controller.sleep(kSaveDelayMs + asyncFileWriteDelayMS);
+
   // The bad session file should now not exist.
-  utils.waitFor(() => !sessionStoreManager.sessionFile.exists(),
+  assert_false(sessionStoreManager.sessionFile.exists(),
                "file should not exist");
 }
 
@@ -434,9 +434,7 @@ function test_clean_shutdown_session_persistence_simple() {
   }
 
   // Wait for window close async session write to finish.
-  controller.sleep(kSaveDelayMs);
-  utils.waitFor(() => sessionStoreManager.sessionFile.exists(),
-               "file should exist");
+  controller.sleep(kSaveDelayMs + asyncFileWriteDelayMS);
 
   // load the saved state from disk
   let loadedState = readFile();
