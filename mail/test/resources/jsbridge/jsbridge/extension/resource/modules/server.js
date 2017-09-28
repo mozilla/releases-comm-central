@@ -223,7 +223,7 @@ function Session (transport) {
 
   this.pump = Cc['@mozilla.org/network/input-stream-pump;1']
       .createInstance(Ci.nsIInputStreamPump);
-  this.pump.init(this.stream, -1, -1, 0, 0, false);
+  this.pump.init(this.stream, 0, 0, false);
   this.pump.asyncRead(new AsyncRead(this), null);
 }
 Session.prototype.onOutput = function(string) {

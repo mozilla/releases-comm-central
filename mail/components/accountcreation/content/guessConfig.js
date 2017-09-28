@@ -1119,7 +1119,7 @@ function SocketUtil(hostname, port, ssl, commands, timeout,
     var pump = Cc["@mozilla.org/network/input-stream-pump;1"]
         .createInstance(Ci.nsIInputStreamPump);
 
-    pump.init(stream, -1, -1, 0, 0, false);
+    pump.init(stream, 0, 0, false);
     pump.asyncRead(dataListener, null);
     return new SocketAbortable(transport);
   } catch (e) { _error(e); }

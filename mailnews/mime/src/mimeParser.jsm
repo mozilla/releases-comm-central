@@ -59,7 +59,7 @@ var MimeParser = {
     // We need a pump for the listener
     var pump = Cc["@mozilla.org/network/input-stream-pump;1"]
                  .createInstance(Ci.nsIInputStreamPump);
-    pump.init(input, -1, -1, 0, 0, true);
+    pump.init(input, 0, 0, true);
 
     // Make a stream listener with the given emitter and use it to read from
     // the pump.

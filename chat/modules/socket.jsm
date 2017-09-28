@@ -639,8 +639,6 @@ var Socket = {
     }
 
     this.pump = new InputStreamPump(this._inputStream, // Data to read
-                                    -1, // Current offset
-                                    -1, // Read all data
                                     0, // Use default segment size
                                     0, // Use default segment length
                                     false); // Do not close when done
