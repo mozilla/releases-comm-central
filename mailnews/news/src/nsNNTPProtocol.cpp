@@ -80,6 +80,7 @@
 #include "nsICancelable.h"
 
 #include "nsIInputStreamPump.h"
+#include "SlicedInputStream.h"
 #include "nsIProxyInfo.h"
 #include "nsContentSecurityManager.h"
 
@@ -739,9 +740,10 @@ bool nsNNTPProtocol::ReadFromLocalCache()
 
         // create a stream pump that will async read the specified amount of data.
         // XXX make size 64-bit int
+        RefPtr<SlicedInputStream> slicedStream =
+          new SlicedInputStream(fileStream, uint64_t(offset), uint64_t(size));
         nsCOMPtr<nsIInputStreamPump> pump;
-        rv = NS_NewInputStreamPump(getter_AddRefs(pump),
-                                   fileStream, offset, (int64_t) size);
+        rv = NS_NewInputStreamPump(getter_AddRefs(pump), slicedStream);
         if (NS_SUCCEEDED(rv))
           rv = pump->AsyncRead(cacheListener, m_channelContext);
 
