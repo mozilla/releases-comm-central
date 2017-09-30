@@ -71,18 +71,8 @@
   padding-inline-end: 5px;
 }
 
-#todaypane-new-event-button {
-  list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#newevent);
-}
-
 #todaypane-new-event-button[disabled="true"] > .toolbarbutton-icon {
   opacity: 0.4;
-}
-
-#todaypane-new-event-button > .toolbarbutton-icon {
-  width: 18px;
-  height: 18px;
-  margin: -1px;
 }
 
 @media (-moz-windows-default-theme) {
@@ -115,12 +105,5 @@
 
   .today-pane-cycler {
     margin-top: -1px;
-  }
-}
-
-@media (-moz-os-version: windows-win8) and (-moz-windows-default-theme),
-       (-moz-os-version: windows-win10) and (-moz-windows-default-theme) {
-  #todaypane-new-event-button {
-    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#newevent-flat);
   }
 }

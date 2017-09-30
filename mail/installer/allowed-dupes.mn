@@ -6,7 +6,15 @@
 #
 
 # mail
+chrome/classic/skin/classic/messenger/icons/address.svg
+chrome/classic/skin/classic/messenger/icons/attach.svg
+chrome/classic/skin/classic/messenger/icons/delete.svg
 chrome/classic/skin/classic/messenger/icons/new-mail-alert.png
+chrome/classic/skin/classic/messenger/icons/print.svg
+chrome/classic/skin/classic/messenger/icons/save.svg
+chrome/classic/skin/classic/messenger/icons/security.svg
+chrome/classic/skin/classic/messenger/icons/spelling.svg
+chrome/classic/skin/classic/messenger/icons/tag.svg
 chrome/messenger/content/branding/icon48.png
 chrome/messenger/content/messenger/cloudfile/Box/management.js
 chrome/messenger/content/messenger/cloudfile/Hightail/management.js
@@ -14,10 +22,22 @@ chrome/devtools/modules/devtools/client/themes/splitters.css
 chrome/devtools/skin/splitters.css
 chrome/icons/default/default48.png
 # calendar addon
+extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/skin/common/icons/address.svg
+extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/skin/common/icons/attach.svg
+extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/skin/common/icons/category.svg
+extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/skin/common/icons/delete.svg
+extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/skin/common/icons/complete.svg
+extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/skin/common/icons/print.svg
+extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/skin/common/icons/save.svg
+extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/skin/common/icons/security.svg
 extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/skin/linux/lightning/imip.css
 extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/skin/windows/lightning/imip.css
+extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/skin/linux/calendar/calendar-event-dialog.css
+extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/skin/windows/calendar/calendar-event-dialog.css
 extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/skin/linux/calendar/calendar-invitations-dialog.css
 extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/skin/windows/calendar/calendar-invitations-dialog.css
+extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/skin/linux/lightning/lightning-toolbar.css
+extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/skin/osx/lightning/lightning-toolbar.css
 extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/skin/linux/lightning/lightning-widgets.css
 extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/skin/windows/lightning/lightning-widgets.css
 extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/skin/linux/lightning/accountCentral.css
@@ -33,10 +53,22 @@ extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/calendar/content/calend
 extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/calendar-js/calUtils.js
 extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/calendar/content/calendar/calUtils.js
 # calendar on Release and Beta
+distribution/extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/skin/common/icons/address.svg
+distribution/extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/skin/common/icons/attach.svg
+distribution/extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/skin/common/icons/category.svg
+distribution/extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/skin/common/icons/delete.svg
+distribution/extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/skin/common/icons/complete.svg
+distribution/extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/skin/common/icons/print.svg
+distribution/extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/skin/common/icons/save.svg
+distribution/extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/skin/common/icons/security.svg
 distribution/extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/skin/linux/lightning/imip.css
 distribution/extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/skin/windows/lightning/imip.css
+distribution/extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/skin/linux/calendar/calendar-event-dialog.css
+distribution/extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/skin/windows/calendar/calendar-event-dialog.css
 distribution/extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/skin/linux/calendar/calendar-invitations-dialog.css
 distribution/extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/skin/windows/calendar/calendar-invitations-dialog.css
+distribution/extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/skin/linux/lightning/lightning-toolbar.css
+distribution/extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/skin/osx/lightning/lightning-toolbar.css
 distribution/extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/skin/linux/lightning/lightning-widgets.css
 distribution/extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/skin/windows/lightning/lightning-widgets.css
 distribution/extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/skin/linux/lightning/accountCentral.css

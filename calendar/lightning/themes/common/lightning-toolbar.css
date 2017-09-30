@@ -1,0 +1,56 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+/* Lightning "Calendar" Toolbarbutton */
+#lightning-button-calendar {
+    list-style-image: url(chrome://calendar-common/skin/icons/calendar-tab.svg);
+}
+
+/* Lightning "Tasks" Toolbarbutton */
+#lightning-button-tasks {
+    list-style-image: url(chrome://calendar-common/skin/icons/task-tab.svg);
+}
+
+/* Toolbar buttons */
+#calendar-synchronize-button,
+#task-synchronize-button {
+    list-style-image: url(chrome://calendar-common/skin/icons/synchronize.svg);
+}
+
+#extractEventButton,
+#task-newevent-button,
+#hdrExtractEventButton,
+#calendar-newevent-button {
+    list-style-image: url(chrome://calendar-common/skin/icons/newevent.svg);
+}
+
+#extractTaskButton,
+#task-newtask-button,
+#hdrExtractTaskButton,
+#calendar-newtask-button {
+    list-style-image: url(chrome://calendar-common/skin/icons/newtask.svg);
+}
+
+#calendar-edit-button,
+#task-edit-button {
+    list-style-image: url(chrome://calendar-common/skin/icons/edit.svg);
+}
+
+#calendar-delete-button,
+#task-delete-button {
+    list-style-image: url(chrome://calendar-common/skin/icons/delete.svg);
+}
+
+#calendar-goto-today-button {
+    list-style-image: url(chrome://calendar-common/skin/icons/today.svg);
+}
+
+#calendar-print-button,
+#task-print-button {
+    list-style-image: url(chrome://calendar-common/skin/icons/print.svg);
+}
+
+#calendar-unifinder-button {
+    list-style-image: url(chrome://calendar-common/skin/icons/find.svg);
+}

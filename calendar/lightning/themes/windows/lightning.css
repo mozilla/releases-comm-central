@@ -74,41 +74,6 @@ radio[pane=paneLightning] {
   margin-top: 3px;
 }
 
-#calendar-tab-button,
-#newMsgButton-calendar-menuitem {
-  list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#calendar-tab);
-  -moz-image-region: auto;
-}
-
-#task-tab-button,
-#newMsgButton-task-menuitem {
-  list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#task-tab);
-  -moz-image-region: auto;
-}
-
-#tabs-toolbar[brighttext] #calendar-tab-button {
-  list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#calendar-tab-inverted);
-}
-
-#tabs-toolbar[brighttext] #task-tab-button {
-  list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#task-tab-inverted);
-}
-
-#calendar-status-todaypane-button > stack > .toolbarbutton-icon-begin {
-  list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#pane);
-  -moz-image-region: rect(0 18px 18px 0);
-}
-
-#calendar-status-todaypane-button:-moz-lwtheme-brighttext > stack >
-  .toolbarbutton-icon-begin {
-  list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#pane-inverted);
-}
-/* compensate the 18px icon height */
-#calendar-status-todaypane-button > stack > .toolbarbutton-icon-begin {
-  margin-top: -1px;
-  margin-bottom: -1px;
-}
-
 .icon-holder[type="calendar"],
 .tabmail-tab[type="calendar"] {
   list-style-image: url(chrome://lightning/skin/mode-switch-icons-aero.png);
@@ -119,51 +84,6 @@ radio[pane=paneLightning] {
 .tabmail-tab[type="tasks"] {
   list-style-image: url(chrome://lightning/skin/mode-switch-icons-aero.png);
   -moz-image-region: rect(16px 32px 32px 16px);
-}
-
-/* ::: imip button icons ::: */
-.imipAcceptButton,
-.imipAcceptRecurrencesButton {
-  list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#complete);
-}
-
-.imipDeclineCounterButton,
-.imipDeclineButton,
-.imipDeclineRecurrencesButton {
-  list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#decline);
-}
-
-.imipTentativeButton,
-.imipTentativeRecurrencesButton {
-  list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#tentative);
-}
-
-.imipAddButton {
-  list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#newevent);
-}
-
-.imipRescheduleButton,
-.imipUpdateButton {
-  list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#synchronize);
-}
-
-.imipDetailsButton {
-  list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#find);
-}
-
-.imipDeleteButton {
-  list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#delete);
-}
-
-.imipReconfirmButton {
-  list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#priority);
-}
-
-#newMsgButton-calendar-menuitem > .menu-iconic-left > .menu-iconic-icon,
-#newMsgButton-task-menuitem > .menu-iconic-left > .menu-iconic-icon {
-  width: 18px;
-  height: 18px;
-  margin: -1px;
 }
 
 #calsidebar_splitter,
@@ -214,59 +134,6 @@ radio[pane=paneLightning] {
   margin-top: -3px;
   position: relative;
   z-index: 10;
-}
-
-@media (-moz-os-version: windows-win8) and (-moz-windows-default-theme),
-       (-moz-os-version: windows-win10) and (-moz-windows-default-theme) {
-  #calendar-tab-button,
-  #newMsgButton-calendar-menuitem {
-    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#calendar-tab-flat);
-    -moz-image-region: auto;
-  }
-
-  #task-tab-button,
-  #newMsgButton-task-menuitem {
-    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#task-tab-flat);
-    -moz-image-region: auto;
-  }
-
-  #calendar-status-todaypane-button > stack > .toolbarbutton-icon-begin {
-    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#pane-flat);
-  }
-
-  /* ::: imip button icons ::: */
-  .imipAcceptButton,
-  .imipAcceptRecurrencesButton {
-    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#complete-flat);
-  }
-
-  .imipDeclineCounterButton,
-  .imipDeclineButton,
-  .imipDeclineRecurrencesButton {
-    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#decline-flat);
-  }
-
-  .imipTentativeButton,
-  .imipTentativeRecurrencesButton {
-    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#tentative-flat);
-  }
-
-  .imipAddButton {
-    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#newevent-flat);
-  }
-
-  .imipRescheduleButton,
-  .imipUpdateButton {
-    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#synchronize-flat);
-  }
-
-  .imipDetailsButton {
-    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#find-flat);
-  }
-
-  .imipReconfirmButton {
-    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#priority-flat);
-  }
 }
 
 @media (-moz-windows-default-theme) {
