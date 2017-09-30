@@ -74,6 +74,11 @@
   display: none;
 }
 
+#titlebar {
+  /* Centrally align content items vertically */
+  -moz-box-pack: center;
+}
+
 #titlebar:-moz-lwtheme {
   -moz-appearance: none;
 }
@@ -421,15 +426,6 @@ notification[value="addon-install-complete"] > button:active:hover {
 
 #messengerWindow[tabsintitlebar="true"]:not(:-moz-lwtheme) > #titlebar {
   -moz-appearance: -moz-window-titlebar;
-}
-
-#messengerWindow:not([tabsintitlebar]) > #titlebar > #titlebar-content > #titlebar-buttonbox-container {
-  margin-top: 3px;
-}
-
-#messengerWindow[tabsintitlebar] > #titlebar > #titlebar-content > #titlebar-buttonbox-container,
-#messengerWindow[tabsintitlebar] > #titlebar > #titlebar-content > #titlebar-fullscreen-button {
-  margin-top: 6px;
 }
 
 #titlebar-spacer {
