@@ -28,6 +28,7 @@
 #include "nsIImapService.h"
 #include "nsISocketTransportService.h"
 #include "nsIStreamListenerTee.h"
+#include "nsIInputStreamPump.h"
 #include "nsNetUtil.h"
 #include "nsIDBFolderInfo.h"
 #include "nsIPipe.h"

@@ -20,7 +20,6 @@
 #include "nsIInterfaceRequestor.h"
 #include "nsIInterfaceRequestorUtils.h"
 #include "nsISocketTransport.h"
-#include "nsIInputStreamPump.h"
 
 // imap event sinks
 #include "nsIImapMailFolderSink.h"
