@@ -441,89 +441,45 @@ toolbox[labelalign="end"] toolbar[mode="full"]
 .hdrReplyToSenderButton,
 .hdrDummyReplyButton,
 .hdrReplyButton {
-  list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#reply");
+  list-style-image: url("chrome://messenger/skin/icons/reply.svg");
 }
 
 .hdrReplyAllButton {
-  list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#replyall");
+  list-style-image: url("chrome://messenger/skin/icons/replyall.svg");
 }
 
 .hdrReplyListButton,
 .hdrFollowupButton {
-  list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#replylist");
+  list-style-image: url("chrome://messenger/skin/icons/replylist.svg");
 }
 
 .hdrForwardButton {
-  list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#forward");
+  list-style-image: url("chrome://messenger/skin/icons/forward.svg");
 }
 
 .hdrArchiveButton {
-  list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#archive");
+  list-style-image: url("chrome://messenger/skin/icons/archive.svg");
 }
 
 .hdrJunkButton {
-  list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#junk");
+  list-style-image: url("chrome://messenger/skin/icons/junk.svg");
 }
 
 .hdrTrashButton {
-  list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#delete");
+  list-style-image: url("chrome://messenger/skin/icons/delete.svg");
 }
 
 .hdrTagButton {
-  list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#tag");
+  list-style-image: url("chrome://messenger/skin/icons/tag.svg");
 }
 
 .hdrConversationButton {
-  list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#conversation");
+  list-style-image: url("chrome://messenger/skin/icons/conversation.svg");
 }
 
 #attachmentSaveAllSingle,
 #attachmentSaveAllMultiple {
-  list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#file");
-}
-
-toolbar[brighttext] .hdrReplyToSenderButton,
-toolbar[brighttext] .hdrDummyReplyButton,
-toolbar[brighttext] .hdrReplyButton {
-  list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#reply-inverted");
-}
-
-toolbar[brighttext] .hdrReplyAllButton {
-  list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#replyall-inverted");
-}
-
-toolbar[brighttext] .hdrReplyListButton,
-toolbar[brighttext] .hdrFollowupButton {
-  list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#replylist-inverted");
-}
-
-toolbar[brighttext] .hdrForwardButton {
-  list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#forward-inverted");
-}
-
-toolbar[brighttext] .hdrArchiveButton {
-  list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#archive-inverted");
-}
-
-toolbar[brighttext] .hdrJunkButton {
-  list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#junk-inverted");
-}
-
-toolbar[brighttext] .hdrTrashButton {
-  list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#delete-inverted");
-}
-
-toolbar[brighttext] .hdrTagButton {
-  list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#tag-inverted");
-}
-
-toolbar[brighttext] .hdrConversationButton {
-  list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#conversation-inverted");
-}
-
-toolbar[brighttext] #attachmentSaveAllSingle,
-toolbar[brighttext] #attachmentSaveAllMultiple {
-  list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#file-inverted");
+  list-style-image: url("chrome://messenger/skin/icons/file.svg");
 }
 
 #otherActionsButton > hbox > vbox > .toolbarbutton-icon {
@@ -600,48 +556,5 @@ toolbarpaletteitem .msgHeaderView-button {
   .msgHeaderView-button:not([type="menu-button"]):not([disabled="true"]):not([checked="true"]):not([open="true"]):not(:active):hover {
     box-shadow: 0 0 1px hsla(210, 54%, 20%, .1),
                 0 0 2px hsla(210, 54%, 20%, .1);
-  }
-}
-
-@media (-moz-os-version: windows-win8) and (-moz-windows-default-theme),
-       (-moz-os-version: windows-win10) and (-moz-windows-default-theme) {
-  .hdrReplyToSenderButton,
-  .hdrDummyReplyButton,
-  .hdrReplyButton {
-    list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#reply-flat");
-  }
-
-  .hdrReplyAllButton {
-    list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#replyall-flat");
-  }
-
-  .hdrReplyListButton,
-  .hdrFollowupButton {
-    list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#replylist-flat");
-  }
-
-  .hdrForwardButton {
-    list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#forward-flat");
-  }
-
-  .hdrArchiveButton {
-    list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#archive-flat");
-  }
-
-  .hdrJunkButton {
-    list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#junk-flat");
-  }
-
-  .hdrTagButton {
-    list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#tag-flat");
-  }
-
-  .hdrConversationButton {
-    list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#conversation-flat");
-  }
-
-  #attachmentSaveAllSingle,
-  #attachmentSaveAllMultiple {
-    list-style-image: url("chrome://messenger/skin/icons/mail-toolbar.svg#file-flat");
   }
 }

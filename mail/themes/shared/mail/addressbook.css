@@ -14,6 +14,32 @@ toolbox[labelalign="end"] > toolbar[mode="full"] deck .toolbarbutton-text {
   text-align: start;
 }
 
+/* ::::: primary toolbar buttons ::::: */
+
+#button-newcard {
+  list-style-image: url("chrome://messenger/skin/icons/addcontact.svg");
+}
+
+#button-newlist {
+  list-style-image: url("chrome://messenger/skin/icons/addlist.svg");
+}
+
+#button-editcard {
+  list-style-image: url("chrome://messenger/skin/icons/accounts.svg");
+}
+
+#button-newmessage {
+  list-style-image: url("chrome://messenger/skin/icons/newmsg.svg");
+}
+
+#button-newim {
+  list-style-image: url("chrome://messenger/skin/icons/chat.svg");
+}
+
+#button-abdelete {
+  list-style-image: url("chrome://messenger/skin/icons/delete.svg");
+}
+
 #abContent {
   text-shadow: none;
   color: -moz-DialogText;

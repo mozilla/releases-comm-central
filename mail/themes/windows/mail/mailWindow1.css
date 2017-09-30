@@ -694,6 +694,10 @@ treechildren::-moz-tree-cell-text(imapdeleted) {
 @media (-moz-os-version: windows-win7) and (-moz-windows-default-theme),
        (-moz-os-version: windows-win8) and (-moz-windows-default-theme) {
   @media (-moz-windows-compositor) {
+    :root:not(:-moz-lwtheme) {
+      --tabs-border: rgba(10%, 10%, 10%, .4);
+    }
+
     #messengerWindow[sizemode=normal] #tabpanelcontainer {
       border: 1px solid rgba(10%, 10%, 10%, .4);
       border-top: none;
