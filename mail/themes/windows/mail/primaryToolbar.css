@@ -790,7 +790,6 @@ toolbar:not([mode="text"]) > toolbarpaletteitem > #button-chat > stack {
   }
 
   #mail-toolbox:not(:-moz-lwtheme),
-  #navigation-toolbox:not(:-moz-lwtheme),
   .glodaTabToolbar {
     color: black;
   }

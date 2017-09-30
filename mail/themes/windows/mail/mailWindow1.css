@@ -248,15 +248,9 @@ treechildren::-moz-tree-cell-text(imapdeleted) {
 }
 
 @media (-moz-windows-compositor) {
-  #tabmail-container {
-    -moz-appearance: -moz-win-exclude-glass;
-    position: relative;
-    z-index: 1;
-  }
-
   @media (-moz-os-version: windows-win7),
          (-moz-os-version: windows-win8) {
-    #messengerWindow {
+    :root {
       -moz-appearance: -moz-win-borderless-glass;
       background-color: transparent;
     }
@@ -266,11 +260,11 @@ treechildren::-moz-tree-cell-text(imapdeleted) {
       display: none;
     }
 
-    #messengerWindow[sizemode="normal"] #titlebar-buttonbox:-moz-lwtheme {
+    :root[sizemode="normal"] #titlebar-buttonbox:-moz-lwtheme {
       margin-top: -2px;
     }
 
-    #messengerWindow[sizemode="maximized"] #titlebar-buttonbox {
+    :root[sizemode="maximized"] #titlebar-buttonbox {
       margin-inline-end: 3px;
     }
   }
@@ -298,34 +292,53 @@ treechildren::-moz-tree-cell-text(imapdeleted) {
   }
 
   @media (-moz-os-version: windows-win10) {
-    #messengerWindow {
-      -moz-appearance: -moz-win-glass;
-    }
-
     @media (-moz-windows-default-theme) {
-      #navigation-toolbox:not(:-moz-lwtheme) {
+      :root:not(:-moz-lwtheme) {
         background-color: #d1d1d1;
       }
 
+      :root[sizemode=normal][tabsintitlebar] {
+        border-top: 1px solid -moz-win-accentcolor;
+      }
+
+      :root[sizemode=normal][tabsintitlebar]:-moz-window-inactive {
+        border-top-color: rgba(0,0,0,.2);
+      }
+
+      :root[tabsintitlebar] #navigation-toolbox {
+        margin-top: -1px;
+      }
+
+      :root[tabsintitlebar] #mail-toolbar-menubar2 {
+        margin-top: 1px;
+      }
+
       @media (-moz-windows-accent-color-in-titlebar: 0) {
-        #messengerWindow[tabsintitlebar] >
-          #navigation-toolbox:not(:-moz-window-inactive):not(:-moz-lwtheme) {
+        :root[tabsintitlebar]:not(:-moz-window-inactive):not(:-moz-lwtheme) {
           background-color: #a8cbdb;
         }
       }
 
       @media (-moz-windows-accent-color-in-titlebar) {
-        #messengerWindow[tabsintitlebar] >
-          #navigation-toolbox:not(:-moz-window-inactive):not(:-moz-lwtheme) {
+        :root[tabsintitlebar]:not(:-moz-window-inactive):not(:-moz-lwtheme) {
           background-color: -moz-win-accentcolor;
+        }
+
+        :root[tabsintitlebar] >
+          #navigation-toolbox:not(:-moz-window-inactive):not(:-moz-lwtheme) {
           color: -moz-win-accentcolortext;
         }
       }
     }
 
     @media (-moz-windows-default-theme: 0) {
-      #messengerWindow {
+      :root {
+        -moz-appearance: -moz-win-glass;
         background-color: transparent;
+      }
+
+      #tabmail-container {
+        -moz-appearance: -moz-win-exclude-glass;
       }
     }
 
