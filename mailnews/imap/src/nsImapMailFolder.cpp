@@ -252,7 +252,10 @@ static bool
 nsShouldIgnoreFile(nsString& name)
 {
   int32_t len = name.Length();
-  if (len > 4 && name.RFind(SUMMARY_SUFFIX, true) == len - 4)
+  // Warning: The first argument of RFind() needs to be a char string here so
+  // that the second argument means 'ignorecase'. When passing a char16_t here,
+  // a different overload is triggered and the argument is interpreted as offset.
+  if (len > 4 && name.RFind(SUMMARY_SUFFIX8, true) == len - 4)
   {
     name.SetLength(len-4); // truncate the string
     return false;

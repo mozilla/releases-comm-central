@@ -4721,7 +4721,7 @@ NS_IMETHODIMP nsMsgDBFolder::GetSummaryFile(nsIFile **aSummaryFile)
   rv = newSummaryLocation->GetLeafName(fileName);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  fileName.Append(NS_LITERAL_STRING(SUMMARY_SUFFIX));
+  fileName.AppendLiteral(SUMMARY_SUFFIX);
   rv = newSummaryLocation->SetLeafName(fileName);
   NS_ENSURE_SUCCESS(rv, rv);
 

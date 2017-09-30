@@ -25,6 +25,7 @@ class nsIMsgFolder;
  * The suffix we use for the mail summary file.
  */
 #define SUMMARY_SUFFIX u".msf"
+#define SUMMARY_SUFFIX8 ".msf"
 
 /*
  * The suffix we use for folder subdirectories.

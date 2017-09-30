@@ -1349,7 +1349,7 @@ nsresult GetSummaryFileLocation(nsIFile* fileLocation, nsIFile** summaryLocation
   if (NS_FAILED(rv))
     return rv;
 
-  fileName.Append(NS_LITERAL_STRING(SUMMARY_SUFFIX));
+  fileName.AppendLiteral(SUMMARY_SUFFIX);
   rv = newSummaryLocation->SetLeafName(fileName);
   NS_ENSURE_SUCCESS(rv, rv);
 
