@@ -232,7 +232,7 @@ function test_content_language_header() {
 /**
  * Tests space stuffing of plaintext message.
  */
-function test_remove_space_stuffing_format_flowed() {
+function disabled_test_remove_space_stuffing_format_flowed() {
   // Prepare for plaintext email.
   let oldHtmlPref = Services.prefs.getBoolPref("mail.identity.default.compose_html");
   Services.prefs.setBoolPref("mail.identity.default.compose_html", false);
