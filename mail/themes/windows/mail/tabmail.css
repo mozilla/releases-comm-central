@@ -97,6 +97,11 @@ tabpanels {
 }
 
 @media (-moz-windows-glass) {
+  /* Set to full fill-opacity to improve visibility of toolbar buttons on aero glass. */
+  :root[tabsintitlebar] #tabs-toolbar {
+    --toolbarbutton-icon-fill-opacity: 1;
+  }
+
   :root[tabsintitlebar][sizemode=normal] #tabs-toolbar {
     margin-top: 6px;
   }

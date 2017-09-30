@@ -90,46 +90,6 @@
   background-color: #FFFFFF;
 }
 
-@media not all and (-moz-mac-yosemite-theme) {
-  #button-add-buddy {
-    list-style-image: url("chrome://messenger/skin/icons/chat-toolbar-osxlion.svg#add");
-  }
-
-  #button-join-chat {
-    list-style-image: url("chrome://messenger/skin/icons/chat-toolbar-osxlion.svg#join");
-  }
-
-  #button-chat-accounts {
-    list-style-image: url("chrome://messenger/skin/icons/chat-toolbar-osxlion.svg#accounts");
-  }
-}
-
-@media (-moz-mac-yosemite-theme) {
-  #button-add-buddy {
-    list-style-image: url("chrome://messenger/skin/icons/chat-toolbar.svg#add-flat");
-  }
-
-  #button-join-chat {
-    list-style-image: url("chrome://messenger/skin/icons/chat-toolbar.svg#join-flat");
-  }
-
-  #button-chat-accounts {
-    list-style-image: url("chrome://messenger/skin/icons/chat-toolbar.svg#accounts-flat");
-  }
-}
-
-toolbar[brighttext] #button-add-buddy {
-  list-style-image: url("chrome://messenger/skin/icons/chat-toolbar.svg#add-inverted");
-}
-
-toolbar[brighttext] #button-join-chat {
-  list-style-image: url("chrome://messenger/skin/icons/chat-toolbar.svg#join-inverted");
-}
-
-toolbar[brighttext] #button-chat-accounts {
-  list-style-image: url("chrome://messenger/skin/icons/chat-toolbar.svg#accounts-inverted");
-}
-
 #statusTypeIcon[status="available"],
 #statusTypeAvailable,
 .statusTypeIcon[status="available"],

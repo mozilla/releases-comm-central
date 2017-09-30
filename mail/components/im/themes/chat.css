@@ -233,7 +233,6 @@ imcontact[aliasing] .contactDisplayName {
   border: none;
 }
 
-
 .statusTypeIcon[typing] {
   list-style-image: url('chrome://chat/skin/typing-16.png');
 }
@@ -241,7 +240,6 @@ imcontact[aliasing] .contactDisplayName {
 .statusTypeIcon[typed] {
   list-style-image: url('chrome://chat/skin/typed-16.png');
 }
-
 
 .statusMessage {
   margin: 0 0 !important;
@@ -335,7 +333,6 @@ imcontact[aliasing] .contactDisplayName {
   border-right: solid 1px GrayText;
 }
 %endif
-
 
 /* Animation copied from the find bar in Firefox - http://dxr.mozilla.org/mozilla-central/source/toolkit/themes/linux/global/findBar.css#7 */
 .conv-status-container {
@@ -549,7 +546,6 @@ grippy {
   color: HighlightText !important;
 }
 
-
 /* from instantbird/themes/blist.css */
 %ifdef XP_WIN
 imgroup .twisty {
@@ -642,4 +638,16 @@ toolbar[mode="text"] #statusTypeIcon > .toolbarbutton-icon {
   list-style-image: url("chrome://messenger/skin/icons/chat.svg");
   -moz-context-properties: fill;
   fill: currentColor;
+}
+
+#button-add-buddy {
+  list-style-image: url("chrome://messenger/skin/icons/addcontact.svg");
+}
+
+#button-join-chat {
+  list-style-image: url("chrome://messenger/skin/icons/join.svg");
+}
+
+#button-chat-accounts {
+  list-style-image: url("chrome://messenger/skin/icons/accounts.svg");
 }

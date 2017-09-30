@@ -86,10 +86,6 @@ radio[pane=paneLightning] {
 
 /* Write button */
 @media not all and (-moz-mac-yosemite-theme) {
-  #newMsgButton-mail-menuitem {
-      list-style-image: url(chrome://messenger/skin/icons/mail-toolbar-osxlion.svg#newmsg);
-  }
-
   #newMsgButton-calendar-menuitem {
       list-style-image: url(chrome://calendar-common/skin/calendar-toolbar-osxlion.svg#calendar-tab);
   }
@@ -100,10 +96,6 @@ radio[pane=paneLightning] {
 }
 
 @media (-moz-mac-yosemite-theme) {
-  #newMsgButton-mail-menuitem {
-      list-style-image: url(chrome://messenger/skin/icons/mail-toolbar.svg#newmsg-flat);
-  }
-
   #newMsgButton-calendar-menuitem {
       list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#calendar-tab-flat);
   }
@@ -113,7 +105,6 @@ radio[pane=paneLightning] {
   }
 }
 
-#newMsgButton-mail-menuitem > .menu-iconic-left > .menu-iconic-icon,
 #newMsgButton-calendar-menuitem > .menu-iconic-left > .menu-iconic-icon,
 #newMsgButton-task-menuitem > .menu-iconic-left > .menu-iconic-icon {
   width: 18px;
