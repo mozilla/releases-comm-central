@@ -467,9 +467,16 @@ nsresult nsMsgProtocol::LoadUrl(nsIURI * aURL, nsISupports * aConsumer)
           if (NS_FAILED(rv)) return rv;
         }
 
+        int64_t offset = 0;
+        nsCOMPtr<nsISeekableStream> seekable(do_QueryInterface(m_inputStream));
+        if (seekable)
+          seekable->Tell(&offset);
+
+        // Note that SlicedInputStream() accepts uint64_t(-1)==UINT64_MAX for the length.
+        RefPtr<SlicedInputStream> slicedStream =
+          new SlicedInputStream(m_inputStream, uint64_t(offset), uint64_t(m_readCount));
         nsCOMPtr<nsIInputStreamPump> pump;
-        rv = NS_NewInputStreamPump(getter_AddRefs(pump),
-          m_inputStream, -1, m_readCount);
+        rv = NS_NewInputStreamPump(getter_AddRefs(pump), slicedStream);
         if (NS_FAILED(rv)) return rv;
 
         m_request = pump; // keep a reference to the pump so we can cancel it
