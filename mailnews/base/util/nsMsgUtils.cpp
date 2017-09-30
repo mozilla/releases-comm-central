@@ -725,7 +725,7 @@ bool NS_MsgStripRE(const char **stringP, uint32_t *lengthP, char **modifiedSubje
             strncpy(charset, p1, p2 - p1);
           nsAutoCString encodedString;
           rv = mimeConverter->EncodeMimePartIIStr_UTF8(nsDependentCString(s),
-            false, charset, sizeof("Subject:"),
+            false, "UTF-8", sizeof("Subject:"),
             nsIMimeConverter::MIME_ENCODED_WORD_SIZE, encodedString);
           if (NS_SUCCEEDED(rv))
           {
