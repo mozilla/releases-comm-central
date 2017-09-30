@@ -520,6 +520,8 @@ nsresult nsPop3Protocol::InitializeInternal(nsIProxyInfo* aProxyInfo)
 
   m_proxyRequest = nullptr;
 
+  NS_ENSURE_TRUE(m_url, NS_ERROR_NOT_INITIALIZED);
+
   // extract out message feedback if there is any.
   nsCOMPtr<nsIMsgMailNewsUrl> mailnewsUrl = do_QueryInterface(m_url);
   if (mailnewsUrl)
