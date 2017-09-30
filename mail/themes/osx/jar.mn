@@ -160,8 +160,6 @@ classic.jar:
   skin/classic/messenger/icons/exclude.png                       (mail/icons/exclude.png)
   skin/classic/messenger/icons/exclude-selected.png              (mail/icons/exclude-selected.png)
   skin/classic/messenger/icons/group-background.gif              (mail/icons/group-background.gif)
-  skin/classic/messenger/icons/message-mail.png                  (mail/icons/message-mail.png)
-  skin/classic/messenger/icons/message-mail@2x.png               (mail/icons/message-mail@2x.png)
   skin/classic/messenger/icons/multicolor.png                    (mail/icons/multicolor.png)
   skin/classic/messenger/icons/search-indicator.png              (mail/icons/search-indicator.png)
   skin/classic/messenger/icons/search-indicator@2x.png           (mail/icons/search-indicator@2x.png)

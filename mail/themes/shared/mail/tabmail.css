@@ -41,6 +41,11 @@
   z-index: 2;
 }
 
+.tabmail-tab[type="message"] {
+  list-style-image: url("chrome://messenger/skin/icons/message.svg");
+  -moz-image-region: auto;
+}
+
 .tabmail-tab[type="preferencesTab"] {
   list-style-image: url("chrome://mozapps/skin/extensions/utilities.svg");
 }

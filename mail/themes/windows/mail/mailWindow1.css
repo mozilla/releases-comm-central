@@ -146,11 +146,6 @@ treechildren::-moz-tree-cell-text(imapdeleted) {
   padding-right: 2px;
 }
 
-.tabmail-tab[type="message"] {
-  list-style-image: url("chrome://messenger/skin/icons/server.png");
-  -moz-image-region: rect(0 16px 16px 0);
-}
-
 .tabmail-tab[type="message"][IsFeedMessage] {
   list-style-image: url("chrome://messenger-newsblog/skin/icons/rss-feed.png");
   -moz-image-region: rect(32px 16px 48px 0);
@@ -580,11 +575,6 @@ treechildren::-moz-tree-cell-text(imapdeleted) {
 #messagepanebox {
   border-top-width: 0px;
   border-inline-start: none;
-}
-
-.tabmail-tab[type="message"] {
-  list-style-image: url("chrome://messenger/skin/icons/server.png");
-  -moz-image-region: rect(0 16px 16px 0);
 }
 
 #viewPickerPopup menu,
