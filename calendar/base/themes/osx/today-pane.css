@@ -68,12 +68,6 @@
   box-shadow: inset 0 1px 0 hsla(0, 0%, 100%, .4);
 }
 
-@media not all and (-moz-mac-yosemite-theme) {
-  #todaypane-new-event-button {
-    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar-osxlion.svg#newevent);
-  }
-}
-
 @media (-moz-mac-yosemite-theme) {
   #today-pane-panel {
     border-top: solid 1px rgba(0, 0, 0, 0.37);
@@ -91,10 +85,6 @@
   #agenda-toolbar:-moz-window-inactive {
     background-color: hsl(0, 0%, 97%);
   }
-
-  #todaypane-new-event-button {
-    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#newevent-flat);
-  }
 }
 
 #todaypane-new-event-button[disabled="true"] > .toolbarbutton-icon {
@@ -103,12 +93,6 @@
 
 #todaypane-new-event-button > .toolbarbutton-text {
   margin-inline-start: 0px;
-}
-
-#todaypane-new-event-button > .toolbarbutton-icon {
-  width: 18px;
-  height: 18px;
-  margin: -1px;
 }
 
 #agenda-listbox {

@@ -35,6 +35,52 @@ dialog[systemcolors] {
 }
 
 /*--------------------------------------------------------------------
+ *   Event dialog toolbar buttons
+ *-------------------------------------------------------------------*/
+
+#button-save {
+    list-style-image: url(chrome://calendar-common/skin/icons/save.svg);
+}
+
+#button-saveandclose {
+    list-style-image: url(chrome://calendar-common/skin/icons/save-close.svg);
+}
+
+#button-attendees {
+    list-style-image: url(chrome://calendar-common/skin/icons/address.svg);
+}
+
+#button-privacy {
+    list-style-image: url(chrome://calendar-common/skin/icons/security.svg);
+}
+
+#button-url {
+    list-style-image: url(chrome://calendar-common/skin/icons/attach.svg);
+}
+
+#button-delete.cal-event-toolbarbutton {
+    /* !important to override the SM #button-delete states */
+    list-style-image: url(chrome://calendar-common/skin/icons/delete.svg) !important;
+    -moz-image-region: auto !important;
+}
+
+#button-priority {
+    list-style-image: url(chrome://calendar-common/skin/icons/priority.svg);
+}
+
+#button-status {
+    list-style-image: url(chrome://calendar-common/skin/icons/status.svg);
+}
+
+#button-freebusy {
+    list-style-image: url(chrome://calendar-common/skin/icons/freebusy.svg);
+}
+
+#button-timezones {
+    list-style-image: url(chrome://calendar-common/skin/icons/timezones.svg);
+}
+
+/*--------------------------------------------------------------------
  *   Event dialog counter box section
  *-------------------------------------------------------------------*/
 
