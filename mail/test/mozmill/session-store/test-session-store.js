@@ -25,7 +25,7 @@ var folderA, folderB;
 var kSaveDelayMs = 1500;
 
 // With async file writes, use a delay larger than the session autosave timer.
-var asyncFileWriteDelayMS = 3000;
+var asyncFileWriteDelayMS = 6000;
 
 /* ........ Helper Functions ................*/
 
