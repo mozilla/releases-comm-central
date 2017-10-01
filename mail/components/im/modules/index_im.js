@@ -15,6 +15,7 @@ Cu.import("resource:///modules/iteratorUtils.jsm");
 Cu.import("resource:///modules/mailServices.js");
 Cu.import("resource://gre/modules/FileUtils.jsm");
 Cu.import("resource://gre/modules/NetUtil.jsm");
+Cu.import("resource://gre/modules/Services.jsm");
 
 XPCOMUtils.defineLazyModuleGetter(this, "OS", "resource://gre/modules/osfile.jsm");
 XPCOMUtils.defineLazyModuleGetter(this, "Task", "resource://gre/modules/Task.jsm");
@@ -388,7 +389,7 @@ var GlodaIMIndexer = {
       // have been started since we last got them.
       let logFiles =
         yield Services.logs.getLogPathsForConversation(aConversation);
-      if (!logFiles.length) {
+      if (!logFiles || !logFiles.length) {
         // No log files exist yet, nothing to do!
         return;
       }

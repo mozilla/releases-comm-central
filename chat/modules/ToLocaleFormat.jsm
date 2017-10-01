@@ -160,7 +160,8 @@ function ToLocaleFormat(aFormat, aDate) {
       let result = formatFunctions[specifier]();
       if (upperCaseFlag)
         result = result.toLocaleUpperCase();
-      let {fill = "", width = 0} = padding[specifier] || {};
+      let fill = (specifier in padding) ? padding[specifier].fill : "";
+      let width = (specifier in padding) ? padding[specifier].width : 0;
       if (fillWidthFlags) {
         let newFill = fillWidthFlags[0];
         let newWidth = fillWidthFlags.match(/\d+/);

@@ -158,7 +158,7 @@ function smileTextNode(aNode)
    */
   let testNode = aNode;
   while ((testNode = testNode.parentNode)) {
-    if (testNode instanceof Components.interfaces.nsIDOMHTMLAnchorElement &&
+    if (testNode.nodeName.toLowerCase() == "a" &&
         (testNode.getAttribute("href") == testNode.textContent.trim() ||
          testNode.getAttribute("href") == aNode.data.trim() ||
          testNode.className.includes("moz-txt-link-")))
