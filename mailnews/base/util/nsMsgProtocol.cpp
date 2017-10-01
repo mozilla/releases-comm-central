@@ -213,8 +213,11 @@ nsresult nsMsgProtocol::OpenFileSocket(nsIURI *aURL, uint64_t aStartPosition, in
       do_GetService(NS_STREAMTRANSPORTSERVICE_CONTRACTID, &rv);
   if (NS_FAILED(rv)) return rv;
 
+  // This can be called with aReadCount == -1 which means "read as much as we can".
+  // We pass this on as UINT64_MAX, which is in fact uint64_t(-1).
   RefPtr<SlicedInputStream> slicedStream =
-    new SlicedInputStream(stream, aStartPosition, uint64_t(aReadCount));
+    new SlicedInputStream(stream, aStartPosition,
+                          aReadCount == -1 ? UINT64_MAX : uint64_t(aReadCount));
   rv = sts->CreateInputTransport(slicedStream, true,
                                  getter_AddRefs(m_transport));
 
@@ -472,9 +475,11 @@ nsresult nsMsgProtocol::LoadUrl(nsIURI * aURL, nsISupports * aConsumer)
         if (seekable)
           seekable->Tell(&offset);
 
-        // Note that SlicedInputStream() accepts uint64_t(-1)==UINT64_MAX for the length.
+        // m_readCount can be -1 which means "read as much as we can".
+        // We pass this on as UINT64_MAX, which is in fact uint64_t(-1).
         RefPtr<SlicedInputStream> slicedStream =
-          new SlicedInputStream(m_inputStream, uint64_t(offset), uint64_t(m_readCount));
+          new SlicedInputStream(m_inputStream, uint64_t(offset),
+                                m_readCount == -1 ? UINT64_MAX : uint64_t(m_readCount));
         nsCOMPtr<nsIInputStreamPump> pump;
         rv = NS_NewInputStreamPump(getter_AddRefs(pump), slicedStream);
         if (NS_FAILED(rv)) return rv;

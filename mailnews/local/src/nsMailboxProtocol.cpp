@@ -70,8 +70,11 @@ nsresult nsMailboxProtocol::OpenMultipleMsgTransport(uint64_t offset, int64_t si
   NS_ENSURE_SUCCESS(rv, rv);
 
   // XXX 64-bit
+  // This can be called with size == -1 which means "read as much as we can".
+  // We pass this on as UINT64_MAX, which is in fact uint64_t(-1).
   RefPtr<SlicedInputStream> slicedStream =
-    new SlicedInputStream(m_multipleMsgMoveCopyStream, offset, uint64_t(size));
+    new SlicedInputStream(m_multipleMsgMoveCopyStream, offset,
+                          size == -1 ? UINT64_MAX : uint64_t(size));
   rv = serv->CreateInputTransport(slicedStream, false,
                                   getter_AddRefs(m_transport));
 
