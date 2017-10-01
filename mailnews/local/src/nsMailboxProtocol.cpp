@@ -61,7 +61,7 @@ nsMailboxProtocol::~nsMailboxProtocol()
   delete m_lineStreamBuffer;
 }
 
-nsresult nsMailboxProtocol::OpenMultipleMsgTransport(uint64_t offset, int32_t size)
+nsresult nsMailboxProtocol::OpenMultipleMsgTransport(uint64_t offset, int64_t size)
 {
   nsresult rv;
 
@@ -117,11 +117,11 @@ nsresult nsMailboxProtocol::Initialize(nsIURI * aURL)
         // we need to specify a byte range to read in so we read in JUST the message we want.
         rv = SetupMessageExtraction();
         if (NS_FAILED(rv)) return rv;
-        uint32_t aMsgSize = 0;
-        rv = m_runningUrl->GetMessageSize(&aMsgSize);
+        uint32_t msgSize = 0;
+        rv = m_runningUrl->GetMessageSize(&msgSize);
         NS_ASSERTION(NS_SUCCEEDED(rv), "oops....i messed something up");
-        SetContentLength(aMsgSize);
-        mailnewsUrl->SetMaxProgress(aMsgSize);
+        SetContentLength(msgSize);
+        mailnewsUrl->SetMaxProgress(msgSize);
 
         if (RunningMultipleMsgUrl())
         {
@@ -154,14 +154,14 @@ nsresult nsMailboxProtocol::Initialize(nsIURI * aURL)
               nsCOMPtr<nsIStreamTransportService> sts =
                   do_GetService(NS_STREAMTRANSPORTSERVICE_CONTRACTID, &rv);
               if (NS_FAILED(rv)) return rv;
-              m_readCount = aMsgSize;
+              m_readCount = msgSize;
               // Save the stream for reuse, but only for multiple URLs.
               if (reusable && RunningMultipleMsgUrl())
                 m_multipleMsgMoveCopyStream = stream;
               else
                 reusable = false;
               RefPtr<SlicedInputStream> slicedStream =
-                new SlicedInputStream(stream, uint64_t(offset), uint64_t(aMsgSize));
+                new SlicedInputStream(stream, offset, uint64_t(msgSize));
               rv = sts->CreateInputTransport(slicedStream, !reusable,
                                              getter_AddRefs(m_transport));
 
@@ -169,7 +169,7 @@ nsresult nsMailboxProtocol::Initialize(nsIURI * aURL)
             }
           }
           if (!folder) // must be a .eml file
-            rv = OpenFileSocket(aURL, 0, aMsgSize);
+            rv = OpenFileSocket(aURL, 0, int64_t(msgSize));
         }
         NS_ASSERTION(NS_SUCCEEDED(rv), "oops....i messed something up");
       }

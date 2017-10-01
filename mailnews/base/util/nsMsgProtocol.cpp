@@ -192,7 +192,7 @@ nsresult nsMsgProtocol::GetFileFromURL(nsIURI * aURL, nsIFile **aResult)
   // dougt
 }
 
-nsresult nsMsgProtocol::OpenFileSocket(nsIURI * aURL, uint32_t aStartPosition, int32_t aReadCount)
+nsresult nsMsgProtocol::OpenFileSocket(nsIURI *aURL, uint64_t aStartPosition, int64_t aReadCount)
 {
   // mscott - file needs to be encoded directly into aURL. I should be able to get
   // rid of this method completely.
@@ -214,7 +214,7 @@ nsresult nsMsgProtocol::OpenFileSocket(nsIURI * aURL, uint32_t aStartPosition, i
   if (NS_FAILED(rv)) return rv;
 
   RefPtr<SlicedInputStream> slicedStream =
-    new SlicedInputStream(stream, uint64_t(aStartPosition), uint64_t(aReadCount));
+    new SlicedInputStream(stream, aStartPosition, uint64_t(aReadCount));
   rv = sts->CreateInputTransport(slicedStream, true,
                                  getter_AddRefs(m_transport));
 

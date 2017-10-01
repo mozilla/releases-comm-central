@@ -86,7 +86,7 @@ protected:
                                              nsIInterfaceRequestor* callbacks);
   // helper routine
   nsresult GetFileFromURL(nsIURI * aURL, nsIFile **aResult);
-  virtual nsresult OpenFileSocket(nsIURI * aURL, uint32_t aStartPosition, int32_t aReadCount); // used to open a file socket connection
+  virtual nsresult OpenFileSocket(nsIURI * aURL, uint64_t aStartPosition, int64_t aReadCount); // used to open a file socket connection
 
   nsresult GetTopmostMsgWindow(nsIMsgWindow **aWindow);
 
@@ -134,7 +134,7 @@ protected:
                                   // I'm using it to make sure I open the socket the first time a URL is loaded into the connection
   uint32_t      m_flags; // used to store flag information
   //uint32_t  m_startPosition;
-  int32_t       m_readCount;
+  int64_t       m_readCount;
 
   nsCOMPtr<nsIFile> m_tempMsgFile;  // we currently have a hack where displaying a msg involves writing it to a temp file first
 

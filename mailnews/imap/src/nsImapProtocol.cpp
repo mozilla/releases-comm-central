@@ -9656,7 +9656,7 @@ bool nsImapMockChannel::ReadFromLocalCache()
         cacheListener->Init(m_channelListener, this);
 
         // create a stream pump that will async read the specified amount of data.
-        // XXX make offset/size 64-bit ints
+        // XXX make size 64-bit int
         RefPtr<SlicedInputStream> slicedStream =
           new SlicedInputStream(fileStream, uint64_t(offset), uint64_t(size));
         nsCOMPtr<nsIInputStreamPump> pump;

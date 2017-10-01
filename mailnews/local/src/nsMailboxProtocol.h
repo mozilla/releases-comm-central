@@ -95,7 +95,7 @@ private:
   virtual nsresult CloseSocket() override;
 
   nsresult SetupMessageExtraction();
-  nsresult OpenMultipleMsgTransport(uint64_t offset, int32_t size);
+  nsresult OpenMultipleMsgTransport(uint64_t offset, int64_t size);
   bool RunningMultipleMsgUrl();
 
   ////////////////////////////////////////////////////////////////////////////////////////
