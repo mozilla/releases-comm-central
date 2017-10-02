@@ -9,7 +9,7 @@ Cu.import("resource://gre/modules/Services.jsm");
 Cu.import("resource://gre/modules/Timer.jsm");
 Cu.importGlobalProperties(["XMLHttpRequest"]);
 
-const { Loader, Require, Module } = Cu.import("resource://gre/modules/commonjs/toolkit/loader.js", {});
+const { Loader, Require, Module } = Cu.import("resource://devtools/shared/base-loader.js", {});
 
 this.EXPORTED_SYMBOLS = ["MatrixSDK"];
 
@@ -106,5 +106,5 @@ let loader = Loader({
 
 let requirer = Module("matrix-module", "");
 let require = Require(loader, requirer);
-MatrixSDK = require("matrix.js");
+let MatrixSDK = require("matrix.js");
 MatrixSDK.request(require("browser-request"));
