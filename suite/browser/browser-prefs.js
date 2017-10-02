@@ -638,6 +638,9 @@ pref("custtoolbar.personal_toolbar_folder", "");
 // Use a popup window for the customize toolbar UI
 pref("toolbar.customization.usesheet", false);
 
+// Show the toolbar and menu grippies.
+pref("browser.toolbars.grippyhidden", false);
+
 #ifdef XP_WIN
 pref("browser.taskbar.lists.enabled", true);
 pref("browser.taskbar.lists.frequent.enabled", true);

@@ -156,6 +156,10 @@
     <implementation>
       <constructor>
         <![CDATA[
+          if (Services.prefs.getBoolPref("browser.toolbars.grippyhidden")) {
+            this.setAttribute("grippyhidden", "true");
+          }
+
           if (this.getAttribute("moz-collapsed") == "true" &&
               this.parentNode.localName == "toolbox")
             this.parentNode.collapseToolbar(this);
@@ -251,6 +255,10 @@
     <implementation>
       <constructor>
         <![CDATA[
+          if (Services.prefs.getBoolPref("browser.toolbars.grippyhidden")) {
+            this.setAttribute("grippyhidden", "true");
+          }
+
           if (this.getAttribute("moz-collapsed") == "true" &&
               this.parentNode.localName == "toolbox")
             this.parentNode.collapseToolbar(this);

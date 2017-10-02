@@ -12,7 +12,7 @@
   <binding id="toolbar-primary"
            extends="chrome://communicator/content/bindings/toolbar.xml#grippytoolbar-primary">
     <content>
-      <xul:toolbargrippy xbl:inherits="last-toolbar"
+      <xul:toolbargrippy xbl:inherits="last-toolbar,hidden=grippyhidden"
           tbattr="toolbar-grippy" class="toolbar-primary-grippy"/>
       <xul:hbox class="toolbar-holder toolbar-primary-holder" flex="1" xbl:inherits="mode,iconsize,labelalign">
         <xul:image class="toolbar-primary-icon" xbl:inherits="mode,iconsize,labelalign"/>
