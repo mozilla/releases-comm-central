@@ -45,7 +45,7 @@ function nsSidebar()
 
     this.rdf = Components.classes[RDF_CONTRACTID].getService(nsIRDFService);
     this.datasource_uri = getSidebarDatasourceURI(PANELS_RDF_FILE);
-    debug('datasource_uri is ' + this.datasource_uri);
+    gDebugLog('datasource_uri is ' + this.datasource_uri);
     this.resource = 'urn:sidebar:current-panel-list';
     this.datasource = this.rdf.GetDataSource(this.datasource_uri);
 }
@@ -77,7 +77,7 @@ function sidebarURLSecurityCheck(url)
 nsSidebar.prototype.addPanel =
 function (aTitle, aContentURL, aCustomizeURL)
 {
-    debug("addPanel(" + aTitle + ", " + aContentURL + ", " +
+    gDebugLog("addPanel(" + aTitle + ", " + aContentURL + ", " +
           aCustomizeURL + ")");
 
     return this.addPanelInternal(aTitle, aContentURL, aCustomizeURL, false);
@@ -86,7 +86,7 @@ function (aTitle, aContentURL, aCustomizeURL)
 nsSidebar.prototype.addPersistentPanel =
 function(aTitle, aContentURL, aCustomizeURL)
 {
-    debug("addPersistentPanel(" + aTitle + ", " + aContentURL + ", " +
+    gDebugLog("addPersistentPanel(" + aTitle + ", " + aContentURL + ", " +
            aCustomizeURL + ")\n");
 
     return this.addPanelInternal(aTitle, aContentURL, aCustomizeURL, true);
@@ -104,7 +104,7 @@ function (aTitle, aContentURL, aCustomizeURL, aPersist)
         panel_list.QueryInterface(Components.interfaces.nsIRDFResource);
     } else {
         // Datasource is busted. Start over.
-        debug("Sidebar datasource is busted\n");
+        gDebugLog("Sidebar datasource is busted\n");
     }
 
     var container = Components.classes[CONTAINER_CONTRACTID].createInstance(nsIRDFContainer);
@@ -218,7 +218,7 @@ function (engineURL, iconURL)
   }
   catch(ex)
   {
-    debug(ex);
+    gDebugLog(ex);
     Components.utils.reportError("Invalid argument passed to window.sidebar.addSearchEngine: " + ex);
 
     var searchBundle = Services.strings.createBundle("chrome://global/locale/search/search.properties");
@@ -239,7 +239,7 @@ function (engineURL, iconURL)
 nsSidebar.prototype.addSearchEngine =
 function (engineURL, iconURL, suggestedTitle, suggestedCategory)
 {
-  debug("addSearchEngine(" + engineURL + ", " + iconURL + ", " +
+  gDebugLog("addSearchEngine(" + engineURL + ", " + iconURL + ", " +
         suggestedCategory + ", " + suggestedTitle + ")");
 
   if (!this.validateSearchEngine(engineURL, iconURL))
@@ -312,11 +312,13 @@ nsSidebar.prototype.classID = SIDEBAR_CID;
 
 var NSGetFactory = XPCOMUtils.generateNSGetFactory([nsSidebar]);
 
+var gDebugLog;
+
 /* static functions */
 if (DEBUG)
-    debug = function (s) { dump("-*- sidebar component: " + s + "\n"); }
+    gDebugLog = function (s) { dump("-*- sidebar component: " + s + "\n"); }
 else
-    debug = function (s) {}
+    gDebugLog = function (s) {}
 
 function getSidebarDatasourceURI(panels_file_id)
 {
@@ -334,19 +336,19 @@ function getSidebarDatasourceURI(panels_file_id)
         {
             /* this should not happen, as GetFileLocation() should copy
              * defaults/panels.rdf to the users profile directory */
-            debug("sidebar file does not exist");
+            gDebugLog("sidebar file does not exist");
             return null;
         }
 
         var file_handler = Services.io.getProtocolHandler("file").QueryInterface(Components.interfaces.nsIFileProtocolHandler);
         var sidebar_uri = file_handler.getURLSpecFromFile(sidebar_file);
-        debug("sidebar uri is " + sidebar_uri);
+        gDebugLog("sidebar uri is " + sidebar_uri);
         return sidebar_uri;
     }
     catch (ex)
     {
         /* this should not happen */
-        debug("caught " + ex + " getting sidebar datasource uri");
+        gDebugLog("caught " + ex + " getting sidebar datasource uri");
         return null;
     }
 }
