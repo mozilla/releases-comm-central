@@ -89,8 +89,9 @@ merge-%: AB_CD=$*
 merge-%:
 	$(RM) -rf $(REAL_LOCALE_MERGEDIR)/calendar
 	$(MOZILLA_SRCDIR)/mach compare-locales \
-	    --merge-dir $(REAL_LOCALE_MERGEDIR) \
-	    --l10n-ini $(topsrcdir)/calendar/locales/l10n.ini \
+	    --merge $(REAL_LOCALE_MERGEDIR)/.. \
+	    $(topsrcdir)/calendar/locales/l10n.toml \
+	    $(L10NBASEDIR) \
 	    $*
 
 	# This file requires a bugfix with string changes, see bug 1154448
