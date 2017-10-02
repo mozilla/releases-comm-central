@@ -4,6 +4,7 @@
 
 Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 Components.utils.import("resource://gre/modules/Services.jsm");
+Components.utils.import("resource://gre/modules/AppConstants.jsm");
 
 XPCOMUtils.defineLazyModuleGetter(this, "PlacesUtils",
                                   "resource://gre/modules/PlacesUtils.jsm");
@@ -182,8 +183,8 @@ var gEngineManagerDialog = {
     if (tree.editingColumn)
       return;
 
-    var isMac = Application.platformIsMac;
-    if (aEvent.keyCode == (isMac ? KeyEvent.DOM_VK_RETURN : KeyEvent.DOM_VK_F2))
+    if (aEvent.keyCode == (AppConstants.platform == "macosx" ?
+                           KeyEvent.DOM_VK_RETURN : KeyEvent.DOM_VK_F2))
       if (tree.startEditing(gEngineView.selectedIndex,
                             tree.columns.engineKeyword))
         aEvent.preventDefault();

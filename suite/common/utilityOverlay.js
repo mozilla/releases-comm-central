@@ -10,8 +10,9 @@
 
 // Services = object with smart getters for common XPCOM services
 Components.utils.import("resource://gre/modules/Services.jsm");
-
 Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
+Components.utils.import("resource://gre/modules/BrowserUtils.jsm");
+
 XPCOMUtils.defineLazyGetter(this, "Weave", function() {
   let tmp = {};
   Components.utils.import("resource://services-sync/main.js", tmp);
@@ -696,7 +697,7 @@ function safeModeRestart()
       Components.classes["@mozilla.org/process/environment;1"]
                 .getService(Components.interfaces.nsIEnvironment)
                 .set("MOZ_SAFE_MODE_RESTART", "1");
-    Application.restart();
+    BrowserUtils.restartApplication();
   }
 }
 

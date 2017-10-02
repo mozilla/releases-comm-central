@@ -1324,7 +1324,7 @@
               accessKey: this._stringBundle.GetStringFromName("lwthemeNeedsRestart.restartButton.accesskey"),
               popup: null,
               callback: function() {
-                Application.restart();
+                BrowserUtils.restartApplication();
               }
             }];
             var box = this.appendNotification(message,
@@ -1778,7 +1778,7 @@
                 label: this._stringBundle.GetStringFromName("addonInstallRestartButton"),
                 accessKey: this._stringBundle.GetStringFromName("addonInstallRestartButton.accesskey"),
                 callback: function () {
-                  Application.restart();
+                  BrowserUtils.restartApplication();
                 }
               });
             } else {
@@ -1995,6 +1995,7 @@
       <constructor>
         <![CDATA[
           Components.utils.import("resource://gre/modules/Services.jsm");
+          Components.utils.import("resource://gre/modules/BrowserUtils.jsm");
 
           var os = Components.classes["@mozilla.org/observer-service;1"]
                              .getService(Components.interfaces.nsIObserverService);
@@ -2561,7 +2562,7 @@
               label: this._stringBundle.GetStringFromName("lwthemeNeedsRestart.restartButton"),
               accessKey: this._stringBundle.GetStringFromName("lwthemeNeedsRestart.restartButton.accesskey"),
               callback: function() {
-                Application.restart();
+                BrowserUtils.restartApplication();
               }
             };
             var options = {
@@ -3000,7 +3001,7 @@
                 label: this._stringBundle.GetStringFromName("addonInstallRestartButton"),
                 accessKey: this._stringBundle.GetStringFromName("addonInstallRestartButton.accesskey"),
                 callback: function () {
-                  Application.restart();
+                  BrowserUtils.restartApplication();
                 }
               };
             } else {
@@ -3136,7 +3137,11 @@
           ]]>
         </body>
       </method>
-
+      <constructor>
+        <![CDATA[
+          Components.utils.import("resource://gre/modules/BrowserUtils.jsm");
+        ]]>
+      </constructor>
     </implementation>
   </binding>
 
