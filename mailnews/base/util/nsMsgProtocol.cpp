@@ -472,9 +472,9 @@ nsresult nsMsgProtocol::LoadUrl(nsIURI * aURL, nsISupports * aConsumer)
 
         int64_t offset = 0;
         nsCOMPtr<nsISeekableStream> seekable(do_QueryInterface(m_inputStream));
-        if (seekable)
-          seekable->Tell(&offset);
-
+        if (seekable && NS_FAILED(seekable->Tell(&offset))) {
+          offset = 0;
+        }
         // m_readCount can be -1 which means "read as much as we can".
         // We pass this on as UINT64_MAX, which is in fact uint64_t(-1).
         RefPtr<SlicedInputStream> slicedStream =
