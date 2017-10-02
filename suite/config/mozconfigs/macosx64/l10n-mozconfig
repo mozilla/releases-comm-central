@@ -1,4 +1,5 @@
 . $topsrcdir/build/macosx/mozconfig.common
+. $topsrcdir/suite/config/mozconfigs/common
 
 ac_add_options --with-l10n-base=../../l10n
 ac_add_options --enable-application=suite
@@ -13,11 +14,6 @@ ac_add_options --disable-compile-environment
 
 # Needed to enable breakpad in application.ini
 export MOZILLA_OFFICIAL=1
-
-# Disable checking that add-ons are signed by the trusted root
-MOZ_ADDON_SIGNING=0
-# Disable enforcing that add-ons are signed by the trusted root
-MOZ_REQUIRE_SIGNING=0
 
 # XXX hack to work around dsymutil failing on OSX builds (bug 1380381, 1385855)
 ac_add_options RUSTFLAGS='-C debuginfo=1'

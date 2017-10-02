@@ -1,5 +1,6 @@
 . "$topsrcdir/build/unix/mozconfig.linux32"
 . "$topsrcdir/build/mozconfig.stylo"
+. "$topsrcdir/suite/config/mozconfigs/common"
 
 # Disable webrender on Linux buildbot builders to avoid the Rust requirement
 # of libX11 version > 1.4.99.1 (see bug 1350011).
@@ -14,10 +15,5 @@ ac_add_options --enable-calendar
 
 # Needed to enable breakpad in application.ini
 export MOZILLA_OFFICIAL=1
-
-# Disable checking that add-ons are signed by the trusted root
-MOZ_ADDON_SIGNING=0
-# Disable enforcing that add-ons are signed by the trusted root
-MOZ_REQUIRE_SIGNING=0
 
 ac_add_options --disable-stdcxx-compat
