@@ -19,12 +19,12 @@
 #include "nsIDocShellTreeItem.h"
 #include "nsIWebNavigation.h"
 #include "nsContentPolicyUtils.h"
-#include "nsIDOMHTMLImageElement.h"
 #include "nsIFrameLoader.h"
 #include "nsIWebProgress.h"
 #include "nsMsgUtils.h"
 #include "nsThreadUtils.h"
 #include "mozilla/mailnews/MimeHeaderParser.h"
+#include "mozilla/dom/HTMLImageElement.h"
 #include "nsINntpUrl.h"
 
 static const char kBlockRemoteImages[] = "mailnews.message_display.disable_remote_image";
@@ -672,8 +672,10 @@ void nsMsgContentPolicy::ComposeShouldLoad(nsIMsgCompose *aMsgCompose,
     {
       bool insertingQuotedContent = true;
       aMsgCompose->GetInsertingQuotedContent(&insertingQuotedContent);
-      nsCOMPtr<nsIDOMHTMLImageElement> imageElement(do_QueryInterface(aRequestingContext));
-      if (imageElement)
+      nsCOMPtr<Element> element = do_QueryInterface(aRequestingContext);
+      RefPtr<mozilla::dom::HTMLImageElement> image =
+        mozilla::dom::HTMLImageElement::FromContentOrNull(element);
+      if (image)
       {
         if (!insertingQuotedContent)
         {

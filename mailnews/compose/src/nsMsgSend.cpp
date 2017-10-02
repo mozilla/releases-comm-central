@@ -27,7 +27,6 @@
 #include "nsMsgCopy.h"
 #include "nsUnicharUtils.h"
 #include "nsMsgPrompts.h"
-#include "nsIDOMHTMLImageElement.h"
 #include "nsCExternalHandlerService.h"
 #include "nsIMIMEService.h"
 #include "nsIDocument.h"

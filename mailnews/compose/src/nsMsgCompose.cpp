@@ -8,7 +8,6 @@
 #include "nsIDOMNode.h"
 #include "nsIDOMNodeList.h"
 #include "nsIDOMText.h"
-#include "nsIDOMHTMLImageElement.h"
 #include "nsPIDOMWindow.h"
 #include "mozIDOMWindow.h"
 #include "nsISelectionController.h"
