@@ -48,6 +48,8 @@
 #include "nsServiceManagerUtils.h"
 #include "mozINewMailNotificationService.h"
 #include "mozilla/mailnews/MimeHeaderParser.h"
+#include "nsGlobalWindow.h"
+#include "mozilla/ErrorResult.h"
 
 #include <Carbon/Carbon.h>
 #import <Cocoa/Cocoa.h>
@@ -489,10 +491,12 @@ nsMessengerOSXIntegration::BounceDockIcon()
     mediator->GetMostRecentWindow(u"mail:3pane", getter_AddRefs(domWindow));
     if (domWindow)
     {
-      nsCOMPtr<nsIDOMChromeWindow> chromeWindow(do_QueryInterface(domWindow));
-      // Temporay fix, see https://bugzilla.mozilla.org/show_bug.cgi?id=1401487#c3
-      // chromeWindow->GetAttention();
-      chromeWindow = nullptr;  // avoid unused variable warning.
+      nsPIDOMWindowOuter* outer = nsPIDOMWindowOuter::From(domWindow);
+      nsPIDOMWindowInner* inner = outer->GetCurrentInnerWindow();
+      if (inner) {
+        mozilla::IgnoredErrorResult rv;
+        nsGlobalWindow::Cast(inner)->GetAttention(rv);
+      }
     }
   }
   return NS_OK;
