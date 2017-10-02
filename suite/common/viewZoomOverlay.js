@@ -12,7 +12,8 @@ const MOUSE_SCROLL_ZOOM = 3;
  * Controls the "full zoom" setting and its site-specific preferences.
  */
 var FullZoom = FullZoom || {
-  contentPrefs: Services.contentPrefs.QueryInterface(Components.interfaces.nsIContentPrefService2),
+  contentPrefs: Components.classes["@mozilla.org/content-pref/service;1"]
+                          .getService(Components.interfaces.nsIContentPrefService2),
 
   // Identifies the setting in the content prefs database.
   name: "browser.content.full-zoom",

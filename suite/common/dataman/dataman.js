@@ -55,7 +55,7 @@ var gDataman = {
     Services.obs.addObserver(this, "cookie-changed", false);
     Services.obs.addObserver(this, "perm-changed", false);
     Services.obs.addObserver(this, "passwordmgr-storage-changed", false);
-    Services.contentPrefs.addObserver(null, this);
+    // Services.contentPrefs.addObserver(null, this);
     Services.obs.addObserver(this, "satchel-storage-changed", false);
     Services.obs.addObserver(this, "dom-storage-changed", false);
     Services.obs.addObserver(this, "dom-storage2-changed", false);
@@ -77,7 +77,7 @@ var gDataman = {
     Services.obs.removeObserver(this, "cookie-changed");
     Services.obs.removeObserver(this, "perm-changed");
     Services.obs.removeObserver(this, "passwordmgr-storage-changed");
-    Services.contentPrefs.removeObserver(null, this);
+    // Services.contentPrefs.removeObserver(null, this);
     Services.obs.removeObserver(this, "satchel-storage-changed");
     Services.obs.removeObserver(this, "dom-storage-changed");
     Services.obs.removeObserver(this, "dom-storage2-changed");
@@ -259,7 +259,7 @@ var gDomains = {
     this.domainObjects["*"] = {title: "*",
                                displayTitle: "*",
                                hasPermissions: true,
-                               hasPreferences: Services.contentPrefs.getPrefs(null, null).enumerator.hasMoreElements(),
+//                               hasPreferences: Services.contentPrefs.getPrefs(null, null).enumerator.hasMoreElements(),
                                hasFormData: true};
     this.search("");
     if (!gDataman.viewToLoad.length)
