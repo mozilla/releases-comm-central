@@ -582,7 +582,7 @@ nsresult NS_MsgCreatePathStringFromFolderURI(const char *aFolderURI,
       // add .sbd onto the previous path
       if (haveFirst)
       {
-        path.AppendLiteral(".sbd/");
+        path.AppendLiteral(FOLDER_SUFFIX "/");
       }
 
       if (aIsNewsFolder)

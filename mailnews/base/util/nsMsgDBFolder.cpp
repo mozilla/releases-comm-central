@@ -923,7 +923,7 @@ nsresult nsMsgDBFolder::CreateFileForDB(const nsAString& userLeafName, nsIFile *
     dbPath->GetLeafName(proposedDBName);
   }
   // now, take the ".msf" off
-  proposedDBName.SetLength(proposedDBName.Length() - NS_LITERAL_STRING(SUMMARY_SUFFIX).Length());
+  proposedDBName.SetLength(proposedDBName.Length() - SUMMARY_SUFFIX_LENGTH);
   dbPath->SetLeafName(proposedDBName);
 
   dbPath.forget(dbFile);
@@ -4072,7 +4072,7 @@ NS_IMETHODIMP nsMsgDBFolder::Rename(const nsAString& aNewName, nsIMsgWindow *msg
   if (NS_SUCCEEDED(rv) && count > 0)
   {
     // rename "*.sbd" directory
-    newNameDirStr.AppendLiteral(".sbd");
+    newNameDirStr.AppendLiteral(FOLDER_SUFFIX);
     dirFile->MoveTo(nullptr, newNameDirStr);
   }
 

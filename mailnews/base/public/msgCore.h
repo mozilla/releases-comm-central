@@ -26,12 +26,14 @@ class nsIMsgFolder;
  */
 #define SUMMARY_SUFFIX u".msf"
 #define SUMMARY_SUFFIX8 ".msf"
+#define SUMMARY_SUFFIX_LENGTH 4
 
 /*
  * The suffix we use for folder subdirectories.
  */
 #define FOLDER_SUFFIX u".sbd"
 #define FOLDER_SUFFIX8 ".sbd"
+#define FOLDER_SUFFIX_LENGTH 4
 
 /*
  * These are folder property strings, which are used in several places.

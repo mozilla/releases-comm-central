@@ -251,13 +251,9 @@ nsresult nsImapMailFolder::AddDirectorySeparator(nsIFile *path)
 static bool
 nsShouldIgnoreFile(nsString& name)
 {
-  int32_t len = name.Length();
-  // Warning: The first argument of RFind() needs to be a char string here so
-  // that the second argument means 'ignorecase'. When passing a char16_t here,
-  // a different overload is triggered and the argument is interpreted as offset.
-  if (len > 4 && name.RFind(SUMMARY_SUFFIX8, true) == len - 4)
+  if (StringEndsWith(name, NS_LITERAL_STRING(SUMMARY_SUFFIX), nsCaseInsensitiveStringComparator()))
   {
-    name.SetLength(len-4); // truncate the string
+    name.SetLength(name.Length() - SUMMARY_SUFFIX_LENGTH); // truncate the string
     return false;
   }
   return true;
@@ -1714,7 +1710,7 @@ NS_IMETHODIMP nsImapMailFolder::RenameLocal(const nsACString& newName, nsIMsgFol
   {
     newNameStr = leafname;
     NS_MsgHashIfNecessary(newNameStr);
-    newNameStr += ".sbd";
+    newNameStr.AppendLiteral(FOLDER_SUFFIX8);
     nsAutoCString leafName;
     dirFile->GetNativeLeafName(leafName);
     if (!leafName.Equals(newNameStr))

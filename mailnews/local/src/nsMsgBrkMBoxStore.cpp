@@ -387,14 +387,14 @@ NS_IMETHODIMP nsMsgBrkMBoxStore::RenameFolder(nsIMsgFolder *aFolder,
     return rv;
 
   nsString dbName(safeName);
-  dbName += NS_LITERAL_STRING(SUMMARY_SUFFIX);
+  dbName.AppendLiteral(SUMMARY_SUFFIX);
   oldSummaryFile->MoveTo(nullptr, dbName);
 
   if (numChildren > 0)
   {
     // rename "*.sbd" directory
     nsAutoString newNameDirStr(safeName);
-    newNameDirStr += NS_LITERAL_STRING(".sbd");
+    newNameDirStr.AppendLiteral(FOLDER_SUFFIX);
     dirFile->MoveTo(nullptr, newNameDirStr);
   }
 
@@ -462,7 +462,7 @@ NS_IMETHODIMP nsMsgBrkMBoxStore::CopyFolder(nsIMsgFolder *aSrcFolder,
   // there is real problem
   // Copy the file to the new dir
   nsAutoString dbName(safeFolderName);
-  dbName += NS_LITERAL_STRING(SUMMARY_SUFFIX);
+  dbName.AppendLiteral(SUMMARY_SUFFIX);
   rv = summaryFile->CopyTo(newPath, dbName);
   if (NS_FAILED(rv)) // Test if the copy is successful
   {
@@ -1024,7 +1024,7 @@ nsMsgBrkMBoxStore::AddSubFolders(nsIMsgFolder *parent, nsCOMPtr<nsIFile> &path,
     NS_ENSURE_SUCCESS(rv, rv);
     nsAutoString leafName;
     path->GetLeafName(leafName);
-    leafName.AppendLiteral(".sbd");
+    leafName.AppendLiteral(FOLDER_SUFFIX);
     path->SetLeafName(leafName);
     path->IsDirectory(&isDirectory);
   }

@@ -381,13 +381,13 @@ NS_IMETHODIMP nsMsgMaildirStore::RenameFolder(nsIMsgFolder *aFolder,
   {
     // rename "*.sbd" directory
     nsAutoString sbdName = safeName;
-    sbdName += NS_LITERAL_STRING(FOLDER_SUFFIX);
+    sbdName.AppendLiteral(FOLDER_SUFFIX);
     sbdPathFile->MoveTo(nullptr, sbdName);
   }
 
   // rename summary
   nsAutoString summaryName(safeName);
-  summaryName += NS_LITERAL_STRING(SUMMARY_SUFFIX);
+  summaryName.AppendLiteral(SUMMARY_SUFFIX);
   oldSummaryFile->MoveTo(nullptr, summaryName);
 
   nsCOMPtr<nsIMsgFolder> parentFolder;
@@ -447,7 +447,7 @@ NS_IMETHODIMP nsMsgMaildirStore::CopyFolder(nsIMsgFolder *aSrcFolder,
   // without copying it. If it fails and file exist and is not zero sized
   // there is real problem.
   nsAutoString dbName(safeFolderName);
-  dbName += NS_LITERAL_STRING(SUMMARY_SUFFIX);
+  dbName.AppendLiteral(SUMMARY_SUFFIX);
   rv = summaryFile->CopyTo(newPath, dbName);
   if (!NS_SUCCEEDED(rv))
   {
