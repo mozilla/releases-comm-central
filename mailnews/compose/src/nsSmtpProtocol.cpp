@@ -116,10 +116,15 @@ nsresult nsExplainErrorDetails(nsISmtpUrl * aSmtpUrl, nsresult aCode,
     case NS_ERROR_SMTP_GREETING:
       exitString = errorStringNameForErrorCode(aCode);
       bundle->GetStringFromName(exitString, eMsg);
-      if (aCode == NS_ERROR_SMTP_PERM_SIZE_EXCEEDED_1)
+      if (aCode == NS_ERROR_SMTP_PERM_SIZE_EXCEEDED_1) {
+        // Convert the error message argument back to integer since the error
+        // message string smtpPermSizeExceeded1 contains a %d.
+        // (The special case can be removed if that string ever changes, then
+        // %d should be changed to %S.)
         nsTextFormatter::ssprintf(msg, eMsg.get(), atoi(arg1), arg2);
-      else
+      } else {
         nsTextFormatter::ssprintf(msg, eMsg.get(), arg1, arg2);
+      }
       break;
     default:
       NS_WARNING("falling to default error code");
