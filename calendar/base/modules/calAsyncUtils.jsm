@@ -24,6 +24,7 @@ var promisifyProxyHandler = {
     },
     get: function(target, name) {
         switch (name) {
+            // calICalendar methods
             case "adoptItem":
             case "addItem":
             case "modifyItem":
@@ -31,6 +32,17 @@ var promisifyProxyHandler = {
             case "getItem":
             case "getItems":
                 return (...args) => this.promiseOperation(target, name, args);
+            // calIOfflineStorage methods
+            case "addOfflineItem":
+            case "modifyOfflineItem":
+            case "deleteOfflineItem":
+            case "getOfflineItemFlag":
+            case "resetItemOfflineFlag": {
+                let offline = target.QueryInterface(Components.interfaces.calIOfflineStorage);
+                return (...args) => this.promiseOperation(offline, name, args);
+            }
+
+            // Special getAllItems shortcut
             case "getAllItems":
                 return () => this.promiseOperation(target, "getItems", [cIC.ITEM_FILTER_ALL_ITEMS, 0, null, null]);
             default:

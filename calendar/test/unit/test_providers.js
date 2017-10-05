@@ -2,6 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+Components.utils.import("resource://calendar/modules/calAsyncUtils.jsm");
+
+const cIC = Components.interfaces.calICalendar;
+
 var icalStringArray = [
     // Comments refer to the range defined in testGetItems().
     // 1: one-hour event
@@ -194,6 +198,13 @@ var icalStringArray = [
 ];
 
 function run_test() {
+    testIcalData();
+    testMetaData();
+
+    run_next_test();
+}
+
+function testIcalData() {
     // First entry is test number, second item is expected result for testGetItems().
     let wantedArray = [[1, 1],
                        [2, 1],
@@ -356,8 +367,6 @@ function run_test() {
             calendar.addItem(aItem, listener);
         }
     }
-
-    testMetaData();
 }
 
 function testMetaData() {
@@ -417,3 +426,86 @@ function testMetaData() {
     testMetaData_(getMemoryCal());
     testMetaData_(getStorageCal());
 }
+
+async function testOfflineStorage(storageGetter, isRecurring) {
+    let storage = storageGetter();
+    print(`Running offline storage test for ${storage.type} calendar for ${isRecurring ? "recurring" : "normal"} item`);
+    let pcal = cal.async.promisifyCalendar(storage);
+
+    let event1 = createEventFromIcalString("BEGIN:VEVENT\n" +
+                                           "DTSTART;VALUE=DATE:20020402\n" +
+                                           "DTEND;VALUE=DATE:20020403\n" +
+                                           "SUMMARY:event1\n" +
+                                           (isRecurring ? "RRULE:FREQ=DAILY;INTERVAL=1;COUNT=10\n" : "") +
+                                           "END:VEVENT\n");
+
+    event1 = await pcal.addItem(event1);
+
+    // Make sure the event is really in the calendar
+    let result = await pcal.getAllItems();
+    equal(result.length, 1);
+
+    // When searching for offline added items, there are none
+    let filter = cIC.ITEM_FILTER_ALL_ITEMS | cIC.ITEM_FILTER_OFFLINE_CREATED;
+    result = await pcal.getItems(filter, 0, null, null);
+    equal(result.length, 0);
+
+    // Mark the item as offline added
+    await pcal.addOfflineItem(event1);
+
+    // Now there should be an offline item
+    result = await pcal.getItems(filter, 0, null, null);
+    equal(result.length, 1);
+
+    let event2 = event1.clone();
+    event2.title = "event2";
+
+    event2 = await pcal.modifyItem(event2, event1);
+
+    await pcal.modifyOfflineItem(event2);
+
+    // The flag should still be offline added, as it was already marked as such
+    filter = cIC.ITEM_FILTER_ALL_ITEMS | cIC.ITEM_FILTER_OFFLINE_CREATED;
+    result = await pcal.getItems(filter, 0, null, null);
+    equal(result.length, 1);
+
+    // Reset the flag
+    await pcal.resetItemOfflineFlag(event2);
+
+    // No more offline items after resetting the flag
+    filter = cIC.ITEM_FILTER_ALL_ITEMS | cIC.ITEM_FILTER_OFFLINE_CREATED;
+    result = await pcal.getItems(filter, 0, null, null);
+    equal(result.length, 0);
+
+    // Setting modify flag without one set should actually set that flag
+    await pcal.modifyOfflineItem(event2);
+    filter = cIC.ITEM_FILTER_ALL_ITEMS | cIC.ITEM_FILTER_OFFLINE_CREATED;
+    result = await pcal.getItems(filter, 0, null, null);
+    equal(result.length, 0);
+
+    filter = cIC.ITEM_FILTER_ALL_ITEMS | cIC.ITEM_FILTER_OFFLINE_MODIFIED;
+    result = await pcal.getItems(filter, 0, null, null);
+    equal(result.length, 1);
+
+    // Setting the delete flag should modify the flag accordingly
+    await pcal.deleteOfflineItem(event2);
+    filter = cIC.ITEM_FILTER_ALL_ITEMS | cIC.ITEM_FILTER_OFFLINE_MODIFIED;
+    result = await pcal.getItems(filter, 0, null, null);
+    equal(result.length, 0);
+
+    filter = cIC.ITEM_FILTER_ALL_ITEMS | cIC.ITEM_FILTER_OFFLINE_DELETED;
+    result = await pcal.getItems(filter, 0, null, null);
+    equal(result.length, 1);
+
+    // Setting the delete flag on an offline added item should remove it
+    await pcal.resetItemOfflineFlag(event2);
+    await pcal.addOfflineItem(event2);
+    await pcal.deleteOfflineItem(event2);
+    result = await pcal.getAllItems();
+    equal(result.length, 0);
+}
+
+add_task(testOfflineStorage.bind(null, () => getMemoryCal(), false));
+add_task(testOfflineStorage.bind(null, () => getStorageCal(), false));
+add_task(testOfflineStorage.bind(null, () => getMemoryCal(), true));
+add_task(testOfflineStorage.bind(null, () => getStorageCal(), true));

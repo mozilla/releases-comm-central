@@ -426,6 +426,31 @@ calMemoryCalendar.prototype = {
              calICalendar.ITEM_FILTER_OFFLINE_CREATED |
              calICalendar.ITEM_FILTER_OFFLINE_MODIFIED);
 
+        let requestedFlag = 0;
+        if ((aItemFilter & calICalendar.ITEM_FILTER_OFFLINE_CREATED) != 0) {
+            requestedFlag = cICL.OFFLINE_FLAG_CREATED_RECORD;
+        } else if ((aItemFilter & calICalendar.ITEM_FILTER_OFFLINE_MODIFIED) != 0) {
+            requestedFlag = cICL.OFFLINE_FLAG_MODIFIED_RECORD;
+        } else if ((aItemFilter & calICalendar.ITEM_FILTER_OFFLINE_DELETED) != 0) {
+            requestedFlag = cICL.OFFLINE_FLAG_DELETED_RECORD;
+        }
+
+        let matchOffline = function(itemFlag, requestedFlag) {
+            // Same as storage calendar sql query. For comparison:
+            // requestedFlag is :offline_journal (parameter),
+            // itemFlag is offline_journal (field value)
+            // ...
+            // AND (:offline_journal IS NULL
+            // AND  (offline_journal IS NULL
+            //  OR   offline_journal != ${cICL.OFFLINE_FLAG_DELETED_RECORD}))
+            //  OR offline_journal == :offline_journal
+
+            return (!requestedFlag &&
+                    (!itemFlag ||
+                     itemFlag != cICL.OFFLINE_FLAG_DELETED_RECORD)) ||
+                   itemFlag == requestedFlag;
+        };
+
         cal.forEach(this.mItems, ([id, item]) => {
             let isEvent_ = cal.isEvent(item);
             if (isEvent_) {
@@ -437,12 +462,10 @@ calMemoryCalendar.prototype = {
             }
 
             let hasItemFlag = (item.id in this.mOfflineFlags);
-            let offlineFlag = (hasItemFlag ? this.mOfflineFlags[item.id] : null);
+            let itemFlag = (hasItemFlag ? this.mOfflineFlags[item.id] : 0);
 
             // If the offline flag doesn't match, skip the item
-            if ((hasItemFlag ||
-                    (offline_filter != 0 && offlineFlag == cICL.OFFLINE_FLAG_DELETED_RECORD)) &&
-                (offlineFlag != offline_filter)) {
+            if (!matchOffline(itemFlag, requestedFlag)) {
                 return cal.forEach.CONTINUE;
             }
 

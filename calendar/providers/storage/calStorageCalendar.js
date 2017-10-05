@@ -809,6 +809,15 @@ calStorageCalendar.prototype = {
         if (wantEvents) {
             let params;             // stmt params
             let resultItems = [];
+            let requestedOfflineJournal = null;
+
+            if (wantOfflineDeletedItems) {
+                requestedOfflineJournal = cICL.OFFLINE_FLAG_DELETED_RECORD;
+            } else if (wantOfflineCreatedItems) {
+                requestedOfflineJournal = cICL.OFFLINE_FLAG_CREATED_RECORD;
+            } else if (wantOfflineModifiedItems) {
+                requestedOfflineJournal = cICL.OFFLINE_FLAG_MODIFIED_RECORD;
+            }
 
             // first get non-recurring events that happen to fall within the range
             //
@@ -819,15 +828,7 @@ calStorageCalendar.prototype = {
                 params.range_end = endTime;
                 params.start_offset = aRangeStart ? aRangeStart.timezoneOffset * USECS_PER_SECOND : 0;
                 params.end_offset = aRangeEnd ? aRangeEnd.timezoneOffset * USECS_PER_SECOND : 0;
-                params.offline_journal = null;
-
-                if (wantOfflineDeletedItems) {
-                    params.offline_journal = cICL.OFFLINE_FLAG_DELETED_RECORD;
-                } else if (wantOfflineCreatedItems) {
-                    params.offline_journal = cICL.OFFLINE_FLAG_CREATED_RECORD;
-                } else if (wantOfflineModifiedItems) {
-                    params.offline_journal = cICL.OFFLINE_FLAG_MODIFIED_RECORD;
-                }
+                params.offline_journal = requestedOfflineJournal;
 
                 while (this.mSelectNonRecurringEventsByRange.executeStep()) {
                     let row = this.mSelectNonRecurringEventsByRange.row;
@@ -850,11 +851,11 @@ calStorageCalendar.prototype = {
             // Process the recurring events from the cache
             for (let id in this.mRecEventCache) {
                 let evitem = this.mRecEventCache[id];
-                let offline_journal_flag = this.mRecEventCacheOfflineFlags[evitem.id] || null;
-                // No need to return flagged unless asked i.e. params.offline_journal == offline_journal_flag
-                // Return created and modified offline records if params.offline_journal is null alongwith events that have no flag
-                if ((params.offline_journal == null && offline_journal_flag != cICL.OFFLINE_FLAG_DELETED_RECORD) ||
-                    (params.offline_journal != null && offline_journal_flag == params.offline_journal)) {
+                let cachedJournalFlag = this.mRecEventCacheOfflineFlags[evitem.id] || null;
+                // No need to return flagged unless asked i.e. requestedOfflineJournal == cachedJournalFlag
+                // Return created and modified offline records if requestedOfflineJournal is null alongwith events that have no flag
+                if ((requestedOfflineJournal == null && cachedJournalFlag != cICL.OFFLINE_FLAG_DELETED_RECORD) ||
+                    (requestedOfflineJournal != null && cachedJournalFlag == requestedOfflineJournal)) {
                     count += handleResultItem(evitem, Components.interfaces.calIEvent);
                     if (checkCount()) {
                         return;
@@ -867,6 +868,15 @@ calStorageCalendar.prototype = {
         if (wantTodos) {
             let params;             // stmt params
             let resultItems = [];
+            let requestedOfflineJournal = null;
+
+            if (wantOfflineCreatedItems) {
+                requestedOfflineJournal = cICL.OFFLINE_FLAG_CREATED_RECORD;
+            } else if (wantOfflineDeletedItems) {
+                requestedOfflineJournal = cICL.OFFLINE_FLAG_DELETED_RECORD;
+            } else if (wantOfflineModifiedItems) {
+                requestedOfflineJournal = cICL.OFFLINE_FLAG_MODIFIED_RECORD;
+            }
 
             // first get non-recurring todos that happen to fall within the range
             try {
@@ -876,16 +886,7 @@ calStorageCalendar.prototype = {
                 params.range_end = endTime;
                 params.start_offset = aRangeStart ? aRangeStart.timezoneOffset * USECS_PER_SECOND : 0;
                 params.end_offset = aRangeEnd ? aRangeEnd.timezoneOffset * USECS_PER_SECOND : 0;
-                params.offline_journal = null;
-                if (wantOfflineCreatedItems) {
-                    params.offline_journal = cICL.OFFLINE_FLAG_CREATED_RECORD;
-                }
-                if (wantOfflineDeletedItems) {
-                    params.offline_journal = cICL.OFFLINE_FLAG_DELETED_RECORD;
-                }
-                if (wantOfflineModifiedItems) {
-                    params.offline_journal = cICL.OFFLINE_FLAG_MODIFIED_RECORD;
-                }
+                params.offline_journal = requestedOfflineJournal;
 
                 while (this.mSelectNonRecurringTodosByRange.executeStep()) {
                     let row = this.mSelectNonRecurringTodosByRange.row;
@@ -912,13 +913,13 @@ calStorageCalendar.prototype = {
             // process the recurring todos from the cache
             for (let id in this.mRecTodoCache) {
                 let todoitem = this.mRecTodoCache[id];
-                let offline_journal_flag = this.mRecTodoCacheOfflineFlags[todoitem.id] || null;
-                if ((params.offline_journal == null &&
-                     (offline_journal_flag == cICL.OFFLINE_FLAG_MODIFIED_RECORD ||
-                      offline_journal_flag == cICL.OFFLINE_FLAG_CREATED_RECORD ||
-                      offline_journal_flag == null)) ||
-                    (params.offline_journal != null &&
-                     (offline_journal_flag == params.offline_journal))) {
+                let cachedJournalFlag = this.mRecTodoCacheOfflineFlags[todoitem.id] || null;
+                if ((requestedOfflineJournal == null &&
+                     (cachedJournalFlag == cICL.OFFLINE_FLAG_MODIFIED_RECORD ||
+                      cachedJournalFlag == cICL.OFFLINE_FLAG_CREATED_RECORD ||
+                      cachedJournalFlag == null)) ||
+                    (requestedOfflineJournal != null &&
+                     (cachedJournalFlag == requestedOfflineJournal))) {
                     count += handleResultItem(todoitem,
                                               Components.interfaces.calITodo,
                                               checkCompleted);
