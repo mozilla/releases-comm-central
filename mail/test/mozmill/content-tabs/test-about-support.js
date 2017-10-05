@@ -207,7 +207,7 @@ function test_private_data() {
   // We use the profile path and some other element as an example
   // of a private-only element.
   let privateElem1 = find_private_element(tab);
-  let privateElem2 = content_tab_e(tab, "profile-dir-path");;
+  let privateElem2 = content_tab_e(tab, "profile-dir-box");
   // We use the profile button as an example of a public element.
   let publicElem = content_tab_e(tab, "profile-dir-button");
 

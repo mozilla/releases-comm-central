@@ -131,16 +131,14 @@ var snapshotFormatters = {
     // Add profile path as private info into the page.
     let currProfD = Services.dirsvc.get("ProfD", Ci.nsIFile);
     let profElem = document.getElementById("profile-dir-button").parentNode;
-    let profDirNode = document.createElement("span");
+    let profDirNode = document.getElementById("profile-dir-box");
     profDirNode.setAttribute("class", CLASS_DATA_PRIVATE);
-    profDirNode.setAttribute("id", "profile-dir-path");
     let profLinkNode = document.createElement("a");
     profLinkNode.setAttribute("href", Services.io.newFileURI(currProfD).spec);
     profLinkNode.setAttribute("onclick", "openProfileDirectory(); event.preventDefault();");
     let profPathNode = document.createTextNode(currProfD.path);
     profLinkNode.appendChild(profPathNode);
     profDirNode.appendChild(profLinkNode);
-    profElem.appendChild(profDirNode);
     profElem.appendChild(document.createTextNode(" "));
 
     // Show type of filesystem detected.
