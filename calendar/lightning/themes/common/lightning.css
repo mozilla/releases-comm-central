@@ -35,8 +35,3 @@ toolbarpaletteitem > .msgHeaderView-button .toolbarbutton-icon,
   width: 18px;
   height: 18px;
 }
-
-/* Write button */
-#newMsgButton-mail-menuitem {
-  list-style-image: url(chrome://messenger/skin/icons/newmsg.svg);
-}

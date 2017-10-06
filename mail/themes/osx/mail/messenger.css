@@ -22,7 +22,7 @@
   --toolbar-bgimage: var(--toolbar-non-lwt-bgimage);
 
   --toolbarbutton-border-radius: 3px;
-  --toolbarbutton-icon-fill-opacity: .85;
+  --toolbarbutton-icon-fill-opacity: 1;
   --toolbarbutton-hover-background: hsla(0, 0%, 100%, .1)
                                     linear-gradient(hsla(0, 0%, 100%, .3),
                                     hsla(0, 0%, 100%, .1)) padding-box;
@@ -41,7 +41,6 @@
   --toolbarbutton-inactive-bordercolor: rgba(0, 0, 0, 0.1);
   --toolbarbutton-inactive-boxshadow: 0 1px 0 hsla(0, 0%, 0%, .05) inset;
   --toolbarbutton-checkedhover-backgroundcolor: hsla(0, 0%, 0%, .09);
-  --toolbarbutton-icon-fill-attention: #0a84ff;
 
   --lwt-header-image: none;
 }
@@ -53,12 +52,6 @@
 :root:-moz-lwtheme {
   --toolbar-bgcolor: rgba(255,255,255,.4);
   --toolbar-bgimage: none;
-
-  --toolbarbutton-icon-fill-opacity: 1;
-}
-
-toolbar[brighttext] {
-  --toolbarbutton-icon-fill-attention: #45a1ff;
 }
 
 #messengerWindow:not([tabsintitlebar]) #titlebar {
@@ -239,7 +232,8 @@ toolbar:not([mode="icons"]) .toolbarbutton-1 > .toolbarbutton-menubutton-button 
 }
 
 .toolbarbutton-1 .toolbarbutton-icon {
-  padding: 1px;
+  width: 18px;
+  height: 18px;
 }
 
 .toolbarbutton-1[disabled=true]:-moz-lwtheme,
@@ -292,6 +286,8 @@ toolbar:not([mode="icons"]) .toolbarbutton-1 > .toolbarbutton-menubutton-button 
 .toolbarbutton-1 > .toolbarbutton-menu-dropmarker,
 .toolbarbutton-1 > .toolbarbutton-menubutton-dropmarker {
   list-style-image: url(chrome://messenger/skin/icons/toolbarbutton-arrow.svg);
+  -moz-context-properties: fill;
+  fill: currentColor;
 }
 
 .toolbarbutton-menu-dropmarker > .dropmarker-icon,

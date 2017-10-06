@@ -21,7 +21,7 @@
   --toolbar-bgcolor: var(--toolbar-non-lwt-bgcolor);
   --toolbar-bgimage: var(--toolbar-non-lwt-bgimage);
   --toolbarbutton-border-radius: 2px;
-  --toolbarbutton-icon-fill-opacity: .85;
+  --toolbarbutton-icon-fill-opacity: 1;
   --toolbarbutton-hover-background: rgba(0, 0, 0, .1);
   --toolbarbutton-hover-bordercolor: rgba(0, 0, 0, .1);
   --toolbarbutton-header-bordercolor: rgba(0, 0, 0, .1);
@@ -32,7 +32,6 @@
   --toolbarbutton-active-boxshadow: 0 0 0 1px rgba(0, 0, 0, .15) inset;
 
   --toolbarbutton-checkedhover-backgroundcolor: rgba(0, 0, 0, .2);
-  --toolbarbutton-icon-fill-attention: #0a84ff;
 
   --lwt-header-image: none;
 }
@@ -45,6 +44,8 @@
     --toolbar-non-lwt-bgcolor: #f9f9fa;
     --toolbar-non-lwt-textcolor: #0c0c0d;
     --toolbar-non-lwt-bgimage: none;
+
+    --toolbarbutton-icon-fill-opacity: 1;
   }
 }
 
@@ -53,12 +54,6 @@
 
   --toolbar-bgcolor: rgba(255,255,255,.4);
   --toolbar-bgimage: none;
-
-  --toolbarbutton-icon-fill-opacity: 1;
-}
-
-toolbar[brighttext] {
-  --toolbarbutton-icon-fill-attention: #45a1ff;
 }
 
 .toolbar-primary {
@@ -302,7 +297,8 @@ button[type="menu-button"] > button {
 
 .toolbarbutton-menubutton-button > .toolbarbutton-icon,
 .toolbarbutton-1 .toolbarbutton-icon {
-  padding: 1px;
+  width: 18px;
+  height: 18px;
 }
 
 toolbox[labelalign="end"] > toolbar[mode="full"] .toolbarbutton-1
@@ -314,6 +310,8 @@ toolbox[labelalign="end"] > toolbar[mode="full"] .toolbarbutton-1
 .toolbarbutton-1 .toolbarbutton-menu-dropmarker,
 .toolbarbutton-1 > .toolbarbutton-menubutton-dropmarker {
   list-style-image: url("chrome://messenger/skin/icons/toolbarbutton-arrow.svg");
+  -moz-context-properties: fill;
+  fill: currentColor;
 }
 
 .toolbarbutton-1 .toolbarbutton-menu-dropmarker > .dropmarker-icon,

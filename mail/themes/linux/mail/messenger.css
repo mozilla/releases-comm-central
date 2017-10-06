@@ -24,7 +24,7 @@
   --toolbar-bgimage: var(--toolbar-non-lwt-bgimage);
 
   --toolbarbutton-border-radius: 2px;
-  --toolbarbutton-icon-fill-opacity: .85;
+  --toolbarbutton-icon-fill-opacity: 1;
   --toolbarbutton-text-color: #222;
   --toolbarbutton-hover-background: rgba(255, 255, 255, .5) linear-gradient(rgba(255, 255, 255, .5), transparent);
   --toolbarbutton-hover-bordercolor: rgba(0, 0, 0, .25);
@@ -36,7 +36,6 @@
   --toolbarbutton-active-boxshadow: 0 1px 1px rgba(0, 0, 0, .1) inset, 0 0 1px rgba(0, 0, 0, .3) inset;
 
   --toolbarbutton-checkedhover-backgroundcolor: rgba(200, 200, 200, .5);
-  --toolbarbutton-icon-fill-attention: #0a84ff;
 
   --lwt-header-image: none;
 }
@@ -44,12 +43,6 @@
 :root:-moz-lwtheme {
   --toolbar-bgcolor: rgba(255,255,255,.4);
   --toolbar-bgimage: none;
-
-  --toolbarbutton-icon-fill-opacity: 1;
-}
-
-toolbar[brighttext] {
-  --toolbarbutton-icon-fill-attention: #45a1ff;
 }
 
 #header-view-toolbar[brighttext],
@@ -223,6 +216,8 @@ toolbox[labelalign="end"] .toolbarbutton-1[type="menu"] {
   background-position: center;
   background-repeat: no-repeat;
   background-size: 9px 7px;
+  -moz-context-properties: fill;
+  fill: currentColor;
 }
 
 .toolbarbutton-1 > .toolbarbutton-menu-dropmarker {
@@ -280,7 +275,8 @@ toolbar:not(.inline-toolbar):not(:-moz-lwtheme)
 
 .toolbarbutton-menubutton-button > .toolbarbutton-icon,
 .toolbarbutton-1 .toolbarbutton-icon {
-  padding: 1px;
+  width: 18px;
+  height: 18px;
 }
 
 .toolbarbutton-1[disabled=true]:-moz-lwtheme,

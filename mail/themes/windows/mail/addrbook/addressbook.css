@@ -97,6 +97,56 @@ toolbox > toolbar:last-of-type {
   padding-bottom: 1px;
 }
 
+/* ::::: primary toolbar buttons ::::: */
+
+#button-newcard {
+  list-style-image: url("chrome://messenger/skin/addressbook/icons/addressbook-toolbar.svg#newcard");
+}
+
+#button-newlist {
+  list-style-image: url("chrome://messenger/skin/addressbook/icons/addressbook-toolbar.svg#newlist");
+}
+
+#button-editcard {
+  list-style-image: url("chrome://messenger/skin/addressbook/icons/addressbook-toolbar.svg#editcard");
+}
+
+#button-newmessage {
+  list-style-image: url("chrome://messenger/skin/addressbook/icons/addressbook-toolbar.svg#newmessage");
+}
+
+#button-newim {
+  list-style-image: url("chrome://messenger/skin/addressbook/icons/addressbook-toolbar.svg#newim");
+}
+
+#button-abdelete {
+  list-style-image: url("chrome://messenger/skin/addressbook/icons/addressbook-toolbar.svg#abdelete");
+}
+
+#ab-bar2[brighttext] #button-newcard {
+  list-style-image: url("chrome://messenger/skin/addressbook/icons/addressbook-toolbar.svg#newcard-inverted");
+}
+
+#ab-bar2[brighttext] #button-newlist {
+  list-style-image: url("chrome://messenger/skin/addressbook/icons/addressbook-toolbar.svg#newlist-inverted");
+}
+
+#ab-bar2[brighttext] #button-editcard {
+  list-style-image: url("chrome://messenger/skin/addressbook/icons/addressbook-toolbar.svg#editcard-inverted");
+}
+
+#ab-bar2[brighttext] #button-newmessage {
+  list-style-image: url("chrome://messenger/skin/addressbook/icons/addressbook-toolbar.svg#newmessage-inverted");
+}
+
+#ab-bar2[brighttext] #button-newim {
+  list-style-image: url("chrome://messenger/skin/addressbook/icons/addressbook-toolbar.svg#newim-inverted");
+}
+
+#ab-bar2[brighttext] #button-abdelete {
+  list-style-image: url("chrome://messenger/skin/addressbook/icons/addressbook-toolbar.svg#abdelete-inverted");
+}
+
 /* ::::: Search Textbox ::::: */
 
 #peopleSearchInput {
@@ -172,5 +222,28 @@ toolbox > toolbar:last-of-type {
     -moz-appearance: none;
     border-style: none;
     border-top: 1px solid ThreeDShadow;
+  }
+}
+
+@media (-moz-os-version: windows-win8) and (-moz-windows-default-theme),
+       (-moz-os-version: windows-win10) and (-moz-windows-default-theme) {
+  #button-newcard {
+    list-style-image: url("chrome://messenger/skin/addressbook/icons/addressbook-toolbar.svg#newcard-flat");
+  }
+
+  #button-newlist {
+    list-style-image: url("chrome://messenger/skin/addressbook/icons/addressbook-toolbar.svg#newlist-flat");
+  }
+
+  #button-editcard {
+    list-style-image: url("chrome://messenger/skin/addressbook/icons/addressbook-toolbar.svg#editcard-flat");
+  }
+
+  #button-newmessage {
+    list-style-image: url("chrome://messenger/skin/addressbook/icons/addressbook-toolbar.svg#newmessage-flat");
+  }
+
+  #button-newim {
+    list-style-image: url("chrome://messenger/skin/addressbook/icons/addressbook-toolbar.svg#newim-flat");
   }
 }

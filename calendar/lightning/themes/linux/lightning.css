@@ -111,6 +111,12 @@ radio[pane=paneLightning] {
   border-bottom: 1px solid ThreeDShadow;
 }
 
+/* Write button */
+#newMsgButton-mail-menuitem {
+  list-style-image: url(chrome://messenger/skin/icons/mail-toolbar.svg#newmsg);
+}
+
+#newMsgButton-mail-menuitem > .menu-iconic-left > .menu-iconic-icon,
 #newMsgButton-calendar-menuitem > .menu-iconic-left > .menu-iconic-icon,
 #newMsgButton-task-menuitem > .menu-iconic-left > .menu-iconic-icon {
   width: 18px;
