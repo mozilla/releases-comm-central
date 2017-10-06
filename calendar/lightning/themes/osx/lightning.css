@@ -27,6 +27,35 @@ radio[pane=paneLightning] {
 
 /* ::::: tabs ::::: */
 
+/* ::: new tab buttons ::: */
+@media not all and (-moz-mac-yosemite-theme) {
+  #calendar-tab-button {
+    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar-osxlion.svg#calendar-tab);
+  }
+
+  #task-tab-button {
+    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar-osxlion.svg#task-tab);
+  }
+}
+
+@media (-moz-mac-yosemite-theme) {
+  #calendar-tab-button {
+    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#calendar-tab-flat);
+  }
+
+  #task-tab-button {
+    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#task-tab-flat);
+  }
+}
+
+#tabs-toolbar[brighttext] #calendar-tab-button {
+  list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#calendar-tab-inverted);
+}
+
+#tabs-toolbar[brighttext] #task-tab-button {
+  list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#task-tab-inverted);
+}
+
 /* ::: tab icons ::: */
 .icon-holder[type="calendar"],
 .tabmail-tab[type="calendar"] {
@@ -53,6 +82,34 @@ radio[pane=paneLightning] {
 /* Lightning sidebar background in calendar and task mode */
 #ltnSidebar {
   background-color: -moz-field;
+}
+
+/* Write button */
+@media not all and (-moz-mac-yosemite-theme) {
+  #newMsgButton-calendar-menuitem {
+      list-style-image: url(chrome://calendar-common/skin/calendar-toolbar-osxlion.svg#calendar-tab);
+  }
+
+  #newMsgButton-task-menuitem {
+      list-style-image: url(chrome://calendar-common/skin/calendar-toolbar-osxlion.svg#task-tab);
+  }
+}
+
+@media (-moz-mac-yosemite-theme) {
+  #newMsgButton-calendar-menuitem {
+      list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#calendar-tab-flat);
+  }
+
+  #newMsgButton-task-menuitem {
+      list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#task-tab-flat);
+  }
+}
+
+#newMsgButton-calendar-menuitem > .menu-iconic-left > .menu-iconic-icon,
+#newMsgButton-task-menuitem > .menu-iconic-left > .menu-iconic-icon {
+  width: 18px;
+  height: 18px;
+  margin: -1px;
 }
 
 /* Today pane button in status bar */
@@ -86,6 +143,26 @@ radio[pane=paneLightning] {
               0 1px 0 hsla(0, 0%, 0%, .05) inset,
               0 1px 1px hsla(0, 0%, 0%, .2) inset;
   transition-duration: 10ms;
+}
+
+@media not all and (-moz-mac-yosemite-theme) {
+  #calendar-status-todaypane-button > stack > .toolbarbutton-icon-begin {
+    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar-osxlion.svg#pane);
+    -moz-image-region: rect(0 18px 18px 0);
+  }
+}
+
+@media (-moz-mac-yosemite-theme) {
+  #calendar-status-todaypane-button > stack > .toolbarbutton-icon-begin {
+    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#pane-flat);
+    width: 18px;
+    height:18px;
+  }
+}
+
+#calendar-status-todaypane-button:-moz-lwtheme-brighttext > stack >
+  .toolbarbutton-icon-begin {
+  list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#pane-inverted);
 }
 
 #calendar-status-todaypane-button > stack > .toolbarbutton-day-text {
@@ -187,4 +264,82 @@ radio[pane=paneLightning] {
 #imip-view-toolbar > .toolbarbutton-1.msgHeaderView-button:hover >
   .toolbarbutton-menubutton-dropmarker {
   background-color: rgb(230, 230, 230) !important;
+}
+
+@media not all and (-moz-mac-yosemite-theme) {
+  .imipAcceptRecurrencesButton,
+  .imipAcceptButton {
+    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar-osxlion.svg#complete);
+  }
+
+  .imipDeclineCounterButton,
+  .imipDeclineRecurrencesButton,
+  .imipDeclineButton {
+    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar-osxlion.svg#decline);
+  }
+
+  .imipTentativeRecurrencesButton,
+  .imipTentativeButton {
+    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar-osxlion.svg#tentative);
+  }
+
+  .imipDetailsButton {
+    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar-osxlion.svg#find);
+  }
+
+  .imipAddButton {
+    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar-osxlion.svg#newevent);
+  }
+
+  .imipRescheduleButton,
+  .imipUpdateButton {
+    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar-osxlion.svg#synchronize);
+  }
+
+  .imipDeleteButton {
+    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar-osxlion.svg#delete);
+  }
+
+  .imipReconfirmButton {
+    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar-osxlion.svg#priority);
+  }
+}
+
+@media (-moz-mac-yosemite-theme) {
+  .imipAcceptRecurrencesButton,
+  .imipAcceptButton {
+    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#complete-flat);
+  }
+
+  .imipDeclineCounterButton,
+  .imipDeclineRecurrencesButton,
+  .imipDeclineButton {
+    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#decline-flat);
+  }
+
+  .imipTentativeRecurrencesButton,
+  .imipTentativeButton {
+    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#tentative-flat);
+  }
+
+  .imipDetailsButton {
+    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#find-flat);
+  }
+
+  .imipAddButton {
+    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#newevent-flat);
+  }
+
+  .imipRescheduleButton,
+  .imipUpdateButton {
+    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#synchronize-flat);
+  }
+
+  .imipDeleteButton {
+    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#delete);
+  }
+
+  .imipReconfirmButton {
+    list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#priority-flat);
+  }
 }

@@ -77,9 +77,6 @@
 
 #today-button {
   list-style-image: url("chrome://calendar-common/skin/widgets/nav-today.svg");
-  -moz-context-properties: fill, fill-opacity;
-  fill: currentColor;
-  fill-opacity: var(--toolbarbutton-icon-fill-opacity);
 }
 
 .miniday-nav-buttons[disabled] {
@@ -112,7 +109,6 @@
 
 #todaypane-new-event-button {
   -moz-user-focus: normal;
-  list-style-image: url(chrome://calendar-common/skin/icons/newevent.svg);
 }
 
 #todaypane-new-event-button > .toolbarbutton-text {

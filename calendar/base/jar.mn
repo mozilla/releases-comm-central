@@ -106,7 +106,7 @@ calendar.jar:
 % skin calendar classic/1.0 chrome/skin/windows/calendar/ os=WINNT
 % skin calendar-common classic/1.0 chrome/skin/common/
 % style chrome://global/content/customizeToolbar.xul chrome://calendar/skin/calendar-task-view.css
-% style chrome://global/content/customizeToolbar.xul chrome://calendar-common/skin/dialogs/calendar-event-dialog.css
+% style chrome://global/content/customizeToolbar.xul chrome://calendar/skin/calendar-event-dialog.css
 % style chrome://calendar/content/calendar-event-dialog.xul chrome://calendar-common/skin/dialogs/calendar-event-dialog.css
 % style chrome://lightning/content/lightning-item-iframe.xul chrome://calendar-common/skin/dialogs/calendar-event-dialog.css
 % style chrome://calendar/content/calendar-event-dialog-attendees.xul chrome://calendar-common/skin/dialogs/calendar-event-dialog.css
@@ -120,30 +120,6 @@ calendar.jar:
     ../icons/default/calendar-task-dialog.png         (themes/common/icons/calendar-task-dialog.png)
     ../icons/default/calendar-task-summary-dialog.ico (themes/common/icons/calendar-task-summary-dialog.ico)
     ../icons/default/calendar-task-summary-dialog.png (themes/common/icons/calendar-task-summary-dialog.png)
-    ../skin/common/icons/address.svg                  (themes/common/icons/address.svg)
-    ../skin/common/icons/attach.svg                   (themes/common/icons/attach.svg)
-    ../skin/common/icons/calendar-tab.svg             (themes/common/icons/calendar-tab.svg)
-    ../skin/common/icons/category.svg                 (themes/common/icons/category.svg)
-    ../skin/common/icons/complete.svg                 (themes/common/icons/complete.svg)
-    ../skin/common/icons/decline.svg                  (themes/common/icons/decline.svg)
-    ../skin/common/icons/delete.svg                   (themes/common/icons/delete.svg)
-    ../skin/common/icons/edit.svg                     (themes/common/icons/edit.svg)
-    ../skin/common/icons/find.svg                     (themes/common/icons/find.svg)
-    ../skin/common/icons/freebusy.svg                 (themes/common/icons/freebusy.svg)
-    ../skin/common/icons/newevent.svg                 (themes/common/icons/newevent.svg)
-    ../skin/common/icons/newtask.svg                  (themes/common/icons/newtask.svg)
-    ../skin/common/icons/pane.svg                     (themes/common/icons/pane.svg)
-    ../skin/common/icons/print.svg                    (themes/common/icons/print.svg)
-    ../skin/common/icons/priority.svg                 (themes/common/icons/priority.svg)
-    ../skin/common/icons/save.svg                     (themes/common/icons/save.svg)
-    ../skin/common/icons/save-close.svg               (themes/common/icons/save-close.svg)
-    ../skin/common/icons/security.svg                 (themes/common/icons/security.svg)
-    ../skin/common/icons/status.svg                   (themes/common/icons/status.svg)
-    ../skin/common/icons/synchronize.svg              (themes/common/icons/synchronize.svg)
-    ../skin/common/icons/task-tab.svg                 (themes/common/icons/task-tab.svg)
-    ../skin/common/icons/tentative.svg                (themes/common/icons/tentative.svg)
-    ../skin/common/icons/today.svg                    (themes/common/icons/today.svg)
-    ../skin/common/icons/timezones.svg                (themes/common/icons/timezones.svg)
     ../skin/common/alarm-flashing.png                 (themes/common/images/alarm-flashing.png)
     ../skin/common/alarm-icons.png                    (themes/common/images/alarm-icons.png)
     ../skin/common/attendee-icons.png                 (themes/common/images/attendee-icons.png)
@@ -180,6 +156,8 @@ calendar.jar:
     ../skin/common/calendar-providerUninstall-dialog.css (themes/common/calendar-providerUninstall-dialog.css)
     ../skin/common/calendar-task-tree.css             (themes/common/calendar-task-tree.css)
     ../skin/common/calendar-task-view.css             (themes/common/calendar-task-view.css)
+    ../skin/common/calendar-toolbar.svg               (themes/common/calendar-toolbar.svg)
+    ../skin/common/calendar-toolbar-osxlion.svg       (themes/common/calendar-toolbar-osxlion.svg)
     ../skin/common/calendar-itip-icons.svg            (themes/common/calendar-itip-icons.svg)
     ../skin/common/calendar-unifinder.css             (themes/common/calendar-unifinder.css)
     ../skin/common/calendar-views.css                 (themes/common/calendar-views.css)

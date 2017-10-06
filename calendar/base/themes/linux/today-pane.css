@@ -78,6 +78,16 @@
   max-width: 18px;
 }
 
+#todaypane-new-event-button {
+  list-style-image: url(chrome://calendar-common/skin/calendar-toolbar.svg#newevent);
+}
+
 #todaypane-new-event-button[disabled="true"] > .toolbarbutton-icon {
   opacity: 0.4;
+}
+
+#todaypane-new-event-button > .toolbarbutton-icon {
+  width: 18px;
+  height: 18px;
+  margin: -1px;
 }
