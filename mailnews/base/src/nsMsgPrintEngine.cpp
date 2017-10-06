@@ -37,7 +37,6 @@
 #include "nsIWebNavigation.h"
 #include "nsContentUtils.h"
 #include "nsIChannel.h"
-#include "nsIContentViewerFile.h"
 #include "nsServiceManagerUtils.h"
 
 static const char* kPrintingPromptService = "@mozilla.org/embedcomp/printingprompt-service;1";
