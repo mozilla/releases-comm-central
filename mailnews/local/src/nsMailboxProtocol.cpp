@@ -35,6 +35,7 @@ static mozilla::LazyLogModule MAILBOX("MAILBOX");
 #include "nsIMsgPluggableStore.h"
 #include "nsISeekableStream.h"
 #include "SlicedInputStream.h"
+#include "nsStreamUtils.h"
 
 #include "nsIMsgMdnGenerator.h"
 
@@ -69,11 +70,23 @@ nsresult nsMailboxProtocol::OpenMultipleMsgTransport(uint64_t offset, int64_t si
       do_GetService(NS_STREAMTRANSPORTSERVICE_CONTRACTID, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
+  nsCOMPtr<nsIInputStream> clonedStream;
+  nsCOMPtr<nsIInputStream> replacementStream;
+  rv = NS_CloneInputStream(m_multipleMsgMoveCopyStream,
+                           getter_AddRefs(clonedStream),
+                           getter_AddRefs(replacementStream));
+  NS_ENSURE_SUCCESS(rv, rv);
+  if (replacementStream) {
+    // If m_multipleMsgMoveCopyStream is not cloneable, NS_CloneInputStream
+    // will clone it using a pipe. In order to keep the copy alive and working,
+    // we have to replace the original stream with the replacement.
+    m_multipleMsgMoveCopyStream = replacementStream.forget();
+  }
   // XXX 64-bit
   // This can be called with size == -1 which means "read as much as we can".
   // We pass this on as UINT64_MAX, which is in fact uint64_t(-1).
   RefPtr<SlicedInputStream> slicedStream =
-    new SlicedInputStream(m_multipleMsgMoveCopyStream, offset,
+    new SlicedInputStream(clonedStream.forget(), offset,
                           size == -1 ? UINT64_MAX : uint64_t(size));
   rv = serv->CreateInputTransport(slicedStream, false,
                                   getter_AddRefs(m_transport));
@@ -164,7 +177,7 @@ nsresult nsMailboxProtocol::Initialize(nsIURI * aURL)
               else
                 reusable = false;
               RefPtr<SlicedInputStream> slicedStream =
-                new SlicedInputStream(stream, offset, uint64_t(msgSize));
+                new SlicedInputStream(stream.forget(), offset, uint64_t(msgSize));
               rv = sts->CreateInputTransport(slicedStream, !reusable,
                                              getter_AddRefs(m_transport));
 
@@ -320,7 +333,7 @@ NS_IMETHODIMP nsMailboxProtocol::OnStopRequest(nsIRequest *request, nsISupports 
                     {
                       m_readCount = msgSize;
                       RefPtr<SlicedInputStream> slicedStream =
-                        new SlicedInputStream(stream, msgOffset, uint64_t(msgSize));
+                        new SlicedInputStream(stream.forget(), msgOffset, uint64_t(msgSize));
                       rv = sts->CreateInputTransport(slicedStream, true,
                                                      getter_AddRefs(m_transport));
                     }
