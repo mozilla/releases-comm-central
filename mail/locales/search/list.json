@@ -209,6 +209,13 @@
         ]
       }
     },
+    "ms": {
+      "default": {
+        "visibleDefaultEngines": [
+          "amazondotcom", "bing", "google", "twitter", "wikipedia", "yahoo"
+        ]
+      }
+    },
     "nb-NO": {
       "default": {
         "visibleDefaultEngines": [
