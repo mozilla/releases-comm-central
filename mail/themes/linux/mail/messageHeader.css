@@ -81,11 +81,9 @@
 }
 
 #attachmentIcon {
-  list-style-image: url("chrome://messenger/skin/icons/attach.svg");
+  list-style-image: url("chrome://messenger/skin/icons/filterbar.png");
+  -moz-image-region: rect(0px, 80px, 16px, 64px);
   margin-inline-start: 5px;
-  -moz-context-properties: fill, fill-opacity;
-  fill: currentColor;
-  fill-opacity: var(--toolbarbutton-icon-fill-opacity);
 }
 
 #attachmentName:hover,

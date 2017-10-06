@@ -58,6 +58,10 @@
   list-style-image: url("chrome://global/skin/tree/twisty.svg#open");
 }
 
+#attachmentIcon {
+  margin-inline-start: 5px;
+}
+
 #attachmentName:hover,
 #attachmentName[selected="true"] {
   cursor: pointer;
@@ -289,11 +293,7 @@ mail-emailaddress[selected="true"] .emailDisplayButton{
 }
 
 #attachmentIcon {
-  list-style-image: url("chrome://messenger/skin/icons/attach.svg");
-  margin-inline-start: 5px;
-  -moz-context-properties: fill, fill-opacity;
-  fill: currentColor;
-  fill-opacity: var(--toolbarbutton-icon-fill-opacity);
+  list-style-image: url("chrome://messenger/skin/icons/attachment-col.png");
 }
 
 #attachmentToggle:hover {
