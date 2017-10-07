@@ -38,6 +38,17 @@
 
 /* :::: Filter Buttons :::: */
 
+#quick-filter-bar toolbarbutton {
+  margin-right: 1px;
+  margin-left: 1px;
+}
+
+#quick-filter-bar-main-bar toolbarbutton {
+  -moz-context-properties: fill, fill-opacity;
+  fill: currentColor;
+  fill-opacity: var(--toolbarbutton-icon-fill-opacity);
+}
+
 #quick-filter-bar #qfb-sticky,
 #quick-filter-bar #qfb-sticky[checked] {
   background: none;
@@ -46,11 +57,11 @@
 }
 
 #qfb-sticky {
-  list-style-image: url("chrome://messenger/skin/icons/black_pin.png");
+  list-style-image: url("chrome://messenger/skin/icons/sticky.svg");
 }
 
 #qfb-sticky[checked] {
-  list-style-image: url("chrome://messenger/skin/icons/red_pin.png");
+  fill: #b20606;
 }
 
 /* we use both IDs so we are more precise than the other # toolbarbutton rules */
@@ -62,39 +73,24 @@
   border-width: 0;
 }
 
-#qfb-closebutton {
-  list-style-image: url("chrome://global/skin/icons/closeSidebar.png");
-  -moz-image-region: rect(0px, 14px, 14px, 0px);
-}
-
 #qfb-unread {
-  list-style-image: url("chrome://messenger/skin/icons/filterbar.png");
-  -moz-image-region: rect(0px, 16px, 16px, 0px);
+  list-style-image: url("chrome://messenger/skin/icons/mark.svg");
 }
 
 #qfb-starred {
-  list-style-image: url("chrome://messenger/skin/icons/filterbar.png");
-  -moz-image-region: rect(0px, 32px, 16px, 16px);
-}
-
-.qfb-starred-nostar {
-  list-style-image: url("chrome://messenger/skin/starContact.png");
-  -moz-image-region:rect(0px 32px 16px 16px);
+  list-style-image: url("chrome://messenger/skin/icons/star.svg");
 }
 
 #qfb-inaddrbook {
-  list-style-image: url("chrome://messenger/skin/icons/filterbar.png");
-  -moz-image-region: rect(0px, 48px, 16px, 32px);
+  list-style-image: url("chrome://messenger/skin/icons/address.svg")
 }
 
 #qfb-tags {
-  list-style-image: url("chrome://messenger/skin/icons/filterbar.png");
-  -moz-image-region: rect(0px, 64px, 16px, 48px);
+  list-style-image: url("chrome://messenger/skin/icons/tag.svg");
 }
 
 #qfb-attachment {
-  list-style-image: url("chrome://messenger/skin/icons/filterbar.png");
-  -moz-image-region: rect(0px, 80px, 16px, 64px);
+  list-style-image: url("chrome://messenger/skin/icons/attach.svg");
 }
 
 #qfb-results-label {

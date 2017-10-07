@@ -54,7 +54,7 @@
 #quick-filter-bar toolbarbutton {
   min-height: 19px;
   border: 1px solid transparent;
-  padding: 1px 3px;
+  padding: 2px 3px;
   margin-inline-start: 1px;
   margin-inline-end: 1px;
 }
@@ -63,7 +63,9 @@
   min-width: 22px;
   margin-inline-start: 1px;
   margin-inline-end: 1px;
-  list-style-image: url("chrome://messenger/skin/icons/quick-search-icons.png");
+  -moz-context-properties: fill, fill-opacity;
+  fill: currentColor;
+  fill-opacity: var(--toolbarbutton-icon-fill-opacity);
 }
 
 /* keep that hideous outline focus ring from showing on the checked buttons */
@@ -78,35 +80,31 @@
 }
 
 #qfb-sticky {
-  -moz-image-region: rect(0 16px 16px 0);
+  list-style-image: url("chrome://messenger/skin/icons/sticky.svg");
 }
 
 #qfb-sticky[checked] {
-  -moz-image-region: rect(0 32px 16px 16px);
+  fill: #b20606;
 }
 
 #qfb-unread {
-  -moz-image-region: rect(0 48px 16px 32px);
+  list-style-image: url("chrome://messenger/skin/icons/mark.svg");
 }
 
 #qfb-starred {
-  -moz-image-region: rect(0 64px 16px 48px);
+  list-style-image: url("chrome://messenger/skin/icons/star.svg");
 }
 
 #qfb-inaddrbook {
-  -moz-image-region: rect(0 80px 16px 64px);
+  list-style-image: url("chrome://messenger/skin/icons/address.svg")
 }
 
 #qfb-tags {
-  -moz-image-region: rect(0 112px 16px 96px);
-}
-
-#qfb-tags[disabled] > .toolbarbutton-icon {
-  opacity: .4;
+  list-style-image: url("chrome://messenger/skin/icons/tag.svg");
 }
 
 #qfb-attachment {
-  -moz-image-region: rect(0 96px 16px 80px);
+  list-style-image: url("chrome://messenger/skin/icons/attach.svg");
 }
 
 #quick-filter-bar[filterActive="matches"] #qfb-results-label {

@@ -57,6 +57,8 @@
   skin/classic/messenger/icons/security.svg                   (../shared/mail/icons/security.svg)
   skin/classic/messenger/icons/send.svg                       (../shared/mail/icons/send.svg)
   skin/classic/messenger/icons/spelling.svg                   (../shared/mail/icons/spelling.svg)
+  skin/classic/messenger/icons/star.svg                       (../shared/mail/icons/star.svg)
+  skin/classic/messenger/icons/sticky.svg                     (../shared/mail/icons/sticky.svg)
   skin/classic/messenger/icons/stop.svg                       (../shared/mail/icons/stop.svg)
   skin/classic/messenger/icons/tag.svg                        (../shared/mail/icons/tag.svg)
   skin/classic/messenger/icons/toolbarbutton-arrow.svg        (../shared/mail/icons/toolbarbutton-arrow.svg)

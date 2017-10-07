@@ -56,7 +56,6 @@
 
 #quick-filter-bar toolbarbutton {
   color: #444;
-  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.4);
   height: 16px;
   font-weight: bold;
   padding: 0 4px;
@@ -68,7 +67,7 @@
 #quick-filter-bar toolbarbutton:not([checked="true"]):hover {
   background-image: linear-gradient(#BBBBBB, #B5B5B5);
   color: #efefef !important;
-  text-shadow: 0 1px rgba(0, 0, 0, .4);
+  text-shadow: none;
 }
 
 #quick-filter-bar toolbarbutton:not([checked="true"]):active,
@@ -86,11 +85,15 @@
   text-shadow: 0 1px rgba(0, 0, 0, .4);
 }
 
-#quick-filter-bar-main-bar toolbarbutton > .toolbarbutton-icon {
-  padding: 0;
-  margin: 0;
-  width: 14px;
-  height: 14px;
+#quick-filter-bar-main-bar toolbarbutton {
+  height: 18px;
+  -moz-context-properties: fill, fill-opacity;
+  fill: currentColor;
+  fill-opacity: var(--toolbarbutton-icon-fill-opacity);
+}
+
+#quick-filter-bar-main-bar toolbarbutton:not(#qfb-sticky) > .toolbarbutton-icon {
+  margin-inline-end: 2px;
 }
 
 #quick-filter-bar toolbarbutton > .toolbarbutton-text {
@@ -103,17 +106,10 @@
 }
 
 #qfb-sticky {
-  width: 16px;
+  border-radius: 2px !important;
+  width: 18px;
   margin-inline-start: 6px !important;
-  list-style-image: url("chrome://messenger/skin/icons/QFB-toolbar.png");
-  -moz-image-region: rect(0px 14px 14px 0px);
-}
-
-#qfb-sticky[checked],
-#qfb-sticky:hover,
-#qfb-sticky:active {
-  border-radius: 2px;
-  -moz-image-region: rect(28px 14px 42px 0px);
+  list-style-image: url("chrome://messenger/skin/icons/sticky.svg");
 }
 
 /* we use both IDs so we are more precise than the other # toolbarbutton rules */
@@ -122,127 +118,23 @@
 }
 
 #qfb-unread {
-  list-style-image: url("chrome://messenger/skin/icons/QFB-toolbar.png");
-  -moz-image-region: rect(0px 28px 14px 14px);
-}
-
-#qfb-unread[checked],
-#qfb-unread:hover,
-#qfb-unread:active {
-  -moz-image-region: rect(28px 28px 42px 14px);
+  list-style-image: url("chrome://messenger/skin/icons/mark.svg");
 }
 
 #qfb-starred {
-  list-style-image: url("chrome://messenger/skin/icons/QFB-toolbar.png");
-  -moz-image-region: rect(0px 42px 14px 28px);
-}
-
-#qfb-starred[checked],
-#qfb-starred:hover,
-#qfb-starred:active {
-  -moz-image-region: rect(28px 42px 42px 28px);
+  list-style-image: url("chrome://messenger/skin/icons/star.svg");
 }
 
 #qfb-inaddrbook {
-  list-style-image: url("chrome://messenger/skin/icons/QFB-toolbar.png");
-  -moz-image-region: rect(0px 56px 14px 42px);
-}
-
-#qfb-inaddrbook[checked],
-#qfb-inaddrbook:hover,
-#qfb-inaddrbook:active {
-  -moz-image-region: rect(28px 56px 42px 42px);
+  list-style-image: url("chrome://messenger/skin/icons/address.svg")
 }
 
 #qfb-tags {
-  list-style-image: url("chrome://messenger/skin/icons/QFB-toolbar.png");
-  -moz-image-region: rect(0px 70px 14px 56px);
-}
-
-#qfb-tags[checked],
-#qfb-tags:hover,
-#qfb-tags:active {
-  -moz-image-region: rect(28px 70px 42px 56px);
+  list-style-image: url("chrome://messenger/skin/icons/tag.svg");
 }
 
 #qfb-attachment {
-  list-style-image: url("chrome://messenger/skin/icons/QFB-toolbar.png");
-  -moz-image-region: rect(0px 84px 14px 70px);
-}
-
-#qfb-attachment[checked],
-#qfb-attachment:hover,
-#qfb-attachment:active {
-  -moz-image-region: rect(28px 84px 42px 70px);
-}
-
-@media (min-resolution: 2dppx) {
-  #qfb-sticky {
-    list-style-image: url("chrome://messenger/skin/icons/QFB-toolbar@2x.png");
-    -moz-image-region: rect(0px 28px 28px 0px);
-  }
-
-  #qfb-sticky[checked],
-  #qfb-sticky:hover,
-  #qfb-sticky:active {
-    border-radius: 2px;
-    -moz-image-region: rect(56px 28px 84px 0px);
-  }
-
-  #qfb-unread {
-    list-style-image: url("chrome://messenger/skin/icons/QFB-toolbar@2x.png");
-    -moz-image-region: rect(0px 56px 28px 28px);
-  }
-
-  #qfb-unread[checked],
-  #qfb-unread:hover,
-  #qfb-unread:active {
-    -moz-image-region: rect(56px 56px 84px 28px);
-  }
-
-  #qfb-starred {
-    list-style-image: url("chrome://messenger/skin/icons/QFB-toolbar@2x.png");
-    -moz-image-region: rect(0px 84px 28px 56px);
-  }
-
-  #qfb-starred[checked],
-  #qfb-starred:hover,
-  #qfb-starred:active {
-    -moz-image-region: rect(56px 84px 84px 56px);
-  }
-
-  #qfb-inaddrbook {
-    list-style-image: url("chrome://messenger/skin/icons/QFB-toolbar@2x.png");
-    -moz-image-region: rect(0px 112px 28px 84px);
-  }
-
-  #qfb-inaddrbook[checked],
-  #qfb-inaddrbook:hover,
-  #qfb-inaddrbook:active {
-    -moz-image-region: rect(56px 112px 84px 84px);
-  }
-
-  #qfb-tags {
-    list-style-image: url("chrome://messenger/skin/icons/QFB-toolbar@2x.png");
-    -moz-image-region: rect(0px 140px 28px 112px);
-  }
-
-  #qfb-tags[checked],
-  #qfb-tags:hover,
-  #qfb-tags:active {
-    -moz-image-region: rect(56px 140px 84px 112px);
-  }
-
-  #qfb-attachment {
-    list-style-image: url("chrome://messenger/skin/icons/QFB-toolbar@2x.png");
-    -moz-image-region: rect(0px 168px 28px 140px);
-  }
-
-  #qfb-attachment[checked],
-  #qfb-attachment:hover,
-  #qfb-attachment:active {
-    -moz-image-region: rect(56px 168px 84px 140px);
-  }
+  list-style-image: url("chrome://messenger/skin/icons/attach.svg");
 }
 
 #quick-filter-bar[filterActive="matches"] #qfb-results-label {
