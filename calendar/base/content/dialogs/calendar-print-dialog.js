@@ -237,6 +237,7 @@ function refreshHtml(finishFunc) {
         }
 
         let iframeDoc = document.getElementById("content").contentDocument;
+        // eslint-disable-next-line no-unsanitized/property
         iframeDoc.documentElement.innerHTML = html;
         iframeDoc.title = settings.title;
 

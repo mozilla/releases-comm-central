@@ -110,10 +110,12 @@ ltn.invitation = {
                         mode = Components.interfaces.mozITXTToHTMLConv.kStructPhrase +
                                Components.interfaces.mozITXTToHTMLConv.kGlyphSubstitution +
                                Components.interfaces.mozITXTToHTMLConv.kURLs;
+                        // eslint-disable-next-line no-unsanitized/property
                         content.innerHTML = linkConverter.scanHTML(contentText, mode);
                     } catch (e) {
                         mode = Components.interfaces.mozITXTToHTMLConv.kStructPhrase +
                                Components.interfaces.mozITXTToHTMLConv.kURLs;
+                        // eslint-disable-next-line no-unsanitized/property
                         content.innerHTML = linkConverter.scanHTML(contentText, mode);
                     }
                 } else {
