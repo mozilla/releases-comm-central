@@ -9,10 +9,6 @@ Services.scriptloader.loadSubScript(
     "resource://calendar/components/calItipEmailTransport.js",
     calItipEmailTransport);
 
-function run_test() {
-    run_next_test();
-}
-
 function itipItemForTest(title, seq) {
     let itipItem = Components
             .classes["@mozilla.org/calendar/itip-item;1"]
