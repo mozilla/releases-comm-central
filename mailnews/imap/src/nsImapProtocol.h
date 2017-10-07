@@ -344,6 +344,7 @@ private:
 
   // Ouput stream for writing commands to the socket
   nsCOMPtr<nsISocketTransport>  m_transport;
+  nsCOMPtr<nsIInputStream> m_inputStream;
 
   nsCOMPtr<nsIAsyncInputStream>   m_channelInputStream;
   nsCOMPtr<nsIAsyncOutputStream>  m_channelOutputStream;

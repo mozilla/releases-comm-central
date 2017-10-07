@@ -253,7 +253,6 @@ nsresult nsMsgProtocol::CloseSocket()
   nsresult rv = NS_OK;
   // release all of our socket state
   m_socketIsOpen = false;
-  m_inputStream = nullptr;
   m_outputStream = nullptr;
   if (m_transport) {
     nsCOMPtr<nsISocketTransport> strans = do_QueryInterface(m_transport);
@@ -462,26 +461,18 @@ nsresult nsMsgProtocol::LoadUrl(nsIURI * aURL, nsISupports * aConsumer)
       nsCOMPtr<nsISupports> urlSupports = do_QueryInterface(aURL);
       if (m_transport)
       {
-        // don't open the input stream more than once
-        if (!m_inputStream)
-        {
-          // open buffered, asynchronous input stream
-          rv = m_transport->OpenInputStream(0, 0, 0, getter_AddRefs(m_inputStream));
-          if (NS_FAILED(rv)) return rv;
-        }
-
-        int64_t offset = 0;
-        nsCOMPtr<nsISeekableStream> seekable(do_QueryInterface(m_inputStream));
-        if (seekable && NS_FAILED(seekable->Tell(&offset))) {
-          offset = 0;
-        }
+        // open buffered, asynchronous input stream
+        nsCOMPtr<nsIInputStream> stream;
+        rv = m_transport->OpenInputStream(0, 0, 0, getter_AddRefs(stream));
+        if (NS_FAILED(rv))
+          return rv;
 
         // m_readCount can be -1 which means "read as much as we can".
         // We pass this on as UINT64_MAX, which is in fact uint64_t(-1).
         // We don't clone m_inputStream here, we simply give up ownership
         // since otherwise the original would never be closed.
         RefPtr<SlicedInputStream> slicedStream =
-          new SlicedInputStream(m_inputStream.forget(), uint64_t(offset),
+          new SlicedInputStream(stream.forget(), 0,
                                 m_readCount == -1 ? UINT64_MAX : uint64_t(m_readCount));
         nsCOMPtr<nsIInputStreamPump> pump;
         rv = NS_NewInputStreamPump(getter_AddRefs(pump), slicedStream.forget());

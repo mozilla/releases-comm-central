@@ -326,7 +326,6 @@ NS_IMETHODIMP nsMailboxProtocol::OnStopRequest(nsIRequest *request, nsISupports 
                 //
 
                 m_transport = nullptr; // open new stream transport
-                m_inputStream = nullptr;
                 m_outputStream = nullptr;
 
                 if (m_multipleMsgMoveCopyStream)
@@ -360,13 +359,13 @@ NS_IMETHODIMP nsMailboxProtocol::OnStopRequest(nsIRequest *request, nsISupports 
 
                 if (NS_SUCCEEDED(rv))
                 {
-                  if (!m_inputStream)
-                    rv = m_transport->OpenInputStream(0, 0, 0, getter_AddRefs(m_inputStream));
+                  nsCOMPtr<nsIInputStream> stream;
+                  rv = m_transport->OpenInputStream(0, 0, 0, getter_AddRefs(stream));
 
                   if (NS_SUCCEEDED(rv))
                   {
                     nsCOMPtr<nsIInputStreamPump> pump;
-                    rv = NS_NewInputStreamPump(getter_AddRefs(pump), m_inputStream);
+                    rv = NS_NewInputStreamPump(getter_AddRefs(pump), stream.forget());
                     if (NS_SUCCEEDED(rv)) {
                       rv = pump->AsyncRead(this, urlSupports);
                       if (NS_SUCCEEDED(rv))

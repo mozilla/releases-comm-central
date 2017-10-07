@@ -123,7 +123,6 @@ protected:
   nsresult DoGSSAPIStep2(nsCString &commandResponse, nsCString &response);
   // Ouput stream for writing commands to the socket
   nsCOMPtr<nsIOutputStream>   m_outputStream;   // this will be obtained from the transport interface
-  nsCOMPtr<nsIInputStream>    m_inputStream;
 
   // Ouput stream for writing commands to the socket
   nsCOMPtr<nsITransport>  m_transport;
