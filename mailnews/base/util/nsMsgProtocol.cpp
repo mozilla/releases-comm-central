@@ -42,7 +42,6 @@
 #include <algorithm>
 #include "nsContentSecurityManager.h"
 #include "SlicedInputStream.h"
-#include "nsStreamUtils.h"
 
 #undef PostMessage // avoid to collision with WinUser.h
 
@@ -476,23 +475,13 @@ nsresult nsMsgProtocol::LoadUrl(nsIURI * aURL, nsISupports * aConsumer)
         if (seekable && NS_FAILED(seekable->Tell(&offset))) {
           offset = 0;
         }
-        nsCOMPtr<nsIInputStream> clonedStream;
-        nsCOMPtr<nsIInputStream> replacementStream;
-        rv = NS_CloneInputStream(m_inputStream,
-                                 getter_AddRefs(clonedStream),
-                                 getter_AddRefs(replacementStream));
-        NS_ENSURE_SUCCESS(rv, rv);
-        if (replacementStream) {
-          // If m_inputStream is not cloneable, NS_CloneInputStream will clone
-          // it using a pipe. In order to keep the copy alive and working, we
-          // have to replace the original stream with the replacement.
-          m_inputStream = replacementStream.forget();
-        }
 
         // m_readCount can be -1 which means "read as much as we can".
         // We pass this on as UINT64_MAX, which is in fact uint64_t(-1).
+        // We don't clone m_inputStream here, we simply give up ownership
+        // since otherwise the original would never be closed.
         RefPtr<SlicedInputStream> slicedStream =
-          new SlicedInputStream(clonedStream.forget(), uint64_t(offset),
+          new SlicedInputStream(m_inputStream.forget(), uint64_t(offset),
                                 m_readCount == -1 ? UINT64_MAX : uint64_t(m_readCount));
         nsCOMPtr<nsIInputStreamPump> pump;
         rv = NS_NewInputStreamPump(getter_AddRefs(pump), slicedStream);
