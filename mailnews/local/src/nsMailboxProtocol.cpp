@@ -88,7 +88,8 @@ nsresult nsMailboxProtocol::OpenMultipleMsgTransport(uint64_t offset, int64_t si
   RefPtr<SlicedInputStream> slicedStream =
     new SlicedInputStream(clonedStream.forget(), offset,
                           size == -1 ? UINT64_MAX : uint64_t(size));
-  rv = serv->CreateInputTransport(slicedStream, false,
+  // Always close the sliced stream when done, we still have the original.
+  rv = serv->CreateInputTransport(slicedStream, true,
                                   getter_AddRefs(m_transport));
 
   return rv;
@@ -172,13 +173,29 @@ nsresult nsMailboxProtocol::Initialize(nsIURI * aURL)
               if (NS_FAILED(rv)) return rv;
               m_readCount = msgSize;
               // Save the stream for reuse, but only for multiple URLs.
-              if (reusable && RunningMultipleMsgUrl())
+              if (reusable && RunningMultipleMsgUrl()) {
+                nsCOMPtr<nsIInputStream> clonedStream;
+                nsCOMPtr<nsIInputStream> replacementStream;
+                rv = NS_CloneInputStream(stream,
+                                         getter_AddRefs(clonedStream),
+                                         getter_AddRefs(replacementStream));
+                NS_ENSURE_SUCCESS(rv, rv);
+                if (replacementStream) {
+                  // If stream is not cloneable, NS_CloneInputStream
+                  // will clone it using a pipe. In order to keep the copy alive and working,
+                  // we have to replace the original stream with the replacement.
+                  stream = replacementStream.forget();
+                }
+                // Keep the original and use the clone for the next operation.
                 m_multipleMsgMoveCopyStream = stream;
-              else
+                stream = clonedStream;
+              } else {
                 reusable = false;
+              }
               RefPtr<SlicedInputStream> slicedStream =
                 new SlicedInputStream(stream.forget(), offset, uint64_t(msgSize));
-              rv = sts->CreateInputTransport(slicedStream, !reusable,
+              // Always close the sliced stream when done, we still have the original.
+              rv = sts->CreateInputTransport(slicedStream, true,
                                              getter_AddRefs(m_transport));
 
               m_socketIsOpen = false;
