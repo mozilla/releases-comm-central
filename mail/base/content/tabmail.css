@@ -61,6 +61,10 @@
   display: -moz-box;
 }
 
+.tab-drop-indicator-box {
+  -moz-box-align: end;
+}
+
 .tab-drop-indicator {
   position: relative;
   z-index: 2;

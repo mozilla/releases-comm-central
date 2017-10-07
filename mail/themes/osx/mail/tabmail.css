@@ -89,9 +89,19 @@ tabmail > tabbox > tabpanels {
  * Tab Drag and Drop
  */
 
+.tab-drop-indicator-box {
+  -moz-box-align: center;
+}
+
 .tab-drop-indicator {
   list-style-image: url(icons/dragIndicator.png);
-  margin-bottom: -3px;
+}
+
+@media (min-resolution: 2dppx) {
+  .tab-drop-indicator {
+    list-style-image: url(icons/dragIndicator@2x.png);
+    width: 12px;
+  }
 }
 
 /**

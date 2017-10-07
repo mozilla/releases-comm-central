@@ -1695,7 +1695,7 @@
     <content context="toolbar-context-menu">
       <xul:vbox flex="1">
         <xul:hbox>
-          <xul:hbox align="end">
+          <xul:hbox class="tab-drop-indicator-box">
             <xul:image class="tab-drop-indicator"
                        anonid="tab-drop-indicator"
                        collapsed="true"/>
