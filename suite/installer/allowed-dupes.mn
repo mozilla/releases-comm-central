@@ -230,8 +230,6 @@ extensions/modern@themes.mozilla.org/chrome/modern/skin/modern/mozapps/extension
 chrome/toolkit/skin/classic/mozapps/extensions/heart.png
 extensions/modern@themes.mozilla.org/chrome/modern/skin/modern/communicator/sync/sync-32.png
 chrome/classic/skin/classic/communicator/sync/sync-32.png
-extensions/modern@themes.mozilla.org/chrome/modern/skin/modern/global/icons/autoscroll.png
-chrome/toolkit/skin/classic/global/icons/autoscroll.png
 extensions/modern@themes.mozilla.org/chrome/modern/skin/modern/communicator/icons/notification-64.png
 chrome/classic/skin/classic/communicator/icons/notification-64.png
 extensions/modern@themes.mozilla.org/chrome/modern/skin/modern/global/icons/blacklist_large.png
