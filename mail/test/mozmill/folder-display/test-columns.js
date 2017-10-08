@@ -463,6 +463,7 @@ function test_apply_to_folder_and_children() {
   be_in_folder(folderChild2);
   assert_visible_columns(conExtra);
 }
+test_apply_to_folder_and_children.EXCLUDED_PLATFORMS = ['linux'];  // See bug 1406717.
 
 /**
  * Change settings in an incoming folder, apply them to an outgoing folder that
@@ -549,6 +550,7 @@ function test_apply_to_folder_and_children_swapped() {
   be_in_folder(folderChild2);
   assert_visible_columns(conExtraSwapped);
 }
+test_apply_to_folder_and_children_swapped.EXCLUDED_PLATFORMS = ['linux'];  // See bug 1406717.
 
 
 /**
