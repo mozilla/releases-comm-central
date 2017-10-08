@@ -354,6 +354,7 @@ function test_send_via_email_public() {
   close_compose_window(cwc);
   close_tab(tab);
 }
+test_send_via_email_public.EXCLUDED_PLATFORMS = ['linux'];  // See bug 1373809.
 
 /**
  * Test opening the compose window with private data.
@@ -391,3 +392,4 @@ function test_send_via_email_private() {
   close_compose_window(cwc);
   close_tab(tab);
 }
+test_send_via_email_private.EXCLUDED_PLATFORMS = ['linux'];  // See bug 1373809.
