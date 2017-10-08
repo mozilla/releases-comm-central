@@ -33,14 +33,14 @@ nsGetMailboxServer(const char *uriStr, nsIMsgIncomingServer** aResult)
   nsCOMPtr<nsIURL> aUrl = do_CreateInstance(NS_STANDARDURL_CONTRACTID, &rv);
   if (NS_FAILED(rv)) return rv;
 
-  rv = aUrl->SetSpec(nsDependentCString(uriStr));  
+  rv = aUrl->SetSpec(nsDependentCString(uriStr));
   if (NS_FAILED(rv)) return rv;
 
   // retrieve the AccountManager
-  nsCOMPtr<nsIMsgAccountManager> accountManager = 
+  nsCOMPtr<nsIMsgAccountManager> accountManager =
     do_GetService(NS_MSGACCOUNTMANAGER_CONTRACTID, &rv);
   if (NS_FAILED(rv)) return rv;
-  
+
   // find all local mail "no servers" matching the given hostname
   nsCOMPtr<nsIMsgIncomingServer> none_server;
   aUrl->SetScheme(NS_LITERAL_CSTRING("none"));
@@ -52,7 +52,7 @@ nsGetMailboxServer(const char *uriStr, nsIMsgIncomingServer** aResult)
     none_server.forget(aResult);
     return rv;
   }
-  
+
   // if that fails, look for the rss hosts matching the given hostname
   nsCOMPtr<nsIMsgIncomingServer> rss_server;
   aUrl->SetScheme(NS_LITERAL_CSTRING("rss"));
@@ -77,22 +77,22 @@ nsGetMailboxServer(const char *uriStr, nsIMsgIncomingServer** aResult)
 
   // if that fails, look for the pop hosts matching the given hostname
   nsCOMPtr<nsIMsgIncomingServer> server;
-  if (NS_FAILED(rv)) 
+  if (NS_FAILED(rv))
   {
     aUrl->SetScheme(NS_LITERAL_CSTRING("pop3"));
     rv = accountManager->FindServerByURI(aUrl, false,
                                     getter_AddRefs(server));
 
-    // if we can't find a pop server, maybe it's a local message 
+    // if we can't find a pop server, maybe it's a local message
     // in an imap hierarchy. look for an imap server.
-    if (NS_FAILED(rv)) 
+    if (NS_FAILED(rv))
     {
       aUrl->SetScheme(NS_LITERAL_CSTRING("imap"));
       rv = accountManager->FindServerByURI(aUrl, false,
                                     getter_AddRefs(server));
     }
   }
-  if (NS_SUCCEEDED(rv)) 
+  if (NS_SUCCEEDED(rv))
   {
     server.forget(aResult);
     return rv;
@@ -121,7 +121,7 @@ nsLocalURI2Path(const char* rootURI, const char* uriStr,
   nsresult rv;
 
   // verify that rootURI starts with "mailbox:/" or "mailbox-message:/"
-  if ((PL_strcmp(rootURI, kMailboxRootURI) != 0) && 
+  if ((PL_strcmp(rootURI, kMailboxRootURI) != 0) &&
       (PL_strcmp(rootURI, kMailboxMessageRootURI) != 0)) {
     return NS_ERROR_FAILURE;
   }
@@ -224,7 +224,7 @@ nsresult nsCreateLocalBaseMessageURI(const nsACString& baseURI, nsCString &baseM
   // chop off mailbox:/
   if (tailURI.Find(kMailboxRootURI) == 0)
     tailURI.Cut(0, PL_strlen(kMailboxRootURI));
-  
+
   baseMessageURI = kMailboxMessageRootURI;
   baseMessageURI += tailURI;
 

@@ -21,10 +21,9 @@ NS_IMPL_ISUPPORTS_INHERITED(nsMovemailIncomingServer,
                              nsIMovemailIncomingServer,
                              nsILocalMailIncomingServer)
 
-                            
 
 nsMovemailIncomingServer::nsMovemailIncomingServer()
-{    
+{
     m_canHaveFilters = true;
 }
 
@@ -32,7 +31,7 @@ nsMovemailIncomingServer::~nsMovemailIncomingServer()
 {
 }
 
-NS_IMETHODIMP 
+NS_IMETHODIMP
 nsMovemailIncomingServer::PerformBiff(nsIMsgWindow *aMsgWindow)
 {
     nsresult rv;
@@ -90,7 +89,7 @@ nsMovemailIncomingServer::PerformBiff(nsIMsgWindow *aMsgWindow)
     }
     else
     {
-        movemailService->CheckForNewMail(urlListener, inbox, this, nullptr); 
+        movemailService->CheckForNewMail(urlListener, inbox, this, nullptr);
     }
 
     return NS_OK;
@@ -126,17 +125,17 @@ nsMovemailIncomingServer::GetNewMail(nsIMsgWindow *aMsgWindow,
                                      nsIURI **aResult)
 {
     nsresult rv;
-    
-    nsCOMPtr<nsIMovemailService> movemailService = 
+
+    nsCOMPtr<nsIMovemailService> movemailService =
              do_GetService(kCMovemailServiceCID, &rv);
-    
+
     if (NS_FAILED(rv)) return rv;
-    
+
     rv = movemailService->GetNewMail(aMsgWindow, aUrlListener,
                                      aMsgFolder, this, aResult);
 
     return rv;
-}        
+}
 
 NS_IMETHODIMP
 nsMovemailIncomingServer::GetDownloadMessagesAtStartup(bool *getMessagesAtStartup)
@@ -162,7 +161,7 @@ nsMovemailIncomingServer::GetCanSearchMessages(bool *canSearchMessages)
     return NS_OK;
 }
 
-NS_IMETHODIMP 
+NS_IMETHODIMP
 nsMovemailIncomingServer::GetServerRequiresPasswordForBiff(bool *aServerRequiresPasswordForBiff)
 {
     NS_ENSURE_ARG_POINTER(aServerRequiresPasswordForBiff);
@@ -170,7 +169,7 @@ nsMovemailIncomingServer::GetServerRequiresPasswordForBiff(bool *aServerRequires
     return NS_OK;
 }
 
-NS_IMETHODIMP 
+NS_IMETHODIMP
 nsMovemailIncomingServer::GetAccountManagerChrome(nsAString& aResult)
 {
     aResult.AssignLiteral("am-main.xul");

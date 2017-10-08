@@ -33,7 +33,7 @@ struct nsLocalMailCopyState
 {
   nsLocalMailCopyState();
   virtual ~nsLocalMailCopyState();
-  
+
   nsCOMPtr <nsIOutputStream> m_fileStream;
   nsCOMPtr<nsIMsgPluggableStore> m_msgStore;
   nsCOMPtr<nsISupports> m_srcSupport;
@@ -138,7 +138,7 @@ public:
 
   NS_IMETHOD GetDBFolderInfoAndDB(nsIDBFolderInfo **folderInfo, nsIMsgDatabase **db) override;
 
-  NS_IMETHOD DeleteMessages(nsIArray *messages, 
+  NS_IMETHOD DeleteMessages(nsIArray *messages,
                       nsIMsgWindow *msgWindow, bool
                       deleteStorage, bool isMove,
                       nsIMsgCopyServiceListener* listener, bool allowUndo) override;
@@ -148,7 +148,7 @@ public:
   NS_IMETHOD CopyFolder(nsIMsgFolder *srcFolder, bool isMoveFolder, nsIMsgWindow *msgWindow,
                           nsIMsgCopyServiceListener* listener) override;
   NS_IMETHOD CopyFileMessage(nsIFile* aFile, nsIMsgDBHdr* msgToReplace,
-                             bool isDraftOrTemplate, 
+                             bool isDraftOrTemplate,
                              uint32_t newMsgFlags,
                              const nsACString &aNewMsgKeywords,
                              nsIMsgWindow *msgWindow,
@@ -171,7 +171,7 @@ public:
   // Used when headers_only is TRUE
   NS_IMETHOD DownloadMessagesForOffline(nsIArray *aMessages, nsIMsgWindow *aWindow) override;
   NS_IMETHOD FetchMsgPreviewText(nsMsgKey *aKeysToFetch, uint32_t aNumKeys,
-                                                 bool aLocalOnly, nsIUrlListener *aUrlListener, 
+                                                 bool aLocalOnly, nsIUrlListener *aUrlListener,
                                                  bool *aAsyncResults) override;
   NS_IMETHOD AddKeywordsToMessages(nsIArray *aMessages, const nsACString& aKeywords) override;
   NS_IMETHOD RemoveKeywordsFromMessages(nsIArray *aMessages, const nsACString& aKeywords) override;

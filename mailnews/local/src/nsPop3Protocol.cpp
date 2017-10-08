@@ -873,7 +873,7 @@ NS_IMETHODIMP nsPop3Protocol::OnPromptStart(bool *aResult)
           if (m_needToRerunUrl)
             return RerunUrl();
 
-          // It is a bit strange that we're going onto the next state that 
+          // It is a bit strange that we're going onto the next state that
           // would essentially send the password. However in resetting the
           // auth methods above, we're setting up SendUsername, SendPassword
           // and friends to abort and return to the POP3_SEND_CAPA state.
@@ -2409,7 +2409,7 @@ nsPop3Protocol::GetStat()
   /* We're just checking for new mail, and we're not playing any games that
      involve keeping messages on the server.  Therefore, we now know enough
      to finish up.  If we had no messages, that would have been handled
-     above; therefore, we know we have some new messages. 
+     above; therefore, we know we have some new messages.
   */
   if (m_pop3ConData->only_check_for_new_mail && !m_pop3ConData->leave_on_server)
   {
@@ -2627,7 +2627,7 @@ int32_t nsPop3Protocol::HandleNoUidListAvailable()
   NS_ENSURE_SUCCESS(rv, -1);
   NS_ConvertASCIItoUTF16 hostNameUnicode(hostName);
   const char16_t *params[] = { hostNameUnicode.get() };
-  return Error("pop3ServerDoesNotSupportUidlEtc", params, 1);  
+  return Error("pop3ServerDoesNotSupportUidlEtc", params, 1);
 }
 
 

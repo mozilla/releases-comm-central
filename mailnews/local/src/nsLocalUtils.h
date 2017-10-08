@@ -18,7 +18,7 @@ nsLocalURI2Path(const char* rootURI, const char* uriStr, nsCString& pathResult);
 nsresult
 nsParseLocalMessageURI(const char* uri, nsCString& folderURI, nsMsgKey *key);
 
-nsresult 
+nsresult
 nsBuildLocalMessageURI(const char* baseURI, nsMsgKey key, nsCString& uri);
 
 nsresult

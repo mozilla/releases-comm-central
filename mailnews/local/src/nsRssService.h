@@ -13,7 +13,7 @@ class nsRssService : public nsIMsgProtocolInfo, public nsIRssService
 public:
 
   nsRssService();
-  
+
   NS_DECL_ISUPPORTS
   NS_DECL_NSIRSSSERVICE
   NS_DECL_NSIMSGPROTOCOLINFO

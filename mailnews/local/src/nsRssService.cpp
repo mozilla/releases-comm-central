@@ -21,12 +21,12 @@ nsRssService::~nsRssService()
 NS_IMPL_ISUPPORTS(nsRssService,
                    nsIRssService,
                    nsIMsgProtocolInfo)
-                   
+
 NS_IMETHODIMP nsRssService::GetDefaultLocalPath(nsIFile * *aDefaultLocalPath)
 {
     NS_ENSURE_ARG_POINTER(aDefaultLocalPath);
     *aDefaultLocalPath = nullptr;
-    
+
     nsCOMPtr<nsIFile> localFile;
     nsCOMPtr<nsIProperties> dirService(do_GetService("@mozilla.org/file/directory_service;1"));
     if (!dirService) return NS_ERROR_FAILURE;
@@ -110,14 +110,14 @@ NS_IMETHODIMP nsRssService::GetDefaultDoBiff(bool *aDefaultDoBiff)
 {
     NS_ENSURE_ARG_POINTER(aDefaultDoBiff);
     // by default, do biff for RSS feeds
-    *aDefaultDoBiff = true;    
+    *aDefaultDoBiff = true;
     return NS_OK;
 }
 
 NS_IMETHODIMP nsRssService::GetShowComposeMsgLink(bool *aShowComposeMsgLink)
 {
     NS_ENSURE_ARG_POINTER(aShowComposeMsgLink);
-    *aShowComposeMsgLink = false;    
+    *aShowComposeMsgLink = false;
     return NS_OK;
 }
 

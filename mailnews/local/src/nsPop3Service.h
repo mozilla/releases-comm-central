@@ -25,7 +25,7 @@ class nsPop3Service : public nsIPop3Service,
 public:
 
   nsPop3Service();
-  
+
   NS_DECL_ISUPPORTS
   NS_DECL_NSIPOP3SERVICE
   NS_DECL_NSIPROTOCOLHANDLER
@@ -34,9 +34,9 @@ public:
 protected:
   virtual ~nsPop3Service();
   nsresult GetMail(bool downloadNewMail,
-                   nsIMsgWindow* aMsgWindow, 
+                   nsIMsgWindow* aMsgWindow,
                    nsIUrlListener * aUrlListener,
-                   nsIMsgFolder *inbox, 
+                   nsIMsgFolder *inbox,
                    nsIPop3IncomingServer *popServer,
                    nsIURI ** aURL);
   // convience function to make constructing of the pop3 url easier...

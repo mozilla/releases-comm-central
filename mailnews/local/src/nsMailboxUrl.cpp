@@ -490,7 +490,7 @@ NS_IMETHODIMP nsMailboxUrl::GetFolderCharset(char ** aCharacterSet)
   NS_ENSURE_ARG_POINTER(aCharacterSet);
   nsCOMPtr<nsIMsgFolder> folder;
   nsresult rv = GetFolder(getter_AddRefs(folder));
-  
+
   // In cases where a file is not associated with a folder, for
   // example standalone .eml files, failure is normal.
   if (NS_FAILED(rv))

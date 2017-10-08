@@ -216,7 +216,7 @@ SpoolLock::ObtainSpoolLock(unsigned int aSeconds /* number of seconds to retry *
 
     do {
       lock_result = PR_TLockFile(fd);
-  
+
       retry_count++;
       LOG(("Attempt %d of %d to lock file", retry_count, aSeconds));
       if (aSeconds > 0 && lock_result == PR_FAILURE) {

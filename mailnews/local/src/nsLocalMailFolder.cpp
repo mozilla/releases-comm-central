@@ -1819,7 +1819,7 @@ nsMsgLocalMailFolder::CopyFolderLocal(nsIMsgFolder *srcFolder,
     if (isMoveFolder)
     {
       // if there's a msgWindow, confirm the deletion
-      if (msgWindow) 
+      if (msgWindow)
       {
 
         bool okToDelete = false;
@@ -1897,7 +1897,7 @@ nsMsgLocalMailFolder::CopyFolderLocal(nsIMsgFolder *srcFolder,
 }
 
 NS_IMETHODIMP
-nsMsgLocalMailFolder::CopyFileMessage(nsIFile* aFile, 
+nsMsgLocalMailFolder::CopyFileMessage(nsIFile* aFile,
                                       nsIMsgDBHdr *msgToReplace,
                                       bool isDraftOrTemplate,
                                       uint32_t newMsgFlags,
@@ -1943,12 +1943,12 @@ nsMsgLocalMailFolder::CopyFileMessage(nsIFile* aFile,
     if (NS_SUCCEEDED(rv) && fileSize > PR_INT32_MAX)
         rv = NS_ERROR_ILLEGAL_VALUE; // may need error code for max msg size
 
-    if (NS_SUCCEEDED(rv) && inputStream) 
+    if (NS_SUCCEEDED(rv) && inputStream)
     {
       char buffer[5];
       uint32_t readCount;
       rv = inputStream->Read(buffer, 5, &readCount);
-      if (NS_SUCCEEDED(rv)) 
+      if (NS_SUCCEEDED(rv))
       {
         if (strncmp(buffer, "From ", 5))
           mCopyState->m_dummyEnvelopeNeeded = true;
@@ -2466,7 +2466,7 @@ NS_IMETHODIMP nsMsgLocalMailFolder::EndCopy(bool aCopySucceeded)
     if (msgDb)
     {
       nsresult result = mCopyState->m_parseMsgState->GetNewMsgHdr(getter_AddRefs(newHdr));
-      // we need to copy newHdr because mCopyState will get cleared 
+      // we need to copy newHdr because mCopyState will get cleared
       // in OnCopyCompleted, but we need OnCopyCompleted to know about
       // the newHdr, via mCopyState. And we send a notification about newHdr
       // after OnCopyCompleted.
@@ -2485,7 +2485,7 @@ NS_IMETHODIMP nsMsgLocalMailFolder::EndCopy(bool aCopySucceeded)
           uint32_t readAndNew = nsMsgMessageFlags::New | nsMsgMessageFlags::Read;
           uint32_t newFlags;
           newHdr->GetFlags(&newFlags);
-          newHdr->SetFlags( (newFlags & ~readAndNew) | 
+          newHdr->SetFlags( (newFlags & ~readAndNew) |
                             ((mCopyState->m_flags) & readAndNew));
 
           // Copy other message properties.
