@@ -64,6 +64,15 @@ grippy {
   max-height: 285px; /* 15 rows */
 }
 
+.autocomplete-history-dropmarker {
+  -moz-appearance: none;
+  border: none;
+  background-color: transparent;
+  margin: 0px;
+  padding: 0px;
+  list-style-image: url("chrome://communicator/skin/icons/autocomplete-dropmarker.png");
+}
+
 /* ::::: online/offline icons ::::: */
 
 #offline-status[offline="true"] {
