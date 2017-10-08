@@ -27,6 +27,7 @@ classic.jar:
   skin/classic/communicator/bookmarks/bookmarksToolbar.css              (mac/communicator/bookmarks/bookmarksToolbar.css)
   skin/classic/communicator/bookmarks/bookmarksToolbar.png              (mac/communicator/bookmarks/bookmarksToolbar.png)
   skin/classic/communicator/bookmarks/editBookmarkOverlay.css           (mac/communicator/bookmarks/editBookmarkOverlay.css)
+  skin/classic/communicator/bookmarks/filters.svg                       (mac/communicator/bookmarks/filters.svg)
   skin/classic/communicator/bookmarks/livemark-folder.png               (mac/communicator/bookmarks/livemark-folder.png)
   skin/classic/communicator/bookmarks/query.png                         (mac/communicator/bookmarks/query.png)
   skin/classic/communicator/bookmarks/toolbarDropMarker.png             (mac/communicator/bookmarks/toolbarDropMarker.png)
