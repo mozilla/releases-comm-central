@@ -302,7 +302,8 @@
 }
 
 /* Content Tabs */
-.contentTabToolbox {
+.chromeTabInstance[collapsed="false"] .contentTabToolbox,
+.contentTabInstance[collapsed="false"] .contentTabToolbox {
   display: none;
 }
 
