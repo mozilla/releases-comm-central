@@ -28,7 +28,7 @@
 #include "plbase64.h"
 #include "nsMsgI18N.h"
 #include "nsIWebNavigation.h"
-#include "NullPrincipal.h"
+#include "nsContentUtils.h"
 #include "nsMsgContentPolicy.h"
 #include "nsComponentManagerUtils.h"
 #include "nsServiceManagerUtils.h"
@@ -531,13 +531,8 @@ nsMsgWindow::DisplayHTMLInMessagePane(const nsAString& title, const nsAString& b
 
   PR_FREEIF(encodedHtml);
 
-  nsresult rv;
-  nsCOMPtr<nsIPrincipal> nullPrincipal =
-    do_CreateInstance("@mozilla.org/nullprincipal;1", &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
-
   return DisplayURIInMessagePane(NS_ConvertASCIItoUTF16(dataSpec).get(),
-                                 clearMsgHdr, nullPrincipal);
+                                 clearMsgHdr, nsContentUtils::GetSystemPrincipal());
 }
 
 NS_IMPL_GETSET(nsMsgWindow, Stopped, bool, m_stopped)
