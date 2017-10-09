@@ -24,6 +24,14 @@
     "unpack": true
   },
   {
+    "size":  30823112,
+    "visibility": "internal",
+    "digest": "0c58e06a3ea8f4641c991a7406fc8733c574f0b4aa773bce0feaa5468d2b8440fa33cea056e16fad2b8a7ef4409ca7228113eb12adc87c3e115129d8a3b3b565",
+    "algorithm": "sha512",
+    "unpack": true,
+    "filename": "MacOSX10.10.sdk.tar.xz"
+  },
+  {
     "version": "sccache rev 69334a26ba65fc88e3934271a2ce6781c51b445e",
     "size": 1658526,
     "digest": "7ace40311de3d466f20476ce27c24f25208e8dd80151cbff2e72bab75038dee429312703f13a832c9671bb42dc22a00801c5eb5a9e4d807f2723c16e33167d1b",

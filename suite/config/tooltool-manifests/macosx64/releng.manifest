@@ -16,6 +16,14 @@
     "unpack": true
   },
   {
+    "size":  30823112,
+    "visibility": "internal",
+    "digest": "0c58e06a3ea8f4641c991a7406fc8733c574f0b4aa773bce0feaa5468d2b8440fa33cea056e16fad2b8a7ef4409ca7228113eb12adc87c3e115129d8a3b3b565",
+    "algorithm": "sha512",
+    "unpack": true,
+    "filename": "MacOSX10.10.sdk.tar.xz"
+  },
+  {
     "version": "cctools port from commit hash 8e9c3f2506b51",
     "size": 2233376,
     "digest": "d632ef587f0253f016aa5323999a3d9576284c04e66b5243a5780af9a55f474ac91ad8dee5bd86a6ee4e2593e2b345e2fd0aa4e8838b3686f84c5c5ac5c9c418",
