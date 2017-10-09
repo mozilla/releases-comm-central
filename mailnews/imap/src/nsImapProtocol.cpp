@@ -3032,7 +3032,11 @@ void nsImapProtocol::ProcessSelectedStateURL()
                   // copied and marked as deleted. This prevents expunging emails
                   // that other clients may have marked as deleted in the mailbox
                   // and don't want them to disappear.
-                  if (GetServerStateParser().GetCapabilityFlag() & kUidplusCapability)
+                  // Only do UidExpunge() when user selected delete method is "Move
+                  // it to this folder" or "Remove it immediately", not when the
+                  // delete method is "Just mark it as deleted".
+                  if (!GetShowDeletedMessages() &&
+                      (GetServerStateParser().GetCapabilityFlag() & kUidplusCapability))
                   {
                     UidExpunge(messageIdString);
                   }
