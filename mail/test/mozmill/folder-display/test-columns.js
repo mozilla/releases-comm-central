@@ -510,6 +510,7 @@ function test_apply_to_folder_no_children_swapped() {
   be_in_folder(folderChild2);
   assert_visible_columns(SENT_DEFAULTS);
 }
+test_apply_to_folder_no_children_swapped.EXCLUDED_PLATFORMS = ['linux'];  // See bug 1406717.
 
 /**
  * Change settings in an incoming folder, apply them to an outgoing folder and
