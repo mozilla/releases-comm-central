@@ -669,9 +669,11 @@ html[dir="rtl"] .message-meta {
 
 .message-attachment-icon {
   display: inline-block;
-  width: 18px;
-  height: 18px;
-  background: url("chrome://messenger/skin/icons/attachment.png") transparent no-repeat center right;
+  width: 16px;
+  height: 16px;
+  background: url("chrome://messenger/skin/icons/attach.svg") transparent no-repeat center right;
+  -moz-context-properties: fill;
+  fill: currentColor;
 }
 
 html[dir="rtl"] .message-attachment-icon {

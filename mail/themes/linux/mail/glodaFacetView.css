@@ -15,9 +15,3 @@
 .results-message-sort-bar {
   font-size: x-small;
 }
-
-.message-attachment-icon {
-  width: 12px;
-  height: 12px;
-  background: url("chrome://messenger/skin/icons/attachment-col.svg") transparent no-repeat center right;
-}

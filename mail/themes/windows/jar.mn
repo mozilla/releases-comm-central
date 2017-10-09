@@ -132,8 +132,6 @@ classic.jar:
   skin/classic/messenger/icons/arrow-dn-inverted.png          (mail/icons/arrow-dn-inverted.png)
   skin/classic/messenger/icons/attachment-deleted.png         (mail/icons/attachment-deleted.png)
   skin/classic/messenger/icons/attachment-deleted-large.png   (mail/icons/attachment-deleted-large.png)
-  skin/classic/messenger/icons/attachment-col.png             (mail/icons/attachment-col.png)
-  skin/classic/messenger/icons/attachment-col.svg             (mail/icons/attachment-col.svg)
   skin/classic/messenger/icons/columnpicker.svg               (mail/icons/columnpicker.svg)
   skin/classic/messenger/icons/dropmarker.svg                 (mail/icons/dropmarker.svg)
   skin/classic/messenger/icons/junk-col.svg                   (mail/icons/junk-col.svg)

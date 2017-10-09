@@ -57,13 +57,14 @@ treechildren::-moz-tree-image(unreadButtonColHeader, unread) {
 
 .attachmentColumnHeader {
   list-style-image: url(chrome://messenger/skin/icons/attachment-col.svg);
-  padding-inline-end: 3px;
+  padding-inline-end: 2px;
+  -moz-context-properties: fill;
+  fill: currentColor;
 }
 
 treechildren::-moz-tree-image(attachmentCol, attach) {
-  list-style-image: url(chrome://messenger/skin/icons/message-list.png);
-  -moz-image-region: rect(160px 16px 176px 0);
-  padding-inline-start: 2px;
+  list-style-image: url(chrome://messenger/skin/icons/attachment-col.svg);
+  padding-inline-start: 6px;
 }
 
 /* ..... flag column ..... */
