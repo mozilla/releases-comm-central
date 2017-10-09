@@ -1286,36 +1286,23 @@ nsMsgComposeAndSend::GetEmbeddedObjectInfo(nsIDOMNode *node, nsMsgAttachmentData
   if (!(mozDoNotSendAttr.IsEmpty() || mozDoNotSendAttr.LowerCaseEqualsLiteral("false")))
     return NS_OK;
 
-  // Sadly M-C don't offer mozilla::dom::HTMLBodyElement::FromContentOrNull()
-  // so we could do:
-  // nsCOMPtr<Element> bodyElement = do_QueryInterface(node);
-  // RefPtr<mozilla::dom::HTMLBodyElement> body =
-  //   mozilla::dom::HTMLBodyElement::FromContentOrNull(bodyElement);
-  // like we do for images. So we do things the hard way.
-#define getHTMLBodyElement(n) \
-  (n->IsHTMLElement(nsGkAtoms::body) ? static_cast<mozilla::dom::HTMLBodyElement*>(n.get()) : nullptr)
-
   // Now, we know the types of objects this node can be, so we will do
   // our query interface here and see what we come up with
-  nsCOMPtr<nsINode> tempNode = do_QueryInterface(node);
-  RefPtr<mozilla::dom::HTMLBodyElement> body = getHTMLBodyElement(tempNode);
-
   nsCOMPtr<Element> nodeAsElement = do_QueryInterface(node);
   RefPtr<HTMLImageElement>  image  = HTMLImageElement::FromContentOrNull(nodeAsElement);
   RefPtr<HTMLLinkElement>   link   = HTMLLinkElement::FromContentOrNull(nodeAsElement);
   RefPtr<HTMLAnchorElement> anchor = HTMLAnchorElement::FromContentOrNull(nodeAsElement);
+  RefPtr<HTMLBodyElement>   body   = HTMLBodyElement::FromContentOrNull(nodeAsElement);
 
   // First, try to see if the body as a background image
   if (body)
   {
-    DOMString tUrl;
-    body->GetBackground(tUrl);  // XXX Todo: Need overload here.
-    nsString tUrl2;
-    tUrl.ToString(tUrl2);
-    if (tUrl2.IsEmpty())
+    nsString tUrl;
+    body->GetBackground(tUrl);
+    if (tUrl.IsEmpty())
       return NS_OK;
     nsAutoCString turlC;
-    CopyUTF16toUTF8(tUrl2, turlC);
+    CopyUTF16toUTF8(tUrl, turlC);
     if (NS_FAILED(nsMsgNewURL(getter_AddRefs(attachment->m_url), turlC)))
       return NS_OK;
     isImage = true;
@@ -1403,11 +1390,9 @@ nsMsgComposeAndSend::GetEmbeddedObjectInfo(nsIDOMNode *node, nsMsgAttachmentData
     // <a href="skype:some-name?call" title="Skype">Some Name</a>
     if (NS_FAILED(nsMsgNewURL(getter_AddRefs(attachment->m_url), turlC)))
       return NS_OK;
-    DOMString tName;
-    anchor->GetName(tName);  // XXX Todo: Need overload here.
-    nsString tName2;
-    tName.ToString(tName2);
-    LossyCopyUTF16toASCII(tName2, attachment->m_realName);
+    nsString tName;
+    anchor->GetName(tName);
+    LossyCopyUTF16toASCII(tName, attachment->m_realName);
   }
   else
   {
@@ -1838,13 +1823,11 @@ nsMsgComposeAndSend::ProcessMultipartRelated(int32_t *aMailboxCount, int32_t *aN
 
       // Now, we know the types of objects this node can be, so we will do
       // our query interface here and see what we come up with
-      nsCOMPtr<nsINode> tempNode = do_QueryInterface(domSaveArray[j].node);
-      RefPtr<mozilla::dom::HTMLBodyElement> body = getHTMLBodyElement(tempNode);
-
       nsCOMPtr<Element> nodeAsElement = do_QueryInterface(domSaveArray[j].node);
       RefPtr<HTMLImageElement>  image  = HTMLImageElement::FromContentOrNull(nodeAsElement);
       RefPtr<HTMLLinkElement>   link   = HTMLLinkElement::FromContentOrNull(nodeAsElement);
       RefPtr<HTMLAnchorElement> anchor = HTMLAnchorElement::FromContentOrNull(nodeAsElement);
+      RefPtr<HTMLBodyElement>   body   = HTMLBodyElement::FromContentOrNull(nodeAsElement);
 
       IgnoredErrorResult rv2;
       if (anchor)
@@ -1864,9 +1847,7 @@ nsMsgComposeAndSend::ProcessMultipartRelated(int32_t *aMailboxCount, int32_t *aN
       }
       else if (body)
       {
-        DOMString background;
-        body->GetBackground(background);  // XXX Todo: Need overload here.
-        background.ToString(domURL);
+        body->GetBackground(domURL);
         body->SetBackground(newSpec, rv2);
       }
 
@@ -1889,13 +1870,11 @@ nsMsgComposeAndSend::ProcessMultipartRelated(int32_t *aMailboxCount, int32_t *aN
 
     // Now, we know the types of objects this node can be, so we will do
     // our query interface here and see what we come up with
-    nsCOMPtr<nsINode> tempNode = do_QueryInterface(domSaveArray[i].node);
-    RefPtr<mozilla::dom::HTMLBodyElement> body = getHTMLBodyElement(tempNode);
-
     nsCOMPtr<Element> nodeAsElement = do_QueryInterface(domSaveArray[i].node);
     RefPtr<HTMLImageElement>  image  = HTMLImageElement::FromContentOrNull(nodeAsElement);
     RefPtr<HTMLLinkElement>   link   = HTMLLinkElement::FromContentOrNull(nodeAsElement);
     RefPtr<HTMLAnchorElement> anchor = HTMLAnchorElement::FromContentOrNull(nodeAsElement);
+    RefPtr<HTMLBodyElement>   body   = HTMLBodyElement::FromContentOrNull(nodeAsElement);
 
       // STRING USE WARNING: hoisting the following conversion might save code-space, since it happens along every path
 
