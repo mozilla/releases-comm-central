@@ -83,6 +83,7 @@
 #include "nsIMsgProtocolInfo.h"
 #include "mozIDOMWindow.h"
 #include "mozilla/Preferences.h"
+#include "nsIPrincipal.h" // XXX TEMPORARY
 
 using namespace mozilla;
 using namespace mozilla::dom;
@@ -1314,7 +1315,7 @@ nsMsgComposeAndSend::GetEmbeddedObjectInfo(nsIDOMNode *node, nsMsgAttachmentData
     nsString    tDesc;
 
     // Create the URI
-    image->GetSrc(tUrl);
+    uint64_t ignored; image->GetSrc(tUrl, *(nsIPrincipal*)(&ignored)); // XXX TEMPORARY
     if (tUrl.IsEmpty())
       return NS_OK;
 
@@ -1838,12 +1839,12 @@ nsMsgComposeAndSend::ProcessMultipartRelated(int32_t *aMailboxCount, int32_t *aN
       else if (link)
       {
         link->GetHref(domURL);
-        link->SetHref(newSpec, rv2);
+        link->SetHref(newSpec, *nsContentUtils::GetSystemPrincipal(), rv2); // XXX TEMPORARY
       }
       else if (image)
       {
-        image->GetSrc(domURL);
-        image->SetSrc(newSpec, rv2);
+        uint64_t ignored; image->GetSrc(domURL, *(nsIPrincipal*)(&ignored)); // XXX TEMPORARY
+        image->SetSrc(newSpec, *nsContentUtils::GetSystemPrincipal(), rv2); // XXX TEMPORARY
       }
       else if (body)
       {
@@ -1882,9 +1883,9 @@ nsMsgComposeAndSend::ProcessMultipartRelated(int32_t *aMailboxCount, int32_t *aN
     if (anchor) {
       anchor->SetHref(NS_ConvertASCIItoUTF16(domSaveArray[i].url), rv2);
     } else if (link) {
-      link->SetHref(NS_ConvertASCIItoUTF16(domSaveArray[i].url), rv2);
+      link->SetHref(NS_ConvertASCIItoUTF16(domSaveArray[i].url), *nsContentUtils::GetSystemPrincipal(), rv2); // XXX TEMPORARY
     } else if (image) {
-      image->SetSrc(NS_ConvertASCIItoUTF16(domSaveArray[i].url), rv2);
+      image->SetSrc(NS_ConvertASCIItoUTF16(domSaveArray[i].url), *nsContentUtils::GetSystemPrincipal(), rv2); // XXX TEMPORARY
     }
     else if (body) {
       body->SetBackground(NS_ConvertASCIItoUTF16(domSaveArray[i].url), rv2);
