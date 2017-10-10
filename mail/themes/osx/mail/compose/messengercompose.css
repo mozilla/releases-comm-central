@@ -1220,3 +1220,37 @@ toolbarbutton.toolbarbutton-1 > .toolbarbutton-menubutton-dropmarker > .dropmark
   margin-top: 3px;
   margin-inline-start: 7px;
 }
+
+/* ::::: Reorder Attachments Panel ::::: */
+
+#reorderAttachmentsPanel > .panel-arrowcontainer > .panel-arrowcontent {
+  --arrowpanel-padding: 4px;
+}
+
+#btn_moveAttachmentTop {
+  list-style-image: url("chrome://messenger/skin/icons/move-top.svg");
+}
+
+#btn_moveAttachmentUp {
+  list-style-image: url("chrome://messenger/skin/icons/move-up.svg");
+}
+
+#btn_moveAttachmentDown {
+  list-style-image: url("chrome://messenger/skin/icons/move-down.svg");
+}
+
+#btn_moveAttachmentBottom {
+  list-style-image: url("chrome://messenger/skin/icons/move-bottom.svg");
+}
+
+#btn_moveAttachmentBundleUp {
+  list-style-image: url("chrome://messenger/skin/icons/move-together.svg");
+}
+
+#btn_sortAttachmentsToggle {
+  list-style-image: url("chrome://messenger/skin/icons/sort.svg");
+}
+
+#btn_sortAttachmentsToggle[data-sortdirection="descending"] > .toolbarbutton-icon {
+  transform: scaleY(-1);
+}

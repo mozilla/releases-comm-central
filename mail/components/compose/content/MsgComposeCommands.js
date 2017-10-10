@@ -23,6 +23,8 @@ Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 Components.utils.import("resource://gre/modules/AppConstants.jsm");
 
 XPCOMUtils.defineLazyModuleGetter(this, "OS", "resource://gre/modules/osfile.jsm");
+XPCOMUtils.defineLazyModuleGetter(this, "ShortcutUtils",
+                                  "resource://gre/modules/ShortcutUtils.jsm");
 
 /**
  * interfaces
@@ -159,6 +161,16 @@ function ReleaseGlobalVariables()
   _gComposeBundle = null;
   MailServices.mailSession.RemoveMsgWindow(msgWindow);
   msgWindow = null;
+}
+
+/**
+ * Get a pretty, human-readable shortcut key string from a given <key> id.
+ *
+ * @param aKeyId   the ID of a <key> element
+ * @return string  pretty, human-readable shortcut key string from the <key>
+ */
+function getPrettyKey(aKeyId) {
+  return ShortcutUtils.prettifyShortcut(document.getElementById(aKeyId));
 }
 
 /**
@@ -939,6 +951,136 @@ var attachmentBucketController = {
       }
     },
 
+    cmd_reorderAttachments: {
+      isEnabled: function() {
+        if (attachmentsCount() == 0) {
+          let reorderAttachmentsPanel =
+            document.getElementById("reorderAttachmentsPanel");
+          if (reorderAttachmentsPanel.state == "open") {
+            // When the panel is open and all attachments get deleted,
+            // we get notified here and want to close the panel.
+            reorderAttachmentsPanel.hidePopup();
+          }
+        }
+        return (attachmentsCount() > 1);
+      },
+      doCommand: function() {
+        showReorderAttachmentsPanel();
+      }
+    },
+
+    cmd_moveAttachmentUp: {
+      isEnabled: function() {
+        let attachmentsSelectedCount = MessageGetNumSelectedAttachments();
+        return attachmentsSelectedCount > 0 &&
+               attachmentsSelectedCount != attachmentsCount() &&
+               !attachmentsSelectionIsBlock("top");
+      },
+      doCommand: function() {
+        moveSelectedAttachments("up");
+      }
+    },
+
+    cmd_moveAttachmentDown: {
+      isEnabled: function() {
+        let attachmentsSelectedCount = MessageGetNumSelectedAttachments();
+        return attachmentsSelectedCount > 0 &&
+               attachmentsSelectedCount != attachmentsCount() &&
+               !attachmentsSelectionIsBlock("bottom");
+      },
+      doCommand: function() {
+        moveSelectedAttachments("down");
+      }
+    },
+
+    cmd_moveAttachmentBundleUp: {
+      isEnabled: function() {
+        let attachmentsSelectedCount = MessageGetNumSelectedAttachments();
+        return attachmentsSelectedCount > 1 &&
+               !attachmentsSelectionIsBlock();
+      },
+      doCommand: function() {
+        moveSelectedAttachments("bundleUp");
+      }
+    },
+
+    cmd_moveAttachmentBundleDown: {
+      isEnabled: function() {
+        let attachmentsSelectedCount = MessageGetNumSelectedAttachments();
+        return attachmentsSelectedCount > 1 &&
+               !attachmentsSelectionIsBlock();
+      },
+      doCommand: function() {
+        moveSelectedAttachments("bundleDown");
+      }
+    },
+
+    cmd_moveAttachmentTop: {
+      isEnabled: function() {
+        let attachmentsSelectedCount = MessageGetNumSelectedAttachments();
+        return attachmentsSelectedCount > 0 &&
+               attachmentsSelectedCount != attachmentsCount() &&
+               !attachmentsSelectionIsBlock("top");
+      },
+      doCommand: function() {
+        moveSelectedAttachments("top");
+      }
+    },
+
+    cmd_moveAttachmentBottom: {
+      isEnabled: function() {
+        let attachmentsSelectedCount = MessageGetNumSelectedAttachments();
+        return attachmentsSelectedCount > 0 &&
+               attachmentsSelectedCount != attachmentsCount() &&
+               !attachmentsSelectionIsBlock("bottom");
+      },
+      doCommand: function() {
+        moveSelectedAttachments("bottom");
+      }
+    },
+
+    cmd_sortAttachmentsToggle: {
+      isEnabled: function() {
+        let attachmentsSelectedCount = MessageGetNumSelectedAttachments();
+        let currSortOrder = attachmentsSelectionGetSortOrder();
+        let isBlock = attachmentsSelectionIsBlock();
+        // If current sorting is ascending AND it's a block; OR
+        // if current sorting is descending AND it's NOT a block yet:
+        // Offer toggle button face to sort descending.
+        // In all other cases, offer toggle button face to sort ascending.
+        let btnAscending = !((currSortOrder == "ascending") && isBlock ||
+                             (currSortOrder == "descending") && !isBlock);
+
+        let toggleCmd = document.getElementById("cmd_sortAttachmentsToggle");
+        let toggleBtn = document.getElementById("btn_sortAttachmentsToggle");
+        let sortDirection;
+        let btnLabelAttr;
+        let btnAccKeyAttr;
+        // Set sortDirection for toggleCmd, and respective button face.
+        if (btnAscending) {
+          sortDirection = "ascending";
+          btnLabelAttr = "data-labelAZ";
+          btnAccKeyAttr = "data-accesskeyAZ";
+        } else {
+          sortDirection = "descending";
+          btnLabelAttr = "data-labelZA";
+          btnAccKeyAttr = "data-accesskeyZA";
+        }
+        // Set the sort direction for toggleCmd.
+        toggleCmd.setAttribute("data-sortdirection", sortDirection);
+        // The button's icon is set dynamically via CSS involving the button's
+        // data-sortdirection attribute, which is forwarded by the command.
+        toggleBtn.setAttribute("label", toggleBtn.getAttribute(btnLabelAttr));
+        toggleBtn.setAttribute("accesskey", toggleBtn.getAttribute(btnAccKeyAttr));
+
+        return attachmentsSelectedCount > 1 &&
+               !(currSortOrder == "equivalent" && isBlock);
+      },
+      doCommand: function() {
+        moveSelectedAttachments("toggleSort");
+      }
+    },
+
     cmd_convertCloud: {
       isEnabled: function() {
         // Hide the command entirely if Filelink is disabled, or if there are
@@ -1251,6 +1393,7 @@ function updateEditItems()
   goUpdateCommand("cmd_pasteQuote");
   goUpdateCommand("cmd_delete");
   goUpdateCommand("cmd_renameAttachment");
+  goUpdateCommand("cmd_reorderAttachments");
   goUpdateCommand("cmd_selectAll");
   goUpdateCommand("cmd_openAttachment");
   goUpdateCommand("cmd_findReplace");
@@ -1267,8 +1410,20 @@ function updateAttachmentItems()
   goUpdateCommand("cmd_cancelUpload");
   goUpdateCommand("cmd_delete");
   goUpdateCommand("cmd_renameAttachment");
+  updateReorderAttachmentsItems();
   goUpdateCommand("cmd_selectAll");
   goUpdateCommand("cmd_openAttachment");
+}
+
+function updateReorderAttachmentsItems() {
+  goUpdateCommand("cmd_reorderAttachments");
+  goUpdateCommand("cmd_moveAttachmentUp");
+  goUpdateCommand("cmd_moveAttachmentDown");
+  goUpdateCommand("cmd_moveAttachmentBundleUp");
+  goUpdateCommand("cmd_moveAttachmentBundleDown");
+  goUpdateCommand("cmd_moveAttachmentTop");
+  goUpdateCommand("cmd_moveAttachmentBottom");
+  goUpdateCommand("cmd_sortAttachmentsToggle");
 }
 
 /**
@@ -2180,6 +2335,7 @@ attachmentWorker.onmessage = function(event, aManage = true)
  */
 function AttachmentsChanged() {
   manageAttachmentNotification(true);
+  updateAttachmentItems();
 }
 
 /**
@@ -4282,10 +4438,96 @@ function AddAttachments(aAttachments, aCallback)
   return items;
 }
 
+/**
+ * Get the number of all attachments of the message.
+ *
+ * @return the number of all attachment items in attachmentBucket;
+ *         0 if attachmentBucket not found or no attachments in the list.
+ */
+function attachmentsCount()
+{
+  let bucketList = document.getElementById("attachmentBucket");
+  return (bucketList) ? bucketList.itemCount : 0;
+}
+
 function MessageGetNumSelectedAttachments()
 {
-  var bucketList = document.getElementById("attachmentBucket");
+  let bucketList = document.getElementById("attachmentBucket");
   return (bucketList) ? bucketList.selectedCount : 0;
+}
+
+/**
+ * Returns a sorted-by-index, "non-live" array of selected attachment list items.
+ *
+ * @param aAscending  true (default): sort return array ascending
+ *                    false         : sort return array descending
+ * @return {array}    an array of selected listitem elements in attachmentBucket
+ *                    listbox, "non-live" and sorted by their index in the list;
+ *                    [] if no attachments selected
+ */
+function attachmentsSelectedItemsGetSortedArray(aAscending = true)
+{
+  if (!MessageGetNumSelectedAttachments())
+    return [];
+
+  let bucketList = document.getElementById("attachmentBucket");
+  // bucketList.selectedItems is a "live" and "unordered" node list (items get
+  // added in the order they were added to the selection). But we want a stable
+  // ("non-live") array of selected items, sorted by their index in the list.
+  let selItems = [...bucketList.selectedItems];
+  if (aAscending) {
+    selItems.sort(
+      (a, b) => bucketList.getIndexOfItem(a) - bucketList.getIndexOfItem(b));
+  } else { // descending
+    selItems.sort(
+      (a, b) => bucketList.getIndexOfItem(b) - bucketList.getIndexOfItem(a));
+  }
+  return selItems;
+}
+
+/**
+ * Return true if the selected attachment items are a coherent block in the list,
+ * otherwise false.
+ *
+ * @param aListPosition (optional)  "top"   : Return true only if the block is
+ *                                            at the top of the list.
+ *                                  "bottom": Return true only if the block is
+ *                                            at the bottom of the list.
+ * @return {boolean} true : The selected attachment items are a coherent block
+ *                          (at the list edge if/as specified by 'aListPosition'),
+ *                          or only 1 item selected.
+ *                   false: The selected attachment items are NOT a coherent block
+ *                          (at the list edge if/as specified by 'aListPosition'),
+ *                          or no attachments selected, or no attachments,
+ *                          or no attachmentBucket.
+ */
+function attachmentsSelectionIsBlock(aListPosition)
+{
+  let selectedCount = MessageGetNumSelectedAttachments();
+  if (selectedCount < 1)
+    // No attachments selected, no attachments, or no attachmentBucket.
+    return false;
+
+  let bucketList = document.getElementById("attachmentBucket");
+  let selItems = attachmentsSelectedItemsGetSortedArray();
+  let indexFirstSelAttachment =
+    bucketList.getIndexOfItem(selItems[0]);
+  let indexLastSelAttachment =
+    bucketList.getIndexOfItem(selItems[selectedCount - 1]);
+  let isBlock = ((indexFirstSelAttachment) ==
+                 (indexLastSelAttachment + 1 - selectedCount));
+
+  switch (aListPosition) {
+  case "top":
+    // True if selection is a coherent block at the top of the list.
+    return (indexFirstSelAttachment == 0) && isBlock;
+  case "bottom":
+    // True if selection is a coherent block at the bottom of the list.
+    return (indexLastSelAttachment == (attachmentsCount() - 1)) && isBlock;
+  default:
+    // True if selection is a coherent block.
+    return isBlock;
+  }
 }
 
 function AttachPage()
@@ -4363,6 +4605,11 @@ function RemoveAllAttachments()
   }
 
   if (removedAttachments.length > 0) {
+    // Bug workaround: Force update of selectedCount and selectedItem.
+    bucket.clearSelection();
+
+    gContentChanged = true;
+
     dispatchAttachmentBucketEvent("attachments-removed", removedAttachments);
     UpdateAttachmentBucket(false);
     AttachmentsChanged();
@@ -4396,6 +4643,9 @@ function RemoveSelectedAttachment()
 {
   let bucket = document.getElementById("attachmentBucket");
   if (bucket.selectedItems.length > 0) {
+    // Remember the current focus index so we can try to restore it when done.
+    let focusIndex = bucket.currentIndex;
+
     let fileHandler = Services.io.getProtocolHandler("file")
                               .QueryInterface(Components.interfaces.nsIFileProtocolHandler);
     let removedAttachments = Components.classes["@mozilla.org/array;1"]
@@ -4426,7 +4676,19 @@ function RemoveSelectedAttachment()
       item.attachment = null;
     }
 
+    // Bug workaround: Force update of selectedCount and selectedItem, both wrong
+    // after item removal, to avoid confusion for listening command controllers.
+    bucket.clearSelection();
+
+    // Try to restore original focus or somewhere close by.
+    bucket.currentIndex = (focusIndex < bucket.itemCount) ?   // If possible,
+                          focusIndex   // restore focus at original position;
+                        : ( (bucket.itemCount > 0) ? // else: if attachments exist,
+                            (bucket.itemCount - 1)   // focus last item;
+                          : -1)                      // else: nothing to focus.
+
     gContentChanged = true;
+
     dispatchAttachmentBucketEvent("attachments-removed", removedAttachments);
     AttachmentsChanged();
   }
@@ -4460,6 +4722,325 @@ function RenameSelectedAttachment()
     let event = document.createEvent("CustomEvent");
     event.initCustomEvent("attachment-renamed", true, true, originalName);
     item.dispatchEvent(event);
+  }
+
+  let reorderAttachmentsPanel = document.getElementById("reorderAttachmentsPanel");
+  let attachmentBucket = document.getElementById("attachmentBucket");
+  if (reorderAttachmentsPanel.state == "open") {
+    // Hack to ensure that reorderAttachmentsPanel does not get closed as we exit.
+    attachmentBucket.setAttribute("data-ignorenextblur", "true");
+  }
+}
+
+/**
+ * Move selected attachment(s) within the attachment list.
+ *
+ * @param aDirection  "up"        : Move attachments up in the list.
+ *                    "down"      : Move attachments down in the list.
+ *                    "top"       : Move attachments to the top of the list.
+ *                    "bottom"    : Move attachments to the bottom of the list.
+ *                    "bundleUp"  : Move attachments together (upwards).
+ *                    "bundleDown": Move attachments together (downwards).
+ *                    "toggleSort": Sort attachments alphabetically (toggle).
+ */
+function moveSelectedAttachments(aDirection)
+{
+  // Command controllers will bail out if no or all attachments are selected,
+  // or if block selections can't be moved, or if other direction-specific
+  // adverse circumstances prevent the intended movement.
+
+  if (!aDirection)
+    return;
+
+  let bucket = document.getElementById("attachmentBucket");
+
+  // Ensure focus on bucket when we're coming from 'Reorder Attachments' panel.
+  bucket.focus();
+
+  // Get a sorted and "non-live" array of bucket.selectedItems.
+  let selItems = attachmentsSelectedItemsGetSortedArray();
+
+  let visibleIndex = bucket.currentIndex; // In case of misspelled aDirection.
+  // Keep track of the item we had focused originally. Deselect it though,
+  // since listbox gets confused if you move its focused item around.
+  let focusItem = bucket.currentItem;
+  bucket.currentItem = null;
+  let upwards;
+  let targetItem;
+
+  switch (aDirection) {
+    case "up":
+    case "down":
+      // Move selected attachments upwards/downwards.
+      upwards = (aDirection == "up") ? true : false;
+      let blockItems = [];
+
+      for (let item of selItems) {
+        // Handle adjacent selected items en block, via blockItems array.
+        blockItems.push(item); // Add current selItem to blockItems.
+        let nextItem = item.nextSibling;
+        if (!nextItem || !nextItem.selected) {
+          // If current selItem is the last blockItem, check out its adjacent
+          // item in the intended direction to see if there's room for moving.
+          // Note that the block might contain one or more items.
+          let checkItem = upwards ?
+                          blockItems[0].previousSibling
+                        : nextItem;
+          // If block-adjacent checkItem exists (and is not selected because
+          // then it would be part of the block), we can move the block to the
+          // right position.
+          if (checkItem) {
+            targetItem = upwards ?
+                         // Upwards: Insert block items before checkItem,
+                         // i.e. before previousSibling of block.
+                         checkItem
+                         // Downwards: Insert block items *after* checkItem,
+                         // i.e. *before* nextSibling.nextSibling of block,
+                         // which works according to spec even if that's null.
+                       : checkItem.nextSibling;
+            // Move current blockItems.
+            for (let blockItem of blockItems) {
+              bucket.insertBefore(blockItem, targetItem);
+            }
+          }
+          // Else if checkItem doesn't exist, the block is already at the edge
+          // of the list, so we can't move it in the intended direction.
+          blockItems.length = 0; // Either way, we're done with the current block.
+        }
+        // Else if current selItem is NOT the end of the current block, proceed:
+        // Add next selItem to the block and see if that's the end of the block.
+      } // Next selItem.
+
+      // Ensure helpful visibility of moved items (scroll into view if needed):
+      // If first item of selection is now at the top, first list item.
+      // Else if last item of selection is now at the bottom, last list item.
+      // Otherwise, let's see where we are going by ensuring visibility of the
+      // nearest unselected sibling of selection according to direction of move.
+      visibleIndex = (bucket.getIndexOfItem(selItems[0]) == 0) ? 0
+                   : ((bucket.getIndexOfItem(selItems[selItems.length - 1]) ==
+                       (bucket.itemCount - 1)) ?
+                       (bucket.itemCount - 1)
+                     : (upwards ? bucket.getIndexOfItem(selItems[0].previousSibling)
+                       : bucket.getIndexOfItem(selItems[selItems.length - 1].nextSibling)
+                       )
+                     );
+      break;
+
+    case "top":
+    case "bottom":
+    case "bundleUp":
+    case "bundleDown":
+      // Bundle selected attachments to top/bottom of the list or upwards/downwards.
+
+      upwards = (["top", "bundleUp"].includes(aDirection)) ? true : false;
+      // Downwards: Reverse order of selItems so we can use the same algorithm.
+      if (!upwards)
+        selItems.reverse();
+
+      if (["top", "bottom"].includes(aDirection)) {
+        let listEdgeItem = bucket.getItemAtIndex(upwards ? 0 : bucket.itemCount - 1);
+        let selEdgeItem = selItems[0];
+        if (selEdgeItem != listEdgeItem) {
+          // Top/Bottom: Move the first/last selected item to the edge of the list
+          // so that we always have an initial anchor target block in the right
+          // place, so we can use the same algorithm for top/bottom and
+          // inner bundling.
+          targetItem = upwards ?
+                       // Upwards: Insert before first list item.
+                       listEdgeItem
+                       // Downwards: Insert after last list item, i.e.
+                       // *before* non-existing listEdgeItem.nextSibling,
+                       // which is null. It works because it's a feature.
+                     : null;
+          bucket.insertBefore(selEdgeItem, targetItem);
+        }
+      }
+      // We now have a selected block (at least one item) at the target position.
+      // Let's find the end (inner edge) of that block and move only the
+      // remaining selected items to avoid unnecessary moves.
+      targetItem = null;
+      for (let item of selItems) {
+        if (targetItem) {
+          // We know where to move it, so move it!
+          bucket.insertBefore(item, targetItem);
+          if (!upwards) {
+          // Downwards: As selItems are reversed, and there's no insertAfter()
+          // method to insert *after* a stable target, we need to insert
+          // *before* the first item of the target block at target position,
+          // which is the current selItem which we've just moved onto the block.
+          targetItem = item;
+          }
+        } else {
+          // If there's no targetItem yet, find the inner edge of the target block.
+          let nextItem = upwards ? item.nextSibling : item.previousSibling;
+          if (!nextItem.selected) {
+            // If nextItem is not selected, current selItem is the inner edge of
+            // the initial anchor target block, so we can set targetItem.
+            targetItem = upwards ?
+                         // Upwards: set stable targetItem.
+                         nextItem
+                         // Downwards: set initial targetItem.
+                       : item;
+          }
+          // Else if nextItem is selected, it is still part of initial anchor
+          // target block, so just proceed to look for the edge of that block.
+        }
+      } // next selItem
+
+      // Ensure visibility of first/last selected item after the move.
+      visibleIndex = bucket.getIndexOfItem(selItems[0]);
+      break;
+
+    case "toggleSort":
+      // Sort the selected attachments alphabetically after moving them together.
+      // The command updater of cmd_sortAttachmentsToggle toggles the sorting
+      // direction based on the current sorting and block status of the selection.
+
+      let toggleCmd = document.getElementById("cmd_sortAttachmentsToggle");
+      let sortDirection = toggleCmd.getAttribute("data-sortdirection") || "ascending";
+      // Move selected attachments together before sorting as a block.
+      goDoCommand("cmd_moveAttachmentBundleUp");
+
+      // Find the end of the selected block to find our targetItem.
+      for (let item of selItems) {
+        let nextItem = item.nextSibling;
+        if (!nextItem || !nextItem.selected) {
+          // If there's no nextItem (block at list bottom), or nextItem is
+          // not selected, we've reached the end of the block.
+          // Set the block's nextSibling as targetItem and exit loop.
+          // Works by definition even if nextSibling aka nextItem is null.
+          targetItem = nextItem;
+          break;
+        }
+        // else if (nextItem && nextItem.selected), nextItem is still part of
+        // the block, so proceed with checking its nextSibling.
+      } // next selItem
+
+      // Now let's sort our selItems according to sortDirection.
+      if (sortDirection == "ascending") {
+        selItems.sort(
+          (a, b) => a.attachment.name.localeCompare(b.attachment.name));
+      } else { // "descending"
+        selItems.sort(
+          (a, b) => b.attachment.name.localeCompare(a.attachment.name));
+      }
+
+      // Insert selItems in new order before the nextSibling of the block.
+      for (let item of selItems) {
+        bucket.insertBefore(item, targetItem);
+      }
+
+      // Ensure visibility of first block item after sorting.
+      visibleIndex = bucket.getIndexOfItem(selItems[0]);
+      break;
+  } // end switch (aDirection)
+
+  // Restore original focus.
+  bucket.currentItem = focusItem;
+  // Ensure smart visibility of a relevant item according to direction.
+  bucket.ensureIndexIsVisible(visibleIndex);
+
+  // Moving selected items around does not trigger auto-updating of our command
+  // handlers, so we must do it now as the position of selected items has changed.
+  updateReorderAttachmentsItems();
+}
+
+function showReorderAttachmentsPanel() {
+    document.getElementById("reorderAttachmentsPanel")
+            .openPopup(document.getElementById("attachmentBucket"),
+                       "after_start", 15, 0, true);
+    // Focus attachmentBucket so that keyboard operation for
+    // selecting and moving attachment items works;
+    // the panel helpfully presents the keyboard shortcuts
+    // for moving things around.
+    document.getElementById("attachmentBucket").focus();
+}
+
+/**
+ * Returns a string representing the current sort order of selected attachment
+ * items by their names. We don't check if selected items form a coherent block
+ * or not; use attachmentsSelectionIsBlock() to check on that.
+ *
+ * @return {string} "ascending" : Sort order is ascending.
+ *                  "descending": Sort order is descending.
+ *                  "equivalent": The names of all selected items are equivalent.
+ *                  ""          : There's no sort order, or only 1 item selected,
+ *                                or no items selected, or no attachments,
+ *                                or no attachmentBucket.
+ */
+function attachmentsSelectionGetSortOrder()
+{
+  if (MessageGetNumSelectedAttachments() <= 1)
+    return "";
+
+  let selItems = attachmentsSelectedItemsGetSortedArray();
+  // We're comparing each item to the next item, so exclude the last item.
+  let selItems1 = selItems.slice(0, -1);
+  let someAscending;
+  let someDescending;
+
+  // Check if some adjacent items are sorted ascending.
+  someAscending = selItems1.some((item, index) =>
+    item.attachment.name.localeCompare(selItems[index + 1].attachment.name) < 0);
+
+  // Check if some adjacent items are sorted descending.
+  someDescending = selItems1.some((item, index) =>
+    item.attachment.name.localeCompare(selItems[index + 1].attachment.name) > 0);
+
+  // Unsorted (but not all equivalent in sort order)
+  if (someAscending && someDescending)
+    return "";
+
+  if (someAscending && !someDescending)
+    return "ascending";
+
+  if (someDescending && !someAscending)
+    return "descending";
+
+  // No ascending pairs, no descending pairs, so all equivalent in sort order.
+  // if (!someAscending && !someDescending)
+  return "equivalent";
+}
+
+function reorderAttachmentsPanelOnPopupShowing() {
+  let panel = document.getElementById("reorderAttachmentsPanel");
+  let buttonsNodeList = panel.querySelectorAll(".panelButton");
+  let buttons = [...buttonsNodeList]; // convert NodeList to Array
+  // Let's add some pretty keyboard shortcuts to the buttons.
+  buttons.forEach(btn => {
+    if (btn.hasAttribute("key")) {
+      btn.setAttribute("prettykey", getPrettyKey(btn.getAttribute("key")));
+    }
+  })
+  // This depends on the fact that the command handlers of cmd_moveAttachment*
+  // and cmd_sortAttachmentsToggle do not require focus in attachmentBucket as
+  // they just check for selected attachments. Otherwise updating these commands
+  // would need to happen *after* the panel is shown.
+  updateReorderAttachmentsItems();
+}
+
+function attachmentBucketOnBlur() {
+  // Ensure that reorderAttachmentsPanel remains open while we're focused
+  // on attachmentBucket or the panel, otherwise hide it.
+  let attachmentBucket = document.getElementById("attachmentBucket");
+  if (attachmentBucket.getAttribute("data-ignorenextblur") == "true") {
+    // Hack to prevent the panel from hiding after RenameSelectedAttachment()
+    attachmentBucket.setAttribute("data-ignorenextblur", "false");
+    return;
+  }
+  let reorderAttachmentsPanel = document.getElementById("reorderAttachmentsPanel");
+  if (document.activeElement.id != "attachmentBucket" ||
+      document.activeElement.id != "reorderAttachmentsPanel")
+    reorderAttachmentsPanel.hidePopup();
+}
+
+function attachmentBucketOnKeyUp(aEvent) {
+  // When ESC is pressed, close reorderAttachmentsPanel.
+  if (aEvent.key == "Escape") {
+    let reorderAttachmentsPanel = document.getElementById("reorderAttachmentsPanel");
+    if (reorderAttachmentsPanel.state == "open") {
+      reorderAttachmentsPanel.hidePopup();
+    }
   }
 }
 
@@ -4841,7 +5422,7 @@ function subjectKeyPress(event)
     SetMsgBodyFrameFocus();
 }
 
-function AttachmentBucketClicked(event)
+function AttachmentBucketDoubleClicked(event)
 {
   let boundTarget = document.getBindingParent(event.originalTarget);
   if (event.button == 0 && boundTarget && boundTarget.localName == "scrollbox")

@@ -129,14 +129,43 @@
   <command id="cmd_copy" oncommand="goDoCommand('cmd_copy')" disabled="true"/>
   <command id="cmd_paste" oncommand="goDoCommand('cmd_paste')" disabled="true"/>
   <command id="cmd_rewrap" oncommand="goDoCommand('cmd_rewrap')"/>
-  <command id="cmd_delete" oncommand="goDoCommand('cmd_delete')" valueDefault="&deleteCmd.label;" valueDefaultAccessKey="&deleteCmd.accesskey;" valueRemoveAttachmentAccessKey="&removeAttachment.accesskey;" disabled="true"/>
-  <command id="cmd_selectAll" oncommand="goDoCommand('cmd_selectAll')" disabled="true"/>
-  <command id="cmd_openAttachment" oncommand="goDoCommand('cmd_openAttachment')" disabled="true"/>
-  <command id="cmd_renameAttachment" oncommand="goDoCommand('cmd_renameAttachment')" disabled="true"/>
-  <command id="cmd_account" oncommand="goDoCommand('cmd_account')"/>
+  <command id="cmd_delete"
+           oncommand="goDoCommand('cmd_delete')"
+           valueDefault="&deleteCmd.label;"
+           valueDefaultAccessKey="&deleteCmd.accesskey;"
+           valueRemoveAttachmentAccessKey="&removeAttachment.accesskey;"
+           disabled="true"/>
+  <command id="cmd_selectAll"
+           oncommand="goDoCommand('cmd_selectAll')" disabled="true"/>
+  <command id="cmd_openAttachment"
+           oncommand="goDoCommand('cmd_openAttachment')" disabled="true"/>
+  <command id="cmd_renameAttachment"
+           oncommand="goDoCommand('cmd_renameAttachment')" disabled="true"/>
+  <command id="cmd_reorderAttachments"
+           oncommand="goDoCommand('cmd_reorderAttachments')" disabled="true"/>
+  <command id="cmd_account"
+           oncommand="goDoCommand('cmd_account')"/>
+
+  <!-- Reorder Attachments Panel -->
+  <command id="cmd_moveAttachmentUp"
+           oncommand="goDoCommand('cmd_moveAttachmentUp')" disabled="true"/>
+  <command id="cmd_moveAttachmentDown"
+           oncommand="goDoCommand('cmd_moveAttachmentDown')" disabled="true"/>
+  <command id="cmd_moveAttachmentBundleUp"
+           oncommand="goDoCommand('cmd_moveAttachmentBundleUp')" disabled="true"/>
+  <command id="cmd_moveAttachmentBundleDown"
+           oncommand="goDoCommand('cmd_moveAttachmentBundleDown')" disabled="true"/>
+  <command id="cmd_moveAttachmentTop"
+           oncommand="goDoCommand('cmd_moveAttachmentTop')" disabled="true"/>
+  <command id="cmd_moveAttachmentBottom"
+           oncommand="goDoCommand('cmd_moveAttachmentBottom')" disabled="true"/>
+  <command id="cmd_sortAttachmentsToggle"
+           data-sortdirection="ascending"
+           oncommand="goDoCommand('cmd_sortAttachmentsToggle')" disabled="true"/>
 
   <!-- View Menu -->
-  <command id="cmd_showFormatToolbar" oncommand="goDoCommand('cmd_showFormatToolbar')"/>
+  <command id="cmd_showFormatToolbar"
+           oncommand="goDoCommand('cmd_showFormatToolbar')"/>
 
   <commandset id="viewZoomCommands"
               commandupdater="false"
@@ -224,9 +253,16 @@
 #ifdef XP_MACOSX
   <key id="key_delete" keycode="VK_BACK" command="cmd_delete"/>
   <key id="key_delete2" keycode="VK_DELETE" command="cmd_delete"/>
+  <key id="key_reorderAttachments"
+       key="&reorderAttachmentsCmd.key;" modifiers="control"
+       command="cmd_reorderAttachments"/>
 #else
   <key id="key_delete" keycode="VK_DELETE" command="cmd_delete"/>
-  <key id="key_renameAttachment" keycode="VK_F2" oncommand="goDoCommand('cmd_renameAttachment');"/>
+  <key id="key_renameAttachment" keycode="VK_F2"
+       command="cmd_renameAttachment"/>
+  <key id="key_reorderAttachments"
+       key="&reorderAttachmentsCmd.key;" modifiers="alt"
+       command="cmd_reorderAttachments"/>
 #endif
   <key id="key_selectAll" key="&selectAllCmd.key;" modifiers="accel"/>
   <key id="key_find" key="&findBarCmd.key;" command="cmd_find" modifiers="accel"/>
@@ -237,6 +273,35 @@
   <key id="key_findPrev" key="&findPrevCmd.key;" command="cmd_findPrev" modifiers="accel, shift"/>
   <key keycode="&findAgainCmd.key2;" command="cmd_findNext"/>
   <key keycode="&findPrevCmd.key2;"  command="cmd_findPrev" modifiers="shift"/>
+
+  <!-- Reorder Attachments Panel -->
+#ifdef XP_MACOSX
+  <key id="key_moveAttachmentUp" keycode="VK_UP" modifiers="accel"
+       command="cmd_moveAttachmentUp"/>
+  <key id="key_moveAttachmentDown" keycode="VK_DOWN" modifiers="accel"
+       command="cmd_moveAttachmentDown"/>
+  <key id="key_moveAttachmentBundleUp" keycode="VK_LEFT" modifiers="accel alt"
+       command="cmd_moveAttachmentBundleUp"/>
+  <key id="key_moveAttachmentBundleDown" keycode="VK_RIGHT" modifiers="accel alt"
+       command="cmd_moveAttachmentBundleDown"/>
+  <key id="key_moveAttachmentTop" keycode="VK_UP" modifiers="accel alt"
+       command="cmd_moveAttachmentTop"/>
+  <key id="key_moveAttachmentBottom" keycode="VK_DOWN" modifiers="accel alt"
+       command="cmd_moveAttachmentBottom"/>
+#else
+  <key id="key_moveAttachmentUp" keycode="VK_UP" modifiers="alt"
+       command="cmd_moveAttachmentUp"/>
+  <key id="key_moveAttachmentDown" keycode="VK_DOWN" modifiers="alt"
+       command="cmd_moveAttachmentDown"/>
+  <key id="key_moveAttachmentBundleUp" keycode="VK_LEFT" modifiers="alt"
+       command="cmd_moveAttachmentBundleUp"/>
+  <key id="key_moveAttachmentBundleDown" keycode="VK_RIGHT" modifiers="alt"
+       command="cmd_moveAttachmentBundleDown"/>
+  <key id="key_moveAttachmentTop" keycode="VK_Home" modifiers="alt"
+       command="cmd_moveAttachmentTop"/>
+  <key id="key_moveAttachmentBottom" keycode="VK_End" modifiers="alt"
+       command="cmd_moveAttachmentBottom"/>
+#endif
 
   <!-- View Menu -->
   <key id="key_addressSidebar" keycode="VK_F9" oncommand="toggleAddressPicker();"/>
@@ -292,6 +357,57 @@
 
 <keyset id="editorKeys"/>
 
+<!-- Reorder Attachments Panel -->
+<panel id="reorderAttachmentsPanel"
+       backdrag="true"
+       orient="vertical"
+       type="arrow"
+       flip="slide"
+       onpopupshowing="reorderAttachmentsPanelOnPopupShowing();"
+       consumeoutsideclicks="false"
+       noautohide="true">
+  <description class="panelTitle">&reorderAttachmentsPanel.label;</description>
+  <toolbarbutton id="btn_moveAttachmentTop"
+                 class="panelButton"
+                 label="&moveAttachmentTopPanelBtn.label;"
+                 accesskey="&moveAttachmentTopPanelBtn.accesskey;"
+                 key="key_moveAttachmentTop"
+                 command="cmd_moveAttachmentTop"/>
+  <toolbarbutton id="btn_moveAttachmentUp"
+                 class="panelButton"
+                 label="&moveAttachmentUpPanelBtn.label;"
+                 accesskey="&moveAttachmentUpPanelBtn.accesskey;"
+                 key="key_moveAttachmentUp"
+                 command="cmd_moveAttachmentUp"/>
+  <toolbarbutton id="btn_moveAttachmentBundleUp"
+                 class="panelButton"
+                 label="&moveAttachmentBundleUpPanelBtn.label;"
+                 accesskey="&moveAttachmentBundleUpPanelBtn.accesskey;"
+                 key="key_moveAttachmentBundleUp"
+                 command="cmd_moveAttachmentBundleUp"/>
+  <toolbarbutton id="btn_moveAttachmentDown"
+                 class="panelButton"
+                 label="&moveAttachmentDownPanelBtn.label;"
+                 accesskey="&moveAttachmentDownPanelBtn.accesskey;"
+                 key="key_moveAttachmentDown"
+                 command="cmd_moveAttachmentDown"/>
+  <toolbarbutton id="btn_moveAttachmentBottom"
+                 class="panelButton"
+                 label="&moveAttachmentBottomPanelBtn.label;"
+                 accesskey="&moveAttachmentBottomPanelBtn.accesskey;"
+                 key="key_moveAttachmentBottom"
+                 command="cmd_moveAttachmentBottom"/>
+  <toolbarbutton id="btn_sortAttachmentsToggle"
+                 class="panelButton"
+                 label="&sortAttachmentsTogglePanelBtn.AZ.label;"
+                 accesskey="&sortAttachmentsTogglePanelBtn.AZ.accesskey;"
+                 data-labelAZ="&sortAttachmentsTogglePanelBtn.AZ.label;"
+                 data-accesskeyAZ="&sortAttachmentsTogglePanelBtn.AZ.accesskey;"
+                 data-labelZA="&sortAttachmentsTogglePanelBtn.ZA.label;"
+                 data-accesskeyZA="&sortAttachmentsTogglePanelBtn.ZA.accesskey;"
+                 command="cmd_sortAttachmentsToggle"/>
+</panel>
+
 <menupopup id="msgComposeContext"
            onpopupshowing="if (event.target != this) return true; openEditorContextMenu(this);">
 
@@ -345,14 +461,19 @@
             label="&openAttachment.label;"
             accesskey="&openAttachment.accesskey;"
             command="cmd_openAttachment"/>
-  <menuitem id="composeAttachmentContext_deleteItem"
-            label="&removeAttachment.label;"
-            accesskey="&removeAttachment.accesskey;"
-            command="cmd_delete"/>
   <menuitem id="composeAttachmentContext_renameItem"
             label="&renameAttachment.label;"
             accesskey="&renameAttachment.accesskey;"
             command="cmd_renameAttachment"/>
+  <menuitem id="composeAttachmentContext_reorderItem"
+            label="&reorderAttachments.label;"
+            accesskey="&reorderAttachments.accesskey;"
+            command="cmd_reorderAttachments"/>
+  <menuseparator id="composeAttachmentContext_beforeRemoveSeparator"/>
+  <menuitem id="composeAttachmentContext_deleteItem"
+            label="&removeAttachment.label;"
+            accesskey="&removeAttachment.accesskey;"
+            command="cmd_delete"/>
   <menu id="composeAttachmentContext_convertCloudMenu"
         label="&convertCloud.label;"
         accesskey="&convertCloud.accesskey;"
@@ -405,6 +526,10 @@
             label="&remindLater.label;"
             accesskey="&remindLater.accesskey;"
             command="cmd_remindLater"/>
+  <menuitem id="attachmentListContext_reorderItem"
+            label="&reorderAttachments.label;"
+            accesskey="&reorderAttachments.accesskey;"
+            command="cmd_reorderAttachments"/>
 </menupopup>
 
 <menupopup id="toolbar-context-menu"
@@ -541,15 +666,33 @@
           <menuitem id="menu_pasteNoFormatting" command="cmd_pasteNoFormatting"
                     key="pastenoformattingkb"/>
           <menuitem id="menu_pasteQuote"/>
-          <menuitem id="menu_delete" label="&deleteCmd.label;" key="key_delete" accesskey="&deleteCmd.accesskey;" command="cmd_delete"/>
+          <menuitem id="menu_delete"
+                    label="&deleteCmd.label;"
+                    accesskey="&deleteCmd.accesskey;"
+                    key="key_delete"
+                    command="cmd_delete"/>
           <menuseparator/>
-          <menuitem id="menu_rewrap" label="&editRewrapCmd.label;" key="key_rewrap" accesskey="&editRewrapCmd.accesskey;" command="cmd_rewrap"/>
+          <menuitem id="menu_rewrap"
+                    label="&editRewrapCmd.label;"
+                    accesskey="&editRewrapCmd.accesskey;"
+                    key="key_rewrap"
+                    command="cmd_rewrap"/>
           <menuitem id="menu_RenameAttachment"
                     label="&renameAttachmentCmd.label;"
                     accesskey="&renameAttachmentCmd.accesskey;"
-                    key="key_renameAttachment" command="cmd_renameAttachment"/>
+                    key="key_renameAttachment"
+                    command="cmd_renameAttachment"/>
+          <menuitem id="menu_reorderAttachments"
+                    label="&reorderAttachmentsCmd.label;"
+                    accesskey="&reorderAttachmentsCmd.accesskey;"
+                    key="key_reorderAttachments"
+                    command="cmd_reorderAttachments"/>
           <menuseparator/>
-          <menuitem id="menu_selectAll" label="&selectAllCmd.label;" key="key_selectAll" accesskey="&selectAllCmd.accesskey;" command="cmd_selectAll"/>
+          <menuitem id="menu_selectAll"
+                    label="&selectAllCmd.label;"
+                    accesskey="&selectAllCmd.accesskey;"
+                    key="key_selectAll"
+                    command="cmd_selectAll"/>
           <menuseparator/>
           <menuitem id="menu_findBar"
                     label="&findBarCmd.label;"
@@ -999,9 +1142,11 @@
                           seltype="multiple" flex="1" height="0"
                           context="msgComposeAttachmentListContext"
                           itemcontext="msgComposeAttachmentItemContext"
-                          onclick="AttachmentBucketClicked(event);"
+                          ondblclick="AttachmentBucketDoubleClicked(event);"
+                          onkeyup="attachmentBucketOnKeyUp(event);"
                           onselect="updateAttachmentItems();"
-                          ondragstart="nsDragAndDrop.startDrag(event, attachmentBucketDNDObserver);"/>
+                          ondragstart="nsDragAndDrop.startDrag(event, attachmentBucketDNDObserver);"
+                          onblur="attachmentBucketOnBlur();"/>
         </vbox>
       </hbox>
     </toolbar>

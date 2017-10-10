@@ -106,3 +106,46 @@ notification[type="warning"] {
 .abMenuItem[AddrBook="true"][IsRemote="true"][IsSecure="true"] {
   list-style-image: url("chrome://messenger/skin/addressbook/icons/secure-remote-addrbook.png");
 }
+
+/* ::::: Panel toolbarbuttons ::::: */
+
+.panelTitle {
+  margin-top: 8px;
+  margin-inline-start: 7px;
+  margin-bottom: 6px;
+}
+
+.panelButton {
+  -moz-appearance: none;
+  min-height: 24px;
+  padding: 4px 6px;
+  background-color: transparent;
+  -moz-context-properties: fill, fill-opacity;
+  fill: currentColor;
+  fill-opacity: var(--toolbarbutton-icon-fill-opacity);
+}
+
+.panelButton:focus {
+  outline: 0;
+}
+
+.panelButton:not(:-moz-any([disabled],[open],:active)):-moz-any(:hover,:focus) {
+  background-color: var(--arrowpanel-dimmed);
+}
+
+.panelButton:not([disabled]):-moz-any([open],:hover:active) {
+  background-color: var(--arrowpanel-dimmed-further);
+  box-shadow: 0 1px 0 hsla(210, 4%, 10%, .03) inset;
+}
+
+.panelButton > .toolbarbutton-text {
+  text-align: start;
+  padding-inline-start: 6px;
+  padding-inline-end: 6px;
+}
+
+.panelButton[prettykey]::after {
+  content: attr(prettykey);
+  float: right;
+  color: GrayText;
+}

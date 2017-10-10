@@ -85,6 +85,9 @@
 <!ENTITY editRewrapCmd.key "R">
 <!ENTITY renameAttachmentCmd.label "Rename Attachment…">
 <!ENTITY renameAttachmentCmd.accesskey "e">
+<!ENTITY reorderAttachmentsCmd.label "Reorder Attachments…">
+<!ENTITY reorderAttachmentsCmd.accesskey "s">
+<!ENTITY reorderAttachmentsCmd.key "x">
 <!ENTITY selectAllCmd.label "Select All">
 <!ENTITY selectAllCmd.key "A">
 <!ENTITY selectAllCmd.accesskey "a">
@@ -102,6 +105,30 @@
 <!ENTITY findPrevCmd.accesskey "v">
 <!ENTITY findPrevCmd.key "G">
 <!ENTITY findPrevCmd.key2 "VK_F3">
+
+<!-- Reorder Attachment Panel -->
+<!ENTITY reorderAttachmentsPanel.label "Reorder Attachments">
+<!ENTITY moveAttachmentTopPanelBtn.label "Move to Top">
+<!ENTITY moveAttachmentTopPanelBtn.accesskey "T">
+<!ENTITY moveAttachmentUpPanelBtn.label "Move Up">
+<!ENTITY moveAttachmentUpPanelBtn.accesskey "U">
+<!ENTITY moveAttachmentBundleUpPanelBtn.label "Move together">
+<!ENTITY moveAttachmentBundleUpPanelBtn.accesskey "v">
+<!ENTITY moveAttachmentDownPanelBtn.label "Move Down">
+<!ENTITY moveAttachmentDownPanelBtn.accesskey "D">
+<!ENTITY moveAttachmentBottomPanelBtn.label "Move to Bottom">
+<!ENTITY moveAttachmentBottomPanelBtn.accesskey "B">
+<!-- LOCALIZATION NOTE (sortAttachmentsTogglePanelBtn.AZ.label):
+     Please ensure that this translation matches
+     sortAttachmentsTogglePanelBtn.ZA.label, except for the sort direction. -->
+<!ENTITY sortAttachmentsTogglePanelBtn.AZ.label "Sort Selection: A - Z">
+<!-- LOCALIZATION NOTE (sortAttachmentsTogglePanelBtn.AZ.accesskey):
+     This accesskey should be the same like
+     sortAttachmentsTogglePanelBtn.ZA.accesskey, and it should be taken from
+     the "Sort Selection:" part of the label, not from the sort direction part. -->
+<!ENTITY sortAttachmentsTogglePanelBtn.AZ.accesskey "o">
+<!ENTITY sortAttachmentsTogglePanelBtn.ZA.label "Sort Selection: Z - A">
+<!ENTITY sortAttachmentsTogglePanelBtn.ZA.accesskey "o">
 
 <!-- View Menu -->
 <!ENTITY viewMenu.label "View">
@@ -283,6 +310,8 @@
 <!ENTITY removeAttachment.accesskey "M">
 <!ENTITY renameAttachment.label "Rename…">
 <!ENTITY renameAttachment.accesskey "R">
+<!ENTITY reorderAttachments.label "Reorder Attachments…">
+<!ENTITY reorderAttachments.accesskey "s">
 <!ENTITY selectAll.label "Select All">
 <!ENTITY selectAll.accesskey "A">
 <!ENTITY attachFile.label "Attach File(s)…">
