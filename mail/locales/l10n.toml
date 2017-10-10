@@ -97,7 +97,7 @@ locales = [
 
 [[paths]]
     reference = "{mozilla}/devtools/shim/locales/en-US/**"
-    l10n = "{l}{mozilla}/devtools/shim/**"
+    l10n = "{l}/devtools/shim/**"
 
 # ignore MOZ_LANGPACK_CONTRIBUTORS
 [[filters]]
