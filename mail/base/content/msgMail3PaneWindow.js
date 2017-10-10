@@ -1646,7 +1646,7 @@ function InitPageMenu(menuPopup, event) {
 }
 
 var TabsInTitlebar = {
-  init: function () {
+  init() {
     if (AppConstants.CAN_DRAW_IN_TITLEBAR) {
       // Don't trust the initial value of the sizemode attribute; wait for the
       // resize event.
@@ -1680,10 +1680,16 @@ var TabsInTitlebar = {
       this._sizeModeObserver.observe(sizeMode, {attributes: true});
 
       this._initialized = true;
+      if (this._updateOnInit) {
+        // We don't need to call this with 'true', even if original calls
+        // (before init()) did, because this will be the first call and so
+        // we will update anyway.
+        this._update();
+      }
     }
   },
 
-  allowedBy: function (condition, allow) {
+  allowedBy(condition, allow) {
     if (AppConstants.CAN_DRAW_IN_TITLEBAR) {
       if (allow) {
         if (condition in this._disallowed) {
@@ -1709,12 +1715,12 @@ var TabsInTitlebar = {
     return document.documentElement.getAttribute("tabsintitlebar") == "true";
   },
 
-  observe: function (subject, topic, data) {
+  observe(subject, topic, data) {
     if (topic == "nsPref:changed")
       this._readPref();
   },
 
-  _onMenuMutate: function (aMutations) {
+  _onMenuMutate(aMutations) {
     for (let mutation of aMutations) {
       if (mutation.attributeName == "inactive" ||
           mutation.attributeName == "autohide") {
@@ -1724,7 +1730,7 @@ var TabsInTitlebar = {
     }
   },
 
-  _onSizeModeMutate: function (aMutations) {
+  _onSizeModeMutate(aMutations) {
     for (let mutation of aMutations) {
       if (mutation.attributeName == "sizemode") {
         TabsInTitlebar._update(true);
@@ -1734,27 +1740,33 @@ var TabsInTitlebar = {
   },
 
   _initialized: false,
+  _updateOnInit: false,
   _disallowed: {},
   _drawInTitlePref: "mail.tabs.drawInTitlebar",
   _autoHidePref: "mail.tabs.autoHide",
   _lastSizeMode: null,
 
-  _readPref: function () {
+  _readPref() {
     // check is only true when drawInTitlebar=true and autoHide=false
     let check = Services.prefs.getBoolPref(this._drawInTitlePref) &&
                 !Services.prefs.getBoolPref(this._autoHidePref);
     this.allowedBy("pref", check);
   },
 
-  _update: function (aForce=false) {
-    function $(id) { return document.getElementById(id); }
-    function rect(ele) { return ele.getBoundingClientRect(); }
-    function verticalMargins(cstyle) { return parseFloat(cstyle.marginBottom) + parseFloat(cstyle.marginTop); }
+  _update(aForce=false) {
+    let $ = id => document.getElementById(id);
+    let rect = ele => ele.getBoundingClientRect();
+    let verticalMargins = cstyle => parseFloat(cstyle.marginBottom) + parseFloat(cstyle.marginTop);
 
-    if (!this._initialized || window.fullScreen)
+    if (window.fullScreen)
       return;
 
-    let allowed = true;
+    // In some edgecases it is possible for this to fire before we've initialized.
+    // Don't run now, but don't forget to run it when we do initialize.
+    if (!this._initialized) {
+      this._updateOnInit = true;
+      return;
+    }
 
     if (!aForce) {
       // _update is called on resize events, because the window is not ready
@@ -1765,13 +1777,18 @@ var TabsInTitlebar = {
       if (this._lastSizeMode == sizemode) {
         return;
       }
+      let oldSizeMode = this._lastSizeMode;
       this._lastSizeMode = sizemode;
+      // Don't update right now if we are leaving fullscreen, since the UI is
+      // still changing in the consequent "fullscreen" event. Code there will
+      // call this function again when everything is ready.
+      // See browser-fullScreen.js: FullScreen.toggle and bug 1173768.
+      if (oldSizeMode == "fullscreen") {
+        return;
+      }
     }
 
-    for (let something in this._disallowed) {
-      allowed = false;
-      break;
-    }
+    let allowed = (Object.keys(this._disallowed)).length == 0;
 
     let titlebar = $("titlebar");
     let titlebarContent = $("titlebar-content");
@@ -1797,7 +1814,7 @@ var TabsInTitlebar = {
       // Get the height of the tabs toolbar:
       let tabsToolbar = $("tabs-toolbar");
       let tabsStyles = window.getComputedStyle(tabsToolbar);
-      let fullTabsHeight = rect($("tabs-toolbar")).height + verticalMargins(tabsStyles);
+      let fullTabsHeight = rect(tabsToolbar).height + verticalMargins(tabsStyles);
       // Buttons first:
       let captionButtonsBoxWidth = rect($("titlebar-buttonbox")).width;
 
@@ -1899,12 +1916,12 @@ var TabsInTitlebar = {
     ToolbarIconColor.inferFromText();
   },
 
-  _sizePlaceholder: function (type, width) {
-    Array.from(document.querySelectorAll(".titlebar-placeholder[type='"+ type +"']"))
-         .forEach(node => node.width = width);
+  _sizePlaceholder(type, width) {
+    Array.forEach(document.querySelectorAll(".titlebar-placeholder[type='" + type + "']"),
+                  function(node) { node.width = width; });
   },
 
-  uninit: function () {
+  uninit() {
     if (AppConstants.CAN_DRAW_IN_TITLEBAR) {
       this._initialized = false;
       Services.prefs.removeObserver(this._drawInTitlePref, this);
@@ -1917,34 +1934,18 @@ var TabsInTitlebar = {
 if (AppConstants.CAN_DRAW_IN_TITLEBAR) {
   function updateTitlebarDisplay() {
     if (AppConstants.platform == "macosx") {
-      // OS X and the other platforms differ enough to necessitate this kind of
-      // special-casing. Like the other platforms where we CAN_DRAW_IN_TITLEBAR,
-      // we draw in the OS X titlebar when putting the tabs up there. However, OS X
-      // also draws in the titlebar when a lightweight theme is applied, regardless
-      // of whether or not the tabs are drawn in the titlebar.
       if (TabsInTitlebar.enabled) {
-        document.documentElement.setAttribute("chromemargin-nonlwtheme", "0,2,2,2");
-        document.documentElement.setAttribute("chromemargin", "0,2,2,2");
-        document.documentElement.setAttribute("tabsintitlebar", "true");
+        document.documentElement.setAttribute("chromemargin", "0,-1,-1,-1");
+        document.documentElement.removeAttribute("drawtitle");
       } else {
-        // We set chromemargin-nonlwtheme to "" instead of removing it as a way of
-        // making sure that LightweightThemeConsumer doesn't take it upon itself to
-        // detect this value again if and when we do a lwtheme state change.
-        document.documentElement.setAttribute("chromemargin-nonlwtheme", "");
-        let hasLWTheme = document.documentElement.hasAttribute("lwtheme");
-        if (hasLWTheme) {
-          document.documentElement.setAttribute("chromemargin", "0,2,2,2");
-        } else {
-          document.documentElement.removeAttribute("chromemargin");
-        }
+        document.documentElement.removeAttribute("chromemargin");
+        document.documentElement.setAttribute("drawtitle", "true");
       }
+    } else if (TabsInTitlebar.enabled) {
+      // not OS X
+      document.documentElement.setAttribute("chromemargin", "0,2,2,2");
     } else {
-       document.getElementById("titlebar").hidden = !TabsInTitlebar.enabled;
-
-       if (TabsInTitlebar.enabled)
-         document.documentElement.setAttribute("chromemargin", "0,2,2,2");
-       else
-         document.documentElement.removeAttribute("chromemargin");
+      document.documentElement.removeAttribute("chromemargin");
     }
   }
 }
