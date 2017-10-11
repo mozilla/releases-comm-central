@@ -82,7 +82,6 @@
 #include "nsIProtocolHandler.h"
 #include "nsContentUtils.h"
 #include "nsIFileURL.h"
-#include "nsIPrincipal.h" // XXX TEMPORARY
 
 using namespace mozilla;
 using namespace mozilla::dom;
@@ -272,7 +271,7 @@ bool nsMsgCompose::IsEmbeddedObjectSafe(const char * originalScheme,
   RefPtr<HTMLAnchorElement> anchor = HTMLAnchorElement::FromContentOrNull(objectAsElement);
 
   if (image)
-    { uint64_t ignored; image->GetSrc(objURL, *(nsIPrincipal*)(&ignored)); } // XXX TEMPORARY
+    image->GetSrc(objURL);
   else if (link)
     link->GetHref(objURL);
   else if (anchor)
@@ -375,7 +374,7 @@ nsresult nsMsgCompose::ResetUrisForEmbeddedObjects()
         mMsgSend->GetPartForDomIndex(i, partNum);
         // do we care about anything besides images?
         nsAutoString objURL;
-        uint64_t ignored; image->GetSrc(objURL, *(nsIPrincipal*)(&ignored)); // XXX TEMPORARY
+        image->GetSrc(objURL);
 
         // First we need to make sure that the URL is associated with a message
         // protocol so we don't accidentally manipulate a URL like:
@@ -443,7 +442,7 @@ nsresult nsMsgCompose::ResetUrisForEmbeddedObjects()
         AppendUTF8toUTF16(spec, newSrc);
         newSrc.Append(restOfUrl);
         IgnoredErrorResult rv2;
-        image->SetSrc(newSrc, *nsContentUtils::GetSystemPrincipal(), rv2); // XXX TEMPORARY
+        image->SetSrc(newSrc, rv2);
       }
     }
   }
