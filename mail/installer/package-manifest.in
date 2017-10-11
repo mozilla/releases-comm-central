@@ -142,7 +142,6 @@
 #endif
 #endif
 #ifdef UNIX_BUT_NOT_MAC
-@RESPATH@/run-mozilla.sh
 #ifdef MOZ_UPDATER
 @RESPATH@/icons/*.png
 #endif
