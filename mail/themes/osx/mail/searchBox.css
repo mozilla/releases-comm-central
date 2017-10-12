@@ -96,20 +96,6 @@
   padding-bottom: 1px;
 }
 
-
-/* things from xul.css that only exist if Thunderbird did not define
- * AUTOCOMPLETE_OLD_STYLE
- */
-
-.autocomplete-history-dropmarker {
-  display: none;
-}
-
-.autocomplete-history-dropmarker[enablehistory="true"] {
-  display: -moz-box;
-  -moz-binding: url("chrome://global/content/bindings/autocomplete.xml#history-dropmarker");
-}
-
 #PopupGlodaAutocomplete {
   margin-top: -1px;
   color: -moz-FieldText;

@@ -160,7 +160,6 @@
                      autocompletesearch="gloda"
                      autocompletepopup="PopupGlodaAutocomplete"
                      autocompletesearchparam="global"
-                     enablehistory="false"
                      timeout="200"
                      maxlength="192"
                      placeholder=""

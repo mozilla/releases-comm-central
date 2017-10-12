@@ -90,5 +90,3 @@ richlistitem[type="gloda-contact-chunk"] {
   -moz-box-orient: vertical;
   overflow: -moz-hidden-unscrollable;
 }
-
-/* .autocomplete-history-dropmarker wants to be optional, but we don't care */
