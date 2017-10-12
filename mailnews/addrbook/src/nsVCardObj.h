@@ -3,46 +3,46 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 /***************************************************************************
-(C) Copyright 1996 Apple Computer, Inc., AT&T Corp., International             
-Business Machines Corporation and Siemens Rolm Communications Inc.             
-                                                                               
-For purposes of this license notice, the term Licensors shall mean,            
-collectively, Apple Computer, Inc., AT&T Corp., International                  
-Business Machines Corporation and Siemens Rolm Communications Inc.             
-The term Licensor shall mean any of the Licensors.                             
-                                                                               
-Subject to acceptance of the following conditions, permission is hereby        
-granted by Licensors without the need for written agreement and without        
-license or royalty fees, to use, copy, modify and distribute this              
-software for any purpose.                                                      
-                                                                               
-The above copyright notice and the following four paragraphs must be           
-reproduced in all copies of this software and any software including           
-this software.                                                                 
-                                                                               
-THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS AND NO LICENSOR SHALL HAVE       
-ANY OBLIGATION TO PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS OR       
-MODIFICATIONS.                                                                 
-                                                                               
-IN NO EVENT SHALL ANY LICENSOR BE LIABLE TO ANY PARTY FOR DIRECT,              
-INDIRECT, SPECIAL OR CONSEQUENTIAL DAMAGES OR LOST PROFITS ARISING OUT         
-OF THE USE OF THIS SOFTWARE EVEN IF ADVISED OF THE POSSIBILITY OF SUCH         
-DAMAGE.                                                                        
-                                                                               
-EACH LICENSOR SPECIFICALLY DISCLAIMS ANY WARRANTIES, EXPRESS OR IMPLIED,       
-INCLUDING BUT NOT LIMITED TO ANY WARRANTY OF NONINFRINGEMENT OR THE            
-IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR             
-PURPOSE.                                                                       
+(C) Copyright 1996 Apple Computer, Inc., AT&T Corp., International
+Business Machines Corporation and Siemens Rolm Communications Inc.
 
-The software is provided with RESTRICTED RIGHTS.  Use, duplication, or         
-disclosure by the government are subject to restrictions set forth in          
-DFARS 252.227-7013 or 48 CFR 52.227-19, as applicable.                         
+For purposes of this license notice, the term Licensors shall mean,
+collectively, Apple Computer, Inc., AT&T Corp., International
+Business Machines Corporation and Siemens Rolm Communications Inc.
+The term Licensor shall mean any of the Licensors.
+
+Subject to acceptance of the following conditions, permission is hereby
+granted by Licensors without the need for written agreement and without
+license or royalty fees, to use, copy, modify and distribute this
+software for any purpose.
+
+The above copyright notice and the following four paragraphs must be
+reproduced in all copies of this software and any software including
+this software.
+
+THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS AND NO LICENSOR SHALL HAVE
+ANY OBLIGATION TO PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS OR
+MODIFICATIONS.
+
+IN NO EVENT SHALL ANY LICENSOR BE LIABLE TO ANY PARTY FOR DIRECT,
+INDIRECT, SPECIAL OR CONSEQUENTIAL DAMAGES OR LOST PROFITS ARISING OUT
+OF THE USE OF THIS SOFTWARE EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
+DAMAGE.
+
+EACH LICENSOR SPECIFICALLY DISCLAIMS ANY WARRANTIES, EXPRESS OR IMPLIED,
+INCLUDING BUT NOT LIMITED TO ANY WARRANTY OF NONINFRINGEMENT OR THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+PURPOSE.
+
+The software is provided with RESTRICTED RIGHTS.  Use, duplication, or
+disclosure by the government are subject to restrictions set forth in
+DFARS 252.227-7013 or 48 CFR 52.227-19, as applicable.
 
 ***************************************************************************/
 
 /*
- 
-The vCard/vCalendar C interface is implemented in the set 
+
+The vCard/vCalendar C interface is implemented in the set
 of files as follows:
 
 vcc.y, yacc source, and vcc.c, the yacc output you will use
@@ -62,10 +62,10 @@ test.c is a standalone test driver that exercises some of
 the features of the APIs provided. Invoke test.exe on a
 VCARD/VCALENDAR input text file and you will see the pretty
 print output of the internal representation (this pretty print
-output should give you a good idea of how the internal 
-representation looks like -- there is one such output in the 
-following too). Also, a file with the .out suffix is generated 
-to show that the internal representation can be written back 
+output should give you a good idea of how the internal
+representation looks like -- there is one such output in the
+following too). Also, a file with the .out suffix is generated
+to show that the internal representation can be written back
 in the original text format.
 
 For more information on this API see the readme.txt file
@@ -98,168 +98,168 @@ typedef wchar_t vwchar_t;
 extern "C" {
 #endif
 
-#define VC7bitProp        "7bit"
-#define VC8bitProp        "8bit"
-#define VCAAlarmProp      "aalarm"
+#define VC7bitProp "7bit"
+#define VC8bitProp "8bit"
+#define VCAAlarmProp "aalarm"
 #define VCAdditionalNamesProp "addn"
-#define VCAdrProp       "adr"
-#define VCAgentProp       "agent"
-#define VCAIFFProp        "aiff"
-#define VCAOLProp       "aol"
-#define VCAppleLinkProp     "applelink"
-#define VCAttachProp      "attach"
-#define VCAttendeeProp      "attendee"
-#define VCATTMailProp     "attmail"
-#define VCAudioContentProp    "audiocontent"
-#define VCAVIProp       "avi"
-#define VCBase64Prop      "base64"
-#define VCBBSProp       "bbs"
-#define VCBirthDateProp     "bday"
-#define VCBMPProp       "bmp"
-#define VCBodyProp        "body"
-#define VCBusinessRoleProp    "role"
-#define VCCalProp       "vcalendar"
-#define VCCaptionProp     "cap"
-#define VCCardProp        "vcard"
-#define VCCarProp       "car"
-#define VCCategoriesProp    "categories"
-#define VCCellularProp      "cell"
-#define VCCGMProp       "cgm"
-#define VCCharSetProp     "cs"
-#define VCCIDProp       "cid"
-#define VCCISProp       "cis"
-#define VCCityProp        "l"
-#define VCClassProp       "class"
-#define VCCommentProp     "note"
-#define VCCompletedProp     "completed"
-#define VCContentIDProp     "content-id"
-#define VCCountryNameProp   "c"
-#define VCDAlarmProp      "dalarm"
-#define VCDataSizeProp      "datasize"
-#define VCDayLightProp      "daylight"
-#define VCDCreatedProp      "dcreated"
-#define VCDeliveryLabelProp     "label"
-#define VCDescriptionProp   "description"
-#define VCDIBProp       "dib"
-#define VCDisplayStringProp   "displaystring"
-#define VCDomesticProp      "dom"
-#define VCDTendProp       "dtend"
-#define VCDTstartProp     "dtstart"
-#define VCDueProp       "due"
-#define VCEmailAddressProp    "email"
-#define VCEncodingProp      "encoding"
-#define VCEndProp       "end"
-#define VCEventProp       "vevent"
-#define VCEWorldProp      "eworld"
-#define VCExNumProp       "exnum"
-#define VCExpDateProp     "exdate"
-#define VCExpectProp      "expect"
-#define VCExtAddressProp    "ext add"
-#define VCFamilyNameProp    "f"
-#define VCFaxProp       "fax"
-#define VCFullNameProp      "fn"
-#define VCGeoProp       "geo"
-#define VCGeoLocationProp   "geo"
-#define VCGIFProp       "gif"
-#define VCGivenNameProp     "g"
-#define VCGroupingProp      "grouping"
-#define VCHomeProp        "home"
-#define VCIBMMailProp     "ibmmail"
-#define VCInlineProp      "inline"
-#define VCInternationalProp   "intl"
-#define VCInternetProp      "internet"
-#define VCISDNProp        "isdn"
-#define VCJPEGProp        "jpeg"
-#define VCLanguageProp      "lang"
-#define VCLastModifiedProp    "last-modified"
-#define VCLastRevisedProp   "rev"
-#define VCLocationProp      "location"
-#define VCLogoProp        "logo"
-#define VCMailerProp      "mailer"
-#define VCMAlarmProp      "malarm"
-#define VCMCIMailProp     "mcimail"
-#define VCMessageProp     "msg"
-#define VCMETProp       "met"
-#define VCModemProp       "modem"
-#define VCMPEG2Prop       "mpeg2"
-#define VCMPEGProp        "mpeg"
-#define VCMSNProp       "msn"
-#define VCNamePrefixesProp    "npre"
-#define VCNameProp        "n"
-#define VCNameSuffixesProp    "nsuf"
-#define VCNoteProp        "note"
-#define VCOrgNameProp     "orgname"
-#define VCOrgProp       "org"
-#define VCOrgUnit2Prop      "oun2"
-#define VCOrgUnit3Prop      "oun3"
-#define VCOrgUnit4Prop      "oun4"
-#define VCOrgUnitProp     "oun"
-#define VCPagerProp       "pager"
-#define VCPAlarmProp      "palarm"
-#define VCParcelProp      "parcel"
-#define VCPartProp        "part"
-#define VCPCMProp       "pcm"
-#define VCPDFProp       "pdf"
-#define VCPGPProp       "pgp"
-#define VCPhotoProp       "photo"
-#define VCPICTProp        "pict"
-#define VCPMBProp       "pmb"
-#define VCPostalBoxProp     "box"
-#define VCPostalCodeProp    "pc"
-#define VCPostalProp      "postal"
-#define VCPowerShareProp    "powershare"
-#define VCPreferredProp     "pref"
-#define VCPriorityProp      "priority"
-#define VCProcedureNameProp   "procedurename"
-#define VCProdIdProp      "prodid"
-#define VCProdigyProp     "prodigy"
-#define VCPronunciationProp   "sound"
-#define VCPSProp        "ps"
-#define VCPublicKeyProp     "key"
-#define VCQPProp        "qp"
-#define VCQuickTimeProp     "qtime"
+#define VCAdrProp "adr"
+#define VCAgentProp "agent"
+#define VCAIFFProp "aiff"
+#define VCAOLProp "aol"
+#define VCAppleLinkProp "applelink"
+#define VCAttachProp "attach"
+#define VCAttendeeProp "attendee"
+#define VCATTMailProp "attmail"
+#define VCAudioContentProp "audiocontent"
+#define VCAVIProp "avi"
+#define VCBase64Prop "base64"
+#define VCBBSProp "bbs"
+#define VCBirthDateProp "bday"
+#define VCBMPProp "bmp"
+#define VCBodyProp "body"
+#define VCBusinessRoleProp "role"
+#define VCCalProp "vcalendar"
+#define VCCaptionProp "cap"
+#define VCCardProp "vcard"
+#define VCCarProp "car"
+#define VCCategoriesProp "categories"
+#define VCCellularProp "cell"
+#define VCCGMProp "cgm"
+#define VCCharSetProp "cs"
+#define VCCIDProp "cid"
+#define VCCISProp "cis"
+#define VCCityProp "l"
+#define VCClassProp "class"
+#define VCCommentProp "note"
+#define VCCompletedProp "completed"
+#define VCContentIDProp "content-id"
+#define VCCountryNameProp "c"
+#define VCDAlarmProp "dalarm"
+#define VCDataSizeProp "datasize"
+#define VCDayLightProp "daylight"
+#define VCDCreatedProp "dcreated"
+#define VCDeliveryLabelProp "label"
+#define VCDescriptionProp "description"
+#define VCDIBProp "dib"
+#define VCDisplayStringProp "displaystring"
+#define VCDomesticProp "dom"
+#define VCDTendProp "dtend"
+#define VCDTstartProp "dtstart"
+#define VCDueProp "due"
+#define VCEmailAddressProp "email"
+#define VCEncodingProp "encoding"
+#define VCEndProp "end"
+#define VCEventProp "vevent"
+#define VCEWorldProp "eworld"
+#define VCExNumProp "exnum"
+#define VCExpDateProp "exdate"
+#define VCExpectProp "expect"
+#define VCExtAddressProp "ext add"
+#define VCFamilyNameProp "f"
+#define VCFaxProp "fax"
+#define VCFullNameProp "fn"
+#define VCGeoProp "geo"
+#define VCGeoLocationProp "geo"
+#define VCGIFProp "gif"
+#define VCGivenNameProp "g"
+#define VCGroupingProp "grouping"
+#define VCHomeProp "home"
+#define VCIBMMailProp "ibmmail"
+#define VCInlineProp "inline"
+#define VCInternationalProp "intl"
+#define VCInternetProp "internet"
+#define VCISDNProp "isdn"
+#define VCJPEGProp "jpeg"
+#define VCLanguageProp "lang"
+#define VCLastModifiedProp "last-modified"
+#define VCLastRevisedProp "rev"
+#define VCLocationProp "location"
+#define VCLogoProp "logo"
+#define VCMailerProp "mailer"
+#define VCMAlarmProp "malarm"
+#define VCMCIMailProp "mcimail"
+#define VCMessageProp "msg"
+#define VCMETProp "met"
+#define VCModemProp "modem"
+#define VCMPEG2Prop "mpeg2"
+#define VCMPEGProp "mpeg"
+#define VCMSNProp "msn"
+#define VCNamePrefixesProp "npre"
+#define VCNameProp "n"
+#define VCNameSuffixesProp "nsuf"
+#define VCNoteProp "note"
+#define VCOrgNameProp "orgname"
+#define VCOrgProp "org"
+#define VCOrgUnit2Prop "oun2"
+#define VCOrgUnit3Prop "oun3"
+#define VCOrgUnit4Prop "oun4"
+#define VCOrgUnitProp "oun"
+#define VCPagerProp "pager"
+#define VCPAlarmProp "palarm"
+#define VCParcelProp "parcel"
+#define VCPartProp "part"
+#define VCPCMProp "pcm"
+#define VCPDFProp "pdf"
+#define VCPGPProp "pgp"
+#define VCPhotoProp "photo"
+#define VCPICTProp "pict"
+#define VCPMBProp "pmb"
+#define VCPostalBoxProp "box"
+#define VCPostalCodeProp "pc"
+#define VCPostalProp "postal"
+#define VCPowerShareProp "powershare"
+#define VCPreferredProp "pref"
+#define VCPriorityProp "priority"
+#define VCProcedureNameProp "procedurename"
+#define VCProdIdProp "prodid"
+#define VCProdigyProp "prodigy"
+#define VCPronunciationProp "sound"
+#define VCPSProp "ps"
+#define VCPublicKeyProp "key"
+#define VCQPProp "qp"
+#define VCQuickTimeProp "qtime"
 #define VCQuotedPrintableProp "quoted-printable"
-#define VCRDateProp       "rdate"
-#define VCRegionProp      "r"
-#define VCRelatedToProp     "related-to"
-#define VCRepeatCountProp   "repeatcount"
-#define VCResourcesProp     "resources"
-#define VCRNumProp        "rnum"
-#define VCRoleProp        "role"
-#define VCRRuleProp       "rrule"
-#define VCRSVPProp        "rsvp"
-#define VCRunTimeProp     "runtime"
-#define VCSequenceProp      "sequence"
-#define VCSnoozeTimeProp    "snoozetime"
-#define VCStartProp       "start"
-#define VCStatusProp      "status"
-#define VCStreetAddressProp   "street"
-#define VCSubTypeProp     "subtype"
-#define VCSummaryProp     "summary"
-#define VCTelephoneProp     "tel"
-#define VCTIFFProp        "tiff"
-#define VCTimeZoneProp      "tz"
-#define VCTitleProp       "title"
-#define VCTLXProp       "tlx"
-#define VCTodoProp        "vtodo"
-#define VCTranspProp      "transp"
-#define VCUniqueStringProp    "uid"
-#define VCURLProp       "url"
-#define VCURLValueProp      "urlval"
-#define VCValueProp       "value"
-#define VCVersionProp     "version"
-#define VCVideoProp       "video"
-#define VCVoiceProp       "voice"
-#define VCWAVEProp        "wave"
-#define VCWMFProp       "wmf"
-#define VCWorkProp        "work"
-#define VCX400Prop        "x400"
-#define VCX509Prop        "x509"
-#define VCXRuleProp       "xrule"
-#define VCCooltalk        "x-mozilla-cpt"
-#define VCCooltalkAddress   "x-moxilla-cpadr"
-#define VCUseServer       "x-mozilla-cpsrv"
-#define VCUseHTML       "x-mozilla-html"
+#define VCRDateProp "rdate"
+#define VCRegionProp "r"
+#define VCRelatedToProp "related-to"
+#define VCRepeatCountProp "repeatcount"
+#define VCResourcesProp "resources"
+#define VCRNumProp "rnum"
+#define VCRoleProp "role"
+#define VCRRuleProp "rrule"
+#define VCRSVPProp "rsvp"
+#define VCRunTimeProp "runtime"
+#define VCSequenceProp "sequence"
+#define VCSnoozeTimeProp "snoozetime"
+#define VCStartProp "start"
+#define VCStatusProp "status"
+#define VCStreetAddressProp "street"
+#define VCSubTypeProp "subtype"
+#define VCSummaryProp "summary"
+#define VCTelephoneProp "tel"
+#define VCTIFFProp "tiff"
+#define VCTimeZoneProp "tz"
+#define VCTitleProp "title"
+#define VCTLXProp "tlx"
+#define VCTodoProp "vtodo"
+#define VCTranspProp "transp"
+#define VCUniqueStringProp "uid"
+#define VCURLProp "url"
+#define VCURLValueProp "urlval"
+#define VCValueProp "value"
+#define VCVersionProp "version"
+#define VCVideoProp "video"
+#define VCVoiceProp "voice"
+#define VCWAVEProp "wave"
+#define VCWMFProp "wmf"
+#define VCWorkProp "work"
+#define VCX400Prop "x400"
+#define VCX509Prop "x509"
+#define VCXRuleProp "xrule"
+#define VCCooltalk "x-mozilla-cpt"
+#define VCCooltalkAddress "x-moxilla-cpadr"
+#define VCUseServer "x-mozilla-cpsrv"
+#define VCUseHTML "x-mozilla-html"
 
 /* return type of vObjectValueType: */
 #define VCVT_NOVALUE  0
@@ -289,47 +289,47 @@ extern "C" {
 typedef struct VObject VObject;
 
 typedef union ValueItem {
-    const char *strs;
-    const vwchar_t *ustrs;
-    unsigned int i;
-    unsigned long l;
-    void *any;
-    VObject *vobj;
-    } ValueItem;
+  const char *strs;
+  const vwchar_t *ustrs;
+  unsigned int i;
+  unsigned long l;
+  void *any;
+  VObject *vobj;
+} ValueItem;
 
 struct VObject {
-    VObject *next;
-    const char *id;
-    VObject *prop;
-    unsigned short valType;
-    ValueItem val;
-    }; 
+  VObject *next;
+  const char *id;
+  VObject *prop;
+  unsigned short valType;
+  ValueItem val;
+};
 
 typedef struct StrItem StrItem;
 
 struct StrItem {
-    StrItem *next;
-    const char *s;
-    unsigned int refCnt;
-    };
+  StrItem *next;
+  const char *s;
+  unsigned int refCnt;
+};
 
 typedef struct OFile {
-    char *s;
-    int len;
-    int limit;
-    int alloc:1;
-    int fail:1;
-    } OFile;
+  char *s;
+  int len;
+  int limit;
+  int alloc:1;
+  int fail:1;
+} OFile;
 
 typedef struct VObjectIterator {
-    VObject* start;
-    VObject* next;
-    } VObjectIterator;
+  VObject* start;
+  VObject* next;
+} VObjectIterator;
 
-VObject*    newVObject(const char *id);
+VObject*  newVObject(const char *id);
 void      deleteVObject(VObject *p);
 char*     dupStr(const char *s, unsigned int size);
-extern "C" void     deleteString(char *p);
+extern "C" void deleteString(char *p);
 void      unUseStr(const char *s);
 
 void      setVObjectName(VObject *o, const char* id);
@@ -340,8 +340,8 @@ void      setVObjectUStringZValue_(VObject *o, const vwchar_t *s);
 void      setVObjectIntegerValue(VObject *o, unsigned int i);
 void      setVObjectLongValue(VObject *o, unsigned long l);
 void      setVObjectAnyValue(VObject *o, void *t);
-VObject*    setValueWithSize(VObject *prop, void *val, unsigned int size);
-VObject*    setValueWithSize_(VObject *prop, void *val, unsigned int size);
+VObject*  setValueWithSize(VObject *prop, void *val, unsigned int size);
+VObject*  setValueWithSize_(VObject *prop, void *val, unsigned int size);
 
 const char* vObjectName(VObject *o);
 const char* vObjectStringZValue(VObject *o);
