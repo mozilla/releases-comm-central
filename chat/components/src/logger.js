@@ -197,8 +197,11 @@ LogWriter.prototype = {
       header = JSON.stringify(header) + "\n";
     }
     else {
+      const dateTimeFormatter = Services.intl.createDateTimeFormat("en-US", {
+        dateStyle: "full", timeStyle: "long"
+      });
       header = "Conversation with " + this._conv.name +
-               " at " + (new Date(this._conv.startDate / 1000)).toLocaleString() +
+               " at " + dateTimeFormatter.format(new Date(this._conv.startDate / 1000)) +
                " on " + account.name +
                " (" + account.protocol.normalizedName + ")" + kLineBreak;
     }
@@ -332,10 +335,13 @@ function SystemLogWriter(aAccount) {
   this._account = aAccount;
   this.path = OS.Path.join(getLogFolderPathForAccount(aAccount), ".system",
                            getNewLogFileName());
+  const dateTimeFormatter = Services.intl.createDateTimeFormat("en-US", {
+    dateStyle: "full", timeStyle: "long"
+  });
   let header = "System log for account " + aAccount.name +
                " (" + aAccount.protocol.normalizedName +
                ") connected at " +
-               ToLocaleFormat("%c", new Date()) + kLineBreak;
+               dateTimeFormatter.format(new Date()) + kLineBreak;
   this._initialized = appendToFile(this.path, this.encoder.encode(header), true);
   // Catch the error separately so that _initialized will stay rejected if
   // writing the header failed.

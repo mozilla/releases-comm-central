@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+Components.utils.import("resource://gre/modules/Services.jsm");
+
 this.EXPORTED_SYMBOLS = ["ToLocaleFormat"];
 
 // JS implementation of the deprecated Date.toLocaleFormat.
@@ -80,20 +82,22 @@ function ToLocaleFormat(aFormat, aDate) {
     return timeZoneNamePart ? timeZoneNamePart.value : "";
   }
 
-  let locale =
-    Intl.DateTimeFormat().resolvedOptions().locale + "-u-ca-gregory-nu-latn";
-  let localeStringOptions = {
-    year: "numeric", month: "short", day: "2-digit", weekday: "short",
-    hour: "2-digit", minute: "2-digit", second: "2-digit",
-    timeZoneName: "short",
-  };
+  let dateTimeFormatter = Services.intl.createDateTimeFormat(undefined, {
+    dateStyle: "full", timeStyle: "long"
+  });
+  let dateFormatter = Services.intl.createDateTimeFormat(undefined, {
+    dateStyle: "full"
+  });
+  let timeFormatter = Services.intl.createDateTimeFormat(undefined, {
+    timeStyle: "long"
+  });
 
   let formatFunctions = {
     a: () => weekday("short"),
     A: () => weekday("long"),
     b: () => month("short"),
     B: () => month("long"),
-    c: () => aDate.toLocaleString(locale, localeStringOptions),
+    c: () => dateTimeFormatter.format(aDate),
     C: () => String(Math.trunc(aDate.getFullYear() / 100)),
     d: () => String(aDate.getDate()),
     D: () => ToLocaleFormat("%m/%d/%y", aDate),
@@ -123,8 +127,8 @@ function ToLocaleFormat(aFormat, aDate) {
     V: () => String(weekNumberISO()),
     w: () => String(aDate.getDay()),
     W: () => String(weekNumber(1)),
-    x: () => aDate.toLocaleDateString(locale),
-    X: () => aDate.toLocaleTimeString(locale),
+    x: () => dateFormatter.format(aDate),
+    X: () => timeFormatter.format(aDate),
     y: () => String(aDate.getFullYear() % 100),
     Y: () => String(aDate.getFullYear()),
     z: () => timeZoneOffset(),
