@@ -515,7 +515,8 @@ def fixup_mozilla_repo_options(options):
     See fixup_comm_repo_options().
     """
     if options.mozilla_repo is None:
-        if not os.path.exists(os.path.join(topsrcdir, 'mozilla')):
+        if (os.environ.get('MOZ_AUTOMATION') == '1'
+                or not os.path.exists(os.path.join(topsrcdir, 'mozilla'))):
             options.mozilla_repo = DEFAULTS['MOZILLA_REPO']
         else:
             # Fallback to using .hgrc as hgtool/share needs the repo
