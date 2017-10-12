@@ -293,41 +293,24 @@ menuitem:not([type]) {
   list-style-image: url("moz-icon://stock/gtk-new?size=menu");
 }
 
-menuitem[command="cmd_newMessage"],
-splitmenu[command="cmd_newMessage"] {
-  list-style-image: url("chrome://messenger/skin/icons/mail-toolbar-small.png");
-  -moz-image-region: rect(0px 32px 16px 16px);
-}
-
-#menu_newFolder,
-#appmenu_newFolder {
+#menu_newFolder {
   list-style-image: url("moz-icon://stock/gtk-directory?size=menu");
 }
 
-#menu_newVirtualFolder,
-#appmenu_newVirtualFolder {
+#menu_newVirtualFolder {
   list-style-image: url("chrome://messenger/skin/icons/folder-pane.png");
   -moz-image-region: rect(128px 16px 144px 0px);
 }
 
-#menu_newCard,
-#appmenu_newCard {
-  list-style-image: url("chrome://messenger/skin/addressbook/icons/addressbook-toolbar.png");
-  -moz-image-region: rect(44px 22px 66px 0px); /* contact-add.png */
-}
-
-#openMessageFileMenuitem,
-#appmenu_openMessageFileMenuitem {
+#openMessageFileMenuitem {
   list-style-image: url("moz-icon://stock/gtk-open?size=menu");
 }
 
-#menu_close,
-#appmenu_close {
+#menu_close {
   list-style-image: url("moz-icon://stock/gtk-close?size=menu");
 }
 
-#menu_saveAs,
-#appmenu_saveAs {
+#menu_saveAs {
   -moz-binding: url("chrome://global/content/bindings/menu.xml#menu-iconic");
   list-style-image: url("moz-icon://stock/gtk-save-as?size=menu");
 }
@@ -338,47 +321,47 @@ splitmenu[command="cmd_newMessage"] {
   list-style-image: url("moz-icon://stock/gtk-save-as?size=menu");
 }
 
-menuitem[command="cmd_print"],
+#printMenuItem,
 #mailContext-print,
 #mailContext-print {
   list-style-image: url("moz-icon://stock/gtk-print?size=menu");
 }
 
-menuitem[command="cmd_printpreview"],
+#printPreviewMenuItem,
 #mailContext-printpreview,
 #mailContext-printpreview {
   list-style-image: url("moz-icon://stock/gtk-print-preview?size=menu");
 }
 
-menuitem[command="cmd_quit"] {
+#menu_FileQuitItem {
   list-style-image: url("moz-icon://stock/gtk-quit?size=menu");
 }
 
-menuitem[command="cmd_undo"] {
+#menu_undo {
   list-style-image: url("moz-icon://stock/gtk-undo?size=menu");
 }
 
-menuitem[command="cmd_undo"][disabled] {
+#menu_undo[disabled] {
   list-style-image: url("moz-icon://stock/gtk-undo?size=menu&state=disabled");
 }
 
-menuitem[command="cmd_redo"] {
+#menu_redo {
   list-style-image: url("moz-icon://stock/gtk-redo?size=menu");
 }
 
-menuitem[command="cmd_redo"][disabled] {
+#menu_redo[disabled] {
   list-style-image: url("moz-icon://stock/gtk-redo?size=menu&state=disabled");
 }
 
-menuitem[command="cmd_cut"] {
+#menu_cut {
   list-style-image: url("moz-icon://stock/gtk-cut?size=menu");
 }
 
-menuitem[command="cmd_cut"][disabled] {
+#menu_cut[disabled] {
   list-style-image: url("moz-icon://stock/gtk-cut?size=menu&state=disabled");
 }
 
-menuitem[command="cmd_copy"],
+#menu_copy,
 #mailContext-copy,
 #mailContext-copyimage,
 #mailContext-copylink,
@@ -386,31 +369,31 @@ menuitem[command="cmd_copy"],
   list-style-image: url("moz-icon://stock/gtk-copy?size=menu");
 }
 
-menuitem[command="cmd_copy"][disabled],
+#menu_copy[disabled],
 #mailContext-copy[disabled] {
   list-style-image: url("moz-icon://stock/gtk-copy?size=menu&state=disabled");
 }
 
-menuitem[command="cmd_paste"]{
+#menu_paste {
   list-style-image: url("moz-icon://stock/gtk-paste?size=menu");
 }
 
-menuitem[command="cmd_paste"][disabled] {
+#menu_paste[disabled] {
   list-style-image: url("moz-icon://stock/gtk-paste?size=menu&state=disabled");
 }
 
-menuitem[command="cmd_delete"],
+#menu_delete,
 #mailContext-delete,
 #folderPaneContext-remove {
   list-style-image: url("moz-icon://stock/gtk-delete?size=menu");
 }
 
-menuitem[command="cmd_delete"][disabled],
+#menu_delete[disabled],
 #mailContext-delete[disabled] {
   list-style-image: url("moz-icon://stock/gtk-delete?size=menu&state=disabled");
 }
 
-menuitem[command="cmd_selectAll"] {
+#menu_SelectAll {
   list-style-image: url("moz-icon://stock/gtk-select-all?size=menu");
 }
 
@@ -418,13 +401,7 @@ menuitem[command="cmd_selectAll"] {
   -moz-binding: url("chrome://global/content/bindings/menu.xml#menu-iconic");
 }
 
-#appmenu_find > .splitmenu-menuitem,
-#appmenu_customize > .splitmenu-menuitem {
-  -moz-binding: url("chrome://global/content/bindings/menu.xml#menuitem-iconic");
-}
-
-#menu_find,
-#appmenu_find {
+#menu_find {
   list-style-image: url("moz-icon://stock/gtk-find?size=menu");
 }
 
@@ -440,77 +417,68 @@ menuitem[command="cmd_selectAll"] {
   list-style-image: url("moz-icon://stock/gtk-properties?size=menu");
 }
 
-#menu_preferences,
-#appmenu_customize {
+#menu_preferences {
   list-style-image: url("moz-icon://stock/gtk-preferences?size=menu");
 }
 
-menuitem[command="cmd_fullZoomEnlarge"] {
+#menu_fullZoomEnlarge {
   list-style-image: url("moz-icon://stock/gtk-zoom-in?size=menu");
 }
 
-menuitem[command="cmd_fullZoomReduce"] {
+#menu_fullZoomReduce {
   list-style-image: url("moz-icon://stock/gtk-zoom-out?size=menu");
 }
 
-menuitem[command="cmd_fullZoomReset"] {
+#menu_fullZoomReset {
   list-style-image: url("moz-icon://stock/gtk-zoom-100?size=menu");
 }
 
-menuitem[command="cmd_goBack"] {
+#menu_goBack {
   list-style-image: url("moz-icon://stock/gtk-go-back-ltr?size=menu");
 }
 
-menuitem[key="cmd_goBack"][disabled] {
+#menu_goBack[disabled] {
   list-style-image: url("moz-icon://stock/gtk-go-back-ltr?size=menu&state=disabled");
 }
 
-menuitem[command="cmd_goBack"]:-moz-locale-dir(rtl) {
+#menu_goBack:-moz-locale-dir(rtl) {
   list-style-image: url("moz-icon://stock/gtk-go-back-rtl?size=menu");
 }
 
-menuitem[command="cmd_goBack"][disabled]:-moz-locale-dir(rtl) {
+#menu_goBack[disabled]:-moz-locale-dir(rtl) {
   list-style-image: url("moz-icon://stock/gtk-go-back-rtl?size=menu&state=disabled");
 }
 
-menuitem[command="cmd_goForward"] {
+#menu_goForward {
   list-style-image: url("moz-icon://stock/gtk-go-forward-ltr?size=menu");
 }
 
-menuitem[command="cmd_goForward"][disabled] {
+#menu_goForward[disabled] {
   list-style-image: url("moz-icon://stock/gtk-go-forward-ltr?size=menu&state=disabled");
 }
 
-menuitem[command="cmd_goForward"]:-moz-locale-dir(rtl) {
+#menu_goForward:-moz-locale-dir(rtl) {
   list-style-image: url("moz-icon://stock/gtk-go-forward-rtl?size=menu");
 }
 
-menuitem[command="cmd_goForward"][disabled]:-moz-locale-dir(rtl) {
+#menu_goForward[disabled]:-moz-locale-dir(rtl) {
   list-style-image: url("moz-icon://stock/gtk-go-forward-rtl?size=menu&state=disabled");
 }
 
-#goStartPage,
-#appmenu_goStartPage {
+#goStartPage {
   list-style-image: url("moz-icon://stock/gtk-home?size=menu");
 }
 
-#menu_openHelp,
-#appmenu_openHelp {
+#menu_openHelp {
   list-style-image: url("moz-icon://stock/gtk-help?size=menu");
 }
 
-#aboutName,
-#appmenu_about {
+#aboutName {
   list-style-image: url("moz-icon://stock/gtk-about?size=menu");
 }
 
-#addressBook,
-#appmenu_addressBook {
+#addressBook {
   list-style-image: url("chrome://messenger/skin/addressbook/icons/addrbook.png");
-}
-
-#javascriptConsole {
-  list-style-image: url("chrome://global/skin/console/console.png");
 }
 
 statusbarpanel {

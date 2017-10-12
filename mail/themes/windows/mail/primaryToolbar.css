@@ -321,38 +321,44 @@ toolbar[mode="text"] .button-appmenu .toolbarbutton-icon {
   -moz-box-pack: end;
 }
 
-#appmenu_print,
+#appmenu_openHelp,
 #appmenu_print_popup,
 .appmenu-edit-button,
 #appmenu-editmenu-cut,
 #appmenu-editmenu-copy,
 #appmenu-editmenu-paste,
+#appmenu_addons,
 #appmenu-quit {
-  list-style-image: url("icons/appmenu-icons.png");
+  -moz-context-properties: fill, fill-opacity;
+  fill: currentColor;
+  fill-opacity: var(--toolbarbutton-icon-fill-opacity);
 }
 
 #appmenu-cut,
 #appmenu-editmenu-cut {
-  -moz-image-region: rect(0 16px 16px 0);
+  list-style-image: url("chrome://messenger/skin/icons/cut.svg");
 }
 
 #appmenu-copy,
 #appmenu-editmenu-copy {
-  -moz-image-region: rect(0 32px 16px 16px);
+  list-style-image: url("chrome://messenger/skin/icons/copy.svg");
 }
 
 #appmenu-paste,
 #appmenu-editmenu-paste {
-  -moz-image-region: rect(0 48px 16px 32px);
+  list-style-image: url("chrome://messenger/skin/icons/paste.svg");
 }
 
-#appmenu_print,
 #appmenu_print_popup {
-  -moz-image-region: rect(0 64px 16px 48px);
+  list-style-image: url("chrome://messenger/skin/icons/print.svg");
 }
 
 #appmenu-quit {
-  -moz-image-region: rect(0 80px 16px 64px);
+  list-style-image: url("chrome://messenger/skin/icons/quit.svg");
+}
+
+#appmenu_openHelp {
+  list-style-image: url(chrome://global/skin/icons/help.svg);
 }
 
 #appmenu-edit-label {
@@ -363,8 +369,6 @@ toolbar[mode="text"] .button-appmenu .toolbarbutton-icon {
 
 #appmenu_addons {
   list-style-image: url("chrome://mozapps/skin/extensions/extensionGeneric-16.svg");
-  -moz-context-properties: fill;
-  fill: currentColor;
 }
 
 .mail-toolbox > toolbar {

@@ -84,4 +84,5 @@
   skin/classic/messenger/shared/tabmail.css                   (../shared/mail/tabmail.css)
 #ifndef XP_MACOSX
   skin/classic/messenger/icons/search-close.svg               (../shared/mail/icons/search-close.svg)
+  skin/classic/messenger/icons/quit.svg                       (../shared/mail/icons/quit.svg)
 #endif

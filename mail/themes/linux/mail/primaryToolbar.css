@@ -248,32 +248,65 @@ toolbar[mode="text"] .button-appmenu .toolbarbutton-icon {
   -moz-image-region: auto;
 }
 
+#appmenu_find,
+#appmenu_openHelp,
+#appmenu_addressBook,
+#appmenu_print_popup,
+.appmenu-edit-button,
+#appmenu-editmenu-cut,
+#appmenu-editmenu-copy,
+#appmenu-editmenu-paste,
+#appmenu_addons,
+#appmenu-quit {
+  -moz-context-properties: fill, fill-opacity;
+  fill: currentColor;
+  fill-opacity: var(--toolbarbutton-icon-fill-opacity);
+}
+
 .appmenu-edit-button[disabled="true"] {
-  opacity: .3;
+  fill-opacity: .3;
 }
 
 #appmenu-cut,
 #appmenu-editmenu-cut {
-  list-style-image: url("moz-icon://stock/gtk-cut?size=menu");
+  list-style-image: url("chrome://messenger/skin/icons/cut.svg");
 }
 
 #appmenu-copy,
 #appmenu-editmenu-copy {
-  list-style-image: url("moz-icon://stock/gtk-copy?size=menu");
+  list-style-image: url("chrome://messenger/skin/icons/copy.svg");
 }
 
 #appmenu-paste,
 #appmenu-editmenu-paste {
-  list-style-image: url("moz-icon://stock/gtk-paste?size=menu");
+  list-style-image: url("chrome://messenger/skin/icons/paste.svg");
 }
 
 #appmenu_print,
 #appmenu_print_popup {
-  list-style-image: url("moz-icon://stock/gtk-print?size=menu");
+  list-style-image: url("chrome://messenger/skin/icons/print.svg");
+}
+
+#appmenu-quit {
+  list-style-image: url("chrome://messenger/skin/icons/quit.svg");
+}
+
+#appmenu_find {
+  list-style-image: url("chrome://messenger/skin/icons/search-glass.svg");
+}
+
+#appmenu_find > .splitmenu-menuitem {
+  -moz-binding: url("chrome://global/content/bindings/menu.xml#menuitem-iconic");
 }
 
 #appmenu_addons {
   list-style-image: url("chrome://mozapps/skin/extensions/extensionGeneric-16.svg");
-  -moz-context-properties: fill;
-  fill: currentColor;
+}
+
+#appmenu_openHelp {
+  list-style-image: url(chrome://global/skin/icons/help.svg);
+}
+
+#appmenu_addressBook {
+  list-style-image: url("chrome://messenger/skin/icons/address.svg");
 }

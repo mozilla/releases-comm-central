@@ -370,12 +370,14 @@ toolbar[mode="text"] .button-appmenu .toolbarbutton-icon {
 }
 
 .appmenu-edit-button {
-  list-style-image: url("icons/appmenu-icons.png");
+  -moz-context-properties: fill, fill-opacity;
+  fill: currentColor;
+  fill-opacity: var(--toolbarbutton-icon-fill-opacity);
 }
 
 .appmenu-edit-button:not([disabled="true"]):hover,
 .appmenu-edit-button:not([disabled="true"]):hover:active {
-  list-style-image: url("icons/appmenu-icons-active.png");
+  fill: HighlightText;
   background-color: Highlight;
 }
 
@@ -386,38 +388,15 @@ toolbar[mode="text"] .button-appmenu .toolbarbutton-icon {
 }
 
 #appmenu-cut {
-  -moz-image-region: rect(0 16px 16px 0);
+  list-style-image: url("chrome://messenger/skin/icons/cut.svg");
 }
 
 #appmenu-copy {
-  -moz-image-region: rect(0 32px 16px 16px);
+  list-style-image: url("chrome://messenger/skin/icons/copy.svg");
 }
 
 #appmenu-paste {
-  -moz-image-region: rect(0 48px 16px 32px);
-}
-
-@media (min-resolution: 2dppx) {
-  .appmenu-edit-button {
-    list-style-image: url("icons/appmenu-icons@2x.png");
-  }
-
-  .appmenu-edit-button:not([disabled="true"]):hover,
-  .appmenu-edit-button:not([disabled="true"]):hover:active {
-    list-style-image: url("icons/appmenu-icons-active@2x.png");
-  }
-
-  #appmenu-cut {
-    -moz-image-region: rect(0 32px 32px 0);
-  }
-
-  #appmenu-copy {
-    -moz-image-region: rect(0 64px 32px 32px);
-  }
-
-  #appmenu-paste {
-    -moz-image-region: rect(0 96px 32px 64px);
-  }
+  list-style-image: url("chrome://messenger/skin/icons/paste.svg");
 }
 
 #appmenu-edit-label {
