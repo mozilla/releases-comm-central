@@ -358,7 +358,7 @@ NS_IMETHODIMP nsMsgTagService::GetAllTags(uint32_t *aCount, nsIMsgTag ***aTagArr
 
   // build an array of nsIMsgTag elements from the orderered list
   // it's at max the same size as the preflist, but usually only about half
-  nsIMsgTag** tagArray = (nsIMsgTag**) NS_Alloc(sizeof(nsIMsgTag*) * prefCount);
+  nsIMsgTag** tagArray = (nsIMsgTag**) moz_xmalloc(sizeof(nsIMsgTag*) * prefCount);
 
   if (!tagArray)
   {

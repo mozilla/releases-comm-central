@@ -423,7 +423,7 @@ nsSubscribableServer::FreeSubtree(SubscribeTreeNode *node)
 #ifdef HAVE_SUBSCRIBE_DESCRIPTION
         NS_ASSERTION(node->description == nullptr, "you need to free the description");
 #endif
-        NS_Free(node->name);
+        free(node->name);
 #if 0
         node->name = nullptr;
         node->parent = nullptr;

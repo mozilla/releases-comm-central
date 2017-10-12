@@ -608,7 +608,7 @@ nsMsgCompFields::SplitRecipients(const nsAString &aRecipients,
     ExtractDisplayAddresses(header, results);
 
   uint32_t count = results.Length();
-  char16_t **result = (char16_t **)NS_Alloc(sizeof(char16_t *) * count);
+  char16_t **result = (char16_t **)moz_xmalloc(sizeof(char16_t *) * count);
   for (uint32_t i = 0; i < count; ++i)
     result[i] = ToNewUnicode(results[i]);
 

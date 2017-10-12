@@ -1120,13 +1120,13 @@ void CMapiMessage::ClearAttachment(attach_data* data)
     data->tmp_file->Remove(false);
 
   if (data->type)
-    NS_Free(data->type);
+    free(data->type);
   if (data->encoding)
-    NS_Free(data->encoding);
+    free(data->encoding);
   if (data->real_name)
-    NS_Free(data->real_name);
+    free(data->real_name);
   if (data->cid)
-    NS_Free(data->cid);
+    free(data->cid);
 
   delete data;
 }

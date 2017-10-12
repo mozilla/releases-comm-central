@@ -2521,7 +2521,7 @@ void nsImapProtocol::ProcessSelectedStateURL()
         if (msgIdList)
         {
           FolderHeaderDump(msgIdList, msgCount);
-          NS_Free(msgIdList);
+          free(msgIdList);
           m_runningUrl->SetMoreHeadersToDownload(more);
           // We're going to be re-running this url.
           if (more)
@@ -3538,7 +3538,7 @@ nsImapProtocol::FetchMessage(const nsCString &messageIds,
           what = PR_smprintf(" ENVELOPE BODY.PEEK[HEADER.FIELDS (%s)])", headersToDL);
         else
           what = PR_smprintf(" BODY.PEEK[HEADER.FIELDS (%s)])",headersToDL);
-        NS_Free(headersToDL);
+        free(headersToDL);
         if (what)
         {
           commandString.AppendLiteral(" %s (UID ");
@@ -4259,7 +4259,7 @@ void nsImapProtocol::ProcessMailboxUpdate(bool handlePossibleUndo)
     if (msgIdList && !DeathSignalReceived() && GetServerStateParser().LastCommandSuccessful())
     {
       FolderHeaderDump(msgIdList, msgCount);
-      NS_Free( msgIdList);
+      free( msgIdList);
     }
     HeaderFetchCompleted();
       // this might be bogus, how are we going to do pane notification and stuff when we fetch bodies without
@@ -6532,7 +6532,7 @@ void nsImapProtocol::OnRefreshAllACLs()
       if (onlineName)
       {
         RefreshACLForFolder(onlineName);
-        NS_Free(onlineName);
+        free(onlineName);
       }
       PercentProgressUpdateEvent(NULL, count, total);
       delete mb;

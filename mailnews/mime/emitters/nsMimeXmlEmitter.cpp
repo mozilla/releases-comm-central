@@ -110,7 +110,7 @@ nsMimeXmlEmitter::WriteXMLTag(const char *tagName, const char *value)
   UtilityWrite(newValue.get());
   UtilityWrite("</header>");
 
-  NS_Free(upCaseTag);
+  free(upCaseTag);
 
   return NS_OK;
 }

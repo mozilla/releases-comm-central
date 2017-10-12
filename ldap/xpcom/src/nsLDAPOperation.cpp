@@ -452,7 +452,7 @@ nsLDAPOperation::SearchExt(const nsACString& aBaseDn, int32_t aScope,
     uint32_t origLength = attrArray.Length();
     if (origLength)
     {
-      attrs = static_cast<char **> (NS_Alloc((origLength + 1) * sizeof(char *)));
+      attrs = static_cast<char **> (moz_xmalloc((origLength + 1) * sizeof(char *)));
       if (!attrs)
         return NS_ERROR_OUT_OF_MEMORY;
 

@@ -386,7 +386,7 @@ ImportOutlookMailImpl::ImportMailbox(nsIImportMailboxDescriptor *pSource,
   char16_t *pName;
   if (NS_SUCCEEDED( pSource->GetDisplayName( &pName))) {
     name = pName;
-    NS_Free( pName);
+    free( pName);
  }
 
   uint32_t mailSize = 0;

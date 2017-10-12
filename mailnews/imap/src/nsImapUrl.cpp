@@ -803,7 +803,7 @@ NS_IMETHODIMP nsImapUrl::AddOnlineDirectoryIfNecessary(const char *onlineMailbox
   if (directory)
     *directory = newOnlineName;
   else if (newOnlineName)
-    NS_Free(newOnlineName);
+    free(newOnlineName);
   return rv;
 }
 
@@ -828,14 +828,14 @@ NS_IMETHODIMP nsImapUrl::AllocateServerPath(const char * canonicalPath, char onl
   AddOnlineDirectoryIfNecessary(rv, &onlineNameAdded);
   if (onlineNameAdded)
   {
-    NS_Free(rv);
+    free(rv);
     rv = onlineNameAdded;
   }
 
   if (aAllocatedPath)
     *aAllocatedPath = rv;
   else
-    NS_Free(rv);
+    free(rv);
 
   return retVal;
 }

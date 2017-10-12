@@ -1214,7 +1214,7 @@ nsresult MaildirStoreParser::ParseNextMessage(nsIFile *aFile)
       if (newLine)
       {
         msgParser->ParseAFolderLine(newLine, numBytesInLine);
-        NS_Free(newLine);
+        free(newLine);
       }
     } while (newLine && numBytesInLine > 0);
 

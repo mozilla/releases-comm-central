@@ -574,7 +574,7 @@ nsresult nsMsgSearchAdapter::EncodeImapTerm (nsIMsgSearchTerm *term, bool really
         }
         else
           value = strdup("");
-        NS_Free(convertedValue);
+        free(convertedValue);
         valueWasAllocated = true;
 
       }
@@ -624,7 +624,7 @@ nsresult nsMsgSearchAdapter::EncodeImapTerm (nsIMsgSearchTerm *term, bool really
     }
 
     if (value && valueWasAllocated)
-      NS_Free (value);
+      free (value);
 
     *ppOutTerm = encoding;
 

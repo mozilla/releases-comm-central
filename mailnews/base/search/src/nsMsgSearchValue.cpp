@@ -24,7 +24,7 @@ nsMsgSearchValueImpl::nsMsgSearchValueImpl(nsMsgSearchValue *aInitialValue)
 nsMsgSearchValueImpl::~nsMsgSearchValueImpl()
 {
   if (IS_STRING_ATTRIBUTE(mValue.attribute))
-    NS_Free(mValue.string);
+    free(mValue.string);
 }
 
 NS_IMPL_ISUPPORTS(nsMsgSearchValueImpl, nsIMsgSearchValue)
@@ -70,7 +70,7 @@ nsMsgSearchValueImpl::SetStr(const nsAString &aValue)
 {
     NS_ENSURE_TRUE(IS_STRING_ATTRIBUTE(mValue.attribute), NS_ERROR_ILLEGAL_VALUE);
     if (mValue.string)
-        NS_Free(mValue.string);
+        free(mValue.string);
     mValue.string = ToNewUTF8String(aValue);
     mValue.utf16String = aValue;
     return NS_OK;

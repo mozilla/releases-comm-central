@@ -334,7 +334,7 @@ NS_IMETHODIMP nsImportFieldMap::SetFieldValue(nsIAddrDatabase *database, nsIMdbR
     }
   }
 
-  NS_Free(pVal);
+  free(pVal);
 
   return rv;
 }

@@ -105,7 +105,7 @@ nsMimeBaseEmitter::~nsMimeBaseEmitter(void)
 
       PR_FREEIF(attachInfo->contentType);
       if (attachInfo->displayName)
-        NS_Free(attachInfo->displayName);
+        free(attachInfo->displayName);
       PR_FREEIF(attachInfo->urlSpec);
       PR_FREEIF(attachInfo);
     }

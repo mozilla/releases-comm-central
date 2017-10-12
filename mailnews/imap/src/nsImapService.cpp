@@ -2084,7 +2084,7 @@ nsresult nsImapService::OfflineAppendFromFile(nsIFile *aFile,
             {
               msgParser->ParseAFolderLine(newLine, numBytesInLine);
               rv = offlineStore->Write(newLine, numBytesInLine, &bytesWritten);
-              NS_Free(newLine);
+              free(newLine);
             }
           } while (newLine);
           msgParser->FinishHeader();

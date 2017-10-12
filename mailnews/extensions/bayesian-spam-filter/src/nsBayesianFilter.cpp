@@ -1697,7 +1697,7 @@ void nsBayesianFilter::classifyMessage(
             usedTokenCount, (const char16_t**)tokenStrings.Elements(),
             tokenPercents.Elements(), runningPercents.Elements());
         for (uint32_t tokenIndex = 0; tokenIndex < usedTokenCount; tokenIndex++)
-          NS_Free(tokenStrings[tokenIndex]);
+          free(tokenStrings[tokenIndex]);
       }
 
       uint32_t proPercent = static_cast<uint32_t>(prob*100. + .5);
@@ -1740,9 +1740,9 @@ void nsBayesianFilter::classifyMessage(
 
       // free aliases arrays returned from XPCOM
       if (proAliasesLengths[traitIndex])
-        NS_Free(proAliasArrays[traitIndex]);
+        free(proAliasArrays[traitIndex]);
       if (antiAliasesLengths[traitIndex])
-        NS_Free(antiAliasArrays[traitIndex]);
+        free(antiAliasArrays[traitIndex]);
     }
 
     if (aTraitListener)

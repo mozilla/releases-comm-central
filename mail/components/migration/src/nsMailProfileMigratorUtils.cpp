@@ -72,7 +72,7 @@ void GetMigrateDataFromArray(MigrationData* aDataArray, int32_t aDataArrayLength
       if (exists)
         *aResult |= cursor->sourceFlag;
     }
-    NS_Free(cursor->fileName);
+    free(cursor->fileName);
     cursor->fileName = nullptr;
   }
 }

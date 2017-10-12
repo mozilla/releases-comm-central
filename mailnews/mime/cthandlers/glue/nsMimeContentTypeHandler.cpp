@@ -29,7 +29,7 @@ nsMimeContentTypeHandler::nsMimeContentTypeHandler(const char *aMimeType,
 nsMimeContentTypeHandler::~nsMimeContentTypeHandler(void)
 {
   if (mimeType) {
-    NS_Free(mimeType);
+    free(mimeType);
     mimeType = 0;
   }
   realCreateContentTypeHandlerClass = 0;

@@ -1636,7 +1636,7 @@ nsMsgComposeAndSend::GetBodyFromEditor()
       mOriginalHTMLBody = ToNewCString(attachment1_body);
     }
 
-    NS_Free(bodyText);    //Don't need it anymore
+    free(bodyText);    //Don't need it anymore
   }
   else
     return NS_ERROR_FAILURE;
@@ -3372,7 +3372,7 @@ nsMsgComposeAndSend::DeliverFileAsMail()
 
   if (!escaped_buf.IsEmpty())
   {
-    NS_Free(buf);
+    free(buf);
     buf = ToNewCString(escaped_buf);
   }
 

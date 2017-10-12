@@ -802,10 +802,10 @@ static void DestroyRestriction(SRestriction& aRestriction)
         break ;
     case RES_CONTENT :
         if (PROP_TYPE(aRestriction.res.resContent.ulPropTag) == PT_UNICODE) {
-            NS_Free(aRestriction.res.resContent.lpProp->Value.lpszW) ;
+            free(aRestriction.res.resContent.lpProp->Value.lpszW) ;
         }
         else if (PROP_TYPE(aRestriction.res.resContent.ulPropTag) == PT_STRING8) {
-            NS_Free(aRestriction.res.resContent.lpProp->Value.lpszA) ;
+            free(aRestriction.res.resContent.lpProp->Value.lpszA) ;
         }
         delete aRestriction.res.resContent.lpProp ;
         break ;
@@ -820,10 +820,10 @@ static void DestroyRestriction(SRestriction& aRestriction)
         break ;
     case RES_PROPERTY :
         if (PROP_TYPE(aRestriction.res.resProperty.ulPropTag) == PT_UNICODE) {
-            NS_Free(aRestriction.res.resProperty.lpProp->Value.lpszW) ;
+            free(aRestriction.res.resProperty.lpProp->Value.lpszW) ;
         }
         else if (PROP_TYPE(aRestriction.res.resProperty.ulPropTag) == PT_STRING8) {
-            NS_Free(aRestriction.res.resProperty.lpProp->Value.lpszA) ;
+            free(aRestriction.res.resProperty.lpProp->Value.lpszA) ;
         }
         delete aRestriction.res.resProperty.lpProp ;
     case RES_SIZE :

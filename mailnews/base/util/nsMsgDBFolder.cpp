@@ -566,7 +566,7 @@ NS_IMETHODIMP nsMsgDBFolder::ClearNewMessages()
     {
       m_saveNewMsgs.Clear();
       m_saveNewMsgs.AppendElements(newMessageKeys, numNewKeys);
-      NS_Free(newMessageKeys);
+      free(newMessageKeys);
     }
     mDatabase->ClearNewList(true);
   }
@@ -961,7 +961,7 @@ nsMsgDBFolder::SetMsgDatabase(nsIMsgDatabase *aMsgDatabase)
         m_newMsgs.Clear();
         m_newMsgs.AppendElements(newMessageKeys, numNewKeys);
       }
-      NS_Free(newMessageKeys);
+      free(newMessageKeys);
     }
   }
   mDatabase = aMsgDatabase;
@@ -2297,8 +2297,8 @@ nsMsgDBFolder::SpamFilterClassifyMessage(const char *aURI, nsIMsgWindow *aMsgWin
   NS_ENSURE_SUCCESS(rv, rv);
 
   rv = aJunkMailPlugin->ClassifyTraitsInMessage(aURI, count, proIndices, antiIndices, this, aMsgWindow, this);
-  NS_Free(proIndices);
-  NS_Free(antiIndices);
+  free(proIndices);
+  free(antiIndices);
   return rv;
 }
 
@@ -2318,8 +2318,8 @@ nsMsgDBFolder::SpamFilterClassifyMessages(const char **aURIArray, uint32_t aURIC
 
   rv = aJunkMailPlugin->ClassifyTraitsInMessages(aURICount, aURIArray, count,
       proIndices, antiIndices, this, aMsgWindow, this);
-  NS_Free(proIndices);
-  NS_Free(antiIndices);
+  free(proIndices);
+  free(antiIndices);
   return rv;
 }
 
@@ -2619,8 +2619,8 @@ nsMsgDBFolder::CallFilterPlugins(nsIMsgWindow *aMsgWindow, bool *aFiltersRun)
         break;
       }
     }
-    NS_Free(proIndices);
-    NS_Free(antiIndices);
+    free(proIndices);
+    free(antiIndices);
   }
 
   // Do we need to apply message filters?
@@ -2673,7 +2673,7 @@ nsMsgDBFolder::CallFilterPlugins(nsIMsgWindow *aMsgWindow, bool *aFiltersRun)
   if (numNewKeys)
     newMessageKeys.AppendElements(newKeys, numNewKeys);
 
-  NS_Free(newKeys);
+  free(newKeys);
 
   // build up list of keys to classify
   nsTArray<nsMsgKey> classifyMsgKeys;

@@ -1515,7 +1515,7 @@ nsresult nsSmtpProtocol::AuthLoginStep1()
   m_nextState = SMTP_RESPONSE;
   m_nextStateAfterResponse = SMTP_AUTH_LOGIN_RESPONSE;
   SetFlag(SMTP_PAUSE_FOR_READ);
-  NS_Free(base64Str);
+  free(base64Str);
 
   return (status);
 }
@@ -1577,7 +1577,7 @@ nsresult nsSmtpProtocol::AuthLoginStep2()
         PR_snprintf(buffer, sizeof(buffer), "%s %s", userName.get(), encodedDigest.get());
         char *base64Str = PL_Base64Encode(buffer, strlen(buffer), nullptr);
         PR_snprintf(buffer, sizeof(buffer), "%s" CRLF, base64Str);
-        NS_Free(base64Str);
+        free(base64Str);
       }
       if (NS_FAILED(rv))
         PR_snprintf(buffer, sizeof(buffer), "*" CRLF);
@@ -1596,7 +1596,7 @@ nsresult nsSmtpProtocol::AuthLoginStep2()
       MOZ_LOG(SMTPLogModule, mozilla::LogLevel::Debug, ("PLAIN/LOGIN auth, step 2"));
       char *base64Str = PL_Base64Encode(password.get(), password.Length(), nullptr);
       PR_snprintf(buffer, sizeof(buffer), "%.256s" CRLF, base64Str);
-      NS_Free(base64Str);
+      free(base64Str);
     }
     else
       return NS_ERROR_COMMUNICATIONS_ERROR;

@@ -203,7 +203,7 @@ bridge_new_new_uri(void *bridgeStream, nsIURI *aURI, int32_t aOutputType)
         {
           if (!urlString.IsEmpty())
           {
-            NS_Free(*url_name);
+            free(*url_name);
             *url_name = ToNewCString(urlString);
             if (!(*url_name))
               return NS_ERROR_OUT_OF_MEMORY;

@@ -173,16 +173,16 @@ nsMsgDBView::~nsMsgDBView()
   gInstanceCount--;
   if (gInstanceCount <= 0)
   {
-    NS_Free(kHighestPriorityString);
-    NS_Free(kHighPriorityString);
-    NS_Free(kLowestPriorityString);
-    NS_Free(kLowPriorityString);
-    NS_Free(kNormalPriorityString);
+    free(kHighestPriorityString);
+    free(kHighPriorityString);
+    free(kLowestPriorityString);
+    free(kLowPriorityString);
+    free(kNormalPriorityString);
 
-    NS_Free(kReadString);
-    NS_Free(kRepliedString);
-    NS_Free(kForwardedString);
-    NS_Free(kNewString);
+    free(kReadString);
+    free(kRepliedString);
+    free(kForwardedString);
+    free(kNewString);
   }
 }
 
@@ -2690,7 +2690,7 @@ nsMsgDBView::GetIndicesForSelection(uint32_t *length,
 
   *length = numIndices;
   uint32_t datalen = numIndices * sizeof(nsMsgViewIndex);
-  *indices = (nsMsgViewIndex *)NS_Alloc(datalen);
+  *indices = (nsMsgViewIndex *)moz_xmalloc(datalen);
   if (!*indices)
     return NS_ERROR_OUT_OF_MEMORY;
 
@@ -2724,7 +2724,7 @@ nsMsgDBView::GetSelectedMsgHdrs(uint32_t *aLength,
   messages->GetLength(&numMsgsSelected);
 
   nsIMsgDBHdr **headers =
-    static_cast<nsIMsgDBHdr**>(NS_Alloc(sizeof(nsIMsgDBHdr*) * numMsgsSelected));
+    static_cast<nsIMsgDBHdr**>(moz_xmalloc(sizeof(nsIMsgDBHdr*) * numMsgsSelected));
 
   for (uint32_t i = 0; i < numMsgsSelected; i++)
   {

@@ -3610,7 +3610,7 @@ nsresult nsMsgDatabase::CharPtrToRowCellColumn(nsIMdbRow *row, mdb_token columnT
   return row->AddColumn(GetEnv(),  columnToken, &yarn);
 }
 
-// caller must NS_Free result
+// caller must free result
 nsresult nsMsgDatabase::RowCellColumnToCharPtr(nsIMdbRow *row, mdb_token columnToken, char **result)
 {
   nsresult  err = NS_ERROR_NULL_POINTER;
@@ -3621,7 +3621,7 @@ nsresult nsMsgDatabase::RowCellColumnToCharPtr(nsIMdbRow *row, mdb_token columnT
     err = row->AliasCellYarn(GetEnv(), columnToken, &yarn);
     if (NS_SUCCEEDED(err))
     {
-      *result = (char *)NS_Alloc(yarn.mYarn_Fill + 1);
+      *result = (char *)moz_xmalloc(yarn.mYarn_Fill + 1);
       if (*result)
       {
         if (yarn.mYarn_Fill > 0)

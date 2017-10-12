@@ -143,7 +143,7 @@ nsImportGenericAddressBooks::nsImportGenericAddressBooks()
 nsImportGenericAddressBooks::~nsImportGenericAddressBooks()
 {
   if (m_description)
-    NS_Free(m_description);
+    free(m_description);
 }
 
 
@@ -224,7 +224,7 @@ NS_IMETHODIMP nsImportGenericAddressBooks::GetData(const char *dataId, nsISuppor
         data->SetData(nsDependentString(pData));
         data.forget(_retval);
       }
-      NS_Free(pData);
+      free(pData);
     }
   }
 
@@ -329,7 +329,7 @@ void nsImportGenericAddressBooks::GetDefaultLocation(void)
     return;
 
   if (m_description)
-    NS_Free(m_description);
+    free(m_description);
   m_description = nullptr;
   m_pInterface->GetAutoFind(&m_description, &m_autoFind);
   m_gotLocation = true;
@@ -727,7 +727,7 @@ void nsImportGenericAddressBooks::ReportError(const char16_t *pName,
   nsString pText;
   nsTextFormatter::ssprintf(pText, pFmt, pName);
   pStream->Append(pText);
-  NS_Free(pFmt);
+  free(pFmt);
   pStream->AppendLiteral(MSG_LINEBREAK);
 }
 
@@ -793,11 +793,11 @@ static void ImportAddressThread(void *stuff)
                                                        &fatalError);
           if (NS_SUCCEEDED(rv) && pSuccess) {
             success.Append(pSuccess);
-            NS_Free(pSuccess);
+            free(pSuccess);
           }
           if (pError) {
             error.Append(pError);
-            NS_Free(pError);
+            free(pError);
           }
         }
         else {

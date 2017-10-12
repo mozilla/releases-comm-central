@@ -2093,16 +2093,16 @@ nsSaveAllAttachmentsState::~nsSaveAllAttachmentsState()
     uint32_t i;
     for (i = 0; i < m_count; i++)
     {
-      NS_Free(m_contentTypeArray[i]);
-      NS_Free(m_urlArray[i]);
-      NS_Free(m_displayNameArray[i]);
-      NS_Free(m_messageUriArray[i]);
+      free(m_contentTypeArray[i]);
+      free(m_urlArray[i]);
+      free(m_displayNameArray[i]);
+      free(m_messageUriArray[i]);
     }
     delete[] m_contentTypeArray;
     delete[] m_urlArray;
     delete[] m_displayNameArray;
     delete[] m_messageUriArray;
-    NS_Free(m_directoryName);
+    free(m_directoryName);
 }
 
 nsresult
@@ -2388,10 +2388,10 @@ struct msgAttachment
 
   void Clear()
   {
-    NS_Free(mContentType);
-    NS_Free(mUrl);
-    NS_Free(mDisplayName);
-    NS_Free(mMessageUri);
+    free(mContentType);
+    free(mUrl);
+    free(mDisplayName);
+    free(mMessageUri);
   }
 
   bool Init(const char * aContentType, const char * aUrl,

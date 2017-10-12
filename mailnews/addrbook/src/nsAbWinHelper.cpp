@@ -559,7 +559,7 @@ BOOL nsAbWinHelper::SetPropertiesUString(const nsMapiEntry& aObject, const ULONG
         retCode = SetMAPIProperties(aObject, currentValue, values) ;
     for (i = 0 ; i < currentValue ; ++ i) {
         if (PROP_TYPE(aPropertiesTag [i]) == PT_STRING8) {
-            NS_Free(values [i].Value.lpszA) ;
+            free(values [i].Value.lpszA) ;
         }
     }
     delete [] values ;

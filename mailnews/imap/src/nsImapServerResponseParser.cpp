@@ -1604,7 +1604,7 @@ void nsImapServerResponseParser::parse_address(nsAutoCString &addressLine)
         {
           addressLine += '@';
           addressLine += hostName;
-          NS_Free(hostName);
+          free(hostName);
         }
         if (personalName)
         {
@@ -1641,7 +1641,7 @@ void nsImapServerResponseParser::internal_date()
     if (strValue)
     {
       dateLine += strValue;
-      NS_Free(strValue);
+      free(strValue);
     }
     fServerConnection.HandleMessageDownLoadLine(dateLine.get(), false);
   }

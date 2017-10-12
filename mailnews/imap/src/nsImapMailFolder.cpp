@@ -8405,7 +8405,7 @@ nsImapMailFolder::CopyFileToOfflineStore(nsIFile *srcFile, nsMsgKey msgKey)
         if (offlineStore)
           rv = offlineStore->Write(newLine, numBytesInLine, &bytesWritten);
 
-        NS_Free(newLine);
+        free(newLine);
         NS_ENSURE_SUCCESS(rv, rv);
       }
     } while (newLine);

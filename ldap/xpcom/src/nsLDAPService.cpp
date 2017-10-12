@@ -890,7 +890,7 @@ NS_IMETHODIMP nsLDAPService::ParseDn(const char *aDn,
             ldap_value_free(rdnComponents);
             return NS_ERROR_UNEXPECTED;
         }
-        if (!(attrNameArray[index] = (char*)NS_Alloc(len + 1))) {
+        if (!(attrNameArray[index] = (char*)moz_xmalloc(len + 1))) {
             NS_ERROR("nsLDAPService::ParseDn: out of memory ");
             ldap_value_free(dnComponents);
             ldap_value_free(rdnComponents);

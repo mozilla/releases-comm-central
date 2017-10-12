@@ -450,7 +450,7 @@ nsSeamonkeyProfileMigrator::CopySignatureFiles(PBStructArray &aIdentities,
         nsAutoCString descriptorString;
         rv = targetSigFile->GetPersistentDescriptor(descriptorString);
         NS_ENSURE_SUCCESS(rv, rv);
-        NS_Free(pref->stringValue);
+        free(pref->stringValue);
         pref->stringValue = ToNewCString(descriptorString);
       }
     }
@@ -481,7 +481,7 @@ nsSeamonkeyProfileMigrator::CopyMailFolders(PBStructArray &aMailServers,
       // *.directory-rel prefs. Mailnews will cope with this, creating them
       // when it first needs them.
       if (pref->type == nsIPrefBranch::PREF_STRING)
-        NS_Free(pref->stringValue);
+        free(pref->stringValue);
 
       aMailServers.RemoveElementAt(i);
       // Now decrease i and count to match the removed element
@@ -545,7 +545,7 @@ nsSeamonkeyProfileMigrator::CopyMailFolders(PBStructArray &aMailServers,
         nsAutoCString descriptorString;
         rv = targetMailFolder->GetPersistentDescriptor(descriptorString);
         NS_ENSURE_SUCCESS(rv, rv);
-        NS_Free(pref->stringValue);
+        free(pref->stringValue);
         pref->stringValue = ToNewCString(descriptorString);
       }
     }
@@ -577,7 +577,7 @@ nsSeamonkeyProfileMigrator::CopyMailFolders(PBStructArray &aMailServers,
         nsAutoCString descriptorString;
         rv = targetNewsRCFile->GetPersistentDescriptor(descriptorString);
         NS_ENSURE_SUCCESS(rv, rv);
-        NS_Free(pref->stringValue);
+        free(pref->stringValue);
         pref->stringValue = ToNewCString(descriptorString);
       }
     }
@@ -691,7 +691,7 @@ nsSeamonkeyProfileMigrator::WriteBranch(const char *branchName,
     switch (pref->type) {
     case nsIPrefBranch::PREF_STRING:
       (void) branch->SetCharPref(pref->prefName, pref->stringValue);
-      NS_Free(pref->stringValue);
+      free(pref->stringValue);
       pref->stringValue = nullptr;
       break;
     case nsIPrefBranch::PREF_BOOL:
@@ -705,7 +705,7 @@ nsSeamonkeyProfileMigrator::WriteBranch(const char *branchName,
                  "nsNetscapeProfileMigratorBase::WriteBranch\n");
       break;
     }
-    NS_Free(pref->prefName);
+    free(pref->prefName);
     pref->prefName = nullptr;
     delete pref;
     pref = nullptr;

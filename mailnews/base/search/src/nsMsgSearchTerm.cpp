@@ -401,7 +401,7 @@ nsMsgSearchTerm::nsMsgSearchTerm (
 nsMsgSearchTerm::~nsMsgSearchTerm ()
 {
   if (IS_STRING_ATTRIBUTE (m_attribute) && m_value.string)
-    NS_Free(m_value.string);
+    free(m_value.string);
 }
 
 NS_IMPL_ISUPPORTS(nsMsgSearchTerm, nsIMsgSearchTerm)
