@@ -1,0 +1,122 @@
+---
+# This file is rendered via JSON-e by
+# - mozilla-taskcluster - https://docs.taskcluster.net/reference/integrations/mozilla-taskcluster/docs/taskcluster-yml
+
+version: 1
+
+tasks:
+  $let:
+    # sometimes the push user is just `ffxbld` or the like, but we want an email-like field..
+    ownerEmail: {$if: '"@" in push.owner', then: '${push.owner}', else: '${push.owner}@noreply.mozilla.org'}
+    # ensure there's no trailing `/` on the repo URL
+    repoUrl: {$if: 'repository.url[-1] == "/"', then: {$eval: 'repository.url[:-1]'}, else: {$eval: 'repository.url'}}
+  in:
+  - taskId: '${as_slugid("decision")}'
+    taskGroupId: '${as_slugid("decision")}' # same as taskId; this is how automation identifies a decision tsak
+    schedulerId: 'gecko-level-${repository.level}'
+
+    created: {$fromNow: ''}
+    deadline: {$fromNow: '1 day'}
+    expires: {$fromNow: '1 year 1 second'} # 1 second so artifacts expire first, despite rounding errors
+
+    metadata:
+      $merge:
+        - owner: "${ownerEmail}"
+          source: "${repoUrl}/raw-file/${push.revision}/.taskcluster.yml"
+        - $if: 'tasks_for == "hg-push"'
+          then:
+            name: "Thunderbird Decision Task"
+            description: 'The task that creates all of the other tasks in the task graph'
+          else:
+            name: "Decision Task for cron job ${cron.job_name}"
+            description: 'Created by a [cron task](https://tools.taskcluster.net/tasks/${cron.task_id})'
+
+    provisionerId: "aws-provisioner-v1"
+    workerType: "gecko-${repository.level}-decision"
+
+    tags:
+      $if: 'tasks_for == "hg-push"'
+      then: {createdForUser: "${ownerEmail}"}
+
+    routes:
+      - "tc-treeherder.v2.${repository.project}.${push.revision}.${push.pushlog_id}"
+      - "tc-treeherder-stage.v2.${repository.project}.${push.revision}.${push.pushlog_id}"
+      - "notify.email.${ownerEmail}.on-failed"
+      - "notify.email.${ownerEmail}.on-exception"
+
+    scopes:
+      - 'assume:repo:${repoUrl[8:]}:*'
+      - 'queue:route:notify.email.${ownerEmail}.*'
+
+    dependencies: []
+    requires: all-completed
+
+    priority: lowest
+
+    payload:
+      env:
+        # checkout-gecko uses these to check out the source; the inputs
+        # to `mach taskgraph decision` are all on the command line.
+        GECKO_BASE_REPOSITORY: 'https://hg.mozilla.org/mozilla-unified'
+        GECKO_HEAD_REPOSITORY: 'https://hg.mozilla.org/mozilla-central'
+        GECKO_HEAD_REF: 'default'
+        COMM_BASE_REPOSITORY: 'https://hg.mozilla.org/comm-central'
+        COMM_HEAD_REPOSITORY: '${repoUrl}'
+        COMM_HEAD_REF: '${push.revision}'
+        COMM_HEAD_REV: '${push.revision}'
+        HG_STORE_PATH: /buillds/worker/checkouts/hg-store
+
+      cache:
+        level-${repository.level}-checkouts: /builds/worker/checkouts
+
+      features:
+        taskclusterProxy: true
+        chainOfTrust: true
+
+      # Note: This task is built server side without the context or tooling that
+      # exist in tree so we must hard code the hash
+      # XXX Changing this will break Chain of Trust without an associated puppet and
+      # scriptworker patch!
+      image: 'taskcluster/decision:2.0.0@sha256:4039fd878e5700b326d4a636e28c595c053fbcb53909c1db84ad1f513cf644ef'
+
+      maxRunTime: 1800
+
+      # TODO use mozilla-unified for the base repository once the tc-vcs
+      # tar.gz archives are created or tc-vcs isn't being used.
+      command:
+        - /builds/worker/bin/run-task
+        - '--vcs-checkout=/builds/worker/build/mozilla'
+        - '--sparse-profile=build/sparse-profiles/taskgraph'
+        - '--comm-checkout=/builds/worker/build/mozilla/comm'
+        - '--'
+        - bash
+        - -cx
+        - >
+            cd /builds/worker/build/mozilla &&
+            ln -s /builds/worker/artifacts artifacts &&
+            ./mach --log-no-times taskgraph decision
+            --root comm/taskcluster/ci
+            --pushlog-id='${push.pushlog_id}'
+            --pushdate='${push.pushdate}'
+            --project='${repository.project}'
+            --message="$GECKO_COMMIT_MSG"
+            --owner='${ownerEmail}'
+            --level='${repository.level}'
+            --base-repository='https://hg.mozilla.org/mozilla-central'
+            --head-repository="$GECKO_HEAD_REPOSITORY"
+            --head-ref="$GECKO_HEAD_REF"
+            --head-rev="$GECKO_HEAD_REV"
+            --comm-base-repository="$COMM_BASE_REPOSITORY"
+            --comm-head-repository="$COMM_HEAD_REPOSITORY"
+            --comm-head-ref="$COMM_HEAD_REF"
+            --comm-head-rev="$COMM_HEAD_REV"
+
+      artifacts:
+        'public':
+          type: 'directory'
+          path: '/builds/worker/artifacts'
+          expires: {$fromNow: '1 year'}
+
+    extra:
+      treeherder:
+        symbol: D

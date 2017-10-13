@@ -1,0 +1,26 @@
+eslint:
+    description: JS lint check
+    platform: lint/opt
+    treeherder:
+        symbol: ES
+        kind: test
+        tier: 1
+    worker-type: aws-provisioner-v1/gecko-t-linux-xlarge
+    worker:
+        docker-image:
+          indexed: "docker.images.v2.level-3.lint.latest"
+        max-run-time: 1800
+        # FIXME: https://bugzilla.mozilla.org/show_bug.cgi?id=1408574
+        volumes:
+        - /builds/worker/checkouts
+        - /builds/worker/.cache
+    run:
+        using: run-task
+        comm-checkout: true
+        command: >
+            cd /builds/worker/checkouts/gecko/ &&
+            cp -r /build/node_modules_eslint node_modules &&
+            ln -s ../tools/lint/eslint/eslint-plugin-mozilla node_modules &&
+            ln -s ../tools/lint/eslint/eslint-plugin-spidermonkey-js node_modules &&
+            cd /builds/worker/checkouts/gecko/comm &&
+            ../mach lint -l eslint -f treeherder --quiet
