@@ -56,31 +56,31 @@
           <column flex="1"/>
         </columns>
         <rows>
-          <row align="top">
+          <row align="center">
             <label value="&read.only.title.label;"/>
-            <label id="item-title" crop="end"/>
+            <textbox id="item-title" class="selectable-label plain" readonly="true"/>
           </row>
           <row class="item-date-row"
                id="item-start-row"
                mode="start"
                taskStartLabel="&read.only.task.start.label;"
                eventStartLabel="&read.only.event.start.label;"
-               align="start"/>
+               align="center"/>
           <row class="item-date-row"
                id="item-end-row"
                mode="end"
                taskDueLabel="&read.only.task.due.label;"
                eventEndLabel="&read.only.event.end.label;"
-               align="start"/>
+               align="center"/>
           <row id="repeat-row" align="top" hidden="true">
             <label value="&read.only.repeat.label;"/>
             <box id="repeat-details" orient="vertical">
-              <label/>
+              <textbox readonly="true" class="selectable-label plain"/>
             </box>
           </row>
-          <row id="location-row" align="top" hidden="true">
+          <row id="location-row" align="center" hidden="true">
             <label value="&read.only.location.label;"/>
-            <label id="item-location" crop="end"/>
+            <textbox id="item-location" class="selectable-label plain" readonly="true"/>
           </row>
           <row id="category-row" align="top" hidden="true">
             <label value="&read.only.category.label;"/>

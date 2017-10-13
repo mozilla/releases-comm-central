@@ -26,7 +26,9 @@
       <xul:label anonid="item-datetime-label"
                  class="headline"
                  xbl:inherits="align"/>
-      <xul:label anonid="item-datetime-value"/>
+      <xul:textbox readonly="true"
+                   class="selectable-label plain"
+                   anonid="item-datetime-value"/>
     </content>
     <implementation>
       <field name="mItem">null</field>

@@ -599,6 +599,13 @@ freebusy-day > box {
     min-height: 54px;
 }
 
+#calendar-summary-dialog .selectable-label,
+#calendar-event-summary-dialog .selectable-label,
+#calendar-task-summary-dialog .selectable-label {
+    background-color: inherit;
+    color: inherit;
+}
+
 #calendar-summary-dialog #item-start-row .headline,
 #calendar-event-summary-dialog #item-start-row .headline,
 #calendar-task-summary-dialog #item-start-row .headline,

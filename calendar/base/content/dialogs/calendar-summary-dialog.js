@@ -205,6 +205,7 @@ function onLoad() {
     // can't modify anything, thus we go ahead with an 'ok' button only.
     if (window.readOnly) {
         document.documentElement.getButton("cancel").setAttribute("collapsed", "true");
+        document.documentElement.getButton("accept").focus();
     }
 
     window.focus();
