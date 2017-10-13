@@ -7,20 +7,19 @@
  * that loading this file twice in the same scope will throw errors.
  */
 
-/* exported saveRecentTimezone, getCalendarDirectory,
- *          isCalendarWritable, userCanAddItemsToCalendar,
- *          userCanDeleteItemsFromCalendar, attendeeMatchesAddresses,
- *          userCanRespondToInvitation, openCalendarWizard,
- *          openCalendarProperties, calPrint, calRadioGroupSelectItem,
- *          isItemSupported, getPrefCategoriesArray,
+/* exported getCalendarDirectory, isCalendarWritable,
+ *          userCanAddItemsToCalendar, userCanDeleteItemsFromCalendar,
+ *          attendeeMatchesAddresses, userCanRespondToInvitation,
+ *          openCalendarWizard, openCalendarProperties, calPrint,
+ *          calRadioGroupSelectItem, isItemSupported, getPrefCategoriesArray,
  *          setPrefCategoriesFromArray, compareItems, calTryWrappedJSObject,
- *          compareArrays, setDefaultStartEndHour, LOG, WARN, ERROR, showError,
- *          getContrastingTextColor, calGetEndDateProp, checkIfInRange,
- *          getProgressAtom, sendMailTo, sameDay, calSetProdidVersion,
- *          applyAttributeToMenuChildren, isPropertyValueSame,
- *          getParentNodeOrThis, getParentNodeOrThisByAttribute,
- *          setItemProperty, calIterateEmailIdentities, compareItemContent,
- *          binaryInsert, getCompositeCalendar, findItemWindow
+ *          compareArrays, LOG, WARN, ERROR, showError,
+ *          getContrastingTextColor, checkIfInRange, getProgressAtom,
+ *          sendMailTo, calSetProdidVersion, applyAttributeToMenuChildren,
+ *          isPropertyValueSame, getParentNodeOrThis,
+ *          getParentNodeOrThisByAttribute, setItemProperty,
+ *          calIterateEmailIdentities, compareItemContent, binaryInsert,
+ *          getCompositeCalendar, findItemWindow
  */
 
 Components.utils.import("resource:///modules/mailServices.js");
@@ -28,61 +27,6 @@ Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 Components.utils.import("resource://gre/modules/Services.jsm");
 Components.utils.import("resource://gre/modules/Preferences.jsm");
 Components.utils.import("resource://gre/modules/AppConstants.jsm");
-
-/**
- * Makes sure the given timezone id is part of the list of recent timezones.
- *
- * @param aTzid     The timezone id to add
- */
-function saveRecentTimezone(aTzid) {
-    let recentTimezones = getRecentTimezones();
-    const MAX_RECENT_TIMEZONES = 5; // We don't need a pref for *everything*.
-
-    if (aTzid != calendarDefaultTimezone().tzid &&
-        !recentTimezones.includes(aTzid)) {
-        // Add the timezone if its not already the default timezone
-        recentTimezones.unshift(aTzid);
-        recentTimezones.splice(MAX_RECENT_TIMEZONES);
-        Preferences.set("calendar.timezone.recent", JSON.stringify(recentTimezones));
-    }
-}
-
-/**
- * Gets the list of recent timezones. Optionally retuns the list as
- * calITimezones.
- *
- * @param aConvertZones     (optional) If true, return calITimezones instead
- * @return                  An array of timezone ids or calITimezones.
- */
-function getRecentTimezones(aConvertZones) {
-    let recentTimezones = JSON.parse(Preferences.get("calendar.timezone.recent", "[]") || "[]");
-    if (!Array.isArray(recentTimezones)) {
-        recentTimezones = [];
-    }
-
-    let tzService = cal.getTimezoneService();
-    if (aConvertZones) {
-        let oldZonesLength = recentTimezones.length;
-        for (let i = 0; i < recentTimezones.length; i++) {
-            let timezone = tzService.getTimezone(recentTimezones[i]);
-            if (timezone) {
-                // Replace id with found timezone
-                recentTimezones[i] = timezone;
-            } else {
-                // Looks like the timezone doesn't longer exist, remove it
-                recentTimezones.splice(i, 1);
-                i--;
-            }
-        }
-
-        if (oldZonesLength != recentTimezones.length) {
-            // Looks like the one or other timezone dropped out. Go ahead and
-            // modify the pref.
-            Preferences.set("calendar.timezone.recent", JSON.stringify(recentTimezones));
-        }
-    }
-    return recentTimezones;
-}
 
 /**
  * Format the given string to work inside a CSS rule selector
@@ -284,15 +228,6 @@ function calPrint(aWindow) {
 /**
  * Other functions
  */
-
-/**
- * Returns a calIDateTime that corresponds to the current time in the user's
- * default timezone.
- */
-function now() {
-    let date = cal.jsDateToDateTime(new Date());
-    return date.getInTimezone(calendarDefaultTimezone());
-}
 
 /**
  * Selects an item with id aItemId in the radio group with id aRadioGroupId
@@ -589,65 +524,6 @@ function compareArrays(aOne, aTwo, compareFunc) {
     return true;
 }
 
-/**
- * Many computations want to work only with date-times, not with dates.  This
- * method will return a proper datetime (set to midnight) for a date object.  If
- * the object is already a datetime, it will simply be returned.
- *
- * @param aDate  the date or datetime to check
- */
-function ensureDateTime(aDate) {
-    if (!aDate || !aDate.isDate) {
-        return aDate;
-    }
-    let newDate = aDate.clone();
-    newDate.isDate = false;
-    return newDate;
-}
-
-/**
- * Get the default event start date. This is the next full hour, or 23:00 if it
- * is past 23:00.
- *
- * @param aReferenceDate    If passed, the time of this date will be modified,
- *                            keeping the date and timezone intact.
- */
-function getDefaultStartDate(aReferenceDate) {
-    let startDate = now();
-    if (aReferenceDate) {
-        let savedHour = startDate.hour;
-        startDate = aReferenceDate;
-        if (!startDate.isMutable) {
-            startDate = startDate.clone();
-        }
-        startDate.isDate = false;
-        startDate.hour = savedHour;
-    }
-
-    startDate.second = 0;
-    startDate.minute = 0;
-    if (startDate.hour < 23) {
-        startDate.hour++;
-    }
-    return startDate;
-}
-
-/**
- * Setup the default start and end hours of the given item. This can be a task
- * or an event.
- *
- * @param aItem             The item to set up the start and end date for.
- * @param aReferenceDate    If passed, the time of this date will be modified,
- *                            keeping the date and timezone intact.
- */
-function setDefaultStartEndHour(aItem, aReferenceDate) {
-    aItem[calGetStartDateProp(aItem)] = getDefaultStartDate(aReferenceDate);
-
-    if (isEvent(aItem)) {
-        aItem.endDate = aItem.startDate.clone();
-        aItem.endDate.minute += Preferences.get("calendar.event.defaultlength", 60);
-    }
-}
 
 /**
  * Helper used in the following log functions to actually log the message.
@@ -790,32 +666,6 @@ function getContrastingTextColor(bgColor) {
 }
 
 /**
- * Returns the property name used for the start date of an item, ie either an
- * event's start date or a task's entry date.
- */
-function calGetStartDateProp(aItem) {
-    if (isEvent(aItem)) {
-        return "startDate";
-    } else if (isToDo(aItem)) {
-        return "entryDate";
-    }
-    throw Components.results.NS_ERROR_NOT_IMPLEMENTED;
-}
-
-/**
- * Returns the property name used for the end date of an item, ie either an
- * event's end date or a task's due date.
- */
-function calGetEndDateProp(aItem) {
-    if (isEvent(aItem)) {
-        return "endDate";
-    } else if (isToDo(aItem)) {
-        return "dueDate";
-    }
-    throw Components.results.NS_ERROR_NOT_IMPLEMENTED;
-}
-
-/**
  * Checks whether the passed item fits into the demanded range.
  *
  * @param item               the item
@@ -827,7 +677,7 @@ function calGetEndDateProp(aItem) {
 function checkIfInRange(item, rangeStart, rangeEnd, returnDtstartOrDue) {
     let startDate;
     let endDate;
-    let queryStart = ensureDateTime(rangeStart);
+    let queryStart = cal.ensureDateTime(rangeStart);
     if (isEvent(item)) {
         startDate = item.startDate;
         if (!startDate) { // DTSTART mandatory
@@ -846,8 +696,8 @@ function checkIfInRange(item, rangeStart, rangeEnd, returnDtstartOrDue) {
             // A "VTODO" calendar component without the "DTSTART" and "DUE" (or
             // "DURATION") properties specifies a to-do that will be associated
             // with each successive calendar date, until it is completed.
-            let completedDate = ensureDateTime(item.completedDate);
-            dueDate = ensureDateTime(dueDate);
+            let completedDate = cal.ensureDateTime(item.completedDate);
+            dueDate = cal.ensureDateTime(dueDate);
             return !completedDate || !queryStart ||
                    completedDate.compare(queryStart) > 0 ||
                    (dueDate && dueDate.compare(queryStart) >= 0);
@@ -855,9 +705,9 @@ function checkIfInRange(item, rangeStart, rangeEnd, returnDtstartOrDue) {
         endDate = dueDate || startDate;
     }
 
-    let start = ensureDateTime(startDate);
-    let end = ensureDateTime(endDate);
-    let queryEnd = ensureDateTime(rangeEnd);
+    let start = cal.ensureDateTime(startDate);
+    let end = cal.ensureDateTime(endDate);
+    let queryEnd = cal.ensureDateTime(rangeEnd);
 
     if (start.compare(end) == 0) {
         if ((!queryStart || start.compare(queryStart) >= 0) &&
@@ -1086,17 +936,6 @@ calOperationGroup.prototype = {
         }
     }
 };
-
-function sameDay(date1, date2) {
-    if (date1 && date2) {
-        if ((date1.day == date2.day) &&
-            (date1.month == date2.month) &&
-            (date1.year == date2.year)) {
-            return true;
-        }
-    }
-    return false;
-}
 
 /**
  * Centralized funtions for accessing prodid and version

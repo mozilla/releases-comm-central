@@ -67,12 +67,6 @@ var cal = {
     getDragService: _service("@mozilla.org/widget/dragservice;1",
                              Components.interfaces.nsIDragService),
 
-    UTC: _cached(() => cal.getTimezoneService().UTC),
-    floating: _cached(() => cal.getTimezoneService().floating),
-    calendarDefaultTimezone: function() {
-        return cal.getTimezoneService().defaultTimezone;
-    },
-
     /**
      * Loads an array of calendar scripts into the passed scope.
      *
@@ -208,13 +202,6 @@ var cal = {
      */
     isTaskCalendar: function(aCalendar) {
         return (aCalendar.getProperty("capabilities.tasks.supported") !== false);
-    },
-
-    /**
-     * Checks whether a timezone lacks a definition.
-     */
-    isPhantomTimezone: function(timezone) {
-        return (!timezone.icalComponent && !timezone.isUTC && !timezone.isFloating);
     },
 
     /**
@@ -645,6 +632,13 @@ var cal = {
     },
 
     getItemSortKey: function(aItem, aKey, aStartTime) {
+        function nativeTime(calDateTime) {
+            if (calDateTime == null) {
+                return -62168601600000000; // ns value for (0000/00/00 00:00:00)
+            }
+            return calDateTime.nativeTime;
+        }
+
         switch (aKey) {
             case "priority":
                 return aItem.priority || 5;
@@ -653,19 +647,19 @@ var cal = {
                 return aItem.title || "";
 
             case "entryDate":
-                return cal.nativeTime(aItem.entryDate);
+                return nativeTime(aItem.entryDate);
 
             case "startDate":
-                return cal.nativeTime(aItem.startDate);
+                return nativeTime(aItem.startDate);
 
             case "dueDate":
-                return cal.nativeTime(aItem.dueDate);
+                return nativeTime(aItem.dueDate);
 
             case "endDate":
-                return cal.nativeTime(aItem.endDate);
+                return nativeTime(aItem.endDate);
 
             case "completedDate":
-                return cal.nativeTime(aItem.completedDate);
+                return nativeTime(aItem.completedDate);
 
             case "percentComplete":
                 return aItem.percentComplete;
@@ -712,70 +706,6 @@ var cal = {
                 return "number";
             default:
                 return "unknown";
-        }
-    },
-
-    nativeTimeOrNow: function(calDateTime, sortStartedTime) {
-        // Treat null/0 as 'now' when sort started, so incomplete tasks stay current.
-        // Time is computed once per sort (just before sort) so sort is stable.
-        if (calDateTime == null) {
-            return sortStartedTime.nativeTime;
-        }
-        let nativeTime = calDateTime.nativeTime;
-        if (nativeTime == -62168601600000000) { // nativeTime value for (0000/00/00 00:00:00)
-            return sortStartedTime;
-        }
-        return nativeTime;
-    },
-
-    nativeTime: function(calDateTime) {
-        if (calDateTime == null) {
-            return -62168601600000000; // ns value for (0000/00/00 00:00:00)
-        }
-        return calDateTime.nativeTime;
-    },
-
-    /**
-     * Returns a calIDateTime corresponding to a javascript Date.
-     *
-     * @param aDate     a javascript date
-     * @param aTimezone (optional) a timezone that should be enforced
-     * @returns         a calIDateTime
-     *
-     * @warning  Use of this function is strongly discouraged.  calIDateTime should
-     *           be used directly whenever possible.
-     *           If you pass a timezone, then the passed jsDate's timezone will be ignored,
-     *           but only its local time portions are be taken.
-     */
-    jsDateToDateTime: function(aDate, aTimezone) {
-        let newDate = cal.createDateTime();
-        if (aTimezone) {
-            newDate.resetTo(aDate.getFullYear(),
-                            aDate.getMonth(),
-                            aDate.getDate(),
-                            aDate.getHours(),
-                            aDate.getMinutes(),
-                            aDate.getSeconds(),
-                            aTimezone);
-        } else {
-            newDate.nativeTime = aDate.getTime() * 1000;
-        }
-        return newDate;
-    },
-
-    /**
-     * Convert a calIDateTime to a Javascript date object. This is the
-     * replacement for the former .jsDate property.
-     *
-     * @param cdt       The calIDateTime instnace
-     * @return          The Javascript date equivalent.
-     */
-    dateTimeToJsDate: function(cdt) {
-        if (cdt.timezone.isFloating) {
-            return new Date(cdt.year, cdt.month, cdt.day,
-                            cdt.hour, cdt.minute, cdt.second);
-        } else {
-            return new Date(cdt.nativeTime / 1000);
         }
     },
 
@@ -1014,24 +944,8 @@ var cal = {
     registerForShutdownCleanup: shutdownCleanup
 };
 
-// following functions are local to this module:
-
-/**
- * Returns a function that provides cached access to whatever the passed
- * function returns.
- *
- * @param {function} func   The function to call for the value
- * @return {function}       A function that returns the (possibly cached) value
- */
-function _cached(func) {
-    let thing;
-    return function() {
-        if (typeof thing == "undefined") {
-            thing = func();
-        }
-        return thing;
-    };
-}
+// Sub-modules for calUtils
+XPCOMUtils.defineLazyModuleGetter(cal, "dtz", "resource://calendar/modules/calDateTimeUtils.jsm", "caldtz");
 
 /**
  * Returns a function that provides access to the given service.
@@ -1092,3 +1006,7 @@ cal.loadScripts(["calUtils.js"], cal);
 // Some functions in calUtils.js refer to other in the same file, thus include
 // the code in global scope (although only visible to this module file), too:
 cal.loadScripts(["calUtils.js"], Components.utils.getGlobalForObject(cal));
+
+// Backwards compatibility for bug 905097. Please remove with Thunderbird 61.
+Components.utils.import("resource://calendar/modules/calUtilsCompat.jsm");
+injectCalUtilsCompat(cal);

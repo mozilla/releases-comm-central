@@ -253,7 +253,11 @@ parserState.prototype = {
      * @param date      The datetime object to check with
      */
     checkTimezone: function(item, date) {
-        if (date && cal.isPhantomTimezone(date.timezone)) {
+        function isPhantomTimezone(timezone) {
+            return !timezone.icalComponent && !timezone.isUTC && !timezone.isFloating;
+        }
+
+        if (date && isPhantomTimezone(date.timezone)) {
             let tzid = date.timezone.tzid;
             let hid = item.hashId + "#" + tzid;
             if (!(hid in this.tzErrors)) {
