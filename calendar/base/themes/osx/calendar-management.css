@@ -8,9 +8,10 @@ calendar-list-tree > tree > treechildren::-moz-tree-image(checkbox-treecol) {
     list-style-image: url(chrome://calendar/skin/checkbox-images.png);
 }
 
-calendar-list-tree:-moz-system-metric(mac-graphite-theme)
-> tree > treechildren::-moz-tree-image(checkbox-treecol) {
-    list-style-image: url(chrome://calendar/skin/checkbox-images-graphite.png);
+@media (-moz-mac-graphite-theme) {
+    calendar-list-tree > tree > treechildren::-moz-tree-image(checkbox-treecol) {
+        list-style-image: url(chrome://calendar/skin/checkbox-images-graphite.png);
+    }
 }
 
 calendar-list-tree > tree > treechildren::-moz-tree-image(checkbox-treecol) {
@@ -30,26 +31,28 @@ calendar-list-tree > tree > treechildren::-moz-tree-cell(checkbox-treecol) {
 }
 
 calendar-list-tree treechildren::-moz-tree-row(selected) {
-  background: url(chrome://calendar/skin/sidebar-item.png) 0 0 repeat-x #90A0C0;
+    background: url(chrome://calendar/skin/sidebar-item.png) 0 0 repeat-x #90A0C0;
 }
 
 calendar-list-tree treechildren::-moz-tree-row(selected, focus) {
-  background-position: 0 -18px;
+    background-position: 0 -18px;
 }
 
-calendar-list-tree:-moz-system-metric(mac-graphite-theme) treechildren::-moz-tree-row(selected) {
-  background-position: 0 -36px;
-}
+@media (-moz-mac-graphite-theme) {
+    calendar-list-tree treechildren::-moz-tree-row(selected) {
+        background-position: 0 -36px;
+    }
 
-calendar-list-tree:-moz-system-metric(mac-graphite-theme) treechildren::-moz-tree-row(selected, focus) {
-  background-position: 0 -54px;
+    calendar-list-tree treechildren::-moz-tree-row(selected, focus) {
+        background-position: 0 -54px;
+    }
 }
 
 calendar-list-tree treechildren:-moz-window-inactive::-moz-tree-row(selected) {
-  background-position: 0 -72px;
+    background-position: 0 -72px;
 }
 
 calendar-list-tree treechildren::-moz-tree-cell-text(selected, focus),
 calendar-list-tree treechildren::-moz-tree-cell-text(selected) {
-  color: HighlightText;
+    color: HighlightText;
 }

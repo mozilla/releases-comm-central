@@ -25,25 +25,27 @@ calendar-list-tree > tree > treechildren::-moz-tree-image(status-treecol, readfa
 }
 
 calendar-list-tree > tree {
-  border: none;
-  padding: 0;
-  margin: 4px 0;
-  -moz-border-top-colors: none;
-  -moz-border-right-colors: none;
-  -moz-border-bottom-colors: none;
-  -moz-border-left-colors: none;
-  -moz-appearance: none;
+    border: none;
+    padding: 0;
+    margin: 4px 0;
+    -moz-border-top-colors: none;
+    -moz-border-right-colors: none;
+    -moz-border-bottom-colors: none;
+    -moz-border-left-colors: none;
+    -moz-appearance: none;
 }
 
 calendar-list-tree > tree > treecols > treecol[hideheader="true"],
 calendar-list-tree > tree > treecols > treecol[hideheader="true"] {
-  font-size: 0px;
-  border: none;
-  padding: 0;
-  max-height: 0px;
-  height: 0px;
+    font-size: 0px;
+    border: none;
+    padding: 0;
+    max-height: 0px;
+    height: 0px;
 }
 
-calendar-list-tree > tree > treecols > treecol[anonid="scrollbar-spacer"]:-moz-system-metric(overlay-scrollbars) {
-  display: none;
+@media (-moz-overlay-scrollbars) {
+    calendar-list-tree > tree > treecols > treecol[anonid="scrollbar-spacer"] {
+      display: none;
+    }
 }

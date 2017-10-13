@@ -949,7 +949,9 @@ tab[calview] > .tab-middle {
     display: -moz-box;
 }
 
-.multiday-headerscrollbarspacer:-moz-system-metric(overlay-scrollbars),
-.multiday-labelscrollbarspacer:-moz-system-metric(overlay-scrollbars) {
-    display: none;
+@media (-moz-overlay-scrollbars) {
+    .multiday-headerscrollbarspacer,
+    .multiday-labelscrollbarspacer {
+        display: none;
+    }
 }

@@ -9,10 +9,11 @@
     list-style-image: url(chrome://calendar/skin/checkbox-images.png);
 }
 
-.calendar-task-tree:-moz-system-metric(mac-graphite-theme)
-> treechildren::-moz-tree-image(calendar-task-tree-col-completed),
-.calendar-task-tree-col-completed:-moz-system-metric(mac-graphite-theme) {
-    list-style-image: url(chrome://calendar/skin/checkbox-images-graphite.png);
+@media (-moz-mac-graphite-theme) {
+    .calendar-task-tree > treechildren::-moz-tree-image(calendar-task-tree-col-completed),
+    .calendar-task-tree-col-completed {
+        list-style-image: url(chrome://calendar/skin/checkbox-images-graphite.png);
+    }
 }
 
 .calendar-task-tree > treechildren::-moz-tree-image(calendar-task-tree-col-completed, completed),
