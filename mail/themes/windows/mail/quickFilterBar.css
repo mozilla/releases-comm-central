@@ -8,8 +8,10 @@
   border-bottom: 1px solid ThreeDShadow;
 }
 
-#qfb-filter-label:-moz-system-metric(windows-default-theme) {
-  color: GrayText;
+@media (-moz-windows-default-theme) {
+  #qfb-filter-label {
+    color: GrayText;
+  }
 }
 
 @media (-moz-os-version: windows-win7) {
@@ -44,9 +46,11 @@
   padding: 2px;
 }
 
-#quick-filter-bar-filter-text-bar:not(:-moz-system-metric(windows-default-theme)) {
-  padding-top: 3px;
-  padding-bottom: 3px;
+@media (-moz-windows-default-theme: 0) {
+  #quick-filter-bar-filter-text-bar {
+    padding-top: 3px;
+    padding-bottom: 3px;
+  }
 }
 
 /* :::: Filter Buttons :::: */

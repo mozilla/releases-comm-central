@@ -406,9 +406,11 @@ mail-emailaddress[selected="true"] .emailDisplayButton {
   border-bottom-right-radius: 0;
 }
 
-.emailDisplayButton:-moz-system-metric(mac-graphite-theme):hover,
-mail-emailaddress[selected="true"] .emailDisplayButton:-moz-system-metric(mac-graphite-theme) {
-  background: linear-gradient(#b1b1b6, #929297);
+@media (-moz-mac-graphite-theme) {
+  .emailDisplayButton:hover,
+  mail-emailaddress[selected="true"] .emailDisplayButton {
+    background: linear-gradient(#b1b1b6, #929297);
+  }
 }
 
 /* this is for the comma in between email addresses */
