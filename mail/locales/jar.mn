@@ -2,8 +2,9 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-# Note: All overrides should go to mail/base/jar.mn in order to avoid
-# having to create the same override entry for each locale.
+# Note: This file should only contain locale entries. All
+# override and resource entries should go to mail/base/jar.mn to avoid
+# having to create the same entry for each locale.
 
 #filter substitution
 
@@ -198,7 +199,6 @@
   locale/@AB_CD@/messenger/imAccounts.properties                        (%chrome/messenger/imAccounts.properties)
   locale/@AB_CD@/messenger/imAccountWizard.dtd                          (%chrome/messenger/imAccountWizard.dtd)
   locale/@AB_CD@/messenger/sanitize.dtd									(%chrome/messenger/sanitize.dtd)
-% resource search-plugins chrome://messenger/locale/searchplugins/
   locale/@AB_CD@/messenger/searchplugins/list.json                      (.deps/generated_@AB_CD@/list.json)
   locale/@AB_CD@/messenger/searchplugins/                               (.deps/generated_@AB_CD@/*.xml)
 % locale messenger-mapi @AB_CD@ %locale/@AB_CD@/messenger-mapi/
