@@ -597,7 +597,7 @@ nsMsgPrintEngine::PrintMsgWindow()
       // for mail, it can review the salt.  for addrbook, it's a data:// url, which
       // means nothing to the end user.
       // needs to be " " and not "" or nullptr, otherwise, we'll still print the url
-      mPrintSettings->SetDocURL(u" ");
+      mPrintSettings->SetDocURL(NS_LITERAL_STRING(" "));
 
       nsresult rv = NS_ERROR_FAILURE;
       if (mIsDoingPrintPreview)
