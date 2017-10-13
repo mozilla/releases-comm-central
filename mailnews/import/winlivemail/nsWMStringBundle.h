@@ -14,7 +14,7 @@ public:
   static char16_t     *    GetStringByID(int32_t stringID);
   static void          GetStringByID(int32_t stringID, nsString& result);
   static void          GetStringBundle(void);
-  static void          FreeString(char16_t *pStr) { NS_Free(pStr);}
+  static void          FreeString(char16_t *pStr) { free(pStr);}
   static void          Cleanup(void);
 
 private:

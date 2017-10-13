@@ -365,7 +365,7 @@ nsMessengerOSXIntegration::FillToolTipInfo(nsIMsgFolder *aFolder, int32_t aNewCo
               if (NS_SUCCEEDED(rv) && hdr)
                 aFolder->GetUriForMsg(hdr, uri);
             }
-            NS_Free(newMessageKeys);
+            free(newMessageKeys);
           }
         }
         else
@@ -674,7 +674,7 @@ nsMessengerOSXIntegration::GetNewMailAuthors(nsIMsgFolder* aFolder,
         }
       }
     }
-    NS_Free(newMessageKeys);
+    free(newMessageKeys);
   }
   *aNotDisplayed = aNewCount;
   return rv;
