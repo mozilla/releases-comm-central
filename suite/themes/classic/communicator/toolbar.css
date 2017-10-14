@@ -55,8 +55,10 @@
 
 /* End restore Windows Classic fallbacks removed by bug 1343196 */
 
-toolbar[type="menubar"]:not([autohide="true"]):not([xpfe="false"]):not(:-moz-lwtheme):-moz-system-metric(menubar-drag) {
-  -moz-binding: url("chrome://communicator/content/bindings/toolbar.xml#grippytoolbar-drag");
+@media (menubar-drag) {
+  toolbar[type="menubar"]:not([autohide="true"]):not([xpfe="false"]):not(:-moz-lwtheme) {
+    -moz-binding: url("chrome://communicator/content/bindings/toolbar.xml#grippytoolbar-drag");
+  }
 }
 
 /* ::::: toolbar & menubar ::::: */

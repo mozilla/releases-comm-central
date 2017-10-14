@@ -51,8 +51,10 @@
   -moz-image-region: rect(0px 16px 16px 0px);
 }
 
-.search-go-button:-moz-system-metric(touch-enabled) {
-  padding: 3px 5px;
+@media (touch-enabled) {
+  .search-go-button {
+    padding: 3px 5px;
+  }
 }
 
 .search-go-button:-moz-locale-dir(rtl) {
