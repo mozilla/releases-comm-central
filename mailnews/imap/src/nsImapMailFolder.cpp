@@ -2943,10 +2943,8 @@ NS_IMETHODIMP nsImapMailFolder::ParseMsgHdrs(nsIImapProtocol *aProtocol, nsIImap
       NS_ENSURE_SUCCESS(rv, rv);
       inputStream->ShareData(msgHdrs, strlen(msgHdrs));
       GetMessageHeader(msgKey, getter_AddRefs(msgHdr));
-      if (msgHdr) {
-        nsCOMPtr<nsIInputStream> stream(do_QueryInterface(inputStream));
-        GetMsgPreviewTextFromStream(msgHdr, stream);
-      }
+      if (msgHdr)
+        GetMsgPreviewTextFromStream(msgHdr, inputStream);
       continue;
     }
     if (mDatabase && NS_SUCCEEDED(mDatabase->ContainsKey(msgKey, &containsKey)) && containsKey)
