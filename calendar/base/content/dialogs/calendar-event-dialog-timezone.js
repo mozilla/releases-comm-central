@@ -24,10 +24,10 @@ function onLoad() {
 
     // floating and UTC (if supported) at the top:
     if (args.calendar.getProperty("capabilities.timezones.floating.supported") !== false) {
-        addMenuItem(tzMenuPopup, cal.floating().displayName, cal.floating().tzid);
+        addMenuItem(tzMenuPopup, cal.dtz.floating.displayName, cal.dtz.floating.tzid);
     }
     if (args.calendar.getProperty("capabilities.timezones.UTC.supported") !== false) {
-        addMenuItem(tzMenuPopup, cal.UTC().displayName, cal.UTC().tzid);
+        addMenuItem(tzMenuPopup, cal.dtz.UTC.displayName, cal.dtz.UTC.tzid);
     }
 
     let enumerator = tzProvider.timezoneIds;
@@ -50,7 +50,7 @@ function onLoad() {
 
     let index = findTimezone(window.time.timezone);
     if (index < 0) {
-        index = findTimezone(cal.calendarDefaultTimezone());
+        index = findTimezone(cal.dtz.defaultTimezone);
         if (index < 0) {
             index = 0;
         }
@@ -99,8 +99,8 @@ function updateTimezone() {
     // automatic conversion back into the OS timezone.
     let datetime = document.getElementById("timezone-time");
     let time = window.time.getInTimezone(timezone);
-    time.timezone = cal.floating();
-    datetime.value = cal.dateTimeToJsDate(time);
+    time.timezone = cal.dtz.floating;
+    datetime.value = cal.dtz.dateTimeToJsDate(time);
 
     // don't highlight any timezone in the map by default
     let standardTZOffset = "none";

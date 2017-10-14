@@ -95,7 +95,7 @@ function loadReminders() {
     // Set up a default absolute date. This will be overridden if the selected
     // alarm is absolute.
     let absDate = document.getElementById("reminder-absolute-date");
-    absDate.value = cal.dateTimeToJsDate(cal.getDefaultStartDate());
+    absDate.value = cal.dtz.dateTimeToJsDate(cal.dtz.getDefaultStartDate());
 
     if (listbox.childNodes.length) {
         // We have reminders, select the first by default. For some reason,
@@ -249,7 +249,7 @@ function onReminderSelected() {
             relationType.value = "absolute";
 
             // Date
-            absDate.value = cal.dateTimeToJsDate(reminder.alarmDate || cal.getDefaultStartDate());
+            absDate.value = cal.dtz.dateTimeToJsDate(reminder.alarmDate || cal.dtz.getDefaultStartDate());
         } else {
             relationType.value = "relative";
 
@@ -335,7 +335,7 @@ function updateReminder(event) {
         reminder.related = Components.interfaces.calIAlarm.ALARM_RELATED_ABSOLUTE;
 
         if (absDate.value) {
-            reminder.alarmDate = cal.jsDateToDateTime(absDate.value,
+            reminder.alarmDate = cal.dtz.jsDateToDateTime(absDate.value,
                                                       window.arguments[0].timezone);
         } else {
             reminder.alarmDate = null;

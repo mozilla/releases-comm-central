@@ -114,7 +114,7 @@ var TodayPane = {
         }
 
         agendaListbox.addListener(this);
-        this.setDay(cal.now());
+        this.setDay(cal.dtz.now());
     },
 
     /**
@@ -332,8 +332,8 @@ var TodayPane = {
      * @param aNewDate      The date to show.
      */
     setDaywithjsDate: function(aNewDate) {
-        let newdatetime = cal.jsDateToDateTime(aNewDate, cal.floating());
-        newdatetime = newdatetime.getInTimezone(cal.calendarDefaultTimezone());
+        let newdatetime = cal.dtz.jsDateToDateTime(aNewDate, cal.dtz.floating);
+        newdatetime = newdatetime.getInTimezone(cal.dtz.defaultTimezone);
         this.setDay(newdatetime, true);
     },
 
@@ -362,7 +362,7 @@ var TodayPane = {
                                  this.start.year,
                                  cal.getWeekInfoService().getWeekTitle(this.start));
         if (!aDontUpdateMinimonth) {
-            document.getElementById("today-Minimonth").value = cal.dateTimeToJsDate(this.start);
+            document.getElementById("today-Minimonth").value = cal.dtz.dateTimeToJsDate(this.start);
         }
         this.updatePeriod();
     },
@@ -384,7 +384,7 @@ var TodayPane = {
      * Checks if the today pane is showing today's date.
      */
     showsToday: function() {
-        return cal.sameDay(cal.now(), this.start);
+        return cal.dtz.sameDay(cal.dtz.now(), this.start);
     },
 
     /**

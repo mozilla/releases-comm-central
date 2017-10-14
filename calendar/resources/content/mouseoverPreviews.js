@@ -322,7 +322,7 @@ function boxAppendBody(box, textString, aIsTooltip) {
  * @param {calIDateTime} date           The datetime object to format and add
  */
 function boxAppendLabeledDateTime(box, labelProperty, date) {
-    date = date.getInTimezone(cal.calendarDefaultTimezone());
+    date = date.getInTimezone(cal.dtz.defaultTimezone);
     let formattedDateTime = cal.getDateFormatter().formatDateTime(date);
     boxAppendLabeledText(box, labelProperty, formattedDateTime);
 }
@@ -431,7 +431,7 @@ function getCurrentNextOrPreviousRecurrence(calendarEvent) {
 
     // To find current event when now is during event, look for occurrence
     // starting duration ago.
-    let probeTime = cal.now();
+    let probeTime = cal.dtz.now();
     probeTime.addDuration(dur);
 
     let occ = calendarEvent.recurrenceInfo.getNextOccurrence(probeTime);

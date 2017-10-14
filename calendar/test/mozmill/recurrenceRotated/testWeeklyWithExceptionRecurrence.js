@@ -90,7 +90,7 @@ function testWeeklyWithExceptionRecurrence() {
 
         let dateFormatter = cal.getDateFormatter();
 
-        let startDateString = dateFormatter.formatDateShort(cal.jsDateToDateTime(STARTDATE, cal.floating()));
+        let startDateString = dateFormatter.formatDateShort(cal.dtz.jsDateToDateTime(STARTDATE, cal.dtz.floating));
         event.type(startDateInput, startDateString);
         // applies startdate change
         event.click(endDateInput);

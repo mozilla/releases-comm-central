@@ -53,7 +53,7 @@
         ]]></setter>
         <getter><![CDATA[
             if (this.mDateTime == null) {
-                this.mDateTime = cal.now();
+                this.mDateTime = cal.dtz.now();
             }
             return this.mDateTime;
         ]]></getter>
@@ -148,7 +148,7 @@
 
       <method name="updateContent">
         <body><![CDATA[
-            let date = cal.dateTimeToJsDate(this.dateTime);
+            let date = cal.dtz.dateTimeToJsDate(this.dateTime);
             let row = document.getAnonymousElementByAttribute(
                           this, "anonid", "row");
             while (row) {
@@ -186,7 +186,7 @@
                     // we now have one of the minimonth controls while 'start'
                     // and 'end' are set to the interval this minimonth shows.
                     let minimonth = row.childNodes[i];
-                    minimonth.showMonth(cal.dateTimeToJsDate(start));
+                    minimonth.showMonth(cal.dtz.dateTimeToJsDate(start));
                     if (aRecurrenceInfo) {
                         // retrieve an array of dates that represents all occurrences
                         // that fall into this time interval [start,end[.

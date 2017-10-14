@@ -178,7 +178,7 @@ function zoomWithButtons(aZoomOut) {
  */
 function loadDateTime(aStartDate, aEndDate) {
     gDuration = aEndDate.subtractDate(aStartDate);
-    let kDefaultTimezone = cal.calendarDefaultTimezone();
+    let kDefaultTimezone = cal.dtz.defaultTimezone;
     gStartTimezone = aStartDate.timezone;
     gEndTimezone = aEndDate.timezone;
     gStartDate = aStartDate.getInTimezone(kDefaultTimezone);
@@ -220,7 +220,7 @@ function propagateDateTime() {
     }
 
     // Expand to 24hrs if the new range is outside of the default range.
-    let kDefaultTimezone = cal.calendarDefaultTimezone();
+    let kDefaultTimezone = cal.dtz.defaultTimezone;
     let startTime = gStartDate.getInTimezone(kDefaultTimezone);
     let endTime = gEndDate.getInTimezone(kDefaultTimezone);
     if ((startTime.hour < gStartHour) ||
@@ -264,13 +264,13 @@ function updateDateTime() {
         // Before feeding the date/time value into the control we need
         // to set the timezone to 'floating' in order to avoid the
         // automatic conversion back into the OS timezone.
-        startTime.timezone = cal.floating();
-        endTime.timezone = cal.floating();
+        startTime.timezone = cal.dtz.floating;
+        endTime.timezone = cal.dtz.floating;
 
-        document.getElementById("event-starttime").value = cal.dateTimeToJsDate(startTime);
-        document.getElementById("event-endtime").value = cal.dateTimeToJsDate(endTime);
+        document.getElementById("event-starttime").value = cal.dtz.dateTimeToJsDate(startTime);
+        document.getElementById("event-endtime").value = cal.dtz.dateTimeToJsDate(endTime);
     } else {
-        let kDefaultTimezone = cal.calendarDefaultTimezone();
+        let kDefaultTimezone = cal.dtz.defaultTimezone;
 
         let startTime = gStartDate.getInTimezone(kDefaultTimezone);
         let endTime = gEndDate.getInTimezone(kDefaultTimezone);
@@ -283,11 +283,11 @@ function updateDateTime() {
         // Before feeding the date/time value into the control we need
         // to set the timezone to 'floating' in order to avoid the
         // automatic conversion back into the OS timezone.
-        startTime.timezone = cal.floating();
-        endTime.timezone = cal.floating();
+        startTime.timezone = cal.dtz.floating;
+        endTime.timezone = cal.dtz.floating;
 
-        document.getElementById("event-starttime").value = cal.dateTimeToJsDate(startTime);
-        document.getElementById("event-endtime").value = cal.dateTimeToJsDate(endTime);
+        document.getElementById("event-starttime").value = cal.dtz.dateTimeToJsDate(startTime);
+        document.getElementById("event-endtime").value = cal.dtz.dateTimeToJsDate(endTime);
     }
 
     updateTimezone();
@@ -352,8 +352,8 @@ function updateStartTime() {
     // jsDate is always in OS timezone, thus we create a calIDateTime
     // object from the jsDate representation and simply set the new
     // timezone instead of converting.
-    let timezone = gDisplayTimezone ? gStartTimezone : cal.calendarDefaultTimezone();
-    let start = cal.jsDateToDateTime(startWidget.value, timezone);
+    let timezone = gDisplayTimezone ? gStartTimezone : cal.dtz.defaultTimezone;
+    let start = cal.dtz.jsDateToDateTime(startWidget.value, timezone);
 
     gStartDate = start.clone();
     start.addDuration(gDuration);
@@ -385,10 +385,10 @@ function updateEndTime() {
 
     let saveStartTime = gStartDate;
     let saveEndTime = gEndDate;
-    let kDefaultTimezone = cal.calendarDefaultTimezone();
+    let kDefaultTimezone = cal.dtz.defaultTimezone;
 
-    gStartDate = cal.jsDateToDateTime(startWidget.value,
-                                  gDisplayTimezone ? gStartTimezone : cal.calendarDefaultTimezone());
+    gStartDate = cal.dtz.jsDateToDateTime(startWidget.value,
+                                  gDisplayTimezone ? gStartTimezone : cal.dtz.defaultTimezone);
 
     let timezone = gEndTimezone;
     if (timezone.isUTC &&
@@ -396,7 +396,7 @@ function updateEndTime() {
         !cal.compareObjects(gStartTimezone, gEndTimezone)) {
         timezone = gStartTimezone;
     }
-    gEndDate = cal.jsDateToDateTime(endWidget.value,
+    gEndDate = cal.dtz.jsDateToDateTime(endWidget.value,
                                     gDisplayTimezone ? timezone : kDefaultTimezone);
 
     let allDayElement = document.getElementById("all-day");

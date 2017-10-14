@@ -160,13 +160,13 @@
                         continue;
                     }
                     // Figure out what day of the week today is.
-                    let today = cal.now();
+                    let today = cal.dtz.now();
 
                     // i-weekday gets the offset. Add 7 to ensure that the %
                     // operation stays positive.
                     let offset = (i - today.weekday + 7) % 7;
                     today.day = today.day + offset;
-                    return cal.dateTimeToJsDate(today);
+                    return cal.dtz.dateTimeToJsDate(today);
                 }
                 return null;
             }
@@ -1869,7 +1869,7 @@
       <method name="formatDate">
         <parameter name="aDate"/>
         <body><![CDATA[
-            return cal.getDateFormatter().formatDateShort(cal.jsDateToDateTime(aDate, cal.floating()));
+            return cal.getDateFormatter().formatDateShort(cal.dtz.jsDateToDateTime(aDate, cal.dtz.floating));
         ]]></body>
       </method>
 

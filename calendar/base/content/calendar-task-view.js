@@ -85,7 +85,7 @@ var taskDetailsView = {
                     case "COMPLETED": {
                         if (item.completedDate) {
                             let completedDate = item.completedDate.getInTimezone(
-                                                    cal.calendarDefaultTimezone());
+                                                    cal.dtz.defaultTimezone);
                             statusDetails.value = cal.calGetString(
                                 "calendar",
                                 "taskDetailsStatusCompletedOn",
@@ -119,7 +119,7 @@ var taskDetailsView = {
             let recurrenceInfo = parentItem.recurrenceInfo;
             let recurStart = parentItem.recurrenceStartDate;
             if (displayElement("calendar-task-details-repeat-row", recurrenceInfo && recurStart)) {
-                let kDefaultTimezone = cal.calendarDefaultTimezone();
+                let kDefaultTimezone = cal.dtz.defaultTimezone;
                 let startDate = recurStart.getInTimezone(kDefaultTimezone);
                 let endDate = item.dueDate ? item.dueDate.getInTimezone(kDefaultTimezone) : null;
                 let detailsString = recurrenceRule2String(recurrenceInfo, startDate, endDate, startDate.isDate);

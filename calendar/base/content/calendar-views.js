@@ -239,11 +239,11 @@ function switchToView(aViewType) {
         currentSelection = viewDeck.selectedPanel.getSelectedItems({});
     } catch (ex) {
         // This dies if no view has even been chosen this session, but that's
-        // ok because we'll just use cal.now() below.
+        // ok because we'll just use cal.dtz.now() below.
     }
 
     if (!selectedDay) {
-        selectedDay = cal.now();
+        selectedDay = cal.dtz.now();
     }
 
     // Anyone wanting to plug in a view needs to follow this naming scheme
@@ -257,7 +257,7 @@ function switchToView(aViewType) {
     let compositeCal = cal.getCompositeCalendar(window);
     if (view.displayCalendar != compositeCal) {
         view.displayCalendar = compositeCal;
-        view.timezone = cal.calendarDefaultTimezone();
+        view.timezone = cal.dtz.defaultTimezone;
         view.controller = calendarViewController;
     }
 
@@ -596,7 +596,7 @@ function toggleShowCompletedInView() {
  * @param aDate     The date to go.
  */
 function goToDate(aDate) {
-    getMinimonth().value = cal.dateTimeToJsDate(aDate);
+    getMinimonth().value = cal.dtz.dateTimeToJsDate(aDate);
     currentView().goToDay(aDate);
 }
 

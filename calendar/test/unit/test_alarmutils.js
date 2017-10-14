@@ -66,9 +66,9 @@ add_task(function* test_setDefaultValues_events() {
 
 add_task(function* test_setDefaultValues_tasks() {
     let item, alarm;
-    let calnow = cal.now;
+    let calnow = cal.dtz.now;
     let nowDate = cal.createDateTime("20150815T120000");
-    cal.now = function() {
+    cal.dtz.now = function() {
         return nowDate;
     };
 
@@ -122,7 +122,7 @@ add_task(function* test_setDefaultValues_tasks() {
     Preferences.reset("calendar.alarms.onfortodos");
     Preferences.reset("calendar.alarms.todoalarmunit");
     Preferences.reset("calendar.alarms.todoalarmlen");
-    cal.now = calnow;
+    cal.dtz.now = calnow;
 });
 
 add_task(function* test_calculateAlarmDate() {

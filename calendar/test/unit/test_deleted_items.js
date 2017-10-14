@@ -39,8 +39,8 @@ add_task(function* test_deleted_items() {
 
     let item = cal.createEvent();
     item.id = "test-item-1";
-    item.startDate = cal.now();
-    item.endDate = cal.now();
+    item.startDate = cal.dtz.now();
+    item.endDate = cal.dtz.now();
 
     // Add the item, it still shouldn't be in the deleted database.
     yield check_delmgr_call(() => memory.addItem(item, null));
@@ -48,11 +48,11 @@ add_task(function* test_deleted_items() {
     equal(delmgr.getDeletedDate(item.id, memory.id), null);
 
     // We need to stop time so we have something to compare with.
-    let referenceDate = cal.createDateTime("20120726T112045"); referenceDate.timezone = cal.calendarDefaultTimezone();
-    let futureDate = cal.createDateTime("20380101T000000"); futureDate.timezone = cal.calendarDefaultTimezone();
+    let referenceDate = cal.createDateTime("20120726T112045"); referenceDate.timezone = cal.dtz.defaultTimezone;
+    let futureDate = cal.createDateTime("20380101T000000"); futureDate.timezone = cal.dtz.defaultTimezone;
     let useFutureDate = false;
-    let oldNowFunction = cal.now;
-    cal.now = function() {
+    let oldNowFunction = cal.dtz.now;
+    cal.dtz.now = function() {
         return (useFutureDate ? futureDate : referenceDate).clone();
     };
 
@@ -90,5 +90,5 @@ add_task(function* test_deleted_items() {
     equal(delmgr.getDeletedDate(item.id), null);
 
     // Revert now function, in case more tests are written.
-    cal.now = oldNowFunction;
+    cal.dtz.now = oldNowFunction;
 });

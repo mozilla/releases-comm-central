@@ -19,11 +19,11 @@ function really_run_test() {
     equal(date.hour, 10);
     equal(date.icalString, "20051113T100000");
 
-    let date_floating = date.getInTimezone(cal.floating());
+    let date_floating = date.getInTimezone(cal.dtz.floating);
     equal(date_floating.hour, 10);
 
 
-    let date_utc = date.getInTimezone(cal.UTC());
+    let date_utc = date.getInTimezone(cal.dtz.UTC);
     equal(date_utc.hour, 15);
     equal(date_utc.icalString, "20051113T150000Z");
 
@@ -58,7 +58,7 @@ function really_run_test() {
 
     // Bug 392853 - Same times, different timezones, but subtractDate says times are PT0S apart
     const zeroLength = cal.createDuration();
-    const a = cal.jsDateToDateTime(new Date());
+    const a = cal.dtz.jsDateToDateTime(new Date());
     a.timezone = getMozTimezone("/mozilla.org/20071231_1/Europe/Berlin");
 
     let b = a.clone();
@@ -90,9 +90,9 @@ function really_run_test() {
 
     // Bug 794477 - setting jsdate across compartments needs to work
     let someDate = new Date();
-    let createdDate = cal.jsDateToDateTime(someDate).getInTimezone(cal.calendarDefaultTimezone());
+    let createdDate = cal.dtz.jsDateToDateTime(someDate).getInTimezone(cal.dtz.defaultTimezone);
     someDate.setMilliseconds(0);
-    equal(someDate.getTime(), cal.dateTimeToJsDate(createdDate).getTime());
+    equal(someDate.getTime(), cal.dtz.dateTimeToJsDate(createdDate).getTime());
 
     // Comparing a date-time with a date of the same day should be 0
     equal(cal.createDateTime("20120101T120000").compare(cal.createDateTime("20120101")), 0);

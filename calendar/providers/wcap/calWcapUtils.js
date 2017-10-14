@@ -14,7 +14,7 @@ Components.utils.import("resource://gre/modules/Preferences.jsm");
 var g_bShutdown = false;
 
 function initLogging() {
-    initLogging.mLogTimezone = cal.calendarDefaultTimezone();
+    initLogging.mLogTimezone = cal.dtz.defaultTimezone;
     if (initLogging.mLogFilestream) {
         try {
             initLogging.mLogFilestream.close();
@@ -180,7 +180,7 @@ function getTime() {
     if (g_bShutdown) {
         return null;
     }
-    return cal.jsDateToDateTime(new Date());
+    return cal.dtz.jsDateToDateTime(new Date());
 }
 
 function getIcalUTC(date) {
@@ -191,7 +191,7 @@ function getIcalUTC(date) {
         if (dtz.isUTC || dtz.isFloating) {
             return date.icalString;
         } else {
-            return date.getInTimezone(cal.UTC()).icalString;
+            return date.getInTimezone(cal.dtz.UTC).icalString;
         }
     }
 }

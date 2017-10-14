@@ -290,7 +290,7 @@
         <parameter name="aTask"/>
         <body><![CDATA[
             if (aTask && aTask.dueDate && aTask.dueDate.isValid) {
-                let dur = aTask.dueDate.subtractDate(cal.now());
+                let dur = aTask.dueDate.subtractDate(cal.dtz.now());
                 if (!dur.isNegative) {
                     let minutes = Math.ceil(dur.inSeconds / 60);
                     if (minutes >= 1440) { // 1 day or more
@@ -709,7 +709,7 @@
 
             onDoubleClick: function(event) {
                 if (event.button == 0) {
-                    let initialDate = cal.getDefaultStartDate(this.binding.getInitialDate());
+                    let initialDate = cal.dtz.getDefaultStartDate(this.binding.getInitialDate());
                     let col = {};
                     let item = this._getItemFromEvent(event, col);
                     if (item) {
@@ -788,7 +788,7 @@
 
                 // datetime is from todo object, it is not a javascript date
                 if (aDateTime && aDateTime.isValid) {
-                    let dateTime = aDateTime.getInTimezone(cal.calendarDefaultTimezone());
+                    let dateTime = aDateTime.getInTimezone(cal.dtz.defaultTimezone);
                     return dateFormatter.formatDateTime(dateTime);
                 }
                 return "";
@@ -997,7 +997,7 @@
                 let sortType = cal.getSortTypeForSortKey(cal.sortEntry.mSortKey);
 
                 // sort (key,item) entries
-                cal.sortEntry.mSortStartedDate = cal.now();
+                cal.sortEntry.mSortStartedDate = cal.dtz.now();
                 let entries = this.mTaskArray.map(cal.sortEntry, cal.sortEntry);
                 entries.sort(cal.sortEntryComparer(sortType, modifier));
                 this.mTaskArray = entries.map(cal.sortEntryItem);
@@ -1023,7 +1023,7 @@
       <method name="getInitialDate">
         <body><![CDATA[
             let initialDate = currentView().selectedDay;
-            return initialDate ? initialDate : cal.now();
+            return initialDate ? initialDate : cal.dtz.now();
         ]]></body>
       </method>
 
@@ -1165,8 +1165,8 @@
 
       <method name="getInitialDate">
         <body><![CDATA[
-            let initialDate = agendaListbox.today ? agendaListbox.today.start : cal.now();
-            return initialDate ? initialDate : cal.now();
+            let initialDate = agendaListbox.today ? agendaListbox.today.start : cal.dtz.now();
+            return initialDate ? initialDate : cal.dtz.now();
         ]]></body>
       </method>
 
@@ -1174,7 +1174,7 @@
         <parameter name="aFilter"/>
         <body><![CDATA[
             this.mFilter.selectedDate = agendaListbox.today && agendaListbox.today.start ?
-                                        agendaListbox.today.start : cal.now();
+                                        agendaListbox.today.start : cal.dtz.now();
             this.doUpdateFilter(aFilter);
         ]]></body>
       </method>

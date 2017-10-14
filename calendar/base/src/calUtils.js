@@ -677,7 +677,7 @@ function getContrastingTextColor(bgColor) {
 function checkIfInRange(item, rangeStart, rangeEnd, returnDtstartOrDue) {
     let startDate;
     let endDate;
-    let queryStart = cal.ensureDateTime(rangeStart);
+    let queryStart = cal.dtz.ensureDateTime(rangeStart);
     if (isEvent(item)) {
         startDate = item.startDate;
         if (!startDate) { // DTSTART mandatory
@@ -696,8 +696,8 @@ function checkIfInRange(item, rangeStart, rangeEnd, returnDtstartOrDue) {
             // A "VTODO" calendar component without the "DTSTART" and "DUE" (or
             // "DURATION") properties specifies a to-do that will be associated
             // with each successive calendar date, until it is completed.
-            let completedDate = cal.ensureDateTime(item.completedDate);
-            dueDate = cal.ensureDateTime(dueDate);
+            let completedDate = cal.dtz.ensureDateTime(item.completedDate);
+            dueDate = cal.dtz.ensureDateTime(dueDate);
             return !completedDate || !queryStart ||
                    completedDate.compare(queryStart) > 0 ||
                    (dueDate && dueDate.compare(queryStart) >= 0);
@@ -705,9 +705,9 @@ function checkIfInRange(item, rangeStart, rangeEnd, returnDtstartOrDue) {
         endDate = dueDate || startDate;
     }
 
-    let start = cal.ensureDateTime(startDate);
-    let end = cal.ensureDateTime(endDate);
-    let queryEnd = cal.ensureDateTime(rangeEnd);
+    let start = cal.dtz.ensureDateTime(startDate);
+    let end = cal.dtz.ensureDateTime(endDate);
+    let queryEnd = cal.dtz.ensureDateTime(rangeEnd);
 
     if (start.compare(end) == 0) {
         if ((!queryStart || start.compare(queryStart) >= 0) &&
@@ -740,7 +740,7 @@ function getProgressAtom(aTask) {
     }
 
     if (aTask.dueDate && aTask.dueDate.isValid) {
-        if (cal.dateTimeToJsDate(aTask.dueDate).getTime() < nowdate.getTime()) {
+        if (cal.dtz.dateTimeToJsDate(aTask.dueDate).getTime() < nowdate.getTime()) {
             return "overdue";
         } else if (aTask.dueDate.year == nowdate.getFullYear() &&
                    aTask.dueDate.month == nowdate.getMonth() &&
@@ -750,7 +750,7 @@ function getProgressAtom(aTask) {
     }
 
     if (aTask.entryDate && aTask.entryDate.isValid &&
-        cal.dateTimeToJsDate(aTask.entryDate).getTime() < nowdate.getTime()) {
+        cal.dtz.dateTimeToJsDate(aTask.entryDate).getTime() < nowdate.getTime()) {
         return "inprogress";
     }
 

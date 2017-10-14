@@ -91,7 +91,7 @@
                 let startDate = this.mItem.entryDate || this.mItem.dueDate;
                 if (startDate) {
                     // A Task with a start or due date, show with label
-                    startDate = startDate.getInTimezone(cal.calendarDefaultTimezone());
+                    startDate = startDate.getInTimezone(cal.dtz.defaultTimezone);
                     dateLabel.textContent = cal.calGetString("calendar",
                                                              "alarmStarts",
                                                              [formatter.formatDateTime(startDate)]);
@@ -139,10 +139,10 @@
             let item = this.mItem;
             let relativeDateLabel = document.getAnonymousElementByAttribute(this, "anonid", "alarm-relative-date-label");
             let relativeDateString;
-            let startDate = item[cal.calGetStartDateProp(item)] || item[cal.calGetEndDateProp(item)];
+            let startDate = item[cal.dtz.startDateProp(item)] || item[cal.dtz.endDateProp(item)];
             if (startDate) {
-                startDate = startDate.getInTimezone(cal.calendarDefaultTimezone());
-                let currentDate = cal.now();
+                startDate = startDate.getInTimezone(cal.dtz.defaultTimezone);
+                let currentDate = cal.dtz.now();
                 let sinceDayStart = (currentDate.hour * 3600) + (currentDate.minute * 60);
 
                 currentDate.second = 0;

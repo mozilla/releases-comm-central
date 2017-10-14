@@ -49,7 +49,7 @@ function getInUtcOrKeepFloating(date) {
     if (timezone.isFloating || timezone.isUTC) {
         return date;
     } else {
-        return date.getInTimezone(cal.UTC());
+        return date.getInTimezone(cal.dtz.UTC);
     }
 }
 
@@ -189,7 +189,7 @@ function newDateTime(aNativeTime, aTimezone) {
             cal.ASSERT(false, "Timezone not available: " + aTimezone);
         }
     } else {
-        date.timezone = cal.floating();
+        date.timezone = cal.dtz.floating;
     }
     return date;
 }

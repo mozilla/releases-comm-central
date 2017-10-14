@@ -307,7 +307,7 @@ function updateRepeatDetails() {
     repeatDetails.setAttribute("collapsed", "true");
 
     // Try to create a descriptive string from the rule(s).
-    let kDefaultTimezone = cal.calendarDefaultTimezone();
+    let kDefaultTimezone = cal.dtz.defaultTimezone;
     let startDate = item.startDate || item.entryDate;
     let endDate = item.endDate || item.dueDate;
     startDate = startDate ? startDate.getInTimezone(kDefaultTimezone) : null;

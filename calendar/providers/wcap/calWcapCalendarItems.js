@@ -55,9 +55,9 @@ calWcapCalendar.prototype.getRecurrenceParams = function(item, out_rrules, out_r
             } else if (rDateInstance) {
                 // cs does not accept DATEs here:
                 if (isNeg) {
-                    out_exdates.value.push(getIcalUTC(cal.ensureDateTime(rDateInstance.date)));
+                    out_exdates.value.push(getIcalUTC(cal.dtz.ensureDateTime(rDateInstance.date)));
                 } else {
-                    out_rdates.value.push(getIcalUTC(cal.ensureDateTime(rDateInstance.date)));
+                    out_rdates.value.push(getIcalUTC(cal.dtz.ensureDateTime(rDateInstance.date)));
                 }
             } else {
                 this.notifyError(NS_ERROR_UNEXPECTED,
@@ -554,7 +554,7 @@ calWcapCalendar.prototype.storeItem = function(bAddItem, item, oldItem, request)
         if (bIsParent) {
             params += "&mod=4"; // THIS AND ALL INSTANCES
         } else {
-            params += "&mod=1&rid=" + getIcalUTC(cal.ensureDateTime(item.recurrenceId)); // THIS INSTANCE
+            params += "&mod=1&rid=" + getIcalUTC(cal.dtz.ensureDateTime(item.recurrenceId)); // THIS INSTANCE
         }
 
         params += "&method=" + method;
@@ -752,7 +752,7 @@ calWcapCalendar.prototype.deleteItem = function(item, listener) {
             params += "&mod=4&rid=0";
         } else { // delete THIS INSTANCE:
             // cs does not accept DATE here:
-            params += "&mod=1&rid=" + getIcalUTC(cal.ensureDateTime(item.recurrenceId));
+            params += "&mod=1&rid=" + getIcalUTC(cal.dtz.ensureDateTime(item.recurrenceId));
         }
 
         let orgCalId = getCalId(item.organizer);
@@ -1123,8 +1123,8 @@ function getItemFilterParams(itemFilter) {
 }
 
 calWcapCalendar.prototype.getItems = function(itemFilter, maxResults, rangeStart, rangeEnd, listener) {
-    rangeStart = cal.ensureDateTime(rangeStart);
-    rangeEnd = cal.ensureDateTime(rangeEnd);
+    rangeStart = cal.dtz.ensureDateTime(rangeStart);
+    rangeEnd = cal.dtz.ensureDateTime(rangeEnd);
     let zRangeStart = getIcalUTC(rangeStart);
     let zRangeEnd = getIcalUTC(rangeEnd);
 

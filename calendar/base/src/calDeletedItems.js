@@ -51,7 +51,7 @@ calDeletedItems.prototype = {
 
     flush: function() {
         this.ensureStatements();
-        this.stmtFlush.params.stale_time = cal.now().nativeTime - this.STALE_TIME;
+        this.stmtFlush.params.stale_time = cal.dtz.now().nativeTime - this.STALE_TIME;
         this.stmtFlush.executeAsync(this.completedNotifier);
     },
 
@@ -70,7 +70,7 @@ calDeletedItems.prototype = {
             if (stmt.executeStep()) {
                 let date = cal.createDateTime();
                 date.nativeTime = stmt.row.time_deleted;
-                return date.getInTimezone(cal.calendarDefaultTimezone());
+                return date.getInTimezone(cal.dtz.defaultTimezone);
             }
         } catch (e) {
             cal.ERROR(e);
@@ -84,7 +84,7 @@ calDeletedItems.prototype = {
         this.ensureStatements();
         this.stmtMarkDelete.params.calId = aItem.calendar.id;
         this.stmtMarkDelete.params.id = aItem.id;
-        this.stmtMarkDelete.params.time = cal.now().nativeTime;
+        this.stmtMarkDelete.params.time = cal.dtz.now().nativeTime;
         this.stmtMarkDelete.params.rid = (aItem.recurrenceId && aItem.recurrenceId.nativeTime) || "";
         this.stmtMarkDelete.executeAsync(this.completedNotifier);
     },

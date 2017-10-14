@@ -166,9 +166,9 @@ calWcapSession.prototype = {
     getTimezone: function(tzid) {
         switch (tzid) {
             case "floating":
-                return cal.floating();
+                return cal.dtz.floating;
             case "UTC":
-                return cal.UTC();
+                return cal.dtz.UTC;
             default:
                 if (this.m_serverTimezones) {
                     return this.m_serverTimezones[tzid];
@@ -925,8 +925,8 @@ calWcapSession.prototype = {
 
     // calIFreeBusyProvider:
     getFreeBusyIntervals: function(calId, rangeStart, rangeEnd, busyTypes, listener) {
-        rangeStart = cal.ensureDateTime(rangeStart);
-        rangeEnd = cal.ensureDateTime(rangeEnd);
+        rangeStart = cal.dtz.ensureDateTime(rangeStart);
+        rangeEnd = cal.dtz.ensureDateTime(rangeEnd);
         let zRangeStart = getIcalUTC(rangeStart);
         let zRangeEnd = getIcalUTC(rangeEnd);
 

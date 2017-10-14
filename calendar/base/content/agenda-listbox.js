@@ -515,7 +515,7 @@ agendaListbox.deleteItemsFromCalendar = function(aCalendar) {
  */
 agendaListbox.isSameEvent = function(aItem, aCompItem) {
     return aItem.id == aCompItem.id &&
-           aItem[cal.calGetStartDateProp(aItem)].compare(aCompItem[cal.calGetStartDateProp(aCompItem)]) == 0;
+           aItem[cal.dtz.startDateProp(aItem)].compare(aCompItem[cal.dtz.startDateProp(aCompItem)]) == 0;
 };
 
 /**
@@ -707,7 +707,7 @@ agendaListbox.setupCalendar = function() {
  *                        today.
  */
 agendaListbox.refreshPeriodDates = function(newDate) {
-    this.kDefaultTimezone = cal.calendarDefaultTimezone();
+    this.kDefaultTimezone = cal.dtz.defaultTimezone;
     // Today: now until midnight of tonight
     let oldshowstoday = this.showstoday;
     this.showstoday = this.showsToday(newDate);
@@ -723,7 +723,7 @@ agendaListbox.refreshPeriodDates = function(newDate) {
         let curPeriod = this.periods[i];
         newDate.hour = newDate.minute = newDate.second = 0;
         if (i == 0 && this.showstoday) {
-            curPeriod.start = cal.now();
+            curPeriod.start = cal.dtz.now();
         } else {
             curPeriod.start = newDate.clone();
         }
@@ -755,7 +755,7 @@ agendaListbox.showsToday = function(aStartDate) {
     if (!lstart) {
         lstart = this.today.start;
     }
-    let lshowsToday = cal.sameDay(cal.now(), lstart);
+    let lshowsToday = cal.dtz.sameDay(cal.dtz.now(), lstart);
     if (lshowsToday) {
         this.periods = [this.today, this.tomorrow, this.soon];
     } else {
@@ -996,7 +996,7 @@ agendaListbox.updateSoonSection = function() {
     let soonHeader = document.getElementById("nextweek-header");
     if (soonHeader) {
         soonHeader.setItem(this.soon, true);
-        agendaListbox.refreshPeriodDates(cal.now());
+        agendaListbox.refreshPeriodDates(cal.dtz.now());
     }
 };
 
@@ -1015,7 +1015,7 @@ function setCurrentEvent() {
     let msScheduleTime = -1;
     let complistItem = agendaListbox.tomorrow.listItem.previousSibling;
     let removelist = [];
-    let anow = cal.now();
+    let anow = cal.dtz.now();
     let msuntillend = 0;
     let msuntillstart = 0;
     let leaveloop;

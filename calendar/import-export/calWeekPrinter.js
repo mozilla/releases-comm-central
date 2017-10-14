@@ -33,7 +33,7 @@ calWeekPrinter.prototype = {
 
     formatToHtml: function(aStream, aStart, aEnd, aCount, aItems, aTitle) {
         let document = cal.xml.parseFile("chrome://calendar-common/skin/printing/calWeekPrinter.html");
-        let defaultTimezone = cal.calendarDefaultTimezone();
+        let defaultTimezone = cal.dtz.defaultTimezone;
 
         // Set page title
         document.getElementById("title").textContent = aTitle;
@@ -50,8 +50,8 @@ calWeekPrinter.prototype = {
         }
 
         for (let item of aItems) {
-            let itemStartDate = item[cal.calGetStartDateProp(item)] || item[cal.calGetEndDateProp(item)];
-            let itemEndDate = item[cal.calGetEndDateProp(item)] || item[cal.calGetStartDateProp(item)];
+            let itemStartDate = item[cal.dtz.startDateProp(item)] || item[cal.dtz.endDateProp(item)];
+            let itemEndDate = item[cal.dtz.endDateProp(item)] || item[cal.dtz.startDateProp(item)];
 
             if (!itemStartDate && !itemEndDate) {
                 cal.print.addItemToDayboxNodate(document, item);
@@ -99,7 +99,7 @@ calWeekPrinter.prototype = {
 
         let weekTemplate = document.getElementById("week-template");
         let weekContainer = document.getElementById("week-container");
-        let defaultTimezone = cal.calendarDefaultTimezone();
+        let defaultTimezone = cal.dtz.defaultTimezone;
 
         // Clone the template week and make sure it doesn't have an id
         let currentPage = weekTemplate.cloneNode(true);

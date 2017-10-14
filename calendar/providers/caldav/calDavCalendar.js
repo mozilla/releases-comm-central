@@ -2425,12 +2425,12 @@ calDavCalendar.prototype = {
         prop.value = "REQUEST";
         fbQuery.addProperty(prop);
         let fbComp = cal.getIcsService().createIcalComponent("VFREEBUSY");
-        fbComp.stampTime = cal.now().getInTimezone(cal.UTC());
+        fbComp.stampTime = cal.dtz.now().getInTimezone(cal.dtz.UTC);
         prop = cal.getIcsService().createIcalProperty("ORGANIZER");
         prop.value = organizer;
         fbComp.addProperty(prop);
-        fbComp.startTime = aRangeStart.getInTimezone(cal.UTC());
-        fbComp.endTime = aRangeEnd.getInTimezone(cal.UTC());
+        fbComp.startTime = aRangeStart.getInTimezone(cal.dtz.UTC);
+        fbComp.endTime = aRangeEnd.getInTimezone(cal.dtz.UTC);
         fbComp.uid = cal.getUUID();
         prop = cal.getIcsService().createIcalProperty("ATTENDEE");
         prop.setParameter("PARTSTAT", "NEEDS-ACTION");

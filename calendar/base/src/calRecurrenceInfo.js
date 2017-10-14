@@ -11,7 +11,7 @@ function getRidKey(date) {
     }
     let timezone = date.timezone;
     if (!timezone.isUTC && !timezone.isFloating) {
-        date = date.getInTimezone(cal.UTC());
+        date = date.getInTimezone(cal.dtz.UTC);
     }
     return date.icalString;
 }
@@ -428,8 +428,8 @@ calRecurrenceInfo.prototype = {
         }
 
         // workaround for UTC- timezones
-        let rangeStart = cal.ensureDateTime(aRangeStart);
-        let rangeEnd = cal.ensureDateTime(aRangeEnd);
+        let rangeStart = cal.dtz.ensureDateTime(aRangeStart);
+        let rangeEnd = cal.dtz.ensureDateTime(aRangeEnd);
 
         // If aRangeStart falls in the middle of an occurrence, libical will
         // not return that occurrence when we go and ask for an
@@ -744,7 +744,7 @@ calRecurrenceInfo.prototype = {
         }
 
         // convert both dates to UTC since subtractDate is not timezone aware.
-        let timeDiff = aNewStartTime.getInTimezone(cal.UTC()).subtractDate(aOldStartTime.getInTimezone(cal.UTC()));
+        let timeDiff = aNewStartTime.getInTimezone(cal.dtz.UTC).subtractDate(aOldStartTime.getInTimezone(cal.dtz.UTC));
 
         let rdates = {};
 

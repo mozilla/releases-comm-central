@@ -208,7 +208,7 @@ function test_immutable() {
 
     event.setCategories(3, ["a", "b", "c"]);
 
-    equal(event.alarmLastAck.timezone.tzid, cal.UTC().tzid);
+    equal(event.alarmLastAck.timezone.tzid, cal.dtz.UTC.tzid);
 
     event.makeImmutable();
 

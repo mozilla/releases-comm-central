@@ -47,7 +47,7 @@ calItemBase.prototype = {
         this.wrappedJSObject = this;
         this.mProperties = new cal.calPropertyBag();
         this.mPropertyParams = {};
-        this.mProperties.setProperty("CREATED", cal.jsDateToDateTime(new Date()));
+        this.mProperties.setProperty("CREATED", cal.dtz.jsDateToDateTime(new Date()));
     },
 
     /**
@@ -83,7 +83,7 @@ calItemBase.prototype = {
             // some unused delim character:
             this.mHashId = [
                 encodeURIComponent(this.id),
-                rid ? rid.getInTimezone(cal.UTC()).icalString : "",
+                rid ? rid.getInTimezone(cal.dtz.UTC).icalString : "",
                 calendar ? encodeURIComponent(calendar.id) : ""
             ].join("#");
         }
@@ -178,7 +178,7 @@ calItemBase.prototype = {
      */
     ensureNotDirty: function() {
         if (this.mDirty) {
-            let now = cal.jsDateToDateTime(new Date());
+            let now = cal.dtz.jsDateToDateTime(new Date());
             this.setProperty("LAST-MODIFIED", now);
             this.setProperty("DTSTAMP", now);
             this.mDirty = false;
@@ -327,7 +327,7 @@ calItemBase.prototype = {
     set alarmLastAck(aValue) {
         this.modify();
         if (aValue && !aValue.timezone.isUTC) {
-            aValue = aValue.getInTimezone(cal.UTC());
+            aValue = aValue.getInTimezone(cal.dtz.UTC);
         }
         return (this.mAlarmLastAck = aValue);
     },

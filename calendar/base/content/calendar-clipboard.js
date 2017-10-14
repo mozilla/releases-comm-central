@@ -201,7 +201,7 @@ function pasteFromClipboard() {
                 // Timezones and DT/DST time may differ between the earliest item
                 // and the selected day. Determine the offset between the
                 // earliestDate in local time and the selected day in whole days.
-                earliestDate = earliestDate.getInTimezone(cal.calendarDefaultTimezone());
+                earliestDate = earliestDate.getInTimezone(cal.dtz.defaultTimezone);
                 earliestDate.isDate = true;
                 offset = firstDate.subtractDate(earliestDate);
                 let deltaDST = firstDate.timezoneOffset - earliestDate.timezoneOffset;

@@ -241,7 +241,7 @@
           this.showCompleted = (document.getElementById(kShowCompleted)
                                   .getAttribute("checked") == "true");
 
-          this.mTimezone = cal.calendarDefaultTimezone();
+          this.mTimezone = cal.dtz.defaultTimezone;
           let alarmService = Components.classes["@mozilla.org/calendar/alarm-service;1"]
                                        .getService(Components.interfaces.calIAlarmService);
           alarmService.addObserver(this.mObserver);
@@ -417,7 +417,7 @@
 
       <method name="today">
         <body><![CDATA[
-            let date = cal.jsDateToDateTime(new Date()).getInTimezone(this.mTimezone);
+            let date = cal.dtz.jsDateToDateTime(new Date()).getInTimezone(this.mTimezone);
             date.isDate = true;
             return date;
         ]]></body>
@@ -633,7 +633,7 @@
                     this.updateDaysOffPrefs();
                     break;
                 case "calendar.timezone.local":
-                    this.timezone = cal.calendarDefaultTimezone();
+                    this.timezone = cal.dtz.defaultTimezone;
                     this.refreshView();
                     break;
                 case "calendar.alarms.indicator.show":

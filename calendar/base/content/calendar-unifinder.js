@@ -198,7 +198,7 @@ function prepareCalendarUnifinder() {
         let ccalendar = cal.getCompositeCalendar(window);
         ccalendar.addObserver(unifinderObserver);
 
-        kDefaultTimezone = cal.calendarDefaultTimezone();
+        kDefaultTimezone = cal.dtz.defaultTimezone;
 
         // Set up the filter
         unifinderTreeView.mFilter = new calFilter();
@@ -553,7 +553,7 @@ var unifinderTreeView = {
             let sortType = cal.getSortTypeForSortKey(sortKey);
             // sort (key,item) entries
             cal.sortEntry.mSortKey = sortKey;
-            cal.sortEntry.mSortStartedDate = cal.now();
+            cal.sortEntry.mSortStartedDate = cal.dtz.now();
             let entries = this.eventArray.map(cal.sortEntry, cal.sortEntry);
             entries.sort(cal.sortEntryComparer(sortType, modifier));
             this.eventArray = entries.map(cal.sortEntryItem);

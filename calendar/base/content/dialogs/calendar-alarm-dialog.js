@@ -219,7 +219,7 @@ function getDuration(aMinutes) {
 function aboveSnoozeLimit(aDuration) {
     const LIMIT = Components.interfaces.calIAlarmService.MAX_SNOOZE_MONTHS;
 
-    let currentTime = cal.now().getInTimezone(cal.UTC());
+    let currentTime = cal.dtz.now().getInTimezone(cal.dtz.UTC);
     let limitTime = currentTime.clone();
     limitTime.month += LIMIT;
 
@@ -259,8 +259,8 @@ function widgetAlarmComptor(aItem, aWidgetItem) {
     }
 
     // Get the dates to compare
-    let aDate = aItem[cal.calGetStartDateProp(aItem)];
-    let bDate = aWidgetItem[cal.calGetStartDateProp(aWidgetItem)];
+    let aDate = aItem[cal.dtz.startDateProp(aItem)];
+    let bDate = aWidgetItem[cal.dtz.startDateProp(aWidgetItem)];
 
     return aDate.compare(bDate);
 }

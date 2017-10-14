@@ -397,7 +397,7 @@ calAlarm.prototype = {
         if (this.related == ALARM_RELATED_ABSOLUTE && this.mAbsoluteDate) {
             // Set the trigger to a specific datetime
             triggerProp.setParameter("VALUE", "DATE-TIME");
-            triggerProp.valueAsDatetime = this.mAbsoluteDate.getInTimezone(cal.UTC());
+            triggerProp.valueAsDatetime = this.mAbsoluteDate.getInTimezone(cal.dtz.UTC);
         } else if (this.related != ALARM_RELATED_ABSOLUTE && this.mOffset) {
             triggerProp.valueAsIcalString = this.mOffset.icalString;
             if (this.related == ALARM_RELATED_END) {
@@ -640,7 +640,7 @@ calAlarm.prototype = {
             // this is an absolute alarm. Use the calendar default timezone and
             // format it.
             let formatter = cal.getDateFormatter();
-            let formatDate = this.mAbsoluteDate.getInTimezone(cal.calendarDefaultTimezone());
+            let formatDate = this.mAbsoluteDate.getInTimezone(cal.dtz.defaultTimezone);
             return formatter.formatDateTime(formatDate);
         } else if (this.related != ALARM_RELATED_ABSOLUTE && this.mOffset) {
             // Relative alarm length

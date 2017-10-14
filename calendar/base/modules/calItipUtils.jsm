@@ -982,7 +982,7 @@ function setReceivedInfo(item, itipItemItem) {
     if (dtstamp) {
         item.setProperty(wrappedItem ? "RECEIVED-DTSTAMP"
                                      : "X-MOZ-RECEIVED-DTSTAMP",
-                                     dtstamp.getInTimezone(cal.UTC()).icalString);
+                                     dtstamp.getInTimezone(cal.dtz.UTC).icalString);
     }
 }
 

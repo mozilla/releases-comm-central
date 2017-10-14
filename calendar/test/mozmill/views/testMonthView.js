@@ -115,7 +115,7 @@ function testMonthView() {
         event.waitForElement(startTimeInput);
         event.assertValue(startTimeInput, startTime);
 
-        let someTime = cal.now();
+        let someTime = cal.dtz.now();
         someTime.resetTo(2009, 1, 1);
         let date = dateFormatter.formatDateShort(someDate);
         event.assertValue(eventlookup(`

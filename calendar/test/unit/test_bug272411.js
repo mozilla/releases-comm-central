@@ -4,9 +4,9 @@
 
 function run_test() {
     let jsd = new Date();
-    let cdt = cal.jsDateToDateTime(jsd);
+    let cdt = cal.dtz.jsDateToDateTime(jsd);
 
-    let cdtTime = cal.dateTimeToJsDate(cdt).getTime() / 1000;
+    let cdtTime = cal.dtz.dateTimeToJsDate(cdt).getTime() / 1000;
     let jsdTime = Math.floor(jsd.getTime() / 1000);
 
     // calIDateTime is only accurate to the second, milliseconds need to be

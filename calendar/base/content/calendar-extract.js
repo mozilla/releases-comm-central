@@ -105,7 +105,7 @@ var calendarExtract = {
         item.title = message.mime2DecodedSubject;
         item.calendar = getSelectedCalendar();
         item.setProperty("DESCRIPTION", content);
-        cal.setDefaultStartEndHour(item);
+        cal.dtz.setDefaultStartEndHour(item);
         cal.alarms.setDefaultValues(item);
         let sel = GetMessagePaneFrame().getSelection();
         // Thunderbird Conversations might be installed
@@ -169,7 +169,7 @@ var calendarExtract = {
                     item.endDate.minute = endGuess.minute;
                 }
             } else {
-                let dtz = cal.calendarDefaultTimezone();
+                let dtz = cal.dtz.defaultTimezone;
                 let dueDate = new Date();
                 // set default
                 dueDate.setHours(0);
@@ -192,9 +192,9 @@ var calendarExtract = {
                     dueDate.setMinutes(endGuess.minute);
                 }
 
-                cal.setItemProperty(item, "entryDate", cal.jsDateToDateTime(date, dtz));
+                cal.setItemProperty(item, "entryDate", cal.dtz.jsDateToDateTime(date, dtz));
                 if (endGuess.year != null) {
-                    cal.setItemProperty(item, "dueDate", cal.jsDateToDateTime(dueDate, dtz));
+                    cal.setItemProperty(item, "dueDate", cal.dtz.jsDateToDateTime(dueDate, dtz));
                 }
             }
 

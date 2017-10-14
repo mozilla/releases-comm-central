@@ -1282,7 +1282,7 @@
             // we need to convert the date/time in question in
             // order to calculate with hours that are aligned
             // with our timebar display.
-            let kDefaultTimezone = cal.calendarDefaultTimezone();
+            let kDefaultTimezone = cal.dtz.defaultTimezone;
             this.mBaseDate = val.getInTimezone(kDefaultTimezone);
             this.mBaseDate.isDate = true;
             this.mBaseDate.makeImmutable();
@@ -1299,7 +1299,7 @@
             // we need to convert the date/time in question in
             // order to calculate with hours that are aligned
             // with our timebar display.
-            let kDefaultTimezone = cal.calendarDefaultTimezone();
+            let kDefaultTimezone = cal.dtz.defaultTimezone;
             this.mStartDate = val.getInTimezone(kDefaultTimezone);
             this.mStartDate.makeImmutable();
             return val;
@@ -1314,7 +1314,7 @@
             // we need to convert the date/time in question in
             // order to calculate with hours that are aligned
             // with our timebar display.
-            let kDefaultTimezone = cal.calendarDefaultTimezone();
+            let kDefaultTimezone = cal.dtz.defaultTimezone;
             this.mEndDate = val.getInTimezone(kDefaultTimezone);
             if (this.mEndDate.isDate) {
                 this.mEndDate.day += 1;

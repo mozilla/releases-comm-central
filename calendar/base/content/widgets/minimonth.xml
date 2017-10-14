@@ -415,7 +415,7 @@
       <property name="firstDate" readonly="true">
         <getter><![CDATA[
             let date = this._getCalBoxNode(1, 1).date;
-            return cal.jsDateToDateTime(date);
+            return cal.dtz.jsDateToDateTime(date);
         ]]></getter>
       </property>
 
@@ -423,7 +423,7 @@
       <property name="lastDate" readonly="true">
         <getter><![CDATA[
             let date = this._getCalBoxNode(6, 7).date;
-            let lastDateTime = cal.jsDateToDateTime(date);
+            let lastDateTime = cal.dtz.jsDateToDateTime(date);
             lastDateTime.day = lastDateTime.day + 1;
             return lastDateTime;
         ]]></getter>
@@ -578,15 +578,15 @@
                 // Skip transparent events
                 return;
             }
-            let start = aOccurrence[cal.calGetStartDateProp(aOccurrence)] || aOccurrence.dueDate;
-            let end = aOccurrence[cal.calGetEndDateProp(aOccurrence)] || start;
+            let start = aOccurrence[cal.dtz.startDateProp(aOccurrence)] || aOccurrence.dueDate;
+            let end = aOccurrence[cal.dtz.endDateProp(aOccurrence)] || start;
             if (!start) {
                 return;
             }
 
             // We need to compare with midnight of the current day, so reset the
             // time here.
-            let current = start.clone().getInTimezone(cal.calendarDefaultTimezone());
+            let current = start.clone().getInTimezone(cal.dtz.defaultTimezone);
             current.hour = 0;
             current.minute = 0;
             current.second = 0;
@@ -879,7 +879,7 @@
             }
 
             this.mDayMap = {};
-            let defaultTz = cal.calendarDefaultTimezone();
+            let defaultTz = cal.dtz.defaultTimezone;
             let dateFormatter =
                 new Services.intl.DateTimeFormat(undefined, { dateStyle: "long" });
             for (let k = 1; k < 7; k++) {
@@ -888,7 +888,7 @@
                 setBooleanAttribute(firstElement, "hidden", !this.mShowWeekNumber);
                 if (this.mShowWeekNumber) {
                     let weekNumber = cal.getWeekInfoService()
-                                        .getWeekTitle(cal.jsDateToDateTime(date, defaultTz));
+                                        .getWeekTitle(cal.dtz.jsDateToDateTime(date, defaultTz));
                     let weekTitle = cal.calGetString("calendar", "WeekTitle", [weekNumber]);
                     firstElement.textContent = weekNumber;
                     firstElement.setAttribute("aria-label", weekTitle);
@@ -1006,7 +1006,7 @@
             }
 
             if (aDate) {
-                let box = this.getBoxForDate(cal.jsDateToDateTime(aDate, cal.calendarDefaultTimezone()));
+                let box = this.getBoxForDate(cal.dtz.jsDateToDateTime(aDate, cal.dtz.defaultTimezone));
                 if (box) {
                     removeForBox(box);
                 }
@@ -1114,7 +1114,7 @@
         <parameter name="aDate"/>
         <parameter name="aForceFocus"/>
         <body><![CDATA[
-            let newFocused = this.getBoxForDate(cal.jsDateToDateTime(aDate, cal.calendarDefaultTimezone()));
+            let newFocused = this.getBoxForDate(cal.dtz.jsDateToDateTime(aDate, cal.dtz.defaultTimezone));
             if (!newFocused) {
                 return;
             }
@@ -1190,7 +1190,7 @@
                 this.showMonth(aMainDate);
             } else if (!sameDate) {
                 // select day only
-                let day = this.getBoxForDate(cal.jsDateToDateTime(aDate, cal.calendarDefaultTimezone()));
+                let day = this.getBoxForDate(cal.dtz.jsDateToDateTime(aDate, cal.dtz.defaultTimezone));
                 if (this.mSelected) {
                     this.mSelected.removeAttribute("selected");
                 }

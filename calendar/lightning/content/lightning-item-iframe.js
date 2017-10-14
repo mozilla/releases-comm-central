@@ -367,7 +367,7 @@ function onLoad() {
 
     // Set initial values for datepickers in New Tasks dialog
     if (cal.isToDo(item)) {
-        let initialDatesValue = cal.dateTimeToJsDate(args.initialStartDateValue);
+        let initialDatesValue = cal.dtz.dateTimeToJsDate(args.initialStartDateValue);
         if (!gNewItemUI) {
             setElementValue("completed-date-picker", initialDatesValue);
             setElementValue("todo-entrydate", initialDatesValue);
@@ -663,7 +663,7 @@ function loadDialog(aItem) {
     // Task completed date
     if (!gNewItemUI) {
         if (aItem.completedDate) {
-            updateToDoStatus(aItem.status, cal.dateTimeToJsDate(aItem.completedDate));
+            updateToDoStatus(aItem.status, cal.dtz.dateTimeToJsDate(aItem.completedDate));
         } else {
             updateToDoStatus(aItem.status);
         }
@@ -891,7 +891,7 @@ function saveCategories(aItem) {
  * @param item      The item to parse information out of.
  */
 function loadDateTime(item) {
-    let kDefaultTimezone = cal.calendarDefaultTimezone();
+    let kDefaultTimezone = cal.dtz.defaultTimezone;
     if (cal.isEvent(item)) {
         let startTime = item.startDate;
         let endTime = item.endDate;
@@ -1008,17 +1008,17 @@ function dateTimeControls2State(aStartDatepicker) {
 
     let saveStartTime = gStartTime;
     let saveEndTime = gEndTime;
-    let kDefaultTimezone = cal.calendarDefaultTimezone();
+    let kDefaultTimezone = cal.dtz.defaultTimezone;
 
     if (gStartTime) {
         // jsDate is always in OS timezone, thus we create a calIDateTime
         // object from the jsDate representation then we convert the timezone
         // in order to keep gStartTime in default timezone.
         if (gTimezonesEnabled || allDay) {
-            gStartTime = cal.jsDateToDateTime(getElementValue(startWidgetId), gStartTimezone);
+            gStartTime = cal.dtz.jsDateToDateTime(getElementValue(startWidgetId), gStartTimezone);
             gStartTime = gStartTime.getInTimezone(kDefaultTimezone);
         } else {
-            gStartTime = cal.jsDateToDateTime(getElementValue(startWidgetId), kDefaultTimezone);
+            gStartTime = cal.dtz.jsDateToDateTime(getElementValue(startWidgetId), kDefaultTimezone);
         }
         gStartTime.isDate = allDay;
     }
@@ -1037,10 +1037,10 @@ function dateTimeControls2State(aStartDatepicker) {
                 }
             }
             if (gTimezonesEnabled || allDay) {
-                gEndTime = cal.jsDateToDateTime(getElementValue(endWidgetId), timezone);
+                gEndTime = cal.dtz.jsDateToDateTime(getElementValue(endWidgetId), timezone);
                 gEndTime = gEndTime.getInTimezone(kDefaultTimezone);
             } else {
-                gEndTime = cal.jsDateToDateTime(getElementValue(endWidgetId), kDefaultTimezone);
+                gEndTime = cal.dtz.jsDateToDateTime(getElementValue(endWidgetId), kDefaultTimezone);
             }
             gEndTime.isDate = allDay;
             if (keepAttribute && gItemDuration) {
@@ -1082,7 +1082,7 @@ function dateTimeControls2State(aStartDatepicker) {
     // Preset the date in the until-datepicker's minimonth to the new start
     // date if it has changed.
     if (startChanged) {
-        let startDate = cal.dateTimeToJsDate(gStartTime.getInTimezone(cal.floating()));
+        let startDate = cal.dtz.dateTimeToJsDate(gStartTime.getInTimezone(cal.dtz.floating));
         document.getElementById("repeat-until-datepicker").extraDate = startDate;
     }
 
@@ -1106,7 +1106,7 @@ function dateTimeControls2State(aStartDatepicker) {
             let notCustomRule = document.getElementById("repeat-deck").selectedIndex == 0;
             if (notCustomRule) {
                 setElementValue("repeat-until-datepicker",
-                                cal.dateTimeToJsDate(gUntilDate.getInTimezone(cal.floating())));
+                                cal.dtz.dateTimeToJsDate(gUntilDate.getInTimezone(cal.dtz.floating)));
             }
 
             warning = true;
@@ -1194,7 +1194,7 @@ function updateDateCheckboxes(aDatePickerId, aCheckboxId, aDateTime) {
 
     // create a new datetime object if date is now checked for the first time
     if (hasDate && !aDateTime.isValid()) {
-        let date = cal.jsDateToDateTime(getElementValue(aDatePickerId), cal.calendarDefaultTimezone());
+        let date = cal.dtz.jsDateToDateTime(getElementValue(aDatePickerId), cal.dtz.defaultTimezone);
         aDateTime.setDateTime(date);
     } else if (!hasDate && aDateTime.isValid()) {
         aDateTime.setDateTime(null);
@@ -1204,8 +1204,8 @@ function updateDateCheckboxes(aDatePickerId, aCheckboxId, aDateTime) {
     let hasEntryDate = getElementValue("todo-has-entrydate", "checked");
     let hasDueDate = getElementValue("todo-has-duedate", "checked");
     if (hasEntryDate && hasDueDate) {
-        let start = cal.jsDateToDateTime(getElementValue("todo-entrydate"));
-        let end = cal.jsDateToDateTime(getElementValue("todo-duedate"));
+        let start = cal.dtz.jsDateToDateTime(getElementValue("todo-entrydate"));
+        let end = cal.dtz.jsDateToDateTime(getElementValue("todo-duedate"));
         gItemDuration = end.subtractDate(start);
     } else {
         gItemDuration = null;
@@ -1234,8 +1234,8 @@ function getRepeatTypeAndUntilDate(aItem) {
     let updateUntilDate = (aRule) => {
         if (!aRule.isByCount) {
             if (aRule.isFinite) {
-                gUntilDate = aRule.untilDate.clone().getInTimezone(cal.calendarDefaultTimezone());
-                untilDate = cal.dateTimeToJsDate(gUntilDate.getInTimezone(cal.floating()));
+                gUntilDate = aRule.untilDate.clone().getInTimezone(cal.dtz.defaultTimezone);
+                untilDate = cal.dtz.dateTimeToJsDate(gUntilDate.getInTimezone(cal.dtz.floating));
             } else {
                 gUntilDate = null;
             }
@@ -1459,7 +1459,7 @@ function saveDialog(item) {
 
     if (item.status == "COMPLETED" && cal.isToDo(item)) {
         let elementValue = getElementValue("completed-date-picker");
-        item.completedDate = cal.jsDateToDateTime(elementValue);
+        item.completedDate = cal.dtz.jsDateToDateTime(elementValue);
     }
 
     saveReminder(item);
@@ -1511,7 +1511,7 @@ function saveDateTime(item) {
 function untilDateCompensation(aItem) {
     // The current start date in the item is always the date that we get
     // when opening the dialog or after the last save.
-    let startDate = aItem[cal.calGetStartDateProp(aItem)];
+    let startDate = aItem[cal.dtz.startDateProp(aItem)];
 
     if (aItem.recurrenceInfo) {
         let rrules = splitRecurrenceRules(aItem.recurrenceInfo);
@@ -1552,20 +1552,20 @@ function updateTitle() {
  */
 function updateAccept() {
     let enableAccept = true;
-    let kDefaultTimezone = cal.calendarDefaultTimezone();
+    let kDefaultTimezone = cal.dtz.defaultTimezone;
     let startDate;
     let endDate;
     let isEvent = cal.isEvent(window.calendarItem);
 
     // don't allow for end dates to be before start dates
     if (isEvent) {
-        startDate = cal.jsDateToDateTime(getElementValue("event-starttime"));
-        endDate = cal.jsDateToDateTime(getElementValue("event-endtime"));
+        startDate = cal.dtz.jsDateToDateTime(getElementValue("event-starttime"));
+        endDate = cal.dtz.jsDateToDateTime(getElementValue("event-endtime"));
     } else {
         startDate = getElementValue("todo-has-entrydate", "checked") ?
-            cal.jsDateToDateTime(getElementValue("todo-entrydate")) : null;
+            cal.dtz.jsDateToDateTime(getElementValue("todo-entrydate")) : null;
         endDate = getElementValue("todo-has-duedate", "checked") ?
-            cal.jsDateToDateTime(getElementValue("todo-duedate")) : null;
+            cal.dtz.jsDateToDateTime(getElementValue("todo-duedate")) : null;
     }
 
     if (startDate && endDate) {
@@ -1641,7 +1641,7 @@ function onUpdateAllDay() {
         return;
     }
     let allDay = getElementValue("event-all-day", "checked");
-    let kDefaultTimezone = cal.calendarDefaultTimezone();
+    let kDefaultTimezone = cal.dtz.defaultTimezone;
 
     if (allDay) {
         // Store date-times and related timezones so we can restore
@@ -1668,7 +1668,7 @@ function onUpdateAllDay() {
         if (!gOldStartTime && !gOldEndTime) {
             // The checkbox has been unchecked for the first time, the event
             // was an "All day" type, so we have to set default values.
-            gStartTime.hour = cal.getDefaultStartDate(window.initialStartDateValue).hour;
+            gStartTime.hour = cal.dtz.getDefaultStartDate(window.initialStartDateValue).hour;
             gEndTime.hour = gStartTime.hour;
             gEndTime.minute += Preferences.get("calendar.event.defaultlength", 60);
             gOldStartTimezone = kDefaultTimezone;
@@ -1686,8 +1686,8 @@ function onUpdateAllDay() {
             }
         }
     }
-    gStartTimezone = (allDay ? cal.floating() : gOldStartTimezone);
-    gEndTimezone = (allDay ? cal.floating() : gOldEndTimezone);
+    gStartTimezone = (allDay ? cal.dtz.floating : gOldStartTimezone);
+    gEndTimezone = (allDay ? cal.dtz.floating : gOldEndTimezone);
     setShowTimeAs(allDay);
 
     updateAllDay();
@@ -1789,7 +1789,7 @@ function editAttendees() {
         let duration = endTime.subtractDate(startTime);
         startTime = startTime.clone();
         endTime = endTime.clone();
-        let kDefaultTimezone = cal.calendarDefaultTimezone();
+        let kDefaultTimezone = cal.dtz.defaultTimezone;
         gStartTimezone = startTime.timezone;
         gEndTimezone = endTime.timezone;
         gStartTime = startTime.getInTimezone(kDefaultTimezone);
@@ -2444,7 +2444,7 @@ function updateCalendar() {
 
         // Task completed date
         if (item.completedDate) {
-            updateToDoStatus(item.status, cal.dateTimeToJsDate(item.completedDate));
+            updateToDoStatus(item.status, cal.dtz.dateTimeToJsDate(item.completedDate));
         } else {
             updateToDoStatus(item.status);
         }
@@ -2583,7 +2583,7 @@ function updateRepeat(aSuppressDialogs, aItemRepeatCall) {
             let rule = rrules[0][0];
             gUntilDate = null;
             if (!rule.isByCount && rule.isFinite) {
-                gUntilDate = rule.untilDate.clone().getInTimezone(cal.calendarDefaultTimezone());
+                gUntilDate = rule.untilDate.clone().getInTimezone(cal.dtz.defaultTimezone);
             }
         }
 
@@ -2637,8 +2637,8 @@ function updateRepeat(aSuppressDialogs, aItemRepeatCall) {
                 let repeatDate;
                 if (!rule.isByCount || !rule.isFinite) {
                     if (rule.isFinite) {
-                        repeatDate = rule.untilDate.getInTimezone(cal.floating());
-                        repeatDate = cal.dateTimeToJsDate(repeatDate);
+                        repeatDate = rule.untilDate.getInTimezone(cal.dtz.floating);
+                        repeatDate = cal.dtz.dateTimeToJsDate(repeatDate);
                     } else {
                         repeatDate = "forever";
                     }
@@ -2651,8 +2651,8 @@ function updateRepeat(aSuppressDialogs, aItemRepeatCall) {
                     if (dates) {
                         lastOccurrenceDate = dates[dates.length - 1];
                     }
-                    repeatDate = (lastOccurrenceDate || proposedUntilDate).getInTimezone(cal.floating());
-                    repeatDate = cal.dateTimeToJsDate(repeatDate);
+                    repeatDate = (lastOccurrenceDate || proposedUntilDate).getInTimezone(cal.dtz.floating);
+                    repeatDate = cal.dtz.dateTimeToJsDate(repeatDate);
                 }
                 setElementValue("repeat-until-datepicker", repeatDate);
             }
@@ -2706,7 +2706,7 @@ function updateRepeat(aSuppressDialogs, aItemRepeatCall) {
         }
 
         // Preset the until-datepicker's minimonth to the start date.
-        let startDate = cal.dateTimeToJsDate(gStartTime.getInTimezone(cal.floating()));
+        let startDate = cal.dtz.dateTimeToJsDate(gStartTime.getInTimezone(cal.dtz.floating));
         document.getElementById("repeat-until-datepicker").extraDate = startDate;
     }
 
@@ -2734,7 +2734,7 @@ function updateUntildateRecRule(recRule) {
         let rrules = splitRecurrenceRules(recurrenceInfo);
         recRule = rrules[0][0];
     }
-    let defaultTimezone = cal.calendarDefaultTimezone();
+    let defaultTimezone = cal.dtz.defaultTimezone;
     let repeatUntilDate = null;
 
     let itemRepeat = document.getElementById("item-repeat").selectedItem.value;
@@ -2745,7 +2745,7 @@ function updateUntildateRecRule(recRule) {
     } else {
         let untilDatepickerDate = getElementValue("repeat-until-datepicker");
         if (untilDatepickerDate != "forever") {
-            repeatUntilDate = cal.jsDateToDateTime(untilDatepickerDate, defaultTimezone);
+            repeatUntilDate = cal.dtz.jsDateToDateTime(untilDatepickerDate, defaultTimezone);
         }
     }
 
@@ -3163,8 +3163,8 @@ function showTimezonePopup(event, dateTime, editFunc) {
     let timezonePopup = document.getElementById("timezone-popup");
     let timezoneDefaultItem = document.getElementById("timezone-popup-defaulttz");
     let timezoneSeparator = document.getElementById("timezone-popup-menuseparator");
-    let defaultTimezone = cal.calendarDefaultTimezone();
-    let recentTimezones = cal.getRecentTimezones(true);
+    let defaultTimezone = cal.dtz.defaultTimezone;
+    let recentTimezones = cal.dtz.getRecentTimezones(true);
 
     // Set up the right editTimezone function, so the custom item can use it.
     timezonePopup.editTimezone = editFunc;
@@ -3210,7 +3210,7 @@ function editTimezone(aElementId, aDateTime, aCallback) {
     args.time = aDateTime;
     args.calendar = getCurrentCalendar();
     args.onOk = function(datetime) {
-        cal.saveRecentTimezone(datetime.timezone.tzid);
+        cal.dtz.saveRecentTimezone(datetime.timezone.tzid);
         return aCallback(datetime);
     };
 
@@ -3267,11 +3267,11 @@ function updateDateTime() {
             // before feeding the date/time value into the control we need
             // to set the timezone to 'floating' in order to avoid the
             // automatic conversion back into the OS timezone.
-            startTime.timezone = cal.floating();
-            endTime.timezone = cal.floating();
+            startTime.timezone = cal.dtz.floating;
+            endTime.timezone = cal.dtz.floating;
 
-            setElementValue("event-starttime", cal.dateTimeToJsDate(startTime));
-            setElementValue("event-endtime", cal.dateTimeToJsDate(endTime));
+            setElementValue("event-starttime", cal.dtz.dateTimeToJsDate(startTime));
+            setElementValue("event-endtime", cal.dtz.dateTimeToJsDate(endTime));
         }
 
         if (cal.isToDo(item)) {
@@ -3282,37 +3282,37 @@ function updateDateTime() {
 
             if (hasEntryDate && hasDueDate) {
                 setElementValue("todo-has-entrydate", hasEntryDate, "checked");
-                startTime.timezone = cal.floating();
-                setElementValue("todo-entrydate", cal.dateTimeToJsDate(startTime));
+                startTime.timezone = cal.dtz.floating;
+                setElementValue("todo-entrydate", cal.dtz.dateTimeToJsDate(startTime));
 
                 setElementValue("todo-has-duedate", hasDueDate, "checked");
-                endTime.timezone = cal.floating();
-                setElementValue("todo-duedate", cal.dateTimeToJsDate(endTime));
+                endTime.timezone = cal.dtz.floating;
+                setElementValue("todo-duedate", cal.dtz.dateTimeToJsDate(endTime));
             } else if (hasEntryDate) {
                 setElementValue("todo-has-entrydate", hasEntryDate, "checked");
-                startTime.timezone = cal.floating();
-                setElementValue("todo-entrydate", cal.dateTimeToJsDate(startTime));
+                startTime.timezone = cal.dtz.floating;
+                setElementValue("todo-entrydate", cal.dtz.dateTimeToJsDate(startTime));
 
-                startTime.timezone = cal.floating();
-                setElementValue("todo-duedate", cal.dateTimeToJsDate(startTime));
+                startTime.timezone = cal.dtz.floating;
+                setElementValue("todo-duedate", cal.dtz.dateTimeToJsDate(startTime));
             } else if (hasDueDate) {
-                endTime.timezone = cal.floating();
-                setElementValue("todo-entrydate", cal.dateTimeToJsDate(endTime));
+                endTime.timezone = cal.dtz.floating;
+                setElementValue("todo-entrydate", cal.dtz.dateTimeToJsDate(endTime));
 
                 setElementValue("todo-has-duedate", hasDueDate, "checked");
-                endTime.timezone = cal.floating();
-                setElementValue("todo-duedate", cal.dateTimeToJsDate(endTime));
+                endTime.timezone = cal.dtz.floating;
+                setElementValue("todo-duedate", cal.dtz.dateTimeToJsDate(endTime));
             } else {
                 startTime = window.initialStartDateValue;
-                startTime.timezone = cal.floating();
+                startTime.timezone = cal.dtz.floating;
                 endTime = startTime.clone();
 
-                setElementValue("todo-entrydate", cal.dateTimeToJsDate(startTime));
-                setElementValue("todo-duedate", cal.dateTimeToJsDate(endTime));
+                setElementValue("todo-entrydate", cal.dtz.dateTimeToJsDate(startTime));
+                setElementValue("todo-duedate", cal.dtz.dateTimeToJsDate(endTime));
             }
         }
     } else {
-        let kDefaultTimezone = cal.calendarDefaultTimezone();
+        let kDefaultTimezone = cal.dtz.defaultTimezone;
 
         if (cal.isEvent(item)) {
             let startTime = gStartTime.getInTimezone(kDefaultTimezone);
@@ -3322,10 +3322,10 @@ function updateDateTime() {
             // before feeding the date/time value into the control we need
             // to set the timezone to 'floating' in order to avoid the
             // automatic conversion back into the OS timezone.
-            startTime.timezone = cal.floating();
-            endTime.timezone = cal.floating();
-            setElementValue("event-starttime", cal.dateTimeToJsDate(startTime));
-            setElementValue("event-endtime", cal.dateTimeToJsDate(endTime));
+            startTime.timezone = cal.dtz.floating;
+            endTime.timezone = cal.dtz.floating;
+            setElementValue("event-starttime", cal.dtz.dateTimeToJsDate(startTime));
+            setElementValue("event-endtime", cal.dtz.dateTimeToJsDate(endTime));
         }
 
         if (cal.isToDo(item)) {
@@ -3337,33 +3337,33 @@ function updateDateTime() {
 
             if (hasEntryDate && hasDueDate) {
                 setElementValue("todo-has-entrydate", hasEntryDate, "checked");
-                startTime.timezone = cal.floating();
-                setElementValue("todo-entrydate", cal.dateTimeToJsDate(startTime));
+                startTime.timezone = cal.dtz.floating;
+                setElementValue("todo-entrydate", cal.dtz.dateTimeToJsDate(startTime));
 
                 setElementValue("todo-has-duedate", hasDueDate, "checked");
-                endTime.timezone = cal.floating();
-                setElementValue("todo-duedate", cal.dateTimeToJsDate(endTime));
+                endTime.timezone = cal.dtz.floating;
+                setElementValue("todo-duedate", cal.dtz.dateTimeToJsDate(endTime));
             } else if (hasEntryDate) {
                 setElementValue("todo-has-entrydate", hasEntryDate, "checked");
-                startTime.timezone = cal.floating();
-                setElementValue("todo-entrydate", cal.dateTimeToJsDate(startTime));
+                startTime.timezone = cal.dtz.floating;
+                setElementValue("todo-entrydate", cal.dtz.dateTimeToJsDate(startTime));
 
-                startTime.timezone = cal.floating();
-                setElementValue("todo-duedate", cal.dateTimeToJsDate(startTime));
+                startTime.timezone = cal.dtz.floating;
+                setElementValue("todo-duedate", cal.dtz.dateTimeToJsDate(startTime));
             } else if (hasDueDate) {
-                endTime.timezone = cal.floating();
-                setElementValue("todo-entrydate", cal.dateTimeToJsDate(endTime));
+                endTime.timezone = cal.dtz.floating;
+                setElementValue("todo-entrydate", cal.dtz.dateTimeToJsDate(endTime));
 
                 setElementValue("todo-has-duedate", hasDueDate, "checked");
-                endTime.timezone = cal.floating();
-                setElementValue("todo-duedate", cal.dateTimeToJsDate(endTime));
+                endTime.timezone = cal.dtz.floating;
+                setElementValue("todo-duedate", cal.dtz.dateTimeToJsDate(endTime));
             } else {
                 startTime = window.initialStartDateValue;
-                startTime.timezone = cal.floating();
+                startTime.timezone = cal.dtz.floating;
                 endTime = startTime.clone();
 
-                setElementValue("todo-entrydate", cal.dateTimeToJsDate(startTime));
-                setElementValue("todo-duedate", cal.dateTimeToJsDate(endTime));
+                setElementValue("todo-entrydate", cal.dtz.dateTimeToJsDate(startTime));
+                setElementValue("todo-duedate", cal.dtz.dateTimeToJsDate(endTime));
             }
         }
     }
@@ -3580,13 +3580,13 @@ function updateRepeatDetails() {
         repeatDetails.setAttribute("collapsed", "true");
 
         // Try to create a descriptive string from the rule(s).
-        let kDefaultTimezone = cal.calendarDefaultTimezone();
+        let kDefaultTimezone = cal.dtz.defaultTimezone;
         let event = cal.isEvent(item);
 
         let startDate = getElementValue(event ? "event-starttime" : "todo-entrydate");
         let endDate = getElementValue(event ? "event-endtime" : "todo-duedate");
-        startDate = cal.jsDateToDateTime(startDate, kDefaultTimezone);
-        endDate = cal.jsDateToDateTime(endDate, kDefaultTimezone);
+        startDate = cal.dtz.jsDateToDateTime(startDate, kDefaultTimezone);
+        endDate = cal.dtz.jsDateToDateTime(endDate, kDefaultTimezone);
 
         let allDay = getElementValue("event-all-day", "checked");
         let detailsString = recurrenceRule2String(recurrenceInfo, startDate,
@@ -3819,14 +3819,14 @@ function checkUntilDate() {
     }
 
     // Check whether the date is valid. Set the correct time just in this case.
-    let untilDate = cal.jsDateToDateTime(repeatUntilDate, gStartTime.timezone);
+    let untilDate = cal.dtz.jsDateToDateTime(repeatUntilDate, gStartTime.timezone);
     let startDate = gStartTime.clone();
     startDate.isDate = true;
     if (untilDate.compare(startDate) < 0) {
         // Invalid date: restore the previous date. Since we are checking an
         // until date, a null value for gUntilDate means repeat "forever".
         setElementValue("repeat-until-datepicker",
-                        gUntilDate ? cal.dateTimeToJsDate(gUntilDate.getInTimezone(cal.floating()))
+                        gUntilDate ? cal.dtz.dateTimeToJsDate(gUntilDate.getInTimezone(cal.dtz.floating))
                                    : "forever");
         gWarning = true;
         let callback = function() {
@@ -3981,7 +3981,7 @@ function formatCounterValue(aProperty) {
 
     let val;
     if (dateProps.includes(aProperty.property)) {
-        let localTime = aProperty.proposed.getInTimezone(cal.calendarDefaultTimezone());
+        let localTime = aProperty.proposed.getInTimezone(cal.dtz.defaultTimezone);
         let formatter = cal.getDateFormatter();
         val = formatter.formatDateTime(localTime);
         if (gTimezonesEnabled) {
@@ -4035,7 +4035,7 @@ function applyValues(aType) {
                             document.getElementById(nodeIds.get(aProperty.property));
             if (valueNode) {
                 if (["DTSTART", "DTEND"].includes(aProperty.property)) {
-                    valueNode.value = cal.dateTimeToJsDate(aProperty[aType]);
+                    valueNode.value = cal.dtz.dateTimeToJsDate(aProperty[aType]);
                 } else {
                     valueNode.value = aProperty[aType];
                 }

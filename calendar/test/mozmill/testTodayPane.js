@@ -161,8 +161,8 @@ function testTodayPane() {
     let now = new Date();
     now.setHours(startHour);
     now.setMinutes(0);
-    let dtz = cal.calendarDefaultTimezone();
-    let probeDate = cal.jsDateToDateTime(now, dtz);
+    let dtz = cal.dtz.defaultTimezone;
+    let probeDate = cal.dtz.jsDateToDateTime(now, dtz);
     let dateFormatter = cal.getDateFormatter();
     let startTime = dateFormatter.formatTime(probeDate);
     controller.assertText(lookup(`
@@ -174,7 +174,7 @@ function testTodayPane() {
     `), startTime + " Today's Event");
 
     let tomorrow = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 9, 0);
-    probeDate = cal.jsDateToDateTime(tomorrow, dtz);
+    probeDate = cal.dtz.jsDateToDateTime(tomorrow, dtz);
     startTime = dateFormatter.formatTime(probeDate);
     controller.assertText(lookup(`
         /id("messengerWindow")/id("tabmail-container")/id("today-pane-panel")/
@@ -185,7 +185,7 @@ function testTodayPane() {
     `), startTime + " Tomorrow's Event");
 
     let future = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 6, 9, 0);
-    probeDate = cal.jsDateToDateTime(future, dtz);
+    probeDate = cal.dtz.jsDateToDateTime(future, dtz);
     startTime = dateFormatter.formatDateTime(probeDate);
 
     // Future event's start time

@@ -766,25 +766,25 @@ var cal = {
      */
     moveItem: function(aOldItem, aNewDate) {
         let newItem = aOldItem.clone();
-        let start = (aOldItem[cal.calGetStartDateProp(aOldItem)] ||
-                     aOldItem[cal.calGetEndDateProp(aOldItem)]).clone();
+        let start = (aOldItem[cal.dtz.startDateProp(aOldItem)] ||
+                     aOldItem[cal.dtz.endDateProp(aOldItem)]).clone();
         let isDate = start.isDate;
         start.resetTo(aNewDate.year, aNewDate.month, aNewDate.day,
                       start.hour, start.minute, start.second,
                       start.timezone);
         start.isDate = isDate;
-        if (newItem[cal.calGetStartDateProp(newItem)]) {
-            newItem[cal.calGetStartDateProp(newItem)] = start;
+        if (newItem[cal.dtz.startDateProp(newItem)]) {
+            newItem[cal.dtz.startDateProp(newItem)] = start;
             let oldDuration = aOldItem.duration;
             if (oldDuration) {
-                let oldEnd = aOldItem[cal.calGetEndDateProp(aOldItem)];
+                let oldEnd = aOldItem[cal.dtz.endDateProp(aOldItem)];
                 let newEnd = start.clone();
                 newEnd.addDuration(oldDuration);
                 newEnd = newEnd.getInTimezone(oldEnd.timezone);
-                newItem[cal.calGetEndDateProp(newItem)] = newEnd;
+                newItem[cal.dtz.endDateProp(newItem)] = newEnd;
             }
-        } else if (newItem[cal.calGetEndDateProp(newItem)]) {
-            newItem[cal.calGetEndDateProp(newItem)] = start;
+        } else if (newItem[cal.dtz.endDateProp(newItem)]) {
+            newItem[cal.dtz.endDateProp(newItem)] = start;
         }
         return newItem;
     },
@@ -797,19 +797,19 @@ var cal = {
      * @return              The modified item
      */
     setItemToAllDay: function(aItem, aIsDate) {
-        let start = aItem[cal.calGetStartDateProp(aItem)];
-        let end = aItem[cal.calGetEndDateProp(aItem)];
+        let start = aItem[cal.dtz.startDateProp(aItem)];
+        let end = aItem[cal.dtz.endDateProp(aItem)];
         if (start || end) {
             let item = aItem.clone();
             if (start && (start.isDate != aIsDate)) {
                 start = start.clone();
                 start.isDate = aIsDate;
-                item[cal.calGetStartDateProp(item)] = start;
+                item[cal.dtz.startDateProp(item)] = start;
             }
             if (end && (end.isDate != aIsDate)) {
                 end = end.clone();
                 end.isDate = aIsDate;
-                item[cal.calGetEndDateProp(item)] = end;
+                item[cal.dtz.endDateProp(item)] = end;
             }
             return item;
         } else {

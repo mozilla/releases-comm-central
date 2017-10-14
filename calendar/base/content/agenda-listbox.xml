@@ -125,10 +125,10 @@
             let periodStartDate = aPeriod.start.clone();
             periodStartDate.isDate = true;
             let periodEndDate = aPeriod.end;
-            let startDate = this.mOccurrence[cal.calGetStartDateProp(this.mOccurrence)]
-                                .getInTimezone(cal.calendarDefaultTimezone());
-            let endDate = this.mOccurrence[cal.calGetEndDateProp(this.mOccurrence)]
-                              .getInTimezone(cal.calendarDefaultTimezone());
+            let startDate = this.mOccurrence[cal.dtz.startDateProp(this.mOccurrence)]
+                                .getInTimezone(cal.dtz.defaultTimezone);
+            let endDate = this.mOccurrence[cal.dtz.endDateProp(this.mOccurrence)]
+                              .getInTimezone(cal.dtz.defaultTimezone);
             let endPreviousDay = endDate.clone();
             endPreviousDay.day--;
             // Show items's date for long periods but also for "Upcoming"
@@ -211,10 +211,10 @@
             periodStartDate.isDate = true;
             let periodEndDate = aPeriod.end.clone();
             periodEndDate.day--;
-            let start = this.mOccurrence[cal.calGetStartDateProp(this.mOccurrence)]
-                            .getInTimezone(cal.calendarDefaultTimezone());
-            let end = this.mOccurrence[cal.calGetEndDateProp(this.mOccurrence)]
-                          .getInTimezone(cal.calendarDefaultTimezone());
+            let start = this.mOccurrence[cal.dtz.startDateProp(this.mOccurrence)]
+                            .getInTimezone(cal.dtz.defaultTimezone);
+            let end = this.mOccurrence[cal.dtz.endDateProp(this.mOccurrence)]
+                          .getInTimezone(cal.dtz.defaultTimezone);
             let startDate = start.clone();
             startDate.isDate = true;
             let endDate = end.clone();

@@ -46,11 +46,11 @@ calHtmlExporter.prototype = {
 
         // Sort aItems
         aItems.sort((a, b) => {
-            let start_a = a[cal.calGetStartDateProp(a)];
+            let start_a = a[cal.dtz.startDateProp(a)];
             if (!start_a) {
                 return -1;
             }
-            let start_b = b[cal.calGetStartDateProp(b)];
+            let start_b = b[cal.dtz.startDateProp(b)];
             if (!start_b) {
                 return 1;
             }
@@ -75,8 +75,8 @@ calHtmlExporter.prototype = {
                 }
             };
 
-            let startDate = item[cal.calGetStartDateProp(item)];
-            let endDate = item[cal.calGetEndDateProp(item)];
+            let startDate = item[cal.dtz.startDateProp(item)];
+            let endDate = item[cal.dtz.endDateProp(item)];
             if (startDate || endDate) {
                 // This is a task with a start or due date, format accordingly
                 let prefixWhen = cal.calGetString("calendar", "htmlPrefixWhen");

@@ -275,12 +275,12 @@ var calendarController = {
             // Common Commands
             case "calendar_new_event_command":
                 createEventWithDialog(getSelectedCalendar(),
-                                      cal.getDefaultStartDate(currentView().selectedDay));
+                                      cal.dtz.getDefaultStartDate(currentView().selectedDay));
                 break;
             case "calendar_new_event_context_command": {
                 let newStart = currentView().selectedDateTime;
                 if (!newStart) {
-                    newStart = cal.getDefaultStartDate(currentView().selectedDay);
+                    newStart = cal.dtz.getDefaultStartDate(currentView().selectedDay);
                 }
                 createEventWithDialog(getSelectedCalendar(), newStart,
                                       null, null, null,
@@ -328,12 +328,12 @@ var calendarController = {
             case "calendar_new_todo_command":
                 createTodoWithDialog(getSelectedCalendar(),
                                      null, null, null,
-                                     cal.getDefaultStartDate(currentView().selectedDay));
+                                     cal.dtz.getDefaultStartDate(currentView().selectedDay));
                 break;
             case "calendar_new_todo_context_command": {
                 let initialDate = currentView().selectedDateTime;
                 if (!initialDate || initialDate.isDate) {
-                    initialDate = cal.getDefaultStartDate(currentView().selectedDay);
+                    initialDate = cal.dtz.getDefaultStartDate(currentView().selectedDay);
                 }
                 createTodoWithDialog(getSelectedCalendar(),
                                      null, null, null,
@@ -343,16 +343,16 @@ var calendarController = {
             case "calendar_new_todo_todaypane_command":
                 createTodoWithDialog(getSelectedCalendar(),
                                      null, null, null,
-                                     cal.getDefaultStartDate(agendaListbox.today.start));
+                                     cal.dtz.getDefaultStartDate(agendaListbox.today.start));
                 break;
             case "calendar_delete_todo_command":
                 deleteToDoCommand();
                 break;
             case "calendar_modify_todo_command":
-                modifyTaskFromContext(null, cal.getDefaultStartDate(currentView().selectedDay));
+                modifyTaskFromContext(null, cal.dtz.getDefaultStartDate(currentView().selectedDay));
                 break;
             case "calendar_modify_todo_todaypane_command":
-                modifyTaskFromContext(null, cal.getDefaultStartDate(agendaListbox.today.start));
+                modifyTaskFromContext(null, cal.dtz.getDefaultStartDate(agendaListbox.today.start));
                 break;
 
             case "calendar_new_calendar_command":
@@ -848,7 +848,7 @@ function setupContextItemType(event, items) {
  */
 function minimonthPick(aNewDate) {
     if (gCurrentMode == "calendar" || gCurrentMode == "task") {
-        let cdt = cal.jsDateToDateTime(aNewDate, currentView().timezone);
+        let cdt = cal.dtz.jsDateToDateTime(aNewDate, currentView().timezone);
         cdt.isDate = true;
         currentView().goToDay(cdt);
 

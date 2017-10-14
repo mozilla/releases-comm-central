@@ -34,21 +34,21 @@ function disposeJob(job) {
  */
 function setDefaultItemValues(aItem, aCalendar=null, aStartDate=null, aEndDate=null, aInitialDate=null, aForceAllday=false) {
     function endOfDay(aDate) {
-        let eod = aDate ? aDate.clone() : cal.now();
+        let eod = aDate ? aDate.clone() : cal.dtz.now();
         eod.hour = Preferences.get("calendar.view.dayendhour", 19);
         eod.minute = 0;
         eod.second = 0;
         return eod;
     }
     function startOfDay(aDate) {
-        let sod = aDate ? aDate.clone() : cal.now();
+        let sod = aDate ? aDate.clone() : cal.dtz.now();
         sod.hour = Preferences.get("calendar.view.daystarthour", 8);
         sod.minute = 0;
         sod.second = 0;
         return sod;
     }
 
-    let initialDate = aInitialDate ? aInitialDate.clone() : cal.now();
+    let initialDate = aInitialDate ? aInitialDate.clone() : cal.dtz.now();
     initialDate.isDate = true;
 
     if (cal.isEvent(aItem)) {
@@ -58,17 +58,17 @@ function setDefaultItemValues(aItem, aCalendar=null, aStartDate=null, aEndDate=n
                 // This is a special case where the date is specified, but the
                 // time is not. To take care, we setup up the time to our
                 // default event start time.
-                aItem.startDate = cal.getDefaultStartDate(aItem.startDate);
+                aItem.startDate = cal.dtz.getDefaultStartDate(aItem.startDate);
             } else if (aForceAllday) {
                 // If the event should be forced to be allday, then don't set up
                 // any default hours and directly make it allday.
                 aItem.startDate.isDate = true;
-                aItem.startDate.timezone = cal.floating();
+                aItem.startDate.timezone = cal.dtz.floating;
             }
         } else {
             // If no start date was passed, then default to the next full hour
             // of today, but with the date of the selected day
-            aItem.startDate = cal.getDefaultStartDate(initialDate);
+            aItem.startDate = cal.dtz.getDefaultStartDate(initialDate);
         }
 
         if (aEndDate) {
@@ -78,7 +78,7 @@ function setDefaultItemValues(aItem, aCalendar=null, aStartDate=null, aEndDate=n
                 // day should pass the end date. Right now, they should make
                 // sure that the end date is 00:00:00 of the day after.
                 aItem.endDate.isDate = true;
-                aItem.endDate.timezone = cal.floating();
+                aItem.endDate.timezone = cal.dtz.floating;
             }
         } else {
             aItem.endDate = aItem.startDate.clone();
@@ -95,7 +95,7 @@ function setDefaultItemValues(aItem, aCalendar=null, aStartDate=null, aEndDate=n
         // Free/busy status is only valid for events, must not be set for tasks.
         aItem.setProperty("TRANSP", cal.getEventDefaultTransparency(aForceAllday));
     } else if (cal.isToDo(aItem)) {
-        let now = cal.now();
+        let now = cal.dtz.now();
         let initDate = initialDate ? initialDate.clone() : now;
         initDate.isDate = false;
         initDate.hour = now.hour;
@@ -453,7 +453,7 @@ function openEventDialog(calendarItem, calendar, mode, callback, job=null, initi
     args.mode = mode;
     args.onOk = callback;
     args.job = job;
-    args.initialStartDateValue = initialDate || cal.getDefaultStartDate();
+    args.initialStartDateValue = initialDate || cal.dtz.getDefaultStartDate();
     args.counterProposal = counterProposal;
     args.inTab = Preferences.get("calendar.item.editInTab", false);
     args.useNewItemUI = Preferences.get("calendar.item.useNewItemUI", false);

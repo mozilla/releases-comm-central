@@ -153,8 +153,8 @@ add_test(function test_calobserver() {
     // Add an item
     let item = cal.createEvent();
     item.id = cal.getUUID();
-    item.startDate = cal.now();
-    item.endDate = cal.now();
+    item.startDate = cal.dtz.now();
+    item.endDate = cal.dtz.now();
     memory.addItem(item, null);
     checkCounters(1, 0, 0);
 

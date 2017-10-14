@@ -710,12 +710,12 @@ function test_rrule_interface() {
     rrule.untilDate = untilDate;
     ok(!rrule.isByCount);
     throws(() => rrule.count, /0x80004005/);
-    equal(rrule.untilDate.icalString, untilDate.getInTimezone(cal.UTC()).icalString);
+    equal(rrule.untilDate.icalString, untilDate.getInTimezone(cal.dtz.UTC).icalString);
 
     // untilDate (with UTC)
     rrule.count = 3;
     untilDate = cal.createDateTime();
-    untilDate.timezone = cal.UTC();
+    untilDate.timezone = cal.dtz.UTC;
     rrule.untilDate = untilDate;
     ok(!rrule.isByCount);
     throws(() => rrule.count, /0x80004005/);

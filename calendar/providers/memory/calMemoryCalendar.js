@@ -417,8 +417,8 @@ calMemoryCalendar.prototype = {
             typeIID = Components.interfaces.calITodo;
         }
 
-        aRangeStart = cal.ensureDateTime(aRangeStart);
-        aRangeEnd = cal.ensureDateTime(aRangeEnd);
+        aRangeStart = cal.dtz.ensureDateTime(aRangeStart);
+        aRangeEnd = cal.dtz.ensureDateTime(aRangeEnd);
 
         let requestedFlag = 0;
         if ((aItemFilter & calICalendar.ITEM_FILTER_OFFLINE_CREATED) != 0) {

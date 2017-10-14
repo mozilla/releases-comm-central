@@ -45,7 +45,7 @@
                 currentDay.day += aNumber;
                 this.goToDay(currentDay);
             } else {
-                this.goToDay(cal.now());
+                this.goToDay(cal.dtz.now());
             }
         ]]></body>
       </method>
@@ -112,7 +112,7 @@
                 date.day += 7 * aNumber;
                 this.goToDay(date);
             } else {
-                this.goToDay(cal.now());
+                this.goToDay(cal.dtz.now());
             }
         ]]></body>
       </method>
@@ -217,7 +217,7 @@
                 savedSelectedDay.day += 7 * aNumber;
                 this.selectedDay = savedSelectedDay;
             } else {
-                let date = cal.now();
+                let date = cal.dtz.now();
                 this.goToDay(date);
                 this.selectedDay = date;
             }
@@ -288,7 +288,7 @@
 
                 this.selectedDay = newSelectedDay;
             } else {
-                let date = cal.now();
+                let date = cal.dtz.now();
                 this.goToDay(date);
                 this.selectedDay = date;
             }

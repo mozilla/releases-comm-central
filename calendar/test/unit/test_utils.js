@@ -21,33 +21,33 @@ function test_recentzones() {
     let oldDefaultTz = Preferences.get("calendar.timezone.local", "");
     Preferences.set("calendar.timezone.local", "floating");
 
-    equal(cal.getRecentTimezones().length, 0);
-    equal(cal.getRecentTimezones(true).length, 0);
+    equal(cal.dtz.getRecentTimezones().length, 0);
+    equal(cal.dtz.getRecentTimezones(true).length, 0);
 
-    cal.saveRecentTimezone("Europe/Berlin");
+    cal.dtz.saveRecentTimezone("Europe/Berlin");
 
-    let zones = cal.getRecentTimezones();
+    let zones = cal.dtz.getRecentTimezones();
     equal(zones.length, 1);
     equal(zones[0], "Europe/Berlin");
-    zones = cal.getRecentTimezones(true);
+    zones = cal.dtz.getRecentTimezones(true);
     equal(zones.length, 1);
     equal(zones[0].tzid, "Europe/Berlin");
 
-    cal.saveRecentTimezone(cal.calendarDefaultTimezone().tzid);
-    equal(cal.getRecentTimezones().length, 1);
-    equal(cal.getRecentTimezones(true).length, 1);
+    cal.dtz.saveRecentTimezone(cal.dtz.defaultTimezone.tzid);
+    equal(cal.dtz.getRecentTimezones().length, 1);
+    equal(cal.dtz.getRecentTimezones(true).length, 1);
 
-    cal.saveRecentTimezone("Europe/Berlin");
-    equal(cal.getRecentTimezones().length, 1);
-    equal(cal.getRecentTimezones(true).length, 1);
+    cal.dtz.saveRecentTimezone("Europe/Berlin");
+    equal(cal.dtz.getRecentTimezones().length, 1);
+    equal(cal.dtz.getRecentTimezones(true).length, 1);
 
-    cal.saveRecentTimezone("America/New_York");
-    equal(cal.getRecentTimezones().length, 2);
-    equal(cal.getRecentTimezones(true).length, 2);
+    cal.dtz.saveRecentTimezone("America/New_York");
+    equal(cal.dtz.getRecentTimezones().length, 2);
+    equal(cal.dtz.getRecentTimezones(true).length, 2);
 
-    cal.saveRecentTimezone("Unknown");
-    equal(cal.getRecentTimezones().length, 3);
-    equal(cal.getRecentTimezones(true).length, 2);
+    cal.dtz.saveRecentTimezone("Unknown");
+    equal(cal.dtz.getRecentTimezones().length, 3);
+    equal(cal.dtz.getRecentTimezones(true).length, 2);
 
     Preferences.set("calendar.timezone.local", oldDefaultTz);
 }
@@ -74,17 +74,17 @@ function test_getDefaultStartDate() {
     function transform(nowString, refDateString) {
         now = cal.createDateTime(nowString);
         let refDate = refDateString ? cal.createDateTime(refDateString) : null;
-        return cal.getDefaultStartDate(refDate);
+        return cal.dtz.getDefaultStartDate(refDate);
     }
 
-    let oldNow = cal.now;
+    let oldNow = cal.dtz.now;
     let now = cal.createDateTime("20120101T000000");
-    cal.now = function() {
+    cal.dtz.now = function() {
         return now;
     };
 
     dump("TT: " + cal.createDateTime("20120101T000000") + "\n");
-    dump("TT: " + cal.getDefaultStartDate(cal.createDateTime("20120101T000000")) + "\n");
+    dump("TT: " + cal.dtz.getDefaultStartDate(cal.createDateTime("20120101T000000")) + "\n");
 
     equal(transform("20120101T000000").icalString, "20120101T010000");
     equal(transform("20120101T015959").icalString, "20120101T020000");
@@ -98,27 +98,27 @@ function test_getDefaultStartDate() {
 
     let event = cal.createEvent();
     now = cal.createDateTime("20120101T015959");
-    cal.setDefaultStartEndHour(event, cal.createDateTime("20120202"));
+    cal.dtz.setDefaultStartEndHour(event, cal.createDateTime("20120202"));
     equal(event.startDate.icalString, "20120202T020000");
     equal(event.endDate.icalString, "20120202T030000");
 
     let todo = cal.createTodo();
     now = cal.createDateTime("20120101T000000");
-    cal.setDefaultStartEndHour(todo, cal.createDateTime("20120202"));
+    cal.dtz.setDefaultStartEndHour(todo, cal.createDateTime("20120202"));
     equal(todo.entryDate.icalString, "20120202T010000");
 
-    cal.now = oldNow;
+    cal.dtz.now = oldNow;
 }
 
 function test_getStartEndProps() {
-    equal(cal.calGetStartDateProp(cal.createEvent()), "startDate");
-    equal(cal.calGetEndDateProp(cal.createEvent()), "endDate");
-    equal(cal.calGetStartDateProp(cal.createTodo()), "entryDate");
-    equal(cal.calGetEndDateProp(cal.createTodo()), "dueDate");
+    equal(cal.dtz.startDateProp(cal.createEvent()), "startDate");
+    equal(cal.dtz.endDateProp(cal.createEvent()), "endDate");
+    equal(cal.dtz.startDateProp(cal.createTodo()), "entryDate");
+    equal(cal.dtz.endDateProp(cal.createTodo()), "dueDate");
 
-    throws(() => cal.calGetStartDateProp(null),
+    throws(() => cal.dtz.startDateProp(null),
            /2147500033/);
-    throws(() => cal.calGetEndDateProp(null),
+    throws(() => cal.dtz.endDateProp(null),
            /2147500033/);
 }
 
@@ -174,10 +174,10 @@ function test_calOperationGroup() {
 function test_sameDay() {
     let createDate = cal.createDateTime.bind(cal);
 
-    ok(cal.sameDay(createDate("20120101"), createDate("20120101T120000")));
-    ok(cal.sameDay(createDate("20120101"), createDate("20120101")));
-    ok(!cal.sameDay(createDate("20120101"), createDate("20120102")));
-    ok(!cal.sameDay(createDate("20120101T120000"), createDate("20120102T120000")));
+    ok(cal.dtz.sameDay(createDate("20120101"), createDate("20120101T120000")));
+    ok(cal.dtz.sameDay(createDate("20120101"), createDate("20120101")));
+    ok(!cal.dtz.sameDay(createDate("20120101"), createDate("20120102")));
+    ok(!cal.dtz.sameDay(createDate("20120101T120000"), createDate("20120102T120000")));
 }
 
 function test_binarySearch() {

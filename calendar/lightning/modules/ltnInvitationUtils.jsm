@@ -136,7 +136,7 @@ ltn.invitation = {
         let dateString = formatter.formatItemInterval(aEvent);
 
         if (aEvent.recurrenceInfo) {
-            let kDefaultTimezone = cal.calendarDefaultTimezone();
+            let kDefaultTimezone = cal.dtz.defaultTimezone;
             let startDate = aEvent.startDate;
             let endDate = aEvent.endDate;
             startDate = startDate ? startDate.getInTimezone(kDefaultTimezone) : null;
@@ -474,7 +474,7 @@ ltn.invitation = {
                                "$1, $3 $2 $4 $5 $6$7");
         // according to section 3.3 of RfC5322, +0000 should be used for defined timezones using
         // UTC time, while -0000 should indicate a floating time instead
-        let timezone = cal.calendarDefaultTimezone();
+        let timezone = cal.dtz.defaultTimezone;
         if (timezone && timezone.isFloating) {
             str.replace(/\+0000$/, "-0000");
         }

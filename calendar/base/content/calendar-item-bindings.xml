@@ -57,7 +57,7 @@
             let itemDateTimeLabel = document.getAnonymousElementByAttribute(this, "anonid", "item-datetime-value");
             let date;
             if (this.mode == "start") {
-                date = this.mItem[cal.calGetStartDateProp(this.mItem)];
+                date = this.mItem[cal.dtz.startDateProp(this.mItem)];
                 if (date) {
                     let label;
                     if (cal.isToDo(this.mItem)) {
@@ -68,7 +68,7 @@
                     headerLabel.value = label;
                 }
             } else {
-                date = this.mItem[cal.calGetEndDateProp(this.mItem)];
+                date = this.mItem[cal.dtz.endDateProp(this.mItem)];
                 if (date) {
                     let label;
                     if (cal.isToDo(this.mItem)) {
@@ -83,7 +83,7 @@
             if (hideLabels) {
                 this.setAttribute("hidden", "true");
             } else {
-                const kDefaultTimezone = cal.calendarDefaultTimezone();
+                const kDefaultTimezone = cal.dtz.defaultTimezone;
                 let localTime = date.getInTimezone(kDefaultTimezone);
                 let formatter = cal.getDateFormatter();
                 itemDateTimeLabel.value = formatter.formatDateTime(localTime);

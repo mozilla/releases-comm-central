@@ -1127,7 +1127,7 @@ upgrade.v16 = function(db, version) {
                             // soon, I will just fix this on the "client side"
                             // and do the conversion here.
                             alarmDate.timezone = cal.getTimezoneService().defaultTimezone;
-                            alarmDate = alarmDate.getInTimezone(cal.UTC());
+                            alarmDate = alarmDate.getInTimezone(cal.dtz.UTC);
                         } else {
                             alarmDate.timezone = cal.getTimezoneService().getTimezone(aTzId);
                         }

@@ -141,7 +141,7 @@ function editReminder() {
     args.item = window.calendarItem;
     args.timezone = window.gStartTimezone ||
                     window.gEndTimezone ||
-                    cal.calendarDefaultTimezone();
+                    cal.dtz.defaultTimezone;
 
     args.calendar = getCurrentCalendar();
 

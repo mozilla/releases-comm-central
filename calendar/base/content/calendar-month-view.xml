@@ -86,8 +86,8 @@
                     let formatter = Components.classes["@mozilla.org/calendar/datetime-formatter;1"]
                                               .getService(Components.interfaces.calIDateTimeFormatter);
                     let timezone = this.calendarView ? this.calendarView.mTimezone
-                                                     : cal.calendarDefaultTimezone();
-                    let parentDate = cal.ensureDateTime(this.parentBox.date);
+                                                     : cal.dtz.defaultTimezone;
+                    let parentDate = cal.dtz.ensureDateTime(this.parentBox.date);
                     let startTime = val.startDate.getInTimezone(timezone);
                     let endTime = val.endDate.getInTimezone(timezone);
                     let nextDay = parentDate.clone();
@@ -295,8 +295,8 @@
             // Changing the drop day allows to compensate a possible difference.
 
             // Figure out if the timezones cause a days difference.
-            let start = (aItem[cal.calGetStartDateProp(aItem)] ||
-                         aItem[cal.calGetEndDateProp(aItem)]).clone();
+            let start = (aItem[cal.dtz.startDateProp(aItem)] ||
+                         aItem[cal.dtz.endDateProp(aItem)]).clone();
             let dayboxDate = this.mDate.clone();
             if (start.timezone != dayboxDate.timezone) {
                 let startInDefaultTz = start.clone().getInTimezone(dayboxDate.timezone);
@@ -610,7 +610,7 @@
 
       <property name="selectedDateTime">
         <getter><![CDATA[
-            return cal.getDefaultStartDate(this.selectedDay);
+            return cal.dtz.getDefaultStartDate(this.selectedDay);
         ]]></getter>
         <setter><![CDATA[
             this.mClickedTime = val;

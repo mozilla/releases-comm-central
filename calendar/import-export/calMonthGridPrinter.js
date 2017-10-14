@@ -33,7 +33,7 @@ calMonthPrinter.prototype = {
 
     formatToHtml: function(aStream, aStart, aEnd, aCount, aItems, aTitle) {
         let document = cal.xml.parseFile("chrome://calendar-common/skin/printing/calMonthGridPrinter.html");
-        let defaultTimezone = cal.calendarDefaultTimezone();
+        let defaultTimezone = cal.dtz.defaultTimezone;
 
         // Set page title
         document.getElementById("title").textContent = aTitle;
@@ -56,8 +56,8 @@ calMonthPrinter.prototype = {
         }
 
         for (let item of aItems) {
-            let itemStartDate = item[cal.calGetStartDateProp(item)] || item[cal.calGetEndDateProp(item)];
-            let itemEndDate = item[cal.calGetEndDateProp(item)] || item[cal.calGetStartDateProp(item)];
+            let itemStartDate = item[cal.dtz.startDateProp(item)] || item[cal.dtz.endDateProp(item)];
+            let itemEndDate = item[cal.dtz.endDateProp(item)] || item[cal.dtz.startDateProp(item)];
 
             if (!itemStartDate && !itemEndDate) {
                 cal.print.addItemToDayboxNodate(document, item);

@@ -160,8 +160,8 @@ cal.print = {
      */
     getItemIntervalString: function(aItem, aBoxDate) {
         // omit time label for all-day items
-        let startDate = aItem[cal.calGetStartDateProp(aItem)];
-        let endDate = aItem[cal.calGetEndDateProp(aItem)];
+        let startDate = aItem[cal.dtz.startDateProp(aItem)];
+        let endDate = aItem[cal.dtz.endDateProp(aItem)];
         if ((startDate && startDate.isDate) || (endDate && endDate.isDate)) {
             return "";
         }
@@ -172,7 +172,7 @@ cal.print = {
         }
 
         let dateFormatter = cal.getDateFormatter();
-        let defaultTimezone = cal.calendarDefaultTimezone();
+        let defaultTimezone = cal.dtz.defaultTimezone;
         startDate = startDate.getInTimezone(defaultTimezone);
         endDate = endDate.getInTimezone(defaultTimezone);
         let start = startDate.clone();

@@ -338,7 +338,7 @@ cal.fromRFC3339 = function(aStr, aTimezone) {
     if (matches[9] == "Z" || matches[9] == "z") {
         // If the dates timezone is "Z" or "z", then this is UTC, no matter
         // what timezone was passed
-        dateTime.timezone = cal.UTC();
+        dateTime.timezone = cal.dtz.UTC;
     } else if (matches[9] == null) {
         // We have no timezone info, only a date. We have no way to
         // know what timezone we are in, so lets assume we are in the
@@ -370,7 +370,7 @@ cal.fromRFC3339 = function(aStr, aTimezone) {
                 }
             }
             // We are still here: no timezone was found
-            dateTime.timezone = cal.UTC();
+            dateTime.timezone = cal.dtz.UTC;
             if (!dateTime.isDate) {
                 dateTime.hour += (matches[11] == "-" ? -1 : 1) * matches[12];
                 dateTime.minute += (matches[11] == "-" ? -1 : 1) * matches[13];

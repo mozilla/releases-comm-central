@@ -166,8 +166,8 @@ function createEventWithAlarm(aCalendar, aStart, aEnd, aOffset, aRRule) {
 
     item.id = cal.getUUID();
     item.calendar = aCalendar;
-    item.startDate = aStart || cal.now();
-    item.endDate = aEnd || cal.now();
+    item.startDate = aStart || cal.dtz.now();
+    item.endDate = aEnd || cal.dtz.now();
     if (aOffset) {
         alarm = createAlarmFromDuration(aOffset);
         item.addAlarm(alarm);
@@ -183,7 +183,7 @@ function addTestItems(aCalendar) {
     let item, alarm;
 
     // alarm on an item starting more than a month in the past should not fire
-    let date = cal.now();
+    let date = cal.dtz.now();
     date.day -= 32;
     [item, alarm] = createEventWithAlarm(aCalendar, date, date, "P7D");
     item.title="addTestItems Test 1";
@@ -191,7 +191,7 @@ function addTestItems(aCalendar) {
     aCalendar.addItem(item, null);
 
     // alarm 15 minutes ago should fire
-    date = cal.now();
+    date = cal.dtz.now();
     [item, alarm] = createEventWithAlarm(aCalendar, date, date, "-PT15M");
     item.title="addTestItems Test 2";
     alarmObserver.expectResult(aCalendar, item, alarm, EXPECT_FIRED);
@@ -226,7 +226,7 @@ function addTestItems(aCalendar) {
 
     // Bug 1344068 - Alarm with lastAck on exception, should take parent lastAck.
     // Alarm 15 minutes ago should fire.
-    date = cal.now();
+    date = cal.dtz.now();
     [item, alarm] = createEventWithAlarm(aCalendar, date, date, "-PT15M", "RRULE:FREQ=DAILY;COUNT=1");
     item.title="addTestItems Test 6";
 
@@ -247,7 +247,7 @@ function addTestItems(aCalendar) {
 
     // daily repeating event starting almost 2 full days ago. The alarms on the first 2 occurrences
     // should fire, and a timer should be set for the next occurrence only
-    date = cal.now();
+    date = cal.dtz.now();
     date.hour -= 47;
     [item, alarm] = createEventWithAlarm(aCalendar, date, date, "-PT15M", "RRULE:FREQ=DAILY");
     item.title="addTestItems Test 7";
@@ -260,7 +260,7 @@ function addTestItems(aCalendar) {
     // should be ignored, the alarm on the next occurrence only should fire.
     // Missing recurrences of the event in particular days of the year generate exceptions to the
     // regular sequence of alarms.
-    date = cal.now();
+    date = cal.dtz.now();
     let statusAlarmSequences = {
         reg: [EXPECT_NONE, EXPECT_NONE, EXPECT_FIRED, EXPECT_NONE, EXPECT_NONE],
         excep1: [EXPECT_NONE, EXPECT_FIRED, EXPECT_NONE, EXPECT_NONE, EXPECT_NONE],
@@ -299,7 +299,7 @@ function doModifyItemTest(aCalendar) {
     let item, alarm;
 
     // begin with item starting before the alarm date range
-    let date = cal.now();
+    let date = cal.dtz.now();
     date.day -= 32;
     [item, alarm] = createEventWithAlarm(aCalendar, date, date, "PT0S");
     aCalendar.addItem(item, null);
@@ -345,7 +345,7 @@ function doModifyItemTest(aCalendar) {
     let oldTimer = alarmObserver.getTimer(aCalendar.id, item.hashId, alarm.icalString);
     oldItem = item.clone();
     // change the timezone to floating
-    item.startDate.timezone = cal.floating();
+    item.startDate.timezone = cal.dtz.floating;
     item.generation++;
     aCalendar.modifyItem(item, oldItem, null);
     // the alarm must still be timer and with the same value (apart from milliseconds)
@@ -362,7 +362,7 @@ function doDeleteItemTest(aCalendar) {
     let item2, alarm2;
 
     // create a fired alarm and a timer
-    let date = cal.now();
+    let date = cal.dtz.now();
     [item, alarm] = createEventWithAlarm(aCalendar, date, date, "-PT5M");
     [item2, alarm2] = createEventWithAlarm(aCalendar, date, date, "PT1H");
     item.title="doDeleteItemTest item Test 1";
@@ -387,7 +387,7 @@ function doAcknowledgeTest(aCalendar) {
     let item2, alarm2;
 
     // create the fired alarms
-    let date = cal.now();
+    let date = cal.dtz.now();
     [item, alarm] = createEventWithAlarm(aCalendar, date, date, "-PT5M");
     [item2, alarm2] = createEventWithAlarm(aCalendar, date, date, "-PT5M");
     item.title="doAcknowledgeTest item Test 1";

@@ -172,7 +172,7 @@ function setRecurrence(recurrence) {
 
     let dateFormatter = cal.getDateFormatter();
 
-    let endDateString = dateFormatter.formatDateShort(cal.jsDateToDateTime(ENDDATE, cal.floating()));
+    let endDateString = dateFormatter.formatDateShort(cal.dtz.jsDateToDateTime(ENDDATE, cal.dtz.floating));
     recsleep(SHORT_SLEEP);
     recurrence.type(untilInput, endDateString);
 

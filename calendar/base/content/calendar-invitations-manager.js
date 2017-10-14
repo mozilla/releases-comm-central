@@ -379,7 +379,7 @@ InvitationsManager.prototype = {
      * @return      Potential start date.
      */
     getStartDate: function() {
-        let date = cal.now();
+        let date = cal.dtz.now();
         date.second = 0;
         date.minute = 0;
         date.hour = 0;
@@ -415,7 +415,7 @@ InvitationsManager.prototype = {
             !item.calendar.isInvitation(item)) {
             return false; // exclude if organizer has invited himself
         }
-        let start = item[cal.calGetStartDateProp(item)] || item[cal.calGetEndDateProp(item)];
+        let start = item[cal.dtz.startDateProp(item)] || item[cal.dtz.endDateProp(item)];
         return cal.isOpenInvitation(item) && start.compare(this.mStartDate) >= 0;
     }
 };

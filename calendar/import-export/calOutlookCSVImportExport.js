@@ -371,7 +371,7 @@ calOutlookCSVImporter.prototype = {
         let date = cal.createDateTime();
 
         // XXX Can we do better?
-        date.timezone = cal.floating();
+        date.timezone = cal.dtz.floating;
 
         let datepart = aLocale.dateRe.exec(aDate);
         let timepart = aLocale.timeRe.exec(aTime);
@@ -429,10 +429,10 @@ calOutlookCSVExporter.prototype = {
     exportToStream: function(aStream, aCount, aItems) {
         // Helper functions
         function dateString(aDateTime) {
-            return cal.dateTimeToJsDate(aDateTime).toLocaleString("en-US", localeEn.dateFormat);
+            return cal.dtz.dateTimeToJsDate(aDateTime).toLocaleString("en-US", localeEn.dateFormat);
         }
         function timeString(aDateTime) {
-            return cal.dateTimeToJsDate(aDateTime).toLocaleString("en-US", localeEn.timeFormat);
+            return cal.dtz.dateTimeToJsDate(aDateTime).toLocaleString("en-US", localeEn.timeFormat);
         }
         function txtString(aString) { return aString || ""; }
 

@@ -25,8 +25,8 @@ function loadCalendarPrintDialog() {
     // set the datepickers to the currently selected dates
     let theView = getCalendarView();
     if (theView) {
-        document.getElementById("start-date-picker").value = cal.dateTimeToJsDate(theView.startDay);
-        document.getElementById("end-date-picker").value = cal.dateTimeToJsDate(theView.endDay);
+        document.getElementById("start-date-picker").value = cal.dtz.dateTimeToJsDate(theView.startDay);
+        document.getElementById("end-date-picker").value = cal.dtz.dateTimeToJsDate(theView.endDay);
     } else {
         document.getElementById("printCurrentViewRadio").setAttribute("disabled", true);
     }
@@ -123,10 +123,10 @@ function getPrintSettings(receiverFunc) {
             // We return the time from the timepickers using the selected
             // timezone, as not doing so in timezones with a positive offset
             // from UTC may cause the printout to include the wrong days.
-            let currentTimezone = cal.calendarDefaultTimezone();
-            settings.start = cal.jsDateToDateTime(document.getElementById("start-date-picker").value);
+            let currentTimezone = cal.dtz.defaultTimezone;
+            settings.start = cal.dtz.jsDateToDateTime(document.getElementById("start-date-picker").value);
             settings.start = settings.start.getInTimezone(currentTimezone);
-            settings.end = cal.jsDateToDateTime(document.getElementById("end-date-picker").value);
+            settings.end = cal.dtz.jsDateToDateTime(document.getElementById("end-date-picker").value);
             settings.end = settings.end.getInTimezone(currentTimezone);
             settings.end = settings.end.clone();
             settings.end.day += 1;

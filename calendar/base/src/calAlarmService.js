@@ -12,7 +12,7 @@ Components.utils.import("resource://gre/modules/PromiseUtils.jsm");
 var kHoursBetweenUpdates = 6;
 
 function nowUTC() {
-    return cal.jsDateToDateTime(new Date()).getInTimezone(cal.UTC());
+    return cal.dtz.jsDateToDateTime(new Date()).getInTimezone(cal.dtz.UTC);
 }
 
 function newTimerWithCallback(aCallback, aDelay, aRepeating) {
@@ -143,7 +143,7 @@ calAlarmService.prototype = {
     get timezone() {
         // TODO Do we really need this? Do we ever set the timezone to something
         // different than the default timezone?
-        return this.mTimezone || cal.calendarDefaultTimezone();
+        return this.mTimezone || cal.dtz.defaultTimezone;
     },
 
     set timezone(aTimezone) {
@@ -264,7 +264,7 @@ calAlarmService.prototype = {
                 // We don't set timers for every future alarm, only those within 6 hours
                 let end = now.clone();
                 end.hour += kHoursBetweenUpdates;
-                this.alarmService.mRangeEnd = end.getInTimezone(cal.UTC());
+                this.alarmService.mRangeEnd = end.getInTimezone(cal.dtz.UTC);
 
                 this.alarmService.findAlarms(cal.getCalendarManager().getCalendars({}),
                                              start, until);
@@ -343,7 +343,7 @@ calAlarmService.prototype = {
                 alarmDate = alarmDate.getInTimezone(this.timezone);
                 alarmDate.isDate = false;
             }
-            alarmDate = alarmDate.getInTimezone(cal.UTC());
+            alarmDate = alarmDate.getInTimezone(cal.dtz.UTC);
 
             // Check for snooze
             let snoozeDate;
@@ -365,8 +365,8 @@ calAlarmService.prototype = {
 
             let now = nowUTC();
             if (alarmDate.timezone.isFloating) {
-                now = cal.now();
-                now.timezone = cal.floating();
+                now = cal.dtz.now();
+                now.timezone = cal.dtz.floating;
             }
 
             if (alarmDate.compare(now) >= 0) {

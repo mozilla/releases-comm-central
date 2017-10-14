@@ -437,7 +437,7 @@
           // of the timebar starts. The range is the number of days
           // we should be able to show. The start- and enddate
           // is the time the event is scheduled for.
-          let kDefaultTimezone = cal.calendarDefaultTimezone();
+          let kDefaultTimezone = cal.dtz.defaultTimezone;
           this.startDate = startTime.getInTimezone(kDefaultTimezone);
           this.endDate = endTime.getInTimezone(kDefaultTimezone);
           this.mRange = Number(this.getAttribute("range"));
@@ -485,7 +485,7 @@
             let startTime = args.startTime;
             let endTime = args.endTime;
 
-            let kDefaultTimezone = cal.calendarDefaultTimezone();
+            let kDefaultTimezone = cal.dtz.defaultTimezone;
             this.startDate = startTime.getInTimezone(kDefaultTimezone);
             this.endDate = endTime.getInTimezone(kDefaultTimezone);
 
@@ -709,7 +709,7 @@
                 "@mozilla.org/calendar/datetime-formatter;1"]
                     .getService(
                         Components.interfaces.calIDateTimeFormatter);
-            let date = cal.jsDateToDateTime(new Date());
+            let date = cal.dtz.jsDateToDateTime(new Date());
             date.hour = this.mStartHour;
             date.minute = 0;
             let hours =
@@ -763,7 +763,7 @@
                 // (temporarily clean the display) we keep the last know result.
                 this.mEntries = aEntries;
 
-                let kDefaultTimezone = cal.calendarDefaultTimezone();
+                let kDefaultTimezone = cal.dtz.defaultTimezone;
 
                 let start = this.mStartDate.clone();
                 start.hour = 0;
@@ -916,7 +916,7 @@
             let newEndTime = newTime.clone();
             newEndTime.addDuration(duration);
 
-            let kDefaultTimezone = cal.calendarDefaultTimezone();
+            let kDefaultTimezone = cal.dtz.defaultTimezone;
 
             if (this.mEntries) {
                 for (let entry of this.mEntries) {
@@ -1146,7 +1146,7 @@
             let startTime = args.startTime;
             let endTime = args.endTime;
 
-            let kDefaultTimezone = cal.calendarDefaultTimezone();
+            let kDefaultTimezone = cal.dtz.defaultTimezone;
             this.startDate = startTime.getInTimezone(kDefaultTimezone);
             this.endDate = endTime.getInTimezone(kDefaultTimezone);
 

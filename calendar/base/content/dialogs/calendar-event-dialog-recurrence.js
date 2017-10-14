@@ -28,12 +28,12 @@ function onLoad() {
     gStartTime = args.startTime;
     gEndTime = args.endTime;
     let preview = document.getElementById("recurrence-preview");
-    preview.dateTime = gStartTime.getInTimezone(cal.calendarDefaultTimezone());
+    preview.dateTime = gStartTime.getInTimezone(cal.dtz.defaultTimezone);
 
     onChangeCalendar(calendar);
 
     // Set starting value for 'repeat until' rule and highlight the start date.
-    let repeatDate = cal.dateTimeToJsDate(gStartTime.getInTimezone(cal.floating()));
+    let repeatDate = cal.dtz.dateTimeToJsDate(gStartTime.getInTimezone(cal.dtz.floating));
     setElementValue("repeat-until-date", repeatDate);
     document.getElementById("repeat-until-date").extraDate = repeatDate;
 
@@ -132,7 +132,7 @@ function initializeControls(rule) {
     let byDayRuleComponent = rule.getComponent("BYDAY", {});
     let byMonthDayRuleComponent = rule.getComponent("BYMONTHDAY", {});
     let byMonthRuleComponent = rule.getComponent("BYMONTH", {});
-    let kDefaultTimezone = cal.calendarDefaultTimezone();
+    let kDefaultTimezone = cal.dtz.defaultTimezone;
     let startDate = gStartTime.getInTimezone(kDefaultTimezone);
 
     // "DAILY" ruletype
@@ -235,7 +235,7 @@ function initializeControls(rule) {
             if (gUntilDate.compare(gStartTime) < 0) {
                 gUntilDate = gStartTime.clone();
             }
-            let repeatDate = cal.dateTimeToJsDate(gUntilDate.getInTimezone(cal.floating()));
+            let repeatDate = cal.dtz.dateTimeToJsDate(gUntilDate.getInTimezone(cal.dtz.floating));
             setElementValue("recurrence-duration", "until");
             setElementValue("repeat-until-date", repeatDate);
         } else {
@@ -378,7 +378,7 @@ function onSave(item) {
             break;
         }
         case "until": {
-            let untilDate = cal.jsDateToDateTime(getElementValue("repeat-until-date"), gStartTime.timezone);
+            let untilDate = cal.dtz.jsDateToDateTime(getElementValue("repeat-until-date"), gStartTime.timezone);
             untilDate.isDate = gStartTime.isDate; // enforce same value type as DTSTART
             if (!gStartTime.isDate) {
                 // correct UNTIL to exactly match start date's hour, minute, second:
@@ -595,7 +595,7 @@ function updatePreview() {
     // need to break the encapsulation, as we do it here. But we need the item
     // to contain the startdate in order to calculate the recurrence preview.
     item = item.clone();
-    let kDefaultTimezone = cal.calendarDefaultTimezone();
+    let kDefaultTimezone = cal.dtz.defaultTimezone;
     if (cal.isEvent(item)) {
         let startDate = gStartTime.getInTimezone(kDefaultTimezone);
         let endDate = gEndTime.getInTimezone(kDefaultTimezone);
@@ -633,11 +633,11 @@ function updatePreview() {
  * dialog when the user enters a wrong until date.
  */
 function checkUntilDate() {
-    let untilDate = cal.jsDateToDateTime(getElementValue("repeat-until-date"), gStartTime.timezone);
+    let untilDate = cal.dtz.jsDateToDateTime(getElementValue("repeat-until-date"), gStartTime.timezone);
     let startDate = gStartTime.clone();
     startDate.isDate = true;
     if (untilDate.compare(startDate) < 0) {
-        let repeatDate = cal.dateTimeToJsDate((gUntilDate || gStartTime).getInTimezone(cal.floating()));
+        let repeatDate = cal.dtz.dateTimeToJsDate((gUntilDate || gStartTime).getInTimezone(cal.dtz.floating));
         setElementValue("repeat-until-date", repeatDate);
         checkUntilDate.warning = true;
         let callback = function() {

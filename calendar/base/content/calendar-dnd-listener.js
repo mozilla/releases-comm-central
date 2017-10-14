@@ -24,7 +24,7 @@ var itemConversion = {
         aItem.calendar = getSelectedCalendar();
         aItem.title = aMsgHdr.mime2DecodedSubject;
 
-        cal.setDefaultStartEndHour(aItem);
+        cal.dtz.setDefaultStartEndHour(aItem);
         cal.alarms.setDefaultValues(aItem);
 
         let messenger = Components.classes["@mozilla.org/messenger;1"]
@@ -148,7 +148,7 @@ var itemConversion = {
                 item.startDate = aTask.dueDate.clone();
                 item.startDate.minute -= Preferences.get("calendar.event.defaultlength", 60);
             } else {
-                item.startDate = cal.getDefaultStartDate();
+                item.startDate = cal.dtz.getDefaultStartDate();
             }
         }
 
