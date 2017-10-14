@@ -52,8 +52,8 @@ function onLoad() {
     window.attendees = item.getAttendees({});
 
     let calendar = cal.wrapInstance(item.calendar, Components.interfaces.calISchedulingSupport);
-    window.readOnly = !(cal.isCalendarWritable(calendar) &&
-                        (cal.userCanModifyItem(item) ||
+    window.readOnly = !(cal.acl.isCalendarWritable(calendar) &&
+                        (cal.acl.userCanModifyItem(item) ||
                          (calendar &&
                           item.calendar.isInvitation(item) &&
                           cal.userCanRespondToInvitation(item))));

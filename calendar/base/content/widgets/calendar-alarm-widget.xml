@@ -120,8 +120,8 @@
                 "anonid",
                 "alarm-snooze-button"
             );
-            if (!cal.isCalendarWritable(this.mItem.calendar) ||
-                !cal.userCanModifyItem(this.mItem)) {
+            if (!cal.acl.isCalendarWritable(this.mItem.calendar) ||
+                !cal.acl.userCanModifyItem(this.mItem)) {
                 let tooltip = "reminderDisabledSnoozeButtonTooltip";
                 snoozeButton.disabled = true;
                 snoozeButton.setAttribute("tooltiptext",

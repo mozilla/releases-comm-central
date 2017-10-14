@@ -120,7 +120,7 @@ var calendarViewController = {
         // it, filter out any items that have readonly calendars, so that
         // checking for one total item below also works out if all but one item
         // are readonly.
-        let occurrences = aOccurrences.filter(item => cal.isCalendarWritable(item.calendar));
+        let occurrences = aOccurrences.filter(item => cal.acl.isCalendarWritable(item.calendar));
 
         for (let itemToDelete of occurrences) {
             if (aUseParentItems) {

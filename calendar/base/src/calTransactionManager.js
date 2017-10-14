@@ -50,8 +50,8 @@ calTransactionManager.prototype = {
     checkWritable: function(transaction) {
         function checkItem(item) {
             return item && item.calendar &&
-                   cal.isCalendarWritable(item.calendar) &&
-                   cal.userCanAddItemsToCalendar(item.calendar);
+                   cal.acl.isCalendarWritable(item.calendar) &&
+                   cal.acl.userCanAddItemsToCalendar(item.calendar);
         }
 
         let trans = transaction && transaction.wrappedJSObject;

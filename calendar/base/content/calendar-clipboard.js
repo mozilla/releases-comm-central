@@ -18,13 +18,13 @@ Components.utils.import("resource://calendar/modules/calUtils.jsm");
 function canPaste() {
     if (Preferences.get("calendar.paste.intoSelectedCalendar", false)) {
         let selectedCal = getSelectedCalendar();
-        if (!selectedCal || !cal.isCalendarWritable(selectedCal)) {
+        if (!selectedCal || !cal.acl.isCalendarWritable(selectedCal)) {
             return false;
         }
     } else {
         let calendars = cal.getCalendarManager().getCalendars({})
-                           .filter(cal.isCalendarWritable)
-                           .filter(cal.userCanAddItemsToCalendar);
+                           .filter(cal.acl.isCalendarWritable)
+                           .filter(cal.acl.userCanAddItemsToCalendar);
         if (!calendars.length) {
             return false;
         }
@@ -142,8 +142,8 @@ function pasteFromClipboard() {
                 destCal = getSelectedCalendar();
             } else {
                 let calendars = cal.getCalendarManager().getCalendars({})
-                                   .filter(cal.isCalendarWritable)
-                                   .filter(cal.userCanAddItemsToCalendar);
+                                   .filter(cal.acl.isCalendarWritable)
+                                   .filter(cal.acl.userCanAddItemsToCalendar);
                 if (calendars.length > 1) {
                     let args = {};
                     args.calendars = calendars;

@@ -74,7 +74,7 @@ var taskEdit = {
             taskEdit.setupTaskField(edit,
                                     true,
                                     cal.calGetString("calendar", "taskEditInstructionsCapability"));
-        } else if (cal.isCalendarWritable(calendar)) {
+        } else if (cal.acl.isCalendarWritable(calendar)) {
             edit.showsInstructions = false;
             taskEdit.setupTaskField(edit, false, edit.savedValue || "");
         } else {
@@ -108,7 +108,7 @@ var taskEdit = {
             taskEdit.setupTaskField(edit,
                                     true,
                                     cal.calGetString("calendar", "taskEditInstructionsCapability"));
-        } else if (cal.isCalendarWritable(calendar)) {
+        } else if (cal.acl.isCalendarWritable(calendar)) {
             if (!edit.showsInstructions) {
                 edit.savedValue = edit.value || "";
             }

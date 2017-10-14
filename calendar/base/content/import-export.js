@@ -111,7 +111,7 @@ function loadEventsFromFile(aCalendar) {
         }
 
         let calendars = cal.getCalendarManager().getCalendars({});
-        calendars = calendars.filter(cal.isCalendarWritable);
+        calendars = calendars.filter(cal.acl.isCalendarWritable);
 
         if (calendars.length == 1) {
             // There's only one calendar, so it's silly to ask what calendar

@@ -569,9 +569,9 @@ function loadDialog(aItem) {
         let calendarList = unfilteredList.filter((calendar) =>
            (calendar.id == calendarToUse.id ||
             (calendar &&
-             cal.isCalendarWritable(calendar) &&
-             (cal.userCanAddItemsToCalendar(calendar) ||
-              (calendar == aItem.calendar && cal.userCanModifyItem(aItem))) &&
+             cal.acl.isCalendarWritable(calendar) &&
+             (cal.acl.userCanAddItemsToCalendar(calendar) ||
+              (calendar == aItem.calendar && cal.acl.userCanModifyItem(aItem))) &&
              cal.isItemSupported(aItem, calendar))));
 
         itemProps.calendarList = calendarList.map(calendar => [calendar.id, calendar.name]);

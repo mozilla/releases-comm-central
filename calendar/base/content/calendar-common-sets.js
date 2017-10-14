@@ -522,7 +522,7 @@ var calendarController = {
      * calendar.
      */
     get writable() {
-        return cal.getCalendarManager().getCalendars({}).some(cal.isCalendarWritable);
+        return cal.getCalendarManager().getCalendars({}).some(cal.acl.isCalendarWritable);
     },
 
     /**
@@ -588,7 +588,7 @@ var calendarController = {
         let calendars = cal.getCalendarManager().getCalendars({});
         let count = calendars.length;
         for (let calendar of calendars) {
-            if (!cal.isCalendarWritable(calendar)) {
+            if (!cal.acl.isCalendarWritable(calendar)) {
                 count--;
             }
         }
@@ -642,7 +642,7 @@ var calendarController = {
     get todo_items_writable() {
         let selectedTasks = getSelectedTasks();
         for (let task of selectedTasks) {
-            if (cal.isCalendarWritable(task.calendar)) {
+            if (cal.acl.isCalendarWritable(task.calendar)) {
                 return true;
             }
         }
@@ -910,7 +910,7 @@ function calendarUpdateNewItemsCommand() {
     // re-calculate command status
     CalendarNewEventsCommandEnabled = false;
     CalendarNewTasksCommandEnabled = false;
-    let calendars = cal.getCalendarManager().getCalendars({}).filter(cal.isCalendarWritable).filter(cal.userCanAddItemsToCalendar);
+    let calendars = cal.getCalendarManager().getCalendars({}).filter(cal.acl.isCalendarWritable).filter(cal.acl.userCanAddItemsToCalendar);
     if (calendars.some(cal.isEventCalendar)) {
         CalendarNewEventsCommandEnabled = true;
     }
@@ -933,7 +933,7 @@ function calendarUpdateDeleteCommand(selectedItems) {
 
     /* we must disable "delete" when at least one item cannot be deleted */
     for (let item of selectedItems) {
-        if (!cal.userCanDeleteItemsFromCalendar(item.calendar)) {
+        if (!cal.acl.userCanDeleteItemsFromCalendar(item.calendar)) {
             CalendarDeleteCommandEnabled = false;
             break;
         }

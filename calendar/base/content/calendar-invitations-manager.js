@@ -191,7 +191,7 @@ InvitationsManager.prototype = {
         };
 
         for (let calendar of cals) {
-            if (!cal.isCalendarWritable(calendar) || calendar.getProperty("disabled")) {
+            if (!cal.acl.isCalendarWritable(calendar) || calendar.getProperty("disabled")) {
                 opListener.onOperationComplete();
                 continue;
             }

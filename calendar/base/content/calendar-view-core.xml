@@ -237,7 +237,7 @@
             if (cal.isInvitation(item)) {
                 this.setAttribute("invitation-status", cal.getInvitedAttendee(item).participationStatus);
                 this.setAttribute("readonly", "true");
-            } else if (!cal.isCalendarWritable(item.calendar)) {
+            } else if (!cal.acl.isCalendarWritable(item.calendar)) {
                 this.setAttribute("readonly", "true");
             }
         ]]></body>
@@ -321,7 +321,7 @@
           // Also, check if the calendar is readOnly or we are offline.
 
           if (this.selected && !(event.ctrlKey || event.metaKey) &&
-                cal.isCalendarWritable(this.mOccurrence.calendar)) {
+                cal.acl.isCalendarWritable(this.mOccurrence.calendar)) {
               if (this.editingTimer) {
                   clearTimeout(this.editingTimer);
               }
@@ -358,7 +358,7 @@
           }
           let item = this.occurrence;
           let isInvitation = item.calendar instanceof Components.interfaces.calISchedulingSupport && item.calendar.isInvitation(item);
-          if (!cal.isCalendarWritable(item.calendar) || !cal.userCanModifyItem(item) || isInvitation) {
+          if (!cal.acl.isCalendarWritable(item.calendar) || !cal.acl.userCanModifyItem(item) || isInvitation) {
               return;
           }
           if (!this.selected) {

@@ -182,8 +182,8 @@ calAlarmService.prototype = {
 
     dismissAlarm: function(aItem, aAlarm) {
         let rv;
-        if (cal.isCalendarWritable(aItem.calendar) &&
-            cal.userCanModifyItem(aItem)) {
+        if (cal.acl.isCalendarWritable(aItem.calendar) &&
+            cal.acl.userCanModifyItem(aItem)) {
             let now = nowUTC();
             // We want the parent item, otherwise we're going to accidentally
             // create an exception.  We've relnoted (for 0.1) the slightly odd
@@ -383,8 +383,8 @@ calAlarmService.prototype = {
 
                 this.addTimer(aItem, alarm, timeout);
             } else if (showMissed &&
-                       cal.isCalendarWritable(aItem.calendar) &&
-                       cal.userCanModifyItem(aItem)) {
+                       cal.acl.isCalendarWritable(aItem.calendar) &&
+                       cal.acl.userCanModifyItem(aItem)) {
                 // This alarm is in the past and the calendar is writable, so we
                 // could snooze or dismiss alarms. See if it has been previously
                 // ack'd.

@@ -142,7 +142,7 @@ cal.itip = {
      * @return            True, if its a scheduling calendar.
      */
     isSchedulingCalendar: function(calendar) {
-        return cal.isCalendarWritable(calendar) &&
+        return cal.acl.isCalendarWritable(calendar) &&
                calendar.getProperty("organizerId") &&
                calendar.getProperty("itip.transport");
     },
@@ -181,7 +181,7 @@ cal.itip = {
         let isWritableCalendar = function(aCalendar) {
             /* TODO: missing ACL check for existing items (require callback API) */
             return cal.itip.isSchedulingCalendar(aCalendar) &&
-                   cal.userCanAddItemsToCalendar(aCalendar);
+                   cal.acl.userCanAddItemsToCalendar(aCalendar);
         };
 
         let writableCalendars = cal.getCalendarManager().getCalendars({}).filter(isWritableCalendar);

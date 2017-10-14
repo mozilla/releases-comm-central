@@ -1799,8 +1799,8 @@
         <parameter name="aMouseY"/>
         <parameter name="aSnapInt"/>
         <body><![CDATA[
-            if (!cal.isCalendarWritable(aOccurrence.calendar) ||
-                !cal.userCanModifyItem(aOccurrence) ||
+            if (!cal.acl.isCalendarWritable(aOccurrence.calendar) ||
+                !cal.acl.userCanModifyItem(aOccurrence) ||
                 (aOccurrence.calendar instanceof Components.interfaces.calISchedulingSupport && aOccurrence.calendar.isInvitation(aOccurrence)) ||
                 aOccurrence.calendar.getProperty("capabilities.events.supported") === false) {
                 return;
@@ -2047,7 +2047,7 @@
 
           // If the selected calendar is readOnly, we don't want any sweeping.
           let calendar = getSelectedCalendar();
-          if (!cal.isCalendarWritable(calendar) ||
+          if (!cal.acl.isCalendarWritable(calendar) ||
               calendar.getProperty("capabilities.events.supported") === false) {
               return;
           }

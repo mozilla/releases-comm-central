@@ -176,8 +176,8 @@ function snoozeAllItems(aDurationMinutes) {
     for (let node of alarmRichlist.childNodes) {
         // Check if the node is a valid alarm and is still part of DOM
         if (node.parentNode && node.item && node.alarm &&
-            cal.isCalendarWritable(node.item.calendar) &&
-            cal.userCanModifyItem(node.item) &&
+            cal.acl.isCalendarWritable(node.item.calendar) &&
+            cal.acl.userCanModifyItem(node.item) &&
             !(node.item.parentItem.hashId in parentItems)) {
             // We only need to acknowledge one occurrence for repeating items
             parentItems[node.item.parentItem.hashId] = node.item.parentItem;
@@ -346,8 +346,8 @@ function doReadOnlyChecks() {
     let countRO = 0;
     let alarmRichlist = document.getElementById("alarm-richlist");
     for (let node of alarmRichlist.childNodes) {
-        if (!cal.isCalendarWritable(node.item.calendar) ||
-            !cal.userCanModifyItem(node.item)) {
+        if (!cal.acl.isCalendarWritable(node.item.calendar) ||
+            !cal.acl.userCanModifyItem(node.item)) {
             countRO++;
         }
     }
