@@ -31,13 +31,9 @@
   list-style-image: url("chrome://messenger/skin/icons/item.png");
 }
 
-.tab-background[selected=true] {
-  border-inline-start-style: solid;
-}
-
-:root:-moz-any(:not([tabsintitlebar]), [sizemode=fullscreen]) .tabmail-tab:first-child >
-  .tab-stack > .tab-background[selected=true] {
-  border-inline-start-style: none;
+:root[tabsintitlebar]:not([sizemode=fullscreen]) .tabmail-tab[first-tab]::before {
+  content: '';
+  display: -moz-box;
 }
 
 .tabmail-tab[type="glodaSearch"] .tab-stack > .tab-content > .tab-icon-image {

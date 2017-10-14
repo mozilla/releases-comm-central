@@ -38,10 +38,6 @@ tabpanels {
   list-style-image: url("moz-icon://stock/gtk-file?size=menu");
 }
 
-.tabmail-tab:not(:first-child) > .tab-stack > .tab-background[selected=true] {
-  border-inline-start-style: solid;
-}
-
 .tabmail-tab > .tab-stack > .tab-content > .tab-label-container {
   /* tabmail-tab focus ring */
   border: 1px dotted transparent;

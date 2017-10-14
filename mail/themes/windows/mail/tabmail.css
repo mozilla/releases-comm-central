@@ -26,10 +26,6 @@
   -moz-image-region: rect(0px, 16px, 16px, 0px);
 }
 
-.tabmail-tab:not(:first-child) > .tab-stack > .tab-background[selected=true] {
-  border-inline-start-style: solid;
-}
-
 tabpanels {
   -moz-appearance: none;
   background-color: transparent;
@@ -106,11 +102,6 @@ tabpanels {
     margin-top: 6px;
   }
 
-  #mail-toolbar-menubar2:not([autohide=true]) ~ #tabs-toolbar > .tabmail-tabs >
-    .tabmail-tab > .tab-stack > .tab-background {
-    border-top-style: none;
-  }
-
   #alltabs-button:not(:-moz-lwtheme):not([disabled]) {
     border-color: transparent;
     margin-top: 0;
@@ -163,10 +154,10 @@ tabpanels {
 
 @media (-moz-windows-glass),
        (-moz-os-version: windows-win8) and (-moz-windows-default-theme) {
-  :root[sizemode=normal] .tabmail-tab:first-child > .tab-stack >
-    .tab-background[selected=true] {
-    border-inline-start-style: solid;
-    border-inline-start-color: rgba(10%, 10%, 10%, .4);
+  :root[sizemode=normal] .tabmail-tab[first-tab][visuallyselected]:before {
+    content: '';
+    display: -moz-box;
+    --tabs-border: rgba(10%, 10%, 10%, .4);
   }
 }
 
