@@ -9,15 +9,12 @@
 
 /* exported getCalendarDirectory, attendeeMatchesAddresses,
  *          openCalendarWizard, openCalendarProperties, calPrint,
- *          calRadioGroupSelectItem, isItemSupported, getPrefCategoriesArray,
- *          setPrefCategoriesFromArray, compareItems, calTryWrappedJSObject,
- *          compareArrays, LOG, WARN, ERROR, showError,
- *          getContrastingTextColor, checkIfInRange, getProgressAtom,
- *          sendMailTo, calSetProdidVersion, applyAttributeToMenuChildren,
- *          isPropertyValueSame, getParentNodeOrThis,
- *          getParentNodeOrThisByAttribute, setItemProperty,
- *          calIterateEmailIdentities, compareItemContent, binaryInsert,
- *          getCompositeCalendar, findItemWindow
+ *          calRadioGroupSelectItem, getPrefCategoriesArray,
+ *          setPrefCategoriesFromArray, calTryWrappedJSObject, compareArrays,
+ *          LOG, WARN, ERROR, showError, getContrastingTextColor,
+ *          sendMailTo, applyAttributeToMenuChildren, isPropertyValueSame,
+ *          getParentNodeOrThis, getParentNodeOrThisByAttribute,
+ *          calIterateEmailIdentities, binaryInsert, getCompositeCalendar
  */
 
 Components.utils.import("resource:///modules/mailServices.js");
@@ -182,41 +179,6 @@ function calRadioGroupSelectItem(aRadioGroupId, aItemId) {
     radioGroup.selectedIndex = index;
 }
 
-
-/** checks if an item is supported by a Calendar
-* @param aCalendar the calendar
-* @param aItem the item either a task or an event
-* @return true or false
-*/
-function isItemSupported(aItem, aCalendar) {
-    if (isToDo(aItem)) {
-        return (aCalendar.getProperty("capabilities.tasks.supported") !== false);
-    } else if (isEvent(aItem)) {
-        return (aCalendar.getProperty("capabilities.events.supported") !== false);
-    }
-    return false;
-}
-
-/**
- * Determines whether or not the aObject is a calIEvent
- *
- * @param aObject  the object to test
- * @returns        true if the object is a calIEvent, false otherwise
- */
-function isEvent(aObject) {
-    return (cal.wrapInstance(aObject, Components.interfaces.calIEvent) != null);
-}
-
-/**
- * Determines whether or not the aObject is a calITodo
- *
- * @param aObject  the object to test
- * @returns        true if the object is a calITodo, false otherwise
- */
-function isToDo(aObject) {
-    return (cal.wrapInstance(aObject, Components.interfaces.calITodo) != null);
-}
-
 /**
  * Get array of category names from preferences or locale default,
  * unescaping any commas in each category name.
@@ -370,28 +332,6 @@ function getUUID() {
     // generate uuids without braces to avoid problems with
     // CalDAV servers that don't support filenames with {}
     return uuidGen.generateUUID().toString().replace(/[{}]/g, "");
-}
-
-/**
- * Due to a bug in js-wrapping, normal == comparison can fail when we
- * have 2 objects.  Use these functions to force them both to get wrapped
- * the same way, allowing for normal comparison.
- */
-
-/**
- * calIItemBase comparer
- */
-function compareItems(aItem, aOtherItem) {
-    let sip1 = Components.classes["@mozilla.org/supports-interface-pointer;1"]
-                         .createInstance(Components.interfaces.nsISupportsInterfacePointer);
-    sip1.data = aItem;
-    sip1.dataIID = Components.interfaces.calIItemBase;
-
-    let sip2 = Components.classes["@mozilla.org/supports-interface-pointer;1"]
-                         .createInstance(Components.interfaces.nsISupportsInterfacePointer);
-    sip2.data = aOtherItem;
-    sip2.dataIID = Components.interfaces.calIItemBase;
-    return sip1.data == sip2.data;
 }
 
 /**
@@ -598,98 +538,6 @@ function getContrastingTextColor(bgColor) {
     return "black";
 }
 
-/**
- * Checks whether the passed item fits into the demanded range.
- *
- * @param item               the item
- * @param rangeStart         (inclusive) range start or null (open range)
- * @param rangeStart         (exclusive) range end or null (open range)
- * @param returnDtstartOrDue returns item's start (or due) date in case
- *                           the item is in the specified Range; null otherwise.
- */
-function checkIfInRange(item, rangeStart, rangeEnd, returnDtstartOrDue) {
-    let startDate;
-    let endDate;
-    let queryStart = cal.dtz.ensureDateTime(rangeStart);
-    if (isEvent(item)) {
-        startDate = item.startDate;
-        if (!startDate) { // DTSTART mandatory
-            // xxx todo: should we assert this case?
-            return null;
-        }
-        endDate = item.endDate || startDate;
-    } else {
-        let dueDate = item.dueDate;
-        startDate = item.entryDate || dueDate;
-        if (!item.entryDate) {
-            if (returnDtstartOrDue) { // DTSTART or DUE mandatory
-                return null;
-            }
-            // 3.6.2. To-do Component
-            // A "VTODO" calendar component without the "DTSTART" and "DUE" (or
-            // "DURATION") properties specifies a to-do that will be associated
-            // with each successive calendar date, until it is completed.
-            let completedDate = cal.dtz.ensureDateTime(item.completedDate);
-            dueDate = cal.dtz.ensureDateTime(dueDate);
-            return !completedDate || !queryStart ||
-                   completedDate.compare(queryStart) > 0 ||
-                   (dueDate && dueDate.compare(queryStart) >= 0);
-        }
-        endDate = dueDate || startDate;
-    }
-
-    let start = cal.dtz.ensureDateTime(startDate);
-    let end = cal.dtz.ensureDateTime(endDate);
-    let queryEnd = cal.dtz.ensureDateTime(rangeEnd);
-
-    if (start.compare(end) == 0) {
-        if ((!queryStart || start.compare(queryStart) >= 0) &&
-            (!queryEnd || start.compare(queryEnd) < 0)) {
-            return startDate;
-        }
-    } else if ((!queryEnd || start.compare(queryEnd) < 0) &&
-               (!queryStart || end.compare(queryStart) > 0)) {
-        return startDate;
-    }
-    return null;
-}
-
-/**
- * This function return the progress state of a task:
- * completed, overdue, duetoday, inprogress, future
- *
- * @param aTask     The task to check.
- * @return          The progress atom.
- */
-function getProgressAtom(aTask) {
-    let nowdate = new Date();
-
-    if (aTask.recurrenceInfo) {
-        return "repeating";
-    }
-
-    if (aTask.isCompleted) {
-        return "completed";
-    }
-
-    if (aTask.dueDate && aTask.dueDate.isValid) {
-        if (cal.dtz.dateTimeToJsDate(aTask.dueDate).getTime() < nowdate.getTime()) {
-            return "overdue";
-        } else if (aTask.dueDate.year == nowdate.getFullYear() &&
-                   aTask.dueDate.month == nowdate.getMonth() &&
-                   aTask.dueDate.day == nowdate.getDate()) {
-            return "duetoday";
-        }
-    }
-
-    if (aTask.entryDate && aTask.entryDate.isValid &&
-        cal.dtz.dateTimeToJsDate(aTask.entryDate).getTime() < nowdate.getTime()) {
-        return "inprogress";
-    }
-
-    return "future";
-}
-
 function calInterfaceBag(iid) {
     this.init(iid);
 }
@@ -871,36 +719,6 @@ calOperationGroup.prototype = {
 };
 
 /**
- * Centralized funtions for accessing prodid and version
- */
-function calGetProductId() {
-    return "-//Mozilla.org/NONSGML Mozilla Calendar V1.1//EN";
-}
-function calGetProductVersion() {
-    return "2.0";
-}
-
-/**
- * This is a centralized function for setting the prodid and version on an
- * ical component.  This should be used whenever you need to set the prodid
- * and version on a calIcalComponent object.
- *
- * @param
- *      aIcalComponent  The ical component to set the prodid and version on.
- */
-function calSetProdidVersion(aIcalComponent) {
-    // Throw for an invalid parameter
-    aIcalComponent = cal.wrapInstance(aIcalComponent, Components.interfaces.calIIcalComponent);
-    if (!aIcalComponent) {
-        throw Components.results.NS_ERROR_INVALID_ARG;
-    }
-    // Set the prodid and version
-    aIcalComponent.prodid = calGetProductId();
-    aIcalComponent.version = calGetProductVersion();
-}
-
-
-/**
  * TODO: The following UI-related functions need to move somewhere different,
  * i.e calendar-ui-utils.js
  */
@@ -1002,80 +820,6 @@ function getParentNodeOrThisByAttribute(aChildNode, aAttributeName, aAttributeVa
     return node;
 }
 
-function setItemProperty(item, propertyName, aValue, aCapability) {
-    let isSupported = (item.calendar.getProperty("capabilities." + aCapability + ".supported") !== false);
-    let value = (aCapability && !isSupported ? null : aValue);
-
-    switch (propertyName) {
-        case "startDate":
-            if ((value.isDate && !item.startDate.isDate) ||
-                (!value.isDate && item.startDate.isDate) ||
-                !compareObjects(value.timezone, item.startDate.timezone) ||
-                value.compare(item.startDate) != 0) {
-                item.startDate = value;
-            }
-            break;
-        case "endDate":
-            if ((value.isDate && !item.endDate.isDate) ||
-                (!value.isDate && item.endDate.isDate) ||
-                !compareObjects(value.timezone, item.endDate.timezone) ||
-                value.compare(item.endDate) != 0) {
-                item.endDate = value;
-            }
-            break;
-        case "entryDate":
-            if (value == item.entryDate) {
-                break;
-            }
-            if ((value && !item.entryDate) ||
-                (!value && item.entryDate) ||
-                value.isDate != item.entryDate.isDate ||
-                !compareObjects(value.timezone, item.entryDate.timezone) ||
-                value.compare(item.entryDate) != 0) {
-                item.entryDate = value;
-            }
-            break;
-        case "dueDate":
-            if (value == item.dueDate) {
-                break;
-            }
-            if ((value && !item.dueDate) ||
-                (!value && item.dueDate) ||
-                value.isDate != item.dueDate.isDate ||
-                !compareObjects(value.timezone, item.dueDate.timezone) ||
-                value.compare(item.dueDate) != 0) {
-                item.dueDate = value;
-            }
-            break;
-        case "isCompleted":
-            if (value != item.isCompleted) {
-                item.isCompleted = value;
-            }
-            break;
-        case "PERCENT-COMPLETE": {
-            let perc = parseInt(item.getProperty(propertyName), 10);
-            if (isNaN(perc)) {
-                perc = 0;
-            }
-            if (perc != value) {
-                item.setProperty(propertyName, value);
-            }
-            break;
-        }
-        case "title":
-            if (value != item.title) {
-                item.title = value;
-            }
-            break;
-        default:
-            if (!value || value == "") {
-                item.deleteProperty(propertyName);
-            } else if (item.getProperty(propertyName) != value) {
-                item.setProperty(propertyName, value);
-            }
-            break;
-    }
-}
 /**
  * END TODO: The above UI-related functions need to move somewhere different,
  * i.e calendar-ui-utils.js
@@ -1175,83 +919,6 @@ function calIterateEmailIdentities(func) {
             }
         }
     }
-}
-
-/**
- * Compare two items by *content*, leaving out any revision information such as
- * X-MOZ-GENERATION, SEQUENCE, DTSTAMP, LAST-MODIFIED.
-
- * The format for the parameters to ignore object is:
- * { "PROPERTY-NAME": ["PARAM-NAME", ...] }
- *
- * If aIgnoreProps is not passed, these properties are ignored:
- *  X-MOZ-GENERATION, SEQUENCE, DTSTAMP, LAST-MODIFIED, X-MOZ-SEND-INVITATIONS
- *
- * If aIgnoreParams is not passed, these parameters are ignored:
- *  ATTENDEE: CN
- *  ORGANIZER: CN
- *
- * @param aFirstItem        The item to compare.
- * @param aSecondItem       The item to compare to.
- * @param aIgnoreProps      (optional) An array of parameters to ignore.
- * @param aIgnoreParams     (optional) An object describing which parameters to
- *                                     ignore.
- * @return                  True, if items match.
- */
-function compareItemContent(aFirstItem, aSecondItem, aIgnoreProps, aIgnoreParams) {
-    let ignoreProps = arr2hash(aIgnoreProps || [
-        "SEQUENCE", "DTSTAMP", "LAST-MODIFIED", "X-MOZ-GENERATION", "X-MICROSOFT-DISALLOW-COUNTER",
-        "X-MOZ-SEND-INVITATIONS", "X-MOZ-SEND-INVITATIONS-UNDISCLOSED"
-    ]);
-
-    let ignoreParams = aIgnoreParams ||
-        { ATTENDEE: ["CN"], ORGANIZER: ["CN"] };
-    for (let x in ignoreParams) {
-        ignoreParams[x] = arr2hash(ignoreParams[x]);
-    }
-
-    function arr2hash(arr) {
-        let hash = {};
-        for (let x of arr) {
-            hash[x] = true;
-        }
-        return hash;
-    }
-
-    // This doesn't have to be super correct rfc5545, it just needs to be
-    // in the same order
-    function normalizeComponent(comp) {
-        let props = [];
-        for (let prop of cal.ical.propertyIterator(comp)) {
-            if (!(prop.propertyName in ignoreProps)) {
-                props.push(normalizeProperty(prop));
-            }
-        }
-        props = props.sort();
-
-        let comps = [];
-        for (let subcomp of cal.ical.subcomponentIterator(comp)) {
-            comps.push(normalizeComponent(subcomp));
-        }
-        comps = comps.sort();
-
-        return comp.componentType + props.join("\r\n") + comps.join("\r\n");
-    }
-
-    function normalizeProperty(prop) {
-        let params = [...cal.ical.paramIterator(prop)]
-            .filter(([k, v]) => !(prop.propertyName in ignoreParams) ||
-                   !(k in ignoreParams[prop.propertyName]))
-            .map(([k, v]) => k + "=" + v)
-            .sort();
-
-        return prop.propertyName + ";" +
-               params.join(";") + ":" +
-               prop.valueAsIcalString;
-    }
-
-    return normalizeComponent(aFirstItem.icalComponent) ==
-           normalizeComponent(aSecondItem.icalComponent);
 }
 
 /**
@@ -1378,33 +1045,4 @@ function getCompositeCalendar(aWindow) {
         }
     }
     return aWindow._compositeCalendar;
-}
-
-/**
- * Search for already open item dialog or tab.
- *
- * @param aItem     The item of the dialog or tab to search for.
- */
-function findItemWindow(aItem) {
-    // check for existing dialog windows
-    let list = Services.wm.getEnumerator("Calendar:EventDialog");
-    while (list.hasMoreElements()) {
-        let dlg = list.getNext();
-        if (dlg.arguments[0] &&
-            dlg.arguments[0].mode == "modify" &&
-            dlg.arguments[0].calendarEvent &&
-            dlg.arguments[0].calendarEvent.hashId == aItem.hashId) {
-            return dlg;
-        }
-    }
-    // check for existing summary windows
-    list = Services.wm.getEnumerator("Calendar:EventSummaryDialog");
-    while (list.hasMoreElements()) {
-        let dlg = list.getNext();
-        if (dlg.calendarItem &&
-            dlg.calendarItem.hashId == aItem.hashId) {
-            return dlg;
-        }
-    }
-    return null;
 }

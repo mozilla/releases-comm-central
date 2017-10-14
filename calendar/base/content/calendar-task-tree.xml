@@ -398,7 +398,7 @@
 
                 this.treebox.beginUpdateBatch();
 
-                let idiff = new itemDiff();
+                let idiff = new cal.item.ItemDiff();
                 idiff.load(aOldItems);
                 idiff.difference(aNewItems);
                 idiff.complete();

@@ -40,6 +40,18 @@ var migrations = {
         calendarDefaultTimezone: "defaultTimezone",
         floating: "floating",
         UTC: "UTC"
+    },
+    item: {
+        // ItemDiff also belongs here, but is separately migrated in
+        // calItemUtils.jsm
+        isItemSupported: "isItemSupported",
+        isEventCalendar: "isEventCalendar",
+        isTaskCalendar: "isTaskCalendar",
+        isEvent: "isEvent",
+        isToDo: "isToDo",
+        checkIfInRange: "checkIfInRange",
+        setItemProperty: "setItemProperty",
+        getEventDefaultTransparency: "getEventDefaultTransparency"
     }
 };
 
