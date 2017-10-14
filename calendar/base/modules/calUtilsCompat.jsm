@@ -17,6 +17,12 @@ this.EXPORTED_SYMBOLS = ["injectCalUtilsCompat"];
  * injectCalUtilsCompat.
  */
 var migrations = {
+    acl: {
+        isCalendarWritable: "isCalendarWritable",
+        userCanAddItemsToCalendar: "userCanAddItemsToCalendar",
+        userCanDeleteItemsFromCalendar: "userCanDeleteItemsFromCalendar",
+        userCanModifyItem: "userCanModifyItem"
+    },
     dtz: {
         now: "now",
         ensureDateTime: "ensureDateTime",

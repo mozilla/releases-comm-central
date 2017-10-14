@@ -946,6 +946,7 @@ var cal = {
 
 // Sub-modules for calUtils
 XPCOMUtils.defineLazyModuleGetter(cal, "dtz", "resource://calendar/modules/calDateTimeUtils.jsm", "caldtz");
+XPCOMUtils.defineLazyModuleGetter(cal, "acl", "resource://calendar/modules/calACLUtils.jsm", "calacl");
 
 /**
  * Returns a function that provides access to the given service.
