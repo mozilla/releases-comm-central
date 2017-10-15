@@ -2,8 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-Components.utils.import("resource://calendar/modules/calUtils.jsm");
 Components.utils.import("resource://gre/modules/Services.jsm");
+Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 var EXPECT_NONE = 0;
 var EXPECT_FIRED = 1;
@@ -12,6 +12,8 @@ var EXPECT_TIMER = 2;
 function do_check_xor(a, b, aMessage) { return ok((a && !b) || (!a && b), aMessage); }
 
 var alarmObserver = {
+    QueryInterface: XPCOMUtils.generateQI([Components.interfaces.calIAlarmServiceObserver]),
+
     service: null,
     firedMap: {},
     expectedMap: {},
@@ -145,7 +147,7 @@ function initializeAlarmService() {
     ok(alarmObserver.service.mStarted);
 
     // we need to replace the existing observers with our observer
-    for (let obs of alarmObserver.service.mObservers.mInterfaces) {
+    for (let obs of alarmObserver.service.mObservers.values()) {
         alarmObserver.service.removeObserver(obs);
     }
     alarmObserver.service.addObserver(alarmObserver);

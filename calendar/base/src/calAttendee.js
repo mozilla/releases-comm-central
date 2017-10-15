@@ -2,13 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
+
 Components.utils.import("resource://calendar/modules/calUtils.jsm");
 Components.utils.import("resource://calendar/modules/calIteratorUtils.jsm");
-Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 function calAttendee() {
     this.wrappedJSObject = this;
-    this.mProperties = new cal.calPropertyBag();
+    this.mProperties = new cal.data.PropertyMap();
 }
 
 var calAttendeeClassID = Components.ID("{5c8dcaa3-170c-4a73-8142-d531156f664d}");
@@ -51,7 +52,7 @@ calAttendee.prototype = {
             a[prop] = this[prop];
         }
 
-        for (let [key, value] of this.mProperties) {
+        for (let [key, value] of this.mProperties.entries()) {
             a.setProperty(key, value);
         }
 
@@ -86,7 +87,7 @@ calAttendee.prototype = {
 
         // Reset the property bag for the parameters, it will be re-initialized
         // from the ical property.
-        this.mProperties = new cal.calPropertyBag();
+        this.mProperties = new cal.data.PropertyMap();
 
         for (let [name, value] of cal.ical.paramIterator(icalatt)) {
             if (!promotedProps[name]) {
@@ -124,7 +125,7 @@ calAttendee.prototype = {
                 }
             }
         }
-        for (let [key, value] of this.mProperties) {
+        for (let [key, value] of this.mProperties.entries()) {
             try {
                 icalatt.setParameter(key, value);
             } catch (e) {
@@ -153,23 +154,23 @@ calAttendee.prototype = {
         return val;
     },
 
-    get propertyEnumerator() { return this.mProperties.enumerator; },
+    get propertyEnumerator() { return this.mProperties.simpleEnumerator; },
 
     // The has/get/set/deleteProperty methods are case-insensitive.
     getProperty: function(aName) {
-        return this.mProperties.getProperty(aName.toUpperCase());
+        return this.mProperties.get(aName.toUpperCase());
     },
     setProperty: function(aName, aValue) {
         this.modify();
         if (aValue || !isNaN(parseInt(aValue, 10))) {
-            this.mProperties.setProperty(aName.toUpperCase(), aValue);
+            this.mProperties.set(aName.toUpperCase(), aValue);
         } else {
-            this.mProperties.deleteProperty(aName.toUpperCase());
+            this.mProperties.delete(aName.toUpperCase());
         }
     },
     deleteProperty: function(aName) {
         this.modify();
-        this.mProperties.deleteProperty(aName.toUpperCase());
+        this.mProperties.delete(aName.toUpperCase());
     },
 
     mId: null,

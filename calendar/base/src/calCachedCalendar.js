@@ -121,7 +121,7 @@ calCachedCalendarObserverHelper.prototype = {
 function calCachedCalendar(uncachedCalendar) {
     this.wrappedJSObject = this;
     this.mSyncQueue = [];
-    this.mObservers = new cal.ObserverBag(Components.interfaces.calIObserver);
+    this.mObservers = new cal.data.ObserverSet(Components.interfaces.calIObserver);
     uncachedCalendar.superCalendar = this;
     uncachedCalendar.addObserver(new calCachedCalendarObserverHelper(this, false));
     this.mUncachedCalendar = uncachedCalendar;
@@ -637,7 +637,7 @@ calCachedCalendar.prototype = {
         this.mObservers.add(aObserver);
     },
     removeObserver: function(aObserver) {
-        this.mObservers.remove(aObserver);
+        this.mObservers.delete(aObserver);
     },
 
     addItem: function(item, listener) {

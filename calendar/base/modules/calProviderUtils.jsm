@@ -440,39 +440,6 @@ cal.promptOverwrite = function(aMode, aItem) {
 };
 
 /**
- * Observer bag implementation taking care to replay open batch notifications.
- */
-cal.ObserverBag = function(iid) {
-    this.init(iid);
-};
-cal.ObserverBag.prototype = {
-    __proto__: cal.calListenerBag.prototype,
-
-    mBatchCount: 0,
-    notify: function(func, args) {
-        switch (func) {
-            case "onStartBatch":
-                ++this.mBatchCount;
-                break;
-            case "onEndBatch":
-                --this.mBatchCount;
-                break;
-        }
-        return this.__proto__.__proto__.notify.apply(this, arguments);
-    },
-
-    add: function(iface) {
-        if (this.__proto__.__proto__.add.apply(this, arguments) && (this.mBatchCount > 0)) {
-            // Replay batch notifications, because the onEndBatch notifications are yet to come.
-            // We may think about doing the reverse on remove, though I currently see no need:
-            for (let i = this.mBatchCount; i--;) {
-                iface.onStartBatch();
-            }
-        }
-    }
-};
-
-/**
  * Base prototype to be used implementing a provider.
  *
  * @see e.g. providers/gdata
@@ -504,7 +471,7 @@ cal.ProviderBase.prototype = {
 
     initProviderBase: function() {
         this.wrappedJSObject = this;
-        this.mObservers = new cal.ObserverBag(Components.interfaces.calIObserver);
+        this.mObservers = new cal.data.ObserverSet(Components.interfaces.calIObserver);
         this.mProperties = {};
         this.mProperties.currentStatus = Components.results.NS_OK;
     },
@@ -787,7 +754,7 @@ cal.ProviderBase.prototype = {
 
     // void removeObserver( in calIObserver observer );
     removeObserver: function(aObserver) {
-        this.mObservers.remove(aObserver);
+        this.mObservers.delete(aObserver);
     },
 
     // calISchedulingSupport: Implementation corresponding to our iTIP/iMIP support

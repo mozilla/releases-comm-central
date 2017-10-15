@@ -12,7 +12,7 @@ Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 //
 function calAttachment() {
     this.wrappedJSObject = this;
-    this.mProperties = new cal.calPropertyBag();
+    this.mProperties = new cal.data.PropertyMap();
 }
 
 var calAttachmentClassID = Components.ID("{5f76b352-ab75-4c2b-82c9-9206dbbf8571}");
@@ -101,7 +101,7 @@ calAttachment.prototype = {
     get icalProperty() {
         let icalatt = cal.getIcsService().createIcalProperty("ATTACH");
 
-        for (let [key, value] of this.mProperties) {
+        for (let [key, value] of this.mProperties.entries()) {
             try {
                 icalatt.setParameter(key, value);
             } catch (e) {
@@ -124,7 +124,7 @@ calAttachment.prototype = {
     set icalProperty(attProp) {
         // Reset the property bag for the parameters, it will be re-initialized
         // from the ical property.
-        this.mProperties = new cal.calPropertyBag();
+        this.mProperties = new cal.data.PropertyMap();
         this.setData(attProp.value);
 
         for (let [name, value] of cal.ical.paramIterator(attProp)) {
@@ -146,27 +146,27 @@ calAttachment.prototype = {
     },
 
     getParameter: function(aName) {
-        return this.mProperties.getProperty(aName);
+        return this.mProperties.get(aName);
     },
 
     setParameter: function(aName, aValue) {
         if (aValue || aValue === 0) {
-            return this.mProperties.setProperty(aName, aValue);
+            return this.mProperties.set(aName, aValue);
         } else {
-            return this.mProperties.deleteProperty(aName);
+            return this.mProperties.delete(aName);
         }
     },
 
     deleteParameter: function(aName) {
-        this.mProperties.deleteProperty(aName);
+        this.mProperties.delete(aName);
     },
 
     clone: function() {
         let newAttachment = new calAttachment();
         newAttachment.mData = this.mData;
         newAttachment.mHashId = this.mHashId;
-        for (let [name, value] of this.mProperties) {
-            newAttachment.mProperties.setProperty(name, value);
+        for (let [name, value] of this.mProperties.entries()) {
+            newAttachment.mProperties.set(name, value);
         }
         return newAttachment;
     },

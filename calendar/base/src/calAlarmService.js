@@ -30,7 +30,7 @@ function calAlarmService() {
 
     this.mLoadedCalendars = {};
     this.mTimerMap = {};
-    this.mObservers = new cal.calListenerBag(Components.interfaces.calIAlarmServiceObserver);
+    this.mObservers = new cal.data.ListenerSet(Components.interfaces.calIAlarmServiceObserver);
 
     this.calendarObserver = {
         alarmService: this,
@@ -216,7 +216,7 @@ calAlarmService.prototype = {
     },
 
     removeObserver: function(aObserver) {
-        this.mObservers.remove(aObserver);
+        this.mObservers.delete(aObserver);
     },
 
     startup: function() {

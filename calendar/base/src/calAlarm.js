@@ -12,7 +12,7 @@ var ALARM_RELATED_END = Components.interfaces.calIAlarm.ALARM_RELATED_END;
 
 function calAlarm() {
     this.wrappedJSObject = this;
-    this.mProperties = new cal.calPropertyBag();
+    this.mProperties = new cal.data.PropertyMap();
     this.mPropertyParams = {};
     this.mAttendees = [];
     this.mAttachments = [];
@@ -78,14 +78,9 @@ calAlarm.prototype = {
         }
 
         // Properties
-        let e = this.mProperties.enumerator;
-        while (e.hasMoreElements()) {
-            let prop = e.getNext();
-
-            if (prop.value instanceof Components.interfaces.calIDateTime) {
-                if (prop.value.isMutable) {
-                    prop.value.makeImmutable();
-                }
+        for (let propval of this.mProperties.values()) {
+            if ((propval instanceof Components.interfaces.calIDateTime) && propval.isMutable) {
+                propval.makeImmutable();
             }
         }
 
@@ -135,13 +130,13 @@ calAlarm.prototype = {
         }
 
         // X-Props
-        cloned.mProperties = new cal.calPropertyBag();
-        for (let [name, value] of this.mProperties) {
+        cloned.mProperties = new cal.data.PropertyMap();
+        for (let [name, value] of this.mProperties.entries()) {
             if (value instanceof Components.interfaces.calIDateTime) {
                 value = value.clone();
             }
 
-            cloned.mProperties.setProperty(name, value);
+            cloned.mProperties.set(name, value);
 
             let propBucket = this.mPropertyParams[name];
             if (propBucket) {
@@ -470,9 +465,9 @@ calAlarm.prototype = {
 
         // Set up X-Props. mProperties contains only non-promoted props
         // eslint-disable-next-line array-bracket-spacing
-        for (let [propName, ] of this.mProperties) {
+        for (let [propName, propValue] of this.mProperties.entries()) {
             let icalprop = icssvc.createIcalProperty(propName);
-            icalprop.value = this.mProperties.getProperty(propName);
+            icalprop.value = propValue;
 
             // Add parameters
             let propBucket = this.mPropertyParams[propName];
@@ -568,7 +563,7 @@ calAlarm.prototype = {
         // VALUE=DATE-TIME.
         this.lastAck = (lastAckProp ? cal.createDateTime(lastAckProp.valueAsIcalString) : null);
 
-        this.mProperties = new cal.calPropertyBag();
+        this.mProperties = new cal.data.PropertyMap();
         this.mPropertyParams = {};
 
         // Other properties
@@ -596,7 +591,7 @@ calAlarm.prototype = {
         if (name in this.promotedProps) {
             return this[this.promotedProps[name]];
         } else {
-            return this.mProperties.getProperty(name);
+            return this.mProperties.get(name);
         }
     },
 
@@ -606,7 +601,7 @@ calAlarm.prototype = {
         if (name in this.promotedProps) {
             this[this.promotedProps[name]] = aValue;
         } else {
-            this.mProperties.setProperty(name, aValue);
+            this.mProperties.set(name, aValue);
         }
         return aValue;
     },
@@ -617,13 +612,11 @@ calAlarm.prototype = {
         if (name in this.promotedProps) {
             this[this.promotedProps[name]] = null;
         } else {
-            this.mProperties.deleteProperty(name);
+            this.mProperties.delete(name);
         }
     },
 
-    get propertyEnumerator() {
-        return this.mProperties.enumerator;
-    },
+    get propertyEnumerator() { return this.mProperties.simpleEnumerator; },
 
     toString: function(aItem) {
         function getItemBundleStringName(aPrefix) {

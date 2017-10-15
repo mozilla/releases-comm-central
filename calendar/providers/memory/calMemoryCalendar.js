@@ -44,10 +44,10 @@ calMemoryCalendar.prototype = {
     mMetaData: null,
 
     initMemoryCalendar: function() {
-        this.mObservers = new cal.ObserverBag(Components.interfaces.calIObserver);
+        this.mObservers = new cal.data.ObserverSet(Components.interfaces.calIObserver);
         this.mItems = {};
         this.mOfflineFlags = {};
-        this.mMetaData = new cal.calPropertyBag();
+        this.mMetaData = new cal.data.PropertyMap();
     },
 
     //
@@ -68,7 +68,7 @@ calMemoryCalendar.prototype = {
     deleteCalendar: function(calendar, listener) {
         calendar = calendar.wrappedJSObject;
         calendar.mItems = {};
-        calendar.mMetaData = new cal.calPropertyBag();
+        calendar.mMetaData = new cal.data.PropertyMap();
 
         try {
             listener.onDeleteCalendar(calendar, Components.results.NS_OK, null);
@@ -292,7 +292,7 @@ calMemoryCalendar.prototype = {
 
 
         delete this.mItems[aItem.id];
-        this.mMetaData.deleteProperty(aItem.id);
+        this.mMetaData.delete(aItem.id);
 
         this.notifyOperationComplete(aListener,
                                      Components.results.NS_OK,
@@ -565,16 +565,17 @@ calMemoryCalendar.prototype = {
     // calISyncWriteCalendar interface
     //
     setMetaData: function(id, value) {
-        this.mMetaData.setProperty(id, value);
+        this.mMetaData.set(id, value);
     },
     deleteMetaData: function(id) {
-        this.mMetaData.deleteProperty(id);
+        this.mMetaData.delete(id);
     },
     getMetaData: function(id) {
-        return this.mMetaData.getProperty(id);
+        return this.mMetaData.get(id);
     },
     getAllMetaData: function(out_count, out_ids, out_values) {
-        this.mMetaData.getAllProperties(out_ids, out_values);
+        out_ids.value = [...this.mMetaData.keys()];
+        out_values.value = [...this.mMetaData.values()];
         out_count.value = out_ids.value.length;
     }
 };

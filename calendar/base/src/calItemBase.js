@@ -45,9 +45,9 @@ calItemBase.prototype = {
      */
     initItemBase: function() {
         this.wrappedJSObject = this;
-        this.mProperties = new cal.calPropertyBag();
+        this.mProperties = new cal.data.PropertyMap();
         this.mPropertyParams = {};
-        this.mProperties.setProperty("CREATED", cal.dtz.jsDateToDateTime(new Date()));
+        this.mProperties.set("CREATED", cal.dtz.jsDateToDateTime(new Date()));
     },
 
     /**
@@ -208,7 +208,7 @@ calItemBase.prototype = {
             }
         }
 
-        for (let [, propValue] of this.mProperties) {
+        for (let propValue of this.mProperties.values()) {
             if (propValue instanceof Components.interfaces.calIDateTime &&
                 propValue.isMutable) {
                 propValue.makeImmutable();
@@ -272,13 +272,13 @@ calItemBase.prototype = {
             cloned.mAttendees.push(att.clone());
         }
 
-        cloned.mProperties = new cal.calPropertyBag();
-        for (let [name, value] of this.mProperties) {
+        cloned.mProperties = new cal.data.PropertyMap();
+        for (let [name, value] of this.mProperties.entries()) {
             if (value instanceof Components.interfaces.calIDateTime) {
                 value = value.clone();
             }
 
-            cloned.mProperties.setProperty(name, value);
+            cloned.mProperties.set(name, value);
 
             let propBucket = this.mPropertyParams[name];
             if (propBucket) {
@@ -346,62 +346,27 @@ calItemBase.prototype = {
 
     // readonly attribute nsISimpleEnumerator propertyEnumerator;
     get propertyEnumerator() {
+        let properties = this.mProperties;
         if (this.mIsProxy) {
-            cal.ASSERT(this.parentItem != this);
-            return { // nsISimpleEnumerator:
-                mProxyEnum: this.mProperties.enumerator,
-                mParentEnum: this.mParentItem.propertyEnumerator,
-                mHandledProps: { },
-                mCurrentProp: null,
-
-                hasMoreElements: function() {
-                    if (this.mCurrentProp) {
-                        return true;
-                    }
-                    if (this.mProxyEnum) {
-                        while (this.mProxyEnum.hasMoreElements()) {
-                            let prop = this.mProxyEnum.getNext();
-                            this.mHandledProps[prop.name] = true;
-                            if (prop.value !== null) {
-                                this.mCurrentProp = prop;
-                                return true;
-                            } // else skip the deleted properties
-                        }
-                        this.mProxyEnum = null;
-                    }
-                    while (this.mParentEnum.hasMoreElements()) {
-                        let prop = this.mParentEnum.getNext();
-                        if (!this.mHandledProps[prop.name]) {
-                            this.mCurrentProp = prop;
-                            return true;
-                        }
-                    }
-                    return false;
-                },
-
-                getNext: function() {
-                    if (!this.hasMoreElements()) { // hasMoreElements is called by intention to skip yet deleted properties
-                        cal.ASSERT(false, Components.results.NS_ERROR_UNEXPECTED);
-                        throw Components.results.NS_ERROR_UNEXPECTED;
-                    }
-                    let ret = this.mCurrentProp;
-                    this.mCurrentProp = null;
-                    return ret;
-                }
-            };
-        } else {
-            return this.mProperties.enumerator;
+            let parentProperties = this.mParentItem.wrappedJSObject.mProperties;
+            let thisProperties = this.mProperties;
+            properties = new cal.data.PropertyMap((function* () {
+                yield* parentProperties;
+                yield* thisProperties;
+            })());
         }
+
+        return properties.simpleEnumerator;
     },
 
     // nsIVariant getProperty(in AString name);
     getProperty: function(aName) {
-        aName = aName.toUpperCase();
-        let aValue = this.mProperties.getProperty_(aName);
-        if (aValue === undefined) {
-            aValue = (this.mIsProxy ? this.mParentItem.getProperty(aName) : null);
+        let name = aName.toUpperCase();
+        if (this.mProperties.has(name)) {
+            return this.mProperties.get(name);
+        } else {
+            return (this.mIsProxy ? this.mParentItem.getProperty(name) : null);
         }
-        return aValue;
     },
 
     // boolean hasProperty(in AString name);
@@ -414,7 +379,7 @@ calItemBase.prototype = {
         this.modify();
         aName = aName.toUpperCase();
         if (aValue || !isNaN(parseInt(aValue, 10))) {
-            this.mProperties.setProperty(aName, aValue);
+            this.mProperties.set(aName, aValue);
         } else {
             this.deleteProperty(aName);
         }
@@ -431,9 +396,9 @@ calItemBase.prototype = {
         if (this.mIsProxy) {
             // deleting a proxy's property will mark the bag's item as null, so we could
             // distinguish it when enumerating/getting properties from the undefined ones.
-            this.mProperties.setProperty(aName, null);
+            this.mProperties.set(aName, null);
         } else {
-            this.mProperties.deleteProperty(aName);
+            this.mProperties.delete(aName);
         }
         delete this.mPropertyParams[aName];
     },
@@ -829,7 +794,7 @@ calItemBase.prototype = {
 
         // re-initializing from scratch -- no light proxy anymore:
         this.mIsProxy = false;
-        this.mProperties = new cal.calPropertyBag();
+        this.mProperties = new cal.data.PropertyMap();
         this.mPropertyParams = {};
 
         this.mapPropsFromICS(icalcomp, this.icsBasePropMap);

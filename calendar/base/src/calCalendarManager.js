@@ -15,8 +15,8 @@ var MIN_INT = -MAX_INT;
 
 function calCalendarManager() {
     this.wrappedJSObject = this;
-    this.mObservers = new cal.calListenerBag(Components.interfaces.calICalendarManagerObserver);
-    this.mCalendarObservers = new cal.calListenerBag(Components.interfaces.calIObserver);
+    this.mObservers = new cal.data.ListenerSet(Components.interfaces.calICalendarManagerObserver);
+    this.mCalendarObservers = new cal.data.ListenerSet(Components.interfaces.calIObserver);
 }
 
 var calCalendarManagerClassID = Components.ID("{f42585e7-e736-4600-985d-9624c1c51992}");
@@ -766,14 +766,26 @@ calCalendarManager.prototype = {
     },
 
     mObservers: null,
-    addObserver: function(aObserver) { return this.mObservers.add(aObserver); },
-    removeObserver: function(aObserver) { return this.mObservers.remove(aObserver); },
-    notifyObservers: function(functionName, args) { return this.mObservers.notify(functionName, args); },
+    addObserver: function(aObserver) {
+        this.mObservers.add(aObserver);
+    },
+    removeObserver: function(aObserver) {
+        this.mObservers.delete(aObserver);
+    },
+    notifyObservers: function(functionName, args) {
+        this.mObservers.notify(functionName, args);
+    },
 
     mCalendarObservers: null,
-    addCalendarObserver: function(aObserver) { return this.mCalendarObservers.add(aObserver); },
-    removeCalendarObserver: function(aObserver) { return this.mCalendarObservers.remove(aObserver); },
-    notifyCalendarObservers: function(functionName, args) { return this.mCalendarObservers.notify(functionName, args); }
+    addCalendarObserver: function(aObserver) {
+        return this.mCalendarObservers.add(aObserver);
+    },
+    removeCalendarObserver: function(aObserver) {
+        return this.mCalendarObservers.delete(aObserver);
+    },
+    notifyCalendarObservers: function(functionName, args) {
+        this.mCalendarObservers.notify(functionName, args);
+    }
 };
 
 function equalMessage(msg1, msg2) {

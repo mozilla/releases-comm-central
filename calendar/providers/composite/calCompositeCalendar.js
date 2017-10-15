@@ -75,8 +75,8 @@ function calCompositeCalendar() {
     this.wrappedJSObject = this;
 
     this.mCalendars = [];
-    this.mCompositeObservers = new cal.ObserverBag(Components.interfaces.calICompositeObserver);
-    this.mObservers = new cal.ObserverBag(Components.interfaces.calIObserver);
+    this.mCompositeObservers = new cal.data.ObserverSet(Components.interfaces.calICompositeObserver);
+    this.mObservers = new cal.data.ObserverSet(Components.interfaces.calIObserver);
     this.mDefaultCalendar = null;
     this.mStatusObserver = null;
 }
@@ -311,9 +311,9 @@ calCompositeCalendar.prototype = {
     removeObserver: function(aObserver) {
         let wrappedCObserver = cal.wrapInstance(aObserver, Components.interfaces.calICompositeObserver);
         if (wrappedCObserver) {
-            this.mCompositeObservers.remove(wrappedCObserver);
+            this.mCompositeObservers.delete(wrappedCObserver);
         }
-        this.mObservers.remove(aObserver);
+        this.mObservers.delete(aObserver);
     },
 
     refresh: function() {

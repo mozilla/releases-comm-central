@@ -11,10 +11,11 @@
  *          openCalendarWizard, openCalendarProperties, calPrint,
  *          calRadioGroupSelectItem, getPrefCategoriesArray,
  *          setPrefCategoriesFromArray, calTryWrappedJSObject, compareArrays,
- *          LOG, WARN, ERROR, showError, getContrastingTextColor,
- *          sendMailTo, applyAttributeToMenuChildren, isPropertyValueSame,
- *          getParentNodeOrThis, getParentNodeOrThisByAttribute,
- *          calIterateEmailIdentities, binaryInsert, getCompositeCalendar
+ *          compareObjects, LOG, WARN, ERROR, showError,
+ *          getContrastingTextColor, sendMailTo, applyAttributeToMenuChildren,
+ *          isPropertyValueSame, getParentNodeOrThis,
+ *          getParentNodeOrThisByAttribute, calIterateEmailIdentities,
+ *          binaryInsert, getCompositeCalendar
  */
 
 Components.utils.import("resource:///modules/mailServices.js");
@@ -425,76 +426,6 @@ function showError(aMsg, aWindow=null) {
     Services.prompt.alert(aWindow, cal.calGetString("calendar", "genericErrorTitle"), aMsg);
 }
 
-function calInterfaceBag(iid) {
-    this.init(iid);
-}
-calInterfaceBag.prototype = {
-    mIid: null,
-    mInterfaces: null,
-
-    // Iterating the inteface bag iterates the interfaces it contains
-    [Symbol.iterator]: function() { return this.mInterfaces[Symbol.iterator](); },
-
-    // internal:
-    init: function(iid) {
-        this.mIid = iid;
-        this.mInterfaces = [];
-    },
-
-    // external:
-    get size() {
-        return this.mInterfaces.length;
-    },
-
-    get interfaceArray() {
-        return this.mInterfaces;
-    },
-
-    add: function(iface) {
-        if (iface) {
-            let existing = this.mInterfaces.some(obj => {
-                return compareObjects(obj, iface, this.mIid);
-            });
-            if (!existing) {
-                this.mInterfaces.push(iface);
-            }
-            return !existing;
-        }
-        return false;
-    },
-
-    remove: function(iface) {
-        if (iface) {
-            this.mInterfaces = this.mInterfaces.filter((obj) => {
-                return !compareObjects(obj, iface, this.mIid);
-            });
-        }
-    },
-
-    forEach: function(func) {
-        this.mInterfaces.forEach(func);
-    }
-};
-
-function calListenerBag(iid) {
-    this.init(iid);
-}
-calListenerBag.prototype = {
-    __proto__: calInterfaceBag.prototype,
-
-    notify: function(func, args=[]) {
-        function notifyFunc(iface) {
-            try {
-                iface[func](...args);
-            } catch (exc) {
-                let stack = exc.stack || (exc.location ? exc.location.formattedStack : null);
-                Components.utils.reportError(exc + "\nSTACK: " + stack);
-            }
-        }
-        this.mInterfaces.forEach(notifyFunc);
-    }
-};
-
 function sendMailTo(aRecipient, aSubject, aBody, aIdentity) {
     let msgParams = Components.classes["@mozilla.org/messengercompose/composeparams;1"]
                               .createInstance(Components.interfaces.nsIMsgComposeParams);
@@ -636,84 +567,6 @@ function isPropertyValueSame(aObjects, aPropertyName) {
  * END TODO: The above UI-related functions need to move somewhere different,
  * i.e calendar-ui-utils.js
  */
-
-/**
- * Implements a property bag.
- */
-function calPropertyBag() {
-    this.mData = {};
-}
-calPropertyBag.prototype = {
-    mData: null,
-
-    setProperty: function(aName, aValue) {
-        return (this.mData[aName] = aValue);
-    },
-    getProperty_: function(aName) {
-        // avoid strict undefined property warning
-        return (aName in this.mData ? this.mData[aName] : undefined);
-    },
-    getProperty: function(aName) {
-        // avoid strict undefined property warning
-        return (aName in this.mData ? this.mData[aName] : null);
-    },
-    getAllProperties: function(aOutKeys, aOutValues) {
-        let keys = [];
-        let values = [];
-        for (let key in this.mData) {
-            keys.push(key);
-            values.push(this.mData[key]);
-        }
-        aOutKeys.value = keys;
-        aOutValues.value = values;
-    },
-    deleteProperty: function(aName) {
-        delete this.mData[aName];
-    },
-    get enumerator() {
-        return new calPropertyBagEnumerator(this);
-    },
-    [Symbol.iterator]: function* () {
-        for (let name of Object.keys(this.mData)) {
-            yield [name, this.mData[name]];
-        }
-    }
-};
-// implementation part of calPropertyBag
-function calPropertyBagEnumerator(bag) {
-    this.mIndex = 0;
-    this.mBag = bag;
-    this.mKeys = Object.keys(bag.mData);
-}
-calPropertyBagEnumerator.prototype = {
-    mIndex: 0,
-    mBag: null,
-    mKeys: null,
-
-    // nsISimpleEnumerator:
-    getNext: function() {
-        if (!this.hasMoreElements()) { // hasMoreElements is called by intention to skip yet deleted properties
-            ASSERT(false, Components.results.NS_ERROR_UNEXPECTED);
-            throw Components.results.NS_ERROR_UNEXPECTED;
-        }
-        let name = this.mKeys[this.mIndex++];
-        return { // nsIProperty:
-            QueryInterface: XPCOMUtils.generateQI([Components.interfaces.nsIProperty]),
-            name: name,
-            value: this.mCurrentValue
-        };
-    },
-    hasMoreElements: function() {
-        while (this.mIndex < this.mKeys.length) {
-            this.mCurrentValue = this.mBag.mData[this.mKeys[this.mIndex]];
-            if (this.mCurrentValue !== undefined) {
-                return true;
-            }
-            ++this.mIndex;
-        }
-        return false;
-    }
-};
 
 /**
  * Iterates all email identities and calls the passed function with identity and account.

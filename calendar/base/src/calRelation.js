@@ -14,7 +14,7 @@ Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
  */
 function calRelation() {
     this.wrappedJSObject = this;
-    this.mProperties = new cal.calPropertyBag();
+    this.mProperties = new cal.data.PropertyMap();
 }
 var calRelationClassID = Components.ID("{76810fae-abad-4019-917a-08e95d5bbd68}");
 var calRelationInterfaces = [Components.interfaces.calIRelation];
@@ -60,7 +60,7 @@ calRelation.prototype = {
             icalatt.setParameter("RELTYPE", this.mType);
         }
 
-        for (let [key, value] of this.mProperties) {
+        for (let [key, value] of this.mProperties.entries()) {
             try {
                 icalatt.setParameter(key, value);
             } catch (e) {
@@ -79,7 +79,7 @@ calRelation.prototype = {
     set icalProperty(attProp) {
         // Reset the property bag for the parameters, it will be re-initialized
         // from the ical property.
-        this.mProperties = new cal.calPropertyBag();
+        this.mProperties = new cal.data.PropertyMap();
 
         if (attProp.value) {
             this.mId = attProp.value;
@@ -108,23 +108,23 @@ calRelation.prototype = {
     },
 
     getParameter: function(aName) {
-        return this.mProperties.getProperty(aName);
+        return this.mProperties.get(aName);
     },
 
     setParameter: function(aName, aValue) {
-        return this.mProperties.setProperty(aName, aValue);
+        return this.mProperties.set(aName, aValue);
     },
 
     deleteParameter: function(aName) {
-        return this.mProperties.deleteProperty(aName);
+        return this.mProperties.delete(aName);
     },
 
     clone: function() {
         let newRelation = new calRelation();
         newRelation.mId = this.mId;
         newRelation.mType = this.mType;
-        for (let [name, value] of this.mProperties) {
-            newRelation.mProperties.setProperty(name, value);
+        for (let [name, value] of this.mProperties.entries()) {
+            newRelation.mProperties.set(name, value);
         }
         return newRelation;
     }
