@@ -85,7 +85,7 @@ treechildren::-moz-tree-progressmeter {
   margin-top: 3px;
 }
 
-@media (mac-graphite-theme) {
+@media (-moz-mac-graphite-theme) {
   treechildren::-moz-tree-progressmeter {
     color: rgba(43, 71, 106, 0.5);
   }
