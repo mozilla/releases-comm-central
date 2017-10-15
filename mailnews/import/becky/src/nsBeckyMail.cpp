@@ -370,6 +370,8 @@ public:
   ImportMessageRunnable(nsIFile *aMessageFile,
                         nsIMsgFolder *aFolder);
   NS_DECL_NSIRUNNABLE
+  nsresult mResult;
+
 private:
   nsresult WriteHeaders(nsCString &aHeaders, nsIOutputStream *aOutputStream);
   nsresult HandleHeaderLine(const nsCString &aHeaderLine, nsACString &aHeaders);
@@ -497,46 +499,46 @@ ImportMessageRunnable::WriteAttachmentFile(nsIFile *aMailboxFile,
 NS_IMETHODIMP ImportMessageRunnable::Run()
 {
   nsCOMPtr<nsIMsgPluggableStore> msgStore;
-  nsresult rv = mFolder->GetMsgStore(getter_AddRefs(msgStore));
-  NS_ENSURE_SUCCESS(rv, rv);
+  mResult = mFolder->GetMsgStore(getter_AddRefs(msgStore));
+  NS_ENSURE_SUCCESS(mResult, NS_OK);
 
   nsCOMPtr<nsILineInputStream> lineStream;
-  rv = nsBeckyUtils::CreateLineInputStream(mMessageFile,
-                                           getter_AddRefs(lineStream));
-  NS_ENSURE_SUCCESS(rv, rv);
+  mResult = nsBeckyUtils::CreateLineInputStream(mMessageFile,
+                                                getter_AddRefs(lineStream));
+  NS_ENSURE_SUCCESS(mResult, NS_OK);
 
   bool reusable;
   nsCOMPtr<nsIMsgDBHdr> msgHdr;
   nsCOMPtr<nsIOutputStream> outputStream;
-  rv = msgStore->GetNewMsgOutputStream(mFolder, getter_AddRefs(msgHdr), &reusable,
-                                       getter_AddRefs(outputStream));
-  NS_ENSURE_SUCCESS(rv, rv);
+  mResult = msgStore->GetNewMsgOutputStream(mFolder, getter_AddRefs(msgHdr), &reusable,
+                                            getter_AddRefs(outputStream));
+  NS_ENSURE_SUCCESS(mResult, NS_OK);
 
   bool inHeader = true;
   bool more = true;
   nsAutoCString headers;
-  while (NS_SUCCEEDED(rv) && more) {
+  while (NS_SUCCEEDED(mResult) && more) {
     nsAutoCString line;
-    rv = lineStream->ReadLine(line, &more);
-    if (NS_FAILED(rv))
+    mResult = lineStream->ReadLine(line, &more);
+    if (NS_FAILED(mResult))
       break;
 
     if (inHeader) {
       if (IsEndOfHeaders(line)) {
         inHeader = false;
-        rv = WriteHeaders(headers, outputStream);
+        mResult = WriteHeaders(headers, outputStream);
       } else {
-        rv = HandleHeaderLine(line, headers);
+        mResult = HandleHeaderLine(line, headers);
       }
     } else if (IsEndOfMessage(line)) {
       inHeader = true;
-      rv = msgStore->FinishNewMessage(outputStream, msgHdr);
+      mResult = msgStore->FinishNewMessage(outputStream, msgHdr);
       if (!reusable)
         outputStream->Close();
-      rv = msgStore->GetNewMsgOutputStream(mFolder, getter_AddRefs(msgHdr), &reusable,
-                                           getter_AddRefs(outputStream));
+      mResult = msgStore->GetNewMsgOutputStream(mFolder, getter_AddRefs(msgHdr), &reusable,
+                                                getter_AddRefs(outputStream));
     } else if (IsBeckyIncludeLine(line)) {
-      rv = WriteAttachmentFile(mMessageFile, line, outputStream);
+      mResult = WriteAttachmentFile(mMessageFile, line, outputStream);
     } else {
       uint32_t writtenBytes = 0;
       if (StringBeginsWith(line, NS_LITERAL_CSTRING("..")))
@@ -545,17 +547,17 @@ NS_IMETHODIMP ImportMessageRunnable::Run()
         line.Insert('>', 0);
 
       line.AppendLiteral(MSG_LINEBREAK);
-      rv = outputStream->Write(line.get(), line.Length(), &writtenBytes);
+      mResult = outputStream->Write(line.get(), line.Length(), &writtenBytes);
     }
   }
 
   if (outputStream) {
-    if (NS_FAILED(rv))
+    if (NS_FAILED(mResult))
       msgStore->DiscardNewMessage(outputStream, msgHdr);
     outputStream->Close();
   }
 
-  return rv;
+  return NS_OK;
 }
 
 static
@@ -564,7 +566,9 @@ nsresult ProxyImportMessage(nsIFile *aMessageFile,
 {
   RefPtr<ImportMessageRunnable> importMessage =
     new ImportMessageRunnable(aMessageFile, aFolder);
-  return NS_DispatchToMainThread(importMessage, NS_DISPATCH_SYNC);
+  nsresult rv = NS_DispatchToMainThread(importMessage, NS_DISPATCH_SYNC);
+  NS_ENSURE_SUCCESS(rv, rv);
+  return importMessage->mResult;
 }
 
 nsresult
