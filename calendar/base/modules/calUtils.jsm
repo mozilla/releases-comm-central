@@ -678,51 +678,6 @@ var cal = {
         return cal.calGetString("dateFormat", "month." + aMonthNum + "." + monthForm);
     },
 
-    /**
-     * checks if the mousepointer of an event resides over a XULBox during an event
-     *
-     * @param aMouseEvent   The event eg. a 'mouseout' or 'mousedown' event
-     * @param aXULBox       The xul element
-     * @return              true or false depending on whether the mouse pointer
-     *                      resides over the xulelement
-     */
-    isMouseOverBox: function(aMouseEvent, aXULElement) {
-        let boxObject = aXULElement.boxObject;
-        let boxWidth = boxObject.width;
-        let boxHeight = boxObject.height;
-        let boxScreenX = boxObject.screenX;
-        let boxScreenY = boxObject.screenY;
-        let mouseX = aMouseEvent.screenX;
-        let mouseY = aMouseEvent.screenY;
-        let xIsWithin = (mouseX >= boxScreenX) &&
-                        (mouseX <= (boxScreenX + boxWidth));
-        let yIsWithin = (mouseY >= boxScreenY) &&
-                        (mouseY <= (boxScreenY + boxHeight));
-        return (xIsWithin && yIsWithin);
-    },
-
-    /**
-     * removes those childnodes from a node that contain a specified attribute
-     * and where the value of this attribute matches a passed value
-     * @param aParentNode   The parent node that contains the child nodes in question
-     * @param aAttribute    The name of the attribute
-     * @param aAttribute    The value of the attribute
-     */
-    removeChildElementsByAttribute: function(aParentNode, aAttribute, aValue) {
-        let childNode = aParentNode.lastChild;
-        while (childNode) {
-            let prevChildNode = childNode.previousSibling;
-            if (!aAttribute || aAttribute === undefined) {
-                childNode.remove();
-            } else if (!aValue || aValue === undefined) {
-                childNode.remove();
-            } else if (childNode && childNode.hasAttribute(aAttribute) &&
-                       childNode.getAttribute(aAttribute) == aValue) {
-                childNode.remove();
-            }
-            childNode = prevChildNode;
-        }
-    },
 
     /**
      * Returns the most recent calendar window in an application independent way
@@ -809,6 +764,7 @@ var cal = {
 XPCOMUtils.defineLazyModuleGetter(cal, "dtz", "resource://calendar/modules/calDateTimeUtils.jsm", "caldtz");
 XPCOMUtils.defineLazyModuleGetter(cal, "acl", "resource://calendar/modules/calACLUtils.jsm", "calacl");
 XPCOMUtils.defineLazyModuleGetter(cal, "item", "resource://calendar/modules/calItemUtils.jsm", "calitem");
+XPCOMUtils.defineLazyModuleGetter(cal, "view", "resource://calendar/modules/calViewUtils.jsm", "calview");
 
 /**
  * Returns a function that provides access to the given service.

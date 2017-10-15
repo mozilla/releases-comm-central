@@ -52,6 +52,18 @@ var migrations = {
         checkIfInRange: "checkIfInRange",
         setItemProperty: "setItemProperty",
         getEventDefaultTransparency: "getEventDefaultTransparency"
+    },
+    view: {
+        isMouseOverBox: "isMouseOverBox",
+        calRadioGroupSelectItem: "radioGroupSelectItem",
+        applyAttributeToMenuChildren: "applyAttributeToMenuChildren",
+        removeChildElementsByAttribute: "removeChildElementsByAttribute",
+        getParentNodeOrThis: "getParentNodeOrThis",
+        getParentNodeOrThisByAttribute: "getParentNodeOrThisByAttribute",
+        formatStringForCSSRule: "formatStringForCSSRule",
+        getCompositeCalendar: "getCompositeCalendar",
+        hashColor: "hashColor",
+        getContrastingTextColor: "getContrastingTextColor"
     }
 };
 

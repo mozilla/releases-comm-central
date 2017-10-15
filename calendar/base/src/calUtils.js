@@ -23,43 +23,6 @@ Components.utils.import("resource://gre/modules/Services.jsm");
 Components.utils.import("resource://gre/modules/Preferences.jsm");
 Components.utils.import("resource://gre/modules/AppConstants.jsm");
 
-/**
- * Format the given string to work inside a CSS rule selector
- * (and as part of a non-unicode preference key).
- *
- * Replaces each space ' ' char with '_'.
- * Replaces each char other than ascii digits and letters, with '-uxHHH-'
- * where HHH is unicode in hexadecimal (variable length, terminated by the '-').
- *
- * Ensures: result only contains ascii digits, letters,'-', and '_'.
- * Ensures: result is invertible, so (f(a) = f(b)) implies (a = b).
- *   also means f is not idempotent, so (a != f(a)) implies (f(a) != f(f(a))).
- * Ensures: result must be lowercase.
- * Rationale: preference keys require 8bit chars, and ascii chars are legible
- *              in most fonts (in case user edits PROFILE/prefs.js).
- *            CSS class names in Gecko 1.8 seem to require lowercase,
- *              no punctuation, and of course no spaces.
- *   nmchar            [_a-zA-Z0-9-]|{nonascii}|{escape}
- *   name              {nmchar}+
- *   http://www.w3.org/TR/CSS21/grammar.html#scanner
- *
- * @param aString       The unicode string to format
- * @return              The formatted string using only chars [_a-zA-Z0-9-]
- */
-function formatStringForCSSRule(aString) {
-    function toReplacement(char) {
-        // char code is natural number (positive integer)
-        let nat = char.charCodeAt(0);
-        switch (nat) {
-            case 0x20: // space
-                return "_";
-            default:
-                return "-ux" + nat.toString(16) + "-"; // lowercase
-        }
-    }
-    // Result must be lowercase or style rule will not work.
-    return aString.toLowerCase().replace(/[^a-zA-Z0-9]/g, toReplacement);
-}
 
 /**
  * Shared dialog functions
@@ -160,26 +123,6 @@ function calPrint(aWindow) {
  */
 
 /**
- * Selects an item with id aItemId in the radio group with id aRadioGroupId
- *
- * @param aRadioGroupId  the id of the radio group which contains the item
- * @param aItemId        the item to be selected
- */
-function calRadioGroupSelectItem(aRadioGroupId, aItemId) {
-    let radioGroup = document.getElementById(aRadioGroupId);
-    let items = radioGroup.getElementsByTagName("radio");
-    let index;
-    for (let i in items) {
-        if (items[i].getAttribute("id") == aItemId) {
-            index = i;
-            break;
-        }
-    }
-    ASSERT(index && index != 0, "Can't find radioGroup item to select.", true);
-    radioGroup.selectedIndex = index;
-}
-
-/**
  * Get array of category names from preferences or locale default,
  * unescaping any commas in each category name.
  * @return array of category names
@@ -207,45 +150,13 @@ function setupDefaultCategories() {
     // Now, initialize the category default colors
     let categoryArray = categoriesStringToArray(categories);
     for (let category of categoryArray) {
-        let prefName = formatStringForCSSRule(category);
+        let prefName = cal.view.formatStringForCSSRule(category);
         Preferences.set("calendar.category.color." + prefName,
-                        hashColor(category));
+                        cal.view.hashColor(category));
     }
 
     // Return the list of categories for further processing
     return categories;
-}
-
-/**
- * Hash the given string into a color from the color palette of the standard
- * color picker.
- *
- * @param str           The string to hash into a color.
- * @return              The hashed color.
- */
-function hashColor(str) {
-    // This is the palette of colors in the current colorpicker implementation.
-    // Unfortunately, there is no easy way to extract these colors from the
-    // binding directly.
-    const colorPalette = [
-        "#FFFFFF", "#FFCCCC", "#FFCC99", "#FFFF99", "#FFFFCC",
-        "#99FF99", "#99FFFF", "#CCFFFF", "#CCCCFF", "#FFCCFF",
-        "#CCCCCC", "#FF6666", "#FF9966", "#FFFF66", "#FFFF33",
-        "#66FF99", "#33FFFF", "#66FFFF", "#9999FF", "#FF99FF",
-        "#C0C0C0", "#FF0000", "#FF9900", "#FFCC66", "#FFFF00",
-        "#33FF33", "#66CCCC", "#33CCFF", "#6666CC", "#CC66CC",
-        "#999999", "#CC0000", "#FF6600", "#FFCC33", "#FFCC00",
-        "#33CC00", "#00CCCC", "#3366FF", "#6633FF", "#CC33CC",
-        "#666666", "#990000", "#CC6600", "#CC9933", "#999900",
-        "#009900", "#339999", "#3333FF", "#6600CC", "#993399",
-        "#333333", "#660000", "#993300", "#996633", "#666600",
-        "#006600", "#336666", "#000099", "#333399", "#663366",
-        "#000000", "#330000", "#663300", "#663333", "#333300",
-        "#003300", "#003333", "#000066", "#330099", "#330033"
-    ];
-
-    let sum = Array.from(str || " ", e => e.charCodeAt(0)).reduce((a, b) => a + b);
-    return colorPalette[sum % colorPalette.length];
 }
 
 /**
@@ -514,30 +425,6 @@ function showError(aMsg, aWindow=null) {
     Services.prompt.alert(aWindow, cal.calGetString("calendar", "genericErrorTitle"), aMsg);
 }
 
-/**
- * Pick whichever of "black" or "white" will look better when used as a text
- * color against a background of bgColor.
- *
- * @param bgColor   the background color as a "#RRGGBB" string
- */
-function getContrastingTextColor(bgColor) {
-    let calcColor = bgColor.replace(/#/g, "");
-    let red = parseInt(calcColor.substring(0, 2), 16);
-    let green = parseInt(calcColor.substring(2, 4), 16);
-    let blue = parseInt(calcColor.substring(4, 6), 16);
-
-    // Calculate the brightness (Y) value using the YUV color system.
-    let brightness = (0.299 * red) + (0.587 * green) + (0.114 * blue);
-
-    // Consider all colors with less than 56% brightness as dark colors and
-    // use white as the foreground color, otherwise use black.
-    if (brightness < 144) {
-        return "white";
-    }
-
-    return "black";
-}
-
 function calInterfaceBag(iid) {
     this.init(iid);
 }
@@ -723,35 +610,6 @@ calOperationGroup.prototype = {
  * i.e calendar-ui-utils.js
  */
 
-/**
- * applies a value to all children of a Menu. If the respective childnodes define
- * a command the value is applied to the attribute of thecommand of the childnode
- *
- * @param aElement The parentnode of the elements
- * @param aAttributeName The name of the attribute
- * @param aValue The value of the attribute
- */
-function applyAttributeToMenuChildren(aElement, aAttributeName, aValue) {
-    let sibling = aElement.firstChild;
-    do {
-        if (sibling) {
-            let domObject = sibling;
-            let commandName = null;
-            if (sibling.hasAttribute("command")) {
-                commandName = sibling.getAttribute("command");
-            }
-            if (commandName) {
-                let command = document.getElementById(commandName);
-                if (command) {
-                    domObject = command;
-                }
-            }
-            domObject.setAttribute(aAttributeName, aValue);
-            sibling = sibling.nextSibling;
-        }
-    } while (sibling);
-}
-
 
 /**
  * compares the value of a property of an array of objects and returns
@@ -772,52 +630,6 @@ function isPropertyValueSame(aObjects, aPropertyName) {
         }
     }
     return true;
-}
-
-/**
- * returns a parentnode - or the overgiven node - with the given localName,
- * by "walking up" the DOM-hierarchy.
- *
- * @param aChildNode  The childnode.
- * @param aLocalName  The localName of the to-be-returned parent
- *                      that is looked for.
- * @return            The parent with the given localName or the
- *                      given childNode 'aChildNode'. If no appropriate
- *                      parent node with aLocalName could be
- *                      retrieved it is returned 'null'.
- */
-function getParentNodeOrThis(aChildNode, aLocalName) {
-    let node = aChildNode;
-    while (node && (node.localName != aLocalName)) {
-        node = node.parentNode;
-        if (node.tagName == undefined) {
-            return null;
-        }
-    }
-    return node;
-}
-
-/**
- * Returns a parentnode  - or the overgiven node -  with the given attributevalue
- * for the given attributename by "walking up" the DOM-hierarchy.
- *
- * @param aChildNode      The childnode.
- * @param aAttibuteName   The name of the attribute that is to be compared with
- * @param aAttibuteValue  The value of the attribute that is to be compared with
- * @return                The parent with the given attributeName set that has
- *                          the same value as the given given attributevalue
- *                          'aAttributeValue'. If no appropriate
- *                          parent node can be retrieved it is returned 'null'.
- */
-function getParentNodeOrThisByAttribute(aChildNode, aAttributeName, aAttributeValue) {
-    let node = aChildNode;
-    while (node && (node.getAttribute(aAttributeName) != aAttributeValue)) {
-        node = node.parentNode;
-        if (node.tagName == undefined) {
-            return null;
-        }
-    }
-    return node;
 }
 
 /**
@@ -1024,25 +836,4 @@ function binaryInsert(itemArray, item, comptor, discardDuplicates) {
         itemArray.splice(newIndex, 0, item);
     }
     return newIndex;
-}
-
-/**
- * Gets the cached instance of the composite calendar.
- *
- * @param aWindow       The window to get the composite calendar for.
- */
-function getCompositeCalendar(aWindow) {
-    if (typeof aWindow._compositeCalendar == "undefined") {
-        let comp = aWindow._compositeCalendar = Components.classes["@mozilla.org/calendar/calendar;1?type=composite"]
-                                                          .createInstance(Components.interfaces.calICompositeCalendar);
-        comp.prefPrefix = "calendar-main";
-
-        if (typeof aWindow.gCalendarStatusFeedback != "undefined") {
-            // If we are in a window that has calendar status feedback, set
-            // up our status observer.
-            let chromeWindow = aWindow.QueryInterface(Components.interfaces.nsIDOMChromeWindow);
-            comp.setStatusObserver(aWindow.gCalendarStatusFeedback, chromeWindow);
-        }
-    }
-    return aWindow._compositeCalendar;
 }
