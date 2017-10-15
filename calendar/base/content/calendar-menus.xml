@@ -20,7 +20,7 @@
           Components.utils.import("resource://calendar/modules/calUtils.jsm");
 
           this.mPopupHandler = () => { this.changeMenuByPropertyName(); };
-          this.mParentMenuPopup = cal.getParentNodeOrThis(this, "menupopup");
+          this.mParentMenuPopup = cal.view.getParentNodeOrThis(this, "menupopup");
           this.mParentMenuPopup.addEventListener("popupshowing", this.mPopupHandler, true);
       ]]></constructor>
 
@@ -57,7 +57,7 @@
                         propertyValue = task[this.mType];
                     }
                 } else {
-                    cal.applyAttributeToMenuChildren(this, "disabled", !tasksSelected);
+                    cal.view.applyAttributeToMenuChildren(this, "disabled", !tasksSelected);
                 }
             }
             if (propertyValue || propertyValue == 0) {

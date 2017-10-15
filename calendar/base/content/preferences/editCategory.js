@@ -14,7 +14,7 @@ var customColorSelected = false;
  */
 function editCategoryLoad() {
     let winArg = window.arguments[0];
-    let color = winArg.color || cal.hashColor(winArg.category);
+    let color = winArg.color || cal.view.hashColor(winArg.category);
     let hasColor = !!winArg.color;
     document.getElementById("categoryName").value = winArg.category;
     document.getElementById("categoryColor").value = color;
@@ -52,7 +52,7 @@ function categoryNameChanged() {
 
     if (!customColorSelected && document.getElementById("useColor").checked) {
         // Color is wanted, choose the color based on the category name's hash.
-        document.getElementById("categoryColor").value = cal.hashColor(newValue);
+        document.getElementById("categoryColor").value = cal.view.hashColor(newValue);
     }
 }
 

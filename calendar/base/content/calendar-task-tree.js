@@ -58,7 +58,7 @@ function changeContextMenuForTask(aEvent) {
         (idnode == "calendar-task-tree");
 
     let tasksSelected = (items.length > 0);
-    cal.applyAttributeToMenuChildren(aEvent.target, "disabled", !tasksSelected);
+    cal.view.applyAttributeToMenuChildren(aEvent.target, "disabled", !tasksSelected);
     if (calendarController.isCommandEnabled("calendar_new_todo_command") &&
         calendarController.isCommandEnabled("calendar_new_todo_todaypane_command")) {
         document.getElementById("calendar_new_todo_command").removeAttribute("disabled");
@@ -74,7 +74,7 @@ function changeContextMenuForTask(aEvent) {
 
     // make sure the filter menu is enabled
     document.getElementById("task-context-menu-filter-todaypane").removeAttribute("disabled");
-    cal.applyAttributeToMenuChildren(document.getElementById("task-context-menu-filter-todaypane-popup"),
+    cal.view.applyAttributeToMenuChildren(document.getElementById("task-context-menu-filter-todaypane-popup"),
                                      "disabled", false);
 
     changeMenuForTask(aEvent);

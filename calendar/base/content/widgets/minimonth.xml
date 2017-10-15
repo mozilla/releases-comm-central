@@ -136,7 +136,7 @@
       <constructor><![CDATA[
           Components.utils.import("resource://calendar/modules/calUtils.jsm");
 
-          this.kMinimonth = cal.getParentNodeOrThis(this, "minimonth");
+          this.kMinimonth = cal.view.getParentNodeOrThis(this, "minimonth");
           document.getAnonymousElementByAttribute(this, "anonid", "back-button").kMinimonth = this.kMinimonth;
           document.getAnonymousElementByAttribute(this, "anonid", "today-button").kMinimonth = this.kMinimonth;
           document.getAnonymousElementByAttribute(this, "anonid", "forward-button").kMinimonth = this.kMinimonth;
@@ -188,7 +188,7 @@
       <method name="onMonthsPopupCommand">
         <parameter name="aItem"/>
         <body><![CDATA[
-            let popup = cal.getParentNodeOrThis(aItem, "menupopup");
+            let popup = cal.view.getParentNodeOrThis(aItem, "menupopup");
             let triggerNode = popup.triggerNode || popup.anchorNode;
             let deck = triggerNode.parentNode;
 
@@ -240,7 +240,7 @@
       <method name="scrollYears">
         <parameter name="event"/>
         <body><![CDATA[
-            let yearPopup = cal.getParentNodeOrThis(event.target, "menupopup");
+            let yearPopup = cal.view.getParentNodeOrThis(event.target, "menupopup");
             const pixelThreshold = 75;
             if (yearPopup) {
                 let monthList = yearPopup.getElementsByAttribute("class", "minimonth-list");
@@ -467,7 +467,7 @@
           Components.utils.import("resource://gre/modules/Services.jsm");
 
           if (this.mObservesComposite == true) {
-              cal.getCompositeCalendar(window).removeObserver(this);
+              cal.view.getCompositeCalendar(window).removeObserver(this);
           }
 
           // Remove pref observer
@@ -1025,12 +1025,12 @@
         <body><![CDATA[
             if (aFreeBusy == true) {
                 if (this.mObservesComposite == false) {
-                    cal.getCompositeCalendar(window).addObserver(this);
+                    cal.view.getCompositeCalendar(window).addObserver(this);
                     this.mObservesComposite = true;
                     this.getItems();
                 }
             } else if (this.mObservesComposite == true) {
-                cal.getCompositeCalendar(window).removeObserver(this);
+                cal.view.getCompositeCalendar(window).removeObserver(this);
                 this.mObservesComposite = false;
             }
         ]]></body>
@@ -1067,7 +1067,7 @@
             // The minimonth automatically clears extra styles on a month change.
             // Therefore we only need to fill the minimonth with new info.
 
-            let calendar = aCalendar || cal.getCompositeCalendar(window);
+            let calendar = aCalendar || cal.view.getCompositeCalendar(window);
             let filter = calendar.ITEM_FILTER_COMPLETED_ALL |
                          calendar.ITEM_FILTER_CLASS_OCCURRENCES |
                          calendar.ITEM_FILTER_ALL_ITEMS;

@@ -20,7 +20,7 @@ Components.utils.import("resource://gre/modules/Preferences.jsm");
  * @return      The currently selected calendar.
  */
 function getSelectedCalendar() {
-    return cal.getCompositeCalendar(window).defaultCalendar;
+    return cal.view.getCompositeCalendar(window).defaultCalendar;
 }
 
 /**
@@ -87,7 +87,7 @@ function promptDeleteCalendar(aCalendar) {
 function loadCalendarManager() {
     // Set up the composite calendar in the calendar list widget.
     let tree = document.getElementById("calendar-list-tree-widget");
-    let compositeCalendar = cal.getCompositeCalendar(window);
+    let compositeCalendar = cal.view.getCompositeCalendar(window);
     tree.compositeCalendar = compositeCalendar;
 
     // Initialize our composite observer
@@ -114,7 +114,7 @@ function loadCalendarManager() {
  */
 function initHomeCalendar() {
     let calMgr = cal.getCalendarManager();
-    let composite = cal.getCompositeCalendar(window);
+    let composite = cal.view.getCompositeCalendar(window);
     let url = Services.io.newURI("moz-storage-calendar://");
     let homeCalendar = calMgr.createCalendar("storage", url);
     homeCalendar.name = cal.calGetString("calendar", "homeCalendarName");
@@ -139,7 +139,7 @@ function initHomeCalendar() {
  * Called to clean up the calendar manager for a window.
  */
 function unloadCalendarManager() {
-    let compositeCalendar = cal.getCompositeCalendar(window);
+    let compositeCalendar = cal.view.getCompositeCalendar(window);
     compositeCalendar.setStatusObserver(null, null);
     compositeCalendar.removeObserver(compositeObserver);
 }
@@ -194,7 +194,7 @@ function calendarListSetupContextMenu(event) {
     let calendar;
     let calendars = cal.getCalendarManager().getCalendars({});
     let treeNode = document.getElementById("calendar-list-tree-widget");
-    let composite = cal.getCompositeCalendar(window);
+    let composite = cal.view.getCompositeCalendar(window);
 
     if (document.popupNode.localName == "tree") {
         // Using VK_APPS to open the context menu will target the tree
@@ -306,7 +306,7 @@ function ensureCalendarVisible(aCalendar) {
  * @param aCalendar   The calendar to show or hide
  */
 function toggleCalendarVisible(aCalendar) {
-    let composite = cal.getCompositeCalendar(window);
+    let composite = cal.view.getCompositeCalendar(window);
     if (composite.getCalendarById(aCalendar.id)) {
         composite.removeCalendar(aCalendar);
     } else {
@@ -318,7 +318,7 @@ function toggleCalendarVisible(aCalendar) {
  * Shows all hidden calendars.
  */
 function showAllCalendars() {
-    let composite = cal.getCompositeCalendar(window);
+    let composite = cal.view.getCompositeCalendar(window);
     let cals = cal.getCalendarManager().getCalendars({});
 
     composite.startBatch();
@@ -336,7 +336,7 @@ function showAllCalendars() {
  * @param aCalendar   The calendar to show as the only visible calendar
  */
 function showOnlyCalendar(aCalendar) {
-    let composite = cal.getCompositeCalendar(window);
+    let composite = cal.view.getCompositeCalendar(window);
     let cals = composite.getCalendars({}) || [];
 
     composite.startBatch();

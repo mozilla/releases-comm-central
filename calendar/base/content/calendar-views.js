@@ -254,7 +254,7 @@ function switchToView(aViewType) {
     let viewTabs = document.getElementById("view-tabs");
     viewTabs.selectedIndex = getViewDeck().selectedIndex;
 
-    let compositeCal = cal.getCompositeCalendar(window);
+    let compositeCal = cal.view.getCompositeCalendar(window);
     if (view.displayCalendar != compositeCal) {
         view.displayCalendar = compositeCal;
         view.timezone = cal.dtz.defaultTimezone;
@@ -395,7 +395,7 @@ function updateStyleSheetForViews(aCalendar) {
 
     let color = aCalendar.getProperty("color") || "#A8C2E1";
     ruleCache[aCalendar.id].style.backgroundColor = color;
-    ruleCache[aCalendar.id].style.color = cal.getContrastingTextColor(color);
+    ruleCache[aCalendar.id].style.color = cal.view.getContrastingTextColor(color);
 }
 
 /**
@@ -418,7 +418,7 @@ var categoryManagement = {
         for (let i in categories) {
             let category = categories[i];
             if (category.search(/[^_0-9a-z-]/) != -1) {
-                let categoryFix = cal.formatStringForCSSRule(category);
+                let categoryFix = cal.view.formatStringForCSSRule(category);
                 if (categoryPrefBranch.prefHasUserValue(categoryFix)) {
                     categories.splice(i, 1); // remove illegal name
                 } else {
@@ -657,7 +657,7 @@ function selectAllEvents() {
         }
     };
 
-    let composite = cal.getCompositeCalendar(window);
+    let composite = cal.view.getCompositeCalendar(window);
     let filter = composite.ITEM_FILTER_CLASS_OCCURRENCES;
 
     if (currentView().tasksInView) {

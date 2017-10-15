@@ -28,7 +28,7 @@
             const calendarManager = Components.classes["@mozilla.org/calendar/manager;1"]
                                             .getService(Components.interfaces.calICalendarManager);
             var listbox = document.getElementById("calendar-list");
-            var composite = cal.getCompositeCalendar(window.opener);
+            var composite = cal.view.getCompositeCalendar(window.opener);
             var selectedIndex = 0;
             var calendars;
 

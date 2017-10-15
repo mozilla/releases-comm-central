@@ -661,7 +661,7 @@
             properties.push("color-" + (color || "default"));
 
             // Set a property to get the contrasting text color (foreground)
-            properties.push(cal.getContrastingTextColor(color || "a8c2e1"));
+            properties.push(cal.view.getContrastingTextColor(color || "a8c2e1"));
 
             let currentStatus = calendar.getProperty("currentStatus");
             if (!Components.isSuccessCode(currentStatus)) {

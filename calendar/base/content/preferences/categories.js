@@ -105,7 +105,7 @@ var gCategoriesPane = {
             let categoryName = document.createElement("listcell");
             categoryName.setAttribute("id", gCategoryList[i]);
             categoryName.setAttribute("label", gCategoryList[i]);
-            let categoryNameFix = cal.formatStringForCSSRule(gCategoryList[i]);
+            let categoryNameFix = cal.view.formatStringForCSSRule(gCategoryList[i]);
             let categoryColor = document.createElement("listcell");
             try {
                 let colorCode = categoryPrefBranch.getCharPref(categoryNameFix);
@@ -146,7 +146,7 @@ var gCategoriesPane = {
      */
     editCategory: function() {
         let list = document.getElementById("categorieslist");
-        let categoryNameFix = cal.formatStringForCSSRule(gCategoryList[list.selectedIndex]);
+        let categoryNameFix = cal.view.formatStringForCSSRule(gCategoryList[list.selectedIndex]);
         let currentColor = categoryPrefBranch.getCharPref(categoryNameFix, "");
 
         let params = {
@@ -172,7 +172,7 @@ var gCategoriesPane = {
             return;
         }
 
-        let categoryNameFix = cal.formatStringForCSSRule(gCategoryList[list.selectedIndex]);
+        let categoryNameFix = cal.view.formatStringForCSSRule(gCategoryList[list.selectedIndex]);
         this.backupData(categoryNameFix);
         try {
             categoryPrefBranch.clearUserPref(categoryNameFix);
@@ -233,7 +233,7 @@ var gCategoriesPane = {
             return;
         }
 
-        let categoryNameFix = cal.formatStringForCSSRule(categoryName);
+        let categoryNameFix = cal.view.formatStringForCSSRule(categoryName);
         if (list.selectedIndex == -1) {
             this.backupData(categoryNameFix);
             gCategoryList.push(categoryName);

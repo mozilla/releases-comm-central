@@ -128,7 +128,7 @@
           tree.view = this.mTreeView;
 
           // set up our calendar event observer
-          let composite = cal.getCompositeCalendar(window);
+          let composite = cal.view.getCompositeCalendar(window);
           composite.addObserver(this.mTaskTreeObserver);
 
           // set up the preference observer
@@ -173,7 +173,7 @@
           Components.utils.import("resource://gre/modules/Services.jsm");
 
           // remove composite calendar observer
-          let composite = cal.getCompositeCalendar(window);
+          let composite = cal.view.getCompositeCalendar(window);
           composite.removeObserver(this.mTaskTreeObserver);
 
           // remove the preference observer
@@ -517,8 +517,8 @@
                 properties.push(cal.item.getProgressAtom(item));
 
                 // Add calendar name and id atom
-                properties.push("calendar-" + cal.formatStringForCSSRule(item.calendar.name));
-                properties.push("calendarid-" + cal.formatStringForCSSRule(item.calendar.id));
+                properties.push("calendar-" + cal.view.formatStringForCSSRule(item.calendar.name));
+                properties.push("calendarid-" + cal.view.formatStringForCSSRule(item.calendar.id));
 
                 // Add item status atom
                 if (item.status) {
@@ -532,7 +532,7 @@
 
                 // Task categories
                 properties = properties.concat(item.getCategories({})
-                                                   .map(cal.formatStringForCSSRule));
+                                                   .map(cal.view.formatStringForCSSRule));
 
                 return properties.join(" ");
             },
@@ -959,7 +959,7 @@
       <method name="refresh">
         <parameter name="aFilter"/>
         <body><![CDATA[
-            let cals = cal.getCompositeCalendar(window).getCalendars({}) || [];
+            let cals = cal.view.getCompositeCalendar(window).getCalendars({}) || [];
             for (let calendar of cals) {
                 if (!calendar.getProperty("disabled")) {
                     this.refreshFromCalendar(calendar, aFilter);

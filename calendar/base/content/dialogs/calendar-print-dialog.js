@@ -161,7 +161,7 @@ function getPrintSettings(receiverFunc) {
         };
         let filter = getFilter(settings);
         if (filter) {
-            cal.getCompositeCalendar(window.opener).getItems(filter, 0, settings.start, settings.end, listener);
+            cal.view.getCompositeCalendar(window.opener).getItems(filter, 0, settings.start, settings.end, listener);
         } else {
             // No filter means no items, just complete with the empty list set above
             receiverFunc(settings);
@@ -304,7 +304,7 @@ function printAndClose() {
  * Called when once a date has been selected in the datepicker.
  */
 function onDatePick() {
-    cal.calRadioGroupSelectItem("view-field", "custom-range");
+    cal.view.radioGroupSelectItem("view-field", "custom-range");
     setTimeout(refreshHtml, 0);
 }
 

@@ -295,7 +295,7 @@ var calendarController = {
                 if (!focusedElement && this.defaultController && !this.isCalendarInForeground()) {
                     this.defaultController.doCommand(aCommand);
                 } else {
-                    let focusedRichListbox = cal.getParentNodeOrThis(focusedElement, "richlistbox");
+                    let focusedRichListbox = cal.view.getParentNodeOrThis(focusedElement, "richlistbox");
                     if (focusedRichListbox && focusedRichListbox.id == "agenda-listbox") {
                         agendaListbox.editSelectedItem();
                     } else if (focusedElement && focusedElement.className == "calendar-task-tree") {
@@ -314,7 +314,7 @@ var calendarController = {
                 if (!focusedElement && this.defaultController && !this.isCalendarInForeground()) {
                     this.defaultController.doCommand(aCommand);
                 } else {
-                    let focusedRichListbox = cal.getParentNodeOrThis(focusedElement, "richlistbox");
+                    let focusedRichListbox = cal.view.getParentNodeOrThis(focusedElement, "richlistbox");
                     if (focusedRichListbox && focusedRichListbox.id == "agenda-listbox") {
                         agendaListbox.deleteSelectedItem(false);
                     } else if (focusedElement && focusedElement.className == "calendar-task-tree") {
@@ -386,7 +386,7 @@ var calendarController = {
                 break;
 
             case "calendar_reload_remote_calendars":
-                cal.getCompositeCalendar(window).refresh();
+                cal.view.getCompositeCalendar(window).refresh();
                 break;
             case "calendar_show_unifinder_command":
                 toggleUnifinder();

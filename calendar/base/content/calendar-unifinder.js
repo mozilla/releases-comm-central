@@ -195,7 +195,7 @@ function prepareCalendarUnifinder() {
     // Check if this is not the hidden window, which has no UI elements
     if (unifinderTree) {
         // set up our calendar event observer
-        let ccalendar = cal.getCompositeCalendar(window);
+        let ccalendar = cal.view.getCompositeCalendar(window);
         ccalendar.addObserver(unifinderObserver);
 
         kDefaultTimezone = cal.dtz.defaultTimezone;
@@ -244,7 +244,7 @@ function prepareCalendarUnifinder() {
  * added.
  */
 function finishCalendarUnifinder() {
-    let ccalendar = cal.getCompositeCalendar(window);
+    let ccalendar = cal.view.getCompositeCalendar(window);
     ccalendar.removeObserver(unifinderObserver);
 
     // Remove pref observer
@@ -693,7 +693,7 @@ var unifinderTreeView = {
         }
 
         // Add calendar name atom
-        properties.push("calendar-" + cal.formatStringForCSSRule(item.calendar.name));
+        properties.push("calendar-" + cal.view.formatStringForCSSRule(item.calendar.name));
 
         // Add item status atom
         if (item.status) {
@@ -707,7 +707,7 @@ var unifinderTreeView = {
 
         // Task categories
         properties = properties.concat(item.getCategories({})
-                                           .map(cal.formatStringForCSSRule));
+                                           .map(cal.view.formatStringForCSSRule));
 
         return properties.join(" ");
     },
@@ -837,7 +837,7 @@ function refreshEventTree() {
         unifinderTreeView.mFilter.filterText = field.value;
     }
 
-    addItemsFromCalendar(cal.getCompositeCalendar(window),
+    addItemsFromCalendar(cal.view.getCompositeCalendar(window),
                          addItemsFromCompositeCalendarInternal);
 }
 

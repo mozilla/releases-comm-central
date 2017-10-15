@@ -115,7 +115,7 @@ agendaListbox.removePeriodListItem = function(aPeriod) {
 agendaListbox.onCheckboxChange = function(event) {
     let periodCheckbox = event.target;
     let lopen = (periodCheckbox.getAttribute("checked") == "true");
-    let listItem = cal.getParentNodeOrThis(periodCheckbox, "agenda-checkbox-richlist-item");
+    let listItem = cal.view.getParentNodeOrThis(periodCheckbox, "agenda-checkbox-richlist-item");
     let period = listItem.getItem();
     period.open = lopen;
     // as the agenda-checkboxes are only transient we have to set the "checked"
@@ -685,7 +685,7 @@ agendaListbox.refreshCalendarQuery = function(aStart, aEnd, aCalendar) {
 agendaListbox.setupCalendar = function() {
     this.init();
     if (this.calendar == null) {
-        this.calendar = cal.getCompositeCalendar(window);
+        this.calendar = cal.view.getCompositeCalendar(window);
     }
     if (this.calendar) {
         // XXX This always gets called, does that happen on purpose?

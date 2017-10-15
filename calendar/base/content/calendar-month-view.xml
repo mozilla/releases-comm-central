@@ -330,7 +330,7 @@
           }
       ]]></handler>
       <handler event="wheel"><![CDATA[
-          if (cal.getParentNodeOrThisByAttribute(event.originalTarget, "anonid", "day-label") == null) {
+          if (cal.view.getParentNodeOrThisByAttribute(event.originalTarget, "anonid", "day-label") == null) {
               if (this.dayitems.scrollHeight > this.dayitems.clientHeight) {
                   event.stopPropagation();
               }

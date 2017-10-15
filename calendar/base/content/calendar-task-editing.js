@@ -153,7 +153,7 @@ var taskEdit = {
             taskEdit.onBlur({ target: taskEditFields[i] });
         }
 
-        cal.getCompositeCalendar(window).addObserver(taskEdit.compositeObserver);
+        cal.view.getCompositeCalendar(window).addObserver(taskEdit.compositeObserver);
         taskEdit.observedCalendar = getSelectedCalendar();
     },
 
@@ -161,7 +161,7 @@ var taskEdit = {
      * Window load function to clean up all quick-add fields.
      */
     onUnload: function() {
-        cal.getCompositeCalendar(window).removeObserver(taskEdit.compositeObserver);
+        cal.view.getCompositeCalendar(window).removeObserver(taskEdit.compositeObserver);
         taskEdit.observedCalendar = null;
     },
 

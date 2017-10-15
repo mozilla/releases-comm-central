@@ -53,9 +53,9 @@ function test_recentzones() {
 }
 
 function test_formatcss() {
-    equal(cal.formatStringForCSSRule(" "), "_");
-    equal(cal.formatStringForCSSRule("ü"), "-uxfc-");
-    equal(cal.formatStringForCSSRule("a"), "a");
+    equal(cal.view.formatStringForCSSRule(" "), "_");
+    equal(cal.view.formatStringForCSSRule("ü"), "-uxfc-");
+    equal(cal.view.formatStringForCSSRule("a"), "a");
 }
 
 function test_attendeeMatchesAddresses() {

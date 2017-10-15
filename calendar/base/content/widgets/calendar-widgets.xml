@@ -588,7 +588,7 @@
             // method that may be overwritten by derived bindings...
             if (this.calendarView.mDropShadows) {
                 for (let shadow of this.calendarView.mDropShadows) {
-                    cal.removeChildElementsByAttribute(shadow, "class", "dropshadow");
+                    cal.view.removeChildElementsByAttribute(shadow, "class", "dropshadow");
                 }
             }
             this.calendarView.mDropShadows = null;

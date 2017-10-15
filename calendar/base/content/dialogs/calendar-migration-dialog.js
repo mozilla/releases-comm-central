@@ -282,7 +282,7 @@ var gDataMigrator = {
                 calendar.name = getRDFAttr(node, "name");
                 calendar.setProperty("color", getRDFAttr(node, "color"));
                 calManager.registerCalendar(calendar);
-                cal.getCompositeCalendar(window).addCalendar(calendar);
+                cal.view.getCompositeCalendar(window).addCalendar(calendar);
             }
             aCallback();
         }
@@ -400,7 +400,7 @@ var gDataMigrator = {
                 calendar.name = "iCalendar"+i;
                 i++;
                 calManager.registerCalendar(calendar);
-                cal.getCompositeCalendar(window).addCalendar(calendar);
+                cal.view.getCompositeCalendar(window).addCalendar(calendar);
             }
             migLOG("icalMig making callback");
             aCallback();
@@ -438,7 +438,7 @@ var gDataMigrator = {
                     var calendar = gDataMigrator.importICSToStorage(dataStore);
                     calendar.name = "Evolution " + (i++);
                     calManager.registerCalendar(calendar);
-                    cal.getCompositeCalendar(window).addCalendar(calendar);
+                    cal.view.getCompositeCalendar(window).addCalendar(calendar);
                 }
                 return dataStore.exists();
             }
@@ -490,7 +490,7 @@ var gDataMigrator = {
                     calManager.registerCalendar(storage);
 
                     if (enabled) {
-                        cal.getCompositeCalendar(window).addCalendar(storage);
+                        cal.view.getCompositeCalendar(window).addCalendar(storage);
                     }
                 }
             }
