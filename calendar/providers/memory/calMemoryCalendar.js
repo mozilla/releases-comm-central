@@ -226,7 +226,7 @@ calMemoryCalendar.prototype = {
 
             // compareItems is not suitable here. See bug 418805.
             // Cannot compare here due to bug 380060
-            if (!cal.compareItemContent(storedOldItem, aOldItem)) {
+            if (!cal.item.compareContent(storedOldItem, aOldItem)) {
                 return reportError("old item mismatch in modifyItem. storedId:" + storedOldItem.icalComponent + " old item:" + aOldItem.icalComponent);
             }
             // offline bug
@@ -322,9 +322,9 @@ calMemoryCalendar.prototype = {
         let item = this.mItems[aId];
         let iid = null;
 
-        if (cal.isEvent(item)) {
+        if (cal.item.isEvent(item)) {
             iid = Components.interfaces.calIEvent;
-        } else if (cal.isToDo(item)) {
+        } else if (cal.item.isToDo(item)) {
             iid = Components.interfaces.calITodo;
         } else {
             this.notifyOperationComplete(aListener,
@@ -446,7 +446,7 @@ calMemoryCalendar.prototype = {
         };
 
         cal.forEach(this.mItems, ([id, item]) => {
-            let isEvent_ = cal.isEvent(item);
+            let isEvent_ = cal.item.isEvent(item);
             if (isEvent_) {
                 if (!wantEvents) {
                     return cal.forEach.CONTINUE;
@@ -465,7 +465,7 @@ calMemoryCalendar.prototype = {
 
             if (itemReturnOccurrences && item.recurrenceInfo) {
                 let startDate = aRangeStart;
-                if (!aRangeStart && cal.isToDo(item)) {
+                if (!aRangeStart && cal.item.isToDo(item)) {
                     startDate = item.entryDate;
                 }
                 let occurrences = item.recurrenceInfo.getOccurrences(
@@ -479,7 +479,7 @@ calMemoryCalendar.prototype = {
                 itemsFound = itemsFound.concat(occurrences);
             } else if ((!wantUnrespondedInvitations || checkUnrespondedInvitation(item)) &&
                        (isEvent_ || checkCompleted(item)) &&
-                       cal.checkIfInRange(item, aRangeStart, aRangeEnd)) {
+                       cal.item.checkIfInRange(item, aRangeStart, aRangeEnd)) {
                 // This needs fixing for recurring items, e.g. DTSTART of parent may occur before aRangeStart.
                 // This will be changed with bug 416975.
                 itemsFound.push(item);

@@ -221,7 +221,7 @@ agendaListbox.findPeriodsForItem = function(aItem) {
     let retPeriods = [];
     for (let i = 0; i < this.periods.length; i++) {
         if (this.periods[i].open) {
-            if (cal.checkIfInRange(aItem, this.periods[i].start, this.periods[i].end)) {
+            if (cal.item.checkIfInRange(aItem, this.periods[i].start, this.periods[i].end)) {
                 retPeriods.push(this.periods[i]);
             }
         }
@@ -294,7 +294,7 @@ agendaListbox.addItemBefore = function(aNewItem, aAgendaItem, aPeriod, visible) 
  * @return              The newly created XUL element.
  */
 agendaListbox.addItem = function(aItem) {
-    if (!cal.isEvent(aItem)) {
+    if (!cal.item.isEvent(aItem)) {
         return null;
     }
     let periods = this.findPeriodsForItem(aItem);
@@ -889,7 +889,7 @@ agendaListbox.calendarObserver.onLoad = function() {
 };
 
 agendaListbox.calendarObserver.onAddItem = function(item) {
-    if (!cal.isEvent(item)) {
+    if (!cal.item.isEvent(item)) {
         return;
     }
     // get all sub items if it is a recurring item
@@ -913,7 +913,7 @@ agendaListbox.calendarObserver.onDeleteItem = function(item, rebuildFlag) {
 };
 
 agendaListbox.calendarObserver.onLocalDeleteItem = function(item, moveSelection) {
-    if (!cal.isEvent(item)) {
+    if (!cal.item.isEvent(item)) {
         return false;
     }
     let selectedItemHashId = -1;
@@ -930,7 +930,7 @@ agendaListbox.calendarObserver.onLocalDeleteItem = function(item, moveSelection)
 
 agendaListbox.calendarObserver.onModifyItem = function(newItem, oldItem) {
     let selectedItemHashId = this.onLocalDeleteItem(oldItem, false);
-    if (!cal.isEvent(newItem)) {
+    if (!cal.item.isEvent(newItem)) {
         return;
     }
     this.onAddItem(newItem);

@@ -459,7 +459,7 @@ calRecurrenceInfo.prototype = {
         let occurrenceMap = {};
         for (let ex in this.mExceptionMap) {
             let item = this.mExceptionMap[ex];
-            let occDate = cal.checkIfInRange(item, aRangeStart, aRangeEnd, true);
+            let occDate = cal.item.checkIfInRange(item, aRangeStart, aRangeEnd, true);
             occurrenceMap[ex] = true;
             if (occDate) {
                 cal.binaryInsert(dates, { id: item.recurrenceId, rstart: occDate }, ridDateSortComptor);
@@ -468,7 +468,7 @@ calRecurrenceInfo.prototype = {
 
         // DTSTART/DUE is always part of the (positive) expanded set:
         // DTSTART always equals RECURRENCE-ID for items expanded from RRULE
-        let baseOccDate = cal.checkIfInRange(this.mBaseItem, aRangeStart, aRangeEnd, true);
+        let baseOccDate = cal.item.checkIfInRange(this.mBaseItem, aRangeStart, aRangeEnd, true);
         let baseOccDateKey = getRidKey(baseOccDate);
         if (baseOccDate && !occurrenceMap[baseOccDateKey]) {
             occurrenceMap[baseOccDateKey] = true;
@@ -787,7 +787,7 @@ calRecurrenceInfo.prototype = {
                 rid = rid.getInTimezone(rdate ? rdate.timezone : startTimezone);
                 rid.addDuration(timeDiff);
                 ex.recurrenceId = rid;
-                cal.shiftItem(ex, timeDiff);
+                cal.item.shiftOffset(ex, timeDiff);
                 modifiedExceptions.push(ex);
                 this.removeExceptionFor(exid);
             }

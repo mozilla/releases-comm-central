@@ -1085,7 +1085,7 @@ calItemBase.prototype = {
             return this.recurrenceInfo.getOccurrences(aStartDate, aEndDate, 0, aCount);
         }
 
-        if (cal.checkIfInRange(this, aStartDate, aEndDate)) {
+        if (cal.item.checkIfInRange(this, aStartDate, aEndDate)) {
             aCount.value = 1;
             return [this];
         }

@@ -82,7 +82,7 @@ var unifinderObserver = {
     },
 
     onAddItem: function(aItem) {
-        if (cal.isEvent(aItem) &&
+        if (cal.item.isEvent(aItem) &&
             !gUnifinderNeedsRefresh &&
             unifinderTreeView.mFilter.isItemInFilters(aItem)
             ) {
@@ -96,7 +96,7 @@ var unifinderObserver = {
     },
 
     onDeleteItem: function(aDeletedItem) {
-        if (cal.isEvent(aDeletedItem) && !gUnifinderNeedsRefresh) {
+        if (cal.item.isEvent(aDeletedItem) && !gUnifinderNeedsRefresh) {
             this.removeItemFromTree(aDeletedItem);
         }
     },

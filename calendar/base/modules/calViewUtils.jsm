@@ -21,11 +21,11 @@ cal.view = {
             return 1;
         }
 
-        let aIsEvent = cal.isEvent(a);
-        let aIsTodo = cal.isToDo(a);
+        let aIsEvent = cal.item.isEvent(a);
+        let aIsTodo = cal.item.isToDo(a);
 
-        let bIsEvent = cal.isEvent(b);
-        let bIsTodo = cal.isToDo(b);
+        let bIsEvent = cal.item.isEvent(b);
+        let bIsTodo = cal.item.isToDo(b);
 
         // sort todos before events
         if (aIsTodo && bIsEvent) {

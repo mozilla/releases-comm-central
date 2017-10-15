@@ -51,7 +51,7 @@ function setDefaultItemValues(aItem, aCalendar=null, aStartDate=null, aEndDate=n
     let initialDate = aInitialDate ? aInitialDate.clone() : cal.dtz.now();
     initialDate.isDate = true;
 
-    if (cal.isEvent(aItem)) {
+    if (cal.item.isEvent(aItem)) {
         if (aStartDate) {
             aItem.startDate = aStartDate.clone();
             if (aStartDate.isDate && !aForceAllday) {
@@ -93,8 +93,8 @@ function setDefaultItemValues(aItem, aCalendar=null, aStartDate=null, aEndDate=n
         }
 
         // Free/busy status is only valid for events, must not be set for tasks.
-        aItem.setProperty("TRANSP", cal.getEventDefaultTransparency(aForceAllday));
-    } else if (cal.isToDo(aItem)) {
+        aItem.setProperty("TRANSP", cal.item.getEventDefaultTransparency(aForceAllday));
+    } else if (cal.item.isToDo(aItem)) {
         let now = cal.dtz.now();
         let initDate = initialDate ? initialDate.clone() : now;
         initDate.isDate = false;
@@ -341,7 +341,7 @@ function createTodoWithDialog(calendar, dueDate, summary, todo, initialDate) {
  *        }
  */
 function modifyEventWithDialog(aItem, job=null, aPromptOccurrence, initialDate=null, aCounterProposal) {
-    let dlg = cal.findItemWindow(aItem);
+    let dlg = cal.item.findWindow(aItem);
     if (dlg) {
         dlg.focus();
         disposeJob(job);
@@ -379,7 +379,7 @@ function modifyEventWithDialog(aItem, job=null, aPromptOccurrence, initialDate=n
  *                                     description for modifyEventWithDialog()
  */
 function openEventDialog(calendarItem, calendar, mode, callback, job=null, initialDate=null, counterProposal) {
-    let dlg = cal.findItemWindow(calendarItem);
+    let dlg = cal.item.findWindow(calendarItem);
     if (dlg) {
         dlg.focus();
         disposeJob(job);
@@ -393,11 +393,11 @@ function openEventDialog(calendarItem, calendar, mode, callback, job=null, initi
     calendars = calendars.filter(cal.acl.isCalendarWritable);
 
     let isItemSupported;
-    if (cal.isToDo(calendarItem)) {
+    if (cal.item.isToDo(calendarItem)) {
         isItemSupported = function(aCalendar) {
             return (aCalendar.getProperty("capabilities.tasks.supported") !== false);
         };
-    } else if (cal.isEvent(calendarItem)) {
+    } else if (cal.item.isEvent(calendarItem)) {
         isItemSupported = function(aCalendar) {
             return (aCalendar.getProperty("capabilities.events.supported") !== false);
         };
@@ -495,7 +495,7 @@ function openEventDialog(calendarItem, calendar, mode, callback, job=null, initi
         // never opened in a tab
         args.url = url;
         let tabmail = document.getElementById("tabmail");
-        let tabtype = cal.isEvent(args.calendarEvent) ? "calendarEvent" : "calendarTask";
+        let tabtype = cal.item.isEvent(args.calendarEvent) ? "calendarEvent" : "calendarTask";
         tabmail.openTab(tabtype, args);
     } else {
         // open in a window

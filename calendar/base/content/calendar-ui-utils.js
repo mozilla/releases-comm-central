@@ -295,7 +295,7 @@ function appendCalendarItems(aItem, aCalendarMenuParent, aCalendarToUse, aOnComm
              cal.acl.isCalendarWritable(calendar) &&
              (cal.acl.userCanAddItemsToCalendar(calendar) ||
               (calendar == aItem.calendar && cal.acl.userCanModifyItem(aItem))) &&
-             cal.isItemSupported(aItem, calendar))) {
+             cal.item.isItemSupported(aItem, calendar))) {
             let menuitem = addMenuItem(aCalendarMenuParent, calendar.name, calendar.name);
             menuitem.calendar = calendar;
             index++;

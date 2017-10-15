@@ -514,7 +514,7 @@
                 } else if (item.priority > 5 && item.priority < 10) {
                     properties.push("lowpriority");
                 }
-                properties.push(cal.getProgressAtom(item));
+                properties.push(cal.item.getProgressAtom(item));
 
                 // Add calendar name and id atom
                 properties.push("calendar-" + cal.formatStringForCSSRule(item.calendar.name));
@@ -823,13 +823,13 @@
             },
 
             onAddItem: function(aItem) {
-                if (cal.isToDo(aItem)) {
+                if (cal.item.isToDo(aItem)) {
                     this.binding.mTreeView.addItems(this.binding.mFilter.getOccurrences(aItem));
                 }
             },
 
             onModifyItem: function(aNewItem, aOldItem) {
-                if (cal.isToDo(aNewItem) || cal.isToDo(aOldItem)) {
+                if (cal.item.isToDo(aNewItem) || cal.item.isToDo(aOldItem)) {
                     this.binding.mTreeView.modifyItems(this.binding.mFilter.getOccurrences(aNewItem),
                                                        this.binding.mFilter.getOccurrences(aOldItem));
 
@@ -841,7 +841,7 @@
             },
 
             onDeleteItem: function(aDeletedItem) {
-                if (cal.isToDo(aDeletedItem)) {
+                if (cal.item.isToDo(aDeletedItem)) {
                     this.binding.mTreeView.removeItems(this.binding.mFilter.getOccurrences(aDeletedItem));
                 }
             },

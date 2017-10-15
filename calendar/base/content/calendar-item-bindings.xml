@@ -60,7 +60,7 @@
                 date = this.mItem[cal.dtz.startDateProp(this.mItem)];
                 if (date) {
                     let label;
-                    if (cal.isToDo(this.mItem)) {
+                    if (cal.item.isToDo(this.mItem)) {
                         label = this.getAttribute("taskStartLabel");
                     } else {
                         label = this.getAttribute("eventStartLabel");
@@ -71,7 +71,7 @@
                 date = this.mItem[cal.dtz.endDateProp(this.mItem)];
                 if (date) {
                     let label;
-                    if (cal.isToDo(this.mItem)) {
+                    if (cal.item.isToDo(this.mItem)) {
                         label = this.getAttribute("taskDueLabel");
                     } else {
                         label = this.getAttribute("eventEndLabel");

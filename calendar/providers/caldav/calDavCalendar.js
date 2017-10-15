@@ -646,7 +646,7 @@ calDavCalendar.prototype = {
             return;
         }
 
-        if (!cal.isItemSupported(aItem, this)) {
+        if (!cal.item.isItemSupported(aItem, this)) {
             notifyListener(Components.results.NS_ERROR_FAILURE,
                            "Server does not support item type");
             return;
@@ -2418,7 +2418,7 @@ calDavCalendar.prototype = {
         let organizer = this.calendarUserAddress;
 
         let fbQuery = cal.getIcsService().createIcalComponent("VCALENDAR");
-        cal.calSetProdidVersion(fbQuery);
+        cal.item.setStaticProps(fbQuery);
         let prop = cal.getIcsService().createIcalProperty("METHOD");
         prop.value = "REQUEST";
         fbQuery.addProperty(prop);

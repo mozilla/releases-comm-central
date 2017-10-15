@@ -224,7 +224,7 @@ function contextPostponeTask(aEvent, aDuration) {
         tasks.forEach((task) => {
             if (task.entryDate || task.dueDate) {
                 let newTask = task.clone();
-                cal.shiftItem(newTask, duration);
+                cal.item.shiftOffset(newTask, duration);
                 doTransaction("modify", newTask, newTask.calendar, task, null);
             }
         });

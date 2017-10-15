@@ -79,7 +79,7 @@
               },
 
               onAddItem: function(aItem) {
-                  if (cal.isToDo(aItem)) {
+                  if (cal.item.isToDo(aItem)) {
                       if (!aItem.entryDate && !aItem.dueDate) {
                           return;
                       }
@@ -100,13 +100,13 @@
               },
 
               onModifyItem: function(aNewItem, aOldItem) {
-                  if (cal.isToDo(aNewItem) && cal.isToDo(aOldItem) &&
+                  if (cal.item.isToDo(aNewItem) && cal.item.isToDo(aOldItem) &&
                       !this.calView.mTasksInView) {
                       return;
                   }
                   let occs;
 
-                  if (!cal.isToDo(aOldItem) || aOldItem.entryDate || aOldItem.dueDate) {
+                  if (!cal.item.isToDo(aOldItem) || aOldItem.entryDate || aOldItem.dueDate) {
                       occs = aOldItem.getOccurrencesBetween(this.calView.startDate,
                                                             this.calView.queryEndDate,
                                                             {});
@@ -114,7 +114,7 @@
                           this.calView.doDeleteItem(occ);
                       }
                   }
-                  if (cal.isToDo(aNewItem)) {
+                  if (cal.item.isToDo(aNewItem)) {
                       if ((!aNewItem.entryDate && !aNewItem.dueDate) || !this.calView.mTasksInView) {
                           return;
                       }
@@ -132,7 +132,7 @@
               },
 
               onDeleteItem: function(aItem) {
-                  if (cal.isToDo(aItem)) {
+                  if (cal.item.isToDo(aItem)) {
                       if (!this.calView.mTasksInView) {
                           return;
                       }
@@ -476,7 +476,7 @@
                     }
 
                     for (let item of aItems) {
-                        if (!cal.isToDo(item) || item.entryDate || item.dueDate) {
+                        if (!cal.item.isToDo(item) || item.entryDate || item.dueDate) {
                             this.calView.doAddItem(item);
                         }
                     }

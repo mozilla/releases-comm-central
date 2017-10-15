@@ -461,7 +461,7 @@ calCalendarButtonDNDObserver.prototype = {
     onDropItems: function(aItems) {
         for (var item of aItems) {
             var newItem = item;
-            if (cal.isToDo(item)) {
+            if (cal.item.isToDo(item)) {
                 newItem = itemConversion.eventFromTask(item);
             }
             createEventWithDialog(null, null, null, null, newItem);
@@ -510,7 +510,7 @@ calTaskButtonDNDObserver.prototype = {
     onDropItems: function(aItems) {
         for (var item of aItems) {
             var newItem = item;
-            if (cal.isEvent(item)) {
+            if (cal.item.isEvent(item)) {
                 newItem = itemConversion.taskFromEvent(item);
             }
             createTodoWithDialog(null, null, null, newItem);
@@ -560,10 +560,10 @@ function invokeEventDragSession(aItem, aXULBox) {
         }
     };
 
-    if (cal.isEvent(aItem)) {
+    if (cal.item.isEvent(aItem)) {
       transfer.addDataFlavor("application/vnd.x-moz-cal-event");
       transfer.setTransferData("application/vnd.x-moz-cal-event", flavourProvider, 0);
-    } else if (cal.isToDo(aItem)) {
+    } else if (cal.item.isToDo(aItem)) {
       transfer.addDataFlavor("application/vnd.x-moz-cal-task");
       transfer.setTransferData("application/vnd.x-moz-cal-task", flavourProvider, 0);
     }

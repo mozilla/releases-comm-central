@@ -818,13 +818,13 @@ function setupContextItemType(event, items) {
             menuItem.setAttribute("accesskey", cal.calGetString("calendar", "delete" + aItemType + "Accesskey"));
         }
     }
-    if (items.some(cal.isEvent) && items.some(cal.isToDo)) {
+    if (items.some(cal.item.isEvent) && items.some(cal.item.isToDo)) {
         event.target.setAttribute("type", "mixed");
         adaptModificationMenuItem("calendar-item-context-menu-delete-menuitem", "Item");
-    } else if (items.length && cal.isEvent(items[0])) {
+    } else if (items.length && cal.item.isEvent(items[0])) {
         event.target.setAttribute("type", "event");
         adaptModificationMenuItem("calendar-item-context-menu-delete-menuitem", "Event");
-    } else if (items.length && cal.isToDo(items[0])) {
+    } else if (items.length && cal.item.isToDo(items[0])) {
         event.target.setAttribute("type", "todo");
         adaptModificationMenuItem("calendar-item-context-menu-delete-menuitem", "Task");
     } else {
@@ -911,10 +911,10 @@ function calendarUpdateNewItemsCommand() {
     CalendarNewEventsCommandEnabled = false;
     CalendarNewTasksCommandEnabled = false;
     let calendars = cal.getCalendarManager().getCalendars({}).filter(cal.acl.isCalendarWritable).filter(cal.acl.userCanAddItemsToCalendar);
-    if (calendars.some(cal.isEventCalendar)) {
+    if (calendars.some(cal.item.isEventCalendar)) {
         CalendarNewEventsCommandEnabled = true;
     }
-    if (calendars.some(cal.isTaskCalendar)) {
+    if (calendars.some(cal.item.isTaskCalendar)) {
         CalendarNewTasksCommandEnabled = true;
     }
 

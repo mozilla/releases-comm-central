@@ -1967,7 +1967,7 @@
 
             // Tasks without Entry or Due date have a string as first label
             // instead of the time.
-            if (cal.isToDo(this.mDragState.dragOccurrence)) {
+            if (cal.item.isToDo(this.mDragState.dragOccurrence)) {
                 if (!this.mDragState.dragOccurrence.dueDate) {
                     startstr = cal.calGetString("calendar", "dragLabelTasksWithOnlyEntryDate");
                 } else if (!this.mDragState.dragOccurrence.entryDate) {
@@ -2173,8 +2173,8 @@
       <method name="onDropItem">
         <parameter name="aItem"/>
         <body><![CDATA[
-            let newItem = cal.moveItem(aItem, this.mDate);
-            newItem = cal.setItemToAllDay(newItem, true);
+            let newItem = cal.item.moveToDate(aItem, this.mDate);
+            newItem = cal.item.setToAllDay(newItem, true);
             return newItem;
         ]]></body>
       </method>

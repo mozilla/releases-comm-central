@@ -32,7 +32,7 @@
 
     function onLoad() {
       var action = window.arguments[0].action || "edit";
-      var itemType = (cal.isEvent(window.arguments[0].item) ? "event" : "task");
+      var itemType = (cal.item.isEvent(window.arguments[0].item) ? "event" : "task");
 
       // Set up title
       document.title = getDialogString("windowtitle." + itemType + "." + action);

@@ -215,7 +215,7 @@ function pasteFromClipboard() {
                 // clipboard content.
                 newItem.id = cal.getUUID();
                 if (offset) {
-                    cal.shiftItem(newItem, offset);
+                    cal.item.shiftOffset(newItem, offset);
                 }
                 doTransaction("add", newItem, destCal, null, null);
             }

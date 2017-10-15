@@ -80,7 +80,7 @@
         <setter><![CDATA[
             cal.ASSERT(!this.mOccurrence, "Code changes needed to set the occurrence twice", true);
             this.mOccurrence = val;
-            if (cal.isEvent(val)) {
+            if (cal.item.isEvent(val)) {
                 if (!val.startDate.isDate) {
                     let label = document.getAnonymousElementByAttribute(this, "anonid", "item-label");
                     let formatter = Components.classes["@mozilla.org/calendar/datetime-formatter;1"]
@@ -308,7 +308,7 @@
                 dayboxDate.addDuration(dayDiff);
             }
 
-            return cal.moveItem(aItem, dayboxDate);
+            return cal.item.moveToDate(aItem, dayboxDate);
         ]]></body>
       </method>
     </implementation>
@@ -956,10 +956,10 @@
             let boxes = [];
 
             // All our boxes are in default tz, so we need these times in them too.
-            if (cal.isEvent(aItem)) {
+            if (cal.item.isEvent(aItem)) {
                 targetDate = aItem.startDate.getInTimezone(this.mTimezone);
                 finishDate = aItem.endDate.getInTimezone(this.mTimezone);
-            } else if (cal.isToDo(aItem)) {
+            } else if (cal.item.isToDo(aItem)) {
                 // Consider tasks without entry OR due date.
                 if (aItem.entryDate || aItem.dueDate) {
                     targetDate = (aItem.entryDate || aItem.dueDate).getInTimezone(this.mTimezone);

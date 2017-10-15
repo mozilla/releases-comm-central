@@ -691,7 +691,7 @@
                                    .createInstance(Components.interfaces.nsITransferable);
           transfer.init(null);
 
-          if (cal.isEvent(item)) {
+          if (cal.item.isEvent(item)) {
               transfer.addDataFlavor("application/x-moz-cal-event");
           } else {
               transfer.addDataFlavor("application/x-moz-cal-task");

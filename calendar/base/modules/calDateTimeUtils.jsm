@@ -103,7 +103,7 @@ var caldtz = {
     setDefaultStartEndHour: function(aItem, aReferenceDate) {
         aItem[caldtz.startDateProp(aItem)] = caldtz.getDefaultStartDate(aReferenceDate);
 
-        if (cal.isEvent(aItem)) {
+        if (cal.item.isEvent(aItem)) {
             aItem.endDate = aItem.startDate.clone();
             aItem.endDate.minute += Preferences.get("calendar.event.defaultlength", 60);
         }
@@ -114,9 +114,9 @@ var caldtz = {
      * event's start date or a task's entry date.
      */
     startDateProp: function(aItem) {
-        if (cal.isEvent(aItem)) {
+        if (cal.item.isEvent(aItem)) {
             return "startDate";
-        } else if (cal.isToDo(aItem)) {
+        } else if (cal.item.isToDo(aItem)) {
             return "entryDate";
         }
         throw Components.results.NS_ERROR_NOT_IMPLEMENTED;
@@ -127,9 +127,9 @@ var caldtz = {
      * event's end date or a task's due date.
      */
     endDateProp: function(aItem) {
-        if (cal.isEvent(aItem)) {
+        if (cal.item.isEvent(aItem)) {
             return "endDate";
-        } else if (cal.isToDo(aItem)) {
+        } else if (cal.item.isToDo(aItem)) {
             return "dueDate";
         }
         throw Components.results.NS_ERROR_NOT_IMPLEMENTED;

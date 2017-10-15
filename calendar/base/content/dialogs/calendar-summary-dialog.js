@@ -43,9 +43,9 @@ function onLoad() {
     }
 
     // set the dialog-id to enable the right window-icon to be loaded.
-    if (cal.isEvent(item)) {
+    if (cal.item.isEvent(item)) {
         setDialogId(document.documentElement, "calendar-event-summary-dialog");
-    } else if (cal.isToDo(item)) {
+    } else if (cal.item.isToDo(item)) {
         setDialogId(document.documentElement, "calendar-task-summary-dialog");
     }
 
@@ -76,7 +76,7 @@ function onLoad() {
             // make partstat NEEDS-ACTION only available as a option to change to,
             // if the user hasn't ever made a decision prior to opening the dialog
             let partStat = window.attendee.participationStatus || "NEEDS-ACTION";
-            if (partStat == "NEEDS-ACTION" && cal.isEvent(item)) {
+            if (partStat == "NEEDS-ACTION" && cal.item.isEvent(item)) {
                 document.getElementById("item-participation-needs-action").removeAttribute("hidden");
             }
         }
@@ -150,7 +150,7 @@ function onLoad() {
         for (let i = 0; i < statusRow.childNodes.length; i++) {
             if (statusRow.childNodes[i].getAttribute("status") == status) {
                 statusRow.removeAttribute("hidden");
-                if (status == "CANCELLED" && cal.isToDo(item)) {
+                if (status == "CANCELLED" && cal.item.isToDo(item)) {
                     // There are two labels for CANCELLED, the second one is for
                     // todo items. Increment the counter here.
                     i++;

@@ -374,7 +374,7 @@ calFilter.prototype = {
      *                            specified by mStartDate and mEndDate, false otherwise.
      */
     dateRangeFilter: function(aItem) {
-        return cal.checkIfInRange(aItem, this.mStartDate, this.mEndDate);
+        return cal.item.checkIfInRange(aItem, this.mStartDate, this.mEndDate);
     },
 
     /**
@@ -423,7 +423,7 @@ calFilter.prototype = {
         }
 
         // test the status property. Only applies to tasks.
-        if (result && props.status != null && cal.isToDo(aItem)) {
+        if (result && props.status != null && cal.item.isToDo(aItem)) {
             let completed = aItem.isCompleted;
             let current = !aItem.completedDate || today.compare(aItem.completedDate) <= 0;
             let percent = aItem.percentComplete || 0;
@@ -439,7 +439,7 @@ calFilter.prototype = {
         }
 
         // test the due property. Only applies to tasks.
-        if (result && props.due != null && cal.isToDo(aItem)) {
+        if (result && props.due != null && cal.item.isToDo(aItem)) {
             let due = aItem.dueDate;
             let now = cal.dtz.now();
 

@@ -627,9 +627,9 @@ calAlarm.prototype = {
 
     toString: function(aItem) {
         function getItemBundleStringName(aPrefix) {
-            if (!aItem || cal.isEvent(aItem)) {
+            if (!aItem || cal.item.isEvent(aItem)) {
                 return aPrefix + "Event";
-            } else if (cal.isToDo(aItem)) {
+            } else if (cal.item.isToDo(aItem)) {
                 return aPrefix + "Task";
             } else {
                 return aPrefix;

@@ -670,7 +670,7 @@ cal.itip = {
                     // check whether really only EXDATEs have been added:
                     let recInfo = clonedItem.recurrenceInfo;
                     exdates.forEach(recInfo.deleteRecurrenceItem, recInfo);
-                    if (cal.compareItemContent(clonedItem, aOriginalItem)) { // transition into "delete occurrence(s)"
+                    if (cal.item.compareContent(clonedItem, aOriginalItem)) { // transition into "delete occurrence(s)"
                         // xxx todo: support multiple
                         aItem = aOriginalItem.recurrenceInfo.getOccurrenceFor(exdates[0].date);
                         aOriginalItem = null;
@@ -811,7 +811,7 @@ cal.itip = {
             // in case of time or location/description change.
             let isMinorUpdate = (aOriginalItem && (cal.itip.getSequence(aItem) == cal.itip.getSequence(aOriginalItem)));
 
-            if (!isMinorUpdate || !cal.compareItemContent(stripUserData(aItem), stripUserData(aOriginalItem))) {
+            if (!isMinorUpdate || !cal.item.compareContent(stripUserData(aItem), stripUserData(aOriginalItem))) {
                 let requestItem = aItem.clone();
                 if (!requestItem.organizer) {
                     requestItem.organizer = createOrganizer(requestItem.calendar);
@@ -936,7 +936,7 @@ cal.itip = {
                                  .createInstance(Components.interfaces.calIItipItem);
         let serializedItems = "";
         for (let item of aItems) {
-            serializedItems += cal.getSerializedItem(item);
+            serializedItems += cal.item.serialize(item);
         }
         itipItem.init(serializedItems);
 
@@ -1145,7 +1145,7 @@ function sendMessage(aItem, aMethod, aRecipientsList, autoResponse) {
         let cIII = Components.interfaces.calIItipItem;
         let itipItem = Components.classes["@mozilla.org/calendar/itip-item;1"]
                                  .createInstance(cIII);
-        itipItem.init(cal.getSerializedItem(aSendItem));
+        itipItem.init(cal.item.serialize(aSendItem));
         itipItem.responseMethod = aMethod;
         itipItem.targetCalendar = aSendItem.calendar;
         itipItem.autoResponse = autoResponse && autoResponse.value ? cIII.AUTO : cIII.USER;

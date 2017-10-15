@@ -86,7 +86,7 @@ calEvent.prototype = {
 
     get icalString() {
         let calcomp = cal.getIcsService().createIcalComponent("VCALENDAR");
-        cal.calSetProdidVersion(calcomp);
+        cal.item.setStaticProps(calcomp);
         calcomp.addSubcomponent(this.icalComponent);
         return calcomp.serializeToICS();
     },

@@ -319,7 +319,7 @@ calWcapCalendar.prototype.storeItem = function(bAddItem, item, oldItem, request)
         return ret || "";
     };
 
-    let bIsEvent = cal.isEvent(item);
+    let bIsEvent = cal.item.isEvent(item);
     let bIsParent = isParent(item);
 
     let method = METHOD_PUBLISH;
@@ -714,7 +714,7 @@ calWcapCalendar.prototype.modifyItem = function(newItem, oldItem, listener) {
                                                  request.unlockPending();
                                              }
                                          },
-                                         stringToXml, cal.isEvent(newItem) ? "deleteevents_by_id" : "deletetodos_by_id",
+                                         stringToXml, cal.item.isEvent(newItem) ? "deleteevents_by_id" : "deletetodos_by_id",
                                          params, calIWcapCalendar.AC_COMP_WRITE);
                 return request;
             }
@@ -774,7 +774,7 @@ calWcapCalendar.prototype.deleteItem = function(item, listener) {
                                          log("deleteItem(): " + getWcapRequestStatusString(xml), this);
                                      }
                                  },
-                                 stringToXml, cal.isEvent(item) ? "deleteevents_by_id" : "deletetodos_by_id",
+                                 stringToXml, cal.item.isEvent(item) ? "deleteevents_by_id" : "deletetodos_by_id",
                                  params, calIWcapCalendar.AC_COMP_WRITE);
     } catch (exc) {
         request.execRespFunc(exc);
@@ -899,7 +899,7 @@ calWcapCalendar.prototype.parseItems = function(
                 unexpandedItems.push(item);
                 uid2parent[item.id] = item;
             } else if ((maxResults == 0 || items.length < maxResults) &&
-                       cal.checkIfInRange(item, rangeStart, rangeEnd)) {
+                       cal.item.checkIfInRange(item, rangeStart, rangeEnd)) {
                 if (LOG_LEVEL > 2) {
                     log("item: " + item.title + "\n" + item.icalString, this);
                 }
@@ -916,7 +916,7 @@ calWcapCalendar.prototype.parseItems = function(
         let parent = uid2parent[item.id];
 
         if (!parent) { // a parentless one, fake a master and override it's occurrence
-            parent = cal.isEvent(item) ? cal.createEvent() : cal.createTodo();
+            parent = cal.item.isEvent(item) ? cal.createEvent() : cal.createTodo();
             parent.id = item.id;
             parent.calendar = this.superCalendar;
             parent.setProperty("DTSTART", item.recurrenceId);

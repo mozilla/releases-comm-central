@@ -320,7 +320,7 @@ calAlarmService.prototype = {
     },
 
     addAlarmsForItem: function(aItem) {
-        if (cal.isToDo(aItem) && aItem.isCompleted) {
+        if (cal.item.isToDo(aItem) && aItem.isCompleted) {
             // If this is a task and it is completed, don't add the alarm.
             return;
         }
@@ -419,7 +419,7 @@ calAlarmService.prototype = {
         if (aItem && aItem.recurrenceInfo) {
             return aItem.recurrenceInfo.getOccurrences(this.mRangeStart, until, 0, {});
         } else {
-            return cal.checkIfInRange(aItem, this.mRangeStart, until) ? [aItem] : [];
+            return cal.item.checkIfInRange(aItem, this.mRangeStart, until) ? [aItem] : [];
         }
     },
 

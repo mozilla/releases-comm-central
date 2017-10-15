@@ -632,9 +632,9 @@ calStorageCalendar.prototype = {
         }
 
         let item_iid = null;
-        if (cal.isEvent(item)) {
+        if (cal.item.isEvent(item)) {
             item_iid = Components.interfaces.calIEvent;
-        } else if (cal.isToDo(item)) {
+        } else if (cal.item.isToDo(item)) {
             item_iid = Components.interfaces.calITodo;
         } else {
             this.notifyOperationComplete(aListener,
@@ -772,7 +772,7 @@ calStorageCalendar.prototype = {
                     expandedItems = expandedItems.filter(checkUnrespondedInvitation);
                 }
             } else if ((!wantUnrespondedInvitations || checkUnrespondedInvitation(item)) &&
-                       cal.checkIfInRange(item, aRangeStart, aRangeEnd)) {
+                       cal.item.checkIfInRange(item, aRangeStart, aRangeEnd)) {
                 // If no occurrences are wanted, check only the parent item.
                 // This will be changed with bug 416975.
                 expandedItems = [item];
@@ -962,11 +962,11 @@ calStorageCalendar.prototype = {
                                                   Components.interfaces.calIOperationListener.GET, aItem.id, flag);
                 }
             };
-            if (cal.isEvent(aItem)) {
+            if (cal.item.isEvent(aItem)) {
                 this.prepareStatement(this.mSelectEvent);
                 this.mSelectEvent.params.id = aID;
                 this.mSelectEvent.executeAsync(listener);
-            } else if (cal.isToDo(aItem)) {
+            } else if (cal.item.isToDo(aItem)) {
                 this.prepareStatement(this.mSelectTodo);
                 this.mSelectTodo.params.id = aID;
                 this.mSelectTodo.executeAsync(listener);
@@ -980,7 +980,7 @@ calStorageCalendar.prototype = {
 
     setOfflineJournalFlag: function(aItem, flag) {
         let aID = aItem.id;
-        if (cal.isEvent(aItem)) {
+        if (cal.item.isEvent(aItem)) {
             this.prepareStatement(this.mEditEventOfflineFlag);
             this.mEditEventOfflineFlag.params.id = aID;
             this.mEditEventOfflineFlag.params.offline_journal = flag || null;
@@ -991,7 +991,7 @@ calStorageCalendar.prototype = {
             } finally {
                 this.mEditEventOfflineFlag.reset();
             }
-        } else if (cal.isToDo(aItem)) {
+        } else if (cal.item.isToDo(aItem)) {
             this.prepareStatement(this.mEditTodoOfflineFlag);
             this.mEditTodoOfflineFlag.params.id = aID;
             this.mEditTodoOfflineFlag.params.offline_journal = flag || null;
@@ -1543,7 +1543,7 @@ calStorageCalendar.prototype = {
     cacheItem: function(item) {
         this.mItemCache[item.id] = item;
         if (item.recurrenceInfo) {
-            if (cal.isEvent(item)) {
+            if (cal.item.isEvent(item)) {
                 this.mRecEventCache[item.id] = item;
             } else {
                 this.mRecTodoCache[item.id] = item;
@@ -1781,7 +1781,7 @@ calStorageCalendar.prototype = {
 
             let rec = item.recurrenceInfo;
 
-            if (cal.isEvent(item)) {
+            if (cal.item.isEvent(item)) {
                 this.mSelectEventExceptions.params.id = item.id;
                 this.prepareStatement(this.mSelectEventExceptions);
                 try {
@@ -1796,7 +1796,7 @@ calStorageCalendar.prototype = {
                 } finally {
                     this.mSelectEventExceptions.reset();
                 }
-            } else if (cal.isToDo(item)) {
+            } else if (cal.item.isToDo(item)) {
                 this.mSelectTodoExceptions.params.id = item.id;
                 this.prepareStatement(this.mSelectTodoExceptions);
                 try {
@@ -2005,9 +2005,9 @@ calStorageCalendar.prototype = {
         flags |= this.writeRelations(item, olditem);
         flags |= this.writeAlarms(item, olditem);
 
-        if (cal.isEvent(item)) {
+        if (cal.item.isEvent(item)) {
             this.writeEvent(item, olditem, flags);
-        } else if (cal.isToDo(item)) {
+        } else if (cal.item.isToDo(item)) {
             this.writeTodo(item, olditem, flags);
         } else {
             throw Components.results.NS_ERROR_UNEXPECTED;

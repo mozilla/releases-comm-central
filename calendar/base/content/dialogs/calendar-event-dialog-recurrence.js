@@ -468,7 +468,7 @@ function disableOrEnable(item) {
         disableRecurrenceFields("disable-on-occurrence");
     } else if (gIsReadOnly) {
         disableRecurrenceFields("disable-on-readonly");
-    } else if (cal.isToDo(item) && !gStartTime) {
+    } else if (cal.item.isToDo(item) && !gStartTime) {
         disableRecurrenceFields("disable-on-readonly");
     } else {
         enableRecurrenceFields("disable-on-readonly");
@@ -596,7 +596,7 @@ function updatePreview() {
     // to contain the startdate in order to calculate the recurrence preview.
     item = item.clone();
     let kDefaultTimezone = cal.dtz.defaultTimezone;
-    if (cal.isEvent(item)) {
+    if (cal.item.isEvent(item)) {
         let startDate = gStartTime.getInTimezone(kDefaultTimezone);
         let endDate = gEndTime.getInTimezone(kDefaultTimezone);
         if (startDate.isDate) {
@@ -606,7 +606,7 @@ function updatePreview() {
         item.startDate = startDate;
         item.endDate = endDate;
     }
-    if (cal.isToDo(item)) {
+    if (cal.item.isToDo(item)) {
         let entryDate = gStartTime;
         if (entryDate) {
             entryDate = entryDate.getInTimezone(kDefaultTimezone);
