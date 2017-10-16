@@ -17,6 +17,7 @@ AC_SUBST(moztopsrcdir)
 AC_SUBST(commtopsrcdir)
 AC_SUBST(mozreltopsrcdir)
 AC_SUBST(commreltopsrcdir)
+AC_SUBST(commtopobjdir)
 
 dnl Optional parts of the build.
 AC_SUBST(MOZ_MORK)

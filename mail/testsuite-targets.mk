@@ -57,10 +57,10 @@ package-tests: stage-mozmill
 endif
 
 stage-mozmill: make-stage-dir
-	$(MAKE) -C $(COMMDEPTH)/mail/test/mozmill stage-package
+	$(MAKE) -C $(commtopobjdir)/mail/test/mozmill stage-package
 
 stage-calendar: make-stage-dir
-	$(MAKE) -C $(COMMDEPTH)/calendar/lightning stage-package
-	$(MAKE) -C $(COMMDEPTH)/calendar/providers/gdata stage-package
+	$(MAKE) -C $(commtopobjdir)/calendar/lightning stage-package
+	$(MAKE) -C $(commtopobjdir)/calendar/providers/gdata stage-package
 
 .PHONY: stage-mozmill stage-calendar

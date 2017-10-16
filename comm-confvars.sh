@@ -9,6 +9,8 @@ then
 
   mozreltopsrcdir=.
   commreltopsrcdir=comm
+
+  commtopobjdir=$_objdir/comm
 else
   # we are building with mozilla/ as the subdirectory
   # $srcdir is still the mozilla repo, so use the parent for comm
@@ -17,4 +19,6 @@ else
 
   mozreltopsrcdir=mozilla
   commreltopsrcdir=.
+
+  commtopobjdir=$_objdir
 fi

@@ -4,46 +4,46 @@
 
 ifndef COMM_BUILD
 installer:
-	@$(MAKE) -C $(COMMDEPTH)/mail/installer installer
+	@$(MAKE) -C $(commtopobjdir)/mail/installer installer
 
 package:
-	@$(MAKE) -C $(COMMDEPTH)/mail/installer
+	@$(MAKE) -C $(commtopobjdir)/mail/installer
 
 package-compare:
-	@$(MAKE) -C $(COMMDEPTH)/mail/installer package-compare
+	@$(MAKE) -C $(commtopobjdir)/mail/installer package-compare
 
 stage-package:
-	@$(MAKE) -C $(COMMDEPTH)/mail/installer stage-package
+	@$(MAKE) -C $(commtopobjdir)/mail/installer stage-package
 
 install::
-	@$(MAKE) -C $(COMMDEPTH)/mail/installer install
+	@$(MAKE) -C $(commtopobjdir)/mail/installer install
 
 source-package::
-	@$(MAKE) -C $(COMMDEPTH)/mail/installer source-package
+	@$(MAKE) -C $(commtopobjdir)/mail/installer source-package
 
 upload::
-	@$(MAKE) -C $(COMMDEPTH)/mail/installer upload
+	@$(MAKE) -C $(commtopobjdir)/mail/installer upload
 ifdef MOZ_CALENDAR
-	@$(MAKE) -C $(COMMDEPTH)/calendar/lightning upload
-	@$(MAKE) -C $(COMMDEPTH)/calendar/providers/gdata upload
+	@$(MAKE) -C $(commtopobjdir)/calendar/lightning upload
+	@$(MAKE) -C $(commtopobjdir)/calendar/providers/gdata upload
 endif
 
 source-upload::
-	@$(MAKE) -C $(COMMDEPTH)/mail/installer source-upload
+	@$(MAKE) -C $(commtopobjdir)/mail/installer source-upload
 
 hg-bundle::
-	@$(MAKE) -C $(COMMDEPTH)/mail/installer hg-bundle
+	@$(MAKE) -C $(commtopobjdir)/mail/installer hg-bundle
 
 l10n-check::
-	@$(MAKE) -C $(COMMDEPTH)/mail/locales l10n-check
+	@$(MAKE) -C $(commtopobjdir)/mail/locales l10n-check
 
 wget-en-US:
-	$(MAKE) -C $(COMMDEPTH)/mail/locales wget-en-US
+	$(MAKE) -C $(commtopobjdir)/mail/locales wget-en-US
 
 # make -j1 because dependencies in l10n build targets don't work
 # with parallel builds
 merge-% installers-% langpack-% chrome-%:
-	$(MAKE) -j1 -C $(COMMDEPTH)/mail/locales $@
+	$(MAKE) -j1 -C $(commtopobjdir)/mail/locales $@
 
 ifdef ENABLE_TESTS
 include $(commtopsrcdir)/mail/testsuite-targets.mk

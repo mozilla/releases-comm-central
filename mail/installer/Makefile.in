@@ -5,9 +5,6 @@
 STANDALONE_MAKEFILE := 1
 # DIST_SUBDIR := mail  # Not sure why TB is not using this
 
-# Since STANDALONE_MAKEFILE is defined we need to manually include our config
-include $(commtopsrcdir)/mail/app-config.mk
-
 include $(moztopsrcdir)/config/rules.mk
 
 MOZ_PKG_REMOVALS = $(srcdir)/removed-files.in
@@ -179,7 +176,7 @@ DEFINES += -DCLANG_CL
 endif
 
 libs::
-	$(MAKE) -C $(COMMDEPTH)/mail/locales langpack
+	$(MAKE) -C $(commtopobjdir)/mail/locales langpack
 
 ifeq (WINNT,$(OS_ARCH))
 PKGCOMP_FIND_OPTS =

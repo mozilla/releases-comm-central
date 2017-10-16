@@ -199,8 +199,8 @@ l10n-check::
 	$(MAKE) installers-x-test L10NBASEDIR='$(PWD)'
 
 ifdef MOZ_CALENDAR
-LIGHTNING_PATH=$(COMMDEPTH)/calendar/lightning
-GDATA_PATH=$(COMMDEPTH)/calendar/providers/gdata
+LIGHTNING_PATH=$(commtopobjdir)/calendar/lightning
+GDATA_PATH=$(commtopobjdir)/calendar/providers/gdata
 
 define run-calendar-rule
 $(MAKE) -C $(LIGHTNING_PATH) $(subst calendar-,,$@) AB_CD=$(AB_CD)
