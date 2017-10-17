@@ -219,8 +219,8 @@ function test_permissiveMode() {
   }
   // The shorthand 'font' is decomposed to non-shorthand properties,
   // and not recomposed as some non-shorthand properties are filtered out.
-  do_check_eq("<span style=\"font-family: normal; font-style: normal;" +
-              " font-weight: normal; font-size: 15px;\">foo</span>",
+  do_check_eq("<span style=\"font-style: normal; font-weight: normal;" +
+              " font-size: 15px; font-family: normal;\">foo</span>",
               cleanupImMarkup("<span style=\"font: 15px normal\">foo</span>"));
 
   // But still filter out dangerous CSS rules.

@@ -96,27 +96,29 @@ function getDBConnection()
 // commited automatically at the end of the event loop spin so that
 // we flush buddy list data to disk only once per event loop spin.
 var gDBConnWithPendingTransaction = null;
-this.__defineGetter__("DBConn", function() {
-  if (gDBConnWithPendingTransaction)
-    return gDBConnWithPendingTransaction;
+Object.defineProperty(this, "DBConn", {
+  get: function() {
+    if (gDBConnWithPendingTransaction)
+      return gDBConnWithPendingTransaction;
 
-  if (!gDBConnection) {
-    gDBConnection = getDBConnection();
-    Services.obs.addObserver(function dbClose(aSubject, aTopic, aData) {
-      Services.obs.removeObserver(dbClose, aTopic);
-      if (gDBConnection) {
-        gDBConnection.asyncClose();
-        gDBConnection = null;
-      }
-    }, "profile-before-change", false);
+    if (!gDBConnection) {
+      gDBConnection = getDBConnection();
+      Services.obs.addObserver(function dbClose(aSubject, aTopic, aData) {
+        Services.obs.removeObserver(dbClose, aTopic);
+        if (gDBConnection) {
+          gDBConnection.asyncClose();
+          gDBConnection = null;
+        }
+      }, "profile-before-change", false);
+    }
+    gDBConnWithPendingTransaction = gDBConnection;
+    gDBConnection.beginTransaction();
+    executeSoon(function() {
+      gDBConnWithPendingTransaction.commitTransaction();
+      gDBConnWithPendingTransaction = null;
+    });
+    return gDBConnection;
   }
-  gDBConnWithPendingTransaction = gDBConnection;
-  gDBConnection.beginTransaction();
-  executeSoon(function() {
-    gDBConnWithPendingTransaction.commitTransaction();
-    gDBConnWithPendingTransaction = null;
-  });
-  return gDBConnection;
 });
 
 function TagsService() { }
