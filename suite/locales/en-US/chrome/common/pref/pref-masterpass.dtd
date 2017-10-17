@@ -3,15 +3,6 @@
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
 <!ENTITY  pref.masterpass.title                  "Master Passwords">
-<!ENTITY  managepassword.caption                 "Master Password Timeout">
-<!ENTITY  managepassword.text                    "&brandShortName; will ask for your master password:">
-<!ENTITY  managepassword.askfirsttime            "The first time it is needed">
-<!ENTITY  managepassword.askfirsttime.accesskey  "T">
-<!ENTITY  managepassword.askeverytime            "Every time it is needed">
-<!ENTITY  managepassword.askeverytime.accesskey  "E">
-<!ENTITY  managepassword.asktimeout              "If it has not been used for ">
-<!ENTITY  managepassword.asktimeout.accesskey    "n">
-<!ENTITY  managepassword.timeout.unit            "minutes or longer">
 
 <!ENTITY  changepassword.caption                 "Change Master Password">
 <!ENTITY  changepassword.text                    "Your master password protects sensitive information such as web passwords and certificates.">

@@ -46,41 +46,6 @@
       </hbox>
     </groupbox>
 
-    <!-- Password Prefs -->
-    <groupbox>
-      <caption label="&managepassword.caption;"/>
-      <description>&managepassword.text;</description>
-      <radiogroup id="passwordAskTimes"
-                  preference="security.ask_for_password"
-                  onsyncfrompreference="return document.getElementById('masterpass_pane').ReadAskForPassword();"
-                  onsynctopreference="return document.getElementById('masterpass_pane').WriteAskForPassword(this);">
-
-        <!-- note that these values are different than what NSS uses, which
-             are (0, -1, 1) respectively -->
-        <radio value="0"
-               label="&managepassword.askfirsttime;"
-               accesskey="&managepassword.askfirsttime.accesskey;"/>
-        <radio value="1"
-               label="&managepassword.askeverytime;"
-               accesskey="&managepassword.askeverytime.accesskey;"/>
-        <hbox align="center">
-          <radio id="askTimeout"
-                 value="2"
-                 label="&managepassword.asktimeout;"
-                 accesskey="&managepassword.asktimeout.accesskey;"/>
-          <textbox id="passwordTimeout"
-                   size="4"
-                   type="number"
-                   aria-labelledby="askTimeout passwordTimeout passwordTimeoutAfter"
-                   preference="security.password_lifetime"
-                   onsyncfrompreference="return document.getElementById('masterpass_pane').ReadPasswordLifetime();"
-                   onsynctopreference="return document.getElementById('masterpass_pane').WritePasswordLifetime(this);"/>
-          <label id="passwordTimeoutAfter"
-                 value="&managepassword.timeout.unit;"/>
-        </hbox>
-      </radiogroup>
-    </groupbox>
-
     <!-- Reset Password -->
     <groupbox>
       <caption label="&resetpassword.caption;"/>
