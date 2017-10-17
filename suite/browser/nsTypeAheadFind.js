@@ -161,7 +161,7 @@ typeAheadFind.prototype = {
     if (element instanceof Components.interfaces.nsIDOMXULElement ||
         element instanceof Components.interfaces.nsIDOMHTMLEmbedElement ||
         element instanceof Components.interfaces.nsIDOMHTMLObjectElement ||
-        element instanceof Components.interfaces.nsIDOMHTMLSelectElement ||
+        (ChromeUtils.getClassName(element) === "HTMLSelectElement") ||
         element instanceof Components.interfaces.nsIDOMHTMLTextAreaElement)
       return true;
 
