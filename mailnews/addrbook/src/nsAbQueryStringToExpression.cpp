@@ -176,7 +176,7 @@ nsresult nsAbQueryStringToExpression::ParseCondition (
         if (*index == indexBracketClose)
             break;
     }
-    
+
     if (*index != indexBracketClose)
         return NS_ERROR_FAILURE;
 
@@ -204,7 +204,7 @@ nsresult nsAbQueryStringToExpression::ParseConditionEntry (
 
     int entryLength = indexDeliminator - *index;
     if (entryLength)
-      *entry = PL_strndup (*index, entryLength); 
+      *entry = PL_strndup (*index, entryLength);
     else
         *entry = 0;
 
@@ -224,7 +224,7 @@ nsresult nsAbQueryStringToExpression::ParseOperationEntry (
     int operationLength = indexBracketOpen2 - indexBracketOpen1 - 1;
     if (operationLength)
         *operation = PL_strndup (indexBracketOpen1 + 1,
-            operationLength); 
+            operationLength);
     else
         *operation = 0;
 
@@ -297,7 +297,7 @@ nsresult nsAbQueryStringToExpression::CreateBooleanConditionString (
     rv = cs->SetCondition (c);
     NS_ENSURE_SUCCESS(rv, rv);
 
-    nsCOMPtr<nsITextToSubURI> textToSubURI = do_GetService(NS_ITEXTTOSUBURI_CONTRACTID,&rv); 
+    nsCOMPtr<nsITextToSubURI> textToSubURI = do_GetService(NS_ITEXTTOSUBURI_CONTRACTID,&rv);
     if (NS_SUCCEEDED(rv))
     {
         nsString attributeUCS2;

@@ -39,7 +39,7 @@ private :
 } ;
 
 // Additional definitions for WAB stuff. These properties are
-// only defined with regards to the default character sizes, 
+// only defined with regards to the default character sizes,
 // and not in two _A and _W versions...
 #define PR_BUSINESS_ADDRESS_CITY_A                    PR_LOCALITY_A
 #define PR_BUSINESS_ADDRESS_COUNTRY_A                 PR_COUNTRY_A

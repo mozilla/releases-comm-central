@@ -43,8 +43,8 @@ nsAbLDAPDirFactory::GetDirectories(const nsAString &aDirName,
      * If the URI starts with ldap: or ldaps:
      * then this directory is an LDAP directory.
      *
-     * We don't want to use the ldap:// or ldaps:// URI 
-     * as the URI because the ldap:// or ldaps:// URI 
+     * We don't want to use the ldap:// or ldaps:// URI
+     * as the URI because the ldap:// or ldaps:// URI
      * will contain the hostname, basedn, port, etc.
      * so if those attributes changed, we'll run into the
      * the same problem that we hit with changing username / hostname

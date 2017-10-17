@@ -42,7 +42,7 @@ static void assignEntryID(LPENTRYID& aTarget, LPENTRYID aSource, ULONG aByteCoun
         aTarget = NULL ;
     }
     if (aSource != NULL) {
-        aTarget = reinterpret_cast<LPENTRYID>(new BYTE [aByteCount]) ;
+        aTarget = reinterpret_cast<LPENTRYID>(new BYTE[aByteCount]) ;
         memcpy(aTarget, aSource, aByteCount) ;
     }
 }
@@ -78,37 +78,37 @@ static char UnsignedToChar(unsigned char aUnsigned)
     return 'A' + aUnsigned - 0xA ;
 }
 
-static char kBase64Encoding [] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-." ;
+static char kBase64Encoding[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-." ;
 static const int kARank = 0 ;
 static const int kaRank = 26 ;
 static const int k0Rank = 52 ;
 static const unsigned char kMinusRank = 62 ;
 static const unsigned char kDotRank = 63 ;
 
-static void UnsignedToBase64(unsigned char *& aUnsigned, 
+static void UnsignedToBase64(unsigned char *& aUnsigned,
                              ULONG aNbUnsigned, nsCString& aString)
 {
     if (aNbUnsigned > 0) {
         unsigned char remain0 = (*aUnsigned & 0x03) << 4 ;
 
-        aString.Append(kBase64Encoding [(*aUnsigned >> 2) & 0x3F]) ;
-        ++ aUnsigned ;
+        aString.Append(kBase64Encoding[(*aUnsigned >> 2) & 0x3F]) ;
+        ++aUnsigned ;
         if (aNbUnsigned > 1) {
             unsigned char remain1 = (*aUnsigned & 0x0F) << 2 ;
 
-            aString.Append(kBase64Encoding [remain0 | ((*aUnsigned >> 4) & 0x0F)]) ;
-            ++ aUnsigned ;
+            aString.Append(kBase64Encoding[remain0 | ((*aUnsigned >> 4) & 0x0F)]) ;
+            ++aUnsigned ;
             if (aNbUnsigned > 2) {
-                aString.Append(kBase64Encoding [remain1 | ((*aUnsigned >> 6) & 0x03)]) ;
-                aString.Append(kBase64Encoding [*aUnsigned & 0x3F]) ;
-                ++ aUnsigned ;
+                aString.Append(kBase64Encoding[remain1 | ((*aUnsigned >> 6) & 0x03)]) ;
+                aString.Append(kBase64Encoding[*aUnsigned & 0x3F]) ;
+                ++aUnsigned ;
             }
             else {
-                aString.Append(kBase64Encoding [remain1]) ;
+                aString.Append(kBase64Encoding[remain1]) ;
             }
         }
         else {
-            aString.Append(kBase64Encoding [remain0]) ;
+            aString.Append(kBase64Encoding[remain0]) ;
         }
     }
 }
@@ -119,15 +119,15 @@ static unsigned char CharToUnsigned(char aChar)
     return static_cast<unsigned char>(aChar) - 'A' + 0xA ;
 }
 
-// This function must return the rank in kBase64Encoding of the 
+// This function must return the rank in kBase64Encoding of the
 // character provided.
 static unsigned char Base64To6Bits(char aBase64)
 {
-    if (aBase64 >= 'A' && aBase64 <= 'Z') { 
-        return static_cast<unsigned char>(aBase64 - 'A' + kARank) ; 
+    if (aBase64 >= 'A' && aBase64 <= 'Z') {
+        return static_cast<unsigned char>(aBase64 - 'A' + kARank) ;
     }
-    if (aBase64 >= 'a' && aBase64 <= 'z') { 
-        return static_cast<unsigned char>(aBase64 - 'a' + kaRank) ; 
+    if (aBase64 >= 'a' && aBase64 <= 'z') {
+        return static_cast<unsigned char>(aBase64 - 'a' + kaRank) ;
     }
     if (aBase64 >= '0' && aBase64 <= '9') {
         return static_cast<unsigned char>(aBase64 - '0' + k0Rank) ;
@@ -137,29 +137,29 @@ static unsigned char Base64To6Bits(char aBase64)
     return 0 ;
 }
 
-static void Base64ToUnsigned(const char *& aBase64, uint32_t aNbBase64, 
+static void Base64ToUnsigned(const char *& aBase64, uint32_t aNbBase64,
                              unsigned char *&aUnsigned)
 {
     // By design of the encoding, we must have at least two characters to use
     if (aNbBase64 > 1) {
-        unsigned char first6Bits = Base64To6Bits(*aBase64 ++) ;
-        unsigned char second6Bits = Base64To6Bits(*aBase64 ++) ;
+        unsigned char first6Bits = Base64To6Bits(*aBase64++) ;
+        unsigned char second6Bits = Base64To6Bits(*aBase64++) ;
 
         *aUnsigned = first6Bits << 2 ;
         *aUnsigned |= second6Bits >> 4 ;
-        ++ aUnsigned ;
+        ++aUnsigned ;
         if (aNbBase64 > 2) {
-            unsigned char third6Bits = Base64To6Bits(*aBase64 ++) ;
+            unsigned char third6Bits = Base64To6Bits(*aBase64++) ;
 
             *aUnsigned = second6Bits << 4 ;
             *aUnsigned |= third6Bits >> 2 ;
-            ++ aUnsigned ;
+            ++aUnsigned ;
             if (aNbBase64 > 3) {
-                unsigned char fourth6Bits = Base64To6Bits(*aBase64 ++) ;
+                unsigned char fourth6Bits = Base64To6Bits(*aBase64++) ;
 
                 *aUnsigned = third6Bits << 6 ;
                 *aUnsigned |= fourth6Bits ;
-                ++ aUnsigned ;
+                ++aUnsigned ;
             }
         }
     }
@@ -174,7 +174,7 @@ void nsMapiEntry::Assign(const nsCString& aString)
         byteCount += (aString.Length() & 0x03) - 1 ;
     }
     const char *currentSource = aString.get() ;
-    unsigned char *currentTarget = new unsigned char [byteCount] ;
+    unsigned char *currentTarget = new unsigned char[byteCount] ;
     uint32_t i = 0 ;
 
     mByteCount = byteCount ;
@@ -200,8 +200,8 @@ void nsMapiEntry::ToString(nsCString& aString) const
 void nsMapiEntry::Dump(void) const
 {
     PRINTF(("%d\n", mByteCount)) ;
-    for (ULONG i = 0 ; i < mByteCount ; ++ i) {
-        PRINTF(("%02X", (reinterpret_cast<unsigned char *>(mEntryId)) [i])) ;
+    for (ULONG i = 0 ; i < mByteCount ; ++i) {
+        PRINTF(("%02X", (reinterpret_cast<unsigned char *>(mEntryId))[i])) ;
     }
     PRINTF(("\n")) ;
 }
@@ -220,7 +220,7 @@ nsMapiEntryArray::~nsMapiEntryArray(void)
 
 void nsMapiEntryArray::CleanUp(void)
 {
-    if (mEntries != NULL) { 
+    if (mEntries != NULL) {
         delete [] mEntries ;
         mEntries = NULL ;
         mNbEntries = 0 ;
@@ -233,10 +233,10 @@ uint32_t nsAbWinHelper::mEntryCounter = 0;
 nsAutoPtr<mozilla::Mutex> nsAbWinHelper::mMutex;
 uint32_t nsAbWinHelper::mUseCount = 0;
 // There seems to be a deadlock/auto-destruction issue
-// in MAPI when multiple threads perform init/release 
+// in MAPI when multiple threads perform init/release
 // operations at the same time. So I've put a mutex
 // around both the initialize process and the destruction
-// one. I just hope the rest of the calls don't need the 
+// one. I just hope the rest of the calls don't need the
 // same protection (MAPI is supposed to be thread-safe).
 
 nsAbWinHelper::nsAbWinHelper(void)
@@ -265,18 +265,18 @@ BOOL nsAbWinHelper::GetFolders(nsMapiEntryArray& aFolders)
     SRestriction restriction ;
     SPropTagArray folderColumns ;
 
-    mLastError = mAddressBook->OpenEntry(0, NULL, NULL, 0, &objType, 
+    mLastError = mAddressBook->OpenEntry(0, NULL, NULL, 0, &objType,
                                          rootFolder) ;
-    if (HR_FAILED(mLastError)) { 
+    if (HR_FAILED(mLastError)) {
         PRINTF(("Cannot open root %08x.\n", mLastError)) ;
-        return FALSE ; 
+        return FALSE ;
     }
     mLastError = rootFolder->GetHierarchyTable(0, folders) ;
     if (HR_FAILED(mLastError)) {
         PRINTF(("Cannot get hierarchy %08x.\n", mLastError)) ;
-        return FALSE ; 
+        return FALSE ;
     }
-    // We only take into account modifiable containers, 
+    // We only take into account modifiable containers,
     // otherwise, we end up with all the directory services...
     restriction.rt = RES_BITMASK ;
     restriction.res.resBitMask.ulPropTag = PR_CONTAINER_FLAGS ;
@@ -287,7 +287,7 @@ BOOL nsAbWinHelper::GetFolders(nsMapiEntryArray& aFolders)
         PRINTF(("Cannot restrict table %08x.\n", mLastError)) ;
     }
     folderColumns.cValues = 1 ;
-    folderColumns.aulPropTag [0] = PR_ENTRYID ;
+    folderColumns.aulPropTag[0] = PR_ENTRYID ;
     mLastError = folders->SetColumns(&folderColumns, 0) ;
     if (HR_FAILED(mLastError)) {
         PRINTF(("Cannot set columns %08x.\n", mLastError)) ;
@@ -295,7 +295,7 @@ BOOL nsAbWinHelper::GetFolders(nsMapiEntryArray& aFolders)
     }
     mLastError = folders->GetRowCount(0, &rowCount) ;
     if (HR_SUCCEEDED(mLastError)) {
-        aFolders.mEntries = new nsMapiEntry [rowCount] ;
+        aFolders.mEntries = new nsMapiEntry[rowCount] ;
         aFolders.mNbEntries = 0 ;
         do {
             LPSRowSet rowSet = NULL ;
@@ -305,9 +305,9 @@ BOOL nsAbWinHelper::GetFolders(nsMapiEntryArray& aFolders)
             if (HR_SUCCEEDED(mLastError)) {
                 rowCount = rowSet->cRows ;
                 if (rowCount > 0) {
-                    nsMapiEntry& current = aFolders.mEntries [aFolders.mNbEntries ++] ;
-                    SPropValue& currentValue = rowSet->aRow->lpProps [0] ;
-                    
+                    nsMapiEntry& current = aFolders.mEntries[aFolders.mNbEntries++] ;
+                    SPropValue& currentValue = rowSet->aRow->lpProps[0] ;
+
                     current.Assign(currentValue.Value.bin.cb,
                                    reinterpret_cast<LPENTRYID>(currentValue.Value.bin.lpb)) ;
                 }
@@ -327,21 +327,21 @@ BOOL nsAbWinHelper::GetCards(const nsMapiEntry& aParent, LPSRestriction aRestric
     aCards.CleanUp() ;
     return GetContents(aParent, aRestriction, &aCards.mEntries, aCards.mNbEntries, 0) ;
 }
- 
+
 BOOL nsAbWinHelper::GetNodes(const nsMapiEntry& aParent, nsMapiEntryArray& aNodes)
-{ 
+{
     aNodes.CleanUp() ;
     return GetContents(aParent, NULL, &aNodes.mEntries, aNodes.mNbEntries, MAPI_DISTLIST) ;
 }
 
-BOOL nsAbWinHelper::GetCardsCount(const nsMapiEntry& aParent, ULONG& aNbCards) 
+BOOL nsAbWinHelper::GetCardsCount(const nsMapiEntry& aParent, ULONG& aNbCards)
 {
     aNbCards = 0 ;
     return GetContents(aParent, NULL, NULL, aNbCards, 0) ;
 }
 
 BOOL nsAbWinHelper::GetPropertyString(const nsMapiEntry& aObject,
-                                      ULONG aPropertyTag, 
+                                      ULONG aPropertyTag,
                                       nsCString& aName)
 {
     aName.Truncate() ;
@@ -389,7 +389,7 @@ BOOL nsAbWinHelper::GetPropertiesUString(const nsMapiEntry& aObject, const ULONG
 
   if (valueCount == aNbProperties && values != NULL)
   {
-    for (ULONG i = 0 ; i < valueCount ; ++ i)
+    for (ULONG i = 0 ; i < valueCount ; ++i)
     {
       if (PROP_ID(values[i].ulPropTag) == PROP_ID(aPropertyTags[i]))
       {
@@ -404,10 +404,10 @@ BOOL nsAbWinHelper::GetPropertiesUString(const nsMapiEntry& aObject, const ULONG
   return TRUE;
 }
 
-BOOL nsAbWinHelper::GetPropertyDate(const nsMapiEntry& aObject, ULONG aPropertyTag, 
+BOOL nsAbWinHelper::GetPropertyDate(const nsMapiEntry& aObject, ULONG aPropertyTag,
                                     WORD& aYear, WORD& aMonth, WORD& aDay)
 {
-    aYear = 0 ; 
+    aYear = 0 ;
     aMonth = 0 ;
     aDay = 0 ;
     LPSPropValue values = NULL ;
@@ -427,8 +427,8 @@ BOOL nsAbWinHelper::GetPropertyDate(const nsMapiEntry& aObject, ULONG aPropertyT
     return TRUE ;
 }
 
-BOOL nsAbWinHelper::GetPropertyLong(const nsMapiEntry& aObject, 
-                                    ULONG aPropertyTag, 
+BOOL nsAbWinHelper::GetPropertyLong(const nsMapiEntry& aObject,
+                                    ULONG aPropertyTag,
                                     ULONG& aValue)
 {
     aValue = 0 ;
@@ -443,7 +443,7 @@ BOOL nsAbWinHelper::GetPropertyLong(const nsMapiEntry& aObject,
     return TRUE ;
 }
 
-BOOL nsAbWinHelper::GetPropertyBin(const nsMapiEntry& aObject, ULONG aPropertyTag, 
+BOOL nsAbWinHelper::GetPropertyBin(const nsMapiEntry& aObject, ULONG aPropertyTag,
                                    nsMapiEntry& aValue)
 {
     aValue.Assign(0, NULL) ;
@@ -452,7 +452,7 @@ BOOL nsAbWinHelper::GetPropertyBin(const nsMapiEntry& aObject, ULONG aPropertyTa
 
     if (!GetMAPIProperties(aObject, &aPropertyTag, 1, values, valueCount)) { return FALSE ; }
     if (valueCount == 1 && values != NULL && PROP_TYPE(values->ulPropTag) == PT_BINARY) {
-        aValue.Assign(values->Value.bin.cb, 
+        aValue.Assign(values->Value.bin.cb,
                       reinterpret_cast<LPENTRYID>(values->Value.bin.lpb)) ;
     }
     FreeBuffer(values) ;
@@ -467,9 +467,9 @@ BOOL nsAbWinHelper::TestOpenEntry(const nsMapiEntry& aContainer, const nsMapiEnt
     nsMapiInterfaceWrapper<LPMAPICONTAINER> container ;
     nsMapiInterfaceWrapper<LPMAPIPROP> subObject ;
     ULONG objType = 0 ;
-    
+
     mLastError = mAddressBook->OpenEntry(aContainer.mByteCount, aContainer.mEntryId,
-                                         &IID_IMAPIContainer, 0, &objType, 
+                                         &IID_IMAPIContainer, 0, &objType,
                                          container) ;
     if (HR_FAILED(mLastError)) {
         PRINTF(("Cannot open container %08x.\n", mLastError)) ;
@@ -488,7 +488,7 @@ BOOL nsAbWinHelper::DeleteEntry(const nsMapiEntry& aContainer, const nsMapiEntry
     SBinaryArray entryArray ;
 
     mLastError = mAddressBook->OpenEntry(aContainer.mByteCount, aContainer.mEntryId,
-                                         &IID_IABContainer, MAPI_MODIFY, &objType, 
+                                         &IID_IABContainer, MAPI_MODIFY, &objType,
                                          container) ;
     if (HR_FAILED(mLastError)) {
         PRINTF(("Cannot open container %08x.\n", mLastError)) ;
@@ -506,7 +506,7 @@ BOOL nsAbWinHelper::DeleteEntry(const nsMapiEntry& aContainer, const nsMapiEntry
     return TRUE ;
 }
 
-BOOL nsAbWinHelper::SetPropertyUString(const nsMapiEntry& aObject, ULONG aPropertyTag, 
+BOOL nsAbWinHelper::SetPropertyUString(const nsMapiEntry& aObject, ULONG aPropertyTag,
                                        const char16_t *aValue)
 {
     SPropValue value ;
@@ -528,9 +528,9 @@ BOOL nsAbWinHelper::SetPropertyUString(const nsMapiEntry& aObject, ULONG aProper
 }
 
 BOOL nsAbWinHelper::SetPropertiesUString(const nsMapiEntry& aObject, const ULONG *aPropertiesTag,
-                                         ULONG aNbProperties, nsString *aValues) 
+                                         ULONG aNbProperties, nsString *aValues)
 {
-    LPSPropValue values = new SPropValue [aNbProperties] ;
+    LPSPropValue values = new SPropValue[aNbProperties] ;
     if (!values)
         return FALSE ;
 
@@ -539,38 +539,38 @@ BOOL nsAbWinHelper::SetPropertiesUString(const nsMapiEntry& aObject, const ULONG
     nsAutoCString alternativeValue ;
     BOOL retCode = TRUE ;
 
-    for (i = 0 ; i < aNbProperties ; ++ i) {
-        values [currentValue].ulPropTag = aPropertiesTag [i] ;
-        if (PROP_TYPE(aPropertiesTag [i]) == PT_UNICODE) {
-            const wchar_t *value = aValues [i].get() ;
-            values [currentValue ++].Value.lpszW = const_cast<wchar_t *>(value) ;
+    for (i = 0 ; i < aNbProperties ; ++i) {
+        values[currentValue].ulPropTag = aPropertiesTag[i] ;
+        if (PROP_TYPE(aPropertiesTag[i]) == PT_UNICODE) {
+            const wchar_t *value = aValues[i].get() ;
+            values[currentValue++].Value.lpszW = const_cast<wchar_t *>(value) ;
         }
-        else if (PROP_TYPE(aPropertiesTag [i]) == PT_STRING8) {
-            LossyCopyUTF16toASCII(aValues [i], alternativeValue);
+        else if (PROP_TYPE(aPropertiesTag[i]) == PT_STRING8) {
+            LossyCopyUTF16toASCII(aValues[i], alternativeValue);
             char *av = strdup(alternativeValue.get()) ;
             if (!av) {
                 retCode = FALSE ;
                 break ;
             }
-            values [currentValue ++].Value.lpszA = av ;
+            values[currentValue++].Value.lpszA = av ;
         }
     }
     if (retCode)
         retCode = SetMAPIProperties(aObject, currentValue, values) ;
-    for (i = 0 ; i < currentValue ; ++ i) {
-        if (PROP_TYPE(aPropertiesTag [i]) == PT_STRING8) {
-            free(values [i].Value.lpszA) ;
+    for (i = 0 ; i < currentValue ; ++i) {
+        if (PROP_TYPE(aPropertiesTag[i]) == PT_STRING8) {
+            free(values[i].Value.lpszA) ;
         }
     }
     delete [] values ;
     return retCode ;
 }
 
-BOOL nsAbWinHelper::SetPropertyDate(const nsMapiEntry& aObject, ULONG aPropertyTag, 
+BOOL nsAbWinHelper::SetPropertyDate(const nsMapiEntry& aObject, ULONG aPropertyTag,
                                     WORD aYear, WORD aMonth, WORD aDay)
 {
     SPropValue value ;
-    
+
     value.ulPropTag = aPropertyTag ;
     if (PROP_TYPE(aPropertyTag) == PT_SYSTIME) {
         SYSTEMTIME readableTime ;
@@ -599,7 +599,7 @@ BOOL nsAbWinHelper::CreateEntry(const nsMapiEntry& aParent, nsMapiEntry& aNewEnt
     mLastError = mAddressBook->OpenEntry(aParent.mByteCount, aParent.mEntryId,
                                          &IID_IABContainer, MAPI_MODIFY, &objType,
                                          container) ;
-    if (HR_FAILED(mLastError)) { 
+    if (HR_FAILED(mLastError)) {
         PRINTF(("Cannot open container %08x.\n", mLastError)) ;
         return FALSE ;
     }
@@ -608,7 +608,7 @@ BOOL nsAbWinHelper::CreateEntry(const nsMapiEntry& aParent, nsMapiEntry& aNewEnt
     ULONG valueCount = 0 ;
 
     property.cValues = 1 ;
-    property.aulPropTag [0] = PR_DEF_CREATE_MAILUSER ;
+    property.aulPropTag[0] = PR_DEF_CREATE_MAILUSER ;
     mLastError = container->GetProps(&property, 0, &valueCount, &value) ;
     if (HR_FAILED(mLastError) || valueCount != 1) {
         PRINTF(("Cannot obtain template %08x.\n", mLastError)) ;
@@ -616,7 +616,7 @@ BOOL nsAbWinHelper::CreateEntry(const nsMapiEntry& aParent, nsMapiEntry& aNewEnt
     }
     nsMapiInterfaceWrapper<LPMAPIPROP> newEntry ;
 
-    mLastError = container->CreateEntry(value->Value.bin.cb, 
+    mLastError = container->CreateEntry(value->Value.bin.cb,
                                         reinterpret_cast<LPENTRYID>(value->Value.bin.lpb),
                                         CREATE_CHECK_DUP_LOOSE,
                                         newEntry) ;
@@ -631,7 +631,7 @@ BOOL nsAbWinHelper::CreateEntry(const nsMapiEntry& aParent, nsMapiEntry& aNewEnt
 
     displayName.ulPropTag = PR_DISPLAY_NAME_W ;
     tempName.AssignLiteral("__MailUser__") ;
-    tempName.AppendInt(mEntryCounter ++) ;
+    tempName.AppendInt(mEntryCounter++) ;
     const wchar_t *tempNameValue = tempName.get();
     displayName.Value.lpszW = const_cast<wchar_t *>(tempNameValue) ;
     mLastError = newEntry->SetProps(1, &displayName, &problems) ;
@@ -644,7 +644,7 @@ BOOL nsAbWinHelper::CreateEntry(const nsMapiEntry& aParent, nsMapiEntry& aNewEnt
         PRINTF(("Cannot commit new entry %08x.\n", mLastError)) ;
         return FALSE ;
     }
-    property.aulPropTag [0] = PR_ENTRYID ;
+    property.aulPropTag[0] = PR_ENTRYID ;
     mLastError = newEntry->GetProps(&property, 0, &valueCount, &value) ;
     if (HR_FAILED(mLastError) || valueCount != 1) {
         PRINTF(("Cannot get entry id %08x.\n", mLastError)) ;
@@ -672,7 +672,7 @@ BOOL nsAbWinHelper::CreateDistList(const nsMapiEntry& aParent, nsMapiEntry& aNew
     ULONG valueCount = 0 ;
 
     property.cValues = 1 ;
-    property.aulPropTag [0] = PR_DEF_CREATE_DL ;
+    property.aulPropTag[0] = PR_DEF_CREATE_DL ;
     mLastError = container->GetProps(&property, 0, &valueCount, &value) ;
     if (HR_FAILED(mLastError) || valueCount != 1) {
         PRINTF(("Cannot obtain template %08x.\n", mLastError)) ;
@@ -680,7 +680,7 @@ BOOL nsAbWinHelper::CreateDistList(const nsMapiEntry& aParent, nsMapiEntry& aNew
     }
     nsMapiInterfaceWrapper<LPMAPIPROP> newEntry ;
 
-    mLastError = container->CreateEntry(value->Value.bin.cb, 
+    mLastError = container->CreateEntry(value->Value.bin.cb,
                                         reinterpret_cast<LPENTRYID>(value->Value.bin.lpb),
                                         CREATE_CHECK_DUP_LOOSE,
                                         newEntry) ;
@@ -695,7 +695,7 @@ BOOL nsAbWinHelper::CreateDistList(const nsMapiEntry& aParent, nsMapiEntry& aNew
 
     displayName.ulPropTag = PR_DISPLAY_NAME_W ;
     tempName.AssignLiteral("__MailList__") ;
-    tempName.AppendInt(mEntryCounter ++) ;
+    tempName.AppendInt(mEntryCounter++) ;
     const wchar_t *tempNameValue = tempName.get() ;
     displayName.Value.lpszW = const_cast<wchar_t *>(tempNameValue) ;
     mLastError = newEntry->SetProps(1, &displayName, &problems) ;
@@ -708,13 +708,13 @@ BOOL nsAbWinHelper::CreateDistList(const nsMapiEntry& aParent, nsMapiEntry& aNew
         PRINTF(("Cannot commit new entry %08x.\n", mLastError)) ;
         return FALSE ;
     }
-    property.aulPropTag [0] = PR_ENTRYID ;
+    property.aulPropTag[0] = PR_ENTRYID ;
     mLastError = newEntry->GetProps(&property, 0, &valueCount, &value) ;
     if (HR_FAILED(mLastError) || valueCount != 1) {
         PRINTF(("Cannot get entry id %08x.\n", mLastError)) ;
         return FALSE ;
     }
-    aNewEntry.Assign(value->Value.bin.cb, 
+    aNewEntry.Assign(value->Value.bin.cb,
                      reinterpret_cast<LPENTRYID>(value->Value.bin.lpb)) ;
     FreeBuffer(value) ;
     return TRUE ;
@@ -729,7 +729,7 @@ BOOL nsAbWinHelper::CopyEntry(const nsMapiEntry& aContainer, const nsMapiEntry& 
     mLastError = mAddressBook->OpenEntry(aContainer.mByteCount, aContainer.mEntryId,
                                          &IID_IABContainer, MAPI_MODIFY, &objType,
                                          container) ;
-    if (HR_FAILED(mLastError)) { 
+    if (HR_FAILED(mLastError)) {
         PRINTF(("Cannot open container %08x.\n", mLastError)) ;
         return FALSE ;
     }
@@ -749,15 +749,15 @@ BOOL nsAbWinHelper::CopyEntry(const nsMapiEntry& aContainer, const nsMapiEntry& 
     SPropTagArray property ;
     LPSPropValue value = NULL ;
     ULONG valueCount = 0 ;
-    
+
     property.cValues = 1 ;
-    property.aulPropTag [0] = PR_ENTRYID ;
+    property.aulPropTag[0] = PR_ENTRYID ;
     mLastError = newEntry->GetProps(&property, 0, &valueCount, &value) ;
     if (HR_FAILED(mLastError) || valueCount != 1) {
         PRINTF(("Cannot get entry id %08x.\n", mLastError)) ;
         return FALSE ;
     }
-    aTarget.Assign(value->Value.bin.cb, 
+    aTarget.Assign(value->Value.bin.cb,
                    reinterpret_cast<LPENTRYID>(value->Value.bin.lpb)) ;
     FreeBuffer(value) ;
     return TRUE ;
@@ -765,7 +765,7 @@ BOOL nsAbWinHelper::CopyEntry(const nsMapiEntry& aContainer, const nsMapiEntry& 
 
 BOOL nsAbWinHelper::GetDefaultContainer(nsMapiEntry& aContainer)
 {
-    LPENTRYID entryId = NULL ; 
+    LPENTRYID entryId = NULL ;
     ULONG byteCount = 0 ;
 
     mLastError = mAddressBook->GetPAB(&byteCount, &entryId) ;
@@ -804,19 +804,19 @@ BOOL nsAbWinHelper::GetContents(const nsMapiEntry& aParent, LPSRestriction aRest
     ULONG objType = 0 ;
     ULONG rowCount = 0 ;
 
-    mLastError = mAddressBook->OpenEntry(aParent.mByteCount, aParent.mEntryId, 
-                                         &IID_IMAPIContainer, 0, &objType, 
+    mLastError = mAddressBook->OpenEntry(aParent.mByteCount, aParent.mEntryId,
+                                         &IID_IMAPIContainer, 0, &objType,
                                          parent) ;
     if (HR_FAILED(mLastError)) {
         PRINTF(("Cannot open parent %08x.\n", mLastError)) ;
-        return FALSE ; 
+        return FALSE ;
     }
     // Here, flags for WAB and MAPI could be different, so this works
     // only as long as we don't want to use any flag in GetContentsTable
     mLastError = parent->GetContentsTable(0, contents) ;
     if (HR_FAILED(mLastError)) {
         PRINTF(("Cannot get contents %08x.\n", mLastError)) ;
-        return FALSE ; 
+        return FALSE ;
     }
     if (aRestriction != NULL) {
         mLastError = contents->Restrict(aRestriction, 0) ;
@@ -835,11 +835,11 @@ BOOL nsAbWinHelper::GetContents(const nsMapiEntry& aParent, LPSRestriction aRest
         PRINTF(("Cannot get result count %08x.\n", mLastError)) ;
         return FALSE ;
     }
-    if (aList != NULL) { *aList = new nsMapiEntry [rowCount] ; }
+    if (aList != NULL) { *aList = new nsMapiEntry[rowCount] ; }
     aNbElements = 0 ;
     do {
         LPSRowSet rowSet = NULL ;
-        
+
         rowCount = 0 ;
         mLastError = contents->QueryRows(1, 0, &rowSet) ;
         if (HR_FAILED(mLastError)) {
@@ -851,40 +851,40 @@ BOOL nsAbWinHelper::GetContents(const nsMapiEntry& aParent, LPSRestriction aRest
             (aMapiType == 0 ||
             rowSet->aRow->lpProps[ContentsColumnObjectType].Value.ul == aMapiType)) {
             if (aList != NULL) {
-                nsMapiEntry& current = (*aList) [aNbElements] ;
+                nsMapiEntry& current = (*aList)[aNbElements] ;
                 SPropValue& currentValue = rowSet->aRow->lpProps[ContentsColumnEntryId] ;
-                
+
                 current.Assign(currentValue.Value.bin.cb,
                     reinterpret_cast<LPENTRYID>(currentValue.Value.bin.lpb)) ;
             }
-            ++ aNbElements ;
+            ++aNbElements ;
         }
         MyFreeProws(rowSet) ;
     } while (rowCount > 0) ;
     return TRUE ;
 }
 
-BOOL nsAbWinHelper::GetMAPIProperties(const nsMapiEntry& aObject, const ULONG *aPropertyTags, 
-                                      ULONG aNbProperties, LPSPropValue& aValue, 
+BOOL nsAbWinHelper::GetMAPIProperties(const nsMapiEntry& aObject, const ULONG *aPropertyTags,
+                                      ULONG aNbProperties, LPSPropValue& aValue,
                                       ULONG& aValueCount)
 {
     nsMapiInterfaceWrapper<LPMAPIPROP> object ;
     ULONG objType = 0 ;
     LPSPropTagArray properties = NULL ;
     ULONG i = 0 ;
-    
+
     mLastError = mAddressBook->OpenEntry(aObject.mByteCount, aObject.mEntryId,
-                                         &IID_IMAPIProp, 0, &objType, 
+                                         &IID_IMAPIProp, 0, &objType,
                                          object) ;
-    if (HR_FAILED(mLastError)) { 
+    if (HR_FAILED(mLastError)) {
         PRINTF(("Cannot open entry %08x.\n", mLastError)) ;
-        return FALSE ; 
+        return FALSE ;
     }
-    AllocateBuffer(CbNewSPropTagArray(aNbProperties), 
+    AllocateBuffer(CbNewSPropTagArray(aNbProperties),
                    reinterpret_cast<void **>(&properties)) ;
     properties->cValues = aNbProperties ;
-    for (i = 0 ; i < aNbProperties ; ++ i) {
-        properties->aulPropTag [i] = aPropertyTags [i] ;
+    for (i = 0 ; i < aNbProperties ; ++i) {
+        properties->aulPropTag[i] = aPropertyTags[i] ;
     }
     mLastError = object->GetProps(properties, 0, &aValueCount, &aValue) ;
     FreeBuffer(properties) ;
@@ -894,7 +894,7 @@ BOOL nsAbWinHelper::GetMAPIProperties(const nsMapiEntry& aObject, const ULONG *a
     return HR_SUCCEEDED(mLastError) ;
 }
 
-BOOL nsAbWinHelper::SetMAPIProperties(const nsMapiEntry& aObject, ULONG aNbProperties, 
+BOOL nsAbWinHelper::SetMAPIProperties(const nsMapiEntry& aObject, ULONG aNbProperties,
                                       const LPSPropValue& aValues)
 {
     nsMapiInterfaceWrapper<LPMAPIPROP> object ;
@@ -902,7 +902,7 @@ BOOL nsAbWinHelper::SetMAPIProperties(const nsMapiEntry& aObject, ULONG aNbPrope
     LPSPropProblemArray problems = NULL ;
 
     mLastError = mAddressBook->OpenEntry(aObject.mByteCount, aObject.mEntryId,
-                                         &IID_IMAPIProp, MAPI_MODIFY, &objType, 
+                                         &IID_IMAPIProp, MAPI_MODIFY, &objType,
                                          object) ;
     if (HR_FAILED(mLastError)) {
         PRINTF(("Cannot open entry %08x.\n", mLastError)) ;
@@ -914,10 +914,10 @@ BOOL nsAbWinHelper::SetMAPIProperties(const nsMapiEntry& aObject, ULONG aNbPrope
         return FALSE ;
     }
     if (problems != NULL) {
-        for (ULONG i = 0 ; i < problems->cProblem ; ++ i) {
-            PRINTF(("Problem %d: index %d code %08x.\n", i, 
-                problems->aProblem [i].ulIndex, 
-                problems->aProblem [i].scode)) ;
+        for (ULONG i = 0 ; i < problems->cProblem ; ++i) {
+            PRINTF(("Problem %d: index %d code %08x.\n", i,
+                problems->aProblem[i].ulIndex,
+                problems->aProblem[i].scode)) ;
         }
     }
     mLastError = object->SaveChanges(0) ;
@@ -930,16 +930,16 @@ BOOL nsAbWinHelper::SetMAPIProperties(const nsMapiEntry& aObject, ULONG aNbPrope
 void nsAbWinHelper::MyFreeProws(LPSRowSet aRowset)
 {
     if (aRowset == NULL) { return ; }
-    ULONG i = 0 ; 
+    ULONG i = 0 ;
 
-    for (i = 0 ; i < aRowset->cRows ; ++ i) {
-        FreeBuffer(aRowset->aRow [i].lpProps) ;
+    for (i = 0 ; i < aRowset->cRows ; ++i) {
+        FreeBuffer(aRowset->aRow[i].lpProps) ;
     }
     FreeBuffer(aRowset) ;
 }
 
 nsAbWinHelperGuard::nsAbWinHelperGuard(uint32_t aType)
-: mHelper(NULL) 
+: mHelper(NULL)
 {
     switch(aType) {
     case nsAbWinType_Outlook: mHelper = new nsMapiAddressBook ; break ;
@@ -962,7 +962,7 @@ const int kOutlookExpStubLength = 3 ;
 const char *kOutlookCardScheme = "moz-aboutlookcard://" ;
 const int kOutlookCardSchemeLength = 16 ;
 
-nsAbWinType getAbWinType(const char *aScheme, const char *aUri, nsCString& aStub, nsCString& aEntry) 
+nsAbWinType getAbWinType(const char *aScheme, const char *aUri, nsCString& aStub, nsCString& aEntry)
 {
     aStub.Truncate() ;
     aEntry.Truncate() ;
@@ -980,14 +980,14 @@ nsAbWinType getAbWinType(const char *aScheme, const char *aUri, nsCString& aStub
             return nsAbWinType_OutlookExp ;
         }
     }
-    return nsAbWinType_Unknown ;   
+    return nsAbWinType_Unknown ;
 }
 
 void buildAbWinUri(const char *aScheme, uint32_t aType, nsCString& aUri)
 {
     aUri.Assign(aScheme) ;
     switch(aType) {
-    case nsAbWinType_Outlook: aUri.Append(kOutlookStub) ; break ; 
+    case nsAbWinType_Outlook: aUri.Append(kOutlookStub) ; break ;
     case nsAbWinType_OutlookExp: aUri.Append(kOutlookExpStub) ; break ;
     default: aUri.AssignLiteral("") ;
     }

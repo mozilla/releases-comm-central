@@ -42,7 +42,7 @@ public:
   NS_DECL_NSITREEVIEW
   NS_DECL_NSIABLISTENER
   NS_DECL_NSIOBSERVER
-  
+
   int32_t CompareCollationKeys(uint8_t *key1, uint32_t len1, uint8_t *key2, uint32_t len2);
 
 private:

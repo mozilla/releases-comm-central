@@ -19,7 +19,7 @@ typedef struct {
 class nsAbLDAPProcessChangeLogData : public nsAbLDAPProcessReplicationData
 {
 public :
-   
+
   nsAbLDAPProcessChangeLogData();
 
   NS_IMETHOD Init(nsIAbLDAPReplicationQuery * query, nsIWebProgressListener *progressListener);

@@ -4,15 +4,15 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /********************************************************************************************************
- 
+
    Interface for representing Address Book Person Card Property
- 
+
 *********************************************************************************************************/
 
 #ifndef nsAbCardProperty_h__
 #define nsAbCardProperty_h__
 
-#include "nsIAbCard.h"  
+#include "nsIAbCard.h"
 #include "nsCOMPtr.h"
 #include "nsString.h"
 
@@ -23,13 +23,13 @@ class nsIStringBundle;
 class mozITXTToHTMLConv;
 struct AppendItem;
 
- /* 
+ /*
   * Address Book Card Property
-  */ 
+  */
 
 class nsAbCardProperty: public nsIAbCard
 {
-public: 
+public:
   NS_DECL_ISUPPORTS
   NS_DECL_NSIABCARD
   NS_DECL_NSIABITEM

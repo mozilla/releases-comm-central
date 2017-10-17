@@ -163,7 +163,7 @@ NS_IMETHODIMP nsAbLDIFService::ImportLDIFFile(nsIAddrDatabase *aDb, nsIFile *aSr
  * into components "type" and "value".  if a double colon separates type from
  * value, then value is encoded in base 64, and parse_line un-decodes it
  * (in place) before returning.
- * in LDIF, non-ASCII data is treated as base64 encoded UTF-8 
+ * in LDIF, non-ASCII data is treated as base64 encoded UTF-8
  */
 
 nsresult nsAbLDIFService::str_parse_line(char *line, char **type, char **value, int *vlen) const
@@ -300,7 +300,7 @@ char* nsAbLDIFService::str_getline(char **next) const
 
 nsresult nsAbLDIFService::GetLdifStringRecord(char* buf, int32_t len, int32_t& stopPos)
 {
-  for (; stopPos < len; stopPos++) 
+  for (; stopPos < len; stopPos++)
   {
     char c = buf[stopPos];
 
@@ -353,9 +353,9 @@ void nsAbLDIFService::AddLdifRowToDatabase(nsIAddrDatabase *aDatabase,
   if (aDatabase)
   {
     if (bIsList)
-      aDatabase->GetNewListRow(getter_AddRefs(newRow)); 
+      aDatabase->GetNewListRow(getter_AddRefs(newRow));
     else
-      aDatabase->GetNewRow(getter_AddRefs(newRow)); 
+      aDatabase->GetNewRow(getter_AddRefs(newRow));
 
     if (!newRow)
       return;
@@ -363,11 +363,11 @@ void nsAbLDIFService::AddLdifRowToDatabase(nsIAddrDatabase *aDatabase,
   else
     return;
 
-  char* cursor = ToNewCString(mLdifLine); 
-  char* saveCursor = cursor;  /* keep for deleting */ 
-  char* line = 0; 
-  char* typeSlot = 0; 
-  char* valueSlot = 0; 
+  char* cursor = ToNewCString(mLdifLine);
+  char* saveCursor = cursor;  /* keep for deleting */
+  char* line = 0;
+  char* typeSlot = 0;
+  char* valueSlot = 0;
   int length = 0;  // the length  of an ldif attribute
   while ( (line = str_getline(&cursor)) != nullptr)
   {
@@ -378,11 +378,11 @@ void nsAbLDIFService::AddLdifRowToDatabase(nsIAddrDatabase *aDatabase,
       continue; // parse error: continue with next loop iteration
   }
   free(saveCursor);
-  aDatabase->AddCardRowToDB(newRow);    
+  aDatabase->AddCardRowToDB(newRow);
 
   if (bIsList)
     aDatabase->AddListDirNode(newRow);
-        
+
   // Clear buffer for next record
   ClearLdifRecordBuffer();
 }
@@ -394,7 +394,7 @@ void nsAbLDIFService::AddLdifColToDatabase(nsIAddrDatabase *aDatabase,
   nsAutoCString colType(typeSlot);
   nsAutoCString column(valueSlot);
 
-  // 4.x exports attributes like "givenname", 
+  // 4.x exports attributes like "givenname",
   // mozilla does "givenName" to be compliant with RFC 2798
   ToLowerCase(colType);
 
@@ -431,19 +431,19 @@ void nsAbLDIFService::AddLdifColToDatabase(nsIAddrDatabase *aDatabase,
 
     else if (colType.EqualsLiteral("carphone"))
       aDatabase->AddCellularNumber(newRow, column.get());
-        
+
     else if (colType.EqualsLiteral("custom1"))
       aDatabase->AddCustom1(newRow, column.get());
-        
+
     else if (colType.EqualsLiteral("custom2"))
       aDatabase->AddCustom2(newRow, column.get());
-        
+
     else if (colType.EqualsLiteral("custom3"))
       aDatabase->AddCustom3(newRow, column.get());
-        
+
     else if (colType.EqualsLiteral("custom4"))
       aDatabase->AddCustom4(newRow, column.get());
-        
+
     else if (colType.EqualsLiteral("company"))
       aDatabase->AddCompany(newRow, column.get());
     break; // 'c'
@@ -529,13 +529,13 @@ void nsAbLDIFService::AddLdifColToDatabase(nsIAddrDatabase *aDatabase,
 
     else if (colType.EqualsLiteral("mozillacustom1"))
       aDatabase->AddCustom1(newRow, column.get());
-        
+
     else if (colType.EqualsLiteral("mozillacustom2"))
       aDatabase->AddCustom2(newRow, column.get());
-        
+
     else if (colType.EqualsLiteral("mozillacustom3"))
       aDatabase->AddCustom3(newRow, column.get());
-        
+
     else if (colType.EqualsLiteral("mozillacustom4"))
       aDatabase->AddCustom4(newRow, column.get());
 
@@ -594,7 +594,7 @@ void nsAbLDIFService::AddLdifColToDatabase(nsIAddrDatabase *aDatabase,
     if (colType.EqualsLiteral("notes"))
       aDatabase->AddNotes(newRow, column.get());
 
-    else if (colType.EqualsLiteral("nscpaimscreenname") || 
+    else if (colType.EqualsLiteral("nscpaimscreenname") ||
              colType.EqualsLiteral("nsaimid"))
       aDatabase->AddAimScreenName(newRow, column.get());
 
@@ -670,7 +670,7 @@ void nsAbLDIFService::AddLdifColToDatabase(nsIAddrDatabase *aDatabase,
     else
       aDatabase->AddWorkState(newRow, column.get());
     }
-        
+
     break; // 's'
 
   case 't':
@@ -758,7 +758,7 @@ static const char *const sLDIFFields[] = {
 };
 #define kMaxLDIFLen        14
 
-// Count total number of legal ldif fields and records in the first 100 lines of the 
+// Count total number of legal ldif fields and records in the first 100 lines of the
 // file and if the average legal ldif field is 3 or higher than it's a valid ldif file.
 NS_IMETHODIMP nsAbLDIFService::IsLDIFFile(nsIFile *pSrc, bool *_retval)
 {
@@ -801,7 +801,7 @@ NS_IMETHODIMP nsAbLDIFService::IsLDIFFile(nsIFile *pSrc, bool *_retval)
         recCount++;
         gotLDIF = false;
       }
-                   
+
       if (lineLen && (*pChar != ' ') && (*pChar != '\t'))
       {
         fLen = 0;
@@ -813,7 +813,7 @@ NS_IMETHODIMP nsAbLDIFService::IsLDIFFile(nsIFile *pSrc, bool *_retval)
           fLen++;
           lineLen--;
         }
-                
+
         field[fLen] = 0;
 
         if (lineLen && (*pChar == ':') && (fLen < (kMaxLDIFLen - 1)))

@@ -1064,7 +1064,7 @@ nsresult nsAddrDatabase::AddAttributeColumnsToRow(nsIAbCard *card, nsIMdbRow *ca
 
       nsCOMPtr<nsIVariant> variant;
       prop->GetValue(getter_AddRefs(variant));
-      
+
       // We can't get as a char * because that messes up UTF8 stuff
       nsAutoCString value;
       variant->GetAsAUTF8String(value);
@@ -1072,7 +1072,7 @@ nsresult nsAddrDatabase::AddAttributeColumnsToRow(nsIAbCard *card, nsIMdbRow *ca
       mdb_token token;
       rv = m_mdbStore->StringToToken(m_mdbEnv, NS_ConvertUTF16toUTF8(name).get(), &token);
       NS_ENSURE_SUCCESS(rv, rv);
- 
+
       rv = AddCharStringColumn(cardRow, token, value.get());
       NS_ENSURE_SUCCESS(rv, rv);
     }
@@ -1141,7 +1141,7 @@ NS_IMETHODIMP nsAddrDatabase::CreateNewCardAndAddToDB(nsIAbCard *aNewCard, bool 
     rv = GetIntColumn(cardRow, m_RecordKeyColumnToken, &key, 0);
     if (NS_SUCCEEDED(rv))
       aNewCard->SetPropertyAsUint32(kRecordKeyColumn, key);
-    
+
     aNewCard->GetPropertyAsAUTF8String(kRowIDProperty, id);
     aNewCard->SetLocalId(id);
 
@@ -2206,7 +2206,7 @@ NS_IMETHODIMP nsAddrDatabase::InitCardFromRow(nsIAbCard *newCard, nsIMdbRow* car
       PL_strfree(name);
     }
   } while (true);
- 
+
   uint32_t key = 0;
   rv = GetIntColumn(cardRow, m_RecordKeyColumnToken, &key, 0);
   if (NS_SUCCEEDED(rv))

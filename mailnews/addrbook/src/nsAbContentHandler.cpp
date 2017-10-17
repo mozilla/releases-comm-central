@@ -61,9 +61,9 @@ nsAbContentHandler::HandleContent(const char *aContentType,
         if (startOfVCard)
         {
             nsCString unescapedData;
-            
+
             // XXX todo, explain why we is escaped twice
-            MsgUnescapeString(nsDependentCString(startOfVCard + strlen("add?vcard=")), 
+            MsgUnescapeString(nsDependentCString(startOfVCard + strlen("add?vcard=")),
                                                  0, unescapedData);
 
             if (!aWindowContext)

@@ -27,7 +27,7 @@ struct nsMapiEntry
     void Dump(void) const ;
 } ;
 
-struct nsMapiEntryArray 
+struct nsMapiEntryArray
 {
     nsMapiEntry *mEntries ;
     ULONG      mNbEntries ;
@@ -48,7 +48,7 @@ public:
     // Get the top address books
     BOOL GetFolders(nsMapiEntryArray& aFolders) ;
     // Get a list of entries for cards/mailing lists in a folder/mailing list
-    BOOL GetCards(const nsMapiEntry& aParent, LPSRestriction aRestriction, 
+    BOOL GetCards(const nsMapiEntry& aParent, LPSRestriction aRestriction,
                   nsMapiEntryArray& aCards) ;
     // Get a list of mailing lists in a folder
     BOOL GetNodes(const nsMapiEntry& aParent, nsMapiEntryArray& aNodes) ;
@@ -61,10 +61,10 @@ public:
     // Same as previous, but string is returned as unicode
     BOOL GetPropertyUString(const nsMapiEntry& aObject, ULONG aPropertyTag, nsString& aValue) ;
     // Get multiple string MAPI properties in one call.
-    BOOL GetPropertiesUString(const nsMapiEntry& aObject, const ULONG *aPropertiesTag, 
+    BOOL GetPropertiesUString(const nsMapiEntry& aObject, const ULONG *aPropertiesTag,
                               ULONG aNbProperties, nsString *aValues);
     // Get the value of a MAPI property of type SYSTIME
-    BOOL GetPropertyDate(const nsMapiEntry& aObject, ULONG aPropertyTag, 
+    BOOL GetPropertyDate(const nsMapiEntry& aObject, ULONG aPropertyTag,
                          WORD& aYear, WORD& aMonth, WORD& aDay) ;
     // Get the value of a MAPI property of type LONG
     BOOL GetPropertyLong(const nsMapiEntry& aObject, ULONG aPropertyTag, ULONG& aValue) ;
@@ -75,13 +75,13 @@ public:
     // Delete an entry in the address book
     BOOL DeleteEntry(const nsMapiEntry& aContainer, const nsMapiEntry& aEntry) ;
     // Set the value of a MAPI property of type string in unicode
-    BOOL SetPropertyUString (const nsMapiEntry& aObject, ULONG aPropertyTag, 
+    BOOL SetPropertyUString (const nsMapiEntry& aObject, ULONG aPropertyTag,
                              const char16_t *aValue) ;
     // Same as previous, but with a bunch of properties in one call
     BOOL SetPropertiesUString(const nsMapiEntry& aObject, const ULONG *aPropertiesTag,
                               ULONG aNbProperties, nsString *aValues) ;
     // Set the value of a MAPI property of type SYSTIME
-    BOOL SetPropertyDate(const nsMapiEntry& aObject, ULONG aPropertyTag, 
+    BOOL SetPropertyDate(const nsMapiEntry& aObject, ULONG aPropertyTag,
                          WORD aYear, WORD aMonth, WORD aDay) ;
     // Create entry in the address book
     BOOL CreateEntry(const nsMapiEntry& aParent, nsMapiEntry& aNewEntry) ;
@@ -102,14 +102,14 @@ protected:
     static nsAutoPtr<mozilla::Mutex> mMutex ;
 
     // Retrieve the contents of a container, with an optional restriction
-    BOOL GetContents(const nsMapiEntry& aParent, LPSRestriction aRestriction, 
+    BOOL GetContents(const nsMapiEntry& aParent, LPSRestriction aRestriction,
                      nsMapiEntry **aList, ULONG &aNbElements, ULONG aMapiType) ;
     // Retrieve the values of a set of properties on a MAPI object
-    BOOL GetMAPIProperties(const nsMapiEntry& aObject, const ULONG *aPropertyTags, 
+    BOOL GetMAPIProperties(const nsMapiEntry& aObject, const ULONG *aPropertyTags,
                            ULONG aNbProperties,
                            LPSPropValue& aValues, ULONG& aValueCount) ;
     // Set the values of a set of properties on a MAPI object
-    BOOL SetMAPIProperties(const nsMapiEntry& aObject, ULONG aNbProperties, 
+    BOOL SetMAPIProperties(const nsMapiEntry& aObject, ULONG aNbProperties,
                            const LPSPropValue& aValues) ;
     // Clean-up a rowset returned by QueryRows
     void MyFreeProws(LPSRowSet aSet) ;
@@ -121,14 +121,14 @@ protected:
 private:
 } ;
 
-enum nsAbWinType 
+enum nsAbWinType
 {
     nsAbWinType_Unknown,
     nsAbWinType_Outlook,
     nsAbWinType_OutlookExp
 } ;
 
-class nsAbWinHelperGuard 
+class nsAbWinHelperGuard
 {
 public :
     nsAbWinHelperGuard(uint32_t aType) ;
@@ -146,7 +146,7 @@ extern const char *kOutlookStub ;
 extern const char *kOutlookExpStub ;
 extern const char *kOutlookCardScheme ;
 
-nsAbWinType getAbWinType(const char *aScheme, const char *aUri, 
+nsAbWinType getAbWinType(const char *aScheme, const char *aUri,
                          nsCString& aStub, nsCString& aEntry) ;
 void buildAbWinUri(const char *aScheme, uint32_t aType, nsCString& aUri) ;
 

@@ -34,7 +34,7 @@ NS_IMETHODIMP nsAbMDBDirFactory::GetDirectories(const nsAString &aDirName,
                                                 nsISimpleEnumerator **_retval)
 {
   NS_ENSURE_ARG_POINTER(_retval);
-  
+
   nsresult rv;
 
   nsCOMPtr<nsIAbManager> abManager = do_GetService(NS_ABMANAGER_CONTRACTID, &rv);
@@ -54,7 +54,7 @@ NS_IMETHODIMP nsAbMDBDirFactory::GetDirectories(const nsAString &aDirName,
   if (NS_SUCCEEDED(rv))
   {
     nsAutoCString fileName;
-      
+
     if (StringBeginsWith(aURI, NS_LITERAL_CSTRING(kMDBDirectoryRoot)))
       fileName = Substring(aURI, kMDBDirectoryRootLen, aURI.Length() - kMDBDirectoryRootLen);
 
@@ -79,7 +79,7 @@ NS_IMETHODIMP nsAbMDBDirFactory::DeleteDirectory(nsIAbDirectory *directory)
 {
     if (!directory)
         return NS_ERROR_NULL_POINTER;
-    
+
     nsresult rv = NS_OK;
 
     nsCOMPtr<nsIMutableArray> pAddressLists;

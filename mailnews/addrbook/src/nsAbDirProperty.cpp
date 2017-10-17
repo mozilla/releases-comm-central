@@ -212,7 +212,7 @@ NS_IMETHODIMP nsAbDirProperty::SetIsMailList(bool aIsMailList)
 
 NS_IMETHODIMP nsAbDirProperty::GetAddressLists(nsIMutableArray * *aAddressLists)
 {
-  if (!m_AddressList) 
+  if (!m_AddressList)
   {
     nsresult rv;
     m_AddressList = do_CreateInstance(NS_ARRAY_CONTRACTID, &rv);
@@ -452,7 +452,7 @@ nsresult nsAbDirProperty::InitDirectoryPrefs()
 {
   if (m_DirPrefId.IsEmpty())
     return NS_ERROR_NOT_INITIALIZED;
-    
+
   nsresult rv;
   nsCOMPtr<nsIPrefService> prefService(do_GetService(NS_PREFSERVICE_CONTRACTID, &rv));
   NS_ENSURE_SUCCESS(rv, rv);
@@ -494,7 +494,7 @@ NS_IMETHODIMP nsAbDirProperty::GetBoolValue(const char *aName,
 }
 
 NS_IMETHODIMP nsAbDirProperty::GetStringValue(const char *aName,
-                                              const nsACString &aDefaultValue, 
+                                              const nsACString &aDefaultValue,
                                               nsACString &aResult)
 {
   if (!m_DirectoryPrefs && NS_FAILED(InitDirectoryPrefs()))
@@ -519,7 +519,7 @@ NS_IMETHODIMP nsAbDirProperty::GetStringValue(const char *aName,
  * "ldap_2.servers.history.description"
  */
 NS_IMETHODIMP nsAbDirProperty::GetLocalizedStringValue(const char *aName,
-                                                       const nsACString &aDefaultValue, 
+                                                       const nsACString &aDefaultValue,
                                                        nsACString &aResult)
 {
   if (!m_DirectoryPrefs && NS_FAILED(InitDirectoryPrefs()))

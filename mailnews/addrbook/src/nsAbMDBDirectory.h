@@ -4,16 +4,16 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /********************************************************************************************************
- 
+
    Interface for representing Address Book Directory
- 
+
 *********************************************************************************************************/
 
 #ifndef nsAbMDBDirectory_h__
 #define nsAbMDBDirectory_h__
 
 #include "mozilla/Attributes.h"
-#include "nsAbMDBDirProperty.h"  
+#include "nsAbMDBDirProperty.h"
 #include "nsIAbCard.h"
 #include "nsCOMArray.h"
 #include "nsCOMPtr.h"
@@ -23,17 +23,17 @@
 #include "nsInterfaceHashtable.h"
 #include "nsIAddrDBListener.h"
 
-/* 
+/*
  * Address Book Directory
- */ 
+ */
 
 class nsAbMDBDirectory:
   public nsAbMDBDirProperty,	// nsIAbDirectory, nsIAbMDBDirectory
   public nsIAbDirSearchListener,
-  public nsIAddrDBListener, 
+  public nsIAddrDBListener,
   public nsIAbDirectorySearch
 {
-public: 
+public:
   nsAbMDBDirectory(void);
 
   NS_DECL_ISUPPORTS_INHERITED
@@ -91,7 +91,7 @@ protected:
   nsresult RemoveCardFromAddressList(nsIAbCard* card);
 
   nsresult GetAbDatabase();
-  nsCOMPtr<nsIAddrDatabase> mDatabase;  
+  nsCOMPtr<nsIAddrDatabase> mDatabase;
 
   nsCOMArray<nsIAbDirectory> mSubDirectories;
 

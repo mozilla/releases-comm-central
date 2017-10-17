@@ -39,7 +39,7 @@ nsAbDirFactoryService::GetDirFactory(const nsACString &aURI,
   nsCOMPtr<nsIIOService> nsService =
     mozilla::services::GetIOService();
   NS_ENSURE_TRUE(nsService, NS_ERROR_UNEXPECTED);
-    
+
   // Extract the scheme
   nsAutoCString scheme;
   rv = nsService->ExtractScheme(aURI, scheme);

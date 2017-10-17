@@ -57,10 +57,10 @@ nsresult nsAbLDAPReplicationQuery::InitLDAPData()
       DIR_SavePrefsForOneServer(server);
     }
   }
- 
+
   rv = mDirectory->SetReplicationFileName(fileName);
   NS_ENSURE_SUCCESS(rv, rv);
- 
+
   rv = mDirectory->GetLDAPURL(getter_AddRefs(mURL));
   NS_ENSURE_SUCCESS(rv, rv);
 
@@ -68,7 +68,7 @@ nsresult nsAbLDAPReplicationQuery::InitLDAPData()
   NS_ENSURE_SUCCESS(rv, rv);
 
   mConnection = do_CreateInstance(NS_LDAPCONNECTION_CONTRACTID, &rv);
-  if (NS_FAILED(rv)) 
+  if (NS_FAILED(rv))
     return rv;
 
   mOperation = do_CreateInstance(NS_LDAPOPERATION_CONTRACTID, &rv);
@@ -110,12 +110,12 @@ NS_IMETHODIMP nsAbLDAPReplicationQuery::Init(nsIAbLDAPDirectory *aDirectory,
   mDirectory = aDirectory;
 
   nsresult rv = InitLDAPData();
-  if (NS_FAILED(rv)) 
+  if (NS_FAILED(rv))
     return rv;
 
   mDataProcessor =
     do_CreateInstance(NS_ABLDAP_PROCESSREPLICATIONDATA_CONTRACTID, &rv);
-  if (NS_FAILED(rv)) 
+  if (NS_FAILED(rv))
     return rv;
 
   // 'this' initialized
@@ -132,7 +132,7 @@ NS_IMETHODIMP nsAbLDAPReplicationQuery::DoReplicationQuery()
 
 NS_IMETHODIMP nsAbLDAPReplicationQuery::CancelQuery()
 {
-    if (!mInitialized) 
+    if (!mInitialized)
         return NS_ERROR_NOT_INITIALIZED;
 
     return mDataProcessor->Abort();
@@ -140,11 +140,11 @@ NS_IMETHODIMP nsAbLDAPReplicationQuery::CancelQuery()
 
 NS_IMETHODIMP nsAbLDAPReplicationQuery::Done(bool aSuccess)
 {
-   if (!mInitialized) 
+   if (!mInitialized)
        return NS_ERROR_NOT_INITIALIZED;
 
    nsresult rv = NS_OK;
-   nsCOMPtr<nsIAbLDAPReplicationService> replicationService = 
+   nsCOMPtr<nsIAbLDAPReplicationService> replicationService =
                             do_GetService(NS_ABLDAP_REPLICATIONSERVICE_CONTRACTID, &rv);
    if (NS_SUCCEEDED(rv))
       replicationService->Done(aSuccess);

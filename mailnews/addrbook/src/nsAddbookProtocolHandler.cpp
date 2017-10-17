@@ -42,7 +42,7 @@ NS_IMPL_ISUPPORTS(nsAddbookProtocolHandler, nsIProtocolHandler)
 NS_IMETHODIMP nsAddbookProtocolHandler::GetScheme(nsACString &aScheme)
 {
 	aScheme = "addbook";
-	return NS_OK; 
+	return NS_OK;
 }
 
 NS_IMETHODIMP nsAddbookProtocolHandler::GetDefaultPort(int32_t *aDefaultPort)
@@ -75,10 +75,10 @@ NS_IMETHODIMP nsAddbookProtocolHandler::NewURI(const nsACString &aSpec,
   return NS_OK;
 }
 
-NS_IMETHODIMP 
+NS_IMETHODIMP
 nsAddbookProtocolHandler::AllowPort(int32_t port, const char *scheme, bool *_retval)
 {
-    // don't override anything.  
+    // don't override anything.
     *_retval = false;
     return NS_OK;
 }
@@ -137,7 +137,7 @@ nsAddbookProtocolHandler::NewChannel2(nsIURI *aURI,
   nsresult rv;
   nsCOMPtr <nsIAddbookUrl> addbookUrl = do_QueryInterface(aURI, &rv);
   NS_ENSURE_SUCCESS(rv,rv);
-  
+
   rv = addbookUrl->GetAddbookOperation(&mAddbookOperation);
   NS_ENSURE_SUCCESS(rv,rv);
 
@@ -153,13 +153,13 @@ nsAddbookProtocolHandler::NewChannel2(nsIURI *aURI,
     NS_ENSURE_SUCCESS(rv,rv);
     return NS_OK;
   }
- 
+
   if (mAddbookOperation == nsIAddbookUrlOperation::AddVCard) {
       // create an empty pipe for use with the input stream channel.
       nsCOMPtr<nsIAsyncInputStream> pipeIn;
       nsCOMPtr<nsIAsyncOutputStream> pipeOut;
       nsCOMPtr<nsIPipe> pipe = do_CreateInstance("@mozilla.org/pipe;1");
-      
+
       rv = pipe->Init(false, false, 0, 0);
       NS_ENSURE_SUCCESS(rv, rv);
 
@@ -201,14 +201,14 @@ nsAddbookProtocolHandler::NewChannel2(nsIURI *aURI,
     NS_ENSURE_SUCCESS(rv,rv);
     output.Append(NS_ConvertUTF8toUTF16(spec));
   }
- 
+
   rv = GenerateXMLOutputChannel(output, addbookUrl, aURI, aLoadInfo, _retval);
   NS_ENSURE_SUCCESS(rv,rv);
   return NS_OK;
 }
 
-nsresult    
-nsAddbookProtocolHandler::GeneratePrintOutput(nsIAddbookUrl *addbookUrl, 
+nsresult
+nsAddbookProtocolHandler::GeneratePrintOutput(nsIAddbookUrl *addbookUrl,
                                               nsString &aOutput)
 {
   NS_ENSURE_ARG_POINTER(addbookUrl);
@@ -222,7 +222,7 @@ nsAddbookProtocolHandler::GeneratePrintOutput(nsIAddbookUrl *addbookUrl,
    into "moz-abmdbdirectory://abook.mab"
   */
 
-  /* step 1:  
+  /* step 1:
    turn "//moz-abmdbdirectory/abook.mab?action=print"
    into "moz-abmdbdirectory/abook.mab?action=print"
    */
@@ -231,7 +231,7 @@ nsAddbookProtocolHandler::GeneratePrintOutput(nsIAddbookUrl *addbookUrl,
 
   uri.Cut(0,2);
 
-  /* step 2:  
+  /* step 2:
    turn "moz-abmdbdirectory/abook.mab?action=print"
    into "moz-abmdbdirectory/abook.mab"
    */
@@ -241,7 +241,7 @@ nsAddbookProtocolHandler::GeneratePrintOutput(nsIAddbookUrl *addbookUrl,
 
   uri.SetLength(pos);
 
-  /* step 2:  
+  /* step 2:
    turn "moz-abmdbdirectory/abook.mab"
    into "moz-abmdbdirectory://abook.mab"
    */
@@ -266,12 +266,12 @@ nsAddbookProtocolHandler::GeneratePrintOutput(nsIAddbookUrl *addbookUrl,
 }
 
 nsresult
-nsAddbookProtocolHandler::BuildDirectoryXML(nsIAbDirectory *aDirectory, 
+nsAddbookProtocolHandler::BuildDirectoryXML(nsIAbDirectory *aDirectory,
                                        nsString &aOutput)
 {
   NS_ENSURE_ARG_POINTER(aDirectory);
 
-  nsresult rv;    
+  nsresult rv;
   nsCOMPtr<nsISimpleEnumerator> cardsEnumerator;
   nsCOMPtr<nsIAbCard> card;
 
@@ -300,7 +300,7 @@ nsAddbookProtocolHandler::BuildDirectoryXML(nsIAbDirectory *aDirectory,
   // over the view, getting the card for each row, and printing them.
   nsString sortColumn;
   nsCOMPtr <nsIAbView> view = do_CreateInstance("@mozilla.org/addressbook/abview;1", &rv);
-  
+
   view->SetView(aDirectory, nullptr, NS_LITERAL_STRING("GeneratedName"),
                 NS_LITERAL_STRING("ascending"), sortColumn);
 
@@ -308,10 +308,10 @@ nsAddbookProtocolHandler::BuildDirectoryXML(nsIAbDirectory *aDirectory,
   nsCOMPtr <nsITreeView> treeView = do_QueryInterface(view, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
   treeView->GetRowCount(&numRows);
-  
+
   for (int32_t row = 0; row < numRows; row++)
   {
-    
+
     nsCOMPtr <nsIAbCard> card;
     view->GetCardFromRow(row, getter_AddRefs(card));
     nsCString xmlSubstr;

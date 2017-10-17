@@ -62,7 +62,7 @@ const int32_t DIR_POS_APPEND = -1;
 const int32_t DIR_POS_DELETE = -2;
 static bool DIR_SetServerPosition(nsTArray<DIR_Server*> *wholeList, DIR_Server *server, int32_t position);
 
-/* These two routines should be called to initialize and save 
+/* These two routines should be called to initialize and save
  * directory preferences from the XP Java Script preferences
  */
 static nsresult DIR_GetServerPreferences(nsTArray<DIR_Server*>** list);
@@ -157,7 +157,7 @@ static nsresult DIR_GetDirServers()
 
   if (!dir_ServerList)
   {
-    /* we need to build the DIR_Server list */ 
+    /* we need to build the DIR_Server list */
     rv = DIR_GetServerPreferences(&dir_ServerList);
 
     /* Register the preference call back if necessary. */
@@ -258,7 +258,7 @@ nsresult DIR_ContainsServer(DIR_Server* pServer, bool *hasDir)
 
 nsresult DIR_AddNewAddressBook(const nsAString &dirName,
                                const nsACString &fileName,
-                               const nsACString &uri, 
+                               const nsACString &uri,
                                DirectoryType dirType,
                                const nsACString &prefName,
                                DIR_Server** pServer)
@@ -274,10 +274,10 @@ nsresult DIR_AddNewAddressBook(const nsAString &dirName,
   {
     server->description = ToNewCString(NS_ConvertUTF16toUTF8(dirName));
     server->position = kDefaultPosition; // don't set position so alphabetic sort will happen.
-    
+
     if (!fileName.IsEmpty())
       server->fileName = ToNewCString(fileName);
-    else if (dirType == PABDirectory) 
+    else if (dirType == PABDirectory)
       DIR_SetFileName(&server->fileName, kPersonalAddressbook);
     else if (dirType == LDAPDirectory)
       DIR_SetFileName(&server->fileName, kMainLdapAddressBook);
@@ -292,11 +292,11 @@ nsresult DIR_AddNewAddressBook(const nsAString &dirName,
 
     dir_ServerList->AppendElement(server);
 
-    DIR_SavePrefsForOneServer(server); 
+    DIR_SavePrefsForOneServer(server);
 
     *pServer = server;
-    
-    // save new address book into pref file 
+
+    // save new address book into pref file
     return SavePrefsFile();
   }
   return NS_ERROR_FAILURE;
@@ -340,7 +340,7 @@ static bool DIR_SetServerPosition(nsTArray<DIR_Server*> *wholeList, DIR_Server *
    int32_t    i, count, num;
    bool       resort = false;
    DIR_Server *s=nullptr;
-   
+
    switch (position) {
    case DIR_POS_APPEND:
    /* Do nothing if the request is to append a server that is already
@@ -364,10 +364,10 @@ static bool DIR_SetServerPosition(nsTArray<DIR_Server*> *wholeList, DIR_Server *
      }
      else
        server->position = 1;
-     
+
      wholeList->AppendElement(server);
      break;
-     
+
    case DIR_POS_DELETE:
        /* Remove the prefs corresponding to the given server.  If the prefName
        * value is nullptr, the server has never been saved and there are no
@@ -385,7 +385,7 @@ static bool DIR_SetServerPosition(nsTArray<DIR_Server*> *wholeList, DIR_Server *
        // mark the server as deleted by setting its position to 0
        DIR_SetIntPref(server->prefName, "position", 0, -1);
      }
-     
+
      /* If the server is in the server list, remove it.
      */
      num = wholeList->IndexOf(server);
@@ -406,7 +406,7 @@ static bool DIR_SetServerPosition(nsTArray<DIR_Server*> *wholeList, DIR_Server *
        }
      }
      break;
-     
+
    default:
    /* See if the server is already in the list.
      */
@@ -417,7 +417,7 @@ static bool DIR_SetServerPosition(nsTArray<DIR_Server*> *wholeList, DIR_Server *
          if (s == server)
            break;
      }
-     
+
      /* If the server is not in the list, add it to the beginning and re-sort.
      */
      if (s == nullptr)
@@ -426,7 +426,7 @@ static bool DIR_SetServerPosition(nsTArray<DIR_Server*> *wholeList, DIR_Server *
        wholeList->AppendElement(server);
        resort = true;
      }
-     
+
        /* Don't re-sort if the server is already in the requested position.
      */
      else if (server->position != position)
@@ -438,11 +438,11 @@ static bool DIR_SetServerPosition(nsTArray<DIR_Server*> *wholeList, DIR_Server *
      }
      break;
         }
-        
+
         /* Make sure our position changes get saved back to prefs
         */
         DIR_SaveServerPreferences(wholeList);
-        
+
         return resort;
 }
 
@@ -581,7 +581,7 @@ static DIR_PrefId DIR_AtomizePrefName(const char *prefname)
 }
 
 /*****************************************************************************
- * Functions for destroying DIR_Servers 
+ * Functions for destroying DIR_Servers
  */
 
 /* this function determines if the passed in server is no longer part of the of
@@ -621,19 +621,19 @@ nsresult DIR_DeleteServerFromList(DIR_Server *server)
   nsresult rv = NS_OK;
   nsCOMPtr<nsIFile> dbPath;
 
-  nsCOMPtr<nsIAbManager> abManager = do_GetService(NS_ABMANAGER_CONTRACTID, &rv); 
+  nsCOMPtr<nsIAbManager> abManager = do_GetService(NS_ABMANAGER_CONTRACTID, &rv);
   if (NS_SUCCEEDED(rv))
     rv = abManager->GetUserProfileDirectory(getter_AddRefs(dbPath));
-  
+
   if (NS_SUCCEEDED(rv))
   {
-    // close the database, as long as it isn't the special ones 
+    // close the database, as long as it isn't the special ones
     // (personal addressbook and collected addressbook)
     // which can never be deleted.  There was a bug where we would slap in
     // "abook.mab" as the file name for LDAP directories, which would cause a crash
     // on delete of LDAP directories.  this is just extra protection.
     if (server->fileName &&
-        strcmp(server->fileName, kPersonalAddressbook) && 
+        strcmp(server->fileName, kPersonalAddressbook) &&
         strcmp(server->fileName, kCollectedAddressbook))
     {
       nsCOMPtr<nsIAddrDatabase> database;
@@ -642,7 +642,7 @@ nsresult DIR_DeleteServerFromList(DIR_Server *server)
       NS_ENSURE_SUCCESS(rv, rv);
 
       // close file before delete it
-      nsCOMPtr<nsIAddrDatabase> addrDBFactory = 
+      nsCOMPtr<nsIAddrDatabase> addrDBFactory =
                do_GetService(NS_ADDRDATABASE_CONTRACTID, &rv);
 
       if (NS_SUCCEEDED(rv) && addrDBFactory)
@@ -670,7 +670,7 @@ static void DIR_DeleteServerList(nsTArray<DIR_Server*> *wholeList)
   if (wholeList)
   {
     DIR_Server *server = nullptr;
-  
+
     /* TBD: Send notifications? */
     int32_t count = wholeList->Length();
     int32_t i;
@@ -685,7 +685,7 @@ static void DIR_DeleteServerList(nsTArray<DIR_Server*> *wholeList)
 }
 
 /*****************************************************************************
- * Functions for managing JavaScript prefs for the DIR_Servers 
+ * Functions for managing JavaScript prefs for the DIR_Servers
  */
 
 static int
@@ -778,7 +778,7 @@ static char *DIR_GetStringPref(const char *prefRoot, const char *prefLeaf, const
     if (NS_SUCCEEDED(pPref->GetCharPref(prefLocation.get(), getter_Copies(value))))
     {
         /* unfortunately, there may be some prefs out there which look like this */
-        if (value.EqualsLiteral("(null)")) 
+        if (value.EqualsLiteral("(null)"))
         {
             if (defaultValue)
                 value = defaultValue;
@@ -792,7 +792,7 @@ static char *DIR_GetStringPref(const char *prefRoot, const char *prefLeaf, const
         }
     }
     else
-        value = defaultValue; 
+        value = defaultValue;
 
     return ToNewCString(value);
 }
@@ -908,7 +908,7 @@ void DIR_SetFileName(char** fileName, const char* defaultName)
 
   *fileName = nullptr;
 
-  nsCOMPtr<nsIAbManager> abManager = do_GetService(NS_ABMANAGER_CONTRACTID, &rv); 
+  nsCOMPtr<nsIAbManager> abManager = do_GetService(NS_ABMANAGER_CONTRACTID, &rv);
   if (NS_SUCCEEDED(rv))
     rv = abManager->GetUserProfileDirectory(getter_AddRefs(dbPath));
   if (NS_SUCCEEDED(rv))
@@ -929,8 +929,8 @@ void DIR_SetFileName(char** fileName, const char* defaultName)
 
 /****************************************************************
 Helper function used to generate a file name from the description
-of a directory. Caller must free returned string. 
-An extension is not applied 
+of a directory. Caller must free returned string.
+An extension is not applied
 *****************************************************************/
 
 static char * dir_ConvertDescriptionToPrefName(DIR_Server * server)
@@ -969,9 +969,9 @@ static char * dir_ConvertDescriptionToPrefName(DIR_Server * server)
 
 void DIR_SetServerFileName(DIR_Server *server)
 {
-  char * tempName = nullptr; 
+  char * tempName = nullptr;
   const char * prefName = nullptr;
-  uint32_t numHeaderBytes = 0; 
+  uint32_t numHeaderBytes = 0;
 
   if (server && (!server->fileName || !(*server->fileName)) )
   {
@@ -992,7 +992,7 @@ void DIR_SetServerFileName(DIR_Server *server)
       {
         /* extract just the pref name part and not the ldap tree name portion from the string */
         numHeaderBytes = PL_strlen(PREF_LDAP_SERVER_TREE_NAME) + 1; /* + 1 for the '.' b4 the name */
-        if (PL_strlen(prefName) > numHeaderBytes) 
+        if (PL_strlen(prefName) > numHeaderBytes)
                     tempName = strdup(prefName + numHeaderBytes);
 
         if (tempName)
@@ -1082,7 +1082,7 @@ static void DIR_GetPrefsForOneServer(DIR_Server *server)
   nsCOMPtr<nsIPrefBranch> pPref(do_GetService(NS_PREFSERVICE_CONTRACTID, &rv));
   if (NS_FAILED(rv))
     return;
-  
+
   char    *prefstring = server->prefName;
 
   // this call fills in tempstring with the position pref, and
@@ -1098,7 +1098,7 @@ static void DIR_GetPrefsForOneServer(DIR_Server *server)
 
   server->fileName = DIR_GetStringPref (prefstring, "filename", "");
   // if we don't have a file name try and get one
-  if (!server->fileName || !*(server->fileName)) 
+  if (!server->fileName || !*(server->fileName))
     DIR_SetServerFileName (server);
   if (server->fileName && *server->fileName)
     DIR_ConvertServerFileName(server);
@@ -1150,7 +1150,7 @@ static nsresult dir_GetPrefs(nsTArray<DIR_Server*> **list)
             DIR_InitServer(server);
             server->prefName = strdup(children[i]);
             DIR_GetPrefsForOneServer(server);
-            if (server->description && server->description[0] && 
+            if (server->description && server->description[0] &&
                 ((server->dirType == PABDirectory ||
                   server->dirType == MAPIDirectory ||
                   server->dirType == FixedQueryLDAPDirectory ||  // this one might go away
@@ -1180,7 +1180,7 @@ void DIR_SortServersByPosition(nsTArray<DIR_Server*> *serverList)
 {
   int i, j;
   DIR_Server *server;
-  
+
   int count = serverList->Length();
   for (i = 0; i < count - 1; i++)
   {
@@ -1205,7 +1205,7 @@ static nsresult DIR_GetServerPreferences(nsTArray<DIR_Server*>** list)
 
   int32_t version = -1;
   nsTArray<DIR_Server*> *newList = nullptr;
-  
+
   /* Update the ldap list version and see if there are old prefs to migrate. */
   err = pPref->GetIntPref(PREF_LDAP_VERSION_NAME, &version);
   NS_ENSURE_SUCCESS(err, err);
@@ -1217,7 +1217,7 @@ static nsresult DIR_GetServerPreferences(nsTArray<DIR_Server*>** list)
   {
     pPref->SetIntPref(PREF_LDAP_VERSION_NAME, kCurrentListVersion);
   }
- 
+
   DIR_SortServersByPosition(newList);
 
   *list = newList;
@@ -1228,8 +1228,8 @@ static nsresult DIR_GetServerPreferences(nsTArray<DIR_Server*>** list)
 static void DIR_SetStringPref(const char *prefRoot, const char *prefLeaf, const char *value, const char *defaultValue)
 {
   nsresult rv;
-  nsCOMPtr<nsIPrefBranch> pPref(do_GetService(NS_PREFSERVICE_CONTRACTID, &rv)); 
-  if (NS_FAILED(rv)) 
+  nsCOMPtr<nsIPrefBranch> pPref(do_GetService(NS_PREFSERVICE_CONTRACTID, &rv));
+  if (NS_FAILED(rv))
     return;
 
   nsCString defaultPref;
@@ -1240,7 +1240,7 @@ static void DIR_SetStringPref(const char *prefRoot, const char *prefLeaf, const 
 
   if (NS_SUCCEEDED(pPref->GetCharPref(prefLocation.get(), getter_Copies(defaultPref))))
   {
-    /* If there's a default pref, just set ours in and let libpref worry 
+    /* If there's a default pref, just set ours in and let libpref worry
      * about potential defaults in all.js
      */
     if (value) /* added this check to make sure we have a value before we try to set it..*/
@@ -1264,7 +1264,7 @@ static void DIR_SetStringPref(const char *prefRoot, const char *prefLeaf, const 
     else
     {
       if (value && (defaultValue ? PL_strcasecmp(value, defaultValue) : value != defaultValue))
-        rv = pPref->SetCharPref (prefLocation.get(), value); 
+        rv = pPref->SetCharPref (prefLocation.get(), value);
     }
   }
 
@@ -1359,8 +1359,8 @@ static void DIR_SetLocalizedStringPref
 static void DIR_SetIntPref(const char *prefRoot, const char *prefLeaf, int32_t value, int32_t defaultValue)
 {
   nsresult rv;
-  nsCOMPtr<nsIPrefBranch> pPref(do_GetService(NS_PREFSERVICE_CONTRACTID, &rv)); 
-  if (NS_FAILED(rv)) 
+  nsCOMPtr<nsIPrefBranch> pPref(do_GetService(NS_PREFSERVICE_CONTRACTID, &rv));
+  if (NS_FAILED(rv))
     return;
 
   int32_t defaultPref;
@@ -1387,7 +1387,7 @@ static void DIR_SetIntPref(const char *prefRoot, const char *prefLeaf, int32_t v
     else
     {
       if (value != defaultValue)
-        rv = pPref->SetIntPref(prefLocation.get(), value); 
+        rv = pPref->SetIntPref(prefLocation.get(), value);
     }
   }
 
@@ -1426,7 +1426,7 @@ static void DIR_SaveServerPreferences(nsTArray<DIR_Server*> *wholeList)
   if (wholeList)
   {
     nsresult rv;
-    nsCOMPtr<nsIPrefBranch> pPref(do_GetService(NS_PREFSERVICE_CONTRACTID, &rv)); 
+    nsCOMPtr<nsIPrefBranch> pPref(do_GetService(NS_PREFSERVICE_CONTRACTID, &rv));
     if (NS_FAILED(rv)) {
       NS_WARNING("DIR_SaveServerPreferences: Failed to get the pref service\n");
       return;

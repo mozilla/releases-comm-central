@@ -18,15 +18,15 @@
 // The tables below were originally in nsAbLDAPProperties.cpp, which has since
 // gone away.
 static const char * sChangeLogRootDSEAttribs[] =
-{ 
-  "changelog", 
-  "firstChangeNumber", 
+{
+  "changelog",
+  "firstChangeNumber",
   "lastChangeNumber",
   "dataVersion"
 };
 static const char * sChangeLogEntryAttribs[] =
-{ 
-  "targetdn", 
+{
+  "targetdn",
   "changetype"
 };
 
@@ -47,18 +47,18 @@ nsAbLDAPChangeLogQuery::~nsAbLDAPChangeLogQuery()
 
 NS_IMETHODIMP nsAbLDAPChangeLogQuery::Init(const nsACString & aPrefName, nsIWebProgressListener *aProgressListener)
 {
-    if(aPrefName.IsEmpty()) 
+    if(aPrefName.IsEmpty())
         return NS_ERROR_UNEXPECTED;
 
     mDirPrefName = aPrefName;
 
     nsresult rv = InitLDAPData();
-    if(NS_FAILED(rv)) 
+    if(NS_FAILED(rv))
         return rv;
 
     // create the ChangeLog Data Processor
     mDataProcessor =  do_CreateInstance(NS_ABLDAP_PROCESSCHANGELOGDATA_CONTRACTID, &rv);
-    if(NS_FAILED(rv)) 
+    if(NS_FAILED(rv))
         return rv;
 
     // 'this' initialized
@@ -69,7 +69,7 @@ NS_IMETHODIMP nsAbLDAPChangeLogQuery::Init(const nsACString & aPrefName, nsIWebP
 
 NS_IMETHODIMP nsAbLDAPChangeLogQuery::DoReplicationQuery()
 {
-    if(!mInitialized) 
+    if(!mInitialized)
         return NS_ERROR_NOT_INITIALIZED;
 
 #ifdef USE_AUTHDLG
@@ -98,7 +98,7 @@ NS_IMETHODIMP nsAbLDAPChangeLogQuery::QueryAuthDN(const nsACString & aValueUsedT
 
     nsAutoCString dn;
     rv = mURL->GetDn(dn);
-    if(NS_FAILED(rv)) 
+    if(NS_FAILED(rv))
         return rv;
 
     rv = CreateNewLDAPOperation();
@@ -106,20 +106,20 @@ NS_IMETHODIMP nsAbLDAPChangeLogQuery::QueryAuthDN(const nsACString & aValueUsedT
 
     // XXX We really should be using LDAP_NO_ATTRS here once its exposed via
     // the XPCOM layer of the directory code.
-    return mOperation->SearchExt(dn, nsILDAPURL::SCOPE_SUBTREE, filter, 
+    return mOperation->SearchExt(dn, nsILDAPURL::SCOPE_SUBTREE, filter,
                                0, nullptr,
                                0, 0);
 }
 
 NS_IMETHODIMP nsAbLDAPChangeLogQuery::QueryRootDSE()
 {
-    if(!mInitialized) 
+    if(!mInitialized)
         return NS_ERROR_NOT_INITIALIZED;
 
     nsresult rv = CreateNewLDAPOperation();
     NS_ENSURE_SUCCESS(rv, rv);
-    return mOperation->SearchExt(EmptyCString(), nsILDAPURL::SCOPE_BASE, 
-                                 NS_LITERAL_CSTRING("objectclass=*"), 
+    return mOperation->SearchExt(EmptyCString(), nsILDAPURL::SCOPE_BASE,
+                                 NS_LITERAL_CSTRING("objectclass=*"),
                                  sizeof(sChangeLogRootDSEAttribs),
                                  sChangeLogRootDSEAttribs, 0, 0);
 }
@@ -128,14 +128,14 @@ NS_IMETHODIMP nsAbLDAPChangeLogQuery::QueryChangeLog(const nsACString & aChangeL
 {
   if (!mInitialized)
     return NS_ERROR_NOT_INITIALIZED;
-  if (aChangeLogDN.IsEmpty()) 
+  if (aChangeLogDN.IsEmpty())
     return NS_ERROR_UNEXPECTED;
 
   int32_t lastChangeNumber;
   nsresult rv = mDirectory->GetLastChangeNumber(&lastChangeNumber);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  // make sure that the filter here just have one condition 
+  // make sure that the filter here just have one condition
   // and should not be enclosed in enclosing brackets.
   // also condition '>' doesnot work, it should be '>='/
   nsAutoCString filter (NS_LITERAL_CSTRING("changenumber>="));
@@ -144,36 +144,36 @@ NS_IMETHODIMP nsAbLDAPChangeLogQuery::QueryChangeLog(const nsACString & aChangeL
   rv = CreateNewLDAPOperation();
   NS_ENSURE_SUCCESS(rv, rv);
 
-  return mOperation->SearchExt(aChangeLogDN, nsILDAPURL::SCOPE_ONELEVEL, filter, 
+  return mOperation->SearchExt(aChangeLogDN, nsILDAPURL::SCOPE_ONELEVEL, filter,
                                sizeof(sChangeLogEntryAttribs),
                                sChangeLogEntryAttribs, 0, 0);
 }
 
 NS_IMETHODIMP nsAbLDAPChangeLogQuery::QueryChangedEntries(const nsACString & aChangedEntryDN)
 {
-    if(!mInitialized) 
+    if(!mInitialized)
         return NS_ERROR_NOT_INITIALIZED;
-    if(aChangedEntryDN.IsEmpty()) 
+    if(aChangedEntryDN.IsEmpty())
         return NS_ERROR_UNEXPECTED;
 
     nsAutoCString urlFilter;
     nsresult rv = mURL->GetFilter(urlFilter);
-    if(NS_FAILED(rv)) 
+    if(NS_FAILED(rv))
         return rv;
 
     int32_t scope;
     rv = mURL->GetScope(&scope);
-    if(NS_FAILED(rv)) 
+    if(NS_FAILED(rv))
         return rv;
 
     CharPtrArrayGuard attributes;
     rv = mURL->GetAttributes(attributes.GetSizeAddr(), attributes.GetArrayAddr());
-    if(NS_FAILED(rv)) 
+    if(NS_FAILED(rv))
         return rv;
 
     rv = CreateNewLDAPOperation();
     NS_ENSURE_SUCCESS(rv, rv);
-    return mOperation->SearchExt(aChangedEntryDN, scope, urlFilter, 
+    return mOperation->SearchExt(aChangedEntryDN, scope, urlFilter,
                                attributes.GetSize(), attributes.GetArray(),
                                0, 0);
 }

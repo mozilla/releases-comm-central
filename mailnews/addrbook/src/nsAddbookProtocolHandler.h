@@ -29,14 +29,14 @@ private:
 	virtual ~nsAddbookProtocolHandler();
   nsresult    GenerateXMLOutputChannel(nsString &aOutput,
                                          nsIAddbookUrl *addbookUrl,
-                                         nsIURI *aURI, 
+                                         nsIURI *aURI,
                                          nsILoadInfo *aLoadInfo,
                                          nsIChannel **_retval);
 
-  nsresult    GeneratePrintOutput(nsIAddbookUrl *addbookUrl, 
+  nsresult    GeneratePrintOutput(nsIAddbookUrl *addbookUrl,
                                    nsString &aOutput);
 
-  nsresult    BuildDirectoryXML(nsIAbDirectory *aDirectory, 
+  nsresult    BuildDirectoryXML(nsIAbDirectory *aDirectory,
                                    nsString &aOutput);
 
   int32_t     mAddbookOperation;

@@ -53,22 +53,22 @@ BOOL nsMapiAddressBook::LoadMapiLibrary(void)
     MAPIINIT_0 mapiInit = { MAPI_INIT_VERSION, MAPI_MULTITHREAD_NOTIFICATIONS } ;
     HRESULT retCode = mMAPIInitialize(&mapiInit) ;
 
-    if (HR_FAILED(retCode)) { 
+    if (HR_FAILED(retCode)) {
         PRINTF(("Cannot initialize MAPI %08x.\n", retCode)) ; return FALSE ;
     }
     mInitialized = TRUE ;
     retCode = mMAPILogonEx(0, NULL, NULL,
-                           MAPI_NO_MAIL | 
-                           MAPI_USE_DEFAULT | 
-                           MAPI_EXTENDED | 
+                           MAPI_NO_MAIL |
+                           MAPI_USE_DEFAULT |
+                           MAPI_EXTENDED |
                            MAPI_NEW_SESSION,
                            &mRootSession) ;
-    if (HR_FAILED(retCode)) { 
+    if (HR_FAILED(retCode)) {
         PRINTF(("Cannot logon to MAPI %08x.\n", retCode)) ; return FALSE ;
     }
     mLogonDone = TRUE ;
     retCode = mRootSession->OpenAddressBook(0, NULL, 0, &mRootBook) ;
-    if (HR_FAILED(retCode)) { 
+    if (HR_FAILED(retCode)) {
         PRINTF(("Cannot open MAPI address book %08x.\n", retCode)) ;
     }
     return HR_SUCCEEDED(retCode) ;
@@ -81,19 +81,19 @@ void nsMapiAddressBook::FreeMapiLibrary(void)
             {
                 if (mRootBook) { mRootBook->Release() ; }
                 if (mRootSession) {
-                    if (mLogonDone) { 
-                        mRootSession->Logoff(NULL, 0, 0) ; 
+                    if (mLogonDone) {
+                        mRootSession->Logoff(NULL, 0, 0) ;
                         mLogonDone = FALSE ;
                     }
                     mRootSession->Release() ;
                 }
-                if (mInitialized) { 
-                    mMAPIUninitialize() ; 
+                if (mInitialized) {
+                    mMAPIUninitialize() ;
                     mInitialized = FALSE ;
                 }
-            }  
+            }
             FreeLibrary(mLibrary) ;
-            mLibrary = NULL ; 
+            mLibrary = NULL ;
         }
     }
 }
@@ -124,7 +124,7 @@ BOOL nsMapiAddressBook::Initialize(void)
         PRINTF(("Cannot load library.\n")) ;
         return FALSE ;
     }
-    mAddressBook = mRootBook ; 
+    mAddressBook = mRootBook ;
     return TRUE ;
 }
 

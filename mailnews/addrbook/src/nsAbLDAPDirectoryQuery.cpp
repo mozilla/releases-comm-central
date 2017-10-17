@@ -160,7 +160,7 @@ NS_IMETHODIMP nsAbQueryLDAPMessageListener::OnLDAPMessage(nsILDAPMessage *aMessa
     {
     case nsILDAPMessage::RES_BIND:
       rv = OnLDAPMessageBind(aMessage);
-      if (NS_FAILED(rv)) 
+      if (NS_FAILED(rv))
         // We know the bind failed and hence the message has an error, so we
         // can just call SearchResult with the message and that'll sort it out
         // for us.
@@ -266,7 +266,7 @@ nsresult nsAbQueryLDAPMessageListener::OnLDAPMessageSearchEntry(nsILDAPMessage *
 
   rv = map->SetCardPropertiesFromLDAPMessage(aMessage, card);
   NS_ENSURE_SUCCESS(rv, rv);
-  
+
   nsCOMPtr<nsIAbLDAPCard> ldapCard = do_QueryInterface(card, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
@@ -281,7 +281,7 @@ nsresult nsAbQueryLDAPMessageListener::OnLDAPMessageSearchResult(nsILDAPMessage 
   int32_t errorCode;
   nsresult rv = aMessage->GetErrorCode(&errorCode);
   NS_ENSURE_SUCCESS(rv, rv);
-    
+
   if (errorCode == nsILDAPErrors::SUCCESS || errorCode == nsILDAPErrors::SIZELIMIT_EXCEEDED)
     return mResultListener->OnQueryResult(
       nsIAbDirectoryQueryResultListener::queryResultComplete, 0);
@@ -325,31 +325,31 @@ NS_IMETHODIMP nsAbLDAPDirectoryQuery::DoQuery(nsIAbDirectory *aDirectory,
   // Get the current directory as LDAP specific
   nsCOMPtr<nsIAbLDAPDirectory> directory(do_QueryInterface(aDirectory, &rv));
   NS_ENSURE_SUCCESS(rv, rv);
-  
+
   // We also need the current URL to check as well...
   nsCOMPtr<nsILDAPURL> currentUrl;
   rv = directory->GetLDAPURL(getter_AddRefs(currentUrl));
   NS_ENSURE_SUCCESS(rv, rv);
-  
+
   nsAutoCString login;
   rv = directory->GetAuthDn(login);
   NS_ENSURE_SUCCESS(rv, rv);
-  
+
   nsAutoCString saslMechanism;
   rv = directory->GetSaslMechanism(saslMechanism);
   NS_ENSURE_SUCCESS(rv, rv);
-  
+
   uint32_t protocolVersion;
   rv = directory->GetProtocolVersion(&protocolVersion);
   NS_ENSURE_SUCCESS(rv, rv);
-  
+
   // To do:
   // Ensure query is stopped
   // If connection params have changed re-create connection
   // else reuse existing connection
-  
+
   bool redoConnection = false;
-  
+
   if (!mConnection || !mDirectoryUrl)
   {
     mDirectoryUrl = currentUrl;
@@ -422,7 +422,7 @@ NS_IMETHODIMP nsAbLDAPDirectoryQuery::DoQuery(nsIAbDirectory *aDirectory,
   // Get filter from arguments if set:
   rv = aArguments->GetFilter(filter);
   NS_ENSURE_SUCCESS(rv, rv);
-  
+
   if (filter.IsEmpty()) {
     // Get the filter
     nsCOMPtr<nsISupports> supportsExpression;
@@ -440,14 +440,14 @@ NS_IMETHODIMP nsAbLDAPDirectoryQuery::DoQuery(nsIAbDirectory *aDirectory,
   /*
    * Mozilla itself cannot arrive here with a blank filter
    * as the nsAbLDAPDirectory::StartSearch() disallows it.
-   * But 3rd party LDAP query integration with Mozilla begins 
+   * But 3rd party LDAP query integration with Mozilla begins
    * in this method.
    *
    * Default the filter string if blank, otherwise it gets
-   * set to (objectclass=*) which returns everything. Set 
-   * the default to (objectclass=inetorgperson) as this 
-   * is the most appropriate default objectclass which is 
-   * central to the makeup of the mozilla ldap address book 
+   * set to (objectclass=*) which returns everything. Set
+   * the default to (objectclass=inetorgperson) as this
+   * is the most appropriate default objectclass which is
+   * central to the makeup of the mozilla ldap address book
    * entries.
    */
   if (filter.IsEmpty())
@@ -459,10 +459,10 @@ NS_IMETHODIMP nsAbLDAPDirectoryQuery::DoQuery(nsIAbDirectory *aDirectory,
   // search filter
   nsAutoCString urlFilter;
   rv = mDirectoryUrl->GetFilter(urlFilter);
-  
+
   // if urlFilter is unset (or set to the default "objectclass=*"), there's
   // no need to AND in an empty search term, so leave prefix and suffix empty
-  
+
   nsAutoCString searchFilter;
   if (urlFilter.Length() && !urlFilter.EqualsLiteral("(objectclass=*)"))
   {
@@ -480,10 +480,10 @@ NS_IMETHODIMP nsAbLDAPDirectoryQuery::DoQuery(nsIAbDirectory *aDirectory,
       searchFilter.AssignLiteral("(&");
       searchFilter.Append(urlFilter);
     }
-  
+
     searchFilter += filter;
     searchFilter += ')';
-  } 
+  }
   else
     searchFilter = filter;
 
@@ -491,7 +491,7 @@ NS_IMETHODIMP nsAbLDAPDirectoryQuery::DoQuery(nsIAbDirectory *aDirectory,
   NS_ENSURE_SUCCESS(rv, rv);
 
   // Now formulate the search string
-  
+
   // Get the scope
   int32_t scope;
   bool doSubDirectories;
@@ -508,7 +508,7 @@ NS_IMETHODIMP nsAbLDAPDirectoryQuery::DoQuery(nsIAbDirectory *aDirectory,
   // new search details and go for it...
   if (!redoConnection)
   {
-    nsAbQueryLDAPMessageListener *msgListener = 
+    nsAbQueryLDAPMessageListener *msgListener =
       static_cast<nsAbQueryLDAPMessageListener *>(static_cast<nsILDAPMessageListener *>(mListener.get()));
     if (msgListener)
     {
@@ -520,7 +520,7 @@ NS_IMETHODIMP nsAbLDAPDirectoryQuery::DoQuery(nsIAbDirectory *aDirectory,
       return msgListener->DoTask();
     }
   }
-  
+
   nsCOMPtr<nsIAbLDAPDirectory> abLDAPDir = do_QueryInterface(aDirectory, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
@@ -549,7 +549,7 @@ NS_IMETHODIMP nsAbLDAPDirectoryQuery::DoQuery(nsIAbDirectory *aDirectory,
                                      aResultLimit, aTimeOut);
   if (_messageListener == NULL)
     return NS_ERROR_OUT_OF_MEMORY;
-  
+
   mListener = _messageListener;
   *_retval = 1;
 
@@ -570,7 +570,7 @@ NS_IMETHODIMP nsAbLDAPDirectoryQuery::StopQuery(int32_t contextID)
   if (!mListener)
     return NS_OK;
 
-  nsAbQueryLDAPMessageListener *listener = 
+  nsAbQueryLDAPMessageListener *listener =
     static_cast<nsAbQueryLDAPMessageListener *>(static_cast<nsILDAPMessageListener *>(mListener.get()));
   if (listener)
     return listener->Cancel();

@@ -21,7 +21,7 @@ nsAbOSXDirFactory::GetDirectories(const nsAString &aDirName,
                                   nsISimpleEnumerator **aDirectories)
 {
   NS_ENSURE_ARG_POINTER(aDirectories);
-  
+
   *aDirectories = nullptr;
 
   nsresult rv;
@@ -32,13 +32,13 @@ nsAbOSXDirFactory::GetDirectories(const nsAString &aDirName,
   rv = abManager->GetDirectory(NS_LITERAL_CSTRING(NS_ABOSXDIRECTORY_URI_PREFIX "/"),
                                getter_AddRefs(directory));
   NS_ENSURE_SUCCESS(rv, rv);
-  
+
   nsCOMPtr<nsIAbOSXDirectory> osxDirectory(do_QueryInterface(directory, &rv));
   NS_ENSURE_SUCCESS(rv, rv);
 
   rv = osxDirectory->AssertChildNodes();
   NS_ENSURE_SUCCESS(rv, rv);
-  
+
   return NS_NewSingletonEnumerator(aDirectories, osxDirectory);
 }
 

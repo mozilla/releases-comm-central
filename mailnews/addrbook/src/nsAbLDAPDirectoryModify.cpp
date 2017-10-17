@@ -121,7 +121,7 @@ NS_IMETHODIMP nsAbModifyLDAPMessageListener::OnLDAPMessage(nsILDAPMessage *aMess
   int32_t messageType;
   rv = aMessage->GetType(&messageType);
   NS_ENSURE_SUCCESS(rv, rv);
-  
+
   bool cancelOperation = false;
 
   // Enter lock
@@ -132,7 +132,7 @@ NS_IMETHODIMP nsAbModifyLDAPMessageListener::OnLDAPMessage(nsILDAPMessage *aMess
       return NS_OK;
 
     // for these messages, no matter the outcome, we're done
-    if ((messageType == nsILDAPMessage::RES_ADD) || 
+    if ((messageType == nsILDAPMessage::RES_ADD) ||
         (messageType == nsILDAPMessage::RES_DELETE) ||
         (messageType == nsILDAPMessage::RES_MODIFY))
       mFinished = true;
@@ -151,7 +151,7 @@ NS_IMETHODIMP nsAbModifyLDAPMessageListener::OnLDAPMessage(nsILDAPMessage *aMess
     {
     case nsILDAPMessage::RES_BIND:
       rv = OnLDAPMessageBind(aMessage);
-      if (NS_FAILED(rv)) 
+      if (NS_FAILED(rv))
         // We know the bind failed and hence the message has an error, so we
         // can just call ModifyResult with the message and that'll sort it out
         // for us.
@@ -165,7 +165,7 @@ NS_IMETHODIMP nsAbModifyLDAPMessageListener::OnLDAPMessage(nsILDAPMessage *aMess
     case nsILDAPMessage::RES_MODDN:
       mFlagRename = false;
       rv = OnLDAPMessageRenameResult(aMessage);
-      if (NS_FAILED(rv)) 
+      if (NS_FAILED(rv))
         // Rename failed, so we stop here
         mFinished = true;
       break;
@@ -233,11 +233,11 @@ nsresult nsAbModifyLDAPMessageListener::OnLDAPMessageModifyResult(nsILDAPMessage
 {
   nsresult rv;
   NS_ENSURE_ARG_POINTER(aMessage);
-  
+
   int32_t errCode;
   rv = aMessage->GetErrorCode(&errCode);
   NS_ENSURE_SUCCESS(rv, rv);
- 
+
   if (errCode != nsILDAPErrors::SUCCESS)
   {
     nsAutoCString errMessage;
@@ -248,7 +248,7 @@ nsresult nsAbModifyLDAPMessageListener::OnLDAPMessageModifyResult(nsILDAPMessage
            errCode, errMessage.get());
     return NS_ERROR_FAILURE;
   }
-  
+
   printf("LDAP modification succeeded\n");
   return NS_OK;
 }
@@ -257,7 +257,7 @@ nsresult nsAbModifyLDAPMessageListener::OnLDAPMessageRenameResult(nsILDAPMessage
 {
   nsresult rv;
   NS_ENSURE_ARG_POINTER(aMessage);
-  
+
   int32_t errCode;
   rv = aMessage->GetErrorCode(&errCode);
   NS_ENSURE_SUCCESS(rv, rv);
@@ -272,17 +272,17 @@ nsresult nsAbModifyLDAPMessageListener::OnLDAPMessageRenameResult(nsILDAPMessage
            errCode, errMessage.get());
     return NS_ERROR_FAILURE;
   }
-  
+
   // Rename succeeded, now update the card DN and
   // process the main task
   mCardDN.Assign(mNewRDN);
   mCardDN.Append(',');
   mCardDN.Append(mNewBaseDN);
-     
+
   printf("LDAP rename succeeded\n");
   return DoTask();
 }
- 
+
 nsAbLDAPDirectoryModify::nsAbLDAPDirectoryModify()
 {
 }
@@ -310,7 +310,7 @@ nsresult nsAbLDAPDirectoryModify::DoModify(nsIAbLDAPDirectory *directory,
   // it's an error if we don't have a dn
   if (cardDN.IsEmpty())
     return NS_ERROR_INVALID_ARG;
- 
+
   nsCOMPtr<nsILDAPURL> currentUrl;
   rv = directory->GetLDAPURL(getter_AddRefs(currentUrl));
   NS_ENSURE_SUCCESS(rv, rv);
@@ -318,7 +318,7 @@ nsresult nsAbLDAPDirectoryModify::DoModify(nsIAbLDAPDirectory *directory,
   // Get the ldap connection
   nsCOMPtr<nsILDAPConnection> ldapConnection =
     do_CreateInstance(NS_LDAPCONNECTION_CONTRACTID, &rv);
-  
+
   nsCOMPtr<nsIMutableArray> serverSearchControls;
   rv = directory->GetSearchServerControls(getter_AddRefs(serverSearchControls));
   NS_ENSURE_SUCCESS(rv, rv);
@@ -334,7 +334,7 @@ nsresult nsAbLDAPDirectoryModify::DoModify(nsIAbLDAPDirectory *directory,
   if (alreadyInitialized)
   {
     nsAbQueryLDAPMessageListener *msgListener =
-      NS_STATIC_CAST(nsAbQueryLDAPMessageListener *, 
+      NS_STATIC_CAST(nsAbQueryLDAPMessageListener *,
                      NS_STATIC_CAST(nsILDAPMessageListener *, mListener.get()));
     if (msgListener)
       {
@@ -363,7 +363,7 @@ nsresult nsAbLDAPDirectoryModify::DoModify(nsIAbLDAPDirectory *directory,
                                       0);
   if (_messageListener == NULL)
     return NS_ERROR_OUT_OF_MEMORY;
-  
+
   // Now lets initialize the LDAP connection properly. We'll kick
   // off the bind operation in the callback function, |OnLDAPInit()|.
   return ldapConnection->Init(currentUrl, login,

@@ -55,7 +55,7 @@ NS_IMETHODIMP nsAbLDAPProcessChangeLogData::Init(nsIAbLDAPReplicationQuery * que
    mChangeLogQuery = do_QueryInterface(query, &rv);
    if(NS_FAILED(rv))
        return rv;
-   
+
    // Call the parent's Init now.
    return nsAbLDAPProcessReplicationData::Init(query, progressListener);
 }
@@ -63,7 +63,7 @@ NS_IMETHODIMP nsAbLDAPProcessChangeLogData::Init(nsIAbLDAPReplicationQuery * que
 nsresult nsAbLDAPProcessChangeLogData::OnLDAPBind(nsILDAPMessage *aMessage)
 {
     NS_ENSURE_ARG_POINTER(aMessage);
-	if(!mInitialized) 
+	if(!mInitialized)
         return NS_ERROR_NOT_INITIALIZED;
 
     int32_t errCode;
@@ -82,14 +82,14 @@ nsresult nsAbLDAPProcessChangeLogData::OnLDAPBind(nsILDAPMessage *aMessage)
     switch(mState) {
     case kAnonymousBinding :
         rv = GetAuthData();
-        if(NS_SUCCEEDED(rv)) 
+        if(NS_SUCCEEDED(rv))
             rv = mChangeLogQuery->QueryAuthDN(mAuthUserID);
-        if(NS_SUCCEEDED(rv)) 
+        if(NS_SUCCEEDED(rv))
             mState = kSearchingAuthDN;
         break;
     case kAuthenticatedBinding :
         rv = mChangeLogQuery->QueryRootDSE();
-        if(NS_SUCCEEDED(rv)) 
+        if(NS_SUCCEEDED(rv))
             mState = kSearchingRootDSE;
         break;
     } //end of switch
@@ -103,10 +103,10 @@ nsresult nsAbLDAPProcessChangeLogData::OnLDAPBind(nsILDAPMessage *aMessage)
 nsresult nsAbLDAPProcessChangeLogData::OnLDAPSearchEntry(nsILDAPMessage *aMessage)
 {
     NS_ENSURE_ARG_POINTER(aMessage);
-    if(!mInitialized) 
+    if(!mInitialized)
         return NS_ERROR_NOT_INITIALIZED;
 
-    nsresult rv = NS_OK;       
+    nsresult rv = NS_OK;
 
     switch(mState)
     {
@@ -143,7 +143,7 @@ nsresult nsAbLDAPProcessChangeLogData::OnLDAPSearchResult(nsILDAPMessage *aMessa
         return NS_ERROR_NOT_INITIALIZED;
 
     int32_t errorCode;
-    
+
     nsresult rv = aMessage->GetErrorCode(&errorCode);
 
     if(NS_SUCCEEDED(rv))
@@ -158,11 +158,11 @@ nsresult nsAbLDAPProcessChangeLogData::OnLDAPSearchResult(nsILDAPMessage *aMessa
                 // Before starting the changeLog check the DB file, if its not there or bogus
                 // we need to create a new one and set to all.
                 nsCOMPtr<nsIAddrBookSession> abSession = do_GetService(NS_ADDRBOOKSESSION_CONTRACTID, &rv);
-                if (NS_FAILED(rv)) 
+                if (NS_FAILED(rv))
                     break;
                 nsCOMPtr<nsIFile> dbPath;
                 rv = abSession->GetUserProfileDirectory(getter_AddRefs(dbPath));
-                if (NS_FAILED(rv)) 
+                if (NS_FAILED(rv))
                     break;
 
                 nsAutoCString fileName;
@@ -171,17 +171,17 @@ nsresult nsAbLDAPProcessChangeLogData::OnLDAPSearchResult(nsILDAPMessage *aMessa
                   break;
 
                 rv = dbPath->AppendNative(fileName);
-                if (NS_FAILED(rv)) 
+                if (NS_FAILED(rv))
                     break;
 
                 bool fileExists;
                 rv = dbPath->Exists(&fileExists);
-                if (NS_FAILED(rv)) 
+                if (NS_FAILED(rv))
                     break;
 
                 int64_t fileSize;
                 rv = dbPath->GetFileSize(&fileSize);
-                if(NS_FAILED(rv)) 
+                if(NS_FAILED(rv))
                     break;
 
                 if (!fileExists || !fileSize)
@@ -195,7 +195,7 @@ nsresult nsAbLDAPProcessChangeLogData::OnLDAPSearchResult(nsILDAPMessage *aMessa
                    rv = OpenABForReplicatedDir(true);
                 if (NS_FAILED(rv))
                    return rv;
-                
+
                 // Now start the appropriate query
                 rv = OnSearchRootDSEDone();
                 break;
@@ -228,18 +228,18 @@ nsresult nsAbLDAPProcessChangeLogData::OnLDAPSearchResult(nsILDAPMessage *aMessa
 
 nsresult nsAbLDAPProcessChangeLogData::GetAuthData()
 {
-    if(!mInitialized) 
+    if(!mInitialized)
         return NS_ERROR_NOT_INITIALIZED;
 
     nsCOMPtr<nsIWindowWatcher> wwatch(do_GetService(NS_WINDOWWATCHER_CONTRACTID));
     if (!wwatch)
         return NS_ERROR_FAILURE;
-    
+
     nsCOMPtr<nsIAuthPrompt> dialog;
     nsresult rv = wwatch->GetNewAuthPrompter(0, getter_AddRefs(dialog));
     if (NS_FAILED(rv))
         return rv;
-    if (!dialog) 
+    if (!dialog)
         return NS_ERROR_FAILURE;
 
     nsCOMPtr<nsILDAPURL> url;
@@ -249,7 +249,7 @@ nsresult nsAbLDAPProcessChangeLogData::GetAuthData()
 
     nsAutoCString serverUri;
     rv = url->GetSpec(serverUri);
-    if (NS_FAILED(rv)) 
+    if (NS_FAILED(rv))
         return rv;
 
     nsCOMPtr<nsIStringBundleService> bundleService =
@@ -257,26 +257,26 @@ nsresult nsAbLDAPProcessChangeLogData::GetAuthData()
     NS_ENSURE_TRUE(bundleService, NS_ERROR_UNEXPECTED);
     nsCOMPtr<nsIStringBundle> bundle;
     rv = bundleService->CreateBundle("chrome://messenger/locale/addressbook/addressBook.properties", getter_AddRefs(bundle));
-    if (NS_FAILED (rv)) 
+    if (NS_FAILED (rv))
         return rv ;
 
     nsString title;
     rv = bundle->GetStringFromName("AuthDlgTitle", title);
-    if (NS_FAILED (rv)) 
+    if (NS_FAILED (rv))
         return rv ;
 
     nsString desc;
     rv = bundle->GetStringFromName("AuthDlgDesc", desc);
-    if (NS_FAILED (rv)) 
+    if (NS_FAILED (rv))
         return rv ;
 
     nsString username;
     nsString password;
     bool btnResult = false;
-	rv = dialog->PromptUsernameAndPassword(title, desc, 
-                                            NS_ConvertUTF8toUTF16(serverUri).get(), 
+	rv = dialog->PromptUsernameAndPassword(title, desc,
+                                            NS_ConvertUTF8toUTF16(serverUri).get(),
                                             nsIAuthPrompt::SAVE_PASSWORD_PERMANENTLY,
-                                            getter_Copies(username), getter_Copies(password), 
+                                            getter_Copies(username), getter_Copies(password),
                                             &btnResult);
     if(NS_SUCCEEDED(rv) && btnResult) {
         CopyUTF16toUTF8(username, mAuthUserID);
@@ -315,7 +315,7 @@ nsresult nsAbLDAPProcessChangeLogData::ParseRootDSEEntry(nsILDAPMessage *aMessag
     CharPtrArrayGuard attrs;
     nsresult rv = aMessage->GetAttributes(attrs.GetSizeAddr(), attrs.GetArrayAddr());
     // No attributes
-    if(NS_FAILED(rv)) 
+    if(NS_FAILED(rv))
         return rv;
 
     for(int32_t i=attrs.GetSize()-1; i >= 0; i--) {
@@ -387,14 +387,14 @@ nsresult nsAbLDAPProcessChangeLogData::OnSearchRootDSEDone()
 nsresult nsAbLDAPProcessChangeLogData::ParseChangeLogEntries(nsILDAPMessage *aMessage)
 {
     NS_ENSURE_ARG_POINTER(aMessage);
-    if(!mInitialized) 
+    if(!mInitialized)
         return NS_ERROR_NOT_INITIALIZED;
 
     // Populate the RootDSEChangeLogEntry
     CharPtrArrayGuard attrs;
     nsresult rv = aMessage->GetAttributes(attrs.GetSizeAddr(), attrs.GetArrayAddr());
     // No attributes
-    if(NS_FAILED(rv)) 
+    if(NS_FAILED(rv))
         return rv;
 
     nsAutoString targetDN;
@@ -427,7 +427,7 @@ nsresult nsAbLDAPProcessChangeLogData::ParseChangeLogEntries(nsILDAPMessage *aMe
     }
 
 #ifdef DEBUG_rdayal
-    printf ("ChangeLog Replication : Updated Entry : %s for OpType : %u\n", 
+    printf ("ChangeLog Replication : Updated Entry : %s for OpType : %u\n",
                                     NS_ConvertUTF16toUTF8(targetDN).get(), operation);
 #endif
 
@@ -447,7 +447,7 @@ nsresult nsAbLDAPProcessChangeLogData::ParseChangeLogEntries(nsILDAPMessage *aMe
         // For modify, delete the entry from DB and add updated entry
         // we do this since we cannot access the changes attribs of changelog
         rv = DeleteCard(targetDN);
-        if (NS_SUCCEEDED(rv)) 
+        if (NS_SUCCEEDED(rv))
             if(!(mEntriesToAdd.IndexOf(targetDN) >= 0))
                 mEntriesToAdd.AppendString(targetDN);
         break;
@@ -466,7 +466,7 @@ nsresult nsAbLDAPProcessChangeLogData::ParseChangeLogEntries(nsILDAPMessage *aMe
 
 nsresult nsAbLDAPProcessChangeLogData::OnFindingChangesDone()
 {
-    if(!mInitialized) 
+    if(!mInitialized)
         return NS_ERROR_NOT_INITIALIZED;
 
 #ifdef DEBUG_rdayal
@@ -510,7 +510,7 @@ nsresult nsAbLDAPProcessChangeLogData::OnFindingChangesDone()
 
 nsresult nsAbLDAPProcessChangeLogData::OnReplicatingChangeDone()
 {
-    if(!mInitialized) 
+    if(!mInitialized)
         return NS_ERROR_NOT_INITIALIZED;
 
     nsresult rv = NS_OK;

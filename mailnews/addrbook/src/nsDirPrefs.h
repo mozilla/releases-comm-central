@@ -33,9 +33,9 @@ typedef enum
 
 typedef enum
 {
-	idNone = 0,					/* Special value                          */ 
+	idNone = 0,					/* Special value                          */
 	idPrefName,
-	idPosition, 
+	idPosition,
 	idDescription,
 	idFileName,
 	idUri,
@@ -60,9 +60,9 @@ typedef struct DIR_Server
   bool savingServer;
 } DIR_Server;
 
-/* We are developing a new model for managing DIR_Servers. In the 4.0x world, the FEs managed each list. 
+/* We are developing a new model for managing DIR_Servers. In the 4.0x world, the FEs managed each list.
 	Calls to FE_GetDirServer caused the FEs to manage and return the DIR_Server list. In our new view of the
-	world, the back end does most of the list management so we are going to have the back end create and 
+	world, the back end does most of the list management so we are going to have the back end create and
 	manage the list. Replace calls to FE_GetDirServers() with DIR_GetDirServers(). */
 
 nsTArray<DIR_Server*>* DIR_GetDirectories();
@@ -71,7 +71,7 @@ nsresult DIR_ShutDown(void);  /* FEs should call this when the app is shutting d
 
 nsresult DIR_AddNewAddressBook(const nsAString &dirName,
                                const nsACString &fileName,
-                               const nsACString &uri, 
+                               const nsACString &uri,
                                DirectoryType dirType,
                                const nsACString &prefName,
                                DIR_Server** pServer);

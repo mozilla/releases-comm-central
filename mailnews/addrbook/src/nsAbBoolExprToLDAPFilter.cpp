@@ -35,7 +35,7 @@ nsresult nsAbBoolExprToLDAPFilter::FilterExpression (
     nsCOMPtr<nsIArray> childExpressions;
     nsresult rv = expression->GetExpressions(getter_AddRefs(childExpressions));
     NS_ENSURE_SUCCESS(rv, rv);
-    
+
     uint32_t count;
     rv = childExpressions->GetLength(&count);
     NS_ENSURE_SUCCESS(rv, rv);
@@ -48,16 +48,16 @@ nsresult nsAbBoolExprToLDAPFilter::FilterExpression (
     NS_ENSURE_SUCCESS(rv, rv);
 
     /*
-     * 3rd party query integration with Mozilla is achieved 
+     * 3rd party query integration with Mozilla is achieved
      * by calling nsAbLDAPDirectoryQuery::DoQuery(). Thus
      * we can arrive here with a query asking for all the
      * ldap attributes using the card:nsIAbCard interface.
      *
-     * So we need to check that we are not creating a condition 
-     * filter against this expression otherwise we will end up with an invalid 
+     * So we need to check that we are not creating a condition
+     * filter against this expression otherwise we will end up with an invalid
      * filter equal to "(|)".
     */
-    
+
     if (count == 1 )
     {
         nsCOMPtr<nsIAbBooleanConditionString>
@@ -146,7 +146,7 @@ nsresult nsAbBoolExprToLDAPFilter::FilterCondition (
     if (flags & TRANSLATE_CARD_PROPERTY)
     {
         rv = map->GetFirstAttribute (name, ldapAttr);
-        if (!(flags & ALLOW_NON_CONVERTABLE_CARD_PROPERTY) && 
+        if (!(flags & ALLOW_NON_CONVERTABLE_CARD_PROPERTY) &&
             !ATTRMAP_FOUND_ATTR(rv, ldapAttr))
             return NS_OK;
     }
@@ -163,12 +163,12 @@ nsresult nsAbBoolExprToLDAPFilter::FilterCondition (
     switch (conditionType)
     {
         case nsIAbBooleanConditionTypes::DoesNotExist:
-            filter.AppendLiteral("(!("); 
+            filter.AppendLiteral("(!(");
             filter.Append(ldapAttr);
             filter.AppendLiteral("=*))");
             break;
         case nsIAbBooleanConditionTypes::Exists:
-            filter.Append('('); 
+            filter.Append('(');
             filter.Append(ldapAttr);
             filter.AppendLiteral("=*)");
             break;

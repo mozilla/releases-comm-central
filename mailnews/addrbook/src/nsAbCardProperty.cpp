@@ -1102,7 +1102,7 @@ NS_IMETHODIMP nsAbCardProperty::GenerateName(int32_t aGenerateFormat,
       nsCOMPtr<nsIStringBundleService> stringBundleService =
         mozilla::services::GetStringBundleService();
       NS_ENSURE_TRUE(stringBundleService, NS_ERROR_UNEXPECTED);
-        
+
       rv = stringBundleService->CreateBundle(sAddrbookProperties,
                                              getter_AddRefs(bundle));
       NS_ENSURE_SUCCESS(rv, rv);
@@ -1122,7 +1122,7 @@ NS_IMETHODIMP nsAbCardProperty::GenerateName(int32_t aGenerateFormat,
       rv = bundle->FormatStringFromName("firstLastFormat",
                                         stringParams, 2, result);
     }
-    NS_ENSURE_SUCCESS(rv, rv); 
+    NS_ENSURE_SUCCESS(rv, rv);
 
     aResult.Assign(result);
   }

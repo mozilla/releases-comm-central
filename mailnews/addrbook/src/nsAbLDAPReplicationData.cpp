@@ -14,7 +14,7 @@
 #include "nsMsgUtils.h"
 
 // once bug # 101252 gets fixed, this should be reverted back to be non threadsafe
-// implementation is not really thread safe since each object should exist 
+// implementation is not really thread safe since each object should exist
 // independently along with its related independent nsAbLDAPReplicationQuery object.
 NS_IMPL_ISUPPORTS(nsAbLDAPProcessReplicationData, nsIAbLDAPProcessReplicationData, nsILDAPMessageListener)
 
@@ -65,7 +65,7 @@ NS_IMETHODIMP nsAbLDAPProcessReplicationData::Init(
     mQuery = nullptr;
     return rv;
   }
-  
+
   rv = mDirectory->GetSaslMechanism(mSaslMechanism);
   if (NS_FAILED(rv)) {
     mQuery = nullptr;
@@ -77,18 +77,18 @@ NS_IMETHODIMP nsAbLDAPProcessReplicationData::Init(
   return rv;
 }
 
-NS_IMETHODIMP nsAbLDAPProcessReplicationData::GetReplicationState(int32_t *aReplicationState) 
+NS_IMETHODIMP nsAbLDAPProcessReplicationData::GetReplicationState(int32_t *aReplicationState)
 {
     NS_ENSURE_ARG_POINTER(aReplicationState);
-    *aReplicationState = mState; 
-    return NS_OK; 
+    *aReplicationState = mState;
+    return NS_OK;
 }
 
-NS_IMETHODIMP nsAbLDAPProcessReplicationData::GetProtocolUsed(int32_t *aProtocolUsed) 
+NS_IMETHODIMP nsAbLDAPProcessReplicationData::GetProtocolUsed(int32_t *aProtocolUsed)
 {
     NS_ENSURE_ARG_POINTER(aProtocolUsed);
-    *aProtocolUsed = mProtocol; 
-    return NS_OK; 
+    *aProtocolUsed = mProtocol;
+    return NS_OK;
 }
 
 NS_IMETHODIMP nsAbLDAPProcessReplicationData::OnLDAPMessage(nsILDAPMessage *aMessage)
@@ -225,7 +225,7 @@ nsresult nsAbLDAPProcessReplicationData::OnLDAPSearchEntry(nsILDAPMessage *aMess
     NS_ENSURE_ARG_POINTER(aMessage);
     if (!mInitialized)
         return NS_ERROR_NOT_INITIALIZED;
-    // since this runs on the main thread and is single threaded, this will 
+    // since this runs on the main thread and is single threaded, this will
     // take care of entries returned by LDAP Connection thread after Abort.
     if (!mReplicationDB || !mDBOpen)
         return NS_ERROR_FAILURE;
@@ -270,7 +270,7 @@ nsresult nsAbLDAPProcessReplicationData::OnLDAPSearchEntry(nsILDAPMessage *aMess
         Abort();
         return rv;
     }
-    
+
 
     mCount ++;
 
@@ -293,7 +293,7 @@ nsresult nsAbLDAPProcessReplicationData::OnLDAPSearchResult(nsILDAPMessage *aMes
 #endif
 
     NS_ENSURE_ARG_POINTER(aMessage);
-    if(!mInitialized) 
+    if(!mInitialized)
         return NS_ERROR_NOT_INITIALIZED;
 
     int32_t errorCode;
@@ -331,7 +331,7 @@ nsresult nsAbLDAPProcessReplicationData::OnLDAPSearchResult(nsILDAPMessage *aMes
             NS_ASSERTION(NS_SUCCEEDED(rv), "Replication File Remove on Failure failed");
             if(NS_SUCCEEDED(rv)) {
                 // now put back the backed up replicated file
-                if(mBackupReplicationFile && mDirectory) 
+                if(mBackupReplicationFile && mDirectory)
                 {
                   nsAutoCString fileName;
                   rv = mDirectory->GetReplicationFileName(fileName);
@@ -368,7 +368,7 @@ nsresult nsAbLDAPProcessReplicationData::OpenABForReplicatedDir(bool aCreate)
     return rv;
   }
 
-    // if the AB DB already exists backup existing one, 
+    // if the AB DB already exists backup existing one,
     // in case if the user cancels or Abort put back the backed up file
     bool fileExists;
     rv = mReplicationFile->Exists(&fileExists);
@@ -377,7 +377,7 @@ nsresult nsAbLDAPProcessReplicationData::OpenABForReplicatedDir(bool aCreate)
         // we create a backup file here since we need to cleanup the existing file
         // for create and then commit so instead of deleting existing cards we just
         // clone the existing one for a much better performance - for Download All.
-        // And also important in case if replication fails we donot lose user's existing 
+        // And also important in case if replication fails we donot lose user's existing
         // replicated data for both Download all and Changelog.
         nsCOMPtr<nsIFile> clone;
         rv = mReplicationFile->Clone(getter_AddRefs(clone));
@@ -421,7 +421,7 @@ nsresult nsAbLDAPProcessReplicationData::OpenABForReplicatedDir(bool aCreate)
             // set backup file to existing replication file for copy
             mBackupReplicationFile->SetNativeLeafName(fileName);
 
-            // specify the parent here specifically, 
+            // specify the parent here specifically,
             // passing nullptr to copy to the same dir actually renames existing file
             // instead of making another copy of the existing file.
             nsCOMPtr<nsIFile> parent;
@@ -438,7 +438,7 @@ nsresult nsAbLDAPProcessReplicationData::OpenABForReplicatedDir(bool aCreate)
         }
     }
 
-    nsCOMPtr<nsIAddrDatabase> addrDBFactory = 
+    nsCOMPtr<nsIAddrDatabase> addrDBFactory =
              do_GetService(NS_ADDRDATABASE_CONTRACTID, &rv);
     if(NS_FAILED(rv)) {
         if (mBackupReplicationFile)
@@ -446,7 +446,7 @@ nsresult nsAbLDAPProcessReplicationData::OpenABForReplicatedDir(bool aCreate)
         Done(false);
         return rv;
     }
-    
+
     rv = addrDBFactory->Open(mReplicationFile, aCreate, true, getter_AddRefs(mReplicationDB));
     if(NS_FAILED(rv)) {
         Done(false);
@@ -461,7 +461,7 @@ nsresult nsAbLDAPProcessReplicationData::OpenABForReplicatedDir(bool aCreate)
 
 void nsAbLDAPProcessReplicationData::Done(bool aSuccess)
 {
-   if (!mInitialized) 
+   if (!mInitialized)
        return;
 
    mState = kReplicationDone;

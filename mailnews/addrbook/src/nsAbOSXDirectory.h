@@ -31,7 +31,7 @@ class nsIAbOSXDirectory : public nsISupports
 {
 public:
   NS_DECLARE_STATIC_IID_ACCESSOR(NS_IABOSXDIRECTORY_IID)
-  
+
   virtual nsresult AssertChildNodes() = 0;
   virtual nsresult Update() = 0;
   virtual nsresult AssertDirectory(nsIAbManager *aManager,
@@ -57,13 +57,13 @@ public nsIAbOSXDirectory
 {
 public:
   nsAbOSXDirectory();
-  
+
   NS_DECL_ISUPPORTS_INHERITED
   NS_DECL_NSIABDIRSEARCHLISTENER
-    
+
   // nsIAbOSXDirectory method
   NS_IMETHOD Init(const char *aUri) override;
-  
+
   // nsAbDirProperty methods
   NS_IMETHOD GetReadOnly(bool *aReadOnly) override;
   NS_IMETHOD GetChildCards(nsISimpleEnumerator **aCards) override;
@@ -94,7 +94,7 @@ public:
                         nsIMutableArray *aCardList) override;
   nsresult UnassertDirectory(nsIAbManager *aManager,
                              nsIAbDirectory *aDirectory) override;
-  
+
   nsresult Update() override;
 
   nsresult DeleteUid(const nsACString &aUid) override;

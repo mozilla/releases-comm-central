@@ -3,7 +3,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#include "nsAbMDBDirProperty.h"	 
+#include "nsAbMDBDirProperty.h"	
 #include "nsIServiceManager.h"
 #include "nsString.h"
 #include "nsCOMPtr.h"
@@ -22,7 +22,7 @@ nsAbMDBDirProperty::nsAbMDBDirProperty(void)
 }
 
 nsAbMDBDirProperty::~nsAbMDBDirProperty(void)
-{ 
+{
 }
 
 
@@ -89,7 +89,7 @@ NS_IMETHODIMP nsAbMDBDirProperty::CopyDBMailList(nsIAbMDBDirectory* srcListDB)
 {
 	nsresult err = NS_OK;
 	nsCOMPtr<nsIAbDirectory> srcList(do_QueryInterface(srcListDB));
-	if (NS_FAILED(err)) 
+	if (NS_FAILED(err))
 		return NS_ERROR_NULL_POINTER;
 
 	CopyMailList (srcList);

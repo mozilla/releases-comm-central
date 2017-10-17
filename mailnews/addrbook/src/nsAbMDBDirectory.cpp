@@ -3,7 +3,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#include "nsAbMDBDirectory.h" 
+#include "nsAbMDBDirectory.h"
 #include "nsString.h"
 #include "nsCOMPtr.h"
 #include "nsAbBaseCID.h"
@@ -117,7 +117,7 @@ NS_IMETHODIMP nsAbMDBDirectory::Init(const char *aUri)
           }
         }
       }
-    }     
+    }
     NS_FREE_XPCOM_ALLOCATED_POINTER_ARRAY(childCount, childArray);
 
     NS_ASSERTION(!m_DirPrefId.IsEmpty(),
@@ -170,7 +170,7 @@ nsresult nsAbMDBDirectory::RemoveCardFromAddressList(nsIAbCard* card)
       nsCOMPtr<nsIMutableArray> pAddressLists;
       listDir->GetAddressLists(getter_AddRefs(pAddressLists));
       if (pAddressLists)
-      {  
+      {
         uint32_t total;
         rv = pAddressLists->GetLength(&total);
         for (j = total - 1; j >= 0; j--)
@@ -257,16 +257,16 @@ nsresult nsAbMDBDirectory::NotifyItemDeleted(nsISupports *item)
 // nsIAbMDBDirectory methods
 
 NS_IMETHODIMP nsAbMDBDirectory::ClearDatabase()
-{       
+{
   if (mIsQueryURI)
     return NS_ERROR_NOT_IMPLEMENTED;
 
   if (mDatabase)
   {
     mDatabase->RemoveListener(this);
-    mDatabase = nullptr; 
+    mDatabase = nullptr;
   }
-  return NS_OK; 
+  return NS_OK;
 }
 
 NS_IMETHODIMP nsAbMDBDirectory::RemoveElementsFromAddressList()
@@ -482,7 +482,7 @@ NS_IMETHODIMP nsAbMDBDirectory::DeleteCards(nsIArray *aCards)
           if (m_AddressList)
             rv = m_AddressList->GetLength(&cardTotal);
           for (i = cardTotal - 1; i >= 0; i--)
-          {            
+          {
             nsCOMPtr<nsIAbCard> arrayCard(do_QueryElementAt(m_AddressList, i, &rv));
             if (arrayCard)
             {
@@ -528,7 +528,7 @@ NS_IMETHODIMP nsAbMDBDirectory::DeleteCards(nsIArray *aCards)
             }
           }
           else
-          { 
+          {
             rv = RemoveCardFromAddressList(card);
             NS_ENSURE_SUCCESS(rv,rv);
           }
@@ -572,7 +572,7 @@ NS_IMETHODIMP nsAbMDBDirectory::HasDirectory(nsIAbDirectory *dir, bool *hasDir)
 
   nsCOMPtr<nsIAbMDBDirectory> dbdir(do_QueryInterface(dir, &rv));
   NS_ENSURE_SUCCESS(rv, rv);
-  
+
   bool bIsMailingList  = false;
   dir->GetIsMailList(&bIsMailingList);
   if (bIsMailingList)
@@ -629,7 +629,7 @@ NS_IMETHODIMP nsAbMDBDirectory::AddMailList(nsIAbDirectory *list, nsIAbDirectory
 
     dblist = do_QueryInterface(newlist, &rv);
     NS_ENSURE_SUCCESS(rv, rv);
-    
+
     mDatabase->CreateMailListAndAddToDB(newlist, true, this);
   }
   else
@@ -726,12 +726,12 @@ NS_IMETHODIMP nsAbMDBDirectory::DropCard(nsIAbCard* aCard, bool needToCopyCard)
   }
   else {
     newCard = aCard;
-  }  
+  }
 
   if (m_IsMailList) {
     if (needToCopyCard) {
       nsCOMPtr <nsIMdbRow> cardRow;
-      // if card doesn't exist in db, add the card to the directory that 
+      // if card doesn't exist in db, add the card to the directory that
       // contains the mailing list.
       mDatabase->FindRowByCard(newCard, getter_AddRefs(cardRow));
       if (!cardRow)
@@ -846,7 +846,7 @@ NS_IMETHODIMP nsAbMDBDirectory::OnCardEntryChange
     rv = NS_ERROR_UNEXPECTED;
     break;
   }
-    
+
   NS_ENSURE_SUCCESS(rv, rv);
   return rv;
 }
@@ -855,13 +855,13 @@ NS_IMETHODIMP nsAbMDBDirectory::OnListEntryChange
 (uint32_t abCode, nsIAbDirectory *list)
 {
   nsresult rv = NS_OK;
-  
+
   if (abCode == AB_NotifyPropertyChanged && list)
   {
     bool bIsMailList = false;
     rv = list->GetIsMailList(&bIsMailList);
     NS_ENSURE_SUCCESS(rv,rv);
-    
+
     nsCOMPtr<nsIAbMDBDirectory> dblist(do_QueryInterface(list, &rv));
     NS_ENSURE_SUCCESS(rv,rv);
 
@@ -907,7 +907,7 @@ NS_IMETHODIMP nsAbMDBDirectory::StartSearch()
   rv = arguments->SetExpression(expression);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  // don't search the subdirectories 
+  // don't search the subdirectories
   // if the current directory is a mailing list, it won't have any subdirectories
   // if the current directory is a addressbook, searching both it
   // and the subdirectories (the mailing lists), will yield duplicate results
@@ -939,7 +939,7 @@ NS_IMETHODIMP nsAbMDBDirectory::StartSearch()
   }
 
   // Initiate the proxy query with the no query directory
-  nsCOMPtr<nsIAbDirectoryQueryProxy> queryProxy = 
+  nsCOMPtr<nsIAbDirectoryQueryProxy> queryProxy =
       do_CreateInstance(NS_ABDIRECTORYQUERYPROXY_CONTRACTID, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 

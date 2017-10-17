@@ -50,13 +50,13 @@ protected:
   int32_t         mCount;
   bool            mDBOpen;
   bool            mInitialized;
-  
+
   nsCOMPtr<nsIAbLDAPDirectory> mDirectory;
   nsCOMPtr<nsIAbLDAPAttributeMap> mAttrMap; // maps ab properties to ldap attrs
-  
+
   virtual nsresult OnLDAPSearchEntry(nsILDAPMessage *aMessage);
   virtual nsresult OnLDAPSearchResult(nsILDAPMessage *aMessage);
-  
+
   nsresult OpenABForReplicatedDir(bool bCreate);
   nsresult DeleteCard(nsString & aDn);
   void Done(bool aSuccess);

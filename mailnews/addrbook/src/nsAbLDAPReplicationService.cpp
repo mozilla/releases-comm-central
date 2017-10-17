@@ -19,7 +19,7 @@
 
 NS_IMPL_ISUPPORTS(nsAbLDAPReplicationService, nsIAbLDAPReplicationService)
 
-nsAbLDAPReplicationService::nsAbLDAPReplicationService() 
+nsAbLDAPReplicationService::nsAbLDAPReplicationService()
     : mReplicating(false)
 {
 }
@@ -97,7 +97,7 @@ NS_IMETHODIMP nsAbLDAPReplicationService::CancelReplication(nsIAbLDAPDirectory *
   if (aDirectory == mDirectory)
   {
     if (mQuery && mReplicating)
-      rv = mQuery->CancelQuery();  
+      rv = mQuery->CancelQuery();
   }
 
   // If query has been cancelled successfully

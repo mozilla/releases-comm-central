@@ -5,7 +5,7 @@
 
 #ifndef __nsAbManager_h
 #define __nsAbManager_h
- 
+
 #include "nsIAbManager.h"
 #include "nsTObserverArray.h"
 #include "nsCOMPtr.h"
@@ -22,7 +22,7 @@ class nsAbManager : public nsIAbManager,
                     public nsICommandLineHandler,
                     public nsIObserver
 {
-  
+
 public:
 	nsAbManager();
 

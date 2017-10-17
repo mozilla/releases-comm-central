@@ -193,7 +193,7 @@ NS_IMETHODIMP nsAbDirectoryQueryPropertyValue::GetName(char*  *aName)
 NS_IMETHODIMP nsAbDirectoryQueryPropertyValue::GetValue(char16_t*  *aValue)
 {
     *aValue = ToNewUnicode(mValue);
-    if (!(*aValue)) 
+    if (!(*aValue))
         return NS_ERROR_OUT_OF_MEMORY;
     else
         return NS_OK;
@@ -297,7 +297,7 @@ nsresult nsAbDirectoryQuery::queryChildren(nsIAbDirectory* directory,
 
         nsCOMPtr<nsIAbDirectory> subDirectory(do_QueryInterface(item, &rv));
         NS_ENSURE_SUCCESS(rv, rv);
-        
+
         rv = query(subDirectory, expression, listener, doSubDirectories, resultLimit);
         NS_ENSURE_SUCCESS(rv, rv);
 
@@ -334,7 +334,7 @@ nsresult nsAbDirectoryQuery::queryCards(nsIAbDirectory* directory,
 
         nsCOMPtr<nsIAbCard> card(do_QueryInterface(item, &rv));
         NS_ENSURE_SUCCESS(rv, rv);
-        
+
         rv = matchCard (card, expression, listener, resultLimit);
         NS_ENSURE_SUCCESS(rv, rv);
 
@@ -375,7 +375,7 @@ nsresult nsAbDirectoryQuery::matchCardExpression(nsIAbCard* card,
     nsCOMPtr<nsIArray> childExpressions;
     rv = expression->GetExpressions (getter_AddRefs (childExpressions));
     NS_ENSURE_SUCCESS(rv, rv);
-    
+
     uint32_t count;
     rv = childExpressions->GetLength(&count);
     NS_ENSURE_SUCCESS(rv, rv);

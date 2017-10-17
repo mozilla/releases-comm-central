@@ -83,7 +83,7 @@ nsresult nsAbLDAPDirectory::Initiate()
   return NS_OK;
 }
 
-/* 
+/*
  *
  * nsIAbDirectory methods
  *
@@ -106,20 +106,20 @@ NS_IMETHODIMP nsAbLDAPDirectory::GetChildNodes(nsISimpleEnumerator* *aResult)
 NS_IMETHODIMP nsAbLDAPDirectory::GetChildCards(nsISimpleEnumerator** result)
 {
     nsresult rv;
-    
-    // when offline, we need to get the child cards for the local, replicated mdb directory 
+
+    // when offline, we need to get the child cards for the local, replicated mdb directory
     bool offline;
     nsCOMPtr <nsIIOService> ioService =
       mozilla::services::GetIOService();
     NS_ENSURE_TRUE(ioService, NS_ERROR_UNEXPECTED);
     rv = ioService->GetOffline(&offline);
     NS_ENSURE_SUCCESS(rv,rv);
-    
+
     if (offline) {
       nsCString fileName;
       rv = GetReplicationFileName(fileName);
       NS_ENSURE_SUCCESS(rv,rv);
-      
+
       // if there is no fileName, bail out now.
       if (fileName.IsEmpty())
         return NS_OK;
@@ -127,7 +127,7 @@ NS_IMETHODIMP nsAbLDAPDirectory::GetChildCards(nsISimpleEnumerator** result)
       // perform the same query, but on the local directory
       nsAutoCString localDirectoryURI(NS_LITERAL_CSTRING(kMDBDirectoryRoot));
       localDirectoryURI.Append(fileName);
-      if (mIsQueryURI) 
+      if (mIsQueryURI)
       {
         localDirectoryURI.Append('?');
         localDirectoryURI.Append(mQueryString);
@@ -193,10 +193,10 @@ NS_IMETHODIMP nsAbLDAPDirectory::GetLDAPURL(nsILDAPURL** aResult)
      * A recent change in Mozilla now means that the LDAP Address Book
      * URI is based on the unique preference name value i.e.
      * [moz-abldapdirectory://prefName]
-     * Prior to this valid change it was based on the actual uri i.e. 
+     * Prior to this valid change it was based on the actual uri i.e.
      * [moz-abldapdirectory://host:port/basedn]
-     * Basing the resource on the prefName allows these attributes to 
-     * change. 
+     * Basing the resource on the prefName allows these attributes to
+     * change.
      *
      * But the uri value was also the means by which third-party
      * products could integrate with Mozilla's LDAP Address Books
@@ -263,7 +263,7 @@ NS_IMETHODIMP nsAbLDAPDirectory::SetLDAPURL(nsILDAPURL *aUrl)
   return NS_OK;
 }
 
-/* 
+/*
  *
  * nsIAbDirectorySearch methods
  *
@@ -329,7 +329,7 @@ NS_IMETHODIMP nsAbLDAPDirectory::StartSearch ()
     mCache.Clear();
 
     return rv;
-}  
+}
 
 NS_IMETHODIMP nsAbLDAPDirectory::StopSearch ()
 {
@@ -351,7 +351,7 @@ NS_IMETHODIMP nsAbLDAPDirectory::StopSearch ()
   return mDirectoryQuery->StopQuery(mContext);
 }
 
-/* 
+/*
  *
  * nsAbDirSearchListenerContext methods
  *
@@ -437,7 +437,7 @@ NS_IMETHODIMP nsAbLDAPDirectory::GetIsSecure(bool *aIsSecure)
   nsAutoCString URI;
   nsresult rv = GetStringValue("uri", EmptyCString(), URI);
   NS_ENSURE_SUCCESS(rv, rv);
-  
+
   // to determine if this is a secure directory, check if the uri is ldaps:// or not
   *aIsSecure = (strncmp(URI.get(), "ldaps:", 6) == 0);
   return NS_OK;
@@ -647,9 +647,9 @@ NS_IMETHODIMP nsAbLDAPDirectory::SetDataVersion(const nsACString &aDataVersion)
 NS_IMETHODIMP nsAbLDAPDirectory::GetAttributeMap(nsIAbLDAPAttributeMap **aAttributeMap)
 {
   NS_ENSURE_ARG_POINTER(aAttributeMap);
-  
+
   nsresult rv;
-  nsCOMPtr<nsIAbLDAPAttributeMapService> mapSvc = 
+  nsCOMPtr<nsIAbLDAPAttributeMapService> mapSvc =
     do_GetService("@mozilla.org/addressbook/ldap-attribute-map-service;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
@@ -702,7 +702,7 @@ NS_IMETHODIMP nsAbLDAPDirectory::AddCard(nsIAbCard *aUpdatedCard,
 {
   NS_ENSURE_ARG_POINTER(aUpdatedCard);
   NS_ENSURE_ARG_POINTER(aAddedCard);
-  
+
   nsCOMPtr<nsIAbLDAPAttributeMap> attrMap;
   nsresult rv = GetAttributeMap(getter_AddRefs(attrMap));
   NS_ENSURE_SUCCESS(rv, rv);
@@ -721,7 +721,7 @@ NS_IMETHODIMP nsAbLDAPDirectory::AddCard(nsIAbCard *aUpdatedCard,
 
   rv = copyToCard->Copy(aUpdatedCard);
   NS_ENSURE_SUCCESS(rv, rv);
-  
+
   // Retrieve preferences
   nsAutoCString prefString;
   rv = GetRdnAttributes(prefString);
@@ -731,10 +731,10 @@ NS_IMETHODIMP nsAbLDAPDirectory::AddCard(nsIAbCard *aUpdatedCard,
   rv = SplitStringList(prefString, rdnAttrs.GetSizeAddr(),
     rdnAttrs.GetArrayAddr());
   NS_ENSURE_SUCCESS(rv, rv);
-  
+
   rv = GetObjectClasses(prefString);
   NS_ENSURE_SUCCESS(rv, rv);
-  
+
   CharPtrArrayGuard objClass;
   rv = SplitStringList(prefString, objClass.GetSizeAddr(),
     objClass.GetArrayAddr());
@@ -745,7 +745,7 @@ NS_IMETHODIMP nsAbLDAPDirectory::AddCard(nsIAbCard *aUpdatedCard,
   rv = card->GetLDAPMessageInfo(attrMap, objClass.GetSize(), objClass.GetArray(),
     nsILDAPModification::MOD_ADD, getter_AddRefs(modArray));
   NS_ENSURE_SUCCESS(rv, rv);
-  
+
   // For new cards, the base DN is the search base DN
   nsCOMPtr<nsILDAPURL> currentUrl;
   rv = GetLDAPURL(getter_AddRefs(currentUrl));
@@ -754,7 +754,7 @@ NS_IMETHODIMP nsAbLDAPDirectory::AddCard(nsIAbCard *aUpdatedCard,
   nsAutoCString baseDN;
   rv = currentUrl->GetDn(baseDN);
   NS_ENSURE_SUCCESS(rv, rv);
- 
+
   // Calculate DN
   nsAutoCString cardDN;
   rv = card->BuildRdn(attrMap, rdnAttrs.GetSize(), rdnAttrs.GetArray(),
@@ -787,7 +787,7 @@ NS_IMETHODIMP nsAbLDAPDirectory::DeleteCards(nsIArray *aCards)
 
   nsresult rv = aCards->GetLength(&cardCount);
   NS_ENSURE_SUCCESS(rv, rv);
- 
+
   for (i = 0; i < cardCount; ++i)
   {
     nsCOMPtr<nsIAbLDAPCard> card(do_QueryElementAt(aCards, i, &rv));
@@ -800,13 +800,13 @@ NS_IMETHODIMP nsAbLDAPDirectory::DeleteCards(nsIArray *aCards)
     // Set up the search ldap url - this is mURL
     rv = Initiate();
     NS_ENSURE_SUCCESS(rv, rv);
-    
+
     rv = card->GetDn(cardDN);
     NS_ENSURE_SUCCESS(rv, rv);
 
     nsCOMPtr<nsIAbCard> realCard(do_QueryInterface(card));
     realCard->SetDirectoryId(EmptyCString());
-   
+
     // Launch query
     rv = DoModify(this, nsILDAPModification::MOD_DELETE, cardDN, nullptr,
                   EmptyCString(), EmptyCString());
@@ -819,7 +819,7 @@ NS_IMETHODIMP nsAbLDAPDirectory::DeleteCards(nsIArray *aCards)
 NS_IMETHODIMP nsAbLDAPDirectory::ModifyCard(nsIAbCard *aUpdatedCard)
 {
   NS_ENSURE_ARG_POINTER(aUpdatedCard);
-  
+
   nsCOMPtr<nsIAbLDAPAttributeMap> attrMap;
   nsresult rv = GetAttributeMap(getter_AddRefs(attrMap));
   NS_ENSURE_SUCCESS(rv, rv);
@@ -830,12 +830,12 @@ NS_IMETHODIMP nsAbLDAPDirectory::ModifyCard(nsIAbCard *aUpdatedCard)
 
   rv = Initiate();
   NS_ENSURE_SUCCESS(rv, rv);
-  
+
   // Retrieve preferences
   nsAutoCString prefString;
   rv = GetObjectClasses(prefString);
   NS_ENSURE_SUCCESS(rv, rv);
-  
+
   CharPtrArrayGuard objClass;
   rv = SplitStringList(prefString, objClass.GetSizeAddr(),
     objClass.GetArrayAddr());
@@ -846,7 +846,7 @@ NS_IMETHODIMP nsAbLDAPDirectory::ModifyCard(nsIAbCard *aUpdatedCard)
   rv = card->GetLDAPMessageInfo(attrMap, objClass.GetSize(), objClass.GetArray(),
     nsILDAPModification::MOD_REPLACE, getter_AddRefs(modArray));
   NS_ENSURE_SUCCESS(rv, rv);
-  
+
   // Get current DN
   nsAutoCString oldDN;
   rv = card->GetDn(oldDN);
@@ -869,7 +869,7 @@ NS_IMETHODIMP nsAbLDAPDirectory::ModifyCard(nsIAbCard *aUpdatedCard)
   rv = card->BuildRdn(attrMap, rdnAttrs.GetSize(), rdnAttrs.GetArray(),
     newRDN);
   NS_ENSURE_SUCCESS(rv, rv);
-      
+
   if (newRDN.Equals(oldRDN))
   {
     // Launch query
@@ -882,10 +882,10 @@ NS_IMETHODIMP nsAbLDAPDirectory::ModifyCard(nsIAbCard *aUpdatedCard)
     nsAutoCString newDN(newRDN);
     newDN.Append(',');
     newDN.Append(baseDN);
-    
+
     rv = card->SetDn(newDN);
     NS_ENSURE_SUCCESS(rv, rv);
-    
+
     // Launch query
     rv = DoModify(this, nsILDAPModification::MOD_REPLACE, oldDN, modArray,
                   newRDN, baseDN);

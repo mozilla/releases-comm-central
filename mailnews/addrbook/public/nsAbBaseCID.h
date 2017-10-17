@@ -249,7 +249,7 @@
 }
 
 #define NS_ABDIRECTORYQUERYPROXY_CONTRACTID                     \
-        "@mozilla.org/addressbook/directory-query/proxy;1"      
+        "@mozilla.org/addressbook/directory-query/proxy;1"
 
 #define NS_ABDIRECTORYQUERYPROXY_CID                            \
 { /* {E162E335-541B-43B4-AAEA-FE591E240CAF}*/                   \

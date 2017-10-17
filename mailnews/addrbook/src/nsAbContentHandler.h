@@ -5,7 +5,7 @@
 
 #ifndef __nsAbContentHandler_h
 #define __nsAbContentHandler_h
- 
+
 #include "nsIStreamLoader.h"
 #include "nsIContentHandler.h"
 

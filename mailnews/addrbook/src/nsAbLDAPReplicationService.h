@@ -23,7 +23,7 @@ public:
 
 protected:
   virtual ~nsAbLDAPReplicationService();
-  nsCOMPtr<nsIAbLDAPReplicationQuery> mQuery; 
+  nsCOMPtr<nsIAbLDAPReplicationQuery> mQuery;
   bool           mReplicating;
   nsCOMPtr<nsIAbLDAPDirectory> mDirectory;
 
