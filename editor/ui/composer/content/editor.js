@@ -3169,7 +3169,7 @@ function FillInHTMLTooltipEditor(tooltip)
     }
   } else {
     for (node = document.tooltipNode; node; node = node.parentNode) {
-      if (node instanceof Components.interfaces.nsIDOMHTMLImageElement ||
+      if (ChromeUtils.getClassName(node) === "HTMLImageElement") ||
           node instanceof Components.interfaces.nsIDOMHTMLInputElement)
         tooltipText = node.getAttribute("src");
       else if (node instanceof Components.interfaces.nsIDOMHTMLAnchorElement)
