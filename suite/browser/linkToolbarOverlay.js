@@ -67,7 +67,7 @@ function()
 
       while(currentNode)
       {
-        if (ChromeUtils.getClassName(currentNode) === "HTMLLinkElement"))
+        if (ChromeUtils.getClassName(currentNode) === "HTMLLinkElement")
           linkToolbarUI.linkAdded({originalTarget: currentNode});
         currentNode = currentNode.nextSibling;
       }
