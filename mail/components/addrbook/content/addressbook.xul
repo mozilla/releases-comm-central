@@ -601,7 +601,7 @@
 
 #ifdef XP_MACOSX
 <!-- Mac window menu -->
-#include ../../../../mozilla/toolkit/content/macWindowMenu.inc
+#includesubst @TOOLKIT_DIR@/content/macWindowMenu.inc
 #endif
 
       <!-- Help -->
