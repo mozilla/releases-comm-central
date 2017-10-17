@@ -193,11 +193,8 @@
 .tabmail-tab::after,
 .tabmail-tab::before {
   border-left: 1px solid;
-  border-image: linear-gradient(transparent 5px,
-                                currentColor 5px,
-                                currentColor calc(100% - 5px),
-                                transparent calc(100% - 5px));
-  border-image-slice: 1;
+  margin-top: 5px;
+  margin-bottom: 4px;
   opacity: 0.3;
 }
 
@@ -207,11 +204,8 @@
 .tabmail-tab:not([selected]):hover + .tabmail-tab:not([selected])::before,
 :root[tabsintitlebar] #mail-toolbar-menubar2[autohide=true] ~ #tabs-toolbar > .tabmail-tabs > .tabmail-tab::after,
 :root[tabsintitlebar] #mail-toolbar-menubar2[autohide=true] ~ #tabs-toolbar > .tabmail-tabs > .tabmail-tab::before {
-  border-image: linear-gradient(transparent calc(1px + var(--tabs-top-border-width)),
-                                currentColor calc(1px + var(--tabs-top-border-width)),
-                                currentColor calc(100% - 1px - var(--tab-toolbar-overlap)),
-                                transparent calc(100% - 1px - var(--tab-toolbar-overlap)));
-  border-image-slice: 1;
+  margin-top: var(--tabs-top-border-width);
+  margin-bottom: var(--tab-toolbar-overlap);
 }
 
 /* Show full height tab separators on selected tabs. */
@@ -219,10 +213,8 @@
 .tabmail-tab[visuallyselected]:last-child::after,
 .tabmail-tab[visuallyselected] + .tabmail-tab::before {
   border-color: var(--tabs-border);
-  border-image: linear-gradient(transparent 1px,
-                                var(--tabs-border) 1px,
-                                var(--tabs-border) calc(100% - 1px - var(--tab-toolbar-overlap)),
-                                transparent calc(100% - 1px - var(--tab-toolbar-overlap))) 1 !important;
+  margin-top: 0;
+  margin-bottom: var(--tab-toolbar-overlap);
   opacity: 1;
 }
 
