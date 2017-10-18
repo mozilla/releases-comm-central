@@ -28,7 +28,7 @@ var kCombineConsecutivePref = "combineConsecutive";
 var kCombineConsecutiveIntervalPref = "combineConsecutiveInterval";
 
 var DEFAULT_THEME = "bubbles";
-var DEFAULT_THEMES = ["bubbles", "dark", "papersheets", "simple"];
+var DEFAULT_THEMES = ["bubbles", "dark", "mail", "papersheets", "simple"];
 
 var kLineBreak = "@mozilla.org/windows-registry-key;1" in Cc ? "\r\n" : "\n";
 
@@ -184,7 +184,7 @@ function getInfoPlistContent(aBaseURI)
 function getChromeBaseURI(aThemeName)
 {
   if (DEFAULT_THEMES.includes(aThemeName))
-    return "chrome://instantbird-messagestyles/skin/" + aThemeName + "/";
+    return "chrome://messenger-messagestyles/skin/" + aThemeName + "/";
   return "chrome://" + aThemeName + "/skin/";
 }
 
