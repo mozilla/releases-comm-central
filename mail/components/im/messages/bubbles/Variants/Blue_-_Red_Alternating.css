@@ -1,0 +1,36 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+.bubble.outgoing {
+  background-color: hsl(240, 100%, 97%);
+  border-color: hsl(240, 100%, 80%);
+}
+
+.outgoing > .indicator > .pseudo {
+  color: hsl(240, 100%, 75%);
+  background-color: hsl(240, 100%, 94%);
+}
+
+.outgoing > .indicator {
+  margin-left: -17px;
+  padding-left: 32px;
+  background: url('../Bitmaps/indicator_240.png') no-repeat center left;
+}
+
+
+.bubble.incoming {
+  background-color: hsl(0, 100%, 97%);
+  border-color: hsl(0, 100%, 80%);
+}
+
+.incoming > .indicator > .pseudo {
+  color: hsl(0, 100%, 75%);
+  background-color: hsl(0, 100%, 94%);
+}
+
+.incoming > .indicator {
+  margin-right: -19px;
+  padding-right: 34px;
+  background: url('../Bitmaps/indicator_0_alt.png') no-repeat center right;
+}
