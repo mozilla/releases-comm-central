@@ -584,6 +584,10 @@ imgroup[closed] .twisty {
 %endif
 %endif
 
+.prplBuddyIcon {
+  margin: 2px 0;
+}
+
 #searchResultConv > .prplBuddyIcon > .protoIcon {
 %ifdef XP_MACOSX
   list-style-image: url("chrome://global/skin/icons/search-textbox.png");
