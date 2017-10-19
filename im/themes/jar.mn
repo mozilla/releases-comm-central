@@ -186,7 +186,7 @@ instantbird.jar:
 	skin/classic/instantbird/smileys/straight_face.png     (smileys/straight_face.png)
 	skin/classic/instantbird/smileys/tongue.png            (smileys/tongue.png)
 	skin/classic/instantbird/smileys/wink.png              (smileys/wink.png)
-% skin messenger-messagestyles classic/1.0 %skin/classic/instantbird/messages/
+% skin instantbird-messagestyles classic/1.0 %skin/classic/instantbird/messages/
 	skin/classic/instantbird/messages/bubbles/Bitmaps/indicator_0.png       (messages/bubbles/Bitmaps/indicator_0.png)
 	skin/classic/instantbird/messages/bubbles/Bitmaps/indicator_0_alt.png   (messages/bubbles/Bitmaps/indicator_0_alt.png)
 	skin/classic/instantbird/messages/bubbles/Bitmaps/indicator_10.png      (messages/bubbles/Bitmaps/indicator_10.png)
