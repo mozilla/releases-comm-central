@@ -1,11 +1,16 @@
+. "$topsrcdir/build/mozconfig.comm-support"
 . $topsrcdir/build/unix/mozconfig.linux
-. "$topsrcdir/build/mozconfig.stylo"
+. "$commtopsrcdir/build/mozconfig.stylo"
 
 # Disable webrender on Linux buildbot builders to avoid the Rust requirement
 # of libX11 version > 1.4.99.1 (see bug 1350011).
 ac_add_options --disable-webrender
 
-ac_add_options --enable-application=mail
+if [ "$MOZ_IS_COMM_TOPDIR" == "1" ]; then
+  ac_add_options --enable-application=mail
+else
+  ac_add_options --enable-application=comm/mail
+fi
 ac_add_options --enable-update-channel=${MOZ_UPDATE_CHANNEL}
 ac_add_options --enable-profiling
 ac_add_options --disable-elf-hack # --enable-elf-hack conflicts with --enable-profiling
@@ -28,8 +33,9 @@ MOZ_REQUIRE_ADDON_SIGNING=0
 # Package js shell
 export MOZ_PACKAGE_JSSHELL=1
 
-# Run client.py
-mk_add_options CLIENT_PY_ARGS="$([ -f $topsrcdir/build/client.py-args ] && cat $topsrcdir/build/client.py-args)"
-mk_add_options ALWAYS_RUN_CLIENT_PY=1
+if [ "$MOZ_IS_COMM_TOPDIR" == "1" ]; then
+  mk_add_options CLIENT_PY_ARGS="$([ -f $topsrcdir/build/client.py-args ] && cat $topsrcdir/build/client.py-args)"
+  mk_add_options ALWAYS_RUN_CLIENT_PY=1
+fi
 
 . "$topsrcdir/build/mozconfig.cache"

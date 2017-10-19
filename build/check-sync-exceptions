@@ -5,6 +5,7 @@ pymake
 client.py-args
 client.py-l10n-args
 configobj.py
+mozconfig.comm-support
 
 # Ignore detritus left lying around by editing tools.
 *~
