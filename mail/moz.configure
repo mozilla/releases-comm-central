@@ -8,15 +8,16 @@ imply_option('MOZ_PLACES', True)
 
 
 @depends(application)
-def is_comm(app):
-    return app[0].startswith('comm/')
+def is_comm_topdir(app):
+    return not app[0].startswith('comm/')
 
+set_config('MOZ_IS_COMM_TOPDIR', is_comm_topdir)
 
-@depends(is_comm)
-def toolkit_configure(is_comm):
-    if is_comm:
-        return '../../toolkit/moz.configure'
-    else:
+@depends(is_comm_topdir)
+def toolkit_configure(is_comm_topdir):
+    if is_comm_topdir:
         return '../mozilla/toolkit/moz.configure'
+    else:
+        return '../../toolkit/moz.configure'
 
 include(toolkit_configure)
