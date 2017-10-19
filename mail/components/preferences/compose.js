@@ -19,6 +19,8 @@ var gComposePane = {
 
     this.updateAutosave();
 
+    this.updateUseReaderDefaults();
+
     this.updateAttachmentCheck();
 
     this.updateEmailCollection();
@@ -56,6 +58,18 @@ var gComposePane = {
   updateAutosave() {
     this.enableElement(document.getElementById("autoSaveInterval"),
       document.getElementById("autoSave").checked);
+  },
+
+  updateUseReaderDefaults() {
+    let useReaderDefaultsChecked = document.getElementById("useReaderDefaults").checked;
+    this.enableElement(document.getElementById("textColorLabel"),
+      !useReaderDefaultsChecked);
+    this.enableElement(document.getElementById("backgroundColorLabel"),
+      !useReaderDefaultsChecked);
+    this.enableElement(document.getElementById("textColorButton"),
+      !useReaderDefaultsChecked);
+    this.enableElement(document.getElementById("backgroundColorButton"),
+      !useReaderDefaultsChecked);
   },
 
   updateAttachmentCheck() {
@@ -202,6 +216,11 @@ var gComposePane = {
        document.getElementById("msgcompose.background_color").reset();
      } catch (ex) {}
 
+     try {
+       document.getElementById("msgcompose.default_colors").reset();
+     } catch (ex) {}
+
+     this.updateUseReaderDefaults();
      this.setButtonColors();
   },
 

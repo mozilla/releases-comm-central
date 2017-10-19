@@ -27,6 +27,7 @@
       <preference id="mail.collect_email_address_outgoing" name="mail.collect_email_address_outgoing" type="bool"/>
       <preference id="mail.collect_addressbook" name="mail.collect_addressbook" type="string"/>
       <preference id="spellchecker.dictionary"  name="spellchecker.dictionary"   type="unichar"/>
+      <preference id="msgcompose.default_colors" name="msgcompose.default_colors" type="bool"/>
       <preference id="msgcompose.font_face"      name="msgcompose.font_face" type="string"/>
       <preference id="msgcompose.font_size"      name="msgcompose.font_size" type="string"/>
       <preference id="msgcompose.text_color"     name="msgcompose.text_color" type="string"/>
@@ -44,6 +45,8 @@
                oncommand="gComposePane.updateAutosave();"/>
       <command id="cmd_toggleAttachmentCheck"
                oncommand="gComposePane.updateAttachmentCheck();"/>
+      <command id="cmd_toggleUseReaderDefaults"
+               oncommand="gComposePane.updateUseReaderDefaults();"/>
     </commandset>
 
     <tabbox id="composePrefs" flex="1" onselect="gComposePane.tabSelectionChanged();">
@@ -135,13 +138,29 @@
             <separator class="thin"/>
 
             <hbox align="center">
-              <label control="textColorButton" value="&fontColor.label;" accesskey="&fontColor.accesskey;"/>
+              <checkbox id="useReaderDefaults"
+                        label="&useReaderDefaults.label;"
+                        accesskey="&useReaderDefaults.accesskey;"
+                        preference="msgcompose.default_colors"
+                        command="cmd_toggleUseReaderDefaults"/>
+            </hbox>
+            <hbox align="center" class="indent">
+              <label id="textColorLabel"
+                     control="textColorButton"
+                     value="&fontColor.label;"
+                     accesskey="&fontColor.accesskey;"/>
               <html:input type="color" id="textColorButton" preference="msgcompose.text_color"/>
               <separator orient="vertical" class="thin"/>
-              <label control="backgroundColorButton" value="&bgColor.label;" accesskey="&bgColor.accesskey;"/>
+              <label id="backgroundColorLabel"
+                     control="backgroundColorButton"
+                     value="&bgColor.label;"
+                     accesskey="&bgColor.accesskey;"/>
               <html:input type="color" id="backgroundColorButton" preference="msgcompose.background_color"/>
+            </hbox>
+            <hbox align="center">
               <spacer flex="1"/>
-              <button label="&restoreHTMLDefaults.label;" accesskey="&restoreHTMLDefaults.accesskey;"
+              <button label="&restoreHTMLDefaults.label;"
+                      accesskey="&restoreHTMLDefaults.accesskey;"
                       oncommand="gComposePane.restoreHTMLDefaults();"/>
             </hbox>
 

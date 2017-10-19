@@ -6281,26 +6281,23 @@ function AddRecipientsArray(aRecipientType, aAddressArray) {
 }
 
 function loadHTMLMsgPrefs() {
-  var fontFace;
-  var fontSize;
-  var textColor;
-  var bgColor;
-
   try {
-    fontFace = getPref("msgcompose.font_face", true);
+    let fontFace = getPref("msgcompose.font_face", true);
     doStatefulCommand("cmd_fontFace", fontFace);
   } catch (e) {}
 
   try {
-    fontSize = getPref("msgcompose.font_size");
+    let fontSize = getPref("msgcompose.font_size");
     EditorSetFontSize(fontSize);
   } catch (e) {}
 
-  var bodyElement = GetBodyElement();
+  let bodyElement = GetBodyElement();
+
+  let useDefault = getPref("msgcompose.default_colors");
 
   try {
-    textColor = getPref("msgcompose.text_color");
-    if (!bodyElement.getAttribute("text")) {
+    let textColor = (useDefault ? "" : getPref("msgcompose.text_color"));
+    if ((!bodyElement.getAttribute("text")) && textColor) {
       bodyElement.setAttribute("text", textColor);
       gDefaultTextColor = textColor;
       document.getElementById("cmd_fontColor").setAttribute("state", textColor);
@@ -6309,8 +6306,8 @@ function loadHTMLMsgPrefs() {
   } catch (e) {}
 
   try {
-    bgColor = getPref("msgcompose.background_color");
-    if (!bodyElement.getAttribute("bgcolor")) {
+    let bgColor = (useDefault ? "" : getPref("msgcompose.background_color"));
+    if ((!bodyElement.getAttribute("bgcolor")) && bgColor) {
       bodyElement.setAttribute("bgcolor", bgColor);
       gDefaultBackgroundColor = bgColor;
       document.getElementById("cmd_backgroundColor").setAttribute("state", bgColor);
