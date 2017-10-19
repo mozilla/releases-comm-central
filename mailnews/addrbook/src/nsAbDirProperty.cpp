@@ -583,7 +583,7 @@ NS_IMETHODIMP nsAbDirProperty::SetLocalizedStringValue(const char *aName,
     do_CreateInstance(NS_PREFLOCALIZEDSTRING_CONTRACTID, &rv));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  rv = locStr->SetData(NS_ConvertUTF8toUTF16(aValue).get());
+  rv = locStr->SetData(NS_ConvertUTF8toUTF16(aValue));
   NS_ENSURE_SUCCESS(rv, rv);
 
   return m_DirectoryPrefs->SetComplexValue(aName,

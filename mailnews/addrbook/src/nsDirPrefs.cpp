@@ -1299,7 +1299,7 @@ static void DIR_SetLocalizedStringPref
 
   NS_ConvertUTF8toUTF16 newValue(value);
 
-  rv = newStr->SetData(newValue.get());
+  rv = newStr->SetData(newValue);
   if (NS_FAILED(rv))
   {
     NS_ASSERTION(NS_SUCCEEDED(rv), "Could not set pref data in DIR_SetLocalizedStringPref");
@@ -1311,7 +1311,7 @@ static void DIR_SetLocalizedStringPref
                                                getter_AddRefs(locStr))))
   {
     nsString data;
-    locStr->GetData(getter_Copies(data));
+    locStr->GetData(data);
 
     // Only set the pref if the data values aren't the same (i.e. don't change
     // unnecessarily, but also, don't change in the case that its a chrome
@@ -1334,7 +1334,7 @@ static void DIR_SetLocalizedStringPref
     {
       // Default branch has a value
       nsString data;
-      locStr->GetData(getter_Copies(data));
+      locStr->GetData(data);
 
       if (newValue != data)
         // If the vales aren't the same, set the data on the main pref branch

@@ -115,7 +115,7 @@ AppendDistroSearchDirs(nsIProperties* aDirSvc, nsCOMArray<nsIFile> &array)
     if (NS_SUCCEEDED(rv))
     {
       nsAutoString wLocale;
-      prefString->GetData(getter_Copies(wLocale));
+      prefString->GetData(wLocale);
       CopyUTF16toUTF8(wLocale, locale);
     }
     else

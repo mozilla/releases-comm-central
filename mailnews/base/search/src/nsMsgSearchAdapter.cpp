@@ -242,7 +242,7 @@ nsMsgSearchAdapter::GetSearchCharsets(nsAString &srcCharset, nsAString &dstChars
       rv = prefs->GetComplexValue("mailnews.view_default_charset", NS_GET_IID(nsIPrefLocalizedString),
                                   getter_AddRefs(localizedstr));
       if (NS_SUCCEEDED(rv))
-        localizedstr->GetData(getter_Copies(m_defaultCharset));
+        localizedstr->GetData(m_defaultCharset);
 
       prefs->GetBoolPref("mailnews.force_ascii_search", &forceAsciiSearch);
     }
