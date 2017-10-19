@@ -679,6 +679,9 @@ pref("browser.link.open_newwindow.restriction", 0);
 
 pref("browser.tabs.loadDivertedInBackground", false);
 
+// No e10s in Thunderbird for now.
+pref("browser.tabs.remote.autostart", false);
+
 // Browser icon prefs
 pref("browser.chrome.site_icons", true);
 pref("browser.chrome.favicons", true);
