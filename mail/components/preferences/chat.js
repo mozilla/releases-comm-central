@@ -7,6 +7,7 @@ var {classes: Cc, interfaces: Ci, utils: Cu} = Components;
 var gChatPane = {
   init: function ()
   {
+    previewObserver.load();
     this.updateDisabledState();
   },
 

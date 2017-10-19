@@ -16,6 +16,7 @@
 
   <prefpane id="paneChat" onpaneload="gChatPane.init();">
     <script type="application/javascript" src="chrome://messenger/content/preferences/chat.js"/>
+    <script type="application/javascript" src="chrome://messenger/content/preferences/messagestyle.js"/>
 
     <preferences id="chatPreferences">
       <preference id="messenger.startup.action"            name="messenger.startup.action"     type="int"/>
@@ -35,122 +36,199 @@
       <preference id="mail.chat.play_sound" name="mail.chat.play_sound" type="bool"/>
       <preference id="mail.chat.play_sound.type" name="mail.chat.play_sound.type" type="int"/>
       <preference id="mail.chat.play_sound.url" name="mail.chat.play_sound.url" type="string"/>
+      <preference id="messenger.options.messagesStyle.theme"      name="messenger.options.messagesStyle.theme"      type="string"/>
+      <preference id="messenger.options.messagesStyle.variant"    name="messenger.options.messagesStyle.variant"    type="string"/>
+      <preference id="messenger.options.messagesStyle.showHeader" name="messenger.options.messagesStyle.showHeader" type="bool"/>
     </preferences>
 
     <broadcaster id="idleReportingEnabled"/>
 
-    <!-- Startup -->
-    <hbox align="center">
-      <label id ="chatStartupAction" value="&startupAction.label;"
-             accesskey="&startupAction.accesskey;" control="messengerStartupAction"/>
-      <menulist id="messengerStartupAction" preference="messenger.startup.action">
-        <menupopup>
-          <menuitem label="&startupOffline.label;"     value="0"/>
-          <menuitem label="&startupConnectAuto.label;" value="1"/>
-        </menupopup>
-      </menulist>
-    </hbox>
-    <separator/>
+    <stringbundle id="themesBundle"
+                  src="chrome://messenger/locale/preferences/messagestyle.properties"/>
 
-    <!-- Status -->
-    <hbox align="center">
-      <checkbox id="reportIdle" label="&reportIdleAfter.label;"
-                accesskey="&reportIdleAfter.accesskey;"
-                preference="messenger.status.reportIdle"/>
-      <textbox id="timeBeforeAway" type="number" min="1" max="720"
-               observes="idleReportingEnabled"
-               preference="messenger.status.timeBeforeIdle"
-               onsyncfrompreference="var elt = document.getElementById(this.getAttribute('preference'));
-                                     return (elt.instantApply ? elt.valueFromPreferences : elt.value) / 60;"
-               onsynctopreference="return this.value * 60;"/>
-      <label value="&idleTime;" control="timeBeforeAway"/>
-    </hbox>
-    <vbox class="indent">
-      <hbox>
-        <checkbox id="autoAway"
-                  label="&andSetStatusToAway.label;"
-                  observes="idleReportingEnabled"
-                  accesskey="&andSetStatusToAway.accesskey;"
-                  preference="messenger.status.awayWhenIdle"/>
-        <spacer flex="1"/>
-      </hbox>
-      <textbox id="defaultIdleAwayMessage" class="indent"
-               observes="idleReportingEnabled"
-               preference="messenger.status.defaultIdleAwayMessage"/>
-    </vbox>
-    <separator/>
-    <hbox>
-      <checkbox id="sendTyping"
-                label="&sendTyping.label;"
-                accesskey="&sendTyping.accesskey;"
-                preference="purple.conversations.im.send_typing"/>
-      <spacer flex="1"/>
-    </hbox>
-    <groupbox>
-      <caption label="&chatNotifications.label;"/>
-      <hbox>
-        <hbox>
-          <checkbox id="desktopChatNotifications"
-                    label="&desktopChatNotifications.label;"
-                    accesskey="&desktopChatNotifications.accesskey;"
-                    preference="mail.chat.show_desktop_notifications"/>
-          <spacer flex="1"/>
-        </hbox>
-        <menulist id="chatNotificationInfo" preference="mail.chat.notification_info">
-          <menupopup>
-            <menuitem label="&completeNotification.label;" value="0"/>
-            <menuitem label="&buddyInfoOnly.label;" value="1"/>
-            <menuitem label="&dummyNotification.label;" value="2"/>
-          </menupopup>
-        </menulist>
-      </hbox>
-      <hbox align="center">
-        <checkbox id="chatNotification"
-                  label="&chatSound.label;"
-                  accesskey="&chatSound.accesskey;"
-                  preference="mail.chat.play_sound"
-                  oncommand="gChatPane.updatePlaySound();"/>
-        <spacer flex="1"/>
-        <button id="playChatSound" label="&play.label;" accesskey="&play.accesskey;"
-                oncommand="gChatPane.previewSound();"/>
-      </hbox>
-      <radiogroup id="chatSoundType"
-                  class="indent"
-                  orient="vertical"
-                  preference="mail.chat.play_sound.type"
-                  oncommand="gChatPane.updatePlaySound();"
-                  aria-labelledby="chatNotification">
-        <hbox>
-          <radio id="chatSoundSystemSound"
-                 label="&systemSound.label;"
-                 value="0"
-                 accesskey="&systemSound.accesskey;"/>
-          <spacer flex="1"/>
-        </hbox>
-        <hbox>
-          <radio id="chatSoundCustom"
-                 label="&customsound.label;"
-                 value="1"
-                 accesskey="&customsound.accesskey;"/>
-          <spacer flex="1"/>
-        </hbox>
-        <hbox>
-          <filefield id="chatSoundUrlLocation"
-                     class="indent"
-                     readonly="true"
-                     preference="mail.chat.play_sound.url"
-                     preference-editable="true"
-                     onsyncfrompreference="return gChatPane.readSoundLocation();"
-                     aria-labelledby="chatSoundCustom"
-                     flex="1"/>
-          <button id="browseForChatSound"
-                  label="&browse.label;"
-                  accesskey="&browse.accesskey;"
-                  oncommand="gChatPane.browseForSoundFile();">
-            <observes element="chatSoundUrlLocation" attribute="disabled"/>
-          </button>
-        </hbox>
-      </radiogroup>
-    </groupbox>
+    <tabbox id="chatPrefs" flex="1">
+      <tabs id="chatPrefsTabs">
+        <tab id="chatGeneralTab"       label="&generalTab.label;"/>
+        <tab id="chatMessageStylesTab" label="&messageStyleTab.title;"/>
+      </tabs>
+
+      <tabpanels id="chatPrefsPanels" flex="1">
+
+        <tabpanel orient="vertical">
+
+          <!-- Startup -->
+          <hbox align="center">
+            <label id ="chatStartupAction" value="&startupAction.label;"
+                   accesskey="&startupAction.accesskey;" control="messengerStartupAction"/>
+            <menulist id="messengerStartupAction" preference="messenger.startup.action">
+              <menupopup>
+                <menuitem label="&startupOffline.label;"     value="0"/>
+                <menuitem label="&startupConnectAuto.label;" value="1"/>
+              </menupopup>
+            </menulist>
+          </hbox>
+          <separator/>
+
+          <!-- Status -->
+          <hbox align="center">
+            <checkbox id="reportIdle" label="&reportIdleAfter.label;"
+                      accesskey="&reportIdleAfter.accesskey;"
+                      preference="messenger.status.reportIdle"/>
+            <textbox id="timeBeforeAway" type="number" min="1" max="720"
+                     observes="idleReportingEnabled"
+                     preference="messenger.status.timeBeforeIdle"
+                     onsyncfrompreference="var elt = document.getElementById(this.getAttribute('preference'));
+                                           return (elt.instantApply ? elt.valueFromPreferences : elt.value) / 60;"
+                     onsynctopreference="return this.value * 60;"/>
+            <label value="&idleTime;" control="timeBeforeAway"/>
+          </hbox>
+          <vbox class="indent">
+            <hbox>
+              <checkbox id="autoAway"
+                        label="&andSetStatusToAway.label;"
+                        observes="idleReportingEnabled"
+                        accesskey="&andSetStatusToAway.accesskey;"
+                        preference="messenger.status.awayWhenIdle"/>
+              <spacer flex="1"/>
+            </hbox>
+            <textbox id="defaultIdleAwayMessage" class="indent"
+                     observes="idleReportingEnabled"
+                     preference="messenger.status.defaultIdleAwayMessage"/>
+          </vbox>
+          <separator/>
+          <hbox>
+            <checkbox id="sendTyping"
+                      label="&sendTyping.label;"
+                      accesskey="&sendTyping.accesskey;"
+                      preference="purple.conversations.im.send_typing"/>
+            <spacer flex="1"/>
+          </hbox>
+          <groupbox>
+            <caption label="&chatNotifications.label;"/>
+            <hbox>
+              <hbox>
+                <checkbox id="desktopChatNotifications"
+                          label="&desktopChatNotifications.label;"
+                          accesskey="&desktopChatNotifications.accesskey;"
+                          preference="mail.chat.show_desktop_notifications"/>
+                <spacer flex="1"/>
+              </hbox>
+              <menulist id="chatNotificationInfo" preference="mail.chat.notification_info">
+                <menupopup>
+                  <menuitem label="&completeNotification.label;" value="0"/>
+                  <menuitem label="&buddyInfoOnly.label;" value="1"/>
+                  <menuitem label="&dummyNotification.label;" value="2"/>
+                </menupopup>
+              </menulist>
+            </hbox>
+            <hbox align="center">
+              <checkbox id="chatNotification"
+                        label="&chatSound.label;"
+                        accesskey="&chatSound.accesskey;"
+                        preference="mail.chat.play_sound"
+                        oncommand="gChatPane.updatePlaySound();"/>
+              <spacer flex="1"/>
+              <button id="playChatSound" label="&play.label;" accesskey="&play.accesskey;"
+                      oncommand="gChatPane.previewSound();"/>
+            </hbox>
+            <radiogroup id="chatSoundType"
+                        class="indent"
+                        orient="vertical"
+                        preference="mail.chat.play_sound.type"
+                        oncommand="gChatPane.updatePlaySound();"
+                        aria-labelledby="chatNotification">
+              <hbox>
+                <radio id="chatSoundSystemSound"
+                       label="&systemSound.label;"
+                       value="0"
+                       accesskey="&systemSound.accesskey;"/>
+                <spacer flex="1"/>
+              </hbox>
+              <hbox>
+                <radio id="chatSoundCustom"
+                       label="&customsound.label;"
+                       value="1"
+                       accesskey="&customsound.accesskey;"/>
+                <spacer flex="1"/>
+              </hbox>
+              <hbox>
+                <filefield id="chatSoundUrlLocation"
+                           class="indent"
+                           readonly="true"
+                           preference="mail.chat.play_sound.url"
+                           preference-editable="true"
+                           onsyncfrompreference="return gChatPane.readSoundLocation();"
+                           aria-labelledby="chatSoundCustom"
+                           flex="1"/>
+                <button id="browseForChatSound"
+                        label="&browse.label;"
+                        accesskey="&browse.accesskey;"
+                        oncommand="gChatPane.browseForSoundFile();">
+                  <observes element="chatSoundUrlLocation" attribute="disabled"/>
+                </button>
+              </hbox>
+            </radiogroup>
+          </groupbox>
+        </tabpanel>
+
+        <tabpanel orient="vertical">
+
+          <hbox align="baseline">
+            <label value="&messageStyleTheme.label;" control="themename"
+                   accesskey="&messageStyleTheme.accesskey;"/>
+            <menulist id="messagestyle-themename"
+                      flex="1" crop="end"
+                      preference="messenger.options.messagesStyle.theme"
+                      onselect="previewObserver.currentThemeChanged();">
+              <menupopup id="theme-menupopup">
+                <menuitem id="mail-menuitem"
+                          label="&messageStyleThunderbirdTheme.label;"
+                          value="mail"/>
+                <menuitem id="bubbles-menuitem"
+                          label="&messageStyleBubblesTheme.label;"
+                          value="bubbles"/>
+                <menuitem id="dark-menuitem"
+                          label="&messageStyleDarkTheme.label;"
+                          value="dark"/>
+                <menuitem id="papersheets-menuitem"
+                          label="&messageStylePaperSheetsTheme.label;"
+                          value="papersheets"/>
+                <menuitem id="simple-menuitem"
+                          label="&messageStyleSimpleTheme.label;"
+                          value="simple"/>
+              </menupopup>
+            </menulist>
+          </hbox>
+          <separator class="thin"/>
+          <label value="&messageStylePreview.label;"/>
+          <tooltip id="aHTMLTooltip" page="true"/>
+          <deck flex="1" id="previewDeck" selectedIndex="1">
+            <vbox flex="1" id="noPreviewScreen" align="center" pack="center">
+              <hbox id="noPreviewBox" align="top">
+                <vbox id="noPreviewInnerBox" flex="1">
+                  <label id="noPreviewTitle" value="&messageStyleNoPreview.title;"/>
+                  <description id="noAccountDesc">&messageStyleNoPreview.description;</description>
+                </vbox>
+              </hbox>
+            </vbox>
+            <browser flex="1" id="previewbrowser" type="content"
+                     style="-moz-binding: url(chrome://chat/content/convbrowser.xml#browser)"
+                     tooltip="aHTMLTooltip"/>
+          </deck>
+          <hbox align="baseline">
+            <label value="&messageStyleVariant.label;" control="themevariant"
+                   accesskey="&messageStyleVariant.accesskey;"/>
+            <menulist id="themevariant"
+                      preference="messenger.options.messagesStyle.variant"
+                      onselect="previewObserver.currentVariantChanged();"/>
+          </hbox>
+          <checkbox id="showHeaderCheckbox" label="&messageStyleShowHeader.label;"
+                    accesskey="&messageStyleShowHeader.accesskey;"
+                    preference="messenger.options.messagesStyle.showHeader"/>
+
+        </tabpanel>
+      </tabpanels>
+    </tabbox>
+
   </prefpane>
 </overlay>
