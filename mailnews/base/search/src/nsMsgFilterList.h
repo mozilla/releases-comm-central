@@ -38,7 +38,7 @@ public:
   nsMsgFilterList();
 
   nsresult Close();
-  nsresult LoadTextFilters(nsIInputStream *aStream);
+  nsresult LoadTextFilters(already_AddRefed<nsIInputStream> aStream);
 
   bool m_temporaryList;
 

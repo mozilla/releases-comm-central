@@ -116,9 +116,7 @@ NS_IMETHODIMP nsMsgFilterService::OpenFilterList(nsIFile *aFilterFile,
   int64_t size = 0;
   rv = aFilterFile->GetFileSize(&size);
   if (NS_SUCCEEDED(rv) && size > 0)
-    rv = filterList->LoadTextFilters(fileStream);
-  fileStream->Close();
-  fileStream = nullptr;
+    rv = filterList->LoadTextFilters(fileStream.forget());
   if (NS_SUCCEEDED(rv))
   {
     int16_t version;
