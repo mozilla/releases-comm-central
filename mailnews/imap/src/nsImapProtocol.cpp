@@ -5907,9 +5907,30 @@ nsresult nsImapProtocol::AuthLogin(const char *userName, const nsString &aPasswo
       char *base64Str = PL_Base64Encode(plainstr, len, nullptr);
       PR_snprintf(m_dataOutputBuf, OUTPUT_BUFFER_SIZE, "%s" CRLF, base64Str);
       PR_Free(base64Str);
-      rv = SendData(m_dataOutputBuf, true /* suppress logging */);
-      if (NS_SUCCEEDED(rv))
+
+      bool isResend = false;
+      while (true)
+      {
+        // Send authentication string (true: suppress logging the string).
+        rv = SendData(m_dataOutputBuf, true);
+        if (NS_FAILED(rv))
+          break;
         ParseIMAPandCheckForNewMail(currentCommand);
+        if (!GetServerStateParser().WaitingForMoreClientInput())
+          break;
+
+        // Server is asking for authentication string again. So we send the
+        // same string again although we already know that it will be
+        // rejected again. We do that to get a firm authentication failure
+        // instead of a resend request. That keeps things in order before
+        // failing "authenticate PLAIN" and trying another method if capable.
+        if (isResend)
+        {
+          rv = NS_ERROR_FAILURE;
+          break;
+        }
+        isResend = true;
+      }
     } // if the last command succeeded
   } // if auth plain capability
   else if (flag & kHasAuthLoginCapability)
