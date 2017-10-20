@@ -26,7 +26,7 @@
   }
 
   .activityview {
-    border: 1px solid rgba(10%, 10%, 10%, .4);
+    border: 1px solid hsla(240, 5%, 5%, .3);
     background-clip: padding-box
   }
 

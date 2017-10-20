@@ -15,6 +15,7 @@
   --tabs-border: threedshadow;
   --tab-line-color: highlight;
 
+  --glassShadowColor: hsla(240, 5%, 5%, .3);
   --toolbar-non-lwt-bgcolor: -moz-dialog;
   --toolbar-non-lwt-textcolor: -moz-dialogtext;
   --toolbar-non-lwt-bgimage: linear-gradient(rgba(255,255,255,.15), rgba(255,255,255,.15));

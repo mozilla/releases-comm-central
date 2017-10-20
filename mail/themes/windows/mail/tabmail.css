@@ -152,12 +152,23 @@ tabpanels {
   }
 }
 
+@media (-moz-windows-glass) {
+  /* draw always a top border with Glass */
+  #tabs-toolbar {
+    --tabs-top-border-width: 1px;
+  }
+
+  .tab-background {
+    border-top-style: solid;
+  }
+}
+
 @media (-moz-windows-glass),
        (-moz-os-version: windows-win8) and (-moz-windows-default-theme) {
   :root[sizemode=normal] .tabmail-tab[first-tab][visuallyselected]:before {
     content: '';
     display: -moz-box;
-    --tabs-border: rgba(10%, 10%, 10%, .4);
+    --tabs-border: var(--glassShadowColor);
   }
 }
 

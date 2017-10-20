@@ -97,8 +97,8 @@
 @media all and (-moz-windows-compositor) {
   @media not all and (-moz-os-version: windows-win10) {
     #messengerWindow[sizemode=normal] #today-pane-panel {
-      border-inline-end: 1px solid rgba(10%, 10%, 10%, .4);
-      border-bottom: 1px solid rgba(10%, 10%, 10%, .4);
+      border-inline-end: 1px solid hsla(240, 5%, 5%, .3);
+      border-bottom: 1px solid hsla(240, 5%, 5%, .3);
       background-clip: padding-box;
     }
   }
