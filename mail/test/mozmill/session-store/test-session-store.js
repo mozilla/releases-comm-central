@@ -25,7 +25,7 @@ var folderA, folderB;
 var kSaveDelayMs = 1500;
 
 // With async file writes, use a delay larger than the session autosave timer.
-var asyncFileWriteDelayMS = 6000;
+var asyncFileWriteDelayMS = 1000;
 
 /* ........ Helper Functions ................*/
 
@@ -47,9 +47,10 @@ function readFile() {
 }
 
 function waitForFileRefresh() {
-  controller.sleep(kSaveDelayMs + asyncFileWriteDelayMS);
-  assert_true(sessionStoreManager.sessionFile.exists(),
-                "file should exist");
+  controller.sleep(kSaveDelayMs);
+  utils.waitFor(() => sessionStoreManager.sessionFile.exists(),
+                "session file should exist");
+  controller.sleep(asyncFileWriteDelayMS);
 }
 
 function open3PaneWindow() {
@@ -102,7 +103,8 @@ function test_periodic_session_persistence_simple() {
   if (sessionFile.exists())
     sessionFile.remove(false);
 
-  assert_false(sessionFile.exists(), "file should not exist");
+  utils.waitFor(() => !sessionFile.exists(),
+                "session file should not exist");
 
   // change some state to guarantee the file will be recreated
   // if periodic session persistence works
@@ -115,6 +117,7 @@ function test_periodic_session_persistence_simple() {
 }
 
 function test_periodic_nondirty_session_persistence() {
+  // This changes state.
   be_in_folder(folderB);
 
   sessionStoreManager._saveState();
@@ -124,10 +127,13 @@ function test_periodic_nondirty_session_persistence() {
   let sessionFile = sessionStoreManager.sessionFile;
   sessionFile.remove(false);
 
-  // since we didn't change the state of the session, the session file
-  // should not be re-created
+  // Since the state of the session hasn't changed since last _saveState(),
+  // the session file should not be re-created.
+  sessionStoreManager._saveState();
   controller.sleep(kSaveDelayMs + asyncFileWriteDelayMS);
-  assert_false(sessionFile.exists(), "file should not exist");
+
+  utils.waitFor(() => !sessionFile.exists(),
+                "session file should not exist");
 }
 
 function test_single_3pane_periodic_session_persistence() {
@@ -165,9 +171,9 @@ function test_restore_single_3pane_persistence() {
   let abwc = openAddressBook();
 
   // close the 3pane window
-  mail3PaneWindow.close();
+  close_window(new mozmill.controller.MozMillController(mail3PaneWindow));
   // Wait for window close async session write to finish.
-  controller.sleep(kSaveDelayMs + asyncFileWriteDelayMS);
+  controller.sleep(asyncFileWriteDelayMS);
 
   mc = open3PaneWindow();
   be_in_folder(folderA);
@@ -220,9 +226,9 @@ function test_message_pane_height_persistence() {
   let abwc = openAddressBook();
 
   // The 3pane window is closed.
-  mail3PaneWindow.close();
+  close_window(new mozmill.controller.MozMillController(mail3PaneWindow));
   // Wait for window close async session write to finish.
-  controller.sleep(kSaveDelayMs + asyncFileWriteDelayMS);
+  controller.sleep(asyncFileWriteDelayMS);
 
   mc = open3PaneWindow();
   be_in_folder(folderA);
@@ -238,9 +244,9 @@ function test_message_pane_height_persistence() {
   _move_splitter(mc.e("threadpane-splitter"), 0, -diffHeight);
 
   // The 3pane window is closed.
-  mail3PaneWindow.close();
+  close_window(mc);
   // Wait for window close async session write to finish.
-  controller.sleep(kSaveDelayMs + asyncFileWriteDelayMS);
+  controller.sleep(asyncFileWriteDelayMS);
 
   mc = open3PaneWindow();
   be_in_folder(folderA);
@@ -300,9 +306,9 @@ function test_message_pane_width_persistence() {
   let abwc = openAddressBook();
 
   // The 3pane window is closed.
-  mail3PaneWindow.close();
+  close_window(new mozmill.controller.MozMillController(mail3PaneWindow));
   // Wait for window close async session write to finish.
-  controller.sleep(kSaveDelayMs + asyncFileWriteDelayMS);
+  controller.sleep(asyncFileWriteDelayMS);
 
   mc = open3PaneWindow();
   be_in_folder(folderA);
@@ -327,9 +333,9 @@ function test_message_pane_width_persistence() {
   oldWidth = actualWidth;
 
   // The 3pane window is closed.
-  mail3PaneWindow.close();
+  close_window(mc);
   // Wait for window close async session write to finish.
-  controller.sleep(kSaveDelayMs + asyncFileWriteDelayMS);
+  controller.sleep(asyncFileWriteDelayMS);
 
   mc = open3PaneWindow();
   be_in_folder(folderA);
@@ -403,12 +409,9 @@ async function test_bad_session_file_simple() {
   assert_false(sessionStoreManager._initialState,
                "saved state is bad so state object should be null");
 
-  // Wait for bad file async rename to finish.
-  controller.sleep(kSaveDelayMs + asyncFileWriteDelayMS);
-
   // The bad session file should now not exist.
-  assert_false(sessionStoreManager.sessionFile.exists(),
-               "file should not exist");
+  utils.waitFor(() => !sessionStoreManager.sessionFile.exists(),
+                "session file should now not exist");
 }
 
 function test_clean_shutdown_session_persistence_simple() {
@@ -433,8 +436,9 @@ function test_clean_shutdown_session_persistence_simple() {
     close_window(new mozmill.controller.MozMillController(window));
   }
 
-  // Wait for window close async session write to finish.
-  controller.sleep(kSaveDelayMs + asyncFileWriteDelayMS);
+  // Wait for session file to be created (removed in prior test) after
+  // all 3pane windows close and for session write to finish.
+  waitForFileRefresh();
 
   // load the saved state from disk
   let loadedState = readFile();
@@ -447,7 +451,6 @@ function test_clean_shutdown_session_persistence_simple() {
   let windowState = loadedState.windows[0];
   assert_true(JSON.stringify(windowState) == JSON.stringify(lastWindowState),
               "saved state and loaded state should be equal");
-
 
   open3PaneWindow();
 
