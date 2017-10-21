@@ -21,6 +21,10 @@
   min-width: 15em;
 }
 
+#attachmentBucket:focus {
+  box-shadow: 0 0 1.5px 1px -moz-mac-focusring;
+}
+
 #compose-toolbox toolbarbutton[checked="true"] {
   background-color: transparent;
 }

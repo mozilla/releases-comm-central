@@ -20,6 +20,10 @@
   color: -moz-FieldText;
 }
 
+#attachmentBucket:focus {
+  box-shadow: 0 0 1px Highlight inset, 0 0 1px Highlight inset;
+}
+
 /* ::::: special toolbar colors ::::: */
 
 #composeContentBox {

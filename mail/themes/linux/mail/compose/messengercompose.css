@@ -15,6 +15,10 @@
   min-width: 15em;
 }
 
+#attachmentBucket:focus {
+  box-shadow: 0 0 2px Highlight inset, 0 0 2px Highlight inset;
+}
+
 #compose-toolbox {
   -moz-appearance: none;
   background-color: var(--toolbar-bgcolor);
