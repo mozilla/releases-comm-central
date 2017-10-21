@@ -262,8 +262,8 @@
         <groupbox>
             <caption label="&pref.calendar.todaypane.agenda.caption;"/>
             <hbox align="center">
-                <label value="&pref.soondays.label;"
-                       accesskey="&pref.soondays.accesskey;"
+                <label value="&pref.soondays2.label;"
+                       accesskey="&pref.soondays2.accesskey;"
                        control="soondays-menulist"/>
                 <menulist id="soondays-menulist"
                           preference="calendar.agendaListbox.soondays"

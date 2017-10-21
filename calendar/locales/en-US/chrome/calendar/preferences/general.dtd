@@ -34,8 +34,13 @@
 <!ENTITY pref.default_task_offset_next_hour.label "Relative to Next Hour">
 
 <!ENTITY pref.calendar.todaypane.agenda.caption "Today Pane">
-<!ENTITY pref.soondays.label "The upcoming section shows:">
-<!ENTITY pref.soondays.accesskey "u">
+<!-- LOCALIZATION NOTE (pref.soondays2.label):
+     "Upcoming" is the name of a section and the translation must match the
+     translation of that section name (calendar.upcoming.button.label). Also,
+     it should be upper case (as a proper name) if the target language permits.
+  -->
+<!ENTITY pref.soondays2.label "The Upcoming section shows:">
+<!ENTITY pref.soondays2.accesskey "U">
 
 <!ENTITY pref.accessibility.label "Accessibility" >
 <!ENTITY pref.systemcolors.label "Optimize colors for accessibility" >
