@@ -86,7 +86,7 @@ NS_INTERFACE_MAP_BEGIN(nsMsgRDFDataSource)
   NS_INTERFACE_MAP_ENTRIES_CYCLE_COLLECTION(nsMsgRDFDataSource)
 NS_INTERFACE_MAP_END
 
-/* readonly attribute string URI; */
+/* readonly attribute ACString URI; */
 NS_IMETHODIMP
 nsMsgRDFDataSource::GetURI(nsACString& aURI)
 {
