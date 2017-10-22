@@ -104,6 +104,7 @@ toolbox[labelalign="end"] .toolbarbutton-1[type="menu-button"]
 
 .toolbarbutton-1,
 .toolbarbutton-menubutton-button {
+  color: inherit;
   padding-top: 5px;
   padding-bottom: 6px;
   padding-inline-start: 4px;
@@ -121,18 +122,12 @@ toolbox[labelalign="end"] .toolbarbutton-1[type="menu-button"]
 }
 
 .toolbarbutton-1[checked="true"] {
-  color: inherit;
   padding: 1px 5px !important;
 }
 
 .toolbarbutton-1[disabled=true]:-moz-lwtheme,
 .toolbarbutton-menubutton-button[disabled=true]:-moz-lwtheme {
-  color: inherit;
   text-shadow: inherit;
-}
-
-.toolbarbutton-1[disabled=true]:-moz-lwtheme .toolbarbutton-text {
-  opacity: .4;
 }
 
 toolbox[labelalign="end"] > toolbar[mode="full"] .toolbarbutton-1 .toolbarbutton-text {
@@ -294,6 +289,7 @@ button[type="menu-button"] > button {
 }
 
 .toolbarbutton-1[disabled=true] .toolbarbutton-icon,
+.toolbarbutton-1[disabled=true] .toolbarbutton-text,
 .toolbarbutton-1[disabled=true] .toolbarbutton-menu-dropmarker,
 .toolbarbutton-1[disabled=true] > .toolbarbutton-menubutton-dropmarker,
 .toolbarbutton-1[disabled=true] > .toolbarbutton-menubutton-button >

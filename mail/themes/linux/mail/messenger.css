@@ -113,11 +113,6 @@ menulist > menupopup >
   fill-opacity: var(--toolbarbutton-icon-fill-opacity);
 }
 
-.toolbarbutton-1:-moz-lwtheme,
-.toolbarbutton-menubutton-button:-moz-lwtheme {
-  color: inherit;
-}
-
 toolbox[labelalign="end"] .toolbarbutton-1,
 toolbox[labelalign="end"] .toolbarbutton-1[type="menu-button"]
   > .toolbarbutton-menubutton-button {
@@ -151,6 +146,7 @@ toolbox[labelalign="end"] .toolbarbutton-1[type="menu"] {
   border-radius: var(--toolbarbutton-border-radius);
   transition-property: background-color, border-color;
   transition-duration: 150ms;
+  color: inherit;
 }
 
 .toolbarbutton-menubutton-button {
@@ -260,10 +256,6 @@ toolbox:not([labelalign="end"]) toolbar[mode="full"] .toolbarbutton-1 {
   margin-inline-end: 0;
 }
 
-.toolbarbutton-1:not(:-moz-lwtheme) .toolbarbutton-text {
-  color: var(--toolbarbutton-text-color);
-}
-
 toolbar:not(.inline-toolbar):not(:-moz-lwtheme)
 .toolbarbutton-1 .toolbarbutton-text {
   color: -moz-menubartext;
@@ -281,11 +273,6 @@ toolbar:not(.inline-toolbar):not(:-moz-lwtheme)
 .toolbarbutton-menubutton-button > .toolbarbutton-icon,
 .toolbarbutton-1 .toolbarbutton-icon {
   padding: 1px;
-}
-
-.toolbarbutton-1[disabled=true]:-moz-lwtheme,
-.toolbarbutton-menubutton-button[disabled=true]:-moz-lwtheme {
-  color: inherit;
 }
 
 toolbar[mode="full"] .toolbarbutton-1 {

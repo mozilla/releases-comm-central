@@ -191,8 +191,12 @@ toolbox[labelalign="end"] toolbarpaletteitem .toolbarbutton-1[type="menu"] {
   fill-opacity: var(--toolbarbutton-icon-fill-opacity);
 }
 
-.toolbarbutton-1:-moz-lwtheme {
+.toolbarbutton-1,
+.toolbarbutton-menubutton-button {
   color: inherit;
+}
+
+.toolbarbutton-1:-moz-lwtheme {
   text-shadow: inherit;
 }
 
@@ -240,11 +244,6 @@ toolbar:not([mode="icons"]) .toolbarbutton-1 > .toolbarbutton-menubutton-button 
 
 .toolbarbutton-1 .toolbarbutton-icon {
   padding: 1px;
-}
-
-.toolbarbutton-1[disabled=true]:-moz-lwtheme,
-.toolbarbutton-menubutton-button[disabled=true]:-moz-lwtheme {
-  color: inherit !important;
 }
 
 .toolbarbutton-1[disabled="true"] .toolbarbutton-text,
