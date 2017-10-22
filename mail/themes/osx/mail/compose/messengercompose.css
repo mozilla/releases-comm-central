@@ -22,7 +22,7 @@
 }
 
 #attachmentBucket:focus {
-  box-shadow: 0 0 1.5px 1px -moz-mac-focusring;
+  box-shadow: 0 0 1.5px 1px -moz-mac-focusring inset;
 }
 
 #compose-toolbox toolbarbutton[checked="true"] {
