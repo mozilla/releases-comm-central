@@ -88,7 +88,7 @@ NS_INTERFACE_MAP_END
 
 /* readonly attribute string URI; */
 NS_IMETHODIMP
-nsMsgRDFDataSource::GetURI(char * *aURI)
+nsMsgRDFDataSource::GetURI(nsACString& aURI)
 {
     NS_NOTREACHED("should be implemented by a subclass");
     return NS_ERROR_UNEXPECTED;

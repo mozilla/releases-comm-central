@@ -76,12 +76,10 @@ nsSubscribeDataSource::Init()
 }
 
 NS_IMETHODIMP
-nsSubscribeDataSource::GetURI(char * *aURI)
+nsSubscribeDataSource::GetURI(nsACString& aURI)
 {
-  if ((*aURI = strdup("rdf:subscribe")) == nullptr)
-    return NS_ERROR_OUT_OF_MEMORY;
-  else
-    return NS_OK;
+  aURI.AssignLiteral("rdf:subscribe");
+  return NS_OK;
 }
 
 NS_IMETHODIMP

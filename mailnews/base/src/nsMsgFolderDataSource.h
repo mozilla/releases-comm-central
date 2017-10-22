@@ -41,7 +41,7 @@ public:
   virtual void Cleanup() override;
 
   // nsIRDFDataSource methods
-  NS_IMETHOD GetURI(char* *uri) override;
+  NS_IMETHOD GetURI(nsACString& uri) override;
 
   NS_IMETHOD GetSource(nsIRDFResource* property,
                        nsIRDFNode* target,
@@ -278,7 +278,7 @@ public:
   virtual nsresult Init() override;
   virtual void Cleanup() override;
 
-  NS_IMETHOD GetURI(char* *uri) override;
+  NS_IMETHOD GetURI(nsACString& uri) override;
   NS_IMETHOD GetTargets(nsIRDFResource* source,
                         nsIRDFResource* property,
                         bool tv,

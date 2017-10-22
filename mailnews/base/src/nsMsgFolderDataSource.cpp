@@ -301,12 +301,10 @@ NS_IMPL_RELEASE_INHERITED(nsMsgFolderDataSource, nsMsgRDFDataSource)
 NS_IMPL_QUERY_INTERFACE_INHERITED(nsMsgFolderDataSource, nsMsgRDFDataSource, nsIFolderListener)
 
  // nsIRDFDataSource methods
-NS_IMETHODIMP nsMsgFolderDataSource::GetURI(char* *uri)
+NS_IMETHODIMP nsMsgFolderDataSource::GetURI(nsACString& uri)
 {
-  if ((*uri = strdup("rdf:mailnewsfolders")) == nullptr)
-    return NS_ERROR_OUT_OF_MEMORY;
-  else
-    return NS_OK;
+  uri.AssignLiteral("rdf:mailnewsfolders");
+  return NS_OK;
 }
 
 NS_IMETHODIMP nsMsgFolderDataSource::GetSource(nsIRDFResource* property,
@@ -2141,12 +2139,11 @@ void nsMsgFlatFolderDataSource::EnsureFolders()
 }
 
 
-NS_IMETHODIMP nsMsgFlatFolderDataSource::GetURI(char* *aUri)
+NS_IMETHODIMP nsMsgFlatFolderDataSource::GetURI(nsACString& aUri)
 {
-  nsAutoCString uri("rdf:");
-  uri.Append(m_dsName);
-  return (*aUri = ToNewCString(uri))
-    ? NS_OK : NS_ERROR_OUT_OF_MEMORY;
+  aUri.AssignLiteral("rdf:");
+  aUri.Append(m_dsName);
+  return NS_OK;
 }
 
 NS_IMETHODIMP nsMsgFlatFolderDataSource::HasAssertion(nsIRDFResource* source,
