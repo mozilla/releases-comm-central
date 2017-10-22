@@ -24,7 +24,7 @@
 
     <content>
       <xul:stringbundle anonid="tbstringbundle" src="chrome://instantbird/locale/tabbrowser.properties"/>
-      <xul:tabbox anonid="tabbox" flex="1" eventnode="document" xbl:inherits="handleCtrlPageUpDown"
+      <xul:tabbox anonid="tabbox" flex="1" eventnode="document"
                   onselect="if (event.target.localName != 'tabpanels') return;
                             document.getBindingParent(this).updateCurrentTab();">
         <xul:hbox class="tab-drop-indicator-bar" collapsed="true" chromedir="&locale.dir;"
@@ -1398,8 +1398,7 @@
           if (('ctrlKey' in aEvent && aEvent.ctrlKey) &&
               !('shiftKey' in aEvent && aEvent.shiftKey) &&
               !('metaKey' in aEvent && aEvent.metaKey)) {
-            if (aEvent.keyCode == KeyEvent.DOM_VK_F4 &&
-                this.tabbrowser.mTabBox.handleCtrlPageUpDown) {
+            if (aEvent.keyCode == KeyEvent.DOM_VK_F4) {
               this.tabbrowser.removeCurrentTab();
 
               aEvent.stopPropagation();

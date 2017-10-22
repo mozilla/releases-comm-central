@@ -22,7 +22,7 @@
 
     <content>
       <xul:stringbundle anonid="tbstringbundle" src="chrome://navigator/locale/tabbrowser.properties"/>
-      <xul:tabbox anonid="tabbox" flex="1" eventnode="document" xbl:inherits="handleCtrlPageUpDown">
+      <xul:tabbox anonid="tabbox" flex="1" eventnode="document">
         <xul:hbox class="tab-drop-indicator-bar" collapsed="true">
           <xul:image class="tab-drop-indicator" mousethrough="always"/>
         </xul:hbox>
@@ -1669,7 +1669,7 @@
                   charset: aCharset,
                   referrerPolicy: aReferrerPolicy,
                   postData: aPostData,
-                });                
+                });
               }
               catch (ex) { }
             }

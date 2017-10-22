@@ -268,7 +268,7 @@
       <stylesheet src="chrome://messenger/skin/tabmail.css"/>
     </resources>
     <content>
-      <xul:tabbox anonid="tabbox" class="tabmail-tabbox" flex="1" eventnode="document" xbl:inherits="handleCtrlPageUpDown">
+      <xul:tabbox anonid="tabbox" class="tabmail-tabbox" flex="1" eventnode="document">
         <!-- Remember, user of this binding, you need to provide tabpanels!  -->
         <children includes="tabpanels"/>
       </xul:tabbox>

@@ -163,7 +163,6 @@
       <xul:tabbox anonid="tabbox"
                   flex="1"
                   eventnode="document"
-                  xbl:inherits="handleCtrlPageUpDown"
                   onselect="if (event.target.localName == 'tabs' &amp;&amp;
                                 'updateCurrentTab' in this.parentNode)
                               this.parentNode.updateCurrentTab();">
