@@ -401,7 +401,7 @@ var SearchSupport =
         searchTerm.hdrProperty = this._hdrIndexedProperty;
         value.status = reindexTime;
         searchTerm.value = value;
-        searchTerms.appendElement(searchTerm, false);
+        searchTerms.appendElement(searchTerm);
         this._headerEnumerator = this._currentFolderToIndex.msgDatabase
                                  .getFilterEnumerator(searchTerms);
       }

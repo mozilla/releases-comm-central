@@ -24,8 +24,8 @@ add_task(function* runPump() {
 
   // Deletes 2 middle messages.
   let deletes = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
-  deletes.appendElement(hdrs[1], false);
-  deletes.appendElement(hdrs[2], false);
+  deletes.appendElement(hdrs[1]);
+  deletes.appendElement(hdrs[2]);
 
   // Note the listener won't work because this is a sync delete,
   // but it should!

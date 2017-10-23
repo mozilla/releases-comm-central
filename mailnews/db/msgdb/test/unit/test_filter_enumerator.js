@@ -58,7 +58,7 @@ function run_test() {
   value.status = nsMsgFolderFlags.Mail;
   value.attrib = nsMsgSearchAttrib.FolderFlag;
   searchTerm.value = value;
-  searchTerms.appendElement(searchTerm, false);
+  searchTerms.appendElement(searchTerm);
 
   searchTerm = searchSession.createTerm();
   searchTerm.booleanAnd = true;
@@ -69,7 +69,7 @@ function run_test() {
   value.attrib = nsMsgSearchAttrib.FolderFlag;
   searchTerm.value = value;
   searchTerm.endsGrouping = true;
-  searchTerms.appendElement(searchTerm, false);
+  searchTerms.appendElement(searchTerm);
 
   searchTerm = searchSession.createTerm();
   searchTerm.booleanAnd = true;
@@ -80,7 +80,7 @@ function run_test() {
   value.str = "gloda-id";
   value.attrib = nsMsgSearchAttrib.HdrProperty;
   searchTerm.value = value;
-  searchTerms.appendElement(searchTerm, false);
+  searchTerms.appendElement(searchTerm);
 
   let filterEnumerator = inboxDB.getFilterEnumerator(searchTerms);
   let numMatches = {};

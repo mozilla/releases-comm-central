@@ -248,7 +248,7 @@ function BeginDragTree (event)
 
     // put it into the transferable as an |nsISupports|
     var genTrans = transferable.QueryInterface(Components.interfaces.nsISupports);
-    transArray.appendElement(genTrans, /* weak = */ false);
+    transArray.appendElement(genTrans);
 
     var dragService =
       Components.classes[DRAGSERVICE_CONTRACTID].getService(nsIDragService);

@@ -412,7 +412,7 @@ function runSelectedFilters()
   var filterList = MailServices.filters.getTempFilterList(msgFolder);
   var folders = Components.classes["@mozilla.org/array;1"]
                           .createInstance(Components.interfaces.nsIMutableArray);
-  folders.appendElement(msgFolder, false);
+  folders.appendElement(msgFolder);
 
   // make sure the tmp filter list uses the real filter list log stream
   filterList.logStream = currentFilterList().logStream;

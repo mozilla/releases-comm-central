@@ -218,10 +218,10 @@ function doSearch(aSearchTerm, aFeatures) {
                             .createInstance(nsISupportsString);
   uristring.data = submission.uri.spec;
 
-  sa.appendElement(uristring, false);
-  sa.appendElement(null, false);
-  sa.appendElement(null, false);
-  sa.appendElement(submission.postData, false);
+  sa.appendElement(uristring);
+  sa.appendElement(null);
+  sa.appendElement(null);
+  sa.appendElement(submission.postData);
 
   // XXXbsmedberg: use handURIToExistingBrowser to obey tabbed-browsing
   // preferences, but need nsIBrowserDOMWindow extensions

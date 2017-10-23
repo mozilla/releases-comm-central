@@ -959,7 +959,7 @@ function MsgDeleteFolder()
                   gCurrentVirtualFolderUri = null;
                 var array = Components.classes["@mozilla.org/array;1"]
                                       .createInstance(Components.interfaces.nsIMutableArray);
-                array.appendElement(folder, false);
+                array.appendElement(folder);
                 folder.parent.deleteSubFolders(array, msgWindow);
                 continue;
             }
@@ -977,7 +977,7 @@ function MsgDeleteFolder()
 
                 var array = Components.classes["@mozilla.org/array;1"]
                                       .createInstance(Components.interfaces.nsIMutableArray);
-                array.appendElement(selectedFolder, false);
+                array.appendElement(selectedFolder);
                 try
                 {
                     selectedFolder.parent.deleteSubFolders(array, msgWindow);

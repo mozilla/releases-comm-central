@@ -829,7 +829,7 @@ var gFolderTreeView = {
         let msgHdr = messenger.msgHdrFromURI(dt.mozGetDataAt("text/x-moz-message", i));
         if (!i)
           sourceFolder = msgHdr.folder;
-        array.appendElement(msgHdr, false);
+        array.appendElement(msgHdr);
       }
       let prefBranch = Services.prefs.getBranch("mail.");
       let isMove = Cc["@mozilla.org/widget/dragservice;1"]

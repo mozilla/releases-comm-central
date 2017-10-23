@@ -78,7 +78,7 @@ function check_directory(directory) {
 
   // Remove the new card to be stable!
   var array = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
-  array.appendElement(newCard, false);
+  array.appendElement(newCard);
   directory.deleteCards(array);
 
   // We need to iterate over the array of cards to avoid any problems if someone
@@ -87,7 +87,7 @@ function check_directory(directory) {
     // Question 5.1: Does deleting a card properly set the uids?
     var localId = card.localId;
     array.clear();
-    array.appendElement(card, false);
+    array.appendElement(card);
     directory.deleteCards(array);
     do_check_eq(card.directoryId, "");
     do_check_eq(card.localId, localId);

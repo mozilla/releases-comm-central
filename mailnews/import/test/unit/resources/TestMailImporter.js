@@ -63,7 +63,7 @@ TestMailImpoter.prototype = {
     let descriptor = this._createMailboxDescriptor(directory.path,
                                                    directory.leafName,
                                                    depth);
-    result.appendElement(descriptor, false);
+    result.appendElement(descriptor);
     let entries = directory.directoryEntries;
     while (entries.hasMoreElements()) {
       let entry = entries.getNext().QueryInterface(Ci.nsIFile);

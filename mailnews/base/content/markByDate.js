@@ -100,7 +100,7 @@ function markInDatabase( lower, upper )
   value.attrib = nsMsgSearchAttrib.Date;
   value.date = upper;
   searchTerm.value = value;
-  searchTerms.appendElement( searchTerm, false );
+  searchTerms.appendElement( searchTerm );
 
   if ( lower )
   {
@@ -112,7 +112,7 @@ function markInDatabase( lower, upper )
     value.attrib = nsMsgSearchAttrib.Date;
     value.date = lower;
     searchTerm.value = value;
-    searchTerms.appendElement( searchTerm, false );
+    searchTerms.appendElement( searchTerm );
   }
 
   var filterEnumerator = messageDatabase.getFilterEnumerator( searchTerms );

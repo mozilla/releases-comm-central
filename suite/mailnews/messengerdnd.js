@@ -164,7 +164,7 @@ function DropOnFolderTree(aRow, aOrientation)
       let folder = dt.mozGetDataAt("text/x-moz-folder", i);
       let array = Components.classes["@mozilla.org/array;1"]
                             .createInstance(Components.interfaces.nsIMutableArray);
-      array.appendElement(folder, false);
+      array.appendElement(folder);
       try
       {
         gCopyService.CopyFolders(array,
@@ -215,7 +215,7 @@ function DropOnFolderTree(aRow, aOrientation)
       let msgHdr = messenger.msgHdrFromURI(dt.mozGetDataAt("text/x-moz-message", i));
       if (!sourceFolder)
         sourceFolder = msgHdr.folder;
-      array.appendElement(msgHdr, false);
+      array.appendElement(msgHdr);
     }
     let isMove = dragSession.dragAction == nsIDragService.DRAGDROP_ACTION_MOVE;
     if (!sourceFolder.canDeleteMessages)

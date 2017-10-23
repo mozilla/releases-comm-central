@@ -91,7 +91,7 @@ function* moveMessageToTargetFolder()
   // Now move this message to the target folder.
   var messages = Cc["@mozilla.org/array;1"]
                    .createInstance(Ci.nsIMutableArray);
-  messages.appendElement(msgHdr, false);
+  messages.appendElement(msgHdr);
   // This should cause the move to be done as an offline imap operation
   // that's played back immediately.
   MailServices.copy.CopyMessages(IMAPPump.inbox, messages, gTargetFolder, true,

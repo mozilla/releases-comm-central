@@ -197,7 +197,7 @@ function EditCardOKButton()
   {
     // Update the addressLists item for this card
     let foundItem = foundDirectories.pop();
-    foundItem.directory.addressLists.replaceElementAt(gEditCard.card, foundItem.cardIndex, false);
+    foundItem.directory.addressLists.replaceElementAt(gEditCard.card, foundItem.cardIndex);
   }
 
   NotifySaveListeners(directory);

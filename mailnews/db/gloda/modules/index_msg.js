@@ -743,7 +743,7 @@ var GlodaMsgIndexer = {
       value.status = 0;
       searchTerm.value = value;
       searchTerm.hdrProperty = GLODA_MESSAGE_ID_PROPERTY;
-      searchTerms.appendElement(searchTerm, false);
+      searchTerms.appendElement(searchTerm);
 
       // second term: || GLODA_MESSAGE_ID_PROPERTY Is GLODA_OLD_BAD_MESSAGE_ID
       searchTerm = searchSession.createTerm();
@@ -755,7 +755,7 @@ var GlodaMsgIndexer = {
       value.status = GLODA_OLD_BAD_MESSAGE_ID;
       searchTerm.value = value;
       searchTerm.hdrProperty = GLODA_MESSAGE_ID_PROPERTY;
-      searchTerms.appendElement(searchTerm, false);
+      searchTerms.appendElement(searchTerm);
 
       //  third term: || GLODA_DIRTY_PROPERTY Isnt 0 )
       searchTerm = searchSession.createTerm();
@@ -768,7 +768,7 @@ var GlodaMsgIndexer = {
       value.status = 0;
       searchTerm.value = value;
       searchTerm.hdrProperty = GLODA_DIRTY_PROPERTY;
-      searchTerms.appendElement(searchTerm, false);
+      searchTerms.appendElement(searchTerm);
 
       // JUNK_SCORE_PROPERTY Isnt 100
       // For symmetry with our event-driven stuff, we just directly deal with
@@ -782,7 +782,7 @@ var GlodaMsgIndexer = {
       value.str = JUNK_SPAM_SCORE_STR;
       searchTerm.value = value;
       searchTerm.hdrProperty = JUNK_SCORE_PROPERTY;
-      searchTerms.appendElement(searchTerm, false);
+      searchTerms.appendElement(searchTerm);
 
       if (!isLocal)
       {
@@ -797,7 +797,7 @@ var GlodaMsgIndexer = {
           value.attrib = searchTerm.attrib;
           value.status = nsMsgMessageFlags.Offline;
           searchTerm.value = value;
-          searchTerms.appendElement(searchTerm, false);
+          searchTerms.appendElement(searchTerm);
         }
 
         // fourth term: && Status Isnt nsMsgMessageFlags.Expunged
@@ -809,7 +809,7 @@ var GlodaMsgIndexer = {
         value.attrib = searchTerm.attrib;
         value.status = nsMsgMessageFlags.Expunged;
         searchTerm.value = value;
-        searchTerms.appendElement(searchTerm, false);
+        searchTerms.appendElement(searchTerm);
       }
 
       this._indexingEnumerator =
@@ -848,7 +848,7 @@ var GlodaMsgIndexer = {
       value.status = aAllowPreBadIds ? 0 : (GLODA_FIRST_VALID_MESSAGE_ID - 1);
       searchTerm.value = value;
       searchTerm.hdrProperty = GLODA_MESSAGE_ID_PROPERTY;
-      searchTerms.appendElement(searchTerm, false);
+      searchTerms.appendElement(searchTerm);
 
       //  second term: && GLODA_DIRTY_PROPERTY Isnt kMessageFilthy)
       searchTerm = searchSession.createTerm();
@@ -861,7 +861,7 @@ var GlodaMsgIndexer = {
       value.status = this.kMessageFilthy;
       searchTerm.value = value;
       searchTerm.hdrProperty = GLODA_DIRTY_PROPERTY;
-      searchTerms.appendElement(searchTerm, false);
+      searchTerms.appendElement(searchTerm);
 
       // The use-case of already indexed messages does not want them reversed;
       //  we care about seeing the message keys in order.

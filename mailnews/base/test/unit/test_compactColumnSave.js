@@ -108,7 +108,7 @@ function deleteMessages(srcFolder, items)
 {
   var array = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
   items.forEach(function (item) {
-    array.appendElement(item, false);
+    array.appendElement(item);
   });
   
   srcFolder.deleteMessages(array, null, false, true, copyListener, true);

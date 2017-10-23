@@ -99,13 +99,13 @@ nsDownloadManagerUI.prototype = {
     // We pass the download manager and the nsIDownload we want selected (if any)
     var params = Cc["@mozilla.org/array;1"].
                  createInstance(Ci.nsIMutableArray);
-    params.appendElement(aDownload, false);
+    params.appendElement(aDownload);
 
     // Pass in the reason as well
     let reason = Cc["@mozilla.org/supports-PRInt16;1"].
                  createInstance(Ci.nsISupportsPRInt16);
     reason.data = aReason;
-    params.appendElement(reason, false);
+    params.appendElement(reason);
 
     var manager = DOWNLOAD_MANAGER_URL;
     try {
@@ -136,13 +136,13 @@ nsDownloadManagerUI.prototype = {
     } catch (e) { /* it's OK to not have a parent window */ }
 
     var params = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
-    params.appendElement(aDownload, false);
+    params.appendElement(aDownload);
 
     // Pass in the reason as well
     let reason = Cc["@mozilla.org/supports-PRInt16;1"].
                  createInstance(Ci.nsISupportsPRInt16);
     reason.data = aReason;
-    params.appendElement(reason, false);
+    params.appendElement(reason);
 
     Services.ww.openWindow(parent,
       "chrome://communicator/content/downloads/progressDialog.xul",

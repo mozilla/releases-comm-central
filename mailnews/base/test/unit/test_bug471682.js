@@ -50,7 +50,7 @@ var step2 =
     do_check_neq(gHdr, null);
     // copy the message into the subfolder
     var messages = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
-    messages.appendElement(gHdr, false);
+    messages.appendElement(gHdr);
     MailServices.copy.CopyMessages(localAccountUtils.inboxFolder, messages, gSubfolder,
                                    false, step3, null, false);
   }
@@ -75,7 +75,7 @@ var step3 =
 function step4()
 {
   var messages = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
-  messages.appendElement(gHdr, false);
+  messages.appendElement(gHdr);
   MailServices.copy.CopyMessages(localAccountUtils.inboxFolder, messages, gSubfolder,
                                  false, step5, null, false);
 }

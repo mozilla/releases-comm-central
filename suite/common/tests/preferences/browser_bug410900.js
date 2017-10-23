@@ -10,7 +10,7 @@ function test() {
   var extps = Components.classes["@mozilla.org/uriloader/external-protocol-service;1"]
                         .getService(Components.interfaces.nsIExternalProtocolService);
   var info = extps.getProtocolHandlerInfo("apppanetest");
-  info.possibleApplicationHandlers.appendElement(handler, false);
+  info.possibleApplicationHandlers.appendElement(handler);
 
   var hserv = Components.classes["@mozilla.org/uriloader/handler-service;1"]
                         .getService(Components.interfaces.nsIHandlerService);

@@ -126,7 +126,7 @@ function GetListValue(mailList, doAdd)
           cardproperty.displayName = addrObjects[j].name || addrObjects[j].email;
 
           if (doAdd || (doAdd == false && pos >= oldTotal))
-            mailList.addressLists.appendElement(cardproperty, false);
+            mailList.addressLists.appendElement(cardproperty);
         }
         pos++;
       }

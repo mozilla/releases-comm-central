@@ -127,7 +127,7 @@ function copyMessages(messages, isMove, srcFolder, destFolder)
   let array = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
   messages.forEach(function (message)
   {
-    array.appendElement(message, false);
+    array.appendElement(message);
   });
   gExpectedEvents = [[gMFNService.msgsMoveCopyCompleted, isMove, messages, destFolder, true]];
   // We'll also get the msgAdded events when we go and update the destination

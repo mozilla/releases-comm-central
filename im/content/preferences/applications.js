@@ -178,7 +178,7 @@ HandlerInfoWrapper.prototype = {
       if (possibleApps.getNext().equals(aNewHandler))
         return;
     }
-    this.possibleApplicationHandlers.appendElement(aNewHandler, false);
+    this.possibleApplicationHandlers.appendElement(aNewHandler);
   },
 
   removePossibleApplicationHandler: function(aHandler) {

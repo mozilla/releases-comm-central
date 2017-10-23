@@ -24,7 +24,7 @@ var gTestArray =
   function deleteMessage() {
     let msgToDelete = mailTestUtils.firstMsgHdr(gTestFolder);
     gMsgId1 = msgToDelete.messageId;
-    gMessages.appendElement(msgToDelete, false);
+    gMessages.appendElement(msgToDelete);
     gTestFolder.deleteMessages(gMessages, gMsgWindow, false, true, CopyListener,
                                true);
   },

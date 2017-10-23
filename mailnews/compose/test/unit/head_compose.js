@@ -170,7 +170,7 @@ function richCreateMessage(fields, attachments=[], identity=null,
   let array = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
   let enumerator = gDraftFolder.msgDatabase.EnumerateMessages();
   while (enumerator.hasMoreElements())
-    array.appendElement(enumerator.getNext(), false);
+    array.appendElement(enumerator.getNext());
   if (array.length)
     gDraftFolder.deleteMessages(array, null, true, false, null, false);
 

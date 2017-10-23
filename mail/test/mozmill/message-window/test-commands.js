@@ -34,7 +34,7 @@ function test_copy_eml_message() {
   let message = select_click_row(0);
   let array = Cc["@mozilla.org/array;1"]
                 .createInstance(Ci.nsIMutableArray);
-  array.appendElement(message, false);
+  array.appendElement(message);
   MailServices.copy.CopyMessages(folder1, array, folder2, true,
                                  null, mc.window.msgWindow, true);
   be_in_folder(folder2);

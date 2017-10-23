@@ -107,7 +107,7 @@ function* doMoves() {
   {
     let header = msgEnumerator.getNext();
     if (header instanceof Components.interfaces.nsIMsgDBHdr)
-      headers1.appendElement(header, false);
+      headers1.appendElement(header);
   }
   // this will add dummy headers with keys > 0xffffff80
   MailServices.copy.CopyMessages(gIMAPInbox, headers1, gFolder1, true,
@@ -127,7 +127,7 @@ function* doMoves() {
   {
     let header = msgEnumerator.getNext();
     if (header instanceof Components.interfaces.nsIMsgDBHdr)
-      headers1.appendElement(header, false);
+      headers1.appendElement(header);
   }
   // Check that CopyMessages will handle having a high highwater mark.
   // It will thrown an exception if it can't.

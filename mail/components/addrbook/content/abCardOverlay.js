@@ -220,7 +220,7 @@ function EditCardOKButton()
     let foundItem = foundDirectories.pop();
     foundItem.directory
              .addressLists
-             .replaceElementAt(gEditCard.card, foundItem.cardIndex, false);
+             .replaceElementAt(gEditCard.card, foundItem.cardIndex);
   }
 
   NotifySaveListeners(directory);

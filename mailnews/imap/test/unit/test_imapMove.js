@@ -47,7 +47,7 @@ function *doMove() {
   gFolder1 = rootFolder.getChildNamed("folder 1")
                        .QueryInterface(Ci.nsIMsgImapMailFolder);
   let msg = IMAPPump.inbox.msgDatabase.GetMsgHdrForKey(IMAPPump.mailbox.uidnext - 1);
-  messages.appendElement(msg, false);
+  messages.appendElement(msg);
   IMAPPump.server._test = true;
   let listener = new PromiseTestUtils.PromiseCopyListener();
   MailServices.copy.CopyMessages(IMAPPump.inbox, messages, gFolder1, true,

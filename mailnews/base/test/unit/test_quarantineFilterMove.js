@@ -61,8 +61,8 @@ var gTestArray =
     let enumerator = gMoveFolder.msgDatabase.EnumerateMessages();
     let firstMsgHdr = enumerator.getNext().QueryInterface(Ci.nsIMsgDBHdr);
     let secondMsgHdr = enumerator.getNext().QueryInterface(Ci.nsIMsgDBHdr);
-    messages.appendElement(firstMsgHdr, false);
-    messages.appendElement(secondMsgHdr, false);
+    messages.appendElement(firstMsgHdr);
+    messages.appendElement(secondMsgHdr);
     let promiseCopyListener = new PromiseTestUtils.PromiseCopyListener();
     MailServices.copy.CopyMessages(gMoveFolder, messages, gMoveFolder2, false,
                                    promiseCopyListener, null, false);

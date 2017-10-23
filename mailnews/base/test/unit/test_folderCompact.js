@@ -89,7 +89,7 @@ function copyMessages(items, isMove, srcFolder, destFolder)
   let listener = new PromiseTestUtils.PromiseCopyListener(copyListenerWrap);
   var array = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
   items.forEach(function (item) {
-    array.appendElement(item, false);
+    array.appendElement(item);
   });
   MailServices.copy.CopyMessages(srcFolder, array, destFolder, isMove, listener, null, true);
   return listener.promise;
@@ -99,7 +99,7 @@ function deleteMessages(srcFolder, items)
 {
   var array = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
   items.forEach(function (item) {
-    array.appendElement(item, false);
+    array.appendElement(item);
   });
   
   let listener = new PromiseTestUtils.PromiseCopyListener(copyListenerWrap);

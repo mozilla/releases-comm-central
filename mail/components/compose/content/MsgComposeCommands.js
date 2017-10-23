@@ -1605,7 +1605,7 @@ function convertListItemsToCloudAttachment(aItems, aProvider)
       let listener = new uploadListener(item.attachment, file,
                                         aProvider);
       aProvider.uploadFile(file, listener);
-      convertedAttachments.appendElement(item.attachment, false);
+      convertedAttachments.appendElement(item.attachment);
     }
     catch (ex) {
       listener.onStopRequest(null, null, ex.result);
@@ -1686,7 +1686,7 @@ function convertListItemsToRegularAttachment(aItems)
     delete item.originalUrl;
     item.image = null;
 
-    convertedAttachments.appendElement(item.attachment, false);
+    convertedAttachments.appendElement(item.attachment);
   }
 
   dispatchAttachmentBucketEvent("attachments-converted", convertedAttachments);
@@ -4085,7 +4085,7 @@ function RemoveDraft()
       {
         var msgs = Components.classes["@mozilla.org/array;1"].
             createInstance(Components.interfaces.nsIMutableArray);
-        msgs.appendElement(folder.GetMessageHeader(msgKey), false);
+        msgs.appendElement(folder.GetMessageHeader(msgKey));
         folder.deleteMessages(msgs, null, true, false, null, false);
       }
     }
@@ -4228,7 +4228,7 @@ function AddAttachments(aAttachments, aCallback)
       attachment.name = getComposeBundle().getString("partAttachmentSafeName");
 
     let item = bucket.appendItem(attachment);
-    addedAttachments.appendElement(attachment, false);
+    addedAttachments.appendElement(attachment);
 
     if (attachment.size != -1)
       gAttachmentsSize += attachment.size;
@@ -4356,7 +4356,7 @@ function RemoveAllAttachments()
   {
     let child = bucket.removeItemAt(bucket.getRowCount() - 1);
 
-    removedAttachments.appendElement(child.attachment, false);
+    removedAttachments.appendElement(child.attachment);
     // Let's release the attachment object hold by the node else it won't go
     // away until the window is destroyed
     child.attachment = null;
@@ -4420,7 +4420,7 @@ function RemoveSelectedAttachment()
             new deletionListener(item.attachment, item.cloudProvider));
       }
 
-      removedAttachments.appendElement(item.attachment, false);
+      removedAttachments.appendElement(item.attachment);
       // Let's release the attachment object held by the node else it won't go
       // away until the window is destroyed
       item.attachment = null;

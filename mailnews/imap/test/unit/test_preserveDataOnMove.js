@@ -65,7 +65,7 @@ function* moveMessageToSubfolder()
   // Now move this message to the subfolder.
   var messages = Cc["@mozilla.org/array;1"]
                    .createInstance(Ci.nsIMutableArray);
-  messages.appendElement(msgHdr, false);
+  messages.appendElement(msgHdr);
   /*
   void CopyMessages(in nsIMsgFolder srcFolder,
                     in nsIArray messages,

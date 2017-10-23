@@ -96,7 +96,7 @@ var tests = [
     // that folder.
     let msgHdr = IMAPPump.inbox.msgDatabase.getMsgHdrForMessageID(gMsgId5);
     let array = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
-    array.appendElement(msgHdr, false);
+    array.appendElement(msgHdr);
     // store the deleted flag
     IMAPPump.inbox.storeImapFlags(0x0008, true, [msgHdr.messageKey], 1, asyncUrlListener);
     yield false;
@@ -118,7 +118,7 @@ var tests = [
     IMAPPump.incomingServer.deleteModel = Ci.nsMsgImapDeleteModels.MoveToTrash;
     let msgHdr = IMAPPump.inbox.msgDatabase.getMsgHdrForMessageID(gMsgId1);
     let array = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
-    array.appendElement(msgHdr, false);
+    array.appendElement(msgHdr);
     IMAPPump.inbox.deleteMessages(array, null, false, true, CopyListener, false);
     let trashFolder = gRootFolder.getChildNamed("Trash");
     // hack to force uid validity to get initialized for trash.

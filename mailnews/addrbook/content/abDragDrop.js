@@ -293,7 +293,7 @@ var abDirTreeObserver = {
           let cardArray =
             Components.classes["@mozilla.org/array;1"]
                       .createInstance(Components.interfaces.nsIMutableArray);
-          cardArray.appendElement(card, false);
+          cardArray.appendElement(card);
           srcDirectory.deleteCards(cardArray);
         }
       }

@@ -62,7 +62,7 @@ function copyMessages(items, isMove, srcFolder, destFolder)
 {
   var array = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
   items.forEach(function (item) {
-    array.appendElement(item, false);
+    array.appendElement(item);
   });
   gExpectedEvents = [
     [gMFNService.msgsMoveCopyCompleted, isMove, items, destFolder, true]];
@@ -77,7 +77,7 @@ function copyFolders(items, isMove, destFolder)
 {
   var array = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
   items.forEach(function (item) {
-    array.appendElement(item, false);
+    array.appendElement(item);
   });
   gExpectedEvents = [[gMFNService.folderMoveCopyCompleted, isMove, items, destFolder]];
   gCopyService.CopyFolders(array, destFolder, isMove, copyListener, null);
@@ -90,7 +90,7 @@ function deleteMessages(srcFolder, items, deleteStorage, isMove)
 {
   var array = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
   items.forEach(function (item) {
-    array.appendElement(item, false);
+    array.appendElement(item);
   });
   // We should only get the delete notification only if we are not moving, and are deleting from
   // the storage/trash. We should get only the move/copy notification if we aren't.
@@ -126,7 +126,7 @@ function deleteFolder(folder, child)
 {
   var array = Cc["@mozilla.org/array;1"]
                 .createInstance(Ci.nsIMutableArray);
-  array.appendElement(folder, false);
+  array.appendElement(folder);
   // We won't be getting any OnStopCopy notification at all
   // XXX delete to trash should get one, but we'll need to pass the listener
   // somehow to deleteSubFolders

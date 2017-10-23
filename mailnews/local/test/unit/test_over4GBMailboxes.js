@@ -413,7 +413,7 @@ function compactOver4GiB()
   while (enumerator.hasMoreElements()) {
     let header = enumerator.getNext().QueryInterface(Ci.nsIMsgDBHdr);
     if (!enumerator.hasMoreElements()) {
-      messages.appendElement(header, false);
+      messages.appendElement(header);
       sizeToExpunge = header.messageSize;
     }
   }
@@ -465,7 +465,7 @@ function compactUnder4GiB()
   while (enumerator.hasMoreElements()) {
     let header = enumerator.getNext().QueryInterface(Ci.nsIMsgDBHdr);
     if (enumerator.hasMoreElements()) {
-      messages.appendElement(header, false);
+      messages.appendElement(header);
       sizeToExpunge += header.messageSize;
     }
   }

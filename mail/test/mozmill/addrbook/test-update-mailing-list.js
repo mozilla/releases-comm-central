@@ -33,7 +33,7 @@ function test_contact_in_mailing_list_updated() {
 
   // Add the mailing list to the address book, and then the card to the
   // address book, and finally, the card to the mailing list.
-  ml.addressLists.appendElement(contact, false);
+  ml.addressLists.appendElement(contact);
   ml = ab.addMailList(ml);
 
   contact = ml.addressLists.queryElementAt(0, Ci.nsIAbCard);

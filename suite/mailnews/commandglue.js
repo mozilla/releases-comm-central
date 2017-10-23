@@ -1024,7 +1024,7 @@ function CreateGroupedSearchTerms(searchTermsArray)
     // turn the first term to true to work with quick search...
     searchTermForQS.booleanAnd = i ? searchTerm.booleanAnd : true;
 
-    searchTermsArrayForQS.appendElement(searchTermForQS, /* weak = */ false);
+    searchTermsArrayForQS.appendElement(searchTermForQS);
   }
   return searchTermsArrayForQS;
 }

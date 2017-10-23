@@ -53,7 +53,7 @@ function test_move_message() {
   mc.close_popup_sequence(popups);
   let array = Cc["@mozilla.org/array;1"]
                 .createInstance(Ci.nsIMutableArray);
-  array.appendElement(msgHdr, false);
+  array.appendElement(msgHdr);
   let copyListener = {
     copyDone: false,
     OnStartCopy: function() {},

@@ -378,7 +378,7 @@ FeedItem.prototype =
       return;
 
     let msgArray = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
-    msgArray.appendElement(aMsgDBHdr, false);
+    msgArray.appendElement(aMsgDBHdr);
 
     let prefix = category.prefixEnabled ? category.prefix : "";
     let rtl = Services.prefs.getIntPref("bidi.direction") == 2;

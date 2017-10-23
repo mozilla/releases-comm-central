@@ -45,7 +45,7 @@ var gTestArray =
   function *applyFilters() {
     let messages = Cc["@mozilla.org/array;1"]
                      .createInstance(Ci.nsIMutableArray);
-    messages.appendElement(localAccountUtils.inboxFolder.firstNewMessage, false);
+    messages.appendElement(localAccountUtils.inboxFolder.firstNewMessage);
     let promiseFolderEvent =
       PromiseTestUtils.promiseFolderEvent(localAccountUtils.inboxFolder,
                                           "DeleteOrMoveMsgCompleted");
@@ -70,7 +70,7 @@ var gTestArray =
   function *applyFiltersToFolders() {
     let folders = Cc["@mozilla.org/array;1"]
                     .createInstance(Ci.nsIMutableArray);
-    folders.appendElement(localAccountUtils.inboxFolder, false);
+    folders.appendElement(localAccountUtils.inboxFolder);
     let promiseFolderEvent =
       PromiseTestUtils.promiseFolderEvent(localAccountUtils.inboxFolder,
                                           "DeleteOrMoveMsgCompleted");

@@ -504,7 +504,7 @@ function deleteAllInFolder(commandName)
   // Delete messages.
   iter = folder.messages;
   while (iter.hasMoreElements()) {
-    children.appendElement(iter.getNext(), false);
+    children.appendElement(iter.getNext());
   }
   folder.deleteMessages(children, msgWindow, true, false, null, false);
   children.clear();

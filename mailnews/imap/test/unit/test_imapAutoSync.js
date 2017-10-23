@@ -96,7 +96,7 @@ function* test_moveMessageToTargetFolder()
   // Now move this message to the target folder.
   let messages = Cc["@mozilla.org/array;1"]
                    .createInstance(Ci.nsIMutableArray);
-  messages.appendElement(msgHdr, false);
+  messages.appendElement(msgHdr);
   MailServices.copy.CopyMessages(IMAPPump.inbox, messages, gTargetFolder, true,
                                  asyncCopyListener, null, false);
   yield false;

@@ -514,7 +514,7 @@ function saveSearchTerms(searchTerms, termOwner)
                 // but we need to make the array longer anyway
                 termOwner.appendTerm(searchTerm);
             }
-            searchTerms.replaceElementAt(searchTerm, i, /* weak */ false);
+            searchTerms.replaceElementAt(searchTerm, i);
         } catch (ex) {
             dump("** Error saving element " + i + ": " + ex + "\n");
         }

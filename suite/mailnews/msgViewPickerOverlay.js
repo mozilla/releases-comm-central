@@ -222,7 +222,7 @@ function ViewTagKeyword(keyword)
   term.op = nsMsgSearchOp.Contains;
   term.booleanAnd = true;
 
-  searchTermsArray.appendElement(term, /* weak = */ false);
+  searchTermsArray.appendElement(term);
   AddVirtualFolderTerms(searchTermsArray);
   createSearchTermsWithList(searchTermsArray);
   gDefaultSearchViewTerms = searchTermsArray;
@@ -245,7 +245,7 @@ function ViewNewMail()
   term.attrib = nsMsgSearchAttrib.MsgStatus;
   term.op = nsMsgSearchOp.Isnt;
   term.booleanAnd = true;
-  searchTermsArray.appendElement(term, /* weak = */ false);
+  searchTermsArray.appendElement(term);
 
   AddVirtualFolderTerms(searchTermsArray);
 
@@ -271,7 +271,7 @@ function ViewNotDeletedMail()
   term.attrib = nsMsgSearchAttrib.MsgStatus;
   term.op = nsMsgSearchOp.Isnt;
   term.booleanAnd = true;
-  searchTermsArray.appendElement(term, /* weak = */ false);
+  searchTermsArray.appendElement(term);
 
   AddVirtualFolderTerms(searchTermsArray);
 
@@ -290,7 +290,7 @@ function AddVirtualFolderTerms(searchTermsArray)
     for (let i = 0; i < termsArray.length; i++)
     {
       let searchTerm = virtualFolderSearchTerms.queryElementAt(i, Components.interfaces.nsIMsgSearchTerm);
-      searchTermsArray.appendElement(searchTerm, /* weak = */ false);
+      searchTermsArray.appendElement(searchTerm);
     }
   }
 }

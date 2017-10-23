@@ -177,7 +177,7 @@ MessageClassifier.prototype =
       db.setStringProperty(aMsgHdr.messageKey, "junkscore",
                            Components.interfaces.nsIJunkMailPlugin.IS_HAM_SCORE);
       db.setStringProperty(aMsgHdr.messageKey, "junkscoreorigin", "whitelist");
-      this.mGoodMsgHdrs.appendElement(aMsgHdr, false);
+      this.mGoodMsgHdrs.appendElement(aMsgHdr);
       return;
     }
 
@@ -224,9 +224,9 @@ MessageClassifier.prototype =
     db.setStringProperty(msgHdr.messageKey, "junkpercent", aJunkPercent);
 
     if (aClassification == nsIJunkMailPlugin.JUNK)
-      this.mJunkMsgHdrs.appendElement(msgHdr, false);
+      this.mJunkMsgHdrs.appendElement(msgHdr);
     else if (aClassification == nsIJunkMailPlugin.GOOD)
-      this.mGoodMsgHdrs.appendElement(msgHdr, false);
+      this.mGoodMsgHdrs.appendElement(msgHdr);
 
     var nextMsgURI = this.mMessageQueue.shift();
     if (nextMsgURI)
@@ -387,7 +387,7 @@ function deleteJunkInFolder()
       var msgHdr = enumerator.getNext().QueryInterface(Components.interfaces.nsIMsgDBHdr);
       var junkScore = msgHdr.getStringProperty("junkscore");
       if (junkScore == Components.interfaces.nsIJunkMailPlugin.IS_SPAM_SCORE)
-        junkMsgHdrs.appendElement(msgHdr, false);
+        junkMsgHdrs.appendElement(msgHdr);
     }
 
     if (junkMsgHdrs.length)

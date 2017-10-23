@@ -302,7 +302,7 @@ function run_test()
   var cardsToDelete = Components.classes["@mozilla.org/array;1"]
                                 .createInstance(Components.interfaces.nsIMutableArray);
   while (childCards.hasMoreElements()) {
-    cardsToDelete.appendElement(childCards.getNext(), false);
+    cardsToDelete.appendElement(childCards.getNext());
   }
 
   collectChecker.AB.deleteCards(cardsToDelete);

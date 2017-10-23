@@ -72,7 +72,7 @@ var tests = [
   },
   function* deleteMessage() {
     let msgToDelete = IMAPPump.inbox.msgDatabase.getMsgHdrForMessageID(gMsgId1);
-    gMessages.appendElement(msgToDelete, false);
+    gMessages.appendElement(msgToDelete);
     IMAPPump.inbox.deleteMessages(gMessages, gMsgWindow, false, true, asyncCopyListener, true);
     yield false;
   },

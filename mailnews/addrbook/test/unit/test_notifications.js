@@ -75,7 +75,7 @@ function run_test() {
   var cardsToDelete = Cc["@mozilla.org/array;1"]
                         .createInstance(Ci.nsIMutableArray);
 
-  cardsToDelete.appendElement(newCard, false);
+  cardsToDelete.appendElement(newCard);
 
   AB.deleteCards(cardsToDelete);
 

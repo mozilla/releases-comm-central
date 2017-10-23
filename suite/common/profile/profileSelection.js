@@ -108,7 +108,7 @@ function AcceptDialog()
     gProfileService.defaultProfile = selected.profile;
     gProfileService.flush();
     if (gDialogParams.objects) {
-      gDialogParams.objects.insertElementAt(profileLock, 0, false);
+      gDialogParams.objects.insertElementAt(profileLock, 0);
       gProfileService.startOffline = document.getElementById("offlineState").checked;
       gDialogParams.SetInt(0, 1);
       gDialogParams.SetString(0, selected.profile.name);

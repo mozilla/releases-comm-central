@@ -43,8 +43,8 @@ var tests = [
                      .createInstance(Ci.nsIMutableArray);
     let headers2 = Cc["@mozilla.org/array;1"]
                      .createInstance(Ci.nsIMutableArray);
-    headers1.appendElement(msgHdr1, false);
-    headers2.appendElement(msgHdr2, false);
+    headers1.appendElement(msgHdr1);
+    headers2.appendElement(msgHdr2);
     msgHdr1.folder.markMessagesFlagged(headers1, true);
     msgHdr2.folder.markMessagesFlagged(headers2, true);
     let promiseCopyListener1 = new PromiseTestUtils.PromiseCopyListener();

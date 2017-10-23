@@ -70,18 +70,18 @@ function setupVirtualFolder()
   // add tag1 to 4 messages
   var messages0to3 = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
   for (var i = 0; i <= 3; i++)
-    messages0to3.appendElement(hdrs[i], false);
+    messages0to3.appendElement(hdrs[i]);
   localAccountUtils.inboxFolder.addKeywordsToMessages(messages0to3, tag1);
 
   // set 3 messages unread, 2 messages read
   var messages0to2 = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
   for (i = 0; i <= 2; i++)
-    messages0to2.appendElement(hdrs[i], false);
+    messages0to2.appendElement(hdrs[i]);
   localAccountUtils.inboxFolder.markMessagesRead(messages0to2, false);
 
   var messages3to4 = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
   for (i = 3; i <= 4; i++)
-    messages3to4.appendElement(hdrs[i], false);
+    messages3to4.appendElement(hdrs[i]);
   localAccountUtils.inboxFolder.markMessagesRead(messages3to4, true);
 
   // search will look for tag tag1 in the inbox folder
@@ -148,7 +148,7 @@ function testVirtualFolder()
 
   // change unread of one item in search to decrease count
   var message0 = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
-  message0.appendElement(hdrs[0], false);
+  message0.appendElement(hdrs[0]);
   localAccountUtils.inboxFolder.markMessagesRead(message0, true);
   virtualFolder.updateSummaryTotals(true);
 
@@ -158,7 +158,7 @@ function testVirtualFolder()
    
   // remove tag from one item to decrease count
   var message1 = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
-  message1.appendElement(hdrs[1], false);
+  message1.appendElement(hdrs[1]);
 
   localAccountUtils.inboxFolder.removeKeywordsFromMessages(message1, tag1);
   virtualFolder.updateSummaryTotals(true);

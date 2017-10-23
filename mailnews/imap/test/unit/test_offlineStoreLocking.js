@@ -70,7 +70,7 @@ var tests = [
     let enumerator = IMAPPump.inbox.msgDatabase.EnumerateMessages();
     let msgHdr = enumerator.getNext().QueryInterface(Ci.nsIMsgDBHdr);
     let array = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
-    array.appendElement(msgHdr, false);
+    array.appendElement(msgHdr);
     IMAPPump.inbox.deleteMessages(array, null, false, true, CopyListener, false);
     yield false;
   },
@@ -106,7 +106,7 @@ var tests = [
     let enumerator = IMAPPump.inbox.msgDatabase.EnumerateMessages();
     let msgHdr = enumerator.getNext();
     let array = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
-    array.appendElement(msgHdr, false);
+    array.appendElement(msgHdr);
     IMAPPump.inbox.deleteMessages(array, null, false, true, CopyListener, false);
     yield false;
   },
@@ -135,7 +135,7 @@ var tests = [
     let msgHdr = enumerator.getNext().QueryInterface(Ci.nsIMsgDBHdr);
     gMovedMsgId = msgHdr.messageId;
     let array = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
-    array.appendElement(msgHdr, false);
+    array.appendElement(msgHdr);
     IMAPPump.inbox.compact(asyncUrlListener, gDummyMsgWindow);
     MailServices.copy.CopyMessages(gIMAPTrashFolder, array, IMAPPump.inbox, true,
                                    CopyListener, null, true);

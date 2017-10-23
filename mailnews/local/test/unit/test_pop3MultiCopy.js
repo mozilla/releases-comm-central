@@ -41,7 +41,7 @@ add_task(function* runPump() {
   while (enumerator.hasMoreElements()) {
     msgCount++;
     let hdr = enumerator.getNext().QueryInterface(Ci.nsIMsgDBHdr);
-    messages.appendElement(hdr, false);
+    messages.appendElement(hdr);
     do_check_eq(hdr.subject, testSubjects[msgCount - 1]);
   }
   do_check_eq(messages.length, 2);
@@ -66,7 +66,7 @@ add_task(function* runPump() {
   while (enumerator.hasMoreElements()) {
     msgCount++;
     let hdr = enumerator.getNext().QueryInterface(Ci.nsIMsgDBHdr);
-    messages.appendElement(hdr, false);
+    messages.appendElement(hdr);
     dump("Subject: " + hdr.subject + "\n");
     subjects.push(hdr.subject);
   }

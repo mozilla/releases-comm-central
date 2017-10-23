@@ -356,7 +356,7 @@ function createSearchTerms()
     term.attrib = nsMsgSearchAttrib.Subject;
     term.op = nsMsgSearchOp.Contains;
     term.booleanAnd = false;
-    searchTermsArray.appendElement(term, /* weak = */ false);
+    searchTermsArray.appendElement(term);
 
     // create, fill, and append the AllAddresses term
     term = gSearchSession.createTerm();
@@ -366,7 +366,7 @@ function createSearchTerms()
     term.attrib = nsMsgSearchAttrib.AllAddresses;
     term.op = nsMsgSearchOp.Contains;
     term.booleanAnd = false;
-    searchTermsArray.appendElement(term, /* weak = */ false);
+    searchTermsArray.appendElement(term);
   }
 
   // now append the default view or virtual folder criteria to the quick search
@@ -378,7 +378,7 @@ function createSearchTerms()
   {
     for (let searchTerm of fixIterator(defaultSearchTerms, Components.interfaces.nsIMsgSearchTerm))
     {
-      searchTermsArray.appendElement(searchTerm, /* weak = */ false);
+      searchTermsArray.appendElement(searchTerm);
     }
   }
 

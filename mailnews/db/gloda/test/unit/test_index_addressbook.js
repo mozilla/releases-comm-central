@@ -37,7 +37,7 @@ function delete_card(aEmailAddress) {
 
   let cardArray = Cc["@mozilla.org/array;1"]
                     .createInstance(Ci.nsIMutableArray);
-  cardArray.appendElement(card, false);
+  cardArray.appendElement(card);
 
   MailServices.ab.getDirectory(book.URI)
               .deleteCards(cardArray);

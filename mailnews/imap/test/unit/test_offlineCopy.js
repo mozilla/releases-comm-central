@@ -129,7 +129,7 @@ var tests = [
     let db = IMAPPump.inbox.msgDatabase;
     let msg1 = db.getMsgHdrForMessageID(gMsgId1);
     let messages = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
-    messages.appendElement(msg1, false);
+    messages.appendElement(msg1);
     // this is sync, I believe?
     MailServices.copy.CopyMessages(IMAPPump.inbox, messages, gFolder1, false,
                                    null, null, true);
@@ -138,7 +138,7 @@ var tests = [
     let msg3 = db.getMsgHdrForMessageID(gMsg3Id);
     Assert.ok(msg3 instanceof Ci.nsIMsgDBHdr);
     messages.clear();
-    messages.appendElement(msg3, false);
+    messages.appendElement(msg3);
     MailServices.copy.CopyMessages(IMAPPump.inbox, messages, gFolder1, false,
                                    null, null, true);
 
@@ -149,7 +149,7 @@ var tests = [
     //  these messages may not copy correctly. Make sure that they do, as fixed in bug 790912
     msg4.messageOffset = 0;
     messages.clear();
-    messages.appendElement(msg4, false);
+    messages.appendElement(msg4);
     MailServices.copy.CopyMessages(IMAPPump.inbox, messages, gFolder1, false,
                                    null, null, true);
 
@@ -194,7 +194,7 @@ var tests = [
     Assert.ok(enumerator.hasMoreElements());
     let messages = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
     while (enumerator.hasMoreElements())
-      messages.appendElement(enumerator.getNext(), false);
+      messages.appendElement(enumerator.getNext());
     // this is sync, I believe?
     MailServices.copy.CopyMessages(IMAPPump.inbox, messages, gFolder1, true,
                                    null, null, true);

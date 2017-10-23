@@ -582,7 +582,7 @@ function invokeEventDragSession(aItem, aXULBox) {
     let action = Components.interfaces.nsIDragService.DRAGDROP_ACTION_MOVE;
     let mutArray = Components.classes["@mozilla.org/array;1"]
                    .createInstance(Components.interfaces.nsIMutableArray);
-    mutArray.appendElement(transfer, /* weak = */ false);
+    mutArray.appendElement(transfer);
     aXULBox.sourceObject = aItem;
     try {
         cal.getDragService().invokeDragSession(aXULBox, mutArray, null, action);
