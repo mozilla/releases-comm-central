@@ -5,7 +5,7 @@
 
 // as does this
 #include "nsICharsetConverterManager.h"
-#include "nsIPlatformCharset.h"
+#include "mozilla/dom/FallbackEncoding.h"
 #include "nsIServiceManager.h"
 
 #include "nsISupports.h"
@@ -131,33 +131,15 @@ const char * nsMsgI18NFileSystemCharset()
   static nsAutoCString fileSystemCharset;
 
   if (fileSystemCharset.IsEmpty())
-  {
-    nsresult rv;
-    nsCOMPtr <nsIPlatformCharset> platformCharset = do_GetService(NS_PLATFORMCHARSET_CONTRACTID, &rv);
-        if (NS_SUCCEEDED(rv)) {
-          rv = platformCharset->GetCharset(kPlatformCharsetSel_FileName,
-                                           fileSystemCharset);
-        }
+    mozilla::dom::FallbackEncoding::FromLocale()->Name(fileSystemCharset);
 
-    if (NS_FAILED(rv))
-      fileSystemCharset.AssignLiteral("ISO-8859-1");
-  }
   return fileSystemCharset.get();
 }
 
 // Charset used by the text file.
 void nsMsgI18NTextFileCharset(nsACString& aCharset)
 {
-  nsresult rv;
-  nsCOMPtr <nsIPlatformCharset> platformCharset =
-    do_GetService(NS_PLATFORMCHARSET_CONTRACTID, &rv);
-  if (NS_SUCCEEDED(rv)) {
-    rv = platformCharset->GetCharset(kPlatformCharsetSel_PlainTextInFile,
-                                     aCharset);
-  }
-
-  if (NS_FAILED(rv))
-    aCharset.AssignLiteral("ISO-8859-1");
+  mozilla::dom::FallbackEncoding::FromLocale()->Name(aCharset);
 }
 
 // MIME encoder, output string should be freed by PR_FREE
