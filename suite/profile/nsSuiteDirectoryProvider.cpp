@@ -262,7 +262,7 @@ nsSuiteDirectoryProvider::AppendDistroSearchDirs(nsIProperties* aDirSvc,
                                 getter_AddRefs(prefString));
     if (NS_SUCCEEDED(rv)) {
       nsAutoString wLocale;
-      prefString->GetData(getter_Copies(wLocale));
+      prefString->GetData(wLocale);
       CopyUTF16toUTF8(wLocale, locale);
     } else {
       rv = prefs->GetCharPref("general.useragent.locale", getter_Copies(locale));
