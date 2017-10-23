@@ -106,7 +106,7 @@ nsLDAPModification::SetValues(nsIArray* aValues)
     rv = enumerator->GetNext(getter_AddRefs(value));
     NS_ENSURE_SUCCESS(rv, rv);
 
-    rv = mValues->AppendElement(value, false);
+    rv = mValues->AppendElement(value);
     NS_ENSURE_SUCCESS(rv, rv);
 
     rv = enumerator->HasMoreElements(&hasMoreElements);
@@ -154,5 +154,5 @@ nsLDAPModification::SetUpModificationOneValue(int32_t aOperation,
 
   NS_ENSURE_SUCCESS(rv, rv);
   
-  return mValues->AppendElement(aValue, false);
+  return mValues->AppendElement(aValue);
 }

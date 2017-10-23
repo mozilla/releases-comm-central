@@ -542,7 +542,7 @@ FeedHandlerInfo.prototype = {
         return this._inner.indexOf(element, startIndex);
       },
 
-      appendElement: function(aHandlerApp, aWeak) {
+      appendElement: function(aHandlerApp) {
         this._inner.push(aHandlerApp);
       },
 
