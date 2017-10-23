@@ -379,7 +379,7 @@ nsMsgPrintEngine::ShowProgressDialog(bool aIsForPrinting, bool& aDoNotify)
             GetString(u"LoadingMailMsgForPrint", msg);
           }
           if (!msg.IsEmpty())
-            mPrintProgressParams->SetDocTitle(msg.get());
+            mPrintProgressParams->SetDocTitle(msg);
         }
       }
     }
