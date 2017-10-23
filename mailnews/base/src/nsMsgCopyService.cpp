@@ -42,7 +42,7 @@ nsCopySource::~nsCopySource()
 
 void nsCopySource::AddMessage(nsIMsgDBHdr* aMsg)
 {
-  m_messageArray->AppendElement(aMsg, false);
+  m_messageArray->AppendElement(aMsg);
 }
 
 // ************ nsCopyRequest *****************

@@ -245,7 +245,7 @@ NS_IMETHODIMP nsMsgFilter::AppendTerm(nsIMsgSearchTerm * aTerm)
     // invalidate expression tree if we're changing the terms
     delete m_expressionTree;
     m_expressionTree = nullptr;
-    return m_termList->AppendElement(aTerm, /* weak = */ false);
+    return m_termList->AppendElement(aTerm);
 }
 
 NS_IMETHODIMP
@@ -309,7 +309,7 @@ nsMsgFilter::GetSortedActionList(nsIArray **aActionList)
       case nsMsgFilterAction::FetchBodyFromPop3Server:
       {
         // always insert in front
-        rv = orderedActions->InsertElementAt(action, 0, false);
+        rv = orderedActions->InsertElementAt(action, 0);
         NS_ENSURE_SUCCESS(rv, rv);
         ++nextIndexForNormal;
         ++nextIndexForCopy;
@@ -320,7 +320,7 @@ nsMsgFilter::GetSortedActionList(nsIArray **aActionList)
       case nsMsgFilterAction::CopyToFolder:
       {
         // insert into copy actions block, in order of appearance
-        rv = orderedActions->InsertElementAt(action, nextIndexForCopy, false);
+        rv = orderedActions->InsertElementAt(action, nextIndexForCopy);
         NS_ENSURE_SUCCESS(rv, rv);
         ++nextIndexForCopy;
         ++nextIndexForMove;
@@ -331,7 +331,7 @@ nsMsgFilter::GetSortedActionList(nsIArray **aActionList)
       case nsMsgFilterAction::Delete:
       {
         // insert into move/delete action block
-        rv = orderedActions->InsertElementAt(action, nextIndexForMove, false);
+        rv = orderedActions->InsertElementAt(action, nextIndexForMove);
         NS_ENSURE_SUCCESS(rv, rv);
         ++nextIndexForMove;
         break;
@@ -340,7 +340,7 @@ nsMsgFilter::GetSortedActionList(nsIArray **aActionList)
       case nsMsgFilterAction::StopExecution:
       {
         // insert into stop action block
-        rv = orderedActions->AppendElement(action, false);
+        rv = orderedActions->AppendElement(action);
         NS_ENSURE_SUCCESS(rv, rv);
         break;
       }
@@ -348,7 +348,7 @@ nsMsgFilter::GetSortedActionList(nsIArray **aActionList)
       default:
       {
         // insert into normal action block, in order of appearance
-        rv = orderedActions->InsertElementAt(action, nextIndexForNormal, false);
+        rv = orderedActions->InsertElementAt(action, nextIndexForNormal);
         NS_ENSURE_SUCCESS(rv, rv);
         ++nextIndexForNormal;
         ++nextIndexForCopy;

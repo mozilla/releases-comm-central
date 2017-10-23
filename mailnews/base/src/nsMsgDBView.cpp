@@ -3117,7 +3117,7 @@ nsMsgDBView::ListCollapsedChildren(nsMsgViewIndex viewIndex,
     if (!msgHdr)
       continue;
 
-    rv = messageArray->AppendElement(msgHdr, false);
+    rv = messageArray->AppendElement(msgHdr);
   }
 
   return rv;
@@ -3180,7 +3180,7 @@ nsMsgDBView::GetHeadersFromSelection(uint32_t *indices,
     rv = GetMsgHdrForViewIndex(viewIndex, getter_AddRefs(msgHdr));
     if (NS_SUCCEEDED(rv) && msgHdr)
     {
-      rv = messageArray->AppendElement(msgHdr, false);
+      rv = messageArray->AppendElement(msgHdr);
       if (NS_SUCCEEDED(rv) && includeCollapsedMsgs &&
           viewIndexFlags & nsMsgMessageFlags::Elided &&
           viewIndexFlags & MSG_VIEW_FLAG_HASCHILDREN &&
@@ -3350,13 +3350,13 @@ nsMsgDBView::ApplyCommandToIndices(nsMsgViewCommandTypeValue command,
       {
         case nsMsgViewCommandType::junk:
           mNumMessagesRemainingInBatch++;
-          mJunkHdrs->AppendElement(msgHdr, false);
+          mJunkHdrs->AppendElement(msgHdr);
           rv = SetMsgHdrJunkStatus(junkPlugin.get(), msgHdr,
                                    nsIJunkMailPlugin::JUNK);
           break;
         case nsMsgViewCommandType::unjunk:
           mNumMessagesRemainingInBatch++;
-          mJunkHdrs->AppendElement(msgHdr, false);
+          mJunkHdrs->AppendElement(msgHdr);
           rv = SetMsgHdrJunkStatus(junkPlugin.get(), msgHdr,
                                    nsIJunkMailPlugin::GOOD);
           break;
@@ -3658,7 +3658,7 @@ nsMsgDBView::DownloadForOffline(nsIMsgWindow *window,
       uint32_t flags;
       msgHdr->GetFlags(&flags);
       if (!(flags & nsMsgMessageFlags::Offline))
-        messageArray->AppendElement(msgHdr, false);
+        messageArray->AppendElement(msgHdr);
     }
   }
 
@@ -3687,7 +3687,7 @@ nsMsgDBView::DownloadFlaggedForOffline(nsIMsgWindow *window)
         uint32_t flags;
         pHeader->GetFlags(&flags);
         if ((flags & nsMsgMessageFlags::Marked) && !(flags & nsMsgMessageFlags::Offline))
-          messageArray->AppendElement(pHeader, false);
+          messageArray->AppendElement(pHeader);
       }
     }
   }
@@ -3999,7 +3999,7 @@ nsMsgDBView::PerformActionsOnJunkMsgs(bool msgsAreJunk)
             uint32_t flags;
             msgHdr->GetFlags(&flags);
             if (!(flags & nsMsgMessageFlags::IMAPDeleted))
-              hdrsToDelete->AppendElement(msgHdr, false);
+              hdrsToDelete->AppendElement(msgHdr);
           }
         }
 

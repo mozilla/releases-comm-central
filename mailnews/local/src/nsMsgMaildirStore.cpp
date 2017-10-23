@@ -1093,7 +1093,7 @@ nsMsgMaildirStore::CopyMessages(bool aIsMove, nsIArray *aHdrArray,
       rv = destDB->CopyHdrFromExistingHdr(nsMsgKey_None, srcHdr, true, getter_AddRefs(destHdr));
       NS_ENSURE_SUCCESS(rv, rv);
       destHdr->SetStringProperty("storeToken", fileName.get());
-      dstHdrs->AppendElement(destHdr, false);
+      dstHdrs->AppendElement(destHdr);
       nsMsgKey dstKey;
       destHdr->GetMessageKey(&dstKey);
       msgTxn->AddDstKey(dstKey);

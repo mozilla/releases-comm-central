@@ -2687,7 +2687,7 @@ nsresult nsDelAttachListener::DeleteOriginalMessage()
   nsCOMPtr<nsIMutableArray> messageArray(do_CreateInstance(NS_ARRAY_CONTRACTID, &rv));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  rv = messageArray->AppendElement(mOriginalMessage, false);
+  rv = messageArray->AppendElement(mOriginalMessage);
   NS_ENSURE_SUCCESS(rv,rv);
   nsCOMPtr<nsIMsgCopyServiceListener> listenerCopyService;
 

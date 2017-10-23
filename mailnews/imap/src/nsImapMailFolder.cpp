@@ -1035,7 +1035,7 @@ NS_IMETHODIMP nsImapMailFolder::RemoveSubFolder (nsIMsgFolder *which)
   NS_ENSURE_TRUE(folders, rv);
   nsCOMPtr<nsISupports> folderSupport = do_QueryInterface(which, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
-  folders->AppendElement(folderSupport, false);
+  folders->AppendElement(folderSupport);
   rv = nsMsgDBFolder::DeleteSubFolders(folders, nullptr);
   which->Delete();
   return rv;
@@ -1397,9 +1397,9 @@ NS_IMETHODIMP nsImapMailFolder::CompactAll(nsIUrlListener *aListener,
       folder->GetFlags(&folderFlags);
       if (! (folderFlags & (nsMsgFolderFlags::Virtual | nsMsgFolderFlags::ImapNoselect)))
       {
-        rv = folderArray->AppendElement(folder, false);
+        rv = folderArray->AppendElement(folder);
         if (aCompactOfflineAlso)
-          offlineFolderArray->AppendElement(folder, false);
+          offlineFolderArray->AppendElement(folder);
       }
     }
     rv = folderArray->GetLength(&cnt);
@@ -2375,7 +2375,7 @@ nsImapMailFolder::DeleteSubFolders(nsIArray* folders, nsIMsgWindow *msgWindow)
         confirmDeletion = false;
       }
       else
-        foldersRemaining->InsertElementAt(curFolder, 0, false);
+        foldersRemaining->InsertElementAt(curFolder, 0);
     }
   }
 
@@ -3568,7 +3568,7 @@ NS_IMETHODIMP nsImapMailFolder::ApplyFilterHit(nsIMsgFilter *filter, nsIMsgWindo
 
             nsCOMPtr<nsIMutableArray> messageArray(do_CreateInstance(NS_ARRAY_CONTRACTID, &rv));
             NS_ENSURE_TRUE(messageArray, rv);
-            messageArray->AppendElement(msgHdr, false);
+            messageArray->AppendElement(msgHdr);
 
             nsCOMPtr<nsIMsgFolder> dstFolder;
             rv = GetExistingFolder(actionTargetFolderUri, getter_AddRefs(dstFolder));
@@ -3663,7 +3663,7 @@ NS_IMETHODIMP nsImapMailFolder::ApplyFilterHit(nsIMsgFilter *filter, nsIMsgWindo
           filterAction->GetStrValue(keyword);
           nsCOMPtr<nsIMutableArray> messageArray(do_CreateInstance(NS_ARRAY_CONTRACTID, &rv));
           NS_ENSURE_TRUE(messageArray, rv);
-          messageArray->AppendElement(msgHdr, false);
+          messageArray->AppendElement(msgHdr);
           AddKeywordsToMessages(messageArray, keyword);
           break;
         }
@@ -3773,7 +3773,7 @@ NS_IMETHODIMP nsImapMailFolder::ApplyFilterHit(nsIMsgFilter *filter, nsIMsgWindo
           nsCOMPtr<nsIMutableArray> messageArray(
               do_CreateInstance(NS_ARRAY_CONTRACTID, &rv));
           NS_ENSURE_TRUE(messageArray, rv);
-          messageArray->AppendElement(msgHdr, false);
+          messageArray->AppendElement(msgHdr);
 
           customAction->Apply(messageArray, value, nullptr,
                               nsMsgFilterType::InboxRule, msgWindow);
@@ -3871,7 +3871,7 @@ nsImapMailFolder::ReplayOfflineMoveCopy(nsMsgKey *aMsgKeys, uint32_t aNumKeys,
                   dstFolderDB->GetMsgHdrForKey(offlineOps[opIndex],
                     getter_AddRefs(fakeDestHdr));
                   if (fakeDestHdr)
-                    messages->AppendElement(fakeDestHdr, false);
+                    messages->AppendElement(fakeDestHdr);
                   break;
                 }
               }
@@ -7278,7 +7278,7 @@ nsresult nsImapMailFolder::CopyMessagesOffline(nsIMsgFolder* srcFolder,
           {
             bool hasMsgOffline = false;
 
-            destMsgHdrs->AppendElement(newMailHdr, false);
+            destMsgHdrs->AppendElement(newMailHdr);
             srcFolder->HasMsgOffline(originalKey, &hasMsgOffline);
             newMailHdr->SetUint32Property("pseudoHdr", 1);
             if (!reusable)
@@ -7333,7 +7333,7 @@ nsresult nsImapMailFolder::CopyMessagesOffline(nsIMsgFolder* srcFolder,
           }
           if (successfulCopy)
             // This is for both moves and copies
-            msgHdrsCopied->AppendElement(mailHdr, false);
+            msgHdrsCopied->AppendElement(mailHdr);
         }
       }
       EnableNotifications(nsIMsgFolder::allMessageCountNotifications, true);
@@ -7868,7 +7868,7 @@ nsImapFolderCopyState::OnStopRunningUrl(nsIURI *aUrl, nsresult aExitCode)
           {
             rv = enumerator->GetNext(getter_AddRefs(item));
             NS_ENSURE_SUCCESS(rv, rv);
-            rv = msgArray->AppendElement(item, false);
+            rv = msgArray->AppendElement(item);
             NS_ENSURE_SUCCESS(rv, rv);
             rv = enumerator->HasMoreElements(&hasMore);
           }
@@ -8094,7 +8094,7 @@ nsImapMailFolder::CopyFileMessage(nsIFile* file,
           // So set the offline size to 0 to force SetPendingAttributes to
           // clear the offline message flag.
           msgToReplace->SetOfflineMessageSize(0);
-          messages->AppendElement(msgToReplace, false);
+          messages->AppendElement(msgToReplace);
           SetPendingAttributes(messages, false);
         }
     }
@@ -8433,7 +8433,7 @@ nsImapMailFolder::CopyFileToOfflineStore(nsIFile *srcFile, nsMsgKey msgKey)
 
     nsCOMPtr<nsIMutableArray> messages(do_CreateInstance(NS_ARRAY_CONTRACTID, &rv));
     NS_ENSURE_SUCCESS(rv, rv);
-    messages->AppendElement(fakeHdr, false);
+    messages->AppendElement(fakeHdr);
 
     SetPendingAttributes(messages, false);
     // Gloda needs this notification to index the fake message.
@@ -9143,7 +9143,7 @@ nsImapMailFolder::OnMessageClassified(const char * aMsgURI,
             m_junkMessagesToMarkAsRead = do_CreateInstance(NS_ARRAY_CONTRACTID, &rv);
             NS_ENSURE_SUCCESS(rv, rv);
           }
-          m_junkMessagesToMarkAsRead->AppendElement(msgHdr, false);
+          m_junkMessagesToMarkAsRead->AppendElement(msgHdr);
         }
 
         bool willMoveMessage = false;

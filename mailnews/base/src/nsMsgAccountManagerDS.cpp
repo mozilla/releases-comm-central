@@ -757,13 +757,13 @@ nsMsgAccountManagerDataSource::getAccountArcs(nsIMutableArray **aResult)
     mAccountArcsOut = do_CreateInstance(NS_ARRAY_CONTRACTID, &rv);
     NS_ENSURE_SUCCESS(rv, rv);
 
-    mAccountArcsOut->AppendElement(kNC_Settings, false);
-    mAccountArcsOut->AppendElement(kNC_Name, false);
-    mAccountArcsOut->AppendElement(kNC_FolderTreeName, false);
-    mAccountArcsOut->AppendElement(kNC_FolderTreeSimpleName, false);
-    mAccountArcsOut->AppendElement(kNC_NameSort, false);
-    mAccountArcsOut->AppendElement(kNC_FolderTreeNameSort, false);
-    mAccountArcsOut->AppendElement(kNC_PageTag, false);
+    mAccountArcsOut->AppendElement(kNC_Settings);
+    mAccountArcsOut->AppendElement(kNC_Name);
+    mAccountArcsOut->AppendElement(kNC_FolderTreeName);
+    mAccountArcsOut->AppendElement(kNC_FolderTreeSimpleName);
+    mAccountArcsOut->AppendElement(kNC_NameSort);
+    mAccountArcsOut->AppendElement(kNC_FolderTreeNameSort);
+    mAccountArcsOut->AppendElement(kNC_PageTag);
   }
 
   NS_IF_ADDREF(*aResult = mAccountArcsOut);
@@ -778,16 +778,16 @@ nsMsgAccountManagerDataSource::getAccountRootArcs(nsIMutableArray **aResult)
     mAccountRootArcsOut = do_CreateInstance(NS_ARRAY_CONTRACTID, &rv);
     NS_ENSURE_SUCCESS(rv, rv);
 
-    mAccountRootArcsOut->AppendElement(kNC_Server, false);
-    mAccountRootArcsOut->AppendElement(kNC_Child, false);
+    mAccountRootArcsOut->AppendElement(kNC_Server);
+    mAccountRootArcsOut->AppendElement(kNC_Child);
 
-    mAccountRootArcsOut->AppendElement(kNC_Settings, false);
-    mAccountRootArcsOut->AppendElement(kNC_Name, false);
-    mAccountRootArcsOut->AppendElement(kNC_FolderTreeName, false);
-    mAccountRootArcsOut->AppendElement(kNC_FolderTreeSimpleName, false);
-    mAccountRootArcsOut->AppendElement(kNC_NameSort, false);
-    mAccountRootArcsOut->AppendElement(kNC_FolderTreeNameSort, false);
-    mAccountRootArcsOut->AppendElement(kNC_PageTag, false);
+    mAccountRootArcsOut->AppendElement(kNC_Settings);
+    mAccountRootArcsOut->AppendElement(kNC_Name);
+    mAccountRootArcsOut->AppendElement(kNC_FolderTreeName);
+    mAccountRootArcsOut->AppendElement(kNC_FolderTreeSimpleName);
+    mAccountRootArcsOut->AppendElement(kNC_NameSort);
+    mAccountRootArcsOut->AppendElement(kNC_FolderTreeNameSort);
+    mAccountRootArcsOut->AppendElement(kNC_PageTag);
   }
 
   NS_IF_ADDREF(*aResult = mAccountRootArcsOut);

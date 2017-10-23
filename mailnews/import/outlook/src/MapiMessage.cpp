@@ -1180,7 +1180,7 @@ nsresult CMapiMessage::GetAttachments(nsIArray **aArray)
     a->SetEncoding(nsDependentCString((*it)->encoding));
     a->SetRealName(nsDependentCString((*it)->real_name));
     a->SetType(nsDependentCString((*it)->type));
-    attachments->AppendElement(a, false);
+    attachments->AppendElement(a);
   }
   attachments.forget(aArray);
   return rv;

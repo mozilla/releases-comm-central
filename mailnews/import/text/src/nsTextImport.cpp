@@ -308,7 +308,7 @@ NS_IMETHODIMP ImportAddressImpl::FindAddressBooks(nsIFile *pLoc, nsIArray **ppAr
     desc->SetSize((uint32_t) sz);
     desc->SetAbFile(m_fileLoc);
     nsCOMPtr<nsISupports> pInterface(do_QueryInterface(desc));
-    array->AppendElement(pInterface, false);
+    array->AppendElement(pInterface);
   }
   if (NS_FAILED(rv)) {
     IMPORT_LOG0("*** Error creating address book descriptor for text import\n");

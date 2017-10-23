@@ -384,7 +384,7 @@ nsresult nsMessengerUnixIntegration::ShowNewAlertNotification(bool aUserInitiate
   NS_ENSURE_SUCCESS(rv, rv);
   ifptr->SetData(mFoldersWithNewMail);
   ifptr->SetDataIID(&NS_GET_IID(nsIArray));
-  argsArray->AppendElement(ifptr, false);
+  argsArray->AppendElement(ifptr);
 
   // pass in the observer
   ifptr = do_CreateInstance(NS_SUPPORTS_INTERFACE_POINTER_CONTRACTID, &rv);
@@ -392,13 +392,13 @@ nsresult nsMessengerUnixIntegration::ShowNewAlertNotification(bool aUserInitiate
   nsCOMPtr <nsISupports> supports = do_QueryInterface(static_cast<nsIMessengerOSIntegration*>(this));
   ifptr->SetData(supports);
   ifptr->SetDataIID(&NS_GET_IID(nsIObserver));
-  argsArray->AppendElement(ifptr, false);
+  argsArray->AppendElement(ifptr);
 
   // pass in the animation flag
   nsCOMPtr<nsISupportsPRBool> scriptableUserInitiated (do_CreateInstance(NS_SUPPORTS_PRBOOL_CONTRACTID, &rv));
   NS_ENSURE_SUCCESS(rv, rv);
   scriptableUserInitiated->SetData(aUserInitiated);
-  argsArray->AppendElement(scriptableUserInitiated, false);
+  argsArray->AppendElement(scriptableUserInitiated);
 
   nsCOMPtr<nsIWindowWatcher> wwatch(do_GetService(NS_WINDOWWATCHER_CONTRACTID));
   nsCOMPtr<mozIDOMWindowProxy> newWindow;
@@ -694,7 +694,7 @@ nsMessengerUnixIntegration::OnItemIntPropertyChanged(nsIMsgFolder *aItem, const 
         return NS_OK; // kick out right now...
 
       if (!folderFound)
-        mFoldersWithNewMail->AppendElement(weakFolder, false);
+        mFoldersWithNewMail->AppendElement(weakFolder);
       // now regenerate the tooltip
       FillToolTipInfo();
     }

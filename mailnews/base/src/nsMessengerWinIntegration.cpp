@@ -491,7 +491,7 @@ nsresult nsMessengerWinIntegration::ShowNewAlertNotification(bool aUserInitiated
     NS_ENSURE_SUCCESS(rv, rv);
     ifptr->SetData(mFoldersWithNewMail);
     ifptr->SetDataIID(&NS_GET_IID(nsIArray));
-    rv = argsArray->AppendElement(ifptr, false);
+    rv = argsArray->AppendElement(ifptr);
     NS_ENSURE_SUCCESS(rv, rv);
 
     // pass in the observer
@@ -500,14 +500,14 @@ nsresult nsMessengerWinIntegration::ShowNewAlertNotification(bool aUserInitiated
     nsCOMPtr <nsISupports> supports = do_QueryInterface(static_cast<nsIMessengerOSIntegration*>(this));
     ifptr->SetData(supports);
     ifptr->SetDataIID(&NS_GET_IID(nsIObserver));
-    rv = argsArray->AppendElement(ifptr, false);
+    rv = argsArray->AppendElement(ifptr);
     NS_ENSURE_SUCCESS(rv, rv);
 
     // pass in the animation flag
     nsCOMPtr<nsISupportsPRBool> scriptableUserInitiated (do_CreateInstance(NS_SUPPORTS_PRBOOL_CONTRACTID, &rv));
     NS_ENSURE_SUCCESS(rv, rv);
     scriptableUserInitiated->SetData(aUserInitiated);
-    rv = argsArray->AppendElement(scriptableUserInitiated, false);
+    rv = argsArray->AppendElement(scriptableUserInitiated);
     NS_ENSURE_SUCCESS(rv, rv);
 
     // pass in the alert origin
@@ -518,7 +518,7 @@ nsresult nsMessengerWinIntegration::ShowNewAlertNotification(bool aUserInitiated
     origin = LookAndFeel::GetInt(LookAndFeel::eIntID_AlertNotificationOrigin);
     scriptableOrigin->SetData(origin);
 
-    rv = argsArray->AppendElement(scriptableOrigin, false);
+    rv = argsArray->AppendElement(scriptableOrigin);
     NS_ENSURE_SUCCESS(rv, rv);
 
     nsCOMPtr<nsIWindowWatcher> wwatch(do_GetService(NS_WINDOWWATCHER_CONTRACTID));
@@ -868,7 +868,7 @@ nsMessengerWinIntegration::OnItemIntPropertyChanged(nsIMsgFolder *aItem, const n
           return NS_OK; // kick out right now...
       }
       if (!folderFound)
-        mFoldersWithNewMail->InsertElementAt(weakFolder, 0, false);
+        mFoldersWithNewMail->InsertElementAt(weakFolder, 0);
       // now regenerate the tooltip
       FillToolTipInfo();
     }

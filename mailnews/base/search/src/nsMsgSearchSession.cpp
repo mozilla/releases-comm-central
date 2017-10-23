@@ -62,7 +62,7 @@ nsMsgSearchSession::AddSearchTerm(nsMsgSearchAttribValue attrib,
                                                boolOp, customString);
   NS_ENSURE_TRUE(pTerm, NS_ERROR_OUT_OF_MEMORY);
 
-  m_termList->AppendElement(pTerm, /* weak = */ false);
+  m_termList->AppendElement(pTerm);
   // force the expression tree to rebuild whenever we change the terms
   delete m_expressionTree;
   m_expressionTree = nullptr;
@@ -76,7 +76,7 @@ nsMsgSearchSession::AppendTerm(nsIMsgSearchTerm *aTerm)
     NS_ENSURE_TRUE(m_termList, NS_ERROR_NOT_INITIALIZED);
     delete m_expressionTree;
     m_expressionTree = nullptr;
-    return m_termList->AppendElement(aTerm, /* weak = */ false);
+    return m_termList->AppendElement(aTerm);
 }
 
 NS_IMETHODIMP

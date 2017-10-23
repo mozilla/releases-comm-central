@@ -57,7 +57,7 @@ nsMsgReadStateTxn::MarkMessages(bool aAsRead)
     rv = mParentFolder->GetMessageHeader(mMarkedMessages[i],
                                          getter_AddRefs(curMsgHdr));
     if (NS_SUCCEEDED(rv) && curMsgHdr) {
-      messageArray->AppendElement(curMsgHdr, false);
+      messageArray->AppendElement(curMsgHdr);
     }
   }
 

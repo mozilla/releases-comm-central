@@ -1651,7 +1651,7 @@ NS_MSG_BASE nsresult MsgGetHeadersFromKeys(nsIMsgDatabase *aDB, const nsTArray<n
       rv = aDB->GetMsgHdrForKey(key, getter_AddRefs(msgHdr));
       NS_ENSURE_SUCCESS(rv, rv);
 
-      aHeaders->AppendElement(msgHdr, false);
+      aHeaders->AppendElement(msgHdr);
     }
   }
 
@@ -1679,7 +1679,7 @@ NS_MSG_BASE nsresult MsgGetHdrsFromKeys(nsIMsgDatabase *aDB, nsMsgKey *aMsgKeys,
       nsCOMPtr<nsIMsgDBHdr> msgHdr;
       rv = aDB->GetMsgHdrForKey(key, getter_AddRefs(msgHdr));
       if (NS_SUCCEEDED(rv))
-        messages->AppendElement(msgHdr, false);
+        messages->AppendElement(msgHdr);
     }
   }
 

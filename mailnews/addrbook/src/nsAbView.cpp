@@ -1224,7 +1224,7 @@ nsresult nsAbView::GetSelectedCards(nsCOMPtr<nsIMutableArray> &aSelectedCards)
         rv = GetCardFromRow(rangeIndex, getter_AddRefs(abCard));
         NS_ENSURE_SUCCESS(rv,rv);
 
-        rv = aSelectedCards->AppendElement(abCard, false);
+        rv = aSelectedCards->AppendElement(abCard);
         NS_ENSURE_SUCCESS(rv, rv);
       }
     }
@@ -1420,7 +1420,7 @@ NS_IMETHODIMP nsAbView::GetSelectedAddresses(nsIArray **_retval)
         if (!primaryEmail.IsEmpty()) {
           nsCOMPtr<nsISupportsString> supportsEmail(do_CreateInstance(NS_SUPPORTS_STRING_CONTRACTID));
           supportsEmail->SetData(primaryEmail);
-          addresses->AppendElement(supportsEmail, false);
+          addresses->AppendElement(supportsEmail);
         }
       }
     }
@@ -1431,7 +1431,7 @@ NS_IMETHODIMP nsAbView::GetSelectedAddresses(nsIArray **_retval)
       if (!primaryEmail.IsEmpty()) {
         nsCOMPtr<nsISupportsString> supportsEmail(do_CreateInstance(NS_SUPPORTS_STRING_CONTRACTID));
         supportsEmail->SetData(primaryEmail);
-        addresses->AppendElement(supportsEmail, false);
+        addresses->AppendElement(supportsEmail);
       }
     }
   }

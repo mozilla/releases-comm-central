@@ -140,7 +140,7 @@ nsresult nsAbQueryStringToExpression::ParseExpressions (
         rv = ParseExpression(index, getter_AddRefs (childExpression));
         NS_ENSURE_SUCCESS(rv, rv);
 
-        expressions->AppendElement(childExpression, false);
+        expressions->AppendElement(childExpression);
     }
 
     if (**index == 0)

@@ -298,14 +298,14 @@ NS_IMETHODIMP nsAutoSyncState::GetNextGroupOfMessages(uint32_t aSuggestedGroupSi
         if (!*aActualGroupSize && msgSize >= aSuggestedGroupSizeLimit) 
         {
           *aActualGroupSize = msgSize;
-          group->AppendElement(qhdr, false);
+          group->AppendElement(qhdr);
           idx++;
           break;
         }
         if ((*aActualGroupSize) + msgSize > aSuggestedGroupSizeLimit)
           break;
 
-        group->AppendElement(qhdr, false);
+        group->AppendElement(qhdr);
         *aActualGroupSize += msgSize;
       }// endfor
 

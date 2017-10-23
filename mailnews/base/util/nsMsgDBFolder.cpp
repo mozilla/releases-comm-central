@@ -1891,7 +1891,7 @@ nsresult nsMsgDBFolder::HandleAutoCompactEvent(nsIMsgWindow *aWindow)
                 folder->GetExpungedBytes(&expungedBytes);
               if (expungedBytes > 0 )
               {
-                offlineFolderArray->AppendElement(folder, false);
+                offlineFolderArray->AppendElement(folder);
                 offlineExpungedBytes += expungedBytes;
               }
             }
@@ -1905,7 +1905,7 @@ nsresult nsMsgDBFolder::HandleAutoCompactEvent(nsIMsgWindow *aWindow)
               folder->GetExpungedBytes(&expungedBytes);
               if (expungedBytes > 0 )
               {
-                folderArray->AppendElement(folder, false);
+                folderArray->AppendElement(folder);
                 localExpungedBytes += expungedBytes;
               }
             }
@@ -2377,7 +2377,7 @@ nsMsgDBFolder::OnMessageClassified(const char *aMsgURI,
       rv = mDatabase->GetMsgHdrForKey(msgKey, getter_AddRefs(msgHdr));
       if (!NS_SUCCEEDED(rv))
         continue;
-      classifiedMsgHdrs->AppendElement(msgHdr, false);
+      classifiedMsgHdrs->AppendElement(msgHdr);
     }
 
     // only generate the notification if there are some classified messages
@@ -2752,7 +2752,7 @@ nsMsgDBFolder::CallFilterPlugins(nsIMsgWindow *aMsgWindow, bool *aFiltersRun)
         // Lazily create the array.
         if (!mPostBayesMessagesToFilter)
           mPostBayesMessagesToFilter = do_CreateInstance(NS_ARRAY_CONTRACTID);
-        mPostBayesMessagesToFilter->AppendElement(msgHdr, false);
+        mPostBayesMessagesToFilter->AppendElement(msgHdr);
       }
     }
   }
@@ -4452,7 +4452,7 @@ NS_IMETHODIMP nsMsgDBFolder::ListFoldersWithFlags(uint32_t aFlags, nsIMutableArr
 {
   NS_ENSURE_ARG_POINTER(aFolders);
   if ((mFlags & aFlags) == aFlags)
-    aFolders->AppendElement(static_cast<nsRDFResource*>(this), false);
+    aFolders->AppendElement(static_cast<nsRDFResource*>(this));
 
   nsCOMPtr<nsISimpleEnumerator> dummy;
   GetSubFolders(getter_AddRefs(dummy)); // initialize mSubFolders
@@ -5144,7 +5144,7 @@ NS_IMETHODIMP nsMsgDBFolder::ListDescendants(nsIMutableArray *aDescendants)
   for (uint32_t i = 0; i < count; i++)
   {
     nsCOMPtr<nsIMsgFolder> child(mSubFolders[i]);
-    aDescendants->AppendElement(child, false);
+    aDescendants->AppendElement(child);
     child->ListDescendants(aDescendants);  // recurse
   }
   return NS_OK;
@@ -5975,7 +5975,7 @@ nsresult nsMsgDBFolder::MessagesInKeyOrder(nsTArray<nsMsgKey> &aKeyArray,
       rv = db->GetMsgHdrForKey(aKeyArray[i], getter_AddRefs(msgHdr));
       NS_ENSURE_SUCCESS(rv,rv);
       if (msgHdr)
-        messages->AppendElement(msgHdr, false);
+        messages->AppendElement(msgHdr);
     }
   }
   return rv;

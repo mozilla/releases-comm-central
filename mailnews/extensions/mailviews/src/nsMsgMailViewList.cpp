@@ -113,7 +113,7 @@ NS_IMETHODIMP nsMsgMailView::AppendTerm(nsIMsgSearchTerm *aTerm)
 {
     NS_ENSURE_TRUE(aTerm, NS_ERROR_NULL_POINTER);
 
-    return mViewSearchTerms->AppendElement(aTerm, /* weak */ false);
+    return mViewSearchTerms->AppendElement(aTerm);
 }
 
 NS_IMETHODIMP nsMsgMailView::CreateTerm(nsIMsgSearchTerm **aResult)

@@ -3908,7 +3908,7 @@ nsMsgComposeSendListener::RemoveCurrentDraftMessage(nsIMsgCompose *compObj, bool
         NS_ASSERTION(NS_SUCCEEDED(rv), "RemoveCurrentDraftMessage can't allocate array.");
         if (NS_FAILED(rv) || !messageArray)
           break;
-        rv = messageArray->AppendElement(msgDBHdr, false);
+        rv = messageArray->AppendElement(msgDBHdr);
         NS_ASSERTION(NS_SUCCEEDED(rv), "RemoveCurrentDraftMessage can't append msg header to array.");
         if (NS_FAILED(rv))
           break;

@@ -988,11 +988,11 @@ nsresult nsMsgComposeSecure::MimeCryptoHackCerts(const char *aRecipients,
         already_added_self_cert = true;
       }
 
-      mCerts->AppendElement(cert, false);
+      mCerts->AppendElement(cert);
     }
 
     if (!already_added_self_cert) {
-      mCerts->AppendElement(mSelfEncryptionCert, false);
+      mCerts->AppendElement(mSelfEncryptionCert);
     }
   }
   return res;

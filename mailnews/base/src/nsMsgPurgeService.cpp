@@ -453,7 +453,7 @@ NS_IMETHODIMP nsMsgPurgeService::OnSearchHit(nsIMsgDBHdr* aMsgHdr, nsIMsgFolder 
 
   if (atoi(junkScoreStr.get()) == nsIJunkMailPlugin::IS_SPAM_SCORE) {
     MOZ_LOG(MsgPurgeLogModule, mozilla::LogLevel::Info, ("added message to delete"));
-    return mHdrsToDelete->AppendElement(aMsgHdr, false);
+    return mHdrsToDelete->AppendElement(aMsgHdr);
   }
   return NS_OK;
 }

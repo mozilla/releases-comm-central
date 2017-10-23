@@ -298,7 +298,7 @@ nsresult nsOutlookCompose::ComposeTheMessage(nsMsgDeliverMode mode, CMapiMessage
         nsCOMPtr<nsIMsgEmbeddedImageData> imageData =
           new nsImportEmbeddedImageData(uri, nsDependentCString(cid),
                                      nsDependentCString(name));
-        embeddedObjects->AppendElement(imageData, false);
+        embeddedObjects->AppendElement(imageData);
       }
     }
   }

@@ -288,7 +288,7 @@ void nsAppleMailImportMail::FindAccountMailDirs(nsIFile *aRoot, nsIMutableArray 
         mailboxDescFile->InitWithFile(currentEntry);
 
         // add this mailbox descriptor to the list
-        aMailboxDescs->AppendElement(desc, false);
+        aMailboxDescs->AppendElement(desc);
 
         // now add all the children mailboxes
         mCurDepth++;
@@ -365,7 +365,7 @@ nsresult nsAppleMailImportMail::AddMboxDir(nsIFile *aFolder, nsIMutableArray *aM
       mailboxDescFile->InitWithFile(aFolder);
 
     // add this mailbox descriptor to the list
-    aMailboxDescs->AppendElement(desc, false);
+    aMailboxDescs->AppendElement(desc);
   }
 
   return NS_OK;

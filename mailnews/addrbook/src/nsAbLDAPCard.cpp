@@ -98,14 +98,14 @@ NS_IMETHODIMP nsAbLDAPCard::GetLDAPMessageInfo(
     rv = value->SetFromUTF8(m_objectClass.ElementAt(i));
     NS_ENSURE_SUCCESS(rv, rv);
 
-    rv = values->AppendElement(value, false);
+    rv = values->AppendElement(value);
     NS_ENSURE_SUCCESS(rv, rv);
   }
 
   rv = mod->SetUpModification(aType, NS_LITERAL_CSTRING("objectClass"), values);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  modArray->AppendElement(mod, false);
+  modArray->AppendElement(mod);
 
   // Add card properties
   CharPtrArrayGuard props;
@@ -164,7 +164,7 @@ NS_IMETHODIMP nsAbLDAPCard::GetLDAPMessageInfo(
 
       printf("LDAP : setting attribute %s (%s) to '%s'\n", attr.get(),
         props[i], propvalue.get());
-      modArray->AppendElement(mod, false);
+      modArray->AppendElement(mod);
       if (index != m_attributes.NoIndex)
         m_attributes.AppendElement(attr);
 
@@ -182,7 +182,7 @@ NS_IMETHODIMP nsAbLDAPCard::GetLDAPMessageInfo(
       NS_ENSURE_SUCCESS(rv, rv);
 
       printf("LDAP : removing attribute %s (%s)\n", attr.get(), props[i]);
-      modArray->AppendElement(mod, false);
+      modArray->AppendElement(mod);
       m_attributes.RemoveElementAt(index);
     }
   }

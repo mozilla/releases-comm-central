@@ -54,20 +54,20 @@ NS_IMETHODIMP nsMessengerBootstrap::OpenMessengerWindowWithUri(const char *windo
       msgUri.Append('#');
       msgUri.AppendInt(aMessageKey, 10);
       scriptableMsgURI->SetData(msgUri);
-      argsArray->AppendElement(scriptableMsgURI, false);
+      argsArray->AppendElement(scriptableMsgURI);
     }
     nsCOMPtr<nsISupportsCString> scriptableFolderURI (do_CreateInstance(NS_SUPPORTS_CSTRING_CONTRACTID));
     NS_ENSURE_TRUE(scriptableFolderURI, NS_ERROR_FAILURE);
 
     scriptableFolderURI->SetData(nsDependentCString(aFolderURI));
-    argsArray->AppendElement(scriptableFolderURI, false);
+    argsArray->AppendElement(scriptableFolderURI);
 
     if (!standAloneMsgWindow)
     {
       nsCOMPtr<nsISupportsPRUint32> scriptableMessageKey (do_CreateInstance(NS_SUPPORTS_PRUINT32_CONTRACTID));
       NS_ENSURE_TRUE(scriptableMessageKey, NS_ERROR_FAILURE);
       scriptableMessageKey->SetData(aMessageKey);
-      argsArray->AppendElement(scriptableMessageKey, false);
+      argsArray->AppendElement(scriptableMessageKey);
     }
   }
 

@@ -1537,7 +1537,7 @@ NS_IMETHODIMP nsMsgNewsFolder::RemoveMessage(nsMsgKey key)
     NS_ENSURE_SUCCESS(rv, rv);
 
     nsCOMPtr<nsIMutableArray> msgHdrs(do_CreateInstance(NS_ARRAY_CONTRACTID));
-    msgHdrs->AppendElement(msgHdr, false);
+    msgHdrs->AppendElement(msgHdr);
 
     notifier->NotifyMsgsDeleted(msgHdrs);
   }

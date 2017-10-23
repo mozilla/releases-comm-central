@@ -616,7 +616,7 @@ NS_IMETHODIMP nsMsgLocalMailFolder::CompactAll(nsIUrlListener *aListener,
       NS_ENSURE_SUCCESS(rv, rv);
 
       if (expungedBytes > 0)
-        rv = folderArray->AppendElement(folder, false);
+        rv = folderArray->AppendElement(folder);
     }
     rv = folderArray->GetLength(&cnt);
     NS_ENSURE_SUCCESS(rv,rv);
@@ -1274,7 +1274,7 @@ nsMsgLocalMailFolder::AddMessageDispositionState(nsIMsgDBHdr *aMessage, nsMsgDis
   NS_ENSURE_SUCCESS(rv, rv);
   nsCOMPtr<nsIMutableArray> messages(do_CreateInstance(NS_ARRAY_CONTRACTID, &rv));
   NS_ENSURE_SUCCESS(rv, rv);
-  messages->AppendElement(aMessage, false);
+  messages->AppendElement(aMessage);
   return msgStore->ChangeFlags(messages, msgFlag, true);
 }
 
@@ -1463,7 +1463,7 @@ nsMsgLocalMailFolder::OnCopyCompleted(nsISupports *srcSupport, bool moveCopySucc
   {
     nsCOMPtr<nsIMutableArray> messageArray(do_CreateInstance(NS_ARRAY_CONTRACTID, &rv));
     NS_ENSURE_TRUE(messageArray, rv);
-    messageArray->AppendElement(mCopyState->m_newHdr, false);
+    messageArray->AppendElement(mCopyState->m_newHdr);
     AddKeywordsToMessages(messageArray, mCopyState->m_newMsgKeywords);
   }
   if (moveCopySucceeded && mDatabase)
@@ -1744,7 +1744,7 @@ nsMsgLocalMailFolder::CopyFolderAcrossServer(nsIMsgFolder* srcFolder, nsIMsgWind
   {
     rv = messages->GetNext(getter_AddRefs(aSupport));
     NS_ENSURE_SUCCESS(rv, rv);
-    rv = msgArray->AppendElement(aSupport, false);
+    rv = msgArray->AppendElement(aSupport);
     NS_ENSURE_SUCCESS(rv, rv);
     rv = messages->HasMoreElements(&hasMoreElements);
   }
@@ -1919,7 +1919,7 @@ nsMsgLocalMailFolder::CopyFileMessage(nsIFile* aFile,
   nsCOMPtr<nsIMutableArray> messages(do_CreateInstance(NS_ARRAY_CONTRACTID));
 
   if (msgToReplace)
-    messages->AppendElement(msgToReplace, false);
+    messages->AppendElement(msgToReplace);
 
   rv = InitCopyState(fileSupport, messages, msgToReplace ? true : false,
                      listener, msgWindow, false, false);
@@ -2430,7 +2430,7 @@ NS_IMETHODIMP nsMsgLocalMailFolder::EndCopy(bool aCopySucceeded)
         {
           // turn off offline flag - it's not valid for local mail folders.
           newHdr->AndFlags(~nsMsgMessageFlags::Offline, &newHdrFlags);
-          mCopyState->m_destMessages->AppendElement(newHdr, false);
+          mCopyState->m_destMessages->AppendElement(newHdr);
         }
       }
       // we can do undo with the dest folder db, see bug #198909
@@ -2501,7 +2501,7 @@ NS_IMETHODIMP nsMsgLocalMailFolder::EndCopy(bool aCopySucceeded)
           localUndoTxn->AddDstMsgSize(msgSize);
         }
 
-        mCopyState->m_destMessages->AppendElement(newHdr, false);
+        mCopyState->m_destMessages->AppendElement(newHdr);
       }
       // msgDb->SetSummaryValid(true);
       // msgDb->Commit(nsMsgDBCommitType::kLargeCommit);
@@ -2584,7 +2584,7 @@ NS_IMETHODIMP nsMsgLocalMailFolder::EndCopy(bool aCopySucceeded)
         // paper over the abyss by just sending the classification notification.
         nsCOMPtr <nsIMutableArray> oneHeaderArray =
           do_CreateInstance(NS_ARRAY_CONTRACTID);
-        oneHeaderArray->AppendElement(newHdr, false);
+        oneHeaderArray->AppendElement(newHdr);
         notifier->NotifyMsgsClassified(oneHeaderArray, false, false);
         // (We do not add the NotReportedClassified processing flag since we
         // just reported it!)
@@ -3548,7 +3548,7 @@ nsMsgLocalMailFolder::OnMessageClassified(const char *aMsgURI,
           nsCOMPtr<nsIMsgDBHdr> mailHdr;
           rv = GetMessageHeader(msgKey, getter_AddRefs(mailHdr));
           if (NS_SUCCEEDED(rv) && mailHdr)
-            messages->AppendElement(mailHdr, false);
+            messages->AppendElement(mailHdr);
         }
         else
         {
@@ -3737,7 +3737,7 @@ nsMsgLocalMailFolder::AddMessageBatch(uint32_t aMessageCount,
       outFileStream = nullptr;
       newMailParser->OnStopRequest(nullptr, nullptr, NS_OK);
       newMailParser->EndMsgDownload();
-      hdrArray->AppendElement(newHdr, false);
+      hdrArray->AppendElement(newHdr);
     }
     hdrArray.forget(aHdrArray);
   }

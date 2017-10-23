@@ -884,7 +884,7 @@ nsMsgSendLater::DeleteCurrentMessage()
   if (!mMessageFolder)
     return NS_ERROR_UNEXPECTED;
 
-  msgArray->InsertElementAt(mMessage, 0, false);
+  msgArray->InsertElementAt(mMessage, 0);
 
   nsresult res = mMessageFolder->DeleteMessages(msgArray, nullptr, true, false, nullptr, false /*allowUndo*/);
   if (NS_FAILED(res))

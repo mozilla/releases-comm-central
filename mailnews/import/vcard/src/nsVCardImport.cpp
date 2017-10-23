@@ -266,7 +266,7 @@ NS_IMETHODIMP ImportVCardAddressImpl::FindAddressBooks(
     desc->SetSize((uint32_t) sz);
     desc->SetAbFile(m_fileLoc);
     nsCOMPtr<nsISupports> pInterface(do_QueryInterface(desc, &rv));
-    array->AppendElement(pInterface, false);
+    array->AppendElement(pInterface);
   }
   if (NS_FAILED(rv)) {
     IMPORT_LOG0(

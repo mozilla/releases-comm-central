@@ -605,7 +605,7 @@ void nsImapOfflineSync::ProcessMoveOperation(nsIMsgOfflineImapOperation *op)
             mailHdr->SetFlags(msgFlags);
             mailHdr->SetMessageSize(msgSize);
           }
-          messages->AppendElement(mailHdr, false);
+          messages->AppendElement(mailHdr);
         }
       }
       nsCOMPtr<nsIMsgCopyService> copyService = do_GetService(NS_MSGCOPYSERVICE_CONTRACTID, &rv);
@@ -700,7 +700,7 @@ void nsImapOfflineSync::ProcessCopyOperation(nsIMsgOfflineImapOperation *aCurren
         nsCOMPtr<nsIMsgDBHdr> mailHdr = nullptr;
         rv = m_currentFolder->GetMessageHeader(matchingFlagKeys.ElementAt(keyIndex), getter_AddRefs(mailHdr));
         if (NS_SUCCEEDED(rv) && mailHdr)
-          messages->AppendElement(mailHdr, false);
+          messages->AppendElement(mailHdr);
       }
       nsCOMPtr<nsIMsgCopyService> copyService = do_GetService(NS_MSGCOPYSERVICE_CONTRACTID, &rv);
       if (copyService)

@@ -67,8 +67,8 @@ NS_IMETHODIMP nsMsgProgress::OpenProgressDialog(mozIDOMWindowProxy *parentDOMWin
   ifptr->SetData(static_cast<nsIMsgProgress*>(this));
   ifptr->SetDataIID(&NS_GET_IID(nsIMsgProgress));
 
-  array->AppendElement(ifptr, false);
-  array->AppendElement(parameters, false);
+  array->AppendElement(ifptr);
+  array->AppendElement(parameters);
 
   // Open the dialog.
   nsCOMPtr<nsPIDOMWindowOuter> newWindow;

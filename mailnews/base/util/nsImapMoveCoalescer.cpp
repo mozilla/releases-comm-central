@@ -87,7 +87,7 @@ nsresult nsImapMoveCoalescer::PlaybackMoves(bool doNewMailNotification /* = fals
       rv = m_sourceFolder->GetMessageHeader(keysToAdd.ElementAt(keyIndex), getter_AddRefs(mailHdr));
       if (NS_SUCCEEDED(rv) && mailHdr)
       {
-        messages->AppendElement(mailHdr, false);
+        messages->AppendElement(mailHdr);
         bool isRead = false;
         mailHdr->GetIsRead(&isRead);
         if (!isRead)

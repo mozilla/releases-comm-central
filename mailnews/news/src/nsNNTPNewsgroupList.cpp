@@ -694,7 +694,7 @@ NS_IMETHODIMP nsNNTPNewsgroupList::ApplyFilterHit(nsIMsgFilter *aFilter, nsIMsgW
         nsCString keyword;
         filterAction->GetStrValue(keyword);
         nsCOMPtr<nsIMutableArray> messageArray(do_CreateInstance(NS_ARRAY_CONTRACTID));
-        messageArray->AppendElement(m_newMsgHdr, false);
+        messageArray->AppendElement(m_newMsgHdr);
         nsCOMPtr <nsIMsgFolder> folder = do_QueryInterface(m_newsFolder, &rv);
         if (folder)
           folder->AddKeywordsToMessages(messageArray, keyword);
@@ -729,7 +729,7 @@ NS_IMETHODIMP nsNNTPNewsgroupList::ApplyFilterHit(nsIMsgFilter *aFilter, nsIMsgW
         nsCOMPtr<nsIMutableArray> messageArray(
             do_CreateInstance(NS_ARRAY_CONTRACTID, &rv));
         NS_ENSURE_TRUE(messageArray, rv);
-        messageArray->AppendElement(m_newMsgHdr, false);
+        messageArray->AppendElement(m_newMsgHdr);
 
         customAction->Apply(messageArray, value, nullptr,
                             nsMsgFilterType::NewsRule, aMsgWindow);

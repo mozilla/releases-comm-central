@@ -196,12 +196,12 @@ NS_IMETHODIMP nsAbOutlookDirectory::GetChildCards(nsISimpleEnumerator **aCards)
         rv = abManager->GetDirectory(mailListUri, getter_AddRefs(mailList));
         NS_ENSURE_SUCCESS(rv, rv);
 
-        m_AddressList->AppendElement(mailList, false);
+        m_AddressList->AppendElement(mailList);
         NotifyItemAddition(mailList);
       }
       else if (m_IsMailList)
       {
-        m_AddressList->AppendElement(card, false);
+        m_AddressList->AppendElement(card);
         NotifyItemAddition(card);
       }
     }
@@ -376,7 +376,7 @@ NS_IMETHODIMP nsAbOutlookDirectory::AddCard(nsIAbCard *aData, nsIAbCard **addedC
     }
 
     if (m_IsMailList)
-        m_AddressList->AppendElement(*addedCard, false);
+        m_AddressList->AppendElement(*addedCard);
     NotifyItemAddition(*addedCard) ;
     return retCode ;
 }
@@ -445,7 +445,7 @@ NS_IMETHODIMP nsAbOutlookDirectory::AddMailList(nsIAbDirectory *aMailList, nsIAb
     m_AddressList = do_CreateInstance(NS_ARRAY_CONTRACTID, &rv);
     NS_ENSURE_SUCCESS(rv, rv);
   }
-  m_AddressList->AppendElement(newList, false);
+  m_AddressList->AppendElement(newList);
   NotifyItemAddition(newList);
   newList.forget(addedList);
 
@@ -1040,7 +1040,7 @@ nsresult nsAbOutlookDirectory::GetChildCards(nsIMutableArray *aCards,
     NS_ENSURE_SUCCESS(rv, rv);
     childCard->SetDirectoryId(ourUuid);
 
-    aCards->AppendElement(childCard, false);
+    aCards->AppendElement(childCard);
   }
   return rv;
 }
@@ -1080,7 +1080,7 @@ nsresult nsAbOutlookDirectory::GetChildNodes(nsIMutableArray* aNodes)
     rv = abManager->GetDirectory(uriName, getter_AddRefs(directory));
     NS_ENSURE_SUCCESS(rv, rv);
 
-    aNodes->AppendElement(directory, false);
+    aNodes->AppendElement(directory);
   }
   return rv;
 }
@@ -1149,7 +1149,7 @@ nsresult nsAbOutlookDirectory::CommitAddressList(void)
 
         rv = CreateCard(card, getter_AddRefs(newCard));
         NS_ENSURE_SUCCESS(rv, rv);
-        m_AddressList->ReplaceElementAt(newCard, i, false);
+        m_AddressList->ReplaceElementAt(newCard, i);
     }
   }
   return DeleteCards(oldList);

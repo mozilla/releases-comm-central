@@ -174,7 +174,7 @@ nsresult nsOutlookMail::GetMailFolders(nsIArray **pArray)
 
       pID->SetSize(1000);
       nsCOMPtr<nsISupports> pInterface(do_QueryInterface(pID));
-      array->AppendElement(pInterface, false);
+      array->AppendElement(pInterface);
     }
   }
   array.forget(pArray);
@@ -273,7 +273,7 @@ nsresult nsOutlookMail::GetAddressBooks(nsIArray **pArray)
         pID->SetPreferredName(name);
         pID->SetSize(100);
         nsCOMPtr<nsISupports> pInterface(do_QueryInterface(pID));
-        array->AppendElement(pInterface, false);
+        array->AppendElement(pInterface);
       }
     }
   }

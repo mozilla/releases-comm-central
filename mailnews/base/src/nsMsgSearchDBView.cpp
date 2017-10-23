@@ -1059,7 +1059,7 @@ nsMsgSearchDBView::GetFoldersAndHdrsForSelection(nsMsgViewIndex *indices,
         if (NS_SUCCEEDED(rv) && msgFolder && msgFolder == curFolder)
         {
           nsCOMPtr<nsISupports> hdrSupports = do_QueryInterface(hdr);
-          msgHdrsForOneFolder->AppendElement(hdrSupports, false);
+          msgHdrsForOneFolder->AppendElement(hdrSupports);
         }
       }
     }

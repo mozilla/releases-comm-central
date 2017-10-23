@@ -1225,7 +1225,7 @@ NS_IMETHODIMP nsAddrDatabase::CreateNewListCardAndAddToDB(nsIAbDirectory *aList,
   rv = AddListCardColumnsToRow(newCard, pListRow, totalAddress, getter_AddRefs(pNewCard), true /* aInMailingList */, aList, nullptr);
   NS_ENSURE_SUCCESS(rv,rv);
 
-  addressList->AppendElement(newCard, false);
+  addressList->AppendElement(newCard);
 
   if (notify)
     NotifyCardEntryChange(AB_NotifyInserted, newCard, aList);
@@ -1388,7 +1388,7 @@ nsresult nsAddrDatabase::AddListAttributeColumnsToRow(nsIAbDirectory *list, nsIM
                 nsCOMPtr<nsIAbCard> pNewCard;
                 err = AddListCardColumnsToRow(pCard, listRow, pos, getter_AddRefs(pNewCard), listHasCard, list, aParent);
                 if (pNewCard)
-                    pAddressLists->ReplaceElementAt(pNewCard, i, false);
+                    pAddressLists->ReplaceElementAt(pNewCard, i);
             }
         }
     }

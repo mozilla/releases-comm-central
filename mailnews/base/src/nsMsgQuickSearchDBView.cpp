@@ -599,7 +599,7 @@ nsMsgQuickSearchDBView::ListCollapsedChildren(nsMsgViewIndex viewIndex,
       {
         // if this hdr is in the original view, add it to new view.
         if (m_origKeys.BinaryIndexOf(msgKey) != m_origKeys.NoIndex)
-          messageArray->AppendElement(msgHdr, false);
+          messageArray->AppendElement(msgHdr);
       }
       else
       {

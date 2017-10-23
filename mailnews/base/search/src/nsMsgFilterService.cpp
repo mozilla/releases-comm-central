@@ -492,7 +492,7 @@ NS_IMETHODIMP nsMsgFilterAfterTheFact::OnSearchHit(nsIMsgDBHdr *header, nsIMsgFo
     return NS_OK;
 
   m_searchHits.AppendElement(msgKey);
-  m_searchHitHdrs->AppendElement(header, false);
+  m_searchHitHdrs->AppendElement(header);
   return NS_OK;
 }
 
@@ -811,7 +811,7 @@ nsresult nsMsgFilterAfterTheFact::ApplyFilter()
               if (!partialMsgs)
                 partialMsgs = do_CreateInstance(NS_ARRAY_CONTRACTID, &rv);
               CONTINUE_IF_FALSE(partialMsgs, "Could not create partialMsgs array");
-              partialMsgs->AppendElement(msgHdr, false);
+              partialMsgs->AppendElement(msgHdr);
               m_stopFiltering.AppendElement(m_searchHits[msgIndex]);
               m_curFolder->OrProcessingFlags(m_searchHits[msgIndex],
                                              nsMsgProcessingFlags::FilterToMove);
@@ -837,7 +837,7 @@ nsresult nsMsgFilterAfterTheFact::ApplyFilter()
             uint32_t flags = 0;
             msgHdr->GetFlags(&flags);
             if (flags & nsMsgMessageFlags::Partial)
-              messages->AppendElement(msgHdr, false);
+              messages->AppendElement(msgHdr);
           }
           uint32_t msgsToFetch;
           messages->GetLength(&msgsToFetch);
@@ -1102,7 +1102,7 @@ NS_IMETHODIMP nsMsgFilterService::ApplyFilters(nsMsgFilterTypeType aFilterType,
   nsCOMPtr<nsIMutableArray> folderList(do_CreateInstance(NS_ARRAY_CONTRACTID, &rv));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  folderList->AppendElement(aFolder, false);
+  folderList->AppendElement(aFolder);
 
   // Create our nsMsgApplyFiltersToMessages object which will be called when ApplyFiltersToHdr
   // finds one or more filters that hit.

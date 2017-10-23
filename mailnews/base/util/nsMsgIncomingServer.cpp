@@ -1918,7 +1918,7 @@ nsMsgIncomingServer::ConfigureTemporaryServerSpamFilters(nsIMsgFilterList *filte
     searchValue->SetStr(NS_LITERAL_STRING("user"));
     searchTerm->SetValue(searchValue);
 
-    searchTerms->InsertElementAt(searchTerm, count, /* weak = */ false);
+    searchTerms->InsertElementAt(searchTerm, count);
 
     bool moveOnSpam, markAsReadOnSpam;
     spamSettings->GetMoveOnSpam(&moveOnSpam);

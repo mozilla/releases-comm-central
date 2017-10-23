@@ -399,7 +399,7 @@ NS_IMETHODIMP nsAbMDBDirectory::GetChildCards(nsISimpleEnumerator* *result)
     // results after search is complete
     nsCOMPtr<nsIMutableArray> array(do_CreateInstance(NS_ARRAY_CONTRACTID));
     for (auto iter = mSearchCache.Iter(); !iter.Done(); iter.Next()) {
-      array->AppendElement(iter.Data(), false);
+      array->AppendElement(iter.Data());
     }
     return NS_NewArrayEnumerator(result, array);
   }

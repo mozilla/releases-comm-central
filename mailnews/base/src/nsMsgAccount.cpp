@@ -268,7 +268,7 @@ nsMsgAccount::SetDefaultIdentity(nsIMsgIdentity *aDefaultIdentity)
   NS_ENSURE_SUCCESS(rv, rv);
 
   // The passed in identity is in the list, so we have at least one element.
-  rv = m_identities->InsertElementAt(aDefaultIdentity, 0, false);
+  rv = m_identities->InsertElementAt(aDefaultIdentity, 0);
   NS_ENSURE_SUCCESS(rv, rv);
 
   return saveIdentitiesPref();
@@ -282,7 +282,7 @@ nsMsgAccount::addIdentityInternal(nsIMsgIdentity *identity)
 {
   NS_ENSURE_TRUE(m_identities, NS_ERROR_FAILURE);
 
-  return m_identities->AppendElement(identity, false);
+  return m_identities->AppendElement(identity);
 }
 
 /* void addIdentity (in nsIMsgIdentity identity); */

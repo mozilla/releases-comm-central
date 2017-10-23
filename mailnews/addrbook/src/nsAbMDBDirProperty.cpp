@@ -63,7 +63,7 @@ NS_IMETHODIMP nsAbMDBDirProperty::AddMailListToDirectory(nsIAbDirectory *mailLis
 
   uint32_t position;
   if (NS_FAILED(m_AddressList->IndexOf(0, mailList, &position)))
-    m_AddressList->AppendElement(mailList, false);
+    m_AddressList->AppendElement(mailList);
 
   return NS_OK;
 }
@@ -80,7 +80,7 @@ NS_IMETHODIMP nsAbMDBDirProperty::AddAddressToList(nsIAbCard *card)
 
   uint32_t position;
   if (NS_FAILED(m_AddressList->IndexOf(0, card, &position)))
-    m_AddressList->AppendElement(card, false);
+    m_AddressList->AppendElement(card);
 
   return NS_OK;
 }

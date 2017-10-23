@@ -566,19 +566,19 @@ nsMsgFolderDataSource::GetAllCmds(nsIRDFResource* source,
     do_CreateInstance(NS_ARRAY_CONTRACTID);
   NS_ENSURE_STATE(cmds);
 
-  cmds->AppendElement(kNC_Delete, false);
-  cmds->AppendElement(kNC_ReallyDelete, false);
-  cmds->AppendElement(kNC_NewFolder, false);
-  cmds->AppendElement(kNC_GetNewMessages, false);
-  cmds->AppendElement(kNC_Copy, false);
-  cmds->AppendElement(kNC_Move, false);
-  cmds->AppendElement(kNC_CopyFolder, false);
-  cmds->AppendElement(kNC_MoveFolder, false);
-  cmds->AppendElement(kNC_MarkAllMessagesRead, false);
-  cmds->AppendElement(kNC_Compact, false);
-  cmds->AppendElement(kNC_CompactAll, false);
-  cmds->AppendElement(kNC_Rename, false);
-  cmds->AppendElement(kNC_EmptyTrash, false);
+  cmds->AppendElement(kNC_Delete);
+  cmds->AppendElement(kNC_ReallyDelete);
+  cmds->AppendElement(kNC_NewFolder);
+  cmds->AppendElement(kNC_GetNewMessages);
+  cmds->AppendElement(kNC_Copy);
+  cmds->AppendElement(kNC_Move);
+  cmds->AppendElement(kNC_CopyFolder);
+  cmds->AppendElement(kNC_MoveFolder);
+  cmds->AppendElement(kNC_MarkAllMessagesRead);
+  cmds->AppendElement(kNC_Compact);
+  cmds->AppendElement(kNC_CompactAll);
+  cmds->AppendElement(kNC_Rename);
+  cmds->AppendElement(kNC_EmptyTrash);
 
   return cmds->Enumerate(commands);
 }
@@ -1802,7 +1802,7 @@ nsresult nsMsgFolderDataSource::DoCopyToFolder(nsIMsgFolder *dstFolder, nsISuppo
     nsCOMPtr<nsIMsgDBHdr> message(do_QueryElementAt(arguments, i));
     if (message)
     {
-      messageArray->AppendElement(message, false);
+      messageArray->AppendElement(message);
     }
   }
 
@@ -1835,7 +1835,7 @@ nsresult nsMsgFolderDataSource::DoFolderCopyToFolder(nsIMsgFolder *dstFolder, ns
     {
       nsCOMPtr<nsISupports> element(do_QueryElementAt(arguments, i, &rv));
       if (NS_SUCCEEDED(rv))
-        folderArray->AppendElement(element, false);
+        folderArray->AppendElement(element);
     }
 
     //Call copyservice with dstFolder, srcFolder, folders and isMoveFolder
@@ -1886,11 +1886,11 @@ nsresult nsMsgFolderDataSource::DoDeleteFromFolder(nsIMsgFolder *folder, nsISupp
     nsCOMPtr<nsIMsgFolder> deletedFolder(do_QueryInterface(supports));
     if (deletedMessage)
     {
-      messageArray->AppendElement(supports, false);
+      messageArray->AppendElement(supports);
     }
     else if(deletedFolder)
     {
-      folderArray->AppendElement(supports, false);
+      folderArray->AppendElement(supports);
     }
   }
   uint32_t cnt;
