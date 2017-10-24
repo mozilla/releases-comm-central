@@ -7,7 +7,6 @@ Components.utils.import("resource://calendar/modules/calAsyncUtils.jsm");
 Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 Components.utils.import("resource://gre/modules/Timer.jsm");
 Components.utils.import("resource://gre/modules/Preferences.jsm");
-Components.utils.import("resource://gre/modules/Task.jsm");
 
 
 /**
@@ -82,7 +81,7 @@ etagsHandler.prototype = {
         }
     },
 
-    onStopRequest: Task.async(function* (request, context, statusCode) {
+    onStopRequest: async function(request, context, statusCode) {
         if (this.calendar.verboseLogging()) {
             cal.LOG("CalDAV: recv: " + this.logXML);
         }
@@ -113,7 +112,7 @@ etagsHandler.prototype = {
                 // Since the target calendar's operations are synchronous, we can
                 // safely set variables from this function.
                 let pcal = cal.async.promisifyCalendar(this.calendar.mOfflineStorage);
-                let foundItem = (yield pcal.getItem(this.calendar.mHrefIndex[path]))[0];
+                let foundItem = (await pcal.getItem(this.calendar.mHrefIndex[path]))[0];
 
                 if (foundItem) {
                     let wasInboxItem = this.calendar.mItemInfoCache[foundItem.id].isInboxItem;
@@ -121,7 +120,7 @@ etagsHandler.prototype = {
                         (wasInboxItem === false && !this.calendar.isInbox(this.baseUri.spec))) {
                         cal.LOG("Deleting local href: " + path);
                         delete this.calendar.mHrefIndex[path];
-                        yield pcal.deleteItem(foundItem);
+                        await pcal.deleteItem(foundItem);
                         needsRefresh = true;
                     }
                 }
@@ -159,7 +158,7 @@ etagsHandler.prototype = {
                 this.calendar.pollInbox();
             }
         }
-    }),
+    },
 
     onDataAvailable: function(request, context, inputStream, offset, count) {
         if (this._reader) {

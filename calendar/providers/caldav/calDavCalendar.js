@@ -6,7 +6,6 @@ Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 Components.utils.import("resource://gre/modules/Services.jsm");
 Components.utils.import("resource://gre/modules/Timer.jsm");
 Components.utils.import("resource://gre/modules/Preferences.jsm");
-Components.utils.import("resource://gre/modules/Task.jsm");
 
 Components.utils.import("resource:///modules/OAuth2.jsm");
 
@@ -1087,69 +1086,66 @@ calDavCalendar.prototype = {
         resPathComponents.splice(0, uriPathComponentLength - 1);
         let locationPath = resPathComponents.join("/");
         let isInboxItem = this.isInbox(aUri.spec);
-        let self = this;
 
-        Task.spawn(function* () {
-            if (self.mHrefIndex[path] &&
-                !self.mItemInfoCache[item.id]) {
-                // If we get here it means a meeting has kept the same filename
-                // but changed its uid, which can happen server side.
-                // Delete the meeting before re-adding it
-                self.deleteTargetCalendarItem(path);
-            }
+        if (this.mHrefIndex[path] &&
+            !this.mItemInfoCache[item.id]) {
+            // If we get here it means a meeting has kept the same filename
+            // but changed its uid, which can happen server side.
+            // Delete the meeting before re-adding it
+            this.deleteTargetCalendarItem(path);
+        }
 
-            if (self.mItemInfoCache[item.id]) {
-                self.mItemInfoCache[item.id].isNew = false;
-            } else {
-                self.mItemInfoCache[item.id] = { isNew: true };
-            }
-            self.mItemInfoCache[item.id].locationPath = locationPath;
-            self.mItemInfoCache[item.id].isInboxItem = isInboxItem;
+        if (this.mItemInfoCache[item.id]) {
+            this.mItemInfoCache[item.id].isNew = false;
+        } else {
+            this.mItemInfoCache[item.id] = { isNew: true };
+        }
+        this.mItemInfoCache[item.id].locationPath = locationPath;
+        this.mItemInfoCache[item.id].isInboxItem = isInboxItem;
 
-            self.mHrefIndex[path] = item.id;
-            self.mItemInfoCache[item.id].etag = etag;
+        this.mHrefIndex[path] = item.id;
+        this.mItemInfoCache[item.id].etag = etag;
 
-            let needsAddModify = false;
-            if (self.isCached) {
-                self.setMetaData(item.id, path, etag, isInboxItem);
+        let needsAddModify = false;
+        if (this.isCached) {
+            this.setMetaData(item.id, path, etag, isInboxItem);
 
-                // If we have a listener, then the caller will take care of adding the item
-                // Otherwise, we have to do it ourself
-                // XXX This is quite fragile, but saves us a double modify/add
+            // If we have a listener, then the caller will take care of adding the item
+            // Otherwise, we have to do it ourself
+            // XXX This is quite fragile, but saves us a double modify/add
 
-                if (aListener) {
-                    // In the cached case, notifying operation complete will add the item to the cache
-                    if (self.mItemInfoCache[item.id].isNew) {
-                        self.notifyOperationComplete(aListener,
-                                                     Components.results.NS_OK,
-                                                     cIOL.ADD,
-                                                     item.id,
-                                                     item);
-                    } else {
-                        self.notifyOperationComplete(aListener,
-                                                     Components.results.NS_OK,
-                                                     cIOL.MODIFY,
-                                                     item.id,
-                                                     item);
-                    }
+            if (aListener) {
+                // In the cached case, notifying operation complete will add the item to the cache
+                if (this.mItemInfoCache[item.id].isNew) {
+                    this.notifyOperationComplete(aListener,
+                                                 Components.results.NS_OK,
+                                                 cIOL.ADD,
+                                                 item.id,
+                                                 item);
                 } else {
-                    // No listener, we'll have to add it ourselves
-                    needsAddModify = true;
+                    this.notifyOperationComplete(aListener,
+                                                 Components.results.NS_OK,
+                                                 cIOL.MODIFY,
+                                                 item.id,
+                                                 item);
                 }
             } else {
-                // In the uncached case, we need to do so ourselves
+                // No listener, we'll have to add it ourselves
                 needsAddModify = true;
             }
+        } else {
+            // In the uncached case, we need to do so ourselves
+            needsAddModify = true;
+        }
 
-            // Now take care of the add/modify if needed.
-            if (needsAddModify) {
-                if (self.mItemInfoCache[item.id].isNew) {
-                    self.mOfflineStorage.adoptItem(item, aListener);
-                } else {
-                    self.mOfflineStorage.modifyItem(item, null, aListener);
-                }
+        // Now take care of the add/modify if needed.
+        if (needsAddModify) {
+            if (this.mItemInfoCache[item.id].isNew) {
+                this.mOfflineStorage.adoptItem(item, aListener);
+            } else {
+                this.mOfflineStorage.modifyItem(item, null, aListener);
             }
-        });
+        }
     },
 
     /**
@@ -1157,10 +1153,10 @@ calDavCalendar.prototype = {
      *
      * @param path Path of the item to delete, must not be encoded
      */
-    deleteTargetCalendarItem: Task.async(function* (path) {
+    deleteTargetCalendarItem: async function(path) {
         let pcal = cal.async.promisifyCalendar(this.mOfflineStorage);
 
-        let foundItem = (yield pcal.getItem(this.mHrefIndex[path]))[0];
+        let foundItem = (await pcal.getItem(this.mHrefIndex[path]))[0];
         let wasInboxItem = this.mItemInfoCache[foundItem.id].isInboxItem;
         if ((wasInboxItem && this.isInbox(path)) ||
             (wasInboxItem === false && !this.isInbox(path))) {
@@ -1170,9 +1166,9 @@ calDavCalendar.prototype = {
             if (this.isCached) {
                 this.mOfflineStorage.deleteMetaData(foundItem.id);
             }
-            yield pcal.deleteItem(foundItem);
+            await pcal.deleteItem(foundItem);
         }
-    }),
+    },
 
     /**
      * Perform tasks required after updating items in the calendar such as
