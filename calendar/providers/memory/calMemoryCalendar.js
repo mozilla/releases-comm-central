@@ -420,12 +420,6 @@ calMemoryCalendar.prototype = {
         aRangeStart = cal.ensureDateTime(aRangeStart);
         aRangeEnd = cal.ensureDateTime(aRangeEnd);
 
-
-        let offline_filter = aItemFilter &
-            (calICalendar.ITEM_FILTER_OFFLINE_DELETED |
-             calICalendar.ITEM_FILTER_OFFLINE_CREATED |
-             calICalendar.ITEM_FILTER_OFFLINE_MODIFIED);
-
         let requestedFlag = 0;
         if ((aItemFilter & calICalendar.ITEM_FILTER_OFFLINE_CREATED) != 0) {
             requestedFlag = cICL.OFFLINE_FLAG_CREATED_RECORD;
@@ -435,9 +429,9 @@ calMemoryCalendar.prototype = {
             requestedFlag = cICL.OFFLINE_FLAG_DELETED_RECORD;
         }
 
-        let matchOffline = function(itemFlag, requestedFlag) {
+        let matchOffline = function(itemFlag, reqFlag) {
             // Same as storage calendar sql query. For comparison:
-            // requestedFlag is :offline_journal (parameter),
+            // reqFlag is :offline_journal (parameter),
             // itemFlag is offline_journal (field value)
             // ...
             // AND (:offline_journal IS NULL
@@ -445,10 +439,10 @@ calMemoryCalendar.prototype = {
             //  OR   offline_journal != ${cICL.OFFLINE_FLAG_DELETED_RECORD}))
             //  OR offline_journal == :offline_journal
 
-            return (!requestedFlag &&
+            return (!reqFlag &&
                     (!itemFlag ||
                      itemFlag != cICL.OFFLINE_FLAG_DELETED_RECORD)) ||
-                   itemFlag == requestedFlag;
+                   itemFlag == reqFlag;
         };
 
         cal.forEach(this.mItems, ([id, item]) => {
