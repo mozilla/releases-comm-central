@@ -63,7 +63,7 @@ var MozMill = {
         var height = window.innerHeight;
         var left = window.innerWidth;
       }
-      
+
       var paramString = "chrome,resizable,height=" + height +
                                ",width=" + width + ",left="+left+",top="+top;
       var w = window.open("chrome://mozmill/content/mozmill.xul", "", paramString);
@@ -73,14 +73,14 @@ var MozMill = {
 
 window.addEventListener("load", function(e) { MozMill.onLoad(e); }, false);
 
- 
+
 function mozMillTestWindow() {
   window.openDialog("chrome://mozmill/content/testwindow.html", "_blank", "chrome,dialog=no, resizable");
 }
 
 //adding a mozmill keyboard shortcut
-// window.addEventListener("keypress", function(e) { 
-//   if ((e.charCode == 109) && (e.ctrlKey)) { 
-//     MozMill.onMenuItemCommand(e); 
-//   } 
+// window.addEventListener("keypress", function(e) {
+//   if ((e.charCode == 109) && (e.ctrlKey)) {
+//     MozMill.onMenuItemCommand(e);
+//   }
 // }, false);
