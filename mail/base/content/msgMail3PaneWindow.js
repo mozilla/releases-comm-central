@@ -1812,9 +1812,8 @@ var TabsInTitlebar = {
       // then later set the properties affecting layout together in a batch.
 
       // Get the height of the tabs toolbar:
-      let tabsToolbar = $("tabs-toolbar");
-      let tabsStyles = window.getComputedStyle(tabsToolbar);
-      let fullTabsHeight = rect(tabsToolbar).height + verticalMargins(tabsStyles);
+      let fullTabsHeight = rect($("tabs-toolbar")).height;
+
       // Buttons first:
       let captionButtonsBoxWidth = rect($("titlebar-buttonbox")).width;
 
