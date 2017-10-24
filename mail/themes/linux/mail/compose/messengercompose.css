@@ -19,6 +19,10 @@
   box-shadow: 0 0 2px Highlight inset, 0 0 2px Highlight inset;
 }
 
+#attachmentBucket > scrollbox > .scrollbox-innerbox {
+  padding: 1px;
+}
+
 #compose-toolbox {
   -moz-appearance: none;
   background-color: var(--toolbar-bgcolor);

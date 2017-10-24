@@ -51,7 +51,6 @@ attachmentlist:focus > attachmentitem[selected="true"] .attachmentcell-icon {
 
 @media (-moz-windows-default-theme) {
   attachmentitem {
-    margin: 1px 0 0 0;
     pointer-events: auto !important;
     border: 2px solid transparent;
     color: -moz-FieldText;
@@ -61,11 +60,13 @@ attachmentlist:focus > attachmentitem[selected="true"] .attachmentcell-icon {
   }
 
   .attachmentlist-wrapper {
-    margin: 0 1px 1px 0;
+    margin-inline-end: 1px;
+    margin-bottom: 1px;
   }
 
   attachmentlist[orient="horizontal"] > attachmentitem {
-    margin: 1px 0 0 1px;
+    margin-top: 1px;
+    margin-inline-start: 1px;
   }
 
   .attachmentcell-nameselection {
@@ -80,21 +81,21 @@ attachmentlist:focus > attachmentitem[selected="true"] .attachmentcell-icon {
   }
 
   .attachmentcell-name, .attachmentcell-size {
-    margin: 0px 4px 0px 4px;
+    margin: 0 4px;
   }
 
   attachmentitem[selected="true"] {
-    -moz-border-top-colors: rgb(217, 217, 217) rgba(255,255,255,.4);
-    -moz-border-right-colors: rgb(217, 217, 217) rgba(255,255,255,.4);
-    -moz-border-left-colors: rgb(217, 217, 217) rgba(255,255,255,.4);
-    -moz-border-bottom-colors: rgb(217, 217, 217) rgba(255,255,255,.6);
+    -moz-border-top-colors: rgb(217, 217, 217) rgba(255, 255, 255, .4);
+    -moz-border-right-colors: rgb(217, 217, 217) rgba(255, 255, 255, .4);
+    -moz-border-left-colors: rgb(217, 217, 217) rgba(255, 255, 255, .4);
+    -moz-border-bottom-colors: rgb(217, 217, 217) rgba(255, 255, 255, .6);
   }
 
   attachmentitem[selected="true"]:hover {
-    -moz-border-top-colors: rgb(125, 162, 206) rgba(255,255,255,.4);
-    -moz-border-right-colors: rgb(125, 162, 206) rgba(255,255,255,.4);
-    -moz-border-left-colors: rgb(125, 162, 206) rgba(255,255,255,.4);
-    -moz-border-bottom-colors: rgb(125, 162, 206) rgba(255,255,255,.6);
+    -moz-border-top-colors: rgb(125, 162, 206) rgba(255, 255, 255, .4);
+    -moz-border-right-colors: rgb(125, 162, 206) rgba(255, 255, 255, .4);
+    -moz-border-left-colors: rgb(125, 162, 206) rgba(255, 255, 255, .4);
+    -moz-border-bottom-colors: rgb(125, 162, 206) rgba(255, 255, 255, .6);
   }
 
   attachmentlist:focus > attachmentitem[current="true"] {
@@ -105,31 +106,36 @@ attachmentlist:focus > attachmentitem[selected="true"] .attachmentcell-icon {
   }
 
   attachmentlist:focus > attachmentitem[current="true"]:hover {
-    -moz-border-top-colors: rgb(125, 162, 206) rgba(255,255,255,.4);
-    -moz-border-right-colors: rgb(125, 162, 206) rgba(255,255,255,.4);
-    -moz-border-left-colors: rgb(125, 162, 206) rgba(255,255,255,.4);
-    -moz-border-bottom-colors: rgb(125, 162, 206) rgba(255,255,255,.6);
+    -moz-border-top-colors: rgb(125, 162, 206) rgba(255, 255, 255, .4);
+    -moz-border-right-colors: rgb(125, 162, 206) rgba(255, 255, 255, .4);
+    -moz-border-left-colors: rgb(125, 162, 206) rgba(255, 255, 255, .4);
+    -moz-border-bottom-colors: rgb(125, 162, 206) rgba(255, 255, 255, .6);
   }
 
   attachmentlist:focus > attachmentitem[selected="true"] {
-    -moz-border-top-colors: rgb(132, 172, 221) rgba(255,255,255,.4);
-    -moz-border-right-colors: rgb(132, 172, 221) rgba(255,255,255,.4);
-    -moz-border-left-colors: rgb(132, 172, 221) rgba(255,255,255,.4);
-    -moz-border-bottom-colors: rgb(132, 172, 221) rgba(255,255,255,.6);
+    -moz-border-top-colors: rgb(132, 172, 221) rgba(255, 255, 255, .4);
+    -moz-border-right-colors: rgb(132, 172, 221) rgba(255, 255, 255, .4);
+    -moz-border-left-colors: rgb(132, 172, 221) rgba(255, 255, 255, .4);
+    -moz-border-bottom-colors: rgb(132, 172, 221) rgba(255, 255, 255, .6);
   }
 
   attachmentlist:focus > attachmentitem[selected="true"][current="true"] {
-    -moz-border-top-colors: rgb(125, 162, 206) rgba(255,255,255,.4);
-    -moz-border-right-colors: rgb(125, 162, 206) rgba(255,255,255,.4);
-    -moz-border-left-colors: rgb(125, 162, 206) rgba(255,255,255,.4);
-    -moz-border-bottom-colors: rgb(125, 162, 206) rgba(255,255,255,.6);
+    -moz-border-top-colors: rgb(125, 162, 206) rgba(255, 255, 255, .4);
+    -moz-border-right-colors: rgb(125, 162, 206) rgba(255, 255, 255, .4);
+    -moz-border-left-colors: rgb(125, 162, 206) rgba(255, 255, 255, .4);
+    -moz-border-bottom-colors: rgb(125, 162, 206) rgba(255, 255, 255, .6);
   }
 
   attachmentitem:hover {
-    -moz-border-top-colors: rgb(184, 214, 251) rgba(255,255,255,.4);
-    -moz-border-right-colors: rgb(184, 214, 251) rgba(255,255,255,.4);
-    -moz-border-left-colors: rgb(184, 214, 251) rgba(255,255,255,.4);
-    -moz-border-bottom-colors: rgb(184, 214, 251) rgba(255,255,255,.6);
+    -moz-border-top-colors: rgb(184, 214, 251) rgba(255, 255, 255, .4);
+    -moz-border-right-colors: rgb(184, 214, 251) rgba(255, 255, 255, .4);
+    -moz-border-left-colors: rgb(184, 214, 251) rgba(255, 255, 255, .4);
+    -moz-border-bottom-colors: rgb(184, 214, 251) rgba(255, 255, 255, .6);
+  }
+
+  #attachmentBucket:focus > attachmentitem[selected="true"] +
+    attachmentitem[selected="true"] {
+    -moz-border-top-colors: rgba(131, 183, 249, 0.375) rgba(255, 255, 255, .4);
   }
 }
 
