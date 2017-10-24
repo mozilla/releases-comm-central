@@ -64,34 +64,34 @@
 
     <implementation>
       <constructor><![CDATA[
-        Components.utils.import("resource://calendar/modules/calAlarmUtils.jsm");
-        Components.utils.import("resource://calendar/modules/calUtils.jsm");
-        Components.utils.import("resource://gre/modules/Preferences.jsm");
+          Components.utils.import("resource://calendar/modules/calAlarmUtils.jsm");
+          Components.utils.import("resource://calendar/modules/calUtils.jsm");
+          Components.utils.import("resource://gre/modules/Preferences.jsm");
 
-        this.eventNameTextbox.onblur = () => {
-            this.stopEditing(true);
-        };
-        this.eventNameTextbox.onkeypress = (event) => {
-            // save on enter
-            if (event.keyCode == 13) {
-                this.stopEditing(true);
-            // abort on escape
-            } else if (event.keyCode == 27) {
-                this.stopEditing(false);
-            }
-        };
-        let stopPropagationIfEditing = (event) => {
-            if (this.mEditing) {
-                event.stopPropagation();
-            }
-        };
-        // while editing, single click positions cursor, so don't propagate.
-        this.eventNameTextbox.onclick = stopPropagationIfEditing;
-        // while editing, double click selects words, so don't propagate.
-        this.eventNameTextbox.ondblclick = stopPropagationIfEditing;
-        // while editing, don't propagate mousedown/up (selects calEvent).
-        this.eventNameTextbox.onmousedown = stopPropagationIfEditing;
-        this.eventNameTextbox.onmouseup = stopPropagationIfEditing;
+          this.eventNameTextbox.onblur = () => {
+              this.stopEditing(true);
+          };
+          this.eventNameTextbox.onkeypress = (event) => {
+              // save on enter
+              if (event.keyCode == 13) {
+                  this.stopEditing(true);
+              // abort on escape
+              } else if (event.keyCode == 27) {
+                  this.stopEditing(false);
+              }
+          };
+          let stopPropagationIfEditing = (event) => {
+              if (this.mEditing) {
+                  event.stopPropagation();
+              }
+          };
+          // while editing, single click positions cursor, so don't propagate.
+          this.eventNameTextbox.onclick = stopPropagationIfEditing;
+          // while editing, double click selects words, so don't propagate.
+          this.eventNameTextbox.ondblclick = stopPropagationIfEditing;
+          // while editing, don't propagate mousedown/up (selects calEvent).
+          this.eventNameTextbox.onmousedown = stopPropagationIfEditing;
+          this.eventNameTextbox.onmouseup = stopPropagationIfEditing;
       ]]></constructor>
 
       <field name="mOccurrence">null</field>
@@ -104,38 +104,38 @@
 
       <property name="selected">
         <getter><![CDATA[
-          return this.mSelected;
+            return this.mSelected;
         ]]></getter>
         <setter><![CDATA[
-          if (val && !this.mSelected) {
-              this.mSelected = true;
-              this.setAttribute("selected", "true");
-          } else if (!val && this.mSelected) {
-              this.mSelected = false;
-              this.removeAttribute("selected");
-          }
-          return val;
+            if (val && !this.mSelected) {
+                this.mSelected = true;
+                this.setAttribute("selected", "true");
+            } else if (!val && this.mSelected) {
+                this.mSelected = false;
+                this.removeAttribute("selected");
+            }
+            return val;
         ]]></setter>
       </property>
       <property name="calendarView">
         <getter><![CDATA[
-          return this.mCalendarView;
+            return this.mCalendarView;
         ]]></getter>
         <setter><![CDATA[
-          this.mCalendarView = val;
-          return val;
+            this.mCalendarView = val;
+            return val;
         ]]></setter>
       </property>
 
       <property name="occurrence">
         <getter><![CDATA[
-          return this.mOccurrence;
+            return this.mOccurrence;
         ]]></getter>
         <setter><![CDATA[
-          this.mOccurrence = val;
-          this.setEditableLabel();
-          this.setCSSClasses();
-          return val;
+            this.mOccurrence = val;
+            this.setEditableLabel();
+            this.setCSSClasses();
+            return val;
         ]]></setter>
       </property>
 
@@ -146,225 +146,225 @@
 
       <method name="setEditableLabel">
         <body><![CDATA[
-          let evl = this.eventNameLabel;
-          let item = this.mOccurrence;
-          evl.value = (item.title ? item.title.replace(/\n/g, " ")
-                                  : cal.calGetString("calendar", "eventUntitled"));
+            let evl = this.eventNameLabel;
+            let item = this.mOccurrence;
+            evl.value = (item.title ? item.title.replace(/\n/g, " ")
+                                    : cal.calGetString("calendar", "eventUntitled"));
         ]]></body>
       </method>
 
       <method name="setCSSClasses">
         <body><![CDATA[
-          let item = this.mOccurrence;
-          this.setAttribute("calendar-uri", item.calendar.uri.spec);
-          this.setAttribute("calendar-id", item.calendar.id);
-          let categoriesArray = item.getCategories({});
-          if (categoriesArray.length > 0) {
-              let cssClassesArray = categoriesArray.map(cal.formatStringForCSSRule);
-              this.setAttribute("categories", cssClassesArray.join(" "));
-          }
+            let item = this.mOccurrence;
+            this.setAttribute("calendar-uri", item.calendar.uri.spec);
+            this.setAttribute("calendar-id", item.calendar.id);
+            let categoriesArray = item.getCategories({});
+            if (categoriesArray.length > 0) {
+                let cssClassesArray = categoriesArray.map(cal.formatStringForCSSRule);
+                this.setAttribute("categories", cssClassesArray.join(" "));
+            }
 
-          // Add alarm icons as needed.
-          let alarms = item.getAlarms({});
-          if (alarms.length && Preferences.get("calendar.alarms.indicator.show", true)) {
-              let iconsBox = document.getAnonymousElementByAttribute(this, "anonid", "alarm-icons-box");
-              cal.alarms.addReminderImages(iconsBox, alarms);
+            // Add alarm icons as needed.
+            let alarms = item.getAlarms({});
+            if (alarms.length && Preferences.get("calendar.alarms.indicator.show", true)) {
+                let iconsBox = document.getAnonymousElementByAttribute(this, "anonid", "alarm-icons-box");
+                cal.alarms.addReminderImages(iconsBox, alarms);
 
-              // Set suppressed status on the icons box
-              setElementValue(iconsBox,
-                              item.calendar.getProperty("suppressAlarms") || false,
-                              "suppressed");
-          }
+                // Set suppressed status on the icons box
+                setElementValue(iconsBox,
+                                item.calendar.getProperty("suppressAlarms") || false,
+                                "suppressed");
+            }
 
-          // Item classification / privacy
-          let classificationBox = document.getAnonymousElementByAttribute(this, "anonid", "item-classification-box");
-          if (classificationBox) {
-              classificationBox.setAttribute("classification", item.privacy || "PUBLIC");
-          }
+            // Item classification / privacy
+            let classificationBox = document.getAnonymousElementByAttribute(this, "anonid", "item-classification-box");
+            if (classificationBox) {
+                classificationBox.setAttribute("classification", item.privacy || "PUBLIC");
+            }
 
-          // Set up event box attributes for use in css selectors. Note if
-          // something is added here, it should also be xbl:inherited correctly
-          // in the <content> section of this binding, and all that inherit it.
+            // Set up event box attributes for use in css selectors. Note if
+            // something is added here, it should also be xbl:inherited correctly
+            // in the <content> section of this binding, and all that inherit it.
 
-          // Event type specific properties
-          if (cal.isEvent(item)) {
-              if (item.startDate.isDate) {
-                  this.setAttribute("allday", "true");
-              }
-              this.setAttribute("itemType", "event");
-          } else if (cal.isToDo(item)) {
-              // progress attribute
-              this.setAttribute("progress", cal.getProgressAtom(item));
-              // Attribute for tasks and tasks image.
-              this.setAttribute("itemType", "todo");
-              if (item.entryDate && !item.dueDate) {
-                  this.setAttribute("todoType", "start");
-              } else if (!item.entryDate && item.dueDate) {
-                  this.setAttribute("todoType", "end");
-              }
-          }
+            // Event type specific properties
+            if (cal.isEvent(item)) {
+                if (item.startDate.isDate) {
+                    this.setAttribute("allday", "true");
+                }
+                this.setAttribute("itemType", "event");
+            } else if (cal.isToDo(item)) {
+                // progress attribute
+                this.setAttribute("progress", cal.getProgressAtom(item));
+                // Attribute for tasks and tasks image.
+                this.setAttribute("itemType", "todo");
+                if (item.entryDate && !item.dueDate) {
+                    this.setAttribute("todoType", "start");
+                } else if (!item.entryDate && item.dueDate) {
+                    this.setAttribute("todoType", "end");
+                }
+            }
 
-          if (this.calendarView &&
-              item.hashId in this.calendarView.mFlashingEvents) {
-              this.setAttribute("flashing", "true");
-          }
+            if (this.calendarView &&
+                item.hashId in this.calendarView.mFlashingEvents) {
+                this.setAttribute("flashing", "true");
+            }
 
-          if (alarms.length) {
-              this.setAttribute("alarm", "true");
-          }
+            if (alarms.length) {
+                this.setAttribute("alarm", "true");
+            }
 
-          // priority
-          if (item.priority > 0 && item.priority < 5) {
-              this.setAttribute("priority", "high");
-          } else if (item.priority > 5 && item.priority < 10) {
-              this.setAttribute("priority", "low");
-          }
+            // priority
+            if (item.priority > 0 && item.priority < 5) {
+                this.setAttribute("priority", "high");
+            } else if (item.priority > 5 && item.priority < 10) {
+                this.setAttribute("priority", "low");
+            }
 
-          // status attribute
-          if (item.status) {
-              this.setAttribute("status", item.status.toUpperCase());
-          }
+            // status attribute
+            if (item.status) {
+                this.setAttribute("status", item.status.toUpperCase());
+            }
 
-          // item class
-          if (item.hasProperty("CLASS")) {
-              this.setAttribute("itemclass", item.getProperty("CLASS"));
-          }
+            // item class
+            if (item.hasProperty("CLASS")) {
+                this.setAttribute("itemclass", item.getProperty("CLASS"));
+            }
 
-          // calendar name
-          this.setAttribute("calendar", item.calendar.name.toLowerCase());
+            // calendar name
+            this.setAttribute("calendar", item.calendar.name.toLowerCase());
 
-          // Invitation
-          if (cal.isInvitation(item)) {
-              this.setAttribute("invitation-status", cal.getInvitedAttendee(item).participationStatus);
-              this.setAttribute("readonly", "true");
-          } else if (!cal.isCalendarWritable(item.calendar)) {
-              this.setAttribute("readonly", "true");
-          }
+            // Invitation
+            if (cal.isInvitation(item)) {
+                this.setAttribute("invitation-status", cal.getInvitedAttendee(item).participationStatus);
+                this.setAttribute("readonly", "true");
+            } else if (!cal.isCalendarWritable(item.calendar)) {
+                this.setAttribute("readonly", "true");
+            }
         ]]></body>
       </method>
 
       <method name="startEditing">
         <body><![CDATA[
-          this.editingTimer = null;
-          this.mOriginalTextLabel = this.mOccurrence.title;
+            this.editingTimer = null;
+            this.mOriginalTextLabel = this.mOccurrence.title;
 
-          this.eventNameLabel.setAttribute("hidden", "true");
+            this.eventNameLabel.setAttribute("hidden", "true");
 
-          this.mEditing = true;
+            this.mEditing = true;
 
-          this.eventNameTextbox.value = this.mOriginalTextLabel;
-          this.eventNameTextbox.removeAttribute("hidden");
-          this.eventNameTextbox.select();
+            this.eventNameTextbox.value = this.mOriginalTextLabel;
+            this.eventNameTextbox.removeAttribute("hidden");
+            this.eventNameTextbox.select();
         ]]></body>
       </method>
       <method name="select">
         <parameter name="event"/>
         <body><![CDATA[
-          if (!this.calendarView) {
-              return;
-          }
-          let items = this.calendarView.mSelectedItems.slice();
-          if (event.ctrlKey || event.metaKey) {
-              if (this.selected) {
-                  let pos = items.indexOf(this.mOccurrence);
-                  items.splice(pos, 1);
-              } else {
-                  items.push(this.mOccurrence);
-              }
-          } else {
-              items = [this.mOccurrence];
-          }
-          this.calendarView.setSelectedItems(items.length, items);
+            if (!this.calendarView) {
+                return;
+            }
+            let items = this.calendarView.mSelectedItems.slice();
+            if (event.ctrlKey || event.metaKey) {
+                if (this.selected) {
+                    let pos = items.indexOf(this.mOccurrence);
+                    items.splice(pos, 1);
+                } else {
+                    items.push(this.mOccurrence);
+                }
+            } else {
+                items = [this.mOccurrence];
+            }
+            this.calendarView.setSelectedItems(items.length, items);
         ]]></body>
       </method>
       <method name="stopEditing">
         <parameter name="saveChanges"/>
         <body><![CDATA[
-          if (!this.mEditing) {
-              return;
-          }
+            if (!this.mEditing) {
+                return;
+            }
 
-          this.mEditing = false;
+            this.mEditing = false;
 
-          if (saveChanges && (this.eventNameTextbox.value != this.mOriginalTextLabel)) {
-              this.calendarView.controller.modifyOccurrence(this.mOccurrence,
-                                                            null, null,
-                                                            this.eventNameTextbox.value);
+            if (saveChanges && (this.eventNameTextbox.value != this.mOriginalTextLabel)) {
+                this.calendarView.controller.modifyOccurrence(this.mOccurrence,
+                                                              null, null,
+                                                              this.eventNameTextbox.value);
 
-              // Note that as soon as we do the modifyItem, this element ceases to exist,
-              // so don't bother trying to modify anything further here! ('this' exists,
-              // because it's being kept alive, but our child content etc. is all gone)
-              return;
-          }
+                // Note that as soon as we do the modifyItem, this element ceases to exist,
+                // so don't bother trying to modify anything further here! ('this' exists,
+                // because it's being kept alive, but our child content etc. is all gone)
+                return;
+            }
 
-          this.eventNameTextbox.setAttribute("hidden", "true");
-          this.eventNameLabel.removeAttribute("hidden");
+            this.eventNameTextbox.setAttribute("hidden", "true");
+            this.eventNameLabel.removeAttribute("hidden");
         ]]></body>
       </method>
     </implementation>
 
     <handlers>
       <handler event="contextmenu" phase="capturing"><![CDATA[
-        // If the middle/right button was used for click just select the item.
-        if (!this.selected) {
-            this.select(event);
-        }
+          // If the middle/right button was used for click just select the item.
+          if (!this.selected) {
+              this.select(event);
+          }
       ]]></handler>
       <handler event="click" button="0"><![CDATA[
-        if (this.mEditing) {
-            return;
-        }
+          if (this.mEditing) {
+              return;
+          }
 
-        // If the left button was used and the item is already selected
-        // and there are no multiple items selected start
-        // the 'single click edit' timeout. Otherwise select the item too.
-        // Also, check if the calendar is readOnly or we are offline.
+          // If the left button was used and the item is already selected
+          // and there are no multiple items selected start
+          // the 'single click edit' timeout. Otherwise select the item too.
+          // Also, check if the calendar is readOnly or we are offline.
 
-        if (this.selected && !(event.ctrlKey || event.metaKey) &&
-              cal.isCalendarWritable(this.mOccurrence.calendar)) {
-            if (this.editingTimer) {
-                clearTimeout(this.editingTimer);
-            }
-            this.editingTimer = setTimeout(() => this.startEditing(), 350);
-        } else {
-            this.select(event);
-            event.stopPropagation();
-        }
+          if (this.selected && !(event.ctrlKey || event.metaKey) &&
+                cal.isCalendarWritable(this.mOccurrence.calendar)) {
+              if (this.editingTimer) {
+                  clearTimeout(this.editingTimer);
+              }
+              this.editingTimer = setTimeout(() => this.startEditing(), 350);
+          } else {
+              this.select(event);
+              event.stopPropagation();
+          }
       ]]></handler>
 
       <handler event="dblclick" button="0"><![CDATA[
-        event.stopPropagation();
+          event.stopPropagation();
 
-        // stop 'single click edit' timeout (if started)
-        if (this.editingTimer) {
-            clearTimeout(this.editingTimer);
-            this.editingTimer = null;
-        }
+          // stop 'single click edit' timeout (if started)
+          if (this.editingTimer) {
+              clearTimeout(this.editingTimer);
+              this.editingTimer = null;
+          }
 
-        if (this.calendarView && this.calendarView.controller) {
-            let item = event.ctrlKey ? this.mOccurrence.parentItem : this.mOccurrence;
-            this.calendarView.controller.modifyOccurrence(item);
-        }
+          if (this.calendarView && this.calendarView.controller) {
+              let item = event.ctrlKey ? this.mOccurrence.parentItem : this.mOccurrence;
+              this.calendarView.controller.modifyOccurrence(item);
+          }
       ]]></handler>
       <handler event="mouseover"><![CDATA[
-        if (this.calendarView && this.calendarView.controller) {
-            event.stopPropagation();
-            onMouseOverItem(event);
-        }
+          if (this.calendarView && this.calendarView.controller) {
+              event.stopPropagation();
+              onMouseOverItem(event);
+          }
       ]]></handler>
       <handler event="dragstart"><![CDATA[
-        if (event.target.localName == "calendar-event-box") {
-            return;
-        }
-        let item = this.occurrence;
-        let isInvitation = item.calendar instanceof Components.interfaces.calISchedulingSupport && item.calendar.isInvitation(item);
-        if (!cal.isCalendarWritable(item.calendar) || !cal.userCanModifyItem(item) || isInvitation) {
-            return;
-        }
-        if (!this.selected) {
-            this.select(event);
-        }
-        invokeEventDragSession(item, this);
+          if (event.target.localName == "calendar-event-box") {
+              return;
+          }
+          let item = this.occurrence;
+          let isInvitation = item.calendar instanceof Components.interfaces.calISchedulingSupport && item.calendar.isInvitation(item);
+          if (!cal.isCalendarWritable(item.calendar) || !cal.userCanModifyItem(item) || isInvitation) {
+              return;
+          }
+          if (!this.selected) {
+              this.select(event);
+          }
+          invokeEventDragSession(item, this);
       ]]></handler>
     </handlers>
   </binding>

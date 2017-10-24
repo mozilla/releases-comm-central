@@ -13,11 +13,11 @@
            extends="chrome://calendar/content/calendar-multiday-view.xml#calendar-multiday-view">
     <implementation implements="calICalendarView">
       <constructor><![CDATA[
-        Components.utils.import("resource://calendar/modules/calUtils.jsm");
+          Components.utils.import("resource://calendar/modules/calUtils.jsm");
       ]]></constructor>
       <property name="observerID">
         <getter><![CDATA[
-          return "day-view-observer";
+            return "day-view-observer";
         ]]></getter>
       </property>
       <property name="supportsWorkdaysOnly"
@@ -28,25 +28,25 @@
       <method name="goToDay">
         <parameter name="aDate"/>
         <body><![CDATA[
-          if (!aDate) {
-              this.refresh();
-              return;
-          }
-          aDate = aDate.getInTimezone(this.timezone);
-          this.setDateRange(aDate, aDate);
-          this.selectedDay = aDate;
+            if (!aDate) {
+                this.refresh();
+                return;
+            }
+            aDate = aDate.getInTimezone(this.timezone);
+            this.setDateRange(aDate, aDate);
+            this.selectedDay = aDate;
         ]]></body>
       </method>
       <method name="moveView">
         <parameter name="aNumber"/>
         <body><![CDATA[
-          if (aNumber) {
-              let currentDay = this.startDay.clone();
-              currentDay.day += aNumber;
-              this.goToDay(currentDay);
-          } else {
-              this.goToDay(cal.now());
-          }
+            if (aNumber) {
+                let currentDay = this.startDay.clone();
+                currentDay.day += aNumber;
+                this.goToDay(currentDay);
+            } else {
+                this.goToDay(cal.now());
+            }
         ]]></body>
       </method>
     </implementation>
@@ -56,33 +56,33 @@
            extends="chrome://calendar/content/calendar-multiday-view.xml#calendar-multiday-view">
     <implementation implements="calICalendarView">
       <constructor><![CDATA[
-        Components.utils.import("resource://calendar/modules/calUtils.jsm");
+          Components.utils.import("resource://calendar/modules/calUtils.jsm");
 
-        // add a listener for the mode change
-        this.mModeHandler = (event) => {
-            if (event.attrName == "mode") {
-                this.onModeChanged(event);
-            }
-        };
-        document.getElementById("modeBroadcaster").addEventListener("DOMAttrModified", this.mModeHandler, true);
+          // add a listener for the mode change
+          this.mModeHandler = (event) => {
+              if (event.attrName == "mode") {
+                  this.onModeChanged(event);
+              }
+          };
+          document.getElementById("modeBroadcaster").addEventListener("DOMAttrModified", this.mModeHandler, true);
       ]]></constructor>
       <destructor><![CDATA[
-        document.getElementById("modeBroadcaster").removeEventListener("DOMAttrModified", this.mModeHandler, true);
+          document.getElementById("modeBroadcaster").removeEventListener("DOMAttrModified", this.mModeHandler, true);
       ]]></destructor>
 
       <property name="observerID">
         <getter><![CDATA[
-          return "week-view-observer";
+            return "week-view-observer";
         ]]></getter>
       </property>
 
       <method name="onModeChanged">
         <parameter name="aEvent"/>
         <body><![CDATA[
-          let currentMode = document.getElementById("modeBroadcaster").getAttribute("mode");
-          if (currentMode != "calendar") {
-              timeIndicator.cancel();
-          }
+            let currentMode = document.getElementById("modeBroadcaster").getAttribute("mode");
+            if (currentMode != "calendar") {
+                timeIndicator.cancel();
+            }
         ]]></body>
       </method>
 
@@ -90,30 +90,30 @@
       <method name="goToDay">
         <parameter name="aDate"/>
         <body><![CDATA[
-          this.displayDaysOff = !this.mWorkdaysOnly;
+            this.displayDaysOff = !this.mWorkdaysOnly;
 
-          if (!aDate) {
-              this.refresh();
-              return;
-          }
-          aDate = aDate.getInTimezone(this.timezone);
-          let weekStart = cal.getWeekInfoService().getStartOfWeek(aDate);
-          let weekEnd = weekStart.clone();
-          weekEnd.day += 6;
-          this.setDateRange(weekStart, weekEnd);
-          this.selectedDay = aDate;
+            if (!aDate) {
+                this.refresh();
+                return;
+            }
+            aDate = aDate.getInTimezone(this.timezone);
+            let weekStart = cal.getWeekInfoService().getStartOfWeek(aDate);
+            let weekEnd = weekStart.clone();
+            weekEnd.day += 6;
+            this.setDateRange(weekStart, weekEnd);
+            this.selectedDay = aDate;
         ]]></body>
       </method>
       <method name="moveView">
         <parameter name="aNumber"/>
         <body><![CDATA[
-          if (aNumber) {
-              let date = this.selectedDay.clone();
-              date.day += 7 * aNumber;
-              this.goToDay(date);
-          } else {
-              this.goToDay(cal.now());
-          }
+            if (aNumber) {
+                let date = this.selectedDay.clone();
+                date.day += 7 * aNumber;
+                this.goToDay(date);
+            } else {
+                this.goToDay(cal.now());
+            }
         ]]></body>
       </method>
     </implementation>
@@ -122,22 +122,22 @@
   <binding id="calendar-multiweek-view" extends="chrome://calendar/content/calendar-month-view.xml#calendar-month-base-view">
     <implementation implements="calICalendarView">
       <constructor><![CDATA[
-        Components.utils.import("resource://gre/modules/Preferences.jsm");
-        Components.utils.import("resource://calendar/modules/calUtils.jsm");
-        this.mWeeksInView = Preferences.get("calendar.weeks.inview", 4);
+          Components.utils.import("resource://gre/modules/Preferences.jsm");
+          Components.utils.import("resource://calendar/modules/calUtils.jsm");
+          this.mWeeksInView = Preferences.get("calendar.weeks.inview", 4);
       ]]></constructor>
 
       <field name="mWeeksInView">4</field>
 
       <property name="weeksInView">
         <getter><![CDATA[
-          return this.mWeeksInView;
+            return this.mWeeksInView;
         ]]></getter>
         <setter><![CDATA[
-          this.mWeeksInView = val;
-          Preferences.set("calendar.weeks.inview", Number(val));
-          this.refreshView();
-          return val;
+            this.mWeeksInView = val;
+            Preferences.set("calendar.weeks.inview", Number(val));
+            this.refreshView();
+            return val;
         ]]></setter>
       </property>
 
@@ -147,32 +147,32 @@
       <method name="zoomIn">
         <parameter name="aLevel"/>
         <body><![CDATA[
-          let visibleWeeks = Preferences.get("calendar.weeks.inview", 4);
-          visibleWeeks += (aLevel || 1);
+            let visibleWeeks = Preferences.get("calendar.weeks.inview", 4);
+            visibleWeeks += (aLevel || 1);
 
-          Preferences.set("calendar.weeks.inview", Math.min(visibleWeeks, 6));
+            Preferences.set("calendar.weeks.inview", Math.min(visibleWeeks, 6));
         ]]></body>
       </method>
 
       <method name="zoomOut">
         <parameter name="aLevel"/>
         <body><![CDATA[
-          let visibleWeeks = Preferences.get("calendar.weeks.inview", 4);
-          visibleWeeks -= aLevel || 1;
+            let visibleWeeks = Preferences.get("calendar.weeks.inview", 4);
+            visibleWeeks -= aLevel || 1;
 
-          Preferences.set("calendar.weeks.inview", Math.max(visibleWeeks, 2));
+            Preferences.set("calendar.weeks.inview", Math.max(visibleWeeks, 2));
         ]]></body>
       </method>
 
       <method name="zoomReset">
         <body><![CDATA[
-          Preferences.set("calendar.view.visiblehours", 4);
+            Preferences.set("calendar.view.visiblehours", 4);
         ]]></body>
       </method>
 
       <property name="observerID">
         <getter><![CDATA[
-          return "multiweek-view-observer";
+            return "multiweek-view-observer";
         ]]></getter>
       </property>
 
@@ -180,47 +180,47 @@
       <method name="goToDay">
         <parameter name="aDate"/>
         <body><![CDATA[
-          this.showFullMonth = false;
-          this.displayDaysOff = !this.mWorkdaysOnly;
+            this.showFullMonth = false;
+            this.displayDaysOff = !this.mWorkdaysOnly;
 
-          // If aDate is null it means that only a refresh is needed
-          // without changing the start and end of the view.
-          if (aDate) {
-              aDate = aDate.getInTimezone(this.timezone);
-              // Get the first date that should be shown. This is the
-              // start of the week of the day that we're centering around
-              // adjusted for the day the week starts on and the number
-              // of previous weeks we're supposed to display.
-              let dayStart = cal.getWeekInfoService().getStartOfWeek(aDate);
-              dayStart.day -= 7 * Preferences.get("calendar.previousweeks.inview", 0);
-              // The last day we're supposed to show
-              let dayEnd = dayStart.clone();
-              dayEnd.day += (7 * this.mWeeksInView) - 1;
-              this.setDateRange(dayStart, dayEnd);
-              this.selectedDay = aDate;
-          } else {
-              this.refresh();
-          }
+            // If aDate is null it means that only a refresh is needed
+            // without changing the start and end of the view.
+            if (aDate) {
+                aDate = aDate.getInTimezone(this.timezone);
+                // Get the first date that should be shown. This is the
+                // start of the week of the day that we're centering around
+                // adjusted for the day the week starts on and the number
+                // of previous weeks we're supposed to display.
+                let dayStart = cal.getWeekInfoService().getStartOfWeek(aDate);
+                dayStart.day -= 7 * Preferences.get("calendar.previousweeks.inview", 0);
+                // The last day we're supposed to show
+                let dayEnd = dayStart.clone();
+                dayEnd.day += (7 * this.mWeeksInView) - 1;
+                this.setDateRange(dayStart, dayEnd);
+                this.selectedDay = aDate;
+            } else {
+                this.refresh();
+            }
         ]]></body>
       </method>
 
       <method name="moveView">
         <parameter name="aNumber"/>
         <body><![CDATA[
-          if (aNumber) {
-              let date = this.startDay.clone();
-              let savedSelectedDay = this.selectedDay.clone();
-              // aNumber only corresponds to the number of weeks to move
-              // make sure to compensate for previous weeks in view too
-              date.day += 7 * (aNumber + Preferences.get("calendar.previousweeks.inview", 4));
-              this.goToDay(date);
-              savedSelectedDay.day += 7 * aNumber;
-              this.selectedDay = savedSelectedDay;
-          } else {
-              let date = cal.now();
-              this.goToDay(date);
-              this.selectedDay = date;
-          }
+            if (aNumber) {
+                let date = this.startDay.clone();
+                let savedSelectedDay = this.selectedDay.clone();
+                // aNumber only corresponds to the number of weeks to move
+                // make sure to compensate for previous weeks in view too
+                date.day += 7 * (aNumber + Preferences.get("calendar.previousweeks.inview", 4));
+                this.goToDay(date);
+                savedSelectedDay.day += 7 * aNumber;
+                this.selectedDay = savedSelectedDay;
+            } else {
+                let date = cal.now();
+                this.goToDay(date);
+                this.selectedDay = date;
+            }
         ]]></body>
       </method>
     </implementation>
@@ -229,12 +229,12 @@
   <binding id="calendar-month-view" extends="chrome://calendar/content/calendar-month-view.xml#calendar-month-base-view">
     <implementation implements="calICalendarView">
       <constructor><![CDATA[
-        Components.utils.import("resource://calendar/modules/calUtils.jsm");
+          Components.utils.import("resource://calendar/modules/calUtils.jsm");
       ]]></constructor>
 
       <property name="observerID">
         <getter><![CDATA[
-          return "month-view-observer";
+            return "month-view-observer";
         ]]></getter>
       </property>
 
@@ -242,56 +242,56 @@
       <method name="goToDay">
         <parameter name="aDate"/>
         <body><![CDATA[
-          this.displayDaysOff = !this.mWorkdaysOnly;
+            this.displayDaysOff = !this.mWorkdaysOnly;
 
-          if (aDate) {
-              aDate = aDate.getInTimezone(this.timezone);
-          }
-          this.showDate(aDate);
+            if (aDate) {
+                aDate = aDate.getInTimezone(this.timezone);
+            }
+            this.showDate(aDate);
         ]]></body>
       </method>
       <method name="getRangeDescription">
         <body><![CDATA[
-          let monthName = cal.formatMonth(this.rangeStartDate.month + 1,
-                                          "calendar", "monthInYear");
-          return cal.calGetString("calendar", "monthInYear", [monthName, this.rangeStartDate.year]);
-         ]]></body>
+            let monthName = cal.formatMonth(this.rangeStartDate.month + 1,
+                                            "calendar", "monthInYear");
+            return cal.calGetString("calendar", "monthInYear", [monthName, this.rangeStartDate.year]);
+        ]]></body>
        </method>
       <method name="moveView">
         <parameter name="aNumber"/>
         <body><![CDATA[
-          let dates = this.getDateList({});
-          this.displayDaysOff = !this.mWorkdaysOnly;
+            let dates = this.getDateList({});
+            this.displayDaysOff = !this.mWorkdaysOnly;
 
-          if (aNumber) {
-              // The first few dates in this list are likely in the month
-              // prior to the one actually being shown (since the month
-              // probably doesn't start on a Sunday).  The 7th item must
-              // be in correct month though.
-              let date = dates[6].clone();
+            if (aNumber) {
+                // The first few dates in this list are likely in the month
+                // prior to the one actually being shown (since the month
+                // probably doesn't start on a Sunday).  The 7th item must
+                // be in correct month though.
+                let date = dates[6].clone();
 
-              date.month += aNumber;
-              // Need to store this before we move
-              let oldSelectedDay = this.selectedDay;
+                date.month += aNumber;
+                // Need to store this before we move
+                let oldSelectedDay = this.selectedDay;
 
-              this.goToDay(date);
+                this.goToDay(date);
 
-              // Most of the time we want to select the date with the
-              // same day number in the next month
-              let newSelectedDay = oldSelectedDay.clone();
-              newSelectedDay.month += aNumber;
-              // correct for accidental rollover into the next month
-              if ((newSelectedDay.month - aNumber + 12) % 12 != oldSelectedDay.month) {
-                  newSelectedDay.month -= 1;
-                  newSelectedDay.day = newSelectedDay.endOfMonth.day;
-              }
+                // Most of the time we want to select the date with the
+                // same day number in the next month
+                let newSelectedDay = oldSelectedDay.clone();
+                newSelectedDay.month += aNumber;
+                // correct for accidental rollover into the next month
+                if ((newSelectedDay.month - aNumber + 12) % 12 != oldSelectedDay.month) {
+                    newSelectedDay.month -= 1;
+                    newSelectedDay.day = newSelectedDay.endOfMonth.day;
+                }
 
-              this.selectedDay = newSelectedDay;
-          } else {
-              let date = cal.now();
-              this.goToDay(date);
-              this.selectedDay = date;
-          }
+                this.selectedDay = newSelectedDay;
+            } else {
+                let date = cal.now();
+                this.goToDay(date);
+                this.selectedDay = date;
+            }
         ]]></body>
       </method>
     </implementation>

@@ -42,234 +42,234 @@
       <field name="mToggleStatus">0</field>
       <field name="mLog">null</field>
       <field name="mToggleStatusFlag"><![CDATA[
-      ({
-          WorkdaysOnly: 1,
-          TasksInView: 2,
-          ShowCompleted: 4,
-      })
+        ({
+            WorkdaysOnly: 1,
+            TasksInView: 2,
+            ShowCompleted: 4,
+        })
       ]]></field>
 
       <field name="mPrefObserver"><![CDATA[
-      ({
-          calView: this,
-          observe: function(subj, topic, pref) {
-              this.calView.handlePreference(subj, topic, pref);
-          }
-      })
-      ]]></field>
-
-      <field name="mObserver"><![CDATA[
-        // the calIObserver, calICompositeObserver, and calIAlarmServiceObserver
         ({
-            QueryInterface: XPCOMUtils.generateQI([
-                Components.interfaces.calIObserver,
-                Components.interfaces.calIAlarmServiceObserver,
-                Components.interfaces.calICompositeObserver
-            ]),
-
             calView: this,
-
-            onStartBatch: function() {
-            },
-            onEndBatch: function() {
-            },
-
-            onLoad: function() {
-                this.calView.refresh();
-            },
-
-            onAddItem: function(aItem) {
-                if (cal.isToDo(aItem)) {
-                    if (!aItem.entryDate && !aItem.dueDate) {
-                        return;
-                    }
-                    if (!this.calView.mTasksInView) {
-                        return;
-                    }
-                    if (aItem.isCompleted && !this.calView.mShowCompleted) {
-                        return;
-                    }
-                }
-
-                let occs = aItem.getOccurrencesBetween(this.calView.startDate,
-                                                       this.calView.queryEndDate,
-                                                       {});
-                for (let occ of occs) {
-                    this.calView.doAddItem(occ);
-                }
-            },
-
-            onModifyItem: function(aNewItem, aOldItem) {
-                if (cal.isToDo(aNewItem) && cal.isToDo(aOldItem) &&
-                    !this.calView.mTasksInView) {
-                    return;
-                }
-                let occs;
-
-                if (!cal.isToDo(aOldItem) || aOldItem.entryDate || aOldItem.dueDate) {
-                    occs = aOldItem.getOccurrencesBetween(this.calView.startDate,
-                                                          this.calView.queryEndDate,
-                                                          {});
-                    for (let occ of occs) {
-                        this.calView.doDeleteItem(occ);
-                    }
-                }
-                if (cal.isToDo(aNewItem)) {
-                    if ((!aNewItem.entryDate && !aNewItem.dueDate) || !this.calView.mTasksInView) {
-                        return;
-                    }
-                    if (aNewItem.isCompleted && !this.calView.mShowCompleted) {
-                        return;
-                    }
-                }
-
-                occs = aNewItem.getOccurrencesBetween(this.calView.startDate,
-                                                      this.calView.queryEndDate,
-                                                      {});
-                for (let occ of occs) {
-                    this.calView.doAddItem(occ);
-                }
-            },
-
-            onDeleteItem: function(aItem) {
-                if (cal.isToDo(aItem)) {
-                    if (!this.calView.mTasksInView) {
-                        return;
-                    }
-                    if (!aItem.entryDate && !aItem.dueDate) {
-                        return;
-                    }
-                    if (aItem.isCompleted && !this.calView.mShowCompleted) {
-                        return;
-                    }
-                }
-
-                let occs = aItem.getOccurrencesBetween(this.calView.startDate,
-                                                       this.calView.queryEndDate,
-                                                       {});
-                for (let occ of occs) {
-                    this.calView.doDeleteItem(occ);
-                }
-            },
-
-            onError: function(aCalendar, aErrNo, aMessage) { },
-
-            onPropertyChanged: function(aCalendar, aName, aValue, aOldValue) {
-                switch (aName) {
-                    case "suppressAlarms":
-                        if (!Preferences.get("calendar.alarms.indicator.show", true) ||
-                            aCalendar.getProperty("capabilities.alarms.popup.supported") === false) {
-                            break;
-                        }
-                        // else fall through
-                    case "readOnly":
-                    case "disabled":
-                        // XXXvv we can be smarter about how we handle this stuff
-                        this.calView.refresh();
-                        break;
-                }
-            },
-
-            onPropertyDeleting: function(aCalendar, aName) {
-                // Values are not important here yet.
-                this.onPropertyChanged(aCalendar, aName, null, null);
-            },
-
-            //
-            // calIAlarmServiceObserver stuff
-            //
-            onAlarm: function(aAlarmItem) {
-                this.calView.flashAlarm(aAlarmItem, false);
-            },
-
-            onRemoveAlarmsByItem: function(aItem) {
-                // Stop the flashing for the item.
-                this.calView.flashAlarm(aItem, true);
-            },
-
-            onRemoveAlarmsByCalendar: function(aCalendar) {
-                // Stop the flashing for all items of this calendar
-                for (let key in this.calView.mFlashingEvents) {
-                    let item = this.calView.mFlashingEvents[key];
-                    if (item.calendar.id == aCalendar.id) {
-                        this.calView.flashAlarm(item, true);
-                    }
-                }
-            },
-
-            onAlarmsLoaded: function(aCalendar) {},
-
-            //
-            // calICompositeObserver stuff
-            // XXXvv we can be smarter about how we handle this stuff
-            //
-            onCalendarAdded: function(aCalendar) {
-                if (!aCalendar.getProperty("disabled")) {
-                    this.calView.addItemsFromCalendar(aCalendar);
-                }
-            },
-
-            onCalendarRemoved: function(aCalendar) {
-                if (!aCalendar.getProperty("disabled")) {
-                    this.calView.deleteItemsFromCalendar(aCalendar);
-                }
-            },
-
-            onDefaultCalendarChanged: function(aNewDefaultCalendar) {
-                // don't care, for now
+            observe: function(subj, topic, pref) {
+                this.calView.handlePreference(subj, topic, pref);
             }
         })
       ]]></field>
 
+      <field name="mObserver"><![CDATA[
+          // the calIObserver, calICompositeObserver, and calIAlarmServiceObserver
+          ({
+              QueryInterface: XPCOMUtils.generateQI([
+                  Components.interfaces.calIObserver,
+                  Components.interfaces.calIAlarmServiceObserver,
+                  Components.interfaces.calICompositeObserver
+              ]),
+
+              calView: this,
+
+              onStartBatch: function() {
+              },
+              onEndBatch: function() {
+              },
+
+              onLoad: function() {
+                  this.calView.refresh();
+              },
+
+              onAddItem: function(aItem) {
+                  if (cal.isToDo(aItem)) {
+                      if (!aItem.entryDate && !aItem.dueDate) {
+                          return;
+                      }
+                      if (!this.calView.mTasksInView) {
+                          return;
+                      }
+                      if (aItem.isCompleted && !this.calView.mShowCompleted) {
+                          return;
+                      }
+                  }
+
+                  let occs = aItem.getOccurrencesBetween(this.calView.startDate,
+                                                         this.calView.queryEndDate,
+                                                         {});
+                  for (let occ of occs) {
+                      this.calView.doAddItem(occ);
+                  }
+              },
+
+              onModifyItem: function(aNewItem, aOldItem) {
+                  if (cal.isToDo(aNewItem) && cal.isToDo(aOldItem) &&
+                      !this.calView.mTasksInView) {
+                      return;
+                  }
+                  let occs;
+
+                  if (!cal.isToDo(aOldItem) || aOldItem.entryDate || aOldItem.dueDate) {
+                      occs = aOldItem.getOccurrencesBetween(this.calView.startDate,
+                                                            this.calView.queryEndDate,
+                                                            {});
+                      for (let occ of occs) {
+                          this.calView.doDeleteItem(occ);
+                      }
+                  }
+                  if (cal.isToDo(aNewItem)) {
+                      if ((!aNewItem.entryDate && !aNewItem.dueDate) || !this.calView.mTasksInView) {
+                          return;
+                      }
+                      if (aNewItem.isCompleted && !this.calView.mShowCompleted) {
+                          return;
+                      }
+                  }
+
+                  occs = aNewItem.getOccurrencesBetween(this.calView.startDate,
+                                                        this.calView.queryEndDate,
+                                                        {});
+                  for (let occ of occs) {
+                      this.calView.doAddItem(occ);
+                  }
+              },
+
+              onDeleteItem: function(aItem) {
+                  if (cal.isToDo(aItem)) {
+                      if (!this.calView.mTasksInView) {
+                          return;
+                      }
+                      if (!aItem.entryDate && !aItem.dueDate) {
+                          return;
+                      }
+                      if (aItem.isCompleted && !this.calView.mShowCompleted) {
+                          return;
+                      }
+                  }
+
+                  let occs = aItem.getOccurrencesBetween(this.calView.startDate,
+                                                         this.calView.queryEndDate,
+                                                         {});
+                  for (let occ of occs) {
+                      this.calView.doDeleteItem(occ);
+                  }
+              },
+
+              onError: function(aCalendar, aErrNo, aMessage) { },
+
+              onPropertyChanged: function(aCalendar, aName, aValue, aOldValue) {
+                  switch (aName) {
+                      case "suppressAlarms":
+                          if (!Preferences.get("calendar.alarms.indicator.show", true) ||
+                              aCalendar.getProperty("capabilities.alarms.popup.supported") === false) {
+                              break;
+                          }
+                          // else fall through
+                      case "readOnly":
+                      case "disabled":
+                          // XXXvv we can be smarter about how we handle this stuff
+                          this.calView.refresh();
+                          break;
+                  }
+              },
+
+              onPropertyDeleting: function(aCalendar, aName) {
+                  // Values are not important here yet.
+                  this.onPropertyChanged(aCalendar, aName, null, null);
+              },
+
+              //
+              // calIAlarmServiceObserver stuff
+              //
+              onAlarm: function(aAlarmItem) {
+                  this.calView.flashAlarm(aAlarmItem, false);
+              },
+
+              onRemoveAlarmsByItem: function(aItem) {
+                  // Stop the flashing for the item.
+                  this.calView.flashAlarm(aItem, true);
+              },
+
+              onRemoveAlarmsByCalendar: function(aCalendar) {
+                  // Stop the flashing for all items of this calendar
+                  for (let key in this.calView.mFlashingEvents) {
+                      let item = this.calView.mFlashingEvents[key];
+                      if (item.calendar.id == aCalendar.id) {
+                          this.calView.flashAlarm(item, true);
+                      }
+                  }
+              },
+
+              onAlarmsLoaded: function(aCalendar) {},
+
+              //
+              // calICompositeObserver stuff
+              // XXXvv we can be smarter about how we handle this stuff
+              //
+              onCalendarAdded: function(aCalendar) {
+                  if (!aCalendar.getProperty("disabled")) {
+                      this.calView.addItemsFromCalendar(aCalendar);
+                  }
+              },
+
+              onCalendarRemoved: function(aCalendar) {
+                  if (!aCalendar.getProperty("disabled")) {
+                      this.calView.deleteItemsFromCalendar(aCalendar);
+                  }
+              },
+
+              onDefaultCalendarChanged: function(aNewDefaultCalendar) {
+                  // don't care, for now
+              }
+          })
+      ]]></field>
+
       <constructor><![CDATA[
-        Components.utils.import("resource://gre/modules/Services.jsm");
-        Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
-        Components.utils.import("resource://gre/modules/Preferences.jsm");
-        Components.utils.import("resource:///modules/gloda/log4moz.js");
+          Components.utils.import("resource://gre/modules/Services.jsm");
+          Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
+          Components.utils.import("resource://gre/modules/Preferences.jsm");
+          Components.utils.import("resource:///modules/gloda/log4moz.js");
 
-        const kWorkdaysCommand = "calendar_toggle_workdays_only_command";
-        const kTasksInViewCommand = "calendar_toggle_tasks_in_view_command";
-        const kShowCompleted = "calendar_toggle_show_completed_in_view_command";
-        const kOrientation = "calendar_toggle_orientation_command";
+          const kWorkdaysCommand = "calendar_toggle_workdays_only_command";
+          const kTasksInViewCommand = "calendar_toggle_tasks_in_view_command";
+          const kShowCompleted = "calendar_toggle_show_completed_in_view_command";
+          const kOrientation = "calendar_toggle_orientation_command";
 
-        this.workdaysOnly = (document.getElementById(kWorkdaysCommand)
-                                .getAttribute("checked") == "true");
-        this.tasksInView = (document.getElementById(kTasksInViewCommand)
-                                .getAttribute("checked") == "true");
-        this.rotated = (document.getElementById(kOrientation)
-                                .getAttribute("checked") == "true");
-        this.showCompleted = (document.getElementById(kShowCompleted)
-                                .getAttribute("checked") == "true");
+          this.workdaysOnly = (document.getElementById(kWorkdaysCommand)
+                                  .getAttribute("checked") == "true");
+          this.tasksInView = (document.getElementById(kTasksInViewCommand)
+                                  .getAttribute("checked") == "true");
+          this.rotated = (document.getElementById(kOrientation)
+                                  .getAttribute("checked") == "true");
+          this.showCompleted = (document.getElementById(kShowCompleted)
+                                  .getAttribute("checked") == "true");
 
-        this.mTimezone = cal.calendarDefaultTimezone();
-        let alarmService = Components.classes["@mozilla.org/calendar/alarm-service;1"]
-                                     .getService(Components.interfaces.calIAlarmService);
-        alarmService.addObserver(this.mObserver);
-        this.setAttribute("type", this.type);
-        this.mResizeHandler = () => {
-            this.onResize(this);
-        };
-        this.viewBroadcaster.addEventListener(this.getAttribute("type") + "viewresized", this.mResizeHandler, true);
-        // add a preference observer to monitor changes
-        Services.prefs.addObserver("calendar.", this.mPrefObserver);
-        this.weekStartOffset = Preferences.get("calendar.week.start", 0);
-        this.updateDaysOffPrefs();
-        this.mPendingRefreshJobs = new Map();
-        this.mLog = Log4Moz.getConfiguredLogger("calBaseView");
-        this.mFlashingEvents = {};
+          this.mTimezone = cal.calendarDefaultTimezone();
+          let alarmService = Components.classes["@mozilla.org/calendar/alarm-service;1"]
+                                       .getService(Components.interfaces.calIAlarmService);
+          alarmService.addObserver(this.mObserver);
+          this.setAttribute("type", this.type);
+          this.mResizeHandler = () => {
+              this.onResize(this);
+          };
+          this.viewBroadcaster.addEventListener(this.getAttribute("type") + "viewresized", this.mResizeHandler, true);
+          // add a preference observer to monitor changes
+          Services.prefs.addObserver("calendar.", this.mPrefObserver);
+          this.weekStartOffset = Preferences.get("calendar.week.start", 0);
+          this.updateDaysOffPrefs();
+          this.mPendingRefreshJobs = new Map();
+          this.mLog = Log4Moz.getConfiguredLogger("calBaseView");
+          this.mFlashingEvents = {};
       ]]></constructor>
 
       <destructor><![CDATA[
-        Components.utils.import("resource://gre/modules/Services.jsm");
+          Components.utils.import("resource://gre/modules/Services.jsm");
 
-        if (this.mCalendar) {
-            this.mCalendar.removeObserver(this.mObserver);
-        }
-        let alarmService = Components.classes["@mozilla.org/calendar/alarm-service;1"]
-                                     .getService(Components.interfaces.calIAlarmService);
-        alarmService.removeObserver(this.mObserver);
-        this.viewBroadcaster.removeEventListener(this.getAttribute("type") + "viewresized", this.mResizeHandler, true);
-        Services.prefs.removeObserver("calendar.", this.mPrefObserver);
+          if (this.mCalendar) {
+              this.mCalendar.removeObserver(this.mObserver);
+          }
+          let alarmService = Components.classes["@mozilla.org/calendar/alarm-service;1"]
+                                       .getService(Components.interfaces.calIAlarmService);
+          alarmService.removeObserver(this.mObserver);
+          this.viewBroadcaster.removeEventListener(this.getAttribute("type") + "viewresized", this.mResizeHandler, true);
+          Services.prefs.removeObserver("calendar.", this.mPrefObserver);
       ]]></destructor>
 
       <property name="type" readonly="true">
@@ -336,54 +336,54 @@
 
       <property name="weekStartOffset">
         <getter><![CDATA[
-           return this.mWeekStartOffset;
+            return this.mWeekStartOffset;
         ]]></getter>
         <setter><![CDATA[
-           this.mWeekStartOffset = val;
-           return val;
+            this.mWeekStartOffset = val;
+            return val;
         ]]></setter>
       </property>
 
       <property name="displayCalendar">
         <getter><![CDATA[
-          return this.mCalendar;
+            return this.mCalendar;
         ]]></getter>
         <setter><![CDATA[
-          if (this.mCalendar) {
-              this.mCalendar.removeObserver(this.mObserver);
-          }
-          this.mCalendar = val;
-          this.mCalendar.addObserver(this.mObserver);
-          this.refresh();
-          return val;
+            if (this.mCalendar) {
+                this.mCalendar.removeObserver(this.mObserver);
+            }
+            this.mCalendar = val;
+            this.mCalendar.addObserver(this.mObserver);
+            this.refresh();
+            return val;
         ]]></setter>
       </property>
 
       <property name="initialized">
         <getter><![CDATA[
-          let retval;
+            let retval;
 
-          // Some views throw when accessing an uninitialized startDay
-          try {
-              retval = this.displayCalendar && this.startDay &&
-                       this.endDay;
-          } catch (ex) {
-              return false;
-          }
-          return retval;
+            // Some views throw when accessing an uninitialized startDay
+            try {
+                retval = this.displayCalendar && this.startDay &&
+                         this.endDay;
+            } catch (ex) {
+                return false;
+            }
+            return retval;
         ]]></getter>
       </property>
 
       <method name="goToDay">
         <parameter name="aDate"/>
         <body><![CDATA[
-          this.showDate(aDate);
+            this.showDate(aDate);
         ]]></body>
       </method>
 
       <method name="getRangeDescription">
         <body><![CDATA[
-          return cal.getDateFormatter().formatInterval(this.rangeStartDate, this.rangeEndDate);
+            return cal.getDateFormatter().formatInterval(this.rangeStartDate, this.rangeEndDate);
         ]]></body>
       </method>
 
@@ -393,33 +393,33 @@
       <method name="adjustWeekdayLength">
         <parameter name="forceShortName"/>
         <body><![CDATA[
-          let useShortNames = false;
-          let labeldayboxkids = this.labeldaybox.childNodes;
-          if (!labeldayboxkids || !labeldayboxkids[0]) {
-              useShortNames = true;
-          } else if (forceShortName && forceShortName === true) {
-              useShortNames = true;
-          } else {
-              let clientWidth = document.getAnonymousElementByAttribute(this, "anonid", "mainbox").clientWidth;
-              let timespacer = document.getAnonymousElementByAttribute(this, "anonid", "headertimespacer");
-              if (timespacer) {
-                  clientWidth -= timespacer.clientWidth;
-              }
-              if (this.getLongWeekdayTotalPixels() > 0.95 * clientWidth) {
-                  useShortNames = true;
-              }
-          }
-          for (let i = 0; i < labeldayboxkids.length; i++) {
-              labeldayboxkids[i].shortWeekNames = useShortNames;
-          }
+            let useShortNames = false;
+            let labeldayboxkids = this.labeldaybox.childNodes;
+            if (!labeldayboxkids || !labeldayboxkids[0]) {
+                useShortNames = true;
+            } else if (forceShortName && forceShortName === true) {
+                useShortNames = true;
+            } else {
+                let clientWidth = document.getAnonymousElementByAttribute(this, "anonid", "mainbox").clientWidth;
+                let timespacer = document.getAnonymousElementByAttribute(this, "anonid", "headertimespacer");
+                if (timespacer) {
+                    clientWidth -= timespacer.clientWidth;
+                }
+                if (this.getLongWeekdayTotalPixels() > 0.95 * clientWidth) {
+                    useShortNames = true;
+                }
+            }
+            for (let i = 0; i < labeldayboxkids.length; i++) {
+                labeldayboxkids[i].shortWeekNames = useShortNames;
+            }
         ]]></body>
       </method>
 
       <method name="today">
         <body><![CDATA[
-          let date = cal.jsDateToDateTime(new Date()).getInTimezone(this.mTimezone);
-          date.isDate = true;
-          return date;
+            let date = cal.jsDateToDateTime(new Date()).getInTimezone(this.mTimezone);
+            date.isDate = true;
+            return date;
         ]]></body>
       </method>
 
@@ -431,9 +431,9 @@
 
       <method name="refresh">
         <body><![CDATA[
-          if (this.isVisible()) {
-              this.addItemsFromCalendar(this.mCalendar);
-          }
+            if (this.isVisible()) {
+                this.addItemsFromCalendar(this.mCalendar);
+            }
         ]]></body>
       </method>
 
@@ -443,131 +443,131 @@
            "scene" might stay the same upon switch to them. -->
       <method name="forceRefresh">
         <body><![CDATA[
-          this.addItemsFromCalendar(this.mCalendar);
+            this.addItemsFromCalendar(this.mCalendar);
         ]]></body>
       </method>
 
       <method name="addItemsFromCalendar">
         <parameter name="aCalendar"/>
         <body><![CDATA[
-          let refreshJob = {
-              QueryInterface: XPCOMUtils.generateQI([Components.interfaces.calIOperationListener]),
-              calView: this,
-              calendar: null,
-              calId: null,
-              operation: null,
-              cancelled: false,
+            let refreshJob = {
+                QueryInterface: XPCOMUtils.generateQI([Components.interfaces.calIOperationListener]),
+                calView: this,
+                calendar: null,
+                calId: null,
+                operation: null,
+                cancelled: false,
 
-              onOperationComplete: function(aOpCalendar, aStatus, aOperationType, aId, aDateTime) {
-                  this.calView.mLog.info("Refresh complete of calendar " + this.calId);
-                  if (this.calView.mPendingRefreshJobs.has(this.calId)) {
-                      this.calView.mPendingRefreshJobs.delete(this.calId);
-                  }
+                onOperationComplete: function(aOpCalendar, aStatus, aOperationType, aId, aDateTime) {
+                    this.calView.mLog.info("Refresh complete of calendar " + this.calId);
+                    if (this.calView.mPendingRefreshJobs.has(this.calId)) {
+                        this.calView.mPendingRefreshJobs.delete(this.calId);
+                    }
 
-                  if (!this.cancelled) {
-                      // Fire event
-                      this.calView.fireEvent("viewloaded", aOperationType);
-                  }
-              },
+                    if (!this.cancelled) {
+                        // Fire event
+                        this.calView.fireEvent("viewloaded", aOperationType);
+                    }
+                },
 
-              onGetResult: function(aOpCalendar, aStatus, aItemType, aDetail, aCount, aItems) {
-                  if (this.cancelled || !Components.isSuccessCode(aStatus)) {
-                      return;
-                  }
+                onGetResult: function(aOpCalendar, aStatus, aItemType, aDetail, aCount, aItems) {
+                    if (this.cancelled || !Components.isSuccessCode(aStatus)) {
+                        return;
+                    }
 
-                  for (let item of aItems) {
-                      if (!cal.isToDo(item) || item.entryDate || item.dueDate) {
-                          this.calView.doAddItem(item);
-                      }
-                  }
-              },
+                    for (let item of aItems) {
+                        if (!cal.isToDo(item) || item.entryDate || item.dueDate) {
+                            this.calView.doAddItem(item);
+                        }
+                    }
+                },
 
-              cancel: function() {
-                  this.calView.mLog.info("Refresh cancelled for calendar " + this.calId);
-                  this.cancelled = true;
-                  let operation = cal.wrapInstance(this.operation, Components.interfaces.calIOperation);
-                  if (operation && operation.isPending) {
-                      operation.cancel();
-                      this.operation = null;
-                  }
-              },
+                cancel: function() {
+                    this.calView.mLog.info("Refresh cancelled for calendar " + this.calId);
+                    this.cancelled = true;
+                    let operation = cal.wrapInstance(this.operation, Components.interfaces.calIOperation);
+                    if (operation && operation.isPending) {
+                        operation.cancel();
+                        this.operation = null;
+                    }
+                },
 
-              execute: function() {
-                  if (!this.calView.startDate || !this.calView.endDate || !aCalendar) {
-                      return;
-                  }
+                execute: function() {
+                    if (!this.calView.startDate || !this.calView.endDate || !aCalendar) {
+                        return;
+                    }
 
-                  if (aCalendar.type == "composite") {
-                      // we're refreshing from the composite calendar, so we can cancel
-                      // all other pending refresh jobs.
-                      this.calView.mLog.info("Refreshing composite calendar, cancelling all pending refreshes");
-                      this.calId = "composite";
-                      for (let job of this.calView.mPendingRefreshJobs.values()) {
-                          job.cancel();
-                      }
-                      this.calView.mPendingRefreshJobs.clear();
-                      this.calView.relayout();
-                  } else {
-                      this.calId = aCalendar.id;
-                      if (this.calView.mPendingRefreshJobs.has(this.calId)) {
-                          this.calView.mPendingRefreshJobs.get(this.calId).cancel();
-                          this.calView.mPendingRefreshJobs.delete(this.calId);
-                      }
-                  }
-                  this.calendar = aCalendar;
+                    if (aCalendar.type == "composite") {
+                        // we're refreshing from the composite calendar, so we can cancel
+                        // all other pending refresh jobs.
+                        this.calView.mLog.info("Refreshing composite calendar, cancelling all pending refreshes");
+                        this.calId = "composite";
+                        for (let job of this.calView.mPendingRefreshJobs.values()) {
+                            job.cancel();
+                        }
+                        this.calView.mPendingRefreshJobs.clear();
+                        this.calView.relayout();
+                    } else {
+                        this.calId = aCalendar.id;
+                        if (this.calView.mPendingRefreshJobs.has(this.calId)) {
+                            this.calView.mPendingRefreshJobs.get(this.calId).cancel();
+                            this.calView.mPendingRefreshJobs.delete(this.calId);
+                        }
+                    }
+                    this.calendar = aCalendar;
 
-                  // start our items query; for a disjoint date range
-                  // we get all the items, and just filter out the ones we don't
-                  // care about in addItem
-                  let filter = this.calendar.ITEM_FILTER_CLASS_OCCURRENCES;
-                  if (this.calView.mShowCompleted) {
-                      filter |= this.calendar.ITEM_FILTER_COMPLETED_ALL;
-                  } else {
-                      filter |= this.calendar.ITEM_FILTER_COMPLETED_NO;
-                  }
+                    // start our items query; for a disjoint date range
+                    // we get all the items, and just filter out the ones we don't
+                    // care about in addItem
+                    let filter = this.calendar.ITEM_FILTER_CLASS_OCCURRENCES;
+                    if (this.calView.mShowCompleted) {
+                        filter |= this.calendar.ITEM_FILTER_COMPLETED_ALL;
+                    } else {
+                        filter |= this.calendar.ITEM_FILTER_COMPLETED_NO;
+                    }
 
-                  if (this.calView.mTasksInView) {
-                      filter |= this.calendar.ITEM_FILTER_TYPE_ALL;
-                  } else {
-                      filter |= this.calendar.ITEM_FILTER_TYPE_EVENT;
-                  }
+                    if (this.calView.mTasksInView) {
+                        filter |= this.calendar.ITEM_FILTER_TYPE_ALL;
+                    } else {
+                        filter |= this.calendar.ITEM_FILTER_TYPE_EVENT;
+                    }
 
-                  let operation = this.calendar.getItems(filter,
-                                                         0,
-                                                         this.calView.startDate,
-                                                         this.calView.queryEndDate,
-                                                         this);
-                  operation = cal.wrapInstance(operation, Components.interfaces.calIOperation);
-                  if (operation && operation.isPending) {
-                      this.operation = operation;
-                      this.calView.mPendingRefreshJobs.set(this.calId, this);
-                  }
-              }
-          };
+                    let operation = this.calendar.getItems(filter,
+                                                           0,
+                                                           this.calView.startDate,
+                                                           this.calView.queryEndDate,
+                                                           this);
+                    operation = cal.wrapInstance(operation, Components.interfaces.calIOperation);
+                    if (operation && operation.isPending) {
+                        this.operation = operation;
+                        this.calView.mPendingRefreshJobs.set(this.calId, this);
+                    }
+                }
+            };
 
-          refreshJob.execute();
+            refreshJob.execute();
         ]]></body>
       </method>
 
       <method name="deleteItemsFromCalendar">
         <parameter name="aCalendar"/>
         <body><![CDATA[
-          /* This method must be implemented in subclasses. */
-          throw Components.results.NS_ERROR_NOT_IMPLEMENTED;
+            /* This method must be implemented in subclasses. */
+            throw Components.results.NS_ERROR_NOT_IMPLEMENTED;
         ]]></body>
       </method>
 
       <!-- the end date that should be used for getItems and similar queries -->
       <property name="queryEndDate" readonly="true">
         <getter><![CDATA[
-          let end = this.endDate;
-          if (!end) {
-              return null;
-          }
-          end = end.clone();
-          end.day += 1;
-          end.isDate = true;
-          return end;
+            let end = this.endDate;
+            if (!end) {
+                return null;
+            }
+            end = end.clone();
+            end.day += 1;
+            end.isDate = true;
+            return end;
         ]]></getter>
       </property>
 
@@ -575,38 +575,38 @@
         <parameter name="aEventName"/>
         <parameter name="aEventDetail"/>
         <body><![CDATA[
-          let event = document.createEvent("Events");
-          event.initEvent(aEventName, true, false);
-          event.detail = aEventDetail;
-          this.dispatchEvent(event);
+            let event = document.createEvent("Events");
+            event.initEvent(aEventName, true, false);
+            event.detail = aEventDetail;
+            this.dispatchEvent(event);
         ]]></body>
       </method>
 
       <method name="removeDropShadows">
         <body><![CDATA[
-          let dropbox = document.getAnonymousElementByAttribute(this, "dropbox", "true");
-          if (dropbox && dropbox !== undefined) {
-              dropbox.setAttribute("dropbox", "false");
-          }
+            let dropbox = document.getAnonymousElementByAttribute(this, "dropbox", "true");
+            if (dropbox && dropbox !== undefined) {
+                dropbox.setAttribute("dropbox", "false");
+            }
         ]]></body>
       </method>
 
       <method name="getLongWeekdayTotalPixels">
         <body><![CDATA[
-          if (this.mLongWeekdayTotalPixels <= 0) {
-              let maxDayWidth = 0;
-              for (let label of this.labeldaybox.childNodes) {
-                  if (label.localName && label.localName == "calendar-day-label") {
-                      label.shortWeekNames = false;
-                      let curPixelLength = label.getLongWeekdayPixels();
-                      maxDayWidth = Math.max(maxDayWidth, curPixelLength);
-                  }
-              }
-              if (maxDayWidth > 0) {
-                  this.mLongWeekdayTotalPixels = (maxDayWidth * this.labeldaybox.childNodes.length) + 10;
-              }
-          }
-          return this.mLongWeekdayTotalPixels;
+            if (this.mLongWeekdayTotalPixels <= 0) {
+                let maxDayWidth = 0;
+                for (let label of this.labeldaybox.childNodes) {
+                    if (label.localName && label.localName == "calendar-day-label") {
+                        label.shortWeekNames = false;
+                        let curPixelLength = label.getLongWeekdayPixels();
+                        maxDayWidth = Math.max(maxDayWidth, curPixelLength);
+                    }
+                }
+                if (maxDayWidth > 0) {
+                    this.mLongWeekdayTotalPixels = (maxDayWidth * this.labeldaybox.childNodes.length) + 10;
+                }
+            }
+            return this.mLongWeekdayTotalPixels;
         ]]></body>
       </method>
 
@@ -617,71 +617,71 @@
         <parameter name="aTopic"/>
         <parameter name="aPreference"/>
         <body><![CDATA[
-          // refresh view if categories seem to have changed
-          if (aPreference.startsWith("calendar.category.color")) {
-              this.refreshView();
-              return;
-          }
-          switch (aPreference) {
-              case "calendar.week.d0sundaysoff":
-              case "calendar.week.d1mondaysoff":
-              case "calendar.week.d2tuesdaysoff":
-              case "calendar.week.d3wednesdaysoff":
-              case "calendar.week.d4thursdaysoff":
-              case "calendar.week.d5fridaysoff":
-              case "calendar.week.d6saturdaysoff":
-                  this.updateDaysOffPrefs();
-                  break;
-              case "calendar.timezone.local":
-                  this.timezone = cal.calendarDefaultTimezone();
-                  this.refreshView();
-                  break;
-              case "calendar.alarms.indicator.show":
-                  // Break here to ensure the view is refreshed
-                  break;
-              case "calendar.week.start":
-                  this.weekStartOffset = aSubject.getIntPref(aPreference);
-                  break;
-              case "calendar.date.format":
-                  this.refreshView();
-                  break;
-              default:
-                  return;
-          }
-          this.refreshView();
+            // refresh view if categories seem to have changed
+            if (aPreference.startsWith("calendar.category.color")) {
+                this.refreshView();
+                return;
+            }
+            switch (aPreference) {
+                case "calendar.week.d0sundaysoff":
+                case "calendar.week.d1mondaysoff":
+                case "calendar.week.d2tuesdaysoff":
+                case "calendar.week.d3wednesdaysoff":
+                case "calendar.week.d4thursdaysoff":
+                case "calendar.week.d5fridaysoff":
+                case "calendar.week.d6saturdaysoff":
+                    this.updateDaysOffPrefs();
+                    break;
+                case "calendar.timezone.local":
+                    this.timezone = cal.calendarDefaultTimezone();
+                    this.refreshView();
+                    break;
+                case "calendar.alarms.indicator.show":
+                    // Break here to ensure the view is refreshed
+                    break;
+                case "calendar.week.start":
+                    this.weekStartOffset = aSubject.getIntPref(aPreference);
+                    break;
+                case "calendar.date.format":
+                    this.refreshView();
+                    break;
+                default:
+                    return;
+            }
+            this.refreshView();
         ]]></body>
       </method>
 
       <method name="updateDaysOffPrefs">
         <body><![CDATA[
-          const weekPrefix = "calendar.week.";
-          const prefNames = [
-              "d0sundaysoff", "d1mondaysoff", "d2tuesdaysoff",
-              "d3wednesdaysoff", "d4thursdaysoff", "d5fridaysoff",
-              "d6saturdaysoff"
-          ];
-          const defaults = [
-              "true", "false", "false", "false", "false", "false", "true"
-          ];
-          let daysOff = [];
-          for (let i in prefNames) {
-              if (Preferences.get(weekPrefix + prefNames[i], defaults[i])) {
-                  daysOff.push(Number(i));
-              }
-          }
-          this.daysOffArray = daysOff;
+            const weekPrefix = "calendar.week.";
+            const prefNames = [
+                "d0sundaysoff", "d1mondaysoff", "d2tuesdaysoff",
+                "d3wednesdaysoff", "d4thursdaysoff", "d5fridaysoff",
+                "d6saturdaysoff"
+            ];
+            const defaults = [
+                "true", "false", "false", "false", "false", "false", "true"
+            ];
+            let daysOff = [];
+            for (let i in prefNames) {
+                if (Preferences.get(weekPrefix + prefNames[i], defaults[i])) {
+                    daysOff.push(Number(i));
+                }
+            }
+            this.daysOffArray = daysOff;
         ]]></body>
       </method>
 
       <method name="refreshView">
         <body><![CDATA[
-          if (!this.startDay || !this.endDay) {
-              // don't refresh if we're not initialized
-              return;
-          }
-          // Just refresh, the goToDay function will notice
-          this.goToDay(this.selectedDay);
-          this.forceRefresh();
+            if (!this.startDay || !this.endDay) {
+                // don't refresh if we're not initialized
+                return;
+            }
+            // Just refresh, the goToDay function will notice
+            this.goToDay(this.selectedDay);
+            this.forceRefresh();
         ]]></body>
       </method>
 
@@ -692,14 +692,14 @@
         <parameter name="aTopic"/>
         <parameter name="aPref"/>
         <body><![CDATA[
-          // Do nothing by default
+            // Do nothing by default
         ]]></body>
       </method>
       <method name="setDateRange">
         <parameter name="aStartDate"/>
         <parameter name="aEndDate"/>
         <body><![CDATA[
-          cal.navigationBar.setDateRange(aStartDate, aEndDate);
+            cal.navigationBar.setDateRange(aStartDate, aEndDate);
         ]]></body>
       </method>
 
@@ -710,16 +710,16 @@
       <method name="getSelectedItems">
         <parameter name="aCount"/>
         <body><![CDATA[
-          aCount.value = this.mSelectedItems.length;
-          return this.mSelectedItems;
+            aCount.value = this.mSelectedItems.length;
+            return this.mSelectedItems;
         ]]></body>
       </method>
       <method name="setSelectedItems">
         <parameter name="aCount"/>
         <parameter name="aItems"/>
         <body><![CDATA[
-          this.mSelectedItems = aItems.concat([]);
-          return this.mSelectedItems;
+            this.mSelectedItems = aItems.concat([]);
+            return this.mSelectedItems;
         ]]></body>
       </method>
 
@@ -727,13 +727,13 @@
         <parameter name="aCount"/>
         <parameter name="aDates"/>
         <body><![CDATA[
-          let start = this.startDate.clone();
-          while (start.compare(this.endDate) <= 0) {
-              dates.push(start);
-              start.day++;
-          }
-          aCount.value = dates.length;
-          return dates;
+            let start = this.startDate.clone();
+            while (start.compare(this.endDate) <= 0) {
+                dates.push(start);
+                start.day++;
+            }
+            aCount.value = dates.length;
+            return dates;
         ]]></body>
       </method>
 
@@ -741,7 +741,7 @@
         <parameter name="aAlarmItem"/>
         <parameter name="aStop"/>
         <body><![CDATA[
-          // Do nothing by default
+            // Do nothing by default
         ]]></body>
       </method>
 
@@ -763,88 +763,88 @@
 
     <handlers>
       <handler event="move"><![CDATA[
-        this.moveView(event.detail);
+          this.moveView(event.detail);
       ]]></handler>
       <handler event="keypress"><![CDATA[
-        const kKE = Components.interfaces.nsIDOMKeyEvent;
-        switch (event.keyCode) {
-            case kKE.DOM_VK_PAGE_UP:
-                this.moveView(-1);
-                break;
-            case kKE.DOM_VK_PAGE_DOWN:
-                this.moveView(1);
-                break;
-        }
+          const kKE = Components.interfaces.nsIDOMKeyEvent;
+          switch (event.keyCode) {
+              case kKE.DOM_VK_PAGE_UP:
+                  this.moveView(-1);
+                  break;
+              case kKE.DOM_VK_PAGE_DOWN:
+                  this.moveView(1);
+                  break;
+          }
       ]]></handler>
       <handler event="wheel"><![CDATA[
-        const pixelThreshold = 150;
-        if (event.shiftKey && Preferences.get("calendar.view.mousescroll", true)) {
-            if (event.deltaMode == event.DOM_DELTA_LINE) {
-                if (event.deltaY != 0) {
-                    deltaView = event.deltaY < 0 ? -1 : 1;
-                }
-            } else if (event.deltaMode == event.DOM_DELTA_PIXEL) {
-                this.mPixelScrollDelta += event.deltaY;
-                if (this.mPixelScrollDelta > pixelThreshold) {
-                    deltaView = 1;
-                    this.mPixelScrollDelta = 0;
-                } else if (this.mPixelScrollDelta < -pixelThreshold) {
-                    deltaView = -1;
-                    this.mPixelScrollDelta = 0;
-                }
-            }
+          const pixelThreshold = 150;
+          if (event.shiftKey && Preferences.get("calendar.view.mousescroll", true)) {
+              if (event.deltaMode == event.DOM_DELTA_LINE) {
+                  if (event.deltaY != 0) {
+                      deltaView = event.deltaY < 0 ? -1 : 1;
+                  }
+              } else if (event.deltaMode == event.DOM_DELTA_PIXEL) {
+                  this.mPixelScrollDelta += event.deltaY;
+                  if (this.mPixelScrollDelta > pixelThreshold) {
+                      deltaView = 1;
+                      this.mPixelScrollDelta = 0;
+                  } else if (this.mPixelScrollDelta < -pixelThreshold) {
+                      deltaView = -1;
+                      this.mPixelScrollDelta = 0;
+                  }
+              }
 
-            if (deltaView != 0) {
-                this.moveView(deltaView);
-            }
-        }
+              if (deltaView != 0) {
+                  this.moveView(deltaView);
+              }
+          }
 
-        // Prevent default scroll handling
-        event.preventDefault();
+          // Prevent default scroll handling
+          event.preventDefault();
       ]]></handler>
       <handler event="MozRotateGesture"><![CDATA[
-        // Threshold for the minimum and maximum angle we should accept
-        // rotation for. 90 degrees minimum is most logical, but 45 degrees
-        // allows you to rotate with one hand.
-        const MIN_ROTATE_ANGLE = 45;
-        const MAX_ROTATE_ANGLE = 180;
+          // Threshold for the minimum and maximum angle we should accept
+          // rotation for. 90 degrees minimum is most logical, but 45 degrees
+          // allows you to rotate with one hand.
+          const MIN_ROTATE_ANGLE = 45;
+          const MAX_ROTATE_ANGLE = 180;
 
-        let absval = Math.abs(event.delta);
-        if (this.supportsRotation &&
-            absval >= MIN_ROTATE_ANGLE &&
-            absval < MAX_ROTATE_ANGLE) {
-            toggleOrientation();
-            event.preventDefault();
-        }
+          let absval = Math.abs(event.delta);
+          if (this.supportsRotation &&
+              absval >= MIN_ROTATE_ANGLE &&
+              absval < MAX_ROTATE_ANGLE) {
+              toggleOrientation();
+              event.preventDefault();
+          }
       ]]></handler>
       <handler event="MozMagnifyGestureStart"><![CDATA[
-        this.mMagnifyAmount = 0;
+          this.mMagnifyAmount = 0;
       ]]></handler>
       <handler event="MozMagnifyGestureUpdate"><![CDATA[
-        // Threshold as to how much magnification causes the zoom to happen
-        const THRESHOLD = 30;
+          // Threshold as to how much magnification causes the zoom to happen
+          const THRESHOLD = 30;
 
-        if (this.supportsZoom) {
-            this.mMagnifyAmount += event.delta;
+          if (this.supportsZoom) {
+              this.mMagnifyAmount += event.delta;
 
-            if (this.mMagnifyAmount > THRESHOLD) {
-                this.zoomOut();
-                this.mMagnifyAmount = 0;
-            } else if (this.mMagnifyAmount < -THRESHOLD) {
-                this.zoomIn();
-                this.mMagnifyAmount = 0;
-            }
-            event.preventDefault();
-        }
+              if (this.mMagnifyAmount > THRESHOLD) {
+                  this.zoomOut();
+                  this.mMagnifyAmount = 0;
+              } else if (this.mMagnifyAmount < -THRESHOLD) {
+                  this.zoomIn();
+                  this.mMagnifyAmount = 0;
+              }
+              event.preventDefault();
+          }
       ]]></handler>
       <handler event="MozSwipeGesture"><![CDATA[
-        if ((event.direction == SimpleGestureEvent.DIRECTION_UP && !this.rotated) ||
-            (event.direction == SimpleGestureEvent.DIRECTION_LEFT && this.rotated)) {
-            this.moveView(-1);
-        } else if ((event.direction == SimpleGestureEvent.DIRECTION_DOWN && !this.rotated) ||
-                   (event.direction == SimpleGestureEvent.DIRECTION_RIGHT && this.rotated)) {
-            this.moveView(1);
-        }
+          if ((event.direction == SimpleGestureEvent.DIRECTION_UP && !this.rotated) ||
+              (event.direction == SimpleGestureEvent.DIRECTION_LEFT && this.rotated)) {
+              this.moveView(-1);
+          } else if ((event.direction == SimpleGestureEvent.DIRECTION_DOWN && !this.rotated) ||
+                     (event.direction == SimpleGestureEvent.DIRECTION_RIGHT && this.rotated)) {
+              this.moveView(1);
+          }
       ]]></handler>
     </handlers>
   </binding>
@@ -863,33 +863,35 @@
       <property name="shortName" readonly="true"
                 onget="return document.getAnonymousElementByAttribute(this, 'anonid', 'shortWeekdayName');"/>
       <property name="weekDay">
-        <getter>return this.mWeekday;</getter>
+        <getter><![CDATA[
+            return this.mWeekday;
+        ]]></getter>
         <setter><![CDATA[
-          this.mWeekday = val % 7;
-          this.longName.value = cal.getDateFormatter().dayName(val);
-          this.shortName.value = cal.getDateFormatter().shortDayName(val);
-          return this.mWeekday;
+            this.mWeekday = val % 7;
+            this.longName.value = cal.getDateFormatter().dayName(val);
+            this.shortName.value = cal.getDateFormatter().shortDayName(val);
+            return this.mWeekday;
         ]]></setter>
       </property>
 
       <property name="date">
         <getter><![CDATA[
-          return this.mDate;
+            return this.mDate;
         ]]></getter>
         <setter><![CDATA[
-          this.mDate = val;
-          let dateFormatter = cal.getDateFormatter();
-          let label = cal.calGetString("calendar", "dayHeaderLabel", [
-              dateFormatter.shortDayName(val.weekday),
-              dateFormatter.formatDateWithoutYear(val)
-          ]);
-          this.shortName.setAttribute("value", label);
-          label = cal.calGetString("calendar", "dayHeaderLabel", [
-              dateFormatter.dayName(val.weekday),
-              dateFormatter.formatDateWithoutYear(val)
-          ]);
-          this.longName.setAttribute("value", label);
-          return val;
+            this.mDate = val;
+            let dateFormatter = cal.getDateFormatter();
+            let label = cal.calGetString("calendar", "dayHeaderLabel", [
+                dateFormatter.shortDayName(val.weekday),
+                dateFormatter.formatDateWithoutYear(val)
+            ]);
+            this.shortName.setAttribute("value", label);
+            label = cal.calGetString("calendar", "dayHeaderLabel", [
+                dateFormatter.dayName(val.weekday),
+                dateFormatter.formatDateWithoutYear(val)
+            ]);
+            this.longName.setAttribute("value", label);
+            return val;
         ]]></setter>
       </property>
 
@@ -897,30 +899,30 @@
         <getter><![CDATA[
         ]]></getter>
         <setter><![CDATA[
-          // cache before change, in case we are switching to short
-          this.getLongWeekdayPixels();
-          setBooleanAttribute(this.longName, "hidden", val);
-          setBooleanAttribute(this.shortName, "hidden", !val);
-          return val;
+            // cache before change, in case we are switching to short
+            this.getLongWeekdayPixels();
+            setBooleanAttribute(this.longName, "hidden", val);
+            setBooleanAttribute(this.shortName, "hidden", !val);
+            return val;
         ]]></setter>
       </property>
 
       <method name="getLongWeekdayPixels">
         <body><![CDATA[
-          // Only do this if the long weekdays are visible and we haven't already cached.
-          let longNameWidth = this.longName.boxObject.width;
-          if (longNameWidth > 0) {
-              this.longWeekdayPixels = longNameWidth +
-                                       getSummarizedStyleValues(this.longName, ["margin-left", "margin-right"]);
-              this.longWeekdayPixels += getSummarizedStyleValues(this, [
-                  "border-left-width", "padding-left", "padding-right"
-              ]);
-              return this.longWeekdayPixels;
-          } else {
-              // in this case the weekdaypixels have not yet been layouted;
-              // by definition 0 is returned
-              return 0;
-          }
+            // Only do this if the long weekdays are visible and we haven't already cached.
+            let longNameWidth = this.longName.boxObject.width;
+            if (longNameWidth > 0) {
+                this.longWeekdayPixels = longNameWidth +
+                                         getSummarizedStyleValues(this.longName, ["margin-left", "margin-right"]);
+                this.longWeekdayPixels += getSummarizedStyleValues(this, [
+                    "border-left-width", "padding-left", "padding-right"
+                ]);
+                return this.longWeekdayPixels;
+            } else {
+                // in this case the weekdaypixels have not yet been layouted;
+                // by definition 0 is returned
+                return 0;
+            }
         ]]></body>
       </method>
     </implementation>

@@ -19,19 +19,19 @@
         <parameter name="aCalendar"/>
         <parameter name="bSubscribed"/>
         <body><![CDATA[
-          let newNode = createXULElement("calendar-subscriptions-richlistitem");
-          this.appendChild(newNode);
-          newNode.setAttribute("anonid", "subscriptions-listitem");
-          newNode.calendar = aCalendar;
-          newNode.subscribed = bSubscribed;
+            let newNode = createXULElement("calendar-subscriptions-richlistitem");
+            this.appendChild(newNode);
+            newNode.setAttribute("anonid", "subscriptions-listitem");
+            newNode.calendar = aCalendar;
+            newNode.subscribed = bSubscribed;
         ]]></body>
       </method>
 
       <method name="clear">
         <body><![CDATA[
-          while (this.hasChildNodes()) {
-              this.lastChild.remove();
-          }
+            while (this.hasChildNodes()) {
+                this.lastChild.remove();
+            }
         ]]></body>
       </method>
     </implementation>
@@ -52,76 +52,76 @@
 
       <property name="calendar">
         <getter><![CDATA[
-          return this.mCalendar;
+            return this.mCalendar;
         ]]></getter>
         <setter><![CDATA[
-          this.setCalendar(val);
-          return val;
+            this.setCalendar(val);
+            return val;
         ]]></setter>
       </property>
 
       <property name="subscribed">
         <getter><![CDATA[
-          return this.mSubscribed;
+            return this.mSubscribed;
         ]]></getter>
         <setter><![CDATA[
-          this.mSubscribed = val;
-          this.checked = val;
-          return val;
+            this.mSubscribed = val;
+            this.checked = val;
+            return val;
         ]]></setter>
       </property>
 
       <property name="checked">
         <getter><![CDATA[
-          let checkbox = document.getAnonymousElementByAttribute(
-            this, "anonid", "subscription-checkbox");
-          if (checkbox.getAttribute("checked") == "true") {
-              return true;
-          } else {
-              return false;
-          }
+            let checkbox = document.getAnonymousElementByAttribute(
+              this, "anonid", "subscription-checkbox");
+            if (checkbox.getAttribute("checked") == "true") {
+                return true;
+            } else {
+                return false;
+            }
         ]]></getter>
         <setter><![CDATA[
-          let checkbox = document.getAnonymousElementByAttribute(
-            this, "anonid", "subscription-checkbox");
-          if (val) {
-              checkbox.setAttribute("checked", "true");
-          } else {
-              checkbox.removeAttribute("checked");
-          }
-          return val;
+            let checkbox = document.getAnonymousElementByAttribute(
+              this, "anonid", "subscription-checkbox");
+            if (val) {
+                checkbox.setAttribute("checked", "true");
+            } else {
+                checkbox.removeAttribute("checked");
+            }
+            return val;
         ]]></setter>
       </property>
 
       <property name="disabled">
         <getter><![CDATA[
-          let checkbox = document.getAnonymousElementByAttribute(
-            this, "anonid", "subscription-checkbox");
-          if (checkbox.getAttribute("disabled") == "true") {
-              return true;
-          } else {
-              return false;
-          }
+            let checkbox = document.getAnonymousElementByAttribute(
+              this, "anonid", "subscription-checkbox");
+            if (checkbox.getAttribute("disabled") == "true") {
+                return true;
+            } else {
+                return false;
+            }
         ]]></getter>
         <setter><![CDATA[
-          let checkbox = document.getAnonymousElementByAttribute(
-            this, "anonid", "subscription-checkbox");
-          if (val) {
-              checkbox.setAttribute("disabled", "true");
-          } else {
-              checkbox.removeAttribute("disabled");
-          }
-          return val;
+            let checkbox = document.getAnonymousElementByAttribute(
+              this, "anonid", "subscription-checkbox");
+            if (val) {
+                checkbox.setAttribute("disabled", "true");
+            } else {
+                checkbox.removeAttribute("disabled");
+            }
+            return val;
         ]]></setter>
       </property>
 
       <method name="setCalendar">
         <parameter name="aCalendar"/>
         <body><![CDATA[
-          this.mCalendar = aCalendar;
-          let label = document.getAnonymousElementByAttribute(
-              this, "anonid", "subscription-name");
-          label.setAttribute("value", aCalendar.name);
+            this.mCalendar = aCalendar;
+            let label = document.getAnonymousElementByAttribute(
+                this, "anonid", "subscription-name");
+            label.setAttribute("value", aCalendar.name);
         ]]></body>
       </method>
     </implementation>

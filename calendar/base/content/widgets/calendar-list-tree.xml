@@ -16,152 +16,152 @@
       -->
     <implementation>
       <constructor><![CDATA[
-        Components.utils.import("resource://calendar/modules/calUtils.jsm");
-        let calMgr = cal.getCalendarManager();
-        calMgr.addObserver(this.calMgrObserver);
+          Components.utils.import("resource://calendar/modules/calUtils.jsm");
+          let calMgr = cal.getCalendarManager();
+          calMgr.addObserver(this.calMgrObserver);
 
       ]]></constructor>
       <destructor><![CDATA[
-        let calMgr = cal.getCalendarManager();
-        calMgr.removeObserver(this.calMgrObserver);
-        this.calMgrObserver.listTree = null;
+          let calMgr = cal.getCalendarManager();
+          calMgr.removeObserver(this.calMgrObserver);
+          this.calMgrObserver.listTree = null;
       ]]></destructor>
 
       <field name="mAddingFromComposite">false</field>
 
       <property name="compositeCalendar">
         <getter><![CDATA[
-          if (!this.mCompositeCalendar) {
-              throw Components.Exception("Calendar list has no composite calendar yet",
-                                         Components.results.NS_ERROR_NOT_INITIALIZED);
-          }
-          return this.mCompositeCalendar;
+            if (!this.mCompositeCalendar) {
+                throw Components.Exception("Calendar list has no composite calendar yet",
+                                           Components.results.NS_ERROR_NOT_INITIALIZED);
+            }
+            return this.mCompositeCalendar;
         ]]></getter>
         <setter><![CDATA[
-          this.mCompositeCalendar = val;
-          this.mCompositeCalendar.addObserver(this.compositeObserver);
+            this.mCompositeCalendar = val;
+            this.mCompositeCalendar.addObserver(this.compositeObserver);
 
-          // Now that we have a composite calendar, we can get all calendars
-          // from the calendar manager.
-          this.mAddingFromComposite = true;
-          let calendars = sortCalendarArray(cal.getCalendarManager().getCalendars({}));
-          calendars.forEach(this.addCalendar, this);
-          this.mAddingFromComposite = false;
+            // Now that we have a composite calendar, we can get all calendars
+            // from the calendar manager.
+            this.mAddingFromComposite = true;
+            let calendars = sortCalendarArray(cal.getCalendarManager().getCalendars({}));
+            calendars.forEach(this.addCalendar, this);
+            this.mAddingFromComposite = false;
 
-          return val;
+            return val;
         ]]></setter>
       </property>
 
       <property name="calendars">
         <getter><![CDATA[
-          return this.mCalendarList;
+            return this.mCalendarList;
         ]]></getter>
         <setter><![CDATA[
-          // Setting calendars externally is not wanted. This is done internally
-          // in the compositeCalendar setter.
-          throw Components.Exception("Seting calendars on type='full' is not supported",
-                                     Components.results.NS_ERROR_NOT_IMPLEMENTED);
+            // Setting calendars externally is not wanted. This is done internally
+            // in the compositeCalendar setter.
+            throw Components.Exception("Seting calendars on type='full' is not supported",
+                                       Components.results.NS_ERROR_NOT_IMPLEMENTED);
         ]]></setter>
       </property>
 
       <field name="calMgrObserver"><![CDATA[
-      ({
-          listTree: this,
-          QueryInterface: XPCOMUtils.generateQI([Components.interfaces.calICalendarManagerObserver]),
+        ({
+            listTree: this,
+            QueryInterface: XPCOMUtils.generateQI([Components.interfaces.calICalendarManagerObserver]),
 
-          // calICalendarManagerObserver
-          onCalendarRegistered: function(aCalendar) {
-              this.listTree.addCalendar(aCalendar);
-              let composite = this.listTree.compositeCalendar;
-              let inComposite = aCalendar.getProperty(composite.prefPrefix +
-                                                      "-in-composite");
-              if ((inComposite === null) || inComposite) {
-                  composite.addCalendar(aCalendar);
-              }
-          },
+            // calICalendarManagerObserver
+            onCalendarRegistered: function(aCalendar) {
+                this.listTree.addCalendar(aCalendar);
+                let composite = this.listTree.compositeCalendar;
+                let inComposite = aCalendar.getProperty(composite.prefPrefix +
+                                                        "-in-composite");
+                if ((inComposite === null) || inComposite) {
+                    composite.addCalendar(aCalendar);
+                }
+            },
 
-          onCalendarUnregistering: function(aCalendar) {
-              this.listTree.removeCalendar(aCalendar);
-          },
+            onCalendarUnregistering: function(aCalendar) {
+                this.listTree.removeCalendar(aCalendar);
+            },
 
-          onCalendarDeleting: function(aCalendar) {
-              // Now that the calendar is unregistered, update the commands to
-              // make sure that New Event/Task commands are correctly
-              // enabled/disabled.
-              document.commandDispatcher.updateCommands("calendar_commands");
-          }
-      })
+            onCalendarDeleting: function(aCalendar) {
+                // Now that the calendar is unregistered, update the commands to
+                // make sure that New Event/Task commands are correctly
+                // enabled/disabled.
+                document.commandDispatcher.updateCommands("calendar_commands");
+            }
+        })
       ]]></field>
       <field name="compositeObserver"><![CDATA[
-      ({
-          listTree: this,
-          QueryInterface: XPCOMUtils.generateQI([
-              Components.interfaces.calICompositeObserver,
-              Components.interfaces.calIObserver
-          ]),
+        ({
+            listTree: this,
+            QueryInterface: XPCOMUtils.generateQI([
+                Components.interfaces.calICompositeObserver,
+                Components.interfaces.calIObserver
+            ]),
 
-          // calICompositeObserver
-          onCalendarAdded: function(aCalendar) {
-              // Make sure the checkbox state is updated
-              this.listTree.updateCalendar(aCalendar);
-          },
+            // calICompositeObserver
+            onCalendarAdded: function(aCalendar) {
+                // Make sure the checkbox state is updated
+                this.listTree.updateCalendar(aCalendar);
+            },
 
-          onCalendarRemoved: function(aCalendar) {
-              // Make sure the checkbox state is updated
-              this.listTree.updateCalendar(aCalendar);
-          },
+            onCalendarRemoved: function(aCalendar) {
+                // Make sure the checkbox state is updated
+                this.listTree.updateCalendar(aCalendar);
+            },
 
-          onDefaultCalendarChanged: function(aCalendar) {
-          },
+            onDefaultCalendarChanged: function(aCalendar) {
+            },
 
-          // calIObserver
-          onStartBatch: function() { },
-          onEndBatch: function() { },
-          onLoad: function() { },
+            // calIObserver
+            onStartBatch: function() { },
+            onEndBatch: function() { },
+            onLoad: function() { },
 
-          onAddItem: function(aItem) {
-              if (aItem.calendar.type != "caldav") {
-                  this.listTree.ensureCalendarVisible(aItem.calendar);
-              }
-          },
-          onModifyItem: function(aNewItem, aOldItem) {
-              if (aNewItem.calendar.type != "caldav") {
-                  this.listTree.ensureCalendarVisible(aNewItem.calendar);
-              }
-          },
-          onDeleteItem: function(aDeletedItem) { },
-          onError: function(aCalendar, aErrNo, aMessage) { },
+            onAddItem: function(aItem) {
+                if (aItem.calendar.type != "caldav") {
+                    this.listTree.ensureCalendarVisible(aItem.calendar);
+                }
+            },
+            onModifyItem: function(aNewItem, aOldItem) {
+                if (aNewItem.calendar.type != "caldav") {
+                    this.listTree.ensureCalendarVisible(aNewItem.calendar);
+                }
+            },
+            onDeleteItem: function(aDeletedItem) { },
+            onError: function(aCalendar, aErrNo, aMessage) { },
 
-          onPropertyChanged: function(aCalendar, aName, aValue, aOldValue) {
-              switch (aName) {
-                  case "disabled":
-                  case "readOnly":
-                      calendarUpdateNewItemsCommand();
-                      document.commandDispatcher.updateCommands("calendar_commands");
-                      break;
-              }
-          },
+            onPropertyChanged: function(aCalendar, aName, aValue, aOldValue) {
+                switch (aName) {
+                    case "disabled":
+                    case "readOnly":
+                        calendarUpdateNewItemsCommand();
+                        document.commandDispatcher.updateCommands("calendar_commands");
+                        break;
+                }
+            },
 
-          onPropertyDeleting: function(aCalendar, aName) {
-          }
-      })
+            onPropertyDeleting: function(aCalendar, aName) {
+            }
+        })
       ]]></field>
     </implementation>
     <handlers>
       <handler event="dblclick"><![CDATA[
-        let col = {};
-        let calendar = this.getCalendarFromEvent(event, col);
-        if (event.button != 0 ||
-            (col.value && col.value.element &&
-             col.value.element.getAttribute("anonid") == "checkbox-treecol")) {
-            // Only left clicks that are not on the checkbox column
-            return;
-        }
-        if (calendar) {
-            cal.openCalendarProperties(window, calendar);
-        } else {
-            cal.openCalendarWizard(window);
-        }
+          let col = {};
+          let calendar = this.getCalendarFromEvent(event, col);
+          if (event.button != 0 ||
+              (col.value && col.value.element &&
+               col.value.element.getAttribute("anonid") == "checkbox-treecol")) {
+              // Only left clicks that are not on the checkbox column
+              return;
+          }
+          if (calendar) {
+              cal.openCalendarProperties(window, calendar);
+          } else {
+              cal.openCalendarWizard(window);
+          }
       ]]></handler>
     </handlers>
   </binding>
@@ -229,88 +229,88 @@
       <field name="mCycleTimer">null</field>
 
       <constructor><![CDATA[
-        Components.utils.import("resource://calendar/modules/calUtils.jsm");
-        Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
-        this.tree.view = this;
-        this.ruleCache = {};
-        this.mCycleCalendarFlag = {};
+          Components.utils.import("resource://calendar/modules/calUtils.jsm");
+          Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
+          this.tree.view = this;
+          this.ruleCache = {};
+          this.mCycleCalendarFlag = {};
       ]]></constructor>
       <destructor><![CDATA[
-        // Clean up the calendar manager observers. Do not use removeCalendar
-        // here since that will remove the calendar from the composite calendar.
-        for (let calendar of this.mCalendarList) {
-            calendar.removeObserver(this.calObserver);
-        }
+          // Clean up the calendar manager observers. Do not use removeCalendar
+          // here since that will remove the calendar from the composite calendar.
+          for (let calendar of this.mCalendarList) {
+              calendar.removeObserver(this.calObserver);
+          }
 
-        this.tree.view = null;
-        this.calObserver.listTree = null;
+          this.tree.view = null;
+          this.calObserver.listTree = null;
 
-        if (this.mCompositeCalendar) {
-            this.mCompositeCalendar.removeObserver(this.compositeObserver);
-        }
+          if (this.mCompositeCalendar) {
+              this.mCompositeCalendar.removeObserver(this.compositeObserver);
+          }
       ]]></destructor>
 
       <field name="calObserver"><![CDATA[
-      ({
-          listTree: this,
-          QueryInterface: XPCOMUtils.generateQI([Components.interfaces.calIObserver]),
+        ({
+            listTree: this,
+            QueryInterface: XPCOMUtils.generateQI([Components.interfaces.calIObserver]),
 
-          // calIObserver. Note that each registered calendar uses this observer
-          onStartBatch: function() { },
-          onEndBatch: function() { },
-          onLoad: function() { },
+            // calIObserver. Note that each registered calendar uses this observer
+            onStartBatch: function() { },
+            onEndBatch: function() { },
+            onLoad: function() { },
 
-          onAddItem: function(aItem) { },
-          onModifyItem: function(aNewItem, aOldItem) { },
-          onDeleteItem: function(aDeletedItem) { },
-          onError: function(aCalendar, aErrNo, aMessage) { },
+            onAddItem: function(aItem) { },
+            onModifyItem: function(aNewItem, aOldItem) { },
+            onDeleteItem: function(aDeletedItem) { },
+            onError: function(aCalendar, aErrNo, aMessage) { },
 
-          onPropertyChanged: function(aCalendar, aName, aValue, aOldValue) {
-              switch (aName) {
-                  case "color":
-                      // TODO See other TODO in this file about updateStyleSheetForViews
-                      if ("updateStyleSheetForViews" in window) {
-                          updateStyleSheetForViews(aCalendar);
-                      }
-                      this.listTree.updateCalendarColor(aCalendar);
-                      // Fall through, update item in any case
-                  case "name":
-                  case "currentStatus":
-                  case "readOnly":
-                  case "disabled":
-                      this.listTree.updateCalendar(aCalendar);
-                      // Fall through, update commands in any cases.
-              }
-          },
+            onPropertyChanged: function(aCalendar, aName, aValue, aOldValue) {
+                switch (aName) {
+                    case "color":
+                        // TODO See other TODO in this file about updateStyleSheetForViews
+                        if ("updateStyleSheetForViews" in window) {
+                            updateStyleSheetForViews(aCalendar);
+                        }
+                        this.listTree.updateCalendarColor(aCalendar);
+                        // Fall through, update item in any case
+                    case "name":
+                    case "currentStatus":
+                    case "readOnly":
+                    case "disabled":
+                        this.listTree.updateCalendar(aCalendar);
+                        // Fall through, update commands in any cases.
+                }
+            },
 
-          onPropertyDeleting: function(aCalendar, aName) {
-              // Since the old value is not used directly in onPropertyChanged,
-              // but should not be the same as the value, set it to a different
-              // value.
-              this.onPropertyChanged(aCalendar, aName, null, null);
-          }
-      })
+            onPropertyDeleting: function(aCalendar, aName) {
+                // Since the old value is not used directly in onPropertyChanged,
+                // but should not be the same as the value, set it to a different
+                // value.
+                this.onPropertyChanged(aCalendar, aName, null, null);
+            }
+        })
       ]]></field>
 
       <field name="compositeObserver"><![CDATA[
-      ({
-          listTree: this,
-          QueryInterface: XPCOMUtils.generateQI([Components.interfaces.calICompositeObserver]),
+        ({
+            listTree: this,
+            QueryInterface: XPCOMUtils.generateQI([Components.interfaces.calICompositeObserver]),
 
-          // calICompositeObserver
-          onCalendarAdded: function(aCalendar) {
-              // Make sure the checkbox state is updated
-              this.listTree.updateCalendar(aCalendar);
-          },
+            // calICompositeObserver
+            onCalendarAdded: function(aCalendar) {
+                // Make sure the checkbox state is updated
+                this.listTree.updateCalendar(aCalendar);
+            },
 
-          onCalendarRemoved: function(aCalendar) {
-              // Make sure the checkbox state is updated
-              this.listTree.updateCalendar(aCalendar);
-          },
+            onCalendarRemoved: function(aCalendar) {
+                // Make sure the checkbox state is updated
+                this.listTree.updateCalendar(aCalendar);
+            },
 
-          onDefaultCalendarChanged: function(aCalendar) {
-          }
-      })
+            onDefaultCalendarChanged: function(aCalendar) {
+            }
+        })
       ]]></field>
 
       <property name="treechildren"
@@ -323,52 +323,52 @@
 
       <property name="sheet" readonly="true">
         <getter><![CDATA[
-          if (!this.mCachedSheet) {
-              for (let sheet of document.styleSheets) {
-                  if (sheet.href == "chrome://calendar/skin/calendar-management.css") {
-                      this.mCachedSheet = sheet;
-                      break;
-                  }
-              }
-              if (!this.mCachedSheet) {
-                  cal.ERROR("Could not find calendar-management.css, needs to be added to " +
-                            window.document.title + "'s stylesheets");
-              }
-          }
+            if (!this.mCachedSheet) {
+                for (let sheet of document.styleSheets) {
+                    if (sheet.href == "chrome://calendar/skin/calendar-management.css") {
+                        this.mCachedSheet = sheet;
+                        break;
+                    }
+                }
+                if (!this.mCachedSheet) {
+                    cal.ERROR("Could not find calendar-management.css, needs to be added to " +
+                              window.document.title + "'s stylesheets");
+                }
+            }
 
-          return this.mCachedSheet;
+            return this.mCachedSheet;
         ]]></getter>
       </property>
 
       <property name="calendars">
         <getter><![CDATA[
-          return this.mCalendarList;
+            return this.mCalendarList;
         ]]></getter>
         <setter><![CDATA[
-          this.mCalendarList = val;
-          this.mCalendarList.forEach(this.addCalendar, this);
-          return this.mCalendarList;
+            this.mCalendarList = val;
+            this.mCalendarList.forEach(this.addCalendar, this);
+            return this.mCalendarList;
         ]]></setter>
       </property>
 
       <property name="compositeCalendar">
         <getter><![CDATA[
-          if (!this.mCompositeCalendar) {
-              this.mCompositeCalendar =
-                  Components.classes["@mozilla.org/calendar/calendar;1?type=composite"]
-                            .createInstance(Components.interfaces.calICompositeCalendar);
-          }
+            if (!this.mCompositeCalendar) {
+                this.mCompositeCalendar =
+                    Components.classes["@mozilla.org/calendar/calendar;1?type=composite"]
+                              .createInstance(Components.interfaces.calICompositeCalendar);
+            }
 
-          return this.mCompositeCalendar;
+            return this.mCompositeCalendar;
         ]]></getter>
         <setter><![CDATA[
-          if (this.mCompositeCalendar) {
-              throw Components.Exception("A composite calendar has already been set",
-                                         Components.results.NS_ERROR_ALREADY_INITIALIZED);
-          }
-          this.mCompositeCalendar = val;
-          this.mCompositeCalendar.addObserver(this.compositeObserver);
-          return val;
+            if (this.mCompositeCalendar) {
+                throw Components.Exception("A composite calendar has already been set",
+                                           Components.results.NS_ERROR_ALREADY_INITIALIZED);
+            }
+            this.mCompositeCalendar = val;
+            this.mCompositeCalendar.addObserver(this.compositeObserver);
+            return val;
         ]]></setter>
       </property>
 
@@ -391,42 +391,42 @@
       <method name="sortOrderChanged">
         <parameter name=""/>
         <body><![CDATA[
-          if (this.mAddingFromComposite) {
-              return;
-          }
-          let event = document.createEvent("Events");
-          event.initEvent("SortOrderChanged", true, false);
-          event.sortOrder = this.sortOrder;
-          this.dispatchEvent(event);
+            if (this.mAddingFromComposite) {
+                return;
+            }
+            let event = document.createEvent("Events");
+            event.initEvent("SortOrderChanged", true, false);
+            event.sortOrder = this.sortOrder;
+            this.dispatchEvent(event);
 
-          let handler = this.getAttribute("onSortOrderChanged");
-          if (handler) {
-              // Call the given code in a function
-              let func = new Function("event", handler);
-              func(event);
-          }
+            let handler = this.getAttribute("onSortOrderChanged");
+            if (handler) {
+                // Call the given code in a function
+                let func = new Function("event", handler);
+                func(event);
+            }
         ]]></body>
       </method>
       <method name="displayScrollbarSpacer">
         <parameter name="aShouldDisplay"/>
         <body><![CDATA[
-          let spacer = document.getAnonymousElementByAttribute(this, "anonid", "scrollbar-spacer");
-          spacer.collapsed = !aShouldDisplay;
+            let spacer = document.getAnonymousElementByAttribute(this, "anonid", "scrollbar-spacer");
+            spacer.collapsed = !aShouldDisplay;
         ]]></body>
       </method>
 
       <method name="ensureCalendarVisible">
         <parameter name="aCalendar"/>
         <body><![CDATA[
-          this.compositeCalendar.addCalendar(aCalendar);
+            this.compositeCalendar.addCalendar(aCalendar);
         ]]></body>
       </method>
 
       <method name="getColumn">
         <parameter name="aAnonId"/>
         <body><![CDATA[
-          let colElem = document.getAnonymousElementByAttribute(this, "anonid", aAnonId);
-          return this.treebox.columns.getColumnFor(colElem);
+            let colElem = document.getAnonymousElementByAttribute(this, "anonid", aAnonId);
+            return this.treebox.columns.getColumnFor(colElem);
         ]]></body>
       </method>
 
@@ -439,12 +439,12 @@
           -->
         <parameter name="aId"/>
         <body><![CDATA[
-          for (let i = 0; i < this.mCalendarList.length; i++) {
-              if (this.mCalendarList[i].id == aId) {
-                  return i;
-              }
-          }
-          return -1;
+            for (let i = 0; i < this.mCalendarList.length; i++) {
+                if (this.mCalendarList[i].id == aId) {
+                    return i;
+                }
+            }
+            return -1;
         ]]></body>
       </method>
 
@@ -456,49 +456,49 @@
           -->
         <parameter name="aCalendar"/>
         <body><![CDATA[
-          let composite = this.compositeCalendar;
+            let composite = this.compositeCalendar;
 
-          let initialSortOrderPos = aCalendar.getProperty("initialSortOrderPos");
-          if (initialSortOrderPos != null && initialSortOrderPos < this.mCalendarList.length) {
-              // Insert the calendar at the requested sort order position
-              // and then discard the property
-              this.mCalendarList.splice(initialSortOrderPos, 0, aCalendar);
-              aCalendar.deleteProperty("initialSortOrderPos");
-          } else {
-              this.mCalendarList.push(aCalendar);
-          }
-          this.treebox.rowCountChanged(this.mCalendarList.length - 1, 1);
+            let initialSortOrderPos = aCalendar.getProperty("initialSortOrderPos");
+            if (initialSortOrderPos != null && initialSortOrderPos < this.mCalendarList.length) {
+                // Insert the calendar at the requested sort order position
+                // and then discard the property
+                this.mCalendarList.splice(initialSortOrderPos, 0, aCalendar);
+                aCalendar.deleteProperty("initialSortOrderPos");
+            } else {
+                this.mCalendarList.push(aCalendar);
+            }
+            this.treebox.rowCountChanged(this.mCalendarList.length - 1, 1);
 
-          if (!composite.defaultCalendar ||
-              aCalendar.id == composite.defaultCalendar.id) {
-              this.tree.view.selection.select(this.mCalendarList.length - 1);
-          }
+            if (!composite.defaultCalendar ||
+                aCalendar.id == composite.defaultCalendar.id) {
+                this.tree.view.selection.select(this.mCalendarList.length - 1);
+            }
 
-          this.updateCalendarColor(aCalendar);
+            this.updateCalendarColor(aCalendar);
 
-          // TODO This should be done only once outside of this binding, but to
-          // do that right, we need to have an easy way to register an observer
-          // all calendar properties. This could be the calendar manager that
-          // holds an observer on every calendar anyway, which would then use the
-          // global observer service which clients can register with.
-          if ("updateStyleSheetForViews" in window) {
-              updateStyleSheetForViews(aCalendar);
-          }
+            // TODO This should be done only once outside of this binding, but to
+            // do that right, we need to have an easy way to register an observer
+            // all calendar properties. This could be the calendar manager that
+            // holds an observer on every calendar anyway, which would then use the
+            // global observer service which clients can register with.
+            if ("updateStyleSheetForViews" in window) {
+                updateStyleSheetForViews(aCalendar);
+            }
 
-          // Watch the calendar for changes, i.e color.
-          aCalendar.addObserver(this.calObserver);
+            // Watch the calendar for changes, i.e color.
+            aCalendar.addObserver(this.calObserver);
 
-          // Adding a calendar causes the sortorder to be changed.
-          this.sortOrderChanged();
+            // Adding a calendar causes the sortorder to be changed.
+            this.sortOrderChanged();
 
-          // Re-assign defaultCalendar, sometimes it is not the right one after
-          // remove & add calendar.
-          if (composite.defaultCalendar && this.tree.currentIndex > -1) {
-              let currentCal = this.getCalendar(this.tree.currentIndex);
-              if (composite.defaultCalendar.id != currentCal.id) {
-                  composite.defaultCalendar = currentCal;
-              }
-          }
+            // Re-assign defaultCalendar, sometimes it is not the right one after
+            // remove & add calendar.
+            if (composite.defaultCalendar && this.tree.currentIndex > -1) {
+                let currentCal = this.getCalendar(this.tree.currentIndex);
+                if (composite.defaultCalendar.id != currentCal.id) {
+                    composite.defaultCalendar = currentCal;
+                }
+            }
         ]]></body>
       </method>
 
@@ -510,35 +510,35 @@
           -->
         <parameter name="aCalendar"/>
         <body><![CDATA[
-          let index = this.findIndexById(aCalendar.id);
-          if (index < 0) {
-              return;
-          }
+            let index = this.findIndexById(aCalendar.id);
+            if (index < 0) {
+                return;
+            }
 
-          this.mCalendarList.splice(index, 1);
-          if (index == this.rowCount) {
-              index--;
-          }
+            this.mCalendarList.splice(index, 1);
+            if (index == this.rowCount) {
+                index--;
+            }
 
-          this.tree.view.selection.select(index + 1);
-          this.treebox.rowCountChanged(index, -1);
+            this.tree.view.selection.select(index + 1);
+            this.treebox.rowCountChanged(index, -1);
 
-          aCalendar.removeObserver(this.calObserver);
+            aCalendar.removeObserver(this.calObserver);
 
-          // Make sure the calendar is removed from the composite calendar
-          this.compositeCalendar.removeCalendar(aCalendar);
+            // Make sure the calendar is removed from the composite calendar
+            this.compositeCalendar.removeCalendar(aCalendar);
 
-          // Remove the css style rule from the sheet.
-          let sheet = this.sheet;
-          for (let i = 0; i < sheet.cssRules.length; i++) {
-              if (sheet.cssRules[i] == this.ruleCache[aCalendar.id]) {
-                  sheet.deleteRule(i);
-                  delete this.ruleCache[aCalendar.id];
-                  break;
-              }
-          }
+            // Remove the css style rule from the sheet.
+            let sheet = this.sheet;
+            for (let i = 0; i < sheet.cssRules.length; i++) {
+                if (sheet.cssRules[i] == this.ruleCache[aCalendar.id]) {
+                    sheet.deleteRule(i);
+                    delete this.ruleCache[aCalendar.id];
+                    break;
+                }
+            }
 
-          this.sortOrderChanged();
+            this.sortOrderChanged();
         ]]></body>
       </method>
 
@@ -550,7 +550,7 @@
           -->
         <parameter name="aCalendar"/>
         <body><![CDATA[
-          this.treebox.invalidateRow(this.findIndexById(aCalendar.id));
+            this.treebox.invalidateRow(this.findIndexById(aCalendar.id));
         ]]></body>
       </method>
 
@@ -562,17 +562,17 @@
           -->
         <parameter name="aCalendar"/>
         <body><![CDATA[
-          let color = aCalendar.getProperty("color") || "#a8c2e1";
-          let sheet = this.sheet;
-          if (!(aCalendar.id in this.ruleCache)) {
-              let ruleString = "calendar-list-tree > tree > treechildren" +
-                               "::-moz-tree-cell(color-treecol, id-" +
-                               aCalendar.id + ") {}";
+            let color = aCalendar.getProperty("color") || "#a8c2e1";
+            let sheet = this.sheet;
+            if (!(aCalendar.id in this.ruleCache)) {
+                let ruleString = "calendar-list-tree > tree > treechildren" +
+                                 "::-moz-tree-cell(color-treecol, id-" +
+                                 aCalendar.id + ") {}";
 
-              let ruleIndex = sheet.insertRule(ruleString, sheet.cssRules.length);
-              this.ruleCache[aCalendar.id] = sheet.cssRules[ruleIndex];
-          }
-          this.ruleCache[aCalendar.id].style.backgroundColor = color;
+                let ruleIndex = sheet.insertRule(ruleString, sheet.cssRules.length);
+                this.ruleCache[aCalendar.id] = sheet.cssRules[ruleIndex];
+            }
+            this.ruleCache[aCalendar.id].style.backgroundColor = color;
         ]]></body>
       </method>
 
@@ -589,20 +589,20 @@
         <parameter name="aCol"/>
         <parameter name="aRow"/>
         <body><![CDATA[
-          if (event.clientX && event.clientY) {
-              // If we have a client point, get the row directly from the client
-              // point.
-              aRow = aRow || {};
-              this.treebox.getCellAt(event.clientX,
-                                     event.clientY,
-                                     aRow,
-                                     aCol || {},
-                                     {});
-          } else if (document.popupNode && document.popupNode.contextCalendar) {
-              // Otherwise, we can try to get the context calendar from the popupNode.
-              return document.popupNode.contextCalendar;
-          }
-          return aRow && aRow.value > -1 && this.mCalendarList[aRow.value];
+            if (event.clientX && event.clientY) {
+                // If we have a client point, get the row directly from the client
+                // point.
+                aRow = aRow || {};
+                this.treebox.getCellAt(event.clientX,
+                                       event.clientY,
+                                       aRow,
+                                       aCol || {},
+                                       {});
+            } else if (document.popupNode && document.popupNode.contextCalendar) {
+                // Otherwise, we can try to get the context calendar from the popupNode.
+                return document.popupNode.contextCalendar;
+            }
+            return aRow && aRow.value > -1 && this.mCalendarList[aRow.value];
         ]]></body>
       </method>
 
@@ -614,8 +614,8 @@
           -->
         <parameter name="aIndex"/>
         <body><![CDATA[
-          let index = Math.max(0, Math.min(this.mCalendarList.length - 1, aIndex));
-          return this.mCalendarList[index];
+            let index = Math.max(0, Math.min(this.mCalendarList.length - 1, aIndex));
+            return this.mCalendarList[index];
         ]]></body>
       </method>
 
@@ -628,99 +628,99 @@
         <parameter name="aRow"/>
         <parameter name="aCol"/>
         <body><![CDATA[
-          try {
-              let rowProps = this.getRowProperties(aRow);
-              let colProps = this.getColumnProperties(aCol);
-              return rowProps + (rowProps && colProps ? " " : "") + colProps;
-          } catch (e) {
-              // It seems errors in these functions are not shown, do this
-              // explicitly.
-              cal.ERROR("Error getting cell props: " + e);
-              return "";
-          }
+            try {
+                let rowProps = this.getRowProperties(aRow);
+                let colProps = this.getColumnProperties(aCol);
+                return rowProps + (rowProps && colProps ? " " : "") + colProps;
+            } catch (e) {
+                // It seems errors in these functions are not shown, do this
+                // explicitly.
+                cal.ERROR("Error getting cell props: " + e);
+                return "";
+            }
         ]]></body>
       </method>
 
       <method name="getRowProperties">
         <parameter name="aRow"/>
         <body><![CDATA[
-          let properties = [];
-          let calendar = this.getCalendar(aRow);
-          let composite = this.compositeCalendar;
+            let properties = [];
+            let calendar = this.getCalendar(aRow);
+            let composite = this.compositeCalendar;
 
-          // Set up the composite calendar status
-          properties.push(composite.getCalendarById(calendar.id) ? "checked" : "unchecked");
+            // Set up the composite calendar status
+            properties.push(composite.getCalendarById(calendar.id) ? "checked" : "unchecked");
 
-          // Set up the calendar id
-          properties.push("id-" + calendar.id);
+            // Set up the calendar id
+            properties.push("id-" + calendar.id);
 
-          // Get the calendar color
-          let color = (calendar.getProperty("color") || "").substr(1);
+            // Get the calendar color
+            let color = (calendar.getProperty("color") || "").substr(1);
 
-          // Set up the calendar color (background)
-          properties.push("color-" + (color || "default"));
+            // Set up the calendar color (background)
+            properties.push("color-" + (color || "default"));
 
-          // Set a property to get the contrasting text color (foreground)
-          properties.push(cal.getContrastingTextColor(color || "a8c2e1"));
+            // Set a property to get the contrasting text color (foreground)
+            properties.push(cal.getContrastingTextColor(color || "a8c2e1"));
 
-          let currentStatus = calendar.getProperty("currentStatus");
-          if (!Components.isSuccessCode(currentStatus)) {
-              // 'readfailed' is supposed to "win" over 'readonly', meaning that
-              // if reading from a calendar fails there is no further need to also display
-              // information about 'readonly' status
-              properties.push("readfailed");
-          } else if (calendar.readOnly) {
-              properties.push("readonly");
-          }
+            let currentStatus = calendar.getProperty("currentStatus");
+            if (!Components.isSuccessCode(currentStatus)) {
+                // 'readfailed' is supposed to "win" over 'readonly', meaning that
+                // if reading from a calendar fails there is no further need to also display
+                // information about 'readonly' status
+                properties.push("readfailed");
+            } else if (calendar.readOnly) {
+                properties.push("readonly");
+            }
 
-          // Set up the disabled state
-          properties.push(!this.ignoreDisabledState && calendar.getProperty("disabled") ?
-                          "disabled" : "enabled");
+            // Set up the disabled state
+            properties.push(!this.ignoreDisabledState && calendar.getProperty("disabled") ?
+                            "disabled" : "enabled");
 
-          return properties.join(" ");
+            return properties.join(" ");
         ]]></body>
       </method>
 
       <method name="getColumnProperties">
         <parameter name="aCol"/>
         <body><![CDATA[
-          // Workaround for anonymous treecols
-          return aCol.element.getAttribute("anonid");
+            // Workaround for anonymous treecols
+            return aCol.element.getAttribute("anonid");
         ]]></body>
       </method>
 
       <method name="isContainer">
         <parameter name="aRow"/>
         <body><![CDATA[
-          return false;
+            return false;
         ]]></body>
       </method>
 
       <method name="isContainerOpen">
         <parameter name="aRow"/>
         <body><![CDATA[
-          return false;
+            return false;
         ]]></body>
       </method>
 
       <method name="isContainerEmpty">
         <parameter name="aRow"/>
         <body><![CDATA[
-          return false;
+            return false;
         ]]></body>
       </method>
 
       <method name="isSeparator">
         <parameter name="aRow"/>
         <body><![CDATA[
-          return false;
+            return false;
         ]]></body>
       </method>
 
       <method name="isSorted">
         <parameter name="aRow"/>
         <body><![CDATA[
-          return false;
+            return false;
         ]]></body>
       </method>
 
@@ -733,13 +733,13 @@
           -->
         <parameter name="event"/>
         <body><![CDATA[
-          let calendar = this.getCalendarFromEvent(event);
-          if (this.allowDrag && event.dataTransfer) {
-              // Setting data starts a drag session, do this only if dragging
-              // is enabled for this binding.
-              event.dataTransfer.setData("application/x-moz-calendarID", calendar.id);
-              event.dataTransfer.effectAllowed = "move";
-          }
+            let calendar = this.getCalendarFromEvent(event);
+            if (this.allowDrag && event.dataTransfer) {
+                // Setting data starts a drag session, do this only if dragging
+                // is enabled for this binding.
+                event.dataTransfer.setData("application/x-moz-calendarID", calendar.id);
+                event.dataTransfer.effectAllowed = "move";
+            }
         ]]></body>
       </method>
 
@@ -747,18 +747,18 @@
         <parameter name="aRow"/>
         <parameter name="aOrientation"/>
         <body><![CDATA[
-          let dragSession = cal.getDragService().getCurrentSession();
-          let dataTransfer = dragSession && dragSession.dataTransfer;
-          if (!this.allowDrag || !dataTransfer) {
-              // If dragging is not allowed or there is no data transfer then
-              // we can't drop (i.e dropping a file on the calendar list).
-              return false;
-          }
+            let dragSession = cal.getDragService().getCurrentSession();
+            let dataTransfer = dragSession && dragSession.dataTransfer;
+            if (!this.allowDrag || !dataTransfer) {
+                // If dragging is not allowed or there is no data transfer then
+                // we can't drop (i.e dropping a file on the calendar list).
+                return false;
+            }
 
-          let dragCalId = dataTransfer.getData("application/x-moz-calendarID");
+            let dragCalId = dataTransfer.getData("application/x-moz-calendarID");
 
-          return (aOrientation != Components.interfaces.nsITreeView.DROP_ON &&
-                  dragCalId != null);
+            return (aOrientation != Components.interfaces.nsITreeView.DROP_ON &&
+                    dragCalId != null);
         ]]></body>
       </method>
 
@@ -766,48 +766,48 @@
         <parameter name="aRow"/>
         <parameter name="aOrientation"/>
         <body><![CDATA[
-          let dragSession = cal.getDragService().getCurrentSession();
-          let dataTransfer = dragSession.dataTransfer;
-          let dragCalId = dataTransfer &&
-                          dataTransfer.getData("application/x-moz-calendarID");
-          if (!this.allowDrag || !dataTransfer || !dragCalId) {
-              return false;
-          }
+            let dragSession = cal.getDragService().getCurrentSession();
+            let dataTransfer = dragSession.dataTransfer;
+            let dragCalId = dataTransfer &&
+                            dataTransfer.getData("application/x-moz-calendarID");
+            if (!this.allowDrag || !dataTransfer || !dragCalId) {
+                return false;
+            }
 
-          let oldIndex = -1;
-          for (let i = 0; i < this.mCalendarList.length; i++) {
-              if (this.mCalendarList[i].id == dragCalId) {
-                  oldIndex = i;
-                  break;
-              }
-          }
-          if (oldIndex < 0) {
-              return false;
-          }
+            let oldIndex = -1;
+            for (let i = 0; i < this.mCalendarList.length; i++) {
+                if (this.mCalendarList[i].id == dragCalId) {
+                    oldIndex = i;
+                    break;
+                }
+            }
+            if (oldIndex < 0) {
+                return false;
+            }
 
-          // If no row is specified (-1), then assume append.
-          let row = (aRow < 0 ? this.mCalendarList.length - 1 : aRow);
-          let targetIndex = row + Math.max(0, aOrientation);
+            // If no row is specified (-1), then assume append.
+            let row = (aRow < 0 ? this.mCalendarList.length - 1 : aRow);
+            let targetIndex = row + Math.max(0, aOrientation);
 
-          // We don't need to move if the target row has the same index as the old
-          // row. The same goes for dropping after the row before the old row or
-          // before the row after the old row. Think about it :-)
-          if (aRow != oldIndex && row + aOrientation != oldIndex) {
-              // Add the new one, remove the old one.
-              this.mCalendarList.splice(targetIndex, 0, this.mCalendarList[oldIndex]);
-              this.mCalendarList.splice(oldIndex + (oldIndex > targetIndex ? 1 : 0), 1);
+            // We don't need to move if the target row has the same index as the old
+            // row. The same goes for dropping after the row before the old row or
+            // before the row after the old row. Think about it :-)
+            if (aRow != oldIndex && row + aOrientation != oldIndex) {
+                // Add the new one, remove the old one.
+                this.mCalendarList.splice(targetIndex, 0, this.mCalendarList[oldIndex]);
+                this.mCalendarList.splice(oldIndex + (oldIndex > targetIndex ? 1 : 0), 1);
 
-              // Invalidate the tree rows between the old item and the new one.
-              if (oldIndex < targetIndex) {
-                  this.treebox.invalidateRange(oldIndex, targetIndex);
-              } else {
-                  this.treebox.invalidateRange(targetIndex, oldIndex);
-              }
+                // Invalidate the tree rows between the old item and the new one.
+                if (oldIndex < targetIndex) {
+                    this.treebox.invalidateRange(oldIndex, targetIndex);
+                } else {
+                    this.treebox.invalidateRange(targetIndex, oldIndex);
+                }
 
-              // Fire event
-              this.sortOrderChanged();
-          }
-          return true;
+                // Fire event
+                this.sortOrderChanged();
+            }
+            return true;
         ]]></body>
       </method>
 
@@ -826,16 +826,16 @@
           -->
         <parameter name="event"/>
         <body><![CDATA[
-          let hasDropped;
-          if (event.clientY < this.tree.boxObject.y) {
-              hasDropped = this.drop(this.treebox.getFirstVisibleRow(), -1);
-          } else {
-              hasDropped = this.drop(this.treebox.getLastVisibleRow(), 1);
-          }
-          if (hasDropped) {
-              event.preventDefault();
-          }
-          return hasDropped;
+            let hasDropped;
+            if (event.clientY < this.tree.boxObject.y) {
+                hasDropped = this.drop(this.treebox.getFirstVisibleRow(), -1);
+            } else {
+                hasDropped = this.drop(this.treebox.getLastVisibleRow(), 1);
+            }
+            if (hasDropped) {
+                event.preventDefault();
+            }
+            return hasDropped;
         ]]></body>
       </method>
 
@@ -846,20 +846,20 @@
           -->
         <parameter name="event"/>
         <body><![CDATA[
-          // The dragenter/dragover events expect false to be returned when
-          // dropping is allowed, therefore we return !canDrop.
-          if (event.clientY < this.tree.boxObject.y) {
-              return !this.canDrop(this.treebox.getFirstVisibleRow(), -1);
-          } else {
-              return !this.canDrop(this.treebox.getLastVisibleRow(), 1);
-          }
+            // The dragenter/dragover events expect false to be returned when
+            // dropping is allowed, therefore we return !canDrop.
+            if (event.clientY < this.tree.boxObject.y) {
+                return !this.canDrop(this.treebox.getFirstVisibleRow(), -1);
+            } else {
+                return !this.canDrop(this.treebox.getLastVisibleRow(), 1);
+            }
         ]]></body>
       </method>
 
       <method name="getParentIndex">
         <parameter name="aRow"/>
         <body><![CDATA[
-          return -1;
+            return -1;
         ]]></body>
       </method>
 
@@ -873,7 +873,7 @@
       <method name="getLevel">
         <parameter name="aRow"/>
         <body><![CDATA[
-          return 0;
+            return 0;
         ]]></body>
       </method>
 
@@ -894,17 +894,17 @@
         <parameter name="aRow"/>
         <parameter name="aCol"/>
         <body><![CDATA[
-          let calendar = this.getCalendar(aRow);
-          let composite = this.compositeCalendar;
+            let calendar = this.getCalendar(aRow);
+            let composite = this.compositeCalendar;
 
-          switch (aCol.element.getAttribute("anonid")) {
-              case "checkbox-treecol":
-                  return composite.getCalendarById(calendar.id) ? "true" : "false";
-              case "status-treecol":
-                  // The value of this cell shows the calendar readonly state
-                  return (calendar.readOnly ? "true" : "false");
-          }
-          return null;
+            switch (aCol.element.getAttribute("anonid")) {
+                case "checkbox-treecol":
+                    return composite.getCalendarById(calendar.id) ? "true" : "false";
+                case "status-treecol":
+                    // The value of this cell shows the calendar readonly state
+                    return (calendar.readOnly ? "true" : "false");
+            }
+            return null;
         ]]></body>
       </method>
 
@@ -912,18 +912,18 @@
         <parameter name="aRow"/>
         <parameter name="aCol"/>
         <body><![CDATA[
-          switch (aCol.element.getAttribute("anonid")) {
-              case "calendarname-treecol":
-                  return this.getCalendar(aRow).name;
-          }
-          return "";
+            switch (aCol.element.getAttribute("anonid")) {
+                case "calendarname-treecol":
+                    return this.getCalendar(aRow).name;
+            }
+            return "";
         ]]></body>
       </method>
 
       <method name="setTree">
         <parameter name="aTreeBox"/>
         <body><![CDATA[
-          this.treebox = aTreeBox;
+            this.treebox = aTreeBox;
         ]]></body>
       </method>
 
@@ -943,37 +943,37 @@
         <parameter name="aRow"/>
         <parameter name="aCol"/>
         <body><![CDATA[
-          let calendar = this.getCalendar(aRow);
-          if (this.mCycleCalendarFlag[calendar.id]) {
-              delete this.mCycleCalendarFlag[calendar.id];
-          } else {
-              this.mCycleCalendarFlag[calendar.id] = calendar;
-          }
+            let calendar = this.getCalendar(aRow);
+            if (this.mCycleCalendarFlag[calendar.id]) {
+                delete this.mCycleCalendarFlag[calendar.id];
+            } else {
+                this.mCycleCalendarFlag[calendar.id] = calendar;
+            }
 
-          if (this.mCycleTimer) {
-              clearTimeout(this.mCycleTimer);
-          }
-          this.treebox.invalidateRow(aRow);
-          this.mCycleTimer = setTimeout(this.cycleCellCommit.bind(this), 200);
+            if (this.mCycleTimer) {
+                clearTimeout(this.mCycleTimer);
+            }
+            this.treebox.invalidateRow(aRow);
+            this.mCycleTimer = setTimeout(this.cycleCellCommit.bind(this), 200);
         ]]></body>
       </method>
 
       <method name="cycleCellCommit">
         <body><![CDATA[
-          let composite = this.compositeCalendar;
-          try {
-              composite.startBatch();
-              for (let id in this.mCycleCalendarFlag) {
-                  if (composite.getCalendarById(id)) {
-                      composite.removeCalendar(this.mCycleCalendarFlag[id]);
-                  } else {
-                      composite.addCalendar(this.mCycleCalendarFlag[id]);
-                  }
-                  delete this.mCycleCalendarFlag[id];
-              }
-          } finally {
-              composite.endBatch();
-          }
+            let composite = this.compositeCalendar;
+            try {
+                composite.startBatch();
+                for (let id in this.mCycleCalendarFlag) {
+                    if (composite.getCalendarById(id)) {
+                        composite.removeCalendar(this.mCycleCalendarFlag[id]);
+                    } else {
+                        composite.addCalendar(this.mCycleCalendarFlag[id]);
+                    }
+                    delete this.mCycleCalendarFlag[id];
+                }
+            } finally {
+                composite.endBatch();
+            }
         ]]></body>
       </method>
 
@@ -981,7 +981,7 @@
         <parameter name="aRow"/>
         <parameter name="aCol"/>
         <body><![CDATA[
-          return false;
+            return false;
         ]]></body>
       </method>
 
@@ -990,21 +990,21 @@
         <parameter name="aCol"/>
         <parameter name="aValue"/>
         <body><![CDATA[
-          let calendar = this.getCalendar(aRow);
-          let composite = this.compositeCalendar;
+            let calendar = this.getCalendar(aRow);
+            let composite = this.compositeCalendar;
 
-          switch (aCol.element.getAttribute("anonid")) {
-              case "checkbox-treecol":
-                  if (aValue == "true") {
-                      composite.addCalendar(calendar);
-                  } else {
-                      composite.removeCalendar(calendar);
-                  }
-                  break;
-              default:
-                  return null;
-          }
-          return aValue;
+            switch (aCol.element.getAttribute("anonid")) {
+                case "checkbox-treecol":
+                    if (aValue == "true") {
+                        composite.addCalendar(calendar);
+                    } else {
+                        composite.removeCalendar(calendar);
+                    }
+                    break;
+                default:
+                    return null;
+            }
+            return aValue;
         ]]></body>
       </method>
 
@@ -1039,73 +1039,73 @@
     </implementation>
     <handlers>
       <handler event="select"><![CDATA[
-        this.compositeCalendar.defaultCalendar = this.getCalendar(this.tree.currentIndex);
+          this.compositeCalendar.defaultCalendar = this.getCalendar(this.tree.currentIndex);
       ]]></handler>
 
       <handler event="keypress" keycode="VK_DELETE"><![CDATA[
-        if (this.writable) {
-            promptDeleteCalendar(this.compositeCalendar.defaultCalendar);
-            event.preventDefault();
-        }
+          if (this.writable) {
+              promptDeleteCalendar(this.compositeCalendar.defaultCalendar);
+              event.preventDefault();
+          }
       ]]></handler>
 
       <!-- use key=" " since keycode="VK_SPACE" doesn't work -->
       <handler event="keypress" key=" "><![CDATA[
-        if (this.tree.currentIndex > -1) {
-            this.cycleCell(this.tree.currentIndex, this.getColumn("checkbox-treecol"));
-            event.preventDefault();
-        }
+          if (this.tree.currentIndex > -1) {
+              this.cycleCell(this.tree.currentIndex, this.getColumn("checkbox-treecol"));
+              event.preventDefault();
+          }
       ]]></handler>
 
       <handler event="keypress" keycode="VK_DOWN" modifiers="control"><![CDATA[
-        if (!this.allowDrag) {
-            return;
-        }
+          if (!this.allowDrag) {
+              return;
+          }
 
-        let idx = this.tree.currentIndex;
+          let idx = this.tree.currentIndex;
 
-        if (idx < this.mCalendarList.length - 1) {
-            this.mCalendarList.splice(idx + 1, 0, this.mCalendarList.splice(idx, 1)[0]);
-            this.treebox.invalidateRange(idx, idx + 1);
+          if (idx < this.mCalendarList.length - 1) {
+              this.mCalendarList.splice(idx + 1, 0, this.mCalendarList.splice(idx, 1)[0]);
+              this.treebox.invalidateRange(idx, idx + 1);
 
-            if (this.tree.view.selection.isSelected(idx)) {
-                this.tree.view.selection.toggleSelect(idx);
-                this.tree.view.selection.toggleSelect(idx + 1);
-            }
-            if (this.tree.view.selection.currentIndex == idx) {
-                this.tree.view.selection.currentIndex = idx + 1;
-            }
+              if (this.tree.view.selection.isSelected(idx)) {
+                  this.tree.view.selection.toggleSelect(idx);
+                  this.tree.view.selection.toggleSelect(idx + 1);
+              }
+              if (this.tree.view.selection.currentIndex == idx) {
+                  this.tree.view.selection.currentIndex = idx + 1;
+              }
 
-            // Fire event
-            this.sortOrderChanged();
-        }
-        // Don't call the default <key> handler.
-        event.preventDefault();
+              // Fire event
+              this.sortOrderChanged();
+          }
+          // Don't call the default <key> handler.
+          event.preventDefault();
       ]]></handler>
 
       <handler event="keypress" keycode="VK_UP" modifiers="control"><![CDATA[
-        if (!this.allowDrag) {
-            return;
-        }
+          if (!this.allowDrag) {
+              return;
+          }
 
-        let idx = this.tree.currentIndex;
-        if (idx > 0) {
-            this.mCalendarList.splice(idx - 1, 0, this.mCalendarList.splice(idx, 1)[0]);
-            this.treebox.invalidateRange(idx - 1, idx);
+          let idx = this.tree.currentIndex;
+          if (idx > 0) {
+              this.mCalendarList.splice(idx - 1, 0, this.mCalendarList.splice(idx, 1)[0]);
+              this.treebox.invalidateRange(idx - 1, idx);
 
-            if (this.tree.view.selection.isSelected(idx)) {
-                this.tree.view.selection.toggleSelect(idx);
-                this.tree.view.selection.toggleSelect(idx - 1);
-            }
-            if (this.tree.view.selection.currentIndex == idx) {
-                this.tree.view.selection.currentIndex = idx - 1;
-            }
+              if (this.tree.view.selection.isSelected(idx)) {
+                  this.tree.view.selection.toggleSelect(idx);
+                  this.tree.view.selection.toggleSelect(idx - 1);
+              }
+              if (this.tree.view.selection.currentIndex == idx) {
+                  this.tree.view.selection.currentIndex = idx - 1;
+              }
 
-            // Fire event
-            this.sortOrderChanged();
-        }
-        // Don't call the default <key> handler.
-        event.preventDefault();
+              // Fire event
+              this.sortOrderChanged();
+          }
+          // Don't call the default <key> handler.
+          event.preventDefault();
       ]]></handler>
     </handlers>
   </binding>

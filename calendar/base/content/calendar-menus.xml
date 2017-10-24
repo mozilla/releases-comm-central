@@ -17,15 +17,15 @@
       <field name="mParentMenuPopup">null</field>
 
       <constructor><![CDATA[
-        Components.utils.import("resource://calendar/modules/calUtils.jsm");
+          Components.utils.import("resource://calendar/modules/calUtils.jsm");
 
-        this.mPopupHandler = () => { this.changeMenuByPropertyName(); };
-        this.mParentMenuPopup = cal.getParentNodeOrThis(this, "menupopup");
-        this.mParentMenuPopup.addEventListener("popupshowing", this.mPopupHandler, true);
+          this.mPopupHandler = () => { this.changeMenuByPropertyName(); };
+          this.mParentMenuPopup = cal.getParentNodeOrThis(this, "menupopup");
+          this.mParentMenuPopup.addEventListener("popupshowing", this.mPopupHandler, true);
       ]]></constructor>
 
       <destructor><![CDATA[
-        this.mParentMenuPopup.removeEventListener("popupshowing", this.mPopupHandler, true);
+          this.mParentMenuPopup.removeEventListener("popupshowing", this.mPopupHandler, true);
       ]]></destructor>
 
       <!-- This method checks a command which naming follows
@@ -34,38 +34,38 @@
            as long as the selected tasks share common propertyValues. -->
       <method name="changeMenuByPropertyName">
         <body><![CDATA[
-          let liveList = document.getAnonymousNodes(this);
-          for (let item of liveList) {
-              let commandName = item.getAttribute("command");
-              let command = document.getElementById(commandName);
-              if (command) {
-                  command.setAttribute("checked", "false");
-                  item.setAttribute("checked", "false");
-              }
-          }
-          let propertyValue;
-          if (gTabmail && gTabmail.currentTabInfo.mode.type == "calendarTask") {
-              // We are in a task tab (editing a single task).
-              propertyValue = gConfig[this.mType];
-          } else {
-              // We are in the Tasks tab.
-              let tasks = getSelectedTasks();
-              let tasksSelected = (tasks != null) && (tasks.length > 0);
-              if (tasksSelected) {
-                  let task = tasks[0];
-                  if (cal.isPropertyValueSame(tasks, this.mType)) {
-                      propertyValue = task[this.mType];
-                  }
-              } else {
-                  cal.applyAttributeToMenuChildren(this, "disabled", !tasksSelected);
-              }
-          }
-          if (propertyValue || propertyValue == 0) {
-              let command = document.getElementById("calendar_" + this.mType + "-" + propertyValue + "_command");
-              if (command) {
-                  command.setAttribute("checked", "true");
-              }
-          }
+            let liveList = document.getAnonymousNodes(this);
+            for (let item of liveList) {
+                let commandName = item.getAttribute("command");
+                let command = document.getElementById(commandName);
+                if (command) {
+                    command.setAttribute("checked", "false");
+                    item.setAttribute("checked", "false");
+                }
+            }
+            let propertyValue;
+            if (gTabmail && gTabmail.currentTabInfo.mode.type == "calendarTask") {
+                // We are in a task tab (editing a single task).
+                propertyValue = gConfig[this.mType];
+            } else {
+                // We are in the Tasks tab.
+                let tasks = getSelectedTasks();
+                let tasksSelected = (tasks != null) && (tasks.length > 0);
+                if (tasksSelected) {
+                    let task = tasks[0];
+                    if (cal.isPropertyValueSame(tasks, this.mType)) {
+                        propertyValue = task[this.mType];
+                    }
+                } else {
+                    cal.applyAttributeToMenuChildren(this, "disabled", !tasksSelected);
+                }
+            }
+            if (propertyValue || propertyValue == 0) {
+                let command = document.getElementById("calendar_" + this.mType + "-" + propertyValue + "_command");
+                if (command) {
+                    command.setAttribute("checked", "true");
+                }
+            }
         ]]></body>
       </method>
     </implementation>
@@ -107,8 +107,8 @@
     </content>
     <implementation>
       <constructor><![CDATA[
-        this.mType = "percentComplete";
-        this.changeMenuByPropertyName();
+          this.mType = "percentComplete";
+          this.changeMenuByPropertyName();
       ]]></constructor>
     </implementation>
    </binding>
@@ -143,8 +143,8 @@
     </content>
     <implementation>
       <constructor><![CDATA[
-        this.mType = "priority";
-        this.changeMenuByPropertyName();
+          this.mType = "priority";
+          this.changeMenuByPropertyName();
       ]]></constructor>
     </implementation>
    </binding>

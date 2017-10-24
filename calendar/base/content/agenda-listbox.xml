@@ -14,25 +14,25 @@
       <field name="mOccurrence">null</field>;
       <property name="occurrence" readonly="true">
         <getter><![CDATA[
-          return this.mOccurrence;
+            return this.mOccurrence;
         ]]></getter>
       </property>
     </implementation>
 
     <handlers>
       <handler event="click" phase="capturing"><![CDATA[
-        if (event.detail == 1) {
-            agendaListbox.onSelect(this);
-        } else if (event.button == 0) {
-            // We only care about button 0 doubleclick events
-            document.getElementById("agenda_edit_event_command").doCommand();
-            event.stopPropagation();
-            event.preventDefault();
-        }
+          if (event.detail == 1) {
+              agendaListbox.onSelect(this);
+          } else if (event.button == 0) {
+              // We only care about button 0 doubleclick events
+              document.getElementById("agenda_edit_event_command").doCommand();
+              event.stopPropagation();
+              event.preventDefault();
+          }
       ]]></handler>
       <handler event="mouseover"><![CDATA[
-         event.stopPropagation();
-         onMouseOverItem(event);
+          event.stopPropagation();
+          onMouseOverItem(event);
       ]]></handler>
     </handlers>
   </binding>
@@ -47,13 +47,13 @@
     <implementation>
       <field name="kCheckbox">null</field>;
       <constructor><![CDATA[
-        Components.utils.import("resource://calendar/modules/calUtils.jsm");
-        this.kCheckbox = document.getAnonymousElementByAttribute(this, "anonid", "agenda-checkbox-widget");
+          Components.utils.import("resource://calendar/modules/calUtils.jsm");
+          this.kCheckbox = document.getAnonymousElementByAttribute(this, "anonid", "agenda-checkbox-widget");
       ]]></constructor>
 
       <method name="getItem">
         <body><![CDATA[
-          return this.mItem;
+            return this.mItem;
         ]]></body>
       </method>
 
@@ -61,28 +61,28 @@
         <parameter name="synthetic"/>
         <parameter name="showsToday"/>
         <body><![CDATA[
-          this.mItem = synthetic;
-          let duration = synthetic.duration;
-          if (showsToday) {
-              this.kCheckbox.label = this.getAttribute("title");
-              if (this.id == "nextweek-header") {
-                  if (duration > 7) {
-                      this.kCheckbox.label += " (" + unitPluralForm(duration / 7, "weeks") + ")";
-                  } else {
-                      this.kCheckbox.label += " (" + unitPluralForm(duration, "days") + ")";
-                  }
-              }
-          } else if (synthetic.duration == 1) {
-              this.kCheckbox.label = cal.getDateFormatter().formatDate(synthetic.start);
-          } else {
-              this.kCheckbox.label = cal.getDateFormatter().formatInterval(synthetic.start, synthetic.end);
-          }
+            this.mItem = synthetic;
+            let duration = synthetic.duration;
+            if (showsToday) {
+                this.kCheckbox.label = this.getAttribute("title");
+                if (this.id == "nextweek-header") {
+                    if (duration > 7) {
+                        this.kCheckbox.label += " (" + unitPluralForm(duration / 7, "weeks") + ")";
+                    } else {
+                        this.kCheckbox.label += " (" + unitPluralForm(duration, "days") + ")";
+                    }
+                }
+            } else if (synthetic.duration == 1) {
+                this.kCheckbox.label = cal.getDateFormatter().formatDate(synthetic.start);
+            } else {
+                this.kCheckbox.label = cal.getDateFormatter().formatInterval(synthetic.start, synthetic.end);
+            }
         ]]></body>
       </method>
 
       <method name="getCheckbox">
         <body><![CDATA[
-          return this.kCheckbox;
+            return this.kCheckbox;
         ]]></body>
       </method>
     </implementation>
@@ -111,68 +111,68 @@
       <field name="mAllDayItem">null</field>;
 
       <constructor><![CDATA[
-        Components.utils.import("resource://calendar/modules/calUtils.jsm");
-        this.mAllDayItem = document.getAnonymousElementByAttribute(this, "anonid", "allday-item");
+          Components.utils.import("resource://calendar/modules/calUtils.jsm");
+          this.mAllDayItem = document.getAnonymousElementByAttribute(this, "anonid", "allday-item");
       ]]></constructor>
 
       <method name="setOccurrence">
         <parameter name="aOccurrence"/>
         <parameter name="aPeriod"/>
         <body><![CDATA[
-          this.mOccurrence = aOccurrence;
-          this.mAllDayItem.occurrence = aOccurrence;
-          let dateFormatter = cal.getDateFormatter();
-          let periodStartDate = aPeriod.start.clone();
-          periodStartDate.isDate = true;
-          let periodEndDate = aPeriod.end;
-          let startDate = this.mOccurrence[cal.calGetStartDateProp(this.mOccurrence)]
+            this.mOccurrence = aOccurrence;
+            this.mAllDayItem.occurrence = aOccurrence;
+            let dateFormatter = cal.getDateFormatter();
+            let periodStartDate = aPeriod.start.clone();
+            periodStartDate.isDate = true;
+            let periodEndDate = aPeriod.end;
+            let startDate = this.mOccurrence[cal.calGetStartDateProp(this.mOccurrence)]
+                                .getInTimezone(cal.calendarDefaultTimezone());
+            let endDate = this.mOccurrence[cal.calGetEndDateProp(this.mOccurrence)]
                               .getInTimezone(cal.calendarDefaultTimezone());
-          let endDate = this.mOccurrence[cal.calGetEndDateProp(this.mOccurrence)]
-                            .getInTimezone(cal.calendarDefaultTimezone());
-          let endPreviousDay = endDate.clone();
-          endPreviousDay.day--;
-          // Show items's date for long periods but also for "Upcoming"
-          // period with one day duration.
-          let showDate = aPeriod.multiday || aPeriod.duration > 1;
+            let endPreviousDay = endDate.clone();
+            endPreviousDay.day--;
+            // Show items's date for long periods but also for "Upcoming"
+            // period with one day duration.
+            let showDate = aPeriod.multiday || aPeriod.duration > 1;
 
-          let date = "";
-          let iconType = "";
-          let allDayDateLabel = document.getAnonymousElementByAttribute(this, "anonid", "agenda-allDayEvent-date");
-          setBooleanAttribute(allDayDateLabel, "hidden", !showDate);
-          if (startDate.compare(endPreviousDay) == 0) {
-              // All day event one day duration.
-              date = dateFormatter.formatDate(startDate);
-          } else if (startDate.compare(periodStartDate) >= 0 &&
-               startDate.compare(periodEndDate) <= 0) {
-              // All day event spanning multiple days.
-              iconType = "start";
-              date = dateFormatter.formatDate(startDate);
-          } else if (endDate.compare(periodStartDate) >= 0 &&
-                     endDate.compare(periodEndDate) <= 0) {
-              iconType = "end";
-              date = dateFormatter.formatDate(endPreviousDay);
-          } else {
-              iconType = "continue";
-              hideElement(allDayDateLabel);
-          }
+            let date = "";
+            let iconType = "";
+            let allDayDateLabel = document.getAnonymousElementByAttribute(this, "anonid", "agenda-allDayEvent-date");
+            setBooleanAttribute(allDayDateLabel, "hidden", !showDate);
+            if (startDate.compare(endPreviousDay) == 0) {
+                // All day event one day duration.
+                date = dateFormatter.formatDate(startDate);
+            } else if (startDate.compare(periodStartDate) >= 0 &&
+                 startDate.compare(periodEndDate) <= 0) {
+                // All day event spanning multiple days.
+                iconType = "start";
+                date = dateFormatter.formatDate(startDate);
+            } else if (endDate.compare(periodStartDate) >= 0 &&
+                       endDate.compare(periodEndDate) <= 0) {
+                iconType = "end";
+                date = dateFormatter.formatDate(endPreviousDay);
+            } else {
+                iconType = "continue";
+                hideElement(allDayDateLabel);
+            }
 
-          let multiDayImage = document.getAnonymousElementByAttribute(this, "anonid", "agenda-multiDayEvent-image");
-          multiDayImage.setAttribute("type", iconType);
-          // class wrap causes allday items to wrap its text in today-pane
-          let addWrap = document.getAnonymousElementByAttribute(this.mAllDayItem, "anonid", "eventbox");
-          addWrap.classList.add("wrap");
-          addWrap = document.getAnonymousElementByAttribute(this.mAllDayItem, "anonid", "event-detail-box");
-          addWrap.classList.add("wrap");
-          allDayDateLabel.value = date;
+            let multiDayImage = document.getAnonymousElementByAttribute(this, "anonid", "agenda-multiDayEvent-image");
+            multiDayImage.setAttribute("type", iconType);
+            // class wrap causes allday items to wrap its text in today-pane
+            let addWrap = document.getAnonymousElementByAttribute(this.mAllDayItem, "anonid", "eventbox");
+            addWrap.classList.add("wrap");
+            addWrap = document.getAnonymousElementByAttribute(this.mAllDayItem, "anonid", "event-detail-box");
+            addWrap.classList.add("wrap");
+            allDayDateLabel.value = date;
         ]]></body>
       </method>
     </implementation>
 
     <handlers>
       <handler event="dragstart" phase="capturing"><![CDATA[
-        invokeEventDragSession(this.mAllDayItem.occurrence.clone(), this);
-        event.stopPropagation();
-        event.preventDefault();
+          invokeEventDragSession(this.mAllDayItem.occurrence.clone(), this);
+          event.stopPropagation();
+          event.preventDefault();
       ]]></handler>
     </handlers>
   </binding>
@@ -202,89 +202,89 @@
         <parameter name="aItem"/>
         <parameter name="aPeriod"/>
         <body><![CDATA[
-          this.mOccurrence = aItem;
-          this.setAttribute("status", aItem.status);
-          let dateFormatter = Components.classes["@mozilla.org/calendar/datetime-formatter;1"]
-                                        .getService(Components.interfaces.calIDateTimeFormatter);
+            this.mOccurrence = aItem;
+            this.setAttribute("status", aItem.status);
+            let dateFormatter = Components.classes["@mozilla.org/calendar/datetime-formatter;1"]
+                                          .getService(Components.interfaces.calIDateTimeFormatter);
 
-          let periodStartDate = aPeriod.start.clone();
-          periodStartDate.isDate = true;
-          let periodEndDate = aPeriod.end.clone();
-          periodEndDate.day--;
-          let start = this.mOccurrence[cal.calGetStartDateProp(this.mOccurrence)]
+            let periodStartDate = aPeriod.start.clone();
+            periodStartDate.isDate = true;
+            let periodEndDate = aPeriod.end.clone();
+            periodEndDate.day--;
+            let start = this.mOccurrence[cal.calGetStartDateProp(this.mOccurrence)]
+                            .getInTimezone(cal.calendarDefaultTimezone());
+            let end = this.mOccurrence[cal.calGetEndDateProp(this.mOccurrence)]
                           .getInTimezone(cal.calendarDefaultTimezone());
-          let end = this.mOccurrence[cal.calGetEndDateProp(this.mOccurrence)]
-                        .getInTimezone(cal.calendarDefaultTimezone());
-          let startDate = start.clone();
-          startDate.isDate = true;
-          let endDate = end.clone();
-          endDate.isDate = true;
-          let endAtMidnight = (end.hour == 0 && end.minute == 0);
-          if (endAtMidnight) {
-              endDate.day--;
-          }
-          // Show items's date for long periods but also for "Upcoming"
-          // period with one day duration.
-          let longFormat = aPeriod.multiday || aPeriod.duration > 1;
+            let startDate = start.clone();
+            startDate.isDate = true;
+            let endDate = end.clone();
+            endDate.isDate = true;
+            let endAtMidnight = (end.hour == 0 && end.minute == 0);
+            if (endAtMidnight) {
+                endDate.day--;
+            }
+            // Show items's date for long periods but also for "Upcoming"
+            // period with one day duration.
+            let longFormat = aPeriod.multiday || aPeriod.duration > 1;
 
-          let duration = "";
-          let iconType = "";
-          if (startDate.compare(endDate) == 0) {
-              // event that starts and ends in the same day, midnight included
-              duration = longFormat ? dateFormatter.formatDateTime(start)
-                                    : dateFormatter.formatTime(start);
-          } else if (startDate.compare(periodStartDate) >= 0 &&
-                     startDate.compare(periodEndDate) <= 0) {
-              // event spanning multiple days, start date within period
-              iconType = "start";
-              duration = longFormat ? dateFormatter.formatDateTime(start)
-                                    : dateFormatter.formatTime(start);
-          } else if (endDate.compare(periodStartDate) >= 0 &&
-                     endDate.compare(periodEndDate) <= 0) {
-              // event spanning multiple days, end date within period
-              iconType = "end";
-              if (endAtMidnight) {
-                  duration = dateFormatter.formatDate(endDate) + " ";
-                  duration = longFormat ? duration + cal.calGetString("dateFormat", "midnight")
-                                        : cal.calGetString("dateFormat", "midnight");
-              } else {
-                  duration = longFormat ? dateFormatter.formatDateTime(end)
-                                        : dateFormatter.formatTime(end);
-              }
-          } else {
-              iconType = "continue";
-          }
-          let multiDayImage = document.getAnonymousElementByAttribute(this, "anonid", "agenda-multiDayEvent-image");
-          multiDayImage.setAttribute("type", iconType);
-          let durationbox = document.getAnonymousElementByAttribute(this, "anonid", "agenda-event-start");
-          durationbox.textContent = duration;
+            let duration = "";
+            let iconType = "";
+            if (startDate.compare(endDate) == 0) {
+                // event that starts and ends in the same day, midnight included
+                duration = longFormat ? dateFormatter.formatDateTime(start)
+                                      : dateFormatter.formatTime(start);
+            } else if (startDate.compare(periodStartDate) >= 0 &&
+                       startDate.compare(periodEndDate) <= 0) {
+                // event spanning multiple days, start date within period
+                iconType = "start";
+                duration = longFormat ? dateFormatter.formatDateTime(start)
+                                      : dateFormatter.formatTime(start);
+            } else if (endDate.compare(periodStartDate) >= 0 &&
+                       endDate.compare(periodEndDate) <= 0) {
+                // event spanning multiple days, end date within period
+                iconType = "end";
+                if (endAtMidnight) {
+                    duration = dateFormatter.formatDate(endDate) + " ";
+                    duration = longFormat ? duration + cal.calGetString("dateFormat", "midnight")
+                                          : cal.calGetString("dateFormat", "midnight");
+                } else {
+                    duration = longFormat ? dateFormatter.formatDateTime(end)
+                                          : dateFormatter.formatTime(end);
+                }
+            } else {
+                iconType = "continue";
+            }
+            let multiDayImage = document.getAnonymousElementByAttribute(this, "anonid", "agenda-multiDayEvent-image");
+            multiDayImage.setAttribute("type", iconType);
+            let durationbox = document.getAnonymousElementByAttribute(this, "anonid", "agenda-event-start");
+            durationbox.textContent = duration;
 
-          // show items with time only (today & tomorrow) as one line.
-          if (longFormat) {
-              let titlebox = document.getAnonymousElementByAttribute(this, "anonid", "agenda-event-title");
-              titlebox.textContent = aItem.title;
-          } else {
-              durationbox.textContent += " " + aItem.title;
-          }
-          this.refreshColor();
+            // show items with time only (today & tomorrow) as one line.
+            if (longFormat) {
+                let titlebox = document.getAnonymousElementByAttribute(this, "anonid", "agenda-event-title");
+                titlebox.textContent = aItem.title;
+            } else {
+                durationbox.textContent += " " + aItem.title;
+            }
+            this.refreshColor();
         ]]></body>
       </method>
 
       <method name="refreshColor">
         <body><![CDATA[
-          let calcolor = (this.mOccurrence &&
-                           this.mOccurrence.calendar.getProperty("color")) ||
-                          "#a8c2e1";
+            let calcolor = (this.mOccurrence &&
+                             this.mOccurrence.calendar.getProperty("color")) ||
+                            "#a8c2e1";
 
-          let imagebox = document.getAnonymousElementByAttribute(this, "anonid", "agenda-calendar-image");
-          imagebox.setAttribute("style", "background-color: " + calcolor + ";");
+            let imagebox = document.getAnonymousElementByAttribute(this, "anonid", "agenda-calendar-image");
+            imagebox.setAttribute("style", "background-color: " + calcolor + ";");
         ]]></body>
       </method>
     </implementation>
 
     <handlers>
       <handler event="dragstart"><![CDATA[
-        invokeEventDragSession(this.mOccurrence.clone(), this);
+          invokeEventDragSession(this.mOccurrence.clone(), this);
       ]]></handler>
     </handlers>
   </binding>

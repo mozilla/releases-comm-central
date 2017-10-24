@@ -66,104 +66,104 @@
       <field name="mPopupOpen">false</field>
 
       <constructor><![CDATA[
-        Components.utils.import("resource://calendar/modules/calUtils.jsm");
-        Components.utils.import("resource://gre/modules/Services.jsm");
-        Components.utils.import("resource:///modules/mailServices.js");
+          Components.utils.import("resource://calendar/modules/calUtils.jsm");
+          Components.utils.import("resource://gre/modules/Services.jsm");
+          Components.utils.import("resource:///modules/mailServices.js");
 
-        this.mMaxAttendees = 0;
+          this.mMaxAttendees = 0;
 
-        window.addEventListener("load", this.onLoad.bind(this), true);
+          window.addEventListener("load", this.onLoad.bind(this), true);
       ]]></constructor>
 
       <method name="onLoad">
         <body><![CDATA[
-          this.onInitialize();
+            this.onInitialize();
 
-          // this trigger the continous update chain, which
-          // effectively calls this.onModify() on predefined
-          // time intervals [each second].
-          let self = this;
-          let callback = function() {
-              setTimeout(callback, 1000);
-              self.onModify();
-          };
-          callback();
+            // this trigger the continous update chain, which
+            // effectively calls this.onModify() on predefined
+            // time intervals [each second].
+            let self = this;
+            let callback = function() {
+                setTimeout(callback, 1000);
+                self.onModify();
+            };
+            callback();
         ]]></body>
       </method>
 
       <method name="onInitialize">
         <body><![CDATA[
-          let args = window.arguments[0];
-          let organizer = args.organizer;
-          let attendees = args.attendees;
-          let calendar = args.calendar;
+            let args = window.arguments[0];
+            let organizer = args.organizer;
+            let attendees = args.attendees;
+            let calendar = args.calendar;
 
-          this.mIsReadOnly = calendar.readOnly;
+            this.mIsReadOnly = calendar.readOnly;
 
-          // assume we're the organizer [in case that the calendar
-          // does not support the concept of identities].
-          let organizerID = ((organizer && organizer.id)
-                             ? organizer.id
-                             : calendar.getProperty("organizerId"));
+            // assume we're the organizer [in case that the calendar
+            // does not support the concept of identities].
+            let organizerID = ((organizer && organizer.id)
+                               ? organizer.id
+                               : calendar.getProperty("organizerId"));
 
-          calendar = cal.wrapInstance(calendar, Components.interfaces.calISchedulingSupport);
-          this.mIsInvitation = (calendar && calendar.isInvitation(args.item));
+            calendar = cal.wrapInstance(calendar, Components.interfaces.calISchedulingSupport);
+            this.mIsInvitation = (calendar && calendar.isInvitation(args.item));
 
-          let listbox =
-              document.getAnonymousElementByAttribute(
-                  this, "anonid", "listbox");
-          let template =
-              document.getAnonymousElementByAttribute(
-                  this, "anonid", "item");
-          template.focus();
+            let listbox =
+                document.getAnonymousElementByAttribute(
+                    this, "anonid", "listbox");
+            let template =
+                document.getAnonymousElementByAttribute(
+                    this, "anonid", "item");
+            template.focus();
 
-          if (this.mIsReadOnly || this.mIsInvitation) {
-              listbox.setAttribute("disabled", "true");
-          }
+            if (this.mIsReadOnly || this.mIsInvitation) {
+                listbox.setAttribute("disabled", "true");
+            }
 
-          // TODO: the organizer should show up in the attendee list, but this information
-          // should be based on the organizer contained in the appropriate field of calIItemBase.
-          // This is currently not supported, since we're still missing calendar identities.
-          if (organizerID && organizerID != "") {
-              if (organizer) {
-                  if (!organizer.id) {
-                      organizer.id = organizerID;
-                  }
-                  if (!organizer.role) {
-                      organizer.role = "CHAIR";
-                  }
-                  if (!organizer.participationStatus) {
-                      organizer.participationStatus = "ACCEPTED";
-                  }
-              } else {
-                  organizer = this.createAttendee();
-                  organizer.id = organizerID;
-                  organizer.role = "CHAIR";
-                  organizer.participationStatus = "ACCEPTED";
-              }
-              if (!organizer.commonName || !organizer.commonName.length) {
-                  organizer.commonName = calendar.getProperty("organizerCN");
-              }
-              organizer.isOrganizer = true;
-              this.appendAttendee(organizer, listbox, template, true);
-          }
+            // TODO: the organizer should show up in the attendee list, but this information
+            // should be based on the organizer contained in the appropriate field of calIItemBase.
+            // This is currently not supported, since we're still missing calendar identities.
+            if (organizerID && organizerID != "") {
+                if (organizer) {
+                    if (!organizer.id) {
+                        organizer.id = organizerID;
+                    }
+                    if (!organizer.role) {
+                        organizer.role = "CHAIR";
+                    }
+                    if (!organizer.participationStatus) {
+                        organizer.participationStatus = "ACCEPTED";
+                    }
+                } else {
+                    organizer = this.createAttendee();
+                    organizer.id = organizerID;
+                    organizer.role = "CHAIR";
+                    organizer.participationStatus = "ACCEPTED";
+                }
+                if (!organizer.commonName || !organizer.commonName.length) {
+                    organizer.commonName = calendar.getProperty("organizerCN");
+                }
+                organizer.isOrganizer = true;
+                this.appendAttendee(organizer, listbox, template, true);
+            }
 
-          let numRowsAdded = 0;
-          if (attendees.length > 0) {
-              for (let attendee of attendees) {
-                  this.appendAttendee(attendee, listbox, template, false);
-                  numRowsAdded++;
-              }
-          }
-          if (numRowsAdded == 0) {
-              this.appendAttendee(null, listbox, template, false);
-          }
+            let numRowsAdded = 0;
+            if (attendees.length > 0) {
+                for (let attendee of attendees) {
+                    this.appendAttendee(attendee, listbox, template, false);
+                    numRowsAdded++;
+                }
+            }
+            if (numRowsAdded == 0) {
+                this.appendAttendee(null, listbox, template, false);
+            }
 
-          // detach the template item from the listbox, but hold the reference.
-          // until this function returns we add at least a single copy of this template back again.
-          template.remove();
+            // detach the template item from the listbox, but hold the reference.
+            // until this function returns we add at least a single copy of this template back again.
+            template.remove();
 
-          this.setFocus(this.mMaxAttendees);
+            this.setFocus(this.mMaxAttendees);
         ]]></body>
       </method>
 
@@ -174,104 +174,104 @@
         <parameter name="aTemplateNode"/>
         <parameter name="aDisableIfOrganizer"/>
         <body><![CDATA[
-          // create a new listbox item and append it to our parent control.
-          let newNode = aTemplateNode.cloneNode(true);
+            // create a new listbox item and append it to our parent control.
+            let newNode = aTemplateNode.cloneNode(true);
 
-          let input =
-              document.getAnonymousElementByAttribute(
-                  newNode, "anonid", "input");
-          let roleStatusIcon =
-              document.getAnonymousElementByAttribute(
-                  newNode, "anonid", "rolestatus-icon");
-          let userTypeIcon =
-              document.getAnonymousElementByAttribute(
-                  newNode, "anonid", "usertype-icon");
+            let input =
+                document.getAnonymousElementByAttribute(
+                    newNode, "anonid", "input");
+            let roleStatusIcon =
+                document.getAnonymousElementByAttribute(
+                    newNode, "anonid", "rolestatus-icon");
+            let userTypeIcon =
+                document.getAnonymousElementByAttribute(
+                    newNode, "anonid", "usertype-icon");
 
-          // We always clone the first row. The problem is that the first row
-          // could be focused. When we clone that row, we end up with a cloned
-          // XUL textbox that has a focused attribute set.  Therefore we think
-          // we're focused and don't properly refocus.  The best solution to this
-          // would be to clone a template row that didn't really have any presentation,
-          // rather than using the real visible first row of the listbox.
-          // For now we'll just put in a hack that ensures the focused attribute
-          // is never copied when the node is cloned.
-          if (input.getAttribute("focused") != "") {
-              input.removeAttribute("focused");
-          }
+            // We always clone the first row. The problem is that the first row
+            // could be focused. When we clone that row, we end up with a cloned
+            // XUL textbox that has a focused attribute set.  Therefore we think
+            // we're focused and don't properly refocus.  The best solution to this
+            // would be to clone a template row that didn't really have any presentation,
+            // rather than using the real visible first row of the listbox.
+            // For now we'll just put in a hack that ensures the focused attribute
+            // is never copied when the node is cloned.
+            if (input.getAttribute("focused") != "") {
+                input.removeAttribute("focused");
+            }
 
-          aParentNode.appendChild(newNode);
+            aParentNode.appendChild(newNode);
 
-          // the template could have its fields disabled,
-          // that's why we need to reset their status.
-          input.removeAttribute("disabled");
-          userTypeIcon.removeAttribute("disabled");
-          roleStatusIcon.removeAttribute("disabled");
+            // the template could have its fields disabled,
+            // that's why we need to reset their status.
+            input.removeAttribute("disabled");
+            userTypeIcon.removeAttribute("disabled");
+            roleStatusIcon.removeAttribute("disabled");
 
-          if (this.mIsReadOnly || this.mIsInvitation) {
-              input.setAttribute("disabled", "true");
-              userTypeIcon.setAttribute("disabled", "true");
-              roleStatusIcon.setAttribute("disabled", "true");
-          }
+            if (this.mIsReadOnly || this.mIsInvitation) {
+                input.setAttribute("disabled", "true");
+                userTypeIcon.setAttribute("disabled", "true");
+                roleStatusIcon.setAttribute("disabled", "true");
+            }
 
-          // disable the input-field [name <email>] if this attendee
-          // appears to be the organizer.
-          if (aDisableIfOrganizer && aAttendee && aAttendee.isOrganizer) {
-              input.setAttribute("disabled", "true");
-          }
+            // disable the input-field [name <email>] if this attendee
+            // appears to be the organizer.
+            if (aDisableIfOrganizer && aAttendee && aAttendee.isOrganizer) {
+                input.setAttribute("disabled", "true");
+            }
 
-          this.mMaxAttendees++;
-          let rowNumber = this.mMaxAttendees;
-          if (rowNumber >= 0) {
-              roleStatusIcon.setAttribute("id", "attendeeCol1#" + rowNumber);
-              userTypeIcon.setAttribute("id", "attendeeCol2#" + rowNumber);
-              input.setAttribute("id", "attendeeCol3#" + rowNumber);
-          }
+            this.mMaxAttendees++;
+            let rowNumber = this.mMaxAttendees;
+            if (rowNumber >= 0) {
+                roleStatusIcon.setAttribute("id", "attendeeCol1#" + rowNumber);
+                userTypeIcon.setAttribute("id", "attendeeCol2#" + rowNumber);
+                input.setAttribute("id", "attendeeCol3#" + rowNumber);
+            }
 
-          if (!aAttendee) {
-              aAttendee = this.createAttendee();
-          }
+            if (!aAttendee) {
+                aAttendee = this.createAttendee();
+            }
 
-          // construct the display string from common name and/or email address.
-          let commonName = aAttendee.commonName || "";
-          let inputValue = cal.removeMailTo(aAttendee.id || "");
-          if (commonName.length) {
-              // Make the commonName appear in quotes if it contains a
-              // character that could confuse the header parser
-              if (commonName.search(/[,;<>@]/) != -1) {
-                  commonName = '"' + commonName + '"';
-              }
-              inputValue = inputValue.length ? commonName + " <" + inputValue + ">" : commonName;
-          }
+            // construct the display string from common name and/or email address.
+            let commonName = aAttendee.commonName || "";
+            let inputValue = cal.removeMailTo(aAttendee.id || "");
+            if (commonName.length) {
+                // Make the commonName appear in quotes if it contains a
+                // character that could confuse the header parser
+                if (commonName.search(/[,;<>@]/) != -1) {
+                    commonName = '"' + commonName + '"';
+                }
+                inputValue = inputValue.length ? commonName + " <" + inputValue + ">" : commonName;
+            }
 
-          // trim spaces if any
-          inputValue = inputValue.trim();
+            // trim spaces if any
+            inputValue = inputValue.trim();
 
-          // don't set value with null, otherwise autocomplete stops working,
-          // but make sure attendee and dirty are set
-          if (inputValue.length) {
-              input.setAttribute("value", inputValue);
-              input.value = inputValue;
-          }
-          input.attendee = aAttendee;
-          input.setAttribute("dirty", "true");
+            // don't set value with null, otherwise autocomplete stops working,
+            // but make sure attendee and dirty are set
+            if (inputValue.length) {
+                input.setAttribute("value", inputValue);
+                input.value = inputValue;
+            }
+            input.attendee = aAttendee;
+            input.setAttribute("dirty", "true");
 
-          if (aAttendee) {
-              // Set up userType
-              setElementValue(userTypeIcon, aAttendee.userType || false, "cutype");
-              this.updateTooltip(userTypeIcon);
+            if (aAttendee) {
+                // Set up userType
+                setElementValue(userTypeIcon, aAttendee.userType || false, "cutype");
+                this.updateTooltip(userTypeIcon);
 
-              // Set up role/status icon
-              if (aAttendee.isOrganizer) {
-                  roleStatusIcon.setAttribute("class", "status-icon");
-                  setElementValue(roleStatusIcon, aAttendee.participationStatus || false, "status");
-              } else {
-                  roleStatusIcon.setAttribute("class", "role-icon");
-                  setElementValue(roleStatusIcon, aAttendee.role || false, "role");
-              }
-              this.updateTooltip(roleStatusIcon);
-          }
+                // Set up role/status icon
+                if (aAttendee.isOrganizer) {
+                    roleStatusIcon.setAttribute("class", "status-icon");
+                    setElementValue(roleStatusIcon, aAttendee.participationStatus || false, "status");
+                } else {
+                    roleStatusIcon.setAttribute("class", "role-icon");
+                    setElementValue(roleStatusIcon, aAttendee.role || false, "role");
+                }
+                this.updateTooltip(roleStatusIcon);
+            }
 
-          return true;
+            return true;
         ]]></body>
       </method>
 
@@ -279,179 +279,179 @@
         <parameter name="aSetFocus"/>
         <parameter name="aInsertAfter"/>
         <body><![CDATA[
-          let listbox =
-              document.getAnonymousElementByAttribute(
-                  this, "anonid", "listbox");
-          let listitem1 = this.getListItem(1);
-          let newNode = null;
+            let listbox =
+                document.getAnonymousElementByAttribute(
+                    this, "anonid", "listbox");
+            let listitem1 = this.getListItem(1);
+            let newNode = null;
 
-          if (listbox && listitem1) {
-              let newAttendee = this.createAttendee();
-              let nextDummy = this.getNextDummyRow();
-              newNode = listitem1.cloneNode(true);
+            if (listbox && listitem1) {
+                let newAttendee = this.createAttendee();
+                let nextDummy = this.getNextDummyRow();
+                newNode = listitem1.cloneNode(true);
 
-              if (aInsertAfter) {
-                  listbox.insertBefore(newNode, aInsertAfter.nextSibling);
-              } else if (nextDummy) {
-                  listbox.replaceChild(newNode, nextDummy);
-              } else {
-                  listbox.appendChild(newNode);
-              }
+                if (aInsertAfter) {
+                    listbox.insertBefore(newNode, aInsertAfter.nextSibling);
+                } else if (nextDummy) {
+                    listbox.replaceChild(newNode, nextDummy);
+                } else {
+                    listbox.appendChild(newNode);
+                }
 
-              let input =
-                  document.getAnonymousElementByAttribute(
-                      newNode, "anonid", "input");
-              let roleStatusIcon =
-                  document.getAnonymousElementByAttribute(
-                      newNode, "anonid", "rolestatus-icon");
-              let userTypeIcon =
-                  document.getAnonymousElementByAttribute(
-                      newNode, "anonid", "usertype-icon");
+                let input =
+                    document.getAnonymousElementByAttribute(
+                        newNode, "anonid", "input");
+                let roleStatusIcon =
+                    document.getAnonymousElementByAttribute(
+                        newNode, "anonid", "rolestatus-icon");
+                let userTypeIcon =
+                    document.getAnonymousElementByAttribute(
+                        newNode, "anonid", "usertype-icon");
 
-              // the template could have its fields disabled,
-              // that's why we need to reset their status.
-              input.removeAttribute("disabled");
-              roleStatusIcon.removeAttribute("disabled");
-              userTypeIcon.removeAttribute("disabled");
+                // the template could have its fields disabled,
+                // that's why we need to reset their status.
+                input.removeAttribute("disabled");
+                roleStatusIcon.removeAttribute("disabled");
+                userTypeIcon.removeAttribute("disabled");
 
-              if (this.mIsReadOnly || this.mIsInvitation) {
-                  input.setAttribute("disabled", "true");
-                  roleStatusIcon.setAttribute("disabled", "true");
-                  userTypeIcon.setAttribute("disabled", "true");
-              }
+                if (this.mIsReadOnly || this.mIsInvitation) {
+                    input.setAttribute("disabled", "true");
+                    roleStatusIcon.setAttribute("disabled", "true");
+                    userTypeIcon.setAttribute("disabled", "true");
+                }
 
-              this.mMaxAttendees++;
-              let rowNumber = this.mMaxAttendees;
-              if (rowNumber >= 0) {
-                  roleStatusIcon.setAttribute("id", "attendeeCol1#" + rowNumber);
-                  userTypeIcon.setAttribute("id", "attendeeCol2#" + rowNumber);
-                  input.setAttribute("id", "attendeeCol3#" + rowNumber);
-              }
+                this.mMaxAttendees++;
+                let rowNumber = this.mMaxAttendees;
+                if (rowNumber >= 0) {
+                    roleStatusIcon.setAttribute("id", "attendeeCol1#" + rowNumber);
+                    userTypeIcon.setAttribute("id", "attendeeCol2#" + rowNumber);
+                    input.setAttribute("id", "attendeeCol3#" + rowNumber);
+                }
 
-              input.value = null;
-              input.removeAttribute("value");
-              input.attendee = newAttendee;
+                input.value = null;
+                input.removeAttribute("value");
+                input.attendee = newAttendee;
 
-              // set role and participation status
-              roleStatusIcon.setAttribute("class", "role-icon");
-              roleStatusIcon.setAttribute("role", "REQ-PARTICIPANT");
-              userTypeIcon.setAttribute("cutype", "INDIVIDUAL");
+                // set role and participation status
+                roleStatusIcon.setAttribute("class", "role-icon");
+                roleStatusIcon.setAttribute("role", "REQ-PARTICIPANT");
+                userTypeIcon.setAttribute("cutype", "INDIVIDUAL");
 
-              // Set tooltip for rolenames and usertype icon
-              this.updateTooltip(roleStatusIcon);
-              this.updateTooltip(userTypeIcon);
+                // Set tooltip for rolenames and usertype icon
+                this.updateTooltip(roleStatusIcon);
+                this.updateTooltip(userTypeIcon);
 
-              // We always clone the first row.  The problem is that the first row
-              // could be focused.  When we clone that row, we end up with a cloned
-              // XUL textbox that has a focused attribute set.  Therefore we think
-              // we're focused and don't properly refocus.  The best solution to this
-              // would be to clone a template row that didn't really have any presentation,
-              // rather than using the real visible first row of the listbox.
-              // For now we'll just put in a hack that ensures the focused attribute
-              // is never copied when the node is cloned.
-              if (input.getAttribute("focused") != "") {
-                  input.removeAttribute("focused");
-              }
+                // We always clone the first row.  The problem is that the first row
+                // could be focused.  When we clone that row, we end up with a cloned
+                // XUL textbox that has a focused attribute set.  Therefore we think
+                // we're focused and don't properly refocus.  The best solution to this
+                // would be to clone a template row that didn't really have any presentation,
+                // rather than using the real visible first row of the listbox.
+                // For now we'll just put in a hack that ensures the focused attribute
+                // is never copied when the node is cloned.
+                if (input.getAttribute("focused") != "") {
+                    input.removeAttribute("focused");
+                }
 
-              // focus on new input widget
-              if (aSetFocus) {
-                  this.setFocus(newNode);
-              }
-          }
-          return newNode;
+                // focus on new input widget
+                if (aSetFocus) {
+                    this.setFocus(newNode);
+                }
+            }
+            return newNode;
         ]]></body>
       </method>
 
       <property name="attendees">
         <getter><![CDATA[
-          let attendees = [];
+            let attendees = [];
 
-          for (let i = 1; true; i++) {
-              let inputField = this.getInputElement(i);
-              if (!inputField) {
-                  break;
-              } else if (inputField.value == "") {
-                  continue;
-              }
+            for (let i = 1; true; i++) {
+                let inputField = this.getInputElement(i);
+                if (!inputField) {
+                    break;
+                } else if (inputField.value == "") {
+                    continue;
+                }
 
-              // the inputfield already has a reference to the attendee
-              // object, we just need to fill in the name.
-              let attendee = inputField.attendee.clone();
-              if (attendee.isOrganizer) {
-                  continue;
-              }
+                // the inputfield already has a reference to the attendee
+                // object, we just need to fill in the name.
+                let attendee = inputField.attendee.clone();
+                if (attendee.isOrganizer) {
+                    continue;
+                }
 
-              attendee.role = this.getRoleElement(i).getAttribute("role");
-              // attendee.participationStatus = this.getStatusElement(i).getAttribute("status");
-              let userType = this.getUserTypeElement(i).getAttribute("cutype");
-              attendee.userType = (userType == "INDIVIDUAL" ? null : userType); // INDIVIDUAL is the default
+                attendee.role = this.getRoleElement(i).getAttribute("role");
+                // attendee.participationStatus = this.getStatusElement(i).getAttribute("status");
+                let userType = this.getUserTypeElement(i).getAttribute("cutype");
+                attendee.userType = (userType == "INDIVIDUAL" ? null : userType); // INDIVIDUAL is the default
 
-              // break the list of potentially many attendees back into individual names. This
-              // is required in case the user entered comma-separated attendees in one field and
-              // then clicked OK without switching to the next line.
-              let parsedInput = MailServices.headerParser.makeFromDisplayAddress(inputField.value);
-              let j = 0;
-              let addAttendee = function(aAddress) {
-                  if (j > 0) {
-                      attendee = attendee.clone();
-                  }
-                  attendee.id = cal.prependMailTo(aAddress.email);
-                  if (aAddress.name.length > 0) {
-                      // we remove any double quotes within CN due to bug 1209399
-                      attendee.commonName = aAddress.name.replace(/(?:[\\]"|")/, "");
-                  }
-                  attendees.push(attendee);
-                  j++;
-              };
-              parsedInput.forEach(addAttendee);
-          }
+                // break the list of potentially many attendees back into individual names. This
+                // is required in case the user entered comma-separated attendees in one field and
+                // then clicked OK without switching to the next line.
+                let parsedInput = MailServices.headerParser.makeFromDisplayAddress(inputField.value);
+                let j = 0;
+                let addAttendee = function(aAddress) {
+                    if (j > 0) {
+                        attendee = attendee.clone();
+                    }
+                    attendee.id = cal.prependMailTo(aAddress.email);
+                    if (aAddress.name.length > 0) {
+                        // we remove any double quotes within CN due to bug 1209399
+                        attendee.commonName = aAddress.name.replace(/(?:[\\]"|")/, "");
+                    }
+                    attendees.push(attendee);
+                    j++;
+                };
+                parsedInput.forEach(addAttendee);
+            }
 
-          return attendees;
+            return attendees;
         ]]></getter>
       </property>
 
       <property name="organizer">
         <getter><![CDATA[
-          for (let i = 1; true; i++) {
-              let inputField = this.getInputElement(i);
-              if (!inputField) {
-                  break;
-              } else if (inputField.value == "") {
-                  continue;
-              }
+            for (let i = 1; true; i++) {
+                let inputField = this.getInputElement(i);
+                if (!inputField) {
+                    break;
+                } else if (inputField.value == "") {
+                    continue;
+                }
 
-              // The inputfield already has a reference to the attendee
-              // object, we just need to fill in the name.
-              let attendee = inputField.attendee.clone();
+                // The inputfield already has a reference to the attendee
+                // object, we just need to fill in the name.
+                let attendee = inputField.attendee.clone();
 
-              // attendee.role = this.getRoleElement(i).getAttribute("role");
-              attendee.participationStatus = this.getStatusElement(i).getAttribute("status");
-              // Organizers do not have a CUTYPE
-              attendee.userType = null;
+                // attendee.role = this.getRoleElement(i).getAttribute("role");
+                attendee.participationStatus = this.getStatusElement(i).getAttribute("status");
+                // Organizers do not have a CUTYPE
+                attendee.userType = null;
 
-              // break the list of potentially many attendees back into individual names
-              let parsedInput = MailServices.headerParser.makeFromDisplayAddress(inputField.value);
-              if (parsedInput[0].email > 0) {
-                  attendee.id = cal.prependMailTo(parsedInput[0].email);
-              }
-              if (parsedInput[0].name.length > 0) {
-                  attendee.commonName = parsedInput[0].name;
-              }
+                // break the list of potentially many attendees back into individual names
+                let parsedInput = MailServices.headerParser.makeFromDisplayAddress(inputField.value);
+                if (parsedInput[0].email > 0) {
+                    attendee.id = cal.prependMailTo(parsedInput[0].email);
+                }
+                if (parsedInput[0].name.length > 0) {
+                    attendee.commonName = parsedInput[0].name;
+                }
 
-              if (attendee.isOrganizer) {
-                  return attendee;
-              }
-          }
+                if (attendee.isOrganizer) {
+                    return attendee;
+                }
+            }
 
-          return null;
+            return null;
         ]]></getter>
       </property>
 
       <method name="_resolveListByName">
         <parameter name="value"/>
         <body><![CDATA[
-            let entries = MailServices.headerParser.makeFromDisplayAddress(value);
-            return entries.length ? this._findListInAddrBooks(entries[0].name) : null;
+              let entries = MailServices.headerParser.makeFromDisplayAddress(value);
+              return entries.length ? this._findListInAddrBooks(entries[0].name) : null;
           ]]></body>
     </method>
 
@@ -494,39 +494,39 @@
         <parameter name="attendees"/>
         <parameter name="allListsUri"/>
         <body><![CDATA[
-            let addressLists = mailingList.addressLists;
-            for (let i = 0; i < addressLists.length; i++) {
-                let abCard = addressLists.queryElementAt(i, Components.interfaces.nsIAbCard);
-                let thisId = abCard.primaryEmail;
-                if (abCard.displayName.length > 0) {
-                    let rCn = abCard.displayName;
-                    if (rCn.includes(",")) {
-                        rCn = '"' + rCn + '"';
-                    }
-                    thisId = rCn + " <" + thisId + ">";
-                }
-                if (attendees.some(att => att == thisId)) {
-                    continue;
-                }
+              let addressLists = mailingList.addressLists;
+              for (let i = 0; i < addressLists.length; i++) {
+                  let abCard = addressLists.queryElementAt(i, Components.interfaces.nsIAbCard);
+                  let thisId = abCard.primaryEmail;
+                  if (abCard.displayName.length > 0) {
+                      let rCn = abCard.displayName;
+                      if (rCn.includes(",")) {
+                          rCn = '"' + rCn + '"';
+                      }
+                      thisId = rCn + " <" + thisId + ">";
+                  }
+                  if (attendees.some(att => att == thisId)) {
+                      continue;
+                  }
 
-                if (abCard.displayName.length > 0) {
-                    let list = this._findListInAddrBooks(abCard.displayName);
-                    if (list) {
-                        if (allListsUri.some(uri => uri == list.URI)) {
-                            continue;
-                        }
-                        allListsUri.push(list.URI);
+                  if (abCard.displayName.length > 0) {
+                      let list = this._findListInAddrBooks(abCard.displayName);
+                      if (list) {
+                          if (allListsUri.some(uri => uri == list.URI)) {
+                              continue;
+                          }
+                          allListsUri.push(list.URI);
 
-                        this._getListEntriesInt(list, attendees, allListsUri);
+                          this._getListEntriesInt(list, attendees, allListsUri);
 
-                        continue;
-                    }
-                }
+                          continue;
+                      }
+                  }
 
-                attendees.push(thisId);
-            }
+                  attendees.push(thisId);
+              }
 
-            return attendees;
+              return attendees;
           ]]></body>
     </method>
 
@@ -534,14 +534,14 @@
         <parameter name="mailingList"/>
         <body><![CDATA[
 
-            let attendees = [];
-            let allListsUri = [];
+              let attendees = [];
+              let allListsUri = [];
 
-            allListsUri.push(mailingList.URI);
+              allListsUri.push(mailingList.URI);
 
-            this._getListEntriesInt(mailingList, attendees, allListsUri);
+              this._getListEntriesInt(mailingList, attendees, allListsUri);
 
-            return attendees;
+              return attendees;
 
           ]]></body>
     </method>
@@ -551,140 +551,140 @@
         <parameter name="entry"/>
         <parameter name="rowNumber"/>
         <body><![CDATA[
-            let newAttendee = this.createAttendee(entry);
-            let input = document.getAnonymousElementByAttribute(listitem, "anonid", "input");
-            input.removeAttribute("disabled");
-            input.setAttribute("id", "attendeeCol3#" + rowNumber);
+              let newAttendee = this.createAttendee(entry);
+              let input = document.getAnonymousElementByAttribute(listitem, "anonid", "input");
+              input.removeAttribute("disabled");
+              input.setAttribute("id", "attendeeCol3#" + rowNumber);
 
-            input.attendee = newAttendee;
-            input.value = entry;
-            input.setAttribute("value", entry);
-            input.setAttribute("dirty", "true");
-            if (input.getAttribute("focused") != "") {
-                input.removeAttribute("focused");
-            }
+              input.attendee = newAttendee;
+              input.value = entry;
+              input.setAttribute("value", entry);
+              input.setAttribute("dirty", "true");
+              if (input.getAttribute("focused") != "") {
+                  input.removeAttribute("focused");
+              }
 
-            let roleStatusIcon = document.getAnonymousElementByAttribute(listitem, "anonid", "rolestatus-icon");
-            roleStatusIcon.removeAttribute("disabled");
-            roleStatusIcon.setAttribute("id", "attendeeCol1#" + rowNumber);
-            roleStatusIcon.setAttribute("class", "role-icon");
-            roleStatusIcon.setAttribute("role", newAttendee.role);
+              let roleStatusIcon = document.getAnonymousElementByAttribute(listitem, "anonid", "rolestatus-icon");
+              roleStatusIcon.removeAttribute("disabled");
+              roleStatusIcon.setAttribute("id", "attendeeCol1#" + rowNumber);
+              roleStatusIcon.setAttribute("class", "role-icon");
+              roleStatusIcon.setAttribute("role", newAttendee.role);
 
-            let userTypeIcon = document.getAnonymousElementByAttribute(listitem, "anonid", "usertype-icon");
-            userTypeIcon.removeAttribute("disabled");
-            userTypeIcon.setAttribute("id", "attendeeCol2#" + rowNumber);
-            userTypeIcon.setAttribute("cutype", newAttendee.userType);
+              let userTypeIcon = document.getAnonymousElementByAttribute(listitem, "anonid", "usertype-icon");
+              userTypeIcon.removeAttribute("disabled");
+              userTypeIcon.setAttribute("id", "attendeeCol2#" + rowNumber);
+              userTypeIcon.setAttribute("cutype", newAttendee.userType);
           ]]></body>
     </method>
 
     <method name="resolvePotentialList">
       <parameter name="aInput"/>
       <body><![CDATA[
-          let fieldValue = aInput.value;
-          if (aInput.id.length > 0 && fieldValue.length > 0) {
-              let mailingList = this._resolveListByName(fieldValue);
-              if (mailingList) {
-                  let entries = this._getListEntries(mailingList);
-                  if (entries.length > 0) {
-                      let currentIndex = parseInt(aInput.id.substr(13), 10);
-                      let template = document.getAnonymousElementByAttribute(this, "anonid", "item");
-                      let currentNode = template.parentNode.childNodes[currentIndex];
-                      this._fillListItemWithEntry(currentNode, entries[0], currentIndex);
-                      entries.shift();
-                      let nextNode = template.parentNode.childNodes[currentIndex + 1];
-                      currentIndex++;
-                      for (let entry of entries) {
-                          currentNode = template.cloneNode(true);
-                          template.parentNode.insertBefore(currentNode, nextNode);
-                          this._fillListItemWithEntry(currentNode, entry, currentIndex);
-                          currentIndex++;
-                      }
-                      this.mMaxAttendees += entries.length;
-                      for (let i = currentIndex; i <= this.mMaxAttendees; i++) {
-                          let row = template.parentNode.childNodes[i];
-                          let roleStatusIcon = document.getAnonymousElementByAttribute(row, "anonid", "rolestatus-icon");
-                          roleStatusIcon.setAttribute("id", "attendeeCol1#" + i);
+            let fieldValue = aInput.value;
+            if (aInput.id.length > 0 && fieldValue.length > 0) {
+                let mailingList = this._resolveListByName(fieldValue);
+                if (mailingList) {
+                    let entries = this._getListEntries(mailingList);
+                    if (entries.length > 0) {
+                        let currentIndex = parseInt(aInput.id.substr(13), 10);
+                        let template = document.getAnonymousElementByAttribute(this, "anonid", "item");
+                        let currentNode = template.parentNode.childNodes[currentIndex];
+                        this._fillListItemWithEntry(currentNode, entries[0], currentIndex);
+                        entries.shift();
+                        let nextNode = template.parentNode.childNodes[currentIndex + 1];
+                        currentIndex++;
+                        for (let entry of entries) {
+                            currentNode = template.cloneNode(true);
+                            template.parentNode.insertBefore(currentNode, nextNode);
+                            this._fillListItemWithEntry(currentNode, entry, currentIndex);
+                            currentIndex++;
+                        }
+                        this.mMaxAttendees += entries.length;
+                        for (let i = currentIndex; i <= this.mMaxAttendees; i++) {
+                            let row = template.parentNode.childNodes[i];
+                            let roleStatusIcon = document.getAnonymousElementByAttribute(row, "anonid", "rolestatus-icon");
+                            roleStatusIcon.setAttribute("id", "attendeeCol1#" + i);
 
-                          let userTypeIcon = document.getAnonymousElementByAttribute(row, "anonid", "usertype-icon");
-                          userTypeIcon.setAttribute("id", "attendeeCol2#" + i);
+                            let userTypeIcon = document.getAnonymousElementByAttribute(row, "anonid", "usertype-icon");
+                            userTypeIcon.setAttribute("id", "attendeeCol2#" + i);
 
-                          let input = document.getAnonymousElementByAttribute(row, "anonid", "input");
-                          input.setAttribute("id", "attendeeCol3#" + i);
-                          input.setAttribute("dirty", "true");
-                      }
-                  }
-              }
-          }
+                            let input = document.getAnonymousElementByAttribute(row, "anonid", "input");
+                            input.setAttribute("id", "attendeeCol3#" + i);
+                            input.setAttribute("dirty", "true");
+                        }
+                    }
+                }
+            }
         ]]></body>
       </method>
 
       <method name="onModify">
         <body><![CDATA[
-          let list = [];
-          for (let i = 1; i <= this.mMaxAttendees; i++) {
-              // retrieve the string from the appropriate row
-              let input = this.getInputElement(i);
-              if (input && input.value) {
-                  // parse the string to break this down to individual names and addresses
-                  let parsedInput = MailServices.headerParser.makeFromDisplayAddress(input.value);
-                  let email = cal.prependMailTo(parsedInput[0].email);
+            let list = [];
+            for (let i = 1; i <= this.mMaxAttendees; i++) {
+                // retrieve the string from the appropriate row
+                let input = this.getInputElement(i);
+                if (input && input.value) {
+                    // parse the string to break this down to individual names and addresses
+                    let parsedInput = MailServices.headerParser.makeFromDisplayAddress(input.value);
+                    let email = cal.prependMailTo(parsedInput[0].email);
 
-                  let isdirty = false;
-                  if (input.hasAttribute("dirty")) {
-                      isdirty = input.getAttribute("dirty");
-                  }
-                  input.removeAttribute("dirty");
-                  let entry = {
-                      dirty: isdirty,
-                      calid: email
-                  };
-                  list.push(entry);
-              }
-          }
+                    let isdirty = false;
+                    if (input.hasAttribute("dirty")) {
+                        isdirty = input.getAttribute("dirty");
+                    }
+                    input.removeAttribute("dirty");
+                    let entry = {
+                        dirty: isdirty,
+                        calid: email
+                    };
+                    list.push(entry);
+                }
+            }
 
-          let event = document.createEvent("Events");
-          event.initEvent("modify", true, false);
-          event.details = list;
-          this.dispatchEvent(event);
+            let event = document.createEvent("Events");
+            event.initEvent("modify", true, false);
+            event.details = list;
+            this.dispatchEvent(event);
         ]]></body>
       </method>
 
      <method name="updateTooltip">
       <parameter name="targetIcon"/>
       <body><![CDATA[
-        // Function setting the tooltip of attendeeicons based on their role
-        if (targetIcon.className == "role-icon") {
-            let role = targetIcon.getAttribute("role");
-            // Set tooltip for rolenames
+          // Function setting the tooltip of attendeeicons based on their role
+          if (targetIcon.className == "role-icon") {
+              let role = targetIcon.getAttribute("role");
+              // Set tooltip for rolenames
 
-            const roleMap = {
-                "REQ-PARTICIPANT": "required",
-                "OPT-PARTICIPANT": "optional",
-                "NON-PARTICIPANT": "nonparticipant",
-                "CHAIR": "chair"
-            };
+              const roleMap = {
+                  "REQ-PARTICIPANT": "required",
+                  "OPT-PARTICIPANT": "optional",
+                  "NON-PARTICIPANT": "nonparticipant",
+                  "CHAIR": "chair"
+              };
 
-            let roleNameString = "event.attendee.role." + (role in roleMap ? roleMap[role] : "unknown");
-            let tooltip = cal.calGetString("calendar-event-dialog-attendees",
-                                           roleNameString,
-                                           role in roleMap ? null : [role]);
-            targetIcon.setAttribute("tooltiptext", tooltip);
-        } else if (targetIcon.className == "usertype-icon") {
-            let cutype = targetIcon.getAttribute("cutype");
-            const cutypeMap = {
-                INDIVIDUAL: "individual",
-                GROUP: "group",
-                RESOURCE: "resource",
-                ROOM: "room",
-                // I've decided UNKNOWN will not be handled.
-            };
+              let roleNameString = "event.attendee.role." + (role in roleMap ? roleMap[role] : "unknown");
+              let tooltip = cal.calGetString("calendar-event-dialog-attendees",
+                                             roleNameString,
+                                             role in roleMap ? null : [role]);
+              targetIcon.setAttribute("tooltiptext", tooltip);
+          } else if (targetIcon.className == "usertype-icon") {
+              let cutype = targetIcon.getAttribute("cutype");
+              const cutypeMap = {
+                  INDIVIDUAL: "individual",
+                  GROUP: "group",
+                  RESOURCE: "resource",
+                  ROOM: "room",
+                  // I've decided UNKNOWN will not be handled.
+              };
 
-            let cutypeString = "event.attendee.usertype." + (cutype in cutypeMap ? cutypeMap[cutype] : "unknown");
-            let tooltip = cal.calGetString("calendar-event-dialog-attendees",
-                                           cutypeString,
-                                           cutype in cutypeMap ? null : [cutype]);
-            targetIcon.setAttribute("tooltiptext", tooltip);
-        }
+              let cutypeString = "event.attendee.usertype." + (cutype in cutypeMap ? cutypeMap[cutype] : "unknown");
+              let tooltip = cal.calGetString("calendar-event-dialog-attendees",
+                                             cutypeString,
+                                             cutype in cutypeMap ? null : [cutype]);
+              targetIcon.setAttribute("tooltiptext", tooltip);
+          }
       ]]></body>
       </method>
 
@@ -696,98 +696,98 @@
 
       <method name="fitDummyRows">
         <body><![CDATA[
-          setTimeout(() => {
-              this.calcContentHeight();
-              this.createOrRemoveDummyRows();
-          }, 0);
+            setTimeout(() => {
+                this.calcContentHeight();
+                this.createOrRemoveDummyRows();
+            }, 0);
         ]]></body>
       </method>
 
       <method name="calcContentHeight">
         <body><![CDATA[
-          let listbox =
-              document.getAnonymousElementByAttribute(
-                  this, "anonid", "listbox");
-          let items = listbox.getElementsByTagNameNS("*", "listitem");
-          this.mContentHeight = 0;
-          if (items.length > 0) {
-              let i = 0;
-              do {
-                  this.mRowHeight = items[i].boxObject.height;
-                  ++i;
-              } while (i < items.length && !this.mRowHeight);
-              this.mContentHeight = this.mRowHeight * items.length;
-          }
+            let listbox =
+                document.getAnonymousElementByAttribute(
+                    this, "anonid", "listbox");
+            let items = listbox.getElementsByTagNameNS("*", "listitem");
+            this.mContentHeight = 0;
+            if (items.length > 0) {
+                let i = 0;
+                do {
+                    this.mRowHeight = items[i].boxObject.height;
+                    ++i;
+                } while (i < items.length && !this.mRowHeight);
+                this.mContentHeight = this.mRowHeight * items.length;
+            }
         ]]></body>
       </method>
 
       <method name="createOrRemoveDummyRows">
         <body><![CDATA[
-          let listbox =
-              document.getAnonymousElementByAttribute(
-                  this, "anonid", "listbox");
-          let listboxHeight = listbox.boxObject.height;
+            let listbox =
+                document.getAnonymousElementByAttribute(
+                    this, "anonid", "listbox");
+            let listboxHeight = listbox.boxObject.height;
 
-          // remove rows to remove scrollbar
-          let kids = listbox.childNodes;
-          for (let i = kids.length - 1; this.mContentHeight > listboxHeight && i >= 0; --i) {
-              if (kids[i].hasAttribute("_isDummyRow")) {
-                  this.mContentHeight -= this.mRowHeight;
-                  kids[i].remove();
-              }
-          }
+            // remove rows to remove scrollbar
+            let kids = listbox.childNodes;
+            for (let i = kids.length - 1; this.mContentHeight > listboxHeight && i >= 0; --i) {
+                if (kids[i].hasAttribute("_isDummyRow")) {
+                    this.mContentHeight -= this.mRowHeight;
+                    kids[i].remove();
+                }
+            }
 
-          // add rows to fill space
-          if (this.mRowHeight) {
-              while (this.mContentHeight + this.mRowHeight < listboxHeight) {
-                  this.createDummyItem(listbox);
-                  this.mContentHeight += this.mRowHeight;
-              }
-          }
+            // add rows to fill space
+            if (this.mRowHeight) {
+                while (this.mContentHeight + this.mRowHeight < listboxHeight) {
+                    this.createDummyItem(listbox);
+                    this.mContentHeight += this.mRowHeight;
+                }
+            }
         ]]></body>
       </method>
 
       <method name="createDummyCell">
         <parameter name="aParent"/>
         <body><![CDATA[
-          let cell = document.createElementNS("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul", "listcell");
-          cell.setAttribute("class", "addressingWidgetCell dummy-row-cell");
-          if (aParent) {
-              aParent.appendChild(cell);
-          }
-          return cell;
+            let cell = document.createElementNS("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul", "listcell");
+            cell.setAttribute("class", "addressingWidgetCell dummy-row-cell");
+            if (aParent) {
+                aParent.appendChild(cell);
+            }
+            return cell;
         ]]></body>
       </method>
 
       <method name="createDummyItem">
         <parameter name="aParent"/>
         <body><![CDATA[
-          let titem = document.createElementNS("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul", "listitem");
-          titem.setAttribute("_isDummyRow", "true");
-          titem.setAttribute("class", "dummy-row");
-          for (let i = this.numColumns; i > 0; i--) {
-              this.createDummyCell(titem);
-          }
-          if (aParent) {
-              aParent.appendChild(titem);
-          }
-          return titem;
+            let titem = document.createElementNS("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul", "listitem");
+            titem.setAttribute("_isDummyRow", "true");
+            titem.setAttribute("class", "dummy-row");
+            for (let i = this.numColumns; i > 0; i--) {
+                this.createDummyCell(titem);
+            }
+            if (aParent) {
+                aParent.appendChild(titem);
+            }
+            return titem;
         ]]></body>
       </method>
 
       <!-- gets the next row from the top down -->
       <method name="getNextDummyRow">
         <body><![CDATA[
-          let listbox =
-              document.getAnonymousElementByAttribute(
-                  this, "anonid", "listbox");
-          let kids = listbox.childNodes;
-          for (let i = 0; i < kids.length; ++i) {
-              if (kids[i].hasAttribute("_isDummyRow")) {
-                  return kids[i];
-              }
-          }
-          return null;
+            let listbox =
+                document.getAnonymousElementByAttribute(
+                    this, "anonid", "listbox");
+            let kids = listbox.childNodes;
+            for (let i = 0; i < kids.length; ++i) {
+                if (kids[i].hasAttribute("_isDummyRow")) {
+                    return kids[i];
+                }
+            }
+            return null;
         ]]></body>
       </method>
 
@@ -795,42 +795,42 @@
       <method name="getListItem">
         <parameter name="aRow"/>
         <body><![CDATA[
-          let listbox =
-              document.getAnonymousElementByAttribute(
-                  this, "anonid", "listbox");
-          if (listbox && aRow > 0) {
-              let listitems = listbox.getElementsByTagNameNS("*", "listitem");
-              if (listitems && listitems.length >= aRow) {
-                  return listitems[aRow - 1];
-              }
-          }
-          return 0;
+            let listbox =
+                document.getAnonymousElementByAttribute(
+                    this, "anonid", "listbox");
+            if (listbox && aRow > 0) {
+                let listitems = listbox.getElementsByTagNameNS("*", "listitem");
+                if (listitems && listitems.length >= aRow) {
+                    return listitems[aRow - 1];
+                }
+            }
+            return 0;
         ]]></body>
       </method>
 
       <method name="getInputFromListitem">
         <parameter name="aListItem"/>
         <body><![CDATA[
-          return aListItem.getElementsByTagNameNS("*", "textbox")[0];
+            return aListItem.getElementsByTagNameNS("*", "textbox")[0];
         ]]></body>
       </method>
 
       <method name="getRowByInputElement">
         <parameter name="aElement"/>
         <body><![CDATA[
-          let row = 0;
-          while (aElement && aElement.localName != "listitem") {
-              aElement = aElement.parentNode;
-          }
-          if (aElement) {
-              while (aElement) {
-                  if (aElement.localName == "listitem") {
-                      ++row;
-                  }
-                  aElement = aElement.previousSibling;
-              }
-          }
-          return row;
+            let row = 0;
+            while (aElement && aElement.localName != "listitem") {
+                aElement = aElement.parentNode;
+            }
+            if (aElement) {
+                while (aElement) {
+                    if (aElement.localName == "listitem") {
+                        ++row;
+                    }
+                    aElement = aElement.previousSibling;
+                }
+            }
+            return row;
         ]]></body>
       </method>
 
@@ -839,107 +839,107 @@
       <method name="getInputElement">
         <parameter name="aRow"/>
         <body><![CDATA[
-          return document.getAnonymousElementByAttribute(this, "id", "attendeeCol3#" + aRow);
+            return document.getAnonymousElementByAttribute(this, "id", "attendeeCol3#" + aRow);
         ]]></body>
       </method>
 
       <method name="getRoleElement">
         <parameter name="aRow"/>
         <body><![CDATA[
-          return document.getAnonymousElementByAttribute(this, "id", "attendeeCol1#" + aRow);
+            return document.getAnonymousElementByAttribute(this, "id", "attendeeCol1#" + aRow);
         ]]></body>
       </method>
 
       <method name="getStatusElement">
         <parameter name="aRow"/>
         <body><![CDATA[
-          return document.getAnonymousElementByAttribute(this, "id", "attendeeCol1#" + aRow);
+            return document.getAnonymousElementByAttribute(this, "id", "attendeeCol1#" + aRow);
         ]]></body>
       </method>
 
       <method name="getUserTypeElement">
         <parameter name="aRow"/>
         <body><![CDATA[
-          return document.getAnonymousElementByAttribute(this, "id", "attendeeCol2#" + aRow);
+            return document.getAnonymousElementByAttribute(this, "id", "attendeeCol2#" + aRow);
         ]]></body>
       </method>
 
       <method name="setFocus">
         <parameter name="aRow"/>
         <body><![CDATA[
-          let self = this;
-          let set_focus = function() {
-              let node;
-              if (typeof aRow == "number") {
-                  node = self.getListItem(aRow);
-              } else {
-                  node = aRow;
-              }
+            let self = this;
+            let set_focus = function() {
+                let node;
+                if (typeof aRow == "number") {
+                    node = self.getListItem(aRow);
+                } else {
+                    node = aRow;
+                }
 
-              // do we need to scroll in order to see the selected row?
-              let listbox =
-                  document.getAnonymousElementByAttribute(
-                      self, "anonid", "listbox");
-              let firstVisibleRow = listbox.getIndexOfFirstVisibleRow();
-              let numOfVisibleRows = listbox.getNumberOfVisibleRows();
-              if (aRow <= firstVisibleRow) {
-                  listbox.scrollToIndex(aRow - 1);
-              } else if (aRow - 1 >= (firstVisibleRow + numOfVisibleRows)) {
-                  listbox.scrollToIndex(aRow - numOfVisibleRows);
-              }
-              let input =
-                  document.getAnonymousElementByAttribute(
-                      node, "anonid", "input");
-              input.focus();
-          };
-          setTimeout(set_focus, 0);
+                // do we need to scroll in order to see the selected row?
+                let listbox =
+                    document.getAnonymousElementByAttribute(
+                        self, "anonid", "listbox");
+                let firstVisibleRow = listbox.getIndexOfFirstVisibleRow();
+                let numOfVisibleRows = listbox.getNumberOfVisibleRows();
+                if (aRow <= firstVisibleRow) {
+                    listbox.scrollToIndex(aRow - 1);
+                } else if (aRow - 1 >= (firstVisibleRow + numOfVisibleRows)) {
+                    listbox.scrollToIndex(aRow - numOfVisibleRows);
+                }
+                let input =
+                    document.getAnonymousElementByAttribute(
+                        node, "anonid", "input");
+                input.focus();
+            };
+            setTimeout(set_focus, 0);
         ]]></body>
       </method>
 
       <property name="firstVisibleRow">
         <getter><![CDATA[
-          let listbox =
-              document.getAnonymousElementByAttribute(
-                  this, "anonid", "listbox");
-          return listbox.getIndexOfFirstVisibleRow();
+            let listbox =
+                document.getAnonymousElementByAttribute(
+                    this, "anonid", "listbox");
+            return listbox.getIndexOfFirstVisibleRow();
         ]]></getter>
       </property>
 
       <method name="createAttendee">
         <body><![CDATA[
-          let attendee = cal.createAttendee();
-          attendee.id = "";
-          attendee.rsvp = "TRUE";
-          attendee.role = "REQ-PARTICIPANT";
-          attendee.participationStatus = "NEEDS-ACTION";
-          return attendee;
+            let attendee = cal.createAttendee();
+            attendee.id = "";
+            attendee.rsvp = "TRUE";
+            attendee.role = "REQ-PARTICIPANT";
+            attendee.participationStatus = "NEEDS-ACTION";
+            return attendee;
         ]]></body>
       </method>
 
       <property name="numColumns">
         <getter><![CDATA[
-          if (!this.mNumColumns) {
-              let listbox =
-                  document.getAnonymousElementByAttribute(
-                      this, "anonid", "listbox");
-              let listCols = listbox.getElementsByTagNameNS("*", "listcol");
-              this.mNumColumns = listCols.length;
-              if (!this.mNumColumns) {
-                  this.mNumColumns = 1;
-              }
-          }
-          return this.mNumColumns;
+            if (!this.mNumColumns) {
+                let listbox =
+                    document.getAnonymousElementByAttribute(
+                        this, "anonid", "listbox");
+                let listCols = listbox.getElementsByTagNameNS("*", "listcol");
+                this.mNumColumns = listCols.length;
+                if (!this.mNumColumns) {
+                    this.mNumColumns = 1;
+                }
+            }
+            return this.mNumColumns;
         ]]></getter>
       </property>
 
       <property name="ratio">
         <setter><![CDATA[
-          let listbox =
-              document.getAnonymousElementByAttribute(
-                  this, "anonid", "listbox");
-          let rowcount = listbox.getRowCount();
-          listbox.scrollToIndex(Math.floor(rowcount * val));
-          return val;
+            let listbox =
+                document.getAnonymousElementByAttribute(
+                    this, "anonid", "listbox");
+            let rowcount = listbox.getRowCount();
+            listbox.scrollToIndex(Math.floor(rowcount * val));
+            return val;
         ]]></setter>
       </property>
 
@@ -947,40 +947,40 @@
         <parameter name="element"/>
         <parameter name="noAdvance"/>
         <body><![CDATA[
-          function parseHeaderValue(aMsgIAddressObject) {
-              if (aMsgIAddressObject.name.match(/[<>@,]/)) {
-                  // special handling only needed for a name with a comma which are not already quoted
-                  return (aMsgIAddressObject.name.match(/^".*"$/)
-                          ? aMsgIAddressObject.name
-                          : '"' + aMsgIAddressObject.name + '"'
-                         ) + " <" + aMsgIAddressObject.email + ">";
-              } else {
-                  return aMsgIAddressObject.toString();
-              }
-          }
+            function parseHeaderValue(aMsgIAddressObject) {
+                if (aMsgIAddressObject.name.match(/[<>@,]/)) {
+                    // special handling only needed for a name with a comma which are not already quoted
+                    return (aMsgIAddressObject.name.match(/^".*"$/)
+                            ? aMsgIAddressObject.name
+                            : '"' + aMsgIAddressObject.name + '"'
+                           ) + " <" + aMsgIAddressObject.email + ">";
+                } else {
+                    return aMsgIAddressObject.toString();
+                }
+            }
 
-          let arrowLength = 1;
-          if (element.value.includes(",") || element.value.match(/^[^"].*[<>@,].*[^"] <.+@.+>$/)) {
-              let strippedAddresses = element.value.replace(/.* >> /, "");
-              let addresses = MailServices.headerParser.makeFromDisplayAddress(strippedAddresses);
-              element.value = parseHeaderValue(addresses[0]);
+            let arrowLength = 1;
+            if (element.value.includes(",") || element.value.match(/^[^"].*[<>@,].*[^"] <.+@.+>$/)) {
+                let strippedAddresses = element.value.replace(/.* >> /, "");
+                let addresses = MailServices.headerParser.makeFromDisplayAddress(strippedAddresses);
+                element.value = parseHeaderValue(addresses[0]);
 
-              // the following code is needed to split attendees, if the user enters a comma
-              // separated list of attendees without using autocomplete functionality
-              let insertAfterItem = this.getListItem(this.getRowByInputElement(element));
-              for (let key in addresses) {
-                  if (key > 0) {
-                      insertAfterItem = this.appendNewRow(false, insertAfterItem);
-                      let textinput = this.getInputFromListitem(insertAfterItem);
-                      textinput.value = parseHeaderValue(addresses[key]);
-                  }
-              }
-              arrowLength = addresses.length;
-          }
+                // the following code is needed to split attendees, if the user enters a comma
+                // separated list of attendees without using autocomplete functionality
+                let insertAfterItem = this.getListItem(this.getRowByInputElement(element));
+                for (let key in addresses) {
+                    if (key > 0) {
+                        insertAfterItem = this.appendNewRow(false, insertAfterItem);
+                        let textinput = this.getInputFromListitem(insertAfterItem);
+                        textinput.value = parseHeaderValue(addresses[key]);
+                    }
+                }
+                arrowLength = addresses.length;
+            }
 
-          if (!noAdvance) {
-              this.arrowHit(element, arrowLength);
-          }
+            if (!noAdvance) {
+                this.arrowHit(element, arrowLength);
+            }
         ]]></body>
       </method>
 
@@ -988,209 +988,209 @@
         <parameter name="aElement"/>
         <parameter name="aDirection"/>
         <body><![CDATA[
-          let row = this.getRowByInputElement(aElement) + aDirection;
-          if (row) {
-              if (row > this.mMaxAttendees) {
-                  this.appendNewRow(true);
-              } else {
-                  let input = this.getInputElement(row);
-                  if (input.hasAttribute("disabled")) {
-                      return;
-                  }
-                  this.setFocus(row);
-              }
-              let event = document.createEvent("Events");
-              event.initEvent("rowchange", true, false);
-              event.details = row;
-              this.dispatchEvent(event);
-          }
+            let row = this.getRowByInputElement(aElement) + aDirection;
+            if (row) {
+                if (row > this.mMaxAttendees) {
+                    this.appendNewRow(true);
+                } else {
+                    let input = this.getInputElement(row);
+                    if (input.hasAttribute("disabled")) {
+                        return;
+                    }
+                    this.setFocus(row);
+                }
+                let event = document.createEvent("Events");
+                event.initEvent("rowchange", true, false);
+                event.details = row;
+                this.dispatchEvent(event);
+            }
         ]]></body>
       </method>
 
       <method name="deleteHit">
         <parameter name="aElement"/>
         <body><![CDATA[
-          // don't delete the row if only the organizer is remaining
-          if (this.mMaxAttendees <= 1) {
-              return;
-          }
+            // don't delete the row if only the organizer is remaining
+            if (this.mMaxAttendees <= 1) {
+                return;
+            }
 
-          let row = this.getRowByInputElement(aElement);
-          this.deleteRow(row);
-          if (row > 0) {
-              row = row - 1;
-          }
-          this.setFocus(row);
-          this.onModify();
+            let row = this.getRowByInputElement(aElement);
+            this.deleteRow(row);
+            if (row > 0) {
+                row = row - 1;
+            }
+            this.setFocus(row);
+            this.onModify();
 
-          let event = document.createEvent("Events");
-          event.initEvent("rowchange", true, false);
-          event.details = row;
-          this.dispatchEvent(event);
+            let event = document.createEvent("Events");
+            event.initEvent("rowchange", true, false);
+            event.details = row;
+            this.dispatchEvent(event);
         ]]></body>
       </method>
 
       <method name="deleteRow">
         <parameter name="aRow"/>
         <body><![CDATA[
-          // reset id's in order to not break the sequence
-          let maxAttendees = this.mMaxAttendees;
-          this.removeRow(aRow);
-          let numberOfCols = this.numColumns;
-          for (let row = aRow + 1; row <= maxAttendees; row++) {
-              for (let col = 1; col <= numberOfCols; col++) {
-                  let colID = "attendeeCol" + col + "#" + row;
-                  let elem = document.getAnonymousElementByAttribute(this, "id", colID);
-                  if (elem) {
-                      elem.setAttribute("id", "attendeeCol" + col + "#" + (row - 1));
-                  }
-              }
-          }
+            // reset id's in order to not break the sequence
+            let maxAttendees = this.mMaxAttendees;
+            this.removeRow(aRow);
+            let numberOfCols = this.numColumns;
+            for (let row = aRow + 1; row <= maxAttendees; row++) {
+                for (let col = 1; col <= numberOfCols; col++) {
+                    let colID = "attendeeCol" + col + "#" + row;
+                    let elem = document.getAnonymousElementByAttribute(this, "id", colID);
+                    if (elem) {
+                        elem.setAttribute("id", "attendeeCol" + col + "#" + (row - 1));
+                    }
+                }
+            }
         ]]></body>
       </method>
 
       <method name="removeRow">
         <parameter name="aRow"/>
         <body><![CDATA[
-          this.getListItem(aRow).remove();
-          this.fitDummyRows();
-          this.mMaxAttendees--;
+            this.getListItem(aRow).remove();
+            this.fitDummyRows();
+            this.mMaxAttendees--;
         ]]></body>
       </method>
     </implementation>
 
     <handlers>
       <handler event="click" button="0"><![CDATA[
-        function cycle(values, current) {
-            let nextIndex = (values.indexOf(current) + 1) % values.length;
-            return values[nextIndex];
-        }
+          function cycle(values, current) {
+              let nextIndex = (values.indexOf(current) + 1) % values.length;
+              return values[nextIndex];
+          }
 
-        let target = event.originalTarget;
-        if (target.className == "role-icon") {
-            if (target.getAttribute("disabled") != "true") {
-                const roleCycle = [
-                    "REQ-PARTICIPANT", "OPT-PARTICIPANT",
-                    "NON-PARTICIPANT", "CHAIR"
-                ];
+          let target = event.originalTarget;
+          if (target.className == "role-icon") {
+              if (target.getAttribute("disabled") != "true") {
+                  const roleCycle = [
+                      "REQ-PARTICIPANT", "OPT-PARTICIPANT",
+                      "NON-PARTICIPANT", "CHAIR"
+                  ];
 
-                let nextValue = cycle(roleCycle, target.getAttribute("role"));
-                target.setAttribute("role", nextValue);
-                this.updateTooltip(target);
-            }
-        } else if (target.className == "status-icon") {
-            if (target.getAttribute("disabled") != "true") {
-                const statusCycle = ["ACCEPTED", "DECLINED", "TENTATIVE"];
+                  let nextValue = cycle(roleCycle, target.getAttribute("role"));
+                  target.setAttribute("role", nextValue);
+                  this.updateTooltip(target);
+              }
+          } else if (target.className == "status-icon") {
+              if (target.getAttribute("disabled") != "true") {
+                  const statusCycle = ["ACCEPTED", "DECLINED", "TENTATIVE"];
 
-                let nextValue = cycle(statusCycle, target.getAttribute("status"));
-                target.setAttribute("status", nextValue);
-                this.updateTooltip(target);
-            }
-        } else if (target.className == "usertype-icon") {
-            let fieldNum = target.getAttribute("id").split("#")[1];
-            let inputField = this.getInputElement(fieldNum);
-            if (target.getAttribute("disabled") != "true" &&
-                !inputField.attendee.isOrganizer) {
-                const cutypeCycle = ["INDIVIDUAL", "GROUP", "RESOURCE", "ROOM"];
+                  let nextValue = cycle(statusCycle, target.getAttribute("status"));
+                  target.setAttribute("status", nextValue);
+                  this.updateTooltip(target);
+              }
+          } else if (target.className == "usertype-icon") {
+              let fieldNum = target.getAttribute("id").split("#")[1];
+              let inputField = this.getInputElement(fieldNum);
+              if (target.getAttribute("disabled") != "true" &&
+                  !inputField.attendee.isOrganizer) {
+                  const cutypeCycle = ["INDIVIDUAL", "GROUP", "RESOURCE", "ROOM"];
 
-                let nextValue = cycle(cutypeCycle, target.getAttribute("cutype"));
-                target.setAttribute("cutype", nextValue);
-                this.updateTooltip(target);
-            }
-        } else if (this.mIsReadOnly || this.mIsInvitation || target == null ||
-                   (target.localName != "listboxbody" &&
-                    target.localName != "listcell" &&
-                    target.localName != "listitem")) {
-            // These are cases where we don't want to append a new row, keep
-            // them here so we can put the rest in the else case.
-        } else {
-            let lastInput = this.getInputElement(this.mMaxAttendees);
-            if (lastInput && lastInput.value) {
-                this.appendNewRow(true);
-            }
-        }
+                  let nextValue = cycle(cutypeCycle, target.getAttribute("cutype"));
+                  target.setAttribute("cutype", nextValue);
+                  this.updateTooltip(target);
+              }
+          } else if (this.mIsReadOnly || this.mIsInvitation || target == null ||
+                     (target.localName != "listboxbody" &&
+                      target.localName != "listcell" &&
+                      target.localName != "listitem")) {
+              // These are cases where we don't want to append a new row, keep
+              // them here so we can put the rest in the else case.
+          } else {
+              let lastInput = this.getInputElement(this.mMaxAttendees);
+              if (lastInput && lastInput.value) {
+                  this.appendNewRow(true);
+              }
+          }
       ]]></handler>
 
       <handler event="popupshown"><![CDATA[
-        this.mPopupOpen = true;
+          this.mPopupOpen = true;
       ]]></handler>
 
       <handler event="popuphidden"><![CDATA[
-        this.mPopupOpen = false;
+          this.mPopupOpen = false;
       ]]></handler>
 
       <handler event="keydown"><![CDATA[
-        if (this.mIsReadOnly || this.mIsInvitation) {
-            return;
-        }
-        if (event.originalTarget.localName == "input") {
-            switch (event.keyCode) {
-                case KeyEvent.DOM_VK_DELETE:
-                case KeyEvent.DOM_VK_BACK_SPACE: {
-                    let curRowId = this.getRowByInputElement(event.originalTarget);
-                    let allSelected = (event.originalTarget.textLength ==
-                                       event.originalTarget.selectionEnd -
-                                       event.originalTarget.selectionStart);
+          if (this.mIsReadOnly || this.mIsInvitation) {
+              return;
+          }
+          if (event.originalTarget.localName == "input") {
+              switch (event.keyCode) {
+                  case KeyEvent.DOM_VK_DELETE:
+                  case KeyEvent.DOM_VK_BACK_SPACE: {
+                      let curRowId = this.getRowByInputElement(event.originalTarget);
+                      let allSelected = (event.originalTarget.textLength ==
+                                         event.originalTarget.selectionEnd -
+                                         event.originalTarget.selectionStart);
 
-                    if (!event.originalTarget.value ||
-                        event.originalTarget.textLength < 2 ||
-                        allSelected) {
-                        // if the user selected the entire attendee string, only one character was
-                        // left or the row was already empty before hitting the key, we remove the
-                        //  entire row to assure the attendee is deleted
-                        this.deleteHit(event.originalTarget);
+                      if (!event.originalTarget.value ||
+                          event.originalTarget.textLength < 2 ||
+                          allSelected) {
+                          // if the user selected the entire attendee string, only one character was
+                          // left or the row was already empty before hitting the key, we remove the
+                          //  entire row to assure the attendee is deleted
+                          this.deleteHit(event.originalTarget);
 
-                        // if the last row was removed, we append an empty one which has the focus
-                        // to enable adding a new attendee directly with freebusy information cleared
-                        let targetRowId = (event.keyCode == KeyEvent.DOM_VK_BACK_SPACE && curRowId > 2)
-                                          ? curRowId - 1 : curRowId;
-                        if (this.mMaxAttendees == 1) {
-                            this.appendNewRow(true);
-                        } else {
-                            this.setFocus(targetRowId);
-                        }
+                          // if the last row was removed, we append an empty one which has the focus
+                          // to enable adding a new attendee directly with freebusy information cleared
+                          let targetRowId = (event.keyCode == KeyEvent.DOM_VK_BACK_SPACE && curRowId > 2)
+                                            ? curRowId - 1 : curRowId;
+                          if (this.mMaxAttendees == 1) {
+                              this.appendNewRow(true);
+                          } else {
+                              this.setFocus(targetRowId);
+                          }
 
-                        // set cursor to begin or end of focused input box based on deletion direction
-                        let cPos = 0;
-                        let input = document.getAnonymousElementByAttribute(this.getListItem(targetRowId),
-                                                                            "anonid", "input");
-                        if (targetRowId != curRowId) {
-                            cPos = input.textLength;
-                        }
-                        input.setSelectionRange(cPos, cPos);
-                    }
+                          // set cursor to begin or end of focused input box based on deletion direction
+                          let cPos = 0;
+                          let input = document.getAnonymousElementByAttribute(this.getListItem(targetRowId),
+                                                                              "anonid", "input");
+                          if (targetRowId != curRowId) {
+                              cPos = input.textLength;
+                          }
+                          input.setSelectionRange(cPos, cPos);
+                      }
 
-                    event.stopPropagation();
-                    break;
-                }
-            }
-        }
+                      event.stopPropagation();
+                      break;
+                  }
+              }
+          }
       ]]></handler>
 
       <handler event="keypress" phase="capturing"><![CDATA[
-        // In case we're currently showing the autocompletion popup
-        // don't care about keypress-events and let them go. Otherwise
-        // this event indicates the user wants to travel between
-        // the different attendees. In this case we set the focus
-        // appropriately and stop the event propagation.
-        if (this.mPopupOpen || this.mIsReadOnly || this.mIsInvitation) {
-            return;
-        }
-        if (event.originalTarget.localName == "input") {
-            switch (event.keyCode) {
-                case KeyEvent.DOM_VK_UP:
-                    this.arrowHit(event.originalTarget, -1);
-                    event.stopPropagation();
-                    break;
-                case KeyEvent.DOM_VK_DOWN:
-                    this.arrowHit(event.originalTarget, 1);
-                    event.stopPropagation();
-                    break;
-                case KeyEvent.DOM_VK_TAB:
-                    this.arrowHit(event.originalTarget, event.shiftKey ? -1 : +1);
-                    break;
-            }
-        }
+          // In case we're currently showing the autocompletion popup
+          // don't care about keypress-events and let them go. Otherwise
+          // this event indicates the user wants to travel between
+          // the different attendees. In this case we set the focus
+          // appropriately and stop the event propagation.
+          if (this.mPopupOpen || this.mIsReadOnly || this.mIsInvitation) {
+              return;
+          }
+          if (event.originalTarget.localName == "input") {
+              switch (event.keyCode) {
+                  case KeyEvent.DOM_VK_UP:
+                      this.arrowHit(event.originalTarget, -1);
+                      event.stopPropagation();
+                      break;
+                  case KeyEvent.DOM_VK_DOWN:
+                      this.arrowHit(event.originalTarget, 1);
+                      event.stopPropagation();
+                      break;
+                  case KeyEvent.DOM_VK_TAB:
+                      this.arrowHit(event.originalTarget, event.shiftKey ? -1 : +1);
+                      break;
+              }
+          }
       ]]></handler>
     </handlers>
   </binding>
@@ -1233,118 +1233,118 @@
 
       <property name="zoomFactor">
         <getter><![CDATA[
-          return this.mZoomFactor;
+            return this.mZoomFactor;
         ]]></getter>
         <setter><![CDATA[
-          this.mZoomFactor = val;
-          return val;
+            this.mZoomFactor = val;
+            return val;
         ]]></setter>
       </property>
 
       <property name="force24Hours">
         <getter><![CDATA[
-          return this.mForce24Hours;
+            return this.mForce24Hours;
         ]]></getter>
         <setter><![CDATA[
-          this.mForce24Hours = val;
-          this.initTimeRange();
-          this.update();
-          return val;
+            this.mForce24Hours = val;
+            this.initTimeRange();
+            this.update();
+            return val;
         ]]></setter>
       </property>
 
       <property name="ratio">
         <setter><![CDATA[
-          this.mRatio = val;
-          this.update();
-          return val;
+            this.mRatio = val;
+            this.update();
+            return val;
         ]]></setter>
       </property>
 
       <constructor><![CDATA[
-        Components.utils.import("resource://gre/modules/Preferences.jsm");
-        Components.utils.import("resource://calendar/modules/calUtils.jsm");
+          Components.utils.import("resource://gre/modules/Preferences.jsm");
+          Components.utils.import("resource://calendar/modules/calUtils.jsm");
 
-        this.initTimeRange();
+          this.initTimeRange();
 
-        // The basedate is the date/time from which the display
-        // of the timebar starts. The range is the number of days
-        // we should be able to show. the start- and enddate
-        // is the time the event is scheduled for.
-        this.mRange = Number(this.getAttribute("range"));
-        this.mSelectionbar =
-            document.getAnonymousElementByAttribute(
-                this, "anonid", "selection-bar");
+          // The basedate is the date/time from which the display
+          // of the timebar starts. The range is the number of days
+          // we should be able to show. the start- and enddate
+          // is the time the event is scheduled for.
+          this.mRange = Number(this.getAttribute("range"));
+          this.mSelectionbar =
+              document.getAnonymousElementByAttribute(
+                  this, "anonid", "selection-bar");
       ]]></constructor>
 
       <property name="baseDate">
         <setter><![CDATA[
-          // we need to convert the date/time in question in
-          // order to calculate with hours that are aligned
-          // with our timebar display.
-          let kDefaultTimezone = cal.calendarDefaultTimezone();
-          this.mBaseDate = val.getInTimezone(kDefaultTimezone);
-          this.mBaseDate.isDate = true;
-          this.mBaseDate.makeImmutable();
-          return val;
+            // we need to convert the date/time in question in
+            // order to calculate with hours that are aligned
+            // with our timebar display.
+            let kDefaultTimezone = cal.calendarDefaultTimezone();
+            this.mBaseDate = val.getInTimezone(kDefaultTimezone);
+            this.mBaseDate.isDate = true;
+            this.mBaseDate.makeImmutable();
+            return val;
         ]]></setter>
       </property>
 
       <property name="startDate">
         <setter><![CDATA[
-          // currently we *always* set the basedate to be
-          // equal to the startdate. we'll most probably
-          // want to change this later.
-          this.baseDate = val;
-          // we need to convert the date/time in question in
-          // order to calculate with hours that are aligned
-          // with our timebar display.
-          let kDefaultTimezone = cal.calendarDefaultTimezone();
-          this.mStartDate = val.getInTimezone(kDefaultTimezone);
-          this.mStartDate.makeImmutable();
-          return val;
+            // currently we *always* set the basedate to be
+            // equal to the startdate. we'll most probably
+            // want to change this later.
+            this.baseDate = val;
+            // we need to convert the date/time in question in
+            // order to calculate with hours that are aligned
+            // with our timebar display.
+            let kDefaultTimezone = cal.calendarDefaultTimezone();
+            this.mStartDate = val.getInTimezone(kDefaultTimezone);
+            this.mStartDate.makeImmutable();
+            return val;
         ]]></setter>
         <getter><![CDATA[
-          return this.mStartDate;
+            return this.mStartDate;
         ]]></getter>
       </property>
 
       <property name="endDate">
         <setter><![CDATA[
-          // we need to convert the date/time in question in
-          // order to calculate with hours that are aligned
-          // with our timebar display.
-          let kDefaultTimezone = cal.calendarDefaultTimezone();
-          this.mEndDate = val.getInTimezone(kDefaultTimezone);
-          if (this.mEndDate.isDate) {
-              this.mEndDate.day += 1;
-          }
-          this.mEndDate.makeImmutable();
-          return val;
+            // we need to convert the date/time in question in
+            // order to calculate with hours that are aligned
+            // with our timebar display.
+            let kDefaultTimezone = cal.calendarDefaultTimezone();
+            this.mEndDate = val.getInTimezone(kDefaultTimezone);
+            if (this.mEndDate.isDate) {
+                this.mEndDate.day += 1;
+            }
+            this.mEndDate.makeImmutable();
+            return val;
         ]]></setter>
         <getter><![CDATA[
-          return this.mEndDate;
+            return this.mEndDate;
         ]]></getter>
       </property>
 
       <property name="leftdragWidth">
         <getter><![CDATA[
-          if (!this.mLeftBox) {
-              this.mLeftBox =
-                  document.getAnonymousElementByAttribute(
-                      this, "anonid", "leftbox");
-          }
-          return this.mLeftBox.boxObject.width;
+            if (!this.mLeftBox) {
+                this.mLeftBox =
+                    document.getAnonymousElementByAttribute(
+                        this, "anonid", "leftbox");
+            }
+            return this.mLeftBox.boxObject.width;
         ]]></getter>
       </property>
       <property name="rightdragWidth">
         <getter><![CDATA[
-          if (!this.mRightBox) {
-              this.mRightBox =
-                  document.getAnonymousElementByAttribute(
-                      this, "anonid", "rightbox");
-          }
-          return this.mRightBox.boxObject.width;
+            if (!this.mRightBox) {
+                this.mRightBox =
+                    document.getAnonymousElementByAttribute(
+                        this, "anonid", "rightbox");
+            }
+            return this.mRightBox.boxObject.width;
         ]]></getter>
       </property>
 
@@ -1352,10 +1352,10 @@
         <parameter name="width"/>
         <parameter name="height"/>
         <body><![CDATA[
-          this.mContentWidth = width;
-          this.mHeaderHeight = height + 2;
-          this.mMargin = 0;
-          this.update();
+            this.mContentWidth = width;
+            this.mHeaderHeight = height + 2;
+            this.mMargin = 0;
+            this.update();
         ]]></body>
       </method>
 
@@ -1364,77 +1364,77 @@
       <method name="date2offset">
         <parameter name="date"/>
         <body><![CDATA[
-          let num_hours = this.mEndHour - this.mStartHour;
-          let diff = date.subtractDate(this.mBaseDate);
-          let offset = diff.days * num_hours;
-          let hours = (diff.hours - this.mStartHour) + (diff.minutes / 60.0);
-          if (hours < 0) {
-              hours = 0;
-          }
-          if (hours > num_hours) {
-              hours = num_hours;
-          }
-          offset += hours;
-          return offset;
+            let num_hours = this.mEndHour - this.mStartHour;
+            let diff = date.subtractDate(this.mBaseDate);
+            let offset = diff.days * num_hours;
+            let hours = (diff.hours - this.mStartHour) + (diff.minutes / 60.0);
+            if (hours < 0) {
+                hours = 0;
+            }
+            if (hours > num_hours) {
+                hours = num_hours;
+            }
+            offset += hours;
+            return offset;
         ]]></body>
       </method>
 
       <method name="update">
         <body><![CDATA[
-          if (!this.mStartDate || !this.mEndDate) {
-              return;
-          }
+            if (!this.mStartDate || !this.mEndDate) {
+                return;
+            }
 
-          // Calculate the relation of startdate/basedate and enddate/startdate.
-          let offset = this.mStartDate.subtractDate(this.mBaseDate);
+            // Calculate the relation of startdate/basedate and enddate/startdate.
+            let offset = this.mStartDate.subtractDate(this.mBaseDate);
 
-          // Calculate how much pixels a single hour and a single day take up.
-          let num_hours = this.mEndHour - this.mStartHour;
-          let hour_width = this.mContentWidth / num_hours;
+            // Calculate how much pixels a single hour and a single day take up.
+            let num_hours = this.mEndHour - this.mStartHour;
+            let hour_width = this.mContentWidth / num_hours;
 
-          // Calculate the offset in fractional hours that corrospond
-          // to our start- and end-time.
-          let start_offset_in_hours = this.date2offset(this.mStartDate);
-          let end_offset_in_hours = this.date2offset(this.mEndDate);
-          let duration_in_hours = end_offset_in_hours - start_offset_in_hours;
+            // Calculate the offset in fractional hours that corrospond
+            // to our start- and end-time.
+            let start_offset_in_hours = this.date2offset(this.mStartDate);
+            let end_offset_in_hours = this.date2offset(this.mEndDate);
+            let duration_in_hours = end_offset_in_hours - start_offset_in_hours;
 
-          // Calculate width & margin for the selection bar based on the
-          // relation of startdate/basedate and enddate/startdate.
-          // This is a simple conversion from hours to pixels.
-          this.mWidth = duration_in_hours * hour_width;
-          let totaldragwidths = this.leftdragWidth + this.rightdragWidth;
-          if (this.mWidth < totaldragwidths) {
-              this.mWidth = totaldragwidths;
-          }
-          this.mMargin = start_offset_in_hours * hour_width;
+            // Calculate width & margin for the selection bar based on the
+            // relation of startdate/basedate and enddate/startdate.
+            // This is a simple conversion from hours to pixels.
+            this.mWidth = duration_in_hours * hour_width;
+            let totaldragwidths = this.leftdragWidth + this.rightdragWidth;
+            if (this.mWidth < totaldragwidths) {
+                this.mWidth = totaldragwidths;
+            }
+            this.mMargin = start_offset_in_hours * hour_width;
 
-          // Calculate the difference between content and container in pixels.
-          // The container is the window showing this control, the content is the
-          // total number of pixels the selection bar can theoretically take up.
-          let total_width = this.mContentWidth * this.mRange - this.parentNode.boxObject.width;
+            // Calculate the difference between content and container in pixels.
+            // The container is the window showing this control, the content is the
+            // total number of pixels the selection bar can theoretically take up.
+            let total_width = this.mContentWidth * this.mRange - this.parentNode.boxObject.width;
 
-          // Calculate the current scroll offset.
-          offset = Math.floor(total_width * this.mRatio);
+            // Calculate the current scroll offset.
+            offset = Math.floor(total_width * this.mRatio);
 
-          // The final margin is the difference between the date-based margin
-          // and the scroll-based margin.
-          this.mMargin -= offset;
+            // The final margin is the difference between the date-based margin
+            // and the scroll-based margin.
+            this.mMargin -= offset;
 
-          // Set the styles based on the calculations above for the 'selection-bar'.
-          let style = "width: " + this.mWidth +
-                      "px; margin-inline-start: " + this.mMargin +
-                      "px; margin-top: " + this.mHeaderHeight + "px;";
-          this.mSelectionbar.setAttribute("style", style);
+            // Set the styles based on the calculations above for the 'selection-bar'.
+            let style = "width: " + this.mWidth +
+                        "px; margin-inline-start: " + this.mMargin +
+                        "px; margin-top: " + this.mHeaderHeight + "px;";
+            this.mSelectionbar.setAttribute("style", style);
 
-          let event = document.createEvent("Events");
-          event.initEvent("timechange", true, false);
-          event.startDate = this.mStartDate;
-          event.endDate = this.mEndDate.clone();
-          if (event.endDate.isDate) {
-              event.endDate.day--;
-          }
-          event.endDate.makeImmutable();
-          this.dispatchEvent(event);
+            let event = document.createEvent("Events");
+            event.initEvent("timechange", true, false);
+            event.startDate = this.mStartDate;
+            event.endDate = this.mEndDate.clone();
+            if (event.endDate.isDate) {
+                event.endDate.day--;
+            }
+            event.endDate.makeImmutable();
+            this.dispatchEvent(event);
         ]]></body>
       </method>
 
@@ -1450,13 +1450,13 @@
 
       <method name="initTimeRange">
         <body><![CDATA[
-          if (this.force24Hours) {
-              this.mStartHour = 0;
-              this.mEndHour = 24;
-          } else {
-              this.mStartHour = Preferences.get("calendar.view.daystarthour", 8);
-              this.mEndHour = Preferences.get("calendar.view.dayendhour", 19);
-          }
+            if (this.force24Hours) {
+                this.mStartHour = 0;
+                this.mEndHour = 24;
+            } else {
+                this.mStartHour = Preferences.get("calendar.view.daystarthour", 8);
+                this.mEndHour = Preferences.get("calendar.view.dayendhour", 19);
+            }
         ]]></body>
       </method>
 
@@ -1465,142 +1465,142 @@
         <parameter name="delta"/>
         <parameter name="doclip"/>
         <body><![CDATA[
-          let newTime = time.clone();
-          let clip_minutes = 60 * this.zoomFactor / 100;
-          if (newTime.isDate) {
-              clip_minutes = 60 * 24;
-          }
-          let num_hours = this.mEndHour - this.mStartHour;
-          let hour_width = this.mContentWidth / num_hours;
-          let minutes_per_pixel = 60 / hour_width;
-          let minute_shift = minutes_per_pixel * delta;
-          let isClipped = Math.abs(minute_shift) >= (this.mfClipRatio * clip_minutes);
-          if (isClipped) {
-              if (delta > 0) {
-                  if (time.isDate) {
-                      newTime.day++;
-                  } else {
-                      if (doclip) {
-                          newTime.minute -= newTime.minute % clip_minutes;
-                      }
-                      newTime.minute += clip_minutes;
-                  }
-              } else if (delta < 0) {
-                  if (time.isDate) {
-                      newTime.day--;
-                  } else {
-                      if (doclip) {
-                          newTime.minute -= newTime.minute % clip_minutes;
-                      }
-                      newTime.minute -= clip_minutes;
-                  }
-              }
-          }
+            let newTime = time.clone();
+            let clip_minutes = 60 * this.zoomFactor / 100;
+            if (newTime.isDate) {
+                clip_minutes = 60 * 24;
+            }
+            let num_hours = this.mEndHour - this.mStartHour;
+            let hour_width = this.mContentWidth / num_hours;
+            let minutes_per_pixel = 60 / hour_width;
+            let minute_shift = minutes_per_pixel * delta;
+            let isClipped = Math.abs(minute_shift) >= (this.mfClipRatio * clip_minutes);
+            if (isClipped) {
+                if (delta > 0) {
+                    if (time.isDate) {
+                        newTime.day++;
+                    } else {
+                        if (doclip) {
+                            newTime.minute -= newTime.minute % clip_minutes;
+                        }
+                        newTime.minute += clip_minutes;
+                    }
+                } else if (delta < 0) {
+                    if (time.isDate) {
+                        newTime.day--;
+                    } else {
+                        if (doclip) {
+                            newTime.minute -= newTime.minute % clip_minutes;
+                        }
+                        newTime.minute -= clip_minutes;
+                    }
+                }
+            }
 
-          if (!newTime.isDate) {
-              if (newTime.hour < this.mStartHour) {
-                  newTime.hour = this.mEndHour - 1;
-                  newTime.day--;
-              }
-              if (newTime.hour >= this.mEndHour) {
-                  newTime.hour = this.mStartHour;
-                  newTime.day++;
-              }
-          }
+            if (!newTime.isDate) {
+                if (newTime.hour < this.mStartHour) {
+                    newTime.hour = this.mEndHour - 1;
+                    newTime.day--;
+                }
+                if (newTime.hour >= this.mEndHour) {
+                    newTime.hour = this.mStartHour;
+                    newTime.day++;
+                }
+            }
 
-          return newTime;
+            return newTime;
         ]]></body>
       </method>
     </implementation>
 
     <handlers>
       <handler event="mousedown"><![CDATA[
-        let element = event.target;
-        this.mMouseX = event.screenX;
-        let mouseX = event.clientX - element.boxObject.x;
+          let element = event.target;
+          this.mMouseX = event.screenX;
+          let mouseX = event.clientX - element.boxObject.x;
 
-        if (mouseX >= this.mMargin) {
-            if (mouseX <= (this.mMargin + this.mWidth)) {
-                if (mouseX <= (this.mMargin + this.leftdragWidth)) {
-                    // Move the startdate only...
-                    window.setCursor("w-resize");
-                    this.mDragState = 2;
-                } else if (mouseX >= (this.mMargin + this.mWidth - (this.rightdragWidth))) {
-                    // Move the enddate only..
-                    window.setCursor("e-resize");
-                    this.mDragState = 3;
-                } else {
-                    // Move the startdate and the enddate
-                    this.mDragState = 1;
-                    window.setCursor("grab");
-                }
-            }
-        }
+          if (mouseX >= this.mMargin) {
+              if (mouseX <= (this.mMargin + this.mWidth)) {
+                  if (mouseX <= (this.mMargin + this.leftdragWidth)) {
+                      // Move the startdate only...
+                      window.setCursor("w-resize");
+                      this.mDragState = 2;
+                  } else if (mouseX >= (this.mMargin + this.mWidth - (this.rightdragWidth))) {
+                      // Move the enddate only..
+                      window.setCursor("e-resize");
+                      this.mDragState = 3;
+                  } else {
+                      // Move the startdate and the enddate
+                      this.mDragState = 1;
+                      window.setCursor("grab");
+                  }
+              }
+          }
       ]]></handler>
 
       <handler event="mousemove"><![CDATA[
-        let mouseX = event.screenX;
-        if (this.mDragState == 1) {
-            // Move the startdate and the enddate
-            let delta = mouseX - this.mMouseX;
-            let newStart = this.moveTime(this.mStartDate, delta, false);
-            if (newStart.compare(this.mStartDate) != 0) {
-                newEnd = this.moveTime(this.mEndDate, delta, false);
+          let mouseX = event.screenX;
+          if (this.mDragState == 1) {
+              // Move the startdate and the enddate
+              let delta = mouseX - this.mMouseX;
+              let newStart = this.moveTime(this.mStartDate, delta, false);
+              if (newStart.compare(this.mStartDate) != 0) {
+                  newEnd = this.moveTime(this.mEndDate, delta, false);
 
-                // We need to adapt this date in case we're dealing with
-                // an all-day event. This is because setting 'endDate' will
-                // automatically add one day extra for all-day events.
-                if (newEnd.isDate) {
-                    newEnd.day--;
-                }
+                  // We need to adapt this date in case we're dealing with
+                  // an all-day event. This is because setting 'endDate' will
+                  // automatically add one day extra for all-day events.
+                  if (newEnd.isDate) {
+                      newEnd.day--;
+                  }
 
-                this.startDate = newStart;
-                this.endDate = newEnd;
-                this.mMouseX = mouseX;
-                this.update();
-            }
-        } else if (this.mDragState == 2) {
-            // Move the startdate only...
-            let delta = event.screenX - this.mSelectionbar.boxObject.screenX;
-            let newStart = this.moveTime(this.mStartDate, delta, true);
-            if (newStart.compare(this.mEndDate) >= 0) {
-                if (this.mStartDate.isDate) {
-                    return;
-                }
-                newStart = this.mEndDate;
-            }
-            if (newStart.compare(this.mStartDate) != 0) {
-                this.startDate = newStart;
-                this.update();
-            }
-        } else if (this.mDragState == 3) {
-            // Move the enddate only..
-            let delta = mouseX - (this.mSelectionbar.boxObject.screenX +
-                                  this.mSelectionbar.boxObject.width);
-            let newEnd = this.moveTime(this.mEndDate, delta, true);
-            if (newEnd.compare(this.mStartDate) < 0) {
-                newEnd = this.mStartDate;
-            }
-            if (newEnd.compare(this.mEndDate) != 0) {
-                // We need to adapt this date in case we're dealing with
-                // an all-day event. This is because setting 'endDate' will
-                // automatically add one day extra for all-day events.
-                if (newEnd.isDate) {
-                    newEnd.day--;
-                }
+                  this.startDate = newStart;
+                  this.endDate = newEnd;
+                  this.mMouseX = mouseX;
+                  this.update();
+              }
+          } else if (this.mDragState == 2) {
+              // Move the startdate only...
+              let delta = event.screenX - this.mSelectionbar.boxObject.screenX;
+              let newStart = this.moveTime(this.mStartDate, delta, true);
+              if (newStart.compare(this.mEndDate) >= 0) {
+                  if (this.mStartDate.isDate) {
+                      return;
+                  }
+                  newStart = this.mEndDate;
+              }
+              if (newStart.compare(this.mStartDate) != 0) {
+                  this.startDate = newStart;
+                  this.update();
+              }
+          } else if (this.mDragState == 3) {
+              // Move the enddate only..
+              let delta = mouseX - (this.mSelectionbar.boxObject.screenX +
+                                    this.mSelectionbar.boxObject.width);
+              let newEnd = this.moveTime(this.mEndDate, delta, true);
+              if (newEnd.compare(this.mStartDate) < 0) {
+                  newEnd = this.mStartDate;
+              }
+              if (newEnd.compare(this.mEndDate) != 0) {
+                  // We need to adapt this date in case we're dealing with
+                  // an all-day event. This is because setting 'endDate' will
+                  // automatically add one day extra for all-day events.
+                  if (newEnd.isDate) {
+                      newEnd.day--;
+                  }
 
-                // Don't allow all-day events to be shorter than a single day.
-                if (!newEnd.isDate || (newEnd.compare(this.startDate) >= 0)) {
-                    this.endDate = newEnd;
-                    this.update();
-                }
-            }
-        }
+                  // Don't allow all-day events to be shorter than a single day.
+                  if (!newEnd.isDate || (newEnd.compare(this.startDate) >= 0)) {
+                      this.endDate = newEnd;
+                      this.update();
+                  }
+              }
+          }
       ]]></handler>
 
       <handler event="mouseup"><![CDATA[
-        this.mDragState = 0;
-        window.setCursor("auto");
+          this.mDragState = 0;
+          window.setCursor("auto");
       ]]></handler>
     </handlers>
   </binding>

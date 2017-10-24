@@ -19,10 +19,10 @@
       <method name="addCalendarItem">
         <parameter name="aItem"/>
         <body><![CDATA[
-          let newNode = createXULElement("calendar-invitations-richlistitem");
-          this.appendChild(newNode);
-          newNode.setAttribute("anonid", "invitations-listitem");
-          newNode.calendarItem = aItem;
+            let newNode = createXULElement("calendar-invitations-richlistitem");
+            this.appendChild(newNode);
+            newNode.setAttribute("anonid", "invitations-listitem");
+            newNode.calendarItem = aItem;
         ]]></body>
       </method>
     </implementation>
@@ -71,135 +71,134 @@
 
       <property name="mStrings">
         <getter>
-          return {
-              alldayEvent: "&calendar.invitations.list.alldayevent.text;",
-              recurrentEvent: "&calendar.invitations.list.recurrentevent.text;",
-              location: "&calendar.invitations.list.location.text;",
-              organizer: "&calendar.invitations.list.organizer.text;",
-              attendee: "&calendar.invitations.list.attendee.text;",
-              none: "&calendar.invitations.list.none.text;"
-          };
+            return {
+                alldayEvent: "&calendar.invitations.list.alldayevent.text;",
+                recurrentEvent: "&calendar.invitations.list.recurrentevent.text;",
+                location: "&calendar.invitations.list.location.text;",
+                organizer: "&calendar.invitations.list.organizer.text;",
+                attendee: "&calendar.invitations.list.attendee.text;",
+                none: "&calendar.invitations.list.none.text;"
+            };
         </getter>
       </property>
 
       <!-- properties -->
       <property name="calendarItem">
         <getter><![CDATA[
-          return this.mCalendarItem;
+            return this.mCalendarItem;
         ]]></getter>
         <setter><![CDATA[
-          this.setCalendarItem(val);
-          return val;
+            this.setCalendarItem(val);
+            return val;
         ]]></setter>
       </property>
 
       <property name="initialParticipationStatus">
         <getter><![CDATA[
-          return this.mInitialParticipationStatus;
+            return this.mInitialParticipationStatus;
         ]]></getter>
         <setter><![CDATA[
-          this.mInitialParticipationStatus = val;
-          return val;
+            this.mInitialParticipationStatus = val;
+            return val;
         ]]></setter>
       </property>
 
       <property name="participationStatus">
         <getter><![CDATA[
-          return this.mParticipationStatus;
+            return this.mParticipationStatus;
         ]]></getter>
         <setter><![CDATA[
-          this.mParticipationStatus = val;
-          let icon = document.getAnonymousElementByAttribute(
-              this, "anonid", "icon");
-          icon.setAttribute("status", val);
-          return val;
+            this.mParticipationStatus = val;
+            let icon = document.getAnonymousElementByAttribute(
+                this, "anonid", "icon");
+            icon.setAttribute("status", val);
+            return val;
         ]]></setter>
       </property>
 
       <!-- constructor -->
       <constructor><![CDATA[
-        Components.utils.import("resource://calendar/modules/calUtils.jsm");
-        this.mDateFormatter = cal.getDateFormatter();
+          Components.utils.import("resource://calendar/modules/calUtils.jsm");
+          this.mDateFormatter = cal.getDateFormatter();
       ]]></constructor>
 
       <!-- methods -->
       <method name="setCalendarItem">
         <parameter name="aItem"/>
         <body><![CDATA[
-          this.mCalendarItem = aItem;
-          this.mInitialParticipationStatus =
-              this.getCalendarItemParticipationStatus(aItem);
-          this.participationStatus = this.mInitialParticipationStatus;
+            this.mCalendarItem = aItem;
+            this.mInitialParticipationStatus =
+                this.getCalendarItemParticipationStatus(aItem);
+            this.participationStatus = this.mInitialParticipationStatus;
 
-          let titleLabel = document.getAnonymousElementByAttribute(
-              this, "anonid", "title");
-          titleLabel.setAttribute("value", aItem.title);
+            let titleLabel = document.getAnonymousElementByAttribute(
+                this, "anonid", "title");
+            titleLabel.setAttribute("value", aItem.title);
 
-          let dateLabel = document.getAnonymousElementByAttribute(
-              this, "anonid", "date");
-          let dateString = this.mDateFormatter.formatItemInterval(aItem);
-          if (aItem.startDate.isDate) {
-              dateString += ", " + this.mStrings.alldayEvent;
-          }
-          dateLabel.setAttribute("value", dateString);
+            let dateLabel = document.getAnonymousElementByAttribute(
+                this, "anonid", "date");
+            let dateString = this.mDateFormatter.formatItemInterval(aItem);
+            if (aItem.startDate.isDate) {
+                dateString += ", " + this.mStrings.alldayEvent;
+            }
+            dateLabel.setAttribute("value", dateString);
 
-          let recurrenceLabel = document.getAnonymousElementByAttribute(
-              this, "anonid", "recurrence");
-          if (aItem.recurrenceInfo) {
-              recurrenceLabel.setAttribute("value", this.mStrings.recurrentEvent);
-          } else {
-              recurrenceLabel.setAttribute("hidden", "true");
-              let spacer = document.getAnonymousElementByAttribute(
-                  this, "anonid", "spacer");
-              spacer.removeAttribute("hidden");
-          }
+            let recurrenceLabel = document.getAnonymousElementByAttribute(
+                this, "anonid", "recurrence");
+            if (aItem.recurrenceInfo) {
+                recurrenceLabel.setAttribute("value", this.mStrings.recurrentEvent);
+            } else {
+                recurrenceLabel.setAttribute("hidden", "true");
+                let spacer = document.getAnonymousElementByAttribute(
+                    this, "anonid", "spacer");
+                spacer.removeAttribute("hidden");
+            }
 
-          let locationLabel = document.getAnonymousElementByAttribute(
-              this, "anonid", "location");
-          let locationString = this.mStrings.location;
-          let locationProperty = aItem.getProperty("LOCATION");
-          if (locationProperty && locationProperty.length > 0) {
-              locationString += locationProperty;
-          } else {
-              locationString += this.mStrings.none;
-          }
-          locationLabel.setAttribute("value", locationString);
+            let locationLabel = document.getAnonymousElementByAttribute(
+                this, "anonid", "location");
+            let locationString = this.mStrings.location;
+            let locationProperty = aItem.getProperty("LOCATION");
+            if (locationProperty && locationProperty.length > 0) {
+                locationString += locationProperty;
+            } else {
+                locationString += this.mStrings.none;
+            }
+            locationLabel.setAttribute("value", locationString);
 
-          let organizerLabel = document.getAnonymousElementByAttribute(
-              this, "anonid", "organizer");
-          let organizerString = this.mStrings.organizer;
-          let org = aItem.organizer;
-          if (org) {
-              if (org.commonName && org.commonName.length > 0) {
-                  organizerString += org.commonName;
-              } else if (org.id) {
-                  organizerString += org.id.replace(/^mailto:/i, "");
-              }
-          }
-          organizerLabel.setAttribute("value", organizerString);
+            let organizerLabel = document.getAnonymousElementByAttribute(
+                this, "anonid", "organizer");
+            let organizerString = this.mStrings.organizer;
+            let org = aItem.organizer;
+            if (org) {
+                if (org.commonName && org.commonName.length > 0) {
+                    organizerString += org.commonName;
+                } else if (org.id) {
+                    organizerString += org.id.replace(/^mailto:/i, "");
+                }
+            }
+            organizerLabel.setAttribute("value", organizerString);
 
-          let attendeeLabel = document.getAnonymousElementByAttribute(
-              this, "anonid", "attendee");
-          let attendeeString = this.mStrings.attendee;
-          let att = cal.getInvitedAttendee(aItem);
-          if (att) {
-              if (att.commonName && att.commonName.length > 0) {
-                  attendeeString += att.commonName;
-              } else if (att.id) {
-                  attendeeString += att.id.replace(/^mailto:/i, "");
-              }
-          }
-          attendeeLabel.setAttribute("value", attendeeString);
-          this.setAttribute("itemId", aItem.hashId);
-          ]]>
-        </body>
+            let attendeeLabel = document.getAnonymousElementByAttribute(
+                this, "anonid", "attendee");
+            let attendeeString = this.mStrings.attendee;
+            let att = cal.getInvitedAttendee(aItem);
+            if (att) {
+                if (att.commonName && att.commonName.length > 0) {
+                    attendeeString += att.commonName;
+                } else if (att.id) {
+                    attendeeString += att.id.replace(/^mailto:/i, "");
+                }
+            }
+            attendeeLabel.setAttribute("value", attendeeString);
+            this.setAttribute("itemId", aItem.hashId);
+        ]]></body>
       </method>
 
       <method name="getCalendarItemParticipationStatus">
         <parameter name="aItem"/>
         <body><![CDATA[
-          let att = cal.getInvitedAttendee(aItem);
-          return (att ? att.participationStatus : null);
+            let att = cal.getInvitedAttendee(aItem);
+            return (att ? att.participationStatus : null);
         ]]></body>
       </method>
 
@@ -207,32 +206,32 @@
         <parameter name="aItem"/>
         <parameter name="aStatus"/>
         <body><![CDATA[
-          let calendar = cal.wrapInstance(aItem.calendar, Components.interfaces.calISchedulingSupport);
-          if (calendar) {
-              let att = calendar.getInvitedAttendee(aItem);
-              if (att) {
-                  let att_ = att.clone();
-                  att_.participationStatus = aStatus;
+            let calendar = cal.wrapInstance(aItem.calendar, Components.interfaces.calISchedulingSupport);
+            if (calendar) {
+                let att = calendar.getInvitedAttendee(aItem);
+                if (att) {
+                    let att_ = att.clone();
+                    att_.participationStatus = aStatus;
 
-                  // Update attendee
-                  aItem.removeAttendee(att);
-                  aItem.addAttendee(att_);
-                  return true;
-              }
-          }
-          return false;
+                    // Update attendee
+                    aItem.removeAttendee(att);
+                    aItem.addAttendee(att_);
+                    return true;
+                }
+            }
+            return false;
         ]]></body>
       </method>
 
       <method name="accept">
         <body><![CDATA[
-          this.participationStatus = "ACCEPTED";
+            this.participationStatus = "ACCEPTED";
         ]]></body>
       </method>
 
       <method name="decline">
         <body><![CDATA[
-          this.participationStatus = "DECLINED";
+            this.participationStatus = "DECLINED";
         ]]></body>
       </method>
     </implementation>
