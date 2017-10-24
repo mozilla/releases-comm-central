@@ -85,7 +85,7 @@ NS_IMETHODIMP
 nsSmtpServer::GetHostname(nsACString &aHostname)
 {
   nsCString result;
-  nsresult rv = mPrefBranch->GetCharPref("hostname", getter_Copies(result));
+  nsresult rv = mPrefBranch->GetCharPref("hostname", result);
   if (NS_FAILED(rv))
     aHostname.Truncate();
   else
@@ -98,7 +98,7 @@ NS_IMETHODIMP
 nsSmtpServer::SetHostname(const nsACString &aHostname)
 {
   if (!aHostname.IsEmpty())
-    return mPrefBranch->SetCharPref("hostname", PromiseFlatCString(aHostname).get());
+    return mPrefBranch->SetCharPref("hostname", aHostname);
 
   // If the pref value is already empty, ClearUserPref will return
   // NS_ERROR_UNEXPECTED, so don't check the rv here.
@@ -110,7 +110,7 @@ NS_IMETHODIMP
 nsSmtpServer::GetDescription(nsACString &aDescription)
 {
     nsCString temp;
-    mPrefBranch->GetCharPref("description", getter_Copies(temp));
+    mPrefBranch->GetCharPref("description", temp);
     aDescription.Assign(temp);
     return NS_OK;
 }
@@ -119,7 +119,7 @@ NS_IMETHODIMP
 nsSmtpServer::SetDescription(const nsACString &aDescription)
 {
     if (!aDescription.IsEmpty())
-        return mPrefBranch->SetCharPref("description", PromiseFlatCString(aDescription).get());
+        return mPrefBranch->SetCharPref("description", aDescription);
     else
         mPrefBranch->ClearUserPref("description");
     return NS_OK;
@@ -152,7 +152,7 @@ nsSmtpServer::GetDisplayname(char * *aDisplayname)
     NS_ENSURE_ARG_POINTER(aDisplayname);
 
     nsCString hostname;
-    rv = mPrefBranch->GetCharPref("hostname", getter_Copies(hostname));
+    rv = mPrefBranch->GetCharPref("hostname", hostname);
     if (NS_FAILED(rv)) {
         *aDisplayname=nullptr;
         return NS_OK;
@@ -186,16 +186,15 @@ nsSmtpServer::SetSocketType(int32_t socketType)
 }
 
 NS_IMETHODIMP
-nsSmtpServer::GetHelloArgument(char * *aHelloArgument)
+nsSmtpServer::GetHelloArgument(nsACString& aHelloArgument)
 {
     nsresult rv;
-    NS_ENSURE_ARG_POINTER(aHelloArgument);
     rv = mPrefBranch->GetCharPref("hello_argument", aHelloArgument);
     if (NS_FAILED(rv))
     {
         rv = mDefPrefBranch->GetCharPref("hello_argument", aHelloArgument);
         if (NS_FAILED(rv))
-            *aHelloArgument = nullptr;
+            aHelloArgument.Truncate();
     }
     return NS_OK;
 }
@@ -233,7 +232,7 @@ NS_IMETHODIMP
 nsSmtpServer::GetUsername(nsACString &aUsername)
 {
   nsCString result;
-  nsresult rv = mPrefBranch->GetCharPref("username", getter_Copies(result));
+  nsresult rv = mPrefBranch->GetCharPref("username", result);
   if (NS_FAILED(rv))
     aUsername.Truncate();
   else
@@ -245,7 +244,7 @@ NS_IMETHODIMP
 nsSmtpServer::SetUsername(const nsACString &aUsername)
 {
   if (!aUsername.IsEmpty())
-    return mPrefBranch->SetCharPref("username", PromiseFlatCString(aUsername).get());
+    return mPrefBranch->SetCharPref("username", aUsername);
 
   // If the pref value is already empty, ClearUserPref will return
   // NS_ERROR_UNEXPECTED, so don't check the rv here.
@@ -276,7 +275,7 @@ nsSmtpServer::GetPassword(nsAString& aPassword)
       nsCString accountKey;
       bool useMatchingHostNameServer = false;
       bool useMatchingDomainServer = false;
-      mPrefBranch->GetCharPref("incomingAccount", getter_Copies(accountKey));
+      mPrefBranch->GetCharPref("incomingAccount", accountKey);
 
       nsCOMPtr<nsIMsgAccountManager> accountManager = do_GetService(NS_MSGACCOUNTMANAGER_CONTRACTID);
       nsCOMPtr<nsIMsgIncomingServer> incomingServerToUse;

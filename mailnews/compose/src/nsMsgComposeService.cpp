@@ -282,7 +282,7 @@ nsMsgComposeService::GetOrigWindowSelection(MSG_ComposeType type, nsIMsgWindow *
   bool requireMultipleWords = true;
   nsAutoCString charsOnlyIf;
   prefs->GetBoolPref(PREF_MAILNEWS_REPLY_QUOTING_SELECTION_MULTI_WORD, &requireMultipleWords);
-  prefs->GetCharPref(PREF_MAILNEWS_REPLY_QUOTING_SELECTION_ONLY_IF, getter_Copies(charsOnlyIf));
+  prefs->GetCharPref(PREF_MAILNEWS_REPLY_QUOTING_SELECTION_ONLY_IF, charsOnlyIf);
   if (sel && (requireMultipleWords || !charsOnlyIf.IsEmpty()))
   {
     nsAutoString selPlain;
@@ -1120,14 +1120,14 @@ nsresult nsMsgComposeService::AddGlobalHtmlDomains()
   if (htmlDomainListCurrentVersion <= htmlDomainListDefaultVersion) {
     // Get list of global domains need to be added
     nsCString globalHtmlDomainList;
-    rv = prefBranch->GetCharPref(HTMLDOMAINUPDATE_DOMAINLIST_PREF_NAME, getter_Copies(globalHtmlDomainList));
+    rv = prefBranch->GetCharPref(HTMLDOMAINUPDATE_DOMAINLIST_PREF_NAME, globalHtmlDomainList);
 
     if (NS_SUCCEEDED(rv) && !globalHtmlDomainList.IsEmpty()) {
       nsTArray<nsCString> domainArray;
 
       // Get user's current HTML domain set for send format
       nsCString currentHtmlDomainList;
-      rv = prefBranch->GetCharPref(USER_CURRENT_HTMLDOMAINLIST_PREF_NAME, getter_Copies(currentHtmlDomainList));
+      rv = prefBranch->GetCharPref(USER_CURRENT_HTMLDOMAINLIST_PREF_NAME, currentHtmlDomainList);
       NS_ENSURE_SUCCESS(rv,rv);
 
       nsAutoCString newHtmlDomainList(currentHtmlDomainList);
@@ -1136,7 +1136,7 @@ nsresult nsMsgComposeService::AddGlobalHtmlDomains()
 
       // Get user's current Plaintext domain set for send format
       nsCString currentPlaintextDomainList;
-      rv = prefBranch->GetCharPref(USER_CURRENT_PLAINTEXTDOMAINLIST_PREF_NAME, getter_Copies(currentPlaintextDomainList));
+      rv = prefBranch->GetCharPref(USER_CURRENT_PLAINTEXTDOMAINLIST_PREF_NAME, currentPlaintextDomainList);
       NS_ENSURE_SUCCESS(rv,rv);
 
       // Get the current plaintext domain list into new list var
@@ -1166,7 +1166,7 @@ nsresult nsMsgComposeService::AddGlobalHtmlDomains()
       }
 
       // Set user's html domain pref with the updated list
-      rv = prefBranch->SetCharPref(USER_CURRENT_HTMLDOMAINLIST_PREF_NAME, newHtmlDomainList.get());
+      rv = prefBranch->SetCharPref(USER_CURRENT_HTMLDOMAINLIST_PREF_NAME, newHtmlDomainList);
       NS_ENSURE_SUCCESS(rv,rv);
 
       // Increase the version to avoid running the update code unless needed (based on default version)

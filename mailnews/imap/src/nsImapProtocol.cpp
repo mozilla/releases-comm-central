@@ -368,7 +368,7 @@ nsresult nsImapProtocol::GlobalInitialization(nsIPrefBranch *aPrefBranch)
                             &gExpungeThreshold);
     aPrefBranch->GetIntPref("mailnews.tcptimeout", &gResponseTimeout);
     aPrefBranch->GetCharPref("mail.imap.force_select_detect",
-                             getter_Copies(gForceSelectDetect));
+                             gForceSelectDetect);
     ParseString(gForceSelectDetect, ';', gForceSelectServersArray);
 
     nsCOMPtr<nsIXULAppInfo> appInfo(do_GetService(XULAPPINFO_SERVICE_CONTRACTID));
@@ -431,15 +431,13 @@ nsImapProtocol::nsImapProtocol() : nsMsgProtocol(nullptr),
       prefString->ToString(getter_Copies(mAcceptLanguages));
 
     nsCString customDBHeaders;
-    prefBranch->GetCharPref("mailnews.customDBHeaders",
-                            getter_Copies(customDBHeaders));
+    prefBranch->GetCharPref("mailnews.customDBHeaders", customDBHeaders);
 
     ParseString(customDBHeaders, ' ', mCustomDBHeaders);
     prefBranch->GetBoolPref("mailnews.display.prefer_plaintext", &m_preferPlainText);
 
-    nsAutoCString customHeaders;;
-    prefBranch->GetCharPref("mailnews.customHeaders",
-                            getter_Copies(customHeaders));
+    nsAutoCString customHeaders;
+    prefBranch->GetCharPref("mailnews.customHeaders", customHeaders);
     customHeaders.StripWhitespace();
     ParseString(customHeaders, ':', mCustomHeaders);
   }

@@ -2284,10 +2284,10 @@ void nsMsgLocalMailFolder::CopyPropertiesToMsgHdr(nsIMsgDBHdr *destHdr,
   // properties are preserved except those listed in these preferences
   if (aIsMove)
     prefBranch->GetCharPref("mailnews.database.summary.dontPreserveOnMove",
-                            getter_Copies(dontPreserve));
+                            dontPreserve);
   else
     prefBranch->GetCharPref("mailnews.database.summary.dontPreserveOnCopy",
-                            getter_Copies(dontPreserve));
+                            dontPreserve);
 
   CopyHdrPropertiesWithSkipList(destHdr, srcHdr, dontPreserve);
 }

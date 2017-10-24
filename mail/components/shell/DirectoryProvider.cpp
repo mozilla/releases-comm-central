@@ -120,7 +120,7 @@ AppendDistroSearchDirs(nsIProperties* aDirSvc, nsCOMArray<nsIFile> &array)
     }
     else
     {
-      rv = prefs->GetCharPref("general.useragent.locale", getter_Copies(locale));
+      rv = prefs->GetCharPref("general.useragent.locale", locale);
     }
 
     if (NS_SUCCEEDED(rv))
@@ -142,7 +142,7 @@ AppendDistroSearchDirs(nsIProperties* aDirSvc, nsCOMArray<nsIFile> &array)
     // we didn't append the locale dir - try the default one
     nsCString defLocale;
     rv = prefs->GetCharPref("distribution.searchplugins.defaultLocale",
-                            getter_Copies(defLocale));
+                            defLocale);
     if (NS_SUCCEEDED(rv))
     {
       nsCOMPtr<nsIFile> defLocalePlugins;

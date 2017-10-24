@@ -396,7 +396,7 @@ nsSmtpService::loadSmtpServers()
     return rv;
 
   nsCString serverList;
-  rv = prefRootBranch->GetCharPref(PREF_MAIL_SMTPSERVERS, getter_Copies(serverList));
+  rv = prefRootBranch->GetCharPref(PREF_MAIL_SMTPSERVERS, serverList);
   serverList.StripWhitespace();
 
   nsTArray<nsCString> servers;
@@ -437,7 +437,7 @@ nsSmtpService::loadSmtpServers()
   if (appendSmtpServersCurrentVersion <= appendSmtpServersDefaultVersion) {
     // If there are pre-configured servers, add them to the existing server list
     nsCString appendServerList;
-    rv = prefRootBranch->GetCharPref(PREF_MAIL_SMTPSERVERS_APPEND_SERVERS, getter_Copies(appendServerList));
+    rv = prefRootBranch->GetCharPref(PREF_MAIL_SMTPSERVERS_APPEND_SERVERS, appendServerList);
     appendServerList.StripWhitespace();
     ParseString(appendServerList, SERVER_DELIMITER, servers);
 
@@ -467,7 +467,7 @@ nsSmtpService::saveKeyList()
     nsCOMPtr<nsIPrefBranch> prefBranch(do_GetService(NS_PREFSERVICE_CONTRACTID, &rv));
     if (NS_FAILED(rv)) return rv;
 
-    return prefBranch->SetCharPref(PREF_MAIL_SMTPSERVERS, mServerKeyList.get());
+    return prefBranch->SetCharPref(PREF_MAIL_SMTPSERVERS, mServerKeyList);
 }
 
 nsresult
@@ -530,7 +530,7 @@ nsSmtpService::GetDefaultServer(nsISmtpServer **aServer)
 
       // try to get it from the prefs
       nsCString defaultServerKey;
-      rv = prefBranch->GetCharPref(PREF_MAIL_SMTP_DEFAULTSERVER, getter_Copies(defaultServerKey));
+      rv = prefBranch->GetCharPref(PREF_MAIL_SMTP_DEFAULTSERVER, defaultServerKey);
       if (NS_SUCCEEDED(rv) &&
           !defaultServerKey.IsEmpty()) {
 
@@ -556,7 +556,7 @@ nsSmtpService::GetDefaultServer(nsISmtpServer **aServer)
         nsCString serverKey;
         mDefaultSmtpServer->GetKey(getter_Copies(serverKey));
         if (NS_SUCCEEDED(rv))
-          prefBranch->SetCharPref(PREF_MAIL_SMTP_DEFAULTSERVER, serverKey.get());
+          prefBranch->SetCharPref(PREF_MAIL_SMTP_DEFAULTSERVER, serverKey);
       }
   }
 
@@ -582,7 +582,7 @@ nsSmtpService::SetDefaultServer(nsISmtpServer *aServer)
 
     nsCOMPtr<nsIPrefBranch> prefBranch(do_GetService(NS_PREFSERVICE_CONTRACTID, &rv));
     NS_ENSURE_SUCCESS(rv,rv);
-    prefBranch->SetCharPref(PREF_MAIL_SMTP_DEFAULTSERVER, serverKey.get());
+    prefBranch->SetCharPref(PREF_MAIL_SMTP_DEFAULTSERVER, serverKey);
     return NS_OK;
 }
 

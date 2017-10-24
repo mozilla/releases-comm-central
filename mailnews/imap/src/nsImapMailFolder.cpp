@@ -7446,10 +7446,10 @@ void nsImapMailFolder::SetPendingAttributes(nsIArray* messages, bool aIsMove)
   // properties are preserved except those listed in these preferences
   if (aIsMove)
     prefBranch->GetCharPref("mailnews.database.summary.dontPreserveOnMove",
-                            getter_Copies(dontPreserve));
+                            dontPreserve);
   else
     prefBranch->GetCharPref("mailnews.database.summary.dontPreserveOnCopy",
-                            getter_Copies(dontPreserve));
+                            dontPreserve);
 
   // We'll add spaces at beginning and end so we can search for space-name-space
   nsCString dontPreserveEx(NS_LITERAL_CSTRING(" "));

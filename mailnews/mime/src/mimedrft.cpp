@@ -1328,8 +1328,7 @@ mime_parse_stream_complete(nsMIMESession *stream)
         if (NS_SUCCEEDED(rv))
         {
           nsAutoCString fwdPrefix;
-          prefBranch->GetCharPref("mail.forward_subject_prefix",
-                                  getter_Copies(fwdPrefix));
+          prefBranch->GetCharPref("mail.forward_subject_prefix", fwdPrefix);
           char *newSubj = PR_smprintf("%s: %s", !fwdPrefix.IsEmpty() ?
                                                 fwdPrefix.get(): "Fwd", subj);
           if (newSubj)

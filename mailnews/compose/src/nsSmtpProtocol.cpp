@@ -288,7 +288,7 @@ nsresult nsSmtpProtocol::Initialize(nsIURI * aURL)
     if (smtpServer) {
         smtpServer->GetAuthMethod(&authMethod);
         smtpServer->GetSocketType(&m_prefSocketType);
-        smtpServer->GetHelloArgument(getter_Copies(m_helloArgument));
+        smtpServer->GetHelloArgument(m_helloArgument);
 
         // Query for OAuth2 support. If the SMTP server preferences don't allow
         // for OAuth2, then don't carry around the OAuth2 module any longer

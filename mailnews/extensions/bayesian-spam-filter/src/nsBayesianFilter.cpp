@@ -254,13 +254,13 @@ Tokenizer::Tokenizer() :
    * will be ignored.
    */
 
-  prefBranch->GetCharPref("body_delimiters", getter_Copies(mBodyDelimiters));
+  prefBranch->GetCharPref("body_delimiters", mBodyDelimiters);
   if (!mBodyDelimiters.IsEmpty())
     UnescapeCString(mBodyDelimiters);
   else // prefBranch empties the result when it fails :(
     mBodyDelimiters.Assign(kBayesianFilterTokenDelimiters);
 
-  prefBranch->GetCharPref("header_delimiters", getter_Copies(mHeaderDelimiters));
+  prefBranch->GetCharPref("header_delimiters", mHeaderDelimiters);
   if (!mHeaderDelimiters.IsEmpty())
     UnescapeCString(mHeaderDelimiters);
   else
@@ -314,7 +314,7 @@ Tokenizer::Tokenizer() :
     for (uint32_t i = 0; i < count; i++)
     {
       nsCString value;
-      prefBranch->GetCharPref(headers[i], getter_Copies(value));
+      prefBranch->GetCharPref(headers[i], value);
       if (value.EqualsLiteral("false"))
       {
         mDisabledHeaders.AppendElement(headers[i]);

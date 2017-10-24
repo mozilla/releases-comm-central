@@ -512,7 +512,7 @@ NS_IMETHODIMP nsAbLDAPDirectory::UseForAutocomplete(const nsACString &aIdentityK
   if (prefName.IsEmpty())
   {
     nsresult rv = prefs->GetCharPref("ldap_2.autoComplete.directoryServer",
-                                     getter_Copies(prefName));
+                                     prefName);
     NS_ENSURE_SUCCESS(rv,rv);
   }
 

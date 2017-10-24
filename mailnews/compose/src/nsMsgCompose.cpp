@@ -2194,7 +2194,7 @@ nsresult nsMsgCompose::CreateMessage(const char * originalMsgURI,
             if (isFirstPass)
             {
               nsCString fwdPrefix;
-              prefs->GetCharPref("mail.forward_subject_prefix", getter_Copies(fwdPrefix));
+              prefs->GetCharPref("mail.forward_subject_prefix", fwdPrefix);
               if (!fwdPrefix.IsEmpty())
               {
                 nsString unicodeFwdPrefix;

@@ -32,7 +32,7 @@ static MimeInlineTextPlainFlowedExData *MimeInlineTextPlainFlowedExDataList = nu
 extern "C" void MimeTextBuildPrefixCSS(
                        int32_t quotedSizeSetting,      // mail.quoted_size
                        int32_t    quotedStyleSetting,  // mail.quoted_style
-                       char       *citationColor,      // mail.citation_color
+                       nsACString &citationColor,      // mail.citation_color
                        nsACString &style);
 // Definition below
 static
@@ -110,7 +110,7 @@ MimeInlineTextPlainFlowed_parse_begin (MimeObject *obj)
   //  Quotes
   text->mQuotedSizeSetting = 0;   // mail.quoted_size
   text->mQuotedStyleSetting = 0;  // mail.quoted_style
-  text->mCitationColor = nullptr;  // mail.citation_color
+  text->mCitationColor.Truncate();  // mail.citation_color
   text->mStripSig = true; // mail.strip_sig_on_reply
 
   nsIPrefBranch *prefBranch = GetPrefBranch(obj->options);
@@ -118,7 +118,7 @@ MimeInlineTextPlainFlowed_parse_begin (MimeObject *obj)
   {
     prefBranch->GetIntPref("mail.quoted_size", &(text->mQuotedSizeSetting));
     prefBranch->GetIntPref("mail.quoted_style", &(text->mQuotedStyleSetting));
-    prefBranch->GetCharPref("mail.citation_color", &(text->mCitationColor));
+    prefBranch->GetCharPref("mail.citation_color", text->mCitationColor);
     prefBranch->GetBoolPref("mail.strip_sig_on_reply", &(text->mStripSig));
     mozilla::DebugOnly<nsresult> rv =
       prefBranch->GetBoolPref("mail.fixed_width_messages", &(exdata->fixedwidthfont));
@@ -243,10 +243,9 @@ MimeInlineTextPlainFlowed_parse_eof (MimeObject *obj, bool abort_p)
 EarlyOut:
   PR_Free(exdata);
 
-  // Free mCitationColor
+  // Clear mCitationColor
   MimeInlineTextPlainFlowed *text = (MimeInlineTextPlainFlowed *) obj;
-  PR_FREEIF(text->mCitationColor);
-  text->mCitationColor = nullptr;
+  text->mCitationColor.Truncate();
 
   return status;
 }

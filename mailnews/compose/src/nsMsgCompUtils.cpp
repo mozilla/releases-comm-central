@@ -1741,7 +1741,7 @@ GetFolderURIFromUserPrefs(nsMsgDeliverMode aMode, nsIMsgIdentity* identity, nsCS
     nsCOMPtr<nsIPrefBranch> prefs(do_GetService(NS_PREFSERVICE_CONTRACTID, &rv));
     if (NS_FAILED(rv))
       return;
-    rv = prefs->GetCharPref("mail.default_sendlater_uri", getter_Copies(uri));
+    rv = prefs->GetCharPref("mail.default_sendlater_uri", uri);
     if (NS_FAILED(rv) || uri.IsEmpty())
       uri.AssignLiteral(ANY_SERVER);
     else
@@ -1750,7 +1750,7 @@ GetFolderURIFromUserPrefs(nsMsgDeliverMode aMode, nsIMsgIdentity* identity, nsCS
       if (uri.FindChar(' ') != kNotFound)
       {
         MsgReplaceSubstring(uri, " ", "%20");
-        prefs->SetCharPref("mail.default_sendlater_uri", uri.get());
+        prefs->SetCharPref("mail.default_sendlater_uri", uri);
       }
     }
     return;

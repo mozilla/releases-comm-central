@@ -503,7 +503,7 @@ NS_IMETHODIMP nsAbDirProperty::GetStringValue(const char *aName,
   nsCString value;
 
     /* unfortunately, there may be some prefs out there which look like (null) */
-  if (NS_SUCCEEDED(m_DirectoryPrefs->GetCharPref(aName, getter_Copies(value))) &&
+  if (NS_SUCCEEDED(m_DirectoryPrefs->GetCharPref(aName, value)) &&
       !value.EqualsLiteral("(null"))
     aResult = value;
   else
@@ -569,7 +569,7 @@ NS_IMETHODIMP nsAbDirProperty::SetStringValue(const char *aName,
   if (!m_DirectoryPrefs && NS_FAILED(InitDirectoryPrefs()))
     return NS_ERROR_NOT_INITIALIZED;
 
-  return m_DirectoryPrefs->SetCharPref(aName, nsCString(aValue).get());
+  return m_DirectoryPrefs->SetCharPref(aName, aValue);
 }
 
 NS_IMETHODIMP nsAbDirProperty::SetLocalizedStringValue(const char *aName,

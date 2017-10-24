@@ -963,7 +963,7 @@ NS_IMETHODIMP nsMsgSearchValidityManager::GetTable (int whichTable, nsIMsgSearch
   nsCOMPtr<nsIPrefBranch> pref(do_GetService(NS_PREFSERVICE_CONTRACTID, &rv));
   nsCString customHeaders;
   if (NS_SUCCEEDED(rv))
-    pref->GetCharPref(PREF_CUSTOM_HEADERS, getter_Copies(customHeaders));
+    pref->GetCharPref(PREF_CUSTOM_HEADERS, customHeaders);
 
   switch (whichTable)
   {

@@ -132,7 +132,9 @@ nsNetscapeProfileMigratorBase::GetString(PrefTransform* aTransform,
                                          nsIPrefBranch* aBranch)
 {
   PrefTransform* xform = (PrefTransform*)aTransform;
-  GETPREF(xform, GetCharPref, &xform->stringValue);
+  nsCString str;
+  GETPREF(xform, GetCharPref, str);
+  xform->stringValue = moz_xstrdup(str.get());
 }
 
 nsresult
@@ -140,7 +142,7 @@ nsNetscapeProfileMigratorBase::SetString(PrefTransform* aTransform,
                                          nsIPrefBranch* aBranch)
 {
   PrefTransform* xform = (PrefTransform*)aTransform;
-  SETPREF(xform, SetCharPref, xform->stringValue);
+  SETPREF(xform, SetCharPref, nsDependentCString(xform->stringValue));
 }
 
 nsresult
@@ -199,7 +201,7 @@ nsNetscapeProfileMigratorBase::CopyFile(const nsAString& aSourceFileName, const 
 }
 
 nsresult
-nsNetscapeProfileMigratorBase::GetSignonFileName(bool aReplace, char** aFileName)
+nsNetscapeProfileMigratorBase::GetSignonFileName(bool aReplace, nsACString& aFileName)
 {
   nsresult rv;
   if (aReplace) {
@@ -222,7 +224,7 @@ nsNetscapeProfileMigratorBase::GetSignonFileName(bool aReplace, char** aFileName
 }
 
 nsresult
-nsNetscapeProfileMigratorBase::LocateSignonsFile(char** aResult)
+nsNetscapeProfileMigratorBase::LocateSignonsFile(nsACString& aResult)
 {
   nsCOMPtr<nsISimpleEnumerator> entries;
   nsresult rv = mSourceProfile->GetDirectoryEntries(getter_AddRefs(entries));
@@ -255,7 +257,7 @@ nsNetscapeProfileMigratorBase::LocateSignonsFile(char** aResult)
   }
   while (1);
 
-  *aResult = ToNewCString(fileName);
+  aResult = fileName;
 
   return NS_OK;
 }

@@ -149,7 +149,7 @@ nsresult NS_MsgGetAttributeFromString(const char *string, nsMsgSearchAttribValue
     NS_ENSURE_SUCCESS(rv, rv);
 
     nsCString headers;
-    prefBranch->GetCharPref(MAILNEWS_CUSTOM_HEADERS, getter_Copies(headers));
+    prefBranch->GetCharPref(MAILNEWS_CUSTOM_HEADERS, headers);
 
     if (!headers.IsEmpty())
     {

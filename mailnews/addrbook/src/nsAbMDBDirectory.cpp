@@ -102,8 +102,7 @@ NS_IMETHODIMP nsAbMDBDirectory::Init(const char *aUri)
 
       if (StringEndsWith(child, NS_LITERAL_CSTRING(".filename")))
       {
-        if (NS_SUCCEEDED(prefBranch->GetCharPref(child.get(),
-                                                 getter_Copies(childValue))))
+        if (NS_SUCCEEDED(prefBranch->GetCharPref(child.get(), childValue)))
         {
           if (childValue == filename)
           {

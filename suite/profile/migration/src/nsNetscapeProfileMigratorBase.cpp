@@ -270,7 +270,7 @@ nsNetscapeProfileMigratorBase::SetFile(PrefTransform* aTransform,
       rv = fileHandler->GetURLSpecFromFile(file, fileURL);
       if (NS_FAILED(rv))
         return NS_OK;
-      rv = aBranch->SetCharPref(aTransform->sourcePrefName, fileURL.get());
+      rv = aBranch->SetCharPref(aTransform->sourcePrefName, fileURL);
       if (NS_SUCCEEDED(rv) && aTransform->targetPrefName)
         rv = aBranch->SetIntPref(aTransform->targetPrefName, 1);
     }

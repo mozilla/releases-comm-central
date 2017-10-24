@@ -347,7 +347,7 @@ nsMsgAccountManager::GetUniqueServerKey(nsACString& aResult)
       aResult.AppendInt(lastKey);
       typeKey.Assign(aResult);
       typeKey.AppendLiteral(".type");
-      prefBranchServer->GetCharPref(typeKey.get(), getter_Copies(type));
+      prefBranchServer->GetCharPref(typeKey.get(), type);
       if (type.IsEmpty()) // a server slot with no type is considered empty
         return;
     }
@@ -442,7 +442,7 @@ nsMsgAccountManager::CreateIncomingServer(const nsACString&  username,
   if (*_retval)
   {
     nsCString defaultStore;
-    m_prefs->GetCharPref("mail.serverDefaultStoreContractID", getter_Copies(defaultStore));
+    m_prefs->GetCharPref("mail.serverDefaultStoreContractID", defaultStore);
     (*_retval)->SetCharValue("storeContractID", defaultStore);
 
     // From when we first create the account until we have created some folders,
@@ -476,7 +476,7 @@ nsMsgAccountManager::GetIncomingServer(const nsACString& key,
   nsCString serverType;
   nsAutoCString serverPref (serverPrefPrefix);
   serverPref.AppendLiteral(".type");
-  rv = m_prefs->GetCharPref(serverPref.get(), getter_Copies(serverType));
+  rv = m_prefs->GetCharPref(serverPref.get(), serverType);
   NS_ENSURE_SUCCESS(rv, NS_ERROR_NOT_INITIALIZED);
 
   //
@@ -484,13 +484,13 @@ nsMsgAccountManager::GetIncomingServer(const nsACString& key,
   serverPref = serverPrefPrefix;
   serverPref.AppendLiteral(".userName");
   nsCString username;
-  rv = m_prefs->GetCharPref(serverPref.get(), getter_Copies(username));
+  rv = m_prefs->GetCharPref(serverPref.get(), username);
 
   // .hostname
   serverPref = serverPrefPrefix;
   serverPref.AppendLiteral(".hostname");
   nsCString hostname;
-  rv = m_prefs->GetCharPref(serverPref.get(), getter_Copies(hostname));
+  rv = m_prefs->GetCharPref(serverPref.get(), hostname);
   NS_ENSURE_SUCCESS(rv, NS_ERROR_NOT_INITIALIZED);
 
   return createKeyedServer(key, username, hostname, serverType, _retval);
@@ -719,7 +719,7 @@ nsMsgAccountManager::OutputAccountsPref()
     mAccountKeyList.Append(accountKey);
   }
   return m_prefs->SetCharPref(PREF_MAIL_ACCOUNTMANAGER_ACCOUNTS,
-                                mAccountKeyList.get());
+                              mAccountKeyList);
 }
 
 /* get the default account. If no default account, pick the first account */
@@ -739,7 +739,7 @@ nsMsgAccountManager::GetDefaultAccount(nsIMsgAccount **aDefaultAccount)
     }
 
     nsCString defaultKey;
-    rv = m_prefs->GetCharPref(PREF_MAIL_ACCOUNTMANAGER_DEFAULTACCOUNT, getter_Copies(defaultKey));
+    rv = m_prefs->GetCharPref(PREF_MAIL_ACCOUNTMANAGER_DEFAULTACCOUNT, defaultKey);
 
     if (NS_SUCCEEDED(rv))
       rv = GetAccount(defaultKey, getter_AddRefs(m_defaultAccount));
@@ -862,7 +862,7 @@ nsMsgAccountManager::setDefaultAccountPref(nsIMsgAccount* aDefaultAccount)
     rv = aDefaultAccount->GetKey(key);
     NS_ENSURE_SUCCESS(rv, rv);
 
-    rv = m_prefs->SetCharPref(PREF_MAIL_ACCOUNTMANAGER_DEFAULTACCOUNT, key.get());
+    rv = m_prefs->SetCharPref(PREF_MAIL_ACCOUNTMANAGER_DEFAULTACCOUNT, key);
     NS_ENSURE_SUCCESS(rv,rv);
   }
   else
@@ -1070,7 +1070,7 @@ nsMsgAccountManager::LoadAccounts()
 
   // mail.accountmanager.accounts is the main entry point for all accounts
   nsCString accountList;
-  rv = m_prefs->GetCharPref(PREF_MAIL_ACCOUNTMANAGER_ACCOUNTS, getter_Copies(accountList));
+  rv = m_prefs->GetCharPref(PREF_MAIL_ACCOUNTMANAGER_ACCOUNTS, accountList);
 
   /**
    * Check to see if we need to add pre-configured accounts.
@@ -1109,7 +1109,7 @@ nsMsgAccountManager::LoadAccounts()
     // Get a list of pre-configured accounts
     nsCString appendAccountList;
     rv = m_prefs->GetCharPref(PREF_MAIL_ACCOUNTMANAGER_APPEND_ACCOUNTS,
-                              getter_Copies(appendAccountList));
+                              appendAccountList);
     appendAccountList.StripWhitespace();
 
     // If there are pre-configured accounts, we need to add them to the
@@ -1186,7 +1186,7 @@ nsMsgAccountManager::LoadAccounts()
 
     serverKeyPref += ".server";
     nsCString serverKey;
-    rv = m_prefs->GetCharPref(serverKeyPref.get(), getter_Copies(serverKey));
+    rv = m_prefs->GetCharPref(serverKeyPref.get(), serverKey);
     if (NS_FAILED(rv))
       continue;
 
@@ -1315,7 +1315,7 @@ nsMsgAccountManager::LoadAccounts()
               continue;
             }
             rv = prefBranch->GetCharPref(accountPref.get(),
-                                         getter_Copies(dupAccountServerKey));
+                                         dupAccountServerKey);
             if (NS_FAILED(rv)) {
               continue;
             }
@@ -1331,9 +1331,9 @@ nsMsgAccountManager::LoadAccounts()
             nsCString userName;
             nsCString hostName;
             nsCString type;
-            serverPrefBranch->GetCharPref("userName", getter_Copies(userName));
-            serverPrefBranch->GetCharPref("hostname", getter_Copies(hostName));
-            serverPrefBranch->GetCharPref("type", getter_Copies(type));
+            serverPrefBranch->GetCharPref("userName", userName);
+            serverPrefBranch->GetCharPref("hostname", hostName);
+            serverPrefBranch->GetCharPref("type", type);
             // Find a server with the same info.
             nsCOMPtr<nsIMsgAccountManager> accountManager =
                      do_GetService(NS_MSGACCOUNTMANAGER_CONTRACTID, &rv);
@@ -1378,7 +1378,7 @@ nsMsgAccountManager::LoadAccounts()
   // Make sure we have an account that points at the local folders server
   nsCString localFoldersServerKey;
   rv = m_prefs->GetCharPref(PREF_MAIL_ACCOUNTMANAGER_LOCALFOLDERSSERVER,
-                            getter_Copies(localFoldersServerKey));
+                            localFoldersServerKey);
 
   if (!localFoldersServerKey.IsEmpty())
   {
@@ -1734,7 +1734,7 @@ nsMsgAccountManager::createKeyedAccount(const nsCString& key,
     mAccountKeyList.Append(key);
   }
 
-  m_prefs->SetCharPref(PREF_MAIL_ACCOUNTMANAGER_ACCOUNTS, mAccountKeyList.get());
+  m_prefs->SetCharPref(PREF_MAIL_ACCOUNTMANAGER_ACCOUNTS, mAccountKeyList);
   account.forget(aAccount);
   return NS_OK;
 }
@@ -2232,7 +2232,7 @@ NS_IMETHODIMP nsMsgAccountManager::SetLocalFoldersServer(nsIMsgIncomingServer *a
   nsresult rv = aServer->GetKey(key);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  return m_prefs->SetCharPref(PREF_MAIL_ACCOUNTMANAGER_LOCALFOLDERSSERVER, key.get());
+  return m_prefs->SetCharPref(PREF_MAIL_ACCOUNTMANAGER_LOCALFOLDERSSERVER, key);
 }
 
 NS_IMETHODIMP nsMsgAccountManager::GetLocalFoldersServer(nsIMsgIncomingServer **aServer)
@@ -2241,7 +2241,7 @@ NS_IMETHODIMP nsMsgAccountManager::GetLocalFoldersServer(nsIMsgIncomingServer **
 
   nsCString serverKey;
 
-  nsresult rv = m_prefs->GetCharPref(PREF_MAIL_ACCOUNTMANAGER_LOCALFOLDERSSERVER, getter_Copies(serverKey));
+  nsresult rv = m_prefs->GetCharPref(PREF_MAIL_ACCOUNTMANAGER_LOCALFOLDERSSERVER, serverKey);
 
   if (NS_SUCCEEDED(rv) && !serverKey.IsEmpty())
   {

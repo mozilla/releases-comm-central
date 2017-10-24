@@ -92,7 +92,7 @@ nsMsgAccount::createIncomingServer()
 
   // get the "server" pref
   nsCString serverKey;
-  rv = m_prefs->GetCharPref("server", getter_Copies(serverKey));
+  rv = m_prefs->GetCharPref("server", serverKey);
   NS_ENSURE_SUCCESS(rv, rv);
 
   // get the server from the account manager
@@ -123,7 +123,7 @@ nsMsgAccount::SetIncomingServer(nsIMsgIncomingServer *aIncomingServer)
   if (NS_SUCCEEDED(rv)) {
     rv = getPrefService();
     NS_ENSURE_SUCCESS(rv, rv);
-    m_prefs->SetCharPref("server", key.get());
+    m_prefs->SetCharPref("server", key);
   }
 
   m_incomingServer = aIncomingServer;
@@ -200,7 +200,7 @@ nsMsgAccount::createIdentities()
   rv = getPrefService();
   NS_ENSURE_SUCCESS(rv, rv);
 
-  m_prefs->GetCharPref("identities", getter_Copies(identityKey));
+  m_prefs->GetCharPref("identities", identityKey);
   if (identityKey.IsEmpty())    // not an error if no identities, but
     return NS_OK;               // strtok will be unhappy
   // get the server from the account manager
@@ -299,7 +299,7 @@ nsMsgAccount::AddIdentity(nsIMsgIdentity *identity)
 
   if (NS_SUCCEEDED(rv)) {
     nsCString identityList;
-    m_prefs->GetCharPref("identities", getter_Copies(identityList));
+    m_prefs->GetCharPref("identities", identityList);
 
     nsAutoCString newIdentityList(identityList);
 
@@ -332,7 +332,7 @@ nsMsgAccount::AddIdentity(nsIMsgIdentity *identity)
       }
     }
 
-    m_prefs->SetCharPref("identities", newIdentityList.get());
+    m_prefs->SetCharPref("identities", newIdentityList);
   }
 
   // now add it to the in-memory list
@@ -395,7 +395,7 @@ nsMsgAccount::saveIdentitiesPref()
   }
 
   // Save the pref.
-  m_prefs->SetCharPref("identities", newIdentityList.get());
+  m_prefs->SetCharPref("identities", newIdentityList);
 
   return NS_OK;
 }

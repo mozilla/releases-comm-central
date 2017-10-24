@@ -174,7 +174,7 @@ nsresult nsMimeHtmlDisplayEmitter::BroadcastHeaders(nsIMsgHeaderSink * aHeaderSi
   nsCOMPtr<nsIPrefBranch> pPrefBranch(do_GetService(NS_PREFSERVICE_CONTRACTID, &rv));
   if (pPrefBranch)
   {
-    pPrefBranch->GetCharPref("mailnews.headers.extraExpandedHeaders", getter_Copies(extraExpandedHeaders));
+    pPrefBranch->GetCharPref("mailnews.headers.extraExpandedHeaders", extraExpandedHeaders);
     // todo - should make this upper case
     if (!extraExpandedHeaders.IsEmpty())
     {

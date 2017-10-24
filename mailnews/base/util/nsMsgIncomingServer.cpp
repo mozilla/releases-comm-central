@@ -509,8 +509,8 @@ nsMsgIncomingServer::GetCharValue(const char *prefname,
     return NS_ERROR_NOT_INITIALIZED;
 
   nsCString tmpVal;
-  if (NS_FAILED(mPrefBranch->GetCharPref(prefname, getter_Copies(tmpVal))))
-    mDefPrefBranch->GetCharPref(prefname, getter_Copies(tmpVal));
+  if (NS_FAILED(mPrefBranch->GetCharPref(prefname, tmpVal)))
+    mDefPrefBranch->GetCharPref(prefname, tmpVal);
   val = tmpVal;
   return NS_OK;
 }
@@ -549,12 +549,12 @@ nsMsgIncomingServer::SetCharValue(const char *prefname,
   }
 
   nsCString defaultVal;
-  nsresult rv = mDefPrefBranch->GetCharPref(prefname, getter_Copies(defaultVal));
+  nsresult rv = mDefPrefBranch->GetCharPref(prefname, defaultVal);
 
   if (NS_SUCCEEDED(rv) && defaultVal.Equals(val))
     mPrefBranch->ClearUserPref(prefname);
   else
-    rv = mPrefBranch->SetCharPref(prefname, nsCString(val).get());
+    rv = mPrefBranch->SetCharPref(prefname, val);
 
   return rv;
 }

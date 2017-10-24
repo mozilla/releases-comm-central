@@ -278,7 +278,7 @@ NS_IMETHODIMP nsMsgTagService::GetColorForKey(const nsACString &key, nsACString 
     ToLowerCase(prefName);
   prefName.AppendLiteral(TAG_PREF_SUFFIX_COLOR);
   nsCString color;
-  nsresult rv = m_tagPrefBranch->GetCharPref(prefName.get(), getter_Copies(color));
+  nsresult rv = m_tagPrefBranch->GetCharPref(prefName.get(), color);
   if (NS_SUCCEEDED(rv))
     _retval = color;
   return NS_OK;
@@ -295,7 +295,7 @@ NS_IMETHODIMP nsMsgTagService::SetColorForKey(const nsACString & key, const nsAC
     m_tagPrefBranch->ClearUserPref(prefName.get());
     return NS_OK;
   }
-  return m_tagPrefBranch->SetCharPref(prefName.get(), nsCString(color).get());
+  return m_tagPrefBranch->SetCharPref(prefName.get(), color);
 }
 
 /* ACString getOrdinalForKey (in ACString key); */
@@ -306,7 +306,7 @@ NS_IMETHODIMP nsMsgTagService::GetOrdinalForKey(const nsACString & key, nsACStri
     ToLowerCase(prefName);
   prefName.AppendLiteral(TAG_PREF_SUFFIX_ORDINAL);
   nsCString ordinal;
-  nsresult rv = m_tagPrefBranch->GetCharPref(prefName.get(), getter_Copies(ordinal));
+  nsresult rv = m_tagPrefBranch->GetCharPref(prefName.get(), ordinal);
   _retval = ordinal;
   return rv;
 }
@@ -322,7 +322,7 @@ NS_IMETHODIMP nsMsgTagService::SetOrdinalForKey(const nsACString & key, const ns
     m_tagPrefBranch->ClearUserPref(prefName.get());
     return NS_OK;
   }
-  return m_tagPrefBranch->SetCharPref(prefName.get(), nsCString(ordinal).get());
+  return m_tagPrefBranch->SetCharPref(prefName.get(), ordinal);
 }
 
 /* void deleteTag (in wstring tag); */
@@ -513,7 +513,7 @@ nsresult nsMsgTagService::MigrateLabelsToTags()
       prefString.Assign(PREF_LABELS_COLOR);
       prefString.AppendInt(i + 1);
       nsCString csval;
-      rv = prefRoot->GetCharPref(prefString.get(), getter_Copies(csval));
+      rv = prefRoot->GetCharPref(prefString.get(), csval);
       NS_ENSURE_SUCCESS(rv, rv);
 
       rv = AddTagForKey(labelKey, ucsval, csval, EmptyCString());

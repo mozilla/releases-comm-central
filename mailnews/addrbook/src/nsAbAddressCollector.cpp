@@ -297,8 +297,7 @@ void
 nsAbAddressCollector::SetUpAbFromPrefs(nsIPrefBranch *aPrefBranch)
 {
   nsCString abURI;
-  aPrefBranch->GetCharPref(PREF_MAIL_COLLECT_ADDRESSBOOK,
-                           getter_Copies(abURI));
+  aPrefBranch->GetCharPref(PREF_MAIL_COLLECT_ADDRESSBOOK, abURI);
 
   if (abURI.IsEmpty())
     abURI.AssignLiteral(kPersonalAddressbookUri);

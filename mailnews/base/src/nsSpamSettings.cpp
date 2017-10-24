@@ -310,8 +310,7 @@ NS_IMETHODIMP nsSpamSettings::Initialize(nsIMsgIncomingServer *aServer)
 
   nsCOMPtr<nsIPrefBranch> prefBranch(do_GetService(NS_PREFSERVICE_CONTRACTID, &rv));
   if (prefBranch)
-    prefBranch->GetCharPref("mail.trusteddomains",
-                            getter_Copies(mTrustedMailDomains));
+    prefBranch->GetCharPref("mail.trusteddomains", mTrustedMailDomains);
 
   mWhiteListDirArray.Clear();
   if (!mWhiteListAbURI.IsEmpty())

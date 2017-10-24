@@ -100,8 +100,7 @@ static void PgpMimeGetNeedsAddonString(nsCString &aResult)
     return;
 
   nsCString url;
-  if (NS_FAILED(prefs->GetCharPref("mail.pgpmime.addon_url",
-                                   getter_Copies(url))))
+  if (NS_FAILED(prefs->GetCharPref("mail.pgpmime.addon_url", url)))
     return;
 
   NS_ConvertUTF8toUTF16 url16(url);

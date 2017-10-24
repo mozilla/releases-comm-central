@@ -29,7 +29,7 @@ struct MimeInlineTextPlainFlowed {
   bool            delSp;                // DelSp=yes (RFC 3676)
   int32_t         mQuotedSizeSetting;   // mail.quoted_size
   int32_t         mQuotedStyleSetting;  // mail.quoted_style
-  char            *mCitationColor;      // mail.citation_color
+  nsCString       mCitationColor;       // mail.citation_color
   bool            mStripSig;            // mail.strip_sig_on_reply
 };
 

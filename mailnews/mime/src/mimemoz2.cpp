@@ -2097,7 +2097,7 @@ HTMLSanitize(const nsString& inString, nsString& outString)
                        true);
     nsAutoCString legacy;
     rv = prefs->GetCharPref("mailnews.display.html_sanitizer.allowed_tags",
-                            getter_Copies(legacy));
+                            legacy);
     if (NS_SUCCEEDED(rv)) {
       prefs->SetBoolPref("mailnews.display.html_sanitizer.drop_non_css_presentation",
                          legacy.Find("font") < 0);

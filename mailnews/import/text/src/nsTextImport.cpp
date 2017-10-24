@@ -603,8 +603,8 @@ NS_IMETHODIMP ImportAddressImpl::InitFieldMap(nsIImportFieldMap *fieldMap)
   nsresult rv;
   nsCOMPtr<nsIPrefBranch> prefs(do_GetService(NS_PREFSERVICE_CONTRACTID, &rv));
   if (NS_SUCCEEDED(rv)) {
-    nsCString  prefStr;
-    rv = prefs->GetCharPref("mailnews.import.text.fieldmap", getter_Copies(prefStr));
+    nsCString prefStr;
+    rv = prefs->GetCharPref("mailnews.import.text.fieldmap", prefStr);
     if (NS_SUCCEEDED(rv)) {
       const char *pStr = prefStr.get();
       if (pStr) {
@@ -688,9 +688,9 @@ void ImportAddressImpl::SaveFieldMap(nsIImportFieldMap *pMap)
 
   if (NS_SUCCEEDED(rv)) {
     nsCString prefStr;
-    rv = prefs->GetCharPref("mailnews.import.text.fieldmap", getter_Copies(prefStr));
+    rv = prefs->GetCharPref("mailnews.import.text.fieldmap", prefStr);
     if (NS_FAILED(rv) || !str.Equals(prefStr))
-      rv = prefs->SetCharPref("mailnews.import.text.fieldmap", str.get());
+      rv = prefs->SetCharPref("mailnews.import.text.fieldmap", str);
   }
 
   // Now also save last used skip first record value.

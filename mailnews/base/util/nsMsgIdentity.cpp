@@ -226,7 +226,7 @@ nsMsgIdentity::GetDoBccList(nsACString& aValue)
     return NS_ERROR_NOT_INITIALIZED;
 
   nsCString val;
-  nsresult rv = mPrefBranch->GetCharPref("doBccList", getter_Copies(val));
+  nsresult rv = mPrefBranch->GetCharPref("doBccList", val);
   aValue = val;
   if (NS_SUCCEEDED(rv))
     return rv;
@@ -283,7 +283,7 @@ nsMsgIdentity::getFolderPref(const char *prefname, nsCString& retval,
   if (!mPrefBranch)
     return NS_ERROR_NOT_INITIALIZED;
 
-  nsresult rv = mPrefBranch->GetCharPref(prefname, getter_Copies(retval));
+  nsresult rv = mPrefBranch->GetCharPref(prefname, retval);
   if (NS_SUCCEEDED(rv) && !retval.IsEmpty()) {
     // get the corresponding RDF resource
     // RDF will create the folder resource if it doesn't already exist
@@ -318,7 +318,7 @@ nsMsgIdentity::getFolderPref(const char *prefname, nsCString& retval,
   }
 
   // if the server doesn't exist, fall back to the default pref.
-  rv = mDefPrefBranch->GetCharPref(prefname, getter_Copies(retval));
+  rv = mDefPrefBranch->GetCharPref(prefname, retval);
   if (NS_SUCCEEDED(rv) && !retval.IsEmpty())
     return setFolderPref(prefname, retval, folderflag);
 
@@ -395,7 +395,7 @@ nsMsgIdentity::setFolderPref(const char *prefname, const nsACString& value, uint
   }
 
   // get the old folder, and clear the special folder flag on it
-  rv = mPrefBranch->GetCharPref(prefname, getter_Copies(oldpref));
+  rv = mPrefBranch->GetCharPref(prefname, oldpref);
   if (NS_SUCCEEDED(rv) && !oldpref.IsEmpty())
   {
     rv = rdf->GetResource(oldpref, getter_AddRefs(res));
@@ -471,7 +471,7 @@ NS_IMETHODIMP nsMsgIdentity::SetCharAttribute(const char *aName, const nsACStrin
     return NS_ERROR_NOT_INITIALIZED;
 
   if (!val.IsEmpty())
-    return mPrefBranch->SetCharPref(aName, nsCString(val).get());
+    return mPrefBranch->SetCharPref(aName, val);
 
   mPrefBranch->ClearUserPref(aName);
   return NS_OK;
@@ -483,8 +483,8 @@ NS_IMETHODIMP nsMsgIdentity::GetCharAttribute(const char *aName, nsACString& val
     return NS_ERROR_NOT_INITIALIZED;
 
   nsCString tmpVal;
-  if (NS_FAILED(mPrefBranch->GetCharPref(aName, getter_Copies(tmpVal))))
-    mDefPrefBranch->GetCharPref(aName, getter_Copies(tmpVal));
+  if (NS_FAILED(mPrefBranch->GetCharPref(aName, tmpVal)))
+    mDefPrefBranch->GetCharPref(aName, tmpVal);
   val = tmpVal;
   return NS_OK;
 }

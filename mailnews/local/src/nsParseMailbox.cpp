@@ -529,7 +529,7 @@ nsParseMailMessageState::nsParseMailMessageState()
   nsCOMPtr<nsIPrefBranch> pPrefBranch(do_GetService(NS_PREFSERVICE_CONTRACTID));
   if (pPrefBranch)
   {
-     pPrefBranch->GetCharPref("mailnews.customDBHeaders",  getter_Copies(customDBHeaders));
+     pPrefBranch->GetCharPref("mailnews.customDBHeaders", customDBHeaders);
      ToLowerCase(customDBHeaders);
      if (customDBHeaders.Find("content-base") == -1)
       customDBHeaders.InsertLiteral("content-base ", 0);
@@ -538,7 +538,7 @@ nsParseMailMessageState::nsParseMailMessageState()
      // now add customHeaders
      nsCString customHeadersString; // shown in search UI
      nsTArray<nsCString> customHeadersArray;
-     pPrefBranch->GetCharPref("mailnews.customHeaders", getter_Copies(customHeadersString));
+     pPrefBranch->GetCharPref("mailnews.customHeaders", customHeadersString);
      ToLowerCase(customHeadersString);
      customHeadersString.StripWhitespace();
      ParseString(customHeadersString, ':', customHeadersArray);

@@ -82,7 +82,7 @@ nsProfileMigrator::GetDefaultMailMigratorKey(nsACString& aKey, nsCOMPtr<nsIMailP
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCString forceMigrationType;
-  prefs->GetCharPref("profile.force.migration", getter_Copies(forceMigrationType));
+  prefs->GetCharPref("profile.force.migration", forceMigrationType);
 
   // if we are being forced to migrate to a particular migration type, then create an instance of that migrator
   // and return it.

@@ -113,7 +113,7 @@ nsresult nsStatusBarBiffManager::PlayBiffSound(const char *aPrefBranch)
 
   if (soundType == CUSTOM_SOUND_TYPE) {
     nsCString soundURLSpec;
-    rv = pref->GetCharPref(PREF_SOUND_URL, getter_Copies(soundURLSpec));
+    rv = pref->GetCharPref(PREF_SOUND_URL, soundURLSpec);
 
     if (NS_SUCCEEDED(rv) && !soundURLSpec.IsEmpty()) {
       if (!strncmp(soundURLSpec.get(), "file://", 7)) {

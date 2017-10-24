@@ -73,7 +73,7 @@ nsresult nsMsgContentPolicy::Init()
 
   prefInternal->AddObserver(kBlockRemoteImages, this, true);
 
-  prefInternal->GetCharPref(kTrustedDomains, getter_Copies(mTrustedMailDomains));
+  prefInternal->GetCharPref(kTrustedDomains, mTrustedMailDomains);
   prefInternal->GetBoolPref(kBlockRemoteImages, &mBlockRemoteImages);
 
   // Grab a handle on the PermissionManager service for managing allowed remote

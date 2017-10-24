@@ -41,7 +41,7 @@ extern "C"
 void
 MimeTextBuildPrefixCSS(int32_t    quotedSizeSetting,   // mail.quoted_size
                        int32_t    quotedStyleSetting,  // mail.quoted_style
-                       char       *citationColor,      // mail.citation_color
+                       nsACString &citationColor,      // mail.citation_color
                        nsACString &style)
 {
   switch (quotedStyleSetting)
@@ -71,7 +71,7 @@ MimeTextBuildPrefixCSS(int32_t    quotedSizeSetting,   // mail.quoted_size
     break;
   }
 
-  if (citationColor && *citationColor)
+  if (!citationColor.IsEmpty())
   {
     style += "color: ";
     style += citationColor;
@@ -114,7 +114,7 @@ MimeInlineTextPlain_parse_begin (MimeObject *obj)
       // Viewing
       text->mQuotedSizeSetting = 0;   // mail.quoted_size
       text->mQuotedStyleSetting = 0;  // mail.quoted_style
-      text->mCitationColor = nullptr;  // mail.citation_color
+      text->mCitationColor.Truncate();  // mail.citation_color
       text->mStripSig = true; // mail.strip_sig_on_reply
       bool graphicalQuote = true; // mail.quoted_graphical
 
@@ -123,7 +123,7 @@ MimeInlineTextPlain_parse_begin (MimeObject *obj)
       {
         prefBranch->GetIntPref("mail.quoted_size", &(text->mQuotedSizeSetting));
         prefBranch->GetIntPref("mail.quoted_style", &(text->mQuotedStyleSetting));
-        prefBranch->GetCharPref("mail.citation_color", &(text->mCitationColor));
+        prefBranch->GetCharPref("mail.citation_color", text->mCitationColor);
         prefBranch->GetBoolPref("mail.strip_sig_on_reply", &(text->mStripSig));
         prefBranch->GetBoolPref("mail.quoted_graphical", &graphicalQuote);
         prefBranch->GetBoolPref("mail.quoteasblock", &(text->mBlockquoting));
@@ -222,8 +222,8 @@ MimeInlineTextPlain_parse_eof (MimeObject *obj, bool abort_p)
 
   nsCString citationColor;
   MimeInlineTextPlain *text = (MimeInlineTextPlain *) obj;
-  if (text && text->mCitationColor)
-    citationColor.Adopt(text->mCitationColor);
+  if (text && !text->mCitationColor.IsEmpty())
+    citationColor = text->mCitationColor;
 
   bool quoting = ( obj->options
     && ( obj->options->format_out == nsMimeOutput::nsMimeMessageQuoting ||
