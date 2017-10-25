@@ -7,7 +7,7 @@
 @AB_CD@.jar:
 % locale branding @AB_CD@ %locale/@AB_CD@/branding/
 % locale communicator @AB_CD@ %locale/@AB_CD@/communicator/
-% locale communicator-platform @AB_CD@ %locale/@AB_CD@/communicator-platform/gtk/
+% locale communicator-platform @AB_CD@ %locale/@AB_CD@/communicator-platform/gtk/ os=LikeUnix
 % locale communicator-platform @AB_CD@ %locale/@AB_CD@/communicator-platform/mac/ os=Darwin
 % locale communicator-platform @AB_CD@ %locale/@AB_CD@/communicator-platform/win/ os=WINNT
 % locale communicator-region @AB_CD@ %locale/@AB_CD@/communicator-region/
@@ -19,7 +19,7 @@
 % locale messenger-newsblog @AB_CD@ %locale/@AB_CD@/messenger-newsblog/
 % locale mozldap @AB_CD@ %locale/@AB_CD@/mozldap/
 % locale navigator @AB_CD@ %locale/@AB_CD@/navigator/
-% locale navigator-platform @AB_CD@ %locale/@AB_CD@/navigator-platform/gtk/
+% locale navigator-platform @AB_CD@ %locale/@AB_CD@/navigator-platform/gtk/ os=LikeUnix
 % locale navigator-platform @AB_CD@ %locale/@AB_CD@/navigator-platform/mac/ os=Darwin
 % locale navigator-platform @AB_CD@ %locale/@AB_CD@/navigator-platform/win/ os=WINNT
 % locale navigator-region @AB_CD@ %locale/@AB_CD@/navigator-region/
