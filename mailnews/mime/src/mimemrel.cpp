@@ -223,8 +223,24 @@ MimeMultipartRelated_finalize (MimeObject *obj)
     relobj->file_buffer->Remove(false);
     relobj->file_buffer = nullptr;
   }
-  
+
   if (relobj->headobj) {
+    // In some error conditions when MimeMultipartRelated_parse_eof() isn't run
+    // (for example, no temp disk space available to extract message parts),
+    // the head object is also referenced as a child.
+    // If we free it, we remove the child reference first ... or crash later :-(
+    MimeContainer *cont = (MimeContainer *)relobj;
+    for (int i = 0; i < cont->nchildren; i++) {
+      if (cont->children[i] == relobj->headobj) {
+        // Shift remaining children down.
+        for (int j = i+1; j < cont->nchildren; j++) {
+          cont->children[j-1] = cont->children[j];
+        }
+        cont->children[--cont->nchildren] = nullptr;
+        break;
+      }
+    }
+
     mime_free(relobj->headobj);
     relobj->headobj = nullptr;
   }
