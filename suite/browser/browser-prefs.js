@@ -3,9 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* The prefs in this file are specific to the seamonkey (toolkit) browser.
- * Generic default prefs that would be useful to embedders belong in
- * modules/libpref/src/init/all.js
+/* The prefs in this file are specific to the SeaMonkey browser.
+ * Generic default prefs are in (mozilla/)modules/libpref/src/init/all.js
  */
 
 /* filter substitution
@@ -244,6 +243,9 @@ pref("browser.tabs.maxOpenBeforeWarn", 15);
 pref("browser.tabs.insertRelatedAfterCurrent", true);
 // 0 = append, 1 = replace
 pref("browser.tabs.loadGroup", 1);
+
+// No e10s in SeaMonkey for now.
+pref("browser.tabs.remote.autostart", false);
 
 // how many browsers can be saved in the DOM (by the tabbed browser)
 pref("browser.tabs.max_tabs_undo", 3);
