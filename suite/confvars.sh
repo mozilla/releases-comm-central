@@ -14,7 +14,6 @@ MOZ_COMPOSER=1
 MOZ_SUITE=1
 MOZ_BRANDING_DIRECTORY=$commreltopsrcdir/suite/branding/nightly
 MOZ_OFFICIAL_BRANDING_DIRECTORY=$commreltopsrcdir/suite/branding/nightly
-MOZ_EXTENSIONS_DEFAULT=" inspector irc"
 MOZ_UPDATER=1
 # This should usually be the same as the value MAR_CHANNEL_ID.
 # If more than one ID is needed, then you should use a comma separated list
@@ -44,3 +43,20 @@ fi
 
 # Include the DevTools client, not just the server (which is the default)
 MOZ_DEVTOOLS=all
+
+# Bundled extensions Lightning Chatzilla DOM Inspector and debugQA
+MOZ_CALENDAR=1
+MOZ_IRC=1
+MOZ_DOMINSPECTOR=1
+
+if [[ $MOZ_APP_VERSION == *a* ]]; then
+  MOZ_DEBUGQA=1
+fi
+
+if [[ $MOZ_IRC == 1 ]]; then
+  MOZ_EXTENSIONS_DEFAULT='irc'
+fi
+
+if [[ $MOZ_DOMINSPECTOR == 1 ]]; then
+  MOZ_EXTENSIONS_DEFAULT+=' inspector'
+fi

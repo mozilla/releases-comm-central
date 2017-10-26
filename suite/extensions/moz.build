@@ -3,7 +3,18 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-DIRS += [
-    'debugQA',
-]
+if CONFIG['MOZ_DEBUGQA']:
+    DIRS += [
+        'debugQA',
+    ]
 
+# for later
+# if CONFIG['MOZ_IRC']:
+#     DIRS += [
+#         'irc',
+#     ]
+
+# if CONFIG['MOZ_DOMINSPECTOR']:
+#     DIRS += [
+#         'inspector',
+#     ]

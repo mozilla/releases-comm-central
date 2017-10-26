@@ -5,13 +5,10 @@
 
 CONFIGURE_SUBST_FILES += ['installer/Makefile']
 
-# This should match /suite/installer/moz.build.
-if 'pre' in CONFIG['MOZ_APP_VERSION'] or 'a' in CONFIG['MOZ_APP_VERSION']:
-    DIRS += ['extensions']
-
 DIRS += [
     'browser',
     'common',
+    'extensions',
     'feeds/public',
     'feeds/src',
     'locales',

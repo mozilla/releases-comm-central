@@ -895,6 +895,7 @@ bin/libfreebl_32int64_3.so
 #endif
 
 [chatzilla]
+#ifdef MOZ_IRC
 #ifdef MOZ_OMNIJAR
 @RESPATH@/distribution/extensions/{59c81df5-4b7a-477b-912d-4e0fdf64e5f2}.xpi
 #else
@@ -920,8 +921,10 @@ bin/libfreebl_32int64_3.so
 @RESPATH@/extensions/langpack-@AB_CD@@chatzilla.mozilla.org/install.rdf
 #endif
 #endif
+#endif
 
 [inspector]
+#ifdef MOZ_DOMINSPECTOR
 #ifdef MOZ_OMNIJAR
 @RESPATH@/distribution/extensions/inspector@mozilla.org.xpi
 #else
@@ -937,6 +940,7 @@ bin/libfreebl_32int64_3.so
 @RESPATH@/extensions/inspector@mozilla.org/components/components.list
 @RESPATH@/extensions/inspector@mozilla.org/components/inspector-cmdline.js
 @RESPATH@/extensions/inspector@mozilla.org/defaults/preferences/inspector.js
+#endif
 #endif
 
 [debugqa]
