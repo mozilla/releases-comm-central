@@ -5,7 +5,7 @@
 
 NoVisibilityFlags()
 DisableStlWrapping()
-ALLOW_COMPILER_WARNINGS = True
+AllowCompilerWarnings()
 
 if CONFIG['OS_TARGET'] == 'Linux':
     DEFINES['LINUX'] = 1
