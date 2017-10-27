@@ -9361,7 +9361,7 @@ nsresult nsImapMockChannel::OpenCacheEntry()
   // ?section=2?part=1.2&filename=A01.JPG&type=image/jpeg&filename=A01.JPG
   // ?part=1.2&type=image/jpeg&filename=IMG_C0030.jpg
   // ?header=quotebody&part=1.2&filename=lijbmghmkilicioj.png
-  nsAutoCString partQuery = MsgExtractQueryPart(path, "?part=");
+  nsCString partQuery = MsgExtractQueryPart(path, "?part=");
   if (partQuery.IsEmpty()) {
     partQuery = MsgExtractQueryPart(path, "&part=");
     if (!partQuery.IsEmpty()) {
@@ -9369,7 +9369,7 @@ nsresult nsImapMockChannel::OpenCacheEntry()
       partQuery.SetCharAt('?', 0);
     }
   }
-  nsAutoCString filenameQuery = MsgExtractQueryPart(path, "&filename=");
+  nsCString filenameQuery = MsgExtractQueryPart(path, "&filename=");
 
   // Truncate path at either /; or ?
   int32_t ind = path.FindChar('?');

@@ -372,7 +372,7 @@ NS_MSG_BASE nsMsgKey msgKeyFromInt(uint64_t aValue);
 /**
  * Helper function to extract query part from URL spec.
  */
-nsAutoCString MsgExtractQueryPart(nsAutoCString spec, const char* queryToExtract);
+nsCString MsgExtractQueryPart(const nsACString& spec, const char* queryToExtract);
 
 /**
  * Helper macro for defining getter/setters. Ported from nsISupportsObsolete.h

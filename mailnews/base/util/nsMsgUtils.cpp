@@ -2105,10 +2105,10 @@ NS_MSG_BASE nsMsgKey msgKeyFromInt(uint64_t aValue)
 }
 
 // Helper function to extract a query qualifier.
-nsAutoCString MsgExtractQueryPart(nsAutoCString spec, const char* queryToExtract)
+nsCString MsgExtractQueryPart(const nsACString& spec, const char* queryToExtract)
 {
-  nsAutoCString queryPart;
-  int32_t queryIndex = spec.Find(queryToExtract);
+  nsCString queryPart;
+  int32_t queryIndex = nsPromiseFlatCString(spec).Find(queryToExtract);
   if (queryIndex == kNotFound)
     return queryPart;
 

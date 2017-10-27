@@ -108,7 +108,7 @@ NS_IMETHODIMP JaBaseCppUrl::GetPrincipalSpec(nsACString& aPrincipalSpec)
   nsAutoCString spec;
   mailnewsURL->GetSpecIgnoringRef(spec);
 
-  nsAutoCString queryPart = MsgExtractQueryPart(spec, "number=");
+  nsCString queryPart = MsgExtractQueryPart(spec, "number=");
 
   // Strip any query part beginning with ? or /;
   int32_t ind = spec.Find("/;");
