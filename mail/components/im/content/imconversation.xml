@@ -1121,8 +1121,13 @@
        <body>
        <![CDATA[
          var name = aBuddy.name;
+         if (!name)
+           throw "The empty string isn't a valid nick.";
          if (this.buddies.has(name))
-           throw "Adding a chat buddy twice?!";
+           throw "Adding chat buddy " + name + " twice?!";
+
+         this.trackNick(name);
+
          var item = document.createElement("listitem");
          item.chatBuddy = aBuddy;
          item.setAttribute("class", "listitem-iconic");
@@ -1131,6 +1136,7 @@
 
          var color = this._computeColor(name);
          var style = "color: hsl(" + color + ", 100%, 40%);";
+         item.colorStyle = style;
          item.setAttribute("style", style);
          if (!this._isBuddyActive(name))
            item.setAttribute("inactive", "true");
@@ -1178,6 +1184,9 @@
        <body>
        <![CDATA[
          var name = aBuddy.name;
+         if (!name)
+           throw "The empty string isn't a valid nick.";
+
          if (!aOldName) {
            // If aOldName is null, we are changing the flags of the buddy
            let item = this.buddies.get(name);
@@ -1190,6 +1199,8 @@
            delete this._activeBuddies[aOldName];
            this._activeBuddies[aBuddy.name] = true;
          }
+
+         this.trackNick(name);
 
          if (!this._isConversationSelected)
            return;
@@ -1224,6 +1235,81 @@
          this.buddies.delete(aName);
          if (this._isBuddyActive(aName))
            delete this._activeBuddies[aName];
+       ]]>
+       </body>
+     </method>
+
+     <field name="_nickEscape">/[[\]{}()*+?.\\^$|]/g</field>
+     <method name="trackNick">
+       <parameter name="aNick"/>
+       <body>
+       <![CDATA[
+         if ("_showNickList" in this) {
+           this._showNickList[aNick.replace(this._nickEscape, "\\$&")] = true;
+           delete this._showNickRegExp;
+         }
+       ]]>
+       </body>
+     </method>
+
+     <method name="getShowNickModifier">
+       <body>
+       <![CDATA[
+         return (function (aNode) {
+           if (!("_showNickRegExp" in this)) {
+             if (!("_showNickList" in this)) {
+               this._showNickList = {};
+               for (let n of this.buddies.keys())
+                 this._showNickList[n.replace(this._nickEscape, "\\$&")] = true;
+             }
+
+             // The reverse sort ensures that if we have "foo" and "foobar",
+             // "foobar" will be matched first by the regexp.
+             let nicks = Object.keys(this._showNickList).sort().reverse().join("|");
+             if (nicks) {
+               // We use \W to match for word-boundaries, as \b will not match the
+               // nick if it starts/ends with \W characters.
+               // XXX Ideally we would use unicode word boundaries:
+               // http://www.unicode.org/reports/tr29/#Word_Boundaries
+               this._showNickRegExp = new RegExp("\\W(?:" + nicks + ")\\W");
+             }
+             else {
+               // nobody, disable...
+               this._showNickRegExp = {exec: () => null};
+               return 0;
+             }
+           }
+           let exp = this._showNickRegExp;
+           let result = 0;
+           let match;
+           // Add leading/trailing spaces to match at beginning and end of
+           // the string as well. (If we used regex ^ and $, match.index would
+           // not be reliable.)
+           while ((match = exp.exec(" " + aNode.data + " "))) {
+             // \W is not zero-length, but this is cancelled by the
+             // extra leading space here.
+             let nickNode = aNode.splitText(match.index);
+             // subtract the 2 \W's to get the length of the nick.
+             aNode = nickNode.splitText(match[0].length - 2);
+             // at this point, nickNode is a text node with only the text
+             // of the nick and aNode is a text node with the text after
+             // the nick. The text in aNode hasn't been processed yet.
+             let nick = nickNode.data;
+             let elt = aNode.ownerDocument.createElement("span");
+             elt.setAttribute("class", "ib-nick");
+             if (this.buddies.has(nick)) {
+               let buddy = this.buddies.get(nick);
+               elt.setAttribute("style", buddy.colorStyle);
+               elt.setAttribute("nickColor", buddy.color);
+             }
+             else
+               elt.setAttribute("left", "true");
+             nickNode.parentNode.replaceChild(elt, nickNode);
+             elt.textContent = nick;
+             result += 2;
+           }
+           return result;
+         }).bind(this);
        ]]>
        </body>
      </method>
@@ -1427,6 +1513,9 @@
 
            this._activeBuddies = {};
            this.showParticipants();
+
+           if (Services.prefs.getBoolPref("messenger.conversations.showNicks"))
+             this.browser.addTextModifier(this.getShowNickModifier());
          }
 
          if (this.tab)

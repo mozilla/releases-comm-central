@@ -6,6 +6,7 @@ pref("messenger.options.messagesStyle.theme", "mail");
 pref("messenger.options.emoticonsTheme", "messenger-emoticons");
 pref("messenger.conversations.textbox.autoResize", true);
 pref("messenger.conversations.doubleClickToReply", true);
+pref("messenger.conversations.showNicks", true);
 pref("purple.debug.loglevel", 3);
 pref("chat.twitter.consumerKey", "7Gzq35FbZLYJQ9n3sJmJw");
 pref("chat.twitter.consumerSecret", "fz0dXr3yul1uncHNf0vITTiIOtSKAVCvopKDrqR1Mo");
