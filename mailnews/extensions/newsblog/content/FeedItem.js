@@ -219,7 +219,7 @@ FeedItem.prototype =
                 FeedUtils.RDF_LITERAL_TRUE, true);
   },
 
-  mimeEncodeSubject: function(aSubject, aCharset)
+  mimeEncodeSubject: function(aSubject)
   {
     // This routine sometimes throws exceptions for mis-encoded data so
     // wrap it with a try catch for now.
@@ -228,7 +228,7 @@ FeedItem.prototype =
     {
       newSubject = mailServices.mimeConverter.encodeMimePartIIStr_UTF8(aSubject,
                      false,
-                     aCharset, 9, 72);
+                     "UTF-8", 9, 72);
     }
     catch (ex)
     {
@@ -259,7 +259,7 @@ FeedItem.prototype =
     // the right subject length.
     title = title.replace(/[\t\r\n]+/g, " ").trim();
 
-    this.title = this.mimeEncodeSubject(title, this.characterSet);
+    this.title = this.mimeEncodeSubject(title);
 
     // If the date looks like it's in W3C-DTF format, convert it into
     // an IETF standard date.  Otherwise assume it's in IETF format.
