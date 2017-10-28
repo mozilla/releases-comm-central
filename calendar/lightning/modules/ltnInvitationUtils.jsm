@@ -514,7 +514,6 @@ ltn.invitation = {
         return MailServices.mimeConverter
                            .encodeMimePartIIStr_UTF8(aHeader,
                                                      aIsEmail,
-                                                     "UTF-8",
                                                      fieldNameLen,
                                                      Components.interfaces
                                                                .nsIMimeConverter

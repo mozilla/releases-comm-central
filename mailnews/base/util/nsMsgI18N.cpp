@@ -179,10 +179,11 @@ char * nsMsgI18NEncodeMimePartIIStr(const char *header, bool structured, const c
   nsAutoCString encodedString;
   nsresult res;
   nsCOMPtr<nsIMimeConverter> converter = do_GetService(NS_MIME_CONVERTER_CONTRACTID, &res);
-  if (NS_SUCCEEDED(res) && nullptr != converter)
+  if (NS_SUCCEEDED(res) && nullptr != converter) {
     res = converter->EncodeMimePartIIStr_UTF8(nsDependentCString(header),
-      structured, "UTF-8", fieldnamelen,
+      structured, fieldnamelen,
       nsIMimeConverter::MIME_ENCODED_WORD_SIZE, encodedString);
+  }
 
   return NS_SUCCEEDED(res) ? PL_strdup(encodedString.get()) : nullptr;
 }

@@ -718,7 +718,7 @@ AGAIN:
 
   // We decoded the string, so we need to encode it again. We always encode in UTF-8.
   mimeConverter->EncodeMimePartIIStr_UTF8(nsDependentCString(s),
-    false, "UTF-8", sizeof("Subject:"),
+    false, sizeof("Subject:"),
     nsIMimeConverter::MIME_ENCODED_WORD_SIZE, modifiedSubject);
   return true;
 }

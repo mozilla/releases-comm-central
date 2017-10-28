@@ -35,9 +35,6 @@ function run_test() {
   gServer = setupServerDaemon();
   gServer.start();
 
-  // encodeMimePartIIStr_UTF8 complains about latin1 encoding...
-  Services.prefs.setBoolPref("devtools.errorconsole.deprecation_warnings", false);
-
   run_next_test();
 }
 

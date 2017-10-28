@@ -227,8 +227,7 @@ FeedItem.prototype =
     try
     {
       newSubject = mailServices.mimeConverter.encodeMimePartIIStr_UTF8(aSubject,
-                     false,
-                     "UTF-8", 9, 72);
+                     false, 9, 72);
     }
     catch (ex)
     {

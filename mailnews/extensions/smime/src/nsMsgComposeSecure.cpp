@@ -564,7 +564,7 @@ nsresult nsMsgComposeSecure::MimeInitEncryption(bool aSign, nsIMsgSendReport *se
      do_GetService(NS_MIME_CONVERTER_CONTRACTID, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
   nsCString encodedContentDescription;
-  mimeConverter->EncodeMimePartIIStr_UTF8(enc_content_desc_utf8, false, "UTF-8",
+  mimeConverter->EncodeMimePartIIStr_UTF8(enc_content_desc_utf8, false,
       sizeof("Content-Description: "),
       nsIMimeConverter::MIME_ENCODED_WORD_SIZE,
       encodedContentDescription);

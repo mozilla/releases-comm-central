@@ -20,12 +20,8 @@ interface nsIMimeConverter : nsISupports {
    * Encode a UTF-8 string into a form containing only ASCII characters using
    * RFC 2047 encoded words where necessary.
    *
-   * Note that, although allowed for the present time, encoding to charsets
-   * other than UTF-8 is considered deprecated.
-   *
    * @param aHeader           UTF-8 header to encode.
    * @param aAddressingHeader Is the header a list of email addresses?
-   * @param aMailCharset      Charset to use when encoding (see above for note).
    * @param aFieldNameLen     Header field name length (ex: "From: " = 6)
    * @param aMaxLineLen       Maximum length of an individual line. Use
    *                          MIME_ENCODED_WORD_SIZE for best results.
@@ -34,7 +30,6 @@ interface nsIMimeConverter : nsISupports {
    */
   AUTF8String encodeMimePartIIStr_UTF8(in AUTF8String aHeader,
                                        in boolean     aAddressingHeader,
-                                       in string      aMailCharset,
                                        in long        aFieldNameLen,
                                        in long        aMaxLineLen);
 
