@@ -1484,7 +1484,7 @@ mime_parse_stream_complete(nsMIMESession *stream)
 
       char *body = nullptr;
 
-      if (!bodyAsAttachment)
+      if (!bodyAsAttachment && mdd->messageBody->m_tmpFile)
       {
         int64_t fileSize;
         nsCOMPtr<nsIFile> tempFileCopy;
