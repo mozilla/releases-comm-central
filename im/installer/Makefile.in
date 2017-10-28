@@ -14,7 +14,8 @@ ifndef SYSTEM_LIBXUL
 MOZ_PKG_FATAL_WARNINGS = 1
 endif
 
-DEFINES += -DPKG_LOCALE_MANIFEST=$(topobjdir)/im/locales/locale-manifest.in
+DEFINES += -DPKG_LOCALE_MANIFEST=$(topobjdir)/im/installer/locale-manifest.in
+MOZ_CHROME_LOCALE_ENTRIES=@RESPATH@/chrome/
 
 MOZ_PKG_DUPEFLAGS = \
 	-f $(srcdir)/allowed-dupes.mn \
