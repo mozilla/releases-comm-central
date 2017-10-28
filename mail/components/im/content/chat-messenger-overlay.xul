@@ -174,9 +174,7 @@
                    clear the box, if people want to clear it that way...
                 -->
               <hbox>
-                <image class="gloda-search-icon"
-                       onclick="document.getElementById('IMSearchInput').doSearch();"
-                       />
+                <image class="gloda-search-icon"/>
               </hbox>
             </textbox>
           </toolbaritem>
