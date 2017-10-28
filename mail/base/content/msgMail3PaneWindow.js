@@ -1837,11 +1837,10 @@ var TabsInTitlebar = {
 
       // On Windows 10, adjust the window controls to span the entire
       // tab strip height if we're not showing a menu bar.
-      if (AppConstants.isPlatformAndVersionAtLeast("win", "10.0")) {
-        if (!menuHeight) {
-          titlebarContentHeight = fullTabsHeight;
-          $("titlebar-buttonbox").style.height = titlebarContentHeight + "px";
-        }
+      if (AppConstants.isPlatformAndVersionAtLeast("win", "10.0") &&
+          !menuHeight) {
+        titlebarContentHeight = fullTabsHeight;
+        $("titlebar-buttonbox").style.height = titlebarContentHeight + "px";
       }
 
       // If the menubar is around (menuHeight is non-zero), try to adjust
