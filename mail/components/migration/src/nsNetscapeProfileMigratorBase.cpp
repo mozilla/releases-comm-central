@@ -133,8 +133,12 @@ nsNetscapeProfileMigratorBase::GetString(PrefTransform* aTransform,
 {
   PrefTransform* xform = (PrefTransform*)aTransform;
   nsCString str;
-  GETPREF(xform, GetCharPref, str);
-  xform->stringValue = moz_xstrdup(str.get());
+  nsresult rv = aBranch->GetCharPref(xform->sourcePrefName, str);
+  if (NS_SUCCEEDED(rv)) {
+    xform->prefHasValue = true;
+    xform->stringValue = moz_xstrdup(str.get());
+  }
+  return rv;
 }
 
 nsresult
