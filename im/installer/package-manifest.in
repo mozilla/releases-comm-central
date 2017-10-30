@@ -645,6 +645,7 @@
 @RESPATH@/components/txEXSLTRegExFunctions.js
 @RESPATH@/components/txEXSLTRegExFunctions.manifest
 @RESPATH@/components/feeds.xpt
+@RESPATH@/components/reputationservice.xpt
 @RESPATH@/components/saxparser.xpt
 @RESPATH@/components/satchel.manifest
 @RESPATH@/components/satchel.xpt
