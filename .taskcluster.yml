@@ -67,7 +67,7 @@ tasks:
         HG_STORE_PATH: /buillds/worker/checkouts/hg-store
 
       cache:
-        level-${repository.level}-checkouts: /builds/worker/checkouts
+        level-${repository.level}-checkouts-sparse-v1: /builds/worker/checkouts
 
       features:
         taskclusterProxy: true
@@ -85,14 +85,14 @@ tasks:
       # tar.gz archives are created or tc-vcs isn't being used.
       command:
         - /builds/worker/bin/run-task
-        - '--vcs-checkout=/builds/worker/build/mozilla'
+        - '--vcs-checkout=/builds/worker/checkouts/gecko'
         - '--sparse-profile=build/sparse-profiles/taskgraph'
-        - '--comm-checkout=/builds/worker/build/mozilla/comm'
+        - '--comm-checkout=/builds/worker/checkouts/gecko/comm'
         - '--'
         - bash
         - -cx
         - >
-            cd /builds/worker/build/mozilla &&
+            cd /builds/worker/checkouts/gecko &&
             ln -s /builds/worker/artifacts artifacts &&
             ./mach --log-no-times taskgraph decision
             --root comm/taskcluster/ci
