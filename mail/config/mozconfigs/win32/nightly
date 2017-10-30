@@ -1,3 +1,4 @@
+. "$topsrcdir/build/mozconfig.comm-support"
 . "$topsrcdir/build/mozconfig.win-common"
 . "$topsrcdir/build/mozconfig.common"
 . "$topsrcdir/build/mozconfig.stylo"
