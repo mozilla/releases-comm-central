@@ -8,7 +8,6 @@
 #include "nsIServiceManager.h"
 #include "nsICookieService.h"
 #include "nsICookieManager.h"
-#include "nsICookieManager2.h"
 #include "nsICookie2.h"
 #include <stdio.h>
 #include "plstr.h"
