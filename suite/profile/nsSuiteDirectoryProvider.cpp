@@ -265,7 +265,7 @@ nsSuiteDirectoryProvider::AppendDistroSearchDirs(nsIProperties* aDirSvc,
       prefString->GetData(wLocale);
       CopyUTF16toUTF8(wLocale, locale);
     } else {
-      rv = prefs->GetCharPref("general.useragent.locale", getter_Copies(locale));
+      rv = prefs->GetCharPref("general.useragent.locale", locale);
     }
 
     if (NS_SUCCEEDED(rv)) {
@@ -285,7 +285,7 @@ nsSuiteDirectoryProvider::AppendDistroSearchDirs(nsIProperties* aDirSvc,
     // we didn't append the locale dir - try the default one
     nsCString defLocale;
     rv = prefs->GetCharPref("distribution.searchplugins.defaultLocale",
-                            getter_Copies(defLocale));
+                            defLocale);
     if (NS_SUCCEEDED(rv)) {
       nsCOMPtr<nsIFile> defLocalePlugins;
       rv = localePlugins->Clone(getter_AddRefs(defLocalePlugins));
