@@ -6,7 +6,7 @@
 #include "nsAppDirectoryServiceDefs.h"
 #include "nsSuiteProfileMigratorUtils.h"
 #include "nsCRT.h"
-#include "nsICookieManager2.h"
+#include "nsICookieManager.h"
 #include "nsIFile.h"
 #include "nsILineInputStream.h"
 #include "nsIOutputStream.h"
@@ -659,7 +659,7 @@ nsNetscapeProfileMigratorBase::CopyCookies(bool aReplace)
   }
 
   nsresult rv;
-  nsCOMPtr<nsICookieManager2> cookieManager(do_GetService(NS_COOKIEMANAGER_CONTRACTID, &rv));
+  nsCOMPtr<nsICookieManager> cookieManager(do_GetService(NS_COOKIEMANAGER_CONTRACTID, &rv));
   if (NS_FAILED(rv))
     return rv;
 

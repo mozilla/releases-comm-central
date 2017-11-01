@@ -21,7 +21,7 @@ function test() {
 
   waitForExplicitFinish();
 
-  let cs = Components.classes["@mozilla.org/cookiemanager;1"].getService(Components.interfaces.nsICookieManager2);
+  let cs = Components.classes["@mozilla.org/cookiemanager;1"].getService(Components.interfaces.nsICookieManager);
   cs.removeAll();
 
   // make sure that sessionstore.js can be forced to be created by setting
