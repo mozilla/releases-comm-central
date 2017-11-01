@@ -2,7 +2,7 @@
 . "$topsrcdir/build/mozconfig.win-common"
 . "$topsrcdir/build/mozconfig.common"
 . "$topsrcdir/build/mozconfig.stylo"
-. "$topsrcdir/build/win32/mozconfig.vs-latest"
+. "$topsrcdir/build/win32/mozconfig.vs2015-win64"
 . "$topsrcdir/suite/config/mozconfigs/mozconfig.win.common"
 . "$topsrcdir/suite/config/mozconfigs/common"
 
