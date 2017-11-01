@@ -17,3 +17,4 @@
 
 common-tests:
     - xpcshell
+    - mozmill

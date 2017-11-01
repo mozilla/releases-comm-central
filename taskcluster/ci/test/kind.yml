@@ -9,9 +9,9 @@ kind-dependencies:
     - build-signing
 
 transforms:
-   - taskgraph.transforms.tests:transforms
-   - taskgraph.transforms.job:transforms
-   - taskgraph.transforms.task:transforms
+    - taskgraph.transforms.tests:transforms
+    - taskgraph.transforms.job:transforms
+    - taskgraph.transforms.task:transforms
 
 jobs-from:
-   - tests.yml
+    - tests.yml
