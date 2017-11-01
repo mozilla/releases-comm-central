@@ -18,6 +18,7 @@ transforms:
 jobs-from:
     - linux.yml
     - macosx.yml
+    - windows.yml
 
 job-defaults:
     when:
