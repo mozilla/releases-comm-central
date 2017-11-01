@@ -381,7 +381,7 @@ var gPluginHandler = {
     let notifications = {
       PluginBlocklisted : {
         barID: "blocked-plugins",
-        iconURL: "chrome://mozapps/skin/plugins/pluginBlocked.svg",
+        iconURL: "chrome://messenger/skin/icons/pluginBlocked.svg",
         message: messengerBundle.getString("blockedpluginsMessage.title"),
         buttons: [{
           label: messengerBundle.getString("blockedpluginsMessage.infoButton.label"),
