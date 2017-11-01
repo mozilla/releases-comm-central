@@ -299,7 +299,6 @@
 @RESPATH@/components/shistory.xpt
 @RESPATH@/components/smile.xpt
 @RESPATH@/components/spellchecker.xpt
-@RESPATH@/components/startupcache.xpt
 @RESPATH@/components/storage.xpt
 @RESPATH@/components/SuiteBrowser.manifest
 @RESPATH@/components/suitecommon.xpt
