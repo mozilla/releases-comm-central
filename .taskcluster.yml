@@ -52,6 +52,7 @@ tasks:
     requires: all-completed
 
     priority: lowest
+    retries: 5
 
     payload:
       env:
@@ -62,9 +63,11 @@ tasks:
         GECKO_HEAD_REF: 'default'
         COMM_BASE_REPOSITORY: 'https://hg.mozilla.org/comm-central'
         COMM_HEAD_REPOSITORY: '${repoUrl}'
+        COMM_COMMIT_MSG: '${push.comment}'
         COMM_HEAD_REF: '${push.revision}'
         COMM_HEAD_REV: '${push.revision}'
         HG_STORE_PATH: /buillds/worker/checkouts/hg-store
+        TASKCLUSTER_CACHES: /builds/worker/checkouts
 
       cache:
         level-${repository.level}-checkouts-sparse-v1: /builds/worker/checkouts
@@ -99,7 +102,7 @@ tasks:
             --pushlog-id='${push.pushlog_id}'
             --pushdate='${push.pushdate}'
             --project='${repository.project}'
-            --message="$GECKO_COMMIT_MSG"
+            --message="$COMM_COMMIT_MSG"
             --owner='${ownerEmail}'
             --level='${repository.level}'
             --base-repository='https://hg.mozilla.org/mozilla-central'
@@ -120,3 +123,5 @@ tasks:
     extra:
       treeherder:
         symbol: D
+        machine:
+          platform: gecko-decision
