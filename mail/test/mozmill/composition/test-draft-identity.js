@@ -204,6 +204,7 @@ function test_draft_identity_selection() {
   close_compose_window(cwc, false);
 */
 }
+test_draft_identity_selection.EXCLUDED_PLATFORMS = ["darwin"]; // See bug 1413851.
 
 function teardownModule(module) {
   for (let id = 1; id < gIdentities.length; id++) {
