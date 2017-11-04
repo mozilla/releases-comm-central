@@ -12,7 +12,7 @@
 
 :root {
   --tab-min-height: 30px;
-  --tabs-border: rgba(0,0,0,.3);
+  --tabs-border-color: rgba(0,0,0,.3);
   --tab-line-color: #0a84ff;
 
   --toolbar-non-lwt-bgcolor: #f9f9fa;
@@ -67,10 +67,10 @@ toolbar[brighttext] {
 
 @media (-moz-mac-yosemite-theme) {
   :root:not(:-moz-lwtheme) {
-    --tabs-border: rgba(0,0,0,.2);
+    --tabs-border-color: rgba(0,0,0,.2);
   }
   :root:not(:-moz-lwtheme):-moz-window-inactive {
-    --tabs-border: rgba(0,0,0,.05);
+    --tabs-border-color: rgba(0,0,0,.05);
   }
 }
 

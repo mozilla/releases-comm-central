@@ -12,7 +12,7 @@
 
 :root {
   --tab-min-height: 30px;
-  --tabs-border: threedshadow;
+  --tabs-border-color: threedshadow;
   --tab-line-color: highlight;
 
   --glassShadowColor: hsla(240, 5%, 5%, .3);
@@ -40,7 +40,7 @@
 
 @media (-moz-windows-default-theme) {
   :root {
-    --tabs-border: rgba(0,0,0,.3);
+    --tabs-border-color: rgba(0,0,0,.3);
     --tab-line-color: #0a84ff;
 
     --toolbar-non-lwt-bgcolor: #f9f9fa;
@@ -50,7 +50,7 @@
 }
 
 :root:-moz-lwtheme {
-  --tabs-border: rgba(0,0,0,.3);
+  --tabs-border-color: rgba(0,0,0,.3);
 
   --toolbar-bgcolor: rgba(255,255,255,.4);
   --toolbar-bgimage: none;

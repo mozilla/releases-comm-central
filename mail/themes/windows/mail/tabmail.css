@@ -168,7 +168,7 @@ tabpanels {
   :root[sizemode=normal] .tabmail-tab[first-tab][visuallyselected]:before {
     content: '';
     display: -moz-box;
-    --tabs-border: var(--glassShadowColor);
+    --tabs-border-color: var(--glassShadowColor);
   }
 }
 

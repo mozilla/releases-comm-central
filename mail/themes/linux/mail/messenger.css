@@ -14,7 +14,7 @@
   --toolbarHighlight: rgba(255, 255, 255, .4);
 
   --tab-min-height: 30px;
-  --tabs-border: rgba(0,0,0,.3);
+  --tabs-border-color: rgba(0,0,0,.3);
   --tab-line-color: highlight;
 
   --toolbar-non-lwt-bgcolor: -moz-dialog;

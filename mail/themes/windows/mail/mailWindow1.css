@@ -698,7 +698,7 @@ treechildren::-moz-tree-cell-text(imapdeleted) {
        (-moz-os-version: windows-win8) and (-moz-windows-default-theme) {
   @media (-moz-windows-compositor) {
     :root:not(:-moz-lwtheme) {
-      --tabs-border: var(--glassShadowColor);
+      --tabs-border-color: var(--glassShadowColor);
     }
 
     #messengerWindow[sizemode=normal] #tabpanelcontainer {
