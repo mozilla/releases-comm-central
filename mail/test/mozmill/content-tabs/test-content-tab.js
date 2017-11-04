@@ -5,7 +5,8 @@
 var MODULE_NAME = 'test-content-tab';
 
 var RELATIVE_ROOT = '../shared-modules';
-var MODULE_REQUIRES = ['folder-display-helpers', 'content-tab-helpers'];
+var MODULE_REQUIRES = ['folder-display-helpers', 'content-tab-helpers',
+                       'dom-helpers', 'window-helpers'];
 
 var controller = {};
 Components.utils.import('resource://mozmill/modules/controller.js', controller);
@@ -22,16 +23,11 @@ Components.utils.import('resource://gre/modules/Services.jsm');
 var url = collector.addHttpResource('../content-tabs/html', '');
 var whatsUrl = url + "whatsnew.html";
 
-var setupModule = function (module) {
-  let fdh = collector.getModule('folder-display-helpers');
-  fdh.installInto(module);
-  let cth = collector.getModule('content-tab-helpers');
-  cth.installInto(module);
-  let dh = collector.getModule('dom-helpers');
-  dh.installInto(module);
-  let wh = collector.getModule('window-helpers');
-  wh.installInto(module);
-};
+function setupModule(module) {
+  for (let lib of MODULE_REQUIRES) {
+    collector.getModule(lib).installInto(module);
+  }
+}
 
 function test_content_tab_open() {
   // Set the pref so that what's new opens a local url
@@ -48,7 +44,6 @@ function test_content_tab_open() {
   // content-targetable.
   if (mc.window.content.location != whatsUrl)
     throw new Error("window.content is not set to the url loaded, incorrect type=\"...\"?");
-
 }
 
 /**
@@ -69,6 +64,7 @@ function test_spellcheck_in_content_tabs() {
   // wait 2 seconds to be on the safe side.
   mc.sleep(2000);
   mc.rightClick(new elementslib.Elem(textarea));
+  wait_for_popup_to_open(eidMailContext.getNode());
   assert_element_visible("mailContext-spell-dictionaries");
   assert_element_visible("mailContext-spell-check-enabled");
   assert_element_not_visible("mailContext-replySender"); // we're in a content tab!
@@ -76,6 +72,7 @@ function test_spellcheck_in_content_tabs() {
 
   // Different test
   mc.rightClick(new elementslib.Elem(w.document.body.firstElementChild));
+  wait_for_popup_to_open(eidMailContext.getNode());
   assert_element_not_visible("mailContext-spell-dictionaries");
   assert_element_not_visible("mailContext-spell-check-enabled");
   close_popup(mc, eidMailContext);
@@ -83,6 +80,7 @@ function test_spellcheck_in_content_tabs() {
   // Right-click on "zombocom" and add to dictionary
   EventUtils.synthesizeMouse(textarea, 5, 5,
                              {type: "contextmenu", button: 2}, w);
+  wait_for_popup_to_open(eidMailContext.getNode());
   let suggestions = mc.window.document.getElementsByClassName("spell-suggestion");
   assert_true(suggestions.length > 0, "What, is zombocom a registered word now?");
   mc.click(mc.eid("mailContext-spell-add-to-dictionary"));
@@ -91,6 +89,7 @@ function test_spellcheck_in_content_tabs() {
   // Now check we don't have any suggestionss
   EventUtils.synthesizeMouse(textarea, 5, 5,
                              {type: "contextmenu", button: 2}, w);
+  wait_for_popup_to_open(eidMailContext.getNode());
   suggestions = mc.window.document.getElementsByClassName("spell-suggestion");
   assert_true(suggestions.length == 0, "But I just taught you this word!");
   close_popup(mc, eidMailContext);

@@ -1422,7 +1422,7 @@ function delete_via_popup() {
 function wait_for_popup_to_open(popupElem) {
   mark_action("fdh", "wait_for_popup_to_open", [popupElem]);
   utils.waitFor(() => popupElem.state == "open",
-                "Timeout waiting for popup to open", 1000, 50);
+                "Timeout waiting for popup to open, state=" + popupElem.state, 1000, 50);
 }
 
 /**
