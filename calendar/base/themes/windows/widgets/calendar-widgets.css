@@ -10,7 +10,7 @@ treenode-checkbox > .checkbox-check {
   border: none;
   width: 9px; /* The image's width is 9 pixels */
   height: 9px;
-  background-image: url(chrome://global/skin/tree/twisty.svg#clsd);
+  background: url(chrome://global/skin/tree/twisty.svg#clsd) center no-repeat;
 }
 
 treenode-checkbox[checked="true"] > .checkbox-check {

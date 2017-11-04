@@ -4,17 +4,17 @@
 
 @import url(chrome://calendar-common/skin/widgets/calendar-widgets.css);
 
-treenode-checkbox[checked="true"] > .checkbox-check {
-  background-image: url(chrome://global/skin/tree/twisty-open.png);
-}
-
 treenode-checkbox > .checkbox-check {
   -moz-appearance: none;
   -moz-box-align: center;
   border: none;
   width: 9px; /* The image's width is 9 pixels */
   height: 9px;
-  background-image: url(chrome://global/skin/tree/twisty-clsd.png);
+  background: url(chrome://global/skin/tree/twisty-clsd.png) center no-repeat;
+}
+
+treenode-checkbox[checked="true"] > .checkbox-check {
+  background-image: url(chrome://global/skin/tree/twisty-open.png);
 }
 
 #task-tree-filtergroup {
