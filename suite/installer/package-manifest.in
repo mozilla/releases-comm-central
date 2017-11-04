@@ -474,8 +474,9 @@
 @RESPATH@/components/nsURLFormatter.manifest
 @RESPATH@/components/nsWebHandlerApp.js
 @RESPATH@/components/nsWebHandlerApp.manifest
-@RESPATH@/components/PageThumbsProtocol.js
-@RESPATH@/components/BrowserPageThumbs.manifest
+@RESPATH@/components/PageThumbsStorageService.js
+@RESPATH@/components/thumbnails.xpt
+@RESPATH@/components/PageThumbsComponents.manifest
 @RESPATH@/components/PageIconProtocolHandler.js
 @RESPATH@/components/passwordmgr.manifest
 #ifdef MOZ_WEBRTC

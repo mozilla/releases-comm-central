@@ -399,7 +399,7 @@
 ; toolkit
 @RESPATH@/components/BrowserElementParent.js
 @RESPATH@/components/BrowserElementParent.manifest
-@RESPATH@/components/PageThumbsProtocol.js
+@RESPATH@/components/PageThumbsStorageService.js
 @RESPATH@/components/XULStore.js
 @RESPATH@/components/XULStore.manifest
 @RESPATH@/components/browser-element.xpt
