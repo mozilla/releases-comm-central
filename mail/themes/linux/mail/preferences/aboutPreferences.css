@@ -10,16 +10,12 @@ window * {
   font-size: 1.11rem;
 }
 
-caption > label:not(.dialogTitle) {
+caption label:not(.dialogTitle) {
   font-size: 1.27rem;
 }
 
 checkbox {
   -moz-binding: url("chrome://global/content/bindings/checkbox.xml#checkbox") !important;
-}
-
-radio {
-  -moz-binding: url("chrome://global/content/bindings/radio.xml#radio") !important;
 }
 
 spinbuttons {

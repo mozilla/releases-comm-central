@@ -10,18 +10,8 @@ window * {
   font-size: 1.25rem;
 }
 
-caption > label:not(.dialogTitle) {
+caption label:not(.dialogTitle) {
   font-size: 1.42rem;
-}
-
-@media not all and (-moz-windows-default-theme) {
-  .paneButtonIcon {
-    fill: ThreeDHighlight;
-  }
-}
-
-radio {
-  -moz-binding: url("chrome://global/content/bindings/radio.xml#radio") !important;
 }
 
 .actionsMenu > .menulist-label-box > .menulist-icon {
