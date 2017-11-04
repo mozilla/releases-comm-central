@@ -253,7 +253,7 @@
 
   <!-- this binding directly extends to a checkbox but is visualized as
        a treenode in a treecontrol-->
-  <binding id="treenode-checkbox" extends="chrome://global/content/bindings/checkbox.xml#checkbox-baseline">
+  <binding id="treenode-checkbox" extends="chrome://global/content/bindings/checkbox.xml#checkbox">
     <resources>
       <stylesheet src="chrome://calendar/skin/widgets/calendar-widgets.css"/>
     </resources>
