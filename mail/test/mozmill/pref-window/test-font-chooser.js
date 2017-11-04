@@ -21,13 +21,13 @@ Components.utils.import("resource://gre/modules/Services.jsm");
 var gFontEnumerator;
 
 // We'll test with Western. Unicode has issues on Windows (bug 550443).
-var kLanguage = "x-western";
+const kLanguage = "x-western";
 
 // A list of fonts present on the computer for each font type.
 var gRealFontLists = {};
 
 // A list of font types to consider
-var kFontTypes = ["serif", "sans-serif", "monospace"];
+const kFontTypes = ["serif", "sans-serif", "monospace"];
 
 function setupModule(module) {
   for (let lib of MODULE_REQUIRES) {
@@ -124,7 +124,7 @@ function test_font_name_displayed() {
 
 // Fonts definitely not present on a computer -- we simply use UUIDs. These
 // should be kept in sync with the ones in *-prefs.js.
-var kFakeFonts = {
+const kFakeFonts = {
   "serif": "bc7e8c62-0634-467f-a029-fe6abcdf1582",
   "sans-serif": "419129aa-43b7-40c4-b554-83d99b504b89",
   "monospace": "348df6e5-e874-4d21-ad4b-359b530a33b7",

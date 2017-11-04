@@ -16,20 +16,13 @@ _pref_file_names = {
 
 def on_profile_created(profiledir):
     """
-    On profile creation, this copies prefs.js from the current folder to
-    profile_dir/preferences. This is a somewhat undocumented feature -- anything
-    in profile_dir/preferences gets treated as a default pref, which is what we
-    want here.
+    On profile creation, this copies *-prefs.js from the current folder to
+    profile_dir as a user.js file. These user prefs is interpreted in addition
+    to the standard prefs.js file.
     """
-    prefdir = os.path.join(profiledir, "preferences")
-    # This needs to be a directory, so if it's a file, raise an exception
-    if os.path.isfile(prefdir):
-        raise Exception("%s needs to be a directory, but is a file" % prefdir)
-    if not os.path.exists(prefdir):
-        os.mkdir(prefdir)
-    # The pref file is in the same directory this script is in
+    # The pref file is in the same directory this script is in.
     # Fallback to Linux prefs for anything not in the dictionary -- we're
-    # assuming that they're other unixes
+    # assuming that they're other unixes.
     preffile = os.path.join(os.path.dirname(__file__),
                             _pref_file_names.get(sys.platform, "linux-prefs.js"))
-    shutil.copy(preffile, prefdir)
+    shutil.copy(preffile, os.path.join(profiledir, "user.js"))
