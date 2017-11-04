@@ -176,12 +176,20 @@ menulist:-moz-locale-dir(rtl) > .menulist-label-box {
   border-top: none;
 }
 
-#attachments-box {
-  padding-top: 5px;
+#attachments-header-box {
+  height: 24px;
+  margin-top: 1px;
+}
+
+#attachmentBucketCount {
+  margin-top: 0;
+  margin-bottom: 0;
 }
 
 #attachmentBucketSize {
   color: GrayText;
+  margin-top: 0;
+  margin-bottom: 0;
   padding-inline-end: 1px;
 }
 
@@ -215,7 +223,7 @@ menulist:-moz-locale-dir(rtl) > .menulist-label-box {
 }
 
 #subjectLabel {
-  margin-inline-end: 7px;
+  margin-inline-end: 6px;
   padding-bottom: 1px;
 }
 
@@ -229,12 +237,9 @@ menulist:-moz-locale-dir(rtl) > .menulist-label-box {
   margin-inline-start: 6px;
   margin-inline-end: 5px;
   background-color: inherit;
-  border: 2px solid transparent;
-  -moz-border-top-colors: none;
-  -moz-border-left-colors: none;
-  -moz-border-right-colors: none;
-  -moz-border-bottom-colors: ThreeDShadow ThreeDHighlight;
-  padding: 2px;
+  border: 1px solid transparent;
+  border-bottom-color: var(--toolbarbutton-hover-bordercolor);
+  padding: 4px 2px;
   padding-inline-start: 5px !important;
   transition: border .2s, background-color .2s;
 }
@@ -242,10 +247,7 @@ menulist:-moz-locale-dir(rtl) > .menulist-label-box {
 #msgSubject:hover,
 #msgSubject[focused="true"] {
   background-color: -moz-field;
-  -moz-border-top-colors: ThreeDShadow ThreeDHighlight;
-  -moz-border-right-colors: ThreeDShadow ThreeDHighlight;
-  -moz-border-bottom-colors: ThreeDShadow ThreeDHighlight;
-  -moz-border-left-colors: ThreeDShadow ThreeDHighlight;
+  border-color: var(--toolbarbutton-hover-bordercolor);
 }
 
 /* ::::: autocomplete icons ::::: */
@@ -304,12 +306,9 @@ treechildren::-moz-tree-image(subscribed-news) {
 
 .textbox-addressingWidget,
 .dummy-row-cell:not(:first-child) {
-  padding: 2px !important;
-  border: solid 2px transparent !important;
-  -moz-border-top-colors: none !important;
-  -moz-border-left-colors: none !important;
-  -moz-border-right-colors: none !important;
-  -moz-border-bottom-colors: ThreeDShadow ThreeDHighlight !important;
+  padding: 4px 2px !important;
+  border: solid 1px transparent !important;
+  border-bottom-color: var(--toolbarbutton-hover-bordercolor) !important;
   transition: border .2s, background-color .2s;
  }
 
@@ -321,14 +320,12 @@ treechildren::-moz-tree-image(subscribed-news) {
 .textbox-addressingWidget[focused="true"],
 .textbox-addressingWidget:hover {
   background-color: -moz-field;
-  -moz-border-top-colors: ThreeDShadow ThreeDHighlight !important;
-  -moz-border-right-colors: ThreeDShadow ThreeDHighlight !important;
-  -moz-border-bottom-colors: ThreeDShadow ThreeDHighlight !important;
-  -moz-border-left-colors: ThreeDShadow ThreeDHighlight !important;
+  border-color: var(--toolbarbutton-hover-bordercolor) !important;
 }
 
 .aw-menulist {
   -moz-binding: url("chrome://messenger/content/messengercompose/menulistCompactBindings.xml#menulist-compact");
+  font: inherit;
   margin: 0;
   margin-inline-start: 5px;
   margin-inline-end: 7px;
@@ -402,6 +399,15 @@ treechildren::-moz-tree-image(subscribed-news) {
   padding-top: 3px;
 }
 
+#identityLabel-box {
+  margin-top: 1px;
+}
+
+#identityLabel {
+  margin-bottom: 1px;
+  margin-inline-end: 8px
+}
+
 #msgIdentity {
   -moz-appearance: none;
   -moz-box-align: center;
@@ -411,10 +417,9 @@ treechildren::-moz-tree-image(subscribed-news) {
   padding-bottom: 1px;
   padding-inline-start: 2px;
   background: transparent;
-  height: 22px;
-  line-height: 1;
-  border: 2px solid transparent;
-  -moz-border-bottom-colors: ThreeDShadow ThreeDHighlight;
+  font: inherit;
+  border: 1px solid transparent;
+  border-bottom-color: var(--toolbarbutton-hover-bordercolor);
   transition: border .2s, background-color .2s;
 }
 
@@ -422,10 +427,7 @@ treechildren::-moz-tree-image(subscribed-news) {
 #msgIdentity:focus,
 #msgIdentity[focused="true"] {
   background-color: -moz-field;
-  -moz-border-top-colors: ThreeDShadow ThreeDHighlight;
-  -moz-border-right-colors: ThreeDShadow ThreeDHighlight;
-  -moz-border-bottom-colors: ThreeDShadow ThreeDHighlight;
-  -moz-border-left-colors: ThreeDShadow ThreeDHighlight;
+  border-color: var(--toolbarbutton-hover-bordercolor);
 }
 
 #msgIdentity > .menulist-editable-box {

@@ -924,7 +924,7 @@
       <hbox id="msgheaderstoolbar-box" flex="1">
         <vbox flex="1" id="addresses-box">
           <hbox id="top-gradient-box">
-            <hbox align="center" pack="end" style="&headersSpace.style;">
+            <hbox id="identityLabel-box" align="center" pack="end" style="&headersSpace.style;">
               <label id="identityLabel" value="&fromAddr.label;"
                      accesskey="&fromAddr.accesskey;" control="msgIdentity"/>
             </hbox>
@@ -989,7 +989,7 @@
         </vbox>
         <splitter id="attachmentbucket-sizer" collapsed="true" collapse="after"/>
         <vbox id="attachments-box" collapsed="true" persist="width">
-          <hbox>
+          <hbox id="attachments-header-box" align="center">
             <label id="attachmentBucketCount" control="attachmentBucket"
                    crop="right" accesskey="&attachments.accesskey;" flex="1"/>
             <label id="attachmentBucketSize"/>

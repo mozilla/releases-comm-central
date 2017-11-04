@@ -56,7 +56,9 @@ toolbar[brighttext] {
 #ab-toolbox > toolbar[brighttext],
 .mail-toolbox > toolbar[brighttext],
 #event-toolbox > toolbar[brighttext],
-#compose-toolbox > toolbar[brighttext] {
+#compose-toolbox > toolbar[brighttext],
+#headers-box > toolbar[brighttext],
+#FormatToolbox > toolbar[brighttext]  {
   --toolbarbutton-text-color: #fff;
   --toolbarbutton-hover-background: rgba(255, 255, 255, .25);
   --toolbarbutton-hover-bordercolor: rgba(255, 255, 255, .5);
