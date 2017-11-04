@@ -135,6 +135,13 @@ function test_display_about_support() {
                   "Troubleshooting table '" + table.id + "' is empty!");
   }
 
+  // Mozmill uses a user.js file in the profile, so the warning about the file
+  // should be visible here.
+  let userjsElem = tab.browser.contentDocument.getElementById("prefs-user-js-section");
+  assert_true(userjsElem.hasChildNodes);
+  assert_true(tab.browser.contentDocument.defaultView.getComputedStyle(userjsElem).display == "block");
+  assert_true(tab.browser.contentDocument.defaultView.getComputedStyle(userjsElem).visibility == "visible");
+
   close_tab(tab);
 }
 

@@ -108,8 +108,8 @@ function cleanUpText(aElem, aHidePrivateData) {
   delete aElem.dataset.copyData;
   while (node) {
     let classList = "classList" in node && node.classList;
-    // Delete uionly nodes.
-    if (classList && classList.contains(CLASS_DATA_UIONLY)) {
+    // Delete uionly and no-copy nodes.
+    if (classList && (classList.contains(CLASS_DATA_UIONLY) || classList.contains("no-copy"))) {
       // Advance to the next node before removing the current node, since
       // node.nextSibling is null after remove()
       let nextNode = node.nextSibling;
