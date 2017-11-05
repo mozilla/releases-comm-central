@@ -465,7 +465,7 @@ grippy {
   margin: 0 0;
 }
 
-.conv-nicklist > .listitem-iconic > .listcell-iconic > .listcell-label {
+.conv-nicklist > .listitem-iconic .listcell-label {
   font-weight: bold;
   padding-inline-start: 1px;
 %ifdef XP_MACOSX
@@ -473,7 +473,7 @@ grippy {
 %endif
 }
 
-.conv-nicklist > .listitem-iconic > .listcell-iconic > .listcell-icon {
+.conv-nicklist > .listitem-iconic .listcell-icon {
   min-width: 16px;
   margin: 0 2px;
 }
@@ -521,20 +521,20 @@ grippy {
 }
 %endif
 
-.listitem-iconic[inactive] > .listcell-iconic > .listcell-icon {
+.listitem-iconic[inactive] .listcell-icon {
   opacity: 0.45;
 }
 
-.listitem-iconic[inactive][selected] > .listcell-iconic > .listcell-icon {
+.listitem-iconic[inactive][selected] .listcell-icon {
   opacity: 0.7;
 }
 
-.listitem-iconic[inactive] > .listcell-iconic > .listcell-label {
+.listitem-iconic[inactive] .listcell-label {
   color: GrayText !important;
   font-weight: normal;
 }
 
-.listitem-iconic[inactive][selected] > .listcell-iconic > .listcell-label {
+.listitem-iconic[inactive][selected] .listcell-label {
 %ifdef MACOSX
   color: -moz-DialogText !important;
 %else
@@ -542,7 +542,7 @@ grippy {
 %endif
 }
 
-.conv-nicklist:focus > .listitem-iconic[inactive][selected] > .listcell-iconic > .listcell-label {
+.conv-nicklist:focus > .listitem-iconic[inactive][selected] .listcell-label {
   color: HighlightText !important;
 }
 

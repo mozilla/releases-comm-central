@@ -246,8 +246,8 @@
     -moz-border-bottom-colors: rgb(125, 162, 206) rgba(255, 255, 255, .6);
   }
 
-  .listitem-iconic[selected] > .listcell-iconic > .listcell-label,
-  #nicklist:focus > .listitem-iconic[inactive][selected] > .listcell-iconic > .listcell-label {
+  .listitem-iconic[selected] .listcell-label,
+  #nicklist:focus > .listitem-iconic[inactive][selected] .listcell-label {
     color: -moz-dialogtext !important;
   }
 
