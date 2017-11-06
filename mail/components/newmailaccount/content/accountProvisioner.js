@@ -103,7 +103,7 @@ var EmailAccountProvisioner = {
    * Returns the language that the user currently accepts.
    */
   get userLanguage() {
-    return Services.prefs.getCharPref("general.useragent.locale");
+    return Services.locale.getRequestedLocale();
   },
 
   /**
@@ -622,7 +622,7 @@ var EmailAccountProvisioner = {
       EmailAccountProvisioner.providers[provider.id] = provider;
 
       // Let's go through the array of languages for this provider, and
-      // check to see if at least one of them matches general.useragent.locale.
+      // check to see if at least one of them matches the user's language.
       // If so, we'll show / select this provider by default.
       let supportsSomeUserLang = provider.languages.some(function (x) {
         return x == "*" || x == EmailAccountProvisioner.userLanguage;

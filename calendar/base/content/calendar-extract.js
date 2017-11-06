@@ -5,6 +5,7 @@
 Components.utils.import("resource://calendar/modules/calExtract.jsm");
 Components.utils.import("resource://calendar/modules/calUtils.jsm");
 Components.utils.import("resource://gre/modules/Preferences.jsm");
+Components.utils.import("resource://gre/modules/Services.jsm");
 
 var calendarExtract = {
     onShowLocaleMenu: function(target) {
@@ -89,7 +90,7 @@ var calendarExtract = {
         let date = new Date(message.date / 1000);
         let time = (new Date()).getTime();
 
-        let locale = Preferences.get("general.useragent.locale", "en-US");
+        let locale = Services.locale.getRequestedLocale();
         let dayStart = Preferences.get("calendar.view.daystarthour", 6);
         let extractor;
 

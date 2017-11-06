@@ -5,7 +5,7 @@ function run_test()
 {
   do_test_pending();
 
-  Services.prefs.setCharPref("general.useragent.locale", "en-US");
+  Services.locale.setRequestedLocales(["en-US"]);
 
   // Create an instance of nsIFile out of the current process directory
   let distroDir = Services.dirsvc.get("XCurProcD", Ci.nsIFile);

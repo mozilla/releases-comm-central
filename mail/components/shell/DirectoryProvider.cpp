@@ -20,6 +20,7 @@
 #include "nsString.h"
 #include "nsXULAppAPI.h"
 #include "nsIPrefLocalizedString.h"
+#include "mozilla/intl/LocaleService.h"
 
 namespace mozilla {
 namespace mail {
@@ -107,35 +108,20 @@ AppendDistroSearchDirs(nsIProperties* aDirSvc, nsCOMArray<nsIFile> &array)
 
     localePlugins->AppendNative(NS_LITERAL_CSTRING("locale"));
 
-    nsCString locale;
-    nsCOMPtr<nsIPrefLocalizedString> prefString;
-    rv = prefs->GetComplexValue("general.useragent.locale",
-                                NS_GET_IID(nsIPrefLocalizedString),
-                                getter_AddRefs(prefString));
-    if (NS_SUCCEEDED(rv))
-    {
-      nsAutoString wLocale;
-      prefString->GetData(wLocale);
-      CopyUTF16toUTF8(wLocale, locale);
-    }
-    else
-    {
-      rv = prefs->GetCharPref("general.useragent.locale", locale);
-    }
+    AutoTArray<nsCString, 10> requestedLocales;
+    mozilla::intl::LocaleService::GetInstance()->GetRequestedLocales(requestedLocales);
+    nsAutoCString locale(requestedLocales[0]);
 
+    nsCOMPtr<nsIFile> curLocalePlugins;
+    rv = localePlugins->Clone(getter_AddRefs(curLocalePlugins));
     if (NS_SUCCEEDED(rv))
     {
-      nsCOMPtr<nsIFile> curLocalePlugins;
-      rv = localePlugins->Clone(getter_AddRefs(curLocalePlugins));
-      if (NS_SUCCEEDED(rv))
+      curLocalePlugins->AppendNative(locale);
+      rv = curLocalePlugins->Exists(&exists);
+      if (NS_SUCCEEDED(rv) && exists)
       {
-        curLocalePlugins->AppendNative(locale);
-        rv = curLocalePlugins->Exists(&exists);
-        if (NS_SUCCEEDED(rv) && exists)
-        {
-          array.AppendObject(curLocalePlugins);
-          return; // all done
-        }
+        array.AppendObject(curLocalePlugins);
+        return; // all done
       }
     }
 
