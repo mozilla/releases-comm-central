@@ -69,8 +69,10 @@ function _verify_fonts_displayed(aSerif, aSansSerif, aMonospace) {
     let isSansDefault = (Services.prefs.getCharPref("font.default." + kLanguage) ==
                          "sans-serif");
     let displayPaneExpected = isSansDefault ? aSansSerif : aSerif;
-    let displayPaneActual = prefc.e("defaultFont").value;
-    assert_fonts_equal("display pane", displayPaneExpected, displayPaneActual);
+    let displayPaneActual = prefc.e("defaultFont");
+    prefc.waitFor(() => displayPaneActual.itemCount > 0,
+                  "No font names were populated in the font picker.");
+    assert_fonts_equal("display pane", displayPaneExpected, displayPaneActual.value);
   }
 
   // Bring up the preferences window.
