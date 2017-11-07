@@ -18,6 +18,7 @@
 #include "nsMsgMessageFlags.h"
 #include "prtime.h"
 #include "mozilla/Logging.h"
+#include "mozilla/SlicedInputStream.h"
 #include "prerror.h"
 #include "prprf.h"
 #include "nspr.h"
@@ -34,10 +35,11 @@ static mozilla::LazyLogModule MAILBOX("MAILBOX");
 #include "nsIMimeHeaders.h"
 #include "nsIMsgPluggableStore.h"
 #include "nsISeekableStream.h"
-#include "SlicedInputStream.h"
 #include "nsStreamUtils.h"
 
 #include "nsIMsgMdnGenerator.h"
+
+using namespace mozilla;
 
 /* the output_buffer_size must be larger than the largest possible line
  * 2000 seems good for news

@@ -57,7 +57,6 @@
 #include "nsXPCOMCIDInternal.h"
 #include "nsIXULAppInfo.h"
 #include "nsSyncRunnableHelpers.h"
-#include "SlicedInputStream.h"
 
 static mozilla::LazyLogModule IMAP("IMAP");
 
@@ -79,6 +78,7 @@ static mozilla::LazyLogModule IMAP("IMAP");
 #include "nsAlgorithm.h"
 #include "mozilla/Logging.h"
 #include "mozilla/Attributes.h"
+#include "mozilla/SlicedInputStream.h"
 #include "nsIPrincipal.h"
 #include "nsContentSecurityManager.h"
 
