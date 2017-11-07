@@ -22,9 +22,6 @@
 #include "prerror.h"
 #include "prprf.h"
 #include "nspr.h"
-
-static mozilla::LazyLogModule MAILBOX("MAILBOX");
-
 #include "nsIFileStreams.h"
 #include "nsIStreamTransportService.h"
 #include "nsIStreamConverterService.h"
@@ -40,6 +37,8 @@ static mozilla::LazyLogModule MAILBOX("MAILBOX");
 #include "nsIMsgMdnGenerator.h"
 
 using namespace mozilla;
+
+static LazyLogModule MAILBOX("MAILBOX");
 
 /* the output_buffer_size must be larger than the largest possible line
  * 2000 seems good for news
@@ -403,7 +402,7 @@ NS_IMETHODIMP nsMailboxProtocol::OnStopRequest(nsIRequest *request, nsISupports 
   // this solution is not very good so we should look at something better, but don't remove this
   // line before talking to me (mscott) and mailnews QA....
 
-  MOZ_LOG(MAILBOX, mozilla::LogLevel::Info, ("Mailbox Done\n"));
+  MOZ_LOG(MAILBOX, LogLevel::Info, ("Mailbox Done\n"));
 
   // when on stop binding is called, we as the protocol are done...let's close down the connection
   // releasing all of our interfaces. It's important to remember that this on stop binding call
