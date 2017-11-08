@@ -129,17 +129,12 @@ function imAccount(aKey, aName, aPrplId)
 
   if (aName) {
     this.name = aName;
-    let str = Cc["@mozilla.org/supports-string;1"]
-              .createInstance(Ci.nsISupportsString);
-    str.data = aName;
-    this.prefBranch.setComplexValue(kPrefAccountName, Ci.nsISupportsString,
-                                    str);
+    this.prefBranch.setStringPref(kPrefAccountName, aName);
 
     this.firstConnectionState = Ci.imIAccount.FIRST_CONNECTION_UNKNOWN;
   }
   else {
-    this.name = this.prefBranch.getComplexValue(kPrefAccountName,
-                                                Ci.nsISupportsString).data;
+    this.name = this.prefBranch.getStringPref(kPrefAccountName);
   }
 
   let prplId = aPrplId;
@@ -176,8 +171,7 @@ function imAccount(aKey, aName, aPrplId)
     // we don't want to display several of theses prompts at startup.
     if (gConvertingOldPasswords && !this.protocol.noPassword) {
       try {
-        let password = this.prefBranch.getComplexValue(kPrefAccountPassword,
-                                                       Ci.nsISupportsString).data;
+        let password = this.prefBranch.getStringPref(kPrefAccountPassword);
         if (password && !this.password)
           this.password = password;
       } catch (e) { /* No password saved in the prefs for this account. */ }
@@ -238,8 +232,7 @@ imAccount.prototype = {
 
       if (this.canJoinChat &&
           this.prefBranch.prefHasUserValue(kPrefAccountAutoJoin)) {
-        let autojoin = this.prefBranch.getComplexValue(
-          kPrefAccountAutoJoin, Ci.nsISupportsString).data;
+        let autojoin = this.prefBranch.getStringPref(kPrefAccountAutoJoin);
         if (autojoin) {
           for (let room of autojoin.trim().split(/,\s*/)) {
             if (room)
@@ -480,11 +473,7 @@ imAccount.prototype = {
 
   set alias(val) {
     if (val) {
-      let str = Cc["@mozilla.org/supports-string;1"]
-                .createInstance(Ci.nsISupportsString);
-      str.data = val;
-      this.prefBranch.setComplexValue(kPrefAccountAlias, Ci.nsISupportsString,
-                                      str);
+      this.prefBranch.setStringPref(kPrefAccountAlias, val);
     }
     else
       this.prefBranch.deleteBranch(kPrefAccountAlias);
@@ -492,8 +481,7 @@ imAccount.prototype = {
   },
   get alias() {
     try {
-      return this.prefBranch.getComplexValue(kPrefAccountAlias,
-                                             Ci.nsISupportsString).data;
+      return this.prefBranch.getStringPref(kPrefAccountAlias);
     } catch (e) {
       return "";
     }
@@ -803,11 +791,7 @@ imAccount.prototype = {
     SavePrefTimer.initTimer();
   },
   setString: function(aName, aVal) {
-    let str = Cc["@mozilla.org/supports-string;1"]
-              .createInstance(Ci.nsISupportsString);
-    str.data = aVal;
-    this.prefBranch.setComplexValue(kAccountOptionPrefPrefix + aName,
-                                    Ci.nsISupportsString, str);
+    this.prefBranch.setStringPref(kAccountOptionPrefPrefix + aName, aVal);
     this._connectionInfoChanged();
     if (this.prplAccount)
       this.prplAccount.setString(aName, aVal);

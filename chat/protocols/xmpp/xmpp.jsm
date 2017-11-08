@@ -1322,10 +1322,7 @@ var XMPPAccountPrototype = {
       // If there is a resource in the account name (inherited from libpurple),
       // migrate it to the pref so it appears correctly in the advanced account
       // options next time.
-      let str = Cc["@mozilla.org/supports-string;1"]
-                  .createInstance(Ci.nsISupportsString);
-      str.data = this._jid.resource;
-      this.prefs.setComplexValue("resource", Ci.nsISupportsString, str);
+      this.prefs.setStringPref("resource", this._jid.resource);
     }
 
     this._connection =
