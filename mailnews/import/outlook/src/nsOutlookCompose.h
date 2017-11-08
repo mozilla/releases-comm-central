@@ -44,23 +44,12 @@ private:
   nsresult  ComposeTheMessage(nsMsgDeliverMode mode, CMapiMessage &msg, nsIFile **pMsg);
   nsresult  CopyComposedMessage(nsIFile *pSrc, nsIOutputStream *pDst, CMapiMessage& origMsg);
 
-  // Bug 593907
-  void HackBody(const wchar_t* orig, size_t origLen, nsString& hack);
-  void UnhackBody(nsCString& body);
-  bool GenerateHackSequence(const wchar_t* body, size_t origLen);
-  // End Bug 593907
-
 private:
   nsCOMPtr<nsIMsgSendListener> m_pListener;
   nsCOMPtr<nsIMsgCompFields> m_pMsgFields;
   static nsCOMPtr<nsIMsgIdentity> m_pIdentity;
   char* m_optimizationBuffer;
   nsCOMPtr<nsIImportService>  m_pImportService;
-
-  // Bug 593907
-  nsString m_hackedPostfix;
-  // End Bug 593907
 };
-
 
 #endif /* nsOutlookCompose_h__ */

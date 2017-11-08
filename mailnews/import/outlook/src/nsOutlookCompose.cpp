@@ -168,15 +168,6 @@ nsresult OutlookSendListener::CreateSendListener(nsIMsgSendListener **ppListener
 /////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////
 
-#define hackBeginA "begin"
-#define hackBeginW u"begin"
-#define hackEndA "\015\012end"
-#define hackEndW u"\015\012end"
-#define hackCRLFA "crlf"
-#define hackCRLFW u"crlf"
-#define hackAmpersandA "amp"
-#define hackAmpersandW u"amp"
-
 nsOutlookCompose::nsOutlookCompose()
 {
   m_optimizationBuffer = new char[FILE_IO_BUFFER_SIZE];
@@ -273,12 +264,7 @@ nsresult nsOutlookCompose::ComposeTheMessage(nsMsgDeliverMode mode, CMapiMessage
   msg.GetAttachments(getter_AddRefs(pAttach));
 
   nsString bodyW;
-  // Bug 593907
-  if (GenerateHackSequence(msg.GetBody(), msg.GetBodyLen()))
-    HackBody(msg.GetBody(), msg.GetBodyLen(), bodyW);
-  else
-    bodyW = msg.GetBody();
-  // End Bug 593907
+  bodyW = msg.GetBody();
 
   nsCOMPtr<nsIMutableArray> embeddedObjects;
 
@@ -394,18 +380,6 @@ nsresult nsOutlookCompose::CopyComposedMessage(nsIFile *pSrc,
   rv = origMsg.GetHeaders()->ToStream(pDst);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  // Bug 593907
-  if (!m_hackedPostfix.IsEmpty()) {
-    nsCString hackedPartEnd;
-    LossyCopyUTF16toASCII(m_hackedPostfix, hackedPartEnd);
-    hackedPartEnd.Insert(hackEndA, 0);
-    nsCString body;
-    rv = f.ToString(body, hackedPartEnd.get(), hackedPartEnd.Length());
-    UnhackBody(body);
-    EscapeFromSpaceLine(pDst, const_cast<char*>(body.get()), body.get()+body.Length());
-  }
-  // End Bug 593907
-
   // I use the terminating sequence here to avoid a possible situation when a "From " line
   // gets split over two sequential reads and thus will not be escaped.
   // This is done by reading up to CRLF (one line every time), though it may be slower
@@ -504,107 +478,6 @@ void nsOutlookCompose::UpdateHeaders(CMapiMessageHeaders& oldHeaders, const CMap
   UpdateHeader(oldHeaders, newHeaders, CMapiMessageHeaders::hdrReplyTo, false);
   UpdateHeader(oldHeaders, newHeaders, CMapiMessageHeaders::hdrCc, false);
 }
-
-// Bug 593907
-// This is just a workaround of the deficiency of the nsMsgComposeAndSend::EnsureLineBreaks().
-// The import from Outlook will stay OK (I hope), but other messages may still suffer.
-// However, I cannot deny the possibility that the (possible) recode of the body
-// may interfere with this hack. A possible scenario is if a multi-byte character will either
-// contain 0x0D 0x0A sequence, or end with 0x0D, after which MAC-style standalone LF will go.
-// I hope that this possibility is insignificant (eg, utf-8 doesn't contain such sequences).
-// This hack will slow down the import, but as the import is one-time procedure, I hope that
-// the user will agree to wait a little longer to get better results.
-
-// The process of composing the message differs depending on whether the editor is present or not.
-// If the editor is absent, the "attachment1_body" parameter of CreateAndSendMessage() is taken as is,
-// while in the presence o the editor, the body that is taken from it is further processed in the
-// nsMsgComposeAndSend::GetBodyFromEditor(). Specifically, the TXTToHTML::ScanHTML() first calls
-// UnescapeStr() to properly handle a limited number of HTML character entities (namely &amp; &lt; &gt; &quot;)
-// and then calls ScanTXT() where escapes all ampersands and quotes again. As the UnescapeStr() works so
-// selectively (i.e. handling only a subset of valid entities), the so often seen "&nbsp;" becomes "&amp;nbsp;"
-// in the resulting body, which leads to text "&nbsp;" interspersed all over the imported mail. The same
-// applies to html &#XXXX; (where XXXX is unicode codepoint).
-// See also Bug 503690, where the same issue in Eudora import is reported.
-// By the way, the root of the Bug 359303 lies in the same place - the nsMsgComposeAndSend::GetBodyFromEditor()
-// changes the 0xA0 codes to 0x20 when it converts the body to plain text.
-// We scan the body here to find all the & and convert them to the safe character sequense to revert later.
-
-void nsOutlookCompose::HackBody(const wchar_t* orig, size_t origLen, nsString& hack)
-{
-  hack.SetCapacity(static_cast<size_t>(origLen*1.4));
-  hack.Assign(hackBeginW);
-  hack.Append(m_hackedPostfix);
-
-  while (*orig) {
-    if (*orig == L'&') {
-      hack.Append(hackAmpersandW);
-      hack.Append(m_hackedPostfix);
-    } else if ((*orig == L'\x0D') && (*(orig+1) == L'\x0A')) {
-      hack.Append(hackCRLFW);
-      hack.Append(m_hackedPostfix);
-      ++orig;
-    } else
-      hack.Append(*orig);
-    ++orig;
-  }
-
-  hack.Append(hackEndW);
-  hack.Append(m_hackedPostfix);
-}
-
-void nsOutlookCompose::UnhackBody(nsCString& txt)
-{
-  nsCString hackedPostfixA;
-  LossyCopyUTF16toASCII(m_hackedPostfix, hackedPostfixA);
-
-  nsCString hackedString(hackBeginA);
-  hackedString.Append(hackedPostfixA);
-  int32_t begin = txt.Find(hackedString);
-  if (begin == kNotFound)
-    return;
-  txt.Cut(begin, hackedString.Length());
-
-  hackedString.Assign(hackEndA);
-  hackedString.Append(hackedPostfixA);
-  int32_t end = MsgFind(txt, hackedString, false, begin);
-  if (end == kNotFound)
-    return; // ?
-  txt.Cut(end, hackedString.Length());
-
-  nsCString range;
-  range.Assign(Substring(txt, begin, end - begin));
-  // 1. Remove all CRLFs from the selected range
-  MsgReplaceSubstring(range, MSG_LINEBREAK, "");
-  // 2. Restore the original CRLFs
-  hackedString.Assign(hackCRLFA);
-  hackedString.Append(hackedPostfixA);
-  MsgReplaceSubstring(range, hackedString.get(), MSG_LINEBREAK);
-
-  // 3. Restore the original ampersands
-  hackedString.Assign(hackAmpersandA);
-  hackedString.Append(hackedPostfixA);
-  MsgReplaceSubstring(range, hackedString.get(), "&");
-
-  txt.Replace(begin, end - begin, range);
-}
-
-bool nsOutlookCompose::GenerateHackSequence(const wchar_t* body, size_t origLen)
-{
-  nsDependentString nsBody(body, origLen);
-  const wchar_t* hack_base = L"hacked";
-  int i = 0;
-  do {
-    if (++i == 0) { // Cycle complete :) - could not generate an unique string
-      m_hackedPostfix.Truncate();
-      return false;
-    }
-    m_hackedPostfix.Assign(hack_base);
-    m_hackedPostfix.AppendInt(i);
-  } while (nsBody.Find(m_hackedPostfix) != kNotFound);
-
-  return true;
-}
-// End Bug 593907
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
