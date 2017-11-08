@@ -25,8 +25,12 @@
                    anonid="displayname" class="convDisplayName blistDisplayName"
                    xbl:inherits="value=displayname,status"/>
         <xul:label anonid="unreadCount" class="convUnreadCount"
-                   crop="end" mousethrough="never" flex="1000000"
+                   crop="end" mousethrough="never"
                    xbl:inherits="value=unreadCount"/>
+        <xul:label anonid="unreadTargetedCount" class="convUnreadTargetedCount"
+                   crop="end" mousethrough="never"
+                   xbl:inherits="value=unreadTargetedCount"/>
+        <xul:spacer flex="1000000"/>
         <xul:button anonid="closeConversationButton" class="closeConversationButton close-icon"
                     tooltiptext="&closeConversationButton.tooltip;"/>
       </xul:hbox>
@@ -123,28 +127,28 @@
             chatHandler.updateTitle();
             chatHandler.updateChatButtonState();
           }
-          this.setAttribute("unreadCount", "");
+          this.setAttribute("unreadCount", "0");
+          this.setAttribute("unreadTargetedCount", "0");
           this.removeAttribute("unread");
           this.removeAttribute("attention");
         }
         else {
           let unreadCount = this.conv.unreadIncomingMessageCount;
-          if (!unreadCount)
-            unreadCount = "";
-          else {
-            this.setAttribute("unread", "true");
-            let directedMessages = unreadCount;
+          let directedMessages = unreadCount;
+          if (unreadCount) {
             if (this.conv.isChat) {
               directedMessages = this.conv.unreadTargetedMessageCount;
               if (directedMessages)
                 this.setAttribute("attention", "true");
-              unreadCount = directedMessages + "/" + unreadCount;
             }
-            unreadCount = "(" + unreadCount + ")";
+            unreadCount -= directedMessages;
             if (directedMessages > this.directedUnreadCount)
               this.directedUnreadCount = directedMessages;
           }
+          if (unreadCount)
+            unreadCount = "(" + unreadCount + ")";
           this.setAttribute("unreadCount", unreadCount);
+          this.setAttribute("unreadTargetedCount", directedMessages);
           chatHandler.updateTitle();
         }
 

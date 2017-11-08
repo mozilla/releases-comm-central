@@ -97,19 +97,29 @@ imconv[attention] {
   color: blue;
 }
 
-.conv-hbox {
-  -moz-box-align: center;
-}
-
 /* From instantbird/themes/blist.css */
 .contactStatusText,
 .convStatusText {
   color: GrayText;
 }
 
+.convUnreadCount,
 .contactDisplayName,
 .convDisplayName {
   margin-inline-end: 0;
+}
+
+.convUnreadCount {
+  margin-inline-start: 0.5ch;
+}
+
+.convUnreadTargetedCount {
+  color: hsl(0, 100%, 27%);
+  background-color: hsl(0, 100%, 87%);
+  padding: 0 7px;
+  border-radius: 50px;
+  margin: 1px 3px;
+  margin-inline-start: 1ch;
 }
 
 imcontact[aliasing] .contactDisplayName {
