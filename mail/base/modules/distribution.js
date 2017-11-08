@@ -42,13 +42,14 @@ var TBDistCustomizer = {
     defaults.setCharPref("distribution.id", this._ini.getString("Global", "id"));
     defaults.setCharPref("distribution.version",
                          this._ini.getString("Global", "version"));
-    let partnerAbout;
+    let partnerAbout = Cc["@mozilla.org/supports-string;1"].createInstance(Ci.nsISupportsString);
     if (globalPrefs["about." + this._locale]) {
-      partnerAbout = this._ini.getString("Global", "about." + this._locale);
+      partnerAbout.data = this._ini.getString("Global", "about." + this._locale);
     } else {
-      partnerAbout = this._ini.getString("Global", "about");
+      partnerAbout.data = this._ini.getString("Global", "about");
     }
-    defaults.setStringPref("distribution.about", partnerAbout);
+    defaults.setComplexValue("distribution.about",
+                             Ci.nsISupportsString, partnerAbout);
 
     if (sections["Preferences"]) {
       let keys = this._ini.getKeys("Preferences");
