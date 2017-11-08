@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-.itip-icon {
+.invitation-table .itip-icon {
     --itip-icon-partstat: -16px -16px; /* default: NEEDS-ACTION */
     --itip-icon-role: 0px; /* default: REQ-PARTICIPANT */
     --itip-icon-usertype: -32px; /* default: INDIVIDUAL */
@@ -12,43 +12,43 @@
                       url(chrome://calendar-common/skin/calendar-itip-icons.svg);
     background-position: var(--itip-icon-partstat), var(--itip-icon-usertype) var(--itip-icon-role);
 }
-.itip-icon[partstat="ACCEPTED"] {
+.invitation-table .itip-icon[partstat="ACCEPTED"] {
     --itip-icon-partstat: 0px 0px;
 }
-.itip-icon[partstat="DECLINED"] {
+.invitation-table .itip-icon[partstat="DECLINED"] {
     --itip-icon-partstat: 0px -16px;
 }
-.itip-icon[partstat="DELEGATED"] {
+.invitation-table .itip-icon[partstat="DELEGATED"] {
     --itip-icon-partstat: 0px -32px;
 }
-.itip-icon[partstat="TENTATIVE"] {
+.invitation-table .itip-icon[partstat="TENTATIVE"] {
     --itip-icon-partstat: -16px 0px;
 }
-.itip-icon[usertype="INDIVIDUAL"] {
+.invitation-table .itip-icon[usertype="INDIVIDUAL"] {
     --itip-icon-usertype: -32px;
 }
-.itip-icon[usertype="GROUP"] {
+.invitation-table .itip-icon[usertype="GROUP"] {
     --itip-icon-usertype: -48px;
 }
-.itip-icon[usertype="RESOURCE"] {
+.invitation-table .itip-icon[usertype="RESOURCE"] {
     --itip-icon-usertype: -64px;
 }
-.itip-icon[usertype="ROOM"] {
+.invitation-table .itip-icon[usertype="ROOM"] {
     --itip-icon-usertype: -80px;
 }
-.itip-icon[usertype="UNKNOWN"] {
+.invitation-table .itip-icon[usertype="UNKNOWN"] {
     --itip-icon-usertype: -96px;
 }
-.itip-icon[role="REQ-PARTICIPANT"] {
+.invitation-table .itip-icon[role="REQ-PARTICIPANT"] {
     --itip-icon-role: 0px;
 }
-.itip-icon[role="OPT-PARTICIPANT"] {
+.invitation-table .itip-icon[role="OPT-PARTICIPANT"] {
     --itip-icon-role: -16px;
 }
-.itip-icon[role="NON-PARTICIPANT"] {
+.invitation-table .itip-icon[role="NON-PARTICIPANT"] {
     --itip-icon-role: -32px;
 }
-.itip-icon[role="CHAIR"] {
+.invitation-table .itip-icon[role="CHAIR"] {
     --itip-icon-role: -32px;
     --itip-icon-usertype: -16px;
 }
@@ -60,58 +60,58 @@
     padding: 0
 }
 
-#invitation-table {
+.invitation-table {
        border: 3px solid -moz-default-color;
        border-collapse: collapse;
        width: 40em;
        margin-inline-start: auto;
        margin-inline-end: auto;
 }
-#invitation-table > tbody > tr > td {
+.invitation-table > tbody > tr > td {
        padding: 3px;
        vertical-align: top;
        width: 2em;
        text-align: left;
 }
 
-.header {
+.invitation-table .header {
        color: HighlightText;
        font-size: 1em;
        font-weight: bold;
        background-color: Highlight;
 }
-.description {
+.invitation-table .description {
        width: 9em;
        text-align: right;
        border-inline-end: 1px solid rgba(255, 255, 255, 0.2);
        background-color: rgba(0, 0, 0, 0.2);
        vertical-align: top;
 }
-.content {
+.invitation-table .content {
        width: 29em;
        background-color: -moz-default-background-color;
 }
-.content p {
+.invitation-table .content p {
        white-space: pre-wrap;
 }
-.added {
+.invitation-table .added {
        color: rgb(255, 0, 0);
 }
-.added[systemcolors] {
+.invitation-table .added[systemcolors] {
        color: -moz-DialogText;
        font-weight: bold;
 }
-.modified {
+.invitation-table .modified {
        color: rgb(255, 0, 0);
        font-style: italic;
 }
-.modified[systemcolors] {
+.invitation-table .modified[systemcolors] {
        color: -moz-DialogText;
 }
-.removed {
+.invitation-table .removed {
        color: rgb(125, 125, 125);
        text-decoration: line-through;
 }
-.removed[systemcolors] {
+.invitation-table .removed[systemcolors] {
        color: -moz-DialogText;
 }
