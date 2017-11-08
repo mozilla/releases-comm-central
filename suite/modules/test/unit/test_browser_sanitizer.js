@@ -124,17 +124,13 @@ var sanTests = {
       }
 
       // Open location dialog.
-      var supStr = Components.classes["@mozilla.org/supports-string;1"]
-                             .createInstance(Components.interfaces.nsISupportsString);
-      supStr.data = "Sanitizer!";
-      Services.prefs.setComplexValue("general.open_location.last_url",
-                                      Components.interfaces.nsISupportsString, supStr);
+      Services.prefs.setStringPref("general.open_location.last_url", "Sanitizer!");
     },
 
     check: function(aShouldBeCleared) {
       let locData;
       try {
-        locData = Services.prefs.getComplexValue("general.open_location.last_url", Components.interfaces.nsISupportsString).data;
+        locData = Services.prefs.getStringPref("general.open_location.last_url");
       } catch(ex) {}
 
       do_check_eq(locData == "Sanitizer!", !aShouldBeCleared);
