@@ -5660,7 +5660,8 @@ function getMailToolbox()
 function getPref(aPrefName, aIsComplex) {
   const Ci = Components.interfaces;
   if (aIsComplex) {
-    return Services.prefs.getStringPref(aPrefName);
+    return Services.prefs
+                   .getComplexValue(aPrefName, Ci.nsISupportsString).data;
   }
   switch (Services.prefs.getPrefType(aPrefName)) {
     case Ci.nsIPrefBranch.PREF_BOOL:

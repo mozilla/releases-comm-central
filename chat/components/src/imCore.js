@@ -214,10 +214,15 @@ UserStatus.prototype = {
   },
 
   get displayName() {
-    return Services.prefs.getStringPref(kPrefUserDisplayname);
+    return Services.prefs.getComplexValue(kPrefUserDisplayname,
+                                          Ci.nsISupportsString).data;
   },
   set displayName(aDisplayName) {
-    Services.prefs.setStringPref(kPrefUserDisplayname, aDisplayName);
+    let str = Cc["@mozilla.org/supports-string;1"]
+              .createInstance(Ci.nsISupportsString);
+    str.data = aDisplayName;
+    Services.prefs.setComplexValue(kPrefUserDisplayname, Ci.nsISupportsString,
+                                   str);
     this._notifyObservers("user-display-name-changed", aDisplayName);
   },
 

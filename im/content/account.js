@@ -39,7 +39,7 @@ var account = {
                                             this.account.id + ".");
       if (branch.prefHasUserValue(autoJoinPref)) {
         document.getElementById("autojoin").value =
-          branch.getStringPref(autoJoinPref);
+          branch.getComplexValue(autoJoinPref, Ci.nsISupportsString).data;
       }
     }
 
@@ -131,7 +131,7 @@ var account = {
 
   getString: function account_getString(aOpt) {
     if (this.prefs.prefHasUserValue(aOpt.name))
-      return this.prefs.getStringPref(aOpt.name);
+      return this.prefs.getComplexValue(aOpt.name, Ci.nsISupportsString).data;
 
     return aOpt.getString();
   },
@@ -176,7 +176,10 @@ var account = {
                                             this.account.id + ".");
       var autojoin = this.getValue("autojoin");
       if (autojoin || branch.prefHasUserValue(autoJoinPref)) {
-        branch.setStringPref(autoJoinPref, autojoin);
+        let str = Cc["@mozilla.org/supports-string;1"]
+                    .createInstance(Ci.nsISupportsString);
+        str.data = autojoin;
+        branch.setComplexValue(autoJoinPref, Ci.nsISupportsString, str);
       }
     }
 

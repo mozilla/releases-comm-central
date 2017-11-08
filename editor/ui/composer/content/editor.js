@@ -2325,7 +2325,8 @@ function EditorSetDefaultPrefsAndDoctype()
     let authorFound = domdoc.querySelector('meta[name="author"]');
     try
     {
-      prefAuthorString = Services.prefs.getStringPref("editor.author");
+      prefAuthorString = Services.prefs.getComplexValue("editor.author",
+                                                        Components.interfaces.nsISupportsString).data;
     }
     catch (ex) {}
     if (prefAuthorString && prefAuthorString != 0 && !authorFound && headelement)

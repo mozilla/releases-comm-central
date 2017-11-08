@@ -86,7 +86,8 @@ function getHomePageGroup()
 
   for (var i = 1; i < count; ++i) {
     try {
-      homePage += '\n' + Services.prefs.getStringPref("browser.startup.homepage." + i);
+      homePage += '\n' + Services.prefs.getComplexValue("browser.startup.homepage." + i,
+                                                        nsISupportsString).data;
     } catch (e) {
     }
   }
@@ -150,7 +151,8 @@ function getURLToLoad()
       return getHomePageGroup();
 
     case 2:
-      return Services.prefs.getStringPref("browser.history.last_page_visited");
+      return Services.prefs.getComplexValue("browser.history.last_page_visited",
+                                            nsISupportsString).data;
     }
   } catch (e) {
   }

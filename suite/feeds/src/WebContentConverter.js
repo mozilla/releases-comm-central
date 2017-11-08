@@ -641,7 +641,11 @@ WebContentConverterRegistrar.prototype = {
       // and make sure the preview page is shown the next time a feed is visited
       Services.prefs.setCharPref(PREF_SELECTED_READER, "web");
 
-      Services.prefs.setStringPref(PREF_SELECTED_WEB, uri);
+      var supportsString = Components.classes["@mozilla.org/supports-string;1"]
+                                     .createInstance(Components.interfaces.nsISupportsString);
+      supportsString.data = uri;
+      Services.prefs.setComplexValue(PREF_SELECTED_WEB, Components.interfaces.nsISupportsString,
+                                     supportsString);
       Services.prefs.setCharPref(PREF_SELECTED_ACTION, "ask");
       this._setAutoHandler(TYPE_MAYBE_FEED, null);
     }

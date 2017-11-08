@@ -723,7 +723,7 @@ function GetPublishStringPref(prefBranch, name)
   if (prefBranch && name)
   {
     try {
-      return prefBranch.getStringPref(name);
+      return prefBranch.getComplexValue(name, Components.interfaces.nsISupportsString).data;
     } catch (e) {}
   }
   return "";
@@ -734,7 +734,10 @@ function SetPublishStringPref(prefBranch, name, value)
   if (prefBranch && name)
   {
     try {
-        prefBranch.setStringPref(name, value);
+        var str = Components.classes["@mozilla.org/supports-string;1"]
+                            .createInstance(Components.interfaces.nsISupportsString);
+        str.data = value;
+        prefBranch.setComplexValue(name, Components.interfaces.nsISupportsString, str);
     } catch (e) {}
   }
 }

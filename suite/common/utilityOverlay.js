@@ -142,14 +142,18 @@ function SetStringPref(aPref, aValue)
 {
   const nsISupportsString = Components.interfaces.nsISupportsString;
   try {
-    Services.prefs.setStringPref(aPref, aValue);
+    var str = Components.classes["@mozilla.org/supports-string;1"]
+                        .createInstance(nsISupportsString);
+    str.data = aValue;
+    Services.prefs.setComplexValue(aPref, nsISupportsString, str);
   } catch (e) {}
 }
 
 function GetStringPref(name)
 {
   try {
-    return Services.prefs.getStringPref(name);
+    return Services.prefs.getComplexValue(name,
+               Components.interfaces.nsISupportsString).data;
   } catch (e) {}
   return "";
 }

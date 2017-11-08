@@ -45,7 +45,7 @@ function search()
 {
   // get the login to authenticate as, if there is one
   try {
-    gLogin = Services.prefs.getStringPref(gDirectoryPref + ".auth.dn");
+    gLogin = Services.prefs.getComplexValue(gDirectoryPref + ".auth.dn", Components.interfaces.nsISupportsString).data;
   } catch (ex) {
     // if we don't have this pref, no big deal
   }

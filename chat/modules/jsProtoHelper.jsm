@@ -219,7 +219,7 @@ var GenericAccountPrototype = {
   getBool: function(aName) { return this.getPref(aName, "Bool"); },
   getString: function(aName) {
     return this.prefs.prefHasUserValue(aName) ?
-             this.prefs.getStringPref(aName) :
+             this.prefs.getComplexValue(aName, Ci.nsISupportsString).data :
              this.protocol._getOptionDefault(aName);
   },
 
