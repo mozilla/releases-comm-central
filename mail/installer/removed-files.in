@@ -989,7 +989,6 @@ uninstall/uninstall.exe
   components/txtsvc.xpt
   components/uconv.xpt
   components/ucnative.xpt
-  components/unicharutil.xpt
   components/update.xpt
   components/uriloader.xpt
   components/util.xpt
@@ -1142,7 +1141,6 @@ uninstall/uninstall.exe
   @DIR_MACOS@components/txmgr.xpt
   @DIR_MACOS@components/txtsvc.xpt
   @DIR_MACOS@components/uconv.xpt
-  @DIR_MACOS@components/unicharutil.xpt
   @DIR_MACOS@components/update.xpt
   @DIR_MACOS@components/uriloader.xpt
   @DIR_MACOS@components/url-classifier.xpt

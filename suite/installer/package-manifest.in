@@ -323,7 +323,6 @@
 @RESPATH@/components/txmgr.xpt
 @RESPATH@/components/txtsvc.xpt
 @RESPATH@/components/uconv.xpt
-@RESPATH@/components/unicharutil.xpt
 @RESPATH@/components/update.xpt
 @RESPATH@/components/uriloader.xpt
 @RESPATH@/components/url-classifier.xpt

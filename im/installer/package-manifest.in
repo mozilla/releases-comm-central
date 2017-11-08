@@ -461,7 +461,6 @@
 @RESPATH@/components/intl.xpt
 @RESPATH@/components/locale.xpt
 @RESPATH@/components/uconv.xpt
-@RESPATH@/components/unicharutil.xpt
 
 ; dom
 @RESPATH@/components/dom.xpt
