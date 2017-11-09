@@ -427,18 +427,8 @@ NS_IMETHODIMP nsMsgIdentity::SetUnicharAttribute(const char *aName, const nsAStr
   if (!mPrefBranch)
     return NS_ERROR_NOT_INITIALIZED;
 
-  if (!val.IsEmpty()) {
-    nsresult rv;
-    nsCOMPtr<nsISupportsString> supportsString(
-        do_CreateInstance(NS_SUPPORTS_STRING_CONTRACTID, &rv));
-    if (NS_SUCCEEDED(rv))
-      rv = supportsString->SetData(val);
-    if (NS_SUCCEEDED(rv))
-      rv = mPrefBranch->SetComplexValue(aName,
-                                        NS_GET_IID(nsISupportsString),
-                                        supportsString);
-    return rv;
-  }
+  if (!val.IsEmpty())
+    return mPrefBranch->SetStringPref(aName, NS_ConvertUTF16toUTF8(val));
 
   mPrefBranch->ClearUserPref(aName);
   return NS_OK;
@@ -449,19 +439,10 @@ NS_IMETHODIMP nsMsgIdentity::GetUnicharAttribute(const char *aName, nsAString& v
   if (!mPrefBranch)
     return NS_ERROR_NOT_INITIALIZED;
 
-  nsCOMPtr<nsISupportsString> supportsString;
-  if (NS_FAILED(mPrefBranch->GetComplexValue(aName,
-                                             NS_GET_IID(nsISupportsString),
-                                             getter_AddRefs(supportsString))))
-    mDefPrefBranch->GetComplexValue(aName,
-                                    NS_GET_IID(nsISupportsString),
-                                    getter_AddRefs(supportsString));
-
-  if (supportsString)
-    supportsString->GetData(val);
-  else
-    val.Truncate();
-
+  nsCString valueUtf8;
+  if (NS_FAILED(mPrefBranch->GetStringPref(aName, EmptyCString(), 0, valueUtf8)))
+    mDefPrefBranch->GetStringPref(aName, EmptyCString(), 0, valueUtf8);
+  CopyUTF8toUTF16(valueUtf8, val);
   return NS_OK;
 }
 

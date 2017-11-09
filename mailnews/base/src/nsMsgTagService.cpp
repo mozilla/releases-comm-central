@@ -426,15 +426,7 @@ nsresult nsMsgTagService::SetUnicharPref(const char *prefName,
   nsresult rv = NS_OK;
   if (!val.IsEmpty())
   {
-    nsCOMPtr<nsISupportsString> supportsString =
-      do_CreateInstance(NS_SUPPORTS_STRING_CONTRACTID, &rv);
-    if (supportsString)
-    {
-      supportsString->SetData(val);
-      rv = m_tagPrefBranch->SetComplexValue(prefName,
-                                            NS_GET_IID(nsISupportsString),
-                                            supportsString);
-    }
+    rv = m_tagPrefBranch->SetStringPref(prefName, NS_ConvertUTF16toUTF8(val));
   }
   else
   {
@@ -446,19 +438,9 @@ nsresult nsMsgTagService::SetUnicharPref(const char *prefName,
 nsresult nsMsgTagService::GetUnicharPref(const char *prefName,
                               nsAString &prefValue)
 {
-  nsresult rv;
-  nsCOMPtr<nsISupportsString> supportsString =
-    do_CreateInstance(NS_SUPPORTS_STRING_CONTRACTID, &rv);
-  if (supportsString)
-  {
-    rv = m_tagPrefBranch->GetComplexValue(prefName,
-                                          NS_GET_IID(nsISupportsString),
-                                          getter_AddRefs(supportsString));
-    if (supportsString)
-      rv = supportsString->GetData(prefValue);
-    else
-      prefValue.Truncate();
-  }
+  nsCString valueUtf8;
+  nsresult rv = m_tagPrefBranch->GetStringPref(prefName, EmptyCString(), 0, valueUtf8);
+  CopyUTF8toUTF16(valueUtf8, prefValue);
   return rv;
 }
 

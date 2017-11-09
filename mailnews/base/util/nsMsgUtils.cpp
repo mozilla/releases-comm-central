@@ -1264,10 +1264,10 @@ NS_MSG_BASE nsresult NS_GetUnicharPreferenceWithDefault(nsIPrefBranch *prefBranc
     prefBranch = pbr;
   }
 
-  nsCOMPtr<nsISupportsString> str;
-  nsresult rv = prefBranch->GetComplexValue(prefName, NS_GET_IID(nsISupportsString), getter_AddRefs(str));
+  nsCString valueUtf8;
+  nsresult rv = prefBranch->GetStringPref(prefName, EmptyCString(), 0, valueUtf8);
   if (NS_SUCCEEDED(rv))
-    str->GetData(prefValue);
+    CopyUTF8toUTF16(valueUtf8, prefValue);
   else
     prefValue = defValue;
   return NS_OK;

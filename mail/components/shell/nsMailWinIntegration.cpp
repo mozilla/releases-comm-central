@@ -198,28 +198,16 @@ nsWindowsShellService::ShortcutMaintenance()
   if (!prefBranch)
     return NS_ERROR_UNEXPECTED;
 
-  nsCOMPtr<nsISupportsString> prefString;
-  rv = prefBranch->GetComplexValue(prefName.get(),
-                                   NS_GET_IID(nsISupportsString),
-                                   getter_AddRefs(prefString));
+  nsCString version;
+  rv = prefBranch->GetStringPref(prefName.get(), EmptyCString(), 0, version);
   if (NS_SUCCEEDED(rv)) {
-    nsAutoString version;
-    prefString->GetData(version);
-    if (!version.IsEmpty() && version.Equals(appId)) {
+    if (!version.IsEmpty() && version.Equals(NS_ConvertUTF16toUTF8(appId))) {
       // We're all good, get out of here.
       return NS_OK;
     }
   }
   // Update the version in prefs
-  prefString =
-    do_CreateInstance(NS_SUPPORTS_STRING_CONTRACTID, &rv);
-  if (NS_FAILED(rv))
-    return rv;
-
-  prefString->SetData(appId);
-  rv = prefBranch->SetComplexValue(prefName.get(),
-                                   NS_GET_IID(nsISupportsString),
-                                   prefString);
+  rv = prefBranch->SetStringPref(prefName.get(), NS_ConvertUTF16toUTF8(appId));
   if (NS_FAILED(rv)) {
     NS_WARNING("Couldn't set last user model id!");
     return NS_ERROR_UNEXPECTED;

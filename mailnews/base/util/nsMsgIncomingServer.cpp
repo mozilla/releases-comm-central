@@ -522,17 +522,10 @@ nsMsgIncomingServer::GetUnicharValue(const char *prefname,
   if (!mPrefBranch)
     return NS_ERROR_NOT_INITIALIZED;
 
-  nsCOMPtr<nsISupportsString> supportsString;
-  if (NS_FAILED(mPrefBranch->GetComplexValue(prefname,
-                                             NS_GET_IID(nsISupportsString),
-                                             getter_AddRefs(supportsString))))
-    mDefPrefBranch->GetComplexValue(prefname,
-                                    NS_GET_IID(nsISupportsString),
-                                    getter_AddRefs(supportsString));
-
-  if (supportsString)
-    return supportsString->GetData(val);
-  val.Truncate();
+  nsCString valueUtf8;
+  if (NS_FAILED(mPrefBranch->GetStringPref(prefname, EmptyCString(), 0, valueUtf8)))
+    mDefPrefBranch->GetStringPref(prefname, EmptyCString(), 0, valueUtf8);
+  CopyUTF8toUTF16(valueUtf8, val);
   return NS_OK;
 }
 
@@ -571,24 +564,13 @@ nsMsgIncomingServer::SetUnicharValue(const char *prefname,
     return NS_OK;
   }
 
-  nsCOMPtr<nsISupportsString> supportsString;
-  nsresult rv = mDefPrefBranch->GetComplexValue(prefname,
-                                                NS_GET_IID(nsISupportsString),
-                                                getter_AddRefs(supportsString));
-  nsString defaultVal;
-  if (NS_SUCCEEDED(rv) &&
-      NS_SUCCEEDED(supportsString->GetData(defaultVal)) &&
-      defaultVal.Equals(val))
+  nsCString defaultVal;
+  nsresult rv = mDefPrefBranch->GetStringPref(prefname, EmptyCString(), 0, defaultVal);
+
+  if (NS_SUCCEEDED(rv) && defaultVal.Equals(NS_ConvertUTF16toUTF8(val)))
     mPrefBranch->ClearUserPref(prefname);
-  else {
-    supportsString = do_CreateInstance(NS_SUPPORTS_STRING_CONTRACTID, &rv);
-    if (supportsString) {
-      supportsString->SetData(val);
-      rv = mPrefBranch->SetComplexValue(prefname,
-                                        NS_GET_IID(nsISupportsString),
-                                        supportsString);
-    }
-  }
+  else
+    rv = mPrefBranch->SetStringPref(prefname, NS_ConvertUTF16toUTF8(val));
 
   return rv;
 }
