@@ -454,7 +454,7 @@ void Tokenizer::tokenizeHeaders(nsIUTF8StringEnumerator * aHeaderNames, nsIUTF8S
   nsCString headerValue;
   nsAutoCString headerName; // we'll be normalizing all header names to lower case
   bool hasMore;
- 
+
   while (NS_SUCCEEDED(aHeaderNames->HasMore(&hasMore)) && hasMore)
   {
     aHeaderNames->GetNext(headerName);
@@ -1451,11 +1451,11 @@ void nsBayesianFilter::classifyMessage(
     // array of pro aliases per trait index
     AutoTArray<uint32_t*, kTraitAutoCapacity > proAliasArrays;
     // number of pro aliases per trait index
-    AutoTArray<uint32_t, kTraitAutoCapacity > proAliasesLengths;    
+    AutoTArray<uint32_t, kTraitAutoCapacity > proAliasesLengths;
     // array of anti aliases per trait index
     AutoTArray<uint32_t*, kTraitAutoCapacity> antiAliasArrays;
     // number of anti aliases per trait index
-    AutoTArray<uint32_t, kTraitAutoCapacity > antiAliasesLengths;    
+    AutoTArray<uint32_t, kTraitAutoCapacity > antiAliasesLengths;
     // construct the outgoing listener arrays
     AutoTArray<uint32_t, kTraitAutoCapacity> traits;
     AutoTArray<uint32_t, kTraitAutoCapacity> percents;

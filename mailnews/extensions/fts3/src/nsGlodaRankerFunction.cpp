@@ -87,7 +87,7 @@ nsGlodaRankerFunction::OnFunctionCall(mozIStorageValueArray *aArguments,
     **   (<hit count> / <global hit count>) * <column weight>
     **
     ** aPhraseinfo[] points to the start of the data for phrase iPhrase. So
-    ** the hit count and global hit counts for each column are found in 
+    ** the hit count and global hit counts for each column are found in
     ** aPhraseinfo[iCol*3] and aPhraseinfo[iCol*3+1], respectively.
     */
     uint32_t *aPhraseinfo = &aArgsData[2 + iPhrase*nCol*3];
@@ -104,7 +104,7 @@ nsGlodaRankerFunction::OnFunctionCall(mozIStorageValueArray *aArguments,
 #endif
 
   nsCOMPtr<nsIWritableVariant> result = new nsVariant();
-   
+
   rv = result->SetAsDouble(score);
   NS_ENSURE_SUCCESS(rv, rv);
 

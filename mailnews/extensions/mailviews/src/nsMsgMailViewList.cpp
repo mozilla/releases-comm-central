@@ -252,18 +252,18 @@ nsresult nsMsgMailViewList::LoadMailViews()
 
          // get the profile directory
         rv = NS_GetSpecialDirectory(NS_APP_USER_PROFILE_50_DIR, getter_AddRefs(profileDir));
-        
+
         // now copy the file over to the profile directory
         defaultMessagesFile->CopyToNative(profileDir, EmptyCString());
     }
-    // this is kind of a hack but I think it will be an effective hack. The filter service already knows how to 
+    // this is kind of a hack but I think it will be an effective hack. The filter service already knows how to
     // take a nsIFile and parse the contents into filters which are very similar to mail views. Intead of
     // re-writing all of that dirty parsing code, let's just re-use it then convert the results into a data strcuture
-    // we wish to give to our consumers. 
-      
+    // we wish to give to our consumers.
+
     nsCOMPtr<nsIMsgFilterService> filterService = do_GetService(NS_MSGFILTERSERVICE_CONTRACTID, &rv);
     nsCOMPtr<nsIMsgFilterList> mfilterList;
-      
+
     rv = filterService->OpenFilterList(file, nullptr, nullptr, getter_AddRefs(mFilterList));
     NS_ENSURE_SUCCESS(rv, rv);
 

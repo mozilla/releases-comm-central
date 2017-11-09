@@ -141,7 +141,7 @@ static double nsLnGamma (double z_in, int *gsign)
 
   for (scale = 1.0, z = z_in; z < 8.0; ++z)
     scale *= z;
-  
+
   sum = lngamma_asymp (z);
   result = (z - 0.5) * log (z) - z + ln_2pi_2 - log (scale);
   result += sum;
@@ -219,7 +219,7 @@ static double nsIncompleteGammaP (double a, double x, int *error)
 {
   double result, dom, ldom;
   //  domain errors. the return values are meaningless but have
-  //  to return something. 
+  //  to return something.
   *error = -1;
   if (a <= 0.0)
 	  return 1.0;
