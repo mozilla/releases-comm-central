@@ -11,8 +11,13 @@
 Components.utils.import("resource://gre/modules/Services.jsm");
 Components.utils.import("resource://gre/modules/Preferences.jsm");
 Components.utils.import("resource://gre/modules/FileUtils.jsm");
+Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 Components.utils.import("resource://testing-common/AppInfo.jsm");
+
+XPCOMUtils.defineLazyModuleGetter(this, "NetUtil",
+                                  "resource://gre/modules/NetUtil.jsm");
+
 updateAppInfo();
 
 var { classes: Cc, interfaces: Ci, results: Cr, utils: Cu } = Components;
@@ -195,8 +200,8 @@ function readJSONFile(aFile) {
     let stream = Cc["@mozilla.org/network/file-input-stream;1"].createInstance(Ci.nsIFileInputStream);
     try {
         stream.init(aFile, FileUtils.MODE_RDONLY, FileUtils.PERMS_FILE, 0);
-        let json = Cc["@mozilla.org/dom/json;1"].createInstance(Components.interfaces.nsIJSON);
-        let data = json.decodeFromStream(stream, stream.available());
+        let bytes = NetUtil.readInputStream(stream, stream.available());
+        let data = JSON.parse((new TextDecoder()).decode(bytes));
         return data;
     } catch (ex) {
         dump("readJSONFile: Error reading JSON file: " + ex);

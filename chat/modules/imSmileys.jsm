@@ -3,6 +3,14 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 Components.utils.import("resource:///modules/imServices.jsm");
+Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
+
+XPCOMUtils.defineLazyGetter(this, "gTextDecoder", () => {
+  return new TextDecoder();
+});
+
+XPCOMUtils.defineLazyModuleGetter(this, "NetUtil",
+                                  "resource://gre/modules/NetUtil.jsm");
 
 this.EXPORTED_SYMBOLS = [
   "smileImMarkup", // used to add smile:// img tags into IM markup.
@@ -84,9 +92,8 @@ function getTheme(aName)
                                           Components.interfaces.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
                                           Components.interfaces.nsIContentPolicy.TYPE_IMAGE);
     let stream = channel.open();
-    let json = Components.classes["@mozilla.org/dom/json;1"]
-                         .createInstance(Components.interfaces.nsIJSON);
-    theme.json = json.decodeFromStream(stream, stream.available());
+    let bytes = NetUtil.readInputStream(stream, stream.available());
+    theme.json = JSON.parse(gTextDecoder.decode(bytes));
     stream.close();
     theme.iconsHash = {};
     for (let smiley of theme.json.smileys) {
