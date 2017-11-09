@@ -7,7 +7,6 @@
 #include "nsString.h"
 #include "nsUnicharUtils.h"
 #include "nsCharsetAlias.h"
-#include "nsICategoryManager.h"
 #include "nsICharsetConverterManager.h"
 #include "nsIStringBundle.h"
 #include "nsTArray.h"
@@ -15,7 +14,6 @@
 #include "mozilla/Services.h"
 
 #include "nsComponentManagerUtils.h"
-#include "nsISupportsPrimitives.h"
 #include "nsServiceManagerUtils.h"
 #include "../base/util/nsMsgI18N.h"
 

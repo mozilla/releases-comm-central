@@ -5,7 +5,6 @@
 #ifndef nsCharsetConverterManager_h__
 #define nsCharsetConverterManager_h__
 
-#include "nsISupports.h"
 #include "nsICharsetConverterManager.h"
 
 #define NS_DATA_BUNDLE_CATEGORY     "uconv-charset-data"

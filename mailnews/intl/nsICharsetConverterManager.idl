@@ -5,7 +5,7 @@
 
 #include "nsISupports.idl"
 
-%{ C++
+%{C++
 #include "mozilla/Encoding.h"
 
 // XXX change to NS_CHARSETCONVERTERMANAGER_CID
