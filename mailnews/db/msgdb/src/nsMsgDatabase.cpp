@@ -36,13 +36,10 @@
 #include "nsCollationCID.h"
 #include "nsIPrefService.h"
 #include "nsIPrefBranch.h"
-#include "nsIMsgPluggableStore.h"
-#include "nsAlgorithm.h"
 #include "nsArrayEnumerator.h"
 #include "nsIMemoryReporter.h"
 #include "mozilla/mailnews/MimeHeaderParser.h"
 #include "mozilla/mailnews/Services.h"
-#include <algorithm>
 
 using namespace mozilla::mailnews;
 using namespace mozilla;

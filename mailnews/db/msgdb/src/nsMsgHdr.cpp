@@ -10,7 +10,6 @@
 #include "nsMsgUtils.h"
 #include "nsIMsgThread.h"
 #include "nsMsgMimeCID.h"
-#include "nsIMimeConverter.h"
 #include "mozilla/Attributes.h"
 
 using namespace mozilla::mailnews;

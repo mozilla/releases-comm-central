@@ -8,7 +8,6 @@
 #include "nsDBFolderInfo.h"
 #include "nsMsgLocalFolderHdrs.h"
 #include "nsNetUtil.h"
-#include "nsISeekableStream.h"
 #include "nsMsgOfflineImapOperation.h"
 #include "nsMsgFolderFlags.h"
 #include "mozilla/Logging.h"
