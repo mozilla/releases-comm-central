@@ -8,7 +8,6 @@
 
 #include "nsAbLDAPListenerBase.h"
 #include "nsIAbLDAPDirectory.h"
-#include "nsILDAPOperation.h"
 #include "nsIArray.h"
 
 class nsILDAPURL;

@@ -11,7 +11,6 @@
 #include "nsAbDirectoryQuery.h"
 #include "nsIAbBooleanExpression.h"
 #include "nsIAbManager.h"
-#include "nsIAbMDBDirectory.h"
 #include "nsAbQueryStringToExpression.h"
 #include "nsAbUtils.h"
 #include "nsEnumeratorUtils.h"

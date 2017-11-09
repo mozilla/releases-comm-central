@@ -8,7 +8,6 @@
 #include "nsILDAPConnection.h"
 #include "nsILDAPErrors.h"
 #include "nsILDAPModification.h"
-#include "nsIServiceManager.h"
 #include "nsIAbLDAPDirectory.h"
 #include "nsIMutableArray.h"
 #include "nsComponentManagerUtils.h"

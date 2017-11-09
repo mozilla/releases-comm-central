@@ -14,7 +14,6 @@
 #include "nsCOMPtr.h"
 #include "nsTObserverArray.h"
 #include "nsWeakPtr.h"
-#include "nsIWeakReferenceUtils.h"
 
 typedef enum
 {

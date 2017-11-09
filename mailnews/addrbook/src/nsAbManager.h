@@ -12,7 +12,6 @@
 #include "nsICommandLineHandler.h"
 #include "nsIObserver.h"
 #include "nsInterfaceHashtable.h"
-#include "nsIAbDirFactoryService.h"
 #include "nsIAbDirectory.h"
 #include "nsIFilePicker.h"
 

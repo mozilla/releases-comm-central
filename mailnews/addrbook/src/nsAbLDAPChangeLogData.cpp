@@ -7,7 +7,6 @@
 #include "nsAbLDAPChangeLogData.h"
 #include "nsAbLDAPChangeLogQuery.h"
 #include "nsILDAPMessage.h"
-#include "nsIAbCard.h"
 #include "nsIAddrBookSession.h"
 #include "nsAbBaseCID.h"
 #include "nsAbUtils.h"

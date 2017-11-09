@@ -11,7 +11,7 @@
 #include "nsAddbookProtocolHandler.h"
 #include "nsIProtocolHandler.h"
 #include "nsIAddbookUrl.h"
-#include "nsIAddrDatabase.h"
+#include "nsIAbDirectory.h"
 
 class nsAddbookProtocolHandler : public nsIProtocolHandler
 {

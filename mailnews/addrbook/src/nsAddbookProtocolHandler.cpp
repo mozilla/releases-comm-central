@@ -4,9 +4,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 #include "msgCore.h"    // precompiled header...
 #include "nsString.h"
-#include "nsIIOService.h"
 
-#include "nsIStreamListener.h"
 #include "nsAddbookProtocolHandler.h"
 
 #include "nsAddbookUrl.h"
@@ -21,7 +19,6 @@
 #include "nsIAbView.h"
 #include "nsITreeView.h"
 #include "nsIStringBundle.h"
-#include "nsIServiceManager.h"
 #include "mozilla/Services.h"
 #include "nsIAsyncInputStream.h"
 #include "nsIAsyncOutputStream.h"

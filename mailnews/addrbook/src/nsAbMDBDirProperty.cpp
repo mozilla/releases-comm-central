@@ -3,14 +3,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#include "nsAbMDBDirProperty.h"	
-#include "nsIServiceManager.h"
+#include "nsAbMDBDirProperty.h"
 #include "nsString.h"
 #include "nsCOMPtr.h"
 #include "nsAbBaseCID.h"
 #include "nsAddrDatabase.h"
 #include "nsIAbCard.h"
-#include "nsIAbListener.h"
 #include "nsArrayUtils.h"
 #include "mdb.h"
 #include "nsComponentManagerUtils.h"

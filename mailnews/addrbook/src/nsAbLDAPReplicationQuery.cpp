@@ -8,7 +8,6 @@
 #include "nsAbLDAPReplicationQuery.h"
 #include "nsAbLDAPReplicationService.h"
 #include "nsAbLDAPReplicationData.h"
-#include "nsILDAPURL.h"
 #include "nsAbBaseCID.h"
 #include "nsAbUtils.h"
 #include "nsDirPrefs.h"

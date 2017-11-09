@@ -13,10 +13,8 @@
 #define nsAbDirProperty_h__
 
 #include "nsIAbDirectory.h" /* include the interface we are going to support */
-#include "nsIAbCard.h"
 #include "nsCOMPtr.h"
 #include "nsDirPrefs.h"
-#include "nsIAddrDatabase.h"
 #include "nsString.h"
 #include "nsIPrefBranch.h"
 #include "nsIMutableArray.h"

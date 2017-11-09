@@ -11,7 +11,6 @@
 #include "nsIAbManager.h"
 #include "nsIAbMDBDirectory.h"
 #include "nsAbMDBDirFactory.h"
-#include "nsIAddrDBListener.h"
 #include "nsIAddrDatabase.h"
 #include "nsEnumeratorUtils.h"
 #include "nsIMutableArray.h"

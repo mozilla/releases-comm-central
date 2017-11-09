@@ -6,7 +6,6 @@
 #ifndef nsAbLDAPReplicationQuery_h__
 #define nsAbLDAPReplicationQuery_h__
 
-#include "nsIWebProgressListener.h"
 #include "nsIAbLDAPReplicationQuery.h"
 #include "nsIAbLDAPReplicationData.h"
 #include "nsIAbLDAPDirectory.h"

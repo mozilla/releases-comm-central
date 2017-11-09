@@ -6,7 +6,7 @@
 #include "nsAbCardProperty.h"
 #include "nsAbBaseCID.h"
 #include "nsIPrefService.h"
-#include "nsIAddrDatabase.h"
+#include "nsIAbDirectory.h"
 #include "plbase64.h"
 #include "nsIStringBundle.h"
 #include "plstr.h"

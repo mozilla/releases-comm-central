@@ -10,8 +10,6 @@
 #include "nsISupports.h"
 #include "nsAbBaseCID.h"
 #include "nsAbDirProperty.h"
-#include "nsIAbDirectoryQuery.h"
-#include "nsIAbDirectorySearch.h"
 #include "nsIAbDirSearchListener.h"
 #include "nsIMutableArray.h"
 #include "nsInterfaceHashtable.h"
