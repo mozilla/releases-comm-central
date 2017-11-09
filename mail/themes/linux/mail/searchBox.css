@@ -8,11 +8,11 @@
   padding-top: 1px;
 }
 
-.searchBox > .autocomplete-textbox-container > hbox {
+.searchBox > hbox {
   -moz-box-ordinal-group: 1;
 }
 
-.searchBox > .autocomplete-textbox-container > .textbox-input-box {
+.searchBox > .textbox-input-box {
   -moz-box-ordinal-group: 2;
 }
 

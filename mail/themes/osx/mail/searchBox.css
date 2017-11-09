@@ -64,8 +64,7 @@
   padding-left: 4px;
 }
 
-.searchBox > .textbox-input-box:before,
-.searchBox > .autocomplete-textbox-container > .textbox-input-box:before {
+.searchBox > .textbox-input-box:before {
   /* Because of bug 853415, we need to ordinal this to the first position: */
   -moz-box-ordinal-group: 0;
   content: '';
@@ -79,15 +78,13 @@
 }
 
 @media (min-resolution: 2dppx) {
-  .searchBox > .textbox-input-box:before,
-  .searchBox > .autocomplete-textbox-container > .textbox-input-box:before {
+  .searchBox > .textbox-input-box:before {
     background-image: url("chrome://messenger/skin/icons/search-indicator@2x.png");
     background-size: 16px 20px;
   }
 }
 
-.searchBox:-moz-locale-dir(rtl) > .textbox-input-box:before,
-.searchBox:-moz-locale-dir(rtl) > .autocomplete-textbox-container > .textbox-input-box:before {
+.searchBox:-moz-locale-dir(rtl) > .textbox-input-box:before {
   transform: scaleX(-1);
 }
 

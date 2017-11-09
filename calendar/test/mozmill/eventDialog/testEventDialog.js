@@ -290,7 +290,6 @@ function handleAttendees(attendees) {
     let input = attendeeslookup(`
         /id("calendar-event-dialog-attendees-v2")/[6]/[0]/id("attendees-list")/
         anon({"anonid":"listbox"})/[1]/[1]/anon({"anonid":"input"})/
-        anon({"class":"autocomplete-textbox-container"})/
         {"class":"textbox-input-box"}/anon({"anonid":"input"})
     `);
     attendees.waitForElement(input);
