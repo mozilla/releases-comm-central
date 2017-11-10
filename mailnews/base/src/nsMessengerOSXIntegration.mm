@@ -495,7 +495,7 @@ nsMessengerOSXIntegration::BounceDockIcon()
       nsPIDOMWindowInner* inner = outer->GetCurrentInnerWindow();
       if (inner) {
         mozilla::IgnoredErrorResult rv;
-        nsGlobalWindow::Cast(inner)->GetAttention(rv);
+        nsGlobalWindowInner::Cast(inner)->GetAttention(rv);
       }
     }
   }
