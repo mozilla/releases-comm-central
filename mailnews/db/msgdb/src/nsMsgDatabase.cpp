@@ -42,7 +42,6 @@
 #include "nsIMemoryReporter.h"
 #include "mozilla/mailnews/MimeHeaderParser.h"
 #include "mozilla/mailnews/Services.h"
-#include "mozilla/Unused.h"
 #include <algorithm>
 
 using namespace mozilla::mailnews;
@@ -492,15 +491,32 @@ void nsMsgDatabase::GetGlobalPrefs()
   }
 }
 
-void nsMsgDatabase::AddHdrToCache(nsIMsgDBHdr *hdr, nsMsgKey key)
+nsresult nsMsgDatabase::AddHdrToCache(nsIMsgDBHdr *hdr, nsMsgKey key) // do we want key? We could get it from hdr
 {
-  if (key == nsMsgKey_None)
-    hdr->GetMessageKey(&key);
-  // TODO: Implement LRU replacement.
-  if (m_cachedHeaders.Count() > m_cacheSize)
-    ClearHdrCache();
-  Unused << m_cachedHeaders.Put(key, hdr, mozilla::fallible_t());
+  if (m_bCacheHeaders)
+  {
+    if (!m_cachedHeaders)
+      m_cachedHeaders = new PLDHashTable(&gMsgDBHashTableOps, sizeof(struct MsgHdrHashElement), m_cacheSize);
+    if (m_cachedHeaders)
+    {
+      if (key == nsMsgKey_None)
+        hdr->GetMessageKey(&key);
+      if (m_cachedHeaders->EntryCount() > m_cacheSize)
+        ClearHdrCache(true);
+      PLDHashEntryHdr *entry = m_cachedHeaders->Add((void *)(uintptr_t) key, mozilla::fallible);
+      if (!entry)
+        return NS_ERROR_OUT_OF_MEMORY; // XXX out of memory
+
+      MsgHdrHashElement* element = static_cast<MsgHdrHashElement*>(entry);
+      element->mHdr = hdr;
+      element->mKey = key;
+      NS_ADDREF(hdr);     // make the cache hold onto the header
+      return NS_OK;
+    }
+  }
+  return NS_ERROR_FAILURE;
 }
+
 
 NS_IMETHODIMP nsMsgDatabase::SetMsgHdrCacheSize(uint32_t aSize)
 {
@@ -598,12 +614,12 @@ void nsMsgDatabase::ClearThreads()
 
 void nsMsgDatabase::ClearCachedObjects(bool dbGoingAway)
 {
-  ClearHdrCache();
+  ClearHdrCache(false);
 #ifdef DEBUG_DavidBienvenu
-  if (m_headersInUse && m_headersInUse->entryCount > 0)
+  if (m_headersInUse && m_headersInUse->EntryCount() > 0)
   {
     NS_ASSERTION(false, "leaking headers");
-    printf("leaking %d headers in %s\n", m_headersInUse.Count(), (const char *) m_dbName);
+    printf("leaking %d headers in %s\n", m_headersInUse->EntryCount(), (const char *) m_dbName);
   }
 #endif
   m_cachedThread = nullptr;
@@ -619,53 +635,184 @@ void nsMsgDatabase::ClearCachedObjects(bool dbGoingAway)
   m_thumb = nullptr;
 }
 
-void nsMsgDatabase::ClearHdrCache()
+nsresult nsMsgDatabase::ClearHdrCache(bool reInit)
 {
-  m_cachedHeaders.Clear();
-}
+  if (m_cachedHeaders)
+  {
+    // save this away in case we renter this code.
+    PLDHashTable  *saveCachedHeaders = m_cachedHeaders;
+    m_cachedHeaders = nullptr;
+    for (auto iter = saveCachedHeaders->Iter(); !iter.Done(); iter.Next()) {
+      auto element = static_cast<MsgHdrHashElement*>(iter.Get());
+      if (element)
+        NS_IF_RELEASE(element->mHdr);
+    }
 
-void nsMsgDatabase::RemoveHdrFromCache(nsIMsgDBHdr *hdr, nsMsgKey key)
-{
-  if (key == nsMsgKey_None)
-    hdr->GetMessageKey(&key);
-
-  m_cachedHeaders.Remove(key);
-}
-
-bool nsMsgDatabase::GetHdrFromUseCache(nsMsgKey key, nsIMsgDBHdr* *result)
-{
-  MOZ_ASSERT(result, "This parameter must be non-null!");
-
-  nsMsgHdr *hdr = m_headersInUse.Get(key);
-  NS_IF_ADDREF(*result = hdr);
-
-  return !!hdr;
-}
-
-void nsMsgDatabase::AddHdrToUseCache(nsMsgHdr *hdr, nsMsgKey key)
-{
-  if (key == nsMsgKey_None)
-    hdr->GetMessageKey(&key);
-  m_headersInUse.Put(key, hdr);
-}
-
-void nsMsgDatabase::ClearUseHdrCache()
-{
-  // Clear out m_mdbRow member variable - the db is going away, which means
-  // that this member variable might very well point to a mork db that is gone.
-  for (auto iter = m_headersInUse.ConstIter(); !iter.Done(); iter.Next()) {
-    NS_IF_RELEASE(iter.Data()->m_mdbRow);
+    if (reInit)
+    {
+      saveCachedHeaders->ClearAndPrepareForLength(m_cacheSize);
+      m_cachedHeaders = saveCachedHeaders;
+    }
+    else
+    {
+      delete saveCachedHeaders;
+    }
   }
-  m_headersInUse.Clear();
+  return NS_OK;
 }
 
-void nsMsgDatabase::RemoveHdrFromUseCache(nsMsgHdr *hdr, nsMsgKey key)
+nsresult nsMsgDatabase::RemoveHdrFromCache(nsIMsgDBHdr *hdr, nsMsgKey key)
 {
-  if (key == nsMsgKey_None)
-    hdr->GetMessageKey(&key);
+  if (m_cachedHeaders)
+  {
+    if (key == nsMsgKey_None)
+      hdr->GetMessageKey(&key);
 
-  m_headersInUse.Remove(key);
+    PLDHashEntryHdr *entry =
+      m_cachedHeaders->Search((const void *)(uintptr_t) key);
+    if (entry)
+    {
+      m_cachedHeaders->Remove((void *)(uintptr_t) key);
+      NS_RELEASE(hdr); // get rid of extra ref the cache was holding.
+    }
+
+  }
+  return NS_OK;
 }
+
+
+nsresult nsMsgDatabase::GetHdrFromUseCache(nsMsgKey key, nsIMsgDBHdr* *result)
+{
+  if (!result)
+    return NS_ERROR_NULL_POINTER;
+
+  nsresult rv = NS_ERROR_FAILURE;
+
+  *result = nullptr;
+
+  if (m_headersInUse)
+  {
+    PLDHashEntryHdr *entry =
+      m_headersInUse->Search((const void *)(uintptr_t) key);
+    if (entry)
+    {
+      MsgHdrHashElement* element = static_cast<MsgHdrHashElement*>(entry);
+      *result = element->mHdr;
+    }
+    if (*result)
+    {
+      NS_ADDREF(*result);
+      rv = NS_OK;
+    }
+  }
+  return rv;
+}
+
+PLDHashTableOps nsMsgDatabase::gMsgDBHashTableOps =
+{
+  HashKey,
+  MatchEntry,
+  MoveEntry,
+  ClearEntry,
+  nullptr
+};
+
+// HashKey is supposed to maximize entropy in the low order bits, and the key
+// as is, should do that.
+PLDHashNumber
+nsMsgDatabase::HashKey(const void* aKey)
+{
+  return PLDHashNumber(NS_PTR_TO_INT32(aKey));
+}
+
+bool
+nsMsgDatabase::MatchEntry(const PLDHashEntryHdr* aEntry, const void* aKey)
+{
+  const MsgHdrHashElement* hdr = static_cast<const MsgHdrHashElement*>(aEntry);
+  return aKey == (const void *)(uintptr_t) hdr->mKey; // ### or get the key from the hdr...
+}
+
+void
+nsMsgDatabase::MoveEntry(PLDHashTable* aTable, const PLDHashEntryHdr* aFrom, PLDHashEntryHdr* aTo)
+{
+  const MsgHdrHashElement* from = static_cast<const MsgHdrHashElement*>(aFrom);
+  MsgHdrHashElement* to = static_cast<MsgHdrHashElement*>(aTo);
+  // ### eh? Why is this needed? I don't think we have a copy operator?
+  *to = *from;
+}
+
+void
+nsMsgDatabase::ClearEntry(PLDHashTable* aTable, PLDHashEntryHdr* aEntry)
+{
+  MsgHdrHashElement* element = static_cast<MsgHdrHashElement*>(aEntry);
+  element->mHdr = nullptr; // eh? Need to release this or not?
+  element->mKey = nsMsgKey_None; // eh?
+}
+
+
+nsresult nsMsgDatabase::AddHdrToUseCache(nsIMsgDBHdr *hdr, nsMsgKey key)
+{
+  if (!m_headersInUse)
+  {
+    mdb_count numHdrs = MSG_HASH_SIZE;
+    if (m_mdbAllMsgHeadersTable)
+      m_mdbAllMsgHeadersTable->GetCount(GetEnv(), &numHdrs);
+    m_headersInUse = new PLDHashTable(&gMsgDBHashTableOps, sizeof(struct MsgHdrHashElement), std::max((mdb_count)MSG_HASH_SIZE, numHdrs));
+  }
+  if (m_headersInUse)
+  {
+    if (key == nsMsgKey_None)
+      hdr->GetMessageKey(&key);
+    PLDHashEntryHdr *entry = m_headersInUse->Add((void *)(uintptr_t) key, mozilla::fallible);
+    if (!entry)
+      return NS_ERROR_OUT_OF_MEMORY; // XXX out of memory
+
+    MsgHdrHashElement* element = static_cast<MsgHdrHashElement*>(entry);
+    element->mHdr = hdr;
+    element->mKey = key;
+    // the hash table won't add ref, we'll do it ourselves
+    // stand for the addref that CreateMsgHdr normally does.
+    NS_ADDREF(hdr);
+    return NS_OK;
+  }
+
+  return NS_ERROR_OUT_OF_MEMORY;
+}
+
+nsresult nsMsgDatabase::ClearUseHdrCache()
+{
+  if (m_headersInUse)
+  {
+    // clear mdb row pointers of any headers still in use, because the
+    // underlying db is going away.
+    for (auto iter = m_headersInUse->Iter(); !iter.Done(); iter.Next()) {
+      auto element = static_cast<const MsgHdrHashElement*>(iter.Get());
+      if (element && element->mHdr) {
+        nsMsgHdr* msgHdr = static_cast<nsMsgHdr*>(element->mHdr);  // closed system, so this is ok
+        // clear out m_mdbRow member variable - the db is going away, which means that this member
+        // variable might very well point to a mork db that is gone.
+        NS_IF_RELEASE(msgHdr->m_mdbRow);
+    //    NS_IF_RELEASE(msgHdr->m_mdb);
+      }
+    }
+    delete m_headersInUse;
+    m_headersInUse = nullptr;
+  }
+  return NS_OK;
+}
+
+nsresult nsMsgDatabase::RemoveHdrFromUseCache(nsIMsgDBHdr *hdr, nsMsgKey key)
+{
+  if (m_headersInUse)
+  {
+    if (key == nsMsgKey_None)
+      hdr->GetMessageKey(&key);
+
+    m_headersInUse->Remove((void *)(uintptr_t) key);
+  }
+  return NS_OK;
+}
+
 
 nsresult
 nsMsgDatabase::CreateMsgHdr(nsIMdbRow* hdrRow, nsMsgKey key, nsIMsgDBHdr* *result)
@@ -673,15 +820,19 @@ nsMsgDatabase::CreateMsgHdr(nsIMdbRow* hdrRow, nsMsgKey key, nsIMsgDBHdr* *resul
   NS_ENSURE_ARG_POINTER(hdrRow);
   NS_ENSURE_ARG_POINTER(result);
 
-  if (GetHdrFromUseCache(key, result))
+  nsresult rv = GetHdrFromUseCache(key, result);
+  if (NS_SUCCEEDED(rv) && *result)
   {
     hdrRow->Release();
-    return NS_OK;
+    return rv;
   }
 
   nsMsgHdr *msgHdr = new nsMsgHdr(this, hdrRow);
+  if(!msgHdr)
+    return NS_ERROR_OUT_OF_MEMORY;
   msgHdr->SetMessageKey(key);
-  NS_ADDREF(*result = msgHdr);
+  // don't need to addref here; GetHdrFromUseCache addrefs.
+  *result = msgHdr;
 
   AddHdrToCache(msgHdr, key);
 
@@ -820,7 +971,8 @@ void nsMsgDBService::DumpCache()
   {
     db = m_dbCache.ElementAt(i);
     MOZ_LOG(DBLog, LogLevel::Info, ("%s - %" PRIu32 " hdrs in use\n",
-      db->m_dbName.get(), db->m_headersInUse.Count()));
+      db->m_dbName.get(),
+      db->m_headersInUse ? db->m_headersInUse->EntryCount() : 0));
   }
 }
 
@@ -844,12 +996,20 @@ size_t nsMsgDatabase::SizeOfExcludingThis(mozilla::MallocSizeOf aMallocSizeOf) c
   // We have two tables of header objects, but every header in m_cachedHeaders
   // should be in m_headersInUse.
   // double-counting...
-  totalSize += m_headersInUse.ShallowSizeOfExcludingThis(aMallocSizeOf);
-  totalSize += m_msgReferences.ShallowSizeOfExcludingThis(aMallocSizeOf);
-  for (auto iter = m_headersInUse.ConstIter(); !iter.Done(); iter.Next()) {
-    totalSize += iter.Data()->SizeOfIncludingThis(aMallocSizeOf);
+  size_t headerSize = 0;
+  if (m_headersInUse)
+  {
+    headerSize = m_headersInUse->ShallowSizeOfIncludingThis(aMallocSizeOf);
+    for (auto iter = m_headersInUse->Iter(); !iter.Done(); iter.Next()) {
+      auto entry = static_cast<MsgHdrHashElement*>(iter.Get());
+      // Sigh, this is dangerous, but so long as this is a closed system, this
+      // is safe.
+      headerSize += static_cast<nsMsgHdr*>(entry->mHdr)->SizeOfIncludingThis(aMallocSizeOf);
+    }
   }
-
+  totalSize += headerSize;
+  if (m_msgReferences)
+    totalSize += m_msgReferences->ShallowSizeOfIncludingThis(aMallocSizeOf);
   return totalSize;
 }
 
@@ -953,10 +1113,12 @@ nsMsgDatabase::nsMsgDatabase()
         m_threadNewestMsgDateColumnToken(0),
         m_offlineMsgOffsetColumnToken(0),
         m_offlineMessageSizeColumnToken(0),
+        m_headersInUse(nullptr),
+        m_cachedHeaders(nullptr),
+        m_bCacheHeaders(true),
         m_cachedThreadId(nsMsgKey_None),
-        m_cacheSize(kMaxHdrsInCache),
-        m_cachedHeaders(MSG_HASH_SIZE),
-        m_headersInUse(MSG_HASH_SIZE)
+        m_msgReferences(nullptr),
+        m_cacheSize(kMaxHdrsInCache)
 {
   mMemReporter = new mozilla::mailnews::MsgDBReporter(this);
   mozilla::RegisterWeakMemoryReporter(mMemReporter);
@@ -968,6 +1130,14 @@ nsMsgDatabase::~nsMsgDatabase()
   //  Close(FALSE);  // better have already been closed.
   ClearCachedObjects(true);
   ClearEnumerators();
+  delete m_cachedHeaders;
+  delete m_headersInUse;
+
+  if (m_msgReferences)
+  {
+    delete m_msgReferences;
+    m_msgReferences = nullptr;
+  }
 
   MOZ_LOG(DBLog, LogLevel::Info, ("closing database    %s\n", m_dbName.get()));
 
@@ -1714,8 +1884,9 @@ NS_IMETHODIMP nsMsgDatabase::GetMsgHdrForKey(nsMsgKey key, nsIMsgDBHdr **pmsgHdr
     return NS_ERROR_NULL_POINTER;
 
   *pmsgHdr = NULL;
-  if (GetHdrFromUseCache(key, pmsgHdr))
-    return NS_OK;
+  err = GetHdrFromUseCache(key, pmsgHdr);
+  if (NS_SUCCEEDED(err) && *pmsgHdr)
+    return err;
 
   rowObjectId.mOid_Id = key;
   rowObjectId.mOid_Scope = m_hdrRowScopeToken;
@@ -2739,9 +2910,14 @@ nsresult nsMsgDBEnumerator::PrefetchNext()
       return rv;
     key = outOid.mOid_Id;
 
-    rv = mDB->CreateMsgHdr(hdrRow, key, getter_AddRefs(mResultHdr));
-    if (NS_WARN_IF(NS_FAILED(rv)))
-      return rv;
+    rv = mDB->GetHdrFromUseCache(key, getter_AddRefs(mResultHdr));
+    if (NS_SUCCEEDED(rv) && mResultHdr)
+      hdrRow->Release();
+    else {
+      rv = mDB->CreateMsgHdr(hdrRow, key, getter_AddRefs(mResultHdr));
+      if (NS_WARN_IF(NS_FAILED(rv)))
+        return rv;
+    }
 
     if (mResultHdr)
       mResultHdr->GetFlags(&flags);
@@ -3339,7 +3515,7 @@ NS_IMETHODIMP nsMsgDatabase::AddNewHdrToDB(nsIMsgDBHdr *newHdr, bool notify)
     }
 
     if (UseCorrectThreading())
-      AddMsgRefsToHash(newHdr);
+      err = AddMsgRefsToHash(newHdr);
   }
   NS_ASSERTION(NS_SUCCEEDED(err), "error creating thread");
   return err;
@@ -3930,24 +4106,74 @@ bool nsMsgDatabase::UseCorrectThreading()
   return gCorrectThreading;
 }
 
+// adapted from removed PL_DHashFreeStringKey
+static void
+msg_DHashFreeStringKey(PLDHashTable* aTable, PLDHashEntryHdr* aEntry)
+{
+  const PLDHashEntryStub* stub = (const PLDHashEntryStub*)aEntry;
+  free((void*)stub->key);
+  PLDHashTable::ClearEntryStub(aTable, aEntry);
+}
+
+PLDHashTableOps nsMsgDatabase::gRefHashTableOps =
+{
+  PLDHashTable::HashStringKey,
+  PLDHashTable::MatchStringKey,
+  PLDHashTable::MoveEntryStub,
+  msg_DHashFreeStringKey,
+  nullptr
+};
+
 nsresult nsMsgDatabase::GetRefFromHash(nsCString &reference, nsMsgKey *threadId)
 {
-  nsresult rv = InitRefHash();
-  NS_ENSURE_SUCCESS(rv, rv);
+  // Initialize the reference hash
+  if (!m_msgReferences)
+  {
+    nsresult rv = InitRefHash();
+    if (NS_FAILED(rv))
+      return rv;
+  }
 
   // Find reference from the hash
-  return m_msgReferences.Get(reference, threadId) ? NS_OK : NS_ERROR_FAILURE;
+  PLDHashEntryHdr *entry =
+    m_msgReferences->Search((const void *) reference.get());
+  if (entry)
+  {
+    RefHashElement *element = static_cast<RefHashElement *>(entry);
+    *threadId = element->mThreadId;
+    return NS_OK;
+  }
+
+  return NS_ERROR_FAILURE;
 }
 
-void nsMsgDatabase::AddRefToHash(nsCString &reference, nsMsgKey threadId)
+nsresult nsMsgDatabase::AddRefToHash(nsCString &reference, nsMsgKey threadId)
 {
-  m_msgReferences.Put(reference, threadId);
+  if (m_msgReferences)
+  {
+    PLDHashEntryHdr *entry = m_msgReferences->Add((void *) reference.get(), mozilla::fallible);
+    if (!entry)
+      return NS_ERROR_OUT_OF_MEMORY; // XXX out of memory
+
+    RefHashElement *element = static_cast<RefHashElement *>(entry);
+    if (!element->mRef)
+    {
+      element->mRef = ToNewCString(reference);  // Will be freed in msg_DHashFreeStringKey()
+      element->mThreadId = threadId;
+      element->mCount = 1;
+    }
+    else
+      element->mCount++;
+  }
+
+  return NS_OK;
 }
 
-void nsMsgDatabase::AddMsgRefsToHash(nsIMsgDBHdr *msgHdr)
+nsresult nsMsgDatabase::AddMsgRefsToHash(nsIMsgDBHdr *msgHdr)
 {
   uint16_t numReferences = 0;
   nsMsgKey threadId;
+  nsresult rv = NS_OK;
 
   msgHdr->GetThreadId(&threadId);
   msgHdr->GetNumReferences(&numReferences);
@@ -3960,19 +4186,35 @@ void nsMsgDatabase::AddMsgRefsToHash(nsIMsgDBHdr *msgHdr)
     if (reference.IsEmpty())
       break;
 
-    AddRefToHash(reference, threadId);
+    rv = AddRefToHash(reference, threadId);
+    if (NS_FAILED(rv))
+      break;
   }
+
+  return rv;
 }
 
-void nsMsgDatabase::RemoveRefFromHash(nsCString &reference)
+nsresult nsMsgDatabase::RemoveRefFromHash(nsCString &reference)
 {
-  m_msgReferences.Remove(reference);
+  if (m_msgReferences)
+  {
+    PLDHashEntryHdr *entry =
+     m_msgReferences->Search((const void *) reference.get());
+    if (entry)
+    {
+      RefHashElement *element = static_cast<RefHashElement *>(entry);
+      if (--element->mCount == 0)
+        m_msgReferences->Remove((void *) reference.get());
+    }
+  }
+  return NS_OK;
 }
 
 // Filter only messages with one or more references
-void nsMsgDatabase::RemoveMsgRefsFromHash(nsIMsgDBHdr *msgHdr)
+nsresult nsMsgDatabase::RemoveMsgRefsFromHash(nsIMsgDBHdr *msgHdr)
 {
   uint16_t numReferences = 0;
+  nsresult rv = NS_OK;
 
   msgHdr->GetNumReferences(&numReferences);
 
@@ -3984,8 +4226,12 @@ void nsMsgDatabase::RemoveMsgRefsFromHash(nsIMsgDBHdr *msgHdr)
     if (reference.IsEmpty())
       break;
 
-    RemoveRefFromHash(reference);
+    rv = RemoveRefFromHash(reference);
+    if (NS_FAILED(rv))
+      break;
   }
+
+  return rv;
 }
 
 static nsresult nsReferencesOnlyFilter(nsIMsgDBHdr *msg, void *closure)
@@ -3997,9 +4243,20 @@ static nsresult nsReferencesOnlyFilter(nsIMsgDBHdr *msg, void *closure)
 
 nsresult nsMsgDatabase::InitRefHash()
 {
+  // Delete an existing table just in case
+  if (m_msgReferences)
+    delete m_msgReferences;
+
+  // Create new table
+  m_msgReferences = new PLDHashTable(&gRefHashTableOps, sizeof(struct RefHashElement), MSG_HASH_SIZE);
+  if (!m_msgReferences)
+    return NS_ERROR_OUT_OF_MEMORY;
+
   // Create enumerator to go through all messages with references
-  nsCOMPtr<nsISimpleEnumerator> enumerator;
+  nsCOMPtr <nsISimpleEnumerator> enumerator;
   enumerator = new nsMsgDBEnumerator(this, m_mdbAllMsgHeadersTable, nsReferencesOnlyFilter, nullptr);
+  if (enumerator == nullptr)
+    return NS_ERROR_OUT_OF_MEMORY;
 
   // Populate table with references of existing messages
   bool hasMore;
@@ -4011,7 +4268,7 @@ nsresult nsMsgDatabase::InitRefHash()
     NS_ASSERTION(NS_SUCCEEDED(rv), "nsMsgDBEnumerator broken");
     nsCOMPtr <nsIMsgDBHdr> msgHdr = do_QueryInterface(supports);
     if (msgHdr && NS_SUCCEEDED(rv))
-      AddMsgRefsToHash(msgHdr);
+      rv = AddMsgRefsToHash(msgHdr);
     if (NS_FAILED(rv))
       break;
   }
@@ -4351,9 +4608,14 @@ NS_IMETHODIMP nsMsgDatabase::GetMsgHdrForMessageID(const char *aMsgID, nsIMsgDBH
       return rv;
     key = outOid.mOid_Id;
 
-    rv = CreateMsgHdr(hdrRow, key, &msgHdr);
-    if (NS_WARN_IF(NS_FAILED(rv)))
-      return rv;
+    rv = GetHdrFromUseCache(key, &msgHdr);
+    if (NS_SUCCEEDED(rv) && msgHdr)
+      hdrRow->Release();
+    else {
+      rv = CreateMsgHdr(hdrRow, key, &msgHdr);
+      if (NS_WARN_IF(NS_FAILED(rv)))
+        return rv;
+    }
   }
   *aHdr = msgHdr; // already addreffed above.
   return NS_OK; // it's not an error not to find a msg hdr.
@@ -4388,12 +4650,55 @@ NS_IMETHODIMP nsMsgDatabase::GetMsgHdrForGMMsgID(const char *aGMMsgId, nsIMsgDBH
     rv = hdrRow->GetOid(GetEnv(), &outOid);
     NS_ENSURE_SUCCESS(rv, rv);
     nsMsgKey key = outOid.mOid_Id;
-    rv = CreateMsgHdr(hdrRow, key, &msgHdr);
-    if (NS_WARN_IF(NS_FAILED(rv)))
-      return rv;
+    rv = GetHdrFromUseCache(key, &msgHdr);
+    if ((NS_SUCCEEDED(rv) && msgHdr))
+      hdrRow->Release();
+    else {
+      rv = CreateMsgHdr(hdrRow, key, &msgHdr);
+      if (NS_WARN_IF(NS_FAILED(rv)))
+        return rv;
+    }
   }
   *aHdr = msgHdr;
   return NS_OK; // it's not an error not to find a msg hdr.
+}
+
+nsIMsgDBHdr *nsMsgDatabase::GetMsgHdrForSubject(nsCString &subject)
+{
+  nsIMsgDBHdr *msgHdr = nullptr;
+  nsresult rv = NS_OK;
+  mdbYarn subjectYarn;
+
+  subjectYarn.mYarn_Buf = (void*)subject.get();
+  subjectYarn.mYarn_Fill = PL_strlen(subject.get());
+  subjectYarn.mYarn_Form = 0;
+  subjectYarn.mYarn_Size = subjectYarn.mYarn_Fill;
+
+  nsIMdbRow *hdrRow;
+  mdbOid outRowId;
+  nsresult result = GetStore()->FindRow(GetEnv(), m_hdrRowScopeToken,
+    m_subjectColumnToken, &subjectYarn,  &outRowId,
+    &hdrRow);
+  if (NS_SUCCEEDED(result) && hdrRow)
+  {
+    //Get key from row
+    mdbOid outOid;
+    nsMsgKey key = nsMsgKey_None;
+    rv = hdrRow->GetOid(GetEnv(), &outOid);
+    if (NS_WARN_IF(NS_FAILED(rv)))
+      return nullptr;
+    key = outOid.mOid_Id;
+
+    rv = GetHdrFromUseCache(key, &msgHdr);
+    if (NS_SUCCEEDED(rv) && msgHdr)
+      hdrRow->Release();
+    else {
+      rv = CreateMsgHdr(hdrRow, key, &msgHdr);
+      if (NS_WARN_IF(NS_FAILED(rv)))
+        return nullptr;
+    }
+  }
+  return msgHdr;
 }
 
 NS_IMETHODIMP nsMsgDatabase::GetThreadContainingMsgHdr(nsIMsgDBHdr *msgHdr, nsIMsgThread **result)
@@ -5322,7 +5627,7 @@ NS_IMETHODIMP nsMsgDatabase::ResetHdrCacheSize(uint32_t aSize)
   if (m_cacheSize > aSize)
   {
     m_cacheSize = aSize;
-    ClearHdrCache();
+    ClearHdrCache(false);
   }
   return NS_OK;
 }
