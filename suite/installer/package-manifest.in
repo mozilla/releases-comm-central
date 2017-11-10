@@ -198,7 +198,6 @@
 @RESPATH@/components/dom_file.xpt
 @RESPATH@/components/dom_geolocation.xpt
 @RESPATH@/components/dom_html.xpt
-@RESPATH@/components/dom_json.xpt
 @RESPATH@/components/dom_media.xpt
 @RESPATH@/components/dom_network.xpt
 @RESPATH@/components/dom_notification.xpt

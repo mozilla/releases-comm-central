@@ -1052,7 +1052,6 @@ uninstall/uninstall.exe
   @DIR_MACOS@components/dom_events.xpt
   @DIR_MACOS@components/dom_geolocation.xpt
   @DIR_MACOS@components/dom_html.xpt
-  @DIR_MACOS@components/dom_json.xpt
   @DIR_MACOS@components/dom_offline.xpt
   @DIR_MACOS@components/dom_range.xpt
   @DIR_MACOS@components/dom_sidebar.xpt
