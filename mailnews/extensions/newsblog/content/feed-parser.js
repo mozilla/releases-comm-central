@@ -919,7 +919,7 @@ FeedParser.prototype =
    */
   validLink: function(link)
   {
-    if (/https?:/.test(link))
+    if (/^https?:\/\//.test(link))
       return this.removeUnprintableASCII(link.trim());
 
     return null;
