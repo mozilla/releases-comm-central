@@ -971,9 +971,7 @@ var attachmentBucketController = {
 
     cmd_moveAttachmentUp: {
       isEnabled: function() {
-        let attachmentsSelectedCount = attachmentsSelectedCount();
-        return attachmentsSelectedCount > 0 &&
-               attachmentsSelectedCount != attachmentsCount() &&
+        return attachmentsSelectedCount() > 0 &&
                !attachmentsSelectionIsBlock("top");
       },
       doCommand: function() {
@@ -983,9 +981,7 @@ var attachmentBucketController = {
 
     cmd_moveAttachmentDown: {
       isEnabled: function() {
-        let attachmentsSelectedCount = attachmentsSelectedCount();
-        return attachmentsSelectedCount > 0 &&
-               attachmentsSelectedCount != attachmentsCount() &&
+        return attachmentsSelectedCount() > 0 &&
                !attachmentsSelectionIsBlock("bottom");
       },
       doCommand: function() {
@@ -995,8 +991,7 @@ var attachmentBucketController = {
 
     cmd_moveAttachmentBundleUp: {
       isEnabled: function() {
-        let attachmentsSelectedCount = attachmentsSelectedCount();
-        return attachmentsSelectedCount > 1 &&
+        return attachmentsSelectedCount() > 1 &&
                !attachmentsSelectionIsBlock();
       },
       doCommand: function() {
@@ -1006,8 +1001,7 @@ var attachmentBucketController = {
 
     cmd_moveAttachmentBundleDown: {
       isEnabled: function() {
-        let attachmentsSelectedCount = attachmentsSelectedCount();
-        return attachmentsSelectedCount > 1 &&
+        return attachmentsSelectedCount() > 1 &&
                !attachmentsSelectionIsBlock();
       },
       doCommand: function() {
@@ -1017,9 +1011,7 @@ var attachmentBucketController = {
 
     cmd_moveAttachmentTop: {
       isEnabled: function() {
-        let attachmentsSelectedCount = attachmentsSelectedCount();
-        return attachmentsSelectedCount > 0 &&
-               attachmentsSelectedCount != attachmentsCount() &&
+        return attachmentsSelectedCount() > 0 &&
                !attachmentsSelectionIsBlock("top");
       },
       doCommand: function() {
@@ -1029,9 +1021,7 @@ var attachmentBucketController = {
 
     cmd_moveAttachmentBottom: {
       isEnabled: function() {
-        let attachmentsSelectedCount = attachmentsSelectedCount();
-        return attachmentsSelectedCount > 0 &&
-               attachmentsSelectedCount != attachmentsCount() &&
+        return attachmentsSelectedCount() > 0 &&
                !attachmentsSelectionIsBlock("bottom");
       },
       doCommand: function() {
