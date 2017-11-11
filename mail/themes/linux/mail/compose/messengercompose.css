@@ -324,7 +324,6 @@ treechildren::-moz-tree-image(subscribed-news) {
 }
 
 .aw-menulist {
-  -moz-binding: url("chrome://messenger/content/messengercompose/menulistCompactBindings.xml#menulist-compact");
   font: inherit;
   margin: 0;
   margin-inline-start: 5px;
@@ -363,7 +362,7 @@ treechildren::-moz-tree-image(subscribed-news) {
   margin-inline-start: 2px;
 }
 
-.aw-menulist > dropmarker {
+.aw-menulist > .menulist-dropmarker {
   height: 11px;
 }
 

@@ -236,7 +236,6 @@
 }
 
 .aw-menulist {
-  -moz-binding: url("chrome://messenger/content/messengercompose/menulistCompactBindings.xml#menulist-compact");
   -moz-appearance: none;
   -moz-box-align: center;
   -moz-box-pack: center;
@@ -249,6 +248,10 @@
 
 .aw-menulist > .menulist-label-box {
   margin: 0;
+}
+
+.aw-menulist > .menulist-dropmarker {
+  display: none;
 }
 
 /* ::::: format toolbar ::::: */
@@ -891,6 +894,11 @@ treechildren::-moz-tree-image(subscribed-news) {
 
   .aw-menulist:-moz-window-inactive {
     opacity: .7;
+  }
+
+  .aw-menulist:focus:not([open="true"]) > .menulist-label-box {
+    background-color: inherit;
+    color: inherit;
   }
 }
 

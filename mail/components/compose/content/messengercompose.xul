@@ -1088,7 +1088,7 @@
             <listitem class="addressingWidgetItem" allowevents="true">
               <listcell class="addressingWidgetCell" align="stretch">
                 <menulist id="addressCol1#1" disableonsend="true"
-                          class="aw-menulist menulist-compact" flex="1"
+                          class="aw-menulist" flex="1"
                           oncommand="onAddressColCommand(this.id);">
                   <menupopup>
                     <menuitem value="addr_to" label="&toAddr.label;"/>

@@ -393,7 +393,6 @@ treechildren::-moz-tree-image(subscribed-news) {
 }
 
 .aw-menulist {
-  -moz-binding: url("chrome://messenger/content/messengercompose/menulistCompactBindings.xml#menulist-compact");
   -moz-appearance: none;
   -moz-box-align: center;
   -moz-box-pack: center;
@@ -434,6 +433,10 @@ treechildren::-moz-tree-image(subscribed-news) {
   margin: 1px 1px 0 !important;
   font-size: 10px;
   text-align: end;
+}
+
+.aw-menulist > .menulist-dropmarker {
+  display: none;
 }
 
 /* ::::: compose toolbar sizer ::::: */
