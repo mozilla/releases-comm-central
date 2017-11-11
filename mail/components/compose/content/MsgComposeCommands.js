@@ -5613,132 +5613,331 @@ var envelopeDragObserver = {
 
   canHandleMultipleItems: true,
 
-  onDrop: function (aEvent, aData, aDragSession)
-    {
-      let dataList = aData.dataList;
-      let attachments = [];
+  /**
+   * Adjust the drop target when dragging from the attachment bucket onto itself
+   * by picking the nearest possible insertion point (generally, between two
+   * list items).
+   *
+   * @param aEvent the drag-and-drop event being performed
+   * @return {attachmentitem|string} the adjusted drop target:
+   *                                 - an attachmentitem node for inserting
+   *                                   *before*
+   *                                 - "none" if this isn't a valid insertion point
+   *                                 - "afterLastItem" for appending at the
+   *                                   bottom of the list.
+   */
+  _adjustDropTarget: function(aEvent)
+  {
+    let target = aEvent.target;
+    let bucket = document.getElementById("attachmentBucket");
 
-      for (let dataListObj of dataList)
-      {
-        let item = dataListObj.first;
-        let rawData = item.data;
-        let isValidAttachment = false;
-        let prettyName;
-        let size;
+    if (target == bucket) {
+      // Dragging or dropping at top/bottom border of the listbox
+      let box = target.boxObject;
+      if ((aEvent.screenY - box.screenY) / box.height < 0.5) {
+        target = bucket.firstChild;
+      } else {
+        target = bucket.lastChild;
+      }
+      // We'll check below if this is a valid target.
+    } else if (target.id == "attachmentBucketCount") {
+      // Dragging or dropping at top border of the listbox.
+      // Allow bottom half of attachment list header as extended drop target
+      // for top of list, because otherwise it would be too small.
+      let box = target.boxObject;
+      if ((aEvent.screenY - box.screenY) / box.height >= 0.5) {
+        target = bucket.firstChild;
+        // We'll check below if this is a valid target.
+      } else {
+        // Top half of attachment list header: sorry, can't drop here.
+        return "none";
+      }
+    }
 
-        // We could be dropping an attachment of various flavours OR an address;
-        // check and do the right thing.
-        // Note that case blocks {...} are recommended to avoid redeclaration errors
-        // when using 'let'.
-        switch (item.flavour.contentType)
-        {
-          // Process attachments.
-          case "application/x-moz-file": {
-            isValidAttachment = true;
-            let fileHandler = Services.io
-                                      .getProtocolHandler("file")
-                                      .QueryInterface(Components.interfaces.nsIFileProtocolHandler);
+    // Target is an attachmentitem.
+    if (target.tagName == "attachmentitem") {
+      // If we're dragging/dropping in bottom half of attachmentitem,
+      // adjust target to target.nextSibling (to show dropmarker above that).
+      let box = target.boxObject;
+      if((aEvent.screenY - box.screenY) / box.height >= 0.5) {
+        target = target.nextSibling;
 
-            size = rawData.fileSize;
-            rawData = fileHandler.getURLSpecFromFile(rawData);
-            break;
-          }
+        // If there's no target.nextSibling, we're dragging/dropping
+        // to the bottom of the list.
+        if (!target) {
+          // We can't move a bottom block selection to the bottom.
+          if (attachmentsSelectionIsBlock("bottom"))
+            return "none";
 
-          case "text/x-moz-message": {
-            isValidAttachment = true;
-            let msgHdr = gMessenger.messageServiceFromURI(rawData)
-                                   .messageURIToMsgHdr(rawData);
-            prettyName = msgHdr.mime2DecodedSubject + ".eml";
-            size = msgHdr.messageSize;
-            break;
-          }
-
-          case "text/x-moz-url": {
-            let pieces = rawData.split("\n");
-            rawData = pieces[0];
-            if (pieces.length > 1)
-              prettyName = pieces[1];
-            if (pieces.length > 2)
-              size = parseInt(pieces[2]);
-
-            // If this is a URL (or selected text), check if it's a valid URL
-            // by checking if we can extract a scheme using Services.io.
-            // Don't attach invalid or mailto: URLs.
-            try {
-              let scheme = Services.io.extractScheme(rawData);
-              if (scheme != "mailto")
-                isValidAttachment = true;
-            }
-            catch (ex) {}
-            break;
-          }
-
-          // Process address: Drop it into recipient field.
-          case "text/x-moz-address": {
-            if (rawData) {
-              DropRecipient(aEvent.target, rawData);
-
-              // Since we are now using ondrop (eDrop) instead of previously using
-              // ondragdrop (eLegacyDragDrop), we must prevent the default
-              // which is dropping the address text into the widget.
-              // Note that stopPropagation() is called by our caller in
-              // nsDragAndDrop.js.
-              aEvent.preventDefault();
-            }
-            break;
-          }
+          // Not a bottom block selection: Target is *after* the last item.
+          return "afterLastItem";
         }
+      }
+      // Check if the adjusted target attachmentitem is a valid target.
+      let isBlock = attachmentsSelectionIsBlock();
+      let prevItem = target.previousSibling;
+      // If target is first list item, there's no previous sibling;
+      // treat like unselected previous sibling.
+      let prevSelected = prevItem ? prevItem.selected : false;
+      if (target.selected && (isBlock || prevSelected) ||
+          // target at end of block selection
+          isBlock && prevSelected) {
+          // We can't move a block selection before/after itself,
+          // or any selection onto itself, so trigger dropeffect "none".
+          return "none";
+      }
+      return target;
+    }
 
-        // Create the attachment and add it to attachments array.
-        if (isValidAttachment) {
-          let attachment = Components.classes["@mozilla.org/messengercompose/attachment;1"]
-                                     .createInstance(Components.interfaces.nsIMsgAttachment);
-          attachment.url = rawData;
-          attachment.name = prettyName;
+    return "none";
+  },
 
-          if (size !== undefined)
-            attachment.size = size;
+  _showDropMarker: function(targetItem)
+  {
+    let bucket = document.getElementById("attachmentBucket");
 
-          attachments.push(attachment);
+    let oldDropMarkerItem =
+      bucket.querySelector("attachmentitem[dropOn]");
+    if (oldDropMarkerItem)
+      oldDropMarkerItem.removeAttribute("dropOn");
+
+    if (targetItem == "afterLastItem") {
+      targetItem = bucket.lastChild;
+      targetItem.setAttribute("dropOn", "bottom");
+    } else {
+      targetItem.setAttribute("dropOn", "top");
+    }
+  },
+
+  _hideDropMarker: function()
+  {
+   let oldDropMarkerItem =
+     document.getElementById("attachmentBucket")
+             .querySelector("attachmentitem[dropOn]");
+    if (oldDropMarkerItem)
+      oldDropMarkerItem.removeAttribute("dropOn");
+  },
+
+  onDrop: function (aEvent, aData, aDragSession)
+  {
+    let bucket = document.getElementById("attachmentBucket");
+    let dragSourceNode = aDragSession.sourceNode;
+    if (dragSourceNode && dragSourceNode.parentNode == bucket) {
+      // We dragged from the attachment pane onto itself, so instead of
+      // attaching a new object, we're just reordering them.
+
+      // Adjust the drop target according to mouse position on list (items).
+      let target = this._adjustDropTarget(aEvent);
+
+      // Get a non-live, sorted list of selected attachment list items.
+      let selItems = attachmentsSelectionGetSortedArray();
+      // Keep track of the item we had focused originally. Deselect it though,
+      // since listbox gets confused if you move its focused item around.
+      let focus = bucket.currentItem;
+      bucket.currentItem = null;
+
+      // Moving possibly non-coherent multiple selections around correctly
+      // is much more complex than one might think...
+      if (target.tagName == "attachmentitem" || target == "afterLastItem") {
+        // Drop before targetItem in the list, or after last item.
+        let blockItems = [];
+        let targetItem;
+        for (let item of selItems) {
+          blockItems.push(item);
+          if (target == "afterLastItem") {
+            // Original target is the end of the list; append all items there.
+            bucket.appendChild(item);
+          } else if (target == selItems[0]) {
+            // Original target is first item of first selected block.
+            if (blockItems.includes(target)) {
+              // Item is in first block: do nothing, find the end of the block.
+              let nextItem = item.nextSibling;
+              if (!nextItem || !nextItem.selected) {
+                // We've reached the end of the first block.
+                blockItems.length = 0;
+                targetItem = nextItem;
+              }
+            } else {
+              // Item is NOT in first block: insert before targetItem,
+              // i.e. after end of first block.
+              bucket.insertBefore(item, targetItem);
+            }
+          } else if (target.selected) {
+            // Original target is not first item of first block,
+            // but first item of another block.
+            if (bucket.getIndexOfItem(item) < bucket.getIndexOfItem(target)) {
+              // Insert all items from preceding blocks before original target.
+              bucket.insertBefore(item, target);
+            } else if (blockItems.includes(target)) {
+              // target is included in any selected block except first:
+              // do nothing for that block, find its end.
+              let nextItem = item.nextSibling;
+              if (!nextItem || !nextItem.selected) {
+                // end of block containing target
+                blockItems.length = 0;
+                targetItem = nextItem;
+              }
+            } else {
+              // Item from block after block containing target: insert before
+              // targetItem, i.e. after end of block containing target.
+                bucket.insertBefore(item, targetItem);
+            }
+          } else { // target != selItems [0]
+            // Original target is NOT first item of any block, and NOT selected:
+            // Insert all items before the original target.
+            bucket.insertBefore(item, target);
+          }
         }
       }
 
-      // Add attachments if any.
-      if (attachments.length > 0)
-        AddAttachments(attachments);
-    },
+      bucket.currentItem = focus;
+      this._hideDropMarker();
+      return;
+    }
+
+    let dataList = aData.dataList;
+    let attachments = [];
+
+    for (let dataListObj of dataList)
+    {
+      let item = dataListObj.first;
+      let rawData = item.data;
+      let isValidAttachment = false;
+      let prettyName;
+      let size;
+
+      // We could be dropping an attachment of various flavours OR an address;
+      // check and do the right thing.
+      // Note that case blocks {...} are recommended to avoid redeclaration errors
+      // when using 'let'.
+      switch (item.flavour.contentType)
+      {
+        // Process attachments.
+        case "application/x-moz-file": {
+          isValidAttachment = true;
+          let fileHandler = Services.io
+                                    .getProtocolHandler("file")
+                                    .QueryInterface(Components.interfaces.nsIFileProtocolHandler);
+
+          size = rawData.fileSize;
+          rawData = fileHandler.getURLSpecFromFile(rawData);
+          break;
+        }
+
+        case "text/x-moz-message": {
+          isValidAttachment = true;
+          let msgHdr = gMessenger.messageServiceFromURI(rawData)
+                                 .messageURIToMsgHdr(rawData);
+          prettyName = msgHdr.mime2DecodedSubject + ".eml";
+          size = msgHdr.messageSize;
+          break;
+        }
+
+        case "text/x-moz-url": {
+          let pieces = rawData.split("\n");
+          rawData = pieces[0];
+          if (pieces.length > 1)
+            prettyName = pieces[1];
+          if (pieces.length > 2)
+            size = parseInt(pieces[2]);
+
+          // If this is a URL (or selected text), check if it's a valid URL
+          // by checking if we can extract a scheme using Services.io.
+          // Don't attach invalid or mailto: URLs.
+          try {
+            let scheme = Services.io.extractScheme(rawData);
+            if (scheme != "mailto")
+              isValidAttachment = true;
+          }
+          catch (ex) {}
+          break;
+        }
+
+        // Process address: Drop it into recipient field.
+        case "text/x-moz-address": {
+          if (rawData) {
+            DropRecipient(aEvent.target, rawData);
+
+            // Since we are now using ondrop (eDrop) instead of previously using
+            // ondragdrop (eLegacyDragDrop), we must prevent the default
+            // which is dropping the address text into the widget.
+            // Note that stopPropagation() is called by our caller in
+            // nsDragAndDrop.js.
+            aEvent.preventDefault();
+          }
+          break;
+        }
+      }
+
+      // Create the attachment and add it to attachments array.
+      if (isValidAttachment) {
+        let attachment = Components.classes["@mozilla.org/messengercompose/attachment;1"]
+                                   .createInstance(Components.interfaces.nsIMsgAttachment);
+        attachment.url = rawData;
+        attachment.name = prettyName;
+
+        if (size !== undefined)
+          attachment.size = size;
+
+        attachments.push(attachment);
+      }
+    }
+
+    // Add attachments if any.
+    if (attachments.length > 0)
+      AddAttachments(attachments);
+  },
 
   onDragOver: function (aEvent, aFlavour, aDragSession)
-    {
-      if (aFlavour.contentType != "text/x-moz-address")
-      {
-        // make sure the attachment box is visible during drag over
-        let attachmentBox = document.getElementById("attachments-box");
-        UpdateAttachmentBucket(true);
+  {
+    let bucket = document.getElementById("attachmentBucket");
+    let dragSourceNode = aDragSession.sourceNode;
+    if (dragSourceNode && dragSourceNode.parentNode == bucket) {
+      // If we're dragging from the attachment bucket onto itself, we need to
+      // show a drop marker.
+
+      let target = this._adjustDropTarget(aEvent);
+
+      if (target && (target.tagName == "attachmentitem" || target == "afterLastItem")) {
+        // Adjusted target is an attachment list item; show dropmarker.
+        this._showDropMarker(target);
+      } else {
+        // target == "none", target is not a listItem, or no target:
+        // Indicate that we can't drop here.
+        this._hideDropMarker();
+        aEvent.dataTransfer.dropEffect = "none";
       }
-      else
-      {
-          DragAddressOverTargetControl(aEvent);
-      }
-    },
+      return;
+    }
+
+    if (aFlavour.contentType != "text/x-moz-address") {
+      // make sure the attachment box is visible during drag over
+      let attachmentBox = document.getElementById("attachments-box");
+      UpdateAttachmentBucket(true);
+    }
+    else {
+        DragAddressOverTargetControl(aEvent);
+    }
+  },
 
   onDragExit: function (aEvent, aDragSession)
-    {
-    },
+  {
+    this._hideDropMarker();
+  },
 
   getSupportedFlavours: function ()
-    {
-      let flavourSet = new FlavourSet();
-      // Prefer "text/x-moz-address", so when an address from the address book
-      // is dragged, this flavour is tested first. Otherwise the attachment
-      // bucket would open since the addresses also carry the
-      // "application/x-moz-file" flavour.
-      flavourSet.appendFlavour("text/x-moz-address");
-      flavourSet.appendFlavour("text/x-moz-message");
-      flavourSet.appendFlavour("application/x-moz-file", "nsIFile");
-      flavourSet.appendFlavour("text/x-moz-url");
-      return flavourSet;
-    }
+  {
+    let flavourSet = new FlavourSet();
+    // Prefer "text/x-moz-address", so when an address from the address book
+    // is dragged, this flavour is tested first. Otherwise the attachment
+    // bucket would open since the addresses also carry the
+    // "application/x-moz-file" flavour.
+    flavourSet.appendFlavour("text/x-moz-address");
+    flavourSet.appendFlavour("text/x-moz-message");
+    flavourSet.appendFlavour("application/x-moz-file", "nsIFile");
+    flavourSet.appendFlavour("text/x-moz-url");
+    return flavourSet;
+  }
 };
 
 var attachmentBucketDNDObserver = {

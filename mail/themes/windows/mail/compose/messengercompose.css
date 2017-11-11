@@ -28,6 +28,24 @@
   padding: 1px;
 }
 
+@media (-moz-windows-default-theme: 0) {
+  #attachmentBucket attachmentitem {
+    border-top: 1px solid transparent;
+  }
+
+  #attachmentBucket attachmentitem:last-child {
+    border-bottom: 1px solid transparent;
+  }
+}
+
+#attachmentBucket attachmentitem[dropOn="top"] {
+  border-top-color: Highlight;
+}
+
+#attachmentBucket attachmentitem[dropOn="bottom"] {
+  border-bottom-color: Highlight;
+}
+
 /* ::::: special toolbar colors ::::: */
 
 #composeContentBox {

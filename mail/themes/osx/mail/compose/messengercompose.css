@@ -29,6 +29,20 @@
   padding: 1px;
 }
 
+#attachmentBucket attachmentitem {
+  border-top: 1px solid transparent;
+  border-bottom: 1px solid #fff;
+}
+
+#attachmentBucket attachmentitem[dropOn="top"] {
+  border-top-color: #000;
+  outline-color: transparent;
+}
+
+#attachmentBucket attachmentitem[dropOn="bottom"] {
+  border-bottom-color: #000;
+}
+
 #compose-toolbox toolbarbutton[checked="true"] {
   background-color: transparent;
 }

@@ -23,6 +23,22 @@
   padding: 1px;
 }
 
+#attachmentBucket attachmentitem {
+  border-top: 1px solid transparent;
+}
+
+#attachmentBucket attachmentitem:last-child {
+  border-bottom: 1px solid transparent;
+}
+
+#attachmentBucket attachmentitem[dropOn="top"] {
+  border-top-color: Highlight;
+}
+
+#attachmentBucket attachmentitem[dropOn="bottom"] {
+  border-bottom-color: Highlight;
+}
+
 #compose-toolbox {
   -moz-appearance: none;
   background-color: var(--toolbar-bgcolor);
