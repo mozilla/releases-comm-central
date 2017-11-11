@@ -548,7 +548,7 @@ nsMsgFolderDataSource::getFolderArcLabelsOut(nsCOMArray<nsIRDFResource> &aArcs)
 NS_IMETHODIMP
 nsMsgFolderDataSource::GetAllResources(nsISimpleEnumerator** aCursor)
 {
-  NS_NOTYETIMPLEMENTED("sorry!");
+  MOZ_ASSERT_UNREACHABLE("sorry!");
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 
@@ -556,7 +556,7 @@ NS_IMETHODIMP
 nsMsgFolderDataSource::GetAllCmds(nsIRDFResource* source,
                                       nsISimpleEnumerator/*<nsIRDFResource>*/** commands)
 {
-  NS_NOTYETIMPLEMENTED("no one actually uses me");
+  MOZ_ASSERT_UNREACHABLE("no one actually uses me");
   nsresult rv;
 
   nsCOMPtr<nsIMsgFolder> folder(do_QueryInterface(source, &rv));

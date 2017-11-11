@@ -961,14 +961,14 @@ nsMsgIncomingServer::SetLocalPath(nsIFile *aLocalPath)
 NS_IMETHODIMP
 nsMsgIncomingServer::GetLocalStoreType(nsACString& aResult)
 {
-  NS_NOTYETIMPLEMENTED("nsMsgIncomingServer superclass not implementing GetLocalStoreType!");
+  MOZ_ASSERT_UNREACHABLE("nsMsgIncomingServer superclass not implementing GetLocalStoreType!");
   return NS_ERROR_UNEXPECTED;
 }
 
 NS_IMETHODIMP
 nsMsgIncomingServer::GetLocalDatabaseType(nsACString& aResult)
 {
-  NS_NOTYETIMPLEMENTED("nsMsgIncomingServer superclass not implementing GetLocalDatabaseType!");
+  MOZ_ASSERT_UNREACHABLE("nsMsgIncomingServer superclass not implementing GetLocalDatabaseType!");
   return NS_ERROR_UNEXPECTED;
 }
 

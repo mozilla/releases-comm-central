@@ -559,7 +559,7 @@ nsSubscribeDataSource::ArcLabelsOut(nsIRDFResource *source,
 NS_IMETHODIMP
 nsSubscribeDataSource::GetAllResources(nsISimpleEnumerator** aCursor)
 {
-	NS_NOTYETIMPLEMENTED("sorry!");
+	MOZ_ASSERT_UNREACHABLE("sorry!");
 	return NS_ERROR_NOT_IMPLEMENTED;
 }
 
