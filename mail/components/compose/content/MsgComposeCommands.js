@@ -918,7 +918,7 @@ var attachmentBucketController = {
 
     cmd_delete: {
       isEnabled: function() {
-        let selectedCount = MessageGetNumSelectedAttachments();
+        let selectedCount = attachmentsSelectedCount();
         let cmdDelete = document.getElementById("cmd_delete");
         let textValue = getComposeBundle().getString("removeAttachmentMsgs");
         textValue = PluralForm.get(selectedCount, textValue);
@@ -935,7 +935,7 @@ var attachmentBucketController = {
 
     cmd_openAttachment: {
       isEnabled: function() {
-        return MessageGetNumSelectedAttachments() == 1;
+        return attachmentsSelectedCount() == 1;
       },
       doCommand: function() {
         OpenSelectedAttachment();
@@ -944,7 +944,7 @@ var attachmentBucketController = {
 
     cmd_renameAttachment: {
       isEnabled: function() {
-        return MessageGetNumSelectedAttachments() == 1;
+        return attachmentsSelectedCount() == 1;
       },
       doCommand: function() {
         RenameSelectedAttachment();
@@ -971,7 +971,7 @@ var attachmentBucketController = {
 
     cmd_moveAttachmentUp: {
       isEnabled: function() {
-        let attachmentsSelectedCount = MessageGetNumSelectedAttachments();
+        let attachmentsSelectedCount = attachmentsSelectedCount();
         return attachmentsSelectedCount > 0 &&
                attachmentsSelectedCount != attachmentsCount() &&
                !attachmentsSelectionIsBlock("top");
@@ -983,7 +983,7 @@ var attachmentBucketController = {
 
     cmd_moveAttachmentDown: {
       isEnabled: function() {
-        let attachmentsSelectedCount = MessageGetNumSelectedAttachments();
+        let attachmentsSelectedCount = attachmentsSelectedCount();
         return attachmentsSelectedCount > 0 &&
                attachmentsSelectedCount != attachmentsCount() &&
                !attachmentsSelectionIsBlock("bottom");
@@ -995,7 +995,7 @@ var attachmentBucketController = {
 
     cmd_moveAttachmentBundleUp: {
       isEnabled: function() {
-        let attachmentsSelectedCount = MessageGetNumSelectedAttachments();
+        let attachmentsSelectedCount = attachmentsSelectedCount();
         return attachmentsSelectedCount > 1 &&
                !attachmentsSelectionIsBlock();
       },
@@ -1006,7 +1006,7 @@ var attachmentBucketController = {
 
     cmd_moveAttachmentBundleDown: {
       isEnabled: function() {
-        let attachmentsSelectedCount = MessageGetNumSelectedAttachments();
+        let attachmentsSelectedCount = attachmentsSelectedCount();
         return attachmentsSelectedCount > 1 &&
                !attachmentsSelectionIsBlock();
       },
@@ -1017,7 +1017,7 @@ var attachmentBucketController = {
 
     cmd_moveAttachmentTop: {
       isEnabled: function() {
-        let attachmentsSelectedCount = MessageGetNumSelectedAttachments();
+        let attachmentsSelectedCount = attachmentsSelectedCount();
         return attachmentsSelectedCount > 0 &&
                attachmentsSelectedCount != attachmentsCount() &&
                !attachmentsSelectionIsBlock("top");
@@ -1029,7 +1029,7 @@ var attachmentBucketController = {
 
     cmd_moveAttachmentBottom: {
       isEnabled: function() {
-        let attachmentsSelectedCount = MessageGetNumSelectedAttachments();
+        let attachmentsSelectedCount = attachmentsSelectedCount();
         return attachmentsSelectedCount > 0 &&
                attachmentsSelectedCount != attachmentsCount() &&
                !attachmentsSelectionIsBlock("bottom");
@@ -1041,7 +1041,6 @@ var attachmentBucketController = {
 
     cmd_sortAttachmentsToggle: {
       isEnabled: function() {
-        let attachmentsSelectedCount = MessageGetNumSelectedAttachments();
         let currSortOrder = attachmentsSelectionGetSortOrder();
         let isBlock = attachmentsSelectionIsBlock();
         // If current sorting is ascending AND it's a block; OR
@@ -1073,7 +1072,7 @@ var attachmentBucketController = {
         toggleBtn.setAttribute("label", toggleBtn.getAttribute(btnLabelAttr));
         toggleBtn.setAttribute("accesskey", toggleBtn.getAttribute(btnAccKeyAttr));
 
-        return attachmentsSelectedCount > 1 &&
+        return attachmentsSelectedCount() > 1 &&
                !(currSortOrder == "equivalent" && isBlock);
       },
       doCommand: function() {
@@ -4450,7 +4449,13 @@ function attachmentsCount()
   return (bucketList) ? bucketList.itemCount : 0;
 }
 
-function MessageGetNumSelectedAttachments()
+/**
+ * Get the number of selected attachments.
+ *
+ * @return {number}  the number of selected attachments, or 0 if there are
+ *                   no attachments selected, no attachments, or no attachmentBucket
+ */
+function attachmentsSelectedCount()
 {
   let bucketList = document.getElementById("attachmentBucket");
   return (bucketList) ? bucketList.selectedCount : 0;
@@ -4467,7 +4472,7 @@ function MessageGetNumSelectedAttachments()
  */
 function attachmentsSelectedItemsGetSortedArray(aAscending = true)
 {
-  if (!MessageGetNumSelectedAttachments())
+  if (attachmentsSelectedCount() < 1)
     return [];
 
   let bucketList = document.getElementById("attachmentBucket");
@@ -4503,7 +4508,7 @@ function attachmentsSelectedItemsGetSortedArray(aAscending = true)
  */
 function attachmentsSelectionIsBlock(aListPosition)
 {
-  let selectedCount = MessageGetNumSelectedAttachments();
+  let selectedCount = attachmentsSelectedCount();
   if (selectedCount < 1)
     // No attachments selected, no attachments, or no attachmentBucket.
     return false;
@@ -4970,7 +4975,7 @@ function showReorderAttachmentsPanel() {
  */
 function attachmentsSelectionGetSortOrder()
 {
-  if (MessageGetNumSelectedAttachments() <= 1)
+  if (attachmentsSelectedCount() <= 1)
     return "";
 
   let selItems = attachmentsSelectedItemsGetSortedArray();
