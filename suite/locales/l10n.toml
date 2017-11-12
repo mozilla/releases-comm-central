@@ -14,7 +14,6 @@ locales = [
     "es-ES",
     "fi",
     "fr",
-    "gl",
     "hu",
     "it",
     "ja",
@@ -41,7 +40,6 @@ locales = [
     l = "{l10n_base}/{locale}/"
     mozilla = "mozilla"
 
-
 [[paths]]
     reference = "suite/locales/en-US/**"
     l10n = "{l}suite/**"
@@ -51,16 +49,18 @@ locales = [
     l10n = "{l}editor/ui/**"
 
 [[paths]]
+    reference = "{mozilla}/devtools/shim/locales/en-US/**"
+    l10n = "{l}devtools/shim/**"
+
+[[paths]]
     reference = "{mozilla}/services/sync/locales/en-US/**"
     l10n = "{l}services/sync/**"
-
 
 [[includes]]
     path = "{mozilla}/devtools/client/locales/l10n.toml"
 
 [[includes]]
     path = "{mozilla}/toolkit/locales/l10n.toml"
-
 
 # ignore MOZ_LANGPACK_CONTRIBUTORS
 [[filters]]

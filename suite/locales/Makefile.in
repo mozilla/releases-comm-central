@@ -26,6 +26,11 @@ RETRIEVE_WINDOWS_INSTALLER = 1
 
 MOZ_LANGPACK_EID=langpack-$(AB_CD)@seamonkey.mozilla.org
 
+# For Nightly, we know where to get the builds from to do local repacks
+ifdef NIGHTLY_BUILD
+export EN_US_BINARY_URL ?= https://archive.mozilla.org/pub/seamonkey/nightly/latest-comm-central-trunk
+endif
+
 L10N_PREF_JS_EXPORTS = $(call MERGE_FILE,suite-l10n.js)
 L10N_PREF_JS_EXPORTS_PATH = $(FINAL_TARGET)/$(PREF_DIR)
 L10N_PREF_JS_EXPORTS_FLAGS = $(PREF_PPFLAGS) --silence-missing-directive-warnings
@@ -67,6 +72,11 @@ SEARCH_PLUGINS := $(foreach plugin,$(addsuffix .xml,$(SEARCH_PLUGINS_NAMES)),$(o
 # default en-US ones do not.
 SEARCH_PLUGINS_FLAGS := --silence-missing-directive-warnings 
 PP_TARGETS += SEARCH_PLUGINS
+
+# Required for l10n.mk - defines a list of app sub dirs that should
+# be included in langpack xpis.
+# Currently not set in SeaMonkey.
+DIST_SUBDIRS = $(DIST_SUBDIR)
 
 include $(moztopsrcdir)/config/rules.mk
 
@@ -114,12 +124,19 @@ libs:: $(call MERGE_FILES,$(addprefix profile/chrome/,$(PROFILE_CHROME)))
 	$(SYSINSTALL) $(IFLAGS1) $^ $(FINAL_TARGET)/defaults/profile/chrome
 
 # Extend l10n.mk clobber-% target for our localised extensions
-clobber-%:
 ifdef MOZ_IRC
+clobber-%:
 	$(RM) -rf $(DIST)/xpi-stage/chatzilla-$* $(DIST)/xpi-stage/chatzilla-*.$*.xpi
 endif
 
+libs-%: AB_CD=$*
 libs-%:
+# merge if we're not en-US. Conditional function because
+# we need the current value of AB_CD.
+	$(if $(filter en-US,$(AB_CD)),, @$(MAKE) merge-$*)
+ifdef MOZ_CALENDAR
+	$(if $(filter en-US,$(AB_CD)),, @$(MAKE) -C ../../calendar/lightning merge-$*)
+endif
 	$(NSINSTALL) -D $(DIST)/install
 	@$(MAKE) -C $(DEPTH)/toolkit/locales libs-$*
 	@$(MAKE) -C $(DEPTH)/services/sync/locales AB_CD=$* XPI_NAME=locale-$*
@@ -129,10 +146,11 @@ ifdef MOZ_IRC
 endif
 	@$(MAKE) -C $(DEPTH)/extensions/spellcheck/locales AB_CD=$* XPI_NAME=locale-$*
 	@$(MAKE) -C $(DEPTH)/devtools/client/locales AB_CD=$* XPI_NAME=locale-$*
+	@$(MAKE) -C $(DEPTH)/devtools/shim/locales AB_CD=$* XPI_NAME=locale-$* XPI_ROOT_APPID='$(XPI_ROOT_APPID)'
 	@$(MAKE) libs AB_CD=$* XPI_NAME=locale-$* PREF_DIR=defaults/pref
 
 repackage-win32-installer: WIN32_INSTALLER_OUT=$(ABS_DIST)/$(PKG_INST_PATH)$(PKG_INST_BASENAME).exe
-repackage-win32-installer: $(call ESCAPE_WILDCARD,$(WIN32_INSTALLER_IN)) $(SUBMAKEFILES)
+repackage-win32-installer: $(call ESCAPE_WILDCARD,$(WIN32_INSTALLER_IN)) $(SUBMAKEFILES) libs-$(AB_CD)
 	@echo 'Repackaging $(WIN32_INSTALLER_IN) into $(WIN32_INSTALLER_OUT).'
 	$(MAKE) -C $(DEPTH)/$(MOZ_BRANDING_DIRECTORY) export
 	$(MAKE) -C ../installer/windows CONFIG_DIR=l10ngen l10ngen/setup.exe l10ngen/7zSD.sfx
@@ -145,8 +163,11 @@ repackage-win32-installer: $(call ESCAPE_WILDCARD,$(WIN32_INSTALLER_IN)) $(SUBMA
 	              $(_ABS_SRCDIR)/suite/installer/windows/app.tag'
 
 ifeq (WINNT,$(OS_ARCH))
-repackage-win32-installer-%: libs-% unpack
+repackage-win32-installer-%: unpack
 	@$(MAKE) repackage-win32-installer AB_CD=$* WIN32_INSTALLER_IN='$(WIN32_INSTALLER_IN)'
+
+repackage-zip-%: repackage-win32-installer-%
+
 else
 repackage-win32-installer-%: ;
 endif
@@ -163,13 +184,10 @@ ifeq ($(MOZ_PACKAGER_FORMAT),omni)
 	$(MAKE) -C ../app pack-ext AB_CD=$(AB_CD) STAGEDIST=$(STAGEDIST)/distribution/extensions;
 endif
 
-repackage-zip-%: $(call ESCAPE_WILDCARD,$(ZIP_IN)) $(STAGEDIST) libs-%
-	@$(MAKE) repackage-zip AB_CD=$* ZIP_IN=$(ZIP_IN)
-
 langpack: langpack-$(AB_CD)
 
 ifdef MOZ_UPDATER
-libs:: $(addprefix $(LOCALE_SRCDIR)/,updater/updater.ini)
+libs:: $(call MERGE_FILE,updater/updater.ini) $(call mkdir_deps,$(DIST)/bin)
 ifeq ($(OS_ARCH),WINNT)
 	cat $< $(srcdir)/../installer/windows/nsis/updater_append.ini | \
 	  sed -e 's/^InfoText=/Info=/' -e 's/^TitleText=/Title=/' | \
@@ -183,9 +201,11 @@ else
 endif
 endif
 
+ifndef IS_LANGPACK
 ifdef MOZ_CRASHREPORTER
 libs:: $(call MERGE_FILE,crashreporter/crashreporter-override.ini)
 	$(SYSINSTALL) $(IFLAGS1) $^ $(FINAL_TARGET)
+endif
 endif
 
 ident:
@@ -199,13 +219,6 @@ ident:
 	@$(PYTHON) $(moztopsrcdir)/config/printconfigsetting.py \
 	    $(STAGEDIST)/application.ini App BuildID
 
-merge-%:
-ifdef LOCALE_MERGEDIR
-	$(RM) -rf $(LOCALE_MERGEDIR)
-	$(moztopsrcdir)/mach compare-locales --merge-dir $(LOCALE_MERGEDIR) --l10n-ini $(srcdir)/l10n.ini $*
-endif
-	@echo
-
 .PHONY: repackage-extensions
 
 ifdef MOZ_IRC
@@ -213,12 +226,12 @@ MOZ_PKG_EXTRAL10N += extensions/langpack-$(AB_CD)@chatzilla.mozilla.org=$(DIST)/
 endif
 
 ifdef MOZ_CALENDAR
-LIGHTNING_PATH=$(DEPTH)/calendar/lightning
-GDATA_PATH=$(DEPTH)/calendar/providers/gdata
+LIGHTNING_PATH=$(commtopobjdir)/calendar/lightning
+GDATA_PATH=$(commtopobjdir)/calendar/providers/gdata
 
 define run-calendar-rule
-$(MAKE) -C $(LIGHTNING_PATH) LOCALE_MERGEDIR=$(LOCALE_MERGEDIR) $(subst calendar-,,$@)
-$(MAKE) -C $(GDATA_PATH) LOCALE_MERGEDIR=$(LOCALE_MERGEDIR) $(subst calendar-,,$@)
+$(MAKE) -C $(LIGHTNING_PATH) $(subst calendar-,,$@) AB_CD=$(AB_CD)
+$(MAKE) -C $(GDATA_PATH) $(subst calendar-,,$@) AB_CD=$(AB_CD)
 endef
 
 sm-wget-en-US:
@@ -236,12 +249,12 @@ endif
 # Add calendar targets for pattern rules. Unfortunately multiple pattern rules
 # on the left hand side do something different with make, therefore we need to
 # write a line for each target.
-calendar-merge-%:
-	$(run-calendar-rule)
 calendar-clobber-%:
 	$(run-calendar-rule)
+calendar-langpack-%: AB_CD=$*
 calendar-langpack-%:
 	$(run-calendar-rule)
+calendar-repackage-zip-%: AB_CD=$*
 calendar-repackage-zip-%:
 	$(run-calendar-rule)
 calendar-wget-en-US: sm-wget-en-US
@@ -264,12 +277,12 @@ unpack: calendar-unpack
 upload: calendar-upload
 
 # Hook into the pattern rules, this will be used later on in the installers-% target.
-CALENDAR_INSTALLERS_TARGETS = calendar-merge-% calendar-clobber-% calendar-langpack-% calendar-repackage-zip-%
+CALENDAR_INSTALLERS_TARGETS = calendar-clobber-% calendar-langpack-% calendar-repackage-zip-%
 endif
 
 # This is a generic target that will make a langpack, repack ZIP (+tarball)
 # builds, and repack and installer if applicable. It is called from the
 # tinderbox scripts. Alter it with caution.
-INSTALLERS_TARGETS = clobber-% $(CALENDAR_INSTALLERS_TARGETS) langpack-% repackage-win32-installer-% repackage-zip-%
-installers-%: $(INSTALLERS_TARGETS)
+installers-%: IS_LANGUAGE_REPACK=1
+installers-%: clobber-% $(CALENDAR_INSTALLERS_TARGETS) langpack-% repackage-win32-installer-% repackage-zip-%
 	@echo 'repackaging done'

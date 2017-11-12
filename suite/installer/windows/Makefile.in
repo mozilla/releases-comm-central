@@ -28,6 +28,17 @@ endif
 
 include $(moztopsrcdir)/config/config.mk
 
+ifdef IS_LANGUAGE_REPACK
+PPL_LOCALE_ARGS = \
+  --l10n-dir=$(REAL_LOCALE_MERGEDIR)/suite/installer/windows \
+  --l10n-dir=$(call EXPAND_LOCALE_SRCDIR,suite/locales)/installer/windows \
+  --l10n-dir=$(commtopsrcdir)/suite/locales/en-US/installer/windows \
+  $(NULL)
+else
+PPL_LOCALE_ARGS=$(call EXPAND_LOCALE_SRCDIR,suite/locales)/installer/windows
+endif
+
+
 OVERRIDE_DEFAULT_GOAL := installer
 installer::
 	$(MAKE) -C .. installer-stage
@@ -43,7 +54,7 @@ uninstaller::
 	  $(srcdir)/nsis/defines.nsi.in -o $(CONFIG_DIR)/defines.nsi)
 	$(PYTHON) $(moztopsrcdir)/toolkit/mozapps/installer/windows/nsis/preprocess-locale.py \
 	  --preprocess-locale $(moztopsrcdir) \
-	  $(call EXPAND_LOCALE_SRCDIR,suite/locales)/installer/windows $(AB_CD) $(CONFIG_DIR)
+	  $(PPL_LOCALE_ARGS) $(AB_CD) $(CONFIG_DIR)
 
 $(CONFIG_DIR)/setup.exe::
 	$(RM) -r $(CONFIG_DIR) && mkdir $(CONFIG_DIR)
@@ -55,7 +66,7 @@ $(CONFIG_DIR)/setup.exe::
 	  $(srcdir)/nsis/defines.nsi.in -o $(CONFIG_DIR)/defines.nsi)
 	$(PYTHON) $(moztopsrcdir)/toolkit/mozapps/installer/windows/nsis/preprocess-locale.py \
 	  --preprocess-locale $(moztopsrcdir) \
-	  $(call EXPAND_LOCALE_SRCDIR,suite/locales)/installer/windows $(AB_CD) $(CONFIG_DIR)
+	  $(PPL_LOCALE_ARGS) $(AB_CD) $(CONFIG_DIR)
 
 include $(moztopsrcdir)/config/rules.mk
 include $(moztopsrcdir)/toolkit/mozapps/installer/windows/nsis/makensis.mk
