@@ -18,6 +18,9 @@ keyboard
 message-header
 message-reader
 message-window
+migration-to-rdf-ui-2
+migration-to-rdf-ui-3
+migration-to-rdf-ui-5
 multiple-identities
 newmailaccount
 notification
