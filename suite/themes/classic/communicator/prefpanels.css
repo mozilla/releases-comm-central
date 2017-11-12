@@ -38,9 +38,8 @@ checkbox.nogray-disabled[disabled="true"][nogray="true"] {
 }
 
 /* Set icons on app pane elements */
-
-.handler-action > .listcell-icon,
-.handler-type > .listcell-icon {
+.handler-action .listcell-icon,
+.handler-type .listcell-icon {
   height: 16px;
   width: 16px;
 }

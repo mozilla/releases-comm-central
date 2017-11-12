@@ -39,8 +39,8 @@ checkbox.nogray-disabled[disabled="true"][nogray="true"]
   padding: 0;
 }
 
-.handler-action > .listcell-icon,
-.handler-type > .listcell-icon {
+.handler-action .listcell-icon,
+.handler-type .listcell-icon {
   margin-top: 5px;
   margin-bottom: 5px;
   margin-inline-start: 7px;
@@ -49,8 +49,8 @@ checkbox.nogray-disabled[disabled="true"][nogray="true"]
   width: 16px;
 }
 
-.handler-action > .listcell-label,
-.handler-type > .listcell-label {
+.handler-action .listcell-label,
+.handler-type .listcell-label {
   padding-top: 5px;
   padding-bottom: 5px;
   padding-inline-start: 0px;
