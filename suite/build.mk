@@ -24,6 +24,10 @@ upload::
 source-upload::
 	@$(MAKE) -C suite/installer source-upload
 
+# make -j1 because dependencies in l10n build targets don't work
+# with parallel builds
+merge-% installers-% langpack-% chrome-%:
+	$(MAKE) -j1 -C suite/locales $@
 
 # mochitests need to be run from the Mozilla build system
 ifdef ENABLE_TESTS
