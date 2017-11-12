@@ -2960,6 +2960,7 @@ function onCommandSave(aIsClosing) {
     let originalItem = window.calendarItem;
     let item = saveItem();
     let calendar = getCurrentCalendar();
+    adaptScheduleAgent(item);
 
     item.makeImmutable();
     // Set the item for now, the callback below will set the full item when the

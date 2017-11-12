@@ -4,7 +4,8 @@
 
 /* exported gInTab, gMainWindow, gTabmail, intializeTabOrWindowVariables,
  *          dispose, setDialogId, loadReminders, saveReminder,
- *          commonUpdateReminder, updateLink, rearrangeAttendees
+ *          commonUpdateReminder, updateLink, rearrangeAttendees,
+ *          adaptScheduleAgent
  */
 
 Components.utils.import("resource://gre/modules/PluralForm.jsm");
@@ -691,4 +692,57 @@ function determineAttendeesInRow() {
     let minWidth = window.maxLabelWidth || 200;
     let inRow = Math.floor(document.width / minWidth);
     return inRow > 1 ? inRow : 1;
+}
+
+/**
+ * Adapts the scheduling responsibility for caldav servers according to RfC 6638
+ * based on forceEmailScheduling preference for the respective calendar
+ *
+ * @param {calIEvent|calIToDo} aItem      Item to apply the change on
+ */
+function adaptScheduleAgent(aItem) {
+    if (aItem.calendar && aItem.calendar.type == "caldav" &&
+        aItem.calendar.getProperty("capabilities.autoschedule.supported")) {
+        let identity = aItem.calendar.getProperty("imip.identity");
+        let orgEmail = identity &&
+                       identity.QueryInterface(Components.interfaces.nsIMsgIdentity).email;
+        let organizerAction = aItem.organizer && orgEmail &&
+                              aItem.organizer.id == "mailto:" + orgEmail;
+        if (aItem.calendar.getProperty("forceEmailScheduling")) {
+            cal.LOG("Enforcing clientside email based scheduling.");
+            // for attendees, we change schedule-agent only in case of an
+            // organizer triggered action
+            if (organizerAction) {
+                aItem.getAttendees({}).forEach((aAttendee) => {
+                    // overwritting must always happen consistently for all
+                    // attendees regarding SERVER or CLIENT but must not override
+                    // e.g. NONE, so we only overwrite if the param is set to
+                    // SERVER or doesn't exist
+                    if (aAttendee.getProperty("SCHEDULE-AGENT") == "SERVER" ||
+                        !aAttendee.getProperty("SCHEDULE-AGENT")) {
+                        aAttendee.setProperty("SCHEDULE-AGENT", "CLIENT");
+                        aAttendee.deleteProperty("SCHEDULE-STATUS");
+                        aAttendee.deleteProperty("SCHEDULE-FORCE-SEND");
+                    }
+                });
+            } else if (aItem.organizer &&
+                       (aItem.organizer.getProperty("SCHEDULE-AGENT") == "SERVER" ||
+                        !aItem.organizer.getProperty("SCHEDULE-AGENT"))) {
+                // for organizer, we change the schedule-agent only in case of
+                // an attendee triggered action
+                aItem.organizer.setProperty("SCHEDULE-AGENT", "CLIENT");
+                aItem.organizer.deleteProperty("SCHEDULE-STATUS");
+                aItem.organizer.deleteProperty("SCHEDULE-FORCE-SEND");
+            }
+        } else if (organizerAction) {
+            aItem.getAttendees({}).forEach((aAttendee) => {
+                if (aAttendee.getProperty("SCHEDULE-AGENT") == "CLIENT") {
+                    aAttendee.deleteProperty("SCHEDULE-AGENT");
+                }
+            });
+        } else if (aItem.organizer &&
+                   aItem.organizer.getProperty("SCHEDULE-AGENT") == "CLIENT") {
+            aItem.organizer.deleteProperty("SCHEDULE-AGENT");
+        }
+    }
 }

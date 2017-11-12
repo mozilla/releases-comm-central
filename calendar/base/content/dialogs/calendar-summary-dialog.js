@@ -227,6 +227,7 @@ function onAccept() {
     let newItem = window.calendarItem;
     let calendar = newItem.calendar;
     saveReminder(newItem);
+    adaptScheduleAgent(newItem);
     args.onOk(newItem, calendar, oldItem);
     window.calendarItem = newItem;
     return true;

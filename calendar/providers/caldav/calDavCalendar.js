@@ -194,7 +194,7 @@ calDavCalendar.prototype = {
         return [
             "mAuthScheme", "mAuthRealm", "mHasWebdavSyncSupport", "mCtag",
             "mWebdavSyncToken", "mSupportedItemTypes", "mPrincipalUrl",
-            "mCalHomeSet", "mShouldPollInbox", "hasAutoScheduling",
+            "mCalHomeSet", "mShouldPollInbox", "mHasAutoScheduling",
             "mHaveScheduling", "mCalendarUserAddress", "mOutboxUrl",
             "hasFreeBusy"
         ];
@@ -227,6 +227,11 @@ calDavCalendar.prototype = {
             if (properties[property] !== undefined) {
                 this[property] = properties[property];
             }
+        }
+        // migration code from bug 1299610
+        if ("hasAutoScheduling" in properties &&
+            properties.hasAutoScheduling !== undefined) {
+            this.mHasAutoScheduling = properties.hasAutoScheduling;
         }
     },
 
@@ -484,7 +489,11 @@ calDavCalendar.prototype = {
     set hasScheduling(value) {
         return (this.mHaveScheduling = (Preferences.get("calendar.caldav.sched.enabled", false) && value));
     },
-    hasAutoScheduling: false, // Whether server automatically takes care of scheduling
+    mHasAutoScheduling: false, // Whether server automatically takes care of scheduling
+    get hasAutoScheduling() {
+        return this.mHasAutoScheduling;
+    },
+
     hasFreebusy: false,
 
     mAuthScheme: null,
@@ -1972,7 +1981,7 @@ calDavCalendar.prototype = {
                     cal.LOG("CalDAV: Calendar " + self.name +
                             " supports calendar-auto-schedule");
                 }
-                self.hasAutoScheduling = true;
+                self.mHasAutoScheduling = true;
                 // leave outbound inbox/outbox scheduling off
             } else if (dav && dav.includes("calendar-schedule")) {
                 if (self.verboseLogging()) {
@@ -2675,14 +2684,25 @@ calDavCalendar.prototype = {
     },
 
     canNotify: function(aMethod, aItem) {
-        if (this.hasAutoScheduling) {
-            // canNotify should return false if the schedule agent is client
-            // so the itip transport(imip) takes care of notifying participants
-            if (aItem.organizer &&
-                aItem.organizer.getProperty("SCHEDULE-AGENT") == "CLIENT") {
-                return false;
+        // canNotify should return false if the imip transport should takes care of notifying cal
+        // users
+        if (this.getProperty("forceEmailScheduling")) {
+            return false;
+        }
+        if (this.hasAutoScheduling || this.hasScheduling) {
+            // we go with server's scheduling capabilities here - we take care for exceptions if
+            // schedule agent is set to CLIENT in sendItems()
+            switch (aMethod) {
+                // supported methods as per RfC 6638
+                case "REPLY":
+                case "REQUEST":
+                case "CANCEL":
+                case "ADD":
+                    return true;
+                default:
+                    cal.LOG("Not supported method " + aMethod +
+                            " detected - falling back to email based scheduling.");
             }
-            return true;
         }
         return false; // use outbound iTIP for all
     },
@@ -2704,26 +2724,55 @@ calDavCalendar.prototype = {
     },
 
     sendItems: function(aCount, aRecipients, aItipItem) {
-        if (this.hasAutoScheduling) {
-            // If auto scheduling is supported by the server we still need
-            // to send out REPLIES for meetings where the ORGANIZER has the
-            // parameter SCHEDULE-AGENT set to CLIENT, this property is
-            // checked in in canNotify()
-            if (aItipItem.responseMethod == "REPLY") {
-                let imipTransport = cal.getImipTransport(this);
-                if (imipTransport) {
-                    imipTransport.sendItems(aCount, aRecipients, aItipItem);
-                }
+        function doImipScheduling(aCalendar, aRecipientList) {
+            let result = false;
+            let imipTransport = cal.getImipTransport(aCalendar);
+            let recipients = [];
+            aRecipientList.forEach(rec => recipients.push(rec.toString()));
+            if (imipTransport) {
+                cal.LOG("Enforcing client-side email scheduling instead of server-side scheduling" +
+                        " for " + recipients.join());
+                result = imipTransport.sendItems(aCount, aRecipientList, aItipItem);
+            } else {
+                cal.ERROR("No imip transport available for " + aCalendar.id + ", failed to notify" +
+                          recipients.join());
             }
-            // Servers supporting auto schedule should handle all other
-            // scheduling operations for now. Note that eventually the client
-            // could support setting a SCHEDULE-AGENT=CLIENT parameter on
-            // ATTENDEES and/or interpreting the SCHEDULE-STATUS parameter which
-            // could translate in the client sending out IMIP REQUESTS
-            // for specific attendees.
-            return false;
+            return result;
         }
 
+        if (this.getProperty("forceEmailScheduling")) {
+            return doImipScheduling(this, aRecipients);
+        }
+
+        if (this.hasAutoScheduling || this.hasScheduling) {
+            // let's make sure we notify calendar users marked for client-side scheduling by email
+            let recipients = [];
+            for (let item of aItipItem.getItemList({})) {
+                if (aItipItem.receivedMethod == "REPLY") {
+                    if (item.organizer.getProperty("SCHEDULE-AGENT") == "CLIENT") {
+                        recipients.push(item.organizer);
+                    }
+                } else {
+                    let atts = item.getAttendees({}).filter(att => {
+                        return att.getProperty("SCHEDULE-AGENT") == "CLIENT";
+                    });
+                    for (let att of atts) {
+                        recipients.push(att);
+                    }
+                }
+            }
+            if (recipients.length) {
+                // We return the imip scheduling status here as any remaining calendar user will be
+                // notified by the server without Lightning receiving a status in the first place.
+                // We maybe could inspect the scheduling status of those attendees when
+                // re-retriving the modified event and try to do imip schedule on any status code
+                // other then 1.0, 1.1 or 1.2 - but I leave without that for now.
+                return doImipScheduling(this, recipients);
+            }
+            return true;
+        }
+
+        // from here on this code for explicit caldav scheduling
         if (aItipItem.responseMethod == "REPLY") {
             // Get my participation status
             let attendee = aItipItem.getItemList({})[0].getAttendeeById(this.calendarUserAddress);

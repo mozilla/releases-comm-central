@@ -1010,6 +1010,17 @@ function stripUserData(item_) {
         att.deleteProperty("RECEIVED-SEQUENCE");
         att.deleteProperty("RECEIVED-DTSTAMP");
     });
+
+    // according to RfC 6638, the following items must not be exposed in client side
+    // scheduling messages, so let's remove it if present
+    let removeSchedulingParams = (aCalUser) => {
+        aCalUser.deleteProperty("SCHEDULE-AGENT");
+        aCalUser.deleteProperty("SCHEDULE-FORCE-SEND");
+        aCalUser.deleteProperty("SCHEDULE-STATUS");
+    };
+    item.getAttendees({}).forEach(removeSchedulingParams);
+    removeSchedulingParams(item.organizer);
+
     item.setProperty("DTSTAMP", stamp);
     item.setProperty("LAST-MODIFIED", lastModified); // need to be last to undirty the item
     return item;
@@ -1103,15 +1114,12 @@ function createOrganizer(aCalendar) {
 /** local to this module file
  * Sends an iTIP message using the passed item's calendar transport.
  *
- * @param aItem iTIP item to be sent
- * @param aMethod iTIP method
- * @param aRecipientsList an array of calIAttendee objects the message should be sent to
- * @param autoResponse an inout object whether the transport should ask before sending
+ * @param {calIEvent} aItem           item to be sent
+ * @param {String}    aMethod         iTIP method
+ * @param {Array}     aRecipientsList array of calIAttendee objects the message should be sent to
+ * @param {JSObject}  autoResponse    inout object whether the transport should ask before sending
  */
 function sendMessage(aItem, aMethod, aRecipientsList, autoResponse) {
-    if (aRecipientsList.length == 0) {
-        return false;
-    }
     let calendar = cal.wrapInstance(aItem.calendar, Components.interfaces.calISchedulingSupport);
     if (calendar) {
         if (calendar.QueryInterface(Components.interfaces.calISchedulingSupport)
@@ -1123,16 +1131,20 @@ function sendMessage(aItem, aMethod, aRecipientsList, autoResponse) {
         }
     }
 
-    let aTransport = aItem.calendar.getProperty("itip.transport");
-    if (!aTransport) { // can only send if there's a transport for the calendar
+    if (aRecipientsList.length == 0) {
         return false;
     }
-    aTransport = aTransport.QueryInterface(Components.interfaces.calIItipTransport);
+
+    let transport = aItem.calendar.getProperty("itip.transport");
+    if (!transport) { // can only send if there's a transport for the calendar
+        return false;
+    }
+    transport = transport.QueryInterface(Components.interfaces.calIItipTransport);
 
     let _sendItem = function(aSendToList, aSendItem) {
         let cIII = Components.interfaces.calIItipItem;
         let itipItem = Components.classes["@mozilla.org/calendar/itip-item;1"]
-                                 .createInstance(Components.interfaces.calIItipItem);
+                                 .createInstance(cIII);
         itipItem.init(cal.getSerializedItem(aSendItem));
         itipItem.responseMethod = aMethod;
         itipItem.targetCalendar = aSendItem.calendar;
@@ -1143,7 +1155,7 @@ function sendMessage(aItem, aMethod, aRecipientsList, autoResponse) {
         // XXX I don't know whether the below are used at all, since we don't use the itip processor
         itipItem.isSend = true;
 
-        return aTransport.sendItems(aSendToList.length, aSendToList, itipItem);
+        return transport.sendItems(aSendToList.length, aSendToList, itipItem);
     };
 
     // split up transport, if attendee undisclosure is requested
@@ -1152,13 +1164,13 @@ function sendMessage(aItem, aMethod, aRecipientsList, autoResponse) {
         aMethod != "REPLY" &&
         aMethod != "REFRESH" &&
         aMethod != "COUNTER") {
-        for (let aRecipient of aRecipientsList) {
+        for (let recipient of aRecipientsList) {
             // create a list with a single recipient
-            let sendToList = [aRecipient];
+            let sendToList = [recipient];
             // remove other recipients from vevent attendee list
             let sendItem = aItem.clone();
             sendItem.removeAllAttendees();
-            sendItem.addAttendee(aRecipient);
+            sendItem.addAttendee(recipient);
             // send message
             if (!_sendItem(sendToList, sendItem)) {
                 return false;
