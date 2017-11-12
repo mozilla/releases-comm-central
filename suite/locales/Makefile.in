@@ -6,9 +6,6 @@ include $(moztopsrcdir)/config/config.mk
 
 _ABS_SRCDIR := $(abspath $(commtopsrcdir))
 
-vpath %.xml @srcdir@/en-US/searchplugins
-vpath %.xml $(LOCALE_SRCDIR)/searchplugins
-
 SUBMAKEFILES += \
 	$(DEPTH)/$(MOZ_BRANDING_DIRECTORY)/Makefile \
 	$(NULL)
@@ -63,15 +60,20 @@ NON_OMNIJAR_FILES = \
 	defaults/profile/chrome/userContent-example.css \
 	$(NULL)
 
-SEARCH_PLUGINS_NAMES = $(shell cat $(call MERGE_FILE,/searchplugins/list.txt))
-SEARCH_PLUGINS_PATH := $(FINAL_TARGET)/searchplugins
-.PHONY: searchplugins
-SEARCH_PLUGINS_TARGET := libs searchplugins
-SEARCH_PLUGINS := $(foreach plugin,$(addsuffix .xml,$(SEARCH_PLUGINS_NAMES)),$(or $(wildcard $(call MERGE_FILE,searchplugins/$(plugin))),$(info Missing searchplugin: $(plugin))))
+SEARCHPLUGINS_NAMES = $(shell cat $(call MERGE_FILE,searchplugins/list.txt))
+SEARCHPLUGINS_FILENAMES = $(subst :hidden,,$(SEARCHPLUGINS_NAMES))
+SEARCHPLUGINS_PATH := .deps/generated_$(AB_CD)
+SEARCHPLUGINS_TARGET := libs searchplugins
+SEARCHPLUGINS := $(foreach plugin,$(addsuffix .xml,$(SEARCHPLUGINS_FILENAMES)),$(or $(wildcard $(call EN_US_OR_L10N_FILE,searchplugins/$(plugin))),$(info Missing searchplugin: $(plugin))))
 # Some locale-specific search plugins may have preprocessor directives, but the
 # default en-US ones do not.
-SEARCH_PLUGINS_FLAGS := --silence-missing-directive-warnings 
-PP_TARGETS += SEARCH_PLUGINS
+SEARCHPLUGINS_FLAGS := --silence-missing-directive-warnings
+PP_TARGETS += SEARCHPLUGINS
+
+list-txt = $(SEARCHPLUGINS_PATH)/list.txt
+GARBAGE += $(list-txt)
+
+libs:: searchplugins
 
 # Required for l10n.mk - defines a list of app sub dirs that should
 # be included in langpack xpis.
@@ -81,6 +83,11 @@ DIST_SUBDIRS = $(DIST_SUBDIR)
 include $(moztopsrcdir)/config/rules.mk
 
 include $(moztopsrcdir)/toolkit/locales/l10n.mk
+
+$(list-txt): $(call mkdir_deps,$(SEARCHPLUGINS_PATH)) $(if $(IS_LANGUAGE_REPACK),FORCE)
+	$(RM) $(list-txt)
+	$(foreach plugin,$(SEARCHPLUGINS_NAMES),printf '$(plugin)\n' >> $(list-txt);)
+searchplugins:: $(list-txt)
 
 $(DIST)/branding:
 	$(NSINSTALL) -D $@
@@ -147,6 +154,7 @@ endif
 	@$(MAKE) -C $(DEPTH)/extensions/spellcheck/locales AB_CD=$* XPI_NAME=locale-$*
 	@$(MAKE) -C $(DEPTH)/devtools/client/locales AB_CD=$* XPI_NAME=locale-$*
 	@$(MAKE) -C $(DEPTH)/devtools/shim/locales AB_CD=$* XPI_NAME=locale-$* XPI_ROOT_APPID='$(XPI_ROOT_APPID)'
+	@$(MAKE) -B searchplugins AB_CD=$* XPI_NAME=locale-$*
 	@$(MAKE) libs AB_CD=$* XPI_NAME=locale-$* PREF_DIR=defaults/pref
 
 repackage-win32-installer: WIN32_INSTALLER_OUT=$(ABS_DIST)/$(PKG_INST_PATH)$(PKG_INST_BASENAME).exe

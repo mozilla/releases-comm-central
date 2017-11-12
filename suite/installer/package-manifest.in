@@ -54,7 +54,6 @@
 @RESPATH@/fonts/*
 #endif
 @RESPATH@/@PREF_DIR@/suite-l10n.js
-@RESPATH@/searchplugins/*
 #ifdef HAVE_MAKENSISU
 @BINPATH@/uninstall/helper.exe
 #endif

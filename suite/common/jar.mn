@@ -274,3 +274,6 @@ comm.jar:
    content/communicator/sync/syncQuota.js                           (sync/syncQuota.js)
    content/communicator/sync/syncUtils.js                           (sync/syncUtils.js)
    content/communicator/sync/syncUI.js                              (sync/syncUI.js)
+
+   # L10n resource overrides
+% resource search-plugins chrome://communicator/locale/searchplugins/
