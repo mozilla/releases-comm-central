@@ -3075,7 +3075,10 @@ function ComposeUnload()
                                                    "obs_documentCreated");
   UnloadCommandUpdateHandlers();
 
-  // Stop gSpellChecker so personal dictionary is saved
+  // In some Mozmill tests, the window is closed so quickly that the observer
+  // hasn't fired and removed itself yet, so let's remove it here.
+  spellCheckReadyObserver.removeObserver();
+  // Stop gSpellChecker so personal dictionary is saved.
   enableInlineSpellCheck(false);
 
   EditorCleanup();
@@ -3750,9 +3753,9 @@ function addRecipientsToIgnoreList(aAddressesToAdd)
     let numAddresses = MailServices.headerParser.parseHeadersWithArray(aAddressesToAdd, emailAddresses, names, fullNames);
     if (!names)
       return;
-    var tokenizedNames = new Array();
+    let tokenizedNames = [];
 
-    // each name could consist of multiple word delimited by either commas or spaces. i.e. Green Lantern
+    // Each name could consist of multiple word delimited by either commas or spaces, i.e. Green Lantern
     // or Lantern,Green. Tokenize on comma first, then tokenize again on spaces.
     for (let name in names.value)
     {
@@ -3768,23 +3771,70 @@ function addRecipientsToIgnoreList(aAddressesToAdd)
             tokenizedNames.push(splitNamesFromWhiteSpaceArray[whiteSpaceIndex]);
       }
     }
+    spellCheckReadyObserver.addWordsToIgnore(tokenizedNames);
+  }
+}
 
+/**
+ * Observer waiting for spell checker to become initialized or done checking.
+ * When it fires, it pushes new words to be ignored to the speller.
+ */
+var spellCheckReadyObserver =
+{
+  _topic: "inlineSpellChecker-spellCheck-ended",
 
-    if (gSpellChecker.mInlineSpellChecker.spellCheckPending)
-    {
+  _ignoreWords: [],
+
+  observe: function(aSubject, aTopic, aData) {
+    if (aTopic != this._topic) {
+      return;
+    }
+
+    this.removeObserver();
+    this._addWords();
+  },
+
+  _isAdded: false,
+
+  addObserver: function() {
+    if (this._isAdded)
+      return;
+
+    Services.obs.addObserver(this, this._topic, false);
+    this._isAdded = true;
+  },
+
+  removeObserver: function() {
+    if (!this._isAdded)
+      return;
+
+    Services.obs.removeObserver(this, this._topic);
+    this._clearPendingWords();
+    this._isAdded = false;
+  },
+
+  addWordsToIgnore: function (aIgnoreWords) {
+    this._ignoreWords.push(...aIgnoreWords);
+    if (gSpellChecker.mInlineSpellChecker.spellCheckPending) {
       // spellchecker is enabled, but we must wait for its init to complete
-      Services.obs.addObserver(function observe(subject, topic, data) {
-        if (subject == gMsgCompose.editor)
-        {
-          Services.obs.removeObserver(observe, topic);
-          gSpellChecker.mInlineSpellChecker.ignoreWords(tokenizedNames, tokenizedNames.length);
-        }
-      }, "inlineSpellChecker-spellCheck-ended", false);
+      this.addObserver();
+    } else {
+      this._addWords();
     }
-    else
-    {
-      gSpellChecker.mInlineSpellChecker.ignoreWords(tokenizedNames, tokenizedNames.length);
+  },
+
+  _addWords: function() {
+    // At the time the speller finally got initialized, we may already be closing
+    // the compose together with the speller, so we need to check if they
+    // are still valid.
+    if (gMsgCompose && gSpellChecker.enabled) {
+      gSpellChecker.mInlineSpellChecker.ignoreWords(this._ignoreWords, this._ignoreWords.length);
     }
+    this._clearPendingWords();
+  },
+
+  _clearPendingWords() {
+    this._ignoreWords.length = 0;
   }
 }
 
@@ -6228,6 +6278,10 @@ function updateDocumentLanguage(e)
 // (either context menu or Options menu).
 function enableInlineSpellCheck(aEnableInlineSpellCheck)
 {
+  if (gSpellChecker.enabled != aEnableInlineSpellCheck) {
+    // If state of spellchecker is about to change, clear any pending observer.
+    spellCheckReadyObserver.removeObserver();
+  }
   gSpellChecker.enabled = aEnableInlineSpellCheck;
   document.getElementById('msgSubject').setAttribute('spellcheck', aEnableInlineSpellCheck);
   document.getElementById("menu_inlineSpellCheck")
