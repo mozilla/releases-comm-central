@@ -118,7 +118,7 @@ FeedParser.prototype =
     let tags = this.childrenByTagNameNS(channel, nsURI, "title");
     aFeed.title = aFeed.title || this.getNodeValue(tags ? tags[0] : null);
     tags = this.childrenByTagNameNS(channel, nsURI, "description");
-    aFeed.description = this.getNodeValue(tags ? tags[0] : null);
+    aFeed.description = this.getNodeValueFormatted(tags ? tags[0] : null);
     tags = this.childrenByTagNameNS(channel, nsURI, "link");
     aFeed.link = this.validLink(this.getNodeValue(tags ? tags[0] : null));
 
@@ -196,7 +196,7 @@ FeedParser.prototype =
       let guidLink = this.validLink(guid);
       item.url = isPermaLink && guidLink ? guidLink : link ? link : null;
       tags = this.childrenByTagNameNS(itemNode, nsURI, "description");
-      item.description = this.getNodeValue(tags ? tags[0] : null);
+      item.description = this.getNodeValueFormatted(tags ? tags[0] : null);
       tags = this.childrenByTagNameNS(itemNode, nsURI, "title");
       item.title = this.getNodeValue(tags ? tags[0] : null);
       if (!(item.title || item.description))
@@ -258,7 +258,7 @@ FeedParser.prototype =
       }
 
       tags = this.childrenByTagNameNS(itemNode, FeedUtils.RSS_CONTENT_NS, "encoded");
-      item.content = this.getNodeValue(tags ? tags[0] : null);
+      item.content = this.getNodeValueFormatted(tags ? tags[0] : null);
 
       // Handle <enclosures> and <media:content>, which may be in a
       // <media:group> (if present).
@@ -270,9 +270,9 @@ FeedParser.prototype =
           let url = this.validLink(tag.getAttribute("url"));
           if (url && !encUrls.includes(url))
           {
-            item.enclosures.push(new FeedEnclosure(url,
-                                                   tag.getAttribute("type"),
-                                                   tag.getAttribute("length")));
+            let type = this.removeUnprintableASCII(tag.getAttribute("type"));
+            let length = this.removeUnprintableASCII(tag.getAttribute("length"));
+            item.enclosures.push(new FeedEnclosure(url, type, length));
             encUrls.push(url);
           }
         }
@@ -283,9 +283,11 @@ FeedParser.prototype =
         {
           let url = this.validLink(tag.getAttribute("url"));
           if (url && !encUrls.includes(url))
-            item.enclosures.push(new FeedEnclosure(url,
-                                                   tag.getAttribute("type"),
-                                                   tag.getAttribute("fileSize")));
+          {
+            let type = this.removeUnprintableASCII(tag.getAttribute("type"));
+            let fileSize = this.removeUnprintableASCII(tag.getAttribute("fileSize"));
+            item.enclosures.push(new FeedEnclosure(url, type, fileSize));
+          }
         }
 
       // The <origEnclosureLink> tag has no specification, especially regarding
@@ -349,7 +351,7 @@ FeedParser.prototype =
     aFeed.title = aFeed.title ||
                   this.getRDFTargetValue(ds, channel, FeedUtils.RSS_TITLE) ||
                   aFeed.url;
-    aFeed.description = this.getRDFTargetValue(ds, channel, FeedUtils.RSS_DESCRIPTION) ||
+    aFeed.description = this.getRDFTargetValueFormatted(ds, channel, FeedUtils.RSS_DESCRIPTION) ||
                         "";
     aFeed.link = this.validLink(this.getRDFTargetValue(ds, channel, FeedUtils.RSS_LINK)) ||
                  aFeed.url;
@@ -383,8 +385,8 @@ FeedParser.prototype =
       let uri = itemResource.ValueUTF8;
       let link = this.validLink(this.getRDFTargetValue(ds, itemResource, FeedUtils.RSS_LINK));
       item.url = link || uri;
-      item.description = this.getRDFTargetValue(ds, itemResource,
-                                                FeedUtils.RSS_DESCRIPTION);
+      item.description = this.getRDFTargetValueFormatted(ds, itemResource,
+                                                         FeedUtils.RSS_DESCRIPTION);
       item.title = this.getRDFTargetValue(ds, itemResource, FeedUtils.RSS_TITLE) ||
                    this.getRDFTargetValue(ds, itemResource, FeedUtils.DC_SUBJECT) ||
                    (item.description ?
@@ -406,8 +408,8 @@ FeedParser.prototype =
                     item.author;
       item.date = this.getRDFTargetValue(ds, itemResource, FeedUtils.DC_DATE) ||
                   item.date;
-      item.content = this.getRDFTargetValue(ds, itemResource,
-                                            FeedUtils.RSS_CONTENT_ENCODED);
+      item.content = this.getRDFTargetValueFormatted(ds, itemResource,
+                                                     FeedUtils.RSS_CONTENT_ENCODED);
 
       this.parsedItems.push(item);
     }
@@ -435,7 +437,7 @@ FeedParser.prototype =
     aFeed.title = aFeed.title ||
                   this.stripTags(this.getNodeValue(tags ? tags[0] : null));
     tags = this.childrenByTagNameNS(channel, FeedUtils.ATOM_03_NS, "tagline");
-    aFeed.description = this.getNodeValue(tags ? tags[0] : null);
+    aFeed.description = this.getNodeValueFormatted(tags ? tags[0] : null);
     tags = this.childrenByTagNameNS(channel, FeedUtils.ATOM_03_NS, "link");
     aFeed.link = this.validLink(this.findAtomLink("alternate", tags));
 
@@ -472,7 +474,7 @@ FeedParser.prototype =
       tags = this.childrenByTagNameNS(itemNode, FeedUtils.ATOM_03_NS, "id");
       item.id = this.getNodeValue(tags ? tags[0] : null);
       tags = this.childrenByTagNameNS(itemNode, FeedUtils.ATOM_03_NS, "summary");
-      item.description = this.getNodeValue(tags ? tags[0] : null);
+      item.description = this.getNodeValueFormatted(tags ? tags[0] : null);
       tags = this.childrenByTagNameNS(itemNode, FeedUtils.ATOM_03_NS, "title");
       item.title = this.getNodeValue(tags ? tags[0] : null) ||
                    (item.description ? item.description.substr(0, 150) : null);
@@ -705,6 +707,8 @@ FeedParser.prototype =
         item.xmlContentBase = contentBase;
       }
 
+      item.xmlContentBase = this.validLink(item.xmlContentBase);
+
       // Handle <link rel="enclosure"> (if present).
       tags = this.childrenByTagNameNS(itemNode, FeedUtils.ATOM_IETF_NS, "link");
       let encUrls = [];
@@ -716,10 +720,10 @@ FeedParser.prototype =
           url = this.validLink(url);
           if (url && !encUrls.includes(url))
           {
-            item.enclosures.push(new FeedEnclosure(url,
-                                                   tag.getAttribute("type"),
-                                                   tag.getAttribute("length"),
-                                                   tag.getAttribute("title")));
+            let type = this.removeUnprintableASCII(tag.getAttribute("type"));
+            let length = this.removeUnprintableASCII(tag.getAttribute("length"));
+            let title = this.removeUnprintableASCII(tag.getAttribute("title"));
+            item.enclosures.push(new FeedEnclosure(url, type, length, title));
             encUrls.push(url);
           }
         }
@@ -742,7 +746,7 @@ FeedParser.prototype =
       {
         for (let tag of tags)
         {
-          let ref = tag.getAttribute("ref");
+          let ref = this.removeUnprintableASCII(tag.getAttribute("ref"));
           if (ref)
             item.inReplyTo += item.normalizeMessageID(ref) + " ";
         }
@@ -755,7 +759,7 @@ FeedParser.prototype =
       {
         for (let tag of tags)
         {
-          let term = tag.getAttribute("term");
+          let term = this.removeUnprintableASCII(tag.getAttribute("term"));
           term = term ? this.xmlUnescape(term.replace(/,/g, ";")).trim() : null;
           if (term && !item.keywords.includes(term))
             item.keywords.push(term);
@@ -850,6 +854,27 @@ FeedParser.prototype =
 
   getRDFTargetValue: function(ds, source, property)
   {
+    let nodeValue = this.getRDFTargetValueRaw(ds, source, property);
+    if (!nodeValue)
+      return null;
+
+    nodeValue = nodeValue.replace(/[\n\r\t]+/g, " ");
+    return this.removeUnprintableASCII(nodeValue);
+
+  },
+
+  getRDFTargetValueFormatted: function(ds, source, property)
+  {
+    let nodeValue = this.getRDFTargetValueRaw(ds, source, property);
+    if (!nodeValue)
+      return null;
+
+    return this.removeUnprintableASCIIexCRLFTAB(nodeValue);
+
+  },
+
+  getRDFTargetValueRaw: function(ds, source, property)
+  {
     let node = ds.GetTarget(source, property, true);
     if (node)
     {
@@ -871,16 +896,59 @@ FeedParser.prototype =
     return null;
   },
 
+  /**
+   * Return a cleaned up node value. This is intended for values that are not
+   * multiline and not formatted. A sequence of tab or newline is converted to
+   * a space and unprintable ascii is removed.
+   *
+   * @param {Node} node  - A DOM node.
+   * @return {String}    - A clean string value or null.
+   */
   getNodeValue: function(node)
+  {
+    let nodeValue = this.getNodeValueRaw(node);
+    if (!nodeValue)
+      return null;
+
+    nodeValue = nodeValue.replace(/[\n\r\t]+/g, " ");
+    return this.removeUnprintableASCII(nodeValue);
+  },
+
+  /**
+   * Return a cleaned up formatted node value, meaning CR/LF/TAB are retained
+   * while all other unprintable ascii is removed. This is intended for values
+   * that are multiline and formatted, such as content or description tags.
+   *
+   * @param {Node} node  - A DOM node.
+   * @return {String}    - A clean string value or null.
+   */
+  getNodeValueFormatted: function(node)
+  {
+    let nodeValue = this.getNodeValueRaw(node);
+    if (!nodeValue)
+      return null;
+
+    return this.removeUnprintableASCIIexCRLFTAB(nodeValue);
+  },
+
+  /**
+   * Return a raw node value, as received. This should be sanitized as
+   * appropriate.
+   *
+   * @param {Node} node  - A DOM node.
+   * @return {String}    - A string value or null.
+   */
+  getNodeValueRaw: function(node)
   {
     if (node && node.textContent)
       return node.textContent.trim();
-    else if (node && node.firstChild)
+
+    if (node && node.firstChild)
     {
       let ret = "";
       for (let child = node.firstChild; child; child = child.nextSibling)
       {
-        let value = this.getNodeValue(child);
+        let value = this.getNodeValueRaw(child);
         if (value)
           ret += value;
       }
@@ -910,7 +978,7 @@ FeedParser.prototype =
   },
 
   /**
-   * Ensure <link> type tags start with http[s]: for values stored in mail
+   * Ensure <link> type tags start with http[s]:// for values stored in mail
    * headers (content-base and remote enclosures), particularly to prevent
    * data: uris, javascript, and other spoofing.
    *
@@ -1029,7 +1097,18 @@ FeedParser.prototype =
    */
   removeUnprintableASCII: function(s)
   {
-    return s ? s.replace(/[\x00-\x1F]+/g, "") : "";
+    return s ? s.replace(/[\x00-\x1F,\x7F]+/g, "") : "";
+  },
+
+  /**
+   * Remove unprintable ascii, except CR/LF/TAB, for formatted tag values.
+   *
+   * @param {String} s - String to clean.
+   * @return {String}
+   */
+  removeUnprintableASCIIexCRLFTAB: function(s)
+  {
+    return s ? s.replace(/[\x00-\x08,\x0B-\x0C,\x0E-\x1F,\x7F]+/g, "") : "";
   },
 
   stripTags: function(someHTML)
