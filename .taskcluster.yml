@@ -42,7 +42,9 @@ tasks:
       - "tc-treeherder.v2.${repository.project}.${push.revision}.${push.pushlog_id}"
       - "tc-treeherder-stage.v2.${repository.project}.${push.revision}.${push.pushlog_id}"
       - "notify.email.${ownerEmail}.on-failed"
-      - "notify.email.${ownerEmail}.on-exception"
+      - $if: '"mozilla@hocat.ca" in ownerEmail'
+        # Until taskcluster is ready for general consumption, don't report exceptions from taskcluster.
+        then: "notify.email.${ownerEmail}.on-exception"
 
     scopes:
       - 'assume:repo:${repoUrl[8:]}:*'
@@ -56,18 +58,25 @@ tasks:
 
     payload:
       env:
-        # checkout-gecko uses these to check out the source; the inputs
-        # to `mach taskgraph decision` are all on the command line.
-        GECKO_BASE_REPOSITORY: 'https://hg.mozilla.org/mozilla-unified'
-        GECKO_HEAD_REPOSITORY: 'https://hg.mozilla.org/mozilla-central'
-        GECKO_HEAD_REF: 'default'
-        COMM_BASE_REPOSITORY: 'https://hg.mozilla.org/comm-central'
-        COMM_HEAD_REPOSITORY: '${repoUrl}'
-        COMM_COMMIT_MSG: '${push.comment}'
-        COMM_HEAD_REF: '${push.revision}'
-        COMM_HEAD_REV: '${push.revision}'
-        HG_STORE_PATH: /buillds/worker/checkouts/hg-store
-        TASKCLUSTER_CACHES: /builds/worker/checkouts
+        $merge:
+        - # checkout-gecko uses these to check out the source; the inputs
+          # to `mach taskgraph decision` are all on the command line.
+          GECKO_BASE_REPOSITORY: 'https://hg.mozilla.org/mozilla-unified'
+          GECKO_HEAD_REPOSITORY: 'https://hg.mozilla.org/mozilla-central'
+          GECKO_HEAD_REF: 'default'
+          COMM_BASE_REPOSITORY: 'https://hg.mozilla.org/comm-central'
+          COMM_HEAD_REPOSITORY: '${repoUrl}'
+          COMM_HEAD_REF: '${push.revision}'
+          COMM_HEAD_REV: '${push.revision}'
+          HG_STORE_PATH: /buillds/worker/checkouts/hg-store
+          TASKCLUSTER_CACHES: /builds/worker/checkouts
+        - $if: '("--buildbot" in push.comment) && !("mozilla@hocat.ca" in ownerEmail)'
+          then:
+            # Until all buildbot platforms are supported in taskcluster, avoid
+            # passing try syntax to taskcluster.
+            COMM_COMMIT_MSG: 'try: ignored'
+          else:
+            COMM_COMMIT_MSG: '${push.comment}'
 
       cache:
         level-${repository.level}-checkouts-sparse-v1: /builds/worker/checkouts
