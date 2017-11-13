@@ -285,7 +285,7 @@ MimeMessage_close_headers (MimeObject *obj)
     // If we've got a charset, use nsMsgI18NConvertToUnicode to magically decode
     // the munged subject.
     if (!charset.IsEmpty()) {
-      nsresult rv = nsMsgI18NConvertToUnicode(charset.get(), orig, dest);
+      nsresult rv = nsMsgI18NConvertToUnicode(charset, orig, dest);
       // If we managed to convert the string, replace munged_subject with the
       // UTF8 version of it, otherwise, just forget about it (maybe there was an
       // improperly encoded string in there).

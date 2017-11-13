@@ -295,7 +295,10 @@ nsBeckyUtils::ConvertToUTF8File(nsIFile *aSourceFile,
 
   nsCOMPtr<nsIConverterInputStream> convertedInput =
     do_CreateInstance("@mozilla.org/intl/converter-input-stream;1");
-  convertedInput->Init(source, nsMsgI18NFileSystemCharset(), kBlock, 0x0000);
+  convertedInput->Init(source,
+                       PromiseFlatCString(nsMsgI18NFileSystemCharset()).get(),
+                       kBlock,
+                       0x0000);
 
   nsCOMPtr<nsIConverterOutputStream> convertedOutput =
     do_CreateInstance("@mozilla.org/intl/converter-output-stream;1");

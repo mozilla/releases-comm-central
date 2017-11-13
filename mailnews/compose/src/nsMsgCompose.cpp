@@ -1334,8 +1334,8 @@ NS_IMETHODIMP nsMsgCompose::SendMsg(MSG_DeliverMode deliverMode, nsIMsgIdentity 
   {
     // Convert body to mail charset
     nsCString outCString;
-    rv = nsMsgI18NConvertFromUnicode(m_compFields->GetCharacterSet(),
-      msgBody, outCString, true);
+    rv = nsMsgI18NConvertFromUnicode(nsDependentCString(m_compFields->GetCharacterSet()),
+                                     msgBody, outCString, true);
     bool isAsciiOnly = NS_IsAscii(outCString.get()) &&
       !nsMsgI18Nstateful_charset(m_compFields->GetCharacterSet());
     if (m_compFields->GetForceMsgEncoding())
@@ -2543,25 +2543,25 @@ NS_IMETHODIMP QuotingOutputStreamListener::OnStopRequest(nsIRequest *request, ns
       }
 
       mHeaders->ExtractHeader(HEADER_FROM, true, outCString);
-      ConvertRawBytesToUTF16(outCString, charset.get(), from);
+      nsMsgI18NConvertRawBytesToUTF16(outCString, charset, from);
 
       mHeaders->ExtractHeader(HEADER_TO, true, outCString);
-      ConvertRawBytesToUTF16(outCString, charset.get(), to);
+      nsMsgI18NConvertRawBytesToUTF16(outCString, charset, to);
 
       mHeaders->ExtractHeader(HEADER_CC, true, outCString);
-      ConvertRawBytesToUTF16(outCString, charset.get(), cc);
+      nsMsgI18NConvertRawBytesToUTF16(outCString, charset, cc);
 
       mHeaders->ExtractHeader(HEADER_BCC, true, outCString);
-      ConvertRawBytesToUTF16(outCString, charset.get(), bcc);
+      nsMsgI18NConvertRawBytesToUTF16(outCString, charset, bcc);
 
       mHeaders->ExtractHeader(HEADER_MAIL_FOLLOWUP_TO, true, outCString);
-      ConvertRawBytesToUTF16(outCString, charset.get(), mailFollowupTo);
+      nsMsgI18NConvertRawBytesToUTF16(outCString, charset, mailFollowupTo);
 
       mHeaders->ExtractHeader(HEADER_REPLY_TO, false, outCString);
-      ConvertRawBytesToUTF16(outCString, charset.get(), replyTo);
+      nsMsgI18NConvertRawBytesToUTF16(outCString, charset, replyTo);
 
       mHeaders->ExtractHeader(HEADER_MAIL_REPLY_TO, true, outCString);
-      ConvertRawBytesToUTF16(outCString, charset.get(), mailReplyTo);
+      nsMsgI18NConvertRawBytesToUTF16(outCString, charset, mailReplyTo);
 
       mHeaders->ExtractHeader(HEADER_NEWSGROUPS, false, outCString);
       if (!outCString.IsEmpty())
@@ -4185,7 +4185,7 @@ nsMsgCompose::LoadDataFromFile(nsIFile *file, nsString &sigData,
 
   // XXX: ^^^ could really use nsContentUtils::SlurpFileToString instead!
 
-  if (NS_FAILED(ConvertToUnicode(sigEncoding.get(), readStr, sigData)))
+  if (NS_FAILED(nsMsgI18NConvertToUnicode(sigEncoding, readStr, sigData)))
     CopyASCIItoUTF16(readStr, sigData);
 
   //remove sig meta charset to allow user charset override during composition

@@ -985,7 +985,7 @@ nsNntpIncomingServer::AddNewsgroupToList(const char *aName)
     rv = GetCharset(dataCharset);
     NS_ENSURE_SUCCESS(rv,rv);
 
-    rv = nsMsgI18NConvertToUnicode(dataCharset.get(),
+    rv = nsMsgI18NConvertToUnicode(dataCharset,
                                    nsDependentCString(aName),
                                    newsgroupName);
 #ifdef DEBUG_jungshik

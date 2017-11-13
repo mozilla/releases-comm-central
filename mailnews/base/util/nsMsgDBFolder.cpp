@@ -5625,7 +5625,7 @@ NS_IMETHODIMP nsMsgDBFolder::GetMsgTextFromStream(nsIInputStream *stream, const 
   // In order to turn our snippet into unicode, we need to convert it from the charset we
   // detected earlier.
   nsString unicodeMsgBodyStr;
-  ConvertToUnicode(charset.get(), msgText, unicodeMsgBodyStr);
+  nsMsgI18NConvertToUnicode(charset, msgText, unicodeMsgBodyStr);
 
   // now we've got a msg body. If it's html, convert it to plain text.
   if (msgBodyIsHtml && aStripHTMLTags)

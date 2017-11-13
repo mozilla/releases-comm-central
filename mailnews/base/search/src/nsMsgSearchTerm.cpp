@@ -1116,7 +1116,9 @@ nsresult nsMsgSearchTerm::MatchString(const nsACString &stringToMatch,
     nsAutoString utf16StrToMatch;
     if (charset != nullptr)
     {
-      ConvertToUnicode(charset, nsCString(stringToMatch), utf16StrToMatch);
+      nsMsgI18NConvertToUnicode(nsDependentCString(charset),
+                                stringToMatch,
+                                utf16StrToMatch);
     }
     else {
       NS_ASSERTION(MsgIsUTF8(stringToMatch), "stringToMatch is not UTF-8");

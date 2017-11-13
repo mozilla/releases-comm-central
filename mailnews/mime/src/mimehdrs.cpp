@@ -39,7 +39,9 @@ MimeHeaders_convert_header_value(MimeDisplayOptions *opt, nsCString &value,
   if (convert_charset_only)
   {
     nsAutoCString output;
-    ConvertRawBytesToUTF8(value, opt->default_charset, output);
+    nsMsgI18NConvertRawBytesToUTF8(value,
+                                   nsDependentCString(opt->default_charset),
+                                   output);
     value.Assign(output);
     return;
   }
@@ -605,7 +607,8 @@ MimeHeaders_write_all_headers (MimeHeaders *hdrs, MimeDisplayOptions *opt, bool 
     if (opt->format_out == nsMimeOutput::nsMimeMessageSaveAs && charset)
     {
       nsAutoCString convertedStr;
-      if (NS_SUCCEEDED(ConvertFromUnicode(charset, NS_ConvertUTF8toUTF16(hdr_value),
+      if (NS_SUCCEEDED(nsMsgI18NConvertFromUnicode(nsDependentCString(charset),
+                       NS_ConvertUTF8toUTF16(hdr_value),
                        convertedStr)))
       {
         hdr_value = convertedStr;

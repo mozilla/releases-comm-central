@@ -724,11 +724,11 @@ bool CMapiMessage::FetchBody(void)
     }
   }
   if (!bFoundCharset) { // Use system default
-    const char* charset = nsMsgI18NFileSystemCharset();
-    if (charset) {
-      bFoundCharset = CheckBodyInCharsetRange(charset);
+    const nsCString charset(nsMsgI18NFileSystemCharset());
+    if (!charset.IsEmpty()) {
+      bFoundCharset = CheckBodyInCharsetRange(charset.get());
       if (bFoundCharset)
-        m_mimeCharset.Assign(charset);
+        m_mimeCharset = charset;
     }
   }
   if (!bFoundCharset) // Everything else failed, let's use the lossless utf-8...
@@ -742,7 +742,7 @@ bool CMapiMessage::FetchBody(void)
 
 void CMapiMessage::GetBody(nsCString& dest) const
 {
-  nsMsgI18NConvertFromUnicode(m_mimeCharset.get(), m_body, dest);
+  nsMsgI18NConvertFromUnicode(m_mimeCharset, m_body, dest);
 }
 
 void CMapiMessage::FetchFlags(void)
@@ -1270,7 +1270,9 @@ void CMapiMessageHeaders::CHeaderField::GetUnfoldedString(nsString& dest,
   if (m_fbody_utf8)
     CopyUTF8toUTF16(unfolded, dest);
   else
-    nsMsgI18NConvertToUnicode(fallbackCharset, unfolded, dest);
+    nsMsgI18NConvertToUnicode(nsDependentCString(fallbackCharset),
+                                                 unfolded,
+                                                 dest);
 }
 
 ////////////////////////////////////////

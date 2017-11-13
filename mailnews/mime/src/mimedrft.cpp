@@ -188,7 +188,9 @@ nsresult CreateComposeParams(nsCOMPtr<nsIMsgComposeParams> &pMsgComposeParams,
         if (NS_SUCCEEDED(rv) && attachment)
         {
           nsAutoString nameStr;
-          rv = ConvertToUnicode("UTF-8", curAttachment->m_realName.get(), nameStr);
+          rv = nsMsgI18NConvertToUnicode(NS_LITERAL_CSTRING("UTF-8"),
+                                         curAttachment->m_realName,
+                                         nameStr);
           if (NS_FAILED(rv))
             CopyASCIItoUTF16(curAttachment->m_realName, nameStr);
           attachment->SetName(nameStr);
@@ -347,7 +349,9 @@ CreateCompositionFields(const char        *from,
   nsAutoString outString;
 
   if (from) {
-    ConvertRawBytesToUTF16(from, charset, outString);
+    nsMsgI18NConvertRawBytesToUTF16(nsDependentCString(from),
+                                    nsDependentCString(charset),
+                                    outString);
     cFields->SetFrom(outString);
   }
 
@@ -357,22 +361,30 @@ CreateCompositionFields(const char        *from,
   }
 
   if (reply_to) {
-    ConvertRawBytesToUTF16(reply_to, charset, outString);
+    nsMsgI18NConvertRawBytesToUTF16(nsDependentCString(reply_to),
+                                    nsDependentCString(charset),
+                                    outString);
     cFields->SetReplyTo(outString);
   }
 
   if (to) {
-    ConvertRawBytesToUTF16(to, charset, outString);
+    nsMsgI18NConvertRawBytesToUTF16(nsDependentCString(to),
+                                    nsDependentCString(charset),
+                                    outString);
     cFields->SetTo(outString);
   }
 
   if (cc) {
-    ConvertRawBytesToUTF16(cc, charset, outString);
+    nsMsgI18NConvertRawBytesToUTF16(nsDependentCString(cc),
+                                    nsDependentCString(charset),
+                                    outString);
     cFields->SetCc(outString);
   }
 
   if (bcc) {
-    ConvertRawBytesToUTF16(bcc, charset, outString);
+    nsMsgI18NConvertRawBytesToUTF16(nsDependentCString(bcc),
+                                    nsDependentCString(charset),
+                                    outString);
     cFields->SetBcc(outString);
   }
 
@@ -1526,7 +1538,9 @@ mime_parse_stream_complete(nsMIMESession *stream)
           if (bodyCharset)
           {
             nsAutoString tmpUnicodeBody;
-            rv = ConvertToUnicode(bodyCharset, body, tmpUnicodeBody);
+            rv = nsMsgI18NConvertToUnicode(nsDependentCString(bodyCharset),
+                                           nsDependentCString(body),
+                                           tmpUnicodeBody);
             if (NS_FAILED(rv)) // Tough luck, ASCII/ISO-8859-1 then...
               CopyASCIItoUTF16(nsDependentCString(body), tmpUnicodeBody);
 

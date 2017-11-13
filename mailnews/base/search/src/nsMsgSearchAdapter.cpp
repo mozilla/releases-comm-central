@@ -549,7 +549,8 @@ nsresult nsMsgSearchAdapter::EncodeImapTerm (nsIMsgSearchTerm *term, bool really
            (attrib != nsMsgSearchAttrib::Keywords));
         // now convert to char* and escape quoted_specials
         nsAutoCString valueStr;
-        nsresult rv = ConvertFromUnicode(NS_LossyConvertUTF16toASCII(destCharset).get(),
+        nsresult rv = nsMsgI18NConvertFromUnicode(
+          NS_LossyConvertUTF16toASCII(destCharset),
           nsDependentString(convertedValue), valueStr);
         if (NS_SUCCEEDED(rv))
         {

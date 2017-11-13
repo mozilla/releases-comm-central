@@ -734,8 +734,10 @@ nsAbManager::ExportDirectoryToDelimitedText(nsIAbDirectory *aDirectory,
       if (NS_FAILED(bundle->GetStringFromID(EXPORT_ATTRIBUTES_TABLE[i].plainTextStringID, columnName)))
         columnName.AppendInt(EXPORT_ATTRIBUTES_TABLE[i].plainTextStringID);
 
-      rv = nsMsgI18NConvertFromUnicode(useUTF8 ? "UTF-8" : nsMsgI18NFileSystemCharset(),
-                                       columnName, revisedName);
+      rv = nsMsgI18NConvertFromUnicode(useUTF8 ? NS_LITERAL_CSTRING("UTF-8") :
+                                                 nsMsgI18NFileSystemCharset(),
+                                       columnName,
+                                       revisedName);
       NS_ENSURE_SUCCESS(rv,rv);
 
       rv = outputStream->Write(revisedName.get(),
@@ -825,8 +827,10 @@ nsAbManager::ExportDirectoryToDelimitedText(nsIAbDirectory *aDirectory,
                 newValue.Append(u'"');
               }
 
-              rv = nsMsgI18NConvertFromUnicode(useUTF8 ? "UTF-8" : nsMsgI18NFileSystemCharset(),
-                                               newValue, valueCStr);
+              rv = nsMsgI18NConvertFromUnicode(useUTF8 ? NS_LITERAL_CSTRING("UTF-8") :
+                                                         nsMsgI18NFileSystemCharset(),
+                                               newValue,
+                                               valueCStr);
               NS_ENSURE_SUCCESS(rv,rv);
 
               if (NS_FAILED(rv)) {

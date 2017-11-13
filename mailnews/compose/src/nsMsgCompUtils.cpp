@@ -610,7 +610,7 @@ mime_generate_attachment_headers (const char *type,
       charset.Assign(bodyCharset);
     else
     {
-      charset.Assign(nsMsgI18NFileSystemCharset());
+      charset = nsMsgI18NFileSystemCharset();
       if (!nsMsgI18Ncheck_data_in_charset_range(charset.get(), realName.get()))
         charset.AssignLiteral("UTF-8"); // set to UTF-8 if fails again
     }
@@ -980,7 +980,7 @@ RFC2231ParmFolding(const char *parmName, const nsCString& charset,
   if (!NS_IsAscii(parmValue.get()) || is7bitCharset(charset)) {
     needEscape = true;
     nsAutoCString nativeParmValue;
-    ConvertFromUnicode(charset.get(), parmValue, nativeParmValue);
+    nsMsgI18NConvertFromUnicode(charset, parmValue, nativeParmValue);
     MsgEscapeString(nativeParmValue, nsINetUtil::ESCAPE_ALL, dupParm);
   }
   else {

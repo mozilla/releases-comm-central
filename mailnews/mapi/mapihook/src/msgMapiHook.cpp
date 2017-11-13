@@ -482,7 +482,9 @@ nsresult nsMapiHook::HandleAttachments (nsIMsgCompFields * aCompFields, int32_t 
                 if (aIsUnicode)
                     wholeFileName.Assign(aFiles[i].lpszFileName);
                 else
-                    ConvertToUnicode(nsMsgI18NFileSystemCharset(), (char *) aFiles[i].lpszFileName, wholeFileName);
+                    nsMsgI18NConvertToUnicode(nsMsgI18NFileSystemCharset(),
+                                              nsDependentCString((char *) aFiles[i].lpszFileName),
+                                              wholeFileName);
                 // need to find the last '\' and find the leafname from that.
                 int32_t lastSlash = wholeFileName.RFindChar(char16_t('\\'));
                 if (lastSlash != kNotFound)
@@ -605,8 +607,10 @@ nsresult nsMapiHook::PopulateCompFieldsWithConversion(lpnsMapiMessage aMessage,
   {
     nsAutoString Subject ;
     if (platformCharSet.IsEmpty())
-      platformCharSet.Assign(nsMsgI18NFileSystemCharset());
-    rv = ConvertToUnicode(platformCharSet.get(), (char *) aMessage->lpszSubject, Subject);
+      platformCharSet = nsMsgI18NFileSystemCharset();
+    rv = nsMsgI18NConvertToUnicode(platformCharSet,
+                                   nsDependentCString((char *) aMessage->lpszSubject),
+                                   Subject);
     if (NS_FAILED(rv)) return rv;
     aCompFields->SetSubject(Subject);
   }
@@ -620,8 +624,10 @@ nsresult nsMapiHook::PopulateCompFieldsWithConversion(lpnsMapiMessage aMessage,
   {
     nsAutoString Body ;
     if (platformCharSet.IsEmpty())
-      platformCharSet.Assign(nsMsgI18NFileSystemCharset());
-    rv = ConvertToUnicode(platformCharSet.get(), (char *) aMessage->lpszNoteText, Body);
+      platformCharSet = nsMsgI18NFileSystemCharset();
+    rv = nsMsgI18NConvertToUnicode(platformCharSet,
+                                   nsDependentCString((char *) aMessage->lpszNoteText),
+                                   Body);
     if (NS_FAILED(rv)) return rv ;
     if (Body.IsEmpty() || Body.Last() != '\n')
       Body.AppendLiteral(CRLF);

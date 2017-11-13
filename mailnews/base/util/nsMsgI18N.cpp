@@ -33,8 +33,8 @@
 // International functions necessary for composition
 //
 
-nsresult nsMsgI18NConvertFromUnicode(const char* aCharset,
-                                     const nsString& inString,
+nsresult nsMsgI18NConvertFromUnicode(const nsACString& aCharset,
+                                     const nsAString& inString,
                                      nsACString& outString,
                                      bool aReportUencNoMapping)
 {
@@ -43,7 +43,7 @@ nsresult nsMsgI18NConvertFromUnicode(const char* aCharset,
     return NS_OK;
   }
 
-  auto encoding = mozilla::Encoding::ForLabelNoReplacement(nsDependentCString(aCharset));
+  auto encoding = mozilla::Encoding::ForLabelNoReplacement(aCharset);
   if (!encoding) {
     return NS_ERROR_UCONV_NOCONV;
   } else if (encoding == UTF_16LE_ENCODING || encoding == UTF_16BE_ENCODING) {
@@ -63,24 +63,24 @@ nsresult nsMsgI18NConvertFromUnicode(const char* aCharset,
   return rv;
 }
 
-nsresult nsMsgI18NConvertToUnicode(const char* aCharset,
-                                   const nsCString& inString,
+nsresult nsMsgI18NConvertToUnicode(const nsACString& aCharset,
+                                   const nsACString& inString,
                                    nsAString& outString)
 {
   if (inString.IsEmpty()) {
     outString.Truncate();
     return NS_OK;
   }
-  else if (!*aCharset) {
+  else if (aCharset.IsEmpty()) {
     // Despite its name, it also works for Latin-1.
     CopyASCIItoUTF16(inString, outString);
     return NS_OK;
   }
-  else if (!PL_strcasecmp(aCharset, "UTF-8")) {
+  else if (aCharset.Equals("UTF-8", nsCaseInsensitiveCStringComparator())) {
     return UTF_8_ENCODING->DecodeWithBOMRemoval(inString, outString);
   }
 
-  auto encoding = mozilla::Encoding::ForLabelNoReplacement(nsDependentCString(aCharset));
+  auto encoding = mozilla::Encoding::ForLabelNoReplacement(aCharset);
   if (!encoding)
     return NS_ERROR_UCONV_NOCONV;
   return encoding->DecodeWithoutBOMHandlingAndWithoutReplacement(inString,
@@ -125,7 +125,7 @@ nsresult CopyMUTF7toUTF16(const nsCString& aSrc, nsAString& aDest)
 }
 
 // Charset used by the file system.
-const char * nsMsgI18NFileSystemCharset()
+const nsACString& nsMsgI18NFileSystemCharset()
 {
   /* Get a charset used for the file. */
   static nsAutoCString fileSystemCharset;
@@ -133,7 +133,7 @@ const char * nsMsgI18NFileSystemCharset()
   if (fileSystemCharset.IsEmpty())
     mozilla::dom::FallbackEncoding::FromLocale()->Name(fileSystemCharset);
 
-  return fileSystemCharset.get();
+  return fileSystemCharset;
 }
 
 // Charset used by the text file.
@@ -149,8 +149,9 @@ char * nsMsgI18NEncodeMimePartIIStr(const char *header, bool structured, const c
   // No MIME, convert to the outgoing mail charset.
   if (false == usemime) {
     nsAutoCString convertedStr;
-    if (NS_SUCCEEDED(ConvertFromUnicode(charset, NS_ConvertUTF8toUTF16(header),
-                                        convertedStr)))
+    if (NS_SUCCEEDED(nsMsgI18NConvertFromUnicode(nsDependentCString(charset),
+                                                 NS_ConvertUTF8toUTF16(header),
+                                                 convertedStr)))
       return PL_strdup(convertedStr.get());
     else
       return PL_strdup(header);
@@ -329,7 +330,7 @@ nsresult nsMsgI18NShrinkUTF8Str(const nsCString &inString,
 }
 
 void nsMsgI18NConvertRawBytesToUTF16(const nsCString& inString,
-                                     const char* charset,
+                                     const nsACString& charset,
                                      nsAString& outString)
 {
   if (MsgIsUTF8(inString))
@@ -338,7 +339,7 @@ void nsMsgI18NConvertRawBytesToUTF16(const nsCString& inString,
     return;
   }
 
-  nsresult rv = ConvertToUnicode(charset, inString, outString);
+  nsresult rv = nsMsgI18NConvertToUnicode(charset, inString, outString);
   if (NS_SUCCEEDED(rv))
     return;
 
@@ -355,7 +356,7 @@ void nsMsgI18NConvertRawBytesToUTF16(const nsCString& inString,
 }
 
 void nsMsgI18NConvertRawBytesToUTF8(const nsCString& inString,
-                                    const char* charset,
+                                    const nsACString& charset,
                                     nsACString& outString)
 {
   if (MsgIsUTF8(inString))
@@ -365,7 +366,7 @@ void nsMsgI18NConvertRawBytesToUTF8(const nsCString& inString,
   }
 
   nsAutoString utf16Text;
-  nsresult rv = ConvertToUnicode(charset, inString, utf16Text);
+  nsresult rv = nsMsgI18NConvertToUnicode(charset, inString, utf16Text);
   if (NS_SUCCEEDED(rv))
   {
     CopyUTF16toUTF8(utf16Text, outString);

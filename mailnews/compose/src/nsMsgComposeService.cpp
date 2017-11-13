@@ -749,7 +749,7 @@ NS_IMETHODIMP nsMsgTemplateReplyHelper::OnStopRunningUrl(nsIURI *aUrl, nsresult 
   rv = mTemplateHdr->GetCharset(getter_Copies(charset));
   NS_ENSURE_SUCCESS(rv, rv);
   compFields->SetCharacterSet(charset.get());
-  rv = nsMsgI18NConvertToUnicode(charset.get(), mTemplateBody, body);
+  rv = nsMsgI18NConvertToUnicode(charset, mTemplateBody, body);
   NS_WARNING_ASSERTION(NS_SUCCEEDED(rv), "couldn't convert templ body to unicode");
   compFields->SetBody(body);
 

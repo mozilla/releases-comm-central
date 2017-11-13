@@ -1494,7 +1494,7 @@ nsMsgNewsFolder::GetRawName(nsACString & aRawName)
     nsAutoCString dataCharset;
     rv = nntpServer->GetCharset(dataCharset);
     NS_ENSURE_SUCCESS(rv,rv);
-    rv = nsMsgI18NConvertFromUnicode(dataCharset.get(), name, mRawName);
+    rv = nsMsgI18NConvertFromUnicode(dataCharset, name, mRawName);
 
     if (NS_FAILED(rv))
       LossyCopyUTF16toASCII(name, mRawName);
