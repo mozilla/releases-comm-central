@@ -3776,8 +3776,8 @@ function addRecipientsToIgnoreList(aAddressesToAdd)
 }
 
 /**
- * Observer waiting for spell checker to become initialized or done checking.
- * When it fires, it pushes new words to be ignored to the speller.
+ * Observer waiting for spell checker to become initialized or to complete
+ * checking. When it fires, it pushes new words to be ignored to the speller.
  */
 var spellCheckReadyObserver =
 {
