@@ -264,9 +264,6 @@ etagsHandler.prototype = {
         }
     },
 
-    startPrefixMapping: function(aPrefix, aUri) { },
-    endPrefixMapping: function(aPrefix) { },
-    ignorableWhitespace: function(aWhiteSpace) { },
     processingInstruction: function(aTarget, aData) { }
 };
 
@@ -628,9 +625,6 @@ webDavSyncHandler.prototype = {
         }
     },
 
-    startPrefixMapping: function(aPrefix, aUri) { },
-    endPrefixMapping: function(aPrefix) { },
-    ignorableWhitespace: function(aWhiteSpace) { },
     processingInstruction: function(aTarget, aData) { }
 };
 
@@ -946,8 +940,5 @@ multigetSyncHandler.prototype = {
         }
     },
 
-    startPrefixMapping: function(aPrefix, aUri) { },
-    endPrefixMapping: function(aPrefix) { },
-    ignorableWhitespace: function(aWhiteSpace) { },
     processingInstruction: function(aTarget, aData) { }
 };

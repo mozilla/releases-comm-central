@@ -438,20 +438,17 @@ XMPPParser.prototype = {
   },
 
   processingInstruction: function(aTarget, aData) { },
-  ignorableWhitespace: function(aWhitespace) { },
-  startPrefixMapping: function(aPrefix, aUri) { },
-  endPrefixMapping: function(aPrefix) { },
 
   /* nsISAXErrorHandler implementation */
-  error: function(aLocator, aError) {
+  error: function(aError) {
     if (this._listener)
       this._listener.onXMLError("parse-error", aError);
   },
-  fatalError: function(aLocator, aError) {
+  fatalError: function(aError) {
     if (this._listener)
       this._listener.onXMLError("parse-fatal-error", aError);
   },
-  ignorableWarning: function(aLocator, aError) {
+  ignorableWarning: function(aError) {
     if (this._listener)
       this._listener.onXMLError("parse-warning", aError);
   },
