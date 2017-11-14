@@ -1,10 +1,13 @@
 . "$topsrcdir/build/mozconfig.comm-support"
-. "$topsrcdir/build/mozconfig.win-common"
-. "$topsrcdir/build/mozconfig.common"
-. "$topsrcdir/build/mozconfig.stylo"
-. "$topsrcdir/build/win32/mozconfig.vs-latest"
-. "$topsrcdir/suite/config/mozconfigs/mozconfig.win.common"
-. "$topsrcdir/suite/config/mozconfigs/common"
+
+TOOLTOOL_DIR=${TOOLTOOL_DIR:-$topsrcdir/$commreltopsrcdir}
+
+. "$TOOLTOOL_DIR/build/mozconfig.win-common"
+. "$TOOLTOOL_DIR/build/mozconfig.common"
+. "$TOOLTOOL_DIR/build/mozconfig.stylo"
+. "$TOOLTOOL_DIR/build/win32/mozconfig.vs-latest"
+. "$TOOLTOOL_DIR/suite/config/mozconfigs/mozconfig.win.common"
+. "$TOOLTOOL_DIR/suite/config/mozconfigs/common"
 
 ac_add_options --enable-application=suite
 ac_add_options --enable-update-channel=${MOZ_UPDATE_CHANNEL}
