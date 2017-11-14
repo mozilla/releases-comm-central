@@ -3487,7 +3487,9 @@
 
 <statusbar class="chromeclass-status" id="status-bar">
   <hbox insertbefore="unreadMessageCount"  id="statusTextBox" ondblclick="openActivityMgr();" flex="1">
-    <statusbarpanel id="offline-status" class="statusbarpanel-iconic" oncommand="MailOfflineMgr.toggleOfflineStatus();"/>
+    <statusbarpanel>
+      <toolbarbutton id="offline-status" oncommand="MailOfflineMgr.toggleOfflineStatus();"/>
+    </statusbarpanel>
     <statusbarpanel id="statusText" label="&statusText.label;" flex="1"/>
     <statusbarpanel class="statusbarpanel-progress" collapsed="true" id="statusbar-progresspanel">
       <progressmeter class="progressmeter-statusbar" id="statusbar-icon" mode="normal" value="0"/>

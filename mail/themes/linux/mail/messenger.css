@@ -582,6 +582,10 @@ menulist[editable="true"] > .menulist-dropmarker {
 
 /* Status panel */
 
+.statusbarpanel-iconic {
+  padding: 0 1px;
+}
+
 .statuspanel-label {
   margin: 0;
   padding: 2px 4px;

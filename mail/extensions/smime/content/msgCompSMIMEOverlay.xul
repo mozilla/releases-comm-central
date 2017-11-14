@@ -65,9 +65,13 @@
 
   <statusbar id="status-bar">
     <statusbarpanel insertbefore="offline-status" class="statusbarpanel-iconic" collapsed="true"
-      id="signing-status" oncommand="showMessageComposeSecurityStatus();"/>
+      id="signing-status" oncommand="showMessageComposeSecurityStatus();">
+      <image/>
+    </statusbarpanel>
     <statusbarpanel insertbefore="offline-status" class="statusbarpanel-iconic" collapsed="true"
-      id="encryption-status" oncommand="showMessageComposeSecurityStatus();"/>
+      id="encryption-status" oncommand="showMessageComposeSecurityStatus();">
+      <image/>
+    </statusbarpanel>
   </statusbar>
 
   <commandset id="composeCommands">

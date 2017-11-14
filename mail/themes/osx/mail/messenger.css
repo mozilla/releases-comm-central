@@ -356,7 +356,7 @@ toolbar[mode="icons"] .toolbarbutton-1 > menupopup {
     list-style-image: url("chrome://messenger/skin/icons/online@2x.png");
   }
 
-  #offline-status > .statusbarpanel-icon {
+  #offline-status > .toolbarbutton-icon {
     width: 16px;
     height: 16px;
   }
@@ -500,6 +500,10 @@ button[type="menu-button"] > dropmarker {
 }
 
 /* Status panel */
+
+.statusbarpanel-iconic {
+  padding: 0;
+}
 
 .statuspanel-label {
   margin: 0;

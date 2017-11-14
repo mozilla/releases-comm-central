@@ -55,13 +55,14 @@ toolbar[printpreview="true"] {
 
 /* ::::: online/offline icons ::::: */
 
-#offline-status[offline="true"] {
-  list-style-image: url("chrome://messenger/skin/icons/offline.png");
-}
-
 #offline-status {
   padding: 0 2px;
   list-style-image: url("chrome://messenger/skin/icons/online.png");
+  -moz-appearance: none;
+}
+
+#offline-status[offline="true"] {
+  list-style-image: url("chrome://messenger/skin/icons/offline.png");
 }
 
 /* ::::: Notifications ::::: */
