@@ -49,8 +49,8 @@ function setupModule() {
     do_check_eq: function() {},
     do_check_neq: function() {},
   };
-  folderDisplayHelper.load_via_src_path("nntpd.js", testHelperModule);
-  folderDisplayHelper.load_via_src_path("maild.js", testHelperModule);
+  folderDisplayHelper.load_via_src_path("fakeserver/nntpd.js", testHelperModule);
+  folderDisplayHelper.load_via_src_path("fakeserver/maild.js", testHelperModule);
 }
 
 function installInto(module) {

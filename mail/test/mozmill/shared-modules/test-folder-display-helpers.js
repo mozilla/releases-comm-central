@@ -29,11 +29,10 @@ Cu.import('resource:///modules/mailViewManager.js');
 Cu.import("resource://gre/modules/Services.jsm");
 
 var FILE_LOAD_PATHS = [
-  "../resources",
-  "../../resources",
-  "../../../../mailnews/test/resources",
-  "../../../../mail/base/test/unit/resources",
-  "../../../../mailnews/test/fakeserver"
+  "../",
+  "../../",
+  "../../../../mailnews/test/",
+  "../../../../mail/base/test/unit/",
 ];
 
 /**
@@ -116,7 +115,7 @@ function setupModule() {
 
   // The xpcshell test resources assume they are loaded into a single global
   //  namespace, so we need to help them out to maintain their delusion.
-  load_via_src_path('logHelper.js', testHelperModule);
+  load_via_src_path('resources/logHelper.js', testHelperModule);
   mark_action = testHelperModule.mark_action;
   mark_failure = testHelperModule.mark_failure;
 
@@ -200,14 +199,14 @@ function setupModule() {
 
   // -- the rest of the asyncTestUtils framework (but not actually async)
 
-  load_via_src_path('asyncTestUtils.js', testHelperModule);
-  load_via_src_path('messageGenerator.js', testHelperModule);
-  load_via_src_path('messageModifier.js', testHelperModule);
-  load_via_src_path('messageInjection.js', testHelperModule);
-  load_via_src_path('viewWrapperTestUtils.js', testHelperModule);
+  load_via_src_path('resources/asyncTestUtils.js', testHelperModule);
+  load_via_src_path('resources/messageGenerator.js', testHelperModule);
+  load_via_src_path('resources/messageModifier.js', testHelperModule);
+  load_via_src_path('resources/messageInjection.js', testHelperModule);
+  load_via_src_path('resources/viewWrapperTestUtils.js', testHelperModule);
 
   // provide super helpful folder event info (when logHelper cares)
-  load_via_src_path('folderEventLogHelper.js', testHelperModule);
+  load_via_src_path('resources/folderEventLogHelper.js', testHelperModule);
   testHelperModule.registerFolderEventLogHelper();
 
   // messageInjection wants a gMessageGenerator (and so do we)

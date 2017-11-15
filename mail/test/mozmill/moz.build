@@ -10,7 +10,33 @@ TEST_HARNESS_FILES.mozmill += [
 ]
 
 TEST_HARNESS_FILES.mozmill.resources += [
-    '/%s/mail/base/test/unit/resources/**' % CONFIG['commreltopsrcdir'],
-    '/%s/mailnews/test/fakeserver/**' % CONFIG['commreltopsrcdir'],
-    '/%s/mailnews/test/resources/**' % CONFIG['commreltopsrcdir']
+    '/{}/mail/base/test/unit/resources/viewWrapperTestUtils.js'.format(CONFIG['commreltopsrcdir']),
 ]
+
+
+def mailnews_files(files, comm=CONFIG['commreltopsrcdir']):
+    return [
+        '/{comm}/mailnews/{file}'.format(
+            comm=comm,
+            file=file,
+        ) for file in files
+    ]
+
+TEST_HARNESS_FILES.mozmill.fakeserver += mailnews_files([
+    'test/fakeserver/auth.js',
+    'test/fakeserver/imapd.js',
+    'test/fakeserver/maild.js',
+    'test/fakeserver/nntpd.js',
+    'test/fakeserver/pop3d.js',
+    'test/fakeserver/smtpd.js',
+])
+
+
+TEST_HARNESS_FILES.mozmill.resources += mailnews_files([
+    'test/resources/asyncTestUtils.js',
+    'test/resources/folderEventLogHelper.js',
+    'test/resources/logHelper.js',
+    'test/resources/messageGenerator.js',
+    'test/resources/messageInjection.js',
+    'test/resources/messageModifier.js',
+])
