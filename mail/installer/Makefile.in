@@ -9,7 +9,7 @@ include $(moztopsrcdir)/config/rules.mk
 
 MOZ_PKG_REMOVALS = $(srcdir)/removed-files.in
 
-MOZ_PKG_MANIFEST_P = $(srcdir)/package-manifest.in
+MOZ_PKG_MANIFEST = $(srcdir)/package-manifest.in
 # Some files have been already bundled with xulrunner
 ifndef SYSTEM_LIBXUL
 MOZ_PKG_FATAL_WARNINGS = 1
@@ -120,13 +120,6 @@ ifdef MOZ_PREF_EXTENSIONS
 DEFINES += -DMOZ_PREF_EXTENSIONS=1
 endif
 
-ifdef MOZ_PKG_MANIFEST_P
-MOZ_PKG_MANIFEST = package-manifest
-
-$(MOZ_PKG_MANIFEST): $(MOZ_PKG_MANIFEST_P) $(GLOBAL_DEPS)
-	$(call py_action,preprocessor,$(DEFINES) $(ACDEFINES) $< -o $@)
-endif
-
 ifeq (cocoa,$(MOZ_WIDGET_TOOLKIT))
 MOZ_PKG_MAC_DSSTORE=branding/dsstore
 MOZ_PKG_MAC_BACKGROUND=branding/background.png
@@ -194,12 +187,10 @@ FINDPATH=bin
 endif
 
 package-compare:: $(MOZ_PKG_MANIFEST)
-ifdef MOZ_PKG_MANIFEST_P
 	cd $(DIST); find $(PKGCOMP_FIND_OPTS) $(FINDPATH) -type f | sort > bin-list.txt
-	grep '^$(BINPATH)' $(MOZ_PKG_MANIFEST) | sed -e 's/^\///' | sort > $(DIST)/pack-list.txt
+	$(call py_action,preprocessor,$(DEFINES) $(ACDEFINES) $(MOZ_PKG_MANIFEST)) | grep '^$(BINPATH)' | sed -e 's/^\///' | sort > $(DIST)/pack-list.txt
 	-diff -u $(DIST)/pack-list.txt $(DIST)/bin-list.txt
 	rm -f $(DIST)/pack-list.txt $(DIST)/bin-list.txt
-endif
 
 installer::
 ifdef INSTALLER_DIR
