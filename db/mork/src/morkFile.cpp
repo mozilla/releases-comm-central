@@ -28,6 +28,8 @@
 #include <windows.h>
 #endif
 
+#include "mozilla/Unused.h"
+
 //3456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789
 
 
@@ -651,7 +653,7 @@ morkStdioFile::Write(nsIMdbEnv* mdbev, const void* inBuf, mork_size inSize, mork
     FILE* file = (FILE*) mStdioFile_File;
     if ( file )
     {
-      fwrite(inBuf, 1, inSize, file);
+      mozilla::Unused << fwrite(inBuf, 1, inSize, file);
       if ( !ferror(file) )
         outCount = inSize;
       else
