@@ -68,7 +68,6 @@
 #include "nsICharsetDetectionObserver.h"
 #include "nsICharsetDetector.h"
 #include "nsILineInputStream.h"
-#include "nsIPlatformCharset.h"
 #include "nsIParserUtils.h"
 #include "nsICharsetConverterManager.h"
 #include "nsIDocumentEncoder.h"

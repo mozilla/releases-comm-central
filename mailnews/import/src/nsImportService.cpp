@@ -4,7 +4,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "nsICharsetConverterManager.h"
-#include "nsIPlatformCharset.h"
 #include "nsICharsetConverterManager.h"
 
 #include "nsString.h"
