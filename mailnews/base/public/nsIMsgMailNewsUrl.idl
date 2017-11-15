@@ -22,7 +22,7 @@ interface nsIMsgDBHdr;
 interface nsIDocShellLoadInfo;
 interface nsIDocShell; 
 
-[scriptable, uuid(995455ba-5bb4-4643-8d70-2b877a2e1320)]
+[scriptable, builtinclass, uuid(995455ba-5bb4-4643-8d70-2b877a2e1320)]
 interface nsIMsgMailNewsUrl : nsIURL {
   ///////////////////////////////////////////////////////////////////////////////
   // Eventually we'd like to push this type of functionality up into nsIURI.

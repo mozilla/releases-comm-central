@@ -18,7 +18,7 @@
  * they can only be of a limited subset of ASCII (see RFC 2251).
  */
 
-[scriptable, uuid(8e3a6d33-2e68-40ba-8f94-6ac03f69066e)]
+[scriptable, builtinclass, uuid(8e3a6d33-2e68-40ba-8f94-6ac03f69066e)]
 interface nsILDAPURL : nsIURI {
     /**
      * Initialize an LDAP URL
