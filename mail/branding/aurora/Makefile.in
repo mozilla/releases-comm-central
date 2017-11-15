@@ -27,6 +27,8 @@ ifneq (,$(filter gtk%,$(MOZ_WIDGET_TOOLKIT)))
 	cp $(srcdir)/mailicon24.png  $(DIST)/branding/default24.png
 	cp $(srcdir)/mailicon32.png  $(DIST)/branding/default32.png
 	cp $(srcdir)/mailicon48.png  $(DIST)/branding/default48.png
+	cp $(srcdir)/mailicon64.png  $(DIST)/branding/default64.png
+	cp $(srcdir)/mailicon128.png $(DIST)/branding/default128.png
 	cp $(srcdir)/mailicon256.png $(DIST)/branding/default256.png
 endif
 

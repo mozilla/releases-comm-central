@@ -17,6 +17,7 @@ chrome/classic/skin/classic/messenger/icons/security.svg
 chrome/classic/skin/classic/messenger/icons/spelling.svg
 chrome/classic/skin/classic/messenger/icons/tag.svg
 chrome/messenger/content/branding/icon48.png
+chrome/messenger/content/branding/icon64.png
 chrome/messenger/content/messenger/cloudfile/Box/management.js
 chrome/messenger/content/messenger/cloudfile/Hightail/management.js
 chrome/messenger/skin/classic/messenger/messages/simple/Variants/Normal.css
@@ -33,6 +34,7 @@ chrome/messenger/skin/classic/messenger/messages/mail/Bitmaps/minus-hover.png
 chrome/devtools/modules/devtools/client/themes/splitters.css
 chrome/devtools/skin/splitters.css
 chrome/icons/default/default48.png
+chrome/icons/default/default64.png
 # calendar addon
 extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/skin/common/icons/address.svg
 extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/skin/common/icons/attach.svg
