@@ -2659,7 +2659,6 @@
         <body><![CDATA[
             aSubject.QueryInterface(Components.interfaces.nsIPrefBranch);
             switch (aPreference) {
-
                 case "calendar.view.daystarthour":
                     this.setDayStartEndMinutes(aSubject.getIntPref(aPreference) * 60,
                                                this.mDayEndMin);

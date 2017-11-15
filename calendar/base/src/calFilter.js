@@ -208,7 +208,6 @@ calFilter.prototype = {
         }
 
         switch (aFilter) {
-
             // Predefined Task filters
             case "notstarted":
                 props.status = props.FILTER_STATUS_INCOMPLETE;

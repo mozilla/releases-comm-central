@@ -155,7 +155,7 @@ module.exports = {
         // Disallow use of multiple spaces (sometimes used to align const values,
         // array or object items, etc.). It's hard to maintain and doesn't add that
         // much benefit.
-        "no-multi-spaces": 2,
+        "no-multi-spaces": [2, { ignoreEOLComments: true }],
 
         // Require spaces around operators, except for a|0.
         // Disabled for now given eslint doesn't support default args yet
@@ -475,7 +475,7 @@ module.exports = {
         "no-case-declarations": 2,
 
         // Enforce consistent indentation (4-space)
-        "indent": [2, 4, { SwitchCase: 1 }],
+        "indent-legacy": [2, 4, { SwitchCase: 1, }],
 
         // The following rules will not be enabled currently, but are kept here for
         // easier updates in the future.

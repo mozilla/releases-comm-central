@@ -320,14 +320,14 @@ calItipEmailTransport.prototype = {
                                             account.key,
                                             composeFields,
                                             mailFile,
-                                            true  /* deleteSendFileOnCompletion */,
-                                            false /* digest_p */,
+                                            true,  // deleteSendFileOnCompletion
+                                            false, // digest_p
                                             (Services.io.offline ? Components.interfaces.nsIMsgSend.nsMsgQueueForLater
                                                     : Components.interfaces.nsIMsgSend.nsMsgDeliverNow),
-                                            null  /* nsIMsgDBHdr msgToReplace */,
-                                            null  /* nsIMsgSendListener aListener */,
-                                            null  /* nsIMsgStatusFeedback aStatusFeedback */,
-                                            ""    /* password */);
+                                            null,  // nsIMsgDBHdr msgToReplace
+                                            null,  // nsIMsgSendListener aListener
+                                            null,  // nsIMsgStatusFeedback aStatusFeedback
+                                            "");   // password
                     return true;
                 }
                 break;

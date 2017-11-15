@@ -437,7 +437,6 @@ var calendarController = {
                     // care. If we don't have a default controller, just continue.
                     this.defaultController.doCommand(aCommand);
                 }
-
         }
     },
 
