@@ -25,6 +25,7 @@
 #include "nsMemory.h"
 #include <ctype.h>
 #include "nsMsgUtils.h"
+#include "mozilla/Unused.h"
 
 // Forward declares...
 int32_t MimeHeaders_build_heads_list(MimeHeaders *hdrs);
@@ -779,7 +780,7 @@ MimeHeaders_do_unix_display_hook_hack(MimeHeaders *hdrs)
     FILE *fp = popen(cmd, "w");
     if (fp)
     {
-      fwrite(hdrs->all_headers, 1, hdrs->all_headers_fp, fp);
+      mozilla::Unused << fwrite(hdrs->all_headers, 1, hdrs->all_headers_fp, fp);
       pclose(fp);
     }
   }
