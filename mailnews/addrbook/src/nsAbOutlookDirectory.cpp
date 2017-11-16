@@ -31,9 +31,11 @@ static mozilla::LazyLogModule gAbOutlookDirectoryLog("nsAbOutlookDirectoryLog");
 #define PRINTF(args) MOZ_LOG(gAbOutlookDirectoryLog, mozilla::LogLevel::Debug, args)
 
 nsAbOutlookDirectory::nsAbOutlookDirectory(void)
-  : nsAbDirProperty(),
-  mCurrentQueryId(0), mSearchContext(-1),
-  mAbWinType(nsAbWinType_Unknown), mMapiData(nullptr)
+  : nsAbDirProperty()
+  , mMapiData(nullptr)
+  , mCurrentQueryId(0)
+  , mSearchContext(-1)
+  , mAbWinType(nsAbWinType_Unknown)
 {
     mMapiData = new nsMapiEntry ;
     mProtector = PR_NewLock() ;
