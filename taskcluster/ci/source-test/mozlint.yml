@@ -8,12 +8,8 @@ eslint:
     worker-type: aws-provisioner-v1/gecko-t-linux-xlarge
     worker:
         docker-image:
-          indexed: "docker.images.v2.level-3.lint.latest"
+          in-tree: "lint"
         max-run-time: 1800
-        # FIXME: https://bugzilla.mozilla.org/show_bug.cgi?id=1408574
-        volumes:
-        - /builds/worker/checkouts
-        - /builds/worker/.cache
     run:
         using: run-task
         comm-checkout: true

@@ -1,3 +1,4 @@
+trust-domain: comm
 treeherder:
     group-names:
         'tc': 'Executed by TaskCluster'

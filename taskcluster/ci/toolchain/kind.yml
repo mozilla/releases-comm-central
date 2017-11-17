@@ -1,0 +1,19 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+loader: comm_taskgraph:reference_loader
+base-path: taskcluster/ci
+
+jobs:
+    - linux64-clang-3.9
+    - linux64-gcc
+    - linux64-rust
+    - linux64-sccache
+    - linux64-gcc-4.9
+    - linux64-rust-1.19
+    - win32-clang-cl
+    - win32-rust
+    - win64-sccache
+    - win64-rust-1.19
+    - win33-clang-cl
