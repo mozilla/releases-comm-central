@@ -8,7 +8,6 @@ ac_add_options --with-l10n-base=../../l10n
 # Build lightning locales
 ac_add_options --enable-calendar
 
-ac_add_options "MOZ_ALLOW_LEGACY_EXTENSIONS=1"
 # Disable checking that add-ons are signed by the trusted root
 MOZ_ADDON_SIGNING=0
 # Disable enforcing that add-ons are signed by the trusted root
