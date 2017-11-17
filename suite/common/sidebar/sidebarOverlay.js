@@ -841,7 +841,10 @@ function check_for_missing_panels() {
         try {
           channel.open();
         }
-        catch(ex if (ex.result == Components.results.NS_ERROR_FILE_NOT_FOUND)) {
+        catch (ex) {
+          if (ex.result != Components.results.NS_ERROR_FILE_NOT_FOUND) {
+            throw ex;
+          }
           sidebarObj.datasource.Assert(RDF.GetResource(currHeader.getAttribute("id")),
                                        RDF.GetResource(NC + "exclude"),
                                        RDF.GetLiteral(sidebarObj.component),

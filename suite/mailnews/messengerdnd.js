@@ -174,8 +174,12 @@ function DropOnFolderTree(aRow, aOrientation)
                                  msgWindow);
       }
       // Ignore known errors from canceled warning dialogs.
-      catch (ex if (ex.result == NS_MSG_FOLDER_EXISTS)) {}
-      catch (ex if (ex.result == NS_MSG_ERROR_COPY_FOLDER_ABORTED)) {}
+      catch (ex) {
+          if (ex.result != NS_MSG_FOLDER_EXISTS &&
+              ex.result != NS_MSG_ERROR_COPY_FOLDER_ABORTED) {
+              throw ex;
+          }
+      }
     }
   }
   else if (types.includes("text/x-moz-newsfolder"))

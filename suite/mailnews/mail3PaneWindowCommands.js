@@ -983,7 +983,11 @@ function MsgDeleteFolder()
                     selectedFolder.parent.deleteSubFolders(array, msgWindow);
                 }
                 // Ignore known errors from canceled warning dialogs.
-                catch (ex if (ex.result == NS_MSG_ERROR_COPY_FOLDER_ABORTED)) {}
+                catch (ex) {
+                  if (ex.result != NS_MSG_ERROR_COPY_FOLDER_ABORTED) {
+                    throw ex;
+                  }
+                }
             }
         }
     }

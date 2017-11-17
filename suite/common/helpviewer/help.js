@@ -236,10 +236,12 @@ function loadHelpRDF() {
   if (!helpFileDS) {
     try {
       helpFileDS = RDF.GetDataSourceBlocking(helpFileURI);
-    } catch (e if (e.result == NSRESULT_RDF_SYNTAX_ERROR)) {
-      log("Help file: " + helpFileURI + " contains a syntax error.");
     } catch (e) {
-      log("Help file: " + helpFileURI + " was not found.");
+      if (e.result == NSRESULT_RDF_SYNTAX_ERROR) {
+        log("Help file: " + helpFileURI + " contains a syntax error.");
+      } else {
+        log("Help file: " + helpFileURI + " was not found.");
+      }
     }
 
     try {
