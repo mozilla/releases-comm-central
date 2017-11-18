@@ -75,6 +75,10 @@ notification[type="warning"] {
   background: #ffc;
 }
 
+notification[value="draftMsgContent"] .messageImage {
+  list-style-image: url("chrome://messenger/skin/icons/newmsg.svg");
+}
+
 /* ::::: searchTermOverlay ::::: */
 
 #searchTermList > listitem[highlight = "true"] {
