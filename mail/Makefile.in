@@ -8,7 +8,7 @@ ifdef ENABLE_TESTS
 
 check-sync-dirs::
 	@$(PYTHON) $(commtopsrcdir)/mail/check-sync-dirs.py \
-	   $(topsrcdir)/build $(moztopsrcdir)/build
+	   $(commtopsrcdir)/build $(moztopsrcdir)/build
 	@$(PYTHON) $(commtopsrcdir)/mail/check-sync-dirs.py \
 	   $(srcdir)/config/tooltool-manifests $(moztopsrcdir)/browser/config/tooltool-manifests
 
