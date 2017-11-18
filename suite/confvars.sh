@@ -45,7 +45,6 @@ fi
 MOZ_DEVTOOLS=all
 
 # Bundled extensions Lightning Chatzilla DOM Inspector and debugQA
-MOZ_CALENDAR=1
 MOZ_IRC=1
 MOZ_DOMINSPECTOR=1
 

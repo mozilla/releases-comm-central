@@ -12,7 +12,9 @@ imply_option('MOZ_ALLOW_LEGACY_EXTENSIONS', True)
 def is_comm_topdir(app):
     return not app[0].startswith('comm/')
 
+
 set_config('MOZ_IS_COMM_TOPDIR', is_comm_topdir)
+
 
 @depends(is_comm_topdir)
 def toolkit_configure(is_comm_topdir):
@@ -21,4 +23,6 @@ def toolkit_configure(is_comm_topdir):
     else:
         return '../../toolkit/moz.configure'
 
+
+include('../mailnews/moz.configure')
 include(toolkit_configure)

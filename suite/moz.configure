@@ -8,6 +8,8 @@ imply_option('MOZ_PLACES', True)
 imply_option('MOZ_SERVICES_SYNC', True)
 imply_option('MOZ_ALLOW_LEGACY_EXTENSIONS', True)
 
+imply_option('--enable-calendar', True)
+
 
 @depends(application)
 def is_comm(app):
@@ -21,4 +23,6 @@ def toolkit_configure(is_comm):
     else:
         return '../mozilla/toolkit/moz.configure'
 
+
+include('../mailnews/moz.configure')
 include(toolkit_configure)

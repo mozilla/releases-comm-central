@@ -1,0 +1,53 @@
+# -*- Mode: python; c-basic-offset: 4; indent-tabs-mode: nil; tab-width: 40 -*-
+# vim: set filetype=python:
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+
+# =========================================================
+# = Lightning extension
+# =========================================================
+option('--enable-calendar',
+       help='Enable building of the Lightning calendar extension')
+
+
+@depends_if('--enable-calendar')
+def calendar(arg):
+    return True
+
+
+set_config('MOZ_CALENDAR', calendar)
+
+# =========================================================
+# = LDAP
+# =========================================================
+option('--disable-ldap',
+       help='Disable LDAP support')
+
+
+@depends_if('--enable-ldap')
+def ldap(arg):
+    return True
+
+
+set_config('MOZ_LDAP_XPCOM', ldap)
+set_define('MOZ_LDAP_XPCOM', ldap)
+
+# =========================================================
+# = MAPI support (Windows only)
+# =========================================================
+
+option('--disable-mapi',
+       help='Disable MAPI support',
+       when=target_is_windows)
+
+
+@depends_if('--enable-mapi',
+            when=target_is_windows)
+def mapi_support(arg):
+    return True
+
+
+set_config('MOZ_MAPI_SUPPORT', mapi_support)
+set_define('MOZ_MAPI_SUPPORT', mapi_support)
