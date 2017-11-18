@@ -1,0 +1,10 @@
+---
+extends: default
+
+rules:
+  document-end:
+     present: false
+  document-start:
+     present: false
+  # Checks currently failing
+  line-length: disable

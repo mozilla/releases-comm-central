@@ -1,3 +1,7 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
 job-defaults:
     always-target: true
     treeherder:
@@ -7,6 +11,9 @@ job-defaults:
     worker:
         docker-image: {in-tree: "lint"}
         max-run-time: 1800
+    run:
+        using: mach
+        comm-checkout: true
 
 eslint:
     description: JS lint check
@@ -15,7 +22,6 @@ eslint:
         symbol: ES
     run:
         using: run-task
-        comm-checkout: true
         command: >
             cd /builds/worker/checkouts/gecko/ &&
             cp -r /build/node_modules_eslint node_modules &&
@@ -23,3 +29,19 @@ eslint:
             ln -s ../tools/lint/eslint/eslint-plugin-spidermonkey-js node_modules &&
             cd /builds/worker/checkouts/gecko/comm &&
             ../mach lint -f treeherder -l eslint --quiet
+
+yaml:
+    description: yamllint run over the taskcluster configuration
+    platform: lint/opt
+    treeherder:
+        symbol: yaml
+    run:
+        mach: lint -f treeherder -l yaml -n comm/taskcluster comm/.taskcluster.yml
+
+py-flake8:
+    description: flake8 run over the thunderbird codebase
+    platform: lint/opt
+    treeherder:
+        symbol: f8
+    run:
+        mach: lint -f treeherder -l flake8 -n comm/taskcluster
