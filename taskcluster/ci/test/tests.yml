@@ -1,0 +1,44 @@
+# Each stanza here describes a particular test suite or sub-suite.  These are
+# processed through the transformations described in kind.yml to produce a
+# bunch of tasks.  See the schema in `taskcluster/taskgraph/transforms/tests.py`
+# for a description of the fields used here.
+
+# Note that these are in lexical order, as enforced by the task loader.
+
+# Adding a new test type or running tests on a new platform? Be sure to review
+# https://wiki.mozilla.org/Sheriffing/Job_Visibility_Policy
+
+xpcshell:
+    description: "xpcshell test run"
+    suite: xpcshell
+    treeherder-symbol: tc-X(X)
+    run-on-projects: built-projects
+    docker-image:
+        in-tree: "desktop1604-test"
+    chunks:
+        by-test-platform:
+            linux32/debug: 8
+            linux64/debug: 8
+            default: 4
+    instance-size: default
+    max-run-time: 5400
+    e10s: false
+    allow-software-gl-layers: false
+    mozharness:
+        script: desktop_unittest.py
+        no-read-buildbot-config: true
+        config:
+            by-test-platform:
+                windows.*:
+                    - unittests/win_taskcluster_unittest.py
+                    - unittests/thunderbird_extra.py
+                macosx.*:
+                    - unittests/mac_unittest.py
+                    - unittests/thunderbird_extra.py
+                linux.*:
+                    - unittests/linux_unittest.py
+                    - remove_executables.py
+                    - unittests/thunderbird_extra.py
+        extra-options:
+            - "--xpcshell-suite=xpcshell"
+        requires-signed-builds: false
