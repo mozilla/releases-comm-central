@@ -1,0 +1,11 @@
+if [ "$MOZ_IS_COMM_TOPDIR" = "1" ]; then
+  ac_add_options --enable-application=mail
+else
+  ac_add_options --enable-application=comm/mail
+fi
+ac_add_options --enable-calendar
+
+if [ "$MOZ_IS_COMM_TOPDIR" = "1" ]; then
+  mk_add_options CLIENT_PY_ARGS="$([ -f "$topsrcdir/build/client.py-args" ] && cat "$topsrcdir/build/client.py-args")"
+  mk_add_options ALWAYS_RUN_CLIENT_PY=1
+fi
