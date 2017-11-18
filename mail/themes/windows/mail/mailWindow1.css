@@ -199,10 +199,6 @@ treechildren::-moz-tree-cell-text(imapdeleted) {
   visibility: collapse;
 }
 
-#titlebar-spacer {
-  pointer-events: none;
-}
-
 #titlebar-buttonbox {
   -moz-appearance: -moz-window-button-box;
   position: relative;
@@ -235,7 +231,7 @@ treechildren::-moz-tree-cell-text(imapdeleted) {
 }
 
 #messengerWindow[tabsintitlebar] .titlebar-placeholder[type="caption-buttons"] {
-  margin-left: 10px; /* additional space for Aero Snap */
+  margin-inline-start: 10px; /* additional space for Aero Snap */
 }
 
 #messengerWindow:not([tabsintitlebar]) .titlebar-placeholder {

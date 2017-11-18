@@ -168,6 +168,10 @@ toolbar[brighttext] {
       display: none;
     }
   }
+
+  :root[tabsintitlebar] .titlebar-placeholder[type="caption-buttons"] {
+    margin-inline-start: 10px;
+  }
 }
 
 toolbar:not(.inline-toolbar):not(:-moz-lwtheme) {

@@ -433,10 +433,6 @@ notification[value="addon-install-complete"] > button:active:hover {
   -moz-appearance: -moz-window-titlebar;
 }
 
-#titlebar-spacer {
-  pointer-events: none;
-}
-
 #messengerWindow:not([tabsintitlebar]) .titlebar-placeholder {
   visibility: collapse;
 }
