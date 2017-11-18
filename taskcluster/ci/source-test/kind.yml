@@ -10,4 +10,6 @@ transforms:
    - taskgraph.transforms.task:transforms
 
 jobs-from:
-   - mozlint.yml
+    # Disable linting jobs due to Bug 1418671
+    # - mozlint.yml
+    []
