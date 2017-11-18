@@ -85,6 +85,11 @@ imcontact {
   border: 1px dotted #F3D982;
 }
 
+.startChatBubble > .button-box > .button-icon,
+.closeConversationButton > .button-box > .button-icon {
+  margin-inline-end: 0;
+}
+
 .conv-hbox {
   -moz-box-align: center;
 }

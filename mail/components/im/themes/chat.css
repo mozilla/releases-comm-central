@@ -142,7 +142,6 @@ imcontact[aliasing] .contactDisplayName {
   padding: 0;
   border: none;
   background: transparent;
-  -moz-binding: url('chrome://global/content/bindings/button.xml#button-image');
   -moz-appearance: none;
   width: 16px;
   height: 16px;
@@ -159,11 +158,15 @@ imcontact[aliasing] .contactDisplayName {
   -moz-stack-sizing: ignore;
 }
 
-.closeConversationButton > .button-image-icon {
+.startChatBubble > .button-box,
+.closeConversationButton > .button-box {
+  padding: 0;
+}
+
+.closeConversationButton > .button-box > .button-icon {
   width: 16px;
   height: 16px;
 }
-
 
 /* From im/themes/conversation.css */
 .browser {
