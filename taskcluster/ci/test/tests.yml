@@ -19,6 +19,7 @@ xpcshell:
         by-test-platform:
             linux32/debug: 8
             linux64/debug: 8
+            macosx64.*: 2
             default: 4
     instance-size: default
     max-run-time: 5400
@@ -32,7 +33,7 @@ xpcshell:
                 windows.*:
                     - unittests/win_taskcluster_unittest.py
                     - unittests/thunderbird_extra.py
-                macosx.*:
+                macosx64.*:
                     - unittests/mac_unittest.py
                     - unittests/thunderbird_extra.py
                 linux.*:
@@ -54,6 +55,7 @@ mozmill:
         by-test-platform:
             linux32/debug: 8
             linux64/debug: 8
+            macosx64.*: 2
             default: 4
     instance-size: default
     max-run-time: 5400
@@ -67,7 +69,7 @@ mozmill:
                 windows.*:
                     - unittests/win_taskcluster_unittest.py
                     - unittests/thunderbird_extra.py
-                macosx.*:
+                macosx64.*:
                     - unittests/mac_unittest.py
                     - unittests/thunderbird_extra.py
                 linux.*:

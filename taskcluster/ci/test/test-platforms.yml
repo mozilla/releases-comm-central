@@ -24,3 +24,17 @@ linux64/debug:
     build-platform: linux64/debug
     test-sets:
         - common-tests
+
+
+##
+# MacOS X platforms (matching /macosx.*/)
+
+macosx64/debug:
+    build-platform: macosx64/debug
+    test-sets:
+        - common-tests
+
+macosx64/opt:
+    build-platform: macosx64/opt
+    test-sets:
+        - common-tests
