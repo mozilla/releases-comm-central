@@ -56,7 +56,7 @@ function progressAsyncStartup(aList) {
   var fSource = document.getElementById("fileSource");
   fName.label = gDownload.displayName;
   fName.tooltipText = gDownload.target.path;
-  var uri = Services.io.newURI(gDownload.source.url, null, null);
+  var uri = Services.io.newURI(gDownload.source.url);
   var fromString;
   try {
     fromString = uri.host;

@@ -49,7 +49,7 @@
       var ios = Cc["@mozilla.org/network/io-service;1"].
                 getService(Ci.nsIIOService);
       function uri(spec) {
-        return ios.newURI(spec, null, null);
+        return ios.newURI(spec);
       }
 
       var testURI = uri("http://www.mozilla.org/");

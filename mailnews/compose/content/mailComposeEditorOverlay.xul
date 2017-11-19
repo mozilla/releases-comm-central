@@ -118,7 +118,7 @@
     }
 
     function GenerateDataURL(url) {
-      var file = Services.io.newURI(url, null, null)
+      var file = Services.io.newURI(url)
         .QueryInterface(Components.interfaces.nsIFileURL).file;
       var contentType = Components.classes["@mozilla.org/mime;1"]
         .getService(Components.interfaces.nsIMIMEService)

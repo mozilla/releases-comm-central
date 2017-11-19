@@ -147,7 +147,7 @@ function test()
       var ios = Components.classes["@mozilla.org/network/io-service;1"]
                           .getService(Components.interfaces.nsIIOService);
       return (aObj instanceof Components.interfaces.nsIFile) ? ios.newFileURI(aObj) :
-                                            ios.newURI(aObj, null, null);
+                                            ios.newURI(aObj);
     }
 
     const nsIWBP = Components.interfaces.nsIWebBrowserPersist;

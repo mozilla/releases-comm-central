@@ -73,7 +73,7 @@
       var iosvc = Cc["@mozilla.org/network/io-service;1"].
                   getService(Ci.nsIIOService);
       function uri(spec) {
-        return iosvc.newURI(spec, null, null);
+        return iosvc.newURI(spec);
       }
 
       var midnight = new Date();

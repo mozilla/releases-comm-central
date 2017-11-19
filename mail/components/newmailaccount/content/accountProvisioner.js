@@ -38,7 +38,7 @@ function isAccel (event) { return isOSX && event.metaKey || event.ctrlKey; }
 function getLocalStorage(page) {
   var url = "chrome://content/messenger/accountProvisionerStorage/" + page;
 
-  var uri = Services.io.newURI(url, "");
+  var uri = Services.io.newURI(url);
   var principal = Services.scriptSecurityManager.createCodebasePrincipal(uri, {});
   return Services.domStorageManager.createStorage(null, principal, url);
 }

@@ -203,7 +203,7 @@ function test_properDownloadData(aWin)
     is(view.getCellText(i, colState), stateString,
        "Download states match up");
 
-    var filePath = ioSvc.newURI(DownloadData[i].target, null, null)
+    var filePath = ioSvc.newURI(DownloadData[i].target)
                         .QueryInterface(Components.interfaces.nsIFileURL)
                         .file.clone()
                         .QueryInterface(Components.interfaces.nsIFile)

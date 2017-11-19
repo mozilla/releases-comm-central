@@ -13,7 +13,7 @@
   function onAccept() {
     // If it's a file, convert to a data URL.
     if (gBackgroundImage && /^file:/i.test(gBackgroundImage)) {
-      let nsFile = Services.io.newURI(gBackgroundImage, null, null)
+      let nsFile = Services.io.newURI(gBackgroundImage)
         .QueryInterface(Components.interfaces.nsIFileURL).file;
       if (nsFile.exists()) {
         let reader = new FileReader();
