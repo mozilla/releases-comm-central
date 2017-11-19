@@ -2,12 +2,11 @@
 . "$topsrcdir/build/mozconfig.win-common"
 . "$topsrcdir/build/mozconfig.common"
 . "$topsrcdir/build/mozconfig.stylo"
+. "$commtopsrcdir/mail/config/mozconfigs/common"
 
-ac_add_options --enable-application=mail
-ac_add_options --enable-update-channel=${MOZ_UPDATE_CHANNEL}
+ac_add_options --enable-update-channel="${MOZ_UPDATE_CHANNEL}"
 ac_add_options --enable-jemalloc
 ac_add_options --enable-official-branding
-ac_add_options --enable-calendar
 
 # For NSS symbols
 export MOZ_DEBUG_SYMBOLS=1
@@ -31,11 +30,9 @@ export MOZ_PACKAGE_JSSHELL=1
 export INCLUDE=$INCLUDE:/c/Office\ 2010\ Developer\ Resources/Outlook\ 2010\ MAPI\ Headers
 mk_export_correct_style INCLUDE
 
-# Run client.py
-mk_add_options CLIENT_PY_ARGS="$([ -f $topsrcdir/build/client.py-args ] && cat $topsrcdir/build/client.py-args)"
-mk_add_options ALWAYS_RUN_CLIENT_PY=1
-
-# Use the TOOLTOOL provided xz for mar generation.
-mk_add_options "export XZ=$TOOLTOOL_DIR/xz/xz.exe"
+if [ "$MOZ_IS_COMM_TOPDIR" == "1" ]; then
+  # Use the TOOLTOOL provided xz for mar generation.
+  mk_add_options "export XZ=$TOOLTOOL_DIR/xz/xz.exe"
+fi
 
 mk_add_options "export SOCORRO_SYMBOL_UPLOAD_TOKEN_FILE=c:/builds/crash-stats-api.token"
