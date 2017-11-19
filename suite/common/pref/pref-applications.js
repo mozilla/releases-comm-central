@@ -841,11 +841,11 @@ var gApplicationsPane = {
     Services.prefs.addObserver(PREF_AUDIO_FEED_SELECTED_ACTION, this, false);
 
     // Listen for window unload so we can remove our preference observers.
-    window.addEventListener("unload", this, false);
+    window.addEventListener("unload", this);
 
     // Listen for user events on the listbox and its children
-    this._list.addEventListener("select", this, false);
-    this._list.addEventListener("command", this, false);
+    this._list.addEventListener("select", this);
+    this._list.addEventListener("command", this);
 
     // Figure out how we should be sorting the list.  We persist sort settings
     // across sessions, so we can't assume the default sort column/direction.
@@ -870,9 +870,9 @@ var gApplicationsPane = {
   },
 
   destroy: function() {
-    this._list.removeEventListener("command", this, false);
-    this._list.removeEventListener("select", this, false);
-    window.removeEventListener("unload", this, false);
+    this._list.removeEventListener("command", this);
+    this._list.removeEventListener("select", this);
+    window.removeEventListener("unload", this);
     Services.prefs.removeObserver(PREF_SHOW_PLUGINS_IN_LIST, this);
     Services.prefs.removeObserver(PREF_HIDE_PLUGINS_WITHOUT_EXTENSIONS, this);
     Services.prefs.removeObserver(PREF_FEED_SELECTED_APP, this);

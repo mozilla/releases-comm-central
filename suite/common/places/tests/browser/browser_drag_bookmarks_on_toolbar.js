@@ -89,22 +89,22 @@ function synthesizeDragWithDirection(aElement, aExpectedDragData, aDirection) {
                              startingPoint.x + xIncrement * 1,
                              startingPoint.y + yIncrement * 1,
                              { type: "mousemove" });
-  gBookmarksToolbar.addEventListener("dragstart", trapDrag, false);
+  gBookmarksToolbar.addEventListener("dragstart", trapDrag);
   EventUtils.synthesizeMouse(aElement,
                              startingPoint.x + xIncrement * 9,
                              startingPoint.y + yIncrement * 9,
                              { type: "mousemove" });
   ok(trapped, "A dragstart event has been trapped.");
-  gBookmarksToolbar.removeEventListener("dragstart", trapDrag, false);
+  gBookmarksToolbar.removeEventListener("dragstart", trapDrag);
 
   // This is likely to cause a click event, and, in case we are dragging a
   // bookmark, an unwanted page visit.  Prevent the click event.
-  aElement.addEventListener("click", prevent, false);
+  aElement.addEventListener("click", prevent);
   EventUtils.synthesizeMouse(aElement,
                              startingPoint.x + xIncrement * 9,
                              startingPoint.y + yIncrement * 9,
                              { type: "mouseup" });
-  aElement.removeEventListener("click", prevent, false);
+  aElement.removeEventListener("click", prevent);
 
   // Cleanup eventually opened menus.
   if (aElement.localName == "menu" && aElement.open)

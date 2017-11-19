@@ -1520,11 +1520,11 @@
 
     <implementation implements="nsIDOMEventListener">
       <constructor><![CDATA[
-        window.addEventListener("resize", this, false);
+        window.addEventListener("resize", this);
       ]]></constructor>
 
       <destructor><![CDATA[
-        window.removeEventListener("resize", this, false);
+        window.removeEventListener("resize", this);
         MousePosTracker.removeListener(this);
       ]]></destructor>
 
@@ -2104,14 +2104,14 @@
         // clear out the menu popup and remove the listeners
         while (this.hasChildNodes()) {
           var menuItem = this.lastChild;
-          menuItem.removeEventListener("command", this, false);
-          menuItem.tab.removeEventListener("TabClose", this, false);
+          menuItem.removeEventListener("command", this);
+          menuItem.tab.removeEventListener("TabClose", this);
           menuItem.tab.mCorrespondingMenuitem = null;
           menuItem.remove();
         }
         var tabcontainer = document.getBindingParent(this);
-        tabcontainer.mTabstrip.removeEventListener("scroll", this, false);
-        tabcontainer.removeEventListener("TabOpen", this, false);
+        tabcontainer.mTabstrip.removeEventListener("scroll", this);
+        tabcontainer.removeEventListener("TabOpen", this);
         window.XULBrowserWindow.setOverLink("", null);
       ]]></handler>
 
@@ -2195,7 +2195,7 @@
               setTimeout(function() {
                 tabbedBrowser._blockDblClick = false;
               }, 0);
-              tabbedBrowser.removeEventListener("click", enableDblClick, false);
+              tabbedBrowser.removeEventListener("click", enableDblClick);
             };
             tabbedBrowser.addEventListener("click", enableDblClick);
           }

@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 // onload make sure we adapt what's needed for partial source
-window.addEventListener("load", onLoadViewSourceOverlay, false);
+window.addEventListener("load", onLoadViewSourceOverlay);
 
 function onLoadViewSourceOverlay() {
   if (/viewPartialSource\.xul$/.test(document.location)) {

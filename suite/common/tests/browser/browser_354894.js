@@ -188,7 +188,7 @@ function test() {
     // Prepare a window; open it and add more tabs
     let newWin = openDialog(location, "_blank", CHROME_FEATURES, "about:config");
     newWin.addEventListener("load", function loadListener1(aEvent) {
-      newWin.removeEventListener("load", loadListener1, false);
+      newWin.removeEventListener("load", loadListener1);
       newWin.getBrowser().addEventListener("pageshow", function pageshowListener2(aEvent) {
         newWin.getBrowser().removeEventListener("pageshow", pageshowListener2, true);
         for (let url of TEST_URLS) {
@@ -197,7 +197,7 @@ function test() {
 
         executeSoon(() => testFn(newWin));
       }, true);
-    }, false);
+    });
   }
 
   /**
@@ -222,7 +222,7 @@ function test() {
       // The previously closed window should be restored
       newWin = openDialog(location, "_blank", CHROME_FEATURES, "about:blank");
       newWin.addEventListener("load", function loadListener3() {
-        newWin.removeEventListener("load", loadListener3, false);
+        newWin.removeEventListener("load", loadListener3);
         executeSoon(function() {
           is(newWin.getBrowser().browsers.length, TEST_URLS.length + 1,
              "Restored window in-session with otherpopup windows around");
@@ -248,7 +248,7 @@ function test() {
       let popup = openDialog(location, "popup", POPUP_FEATURES, TEST_URLS[0]);
       let popup2 = openDialog(location, "popup2", POPUP_FEATURES, TEST_URLS[1]);
       popup2.addEventListener("load", function loadListener4() {
-        popup2.removeEventListener("load", loadListener4, false);
+        popup2.removeEventListener("load", loadListener4);
         popup2.getBrowser().addEventListener("pageshow", function pageshowListener5() {
           popup2.getBrowser().removeEventListener("pageshow", pageshowListener5, true);
           popup2.getBrowser().addTab(TEST_URLS[0]);
@@ -263,7 +263,7 @@ function test() {
           // open a new window the previously closed window should be restored to
           newWin = openDialog(location, "_blank", CHROME_FEATURES, "about:blank");
           newWin.addEventListener("load", function loadListener6() {
-            newWin.removeEventListener("load", loadListener6, false);
+            newWin.removeEventListener("load", loadListener6);
             executeSoon(function() {
               is(newWin.getBrowser().browsers.length, TEST_URLS.length + 1,
                  "Restored window and associated tabs in session");
@@ -277,7 +277,7 @@ function test() {
             });
           }, true);
         }, true);
-      }, false);
+      });
     });
   }
 
@@ -302,7 +302,7 @@ function test() {
       // Real tests
       popup = openDialog(location, "popup", POPUP_FEATURES, TEST_URLS[1]);
       popup.addEventListener("load", function loadListener8() {
-        popup.removeEventListener("load", loadListener8, false);
+        popup.removeEventListener("load", loadListener8);
         popup.getBrowser().addEventListener("pageshow", function pageshowListener9() {
           popup.getBrowser().removeEventListener("pageshow", pageshowListener9, true);
           popup.getBrowser().addTab(TEST_URLS[0]);
@@ -332,7 +332,7 @@ function test() {
             });
           }, true);
         }, true);
-      }, false);
+      });
     }, true);
   }
 

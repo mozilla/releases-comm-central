@@ -174,7 +174,7 @@ function FolderDisplayWidget(aTabInfo, aMessageDisplayWidget) {
   let self = this;
   domNode.addEventListener("select", function () {
     self.view.dbView.selectionChanged();
-  }, false);
+  });
 
   /**
    * Create a fake tree box object for if/when this folder is in the background.

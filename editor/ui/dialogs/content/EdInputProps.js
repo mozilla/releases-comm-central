@@ -177,7 +177,7 @@ function SelectInputType()
     case 8:
       gDialog.inputValue.disabled = true;
       gDialog.AdvancedEditDeck.setAttribute("selectedIndex", 1);
-      gDialog.inputName.removeEventListener("input", onInput, false);
+      gDialog.inputName.removeEventListener("input", onInput);
       break;
     case 7:
       gDialog.inputValueDeck.setAttribute("selectedIndex", 1);

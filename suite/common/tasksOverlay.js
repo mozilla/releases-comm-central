@@ -110,8 +110,8 @@ function toOpenWindowByType(inType, uri, features, args)
     function newWindowLoaded(event)
     {
       // make sure that this handler is called only once
-      window.removeEventListener("unload", newWindowLoaded, false);
-      window[uri].removeEventListener("load", newWindowLoaded, false);
+      window.removeEventListener("unload", newWindowLoaded);
+      window[uri].removeEventListener("load", newWindowLoaded);
       delete window[uri];
     }
 
@@ -128,8 +128,8 @@ function toOpenWindowByType(inType, uri, features, args)
                                features || "non-private,all,dialog=no");
     }
 
-    window[uri].addEventListener("load", newWindowLoaded, false);
-    window.addEventListener("unload", newWindowLoaded, false);
+    window[uri].addEventListener("load", newWindowLoaded);
+    window.addEventListener("unload", newWindowLoaded);
   }
   return;
 }

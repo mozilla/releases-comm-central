@@ -355,17 +355,17 @@ var BookmarkPropertiesPanel = {
       // Listen on uri fields to enable accept button if input is valid
       if (this._itemType == BOOKMARK_ITEM) {
         this._element("locationField")
-            .addEventListener("input", this, false);
+            .addEventListener("input", this);
         if (this._isAddKeywordDialog) {
           this._element("keywordField")
-              .addEventListener("input", this, false);
+              .addEventListener("input", this);
         }
       }
       else if (this._itemType == LIVEMARK_CONTAINER) {
         this._element("feedLocationField")
-            .addEventListener("input", this, false);
+            .addEventListener("input", this);
         this._element("siteLocationField")
-            .addEventListener("input", this, false);
+            .addEventListener("input", this);
       }
     }
   },
@@ -448,15 +448,15 @@ var BookmarkPropertiesPanel = {
     this._mutationObserver.disconnect();
     delete this._mutationObserver;
 
-    window.removeEventListener("resize", this, false);
+    window.removeEventListener("resize", this);
     // Calling removeEventListener with arguments which do not identify any
     // currently registered EventListener on the EventTarget has no effect.
     this._element("locationField")
-        .removeEventListener("input", this, false);
+        .removeEventListener("input", this);
     this._element("feedLocationField")
-        .removeEventListener("input", this, false);
+        .removeEventListener("input", this);
     this._element("siteLocationField")
-        .removeEventListener("input", this, false);
+        .removeEventListener("input", this);
 
   },
 

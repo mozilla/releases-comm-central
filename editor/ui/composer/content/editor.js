@@ -3042,9 +3042,9 @@ function UpdateStructToolbar()
 
     toolbar.insertBefore(button, toolbar.firstChild);
 
-    button.addEventListener("command", newCommandListener(element), false);
+    button.addEventListener("command", newCommandListener(element));
 
-    button.addEventListener("contextmenu", newContextmenuListener(button, element), false);
+    button.addEventListener("contextmenu", newContextmenuListener(button, element));
 
     if (isFocusNode && oneElementSelected) {
       button.setAttribute("checked", "true");

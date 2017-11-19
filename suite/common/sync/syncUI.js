@@ -23,7 +23,7 @@ var gSyncUI = {
     // Update the Tools menu according to whether Sync is set up or not.
     let taskPopup = document.getElementById("taskPopup");
     if (taskPopup)
-      taskPopup.addEventListener("popupshowing", this.updateUI.bind(this), false);
+      taskPopup.addEventListener("popupshowing", this.updateUI.bind(this));
 
     // Proceed to set up the UI if Sync has already started up.
     // Otherwise we'll do it when Sync is firing up.
@@ -39,7 +39,7 @@ var gSyncUI = {
     // was triggered.
     window.addEventListener("unload", function SUI_unload() {
       gSyncUI._unloaded = true;
-      window.removeEventListener("unload", SUI_unload, false);
+      window.removeEventListener("unload", SUI_unload);
       Services.obs.removeObserver(gSyncUI, "weave:service:ready");
 
       if (Weave.Status.ready) {
@@ -47,7 +47,7 @@ var gSyncUI = {
           Services.obs.removeObserver(gSyncUI, topic);
         });
       }
-    }, false);
+    });
   },
 
   initUI: function SUI_initUI() {

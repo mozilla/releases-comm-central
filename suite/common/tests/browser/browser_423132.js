@@ -36,7 +36,7 @@ function test() {
 
   // make sure sessionstore saves the cookie data, then close the window
   newWin.addEventListener("load", function testNewWinLoad(aEvent) {
-    newWin.removeEventListener("load", testNewWinLoad, false);
+    newWin.removeEventListener("load", testNewWinLoad);
 
     newWin.getBrowser().selectedBrowser.loadURI(testURL, null, null);
 
@@ -82,5 +82,5 @@ function test() {
       is(browserWindowsCount(), 1, "Only one browser window should be open eventually");
       finish();
     }, true);
-  }, false);
+  });
 }

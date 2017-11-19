@@ -133,10 +133,10 @@ function showAlert()
 
   alertContainer.addEventListener("animationend", function hideAlert(event) {
     if (event.animationName == "fade-in") {
-      alertContainer.removeEventListener("animationend", hideAlert, false);
+      alertContainer.removeEventListener("animationend", hideAlert);
       setTimeout(fadeOutAlert, gOpenTime);
     }
-  }, false);
+  });
 
   alertContainer.setAttribute("fade-in", true);
 }
@@ -171,10 +171,10 @@ function fadeOutAlert()
   var alertContainer = document.getElementById("alertContainer");
   alertContainer.addEventListener("animationend", function fadeOut(event) {
     if (event.animationName == "fade-out") {
-      alertContainer.removeEventListener("animationend", fadeOut, false);
+      alertContainer.removeEventListener("animationend", fadeOut);
       closeAlert();
     }
-  }, false);
+  });
   alertContainer.setAttribute("fade-out", true);
 }
 

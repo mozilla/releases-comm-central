@@ -35,7 +35,7 @@ var QuickFilterBarMuxer = {
     //  overflow handler (registered by attribute in the XUL file).
     window.addEventListener("resize", function QFBM_resizeWrap() {
                               dis.onWindowResize();
-                            }, false);
+                            });
 
     this._bindUI();
   },
@@ -212,7 +212,7 @@ var QuickFilterBarMuxer = {
             QuickFilterBarMuxer.deferredUpdateSearch();
         };
       }
-      domNode.addEventListener("command", handler, false);
+      domNode.addEventListener("command", handler);
 
       if ("domBindExtra" in filterDef)
         filterDef.domBindExtra(document, this, domNode);

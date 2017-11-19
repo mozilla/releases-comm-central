@@ -2294,7 +2294,7 @@ function displayAttachmentsForExpandedView()
       var displayName = SanitizeAttachmentDisplayName(attachment);
       var item = attachmentList.appendItem(attachment, displayName);
       item.setAttribute("tooltiptext", attachment.name);
-      item.addEventListener("command", attachmentItemCommand, false);
+      item.addEventListener("command", attachmentItemCommand);
 
       // Check if this attachment's part ID is a child of the last attachment
       // we counted. If so, skip it, since we already accounted for its size

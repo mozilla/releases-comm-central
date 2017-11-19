@@ -207,7 +207,7 @@ var gEditItemOverlay = {
       // observe only tags changes, through bookmarks.
       if (this._itemId != -1 || this._uri || this._multiEdit)
         PlacesUtils.bookmarks.addObserver(this, false);
-      window.addEventListener("unload", this, false);
+      window.addEventListener("unload", this);
       this._observersAdded = true;
     }
 
@@ -779,7 +779,7 @@ var gEditItemOverlay = {
       this._rebuildTagsSelectorList();
 
       // This is a no-op if we've added the listener.
-      tagsSelector.addEventListener("CheckboxStateChange", this, false);
+      tagsSelector.addEventListener("CheckboxStateChange", this);
     }
     else {
       expander.className = "expander-down";

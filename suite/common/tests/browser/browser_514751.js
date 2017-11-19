@@ -25,7 +25,7 @@ function test() {
       switch(aTopic) {
         case "domwindowopened":
           theWin.addEventListener("load", function testTheWinLoad() {
-            theWin.removeEventListener("load", testTheWinLoad, false);
+            theWin.removeEventListener("load", testTheWinLoad);
             executeSoon(function() {
               var gotError = false;
               try {
@@ -39,7 +39,7 @@ function test() {
                 theWin.close();
               });
             });
-          }, false);
+          });
           break;
 
         case "domwindowclosed":

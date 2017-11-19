@@ -148,8 +148,7 @@
                                                                        "displayname").value;
         }
         this.removeAttribute("aliasing");
-        listbox.removeEventListener("select", this._parentSelectListener,
-                                    false);
+        listbox.removeEventListener("select", this._parentSelectListener);
         delete this._parentSelectListener;
         listbox.focus();
       ]]>

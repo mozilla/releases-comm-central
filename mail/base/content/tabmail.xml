@@ -1753,15 +1753,15 @@
 
           Services.prefs.addObserver("mail.tabs.", this._prefObserver, false);
 
-          window.addEventListener("resize", this, false);
+          window.addEventListener("resize", this);
 
           // Listen to overflow/underflow events on the tabstrip,
           // we cannot put these as xbl handlers on the entire binding because
           // they would also get called for the all-tabs popup scrollbox.
           // Also, we can't rely on event.target becuase these are all
           // anonymous nodes.
-          this.mTabstrip.addEventListener("overflow", this, false);
-          this.mTabstrip.addEventListener("underflow", this, false);
+          this.mTabstrip.addEventListener("overflow", this);
+          this.mTabstrip.addEventListener("underflow", this);
         ]]>
       </constructor>
 
@@ -1777,8 +1777,8 @@
             this._animateTimer = null;
           }
 
-          this.mTabstrip.removeEventListener("overflow", this, false);
-          this.mTabstrip.removeEventListener("underflow", this, false);
+          this.mTabstrip.removeEventListener("overflow", this);
+          this.mTabstrip.removeEventListener("underflow", this);
         ]]>
       </destructor>
 
@@ -2515,9 +2515,9 @@
           // Keep some attributes of the menuitem in sync with its
           // corresponding tab (e.g. the tab label)
           aTab.mCorrespondingMenuitem = menuItem;
-          aTab.addEventListener("TabClose", this, false);
+          aTab.addEventListener("TabClose", this);
           menuItem.tab = aTab;
-          menuItem.addEventListener("command", this, false);
+          menuItem.addEventListener("command", this);
 
           this.appendChild(menuItem);
           return menuItem;
@@ -2572,8 +2572,8 @@
           attributeFilter: ["label", "crop", "busy", "image", "selected"]
         });
 
-        tabmail.addEventListener("TabOpen", this, false);
-        tabcontainer.mTabstrip.addEventListener("scroll", this, false);
+        tabmail.addEventListener("TabOpen", this);
+        tabcontainer.mTabstrip.addEventListener("scroll", this);
 
         // if an animation is in progress and the user
         // clicks on the "all tabs" button, stop the animation
@@ -2590,16 +2590,16 @@
         // clear out the menu popup and remove the listeners
         while (this.hasChildNodes()) {
           var menuItem = this.lastChild;
-          menuItem.removeEventListener("command", this, false);
-          menuItem.tab.removeEventListener("TabClose", this, false);
+          menuItem.removeEventListener("command", this);
+          menuItem.tab.removeEventListener("TabClose", this);
           menuItem.tab.mCorrespondingMenuitem = null;
           menuItem.remove();
         }
         this._mutationObserver.disconnect();
 
         var tabcontainer = document.getElementById('tabmail').tabContainer;
-        tabcontainer.mTabstrip.removeEventListener("scroll", this, false);
-        tabcontainer.tabmail.removeEventListener("TabOpen", this, false);
+        tabcontainer.mTabstrip.removeEventListener("scroll", this);
+        tabcontainer.tabmail.removeEventListener("TabOpen", this);
       ]]></handler>
     </handlers>
   </binding>

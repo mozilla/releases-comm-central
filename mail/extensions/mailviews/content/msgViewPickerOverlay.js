@@ -80,8 +80,7 @@ var ViewPickerBinding = {
   _init: function ViewPickerBinding_init() {
     window.addEventListener(
       "MailViewChanged",
-      function(aEvent) { ViewPickerBinding.updateDisplay(aEvent); },
-      false);
+      function(aEvent) { ViewPickerBinding.updateDisplay(aEvent); });
   },
 
   /**
@@ -259,4 +258,4 @@ function ViewPickerOnLoad()
 }
 
 
-window.addEventListener("load", ViewPickerOnLoad, false);
+window.addEventListener("load", ViewPickerOnLoad);

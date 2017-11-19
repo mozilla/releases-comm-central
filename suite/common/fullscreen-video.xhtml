@@ -22,47 +22,47 @@ try {
 } catch (e) {}
 document.title = title;
 
-window.addEventListener("focus", onFocus, false);
-window.addEventListener("unload", onUnload, false);
-window.addEventListener("keypress", onKeyPress, false);
+window.addEventListener("focus", onFocus);
+window.addEventListener("unload", onUnload);
+window.addEventListener("keypress", onKeyPress);
 
 function onFocus() {
-  window.removeEventListener("focus", onFocus, false);
+  window.removeEventListener("focus", onFocus);
 
   window.fullScreen = true;
 
-  window.addEventListener("deactivate", autoClose, false);
+  window.addEventListener("deactivate", autoClose);
 
   video = document.querySelector("video");
   closeIcon = document.querySelector("div");
 
-  video.addEventListener("loadeddata", onLoadedData, false);
+  video.addEventListener("loadeddata", onLoadedData);
 
   // Automatically close this window when the playback ended, unless the user
   // interacted with it.
-  video.addEventListener("ended", autoClose, false);
-  window.addEventListener("click", cancelAutoClose, false);
-  window.addEventListener("keypress", cancelAutoClose, false);
+  video.addEventListener("ended", autoClose);
+  window.addEventListener("click", cancelAutoClose);
+  window.addEventListener("keypress", cancelAutoClose);
 
-  video.addEventListener("playing", hideUI, false);
-  video.addEventListener("seeked", hideUI, false);
-  video.addEventListener("seeking", showUI, false);
-  video.addEventListener("pause", showUI, false);
-  video.addEventListener("ended", showUI, false);
+  video.addEventListener("playing", hideUI);
+  video.addEventListener("seeked", hideUI);
+  video.addEventListener("seeking", showUI);
+  video.addEventListener("pause", showUI);
+  video.addEventListener("ended", showUI);
 
-  window.addEventListener("mousemove", onMouseMove, false);
+  window.addEventListener("mousemove", onMouseMove);
 
   video.src = contentVideo.currentSrc || contentVideo.src;
 }
 
 function onLoadedData() {
-  video.removeEventListener("loadeddata", onLoadedData, false);
+  video.removeEventListener("loadeddata", onLoadedData);
   video.volume = contentVideo.volume;
   video.muted = contentVideo.muted;
   video.poster = contentVideo.poster;
 
   if (contentVideo.currentTime && !contentVideo.ended) {
-    video.addEventListener("seeked", playbackStarts, false);
+    video.addEventListener("seeked", playbackStarts);
 
     video.currentTime = contentVideo.currentTime;
   } else {
@@ -106,7 +106,7 @@ function onKeyPress(event) {
 }
 
 function playbackStarts() {
-  video.removeEventListener("seeked", playbackStarts, false);
+  video.removeEventListener("seeked", playbackStarts);
 
   // Loading the data from the content video may take a second or two. We hide
   // the video during that period.
@@ -119,9 +119,9 @@ function autoClose() {
 }
 
 function cancelAutoClose() {
-  video.removeEventListener("ended", autoClose, false);
-  window.removeEventListener("click", cancelAutoClose, false);
-  window.removeEventListener("keypress", cancelAutoClose, false);
+  video.removeEventListener("ended", autoClose);
+  window.removeEventListener("click", cancelAutoClose);
+  window.removeEventListener("keypress", cancelAutoClose);
 }
 
 var idleTimer = 0;

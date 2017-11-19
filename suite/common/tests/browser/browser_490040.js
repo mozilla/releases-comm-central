@@ -36,7 +36,7 @@ function test() {
         case "domwindowopened":
           origWin = theWin;
           theWin.addEventListener("load", function testTheWinLoad() {
-            theWin.removeEventListener("load", testTheWinLoad, false);
+            theWin.removeEventListener("load", testTheWinLoad);
             executeSoon(function () {
               // Close the window as soon as the first tab loads, or
               // immediately if there are no tabs.
@@ -55,7 +55,7 @@ function test() {
               ss.setWindowState(theWin, JSON.stringify(aState.windowState),
                                 true);
             });
-          }, false);
+          });
           break;
 
         case "domwindowclosed":

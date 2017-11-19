@@ -928,7 +928,7 @@ function awSizerListen()
   // when splitter is clicked, fill in necessary dummy rows each time the mouse is moved
   awCalcContentHeight(); // precalculate
   document.addEventListener("mousemove", awSizerMouseMove, true);
-  document.addEventListener("mouseup", awSizerMouseUp, false);
+  document.addEventListener("mouseup", awSizerMouseUp);
 }
 
 function awSizerMouseMove()
@@ -938,8 +938,8 @@ function awSizerMouseMove()
 
 function awSizerMouseUp()
 {
-  document.removeEventListener("mousemove", awSizerMouseMove, false);
-  document.removeEventListener("mouseup", awSizerMouseUp, false);
+  document.removeEventListener("mousemove", awSizerMouseMove);
+  document.removeEventListener("mouseup", awSizerMouseUp);
 }
 
 function awSizerResized(aSplitter)

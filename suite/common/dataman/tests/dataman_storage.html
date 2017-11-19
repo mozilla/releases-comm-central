@@ -15,8 +15,8 @@ function eventSeen(e){
 <h1>Test</h1>
 <p id="eventCnt">*</p>
 <script>
-document.body.addEventListener('storage', eventSeen, false);
-document.addEventListener('idb-done', eventSeen, false);
+document.body.addEventListener('storage', eventSeen);
+document.addEventListener('idb-done', eventSeen);
 
 localStorage.setItem("localtest", "foo"); // issues no storage event (!?)
 globalStorage['mochi.test'].setItem("globaltest", "bar"); // issues a storage event

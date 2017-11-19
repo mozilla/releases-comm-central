@@ -586,7 +586,7 @@ var gPluginHandler = {
         // lifetime (which should be no greater than the page).
         // Clever solution? Use a closue with an event listener on the document.
         // When the doc goes away, so do the listener references and the closure.
-        doc.addEventListener("mozCleverClosureHack", observer, false);
+        doc.addEventListener("mozCleverClosureHack", observer);
       }
     }
 
@@ -678,7 +678,7 @@ var gPluginHandler = {
       // Remove the notfication when the page is reloaded.
       doc.defaultView.top.addEventListener("unload", function() {
         notificationBox.removeNotification(notification);
-      }, false);
+      });
     }
 
   }

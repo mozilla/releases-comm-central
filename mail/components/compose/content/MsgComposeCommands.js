@@ -2607,8 +2607,8 @@ function ComposeStartup(aParams)
 
   document.addEventListener("keypress", awDocumentKeyPress, true);
 
-  document.addEventListener("paste", onPasteOrDrop, false);
-  document.addEventListener("drop", onPasteOrDrop, false);
+  document.addEventListener("paste", onPasteOrDrop);
+  document.addEventListener("drop", onPasteOrDrop);
 
   if (identityList)
     FillIdentityList(identityList);
@@ -4434,7 +4434,7 @@ function AddAttachments(aAttachments, aCallback)
     catch(e) {
       item.setAttribute("tooltiptext", attachment.url);
     }
-    item.addEventListener("command", OpenSelectedAttachment, false);
+    item.addEventListener("command", OpenSelectedAttachment);
 
     if (attachment.sendViaCloud) {
       try {

@@ -87,10 +87,10 @@ var gWebDeveloper = {
   handleEvent: function(aEvent) {
     switch (aEvent.type) {
       case "load":
-        window.removeEventListener("load", gWebDeveloper, false);
-        window.addEventListener("unload", gWebDeveloper, false);
+        window.removeEventListener("load", gWebDeveloper);
+        window.addEventListener("unload", gWebDeveloper);
         var popup = document.getElementById("toolsPopup");
-        popup.addEventListener("popupshowing", gWebDeveloper, false);
+        popup.addEventListener("popupshowing", gWebDeveloper);
         // Don't use gDevToolsBrowser.updateCommandAvailability() at the moment
         // because some tools aren't working.
         if (!gDevToolsBrowser._old_updateCommandAvailability) {
@@ -104,7 +104,7 @@ var gWebDeveloper = {
         break;
 
       case "unload":
-        window.removeEventListener("unload", gWebDeveloper, false);
+        window.removeEventListener("unload", gWebDeveloper);
         gDevToolsBrowser.forgetBrowserWindow(window);
         Services.prefs.removeObserver(this.devtoolsThemePref, this);
 
@@ -206,4 +206,4 @@ var gWebDeveloper = {
   },
 }
 
-window.addEventListener("load", gWebDeveloper, false);
+window.addEventListener("load", gWebDeveloper);

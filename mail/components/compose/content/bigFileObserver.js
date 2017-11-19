@@ -29,12 +29,12 @@ var gBigFileObserver = {
 
   init: function() {
     let bucket = document.getElementById("attachmentBucket");
-    bucket.addEventListener("attachments-added", this, false);
-    bucket.addEventListener("attachments-removed", this, false);
-    bucket.addEventListener("attachments-uploading", this, false);
-    bucket.addEventListener("attachment-uploaded", this, false);
-    bucket.addEventListener("attachment-upload-failed", this, false);
-    bucket.addEventListener("attachments-converted", this, false);
+    bucket.addEventListener("attachments-added", this);
+    bucket.addEventListener("attachments-removed", this);
+    bucket.addEventListener("attachments-uploading", this);
+    bucket.addEventListener("attachment-uploaded", this);
+    bucket.addEventListener("attachment-upload-failed", this);
+    bucket.addEventListener("attachments-converted", this);
 
     this.sessionHidden = false;
     this.privacyWarned = false;

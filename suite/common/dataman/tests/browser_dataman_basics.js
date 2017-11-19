@@ -790,7 +790,7 @@ function test_storage_load(aWin) {
     handleEvent: function dmStorageHandler(aEvent) {
       let tab = aEvent.target;
       if (tab == storagetab) {
-        gBrowser.tabContainer.removeEventListener("TabClose", this, false);
+        gBrowser.tabContainer.removeEventListener("TabClose", this);
         // Force DOM Storage to write its data to the disk.
         Services.obs.notifyObservers(null, "domstorage-flush-timer", "");
         Services.perms.remove("mochi.test", "offline-app");
@@ -798,7 +798,7 @@ function test_storage_load(aWin) {
       }
     },
   };
-  gBrowser.tabContainer.addEventListener("TabClose", dmStorageListener, false);
+  gBrowser.tabContainer.addEventListener("TabClose", dmStorageListener);
 },
 
 function test_storage_wait(aWin) {
@@ -843,12 +843,12 @@ function test_storage(aWin) {
 
 function test_close(aWin) {
   function dmWindowClosedListener() {
-    aWin.removeEventListener("unload", dmWindowClosedListener, false);
+    aWin.removeEventListener("unload", dmWindowClosedListener);
     isnot(content.document.documentElement.id, "dataman-page",
        "The active tab is not the Data Manager");
     Services.obs.notifyObservers(window, TEST_DONE, null);
   }
-  aWin.addEventListener("unload", dmWindowClosedListener, false);
+  aWin.addEventListener("unload", dmWindowClosedListener);
   aWin.close();
 }
 ];

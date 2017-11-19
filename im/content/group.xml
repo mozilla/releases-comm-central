@@ -126,7 +126,7 @@
              }
              this._pendingReorders = remaining;
              if (remaining.length == 0) {
-               this.parentNode.removeEventListener("select", this._selectListener, false);
+               this.parentNode.removeEventListener("select", this._selectListener);
                this._selectListener = null;
              }
            }).bind(this);

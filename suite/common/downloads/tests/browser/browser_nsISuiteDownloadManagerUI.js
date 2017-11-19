@@ -16,12 +16,12 @@ function test_visibility_closed(aWin)
                        .getService(Components.interfaces.nsISuiteDownloadManagerUI);
 
   function dmWindowClosedListener() {
-    aWin.removeEventListener("unload", dmWindowClosedListener, false);
+    aWin.removeEventListener("unload", dmWindowClosedListener);
     is(dmui.recentWindow, null,
        "nsIDownloadManagerUI indicates that the UI is not visible");
     finish();
   }
-  aWin.addEventListener("unload", dmWindowClosedListener, false);
+  aWin.addEventListener("unload", dmWindowClosedListener);
   aWin.close();
 }
 

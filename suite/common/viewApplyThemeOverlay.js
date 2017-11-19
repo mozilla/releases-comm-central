@@ -157,16 +157,16 @@ function applyThemeOnLoad()
   removeEventListener("load", applyThemeOnLoad, false);
   addEventListener("unload", applyThemeOnUnload, false);
   var popup = document.getElementById("menu_viewApplyTheme_Popup");
-  popup.addEventListener("DOMMenuItemActive", previewTheme, false);
-  popup.addEventListener("DOMMenuItemInactive", previewTheme, false);
+  popup.addEventListener("DOMMenuItemActive", previewTheme);
+  popup.addEventListener("DOMMenuItemInactive", previewTheme);
 }
 
 function applyThemeOnUnload()
 {
   AddonManager.removeAddonListener(gAddonListener);
   var popup = document.getElementById("menu_viewApplyTheme_Popup");
-  popup.removeEventListener("DOMMenuItemActive", previewTheme, false);
-  popup.removeEventListener("DOMMenuItemInactive", previewTheme, false);
+  popup.removeEventListener("DOMMenuItemActive", previewTheme);
+  popup.removeEventListener("DOMMenuItemInactive", previewTheme);
 }
 
 addEventListener("load", applyThemeOnLoad, false);

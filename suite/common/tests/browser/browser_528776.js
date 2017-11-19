@@ -20,10 +20,10 @@ function test() {
 
   var win = openDialog(location, "", "chrome,all,dialog=no");
   win.addEventListener("load", function loadListener() {
-    win.removeEventListener("load", loadListener, false);
+    win.removeEventListener("load", loadListener);
     browserWindowsCount(2);
     win.close();
     browserWindowsCount(1);
     finish();
-  }, false);
+  });
 }

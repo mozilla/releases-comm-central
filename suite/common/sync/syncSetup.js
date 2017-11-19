@@ -75,7 +75,7 @@ var gSyncSetup = {
       });
     };
     addRem(true);
-    window.addEventListener("unload", () => addRem(false), false);
+    window.addEventListener("unload", () => addRem(false));
 
     setTimeout(function () {
       // Force Service to be loaded so that engines are registered.

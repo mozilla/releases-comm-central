@@ -1173,8 +1173,8 @@ function ComposeStartup(aParams)
 
   var identityList = GetMsgIdentityElement();
 
-  document.addEventListener("paste", onPasteOrDrop, false);
-  document.addEventListener("drop", onPasteOrDrop, false);
+  document.addEventListener("paste", onPasteOrDrop);
+  document.addEventListener("drop", onPasteOrDrop);
 
   if (identityList)
     FillIdentityList(identityList);

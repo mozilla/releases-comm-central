@@ -53,8 +53,8 @@ var gSafeBrowsing = {
 
   initOverlay: function initOverlay(aEvent) {
     var popup = document.getElementById("helpPopup");
-    popup.addEventListener("popupshowing", gSafeBrowsing.initMenuItems, false);
+    popup.addEventListener("popupshowing", gSafeBrowsing.initMenuItems);
   }
 }
 
-window.addEventListener("load", gSafeBrowsing.initOverlay, false);
+window.addEventListener("load", gSafeBrowsing.initOverlay);

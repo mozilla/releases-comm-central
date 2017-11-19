@@ -1780,7 +1780,7 @@
       <handler event="click" button="0" action="if (this.updateHover(event) >= 0) this.fire();"/>
       <handler event="popupshowing">
         <![CDATA[
-          this.parentNode.addEventListener("blur", this.onBlurMenuList, false);
+          this.parentNode.addEventListener("blur", this.onBlurMenuList);
           var box = this.tree.treeBoxObject;
           box.focused = true;
           var index = this.setInitialSelection();
@@ -1793,7 +1793,7 @@
       </handler>
       <handler event="popuphiding">
         <![CDATA[
-          this.parentNode.removeEventListener("blur", this.onBlurMenuList, false);
+          this.parentNode.removeEventListener("blur", this.onBlurMenuList);
         ]]>
       </handler>
     </handlers>

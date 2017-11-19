@@ -152,7 +152,7 @@ function test_content_tab_onbeforeunload() {
   let tab = mc.tabmail.tabInfo[count-1];
   tab.browser.contentWindow.addEventListener("beforeunload", function (event) {
     event.returnValue = "Green llama in your car";
-  }, false);
+  });
 
   const interactionPref = "dom.require_user_interaction_for_beforeunload";
   Services.prefs.setBoolPref(interactionPref, false);

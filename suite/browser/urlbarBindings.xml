@@ -58,13 +58,13 @@
         this.updatePref("browser.urlbar.showSearch");
         this.updatePref("browser.urlbar.formatting.enabled");
         this.inputField.controllers.insertControllerAt(0, this._editItemsController);
-        this.inputField.addEventListener("overflow", this, false);
-        this.inputField.addEventListener("underflow", this, false);
+        this.inputField.addEventListener("overflow", this);
+        this.inputField.addEventListener("underflow", this);
       ]]></constructor>
 
       <destructor><![CDATA[
-        this.inputField.removeEventListener("underflow", this, false);
-        this.inputField.removeEventListener("overflow", this, false);
+        this.inputField.removeEventListener("underflow", this);
+        this.inputField.removeEventListener("overflow", this);
         this.inputField.controllers.removeController(this._editItemsController);
         this.mPrefs.removeObserver("browser.urlbar", this.mPrefObserver);
       ]]></destructor>
@@ -550,7 +550,7 @@
 
         if (this.mShowSearch) {
           this.textbox.mSearchInputTO = 0;
-          this.textbox.addEventListener("input", this.mInputListener, false);
+          this.textbox.addEventListener("input", this.mInputListener);
           if ("searchValue" in this.mSearchBox)
             this.mSearchBox.searchValue = this.textbox.currentSearchString;
           else
@@ -560,7 +560,7 @@
 
       <handler event="popuphiding"><![CDATA[
         if (this.mShowSearch)
-          this.textbox.removeEventListener("input", this.mInputListener, false);
+          this.textbox.removeEventListener("input", this.mInputListener);
       ]]></handler>
     </handlers>
   </binding>

@@ -27,7 +27,7 @@ function test() {
   // open a window and set a value on it
   let newWin = openDialog(location, "_blank", "chrome,all,dialog=no");
   newWin.addEventListener("load", function loadListener(aEvent) {
-    newWin.removeEventListener("load", loadListener, false);
+    newWin.removeEventListener("load", loadListener);
 
     ss.setWindowValue(newWin, uniqueKey1, uniqueValue1);
 
@@ -56,5 +56,5 @@ function test() {
     newWin.close();
     is(browserWindowsCount(), 1, "Only one browser window should be open eventually");
     finish();
-  }, false);
+  });
 }

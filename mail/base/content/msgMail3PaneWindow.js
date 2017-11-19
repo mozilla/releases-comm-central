@@ -1659,7 +1659,7 @@ var TabsInTitlebar = {
         if (event.target != window)
           return;
         TabsInTitlebar.allowedBy("sizemode", true);
-      }, false);
+      });
 
       // Always disable on unsupported GTK versions.
       if (AppConstants.MOZ_WIDGET_TOOLKIT == "gtk3") {

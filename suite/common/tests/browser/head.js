@@ -57,7 +57,7 @@ function waitForBrowserState(aState, aSetStateCallback) {
     if (aTopic == "domwindowopened") {
       let newWindow = aSubject.QueryInterface(Components.interfaces.nsIDOMWindow);
       newWindow.addEventListener("load", function newWindowLoad() {
-        newWindow.removeEventListener("load", newWindowLoad, false);
+        newWindow.removeEventListener("load", newWindowLoad);
 
         if (++windowsOpen == expectedWindows) {
           Services.ww.unregisterNotification(windowObserver);
@@ -68,7 +68,7 @@ function waitForBrowserState(aState, aSetStateCallback) {
         windows.push(newWindow);
         // Add the progress listener
         newWindow.getBrowser().tabContainer.addEventListener("SSTabRestored", onSSTabRestored, true);
-      }, false);
+      });
     }
   }
 
@@ -138,11 +138,11 @@ function waitForSaveState(aSaveStateCallback) {
 
 function whenWindowLoaded(aWindow, aCallback) {
   aWindow.addEventListener("load", function windowLoadListener() {
-    aWindow.removeEventListener("load", windowLoadListener, false);
+    aWindow.removeEventListener("load", windowLoadListener);
     executeSoon(function executeWhenWindowLoaded() {
       aCallback(aWindow);
     });
-  }, false);
+  });
 }
 
 var gUniqueCounter = 0;

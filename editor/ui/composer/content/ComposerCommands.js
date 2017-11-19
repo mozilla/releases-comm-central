@@ -2393,7 +2393,7 @@ var nsValidateCommand =
       var vwin = window.open("http://validator.w3.org/file-upload.html",
                              "EditorValidate");
       // Window loads asynchronously, so pass control to the load listener:
-      vwin.addEventListener("load", this.validateFilePageLoaded, false);
+      vwin.addEventListener("load", this.validateFilePageLoaded);
     }
     else
     {

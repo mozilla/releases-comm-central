@@ -18,7 +18,7 @@ function TabOpenListener(url, opencallback, closecallback) {
   this.opencallback = opencallback;
   this.closecallback = closecallback;
 
-  gBrowser.tabContainer.addEventListener("TabOpen", this, false);
+  gBrowser.tabContainer.addEventListener("TabOpen", this);
 }
 
 TabOpenListener.prototype = {
@@ -30,22 +30,22 @@ TabOpenListener.prototype = {
 
   handleEvent: function(event) {
     if (event.type == "TabOpen") {
-      gBrowser.tabContainer.removeEventListener("TabOpen", this, false);
+      gBrowser.tabContainer.removeEventListener("TabOpen", this);
       this.tab = event.originalTarget;
       this.browser = this.tab.linkedBrowser;
-      gBrowser.addEventListener("pageshow", this, false);
+      gBrowser.addEventListener("pageshow", this);
     } else if (event.type == "pageshow") {
       if (event.target.location.href != this.url)
         return;
-      gBrowser.removeEventListener("pageshow", this, false);
-      this.tab.addEventListener("TabClose", this, false);
+      gBrowser.removeEventListener("pageshow", this);
+      this.tab.addEventListener("TabClose", this);
       var url = this.browser.contentDocument.location.href;
       is(url, this.url, "Should have opened the correct tab");
       this.opencallback(this.tab, this.browser.contentWindow);
     } else if (event.type == "TabClose") {
       if (event.originalTarget != this.tab)
         return;
-      this.tab.removeEventListener("TabClose", this, false);
+      this.tab.removeEventListener("TabClose", this);
       this.opencallback = null;
       this.tab = null;
       this.browser = null;
@@ -645,12 +645,12 @@ function test18a() {
   var tabOpenListener = new TabOpenListener(Services.urlFormatter.formatURLPref("plugins.update.url"), false, false);
   tabOpenListener.handleEvent = function(event) {
     if (event.type == "TabOpen") {
-      gBrowser.tabContainer.removeEventListener("TabOpen", this, false);
+      gBrowser.tabContainer.removeEventListener("TabOpen", this);
       this.tab = event.originalTarget;
       this.browser = this.tab.linkedBrowser;
-      gBrowser.addEventListener("pageshow", this, false);
+      gBrowser.addEventListener("pageshow", this);
     } else if (event.type == "pageshow") {
-      gBrowser.removeEventListener("pageshow", this, false);
+      gBrowser.removeEventListener("pageshow", this);
       is(this.browser.contentDocument.location.href, this.url, "Test 18a, Update link should open up the plugin check page");
       gBrowser.removeTab(this.tab);
       test18b();

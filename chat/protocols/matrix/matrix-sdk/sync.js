@@ -370,7 +370,7 @@ SyncApi.prototype.sync = function() {
 
     if (global.document) {
         this._onOnlineBound = this._onOnline.bind(this);
-        global.document.addEventListener("online", this._onOnlineBound, false);
+        global.document.addEventListener("online", this._onOnlineBound);
     }
 
     // We need to do one-off checks before we can begin the /sync loop.
@@ -434,7 +434,7 @@ SyncApi.prototype.sync = function() {
 SyncApi.prototype.stop = function() {
     debuglog("SyncApi.stop");
     if (global.document) {
-        global.document.removeEventListener("online", this._onOnlineBound, false);
+        global.document.removeEventListener("online", this._onOnlineBound);
         this._onOnlineBound = undefined;
     }
     this._running = false;

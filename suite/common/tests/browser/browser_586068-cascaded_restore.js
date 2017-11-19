@@ -250,11 +250,11 @@ function test_multiWindowState() {
     let theWin = aSubject.QueryInterface(Components.interfaces.nsIDOMWindow);
     if (aTopic == "domwindowopened") {
       theWin.addEventListener("load", function theWinLoad() {
-        theWin.removeEventListener("load", theWinLoad, false);
+        theWin.removeEventListener("load", theWinLoad);
 
         Services.ww.unregisterNotification(windowObserver);
         theWin.getBrowser().addTabsProgressListener(progressListener);
-      }, false);
+      });
     }
   }
   Services.ww.registerNotification(windowObserver);
@@ -513,11 +513,11 @@ function test_setBrowserStateInterrupted() {
     let theWin = aSubject.QueryInterface(Components.interfaces.nsIDOMWindow);
     if (aTopic == "domwindowopened") {
       theWin.addEventListener("load", function wObserverTheWinLoad() {
-        theWin.removeEventListener("load", wObserverTheWinLoad, false);
+        theWin.removeEventListener("load", wObserverTheWinLoad);
 
         Services.ww.unregisterNotification(windowObserver);
         theWin.getBrowser().addTabsProgressListener(progressListener);
-      }, false);
+      });
     }
   }
   Services.ww.registerNotification(windowObserver);

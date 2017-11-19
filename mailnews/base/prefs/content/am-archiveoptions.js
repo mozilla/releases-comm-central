@@ -15,11 +15,11 @@ function onLoadArchiveOptions() {
 
   let granularity = document.getElementById("archiveGranularity");
   granularity.selectedIndex = gIdentity.archiveGranularity;
-  granularity.addEventListener("command", updateArchiveExample, false);
+  granularity.addEventListener("command", updateArchiveExample);
 
   let kfs = document.getElementById("archiveKeepFolderStructure");
   kfs.checked = gIdentity.archiveKeepFolderStructure;
-  kfs.addEventListener("command", updateArchiveExample, false);
+  kfs.addEventListener("command", updateArchiveExample);
 
   updateArchiveExample();
 }

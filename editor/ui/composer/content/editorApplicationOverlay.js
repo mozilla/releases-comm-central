@@ -21,7 +21,7 @@ function initEditorContextMenuListener(aEvent)
 {
   var popup = document.getElementById("contentAreaContextMenu");
   if (popup)
-    popup.addEventListener("popupshowing", initEditorContextMenuItems, false);
+    popup.addEventListener("popupshowing", initEditorContextMenuItems);
 }
 
 addEventListener("load", initEditorContextMenuListener, false);

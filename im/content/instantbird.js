@@ -24,8 +24,8 @@ var convWindow = {
       }
     }
 
-    window.addEventListener("mousemove", MousePosTracker, false);
-    window.addEventListener("dragover", MousePosTracker, false);
+    window.addEventListener("mousemove", MousePosTracker);
+    window.addEventListener("dragover", MousePosTracker);
 
     window.addEventListener("unload", convWindow.unload);
     window.addEventListener("resize", convWindow.onresize);

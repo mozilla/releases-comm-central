@@ -12,7 +12,7 @@ function Startup() {
 var SearchObserver = {
   init: function searchEngineListObserver_init() {
     Services.obs.addObserver(this, "browser-search-engine-modified", false);
-    window.addEventListener("unload", this, false);
+    window.addEventListener("unload", this);
   },
 
   observe: function searchEngineListObj_observe(aEngine, aTopic, aVerb) {
@@ -23,7 +23,7 @@ var SearchObserver = {
 
   handleEvent: function searchEngineListEvent(aEvent) {
     if (aEvent.type == "unload") {
-      window.removeEventListener("unload", this, false);
+      window.removeEventListener("unload", this);
       Services.obs.removeObserver(this, "browser-search-engine-modified");
     }
   }

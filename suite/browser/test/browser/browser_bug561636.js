@@ -74,7 +74,7 @@ function test2()
   let tab = gBrowser.addTab();
 
   gInvalidFormPopup.addEventListener("popupshown", function test2gIpopupShown() {
-    gInvalidFormPopup.removeEventListener("popupshown", test2gIpopupShown, false);
+    gInvalidFormPopup.removeEventListener("popupshown", test2gIpopupShown);
 
     let doc = gBrowser.contentDocument;
     is(doc.activeElement, doc.getElementById('i'),
@@ -86,7 +86,7 @@ function test2()
     // Clean-up and next test.
     gBrowser.removeTab(gBrowser.selectedTab);
     executeSoon(test3);
-  }, false);
+  });
 
   tab.linkedBrowser.addEventListener("load", function test2TabLBLoad(aEvent) {
     tab.linkedBrowser.removeEventListener("load", test2TabLBLoad, true);
@@ -108,7 +108,7 @@ function test3()
   let tab = gBrowser.addTab();
 
   gInvalidFormPopup.addEventListener("popupshown", function test3gIPopupShown() {
-    gInvalidFormPopup.removeEventListener("popupshown", test3gIPopupShown, false);
+    gInvalidFormPopup.removeEventListener("popupshown", test3gIPopupShown);
 
     let doc = gBrowser.contentDocument;
     is(doc.activeElement, doc.getElementById('i'),
@@ -120,7 +120,7 @@ function test3()
     // Clean-up and next test.
     gBrowser.removeTab(gBrowser.selectedTab);
     executeSoon(test4a);
-  }, false);
+  });
 
   tab.linkedBrowser.addEventListener("load", function test3TabLBLoad(aEvent) {
     tab.linkedBrowser.removeEventListener("load", test3TabLBLoad, true);
@@ -142,7 +142,7 @@ function test4a()
   let tab = gBrowser.addTab();
 
   gInvalidFormPopup.addEventListener("popupshown", function test4agIPopupShown() {
-    gInvalidFormPopup.removeEventListener("popupshown", test4agIPopupShown, false);
+    gInvalidFormPopup.removeEventListener("popupshown", test4agIPopupShown);
 
     let doc = gBrowser.contentDocument;
     is(doc.activeElement, doc.getElementById('i'),
@@ -160,7 +160,7 @@ function test4a()
       gBrowser.removeTab(gBrowser.selectedTab);
       executeSoon(test4b);
     });
-  }, false);
+  });
 
   tab.linkedBrowser.addEventListener("load", function test4aTabLBLoad(aEvent) {
     tab.linkedBrowser.removeEventListener("load", test4aTabLBLoad, true);
@@ -182,7 +182,7 @@ function test4b()
   let tab = gBrowser.addTab();
 
   gInvalidFormPopup.addEventListener("popupshown", function test4bgIpopupShown() {
-    gInvalidFormPopup.removeEventListener("popupshown", test4bgIpopupShown, false);
+    gInvalidFormPopup.removeEventListener("popupshown", test4bgIpopupShown);
 
     let doc = gBrowser.contentDocument;
     is(doc.activeElement, doc.getElementById('i'),
@@ -200,7 +200,7 @@ function test4b()
       gBrowser.removeTab(gBrowser.selectedTab);
       executeSoon(test5);
     });
-  }, false);
+  });
 
   tab.linkedBrowser.addEventListener("load", function test4bTabLBLoad(aEvent) {
     tab.linkedBrowser.removeEventListener("load", test4bTabLBLoad, true);
@@ -222,7 +222,7 @@ function test5()
   let tab = gBrowser.addTab();
 
   gInvalidFormPopup.addEventListener("popupshown", function test5gIpopupShown() {
-    gInvalidFormPopup.removeEventListener("popupshown", test5gIpopupShown, false);
+    gInvalidFormPopup.removeEventListener("popupshown", test5gIpopupShown);
 
     let doc = gBrowser.contentDocument;
     is(doc.activeElement, doc.getElementById('i'),
@@ -240,7 +240,7 @@ function test5()
       gBrowser.removeTab(gBrowser.selectedTab);
       executeSoon(test6);
     });
-  }, false);
+  });
 
   tab.linkedBrowser.addEventListener("load", function test5TabLBLoad(aEvent) {
     tab.linkedBrowser.removeEventListener("load", test5TabLBLoad, true);
@@ -261,7 +261,7 @@ function test6()
   let tab = gBrowser.addTab();
 
   gInvalidFormPopup.addEventListener("popupshown", function test6gIpopupShown() {
-    gInvalidFormPopup.removeEventListener("popupshown", test6gIpopupShown, false);
+    gInvalidFormPopup.removeEventListener("popupshown", test6gIpopupShown);
 
     let doc = gBrowser.contentDocument;
     is(doc.activeElement, doc.getElementById('i'),
@@ -279,7 +279,7 @@ function test6()
       gBrowser.removeTab(gBrowser.selectedTab);
       executeSoon(test7);
     });
-  }, false);
+  });
 
   tab.linkedBrowser.addEventListener("load", function test6TabLBLoad(aEvent) {
     tab.linkedBrowser.removeEventListener("load", test6TabLBLoad, true);
@@ -300,7 +300,7 @@ function test7()
   let tab = gBrowser.addTab();
 
   gInvalidFormPopup.addEventListener("popupshown", function test7gIpopupShown() {
-    gInvalidFormPopup.removeEventListener("popupshown", test7gIpopupShown, false);
+    gInvalidFormPopup.removeEventListener("popupshown", test7gIpopupShown);
 
     let doc = gBrowser.contentDocument;
     is(doc.activeElement, doc.getElementById('i'),
@@ -321,7 +321,7 @@ function test7()
       gBrowser.removeTab(gBrowser.selectedTab);
       executeSoon(test8);
     });
-  }, false);
+  });
 
   tab.linkedBrowser.addEventListener("load", function test7TabLBLoad(aEvent) {
     tab.linkedBrowser.removeEventListener("load", test7TabLBLoad, true);
@@ -384,7 +384,7 @@ function test9()
   let tab = gBrowser.addTab();
 
   gInvalidFormPopup.addEventListener("popupshown", function test9gIpopupShown() {
-    gInvalidFormPopup.removeEventListener("popupshown", test9gIpopupShown, false);
+    gInvalidFormPopup.removeEventListener("popupshown", test9gIpopupShown);
 
     let doc = gBrowser.contentDocument;
     is(doc.activeElement, doc.getElementById('i'),
@@ -398,7 +398,7 @@ function test9()
     // Clean-up and next test.
     gBrowser.removeTab(gBrowser.selectedTab);
     executeSoon(test10);
-  }, false);
+  });
 
   tab.linkedBrowser.addEventListener("load", function test9TabLBLoad(aEvent) {
     tab.linkedBrowser.removeEventListener("load", test9TabLBLoad, true);
@@ -419,7 +419,7 @@ function test10()
   let tab = gBrowser.addTab();
 
   gInvalidFormPopup.addEventListener("popupshown", function test10gIpopupShown() {
-    gInvalidFormPopup.removeEventListener("popupshown", test10gIpopupShown, false);
+    gInvalidFormPopup.removeEventListener("popupshown", test10gIpopupShown);
 
     let doc = gBrowser.contentDocument;
     let input = doc.getElementById('i');
@@ -431,7 +431,7 @@ function test10()
        "The panel should show the current validation message");
 
     input.addEventListener('input', function test10InputInput() {
-      input.removeEventListener('input', test10InputInput, false);
+      input.removeEventListener('input', test10InputInput);
 
       executeSoon(function() {
         // Now, the element suffers from another error, the message should have
@@ -443,10 +443,10 @@ function test10()
         gBrowser.removeTab(gBrowser.selectedTab);
         executeSoon(finish);
       });
-    }, false);
+    });
 
     EventUtils.synthesizeKey('f', {});
-  }, false);
+  });
 
   tab.linkedBrowser.addEventListener("load", function test10TabLBLoad(aEvent) {
     tab.linkedBrowser.removeEventListener("load", test10TabLBLoad, true);

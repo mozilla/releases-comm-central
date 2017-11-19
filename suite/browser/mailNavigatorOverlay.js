@@ -156,7 +156,7 @@ function initMailContextMenuPopupListener(aEvent)
 {
   var popup = document.getElementById("contentAreaContextMenu");
   if (popup)
-    popup.addEventListener("popupshowing", initMailContextMenuItems, false);
+    popup.addEventListener("popupshowing", initMailContextMenuItems);
 }
 
 function hideMenuitems() {

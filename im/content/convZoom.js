@@ -22,7 +22,7 @@ var FullZoom = {
 
   destroy: function FullZoom_destroy() {
     Services.prefs.removeObserver(FullZoom.prefName, FullZoom);
-    window.removeEventListener("DOMMouseScroll", FullZoom.handleMouseScrolled, false);
+    window.removeEventListener("DOMMouseScroll", FullZoom.handleMouseScrolled);
   },
 
   // Events Handlers / Observe

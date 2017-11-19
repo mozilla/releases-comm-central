@@ -1053,15 +1053,15 @@
           this.firstChild.maxWidth = this.mTabMaxWidth;
           this.adjustTabstrip();
           this.mPrefs.addObserver("browser.tabs.", this, false);
-          window.addEventListener("resize", this, false);
+          window.addEventListener("resize", this);
 
           // Listen to overflow/underflow events on the tabstrip,
           // we cannot put these as xbl handlers on the entire binding because
           // they would also get called for the all-tabs popup scrollbox.
           // Also, we can't rely on event.target because these are all
           // anonymous nodes.
-          this.mTabstrip.addEventListener("overflow",  this, false);
-          this.mTabstrip.addEventListener("underflow", this, false);
+          this.mTabstrip.addEventListener("overflow",  this);
+          this.mTabstrip.addEventListener("underflow", this);
         ]]>
       </constructor>
 
@@ -1075,8 +1075,8 @@
             this._animateTimer.cancel();
             this._animateTimer = null;
           }
-          this.mTabstrip.removeEventListener("overflow", this, false);
-          this.mTabstrip.removeEventListener("underflow", this, false);
+          this.mTabstrip.removeEventListener("overflow", this);
+          this.mTabstrip.removeEventListener("underflow", this);
         ]]>
       </destructor>
 
@@ -1403,9 +1403,9 @@
             document.addBroadcastListenerFor(aTabNode, menuItem, "selected");
             document.addBroadcastListenerFor(aTabNode, menuItem, "NewMessages");
             document.addBroadcastListenerFor(aTabNode, menuItem, "BiffState");
-            aTabNode.addEventListener("TabClose", this, false);
+            aTabNode.addEventListener("TabClose", this);
             menuItem.tab = aTabNode;
-            menuItem.addEventListener("command", this, false);
+            menuItem.addEventListener("command", this);
             this.appendChild(menuItem);
             return menuItem;
           ]]>
@@ -1422,8 +1422,8 @@
 
           // Listen for changes in the tab bar.
           let tabbrowser = document.getBindingParent(tabcontainer);
-          tabbrowser.addEventListener("TabOpen", this, false);
-          tabcontainer.mTabstrip.addEventListener("scroll", this, false);
+          tabbrowser.addEventListener("TabOpen", this);
+          tabcontainer.mTabstrip.addEventListener("scroll", this);
 
           // if an animation is in progress and the user
           // clicks on the "all tabs" button, stop the animation
@@ -1448,14 +1448,14 @@
             document.removeBroadcastListenerFor(menuItem.tab, menuItem, "selected");
             document.removeBroadcastListenerFor(menuItem.tab, menuItem, "NewMessages");
             document.removeBroadcastListenerFor(menuItem.tab, menuItem, "BiffState");
-            menuItem.removeEventListener("command", this, false);
-            menuItem.tab.removeEventListener("TabClose", this, false);
+            menuItem.removeEventListener("command", this);
+            menuItem.tab.removeEventListener("TabClose", this);
             menuItem.tab.mCorrespondingMenuitem = null;
             menuItem.remove();
           }
           let tabcontainer = document.getBindingParent(this);
-          tabcontainer.mTabstrip.removeEventListener("scroll", this, false);
-          document.getBindingParent(tabcontainer).removeEventListener("TabOpen", this, false);
+          tabcontainer.mTabstrip.removeEventListener("scroll", this);
+          document.getBindingParent(tabcontainer).removeEventListener("TabOpen", this);
         ]]>
       </handler>
 

@@ -339,7 +339,7 @@
             document.getAnonymousElementByAttribute(this, "anonid", "displayname").value;
         }
         this.removeAttribute("aliasing");
-        this.parentNode.removeEventListener("select", this._parentSelectListener, false);
+        this.parentNode.removeEventListener("select", this._parentSelectListener);
         delete this._parentSelectListener;
         this.parentNode.focus();
       ]]>

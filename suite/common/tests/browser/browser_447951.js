@@ -20,7 +20,7 @@ function test() {
 
     ss.setTabState(tab, JSON.stringify(tabState));
     tab.addEventListener("SSTabRestored", function testTabSSTabRestored(aEvent) {
-      tab.removeEventListener("SSTabRestored", testTabSSTabRestored, false);
+      tab.removeEventListener("SSTabRestored", testTabSSTabRestored);
       tabState = JSON.parse(ss.getTabState(tab));
       is(tabState.entries.length, max_entries, "session history filled to the limit");
       is(tabState.entries[0].url, baseURL + 0, "... but not more");
@@ -45,6 +45,6 @@ function test() {
         getBrowser().removeTab(tab);
         finish();
       });
-    }, false);
+    });
   }, true);
 }

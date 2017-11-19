@@ -29,7 +29,7 @@ var AlertWatcher = {
   planForAlert: function(aController) {
     this.alerted = false;
     aController.window.document.addEventListener("AlertActive",
-                                                 this.alertActive, false);
+                                                 this.alertActive);
   },
   waitForAlert: function(aController) {
     if (!this.alerted) {
@@ -37,7 +37,7 @@ var AlertWatcher = {
                           ALERT_TIMEOUT, 100);
     }
     aController.window.document.removeEventListener("AlertActive",
-                                                    this.alertActive, false);
+                                                    this.alertActive);
   },
   alerted: false,
   alertActive: function() {

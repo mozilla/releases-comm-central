@@ -335,7 +335,7 @@
         let dis = this;
         this.filterNode.addEventListener("change", function(event) {
           return dis.filterChanged(event);
-        }, false);
+        });
 
         this.selectedValue = "all";
       ]]></body>

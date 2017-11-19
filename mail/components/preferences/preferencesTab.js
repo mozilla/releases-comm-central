@@ -70,7 +70,7 @@ var preferencesTabType = {
 
     aTab.browser.setAttribute("id", "preferencesTabBrowser" + this.lastBrowserId);
 
-    aTab.browser.addEventListener("DOMLinkAdded", DOMLinkHandler, false);
+    aTab.browser.addEventListener("DOMLinkAdded", DOMLinkHandler);
 
     // Default to reload being disabled.
     aTab.reloadEnabled = false;

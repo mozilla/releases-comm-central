@@ -1768,7 +1768,7 @@
          this.removeAttribute("editing");
          elt.removeEventListener("keypress", this._topicKeyPress, true);
          delete this._topicKeyPress;
-         elt.removeEventListener("blur", this._topicBlur, false);
+         elt.removeEventListener("blur", this._topicBlur);
          delete this._topicBlur;
 
          // After removing the "editing" attribute, the focus is on an element

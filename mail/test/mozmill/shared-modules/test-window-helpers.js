@@ -1721,12 +1721,12 @@ function augment_controller(aController, aWindowType) {
 
     // - bubbling listeners
     // (so we can see if the event got killed / eaten)
-    doc.addEventListener("mousedown", __bubbled_click_handler, false);
-    doc.addEventListener("click", __bubbled_click_handler, false);
-    doc.addEventListener("contextmenu", __bubbled_click_handler, false);
-    doc.addEventListener("mouseup", __bubbled_click_handler, false);
+    doc.addEventListener("mousedown", __bubbled_click_handler);
+    doc.addEventListener("click", __bubbled_click_handler);
+    doc.addEventListener("contextmenu", __bubbled_click_handler);
+    doc.addEventListener("mouseup", __bubbled_click_handler);
 
-    doc.addEventListener("keypress", __bubbled_keypress_handler, false);
+    doc.addEventListener("keypress", __bubbled_keypress_handler);
 
     // - also, add pop-up shown/hidden events....
     // We need to add these directly to the popups themselves in order to

@@ -314,9 +314,9 @@ function goCustomizeToolbar(toolbox)
     // that the user doesn't see a white flash.
     panel.style.visibility = "hidden";
     toolbox.addEventListener("beforecustomization", function toolboxBeforeCustom() {
-      toolbox.removeEventListener("beforecustomization", toolboxBeforeCustom, false);
+      toolbox.removeEventListener("beforecustomization", toolboxBeforeCustom);
       panel.style.removeProperty("visibility");
-    }, false);
+    });
     panel.openPopup(toolbox, "after_start", 0, 0);
     return sheetFrame.contentWindow;
   }

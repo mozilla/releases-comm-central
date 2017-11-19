@@ -246,7 +246,7 @@ MultiMessageSummary.prototype = {
                                 formatString("noSubject");
       subjectNode.addEventListener("click", function() {
         window.top.gFolderDisplay.selectMessages(thread);
-      }, false);
+      });
       itemHeaderNode.appendChild(subjectNode);
 
       if (thread && thread.length > 1) {
@@ -275,7 +275,7 @@ MultiMessageSummary.prototype = {
       authorNode.addEventListener("click", function() {
         window.top.gFolderDisplay.selectMessage(message);
         window.top.document.getElementById("messagepane").focus();
-      }, false);
+      });
       itemHeaderNode.appendChild(authorNode);
     }
 

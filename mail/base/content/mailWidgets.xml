@@ -2376,7 +2376,7 @@
       <handler event="click" button="0" action="if (this.updateHover(event) >= 0) this.fire();"/>
       <handler event="popupshowing">
         <![CDATA[
-          this.parentNode.addEventListener("blur", this.onBlurMenuList, false);
+          this.parentNode.addEventListener("blur", this.onBlurMenuList);
           var box = this.tree.treeBoxObject;
           box.focused = true;
           var index = this.setInitialSelection();
@@ -2389,7 +2389,7 @@
       </handler>
       <handler event="popuphiding">
         <![CDATA[
-          this.parentNode.removeEventListener("blur", this.onBlurMenuList, false);
+          this.parentNode.removeEventListener("blur", this.onBlurMenuList);
         ]]>
       </handler>
     </handlers>
@@ -2723,13 +2723,13 @@
 
     <implementation implements="nsIDOMEventListener">
       <constructor><![CDATA[
-        this._parentMenupopup.addEventListener("DOMMenuItemActive", this, false);
-        this._parentMenupopup.addEventListener("popuphidden", this, false);
+        this._parentMenupopup.addEventListener("DOMMenuItemActive", this);
+        this._parentMenupopup.addEventListener("popuphidden", this);
       ]]></constructor>
 
       <destructor><![CDATA[
-        this._parentMenupopup.removeEventListener("DOMMenuItemActive", this, false);
-        this._parentMenupopup.removeEventListener("popuphidden", this, false);
+        this._parentMenupopup.removeEventListener("DOMMenuItemActive", this);
+        this._parentMenupopup.removeEventListener("popuphidden", this);
       ]]></destructor>
 
       <field name="menuitem" readonly="true">

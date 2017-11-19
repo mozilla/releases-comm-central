@@ -63,9 +63,9 @@ function test() {
     let detectKeyEvent = function (event) {
       eventConsumed = event.defaultPrevented;
     };
-    document.addEventListener("keypress", detectKeyEvent, false);
+    document.addEventListener("keypress", detectKeyEvent);
     pressCtrlTab();
-    document.removeEventListener("keypress", detectKeyEvent, false);
+    document.removeEventListener("keypress", detectKeyEvent);
     ok(eventConsumed, "Ctrl+Tab consumed by the tabbed browser if one tab is open");
     is(focusedWindow.location, document.commandDispatcher.focusedWindow.location,
        "Ctrl+Tab doesn't change focus if one tab is open");
@@ -78,10 +78,10 @@ function test() {
   assertTabs(4);
   selectTabs([0, 1, 2, 3]);
   pressCtrlTab();
-  ctrlTab.panel.addEventListener("popupshown", stickyTests, false);
+  ctrlTab.panel.addEventListener("popupshown", stickyTests);
 
   function stickyTests() {
-    ctrlTab.panel.removeEventListener("popupshown", stickyTests, false);
+    ctrlTab.panel.removeEventListener("popupshown", stickyTests);
 
     EventUtils.synthesizeKey("f", { ctrlKey: true });
     is(document.activeElement, ctrlTab.searchField.inputField,

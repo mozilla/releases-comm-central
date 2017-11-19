@@ -44,7 +44,7 @@ function test() {
   // open a window and add the above closed tab list
   let newWin = openDialog(location, "", "chrome,all,dialog=no");
   newWin.addEventListener("load", function loadListener(aEvent) {
-    newWin.removeEventListener("load", loadListener, false);
+    newWin.removeEventListener("load", loadListener);
 
     Services.prefs.setIntPref("browser.sessionstore.max_tabs_undo",
                               test_state.windows[0]._closedTabs.length);
@@ -84,5 +84,5 @@ function test() {
     is(browserWindowsCount(), 1, "Only one browser window should be open eventually");
     Services.prefs.clearUserPref("browser.sessionstore.max_tabs_undo");
     finish();
-  }, false);
+  });
 }

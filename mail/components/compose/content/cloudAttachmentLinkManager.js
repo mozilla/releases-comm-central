@@ -7,9 +7,9 @@ var gCloudAttachmentLinkManager = {
     this.cloudAttachments = [];
 
     let bucket = document.getElementById("attachmentBucket");
-    bucket.addEventListener("attachment-uploaded", this, false);
-    bucket.addEventListener("attachments-removed", this, false);
-    bucket.addEventListener("attachments-converted", this, false);
+    bucket.addEventListener("attachment-uploaded", this);
+    bucket.addEventListener("attachments-removed", this);
+    bucket.addEventListener("attachments-converted", this);
 
     // If we're restoring a draft that has some attachments,
     // check to see if any of them are marked to be sent via

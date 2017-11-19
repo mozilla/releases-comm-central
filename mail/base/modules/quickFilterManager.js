@@ -811,7 +811,7 @@ var TagFacetingFilter = {
       aMuxer.updateSearch();
     }
     aDocument.getElementById("qfb-boolean-mode").addEventListener(
-      "ValueChange", commandHandler, false);
+      "ValueChange", commandHandler);
   },
 
   reflectInDOM: function TFF_reflectInDOM(aNode, aFilterValue,
@@ -887,8 +887,8 @@ var TagFacetingFilter = {
         let button = aDocument.createElement("toolbarbutton");
 
         button.setAttribute("id", "qfb-tag-" + tag.key);
-        button.addEventListener("command", commandHandler, false);
-        button.addEventListener("click", rightClickHandler, false);
+        button.addEventListener("command", commandHandler);
+        button.addEventListener("click", rightClickHandler);
         button.setAttribute("type", "checkbox");
         if (keywordMap[tag.key] !== null) {
           button.setAttribute("checked", "true");
@@ -1087,7 +1087,7 @@ var MessageTextFilter = {
       else if (aEvent.keyCode == aEvent.DOM_VK_RETURN) {
       }
       return true;
-    }, false);
+    });
 
     // -- Blurring kills upsell.
     aNode.addEventListener("blur", function(aEvent) {
@@ -1110,7 +1110,7 @@ var MessageTextFilter = {
     for (let name in this.textFilterDefs) {
       let textFilter  = this.textFilterDefs[name];
       aDocument.getElementById(textFilter.domId).addEventListener(
-        "command", commandHandler, false);
+        "command", commandHandler);
     }
   },
 

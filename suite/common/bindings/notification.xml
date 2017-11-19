@@ -873,8 +873,7 @@
                                         if (callbackArgs.length == 0)
                                           callbackArgs = [ aEvent ];
                                         callback.apply(this, callbackArgs);
-                                      }.bind(this),
-                                      false);
+                                      }.bind(this));
 
             linkNode.addEventListener("keydown",
                                       function(aEvent) {
@@ -887,8 +886,7 @@
                                         if (callbackArgs.length == 0)
                                           callbackArgs = [ aEvent ];
                                         callback.apply(this, callbackArgs);
-                                      }.bind(this),
-                                      false);
+                                      }.bind(this));
           ]]>
         </body>
       </method>
@@ -2342,7 +2340,7 @@
               // lifetime (which should be no greater than the page).
               // Clever solution? Use a closure with an event listener on the statusDiv.
               // When it goes away, so do the listener references and the closure.
-              statusDiv.addEventListener("mozCleverClosureHack", observer, false);
+              statusDiv.addEventListener("mozCleverClosureHack", observer);
             }
           }
 

@@ -175,7 +175,7 @@ var statusSelector = {
       elt.setAttribute("value", elt.getAttribute("usingDefault"));
     TextboxSpellChecker.unregisterTextbox(elt);
     elt.removeAttribute("editing");
-    elt.removeEventListener("blur", this.statusMessageBlur, false);
+    elt.removeEventListener("blur", this.statusMessageBlur);
 
     // We need to put the focus back on the label after the textbox
     // binding has been detached, otherwise the focus gets lost (it's
@@ -255,8 +255,8 @@ var statusSelector = {
       elt.setAttribute("value", elt.getAttribute("usingDefault"));
 
     elt.removeAttribute("editing");
-    elt.removeEventListener("keypress", this.displayNameKeyPress, false);
-    elt.removeEventListener("blur", this.displayNameBlur, false);
+    elt.removeEventListener("keypress", this.displayNameKeyPress);
+    elt.removeEventListener("blur", this.displayNameBlur);
   },
 
   init: function ss_load() {

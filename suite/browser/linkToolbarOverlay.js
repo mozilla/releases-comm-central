@@ -189,8 +189,7 @@ function()
   if (linkToolbarUI.isLinkToolbarEnabled())
   {
     if (!linkToolbarUI.addHandlerActive) {
-      contentArea.addEventListener("select", linkToolbarUI.tabSelected,
-                                   false);
+      contentArea.addEventListener("select", linkToolbarUI.tabSelected);
       contentArea.addEventListener("DOMLinkAdded", linkToolbarUI.linkAdded,
                                    true);
       linkToolbarUI.addHandlerActive = true;
@@ -198,8 +197,7 @@ function()
   } else
   {
     if (linkToolbarUI.addHandlerActive) {
-      contentArea.removeEventListener("select", linkToolbarUI.tabSelected,
-                                      false);
+      contentArea.removeEventListener("select", linkToolbarUI.tabSelected);
       contentArea.removeEventListener("DOMLinkAdded", linkToolbarUI.linkAdded,
                                       true);
       linkToolbarUI.addHandlerActive = false;

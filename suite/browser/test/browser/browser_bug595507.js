@@ -13,7 +13,7 @@ function test()
   let tab = gBrowser.addTab();
 
   gInvalidFormPopup.addEventListener("popupshown", function testgIpopupShown() {
-    gInvalidFormPopup.removeEventListener("popupshown", testgIpopupShown, false);
+    gInvalidFormPopup.removeEventListener("popupshown", testgIpopupShown);
 
     let doc = gBrowser.contentDocument.getElementsByTagName('iframe')[0].contentDocument;
     is(doc.activeElement, doc.getElementById('i'),
@@ -25,7 +25,7 @@ function test()
     // Clean-up and next test.
     gBrowser.removeTab(gBrowser.selectedTab, {animate: false});
     executeSoon(finish);
-  }, false);
+  });
 
   tab.linkedBrowser.addEventListener("load", function testTabLBLoad(aEvent) {
     tab.linkedBrowser.removeEventListener("load", testTabLBLoad, true);

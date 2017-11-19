@@ -418,4 +418,4 @@ function ViewPickerOnLoad()
 }
 
 
-window.addEventListener("load", ViewPickerOnLoad, false);
+window.addEventListener("load", ViewPickerOnLoad);

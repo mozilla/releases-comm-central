@@ -23,7 +23,7 @@ function test() {
 
   let window_B = openDialog(location, "_blank", "chrome,all,dialog=no");
   window_B.addEventListener("load", function testWindowBLoad(aEvent) {
-    window_B.removeEventListener("load", testWindowBLoad, false);
+    window_B.removeEventListener("load", testWindowBLoad);
 
       waitForFocus(function() {
         // Add identifying information to window_B
@@ -55,5 +55,5 @@ function test() {
           finish();
         });
       }, window_B);
-  }, false);
+  });
 }

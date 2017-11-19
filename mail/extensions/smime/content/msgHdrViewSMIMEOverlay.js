@@ -210,8 +210,8 @@ function onSMIMEBeforeShowHeaderPane() {
 function msgHdrViewSMIMEOnLoad(event)
 {
   window.crypto.enableSmartCardEvents = true;
-  document.addEventListener("smartcard-insert", onSmartCardChange, false);
-  document.addEventListener("smartcard-remove", onSmartCardChange, false);
+  document.addEventListener("smartcard-insert", onSmartCardChange);
+  document.addEventListener("smartcard-remove", onSmartCardChange);
   if (!gSMIMEBundle)
     gSMIMEBundle = document.getElementById("bundle_read_smime");
 
@@ -240,8 +240,8 @@ function msgHdrViewSMIMEOnLoad(event)
 function msgHdrViewSMIMEOnUnload(event)
 {
   window.crypto.enableSmartCardEvents = false;
-  document.removeEventListener("smartcard-insert", onSmartCardChange, false);
-  document.removeEventListener("smartcard-remove", onSmartCardChange, false);
+  document.removeEventListener("smartcard-insert", onSmartCardChange);
+  document.removeEventListener("smartcard-remove", onSmartCardChange);
   forgetEncryptedURI();
   removeEventListener('messagepane-loaded', msgHdrViewSMIMEOnLoad, true);
   removeEventListener('messagepane-unloaded', msgHdrViewSMIMEOnUnload, true);

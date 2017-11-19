@@ -3072,7 +3072,7 @@
 
       <constructor>
         <![CDATA[
-          document.addEventListener("keypress", this._keyEventHandler, false);
+          document.addEventListener("keypress", this._keyEventHandler);
           this.arrowKeysShouldWrap = /Mac/.test(navigator.platform);
           // Bail out early if we are in tabmail. See Bug 521803.
           if (!this.mPanelContainer)
@@ -3138,7 +3138,7 @@
 
       <destructor>
         <![CDATA[
-          document.removeEventListener("keypress", this._keyEventHandler, false);
+          document.removeEventListener("keypress", this._keyEventHandler);
           // Bail out early if we are in tabmail. See Bug 521803.
           if (!this.mPanelContainer)
             return;
@@ -3332,13 +3332,13 @@
           this.mTabstrip.style.minWidth =
           tab.style.minWidth = this.mPrefs.getIntPref("browser.tabs.tabMinWidth") + "px";
           tab.style.maxWidth = this.mPrefs.getIntPref("browser.tabs.tabMaxWidth") + "px";
-          window.addEventListener("resize", this, false);
+          window.addEventListener("resize", this);
         ]]>
       </constructor>
 
       <destructor>
         <![CDATA[
-          window.removeEventListener("resize", this, false);
+          window.removeEventListener("resize", this);
         ]]>
       </destructor>
 
@@ -3565,7 +3565,7 @@
             document.addBroadcastListenerFor(aTabNode, menuItem, "image");
             document.addBroadcastListenerFor(aTabNode, menuItem, "busy");
             document.addBroadcastListenerFor(aTabNode, menuItem, "selected");
-            aTabNode.addEventListener("TabClose", this, false);
+            aTabNode.addEventListener("TabClose", this);
             menuItem.tab = aTabNode;
             this.appendChild(menuItem);
             return menuItem;
@@ -3583,8 +3583,8 @@
 
           // Listen for changes in the tab bar.
           let tabbrowser = document.getBindingParent(tabcontainer);
-          tabbrowser.addEventListener("TabOpen", this, false);
-          tabcontainer.mTabstrip.addEventListener("scroll", this, false);
+          tabbrowser.addEventListener("TabOpen", this);
+          tabcontainer.mTabstrip.addEventListener("scroll", this);
 
           for (let i = 0; i < tabs.length; i++)
             this._createTabMenuItem(tabs[i]);
@@ -3603,14 +3603,14 @@
             document.removeBroadcastListenerFor(menuItem.tab, menuItem, "image");
             document.removeBroadcastListenerFor(menuItem.tab, menuItem, "busy");
             document.removeBroadcastListenerFor(menuItem.tab, menuItem, "selected");
-            menuItem.tab.removeEventListener("TabClose", this, false);
+            menuItem.tab.removeEventListener("TabClose", this);
             menuItem.tab.mCorrespondingMenuitem = null;
             menuItem.tab = null;
             menuItem.remove();
           }
           let tabcontainer = document.getBindingParent(this);
-          tabcontainer.mTabstrip.removeEventListener("scroll", this, false);
-          document.getBindingParent(tabcontainer).removeEventListener("TabOpen", this, false);
+          tabcontainer.mTabstrip.removeEventListener("scroll", this);
+          document.getBindingParent(tabcontainer).removeEventListener("TabOpen", this);
         ]]>
       </handler>
 

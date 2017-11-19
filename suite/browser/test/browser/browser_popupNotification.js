@@ -17,7 +17,7 @@ function cleanUp() {
   for (var topic in gActiveObservers)
     Services.obs.removeObserver(gActiveObservers[topic], topic);
   for (var eventName in gActiveListeners)
-    PopupNotifications.panel.removeEventListener(eventName, gActiveListeners[eventName], false);
+    PopupNotifications.panel.removeEventListener(eventName, gActiveListeners[eventName]);
 }
 
 var gActiveListeners = {};
@@ -94,13 +94,13 @@ function doOnPopupEvent(eventName, callback, numExpected) {
     if (typeof(numExpected) === "number")
       numExpected--;
     if (!numExpected) {
-      PopupNotifications.panel.removeEventListener(eventName, gActiveListeners[eventName], false);
+      PopupNotifications.panel.removeEventListener(eventName, gActiveListeners[eventName]);
       delete gActiveListeners[eventName];
     }
 
     callback.call(PopupNotifications.panel);
   }
-  PopupNotifications.panel.addEventListener(eventName, gActiveListeners[eventName], false);
+  PopupNotifications.panel.addEventListener(eventName, gActiveListeners[eventName]);
 }
 
 var gTestIndex = 0;
@@ -747,7 +747,7 @@ function triggerSecondaryCommand(popup, index) {
   notification.button.focus();
 
   popup.addEventListener("popupshown", function triggerPopupShown() {
-    popup.removeEventListener("popupshown", triggerPopupShown, false);
+    popup.removeEventListener("popupshown", triggerPopupShown);
 
     // Press down until the desired command is selected
     for (let i = 0; i <= index; i++)
@@ -755,7 +755,7 @@ function triggerSecondaryCommand(popup, index) {
 
     // Activate
     EventUtils.synthesizeKey("VK_RETURN", {});
-  }, false);
+  });
 
   // One down event to open the popup
   EventUtils.synthesizeKey("VK_DOWN", { altKey: (navigator.platform.indexOf("Mac") == -1) });

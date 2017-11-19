@@ -99,7 +99,7 @@ function AppendTagEntry(aTagInfo, aRefChild)
 
   var entry = document.createElement('listitem');
   entry.addEventListener('focus', OnFocus, true);
-  entry.addEventListener('change', OnChange, false);
+  entry.addEventListener('change', OnChange);
   entry.setAttribute('allowevents', 'true');  // activate textbox and colorpicker
   entry.tagInfo = aTagInfo;
   entry.appendChild(tagCell);

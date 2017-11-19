@@ -6,12 +6,12 @@
 // "about:bloat" is available only when
 // (the application is) compiled with |--enable-logrefcnt|.
 if ("@mozilla.org/network/protocol/about;1?what=bloat" in Components.classes)
-  window.addEventListener("load", onLoadBloat, false);
+  window.addEventListener("load", onLoadBloat);
 
 // Unhide (and enable) the Bloat menu and its associated separator.
 function onLoadBloat()
 {
-  window.removeEventListener("load", onLoadBloat, false);
+  window.removeEventListener("load", onLoadBloat);
 
   // Ignore windows which don't get the Debug menu, like 'View Source'.
   if (!document.getElementById("debugMenu"))

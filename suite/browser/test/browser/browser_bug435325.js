@@ -9,7 +9,7 @@ function test() {
   waitForExplicitFinish();
 
   gBrowser.selectedTab = gBrowser.addTab();
-  window.addEventListener("DOMContentLoaded", checkPage, false);
+  window.addEventListener("DOMContentLoaded", checkPage);
 
 
   // Tests always connect to localhost, and per bug 87717, localhost is now
@@ -30,7 +30,7 @@ function checkPage() {
     return;
   }
 
-  window.removeEventListener("DOMContentLoaded", checkPage, false);
+  window.removeEventListener("DOMContentLoaded", checkPage);
 
   ok(Services.io.offline, "Setting Services.io.offline to true.");
   is(gBrowser.contentDocument.documentURI.substring(0,27),

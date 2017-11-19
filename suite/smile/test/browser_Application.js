@@ -25,7 +25,7 @@ WindowOpenListener.prototype = {
   handleEvent: function(event) {
     is(this.domwindow.document.location.href, this.url, "Should have opened the correct window");
 
-    this.domwindow.removeEventListener("load", this, false);
+    this.domwindow.removeEventListener("load", this);
     // Allow any other load handlers to execute
     var self = this;
     executeSoon(function() { self.opencallback(self.domwindow); } );
@@ -41,7 +41,7 @@ WindowOpenListener.prototype = {
     this.window = window;
     this.domwindow = window.QueryInterface(Ci.nsIInterfaceRequestor)
                            .getInterface(Ci.nsIDOMWindow);
-    this.domwindow.addEventListener("load", this, false);
+    this.domwindow.addEventListener("load", this);
   },
 
   onCloseWindow: function(window) {

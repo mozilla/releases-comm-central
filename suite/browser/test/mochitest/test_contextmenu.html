@@ -943,7 +943,7 @@ function startTest() {
     img_link   = subwindow.document.getElementById("test-image-link");
     img_mailto = subwindow.document.getElementById("test-image-mailto");
 
-    contextMenu.addEventListener("popupshown", function() { runTest(++testNum); }, false);
+    contextMenu.addEventListener("popupshown", function() { runTest(++testNum); });
     runTest(1);
 }
 
@@ -960,14 +960,14 @@ function waitForEvents(event)
   else if (event.type == "load")
     loaded = true;
   if (painted && loaded) {
-    subwindow.removeEventListener("MozAfterPaint", waitForEvents, false);
+    subwindow.removeEventListener("MozAfterPaint", waitForEvents);
     subwindow.onload = null;
     startTest();
   }
 }
 
 var subwindow = window.open("./subtst_contextmenu.html", "contextmenu-subtext", "width=600,height=700");
-subwindow.addEventListener("MozAfterPaint", waitForEvents, false);
+subwindow.addEventListener("MozAfterPaint", waitForEvents);
 subwindow.onload = waitForEvents;
 
 SimpleTest.waitForExplicitFinish();

@@ -190,7 +190,7 @@ var DownloadTaskbarProgressUpdater =
         // we've already set this before or not.
         aWindow.addEventListener("unload", function() {
           DownloadTaskbarProgressUpdater._onActiveWindowUnload(taskbarProgress);
-        }, false);
+        });
       }
       else {
         this._activeTaskbarProgress = null;

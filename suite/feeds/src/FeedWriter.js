@@ -929,11 +929,11 @@ FeedWriter.prototype = {
 
     // We update the "Always use.." checkbox label whenever the selected item
     // in the list is changed
-    handlersMenuPopup.addEventListener("command", this, false);
+    handlersMenuPopup.addEventListener("command", this);
 
     // Set up the "Subscribe Now" button
     this._getUIElement("subscribeButton")
-        .addEventListener("command", this, false);
+        .addEventListener("command", this);
 
     // first-run ui
     var showFirstRunUI = true;
@@ -1033,8 +1033,8 @@ FeedWriter.prototype = {
     Services.prefs.addObserver(PREF_AUDIO_SELECTED_WEB, this, false);
     Services.prefs.addObserver(PREF_AUDIO_SELECTED_APP, this, false);
 
-    this._window.addEventListener("load", this, false);
-    this._window.addEventListener("unload", this, false);
+    this._window.addEventListener("load", this);
+    this._window.addEventListener("unload", this);
   },
 
   _writeContent: function writeContent() {
@@ -1057,12 +1057,12 @@ FeedWriter.prototype = {
   },
 
   _close: function close() {
-    this._window.removeEventListener("load", this, false);
-    this._window.removeEventListener("unload", this, false);
+    this._window.removeEventListener("load", this);
+    this._window.removeEventListener("unload", this);
     this._getUIElement("handlersMenuPopup")
-        .removeEventListener("command", this, false);
+        .removeEventListener("command", this);
     this._getUIElement("subscribeButton")
-        .removeEventListener("command", this, false);
+        .removeEventListener("command", this);
     this._document = null;
     this._window = null;
     Services.prefs.removeObserver(PREF_SELECTED_ACTION, this);

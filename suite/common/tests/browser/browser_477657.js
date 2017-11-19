@@ -24,7 +24,7 @@ function test() {
 
   let newWin = openDialog(location, "_blank", "chrome,all,dialog=no");
   newWin.addEventListener("load", function loadListener(aEvent) {
-    newWin.removeEventListener("load", loadListener, false);
+    newWin.removeEventListener("load", loadListener);
 
     let newState = { windows: [{
       tabs: [{ entries: [] }],
@@ -76,5 +76,5 @@ function test() {
         }, 0);
       }, 0);
     }, 0);
-  }, false);
+  });
 }

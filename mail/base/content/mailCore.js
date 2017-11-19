@@ -315,7 +315,7 @@ function onViewToolbarsPopupShowing(aEvent, toolboxIds, aInsertPoint)
           document.persist(toolbar.id, hidingAttribute);
         }
 
-        menuItem.addEventListener("command", onMenuItemCommand, false);
+        menuItem.addEventListener("command", onMenuItemCommand);
       }
     }
   }

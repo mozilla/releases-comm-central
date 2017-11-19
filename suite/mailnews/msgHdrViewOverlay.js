@@ -1697,7 +1697,7 @@ function addAttachmentToPopup(popup, attachment, attachmentIndex)
         return;
       }
       openpopup.attachment = attachment;
-      openpopup.addEventListener('popupshowing', FillAttachmentItemPopup, false);
+      openpopup.addEventListener('popupshowing', FillAttachmentItemPopup);
       setApplicationIconForAttachment(attachment, item);
     }
   }
@@ -1707,7 +1707,7 @@ function FillAttachmentItemPopup(event)
 {
   var openpopup = event.target;
   var canDetach = CanDetachAttachments() && !openpopup.attachment.isExternalAttachment;
-  openpopup.removeEventListener('popupshowing', FillAttachmentItemPopup, false);
+  openpopup.removeEventListener('popupshowing', FillAttachmentItemPopup);
 
   var menuitementry = document.getElementById("context-openAttachment").cloneNode(false);
   menuitementry.setAttribute('oncommand', 'this.parentNode.attachment.openAttachment();');

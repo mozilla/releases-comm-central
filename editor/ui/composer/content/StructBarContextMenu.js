@@ -116,7 +116,7 @@ function StructChangeTag()
 
   gContextMenuNode.parentNode.replaceChild(textbox, gContextMenuNode);
 
-  textbox.addEventListener("keypress", OnKeyPress, false);
+  textbox.addEventListener("keypress", OnKeyPress);
   textbox.addEventListener("blur", ResetStructToolbar, true);
 
   textbox.select();

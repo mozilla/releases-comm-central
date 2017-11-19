@@ -78,7 +78,7 @@ var addAccountDialog = {
       return;
 
     // Hook up our onInput event handler
-    this._settings.addEventListener("DOMContentLoaded", this, false);
+    this._settings.addEventListener("DOMContentLoaded", this);
 
     this._settings.addEventListener("overflow", this);
 
@@ -104,7 +104,7 @@ var addAccountDialog = {
 
   onUnInit: function() {
     // Clean-up the event listeners.
-    this._settings.removeEventListener("DOMContentLoaded", this, false);
+    this._settings.removeEventListener("DOMContentLoaded", this);
     this._settings.removeEventListener("overflow", this);
     this._accountType.removeEventListener("select", this);
 

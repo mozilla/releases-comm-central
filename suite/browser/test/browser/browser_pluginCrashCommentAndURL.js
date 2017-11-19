@@ -27,14 +27,13 @@ function test() {
 
   let tab = gBrowser.loadOneTab("about:blank", { inBackground: false });
   let browser = tab.linkedBrowser;
-  browser.addEventListener("PluginCrashed", onCrash, false);
+  browser.addEventListener("PluginCrashed", onCrash);
   Services.obs.addObserver(onSubmitStatus, "crash-report-status", false);
 
   registerCleanupFunction(function cleanUp() {
     env.set("MOZ_CRASHREPORTER_NO_REPORT", noReport);
     env.set("MOZ_CRASHREPORTER_URL", serverURL);
-    gBrowser.selectedBrowser.removeEventListener("PluginCrashed", onCrash,
-                                                 false);
+    gBrowser.selectedBrowser.removeEventListener("PluginCrashed", onCrash);
     Services.obs.removeObserver(onSubmitStatus, "crash-report-status");
     gBrowser.removeCurrentTab();
   });
