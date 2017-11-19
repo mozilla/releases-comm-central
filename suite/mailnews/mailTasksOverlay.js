@@ -168,7 +168,7 @@ function MailTasksOnLoad(aEvent)
     return;
 
   // initialize biff state
-  Services.obs.addObserver(biffObserver, BIFF_TOPIC, false);
+  Services.obs.addObserver(biffObserver, BIFF_TOPIC);
   biffObserver.observe(null, BIFF_TOPIC, null); // init mini-mail icon
   addEventListener("unload", MailTasksOnUnload, false);
 

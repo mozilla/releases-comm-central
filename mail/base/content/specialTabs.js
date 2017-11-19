@@ -573,7 +573,7 @@ var specialTabs = {
     browser.webNavigation.sessionHistory =
       Components.classes["@mozilla.org/browser/shistory;1"]
                 .createInstance(Components.interfaces.nsISHistory);
-    Services.obs.addObserver(browser, "browser:purge-session-history", false);
+    Services.obs.addObserver(browser, "browser:purge-session-history");
 
     // remove the disablehistory attribute so the browser cleans up, as
     // though it had done this work itself
@@ -586,7 +586,7 @@ var specialTabs = {
       Components.utils.reportError("Places database may be locked: " + ex);
     }
 
-    Services.obs.addObserver(specialTabs, "mail-startup-done", false);
+    Services.obs.addObserver(specialTabs, "mail-startup-done");
 
     let tabmail = document.getElementById('tabmail');
 
@@ -1307,14 +1307,10 @@ var specialTabs = {
       return;
 
     Services.obs.removeObserver(specialTabs, "mail-startup-done");
-    Services.obs.addObserver(this.xpInstallObserver, "addon-install-disabled",
-                             false);
-    Services.obs.addObserver(this.xpInstallObserver, "addon-install-blocked",
-                             false);
-    Services.obs.addObserver(this.xpInstallObserver, "addon-install-failed",
-                             false);
-    Services.obs.addObserver(this.xpInstallObserver, "addon-install-complete",
-                             false);
+    Services.obs.addObserver(this.xpInstallObserver, "addon-install-disabled");
+    Services.obs.addObserver(this.xpInstallObserver, "addon-install-blocked");
+    Services.obs.addObserver(this.xpInstallObserver, "addon-install-failed");
+    Services.obs.addObserver(this.xpInstallObserver, "addon-install-complete");
   },
 
   onunload: function () {

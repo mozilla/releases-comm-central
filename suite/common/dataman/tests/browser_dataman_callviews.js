@@ -48,7 +48,7 @@ function test() {
     }
   };
   waitForExplicitFinish();
-  Services.obs.addObserver(testObs, DATAMAN_LOADED, false);
+  Services.obs.addObserver(testObs, DATAMAN_LOADED);
 }
 
 var testFuncs = [

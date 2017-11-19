@@ -29,12 +29,12 @@ function UserStatus()
 
   if (Services.prefs.getBoolPref(kPrefReportIdle))
     this._addIdleObserver();
-  Services.prefs.addObserver(kPrefReportIdle, this, false);
+  Services.prefs.addObserver(kPrefReportIdle, this);
 
   if (Services.io.offline)
     this._offlineStatusType = Ci.imIStatusInfo.STATUS_OFFLINE;
-  Services.obs.addObserver(this, NS_IOSERVICE_GOING_OFFLINE_TOPIC, false);
-  Services.obs.addObserver(this, NS_IOSERVICE_OFFLINE_STATUS_TOPIC, false);
+  Services.obs.addObserver(this, NS_IOSERVICE_GOING_OFFLINE_TOPIC);
+  Services.obs.addObserver(this, NS_IOSERVICE_OFFLINE_STATUS_TOPIC);
 }
 UserStatus.prototype = {
   __proto__: ClassInfo("imIUserStatusInfo", "User status info"),
@@ -52,12 +52,12 @@ UserStatus.prototype = {
     this._observingIdleness = true;
     this._idleService =
       Cc["@mozilla.org/widget/idleservice;1"].getService(Ci.nsIIdleService);
-    Services.obs.addObserver(this, "im-sent", false);
+    Services.obs.addObserver(this, "im-sent");
 
     this._timeBeforeIdle = Services.prefs.getIntPref(kPrefTimeBeforeIdle);
     if (this._timeBeforeIdle < 0)
       this._timeBeforeIdle = 0;
-    Services.prefs.addObserver(kPrefTimeBeforeIdle, this, false);
+    Services.prefs.addObserver(kPrefTimeBeforeIdle, this);
     if (this._timeBeforeIdle)
       this._idleService.addIdleObserver(this, this._timeBeforeIdle);
   },
@@ -247,7 +247,7 @@ CoreService.prototype = {
 
     initLogModule("core", this);
 
-    Services.obs.addObserver(this, kQuitApplicationGranted, false);
+    Services.obs.addObserver(this, kQuitApplicationGranted);
     this._initialized = true;
 
     Services.cmd.initCommands();

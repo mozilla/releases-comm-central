@@ -98,7 +98,7 @@ function test()
   };
 
   // Register with the observer service
-  os.addObserver(testObs, DLMGR_UI_DONE, false);
+  os.addObserver(testObs, DLMGR_UI_DONE);
 
   // Simulate an alert click with pref set to true
   setClose(true);

@@ -111,7 +111,7 @@ nsPrefListener.prototype =
   {
     this.domain = prefName;
     try {
-      Services.prefs.addObserver(this.domain, this, false);
+      Services.prefs.addObserver(this.domain, this);
     } catch(ex) {
       dump("Failed to observe prefs: " + ex + "\n");
     }

@@ -361,7 +361,7 @@ function test11b() {
   var popupNotification = PopupNotifications.getNotification("click-to-play-plugins", gTestBrowser);
   ok(!popupNotification, "Test 11b, Should not have a click-to-play notification");
 
-  Services.obs.addObserver(test11c, "PopupNotifications-updateNotShowing", false);
+  Services.obs.addObserver(test11c, "PopupNotifications-updateNotShowing");
   gTestBrowser.contentWindow.history.back();
 }
 

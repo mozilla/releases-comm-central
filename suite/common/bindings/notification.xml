@@ -1997,23 +1997,23 @@
 
           var os = Components.classes["@mozilla.org/observer-service;1"]
                              .getService(Components.interfaces.nsIObserverService);
-          os.addObserver(this, "indexedDB-permissions-prompt", false);
-          os.addObserver(this, "indexedDB-quota-prompt", false);
-          os.addObserver(this, "indexedDB-quota-cancel", false);
-          os.addObserver(this, "addon-install-blocked", false);
-          os.addObserver(this, "addon-install-complete", false);
-          os.addObserver(this, "addon-install-disabled", false);
-          os.addObserver(this, "addon-install-failed", false);
-          os.addObserver(this, "addon-install-started", false);
-          os.addObserver(this, "offline-cache-update-completed", false);
-          os.addObserver(this, "perm-changed", false);
-          os.addObserver(this, "formsubmit", false);
+          os.addObserver(this, "indexedDB-permissions-prompt");
+          os.addObserver(this, "indexedDB-quota-prompt");
+          os.addObserver(this, "indexedDB-quota-cancel");
+          os.addObserver(this, "addon-install-blocked");
+          os.addObserver(this, "addon-install-complete");
+          os.addObserver(this, "addon-install-disabled");
+          os.addObserver(this, "addon-install-failed");
+          os.addObserver(this, "addon-install-started");
+          os.addObserver(this, "offline-cache-update-completed");
+          os.addObserver(this, "perm-changed");
+          os.addObserver(this, "formsubmit");
 
-          this._prefs.addObserver("plugins.hide_infobar_for_outdated_plugin", this, false);
-          this._prefs.addObserver("plugins.hide_infobar_for_carbon_failure_plugin", this, false);
-          this._prefs.addObserver("plugins.hide_infobar_for_missing_plugin", this, false);
-          this._prefs.addObserver("privacy.popups.showBrowserMessage", this, false);
-          this._prefs.addObserver("dom.disable_open_during_load", this, false);
+          this._prefs.addObserver("plugins.hide_infobar_for_outdated_plugin", this);
+          this._prefs.addObserver("plugins.hide_infobar_for_carbon_failure_plugin", this);
+          this._prefs.addObserver("plugins.hide_infobar_for_missing_plugin", this);
+          this._prefs.addObserver("privacy.popups.showBrowserMessage", this);
+          this._prefs.addObserver("dom.disable_open_during_load", this);
 
           this.addProgressListener();
 

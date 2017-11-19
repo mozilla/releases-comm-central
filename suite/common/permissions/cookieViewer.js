@@ -51,8 +51,8 @@ function Startup() {
 
   // be prepared to reload the display if anything changes
   kObserverService = Components.classes["@mozilla.org/observer-service;1"].getService(Components.interfaces.nsIObserverService);
-  kObserverService.addObserver(cookieReloadDisplay, "cookie-changed", false);
-  kObserverService.addObserver(cookieReloadDisplay, "perm-changed", false);
+  kObserverService.addObserver(cookieReloadDisplay, "cookie-changed");
+  kObserverService.addObserver(cookieReloadDisplay, "perm-changed");
 
   // filter the table if requested by caller
   if (window.arguments &&

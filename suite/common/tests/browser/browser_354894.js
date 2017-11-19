@@ -150,7 +150,7 @@ function test() {
   function setupTestsuite(testFn) {
     // Register our observers
     for (let o in observing)
-      Services.obs.addObserver(observer, o, false);
+      Services.obs.addObserver(observer, o);
 
     // Make the main test window not count as a browser window any longer
     oldWinType = document.documentElement.getAttribute("windowtype");

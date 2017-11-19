@@ -94,7 +94,7 @@ function test() {
         ok(true, "Data Manager is loaded");
 
         win = content.wrappedJSObject;
-        Services.obs.addObserver(testObs, TEST_DONE, false);
+        Services.obs.addObserver(testObs, TEST_DONE);
         // Trigger the first test now!
         Services.obs.notifyObservers(window, TEST_DONE, null);
       }
@@ -115,7 +115,7 @@ function test() {
     }
   };
   waitForExplicitFinish();
-  Services.obs.addObserver(testObs, DATAMAN_LOADED, false);
+  Services.obs.addObserver(testObs, DATAMAN_LOADED);
 }
 
 var testFuncs = [

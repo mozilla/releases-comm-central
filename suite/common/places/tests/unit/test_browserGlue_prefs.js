@@ -37,7 +37,7 @@ function waitForImportAndSmartBookmarks(aCallback) {
     do_execute_soon(function () {
       promiseAsyncUpdates().then(aCallback);
     });
-  }, "bookmarks-restore-success", false);
+  }, "bookmarks-restore-success");
 }
 
 var tests = [];
@@ -235,9 +235,9 @@ function next_test() {
   // nsSuiteGlue stops observing topics after first notification,
   // so we add back the observer to test additional runs.
   os.addObserver(bg.QueryInterface(Ci.nsIObserver),
-                 PlacesUtils.TOPIC_INIT_COMPLETE, false);
+                 PlacesUtils.TOPIC_INIT_COMPLETE);
   os.addObserver(bg.QueryInterface(Ci.nsIObserver),
-                 PlacesUtils.TOPIC_DATABASE_LOCKED, false);
+                 PlacesUtils.TOPIC_DATABASE_LOCKED);
   // Execute next test.
   let test = tests.shift();
   print("\nTEST " + (++testIndex) + ": " + test.description);

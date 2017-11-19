@@ -146,7 +146,7 @@ ConvStatsService.prototype = {
     for (let contact of contacts)
       this._addContact(contact);
     for (let notification of kNotificationsToObserve)
-      Services.obs.addObserver(this, notification, false);
+      Services.obs.addObserver(this, notification);
 
     // Read all our conversation stats from the cache.
     this._statsCacheFilePath =
@@ -445,7 +445,7 @@ ConvStatsService.prototype = {
   _convsWithUpdatedStats: new Set(),
   observe: function(aSubject, aTopic, aData) {
     if (aTopic == "profile-after-change")
-      Services.obs.addObserver(this, "prpl-init", false);
+      Services.obs.addObserver(this, "prpl-init");
     else if (aTopic == "prpl-init") {
       executeSoon(() => this._init());
       Services.obs.removeObserver(this, "prpl-init");

@@ -243,7 +243,7 @@ var gComposePane = {
     },
     load: function() {
       // Observe changes of our prefs.
-      Services.prefs.addObserver(this.domain, this, false);
+      Services.prefs.addObserver(this.domain, this);
       // Unload the pref observer when preferences window is closed.
       window.addEventListener("unload", this.unload, true);
       this.inited = true;

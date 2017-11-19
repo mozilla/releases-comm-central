@@ -212,7 +212,7 @@ var SearchSupport =
         MailServices.mfn.folderMoveCopyCompleted |
         MailServices.mfn.folderRenamed);
         // itemEvent intentionally omitted
-      Services.obs.addObserver(this, "MsgMsgDisplayed", false);
+      Services.obs.addObserver(this, "MsgMsgDisplayed");
       let idleService = Cc["@mozilla.org/widget/idleservice;1"]
                           .getService(Ci.nsIIdleService);
       idleService.addIdleObserver(this, this._idleThresholdSecs);
@@ -268,7 +268,7 @@ var SearchSupport =
     this.enabled = enabled;
 
     // Set up a pref observer
-    this._prefBranch.addObserver("enable", this, false);
+    this._prefBranch.addObserver("enable", this);
   },
 
   /**
@@ -589,7 +589,7 @@ var SearchSupport =
     // and add ourselves back
     this._prefBranch.removeObserver("enable", this);
     this.prefEnabled = enabled;
-    this._prefBranch.addObserver("enable", this, false);
+    this._prefBranch.addObserver("enable", this);
   },
 
   /**

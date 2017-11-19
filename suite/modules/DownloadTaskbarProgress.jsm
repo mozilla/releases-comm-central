@@ -131,7 +131,7 @@ var DownloadTaskbarProgressUpdater =
 
     this._os = Cc["@mozilla.org/observer-service;1"].
                getService(Ci.nsIObserverService);
-    this._os.addObserver(this, "quit-application-granted", false);
+    this._os.addObserver(this, "quit-application-granted");
 
     this._updateStatus();
     // onBrowserWindowLoad/onDownloadWindowLoad are going to set the active

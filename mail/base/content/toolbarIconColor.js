@@ -9,7 +9,7 @@ var ToolbarIconColor = {
 
     window.addEventListener("activate", this);
     window.addEventListener("deactivate", this);
-    Services.obs.addObserver(this, "lightweight-theme-styling-update", false);
+    Services.obs.addObserver(this, "lightweight-theme-styling-update");
 
     // If the window isn't active now, we assume that it has never been active
     // before and will soon become active such that inferFromText will be

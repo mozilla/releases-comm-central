@@ -43,7 +43,7 @@ function runNextTest() {
       nextTest[topic]();
       goNext();
     }
-    Services.obs.addObserver(observer, "PopupNotifications-" + topic, false);
+    Services.obs.addObserver(observer, "PopupNotifications-" + topic);
     gActiveObservers["PopupNotifications-" + topic] = observer;
   }
 

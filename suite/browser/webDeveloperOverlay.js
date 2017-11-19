@@ -99,7 +99,7 @@ var gWebDeveloper = {
         }
         // Add Devtools menuitems, observers, and listeners
         gDevToolsBrowser.registerBrowserWindow(window);
-        Services.prefs.addObserver(this.devtoolsThemePref, this, false);
+        Services.prefs.addObserver(this.devtoolsThemePref, this);
         this.updateDevtoolsThemeAttribute();
         break;
 

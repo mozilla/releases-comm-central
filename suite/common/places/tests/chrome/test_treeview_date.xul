@@ -174,7 +174,7 @@
           aCallback();
         }
       };
-      Services.obs.addObserver(observer, TOPIC_EXPIRATION_FINISHED, false);
+      Services.obs.addObserver(observer, TOPIC_EXPIRATION_FINISHED);
       let hs = Cc["@mozilla.org/browser/nav-history-service;1"].
                getService(Ci.nsINavHistoryService);
       hs.QueryInterface(Ci.nsIBrowserHistory).removeAllPages();

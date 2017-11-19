@@ -1751,7 +1751,7 @@
           this.firstChild.maxWidth = this.mTabMaxWidth;
           this.adjustTabstrip();
 
-          Services.prefs.addObserver("mail.tabs.", this._prefObserver, false);
+          Services.prefs.addObserver("mail.tabs.", this._prefObserver);
 
           window.addEventListener("resize", this);
 

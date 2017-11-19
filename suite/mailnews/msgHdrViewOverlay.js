@@ -235,7 +235,7 @@ function OnLoadMsgHeaderPane()
   gShowMessageId = Services.prefs.getBoolPref("mailnews.headers.showMessageId");
   gExtraExpandedHeaders = Services.prefs.getCharPref("mailnews.headers.extraExpandedHeaders");
 
-  Services.prefs.addObserver("mail.showCondensedAddresses", MsgHdrViewObserver, false);
+  Services.prefs.addObserver("mail.showCondensedAddresses", MsgHdrViewObserver);
 
   initializeHeaderViewTables();
 

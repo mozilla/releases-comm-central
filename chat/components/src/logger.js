@@ -889,14 +889,14 @@ Logger.prototype = {
   observe: function logger_observe(aSubject, aTopic, aData) {
     switch (aTopic) {
     case "profile-after-change":
-      Services.obs.addObserver(this, "final-ui-startup", false);
+      Services.obs.addObserver(this, "final-ui-startup");
       break;
     case "final-ui-startup":
       Services.obs.removeObserver(this, "final-ui-startup");
       ["new-text", "conversation-closed", "conversation-left-chat",
        "account-connected", "account-disconnected",
        "account-buddy-status-changed"].forEach(function(aEvent) {
-        Services.obs.addObserver(this, aEvent, false);
+        Services.obs.addObserver(this, aEvent);
       }, this);
       break;
     case "new-text":

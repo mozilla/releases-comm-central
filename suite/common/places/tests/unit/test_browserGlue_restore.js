@@ -65,7 +65,7 @@ function run_test() {
 
   // The test will continue once restore has finished and smart bookmarks
   // have been created.
-  bs.addObserver(bookmarksObserver, false);
+  bs.addObserver(bookmarksObserver);
 }
 
 function continue_test() {

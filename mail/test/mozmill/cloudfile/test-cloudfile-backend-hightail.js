@@ -64,7 +64,7 @@ function test_simple_case() {
   let obs = new ObservationRecorder();
   for (let topic of kTopics) {
     obs.planFor(topic);
-    Services.obs.addObserver(obs, topic, false);
+    Services.obs.addObserver(obs, topic);
   }
 
   let requestObserver = gObsManager.create("test_simple_case - Upload 1");
@@ -109,7 +109,7 @@ function test_chained_uploads() {
   let obs = new ObservationRecorder();
   for (let topic of kTopics) {
     obs.planFor(topic);
-    Services.obs.addObserver(obs, topic, false);
+    Services.obs.addObserver(obs, topic);
   }
 
   let provider = gServer.getPreparedBackend("someAccountKey");
@@ -159,7 +159,7 @@ function test_deleting_uploads() {
   // Try deleting a file
   let obs = new ObservationRecorder();
   obs.planFor(kDeleteFile)
-  Services.obs.addObserver(obs, kDeleteFile, false);
+  Services.obs.addObserver(obs, kDeleteFile);
 
   gServer.planForDeleteFile(kFilename);
   let deleteObserver = gObsManager.create("test_deleting_uploads - delete 1");

@@ -787,7 +787,7 @@ function plan_for_observable_event(aTopic) {
       observationSaw[aTopic] = true;
     }
   };
-  Services.obs.addObserver(waiter, aTopic, false);
+  Services.obs.addObserver(waiter, aTopic);
 }
 
 /**

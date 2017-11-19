@@ -375,9 +375,8 @@ function OnLoadMessenger()
     document.documentElement.setAttribute("screenY", screen.availTop);
   }
 
-  Services.prefs.addObserver("mail.pane_config.dynamic", MailPrefObserver, false);
-  Services.prefs.addObserver("mail.showCondensedAddresses", MailPrefObserver,
-                             false);
+  Services.prefs.addObserver("mail.pane_config.dynamic", MailPrefObserver);
+  Services.prefs.addObserver("mail.showCondensedAddresses", MailPrefObserver);
 
   MailOfflineMgr.init();
   CreateMailWindowGlobals();
@@ -420,7 +419,7 @@ function OnLoadMessenger()
                                     LightWeightThemeWebInstaller, false, true);
   }
 
-  Services.obs.addObserver(gPluginHandler.pluginCrashed, "plugin-crashed", false);
+  Services.obs.addObserver(gPluginHandler.pluginCrashed, "plugin-crashed");
 
   // This also registers the contentTabType ("contentTab")
   specialTabs.openSpecialTabsOnStartup();
@@ -1651,8 +1650,8 @@ var TabsInTitlebar = {
       // Don't trust the initial value of the sizemode attribute; wait for the
       // resize event.
       this._readPref();
-      Services.prefs.addObserver(this._drawInTitlePref, this, false);
-      Services.prefs.addObserver(this._autoHidePref, this, false);
+      Services.prefs.addObserver(this._drawInTitlePref, this);
+      Services.prefs.addObserver(this._autoHidePref, this);
 
       this.allowedBy("sizemode", false);
       window.addEventListener("resize", function (event) {

@@ -43,8 +43,8 @@ DockBadge.prototype = {
   observe: function(aSubject, aTopic, aData) {
     switch (aTopic) {
     case "profile-after-change":
-      Services.obs.addObserver(this, "unread-im-count-changed", false);
-      Services.prefs.addObserver(this._showDockBadgePrefName, this, false);
+      Services.obs.addObserver(this, "unread-im-count-changed");
+      Services.prefs.addObserver(this._showDockBadgePrefName, this);
       break;
     case "nsPref:changed":
       if (aData == this._showDockBadgePrefName) {

@@ -28,7 +28,7 @@ function test_main_menu_collapsed() {
       }
     }
   };
-  Services.obs.addObserver(observer, "mail-startup-done", false);
+  Services.obs.addObserver(observer, "mail-startup-done");
 
   // Since no accounts were set up, and the account provisoner was disabled
   // in prefs.js, the wizard will show up. Find it, and close it. This will

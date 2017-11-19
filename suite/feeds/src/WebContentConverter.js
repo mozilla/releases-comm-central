@@ -776,7 +776,7 @@ WebContentConverterRegistrar.prototype = {
   observe: function observe(subject, topic, data) {
     switch (topic) {
     case "app-startup":
-      Services.obs.addObserver(this, "final-ui-startup", false);
+      Services.obs.addObserver(this, "final-ui-startup");
       break;
     case "final-ui-startup":
       Services.obs.removeObserver(this, "final-ui-startup");

@@ -215,7 +215,7 @@
           window.controllers.insertControllerAt(0, this);
           const kAutoHide = "browser.tabs.autoHide";
           this.mAutoHide = this.mPrefs.getBoolPref(kAutoHide);
-          this.mPrefs.addObserver(kAutoHide, this, false);
+          this.mPrefs.addObserver(kAutoHide, this);
         ]]>
       </constructor>
 
@@ -1052,7 +1052,7 @@
           this.firstChild.minWidth = this.mTabMinWidth;
           this.firstChild.maxWidth = this.mTabMaxWidth;
           this.adjustTabstrip();
-          this.mPrefs.addObserver("browser.tabs.", this, false);
+          this.mPrefs.addObserver("browser.tabs.", this);
           window.addEventListener("resize", this);
 
           // Listen to overflow/underflow events on the tabstrip,

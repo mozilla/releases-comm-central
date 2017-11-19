@@ -92,7 +92,7 @@ var Core = {
 #endif
 
     this._events.forEach(function (aTopic) {
-      Services.obs.addObserver(Core, aTopic, false);
+      Services.obs.addObserver(Core, aTopic);
     });
 
     let self = this;

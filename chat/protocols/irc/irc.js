@@ -275,7 +275,7 @@ var GenericIRCConversation = {
 
   requestCurrentWhois: function(aNick) {
     if (!this._observedNicks.length)
-      Services.obs.addObserver(this, "user-info-received", false);
+      Services.obs.addObserver(this, "user-info-received");
     this._observedNicks.push(this.normalizeNick(aNick));
     this._account.requestCurrentWhois(aNick);
   },

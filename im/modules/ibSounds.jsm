@@ -58,6 +58,6 @@ var Sounds = {
 
   init: function() {
     for (let topic of this.soundEvents)
-      Services.obs.addObserver(this, topic, false);
+      Services.obs.addObserver(this, topic);
   }
 };

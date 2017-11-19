@@ -118,8 +118,8 @@ var Notifications = {
   },
 
   init: function() {
-    Services.obs.addObserver(Notifications, "new-directed-incoming-message", false);
-    Services.obs.addObserver(Notifications, "alertclickcallback", false);
+    Services.obs.addObserver(Notifications, "new-directed-incoming-message");
+    Services.obs.addObserver(Notifications, "alertclickcallback");
   },
 
   _notificationPrefName: "mail.chat.show_desktop_notifications",

@@ -105,7 +105,7 @@ var Conversations = {
     let os = Services.obs;
     ["new-text",
      "new-ui-conversation"].forEach(function (aTopic) {
-      os.addObserver(this, aTopic, false);
+      os.addObserver(this, aTopic);
     }, this);
   },
 

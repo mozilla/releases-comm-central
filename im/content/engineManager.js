@@ -18,7 +18,7 @@ var gEngineManagerDialog = {
 
     var os = Cc["@mozilla.org/observer-service;1"].
              getService(Ci.nsIObserverService);
-    os.addObserver(this, "browser-search-engine-modified", false);
+    os.addObserver(this, "browser-search-engine-modified");
   },
 
   observe: function engineManager_observe(aEngine, aTopic, aVerb) {

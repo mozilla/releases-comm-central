@@ -182,7 +182,7 @@ var mailInstrumentationManager =
   // pref name.
   _prefsObserved : new Map(),
   _addObserver : function(pref, observer) {
-    Services.prefs.addObserver(pref, observer, false);
+    Services.prefs.addObserver(pref, observer);
     this._prefsObserved.set(pref, true);
   },
   _removeObserver : function(pref, observer) {
@@ -204,13 +204,13 @@ var mailInstrumentationManager =
       return;
 
     this._loadState();
-    Services.obs.addObserver(this, "mail:composeSendSucceeded", false);
-    Services.obs.addObserver(this, "mail:setAsDefault", false);
+    Services.obs.addObserver(this, "mail:composeSendSucceeded");
+    Services.obs.addObserver(this, "mail:setAsDefault");
     Services.prefs.addObserver("mail.accountmanager.accounts",
-                               this._accountsChanged, false);
+                               this._accountsChanged);
     Services.prefs.addObserver("mail.instrumentation.userOptedIn",
-                               this._userOptedIn, false);
-    Services.prefs.addObserver("mail.smtpservers", this._smtpServerAdded, false);
+                               this._userOptedIn);
+    Services.prefs.addObserver("mail.smtpservers", this._smtpServerAdded);
     MailServices.mfn.addListener(this, nsIMFNService.msgAdded);
     this._observersRegistered = true;
     this._mfnListener = true;

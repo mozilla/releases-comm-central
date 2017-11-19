@@ -347,5 +347,5 @@ function waitForImportAndSmartBookmarks(aCallback) {
     do_execute_soon(function () {
       promiseAsyncUpdates().then(aCallback);
     });
-  }, "bookmarks-restore-success", false);
+  }, "bookmarks-restore-success");
 }

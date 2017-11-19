@@ -71,7 +71,7 @@ var Notifications = {
   },
 
   init: function() {
-    Services.obs.addObserver(Notifications, "new-text", false);
+    Services.obs.addObserver(Notifications, "new-text");
   },
 
   _notificationPrefName: "messenger.options.notifyOfNewMessages",

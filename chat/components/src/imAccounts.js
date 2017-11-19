@@ -845,7 +845,7 @@ AccountsService.prototype = {
       Services.prefs.setBoolPref(kPrefConvertOldPasswords, false);
 
     this._prefObserver = this.observe.bind(this);
-    Services.prefs.addObserver(kPrefMessengerAccounts, this._prefObserver, false);
+    Services.prefs.addObserver(kPrefMessengerAccounts, this._prefObserver);
   },
 
   _observingAccountListChange: true,

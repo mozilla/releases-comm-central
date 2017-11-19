@@ -826,19 +826,19 @@ var gApplicationsPane = {
 
     // Observe preferences that influence what we display so we can rebuild
     // the view when they change.
-    Services.prefs.addObserver(PREF_SHOW_PLUGINS_IN_LIST, this, false);
-    Services.prefs.addObserver(PREF_HIDE_PLUGINS_WITHOUT_EXTENSIONS, this, false);
-    Services.prefs.addObserver(PREF_FEED_SELECTED_APP, this, false);
-    Services.prefs.addObserver(PREF_FEED_SELECTED_WEB, this, false);
-    Services.prefs.addObserver(PREF_FEED_SELECTED_ACTION, this, false);
+    Services.prefs.addObserver(PREF_SHOW_PLUGINS_IN_LIST, this);
+    Services.prefs.addObserver(PREF_HIDE_PLUGINS_WITHOUT_EXTENSIONS, this);
+    Services.prefs.addObserver(PREF_FEED_SELECTED_APP, this);
+    Services.prefs.addObserver(PREF_FEED_SELECTED_WEB, this);
+    Services.prefs.addObserver(PREF_FEED_SELECTED_ACTION, this);
 
-    Services.prefs.addObserver(PREF_VIDEO_FEED_SELECTED_APP, this, false);
-    Services.prefs.addObserver(PREF_VIDEO_FEED_SELECTED_WEB, this, false);
-    Services.prefs.addObserver(PREF_VIDEO_FEED_SELECTED_ACTION, this, false);
+    Services.prefs.addObserver(PREF_VIDEO_FEED_SELECTED_APP, this);
+    Services.prefs.addObserver(PREF_VIDEO_FEED_SELECTED_WEB, this);
+    Services.prefs.addObserver(PREF_VIDEO_FEED_SELECTED_ACTION, this);
 
-    Services.prefs.addObserver(PREF_AUDIO_FEED_SELECTED_APP, this, false);
-    Services.prefs.addObserver(PREF_AUDIO_FEED_SELECTED_WEB, this, false);
-    Services.prefs.addObserver(PREF_AUDIO_FEED_SELECTED_ACTION, this, false);
+    Services.prefs.addObserver(PREF_AUDIO_FEED_SELECTED_APP, this);
+    Services.prefs.addObserver(PREF_AUDIO_FEED_SELECTED_WEB, this);
+    Services.prefs.addObserver(PREF_AUDIO_FEED_SELECTED_ACTION, this);
 
     // Listen for window unload so we can remove our preference observers.
     window.addEventListener("unload", this);

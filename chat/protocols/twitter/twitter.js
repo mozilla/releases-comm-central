@@ -794,7 +794,7 @@ Account.prototype = {
     this._streamingRequest.responseType = "moz-chunked-text";
     this._streamingRequest.onprogress = this.onDataAvailable.bind(this);
     this.resetStreamTimeout();
-    this.prefs.addObserver("track", this, false);
+    this.prefs.addObserver("track", this);
   },
   _streamTimeout: null,
   resetStreamTimeout: function() {

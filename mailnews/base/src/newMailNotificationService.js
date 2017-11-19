@@ -54,7 +54,7 @@ function NewMailNotificationService() {
                                           Log4Moz.Level.Warn);
 
   // Listen for mail-startup-done to do the rest of our setup after folders are initialized
-  Services.obs.addObserver(this, "mail-startup-done", false);
+  Services.obs.addObserver(this, "mail-startup-done");
 }
 
 NewMailNotificationService.prototype = {
@@ -85,7 +85,7 @@ NewMailNotificationService.prototype = {
         catch (e) {
           this._log.error("NMNS_Observe: unable to deregister mail-startup-done listener: " + e);
         }
-        Services.obs.addObserver(this, "profile-before-change", false);
+        Services.obs.addObserver(this, "profile-before-change");
         MailServices.mailSession.AddFolderListener(this, Ci.nsIFolderListener.intPropertyChanged |
                                                          Ci.nsIFolderListener.added |
                                                          Ci.nsIFolderListener.removed |

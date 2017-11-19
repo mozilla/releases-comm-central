@@ -54,8 +54,8 @@ function test() {
   }
 
   // last added observers are invoked first
-  Services.obs.addObserver(checkingObserver, "sessionstore-state-write", false);
-  Services.obs.addObserver(cleaningObserver, "sessionstore-state-write", false);
+  Services.obs.addObserver(checkingObserver, "sessionstore-state-write");
+  Services.obs.addObserver(cleaningObserver, "sessionstore-state-write");
 
   // trigger an immediate save operation
   Services.prefs.setIntPref("browser.sessionstore.interval", 0);

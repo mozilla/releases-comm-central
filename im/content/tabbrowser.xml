@@ -1488,8 +1488,8 @@
           this.mCurrentTab.linkedPanel = uniqueId;
           this.mCurrentTab._tPos = 0;
 
-          Services.prefs.addObserver("browser.tabs.autoHide", this._prefObserver, false);
-          Services.prefs.addObserver("messenger.conversations.useSeparateWindowsForMUCs", this._prefObserver, false);
+          Services.prefs.addObserver("browser.tabs.autoHide", this._prefObserver);
+          Services.prefs.addObserver("messenger.conversations.useSeparateWindowsForMUCs", this._prefObserver);
         ]]>
       </constructor>
 
@@ -1713,7 +1713,7 @@
           }
 
           pb2.addObserver("browser.tabs.closeButtons",
-                          this._prefObserver, false);
+                          this._prefObserver);
 
           window.addEventListener("resize", this);
 #ifdef XP_MACOSX

@@ -7,7 +7,7 @@ function test() {
   }
 
   // ensure that we don't accidentally quit
-  Services.obs.addObserver(quitRequestObserver, "quit-application-requested", false);
+  Services.obs.addObserver(quitRequestObserver, "quit-application-requested");
 
   ok(!Application.quit(),    "Tried to quit - and didn't succeed");
   ok(!Application.restart(), "Tried to restart - and didn't succeed");

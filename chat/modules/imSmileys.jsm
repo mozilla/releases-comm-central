@@ -31,7 +31,7 @@ this.__defineGetter__("gTheme", function() {
 
 var gPrefObserver = {
   init: function po_init() {
-    Services.prefs.addObserver(kEmoticonsThemePref, gPrefObserver, false);
+    Services.prefs.addObserver(kEmoticonsThemePref, gPrefObserver);
   },
 
   observe: function so_observe(aObject, aTopic, aMsg) {

@@ -19,11 +19,11 @@ var MigrationWizard = {
 
   init: function ()
   {
-    Services.obs.addObserver(this, "Migration:Started", false);
-    Services.obs.addObserver(this, "Migration:ItemBeforeMigrate", false);
-    Services.obs.addObserver(this, "Migration:ItemAfterMigrate", false);
-    Services.obs.addObserver(this, "Migration:Ended", false);
-    Services.obs.addObserver(this, "Migration:Progress", false);
+    Services.obs.addObserver(this, "Migration:Started");
+    Services.obs.addObserver(this, "Migration:ItemBeforeMigrate");
+    Services.obs.addObserver(this, "Migration:ItemAfterMigrate");
+    Services.obs.addObserver(this, "Migration:Ended");
+    Services.obs.addObserver(this, "Migration:Progress");
 
     this._wiz = document.documentElement;
 

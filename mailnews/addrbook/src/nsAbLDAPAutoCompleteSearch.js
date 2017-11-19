@@ -78,7 +78,7 @@ nsAbLDAPAutoCompleteResult.prototype = {
 }
 
 function nsAbLDAPAutoCompleteSearch() {
-  Services.obs.addObserver(this, "quit-application", false);
+  Services.obs.addObserver(this, "quit-application");
   this._timer = Components.classes["@mozilla.org/timer;1"]
                           .createInstance(Components.interfaces.nsITimer);
 }

@@ -371,7 +371,7 @@ function promiseTopicObserved(aTopic)
     Services.obs.addObserver(function observe(aSubject, aTopic, aData) {
       Services.obs.removeObserver(observe, aTopic);
       resolve([aSubject, aData]);
-    }, aTopic, false);
+    }, aTopic);
   });
 }
 
@@ -381,7 +381,7 @@ function promiseTopicObserved(aTopic)
 var shutdownPlaces = function() {
   do_print("shutdownPlaces: starting");
   let promise = new Promise(resolve => {
-    Services.obs.addObserver(resolve, "places-connection-closed", false);
+    Services.obs.addObserver(resolve, "places-connection-closed");
   });
   let hs = PlacesUtils.history.QueryInterface(Ci.nsIObserver);
   hs.observe(null, "profile-change-teardown", null);

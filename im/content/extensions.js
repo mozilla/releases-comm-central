@@ -10,10 +10,10 @@ Cu.import("resource://gre/modules/PluralForm.jsm");
 
 var addonsRegister = {
   onload: function () {
-    Services.obs.addObserver(addonsRegister, "addon-install-disabled", false);
-    Services.obs.addObserver(addonsRegister, "addon-install-blocked", false);
-    Services.obs.addObserver(addonsRegister, "addon-install-failed", false);
-    Services.obs.addObserver(addonsRegister, "addon-install-complete", false);
+    Services.obs.addObserver(addonsRegister, "addon-install-disabled");
+    Services.obs.addObserver(addonsRegister, "addon-install-blocked");
+    Services.obs.addObserver(addonsRegister, "addon-install-failed");
+    Services.obs.addObserver(addonsRegister, "addon-install-complete");
 
     window.addEventListener("unload", addonsRegister.onunload, {once: true});
 

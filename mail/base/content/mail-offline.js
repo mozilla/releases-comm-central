@@ -11,7 +11,7 @@ var MailOfflineMgr = {
 
   init: function()
   {
-    Services.obs.addObserver(this, "network:offline-status-changed", false);
+    Services.obs.addObserver(this, "network:offline-status-changed");
 
     this.offlineManager = Components.classes["@mozilla.org/messenger/offline-manager;1"]
                         .getService(Components.interfaces.nsIMsgOfflineManager);

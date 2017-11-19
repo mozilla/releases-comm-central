@@ -118,7 +118,7 @@ function onLoad()
     processWindowArguments(window.arguments[0]);
 
     Services.obs.addObserver(filterEditorQuitObserver,
-                             "quit-application-requested", false);
+                             "quit-application-requested");
 }
 
 /**

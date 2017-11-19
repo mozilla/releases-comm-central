@@ -47,6 +47,6 @@ add_task(function* testObserver() {
 function run_test() {
   // Ensure we have at least one mail account
   localAccountUtils.loadLocalMailAccount();
-  Services.obs.addObserver(observer, "mail-set-sender", false);
+  Services.obs.addObserver(observer, "mail-set-sender");
   run_next_test();
 }

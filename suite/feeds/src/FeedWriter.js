@@ -1019,19 +1019,19 @@ FeedWriter.prototype = {
 
     // Set up the subscription UI
     this._initSubscriptionUI();
-    Services.prefs.addObserver(PREF_SELECTED_ACTION, this, false);
-    Services.prefs.addObserver(PREF_SELECTED_READER, this, false);
-    Services.prefs.addObserver(PREF_SELECTED_WEB, this, false);
-    Services.prefs.addObserver(PREF_SELECTED_APP, this, false);
-    Services.prefs.addObserver(PREF_VIDEO_SELECTED_ACTION, this, false);
-    Services.prefs.addObserver(PREF_VIDEO_SELECTED_READER, this, false);
-    Services.prefs.addObserver(PREF_VIDEO_SELECTED_WEB, this, false);
-    Services.prefs.addObserver(PREF_VIDEO_SELECTED_APP, this, false);
+    Services.prefs.addObserver(PREF_SELECTED_ACTION, this);
+    Services.prefs.addObserver(PREF_SELECTED_READER, this);
+    Services.prefs.addObserver(PREF_SELECTED_WEB, this);
+    Services.prefs.addObserver(PREF_SELECTED_APP, this);
+    Services.prefs.addObserver(PREF_VIDEO_SELECTED_ACTION, this);
+    Services.prefs.addObserver(PREF_VIDEO_SELECTED_READER, this);
+    Services.prefs.addObserver(PREF_VIDEO_SELECTED_WEB, this);
+    Services.prefs.addObserver(PREF_VIDEO_SELECTED_APP, this);
 
-    Services.prefs.addObserver(PREF_AUDIO_SELECTED_ACTION, this, false);
-    Services.prefs.addObserver(PREF_AUDIO_SELECTED_READER, this, false);
-    Services.prefs.addObserver(PREF_AUDIO_SELECTED_WEB, this, false);
-    Services.prefs.addObserver(PREF_AUDIO_SELECTED_APP, this, false);
+    Services.prefs.addObserver(PREF_AUDIO_SELECTED_ACTION, this);
+    Services.prefs.addObserver(PREF_AUDIO_SELECTED_READER, this);
+    Services.prefs.addObserver(PREF_AUDIO_SELECTED_WEB, this);
+    Services.prefs.addObserver(PREF_AUDIO_SELECTED_APP, this);
 
     this._window.addEventListener("load", this);
     this._window.addEventListener("unload", this);

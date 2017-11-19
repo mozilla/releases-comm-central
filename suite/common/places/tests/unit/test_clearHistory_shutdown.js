@@ -113,7 +113,7 @@ function run_test_continue()
   print("Simulate and wait shutdown.");
   getDistinctNotifications().forEach(
     topic =>
-      Services.obs.addObserver(notificationsObserver, topic, false)
+      Services.obs.addObserver(notificationsObserver, topic)
   );
 
   // Simulate an exit so that Sanitizer's init method checkSettings() is called.

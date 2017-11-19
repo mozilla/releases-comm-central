@@ -51,7 +51,7 @@
 
     <implementation implements="nsIDOMEventListener">
       <constructor><![CDATA[
-        this.mPrefs.addObserver("browser.urlbar", this.mPrefObserver, false);
+        this.mPrefs.addObserver("browser.urlbar", this.mPrefObserver);
 
         this.updatePref("browser.urlbar.showPopup");
         this.updatePref("browser.urlbar.autoFill");
@@ -350,10 +350,10 @@
     <implementation>
       <constructor><![CDATA[
         // listen for changes to default search engine
-        this.mPrefs.addObserver("browser.search", this.mObserver, false);
-        this.mPrefs.addObserver("browser.urlbar", this.mObserver, false);
+        this.mPrefs.addObserver("browser.search", this.mObserver);
+        this.mPrefs.addObserver("browser.urlbar", this.mObserver);
         this.mObSvc.addObserver(this.mObserver,
-                                "browser-search-engine-modified", false);
+                                "browser-search-engine-modified");
         this.updateEngines();
       ]]></constructor>
 

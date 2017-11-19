@@ -206,7 +206,7 @@ var gEditItemOverlay = {
       // Single bookmarks observe any change.  History entries and multiEdit
       // observe only tags changes, through bookmarks.
       if (this._itemId != -1 || this._uri || this._multiEdit)
-        PlacesUtils.bookmarks.addObserver(this, false);
+        PlacesUtils.bookmarks.addObserver(this);
       window.addEventListener("unload", this);
       this._observersAdded = true;
     }

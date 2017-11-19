@@ -168,7 +168,7 @@ function onLoad()
     gFilterTree.focus();
 
     Services.obs.addObserver(onFilterClose,
-                             "quit-application-requested", false);
+                             "quit-application-requested");
 
     top.controllers.insertControllerAt(0, gFilterController);
 }

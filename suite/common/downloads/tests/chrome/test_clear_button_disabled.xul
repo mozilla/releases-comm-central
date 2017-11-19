@@ -188,7 +188,7 @@ function runTest()
     }
   };
 
-  obs.addObserver(testObs, DLMGR_UI_DONE, false);
+  obs.addObserver(testObs, DLMGR_UI_DONE);
 
   Components.classes["@mozilla.org/download-manager-ui;1"]
             .getService(Components.interfaces.nsISuiteDownloadManagerUI)

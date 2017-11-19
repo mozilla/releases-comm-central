@@ -202,7 +202,7 @@ const gFormSubmitObserver = {
 function addPrefListener(observer)
 {
   try {
-    Services.prefs.addObserver(observer.domain, observer, false);
+    Services.prefs.addObserver(observer.domain, observer);
   } catch(ex) {
     dump("Failed to observe prefs: " + ex + "\n");
   }
@@ -219,7 +219,7 @@ function removePrefListener(observer)
 
 function addPopupPermListener(observer)
 {
-  Services.obs.addObserver(observer, "popup-perm-close", false);
+  Services.obs.addObserver(observer, "popup-perm-close");
 }
 
 function removePopupPermListener(observer)
@@ -230,7 +230,7 @@ function removePopupPermListener(observer)
 function addFormSubmitObserver(observer)
 {
   observer.init();
-  Services.obs.addObserver(observer, "invalidformsubmit", false);
+  Services.obs.addObserver(observer, "invalidformsubmit");
 }
 
 function removeFormSubmitObserver(observer)

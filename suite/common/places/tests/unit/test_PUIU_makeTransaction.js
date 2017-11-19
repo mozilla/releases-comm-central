@@ -57,7 +57,7 @@ function waitForBookmarkNotification(aNotification, aCallback, aProperty)
                                              index: aNewIndex,
                                              type: aItemType });
     }
-  }, false);
+  });
 }
 
 function wrapNodeByIdAndParent(aItemId, aParentId)

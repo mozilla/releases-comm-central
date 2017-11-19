@@ -60,7 +60,7 @@
        var browser = this.browser;
        browser.addEventListener("keypress", this.browserKeyPress);
        browser.addEventListener("dblclick", this.browserDblClick.bind(this));
-       Services.obs.addObserver(this, "conversation-loaded", false);
+       Services.obs.addObserver(this, "conversation-loaded");
       ]]>
      </constructor>
 

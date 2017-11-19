@@ -761,9 +761,9 @@ var messageComposeOfflineQuitObserver = {
 function AddMessageComposeOfflineQuitObserver()
 {
   Services.obs.addObserver(messageComposeOfflineQuitObserver,
-                           "network:offline-status-changed", false);
+                           "network:offline-status-changed");
   Services.obs.addObserver(messageComposeOfflineQuitObserver,
-                           "quit-application-requested", false);
+                           "quit-application-requested");
 
   // set the initial state of the send button
   MessageComposeOfflineStateChanged(Services.io.offline);
@@ -2040,7 +2040,7 @@ function addRecipientsToIgnoreList(aAddressesToAdd)
           Services.obs.removeObserver(observe, topic);
           InlineSpellCheckerUI.mInlineSpellChecker.ignoreWords(tokenizedNames, tokenizedNames.length);
         }
-      }, "inlineSpellChecker-spellCheck-ended", false);
+      }, "inlineSpellChecker-spellCheck-ended");
     }
     else
     {

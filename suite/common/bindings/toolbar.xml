@@ -175,7 +175,7 @@
     <implementation implements="nsIObserver">
       <constructor>
         <![CDATA[
-          this.prefs.addObserver(this.domain, this, false);
+          this.prefs.addObserver(this.domain, this);
           if (this.prefs.getIntPref(this.domain) != 2)
             this.observe(this.prefs, "nsPref:changed", this.domain);
         ]]>

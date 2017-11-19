@@ -122,7 +122,7 @@ var PluginCrashObserver = {
 
   planForCrash: function(aController) {
     this._sawCrash = false;
-    Services.obs.addObserver(this, "plugin-crashed", false);
+    Services.obs.addObserver(this, "plugin-crashed");
   },
 
   waitForCrash: function(aController) {

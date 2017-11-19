@@ -52,13 +52,13 @@ var gDataman = {
     catch (e) {}
     this.bundle = document.getElementById("datamanBundle");
 
-    Services.obs.addObserver(this, "cookie-changed", false);
-    Services.obs.addObserver(this, "perm-changed", false);
-    Services.obs.addObserver(this, "passwordmgr-storage-changed", false);
+    Services.obs.addObserver(this, "cookie-changed");
+    Services.obs.addObserver(this, "perm-changed");
+    Services.obs.addObserver(this, "passwordmgr-storage-changed");
     // Services.contentPrefs.addObserver(null, this);
-    Services.obs.addObserver(this, "satchel-storage-changed", false);
-    Services.obs.addObserver(this, "dom-storage-changed", false);
-    Services.obs.addObserver(this, "dom-storage2-changed", false);
+    Services.obs.addObserver(this, "satchel-storage-changed");
+    Services.obs.addObserver(this, "dom-storage-changed");
+    Services.obs.addObserver(this, "dom-storage2-changed");
 
     this.timer = Components.classes["@mozilla.org/timer;1"]
                            .createInstance(Components.interfaces.nsITimer);

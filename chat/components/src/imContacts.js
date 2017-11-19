@@ -108,7 +108,7 @@ this.__defineGetter__("DBConn", function() {
         gDBConnection.asyncClose();
         gDBConnection = null;
       }
-    }, "profile-before-change", false);
+    }, "profile-before-change");
   }
   gDBConnWithPendingTransaction = gDBConnection;
   gDBConnection.beginTransaction();
@@ -327,10 +327,10 @@ var otherContactsTag = {
       let tag = this._hiddenTags[id];
       this._hideTag(tag);
     }
-    Services.obs.addObserver(this, "contact-tag-added", false);
-    Services.obs.addObserver(this, "contact-tag-removed", false);
-    Services.obs.addObserver(this, "contact-added", false);
-    Services.obs.addObserver(this, "contact-removed", false);
+    Services.obs.addObserver(this, "contact-tag-added");
+    Services.obs.addObserver(this, "contact-tag-removed");
+    Services.obs.addObserver(this, "contact-added");
+    Services.obs.addObserver(this, "contact-removed");
   },
 
   // imITag implementation

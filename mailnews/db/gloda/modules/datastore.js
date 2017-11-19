@@ -496,7 +496,7 @@ ExplainedStatementWrapper.prototype = {
  *  shutdown we close it.
  */
 function ExplainedStatementProcessor(aDumpPath) {
-  Services.obs.addObserver(this, "quit-application", false);
+  Services.obs.addObserver(this, "quit-application");
 
   this._sqlStack = [];
   this._curOps = [];
@@ -1008,7 +1008,7 @@ var GlodaDatastore = {
 
     // Not sure the weak reference really makes a difference given that we are a
     // GC root.
-    branch.addObserver("", this, false);
+    branch.addObserver("", this);
     // claim the pref changed so we can centralize our logic there.
     this.observe(null, "nsPref:changed", "explainToPath");
 

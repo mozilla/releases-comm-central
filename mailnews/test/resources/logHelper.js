@@ -46,7 +46,7 @@ var _errorConsoleTunnel = {
     Services.console.registerListener(this);
 
     // we need to unregister our listener at shutdown if we don't want explosions
-    Services.obs.addObserver(this, "quit-application", false);
+    Services.obs.addObserver(this, "quit-application");
   },
 
   shutdown: function () {

@@ -212,7 +212,7 @@
          if (!aAccount.prplAccount.wrappedJSObject)
            return;
          this.observedUserInfo = aObservedName;
-         Services.obs.addObserver(this, "user-info-received", false);
+         Services.obs.addObserver(this, "user-info-received");
          aAccount.requestBuddyInfo(aObservedName);
        ]]>
        </body>

@@ -75,7 +75,7 @@ Services.obs.addObserver(function (subject, topic, data) {
     let url = catman.getCategoryEntry(CATEGORY_NAME, subject);
     Services.scriptloader.loadSubScript(url, {}, "UTF-8");
   }
-}, "xpcom-category-entry-added", false);
+}, "xpcom-category-entry-added");
 
 var catman = Components.classes["@mozilla.org/categorymanager;1"]
                        .getService(Components.interfaces.nsICategoryManager);

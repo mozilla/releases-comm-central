@@ -60,7 +60,7 @@ var account = {
     document.getElementById("proxyBox").hidden = !proxyVisible;
     document.getElementById("proxySeparator").hidden = !proxyVisible;
 
-    Services.obs.addObserver(this, "prpl-quit", false);
+    Services.obs.addObserver(this, "prpl-quit");
     window.addEventListener("unload", this.unload);
   },
   unload: function account_unload() {

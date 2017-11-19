@@ -48,7 +48,7 @@ var MessageFormat = {
       "browser.display.use_system_colors"
     ];
     for (let name of this._observedPrefs)
-      Services.prefs.addObserver(name, this, false);
+      Services.prefs.addObserver(name, this);
   },
   unregisterObservers: function mf_unregisterObservers() {
     for (let name of this._observedPrefs)
@@ -111,7 +111,7 @@ var TextboxSize = {
   _textboxAutoResizePrefName: "messenger.conversations.textbox.autoResize",
   get autoResize() {
     delete this.autoResize;
-    Services.prefs.addObserver(this._textboxAutoResizePrefName, this, false);
+    Services.prefs.addObserver(this._textboxAutoResizePrefName, this);
     return this.autoResize =
       Services.prefs.getBoolPref(this._textboxAutoResizePrefName);
   },
@@ -148,7 +148,7 @@ var TextboxSpellChecker = {
       this._textboxes.push(aTextbox);
 
     if (this._textboxes.length == 1) {
-      Services.prefs.addObserver(this._spellCheckPrefName, this, false);
+      Services.prefs.addObserver(this._spellCheckPrefName, this);
       this.getValue();
     }
 

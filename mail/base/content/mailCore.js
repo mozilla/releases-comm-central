@@ -448,7 +448,7 @@ function openAddonsMgr(aView)
         browserWindow = browserWin;
       }
     }
-    Services.obs.addObserver(receivePong, "EM-pong", false);
+    Services.obs.addObserver(receivePong, "EM-pong");
     Services.obs.notifyObservers(null, "EM-ping", "");
     Services.obs.removeObserver(receivePong, "EM-pong");
 
@@ -470,7 +470,7 @@ function openAddonsMgr(aView)
     Services.obs.addObserver(function loadViewOnLoad(aSubject, aTopic, aData) {
       Services.obs.removeObserver(loadViewOnLoad, aTopic);
       aSubject.loadView(aView);
-    }, "EM-loaded", false);
+    }, "EM-loaded");
   }
 }
 

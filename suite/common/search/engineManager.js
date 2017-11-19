@@ -27,7 +27,7 @@ var gEngineManagerDialog = {
     var tree = document.getElementById("engineList");
     tree.view = gEngineView;
 
-    Services.obs.addObserver(this, "browser-search-engine-modified", false);
+    Services.obs.addObserver(this, "browser-search-engine-modified");
   },
 
   destroy: function engineManager_destroy() {

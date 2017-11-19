@@ -667,8 +667,8 @@ function OnLoadMessenger()
 {
   AddMailOfflineObserver();
   CreateMailWindowGlobals();
-  Services.prefs.addObserver("mail.pane_config.dynamic", MailPrefObserver, false);
-  Services.prefs.addObserver("mail.showCondensedAddresses", MailPrefObserver, false);
+  Services.prefs.addObserver("mail.pane_config.dynamic", MailPrefObserver);
+  Services.prefs.addObserver("mail.showCondensedAddresses", MailPrefObserver);
   UpdateMailPaneConfig();
   Create3PaneGlobals();
   verifyAccounts(null, false);
@@ -701,7 +701,7 @@ function OnLoadMessenger()
   tabmail.registerTabType(gMailNewsTabsType);
   tabmail.openFirstTab();
   Services.obs.addObserver(MailWindowIsClosing,
-                           "quit-application-requested", false);
+                           "quit-application-requested");
 
   InitMsgWindow();
   messenger.setWindow(window, msgWindow);

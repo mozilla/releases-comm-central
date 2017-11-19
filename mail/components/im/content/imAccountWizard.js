@@ -32,7 +32,7 @@ var accountWizard = {
       protoList.selectedIndex = 0;
     }, 0);
 
-    Services.obs.addObserver(this, "prpl-quit", false);
+    Services.obs.addObserver(this, "prpl-quit");
     window.addEventListener("unload", this.unload);
   },
   unload: function aw_unload() {

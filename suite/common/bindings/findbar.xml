@@ -33,9 +33,9 @@
         prefsvc.removeObserver("accessibility.typeaheadfind",
                                this._observer);
         prefsvc.addObserver("accessibility.typeaheadfind.autostart",
-                            this._suiteObserver, false);
+                            this._suiteObserver);
         prefsvc.addObserver("accessibility.typeaheadfind.usefindbar",
-                            this._suiteObserver, false);
+                            this._suiteObserver);
 
         this._findAsYouType =
           prefsvc.getBoolPref("accessibility.typeaheadfind.autostart");

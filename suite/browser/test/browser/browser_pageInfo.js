@@ -7,7 +7,7 @@ function test() {
   gBrowser.selectedBrowser.addEventListener("load", function loadListener() {
     gBrowser.selectedBrowser.removeEventListener("load", loadListener, true);
 
-    Services.obs.addObserver(observer, "page-info-dialog-loaded", false);
+    Services.obs.addObserver(observer, "page-info-dialog-loaded");
     pageInfo = BrowserPageInfo();
   }, true);
   content.location =

@@ -239,9 +239,9 @@ var GlodaIMIndexer = {
   name: "index_im",
   cacheVersion: 1,
   enable: function() {
-    Services.obs.addObserver(this, "conversation-closed", false);
-    Services.obs.addObserver(this, "new-ui-conversation", false);
-    Services.obs.addObserver(this, "ui-conversation-closed", false);
+    Services.obs.addObserver(this, "conversation-closed");
+    Services.obs.addObserver(this, "new-ui-conversation");
+    Services.obs.addObserver(this, "ui-conversation-closed");
 
     // The shutdown blocker ensures pending saves happen even if the app
     // gets shut down before the timer fires.

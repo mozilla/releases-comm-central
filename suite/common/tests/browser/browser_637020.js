@@ -40,7 +40,7 @@ async function runTests() {
     Services.obs.removeObserver(onOpened, "domwindowopened");
     win = subject;
     executeSoon(next);
-  }, "domwindowopened", false);
+  }, "domwindowopened");
 
   // Set the new browser state that will
   // restore a window with two slowly loading tabs.

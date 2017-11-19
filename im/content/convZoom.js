@@ -16,7 +16,7 @@ var FullZoom = {
                    .addEventListener("select", FullZoom.applyPrefValue);
     }
 
-    Services.prefs.addObserver(FullZoom.prefName, FullZoom, false);
+    Services.prefs.addObserver(FullZoom.prefName, FullZoom);
     FullZoom.applyPrefValue();
   },
 

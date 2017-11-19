@@ -33,11 +33,11 @@ function MailGlue() {
 MailGlue.prototype = {
   // init (called at app startup)
   _init: function MailGlue__init() {
-    Services.obs.addObserver(this, "xpcom-shutdown", false);
-    Services.obs.addObserver(this, "final-ui-startup", false);
-    Services.obs.addObserver(this, "mail-startup-done", false);
-    Services.obs.addObserver(this, "handle-xul-text-link", false);
-    Services.obs.addObserver(this, "profile-after-change", false);
+    Services.obs.addObserver(this, "xpcom-shutdown");
+    Services.obs.addObserver(this, "final-ui-startup");
+    Services.obs.addObserver(this, "mail-startup-done");
+    Services.obs.addObserver(this, "handle-xul-text-link");
+    Services.obs.addObserver(this, "profile-after-change");
   },
 
   // cleanup (called at shutdown)

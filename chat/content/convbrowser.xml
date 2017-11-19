@@ -232,7 +232,7 @@
           <![CDATA[
           if (this.magicCopyInitialized)
             return;
-          Services.prefs.addObserver(this.magicCopyPref, this, false);
+          Services.prefs.addObserver(this.magicCopyPref, this);
           this.magicCopyInitialized = true;
           if (this.magicCopyEnabled)
             this.enableMagicCopy();

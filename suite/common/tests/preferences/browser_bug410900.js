@@ -26,7 +26,7 @@ function test() {
     obs.removeObserver(observer, "app-handler-pane-loaded");
     runTest(win);
   }
-  obs.addObserver(observer, "app-handler-pane-loaded", false);
+  obs.addObserver(observer, "app-handler-pane-loaded");
 
   openDialog("chrome://communicator/content/pref/preferences.xul",
              "PrefWindow", "chrome,titlebar,dialog=no,resizable",

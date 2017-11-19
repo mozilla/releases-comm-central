@@ -16,8 +16,8 @@ var gCookiesWindow = {
 
   init: function ()
   {
-    Services.obs.addObserver(this, "cookie-changed", false);
-    Services.obs.addObserver(this, "perm-changed", false);
+    Services.obs.addObserver(this, "cookie-changed");
+    Services.obs.addObserver(this, "perm-changed");
 
     this._bundle = document.getElementById("bundlePreferences");
     this._tree = document.getElementById("cookiesList");

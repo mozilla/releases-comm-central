@@ -28,7 +28,7 @@ function test() {
   let tab = gBrowser.loadOneTab("about:blank", { inBackground: false });
   let browser = tab.linkedBrowser;
   browser.addEventListener("PluginCrashed", onCrash);
-  Services.obs.addObserver(onSubmitStatus, "crash-report-status", false);
+  Services.obs.addObserver(onSubmitStatus, "crash-report-status");
 
   registerCleanupFunction(function cleanUp() {
     env.set("MOZ_CRASHREPORTER_NO_REPORT", noReport);

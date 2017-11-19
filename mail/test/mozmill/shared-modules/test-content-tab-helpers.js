@@ -468,7 +468,7 @@ function updateBlocklist(aController, aCallback) {
     Services.obs.removeObserver(observer, "blocklist-updated");
     aController.window.setTimeout(aCallback, 0);
   };
-  Services.obs.addObserver(observer, "blocklist-updated", false);
+  Services.obs.addObserver(observer, "blocklist-updated");
   blocklistNotifier.notify(null);
 }
 

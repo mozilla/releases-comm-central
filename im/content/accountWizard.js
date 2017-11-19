@@ -37,7 +37,7 @@ var accountWizard = {
 
     topProtoList.selectedIndex = -1;
 
-    Services.obs.addObserver(this, "prpl-quit", false);
+    Services.obs.addObserver(this, "prpl-quit");
     window.addEventListener("unload", this.unload);
   },
   unload: function aw_unload() {

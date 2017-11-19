@@ -121,8 +121,8 @@ var nsOfflineStartup =
     }
     else if (aTopic == "app-startup")
     {
-      Services.obs.addObserver(this, "profile-after-change", false);
-      Services.obs.addObserver(this, "profile-change-net-teardown", false);
+      Services.obs.addObserver(this, "profile-after-change");
+      Services.obs.addObserver(this, "profile-change-net-teardown");
     }
     else if (aTopic == "profile-after-change")
     {

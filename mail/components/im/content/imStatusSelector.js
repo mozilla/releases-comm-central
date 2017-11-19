@@ -278,7 +278,7 @@ var statusSelector = {
       statusMessage.addEventListener("keypress", this.statusMessageKeyPress);
 
     for (let event of events)
-      Services.obs.addObserver(statusSelector, event, false);
+      Services.obs.addObserver(statusSelector, event);
     statusSelector._events = events;
 
     window.addEventListener("unload", statusSelector.unload);

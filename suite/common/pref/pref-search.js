@@ -11,7 +11,7 @@ function Startup() {
 
 var SearchObserver = {
   init: function searchEngineListObserver_init() {
-    Services.obs.addObserver(this, "browser-search-engine-modified", false);
+    Services.obs.addObserver(this, "browser-search-engine-modified");
     window.addEventListener("unload", this);
   },
 

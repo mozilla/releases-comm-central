@@ -81,7 +81,7 @@
         this.searchService.init(this);
         var os = Components.classes["@mozilla.org/observer-service;1"]
                            .getService(Components.interfaces.nsIObserverService);
-        os.addObserver(this, "browser-search-engine-modified", false);
+        os.addObserver(this, "browser-search-engine-modified");
         this._addedObserver = true;
       ]]></constructor>
 
@@ -530,7 +530,7 @@
         this.controllers.appendController(this.searchbarController);
 
         // Add observer for suggest preference
-        this._prefBranch.addObserver("browser.search.suggest.enabled", this, false);
+        this._prefBranch.addObserver("browser.search.suggest.enabled", this);
 
         this._inputBox.setAttribute("suggestchecked", this._suggestEnabled);
 

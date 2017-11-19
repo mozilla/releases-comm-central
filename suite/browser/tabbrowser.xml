@@ -3127,8 +3127,8 @@
 
           var os = Components.classes["@mozilla.org/observer-service;1"]
                              .getService(Components.interfaces.nsIObserverService);
-          os.addObserver(this, "browser:purge-session-history", false);
-          this.mPrefs.addObserver("browser.tabs.max_tabs_undo", this, false);
+          os.addObserver(this, "browser:purge-session-history");
+          this.mPrefs.addObserver("browser.tabs.max_tabs_undo", this);
 
           var onclick = this.getAttribute("oncontentclick");
           if (onclick)

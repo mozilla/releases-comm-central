@@ -46,7 +46,7 @@ var gAccountManager = {
           defaultID = acc.id;
       }
       for (let event of events)
-        Services.obs.addObserver(this, event, false);
+        Services.obs.addObserver(this, event);
       if (!this.accountList.getRowCount())
         // This is horrible, but it works. Otherwise (at least on mac)
         // the wizard is not centered relatively to the account manager

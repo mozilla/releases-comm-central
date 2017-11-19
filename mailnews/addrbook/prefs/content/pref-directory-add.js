@@ -60,7 +60,7 @@ function Startup()
                                      ".disable_button_download")) {
       // Now connect to the offline/online observer
       Services.obs.addObserver(ldapOfflineObserver,
-                               "network:offline-status-changed", false);
+                               "network:offline-status-changed");
 
       // Now set the initial offline/online state and update the state
       setDownloadOfflineOnlineState(Services.io.offline);

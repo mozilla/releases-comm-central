@@ -106,10 +106,9 @@ accountProvisionerTabType._setMonitoring = function(aBrowser, aRealName,
   });
 
   // Register our observer
-  Services.obs.addObserver(this._observer, "http-on-examine-response", false);
-  Services.obs.addObserver(this._observer, "http-on-examine-cached-response",
-                           false);
-  Services.obs.addObserver(this.quitObserver, "mail-unloading-messenger", false);
+  Services.obs.addObserver(this._observer, "http-on-examine-response");
+  Services.obs.addObserver(this._observer, "http-on-examine-cached-response");
+  Services.obs.addObserver(this.quitObserver, "mail-unloading-messenger");
 
   this._log.info("httpRequestObserver wired up.");
 }

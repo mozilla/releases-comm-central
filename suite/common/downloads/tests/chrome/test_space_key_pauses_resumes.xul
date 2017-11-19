@@ -209,7 +209,7 @@ function test()
   }
 
   // Register with the observer service
-  os.addObserver(testObs, DLMGR_UI_DONE, false);
+  os.addObserver(testObs, DLMGR_UI_DONE);
 
   // Show the Download Manager UI
   Components.classes["@mozilla.org/download-manager-ui;1"]

@@ -121,7 +121,7 @@ DomInspectorConnector.prototype.dxOn = function() {
     Components.classes["@mozilla.org/observer-service;1"]
       .getService(Components.interfaces.nsIObserverService);
 
-  observerService.addObserver(this.observer, "toplevel-window-ready", false);
+  observerService.addObserver(this.observer, "toplevel-window-ready");
 };
 
 //when a new dom window gets opened

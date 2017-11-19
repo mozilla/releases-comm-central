@@ -887,9 +887,9 @@ function utilityOnLoad(aEvent)
   var broadcaster = document.getElementById("Communicator:WorkMode");
   if (!broadcaster) return;
 
-  Services.obs.addObserver(offlineObserver, "network:offline-status-changed", false);
+  Services.obs.addObserver(offlineObserver, "network:offline-status-changed");
   // make sure we remove this observer later
-  Services.prefs.addObserver("network.proxy.type", proxyTypeObserver, false);
+  Services.prefs.addObserver("network.proxy.type", proxyTypeObserver);
 
   addEventListener("unload", utilityOnUnload, false);
 

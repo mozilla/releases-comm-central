@@ -412,7 +412,7 @@ var chatHandler = {
     this._pendingLogBrowserLoad = true;
     if (aSearchTerm)
       this._pendingSearchTerm = aSearchTerm;
-    Services.obs.addObserver(this, "conversation-loaded", false);
+    Services.obs.addObserver(this, "conversation-loaded");
 
     // Conversation title may not be set yet if this is a search result.
     let cti = document.getElementById("conv-top-info");
@@ -1078,7 +1078,7 @@ var chatHandler = {
   },
   _observedTopics: [],
   _addObserver: function(aTopic) {
-    imServices.obs.addObserver(chatHandler, aTopic, false);
+    imServices.obs.addObserver(chatHandler, aTopic);
     chatHandler._observedTopics.push(aTopic);
   },
   _removeObservers: function() {

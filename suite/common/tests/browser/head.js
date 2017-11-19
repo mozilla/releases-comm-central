@@ -133,7 +133,7 @@ function waitForSaveState(aSaveStateCallback) {
   });
 
   observing = true;
-  Services.obs.addObserver(observer, topic, false);
+  Services.obs.addObserver(observer, topic);
 };
 
 function whenWindowLoaded(aWindow, aCallback) {

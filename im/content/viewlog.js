@@ -94,7 +94,7 @@ var logWindow = {
         }
         browser.init(aConv);
         this.pendingLoad = true;
-        Services.obs.addObserver(this, "conversation-loaded", false);
+        Services.obs.addObserver(this, "conversation-loaded");
       });
     }
     else {

@@ -41,7 +41,7 @@ var gMinTrayR = {
 
     this._prefs = Services.prefs.getBranch("extensions.mintrayr.")
                                 .QueryInterface(Components.interfaces.nsIPrefBranch);
-    this._prefs.addObserver("alwaysShowTrayIcon", this, false);
+    this._prefs.addObserver("alwaysShowTrayIcon", this);
 
     // Add a listener to minimize the window on startup once it has been
     // fully created if the corresponding pref is set.

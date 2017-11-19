@@ -37,7 +37,7 @@ var gSyncPane = {
 
   init: function () {
     for (var topic of this.topics)
-      Services.obs.addObserver(this, topic, false);
+      Services.obs.addObserver(this, topic);
 
     window.addEventListener("unload", this);
 

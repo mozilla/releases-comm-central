@@ -361,7 +361,7 @@ function test8()
     });
   };
 
-  Services.obs.addObserver(gObserver, "invalidformsubmit", false);
+  Services.obs.addObserver(gObserver, "invalidformsubmit");
 
   tab.linkedBrowser.addEventListener("load", function test8TabLBLoad(aEvent) {
     tab.linkedBrowser.removeEventListener("load", test8TabLBLoad, true);

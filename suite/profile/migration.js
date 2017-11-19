@@ -24,11 +24,11 @@ var MigrationWizard = {
   init: function() {
     var os = Components.classes["@mozilla.org/observer-service;1"]
                        .getService(Components.interfaces.nsIObserverService);
-    os.addObserver(this, "Migration:Started", false);
-    os.addObserver(this, "Migration:ItemBeforeMigrate", false);
-    os.addObserver(this, "Migration:ItemAfterMigrate", false);
-    os.addObserver(this, "Migration:Ended", false);
-    os.addObserver(this, "Migration:Progress", false);
+    os.addObserver(this, "Migration:Started");
+    os.addObserver(this, "Migration:ItemBeforeMigrate");
+    os.addObserver(this, "Migration:ItemAfterMigrate");
+    os.addObserver(this, "Migration:Ended");
+    os.addObserver(this, "Migration:Progress");
 
     this._wiz = document.documentElement;
     this._wiz.canRewind = false;

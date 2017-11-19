@@ -54,7 +54,7 @@ add_task(function* check_custom_header() {
       resolve();
       Services.obs.removeObserver(observer, "xpcom-category-entry-added");
     }
-    Services.obs.addObserver(observer, "xpcom-category-entry-added", false);
+    Services.obs.addObserver(observer, "xpcom-category-entry-added");
   });
   Cc["@mozilla.org/categorymanager;1"]
     .getService(Ci.nsICategoryManager)

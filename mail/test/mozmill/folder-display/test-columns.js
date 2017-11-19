@@ -570,7 +570,7 @@ function wait_for_columns_state_updated() {
   let columns_state_updated = function() {
     gColumnStateUpdated = true;
   }
-  Services.prefs.addObserver(STATE_PREF, columns_state_updated, false);
+  Services.prefs.addObserver(STATE_PREF, columns_state_updated);
   mc.waitFor(() => gColumnStateUpdated, "Timeout waiting for columns state updated.");
   Services.prefs.removeObserver(STATE_PREF, columns_state_updated);
 }

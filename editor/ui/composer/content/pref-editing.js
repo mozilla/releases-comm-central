@@ -29,12 +29,12 @@ const browserPrefsObserver =
 function Startup()
 {
   // Add browser prefs observers
-  Services.prefs.addObserver("browser.display.use_system_colors", browserPrefsObserver, false);
-  Services.prefs.addObserver("browser.display.foreground_color", browserPrefsObserver, false);
-  Services.prefs.addObserver("browser.display.background_color", browserPrefsObserver, false);
-  Services.prefs.addObserver("browser.anchor_color", browserPrefsObserver, false);
-  Services.prefs.addObserver("browser.active_color", browserPrefsObserver, false);
-  Services.prefs.addObserver("browser.visited_color", browserPrefsObserver, false);
+  Services.prefs.addObserver("browser.display.use_system_colors", browserPrefsObserver);
+  Services.prefs.addObserver("browser.display.foreground_color", browserPrefsObserver);
+  Services.prefs.addObserver("browser.display.background_color", browserPrefsObserver);
+  Services.prefs.addObserver("browser.anchor_color", browserPrefsObserver);
+  Services.prefs.addObserver("browser.active_color", browserPrefsObserver);
+  Services.prefs.addObserver("browser.visited_color", browserPrefsObserver);
 
   // Add event listener so we can remove our observers
   window.addEventListener("unload", WindowOnUnload, {capture: false, once: true});

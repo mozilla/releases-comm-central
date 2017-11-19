@@ -865,7 +865,7 @@ var mailOfflineObserver = {
 
 function AddMailOfflineObserver()
 {
-  Services.obs.addObserver(mailOfflineObserver, "network:offline-status-changed", false);
+  Services.obs.addObserver(mailOfflineObserver, "network:offline-status-changed");
 }
 
 function RemoveMailOfflineObserver()

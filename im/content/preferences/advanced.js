@@ -37,7 +37,7 @@ var gAdvancedPane = {
       Services.prefs.removeObserver("app.update.", this);
     }.bind(this);
     window.addEventListener("unload", onUnload);
-    Services.prefs.addObserver("app.update.", this, false);
+    Services.prefs.addObserver("app.update.", this);
     this.updateReadPrefs();
 #endif
 

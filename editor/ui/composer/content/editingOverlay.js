@@ -184,7 +184,7 @@ function EditorStartup(aUrl, aCharset)
 
   gCSSPrefListener = new nsPrefListener(kUseCssPref);
   gReturnInParagraphPrefListener = new nsPrefListener(kCRInParagraphsPref);
-  Services.obs.addObserver(EditorCanClose, "quit-application-requested", false);
+  Services.obs.addObserver(EditorCanClose, "quit-application-requested");
 
   // Get url for editor content and load it. The editor gets instantiated by
   // the editingSession when the URL has finished loading.

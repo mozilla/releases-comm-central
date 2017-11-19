@@ -332,7 +332,7 @@ var GlodaIndexer = {
     }
 
     // register for shutdown notifications
-    Services.obs.addObserver(this, "quit-application", false);
+    Services.obs.addObserver(this, "quit-application");
 
     // figure out if event-driven indexing should be enabled...
     let branch = Services.prefs.getBranch("mailnews.database.global.indexer.");
@@ -488,7 +488,7 @@ var GlodaIndexer = {
   set enabled(aEnable) {
     if (!this._enabled && aEnable) {
       // register for offline notifications
-      Services.obs.addObserver(this, "network:offline-status-changed", false);
+      Services.obs.addObserver(this, "network:offline-status-changed");
 
       // register for idle notification
       this._idleService.addIdleObserver(this, this._indexIdleThresholdSecs);

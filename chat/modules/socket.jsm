@@ -149,7 +149,7 @@ var Socket = {
       throw Cr.NS_ERROR_FAILURE;
 
     // This won't work for Linux due to bug 758848.
-    Services.obs.addObserver(this, "wake_notification", false);
+    Services.obs.addObserver(this, "wake_notification");
 
     this.LOG("Connecting to: " + aHost + ":" + aPort);
     this.originHost = aOriginHost;

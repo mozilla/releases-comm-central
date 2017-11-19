@@ -170,7 +170,7 @@ function initGlobalRuleset()
 {
   gGlobalRuleset = newRuleset();
 
-  Services.prefs.addObserver(kModePref, styleObserver, false);
+  Services.prefs.addObserver(kModePref, styleObserver);
 }
 
 var styleObserver = {

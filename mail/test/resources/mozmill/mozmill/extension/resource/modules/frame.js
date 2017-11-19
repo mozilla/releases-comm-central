@@ -501,7 +501,7 @@ AppQuitObserver.prototype = {
   register: function() {
     var obsService = Components.classes["@mozilla.org/observer-service;1"]
                      .getService(Components.interfaces.nsIObserverService);
-    obsService.addObserver(this, "quit-application", false);
+    obsService.addObserver(this, "quit-application");
   },
   unregister: function() {
     var obsService = Components.classes["@mozilla.org/observer-service;1"]

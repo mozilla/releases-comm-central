@@ -42,7 +42,7 @@ var shutdownCleanupObserver = {
     if (this._initialized)
       return;
 
-    Services.obs.addObserver(this, "quit-application", false);
+    Services.obs.addObserver(this, "quit-application");
 
     this._initialized = true;
   },

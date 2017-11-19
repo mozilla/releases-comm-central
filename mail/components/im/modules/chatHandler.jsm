@@ -21,11 +21,11 @@ var ChatCore = {
 
     Components.utils.import("resource:///modules/index_im.js");
 
-    Services.obs.addObserver(this, "browser-request", false);
-    Services.obs.addObserver(this, "contact-signed-on", false);
-    Services.obs.addObserver(this, "contact-signed-off", false);
-    Services.obs.addObserver(this, "contact-added", false);
-    Services.obs.addObserver(this, "contact-removed", false);
+    Services.obs.addObserver(this, "browser-request");
+    Services.obs.addObserver(this, "contact-signed-on");
+    Services.obs.addObserver(this, "contact-signed-off");
+    Services.obs.addObserver(this, "contact-added");
+    Services.obs.addObserver(this, "contact-removed");
 
     // The initialization of the im core may trigger a master password prompt,
     // so wrap it with the async prompter service. Note this service already

@@ -478,10 +478,10 @@ ConversationsService.prototype = {
     this._uiConv = {};
     this._uiConvByContactId = {};
     this._prplConversations = [];
-    Services.obs.addObserver(this, "account-disconnecting", false);
-    Services.obs.addObserver(this, "account-connected", false);
-    Services.obs.addObserver(this, "account-buddy-added", false);
-    Services.obs.addObserver(this, "account-buddy-removed", false);
+    Services.obs.addObserver(this, "account-disconnecting");
+    Services.obs.addObserver(this, "account-connected");
+    Services.obs.addObserver(this, "account-buddy-added");
+    Services.obs.addObserver(this, "account-buddy-removed");
   },
 
   unInitConversations: function() {

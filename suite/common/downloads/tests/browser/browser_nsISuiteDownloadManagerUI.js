@@ -67,5 +67,5 @@ function test()
   };
 
   waitForExplicitFinish();
-  obs.addObserver(testObs, DLMGR_UI_DONE, false);
+  obs.addObserver(testObs, DLMGR_UI_DONE);
 }

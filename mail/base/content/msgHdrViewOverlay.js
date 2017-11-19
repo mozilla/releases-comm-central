@@ -223,8 +223,8 @@ function OnLoadMsgHeaderPane()
   gHeadersShowReferences = Services.prefs.getBoolPref("mailnews.headers.showReferences");
 
   // listen to the
-  Services.prefs.addObserver("mail.showCondensedAddresses", MsgHdrViewObserver, false);
-  Services.prefs.addObserver("mailnews.headers.showReferences", MsgHdrViewObserver, false);
+  Services.prefs.addObserver("mail.showCondensedAddresses", MsgHdrViewObserver);
+  Services.prefs.addObserver("mailnews.headers.showReferences", MsgHdrViewObserver);
 
   initializeHeaderViewTables();
 
