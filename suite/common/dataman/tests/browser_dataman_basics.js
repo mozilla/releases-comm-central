@@ -96,7 +96,7 @@ function test() {
         win = content.wrappedJSObject;
         Services.obs.addObserver(testObs, TEST_DONE);
         // Trigger the first test now!
-        Services.obs.notifyObservers(window, TEST_DONE, null);
+        Services.obs.notifyObservers(window, TEST_DONE);
       }
       else {
         // TEST_DONE triggered, run next test
@@ -147,7 +147,7 @@ function test_open_state(aWin) {
      "After search, number of selections is correct");
   is(aWin.gDomains.selectedDomain.title, "mochi.test",
      "After search, matching selection is kept correctly");
-  Services.obs.notifyObservers(window, TEST_DONE, null);
+  Services.obs.notifyObservers(window, TEST_DONE);
 },
 
 function test_forget_ipv6(aWin) {
@@ -176,7 +176,7 @@ function test_forget_ipv6(aWin) {
   aWin.gDomains.tree.view.selection.select(0);
   is(aWin.gDomains.selectedDomain.title, "*",
      "* domain is selected again");
-  Services.obs.notifyObservers(window, TEST_DONE, null);
+  Services.obs.notifyObservers(window, TEST_DONE);
 },
 
 function test_fdata_panel(aWin) {
@@ -250,7 +250,7 @@ function test_fdata_panel(aWin) {
      "After remove button, one item is selected again");
   is(aWin.gFormdata.tree.currentIndex, 4,
      "After remove button, correct index is selected");
-  Services.obs.notifyObservers(window, TEST_DONE, null);
+  Services.obs.notifyObservers(window, TEST_DONE);
 },
 
 function test_cookies_panel(aWin) {
@@ -313,7 +313,7 @@ function test_cookies_panel(aWin) {
      "No panel is active");
   is(aWin.gTabs.tabbox.selectedTab.disabled, true,
      "The selected panel is disabled");
-  Services.obs.notifyObservers(window, TEST_DONE, null);
+  Services.obs.notifyObservers(window, TEST_DONE);
 },
 
 function test_permissions_panel(aWin) {
@@ -467,7 +467,7 @@ function test_permissions_panel(aWin) {
   aWin.gDomains.tree.view.selection.select(8); // Switch back to rebuild the perm list.
   is(aWin.gPerms.list.children.length, 1,
      "After the test, the correct number of permissions is displayed in the list");
-  Services.obs.notifyObservers(window, TEST_DONE, null);
+  Services.obs.notifyObservers(window, TEST_DONE);
 },
 
 function test_permissions_add(aWin) {
@@ -536,7 +536,7 @@ function test_permissions_add(aWin) {
      "On add, the host is set correctly");
   is(aWin.gPerms.addType.value, "",
      "Again, no type is selected");
-  Services.obs.notifyObservers(window, TEST_DONE, null);
+  Services.obs.notifyObservers(window, TEST_DONE);
 },
 
 function test_prefs_panel(aWin) {
@@ -615,7 +615,7 @@ function test_prefs_panel(aWin) {
   aWin.gDomains.updateContext(); // don't actually open it, would be async
   is(aWin.document.getElementById("domain-context-forget").disabled, true,
      "The domain's forget context menu item is disabled");
-  Services.obs.notifyObservers(window, TEST_DONE, null);
+  Services.obs.notifyObservers(window, TEST_DONE);
 },
 
 function test_passwords_panel(aWin) {
@@ -687,7 +687,7 @@ function test_passwords_panel(aWin) {
      "After deleting last password, the remove button is disabled");
   is(aWin.gTabs.activePanel, "cookiesPanel",
      "After deleting last password, cookies panel is selected again");
-  Services.obs.notifyObservers(window, TEST_DONE, null);
+  Services.obs.notifyObservers(window, TEST_DONE);
 },
 
 function test_idn(aWin) {
@@ -773,7 +773,7 @@ function test_idn(aWin) {
   is(aWin.gTabs.activePanel, "permissionsPanel",
      "After deleting, correctly switched back to permissions panel");
 
-  Services.obs.notifyObservers(window, TEST_DONE, null);
+  Services.obs.notifyObservers(window, TEST_DONE);
 },
 
 function test_storage_load(aWin) {
@@ -792,9 +792,9 @@ function test_storage_load(aWin) {
       if (tab == storagetab) {
         gBrowser.tabContainer.removeEventListener("TabClose", this);
         // Force DOM Storage to write its data to the disk.
-        Services.obs.notifyObservers(null, "domstorage-flush-timer", "");
+        Services.obs.notifyObservers(null, "domstorage-flush-timer");
         Services.perms.remove("mochi.test", "offline-app");
-        Services.obs.notifyObservers(window, TEST_DONE, null);
+        Services.obs.notifyObservers(window, TEST_DONE);
       }
     },
   };
@@ -804,7 +804,7 @@ function test_storage_load(aWin) {
 function test_storage_wait(aWin) {
   // Wait to make sure that DOM Storage flushing has actually worked.
   setTimeout(function foo() {
-      Services.obs.notifyObservers(window, TEST_DONE, null); }, 1000);
+      Services.obs.notifyObservers(window, TEST_DONE); }, 1000);
 },
 
 function test_storage(aWin) {
@@ -838,7 +838,7 @@ function test_storage(aWin) {
   isnot(aWin.gTabs.activePanel, "storagePanel",
     "Storage panel is not selected any more");
 
-  Services.obs.notifyObservers(window, TEST_DONE, null);
+  Services.obs.notifyObservers(window, TEST_DONE);
 },
 
 function test_close(aWin) {
@@ -846,7 +846,7 @@ function test_close(aWin) {
     aWin.removeEventListener("unload", dmWindowClosedListener);
     isnot(content.document.documentElement.id, "dataman-page",
        "The active tab is not the Data Manager");
-    Services.obs.notifyObservers(window, TEST_DONE, null);
+    Services.obs.notifyObservers(window, TEST_DONE);
   }
   aWin.addEventListener("unload", dmWindowClosedListener);
   aWin.close();

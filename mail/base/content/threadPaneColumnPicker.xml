@@ -180,7 +180,7 @@
             // of our mozmill tests.
             let observerCallback = function() {
               Services.obs.notifyObservers(gFolderDisplay.displayedFolder,
-                                           "msg-folder-columns-propagated", "");
+                                           "msg-folder-columns-propagated");
             };
             MailUtils.setStringPropertyOnFolderAndDescendents(
               propName, colStateString, aDestFolder, observerCallback

@@ -1714,7 +1714,7 @@ function GenericSendMessage( msgType )
       }
 
       // hook for extra compose pre-processing
-      Services.obs.notifyObservers(window, "mail:composeOnSend", null);
+      Services.obs.notifyObservers(window, "mail:composeOnSend");
 
       var originalCharset = gMsgCompose.compFields.characterSet;
       // Check if the headers of composing mail can be converted to a mail charset.

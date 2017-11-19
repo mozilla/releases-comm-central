@@ -745,7 +745,7 @@ function OnLoadMessenger()
 
   window.setTimeout(loadStartFolder, 0, startFolderUri);
 
-  Services.obs.notifyObservers(window, "mail-startup-done", null);
+  Services.obs.notifyObservers(window, "mail-startup-done");
 
   // FIX ME - later we will be able to use onload from the overlay
   OnLoadMsgHeaderPane();

@@ -212,7 +212,7 @@ var fake = {
                      new Account("tom.smith@yahoo.com", "prpl-yahoo"),
                      new Account("tom@irc.mozilla.org", "prpl-irc")];
     for (let account of this.accounts)
-      Services.obs.notifyObservers(account, "account-added", null);
+      Services.obs.notifyObservers(account, "account-added");
 
     var win = Components.classes["@mozilla.org/appshell/window-mediator;1"]
                        .getService(Components.interfaces.nsIWindowMediator)

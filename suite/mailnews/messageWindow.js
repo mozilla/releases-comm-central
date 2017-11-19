@@ -130,7 +130,7 @@ function UpdateStandAloneMessageCounts()
 {
   // hook for extra toolbar items
   Services.obs.notifyObservers(window,
-                               "mail:updateStandAloneMessageCounts", "");
+                               "mail:updateStandAloneMessageCounts");
 }
 
 nsMsgDBViewCommandUpdater.prototype =

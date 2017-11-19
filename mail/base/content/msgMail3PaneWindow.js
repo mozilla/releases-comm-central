@@ -527,11 +527,11 @@ function LoadPostAccountWizard()
         // On windows, there seems to be a delay between setting TB as the
         // default client, and the isDefaultClient check succeeding.
         if (shellService.isDefaultClient(true, nsIShellService.MAIL))
-          Services.obs.notifyObservers(window, "mail:setAsDefault", null);
+          Services.obs.notifyObservers(window, "mail:setAsDefault");
       }
     }
     // All core modal dialogs are done, the user can now interact with the 3-pane window
-    Services.obs.notifyObservers(window, "mail-startup-done", null);
+    Services.obs.notifyObservers(window, "mail-startup-done");
   }
 
   setTimeout(completeStartup, 0);
@@ -609,7 +609,7 @@ function FindOther3PaneWindow()
  */
 function OnUnloadMessenger()
 {
-  Services.obs.notifyObservers(window, "mail-unloading-messenger", null);
+  Services.obs.notifyObservers(window, "mail-unloading-messenger");
   accountManager.removeIncomingServerListener(gThreePaneIncomingServerListener);
   Services.prefs.removeObserver("mail.pane_config.dynamic", MailPrefObserver);
   Services.prefs.removeObserver("mail.showCondensedAddresses", MailPrefObserver);
@@ -679,7 +679,7 @@ async function atStartupRestoreTabs(aDontRestoreFirstTab) {
   // it's now safe to load extra Tabs.
   setTimeout(loadExtraTabs, 0);
   sessionStoreManager._restored = true;
-  Services.obs.notifyObservers(window, "mail-tabs-session-restored", null);
+  Services.obs.notifyObservers(window, "mail-tabs-session-restored");
   return state ? true : false;
 }
 

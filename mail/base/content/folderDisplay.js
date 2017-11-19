@@ -967,7 +967,7 @@ FolderDisplayWidget.prototype = {
     //  valid at the time we generate the notification.  In such a case, you
     //  can easily get that information from the gDBView.  (The documentation
     //  on creating a custom column assumes gDBView.)
-    Services.obs.notifyObservers(this.displayedFolder, "MsgCreateDBView", "");
+    Services.obs.notifyObservers(this.displayedFolder, "MsgCreateDBView");
   },
 
   /**

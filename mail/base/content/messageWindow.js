@@ -324,7 +324,7 @@ var messagepaneObserver = {
 function UpdateStatusMessageCounts()
 {
   // hook for extra toolbar items
-  Services.obs.notifyObservers(window, "mail:updateStandAloneMessageCounts", "");
+  Services.obs.notifyObservers(window, "mail:updateStandAloneMessageCounts");
 }
 
 // we won't show the window until the onload() handler is finished

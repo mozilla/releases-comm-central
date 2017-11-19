@@ -128,7 +128,7 @@ function UpdateMailToolbar(caller)
   document.commandDispatcher.updateCommands('mail-toolbar');
 
   // hook for extra toolbar items
-  Services.obs.notifyObservers(window, "mail:updateToolbarItems", null);
+  Services.obs.notifyObservers(window, "mail:updateToolbarItems");
 }
 
 /**
@@ -332,7 +332,7 @@ function RerootFolder(uri, newFolder, viewType, viewFlags, sortType, sortOrder)
 
   UpdateMailToolbar("reroot folder in 3 pane");
   // hook for extra toolbar items
-  Services.obs.notifyObservers(window, "mail:updateToolbarItems", null);
+  Services.obs.notifyObservers(window, "mail:updateToolbarItems");
   // this is to kick off cross-folder searches for virtual folders.
   if (gSearchSession && !gVirtualFolderTerms) // another var might be better...
   {

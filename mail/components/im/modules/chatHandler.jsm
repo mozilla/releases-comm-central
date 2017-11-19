@@ -73,7 +73,7 @@ var ChatCore = {
         });
 
         ChatCore.initialized = true;
-        Services.obs.notifyObservers(null, "chat-core-initialized", null);
+        Services.obs.notifyObservers(null, "chat-core-initialized");
         ChatCore._initializing = false;
         return true;
       },

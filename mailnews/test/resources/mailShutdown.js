@@ -13,7 +13,7 @@ function postShutdownNotifications()
   // to cancel this, our test should fail.
   var cancelQuit = Cc["@mozilla.org/supports-PRBool;1"]
                      .createInstance(Components.interfaces.nsISupportsPRBool);
-  Services.obs.notifyObservers(cancelQuit, "quit-application-requested", null);
+  Services.obs.notifyObservers(cancelQuit, "quit-application-requested");
   if (cancelQuit.data) {
     do_throw("Cannot shutdown: Someone cancelled the quit request!");
   }
@@ -24,7 +24,7 @@ function postShutdownNotifications()
                        "profile-change-teardown",
                        "profile-before-change"];
   notifications.forEach(function(notification) {
-                          Services.obs.notifyObservers(null, notification, null);
+                          Services.obs.notifyObservers(null, notification);
                         });
 
   // finally, the xpcom-shutdown notification is handled by XPCOM itself.

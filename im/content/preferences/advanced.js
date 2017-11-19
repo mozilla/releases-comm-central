@@ -44,7 +44,7 @@ var gAdvancedPane = {
     let bundlePrefs = document.getElementById("bundlePreferences");
 
     // Notify observers that the UI is now ready
-    Services.obs.notifyObservers(window, "advanced-pane-loaded", null);
+    Services.obs.notifyObservers(window, "advanced-pane-loaded");
   },
 
   /**

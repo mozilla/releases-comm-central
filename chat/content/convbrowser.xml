@@ -961,7 +961,7 @@
               this.contentChatNode
                   .addEventListener("load", this.onContentElementLoad, true);
 
-              Services.obs.notifyObservers(this, "conversation-loaded", null);
+              Services.obs.notifyObservers(this, "conversation-loaded");
             }
           ]]>
         </body>

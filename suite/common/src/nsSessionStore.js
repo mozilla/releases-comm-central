@@ -3321,7 +3321,7 @@ SessionStoreService.prototype = {
     // parentheses are for backwards compatibility with older sessionstore files
     stateString.data = this._toJSONString(aStateObj);
 
-    Services.obs.notifyObservers(stateString, "sessionstore-state-write", "");
+    Services.obs.notifyObservers(stateString, "sessionstore-state-write");
 
     // don't touch the file if an observer has deleted all state data
     if (stateString.data)
@@ -3777,7 +3777,7 @@ SessionStoreService.prototype = {
   run: function sss_run() {
     // This was the last window restored at startup, notify observers.
     Services.obs.notifyObservers(this.windowToFocus,
-      this._browserSetState ? NOTIFY_BROWSER_STATE_RESTORED : NOTIFY_WINDOWS_RESTORED, "");
+      this._browserSetState ? NOTIFY_BROWSER_STATE_RESTORED : NOTIFY_WINDOWS_RESTORED);
     this._browserSetState = false;
   },
 
@@ -3979,8 +3979,7 @@ SessionStoreService.prototype = {
     NetUtil.asyncCopy(istream, ostream, function(rc) {
       if (Components.isSuccessCode(rc)) {
         Services.obs.notifyObservers(null,
-                                     "sessionstore-state-write-complete",
-                                     "");
+                                     "sessionstore-state-write-complete");
       }
     });
   }

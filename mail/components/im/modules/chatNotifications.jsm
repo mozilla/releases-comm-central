@@ -46,7 +46,7 @@ var Notifications = {
     if (!Services.focus.activeWindow ||
         Services.wm.getMostRecentWindow("mail:3pane").document
                 .getElementById("tabmail").currentTabInfo.mode.name != "chat")
-      Services.obs.notifyObservers(aMessage, "play-chat-notification-sound", false);
+      Services.obs.notifyObservers(aMessage, "play-chat-notification-sound");
 
     // If TB window has focus, there's no need to show the notification..
     if (Services.wm.getMostRecentWindow("mail:3pane").document.hasFocus()) {

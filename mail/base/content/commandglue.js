@@ -21,7 +21,7 @@ function UpdateMailToolbar(caller)
   document.commandDispatcher.updateCommands('mail-toolbar');
 
   // hook for extra toolbar items
-  Services.obs.notifyObservers(window, "mail:updateToolbarItems", null);
+  Services.obs.notifyObservers(window, "mail:updateToolbarItems");
 }
 
 function isNewsURI(uri)

@@ -866,7 +866,7 @@ var gApplicationsPane = {
     this._rebuildView();
 
     // Notify observers that the UI is now ready
-    Services.obs.notifyObservers(window, "app-handler-pane-loaded", null);
+    Services.obs.notifyObservers(window, "app-handler-pane-loaded");
   },
 
   destroy: function() {

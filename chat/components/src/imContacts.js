@@ -264,8 +264,8 @@ var otherContactsTag = {
       if (contact.getTags().some(t => t.id == id))
         this._removeContact(contact);
 
-    aTag.notifyObservers(aTag, "tag-shown", null);
-    Services.obs.notifyObservers(aTag, "tag-shown", null);
+    aTag.notifyObservers(aTag, "tag-shown");
+    Services.obs.notifyObservers(aTag, "tag-shown");
     this._saveHiddenTagsPref();
   },
   hideTag: function(aTag) {
@@ -276,8 +276,8 @@ var otherContactsTag = {
     if (this._contactsInitialized)
       this._hideTag(aTag);
 
-    aTag.notifyObservers(aTag, "tag-hidden", null);
-    Services.obs.notifyObservers(aTag, "tag-hidden", null);
+    aTag.notifyObservers(aTag, "tag-hidden");
+    Services.obs.notifyObservers(aTag, "tag-hidden");
     this._saveHiddenTagsPref();
   },
   _hideTag: function(aTag) {
@@ -583,7 +583,7 @@ Contact.prototype = {
         observer.observe(aNewTag, "contact-moved-in", null);
       Services.obs.notifyObservers(this, "contact-tag-added", aNewTag.id);
     }
-    Services.obs.notifyObservers(this, "contact-moved", null);
+    Services.obs.notifyObservers(this, "contact-moved");
   },
 
   getBuddies: function(aBuddyCount) {

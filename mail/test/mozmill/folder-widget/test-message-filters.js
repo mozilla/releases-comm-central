@@ -235,8 +235,7 @@ function test_can_cancel_quit_on_filter_changes() {
   // cancel the quit.
   gMockPromptService.returnValue = false;
   // Trigger the quit-application-request notification
-  Services.obs.notifyObservers(cancelQuit, "quit-application-requested",
-                               null);
+  Services.obs.notifyObservers(cancelQuit, "quit-application-requested");
   let promptState = gMockPromptService.promptState;
   assert_not_equals(null, promptState, "Expected a confirmEx prompt");
 
@@ -277,8 +276,7 @@ function test_can_quit_on_filter_changes() {
   // allow the quit.
   gMockPromptService.returnValue = true;
   // Trigger the quit-application-request notification
-  Services.obs.notifyObservers(cancelQuit, "quit-application-requested",
-                               null);
+  Services.obs.notifyObservers(cancelQuit, "quit-application-requested");
   let promptState = gMockPromptService.promptState;
   assert_not_equals(null, promptState, "Expected a confirmEx prompt");
 

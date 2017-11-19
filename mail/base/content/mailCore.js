@@ -449,7 +449,7 @@ function openAddonsMgr(aView)
       }
     }
     Services.obs.addObserver(receivePong, "EM-pong");
-    Services.obs.notifyObservers(null, "EM-ping", "");
+    Services.obs.notifyObservers(null, "EM-ping");
     Services.obs.removeObserver(receivePong, "EM-pong");
 
     if (emWindow) {

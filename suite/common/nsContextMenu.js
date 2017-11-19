@@ -74,7 +74,7 @@ nsContextMenu.prototype = {
     };
     subject.wrappedJSObject = subject;
     // Notifies the Addon-SDK which then populates addonInfo.
-    Services.obs.notifyObservers(subject, "content-contextmenu", null);
+    Services.obs.notifyObservers(subject, "content-contextmenu");
 
     var popupNode = this.target;
     var doc = popupNode.ownerDocument;

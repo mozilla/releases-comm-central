@@ -129,7 +129,7 @@ function AcceptDialog()
                              .createInstance(Components.interfaces.nsISupportsPRBool);
   Components.classes["@mozilla.org/observer-service;1"]
             .getService(Components.interfaces.nsIObserverService)
-            .notifyObservers(cancelQuit, "quit-application-requested", null);
+            .notifyObservers(cancelQuit, "quit-application-requested");
   if (cancelQuit.data)
     return false;
 

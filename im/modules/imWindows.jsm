@@ -162,7 +162,7 @@ var Conversations = {
   },
 
   hideConversation: function(aConv) {
-    Services.obs.notifyObservers(aConv, "ui-conversation-hidden", null);
+    Services.obs.notifyObservers(aConv, "ui-conversation-hidden");
     if (!aConv.isChat)
       return;
     let accountId = aConv.account.id;
@@ -188,7 +188,7 @@ var Conversations = {
         this._pendingConversations.includes(aConv)))
       return;
 
-    Services.obs.notifyObservers(aConv, "showing-ui-conversation", null);
+    Services.obs.notifyObservers(aConv, "showing-ui-conversation");
     // The conversation is not displayed anywhere yet.
     // First, check if an existing conversation window can accept it.
     for (let win of this._windows)

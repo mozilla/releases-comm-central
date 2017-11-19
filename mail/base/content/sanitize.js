@@ -169,7 +169,7 @@ Sanitizer.prototype = {
         try {
           var os = Components.classes["@mozilla.org/observer-service;1"]
                              .getService(Components.interfaces.nsIObserverService);
-          os.notifyObservers(null, "browser:purge-session-history", "");
+          os.notifyObservers(null, "browser:purge-session-history");
         } catch (e) { }
 
         try {

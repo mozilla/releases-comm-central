@@ -81,7 +81,7 @@ function UIConversation(aPrplConversation)
   // XPConnect will create a wrapper around 'this' after here,
   // so the list of exposed interfaces shouldn't change anymore.
   this.updateContactObserver();
-  Services.obs.notifyObservers(this, "new-ui-conversation", null);
+  Services.obs.notifyObservers(this, "new-ui-conversation");
 }
 
 UIConversation.prototype = {
@@ -403,7 +403,7 @@ UIConversation.prototype = {
       return;
     delete this._currentTargetId;
     this.notifyObservers(this, "ui-conversation-closed");
-    Services.obs.notifyObservers(this, "ui-conversation-closed", null);
+    Services.obs.notifyObservers(this, "ui-conversation-closed");
   },
   addObserver: function(aObserver) {
     if (!this._observers.includes(aObserver))
@@ -569,7 +569,7 @@ ConversationsService.prototype = {
     this._prplConversations.push(aPrplConversation);
 
     // Notify observers.
-    Services.obs.notifyObservers(aPrplConversation, "new-conversation", null);
+    Services.obs.notifyObservers(aPrplConversation, "new-conversation");
 
     // Update or create the corresponding UI conversation.
     let contactId;
@@ -594,7 +594,7 @@ ConversationsService.prototype = {
       this._uiConvByContactId[contactId] = newUIConv;
   },
   removeConversation: function(aPrplConversation) {
-    Services.obs.notifyObservers(aPrplConversation, "conversation-closed", null);
+    Services.obs.notifyObservers(aPrplConversation, "conversation-closed");
 
     let uiConv = this.getUIConversation(aPrplConversation);
     delete this._uiConv[aPrplConversation.id];
@@ -602,7 +602,7 @@ ConversationsService.prototype = {
     if (uiConv.removeTarget(aPrplConversation, contactId)) {
       if (contactId.value)
         delete this._uiConvByContactId[contactId.value];
-      Services.obs.notifyObservers(uiConv, "ui-conversation-closed", null);
+      Services.obs.notifyObservers(uiConv, "ui-conversation-closed");
     }
     this.forgetConversation(aPrplConversation);
   },

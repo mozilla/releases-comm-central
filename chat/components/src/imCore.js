@@ -264,7 +264,7 @@ CoreService.prototype = {
     accounts.initAccounts();
     Services.contacts.initContacts();
     Services.conversations.initConversations();
-    Services.obs.notifyObservers(this, "prpl-init", null);
+    Services.obs.notifyObservers(this, "prpl-init");
 
     // Wait with automatic connections until the password service
     // is available.
@@ -283,7 +283,7 @@ CoreService.prototype = {
       throw Cr.NS_ERROR_NOT_INITIALIZED;
 
     Services.obs.removeObserver(this, kQuitApplicationGranted);
-    Services.obs.notifyObservers(this, "prpl-quit", null);
+    Services.obs.notifyObservers(this, "prpl-quit");
 
     Services.conversations.unInitConversations();
     Services.accounts.unInitAccounts();

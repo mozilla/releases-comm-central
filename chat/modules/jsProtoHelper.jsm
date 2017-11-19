@@ -149,8 +149,7 @@ var GenericAccountPrototype = {
       },
       cancel: function() {
         Services.obs.notifyObservers(this,
-                                     "buddy-authorization-request-canceled",
-                                     null);
+                                     "buddy-authorization-request-canceled");
         this._remove();
       },
       _remove: function() {
@@ -159,8 +158,7 @@ var GenericAccountPrototype = {
       QueryInterface: XPCOMUtils.generateQI([Ci.prplIBuddyRequest])
     };
     this._pendingBuddyRequests.push(buddyRequest);
-    Services.obs.notifyObservers(buddyRequest, "buddy-authorization-request",
-                                 null);
+    Services.obs.notifyObservers(buddyRequest, "buddy-authorization-request");
   },
   removeBuddyRequest: function(aRequest) {
     if (!this._pendingBuddyRequests)
@@ -415,7 +413,7 @@ var GenericMessagePrototype = {
   get conversation() { return this._conversation; },
   set conversation(aConv) {
     this._conversation = aConv;
-    aConv.notifyObservers(this, "new-text", null);
+    aConv.notifyObservers(this, "new-text");
   },
 
   outgoing: false,
@@ -499,7 +497,7 @@ var GenericConversationPrototype = {
   sendTyping: aString => Ci.prplIConversation.NO_TYPING_LIMIT,
 
   close: function() {
-    Services.obs.notifyObservers(this, "closing-conversation", null);
+    Services.obs.notifyObservers(this, "closing-conversation");
     Services.conversations.removeConversation(this);
   },
   unInit: function() {
