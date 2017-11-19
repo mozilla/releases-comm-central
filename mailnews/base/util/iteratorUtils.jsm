@@ -117,7 +117,7 @@ function toXPCOMArray(aArray, aInterface) {
     let mutableArray = Components.classes["@mozilla.org/array;1"]
                                  .createInstance(Ci.nsIMutableArray);
     for (let item of fixIterator(aArray)) {
-      mutableArray.appendElement(item, false);
+      mutableArray.appendElement(item);
     }
     return mutableArray;
   }

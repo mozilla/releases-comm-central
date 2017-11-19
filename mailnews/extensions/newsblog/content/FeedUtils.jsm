@@ -296,7 +296,7 @@ var FeedUtils = {
       // Add the base folder; it does not get returned by ListDescendants. Do not
       // add the account folder as it doesn't have the feedUrl property or even
       // a msgDatabase necessarily.
-      allFolders.appendElement(aFolder, false);
+      allFolders.appendElement(aFolder);
     }
 
     aFolder.ListDescendants(allFolders);

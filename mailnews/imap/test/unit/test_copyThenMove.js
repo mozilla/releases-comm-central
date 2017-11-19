@@ -44,8 +44,7 @@ var tests = [
     yield false;
   },
   function* getLocalMessage2() {
-    gMessages.appendElement(localAccountUtils.inboxFolder.GetMessageHeader(gLastKey),
-                            false);
+    gMessages.appendElement(localAccountUtils.inboxFolder.GetMessageHeader(gLastKey));
     dump("getLocalMessage\n");
     var file = do_get_file("../../../data/draft1");
     gCopyService.CopyFileMessage(file, localAccountUtils.inboxFolder, null, false, 0,
@@ -53,8 +52,7 @@ var tests = [
     yield false;
   },
   function* copyMessages() {
-    gMessages.appendElement(localAccountUtils.inboxFolder.GetMessageHeader(gLastKey),
-                            false);
+    gMessages.appendElement(localAccountUtils.inboxFolder.GetMessageHeader(gLastKey));
     let folder1 = IMAPPump.inbox.getChildNamed("empty 1");
     gCopyService.CopyMessages(localAccountUtils.inboxFolder, gMessages, folder1, false,
                               CopyListener, null, false);
