@@ -1097,7 +1097,7 @@ FeedParser.prototype =
    */
   removeUnprintableASCII: function(s)
   {
-    return s ? s.replace(/[\x00-\x1F,\x7F]+/g, "") : "";
+    return s ? s.replace(/[\x00-\x1F\x7F]+/g, "") : "";
   },
 
   /**
@@ -1108,7 +1108,7 @@ FeedParser.prototype =
    */
   removeUnprintableASCIIexCRLFTAB: function(s)
   {
-    return s ? s.replace(/[\x00-\x08,\x0B-\x0C,\x0E-\x1F,\x7F]+/g, "") : "";
+    return s ? s.replace(/[\x00-\x08\x0B-\x0C\x0E-\x1F\x7F]+/g, "") : "";
   },
 
   stripTags: function(someHTML)
