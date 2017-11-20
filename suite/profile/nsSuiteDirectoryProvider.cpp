@@ -63,46 +63,20 @@ NS_IMETHODIMP
 nsSuiteDirectoryProvider::GetFiles(const char *aKey,
                                    nsISimpleEnumerator* *aResult)
 {
-  if (strcmp(aKey, NS_APP_SEARCH_DIR_LIST))
-    return NS_ERROR_FAILURE;
-
   nsresult rv;
   nsCOMPtr<nsIProperties> dirSvc(do_GetService(NS_DIRECTORY_SERVICE_CONTRACTID, &rv));
   if (NS_FAILED(rv))
     return rv;
 
   nsCOMArray<nsIFile> baseFiles;
-
-  /**
-   * We want to preserve the following order, since the search service loads
-   * engines in first-loaded-wins order.
-   *   - extension search plugin locations (prepended below using
-   *     NS_NewUnionEnumerator)
-   *   - distro search plugin locations
-   *   - user search plugin locations (profile)
-   *   - app search plugin location (shipped engines)
-   */
   AppendDistroSearchDirs(dirSvc, baseFiles);
-  AppendFileKey(NS_APP_USER_SEARCH_DIR, dirSvc, baseFiles);
 
   nsCOMPtr<nsISimpleEnumerator> baseEnum;
   rv = NS_NewArrayEnumerator(getter_AddRefs(baseEnum), baseFiles);
   if (NS_FAILED(rv))
     return rv;
 
-  nsCOMPtr<nsISimpleEnumerator> list;
-  rv = dirSvc->Get(XRE_EXTENSIONS_DIR_LIST,
-                   NS_GET_IID(nsISimpleEnumerator),
-                   getter_AddRefs(list));
-  if (NS_FAILED(rv))
-    return rv;
-
-  nsCOMPtr<nsISimpleEnumerator> extEnum =
-    new AppendingEnumerator(list, "searchplugins");
-  if (!extEnum)
-    return NS_ERROR_OUT_OF_MEMORY;
-
-  return NS_NewUnionEnumerator(aResult, extEnum, baseEnum);
+  return NS_ERROR_FAILURE;
 }
 
 void
@@ -182,23 +156,6 @@ nsSuiteDirectoryProvider::AppendingEnumerator::AppendingEnumerator
 {
   // Initialize mNext to begin.
   GetNext();
-}
-
-void
-nsSuiteDirectoryProvider::AppendFileKey(const char *key, nsIProperties* aDirSvc,
-                                        nsCOMArray<nsIFile> &array)
-{
-  nsCOMPtr<nsIFile> file;
-  nsresult rv = aDirSvc->Get(key, NS_GET_IID(nsIFile), getter_AddRefs(file));
-  if (NS_FAILED(rv))
-    return;
-
-  bool exists;
-  rv = file->Exists(&exists);
-  if (NS_FAILED(rv) || !exists)
-    return;
-
-  array.AppendObject(file);
 }
 
 // Appends the distribution-specific search engine directories to the
