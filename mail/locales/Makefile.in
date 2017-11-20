@@ -192,11 +192,15 @@ endif
 
 # test target, depends on make package
 # try to repack x-test, with just toolkit/defines.inc being there
+l10n-check:: INNER_UNMAKE_PACKAGE=true
 l10n-check::
 	$(RM) -rf x-test
 	$(NSINSTALL) -D x-test/toolkit
 	echo '#define MOZ_LANG_TITLE Just testing' > x-test/toolkit/defines.inc
-	$(MAKE) installers-x-test L10NBASEDIR='$(PWD)'
+	$(MAKE) installers-x-test L10NBASEDIR='$(PWD)' \
+	    ZIP_IN='$(ZIP_IN)' WIN32_INSTALLER_IN='$(WIN32_INSTALLER_IN)' MOZ_SIMPLE_PACKAGE_NAME=
+	$(PYTHON) $(topsrcdir)/toolkit/mozapps/installer/unpack.py $(DIST)/l10n-stage/$(MOZ_PKG_DIR)$(_RESPATH)
+	cd $(DIST)/l10n-stage && test $$(cat $(MOZ_PKG_DIR)$(_RESPATH)/update.locale) = x-test
 
 ifdef MOZ_CALENDAR
 LIGHTNING_PATH=$(commtopobjdir)/calendar/lightning
