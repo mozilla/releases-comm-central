@@ -4,6 +4,7 @@
 
 pref("messenger.options.messagesStyle.theme", "mail");
 pref("messenger.options.emoticonsTheme", "messenger-emoticons");
+pref("messenger.options.getAttentionOnNewMessages", false);
 pref("messenger.conversations.textbox.autoResize", true);
 pref("messenger.conversations.doubleClickToReply", true);
 pref("messenger.conversations.showNicks", true);

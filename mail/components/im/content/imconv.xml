@@ -149,6 +149,9 @@
           if (unreadCount)
             unreadCount = "(" + unreadCount + ")";
           this.setAttribute("unreadCount", unreadCount);
+          if (Services.prefs.getBoolPref("messenger.options.getAttentionOnNewMessages") &&
+              directedMessages > parseInt(this.getAttribute("unreadTargetedCount")))
+            window.getAttention();
           this.setAttribute("unreadTargetedCount", directedMessages);
           chatHandler.updateTitle();
         }

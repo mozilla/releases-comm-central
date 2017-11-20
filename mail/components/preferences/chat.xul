@@ -36,6 +36,7 @@
       <preference id="mail.chat.play_sound" name="mail.chat.play_sound" type="bool"/>
       <preference id="mail.chat.play_sound.type" name="mail.chat.play_sound.type" type="int"/>
       <preference id="mail.chat.play_sound.url" name="mail.chat.play_sound.url" type="string"/>
+      <preference id="messenger.options.getAttentionOnNewMessages" name="messenger.options.getAttentionOnNewMessages" type="bool"/>
       <preference id="messenger.options.messagesStyle.theme"      name="messenger.options.messagesStyle.theme"      type="string"/>
       <preference id="messenger.options.messagesStyle.variant"    name="messenger.options.messagesStyle.variant"    type="string"/>
       <preference id="messenger.options.messagesStyle.showHeader" name="messenger.options.messagesStyle.showHeader" type="bool"/>
@@ -121,6 +122,15 @@
                 </menupopup>
               </menulist>
             </hbox>
+            <checkbox id="getAttention"
+#ifndef XP_MACOSX
+                      label="&getAttention.label;"
+                      accesskey="&getAttention.accesskey;"
+#else
+                      label="&getAttentionMac.label;"
+                      accesskey="&getAttentionMac.accesskey;"
+#endif
+                      preference="messenger.options.getAttentionOnNewMessages"/>
             <hbox align="center">
               <checkbox id="chatNotification"
                         label="&chatSound.label;"

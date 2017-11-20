@@ -205,10 +205,6 @@
         if (isUnreadMessage && (!aMsg.conversation.isChat || aMsg.containsNick)) {
           this._lastPing = aMsg.who;
           this._lastPingTime = aMsg.time;
-/*
-          if (Services.prefs.getBoolPref("messenger.options.getAttentionOnNewMessages"))
-            window.getAttention();
-*/
         }
 
         if (isTabFocused) {

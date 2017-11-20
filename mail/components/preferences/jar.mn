@@ -16,7 +16,7 @@ messenger.jar:
 #endif
     content/messenger/preferences/display.xul
     content/messenger/preferences/display.js
-    content/messenger/preferences/chat.xul
+*   content/messenger/preferences/chat.xul
     content/messenger/preferences/chat.js
     content/messenger/preferences/messagestyle.js
 *   content/messenger/preferences/colors.xul
