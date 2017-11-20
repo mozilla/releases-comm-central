@@ -136,6 +136,7 @@
           let unreadCount = this.conv.unreadIncomingMessageCount;
           let directedMessages = unreadCount;
           if (unreadCount) {
+            this.setAttribute("unread", "true");
             if (this.conv.isChat) {
               directedMessages = this.conv.unreadTargetedMessageCount;
               if (directedMessages)
