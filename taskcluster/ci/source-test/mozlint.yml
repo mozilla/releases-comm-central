@@ -14,6 +14,11 @@ job-defaults:
     run:
         using: mach
         comm-checkout: true
+    when:
+        files-changed:
+            # Other misc lint related files.
+            - 'python/mozlint/**'
+            - 'tools/lint/**'
 
 eslint:
     description: JS lint check
@@ -29,6 +34,21 @@ eslint:
             ln -s ../tools/lint/eslint/eslint-plugin-spidermonkey-js node_modules &&
             cd /builds/worker/checkouts/gecko/comm &&
             ../mach lint -f treeherder -l eslint --quiet
+    when:
+        files-changed:
+            # Files that are likely audited.
+            - 'comm/**/*.js'
+            - 'comm/**/*.jsm'
+            - 'comm/**/*.jsx'
+            - 'comm/**/*.html'
+            - 'comm/**/*.xhtml'
+            - 'comm/**/*.xml'
+            # Run when eslint policies change.
+            - '**/.eslintignore'
+            - '**/*eslintrc*'
+            # The plugin implementing custom checks.
+            - 'tools/lint/eslint/eslint-plugin-mozilla/**'
+            - 'tools/lint/eslint/eslint-plugin-spidermonkey-js/**'
 
 yaml:
     description: yamllint run over the taskcluster configuration
@@ -37,6 +57,11 @@ yaml:
         symbol: yaml
     run:
         mach: lint -f treeherder -l yaml -n comm/taskcluster comm/.taskcluster.yml
+    when:
+        files-changed:
+            - 'comm/**/*.yml'
+            - 'comm/**/*.yaml'
+            - '**/.ymllint'
 
 py-flake8:
     description: flake8 run over the thunderbird codebase
@@ -45,3 +70,9 @@ py-flake8:
         symbol: f8
     run:
         mach: lint -f treeherder -l flake8 -n comm/taskcluster
+    when:
+        files-changed:
+            - '**/*.py'
+            - '**/.flake8'
+            # moz.configure files are also Python files.
+            - '**/*.configure'
