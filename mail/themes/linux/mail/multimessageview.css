@@ -37,7 +37,8 @@
 }
 
 .toolbarbutton-1.msgHeaderView-button {
-  background: -moz-dialog;
+  background: -moz-Dialog;
+  color: -moz-DialogText;
 }
 
 .toolbarbutton-1.msgHeaderView-button:not([disabled=true]):not([checked=true]):not([open]):not(:active):hover {
