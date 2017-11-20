@@ -8,6 +8,7 @@ var {classes: Cc, interfaces: Ci, utils: Cu} = Components;
 Cu.import("resource:///modules/imServices.jsm");
 Cu.import("resource:///modules/hiddenWindow.jsm");
 Cu.import("resource:///modules/StringBundle.js");
+Cu.import("resource://gre/modules/AppConstants.jsm");
 Cu.import("resource://gre/modules/PluralForm.jsm");
 Cu.import("resource://gre/modules/Timer.jsm");
 
@@ -43,13 +44,13 @@ var Notifications = {
   _showMessageNotification: function(aMessage, aCounter = 0) {
     // We are about to show the notification, so let's play the notification sound.
     // We play the sound if the user is away from TB window or even away from chat tab.
+    let win = Services.wm.getMostRecentWindow("mail:3pane");
     if (!Services.focus.activeWindow ||
-        Services.wm.getMostRecentWindow("mail:3pane").document
-                .getElementById("tabmail").currentTabInfo.mode.name != "chat")
+        win.document.getElementById("tabmail").currentTabInfo.mode.name != "chat")
       Services.obs.notifyObservers(aMessage, "play-chat-notification-sound");
 
     // If TB window has focus, there's no need to show the notification..
-    if (Services.wm.getMostRecentWindow("mail:3pane").document.hasFocus()) {
+    if (win && win.document.hasFocus()) {
       this._heldMessage = null;
       this._msgCounter = 0;
       return;
@@ -111,7 +112,37 @@ var Notifications = {
 
     // Show the notification!
     Cc["@mozilla.org/alerts-service;1"].getService(Ci.nsIAlertsService)
-      .showAlertNotification(icon, name, messageText, true, "", this);
+      .showAlertNotification(icon, name, messageText, true, "",
+                             (subject, topic, data) => {
+      if (topic != "alertclickcallback")
+        return;
+
+      // If there is a timeout set, clear it.
+      clearTimeout(this._timeoutId);
+      this._heldMessage = null;
+      this._msgCounter = 0;
+      this._lastMessageTime = 0;
+      this._lastMessageSender = null;
+      // Focus the conversation if the notification is clicked.
+      let uiConv = Services.conversations.getUIConversation(aMessage.conversation);
+      let mainWindow = Services.wm.getMostRecentWindow("mail:3pane");
+      if (mainWindow) {
+        mainWindow.focus();
+        mainWindow.showChatTab();
+        mainWindow.chatHandler.focusConversation(uiConv);
+      } else {
+        Services.appShell.hiddenDOMWindow
+                .openDialog("chrome://messenger/content/",
+                            "_blank", "chrome,dialog=no,all", null,
+                            {tabType: "chat",
+                             tabParams: {convType: "focus", conv: uiConv}});
+      }
+      if (AppConstants.platform == "macosx") {
+        Cc["@mozilla.org/widget/macdocksupport;1"]
+          .getService(Ci.nsIMacDockSupport)
+          .activateApplication(true);
+      }
+    });
 
     this._heldMessage = null;
     this._msgCounter = 0;
@@ -164,23 +195,6 @@ var Notifications = {
             Notifications._showMessageNotification(Notifications._heldMessage,
                                                    Notifications._msgCounter)
           }, kTimeToWaitForMoreMsgs * 1000);
-      }
-    } else if (aTopic == "alertclickcallback") {
-      // If there is a timeout set, clear it.
-      clearTimeout(this._timeoutId);
-      this._heldMessage = null;
-      this._msgCounter = 0;
-      this._lastMessageTime = 0;
-      this._lastMessageSender = null;
-      // Focus the conversation if the notification is clicked.
-      let mainWindow = Services.wm.getMostRecentWindow("mail:3pane");
-      if (mainWindow) {
-        mainWindow.focus();
-        mainWindow.showChatTab();
-      } else {
-        window.openDialog("chrome://messenger/content/", "_blank",
-                          "chrome,extrachrome,menubar,resizable,scrollbars,status,toolbar",
-                          null, {tabType: "chat", tabParams: {}});
       }
     }
   }
