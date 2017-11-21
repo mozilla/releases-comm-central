@@ -26,3 +26,8 @@ if [ "$MOZ_IS_COMM_TOPDIR" = "1" ]; then
   # XXX hack to work around dsymutil failing on OSX builds (bug 1380381, 1382262)
   ac_add_options RUSTFLAGS='-C debuginfo=1'
 fi
+
+if [ "$MOZ_IS_COMM_TOPDIR" != "1" ]; then
+  # https://bugzilla.mozilla.org/show_bug.cgi?id=1419472
+  ac_add_options --disable-clang-plugin
+fi
