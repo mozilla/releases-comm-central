@@ -57,3 +57,63 @@ linux64/debug:
         - linux64-gcc
         - linux64-sccache
         - linux64-rust
+
+linux/opt:
+    description: "Linux32 Opt"
+    treeherder:
+        platform: linux32/opt
+        symbol: tc(B)
+    worker-type: aws-provisioner-v1/gecko-{level}-b-linux
+    worker:
+        docker-image: {in-tree: "desktop-build"}
+        max-run-time: 36000
+        env:
+            TOOLTOOL_MANIFEST: "comm/mail/config/tooltool-manifests/linux32/releng.manifest"
+    run:
+        using: mozharness
+        comm-checkout: true
+        actions: [build check-test update]
+        config-paths:
+            - comm/mozharness
+        config:
+            - builds/taskcluster_base_thunderbird.py
+            - builds/releng_base_linux_32_builds.py
+            - balrog/production.py
+        script: "mozharness/scripts/fx_desktop_build.py"
+        tooltool-downloads: public
+        need-xvfb: true
+    toolchains:
+        - linux64-clang
+        - linux64-gcc
+        - linux64-rust
+        - linux64-sccache
+
+linux/debug:
+    description: "Linux32 Debug"
+    treeherder:
+        platform: linux32/debug
+        symbol: tc(B)
+    worker-type: aws-provisioner-v1/gecko-{level}-b-linux
+    worker:
+        max-run-time: 36000
+        env:
+            TOOLTOOL_MANIFEST: "comm/mail/config/tooltool-manifests/linux32/releng.manifest"
+    run:
+        using: mozharness
+        comm-checkout: true
+        actions: [build check-test update]
+        config-paths:
+            - comm/mozharness
+        config:
+            - builds/taskcluster_base_thunderbird.py
+            - builds/releng_base_linux_32_builds.py
+            - balrog/production.py
+        script: "mozharness/scripts/fx_desktop_build.py"
+        custom-build-variant-cfg: debug
+        tooltool-downloads: public
+        need-xvfb: true
+    toolchains:
+        - linux64-clang
+        - linux64-gcc
+        - linux64-sccache
+        - linux64-rust
