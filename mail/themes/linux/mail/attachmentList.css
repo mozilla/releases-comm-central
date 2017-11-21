@@ -5,7 +5,9 @@
 /* styles for the attachment list */
 
 .attachmentcell-icon {
-  padding: 1px;
+  margin: 1px;
+  width: 16px;
+  height: 16px;
 }
 
 .attachmentcell-name,
@@ -43,6 +45,10 @@ attachmentitem[selected="true"] .attachmentcell-nameselection {
 attachmentlist:focus > attachmentitem[selected="true"] .attachmentcell-nameselection {
   background-color: Highlight;
   color: HighlightText;
+}
+
+attachmentitem[selected="true"] .attachmentcell-icon {
+  filter: url("chrome://messenger/skin/imageFilters.svg#selected");
 }
 
 attachmentlist:focus > attachmentitem[selected="true"] .attachmentcell-icon {
