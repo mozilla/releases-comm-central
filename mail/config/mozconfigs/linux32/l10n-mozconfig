@@ -1,17 +1,17 @@
-. $topsrcdir/build/unix/mozconfig.linux32
+. "$topsrcdir/build/mozconfig.comm-support"
+. "$topsrcdir/build/unix/mozconfig.linux32"
 . "$topsrcdir/build/mozconfig.stylo"
+. "$commtopsrcdir/mail/config/mozconfigs/common"
 
-# Disable webrender on Linux buildbot builders to avoid the Rust requirement
-# of libX11 version > 1.4.99.1 (see bug 1350011).
-ac_add_options --disable-webrender
+if [ "$MOZ_IS_COMM_TOPDIR" = "1" ]; then
+  # Disable webrender on Linux buildbot builders to avoid the Rust requirement
+  # of libX11 version > 1.4.99.1 (see bug 1350011).
+  ac_add_options --disable-webrender
+fi
 
-ac_add_options --enable-application=mail
-ac_add_options --enable-update-channel=${MOZ_UPDATE_CHANNEL}
+ac_add_options --enable-update-channel="${MOZ_UPDATE_CHANNEL}"
 ac_add_options --with-l10n-base=../../l10n
-. $topsrcdir/build/mozconfig.no-compile
-
-# Build lightning locales
-ac_add_options --enable-calendar
+. "$topsrcdir/build/mozconfig.no-compile"
 
 # Needed to enable breakpad in application.ini
 export MOZILLA_OFFICIAL=1
@@ -25,7 +25,3 @@ MOZ_ADDON_SIGNING=0
 MOZ_REQUIRE_ADDON_SIGNING=0
 
 ac_add_options --disable-stdcxx-compat
-
-# Run client.py
-mk_add_options CLIENT_PY_ARGS="$([ -f $topsrcdir/build/client.py-l10n-args ] && cat $topsrcdir/build/client.py-l10n-args)"
-mk_add_options ALWAYS_RUN_CLIENT_PY=1
