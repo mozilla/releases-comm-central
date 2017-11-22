@@ -484,7 +484,7 @@ nsresult nsMsgProtocol::LoadUrl(nsIURI * aURL, nsISupports * aConsumer)
           new SlicedInputStream(m_inputStream.forget(), uint64_t(offset),
                                 m_readCount == -1 ? UINT64_MAX : uint64_t(m_readCount));
         nsCOMPtr<nsIInputStreamPump> pump;
-        rv = NS_NewInputStreamPump(getter_AddRefs(pump), slicedStream);
+        rv = NS_NewInputStreamPump(getter_AddRefs(pump), slicedStream.forget());
         if (NS_FAILED(rv)) return rv;
 
         m_request = pump; // keep a reference to the pump so we can cancel it
@@ -1143,7 +1143,7 @@ nsresult nsMsgFilePostHelper::Init(nsIOutputStream * aOutStream, nsMsgAsyncWrite
   if (NS_FAILED(rv)) return rv;
 
   nsCOMPtr<nsIInputStreamPump> pump;
-  rv = NS_NewInputStreamPump(getter_AddRefs(pump), stream);
+  rv = NS_NewInputStreamPump(getter_AddRefs(pump), stream.forget());
   if (NS_FAILED(rv)) return rv;
 
   rv = pump->AsyncRead(this, nullptr);

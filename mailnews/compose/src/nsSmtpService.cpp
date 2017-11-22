@@ -345,7 +345,7 @@ NS_IMETHODIMP nsSmtpService::NewChannel2(nsIURI *aURI,
   if (aLoadInfo) {
     return NS_NewInputStreamChannelInternal(_retval,
                                             aURI,
-                                            pipeIn,
+                                            pipeIn.forget(),
                                             NS_LITERAL_CSTRING("application/x-mailto"),
                                             EmptyCString(),
                                             aLoadInfo);
@@ -359,7 +359,7 @@ NS_IMETHODIMP nsSmtpService::NewChannel2(nsIURI *aURI,
 
   return NS_NewInputStreamChannel(_retval,
                                   aURI,
-                                  pipeIn,
+                                  pipeIn.forget(),
                                   nullPrincipal,
                                   nsILoadInfo::SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
                                   nsIContentPolicy::TYPE_OTHER,

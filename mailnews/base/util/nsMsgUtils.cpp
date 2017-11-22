@@ -1926,7 +1926,7 @@ MsgStreamMsgHeaders(nsIInputStream *aInputStream, nsIStreamListener *aConsumer)
   nsCOMPtr<nsIInputStream> stream(do_QueryInterface(hdrsStream));
 
   nsCOMPtr<nsIInputStreamPump> pump;
-  rv = NS_NewInputStreamPump(getter_AddRefs(pump), stream);
+  rv = NS_NewInputStreamPump(getter_AddRefs(pump), stream.forget());
   NS_ENSURE_SUCCESS(rv, rv);
 
   return pump->AsyncRead(aConsumer, nullptr);

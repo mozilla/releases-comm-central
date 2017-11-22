@@ -659,7 +659,7 @@ nsresult nsNNTPProtocol::ReadFromMemCache(nsICacheEntry *entry)
   if (NS_SUCCEEDED(rv))
   {
     nsCOMPtr<nsIInputStreamPump> pump;
-    rv = NS_NewInputStreamPump(getter_AddRefs(pump), cacheStream);
+    rv = NS_NewInputStreamPump(getter_AddRefs(pump), cacheStream.forget());
     if (NS_FAILED(rv)) return rv;
 
     nsCString group;
@@ -743,7 +743,7 @@ bool nsNNTPProtocol::ReadFromLocalCache()
         RefPtr<SlicedInputStream> slicedStream =
           new SlicedInputStream(fileStream.forget(), uint64_t(offset), uint64_t(size));
         nsCOMPtr<nsIInputStreamPump> pump;
-        rv = NS_NewInputStreamPump(getter_AddRefs(pump), slicedStream);
+        rv = NS_NewInputStreamPump(getter_AddRefs(pump), slicedStream.forget());
         if (NS_SUCCEEDED(rv))
           rv = pump->AsyncRead(cacheListener, m_channelContext);
 

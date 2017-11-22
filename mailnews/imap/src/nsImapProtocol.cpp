@@ -9529,7 +9529,7 @@ nsresult nsImapMockChannel::ReadFromMemCache(nsICacheEntry *entry)
       return NS_ERROR_FAILURE;
 
     nsCOMPtr<nsIInputStreamPump> pump;
-    rv = NS_NewInputStreamPump(getter_AddRefs(pump), in);
+    rv = NS_NewInputStreamPump(getter_AddRefs(pump), in.forget());
     NS_ENSURE_SUCCESS(rv, rv);
 
     // if we are going to read from the cache, then create a mock stream listener class and use it
@@ -9679,7 +9679,7 @@ bool nsImapMockChannel::ReadFromLocalCache()
         RefPtr<SlicedInputStream> slicedStream =
           new SlicedInputStream(fileStream.forget(), uint64_t(offset), uint64_t(size));
         nsCOMPtr<nsIInputStreamPump> pump;
-        rv = NS_NewInputStreamPump(getter_AddRefs(pump), slicedStream);
+        rv = NS_NewInputStreamPump(getter_AddRefs(pump), slicedStream.forget());
         if (NS_SUCCEEDED(rv))
           rv = pump->AsyncRead(cacheListener, m_channelContext);
 
