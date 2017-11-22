@@ -88,7 +88,7 @@ langpack-en-US:
 merge-%: AB_CD=$*
 merge-%:
 	$(RM) -rf $(REAL_LOCALE_MERGEDIR)/calendar
-	$(moztopsrcdir)/mach compare-locales \
+	-$(moztopsrcdir)/mach compare-locales \
 	    --merge $(REAL_LOCALE_MERGEDIR)/.. \
 	    $(commtopsrcdir)/calendar/locales/l10n.toml \
 	    $(L10NBASEDIR) \
