@@ -122,6 +122,7 @@ tasks:
             --comm-head-repository="$COMM_HEAD_REPOSITORY"
             --comm-head-ref="$COMM_HEAD_REF"
             --comm-head-rev="$COMM_HEAD_REV"
+            --try-task-config-file=comm/try_task_config.json
 
       artifacts:
         'public':
