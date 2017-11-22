@@ -21,7 +21,6 @@ MOZ_UPDATER=1
 ACCEPTED_MAR_CHANNEL_IDS=seamonkey-comm-central
 # The MAR_CHANNEL_ID must not contain the following 3 characters: ",\t "
 MAR_CHANNEL_ID=seamonkey-comm-central
-MOZ_MORK=1
 MOZ_SERVICES_FXACCOUNTS=1
 
 MOZ_APP_VERSION_TXT=${_topsrcdir}/$MOZ_BUILD_APP/config/version.txt

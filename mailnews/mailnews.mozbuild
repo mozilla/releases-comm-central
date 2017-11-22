@@ -9,7 +9,8 @@ if CONFIG['MOZ_LDAP_XPCOM']:
         '/%s/ldap/xpcom' % CONFIG['commreltopsrcdir'],
     ]
 
-if CONFIG['MOZ_MORK']:
-    DIRS += ['/%s/db' % CONFIG['commreltopsrcdir']]
+DIRS += [
+    '/%s/mailnews' % CONFIG['commreltopsrcdir'],
+    '/%s/db' % CONFIG['commreltopsrcdir'],
+]
 
-DIRS += ['/%s/mailnews' % CONFIG['commreltopsrcdir']]

@@ -24,8 +24,6 @@ if test "$OS_ARCH" = "WINNT"; then
   fi
 fi
 
-MOZ_MORK=1
-
 MOZ_APP_VERSION_TXT=${_topsrcdir}/$MOZ_BUILD_APP/config/version.txt
 MOZ_APP_VERSION=`cat $MOZ_APP_VERSION_TXT`
 MOZ_APP_VERSION_DISPLAY_TXT=${_topsrcdir}/$MOZ_BUILD_APP/config/version_display.txt
