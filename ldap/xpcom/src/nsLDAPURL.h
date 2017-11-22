@@ -40,12 +40,12 @@ public:
   nsLDAPURL();
 
 public:
-    class Mutator
-        : public nsIURIMutator
-        , public BaseURIMutator<nsLDAPURL>
-    {
-        NS_DECL_ISUPPORTS
-        NS_FORWARD_SAFE_NSIURISETTERS(mURI)
+  class Mutator
+      : public nsIURIMutator
+      , public BaseURIMutator<nsLDAPURL>
+  {
+    NS_DECL_ISUPPORTS
+    NS_FORWARD_SAFE_NSIURISETTERS(mURI)
 
     NS_IMETHOD Deserialize(const mozilla::ipc::URIParams& aParams) override
     {
@@ -68,12 +68,12 @@ public:
       return InitFromSpec(aSpec);
     }
 
-        explicit Mutator() { }
-    private:
-        virtual ~Mutator() { }
+    explicit Mutator() { }
+  private:
+    virtual ~Mutator() { }
 
-        friend class nsLDAPURL;
-    };
+    friend class nsLDAPURL;
+  };
 
 protected:
   enum RefHandlingEnum {

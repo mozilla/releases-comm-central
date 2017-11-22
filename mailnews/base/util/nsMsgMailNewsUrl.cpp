@@ -1089,11 +1089,11 @@ NS_IMPL_ISUPPORTS(nsMsgMailNewsUrl::Mutator, nsIURISetters, nsIURIMutator)
 NS_IMETHODIMP
 nsMsgMailNewsUrl::Mutate(nsIURIMutator** aMutator)
 {
-    RefPtr<nsMsgMailNewsUrl::Mutator> mutator = new nsMsgMailNewsUrl::Mutator();
-    nsresult rv = mutator->InitFromURI(this);
-    if (NS_FAILED(rv)) {
-        return rv;
-    }
-    mutator.forget(aMutator);
-    return NS_OK;
+  RefPtr<nsMsgMailNewsUrl::Mutator> mutator = new nsMsgMailNewsUrl::Mutator();
+  nsresult rv = mutator->InitFromURI(this);
+  if (NS_FAILED(rv)) {
+    return rv;
+  }
+  mutator.forget(aMutator);
+  return NS_OK;
 }

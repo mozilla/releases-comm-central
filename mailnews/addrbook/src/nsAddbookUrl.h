@@ -21,12 +21,12 @@ public:
     nsAddbookUrl();
 
 public:
-    class Mutator
-        : public nsIURIMutator
-        , public BaseURIMutator<nsAddbookUrl>
-    {
-        NS_DECL_ISUPPORTS
-        NS_FORWARD_SAFE_NSIURISETTERS(mURI)
+  class Mutator
+      : public nsIURIMutator
+      , public BaseURIMutator<nsAddbookUrl>
+  {
+    NS_DECL_ISUPPORTS
+    NS_FORWARD_SAFE_NSIURISETTERS(mURI)
 
     NS_IMETHOD Deserialize(const mozilla::ipc::URIParams& aParams) override
     {
@@ -49,12 +49,12 @@ public:
       return InitFromSpec(aSpec);
     }
 
-        explicit Mutator() { }
-    private:
-        virtual ~Mutator() { }
+    explicit Mutator() { }
+  private:
+    virtual ~Mutator() { }
 
-        friend class nsAddbookUrl;
-    };
+    friend class nsAddbookUrl;
+  };
 
 protected:
   enum RefHandlingEnum {

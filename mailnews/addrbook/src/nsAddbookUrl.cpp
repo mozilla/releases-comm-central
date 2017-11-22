@@ -336,11 +336,11 @@ NS_IMPL_ISUPPORTS(nsAddbookUrl::Mutator, nsIURISetters, nsIURIMutator)
 NS_IMETHODIMP
 nsAddbookUrl::Mutate(nsIURIMutator** aMutator)
 {
-    RefPtr<nsAddbookUrl::Mutator> mutator = new nsAddbookUrl::Mutator();
-    nsresult rv = mutator->InitFromURI(this);
-    if (NS_FAILED(rv)) {
-        return rv;
-    }
-    mutator.forget(aMutator);
-    return NS_OK;
+  RefPtr<nsAddbookUrl::Mutator> mutator = new nsAddbookUrl::Mutator();
+  nsresult rv = mutator->InitFromURI(this);
+  if (NS_FAILED(rv)) {
+    return rv;
+  }
+  mutator.forget(aMutator);
+  return NS_OK;
 }

@@ -51,12 +51,12 @@ public:
     NS_DECL_NSIURIWITHPRINCIPAL
 
 public:
-    class Mutator
-        : public nsIURIMutator
-        , public BaseURIMutator<nsMsgMailNewsUrl>
-    {
-        NS_DECL_ISUPPORTS
-        NS_FORWARD_SAFE_NSIURISETTERS(mURI)
+  class Mutator
+      : public nsIURIMutator
+      , public BaseURIMutator<nsMsgMailNewsUrl>
+  {
+    NS_DECL_ISUPPORTS
+    NS_FORWARD_SAFE_NSIURISETTERS(mURI)
 
     NS_IMETHOD Deserialize(const mozilla::ipc::URIParams& aParams) override
     {
@@ -79,12 +79,12 @@ public:
       return InitFromSpec(aSpec);
     }
 
-        explicit Mutator() { }
-    private:
-        virtual ~Mutator() { }
+    explicit Mutator() { }
+  private:
+    virtual ~Mutator() { }
 
-        friend class nsMsgMailNewsUrl;
-    };
+    friend class nsMsgMailNewsUrl;
+  };
 
 protected:
   virtual ~nsMsgMailNewsUrl();

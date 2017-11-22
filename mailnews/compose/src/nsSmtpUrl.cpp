@@ -660,13 +660,13 @@ NS_IMPL_ISUPPORTS(nsMailtoUrl::Mutator, nsIURISetters, nsIURIMutator)
 NS_IMETHODIMP
 nsMailtoUrl::Mutate(nsIURIMutator** aMutator)
 {
-    RefPtr<nsMailtoUrl::Mutator> mutator = new nsMailtoUrl::Mutator();
-    nsresult rv = mutator->InitFromURI(this);
-    if (NS_FAILED(rv)) {
-        return rv;
-    }
-    mutator.forget(aMutator);
-    return NS_OK;
+  RefPtr<nsMailtoUrl::Mutator> mutator = new nsMailtoUrl::Mutator();
+  nsresult rv = mutator->InitFromURI(this);
+  if (NS_FAILED(rv)) {
+    return rv;
+  }
+  mutator.forget(aMutator);
+  return NS_OK;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
