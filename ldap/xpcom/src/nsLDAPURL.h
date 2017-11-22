@@ -8,6 +8,7 @@
 #include "nsString.h"
 #include "nsILDAPURL.h"
 #include "nsCOMPtr.h"
+#include "nsIURIMutator.h"
 
 // cb7c67f8-0053-4072-89e9-501cbd1b35ab
 #define NS_LDAPURL_CID \
@@ -37,6 +38,42 @@ public:
   NS_DECL_NSILDAPURL
 
   nsLDAPURL();
+
+public:
+    class Mutator
+        : public nsIURIMutator
+        , public BaseURIMutator<nsLDAPURL>
+    {
+        NS_DECL_ISUPPORTS
+        NS_FORWARD_SAFE_NSIURISETTERS(mURI)
+
+    NS_IMETHOD Deserialize(const mozilla::ipc::URIParams& aParams) override
+    {
+      return NS_ERROR_NOT_IMPLEMENTED;
+    }
+
+    NS_IMETHOD Read(nsIObjectInputStream* aStream) override
+    {
+      return NS_ERROR_NOT_IMPLEMENTED;
+    }
+
+    NS_IMETHOD Finalize(nsIURI** aURI) override
+    {
+      mURI.forget(aURI);
+      return NS_OK;
+    }
+
+    NS_IMETHOD SetSpec(const nsACString & aSpec) override
+    {
+      return InitFromSpec(aSpec);
+    }
+
+        explicit Mutator() { }
+    private:
+        virtual ~Mutator() { }
+
+        friend class nsLDAPURL;
+    };
 
 protected:
   enum RefHandlingEnum {

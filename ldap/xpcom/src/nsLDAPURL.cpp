@@ -770,3 +770,17 @@ nsLDAPURL::SetQueryWithEncoding(const nsACString &aQuery, const mozilla::Encodin
 {
   return mBaseURL->SetQueryWithEncoding(aQuery, aEncoding);
 }
+
+NS_IMPL_ISUPPORTS(nsLDAPURL::Mutator, nsIURISetters, nsIURIMutator)
+
+NS_IMETHODIMP
+nsLDAPURL::Mutate(nsIURIMutator** aMutator)
+{
+    RefPtr<nsLDAPURL::Mutator> mutator = new nsLDAPURL::Mutator();
+    nsresult rv = mutator->InitFromURI(this);
+    if (NS_FAILED(rv)) {
+        return rv;
+    }
+    mutator.forget(aMutator);
+    return NS_OK;
+}

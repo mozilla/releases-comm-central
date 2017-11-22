@@ -330,3 +330,17 @@ nsAddbookUrl::GetAddbookOperation(int32_t *_retval)
   *_retval = mOperationType;
   return NS_OK;
 }
+
+NS_IMPL_ISUPPORTS(nsAddbookUrl::Mutator, nsIURISetters, nsIURIMutator)
+
+NS_IMETHODIMP
+nsAddbookUrl::Mutate(nsIURIMutator** aMutator)
+{
+    RefPtr<nsAddbookUrl::Mutator> mutator = new nsAddbookUrl::Mutator();
+    nsresult rv = mutator->InitFromURI(this);
+    if (NS_FAILED(rv)) {
+        return rv;
+    }
+    mutator.forget(aMutator);
+    return NS_OK;
+}
