@@ -51,3 +51,5 @@ def mapi_support(arg):
 
 set_config('MOZ_MAPI_SUPPORT', mapi_support)
 set_define('MOZ_MAPI_SUPPORT', mapi_support)
+
+include('../db/moz.configure')
