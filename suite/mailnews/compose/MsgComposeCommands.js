@@ -3290,6 +3290,32 @@ function AutoSave()
   gAutoSaveTimeout = setTimeout(AutoSave, gAutoSaveInterval);
 }
 
+/**
+ * Helper function to remove a query part from a URL, so for example:
+ * ...?remove=xx&other=yy becomes ...?other=yy.
+ *
+ * @param aURL    the URL from which to remove the query part
+ * @param aQuery  the query part to remove
+ * @return        the URL with the query part removed
+ */
+function removeQueryPart(aURL, aQuery)
+{
+  // Quick pre-check.
+  if (aURL.indexOf(aQuery) < 0)
+    return aURL;
+
+  let indexQM = aURL.indexOf("?");
+  if (indexQM < 0)
+    return aURL;
+
+  let queryParts = aURL.substr(indexQM + 1).split("&");
+  let indexPart = queryParts.indexOf(aQuery);
+  if (indexPart < 0)
+    return aURL;
+  queryParts.splice(indexPart, 1);
+  return aURL.substr(0, indexQM + 1) + queryParts.join("&");
+}
+
 function InitEditor(editor)
 {
   // Set the eEditorMailMask flag to avoid using content prefs for the spell
@@ -3355,7 +3381,8 @@ function InitEditor(editor)
       let originalMsgNeckoURI = {};
       msgSvc.GetUrlForUri(gOriginalMsgURI, originalMsgNeckoURI, null);
 
-      if (src.startsWith(originalMsgNeckoURI.value.spec)) {
+      if (src.startsWith(removeQueryPart(originalMsgNeckoURI.value.spec,
+                                         "type=application/x-message-display"))) {
         // Reply/Forward/Edit Draft/Edit as New can contain references to
         // images in the original message. Load those and make them data: URLs
         // now.
@@ -3389,7 +3416,9 @@ function InitEditor(editor)
     let originalMsgNeckoURI = {};
     msgSvc.GetUrlForUri(gOriginalMsgURI, originalMsgNeckoURI, null);
 
-    if (background.startsWith(originalMsgNeckoURI.value.spec)) {
+    if (background.startsWith(
+        removeQueryPart(originalMsgNeckoURI.value.spec,
+                        "type=application/x-message-display"))) {
       try {
         editor.document.body.background = loadBlockedImage(background, true);
       } catch (e) {
