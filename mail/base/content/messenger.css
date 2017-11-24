@@ -628,6 +628,29 @@ preftab:root /* override :root */ {
   list-style-image: var(--timezones-icon) !important;
 }
 
+/* Status bar */
+
+statusbar {
+  -moz-binding: url("chrome://messenger/content/generalBindings.xml#statusbar");
+%ifdef XP_MACOSX
+  padding-right: 14px;
+%endif
+}
+
+statusbarpanel {
+  -moz-binding: url("chrome://messenger/content/generalBindings.xml#statusbarpanel");
+}
+
+%ifdef XP_MACOSX
+.statusbar-resizerpanel {
+  display: none;
+}
+%else
+window[sizemode="maximized"] statusbarpanel.statusbar-resizerpanel {
+  visibility: collapse;
+}
+%endif
+
 /* Status panel */
 
 statuspanel {
