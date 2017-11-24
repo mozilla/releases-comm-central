@@ -32,19 +32,7 @@
   display: -moz-box;
   margin-top: -1px;
   height: 1px;
-  border-bottom: 1px solid hsl(0, 0%, 60%);
-}
-
-@media (-moz-mac-yosemite-theme) {
-  .mail-toolbox::after,
-  .contentTabToolbox::after {
-    border-bottom-color: hsl(0, 0%, 68%);
-  }
-
-  .mail-toolbox:-moz-window-inactive::after,
-  .contentTabToolbox:-moz-window-inactive::after {
-    border-bottom-color: hsl(0, 0%, 85%);
-  }
+  border-bottom: 1px solid var(--toolbox-border-bottom-color);
 }
 
 .mail-bar3 {

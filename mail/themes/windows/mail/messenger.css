@@ -21,6 +21,8 @@
   --toolbar-non-lwt-bgimage: linear-gradient(rgba(255,255,255,.15), rgba(255,255,255,.15));
   --toolbar-bgcolor: var(--toolbar-non-lwt-bgcolor);
   --toolbar-bgimage: var(--toolbar-non-lwt-bgimage);
+  --toolbox-border-bottom-color: ThreeDShadow;
+
   --toolbarbutton-border-radius: 2px;
   --toolbarbutton-icon-fill-opacity: .85;
   --toolbarbutton-hover-background: rgba(0, 0, 0, .1);

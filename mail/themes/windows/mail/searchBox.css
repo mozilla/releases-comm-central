@@ -134,6 +134,13 @@ textbox:not([searchbutton]) > .textbox-input-box > .textbox-search-sign {
   color: var(--url-and-searchbar-color, black);
 }
 
+#searchInput:not([focused="true"]):-moz-lwtheme,
+#IMSearchInput:not([focused="true"]):-moz-lwtheme,
+#peopleSearchInput:not([focused="true"]):-moz-lwtheme,
+.remote-gloda-search:not([focused="true"]):-moz-lwtheme {
+  border-color: var(--url-and-searchbar-border-color, hsla(240,5%,5%,.25));
+}
+
 #searchInput:-moz-lwtheme:hover,
 #searchInput:-moz-lwtheme[focused="true"],
 #IMSearchInput:-moz-lwtheme:hover,
