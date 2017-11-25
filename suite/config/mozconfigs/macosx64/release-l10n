@@ -13,9 +13,6 @@ ac_add_options --disable-install-strip
 # Build lightning locales
 ac_add_options --enable-calendar
 
-# Disabling is needed, see bug 1345422 comment #58.
-ac_add_options --disable-compile-environment
-
 # Needed to enable breakpad in application.ini
 export MOZILLA_OFFICIAL=1
 
