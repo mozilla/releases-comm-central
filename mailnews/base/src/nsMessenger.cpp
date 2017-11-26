@@ -724,22 +724,6 @@ nsresult nsMessenger::SaveAttachment(nsIFile *aFile,
       saveListener->QueryInterface(NS_GET_IID(nsIStreamListener),
                                  getter_AddRefs(convertedListener));
 
-#ifndef XP_MACOSX
-      // if the content type is bin hex we are going to do a hokey hack and make sure we decode the bin hex
-      // when saving an attachment to disk..
-      if (MsgLowerCaseEqualsLiteral(aContentType, APPLICATION_BINHEX))
-      {
-        nsCOMPtr<nsIStreamListener> listener (do_QueryInterface(convertedListener));
-        nsCOMPtr<nsIStreamConverterService> streamConverterService = do_GetService("@mozilla.org/streamConverters;1", &rv);
-        nsCOMPtr<nsISupports> channelSupport = do_QueryInterface(saveListener->m_channel);
-
-        rv = streamConverterService->AsyncConvertData(APPLICATION_BINHEX,
-                                                      "*/*",
-                                                      listener,
-                                                      channelSupport,
-                                                      getter_AddRefs(convertedListener));
-      }
-#endif
       nsCOMPtr<nsIURI> dummyNull;
       if (fetchService)
         rv = fetchService->FetchMimePart(URL, fullMessageUri.get(),
