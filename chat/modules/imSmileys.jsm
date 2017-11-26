@@ -23,10 +23,15 @@ this.EXPORTED_SYMBOLS = [
 var kEmoticonsThemePref = "messenger.options.emoticonsTheme";
 var kThemeFile = "theme.js";
 
-this.__defineGetter__("gTheme", function() {
-  delete this.gTheme;
-  gPrefObserver.init();
-  return this.gTheme = getTheme();
+Object.defineProperty(this, "gTheme", {
+  configurable: true,
+  enumerable: true,
+
+  get() {
+    delete this.gTheme;
+    gPrefObserver.init();
+    return this.gTheme = getTheme();
+  }
 });
 
 var gPrefObserver = {
