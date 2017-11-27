@@ -5,6 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 Components.utils.import("resource://gre/modules/Services.jsm");
+Components.utils.import("resource://gre/modules/AppConstants.jsm");
 
 var kObserverService;
 
@@ -295,7 +296,9 @@ function FinalizeCookieDeletions() {
 }
 
 function HandleCookieKeyPress(e) {
-  if (e.keyCode == KeyEvent.DOM_VK_DELETE) {
+  if (e.keyCode == KeyEvent.DOM_VK_DELETE ||
+      (AppConstants.platform == "macosx" &&
+       e.keyCode == KeyEvent.DOM_VK_BACK_SPACE)) {
     DeleteCookie();
   }
 }
