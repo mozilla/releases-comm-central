@@ -2504,7 +2504,7 @@ FolderDisplayWidget.prototype = {
     }
 
     let treeBox = this.treeBox;
-    if (!treeBox)
+    if (!treeBox || !treeBox.view)
       return;
 
     // try and trigger a reflow...
