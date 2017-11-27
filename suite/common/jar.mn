@@ -1,5 +1,8 @@
 #filter substitution
 
+toolkit.jar:
+   content/global/autocomplete.xml                                  (autocomplete/autocomplete.xml)
+
 comm.jar:
 % content communicator %content/communicator/ contentaccessible=yes
 % content help %content/communicator/helpviewer/
@@ -104,6 +107,7 @@ comm.jar:
    content/communicator/platformCommunicatorOverlay.xul             (unix/platformCommunicatorOverlay.xul)
 #endif
 #endif
+   content/communicator/autocomplete.css                            (autocomplete/autocomplete.css)
    content/communicator/bindings/findbar.xml                        (bindings/findbar.xml)
    content/communicator/bindings/general.xml                        (bindings/general.xml)
    content/communicator/bindings/notification.xml                   (bindings/notification.xml)
