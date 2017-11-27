@@ -8,7 +8,7 @@ if CONFIG['OS_ARCH'] == 'WINNT':
         'nsWindowsShellService.cpp',
     ]
     LOCAL_INCLUDES += [
-        '../../../mozilla/other-licenses/nsis/Contrib/CityHash/cityhash',
+        '/%s/other-licenses/nsis/Contrib/CityHash/cityhash' % (CONFIG['mozreltopsrcdir'],),
     ]
     OS_LIBS += [
         'ole32',

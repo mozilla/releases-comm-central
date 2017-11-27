@@ -7,6 +7,8 @@ include $(moztopsrcdir)/toolkit/mozapps/installer/package-name.mk
 CONFIG_DIR = instgen
 SFX_MODULE = $(commtopsrcdir)/other-licenses/7zstub/seamonkey/7zSD.sfx
 
+EXPAND_COMM_LOCALE_SRCDIR = $(if $(filter en-US,$(AB_CD)),$(topsrcdir)/$(commreltopsrcdir)/$(1)/en-US,$(or $(realpath $(L10NBASEDIR)),$(abspath $(L10NBASEDIR)))/$(AB_CD)/$(subst /locales,,$(1)))
+
 INSTALLER_FILES = \
 	app.tag \
 	nsis/installer.nsi \
@@ -31,13 +33,12 @@ include $(moztopsrcdir)/config/config.mk
 ifdef IS_LANGUAGE_REPACK
 PPL_LOCALE_ARGS = \
   --l10n-dir=$(REAL_LOCALE_MERGEDIR)/suite/installer/windows \
-  --l10n-dir=$(call EXPAND_LOCALE_SRCDIR,suite/locales)/installer/windows \
+  --l10n-dir=$(call EXPAND_COMM_LOCALE_SRCDIR,suite/locales)/installer/windows \
   --l10n-dir=$(commtopsrcdir)/suite/locales/en-US/installer/windows \
   $(NULL)
 else
-PPL_LOCALE_ARGS=$(call EXPAND_LOCALE_SRCDIR,suite/locales)/installer/windows
+PPL_LOCALE_ARGS=$(call EXPAND_COMM_LOCALE_SRCDIR,suite/locales)/installer/windows
 endif
-
 
 OVERRIDE_DEFAULT_GOAL := installer
 installer::
