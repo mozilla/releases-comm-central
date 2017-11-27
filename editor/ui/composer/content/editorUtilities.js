@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 Components.utils.import("resource://gre/modules/Services.jsm");
+Components.utils.import("resource://gre/modules/AppConstants.jsm");
 
 /**** NAMESPACES ****/
 const XUL_NS = "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul";
@@ -522,10 +523,10 @@ function MakeRelativeUrl(url)
   let docPath = Services.io.newURI(docUrl, GetCurrentEditor().documentCharacterSet).pathQueryRef;
   let urlPath = Services.io.newURI(inputUrl, GetCurrentEditor().documentCharacterSet).pathQueryRef;
 
-  // We only return "urlPath", so we can convert
-  //  the entire docPath for case-insensitive comparisons
-  var os = GetOS();
-  var doCaseInsensitive = (docScheme == "file" && os == gWin);
+  // We only return "urlPath", so we can convert the entire docPath for
+  // case-insensitive comparisons.
+  var doCaseInsensitive = (docScheme == "file" &&
+                           AppConstants.platform == "win");
   if (doCaseInsensitive)
     docPath = docPath.toLowerCase();
 
@@ -575,23 +576,23 @@ function MakeRelativeUrl(url)
 
       if (urlDir == docDir)
       {
-
         // Remove matching dir+"/" from each path
-        //  and continue to next dir
+        // and continue to next dir.
         docPath = docPath.slice(nextDocSlash+1);
         urlPath = urlPath.slice(nextUrlSlash+1);
       }
       else
       {
-        // No match, we're done
+        // No match, we're done.
         done = true;
 
         // Be sure we are on the same local drive or volume
         //   (the first "dir" in the path) because we can't
         //   relativize to different drives/volumes.
         // UNIX doesn't have volumes, so we must not do this else
-        //  the first directory will be misinterpreted as a volume name
-        if (firstDirTest && docScheme == "file" && os != gUNIX)
+        // the first directory will be misinterpreted as a volume name.
+        if (firstDirTest && docScheme == "file" &&
+            AppConstants.platform != "unix")
           return inputUrl;
       }
     }
