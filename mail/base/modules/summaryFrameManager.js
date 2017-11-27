@@ -75,7 +75,8 @@ SummaryFrameManager.prototype = {
     try {
       // Make sure we're responding to the summary frame being loaded, and not
       // some subnode.
-      if (event.originalTarget != this.iframe.contentDocument)
+      if (event.originalTarget != this.iframe.contentDocument ||
+          this.pendingOrLoadedUrl == "about:blank")
         return;
 
       this.callback = this.pendingCallback;
