@@ -10,6 +10,8 @@
 <!DOCTYPE page [
 <!ENTITY % brandDTD SYSTEM "chrome://branding/locale/brand.dtd">
 %brandDTD;
+<!ENTITY % platformCommunicatorDTD SYSTEM "chrome://communicator-platform/locale/platformCommunicatorOverlay.dtd">
+%platformCommunicatorDTD;
 <!ENTITY % datamanDTD SYSTEM "chrome://communicator/locale/dataman/dataman.dtd">
 %datamanDTD;
 ]>
@@ -41,9 +43,15 @@
              oncommand="gDomains.focusSearch();"/>
     <command id="cmd_search_data"
              oncommand="gTabs.focusSearch();"/>
+    <command id="cmd_close"
+             oncommand="window.close();"/>
   </commandset>
 
   <keyset id="datamanKeys">
+    <key id="key_close"
+         command="cmd_close"
+         key="&closeCmd.key;"
+         modifiers="accel"/>
     <key id="key_selectAll"
          command="cmd_selectAll"
          key="&selectAll.key;"
