@@ -1198,7 +1198,8 @@ var FeedSubscriptions = {
     let val;
     switch (aUpdates.updatePeriod) {
       case "hourly":
-        val = biffUnits == FeedUtils.kBiffUnitsDays ? frequency / 24 : 60 / frequency;
+        val = biffUnits == FeedUtils.kBiffUnitsDays ? 1 / frequency / 24 :
+                                                      60 / frequency;
         break;
       case "daily":
         val = units / frequency;
@@ -1214,7 +1215,7 @@ var FeedSubscriptions = {
         break;
     }
 
-    return val ? Math.round(val * 100) / 100 : "";
+    return val ? Math.round(val * 1000) / 1000 : "";
   },
 
   onKeyPress: function(aEvent)
