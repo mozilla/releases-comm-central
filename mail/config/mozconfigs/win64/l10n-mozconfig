@@ -1,8 +1,5 @@
 . "$topsrcdir/build/mozconfig.comm-support"
 . "$commtopsrcdir/mail/config/mozconfigs/l10n-common"
 
-ac_add_options --target=x86_64-pc-mingw32
-ac_add_options --host=x86_64-pc-mingw32
-
 # Use the TOOLTOOL provided xz for mar generation.
 mk_add_options "export XZ=$TOOLTOOL_DIR/xz/xz.exe"
