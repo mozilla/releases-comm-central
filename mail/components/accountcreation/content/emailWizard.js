@@ -33,7 +33,7 @@ Components.utils.import("resource:///modules/OAuth2Providers.jsm");
 
 
 // from http://xyfer.blogspot.com/2005/01/javascript-regexp-email-validator.html
-var emailRE = /^[-_a-z0-9\'+*$^&%=~!?{}]+(?:\.[-_a-z0-9\'+*$^&%=~!?{}]+)*@(?:[-a-z0-9.]+\.[a-z]{2,6}|\d{1,3}(?:\.\d{1,3}){3})(?::\d+)?$/i;
+var emailRE = /^[-_a-z0-9\'+*$^&%=~!?{}]+(?:\.[-_a-z0-9\'+*$^&%=~!?{}]+)*@(?:[-a-z0-9.]+\.[a-z]{2,20}|\d{1,3}(?:\.\d{1,3}){3})(?::\d+)?$/i;
 
 if (typeof gEmailWizardLogger == "undefined") {
   Cu.import("resource:///modules/gloda/log4moz.js");
