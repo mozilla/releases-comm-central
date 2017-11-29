@@ -6010,7 +6010,12 @@ var gAttachmentNotifier =
       "mail.compose.attachment_reminder_keywords",
       Components.interfaces.nsIPrefLocalizedString).data;
     let mailBody = getBrowser().contentDocument.querySelector("body");
-    let mailBodyNode = mailBody.cloneNode(true);
+
+    // We use a new document and import the body into it. We do that to avoid
+    // loading images that were previously blocked. Content policy of the newly
+    // created data document will block the loads. Details: Bug 1409458 comment #22.
+    let newDoc = getBrowser().contentDocument.implementation.createDocument("", "", null);
+    let mailBodyNode = newDoc.importNode(mailBody, true);
 
     // Don't check quoted text from reply.
     let blockquotes = mailBodyNode.getElementsByTagName("blockquote");
