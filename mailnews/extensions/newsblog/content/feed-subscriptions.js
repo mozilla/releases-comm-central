@@ -1020,10 +1020,9 @@ var FeedSubscriptions = {
 
   setFolderPicker: function(aFolder, aIsFeed)
   {
-    let editFeed = document.getElementById("editFeed");
     let folderPrettyPath = FeedUtils.getFolderPrettyPath(aFolder);
     if (!folderPrettyPath)
-      return editFeed.disabled = true;
+      return;
 
     let selectFolder = document.getElementById("selectFolder");
     let selectFolderPopup = document.getElementById("selectFolderPopup");
@@ -1047,8 +1046,6 @@ var FeedSubscriptions = {
       selectFolderValue.setAttribute("prettypath", folderPrettyPath);
       selectFolderValue.setAttribute("filepath", aFolder.filePath.path);
     }
-
-    return editFeed.disabled = false;
   },
 
   onClickSelectFolderValue: function(aEvent)
@@ -1074,11 +1071,47 @@ var FeedSubscriptions = {
     }
   },
 
+  /**
+   * The user changed the folder for storing the feed.
+   */
   setNewFolder: function(aEvent)
   {
     aEvent.stopPropagation();
     this.setFolderPicker(aEvent.target._folder, true);
-    this.editFeed();
+
+    let seln = this.mView.selection;
+    if (seln.count != 1)
+      return;
+
+    let item = this.mView.getItemAtIndex(seln.currentIndex);
+    if (!item || item.container || !item.parentFolder)
+      return;
+
+    let selectFolder = document.getElementById("selectFolder");
+    let editFolderURI = selectFolder.getAttribute("uri");
+    if (item.parentFolder.URI == editFolderURI)
+      return;
+
+    let feed = new Feed(item.url, item.parentFolder);
+
+    // Make sure the new folderpicked folder is visible.
+    this.selectFolder(selectFolder._folder);
+    // Now go back to the feed item.
+    this.selectFeed(feed, null);
+    // We need to find the index of the new parent folder.
+    let newParentIndex = this.mView.kRowIndexUndefined;
+    for (let index = 0; index < this.mView.rowCount; index++)
+    {
+      let item = this.mView.getItemAtIndex(index);
+      if (item && item.container && item.url == editFolderURI)
+      {
+        newParentIndex = index;
+        break;
+      }
+    }
+
+    if (newParentIndex != this.mView.kRowIndexUndefined)
+      this.moveCopyFeed(seln.currentIndex, newParentIndex, "move");
   },
 
   setSummary: function(aChecked)
@@ -1144,7 +1177,32 @@ var FeedSubscriptions = {
     }
 
     switch (aNode.id) {
+      case "nameValue":
+        // Check to see if the title value changed, no blank title allowed.
+        if (!aNode.value)
+        {
+          aNode.value = item.name;
+          return;
+        }
+
+        item.name = aNode.value;
+        let seln = this.mView.selection;
+        seln.tree.invalidateRow(seln.currentIndex);
+        break;
+      case "locationValue":
+        let updateFeedButton = document.getElementById("updateFeed");
+        // Change label based on whether feed url has beed edited.
+        updateFeedButton.label = aNode.value == item.url ?
+                                   updateFeedButton.getAttribute("verifylabel") :
+                                   updateFeedButton.getAttribute("updatelabel");
+        updateFeedButton.setAttribute("accesskey", aNode.value == item.url ?
+                                        updateFeedButton.getAttribute("verifyaccesskey") :
+                                        updateFeedButton.getAttribute("updateaccesskey"));
+        // Disable the Update button if no feed url value is entered.
+        updateFeedButton.disabled = !aNode.value;
+        return;
       case "updateEnabled":
+      case "updateValue":
       case "biffUnits":
         item.options.updates.enabled = updateEnabled.checked;
         let minutes = biffUnits.value == FeedUtils.kBiffUnitsMinutes ?
@@ -1160,6 +1218,9 @@ var FeedSubscriptions = {
         item.options.category.prefixEnabled = aNode.checked;
         item.options.category.prefix = autotagPrefix.value;
         break;
+      case "autotagPrefix":
+        item.options.category.prefix = aNode.value;
+        break;
     }
 
     if (isServer)
@@ -1169,6 +1230,7 @@ var FeedSubscriptions = {
     else
     {
       let feed = new Feed(item.url, item.parentFolder);
+      feed.title = item.name;
       feed.options = item.options;
       let ds = FeedUtils.getSubscriptionsDS(item.parentFolder.server);
       ds.Flush();
@@ -1239,19 +1301,12 @@ var FeedSubscriptions = {
   {
     let item = aSelectedItem;
     let isServer = item && item.folder && item.folder.isServer;
-    let disable = !item || !item.container || isServer ||
-                  this.mActionMode == this.kImportingOPML;
-    document.getElementById("addFeed").disabled = disable;
-    disable = !item || (item.container && !isServer) ||
-              this.mActionMode == this.kImportingOPML;
-    document.getElementById("editFeed").disabled = disable;
-    disable = !item || item.container ||
-              this.mActionMode == this.kImportingOPML;
-    document.getElementById("removeFeed").disabled = disable;
-    disable = !item || !isServer ||
-              this.mActionMode == this.kImportingOPML;
-    document.getElementById("importOPML").disabled = disable;
-    document.getElementById("exportOPML").disabled = disable;
+    let isFeed = item && !item.container;
+    document.getElementById("addFeed").hidden = !item || isFeed;
+    document.getElementById("updateFeed").hidden = !isFeed;
+    document.getElementById("removeFeed").hidden = !isFeed;
+    document.getElementById("importOPML").hidden = !isServer;
+    document.getElementById("exportOPML").hidden = !isServer;
   },
 
   onMouseDown: function (aEvent)
@@ -1264,52 +1319,78 @@ var FeedSubscriptions = {
     this.clearStatusInfo();
   },
 
+  onFocusChange: function ()
+  {
+    setTimeout(() => { this.setFocus(); }, 0);
+  },
+
   setFocus: function ()
   {
     let item = this.mView.currentItem;
     if (!item)
       return;
 
+    let nameValue = document.getElementById("nameValue");
     let locationValue = document.getElementById("locationValue");
     let updateEnabled = document.getElementById("updateEnabled");
     let updateValue = document.getElementById("updateValue");
+    let biffMinutes = document.getElementById("biffMinutes");
+    let biffDays = document.getElementById("biffDays");
     let quickMode = document.getElementById("quickMode");
     let autotagEnable = document.getElementById("autotagEnable");
     let autotagUsePrefix = document.getElementById("autotagUsePrefix");
     let autotagPrefix = document.getElementById("autotagPrefix");
+
+    let addFeedButton = document.getElementById("addFeed");
+    let updateFeedButton = document.getElementById("updateFeed");
+
     let isServer = item.folder && item.folder.isServer;
     let isFolder = item.folder && !item.folder.isServer;
     let isFeed = !item.container;
 
     // Enabled by default.
     updateEnabled.disabled = quickMode.disabled = autotagEnable.disabled = false;
-    updateValue.disabled = !updateEnabled.checked;
+    updateValue.disabled = biffMinutes.disabled = biffDays.disabled = !updateEnabled.checked;
     autotagUsePrefix.disabled = !autotagEnable.checked;
     autotagPrefix.disabled = autotagUsePrefix.disabled || !autotagUsePrefix.checked;
 
+    let focusedElement = window.document.commandDispatcher.focusedElement;
+
     if (isServer)
     {
-      let disable = locationValue.hasAttribute("focused") || locationValue.value;
-      document.getElementById("addFeed").disabled = !disable;
-      document.getElementById("editFeed").disabled = disable;
-
+      addFeedButton.disabled = addFeedButton != focusedElement &&
+                              !locationValue.hasAttribute("focused") &&
+                              !locationValue.value;
     }
     else if (isFolder)
     {
-      if (!locationValue.hasAttribute("focused") && !locationValue.value)
-      {
-        // Enabled for a folder with feeds. Autotag disabled unless intent is
-        // to add a feed.
-        quickMode.disabled = !FeedUtils.getFeedUrlsInFolder(item.folder);
-        updateEnabled.disabled = updateValue.disabled =
-          autotagEnable.disabled = autotagUsePrefix.disabled =
-          autotagPrefix.disabled = true;
-      }
+      let disable = !locationValue.hasAttribute("focused") && !locationValue.value;
+      // Summary is enabled for a folder with feeds or if adding a feed.
+      quickMode.disabled = disable && !FeedUtils.getFeedUrlsInFolder(item.folder);
+      // All other options disabled unless intent is to add a feed.
+      updateEnabled.disabled = autotagEnable.disabled = disable;
+
+      addFeedButton.disabled = addFeedButton != focusedElement &&
+                               !locationValue.hasAttribute("focused") &&
+                               !locationValue.value;
     }
     else
     {
-      // Summary is per folder.
+      // Summary is disabled; applied per folder to apply to all feeds in it.
       quickMode.disabled = true;
+      // Ensure the current feed url is restored if the user did not update.
+      if (locationValue.value != item.url &&
+          !locationValue.hasAttribute("focused") &&
+          focusedElement != updateFeedButton &&
+          focusedElement.id != "addCertException")
+      {
+        locationValue.value = item.url;
+      }
+      this.setPrefs(locationValue);
+      // Set button state.
+      updateFeedButton.disabled = (focusedElement != updateFeedButton ||
+                                   updateFeedButton.disabled) &&
+                                  !locationValue.hasAttribute("focused");
     }
   },
 
@@ -1393,6 +1474,7 @@ var FeedSubscriptions = {
 
     if (!feedLocation)
     {
+      locationValue.focus();
       message = locationValue.getAttribute("placeholder");
       this.updateStatusItem("statusText", message);
       return false;
@@ -1400,6 +1482,7 @@ var FeedSubscriptions = {
 
     if (!FeedUtils.isValidScheme(feedLocation))
     {
+      locationValue.focus();
       message = FeedUtils.strings.GetStringFromName("subscribe-feedNotValid");
       this.updateStatusItem("statusText", message);
       return false;
@@ -1429,6 +1512,7 @@ var FeedSubscriptions = {
     // to this feed.
     if (FeedUtils.feedAlreadyExists(feedLocation, addFolder.server))
     {
+      locationValue.focus();
       message = FeedUtils.strings.GetStringFromName(
                   "subscribe-feedAlreadySubscribed");
       this.updateStatusItem("statusText", message);
@@ -1463,8 +1547,8 @@ var FeedSubscriptions = {
     // Now validate and start downloading the feed.
     message = FeedUtils.strings.GetStringFromName("subscribe-validating-feed");
     this.updateStatusItem("statusText", message);
-    this.updateStatusItem("progressMeter", 0);
-    document.getElementById("addFeed").setAttribute("disabled", true);
+    this.updateStatusItem("progressMeter", "?");
+    document.getElementById("addFeed").disabled = true;
     this.mActionMode = mode;
     feed.download(parse, this.mFeedDownloadCallback);
     return true;
@@ -1480,159 +1564,42 @@ var FeedSubscriptions = {
     return feed;
   },
 
-  updateAccount: function(aItem)
-  {
-    // Check to see if a pref value changed.
-    let editUpdateValue = document.getElementById("updateValue").valueNumber;
-    let editBiffUnits = document.getElementById("biffUnits").value;
-    let editAutotagPrefix = document.getElementById("autotagPrefix").value;
-    if (aItem.options.updates.updateMinutes != editUpdateValue ||
-        aItem.options.updates.updateUnits != editBiffUnits ||
-        aItem.options.category.prefix != editAutotagPrefix)
-    {
-      aItem.options.updates.updateUnits = editBiffUnits;
-      let minutes = editBiffUnits == FeedUtils.kBiffUnitsMinutes ?
-                      editUpdateValue : editUpdateValue * 24 * 60;
-      aItem.options.updates.updateMinutes = minutes;
-      aItem.options.category.prefix = editAutotagPrefix;
-      FeedUtils.setOptionsAcct(aItem.folder.server, aItem.options)
-      let message = FeedUtils.strings.GetStringFromName("subscribe-feedUpdated");
-      this.updateStatusItem("statusText", message);
-    }
-  },
-
-  editFeed: function()
+  /**
+   * When a feed item is selected, the Update button is used to verify the
+   * existing feed url, or to verify and update the feed url if the field
+   * has been edited. This is the only use of the Update button.
+   */
+  updateFeed: function()
   {
     let seln = this.mView.selection;
     if (seln.count != 1)
       return;
 
-    let itemToEdit = this.mView.getItemAtIndex(seln.currentIndex);
-    if (itemToEdit.folder && itemToEdit.folder.isServer)
-    {
-      this.updateAccount(itemToEdit)
-      return;
-    }
-
-    if (!itemToEdit || itemToEdit.container || !itemToEdit.parentFolder)
+    let item = this.mView.getItemAtIndex(seln.currentIndex);
+    if (!item || item.container || !item.parentFolder)
       return;
 
-    let feed = new Feed(itemToEdit.url, itemToEdit.parentFolder);
+    let feed = new Feed(item.url, item.parentFolder);
 
-    let editNameValue = document.getElementById("nameValue").value;
-    let editFeedLocation = document.getElementById("locationValue").value.trim();
-    let selectFolder = document.getElementById("selectFolder");
-    let editUpdateValue = document.getElementById("updateValue").valueNumber;
-    let editBiffUnits = document.getElementById("biffUnits").value;
-    let editQuickMode = document.getElementById("quickMode").checked;
-    let editAutotagPrefix = document.getElementById("autotagPrefix").value;
+    // Disable the button.
+    document.getElementById("updateFeed").disabled = true;
 
-    if (feed.url != editFeedLocation)
+    let feedLocation = document.getElementById("locationValue").value.trim();
+    if (feed.url != feedLocation)
     {
       // Updating a url.  We need to add the new url and delete the old, to
       // ensure everything is cleaned up correctly.
-      this.addFeed(null, itemToEdit.parentFolder, false, null, this.kUpdateMode)
+      this.addFeed(null, item.parentFolder, false, null, this.kUpdateMode)
       return;
-    }
-
-    // Did the user change the folder URI for storing the feed?
-    let editFolderURI = selectFolder.getAttribute("uri");
-    if (itemToEdit.parentFolder.URI != editFolderURI)
-    {
-      // Make sure the new folderpicked folder is visible.
-      this.selectFolder(selectFolder._folder);
-      // Now go back to the feed item.
-      this.selectFeed(feed, null);
-      // We need to find the index of the new parent folder.
-      let newParentIndex = this.mView.kRowIndexUndefined;
-      for (let index = 0; index < this.mView.rowCount; index++)
-      {
-        let item = this.mView.getItemAtIndex(index);
-        if (item && item.container && item.url == editFolderURI)
-        {
-          newParentIndex = index;
-          break;
-        }
-      }
-
-      if (newParentIndex != this.mView.kRowIndexUndefined)
-        this.moveCopyFeed(seln.currentIndex, newParentIndex, "move");
-
-      return;
-    }
-
-    let updated = false;
-    let message = "";
-    // Disable the button until the update completes and we process the async
-    // verify response.
-    document.getElementById("editFeed").setAttribute("disabled", true);
-
-    // Check to see if the title value changed, no blank title allowed.
-    if (feed.title != editNameValue)
-    {
-      if (!editNameValue)
-      {
-        document.getElementById("nameValue").value = feed.title;
-      }
-      else
-      {
-        feed.title = editNameValue;
-        itemToEdit.name = editNameValue;
-        seln.tree.invalidateRow(seln.currentIndex);
-        updated = true;
-      }
-    }
-
-    // Check to see if the updateValue value changed.
-    if (itemToEdit.options.updates.updateMinutes != editUpdateValue ||
-        itemToEdit.options.updates.updateUnits != editBiffUnits)
-    {
-      itemToEdit.options.updates.updateUnits = editBiffUnits;
-      let minutes = editBiffUnits == FeedUtils.kBiffUnitsMinutes ?
-                      editUpdateValue : editUpdateValue * 24 * 60;
-      itemToEdit.options.updates.updateMinutes = minutes;
-      feed.options = itemToEdit.options;
-      FeedUtils.setStatus(itemToEdit.parentFolder, itemToEdit.url,
-                          "updateMinutes", minutes);
-      updated = true;
-    }
-
-    // Check to see if the quickMode value changed.
-    if (feed.quickMode != editQuickMode)
-    {
-      feed.quickMode = editQuickMode;
-      itemToEdit.quickMode = editQuickMode;
-      updated = true;
-    }
-
-    // Check to see if the category custom prefix string value changed.
-    if (itemToEdit.options.category.prefix != editAutotagPrefix &&
-        itemToEdit.options.category.prefix != null &&
-        editAutotagPrefix != "")
-    {
-      itemToEdit.options.category.prefix = editAutotagPrefix;
-      feed.options = itemToEdit.options;
-      updated = true;
-    }
-
-    let verifyDelay = 0;
-    if (updated) {
-      let ds = FeedUtils.getSubscriptionsDS(feed.server);
-      ds.Flush();
-      message = FeedUtils.strings.GetStringFromName("subscribe-feedUpdated");
-      this.updateStatusItem("statusText", message);
-      verifyDelay = 1500;
     }
 
     // Now we want to verify if the stored feed url still works. If it
-    // doesn't, show the error. Delay a bit to leave Updated message visible.
-    message = FeedUtils.strings.GetStringFromName("subscribe-validating-feed");
+    // doesn't, show the error.
+    let message = FeedUtils.strings.GetStringFromName("subscribe-validating-feed");
     this.mActionMode = this.kVerifyUrlMode;
-    setTimeout(() => {
-      this.updateStatusItem("statusText", message);
-      this.updateStatusItem("progressMeter", "?");
-      feed.download(false, this.mFeedDownloadCallback);
-    }, verifyDelay);
+    this.updateStatusItem("statusText", message);
+    this.updateStatusItem("progressMeter", "?");
+    feed.download(false, this.mFeedDownloadCallback);
   },
 
 /**
@@ -1809,9 +1776,11 @@ var FeedSubscriptions = {
           // kNewsBlogNoNewItems can only happen in verify mode.
           win.mActionMode = null;
           win.clearStatusInfo();
+          if (Services.io.offline)
+            return;
+
           message = FeedUtils.strings.GetStringFromName("subscribe-feedVerified");
           win.updateStatusItem("statusText", message);
-          document.getElementById("editFeed").removeAttribute("disabled");
           return;
         }
 
@@ -1918,13 +1887,10 @@ var FeedSubscriptions = {
           message = FeedUtils.strings.GetStringFromName(
                       "subscribe-noAuthError");
 
-        if (win.mActionMode != win.kUpdateMode &&
-            win.mActionMode != win.kVerifyUrlMode)
-          // Re-enable the add button if subscribe failed.
-          document.getElementById("addFeed").removeAttribute("disabled");
-        if (win.mActionMode == win.kVerifyUrlMode)
-          // Re-enable the update button if verify failed.
-          document.getElementById("editFeed").removeAttribute("disabled");
+        // Focus the url if verify/update failed.
+        if (win.mActionMode == win.kUpdateMode ||
+            win.mActionMode == win.kVerifyUrlMode)
+          document.getElementById("locationValue").focus();
       }
 
       win.mActionMode = null;
@@ -2016,7 +1982,8 @@ var FeedSubscriptions = {
 
   addCertExceptionDialog: function()
   {
-    let feedURL = document.getElementById("locationValue").value.trim();
+    let locationValue = document.getElementById("locationValue");
+    let feedURL = locationValue.value.trim();
     let params = { exceptionAdded : false,
                    location: feedURL,
                    prefetchCert: true };
@@ -2024,6 +1991,8 @@ var FeedSubscriptions = {
                       "", "chrome,centerscreen,modal", params);
     if (params.exceptionAdded)
       this.clearStatusInfo();
+
+    locationValue.focus();
   },
 
   // Listener for folder pane changes.

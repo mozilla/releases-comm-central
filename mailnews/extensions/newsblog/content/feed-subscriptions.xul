@@ -93,7 +93,7 @@
                        value="&feedTitle.label;"/>
               </hbox>
               <textbox id="nameValue"
-                       clickSelectsAll="true"/>
+                       oninput="FeedSubscriptions.setPrefs(this)"/>
             </row>
             <row>
               <hbox align="right" valign="middle">
@@ -106,10 +106,11 @@
                 <textbox id="locationValue"
                          flex="1"
                          class="uri-element"
-                         placeholder="&feedLocation.placeholder;"
+                         placeholder="&feedLocation2.placeholder;"
                          clickSelectsAll="true"
-                         onfocus="FeedSubscriptions.setFocus();"
-                         onblur="FeedSubscriptions.setFocus();"/>
+                         oninput="FeedSubscriptions.setPrefs(this)"
+                         onfocus="FeedSubscriptions.onFocusChange();"
+                         onblur="FeedSubscriptions.onFocusChange();"/>
                 <hbox align="center">
                   <label id="locationValidate"
                          collapsed="true"
@@ -160,7 +161,11 @@
                    size="3"
                    min="1"
                    increment="1"
-                   aria-labelledby="updateEnabled updateValue biffMinutes biffDays recommendedUnits recommendedUnitsVal"/>
+                   aria-labelledby="updateEnabled updateValue biffMinutes biffDays recommendedUnits recommendedUnitsVal"
+                   oninput="FeedSubscriptions.setPrefs(this)"
+                   onchange="FeedSubscriptions.setPrefs(this)">
+              <observes element="updateEnabled" attribute="disabled"/>
+          </textbox>
           <radiogroup id="biffUnits"
                       orient="horizontal"
                       oncommand="FeedSubscriptions.setPrefs(this)">
@@ -205,7 +210,7 @@
                       oncommand="FeedSubscriptions.setPrefs(this)"/>
             <textbox id="autotagPrefix"
                      placeholder="&autoTagPrefix.placeholder;"
-                     clickSelectsAll="true"/>
+                     oninput="FeedSubscriptions.setPrefs(this)"/>
         </hbox>
         <separator class="thin"/>
       </vbox>
@@ -238,21 +243,27 @@
     <hbox align="end">
       <hbox class="actionButtons" flex="1">
         <button id="addFeed"
+                disabled="true"
                 label="&button.addFeed.label;"
                 accesskey="&button.addFeed.accesskey;"
                 oncommand="FeedSubscriptions.addFeed();"/>
 
-        <button id="editFeed"
+        <button id="updateFeed"
                 disabled="true"
-                label="&button.updateFeed.label;"
-                accesskey="&button.updateFeed.accesskey;"
-                oncommand="FeedSubscriptions.editFeed();"/>
+                label="&button.verifyFeed.label;"
+                accesskey="&button.verifyFeed.accesskey;"
+                verifylabel="&button.verifyFeed.label;"
+                verifyaccesskey="&button.verifyFeed.accesskey;"
+                updatelabel="&button.updateFeed.label;"
+                updateaccesskey="&button.updateFeed.accesskey;"
+                oncommand="FeedSubscriptions.updateFeed();"/>
 
         <button id="removeFeed"
-                disabled="true"
                 label="&button.removeFeed.label;"
                 accesskey="&button.removeFeed.accesskey;"
                 oncommand="FeedSubscriptions.removeFeed(true);"/>
+
+        <spacer flex="1"/>
 
         <button id="importOPML"
                 label="&button.importOPML.label;"

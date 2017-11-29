@@ -11,7 +11,7 @@
 
 <!ENTITY feedLocation.label          "Feed URL:">
 <!ENTITY feedLocation.accesskey      "F">
-<!ENTITY feedLocation.placeholder    "Enter a valid feed url to Add">
+<!ENTITY feedLocation2.placeholder   "Enter a valid feed url">
 <!ENTITY locationValidate.label      "Validate">
 <!ENTITY validateText.label          "Check validation and retrieve a valid url.">
 
@@ -39,6 +39,8 @@
 <!-- Subscription Dialog -->
 <!ENTITY button.addFeed.label        "Add">
 <!ENTITY button.addFeed.accesskey    "A">
+<!ENTITY button.verifyFeed.label     "Verify">
+<!ENTITY button.verifyFeed.accesskey "V">
 <!ENTITY button.updateFeed.label     "Update">
 <!ENTITY button.updateFeed.accesskey "U">
 <!ENTITY button.removeFeed.label     "Remove">
