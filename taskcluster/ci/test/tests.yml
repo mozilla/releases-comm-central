@@ -7,6 +7,31 @@
 
 # Adding a new test type or running tests on a new platform? Be sure to review
 # https://wiki.mozilla.org/Sheriffing/Job_Visibility_Policy
+job-defaults:
+    when:
+      files-changed:
+        # Include everything in comm-central except suite/ and im/
+        # https://bugzilla.mozilla.org/show_bug.cgi?id=1422060
+        - comm/build
+        - comm/calendar
+        - comm/chat
+        - comm/common
+        - comm/config
+        - comm/db
+        - comm/editor
+        - comm/ldap/
+        - comm/mail/
+        - comm/mailnews/
+        - comm/mozharness/
+        - comm/other-licenses/
+        - comm/python/
+        - comm/taskcluster/
+        - comm/testing/
+        - comm/.taskcluster.yml
+        - comm/AUTHORS
+        - comm/comm-confvars.sh
+        - comm/moz.build
+        - comm/moz.configure
 
 xpcshell:
     description: "xpcshell test run"
