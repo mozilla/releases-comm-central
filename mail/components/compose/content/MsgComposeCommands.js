@@ -1031,39 +1031,63 @@ var attachmentBucketController = {
 
     cmd_sortAttachmentsToggle: {
       isEnabled: function() {
-        let currSortOrder = attachmentsSelectionGetSortOrder();
-        let isBlock = attachmentsSelectionIsBlock();
-        // If current sorting is ascending AND it's a block; OR
-        // if current sorting is descending AND it's NOT a block yet:
-        // Offer toggle button face to sort descending.
-        // In all other cases, offer toggle button face to sort ascending.
-        let btnAscending = !((currSortOrder == "ascending") && isBlock ||
-                             (currSortOrder == "descending") && !isBlock);
-
+        let sortSelection;
+        let currSortOrder;
+        let isBlock;
+        let btnAscending;
         let toggleCmd = document.getElementById("cmd_sortAttachmentsToggle");
         let toggleBtn = document.getElementById("btn_sortAttachmentsToggle");
         let sortDirection;
         let btnLabelAttr;
         let btnAccKeyAttr;
-        // Set sortDirection for toggleCmd, and respective button face.
-        if (btnAscending) {
-          sortDirection = "ascending";
-          btnLabelAttr = "data-labelAZ";
-          btnAccKeyAttr = "data-accesskeyAZ";
-        } else {
-          sortDirection = "descending";
-          btnLabelAttr = "data-labelZA";
-          btnAccKeyAttr = "data-accesskeyZA";
+
+        if (attachmentsSelectedCount() > 1) {
+          // Sort selected attachments only.
+          sortSelection = true;
+          currSortOrder = attachmentsSelectionGetSortOrder();
+          isBlock = attachmentsSelectionIsBlock();
+          // If current sorting is ascending AND it's a block; OR
+          // if current sorting is descending AND it's NOT a block yet:
+          // Offer toggle button face to sort descending.
+          // In all other cases, offer toggle button face to sort ascending.
+          btnAscending = !((currSortOrder == "ascending") && isBlock ||
+                           (currSortOrder == "descending") && !isBlock);
+          // Set sortDirection for toggleCmd, and respective button face.
+          if (btnAscending) {
+            sortDirection = "ascending";
+            btnLabelAttr = "label-selection-AZ";
+            btnAccKeyAttr = "accesskey-selection-AZ";
+          } else {
+            sortDirection = "descending";
+            btnLabelAttr = "label-selection-ZA";
+            btnAccKeyAttr = "accesskey-selection-ZA";
+          }
+        } else { // attachmentsSelectedCount() <= 1
+          // Sort all attachments.
+          sortSelection = false;
+          currSortOrder = attachmentsGetSortOrder();
+          btnAscending = !(currSortOrder == "ascending")
+          // Set sortDirection for toggleCmd, and respective button face.
+          if (btnAscending) {
+            sortDirection = "ascending";
+            btnLabelAttr = "label-AZ";
+            btnAccKeyAttr = "accesskey-AZ";
+          } else {
+            sortDirection = "descending";
+            btnLabelAttr = "label-ZA";
+            btnAccKeyAttr = "accesskey-ZA";
+          }
         }
+
         // Set the sort direction for toggleCmd.
-        toggleCmd.setAttribute("data-sortdirection", sortDirection);
+        toggleCmd.setAttribute("sortdirection", sortDirection);
         // The button's icon is set dynamically via CSS involving the button's
-        // data-sortdirection attribute, which is forwarded by the command.
+        // sortdirection attribute, which is forwarded by the command.
         toggleBtn.setAttribute("label", toggleBtn.getAttribute(btnLabelAttr));
         toggleBtn.setAttribute("accesskey", toggleBtn.getAttribute(btnAccKeyAttr));
 
-        return attachmentsSelectedCount() > 1 &&
-               !(currSortOrder == "equivalent" && isBlock);
+        return sortSelection ? !(currSortOrder == "equivalent" && isBlock)
+                             : !(currSortOrder == "equivalent");
       },
       doCommand: function() {
         moveSelectedAttachments("toggleSort");
@@ -4502,32 +4526,62 @@ function attachmentsSelectedCount()
 }
 
 /**
- * Returns a sorted-by-index, "non-live" array of selected attachment list items.
+ * Returns a sorted-by-index, "non-live" array of attachment list items.
  *
- * @param aAscending  true (default): sort return array ascending
- *                    false         : sort return array descending
- * @return {array}    an array of selected listitem elements in attachmentBucket
- *                    listbox, "non-live" and sorted by their index in the list;
- *                    [] if no attachments selected
+ * @param aAscending {boolean}: true (default): sort return array ascending
+ *                              false         : sort return array descending
+ * @param aSelectedOnly {boolean}: true: return array of selected items only.
+ *                                 false (default): return array of all items.
+ *
+ * @return {array} an array of (all | selected) listItem elements in
+ *                 attachmentBucket listbox, "non-live" and sorted by their index
+ *                 in the list; [] if there are (no | no selected) attachments.
  */
-function attachmentsSelectedItemsGetSortedArray(aAscending = true)
-{
-  if (attachmentsSelectedCount() < 1)
-    return [];
+function attachmentsGetSortedArray(aAscending = true, aSelectedOnly = false) {
+  let bucketList;
+  let listItems;
 
-  let bucketList = document.getElementById("attachmentBucket");
-  // bucketList.selectedItems is a "live" and "unordered" node list (items get
-  // added in the order they were added to the selection). But we want a stable
-  // ("non-live") array of selected items, sorted by their index in the list.
-  let selItems = [...bucketList.selectedItems];
+  if (aSelectedOnly) {
+    // Selected attachments only.
+    if (attachmentsSelectedCount() < 1)
+      return [];
+
+    bucketList = document.getElementById("attachmentBucket");
+    // bucketList.selectedItems is a "live" and "unordered" node list (items get
+    // added in the order they were added to the selection). But we want a stable
+    // ("non-live") array of selected items, sorted by their index in the list.
+    listItems = [...bucketList.selectedItems];
+  } else {
+    // All attachments.
+    if (attachmentsCount() < 1)
+      return [];
+
+    bucketList = document.getElementById("attachmentBucket");
+    listItems = [...bucketList.querySelectorAll("attachmentitem")];
+  }
+
   if (aAscending) {
-    selItems.sort(
+    listItems.sort(
       (a, b) => bucketList.getIndexOfItem(a) - bucketList.getIndexOfItem(b));
   } else { // descending
-    selItems.sort(
+    listItems.sort(
       (a, b) => bucketList.getIndexOfItem(b) - bucketList.getIndexOfItem(a));
   }
-  return selItems;
+  return listItems;
+}
+
+/**
+ * Returns a sorted-by-index, "non-live" array of selected attachment list items.
+ *
+ * @param aAscending {boolean}: true (default): sort return array ascending
+ *                              false         : sort return array descending
+ * @return {array} an array of selected listitem elements in attachmentBucket
+ *                 listbox, "non-live" and sorted by their index in the list;
+ *                 [] if no attachments selected
+ */
+function attachmentsSelectionGetSortedArray(aAscending = true)
+{
+  return attachmentsGetSortedArray(aAscending, true);
 }
 
 /**
@@ -4554,7 +4608,7 @@ function attachmentsSelectionIsBlock(aListPosition)
     return false;
 
   let bucketList = document.getElementById("attachmentBucket");
-  let selItems = attachmentsSelectedItemsGetSortedArray();
+  let selItems = attachmentsSelectionGetSortedArray();
   let indexFirstSelAttachment =
     bucketList.getIndexOfItem(selItems[0]);
   let indexLastSelAttachment =
@@ -4770,11 +4824,13 @@ function RenameSelectedAttachment()
   }
 
   let reorderAttachmentsPanel = document.getElementById("reorderAttachmentsPanel");
-  let attachmentBucket = document.getElementById("attachmentBucket");
   if (reorderAttachmentsPanel.state == "open") {
     // Hack to ensure that reorderAttachmentsPanel does not get closed as we exit.
-    attachmentBucket.setAttribute("data-ignorenextblur", "true");
+    bucket.setAttribute("data-ignorenextblur", "true");
   }
+  // Update cmd_sortAttachmentsToggle because renaming may change the current
+  // sort order.
+  goUpdateCommand("cmd_sortAttachmentsToggle");
 }
 
 /**
@@ -4803,7 +4859,7 @@ function moveSelectedAttachments(aDirection)
   bucket.focus();
 
   // Get a sorted and "non-live" array of bucket.selectedItems.
-  let selItems = attachmentsSelectedItemsGetSortedArray();
+  let selItems = attachmentsSelectionGetSortedArray();
 
   let visibleIndex = bucket.currentIndex; // In case of misspelled aDirection.
   // Keep track of the item we had focused originally. Deselect it though,
@@ -4942,41 +4998,61 @@ function moveSelectedAttachments(aDirection)
       // direction based on the current sorting and block status of the selection.
 
       let toggleCmd = document.getElementById("cmd_sortAttachmentsToggle");
-      let sortDirection = toggleCmd.getAttribute("data-sortdirection") || "ascending";
-      // Move selected attachments together before sorting as a block.
-      goDoCommand("cmd_moveAttachmentBundleUp");
+      let sortDirection = toggleCmd.getAttribute("sortdirection") || "ascending";
+      let sortItems;
+      let sortSelection;
 
-      // Find the end of the selected block to find our targetItem.
-      for (let item of selItems) {
-        let nextItem = item.nextSibling;
-        if (!nextItem || !nextItem.selected) {
-          // If there's no nextItem (block at list bottom), or nextItem is
-          // not selected, we've reached the end of the block.
-          // Set the block's nextSibling as targetItem and exit loop.
-          // Works by definition even if nextSibling aka nextItem is null.
-          targetItem = nextItem;
-          break;
-        }
-        // else if (nextItem && nextItem.selected), nextItem is still part of
-        // the block, so proceed with checking its nextSibling.
-      } // next selItem
+      if (attachmentsSelectedCount() > 1) {
+        // Sort selected attachments only.
+        sortSelection = true;
+        sortItems = selItems;
+        // Move selected attachments together before sorting as a block.
+        goDoCommand("cmd_moveAttachmentBundleUp");
 
-      // Now let's sort our selItems according to sortDirection.
+        // Find the end of the selected block to find our targetItem.
+        for (let item of selItems) {
+          let nextItem = item.nextSibling;
+          if (!nextItem || !nextItem.selected) {
+            // If there's no nextItem (block at list bottom), or nextItem is
+            // not selected, we've reached the end of the block.
+            // Set the block's nextSibling as targetItem and exit loop.
+            // Works by definition even if nextSibling aka nextItem is null.
+            targetItem = nextItem;
+            break;
+          }
+          // else if (nextItem && nextItem.selected), nextItem is still part of
+          // the block, so proceed with checking its nextSibling.
+        } // next selItem
+      } else {
+        // Sort all attachments.
+        sortSelection = false;
+        sortItems = attachmentsGetSortedArray();
+        targetItem = null; // Insert at the end of the list.
+      }
+      // Now let's sort our sortItems according to sortDirection.
       if (sortDirection == "ascending") {
-        selItems.sort(
+        sortItems.sort(
           (a, b) => a.attachment.name.localeCompare(b.attachment.name));
       } else { // "descending"
-        selItems.sort(
+        sortItems.sort(
           (a, b) => b.attachment.name.localeCompare(a.attachment.name));
       }
 
-      // Insert selItems in new order before the nextSibling of the block.
-      for (let item of selItems) {
+      // Insert sortItems in new order before the nextSibling of the block.
+      for (let item of sortItems) {
         bucket.insertBefore(item, targetItem);
       }
 
-      // Ensure visibility of first block item after sorting.
-      visibleIndex = bucket.getIndexOfItem(selItems[0]);
+
+      if (sortSelection) {
+        // After sorting selection: Ensure visibility of first selected item.
+        visibleIndex = bucket.getIndexOfItem(selItems[0]);
+      } else {
+        // After sorting all items: Ensure visibility of selected item,
+        // otherwise first list item.
+        visibleIndex = (selItems.length == 1) ? bucket.selectedIndex
+                                              : 0;
+      }
       break;
   } // end switch (aDirection)
 
@@ -5013,24 +5089,50 @@ function showReorderAttachmentsPanel() {
  *                                or no items selected, or no attachments,
  *                                or no attachmentBucket.
  */
-function attachmentsSelectionGetSortOrder()
-{
-  if (attachmentsSelectedCount() <= 1)
-    return "";
+function attachmentsSelectionGetSortOrder(){
+  return attachmentsGetSortOrder(true);
+}
 
-  let selItems = attachmentsSelectedItemsGetSortedArray();
+/**
+ * Returns a string representing the current sort order of attachment items
+ * by their names.
+ *
+ * @param aSelectedOnly {boolean}: true: return sort order of selected items only.
+ *                                 false (default): return sort order of all items.
+ *
+ * @return {string} "ascending" : Sort order is ascending.
+ *                  "descending": Sort order is descending.
+ *                  "equivalent": The names of the items are equivalent.
+ *                  ""          : There's no sort order, or no attachments,
+ *                                or no attachmentBucket; or (with aSelectedOnly),
+ *                                only 1 item selected, or no items selected.
+ */
+function attachmentsGetSortOrder(aSelectedOnly = false){
+  let listItems;
+  if (aSelectedOnly) {
+    if (attachmentsSelectedCount() <= 1)
+      return "";
+
+    listItems = attachmentsSelectionGetSortedArray();
+  } else { // aSelectedOnly == false
+    if (attachmentsCount() < 1)
+      return "";
+
+    listItems = attachmentsGetSortedArray();
+  }
+
   // We're comparing each item to the next item, so exclude the last item.
-  let selItems1 = selItems.slice(0, -1);
+  let listItems1 = listItems.slice(0, -1);
   let someAscending;
   let someDescending;
 
   // Check if some adjacent items are sorted ascending.
-  someAscending = selItems1.some((item, index) =>
-    item.attachment.name.localeCompare(selItems[index + 1].attachment.name) < 0);
+  someAscending = listItems1.some((item, index) =>
+    item.attachment.name.localeCompare(listItems[index + 1].attachment.name) < 0);
 
   // Check if some adjacent items are sorted descending.
-  someDescending = selItems1.some((item, index) =>
-    item.attachment.name.localeCompare(selItems[index + 1].attachment.name) > 0);
+  someDescending = listItems1.some((item, index) =>
+    item.attachment.name.localeCompare(listItems[index + 1].attachment.name) > 0);
 
   // Unsorted (but not all equivalent in sort order)
   if (someAscending && someDescending)

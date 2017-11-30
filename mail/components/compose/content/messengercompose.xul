@@ -160,7 +160,7 @@
   <command id="cmd_moveAttachmentBottom"
            oncommand="goDoCommand('cmd_moveAttachmentBottom')" disabled="true"/>
   <command id="cmd_sortAttachmentsToggle"
-           data-sortdirection="ascending"
+           sortdirection="ascending"
            oncommand="goDoCommand('cmd_sortAttachmentsToggle')" disabled="true"/>
 
   <!-- View Menu -->
@@ -399,12 +399,16 @@
                  command="cmd_moveAttachmentBottom"/>
   <toolbarbutton id="btn_sortAttachmentsToggle"
                  class="panelButton"
-                 label="&sortAttachmentsTogglePanelBtn.AZ.label;"
-                 accesskey="&sortAttachmentsTogglePanelBtn.AZ.accesskey;"
-                 data-labelAZ="&sortAttachmentsTogglePanelBtn.AZ.label;"
-                 data-accesskeyAZ="&sortAttachmentsTogglePanelBtn.AZ.accesskey;"
-                 data-labelZA="&sortAttachmentsTogglePanelBtn.ZA.label;"
-                 data-accesskeyZA="&sortAttachmentsTogglePanelBtn.ZA.accesskey;"
+                 label="&sortAttachmentsPanelBtn.Sort.AZ.label;"
+                 accesskey="&sortAttachmentsPanelBtn.Sort.AZ.accesskey;"
+                 label-AZ="&sortAttachmentsPanelBtn.Sort.AZ.label;"
+                 label-ZA="&sortAttachmentsPanelBtn.Sort.ZA.label;"
+                 accesskey-AZ="&sortAttachmentsPanelBtn.Sort.AZ.accesskey;"
+                 accesskey-ZA="&sortAttachmentsPanelBtn.Sort.ZA.accesskey;"
+                 label-selection-AZ="&sortAttachmentsPanelBtn.SortSelection.AZ.label;"
+                 label-selection-ZA="&sortAttachmentsPanelBtn.SortSelection.ZA.label;"
+                 accesskey-selection-AZ="&sortAttachmentsPanelBtn.SortSelection.AZ.accesskey;"
+                 accesskey-selection-ZA="&sortAttachmentsPanelBtn.SortSelection.ZA.accesskey;"
                  command="cmd_sortAttachmentsToggle"/>
 </panel>
 

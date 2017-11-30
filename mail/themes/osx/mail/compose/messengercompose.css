@@ -1254,6 +1254,6 @@ toolbarbutton.toolbarbutton-1 > .toolbarbutton-menubutton-dropmarker > .dropmark
   list-style-image: url("chrome://messenger/skin/icons/sort.svg");
 }
 
-#btn_sortAttachmentsToggle[data-sortdirection="descending"] > .toolbarbutton-icon {
+#btn_sortAttachmentsToggle[sortdirection="descending"] > .toolbarbutton-icon {
   transform: scaleY(-1);
 }
