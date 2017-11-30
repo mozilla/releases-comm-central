@@ -55,6 +55,9 @@ pref("browser.send_pings", false);
 pref("browser.chrome.site_icons", true);
 pref("browser.chrome.favicons", true);
 
+// 0 = Pictures Only, 1 = Text Only, 2 = Pictures and Text
+pref("browser.chrome.toolbar_style", 2);
+
 pref("browser.download.finished_download_sound", false);
 pref("browser.download.finished_sound_url", "");
 pref("browser.download.useDownloadDir", false);
