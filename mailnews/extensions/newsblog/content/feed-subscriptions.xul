@@ -243,12 +243,14 @@
     <hbox align="end">
       <hbox class="actionButtons" flex="1">
         <button id="addFeed"
+                hidden="true"
                 disabled="true"
                 label="&button.addFeed.label;"
                 accesskey="&button.addFeed.accesskey;"
                 oncommand="FeedSubscriptions.addFeed();"/>
 
         <button id="updateFeed"
+                hidden="true"
                 disabled="true"
                 label="&button.verifyFeed.label;"
                 accesskey="&button.verifyFeed.accesskey;"
@@ -259,6 +261,7 @@
                 oncommand="FeedSubscriptions.updateFeed();"/>
 
         <button id="removeFeed"
+                hidden="true"
                 label="&button.removeFeed.label;"
                 accesskey="&button.removeFeed.accesskey;"
                 oncommand="FeedSubscriptions.removeFeed(true);"/>
@@ -266,11 +269,13 @@
         <spacer flex="1"/>
 
         <button id="importOPML"
+                hidden="true"
                 label="&button.importOPML.label;"
                 accesskey="&button.importOPML.accesskey;"
                 oncommand="FeedSubscriptions.importOPML();"/>
 
         <button id="exportOPML"
+                hidden="true"
                 label="&button.exportOPML.label;"
                 accesskey="&button.exportOPML.accesskey;"
                 tooltiptext="&button.exportOPML.tooltip;"
