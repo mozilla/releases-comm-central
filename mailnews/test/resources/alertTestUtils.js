@@ -30,7 +30,8 @@
  */
 
 Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
-Components.utils.import("resource://testing-common/mailnews/MockFactory.js");
+const {MockRegistrar} =
+  Components.utils.import("resource://testing-common/MockRegistrar.jsm", {});
 
 // Wrapper to the nsIPrompt interface.
 // This allows the send code to attempt to display errors to the user without
@@ -252,9 +253,9 @@ var alertUtilsWindowWatcher = {
 
 function registerAlertTestUtils()
 {
-  MockFactory.register("@mozilla.org/embedcomp/window-watcher;1",
+  MockRegistrar.register("@mozilla.org/embedcomp/window-watcher;1",
                       alertUtilsWindowWatcher);
-  MockFactory.register("@mozilla.org/embedcomp/prompt-service;1",
+  MockRegistrar.register("@mozilla.org/embedcomp/prompt-service;1",
                       alertUtilsPromptService);
 }
 
