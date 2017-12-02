@@ -71,6 +71,7 @@
 #include "nsIMsgFilter.h"
 #include "nsIConsoleService.h"
 #include "nsIScriptError.h"
+#include "mozilla/intl/LocaleService.h"
 
 static PRTime gtimeOfLastPurgeCheck;    //variable to know when to check for purge_threshhold
 
@@ -3405,6 +3406,25 @@ NS_IMETHODIMP nsMsgDBFolder::GetPrettyName(nsAString& name)
   return GetName(name);
 }
 
+static bool
+nonEnglishApp()
+{
+  nsAutoCString locale;
+  mozilla::intl::LocaleService::GetInstance()->GetAppLocaleAsLangTag(locale);
+
+  return !(locale.EqualsLiteral("en") ||
+           StringBeginsWith(locale, NS_LITERAL_CSTRING("en-")));
+}
+
+static bool
+hasTrashName(const nsAString& name)
+{
+  // Microsoft calls the folder "Deleted". If the application is non-English,
+  // we want to use the localised name instead.
+  return name.LowerCaseEqualsLiteral("trash") ||
+         (name.LowerCaseEqualsLiteral("deleted") && nonEnglishApp());
+}
+
 NS_IMETHODIMP nsMsgDBFolder::SetPrettyName(const nsAString& name)
 {
   nsresult rv;
@@ -3418,7 +3438,7 @@ NS_IMETHODIMP nsMsgDBFolder::SetPrettyName(const nsAString& name)
     rv = SetName(kLocalizedDraftsName);
   else if (mFlags & nsMsgFolderFlags::Templates && name.LowerCaseEqualsLiteral("templates"))
     rv = SetName(kLocalizedTemplatesName);
-  else if (mFlags & nsMsgFolderFlags::Trash && name.LowerCaseEqualsLiteral("trash"))
+  else if (mFlags & nsMsgFolderFlags::Trash && hasTrashName(name))
     rv = SetName(kLocalizedTrashName);
   else if (mFlags & nsMsgFolderFlags::Queue && name.LowerCaseEqualsLiteral("unsent messages"))
     rv = SetName(kLocalizedUnsentName);
