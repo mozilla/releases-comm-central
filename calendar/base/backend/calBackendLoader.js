@@ -50,9 +50,8 @@ calBackendLoader.prototype = {
             // Unregister libical components
             let registrar = Components.manager.QueryInterface(Components.interfaces.nsIComponentRegistrar);
             for (let contractId of contracts) {
-                let classobj = Components.classes[contractId];
-                let factory = Components.manager.getClassObject(classobj, Components.interfaces.nsIFactory);
                 let classId = registrar.contractIDToCID(contractId);
+                let factory = Components.manager.getClassObject(classId, Components.interfaces.nsIFactory);
                 registrar.unregisterFactory(classId, factory);
             }
 
@@ -67,8 +66,7 @@ calBackendLoader.prototype = {
             file.append("components");
             file.append("icaljs-manifest");
 
-            Components.manager.QueryInterface(Components.interfaces.nsIComponentRegistrar)
-                      .autoRegister(file);
+            registrar.autoRegister(file);
             dump("[calBackendLoader] Using icaljs backend at " + file.path + "\n");
         } else {
             dump("[calBackendLoader] Using Thunderbird's builtin libical backend\n");
