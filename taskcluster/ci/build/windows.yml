@@ -1,5 +1,8 @@
 win32/opt:
     description: "Win32 Opt"
+    index:
+        product: thunderbird
+        job-name: win32-opt
     treeherder:
         platform: windows2012-32/opt
         symbol: tc(B)
@@ -28,6 +31,9 @@ win32/opt:
 
 win32/debug:
     description: "Win32 Debug"
+    index:
+        product: thunderbird
+        job-name: win32-debug
     treeherder:
         platform: windows2012-32/debug
         symbol: tc(B)
@@ -56,6 +62,9 @@ win32/debug:
 
 win64/opt:
     description: "Win64 Opt"
+    index:
+        product: thunderbird
+        job-name: win64-opt
     treeherder:
         platform: windows2012-64/opt
         symbol: tc(B)
@@ -84,6 +93,9 @@ win64/opt:
 
 win64/debug:
     description: "Win64 Debug"
+    index:
+        product: thunderbird
+        job-name: win64-debug
     treeherder:
         platform: windows2012-64/debug
         symbol: tc(B)

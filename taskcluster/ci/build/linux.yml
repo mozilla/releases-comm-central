@@ -1,5 +1,8 @@
 linux64/opt:
     description: "Linux64 Opt"
+    index:
+        product: thunderbird
+        job-name: linux64-opt
     treeherder:
         platform: linux64/opt
         symbol: tc(B)
@@ -26,6 +29,9 @@ linux64/opt:
 
 linux64/debug:
     description: "Linux64 Debug"
+    index:
+        product: thunderbird
+        job-name: linux64-debug
     treeherder:
         platform: linux64/debug
         symbol: tc(B)
@@ -53,6 +59,9 @@ linux64/debug:
 
 linux/opt:
     description: "Linux32 Opt"
+    index:
+        product: thunderbird
+        job-name: linux32-opt
     treeherder:
         platform: linux32/opt
         symbol: tc(B)
@@ -79,6 +88,9 @@ linux/opt:
 
 linux/debug:
     description: "Linux32 Debug"
+    index:
+        product: thunderbird
+        job-name: linux32-debug
     treeherder:
         platform: linux32/debug
         symbol: tc(B)

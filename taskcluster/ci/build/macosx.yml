@@ -1,5 +1,8 @@
 macosx64/debug:
     description: "MacOS X x64 Cross-compile"
+    index:
+        product: thunderbird
+        job-name: macosx64-debug
     treeherder:
         platform: osx-cross/debug
         symbol: tc(B)
@@ -33,6 +36,9 @@ macosx64/debug:
 
 macosx64/opt:
     description: "MacOS X x64 Cross-compile"
+    index:
+        product: thunderbird
+        job-name: macosx64-opt
     treeherder:
         platform: osx-cross/opt
         symbol: tc(B)
