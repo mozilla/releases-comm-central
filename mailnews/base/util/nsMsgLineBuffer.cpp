@@ -7,10 +7,8 @@
 #include "prlog.h"
 #include "prmem.h"
 #include "nsMsgLineBuffer.h"
-#include "nsAlgorithm.h"
 #include "nsMsgUtils.h"
 #include "nsIInputStream.h" // used by nsMsgLineStreamBuffer
-#include <algorithm>
 
 nsByteArray::nsByteArray()
 {

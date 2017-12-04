@@ -65,7 +65,6 @@
 #include "nsIMsgFilterList.h"
 #include "nsDirectoryServiceUtils.h"
 #include "mozilla/Services.h"
-#include <algorithm>
 #include "nsIFileStreams.h"
 #include "nsIOutputStream.h"
 #include "nsISafeOutputStream.h"

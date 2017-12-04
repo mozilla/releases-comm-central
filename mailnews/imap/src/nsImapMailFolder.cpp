@@ -90,9 +90,7 @@
 #include "nsMsgReadStateTxn.h"
 #include "nsIStringEnumerator.h"
 #include "nsIMsgStatusFeedback.h"
-#include "nsAlgorithm.h"
 #include "nsMsgLineBuffer.h"
-#include <algorithm>
 #include "mozilla/Logging.h"
 #include "mozilla/Attributes.h"
 #include "nsStringStream.h"

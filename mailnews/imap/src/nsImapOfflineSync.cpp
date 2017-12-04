@@ -23,9 +23,7 @@
 #include "nsMsgUtils.h"
 #include "nsIMutableArray.h"
 #include "nsIAutoSyncManager.h"
-#include "nsAlgorithm.h"
 #include "nsArrayUtils.h"
-#include <algorithm>
 #include "mozilla/Unused.h"
 
 

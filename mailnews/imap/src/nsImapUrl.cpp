@@ -28,9 +28,7 @@
 #include "nsMsgUtils.h"
 #include "nsIMsgHdr.h"
 #include "nsIProgressEventSink.h"
-#include "nsAlgorithm.h"
 #include "nsServiceManagerUtils.h"
-#include <algorithm>
 
 using namespace mozilla;
 

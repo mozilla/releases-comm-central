@@ -17,7 +17,6 @@
 #include "nsServiceManagerUtils.h"
 #include "nsMsgUtils.h"
 #include "mozilla/Services.h"
-#include <algorithm>
 
 #define PREF_BIFF_JITTER "mail.biff.add_interval_jitter"
 

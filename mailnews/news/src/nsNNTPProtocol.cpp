@@ -33,7 +33,6 @@
 #include "nsContentUtils.h"
 
 #include "prprf.h"
-#include <algorithm>
 
 /* include event sink interfaces for news */
 

@@ -6,8 +6,6 @@
 
 #include "nsMsgComposeSecure.h"
 
-#include <algorithm>
-
 #include "ScopedNSSTypes.h"
 #include "cert.h"
 #include "keyhi.h"
@@ -16,7 +14,6 @@
 #include "mozilla/mailnews/MimeEncoder.h"
 #include "mozilla/mailnews/MimeHeaderParser.h"
 #include "msgCore.h"
-#include "nsAlgorithm.h"
 #include "nsComponentManagerUtils.h"
 #include "nsICryptoHash.h"
 #include "nsIMimeConverter.h"

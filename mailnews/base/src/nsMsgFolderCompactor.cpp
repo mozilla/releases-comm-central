@@ -33,7 +33,6 @@
 #include "nsIMsgFolderNotificationService.h"
 #include "nsIMsgPluggableStore.h"
 #include "nsMsgFolderCompactor.h"
-#include <algorithm>
 #include "nsIOutputStream.h"
 #include "nsIInputStream.h"
 #include "nsPrintfCString.h"

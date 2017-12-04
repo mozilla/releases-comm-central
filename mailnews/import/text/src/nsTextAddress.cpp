@@ -21,7 +21,6 @@
 #include "TextDebugLog.h"
 #include "plstr.h"
 #include "msgCore.h"
-#include <algorithm>
 
 #define kWhitespace    " \t\b\r\n"
 

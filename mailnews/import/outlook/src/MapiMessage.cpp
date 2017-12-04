@@ -26,7 +26,6 @@
 
 #include "MapiMimeTypes.h"
 
-#include <algorithm>
 #include "nsMsgI18N.h"
 #include "nsICharsetConverterManager.h"
 #include "nsCRT.h"

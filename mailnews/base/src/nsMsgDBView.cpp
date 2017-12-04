@@ -42,7 +42,6 @@
 #include "nsServiceManagerUtils.h"
 #include "nsComponentManagerUtils.h"
 #include "nsMemory.h"
-#include "nsAlgorithm.h"
 #include "nsIAbManager.h"
 #include "nsIAbDirectory.h"
 #include "nsIAbCard.h"
@@ -50,7 +49,6 @@
 #include "mozilla/Attributes.h"
 #include "mozilla/mailnews/MimeHeaderParser.h"
 #include "nsTArray.h"
-#include <algorithm>
 
 using namespace mozilla::mailnews;
 nsrefcnt nsMsgDBView::gInstanceCount  = 0;

@@ -25,7 +25,6 @@
 #include <time.h>
 #include "nsMsgUtils.h"
 #include "mozilla/Services.h"
-#include <algorithm>
 #include "nsProxyRelease.h"
 #include "mozilla/BasePrincipal.h"
 #include "mozilla/Encoding.h"

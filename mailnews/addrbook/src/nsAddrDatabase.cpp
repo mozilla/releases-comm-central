@@ -31,7 +31,6 @@
 #include "nsIPrefBranch.h"
 #include "nsIAbManager.h"
 #include "mozilla/Services.h"
-#include <algorithm>
 
 #define ID_PAB_TABLE            1
 #define ID_DELETEDCARDS_TABLE           2

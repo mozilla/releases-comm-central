@@ -61,7 +61,6 @@
 #include "nsIPK11TokenDB.h"
 #include "nsIPK11Token.h"
 #include "nsMsgLocalFolderHdrs.h"
-#include <algorithm>
 #define oneHour 3600000000U
 #include "nsMsgUtils.h"
 #include "nsIMsgFilterService.h"

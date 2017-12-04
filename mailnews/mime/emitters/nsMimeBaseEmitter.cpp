@@ -30,7 +30,6 @@
 #include "nsMsgUtils.h"
 #include "nsTextFormatter.h"
 #include "mozilla/Services.h"
-#include <algorithm>
 
 static mozilla::LazyLogModule gMimeEmitterLogModule("MIME");
 
