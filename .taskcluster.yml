@@ -159,7 +159,7 @@ tasks:
                 cd /builds/worker/checkouts/gecko &&
                 ln -s /builds/worker/artifacts artifacts &&
                 ./mach --log-no-times taskgraph decision
-                --root comm/taskcluster/ci
+                --root=comm/taskcluster/ci
                 --pushlog-id='${push.pushlog_id}'
                 --pushdate='${push.pushdate}'
                 --project='${repository.project}'
