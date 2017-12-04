@@ -1477,7 +1477,7 @@
        (see globalBindings.xml in osx for example).
   -->
   <binding id="tabmail-new-tab-button"
-           extends="chrome://global/content/bindings/toolbarbutton.xml#toolbarbutton-image">
+           extends="chrome://global/content/bindings/toolbarbutton.xml#toolbarbutton">
     <handlers>
       <handler event="command">
         <![CDATA[
@@ -1503,7 +1503,7 @@
   </binding>
 
   <binding id="tabmail-close-tab-button"
-           extends="chrome://global/content/bindings/toolbarbutton.xml#toolbarbutton-image">
+           extends="chrome://global/content/bindings/toolbarbutton.xml#toolbarbutton">
     <handlers>
       <handler event="command">
         <![CDATA[
