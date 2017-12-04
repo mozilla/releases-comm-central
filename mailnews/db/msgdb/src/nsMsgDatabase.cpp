@@ -61,7 +61,7 @@ static const nsMsgKey kFirstPseudoKey = 0xfffffff0;
 static const nsMsgKey kIdStartOfFake = 0xffffff80;
 static const nsMsgKey kForceReparseKey = 0xfffffff0;
 
-static LazyLogModule DBLog("MSGDB");
+static LazyLogModule DBLog("MsgDB");
 
 PRTime nsMsgDatabase::gLastUseTime;
 

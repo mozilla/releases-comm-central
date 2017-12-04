@@ -22,7 +22,6 @@
 #include "nsLDAPSyncQuery.h"
 #endif
 #include "ldappr.h"
-#include "mozilla/Logging.h"
 
 // use the default constructor
 //

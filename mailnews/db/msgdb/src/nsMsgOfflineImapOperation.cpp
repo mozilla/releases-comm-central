@@ -10,7 +10,7 @@
 
 using namespace mozilla;
 
-static LazyLogModule IMAPOffline("IMAPOFFLINE");
+LazyLogModule IMAPOffline("IMAPOffline");
 
 /* Implementation file */
 NS_IMPL_ISUPPORTS(nsMsgOfflineImapOperation, nsIMsgOfflineImapOperation)

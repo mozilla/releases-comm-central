@@ -33,7 +33,7 @@
 #include "nsCRT.h"
 #include "nsOutlookCompose.h"
 
-#include "OutlookDebugLog.h"
+#include "ImportDebug.h"
 
 #include "nsMimeTypes.h"
 #include "nsMsgUtils.h"

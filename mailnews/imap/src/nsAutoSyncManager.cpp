@@ -28,7 +28,7 @@ NS_IMPL_ISUPPORTS(nsDefaultAutoSyncMsgStrategy, nsIAutoSyncMsgStrategy)
 
 const char* kAppIdleNotification = "mail:appIdle";
 const char* kStartupDoneNotification = "mail-startup-done";
-static LazyLogModule gAutoSyncLog("ImapAutoSync");
+LazyLogModule gAutoSyncLog("IMAPAutoSync");
 
 // recommended size of each group of messages per download
 static const uint32_t kDefaultGroupSize = 50U*1024U /* 50K */;

@@ -26,7 +26,7 @@
 #include "nsISmtpService.h"
 #include "nsISmtpServer.h"
 #include "nsWMStringBundle.h"
-#include "WMDebugLog.h"
+#include "ImportDebug.h"
 #include "nsIPop3IncomingServer.h"
 #include "nsIImapIncomingServer.h"
 #include "nsINntpIncomingServer.h"

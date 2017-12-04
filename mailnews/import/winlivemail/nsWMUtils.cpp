@@ -14,7 +14,7 @@
 #include "nsIFileStreams.h"
 #include "nsIFile.h"
 #include "nsISimpleEnumerator.h"
-#include "WMDebugLog.h"
+#include "ImportDebug.h"
 #include "prio.h"
 
 nsresult

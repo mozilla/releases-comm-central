@@ -33,7 +33,7 @@
 #include "nsIStringBundle.h"
 #include "nsUnicharUtils.h"
 
-#include "WMDebugLog.h"
+#include "ImportDebug.h"
 
 class ImportWMMailImpl : public nsIImportMail
 {

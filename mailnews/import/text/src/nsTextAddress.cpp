@@ -18,7 +18,7 @@
 #include "nsIUnicharLineInputStream.h"
 #include "nsMsgUtils.h"
 
-#include "TextDebugLog.h"
+#include "ImportDebug.h"
 #include "plstr.h"
 #include "msgCore.h"
 

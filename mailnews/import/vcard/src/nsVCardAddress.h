@@ -5,14 +5,7 @@
 #ifndef nsVCardAddress_h__
 #define nsVCardAddress_h__
 
-#include "mozilla/Logging.h"
-
-static mozilla::LazyLogModule VCARDLOGMODULE("IMPORT");  // Logging module
-
-#define IMPORT_LOG0(x)          MOZ_LOG(VCARDLOGMODULE, mozilla::LogLevel::Debug, (x))
-#define IMPORT_LOG1(x, y)       MOZ_LOG(VCARDLOGMODULE, mozilla::LogLevel::Debug, (x, y))
-#define IMPORT_LOG2(x, y, z)    MOZ_LOG(VCARDLOGMODULE, mozilla::LogLevel::Debug, (x, y, z))
-#define IMPORT_LOG3(a, b, c, d) MOZ_LOG(VCARDLOGMODULE, mozilla::LogLevel::Debug, (a, b, c, d))
+#include "ImportDebug.h"
 
 class nsIAddrDatabase;
 class nsIFile;

@@ -20,7 +20,7 @@
 
 using namespace mozilla;
 
-static LazyLogModule gAutoSyncLog("ImapAutoSync");
+extern LazyLogModule gAutoSyncLog; // defined in nsAutoSyncManager.cpp
 
 MsgStrategyComparatorAdaptor::MsgStrategyComparatorAdaptor(nsIAutoSyncMsgStrategy* aStrategy, 
   nsIMsgFolder *aFolder, nsIMsgDatabase *aDatabase) : mStrategy(aStrategy), mFolder(aFolder), 

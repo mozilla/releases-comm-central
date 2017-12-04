@@ -50,7 +50,7 @@
 
 using namespace mozilla;
 
-static mozilla::LazyLogModule POP3LOGMODULE("POP3");
+LazyLogModule POP3LOGMODULE("POP3");
 #define POP3LOG(str) "[this=%p] " str, this
 
 static int

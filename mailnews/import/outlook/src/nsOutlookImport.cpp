@@ -29,7 +29,7 @@
 #include "nsTextFormatter.h"
 #include "nsOutlookStringBundle.h"
 #include "nsIStringBundle.h"
-#include "OutlookDebugLog.h"
+#include "ImportDebug.h"
 #include "nsUnicharUtils.h"
 
 #include "nsOutlookMail.h"

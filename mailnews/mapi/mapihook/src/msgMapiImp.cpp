@@ -36,7 +36,7 @@
 
 using namespace mozilla::mailnews;
 
-static mozilla::LazyLogModule MAPI("MAPI");
+mozilla::LazyLogModule MAPI("MAPI");
 
 CMapiImp::CMapiImp()
 : m_cRef(1)

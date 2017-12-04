@@ -14,7 +14,7 @@
 #include "nsAbBaseCID.h"
 #include "mozilla/Logging.h"
 
-static mozilla::LazyLogModule gAbOutlookDirFactoryLog("nsAbOutlookDirFactoryLog");
+static mozilla::LazyLogModule gAbOutlookDirFactoryLog("AbOutlookDirFactory");
 
 #define PRINTF(args) MOZ_LOG(gAbOutlookDirFactoryLog, mozilla::LogLevel::Debug, args)
 

@@ -11,14 +11,7 @@
 #include "nsCOMPtr.h"
 #include "nsIStringBundle.h"
 #include "nsIImportMail.h"
-
-// logging facilities
-static mozilla::LazyLogModule APPLEMAILLOGMODULE("APPLEMAILIMPORTLOG");
-
-#define IMPORT_LOG0(x)          MOZ_LOG(APPLEMAILLOGMODULE, mozilla::LogLevel::Debug, (x))
-#define IMPORT_LOG1(x, y)       MOZ_LOG(APPLEMAILLOGMODULE, mozilla::LogLevel::Debug, (x, y))
-#define IMPORT_LOG2(x, y, z)    MOZ_LOG(APPLEMAILLOGMODULE, mozilla::LogLevel::Debug, (x, y, z))
-#define IMPORT_LOG3(a, b, c, d) MOZ_LOG(APPLEMAILLOGMODULE, mozilla::LogLevel::Debug, (a, b, c, d))
+#include "ImportDebug.h"
 
 #define NS_APPLEMAILIMPL_CID \
 { 0x9117a1ea, 0xe012, 0x43b5, { 0xa0, 0x20, 0xcb, 0x8a, 0x66, 0xcc, 0x09, 0xe1 } }

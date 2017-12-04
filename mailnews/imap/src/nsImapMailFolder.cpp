@@ -100,8 +100,8 @@ static NS_DEFINE_CID(kRDFServiceCID, NS_RDFSERVICE_CID);
 static NS_DEFINE_CID(kParseMailMsgStateCID, NS_PARSEMAILMSGSTATE_CID);
 static NS_DEFINE_CID(kCImapHostSessionList, NS_IIMAPHOSTSESSIONLIST_CID);
 
-static mozilla::LazyLogModule gAutoSyncLog("ImapAutoSync");
-static mozilla::LazyLogModule IMAP("IMAP");
+extern mozilla::LazyLogModule gAutoSyncLog; // defined in nsAutoSyncManager.cpp
+extern mozilla::LazyLogModule IMAP;         // defined in nsImapProtocol.cpp
 
 #define MAILNEWS_CUSTOM_HEADERS "mailnews.customHeaders"
 

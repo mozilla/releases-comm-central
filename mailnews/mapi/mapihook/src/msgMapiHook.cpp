@@ -47,7 +47,7 @@
 #include "nsEmbedCID.h"
 #include "mozilla/Logging.h"
 
-static mozilla::LazyLogModule MAPI("MAPI");
+extern mozilla::LazyLogModule MAPI; // defined in msgMapiImp.cpp
 
 class nsMAPISendListener : public nsIMsgSendListener
 {

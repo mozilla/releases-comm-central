@@ -21,5 +21,9 @@ SOURCES += [
     'nsImportTranslator.cpp',
 ]
 
+EXPORTS += [
+    'ImportDebug.h',
+]
+
 FINAL_LIBRARY = 'import'
 

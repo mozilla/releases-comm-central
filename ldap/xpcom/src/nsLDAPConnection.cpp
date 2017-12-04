@@ -26,7 +26,6 @@
 #include "nsMemory.h"
 #include "nsLDAPUtils.h"
 #include "nsProxyRelease.h"
-#include "mozilla/Logging.h"
 #include "mozilla/Attributes.h"
 
 using namespace mozilla;

@@ -57,8 +57,6 @@
 #include "nsIXULAppInfo.h"
 #include "nsSyncRunnableHelpers.h"
 
-static mozilla::LazyLogModule IMAP("IMAP");
-
 // netlib required files
 #include "nsIStreamListener.h"
 #include "nsIMsgIncomingServer.h"
@@ -81,6 +79,8 @@ static mozilla::LazyLogModule IMAP("IMAP");
 #include "nsContentSecurityManager.h"
 
 using namespace mozilla;
+
+LazyLogModule IMAP("IMAP");
 
 #define ONE_SECOND ((uint32_t)1000)    // one second
 
@@ -5687,7 +5687,7 @@ nsresult nsImapProtocol::ChooseAuthMethod()
         serverCaps, m_prefAuthMethods, m_failedAuthMethods, availCaps));
   MOZ_LOG(IMAP, LogLevel::Debug, ("(GSSAPI = 0x%" PRIx64 ", CRAM = 0x%" PRIx64
         ", NTLM = 0x%" PRIx64 ", MSN = 0x%" PRIx64 ", PLAIN = 0x%" PRIx64
-        ",\n  LOGIN = 0x%" PRIx64 ", old-style IMAP login = 0x%" PRIx64
+        ", LOGIN = 0x%" PRIx64 ", old-style IMAP login = 0x%" PRIx64
         ", auth external IMAP login = 0x%" PRIx64 ", OAUTH2 = 0x%" PRIx64 ")",
         kHasAuthGssApiCapability, kHasCRAMCapability, kHasAuthNTLMCapability,
         kHasAuthMSNCapability, kHasAuthPlainCapability, kHasAuthLoginCapability,

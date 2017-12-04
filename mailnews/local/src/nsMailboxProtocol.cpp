@@ -38,7 +38,7 @@
 
 using namespace mozilla;
 
-static LazyLogModule MAILBOX("MAILBOX");
+static LazyLogModule MAILBOX("Mailbox");
 
 /* the output_buffer_size must be larger than the largest possible line
  * 2000 seems good for news

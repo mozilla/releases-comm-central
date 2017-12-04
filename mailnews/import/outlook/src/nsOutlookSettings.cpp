@@ -25,7 +25,7 @@
 #include "nsISmtpService.h"
 #include "nsISmtpServer.h"
 #include "nsOutlookStringBundle.h"
-#include "OutlookDebugLog.h"
+#include "ImportDebug.h"
 #include "nsIPop3IncomingServer.h"
 #include "nsMsgI18N.h"
 #include <windows.h>

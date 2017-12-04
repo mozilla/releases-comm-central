@@ -17,7 +17,7 @@
 
 #include "mozilla/Logging.h"
 
-static mozilla::LazyLogModule gAbWinHelperLog("nsAbWinHelperLog");
+static mozilla::LazyLogModule gAbWinHelperLog("AbWinHelper");
 
 #define PRINTF(args) MOZ_LOG(gAbWinHelperLog, mozilla::LogLevel::Debug, args)
 

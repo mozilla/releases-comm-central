@@ -85,7 +85,7 @@
 #define DOMAIN_DELIMITER                           ','
 
 #ifdef MSGCOMP_TRACE_PERFORMANCE
-static mozilla::LazyLogModule MsgComposeLogModule("msgcompose");
+static mozilla::LazyLogModule MsgComposeLogModule("MsgCompose");
 
 static uint32_t GetMessageSizeFromURI(const char * originalMsgURI)
 {

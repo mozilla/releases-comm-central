@@ -15,9 +15,10 @@
 #include "nsILDAPErrors.h"
 #include "nsComponentManagerUtils.h"
 #include "nsServiceManagerUtils.h"
-#include "mozilla/Logging.h"
 
 using namespace mozilla;
+
+LazyLogModule gLDAPLogModule("LDAP");
 
 // Constants for CIDs used here.
 //

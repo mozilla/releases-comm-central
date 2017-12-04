@@ -7,11 +7,11 @@
 #include "nsWabAddressBook.h"
 #include "mozilla/Logging.h"
 
-static mozilla::LazyLogModule gWabAddressBookLog("nsWabAddressBookLog");
+using namespace mozilla;
+
+static LazyLogModule gWabAddressBookLog("WABAddressBook");
 
 #define PRINTF(args) MOZ_LOG(gWabAddressBookLog, mozilla::LogLevel::Debug, args)
-
-using namespace mozilla;
 
 HMODULE nsWabAddressBook::mLibrary = NULL ;
 int32_t nsWabAddressBook::mLibUsage = 0 ;
@@ -116,9 +116,3 @@ void nsWabAddressBook::FreeBuffer(LPVOID aBuffer)
 {
     mRootSession->FreeBuffer(aBuffer) ;
 }
-
-
-
-
-
-

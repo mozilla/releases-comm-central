@@ -18,7 +18,6 @@
 #include "nsIAuthModule.h"
 #include "nsArrayUtils.h"
 #include "nsMemory.h"
-#include "mozilla/Logging.h"
 
 // Helper function
 static nsresult TranslateLDAPErrorToNSError(const int ldapError)

@@ -15,7 +15,6 @@
 #include "nsILDAPErrors.h"
 #include "nsIClassInfoImpl.h"
 #include "nsLDAPUtils.h"
-#include "mozilla/Logging.h"
 
 NS_IMPL_CLASSINFO(nsLDAPMessage, NULL, nsIClassInfo::THREADSAFE,
                   NS_LDAPMESSAGE_CID)

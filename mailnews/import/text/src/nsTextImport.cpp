@@ -32,7 +32,7 @@
 #include "nsTextAddress.h"
 #include "nsIPrefService.h"
 #include "nsIPrefBranch.h"
-#include "TextDebugLog.h"
+#include "ImportDebug.h"
 #include "nsNetUtil.h"
 #include "nsMsgUtils.h"
 

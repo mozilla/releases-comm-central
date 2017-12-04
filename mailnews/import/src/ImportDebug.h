@@ -11,7 +11,7 @@
 #endif
 
 #include "mozilla/Logging.h"
-static mozilla::LazyLogModule IMPORTLOGMODULE("IMPORT");  // Logging module
+extern mozilla::LazyLogModule IMPORTLOGMODULE;  // defined in nsImportService.cpp
 
 #define IMPORT_LOG0(x)          MOZ_LOG(IMPORTLOGMODULE, mozilla::LogLevel::Debug, (x))
 #define IMPORT_LOG1(x, y)       MOZ_LOG(IMPORTLOGMODULE, mozilla::LogLevel::Debug, (x, y))

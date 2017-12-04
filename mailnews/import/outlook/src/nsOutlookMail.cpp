@@ -20,7 +20,7 @@
 #include "nsABBaseCID.h"
 #include "nsIAbCard.h"
 #include "mdb.h"
-#include "OutlookDebugLog.h"
+#include "ImportDebug.h"
 #include "nsOutlookMail.h"
 #include "nsUnicharUtils.h"
 #include "nsIInputStream.h"
