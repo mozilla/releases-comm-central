@@ -43,12 +43,12 @@ fi
 # Include the DevTools client, not just the server (which is the default)
 MOZ_DEVTOOLS=all
 
-# Bundled extensions Lightning Chatzilla DOM Inspector and debugQA
-MOZ_IRC=1
-MOZ_DOMINSPECTOR=1
+# Bundled extensions ChatZilla DOM Inspector and debugQA
+MOZ_IRC=
+MOZ_DOMINSPECTOR=
 
 if [[ $MOZ_APP_VERSION == *a* ]]; then
-  MOZ_DEBUGQA=1
+  MOZ_DEBUGQA=
 fi
 
 if [[ $MOZ_IRC == 1 ]]; then
