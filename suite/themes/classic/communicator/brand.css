@@ -10,7 +10,6 @@
 
 #wrapper-throbber-box > #throbber-box > #navigator-throbber,
 #navigator-throbber {
-  -moz-binding: url("chrome://global/content/bindings/button.xml#button-image");
   -moz-user-focus: ignore;
   -moz-box-align: center;
   -moz-box-pack: center;
@@ -24,6 +23,20 @@
   list-style-image: url("chrome://communicator/skin/brand/throbber-single.png");
   background-color: transparent;
   -moz-appearance:none !important;
+}
+
+#navigator-throbber .button-box {
+  padding: 0;
+  margin: 0;
+}
+
+#navigator-throbber .button-icon {
+  margin-inline-start: 0;
+  margin-inline-end: 0;
+}
+
+#navigator-throbber .button-text {
+  display: none;
 }
 
 #navigator-throbber[busy="true"] {

@@ -10,7 +10,6 @@
 
 #wrapper-throbber-box > #throbber-box > #navigator-throbber,
 #navigator-throbber {
-  -moz-binding: url("chrome://global/content/bindings/button.xml#button-image");
   -moz-user-focus: ignore !important;
   -moz-box-align: center;
   -moz-box-pack: center;
@@ -19,6 +18,14 @@
   min-width: 0px;
   list-style-image: url("chrome://communicator/skin/brand/throbber-single.png");
   background: transparent;
+}
+
+#navigator-throbber .button-icon {
+  margin-inline-start: 0;
+}
+
+#navigator-throbber .button-text {
+  display: none;
 }
 
 #navigator-throbber[busy="true"] {
