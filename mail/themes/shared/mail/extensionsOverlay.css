@@ -6,3 +6,21 @@
 #categories {
   background-color: #ebebef;
 }
+
+.nav-button {
+  list-style-image: url(chrome://messenger/skin/icons/navigation.svg);
+  margin-top: 15px;
+  margin-bottom: 10px;
+  border-color: transparent;
+  -moz-context-properties: fill;
+  fill: currentColor;
+}
+
+#back-btn:-moz-locale-dir(rtl),
+#forward-btn:-moz-locale-dir(ltr) {
+  transform: scaleX(-1);
+}
+
+#categories {
+  padding-top: 0;
+}

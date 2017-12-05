@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+
+<!DOCTYPE overlay [
+<!ENTITY % extensionsDTD SYSTEM "chrome://messenger/locale/extensionsOverlay.dtd">
+%extensionsDTD;
+]>
+
+<overlay id="extensionsNavOverlay" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+  <vbox id="category-box">
+    <hbox id="nav-header"
+          align="center"
+          pack="center"
+          insertbefore="categories">
+      <toolbarbutton id="back-btn"
+                     class="nav-button header-button"
+                     command="cmd_back"
+                     tooltiptext="&cmd.back.tooltip;"
+                     disabled="true"/>
+      <toolbarbutton id="forward-btn"
+                     class="nav-button header-button"
+                     command="cmd_forward"
+                     tooltiptext="&cmd.forward.tooltip;"
+                     disabled="true"/>
+    </hbox>
+  </vbox>
+</overlay>
