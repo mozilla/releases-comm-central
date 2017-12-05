@@ -206,7 +206,7 @@ NS_MSG_BASE bool MsgHostDomainIsTrusted(nsCString &host, nsCString &trustedMailD
 // gets an nsIFile from a UTF-8 file:// path
 NS_MSG_BASE nsresult MsgGetLocalFileFromURI(const nsACString &aUTF8Path, nsIFile **aFile);
 
-NS_MSG_BASE void MsgStripQuotedPrintable (unsigned char *src);
+NS_MSG_BASE void MsgStripQuotedPrintable (nsCString& aSrc);
 
 /*
  * Utility function copied from nsReadableUtils

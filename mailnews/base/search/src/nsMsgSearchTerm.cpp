@@ -966,13 +966,11 @@ nsresult nsMsgSearchTerm::MatchBody (nsIMsgSearchScopeTerm *scope, uint64_t offs
       if (isQuotedPrintable)
       {
         softLineBreak = StringEndsWith(buf, NS_LITERAL_CSTRING("="));
-        MsgStripQuotedPrintable ((unsigned char*)buf.get());
-        // in case the string shrunk, reset the length. If soft line break,
-        // chop off the last char as well.
-        size_t bufLength = strlen(buf.get());
+        MsgStripQuotedPrintable(buf);
+        // If soft line break, chop off the last char as well.
+        size_t bufLength = buf.Length();
         if ((bufLength > 0) && softLineBreak)
-          --bufLength;
-        buf.SetLength(bufLength);
+          buf.SetLength(bufLength - 1);
       }
       compare.Append(buf);
       // If this line ends with a soft line break, loop around
