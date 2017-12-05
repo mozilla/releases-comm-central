@@ -1,13 +1,5 @@
 . "$topsrcdir/build/mozconfig.comm-support"
-. "$topsrcdir/build/unix/mozconfig.linux32"
-. "$topsrcdir/build/mozconfig.stylo"
 . "$commtopsrcdir/mail/config/mozconfigs/common"
-
-if [ "$MOZ_IS_COMM_TOPDIR" = "1" ]; then
-  # Disable webrender on Linux buildbot builders to avoid the Rust requirement
-  # of libX11 version > 1.4.99.1 (see bug 1350011).
-  ac_add_options --disable-webrender
-fi
 
 ac_add_options --enable-update-channel="${MOZ_UPDATE_CHANNEL}"
 ac_add_options --with-l10n-base=../../l10n
@@ -15,9 +7,6 @@ ac_add_options --with-l10n-base=../../l10n
 
 # Needed to enable breakpad in application.ini
 export MOZILLA_OFFICIAL=1
-
-# For NSS symbols
-export MOZ_DEBUG_SYMBOLS=1
 
 # Disable checking that add-ons are signed by the trusted root
 MOZ_ADDON_SIGNING=0
