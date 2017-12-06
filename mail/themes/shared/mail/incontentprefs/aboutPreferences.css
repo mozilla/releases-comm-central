@@ -332,6 +332,7 @@ tabs {
 }
 
 .dialogTitle {
+  font-size: unset;
   text-align: center;
 }
 

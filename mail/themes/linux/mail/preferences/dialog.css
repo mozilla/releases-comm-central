@@ -9,6 +9,6 @@ textbox,
 description,
 .tab-text,
 .tree-rows,
-caption label {
+menulist label {
   font-size: 1.11rem;
 }
