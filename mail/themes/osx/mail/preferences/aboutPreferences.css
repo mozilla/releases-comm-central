@@ -4,14 +4,8 @@
 
 @import url("chrome://messenger/skin/shared/in-content/aboutPreferences.css");
 
-html *,
-page *,
-window * {
-  font-size: 1.36rem;
-}
-
-caption label {
-  font-size: 1.55rem;
+:root > * {
+  font-size: 1.36em;
 }
 
 prefpane .groupbox-title {

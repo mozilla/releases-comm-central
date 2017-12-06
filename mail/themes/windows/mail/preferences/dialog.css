@@ -4,11 +4,6 @@
 
 @import url("chrome://messenger/skin/shared/in-content/dialog.css");
 
-label,
-textbox,
-description,
-.tab-text,
-.tree-rows,
-menulist label {
-  font-size: 1.25rem;
+:root > * {
+  font-size: 1.12em;
 }

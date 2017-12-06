@@ -4,14 +4,8 @@
 
 @import url("chrome://messenger/skin/shared/in-content/aboutPreferences.css");
 
-html *,
-page *,
-window * {
-  font-size: 1.11rem;
-}
-
-caption label {
-  font-size: 1.27rem;
+:root > * {
+  font-size: 1.11em;
 }
 
 checkbox {
@@ -27,20 +21,9 @@ spinbuttons {
   -moz-appearance: none;
 }
 
-.actionsMenu {
-  font-family: "Clear Sans", sans-serif;
-  font-size: 1.25rem;
-  line-height: 22px;
-}
-
 .actionsMenu > .menulist-label-box > .menulist-icon {
-  margin-top: 1px;
   margin-inline-start: 1px;
-  margin-inline-end: 6px;
-}
-
-.actionsMenu > .menulist-label-box > .menulist-label {
-  margin-top: 2px !important;
+  margin-inline-end: 8px;
 }
 
 menulist.actionsMenu > .menulist-dropmarker {

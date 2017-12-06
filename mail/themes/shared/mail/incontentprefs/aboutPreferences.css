@@ -40,7 +40,6 @@ caption label {
 #MailPreferences > prefpane {
   max-width: 800px;
   padding: 0;
-  font: message-box;
   font-size: 1.25rem;
   line-height: 22px;
 }
@@ -307,7 +306,6 @@ tabs {
 .dialogBox {
   background-color: #fbfbfb;
   color: #424e5a;
-  font-size: 14px;
   /* `transparent` will use the dialogText color in high-contrast themes and
      when page colors are disabled */
   border: 1px solid transparent;
@@ -332,7 +330,7 @@ tabs {
 }
 
 .dialogTitle {
-  font-size: unset;
+  font-size: .9em;
   text-align: center;
 }
 

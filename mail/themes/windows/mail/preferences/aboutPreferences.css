@@ -4,14 +4,8 @@
 
 @import url("chrome://messenger/skin/shared/in-content/aboutPreferences.css");
 
-html *,
-page *,
-window * {
-  font-size: 1.25rem;
-}
-
-caption label {
-  font-size: 1.42rem;
+:root > * {
+  font-size: 1.25em;
 }
 
 .actionsMenu > .menulist-label-box > .menulist-icon {
