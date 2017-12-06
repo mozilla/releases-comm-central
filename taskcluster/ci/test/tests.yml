@@ -19,14 +19,14 @@ job-defaults:
         - comm/config
         - comm/db
         - comm/editor
-        - comm/ldap/
-        - comm/mail/
-        - comm/mailnews/
-        - comm/mozharness/
-        - comm/other-licenses/
-        - comm/python/
-        - comm/taskcluster/
-        - comm/testing/
+        - comm/ldap
+        - comm/mail
+        - comm/mailnews
+        - comm/mozharness
+        - comm/other-licenses
+        - comm/python
+        - comm/taskcluster
+        - comm/testing
         - comm/.taskcluster.yml
         - comm/AUTHORS
         - comm/comm-confvars.sh
