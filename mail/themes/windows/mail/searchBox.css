@@ -138,7 +138,14 @@ textbox:not([searchbutton]) > .textbox-input-box > .textbox-search-sign {
 #IMSearchInput:not([focused="true"]):-moz-lwtheme,
 #peopleSearchInput:not([focused="true"]):-moz-lwtheme,
 .remote-gloda-search:not([focused="true"]):-moz-lwtheme {
-  border-color: var(--url-and-searchbar-border-color, hsla(240,5%,5%,.25));
+  border-color: var(--lwt-toolbar-field-border-color, hsla(240,5%,5%,.25));
+}
+
+#searchInput:not([focused="true"]):-moz-lwtheme:hover,
+#IMSearchInput:not([focused="true"]):-moz-lwtheme:hover,
+#peopleSearchInput:not([focused="true"]):-moz-lwtheme:hover,
+.remote-gloda-search:not([focused="true"]):-moz-lwtheme:hover {
+  border-color: var(--lwt-toolbar-field-border-color, hsla(240,5%,5%,.35));
 }
 
 #searchInput:-moz-lwtheme:hover,
