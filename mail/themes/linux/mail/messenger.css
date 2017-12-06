@@ -102,7 +102,7 @@ toolbar[brighttext] {
   :root[tabsintitlebar] > #titlebar:-moz-lwtheme {
     visibility: hidden;
   }
-  :root[tabsintitlebar] > #titlebar-content:-moz-lwtheme {
+  :root[tabsintitlebar] #titlebar-content:-moz-lwtheme {
     visibility: visible;
   }
 
@@ -172,6 +172,10 @@ toolbar[brighttext] {
 
   :root[tabsintitlebar] .titlebar-placeholder[type="caption-buttons"] {
     margin-inline-start: 10px;
+  }
+
+  :root[tabsintitlebar] .tabmail-arrowscrollbox .scrollbox-innerbox:-moz-lwtheme {
+    -moz-binding: url("chrome://global/content/bindings/general.xml#windowdragbox");
   }
 }
 
