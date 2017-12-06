@@ -33,7 +33,7 @@ public:
       , public BaseURIMutator<nsMailtoUrl>
   {
     NS_DECL_ISUPPORTS
-    NS_FORWARD_SAFE_NSIURISETTERS(mURI)
+    NS_FORWARD_SAFE_NSIURISETTERS_RET(mURI)
 
     NS_IMETHOD Deserialize(const mozilla::ipc::URIParams& aParams) override
     {
@@ -51,8 +51,9 @@ public:
       return NS_OK;
     }
 
-    NS_IMETHOD SetSpec(const nsACString & aSpec) override
+    NS_IMETHOD SetSpec(const nsACString & aSpec, nsIURIMutator** aMutator) override
     {
+      NS_ADDREF(*aMutator = this);
       return InitFromSpec(aSpec);
     }
 
