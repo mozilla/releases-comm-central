@@ -1166,7 +1166,7 @@ function subtest_search_button_enabled_state_on_init(aController) {
  */
 function test_provider_language_wildcard() {
   let originalReqLocales = Services.locale.getRequestedLocales();
-  Services.locale.setRequestedLocales(["foo-bar"]);
+  Services.locale.setRequestedLocales(["foo-ba"]);
 
   let original = Services.prefs.getCharPref(kProviderListPref);
   Services.prefs.setCharPref(kProviderListPref, url + "providerListWildcard");
