@@ -406,12 +406,6 @@ suite('headerparser', function () {
         "<freecycle-berlin-noreply@yahoogroups.de>",
         [{name: "\"Claudia Röhschicht\" Claudia_Roehschicht@web.de [freecycle-berlin]",
           email: "freecycle-berlin-noreply@yahoogroups.de"}]],
-      // Bug 1423432: Encoded strings with null bytes,
-      // in base64 a single null byte can be encoded as AA== to AP==.
-      ["\"null=?UTF-8?Q?=00?=byte\" <nullbyte@example.com>",
-        [{name: "nullbyte", email: "nullbyte@example.com"}]],
-      ["\"null=?UTF-8?B?AA==?=byte\" <nullbyte@example.com>",
-        [{name: "nullbyte", email: "nullbyte@example.com"}]],
     ];
     header_tests.forEach(function (data) {
       arrayTest(data, function () {
