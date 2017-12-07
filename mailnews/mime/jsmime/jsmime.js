@@ -23,11 +23,12 @@ def('mimeutils', function() {
  *
  * @param buffer {BinaryString} The string to decode.
  * @param more   {Boolean}      This argument is ignored.
+ * @param removeNulls {Boolean} If true, remove null bytes in output.
  * @returns {Array(BinaryString, BinaryString)} The first element of the array
  *          is the decoded string. The second element is always the empty
  *          string.
  */
-function decode_qp(buffer, more) {
+function decode_qp(buffer, more, removeNulls = false) {
   // Unlike base64, quoted-printable isn't stateful across multiple lines, so
   // there is no need to buffer input, so we can always ignore more.
   let decoded = buffer.replace(
@@ -40,6 +41,8 @@ function decode_qp(buffer, more) {
         return '';
       return String.fromCharCode(parseInt(param, 16));
     });
+  if (removeNulls)
+    decoded = decoded.replace(/\x00/g, '');
   return [decoded, ''];
 }
 
@@ -51,11 +54,12 @@ function decode_qp(buffer, more) {
  * @param more   {Boolean}      If true, we expect that this function could be
  *                              called again and should retain extra data. If
  *                              false, we should flush all pending output.
+ * @param removeNulls {Boolean} If true, remove null bytes in output.
  * @returns {Array(BinaryString, BinaryString)} The first element of the array
  *          is the decoded string. The second element contains the data that
  *          could not be decoded and needs to be retained for the next call.
  */
-function decode_base64(buffer, more) {
+function decode_base64(buffer, more, removeNulls = false) {
   // Drop all non-base64 characters
   let sanitize = buffer.replace(/[^A-Za-z0-9+\/=]/g,'');
   // Remove harmful `=' chars in the middle.
@@ -69,7 +73,10 @@ function decode_base64(buffer, more) {
     buffer = '';
   sanitize = sanitize.substring(0, sanitize.length - excess);
   // Use the atob function we (ought to) have in global scope.
-  return [atob(sanitize), buffer];
+  let decoded = atob(sanitize);
+  if (removeNulls)
+    decoded = decoded.replace(/\x00/g, '');
+  return [decoded, buffer];
 }
 
 /**
@@ -638,7 +645,7 @@ function decodeRFC2047Words(headerValue) {
         return false;
 
       // Decode the string
-      buffer = mimeutils.decode_base64(text, false)[0];
+      buffer = mimeutils.decode_base64(text, false, true)[0];
     } else if (encoding == 'Q' || encoding == 'q') {
       // Q encoding here looks a lot like quoted-printable text. The differences
       // between quoted-printable and this are that quoted-printable allows you
@@ -649,7 +656,7 @@ function decodeRFC2047Words(headerValue) {
       // whitespace at the end of the string. Such an input string is already
       // malformed to begin with, so stripping the = and following input in that
       // case should not be an important loss.
-      buffer = mimeutils.decode_qp(text.replace(/_/g, ' '), false)[0];
+      buffer = mimeutils.decode_qp(text.replace(/_/g, ' '), false, true)[0];
     } else {
       return false;
     }

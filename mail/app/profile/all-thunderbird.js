@@ -338,9 +338,12 @@ pref("mail.threadpane.padding.bottom_percent", 10);
 // Use correspondents column instead of from/recipient columns.
 pref("mail.threadpane.use_correspondents", true);
 
-// only affects cookies from RSS articles
 // 0-Accept, 1-dontAcceptForeign, 2-dontUse
-pref("network.cookie.cookieBehavior", 0);
+pref("network.cookie.cookieBehavior", 2);
+
+// mail protocols normally won't send a referer in any case
+// 0=don't send any, 1=send only on clicks, 2=send on image requests as well
+pref("network.http.sendRefererHeader", 0);
 
 // clear the SeaMonkey pref, so we don't hear about how we don't have a chrome
 // package registered for editor-region while opening about:config
