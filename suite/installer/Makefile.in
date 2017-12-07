@@ -162,7 +162,7 @@ include $(moztopsrcdir)/toolkit/mozapps/installer/packager.mk
 
 ifeq (Darwin, $(OS_ARCH))
 BINPATH = $(_BINPATH)
-DEFINES += -DAPPNAME=$(_APPNAME)
+DEFINES += -DAPPNAME='$(_APPNAME)'
 else
 BINPATH = bin
 endif
@@ -173,7 +173,7 @@ RESPATH = $(_APPNAME)/Contents/Resources
 else
 RESPATH = $(BINPATH)
 endif
-DEFINES += -DRESPATH=$(RESPATH)
+DEFINES += -DRESPATH='$(RESPATH)'
 
 LPROJ_ROOT = $(firstword $(subst -, ,$(AB_CD)))
 ifeq (cocoa,$(MOZ_WIDGET_TOOLKIT))
@@ -218,7 +218,7 @@ FINDPATH=bin
 endif
 
 package-compare:: $(MOZ_PKG_MANIFEST)
-	cd $(DIST); find $(PKGCOMP_FIND_OPTS) $(FINDPATH) -type f | sort > bin-list.txt
+	cd $(DIST); find $(PKGCOMP_FIND_OPTS) '$(FINDPATH)' -type f | sort > bin-list.txt
 	$(call py_action,preprocessor,$(DEFINES) $(ACDEFINES) $(MOZ_PKG_MANIFEST)) | grep '^$(BINPATH)' | sed -e 's/^\///' | sort > $(DIST)/pack-list.txt
 	-diff -u $(DIST)/pack-list.txt $(DIST)/bin-list.txt
 	rm -f $(DIST)/pack-list.txt $(DIST)/bin-list.txt
