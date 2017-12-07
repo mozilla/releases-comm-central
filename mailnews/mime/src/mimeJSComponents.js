@@ -225,8 +225,13 @@ var EmailGroup = {
 function fixArray(addresses, preserveGroups, count) {
   function resetPrototype(obj, prototype) {
     let prototyped = Object.create(prototype);
-    for (var key of Object.getOwnPropertyNames(obj))
-      prototyped[key] = obj[key];
+    for (let key of Object.getOwnPropertyNames(obj)) {
+      if (typeof obj[key] == "string") {
+        prototyped[key] = obj[key].replace(/\x00/g, '');
+      } else {
+        prototyped[key] = obj[key];
+      }
+    }
     return prototyped;
   }
   let outputArray = [];

@@ -43,6 +43,15 @@ function run_test() {
     ["someone <>",
      [{name: "someone", email: ""}],
      [{name: "someone", email: ""}]],
+    // Bug 1423432: Encoded strings with null bytes,
+    // in base64 a single null byte can be encoded as AA== to AP==.
+    // parseEncodedHeader will remove the nullbyte.
+    ["\"null=?UTF-8?Q?=00?=byte\" <nullbyte@example.com>",
+      [{name: "null=?UTF-8?Q?=00?=byte", email: "nullbyte@example.com"}],
+      [{name: "nullbyte", email: "nullbyte@example.com"}]],
+    ["\"null=?UTF-8?B?AA==?=byte\" <nullbyte@example.com>",
+      [{name: "null=?UTF-8?B?AA==?=byte", email: "nullbyte@example.com"}],
+      [{name: "nullbyte", email: "nullbyte@example.com"}]],
   ];
 
   for (let check of checks) {
