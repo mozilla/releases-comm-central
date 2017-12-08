@@ -23,69 +23,43 @@ function bytesToString(buffer) {
   return string;
 }
 
-// A polyfill to support non-encoding-spec charsets. Since the only converter
-// available to us from JavaScript has a very, very weak and inflexible API, we
-// choose to rely on the regular text decoder unless absolutely necessary.
-// support non-encoding-spec charsets.
-function FakeTextDecoder(label="UTF-8", options = {}) {
-  this._reset(label);
-  // So nsIScriptableUnicodeConverter only gives us fatal=false, unless we are
-  // using UTF-8, where we only get fatal=true. The internals of said class tell
-  // us to use a C++-only class if we need better behavior.
+// Our UTF-7 decoder.
+function UTF7TextDecoder(label, options = {}) {
+  this.manager = Cc["@mozilla.org/charset-converter-manager;1"]
+                   .createInstance(Ci.nsICharsetConverterManager);
+  let charset;
+  try {
+    charset = this.manager.getCharsetAlias(label);
+  } catch (ex) {
+    // Unknown charset, nothing we can do.
+    throw ex;
+  }
+  if (charset.toLowerCase() != "utf-7")
+    throw new Error("UTF7TextDecoder: This code should never be reached for " + label);
+  this.collectInput = "";
 }
-FakeTextDecoder.prototype = {
-  _reset: function (label) {
-    this._encoder = Cc[
-      "@mozilla.org/intl/scriptableunicodeconverter"]
-      .createInstance(Ci.nsIScriptableUnicodeConverter);
-    this._encoder.isInternal = true;
-    let manager = Cc["@mozilla.org/charset-converter-manager;1"]
-                    .createInstance(Ci.nsICharsetConverterManager);
-    this.charset = manager.getCharsetAlias(label);
-    if (this.charset.toLowerCase() != "utf-7")
-      this._encoder.charset = this.charset;
-    else
-      this.collectInput = "";
-  },
-  get encoding() { return this._encoder.charset; },
+UTF7TextDecoder.prototype = {
+  // Since the constructor checked, this will only be called for UTF-7.
   decode: function (input, options = {}) {
     let more = 'stream' in options ? options.stream : false;
-    if (this.charset.toLowerCase() == "utf-7") {
-      this.collectInput += bytesToString(input);
-      if (more)
-        return "";
-      let manager = Cc["@mozilla.org/charset-converter-manager;1"]
-                      .getService(Ci.nsICharsetConverterManager);
-      return manager.utf7ToUnicode(this.collectInput);
-    }
-
-    let result = "";
-    if (input !== undefined) {
-      let data = new Uint8Array(input);
-      result = this._encoder.convertFromByteArray(data, data.length);
-    }
-    // This isn't quite right--it won't handle errors if there are a few
-    // remaining bytes in the buffer, but it's the best we can do.
-    if (!more)
-      this._reset(this.encoding);
-    return result;
+    // There are cases where this is called without input.
+    if (!input)
+      return "";
+    this.collectInput += bytesToString(input);
+    if (more)
+      return "";
+    return this.manager.utf7ToUnicode(this.collectInput);
   },
 };
 
-var {TextDecoder} = Cu.getGlobalForObject(
-  ChromeUtils.import("resource://gre/modules/Services.jsm", {}));
-
-var RealTextDecoder = TextDecoder;
-
-function FallbackTextDecoder(charset, options) {
+function MimeTextDecoder(charset, options) {
   try {
-    return new RealTextDecoder(charset, options);
+    return new TextDecoder(charset, options);
   } catch (e) {
-    return new FakeTextDecoder(charset, options);
+    // If TextDecoder fails, it must be UTF-7 or an invalid charset.
+    return new UTF7TextDecoder(charset, options);
   }
 }
-
-TextDecoder = FallbackTextDecoder;
 
 
 // The following code loads custom MIME encoders.

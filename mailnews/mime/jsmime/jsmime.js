@@ -575,7 +575,7 @@ function convert8BitHeader(headerValue, fallbackCharset) {
   // Only attempt to convert the headerValue if it contains non-ASCII
   // characters.
   if (/[\x80-\xff]/.exec(headerValue)) {
-    // First convert the value to a typed-array for TextDecoder.
+    // First convert the value to a typed-array for MimeTextDecoder.
     let typedarray = mimeutils.stringToTypedArray(headerValue);
 
     // Don't try UTF-8 as fallback (redundant), and don't try UTF-16 or UTF-32
@@ -584,12 +584,12 @@ function convert8BitHeader(headerValue, fallbackCharset) {
     // otherwise, we want to replace with substitution chars.
     let hasFallback = fallbackCharset &&
                       !fallbackCharset.toLowerCase().startsWith("utf");
-    let utf8Decoder = new TextDecoder("utf-8", {fatal: hasFallback});
+    let utf8Decoder = new MimeTextDecoder("utf-8", {fatal: hasFallback});
     try {
       headerValue = utf8Decoder.decode(typedarray);
     } catch (e) {
       // Failed, try the fallback
-      let decoder = new TextDecoder(fallbackCharset, {fatal: false});
+      let decoder = new MimeTextDecoder(fallbackCharset, {fatal: false});
       headerValue = decoder.decode(typedarray);
     }
   }
@@ -671,7 +671,7 @@ function decodeRFC2047Words(headerValue) {
     lastCharset = charset;
     if (!currentDecoder) {
       try {
-        currentDecoder = new TextDecoder(charset, {fatal: false});
+        currentDecoder = new MimeTextDecoder(charset, {fatal: false});
       } catch (e) {
         // We don't recognize the charset, so give up.
         return false;
@@ -1188,7 +1188,7 @@ function decode2231Value(value) {
 
   // Decode the charset. If the charset isn't found, we throw an error. Try to
   // fallback in that case.
-  return new TextDecoder(charset, {fatal: true})
+  return new MimeTextDecoder(charset, {fatal: true})
     .decode(typedarray, {stream: false});
 }
 
@@ -2425,7 +2425,7 @@ MimeParser.prototype._startBody = function Parser_startBody(partNum) {
       contentType.mediatype == "text") {
     // If the charset is nonempty, initialize the decoder
     if (this._charset !== "") {
-      this._decoder = new TextDecoder(this._charset);
+      this._decoder = new MimeTextDecoder(this._charset);
     } else {
       // There's no charset we can use for decoding, so pass through as an
       // identity encoder or otherwise this._coerceData will complain.

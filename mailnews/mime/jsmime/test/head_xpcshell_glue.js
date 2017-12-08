@@ -44,7 +44,7 @@ var fs = {
   },
 };
 requireCache.set("fs", fs);
-Services.scriptloader.loadSubScript("resource:///modules/jsmime/jsmime.js");
+Components.utils.import("resource:///modules/jsmime.jsm");
 requireCache.set("jsmime", jsmime);
 
 function require(path) {
