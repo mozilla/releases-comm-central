@@ -17,6 +17,7 @@
 #include "nsILoginManager.h"
 #include "nsIArray.h"
 #include "nsArrayUtils.h"
+#include "nsMemory.h"
 
 NS_IMPL_ADDREF(nsSmtpServer)
 NS_IMPL_RELEASE(nsSmtpServer)

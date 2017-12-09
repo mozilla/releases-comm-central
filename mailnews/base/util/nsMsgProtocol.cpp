@@ -5,6 +5,7 @@
 
 #include "msgCore.h"
 #include "nsString.h"
+#include "nsMemory.h"
 #include "nsMsgProtocol.h"
 #include "nsIMsgMailNewsUrl.h"
 #include "nsIMsgMailSession.h"

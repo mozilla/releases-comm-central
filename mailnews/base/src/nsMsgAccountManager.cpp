@@ -21,6 +21,7 @@
 #include "prthread.h"
 #include "plstr.h"
 #include "nsString.h"
+#include "nsMemory.h"
 #include "nsUnicharUtils.h"
 #include "nscore.h"
 #include "prprf.h"

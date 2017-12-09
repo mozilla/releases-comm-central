@@ -29,6 +29,7 @@
 #include "nsIChannel.h"
 #include "nsDependentSubstring.h"
 #include "nsLWBrkCIID.h"
+#include "nsMemory.h"
 
 #include "mozilla/ArenaAllocatorExtensions.h" // for ArenaStrdup
 
