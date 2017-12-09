@@ -1348,11 +1348,13 @@ function checkForMiddleClick(node, event) {
 }
 
 // Closes all popups that are ancestors of the node.
-function closeMenus(node)
-{
-  for (; node; node = node.parentNode) {
-    if (node instanceof Components.interfaces.nsIDOMXULPopupElement)
+function closeMenus(node) {
+  if ("tagName" in node) {
+    if (node.namespaceURI == "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+    && (node.tagName == "menupopup" || node.tagName == "popup"))
       node.hidePopup();
+
+    closeMenus(node.parentNode);
   }
 }
 
