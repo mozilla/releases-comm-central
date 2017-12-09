@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+
+<!DOCTYPE overlay SYSTEM "chrome://lightning/locale/lightning.dtd">
+
+<overlay id="ltnCalendarCreationOverlay"
+         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+  <script type="application/javascript"
+          src="chrome://lightning/content/caldav-lightning-utils.js"/>
+  <script type="application/javascript"
+          src="chrome://lightning/content/caldav-lightning-calendar-creation.js"/>
+
+  <rows id="customize-rows">
+    <row id="calendar-force-email-scheduling-row"
+         align="center"
+         insertafter="calendar-email-identity-row">
+      <spacer/>
+      <!-- The capability to enforce email scheduling wouldn't be enabled in the calendar wizard
+           atm because we would have to check the server capabilities with an OPTIONS request to
+           find out whether this server advertises server-side scheduling. We would need to rework
+           the wizard for that - fixing bug 306495 would probably prepare this. So for now, we just
+           let the user that he can enable this subsequently if applicable -->
+      <checkbox id="force-email-scheduling"
+                label="&lightning.calendarproperties.forceEmailScheduling.label;"
+                disable-with-calendar="true"
+                tooltiptext="&lightning.calendarproperties.forceEmailScheduling.tooltiptext1;"/>
+    </row>
+  </rows>
+</overlay>

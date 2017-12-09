@@ -17,14 +17,18 @@
           src="chrome://lightning/content/lightning-calendar-properties.js"/>
 
   <rows id="calendar-properties-rows">
+    <notificationbox id="no-identity-notification"
+                     flex="1"
+                     insertafter="calendar-uri-row" />
     <row id="calendar-email-identity-row"
          align="center"
-         insertafter="calendar-uri-row">
+         insertafter="no-identity-notification">
       <label value="&lightning.calendarproperties.email.label;"
              control="email-identity-menulist"
              disable-with-calendar="true"/>
       <menulist id="email-identity-menulist"
-                disable-with-calendar="true">
+                disable-with-calendar="true"
+                oncommand="onChangeIdentity(event)">
         <menupopup id="email-identity-menupopup"/>
       </menulist>
     </row>

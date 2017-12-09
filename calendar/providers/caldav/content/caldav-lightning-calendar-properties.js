@@ -2,24 +2,22 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* exported onChangeIdentity */
-
-var common_onLoad = onLoad;
-var common_onAcceptDialog = onAcceptDialog;
+var ltn_onChangeIdentity = onChangeIdentity;
 
 onLoad = function() {
     gCalendar = window.arguments[0].calendar;
     ltnInitMailIdentitiesRow();
-    ltnNotifyOnIdentitySelection();
+    caldavInitForceEmailScheduling();
     common_onLoad();
 };
 
 onAcceptDialog = function() {
     ltnSaveMailIdentitySelection();
+    caldavSaveForceEmailScheduling();
     return common_onAcceptDialog();
 };
 
-function onChangeIdentity(aEvent) {
-    ltnNotifyOnIdentitySelection();
-    sizeToContent();
-}
+onChangeIdentity = function(aEvent) {
+    ltn_onChangeIdentity();
+    caldavUpdateForceEmailSchedulingControl();
+};

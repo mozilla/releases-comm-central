@@ -2,25 +2,33 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* exported ltnInitMailIdentitiesRow, ltnSaveMailIdentitySelection */
+/* exported ltnGetString, ltnInitMailIdentitiesRow,
+ *          ltnGetMailIdentitySelection, ltnSaveMailIdentitySelection,
+ *          ltnNotifyOnIdentitySelection
+ */
 
 Components.utils.import("resource:///modules/iteratorUtils.jsm");
 Components.utils.import("resource:///modules/mailServices.js");
 Components.utils.import("resource://calendar/modules/calUtils.jsm");
+Components.utils.import("resource://calendar/modules/ltnUtils.jsm");
 
 /**
- * Gets the value of a string in a .properties file from the lightning bundle
+ * Gets a localized string in a .properties file from the lightning bundle
  *
- * @param aBundleName  the name of the properties file.  It is assumed that the
- *                     file lives in chrome://lightning/locale/
- * @param aStringName  the name of the string within the properties file
- * @param aParams      optional array of parameters to format the string
+ * @param   {String}  aBundleName  the name of the properties file.  It is assumed
+ *                                 that the file lives in chrome://lightning/locale/
+ * @param   {String}  aStringName  the name of the string within the properties file
+ * @param   {Array}   aParams      optional array of parameters to format the string
+ * @returns {String}               the localized string
  */
 function ltnGetString(aBundleName, aStringName, aParams) {
     return cal.calGetString(aBundleName, aStringName, aParams, "lightning");
 }
 
-// shared by lightning-calendar-properties.js and lightning-calendar-creation.js:
+/**
+ * Initializing the email identity row
+ * (shared between calendar creation wizard and properties dialog)
+ */
 function ltnInitMailIdentitiesRow() {
     if (!gCalendar) {
         collapseElement("calendar-email-identity-row");
@@ -66,21 +74,58 @@ function ltnInitMailIdentitiesRow() {
         }
         menuListSelectItem("email-identity-menulist", sel ? sel.key : "none");
     } catch (exc) {
-        // Don't select anything if the message identity can't be found
+        // Don't select anything if the identity can't be found
     }
 }
 
-function ltnSaveMailIdentitySelection() {
-    if (!gCalendar) {
-        return;
-    }
+/**
+ * Providing the selected email identity
+ * (shared between calendar creation wizard and properties dialog)
+ *
+ * @returns {String}  the key of the selected nsIMsgIdentity or 'none'
+ */
+function ltnGetMailIdentitySelection() {
     let sel = "none";
-    let imipIdentityDisabled = gCalendar.getProperty("imip.identity.disabled");
-    let selItem = document.getElementById("email-identity-menulist").selectedItem;
-    if (!imipIdentityDisabled && selItem) {
-        sel = selItem.getAttribute("value");
+    if (gCalendar) {
+        let imipIdentityDisabled = gCalendar.getProperty("imip.identity.disabled");
+        let selItem = document.getElementById("email-identity-menulist").selectedItem;
+        if (!imipIdentityDisabled && selItem) {
+            sel = selItem.getAttribute("value");
+        }
     }
-    // no imip.identity.key will default to the default account/identity, whereas
-    // an empty key indicates no imip; that identity will not be found
-    gCalendar.setProperty("imip.identity.key", sel == "none" ? "" : sel);
+    return sel;
+}
+
+/**
+ * Persisting the selected email identity
+ * (shared between calendar creation wizard and properties dialog)
+ */
+function ltnSaveMailIdentitySelection() {
+    if (gCalendar) {
+        let sel = ltnGetMailIdentitySelection();
+        // no imip.identity.key will default to the default account/identity, whereas
+        // an empty key indicates no imip; that identity will not be found
+        gCalendar.setProperty("imip.identity.key", sel == "none" ? "" : sel);
+    }
+}
+
+/**
+ * Displays a warning if the user doesn't assign an email identity to a calendar
+ * (shared between calendar creation wizard and properties dialog)
+ */
+function ltnNotifyOnIdentitySelection() {
+    let notificationBox = document.getElementById("no-identity-notification");
+    let msg = ltn.getString("lightning", "noIdentitySelectedNotification");
+    let sel = ltnGetMailIdentitySelection();
+
+    if (sel == "none") {
+        notificationBox.appendNotification(
+            msg,
+            "noIdentitySelected",
+            null,
+            notificationBox.PRIORITY_WARNING_MEDIUM
+        );
+    } else {
+        notificationBox.removeAllNotifications();
+    }
 }
