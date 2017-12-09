@@ -2145,7 +2145,7 @@
        (see globalBindings.xml in Pinstripe for example).
   -->
   <binding id="tabbrowser-close-tab-button"
-           extends="chrome://global/content/bindings/toolbarbutton.xml#toolbarbutton-image">
+           extends="chrome://global/content/bindings/toolbarbutton.xml#toolbarbutton">
     <handlers>
       <handler event="click" button="0"><![CDATA[
         var bindingParent = document.getBindingParent(this);
