@@ -161,8 +161,8 @@ typeAheadFind.prototype = {
     if (element instanceof Components.interfaces.nsIDOMXULElement ||
         element instanceof Components.interfaces.nsIDOMHTMLEmbedElement ||
         element instanceof Components.interfaces.nsIDOMHTMLObjectElement ||
-        (ChromeUtils.getClassName(element) === "HTMLSelectElement") ||
-        element instanceof Components.interfaces.nsIDOMHTMLTextAreaElement)
+        ChromeUtils.getClassName(element) === "HTMLSelectElement" ||
+        ChromeUtils.getClassName(element) === "HTMLTextAreaElement")
       return true;
 
     // Don't start a find if the focus is on an editable field

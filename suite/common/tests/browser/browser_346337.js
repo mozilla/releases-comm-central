@@ -68,7 +68,7 @@ function test() {
       return aValue == (node.type == "checkbox" || node.type == "radio" ?
                         node.checked : node.value);
     }
-    if (node instanceof Components.interfaces.nsIDOMHTMLTextAreaElement)
+    if (ChromeUtils.getClassName(node) === "HTMLTextAreaElement")
       return aValue == node.value;
     if (!node.multiple)
       return aValue == node.selectedIndex;

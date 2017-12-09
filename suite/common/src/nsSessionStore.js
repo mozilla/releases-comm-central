@@ -1907,7 +1907,7 @@ SessionStoreService.prototype = {
         continue;
 
       if (node instanceof Components.interfaces.nsIDOMHTMLInputElement ||
-          node instanceof Components.interfaces.nsIDOMHTMLTextAreaElement) {
+          ChromeUtils.getClassName(node) === "HTMLTextAreaElement") {
         switch (node.type) {
           case "checkbox":
           case "radio":
