@@ -10,14 +10,14 @@
           xmlns:xbl="http://www.mozilla.org/xbl">
 
   <binding id="statusbarpanel-iconic" display="xul:button" role="xul:button"
-           extends="chrome://global/content/bindings/general.xml#statusbarpanel">
+           extends="chrome://communicator/content/bindings/generalBindings.xml#statusbarpanel">
     <content>
       <xul:image class="statusbarpanel-icon" xbl:inherits="src,src=image"/>
     </content>
   </binding>
 
   <binding id="statusbarpanel-iconic-text" display="xul:button" role="xul:button"
-           extends="chrome://global/content/bindings/general.xml#statusbarpanel">
+           extends="chrome://communicator/content/bindings/generalBindings.xml#statusbarpanel">
     <content>
       <xul:image class="statusbarpanel-icon" xbl:inherits="src,src=image"/>
       <xul:label class="statusbarpanel-text" xbl:inherits="value=label,crop"/>

@@ -166,6 +166,33 @@ prefwindow[overflow="auto"] prefpane > .content-box {
   overflow: auto;
 }
 
+%ifndef MOZ_WIDGET_GTK
+statusbar:not([nowindowdrag="true"]) {
+  -moz-window-dragging: drag;
+}
+%endif
+
+%ifdef XP_MACOSX
+.statusbar-resizerpanel {
+  display: none;
+}
+%else
+window[sizemode="maximized"] statusbarpanel.statusbar-resizerpanel {
+  visibility: collapse;
+}
+%endif
+
+statusbar {
+  -moz-binding: url("chrome://communicator/content/bindings/generalBindings.xml#statusbar");
+%ifdef XP_MACOSX
+  padding-right: 14px;
+%endif
+}
+
+statusbarpanel {
+  -moz-binding: url("chrome://communicator/content/bindings/generalBindings.xml#statusbarpanel");
+}
+
 .statusbarpanel-iconic {
   -moz-binding: url("chrome://communicator/content/bindings/general.xml#statusbarpanel-iconic");
 }

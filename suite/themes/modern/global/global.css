@@ -89,42 +89,6 @@ iframe {
   min-height: 10px;
 }
 
-/* ::::: statusbar ::::: */
-
-statusbar {
-  border-top: 1px solid #C7D0D9;
-  min-height: 15px;
-  min-width: 1px; /* DON'T DELETE!
-    Prevents hiding of scrollbars in browser when window is made smaller.*/
-  background-color: #C7D0D9;
-  color: #22262F;
-  font-size: 83.3333%;
-}
-
-statusbarpanel {
-  -moz-box-align: center;
-  -moz-box-pack: center;
-  border-top: 1px solid #E0ECF6;
-  border-right: 1px solid #8997A1;
-  border-left: 1px solid #E0ECF6;
-  padding: 0px 4px;
-}
-
-.statusbar-resizerpanel 
-{
-  border: 0px;
-  -moz-box-align: end;
-  -moz-box-pack: end;
-  padding: 0px;
-}
-
-.statusbarpanel-progress {
-  -moz-box-align: stretch;
-  border: 0px;
-  margin: 0px;
-  padding: 0px;
-}
-
 /* Override resizer.css for "normal" resizers */
 resizer {
   background-color: transparent;
