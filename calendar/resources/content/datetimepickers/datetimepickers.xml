@@ -1603,15 +1603,17 @@
       <method name="parseTime">
         <parameter name="aValue"/>
         <body><![CDATA[
+            let now = new Date();
+
             try {
                 let noon = cal.calGetString("dateFormat", "noon");
                 if (aValue.toLowerCase() == noon.toLowerCase()) {
-                    return new Date(0, 0, 0, 12, 0, 0, 0);
+                    return new Date(now.getFullYear(), now.getMonth(), now.getDate(), 12, 0, 0, 0);
                 }
 
                 let midnight = cal.calGetString("dateFormat", "midnight");
                 if (aValue.toLowerCase() == midnight.toLowerCase()) {
-                    return new Date(0, 0, 0, 0, 0, 0, 0);
+                    return new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0);
                 }
             } catch (ex) {
                 // Try/catch this, since some people are apparently
@@ -1675,7 +1677,7 @@
                         hours += 12;
                     }
                 }
-                time = new Date(0, 0, 0, hours, minutes, seconds, 0);
+                time = new Date(now.getFullYear(), now.getMonth(), now.getDate(), hours, minutes, seconds, 0);
             }  // else did not match regex, not valid time
             return time;
         ]]></body>
