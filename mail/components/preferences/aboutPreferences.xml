@@ -17,7 +17,7 @@
           xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 
   <binding id="preftab"
-           extends="chrome://global/content/bindings/preferences.xml#prefwindow">
+           extends="chrome://messenger/content/preferences/preferences.xml#prefwindow">
     <resources>
       <stylesheet src="chrome://global/skin/preferences.css"/>
     </resources>

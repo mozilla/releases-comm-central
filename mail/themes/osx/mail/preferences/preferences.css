@@ -1,9 +1,75 @@
-/*
-# -*- Mode: Java; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 4 -*-
-# This Source Code Form is subject to the terms of the Mozilla Public
-# License, v. 2.0. If a copy of the MPL was not distributed with this
-# file, You can obtain one at http://mozilla.org/MPL/2.0/.
-*/
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+@import url("chrome://messenger/content/preferences/preferences.css");
+
+/* Global Styles */
+
+prefwindow {
+  -moz-appearance: dialog;
+  background-color: #ffffff;
+  color: -moz-DialogText;
+  font: -moz-dialog;
+  padding: 0;
+}
+
+prefwindow[type="child"] {
+  padding-top: 18px;
+  padding-bottom: 15px;
+  padding-inline-start: 18px;
+  padding-inline-end: 20px;
+}
+
+prefpane {
+  padding: 12px;
+}
+
+prefwindow[type="child"] > prefpane {
+  padding: 0;
+}
+
+.prefWindow-dlgbuttons {
+  margin: 0 12px 12px;
+  padding-top: 0 !important;
+}
+
+.paneSelector {
+  font: message-box;
+  padding: 1px 4px;
+  -moz-appearance: toolbar;
+  margin: 0;
+  list-style-image: url("chrome://messenger/skin/preferences/mail-options.png");
+}
+
+radio[pane] {
+  border: solid transparent;
+  border-width: 0 2px;
+  padding: 5px 4px 3px;
+  margin: 0;
+  -moz-appearance: none;
+  text-shadow: rgba(255, 255, 255, 0.4) 0 1px;
+}
+
+radio[pane]:active:hover {
+  text-shadow: none;
+}
+
+radio[pane]:active:hover > .paneButtonIcon {
+  filter: brightness(0.55);
+}
+
+radio[pane][selected="true"] {
+  -moz-border-image: url("chrome://messenger/skin/preferences/panebutton-active.png") 0 2 fill repeat stretch;
+}
+
+radio[pane][selected="true"]:-moz-window-inactive {
+  -moz-border-image: url("chrome://messenger/skin/preferences/panebutton-inactive.png") 0 2 fill repeat stretch;
+}
+
+.paneButtonLabel {
+  margin: 0 !important;
+}
 
 .windowDialog {
   padding: 12px;
@@ -23,14 +89,6 @@ menulist > menupopup > menuitem {
 
 prefwindow:not([type="child"]) {
   padding: 0 !important;
-}
-
-prefpane {
-  padding: 12px;
-}
-
-.paneSelector {
-  list-style-image: url("chrome://messenger/skin/preferences/mail-options.png");
 }
 
 radio[pane=paneGeneral] {

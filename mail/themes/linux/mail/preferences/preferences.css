@@ -1,11 +1,64 @@
-/*
-# -*- Mode: Java; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 4 -*-
-# This Source Code Form is subject to the terms of the Mozilla Public
-# License, v. 2.0. If a copy of the MPL was not distributed with this
-# file, You can obtain one at http://mozilla.org/MPL/2.0/.
-*/
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+@import url("chrome://messenger/content/preferences/preferences.css");
 
 /* Global Styles */
+
+prefwindow {
+  -moz-appearance: window;
+  background-color: -moz-Dialog;
+  color: -moz-DialogText;
+  font: message-box;
+  padding: 0;
+}
+
+prefpane {
+  padding: 8px;
+}
+
+prefwindow[type="child"] {
+  padding: 8px;
+}
+
+prefwindow[type="child"] > prefpane {
+  padding: 0;
+}
+
+.prefWindow-dlgbuttons {
+  padding-bottom: 8px;
+  padding-inline-start: 8px;
+  padding-inline-end: 8px;
+}
+
+prefwindow[type="child"] .prefWindow-dlgbuttons {
+  padding: 0;
+}
+
+radio[pane] {
+  -moz-appearance: none;
+  min-width: 4.5em;
+  margin: 0;
+  padding: 3px;
+  color: -moz-FieldText;
+}
+
+.paneSelector {
+  -moz-appearance: listbox;
+  margin: 8px 8px 0;
+  padding: 0;
+}
+
+.paneButtonIcon {
+  width: 32px;
+  height: 32px;
+}
+
+radio[pane][selected="true"] {
+  background-color: Highlight;
+  color: HighlightText;
+}
 
 radio[pane=paneGeneral] {
   list-style-image: url("chrome://messenger/skin/preferences/general.png");
@@ -17,7 +70,7 @@ radio[pane=paneCompose] {
   list-style-image: url("chrome://messenger/skin/preferences/composition.png");
 }
 radio[pane=paneChat] {
-  list-style-image: url("chrome://messenger/skin/preferences/chat.png"); /*FIXME*/
+  list-style-image: url("chrome://messenger/skin/preferences/chat.png");
 }
 radio[pane=panePrivacy] {
   list-style-image: url("chrome://messenger/skin/preferences/privacy.png");

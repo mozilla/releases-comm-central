@@ -8,6 +8,7 @@
 <!DOCTYPE prefwindow SYSTEM "chrome://messenger/locale/preferences/connection.dtd">
 
 <?xml-stylesheet href="chrome://global/skin/"?>
+<?xml-stylesheet href="chrome://messenger/skin/preferences/preferences.css"?>
 
 <prefwindow id="ConnectionsDialog" type="child"
             xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
