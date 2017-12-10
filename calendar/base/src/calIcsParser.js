@@ -142,7 +142,23 @@ calIcsParser.prototype = {
                 }
             });
         } else {
-            this.processIcalComponent(cal.getIcsService().parseICS(aICSString, aTzProvider));
+            try {
+                let icalComp = cal.getIcsService().parseICS(aICSString, aTzProvider);
+                // There is no such indicator like X-LIC in icaljs, so there would need to
+                // detect and log such errors already within the parser. However, until
+                // X-LIC or libical will be removed we make use of X-LIC-ERRORS here but
+                // don't add something similar to icaljs
+                if (icalComp.toString().match(/X-LIC-ERROR/)) {
+                    cal.WARN(
+                        "Parsing failed for parts of the item (while this is considered " +
+                        "to be a minor issue, we continue processing the item):\n" +
+                        icalComp.toString()
+                    );
+                }
+                this.processIcalComponent(icalComp);
+            } catch (exc) {
+                cal.ERROR(exc.message + " when parsing\n" + aICSString);
+            }
         }
     },
 
