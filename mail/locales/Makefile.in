@@ -4,8 +4,6 @@
 
 include $(moztopsrcdir)/config/config.mk
 
-_ABS_SRCDIR := $(abspath $(commtopsrcdir))
-
 SUBMAKEFILES += \
 	$(DEPTH)/$(MOZ_BRANDING_DIRECTORY)/Makefile \
 	$(DEPTH)/$(MOZ_BRANDING_DIRECTORY)/locales/Makefile \
