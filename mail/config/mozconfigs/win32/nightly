@@ -37,3 +37,5 @@ mk_add_options ALWAYS_RUN_CLIENT_PY=1
 
 # Use the TOOLTOOL provided xz for mar generation.
 mk_add_options "export XZ=$TOOLTOOL_DIR/xz/xz.exe"
+
+mk_add_options "export SOCORRO_SYMBOL_UPLOAD_TOKEN_FILE=c:/builds/crash-stats-api.token"
