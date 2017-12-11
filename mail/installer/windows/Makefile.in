@@ -42,6 +42,9 @@ DEFINES += \
 	-DMOZILLA_VERSION=${MOZILLA_VERSION} \
 	$(NULL)
 
+LOCALE_TOPDIR=$(commtopsrcdir)
+LOCALE_RELATIVEDIR=mail/installer/windows
+
 include $(moztopsrcdir)/config/config.mk
 
 ifdef LOCALE_MERGEDIR

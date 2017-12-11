@@ -63,6 +63,9 @@ DEFINES += -DTHUNDERBIRD_VERSION=$(THUNDERBIRD_VERSION) \
 MOZ_BUILDID = $(shell $(PYTHON) $(moztopsrcdir)/config/printconfigsetting.py $(DIST)/bin/application.ini App BuildID)
 DEFINES += -DMOZ_BUILDID=$(MOZ_BUILDID)
 
+LOCALE_TOPDIR=$(commtopsrcdir)
+LOCALE_RELATIVEDIR=calendar/lightning
+
 include $(moztopsrcdir)/config/rules.mk
 include $(srcdir)/versions.mk
 include $(srcdir)/lightning-packager.mk
