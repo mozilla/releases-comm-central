@@ -27,11 +27,11 @@ static nsIStringBundle * sTitleBundle;
 
 NS_IMPL_ISUPPORTS(nsCharsetConverterManager, nsICharsetConverterManager)
 
-nsCharsetConverterManager::nsCharsetConverterManager() 
+nsCharsetConverterManager::nsCharsetConverterManager()
 {
 }
 
-nsCharsetConverterManager::~nsCharsetConverterManager() 
+nsCharsetConverterManager::~nsCharsetConverterManager()
 {
 }
 
@@ -43,7 +43,7 @@ void nsCharsetConverterManager::Shutdown()
 }
 
 static
-nsresult LoadExtensibleBundle(const char* aCategory, 
+nsresult LoadExtensibleBundle(const char* aCategory,
                               nsIStringBundle ** aResult)
 {
   nsCOMPtr<nsIStringBundleService> sbServ =
@@ -119,17 +119,17 @@ bool nsCharsetConverterManager::IsInternal(const nsACString& aCharset)
 // Interface nsICharsetConverterManager [implementation]
 
 
-// XXX Improve the implementation of this method. Right now, it is build on 
+// XXX Improve the implementation of this method. Right now, it is build on
 // top of the nsCharsetAlias service. We can make the nsCharsetAlias
 // better, with its own hash table (not the StringBundle anymore) and
 // a nicer file format.
 NS_IMETHODIMP
-nsCharsetConverterManager::GetCharsetAlias(const char * aCharset, 
+nsCharsetConverterManager::GetCharsetAlias(const char * aCharset,
                                            nsACString& aResult)
 {
   NS_ENSURE_ARG_POINTER(aCharset);
 
-  // We try to obtain the preferred name for this charset from the charset 
+  // We try to obtain the preferred name for this charset from the charset
   // aliases.
   nsresult rv;
 
@@ -141,7 +141,7 @@ nsCharsetConverterManager::GetCharsetAlias(const char * aCharset,
 
 
 NS_IMETHODIMP
-nsCharsetConverterManager::GetCharsetTitle(const char * aCharset, 
+nsCharsetConverterManager::GetCharsetTitle(const char * aCharset,
                                            nsAString& aResult)
 {
   NS_ENSURE_ARG_POINTER(aCharset);
@@ -155,7 +155,7 @@ nsCharsetConverterManager::GetCharsetTitle(const char * aCharset,
 }
 
 NS_IMETHODIMP
-nsCharsetConverterManager::GetCharsetData(const char * aCharset, 
+nsCharsetConverterManager::GetCharsetData(const char * aCharset,
                                           const char16_t * aProp,
                                           nsAString& aResult)
 {
