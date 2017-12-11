@@ -12,6 +12,7 @@ Cu.import("resource://gre/modules/Services.jsm");
 Cu.import("resource://gre/modules/AddonManager.jsm");
 Cu.import("resource:///modules/distribution.js");
 Cu.import("resource:///modules/mailMigrator.js");
+Cu.import("resource:///modules/extensionSupport.jsm");
 
 /**
  * Glue code that should be executed before any windows are opened. Any
@@ -28,6 +29,7 @@ function MailGlue() {
     });
 
   this._init();
+  extensionDefaults(); // extensionSupport.jsm
 }
 
 MailGlue.prototype = {

@@ -11,6 +11,7 @@ Components.utils.import("resource://gre/modules/AddonManager.jsm");
 Components.utils.import("resource://gre/modules/LoginManagerParent.jsm");
 Components.utils.import("resource:///modules/Sanitizer.jsm");
 Components.utils.import("resource:///modules/mailnewsMigrator.js");
+Components.utils.import("resource:///modules/extensionSupport.jsm");
 
 XPCOMUtils.defineLazyModuleGetter(this, "NetUtil",
                                   "resource://gre/modules/NetUtil.jsm");
@@ -130,6 +131,7 @@ function SuiteGlue() {
                                      "nsIIdleService");
 
   this._init();
+  extensionDefaults(); // extensionSupport.jsm
 }
 
 SuiteGlue.prototype = {

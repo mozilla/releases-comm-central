@@ -21,6 +21,7 @@ DIRS += [
     'shell/public',
     'shell/src',
     'smile',
+    '../common/src',
 ]
 
 if CONFIG['MAKENSISU']:
@@ -34,4 +35,3 @@ DIRS += [
     'build',
     'app',
 ]
-
