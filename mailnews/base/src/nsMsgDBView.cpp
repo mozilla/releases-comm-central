@@ -3457,12 +3457,12 @@ nsMsgDBView::ApplyCommandToIndices(nsMsgViewCommandTypeValue command,
                                      imapUids.Length(),
                                      nullptr);
 
-          return imapFolder->StoreCustomKeywords(msgWindow,
-                                                 NS_LITERAL_CSTRING("NonJunk"),
-                                                 NS_LITERAL_CSTRING("Junk"),
-                                                 imapUids.Elements(),
-                                                 imapUids.Length(),
-                                                 nullptr);
+        return imapFolder->StoreCustomKeywords(msgWindow,
+                                               NS_LITERAL_CSTRING("NonJunk"),
+                                               NS_LITERAL_CSTRING("Junk"),
+                                               imapUids.Elements(),
+                                               imapUids.Length(),
+                                               nullptr);
       }
       default:
         break;
