@@ -476,6 +476,10 @@ o.add_option("--tinderbox-print", dest="tinderbox_print",
              action="store_true", default=False,
              help="Print repo revisions for Tinderbox")
 
+o.add_option("--fixup-rust-vendoring-bug-1424825", dest="fixup_rust_vendoring",
+             action="store_true", default=False,
+             help="Remove checksums from vendored rust crates to work around Bug 1424825.")
+
 
 def fixup_comm_repo_options(options):
     """Check options.comm_repo value.
@@ -582,6 +586,25 @@ def fixup_inspector_repo_options(options):
         options.inspector_rev = get_DEFAULT_tag("INSPECTOR_REV")
 
 
+def fixup_rust_vendoring():
+    import json
+
+    print("Patching .cargo-checksum.json files to work around Bug 1424825.")
+
+    files = glob.glob("mozilla/third_party/rust/*/.cargo-checksum.json")
+    for file in files:
+        if options.verbose:
+            print("\t{file}".format(file))
+        with open(file, "r") as fp:
+            cksum = json.load(fp)
+        cksum['files'] = {}
+        with open(file, "w") as fp:
+            json.dump(cksum, fp)
+
+    if options.verbose:
+        print("Done patching .cargo-checksum.json files.")
+
+
 try:
     (options, (action,)) = o.parse_args()
 except ValueError:
@@ -629,6 +652,9 @@ if action in ('checkout', 'co'):
 
     if options.apply_patches:
         do_apply_patches(topsrcdir, options.hg)
+
+    if options.fixup_rust_vendoring:
+        fixup_rust_vendoring()
 
 else:
     o.print_help()

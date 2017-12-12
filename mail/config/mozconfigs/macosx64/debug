@@ -25,6 +25,9 @@ export MOZ_PACKAGE_JSSHELL=1
 if [ "$MOZ_IS_COMM_TOPDIR" = "1" ]; then
   # XXX hack to work around dsymutil failing on OSX builds (bug 1380381, 1382262)
   ac_add_options RUSTFLAGS='-C debuginfo=1'
+
+  # https://bugzilla.mozilla.org/show_bug.cgi?id=1424825
+  mk_add_options "CLIENT_PY_ARGS += --fixup-rust-vendoring-bug-1424825"
 fi
 
 if [ "$MOZ_IS_COMM_TOPDIR" != "1" ]; then
