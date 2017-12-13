@@ -8,18 +8,3 @@
 MOZ_ADDON_SIGNING=0
 # Disable enforcing that add-ons are signed by the trusted root
 MOZ_REQUIRE_SIGNING=0
-
-mk_add_options "export MOZ_AUTOMATION_UPLOAD_SYMBOLS=${MOZ_AUTOMATION_UPLOAD_SYMBOLS}"
-# Post bug 1422735, we now send symbols to Tecken.
-# See bug 1422737.  Despite it saying SOCORRO, it's actually using
-# the new Tecken symbol token.
-
-case "$platform" in
-    win*)
-       mk_add_options "export SOCORRO_SYMBOL_UPLOAD_TOKEN_FILE=c:/builds/crash-stats-api.token"
-       ;;
-    *)
-       mk_add_options "export SOCORRO_SYMBOL_UPLOAD_TOKEN_FILE=/builds/crash-stats-api.token"
-       ;;
-esac
-
