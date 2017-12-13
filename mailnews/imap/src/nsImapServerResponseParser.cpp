@@ -942,8 +942,6 @@ void nsImapServerResponseParser::mailbox(nsImapMailboxSpec *boxSpec)
       aURL->GetHost(boxSpec->mHostName);
 
     NS_IF_RELEASE(aURL);
-    if (boxname)
-      PL_strfree( boxname);
     // storage for the boxSpec is now owned by server connection
     fServerConnection.DiscoverMailboxSpec(boxSpec);
 
@@ -952,6 +950,9 @@ void nsImapServerResponseParser::mailbox(nsImapMailboxSpec *boxSpec)
     if (NS_FAILED(fServerConnection.GetConnectionStatus()))
       SetConnected(false);
   }
+
+  if (boxname)
+    PL_strfree(boxname);
 }
 
 
