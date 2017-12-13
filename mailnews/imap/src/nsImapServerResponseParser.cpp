@@ -199,7 +199,7 @@ void nsImapServerResponseParser::ParseIMAPServerResponse(const char *aCurrentCom
         AdvanceToNextToken();
 
         // untagged responses [RFC3501, Sec. 2.2.2]
-        while (ContinueParse() && !PL_strcmp(fNextToken, "*") )
+        while (ContinueParse() && fNextToken && *fNextToken == '*')
         {
           response_data();
           if (ContinueParse())
@@ -212,7 +212,7 @@ void nsImapServerResponseParser::ParseIMAPServerResponse(const char *aCurrentCom
         }
 
         // command continuation request [RFC3501, Sec. 7.5]
-        if (ContinueParse() && *fNextToken == '+')	// never pipeline APPEND or AUTHENTICATE
+        if (ContinueParse() && fNextToken && *fNextToken == '+')	// never pipeline APPEND or AUTHENTICATE
         {
           NS_ASSERTION((fNumberOfTaggedResponsesExpected - numberOfTaggedResponsesReceived) == 1,
             " didn't get the number of tagged responses we expected");
@@ -239,7 +239,7 @@ void nsImapServerResponseParser::ParseIMAPServerResponse(const char *aCurrentCom
       // it's possible that we ate this + while parsing certain responses (like cram data),
       // in these cases, the parsing routine for that specific command will manually set
       // fWaitingForMoreClientInput so we don't lose that information....
-      if ((fNextToken && (*fNextToken == '+')) || inIdle)
+      if ((fNextToken && *fNextToken == '+') || inIdle)
       {
         fWaitingForMoreClientInput = true;
       }
