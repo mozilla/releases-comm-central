@@ -1,13 +1,13 @@
+. "$topsrcdir/build/mozconfig.comm-support"
 . "$topsrcdir/build/mozconfig.win-common"
 . "$topsrcdir/build/mozconfig.common"
 . "$topsrcdir/build/mozconfig.stylo"
+. "$commtopsrcdir/mail/config/mozconfigs/common"
 
 ac_add_options --target=x86_64-pc-mingw32
 ac_add_options --host=x86_64-pc-mingw32
 
-ac_add_options --enable-application=mail
 ac_add_options --enable-debug
-ac_add_options --enable-calendar
 
 # Needed to enable breakpad in application.ini
 export MOZILLA_OFFICIAL=1
@@ -26,9 +26,7 @@ MOZ_REQUIRE_ADDON_SIGNING=0
 export INCLUDE=$INCLUDE:/c/Office\ 2010\ Developer\ Resources/Outlook\ 2010\ MAPI\ Headers
 mk_export_correct_style INCLUDE
 
-# Run client.py
-mk_add_options CLIENT_PY_ARGS="$([ -f $topsrcdir/build/client.py-args ] && cat $topsrcdir/build/client.py-args)"
-mk_add_options ALWAYS_RUN_CLIENT_PY=1
-
-# Use the TOOLTOOL provided xz for mar generation.
-mk_add_options "export XZ=$TOOLTOOL_DIR/xz/xz.exe"
+if [ "$MOZ_IS_COMM_TOPDIR" == "1" ]; then
+  # Use the TOOLTOOL provided xz for mar generation.
+  mk_add_options "export XZ=$TOOLTOOL_DIR/xz/xz.exe"
+fi
