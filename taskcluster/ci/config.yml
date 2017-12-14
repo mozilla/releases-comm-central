@@ -11,4 +11,8 @@ treeherder:
         'TW32': 'Toolchain builds for Windows 32-bits'
         'TW64': 'Toolchain builds for Windows 64-bits'
 
+index:
+    products:
+        - thunderbird
+
 try: {}
