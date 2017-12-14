@@ -48,9 +48,8 @@ toolbar[printpreview="true"] {
 
 /* ::::: Status bar ::::: */
 
-#status-bar:-moz-lwtheme {
-  background-color: var(--toolbar-bgcolor);
-  color: var(--toolbar-color, inherit);
+#status-bar:-moz-lwtheme toolbarbutton {
+  color: var(--lwt-text-color, inherit);
 }
 
 /* ::::: online/offline icons ::::: */

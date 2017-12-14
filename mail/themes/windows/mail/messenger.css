@@ -502,6 +502,11 @@ statusbar:-moz-lwtheme {
   border-style: none;
 }
 
+statusbarpanel label {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
 /* Status panel */
 
 .statusbarpanel-iconic {
