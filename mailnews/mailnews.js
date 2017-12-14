@@ -50,6 +50,11 @@ pref("mailnews.filters.confirm_delete", true);
 // space-delimited list of extra headers to show in msg header display area.
 pref("mailnews.headers.extraExpandedHeaders", "");
 
+// Space-delimited list of extra headers that will be pushed to
+// currentHeaderData for processing in add-ons (without being displayed).
+// Use a value of "*" to get all headers (other wildcards not supported).
+pref("mailnews.headers.extraAddonHeaders", "");
+
 // default sort order settings (when creating new folder views)
 // sort_order is an int value reflecting nsMsgViewSortOrder values
 //   as defined in nsIMsgDBView.idl (ascending = 1, descending = 2)
