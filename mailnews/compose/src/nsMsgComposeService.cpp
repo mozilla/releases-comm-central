@@ -45,8 +45,7 @@
 #include "nsContentCID.h"
 #include "nsISelection.h"
 #include "nsUTF8Utils.h"
-#include "nsILineBreaker.h"
-#include "nsLWBrkCIID.h"
+#include "mozilla/intl/LineBreaker.h"
 #include "mozilla/Services.h"
 #include "mimemoz2.h"
 #include "nsIArray.h"
@@ -296,7 +295,7 @@ nsMsgComposeService::GetOrigWindowSelection(MSG_ComposeType type, nsIMsgWindow *
       if (selPlain.IsEmpty())
         return NS_ERROR_ABORT;
 
-      nsCOMPtr<nsILineBreaker> lineBreaker = do_GetService(NS_LBRK_CONTRACTID, &rv);
+      RefPtr<mozilla::intl::LineBreaker> lineBreaker = mozilla::intl::LineBreaker::Create();
 
       if (NS_SUCCEEDED(rv))
       {
@@ -310,7 +309,7 @@ nsMsgComposeService::GetOrigWindowSelection(MSG_ComposeType type, nsIMsgWindow *
 
         // If after the first word is only space, then there's not multiple words
         const char16_t* end;
-        for (end = unicodeStr + endWordPos; NS_IsSpace(*end); end++)
+        for (end = unicodeStr + endWordPos; mozilla::intl::NS_IsSpace(*end); end++)
           ;
         if (!*end)
           return NS_ERROR_ABORT;

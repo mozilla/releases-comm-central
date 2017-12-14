@@ -28,7 +28,6 @@
 #include "nsIObserverService.h"
 #include "nsIChannel.h"
 #include "nsDependentSubstring.h"
-#include "nsLWBrkCIID.h"
 #include "nsMemory.h"
 
 #include "mozilla/ArenaAllocatorExtensions.h" // for ArenaStrdup
@@ -719,10 +718,7 @@ nsresult Tokenizer::stripHTML(const nsAString& inString, nsAString& outString)
 nsresult Tokenizer::ScannerNext(const char16_t *text, int32_t length, int32_t pos, bool isLastBuffer, int32_t *begin, int32_t *end, bool *_retval)
 {
     if (!mWordBreaker) {
-      nsresult rv;
-      mWordBreaker = do_CreateInstance(NS_WBRK_CONTRACTID, &rv);
-      if (NS_FAILED(rv))
-        return rv;
+      mWordBreaker = mozilla::intl::WordBreaker::Create();
     }
 
     // if we reach the end, just return
@@ -733,11 +729,11 @@ nsresult Tokenizer::ScannerNext(const char16_t *text, int32_t length, int32_t po
        return NS_OK;
     }
 
-    nsWordBreakClass char_class = nsIWordBreaker::GetClass(text[pos]);
+    mozilla::intl::WordBreakClass char_class = mozilla::intl::WordBreaker::GetClass(text[pos]);
 
     // If we are in Chinese mode, return one Han letter at a time.
     // We should not do this if we are in Japanese or Korean mode.
-    if (kWbClassHanLetter == char_class) {
+    if (mozilla::intl::kWbClassHanLetter == char_class) {
        *begin = pos;
        *end = pos+1;
        *_retval = true;
@@ -757,7 +753,8 @@ nsresult Tokenizer::ScannerNext(const char16_t *text, int32_t length, int32_t po
     }
 
     // If what we got is space or punct, look at the next break.
-    if ((char_class == kWbClassSpace) || (char_class == kWbClassPunct)) {
+    if (char_class == mozilla::intl::kWbClassSpace ||
+        char_class == mozilla::intl::kWbClassPunct) {
         // If the next "word" is not letters,
         // call itself recursively with the new pos.
         return ScannerNext(text, length, next, isLastBuffer, begin, end, _retval);
