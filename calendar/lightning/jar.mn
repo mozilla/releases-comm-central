@@ -83,6 +83,7 @@ lightning.jar:
 % style chrome://global/content/customizeToolbar.xul chrome://lightning-common/skin/lightning.css application={92650c4d-4b8e-4d2a-b7eb-24ecf4f6b63a}
 % style chrome://global/content/customizeToolbar.xul chrome://calendar-common/skin/dialogs/calendar-event-dialog.css application={92650c4d-4b8e-4d2a-b7eb-24ecf4f6b63a}
     ../skin/lightning-common/mode-switch-icons.png            (themes/common/images/mode-switch-icons.png)
+    ../skin/lightning-common/todayButton-arrow.svg            (themes/common/images/todayButton-arrow.svg)
     ../skin/lightning-common/suite-accountCentral.css         (themes/common/suite-accountCentral.css)
 
 # Linux theme files
@@ -95,10 +96,6 @@ lightning.jar:
 # OS X theme files
     ../skin/osx/lightning/accountCentral.css                  (themes/osx/accountCentral.css)
     ../skin/osx/lightning/imip.css                            (themes/osx/imip.css)
-    ../skin/osx/lightning/collapse.png                        (themes/osx/collapse.png)
-    ../skin/osx/lightning/collapse@2x.png                     (themes/osx/collapse@2x.png)
-    ../skin/osx/lightning/expand.png                          (themes/osx/expand.png)
-    ../skin/osx/lightning/expand@2x.png                       (themes/osx/expand@2x.png)
     ../skin/osx/lightning/lightning.css                       (themes/osx/lightning.css)
     ../skin/osx/lightning/lightning-toolbar.css               (themes/osx/lightning-toolbar.css)
     ../skin/osx/lightning/lightning-widgets.css               (themes/osx/lightning-widgets.css)

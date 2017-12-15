@@ -20,6 +20,17 @@
   visibility: collapse;
 }
 
+/* Today pane button in status bar */
+#calendar-status-todaypane-button,
+#calendar-status-todaypane-button[checked="true"] {
+  min-width: 0;
+  min-height: 0;
+  margin: 1px 0 0;
+  -moz-appearance: none;
+  border-radius: var(--toolbarbutton-border-radius);
+  border: 1px solid transparent;
+}
+
 #calendar-status-todaypane-button > stack > .toolbarbutton-icon-begin {
     list-style-image: url(chrome://calendar-common/skin/icons/pane.svg);
     width: 16px;
@@ -43,6 +54,16 @@
 #calendar-status-todaypane-button[hideLabel] > .toolbarbutton-text,
 #calendar-status-todaypane-button[hideLabel] > .toolbarbutton-icon-end {
   display: none;
+}
+
+#calendar-status-todaypane-button > .toolbarbutton-icon-end {
+  -moz-context-properties: fill;
+  fill: currentColor;
+  list-style-image: url(chrome://lightning-common/skin/todayButton-arrow.svg);
+}
+
+#calendar-status-todaypane-button[checked="true"] > .toolbarbutton-icon-end {
+  transform: scaleY(-1);
 }
 
 .imipMoreButton > .toolbarbutton-icon {
