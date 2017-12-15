@@ -335,6 +335,11 @@ pref("mail.threadpane.use_correspondents", true);
 // 0-Accept, 1-dontAcceptForeign, 2-dontUse
 pref("network.cookie.cookieBehavior", 0);
 
+// To allow images to be inserted into a composition with an auth prompt, we
+// need the following two.
+pref("network.auth.subresource-img-cross-origin-http-auth-allow", true);
+pref("network.auth.non-web-content-triggered-resources-http-auth-allow", true);
+
 // clear the SeaMonkey pref, so we don't hear about how we don't have a chrome
 // package registered for editor-region while opening about:config
 pref("editor.throbber.url", "");
