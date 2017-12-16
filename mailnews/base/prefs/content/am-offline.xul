@@ -27,10 +27,12 @@
     <groupbox id="offline.titlebox" hidefor="movemail,pop3,none,rss">
       <caption label="&syncGroupTitle.label;"/>
 
-    <checkbox hidefor="movemail,pop3,nntp,none" 
-              id="offline.folders" label="&allFoldersOffline.label;"
+    <checkbox hidefor="movemail,pop3,nntp,none"
+              id="offline.folders" label="&allFoldersOffline2.label;"
               oncommand="toggleOffline()"
-              accesskey="&allFoldersOffline.accesskey;"/>
+              accesskey="&allFoldersOffline2.accesskey;"/>
+
+    <description hidefor="pop3,nntp,movemail,none,rss">&allFoldersOfflineNote.label;</description>
 
     <separator class="thin" hidefor="movemail,pop3,nntp,none"/>
 

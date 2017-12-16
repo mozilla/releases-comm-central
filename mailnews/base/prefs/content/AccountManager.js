@@ -253,6 +253,14 @@ function onAccept(aDoChecks) {
       return false;
   }
 
+  // Run checks as if the page was being left.
+  if ("onLeave" in top.frames["contentFrame"]) {
+    if (!top.frames["contentFrame"].onLeave()) {
+      // Prevent closing Account manager if user declined the changes.
+      return false;
+    }
+  }
+
   if (!onSave())
     return false;
 
@@ -264,6 +272,21 @@ function onAccept(aDoChecks) {
     // returns false so that Account manager is not exited when restart failed
     return !gRestartNeeded;
   }
+
+  return true;
+}
+
+/**
+ * Runs when Cancel button is used.
+ *
+ * This function must not be called onCancel(), because it would call itself
+ * recursively for pages that don't have an onCancel() implementation.
+ */
+function onNotAccept()
+{
+  // If onCancel() present in current page frame, call it.
+  if ("onCancel" in top.frames["contentFrame"])
+    return top.frames["contentFrame"].onCancel();
 
   return true;
 }
@@ -1029,6 +1052,10 @@ function onAccountTreeSelect(pageId, account)
     // is saved and replaced by the new one.
     tree.focus();
   }
+
+  // Provide opportunity to do cleanups or checks when the current page is being left.
+  if ("onLeave" in top.frames["contentFrame"])
+    top.frames["contentFrame"].onLeave();
 
   // save the previous page
   savePage(currentAccount);

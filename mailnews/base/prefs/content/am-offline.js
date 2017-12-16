@@ -11,6 +11,8 @@ var gImapIncomingServer;
 var gPref = null;
 var gLockedPref = null;
 var gOfflineMap = null; // map of folder URLs to offline flags
+var gOfflineFolders;    // initial state of allFoldersOffline checkbox
+var gToggleOccurred = false;
 
 function onInit(aPageId, aServerId) 
 {
@@ -28,9 +30,15 @@ function onInit(aPageId, aServerId)
     onCheckKeepMsg();
 }
 
+/**
+ * Store initial offline flag for each folder and the allFoldersOffline
+ * checkbox. Use to restore the flags and checkbox if edits are canceled.
+ */
 function initOfflineSettings()
 {
     gOfflineMap = collectOfflineFolders();
+    gOfflineFolders = document.getElementById("offline.folders").checked;
+    gToggleOccurred = false;
 }
 
 function initServerSettings()
@@ -198,7 +206,52 @@ function onCancel()
 {
     // restore the offline flags for all folders
     restoreOfflineFolders(gOfflineMap);
+    document.getElementById("offline.folders").checked = gOfflineFolders;
     return true;
+}
+
+/**
+ * Prompt to avoid unexpected folder sync changes.
+ */
+function onLeave()
+{
+  let changed = false;
+  if (gToggleOccurred) {
+    let allFolders = gIncomingServer.rootFolder.descendants;
+    for (let folder of fixIterator(allFolders, Components.interfaces.nsIMsgFolder)) {
+      if (gOfflineMap[folder.folderURL] !=
+          folder.getFlag(Components.interfaces.nsMsgFolderFlags.Offline)) {
+        // A change to the Offline flag to a folder was made.
+        changed = true;
+        break;
+      }
+    }
+    gToggleOccurred = false;
+  }
+
+  if (changed) {
+    // The user changed the "Keep messages in all folders..." checkbox and
+    // caused changes in online/offline status for all folders in this
+    // account.  Prompt whether to restore the original status.
+    let prefBundle = document.getElementById("bundle_prefs");
+    let title = prefBundle.getString("confirmSyncChangesTitle");
+    let question = prefBundle.getString("confirmSyncChanges");
+    let discard = prefBundle.getString("confirmSyncChangesDiscard");
+    let result = Services.prompt
+                         .confirmEx(window, title, question,
+                                    (Services.prompt.BUTTON_TITLE_SAVE * Services.prompt.BUTTON_POS_0) +
+                                    (Services.prompt.BUTTON_TITLE_IS_STRING * Services.prompt.BUTTON_POS_1),
+                                    null, discard, null,
+                                    null, {value:0});
+    if (result == 1) {
+      // User clicked Discard button, so restore the online/offline changes for
+      // the current account.  Changes made through the "Advanced..." dialog to
+      // other accounts will not be restored.
+      onCancel();
+      return false;
+    }
+  }
+  return true;
 }
 
 function onSave()
@@ -305,6 +358,7 @@ function toggleOffline()
       else
         folder.clearFlag(Components.interfaces.nsMsgFolderFlags.Offline);
     }
+    gToggleOccurred = true;
 }
 
 function collectOfflineFolders()
