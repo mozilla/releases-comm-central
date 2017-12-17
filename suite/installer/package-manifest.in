@@ -372,6 +372,8 @@
 @RESPATH@/components/aboutdebugging.manifest
 @RESPATH@/components/aboutdevtools-registration.js
 @RESPATH@/components/aboutdevtools.manifest
+@RESPATH@/components/aboutdevtoolstoolbox-registration.js
+@RESPATH@/components/aboutdevtoolstoolbox.manifest
 @RESPATH@/components/Downloads.manifest
 @RESPATH@/components/DownloadLegacy.js
 @RESPATH@/components/EditorUtils.manifest
