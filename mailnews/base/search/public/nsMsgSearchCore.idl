@@ -99,11 +99,11 @@ interface nsMsgSearchAttrib {
 
     // 52 is for showing customize - in ui headers start from 53 onwards up until 99.
 
-     /** OtherHeader MUST ALWAYS BE LAST attribute since 
+     /** OtherHeader MUST ALWAYS BE LAST attribute since
        * we can have an arbitrary # of these. The number can be changed,
        * however, because we never persist AttribValues as integers.
       */
-    const nsMsgSearchAttribValue OtherHeader = 52; 
+    const nsMsgSearchAttribValue OtherHeader = 52;
     // must be last attribute
     const nsMsgSearchAttribValue kNumMsgSearchAttributes = 100;
 };

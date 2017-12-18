@@ -61,21 +61,21 @@ interface nsIMsgProtocolInfo : nsISupports
     /* the default port
        This is similar to nsIProtocolHanderl.defaultPort,
        but for architectural reasons, there is a mail-specific interface to this.
-       When the input param isSecure is set to true, for all supported protocols, 
+       When the input param isSecure is set to true, for all supported protocols,
        the secure port value is returned. If isSecure is set to false the default
        port value is returned  */
     long getDefaultServerPort(in boolean isSecure);
 
     /**
-     * An attribute that tell us whether on not we can 
-     * get messages for the given server type 
+     * An attribute that tell us whether on not we can
+     * get messages for the given server type
    * this is poorly named right now.
    * it's really is there an inbox for this type?
    * XXX todo, rename this.
      */
     readonly attribute boolean canGetMessages;
 
-    /** 
+    /**
    * do messages arrive for this server
    * if they do, we can use our junk controls on it.
    */
@@ -87,7 +87,7 @@ interface nsIMsgProtocolInfo : nsISupports
     readonly attribute boolean defaultDoBiff;
 
     /**
-     * do we need to show compose message link in the AccountCentral page ? 
+     * do we need to show compose message link in the AccountCentral page ?
      */
     readonly attribute boolean showComposeMsgLink;
 

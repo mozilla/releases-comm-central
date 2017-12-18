@@ -5,6 +5,6 @@
 #include "nsISupports.idl"
 
 [scriptable, uuid(4b31bdd9-6f4c-46d4-a766-a94f11b599bc)]
-interface nsIRssService : nsISupports 
+interface nsIRssService : nsISupports
 {
 };

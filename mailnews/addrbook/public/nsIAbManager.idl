@@ -22,7 +22,7 @@ interface nsIAbBooleanExpression;
  * as some helper functions.
  */
 [scriptable, uuid(ea0d8b3d-a549-4874-82d8-3a82cee2a3f1)]
-interface nsIAbManager : nsISupports 
+interface nsIAbManager : nsISupports
 {
   /**
    * Returns an enumerator containing all the top-level directories
@@ -130,7 +130,7 @@ interface nsIAbManager : nsISupports
    */
   void notifyDirectoryItemDeleted(in nsIAbDirectory aParentDirectory,
                                   in nsISupports aItem);
-  
+
   /**
    * Call to notify the registered listeners when a directory is removed.
    *

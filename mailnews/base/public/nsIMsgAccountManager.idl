@@ -48,13 +48,13 @@ interface nsIMsgAccountManager : nsISupports {
 
   /**
    * Removes the server from the list of servers
-   * 
+   *
    * @param aServer        server to remove
    * @param aRemoveFiles   remove directory from profile
    *
-   * @throws NS_ERROR_FAILURE if server not found 
+   * @throws NS_ERROR_FAILURE if server not found
    */
-  void removeIncomingServer(in nsIMsgIncomingServer aServer, 
+  void removeIncomingServer(in nsIMsgIncomingServer aServer,
                             in boolean aRemoveFiles);
   /*
    * get the identity with the given key
@@ -100,7 +100,7 @@ interface nsIMsgAccountManager : nsISupports {
   readonly attribute boolean shutdownInProgress;
 
   /**
-   * for preventing unauthenticated users from seeing header information 
+   * for preventing unauthenticated users from seeing header information
    */
   attribute boolean userNeedsToAuthenticate;
   /*
@@ -114,7 +114,7 @@ interface nsIMsgAccountManager : nsISupports {
   /*
    * search for the server with the given uri
    * an analog to FindServer()
-   * The boolean flag selects whether we compare input against the    
+   * The boolean flag selects whether we compare input against the
    * 'realhostname' and 'realuserName' pref settings.
    */
   nsIMsgIncomingServer
@@ -163,7 +163,7 @@ interface nsIMsgAccountManager : nsISupports {
 
   // Create the account for that special server.
   void createLocalMailAccount();
-  
+
   /* load accounts kicks off the creation of all accounts. You do not need
    * to call this and all accounts should be loaded lazily if you use any
    * of the above.

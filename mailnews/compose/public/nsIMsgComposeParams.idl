@@ -29,7 +29,7 @@ interface nsIMsgCompType {
     const long ReplyWithTemplate        = 12;
     const long ReplyToList              = 13;
 
-    /** 
+    /**
      * Will resend the original message keeping the Subject and the body the
      * same, and will set the Reply-To: header to the sender of the original
      * message.  This gets the redirector "out of the loop" because replies

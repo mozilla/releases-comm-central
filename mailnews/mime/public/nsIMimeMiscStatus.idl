@@ -12,7 +12,7 @@ interface nsIMsgDBHdr;
 interface nsIURI;
 interface nsIWritablePropertyBag2;
 
-[scriptable, uuid(4644FB25-5255-11d3-82B8-444553540002)] 
+[scriptable, uuid(4644FB25-5255-11d3-82B8-444553540002)]
 interface nsIMimeMiscStatus : nsISupports{
 
     string  GetWindowXULandJS();
@@ -23,11 +23,11 @@ interface nsIMimeMiscStatus : nsISupports{
     string  GetImageURL(in long aStatus);
 };
 
-// this is a simple interface which allows someone to listen to all the headers 
+// this is a simple interface which allows someone to listen to all the headers
 // that are discovered by mime. We can use this when displaying a message to update
-// the msg header in JS. 
+// the msg header in JS.
 [scriptable, uuid(e0e821f0-cecf-4cb3-be5b-ee58b6868343)]
-interface nsIMsgHeaderSink : nsISupports 
+interface nsIMsgHeaderSink : nsISupports
 {
   // You must finish consuming the iterators before returning from processHeaders. aHeaderNames and aHeaderValues will ALWAYS have the same
   // number of elements in them
@@ -44,13 +44,13 @@ interface nsIMsgHeaderSink : nsISupports
    */
   void addAttachmentField(in string field, in string value);
   void onEndAllAttachments();
-    
+
   // onEndMsgHeaders is called after libmime is done processing a message. At this point it is safe for
   // elements like the UI to update junk status, process return receipts, etc.
   void onEndMsgHeaders(in nsIMsgMailNewsUrl url);
 
-  // onEndMsgDownload is triggered when layout says it is actually done rendering 
-  // the message body in the UI. 
+  // onEndMsgDownload is triggered when layout says it is actually done rendering
+  // the message body in the UI.
   void onEndMsgDownload(in nsIMsgMailNewsUrl url);
 
   attribute nsISupports securityInfo;
@@ -64,7 +64,7 @@ interface nsIMsgHeaderSink : nsISupports
   void onMsgHasRemoteContent(in nsIMsgDBHdr aMsgHdr, in nsIURI aContentURI);
 
   readonly attribute nsIMsgDBHdr dummyMsgHeader;
-  
+
   // used as a hook for extension mime content handlers to store data that can later
   // be accessed by other parts of the code, e.g., UI code.
   // TODO - Should replace securityInfo

@@ -16,7 +16,7 @@ interface nsIMsgWindow;
 // ApplyFilterHit method on the interface pointer in case of hits, along with
 // the desired action and value.
 // return value is used to indicate whether the
-// filter list should continue trying to apply filters or not. 
+// filter list should continue trying to apply filters or not.
 //
 ///////////////////////////////////////////////////////////////////////////////
 

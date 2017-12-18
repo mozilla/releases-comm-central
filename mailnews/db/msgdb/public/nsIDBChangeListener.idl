@@ -94,7 +94,7 @@ interface  nsIDBChangeListener : nsISupports {
    * @param aPreChange   true on first call before change, false on second call after change
    * @param aStatus      storage location provided by calling routine for status
    * @param aInstigator  object that initiated the change
-   */   
+   */
   void onHdrPropertyChanged(in nsIMsgDBHdr aHdrToChange, in boolean aPreChange, inout uint32_t aStatus,
                        in nsIDBChangeListener aInstigator);
 
@@ -107,7 +107,7 @@ interface  nsIDBChangeListener : nsISupports {
    *              registered pending listeners are notified.
    *
    * @param aDB      the db for this event.
-   * @param aEvent   type of event. 
+   * @param aEvent   type of event.
    *
    */
   void onEvent(in nsIMsgDatabase aDB, in string aEvent);

@@ -11,10 +11,10 @@ interface nsMsgMessageFlags
 {
   /// This message has been read
   const nsMsgMessageFlagType Read            = 0x00000001;
-  
+
   /// A reply to this message has been successfully sent
   const nsMsgMessageFlagType Replied         = 0x00000002;
-  
+
   /// This message has been flagged
   const nsMsgMessageFlagType Marked          = 0x00000004;
 

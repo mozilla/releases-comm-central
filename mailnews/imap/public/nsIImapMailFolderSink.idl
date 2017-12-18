@@ -45,12 +45,12 @@ interface nsIImapMailFolderSink : nsISupports {
 
   /**
    * Set FolderQuotaData information
-   * @param aFolderQuotaRoot    The IMAP quota root for this folder, 
+   * @param aFolderQuotaRoot    The IMAP quota root for this folder,
    *                            as returned by the GETQUOTAROOT IMAP command.
    * @param aFolderQuotaUsedKB  Used space, in KB, on this folder's quota root.
    * @param aFolderQuotaMaxKB   Size, in KB, of this folder's quota root.
    **/
-  void setFolderQuotaData(in ACString aFolderQuotaRoot, in unsigned long aFolderQuotaUsedKB, 
+  void setFolderQuotaData(in ACString aFolderQuotaRoot, in unsigned long aFolderQuotaUsedKB,
                           in unsigned long aFolderQuotaMaxKB);
 
   /// Should we download all the rfc822 headers of messages, instead of subset.
@@ -74,7 +74,7 @@ interface nsIImapMailFolderSink : nsISupports {
                             [retval, array, size_is(aCount)] out nsMsgKey aKeys);
   void parseMsgHdrs(in nsIImapProtocol aProtocol, in nsIImapHeaderXferInfo aHdrXferInfo);
   void AbortHeaderParseStream(in nsIImapProtocol aProtocol) ;
-  
+
   void OnlineCopyCompleted(in nsIImapProtocol aProtocol, in ImapOnlineCopyState aCopyState);
   void StartMessage(in nsIMsgMailNewsUrl aUrl);
   void EndMessage(in nsIMsgMailNewsUrl aUrl, in nsMsgKey uidOfMessage);
@@ -91,7 +91,7 @@ interface nsIImapMailFolderSink : nsISupports {
   void headerFetchCompleted(in nsIImapProtocol aProtocol);
   void setBiffStateAndUpdate(in long biffState);
   void progressStatusString(in nsIImapProtocol aProtocol, in string aMsgId, in wstring extraInfo);
-  void percentProgress(in nsIImapProtocol aProtocol, in wstring aMessage, 
+  void percentProgress(in nsIImapProtocol aProtocol, in wstring aMessage,
                        in long long aCurrentProgress, in long long aMaxProgressProgressInfo);
 
   void clearFolderRights();

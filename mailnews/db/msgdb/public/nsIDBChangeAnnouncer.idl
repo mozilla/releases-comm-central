@@ -16,13 +16,13 @@ interface nsIDBChangeAnnouncer  : nsISupports {
   void AddListener(in nsIDBChangeListener listener);
   void RemoveListener(in nsIDBChangeListener listener);
 
-  void NotifyHdrChangeAll(in nsIMsgDBHdr aHdrChanged, in unsigned long aOldFlags, in unsigned long aNewFlags, 
+  void NotifyHdrChangeAll(in nsIMsgDBHdr aHdrChanged, in unsigned long aOldFlags, in unsigned long aNewFlags,
                                 in nsIDBChangeListener instigator);
-  void NotifyHdrAddedAll(in nsIMsgDBHdr aHdrAdded, in nsMsgKey parentKey, in long flags, 
+  void NotifyHdrAddedAll(in nsIMsgDBHdr aHdrAdded, in nsMsgKey parentKey, in long flags,
                                in nsIDBChangeListener instigator);
-  void NotifyHdrDeletedAll(in nsIMsgDBHdr aHdrDeleted, in nsMsgKey parentKey, in long flags, 
+  void NotifyHdrDeletedAll(in nsIMsgDBHdr aHdrDeleted, in nsMsgKey parentKey, in long flags,
                                  in nsIDBChangeListener instigator);
-  void NotifyParentChangedAll(in nsMsgKey keyReparented, in nsMsgKey oldParent, in nsMsgKey newParent, in nsIDBChangeListener instigator); 
+  void NotifyParentChangedAll(in nsMsgKey keyReparented, in nsMsgKey oldParent, in nsMsgKey newParent, in nsIDBChangeListener instigator);
 
   void NotifyReadChanged(in nsIDBChangeListener instigator);
 

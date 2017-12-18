@@ -30,14 +30,14 @@ interface nsIAbDirectoryQueryArguments : nsISupports
 
     /**
      * Defines if sub directories should be
-     * queried 
+     * queried
      *
      */
     attribute boolean querySubDirectories;
 
-    /** 
+    /**
      * A parameter which can be used to pass in data specific to a particular
-     * type of addressbook.  
+     * type of addressbook.
      */
     attribute nsISupports typeSpecificArg;
 
@@ -57,7 +57,7 @@ interface nsIAbDirectoryQueryPropertyValue : nsISupports
      * For example 'primaryEmail' or 'homePhone'
      * for card properties.
      *
-     * Two further properties are defined that 
+     * Two further properties are defined that
      * do not exist as properties on a card.
      *
      * 'card:nsIAbCard' which represents the interface
@@ -71,7 +71,7 @@ interface nsIAbDirectoryQueryPropertyValue : nsISupports
      *
      */
     readonly attribute wstring value;
-    
+
     /**
      * The value of the property
      * as an interface

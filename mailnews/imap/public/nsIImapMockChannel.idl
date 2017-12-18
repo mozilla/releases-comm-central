@@ -11,7 +11,7 @@
     a connection becomes available.
 
     Unfortunately, if we want to be a truly pluggable protocol with necko, necko
-    requires the ability to get a channel back right away when it wants to run 
+    requires the ability to get a channel back right away when it wants to run
     a url. It doesn't let you wait until an imap connection becomes available.
 
     So I've created the notion of a "mock channel". This mock channel is what

@@ -11,7 +11,7 @@ interface nsISMimeVerificationListener;
 /*
  * This interface is currently not marked scriptable,
  * because its verification functions are meant to look like those
- * in nsICMSMessage. At the time the ptr type is eliminated in both 
+ * in nsICMSMessage. At the time the ptr type is eliminated in both
  * interfaces, both should be made scriptable.
  */
 
@@ -21,19 +21,19 @@ interface nsICMSMessage2 : nsISupports
   /**
     * Async version of nsICMSMessage::VerifySignature.
     * Code will be executed on a background thread and
-    * availability of results will be notified using a 
+    * availability of results will be notified using a
     * call to nsISMimeVerificationListener.
    */
   void asyncVerifySignature(in nsISMimeVerificationListener listener);
-  
+
   /**
     * Async version of nsICMSMessage::VerifyDetachedSignature.
     * Code will be executed on a background thread and
-    * availability of results will be notified using a 
+    * availability of results will be notified using a
     * call to nsISMimeVerificationListener.
     *
-    * We are using "native unsigned char" ptr, because the function 
-    * signatures of this one and nsICMSMessage::verifyDetachedSignature 
+    * We are using "native unsigned char" ptr, because the function
+    * signatures of this one and nsICMSMessage::verifyDetachedSignature
     * should be the identical. Cleaning up nsICMSMessages needs to be
     * postponed, because this async version is needed on MOZILLA_1_8_BRANCH.
     *
@@ -44,7 +44,7 @@ interface nsICMSMessage2 : nsISupports
     *     in unsigned long aDigestDataLen);
    */
   void asyncVerifyDetachedSignature(in nsISMimeVerificationListener listener,
-                                     in UnsignedCharPtr aDigestData, 
+                                     in UnsignedCharPtr aDigestData,
                                      in unsigned long aDigestDataLen);
 };
 

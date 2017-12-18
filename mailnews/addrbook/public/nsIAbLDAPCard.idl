@@ -43,7 +43,7 @@ interface nsIAbLDAPCard : nsISupports
   ACString buildRdn(in nsIAbLDAPAttributeMap aAttrMap,
                     in unsigned long aAttrCount,
                     [array, size_is(aAttrCount)] in string aAttributes);
-  
+
   /**
    * Stores meta-properties from a raw LDAP search result.
    *

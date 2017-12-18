@@ -1,5 +1,5 @@
 /* -*- Mode: C++; tab-width: 20; indent-tabs-mode: nil; c-basic-offset: 2 -*-
- * 
+ *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
@@ -17,8 +17,8 @@ interface nsIAbCard;
  * return null; empty strings are passed through as usual. The intent is
  * that properties with a non-zero number of attributes can be overridden for
  * a specific server by supplying a zero-length string.  For this to work,
- * most callers are likely to want to check for both success and a 
- * non-empty string. 
+ * most callers are likely to want to check for both success and a
+ * non-empty string.
  *
  * Note that the one exception to this pattern is getAttributes, which
  * throws NS_ERROR_FAILURE for non-existent property entries, since
@@ -40,18 +40,18 @@ interface nsIAbLDAPAttributeMap : nsISupports
    * Get all the LDAP attributes associated with a given property
    * name, in order of precedence (highest to lowest).
    *
-   * @param       aProperty   the address book property to return attrs for   
-   *    
+   * @param       aProperty   the address book property to return attrs for
+   *
    * @return      a comma-separated list of attributes, null if no entry is
    *              present
    */
   ACString getAttributeList(in ACString aProperty);
 
   /**
-   * Get all the LDAP attributes associated with a given property name, in 
+   * Get all the LDAP attributes associated with a given property name, in
    * order of precedence (highest to lowest).
-   * 
-   * @param       aProperty   the address book property to return attrs for   
+   *
+   * @param       aProperty   the address book property to return attrs for
    *
    * @return      an array of attributes
    *
@@ -64,16 +64,16 @@ interface nsIAbLDAPAttributeMap : nsISupports
    * Get the first (canonical) LDAP attribute associated with a given property
    * name
    *
-   * @param       aProperty   the address book property to return attrs for   
-   * 
-   * @return      the first attribute associated with a given property, 
+   * @param       aProperty   the address book property to return attrs for
+   *
+   * @return      the first attribute associated with a given property,
    *              null if there is no entry for this property
    */
   ACString getFirstAttribute(in ACString aProperty);
 
   /**
    * Set an existing mapping to the comma-separated list of attributes.
-   * 
+   *
    * @param aProperty               the mozilla addressbook property name
    *
    * @param aAttributeList          a comma-separated list of attributes in
@@ -94,8 +94,8 @@ interface nsIAbLDAPAttributeMap : nsISupports
 
   /**
    * Find the Mozilla addressbook property name that this attribute should
-   * map to. 
-   * 
+   * map to.
+   *
    * @return the addressbook property name, null if it's not used in the map
    */
   ACString getProperty(in ACString aAttribute);
@@ -110,7 +110,7 @@ interface nsIAbLDAPAttributeMap : nsISupports
    * @exception NS_ERROR_FAILURE  there are no attributes in this property map
    */
   ACString getAllCardAttributes();
-  
+
   /**
    * Get all properties that may be used in an addressbook card via this
    * property map.
@@ -141,7 +141,7 @@ interface nsIAbLDAPAttributeMap : nsISupports
    *
    * @param aPrefBranchName         the pref branch containing all the
    *                                property names
-   * 
+   *
    * @exception NS_ERROR_FAILURE    one or more LDAP attributes are listed
    *                                multiple times.  The object is now in an
    *                                inconsistent state, and should be either
@@ -165,7 +165,7 @@ interface nsIAbLDAPAttributeMap : nsISupports
 
 /**
  * The nsIAbLDAPAttributeMapService is used to build and hold a cache
- * of maps.  
+ * of maps.
  */
 [scriptable, uuid(12e2d589-3c2a-48e4-8c82-b1e6464a0dfd)]
 interface nsIAbLDAPAttributeMapService : nsISupports

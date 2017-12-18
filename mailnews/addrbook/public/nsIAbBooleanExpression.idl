@@ -87,7 +87,7 @@ interface nsIAbBooleanConditionString : nsISupports
      *
      * <name> [condition] value
      *
-     */ 
+     */
     attribute wstring value;
 };
 

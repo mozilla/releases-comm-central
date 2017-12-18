@@ -22,9 +22,9 @@ interface nsIMsgComposeService : nsISupports {
   void OpenComposeWindow(in string msgComposeWindowURL,
                          in nsIMsgDBHdr msgHdr,
                          in string originalMsgURI,
-                         in MSG_ComposeType type, 
+                         in MSG_ComposeType type,
                          in MSG_ComposeFormat format,
-                         in nsIMsgIdentity identity, 
+                         in nsIMsgIdentity identity,
                          in nsIMsgWindow aMsgWindow);
 
   /**
@@ -66,18 +66,18 @@ interface nsIMsgComposeService : nsISupports {
   readonly attribute nsIMsgIdentity defaultIdentity;
 
   /* This function is use for debugging purpose only and may go away at anytime without warning */
-  void TimeStamp(in string label, in boolean resetTime);  
-  
+  void TimeStamp(in string label, in boolean resetTime);
+
   /* This attribute is use for debugging purposes for determining whether to PR_LOG or not */
   readonly attribute boolean logComposePerformance;
 
   [noscript] boolean determineComposeHTML(in nsIMsgIdentity aIdentity, in MSG_ComposeFormat aFormat);
 
-  /** 
+  /**
    * given a mailto url, parse the attributes and turn them into a nsIMsgComposeParams object
    * @return nsIMsgComposeParams which corresponds to the passed in mailto url
    */
-  nsIMsgComposeParams getParamsForMailto(in nsIURI aURI); 
+  nsIMsgComposeParams getParamsForMailto(in nsIURI aURI);
 
   /**
    * @{
@@ -114,31 +114,31 @@ interface nsIMsgComposeService : nsISupports {
   void replyWithTemplate(in nsIMsgDBHdr msgHdr, in string templateUri,
                          in nsIMsgWindow msgWindow, in nsIMsgIncomingServer server);
 
-  /** 
+  /**
    * The docShell of each editor element used for composing should be registered
    * with this service. docShells passed to initCompose get registered
    * automatically. The registrations are typically used to get the msgCompose
    * window when determining what remote content to allow to be displayed.
    *
-   * @param aDocShell The nsIDocShell of the editor element. 
+   * @param aDocShell The nsIDocShell of the editor element.
    * @param aMsgCompose The compose object associated with the compose window
    */
   void registerComposeDocShell(in nsIDocShell aDocShell,
                                in nsIMsgCompose aMsgCompose);
 
-  /** 
+  /**
    * When an editor docShell is being closed, you should
    * unregister it from this service. nsIMsgCompose normally calls this
    * automatically for items passed to initCompose.
    *
-   * @param aDocShell The nsIDocShell of the editor element. 
+   * @param aDocShell The nsIDocShell of the editor element.
    */
   void unregisterComposeDocShell(in nsIDocShell aDocShell);
-  
+
   /**
    * For a given docShell, returns the nsIMsgCompose object associated with it.
    *
-   * @param aDocShell The nsIDocShell of the editor element. 
+   * @param aDocShell The nsIDocShell of the editor element.
    *
    * @return NS_ERROR_FAILURE if we could not find a nsIMsgCompose for
    *         the passed in docShell.

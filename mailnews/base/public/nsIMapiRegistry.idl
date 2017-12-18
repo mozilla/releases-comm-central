@@ -10,7 +10,7 @@ interface mozIDOMWindowProxy;
  * This interface provides support for registering Mozilla as the default
  * Mail Client. This interface can also be used to get/set the user preference
  * for the default Mail Client.
- * 
+ *
  */
 
 [scriptable, uuid(47D707C3-4369-46A6-A053-5118E12579D6)]
@@ -40,7 +40,7 @@ interface nsIMapiRegistry: nsISupports {
     OS registry entries to make us show up as regsitered mail and news client
     in the OS
    */
-   
+
    void registerMailAndNewsClient();
 };
 

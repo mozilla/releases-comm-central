@@ -17,7 +17,7 @@ interface nsISpamSettings: nsISupports {
   /**
    * 0 for nothing, 100 for highest
    */
-  attribute long level; 
+  attribute long level;
 
   attribute boolean moveOnSpam;
   readonly attribute boolean markAsReadOnSpam;
@@ -74,7 +74,7 @@ interface nsISpamSettings: nsISupports {
   attribute nsIOutputStream logStream;
   void logJunkHit(in nsIMsgDBHdr aMsgHdr, in boolean aMoveMessage);
   void logJunkString(in string aLogText);
-  void clone(in nsISpamSettings aSpamSettings); 
+  void clone(in nsISpamSettings aSpamSettings);
 
   // aServer -> spam settings are associated with a particular server
   void initialize(in nsIMsgIncomingServer aServer);

@@ -10,7 +10,7 @@ interface nsIMsgComposeProgressParams: nsISupports {
 
   /* message subject */
   attribute wstring subject;
-  
+
   /* delivery mode */
   attribute MSG_DeliverMode deliveryMode;
 };

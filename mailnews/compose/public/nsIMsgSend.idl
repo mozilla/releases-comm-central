@@ -4,12 +4,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /*
- * The nsIMsgSend method will create an RFC822 message and send it all in one operation 
- * as well as providing the ability to save disk files for later use. The mode of delivery 
- * can also be specified for the "Send Later", "Drafts" and "Templates" operations. (NOTE: 
- * This method could easily be broken in to a few different calls. Currently, this method 
- * does several functions depending on the arguments passed in, but this could easily lead 
- * to confusion. This is something that very well may change as time allows). 
+ * The nsIMsgSend method will create an RFC822 message and send it all in one operation
+ * as well as providing the ability to save disk files for later use. The mode of delivery
+ * can also be specified for the "Send Later", "Drafts" and "Templates" operations. (NOTE:
+ * This method could easily be broken in to a few different calls. Currently, this method
+ * does several functions depending on the arguments passed in, but this could easily lead
+ * to confusion. This is something that very well may change as time allows).
  */
 #include "nsISupports.idl"
 #include "nsrootidl.idl"
@@ -61,7 +61,7 @@ interface nsIMsgAttachmentData : nsISupports
   attribute ACString realType;
 
   /// Goes along with real_type.
-  attribute ACString realEncoding; 
+  attribute ACString realEncoding;
 
   /**
    * The original name of this document, which will eventually show up in the
@@ -111,9 +111,9 @@ interface nsIMsgAttachedFile : nsISupports
   /// X-Mozilla-Cloud-Part, if any.
   attribute ACString cloudPartInfo;
 
-  attribute ACString xMacType;    // mac-specific info 
-  attribute ACString xMacCreator; // mac-specific info 
-  attribute ACString realName;      // The real name of the file. 
+  attribute ACString xMacType;    // mac-specific info
+  attribute ACString xMacCreator; // mac-specific info
+  attribute ACString realName;      // The real name of the file.
 
   /**
    * Some statistics about the data that was written to the file, so that when
@@ -158,10 +158,10 @@ interface nsIMsgSend : nsISupports
   //
   // This is the primary interface for creating and sending RFC822 messages
   // in the new architecture. Currently, this method supports many arguments
-  // that change the behavior of the operation. This will change in time to 
+  // that change the behavior of the operation. This will change in time to
   // be separate calls that will be more singluar in nature.
   //
-  // NOTE: when aEditor is non-null, a multipart related MHTML message will 
+  // NOTE: when aEditor is non-null, a multipart related MHTML message will
   // be created
   //
 
@@ -294,7 +294,7 @@ interface nsIMsgSend : nsISupports
                        in nsIMsgSendListener   aListener,
                        in nsIMsgStatusFeedback aStatusFeedback,
                        in wstring              aPassword
-                       ); 
+                       );
 
     /* Abort current send/save operation */
     void abort();
@@ -318,7 +318,7 @@ interface nsIMsgSend : nsISupports
     void BeginCryptoEncapsulation();
 
     /* retreive the last send process report*/
-    readonly attribute nsIMsgSendReport sendReport; 
+    readonly attribute nsIMsgSendReport sendReport;
 
     /* methods for send listener ... */
     void notifyListenerOnStartSending(in string aMsgID, in unsigned long aMsgSize);
@@ -327,11 +327,11 @@ interface nsIMsgSend : nsISupports
     void notifyListenerOnStopSending(in string aMsgID, in nsresult aStatus, in wstring aMsg, in nsIFile returnFile);
     void deliverAsMailExit(in nsIURI aUrl, in nsresult aExitCode);
     void deliverAsNewsExit(in nsIURI aUrl, in nsresult aExitCode);
-    
+
     void sendDeliveryCallback(in nsIURI aUrl, in boolean inIsNewsDelivery, in nsresult aExitCode);
 
     /* methods for copy listener ... */
-    void notifyListenerOnStartCopy(); 
+    void notifyListenerOnStartCopy();
     void notifyListenerOnProgressCopy(in unsigned long aProgress, in unsigned long aProgressMax);
     void notifyListenerOnStopCopy(in nsresult aStatus);
     void getMessageId(out ACString messageID);

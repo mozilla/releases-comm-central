@@ -41,7 +41,7 @@ interface nsIAbItem : nsISupports {
    const unsigned long GENERATE_FIRST_LAST_ORDER = 2;
    /** @} */
 
-  /** 
+  /**
    * Generate a name from the item for display purposes.
    *
    * If this item is an nsIAbCard, then it will use the aGenerateFormat option

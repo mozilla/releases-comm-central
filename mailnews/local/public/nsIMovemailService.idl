@@ -18,7 +18,7 @@ interface nsIMovemailService : nsISupports {
                       in nsIUrlListener aUrlListener,
                       in nsIMsgFolder aMsgFolder,
                       in nsIMovemailIncomingServer movemailServer);
-    
+
     nsIURI CheckForNewMail(in nsIUrlListener aUrlListener,
                            in nsIMsgFolder inbox,
                            in nsIMovemailIncomingServer movemailServer);

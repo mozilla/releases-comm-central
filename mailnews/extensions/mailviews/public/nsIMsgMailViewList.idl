@@ -19,10 +19,10 @@ interface nsIMsgMailViewList : nsISupports {
 
     nsIMsgMailView getMailViewAt(in unsigned long mailViewIndex);
 
-    void addMailView(in nsIMsgMailView mailView); 
+    void addMailView(in nsIMsgMailView mailView);
     void removeMailView(in nsIMsgMailView mailView);
 
     nsIMsgMailView createMailView();
 
-    void save();    
+    void save();
 };

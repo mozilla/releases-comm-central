@@ -7,7 +7,7 @@
 /**
  * This interface provides support for registering Mozilla as a COM component
  * for extending the use of Mail/News through Simple MAPI.
- * 
+ *
  */
 
 [noscript, uuid(2907B676-C4BD-49af-880A-E27A0616291E)]
@@ -28,11 +28,11 @@ interface nsIMapiSupport : nsISupports {
     *   made the default mail app
     */
    void registerServer();
-   
+
    /**  unRegisterServer - unregister the mapi DLL with the desktop
     *   Typically called by the window shell service when we are
     *   removed as the default mail app.
-    */   
+    */
    void unRegisterServer();
 };
 

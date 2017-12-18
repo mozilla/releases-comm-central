@@ -13,7 +13,7 @@ interface nsIMsgProcessReport : nsISupports {
   attribute boolean proceeded;
   attribute nsresult error;
   attribute wstring message;
-  
+
   void reset();
 };
 
@@ -27,18 +27,18 @@ interface nsIMsgSendReport : nsISupports {
   const long process_Copy = 3;
   const long process_Filter = 4;
   const long process_FCC = 5;
-  
+
   attribute long deliveryMode;      /* see nsMsgDeliverMode in nsIMsgSend.idl for valid value */
   attribute long currentProcess;
 
   void reset();
-  
+
   void setProceeded(in long process, in boolean proceeded);
   void setError(in long process, in nsresult error, in boolean overwriteError);
   void setMessage(in long process, in wstring message, in boolean overwriteMessage);
-  
+
   nsIMsgProcessReport getProcessReport(in long process);
-  
+
   /* Display Report will ananlyze data collected during the send and will show the most appropriate error.
      Also it will return the error code. In case of no error or if the error has been canceld, it will return
      NS_OK.

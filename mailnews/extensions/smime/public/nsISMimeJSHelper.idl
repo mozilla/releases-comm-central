@@ -3,7 +3,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* This is a private interface used exclusively by SMIME. 
+/* This is a private interface used exclusively by SMIME.
    It provides functionality to the JS UI code,
    that is only accessible from C++.
 */
@@ -14,7 +14,7 @@ interface nsIMsgCompFields;
 interface nsIX509Cert;
 
 [scriptable, uuid(a54e3c8f-a000-4901-898f-fafb297b1546)]
-interface nsISMimeJSHelper : nsISupports 
+interface nsISMimeJSHelper : nsISupports
 {
   /**
    * Obtains detailed information about the certificate availability

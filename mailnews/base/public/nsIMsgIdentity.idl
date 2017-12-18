@@ -145,7 +145,7 @@ interface nsIMsgIdentity : nsISupports {
   attribute ACString tmplFolderPickerMode;
   /** @} */
 
-  // Don't call bccSelf, bccOthers, and bccList directly, they are 
+  // Don't call bccSelf, bccOthers, and bccList directly, they are
   // only used for migration and backward compatability. Use doBcc
   // and doBccList instead.
   attribute boolean bccSelf;
@@ -229,8 +229,8 @@ interface nsIMsgIdentity : nsISupports {
   /* copy the attributes of the identity we pass in */
   void copy(in nsIMsgIdentity identity);
 
-  /** 
-   * these generic getter / setters, useful for extending mailnews 
+  /**
+   * these generic getter / setters, useful for extending mailnews
    * note, these attributes persist across sessions
    */
   AString getUnicharAttribute(in string name);

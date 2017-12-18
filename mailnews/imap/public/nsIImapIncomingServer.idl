@@ -88,7 +88,7 @@ interface nsIImapIncomingServer : nsISupports {
                                         in boolean performingBiff);
   /**
    * Get the password from the nsIMsgIncomingServer. May prompt the user
-   * if there's no password in the password manager or cached in the 
+   * if there's no password in the password manager or cached in the
    * server object.
    * @param aWindow  msgWindow to associate the password prompt with
    * @return Password string.

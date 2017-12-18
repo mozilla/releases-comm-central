@@ -162,7 +162,7 @@ interface nsIMsgFolderListener : nsISupports {
    * @param aNewFolder The folder with the new name
    */
   void folderRenamed(in nsIMsgFolder aOrigFolder, in nsIMsgFolder aNewFolder);
-  
+
   /**
    * Notified when a particular event takes place for an item.
    *

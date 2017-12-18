@@ -20,7 +20,7 @@ interface nsIMsgFolder;
  * currently doesn't work.
  */
 [scriptable, uuid(fa324a4b-4b87-4e9a-a3c0-af9071a358df)]
-interface nsIMsgSendLater : nsIStreamListener 
+interface nsIMsgSendLater : nsIStreamListener
 {
   /// Used to obtain status feedback for when messages are sent.
   attribute nsIMsgStatusFeedback statusFeedback;

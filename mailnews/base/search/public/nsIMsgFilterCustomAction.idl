@@ -23,7 +23,7 @@ interface nsIMsgFilterCustomAction : nsISupports
   readonly attribute AString name;
 
   /**
-   * Is this custom action valid for a particular filter type? 
+   * Is this custom action valid for a particular filter type?
    *
    * @param type    the filter type
    * @param scope   the search scope

@@ -13,7 +13,7 @@ interface nsIOutputStream;
 
 /* Security interface */
 [scriptable, uuid(245f2adc-410e-4bdb-91e2-a7bb42d61787)]
-interface nsIMsgComposeSecure : nsISupports 
+interface nsIMsgComposeSecure : nsISupports
 {
     // requiresCryptoEncapsulation --> returns true if the current message send requires us to go through
 	// some encryption work. In the case of false, you can disregard the compose secure object.

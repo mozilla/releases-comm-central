@@ -189,7 +189,7 @@ interface nsIAbCard : nsIAbItem {
    * @param name             The case-sensitive name of the property to set.
    */
   void deleteProperty(in AUTF8String name);
- 
+
   /**
    * @{
    * These properties are shorthand for getProperty and setProperty.
@@ -231,7 +231,7 @@ interface nsIAbCard : nsIAbItem {
    */
   //void translateFrom(in AUTF8String aType, in AUTF8String aData);
 
-  /** 
+  /**
    * Generate a phonetic name from the card, using the firstName and lastName
    * values.
    *
@@ -267,7 +267,7 @@ interface nsIAbCard : nsIAbItem {
    *          <tt>a.equals(b) == b.equals(a)</tt> might not return true. In
    *          particular, calling equals on cards from different address books
    *          may return inaccurate results.
-   *          
+   *
    *
    * @return                 Equality, as defined above.
    * @param  aCard           The card to compare against.

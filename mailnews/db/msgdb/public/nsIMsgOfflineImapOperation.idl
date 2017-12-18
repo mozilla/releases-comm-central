@@ -42,7 +42,7 @@ interface nsIMsgOfflineImapOperation : nsISupports
   attribute string sourceFolderURI;
   void addKeywordToAdd(in string aKeyword);
   void addKeywordToRemove(in string aKeyword);
-  readonly attribute string keywordsToAdd; 
+  readonly attribute string keywordsToAdd;
   readonly attribute string keywordsToRemove;
   readonly attribute long numberOfCopies;
   void addMessageCopyOperation(in string destinationBox);

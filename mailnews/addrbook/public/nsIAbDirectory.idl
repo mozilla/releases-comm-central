@@ -2,7 +2,7 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
- 
+
 #include "nsIAbCollection.idl"
 #include "nsIAbCard.idl"
 
@@ -162,7 +162,7 @@ interface nsIAbDirectory : nsIAbCollection {
    */
   boolean useForAutocomplete(in ACString aIdentityKey);
 
-  /** 
+  /**
    * Does this directory support mailing lists? Note that in the case
    * this directory is a mailing list and nested mailing lists are not
    * supported, this will return false rather than true which the parent
@@ -182,7 +182,7 @@ interface nsIAbDirectory : nsIAbCollection {
   // Specific to a directory which stores mail lists
 
   /**
-   * Creates a new mailing list in the directory. Currently only supported 
+   * Creates a new mailing list in the directory. Currently only supported
    * for top-level directories.
    *
    * @param  list  The new mailing list to add.
@@ -222,7 +222,7 @@ interface nsIAbDirectory : nsIAbCollection {
    * Need to change to factory based approach
    * to create new address books
    *
-   * This method should become redundant or 
+   * This method should become redundant or
    * be only associated with card folders
    *
    * The parameters are the same as for

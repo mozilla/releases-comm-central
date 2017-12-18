@@ -28,12 +28,12 @@ interface nsIMsgFilterList : nsISupports {
     const nsMsgFilterFileAttribValue attribVersion = 1;
     const nsMsgFilterFileAttribValue attribLogging = 2;
     const nsMsgFilterFileAttribValue attribName = 3;
-    const nsMsgFilterFileAttribValue attribEnabled = 4; 
-    const nsMsgFilterFileAttribValue attribDescription = 5; 
+    const nsMsgFilterFileAttribValue attribEnabled = 4;
+    const nsMsgFilterFileAttribValue attribDescription = 5;
     const nsMsgFilterFileAttribValue attribType = 6;
-    const nsMsgFilterFileAttribValue attribScriptFile = 7; 
-    const nsMsgFilterFileAttribValue attribAction = 8; 
-    const nsMsgFilterFileAttribValue attribActionValue = 9; 
+    const nsMsgFilterFileAttribValue attribScriptFile = 7;
+    const nsMsgFilterFileAttribValue attribAction = 8;
+    const nsMsgFilterFileAttribValue attribActionValue = 9;
     const nsMsgFilterFileAttribValue attribCondition = 10;
     const nsMsgFilterFileAttribValue attribCustomId = 11;
 
@@ -48,12 +48,12 @@ interface nsIMsgFilterList : nsISupports {
     void setFilterAt(in unsigned long filterIndex, in nsIMsgFilter filter);
     void removeFilter(in nsIMsgFilter filter);
     void removeFilterAt(in unsigned long filterIndex);
-    
+
     void moveFilterAt(in unsigned long filterIndex,
                       in nsMsgFilterMotionValue motion);
     void moveFilter(in nsIMsgFilter filter,
                     in nsMsgFilterMotionValue motion);
-    
+
     void insertFilterAt(in unsigned long filterIndex, in nsIMsgFilter filter);
 
     attribute boolean loggingEnabled;
@@ -68,7 +68,7 @@ interface nsIMsgFilterList : nsISupports {
     // (such as the filter list dialog)
     attribute nsIFile defaultFile;
     void saveToDefaultFile();
-    
+
 
     // marking noscript because headers is a null-separated list
     // of strings, which is not scriptable
@@ -89,7 +89,7 @@ interface nsIMsgFilterList : nsISupports {
     void writeWstrAttr(in nsMsgFilterFileAttribValue attrib, in wstring value, in nsIOutputStream stream);
     void writeBoolAttr(in nsMsgFilterFileAttribValue attrib, in boolean value, in nsIOutputStream stream);
     boolean matchOrChangeFilterTarget(in ACString oldUri, in ACString newUri, in boolean caseInsensitive);
- 
+
     // for filter logging
     // If both attributes are fetched successfully, they guarantee
     // the log file exists and is set up with a header.

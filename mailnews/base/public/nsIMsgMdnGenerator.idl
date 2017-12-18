@@ -33,15 +33,15 @@ interface nsIMsgMdnGenerator : nsISupports
     const EDisposeType eDeleted = 3;
     const EDisposeType eDenied = 4;
     const EDisposeType eFailed = 5;
-    
+
     const ReceiptHdrType eDntType = 0;
     const ReceiptHdrType eRrtType = 1;
     const ReceiptHdrType eDntRrtType = 2;
-    
+
     const MDNIncorporateType eIncorporateInbox = 0;
     const MDNIncorporateType eIncorporateSent = 1;
-    
-    
+
+
     /**
      * Prepare the sending of a mdn reply, and checks the prefs whether a
      * reply should be send. Might send the message automatically if the
@@ -59,12 +59,12 @@ interface nsIMsgMdnGenerator : nsISupports
      *          false in other cases (whether the message was sent or denied)
      */
     boolean process(in EDisposeType eType, in nsIMsgWindow aWindow,
-                    in nsIMsgFolder folder, in nsMsgKey key, 
+                    in nsIMsgFolder folder, in nsMsgKey key,
                     in nsIMimeHeaders headers, in boolean autoAction);
 
     /**
      * Must be called when the user was asked for permission and agreed to
-     * sending the mdn reply. 
+     * sending the mdn reply.
      * May only be called when |process| returned |true|. Behaviour is
      * unspecified in other cases
      */
@@ -72,7 +72,7 @@ interface nsIMsgMdnGenerator : nsISupports
 
     /**
      * Must be called when the user was asked for permission and declined to
-     * send the mdn reply. 
+     * send the mdn reply.
      * Will mark the message so that the user won't be asked next time.
      * May only be called when |process| returned |true|. Behaviour is
      * unspecified in other cases.

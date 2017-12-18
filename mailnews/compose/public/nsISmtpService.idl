@@ -52,11 +52,11 @@ interface nsISmtpService : nsISupports {
    * @param aRequest                Provides a handle to the running request.
    *                                This parameter may be null.
    */
-  void sendMailMessage(in nsIFile aFilePath, in string aRecipients, 
+  void sendMailMessage(in nsIFile aFilePath, in string aRecipients,
                        in nsIMsgIdentity aSenderIdentity,
                        in AString aPassword,
-                       in nsIUrlListener aUrlListener, 
-                       in nsIMsgStatusFeedback aStatusListener, 
+                       in nsIUrlListener aUrlListener,
+                       in nsIMsgStatusFeedback aStatusListener,
                        in nsIInterfaceRequestor aNotificationCallbacks,
                        in boolean aRequestDSN,
                        out nsIURI aURL,
@@ -123,7 +123,7 @@ interface nsISmtpService : nsISupports {
    * If the server does not exist, create it and add it to our list
    */
   nsISmtpServer getServerByKey(in string key);
-  
+
   /**
    * Delete the given server from the server list - does nothing if the server
    * does not exist

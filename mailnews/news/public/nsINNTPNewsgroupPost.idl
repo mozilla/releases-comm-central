@@ -14,20 +14,20 @@ interface nsIFile;
 
 [scriptable, uuid(9979a2cb-a4e6-45e6-bfeb-b08e704c5a2b)]
 interface nsINNTPNewsgroupPost : nsISupports {
-    
+
     /* from RFC850 */
     /* section 2.1 - required headers */
     attribute string relayVersion;
     attribute string postingVersion;
     attribute string from;
     attribute string date;
-    
+
     void AddNewsgroup(in string newsgroupName);
     readonly attribute string newsgroups;
-    
+
     attribute string subject;
     attribute string path;
-    
+
     /* Secion 2.2 - optional headers */
     attribute string replyTo;
     attribute string sender;

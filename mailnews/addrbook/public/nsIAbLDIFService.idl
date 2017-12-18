@@ -7,7 +7,7 @@
 interface nsIFile;
 interface nsIAddrDatabase;
 
-[scriptable, uuid(7afaa95f-0b1c-4d8a-a65f-bb5073ed6d39)]    
+[scriptable, uuid(7afaa95f-0b1c-4d8a-a65f-bb5073ed6d39)]
 interface nsIAbLDIFService : nsISupports {
 
   /**

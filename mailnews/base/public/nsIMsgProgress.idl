@@ -13,7 +13,7 @@ interface nsIMsgWindow;
 [scriptable, uuid(6d6fe91d-7f9a-4552-9737-9f74b0e75538)]
 interface nsIMsgProgress: nsIWebProgressListener {
 
-  /** 
+  /**
    * Open the progress dialog, you can specify parameters through an xpcom object
    */
   void openProgressDialog(in mozIDOMWindowProxy parent,
@@ -24,13 +24,13 @@ interface nsIMsgProgress: nsIWebProgressListener {
 
   /* Close the progress dialog */
   void closeProgressDialog(in boolean forceClose);
-  
+
   /* Register a Web Progress Listener */
   void registerListener(in nsIWebProgressListener listener);
 
   /* Unregister a Web Progress Listener */
   void unregisterListener(in nsIWebProgressListener listener);
-  
+
   /* Indicated if the user asked to cancel the current process */
   attribute boolean processCanceledByUser;
 

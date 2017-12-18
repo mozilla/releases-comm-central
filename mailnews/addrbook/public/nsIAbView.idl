@@ -105,5 +105,5 @@ interface nsIAbView : nsISupports
   /**
    *  Returns an array of the currently selected addresses.
    */
-  readonly attribute nsIArray selectedAddresses; 
+  readonly attribute nsIArray selectedAddresses;
 };

@@ -13,7 +13,7 @@ interface nsIMsgCopyServiceListener : nsISupports {
     /**
      * Notify the observer that the message has started to be copied. This
      * method is called only once, at the beginning of a message
-     * copyoperation. 
+     * copyoperation.
      */
     void OnStartCopy();
 
@@ -22,7 +22,7 @@ interface nsIMsgCopyServiceListener : nsISupports {
      * aProgress -
      * aProgressMax -
      */
-    void OnProgress(in uint32_t aProgress, 
+    void OnProgress(in uint32_t aProgress,
                     in uint32_t aProgressMax);
 
     /**
@@ -46,7 +46,7 @@ interface nsIMsgCopyServiceListener : nsISupports {
     void GetMessageId(out ACString aMessageId);
 
     /**
-     * Notify the observer that the message copied operation has completed.  
+     * Notify the observer that the message copied operation has completed.
      * This method is called regardless of whether the the operation was
      * successful.
      * aStatus - indicate whether the operation was succeeded

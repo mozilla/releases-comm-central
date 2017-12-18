@@ -51,12 +51,12 @@ interface nsIMsgIncomingServer : nsISupports {
    * hostname of the server
    */
   attribute ACString hostName;
-  
+
   /**
    * real hostname of the server (if server name is changed it's stored here)
    */
   attribute ACString realHostName;
-  
+
   /* port of the server */
   attribute long port;
 
@@ -143,7 +143,7 @@ interface nsIMsgIncomingServer : nsISupports {
   attribute unsigned long biffState;
 
   /* are we running a url as a result of biff going off? (different from user clicking get msg) */
-  attribute boolean performingBiff; 
+  attribute boolean performingBiff;
 
   /* the on-disk path to message storage for this server */
   attribute nsIFile localPath;
@@ -157,7 +157,7 @@ interface nsIMsgIncomingServer : nsISupports {
   /* the root folder for this server, even if server is deferred */
   attribute nsIMsgFolder rootFolder;
 
-  /* root folder for this account 
+  /* root folder for this account
      - if account is deferred, root folder of deferred-to account */
   readonly attribute nsIMsgFolder rootMsgFolder;
 
@@ -243,7 +243,7 @@ interface nsIMsgIncomingServer : nsISupports {
 
   /**
    * Verify that we can logon
-   * 
+   *
    * @param  aUrlListener - gets called back with success or failure.
    * @param aMsgWindow         nsIMsgWindow to use for notification callbacks.
    * @return - the url that we run.
@@ -252,13 +252,13 @@ interface nsIMsgIncomingServer : nsISupports {
 
   /* do a biff */
   void performBiff(in nsIMsgWindow aMsgWindow);
-  
+
   /* get new messages */
-  void getNewMessages(in nsIMsgFolder aFolder, in nsIMsgWindow aMsgWindow, 
+  void getNewMessages(in nsIMsgFolder aFolder, in nsIMsgWindow aMsgWindow,
                       in nsIUrlListener aUrlListener);
   /* this checks if a server needs a password to do biff */
   readonly attribute boolean serverRequiresPasswordForBiff;
-  
+
   /* this gets called when the server is expanded in the folder pane */
   void performExpand(in nsIMsgWindow aMsgWindow);
 
@@ -267,7 +267,7 @@ interface nsIMsgIncomingServer : nsISupports {
 
   /* close any server connections */
   void closeCachedConnections();
- 
+
   /* ... */
   void shutdown();
 
@@ -296,7 +296,7 @@ interface nsIMsgIncomingServer : nsISupports {
 
   AString getUnicharValue(in string attr);
   void setUnicharValue(in string attr, in AString value);
-  
+
   long getIntValue(in string attr);
   void setIntValue(in string attr, in long value);
   /** @} */
@@ -351,14 +351,14 @@ interface nsIMsgIncomingServer : nsISupports {
   boolean equals(in nsIMsgIncomingServer server);
 
   /* Get Messages at startup */
-  readonly attribute boolean downloadMessagesAtStartup; 
+  readonly attribute boolean downloadMessagesAtStartup;
 
   /* check to this if the server supports filters */
   attribute boolean canHaveFilters;
 
   /**
    * can this server be removed from the account manager?  for
-   * instance, local mail is not removable, but an imported folder is 
+   * instance, local mail is not removable, but an imported folder is
    */
   attribute boolean canDelete;
 
@@ -383,25 +383,25 @@ interface nsIMsgIncomingServer : nsISupports {
   attribute nsIMsgDownloadSettings downloadSettings;
 
   /*
-   * Offline support level. Support level can vary based on abilities 
+   * Offline support level. Support level can vary based on abilities
    * and features each server can offer wrt to offline service.
    * Here is the legend to determine the each support level details
    *
-   * supportLevel == 0  --> no offline support (default) 
+   * supportLevel == 0  --> no offline support (default)
    * supportLevel == 10 --> regular offline feature support
-   * supportLevel == 20 --> extended offline feature support 
+   * supportLevel == 20 --> extended offline feature support
    *
    * Each server can initialize itself to the support level if needed
    * to override the default choice i.e., no offline support.
    *
-   * POP3, None and Movemail will default to 0. 
-   * IMAP level 10 and NEWS with level 20. 
-   * 
+   * POP3, None and Movemail will default to 0.
+   * IMAP level 10 and NEWS with level 20.
+   *
    */
   attribute long offlineSupportLevel;
 
   /* create pretty name for migrated accounts */
-  AString generatePrettyNameForMigration(); 
+  AString generatePrettyNameForMigration();
 
   /* does this server have disk space settings? */
   readonly attribute boolean supportsDiskSpace;
@@ -409,13 +409,13 @@ interface nsIMsgIncomingServer : nsISupports {
   /**
    * Hide this server/account from the UI - used for smart mailboxes.
    * The server can be retrieved from the account manager by name using the
-   * various Find methods, but nsIMsgAccountManager's GetAccounts and 
+   * various Find methods, but nsIMsgAccountManager's GetAccounts and
    * GetAllServers methods won't return the server/account.
    */
   attribute boolean hidden;
 
   /**
-   * If the server supports Fcc/Sent/etc, default prefs can point to 
+   * If the server supports Fcc/Sent/etc, default prefs can point to
    * the server. Otherwise, copies and folders prefs should point to
    * Local Folders.
    *
@@ -445,12 +445,12 @@ interface nsIMsgIncomingServer : nsISupports {
   /* used for setting up the search UI */
   readonly attribute nsMsgSearchScopeValue searchScope;
 
-  /** 
-   * If the password for the server is available either via authentication 
+  /**
+   * If the password for the server is available either via authentication
    * in the current session or from password manager stored entries, return
-   * false. Otherwise, return true. If password is obtained from password 
+   * false. Otherwise, return true. If password is obtained from password
    * manager, set the password member variable.
-   */ 
+   */
   readonly attribute boolean passwordPromptRequired;
 
   /**
@@ -467,7 +467,7 @@ interface nsIMsgIncomingServer : nsISupports {
   void configureTemporaryFilters(in nsIMsgFilterList filterList);
 
   /**
-   * If Sent folder pref is changed we need to clear the temporary 
+   * If Sent folder pref is changed we need to clear the temporary
    * return receipt filter so that the new return receipt filter can
    * be recreated (by ConfigureTemporaryReturnReceiptsFilter()).
    */

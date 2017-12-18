@@ -35,7 +35,7 @@ interface nsIMsgLocalMailFolder : nsISupports {
    */
   void setFlagsOnDefaultMailboxes(in unsigned long flags);
 
-  /* 
+  /*
    * This will return null if the db is out of date
    */
   nsIMsgDatabase getDatabaseWOReparse();

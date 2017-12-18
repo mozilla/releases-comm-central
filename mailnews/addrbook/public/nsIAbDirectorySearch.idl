@@ -15,7 +15,7 @@
  * moz-abldapdirectory://ldap1.holland/dc=sun,dc=com?<query>
  *
  * If no search data is defined then the methods
- * will return immediately with no error. 
+ * will return immediately with no error.
  */
 [scriptable, uuid(ABF26047-37E3-44FD-A28A-6D37A1B9CCB3)]
 interface nsIAbDirectorySearch : nsISupports

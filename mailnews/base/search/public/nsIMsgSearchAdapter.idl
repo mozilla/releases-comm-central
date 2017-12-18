@@ -28,7 +28,7 @@ interface nsIMsgSearchAdapter : nsISupports {
                                         in nsMsgSearchValue value);
 
     readonly attribute string encoding;
-    
+
     [noscript] nsIMsgFolder FindTargetFolder([const] in nsMsgResultElement
                                              element);
     void Abort();

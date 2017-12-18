@@ -78,13 +78,13 @@ interface nsIAbListener : nsISupports {
    *                              card).
    *
    * @param       property        The property of the item being changed.
-   *                              
+   *
    * @param       oldValue        The old value of the item property being
    *                              changed if it is known, null otherwise.
-   *                              
+   *
    * @param       newValue        The new value of the item property being
    *                              changed.
-   *                              
+   *
    */
   void onItemPropertyChanged(in nsISupports item, in string property, in wstring oldValue, in wstring newValue);
 };

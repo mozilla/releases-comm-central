@@ -22,7 +22,7 @@ interface nsIMsgDBHdr : nsISupports
     unsigned long getUint32Property(in string propertyName);
     void setUint32Property(in string propertyName,
                            in unsigned long propertyVal);
- 
+
     // accessors, to make our JS cleaner
     readonly attribute boolean isRead;
     readonly attribute boolean isFlagged;
@@ -34,10 +34,10 @@ interface nsIMsgDBHdr : nsISupports
     void markRead(in boolean read);
     void markFlagged(in boolean flagged);
     void markHasAttachments(in boolean hasAttachments);
-    
+
     attribute nsMsgPriorityValue priority;
     void setPriorityString(in string priority);
-    
+
     /* flag handling routines */
     attribute unsigned long flags;
     unsigned long OrFlags(in unsigned long flags);
@@ -68,7 +68,7 @@ interface nsIMsgDBHdr : nsISupports
     attribute string author;
     attribute string subject;
     attribute string recipients;
-    
+
     /* anything below here still has to be fixed */
     void setReferences(in string references);
     readonly attribute unsigned short numReferences;

@@ -47,7 +47,7 @@ interface nsIAbLDAPDirectory : nsISupports
    * Currently the only supported mechanism is GSSAPI
    */
   attribute ACString saslMechanism;
-  
+
   /**
    * The AuthDN to use to access the server.
    */

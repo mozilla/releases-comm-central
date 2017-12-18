@@ -26,7 +26,7 @@ interface nsIMsgAttachment : nsISupports {
   /**
    * urlCharset attribute
    *
-   * @specify the Charset of url  (used to convert url to Unicode after 
+   * @specify the Charset of url  (used to convert url to Unicode after
    *  unescaping)
    */
   attribute ACString    urlCharset;
@@ -63,7 +63,7 @@ interface nsIMsgAttachment : nsISupports {
    * a locally saved html document, but also used for cloud files.
    */
   attribute ACString contentLocation;
-  
+
   /**
    * contentType attribute
    *
@@ -80,7 +80,7 @@ interface nsIMsgAttachment : nsISupports {
    * @It will be added to the content-type during the send/save operation.
    */
   attribute string    contentTypeParam;
-  
+
   /**
    * charset attribute
    *

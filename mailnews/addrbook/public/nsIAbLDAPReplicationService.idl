@@ -12,7 +12,7 @@ interface nsIAbLDAPDirectory;
  */
 [scriptable, uuid(3f499c70-5ceb-4b91-8b7f-62c366859383)]
 interface nsIAbLDAPReplicationService: nsISupports {
-   
+
    /**
      * Start Replication of given LDAP directory represented by the URI
      */
@@ -23,7 +23,7 @@ interface nsIAbLDAPReplicationService: nsISupports {
      * Cancel Replication of given LDAP directory represented by the URI
      */
     void cancelReplication(in nsIAbLDAPDirectory aDirectory);
-  
+
    /**
      * callback when replication is done, failure or success
      */

@@ -14,15 +14,15 @@ interface nsIMsgWindow;
  */
 [scriptable, uuid(579aa17b-4c77-465d-8eb6-feaa927cb19c)]
 interface nsINNTPNewsgroupList : nsISupports {
-  
+
   void initialize(in nsINntpUrl runningURL, in nsIMsgNewsFolder newsFolder);
-  
+
   long getRangeOfArtsToDownload(in nsIMsgWindow aMsgWindow, in long first_message,
                                 in long last_message,
                                 in long maxextra,
                                 out long real_first_message,
                                 out long real_last_message);
-  
+
   void addToKnownArticles(in long first_message, in long last_message);
 
   /**
@@ -34,7 +34,7 @@ interface nsINNTPNewsgroupList : nsISupports {
    * @param first_message  The first message of the download range.
    * @param last_message   The last message of the download range.
    */
-  void initXOVER(in long first_message, in long last_message);  
+  void initXOVER(in long first_message, in long last_message);
   void processXOVERLINE(in string line, out unsigned long status);
   void resetXOVER();
   void finishXOVERLINE(in long status, out long newstatus);

@@ -3,7 +3,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* This is a private interface used exclusively by SMIME. 
+/* This is a private interface used exclusively by SMIME.
    It provides functionality to the JS UI code,
    that is only accessible from C++.
 */
@@ -11,11 +11,11 @@
 #include "nsISupports.idl"
 
 [scriptable, uuid(f86e55c9-530b-483f-91a7-10fb5b852488)]
-interface nsIEncryptedSMIMEURIsService : nsISupports 
+interface nsIEncryptedSMIMEURIsService : nsISupports
 {
   void rememberEncrypted(in AUTF8String uri);
-  
+
   void forgetEncrypted(in AUTF8String uri);
-  
+
   boolean isEncrypted(in AUTF8String uri);
 };

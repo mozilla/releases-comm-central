@@ -20,14 +20,14 @@ interface nsIMsgShutdownTask : nsISupports
   /**
    * At shutdown-time, this function will be called to all registered implementors.
    * Shutdown will be temporarily postponed until |OnStopRequest()| has been called
-   * on the passed in url-listener. 
+   * on the passed in url-listener.
    * @param inUrlListener The URL listener to report events to.
    * @param inMsgWindow The current message window to allow for posing dialogs.
    * @return If the shutdown URL was run or not. If the URL is running, the task
    *         will be responsible for notifying |inUrlListener| when the task is completed.
    */
   boolean doShutdownTask(in nsIUrlListener inUrlListener, in nsIMsgWindow inMsgWindow);
-  
+
   /**
    * Get the displayable name of the current task. This textual information will be
    * shown to the user so they know what shutdown task is being performed.
@@ -42,24 +42,24 @@ interface nsIMsgShutdownService : nsISupports
   /**
    * Get the number of tasks that will need to be processed at shutdown time.
    * @return The number of shutdown tasks to do.
-   */ 
+   */
   long getNumTasks();
-  
+
   /**
-   * Start the shutdown tasks. 
+   * Start the shutdown tasks.
    */
   void startShutdownTasks();
-  
+
   /**
    * Tell the service to stop running tasks and go ahead and shutdown the application.
    */
   void cancelShutdownTasks();
-  
+
   /**
    * Set the shutdown listener.
    */
   void setShutdownListener(in nsIWebProgressListener inListener);
-  
+
   /**
    * Set the status text of the shutdown progress dialog.
    */

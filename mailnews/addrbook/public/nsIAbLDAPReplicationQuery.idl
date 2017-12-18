@@ -22,7 +22,7 @@ interface nsIAbLDAPReplicationQuery : nsISupports
    */
   void init(in nsIAbLDAPDirectory aDirectory,
             in nsIWebProgressListener aProgressListener);
-     
+
   /**
    * Starts an LDAP query to do replication as needed
    */
@@ -58,7 +58,7 @@ interface nsIAbLDAPChangeLogQuery : nsISupports
    * Starts an LDAP ChangeLog query to find changelog entries
    */
   void queryChangeLog(in AUTF8String aChangeLogDN, in int32_t aLastChangeNo);
-      
+
   /**
    * Starts an LDAP query to find changed entries
    */

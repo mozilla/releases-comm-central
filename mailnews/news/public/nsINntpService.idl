@@ -16,7 +16,7 @@ interface nsICacheStorage;
 
 [scriptable, uuid(dc5cadb0-966c-4ef1-a4c8-cc1e48d1ac61)]
 interface nsINntpService : nsISupports {
-  
+
   /* newsgroupsList is a comma separated list of newsgroups, which may be
    * in news://host/group or group form
    * "news://host/group1,news://host/group2" or "group1,group2"
@@ -34,14 +34,14 @@ interface nsINntpService : nsISupports {
   nsIURI getNewNews(in nsINntpIncomingServer nntpServer, in string uri, in boolean getOld, in nsIUrlListener aUrlListener, in nsIMsgWindow aMsgWindow);
 
   nsIURI cancelMessage(in string cancelURL, in string messageURI, in nsISupports aConsumer, in nsIUrlListener aUrlListener, in nsIMsgWindow aMsgWindow);
- 
+
   void getListOfGroupsOnServer(in nsINntpIncomingServer nntpServer, in nsIMsgWindow aMsgWindow, in boolean getOnlyNew);
 
   nsIURI fetchMessage(in nsIMsgFolder newsFolder, in nsMsgKey key, in nsIMsgWindow aMsgWindow, in nsISupports aConsumer, in nsIUrlListener aUrlListener);
 
   void downloadNewsgroupsForOffline(in nsIMsgWindow aMsgWindow, in nsIUrlListener aListener);
-  /** 
-   * can handle news-message:// and news:// 
+  /**
+   * can handle news-message:// and news://
    */
   void decomposeNewsURI(in string uri, out nsIMsgFolder folder, out nsMsgKey key);
 

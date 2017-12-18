@@ -88,7 +88,7 @@ interface nsISmtpServer : nsISupports {
    *                      prompt.
    * @return              The password to use (may be null if no password was
    *                      obtained).
-   */  
+   */
   AString getPasswordWithUI(in wstring promptString, in wstring promptTitle,
                            in nsIAuthPrompt netPrompt);
 
@@ -105,7 +105,7 @@ interface nsISmtpServer : nsISupports {
    *                      obtained).
    * @param password      The password to use (may be empty if no password was
    *                      obtained).
-   */  
+   */
   void getUsernamePasswordWithUI(in wstring promptString, in wstring promptTitle,
                                  in nsIAuthPrompt netPrompt, out ACString userid,
                                  out AString password);
@@ -117,8 +117,8 @@ interface nsISmtpServer : nsISupports {
   void forgetPassword();
 
     /**
-   * Verify that we can logon 
-   * 
+   * Verify that we can logon
+   *
    * @param  aPassword - password to use
    * @param  aUrlListener - gets called back with success or failure.
    * @return - the url that we run.

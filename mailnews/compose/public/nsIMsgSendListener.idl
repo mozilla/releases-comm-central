@@ -30,17 +30,17 @@ interface nsIMsgSendListener : nsISupports {
     void onStatus(in string aMsgID, in wstring aMsg);
 
     /**
-     * Notify the observer that the message has been sent.  This method is 
-     * called once when the networking library has finished processing the 
+     * Notify the observer that the message has been sent.  This method is
+     * called once when the networking library has finished processing the
      * message.
-     * 
+     *
      * This method is called regardless of whether the the operation was successful.
      * aMsgID   The message id for the mail message
      * status   Status code for the message send.
      * msg      A text string describing the error.
      * returnFileSpec The returned file spec for save to file operations.
      */
-    void onStopSending(in string aMsgID, in nsresult aStatus, in wstring aMsg, 
+    void onStopSending(in string aMsgID, in nsresult aStatus, in wstring aMsg,
 					             in nsIFile aReturnFile);
 
     /**

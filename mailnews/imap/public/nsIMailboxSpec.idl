@@ -13,7 +13,7 @@ interface nsIMailboxSpec : nsISupports
 {
   attribute long folder_UIDVALIDITY;
   /**
-   * The highest modification sequence number the parser has seen 
+   * The highest modification sequence number the parser has seen
    * for this mailbox. See IMAP RFC 4551
    **/
   attribute unsigned long long highestModSeq;

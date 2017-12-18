@@ -1,7 +1,7 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
- 
+
 #include "nsISupports.idl"
 
 interface nsIAutoSyncMsgStrategy;
@@ -12,7 +12,7 @@ interface nsIAutoSyncMgrListener;
 interface nsIMsgFolder;
 interface nsIMsgAccount;
 
-[scriptable, uuid(41ec36a7-1a53-4ca3-b698-dca6452a8761)] 
+[scriptable, uuid(41ec36a7-1a53-4ca3-b698-dca6452a8761)]
 interface nsIAutoSyncMgrListener : nsISupports {
 
   /**
@@ -30,7 +30,7 @@ interface nsIAutoSyncMgrListener : nsISupports {
    * @param aFolder folder that is added into the queue
    */
   void onFolderAddedIntoQ(in long aQType, in nsIMsgFolder aFolder);
-  
+
   /**
    * It is called on the listener when a folder is removed from
    * the queue
@@ -39,42 +39,42 @@ interface nsIAutoSyncMgrListener : nsISupports {
    * @param aFolder folder that is removed from the queue
    */
   void onFolderRemovedFromQ(in long aQType, in nsIMsgFolder aFolder);
-  
+
   /**
    * It is called on the listener when a message download is successfully started
    *
-   * @param aFolder folder in which the download is started 
-   * @param aNumberOfMessages number of the messages that will be downloaded 
-   * @param aTotalPending  total number of messages waiting to be downloaded 
+   * @param aFolder folder in which the download is started
+   * @param aNumberOfMessages number of the messages that will be downloaded
+   * @param aTotalPending  total number of messages waiting to be downloaded
    */
-  void onDownloadStarted(in nsIMsgFolder aFolder, in unsigned long aNumberOfMessages, 
+  void onDownloadStarted(in nsIMsgFolder aFolder, in unsigned long aNumberOfMessages,
                          in unsigned long aTotalPending);
   /**
-   * It is called on the listener when a message download on the given folder 
+   * It is called on the listener when a message download on the given folder
    * is completed
    */
   void onDownloadCompleted(in nsIMsgFolder aFolder);
-  
+
   /**
    * It is called on the listener when an error occurs during the message download
    */
   void onDownloadError(in nsIMsgFolder aFolder);
-  
+
   /*
-   * Auto-Sync manager is running or waiting for idle 
+   * Auto-Sync manager is running or waiting for idle
    */
   void onStateChanged(in boolean aRunning);
-  
+
   /**
-   * It is called on the listener after the auto-sync manager starts to process 
+   * It is called on the listener after the auto-sync manager starts to process
    * existing headers of the given folder to find missing message bodies
    * (mostly for debugging purposes)
    */
-  void onDiscoveryQProcessed(in nsIMsgFolder aFolder, in unsigned long aNumberOfHdrsProcessed, 
+  void onDiscoveryQProcessed(in nsIMsgFolder aFolder, in unsigned long aNumberOfHdrsProcessed,
                              in unsigned long aLeftToProcess);
-  
+
   /**
-   * It is called on the listener after the auto-sync manager updates the given folder 
+   * It is called on the listener after the auto-sync manager updates the given folder
    * (mostly for debugging purposes)
    */
   void onAutoSyncInitiated(in nsIMsgFolder aFolder);
@@ -84,7 +84,7 @@ interface nsIAutoSyncMgrListener : nsISupports {
 [scriptable, uuid(7fe0b48e-f5d8-4747-beb7-888c9cced3a5)]
 interface nsIAutoSyncManager : nsISupports {
 
-  /** 
+  /**
    * Download models
    */
   const long dmParallel = 0;
@@ -92,7 +92,7 @@ interface nsIAutoSyncManager : nsISupports {
 
   /**
    * Suggested minimum grouping size in bytes for message downloads.
-   * Setting this attribute to 0 resets its value to the 
+   * Setting this attribute to 0 resets its value to the
    * hardcoded default.
    */
   attribute unsigned long groupSize;
@@ -113,48 +113,48 @@ interface nsIAutoSyncManager : nsISupports {
    * Adds a listener to notify about auto-sync events
    */
   void addListener(in nsIAutoSyncMgrListener aListener);
-  
+
   /**
    * Removes the listener from notification list
    */
   void removeListener(in nsIAutoSyncMgrListener aListener);
-    
+
   /**
-   * Tests the given message to make sure that whether 
+   * Tests the given message to make sure that whether
    * it fits the download criteria or not
    */
   boolean doesMsgFitDownloadCriteria(in nsIMsgDBHdr aMsgHdr);
-  
+
   /**
    * Called by the nsAutoSyncState object when the download
    * queue is changed. Given interface is already addref'd.
    */
   void onDownloadQChanged(in nsIAutoSyncState aAutoSyncStateObj);
-  
+
   /**
    * Called by the nsAutoSyncState object when the download
    * is started. Given interface is already addref'd.
    */
   void onDownloadStarted(in nsIAutoSyncState aAutoSyncStateObj, in nsresult aStartCode);
-  
+
   /**
    * Called by the nsAutoSyncState object when the download
    * completed. Given interface is already addref'd.
    */
   void onDownloadCompleted(in nsIAutoSyncState aAutoSyncStateObj, in nsresult aExitCode);
-  
+
   /**
    * Number of elements in the discovery queue.
    * @see nsAutoSyncManager.h for details
    */
   readonly attribute unsigned long discoveryQLength;
-  
+
   /**
    * Number of elements in the update queue.
    * @see nsAutoSyncManager.h for details
    */
   readonly attribute unsigned long updateQLength;
-  
+
   /**
    * Number of elements in the download queue (a.k.a priority queue).
    * @see nsAutoSyncManager.h for details
@@ -176,7 +176,7 @@ interface nsIAutoSyncManager : nsISupports {
 
   /// Pause autosync (e.g., we're downloading for offline).
   void pause();
-  
+
   /// Resume normal autosync activities (e.g., we've come back online).
   void resume();
 };

@@ -22,7 +22,7 @@ interface nsISimpleEnumerator;
 #define MOZ_AB_LDIF_PREFIX "mozilla"
 
 // note, GeneratedName is not a real column
-// if you change any of this, make sure to change 
+// if you change any of this, make sure to change
 // Get / Set CardValue in nsAbCardProperty.cpp
 #define kPhoneticNameColumn       "_PhoneticName"
 #define kAddressCharSetColumn     "AddrCharSet"
@@ -41,7 +41,7 @@ interface nsISimpleEnumerator;
 %}
 
 [scriptable, uuid(20d4c6c3-0460-403e-aa9c-813654641566)]
-interface nsAddrDBCommitType 
+interface nsAddrDBCommitType
 {
   const long kLargeCommit = 1;
   const long kSessionCommit = 2;
@@ -56,7 +56,7 @@ interface nsIAddrDatabase : nsIAddrDBAnnouncer {
    */
   attribute nsIFile dbPath;
   nsIAddrDatabase open(in nsIFile dbFile, in boolean create, in boolean upgrading);
-             
+
   void close(in boolean forceCommit);
 
   /**
@@ -284,7 +284,7 @@ interface nsIAddrDatabase : nsIAddrDBAnnouncer {
    * @param     aParent        parent mailing list to which the card
    *                           is added. If set to null, listeners of the
    *                           database will not be notified of card creation.
-   * @param     aRoot          If the card is created while creating a new mailing 
+   * @param     aRoot          If the card is created while creating a new mailing
    *                           list, its set to the parent addressbook.
    *                           Set to null in other case.
    */

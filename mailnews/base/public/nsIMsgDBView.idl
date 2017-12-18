@@ -83,42 +83,42 @@ interface nsMsgViewSortType
 [scriptable, uuid(255d1c1e-fde7-11d4-a5be-0060b0fc04b7)]
 interface nsMsgViewNotificationCode
 {
-  const nsMsgViewNotificationCodeValue none = 0;        
+  const nsMsgViewNotificationCodeValue none = 0;
   /* No change; this call is just being used to potentially nest other sets of calls
-     inside it.  The "where" and "num" parameters are unused. 
+     inside it.  The "where" and "num" parameters are unused.
    */
-  const nsMsgViewNotificationCodeValue insertOrDelete = 1;    
+  const nsMsgViewNotificationCodeValue insertOrDelete = 1;
   /* Some lines have been inserted or deleted.
      The "where" parameter will indicate the first line that has been added or
      removed; the "num" parameter will indicate how many lines, and will be positive on
-     an insertion and negative on a deletion. 
+     an insertion and negative on a deletion.
    */
-  const nsMsgViewNotificationCodeValue changed = 2;      
+  const nsMsgViewNotificationCodeValue changed = 2;
   /* Some lines have had their contents changed (e.g., messages have been marked read
     or something.)  "where" indicates the first line with a change; "num" indicates
-    how many chaged. 
+    how many chaged.
    */
- const nsMsgViewNotificationCodeValue  scramble = 3;  
+ const nsMsgViewNotificationCodeValue  scramble = 3;
  /* Everything changed.  Probably means we resorted the folder.  We are still working
     with the same set of items, or at least have some overlap, but all the indices are
-    invalid.  The "where" and "num" parameters are unused. 
+    invalid.  The "where" and "num" parameters are unused.
   */
   const nsMsgViewNotificationCodeValue all = 4;
   /* Everything changed.  We're now not displaying anything like what we were; we
      probably opened a new folder or something. The FE needs to forget anything it ever knew
      about what was being displayed, and start over.  The "where" and "num" parameters are
-     unused.  
+     unused.
    */
   const nsMsgViewNotificationCodeValue totalContentChanged = 5;
   /* Introduced for the address book to support virtual list views.  The total number of
       entries on the LDAP directory has changed and the FE must update its scrollbar.  The
-      "num" parameter contains the total number of entries on the LDAP server. 
+      "num" parameter contains the total number of entries on the LDAP server.
    */
-  const nsMsgViewNotificationCodeValue newTopIndex = 6;        
+  const nsMsgViewNotificationCodeValue newTopIndex = 6;
   /* Introduced for the address book to support virtual list views.  The virtual list view
      cache data has changed and the FE view may be out of date.  The view should be updated
      so that the first/top index in the view is the index in the "where" parameter.  The
-     scrollbar should be updated to match the new position. 
+     scrollbar should be updated to match the new position.
    */
 
 };
@@ -137,7 +137,7 @@ interface nsMsgViewCommandType
   const nsMsgViewCommandTypeValue markMessagesRead = 0;
   const nsMsgViewCommandTypeValue markMessagesUnread = 1;
   const nsMsgViewCommandTypeValue toggleMessageRead = 2;
-                   
+
   const nsMsgViewCommandTypeValue flagMessages = 3;
   const nsMsgViewCommandTypeValue unflagMessages = 4;
 
@@ -149,7 +149,7 @@ interface nsMsgViewCommandType
   const nsMsgViewCommandTypeValue markAllRead = 10;
   const nsMsgViewCommandTypeValue expandAll = 11;
   const nsMsgViewCommandTypeValue collapseAll = 12;
-  
+
   const nsMsgViewCommandTypeValue copyMessages = 13;
   const nsMsgViewCommandTypeValue moveMessages = 14;
 
@@ -201,7 +201,7 @@ interface nsMsgNavigationType
    */
   const nsMsgNavigationTypeValue back = 15;
   /**
-   * Go forward to the previous visited message 
+   * Go forward to the previous visited message
    */
   const nsMsgNavigationTypeValue forward = 16;
   const nsMsgNavigationTypeValue firstFlagged = 17;
@@ -218,8 +218,8 @@ interface nsMsgNavigationType
 interface nsIMsgDBView : nsISupports
 {
   void open(in nsIMsgFolder folder, in nsMsgViewSortTypeValue sortType, in nsMsgViewSortOrderValue sortOrder, in nsMsgViewFlagsTypeValue viewFlags, out long count);
-  void openWithHdrs(in nsISimpleEnumerator aHeaders, in nsMsgViewSortTypeValue aSortType, 
-                      in nsMsgViewSortOrderValue aSortOrder, 
+  void openWithHdrs(in nsISimpleEnumerator aHeaders, in nsMsgViewSortTypeValue aSortType,
+                      in nsMsgViewSortOrderValue aSortOrder,
                       in nsMsgViewFlagsTypeValue aViewFlags, out long aCount);
   void close();
 
@@ -229,7 +229,7 @@ interface nsIMsgDBView : nsISupports
 
   void doCommand(in nsMsgViewCommandTypeValue command);
   void doCommandWithFolder(in nsMsgViewCommandTypeValue command, in nsIMsgFolder destFolder);
-  void getCommandStatus(in nsMsgViewCommandTypeValue command, out boolean selectable_p, 
+  void getCommandStatus(in nsMsgViewCommandTypeValue command, out boolean selectable_p,
                         out nsMsgViewCommandCheckStateValue selected_p);
 
   readonly attribute nsMsgViewTypeValue viewType;
@@ -257,13 +257,13 @@ interface nsIMsgDBView : nsISupports
   readonly attribute nsMsgKey keyForFirstSelectedMessage;
   readonly attribute nsMsgViewIndex viewIndexForFirstSelectedMsg;
   /**
-   * this method will automatically expand the destination thread, 
-   * if needs be. 
+   * this method will automatically expand the destination thread,
+   * if needs be.
    */
   void viewNavigate(in nsMsgNavigationTypeValue motion, out nsMsgKey resultId, out nsMsgViewIndex resultIndex, out nsMsgViewIndex threadIndex, in boolean wrap);
 
   /**
-   * Indicates if navigation of the passed motion type is valid. 
+   * Indicates if navigation of the passed motion type is valid.
    */
   boolean navigateStatus(in nsMsgNavigationTypeValue motion);
 
@@ -338,8 +338,8 @@ interface nsIMsgDBView : nsISupports
    *  all of the messages in that thread selected.
    */
   readonly attribute unsigned long numSelected;
-  readonly attribute nsMsgViewIndex msgToSelectAfterDelete; 
-  readonly attribute nsMsgViewIndex currentlyDisplayedMessage; 
+  readonly attribute nsMsgViewIndex msgToSelectAfterDelete;
+  readonly attribute nsMsgViewIndex currentlyDisplayedMessage;
 
   /**
    * Number of messages in view, including messages in collapsed threads.
@@ -374,7 +374,7 @@ interface nsIMsgDBView : nsISupports
   readonly attribute boolean supportsThreading;
 
   attribute nsIMsgSearchSession searchSession;
-  readonly attribute boolean removeRowOnMoveOrDelete; 
+  readonly attribute boolean removeRowOnMoveOrDelete;
 
   /**
    * Finds the view index of the passed in msgKey. Note this should not
@@ -444,7 +444,7 @@ interface nsIMsgDBView : nsISupports
 
   /**
    * Return the view thread corresponding to aMsgHdr. If we're a cross-folder
-   * view, then it would be the cross folder view thread, otherwise, the 
+   * view, then it would be the cross folder view thread, otherwise, the
    * db thread object.
    *
    * @param aMsgHdr message header we want the view thread object of.
@@ -455,15 +455,15 @@ interface nsIMsgDBView : nsISupports
 
   // use lines or kB for size?
   readonly attribute boolean usingLines;
-  
+
   // Custom Column Implementation note: see nsIMsgCustomColumnHandler
-  
+
   // attaches a custom column handler to a specific column (can be a new column or a built in)
   void addColumnHandler(in AString aColumn, in nsIMsgCustomColumnHandler aHandler);
-  
+
   // removes a custom column handler leaving the column to be handled by the system
   void removeColumnHandler(in AString aColumn);
-  
+
   // returns the custom column handler attached to a specific column - if any
   nsIMsgCustomColumnHandler getColumnHandler(in AString aColumn);
 
@@ -493,7 +493,7 @@ interface nsIMsgDBView : nsISupports
 };
 
 /* this interface is rapidly morphing from a command updater interface into a more generic
-   FE updater interface to handle changes in the view 
+   FE updater interface to handle changes in the view
 */
 
 [scriptable, uuid(ce8f52ee-e742-4b31-8bdd-2b3a8168a117)]
@@ -512,15 +512,15 @@ interface nsIMsgDBViewCommandUpdater : nsISupports
   void displayMessageChanged(in nsIMsgFolder aFolder, in AString aSubject, in ACString aKeywords);
 
   /**
-  * allows the backend to tell the front end to re-determine 
+  * allows the backend to tell the front end to re-determine
   * which message we should selet after a delete or move
   */
   void updateNextMessageAfterDelete();
-  
+
   /**
   * tell the front end that the selection has changed, and may need to be
   * resummarized.
-  * 
+  *
   * @return   true if we did summarize, false otherwise.
   */
   boolean summarizeSelection();

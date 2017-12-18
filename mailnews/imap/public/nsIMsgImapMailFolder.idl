@@ -17,7 +17,7 @@ interface nsIAutoSyncState;
  * values that the folder props js code will use to update the sharing and
  * quota tabs in the folder properties.
  */
-[scriptable, uuid(09D99F2C-3E23-4f8c-A536-5C277BAA9585)] 
+[scriptable, uuid(09D99F2C-3E23-4f8c-A536-5C277BAA9585)]
 interface nsIMsgImapFolderProps : nsISupports {
 
     void setFolderType(in AString folderType);
@@ -59,7 +59,7 @@ interface nsIMsgImapMailFolder : nsISupports {
   void renameClient(in nsIMsgWindow msgWindow, in nsIMsgFolder msgFolder, in ACString oldName, in ACString newName);
 
   // these are used for offline synchronization
-  void storeImapFlags(in long aFlags, in boolean aAddFlags, [array, size_is (aNumKeys)] 
+  void storeImapFlags(in long aFlags, in boolean aAddFlags, [array, size_is (aNumKeys)]
       in nsMsgKey aKeysToFlag, in unsigned long aNumKeys, in nsIUrlListener aUrlListener);
   nsIURI setImapFlags(in string uids, in long flags);
   void replayOfflineMoveCopy([array, size_is (numKeys)] in nsMsgKey keys, in unsigned long numKeys, in boolean isMove, in nsIMsgFolder aDstFolder,

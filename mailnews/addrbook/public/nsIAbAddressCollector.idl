@@ -20,7 +20,7 @@ interface nsIAbAddressCollector : nsISupports {
    * will be updated if they are supplied alongside the address.
    * If a card does not exist for the email it will be created if aCreateCard
    * is true.
-   * 
+   *
    * @param  aAddresses  The list of emails (in standard header format)
    *                     to collect into the address book.
    * @param  aCreateCard Set to true if a card should be created if the

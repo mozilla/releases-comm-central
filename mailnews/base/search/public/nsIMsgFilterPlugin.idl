@@ -26,7 +26,7 @@ interface nsIMsgFilterPlugin : nsISupports
      * Some protocols (ie IMAP) can, as an optimization, avoid
      * downloading all message header lines.  If your plugin doesn't need
      * any more than the minimal set, it can return false for this attribute.
-     */     
+     */
     readonly attribute boolean shouldDownloadAllHeaders;
 
 };
@@ -131,7 +131,7 @@ interface nsIJunkMailPlugin : nsIMsgFilterPlugin
      * backwards compatibility with existing junk-oriented classification
      * code.
      */
-     
+
     const unsigned long GOOD_TRAIT = 1; // good
     const unsigned long JUNK_TRAIT = 2; // junk
 
@@ -146,7 +146,7 @@ interface nsIJunkMailPlugin : nsIMsgFilterPlugin
                           [array, size_is(aCount)] in string aMsgURIs,
                           in nsIMsgWindow aMsgWindow,
                           in nsIJunkMailClassificationListener aListener);
-    
+
     /**
      * Given a message URI, evaluate its relative match to a list of
      * traits according to the current training set.
@@ -206,7 +206,7 @@ interface nsIJunkMailPlugin : nsIMsgFilterPlugin
      * cause the training set to be updated appropriately.
      *
      * @arg aMsgURI                     URI of the message to be classified
-     * @arg aOldUserClassification      Was it previous manually classified 
+     * @arg aOldUserClassification      Was it previous manually classified
      *                                  by the user?  If so, how?
      * @arg aNewClassification          New manual classification.
      * @arg aListener                   Callback (may be null)
@@ -243,8 +243,8 @@ interface nsIJunkMailPlugin : nsIMsgFilterPlugin
         [optional] in nsIJunkMailClassificationListener aJunkListener);
 
     readonly attribute boolean userHasClassified;
- 
-    /** Removes the training file and clears out any in memory training tokens. 
+
+    /** Removes the training file and clears out any in memory training tokens.
         User must retrain after doing this.
     **/
     void resetTrainingData();

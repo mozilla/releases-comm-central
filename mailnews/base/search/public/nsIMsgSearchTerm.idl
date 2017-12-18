@@ -58,7 +58,7 @@ interface nsIMsgSearchTerm : nsISupports {
      *
      * @param  aJunkPercent  junkpercent for message (0-100, 100 is junk)
      * @return               true if matches
-     */   
+     */
     boolean matchJunkPercent(in unsigned long aJunkPercent);
     /*
      * Test search term match for junkscoreorigin

@@ -15,17 +15,17 @@ interface nsIFolderListener : nsISupports {
   const folderListenerNotifyFlagValue added = 0x1;
   void OnItemAdded(in nsIMsgFolder aParentItem,
                    in nsISupports aItem);
-  
+
   const folderListenerNotifyFlagValue removed = 0x2;
   void OnItemRemoved(in nsIMsgFolder aParentItem,
                      in nsISupports aItem);
-  
+
   const folderListenerNotifyFlagValue propertyChanged = 0x4;
   void OnItemPropertyChanged(in nsIMsgFolder aItem,
                              in ACString aProperty,
                              in string aOldValue,
                              in string aNewValue);
-  
+
   const folderListenerNotifyFlagValue intPropertyChanged = 0x8;
   // While this property handles long long (64bit wide) values,
   // the Javascript engine will only pass values up to 2^53 to the consumers.
@@ -33,19 +33,19 @@ interface nsIFolderListener : nsISupports {
                                 in ACString aProperty,
                                 in long long aOldValue,
                                 in long long aNewValue);
-  
+
   const folderListenerNotifyFlagValue boolPropertyChanged = 0x10;
   void OnItemBoolPropertyChanged(in nsIMsgFolder aItem,
                                  in ACString aProperty,
                                  in boolean aOldValue,
                                  in boolean aNewValue);
-  
+
   const folderListenerNotifyFlagValue unicharPropertyChanged = 0x20;
   void OnItemUnicharPropertyChanged(in nsIMsgFolder aItem,
                                     in ACString aProperty,
                                     in wstring aOldValue,
                                     in wstring aNewValue);
-  
+
   const folderListenerNotifyFlagValue propertyFlagChanged = 0x40;
   void OnItemPropertyFlagChanged(in nsIMsgDBHdr aItem,
                                  in ACString aProperty,
@@ -54,8 +54,8 @@ interface nsIFolderListener : nsISupports {
 
   const folderListenerNotifyFlagValue event = 0x80;
   void OnItemEvent(in nsIMsgFolder aItem, in ACString aEvent);
-  
-  const folderListenerNotifyFlagValue all = 0xFFFFFFFF; 
+
+  const folderListenerNotifyFlagValue all = 0xFFFFFFFF;
 
   //  void OnFolderLoaded(in nsIMsgFolder aFolder);
   //  void OnDeleteOrMoveMessagesCompleted(in nsIMsgFolder aFolder);

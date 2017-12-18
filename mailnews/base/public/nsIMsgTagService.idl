@@ -22,7 +22,7 @@
  * doesn't guarantee a unique mapping.
  *
  * Tags are sorted internally by 'importance' by their ordinal strings (which by
- * default are equal to a tag's key and thus only stored if different). 
+ * default are equal to a tag's key and thus only stored if different).
  * The alphanumerically 'smallest' string is called the 'most important' one and
  * comes first in any sorted array. The remainder follows in ascending order.
  */

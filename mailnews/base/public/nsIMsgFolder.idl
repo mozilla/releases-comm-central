@@ -102,7 +102,7 @@ interface nsIMsgFolder : nsISupports {
   readonly attribute nsIMsgFolder rootFolder;
 
   /**
-   * Get the server's list of filters. (Or in the case of news, the 
+   * Get the server's list of filters. (Or in the case of news, the
    * filter list for this newsgroup)
    * This list SHOULD be used for all incoming messages.
    *
@@ -210,10 +210,10 @@ interface nsIMsgFolder : nsISupports {
   /**
    * Compact all folders in the account corresponding to this folder/
    * Optionally compact their offline stores as well (imap/news)
-   * 
+   *
    * @param aListener   Notified of completion, can be null.
    * @param aMsgWindow  For progress/status, can be null.
-   * @param aCompactOfflineAlso  This controls whether we compact all 
+   * @param aCompactOfflineAlso  This controls whether we compact all
    *                             offline stores as well.
    */
   void compactAll(in nsIUrlListener aListener, in nsIMsgWindow aMsgWindow,
@@ -357,7 +357,7 @@ interface nsIMsgFolder : nsISupports {
 
   /**
    * Called to notify the database and/or listeners of a change of flag. The
-   * known flags are defined in nsMsgFolderFlags.h 
+   * known flags are defined in nsMsgFolderFlags.h
    *
    * @note        This doesn't need to be called for normal flag changes via
    *              the *Flag functions on this interface.
@@ -758,7 +758,7 @@ interface nsIMsgFolder : nsISupports {
    *             for an HTML part, this will be "text/html" even though aStripHTMLTags might be true
    */
   AUTF8String getMsgTextFromStream(in nsIInputStream aStream, in ACString aCharset,
-                                   in unsigned long aBytesToRead, in unsigned long aMaxOutputLen, 
+                                   in unsigned long aBytesToRead, in unsigned long aMaxOutputLen,
                                    in boolean aCompressQuotes, in boolean aStripHTMLTags,
                                    out ACString aContentType);
 
@@ -807,7 +807,7 @@ interface nsIMsgFolder : nsISupports {
    *
    * Note nsIMsgIncomingServer.getCharValue for a server inherits from
    * the preference mail.server.default.(propertyName) as a global value
-   * 
+   *
    * (ex: if propertyName = "IAmAGlobal" and no folder nor server properties
    * are set, then the inherited property will return the preference value
    * mail.server.default.IAmAGlobal)

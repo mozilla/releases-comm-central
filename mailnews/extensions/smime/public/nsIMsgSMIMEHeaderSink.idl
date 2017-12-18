@@ -5,8 +5,8 @@
 
 
 /* This is a private interface used exclusively by SMIME. NO ONE outside of extensions/smime
-   or the hard coded smime decryption files in mime/src should have any knowledge nor should 
-   be referring to this interface. 
+   or the hard coded smime decryption files in mime/src should have any knowledge nor should
+   be referring to this interface.
 */
 
 #include "nsISupports.idl"
@@ -14,7 +14,7 @@
 interface nsIX509Cert;
 
 [scriptable, uuid(25380FA1-E70C-4e82-B0BC-F31C2F41C470)]
-interface nsIMsgSMIMEHeaderSink : nsISupports 
+interface nsIMsgSMIMEHeaderSink : nsISupports
 {
   void signedStatus(in long aNestingLevel, in long aSignatureStatus, in nsIX509Cert aSignerCert);
   void encryptionStatus(in long aNestingLevel, in long aEncryptionStatus, in nsIX509Cert aReceipientCert);

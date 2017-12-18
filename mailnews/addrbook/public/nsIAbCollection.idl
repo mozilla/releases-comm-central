@@ -13,7 +13,7 @@ interface nsISimpleEnumerator;
  */
 [scriptable, uuid(70f6123f-e06b-4101-9750-4ce73b38134b)]
 interface nsIAbCollection : nsIAbItem {
-  
+
   /**
    * Returns true if this collection is read-only.
    */
@@ -31,7 +31,7 @@ interface nsIAbCollection : nsIAbItem {
    */
   readonly attribute boolean isSecure;
 
-  /** 
+  /**
    * Returns an address book card for the specified email address if found.
    *
    * If there are multiple cards with the given email address, this method will

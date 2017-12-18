@@ -5,13 +5,13 @@
 
 
 /* This is a private interface used exclusively by SMIME. NO ONE outside of extensions/smime
-   should have any knowledge nor should be referring to this interface. 
+   should have any knowledge nor should be referring to this interface.
 */
 
 #include "nsISupports.idl"
 
 [scriptable, uuid(338E91F9-5970-4f81-B771-0822A32B1161)]
-interface nsIMsgSMIMECompFields : nsISupports 
+interface nsIMsgSMIMECompFields : nsISupports
 {
   attribute boolean signMessage;
   attribute boolean requireEncryptMessage;

@@ -20,7 +20,7 @@ interface nsINntpIncomingServer : nsISupports {
 
     /* the newsrc root path (the directories all the newsrc files live) */
     attribute nsIFile newsrcRootPath;
-    
+
     /* ask the user before downloading more than maxArticles? */
     attribute boolean notifyOn;
 
@@ -37,7 +37,7 @@ interface nsINntpIncomingServer : nsISupports {
     attribute boolean singleSignon;
 
     /** the server charset and it may be needed to display newsgroup folder
-     *  names correctly 
+     *  names correctly
      **/
     attribute ACString charset;
 
@@ -122,13 +122,13 @@ interface nsINntpIncomingServer : nsISupports {
     attribute boolean postingAllowed;
     attribute boolean pushAuth;
     attribute unsigned long lastUpdatedTime;
-    
+
     void addPropertyForGet(in string name, in string value);
     string queryPropertyForGet(in string name);
-    
+
     void addSearchableGroup(in AString name);
     boolean querySearchableGroup(in AString name);
-    
+
     void addSearchableHeader(in string headerName);
     boolean querySearchableHeader(in string headerName);
 

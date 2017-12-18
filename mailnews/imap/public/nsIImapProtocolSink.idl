@@ -12,7 +12,7 @@ interface nsIMsgMailNewsUrl;
  */
 [scriptable, uuid(1217cd9d-7678-4026-b323-0d4b45816af0)]
 interface nsIImapProtocolSink : nsISupports {
-  
+
   /**
    * Does general cleanup for the imap protocol object.
    */

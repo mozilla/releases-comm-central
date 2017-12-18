@@ -30,7 +30,7 @@ interface nsIMsgWindow : nsISupports {
   attribute nsIMsgHeaderSink msgHeaderSink;
   attribute nsITransactionManager transactionManager;
   attribute nsIMsgFolder openFolder;
-  
+
   /**
    * @note Setting this attribute has various side effects, including
    * wiring up this object as the parent nsIURIContentListener for the

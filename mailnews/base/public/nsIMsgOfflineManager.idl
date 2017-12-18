@@ -11,13 +11,13 @@
 interface nsIMsgWindow;
 
 [scriptable, uuid(5e885fec-09b0-11d5-a5bf-0060b0fc04b7)]
-interface nsIMsgOfflineManager : nsISupports 
+interface nsIMsgOfflineManager : nsISupports
 {
   attribute nsIMsgWindow window; // should be a progress window.
   attribute boolean inProgress;  // an online->offine or online->offline operation in progress.
                                  // the offline menu should be disabled.
   void goOnline(in boolean sendUnsentMessages, in boolean playbackOfflineImapOperations, in nsIMsgWindow aMsgWindow);
-  void synchronizeForOffline(in boolean downloadNews, in boolean downloadMail, in boolean sendUnsentMessages, 
+  void synchronizeForOffline(in boolean downloadNews, in boolean downloadMail, in boolean sendUnsentMessages,
                             in boolean goOfflineWhenDone, in nsIMsgWindow aMsgWindow);
 };
 

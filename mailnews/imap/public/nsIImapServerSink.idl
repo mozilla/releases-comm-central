@@ -103,7 +103,7 @@ interface nsIImapServerSink : nsISupports {
    */
   void fEAlertWithName(in string aMsgName, in nsIMsgMailNewsUrl aUrl);
   /**
-   * Takes a response from the server and prepends it with IMAP_SERVER_SAID 
+   * Takes a response from the server and prepends it with IMAP_SERVER_SAID
    *
    * @param aServerString  The string to alert the user with.
    * @param url            The running url.

@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-// This idl will be compiled by MIDL.  MS-COM is used 
+// This idl will be compiled by MIDL.  MS-COM is used
 // as bridge between MAPI clients and the Mozilla.
 
 import "unknwn.idl";
@@ -11,7 +11,7 @@ typedef wchar_t LOGIN_PW_TYPE[256];
 
 typedef struct
 {
-    unsigned long     ulReserved;            
+    unsigned long     ulReserved;
     unsigned long     flFlags;               /* Flags */
     unsigned long     nPosition_NotUsed;     /* character in text to be replaced by attachment */
     LPTSTR            lpszPathName;          /* Full path name including file name */
@@ -22,11 +22,11 @@ typedef struct
 
 typedef struct
 {
-    unsigned long      ulReserved;           
+    unsigned long      ulReserved;
     unsigned long      ulRecipClass;  /* MAPI_TO, MAPI_CC, MAPI_BCC, MAPI_ORIG    */
     LPSTR             lpszName;      /* Recipient name to display */
     LPSTR             lpszAddress;   /* Recipient email address */
-    unsigned long      ulEIDSize_NotUsed;     
+    unsigned long      ulEIDSize_NotUsed;
     unsigned char  *   lpEntryID_NotUsed ;
 } nsMapiRecipDesc, * lpnsMapiRecipDesc;
 
@@ -64,11 +64,11 @@ interface nsIMapi : IUnknown
     HRESULT IsValidSession([in] unsigned long aSession);
 
     HRESULT SendMail([in] unsigned long aSession, [in, unique] lpnsMapiMessage aMessage,
-                  [in] short aRecipCount, [in, size_is(aRecipCount)] lpnsMapiRecipDesc aRecips, 
-                  [in] short aFileCount, [in, size_is(aFileCount)] lpnsMapiFileDesc aFiles, 
+                  [in] short aRecipCount, [in, size_is(aRecipCount)] lpnsMapiRecipDesc aRecips,
+                  [in] short aFileCount, [in, size_is(aFileCount)] lpnsMapiFileDesc aFiles,
                   [in] unsigned long aFlags, [in] unsigned long aReserved) ;
 
-    HRESULT SendDocuments( [in] unsigned long aSession, 
+    HRESULT SendDocuments( [in] unsigned long aSession,
                   [in, unique] LPTSTR aDelimChar, [in, unique] LPTSTR aFilePaths,
                   [in, unique] LPTSTR aFileNames, [in] ULONG aFlags ) ;
 
