@@ -18,12 +18,12 @@ tasks:
         then:
           '${action.taskGroupId}'
         else:
-          '${as_slugid("decision")}' # same as taskId; this is how automation identifies a decision tsak
+          '${as_slugid("decision")}'  # same as taskId; this is how automation identifies a decision tsak
       schedulerId: 'gecko-level-${repository.level}'
 
       created: {$fromNow: ''}
       deadline: {$fromNow: '1 day'}
-      expires: {$fromNow: '1 year 1 second'} # 1 second so artifacts expire first, despite rounding errors
+      expires: {$fromNow: '1 year 1 second'}  # 1 second so artifacts expire first, despite rounding errors
 
       metadata:
         $merge:
@@ -56,21 +56,21 @@ tasks:
 
       routes:
         $flatten:
-        - "tc-treeherder.v2.${repository.project}.${push.revision}.${push.pushlog_id}"
-        - "tc-treeherder-stage.v2.${repository.project}.${push.revision}.${push.pushlog_id}"
-        - $if: 'tasks_for == "hg-push"'
-          then:
-          - "index.comm.v2.${repository.project}.latest.thunderbird.decision"
-          - "index.comm.v2.${repository.project}.revision.${push.revision}.thunderbird.decision"
-          - "index.comm.v2.${repository.project}.pushlog-id.${push.pushlog_id}.decision"
-          - "notify.email.${ownerEmail}.on-failed"
-          - $if: '"mozilla@hocat.ca" in ownerEmail'
-            # Until taskcluster is ready for general consumption, don't report exceptions from taskcluster.
-            then: "notify.email.${ownerEmail}.on-exception"
-          else:
-          - $if: 'tasks_for == "action"'
-            then: "index.comm.v2.${repository.project}.pushlog-id.${push.pushlog_id}.actions.$ownTaskId"
-            else: "index.comm.v2.${repository.project}.latest.thunderbird.decision-${cron.job_name}"
+          - "tc-treeherder.v2.${repository.project}.${push.revision}.${push.pushlog_id}"
+          - "tc-treeherder-stage.v2.${repository.project}.${push.revision}.${push.pushlog_id}"
+          - $if: 'tasks_for == "hg-push"'
+            then:
+              - "index.comm.v2.${repository.project}.latest.thunderbird.decision"
+              - "index.comm.v2.${repository.project}.revision.${push.revision}.thunderbird.decision"
+              - "index.comm.v2.${repository.project}.pushlog-id.${push.pushlog_id}.decision"
+              - "notify.email.${ownerEmail}.on-failed"
+              - $if: '"mozilla@hocat.ca" in ownerEmail'
+                # Until taskcluster is ready for general consumption, don't report exceptions from taskcluster.
+                then: "notify.email.${ownerEmail}.on-exception"
+            else:
+              - $if: 'tasks_for == "action"'
+                then: "index.comm.v2.${repository.project}.pushlog-id.${push.pushlog_id}.actions.$ownTaskId"
+                else: "index.comm.v2.${repository.project}.latest.thunderbird.decision-${cron.job_name}"
 
       scopes:
         $if: 'tasks_for == "hg-push"'
@@ -92,35 +92,35 @@ tasks:
 
       payload:
         env:
+          # checkout-gecko uses these to check out the source; the inputs
+          # to `mach taskgraph decision` are all on the command line.
           $merge:
-          - # checkout-gecko uses these to check out the source; the inputs
-            # to `mach taskgraph decision` are all on the command line.
-            GECKO_BASE_REPOSITORY: 'https://hg.mozilla.org/mozilla-unified'
-            GECKO_HEAD_REPOSITORY: 'https://hg.mozilla.org/mozilla-central'
-            GECKO_HEAD_REF: 'default'
-            COMM_BASE_REPOSITORY: 'https://hg.mozilla.org/comm-central'
-            COMM_HEAD_REPOSITORY: '${repoUrl}'
-            COMM_HEAD_REF: '${push.revision}'
-            COMM_HEAD_REV: '${push.revision}'
-            HG_STORE_PATH: /buillds/worker/checkouts/hg-store
-            TASKCLUSTER_CACHES: /builds/worker/checkouts
-          - $if: 'tasks_for != "action"'
-            then: 
-              $if: '("--buildbot" in push.comment) && !("mozilla@hocat.ca" in ownerEmail)'
+            - GECKO_BASE_REPOSITORY: 'https://hg.mozilla.org/mozilla-unified'
+              GECKO_HEAD_REPOSITORY: 'https://hg.mozilla.org/mozilla-central'
+              GECKO_HEAD_REF: 'default'
+              COMM_BASE_REPOSITORY: 'https://hg.mozilla.org/comm-central'
+              COMM_HEAD_REPOSITORY: '${repoUrl}'
+              COMM_HEAD_REF: '${push.revision}'
+              COMM_HEAD_REV: '${push.revision}'
+              HG_STORE_PATH: /buillds/worker/checkouts/hg-store
+              TASKCLUSTER_CACHES: /builds/worker/checkouts
+            - $if: 'tasks_for != "action"'
               then:
-                # Until all buildbot platforms are supported in taskcluster, avoid
-                # passing try syntax to taskcluster.
-                COMM_COMMIT_MSG: 'try: ignored'
-              else:
-                COMM_COMMIT_MSG: '${push.comment}'
-          - $if: 'tasks_for == "action"'
-            then:
-              ACTION_TASK_GROUP_ID: '${action.taskGroupId}'
-              ACTION_TASK_ID: {$json: {$eval: 'taskId'}}
-              ACTION_TASK: {$json: {$eval: 'task'}}
-              ACTION_INPUT: {$json: {$eval: 'input'}}
-              ACTION_CALLBACK: '${action.cb_name}'
-              ACTION_PARAMETERS: {$json: {$eval: 'parameters'}}
+                $if: '("--buildbot" in push.comment) && !("mozilla@hocat.ca" in ownerEmail)'
+                then:
+                  # Until all buildbot platforms are supported in taskcluster, avoid
+                  # passing try syntax to taskcluster.
+                  COMM_COMMIT_MSG: 'try: ignored'
+                else:
+                  COMM_COMMIT_MSG: '${push.comment}'
+            - $if: 'tasks_for == "action"'
+              then:
+                ACTION_TASK_GROUP_ID: '${action.taskGroupId}'
+                ACTION_TASK_ID: {$json: {$eval: 'taskId'}}
+                ACTION_TASK: {$json: {$eval: 'task'}}
+                ACTION_INPUT: {$json: {$eval: 'input'}}
+                ACTION_CALLBACK: '${action.cb_name}'
+                ACTION_PARAMETERS: {$json: {$eval: 'parameters'}}
 
         cache:
           level-${repository.level}-checkouts-sparse-v1: /builds/worker/checkouts
