@@ -183,12 +183,6 @@ var tests = [
 ];
 
 function run_test() {
-  if ("@mozilla.org/gnome-gconf-service;1" in Cc) {
-    // The GNOME GConf service needs to be initialized, otherwise we get
-    // assertions about g_type_init not being called.
-    Cc["@mozilla.org/gnome-gconf-service;1"].getService();
-  }
-
   Services.scriptloader.loadSubScript("chrome://messenger/content/about-support/accounts.js");
 
   setup_accounts();
