@@ -19,10 +19,10 @@ CMapiFactory::~CMapiFactory()
 }
 
 STDMETHODIMP CMapiFactory::QueryInterface(const IID& aIid, void** aPpv)
-{    
+{
     if ((aIid == IID_IUnknown) || (aIid == IID_IClassFactory))
     {
-        *aPpv = static_cast<IClassFactory*>(this); 
+        *aPpv = static_cast<IClassFactory*>(this);
     }
     else
     {
@@ -38,7 +38,7 @@ STDMETHODIMP_(ULONG) CMapiFactory::AddRef()
     return ++m_cRef;
 }
 
-STDMETHODIMP_(ULONG) CMapiFactory::Release() 
+STDMETHODIMP_(ULONG) CMapiFactory::Release()
 {
     int32_t temp = --m_cRef;
     if (m_cRef == 0)
@@ -52,7 +52,7 @@ STDMETHODIMP_(ULONG) CMapiFactory::Release()
 
 STDMETHODIMP CMapiFactory::CreateInstance(IUnknown* aUnknownOuter,
                                            const IID& aIid,
-                                           void** aPpv) 
+                                           void** aPpv)
 {
     // Cannot aggregate.
 
@@ -79,7 +79,7 @@ STDMETHODIMP CMapiFactory::CreateInstance(IUnknown* aUnknownOuter,
     return hr;
 }
 
-STDMETHODIMP CMapiFactory::LockServer(BOOL aLock) 
+STDMETHODIMP CMapiFactory::LockServer(BOOL aLock)
 {
     return S_OK ;
 }

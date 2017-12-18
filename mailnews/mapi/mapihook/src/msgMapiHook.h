@@ -11,7 +11,7 @@ class nsMapiHook
 {
     public :
 
-        static bool DisplayLoginDialog(bool aLogin, char16_t **aUsername, 
+        static bool DisplayLoginDialog(bool aLogin, char16_t **aUsername,
                         char16_t **aPassword);
         static bool VerifyUserName(const nsString& aUsername, nsCString& aIdKey);
 
@@ -19,11 +19,11 @@ class nsMapiHook
         static nsresult BlindSendMail (unsigned long aSession, nsIMsgCompFields * aCompFields) ;
         static nsresult ShowComposerWindow (unsigned long aSession, nsIMsgCompFields * aCompFields) ;
         static nsresult PopulateCompFields(lpnsMapiMessage aMessage, nsIMsgCompFields * aCompFields) ;
-        static nsresult PopulateCompFieldsWithConversion(lpnsMapiMessage aMessage, 
+        static nsresult PopulateCompFieldsWithConversion(lpnsMapiMessage aMessage,
                                         nsIMsgCompFields * aCompFields) ;
-        static nsresult PopulateCompFieldsForSendDocs(nsIMsgCompFields * aCompFields, 
+        static nsresult PopulateCompFieldsForSendDocs(nsIMsgCompFields * aCompFields,
                                         ULONG aFlags, LPTSTR aDelimChar, LPTSTR aFilePaths) ;
-        static nsresult HandleAttachments (nsIMsgCompFields * aCompFields, int32_t aFileCount, 
+        static nsresult HandleAttachments (nsIMsgCompFields * aCompFields, int32_t aFileCount,
                                         lpnsMapiFileDesc aFiles, BOOL aIsUnicode) ;
         static void CleanUp();
 

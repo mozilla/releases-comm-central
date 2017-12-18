@@ -33,13 +33,13 @@ public :
 
   // Interface INsMapi
 
-  STDMETHODIMP Login(unsigned long aUIArg, LOGIN_PW_TYPE aLogin, 
+  STDMETHODIMP Login(unsigned long aUIArg, LOGIN_PW_TYPE aLogin,
                      LOGIN_PW_TYPE aPassWord, unsigned long aFlags,
                      unsigned long *aSessionId);
 
   STDMETHODIMP SendMail( unsigned long aSession, lpnsMapiMessage aMessage,
-       short aRecipCount, lpnsMapiRecipDesc aRecips , 
-       short aFileCount, lpnsMapiFileDesc aFiles , 
+       short aRecipCount, lpnsMapiRecipDesc aRecips ,
+       short aFileCount, lpnsMapiFileDesc aFiles ,
        unsigned long aFlags, unsigned long aReserved) ;
 
   STDMETHODIMP SendDocuments( unsigned long aSession, LPTSTR aDelimChar,

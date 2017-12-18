@@ -37,7 +37,7 @@ nsMapiSupport::Observe(nsISupports *aSubject, const char *aTopic, const char16_t
     nsCOMPtr<nsIObserverService> observerService =
       mozilla::services::GetObserverService();
     NS_ENSURE_TRUE(observerService, NS_ERROR_UNEXPECTED);
- 
+
     rv = observerService->AddObserver(this,"profile-after-change", false);
     if (NS_FAILED(rv)) return rv;
 

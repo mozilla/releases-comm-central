@@ -79,7 +79,7 @@ class nsMAPISession
     void GetIdKey(nsCString& aKey);
     ~nsMAPISession();
     // For enumerating Messages...
-    void SetMapiListContext( void *listContext) { m_listContext = listContext; } 
+    void SetMapiListContext( void *listContext) { m_listContext = listContext; }
     void *GetMapiListContext( ) { return m_listContext; }
 };
 

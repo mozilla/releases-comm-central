@@ -44,17 +44,17 @@ CMapiImp::CMapiImp()
     m_Lock = PR_NewLock();
 }
 
-CMapiImp::~CMapiImp() 
-{ 
+CMapiImp::~CMapiImp()
+{
     if (m_Lock)
         PR_DestroyLock(m_Lock);
 }
 
 STDMETHODIMP CMapiImp::QueryInterface(const IID& aIid, void** aPpv)
-{    
+{
     if (aIid == IID_IUnknown)
     {
-        *aPpv = static_cast<nsIMapi*>(this); 
+        *aPpv = static_cast<nsIMapi*>(this);
     }
     else if (aIid == IID_nsIMapi)
     {
@@ -75,7 +75,7 @@ STDMETHODIMP_(ULONG) CMapiImp::AddRef()
     return ++m_cRef;
 }
 
-STDMETHODIMP_(ULONG) CMapiImp::Release() 
+STDMETHODIMP_(ULONG) CMapiImp::Release()
 {
     int32_t temp = --m_cRef;
     if (m_cRef == 0)
@@ -147,8 +147,8 @@ STDMETHODIMP CMapiImp::Login(unsigned long aUIArg, LOGIN_PW_TYPE aLogin, LOGIN_P
     {
       // get default account
       nsresult rv;
-      nsCOMPtr <nsIMsgAccountManager> accountManager = 
-        do_GetService(NS_MSGACCOUNTMANAGER_CONTRACTID, &rv); 
+      nsCOMPtr <nsIMsgAccountManager> accountManager =
+        do_GetService(NS_MSGACCOUNTMANAGER_CONTRACTID, &rv);
       NS_ENSURE_SUCCESS(rv,MAPI_E_LOGIN_FAILURE);
       nsCOMPtr <nsIMsgAccount> account;
       nsCOMPtr <nsIMsgIdentity> identity;
@@ -194,18 +194,18 @@ STDMETHODIMP CMapiImp::Login(unsigned long aUIArg, LOGIN_PW_TYPE aLogin, LOGIN_P
 }
 
 STDMETHODIMP CMapiImp::SendMail( unsigned long aSession, lpnsMapiMessage aMessage,
-     short aRecipCount, lpnsMapiRecipDesc aRecips , short aFileCount, lpnsMapiFileDesc aFiles , 
+     short aRecipCount, lpnsMapiRecipDesc aRecips , short aFileCount, lpnsMapiFileDesc aFiles ,
      unsigned long aFlags, unsigned long aReserved)
 {
     nsresult rv = NS_OK ;
 
     MOZ_LOG(MAPI, mozilla::LogLevel::Debug, ("CMapiImp::SendMail using flags %d\n", aFlags));
     // Assign the pointers in the aMessage struct to the array of Recips and Files
-    // received here from MS COM. These are used in BlindSendMail and ShowCompWin fns 
+    // received here from MS COM. These are used in BlindSendMail and ShowCompWin fns
     aMessage->lpRecips = aRecips ;
     aMessage->lpFiles = aFiles ;
 
-    MOZ_LOG(MAPI, mozilla::LogLevel::Debug, ("CMapiImp::SendMail flags=%x subject: %s sender: %s\n", 
+    MOZ_LOG(MAPI, mozilla::LogLevel::Debug, ("CMapiImp::SendMail flags=%x subject: %s sender: %s\n",
       aFlags, (char *) aMessage->lpszSubject, (aMessage->lpOriginator) ? aMessage->lpOriginator->lpszAddress : ""));
 
     /** create nsIMsgCompFields obj and populate it **/
@@ -216,7 +216,7 @@ STDMETHODIMP CMapiImp::SendMail( unsigned long aSession, lpnsMapiMessage aMessag
         rv = nsMapiHook::PopulateCompFields(aMessage, pCompFields) ;
     else
         rv = nsMapiHook::PopulateCompFieldsWithConversion(aMessage, pCompFields) ;
-    
+
     if (NS_SUCCEEDED (rv))
     {
         // see flag to see if UI needs to be brought up
@@ -229,7 +229,7 @@ STDMETHODIMP CMapiImp::SendMail( unsigned long aSession, lpnsMapiMessage aMessag
             rv = nsMapiHook::ShowComposerWindow(aSession, pCompFields);
         }
     }
-    
+
     return nsMAPIConfiguration::GetMAPIErrorFromNSError (rv) ;
 }
 
@@ -249,7 +249,7 @@ STDMETHODIMP CMapiImp::SendDocuments( unsigned long aSession, LPTSTR aDelimChar,
         rv = nsMapiHook::PopulateCompFieldsForSendDocs(pCompFields, aFlags, aDelimChar, aFilePaths) ;
     }
 
-    if (NS_SUCCEEDED (rv)) 
+    if (NS_SUCCEEDED (rv))
         rv = nsMapiHook::ShowComposerWindow(aSession, pCompFields);
     else
       MOZ_LOG(MAPI, mozilla::LogLevel::Debug, ("CMapiImp::SendDocument error rv = %lx, paths = %s names = %s\n", rv, aFilePaths, aFileNames));
@@ -261,8 +261,8 @@ nsresult CMapiImp::GetDefaultInbox(nsIMsgFolder **inboxFolder)
 {
   // get default account
   nsresult rv;
-  nsCOMPtr <nsIMsgAccountManager> accountManager = 
-    do_GetService(NS_MSGACCOUNTMANAGER_CONTRACTID, &rv); 
+  nsCOMPtr <nsIMsgAccountManager> accountManager =
+    do_GetService(NS_MSGACCOUNTMANAGER_CONTRACTID, &rv);
   NS_ENSURE_SUCCESS(rv,rv);
 
   nsCOMPtr <nsIMsgAccount> account;
@@ -285,14 +285,14 @@ nsresult CMapiImp::GetDefaultInbox(nsIMsgFolder **inboxFolder)
     nsCOMPtr<nsIMsgFolder> rootMsgFolder;
     rv = server->GetRootMsgFolder(getter_AddRefs(rootMsgFolder));
     NS_ENSURE_SUCCESS(rv,rv);
- 
+
     if (!rootMsgFolder)
       return NS_ERROR_FAILURE;
- 
+
     rootMsgFolder->GetFolderWithFlags(nsMsgFolderFlags::Inbox, inboxFolder);
     if (!*inboxFolder)
      return NS_ERROR_FAILURE;
- 
+
   }
   return NS_OK;
 }
@@ -300,29 +300,29 @@ nsresult CMapiImp::GetDefaultInbox(nsIMsgFolder **inboxFolder)
 //*****************************************************************************
 // Encapsulate the XP DB stuff required to enumerate messages
 
-class MsgMapiListContext 
+class MsgMapiListContext
 {
 public:
   MsgMapiListContext () {}
   ~MsgMapiListContext ();
-  
+
   nsresult OpenDatabase (nsIMsgFolder *folder);
-  
+
   nsMsgKey GetNext ();
   nsresult MarkRead (nsMsgKey key, bool read);
-  
+
   lpnsMapiMessage GetMessage (nsMsgKey, unsigned long flFlags);
   bool IsIMAPHost(void);
   bool DeleteMessage(nsMsgKey key);
-  
+
 protected:
-  
+
   char *ConvertDateToMapiFormat (time_t);
   char *ConvertBodyToMapiFormat (nsIMsgDBHdr *hdr);
   void ConvertRecipientsToMapiFormat(const nsCOMArray<msgIAddressObject> &ourRecips,
                                      lpnsMapiRecipDesc mapiRecips,
                                      int mapiRecipClass);
-  
+
   nsCOMPtr <nsIMsgFolder> m_folder;
   nsCOMPtr <nsIMsgDatabase> m_db;
   nsCOMPtr <nsISimpleEnumerator> m_msgEnumerator;
@@ -376,7 +376,7 @@ STDMETHODIMP CMapiImp::FindNext(unsigned long aSession, unsigned long ulUIParam,
 
   *lpszMessageID = '\0';
   nsMAPIConfiguration * pMapiConfig = nsMAPIConfiguration::GetMAPIConfiguration() ;
-  if (!pMapiConfig) 
+  if (!pMapiConfig)
   {
     NS_ASSERTION(false, "failed to get config in findnext");
     return MAPI_E_FAILURE ;  // get the singelton obj
@@ -502,10 +502,10 @@ nsresult MsgMapiListContext::OpenDatabase (nsIMsgFolder *folder)
   return dbErr;
 }
 
-bool 
+bool
 MsgMapiListContext::IsIMAPHost(void)
 {
-  if (!m_folder) 
+  if (!m_folder)
     return FALSE;
   nsCOMPtr <nsIMsgImapMailFolder> imapFolder = do_QueryInterface(m_folder);
 
@@ -516,40 +516,40 @@ nsMsgKey MsgMapiListContext::GetNext ()
 {
   nsMsgKey key = nsMsgKey_None;
   bool      keepTrying = TRUE;
-  
+
 //  NS_ASSERTION (m_msgEnumerator && m_db, "need enumerator and db");
   if (m_msgEnumerator && m_db)
   {
-    
-    do 
+
+    do
     {
-      keepTrying = FALSE;  
+      keepTrying = FALSE;
       nsCOMPtr <nsISupports> hdrISupports;
       nsCOMPtr <nsIMsgDBHdr> msgHdr;
       if (NS_SUCCEEDED(m_msgEnumerator->GetNext(getter_AddRefs(hdrISupports))) && hdrISupports)
       {
         msgHdr = do_QueryInterface(hdrISupports);
         msgHdr->GetMessageKey(&key);
-        
+
         // Check here for IMAP message...if not, just return...
         if (!IsIMAPHost())
           return key;
-        
+
         // If this is an IMAP message, we have to make sure we have a valid
         // body to work with.
         uint32_t  flags = 0;
-        
+
         (void) msgHdr->GetFlags(&flags);
-        if (flags & nsMsgMessageFlags::Offline) 
+        if (flags & nsMsgMessageFlags::Offline)
           return key;
-        
+
         // Ok, if we get here, we have an IMAP message without a body!
         // We need to keep trying by calling the GetNext member recursively...
         keepTrying = TRUE;
       }
     } while (keepTrying);
   }
-  
+
   return key;
 }
 
@@ -583,7 +583,7 @@ lpnsMapiMessage MsgMapiListContext::GetMessage (nsMsgKey key, unsigned long flFl
       uint32_t date;
       (void) msgHdr->GetDateInSeconds(&date);
       message->lpszDateReceived = ConvertDateToMapiFormat (date);
-      
+
       // Pull out the flags info
       // anything to do with MAPI_SENT? Since we're only reading the Inbox, I guess not
       uint32_t ourFlags;
@@ -592,7 +592,7 @@ lpnsMapiMessage MsgMapiListContext::GetMessage (nsMsgKey key, unsigned long flFl
         message->flFlags |= MAPI_UNREAD;
       if (ourFlags & (nsMsgMessageFlags::MDNReportNeeded | nsMsgMessageFlags::MDNReportSent))
         message->flFlags |= MAPI_RECEIPT_REQUESTED;
-      
+
       // Pull out the author/originator info
       message->lpOriginator = (lpnsMapiRecipDesc) CoTaskMemAlloc (sizeof(nsMapiRecipDesc));
       memset(message->lpOriginator, 0, sizeof(nsMapiRecipDesc));
@@ -621,14 +621,14 @@ lpnsMapiMessage MsgMapiListContext::GetMessage (nsMsgKey key, unsigned long flFl
         ConvertRecipientsToMapiFormat(parsedCCRecips,
           &message->lpRecips[numToRecips], MAPI_CC);
       }
-  
-      MOZ_LOG(MAPI, mozilla::LogLevel::Debug, ("MsgMapiListContext::GetMessage flags=%x subject %s date %s sender %s\n", 
+
+      MOZ_LOG(MAPI, mozilla::LogLevel::Debug, ("MsgMapiListContext::GetMessage flags=%x subject %s date %s sender %s\n",
         flFlags, (char *) message->lpszSubject,(char *) message->lpszDateReceived, author.get()) );
 
       // Convert any body text that we have locally
       if (!(flFlags & MAPI_ENVELOPE_ONLY))
         message->lpszNoteText = (char *) ConvertBodyToMapiFormat (msgHdr);
-      
+
     }
     if (! (flFlags & (MAPI_PEEK | MAPI_ENVELOPE_ONLY)))
       m_db->MarkRead(key, true, nullptr);
@@ -660,7 +660,7 @@ void MsgMapiListContext::ConvertRecipientsToMapiFormat(
   nsTArray<nsCString> names, addresses;
   ExtractAllAddresses(recipients, UTF16ArrayAdapter<>(names),
     UTF16ArrayAdapter<>(addresses));
-  
+
   size_t numAddresses = names.Length();
   for (size_t i = 0; i < numAddresses; i++)
   {
@@ -746,7 +746,7 @@ char *MsgMapiListContext::ConvertBodyToMapiFormat (nsIMsgDBHdr *hdr)
         bytesCopied += curLine.Length();
       }
     }
-    MOZ_LOG(MAPI, mozilla::LogLevel::Debug, ("ConvertBodyToMapiFormat size=%x allocated size %x body = %100.100s\n", 
+    MOZ_LOG(MAPI, mozilla::LogLevel::Debug, ("ConvertBodyToMapiFormat size=%x allocated size %x body = %100.100s\n",
         bytesCopied, msgSize + 1, (char *) body) );
     body[bytesCopied] = '\0';   // rhp - fix last line garbage...
     return body;
@@ -777,14 +777,14 @@ static void msg_FreeMAPIRecipient(lpMapiRecipDesc rd)
       CoTaskMemFree(rd->lpszName);
     if (rd->lpszAddress)
       CoTaskMemFree(rd->lpszAddress);
-    // CoTaskMemFree(rd->lpEntryID);  
+    // CoTaskMemFree(rd->lpEntryID);
   }
 }
 
 extern "C" void MSG_FreeMapiMessage (lpMapiMessage msg)
 {
   ULONG i;
-  
+
   if (msg)
   {
     CoTaskMemFree(msg->lpszSubject);
@@ -792,22 +792,22 @@ extern "C" void MSG_FreeMapiMessage (lpMapiMessage msg)
     CoTaskMemFree(msg->lpszMessageType);
     CoTaskMemFree(msg->lpszDateReceived);
     CoTaskMemFree(msg->lpszConversationID);
-    
+
     if (msg->lpOriginator)
       msg_FreeMAPIRecipient(msg->lpOriginator);
-    
+
     for (i=0; i<msg->nRecipCount; i++)
       if (&(msg->lpRecips[i]) != nullptr)
         msg_FreeMAPIRecipient(&(msg->lpRecips[i]));
-      
+
       CoTaskMemFree(msg->lpRecips);
-      
+
       for (i=0; i<msg->nFileCount; i++)
         if (&(msg->lpFiles[i]) != nullptr)
           msg_FreeMAPIFile(&(msg->lpFiles[i]));
-        
+
       CoTaskMemFree(msg->lpFiles);
-      
+
       CoTaskMemFree(msg);
   }
 }
@@ -829,17 +829,17 @@ extern "C" bool MsgMarkMapiMessageRead (nsIMsgFolder *folder, nsMsgKey key, bool
   return success;
 }
 
-bool 
+bool
 MsgMapiListContext::DeleteMessage(nsMsgKey key)
 {
   if (!m_db)
     return FALSE;
-  
+
   if ( !IsIMAPHost() )
   {
     return NS_SUCCEEDED((m_db->DeleteMessages(1, &key, nullptr)));
   }
-#if 0 
+#if 0
   else if ( m_folder->GetIMAPFolderInfoMail() )
   {
     AutoTArray<nsMsgKey, 1> messageKeys;
@@ -861,16 +861,16 @@ extern "C" bool MSG_DeleteMapiMessage(nsIMsgFolder *folder, nsMsgKey key)
 {
   bool success = FALSE;
   MsgMapiListContext *context = new MsgMapiListContext();
-  if (context) 
+  if (context)
   {
     if (NS_SUCCEEDED(context->OpenDatabase(folder)))
     {
       success = context->DeleteMessage(key);
     }
-    
+
     delete context;
   }
-  
+
   return success;
 }
 
