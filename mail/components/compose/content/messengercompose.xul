@@ -302,6 +302,8 @@
   <key id="key_moveAttachmentBottom" keycode="VK_End" modifiers="alt"
        command="cmd_moveAttachmentBottom"/>
 #endif
+  <key id="key_sortAttachmentsToggle" key="&sortAttachmentsPanelBtn.key;"
+       modifiers="alt" command="cmd_sortAttachmentsToggle"/>
 
   <!-- View Menu -->
   <key id="key_addressSidebar" keycode="VK_F9" oncommand="toggleAddressPicker();"/>
@@ -370,45 +372,36 @@
   <toolbarbutton id="btn_moveAttachmentTop"
                  class="panelButton"
                  label="&moveAttachmentTopPanelBtn.label;"
-                 accesskey="&moveAttachmentTopPanelBtn.accesskey;"
                  key="key_moveAttachmentTop"
                  command="cmd_moveAttachmentTop"/>
   <toolbarbutton id="btn_moveAttachmentUp"
                  class="panelButton"
                  label="&moveAttachmentUpPanelBtn.label;"
-                 accesskey="&moveAttachmentUpPanelBtn.accesskey;"
                  key="key_moveAttachmentUp"
                  command="cmd_moveAttachmentUp"/>
   <toolbarbutton id="btn_moveAttachmentBundleUp"
                  class="panelButton"
                  label="&moveAttachmentBundleUpPanelBtn.label;"
-                 accesskey="&moveAttachmentBundleUpPanelBtn.accesskey;"
                  key="key_moveAttachmentBundleUp"
                  command="cmd_moveAttachmentBundleUp"/>
   <toolbarbutton id="btn_moveAttachmentDown"
                  class="panelButton"
                  label="&moveAttachmentDownPanelBtn.label;"
-                 accesskey="&moveAttachmentDownPanelBtn.accesskey;"
                  key="key_moveAttachmentDown"
                  command="cmd_moveAttachmentDown"/>
   <toolbarbutton id="btn_moveAttachmentBottom"
                  class="panelButton"
                  label="&moveAttachmentBottomPanelBtn.label;"
-                 accesskey="&moveAttachmentBottomPanelBtn.accesskey;"
                  key="key_moveAttachmentBottom"
                  command="cmd_moveAttachmentBottom"/>
   <toolbarbutton id="btn_sortAttachmentsToggle"
                  class="panelButton"
                  label="&sortAttachmentsPanelBtn.Sort.AZ.label;"
-                 accesskey="&sortAttachmentsPanelBtn.Sort.AZ.accesskey;"
                  label-AZ="&sortAttachmentsPanelBtn.Sort.AZ.label;"
                  label-ZA="&sortAttachmentsPanelBtn.Sort.ZA.label;"
-                 accesskey-AZ="&sortAttachmentsPanelBtn.Sort.AZ.accesskey;"
-                 accesskey-ZA="&sortAttachmentsPanelBtn.Sort.ZA.accesskey;"
                  label-selection-AZ="&sortAttachmentsPanelBtn.SortSelection.AZ.label;"
                  label-selection-ZA="&sortAttachmentsPanelBtn.SortSelection.ZA.label;"
-                 accesskey-selection-AZ="&sortAttachmentsPanelBtn.SortSelection.AZ.accesskey;"
-                 accesskey-selection-ZA="&sortAttachmentsPanelBtn.SortSelection.ZA.accesskey;"
+                 key="key_sortAttachmentsToggle"
                  command="cmd_sortAttachmentsToggle"/>
 </panel>
 

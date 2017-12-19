@@ -109,36 +109,22 @@
 <!-- Reorder Attachment Panel -->
 <!ENTITY reorderAttachmentsPanel.label "Reorder Attachments">
 <!ENTITY moveAttachmentTopPanelBtn.label "Move to Top">
-<!ENTITY moveAttachmentTopPanelBtn.accesskey "T">
 <!ENTITY moveAttachmentUpPanelBtn.label "Move Up">
-<!ENTITY moveAttachmentUpPanelBtn.accesskey "U">
 <!ENTITY moveAttachmentBundleUpPanelBtn.label "Move together">
-<!ENTITY moveAttachmentBundleUpPanelBtn.accesskey "v">
 <!ENTITY moveAttachmentDownPanelBtn.label "Move Down">
-<!ENTITY moveAttachmentDownPanelBtn.accesskey "D">
 <!ENTITY moveAttachmentBottomPanelBtn.label "Move to Bottom">
-<!ENTITY moveAttachmentBottomPanelBtn.accesskey "B">
 
 <!-- LOCALIZATION NOTE (sortAttachmentsPanelBtn.Sort.AZ.label):
      Please ensure that this translation matches
      sortAttachmentsPanelBtn.Sort.ZA.label, except for the sort direction. -->
 <!ENTITY sortAttachmentsPanelBtn.Sort.AZ.label "Sort: A - Z">
-<!-- LOCALIZATION NOTE (sortAttachmentsPanelBtn.Sort.AZ.accesskey):
-     This accesskey should be the same like
-     sortAttachmentsPanelBtn.Sort.ZA.accesskey,
-     sortAttachmentsPanelBtn.SortSelection.AZ.accesskey, and
-     sortAttachmentsPanelBtn.SortSelection.ZA.accesskey and it should therefore be
-     taken from the word "Sort", not from "Selection" or the sort direction part. -->
-<!ENTITY sortAttachmentsPanelBtn.Sort.AZ.accesskey "o">
 <!ENTITY sortAttachmentsPanelBtn.Sort.ZA.label "Sort: Z - A">
-<!ENTITY sortAttachmentsPanelBtn.Sort.ZA.accesskey "o">
 <!-- LOCALIZATION NOTE (sortAttachmentsPanelBtn.SortSelection.AZ.label):
      Please ensure that this translation matches
      sortAttachmentsPanelBtn.SortSelection.ZA.label, except for the sort direction. -->
 <!ENTITY sortAttachmentsPanelBtn.SortSelection.AZ.label "Sort Selection: A - Z">
-<!ENTITY sortAttachmentsPanelBtn.SortSelection.AZ.accesskey "o">
 <!ENTITY sortAttachmentsPanelBtn.SortSelection.ZA.label "Sort Selection: Z - A">
-<!ENTITY sortAttachmentsPanelBtn.SortSelection.ZA.accesskey "o">
+<!ENTITY sortAttachmentsPanelBtn.key "y">
 
 <!-- View Menu -->
 <!ENTITY viewMenu.label "View">

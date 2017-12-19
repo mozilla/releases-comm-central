@@ -1039,7 +1039,6 @@ var attachmentBucketController = {
         let toggleBtn = document.getElementById("btn_sortAttachmentsToggle");
         let sortDirection;
         let btnLabelAttr;
-        let btnAccKeyAttr;
 
         if (attachmentsSelectedCount() > 1) {
           // Sort selected attachments only.
@@ -1056,11 +1055,9 @@ var attachmentBucketController = {
           if (btnAscending) {
             sortDirection = "ascending";
             btnLabelAttr = "label-selection-AZ";
-            btnAccKeyAttr = "accesskey-selection-AZ";
           } else {
             sortDirection = "descending";
             btnLabelAttr = "label-selection-ZA";
-            btnAccKeyAttr = "accesskey-selection-ZA";
           }
         } else { // attachmentsSelectedCount() <= 1
           // Sort all attachments.
@@ -1071,11 +1068,9 @@ var attachmentBucketController = {
           if (btnAscending) {
             sortDirection = "ascending";
             btnLabelAttr = "label-AZ";
-            btnAccKeyAttr = "accesskey-AZ";
           } else {
             sortDirection = "descending";
             btnLabelAttr = "label-ZA";
-            btnAccKeyAttr = "accesskey-ZA";
           }
         }
 
@@ -1084,7 +1079,6 @@ var attachmentBucketController = {
         // The button's icon is set dynamically via CSS involving the button's
         // sortdirection attribute, which is forwarded by the command.
         toggleBtn.setAttribute("label", toggleBtn.getAttribute(btnLabelAttr));
-        toggleBtn.setAttribute("accesskey", toggleBtn.getAttribute(btnAccKeyAttr));
 
         return sortSelection ? !(currSortOrder == "equivalent" && isBlock)
                              : !(currSortOrder == "equivalent");
