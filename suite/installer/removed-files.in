@@ -1377,7 +1377,6 @@ components/xpautoc.dll
 @DIR_MACOS@components/webshell_idls.xpt
 @DIR_MACOS@components/widget.xpt
 @DIR_MACOS@components/widget_cocoa.xpt
-@DIR_MACOS@components/windowds.xpt
 @DIR_MACOS@components/windowwatcher.xpt
 @DIR_MACOS@components/xpautocomplete.xpt
 @DIR_MACOS@components/xpcom_base.xpt

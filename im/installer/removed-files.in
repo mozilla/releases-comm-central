@@ -208,7 +208,6 @@ components/webBrowser_core.xpt
 components/webbrowserpersist.xpt
 components/webshell_idls.xpt
 components/widget.xpt
-components/windowds.xpt
 components/windowwatcher.xpt
 components/xpcom_base.xpt
 components/xpcom_components.xpt
