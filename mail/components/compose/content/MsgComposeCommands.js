@@ -4242,11 +4242,13 @@ function ComposeCanClose()
     let result = Services.prompt
                          .confirmEx(window,
                                     getComposeBundle().getString("saveDlogTitle"),
-                                    getComposeBundle().getFormattedString("saveDlogMessages2", [draftFolderName]),
+                                    getComposeBundle().getFormattedString("saveDlogMessages3", [draftFolderName]),
                                     (Services.prompt.BUTTON_TITLE_SAVE * Services.prompt.BUTTON_POS_0) +
                                     (Services.prompt.BUTTON_TITLE_CANCEL * Services.prompt.BUTTON_POS_1) +
-                                    (Services.prompt.BUTTON_TITLE_DONT_SAVE * Services.prompt.BUTTON_POS_2),
-                                    null, null, null,
+                                    (Services.prompt.BUTTON_TITLE_IS_STRING * Services.prompt.BUTTON_POS_2),
+                                    null,
+                                    null,
+                                    getComposeBundle().getString("discardButtonLabel"),
                                     null, {value:0});
     switch (result)
     {

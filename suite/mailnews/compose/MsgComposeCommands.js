@@ -2321,11 +2321,14 @@ function ComposeCanClose()
     let draftFolderName = MailUtils.getFolderForURI(draftFolderURI).prettyName;
     switch (Services.prompt.confirmEx(window,
               sComposeMsgsBundle.getString("saveDlogTitle"),
-              sComposeMsgsBundle.getFormattedString("saveDlogMessages2", [draftFolderName]),
+              sComposeMsgsBundle.getFormattedString("saveDlogMessages3", [draftFolderName]),
               (Services.prompt.BUTTON_TITLE_SAVE * Services.prompt.BUTTON_POS_0) +
               (Services.prompt.BUTTON_TITLE_CANCEL * Services.prompt.BUTTON_POS_1) +
-              (Services.prompt.BUTTON_TITLE_DONT_SAVE * Services.prompt.BUTTON_POS_2),
-              null, null, null, null, {value:0}))
+              (Services.prompt.BUTTON_TITLE_IS_STRING * Services.prompt.BUTTON_POS_2),
+              null,
+              null,
+              getComposeBundle().getString("discardButtonLabel"),
+              null, {value:0}))
     {
       case 0: //Save
         // we can close immediately if we already autosaved the draft

@@ -3890,17 +3890,17 @@ nsMsgComposeAndSend::NotifyListenerOnStopCopy(nsresult aStatus)
     {
       case nsMsgDeliverNow:
       case nsMsgSendUnsent:
-        rv = bundle->FormatStringFromName("promptToSaveSentLocally",
+        rv = bundle->FormatStringFromName("promptToSaveSentLocally2",
                                           formatStrings, 3,
                                           msg);
         break;
       case nsMsgSaveAsDraft:
-        rv = bundle->FormatStringFromName("promptToSaveDraftLocally",
+        rv = bundle->FormatStringFromName("promptToSaveDraftLocally2",
                                           formatStrings, 3,
                                           msg);
         break;
       case nsMsgSaveAsTemplate:
-        rv = bundle->FormatStringFromName("promptToSaveTemplateLocally",
+        rv = bundle->FormatStringFromName("promptToSaveTemplateLocally2",
                                           formatStrings, 3,
                                           msg);
         break;
@@ -3911,11 +3911,11 @@ nsMsgComposeAndSend::NotifyListenerOnStopCopy(nsresult aStatus)
     int32_t buttonPressed = 0;
     bool showCheckBox = false;
     uint32_t buttonFlags = (nsIPrompt::BUTTON_POS_0 * nsIPrompt::BUTTON_TITLE_IS_STRING) +
-                           (nsIPrompt::BUTTON_POS_1 * nsIPrompt::BUTTON_TITLE_CANCEL) +
+                           (nsIPrompt::BUTTON_POS_1 * nsIPrompt::BUTTON_TITLE_DONT_SAVE) +
                            (nsIPrompt::BUTTON_POS_2 * nsIPrompt::BUTTON_TITLE_SAVE);
     nsString dialogTitle, buttonLabelRetry;
     bundle->GetStringFromName("SaveDialogTitle", dialogTitle);
-    bundle->GetStringFromName("buttonLabelRetry", buttonLabelRetry);
+    bundle->GetStringFromName("buttonLabelRetry2", buttonLabelRetry);
     prompt->ConfirmEx(dialogTitle.get(), msg.get(), buttonFlags, buttonLabelRetry.get(),
                       nullptr, nullptr, nullptr, &showCheckBox, &buttonPressed);
     if (buttonPressed == 0)
