@@ -12,8 +12,8 @@
 #calendar-task-details-container {
     border-top: 1px solid ThreeDShadow;
     border-left: 1px solid ThreeDShadow;
-    border-right: 0px;
-    border-bottom: 0px;
+    border-right: 0;
+    border-bottom: 0;
     overflow: hidden;
 }
 
@@ -65,7 +65,7 @@
 }
 
 #calendar-task-box #calendar-task-view-splitter {
-    border: none;
+    border-width: 0;
     border-bottom: 1px solid #A9B7C9;
     min-height: 0;
     height: 5px;

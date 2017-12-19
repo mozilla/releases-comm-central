@@ -4,9 +4,6 @@
 
 .calendar-task-tree {
     -moz-appearance: none;
-    background-color: -moz-Field;
-    color: -moz-FieldText;
-    border: 0;
     margin: 0;
 }
 

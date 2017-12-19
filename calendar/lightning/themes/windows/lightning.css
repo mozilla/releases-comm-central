@@ -88,7 +88,7 @@ radio[pane=paneLightning] {
 
 #calsidebar_splitter,
 #today-splitter {
-  border: none;
+  border-width: 0;
   min-width: 0;
   width: 5px;
   background-color: transparent;
@@ -126,7 +126,7 @@ radio[pane=paneLightning] {
 }
 
 #today-pane-splitter {
-  border: none;
+  border-width: 0;
   border-bottom: 3px double #a9b7c9;
   min-height: 0;
   height: 5px;

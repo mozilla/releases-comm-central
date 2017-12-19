@@ -16,7 +16,7 @@ calendar-list-tree > tree > treechildren::-moz-tree-cell(calendarname-treecol) {
 
 calendar-list-tree > tree > treechildren::-moz-tree-image(status-treecol, readonly) {
     list-style-image: url(chrome://calendar-common/skin/calendar-status.png);
-    -moz-image-region: rect(0px, 14px, 14px, 0px);
+    -moz-image-region: rect(0, 14px, 14px, 0);
 }
 
 calendar-list-tree > tree > treechildren::-moz-tree-image(status-treecol, readfailed) {
@@ -25,23 +25,18 @@ calendar-list-tree > tree > treechildren::-moz-tree-image(status-treecol, readfa
 }
 
 calendar-list-tree > tree {
-    border: none;
     padding: 0;
     margin: 4px 0;
-    -moz-border-top-colors: none;
-    -moz-border-right-colors: none;
-    -moz-border-bottom-colors: none;
-    -moz-border-left-colors: none;
     -moz-appearance: none;
 }
 
 calendar-list-tree > tree > treecols > treecol[hideheader="true"],
 calendar-list-tree > tree > treecols > treecol[hideheader="true"] {
-    font-size: 0px;
+    font-size: 0;
     border: none;
     padding: 0;
-    max-height: 0px;
-    height: 0px;
+    max-height: 0;
+    height: 0;
 }
 
 @media (-moz-overlay-scrollbars) {
