@@ -119,8 +119,9 @@ function extensionDefaults() {
     let count = 0;
     AddonManager.getAddonsByTypes(["extension"], (addons) => {
       for (let addon of addons) {
-        if (!addon.userDisabled && !addon.appDisabled && !addon.softDisabled) {
-          // XXX TODO: Skip bootstrapped add-ons here.
+        if (!addon.userDisabled && !addon.appDisabled && !addon.softDisabled &&
+            // Skip bootstrapped add-ons.
+            addon.operationsRequiringRestart != AddonManager.OP_NEEDS_RESTART_NONE) {
           loadAddonPrefs(addon);
         }
       }
