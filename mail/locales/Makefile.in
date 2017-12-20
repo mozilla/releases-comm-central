@@ -103,7 +103,7 @@ package-win32-installer: $(SUBMAKEFILES)
 	$(RM) $(ABS_DIST)/l10n-stage/setup.exe; \
 	cp ../installer/windows/l10ngen/setup.exe $(ABS_DIST)/l10n-stage; \
 	(cd $(DIST)/l10n-stage; \
-	  $(MAKE_PACKAGE)
+	  $(MAKE_PACKAGE))
 	mv -f '$(DIST)/l10n-stage/$(PACKAGE)' '$(WIN32_INSTALLER_OUT)'
 	if test -f '$(DIST)/l10n-stage/$(PACKAGE).asc'; then mv -f '$(DIST)/l10n-stage/$(PACKAGE).asc' '$(WIN32_INSTALLER_OUT).asc'; fi
 
