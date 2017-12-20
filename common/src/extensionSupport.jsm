@@ -9,9 +9,10 @@ var Cc = Components.classes;
 var Cu = Components.utils;
 
 Cu.import("resource://gre/modules/Services.jsm");
-Cu.import("resource://gre/modules/AddonManager.jsm");
 // Cu.import("resource://gre/modules/Deprecated.jsm") - needed for warning.
 Cu.import("resource://gre/modules/NetUtil.jsm");
+Cu.import("resource://gre/modules/FileUtils.jsm");
+
 Cu.import("resource:///modules/iteratorUtils.jsm");
 Cu.import("resource:///modules/IOUtils.js");
 
@@ -58,24 +59,28 @@ function extensionDefaults() {
   }
 
   function walkExtensionPrefs(addon) {
-    let prefPath = addon.getResourceURI("defaults/preferences");
     let foundPrefStrings = [];
-    if (prefPath.schemeIs("file")) {
-      let prefFilePath = prefPath.QueryInterface(Components.interfaces.nsIFileURL).file;
-      if (!prefFilePath.exists() || !prefFilePath.isDirectory())
+    let prefPath = addon.path;
+    let prefFile = new FileUtils.File(prefPath);
+    if (!prefFile.exists())
+      return [];
+
+    if (prefFile.isDirectory()) {
+      prefFile.append("defaults");
+      prefFile.append("preferences");
+      if (!prefFile.exists() || !prefFile.isDirectory())
         return [];
 
-      for (let file of fixIterator(prefFilePath.directoryEntries, Components.interfaces.nsIFile)) {
+      for (let file of fixIterator(prefFile.directoryEntries, Components.interfaces.nsIFile)) {
         if (file.isFile() && file.leafName.toLowerCase().endsWith(".js")) {
           foundPrefStrings.push(IOUtils.loadFileToString(file));
         }
       }
-    } else if (prefPath.schemeIs("jar")) {
-      let handler = Services.io.getProtocolHandler("jar").QueryInterface(Components.interfaces.nsIJARProtocolHandler);
-      let jarUri = prefPath.QueryInterface(Components.interfaces.nsIJARURI);
-      let jarFile = jarUri.JARFile.QueryInterface(Components.interfaces.nsIFileURL).file;
-      let zipReader = handler.JARCache.getZip(jarFile);
-      let entries = zipReader.findEntries(jarUri.JAREntry + "/*.js");
+    } else if (prefFile.isFile() && prefFile.leafName.endsWith("xpi")) {
+      let zipReader = Components.classes["@mozilla.org/libjar/zip-reader;1"]
+                                .createInstance(Components.interfaces.nsIZipReader);
+      zipReader.open(prefFile);
+      let entries = zipReader.findEntries("defaults/preferences/*.js");
 
       while (entries.hasMore()) {
         let entryName = entries.getNext();
@@ -101,48 +106,36 @@ function extensionDefaults() {
       try {
         Components.utils.evalInSandbox(prefDataString, sandbox);
       } catch (e) {
-        Components.utils.reportError("Error reading default prefs of addon " + addon.name + ": " + e);
+        Components.utils.reportError("Error reading default prefs of addon " + addon.defaultLocale.name + ": " + e);
       }
     }
 
     /*
     TODO: decide whether we need to warn the user/make addon authors to migrate away from these pref files.
     if (prefDataStrings.length > 0) {
-      Deprecated.warning(addon.name + " uses defaults/preferences/*.js files to load prefs",
+      Deprecated.warning(addon.defaultLocale.name + " uses defaults/preferences/*.js files to load prefs",
                          "https://bugzilla.mozilla.org/show_bug.cgi?id=1414398");
     }
     */
   }
 
-  function initAddonListener() {
-    let done = false;
-    let count = 0;
-    AddonManager.getAddonsByTypes(["extension"], (addons) => {
-      for (let addon of addons) {
-        if (!addon.userDisabled && !addon.appDisabled && !addon.softDisabled) {
-          // XXX TODO: Skip bootstrapped add-ons here.
-          loadAddonPrefs(addon);
-        }
+  let addonsFile = Services.dirsvc.get("ProfDS", Ci.nsIFile);
+  addonsFile.append("extensions.json");
+
+  if (addonsFile.exists() && addonsFile.isFile()) {
+    let fileData = IOUtils.loadFileToString(addonsFile);
+    let addonsData;
+    if (fileData) {
+      try {
+        addonsData = JSON.parse(fileData);
+      } catch (e) {
+        Components.utils.reportError("Parsing of extensions.json failed!");
       }
-      done = true;
-    });
-    let thread = Components.classes["@mozilla.org/thread-manager;1"].
-                 getService().currentThread;
-    while (!done && count++ < 100) {
-      thread.processNextEvent(true);
     }
 
-    if (!done)
-      Components.utils.reportError("Add-on preferences not loaded");
-  }
-
-  if (AddonManager.isReady) {
-    initAddonListener();
-  } else {
-    AddonManager.addManagerListener({
-      onStartup() {
-        initAddonListener();
-      }
-    });
+    for (let addon of addonsData.addons) {
+      if (addon.type == "extension" && addon.active && !addon.userDisabled && !addon.appDisabled && !addon.bootstrap)
+        loadAddonPrefs(addon);
+    }
   }
 }
