@@ -20,14 +20,14 @@ var gTestArray =
     root.createSubfolder("dbTest", null);
     gTestFolder = root.getChildNamed("dbTest");
     let db = dbService.openFolderDB(gTestFolder, true);
-    do_check_neq(db, null);
+    Assert.notEqual(db, null);
     db.dBFolderInfo.highWater = 10;
     db.Close(true);
     db = dbService.openFolderDB(gTestFolder, true);
-    do_check_neq(db, null);
-    do_check_eq(db.dBFolderInfo.highWater, 10);
+    Assert.notEqual(db, null);
+    Assert.equal(db.dBFolderInfo.highWater, 10);
     db.dBFolderInfo.onKeyAdded(15);
-    do_check_eq(db.dBFolderInfo.highWater, 15);
+    Assert.equal(db.dBFolderInfo.highWater, 15);
     db.Close(true);
     db.ForceClosed();
     db = null;
@@ -99,7 +99,7 @@ function openMore(db)
     mailTestUtils.do_timeout_function(0, openMore, null, [db]);
   else {
     // just check that we can get something out of the db.
-    do_check_eq(db.dBFolderInfo.numMessages, kNumTestMessages);
+    Assert.equal(db.dBFolderInfo.numMessages, kNumTestMessages);
     db.Close(true);
     db.ForceClosed();
     db = null;

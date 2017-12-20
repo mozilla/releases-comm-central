@@ -20,43 +20,43 @@ var antiName = "AntiName";
 function run_test()
 {
   // Check lastIndex prior to adding, 3 - 1000 are reserved for mailnews
-  do_check_eq(ts.lastIndex, 1000);
+  Assert.equal(ts.lastIndex, 1000);
 
   // basic junk as traits should be setup automatically
-  do_check_eq(kGoodId,
-              Services.prefs.getCharPref("mailnews.traits.id." + kGoodIndex));
-  do_check_eq(kJunkId,
-              Services.prefs.getCharPref("mailnews.traits.id." + kJunkIndex));
-  do_check_eq(kGoodId,
-              Services.prefs.getCharPref("mailnews.traits.antiId." + kJunkIndex));
-  do_check_true(Services.prefs.getBoolPref("mailnews.traits.enabled." + kJunkIndex));
+  Assert.equal(kGoodId,
+               Services.prefs.getCharPref("mailnews.traits.id." + kGoodIndex));
+  Assert.equal(kJunkId,
+               Services.prefs.getCharPref("mailnews.traits.id." + kJunkIndex));
+  Assert.equal(kGoodId,
+               Services.prefs.getCharPref("mailnews.traits.antiId." + kJunkIndex));
+  Assert.ok(Services.prefs.getBoolPref("mailnews.traits.enabled." + kJunkIndex));
 
   // add the pro and anti test traits
-  do_check_false(ts.isRegistered(proId));
+  Assert.ok(!ts.isRegistered(proId));
   var proIndex = ts.registerTrait(proId);
-  do_check_true(ts.isRegistered(proId));
-  do_check_eq(proIndex, 1001);
-  do_check_eq(proIndex, ts.getIndex(proId));
-  do_check_eq(proId, ts.getId(proIndex));
+  Assert.ok(ts.isRegistered(proId));
+  Assert.equal(proIndex, 1001);
+  Assert.equal(proIndex, ts.getIndex(proId));
+  Assert.equal(proId, ts.getId(proIndex));
   var antiIndex = ts.registerTrait(antiId);
-  do_check_eq(proIndex, 1001);
-  do_check_eq(antiIndex, 1002);
+  Assert.equal(proIndex, 1001);
+  Assert.equal(antiIndex, 1002);
 
   // check setting and getting things through the service
   ts.setName(proId, proName);
-  do_check_eq(proName, ts.getName(proId));
-  do_check_false(ts.getEnabled(proId));
+  Assert.equal(proName, ts.getName(proId));
+  Assert.ok(!ts.getEnabled(proId));
   ts.setEnabled(proId, true);
-  do_check_true(ts.getEnabled(proId));
+  Assert.ok(ts.getEnabled(proId));
   ts.setAntiId(proId, antiId);
-  do_check_eq(antiId, ts.getAntiId(proId));
+  Assert.equal(antiId, ts.getAntiId(proId));
   var proArray = {};
   var antiArray = {};
   ts.getEnabledIndices({}, proArray, antiArray);
-  do_check_eq(proArray.value.length, 2);
-  do_check_eq(antiArray.value.length, 2);
-  do_check_eq(proArray.value[1], proIndex);
-  do_check_eq(antiArray.value[1], antiIndex);
+  Assert.equal(proArray.value.length, 2);
+  Assert.equal(antiArray.value.length, 2);
+  Assert.equal(proArray.value[1], proIndex);
+  Assert.equal(antiArray.value[1], antiIndex);
 
   // check of aliases
   // add three random aliases
@@ -64,59 +64,59 @@ function run_test()
   ts.addAlias(1, 502);
   ts.addAlias(1, 601);
   let aliases = ts.getAliases(1, {});
-  do_check_eq(aliases[0], 501);
-  do_check_eq(aliases[1], 502);
-  do_check_eq(aliases[2], 601);
+  Assert.equal(aliases[0], 501);
+  Assert.equal(aliases[1], 502);
+  Assert.equal(aliases[2], 601);
 
   // remove the middle one
   ts.removeAlias(1, 502);
   aliases = ts.getAliases(1, {});
-  do_check_eq(aliases.length, 2);
-  do_check_eq(aliases[0], 501);
-  do_check_eq(aliases[1], 601);
+  Assert.equal(aliases.length, 2);
+  Assert.equal(aliases[0], 501);
+  Assert.equal(aliases[1], 601);
 
   // try to add an existing value
   ts.addAlias(1, 501);
   aliases = ts.getAliases(1, {});
-  do_check_eq(aliases.length, 2);
-  do_check_eq(aliases[0], 501);
-  do_check_eq(aliases[1], 601);
+  Assert.equal(aliases.length, 2);
+  Assert.equal(aliases[0], 501);
+  Assert.equal(aliases[1], 601);
 
   // now let's make sure this got saved in preferences
-  do_check_eq(proId,
-              Services.prefs.getCharPref("mailnews.traits.id." + proIndex));
-  do_check_eq(proName,
-              Services.prefs.getCharPref("mailnews.traits.name." + proIndex));
-  do_check_true(Services.prefs.getBoolPref("mailnews.traits.enabled." + proIndex));
-  do_check_eq(antiId,
-              Services.prefs.getCharPref("mailnews.traits.antiId." + proIndex));
+  Assert.equal(proId,
+               Services.prefs.getCharPref("mailnews.traits.id." + proIndex));
+  Assert.equal(proName,
+               Services.prefs.getCharPref("mailnews.traits.name." + proIndex));
+  Assert.ok(Services.prefs.getBoolPref("mailnews.traits.enabled." + proIndex));
+  Assert.equal(antiId,
+               Services.prefs.getCharPref("mailnews.traits.antiId." + proIndex));
 
   // remove the pro trait
   ts.unRegisterTrait(proId);
-  do_check_false(ts.isRegistered(proId));
+  Assert.ok(!ts.isRegistered(proId));
 
   // check that this is also removed from prefs. The get calls should fail
   try {
     Services.prefs.getCharPref("mailnews.traits.id." + proIndex);
-    do_check_true(false);
+    Assert.ok(false);
   }
   catch (e) {}
 
   try {
     Services.prefs.getCharPref("mailnews.traits.name." + proIndex);
-    do_check_true(false);
+    Assert.ok(false);
   }
   catch (e) {}
 
   try {
     Services.prefs.getBoolPref("mailnews.traits.enabled." + proIndex);
-    do_check_true(false);
+    Assert.ok(false);
   }
   catch (e) {}
 
   try {
     Services.prefs.getCharPref("mailnews.traits.antiId." + proIndex);
-    do_check_true(false);
+    Assert.ok(false);
   }
   catch(e) {}
 }

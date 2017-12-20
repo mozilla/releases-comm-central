@@ -28,20 +28,20 @@ function run_test() {
                 protocols[part].protocol]
                .createInstance(Ci.nsIProtocolHandler);
 
-    do_check_eq(pH.scheme, protocols[part].protocol);
-    do_check_eq(pH.defaultPort, protocols[part].defaultPort);
-    do_check_eq(pH.protocolFlags, defaultProtocolFlags);
+    Assert.equal(pH.scheme, protocols[part].protocol);
+    Assert.equal(pH.defaultPort, protocols[part].defaultPort);
+    Assert.equal(pH.protocolFlags, defaultProtocolFlags);
 
     // Whip through some of the ports to check we get the right results.
     for (let i = 0; i < 1024; ++i)
-      do_check_eq(pH.allowPort(i, ""), (i == protocols[part].defaultPort));
+      Assert.equal(pH.allowPort(i, ""), (i == protocols[part].defaultPort));
 
     // Check we get a URI when we ask for one
     var uri = pH.newURI(protocols[part].urlSpec);
 
     uri.QueryInterface(Ci.nsISmtpUrl);
 
-    do_check_eq(uri.spec, protocols[part].urlSpec);
+    Assert.equal(uri.spec, protocols[part].urlSpec);
 
     try {
       // This call should throw NS_ERROR_NOT_IMPLEMENTED. If it doesn't,
@@ -51,7 +51,7 @@ function run_test() {
       do_throw("newChannel not throwing NS_ERROR_NOT_IMPLEMENTED.");
     }
     catch (ex) {
-      do_check_eq(ex.result, Cr.NS_ERROR_NOT_IMPLEMENTED);
+      Assert.equal(ex.result, Cr.NS_ERROR_NOT_IMPLEMENTED);
     }
   }
 }

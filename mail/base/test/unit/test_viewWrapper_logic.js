@@ -48,32 +48,32 @@ function* test_threads_special_views_mutual_exclusion() {
 
   // turn on the special view, make sure we think it took
   viewWrapper.specialViewThreadsWithUnread = true;
-  do_check_true(viewWrapper.specialViewThreadsWithUnread);
-  do_check_false(viewWrapper.specialViewWatchedThreadsWithUnread);
+  Assert.ok(viewWrapper.specialViewThreadsWithUnread);
+  Assert.ok(!viewWrapper.specialViewWatchedThreadsWithUnread);
 
   // hit showUnreadOnly which should already be false, so this makes sure that
   //  just writing to it forces the special view off.
   viewWrapper.showUnreadOnly = false;
-  do_check_false(viewWrapper.showUnreadOnly);
-  do_check_false(viewWrapper.specialViewThreadsWithUnread);
-  do_check_false(viewWrapper.specialViewWatchedThreadsWithUnread);
+  Assert.ok(!viewWrapper.showUnreadOnly);
+  Assert.ok(!viewWrapper.specialViewThreadsWithUnread);
+  Assert.ok(!viewWrapper.specialViewWatchedThreadsWithUnread);
 
   // turn on the other special view
   viewWrapper.specialViewWatchedThreadsWithUnread = true;
-  do_check_false(viewWrapper.specialViewThreadsWithUnread);
-  do_check_true(viewWrapper.specialViewWatchedThreadsWithUnread);
+  Assert.ok(!viewWrapper.specialViewThreadsWithUnread);
+  Assert.ok(viewWrapper.specialViewWatchedThreadsWithUnread);
 
   // turn on show unread only mode, make sure special view is cleared
   viewWrapper.showUnreadOnly = true;
-  do_check_true(viewWrapper.showUnreadOnly);
-  do_check_false(viewWrapper.specialViewThreadsWithUnread);
-  do_check_false(viewWrapper.specialViewWatchedThreadsWithUnread);
+  Assert.ok(viewWrapper.showUnreadOnly);
+  Assert.ok(!viewWrapper.specialViewThreadsWithUnread);
+  Assert.ok(!viewWrapper.specialViewWatchedThreadsWithUnread);
 
   // turn off show unread only mode just to make sure the transition happens
   viewWrapper.showUnreadOnly = false;
-  do_check_false(viewWrapper.showUnreadOnly);
-  do_check_false(viewWrapper.specialViewThreadsWithUnread);
-  do_check_false(viewWrapper.specialViewWatchedThreadsWithUnread);
+  Assert.ok(!viewWrapper.showUnreadOnly);
+  Assert.ok(!viewWrapper.specialViewThreadsWithUnread);
+  Assert.ok(!viewWrapper.specialViewWatchedThreadsWithUnread);
 }
 
 /**
@@ -233,24 +233,24 @@ function* test_mailviews_persistence() {
 
   // open the folder, ensure it is using the default mail view
   yield async_view_open(viewWrapper, folder);
-  do_check_eq(viewWrapper.mailViewIndex, MailViewConstants.kViewItemAll);
+  Assert.equal(viewWrapper.mailViewIndex, MailViewConstants.kViewItemAll);
 
   // set the view so as to be persisted
   viewWrapper.setMailView(MailViewConstants.kViewItemUnread);
   // ...but first make sure it took at all
-  do_check_eq(viewWrapper.mailViewIndex, MailViewConstants.kViewItemUnread);
+  Assert.equal(viewWrapper.mailViewIndex, MailViewConstants.kViewItemUnread);
 
   // close, re-open and verify it took
   viewWrapper.close();
   yield async_view_open(viewWrapper, folder);
-  do_check_eq(viewWrapper.mailViewIndex, MailViewConstants.kViewItemUnread);
+  Assert.equal(viewWrapper.mailViewIndex, MailViewConstants.kViewItemUnread);
 
   // close, turn off the mailview usage indication by the listener...
   viewWrapper.close();
   gMockViewWrapperListener.shouldUseMailViews = false;
   // ...open and verify that it did not take!
   yield async_view_open(viewWrapper, folder);
-  do_check_eq(viewWrapper.mailViewIndex, MailViewConstants.kViewItemAll);
+  Assert.equal(viewWrapper.mailViewIndex, MailViewConstants.kViewItemAll);
 
   // put the mailview setting back so other tests work
   gMockViewWrapperListener.shouldUseMailViews = true;
@@ -275,28 +275,28 @@ function test_view_update_depth_logic() {
   viewWrapper._applyViewChanges = function() { applyViewCount++; };
 
   // - view update depth basics
-  do_check_eq(viewWrapper._viewUpdateDepth, 0);
+  Assert.equal(viewWrapper._viewUpdateDepth, 0);
   viewWrapper.beginViewUpdate();
-  do_check_eq(viewWrapper._viewUpdateDepth, 1);
+  Assert.equal(viewWrapper._viewUpdateDepth, 1);
   viewWrapper.beginViewUpdate();
-  do_check_eq(viewWrapper._viewUpdateDepth, 2);
+  Assert.equal(viewWrapper._viewUpdateDepth, 2);
   viewWrapper.endViewUpdate();
-  do_check_eq(applyViewCount, 0);
-  do_check_eq(viewWrapper._viewUpdateDepth, 1);
+  Assert.equal(applyViewCount, 0);
+  Assert.equal(viewWrapper._viewUpdateDepth, 1);
   viewWrapper.endViewUpdate();
-  do_check_eq(applyViewCount, 1);
-  do_check_eq(viewWrapper._viewUpdateDepth, 0);
+  Assert.equal(applyViewCount, 1);
+  Assert.equal(viewWrapper._viewUpdateDepth, 0);
 
   // - don't go below zero! (and don't trigger.)
   applyViewCount = 0;
   viewWrapper.endViewUpdate();
-  do_check_eq(applyViewCount, 0);
-  do_check_eq(viewWrapper._viewUpdateDepth, 0);
+  Assert.equal(applyViewCount, 0);
+  Assert.equal(viewWrapper._viewUpdateDepth, 0);
 
   // - depth zeroed on clear
   viewWrapper.beginViewUpdate();
   viewWrapper.close(); // this does little else because there is nothing open
-  do_check_eq(viewWrapper._viewUpdateDepth, 0);
+  Assert.equal(viewWrapper._viewUpdateDepth, 0);
 }
 
 var tests = [

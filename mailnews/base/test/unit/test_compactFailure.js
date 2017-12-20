@@ -126,7 +126,7 @@ function compact_with_exception(expectedException) {
     compactor.compact(gTargetFolder, false, listener, null);
     do_throw("nsIMsgFolderCompactor.compact did not fail.");
   } catch(ex) {
-    do_check_eq(expectedException, ex.result);
+    Assert.equal(expectedException, ex.result);
   }
 }
 

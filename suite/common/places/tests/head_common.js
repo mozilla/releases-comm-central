@@ -174,7 +174,7 @@ function readFileData(aFile) {
  */
 function readFileOfLength(aFileName, aExpectedLength) {
   let data = readFileData(do_get_file(aFileName));
-  do_check_eq(data.length, aExpectedLength);
+  Assert.equal(data.length, aExpectedLength);
   return data;
 }
 
@@ -412,11 +412,11 @@ function create_bookmarks_html(aFilename) {
   remove_bookmarks_html();
   let bookmarksHTMLFile = gTestDir.clone();
   bookmarksHTMLFile.append(aFilename);
-  do_check_true(bookmarksHTMLFile.exists());
+  Assert.ok(bookmarksHTMLFile.exists());
   bookmarksHTMLFile.copyTo(gProfD, FILENAME_BOOKMARKS_HTML);
   let profileBookmarksHTMLFile = gProfD.clone();
   profileBookmarksHTMLFile.append(FILENAME_BOOKMARKS_HTML);
-  do_check_true(profileBookmarksHTMLFile.exists());
+  Assert.ok(profileBookmarksHTMLFile.exists());
   return profileBookmarksHTMLFile;
 }
 
@@ -429,7 +429,7 @@ function remove_bookmarks_html() {
   profileBookmarksHTMLFile.append(FILENAME_BOOKMARKS_HTML);
   if (profileBookmarksHTMLFile.exists()) {
     profileBookmarksHTMLFile.remove(false);
-    do_check_false(profileBookmarksHTMLFile.exists());
+    Assert.ok(!profileBookmarksHTMLFile.exists());
   }
 }
 
@@ -442,7 +442,7 @@ function remove_bookmarks_html() {
 function check_bookmarks_html() {
   let profileBookmarksHTMLFile = gProfD.clone();
   profileBookmarksHTMLFile.append(FILENAME_BOOKMARKS_HTML);
-  do_check_true(profileBookmarksHTMLFile.exists());
+  Assert.ok(profileBookmarksHTMLFile.exists());
   return profileBookmarksHTMLFile;
 }
 
@@ -463,7 +463,7 @@ function create_JSON_backup(aFilename) {
   bookmarksBackupDir.append("bookmarkbackups");
   if (!bookmarksBackupDir.exists()) {
     bookmarksBackupDir.create(Ci.nsIFile.DIRECTORY_TYPE, parseInt("0755", 8));
-    do_check_true(bookmarksBackupDir.exists());
+    Assert.ok(bookmarksBackupDir.exists());
   }
   let profileBookmarksJSONFile = bookmarksBackupDir.clone();
   profileBookmarksJSONFile.append(FILENAME_BOOKMARKS_JSON);
@@ -472,11 +472,11 @@ function create_JSON_backup(aFilename) {
   }
   let bookmarksJSONFile = gTestDir.clone();
   bookmarksJSONFile.append(aFilename);
-  do_check_true(bookmarksJSONFile.exists());
+  Assert.ok(bookmarksJSONFile.exists());
   bookmarksJSONFile.copyTo(bookmarksBackupDir, FILENAME_BOOKMARKS_JSON);
   profileBookmarksJSONFile = bookmarksBackupDir.clone();
   profileBookmarksJSONFile.append(FILENAME_BOOKMARKS_JSON);
-  do_check_true(profileBookmarksJSONFile.exists());
+  Assert.ok(profileBookmarksJSONFile.exists());
   return profileBookmarksJSONFile;
 }
 
@@ -489,7 +489,7 @@ function remove_all_JSON_backups() {
   bookmarksBackupDir.append("bookmarkbackups");
   if (bookmarksBackupDir.exists()) {
     bookmarksBackupDir.remove(true);
-    do_check_false(bookmarksBackupDir.exists());
+    Assert.ok(!bookmarksBackupDir.exists());
   }
 }
 
@@ -520,7 +520,7 @@ function check_JSON_backup(aIsAutomaticBackup) {
     profileBookmarksJSONFile.append("bookmarkbackups");
     profileBookmarksJSONFile.append(FILENAME_BOOKMARKS_JSON);
   }
-  do_check_true(profileBookmarksJSONFile.exists());
+  Assert.ok(profileBookmarksJSONFile.exists());
   return profileBookmarksJSONFile;
 }
 
@@ -620,7 +620,7 @@ function do_check_valid_places_guid(aGuid,
   if (!aStack) {
     aStack = Components.stack.caller;
   }
-  do_check_true(/^[a-zA-Z0-9\-_]{12}$/.test(aGuid), aStack);
+  Assert.ok(/^[a-zA-Z0-9\-_]{12}$/.test(aGuid), aStack);
 }
 
 /**
@@ -644,7 +644,7 @@ function do_get_guid_for_uri(aURI,
      WHERE url_hash = hash(:url) AND url = :url`
   );
   stmt.params.url = aURI.spec;
-  do_check_true(stmt.executeStep(), aStack);
+  Assert.ok(stmt.executeStep(), aStack);
   let guid = stmt.row.guid;
   stmt.finalize();
   do_check_valid_places_guid(guid, aStack);
@@ -666,7 +666,7 @@ function do_check_guid_for_uri(aURI,
   let guid = do_get_guid_for_uri(aURI, caller);
   if (aGUID) {
     do_check_valid_places_guid(aGUID, caller);
-    do_check_eq(guid, aGUID, caller);
+    Assert.equal(guid, aGUID, caller);
   }
 }
 
@@ -691,7 +691,7 @@ function do_get_guid_for_bookmark(aId,
      WHERE id = :item_id`
   );
   stmt.params.item_id = aId;
-  do_check_true(stmt.executeStep(), aStack);
+  Assert.ok(stmt.executeStep(), aStack);
   let guid = stmt.row.guid;
   stmt.finalize();
   do_check_valid_places_guid(guid, aStack);
@@ -713,7 +713,7 @@ function do_check_guid_for_bookmark(aId,
   let guid = do_get_guid_for_bookmark(aId, caller);
   if (aGUID) {
     do_check_valid_places_guid(aGUID, caller);
-    do_check_eq(guid, aGUID, caller);
+    Assert.equal(guid, aGUID, caller);
   }
 }
 

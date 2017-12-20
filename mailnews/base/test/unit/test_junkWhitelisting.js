@@ -76,13 +76,13 @@ function doChecks(server)
   let spamSettings = server.spamSettings;
 
   // default is to use the whitelist
-  do_check_true(spamSettings.useWhiteList);
+  Assert.ok(spamSettings.useWhiteList);
 
   // check email with the address PrimaryEmail1@test.invalid
-  do_check_true(spamSettings.checkWhiteList(hdrs[kDomainTest]));
+  Assert.ok(spamSettings.checkWhiteList(hdrs[kDomainTest]));
 
   // check email without the address
-  do_check_false(spamSettings.checkWhiteList(hdrs[kDomainExample]));
+  Assert.ok(!spamSettings.checkWhiteList(hdrs[kDomainExample]));
 
   //
   // check changes in server-level settings. Although the spamSettings object
@@ -97,42 +97,42 @@ function doChecks(server)
   spamSettings.initialize(server);
 
   // check that the change was propagated to spamSettings
-  do_check_false(spamSettings.useWhiteList);
+  Assert.ok(!spamSettings.useWhiteList);
 
   // and affects whitelisting calculationss
-  do_check_false(spamSettings.checkWhiteList(hdrs[kDomainTest]));
+  Assert.ok(!spamSettings.checkWhiteList(hdrs[kDomainTest]));
 
   // reenable whitelisting
   server.setBoolValue("useWhiteList", true);
   spamSettings.initialize(server);
-  do_check_true(spamSettings.checkWhiteList(hdrs[kDomainTest]));
+  Assert.ok(spamSettings.checkWhiteList(hdrs[kDomainTest]));
 
   // Set an empty white list.
   // To really empty this, I have to change the default value as well
   Services.prefs.setCharPref("mail.server.default.whiteListAbURI", "");
   server.setCharValue("whiteListAbURI", "");
   spamSettings.initialize(server);
-  do_check_false(spamSettings.checkWhiteList(hdrs[kDomainTest]));
+  Assert.ok(!spamSettings.checkWhiteList(hdrs[kDomainTest]));
 
   // add a trusted domain. This is a global preference
   Services.prefs.setCharPref("mail.trusteddomains", "example.com");
   spamSettings.initialize(server);
 
   // check email with the address invalid@example.com, a trusted domain
-  do_check_true(spamSettings.checkWhiteList(hdrs[kDomainExample]));
+  Assert.ok(spamSettings.checkWhiteList(hdrs[kDomainExample]));
 
   // check email without the address
-  do_check_false(spamSettings.checkWhiteList(hdrs[kDomainTest]));
+  Assert.ok(!spamSettings.checkWhiteList(hdrs[kDomainTest]));
 
   // disable the trusted domain
   Services.prefs.setCharPref("mail.trusteddomains", "");
   spamSettings.initialize(server);
-  do_check_false(spamSettings.checkWhiteList(hdrs[kDomainExample]));
+  Assert.ok(!spamSettings.checkWhiteList(hdrs[kDomainExample]));
 
   // add back the Personal Address Book
   server.setCharValue("whiteListAbURI", kPABData.URI);
   spamSettings.initialize(server);
-  do_check_true(spamSettings.checkWhiteList(hdrs[kDomainTest]));
+  Assert.ok(spamSettings.checkWhiteList(hdrs[kDomainTest]));
 
   /*
    * tests of whitelist suppression by identity
@@ -163,27 +163,27 @@ function doChecks(server)
   server.setBoolValue("inhibitWhiteListingIdentityUser", true);
   spamSettings.initialize(server);
   // (email does not match yet though)
-  do_check_true(spamSettings.checkWhiteList(hdrs[kDomainTest]));
+  Assert.ok(spamSettings.checkWhiteList(hdrs[kDomainTest]));
 
   // add a matching email (mixing case)
   identity.email = "PrimaryEMAIL1@test.INVALID";
   spamSettings.initialize(server);
-  do_check_false(spamSettings.checkWhiteList(hdrs[kDomainTest]));
+  Assert.ok(!spamSettings.checkWhiteList(hdrs[kDomainTest]));
 
   // remove the matching email
   identity.email = "iAmNotTheSender@test.invalid";
   spamSettings.initialize(server);
-  do_check_true(spamSettings.checkWhiteList(hdrs[kDomainTest]));
+  Assert.ok(spamSettings.checkWhiteList(hdrs[kDomainTest]));
 
   // add the email to the deferred-from server
   fakeIdentity.email = "PrimaryEMAIL1@test.INVALID";
   spamSettings.initialize(server);
-  do_check_false(spamSettings.checkWhiteList(hdrs[kDomainTest]));
+  Assert.ok(!spamSettings.checkWhiteList(hdrs[kDomainTest]));
 
   // stop suppressing identity users
   server.setBoolValue("inhibitWhiteListingIdentityUser", false);
   spamSettings.initialize(server);
-  do_check_true(spamSettings.checkWhiteList(hdrs[kDomainTest]));
+  Assert.ok(spamSettings.checkWhiteList(hdrs[kDomainTest]));
 
   // remove the matching email from the fake identity
   fakeIdentity.email = "iAmNotTheSender@wrong.invalid";
@@ -195,16 +195,16 @@ function doChecks(server)
   server.setBoolValue("inhibitWhiteListingIdentityDomain", true);
   spamSettings.initialize(server);
   // but domain still does not match
-  do_check_true(spamSettings.checkWhiteList(hdrs[kDomainTest]));
+  Assert.ok(spamSettings.checkWhiteList(hdrs[kDomainTest]));
 
   // add a matching email to the identity, in the domain (mixing case)
   identity.email = "iAmNotTheSender@TEST.invalid";
   spamSettings.initialize(server);
-  do_check_false(spamSettings.checkWhiteList(hdrs[kDomainTest]));
+  Assert.ok(!spamSettings.checkWhiteList(hdrs[kDomainTest]));
 
   // stop suppressing whitelist by domain
   server.setBoolValue("inhibitWhiteListingIdentityDomain", false);
   spamSettings.initialize(server);
-  do_check_true(spamSettings.checkWhiteList(hdrs[kDomainTest]));
+  Assert.ok(spamSettings.checkWhiteList(hdrs[kDomainTest]));
 }
 

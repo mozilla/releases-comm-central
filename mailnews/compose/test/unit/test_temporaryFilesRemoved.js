@@ -54,7 +54,7 @@ function collect_expected_temporary_files() {
 
 function check_files_not_exist(files) {
   files.forEach(function(file) {
-    do_check_false(file.exists());
+    Assert.ok(!file.exists());
   });
 }
 

@@ -35,7 +35,7 @@ msl.prototype = {
   },
   onStopSending: function (aMsgID, aStatus, aMsg, aReturnFile) {
     try {
-      do_check_eq(aStatus, 0);
+      Assert.equal(aStatus, 0);
 
       do_check_transaction(server.playTransaction(),
                            ["EHLO test",
@@ -44,7 +44,7 @@ msl.prototype = {
                             "DATA"]);
 
       // Compare data file to what the server received
-      do_check_eq(originalData, server._daemon.post);
+      Assert.equal(originalData, server._daemon.post);
     } catch (e) {
       do_throw(e);
     } finally {
@@ -70,7 +70,7 @@ msl.prototype = {
   GetMessageId: function (aMessageId) {
   },
   OnStopCopy: function (aStatus) {
-    do_check_eq(aStatus, 0);
+    Assert.equal(aStatus, 0);
     try {
       // Now do a comparison of what is in the sent mail folder
       let msgData = mailTestUtils
@@ -78,11 +78,11 @@ msl.prototype = {
 
       // Skip the headers etc that mailnews adds
       var pos = msgData.indexOf("From:");
-      do_check_neq(pos, -1);
+      Assert.notEqual(pos, -1);
 
       msgData = msgData.substr(pos);
 
-      do_check_eq(originalData, msgData);
+      Assert.equal(originalData, msgData);
     } catch (e) {
       do_throw(e);
     } finally {
@@ -122,7 +122,7 @@ function run_test() {
 
   sentFolder = localAccountUtils.rootFolder.createLocalSubfolder("Sent");
 
-  do_check_eq(identity.doFcc, true);
+  Assert.equal(identity.doFcc, true);
 
   var msgSend = Cc["@mozilla.org/messengercompose/send;1"]
                   .createInstance(Ci.nsIMsgSend);

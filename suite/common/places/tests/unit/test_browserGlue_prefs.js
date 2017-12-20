@@ -47,7 +47,7 @@ tests.push({
   description: "Import from bookmarks.html if importBookmarksHTML is true.",
   exec: function() {
     // Sanity check: we should not have any bookmark on the toolbar.
-    do_check_eq(bs.getIdForItemAt(bs.toolbarFolder, 0), -1);
+    Assert.equal(bs.getIdForItemAt(bs.toolbarFolder, 0), -1);
 
     // Set preferences.
     Services.prefs.setBoolPref(PREF_IMPORT_BOOKMARKS_HTML, true);
@@ -57,9 +57,9 @@ tests.push({
       // created.
       let itemId = bs.getIdForItemAt(bs.toolbarFolder,
                                      SMART_BOOKMARKS_ON_TOOLBAR);
-      do_check_eq(bs.getItemTitle(itemId), "example");
+      Assert.equal(bs.getItemTitle(itemId), "example");
       // Check preferences have been reverted.
-      do_check_false(Services.prefs.getBoolPref(PREF_IMPORT_BOOKMARKS_HTML));
+      Assert.ok(!Services.prefs.getBoolPref(PREF_IMPORT_BOOKMARKS_HTML));
 
       next_test();
     });
@@ -77,7 +77,7 @@ tests.push({
   description: "import from bookmarks.html, but don't create smart bookmarks if they are disabled",
   exec: function() {
     // Sanity check: we should not have any bookmark on the toolbar.
-    do_check_eq(bs.getIdForItemAt(bs.toolbarFolder, 0), -1);
+    Assert.equal(bs.getIdForItemAt(bs.toolbarFolder, 0), -1);
 
     // Set preferences.
     Services.prefs.setIntPref(PREF_SMART_BOOKMARKS_VERSION, -1);
@@ -87,9 +87,9 @@ tests.push({
       // Check bookmarks.html has been imported, but smart bookmarks have not
       // been created.
       let itemId = bs.getIdForItemAt(bs.toolbarFolder, 0);
-      do_check_eq(bs.getItemTitle(itemId), "example");
+      Assert.equal(bs.getItemTitle(itemId), "example");
       // Check preferences have been reverted.
-      do_check_false(Services.prefs.getBoolPref(PREF_IMPORT_BOOKMARKS_HTML));
+      Assert.ok(!Services.prefs.getBoolPref(PREF_IMPORT_BOOKMARKS_HTML));
 
       next_test();
     });
@@ -107,7 +107,7 @@ tests.push({
   description: "Import from bookmarks.html, but don't create smart bookmarks if autoExportHTML is true and they are at latest version",
   exec: function() {
     // Sanity check: we should not have any bookmark on the toolbar.
-    do_check_eq(bs.getIdForItemAt(bs.toolbarFolder, 0), -1);
+    Assert.equal(bs.getIdForItemAt(bs.toolbarFolder, 0), -1);
     // Set preferences.
     Services.prefs.setIntPref(PREF_SMART_BOOKMARKS_VERSION, 999);
     Services.prefs.setBoolPref(PREF_AUTO_EXPORT_HTML, true);
@@ -117,8 +117,8 @@ tests.push({
       // Check bookmarks.html has been imported, but smart bookmarks have not
       // been created.
       let itemId = bs.getIdForItemAt(bs.toolbarFolder, 0);
-      do_check_eq(bs.getItemTitle(itemId), "example");
-      do_check_false(Services.prefs.getBoolPref(PREF_IMPORT_BOOKMARKS_HTML));
+      Assert.equal(bs.getItemTitle(itemId), "example");
+      Assert.ok(!Services.prefs.getBoolPref(PREF_IMPORT_BOOKMARKS_HTML));
       // Check preferences have been reverted.
       Services.prefs.setBoolPref(PREF_AUTO_EXPORT_HTML, false);
 
@@ -138,7 +138,7 @@ tests.push({
   description: "Import from bookmarks.html, and create smart bookmarks if autoExportHTML is true and they are not at latest version.",
   exec: function() {
     // Sanity check: we should not have any bookmark on the toolbar.
-    do_check_eq(bs.getIdForItemAt(bs.toolbarFolder, 0), -1);
+    Assert.equal(bs.getIdForItemAt(bs.toolbarFolder, 0), -1);
     // Set preferences.
     Services.prefs.setIntPref(PREF_SMART_BOOKMARKS_VERSION, 0);
     Services.prefs.setBoolPref(PREF_AUTO_EXPORT_HTML, true);
@@ -148,8 +148,8 @@ tests.push({
       // Check bookmarks.html has been imported, but smart bookmarks have not
       // been created.
       let itemId = bs.getIdForItemAt(bs.toolbarFolder, SMART_BOOKMARKS_ON_TOOLBAR);
-      do_check_eq(bs.getItemTitle(itemId), "example");
-      do_check_false(Services.prefs.getBoolPref(PREF_IMPORT_BOOKMARKS_HTML));
+      Assert.equal(bs.getItemTitle(itemId), "example");
+      Assert.ok(!Services.prefs.getBoolPref(PREF_IMPORT_BOOKMARKS_HTML));
       // Check preferences have been reverted.
       Services.prefs.setBoolPref(PREF_AUTO_EXPORT_HTML, false);
 
@@ -168,16 +168,16 @@ tests.push({
   description: "restore from default bookmarks.html if restore_default_bookmarks is true.",
   exec: function() {
     // Sanity check: we should not have any bookmark on the toolbar.
-    do_check_eq(bs.getIdForItemAt(bs.toolbarFolder, 0), -1);
+    Assert.equal(bs.getIdForItemAt(bs.toolbarFolder, 0), -1);
     // Set preferences.
     Services.prefs.setBoolPref(PREF_RESTORE_DEFAULT_BOOKMARKS, true);
 
     waitForImportAndSmartBookmarks(function () {
       // Check bookmarks.html has been restored.
       let itemId = bs.getIdForItemAt(bs.toolbarFolder, SMART_BOOKMARKS_ON_TOOLBAR + 1);
-      do_check_true(itemId > 0);
+      Assert.ok(itemId > 0);
       // Check preferences have been reverted.
-      do_check_false(Services.prefs.getBoolPref(PREF_RESTORE_DEFAULT_BOOKMARKS));
+      Assert.ok(!Services.prefs.getBoolPref(PREF_RESTORE_DEFAULT_BOOKMARKS));
 
       next_test();
     });
@@ -195,7 +195,7 @@ tests.push({
   description: "setting both importBookmarksHTML and restore_default_bookmarks should restore defaults.",
   exec: function() {
     // Sanity check: we should not have any bookmark on the toolbar.
-    do_check_eq(bs.getIdForItemAt(bs.toolbarFolder, 0), -1);
+    Assert.equal(bs.getIdForItemAt(bs.toolbarFolder, 0), -1);
     // Set preferences.
     Services.prefs.setBoolPref(PREF_IMPORT_BOOKMARKS_HTML, true);
     Services.prefs.setBoolPref(PREF_RESTORE_DEFAULT_BOOKMARKS, true);
@@ -203,10 +203,10 @@ tests.push({
     waitForImportAndSmartBookmarks(function () {
       // Check bookmarks.html has been restored.
       let itemId = bs.getIdForItemAt(bs.toolbarFolder, SMART_BOOKMARKS_ON_TOOLBAR + 1);
-      do_check_true(itemId > 0);
+      Assert.ok(itemId > 0);
       // Check preferences have been reverted.
-      do_check_false(Services.prefs.getBoolPref(PREF_RESTORE_DEFAULT_BOOKMARKS));
-      do_check_false(Services.prefs.getBoolPref(PREF_IMPORT_BOOKMARKS_HTML));
+      Assert.ok(!Services.prefs.getBoolPref(PREF_RESTORE_DEFAULT_BOOKMARKS));
+      Assert.ok(!Services.prefs.getBoolPref(PREF_IMPORT_BOOKMARKS_HTML));
 
       do_test_finished();
     });
@@ -258,13 +258,13 @@ function start_tests() {
   remove_all_bookmarks();
 
   // Ensure preferences status.
-  do_check_false(Services.prefs.getBoolPref(PREF_AUTO_EXPORT_HTML));
+  Assert.ok(!Services.prefs.getBoolPref(PREF_AUTO_EXPORT_HTML));
   try {
-    do_check_false(Services.prefs.getBoolPref(PREF_IMPORT_BOOKMARKS_HTML));
+    Assert.ok(!Services.prefs.getBoolPref(PREF_IMPORT_BOOKMARKS_HTML));
     do_throw("importBookmarksHTML pref should not exist");
   }
   catch(ex) {}
-  do_check_false(Services.prefs.getBoolPref(PREF_RESTORE_DEFAULT_BOOKMARKS));
+  Assert.ok(!Services.prefs.getBoolPref(PREF_RESTORE_DEFAULT_BOOKMARKS));
 
   // Create our bookmarks.html from bookmarks.glue.html.
   create_bookmarks_html("bookmarks.glue.html");

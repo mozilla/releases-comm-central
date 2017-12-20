@@ -55,26 +55,26 @@ function* setup() {
  * Test that folders generally are marked for offline use by default.
  */
 function* testGeneralFoldersOffline() {
-  do_check_true(IMAPPump.inbox.getFlag(Ci.nsMsgFolderFlags.Offline));
+  Assert.ok(IMAPPump.inbox.getFlag(Ci.nsMsgFolderFlags.Offline));
 
   let gmail = IMAPPump.incomingServer.rootFolder.getChildNamed("[Gmail]");
 
   let allmail = gmail.getFolderWithFlags(Ci.nsMsgFolderFlags.Archive);
-  do_check_true(allmail.getFlag(Ci.nsMsgFolderFlags.Offline));
+  Assert.ok(allmail.getFlag(Ci.nsMsgFolderFlags.Offline));
 
   let drafts = gmail.getFolderWithFlags(Ci.nsMsgFolderFlags.Drafts);
-  do_check_true(drafts.getFlag(Ci.nsMsgFolderFlags.Offline));
+  Assert.ok(drafts.getFlag(Ci.nsMsgFolderFlags.Offline));
 
   let sent = gmail.getFolderWithFlags(Ci.nsMsgFolderFlags.SentMail);
-  do_check_true(sent.getFlag(Ci.nsMsgFolderFlags.Offline));
+  Assert.ok(sent.getFlag(Ci.nsMsgFolderFlags.Offline));
 
   let rootFolder = IMAPPump.incomingServer.rootFolder;
 
   let folder1 =  rootFolder.getChildNamed("folder1");
-  do_check_true(folder1.getFlag(Ci.nsMsgFolderFlags.Offline));
+  Assert.ok(folder1.getFlag(Ci.nsMsgFolderFlags.Offline));
 
   let folder2 =  rootFolder.getChildNamed("folder2");
-  do_check_true(folder2.getFlag(Ci.nsMsgFolderFlags.Offline));
+  Assert.ok(folder2.getFlag(Ci.nsMsgFolderFlags.Offline));
 
   yield true;
 }
@@ -85,7 +85,7 @@ function* testGeneralFoldersOffline() {
 function* testTrashNotOffline() {
   let gmail = IMAPPump.incomingServer.rootFolder.getChildNamed("[Gmail]");
   let trash = gmail.getFolderWithFlags(Ci.nsMsgFolderFlags.Trash);
-  do_check_false(trash.getFlag(Ci.nsMsgFolderFlags.Offline));
+  Assert.ok(!trash.getFlag(Ci.nsMsgFolderFlags.Offline));
   yield true;
 }
 
@@ -95,7 +95,7 @@ function* testTrashNotOffline() {
 function* testJunkNotOffline() {
   let gmail = IMAPPump.incomingServer.rootFolder.getChildNamed("[Gmail]");
   let spam = gmail.getFolderWithFlags(Ci.nsMsgFolderFlags.Junk);
-  do_check_false(spam.getFlag(Ci.nsMsgFolderFlags.Offline));
+  Assert.ok(!spam.getFlag(Ci.nsMsgFolderFlags.Offline));
   yield true;
 }
 

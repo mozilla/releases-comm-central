@@ -57,7 +57,7 @@ function* test_createTargetFolder()
   IMAPPump.incomingServer.rootFolder.createSubfolder("targetFolder", null);
   yield false;
   gTargetFolder = IMAPPump.incomingServer.rootFolder.getChildNamed("targetFolder");
-  do_check_true(gTargetFolder instanceof Ci.nsIMsgImapMailFolder);
+  Assert.ok(gTargetFolder instanceof Ci.nsIMsgImapMailFolder);
   // set folder to be checked for new messages when inbox is checked.
   gTargetFolder.setFlag(Ci.nsMsgFolderFlags.CheckNew);
 }
@@ -91,7 +91,7 @@ function* test_moveMessageToTargetFolder()
   let observer = gAutoSyncManager.QueryInterface(Ci.nsIObserver);
   observer.observe(null, "mail:appIdle", "back");
   let msgHdr = mailTestUtils.firstMsgHdr(IMAPPump.inbox);
-  do_check_true(msgHdr !== null);
+  Assert.ok(msgHdr !== null);
 
   // Now move this message to the target folder.
   let messages = Cc["@mozilla.org/array;1"]
@@ -122,13 +122,13 @@ function endTest()
   let numMsgs = 0;
   while (enumerator.hasMoreElements()) {
     numMsgs++;
-    do_check_neq(enumerator.getNext()
-                  .QueryInterface(Ci.nsIMsgDBHdr).flags & msgFlagOffline, 0);
+    Assert.notEqual(enumerator.getNext()
+                     .QueryInterface(Ci.nsIMsgDBHdr).flags & msgFlagOffline, 0);
   }
-  do_check_eq(2, numMsgs);
-  do_check_eq(gAutoSyncListener._waitingForUpdateList.length, 0);
-  do_check_false(gAutoSyncListener._waitingForDiscovery);
-  do_check_false(gAutoSyncListener._waitingForUpdate);
+  Assert.equal(2, numMsgs);
+  Assert.equal(gAutoSyncListener._waitingForUpdateList.length, 0);
+  Assert.ok(!gAutoSyncListener._waitingForDiscovery);
+  Assert.ok(!gAutoSyncListener._waitingForUpdate);
   teardownIMAPPump();
 }
 

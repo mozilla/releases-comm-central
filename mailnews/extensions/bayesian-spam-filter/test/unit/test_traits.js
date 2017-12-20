@@ -122,13 +122,13 @@ var listener =
     switch (gTest.command)
     {
       case kClass:
-        do_check_eq(gTest.files[gTest.currentIndex], aMsgURI);
+        Assert.equal(gTest.files[gTest.currentIndex], aMsgURI);
         var currentPercents = gTest.percents[gTest.currentIndex];
         for (var i = 0; i < currentPercents.length; i++)
         {
           //print("expecting score " + currentPercents[i] +
           //      " got score " + aPercents[i]);
-          do_check_eq(currentPercents[i], aPercents[i]);
+          Assert.equal(currentPercents[i], aPercents[i]);
         }
         gTest.currentIndex++;
         break;
@@ -151,13 +151,13 @@ var listener =
       print("Percent " + aTokenPercents[i] +
             " Running " + aRunningPercents[i] +
             " Token " + aTokenString[i]);
-      do_check_true(aTokenString[i] in gTest.percents);
+      Assert.ok(aTokenString[i] in gTest.percents);
 
-      do_check_eq(gTest.percents[aTokenString[i]], aTokenPercents[i]);
-      do_check_eq(gTest.runnings[i], aRunningPercents[i]);
+      Assert.equal(gTest.percents[aTokenString[i]], aTokenPercents[i]);
+      Assert.equal(gTest.runnings[i], aRunningPercents[i]);
       delete gTest.percents[aTokenString[i]];
     }
-    do_check_eq(Object.keys(gTest.percents).length, 0);
+    Assert.equal(Object.keys(gTest.percents).length, 0);
     gTest.currentIndex++;
     startCommand();
   }

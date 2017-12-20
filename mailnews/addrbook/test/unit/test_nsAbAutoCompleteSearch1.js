@@ -247,11 +247,11 @@ function run_test() {
 
   acs.startSearch("abc", param, null, obs);
 
-  do_check_eq(obs._search, acs);
-  do_check_eq(obs._result.searchString, "abc");
-  do_check_eq(obs._result.searchResult, ACR.RESULT_NOMATCH);
-  do_check_eq(obs._result.errorDescription, null);
-  do_check_eq(obs._result.matchCount, 0);
+  Assert.equal(obs._search, acs);
+  Assert.equal(obs._result.searchString, "abc");
+  Assert.equal(obs._result.searchResult, ACR.RESULT_NOMATCH);
+  Assert.equal(obs._result.errorDescription, null);
+  Assert.equal(obs._result.matchCount, 0);
 
   // Test - Check Enabling of autocomplete, but with empty string.
 
@@ -259,94 +259,94 @@ function run_test() {
 
   acs.startSearch(null, param, null, obs);
 
-  do_check_eq(obs._search, acs);
-  do_check_eq(obs._result.searchString, null);
-  do_check_eq(obs._result.searchResult, ACR.RESULT_IGNORED);
-  do_check_eq(obs._result.errorDescription, null);
-  do_check_eq(obs._result.matchCount, 0);
-  do_check_eq(obs._result.defaultIndex, -1);
+  Assert.equal(obs._search, acs);
+  Assert.equal(obs._result.searchString, null);
+  Assert.equal(obs._result.searchResult, ACR.RESULT_IGNORED);
+  Assert.equal(obs._result.errorDescription, null);
+  Assert.equal(obs._result.matchCount, 0);
+  Assert.equal(obs._result.defaultIndex, -1);
 
   // Test - Check ignoring result with comma
 
   acs.startSearch("a,b", param, null, obs);
 
-  do_check_eq(obs._search, acs);
-  do_check_eq(obs._result.searchString, "a,b");
-  do_check_eq(obs._result.searchResult, ACR.RESULT_IGNORED);
-  do_check_eq(obs._result.errorDescription, null);
-  do_check_eq(obs._result.matchCount, 0);
-  do_check_eq(obs._result.defaultIndex, -1);
+  Assert.equal(obs._search, acs);
+  Assert.equal(obs._result.searchString, "a,b");
+  Assert.equal(obs._result.searchResult, ACR.RESULT_IGNORED);
+  Assert.equal(obs._result.errorDescription, null);
+  Assert.equal(obs._result.matchCount, 0);
+  Assert.equal(obs._result.defaultIndex, -1);
 
   // Test - No matches
 
   acs.startSearch("asjdkljdgfjglkfg", param, null, obs);
 
-  do_check_eq(obs._search, acs);
-  do_check_eq(obs._result.searchString, "asjdkljdgfjglkfg");
-  do_check_eq(obs._result.searchResult, ACR.RESULT_NOMATCH);
-  do_check_eq(obs._result.errorDescription, null);
-  do_check_eq(obs._result.matchCount, 0);
-  do_check_eq(obs._result.defaultIndex, -1);
+  Assert.equal(obs._search, acs);
+  Assert.equal(obs._result.searchString, "asjdkljdgfjglkfg");
+  Assert.equal(obs._result.searchResult, ACR.RESULT_NOMATCH);
+  Assert.equal(obs._result.errorDescription, null);
+  Assert.equal(obs._result.matchCount, 0);
+  Assert.equal(obs._result.defaultIndex, -1);
 
   // Test - Matches
 
   // Basic quick-check
   acs.startSearch("email", param, null, obs);
 
-  do_check_eq(obs._search, acs);
-  do_check_eq(obs._result.searchString, "email");
-  do_check_eq(obs._result.searchResult, ACR.RESULT_SUCCESS);
-  do_check_eq(obs._result.errorDescription, null);
-  do_check_eq(obs._result.matchCount, 2);
-  do_check_eq(obs._result.defaultIndex, 0);
+  Assert.equal(obs._search, acs);
+  Assert.equal(obs._result.searchString, "email");
+  Assert.equal(obs._result.searchResult, ACR.RESULT_SUCCESS);
+  Assert.equal(obs._result.errorDescription, null);
+  Assert.equal(obs._result.matchCount, 2);
+  Assert.equal(obs._result.defaultIndex, 0);
 
-  do_check_eq(obs._result.getValueAt(0), "dis <email@foo.invalid>");
-  do_check_eq(obs._result.getLabelAt(0), "dis <email@foo.invalid>");
-  do_check_eq(obs._result.getCommentAt(0), "");
-  do_check_eq(obs._result.getStyleAt(0), "local-abook");
-  do_check_eq(obs._result.getImageAt(0), "");
+  Assert.equal(obs._result.getValueAt(0), "dis <email@foo.invalid>");
+  Assert.equal(obs._result.getLabelAt(0), "dis <email@foo.invalid>");
+  Assert.equal(obs._result.getCommentAt(0), "");
+  Assert.equal(obs._result.getStyleAt(0), "local-abook");
+  Assert.equal(obs._result.getImageAt(0), "");
 
   // quick-check that nothing is found for addr_newsgroups
   acs.startSearch("email", paramNews, null, obsNews);
-  do_check_true(obsNews._result == null || obsNews._result.matchCount == 0);
+  Assert.ok(obsNews._result == null || obsNews._result.matchCount == 0);
 
   // quick-check that nothing is found for  addr_followup
   acs.startSearch("a@b", paramFollowup, null, obsFollowup);
-  do_check_true(obsFollowup._result == null || obsFollowup._result.matchCount == 0);
+  Assert.ok(obsFollowup._result == null || obsFollowup._result.matchCount == 0);
 
   // Now quick-check with the address book name in the comment column.
   Services.prefs.setIntPref("mail.autoComplete.commentColumn", 1);
 
   acs.startSearch("email", param, null, obs);
 
-  do_check_eq(obs._search, acs);
-  do_check_eq(obs._result.searchString, "email");
-  do_check_eq(obs._result.searchResult, ACR.RESULT_SUCCESS);
-  do_check_eq(obs._result.errorDescription, null);
-  do_check_eq(obs._result.matchCount, 2);
-  do_check_eq(obs._result.defaultIndex, 0);
+  Assert.equal(obs._search, acs);
+  Assert.equal(obs._result.searchString, "email");
+  Assert.equal(obs._result.searchResult, ACR.RESULT_SUCCESS);
+  Assert.equal(obs._result.errorDescription, null);
+  Assert.equal(obs._result.matchCount, 2);
+  Assert.equal(obs._result.defaultIndex, 0);
 
-  do_check_eq(obs._result.getValueAt(0), "dis <email@foo.invalid>");
-  do_check_eq(obs._result.getLabelAt(0), "dis <email@foo.invalid>");
-  do_check_eq(obs._result.getCommentAt(0), kPABData.dirName);
-  do_check_eq(obs._result.getStyleAt(0), "local-abook");
-  do_check_eq(obs._result.getImageAt(0), "");
+  Assert.equal(obs._result.getValueAt(0), "dis <email@foo.invalid>");
+  Assert.equal(obs._result.getLabelAt(0), "dis <email@foo.invalid>");
+  Assert.equal(obs._result.getCommentAt(0), kPABData.dirName);
+  Assert.equal(obs._result.getStyleAt(0), "local-abook");
+  Assert.equal(obs._result.getImageAt(0), "");
 
   // Check input with different case
   acs.startSearch("EMAIL", param, null, obs);
 
-  do_check_eq(obs._search, acs);
-  do_check_eq(obs._result.searchString, "EMAIL");
-  do_check_eq(obs._result.searchResult, ACR.RESULT_SUCCESS);
-  do_check_eq(obs._result.errorDescription, null);
-  do_check_eq(obs._result.matchCount, 2);
-  do_check_eq(obs._result.defaultIndex, 0);
+  Assert.equal(obs._search, acs);
+  Assert.equal(obs._result.searchString, "EMAIL");
+  Assert.equal(obs._result.searchResult, ACR.RESULT_SUCCESS);
+  Assert.equal(obs._result.errorDescription, null);
+  Assert.equal(obs._result.matchCount, 2);
+  Assert.equal(obs._result.defaultIndex, 0);
 
-  do_check_eq(obs._result.getValueAt(0), "dis <email@foo.invalid>");
-  do_check_eq(obs._result.getLabelAt(0), "dis <email@foo.invalid>");
-  do_check_eq(obs._result.getCommentAt(0), kPABData.dirName);
-  do_check_eq(obs._result.getStyleAt(0), "local-abook");
-  do_check_eq(obs._result.getImageAt(0), "");
+  Assert.equal(obs._result.getValueAt(0), "dis <email@foo.invalid>");
+  Assert.equal(obs._result.getLabelAt(0), "dis <email@foo.invalid>");
+  Assert.equal(obs._result.getCommentAt(0), kPABData.dirName);
+  Assert.equal(obs._result.getStyleAt(0), "local-abook");
+  Assert.equal(obs._result.getImageAt(0), "");
 
   // Now check multiple matches
   function checkInputItem(element, index, array) {
@@ -363,19 +363,19 @@ function run_test() {
             results[element.expected[i]].email);
     }
 
-    do_check_eq(obs._search, acs);
-    do_check_eq(obs._result.searchString, element.search);
-    do_check_eq(obs._result.searchResult, ACR.RESULT_SUCCESS);
-    do_check_eq(obs._result.errorDescription, null);
-    do_check_eq(obs._result.matchCount, element.expected.length);
-    do_check_eq(obs._result.defaultIndex, 0);
+    Assert.equal(obs._search, acs);
+    Assert.equal(obs._result.searchString, element.search);
+    Assert.equal(obs._result.searchResult, ACR.RESULT_SUCCESS);
+    Assert.equal(obs._result.errorDescription, null);
+    Assert.equal(obs._result.matchCount, element.expected.length);
+    Assert.equal(obs._result.defaultIndex, 0);
 
     for (var i = 0; i < element.expected.length; ++i) {
-      do_check_eq(obs._result.getValueAt(i), results[element.expected[i]].email);
-      do_check_eq(obs._result.getLabelAt(i), results[element.expected[i]].email);
-      do_check_eq(obs._result.getCommentAt(i), results[element.expected[i]].dirName);
-      do_check_eq(obs._result.getStyleAt(i), "local-abook");
-      do_check_eq(obs._result.getImageAt(i), "");
+      Assert.equal(obs._result.getValueAt(i), results[element.expected[i]].email);
+      Assert.equal(obs._result.getLabelAt(i), results[element.expected[i]].email);
+      Assert.equal(obs._result.getCommentAt(i), results[element.expected[i]].dirName);
+      Assert.equal(obs._result.getStyleAt(i), "local-abook");
+      Assert.equal(obs._result.getImageAt(i), "");
     }
   }
   function checkInputSet(element, index, array) {

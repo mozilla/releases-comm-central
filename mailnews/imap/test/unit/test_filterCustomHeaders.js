@@ -63,7 +63,7 @@ function* setupTest() {
 
 function* checkFilterResults() {
   let msgHdr = mailTestUtils.firstMsgHdr(IMAPPump.inbox);
-  do_check_true(msgHdr.isRead);
+  Assert.ok(msgHdr.isRead);
   yield true;
 }
 

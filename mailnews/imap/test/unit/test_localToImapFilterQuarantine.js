@@ -45,7 +45,7 @@ function* createSubfolder()
   dl('wait for folderAdded notification');
   yield false;
   gSubfolder = IMAPPump.incomingServer.rootFolder.getChildNamed("subfolder");
-  do_check_true(gSubfolder instanceof Ci.nsIMsgImapMailFolder);
+  Assert.ok(gSubfolder instanceof Ci.nsIMsgImapMailFolder);
   gSubfolder.updateFolderWithListener(null, urlListener);
   dl('wait for OnStopRunningURL');
   yield false;
@@ -105,8 +105,8 @@ function* updateSubfolderAndTest() {
   // test
   listMessages(gSubfolder);
   listMessages(localAccountUtils.inboxFolder);
-  do_check_eq(folderCount(gSubfolder), 1);
-  do_check_eq(folderCount(localAccountUtils.inboxFolder), 1);
+  Assert.equal(folderCount(gSubfolder), 1);
+  Assert.equal(folderCount(localAccountUtils.inboxFolder), 1);
 }
 
 function* get2Messages()
@@ -138,8 +138,8 @@ function* updateSubfolderAndTest2() {
   //test
   listMessages(gSubfolder);
   listMessages(localAccountUtils.inboxFolder);
-  do_check_eq(folderCount(gSubfolder), 3);
-  do_check_eq(folderCount(localAccountUtils.inboxFolder), 3);
+  Assert.equal(folderCount(gSubfolder), 3);
+  Assert.equal(folderCount(localAccountUtils.inboxFolder), 3);
 }
 
 function endTest()

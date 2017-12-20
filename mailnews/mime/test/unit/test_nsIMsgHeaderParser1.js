@@ -28,11 +28,11 @@ function run_test() {
 
   // Test - empty strings
 
-  do_check_eq(MailServices.headerParser.makeMimeAddress("", ""), "");
+  Assert.equal(MailServices.headerParser.makeMimeAddress("", ""), "");
 
   // Test - makeMimeAddress
 
   for (let i = 0; i < checks.length; ++i)
-    do_check_eq(MailServices.headerParser.makeMimeAddress(checks[i][0], checks[i][1]),
-                checks[i][2]);
+    Assert.equal(MailServices.headerParser.makeMimeAddress(checks[i][0], checks[i][1]),
+                 checks[i][2]);
 }

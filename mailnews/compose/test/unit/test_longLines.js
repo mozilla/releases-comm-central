@@ -41,11 +41,11 @@ function checkDraftHeadersAndBody(expectedHeaders, expectedBody, charset = "UTF-
   if (charset == "UTF-8") {
     let expectedBinary = String.fromCharCode.apply(undefined,
       new TextEncoder("UTF-8").encode(expectedBody));
-    do_check_eq(body, expectedBinary);
+    Assert.equal(body, expectedBinary);
   } else {
     let strView = stringToTypedArray(body);
     let decodedBody = new TextDecoder(charset).decode(strView);
-    do_check_eq(decodedBody, expectedBody);
+    Assert.equal(decodedBody, expectedBody);
   }
 }
 
@@ -59,18 +59,18 @@ function checkMessageHeaders(msgData, expectedHeaders, partNum = "") {
       for (let header in expectedHeaders) {
         let expected = expectedHeaders[header];
         if (expected === undefined)
-          do_check_false(headers.has(header));
+          Assert.ok(!headers.has(header));
         else {
           let value = headers.getRawHeader(header);
-          do_check_eq(value.length, 1);
+          Assert.equal(value.length, 1);
           value[0] = value[0].replace(/boundary=[^;]*(;|$)/, "boundary=.");
-          do_check_eq(value[0], expected);
+          Assert.equal(value[0], expected);
         }
       }
     }
   };
   MimeParser.parseSync(msgData, handler, {onerror: function (e) { throw e; }});
-  do_check_true(seen);
+  Assert.ok(seen);
 }
 
 // Create a line with 600 letters 'a' with acute accent, encoded as

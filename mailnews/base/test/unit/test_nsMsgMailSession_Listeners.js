@@ -75,7 +75,7 @@ function NotifyMailSession() {
 function run_test() {
   var i;
 
-  do_check_true(MailServices.mailSession != null);
+  Assert.ok(MailServices.mailSession != null);
 
   // Test - Add a listener
 
@@ -92,11 +92,11 @@ function run_test() {
 
   NotifyMailSession();
 
-  do_check_eq(gFLAll.mReceived, Math.pow(2, numListenerFunctions) - 1);
+  Assert.equal(gFLAll.mReceived, Math.pow(2, numListenerFunctions) - 1);
   gFLAll.mReceived = 0;
 
   for (i = 0; i < numListenerFunctions; ++i) {
-    do_check_eq(gFLSingle[i].mReceived, Math.pow(2, i));
+    Assert.equal(gFLSingle[i].mReceived, Math.pow(2, i));
     gFLSingle[i].mReceived = 0;
 
     // And prepare for test 3.
@@ -109,11 +109,11 @@ function run_test() {
 
   NotifyMailSession();
 
-  do_check_eq(gFLAll.mReceived, Math.pow(2, numListenerFunctions) - 1);
+  Assert.equal(gFLAll.mReceived, Math.pow(2, numListenerFunctions) - 1);
   gFLAll.mReceived = 0;
 
   for (i = 0; i < numListenerFunctions; ++i) {
-    do_check_eq(gFLSingle[i].mReceived, Math.pow(2, i));
+    Assert.equal(gFLSingle[i].mReceived, Math.pow(2, i));
     gFLSingle[i].mReceived = 0;
   }
 
@@ -121,11 +121,11 @@ function run_test() {
 
   NotifyMailSession();
 
-  do_check_eq(gFLAll.mReceived, Math.pow(2, numListenerFunctions) - 1);
+  Assert.equal(gFLAll.mReceived, Math.pow(2, numListenerFunctions) - 1);
   gFLAll.mReceived = 0;
 
   for (i = 0; i < numListenerFunctions; ++i)
-    do_check_eq(gFLSingle[i].mReceived, 0);
+    Assert.equal(gFLSingle[i].mReceived, 0);
 
   // Test - Remove main listener
 

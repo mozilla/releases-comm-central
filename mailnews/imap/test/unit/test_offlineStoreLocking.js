@@ -55,7 +55,7 @@ function checkOfflineStore(prevOfflineStoreSize) {
   }
   // check that the offline store shrunk by at least 100 bytes.
   // (exact calculation might be fragile).
-  do_check_true(prevOfflineStoreSize > IMAPPump.inbox.filePath.fileSize + 100);
+  Assert.ok(prevOfflineStoreSize > IMAPPump.inbox.filePath.fileSize + 100);
 }
 
 var tests = [
@@ -98,7 +98,7 @@ var tests = [
 
     // Because we're streaming the message while compaction is going on,
     // we should not have stored it for offline use.
-    do_check_false(gStreamedHdr.flags & Ci.nsMsgMessageFlags.Offline);
+    Assert.equal(false, gStreamedHdr.flags & Ci.nsMsgMessageFlags.Offline);
 
     yield false;
   },
@@ -143,7 +143,7 @@ var tests = [
   function* verifyNoOfflineMsg() {
     try {
     let movedMsg = IMAPPump.inbox.msgDatabase.getMsgHdrForMessageID(gMovedMsgId);
-    do_check_false(movedMsg.flags & Ci.nsMsgMessageFlags.Offline);
+    Assert.equal(false, movedMsg.flags & Ci.nsMsgMessageFlags.Offline);
     } catch (ex) {dump(ex);}
     yield false;
     yield false;
@@ -195,7 +195,7 @@ var CopyListener =
   OnStopCopy: function(aStatus)
   {
     // Check: message successfully copied.
-    do_check_eq(aStatus, 0);
+    Assert.equal(aStatus, 0);
     async_driver();
   }
 };

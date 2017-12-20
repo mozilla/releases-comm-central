@@ -23,7 +23,7 @@ function run_test()
                 haveExpectedError = true;
               }
 
-  do_check_true(haveExpectedError);
+  Assert.ok(haveExpectedError);
 
 // One of the causes of this is that search term operators are not being
 //  initialized, resulting in random values of the operator. Make sure that is
@@ -32,5 +32,5 @@ function run_test()
   const kSearchSession = Cc["@mozilla.org/messenger/searchSession;1"]
                         .createInstance(Ci.nsIMsgSearchSession);
   let searchTerm = kSearchSession.createTerm();
-  do_check_eq(searchTerm.op, Ci.nsMsgSearchOp.Contains);
+  Assert.equal(searchTerm.op, Ci.nsMsgSearchOp.Contains);
 }

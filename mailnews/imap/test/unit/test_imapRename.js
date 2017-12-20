@@ -40,9 +40,9 @@ function* test_rename() {
   yield false;
 
   let folder = rootFolder.getChildNamed("folder \u00e1");
-  do_check_true(folder.msgDatabase.summaryValid);
-  do_check_eq("folder &AOE-", folder.filePath.leafName);
-  do_check_eq("folder \u00e1", folder.prettyName);
+  Assert.ok(folder.msgDatabase.summaryValid);
+  Assert.equal("folder &AOE-", folder.filePath.leafName);
+  Assert.equal("folder \u00e1", folder.prettyName);
 
   yield true;
 }

@@ -59,26 +59,26 @@ msll.prototype = {
                           "DATA"]);
 
     // Compare data file to what the server received
-    do_check_eq(gMsgFileData[gMsgOrder[aCurrentMessage - 1]], server._daemon.post);
+    Assert.equal(gMsgFileData[gMsgOrder[aCurrentMessage - 1]], server._daemon.post);
   },
 
   // nsIMsgSendLaterListener
   onStartSending: function (aTotalMessageCount) {
-    do_check_eq(aTotalMessageCount, gMsgOrder.length);
-    do_check_eq(msgSendLater.sendingMessages, true);
+    Assert.equal(aTotalMessageCount, gMsgOrder.length);
+    Assert.equal(msgSendLater.sendingMessages, true);
   },
   onMessageStartSending: function (aCurrentMessage, aTotalMessageCount,
                                    aMessageHeader, aIdentity) {
     if (gLastSentMessage > 0)
       this.checkMessageSend(aCurrentMessage);
-    do_check_eq(gLastSentMessage + 1, aCurrentMessage);
+    Assert.equal(gLastSentMessage + 1, aCurrentMessage);
     gLastSentMessage = aCurrentMessage;
   },
   onMessageSendProgress: function (aCurrentMessage, aTotalMessageCount,
                                    aMessageSendPercent, aMessageCopyPercent) {
-    do_check_eq(aTotalMessageCount, gMsgOrder.length);
-    do_check_eq(gLastSentMessage, aCurrentMessage);
-    do_check_eq(msgSendLater.sendingMessages, true);
+    Assert.equal(aTotalMessageCount, gMsgOrder.length);
+    Assert.equal(gLastSentMessage, aCurrentMessage);
+    Assert.equal(msgSendLater.sendingMessages, true);
   },
   onMessageSendError: function (aCurrentMessage, aMessageHeader, aStatus,
                                 aMsg) {
@@ -86,13 +86,13 @@ msll.prototype = {
   },
   onStopSending: function (aStatus, aMsg, aTotalTried, aSuccessful) {
     try {
-      do_check_eq(aStatus, 0);
-      do_check_eq(aTotalTried, aSuccessful);
-      do_check_eq(msgSendLater.sendingMessages, false);
+      Assert.equal(aStatus, 0);
+      Assert.equal(aTotalTried, aSuccessful);
+      Assert.equal(msgSendLater.sendingMessages, false);
 
       // Check that the send later service now thinks we don't have messages to
       // send.
-      do_check_eq(msgSendLater.hasUnsentMessages(identity), false);
+      Assert.equal(msgSendLater.hasUnsentMessages(identity), false);
 
       this.checkMessageSend(gLastSentMessage);
     } catch (e) {
@@ -113,16 +113,16 @@ msll.prototype = {
 // sending of the message.
 function OnStopCopy(aStatus)
 {
-  do_check_eq(aStatus, 0);
+  Assert.equal(aStatus, 0);
 
   // Check this is false before we start sending
-  do_check_eq(msgSendLater.sendingMessages, false);
+  Assert.equal(msgSendLater.sendingMessages, false);
 
   // Check that the send later service thinks we have messages to send.
-  do_check_eq(msgSendLater.hasUnsentMessages(identity), true);
+  Assert.equal(msgSendLater.hasUnsentMessages(identity), true);
 
   // Check we have a message in the unsent message folder
-  do_check_eq(gSentFolder.getTotalMessages(false), gMsgOrder.length);
+  Assert.equal(gSentFolder.getTotalMessages(false), gMsgOrder.length);
 
   // Start the next step after a brief time so that functions can finish
   // properly
@@ -192,7 +192,7 @@ function* actually_run_test() {
   yield async_run({func: sendUnsentMessages});
 
   // Check sent folder is now empty.
-  do_check_eq(gSentFolder.getTotalMessages(false), 0);
+  Assert.equal(gSentFolder.getTotalMessages(false), 0);
 
   // Reset the server
   server.stop();
@@ -225,7 +225,7 @@ function run_test() {
   localAccountUtils.loadLocalMailAccount();
 
   // Check that the send later service thinks we don't have messages to send.
-  do_check_eq(msgSendLater.hasUnsentMessages(identity), false);
+  Assert.equal(msgSendLater.hasUnsentMessages(identity), false);
 
   MailServices.accounts.setSpecialFolders();
 

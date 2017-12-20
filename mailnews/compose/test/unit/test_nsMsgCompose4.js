@@ -43,7 +43,7 @@ function checkPopulate(aTo, aNewsgroups, aSendFormat,
   msgCompose.initialize(params);
 
   msgCompose.expandMailingLists();
-  do_check_eq(msgCompose.determineHTMLAction(aConvertible), aSendFormat);
+  Assert.equal(msgCompose.determineHTMLAction(aConvertible), aSendFormat);
 }
 
 function run_test() {
@@ -97,12 +97,12 @@ function run_test() {
   var nonHTMLRecipients = new Object();
 
   Services.prefs.setIntPref("mail.default_html_action", SendFormat.AskUser);
-  do_check_eq(msgCompose.determineHTMLAction(nsIMsgCompConvertible.No),
-              SendFormat.AskUser);
+  Assert.equal(msgCompose.determineHTMLAction(nsIMsgCompConvertible.No),
+               SendFormat.AskUser);
 
-  do_check_eq(fields.to, "test2@foo1.invalid");
-  do_check_eq(fields.cc, "test3@foo1.invalid");
-  do_check_eq(fields.bcc, "test4@foo1.invalid");
+  Assert.equal(fields.to, "test2@foo1.invalid");
+  Assert.equal(fields.cc, "test3@foo1.invalid");
+  Assert.equal(fields.bcc, "test4@foo1.invalid");
 
   // Test - determineHTMLAction with plain text.
 

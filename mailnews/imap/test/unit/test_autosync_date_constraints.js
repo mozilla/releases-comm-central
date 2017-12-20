@@ -41,9 +41,9 @@ var tests = [
         let header = enumerator.getNext();
         if (header instanceof Components.interfaces.nsIMsgDBHdr) {
           if (header.dateInSeconds < cutOffDateInSeconds)
-            do_check_eq(header.getStringProperty("pendingRemoval"), "1");
+            Assert.equal(header.getStringProperty("pendingRemoval"), "1");
           else
-            do_check_eq(header.getStringProperty("pendingRemoval"), "");
+            Assert.equal(header.getStringProperty("pendingRemoval"), "");
         }
       }
     }

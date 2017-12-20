@@ -71,13 +71,13 @@ function TrainingData() {
     var file = getJunkStatFile();
 
     // does the file exist?
-    do_check_true(file.exists());
+    Assert.ok(file.exists());
 
     var fileStream = getBinStream(file);
     
     // check magic number
     var iMagicNumber = fileStream.read32();
-    do_check_eq(iMagicNumber, 0xFEEDFACE);
+    Assert.equal(iMagicNumber, 0xFEEDFACE);
     
     // get ham'n'spam numbers
     this.mGoodMessages = fileStream.read32();

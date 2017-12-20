@@ -106,10 +106,10 @@ var UrlListener =
   OnStopRunningUrl: function(url, rc)
   {
     // operation succeeded
-    do_check_eq(rc, 0);
+    Assert.equal(rc, 0);
 
     // File contents were not modified
-    do_check_eq(IOUtils.loadFileToString(gMsgFile),
+    Assert.equal(IOUtils.loadFileToString(gMsgFile),
 		IOUtils.loadFileToString(gSavedMsgFile));
 
     // The file doesn't get closed straight away, but does after a little bit.

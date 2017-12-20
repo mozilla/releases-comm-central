@@ -55,7 +55,7 @@ function run_test()
         dump("\nNo valid property for scope = " + scope
               + " attribute = " + attribute
               + " property = " + property);
-      do_check_true(valid);
+      Assert.ok(valid);
     }
   }
 }

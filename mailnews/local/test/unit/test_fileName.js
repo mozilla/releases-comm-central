@@ -82,9 +82,9 @@ function run_test() {
 
   rootFolder = localAccountUtils.incomingServer.rootMsgFolder;
   bugmail = rootFolder.getChildNamed(testFolderName);
-  do_check_eq(bugmail.getTotalMessages(false), 1);
+  Assert.equal(bugmail.getTotalMessages(false), 1);
   bugmail = pop3Root.getChildNamed(testFolderName);
-  do_check_eq(bugmail.getTotalMessages(false), 1);
+  Assert.equal(bugmail.getTotalMessages(false), 1);
 
   // Check if creating an empty folder returns a proper error
   // instead of crash (bug 831190).
@@ -93,7 +93,7 @@ function run_test() {
     do_throw("createSubfolder() should have failed on empty folder name.");
   } catch (e) {
     // NS_MSG_ERROR_INVALID_FOLDER_NAME
-    do_check_eq(e.result, 2153054242);
+    Assert.equal(e.result, 2153054242);
   }
 
   // And try to create an existing folder again.
@@ -102,6 +102,6 @@ function run_test() {
     do_throw("createSubfolder() should have failed on existing folder.");
   } catch (e) {
     // NS_MSG_FOLDER_EXISTS
-    do_check_eq(e.result, 2153054227);
+    Assert.equal(e.result, 2153054227);
   }
 }

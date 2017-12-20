@@ -8,10 +8,10 @@
 Components.utils.import("resource:///modules/mailServices.js");
 
 function equalArrays(arr1, arr2) {
-  do_check_eq(arr1.length, arr2.length);
+  Assert.equal(arr1.length, arr2.length);
   for (let i = 0; i < arr1.length; i++) {
-    do_check_eq(arr1[i].name, arr2[i].name);
-    do_check_eq(arr1[i].email, arr2[i].email);
+    Assert.equal(arr1[i].name, arr2[i].name);
+    Assert.equal(arr1[i].email, arr2[i].email);
   }
 }
 

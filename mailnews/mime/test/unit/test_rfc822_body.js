@@ -42,8 +42,8 @@ var gStreamListener = {
   onStartRequest: function (aRequest, aContext) {
   },
   onStopRequest: function (aRequest, aContext, aStatusCode) {
-    do_check_eq(gMessageHeaderSink.attachmentCount,
-                this.expectedAttachmentCount);
+    Assert.equal(gMessageHeaderSink.attachmentCount,
+                 this.expectedAttachmentCount);
     async_driver();
   },
 

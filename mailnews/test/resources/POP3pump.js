@@ -67,7 +67,7 @@ POP3Pump.prototype.OnStopRunningUrl = function OnStopRunningUrl(aUrl, aResult)
     while (thread.hasPendingEvents())
       thread.processNextEvent(true);
   }
-  do_check_eq(aResult, this._expectedResult);
+  Assert.equal(aResult, this._expectedResult);
 
   // Let OnStopRunningUrl return cleanly before doing anything else.
   do_timeout(0, _checkPumpBusy);

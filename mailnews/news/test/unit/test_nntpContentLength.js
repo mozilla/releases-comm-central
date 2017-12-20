@@ -30,8 +30,8 @@ function run_test() {
       OnStopRunningUrl: function () { localserver.closeCachedConnections(); }});
     server.performTest();
 
-    do_check_eq(folder.getTotalMessages(false), 1);
-    do_check_true(folder.hasNewMessages);
+    Assert.equal(folder.getTotalMessages(false), 1);
+    Assert.ok(folder.hasNewMessages);
 
     server.resetTest();
 
@@ -54,7 +54,7 @@ function run_test() {
                                                  null,
                                                  Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
                                                  Ci.nsIContentPolicy.TYPE_OTHER);
-    do_check_eq(channel.contentLength, kSimpleNewsArticle.length);
+    Assert.equal(channel.contentLength, kSimpleNewsArticle.length);
 
     // Now try an attachment. &part=1.2
     // XXX the message doesn't really have an attachment
@@ -67,7 +67,7 @@ function run_test() {
                                                            Ci.nsIContentPolicy.TYPE_OTHER);
     // Currently attachments have their content length set to the length of the
     // entire message
-    do_check_eq(channel.contentLength, kSimpleNewsArticle.length);
+    Assert.equal(channel.contentLength, kSimpleNewsArticle.length);
   }
   catch (e) {
     server.stop();

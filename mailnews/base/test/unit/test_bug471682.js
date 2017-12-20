@@ -47,7 +47,7 @@ var step2 =
   SetMessageId: function(aMessageId) {},
   OnStopCopy: function(aStatus)
   {
-    do_check_neq(gHdr, null);
+    Assert.notEqual(gHdr, null);
     // copy the message into the subfolder
     var messages = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
     messages.appendElement(gHdr);
@@ -95,8 +95,8 @@ var step5 =
     var filePath = gSubfolder.filePath;
     var date = parseInt(filePath.lastModifiedTime/1000);
     var size = filePath.fileSize;
-    do_check_eq(size, dbSize);
-    do_check_eq(date, dbDate);
+    Assert.equal(size, dbSize);
+    Assert.equal(date, dbDate);
     // End of test, so release our header reference
     gHdr = null;
     do_test_finished();

@@ -14,15 +14,15 @@ function copy_next_message(aMessageHeaderKeys, aStatus) {
 
 function test_preview(aMessageHeaderKeys, aStatus) {
   let headerKeys = aMessageHeaderKeys;
-  do_check_neq(headerKeys, null);
-  do_check_eq(headerKeys.length, 2);
+  Assert.notEqual(headerKeys, null);
+  Assert.equal(headerKeys.length, 2);
   try {
     localAccountUtils.inboxFolder.fetchMsgPreviewText(headerKeys,
                                           headerKeys.length, false, null);
-    do_check_eq(localAccountUtils.inboxFolder.GetMessageHeader(headerKeys[0]).getStringProperty('preview'),
-                bugmail10_preview);
-    do_check_eq(localAccountUtils.inboxFolder.GetMessageHeader(headerKeys[1]).getStringProperty('preview'),
-                bugmail11_preview);
+    Assert.equal(localAccountUtils.inboxFolder.GetMessageHeader(headerKeys[0]).getStringProperty('preview'),
+                 bugmail10_preview);
+    Assert.equal(localAccountUtils.inboxFolder.GetMessageHeader(headerKeys[1]).getStringProperty('preview'),
+                 bugmail11_preview);
   } catch(ex) {dump(ex); do_throw(ex) }
   do_test_finished();
 }

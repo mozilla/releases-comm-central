@@ -27,11 +27,11 @@ function authPLAIN()
   // roundtrip works
   var line = AuthPLAIN.encodeLine(kUsername, kPassword);
   var req = AuthPLAIN.decodeLine(line);
-  do_check_eq(req.username, kUsername);
-  do_check_eq(req.password, kPassword);
+  Assert.equal(req.username, kUsername);
+  Assert.equal(req.password, kPassword);
 
   // correct encoding
-  do_check_eq(line, "AGZyZWQxAHdpbG1hMg==");
+  Assert.equal(line, "AGZyZWQxAHdpbG1hMg==");
 };
 
 /**
@@ -45,14 +45,14 @@ function authCRAMMD5()
 
   // correct encoding
   var req = AuthCRAM.decodeLine(hardcodedResponse);
-  do_check_eq(req.username, kUsername);
+  Assert.equal(req.username, kUsername);
   var expectedDigest = AuthCRAM.encodeCRAMMD5(hardcodedChallenge, kPassword);
-  do_check_eq(req.digest, expectedDigest);
+  Assert.equal(req.digest, expectedDigest);
 
   var challenge = AuthCRAM.createChallenge("fake.invalid");
   challenge = atob(challenge); // decode. function currently returns it already encoded
   var challengeSplit = challenge.split("@");
-  do_check_eq(challengeSplit.length, 2);
-  do_check_eq(challengeSplit[1], "fake.invalid>");
-  do_check_eq(challengeSplit[0][0], "<");
+  Assert.equal(challengeSplit.length, 2);
+  Assert.equal(challengeSplit[1], "fake.invalid>");
+  Assert.equal(challengeSplit[0][0], "<");
 };

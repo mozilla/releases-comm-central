@@ -46,7 +46,7 @@ function checkDirs(aDirs, aDirArray) {
     var dir = aDirs.getNext().QueryInterface(nsIAbDirectory);
     var loc = dirArray.indexOf(dir.URI);
 
-    do_check_eq(MailServices.ab.getDirectory(dir.URI), dir);
+    Assert.equal(MailServices.ab.getDirectory(dir.URI), dir);
 
     if (loc == -1)
       do_throw("Unexpected directory " + dir.URI + " found in address book list");
@@ -54,7 +54,7 @@ function checkDirs(aDirs, aDirArray) {
       dirArray[loc] = null;
   }
 
-  dirArray.forEach(function(value) { do_check_eq(value, null); });
+  dirArray.forEach(function(value) { Assert.equal(value, null); });
 }
 
 function addDirectory(dirName) {
@@ -62,7 +62,7 @@ function addDirectory(dirName) {
   MailServices.ab.newAddressBook(dirName, "", kPABData.dirType);
 
   // Check for correct notifications
-  do_check_eq(gAblAll.mReceived, nsIAbListener.itemAdded);
+  Assert.equal(gAblAll.mReceived, nsIAbListener.itemAdded);
 
   var newDirectory = gAblAll.mDirectory.QueryInterface(nsIAbDirectory);
 
@@ -71,11 +71,11 @@ function addDirectory(dirName) {
 
   for (var i = 0; i < numListenerOptions; ++i) {
     if (1 << i == nsIAbListener.itemAdded) {
-      do_check_eq(gAblSingle[i].mReceived, nsIAbListener.itemAdded);
+      Assert.equal(gAblSingle[i].mReceived, nsIAbListener.itemAdded);
       gAblSingle[i].mReceived = 0;
     }
     else
-      do_check_eq(gAblSingle[i].mReceived, 0);
+      Assert.equal(gAblSingle[i].mReceived, 0);
   }
 
   return newDirectory;
@@ -86,19 +86,19 @@ function removeDirectory(directory) {
   MailServices.ab.deleteAddressBook(directory.URI);
 
   // Check correct notifications
-  do_check_eq(gAblAll.mReceived, nsIAbListener.directoryRemoved);
-  do_check_eq(gAblAll.mDirectory, directory);
+  Assert.equal(gAblAll.mReceived, nsIAbListener.directoryRemoved);
+  Assert.equal(gAblAll.mDirectory, directory);
 
   gAblAll.mReceived = 0;
   gAblAll.mDirectory = null;
 
   for (var i = 0; i < numListenerOptions; ++i) {
     if (1 << i == nsIAbListener.directoryRemoved) {
-      do_check_eq(gAblSingle[i].mReceived, nsIAbListener.directoryRemoved);
+      Assert.equal(gAblSingle[i].mReceived, nsIAbListener.directoryRemoved);
       gAblSingle[i].mReceived = 0;
     }
     else
-      do_check_eq(gAblSingle[i].mReceived, 0);
+      Assert.equal(gAblSingle[i].mReceived, 0);
   }
 }
 

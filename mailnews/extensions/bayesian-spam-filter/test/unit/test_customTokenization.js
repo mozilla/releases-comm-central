@@ -108,14 +108,14 @@ var listener =
     for (var value of gTest.tokens)
     {
       print("We should have '" + value + "'? ");
-      do_check_true(aTokenString.indexOf(value) >= 0);
+      Assert.ok(aTokenString.indexOf(value) >= 0);
     }
 
     // should not have these tokens
     for (var value of gTest.nottokens)
     {
       print("We should not have '" + value + "'? ");
-      do_check_true(aTokenString.indexOf(value) < 0);
+      Assert.ok(aTokenString.indexOf(value) < 0);
     }
     startCommand();
   }

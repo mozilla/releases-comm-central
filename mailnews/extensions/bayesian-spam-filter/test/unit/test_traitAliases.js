@@ -112,7 +112,7 @@ var listener =
     if (!aMsgURI)
       return; //ignore end-of-batch signal
 
-    do_check_eq(aPercents[0], gTest.percent)
+    Assert.equal(aPercents[0], gTest.percent)
     // All done, start the next test
     startCommand();
   },

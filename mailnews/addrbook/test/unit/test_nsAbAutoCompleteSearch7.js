@@ -138,19 +138,19 @@ function run_test() {
             results[element.expected[i]].email);
     }
 
-    do_check_eq(obs._search, acs);
-    do_check_eq(obs._result.searchString, element.search);
-    do_check_eq(obs._result.searchResult, ACR.RESULT_SUCCESS);
-    do_check_eq(obs._result.errorDescription, null);
-    do_check_eq(obs._result.matchCount, element.expected.length);
-    do_check_eq(obs._result.defaultIndex, 0);
+    Assert.equal(obs._search, acs);
+    Assert.equal(obs._result.searchString, element.search);
+    Assert.equal(obs._result.searchResult, ACR.RESULT_SUCCESS);
+    Assert.equal(obs._result.errorDescription, null);
+    Assert.equal(obs._result.matchCount, element.expected.length);
+    Assert.equal(obs._result.defaultIndex, 0);
 
     for (var i = 0; i < element.expected.length; ++i) {
-      do_check_eq(obs._result.getValueAt(i), results[element.expected[i]].email);
-      do_check_eq(obs._result.getLabelAt(i), results[element.expected[i]].email);
-      do_check_eq(obs._result.getCommentAt(i), "");
-      do_check_eq(obs._result.getStyleAt(i), "local-abook");
-      do_check_eq(obs._result.getImageAt(i), "");
+      Assert.equal(obs._result.getValueAt(i), results[element.expected[i]].email);
+      Assert.equal(obs._result.getLabelAt(i), results[element.expected[i]].email);
+      Assert.equal(obs._result.getCommentAt(i), "");
+      Assert.equal(obs._result.getStyleAt(i), "local-abook");
+      Assert.equal(obs._result.getImageAt(i), "");
     }
   }
   function checkInputSet(element, index, array) {

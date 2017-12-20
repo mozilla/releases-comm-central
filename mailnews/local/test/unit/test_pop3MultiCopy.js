@@ -42,9 +42,9 @@ add_task(function* runPump() {
     msgCount++;
     let hdr = enumerator.getNext().QueryInterface(Ci.nsIMsgDBHdr);
     messages.appendElement(hdr);
-    do_check_eq(hdr.subject, testSubjects[msgCount - 1]);
+    Assert.equal(hdr.subject, testSubjects[msgCount - 1]);
   }
-  do_check_eq(messages.length, 2);
+  Assert.equal(messages.length, 2);
 
   // Create a test folder on the Local Folders account.
   let testFolder = localAccountUtils.rootFolder
@@ -70,12 +70,12 @@ add_task(function* runPump() {
     dump("Subject: " + hdr.subject + "\n");
     subjects.push(hdr.subject);
   }
-  do_check_eq(messages.length, 2);
+  Assert.equal(messages.length, 2);
 
   // Check for subjects. maildir order for messages may not match
   // order for creation, hence the array.includes.
   for (let subject of testSubjects) {
-    do_check_true(subjects.includes(subject));
+    Assert.ok(subjects.includes(subject));
   }
 
   // Make sure the body matches the message.
@@ -83,7 +83,7 @@ add_task(function* runPump() {
   while (enumerator.hasMoreElements()) {
     let hdr = enumerator.getNext().QueryInterface(Ci.nsIMsgDBHdr);
     let body = mailTestUtils.loadMessageToString(testFolder, hdr);
-    do_check_true(body.indexOf(hdr.subject) >= 0);
+    Assert.ok(body.indexOf(hdr.subject) >= 0);
   }
 
   gPOP3Pump = null;

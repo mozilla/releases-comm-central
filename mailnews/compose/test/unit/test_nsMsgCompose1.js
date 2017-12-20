@@ -40,10 +40,10 @@ function checkPopulate(aTo, aCheckTo)
   msgCompose.expandMailingLists();
   let addresses = fields.getHeader("To");
   let checkEmails = MailServices.headerParser.parseDecodedHeader(aCheckTo);
-  do_check_eq(addresses.length, checkEmails.length);
+  Assert.equal(addresses.length, checkEmails.length);
   for (let i = 0; i < addresses.length; i++) {
-    do_check_eq(addresses[i].name, checkEmails[i].name);
-    do_check_eq(addresses[i].email, checkEmails[i].email);
+    Assert.equal(addresses[i].name, checkEmails[i].name);
+    Assert.equal(addresses[i].email, checkEmails[i].email);
   }
 }
 
@@ -96,9 +96,9 @@ function run_test() {
   msgCompose.initialize(params);
 
   msgCompose.expandMailingLists();
-  do_check_eq(fields.to, "test2@foo1.invalid");
-  do_check_eq(fields.cc, "test3@foo1.invalid");
-  do_check_eq(fields.bcc, "test4@foo1.invalid");
+  Assert.equal(fields.to, "test2@foo1.invalid");
+  Assert.equal(fields.cc, "test3@foo1.invalid");
+  Assert.equal(fields.bcc, "test4@foo1.invalid");
 
   // Test - expandMailingLists with plain text.
 

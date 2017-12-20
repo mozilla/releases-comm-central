@@ -49,5 +49,5 @@ function run_test() {
     ++count;
   }
 
-  do_check_eq(count, 4);
+  Assert.equal(count, 4);
 }

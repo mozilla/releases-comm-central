@@ -52,9 +52,9 @@ function* loadImapMessage()
   IMAPPump.mailbox.addMessage(message);
   IMAPPump.inbox.updateFolderWithListener(null, asyncUrlListener);
   yield false;
-  do_check_eq(1, IMAPPump.inbox.getTotalMessages(false));
+  Assert.equal(1, IMAPPump.inbox.getTotalMessages(false));
   let msgHdr = mailTestUtils.firstMsgHdr(IMAPPump.inbox);
-  do_check_true(msgHdr instanceof Ci.nsIMsgDBHdr);
+  Assert.ok(msgHdr instanceof Ci.nsIMsgDBHdr);
 
   yield true;
 }
@@ -95,16 +95,16 @@ function* testDetach()
   // directory.
   let checkFile = do_get_profile().clone();
   checkFile.append(kAttachFileName);
-  do_check_true(checkFile.exists());
+  Assert.ok(checkFile.exists());
 
   // The message should now have a detached attachment. Read the message,
   //  and search for "AttachmentDetached" which is added on detachment.
 
   // Get the message header - detached copy has UID 2.
   let msgHdr = IMAPPump.inbox.GetMessageHeader(2);
-  do_check_true(msgHdr !== null);
+  Assert.ok(msgHdr !== null);
   let messageContent = getContentFromMessage(msgHdr);
-  do_check_true(messageContent.includes("AttachmentDetached"));
+  Assert.ok(messageContent.includes("AttachmentDetached"));
 }
 
 // Cleanup

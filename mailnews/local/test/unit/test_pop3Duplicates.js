@@ -30,9 +30,9 @@ function continueTest()
   while (enumerator.hasMoreElements())
   {
     let hdr = enumerator.getNext().QueryInterface(Ci.nsIMsgDBHdr);
-    do_check_eq(hdr.subject, testSubjects[msgCount++]);
+    Assert.equal(hdr.subject, testSubjects[msgCount++]);
   }
-  do_check_eq(msgCount, 2);
+  Assert.equal(msgCount, 2);
   gPOP3Pump = null;
   do_test_finished();
 }

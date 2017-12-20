@@ -42,7 +42,7 @@ function* createJunkFolder()
   dl('wait for folderAdded');
   yield false;
   gJunkFolder = IMAPPump.incomingServer.rootFolder.getChildNamed("Junk");
-  do_check_true(gJunkFolder instanceof Ci.nsIMsgImapMailFolder);
+  Assert.ok(gJunkFolder instanceof Ci.nsIMsgImapMailFolder);
   gJunkFolder.updateFolderWithListener(null, asyncUrlListener);
   dl('wait for OnStopRunningURL');
   yield false;
@@ -70,8 +70,8 @@ function* loadImapMessage()
 
 function* testMessageInJunk()
 {
-  do_check_eq(0, IMAPPump.inbox.getTotalMessages(false));
-  do_check_eq(1, gJunkFolder.getTotalMessages(false));
+  Assert.equal(0, IMAPPump.inbox.getTotalMessages(false));
+  Assert.equal(1, gJunkFolder.getTotalMessages(false));
   yield true;
 }
 
@@ -122,8 +122,8 @@ function* updateFoldersAndCheck()
   dl('wait for OnStopRunningURL');
   yield false;
   // bug 540385 causes this test to fail
-  do_check_eq(1, IMAPPump.inbox.getTotalMessages(false));
-  do_check_eq(0, gJunkFolder.getTotalMessages(false));
+  Assert.equal(1, IMAPPump.inbox.getTotalMessages(false));
+  Assert.equal(0, gJunkFolder.getTotalMessages(false));
   yield true;
 }
 

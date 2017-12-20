@@ -53,14 +53,14 @@ function* real_test() {
 
   // Did we add all the messages properly?
   let treeView = dbView.QueryInterface(Components.interfaces.nsITreeView);
-  do_check_eq(treeView.rowCount, tests.length);
+  Assert.equal(treeView.rowCount, tests.length);
 
   // For each test, make sure that the display is correct.
   tests.forEach(function (data, i) {
     do_print("Checking data for " + uneval(data));
     let expected = data[1];
     for (let column in expected) {
-      do_check_eq(dbView.cellTextForColumn(i, column), expected[column]);
+      Assert.equal(dbView.cellTextForColumn(i, column), expected[column]);
     }
   });
 }

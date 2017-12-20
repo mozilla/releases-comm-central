@@ -48,9 +48,9 @@ function checkBccs() {
   let enumerator = IMAPPump.inbox.msgDatabase.EnumerateMessages();
   while(enumerator.hasMoreElements()) {
     let hdr = enumerator.getNext().QueryInterface(Ci.nsIMsgDBHdr);
-    do_check_true(hdr.bccList.includes("Another Person"));
-    do_check_true(hdr.bccList.includes("<u1@example.com>"));
-    do_check_false(hdr.bccList.includes("IDoNotExist"));
+    Assert.ok(hdr.bccList.includes("Another Person"));
+    Assert.ok(hdr.bccList.includes("<u1@example.com>"));
+    Assert.ok(!hdr.bccList.includes("IDoNotExist"));
   }
 }
 

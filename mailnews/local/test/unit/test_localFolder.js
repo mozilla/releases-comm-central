@@ -32,13 +32,13 @@ function check_sub_folders(expected, actual) {
       }
     }
     // If index goes out of bounds, probably we didn't find the name.
-    do_check_true(index < expected.length);
+    Assert.ok(index < expected.length);
 
     let pluggableStore = actualFolder.msgStore;
     pluggableStore.discoverSubFolders(actualFolder, true);
-    do_check_eq(!!expected[index].subFolders, actualFolder.hasSubFolders);
+    Assert.equal(!!expected[index].subFolders, actualFolder.hasSubFolders);
     if (actualFolder.hasSubFolders) {
-      do_check_eq(expected[index].subFolders.length, actualFolder.numSubFolders);
+      Assert.equal(expected[index].subFolders.length, actualFolder.numSubFolders);
       check_sub_folders(expected[index].subFolders, actualFolder.subFolders);
     }
   }

@@ -38,10 +38,10 @@ function continue_test()
     //dump("\nProperty is " + property);
     properties.push(property);
   }
-  do_check_true(properties.indexOf("flags") >= 0);
-  do_check_true(properties.indexOf("size") >= 0);
+  Assert.ok(properties.indexOf("flags") >= 0);
+  Assert.ok(properties.indexOf("size") >= 0);
   // this will be added in the next section, but does not exist yet
-  do_check_true(properties.indexOf("iamnew") < 0);
+  Assert.ok(properties.indexOf("iamnew") < 0);
 
   // add a new property, and make sure that it appears
   gHdr.setStringProperty("iamnew", "somevalue");
@@ -54,10 +54,10 @@ function continue_test()
     //dump("\nProperty 2 is " + property);
     properties.push(property);
   }
-  do_check_true(properties.indexOf("flags") >= 0);
-  do_check_true(properties.indexOf("size") >= 0);
-  do_check_true(properties.indexOf("iamnew") >= 0);
-  do_check_true(properties.indexOf("idonotexist") < 0);
+  Assert.ok(properties.indexOf("flags") >= 0);
+  Assert.ok(properties.indexOf("size") >= 0);
+  Assert.ok(properties.indexOf("iamnew") >= 0);
+  Assert.ok(properties.indexOf("idonotexist") < 0);
 
   gHdr = null;
   do_test_finished();

@@ -13,7 +13,7 @@ function doAttachmentUrlTest() {
                      .createInstance(Ci.nsIMsgAttachment);
   attachment.url = nonAsciiUrl;
 
-  do_check_eq(attachment.url, nonAsciiUrl);
+  Assert.equal(attachment.url, nonAsciiUrl);
 }
 
 function doPrettyNameTest() {
@@ -22,8 +22,8 @@ function doPrettyNameTest() {
   var msgCompose = Cc["@mozilla.org/messengercompose/compose;1"]
                      .createInstance(Ci.nsIMsgCompose);
 
-  do_check_eq(msgCompose.AttachmentPrettyName(nonAsciiUrl, null),
-              prettyResult);
+  Assert.equal(msgCompose.AttachmentPrettyName(nonAsciiUrl, null),
+               prettyResult);
 }
 
 function run_test() {

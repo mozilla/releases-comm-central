@@ -53,18 +53,18 @@ function run_test()
                              "account6");
 
   // This will force the load of the accounts setup above.
-  do_check_eq(MailServices.accounts.accounts.length, 3);
-  do_check_eq(Services.prefs.getCharPref("mail.accountmanager.accounts"),
-              "account1,account4,account5");
+  Assert.equal(MailServices.accounts.accounts.length, 3);
+  Assert.equal(Services.prefs.getCharPref("mail.accountmanager.accounts"),
+               "account1,account4,account5");
   let server5 = MailServices.accounts.getIncomingServer("server5")
                   .QueryInterface(Ci.nsIPop3IncomingServer);
-  do_check_eq(server5.deferredToAccount, "account1");
+  Assert.equal(server5.deferredToAccount, "account1");
 
   // Just make sure this doesn't throw an exception, because we did remove the
   // default account.
   let defaultAccount = MailServices.accounts.defaultAccount;
   // GetDefaultAccount should have thrown an exception for null account.
-  do_check_neq(defaultAccount, null);
+  Assert.notEqual(defaultAccount, null);
 
   // Remove an account, and verify that the account list pref looks OK:
   let server = MailServices.accounts.getIncomingServer("server4");
@@ -75,12 +75,12 @@ function run_test()
   let flags = server.rootFolder.flags;
 
   MailServices.accounts.removeAccount(MailServices.accounts.FindAccountForServer(server));
-  do_check_eq(MailServices.accounts.accounts.length, 2);
-  do_check_eq(Services.prefs.getCharPref("mail.accountmanager.accounts"),
-              "account1,account5");
+  Assert.equal(MailServices.accounts.accounts.length, 2);
+  Assert.equal(Services.prefs.getCharPref("mail.accountmanager.accounts"),
+               "account1,account5");
   // make sure cleaning up duplicate accounts didn't hork accounts
-  do_check_eq(Services.prefs.getCharPref("mail.account.account1.server"),
-              "server1");
-  do_check_eq(Services.prefs.getCharPref("mail.account.account5.server"),
-              "server5");
+  Assert.equal(Services.prefs.getCharPref("mail.account.account1.server"),
+               "server1");
+  Assert.equal(Services.prefs.getCharPref("mail.account.account5.server"),
+               "server5");
 }

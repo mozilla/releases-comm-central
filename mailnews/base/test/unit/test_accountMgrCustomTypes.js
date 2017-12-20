@@ -37,11 +37,11 @@ function run_test()
 
   // This will force the load of the accounts setup above.
   // We don't see the invalid account
-  do_check_eq(MailServices.accounts.accounts.length, 1);
+  Assert.equal(MailServices.accounts.accounts.length, 1);
 
   // but it is really there
-  do_check_eq(Services.prefs.getCharPref("mail.accountmanager.accounts"),
-              "account1,account2");
+  Assert.equal(Services.prefs.getCharPref("mail.accountmanager.accounts"),
+               "account1,account2");
 
   // add a new account (so that we can check if this clobbers the existing
   //  inactive account or its server)
@@ -53,31 +53,31 @@ function run_test()
     MailServices.accounts.createIncomingServer("somename", "somehost.example.com", "pop3");
 
   // no collisions with the inactive account
-  do_check_neq(newIdentity.key, "id2");
-  do_check_neq(newAccount.incomingServer.key, "server2");
-  do_check_neq(newAccount.key, "account2");
-  do_check_eq(MailServices.accounts.accounts.length, 2);
+  Assert.notEqual(newIdentity.key, "id2");
+  Assert.notEqual(newAccount.incomingServer.key, "server2");
+  Assert.notEqual(newAccount.key, "account2");
+  Assert.equal(MailServices.accounts.accounts.length, 2);
 
   MailServices.accounts.UnloadAccounts();
 
   // set the unavailable account to a valid type, and watch it appear.
   Services.prefs.setCharPref("mail.server.server2.type", "pop3");
-  do_check_eq(MailServices.accounts.accounts.length, 3);
+  Assert.equal(MailServices.accounts.accounts.length, 3);
 
   // make it bad again, and reload it to restart the timeout before delete
   MailServices.accounts.UnloadAccounts();
   Services.prefs.setCharPref("mail.server.server2.type", "invalid");
-  do_check_eq(MailServices.accounts.accounts.length, 2);
+  Assert.equal(MailServices.accounts.accounts.length, 2);
   MailServices.accounts.UnloadAccounts();
 
   // now let the bad type timeout, and watch it magically disappear!
   do_test_pending();
   do_timeout(3000, function () {
-    do_check_eq(MailServices.accounts.accounts.length, 2);
+    Assert.equal(MailServices.accounts.accounts.length, 2);
 
     // it is now gone
-    do_check_eq(Services.prefs.getCharPref("mail.accountmanager.accounts"),
-                "account1," + newAccount.key);
+    Assert.equal(Services.prefs.getCharPref("mail.accountmanager.accounts"),
+                 "account1," + newAccount.key);
 
     do_test_finished();
   });

@@ -72,13 +72,13 @@ function* test_fix_missing_contacts_and_fallout() {
   // - mark the db schema version to the version with the bug (26)
   // sanity check that gloda actually populates the value with the current
   //  version correctly...
-  do_check_eq(GlodaDatastore._actualSchemaVersion,
-              GlodaDatastore._schemaVersion);
+  Assert.equal(GlodaDatastore._actualSchemaVersion,
+               GlodaDatastore._schemaVersion);
   GlodaDatastore._actualSchemaVersion = 26;
   yield sqlRun("PRAGMA user_version = 26");
   // make sure that took, since we check it below as a success indicator.
   let verRows = yield sqlRun("PRAGMA user_version");
-  do_check_eq(verRows[0].getInt64(0), 26);
+  Assert.equal(verRows[0].getInt64(0), 26);
 
 
   // -- test
@@ -93,16 +93,16 @@ function* test_fix_missing_contacts_and_fallout() {
 
   // - verify that the identities have contacts again
   // must have the contact object
-  do_check_neq(yesMsgSet.glodaMessages[0].from.contact, undefined);
+  Assert.notEqual(yesMsgSet.glodaMessages[0].from.contact, undefined);
   // the contact's name should come from the address book card
-  do_check_eq(yesMsgSet.glodaMessages[0].from.contact.name, abPeeps[0][0]);
+  Assert.equal(yesMsgSet.glodaMessages[0].from.contact.name, abPeeps[0][0]);
 
   // - verify that the schema version changed from gloda's perspective and from
   //    the db's perspective
   verRows = yield sqlRun("PRAGMA user_version");
-  do_check_eq(verRows[0].getInt64(0), GlodaDatastore._schemaVersion);
-  do_check_eq(GlodaDatastore._actualSchemaVersion,
-              GlodaDatastore._schemaVersion);
+  Assert.equal(verRows[0].getInt64(0), GlodaDatastore._schemaVersion);
+  Assert.equal(GlodaDatastore._actualSchemaVersion,
+               GlodaDatastore._schemaVersion);
 }
 
 var tests = [

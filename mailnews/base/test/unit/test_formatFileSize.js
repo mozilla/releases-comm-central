@@ -36,7 +36,7 @@ function test_formatFileSize(aArgs) {
   if (!isDigit(actual.charAt(separatorPos)))
     actual = actual.substring(0, separatorPos) + "." + actual.substr(separatorPos + 1);
 
-  do_check_eq(actual, expected);
+  Assert.equal(actual, expected);
 }
 
 /* ===== Driver ===== */

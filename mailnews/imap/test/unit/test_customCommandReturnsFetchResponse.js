@@ -65,9 +65,9 @@ var storeCustomListSetListener = {
 
   OnStopRunningUrl: function (aUrl, aExitCode) {
     aUrl.QueryInterface(Ci.nsIImapUrl);
-    do_check_eq(aUrl.customCommandResult,
+    Assert.equal(aUrl.customCommandResult,
       "(" + gMessage.xCustomList.join(" ") + ")");
-    do_check_eq(gMessage.xCustomList.length, gExpectedLength);
+    Assert.equal(gMessage.xCustomList.length, gExpectedLength);
     async_driver();
   }
 };
@@ -89,9 +89,9 @@ var storeCustomListRemovedListener = {
 
   OnStopRunningUrl: function (aUrl, aExitCode) {
     aUrl.QueryInterface(Ci.nsIImapUrl);
-    do_check_eq(aUrl.customCommandResult,
+    Assert.equal(aUrl.customCommandResult,
       "(" + gMessage.xCustomList.join(" ") + ")");
-    do_check_eq(gMessage.xCustomList.length, gExpectedLength);
+    Assert.equal(gMessage.xCustomList.length, gExpectedLength);
     async_driver();
   }
 };
@@ -113,9 +113,9 @@ var storeCustomListAddedListener = {
 
   OnStopRunningUrl: function (aUrl, aExitCode) {
     aUrl.QueryInterface(Ci.nsIImapUrl);
-    do_check_eq(aUrl.customCommandResult,
+    Assert.equal(aUrl.customCommandResult,
       "(" + gMessage.xCustomList.join(" ") + ")");
-    do_check_eq(gMessage.xCustomList.length, gExpectedLength);
+    Assert.equal(gMessage.xCustomList.length, gExpectedLength);
     async_driver();
   }
 };

@@ -13,11 +13,11 @@ function run_test()
   var encoded = "dGVzdHRlc3R0ZXN0";
 
   // correct encoding according to spec
-  do_check_eq(btoa(plain), encoded); // encode
-  do_check_eq(atob(encoded), plain); // decode
+  Assert.equal(btoa(plain), encoded); // encode
+  Assert.equal(atob(encoded), plain); // decode
 
   // roundtrip works
-  do_check_eq(atob(btoa(plain)), plain);
-  do_check_eq(btoa(atob(encoded)), encoded);
+  Assert.equal(atob(btoa(plain)), plain);
+  Assert.equal(btoa(atob(encoded)), encoded);
   return true;
 };

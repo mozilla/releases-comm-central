@@ -138,7 +138,7 @@ function* test_sweep_performs_compaction() {
 
   // Make sure the folder is marked compacted...
   let glodaFolder = Gloda.getFolderForFolder(msgFolder);
-  do_check_true(glodaFolder.compacted);
+  Assert.ok(glodaFolder.compacted);
 
   // Re-enable indexing and fire up an indexing pass
   configure_gloda_indexing({event: true});

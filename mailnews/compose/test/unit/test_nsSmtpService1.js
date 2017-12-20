@@ -13,9 +13,9 @@ function run_test() {
   // Test - no servers
 
   var smtpServers = smtpService.servers;
-  do_check_false(smtpServers.hasMoreElements());
+  Assert.ok(!smtpServers.hasMoreElements());
 
-  do_check_eq(smtpService.defaultServer, null);
+  Assert.equal(smtpService.defaultServer, null);
 
   // Test - add single server, and check
 
@@ -28,25 +28,25 @@ function run_test() {
 
   // Test - Check to see there is only one element in the server list
   smtpServers = smtpService.servers;
-  do_check_true(smtpServers.hasMoreElements());
-  do_check_eq(smtpServer, smtpServers.getNext());
-  do_check_false(smtpServers.hasMoreElements());
+  Assert.ok(smtpServers.hasMoreElements());
+  Assert.equal(smtpServer, smtpServers.getNext());
+  Assert.ok(!smtpServers.hasMoreElements());
 
   // Test - Find the server in different ways
-  do_check_eq(smtpServer, smtpService.findServer("", "localhost"));
-  do_check_eq(smtpServer, smtpService.getServerByKey(smtpServer.key));
+  Assert.equal(smtpServer, smtpService.findServer("", "localhost"));
+  Assert.equal(smtpServer, smtpService.getServerByKey(smtpServer.key));
 
   // Test - Try finding one that doesn't exist.
-  do_check_eq(null, smtpService.findServer("", "test"));
+  Assert.equal(null, smtpService.findServer("", "test"));
 
   // Test - Check default server is still ok
-  do_check_eq(smtpServer, smtpService.defaultServer);
+  Assert.equal(smtpServer, smtpService.defaultServer);
 
   // Test - Delete the only server
   smtpService.deleteServer(smtpServer);
 
   smtpServers = smtpService.servers;
-  do_check_false(smtpServers.hasMoreElements());
+  Assert.ok(!smtpServers.hasMoreElements());
  
   //    do_check_eq(null, smtpService.defaultServer);
 
@@ -83,22 +83,22 @@ function run_test() {
         found[i] = true;
   }
 
-  do_check_eq(found, "true,true,true");
+  Assert.equal(found, "true,true,true");
 
   // Test - Find the servers.
 
-  do_check_eq(smtpServerArray[0], smtpService.findServer("user", "localhost"));
-  do_check_eq(smtpServerArray[1], smtpService.findServer("user1", "localhost"));
-  do_check_eq(smtpServerArray[2], smtpService.findServer("", "localhost1"));
+  Assert.equal(smtpServerArray[0], smtpService.findServer("user", "localhost"));
+  Assert.equal(smtpServerArray[1], smtpService.findServer("user1", "localhost"));
+  Assert.equal(smtpServerArray[2], smtpService.findServer("", "localhost1"));
 
-  do_check_eq(null, smtpService.findServer("user2", "localhost"));
+  Assert.equal(null, smtpService.findServer("user2", "localhost"));
 
   // XXX: FIXME
   // do_check_eq(null, smtpService.findServer("", "localhost"));
 
   for (i = 0; i < 3; ++i)
-    do_check_eq(smtpServerArray[i],
-                smtpService.getServerByKey(smtpServerArray[i].key));
+    Assert.equal(smtpServerArray[i],
+                 smtpService.getServerByKey(smtpServerArray[i].key));
 
   // Test - Delete the servers
 
@@ -106,5 +106,5 @@ function run_test() {
     smtpService.deleteServer(smtpServerArray[i]);
 
   smtpServers = smtpService.servers;
-  do_check_false(smtpServers.hasMoreElements());
+  Assert.ok(!smtpServers.hasMoreElements());
 };

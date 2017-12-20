@@ -59,7 +59,7 @@ function* setup() {
 }
 
 function checkSavedMessage() {
-  do_check_eq(IOUtils.loadFileToString(gMsgFile),
+  Assert.equal(IOUtils.loadFileToString(gMsgFile),
 	      IOUtils.loadFileToString(gSavedMsgFile));
 }
 

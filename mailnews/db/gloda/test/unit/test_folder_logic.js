@@ -13,7 +13,7 @@ load("resources/glodaTestHelper.js");
 function test_newly_created_folders_start_clean() {
   let msgFolder = make_empty_folder();
   let glodaFolder = Gloda.getFolderForFolder(msgFolder);
-  do_check_eq(glodaFolder.dirtyStatus, glodaFolder.kFolderClean);
+  Assert.equal(glodaFolder.dirtyStatus, glodaFolder.kFolderClean);
 }
 
 /**
@@ -27,14 +27,14 @@ function* test_deleted_folder_tombstones_get_forgotten() {
   yield async_delete_folder(oldFolder);
 
   // the tombstone needs to know it is deleted
-  do_check_true(oldGlodaFolder._deleted);
+  Assert.ok(oldGlodaFolder._deleted);
 
   let newFolder = make_empty_folder("volver");
   let newGlodaFolder = Gloda.getFolderForFolder(newFolder);
 
   // this folder better not be the same and better not think it is deleted.
-  do_check_neq(oldGlodaFolder, newGlodaFolder);
-  do_check_false(newGlodaFolder._deleted);
+  Assert.notEqual(oldGlodaFolder, newGlodaFolder);
+  Assert.ok(!newGlodaFolder._deleted);
 }
 
 var tests = [

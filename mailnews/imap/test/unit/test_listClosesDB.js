@@ -45,7 +45,7 @@ function* updateInbox() {
 function checkCachedDBForFolder() {
   const gDbService = Cc["@mozilla.org/msgDatabase/msgDBService;1"]
                        .getService(Ci.nsIMsgDBService);
-  do_check_eq(gDbService.cachedDBForFolder(gSub3), null);
+  Assert.equal(gDbService.cachedDBForFolder(gSub3), null);
 }
 
 function teardown() {

@@ -32,7 +32,7 @@ function* test_empty_trash() {
   yield async_empty_trash();
   verify_empty_view(viewWrapper);
 
-  do_check_true(viewWrapper.displayedFolder !== null);
+  Assert.ok(viewWrapper.displayedFolder !== null);
 
   let [msgSet] = make_new_sets_in_folders([trashHandle], [{count: 1}]);
   yield wait_for_message_injection();

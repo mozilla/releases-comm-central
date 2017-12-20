@@ -35,13 +35,13 @@ function* test_enter_imap_folder_requiring_update_folder_immediately() {
   let viewWrapper = make_view_wrapper();
 
   // - make sure we don't know about the message!
-  do_check_eq(msgFolder.getTotalMessages(false), 0);
+  Assert.equal(msgFolder.getTotalMessages(false), 0);
 
   // - sync open the folder, verify we claim we entered, and make sure it has
   //  nothing in it!
   viewWrapper.listener.pendingLoad = true;
   viewWrapper.open(msgFolder);
-  do_check_true(viewWrapper._enteredFolder);
+  Assert.ok(viewWrapper._enteredFolder);
   verify_empty_view(viewWrapper);
 
   // - async wait for all the messages to load

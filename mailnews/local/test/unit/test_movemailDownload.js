@@ -59,9 +59,9 @@ var gTestArray = [
     while (enumerator.hasMoreElements()) {
       let hdr = enumerator.getNext().QueryInterface(Ci.nsIMsgDBHdr);
       gMsgHdrs.push(hdr);
-      do_check_eq(hdr.subject, testSubjects[msgCount++]);
+      Assert.equal(hdr.subject, testSubjects[msgCount++]);
     }
-    do_check_eq(msgCount, 3);
+    Assert.equal(msgCount, 3);
   },
   function *streamMessages() {
     for (let msgHdr of gMsgHdrs)
@@ -90,5 +90,5 @@ var streamNextMessage = Task.async(function* (aMsgHdr) {
   let streamListener = new PromiseTestUtils.PromiseStreamListener();
   msgServ.streamMessage(msgURI, streamListener, null, null, false, "", true);
   let data = yield streamListener.promise;
-  do_check_true(data.startsWith("From "));
+  Assert.ok(data.startsWith("From "));
 });

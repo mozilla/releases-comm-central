@@ -41,7 +41,7 @@ var urlListener =
   OnStopRunningUrl: function (url, result) {
     try {
       // We should be getting an error here, because we couldn't log in.
-      do_check_eq(result, Cr.NS_ERROR_FAILURE);
+      Assert.equal(result, Cr.NS_ERROR_FAILURE);
 
       var transaction = server.playTransaction();
       do_check_transaction(transaction, expectedTransaction);

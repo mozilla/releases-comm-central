@@ -63,7 +63,7 @@ function NotifySendListeners() {
 function run_test() {
   var i;
 
-  do_check_true(gMsgCompose != null);
+  Assert.ok(gMsgCompose != null);
 
   // Test - Add a listener
 
@@ -77,7 +77,7 @@ function run_test() {
   NotifySendListeners();
 
   for (i = 0; i < numSendListenerFunctions + 1; ++i) {
-    do_check_eq(gSLAll[i].mReceived, 0x3F);
+    Assert.equal(gSLAll[i].mReceived, 0x3F);
     gSLAll[i].mReceived = 0;
 
     // And prepare for test 3.
@@ -94,7 +94,7 @@ function run_test() {
     if (i < numSendListenerFunctions)
       currentReceived += 1 << i;
 
-    do_check_eq(gSLAll[i].mReceived, currentReceived);
+    Assert.equal(gSLAll[i].mReceived, currentReceived);
     gSLAll[i].mReceived = 0;
   }
 
@@ -104,9 +104,9 @@ function run_test() {
 
   for (i = 0; i < numSendListenerFunctions + 1; ++i) {
     if (i < numSendListenerFunctions)
-      do_check_eq(gSLAll[i].mReceived, 0);
+      Assert.equal(gSLAll[i].mReceived, 0);
     else
-      do_check_eq(gSLAll[i].mReceived, 0x3F);
+      Assert.equal(gSLAll[i].mReceived, 0x3F);
   }
 
   // Test - Remove main listener

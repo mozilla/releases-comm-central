@@ -172,15 +172,15 @@ function run_test()
             cards[element.expected[i]].value);
     }
 
-    do_check_eq(obs._search, acs);
-    do_check_eq(obs._result.searchString, element.search);
-    do_check_eq(obs._result.searchResult, ACR.RESULT_SUCCESS);
-    do_check_eq(obs._result.errorDescription, null);
-    do_check_eq(obs._result.matchCount, element.expected.length);
+    Assert.equal(obs._search, acs);
+    Assert.equal(obs._result.searchString, element.search);
+    Assert.equal(obs._result.searchResult, ACR.RESULT_SUCCESS);
+    Assert.equal(obs._result.errorDescription, null);
+    Assert.equal(obs._result.matchCount, element.expected.length);
 
     for (var i = 0; i < element.expected.length; ++i) {
-      do_check_eq(obs._result.getValueAt(i), cards[element.expected[i]].value);
-      do_check_eq(obs._result.getLabelAt(i), cards[element.expected[i]].value);
+      Assert.equal(obs._result.getValueAt(i), cards[element.expected[i]].value);
+      Assert.equal(obs._result.getLabelAt(i), cards[element.expected[i]].value);
     }
   }
 

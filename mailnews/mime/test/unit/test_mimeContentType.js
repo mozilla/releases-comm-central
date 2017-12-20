@@ -72,6 +72,6 @@ function run_test()
 
     dump("\nTesting Content-Type: " + receivedHeader + " == " + headers[i].result + "\n");
 
-    do_check_eq(receivedHeader, headers[i].result);
+    Assert.equal(receivedHeader, headers[i].result);
   }
 }

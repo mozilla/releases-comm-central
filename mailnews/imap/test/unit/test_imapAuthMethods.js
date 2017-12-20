@@ -102,7 +102,7 @@ function nextTest() {
     server.performTest("LSUB");
 
     dump("should " + (thisTest.expectSuccess ? "":"not ") + "be logged in\n");
-    do_check_eq(true, incomingServer instanceof Ci.nsIImapServerSink);
+    Assert.equal(true, incomingServer instanceof Ci.nsIImapServerSink);
     //do_check_eq(thisTest.expectSuccess, incomingServer.userAuthenticated); TODO fails second time
     //var rootFolder = incomingServer.rootFolder;
     // Client creates fake Inbox, so check other folder

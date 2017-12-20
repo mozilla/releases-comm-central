@@ -40,7 +40,7 @@ var gStreamListener = {
   },
   onStopRequest: function (aRequest, aContext, aStatusCode) {
     // check that text attachment contents didn't end up inline.
-    do_check_true(!this._str.includes(textAttachment));
+    Assert.ok(!this._str.includes(textAttachment));
     async_driver();
   },
 

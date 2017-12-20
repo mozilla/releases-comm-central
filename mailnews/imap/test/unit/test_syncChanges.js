@@ -38,7 +38,7 @@ var tests = [
   },
   function checkMailboxEmpty() {
     let msgHdr = IMAPPump.inbox.msgDatabase.getMsgHdrForMessageID(gSynthMessage.messageId);
-    do_check_eq(IMAPPump.inbox.getTotalMessages(false), 0);
+    Assert.equal(IMAPPump.inbox.getTotalMessages(false), 0);
   },
   teardown
 ];
@@ -68,7 +68,7 @@ function* setup() {
 }
 
 asyncUrlListener.callback = function(aUrl, aExitCode) {
-  do_check_eq(aExitCode, 0);
+  Assert.equal(aExitCode, 0);
 };
 
 function teardown() {

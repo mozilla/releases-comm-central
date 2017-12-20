@@ -61,11 +61,11 @@ function run_test() {
 
   NotifyAbManager();
 
-  do_check_eq(gAblAll.mReceived, (1 << numListenerOptions) - 1);
+  Assert.equal(gAblAll.mReceived, (1 << numListenerOptions) - 1);
   gAblAll.mReceived = 0;
 
   for (i = 0; i < numListenerOptions; ++i) {
-    do_check_eq(gAblSingle[i].mReceived, 1 << i);
+    Assert.equal(gAblSingle[i].mReceived, 1 << i);
     gAblSingle[i].mReceived = 0;
 
     // And prepare for test 3.
@@ -78,11 +78,11 @@ function run_test() {
 
   NotifyAbManager();
 
-  do_check_eq(gAblAll.mReceived, (1 << numListenerOptions) - 1);
+  Assert.equal(gAblAll.mReceived, (1 << numListenerOptions) - 1);
   gAblAll.mReceived = 0;
 
   for (i = 0; i < numListenerOptions; ++i) {
-    do_check_eq(gAblSingle[i].mReceived, 1 << i);
+    Assert.equal(gAblSingle[i].mReceived, 1 << i);
     gAblSingle[i].mReceived = 0;
   }
 
@@ -90,11 +90,11 @@ function run_test() {
 
   NotifyAbManager();
 
-  do_check_eq(gAblAll.mReceived, (1 <<  numListenerOptions) - 1);
+  Assert.equal(gAblAll.mReceived, (1 <<  numListenerOptions) - 1);
   gAblAll.mReceived = 0;
 
   for (i = 0; i < numListenerOptions; ++i) {
-    do_check_eq(gAblSingle[i].mReceived, 0);
+    Assert.equal(gAblSingle[i].mReceived, 0);
   }
 
   // Test - Remove main listener

@@ -185,7 +185,7 @@ function* crossStreaming() {
    * before and after streaming.
    */
   let msg2 = fooFolder.msgDatabase.getMsgHdrForMessageID(gMsgId1);
-  do_check_true(msg2 !== null);
+  Assert.ok(msg2 !== null);
   let msgURI = fooFolder.getUriForMsg(msg2);
   let messenger = Cc["@mozilla.org/messenger;1"].createInstance(Ci.nsIMessenger);
   let msgServ = messenger.messageServiceFromURI(msgURI);
@@ -193,8 +193,8 @@ function* crossStreaming() {
   msgServ.streamMessage(msgURI, gStreamListener, null, null, false, "", true);
   gFooOfflineStoreSizeFinal = fooFolder.filePath.fileSize;
   gImapInboxOfflineStoreSizeFinal = IMAPPump.inbox.filePath.fileSize;
-  do_check_eq(gFooOfflineStoreSizeFinal, gFooOfflineStoreSizeInitial);
-  do_check_eq(gImapInboxOfflineStoreSizeFinal,gImapInboxOfflineStoreSizeInitial);
+  Assert.equal(gFooOfflineStoreSizeFinal, gFooOfflineStoreSizeInitial);
+  Assert.equal(gImapInboxOfflineStoreSizeFinal,gImapInboxOfflineStoreSizeInitial);
   yield false;
 }
 
@@ -211,7 +211,7 @@ function run_test() {
  */
 
 asyncUrlListener.callback = function(aUrl, aExitCode) {
-  do_check_eq(aExitCode, 0);
+  Assert.equal(aExitCode, 0);
 };
 
  // We use this as a display consumer
@@ -226,7 +226,7 @@ var streamListener =
   onStartRequest: function(aRequest, aContext) {
   },
   onStopRequest: function(aRequest, aContext, aStatusCode) {
-    do_check_eq(aStatusCode, 0);
+    Assert.equal(aStatusCode, 0);
   },
 
   // nsIStreamListener

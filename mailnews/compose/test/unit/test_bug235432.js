@@ -95,7 +95,7 @@ function createExpectedTemporaryFile() {
 function OnStopCopy(aStatus) {
   msgSend.abort();
 
-  do_check_false(expectedTemporaryFile.exists());
+  Assert.ok(!expectedTemporaryFile.exists());
 
   do_test_finished();
 }
@@ -149,5 +149,5 @@ function send_message_later(aMessageHeaderKeys, aStatus) {
                                null,
                                "",
                                Ci.nsIMsgCompType.New);
-  do_check_true(expectedTemporaryFile.exists());
+  Assert.ok(expectedTemporaryFile.exists());
 }

@@ -103,7 +103,7 @@ function* check_result() {
   let offlineStoreSize = IMAPPump.inbox.filePath.fileSize;
   do_print("Offline store size (after 2nd downloadAllForOffline()) = " +
            offlineStoreSize + ". (Msg hdr offsets should be close to it.)");
-  do_check_true(offlineStoreSize > gOfflineStoreSize);
+  Assert.ok(offlineStoreSize > gOfflineStoreSize);
 
   // Verify that the message headers have the offline flag set.
   let msgEnumerator = IMAPPump.inbox.msgDatabase.EnumerateMessages();

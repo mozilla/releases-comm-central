@@ -132,19 +132,19 @@ function run_test() {
     // Check which commands are available in which context.
     let cmdlist = cmdserv.listCommandsForConversation(test.conv, {})
                          .map(aCmd => aCmd.name).sort().join(", ");
-    do_check_eq(cmdlist, test.cmdlist);
+    Assert.equal(cmdlist, test.cmdlist);
 
     for (let testCmd of testCmds) {
       do_print("Testing command found for '" + testCmd + "'");
       let expectedResult = test.results.shift();
       let cmdArray = cmdserv._findCommands(test.conv, testCmd);
       // Check whether commands are only returned when appropriate.
-      do_check_eq(cmdArray.length > 0, expectedResult.length > 0);
+      Assert.equal(cmdArray.length > 0, expectedResult.length > 0);
       if (cmdArray.length) {
         // Check if the right command was returned.
-        do_check_eq(cmdArray[0].name, expectedResult[0]);
-        do_check_eq(cmdArray[0].priority == Ci.imICommand.CMD_PRIORITY_PRPL,
-                    !!expectedResult[1]);
+        Assert.equal(cmdArray[0].name, expectedResult[0]);
+        Assert.equal(cmdArray[0].priority == Ci.imICommand.CMD_PRIORITY_PRPL,
+                     !!expectedResult[1]);
       }
     }
   }
@@ -176,7 +176,7 @@ function run_test() {
   // Test command execution.
   for (let executionTest of testMessages) {
     do_print("Testing command execution for '" + executionTest.message + "'");
-    do_check_eq(cmdserv.executeCommand(executionTest.message, fakeConversation), executionTest.result);
+    Assert.equal(cmdserv.executeCommand(executionTest.message, fakeConversation), executionTest.result);
   }
 
   cmdserv.unInitCommands();

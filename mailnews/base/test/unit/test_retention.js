@@ -45,16 +45,16 @@ function* actually_run_test() {
   // those are cleaned up so the db will get closed.
   Components.utils.forceGC();
   Components.utils.forceCC();
-  do_check_eq(gDbService.cachedDBForFolder(gTestFolder), null);
+  Assert.equal(gDbService.cachedDBForFolder(gTestFolder), null);
   // no retention settings, so we should have the same number of messages.
-  do_check_eq(numMessages, gTestFolder.msgDatabase.dBFolderInfo.numMessages);
+  Assert.equal(numMessages, gTestFolder.msgDatabase.dBFolderInfo.numMessages);
   let serverSettings = gTestFolder.server.retentionSettings;
   serverSettings.retainByPreference = Ci.nsIMsgRetentionSettings.nsMsgRetainByNumHeaders;
   serverSettings.numHeadersToKeep = 9;
   gTestFolder.server.retentionSettings = serverSettings;
   gTestFolder.applyRetentionSettings();
   // no retention settings, so we should have the same number of messages.
-  do_check_eq(9, gTestFolder.msgDatabase.dBFolderInfo.numMessages);
+  Assert.equal(9, gTestFolder.msgDatabase.dBFolderInfo.numMessages);
   let folderSettings = gTestFolder.retentionSettings;
   folderSettings.retainByPreference = Ci.nsIMsgRetentionSettings.nsMsgRetainByNumHeaders;
   folderSettings.numHeadersToKeep = 8;
@@ -62,6 +62,6 @@ function* actually_run_test() {
   gTestFolder.retentionSettings = folderSettings;
   gTestFolder.applyRetentionSettings();
   // no retention settings, so we should have the same number of messages.
-  do_check_eq(8, gTestFolder.msgDatabase.dBFolderInfo.numMessages);
+  Assert.equal(8, gTestFolder.msgDatabase.dBFolderInfo.numMessages);
   do_test_finished();
 }

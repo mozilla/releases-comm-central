@@ -32,11 +32,11 @@ function run_test() {
 
     for (let i = 0; i < results.length; ++i) {
       if (results[i].name == dir.dirName) {
-        do_check_false(results[i].result);
+        Assert.ok(!results[i].result);
         results[i].result = true;
       }
     }
   }
 
-  results.forEach(function (result) { do_check_true(result.result); });
+  results.forEach(function (result) { Assert.ok(result.result); });
 };

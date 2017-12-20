@@ -31,7 +31,7 @@ function test_plainText() {
     "&lt;html&gt;&amp;" // keep escaped characters
   ];
   for (let string of strings)
-    do_check_eq(string, cleanupImMarkup(string));
+    Assert.equal(string, cleanupImMarkup(string));
 }
 
 function test_paragraphs() {
@@ -41,7 +41,7 @@ function test_paragraphs() {
     "foo<br>bar"
   ];
   for (let string of strings)
-    do_check_eq(string, cleanupImMarkup(string));
+    Assert.equal(string, cleanupImMarkup(string));
 }
 
 function test_stripScripts() {
@@ -52,7 +52,7 @@ function test_stripScripts() {
     ["<p onmouseover=\"alert('hey')\">foo</p>", "<p>foo</p>"],
   ];
   for (let [input, expectedOutput] of strings)
-    do_check_eq(expectedOutput, cleanupImMarkup(input));
+    Assert.equal(expectedOutput, cleanupImMarkup(input));
 }
 
 function test_links() {
@@ -65,7 +65,7 @@ function test_links() {
   ];
   for (let string of ok) {
     string = "<a href=\"" + string + "\">foo</a>";
-    do_check_eq(string, cleanupImMarkup(string));
+    Assert.equal(string, cleanupImMarkup(string));
   }
 
   // other links should be removed
@@ -77,13 +77,13 @@ function test_links() {
     ""
   ];
   for (let string of bad) {
-    do_check_eq("<a>foo</a>",
-                cleanupImMarkup("<a href=\"" + string + "\">foo</a>"));
+    Assert.equal("<a>foo</a>",
+                 cleanupImMarkup("<a href=\"" + string + "\">foo</a>"));
   }
 
   // keep link titles
   let string = "<a title=\"foo bar\">foo</a>";
-  do_check_eq(string, cleanupImMarkup(string));
+  Assert.equal(string, cleanupImMarkup(string));
 }
 
 function test_allModes() {
@@ -92,7 +92,7 @@ function test_allModes() {
   test_stripScripts();
   test_links();
   // Remove random classes.
-  do_check_eq("<p>foo</p>", cleanupImMarkup("<p class=\"foobar\">foo</p>"));
+  Assert.equal("<p>foo</p>", cleanupImMarkup("<p class=\"foobar\">foo</p>"));
 }
 
 function test_strictMode() {
@@ -102,16 +102,16 @@ function test_strictMode() {
   // check that basic formatting is stipped in strict mode.
   for (let tag of ["div", "em", "strong", "b", "i", "u", "span", "code",
                    "ul", "li", "ol", "cite", "blockquote"])
-    do_check_eq("foo", cleanupImMarkup("<" + tag + ">foo</" + tag + ">"));
+    Assert.equal("foo", cleanupImMarkup("<" + tag + ">foo</" + tag + ">"));
 
   // check that font settings are removed.
-  do_check_eq("foo",
-              cleanupImMarkup("<font face=\"Times\" color=\"pink\">foo</font>"));
-  do_check_eq("<p>foo</p>",
-              cleanupImMarkup("<p style=\"font-weight: bold;\">foo</p>"));
+  Assert.equal("foo",
+               cleanupImMarkup("<font face=\"Times\" color=\"pink\">foo</font>"));
+  Assert.equal("<p>foo</p>",
+               cleanupImMarkup("<p style=\"font-weight: bold;\">foo</p>"));
 
   // Discard hr
-  do_check_eq("foobar", cleanupImMarkup("foo<hr>bar"));
+  Assert.equal("foobar", cleanupImMarkup("foo<hr>bar"));
 
   run_next_test();
 }
@@ -124,21 +124,21 @@ function test_standardMode() {
   for (let tag of ["div", "em", "strong", "b", "i", "u", "span", "code",
                    "ul", "li", "ol", "cite", "blockquote"]) {
     let string = "<" + tag + ">foo</" + tag + ">";
-    do_check_eq(string, cleanupImMarkup(string));
+    Assert.equal(string, cleanupImMarkup(string));
   }
 
   // Keep special allowed classes.
   for (let className of ["moz-txt-underscore", "moz-txt-tag"]) {
     let string = "<span class=\"" + className + "\">foo</span>";
-    do_check_eq(string, cleanupImMarkup(string));
+    Assert.equal(string, cleanupImMarkup(string));
   }
 
   // Remove font settings
   let string = "<font face=\"Times\" color=\"pink\" size=\"3\">foo</font>";
-  do_check_eq("foo", cleanupImMarkup(string));
+  Assert.equal("foo", cleanupImMarkup(string));
 
   // Discard hr
-  do_check_eq("foobar", cleanupImMarkup("foo<hr>bar"));
+  Assert.equal("foobar", cleanupImMarkup("foo<hr>bar"));
 
   const okCSS = [
     "font-style: italic",
@@ -146,11 +146,11 @@ function test_standardMode() {
   ];
   for (let css of okCSS) {
     let string = "<span style=\"" + css + "\">foo</span>";
-    do_check_eq(string, cleanupImMarkup(string));
+    Assert.equal(string, cleanupImMarkup(string));
   }
   // text-decoration is a shorthand for several text-decoration properties.
-  do_check_eq("<span style=\"text-decoration-line: underline;\">foo</span>",
-              cleanupImMarkup("<span style=\"text-decoration: underline\">foo</span>"));
+  Assert.equal("<span style=\"text-decoration-line: underline;\">foo</span>",
+               cleanupImMarkup("<span style=\"text-decoration: underline\">foo</span>"));
 
   const badCSS = [
     "color: pink;",
@@ -161,13 +161,13 @@ function test_standardMode() {
     "visibility: hidden"
   ];
   for (let css of badCSS) {
-    do_check_eq("<span style=\"\">foo</span>",
-                cleanupImMarkup("<span style=\"" + css + "\">foo</span>"));
+    Assert.equal("<span style=\"\">foo</span>",
+                 cleanupImMarkup("<span style=\"" + css + "\">foo</span>"));
   }
   // The shorthand 'font' is decomposed to non-shorthand properties,
   // and not recomposed as some non-shorthand properties are filtered out.
-  do_check_eq("<span style=\"font-style: normal; font-weight: normal;\">foo</span>",
-              cleanupImMarkup("<span style=\"font: 15px normal\">foo</span>"));
+  Assert.equal("<span style=\"font-style: normal; font-weight: normal;\">foo</span>",
+               cleanupImMarkup("<span style=\"font: 15px normal\">foo</span>"));
 
   run_next_test();
 }
@@ -180,13 +180,13 @@ function test_permissiveMode() {
   for (let tag of ["div", "em", "strong", "b", "i", "u", "span", "code",
                    "ul", "li", "ol", "cite", "blockquote"]) {
     let string = "<" + tag + ">foo</" + tag + ">";
-    do_check_eq(string, cleanupImMarkup(string));
+    Assert.equal(string, cleanupImMarkup(string));
   }
 
   // Keep special allowed classes.
   for (let className of ["moz-txt-underscore", "moz-txt-tag"]) {
     let string = "<span class=\"" + className + "\">foo</span>";
-    do_check_eq(string, cleanupImMarkup(string));
+    Assert.equal(string, cleanupImMarkup(string));
   }
 
   // Keep font settings
@@ -197,12 +197,12 @@ function test_permissiveMode() {
   ];
   for (let fontAttribute of fontAttributes) {
     let string = "<font " + fontAttribute + ">foo</font>";
-    do_check_eq(string, cleanupImMarkup(string));
+    Assert.equal(string, cleanupImMarkup(string));
   }
 
   // Allow hr
   let string = "foo<hr>bar";
-  do_check_eq(string, cleanupImMarkup(string));
+  Assert.equal(string, cleanupImMarkup(string));
 
   // Allow most CSS rules changing the text appearance.
   const okCSS = [
@@ -215,14 +215,14 @@ function test_permissiveMode() {
   ];
   for (let css of okCSS) {
     let string = "<span style=\"" + css + "\">foo</span>";
-    do_check_eq(string, cleanupImMarkup(string));
+    Assert.equal(string, cleanupImMarkup(string));
   }
 
   // The shorthand 'font' is decomposed to non-shorthand properties,
   // and not recomposed as some non-shorthand properties are filtered out.
-  do_check_eq("<span style=\"font-family: normal; font-size: 15px; " +
-              "font-style: normal; font-weight: normal;\">foo</span>",
-              cleanupImMarkup("<span style=\"font: 15px normal\">foo</span>"));
+  Assert.equal("<span style=\"font-family: normal; font-size: 15px; " +
+               "font-style: normal; font-weight: normal;\">foo</span>",
+               cleanupImMarkup("<span style=\"font: 15px normal\">foo</span>"));
 
   // But still filter out dangerous CSS rules.
   const badCSS = [
@@ -231,8 +231,8 @@ function test_permissiveMode() {
     "visibility: hidden"
   ];
   for (let css of badCSS) {
-    do_check_eq("<span style=\"\">foo</span>",
-                cleanupImMarkup("<span style=\"" + css + "\">foo</span>"));
+    Assert.equal("<span style=\"\">foo</span>",
+                 cleanupImMarkup("<span style=\"" + css + "\">foo</span>"));
   }
 
   run_next_test();
@@ -244,29 +244,29 @@ function test_addGlobalAllowedTag() {
   // Check that <hr> isn't allowed by default in strict mode.
   // Note: we use <hr> instead of <img> to avoid mailnews' content policy
   // messing things up.
-  do_check_eq("", cleanupImMarkup("<hr>"));
+  Assert.equal("", cleanupImMarkup("<hr>"));
 
   // Allow <hr> without attributes.
   addGlobalAllowedTag("hr");
-  do_check_eq("<hr>", cleanupImMarkup("<hr>"));
-  do_check_eq("<hr>", cleanupImMarkup("<hr src=\"http://example.com/\">"));
+  Assert.equal("<hr>", cleanupImMarkup("<hr>"));
+  Assert.equal("<hr>", cleanupImMarkup("<hr src=\"http://example.com/\">"));
   removeGlobalAllowedTag("hr");
 
   // Allow <hr> with an unfiltered src attribute.
   addGlobalAllowedTag("hr", {src: true});
-  do_check_eq("<hr>", cleanupImMarkup("<hr alt=\"foo\">"));
-  do_check_eq("<hr src=\"http://example.com/\">",
-              cleanupImMarkup("<hr src=\"http://example.com/\">"));
-  do_check_eq("<hr src=\"chrome://global/skin/img.png\">",
-              cleanupImMarkup("<hr src=\"chrome://global/skin/img.png\">"));
+  Assert.equal("<hr>", cleanupImMarkup("<hr alt=\"foo\">"));
+  Assert.equal("<hr src=\"http://example.com/\">",
+               cleanupImMarkup("<hr src=\"http://example.com/\">"));
+  Assert.equal("<hr src=\"chrome://global/skin/img.png\">",
+               cleanupImMarkup("<hr src=\"chrome://global/skin/img.png\">"));
   removeGlobalAllowedTag("hr");
 
   // Allow <hr> with an src attribute taking only http(s) urls.
   addGlobalAllowedTag("hr", {src: aValue => /^https?:/.test(aValue)});
-  do_check_eq("<hr src=\"http://example.com/\">",
-              cleanupImMarkup("<hr src=\"http://example.com/\">"));
-  do_check_eq("<hr>",
-              cleanupImMarkup("<hr src=\"chrome://global/skin/img.png\">"));
+  Assert.equal("<hr src=\"http://example.com/\">",
+               cleanupImMarkup("<hr src=\"http://example.com/\">"));
+  Assert.equal("<hr>",
+               cleanupImMarkup("<hr src=\"chrome://global/skin/img.png\">"));
   removeGlobalAllowedTag("hr");
 
   run_next_test();
@@ -276,17 +276,17 @@ function test_addGlobalAllowedAttribute() {
   Services.prefs.setIntPref(kModePref, kStrictMode);
 
   // Check that id isn't allowed by default in strict mode.
-  do_check_eq("<br>", cleanupImMarkup("<br id=\"foo\">"));
+  Assert.equal("<br>", cleanupImMarkup("<br id=\"foo\">"));
 
   // Allow id unconditionally.
   addGlobalAllowedAttribute("id");
-  do_check_eq("<br id=\"foo\">", cleanupImMarkup("<br id=\"foo\">"));
+  Assert.equal("<br id=\"foo\">", cleanupImMarkup("<br id=\"foo\">"));
   removeGlobalAllowedAttribute("id");
 
   // Allow id only with numbers.
   addGlobalAllowedAttribute("id", aId => /^\d+$/.test(aId));
-  do_check_eq("<br id=\"123\">", cleanupImMarkup("<br id=\"123\">"));
-  do_check_eq("<br>", cleanupImMarkup("<br id=\"foo\">"));
+  Assert.equal("<br id=\"123\">", cleanupImMarkup("<br id=\"123\">"));
+  Assert.equal("<br>", cleanupImMarkup("<br id=\"foo\">"));
   removeGlobalAllowedAttribute("id");
 
   run_next_test();
@@ -297,12 +297,12 @@ function test_addGlobalAllowedStyleRule() {
   Services.prefs.setIntPref(kModePref, kStandardMode);
 
   // Check that clear isn't allowed by default in strict mode.
-  do_check_eq("<br style=\"\">", cleanupImMarkup("<br style=\"clear: both;\">"));
+  Assert.equal("<br style=\"\">", cleanupImMarkup("<br style=\"clear: both;\">"));
 
   // Allow clear.
   addGlobalAllowedStyleRule("clear");
-  do_check_eq("<br style=\"clear: both;\">",
-              cleanupImMarkup("<br style=\"clear: both;\">"));
+  Assert.equal("<br style=\"clear: both;\">",
+               cleanupImMarkup("<br style=\"clear: both;\">"));
   removeGlobalAllowedStyleRule("clear");
 
   run_next_test();
@@ -314,22 +314,22 @@ function test_createDerivedRuleset() {
   let rules = createDerivedRuleset();
 
   let string = "<hr>";
-  do_check_eq("", cleanupImMarkup(string));
-  do_check_eq("", cleanupImMarkup(string, rules));
+  Assert.equal("", cleanupImMarkup(string));
+  Assert.equal("", cleanupImMarkup(string, rules));
   rules.tags["hr"] = true;
-  do_check_eq(string, cleanupImMarkup(string, rules));
+  Assert.equal(string, cleanupImMarkup(string, rules));
 
   string = "<br id=\"123\">";
-  do_check_eq("<br>", cleanupImMarkup(string));
-  do_check_eq("<br>", cleanupImMarkup(string, rules));
+  Assert.equal("<br>", cleanupImMarkup(string));
+  Assert.equal("<br>", cleanupImMarkup(string, rules));
   rules.attrs["id"] = true;
-  do_check_eq(string, cleanupImMarkup(string, rules));
+  Assert.equal(string, cleanupImMarkup(string, rules));
 
   string = "<br style=\"clear: both;\">";
-  do_check_eq("<br style=\"\">", cleanupImMarkup(string));
-  do_check_eq("<br style=\"\">", cleanupImMarkup(string, rules));
+  Assert.equal("<br style=\"\">", cleanupImMarkup(string));
+  Assert.equal("<br style=\"\">", cleanupImMarkup(string, rules));
   rules.styles["clear"] = true;
-  do_check_eq(string, cleanupImMarkup(string, rules));
+  Assert.equal(string, cleanupImMarkup(string, rules));
 
   run_next_test();
 }

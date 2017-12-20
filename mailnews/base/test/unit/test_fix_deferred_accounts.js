@@ -45,11 +45,11 @@ function run_test()
                              "account1");
 
   // This will force the load of the accounts setup above.
-  do_check_eq(MailServices.accounts.accounts.length, 3); // hidden account not included
+  Assert.equal(MailServices.accounts.accounts.length, 3); // hidden account not included
   let server4 = MailServices.accounts.getAccount("account4").incomingServer
                             .QueryInterface(Ci.nsIPop3IncomingServer);
-  do_check_eq(server4.deferredToAccount, "account1");
+  Assert.equal(server4.deferredToAccount, "account1");
   let server5 = MailServices.accounts.getAccount("account5").incomingServer
                             .QueryInterface(Ci.nsIPop3IncomingServer);
-  do_check_eq(server5.deferredToAccount, "account1");
+  Assert.equal(server5.deferredToAccount, "account1");
 }

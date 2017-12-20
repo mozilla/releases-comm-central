@@ -27,11 +27,11 @@ function run_test() {
     Services.core.init();
 
     let account = Services.accounts.getAccountByNumericId(1);
-    do_check_true(account instanceof Ci.imIAccount);
-    do_check_eq(account.name, kAccountName);
-    do_check_eq(account.normalizedName, kAccountName);
-    do_check_eq(account.protocol.id, kPrplId);
-    do_check_eq(account.connectionErrorReason, Ci.imIAccount.ERROR_UNKNOWN_PRPL);
+    Assert.ok(account instanceof Ci.imIAccount);
+    Assert.equal(account.name, kAccountName);
+    Assert.equal(account.normalizedName, kAccountName);
+    Assert.equal(account.protocol.id, kPrplId);
+    Assert.equal(account.connectionErrorReason, Ci.imIAccount.ERROR_UNKNOWN_PRPL);
   } finally {
     Services.core.quit();
 

@@ -20,15 +20,15 @@ add_test(function testListeners() {
 
   notif.addListener(listener, iNMNS.count);
   let list = notif._listenersForFlag(iNMNS.count);
-  do_check_eq(list.length, 1);
-  do_check_eq(list[0], listener);
+  Assert.equal(list.length, 1);
+  Assert.equal(list[0], listener);
 
   let newlist = notif._listenersForFlag(iNMNS.messages);
-  do_check_eq(newlist.length, 0);
+  Assert.equal(newlist.length, 0);
 
   notif.removeListener(listener);
   list = notif._listenersForFlag(iNMNS.count);
-  do_check_eq(list.length, 0);
+  Assert.equal(list.length, 0);
 
   run_next_test();
 });
@@ -47,18 +47,18 @@ add_test(function testMultiListeners() {
   notif.addListener(l2, iNMNS.messages);
   // do_check_eq(notif._listeners.length, 2);
   let list = notif._listenersForFlag(iNMNS.count);
-  do_check_eq(list.length, 1);
-  do_check_eq(list[0], l1);
+  Assert.equal(list.length, 1);
+  Assert.equal(list[0], l1);
 
   let newlist = notif._listenersForFlag(iNMNS.messages);
-  do_check_eq(newlist.length, 2);
+  Assert.equal(newlist.length, 2);
 
   notif.removeListener(l1);
   list = notif._listenersForFlag(iNMNS.count);
-  do_check_eq(list.length, 0);
+  Assert.equal(list.length, 0);
   newlist = notif._listenersForFlag(iNMNS.messages);
-  do_check_eq(newlist.length, 1);
-  do_check_eq(newlist[0], l2);
+  Assert.equal(newlist.length, 1);
+  Assert.equal(newlist[0], l2);
   notif.removeListener(l2);
 
   run_next_test();
@@ -81,7 +81,7 @@ add_test(function testNotifyInbox() {
   notif.addListener(mockListener, iNMNS.count);
 
   notif.OnItemIntPropertyChanged(folder, "TotalUnreadMessages", 0, 2);
-  do_check_true(notified);
+  Assert.ok(notified);
 
   // Special folders should never count
   let special = {
@@ -90,7 +90,7 @@ add_test(function testNotifyInbox() {
   };
   notified = false;
   notif.OnItemIntPropertyChanged(special, "TotalUnreadMessages", 0, 2);
-  do_check_false(notified);
+  Assert.ok(!notified);
 
   // by default, non-inbox should not count
   let nonInbox = {
@@ -99,13 +99,13 @@ add_test(function testNotifyInbox() {
   };
   notified = false;
   notif.OnItemIntPropertyChanged(nonInbox, "TotalUnreadMessages", 0, 2);
-  do_check_false(notified);
+  Assert.ok(!notified);
 
   // Try setting the pref to count non-inboxes and notifying a non-inbox
   Services.prefs.setBoolPref(countInboxesPref, false);
   notified = false;
   notif.OnItemIntPropertyChanged(nonInbox, "TotalUnreadMessages", 0, 2);
-  do_check_true(notified);
+  Assert.ok(notified);
 
   run_next_test();
 });

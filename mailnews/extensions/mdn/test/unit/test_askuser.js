@@ -46,10 +46,10 @@ function run_test()
   Services.prefs.setIntPref("mail.mdn.report.outside_domain", 1);
   var askUser = mdnGenerator.process(MDN_DISPOSE_TYPE_DISPLAYED, msgWindow, msgFolder,
                                      msgHdr.messageKey, mimeHdr, false);
-  do_check_false(askUser);
+  Assert.ok(!askUser);
 
   Services.prefs.setIntPref("mail.mdn.report.outside_domain", 2);
   var askUser = mdnGenerator.process(MDN_DISPOSE_TYPE_DISPLAYED, msgWindow, msgFolder,
                                      msgHdr.messageKey, mimeHdr, false);
-  do_check_true(askUser);
+  Assert.ok(askUser);
 }

@@ -52,7 +52,7 @@ var copyListenerWrap =
   OnStopCopy: function(aStatus)
   {
     // Check: message successfully copied.
-    do_check_eq(aStatus, 0);
+    Assert.equal(aStatus, 0);
   }
 };
 
@@ -60,18 +60,18 @@ var urlListenerWrap =
 {
   OnStopRunningUrl: function (aUrl, aExitCode) {
     // Check: message successfully copied.
-    do_check_eq(aExitCode, 0);
+    Assert.equal(aExitCode, 0);
 
     if (gMsgKeys.length > 0) {
       // Bug 854798: Check if the new message keys are the same as before compaction.
       let folderMsgs = gMsgKeys.folder.messages;
       // First message was deleted so skip it in the old array.
       for (let i = 1; i < gMsgKeys.length; i++) {
-        do_check_true(folderMsgs.hasMoreElements());
+        Assert.ok(folderMsgs.hasMoreElements());
         let header = folderMsgs.getNext().QueryInterface(Ci.nsIMsgDBHdr);
-        do_check_eq(header.messageKey, gMsgKeys[i]);
+        Assert.equal(header.messageKey, gMsgKeys[i]);
       }
-      do_check_false(folderMsgs.hasMoreElements());
+      Assert.ok(!folderMsgs.hasMoreElements());
       gMsgKeys.length = 0;
     }
   }
@@ -135,7 +135,7 @@ function verifyMsgOffsets(folder)
       let header = enumerator.getNext();
       if (header instanceof Components.interfaces.nsIMsgDBHdr) {
         let storeToken = header.getStringProperty("storeToken");
-        do_check_eq(storeToken, header.messageOffset);
+        Assert.equal(storeToken, header.messageOffset);
       }
     }
   }
@@ -197,7 +197,7 @@ var gTestArray =
   function* compactFolder()
   {
     gExpectedFolderSize = calculateFolderSize(gLocalFolder3);
-    do_check_neq(gLocalFolder3.expungedBytes, 0);
+    Assert.notEqual(gLocalFolder3.expungedBytes, 0);
     let listener = new PromiseTestUtils.PromiseUrlListener(urlListenerWrap);
     gLocalFolder3.compact(listener, null);
     yield listener.promise;
@@ -205,7 +205,7 @@ var gTestArray =
     showMessages(gLocalFolder3, "after compact");
   },
   function* testDeleteMessages2() {
-    do_check_eq(gExpectedFolderSize, gLocalFolder3.filePath.fileSize);
+    Assert.equal(gExpectedFolderSize, gLocalFolder3.filePath.fileSize);
     verifyMsgOffsets(gLocalFolder3);
     var folder2DB = gLocalFolder2.msgDatabase;
     gMsgHdrs[0].hdr = folder2DB.getMsgHdrForMessageID(gMsgHdrs[0].ID);
@@ -260,7 +260,7 @@ var gTestArray =
     let checkResult = {
       OnStopRunningUrl: function (aUrl, aExitCode) {
       // Check: message successfully compacted.
-      do_check_eq(aExitCode, 0);
+      Assert.equal(aExitCode, 0);
       }
     };
     let listener = new PromiseTestUtils.PromiseUrlListener(checkResult);
@@ -274,22 +274,22 @@ var gTestArray =
     let postInboxMsg3Key = localAccountUtils.inboxFolder.msgDatabase
                                             .getMsgHdrForMessageID(gMsg3ID)
                                             .messageKey;
-    do_check_eq(preInboxMsg3Key, postInboxMsg3Key);
+    Assert.equal(preInboxMsg3Key, postInboxMsg3Key);
 
     // For folder2, which was rebuilt, keys change but all messages should exist.
     let message2 = gLocalFolder2.msgDatabase.getMsgHdrForMessageID(gMsg2ID);
-    do_check_true(message2);
-    do_check_true(gLocalFolder2.msgDatabase.getMsgHdrForMessageID(gMsg3ID));
+    Assert.ok(message2);
+    Assert.ok(gLocalFolder2.msgDatabase.getMsgHdrForMessageID(gMsg3ID));
 
     // In folder2, gMsg2ID is the first message. After compact with database
     // rebuild, that key has now changed.
-    do_check_neq(message2.messageKey, f2m2Key);
+    Assert.notEqual(message2.messageKey, f2m2Key);
   },
   function lastTestCheck()
   {
-    do_check_eq(gExpectedInboxSize, localAccountUtils.inboxFolder.filePath.fileSize);
-    do_check_eq(gExpectedFolder2Size, gLocalFolder2.filePath.fileSize);
-    do_check_eq(gExpectedFolder3Size, gLocalFolder3.filePath.fileSize);
+    Assert.equal(gExpectedInboxSize, localAccountUtils.inboxFolder.filePath.fileSize);
+    Assert.equal(gExpectedFolder2Size, gLocalFolder2.filePath.fileSize);
+    Assert.equal(gExpectedFolder3Size, gLocalFolder3.filePath.fileSize);
     verifyMsgOffsets(gLocalFolder2);
     verifyMsgOffsets(gLocalFolder3);
     verifyMsgOffsets(localAccountUtils.inboxFolder);

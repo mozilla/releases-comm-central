@@ -204,20 +204,20 @@ function check_attachments(aMimeMsg, epsilon, checkTotalSize) {
    * in it, Unix or Windows, the count won't get past the bounds.
    */
 
-  do_check_true(aMimeMsg.allUserAttachments.length > 0);
+  Assert.ok(aMimeMsg.allUserAttachments.length > 0);
 
   let totalSize = htmlText.length;
 
   for (let att of aMimeMsg.allUserAttachments) {
     dump("*** Attachment now is " + att.name + " " + att.size + "\n");
-    do_check_true(Math.abs(att.size - originalTextByteCount) <= epsilon);
+    Assert.ok(Math.abs(att.size - originalTextByteCount) <= epsilon);
     totalSize += att.size;
   }
 
   // undefined means true
   if (checkTotalSize !== false) {
     dump("*** Total size comparison: " + totalSize + " vs " + aMimeMsg.size + "\n");
-    do_check_true(Math.abs(aMimeMsg.size - totalSize) <= epsilon);
+    Assert.ok(Math.abs(aMimeMsg.size - totalSize) <= epsilon);
   }
 
   async_driver();
@@ -282,7 +282,7 @@ function check_bogus_parts(aMimeMsg, { epsilon, checkSize }) {
 
   // First make sure the size is computed properly
   let x = parseInt(aMimeMsg.size);
-  do_check_false(isNaN(x));
+  Assert.ok(!isNaN(x));
 
   let sep = ("@mozilla.org/windows-registry-key;1" in Cc) ? "\r\n" : "\n";
 
@@ -303,7 +303,7 @@ function check_bogus_parts(aMimeMsg, { epsilon, checkSize }) {
     // That's the total length that's to be returned by the MimeMessage abstraction.
     let totalSize = htmlText.length + partSize;
     dump(totalSize+" vs "+aMimeMsg.size+"\n");
-    do_check_true(Math.abs(aMimeMsg.size - totalSize) <= epsilon);
+    Assert.ok(Math.abs(aMimeMsg.size - totalSize) <= epsilon);
   }
 
   async_driver();
@@ -347,7 +347,7 @@ function* test_have_attachments(info) {
 
   MsgHdrToMimeMessage(msgHdr, null, function(aMsgHdr, aMimeMsg) {
     try {
-      do_check_eq(aMimeMsg.allUserAttachments.length, info.number);
+      Assert.equal(aMimeMsg.allUserAttachments.length, info.number);
       async_driver();
     } catch (e) {
       do_throw(e);
@@ -372,7 +372,7 @@ function run_test() {
   let converter = Cc["@mozilla.org/intl/scriptableunicodeconverter"]
                     .createInstance(Ci.nsIScriptableUnicodeConverter);
   converter.charset = "UTF-8";
-  do_check_eq(converter.ConvertFromUnicode(originalText).length, originalTextByteCount);
+  Assert.equal(converter.ConvertFromUnicode(originalText).length, originalTextByteCount);
 
   // use mbox injection because the fake server chokes sometimes right now
   gInbox = configure_message_injection({mode: "local"});

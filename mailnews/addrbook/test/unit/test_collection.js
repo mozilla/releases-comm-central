@@ -228,22 +228,22 @@ var collectChecker = {
     try {
       var card = this.AB.cardForEmailAddress(aDetails.primaryEmail);
 
-      do_check_true(card != null);
+      Assert.ok(card != null);
 
       if ("secondEmail" in aDetails)
-        do_check_eq(card.getProperty("SecondEmail", "BAD"), aDetails.secondEmail);
+        Assert.equal(card.getProperty("SecondEmail", "BAD"), aDetails.secondEmail);
 
       if (overrideMailFormat)
-        do_check_eq(card.getProperty("PreferMailFormat", "BAD"), nsIAbPMF.unknown);
+        Assert.equal(card.getProperty("PreferMailFormat", "BAD"), nsIAbPMF.unknown);
       else if ("mailFormatOut" in aDetails)
-        do_check_eq(card.getProperty("PreferMailFormat", "BAD"), aDetails.mailFormatOut);
+        Assert.equal(card.getProperty("PreferMailFormat", "BAD"), aDetails.mailFormatOut);
       else
-        do_check_eq(card.getProperty("PreferMailFormat", "BAD"), aDetails.mailFormat);
+        Assert.equal(card.getProperty("PreferMailFormat", "BAD"), aDetails.mailFormat);
 
-      do_check_eq(card.displayName, aDetails.displayName);
-      do_check_eq(card.firstName, aDetails.firstName);
-      do_check_eq(card.lastName, aDetails.lastName);
-      do_check_eq(card.getProperty("_AimScreenName", ""), aDetails.screenName);
+      Assert.equal(card.displayName, aDetails.displayName);
+      Assert.equal(card.firstName, aDetails.firstName);
+      Assert.equal(card.lastName, aDetails.lastName);
+      Assert.equal(card.getProperty("_AimScreenName", ""), aDetails.screenName);
     }
     catch (e) {
       throw "FAILED in checkCardResult emailHeader: " + aDetails.emailHeader + " : " + e;
@@ -275,7 +275,7 @@ function run_test()
                                                nsIAbPMF.unknown);
 
   // Address book should have no cards present.
-  do_check_false(collectChecker.AB.childCards.hasMoreElements());
+  Assert.ok(!collectChecker.AB.childCards.hasMoreElements());
 
   // Test - Email doesn't exist, but don't add it.
 
@@ -287,7 +287,7 @@ function run_test()
 
   var card = collectChecker.AB.cardForEmailAddress(addEmailChecks[0].emailHeader);
 
-  do_check_true(card == null);
+  Assert.ok(card == null);
 
   // Test - Try and collect various emails and formats.
 
@@ -312,9 +312,9 @@ function run_test()
   cardsToDelete = null;
 
   // Address book should have no cards present.
-  do_check_false(collectChecker.AB.childCards.hasMoreElements());
+  Assert.ok(!collectChecker.AB.childCards.hasMoreElements());
 
-  do_check_eq(collectChecker.AB.cardForEmailAddress(addEmailChecks[0].emailHeader), null);
+  Assert.equal(collectChecker.AB.cardForEmailAddress(addEmailChecks[0].emailHeader), null);
 
   // Now do all emails at the same time.
   collectChecker.checkAll(addEmailChecks);
@@ -370,7 +370,7 @@ function run_test()
       foundCards.push(card);
   }
 
-  do_check_eq(foundCards.length, 2);
+  Assert.equal(foundCards.length, 2);
 
   if (foundCards[0].displayName != kSingleDisplayName &&
       foundCards[1].displayName != kSingleDisplayName)

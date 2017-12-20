@@ -85,13 +85,13 @@ function run_test() {
   remove_all_bookmarks();
 
   // Sanity check.
-  do_check_true(!!PlacesUIUtils);
+  Assert.ok(!!PlacesUIUtils);
 
   // Check getters.
   gLeftPaneFolderIdGetter = PlacesUIUtils.__lookupGetter__("leftPaneFolderId");
-  do_check_eq(typeof(gLeftPaneFolderIdGetter), "function");
+  Assert.equal(typeof(gLeftPaneFolderIdGetter), "function");
   gAllBookmarksFolderIdGetter = PlacesUIUtils.__lookupGetter__("allBookmarksFolderId");
-  do_check_eq(typeof(gAllBookmarksFolderIdGetter), "function");
+  Assert.equal(typeof(gAllBookmarksFolderIdGetter), "function");
 
   // Add a third party bogus annotated item.  Should not be removed.
   gFolderId = PlacesUtils.bookmarks.createFolder(PlacesUtils.unfiledBookmarksFolderId,
@@ -122,8 +122,8 @@ function run_next_test() {
     PlacesUIUtils.__defineGetter__("allBookmarksFolderId", gAllBookmarksFolderIdGetter);
     // Check the new left pane folder.
     let leftPaneJSON = folderToJSON(gLeftPaneFolderId);
-    do_check_true(compareJSON(gReferenceJSON, leftPaneJSON));
-    do_check_eq(PlacesUtils.bookmarks.getItemTitle(gFolderId), "test");
+    Assert.ok(compareJSON(gReferenceJSON, leftPaneJSON));
+    Assert.equal(PlacesUtils.bookmarks.getItemTitle(gFolderId), "test");
     // Go to next test.
     do_timeout(0, run_next_test);
   }
@@ -150,7 +150,7 @@ function folderToJSON(aItemId) {
     }
   };
   PlacesUtils.serializeNodeAsJSONToOutputStream(root, writer, false, false);
-  do_check_true(writer.value.length > 0);
+  Assert.ok(writer.value.length > 0);
   return writer.value;
 }
 
@@ -167,7 +167,7 @@ function compareJSON(aNodeJSON_1, aNodeJSON_2) {
 
   function compareObjects(obj1, obj2) {
     function count(o) { var n = 0; for (let p in o) n++; return n; }
-    do_check_eq(count(obj1), count(obj2));
+    Assert.equal(count(obj1), count(obj2));
     for (let prop in obj1) {
       // Skip everchanging values.
       if (SKIP_PROPS.indexOf(prop) != -1)

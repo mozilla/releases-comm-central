@@ -128,18 +128,18 @@ gMFListener.prototype =
 
   msgsMoveCopyCompleted: function (aMove, aSrcMsgs, aDestFolder, aDestMsgs)
   {
-    do_check_true(aDestFolder.getFlag(Ci.nsMsgFolderFlags.Junk));
+    Assert.ok(aDestFolder.getFlag(Ci.nsMsgFolderFlags.Junk));
     // I tried to test this by counting messages in the folder, didn't work.
     //  Maybe all updates are not completed yet. Anyway I do it by just
     //  making sure there is something in the destination array.
-    do_check_true(aDestMsgs.length > 0);
+    Assert.ok(aDestMsgs.length > 0);
     async_driver();
   },
 
   folderAdded: function (aFolder)
   {
     // this should be a junk folder
-    do_check_true(aFolder.getFlag(Ci.nsMsgFolderFlags.Junk));
+    Assert.ok(aFolder.getFlag(Ci.nsMsgFolderFlags.Junk));
     async_driver();
   },
 

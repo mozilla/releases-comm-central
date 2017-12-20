@@ -39,17 +39,17 @@ function run_test() {
   Services.prefs.setIntPref("browser.places.smartBookmarksVersion", -1);
   gluesvc.ensurePlacesDefaultQueriesInitialized();
   var smartBookmarkItemIds = annosvc.getItemsWithAnnotation(SMART_BOOKMARKS_ANNO);
-  do_check_eq(smartBookmarkItemIds.length, 0);
+  Assert.equal(smartBookmarkItemIds.length, 0);
   // check that pref has not been bumped up
-  do_check_eq(Services.prefs.getIntPref("browser.places.smartBookmarksVersion"), -1);
+  Assert.equal(Services.prefs.getIntPref("browser.places.smartBookmarksVersion"), -1);
 
   // TEST 2: create smart bookmarks
   Services.prefs.setIntPref("browser.places.smartBookmarksVersion", 0);
   gluesvc.ensurePlacesDefaultQueriesInitialized();
   smartBookmarkItemIds = annosvc.getItemsWithAnnotation(SMART_BOOKMARKS_ANNO);
-  do_check_neq(smartBookmarkItemIds.length, 0);
+  Assert.notEqual(smartBookmarkItemIds.length, 0);
   // check that pref has been bumped up
-  do_check_true(Services.prefs.getIntPref("browser.places.smartBookmarksVersion") > 0);
+  Assert.ok(Services.prefs.getIntPref("browser.places.smartBookmarksVersion") > 0);
 
   var smartBookmarksCount = smartBookmarkItemIds.length;
 
@@ -59,9 +59,9 @@ function run_test() {
   Services.prefs.setIntPref("browser.places.smartBookmarksVersion", 0);
   gluesvc.ensurePlacesDefaultQueriesInitialized();
   smartBookmarkItemIds = annosvc.getItemsWithAnnotation(SMART_BOOKMARKS_ANNO);
-  do_check_eq(smartBookmarkItemIds.length, smartBookmarksCount);
+  Assert.equal(smartBookmarkItemIds.length, smartBookmarksCount);
   // check that pref has been bumped up
-  do_check_true(Services.prefs.getIntPref("browser.places.smartBookmarksVersion") > 0);
+  Assert.ok(Services.prefs.getIntPref("browser.places.smartBookmarksVersion") > 0);
 
   // TEST 4: move a smart bookmark, change its title, then restore
   // smart bookmark should be restored in place
@@ -76,9 +76,9 @@ function run_test() {
   Services.prefs.setIntPref("browser.places.smartBookmarksVersion", 0);
   gluesvc.ensurePlacesDefaultQueriesInitialized();
   smartBookmarkItemIds = annosvc.getItemsWithAnnotation(SMART_BOOKMARKS_ANNO);
-  do_check_eq(smartBookmarkItemIds.length, smartBookmarksCount);
-  do_check_eq(bmsvc.getFolderIdForItem(smartBookmarkItemIds[0]), newParent);
-  do_check_eq(bmsvc.getItemTitle(smartBookmarkItemIds[0]), oldTitle);
+  Assert.equal(smartBookmarkItemIds.length, smartBookmarksCount);
+  Assert.equal(bmsvc.getFolderIdForItem(smartBookmarkItemIds[0]), newParent);
+  Assert.equal(bmsvc.getItemTitle(smartBookmarkItemIds[0]), oldTitle);
   // check that pref has been bumped up
-  do_check_true(Services.prefs.getIntPref("browser.places.smartBookmarksVersion") > 0);
+  Assert.ok(Services.prefs.getIntPref("browser.places.smartBookmarksVersion") > 0);
 }

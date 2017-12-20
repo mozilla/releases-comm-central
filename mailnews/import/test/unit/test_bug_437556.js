@@ -13,11 +13,11 @@ function run_test()
   helper.setAddressBookLocation(file);
 
   var abInterface = helper.getInterface();
-  do_check_neq(abInterface, null);
+  Assert.notEqual(abInterface, null);
   // prepare to start the import
-  do_check_true(abInterface.WantsProgress());
+  Assert.ok(abInterface.WantsProgress());
   // start the import
   // BeginImport should return false and log an error if the fieldMap isn't set
-  do_check_false(abInterface.BeginImport(null, errorStr));
-  do_check_neq(errorStr, "");
+  Assert.ok(!abInterface.BeginImport(null, errorStr));
+  Assert.notEqual(errorStr, "");
 }

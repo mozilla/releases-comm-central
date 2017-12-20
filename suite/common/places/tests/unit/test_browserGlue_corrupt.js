@@ -22,7 +22,7 @@ var bookmarksObserver = {
   onBeginUpdateBatch: function() {},
   onEndUpdateBatch: function() {
     let itemId = bs.getIdForItemAt(bs.toolbarFolder, 0);
-    do_check_neq(itemId, -1);
+    Assert.notEqual(itemId, -1);
     if (anno.itemHasAnnotation(itemId, "Places/SmartBookmark"))
       continue_test();
   },
@@ -49,13 +49,13 @@ function run_test() {
   db.append("places.sqlite");
   if (db.exists()) {
     db.remove(false);
-    do_check_false(db.exists());
+    Assert.ok(!db.exists());
   }
   // Create a corrupt database.
   let corruptDB = gTestDir.clone();
   corruptDB.append("corruptDB.sqlite");
   corruptDB.copyTo(gProfD, "places.sqlite");
-  do_check_true(db.exists());
+  Assert.ok(db.exists());
 
   // Initialize nsSuiteGlue before Places.
   Cc["@mozilla.org/suite/suiteglue;1"].getService(Ci.nsISuiteGlue);
@@ -65,7 +65,7 @@ function run_test() {
            getService(Ci.nsINavHistoryService);
   // Check the database was corrupt.
   // nsSuiteGlue uses databaseStatus to manage initialization.
-  do_check_eq(hs.databaseStatus, hs.DATABASE_STATUS_CORRUPT);
+  Assert.equal(hs.databaseStatus, hs.DATABASE_STATUS_CORRUPT);
 
   // The test will continue once restore has finished and smart bookmarks
   // have been created.
@@ -76,7 +76,7 @@ function continue_test() {
   // Check that JSON backup has been restored.
   // Notice restore from JSON notification is fired before smart bookmarks creation.
   let itemId = bs.getIdForItemAt(bs.toolbarFolder, SMART_BOOKMARKS_ON_TOOLBAR);
-  do_check_eq(bs.getItemTitle(itemId), "examplejson");
+  Assert.equal(bs.getItemTitle(itemId), "examplejson");
 
   remove_bookmarks_html();
   remove_all_JSON_backups();

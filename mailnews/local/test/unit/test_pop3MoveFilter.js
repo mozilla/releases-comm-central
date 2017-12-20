@@ -54,9 +54,9 @@ var gTestArray =
     yield gPOP3Pump.run();
   },
   function *verifyFolders2() {
-    do_check_eq(folderCount(gMoveFolder), 2);
+    Assert.equal(folderCount(gMoveFolder), 2);
     // the local inbox folder should now be empty, since we moved incoming mail.
-    do_check_eq(folderCount(localAccountUtils.inboxFolder), 0);
+    Assert.equal(folderCount(localAccountUtils.inboxFolder), 0);
 
     // invalidate the inbox summary file, to be sure that we really moved
     // the mail.
@@ -69,11 +69,11 @@ var gTestArray =
                        .getDatabaseWithReparse(promiseUrlListener, null);
     } catch(ex) {
       yield promiseUrlListener.promise;
-      do_check_true(ex.result == Cr.NS_ERROR_NOT_INITIALIZED);
+      Assert.ok(ex.result == Cr.NS_ERROR_NOT_INITIALIZED);
       return;
     }
     // This statement isn't reached since the error is thrown.
-    do_check_true(false);
+    Assert.ok(false);
   },
   function verifyMessages() {
     let hdrs = [];
@@ -85,10 +85,10 @@ var gTestArray =
       keys.push(hdr.messageKey);
       hdrs.push(hdr);
     }
-    do_check_false(gMoveFolder.fetchMsgPreviewText(keys, keys.length, false,
-                                                   null));
-    do_check_eq(hdrs[0].getStringProperty('preview'), previews[hdrs[0].subject]);
-    do_check_eq(hdrs[1].getStringProperty('preview'), previews[hdrs[1].subject]);
+    Assert.ok(!gMoveFolder.fetchMsgPreviewText(keys, keys.length, false,
+                                               null));
+    Assert.equal(hdrs[0].getStringProperty('preview'), previews[hdrs[0].subject]);
+    Assert.equal(hdrs[1].getStringProperty('preview'), previews[hdrs[1].subject]);
   },
 ];
 

@@ -50,11 +50,11 @@ function testAttrib(handler, daemon, localserver) {
 
   try
   {
-    do_check_eq(headers.length, 8);
+    Assert.equal(headers.length, 8);
     for (var header of headers) {
       var id = header.messageId;
       dump("Testing message "+id+"\n");
-      do_check_eq(header[attribResults[id][0]], attribResults[id][1]);
+      Assert.equal(header[attribResults[id][0]], attribResults[id][1]);
     }
   } catch (e) {
     print(server.playTransaction().them);
@@ -107,14 +107,14 @@ function testAction(handler, daemon, localserver) {
 
   try
   {
-    do_check_eq(headers.length, 7);
+    Assert.equal(headers.length, 7);
     for (var header of headers) {
       var id = header.messageId;
       dump("Testing message "+id+"\n");
       if (actionResults[id] instanceof Array)
-        do_check_eq(header[actionResults[id][0]], actionResults[id][1]);
+        Assert.equal(header[actionResults[id][0]], actionResults[id][1]);
       else
-        do_check_true(actionResults[id](header, folder));
+        Assert.ok(actionResults[id](header, folder));
     }
   } catch (e) {
     print(server.playTransaction().them);

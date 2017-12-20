@@ -35,20 +35,20 @@ function run_test() {
                 protocols[part].protocol]
                .createInstance(Ci.nsIProtocolHandler);
 
-    do_check_eq(pH.scheme, protocols[part].protocol);
-    do_check_eq(pH.defaultPort, protocols[part].defaultPort);
-    do_check_eq(pH.protocolFlags, defaultProtocolFlags);
+    Assert.equal(pH.scheme, protocols[part].protocol);
+    Assert.equal(pH.defaultPort, protocols[part].defaultPort);
+    Assert.equal(pH.protocolFlags, defaultProtocolFlags);
 
     // Whip through some of the ports to check we get the right results.
     // IMAP allows connecting to any port.
     for (let i = 0; i < 1024; ++i)
-      do_check_true(pH.allowPort(i, ""));
+      Assert.ok(pH.allowPort(i, ""));
 
     // Check we get a URI when we ask for one
     var uri = pH.newURI(protocols[part].urlSpec);
 
     uri.QueryInterface(Ci.nsIImapUrl);
 
-    do_check_eq(uri.spec, protocols[part].urlSpec);
+    Assert.equal(uri.spec, protocols[part].urlSpec);
   }
 }

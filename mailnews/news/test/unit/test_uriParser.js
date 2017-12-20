@@ -151,7 +151,7 @@ function run_test() {
     for (let prop in test) {
       if (prop == "uri")
         continue;
-      do_check_eq(url[prop], test[prop]);
+      Assert.equal(url[prop], test[prop]);
     }
   }
 
@@ -159,9 +159,9 @@ function run_test() {
     try {
       dump("Checking URL " + fail + " for failure\n");
       nntpService.newURI(fail);
-      do_check_true(false);
+      Assert.ok(false);
     } catch (e) {
-      do_check_eq(e.result, Components.results.NS_ERROR_MALFORMED_URI);
+      Assert.equal(e.result, Components.results.NS_ERROR_MALFORMED_URI);
     }
   }
 

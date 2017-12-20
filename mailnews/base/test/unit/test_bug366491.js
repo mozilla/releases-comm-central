@@ -70,8 +70,8 @@ var doTestingListener =
     if (haveClassification)
     {
       let test = tests.shift();
-      do_check_eq(getSpec(test.fileName), aMsgURI);
-      do_check_eq(test.junkPercent, aJunkPercent);
+      Assert.equal(getSpec(test.fileName), aMsgURI);
+      Assert.equal(test.junkPercent, aJunkPercent);
     }
 
     // Do we have more classifications to do? Then classify the first one.

@@ -69,33 +69,33 @@ function test_basics() {
 
 
   // sanity-checking the parsing
-  do_check_eq(jpeg.type, "image");
-  do_check_eq(jpeg.subType, "jpeg");
+  Assert.equal(jpeg.type, "image");
+  Assert.equal(jpeg.subType, "jpeg");
 
   // - make sure the numeric trickiness for the block stuff is actually doing
   //  the right thing!
   const BLOCK_SIZE = MimeTypeNoun.TYPE_BLOCK_SIZE;
   // same blocks
-  do_check_eq(Math.floor(jpeg.id / BLOCK_SIZE),
-              Math.floor(png.id / BLOCK_SIZE));
-  do_check_eq(Math.floor(html.id / BLOCK_SIZE),
-              Math.floor(plain.id / BLOCK_SIZE));
+  Assert.equal(Math.floor(jpeg.id / BLOCK_SIZE),
+               Math.floor(png.id / BLOCK_SIZE));
+  Assert.equal(Math.floor(html.id / BLOCK_SIZE),
+               Math.floor(plain.id / BLOCK_SIZE));
   // different blocks
-  do_check_neq(Math.floor(jpeg.id / BLOCK_SIZE),
-               Math.floor(html.id / BLOCK_SIZE));
+  Assert.notEqual(Math.floor(jpeg.id / BLOCK_SIZE),
+                  Math.floor(html.id / BLOCK_SIZE));
 }
 
 function test_parameters() {
   let plain = MimeTypeNoun.getMimeType("text/plain");
-  do_check_eq(plain, MimeTypeNoun.getMimeType('text/plain; charset="UTF-8"'));
+  Assert.equal(plain, MimeTypeNoun.getMimeType('text/plain; charset="UTF-8"'));
 }
 
 function verify_passes_are_the_same() {
   var firstPassResults = passResults[0];
   for (let iType = 0; iType < curPassResults.length; iType++) {
     for (let iPass = 1; iPass < passResults.length; iPass++) {
-      do_check_eq(firstPassResults[iType].id,
-                  passResults[iPass][iType].id);
+      Assert.equal(firstPassResults[iType].id,
+                   passResults[iPass][iType].id);
     }
   }
 }

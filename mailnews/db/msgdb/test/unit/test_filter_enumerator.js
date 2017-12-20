@@ -85,19 +85,19 @@ function run_test() {
   let filterEnumerator = inboxDB.getFilterEnumerator(searchTerms);
   let numMatches = {};
   let keepGoing = inboxDB.nextMatchingHdrs(filterEnumerator, 100, 100, null, numMatches);
-  do_check_eq(kNumExpectedMatches, numMatches.value);
-  do_check_false(keepGoing);
+  Assert.equal(kNumExpectedMatches, numMatches.value);
+  Assert.ok(!keepGoing);
   filterEnumerator = inboxDB.getFilterEnumerator(searchTerms);
   let matchingHdrs = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
   do {
     keepGoing = inboxDB.nextMatchingHdrs(filterEnumerator, 5, 5, matchingHdrs, numMatches);
   }
   while (keepGoing);
-  do_check_eq(kNumExpectedMatches, matchingHdrs.length);
+  Assert.equal(kNumExpectedMatches, matchingHdrs.length);
   let firstMatch = matchingHdrs.queryElementAt(0, Ci.nsIMsgDBHdr);
-  do_check_eq(firstMatch.messageId, gMessages[1].messageId);
+  Assert.equal(firstMatch.messageId, gMessages[1].messageId);
   let secondMatch = matchingHdrs.queryElementAt(1, Ci.nsIMsgDBHdr);
-  do_check_eq(secondMatch.messageId, gMessages[3].messageId);
+  Assert.equal(secondMatch.messageId, gMessages[3].messageId);
 
   // try it backwards, with roller skates:
   filterEnumerator = inboxDB.getFilterEnumerator(searchTerms, true);
@@ -106,13 +106,13 @@ function run_test() {
     keepGoing = inboxDB.nextMatchingHdrs(filterEnumerator, 5, 5, matchingHdrs, numMatches);
   }
   while (keepGoing);
-  do_check_eq(kNumExpectedMatches, matchingHdrs.length);
+  Assert.equal(kNumExpectedMatches, matchingHdrs.length);
   firstMatch = matchingHdrs.queryElementAt(0, Ci.nsIMsgDBHdr);
-  do_check_eq(firstMatch.messageId, gMessages[12].messageId);
+  Assert.equal(firstMatch.messageId, gMessages[12].messageId);
   secondMatch = matchingHdrs.queryElementAt(1, Ci.nsIMsgDBHdr);
-  do_check_eq(secondMatch.messageId, gMessages[11].messageId);
+  Assert.equal(secondMatch.messageId, gMessages[11].messageId);
   let tenthMatch = matchingHdrs.queryElementAt(9, Ci.nsIMsgDBHdr);
-  do_check_eq(tenthMatch.messageId, gMessages[1].messageId);
+  Assert.equal(tenthMatch.messageId, gMessages[1].messageId);
 
   do_test_finished();
 }

@@ -37,8 +37,8 @@ var streamListener =
   onStartRequest: function(aRequest, aContext) {
   },
   onStopRequest: function(aRequest, aContext, aStatusCode) {
-    do_check_eq(aStatusCode, 0);
-    do_check_true(this._data.includes("Content-Type"));
+    Assert.equal(aStatusCode, 0);
+    Assert.ok(this._data.includes("Content-Type"));
     async_driver();
   },
 

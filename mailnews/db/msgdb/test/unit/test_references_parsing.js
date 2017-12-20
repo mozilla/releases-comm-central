@@ -68,11 +68,11 @@ function test_references_header_parsing(aMsgHdr) {
         dump("'" + aMsgHdr.getStringReference(iResult) +  "'\n");
       }
       
-      do_check_eq(aMsgHdr.numReferences, results.length);
+      Assert.equal(aMsgHdr.numReferences, results.length);
     }
     
     for (iResult = 0; iResult < results.length; iResult++) {
-      do_check_eq(aMsgHdr.getStringReference(iResult), results[iResult]);
+      Assert.equal(aMsgHdr.getStringReference(iResult), results[iResult]);
     }
   }
   

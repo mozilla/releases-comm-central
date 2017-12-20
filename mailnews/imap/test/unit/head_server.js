@@ -91,7 +91,7 @@ function do_check_transaction(fromServer, expected, withParams) {
       realTransaction.push(components[1]);
   }
 
-  do_check_eq(realTransaction.join(", "), expected.join(", "));
+  Assert.equal(realTransaction.join(", "), expected.join(", "));
 }
 
 /**

@@ -52,6 +52,6 @@ function run_test()
   mdnGenerator.process(MDN_DISPOSE_TYPE_DISPLAYED, msgWindow, msgFolder,
                        msgHdr.messageKey, mimeHdr, false);
   mdnGenerator.userDeclined();
-  do_check_neq(msgHdr.flags & Ci.nsMsgMessageFlags.MDNReportSent, 0);
-  do_check_eq(msgHdr.flags & Ci.nsMsgMessageFlags.MDNReportNeeded, 0);
+  Assert.notEqual(msgHdr.flags & Ci.nsMsgMessageFlags.MDNReportSent, 0);
+  Assert.equal(msgHdr.flags & Ci.nsMsgMessageFlags.MDNReportNeeded, 0);
 }

@@ -78,14 +78,14 @@ var tests = [
     let folder2 = IMAPPump.inbox.getChildNamed("empty 2");
     listMessages(folder2);
     listMessages(localAccountUtils.inboxFolder);
-    do_check_neq(folder1, null);
-    do_check_neq(folder2, null);
+    Assert.notEqual(folder1, null);
+    Assert.notEqual(folder2, null);
     // folder 1 and 2 should each now have 2 messages in them.
-    do_check_eq(folderCount(folder1), 2);
-    do_check_eq(folderCount(folder2), 2);
+    Assert.equal(folderCount(folder1), 2);
+    Assert.equal(folderCount(folder2), 2);
     // the local inbox folder should now be empty, since the second
     // operation was a move
-    do_check_eq(folderCount(localAccountUtils.inboxFolder), 0);
+    Assert.equal(folderCount(localAccountUtils.inboxFolder), 0);
   },
   teardown
 ];
@@ -131,13 +131,13 @@ var CopyListener =
   OnStopCopy: function OnStopCopy(aStatus)
   {
     // Check: message successfully copied.
-    do_check_eq(aStatus, 0);
+    Assert.equal(aStatus, 0);
     async_driver();
   }
 };
 
 asyncUrlListener.callback = function(aUrl, aExitCode) {
-  do_check_eq(aExitCode, 0);
+  Assert.equal(aExitCode, 0);
 };
 
 function listMessages(folder) {

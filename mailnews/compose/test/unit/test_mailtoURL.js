@@ -17,22 +17,22 @@ function run_test() {
         reference = {}, newsgroup = {}, composeformat = {};
     uri.getMessageContents(to, cc, bcc, subject, body, html, reference,
                            newsgroup, composeformat);
-    do_check_eq(aTest.to, to.value);
-    do_check_eq(aTest.cc, cc.value);
-    do_check_eq(aTest.bcc, bcc.value);
-    do_check_eq(aTest.subject, subject.value);
-    do_check_eq(aTest.body, body.value);
-    do_check_eq(aTest.html, html.value);
-    do_check_eq(aTest.reference, reference.value);
-    do_check_eq(aTest.newsgroup, newsgroup.value);
-    do_check_eq(aTest.composeformat, composeformat.value);
-    do_check_eq(aTest.from, uri.fromPart);
-    do_check_eq(aTest.followupto, uri.followUpToPart);
-    do_check_eq(aTest.organization, uri.organizationPart);
-    do_check_eq(aTest.replyto, uri.replyToPart);
-    do_check_eq(aTest.priority, uri.priorityPart);
-    do_check_eq(aTest.newshost, uri.newsHostPart);
-    do_check_true(uri.equals(uri));
+    Assert.equal(aTest.to, to.value);
+    Assert.equal(aTest.cc, cc.value);
+    Assert.equal(aTest.bcc, bcc.value);
+    Assert.equal(aTest.subject, subject.value);
+    Assert.equal(aTest.body, body.value);
+    Assert.equal(aTest.html, html.value);
+    Assert.equal(aTest.reference, reference.value);
+    Assert.equal(aTest.newsgroup, newsgroup.value);
+    Assert.equal(aTest.composeformat, composeformat.value);
+    Assert.equal(aTest.from, uri.fromPart);
+    Assert.equal(aTest.followupto, uri.followUpToPart);
+    Assert.equal(aTest.organization, uri.organizationPart);
+    Assert.equal(aTest.replyto, uri.replyToPart);
+    Assert.equal(aTest.priority, uri.priorityPart);
+    Assert.equal(aTest.newshost, uri.newsHostPart);
+    Assert.ok(uri.equals(uri));
   }
 
   for (var i = 0; i < tests.length; i++)
@@ -45,7 +45,7 @@ function run_test() {
       reference = {}, newsgroup = {}, composeformat = {};
   clonedUrl.getMessageContents(to, cc, bcc, subject, body, html, reference,
                                newsgroup, composeformat);
-  do_check_eq(to.value, tests[0].to);
+  Assert.equal(to.value, tests[0].to);
 };
 
 var tests = [

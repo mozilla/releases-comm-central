@@ -65,14 +65,14 @@ function testFetchXGmMsgid()
 {
   let msgHdr = mailTestUtils.firstMsgHdr(IMAPPump.inbox);
   let val = msgHdr.getStringProperty("X-GM-MSGID");
-  do_check_eq(val, gXGmMsgid);
+  Assert.equal(val, gXGmMsgid);
 }
 
 function testFetchXGmThrid()
 {
   let msgHdr = mailTestUtils.firstMsgHdr(IMAPPump.inbox);
   let val = msgHdr.getStringProperty("X-GM-THRID");
-  do_check_eq(val, gXGmThrid);
+  Assert.equal(val, gXGmThrid);
 }
 
 function testFetchXGmLabels()
@@ -80,7 +80,7 @@ function testFetchXGmLabels()
   let msgHdr = mailTestUtils.firstMsgHdr(IMAPPump.inbox);
   let val = msgHdr.getStringProperty("X-GM-LABELS");
    // We need to remove the starting "(" and ending ")" from gXGmLabels while comparing
-  do_check_eq(val, gXGmLabels.substring(1 ,gXGmLabels.length - 1));
+  Assert.equal(val, gXGmLabels.substring(1 ,gXGmLabels.length - 1));
 }
 
 // Cleanup at end

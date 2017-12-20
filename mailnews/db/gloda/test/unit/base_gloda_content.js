@@ -157,7 +157,7 @@ function verify_message_content(aInfo, aSynMsg, aGlodaMsg, aMsgHdr, aMimeMsg) {
   if (whittleCount != 1)
     do_throw("Whittle count is " + whittleCount + " but should be 1!");
 
-  do_check_eq(content.getContentString(), aInfo.expected);
+  Assert.equal(content.getContentString(), aInfo.expected);
 }
 
 /* ===== Driver ===== */

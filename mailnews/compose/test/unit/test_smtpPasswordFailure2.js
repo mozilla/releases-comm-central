@@ -32,7 +32,7 @@ function alert(aDialogText, aText)
 {
   // The first few attempts may prompt about the password problem, the last
   // attempt shouldn't.
-  do_check_true(attempt < 4);
+  Assert.ok(attempt < 4);
 
   // Log the fact we've got an alert, but we don't need to test anything here.
   dump("Alert Title: " + aDialogText + "\nAlert Text: " + aText + "\n");
@@ -114,7 +114,7 @@ add_task(function *() {
 
     dump("End Send\n");
 
-    do_check_eq(attempt, 2);
+    Assert.equal(attempt, 2);
 
     var transaction = server.playTransaction();
     do_check_transaction(transaction, ["EHLO test",
@@ -137,9 +137,9 @@ add_task(function *() {
                            .findLogins(count, "smtp://localhost", null,
                                        "smtp://localhost");
 
-    do_check_eq(count.value, 1);
-    do_check_eq(logins[0].username, kUsername);
-    do_check_eq(logins[0].password, kValidPassword);
+    Assert.equal(count.value, 1);
+    Assert.equal(logins[0].username, kUsername);
+    Assert.equal(logins[0].password, kValidPassword);
     do_test_finished();
 
   } catch (e) {

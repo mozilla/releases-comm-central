@@ -7,29 +7,29 @@ function test_setter_getter() {
   let m = new NormalizedMap(aStr => aStr.toLowerCase());
   m.set("foo", "bar");
   m.set("BaZ", "blah");
-  do_check_eq(m.has("FOO"), true);
-  do_check_eq(m.has("BaZ"), true);
-  do_check_eq(m.get("FOO"), "bar");
+  Assert.equal(m.has("FOO"), true);
+  Assert.equal(m.has("BaZ"), true);
+  Assert.equal(m.get("FOO"), "bar");
 
   let keys = Array.from(m.keys());
-  do_check_eq(keys[0], "foo");
-  do_check_eq(keys[1], "baz");
+  Assert.equal(keys[0], "foo");
+  Assert.equal(keys[1], "baz");
 
   let values = Array.from(m.values());
-  do_check_eq(values[0], "bar");
-  do_check_eq(values[1], "blah");
+  Assert.equal(values[0], "bar");
+  Assert.equal(values[1], "blah");
 
-  do_check_eq(m.size, 2);
+  Assert.equal(m.size, 2);
 
   run_next_test();
 }
 
 function test_constructor() {
   let k = new NormalizedMap(aStr => aStr.toLowerCase(), [["A", 2], ["b", 3]]);
-  do_check_eq(k.get("b"), 3);
-  do_check_eq(k.get("a"), 2);
-  do_check_eq(k.get("B"), 3);
-  do_check_eq(k.get("A"), 2);
+  Assert.equal(k.get("b"), 3);
+  Assert.equal(k.get("a"), 2);
+  Assert.equal(k.get("B"), 3);
+  Assert.equal(k.get("A"), 2);
 
   run_next_test();
 }
@@ -39,8 +39,8 @@ function test_iterator() {
   k.set("FoO", "bar");
 
   for (let [key, value] of k) {
-    do_check_eq(key, "foo");
-    do_check_eq(value, "bar");
+    Assert.equal(key, "foo");
+    Assert.equal(value, "bar");
   }
 
   run_next_test();
@@ -51,13 +51,13 @@ function test_delete() {
   m.set("foo", "bar");
   m.set("BaZ", "blah");
 
-  do_check_eq(m.delete("blah"), false);
+  Assert.equal(m.delete("blah"), false);
 
-  do_check_eq(m.delete("FOO"), true);
-  do_check_eq(m.size, 1);
+  Assert.equal(m.delete("FOO"), true);
+  Assert.equal(m.size, 1);
 
-  do_check_eq(m.delete("baz"), true);
-  do_check_eq(m.size, 0);
+  Assert.equal(m.delete("baz"), true);
+  Assert.equal(m.size, 0);
 
   run_next_test();
 }

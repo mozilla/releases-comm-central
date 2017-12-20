@@ -23,9 +23,9 @@ function compare_objects(real, expected) {
   var a = uneval(real), b = uneval(expected);
   // Very long strings don't get printed out fully (unless they're wrong)
   if ((a.length > 100 || b.length > 100) && (a == b))
-    do_check_true(a == b);
+    Assert.ok(a == b);
   else
-    do_check_eq(a, b);
+    Assert.equal(a, b);
 }
 
 /// Returns and deletes object[field] if present, or undefined if not.
@@ -147,31 +147,31 @@ function test_parser(message, opts, results) {
   var emitter = {
     stack: [],
     startMessage: function emitter_startMsg() {
-      do_check_eq(this.stack.length, 0);
+      Assert.equal(this.stack.length, 0);
       calls++;
       this.partData = '';
     },
     endMessage: function emitter_endMsg() {
-      do_check_eq(this.stack.length, 0);
+      Assert.equal(this.stack.length, 0);
       calls++;
     },
     startPart: function emitter_startPart(partNum, headers) {
       this.stack.push(partNum);
       if (checkingHeaders) {
-        do_check_true(partNum in results);
+        Assert.ok(partNum in results);
         compare_objects(headers, results[partNum]);
         if (fusingParts)
-          do_check_eq(this.partData, '');
+          Assert.equal(this.partData, '');
       }
     },
     deliverPartData: function emitter_partData(partNum, data) {
-      do_check_eq(this.stack[this.stack.length - 1], partNum);
+      Assert.equal(this.stack[this.stack.length - 1], partNum);
       try {
         if (!checkingHeaders) {
           if (fusingParts)
             this.partData += data;
           else {
-            do_check_eq(partNum, results[dataCalls][0]);
+            Assert.equal(partNum, results[dataCalls][0]);
             compare_objects(data, results[dataCalls][1]);
           }
         }
@@ -182,19 +182,19 @@ function test_parser(message, opts, results) {
     },
     endPart: function emitter_endPart(partNum) {
       if (this.partData != '') {
-        do_check_eq(partNum, results[dataCalls][0]);
+        Assert.equal(partNum, results[dataCalls][0]);
         compare_objects(this.partData, results[dataCalls][1]);
         dataCalls++;
         this.partData = '';
       }
-      do_check_eq(this.stack.pop(), partNum);
+      Assert.equal(this.stack.pop(), partNum);
     }
   };
   opts.onerror = function (e) { throw e; };
   MimeParser.parseSync(message, emitter, opts);
-  do_check_eq(calls, 2);
+  Assert.equal(calls, 2);
   if (!checkingHeaders)
-    do_check_eq(dataCalls, results.length);
+    Assert.equal(dataCalls, results.length);
 }
 
 var ATTACH = MimeParser.HEADER_PARAMETER;
@@ -221,7 +221,7 @@ var header_tests = [
 
 function test_header(headerValue, flags, expected) {
   let result = MimeParser.parseHeaderField(headerValue, flags);
-  do_check_eq(result.preSemi, expected[0]);
+  Assert.equal(result.preSemi, expected[0]);
   compare_objects(result, expected[1]);
 }
 

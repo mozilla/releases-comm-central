@@ -28,8 +28,8 @@ add_task(function* updateInbox() {
 });
 
 add_task(function checkIDHandling() {
-  do_check_eq(IMAPPump.daemon.clientID, "(\"name\" \"xpcshell\" \"version\" \"1\")");
-  do_check_eq(IMAPPump.incomingServer.serverIDPref, kIDResponse);
+  Assert.equal(IMAPPump.daemon.clientID, "(\"name\" \"xpcshell\" \"version\" \"1\")");
+  Assert.equal(IMAPPump.incomingServer.serverIDPref, kIDResponse);
 });
 
 add_task(teardownIMAPPump);

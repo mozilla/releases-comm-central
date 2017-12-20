@@ -64,7 +64,7 @@ var fetchCustomValueListener = {
 
   OnStopRunningUrl: function (aUrl, aExitCode) {
     aUrl.QueryInterface(Ci.nsIImapUrl);
-    do_check_eq(aUrl.customAttributeResult, gCustomValue);
+    Assert.equal(aUrl.customAttributeResult, gCustomValue);
     async_driver();
   }
 };
@@ -85,7 +85,7 @@ var fetchCustomListListener = {
 
   OnStopRunningUrl: function (aUrl, aExitCode) {
     aUrl.QueryInterface(Ci.nsIImapUrl);
-    do_check_eq(aUrl.customAttributeResult, "(" + gCustomList.join(" ") + ")");
+    Assert.equal(aUrl.customAttributeResult, "(" + gCustomList.join(" ") + ")");
     async_driver();
   }
 };

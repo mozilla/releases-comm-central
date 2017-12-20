@@ -107,9 +107,9 @@ function verify_account_details(aDetails) {
   // All our servers are at localhost
   let expectedHostDetails = "(" + expectedDetails.type + ") localhost:" +
     expectedDetails.port;
-  do_check_eq(aDetails.hostDetails, expectedHostDetails);
-  do_check_eq(aDetails.socketType, expectedDetails.socketType);
-  do_check_eq(aDetails.authMethod, expectedDetails.authMethod);
+  Assert.equal(aDetails.hostDetails, expectedHostDetails);
+  Assert.equal(aDetails.socketType, expectedDetails.socketType);
+  Assert.equal(aDetails.authMethod, expectedDetails.authMethod);
 
   let smtpToSee = expectedDetails.smtpServers.map(smtpDetails =>
                     "localhost:" + smtpDetails.port);
@@ -117,17 +117,17 @@ function verify_account_details(aDetails) {
   for (let smtpDetails of aDetails.smtpServers) {
     // Check that we're expecting to see this server
     let toSeeIndex = smtpToSee.indexOf(smtpDetails.name);
-    do_check_neq(toSeeIndex, -1);
+    Assert.notEqual(toSeeIndex, -1);
     smtpToSee.splice(toSeeIndex, 1);
 
     let expectedSMTPDetails = gSMTPMap[smtpDetails.name];
-    do_check_eq(smtpDetails.socketType, expectedSMTPDetails.socketType);
-    do_check_eq(smtpDetails.authMethod, expectedSMTPDetails.authMethod);
-    do_check_eq(smtpDetails.isDefault, expectedSMTPDetails.isDefault);
+    Assert.equal(smtpDetails.socketType, expectedSMTPDetails.socketType);
+    Assert.equal(smtpDetails.authMethod, expectedSMTPDetails.authMethod);
+    Assert.equal(smtpDetails.isDefault, expectedSMTPDetails.isDefault);
   }
 
   // Check that we saw all the SMTP servers we wanted to see
-  do_check_eq(smtpToSee.length, 0);
+  Assert.equal(smtpToSee.length, 0);
 }
 
 /**
@@ -140,10 +140,10 @@ function test_get_file_system_type() {
   let fsType = AboutSupportPlatform.getFileSystemType(do_get_cwd());
   if ("nsILocalFileMac" in Ci) {
     // Mac should return null
-    do_check_eq(fsType, null);
+    Assert.equal(fsType, null);
   } else {
     // Windows and Linux should return a string
-    do_check_true(["local", "network", "unknown"].includes(fsType));
+    Assert.ok(["local", "network", "unknown"].includes(fsType));
   }
 }
 
@@ -158,7 +158,7 @@ function test_get_account_details() {
 
   // Our first check is to see that no sensitive data has crept in
   for (let data of gSensitiveData)
-    do_check_false(accountDetailsText.includes(data));
+    Assert.ok(!accountDetailsText.includes(data));
 
   for (let details of accountDetails) {
     // We're going to make one exception: for the local folders server. We don't
@@ -168,13 +168,13 @@ function test_get_account_details() {
 
     // Check that we're expecting to see this server
     let toSeeIndex = accountsToSee.indexOf(details.key);
-    do_check_neq(toSeeIndex, -1);
+    Assert.notEqual(toSeeIndex, -1);
     accountsToSee.splice(toSeeIndex, 1);
 
     verify_account_details(details);
   }
   // Check that we got all the accounts we wanted to see
-  do_check_eq(accountsToSee.length, 0);
+  Assert.equal(accountsToSee.length, 0);
 }
 
 var tests = [

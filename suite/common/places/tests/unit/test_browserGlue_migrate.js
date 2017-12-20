@@ -23,7 +23,7 @@ var bookmarksObserver = {
   onBeginUpdateBatch: function() {},
   onEndUpdateBatch: function() {
     let itemId = bs.getIdForItemAt(bs.toolbarFolder, 0);
-    do_check_neq(itemId, -1);
+    Assert.notEqual(itemId, -1);
     if (anno.itemHasAnnotation(itemId, "Places/SmartBookmark"))
       continue_test();
   },
@@ -49,7 +49,7 @@ function run_test() {
   db.append("places.sqlite");
   if (db.exists()) {
     db.remove(false);
-    do_check_false(db.exists());
+    Assert.ok(!db.exists());
   }
 
   // Initialize Places through the History Service.
@@ -57,7 +57,7 @@ function run_test() {
            getService(Ci.nsINavHistoryService);
   // Check a new database has been created.
   // nsSuiteGlue uses databaseStatus to manage initialization.
-  do_check_eq(hs.databaseStatus, hs.DATABASE_STATUS_CREATE);
+  Assert.equal(hs.databaseStatus, hs.DATABASE_STATUS_CREATE);
 
   // A migrator would run before nsSuiteGlue Places initialization, so mimic
   // that behavior adding a bookmark and notifying the migration.
@@ -77,11 +77,11 @@ function run_test() {
 function continue_test() {
   // Check the created bookmarks still exist.
   let itemId = bs.getIdForItemAt(bs.bookmarksMenuFolder, SMART_BOOKMARKS_ON_MENU);
-  do_check_eq(bs.getItemTitle(itemId), "migrated");
+  Assert.equal(bs.getItemTitle(itemId), "migrated");
 
   // Check that we have not imported any new bookmark.
-  do_check_eq(bs.getIdForItemAt(bs.bookmarksMenuFolder, SMART_BOOKMARKS_ON_MENU + 1), -1);
-  do_check_eq(bs.getIdForItemAt(bs.toolbarFolder, SMART_BOOKMARKS_ON_MENU), -1);
+  Assert.equal(bs.getIdForItemAt(bs.bookmarksMenuFolder, SMART_BOOKMARKS_ON_MENU + 1), -1);
+  Assert.equal(bs.getIdForItemAt(bs.toolbarFolder, SMART_BOOKMARKS_ON_MENU), -1);
 
   remove_bookmarks_html();
 

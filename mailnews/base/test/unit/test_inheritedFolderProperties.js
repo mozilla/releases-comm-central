@@ -30,79 +30,79 @@ function run_test()
   Services.prefs.setCharPref(globalPref, globalValue);
 
   // test that the global preference is honored
-  do_check_eq(rootFolder.getInheritedStringProperty(propertyName), globalValue);
-  do_check_eq(subFolder11.getInheritedStringProperty(propertyName), globalValue);
-  do_check_eq(subFolder22.getInheritedStringProperty(propertyName), globalValue);
-  do_check_eq(rootFolder.getInheritedStringProperty(invalidName), null);
-  do_check_eq(subFolder11.getInheritedStringProperty(invalidName), null);
-  do_check_eq(subFolder22.getInheritedStringProperty(invalidName), null);
+  Assert.equal(rootFolder.getInheritedStringProperty(propertyName), globalValue);
+  Assert.equal(subFolder11.getInheritedStringProperty(propertyName), globalValue);
+  Assert.equal(subFolder22.getInheritedStringProperty(propertyName), globalValue);
+  Assert.equal(rootFolder.getInheritedStringProperty(invalidName), null);
+  Assert.equal(subFolder11.getInheritedStringProperty(invalidName), null);
+  Assert.equal(subFolder22.getInheritedStringProperty(invalidName), null);
 
   // set a value on a subfolder and check
   subFolder11.setStringProperty(propertyName, folderValue);
-  do_check_eq(rootFolder.getInheritedStringProperty(propertyName), globalValue);
-  do_check_eq(subFolder11.getInheritedStringProperty(propertyName), folderValue);
-  do_check_eq(subFolder12.getInheritedStringProperty(propertyName), globalValue);
-  do_check_eq(subFolder21.getInheritedStringProperty(propertyName), folderValue);
-  do_check_eq(subFolder22.getInheritedStringProperty(propertyName), globalValue);
+  Assert.equal(rootFolder.getInheritedStringProperty(propertyName), globalValue);
+  Assert.equal(subFolder11.getInheritedStringProperty(propertyName), folderValue);
+  Assert.equal(subFolder12.getInheritedStringProperty(propertyName), globalValue);
+  Assert.equal(subFolder21.getInheritedStringProperty(propertyName), folderValue);
+  Assert.equal(subFolder22.getInheritedStringProperty(propertyName), globalValue);
 
   // set a root folder value and check
   localAccountUtils.incomingServer.setCharValue(propertyName, rootValue);
-  do_check_eq(rootFolder.getInheritedStringProperty(propertyName), rootValue);
-  do_check_eq(subFolder11.getInheritedStringProperty(propertyName), folderValue);
-  do_check_eq(subFolder12.getInheritedStringProperty(propertyName), rootValue);
-  do_check_eq(subFolder21.getInheritedStringProperty(propertyName), folderValue);
-  do_check_eq(subFolder22.getInheritedStringProperty(propertyName), rootValue);
+  Assert.equal(rootFolder.getInheritedStringProperty(propertyName), rootValue);
+  Assert.equal(subFolder11.getInheritedStringProperty(propertyName), folderValue);
+  Assert.equal(subFolder12.getInheritedStringProperty(propertyName), rootValue);
+  Assert.equal(subFolder21.getInheritedStringProperty(propertyName), folderValue);
+  Assert.equal(subFolder22.getInheritedStringProperty(propertyName), rootValue);
 
   // force an empty string
   subFolder12.setForcePropertyEmpty(propertyName, true);
-  do_check_eq(rootFolder.getInheritedStringProperty(propertyName), rootValue);
-  do_check_eq(subFolder11.getInheritedStringProperty(propertyName), folderValue);
-  do_check_eq(subFolder12.getInheritedStringProperty(propertyName), "");
-  do_check_eq(subFolder21.getInheritedStringProperty(propertyName), folderValue);
-  do_check_eq(subFolder22.getInheritedStringProperty(propertyName), "");
+  Assert.equal(rootFolder.getInheritedStringProperty(propertyName), rootValue);
+  Assert.equal(subFolder11.getInheritedStringProperty(propertyName), folderValue);
+  Assert.equal(subFolder12.getInheritedStringProperty(propertyName), "");
+  Assert.equal(subFolder21.getInheritedStringProperty(propertyName), folderValue);
+  Assert.equal(subFolder22.getInheritedStringProperty(propertyName), "");
 
   // reset a folder to allow inheritance
   subFolder12.setForcePropertyEmpty(propertyName, false);
   subFolder12.setStringProperty(propertyName, "");
-  do_check_eq(rootFolder.getInheritedStringProperty(propertyName), rootValue);
-  do_check_eq(subFolder11.getInheritedStringProperty(propertyName), folderValue);
-  do_check_eq(subFolder12.getInheritedStringProperty(propertyName), rootValue);
-  do_check_eq(subFolder21.getInheritedStringProperty(propertyName), folderValue);
-  do_check_eq(subFolder22.getInheritedStringProperty(propertyName), rootValue);
+  Assert.equal(rootFolder.getInheritedStringProperty(propertyName), rootValue);
+  Assert.equal(subFolder11.getInheritedStringProperty(propertyName), folderValue);
+  Assert.equal(subFolder12.getInheritedStringProperty(propertyName), rootValue);
+  Assert.equal(subFolder21.getInheritedStringProperty(propertyName), folderValue);
+  Assert.equal(subFolder22.getInheritedStringProperty(propertyName), rootValue);
 
   // force an empty string on the server
   localAccountUtils.incomingServer.setForcePropertyEmpty(propertyName, true);
-  do_check_eq(rootFolder.getInheritedStringProperty(propertyName), "");
-  do_check_eq(subFolder11.getInheritedStringProperty(propertyName), folderValue);
-  do_check_eq(subFolder12.getInheritedStringProperty(propertyName), "");
-  do_check_eq(subFolder21.getInheritedStringProperty(propertyName), folderValue);
-  do_check_eq(subFolder22.getInheritedStringProperty(propertyName), "");
+  Assert.equal(rootFolder.getInheritedStringProperty(propertyName), "");
+  Assert.equal(subFolder11.getInheritedStringProperty(propertyName), folderValue);
+  Assert.equal(subFolder12.getInheritedStringProperty(propertyName), "");
+  Assert.equal(subFolder21.getInheritedStringProperty(propertyName), folderValue);
+  Assert.equal(subFolder22.getInheritedStringProperty(propertyName), "");
 
   // reset a server to allow inheritance from the global
   localAccountUtils.incomingServer.setCharValue(propertyName, "");
   localAccountUtils.incomingServer.setForcePropertyEmpty(propertyName, false);
-  do_check_eq(rootFolder.getInheritedStringProperty(propertyName), globalValue);
-  do_check_eq(subFolder11.getInheritedStringProperty(propertyName), folderValue);
-  do_check_eq(subFolder12.getInheritedStringProperty(propertyName), globalValue);
-  do_check_eq(subFolder21.getInheritedStringProperty(propertyName), folderValue);
-  do_check_eq(subFolder22.getInheritedStringProperty(propertyName), globalValue);
+  Assert.equal(rootFolder.getInheritedStringProperty(propertyName), globalValue);
+  Assert.equal(subFolder11.getInheritedStringProperty(propertyName), folderValue);
+  Assert.equal(subFolder12.getInheritedStringProperty(propertyName), globalValue);
+  Assert.equal(subFolder21.getInheritedStringProperty(propertyName), folderValue);
+  Assert.equal(subFolder22.getInheritedStringProperty(propertyName), globalValue);
 
   // check with all levels populated
   subFolder21.setStringProperty(propertyName, folderValue2);
   localAccountUtils.incomingServer.setCharValue(propertyName, rootValue);
-  do_check_eq(rootFolder.getInheritedStringProperty(propertyName), rootValue);
-  do_check_eq(subFolder11.getInheritedStringProperty(propertyName), folderValue);
-  do_check_eq(subFolder12.getInheritedStringProperty(propertyName), rootValue);
-  do_check_eq(subFolder21.getInheritedStringProperty(propertyName), folderValue2);
-  do_check_eq(subFolder22.getInheritedStringProperty(propertyName), rootValue);
+  Assert.equal(rootFolder.getInheritedStringProperty(propertyName), rootValue);
+  Assert.equal(subFolder11.getInheritedStringProperty(propertyName), folderValue);
+  Assert.equal(subFolder12.getInheritedStringProperty(propertyName), rootValue);
+  Assert.equal(subFolder21.getInheritedStringProperty(propertyName), folderValue2);
+  Assert.equal(subFolder22.getInheritedStringProperty(propertyName), rootValue);
   
   // clear the global value and the root value
   Services.prefs.clearUserPref(globalPref);
   localAccountUtils.incomingServer.setCharValue(propertyName, "");
-  do_check_eq(rootFolder.getInheritedStringProperty(propertyName), null);
-  do_check_eq(subFolder11.getInheritedStringProperty(propertyName), folderValue);
-  do_check_eq(subFolder12.getInheritedStringProperty(propertyName), null);
-  do_check_eq(subFolder21.getInheritedStringProperty(propertyName), folderValue2);
-  do_check_eq(subFolder22.getInheritedStringProperty(propertyName), null);
+  Assert.equal(rootFolder.getInheritedStringProperty(propertyName), null);
+  Assert.equal(subFolder11.getInheritedStringProperty(propertyName), folderValue);
+  Assert.equal(subFolder12.getInheritedStringProperty(propertyName), null);
+  Assert.equal(subFolder21.getInheritedStringProperty(propertyName), folderValue2);
+  Assert.equal(subFolder22.getInheritedStringProperty(propertyName), null);
 
 }

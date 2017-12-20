@@ -45,33 +45,33 @@ function* test_pending_commit_tracker_flushes_correctly() {
   // before the flush, there should be no gloda-id property
   let msgHdr = msgSet.getMsgHdr(0);
   // get it as a string to make sure it's empty rather than possessing a value
-  do_check_eq(msgHdr.getStringProperty("gloda-id"), "");
+  Assert.equal(msgHdr.getStringProperty("gloda-id"), "");
 
   yield wait_for_gloda_db_flush();
 
   // after the flush there should be a gloda-id property and it should
   //  equal the gloda id
   let gmsg = msgSet.glodaMessages[0];
-  do_check_eq(msgHdr.getUint32Property("gloda-id"), gmsg.id);
+  Assert.equal(msgHdr.getUint32Property("gloda-id"), gmsg.id);
 
   // make sure no dirty property was written...
-  do_check_eq(msgHdr.getStringProperty("gloda-dirty"), "");
+  Assert.equal(msgHdr.getStringProperty("gloda-dirty"), "");
 
   // modify the message
   msgSet.setRead(true);
   yield wait_for_gloda_indexer(msgSet);
 
   // now there should be a dirty property and it should be 1...
-  do_check_eq(msgHdr.getUint32Property("gloda-dirty"),
-              GlodaMsgIndexer.kMessageDirty);
+  Assert.equal(msgHdr.getUint32Property("gloda-dirty"),
+               GlodaMsgIndexer.kMessageDirty);
 
   // flush
   yield wait_for_gloda_db_flush();
 
   // now dirty should be 0 and the gloda id should still be the same
-  do_check_eq(msgHdr.getUint32Property("gloda-dirty"),
-              GlodaMsgIndexer.kMessageClean);
-  do_check_eq(msgHdr.getUint32Property("gloda-id"), gmsg.id);
+  Assert.equal(msgHdr.getUint32Property("gloda-dirty"),
+               GlodaMsgIndexer.kMessageClean);
+  Assert.equal(msgHdr.getUint32Property("gloda-id"), gmsg.id);
 }
 
 /**
@@ -96,7 +96,7 @@ function* test_pending_commit_causes_msgdb_commit() {
 
   // now retrieve the header and make sure it has the gloda id set!
   let msgHdr = msgSet.getMsgHdr(0);
-  do_check_eq(msgHdr.getUint32Property("gloda-id"), msgSet.glodaMessages[0].id);
+  Assert.equal(msgHdr.getUint32Property("gloda-id"), msgSet.glodaMessages[0].id);
 }
 
 /**
@@ -190,7 +190,7 @@ function* test_indexing_sweep() {
       callbackInvoked = true;
     }});
   yield wait_for_gloda_indexer([setA1, setA2]);
-  do_check_true(callbackInvoked);
+  Assert.ok(callbackInvoked);
 }
 
 
@@ -213,9 +213,9 @@ function* test_event_driven_indexing_does_not_mess_with_filthy_folders() {
   msgSet.setRead(true);
   // make sure the indexer did not do anything and the folder is still filthy.
   yield wait_for_gloda_indexer([]);
-  do_check_eq(glodaFolder._dirtyStatus, glodaFolder.kFolderFilthy);
+  Assert.equal(glodaFolder._dirtyStatus, glodaFolder.kFolderFilthy);
   // also, the message should not have actually gotten marked dirty
-  do_check_eq(msgSet.getMsgHdr(0).getUint32Property("gloda-dirty"), 0);
+  Assert.equal(msgSet.getMsgHdr(0).getUint32Property("gloda-dirty"), 0);
 
   // let's make the message un-read again for consistency with the gloda state
   msgSet.setRead(false);
@@ -244,7 +244,7 @@ function* test_indexing_never_priority() {
                                             glodaFolder.kIndexingNeverPriority);
 
   // verify that the setter and getter do the right thing
-  do_check_eq(glodaFolder.indexingPriority, glodaFolder.kIndexingNeverPriority);
+  Assert.equal(glodaFolder.indexingPriority, glodaFolder.kIndexingNeverPriority);
 
   // check that existing message is marked as deleted
   yield wait_for_gloda_indexer([], {deleted: [msgSet]});
@@ -301,7 +301,7 @@ var gSynMessages = [];
 function allMessageInSameConversation(aSynthMessage, aGlodaMessage, aConvID) {
   if (aConvID === undefined)
     return aGlodaMessage.conversationID;
-  do_check_eq(aConvID, aGlodaMessage.conversationID);
+  Assert.equal(aConvID, aGlodaMessage.conversationID);
   // Cheat and stash the synthetic message (we need them for one of the IMAP
   // tests)
   gSynMessages.push(aSynthMessage);
@@ -361,9 +361,9 @@ function* test_attachment_flag() {
 function verify_attachment_flag(smsg, gmsg) {
   // -- attachments. We won't have these if we don't have fulltext results
   if (expectFulltextResults) {
-    do_check_eq(gmsg.attachmentNames.length, 0);
-    do_check_eq(gmsg.attachmentInfos.length, 0);
-    do_check_false(gmsg.folderMessage.flags & Ci.nsMsgMessageFlags.Attachment);
+    Assert.equal(gmsg.attachmentNames.length, 0);
+    Assert.equal(gmsg.attachmentInfos.length, 0);
+    Assert.equal(false, gmsg.folderMessage.flags & Ci.nsMsgMessageFlags.Attachment);
   }
 }
 /* ===== Fundamental Attributes (per fundattr.js) ===== */
@@ -432,37 +432,37 @@ function verify_attributes_fundamental(smsg, gmsg) {
     fundamentalGlodaMsgAttachmentUrls = [];
   }
 
-  do_check_eq(gmsg.folderURI,
-              get_real_injection_folder(fundamentalFolderHandle).URI);
+  Assert.equal(gmsg.folderURI,
+               get_real_injection_folder(fundamentalFolderHandle).URI);
 
   // -- subject
-  do_check_eq(smsg.subject, gmsg.conversation.subject);
-  do_check_eq(smsg.subject, gmsg.subject);
+  Assert.equal(smsg.subject, gmsg.conversation.subject);
+  Assert.equal(smsg.subject, gmsg.subject);
 
   // -- contact/identity information
   // - from
   // check the e-mail address
-  do_check_eq(gmsg.from.kind, "email");
-  do_check_eq(smsg.fromAddress, gmsg.from.value);
+  Assert.equal(gmsg.from.kind, "email");
+  Assert.equal(smsg.fromAddress, gmsg.from.value);
   // check the name
-  do_check_eq(smsg.fromName, gmsg.from.contact.name);
+  Assert.equal(smsg.fromName, gmsg.from.contact.name);
 
   // - to
-  do_check_eq(smsg.toAddress, gmsg.to[0].value);
-  do_check_eq(smsg.toName, gmsg.to[0].contact.name);
+  Assert.equal(smsg.toAddress, gmsg.to[0].value);
+  Assert.equal(smsg.toName, gmsg.to[0].contact.name);
 
   // date
-  do_check_eq(smsg.date.valueOf(), gmsg.date.valueOf());
+  Assert.equal(smsg.date.valueOf(), gmsg.date.valueOf());
 
   // -- message ID
-  do_check_eq(smsg.messageId, gmsg.headerMessageID);
+  Assert.equal(smsg.messageId, gmsg.headerMessageID);
 
   // -- attachments. We won't have these if we don't have fulltext results
   if (expectFulltextResults) {
-    do_check_eq(gmsg.attachmentTypes.length, 1);
-    do_check_eq(gmsg.attachmentTypes[0], "text/plain");
-    do_check_eq(gmsg.attachmentNames.length, 1);
-    do_check_eq(gmsg.attachmentNames[0], "bob.txt");
+    Assert.equal(gmsg.attachmentTypes.length, 1);
+    Assert.equal(gmsg.attachmentTypes[0], "text/plain");
+    Assert.equal(gmsg.attachmentNames.length, 1);
+    Assert.equal(gmsg.attachmentNames[0], "bob.txt");
 
     let expectedInfos = [
       // the name for that one is generated randomly
@@ -470,12 +470,12 @@ function verify_attributes_fundamental(smsg, gmsg) {
       { name: "bob.txt", contentType: "text/plain" },
     ];
     let expectedSize = 14;
-    do_check_eq(gmsg.attachmentInfos.length, 2);
+    Assert.equal(gmsg.attachmentInfos.length, 2);
     for (let [i, attInfos] of gmsg.attachmentInfos.entries()) {
       for (let k in expectedInfos[i])
-        do_check_eq(attInfos[k], expectedInfos[i][k]);
+        Assert.equal(attInfos[k], expectedInfos[i][k]);
       // because it's unreliable and depends on the platform
-      do_check_true(Math.abs(attInfos.size - expectedSize) <= 2);
+      Assert.ok(Math.abs(attInfos.size - expectedSize) <= 2);
       // check that the attachment URLs are correct
       let channel = NetUtil.newChannel({
          uri: attInfos.url,
@@ -494,8 +494,8 @@ function verify_attributes_fundamental(smsg, gmsg) {
   }
   else {
     // Make sure we don't actually get attachments!
-    do_check_eq(gmsg.attachmentTypes, null);
-    do_check_eq(gmsg.attachmentNames, null);
+    Assert.equal(gmsg.attachmentTypes, null);
+    Assert.equal(gmsg.attachmentNames, null);
   }
 }
 
@@ -521,11 +521,11 @@ function* test_moved_message_attributes() {
   yield wait_for_gloda_indexer(fundamentalMsgSet, {
     verifier: function (newSynMsg, newGlodaMsg) {
       // verify we still have the same number of attachments
-      do_check_eq(fundamentalGlodaMsgAttachmentUrls.length,
+      Assert.equal(fundamentalGlodaMsgAttachmentUrls.length,
         newGlodaMsg.attachmentInfos.length);
       for (let [i, attInfos] of newGlodaMsg.attachmentInfos.entries()) {
         // verify the url has changed
-        do_check_neq(fundamentalGlodaMsgAttachmentUrls[i], attInfos.url);
+        Assert.notEqual(fundamentalGlodaMsgAttachmentUrls[i], attInfos.url);
         // and verify that the new url is still valid
         let channel = NetUtil.newChannel({
            uri: attInfos.url,
@@ -589,21 +589,21 @@ function* test_attributes_explicit() {
   mark_sub_test_start("Star");
   msgSet.setStarred(true);
   yield wait_for_gloda_indexer(msgSet);
-  do_check_eq(gmsg.starred, true);
+  Assert.equal(gmsg.starred, true);
 
   msgSet.setStarred(false);
   yield wait_for_gloda_indexer(msgSet);
-  do_check_eq(gmsg.starred, false);
+  Assert.equal(gmsg.starred, false);
 
   // -- Read / Unread
   mark_sub_test_start("Read/Unread");
   msgSet.setRead(true);
   yield wait_for_gloda_indexer(msgSet);
-  do_check_eq(gmsg.read, true);
+  Assert.equal(gmsg.read, true);
 
   msgSet.setRead(false);
   yield wait_for_gloda_indexer(msgSet);
-  do_check_eq(gmsg.read, false);
+  Assert.equal(gmsg.read, false);
 
   // -- Tags
   mark_sub_test_start("Tags");
@@ -616,22 +616,22 @@ function* test_attributes_explicit() {
 
   msgSet.addTag(tagOne.key);
   yield wait_for_gloda_indexer(msgSet);
-  do_check_neq(gmsg.tags.indexOf(tagOne), -1);
+  Assert.notEqual(gmsg.tags.indexOf(tagOne), -1);
 
   msgSet.addTag(tagTwo.key);
   yield wait_for_gloda_indexer(msgSet);
-  do_check_neq(gmsg.tags.indexOf(tagOne), -1);
-  do_check_neq(gmsg.tags.indexOf(tagTwo), -1);
+  Assert.notEqual(gmsg.tags.indexOf(tagOne), -1);
+  Assert.notEqual(gmsg.tags.indexOf(tagTwo), -1);
 
   msgSet.removeTag(tagOne.key);
   yield wait_for_gloda_indexer(msgSet);
-  do_check_eq(gmsg.tags.indexOf(tagOne), -1);
-  do_check_neq(gmsg.tags.indexOf(tagTwo), -1);
+  Assert.equal(gmsg.tags.indexOf(tagOne), -1);
+  Assert.notEqual(gmsg.tags.indexOf(tagTwo), -1);
 
   msgSet.removeTag(tagTwo.key);
   yield wait_for_gloda_indexer(msgSet);
-  do_check_eq(gmsg.tags.indexOf(tagOne), -1);
-  do_check_eq(gmsg.tags.indexOf(tagTwo), -1);
+  Assert.equal(gmsg.tags.indexOf(tagOne), -1);
+  Assert.equal(gmsg.tags.indexOf(tagTwo), -1);
 
   // -- Replied To
 
@@ -652,21 +652,21 @@ function* test_attributes_cant_query() {
   mark_sub_test_start("Star");
   msgSet.setStarred(true);
   yield wait_for_gloda_indexer(msgSet);
-  do_check_eq(gmsg.starred, true);
+  Assert.equal(gmsg.starred, true);
 
   msgSet.setStarred(false);
   yield wait_for_gloda_indexer(msgSet);
-  do_check_eq(gmsg.starred, false);
+  Assert.equal(gmsg.starred, false);
 
   // -- Read / Unread
   mark_sub_test_start("Read/Unread");
   msgSet.setRead(true);
   yield wait_for_gloda_indexer(msgSet);
-  do_check_eq(gmsg.read, true);
+  Assert.equal(gmsg.read, true);
 
   msgSet.setRead(false);
   yield wait_for_gloda_indexer(msgSet);
-  do_check_eq(gmsg.read, false);
+  Assert.equal(gmsg.read, false);
 
   let readDbAttr = Gloda.getAttrDef(Gloda.BUILT_IN, "read");
   let readId = readDbAttr.id;
@@ -699,11 +699,11 @@ function* test_people_in_addressbook() {
       senderIdentity = gmsg.from,
       recipIdentity = gmsg.to[0];
 
-  do_check_neq(senderIdentity.contact, null);
-  do_check_true(senderIdentity.inAddressBook);
+  Assert.notEqual(senderIdentity.contact, null);
+  Assert.ok(senderIdentity.inAddressBook);
 
-  do_check_neq(recipIdentity.contact, null);
-  do_check_true(recipIdentity.inAddressBook);
+  Assert.notEqual(recipIdentity.contact, null);
+  Assert.ok(recipIdentity.inAddressBook);
 }
 
 /* ===== fulltexts Indexing ===== */
@@ -739,8 +739,8 @@ function* test_streamed_bodies_are_size_capped() {
 
   yield wait_for_gloda_indexer(msgSet, {augment: true});
   let gmsg = msgSet.glodaMessages[0];
-  do_check_true(gmsg.indexedBodyText.startsWith("aabb"));
-  do_check_false(gmsg.indexedBodyText.includes("xxyy"));
+  Assert.ok(gmsg.indexedBodyText.startsWith("aabb"));
+  Assert.ok(!gmsg.indexedBodyText.includes("xxyy"));
 
   if (gmsg.indexedBodyText.length > (20 * 1024 + 58 + 10))
     do_throw("indexed body text is too big! (" + gmsg.indexedBodyText.length +
@@ -788,7 +788,7 @@ function* test_message_deletion() {
   // which should result in an apparent deletion
   yield wait_for_gloda_indexer([], {deleted: firstSet});
   // and our collection from that query should now be empty
-  do_check_eq(firstColl.items.length, 0);
+  Assert.equal(firstColl.items.length, 0);
 
   // make sure it no longer shows up in a standard query
   firstColl = queryExpect(firstQuery, []);
@@ -839,7 +839,7 @@ function* test_message_deletion() {
   // which should result in an apparent deletion
   yield wait_for_gloda_indexer([], {deleted: twinSet});
   // it should disappear from the collection
-  do_check_eq(twinColl.items.length, 0);
+  Assert.equal(twinColl.items.length, 0);
 
   // no longer show up in the standard query
   twinColl = queryExpect(twinQuery, []);
@@ -867,8 +867,8 @@ function* test_message_deletion() {
   yield false; // queryExpect is async
   // make sure it looks like a ghost.
   let twinGhost = privColl.items[0];
-  do_check_eq(twinGhost._folderID, null);
-  do_check_eq(twinGhost._messageKey, null);
+  Assert.equal(twinGhost._folderID, null);
+  Assert.equal(twinGhost._messageKey, null);
 
   // make sure the conversation still exists...
   queryExpect(convQuery, [conv]);
@@ -888,7 +888,7 @@ function* test_message_deletion() {
   // delete it and make sure it gets marked deleted appropriately
   yield async_delete_messages(secondSet);
   yield wait_for_gloda_indexer([], {deleted: secondSet});
-  do_check_eq(secondColl.items.length, 0);
+  Assert.equal(secondColl.items.length, 0);
 
   // still show up in a privileged query
   privQuery = Gloda.newQuery(Gloda.NOUN_MESSAGE, {
@@ -909,7 +909,7 @@ function* test_message_deletion() {
   // - the conversation should have disappeared too
   // (we have no listener to watch for it to have disappeared from convQuery but
   //  this is basically how glodaTestHelper does its thing anyways.)
-  do_check_eq(convColl.items.length, 0);
+  Assert.equal(convColl.items.length, 0);
 
   // make sure the query fails to find it too
   queryExpect(convQuery, []);
@@ -1053,14 +1053,14 @@ function* test_folder_deletion_nested() {
 
   let descendentFolders = get_nsIMsgFolder(trash).descendants;
   let folders = Array.from(fixIterator(descendentFolders, Ci.nsIMsgFolder));
-  do_check_eq(folders.length, 2);
+  Assert.equal(folders.length, 2);
   let [newFolder1, newFolder2] = folders;
 
   let glodaFolder1 = Gloda.getFolderForFolder(newFolder1);
   let glodaFolder2 = Gloda.getFolderForFolder(newFolder2);
 
   // verify that Gloda properly marked this folder as not to be indexed anymore 
-  do_check_eq(glodaFolder1.indexingPriority, glodaFolder1.kIndexingNeverPriority);
+  Assert.equal(glodaFolder1.indexingPriority, glodaFolder1.kIndexingNeverPriority);
 
   // check that existing message is marked as deleted
   yield wait_for_gloda_indexer([], {deleted: [msgSet1, msgSet2]});
@@ -1133,13 +1133,13 @@ function* test_message_moving() {
   //  Gloda.grokNounItem.
   yield wait_for_gloda_indexer(msgSet, {fullyIndexed: 0});
 
-  do_check_eq(gmsg.folderURI,
-              get_real_injection_folder(destFolder).URI);
+  Assert.equal(gmsg.folderURI,
+               get_real_injection_folder(destFolder).URI);
 
   // - make sure the message key is correct!
-  do_check_eq(gmsg.messageKey, msgSet.getMsgHdr(0).messageKey);
+  Assert.equal(gmsg.messageKey, msgSet.getMsgHdr(0).messageKey);
   // (sanity check that the messageKey actually changed for the message...)
-  do_check_neq(gmsg.messageKey, oldMessageKey);
+  Assert.notEqual(gmsg.messageKey, oldMessageKey);
 
   // - make sure the indexer's _keyChangedBatchInfo dict is empty
   for (let evilKey in GlodaMsgIndexer._keyChangedBatchInfo) {
@@ -1156,9 +1156,9 @@ function* test_message_moving() {
   yield wait_for_gloda_indexer(msgSet,
                                {fullyIndexed: message_injection_is_local() ?
                                                 0 : 1});
-  do_check_eq(gmsg.folderURI,
-              get_real_injection_folder(srcFolder).URI);
-  do_check_eq(gmsg.messageKey, msgSet.getMsgHdr(0).messageKey);
+  Assert.equal(gmsg.folderURI,
+               get_real_injection_folder(srcFolder).URI);
+  Assert.equal(gmsg.messageKey, msgSet.getMsgHdr(0).messageKey);
 }
 
 /**
@@ -1216,7 +1216,7 @@ function* test_filthy_moves_slash_move_from_unindexed_to_indexed() {
 
   // - verify the target has no gloda-id!
   mark_action("actual", "checking", [msgSet.getMsgHdr(0)]);
-  do_check_eq(msgSet.getMsgHdr(0).getUint32Property("gloda-id"), 0);
+  Assert.equal(msgSet.getMsgHdr(0).getUint32Property("gloda-id"), 0);
 
   // - re-enable indexing and let the indexer run
   // (we don't want to affect other tests)

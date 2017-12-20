@@ -17,7 +17,7 @@ var urlListener =
   },
   OnStopRunningUrl: function (url, result) {
     try {
-      do_check_eq(result, 0);
+      Assert.equal(result, 0);
 
       var transaction = server.playTransaction();
       do_check_transaction(transaction, expectedTransaction);

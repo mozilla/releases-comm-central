@@ -90,9 +90,9 @@ var tests = [
     let msgHdr1 = gSecondFolder.msgDatabase.getMsgHdrForMessageID(gSynthMessage1.messageId);
     let msgHdr2 = gThirdFolder.msgDatabase.getMsgHdrForMessageID(gSynthMessage2.messageId);
     let msgHdr3 = IMAPPump.inbox.msgDatabase.getMsgHdrForMessageID(gMsgId1);
-    do_check_neq(msgHdr1, null);
-    do_check_neq(msgHdr2, null);
-    do_check_neq(msgHdr3, null);
+    Assert.notEqual(msgHdr1, null);
+    Assert.notEqual(msgHdr2, null);
+    Assert.notEqual(msgHdr3, null);
   },
   teardownIMAPPump
 ];

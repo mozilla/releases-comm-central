@@ -9,8 +9,8 @@
 Components.utils.import("resource:///modules/mailServices.js");
 
 function check_service(aService, aInterface) {
-  do_check_true(aService in MailServices);
-  do_check_true(MailServices[aService] instanceof aInterface);
+  Assert.ok(aService in MailServices);
+  Assert.ok(MailServices[aService] instanceof aInterface);
 }
 
 function check_services() {

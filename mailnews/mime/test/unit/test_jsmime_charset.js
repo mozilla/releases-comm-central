@@ -21,7 +21,7 @@ function run_test() {
     let value = test[0];
     if (test.length > 2)
       value = jsmime.headerparser.convert8BitHeader(value, test[2])
-    do_check_eq(jsmime.headerparser.parseStructuredHeader("Subject", value),
+    Assert.equal(jsmime.headerparser.parseStructuredHeader("Subject", value),
       test[1]);
   }
 }

@@ -91,8 +91,8 @@ var doTestingListener =
     // Shrinking divides all counts by two. In comments, I show the
     // calculation for each test, (pre-shrink count)/2.
 
-    do_check_eq(trainingData.mGoodMessages, 1); //  2/2
-    do_check_eq(trainingData.mJunkMessages, 2); //  4/2
+    Assert.equal(trainingData.mGoodMessages, 1); //  2/2
+    Assert.equal(trainingData.mJunkMessages, 2); //  4/2
     checkToken("money", 0, 2);  // (0/2, 4/2)
     checkToken("subject:report", 0, 0);  // (1/2, 0/2)
     checkToken("to:careful reader <reader@example.org>", 1, 2); // (2/2, 4/2)
@@ -112,6 +112,6 @@ function checkToken(aToken, aGoodCount, aJunkCount)
   var junkCount = trainingData.mJunkCounts[aToken];
   if (!goodCount) goodCount = 0;
   if (!junkCount) junkCount = 0;
-  do_check_eq(goodCount, aGoodCount);
-  do_check_eq(junkCount, aJunkCount);
+  Assert.equal(goodCount, aGoodCount);
+  Assert.equal(junkCount, aJunkCount);
 }

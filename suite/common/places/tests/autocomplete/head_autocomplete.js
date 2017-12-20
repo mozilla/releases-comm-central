@@ -80,11 +80,11 @@ function ensure_results(aSearch, aExpected)
   let numSearchesStarted = 0;
   input.onSearchBegin = function() {
     numSearchesStarted++;
-    do_check_eq(numSearchesStarted, 1);
+    Assert.equal(numSearchesStarted, 1);
   };
 
   input.onSearchComplete = function() {
-    do_check_eq(numSearchesStarted, 1);
+    Assert.equal(numSearchesStarted, 1);
     aExpected = aExpected.slice();
 
     // Check to see the expected uris and titles match up (in any order)
@@ -125,12 +125,12 @@ function ensure_results(aSearch, aExpected)
     // Make sure we have the right number of results
     print("Expecting " + aExpected.length + " results; got " +
           controller.matchCount + " results");
-    do_check_eq(controller.matchCount, aExpected.length);
+    Assert.equal(controller.matchCount, aExpected.length);
 
     // If we expect results, make sure we got matches
-    do_check_eq(controller.searchStatus, aExpected.length ?
-                Ci.nsIAutoCompleteController.STATUS_COMPLETE_MATCH :
-                Ci.nsIAutoCompleteController.STATUS_COMPLETE_NO_MATCH);
+    Assert.equal(controller.searchStatus, aExpected.length ?
+                 Ci.nsIAutoCompleteController.STATUS_COMPLETE_MATCH :
+                 Ci.nsIAutoCompleteController.STATUS_COMPLETE_NO_MATCH);
 
     // Fetch the next test if we have more
     if (++current_test < gTests.length)

@@ -141,10 +141,10 @@ function testVirtualFolder()
   /*** basic functionality tests ***/
   
   // total messages matching search
-  do_check_eq(4, virtualFolder.getTotalMessages(false));
+  Assert.equal(4, virtualFolder.getTotalMessages(false));
   
   // total unread messages in search
-  do_check_eq(3, virtualFolder.getNumUnread(false));
+  Assert.equal(3, virtualFolder.getNumUnread(false));
 
   // change unread of one item in search to decrease count
   var message0 = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
@@ -152,7 +152,7 @@ function testVirtualFolder()
   localAccountUtils.inboxFolder.markMessagesRead(message0, true);
   virtualFolder.updateSummaryTotals(true);
 
-  do_check_eq(2, virtualFolder.getNumUnread(false));
+  Assert.equal(2, virtualFolder.getNumUnread(false));
   
   /*** failures fixed in this bug ***/
    
@@ -162,8 +162,8 @@ function testVirtualFolder()
 
   localAccountUtils.inboxFolder.removeKeywordsFromMessages(message1, tag1);
   virtualFolder.updateSummaryTotals(true);
-  do_check_eq(3, virtualFolder.getTotalMessages(false));
-  do_check_eq(1, virtualFolder.getNumUnread(false));
+  Assert.equal(3, virtualFolder.getTotalMessages(false));
+  Assert.equal(1, virtualFolder.getNumUnread(false));
 
   // End of test, so release our header references
   hdrs = null;

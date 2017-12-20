@@ -103,25 +103,25 @@ function test_corrupt_databases_get_reported_and_blown_away() {
 
   mark_action("actual", "Counting appender counts", [countingAppender.counts]);
   // we expect 2 warnings
-  do_check_eq(countingAppender.getCountForLevel(Log4Moz.Level.Warn), 2);
+  Assert.equal(countingAppender.getCountForLevel(Log4Moz.Level.Warn), 2);
   // and no errors
-  do_check_eq(countingAppender.getCountForLevel(Log4Moz.Level.Error), 0);
+  Assert.equal(countingAppender.getCountForLevel(Log4Moz.Level.Error), 0);
 
   // - make sure the datastore has an actual database
   Components.utils.import("resource:///modules/gloda/datastore.js");
 
   // Make sure that the datastoreID was overwritten
-  do_check_neq(Gloda.datastoreID, kOriginalDatastoreID);
+  Assert.notEqual(Gloda.datastoreID, kOriginalDatastoreID);
   // And for good measure, make sure that the pref was also overwritten
   let currentDatastoreID = Services.prefs.getCharPref(kDatastoreIDPref);
-  do_check_neq(currentDatastoreID, kOriginalDatastoreID);
+  Assert.notEqual(currentDatastoreID, kOriginalDatastoreID);
   // We'll also ensure that the Gloda.datastoreID matches the one stashed
   // in prefs...
-  do_check_eq(currentDatastoreID, Gloda.datastoreID);
+  Assert.equal(currentDatastoreID, Gloda.datastoreID);
   // And finally, we'll make sure that the datastoreID is a string with length
   // greater than 0.
-  do_check_eq(typeof(Gloda.datastoreID), "string");
-  do_check_true(Gloda.datastoreID.length > 0);
+  Assert.equal(typeof(Gloda.datastoreID), "string");
+  Assert.ok(Gloda.datastoreID.length > 0);
 
   if (!GlodaDatastore.asyncConnection)
     do_throw("No database connection suggests no database!");

@@ -71,7 +71,7 @@ function verifyContentLength() {
                                                null,
                                                Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
                                                Ci.nsIContentPolicy.TYPE_OTHER);
-  do_check_eq(channel.contentLength, gFile.fileSize);
+  Assert.equal(channel.contentLength, gFile.fileSize);
 
   // Now try an attachment. &part=1.2
   let attachmentURL = Services.io.newURI(neckoURL.value.spec + "&part=1.2");
@@ -83,7 +83,7 @@ function verifyContentLength() {
                                                          Ci.nsIContentPolicy.TYPE_OTHER);
   // Currently attachments have their content length set to the length of the
   // entire message
-  do_check_eq(attachmentChannel.contentLength, gFile.fileSize);
+  Assert.equal(attachmentChannel.contentLength, gFile.fileSize);
 }
 
 function teardown() {

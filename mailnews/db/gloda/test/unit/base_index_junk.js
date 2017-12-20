@@ -107,7 +107,7 @@ function* test_mark_as_junk_is_deletion_mark_as_not_junk_is_exposure() {
   yield wait_for_gloda_indexer([msgSet], {augment: true});
 
   // we should have reused the existing gloda message so it should keep the id
-  do_check_eq(glodaId, msgSet.glodaMessages[0].id);
+  Assert.equal(glodaId, msgSet.glodaMessages[0].id);
 }
 
 /**

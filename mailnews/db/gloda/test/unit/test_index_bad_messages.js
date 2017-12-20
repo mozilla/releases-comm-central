@@ -43,10 +43,10 @@ function* test_illegal_message(aInfo) {
 
   // make sure the header has the expected gloda bad message state.
   let msgHdr = msgSet.getMsgHdr(0);
-  do_check_eq(msgHdr.getUint32Property("gloda-id"), GLODA_BAD_MESSAGE_ID);
+  Assert.equal(msgHdr.getUint32Property("gloda-id"), GLODA_BAD_MESSAGE_ID);
 
   // make sure gloda does not think the message is indexed
-  do_check_eq(Gloda.isMessageIndexed(msgHdr), false);
+  Assert.equal(Gloda.isMessageIndexed(msgHdr), false);
 }
 
 /**
@@ -65,10 +65,10 @@ function* test_streaming_failure() {
 
   // make sure the header has the expected gloda bad message state.
   let msgHdr = msgSet.getMsgHdr(0);
-  do_check_eq(msgHdr.getUint32Property("gloda-id"), GLODA_BAD_MESSAGE_ID);
+  Assert.equal(msgHdr.getUint32Property("gloda-id"), GLODA_BAD_MESSAGE_ID);
 
   // make sure gloda does not think the message is indexed
-  do_check_eq(Gloda.isMessageIndexed(msgHdr), false);
+  Assert.equal(Gloda.isMessageIndexed(msgHdr), false);
 
   configure_gloda_indexing({});
 }
@@ -116,7 +116,7 @@ function* test_reindex_on_dirty_clear_dirty_on_fail() {
   yield wait_for_gloda_indexer([], {recovered: 1, failedToRecover: 0,
                                     cleanedUp: 0, hadNoCleanUp: 0});
   // now the message should be clean
-  do_check_eq(msgHdr.getUint32Property("gloda-dirty"), 0);
+  Assert.equal(msgHdr.getUint32Property("gloda-dirty"), 0);
 
   // eh, check again with filtyh
   msgHdr.setUint32Property("gloda-dirty", 2);
@@ -124,7 +124,7 @@ function* test_reindex_on_dirty_clear_dirty_on_fail() {
   yield wait_for_gloda_indexer([], {recovered: 1, failedToRecover: 0,
                                     cleanedUp: 0, hadNoCleanUp: 0});
   // now the message should be clean
-  do_check_eq(msgHdr.getUint32Property("gloda-dirty"), 0);
+  Assert.equal(msgHdr.getUint32Property("gloda-dirty"), 0);
 }
 
 var tests = [

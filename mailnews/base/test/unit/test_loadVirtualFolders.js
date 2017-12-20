@@ -31,9 +31,9 @@ function run_test()
   let unreadLocal = localAccountUtils.incomingServer
                                      .rootMsgFolder.getChildNamed("unread-local");
   let searchScope = unreadLocal.msgDatabase.dBFolderInfo.getCharProperty("searchFolderUri");
-  do_check_eq(searchScope, "mailbox://nobody@Local%20Folders/Inbox|mailbox://nobody@Local%20Folders/Trash");
+  Assert.equal(searchScope, "mailbox://nobody@Local%20Folders/Inbox|mailbox://nobody@Local%20Folders/Trash");
   let invalidServer = localAccountUtils.incomingServer
                                        .rootMsgFolder.getChildNamed("invalidserver-local");
   searchScope = invalidServer.msgDatabase.dBFolderInfo.getCharProperty("searchFolderUri");
-  do_check_eq(searchScope, "mailbox://nobody@Local%20Folders/Inbox");
+  Assert.equal(searchScope, "mailbox://nobody@Local%20Folders/Inbox");
 }

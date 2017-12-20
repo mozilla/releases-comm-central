@@ -35,7 +35,7 @@ function* createDraftsFolder()
   dl('wait for folderAdded');
   yield false;
   gDraftsFolder = IMAPPump.incomingServer.rootFolder.getChildNamed("Drafts");
-  do_check_true(gDraftsFolder instanceof Ci.nsIMsgImapMailFolder);
+  Assert.ok(gDraftsFolder instanceof Ci.nsIMsgImapMailFolder);
   gDraftsFolder.updateFolderWithListener(null, asyncUrlListener);
   dl('wait for OnStopRunningURL');
   yield false;
@@ -74,8 +74,8 @@ function* updateDrafts()
 function* checkResult()
 {
   dump("checking result\n");
-  do_check_eq(gDraftsFolder.getTotalMessages(false), 1);
-  do_check_eq(gDraftsFolder.getNumUnread(false), 1);
+  Assert.equal(gDraftsFolder.getTotalMessages(false), 1);
+  Assert.equal(gDraftsFolder.getNumUnread(false), 1);
   yield true;
 }
 

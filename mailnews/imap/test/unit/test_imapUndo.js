@@ -81,7 +81,7 @@ var tests = [
     yield false;
 
     // Ensure that the message has been surely deleted.
-    do_check_eq(IMAPPump.inbox.msgDatabase.dBFolderInfo.numMessages, 3);
+    Assert.equal(IMAPPump.inbox.msgDatabase.dBFolderInfo.numMessages, 3);
   },
   function* undoDelete() {
     gMsgWindow.transactionManager.undoTransaction();
@@ -99,8 +99,8 @@ var tests = [
   },
   function verifyFolders() {
     let msgRestored = IMAPPump.inbox.msgDatabase.getMsgHdrForMessageID(gMsgId1);
-    do_check_true(msgRestored !== null);
-    do_check_eq(IMAPPump.inbox.msgDatabase.dBFolderInfo.numMessages, 4);
+    Assert.ok(msgRestored !== null);
+    Assert.equal(IMAPPump.inbox.msgDatabase.dBFolderInfo.numMessages, 4);
   },
   teardown
 ];
@@ -137,7 +137,7 @@ function setup() {
 }
 
 asyncUrlListener.callback = function(aUrl, aExitCode) {
-  do_check_eq(aExitCode, 0);
+  Assert.equal(aExitCode, 0);
 };
 
 function teardown() {

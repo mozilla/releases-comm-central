@@ -11,13 +11,13 @@ function checkAttachmentCharset(expectedCharset) {
     .loadMessageToString(gDraftFolder, mailTestUtils.firstMsgHdr(gDraftFolder));
   let attachmentData = getAttachmentFromContent(msgData);
 
-  do_check_eq(expectedCharset, getContentCharset(attachmentData));
+  Assert.equal(expectedCharset, getContentCharset(attachmentData));
 }
 
 function getContentCharset(aContent) {
   let found = aContent.match(/^Content-Type: text\/plain; charset=(.*?);/);
   if (found) {
-    do_check_eq(found.length, 2);
+    Assert.equal(found.length, 2);
     return found[1];
   }
   return null;

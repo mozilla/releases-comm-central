@@ -18,7 +18,7 @@ function check_directory(directory) {
   dump("...\n");
 
   // Question 1: Is the UUID the preference ID?
-  do_check_eq(prefId, directory.uuid);
+  Assert.equal(prefId, directory.uuid);
 
   // Now we need to run through the cards, checking that each card meets the
   // requirements.
@@ -29,15 +29,15 @@ function check_directory(directory) {
     cards.push(card);
 
     // Question 2.1: Is the directory ID correct?
-    do_check_eq(prefId, card.directoryId);
+    Assert.equal(prefId, card.directoryId);
 
     // Question 2.2: Is the local ID unique and valid?
-    do_check_neq(card.localId, "");
-    do_check_eq(seenIds.indexOf(card.localId), -1);
+    Assert.notEqual(card.localId, "");
+    Assert.equal(seenIds.indexOf(card.localId), -1);
     seenIds.push(card.localId);
 
     // Question 2.3: Is the format equal to generateUUID?
-    do_check_eq(card.uuid, MailServices.ab.generateUUID(prefId, card.localId));
+    Assert.equal(card.uuid, MailServices.ab.generateUUID(prefId, card.localId));
   }
 
   // Question 3: Do cards returned via searches return UUIDs correctly?
@@ -50,13 +50,13 @@ function check_directory(directory) {
     var card = enumerator.getNext().QueryInterface(Ci.nsIAbCard);
 
     // Question 3.1: Is the directory ID correct?
-    do_check_eq(prefId, card.directoryId);
+    Assert.equal(prefId, card.directoryId);
 
     // Question 3.2: Is the local ID valid?
-    do_check_neq(card.localId, "");
+    Assert.notEqual(card.localId, "");
 
     // Question 3.3: Is the format equal to generateUUID?
-    do_check_eq(card.uuid, MailServices.ab.generateUUID(prefId, card.localId));
+    Assert.equal(card.uuid, MailServices.ab.generateUUID(prefId, card.localId));
   }
 
   // The remaining tests deal with modification of address books.
@@ -72,9 +72,9 @@ function check_directory(directory) {
   newCard.lastName = "User";
 
   newCard = directory.addCard(newCard);
-  do_check_eq(newCard.directoryId, prefId);
-  do_check_neq(newCard.localId, "");
-  do_check_eq(seenIds.indexOf(newCard.localId), -1);
+  Assert.equal(newCard.directoryId, prefId);
+  Assert.notEqual(newCard.localId, "");
+  Assert.equal(seenIds.indexOf(newCard.localId), -1);
 
   // Remove the new card to be stable!
   var array = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
@@ -89,13 +89,13 @@ function check_directory(directory) {
     array.clear();
     array.appendElement(card);
     directory.deleteCards(array);
-    do_check_eq(card.directoryId, "");
-    do_check_eq(card.localId, localId);
+    Assert.equal(card.directoryId, "");
+    Assert.equal(card.localId, localId);
 
     // Question 5.2: Does readding a card try to best-fit the uid?
     card = directory.addCard(card);
-    do_check_eq(card.directoryId, prefId);
-    do_check_eq(card.localId, localId);
+    Assert.equal(card.directoryId, prefId);
+    Assert.equal(card.localId, localId);
   }
 }
 
@@ -109,9 +109,9 @@ function run_test() {
   // Step 1: What is the ID of an empty card?
   var newCard = Cc["@mozilla.org/addressbook/cardproperty;1"]
                   .createInstance(Ci.nsIAbCard);
-  do_check_eq(newCard.uuid, "");
-  do_check_eq(newCard.directoryId, "");
-  do_check_eq(newCard.localId, "");
+  Assert.equal(newCard.uuid, "");
+  Assert.equal(newCard.directoryId, "");
+  Assert.equal(newCard.localId, "");
 
   // Step 2: Check the directories
   let dirs = MailServices.ab.directories;

@@ -87,7 +87,7 @@ add_task(function *() {
 
   // The fake server expects one password, but we're feeding it an invalid one
   // initially so that we can check what happens when password is denied.
-  do_check_eq(password, kInvalidPassword);
+  Assert.equal(password, kInvalidPassword);
 
   // First step, try and perform a subscribe where we won't be able to log in.
   // This covers attempts 1 and 2 in confirmEx.
@@ -98,11 +98,11 @@ add_task(function *() {
 
   dump("\nfinished subscribe 1\n\n");
 
-  do_check_eq(attempt, 2);
+  Assert.equal(attempt, 2);
 
   let rootFolder = incomingServer.rootFolder;
-  do_check_true(rootFolder.containsChildNamed("Inbox"));
-  do_check_false(rootFolder.containsChildNamed("Subscribed"));
+  Assert.ok(rootFolder.containsChildNamed("Inbox"));
+  Assert.ok(!rootFolder.containsChildNamed("Subscribed"));
 
   // Check that we haven't forgotten the login even though we've retried and
   // canceled.
@@ -111,9 +111,9 @@ add_task(function *() {
   let logins = Services.logins.findLogins(count, "imap://localhost", null,
                                           "imap://localhost");
 
-  do_check_eq(count.value, 1);
-  do_check_eq(logins[0].username, kUserName);
-  do_check_eq(logins[0].password, kInvalidPassword);
+  Assert.equal(count.value, 1);
+  Assert.equal(logins[0].username, kUserName);
+  Assert.equal(logins[0].password, kInvalidPassword);
 
   server.resetTest();
 
@@ -124,23 +124,23 @@ add_task(function *() {
 
   dump("\nfinished subscribe 2\n");
 
-  do_check_true(rootFolder.containsChildNamed("Inbox"));
-  do_check_true(rootFolder.containsChildNamed("Subscribed"));
+  Assert.ok(rootFolder.containsChildNamed("Inbox"));
+  Assert.ok(rootFolder.containsChildNamed("Subscribed"));
 
   // Now check the new one has been saved.
   logins = Services.logins.findLogins(count, "imap://localhost", null,
                                       "imap://localhost");
 
-  do_check_eq(count.value, 1);
-  do_check_eq(logins[0].username, kUserName);
-  do_check_eq(logins[0].password, kValidPassword);
+  Assert.equal(count.value, 1);
+  Assert.equal(logins[0].username, kUserName);
+  Assert.equal(logins[0].password, kValidPassword);
 
   // Remove the login via the incoming server.
   incomingServer.forgetPassword();
   logins = Services.logins.findLogins(count, "imap://localhost", null,
                                       "imap://localhost");
 
-  do_check_eq(count.value, 0);
+  Assert.equal(count.value, 0);
 
   do_timeout(500, endTest);
 });

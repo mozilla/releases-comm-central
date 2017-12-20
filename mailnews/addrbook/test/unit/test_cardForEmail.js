@@ -9,13 +9,13 @@
  */
 
 function check_correct_card(card) {
-  do_check_neq(card, null);
+  Assert.notEqual(card, null);
 
-  do_check_eq(card.firstName, "FirstName1");
-  do_check_eq(card.lastName, "LastName1");
-  do_check_eq(card.displayName, "DisplayName1");
-  do_check_eq(card.primaryEmail, "PrimaryEmail1@test.invalid");
-  do_check_eq(card.getProperty("SecondEmail", "BAD"), "SecondEmail1\u00D0@test.invalid");
+  Assert.equal(card.firstName, "FirstName1");
+  Assert.equal(card.lastName, "LastName1");
+  Assert.equal(card.displayName, "DisplayName1");
+  Assert.equal(card.primaryEmail, "PrimaryEmail1@test.invalid");
+  Assert.equal(card.getProperty("SecondEmail", "BAD"), "SecondEmail1\u00D0@test.invalid");
 }
 
 function run_test() {
@@ -30,14 +30,14 @@ function run_test() {
 
   // Test - Check that a null string succeeds and does not
   // return a card (bug 404264)
-  do_check_true(AB.cardForEmailAddress(null) == null);
+  Assert.ok(AB.cardForEmailAddress(null) == null);
 
   // Test - Check that an empty string succeeds and does not
   // return a card (bug 404264)
-  do_check_true(AB.cardForEmailAddress("") == null);
+  Assert.ok(AB.cardForEmailAddress("") == null);
 
   // Test - Check that we don't match an email that doesn't exist
-  do_check_true(AB.cardForEmailAddress("nocard@this.email.invalid") == null);
+  Assert.ok(AB.cardForEmailAddress("nocard@this.email.invalid") == null);
 
   // Test - Check that we match this email and some of the fields
   // of the card are correct.
@@ -61,8 +61,8 @@ function run_test() {
   check_correct_card(card);
 
   // Check getCardFromProperty returns null correctly for non-extant properties
-  do_check_eq(AB.getCardFromProperty("JobTitle", "", false), null);
-  do_check_eq(AB.getCardFromProperty("JobTitle", "JobTitle", false), null);
+  Assert.equal(AB.getCardFromProperty("JobTitle", "", false), null);
+  Assert.equal(AB.getCardFromProperty("JobTitle", "JobTitle", false), null);
 
   // Check case-insensitive searching works
   card = AB.getCardFromProperty("JobTitle", "JobTitle1", true);
@@ -70,13 +70,13 @@ function run_test() {
   card = AB.getCardFromProperty("JobTitle", "JobTitle1", false);
   check_correct_card(card);
 
-  do_check_eq(AB.getCardFromProperty("JobTitle", "jobtitle1", true), null);
+  Assert.equal(AB.getCardFromProperty("JobTitle", "jobtitle1", true), null);
 
   card = AB.getCardFromProperty("JobTitle", "jobtitle1", false);
   check_correct_card(card);
 
   var cards = AB.getCardsFromProperty("LastName", "DOE", true);
-  do_check_false(cards.hasMoreElements());
+  Assert.ok(!cards.hasMoreElements());
 
   cards = AB.getCardsFromProperty("LastName", "Doe", true);
   var i = 0;
@@ -85,10 +85,10 @@ function run_test() {
   while (cards.hasMoreElements()) {
     i++;
     card = cards.getNext().QueryInterface(Components.interfaces.nsIAbCard);
-    do_check_eq(card.lastName, 'Doe');
+    Assert.equal(card.lastName, 'Doe');
     var index = data.indexOf(card.firstName);
-    do_check_neq(index, -1);
+    Assert.notEqual(index, -1);
     delete data[index];
   }
-  do_check_eq(i, 2);
+  Assert.equal(i, 2);
 };

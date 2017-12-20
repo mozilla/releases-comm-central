@@ -30,7 +30,7 @@ var asyncCopyListener = {
     stop_server();
   },
   OnStopCopy: function(aStatus) {
-    do_check_eq(aStatus, 0);
+    Assert.equal(aStatus, 0);
     async_driver();
   }
 };
@@ -64,8 +64,8 @@ function* move_messages() {
 }
 
 function* check_messages() {
-  do_check_eq(IMAPPump.inbox.getTotalMessages(false), 1);
-  do_check_eq(localAccountUtils.inboxFolder.getTotalMessages(false), 0);
+  Assert.equal(IMAPPump.inbox.getTotalMessages(false), 1);
+  Assert.equal(localAccountUtils.inboxFolder.getTotalMessages(false), 0);
   yield true;
 }
 

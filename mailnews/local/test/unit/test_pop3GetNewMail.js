@@ -31,10 +31,10 @@ var urlListener =
 
       do_check_transaction(transaction, thisTest.transaction);
 
-      do_check_eq(localAccountUtils.inboxFolder.getTotalMessages(false),
-                  thisTest.messages.length);
+      Assert.equal(localAccountUtils.inboxFolder.getTotalMessages(false),
+                   thisTest.messages.length);
 
-      do_check_eq(result, 0);
+      Assert.equal(result, 0);
     }
     catch (e) {
       // If we have an error, clean up nicely before we throw it.
@@ -123,7 +123,7 @@ function run_test() {
 
   // Check that we haven't got any messages in the folder, if we have its a test
   // setup issue.
-  do_check_eq(localAccountUtils.inboxFolder.getTotalMessages(false), 0);
+  Assert.equal(localAccountUtils.inboxFolder.getTotalMessages(false), 0);
 
   do_test_pending();
 

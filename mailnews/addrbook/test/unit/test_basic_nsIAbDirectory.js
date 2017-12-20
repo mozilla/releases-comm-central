@@ -34,71 +34,71 @@ function check_ab(abConfig) {
   // Test - Is it the right type?
 
   if (abConfig.dirType == 2)
-    do_check_true(AB instanceof Components.interfaces.nsIAbMDBDirectory);
+    Assert.ok(AB instanceof Components.interfaces.nsIAbMDBDirectory);
 
   // Test - Check attributes
 
-  do_check_eq(AB.generateName(0), abConfig.dirName);
-  do_check_eq(AB.propertiesChromeURI, kNormalPropertiesURI);
-  do_check_eq(AB.readOnly, abConfig.readOnly);
-  do_check_eq(AB.dirName, abConfig.dirName);
-  do_check_eq(AB.dirType, abConfig.dirType);
-  do_check_eq(AB.fileName, abConfig.fileName);
-  do_check_eq(AB.URI, abConfig.URI);
-  do_check_eq(AB.position, abConfig.position);
-  do_check_eq(AB.isMailList, false);
-  do_check_eq(AB.isRemote, false);
-  do_check_eq(AB.isSecure, false);
-  do_check_eq(AB.supportsMailingLists, true);
-  do_check_eq(AB.dirPrefId, abConfig.dirPrefID);
+  Assert.equal(AB.generateName(0), abConfig.dirName);
+  Assert.equal(AB.propertiesChromeURI, kNormalPropertiesURI);
+  Assert.equal(AB.readOnly, abConfig.readOnly);
+  Assert.equal(AB.dirName, abConfig.dirName);
+  Assert.equal(AB.dirType, abConfig.dirType);
+  Assert.equal(AB.fileName, abConfig.fileName);
+  Assert.equal(AB.URI, abConfig.URI);
+  Assert.equal(AB.position, abConfig.position);
+  Assert.equal(AB.isMailList, false);
+  Assert.equal(AB.isRemote, false);
+  Assert.equal(AB.isSecure, false);
+  Assert.equal(AB.supportsMailingLists, true);
+  Assert.equal(AB.dirPrefId, abConfig.dirPrefID);
 
   // Test - autocomplete enable/disable
 
   // enable is the default
-  do_check_eq(AB.useForAutocomplete(""), true);
+  Assert.equal(AB.useForAutocomplete(""), true);
 
   Services.prefs.setBoolPref("mail.enable_autocomplete", false);
 
-  do_check_eq(AB.useForAutocomplete(""), false);
+  Assert.equal(AB.useForAutocomplete(""), false);
 
   Services.prefs.setBoolPref("mail.enable_autocomplete", true);
 
-  do_check_eq(AB.useForAutocomplete(""), true);
+  Assert.equal(AB.useForAutocomplete(""), true);
 
   // Test - check getting default preferences
 
-  do_check_eq(AB.getIntValue("random", 54321), 54321);
-  do_check_eq(AB.getBoolValue("random", false), false);
-  do_check_eq(AB.getStringValue("random", "abc"), "abc");
-  do_check_eq(AB.getLocalizedStringValue("random", "xyz"), "xyz");
+  Assert.equal(AB.getIntValue("random", 54321), 54321);
+  Assert.equal(AB.getBoolValue("random", false), false);
+  Assert.equal(AB.getStringValue("random", "abc"), "abc");
+  Assert.equal(AB.getLocalizedStringValue("random", "xyz"), "xyz");
 
 
   // Test - check get/set int preferences on nsIAbDirectory
 
   AB.setIntValue("inttest", 12345);
-  do_check_eq(Services.prefs.getIntPref(abConfig.dirPrefID + ".inttest"), 12345);
-  do_check_eq(AB.getIntValue("inttest", -1), 12345);
+  Assert.equal(Services.prefs.getIntPref(abConfig.dirPrefID + ".inttest"), 12345);
+  Assert.equal(AB.getIntValue("inttest", -1), 12345);
 
   AB.setIntValue("inttest", 123456);
-  do_check_eq(Services.prefs.getIntPref(abConfig.dirPrefID + ".inttest"), 123456);
-  do_check_eq(AB.getIntValue("inttest", -2), 123456);
+  Assert.equal(Services.prefs.getIntPref(abConfig.dirPrefID + ".inttest"), 123456);
+  Assert.equal(AB.getIntValue("inttest", -2), 123456);
 
   // Test - check get/set bool preferences on nsIAbDirectory
 
   AB.setBoolValue("booltest", true);
-  do_check_eq(Services.prefs.getBoolPref(abConfig.dirPrefID + ".booltest"), true);
-  do_check_eq(AB.getBoolValue("booltest", false), true);
+  Assert.equal(Services.prefs.getBoolPref(abConfig.dirPrefID + ".booltest"), true);
+  Assert.equal(AB.getBoolValue("booltest", false), true);
 
   AB.setBoolValue("booltest", false);
-  do_check_eq(Services.prefs.getBoolPref(abConfig.dirPrefID + ".booltest"), false);
-  do_check_eq(AB.getBoolValue("booltest", true), false);
+  Assert.equal(Services.prefs.getBoolPref(abConfig.dirPrefID + ".booltest"), false);
+  Assert.equal(AB.getBoolValue("booltest", true), false);
 
 
   // Test - check get/set string preferences on nsIAbDirectory
 
   AB.setStringValue("stringtest", "tyu");
-  do_check_eq(Services.prefs.getCharPref(abConfig.dirPrefID + ".stringtest"), "tyu");
-  do_check_eq(AB.getStringValue("stringtest", ""), "tyu");
+  Assert.equal(Services.prefs.getCharPref(abConfig.dirPrefID + ".stringtest"), "tyu");
+  Assert.equal(AB.getStringValue("stringtest", ""), "tyu");
 }
 
 function run_test() {

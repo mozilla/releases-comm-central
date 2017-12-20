@@ -78,7 +78,7 @@ function copyMessages()
   let localInboxSize = localAccountUtils.inboxFolder.filePath.fileSize;
   do_print("Local inbox size (after copyFileMessageInLocalFolder()) = " +
            localInboxSize);
-  do_check_true(localInboxSize > gLocalInboxSize);
+  Assert.ok(localInboxSize > gLocalInboxSize);
 
   // Copy the message into the subfolder.
   let messages = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
@@ -93,7 +93,7 @@ var copyListener2 = {
   OnProgress: function(aProgress, aProgressMax) {},
   SetMessageKey : function(aKey) {},
   OnStopCopy : function(aStatus) {
-    do_check_eq(aStatus, 0);
+    Assert.equal(aStatus, 0);
 
     do_timeout(0, accessOver2GBMsg);
   }
@@ -125,7 +125,7 @@ var gStreamListener = {
     fstream.init(bugmail10, -1, 0, 0);
     stream.init(fstream);
     let original = stream.read(this._data.length);
-    do_check_eq(this._data, original);
+    Assert.equal(this._data, original);
 
     do_timeout(0, endTest);
   },

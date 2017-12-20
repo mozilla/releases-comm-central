@@ -45,7 +45,7 @@ var streamListener =
   onStartRequest: function(aRequest, aContext) {
   },
   onStopRequest: function(aRequest, aContext, aStatusCode) {
-    do_check_eq(aStatusCode, 0);
+    Assert.equal(aStatusCode, 0);
   },
 
   // nsIStreamListener
@@ -134,7 +134,7 @@ var tests = [
   },
   function* select2ndMsg() {
     let msg1 = IMAPPump.inbox.msgDatabase.getMsgHdrForMessageID(gMsgId1);
-    do_check_neq(msg1.flags & nsMsgMessageFlags.Offline, 0);
+    Assert.notEqual(msg1.flags & nsMsgMessageFlags.Offline, 0);
     let db = IMAPPump.inbox.msgDatabase;
     let msg2 = db.getMsgHdrForMessageID(gMsgId2);
     let url = new Object;
@@ -148,7 +148,7 @@ var tests = [
   },
   function* select3rdMsg() {
     let msg2 = IMAPPump.inbox.msgDatabase.getMsgHdrForMessageID(gMsgId2);
-    do_check_neq(msg2.flags & nsMsgMessageFlags.Offline, 0);
+    Assert.notEqual(msg2.flags & nsMsgMessageFlags.Offline, 0);
     let db = IMAPPump.inbox.msgDatabase;
     let msg3 = db.getMsgHdrForMessageID(gMsgId3);
     let url = new Object;
@@ -216,7 +216,7 @@ var tests = [
   function checkOfflineStoreSize()
   {
     dump("checking offline store size\n");
-    do_check_true(IMAPPump.inbox.filePath.fileSize <= gImapInboxOfflineStoreSize);
+    Assert.ok(IMAPPump.inbox.filePath.fileSize <= gImapInboxOfflineStoreSize);
   },
   teardown
 ]
@@ -241,7 +241,7 @@ var gStreamListener = {
 };
 
 asyncUrlListener.callback = function(aUrl, aExitCode) {
-  do_check_eq(aExitCode, 0);
+  Assert.equal(aExitCode, 0);
 };
 
 function teardown() {

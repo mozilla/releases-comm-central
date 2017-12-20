@@ -297,7 +297,7 @@ function testSearch()
     dump("testing dbHeader " + test.dbHeader + "\n");
     customValue = mailTestUtils.firstMsgHdr(localAccountUtils.inboxFolder)
                                .getProperty(test.dbHeader);
-    do_check_eq(customValue, test.testString);
+    Assert.equal(customValue, test.testString);
     do_timeout(0, testSearch);
   }
   else if (test)

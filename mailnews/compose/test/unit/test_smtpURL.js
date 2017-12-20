@@ -21,7 +21,7 @@ function run_test() {
 
     url = Services.io.newURI(smtpURLs[part].url);
 
-    do_check_eq(url.spec, smtpURLs[part].spec);
-    do_check_eq(url.username, smtpURLs[part].username);
+    Assert.equal(url.spec, smtpURLs[part].spec);
+    Assert.equal(url.username, smtpURLs[part].username);
   }
 }

@@ -26,7 +26,7 @@ function GenericImportHelper(aModuleType, aModuleSearchString, aFile)
   this.mModuleType = aModuleType;
   this.mModuleSearchString = aModuleSearchString;
   this.mInterface = this._findInterface();
-  do_check_neq(this.mInterface, null);
+  Assert.notEqual(this.mInterface, null);
 
   this.mFile = aFile; // checked in the beginImport method
 }
@@ -40,15 +40,15 @@ GenericImportHelper.prototype =
    * checkProgress of child class to check the data,
    */
   beginImport: function() {
-    do_check_true(this.mFile instanceof Ci.nsIFile && this.mFile.exists());
+    Assert.ok(this.mFile instanceof Ci.nsIFile && this.mFile.exists());
 
     if (this.mModuleType == "addressbook")
       this.mInterface.SetData("addressLocation", this.mFile);
     else if (this.mModuleType == "mail")
       this.mInterface.SetData("mailLocation", this.mFile);
 
-    do_check_true(this.mInterface.WantsProgress());
-    do_check_true(this.mInterface.BeginImport(null, null));
+    Assert.ok(this.mInterface.WantsProgress());
+    Assert.ok(this.mInterface.BeginImport(null, null));
     do_test_pending();
     this.checkProgress();
   },
@@ -85,9 +85,9 @@ GenericImportHelper.prototype =
    * otherwise evaluates the optional command, or calls do_test_finished().
    */
   checkProgress: function() {
-    do_check_true(this.mInterface &&
-                  this.mInterface instanceof Ci.nsIImportGeneric);
-    do_check_true(this.mInterface.ContinueImport());
+    Assert.ok(this.mInterface &&
+              this.mInterface instanceof Ci.nsIImportGeneric);
+    Assert.ok(this.mInterface.ContinueImport());
     // if the import isn't done, check again in 200 milliseconds.
     if (this.mInterface.GetProgress() != 100) {
       // use the helper object to check the progress of the import after 200 ms
@@ -233,9 +233,9 @@ AbImportHelper.prototype =
     try {
       // make sure an address book was created
       var newAb = this.getAbByName(this.mAbName);
-      do_check_neq(newAb, null);
-      do_check_true(newAb instanceof Ci.nsIAbDirectory &&
-                    newAb.childCards instanceof Ci.nsISimpleEnumerator);
+      Assert.notEqual(newAb, null);
+      Assert.ok(newAb instanceof Ci.nsIAbDirectory &&
+                newAb.childCards instanceof Ci.nsISimpleEnumerator);
       // get the imported card(s) and check each one
       var iter = newAb.childCards;
       var count = 0;
@@ -245,7 +245,7 @@ AbImportHelper.prototype =
       }
       // make sure there are the same number of cards in the address book and
       // the JSON array
-      do_check_eq(count, this.mJsonCards.length);
+      Assert.equal(count, this.mJsonCards.length);
       do_test_finished();
     } catch(e) { do_throw(e); }
   },
@@ -258,7 +258,7 @@ AbImportHelper.prototype =
    *         null if the requested Address Book could not be found.
    */
   getAbByName: function(aName) {
-    do_check_true(aName && aName.length > 0);
+    Assert.ok(aName && aName.length > 0);
 
     var iter = MailServices.ab.directories;
     var data = null;
@@ -281,7 +281,7 @@ AbImportHelper.prototype =
   compareCards: function(aJsonCard, aCard) {
     for (var i in aJsonCard)
       if (this.mSupportedAttributes.indexOf(i) >= 0)
-        do_check_eq(aJsonCard[i], aCard.getProperty(i, "BAD"));
+        Assert.equal(aJsonCard[i], aCard.getProperty(i, "BAD"));
   },
   /**
    * AbImportHelper.getJsonCards
@@ -319,7 +319,7 @@ AbImportHelper.prototype =
     fis.close();
     // decode the JSON and get the array of cards
     var arr = JSON.parse(json)[aName];
-    do_check_true(arr && arr.length > 0);
+    Assert.ok(arr && arr.length > 0);
     return arr;
   },
 
@@ -353,7 +353,7 @@ MailImportHelper.prototype =
   __proto__: GenericImportHelper.prototype,
   interfaceType: Ci.nsIImportGeneric,
   _checkEqualFolder: function(expectedFolder, actualFolder) {
-    do_check_eq(expectedFolder.leafName, actualFolder.name);
+    Assert.equal(expectedFolder.leafName, actualFolder.name);
     let expectedSubFolderCount = 0;
 
     let expectedEnumerator = expectedFolder.directoryEntries;
@@ -365,7 +365,7 @@ MailImportHelper.prototype =
         expectedSubFolders.push(entry);
       }
     }
-    do_check_eq(expectedSubFolderCount, actualFolder.numSubFolders);
+    Assert.equal(expectedSubFolderCount, actualFolder.numSubFolders);
 
     let actualEnumerator = actualFolder.subFolders;
     for (let i = 0; i < expectedSubFolderCount; i++) {
@@ -377,9 +377,9 @@ MailImportHelper.prototype =
 
   checkResults: function() {
     let rootFolder = MailServices.accounts.localFoldersServer.rootFolder;
-    do_check_true(rootFolder.containsChildNamed(this.mFile.leafName));
+    Assert.ok(rootFolder.containsChildNamed(this.mFile.leafName));
     let importedFolder = rootFolder.getChildNamed(this.mFile.leafName);
-    do_check_neq(importedFolder, null);
+    Assert.notEqual(importedFolder, null);
 
     this._checkEqualFolder(this.mExpected, importedFolder);
   }
@@ -419,8 +419,8 @@ SettingsImportHelper.prototype =
     if (this.mFile)
       this.mInterface.SetLocation(this.mFile);
     else
-      do_check_eq(true, this.mInterface.AutoLocate({}, {}));
-    do_check_eq(true, this.mInterface.Import({}));
+      Assert.equal(true, this.mInterface.AutoLocate({}, {}));
+    Assert.equal(true, this.mInterface.Import({}));
     this.checkResults();
   },
 
@@ -434,37 +434,37 @@ SettingsImportHelper.prototype =
   },
 
   _checkSmtpServer: function(expected, actual) {
-    do_check_eq(expected.port, actual.port);
-    do_check_eq(expected.username, actual.username);
-    do_check_eq(expected.authMethod, actual.authMethod);
-    do_check_eq(expected.socketType, actual.socketType);
+    Assert.equal(expected.port, actual.port);
+    Assert.equal(expected.username, actual.username);
+    Assert.equal(expected.authMethod, actual.authMethod);
+    Assert.equal(expected.socketType, actual.socketType);
   },
 
   _checkIdentity: function(expected, actual) {
-    do_check_eq(expected.fullName, actual.fullName);
-    do_check_eq(expected.email, actual.email);
-    do_check_eq(expected.replyTo, actual.replyTo);
-    do_check_eq(expected.organization, actual.organization);
+    Assert.equal(expected.fullName, actual.fullName);
+    Assert.equal(expected.email, actual.email);
+    Assert.equal(expected.replyTo, actual.replyTo);
+    Assert.equal(expected.organization, actual.organization);
   },
 
   _checkPop3IncomingServer: function(expected, actual) {
-    do_check_eq(expected.leaveMessagesOnServer, actual.leaveMessagesOnServer);
-    do_check_eq(expected.deleteMailLeftOnServer, actual.deleteMailLeftOnServer);
-    do_check_eq(expected.deleteByAgeFromServer, actual.deleteByAgeFromServer);
-    do_check_eq(expected.numDaysToLeaveOnServer, actual.numDaysToLeaveOnServer);
+    Assert.equal(expected.leaveMessagesOnServer, actual.leaveMessagesOnServer);
+    Assert.equal(expected.deleteMailLeftOnServer, actual.deleteMailLeftOnServer);
+    Assert.equal(expected.deleteByAgeFromServer, actual.deleteByAgeFromServer);
+    Assert.equal(expected.numDaysToLeaveOnServer, actual.numDaysToLeaveOnServer);
   },
 
   _checkIncomingServer: function(expected, actual) {
-    do_check_eq(expected.type, actual.type);
-    do_check_eq(expected.port, actual.port);
-    do_check_eq(expected.username, actual.username);
-    do_check_eq(expected.isSecure, actual.isSecure);
-    do_check_eq(expected.hostName, actual.hostName);
-    do_check_eq(expected.prettyName, actual.prettyName);
-    do_check_eq(expected.authMethod, actual.authMethod);
-    do_check_eq(expected.socketType, actual.socketType);
-    do_check_eq(expected.doBiff, actual.doBiff);
-    do_check_eq(expected.biffMinutes, actual.biffMinutes);
+    Assert.equal(expected.type, actual.type);
+    Assert.equal(expected.port, actual.port);
+    Assert.equal(expected.username, actual.username);
+    Assert.equal(expected.isSecure, actual.isSecure);
+    Assert.equal(expected.hostName, actual.hostName);
+    Assert.equal(expected.prettyName, actual.prettyName);
+    Assert.equal(expected.authMethod, actual.authMethod);
+    Assert.equal(expected.socketType, actual.socketType);
+    Assert.equal(expected.doBiff, actual.doBiff);
+    Assert.equal(expected.biffMinutes, actual.biffMinutes);
 
     if (expected.type == "pop3")
       this._checkPop3IncomingServer(expected, actual.QueryInterface(Ci.nsIPop3IncomingServer));
@@ -473,7 +473,7 @@ SettingsImportHelper.prototype =
   _checkAccount: function(expected, actual) {
     this._checkIncomingServer(expected.incomingServer, actual.incomingServer);
 
-    do_check_eq(1, actual.identities.length);
+    Assert.equal(1, actual.identities.length);
     let actualIdentity = actual.identities.queryElementAt(0, Ci.nsIMsgIdentity);
     this._checkIdentity(expected.identity, actualIdentity);
 
@@ -504,8 +504,8 @@ SettingsImportHelper.prototype =
       if (this._isLocalMailAccount(actualAccount))
         continue;
       let expectedAccounts = this._findExpectedAccount(actualAccount);
-      do_check_neq(null, expectedAccounts);
-      do_check_eq(1, expectedAccounts.length);
+      Assert.notEqual(null, expectedAccounts);
+      Assert.equal(1, expectedAccounts.length);
       this._checkAccount(expectedAccounts[0], actualAccount);
     }
   }
@@ -544,8 +544,8 @@ FiltersImportHelper.prototype =
     if (this.mFile)
       this.mInterface.SetLocation(this.mFile);
     else
-      do_check_eq(true, this.mInterface.AutoLocate({}, {}));
-    do_check_eq(true, this.mInterface.Import({}));
+      Assert.equal(true, this.mInterface.AutoLocate({}, {}));
+    Assert.equal(true, this.mInterface.Import({}));
     this.checkResults();
   },
 
@@ -564,18 +564,18 @@ FiltersImportHelper.prototype =
     let server = MailServices.accounts.localFoldersServer;
     let filterList = server.getFilterList(null);
     if ("count" in expected)
-      do_check_eq(filterList.filterCount, expected.count);
+      Assert.equal(filterList.filterCount, expected.count);
     if ("enabled" in expected)
-      do_check_eq(this._loopOverFilters(filterList, f => f.enabled), expected.enabled);
+      Assert.equal(this._loopOverFilters(filterList, f => f.enabled), expected.enabled);
     if ("incoming" in expected) {
-      do_check_eq(this._loopOverFilters(filterList,
-                                        f => (f.filterType & Ci.nsMsgFilterType.InboxRule)),
-                                        expected.incoming);
+      Assert.equal(this._loopOverFilters(filterList,
+                                         f => (f.filterType & Ci.nsMsgFilterType.InboxRule)),
+                                         expected.incoming);
     }
     if ("outgoing" in expected) {
-      do_check_eq(this._loopOverFilters(filterList,
-                                        f => (f.filterType & Ci.nsMsgFilterType.PostOutgoing)),
-                                        expected.outgoing);
+      Assert.equal(this._loopOverFilters(filterList,
+                                         f => (f.filterType & Ci.nsMsgFilterType.PostOutgoing)),
+                                         expected.outgoing);
     }
   }
 }

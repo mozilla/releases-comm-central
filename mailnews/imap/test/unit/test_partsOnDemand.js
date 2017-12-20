@@ -69,9 +69,9 @@ function* loadImapMessage()
   IMAPPump.inbox.updateFolderWithListener(null, asyncUrlListener);
   yield false;
 
-  do_check_eq(2, IMAPPump.inbox.getTotalMessages(false));
+  Assert.equal(2, IMAPPump.inbox.getTotalMessages(false));
   let msgHdr = mailTestUtils.firstMsgHdr(IMAPPump.inbox);
-  do_check_true(msgHdr instanceof Ci.nsIMsgDBHdr);
+  Assert.ok(msgHdr instanceof Ci.nsIMsgDBHdr);
   yield true;
 }
 
@@ -84,7 +84,7 @@ function* startMime()
     let url = aMimeMessage.allUserAttachments[0].url;
     // A URL containing this string indicates that the attachment will be
     // downloaded on demand.
-    do_check_true(url.includes("/;section="));
+    Assert.ok(url.includes("/;section="));
     async_driver();
   }, true /* allowDownload */, { partsOnDemand: true, examineEncryptedParts: true });
   yield false;
@@ -110,7 +110,7 @@ function* updateCounts()
   // select the trash, then the inbox again, to force an update of the 
   // read state of messages.
   let trash = IMAPPump.incomingServer.rootFolder.getChildNamed("Trash");
-  do_check_true(trash instanceof Ci.nsIMsgImapMailFolder);
+  Assert.ok(trash instanceof Ci.nsIMsgImapMailFolder);
   trash.updateFolderWithListener(null, asyncUrlListener);
   yield false;
   IMAPPump.inbox.updateFolderWithListener(null, asyncUrlListener);
@@ -119,7 +119,7 @@ function* updateCounts()
 
 function* testNotRead()
 {
-  do_check_eq(2, IMAPPump.inbox.getNumUnread(false));
+  Assert.equal(2, IMAPPump.inbox.getNumUnread(false));
   yield true;
 }
 

@@ -34,7 +34,7 @@ function* createSubfolder()
   dl('wait for folderAdded notification');
   yield false;
   gSubfolder = IMAPPump.incomingServer.rootFolder.getChildNamed("Subfolder");
-  do_check_true(gSubfolder instanceof Ci.nsIMsgImapMailFolder);
+  Assert.ok(gSubfolder instanceof Ci.nsIMsgImapMailFolder);
   gSubfolder.updateFolderWithListener(null, asyncUrlListener);
   dl('wait for OnStopRunningURL');
   yield false;
@@ -48,9 +48,9 @@ function* loadImapMessage()
   IMAPPump.inbox.updateFolder(null);
   dl('wait for msgAdded notification');
   yield false;
-  do_check_eq(1, IMAPPump.inbox.getTotalMessages(false));
+  Assert.equal(1, IMAPPump.inbox.getTotalMessages(false));
   let msgHdr = mailTestUtils.firstMsgHdr(IMAPPump.inbox);
-  do_check_true(msgHdr instanceof Ci.nsIMsgDBHdr);
+  Assert.ok(msgHdr instanceof Ci.nsIMsgDBHdr);
 
   // set an arbitrary property
   msgHdr.setStringProperty("testprop", "somevalue");
@@ -90,7 +90,7 @@ function* testPropertyOnMove()
   dl('wait for OnStopRunningURL');
   yield false; // wait for OnStopRunningUrl
   let msgHdr = mailTestUtils.firstMsgHdr(gSubfolder);
-  do_check_eq(msgHdr.getStringProperty("testprop"), "somevalue");
+  Assert.equal(msgHdr.getStringProperty("testprop"), "somevalue");
   yield true;
 }
 

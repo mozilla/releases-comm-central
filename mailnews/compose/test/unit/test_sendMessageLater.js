@@ -42,7 +42,7 @@ msll.prototype = {
   // nsIMsgSendLaterListener
   onStartSending: function (aTotalMessageCount) {
     this._initialTotal = 1;
-    do_check_eq(msgSendLater.sendingMessages, true);
+    Assert.equal(msgSendLater.sendingMessages, true);
   },
   onMessageStartSending: function (aCurrentMessage, aTotalMessageCount,
                                    aMessageHeader, aIdentity) {
@@ -60,12 +60,12 @@ msll.prototype = {
     do_test_finished();
     print("msll onStopSending\n");
     try {
-      do_check_eq(this._startedSending, true);
-      do_check_eq(aStatus, 0);
-      do_check_eq(aTotalTried, 1);
-      do_check_eq(aSuccessful, 1);
-      do_check_eq(this._initialTotal, 1);
-      do_check_eq(msgSendLater.sendingMessages, false);
+      Assert.equal(this._startedSending, true);
+      Assert.equal(aStatus, 0);
+      Assert.equal(aTotalTried, 1);
+      Assert.equal(aSuccessful, 1);
+      Assert.equal(this._initialTotal, 1);
+      Assert.equal(msgSendLater.sendingMessages, false);
 
       do_check_transaction(server.playTransaction(),
                            ["EHLO test",
@@ -74,7 +74,7 @@ msll.prototype = {
                             "DATA"]);
 
       // Compare data file to what the server received
-      do_check_eq(originalData, server._daemon.post);
+      Assert.equal(originalData, server._daemon.post);
 
       finished = true;
     } catch (e) {
@@ -93,30 +93,30 @@ function OnStopCopy(aStatus) {
   dump("OnStopCopy()\n");
 
   try {
-    do_check_eq(aStatus, 0);
+    Assert.equal(aStatus, 0);
 
     // Check this is false before we start sending
-    do_check_eq(msgSendLater.sendingMessages, false);
+    Assert.equal(msgSendLater.sendingMessages, false);
 
     let folder = msgSendLater.getUnsentMessagesFolder(identity);
 
     // Check we have a message in the unsent message folder
-    do_check_eq(folder.getTotalMessages(false), 1);
+    Assert.equal(folder.getTotalMessages(false), 1);
 
     // Check that the send later service thinks we have messages to send
-    do_check_eq(msgSendLater.hasUnsentMessages(identity), true);
+    Assert.equal(msgSendLater.hasUnsentMessages(identity), true);
 
     // Now do a comparison of what is in the sent mail folder
     let msgData = mailTestUtils
       .loadMessageToString(folder, mailTestUtils.firstMsgHdr(folder));
     // Skip the headers etc that mailnews adds
     var pos = msgData.indexOf("From:");
-    do_check_neq(pos, -1);
+    Assert.notEqual(pos, -1);
 
     msgData = msgData.substr(pos);
 
     // Check the data is matching.
-    do_check_eq(originalData, msgData);
+    Assert.equal(originalData, msgData);
 
     sendMessageLater();
   } catch (e) {
@@ -183,7 +183,7 @@ function run_test() {
   localAccountUtils.loadLocalMailAccount();
 
   // Check that the send later service thinks we don't have messages to send
-  do_check_eq(msgSendLater.hasUnsentMessages(identity), false);
+  Assert.equal(msgSendLater.hasUnsentMessages(identity), false);
 
   MailServices.accounts.setSpecialFolders();
 
@@ -199,7 +199,7 @@ function run_test() {
 
   sentFolder = localAccountUtils.rootFolder.createLocalSubfolder("Sent");
 
-  do_check_eq(identity.doFcc, true);
+  Assert.equal(identity.doFcc, true);
 
   // Now prepare to actually "send" the message later, i.e. dump it in the
   // unsent messages folder.

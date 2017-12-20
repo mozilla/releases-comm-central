@@ -102,30 +102,30 @@ function test_IPaddresses() {
 
     if (isIPv6) {
       result = isLegalIPv6Address(address);
-      do_check_eq(result, wantedResult);
+      Assert.equal(result, wantedResult);
       if (isValid) {
         // If this is valid IPv6, it can't be valid IPv4. The opposite is unknown.
         result = isLegalIPv4Address(address);
-        do_check_eq(result, null);
+        Assert.equal(result, null);
       }
     } else {
       result = isLegalIPv4Address(address, isExtended);
-      do_check_eq(result, wantedResult);
+      Assert.equal(result, wantedResult);
       if (isValid) {
         // If this is valid IPv4, it can't be valid IPv6. The opposite is unknown.
         result = isLegalIPv6Address(address);
-        do_check_eq(result, null);
+        Assert.equal(result, null);
       }
     }
 
     result = isLegalIPAddress(address, isExtended);
-    do_check_eq(result, wantedResult);
+    Assert.equal(result, wantedResult);
 
     if (isValid) {
       // isLegalLocalIPAddress operates on a normalized address,
       // not the original one.
       result = isLegalLocalIPAddress(result);
-      do_check_eq(result, isLocal);
+      Assert.equal(result, isLocal);
     }
 
     // If something is a valid IP, it also passes isLegalHostNameOrIP.
@@ -133,7 +133,7 @@ function test_IPaddresses() {
     // So only check success if the IP is valid.
     result = isLegalHostNameOrIP(address, isExtended);
     if (isValid)
-      do_check_eq(result, wantedResult);
+      Assert.equal(result, wantedResult);
   }
 }
 /**
@@ -175,10 +175,10 @@ function test_hostnames() {
     wantedResult = wantedResult ? hostname : null;
 
     result = isLegalHostName(hostname);
-    do_check_eq(result, wantedResult);
+    Assert.equal(result, wantedResult);
 
     result = isLegalHostNameOrIP(hostname, false);
-    do_check_eq(result, wantedResult);
+    Assert.equal(result, wantedResult);
   }
 }
 

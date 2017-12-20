@@ -40,14 +40,14 @@ function assert(aBeTrue, aWhy)
 {
   if (!aBeTrue)
     do_throw(aWhy);
-  do_check_true(aBeTrue);
+  Assert.ok(aBeTrue);
 };
 
 function assert_equal(aA, aB, aWhy)
 {
   if (aA != aB)
     do_throw(aWhy);
-  do_check_eq(aA, aB);
+  Assert.equal(aA, aB);
 };
 
 /**

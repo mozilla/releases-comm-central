@@ -90,21 +90,21 @@ function run_test() {
     dump("url: " + ldapURLs[part].url + "\n");
     url = ioService.newURI(ldapURLs[part].url);
 
-    do_check_eq(url.spec, ldapURLs[part].spec);
-    do_check_eq(url.asciiSpec, ldapURLs[part].asciiSpec);
-    do_check_eq(url.scheme, ldapURLs[part].scheme);
-    do_check_eq(url.host, ldapURLs[part].host);
-    do_check_eq(url.asciiHost, ldapURLs[part].asciiHost);
-    do_check_eq(url.port, ldapURLs[part].port);
-    do_check_eq(url.pathQueryRef, ldapURLs[part].path);
-    do_check_eq(url.prePath, ldapURLs[part].prePath);
-    do_check_eq(url.hostPort, ldapURLs[part].hostPort);
+    Assert.equal(url.spec, ldapURLs[part].spec);
+    Assert.equal(url.asciiSpec, ldapURLs[part].asciiSpec);
+    Assert.equal(url.scheme, ldapURLs[part].scheme);
+    Assert.equal(url.host, ldapURLs[part].host);
+    Assert.equal(url.asciiHost, ldapURLs[part].asciiHost);
+    Assert.equal(url.port, ldapURLs[part].port);
+    Assert.equal(url.pathQueryRef, ldapURLs[part].path);
+    Assert.equal(url.prePath, ldapURLs[part].prePath);
+    Assert.equal(url.hostPort, ldapURLs[part].hostPort);
     // XXX nsLDAPURL ought to have classinfo.
     url = url.QueryInterface(Ci.nsILDAPURL);
-    do_check_eq(url.dn, ldapURLs[part].dn);
-    do_check_eq(url.scope, ldapURLs[part].scope);
-    do_check_eq(url.filter, ldapURLs[part].filter);
-    do_check_eq(url.options, ldapURLs[part].options);
+    Assert.equal(url.dn, ldapURLs[part].dn);
+    Assert.equal(url.scope, ldapURLs[part].scope);
+    Assert.equal(url.filter, ldapURLs[part].filter);
+    Assert.equal(url.options, ldapURLs[part].options);
   }
 
   // Test - Check changing ldap values
@@ -120,158 +120,158 @@ function run_test() {
 
   url.dn = "dc=short";
 
-  do_check_eq(url.dn, "dc=short");
-  do_check_eq(url.spec, "ldap://localhost" + portAdpt + "/dc=short??sub?(objectclass=*)");
+  Assert.equal(url.dn, "dc=short");
+  Assert.equal(url.spec, "ldap://localhost" + portAdpt + "/dc=short??sub?(objectclass=*)");
 
   // Test - scope
 
   url.scope = Ci.nsILDAPURL.SCOPE_BASE;
 
-  do_check_eq(url.scope, Ci.nsILDAPURL.SCOPE_BASE);
-  do_check_eq(url.spec, "ldap://localhost" + portAdpt + "/dc=short???(objectclass=*)");
+  Assert.equal(url.scope, Ci.nsILDAPURL.SCOPE_BASE);
+  Assert.equal(url.spec, "ldap://localhost" + portAdpt + "/dc=short???(objectclass=*)");
 
   url.scope = Ci.nsILDAPURL.SCOPE_ONELEVEL;
 
-  do_check_eq(url.scope, Ci.nsILDAPURL.SCOPE_ONELEVEL);
-  do_check_eq(url.spec, "ldap://localhost" + portAdpt + "/dc=short??one?(objectclass=*)");
+  Assert.equal(url.scope, Ci.nsILDAPURL.SCOPE_ONELEVEL);
+  Assert.equal(url.spec, "ldap://localhost" + portAdpt + "/dc=short??one?(objectclass=*)");
 
   // Test - filter
 
   url.filter = "(oc=ygh)";
 
-  do_check_eq(url.filter, "(oc=ygh)");
-  do_check_eq(url.spec, "ldap://localhost" + portAdpt + "/dc=short??one?(oc=ygh)");
+  Assert.equal(url.filter, "(oc=ygh)");
+  Assert.equal(url.spec, "ldap://localhost" + portAdpt + "/dc=short??one?(oc=ygh)");
 
   url.filter = "";
 
-  do_check_eq(url.filter, "(objectclass=*)");
-  do_check_eq(url.spec, "ldap://localhost" + portAdpt + "/dc=short??one?(objectclass=*)");
+  Assert.equal(url.filter, "(objectclass=*)");
+  Assert.equal(url.spec, "ldap://localhost" + portAdpt + "/dc=short??one?(objectclass=*)");
 
   // Test - scheme
 
   // An old version used to have a bug whereby if you set the scheme to the
   // same thing twice, you'd get the options set wrongly.
   url.scheme = "ldaps";
-  do_check_eq(url.options, 1);
-  do_check_eq(url.spec, "ldaps://localhost" + portAdpt + "/dc=short??one?(objectclass=*)");
+  Assert.equal(url.options, 1);
+  Assert.equal(url.spec, "ldaps://localhost" + portAdpt + "/dc=short??one?(objectclass=*)");
   url.scheme = "ldaps";
-  do_check_eq(url.options, 1);
-  do_check_eq(url.spec, "ldaps://localhost" + portAdpt + "/dc=short??one?(objectclass=*)");
+  Assert.equal(url.options, 1);
+  Assert.equal(url.spec, "ldaps://localhost" + portAdpt + "/dc=short??one?(objectclass=*)");
 
-  do_check_true(url.schemeIs("ldaps"));
-  do_check_false(url.schemeIs("ldap"));
+  Assert.ok(url.schemeIs("ldaps"));
+  Assert.ok(!url.schemeIs("ldap"));
 
   url.scheme = "ldap";
-  do_check_eq(url.options, 0);
-  do_check_eq(url.spec, "ldap://localhost" + portAdpt + "/dc=short??one?(objectclass=*)");
+  Assert.equal(url.options, 0);
+  Assert.equal(url.spec, "ldap://localhost" + portAdpt + "/dc=short??one?(objectclass=*)");
   url.scheme = "ldap";
-  do_check_eq(url.options, 0);
-  do_check_eq(url.spec, "ldap://localhost" + portAdpt + "/dc=short??one?(objectclass=*)");
+  Assert.equal(url.options, 0);
+  Assert.equal(url.spec, "ldap://localhost" + portAdpt + "/dc=short??one?(objectclass=*)");
 
-  do_check_true(url.schemeIs("ldap"));
-  do_check_false(url.schemeIs("ldaps"));
+  Assert.ok(url.schemeIs("ldap"));
+  Assert.ok(!url.schemeIs("ldaps"));
 
   // Test - Options
 
   url.options = Ci.nsILDAPURL.OPT_SECURE;
 
-  do_check_eq(url.options, Ci.nsILDAPURL.OPT_SECURE);
-  do_check_eq(url.spec, "ldaps://localhost" + portAdpt + "/dc=short??one?(objectclass=*)");
+  Assert.equal(url.options, Ci.nsILDAPURL.OPT_SECURE);
+  Assert.equal(url.spec, "ldaps://localhost" + portAdpt + "/dc=short??one?(objectclass=*)");
 
   url.options = 0;
 
-  do_check_eq(url.options, 0);
-  do_check_eq(url.spec, "ldap://localhost" + portAdpt + "/dc=short??one?(objectclass=*)");
+  Assert.equal(url.options, 0);
+  Assert.equal(url.spec, "ldap://localhost" + portAdpt + "/dc=short??one?(objectclass=*)");
 
   // Test - Equals
 
   var url2 = ioService.newURI("ldap://localhost" + portAdpt + "/dc=short??one?(objectclass=*)")
                       .QueryInterface(Ci.nsILDAPURL);
 
-  do_check_true(url.equals(url2));
+  Assert.ok(url.equals(url2));
 
   url2.spec = "ldap://localhost:389/dc=short??sub?(objectclass=*)";
 
-  do_check_false(url.equals(url2));
+  Assert.ok(!url.equals(url2));
 
   // Test Attributes
 
-  do_check_eq(url.attributes.length, 0);
+  Assert.equal(url.attributes.length, 0);
 
   // Nothing should happend if the attribute doesn't exist
   url.removeAttribute("abc");
 
-  do_check_eq(url.attributes.length, 0);
-  do_check_eq(url.spec, "ldap://localhost" + portAdpt + "/dc=short??one?(objectclass=*)");
+  Assert.equal(url.attributes.length, 0);
+  Assert.equal(url.spec, "ldap://localhost" + portAdpt + "/dc=short??one?(objectclass=*)");
 
   url.addAttribute("dn");
-  do_check_eq(url.spec, "ldap://localhost" + portAdpt + "/dc=short?dn?one?(objectclass=*)");
+  Assert.equal(url.spec, "ldap://localhost" + portAdpt + "/dc=short?dn?one?(objectclass=*)");
 
-  do_check_eq(url.attributes, "dn");
+  Assert.equal(url.attributes, "dn");
 
   url.removeAttribute("dn");
 
-  do_check_eq(url.attributes.length, 0);
-  do_check_eq(url.spec, "ldap://localhost" + portAdpt + "/dc=short??one?(objectclass=*)");
+  Assert.equal(url.attributes.length, 0);
+  Assert.equal(url.spec, "ldap://localhost" + portAdpt + "/dc=short??one?(objectclass=*)");
 
   var newAttrs = "abc,def,ghi,jkl";
   url.attributes = newAttrs;
 
   var i;
 
-  do_check_eq(url.attributes, newAttrs);
-  do_check_eq(url.spec,
-              "ldap://localhost" + portAdpt + "/dc=short?" +
-              newAttrs + "?one?(objectclass=*)");
+  Assert.equal(url.attributes, newAttrs);
+  Assert.equal(url.spec,
+               "ldap://localhost" + portAdpt + "/dc=short?" +
+               newAttrs + "?one?(objectclass=*)");
 
   // Try adding an existing attribute - should do nothing
   url.addAttribute("def");
-  do_check_eq(url.attributes, newAttrs);
+  Assert.equal(url.attributes, newAttrs);
 
   //  url.addAttribute("jk");
 
-  do_check_true(url.hasAttribute("jkl"));
-  do_check_true(url.hasAttribute("def"));
-  do_check_true(url.hasAttribute("ABC"));
-  do_check_false(url.hasAttribute("cde"));
-  do_check_false(url.hasAttribute("3446"));
-  do_check_false(url.hasAttribute("kl"));
-  do_check_false(url.hasAttribute("jk"));
+  Assert.ok(url.hasAttribute("jkl"));
+  Assert.ok(url.hasAttribute("def"));
+  Assert.ok(url.hasAttribute("ABC"));
+  Assert.ok(!url.hasAttribute("cde"));
+  Assert.ok(!url.hasAttribute("3446"));
+  Assert.ok(!url.hasAttribute("kl"));
+  Assert.ok(!url.hasAttribute("jk"));
 
   // Sub-string of an attribute, so this shouldn't change anything.
   url.removeAttribute("kl");
   url.removeAttribute("jk");
   url.removeAttribute("ef");
-  do_check_eq(url.attributes, newAttrs);
+  Assert.equal(url.attributes, newAttrs);
 
   url.removeAttribute("abc");
   newAttrs = newAttrs.substring(4);
 
-  do_check_eq(url.attributes, newAttrs);
-  do_check_eq(url.spec,
-              "ldap://localhost" + portAdpt + "/dc=short?" +
-              newAttrs + "?one?(objectclass=*)");
+  Assert.equal(url.attributes, newAttrs);
+  Assert.equal(url.spec,
+               "ldap://localhost" + portAdpt + "/dc=short?" +
+               newAttrs + "?one?(objectclass=*)");
 
   // This shouldn't fail, just clear the list
   url.attributes = "";
 
-  do_check_eq(url.attributes.length, 0);
-  do_check_eq(url.spec, "ldap://localhost" + portAdpt + "/dc=short??one?(objectclass=*)");
+  Assert.equal(url.attributes.length, 0);
+  Assert.equal(url.spec, "ldap://localhost" + portAdpt + "/dc=short??one?(objectclass=*)");
 
   // Set attributes via the url spec
 
   newAttrs = "abc,def,ghi,jkl";
   url.spec = "ldap://localhost/dc=short?" + newAttrs + "?one?(objectclass=*)";
 
-  do_check_eq(url.attributes, newAttrs);
-  do_check_eq(url.spec,
-              "ldap://localhost/dc=short?" + newAttrs + "?one?(objectclass=*)");
+  Assert.equal(url.attributes, newAttrs);
+  Assert.equal(url.spec,
+               "ldap://localhost/dc=short?" + newAttrs + "?one?(objectclass=*)");
 
   url.spec = "ldap://localhost/dc=short??one?(objectclass=*)";
 
   attrs = url.attributes;
-  do_check_eq(attrs.length, 0);
-  do_check_eq(url.spec, "ldap://localhost/dc=short??one?(objectclass=*)");
+  Assert.equal(attrs.length, 0);
+  Assert.equal(url.spec, "ldap://localhost/dc=short??one?(objectclass=*)");
 
   // Test - clone
 
@@ -279,6 +279,6 @@ function run_test() {
 
   var newUrl = url.clone();
 
-  do_check_eq(newUrl.spec,
-              "ldap://localhost/dc=short?abc,def,ghi,jkl?one?(objectclass=*)");
+  Assert.equal(newUrl.spec,
+               "ldap://localhost/dc=short?abc,def,ghi,jkl?one?(objectclass=*)");
 }

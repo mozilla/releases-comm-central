@@ -66,13 +66,13 @@ function makeVerifier(aFonts) {
 
     // A distinct lack of magic here, so that failing stuff is generally easier
     // to comment out and debug.
-    do_check_eq(getFont("serif", aEncoding), expectedFonts.serif);
-    do_check_eq(getFont("sans-serif", aEncoding), expectedFonts.sans);
-    do_check_eq(getFont("monospace", aEncoding), expectedFonts.monospace);
-    do_check_eq(Services.prefs.getIntPref("font.size.variable." + aEncoding),
-                expectedFonts.variableSize);
-    do_check_eq(Services.prefs.getIntPref("font.size.fixed." + aEncoding),
-                expectedFonts.fixedSize);
+    Assert.equal(getFont("serif", aEncoding), expectedFonts.serif);
+    Assert.equal(getFont("sans-serif", aEncoding), expectedFonts.sans);
+    Assert.equal(getFont("monospace", aEncoding), expectedFonts.monospace);
+    Assert.equal(Services.prefs.getIntPref("font.size.variable." + aEncoding),
+                 expectedFonts.variableSize);
+    Assert.equal(Services.prefs.getIntPref("font.size.fixed." + aEncoding),
+                 expectedFonts.fixedSize);
   }
 
   return verifier;

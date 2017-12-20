@@ -68,7 +68,7 @@ function do_check_transaction(real, expected) {
   if (real.them[real.them.length-1] == "QUIT")
     real.them.pop();
 
-  do_check_eq(real.them.join(","), expected.join(","));
+  Assert.equal(real.them.join(","), expected.join(","));
   dump("Passed test " + test + "\n");
 }
 
@@ -195,8 +195,8 @@ function richCreateMessage(fields, attachments=[], identity=null,
 function getAttachmentFromContent(aContent) {
   function getBoundaryStringFromContent(aContent) {
     let found = aContent.match(/Content-Type: multipart\/mixed;\s+boundary="(.*?)"/);
-    do_check_neq(found, null);
-    do_check_eq(found.length, 2);
+    Assert.notEqual(found, null);
+    Assert.equal(found.length, 2);
 
     return found[1];
   };
@@ -206,8 +206,8 @@ function getAttachmentFromContent(aContent) {
                          "([\\s\\S]*?)\\r\\n" +
                          "--" + boundary + "--", "m");
   let attachments = aContent.match(regex);
-  do_check_neq(attachments, null);
-  do_check_eq(attachments.length, 2);
+  Assert.notEqual(attachments, null);
+  Assert.equal(attachments.length, 2);
   return attachments[1];
 }
 

@@ -19,14 +19,14 @@ function checkLists(childNodes, number) {
     if (list instanceof Components.interfaces.nsIAbDirectory &&
         list.isMailList && list.dirName.startsWith('TestList')) {
       var index = list.dirName.substr(8, list.dirName.length - 8);
-      do_check_eq(mailListArray[index - 1], null);
-      do_check_eq(list.URI, kPABData.URI + "/MailList" + index);
+      Assert.equal(mailListArray[index - 1], null);
+      Assert.equal(list.URI, kPABData.URI + "/MailList" + index);
 
       mailListArray[index - 1] = list;
     }
   }
 
-  mailListArray.forEach(function (value) { do_check_neq(value, null); });
+  mailListArray.forEach(function (value) { Assert.notEqual(value, null); });
 }
 
 function run_test() {

@@ -70,10 +70,10 @@ function run_test()
                                            test.compressQuotes, test.stripHTML, contentType);
 
     // Now we need to compare the output
-    do_check_eq(test.contentType, contentType.value);
+    Assert.equal(test.contentType, contentType.value);
 
     var resultFile = do_get_file(kDataRoot + test.name + ".out");
     var actualBody = mailTestUtils.loadFileToString(resultFile, "UTF-8");
-    do_check_eq(body, actualBody);
+    Assert.equal(body, actualBody);
   });
 }

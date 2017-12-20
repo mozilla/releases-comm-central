@@ -36,15 +36,15 @@ var gTests =
     // check message counts
     let messageCount = {};
     msgCorpus.corpusCounts(1001, messageCount);
-    do_check_eq(2, messageCount.value);
+    Assert.equal(2, messageCount.value);
     msgCorpus.corpusCounts(1003, messageCount);
-    do_check_eq(1, messageCount.value);
+    Assert.equal(1, messageCount.value);
 
     for (let i = 0; i < tokenData.length; i++) {
       let id = tokenData[i][0];
       let count = tokenData[i][1];
       let word = tokenData[i][2];
-      do_check_eq(count, msgCorpus.getTokenCount(word, id));
+      Assert.equal(count, msgCorpus.getTokenCount(word, id));
     }
   },
   function checkLoadTwice() {
@@ -55,15 +55,15 @@ var gTests =
     // check message counts
     let messageCount = {};
     msgCorpus.corpusCounts(1001, messageCount);
-    do_check_eq(4, messageCount.value);
+    Assert.equal(4, messageCount.value);
     msgCorpus.corpusCounts(1003, messageCount);
-    do_check_eq(2, messageCount.value);
+    Assert.equal(2, messageCount.value);
 
     for (let i = 0; i < tokenData.length; i++) {
       let id = tokenData[i][0];
       let count = 2 * tokenData[i][1];
       let word = tokenData[i][2];
-      do_check_eq(count, msgCorpus.getTokenCount(word, id));
+      Assert.equal(count, msgCorpus.getTokenCount(word, id));
     }
   },
   // remap the ids in the file to different local ids
@@ -76,7 +76,7 @@ var gTests =
       let id = tokenData[i][0] - 1000;
       let count = tokenData[i][1];
       let word = tokenData[i][2];
-      do_check_eq(count, msgCorpus.getTokenCount(word, id));
+      Assert.equal(count, msgCorpus.getTokenCount(word, id));
     }
   },
   // test removing data
@@ -88,15 +88,15 @@ var gTests =
     // check message counts
     let messageCount = {};
     msgCorpus.corpusCounts(1001, messageCount);
-    do_check_eq(2, messageCount.value);
+    Assert.equal(2, messageCount.value);
     msgCorpus.corpusCounts(1003, messageCount);
-    do_check_eq(1, messageCount.value);
+    Assert.equal(1, messageCount.value);
 
     for (let i = 0; i < tokenData.length; i++) {
       let id = tokenData[i][0];
       let count = tokenData[i][1];
       let word = tokenData[i][2];
-      do_check_eq(count, msgCorpus.getTokenCount(word, id));
+      Assert.equal(count, msgCorpus.getTokenCount(word, id));
     }
   },
   // test clearing a trait
@@ -112,16 +112,16 @@ var gTests =
     msgCorpus.clearTrait(1001);
     // check that the message count is zero
     msgCorpus.corpusCounts(1001, messageCountObject);
-    do_check_eq(0, messageCountObject.value);
+    Assert.equal(0, messageCountObject.value);
     // but the other trait should still have counts
     msgCorpus.corpusCounts(1003, messageCountObject);
-    do_check_eq(1, messageCountObject.value);
+    Assert.equal(1, messageCountObject.value);
     // check that token count was cleared
     for (let i = 0; i < tokenData.length; i++) {
       let id = tokenData[i][0];
       let count = tokenData[i][1];
       let word = tokenData[i][2];
-      do_check_eq(id == 1001 ? 0 : count, msgCorpus.getTokenCount(word, id));
+      Assert.equal(id == 1001 ? 0 : count, msgCorpus.getTokenCount(word, id));
     }
   },
 

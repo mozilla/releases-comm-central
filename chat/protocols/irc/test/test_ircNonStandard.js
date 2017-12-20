@@ -88,7 +88,7 @@ function testZncAuth() {
     let result = NOTICE.call(account, message);
 
     // Yes, it was handled.
-    do_check_true(result);
+    Assert.ok(result);
 
     // No sent data and parameters should be unchanged.
     equal(account.buffer.length, 0);

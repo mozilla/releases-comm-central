@@ -49,12 +49,12 @@ function onTestSuccess(config)
                              "yamato.nadeshiko@example.com",
                              "abc12345");
 
-  do_check_eq(config.incoming.username, "yamato.nadeshiko");
-  do_check_eq(config.outgoing.username, "yamato.nadeshiko@example.com");
-  do_check_eq(config.incoming.hostname, "pop.example.com");
-  do_check_eq(config.outgoing.hostname, "smtp.example.com");
-  do_check_eq(config.identity.realname, "Yamato Nadeshiko");
-  do_check_eq(config.identity.emailAddress, "yamato.nadeshiko@example.com");
+  Assert.equal(config.incoming.username, "yamato.nadeshiko");
+  Assert.equal(config.outgoing.username, "yamato.nadeshiko@example.com");
+  Assert.equal(config.incoming.hostname, "pop.example.com");
+  Assert.equal(config.outgoing.hostname, "smtp.example.com");
+  Assert.equal(config.identity.realname, "Yamato Nadeshiko");
+  Assert.equal(config.identity.emailAddress, "yamato.nadeshiko@example.com");
   do_test_finished();
 }
 

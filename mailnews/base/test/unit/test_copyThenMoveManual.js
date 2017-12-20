@@ -55,11 +55,11 @@ var gTestArray =
   },
   function verifyFolders1() {
     // Copy and Move should each now have 1 message in them.
-    do_check_eq(folderCount(gCopyFolder), 1);
-    do_check_eq(folderCount(gMoveFolder), 1);
+    Assert.equal(folderCount(gCopyFolder), 1);
+    Assert.equal(folderCount(gMoveFolder), 1);
     // the local inbox folder should now be empty, since the second
     // operation was a move
-    do_check_eq(folderCount(localAccountUtils.inboxFolder), 0);
+    Assert.equal(folderCount(localAccountUtils.inboxFolder), 0);
   },
   // just get a message into the local folder
   function *getLocalMessages2() {
@@ -79,11 +79,11 @@ var gTestArray =
   },
   function verifyFolders2() {
     // Copy and Move should each now have 2 message in them.
-    do_check_eq(folderCount(gCopyFolder), 2);
-    do_check_eq(folderCount(gMoveFolder), 2);
+    Assert.equal(folderCount(gCopyFolder), 2);
+    Assert.equal(folderCount(gMoveFolder), 2);
     // the local inbox folder should now be empty, since the second
     // operation was a move
-    do_check_eq(folderCount(localAccountUtils.inboxFolder), 0);
+    Assert.equal(folderCount(localAccountUtils.inboxFolder), 0);
   },
   function endTest() {
     // Cleanup, null out everything, close all cached connections and stop the

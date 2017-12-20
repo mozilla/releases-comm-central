@@ -106,13 +106,13 @@ function verify_index(smsg, gmsg) {
   let attachmentName = gmsg.attachmentNames[0];
   LOG.debug("using character set: " + charset + " actual: " + actual);
   LOG.debug("subject: " + subject + " (len: " + subject.length + ")");
-  do_check_eq(actual, subject);
+  Assert.equal(actual, subject);
   LOG.debug("body: " + indexedBodyText +
       " (len: " + indexedBodyText.length + ")");
-  do_check_eq(actual, indexedBodyText);
+  Assert.equal(actual, indexedBodyText);
   LOG.debug("attachment name:" + attachmentName +
       " (len: " + attachmentName.length + ")");
-  do_check_eq(actual, attachmentName);
+  Assert.equal(actual, attachmentName);
 }
 
 /**

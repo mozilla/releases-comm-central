@@ -5,13 +5,13 @@
 function run_test() {
   // get the Personal Address Book
   let pab = MailServices.ab.getDirectory(kPABData.URI);
-  do_check_true(pab instanceof Ci.nsIAbDirectory);
+  Assert.ok(pab instanceof Ci.nsIAbDirectory);
   try {
     pab.deleteCards(null); // this should throw an error
     do_throw("Error, deleteCards should throw an error when null is passed to it");
   }
   catch (e) {
     // make sure the correct error message was thrown
-    do_check_eq(e.result, Components.results.NS_ERROR_INVALID_POINTER);
+    Assert.equal(e.result, Components.results.NS_ERROR_INVALID_POINTER);
   }
 }

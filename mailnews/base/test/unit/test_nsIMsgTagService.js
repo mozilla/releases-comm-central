@@ -29,42 +29,42 @@ function run_test()
     MailServices.tags.deleteKey(tagArray[i].key);
 
   // make sure added tag is now gone
-  do_check_false(MailServices.tags.isValidKey(tag1));
+  Assert.ok(!MailServices.tags.isValidKey(tag1));
 
   // add single tag, and check again
   MailServices.tags.addTagForKey(tag1, tag1, null, null);
-  do_check_true(MailServices.tags.isValidKey(tag1));
-  do_check_false(MailServices.tags.isValidKey(tag4));
+  Assert.ok(MailServices.tags.isValidKey(tag1));
+  Assert.ok(!MailServices.tags.isValidKey(tag4));
 
   // add second tag and check
   MailServices.tags.addTagForKey(tag4, tag4, null, null);
-  do_check_true(MailServices.tags.isValidKey(tag1));
-  do_check_false(MailServices.tags.isValidKey(tag2));
-  do_check_false(MailServices.tags.isValidKey(tag3));
-  do_check_true(MailServices.tags.isValidKey(tag4));
+  Assert.ok(MailServices.tags.isValidKey(tag1));
+  Assert.ok(!MailServices.tags.isValidKey(tag2));
+  Assert.ok(!MailServices.tags.isValidKey(tag3));
+  Assert.ok(MailServices.tags.isValidKey(tag4));
 
   // delete a tag and check
   MailServices.tags.deleteKey(tag1);
-  do_check_false(MailServices.tags.isValidKey(tag1));
-  do_check_false(MailServices.tags.isValidKey(tag2));
-  do_check_false(MailServices.tags.isValidKey(tag3));
-  do_check_true(MailServices.tags.isValidKey(tag4));
+  Assert.ok(!MailServices.tags.isValidKey(tag1));
+  Assert.ok(!MailServices.tags.isValidKey(tag2));
+  Assert.ok(!MailServices.tags.isValidKey(tag3));
+  Assert.ok(MailServices.tags.isValidKey(tag4));
 
   // add many tags and check again
   for (i = 0; i < 100; i++)
     MailServices.tags.addTagForKey(i, "lotsatags" + i, null, null);
-  do_check_false(MailServices.tags.isValidKey(tag1));
-  do_check_false(MailServices.tags.isValidKey(tag2));
-  do_check_false(MailServices.tags.isValidKey(tag3));
-  do_check_true(MailServices.tags.isValidKey(tag4));
+  Assert.ok(!MailServices.tags.isValidKey(tag1));
+  Assert.ok(!MailServices.tags.isValidKey(tag2));
+  Assert.ok(!MailServices.tags.isValidKey(tag3));
+  Assert.ok(MailServices.tags.isValidKey(tag4));
 
   for (i = 0; i < 100; i++)
   {
-    do_check_true(MailServices.tags.isValidKey(i));
+    Assert.ok(MailServices.tags.isValidKey(i));
     // make sure it knows the difference betweens tags and keys
-    do_check_false(MailServices.tags.isValidKey("lotsatags" + i));
+    Assert.ok(!MailServices.tags.isValidKey("lotsatags" + i));
     // are we confused by key at start of tag?
-    do_check_false(MailServices.tags.isValidKey(i + "lotsatags"));
+    Assert.ok(!MailServices.tags.isValidKey(i + "lotsatags"));
   }
 }
 

@@ -51,7 +51,7 @@ function checkPersistentState(folder) {
   let msgDatabase = folder.msgDatabase;
   let dbFolderInfo = msgDatabase.dBFolderInfo;
   let state = dbFolderInfo.getCharProperty(this.PERSISTED_COLUMN_PROPERTY_NAME);
-  do_check_eq(state, columnJSON);
+  Assert.equal(state, columnJSON);
   do_timeout(0, function(){doTest(++gCurTestNum);});
 }
 
@@ -75,7 +75,7 @@ var copyListener =
   OnStopCopy: function(aStatus)
   {
     // Check: message successfully copied.
-    do_check_eq(aStatus, 0);
+    Assert.equal(aStatus, 0);
     // Ugly hack: make sure we don't get stuck in a JS->C++->JS->C++... call stack
     // This can happen with a bunch of synchronous functions grouped together, and
     // can even cause tests to fail because they're still waiting for the listener
@@ -90,7 +90,7 @@ var urlListener =
   },
   OnStopRunningUrl: function (aUrl, aExitCode) {
     // Check: message successfully copied.
-    do_check_eq(aExitCode, 0);
+    Assert.equal(aExitCode, 0);
     // Ugly hack: make sure we don't get stuck in a JS->C++->JS->C++... call stack
     // This can happen with a bunch of synchronous functions grouped together, and
     // can even cause tests to fail because they're still waiting for the listener

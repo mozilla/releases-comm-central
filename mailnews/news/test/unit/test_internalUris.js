@@ -41,10 +41,10 @@ var tests = [
 function* test_newMsgs() {
   // This tests nsMsgNewsFolder::GetNewsMessages via getNewMessages
   let folder = localserver.rootFolder.getChildNamed("test.filter");
-  do_check_eq(folder.getTotalMessages(false), 0);
+  Assert.equal(folder.getTotalMessages(false), 0);
   folder.getNewMessages(null, asyncUrlListener);
   yield false;
-  do_check_eq(folder.getTotalMessages(false), 8);
+  Assert.equal(folder.getTotalMessages(false), 8);
   yield true;
 }
 
@@ -70,7 +70,7 @@ function* test_cancel() {
         .cancelMessage(hdr, dummyMsgWindow);
   yield false;
 
-  do_check_eq(folder.getTotalMessages(false), 7);
+  Assert.equal(folder.getTotalMessages(false), 7);
   yield true;
 }
 
@@ -90,7 +90,7 @@ function* test_fetchMessage() {
   let folder = localserver.rootFolder.getChildNamed("test.filter");
   MailServices.nntp.fetchMessage(folder, 2, null, streamlistener, asyncUrlListener);
   yield false;
-  do_check_eq(statuscode, Components.results.NS_OK);
+  Assert.equal(statuscode, Components.results.NS_OK);
   yield true;
 }
 
@@ -124,7 +124,7 @@ function* test_search() {
   searchSession.search(null);
   yield false;
 
-  do_check_eq(hitCount, 1);
+  Assert.equal(hitCount, 1);
   yield true;
 }
 
@@ -156,7 +156,7 @@ function* test_grouplist() {
 
   let groups = enumGroups("");
   for (let group in daemon._groups)
-    do_check_true(groups.indexOf(group) >= 0);
+    Assert.ok(groups.indexOf(group) >= 0);
 
   // Release reference, somehow impedes GC of 'subserver'.
   subserver.subscribeListener = null;
@@ -168,7 +168,7 @@ function* test_postMessage() {
   MailServices.nntp.postMessage(do_get_file("postings/post2.eml"), "misc.test",
     localserver.key, asyncUrlListener, null);
   yield false;
-  do_check_eq(daemon.getGroup("misc.test").keys.length, 1);
+  Assert.equal(daemon.getGroup("misc.test").keys.length, 1);
   yield true;
 }
 
@@ -209,7 +209,7 @@ function* test_escapedName() {
   };
   MailServices.nntp.fetchMessage(folder, 1, null, streamlistener, asyncUrlListener);
   yield false;
-  do_check_eq(statuscode, Components.results.NS_OK);
+  Assert.equal(statuscode, Components.results.NS_OK);
   yield true;
 }
 

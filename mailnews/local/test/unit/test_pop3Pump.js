@@ -23,9 +23,9 @@ add_task(function* runPump() {
   while (enumerator.hasMoreElements()) {
     msgCount++;
     let hdr = enumerator.getNext().QueryInterface(Ci.nsIMsgDBHdr);
-    do_check_eq(hdr.subject, testSubjects[msgCount - 1]);
+    Assert.equal(hdr.subject, testSubjects[msgCount - 1]);
   }
-  do_check_eq(msgCount, 2);
+  Assert.equal(msgCount, 2);
   gPOP3Pump = null;
 });
 

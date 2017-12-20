@@ -18,8 +18,8 @@ function reset() {
 }
 
 function alert(aDialogTitle, aText) {
-  do_check_eq(gDialogTitle, null);
-  do_check_eq(gText, null);
+  Assert.equal(gDialogTitle, null);
+  Assert.equal(gText, null);
 
   gDialogTitle = aDialogTitle;
   gText = aText;
@@ -56,8 +56,8 @@ alertListener.prototype = {
   },
 
   onAlert: function (aMessage, aMsgWindow) {
-    do_check_eq(this.mMessage, null);
-    do_check_eq(this.mMsgWindow, null);
+    Assert.equal(this.mMessage, null);
+    Assert.equal(this.mMsgWindow, null);
 
     this.mMessage = aMessage;
     this.mMsgWindow = aMsgWindow;
@@ -77,8 +77,8 @@ function run_test()
   MailServices.mailSession.alertUser("test message", msgUrl);
 
   // The dialog title doesn't get set at the moment.
-  do_check_eq(gDialogTitle, null);
-  do_check_eq(gText, "test message");
+  Assert.equal(gDialogTitle, null);
+  Assert.equal(gText, "test message");
 
   // Test - No listeners and no msgWindow, check no alerts.
 
@@ -89,8 +89,8 @@ function run_test()
   MailServices.mailSession.alertUser("test no message", msgUrl);
 
   // The dialog title doesn't get set at the moment.
-  do_check_eq(gDialogTitle, null);
-  do_check_eq(gText, null);
+  Assert.equal(gDialogTitle, null);
+  Assert.equal(gText, null);
 
   // Test - One listener, returning false (prompt should still happen).
 
@@ -105,11 +105,11 @@ function run_test()
 
   MailServices.mailSession.alertUser("message test", msgUrl);
 
-  do_check_eq(gDialogTitle, null);
-  do_check_eq(gText, "message test");
+  Assert.equal(gDialogTitle, null);
+  Assert.equal(gText, "message test");
 
-  do_check_eq(listener1.mMessage, "message test");
-  do_check_neq(listener1.mMsgWindow, null);
+  Assert.equal(listener1.mMessage, "message test");
+  Assert.notEqual(listener1.mMsgWindow, null);
 
   // Test - One listener, returning false, no msg window (prompt shouldn't
   //        happen).
@@ -119,11 +119,11 @@ function run_test()
 
   MailServices.mailSession.alertUser("message test no prompt", null);
 
-  do_check_eq(gDialogTitle, null);
-  do_check_eq(gText, null);
+  Assert.equal(gDialogTitle, null);
+  Assert.equal(gText, null);
 
-  do_check_eq(listener1.mMessage, "message test no prompt");
-  do_check_eq(listener1.mMsgWindow, null);
+  Assert.equal(listener1.mMessage, "message test no prompt");
+  Assert.equal(listener1.mMsgWindow, null);
 
   // Test - Two listeners, both returning false (prompt should happen).
 
@@ -139,14 +139,14 @@ function run_test()
 
   MailServices.mailSession.alertUser("two listeners", msgUrl);
 
-  do_check_eq(gDialogTitle, null);
-  do_check_eq(gText, "two listeners");
+  Assert.equal(gDialogTitle, null);
+  Assert.equal(gText, "two listeners");
 
-  do_check_eq(listener1.mMessage, "two listeners");
-  do_check_neq(listener1.mMsgWindow, null);
+  Assert.equal(listener1.mMessage, "two listeners");
+  Assert.notEqual(listener1.mMsgWindow, null);
 
-  do_check_eq(listener2.mMessage, "two listeners");
-  do_check_neq(listener2.mMsgWindow, null);
+  Assert.equal(listener2.mMessage, "two listeners");
+  Assert.notEqual(listener2.mMsgWindow, null);
 
   // Test - Two listeners, one returning true (prompt shouldn't happen).
 
@@ -160,14 +160,14 @@ function run_test()
 
   MailServices.mailSession.alertUser("no prompt", msgUrl);
 
-  do_check_eq(gDialogTitle, null);
-  do_check_eq(gText, null);
+  Assert.equal(gDialogTitle, null);
+  Assert.equal(gText, null);
 
-  do_check_eq(listener1.mMessage, "no prompt");
-  do_check_neq(listener1.mMsgWindow, null);
+  Assert.equal(listener1.mMessage, "no prompt");
+  Assert.notEqual(listener1.mMsgWindow, null);
 
-  do_check_eq(listener2.mMessage, "no prompt");
-  do_check_neq(listener2.mMsgWindow, null);
+  Assert.equal(listener2.mMessage, "no prompt");
+  Assert.notEqual(listener2.mMsgWindow, null);
 
   // Test - Remove a listener.
 
@@ -181,14 +181,14 @@ function run_test()
 
   MailServices.mailSession.alertUser("remove listener", msgUrl);
 
-  do_check_eq(gDialogTitle, null);
-  do_check_eq(gText, null);
+  Assert.equal(gDialogTitle, null);
+  Assert.equal(gText, null);
 
-  do_check_eq(listener1.mMessage, null);
-  do_check_eq(listener1.mMsgWindow, null);
+  Assert.equal(listener1.mMessage, null);
+  Assert.equal(listener1.mMsgWindow, null);
 
-  do_check_eq(listener2.mMessage, "remove listener");
-  do_check_neq(listener2.mMsgWindow, null);
+  Assert.equal(listener2.mMessage, "remove listener");
+  Assert.notEqual(listener2.mMsgWindow, null);
 
   // Test - Remove the other listener.
 
@@ -202,12 +202,12 @@ function run_test()
 
   MailServices.mailSession.alertUser("no listeners", msgUrl);
 
-  do_check_eq(gDialogTitle, null);
-  do_check_eq(gText, "no listeners");
+  Assert.equal(gDialogTitle, null);
+  Assert.equal(gText, "no listeners");
 
-  do_check_eq(listener1.mMessage, null);
-  do_check_eq(listener1.mMsgWindow, null);
+  Assert.equal(listener1.mMessage, null);
+  Assert.equal(listener1.mMsgWindow, null);
 
-  do_check_eq(listener2.mMessage, null);
-  do_check_eq(listener2.mMsgWindow, null);
+  Assert.equal(listener2.mMessage, null);
+  Assert.equal(listener2.mMsgWindow, null);
 }

@@ -20,12 +20,12 @@ var streamListener =
   onStartRequest: function(aRequest, aContext) {
   },
   onStopRequest: function(aRequest, aContext, aStatusCode) {
-    do_check_eq(aStatusCode, 0);
+    Assert.equal(aStatusCode, 0);
 
     // Reduce any \r\n to just \n so we can do a good comparison on any
     // platform.
     var reduced = this._data.replace(/\r\n/g, "\n");
-    do_check_eq(reduced, kSimpleNewsArticle);
+    Assert.equal(reduced, kSimpleNewsArticle);
 
     // We must finish closing connections and tidying up after a timeout
     // so that the thread has time to unwrap itself.
@@ -70,7 +70,7 @@ function run_test() {
                 .cacheStorage
                 .asyncOpenURI(uri, "", Ci.nsICacheStorage.OPEN_NORMALLY, {
       onCacheEntryAvailable: function(cacheEntry, isNew, appCache, status) {
-        do_check_eq(status, Components.results.NS_OK);
+        Assert.equal(status, Components.results.NS_OK);
 
         cacheEntry.markValid();
 
@@ -81,8 +81,8 @@ function run_test() {
           OnStopRunningUrl: function () { localserver.closeCachedConnections(); }});
         server.performTest();
 
-        do_check_eq(folder.getTotalMessages(false), 1);
-        do_check_true(folder.hasNewMessages);
+        Assert.equal(folder.getTotalMessages(false), 1);
+        Assert.ok(folder.hasNewMessages);
 
         server.resetTest();
 

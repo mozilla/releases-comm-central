@@ -24,7 +24,7 @@ var gGotAlert = false;
 var gGotMsgAdded = false;
 
 function alert(aDialogTitle, aText) {
-  do_check_true(aText.startsWith("Connection to server localhost timed out."));
+  Assert.ok(aText.startsWith("Connection to server localhost timed out."));
   gGotAlert = true;
   async_driver();
 }
@@ -56,7 +56,7 @@ function* createTargetFolder()
   IMAPPump.incomingServer.rootFolder.createSubfolder("targetFolder", null);
   yield false;
   gTargetFolder = IMAPPump.incomingServer.rootFolder.getChildNamed("targetFolder");
-  do_check_true(gTargetFolder instanceof Ci.nsIMsgImapMailFolder);
+  Assert.ok(gTargetFolder instanceof Ci.nsIMsgImapMailFolder);
   gTargetFolder.updateFolderWithListener(null, asyncUrlListener);
   yield false;
 }
@@ -76,9 +76,9 @@ function* loadImapMessage()
   IMAPPump.mailbox.addMessage(gMessage);
   IMAPPump.inbox.updateFolder(null);
   yield false;
-  do_check_eq(1, IMAPPump.inbox.getTotalMessages(false));
+  Assert.equal(1, IMAPPump.inbox.getTotalMessages(false));
   let msgHdr = mailTestUtils.firstMsgHdr(IMAPPump.inbox);
-  do_check_true(msgHdr instanceof Ci.nsIMsgDBHdr);
+  Assert.ok(msgHdr instanceof Ci.nsIMsgDBHdr);
 
   yield true;
 }
@@ -117,15 +117,15 @@ function* updateTargetFolder()
 // Cleanup
 function endTest()
 {
-  do_check_true(gGotAlert);
+  Assert.ok(gGotAlert);
   // Make sure neither source nor target folder have offline events.
-  do_check_false(IMAPPump.inbox.getFlag(Ci.nsMsgFolderFlags.OfflineEvents));
-  do_check_false(gTargetFolder.getFlag(Ci.nsMsgFolderFlags.OfflineEvents));
+  Assert.ok(!IMAPPump.inbox.getFlag(Ci.nsMsgFolderFlags.OfflineEvents));
+  Assert.ok(!gTargetFolder.getFlag(Ci.nsMsgFolderFlags.OfflineEvents));
 
   // fake server does the copy, but then times out, so make sure the target
   // folder has only 1 message, not the multiple ones it would have if we
   // retried.
-  do_check_eq(gTargetFolder.getTotalMessages(false), 1);
+  Assert.equal(gTargetFolder.getTotalMessages(false), 1);
   teardownIMAPPump();
 }
 

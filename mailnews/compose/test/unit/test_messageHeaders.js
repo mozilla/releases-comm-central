@@ -63,18 +63,18 @@ function checkMessageHeaders(msgData, expectedHeaders, partNum = "") {
       for (let header in expectedHeaders) {
         let expected = expectedHeaders[header];
         if (expected === undefined)
-          do_check_false(headers.has(header));
+          Assert.ok(!headers.has(header));
         else {
           let value = headers.getRawHeader(header);
-          do_check_eq(value.length, 1);
+          Assert.equal(value.length, 1);
           value[0] = value[0].replace(/boundary=[^;]*(;|$)/, "boundary=.");
-          do_check_eq(value[0], expected);
+          Assert.equal(value[0], expected);
         }
       }
     }
   };
   MimeParser.parseSync(msgData, handler, {onerror: function (e) { throw e; }});
-  do_check_true(seen);
+  Assert.ok(seen);
 }
 
 function* testEnvelope() {
@@ -225,9 +225,9 @@ function* testOtherHeaders() {
 
   // Check headers with dynamic content
   let headers = MimeParser.extractHeaders(msgData);
-  do_check_true(headers.has("Message-Id"));
-  do_check_true(headers.getRawHeader("Message-Id")[0]
-                       .endsWith("@tinderbox.invalid>"));
+  Assert.ok(headers.has("Message-Id"));
+  Assert.ok(headers.getRawHeader("Message-Id")[0]
+                   .endsWith("@tinderbox.invalid>"));
   // This is a very special crafted check. We don't know when the message was
   // actually created, but we have bounds on it, from above. From
   // experimentation, there are a few ways you can create dates that Date.parse
@@ -245,7 +245,7 @@ function* testOtherHeaders() {
     before = before - before % 1000;
     after = after - after % 1000;
     do_print(before + " <= " + date + " <= " + after + "?");
-    do_check_true(before <= date && date <= after);
+    Assert.ok(before <= date && date <= after);
   }
 
 

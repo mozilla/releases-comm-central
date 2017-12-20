@@ -106,7 +106,7 @@ function testConnectionLimit() {
   server.performTest();
   // We should have length one... which means this must be a transaction object,
   // containing only us and them
-  do_check_true('us' in server.playTransaction());
+  Assert.ok('us' in server.playTransaction());
   server.stop();
 
   var thread = gThreadManager.currentThread;
@@ -173,7 +173,7 @@ function testManyConnections() {
   // The last one that is processed is test.filter, so make sure that
   // test.subscribed.simple is not retrieving the data meant for test.filter
   let folder = _server.rootFolder.getChildNamed("test.subscribe.simple")
-  do_check_eq(folder.getTotalMessages(false), 1);
+  Assert.equal(folder.getTotalMessages(false), 1);
 }
 
 function run_test() {

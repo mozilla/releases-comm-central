@@ -46,7 +46,7 @@ function assert_equal(aA, aB, aWhy)
 {
   if (aA != aB)
     do_throw(aWhy);
-  do_check_eq(aA, aB);
+  Assert.equal(aA, aB);
 };
 
 /**
@@ -168,36 +168,36 @@ function test_readFromXML_config1()
   var config = xmlReader.readFromXML(JXON.build(
     domParser.parseFromString(clientConfigXML, "text/xml")));
 
-  do_check_eq(config instanceof xmlReader.AccountConfig, true);
-  do_check_eq("example.com", config.id);
-  do_check_eq("Example", config.displayName);
-  do_check_neq(-1, config.domains.indexOf("example.com"));
+  Assert.equal(config instanceof xmlReader.AccountConfig, true);
+  Assert.equal("example.com", config.id);
+  Assert.equal("Example", config.displayName);
+  Assert.notEqual(-1, config.domains.indexOf("example.com"));
   // 1. incoming server skipped because of an unsupported protocol
   // 2. incoming server skipped because of an so-far unknown auth method
   // 3. incoming server is fine for us: IMAP, SSL, cleartext password
   server = config.incoming;
-  do_check_eq("imapmail.example.com", server.hostname);
-  do_check_eq("imap", server.type);
-  do_check_eq(2, server.socketType); // SSL
-  do_check_eq(3, server.auth); // cleartext password
+  Assert.equal("imapmail.example.com", server.hostname);
+  Assert.equal("imap", server.type);
+  Assert.equal(2, server.socketType); // SSL
+  Assert.equal(3, server.auth); // cleartext password
   // only one more supported incoming server
-  do_check_eq(1, config.incomingAlternatives.length);
+  Assert.equal(1, config.incomingAlternatives.length);
   // 4. incoming server skipped because of an so-far unknown socketType
   // 5. server: POP
   server = config.incomingAlternatives[0];
-  do_check_eq("popmail.example.com", server.hostname);
-  do_check_eq("pop3", server.type);
-  do_check_eq(1, server.socketType); // no SSL
-  do_check_eq(4, server.auth); // encrypted password
+  Assert.equal("popmail.example.com", server.hostname);
+  Assert.equal("pop3", server.type);
+  Assert.equal(1, server.socketType); // no SSL
+  Assert.equal(4, server.auth); // encrypted password
 
   // SMTP server, most preferred
   server = config.outgoing;
-  do_check_eq("smtpout.example.com", server.hostname);
-  do_check_eq("smtp", server.type);
-  do_check_eq(3, server.socketType); // STARTTLS
-  do_check_eq(1, server.auth); // no auth
+  Assert.equal("smtpout.example.com", server.hostname);
+  Assert.equal("smtp", server.type);
+  Assert.equal(3, server.socketType); // STARTTLS
+  Assert.equal(1, server.auth); // no auth
   // no other SMTP servers
-  do_check_eq(0, config.outgoingAlternatives.length);
+  Assert.equal(0, config.outgoingAlternatives.length);
 }
 
 /**

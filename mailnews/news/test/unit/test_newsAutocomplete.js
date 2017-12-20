@@ -52,52 +52,52 @@ function run_test() {
   // misc.test is not subscribed
   obs = new acObserver();
   acs.startSearch("misc", paramsN, null, obs);
-  do_check_true(obs._result == null || obs._result.matchCount == 0);
+  Assert.ok(obs._result == null || obs._result.matchCount == 0);
 
   obs = new acObserver();
   acs.startSearch("misc", paramsF, null, obs);
-  do_check_true(obs._result == null || obs._result.matchCount == 0);
+  Assert.ok(obs._result == null || obs._result.matchCount == 0);
 
   obs = new acObserver();
   acs.startSearch("misc", paramsMail, null, obs);
-  do_check_true(obs._result == null || obs._result.matchCount == 0);
+  Assert.ok(obs._result == null || obs._result.matchCount == 0);
 
   // test.filter is subscribed
   obs = new acObserver();
   acs.startSearch("filter", paramsN, null, obs);
-  do_check_eq(obs._result.matchCount, 1);
+  Assert.equal(obs._result.matchCount, 1);
 
   obs = new acObserver();
   acs.startSearch("filter", paramsF, null, obs);
-  do_check_eq(obs._result.matchCount, 1);
+  Assert.equal(obs._result.matchCount, 1);
 
   // ... but no auto-complete should occur for addr_to
   obs = new acObserver();
   acs.startSearch("filter", paramsMail, null, obs);
-  do_check_true(obs._result == null || obs._result.matchCount == 0);
+  Assert.ok(obs._result == null || obs._result.matchCount == 0);
 
   // test.subscribe.empty and test.subscribe.simple are subscribed
   obs = new acObserver();
   acs.startSearch("subscribe", paramsN, null, obs);
-  do_check_eq(obs._result.matchCount, 2);
+  Assert.equal(obs._result.matchCount, 2);
 
   obs = new acObserver();
   acs.startSearch("subscribe", paramsF, null, obs);
-  do_check_eq(obs._result.matchCount, 2);
+  Assert.equal(obs._result.matchCount, 2);
 
   // ... but no auto-complete should occur for addr_to
   obs = new acObserver();
   acs.startSearch("subscribe", paramsMail, null, obs);
-  do_check_true(obs._result == null || obs._result.matchCount == 0);
+  Assert.ok(obs._result == null || obs._result.matchCount == 0);
 
   // test.subscribe.empty is subscribed, test.empty is not
   obs = new acObserver();
   acs.startSearch("empty", paramsN, null, obs);
-  do_check_eq(obs._result.matchCount, 1);
+  Assert.equal(obs._result.matchCount, 1);
 
   obs = new acObserver();
   acs.startSearch("empty", paramsF, null, obs);
-  do_check_eq(obs._result.matchCount, 1);
+  Assert.equal(obs._result.matchCount, 1);
 
   let thread = gThreadManager.currentThread;
   while (thread.hasPendingEvents())

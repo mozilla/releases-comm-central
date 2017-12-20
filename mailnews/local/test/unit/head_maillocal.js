@@ -118,7 +118,7 @@ function do_check_transaction(real, expected) {
   if (real.them[real.them.length-1] == "QUIT")
     real.them.pop();
 
-  do_check_eq(real.them.join(","), expected.join(","));
+  Assert.equal(real.them.join(","), expected.join(","));
   dump("Passed test " + test + "\n");
 }
 

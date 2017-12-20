@@ -42,9 +42,9 @@ function* loadMessages()
   {
     msgCount++;
     gHdr = enumerator.getNext().QueryInterface(Ci.nsIMsgDBHdr);
-    do_check_eq(gHdr.subject, testSubjects[msgCount - 1]);
+    Assert.equal(gHdr.subject, testSubjects[msgCount - 1]);
   }
-  do_check_eq(msgCount, 1);
+  Assert.equal(msgCount, 1);
   gPOP3Pump = null;
 }
 
@@ -58,7 +58,7 @@ function* goodStreaming()
     function theString(k) {
       dump('the string:\n' + k + '\n');
       // The message contains this header
-      do_check_true(k.includes("X-Mozilla-Draft-Info: internal/draft; vcard=0; receipt=0; DSN=0; uuencode=0"));
+      Assert.ok(k.includes("X-Mozilla-Draft-Info: internal/draft; vcard=0; receipt=0; DSN=0; uuencode=0"));
       async_driver();
     }), null, true);
   yield false;
@@ -84,7 +84,7 @@ function badStreaming()
     messageService.streamHeaders(uri, createStreamListener(
       function theString(k) {} ), null, true);
   } catch (e) {haveError = true;}
-  do_check_true(haveError);
+  Assert.ok(haveError);
 }
 
 // This function is adapted from the Conversations addon, which

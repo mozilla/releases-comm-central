@@ -198,7 +198,7 @@ function do_check_transaction(real, expected) {
   if (real.them[real.them.length-1] == "QUIT")
     real.them.pop();
 
-  do_check_eq(real.them.join(","), expected.join(","));
+  Assert.equal(real.them.join(","), expected.join(","));
   dump("Passed test " + test + "\n");
 }
 
@@ -231,7 +231,7 @@ var articleTextListener = {
   onStartRequest: function(aRequest, aContext) {
   },
   onStopRequest: function(aRequest, aContext, aStatusCode) {
-    do_check_eq(aStatusCode, 0);
+    Assert.equal(aStatusCode, 0);
 
     // Reduce any \r\n to just \n so we can do a good comparison on any
     // platform.

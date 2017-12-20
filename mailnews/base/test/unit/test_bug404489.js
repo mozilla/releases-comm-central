@@ -132,7 +132,7 @@ function TestSearchx(aFolder, aValue, aAttrib, aOp, aHitCount, onDone)
     {
       print("Finished search does " + aHitCount + " equal " + hitCount + "?");
       searchSession = null;
-      do_check_eq(aHitCount, hitCount);
+      Assert.equal(aHitCount, hitCount);
       if (onDone)
         onDone();
     },

@@ -26,7 +26,7 @@ var tests = [
   {
     do_timeout(5000, function() {
       // should be done by now
-      do_check_true(false);
+      Assert.ok(false);
     });
  
     if (typeof localAccountUtils.inboxFolder == 'undefined')
@@ -53,9 +53,9 @@ var tests = [
     {
       msgCount++;
       let hdr = enumerator.getNext().QueryInterface(Ci.nsIMsgDBHdr);
-      do_check_eq(hdr.subject, testSubjects[msgCount - 1]);
+      Assert.equal(hdr.subject, testSubjects[msgCount - 1]);
     }
-    do_check_eq(msgCount, 2);
+    Assert.equal(msgCount, 2);
 
     // try an update
     mailTestUtils.updateFolderAndNotify(gTargetFolder, function () {

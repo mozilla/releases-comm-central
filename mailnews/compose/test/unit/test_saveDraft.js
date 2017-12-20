@@ -5,8 +5,8 @@
 
 add_task(function* checkDraft() {
   yield createMessage();
-  do_check_eq(gDraftFolder.getTotalMessages(false), 1);
-  do_check_eq(gDraftFolder.getNumUnread(false), 1);
+  Assert.equal(gDraftFolder.getTotalMessages(false), 1);
+  Assert.equal(gDraftFolder.getNumUnread(false), 1);
 });
 
 function run_test() {

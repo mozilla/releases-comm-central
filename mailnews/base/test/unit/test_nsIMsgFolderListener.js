@@ -38,7 +38,7 @@ gMFListener.prototype =
   mRemoveSelf: false,
   msgAdded: function (aMsg)
   {
-    do_check_eq(this.mReceived & nsIMFNService.msgAdded, 0);
+    Assert.equal(this.mReceived & nsIMFNService.msgAdded, 0);
     this.mReceived |= nsIMFNService.msgAdded;
     if (this.mRemoveSelf)
       MailServices.mfn.removeListener(this);
@@ -46,7 +46,7 @@ gMFListener.prototype =
 
   msgsClassified: function (aMsgs, aJunkProcessed, aTraitProcessed)
   {
-    do_check_eq(this.mReceived & nsIMFNService.msgsClassified, 0);
+    Assert.equal(this.mReceived & nsIMFNService.msgsClassified, 0);
     this.mReceived |= nsIMFNService.msgsClassified;
     if (this.mRemoveSelf)
       MailServices.mfn.removeListener(this);
@@ -54,7 +54,7 @@ gMFListener.prototype =
 
   msgsDeleted: function (aMsgs)
   {
-    do_check_eq(this.mReceived & nsIMFNService.msgsDeleted, 0);
+    Assert.equal(this.mReceived & nsIMFNService.msgsDeleted, 0);
     this.mReceived |= nsIMFNService.msgsDeleted;
     if (this.mRemoveSelf)
       MailServices.mfn.removeListener(this);
@@ -62,7 +62,7 @@ gMFListener.prototype =
 
   msgsMoveCopyCompleted: function (aMove, aSrcMsgs, aDestFolder, aDestMsgs)
   {
-    do_check_eq(this.mReceived & nsIMFNService.msgsMoveCopyCompleted, 0);
+    Assert.equal(this.mReceived & nsIMFNService.msgsMoveCopyCompleted, 0);
     this.mReceived |= nsIMFNService.msgsMoveCopyCompleted;
     if (this.mRemoveSelf)
       MailServices.mfn.removeListener(this);
@@ -70,7 +70,7 @@ gMFListener.prototype =
 
   msgKeyChanged: function(aOldMsgKey, aNewMsgHdr)
   {
-    do_check_eq(this.mReceived & nsIMFNService.msgKeyChanged, 0);
+    Assert.equal(this.mReceived & nsIMFNService.msgKeyChanged, 0);
     this.mReceived |= nsIMFNService.msgKeyChanged;
     if (this.mRemoveSelf)
       MailServices.mfn.removeListener(this);
@@ -78,7 +78,7 @@ gMFListener.prototype =
 
   folderAdded: function (aFolder)
   {
-    do_check_eq(this.mReceived & nsIMFNService.folderAdded, 0);
+    Assert.equal(this.mReceived & nsIMFNService.folderAdded, 0);
     this.mReceived |= nsIMFNService.folderAdded;
     if (this.mRemoveSelf)
       MailServices.mfn.removeListener(this);
@@ -86,7 +86,7 @@ gMFListener.prototype =
 
   folderDeleted: function (aFolder)
   {
-    do_check_eq(this.mReceived & nsIMFNService.folderDeleted, 0);
+    Assert.equal(this.mReceived & nsIMFNService.folderDeleted, 0);
     this.mReceived |= nsIMFNService.folderDeleted;
     if (this.mRemoveSelf)
       MailServices.mfn.removeListener(this);
@@ -94,7 +94,7 @@ gMFListener.prototype =
 
   folderMoveCopyCompleted: function (aMove, aSrcFolder, aDestFolder)
   {
-    do_check_eq(this.mReceived & nsIMFNService.folderMoveCopyCompleted, 0);
+    Assert.equal(this.mReceived & nsIMFNService.folderMoveCopyCompleted, 0);
     this.mReceived |= nsIMFNService.folderMoveCopyCompleted;
     if (this.mRemoveSelf)
       MailServices.mfn.removeListener(this);
@@ -102,7 +102,7 @@ gMFListener.prototype =
 
   folderRenamed: function (aOrigFolder, aNewFolder)
   {
-    do_check_eq(this.mReceived & nsIMFNService.folderRenamed, 0);
+    Assert.equal(this.mReceived & nsIMFNService.folderRenamed, 0);
     this.mReceived |= nsIMFNService.folderRenamed;
     if (this.mRemoveSelf)
       MailServices.mfn.removeListener(this);
@@ -110,7 +110,7 @@ gMFListener.prototype =
 
   itemEvent: function (aItem, aEvent, aData, aString)
   {
-    do_check_eq(this.mReceived & nsIMFNService.itemEvent, 0);
+    Assert.equal(this.mReceived & nsIMFNService.itemEvent, 0);
     this.mReceived |= nsIMFNService.itemEvent;
     if (this.mRemoveSelf)
       MailServices.mfn.removeListener(this);
@@ -151,7 +151,7 @@ function run_test()
   // Then remove the listeners
   var checkFlag = function (flag) {
     var listener = singleListeners.shift();
-    do_check_eq(listener.mReceived, flag);
+    Assert.equal(listener.mReceived, flag);
     listener.mRemoveSelf = true;
     listener.mReceived = 0;
     singleListeners.push(listener);
@@ -162,7 +162,7 @@ function run_test()
   NotifyMsgFolderListeners();
 
   // Test: all listeners should be removed at this point
-  do_check_false(MailServices.mfn.hasListeners);
+  Assert.ok(!MailServices.mfn.hasListeners);
 
   // Test: Send notifications again. Check that we don't receive any notifications.
   singleListeners.forEach(function (listener) { listener.mReceived = 0; });
@@ -170,7 +170,7 @@ function run_test()
   NotifyMsgFolderListeners();
 
   var checkNotReceived = function() {
-    do_check_eq(singleListeners.shift().mReceived, 0);
+    Assert.equal(singleListeners.shift().mReceived, 0);
   }
   gIndividualFlags.forEach(checkNotReceived);
 }

@@ -28,7 +28,7 @@ function continueTest()
   dump("temp file path = " + gExpectedFiles[0].path + "\n");
   dump("temp file path = " + gExpectedFiles[1].path + "\n");
   for (let expectedFile of gExpectedFiles)
-    do_check_false(expectedFile.exists());
+    Assert.ok(!expectedFile.exists());
 
   // get message headers for the inbox folder
   let enumerator = localAccountUtils.inboxFolder.msgDatabase.EnumerateMessages();
@@ -36,9 +36,9 @@ function continueTest()
   while (enumerator.hasMoreElements())
   {
     let hdr = enumerator.getNext().QueryInterface(Ci.nsIMsgDBHdr);
-    do_check_eq(hdr.subject, testSubjects[msgCount++]);
+    Assert.equal(hdr.subject, testSubjects[msgCount++]);
   }
-  do_check_eq(msgCount, 2);
+  Assert.equal(msgCount, 2);
   gPOP3Pump = null;
   do_test_finished();
 }

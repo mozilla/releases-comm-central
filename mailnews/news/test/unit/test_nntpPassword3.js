@@ -30,9 +30,9 @@ add_task(function *() {
   // Test - Check there is a password to begin with...
   var logins = Services.logins.findLogins(count, kServerUrl, null, kServerUrl);
 
-  do_check_eq(count.value, 1);
-  do_check_eq(logins[0].username, kUsername);
-  do_check_eq(logins[0].password, kPassword);
+  Assert.equal(count.value, 1);
+  Assert.equal(logins[0].username, kUsername);
+  Assert.equal(logins[0].password, kPassword);
 
   // Test - Remove the news password login via the incoming server
   incomingServer.forgetPassword();
@@ -40,7 +40,7 @@ add_task(function *() {
   logins = Services.logins.findLogins(count, kServerUrl, null, kServerUrl);
 
   // should be no passwords left...
-  do_check_eq(count.value, 0);
+  Assert.equal(count.value, 0);
 });
 
 function run_test() {

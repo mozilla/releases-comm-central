@@ -50,7 +50,7 @@ add_task(function* maildirToMbox() {
     let hdr = enumerator.getNext().QueryInterface(Ci.nsIMsgDBHdr);
     messages.appendElement(hdr);
   }
-  do_check_eq(messages.length, 2);
+  Assert.equal(messages.length, 2);
 
   // Move messages to mbox test folder.
   let promiseCopyListener = new PromiseTestUtils.PromiseCopyListener();
@@ -68,15 +68,15 @@ add_task(function* maildirToMbox() {
     dump("Subject: " + hdr.subject + "\n");
     subjects.push(hdr.subject);
   }
-  do_check_eq(messages.length, 2);
+  Assert.equal(messages.length, 2);
 
   // messages should be missing from source
-  do_check_eq(gInboxFolder.getTotalMessages(false), 0);
+  Assert.equal(gInboxFolder.getTotalMessages(false), 0);
 
   // Check for subjects. maildir order for messages may not match
   // order for creation, hence the array.includes.
   for (let subject of gTestSubjects) {
-    do_check_true(subjects.includes(subject));
+    Assert.ok(subjects.includes(subject));
   }
 
   // Make sure the body matches the message.
@@ -84,7 +84,7 @@ add_task(function* maildirToMbox() {
   while (enumerator.hasMoreElements()) {
     let hdr = enumerator.getNext().QueryInterface(Ci.nsIMsgDBHdr);
     let body = mailTestUtils.loadMessageToString(gTestFolder, hdr);
-    do_check_true(body.indexOf(hdr.subject) >= 0);
+    Assert.ok(body.indexOf(hdr.subject) >= 0);
   }
 });
 
@@ -98,7 +98,7 @@ add_task(function* mboxToMaildir() {
     let hdr = enumerator.getNext().QueryInterface(Ci.nsIMsgDBHdr);
     messages.appendElement(hdr);
   }
-  do_check_eq(messages.length, 2);
+  Assert.equal(messages.length, 2);
 
   // Move messages to inbox folder.
   let promiseCopyListener = new PromiseTestUtils.PromiseCopyListener();
@@ -116,15 +116,15 @@ add_task(function* mboxToMaildir() {
     dump("Subject: " + hdr.subject + "\n");
     subjects.push(hdr.subject);
   }
-  do_check_eq(messages.length, 2);
+  Assert.equal(messages.length, 2);
 
   // messages should be missing from source
-  do_check_eq(gTestFolder.getTotalMessages(false), 0);
+  Assert.equal(gTestFolder.getTotalMessages(false), 0);
 
   // Check for subjects. maildir order for messages may not match
   // order for creation, hence the array.includes.
   for (let subject of gTestSubjects) {
-    do_check_true(subjects.includes(subject));
+    Assert.ok(subjects.includes(subject));
   }
 
   // Make sure the body matches the message.
@@ -132,7 +132,7 @@ add_task(function* mboxToMaildir() {
   while (enumerator.hasMoreElements()) {
     let hdr = enumerator.getNext().QueryInterface(Ci.nsIMsgDBHdr);
     let body = mailTestUtils.loadMessageToString(gInboxFolder, hdr);
-    do_check_true(body.indexOf(hdr.subject) >= 0);
+    Assert.ok(body.indexOf(hdr.subject) >= 0);
   }
 });
 

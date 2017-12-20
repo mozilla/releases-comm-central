@@ -12,15 +12,15 @@ var abListener = {
   result: [],
   maxResults: 1,
   onItemAdded: function (parentItem, item) {
-    do_check_true(this.result.length < this.maxResults);
+    Assert.ok(this.result.length < this.maxResults);
     this.result.push(["onItemAdded", parentItem, item]);
   },
   onItemRemoved: function (parentItem, item) {
-    do_check_true(this.result.length < this.maxResults);
+    Assert.ok(this.result.length < this.maxResults);
     this.result.push(["onItemRemoved", parentItem, item]);
   },
   onItemPropertyChanged: function (item, property, oldValue, newValue) {
-    do_check_true(this.result.length < this.maxResults);
+    Assert.ok(this.result.length < this.maxResults);
     this.result.push(["onItemPropertyChanged", item, property, oldValue, newValue]);
   }
 };
@@ -51,10 +51,10 @@ function run_test() {
 
   var newCard = AB.addCard(card);
 
-  do_check_true(newCard instanceof Ci.nsIAbCard);
-  do_check_eq(abListener.result[0][0], "onItemAdded");
-  do_check_eq(abListener.result[0][1], AB);
-  do_check_eq(abListener.result[0][2], newCard);
+  Assert.ok(newCard instanceof Ci.nsIAbCard);
+  Assert.equal(abListener.result[0][0], "onItemAdded");
+  Assert.equal(abListener.result[0][1], AB);
+  Assert.equal(abListener.result[0][2], newCard);
   abListener.result = [];
 
   // Test - modify a card
@@ -63,11 +63,11 @@ function run_test() {
 
   AB.modifyCard(newCard);
 
-  do_check_eq(abListener.result[0][0], "onItemPropertyChanged");
-  do_check_eq(abListener.result[0][1], newCard);
-  do_check_eq(abListener.result[0][2], null);
-  do_check_eq(abListener.result[0][3], null);
-  do_check_eq(abListener.result[0][4], null);
+  Assert.equal(abListener.result[0][0], "onItemPropertyChanged");
+  Assert.equal(abListener.result[0][1], newCard);
+  Assert.equal(abListener.result[0][2], null);
+  Assert.equal(abListener.result[0][3], null);
+  Assert.equal(abListener.result[0][4], null);
   abListener.result = [];
 
   // Test - delete a card
@@ -79,9 +79,9 @@ function run_test() {
 
   AB.deleteCards(cardsToDelete);
 
-  do_check_eq(abListener.result[0][0], "onItemRemoved");
-  do_check_eq(abListener.result[0][1], AB);
-  do_check_eq(abListener.result[0][2], newCard);
+  Assert.equal(abListener.result[0][0], "onItemRemoved");
+  Assert.equal(abListener.result[0][1], AB);
+  Assert.equal(abListener.result[0][2], newCard);
   abListener.result = [];
 
   print("Finished Cards");
@@ -102,24 +102,24 @@ function run_test() {
 
   AB.addMailList(mailList);
  
-  do_check_eq(abListener.result.length, 2);
-  do_check_eq(abListener.result[0][0], "onItemAdded");
-  do_check_eq(abListener.result[0][1], AB);
-  do_check_eq(abListener.result[1][0], "onItemAdded");
-  do_check_eq(abListener.result[1][1], AB);
+  Assert.equal(abListener.result.length, 2);
+  Assert.equal(abListener.result[0][0], "onItemAdded");
+  Assert.equal(abListener.result[0][1], AB);
+  Assert.equal(abListener.result[1][0], "onItemAdded");
+  Assert.equal(abListener.result[1][1], AB);
 
   // Now verify the card and the directory
   card = abListener.result[0][2].QueryInterface(Ci.nsIAbCard);
-  do_check_true(card.isMailList);
-  do_check_eq(card.displayName, "TestList");
-  do_check_eq(card.getProperty("Notes", "BAD"), "testdescription");
-  do_check_eq(card.getProperty("NickName", "BAD"), "test");
+  Assert.ok(card.isMailList);
+  Assert.equal(card.displayName, "TestList");
+  Assert.equal(card.getProperty("Notes", "BAD"), "testdescription");
+  Assert.equal(card.getProperty("NickName", "BAD"), "test");
 
   var book = abListener.result[1][2].QueryInterface(Ci.nsIAbDirectory);
-  do_check_true(book.isMailList);
-  do_check_eq(book.dirName, "TestList");
-  do_check_eq(book.listNickName, "test");
-  do_check_eq(book.description, "testdescription");
+  Assert.ok(book.isMailList);
+  Assert.equal(book.dirName, "TestList");
+  Assert.equal(book.listNickName, "test");
+  Assert.equal(book.description, "testdescription");
 
   abListener.result = [];
 
@@ -127,24 +127,24 @@ function run_test() {
 
   AB.deleteDirectory(book);
 
-  do_check_eq(abListener.result.length, 2);
-  do_check_eq(abListener.result[0][0], "onItemRemoved");
-  do_check_eq(abListener.result[0][1], AB);
-  do_check_eq(abListener.result[1][0], "onItemRemoved");
-  do_check_eq(abListener.result[1][1], AB);
+  Assert.equal(abListener.result.length, 2);
+  Assert.equal(abListener.result[0][0], "onItemRemoved");
+  Assert.equal(abListener.result[0][1], AB);
+  Assert.equal(abListener.result[1][0], "onItemRemoved");
+  Assert.equal(abListener.result[1][1], AB);
 
   // Now verify the card and the directory
   card = abListener.result[0][2].QueryInterface(Ci.nsIAbCard);
-  do_check_true(card.isMailList);
-  do_check_eq(card.displayName, "TestList");
-  do_check_eq(card.getProperty("Notes", "BAD"), "testdescription");
-  do_check_eq(card.getProperty("NickName", "BAD"), "test");
+  Assert.ok(card.isMailList);
+  Assert.equal(card.displayName, "TestList");
+  Assert.equal(card.getProperty("Notes", "BAD"), "testdescription");
+  Assert.equal(card.getProperty("NickName", "BAD"), "test");
 
   var book = abListener.result[1][2].QueryInterface(Ci.nsIAbDirectory);
-  do_check_true(book.isMailList);
-  do_check_eq(book.dirName, "TestList");
-  do_check_eq(book.listNickName, "test");
-  do_check_eq(book.description, "testdescription");
+  Assert.ok(book.isMailList);
+  Assert.equal(book.dirName, "TestList");
+  Assert.equal(book.listNickName, "test");
+  Assert.equal(book.description, "testdescription");
 
   // Remove listener
 

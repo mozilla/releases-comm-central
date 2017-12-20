@@ -31,8 +31,8 @@ msll.prototype = {
   // nsIMsgSendLaterListener
   onStartSending: function (aTotal) {
     this._initialTotal = 1;
-    do_check_eq(gMsgSendLater.sendingMessages, true);
-    do_check_eq(aTotal, 1);
+    Assert.equal(gMsgSendLater.sendingMessages, true);
+    Assert.equal(aTotal, 1);
   },
   onMessageStartSending: function (aCurrentMessage, aTotalMessageCount,
                                    aMessageHeader, aIdentity) {
@@ -48,11 +48,11 @@ msll.prototype = {
     do_test_finished();
     print("msll onStopSending\n");
     try {
-      do_check_eq(aStatus, 0);
-      do_check_eq(aTotalTried, 1);
-      do_check_eq(aSuccessful, 1);
-      do_check_eq(this._initialTotal, 1);
-      do_check_eq(gMsgSendLater.sendingMessages, false);
+      Assert.equal(aStatus, 0);
+      Assert.equal(aTotalTried, 1);
+      Assert.equal(aSuccessful, 1);
+      Assert.equal(this._initialTotal, 1);
+      Assert.equal(gMsgSendLater.sendingMessages, false);
 
       do_check_transaction(server.playTransaction(),
                            ["EHLO test",
@@ -61,11 +61,11 @@ msll.prototype = {
                             "DATA"]);
 
       // Compare data file to what the server received
-      do_check_eq(originalData, server._daemon.post);
+      Assert.equal(originalData, server._daemon.post);
 
       // check there's still one message left in the folder
-      do_check_eq(gMsgSendLater.getUnsentMessagesFolder(null)
-                               .getTotalMessages(false), 1);
+      Assert.equal(gMsgSendLater.getUnsentMessagesFolder(null)
+                                .getTotalMessages(false), 1);
 
       finished = true;
     } catch (e) {
@@ -97,7 +97,7 @@ function run_test() {
   originalData = IOUtils.loadFileToString(testFile1);
 
   // Check that the send later service thinks we don't have messages to send
-  do_check_eq(gMsgSendLater.hasUnsentMessages(identity), false);
+  Assert.equal(gMsgSendLater.hasUnsentMessages(identity), false);
 
   MailServices.accounts.setSpecialFolders();
 
@@ -116,7 +116,7 @@ function run_test() {
 
   sentFolder = localAccountUtils.rootFolder.createLocalSubfolder("Sent");
 
-  do_check_eq(identity.doFcc, true);
+  Assert.equal(identity.doFcc, true);
 
   // Now prepare to actually "send" the message later, i.e. dump it in the
   // unsent messages folder.

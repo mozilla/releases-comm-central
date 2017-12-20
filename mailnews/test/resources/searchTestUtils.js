@@ -34,7 +34,7 @@ function TestSearch(aFolder, aValue, aAttrib, aOp, aHitCount, onDone, aCustomId,
     { 
       print("Finished search does " + aHitCount + " equal " + hitCount + "?");
       searchSession = null;
-      do_check_eq(aHitCount, hitCount);
+      Assert.equal(aHitCount, hitCount);
       if (onDone)
         onDone();
     },
@@ -113,12 +113,12 @@ function testValidityTable(aScope, aOp, aAttrib, aValue)
   var isEnabled = validityTable.getEnabled(aAttrib, aOp);
   if (aValue)
   {
-    do_check_true(isAvailable);
-    do_check_true(isEnabled);
+    Assert.ok(isAvailable);
+    Assert.ok(isEnabled);
   }
   else
   {
-    do_check_false(isAvailable);
-    do_check_false(isEnabled);
+    Assert.ok(!isAvailable);
+    Assert.ok(!isEnabled);
   }
 }

@@ -111,10 +111,10 @@ function run_test() {
                                         splitRecipientsTests[part].emailAddressOnly,
                                         count);
 
-    do_check_eq(splitRecipientsTests[part].count, count.value);
-    do_check_eq(splitRecipientsTests[part].count, result.length);
+    Assert.equal(splitRecipientsTests[part].count, count.value);
+    Assert.equal(splitRecipientsTests[part].count, result.length);
 
     for (var item = 0; item < count.value; ++item)
-      do_check_eq(splitRecipientsTests[part].result[item], result[item]);
+      Assert.equal(splitRecipientsTests[part].result[item], result[item]);
   }
 }

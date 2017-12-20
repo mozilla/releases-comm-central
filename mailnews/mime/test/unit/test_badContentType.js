@@ -58,7 +58,7 @@ var gStreamListener = {
   },
   onStopRequest: function (aRequest, aContext, aStatusCode) {
     dump("*** ContentType is "+gMessageHeaderSink.contentType+" (expecting "+this.expectedContentType+")\n\n");
-    do_check_eq(gMessageHeaderSink.contentType, this.expectedContentType);
+    Assert.equal(gMessageHeaderSink.contentType, this.expectedContentType);
     this._stream = null;
     async_driver();
   },

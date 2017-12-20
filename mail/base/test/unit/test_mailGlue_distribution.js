@@ -39,7 +39,7 @@ function run_test()
   testDistributionFile.append("distribution.ini");
   // Copy to distroDir
   testDistributionFile.copyTo(distroDir, "distribution.ini");
-  do_check_true(testDistributionFile.exists());
+  Assert.ok(testDistributionFile.exists());
 
   // Set the prefs
   TBDistCustomizer.applyPrefDefaults();
@@ -52,11 +52,11 @@ function run_test()
   // Global section in the ini file
   let iniValue = testIni.getString("Global", "id");
   let pref = Services.prefs.getCharPref("distribution.id");
-  do_check_eq(iniValue, pref);
+  Assert.equal(iniValue, pref);
 
   iniValue = testIni.getString("Global", "version");
   pref = Services.prefs.getCharPref("distribution.version");
-  do_check_eq(iniValue, pref);
+  Assert.equal(iniValue, pref);
 
   let aboutLocale;
   try {
@@ -70,7 +70,7 @@ function run_test()
     aboutLocale = testIni.getString("Global", "about");
 
   pref = Services.prefs.getCharPref("distribution.about");
-  do_check_eq(aboutLocale, pref);
+  Assert.equal(aboutLocale, pref);
 
   // Test Preferences section
   let s = "Preferences";
@@ -80,13 +80,13 @@ function run_test()
     let value = eval(testIni.getString(s, key));
     switch (typeof value) {
     case "boolean":
-        do_check_eq(value, Services.prefs.getBoolPref(key));
+        Assert.equal(value, Services.prefs.getBoolPref(key));
         break;
     case "number":
-        do_check_eq(value, Services.prefs.getIntPref(key));
+        Assert.equal(value, Services.prefs.getIntPref(key));
         break;
     case "string":
-        do_check_eq(value, Services.prefs.getCharPref(key));
+        Assert.equal(value, Services.prefs.getCharPref(key));
         break;
     default:
         do_throw("The preference " + key + " is of unknown type: " + typeof value);
@@ -102,7 +102,7 @@ function run_test()
     let key = keys.getNext();
     let value = eval(testIni.getString(s, key));
     value = "data:text/plain," + key + "=" + value;
-    do_check_eq(value, Services.prefs.getCharPref(key));
+    Assert.equal(value, Services.prefs.getCharPref(key));
     overrides.push(key);
   }
 
@@ -117,7 +117,7 @@ function run_test()
       let value = eval(testIni.getString(s, key));
       value =  value.replace(/%LOCALE%/g, "en-US");
       value = "data:text/plain," + key + "=" + value;
-      do_check_eq(value, Services.prefs.getCharPref(key));
+      Assert.equal(value, Services.prefs.getCharPref(key));
     }
   }
   do_test_finished();

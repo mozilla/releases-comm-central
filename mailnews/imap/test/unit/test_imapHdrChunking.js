@@ -72,16 +72,16 @@ function* uploadImapMessages()
 function* testMessageFetched() {
   // If we're really chunking, then the message fetch should have started before
   // we finished the updateFolder URL.
-  do_check_true(gFolderListener._gotNewMailBiff);
+  Assert.ok(gFolderListener._gotNewMailBiff);
   // Should have only downloaded first chunk of headers when message
   // has finished streaming.
-  do_check_eq(IMAPPump.inbox.msgDatabase.dBFolderInfo.numMessages, 3);
+  Assert.equal(IMAPPump.inbox.msgDatabase.dBFolderInfo.numMessages, 3);
   yield false;
 }
 
 function* testHdrsDownloaded() {
   // Make sure we got all 10 headers.
-  do_check_eq(IMAPPump.inbox.msgDatabase.dBFolderInfo.numMessages, 10);
+  Assert.equal(IMAPPump.inbox.msgDatabase.dBFolderInfo.numMessages, 10);
   yield true;
 }
 

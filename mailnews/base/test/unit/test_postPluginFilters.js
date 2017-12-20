@@ -45,7 +45,7 @@ var gTests =
     command: kClass,
     fileName: kGoodFile,
     test: function testClassGood() {
-      do_check_eq(kPriorityHigh, gMsgHdr.priority);
+      Assert.equal(kPriorityHigh, gMsgHdr.priority);
     }
   },
   // test a filter that acts on JUNK messages
@@ -53,7 +53,7 @@ var gTests =
     command: kClass,
     fileName: kJunkFile,
     test: function testClassJunk() {
-      do_check_eq(kPriorityLow, gMsgHdr.priority);
+      Assert.equal(kPriorityLow, gMsgHdr.priority);
     }
   },
   /**/

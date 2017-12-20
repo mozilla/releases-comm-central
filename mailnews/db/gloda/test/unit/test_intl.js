@@ -231,13 +231,13 @@ function verify_index(smsg, gmsg) {
   let attachmentName = gmsg.attachmentNames[0];
   LOG.debug("using character set: " + charset + " actual: " + actual);
   LOG.debug("subject: " + subject + " (len: " + subject.length + ")");
-  do_check_eq(actual, subject);
+  Assert.equal(actual, subject);
   LOG.debug("body: " + indexedBodyText +
       " (len: " + indexedBodyText.length + ")");
-  do_check_eq(actual, indexedBodyText);
+  Assert.equal(actual, indexedBodyText);
   LOG.debug("attachment name:" + attachmentName +
       " (len: " + attachmentName.length + ")");
-  do_check_eq(actual, attachmentName);
+  Assert.equal(actual, attachmentName);
 }
 
 /**
@@ -275,11 +275,11 @@ function* test_encoding_complications_with_mail_addresses() {
     cc: [encodedCommaPair],
   });
   function verify_sammy_snake(smsg, gmsg) {
-    do_check_eq(gmsg.from.contact.name, decodedName);
-    do_check_eq(gmsg.to.length, 1);
-    do_check_eq(gmsg.to[0].id, gmsg.from.id);
-    do_check_eq(gmsg.cc.length, 1);
-    do_check_eq(gmsg.cc[0].id, gmsg.from.id);
+    Assert.equal(gmsg.from.contact.name, decodedName);
+    Assert.equal(gmsg.to.length, 1);
+    Assert.equal(gmsg.to[0].id, gmsg.from.id);
+    Assert.equal(gmsg.cc.length, 1);
+    Assert.equal(gmsg.cc[0].id, gmsg.from.id);
   }
 
   let synSet = new SyntheticMessageSet([smsg]);

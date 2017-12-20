@@ -105,7 +105,7 @@ var copyListener =
   OnStopCopy: function(aStatus)
   {
     // Check: message successfully copied.
-    do_check_eq(aStatus, 0);
+    Assert.equal(aStatus, 0);
     ++gCurTestNum;
     doTest();
   }

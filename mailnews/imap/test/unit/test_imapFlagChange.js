@@ -35,7 +35,7 @@ var tests = [
   },
   function* checkForwardedFlagSet() {
     let msgHdr = IMAPPump.inbox.msgDatabase.getMsgHdrForMessageID(gSynthMessage.messageId);
-    do_check_eq(msgHdr.flags & Ci.nsMsgMessageFlags.Forwarded,
+    Assert.equal(msgHdr.flags & Ci.nsMsgMessageFlags.Forwarded,
       Ci.nsMsgMessageFlags.Forwarded);
     gSecondFolder.updateFolderWithListener(null, asyncUrlListener);
     yield false;
@@ -47,7 +47,7 @@ var tests = [
   },
   function* checkForwardedFlagCleared() {
     let msgHdr = IMAPPump.inbox.msgDatabase.getMsgHdrForMessageID(gSynthMessage.messageId);
-    do_check_eq(msgHdr.flags & Ci.nsMsgMessageFlags.Forwarded, 0);
+    Assert.equal(msgHdr.flags & Ci.nsMsgMessageFlags.Forwarded, 0);
     gSecondFolder.updateFolderWithListener(null, asyncUrlListener);
     yield false;
   },
@@ -58,8 +58,8 @@ var tests = [
   },
   function* checkSeenFlagSet() {
     let msgHdr = IMAPPump.inbox.msgDatabase.getMsgHdrForMessageID(gSynthMessage.messageId);
-    do_check_eq(msgHdr.flags & Ci.nsMsgMessageFlags.Read,
-                Ci.nsMsgMessageFlags.Read);
+    Assert.equal(msgHdr.flags & Ci.nsMsgMessageFlags.Read,
+                 Ci.nsMsgMessageFlags.Read);
     gSecondFolder.updateFolderWithListener(null, asyncUrlListener);
     yield false;
   },
@@ -70,7 +70,7 @@ var tests = [
   },
   function* checkRepliedFlagSet() {
     let msgHdr = IMAPPump.inbox.msgDatabase.getMsgHdrForMessageID(gSynthMessage.messageId);
-    do_check_eq(msgHdr.flags & Ci.nsMsgMessageFlags.Replied,
+    Assert.equal(msgHdr.flags & Ci.nsMsgMessageFlags.Replied,
       Ci.nsMsgMessageFlags.Replied);
     gSecondFolder.updateFolderWithListener(null, asyncUrlListener);
     yield false;
@@ -83,7 +83,7 @@ var tests = [
   function* checkTagSet() {
     let msgHdr = IMAPPump.inbox.msgDatabase.getMsgHdrForMessageID(gSynthMessage.messageId);
     let keywords = msgHdr.getStringProperty("keywords");
-    do_check_true(keywords.includes("randomtag"));
+    Assert.ok(keywords.includes("randomtag"));
     gSecondFolder.updateFolderWithListener(null, asyncUrlListener);
     yield false;
   },
@@ -95,7 +95,7 @@ var tests = [
   function checkTagCleared() {
     let msgHdr = IMAPPump.inbox.msgDatabase.getMsgHdrForMessageID(gSynthMessage.messageId);
     let keywords = msgHdr.getStringProperty("keywords");
-    do_check_false(keywords.includes("randomtag"));
+    Assert.ok(!keywords.includes("randomtag"));
   },
   teardown
 ];
@@ -125,7 +125,7 @@ function* setup() {
 }
 
 asyncUrlListener.callback = function(aUrl, aExitCode) {
-  do_check_eq(aExitCode, 0);
+  Assert.equal(aExitCode, 0);
 };
 
 function teardown() {

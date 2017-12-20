@@ -174,7 +174,7 @@ function testSearch()
 {
   // tests the previous search
   if (gTest)
-    do_check_eq(gHitCount, gTest.matches ? 1 : 0);
+    Assert.equal(gHitCount, gTest.matches ? 1 : 0);
   gTest = Tests.shift();
   if (gTest)
   {

@@ -36,7 +36,7 @@ var gTestArray =
   function verifyFolders() {
     let msgRestored = gTestFolder.msgDatabase.getMsgHdrForMessageID(gMsgId1);
     let msg = mailTestUtils.loadMessageToString(gTestFolder, msgRestored);
-    do_check_eq(msg, gMsg1.toMboxString());
+    Assert.equal(msg, gMsg1.toMboxString());
     doTest(++gCurTestNum);
   },
 ];
@@ -103,7 +103,7 @@ var CopyListener =
   {
     dump("in OnStopCopy " + gCurTestNum + "\n");
     // Check: message successfully copied.
-    do_check_eq(aStatus, 0);
+    Assert.equal(aStatus, 0);
     // Ugly hack: make sure we don't get stuck in a JS->C++->JS->C++... call stack
     // This can happen with a bunch of synchronous functions grouped together, and
     // can even cause tests to fail because they're still waiting for the listener
@@ -120,7 +120,7 @@ var URLListener =
   OnStopRunningUrl: function(aURL, aStatus)
   {
     dump("in OnStopRunningURL " + gCurTestNum + "\n");
-    do_check_eq(aStatus, 0);
+    Assert.equal(aStatus, 0);
     do_timeout(0, function(){doTest(++gCurTestNum);});
   }
 }

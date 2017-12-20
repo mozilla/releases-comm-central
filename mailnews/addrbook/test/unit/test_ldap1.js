@@ -21,14 +21,14 @@ function run_test() {
                              .QueryInterface(Components.interfaces.nsIAbLDAPDirectory);
 
   // Test - Check various fields
-  do_check_eq(abDir.dirName, "test");
-  do_check_eq(abDir.lDAPURL.spec, kLDAPTestSpec);
-  do_check_true(abDir.readOnly);
+  Assert.equal(abDir.dirName, "test");
+  Assert.equal(abDir.lDAPURL.spec, kLDAPTestSpec);
+  Assert.ok(abDir.readOnly);
 
   // Test - Write a UTF-8 Auth DN and check it
   abDir.authDn = "test\u00D0";
 
-  do_check_eq(abDir.authDn, "test\u00D0");
+  Assert.equal(abDir.authDn, "test\u00D0");
 
   // Test - searchDuringLocalAutocomplete
 
@@ -94,7 +94,7 @@ function run_test() {
     identity.directoryServer = element.idSer;
     Services.io.offline = element.offline;
 
-    do_check_eq(abDir.useForAutocomplete(element.idKey), element.result);
+    Assert.equal(abDir.useForAutocomplete(element.idKey), element.result);
   }
 
   localAcTests.forEach(checkAc);

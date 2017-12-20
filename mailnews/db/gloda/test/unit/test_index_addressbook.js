@@ -75,7 +75,7 @@ function* setup_create_identity() {
 
   // now the identity exists... make sure it is in cache.
   let identity = get_cached_gloda_identity_for_email(EMAIL_ADDRESS);
-  do_check_neq(identity, null);
+  Assert.notEqual(identity, null);
 
   // and make sure it has no idea what the current state of the card is.
   if (identity._hasAddressBookCard !== undefined)
@@ -91,7 +91,7 @@ function test_add_card_cache_indication() {
   add_card(EMAIL_ADDRESS, DISPLAY_NAME);
 
   let identity = get_cached_gloda_identity_for_email(EMAIL_ADDRESS);
-  do_check_eq(identity._hasAddressBookCard, true);
+  Assert.equal(identity._hasAddressBookCard, true);
 }
 
 /**
@@ -102,7 +102,7 @@ function test_remove_card_cache_indication() {
   delete_card(EMAIL_ADDRESS);
 
   let identity = get_cached_gloda_identity_for_email(EMAIL_ADDRESS);
-  do_check_eq(identity._hasAddressBookCard, false);
+  Assert.equal(identity._hasAddressBookCard, false);
 }
 
 

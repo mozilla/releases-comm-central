@@ -53,9 +53,9 @@ var gTestArray =
     yield gPOP3Pump.run();
   },
   function verifyFolders2() {
-    do_check_eq(folderCount(gMoveFolder), 1);
+    Assert.equal(folderCount(gMoveFolder), 1);
     // the local inbox folder should have one message.
-    do_check_eq(folderCount(localAccountUtils.inboxFolder), 1);
+    Assert.equal(folderCount(localAccountUtils.inboxFolder), 1);
   },
   function verifyMessages() {
     // check MoveFolder message
@@ -65,9 +65,9 @@ var gTestArray =
     let hdr = enumerator.getNext().QueryInterface(Ci.nsIMsgDBHdr);
     keys.push(hdr.messageKey);
     hdrs.push(hdr);
-    do_check_false(gMoveFolder.fetchMsgPreviewText(keys, keys.length,
-                                                   false, null));
-    do_check_eq(hdrs[0].getStringProperty('preview'), bugmail10_preview);
+    Assert.ok(!gMoveFolder.fetchMsgPreviewText(keys, keys.length,
+                                               false, null));
+    Assert.equal(hdrs[0].getStringProperty('preview'), bugmail10_preview);
     // check inbox message
     hdrs = [];
     keys = [];
@@ -75,10 +75,10 @@ var gTestArray =
     hdr = enumerator.getNext().QueryInterface(Ci.nsIMsgDBHdr);
     keys.push(hdr.messageKey);
     hdrs.push(hdr);
-    do_check_false(localAccountUtils.inboxFolder
-                                    .fetchMsgPreviewText(keys, keys.length,
-                                                         false, null));
-    do_check_eq(hdrs[0].getStringProperty('preview'), basic1_preview);
+    Assert.ok(!localAccountUtils.inboxFolder
+                                .fetchMsgPreviewText(keys, keys.length,
+                                                     false, null));
+    Assert.equal(hdrs[0].getStringProperty('preview'), basic1_preview);
   }
 ];
 

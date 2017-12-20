@@ -43,6 +43,6 @@ function run_test() {
   // have 1 read message, either we're not running the filters on biff, or the
   // filters aren't working. This is disambiguated by the test_filter.js test.
   let folder = localserver.rootFolder.getChildNamed("test.filter");
-  do_check_eq(folder.getTotalMessages(false), folder.getNumUnread(false) + 1);
+  Assert.equal(folder.getTotalMessages(false), folder.getNumUnread(false) + 1);
   server.stop();
 }

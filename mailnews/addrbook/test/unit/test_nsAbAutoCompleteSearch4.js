@@ -139,18 +139,18 @@ function run_test()
       print("... got " + i + ": " + obs._result.getValueAt(i));
     }
 
-    do_check_eq(obs._search, acs);
-    do_check_eq(obs._result.searchString, element);
-    do_check_eq(obs._result.searchResult, ACR.RESULT_SUCCESS);
-    do_check_eq(obs._result.errorDescription, null);
-    do_check_eq(obs._result.matchCount, expectedResults[index].length);
+    Assert.equal(obs._search, acs);
+    Assert.equal(obs._result.searchString, element);
+    Assert.equal(obs._result.searchResult, ACR.RESULT_SUCCESS);
+    Assert.equal(obs._result.errorDescription, null);
+    Assert.equal(obs._result.matchCount, expectedResults[index].length);
 
     for (var i = 0; i < expectedResults[index].length; ++i) {
-      do_check_eq(obs._result.getValueAt(i), expectedResults[index][i]);
-      do_check_eq(obs._result.getLabelAt(i), expectedResults[index][i]);
-      do_check_eq(obs._result.getCommentAt(i), "");
-      do_check_eq(obs._result.getStyleAt(i), "local-abook");
-      do_check_eq(obs._result.getImageAt(i), "");
+      Assert.equal(obs._result.getValueAt(i), expectedResults[index][i]);
+      Assert.equal(obs._result.getLabelAt(i), expectedResults[index][i]);
+      Assert.equal(obs._result.getCommentAt(i), "");
+      Assert.equal(obs._result.getStyleAt(i), "local-abook");
+      Assert.equal(obs._result.getImageAt(i), "");
       obs._result.QueryInterface(Ci.nsIAbAutoCompleteResult);
     }
   }
@@ -164,18 +164,18 @@ function run_test()
   function checkReductionSearch(element, index, array) {
     acs.startSearch(element, JSON.stringify({ type: "addr_to", idKey: "" }), lastResult, obs);
 
-    do_check_eq(obs._search, acs);
-    do_check_eq(obs._result.searchString, element);
-    do_check_eq(obs._result.searchResult, ACR.RESULT_SUCCESS);
-    do_check_eq(obs._result.errorDescription, null);
-    do_check_eq(obs._result.matchCount, reductionExpectedResults[index].length);
+    Assert.equal(obs._search, acs);
+    Assert.equal(obs._result.searchString, element);
+    Assert.equal(obs._result.searchResult, ACR.RESULT_SUCCESS);
+    Assert.equal(obs._result.errorDescription, null);
+    Assert.equal(obs._result.matchCount, reductionExpectedResults[index].length);
 
     for (var i = 0; i < reductionExpectedResults[index].length; ++i) {
-      do_check_eq(obs._result.getValueAt(i), reductionExpectedResults[index][i]);
-      do_check_eq(obs._result.getLabelAt(i), reductionExpectedResults[index][i]);
-      do_check_eq(obs._result.getCommentAt(i), "");
-      do_check_eq(obs._result.getStyleAt(i), "local-abook");
-      do_check_eq(obs._result.getImageAt(i), "");
+      Assert.equal(obs._result.getValueAt(i), reductionExpectedResults[index][i]);
+      Assert.equal(obs._result.getLabelAt(i), reductionExpectedResults[index][i]);
+      Assert.equal(obs._result.getCommentAt(i), "");
+      Assert.equal(obs._result.getStyleAt(i), "local-abook");
+      Assert.equal(obs._result.getImageAt(i), "");
       obs._result.QueryInterface(Ci.nsIAbAutoCompleteResult);
     }
     lastResult = obs._result;

@@ -35,7 +35,7 @@ var tests = [
 function* test_newMsgs() {
   // Start by initializing the folder, and mark some messages as read.
   let folder = localserver.rootFolder.getChildNamed("test.filter");
-  do_check_eq(folder.getTotalMessages(false), 0);
+  Assert.equal(folder.getTotalMessages(false), 0);
   folder.getNewMessages(null, asyncUrlListener);
   // Do another folder to use up both connections
   localserver.rootFolder.getChildNamed("test.subscribe.simple")
@@ -45,9 +45,9 @@ function* test_newMsgs() {
   yield false;
   folder.QueryInterface(Ci.nsIMsgNewsFolder)
         .setReadSetFromStr("1-3");
-  do_check_eq(folder.getTotalMessages(false) - folder.getNumUnread(false), 3);
+  Assert.equal(folder.getTotalMessages(false) - folder.getNumUnread(false), 3);
   highWater = folder.getTotalMessages(false);
-  do_check_eq(folder.msgDatabase.dBFolderInfo.highWater, highWater);
+  Assert.equal(folder.msgDatabase.dBFolderInfo.highWater, highWater);
 }
 
 function* trigger_bug() {
@@ -80,7 +80,7 @@ function* trigger_bug() {
   // Again, two things will need to be listened for
   yield false;
   yield false;
-  do_check_eq(folder.msgDatabase.dBFolderInfo.highWater, highWater);
+  Assert.equal(folder.msgDatabase.dBFolderInfo.highWater, highWater);
   yield true;
 }
 function cleanUp() {
@@ -96,10 +96,10 @@ function run_test() {
   // Check if invalid value of the max_cached_connections pref
   // is properly folded into a sane value.
   localserver.maximumConnectionsNumber = -5;
-  do_check_eq(localserver.maximumConnectionsNumber, 1);
+  Assert.equal(localserver.maximumConnectionsNumber, 1);
 
   localserver.maximumConnectionsNumber = 0;
-  do_check_eq(localserver.maximumConnectionsNumber, 2);
+  Assert.equal(localserver.maximumConnectionsNumber, 2);
 
   localserver.maximumConnectionsNumber = 2;
 

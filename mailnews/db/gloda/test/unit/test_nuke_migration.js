@@ -60,5 +60,5 @@ function run_test() {
   Components.utils.import("resource:///modules/gloda/public.js");
   Components.utils.import("resource:///modules/gloda/datastore.js");
 
-  do_check_neq(GlodaDatastore.asyncConnection, null);
+  Assert.notEqual(GlodaDatastore.asyncConnection, null);
 }

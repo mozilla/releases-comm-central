@@ -33,7 +33,7 @@ function* test_virtual_folder_single_load_no_pred() {
   let virtFolder = make_virtual_folder([folderOne], {});
   yield async_view_open(viewWrapper, virtFolder);
 
-  do_check_true(viewWrapper.isVirtual);
+  Assert.ok(viewWrapper.isVirtual);
 
   assert_equals(gMockViewWrapperListener.allMessagesLoadedEventCount, 1,
                 "Should only have received a single all messages loaded" +
@@ -332,7 +332,7 @@ function* test_virtual_folder_underlying_folder_deleted() {
   delete_folder(folderTwo);
 
   // now the view wrapper should have closed itself.
-  do_check_eq(null, viewWrapper.displayedFolder);
+  Assert.equal(null, viewWrapper.displayedFolder);
   // This fails because virtFolder.parent is null, not sure why
   //virtFolder.parent.propagateDelete(virtFolder, true, null);
 }

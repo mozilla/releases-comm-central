@@ -77,10 +77,10 @@ var gStreamListener = {
 
     for (let attachment of messages[this.index].attachments) {
       let match = regex.exec(this.contents);
-      do_check_neq(match, null);
-      do_check_eq(match[1], attachment.expectedFilename || attachment.filename);
+      Assert.notEqual(match, null);
+      Assert.equal(match[1], attachment.expectedFilename || attachment.filename);
     }
-    do_check_eq(regex.exec(this.contents), null);
+    Assert.equal(regex.exec(this.contents), null);
 
     this.index++;
     async_driver();

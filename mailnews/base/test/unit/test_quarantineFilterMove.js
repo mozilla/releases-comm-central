@@ -42,19 +42,19 @@ var gTestArray =
     yield Promise.all([promise1, promise2]);
   },
   function verifyFolders1() {
-    do_check_eq(folderCount(gMoveFolder), 2);
+    Assert.equal(folderCount(gMoveFolder), 2);
     // the local inbox folder should now be empty, since the second
     // operation was a move
-    do_check_eq(folderCount(localAccountUtils.inboxFolder), 0);
+    Assert.equal(folderCount(localAccountUtils.inboxFolder), 0);
 
     let enumerator = gMoveFolder.msgDatabase.EnumerateMessages();
     let firstMsgHdr = enumerator.getNext().QueryInterface(Ci.nsIMsgDBHdr);
     let secondMsgHdr = enumerator.getNext().QueryInterface(Ci.nsIMsgDBHdr);
     // Check that the messages have content
     messageContent = getContentFromMessage(firstMsgHdr);
-    do_check_true(messageContent.includes("Some User <bugmail@example.org> changed"));
+    Assert.ok(messageContent.includes("Some User <bugmail@example.org> changed"));
     messageContent = getContentFromMessage(secondMsgHdr);
-    do_check_true(messageContent.includes("https://bugzilla.mozilla.org/show_bug.cgi?id=436880"));
+    Assert.ok(messageContent.includes("https://bugzilla.mozilla.org/show_bug.cgi?id=436880"));
   },
   function* copyMovedMessages() {
     let messages = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
@@ -71,16 +71,16 @@ var gTestArray =
     yield Promise.all([promiseCopyListener.promise, promiseMoveMsg]);
   },
   function verifyFolders2() {
-    do_check_eq(folderCount(gMoveFolder2), 2);
+    Assert.equal(folderCount(gMoveFolder2), 2);
 
     let enumerator = gMoveFolder2.msgDatabase.EnumerateMessages();
     let firstMsgHdr = enumerator.getNext().QueryInterface(Ci.nsIMsgDBHdr);
     let secondMsgHdr = enumerator.getNext().QueryInterface(Ci.nsIMsgDBHdr);
     // Check that the messages have content
     messageContent = getContentFromMessage(firstMsgHdr);
-    do_check_true(messageContent.includes("Some User <bugmail@example.org> changed"));
+    Assert.ok(messageContent.includes("Some User <bugmail@example.org> changed"));
     messageContent = getContentFromMessage(secondMsgHdr);
-    do_check_true(messageContent.includes("https://bugzilla.mozilla.org/show_bug.cgi?id=436880"));
+    Assert.ok(messageContent.includes("https://bugzilla.mozilla.org/show_bug.cgi?id=436880"));
   },
   function endTest() {
     dump("Exiting mail tests\n");

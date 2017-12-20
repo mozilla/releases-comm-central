@@ -15,8 +15,8 @@ function run_test() {
   items.forEach(function(item) {
     var dir = Services.dirsvc.get(item.key, Ci.nsIFile);
     dump(do_get_profile().path + " " + dir.path + "\n");
-    do_check_true(do_get_profile().equals(dir.parent));
+    Assert.ok(do_get_profile().equals(dir.parent));
 
-    do_check_eq(dir.leafName, item.value);
+    Assert.equal(dir.leafName, item.value);
   });
 };

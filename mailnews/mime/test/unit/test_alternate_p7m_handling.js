@@ -38,7 +38,7 @@ function* thunderbird_default(info) {
 
   MsgHdrToMimeMessage(msgHdr, null, function (aMsgHdr, aMimeMsg) {
     try {
-      do_check_true(aMimeMsg.allUserAttachments.length == 0);
+      Assert.ok(aMimeMsg.allUserAttachments.length == 0);
       do_print("Strange p7m is discarded, so attachment number is 0 (thunderbird default behaviour)");
       async_driver();
     } catch (err) {
@@ -60,7 +60,7 @@ function* set_preference_to_true(info) {
 
   MsgHdrToMimeMessage(msgHdr, null, function (aMsgHdr, aMimeMsg) {
     try {
-      do_check_true(aMimeMsg.allUserAttachments.length == 1);
+      Assert.ok(aMimeMsg.allUserAttachments.length == 1);
       do_print("Setting preference mailnews.p7m_external to true");
       do_print("Strange p7m is presented to the end user as attachment (attachment number = 1)");
       async_driver();
@@ -83,7 +83,7 @@ function* set_preference_to_false(info) {
 
   MsgHdrToMimeMessage(msgHdr, null, function (aMsgHdr, aMimeMsg) {
     try {
-      do_check_true(aMimeMsg.allUserAttachments.length == 0);
+      Assert.ok(aMimeMsg.allUserAttachments.length == 0);
       do_print("Setting preference mailnews.p7m_external to false");
       do_print("Strange p7m is discarded, so attachment number is 0 (thunderbird default behaviour)");
       async_driver();

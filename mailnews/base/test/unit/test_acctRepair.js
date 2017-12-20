@@ -36,11 +36,11 @@ function run_test()
                              "server1");
   // This will force the load of the accounts setup above.
   // We should have created an account for the local folders.
-  do_check_eq(MailServices.accounts.accounts.length, 2);
-  do_check_eq(Services.prefs.getCharPref("mail.accountmanager.accounts"),
-              "account6,account7");
-  do_check_eq(Services.prefs.getCharPref("mail.account.account7.server"),
-              "server1");
+  Assert.equal(MailServices.accounts.accounts.length, 2);
+  Assert.equal(Services.prefs.getCharPref("mail.accountmanager.accounts"),
+               "account6,account7");
+  Assert.equal(Services.prefs.getCharPref("mail.account.account7.server"),
+               "server1");
   let server5 = MailServices.accounts.getIncomingServer("server5").QueryInterface(Ci.nsIPop3IncomingServer);
-  do_check_eq(server5.deferredToAccount, "account7");
+  Assert.equal(server5.deferredToAccount, "account7");
 }

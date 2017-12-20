@@ -31,9 +31,9 @@ add_task(function* loadImapMessage() {
   IMAPPump.inbox.updateFolderWithListener(gDummyMsgWindow, promiseUrlListener);
   yield promiseUrlListener.promise;
 
-  do_check_eq(1, IMAPPump.inbox.getTotalMessages(false));
+  Assert.equal(1, IMAPPump.inbox.getTotalMessages(false));
   let msgHdr = mailTestUtils.firstMsgHdr(IMAPPump.inbox);
-  do_check_true(msgHdr instanceof Ci.nsIMsgDBHdr);
+  Assert.ok(msgHdr instanceof Ci.nsIMsgDBHdr);
 });
 
 add_task(function* downloadOffline() {
@@ -62,7 +62,7 @@ add_task(function storeAddSubfolder() {
 add_task(function testSubfolder() {
   let subfolder1 = IMAPPump.inbox.getChildNamed(folderName1);
   let subfolder2 = IMAPPump.inbox.getChildNamed(folderName2);
-  do_check_eq(subfolder1.filePath.parent.path, subfolder2.filePath.parent.path);
+  Assert.equal(subfolder1.filePath.parent.path, subfolder2.filePath.parent.path);
 });
 
 // Cleanup at end

@@ -53,7 +53,7 @@ function checkPopulate(aTo, aCheckTo)
 
   do_check_eq(msgCompose.expandMailingLists());
 
-  do_check_eq(fields.to, aCheckTo);
+  Assert.equal(fields.to, aCheckTo);
 }
 
 function run_test() {
@@ -68,21 +68,21 @@ function run_test() {
 
   for (let i = 0; i < TESTS.length; ++i) {
     let card = AB.cardForEmailAddress(TESTS[i].email);
-    do_check_true(!!card);
+    Assert.ok(!!card);
 
     // Thunderbird 2 stored its popularityIndexes as hex, hence when we read it
     // now we're going to get a hex value. The AB has a value of "a".
-    do_check_eq(card.getProperty("PopularityIndex", -1), TESTS[i].prePopularity);
+    Assert.equal(card.getProperty("PopularityIndex", -1), TESTS[i].prePopularity);
 
     // Call the check populate function.
     checkPopulate(TESTS[i].email, TESTS[i].email);
 
     // Now we've run check populate, check the popularityIndex has increased.
     card = AB.cardForEmailAddress(TESTS[i].email);
-    do_check_true(!!card);
+    Assert.ok(!!card);
 
     // Thunderbird 2 stored its popularityIndexes as hex, hence when we read it
     // now we're going to get a hex value. The AB has a value of "a".
-    do_check_eq(card.getProperty("PopularityIndex", -1), TESTS[i].postPopularity);
+    Assert.equal(card.getProperty("PopularityIndex", -1), TESTS[i].postPopularity);
   }
 };

@@ -27,7 +27,7 @@ function run_test() {
   let outObj = { value: null };
   msgService.GetUrlForUri(uri, outObj, null);
   let neckoUrl = outObj.value.QueryInterface(Ci.nsINntpUrl);
-  do_check_eq(neckoUrl.newsAction, Ci.nsINntpUrl.ActionFetchArticle);
+  Assert.equal(neckoUrl.newsAction, Ci.nsINntpUrl.ActionFetchArticle);
 
   // Pretend to display the message
   msgService.DisplayMessage(uri, articleTextListener, null, null, null, {});
@@ -39,7 +39,7 @@ function run_test() {
   server.stop();
 
   // Correct text?
-  do_check_eq(articleTextListener.data, daemon.getGroup("test1")[1].fullText);
+  Assert.equal(articleTextListener.data, daemon.getGroup("test1")[1].fullText);
 
   // No illegal commands?
   test = "bug 403242";

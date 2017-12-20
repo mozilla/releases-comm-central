@@ -23,7 +23,7 @@ function run_test()
 
 function save_message(aMessageHeaderKeys, aStatus) {
   let headerKeys = aMessageHeaderKeys;
-  do_check_neq(headerKeys, null);
+  Assert.notEqual(headerKeys, null);
 
   let message = localAccountUtils.inboxFolder.GetMessageHeader(headerKeys[0]);
   let msgURI = localAccountUtils.inboxFolder.getUriForMsg(message);
@@ -38,16 +38,16 @@ function check_each_line(aExpectedLines, aActualLines) {
   let actualStrings = aActualLines.split(MSG_LINEBREAK);
 
   expectedStrings.shift();
-  do_check_eq(expectedStrings.length, actualStrings.length);
+  Assert.equal(expectedStrings.length, actualStrings.length);
   for (let line = 0; line < expectedStrings.length; line++)
-    do_check_eq(expectedStrings[line], actualStrings[line]);
+    Assert.equal(expectedStrings[line], actualStrings[line]);
 }
 
 var UrlListener = {
   OnStartRunningUrl: function(aUrl) {
   },
   OnStopRunningUrl: function(aUrl, aExitCode) {
-    do_check_eq(aExitCode, 0);
+    Assert.equal(aExitCode, 0);
     check_each_line(IOUtils.loadFileToString(dot),
 		    IOUtils.loadFileToString(saveFile));
     do_test_finished();

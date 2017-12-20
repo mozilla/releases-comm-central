@@ -157,10 +157,10 @@ function testReply(aHrdIdx, aTemplateHdrIdx = 0) {
   let headers, body;
   [headers, body] = MimeParser.extractHeadersAndBody(gServer._daemon.post);
   //dump("xxxmagnus gServer._daemon.post=" + gServer._daemon.post + "\n");
-  do_check_true(headers.get("Subject").startsWith("Auto: "));
-  do_check_eq(headers.get("Auto-submitted"), "auto-replied");
-  do_check_eq(headers.get("In-Reply-To"), "<" + msgHdr.messageId + ">");
-  do_check_eq(headers.get("References"), "<" + msgHdr.messageId + ">");
+  Assert.ok(headers.get("Subject").startsWith("Auto: "));
+  Assert.equal(headers.get("Auto-submitted"), "auto-replied");
+  Assert.equal(headers.get("In-Reply-To"), "<" + msgHdr.messageId + ">");
+  Assert.equal(headers.get("References"), "<" + msgHdr.messageId + ">");
   // XXX: something's wrong with how the fake server gets the data.
   // The text gets converted to UTF-8 (regardless of what it is) at some point.
   // Suspect a bug with how BinaryInputStream handles the strings.

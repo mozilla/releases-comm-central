@@ -23,7 +23,7 @@ function run_test() {
 
   for (i = 0; i < checks.length; ++i)
   {
-    do_check_eq(
+    Assert.equal(
       MailServices.mimeConverter.encodeMimePartIIStr_UTF8(checks[i][0], checks[i][1], "UTF-8", "Subject".length, 72),
       checks[i][2]);
   }

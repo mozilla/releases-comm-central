@@ -94,10 +94,10 @@ add_test(function test_text_paste()
 
   waitForBookmarkNotification("onItemAdded", function(aData)
   {
-    do_check_eq(aData.title, TEST_TITLE);
-    do_check_eq(aData.url, TEST_URL);
-    do_check_eq(aData.type, PlacesUtils.bookmarks.TYPE_BOOKMARK);
-    do_check_eq(aData.index, 0);
+    Assert.equal(aData.title, TEST_TITLE);
+    Assert.equal(aData.url, TEST_URL);
+    Assert.equal(aData.type, PlacesUtils.bookmarks.TYPE_BOOKMARK);
+    Assert.equal(aData.index, 0);
     run_next_test();
   });
 
@@ -117,22 +117,22 @@ add_test(function test_container()
 
   waitForBookmarkNotification("onItemChanged", function(aData)
   {
-    do_check_eq(aData.title, TEST_TITLE);
-    do_check_eq(aData.type, PlacesUtils.bookmarks.TYPE_FOLDER);
-    do_check_eq(aData.index, 1);
+    Assert.equal(aData.title, TEST_TITLE);
+    Assert.equal(aData.type, PlacesUtils.bookmarks.TYPE_FOLDER);
+    Assert.equal(aData.index, 1);
 
     waitForBookmarkNotification("onItemAdded", function(aData)
     {
-      do_check_eq(aData.title, TEST_TITLE);
-      do_check_eq(aData.type, PlacesUtils.bookmarks.TYPE_FOLDER);
-      do_check_eq(aData.index, 2);
+      Assert.equal(aData.title, TEST_TITLE);
+      Assert.equal(aData.type, PlacesUtils.bookmarks.TYPE_FOLDER);
+      Assert.equal(aData.index, 2);
       let id = aData.id;
 
       waitForBookmarkNotification("onItemMoved", function(aData)
       {
-        do_check_eq(aData.id, id);
-        do_check_eq(aData.type, PlacesUtils.bookmarks.TYPE_FOLDER);
-        do_check_eq(aData.index, 1);
+        Assert.equal(aData.id, id);
+        Assert.equal(aData.type, PlacesUtils.bookmarks.TYPE_FOLDER);
+        Assert.equal(aData.index, 1);
 
         run_next_test();
       });
@@ -177,20 +177,20 @@ add_test(function test_separator()
 {
   waitForBookmarkNotification("onItemChanged", function(aData)
   {
-    do_check_eq(aData.type, PlacesUtils.bookmarks.TYPE_SEPARATOR);
-    do_check_eq(aData.index, 3);
+    Assert.equal(aData.type, PlacesUtils.bookmarks.TYPE_SEPARATOR);
+    Assert.equal(aData.index, 3);
 
     waitForBookmarkNotification("onItemAdded", function(aData)
     {
-      do_check_eq(aData.type, PlacesUtils.bookmarks.TYPE_SEPARATOR);
-      do_check_eq(aData.index, 4);
+      Assert.equal(aData.type, PlacesUtils.bookmarks.TYPE_SEPARATOR);
+      Assert.equal(aData.index, 4);
       let id = aData.id;
 
       waitForBookmarkNotification("onItemMoved", function(aData)
       {
-        do_check_eq(aData.id, id);
-        do_check_eq(aData.type, PlacesUtils.bookmarks.TYPE_SEPARATOR);
-        do_check_eq(aData.index, 1);
+        Assert.equal(aData.id, id);
+        Assert.equal(aData.type, PlacesUtils.bookmarks.TYPE_SEPARATOR);
+        Assert.equal(aData.index, 1);
 
         run_next_test();
       });
@@ -233,24 +233,24 @@ add_test(function test_bookmark()
 
   waitForBookmarkNotification("onItemChanged", function(aData)
   {
-    do_check_eq(aData.title, TEST_TITLE);
-    do_check_eq(aData.url, TEST_URL);
-    do_check_eq(aData.type, PlacesUtils.bookmarks.TYPE_BOOKMARK);
-    do_check_eq(aData.index, 5);
+    Assert.equal(aData.title, TEST_TITLE);
+    Assert.equal(aData.url, TEST_URL);
+    Assert.equal(aData.type, PlacesUtils.bookmarks.TYPE_BOOKMARK);
+    Assert.equal(aData.index, 5);
 
     waitForBookmarkNotification("onItemAdded", function(aData)
     {
-      do_check_eq(aData.title, TEST_TITLE);
-      do_check_eq(aData.url, TEST_URL);
-      do_check_eq(aData.type, PlacesUtils.bookmarks.TYPE_BOOKMARK);
-      do_check_eq(aData.index, 6);
+      Assert.equal(aData.title, TEST_TITLE);
+      Assert.equal(aData.url, TEST_URL);
+      Assert.equal(aData.type, PlacesUtils.bookmarks.TYPE_BOOKMARK);
+      Assert.equal(aData.index, 6);
       let id = aData.id;
 
       waitForBookmarkNotification("onItemMoved", function(aData)
       {
-        do_check_eq(aData.id, id);
-        do_check_eq(aData.type, PlacesUtils.bookmarks.TYPE_BOOKMARK);
-        do_check_eq(aData.index, 1);
+        Assert.equal(aData.id, id);
+        Assert.equal(aData.type, PlacesUtils.bookmarks.TYPE_BOOKMARK);
+        Assert.equal(aData.index, 1);
 
         run_next_test();
       });
@@ -298,17 +298,17 @@ add_test(function test_visit()
 
   waitForBookmarkNotification("onItemAdded", function(aData)
   {
-    do_check_eq(aData.title, TEST_TITLE);
-    do_check_eq(aData.url, TEST_URL);
-    do_check_eq(aData.type, PlacesUtils.bookmarks.TYPE_BOOKMARK);
-    do_check_eq(aData.index, 7);
+    Assert.equal(aData.title, TEST_TITLE);
+    Assert.equal(aData.url, TEST_URL);
+    Assert.equal(aData.type, PlacesUtils.bookmarks.TYPE_BOOKMARK);
+    Assert.equal(aData.index, 7);
 
     waitForBookmarkNotification("onItemAdded", function(aData)
     {
-      do_check_eq(aData.title, TEST_TITLE);
-      do_check_eq(aData.url, TEST_URL);
-      do_check_eq(aData.type, PlacesUtils.bookmarks.TYPE_BOOKMARK);
-      do_check_eq(aData.index, 8);
+      Assert.equal(aData.title, TEST_TITLE);
+      Assert.equal(aData.url, TEST_URL);
+      Assert.equal(aData.type, PlacesUtils.bookmarks.TYPE_BOOKMARK);
+      Assert.equal(aData.index, 8);
       run_next_test();
     });
 
@@ -341,11 +341,11 @@ add_test(function check_annotations() {
   // Copies should retain the description annotation.
   let descriptions =
     PlacesUtils.annotations.getItemsWithAnnotation(PlacesUIUtils.DESCRIPTION_ANNO, {});
-  do_check_eq(descriptions.length, 4);
+  Assert.equal(descriptions.length, 4);
 
   // Only the original bookmarks should have this annotation.
   let others = PlacesUtils.annotations.getItemsWithAnnotation("random-anno", {});
-  do_check_eq(others.length, 3);
+  Assert.equal(others.length, 3);
   run_next_test();
 });
 

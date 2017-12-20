@@ -33,15 +33,15 @@ var tests = [
     let rootFolder = IMAPPump.incomingServer.rootFolder;
     // Check that we've subscribed to the boxes returned by LSUB. We also get
     // checking of proper i18n in mailboxes for free here.
-    do_check_true(rootFolder.containsChildNamed("Inbox"));
-    do_check_true(rootFolder.containsChildNamed("TRASH"));
+    Assert.ok(rootFolder.containsChildNamed("Inbox"));
+    Assert.ok(rootFolder.containsChildNamed("TRASH"));
     // Make sure we haven't created an extra "Trash" folder.
     let trashes = rootFolder.getFoldersWithFlags(Ci.nsMsgFolderFlags.Trash);
-    do_check_eq(trashes.length, 1);
-    do_check_eq(rootFolder.numSubFolders, 3);
-    do_check_true(rootFolder.containsChildNamed(folderName1));
+    Assert.equal(trashes.length, 1);
+    Assert.equal(rootFolder.numSubFolders, 3);
+    Assert.ok(rootFolder.containsChildNamed(folderName1));
     // This is not a subscribed box, so we shouldn't be subscribing to it.
-    do_check_false(rootFolder.containsChildNamed("Unsubscribed box"));
+    Assert.ok(!rootFolder.containsChildNamed("Unsubscribed box"));
 
     let i18nChild = rootFolder.getChildNamed(folderName1);
 
@@ -53,7 +53,7 @@ var tests = [
   },
   function* checkRename() {
     let rootFolder = IMAPPump.incomingServer.rootFolder;
-    do_check_true(rootFolder.containsChildNamed(folderName2));
+    Assert.ok(rootFolder.containsChildNamed(folderName2));
     let newChild = rootFolder.getChildNamed(folderName2).
                    QueryInterface(Ci.nsIMsgImapMailFolder);
     newChild.updateFolderWithListener(null, asyncUrlListener);

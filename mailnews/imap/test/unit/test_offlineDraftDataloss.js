@@ -37,7 +37,7 @@ function* createDraftsFolder()
   IMAPPump.incomingServer.rootFolder.createSubfolder("Drafts", null);
   yield false;
   gDraftsFolder = IMAPPump.incomingServer.rootFolder.getChildNamed("Drafts");
-  do_check_true(gDraftsFolder instanceof Ci.nsIMsgImapMailFolder);
+  Assert.ok(gDraftsFolder instanceof Ci.nsIMsgImapMailFolder);
   gDraftsFolder.updateFolderWithListener(null, asyncUrlListener);
   yield false;
 }
@@ -80,7 +80,7 @@ function* saveDraft()
                      progress);
   yield false;
   // verify that message is not on the server yet
-  do_check_eq(IMAPPump.daemon.getMailbox("Drafts")._messages.length, 0);
+  Assert.equal(IMAPPump.daemon.getMailbox("Drafts")._messages.length, 0);
 }
 
 function* goOnline()
@@ -106,7 +106,7 @@ function* goOnline()
 function* checkResult()
 {
   // verify that message is now on the server
-  do_check_eq(IMAPPump.daemon.getMailbox("Drafts")._messages.length, 1);
+  Assert.equal(IMAPPump.daemon.getMailbox("Drafts")._messages.length, 1);
   yield true;
 }
 

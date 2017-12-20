@@ -49,8 +49,8 @@ function* test_fromjson_of_removed_tag() {
   let tag = TagNoun.getTag("$label4");
   msgSet.addTag(tag.key);
   yield wait_for_gloda_indexer(msgSet);
-  do_check_eq(gmsg.tags.length, 1);
-  do_check_eq(gmsg.tags[0].key, tag.key);
+  Assert.equal(gmsg.tags.length, 1);
+  Assert.equal(gmsg.tags[0].key, tag.key);
 
   // -- forget about the tag, TagNoun!
   delete TagNoun._tagMap[tag.key];
@@ -76,7 +76,7 @@ function* test_fromjson_of_removed_tag() {
 
   // -- verify the message apparently has no tags (despite no reindex)
   gmsg = coll.items[0];
-  do_check_eq(gmsg.tags.length, 0);
+  Assert.equal(gmsg.tags.length, 0);
 }
 tests.unshift(test_fromjson_of_removed_tag);
 
@@ -89,7 +89,7 @@ tests.unshift(test_fromjson_of_removed_tag);
  *  with the previous test.
  */
 function test_nountag_does_not_think_it_has_watch_tag_when_it_does_not() {
-  do_check_eq(TagNoun.fromJSON("watch"), undefined);
+  Assert.equal(TagNoun.fromJSON("watch"), undefined);
 }
 tests.unshift(test_nountag_does_not_think_it_has_watch_tag_when_it_does_not);
 

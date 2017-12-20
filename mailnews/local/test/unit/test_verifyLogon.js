@@ -38,7 +38,7 @@ var urlListener =
   OnStartRunningUrl: function (url) {
   },
   OnStopRunningUrl: function (url, aResult) {
-    do_check_eq(Components.isSuccessCode(aResult), this.expectSuccess);
+    Assert.equal(Components.isSuccessCode(aResult), this.expectSuccess);
   }
 };
 

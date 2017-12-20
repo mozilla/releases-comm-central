@@ -80,7 +80,7 @@ function checkOfflineStore(prevOfflineStoreSize) {
   }
   // check that the offline store shrunk by at least 100 bytes.
   // (exact calculation might be fragile).
-  do_check_true(prevOfflineStoreSize > IMAPPump.inbox.filePath.fileSize + 100);
+  Assert.ok(prevOfflineStoreSize > IMAPPump.inbox.filePath.fileSize + 100);
 }
 
 var tests = [
@@ -113,7 +113,7 @@ var tests = [
     // check that nstmp file has been cleaned up.
     let tmpFile = gRootFolder.filePath;
     tmpFile.append("nstmp");
-    do_check_false(tmpFile.exists());
+    Assert.ok(!tmpFile.exists());
     dump("deleting one message\n");
     IMAPPump.incomingServer.deleteModel = Ci.nsMsgImapDeleteModels.MoveToTrash;
     let msgHdr = IMAPPump.inbox.msgDatabase.getMsgHdrForMessageID(gMsgId1);
@@ -146,12 +146,12 @@ var tests = [
   function* checkCompactionResult() {
     let tmpFile = gRootFolder.filePath;
     tmpFile.append("nstmp");
-    do_check_false(tmpFile.exists());
+    Assert.ok(!tmpFile.exists());
     checkOfflineStore(gImapInboxOfflineStoreSize);
     asyncUrlListener.OnStopRunningUrl(null, 0);
     yield false;
     let msgHdr = IMAPPump.inbox.msgDatabase.getMsgHdrForMessageID(gMsgId2);
-    do_check_eq(msgHdr.flags & Ci.nsMsgMessageFlags.Offline, 0);
+    Assert.equal(msgHdr.flags & Ci.nsMsgMessageFlags.Offline, 0);
   },
   teardown
 ];
@@ -195,7 +195,7 @@ var CopyListener = {
   SetMessageId: function(aMessageId) {},
   OnStopCopy: function(aStatus) {
     // Check: message successfully copied.
-    do_check_eq(aStatus, 0);
+    Assert.equal(aStatus, 0);
     async_driver();
   }
 };

@@ -66,8 +66,8 @@ function* testDetach()
   //  now exist in the profile directory.
   let checkFile = do_get_profile().clone();
   checkFile.append("head_update.txt");
-  do_check_true(checkFile.exists());
-  do_check_true(checkFile.fileSize > 0);
+  Assert.ok(checkFile.exists());
+  Assert.ok(checkFile.fileSize > 0);
 
   // The message should now have a detached attachment. Read the message,
   //  and search for "AttachmentDetached" which is added on detachment.
@@ -76,9 +76,9 @@ function* testDetach()
   let msgHdr = mailTestUtils.firstMsgHdr(localAccountUtils.inboxFolder);
 
   let messageContent = getContentFromMessage(msgHdr);
-  do_check_true(messageContent.includes("AttachmentDetached"));
+  Assert.ok(messageContent.includes("AttachmentDetached"));
   // Make sure the body survived the detach.
-  do_check_true(messageContent.includes("body hello"));
+  Assert.ok(messageContent.includes("body hello"));
 }
 
 function SaveAttachmentCallback() {

@@ -27,10 +27,10 @@ function run_test() {
   card.setProperty("DisplayName", kDNValue);
   card.setProperty("PrimaryEmail", kEmailValue);
 
-  do_check_eq(card.firstName, kFNValue);
-  do_check_eq(card.lastName, kLNValue);
-  do_check_eq(card.displayName, kDNValue);
-  do_check_eq(card.primaryEmail, kEmailValue);
+  Assert.equal(card.firstName, kFNValue);
+  Assert.equal(card.lastName, kLNValue);
+  Assert.equal(card.displayName, kDNValue);
+  Assert.equal(card.primaryEmail, kEmailValue);
 
   // Repeat in the opposite order.
   card.firstName = kFNValue;
@@ -38,10 +38,10 @@ function run_test() {
   card.displayName = kDNValue;
   card.primaryEmail = kEmailValue;
 
-  do_check_eq(card.getProperty("FirstName", "BAD"), kFNValue);
-  do_check_eq(card.getProperty("LastName", "BAD"), kLNValue);
-  do_check_eq(card.getProperty("DisplayName", "BAD"), kDNValue);
-  do_check_eq(card.getProperty("PrimaryEmail", "BAD"), kEmailValue);
+  Assert.equal(card.getProperty("FirstName", "BAD"), kFNValue);
+  Assert.equal(card.getProperty("LastName", "BAD"), kLNValue);
+  Assert.equal(card.getProperty("DisplayName", "BAD"), kDNValue);
+  Assert.equal(card.getProperty("PrimaryEmail", "BAD"), kEmailValue);
 
   // Test - generateName. Note: if the addressBook.properties
   // value changes, this will affect these tests.
@@ -49,41 +49,41 @@ function run_test() {
   // Add a company name, so we can test fallback to company name.
   card.setProperty("Company", kCompanyValue);
 
-  do_check_eq(card.generateName(0), kDNValue);
-  do_check_eq(card.generateName(1), kLNValue + ", " + kFNValue);
-  do_check_eq(card.generateName(2), kFNValue + " " + kLNValue);
+  Assert.equal(card.generateName(0), kDNValue);
+  Assert.equal(card.generateName(1), kLNValue + ", " + kFNValue);
+  Assert.equal(card.generateName(2), kFNValue + " " + kLNValue);
 
   // Test - generateName, with missing items.
 
   card.displayName = "";
-  do_check_eq(card.generateName(0), kCompanyValue);
+  Assert.equal(card.generateName(0), kCompanyValue);
 
   card.deleteProperty("Company");
-  do_check_eq(card.generateName(0), kEmailReducedValue);
+  Assert.equal(card.generateName(0), kEmailReducedValue);
 
   // Reset company name for the first/last name tests.
   card.setProperty("Company", kCompanyValue);
 
   card.firstName = "";
-  do_check_eq(card.generateName(1), kLNValue);
-  do_check_eq(card.generateName(2), kLNValue);
+  Assert.equal(card.generateName(1), kLNValue);
+  Assert.equal(card.generateName(2), kLNValue);
 
   card.firstName = kFNValue;
   card.lastName = "";
-  do_check_eq(card.generateName(1), kFNValue);
-  do_check_eq(card.generateName(2), kFNValue);
+  Assert.equal(card.generateName(1), kFNValue);
+  Assert.equal(card.generateName(2), kFNValue);
 
   card.firstName = "";
-  do_check_eq(card.generateName(1), kCompanyValue);
-  do_check_eq(card.generateName(2), kCompanyValue);
+  Assert.equal(card.generateName(1), kCompanyValue);
+  Assert.equal(card.generateName(2), kCompanyValue);
 
   card.deleteProperty("Company");
-  do_check_eq(card.generateName(1), kEmailReducedValue);
-  do_check_eq(card.generateName(2), kEmailReducedValue);
+  Assert.equal(card.generateName(1), kEmailReducedValue);
+  Assert.equal(card.generateName(2), kEmailReducedValue);
 
   card.primaryEmail = "";
-  do_check_eq(card.generateName(1), "");
-  do_check_eq(card.generateName(2), "");
+  Assert.equal(card.generateName(1), "");
+  Assert.equal(card.generateName(2), "");
 
   // Test - generateNameWithBundle, most of this will have
   // been tested above.
@@ -93,48 +93,48 @@ function run_test() {
 
   let bundle = Services.strings.createBundle("chrome://messenger/locale/addressbook/addressBook.properties");
 
-  do_check_eq(card.generateName(1, bundle), kLNValue + ", " + kFNValue);
+  Assert.equal(card.generateName(1, bundle), kLNValue + ", " + kFNValue);
 
   // Test - generatePhoneticName
 
   card.setProperty("PhoneticFirstName", kFNValue);
   card.setProperty("PhoneticLastName", kLNValue);
-  do_check_eq(card.generatePhoneticName(false), kFNValue + kLNValue);
-  do_check_eq(card.generatePhoneticName(true), kLNValue + kFNValue);
+  Assert.equal(card.generatePhoneticName(false), kFNValue + kLNValue);
+  Assert.equal(card.generatePhoneticName(true), kLNValue + kFNValue);
 
   card.setProperty("PhoneticLastName", "");
-  do_check_eq(card.generatePhoneticName(false), kFNValue);
-  do_check_eq(card.generatePhoneticName(true), kFNValue);
+  Assert.equal(card.generatePhoneticName(false), kFNValue);
+  Assert.equal(card.generatePhoneticName(true), kFNValue);
 
   card.setProperty("PhoneticFirstName", "");
   card.setProperty("PhoneticLastName", kLNValue);
-  do_check_eq(card.generatePhoneticName(false), kLNValue);
-  do_check_eq(card.generatePhoneticName(true), kLNValue);
+  Assert.equal(card.generatePhoneticName(false), kLNValue);
+  Assert.equal(card.generatePhoneticName(true), kLNValue);
 
   // Test - hasEmailAddress
 
   card.deleteProperty("PrimaryEmail");
   card.deleteProperty("SecondEmail");
 
-  do_check_eq(card.hasEmailAddress(kEmailValue), false);
-  do_check_eq(card.hasEmailAddress(kEmailValueLC), false);
-  do_check_eq(card.hasEmailAddress(kEmailValue2), false);
+  Assert.equal(card.hasEmailAddress(kEmailValue), false);
+  Assert.equal(card.hasEmailAddress(kEmailValueLC), false);
+  Assert.equal(card.hasEmailAddress(kEmailValue2), false);
 
   card.setProperty("PrimaryEmail", kEmailValue);
 
-  do_check_eq(card.hasEmailAddress(kEmailValue), true);
-  do_check_eq(card.hasEmailAddress(kEmailValueLC), true);
-  do_check_eq(card.hasEmailAddress(kEmailValue2), false);
+  Assert.equal(card.hasEmailAddress(kEmailValue), true);
+  Assert.equal(card.hasEmailAddress(kEmailValueLC), true);
+  Assert.equal(card.hasEmailAddress(kEmailValue2), false);
 
   card.setProperty("SecondEmail", kEmailValue2);
 
-  do_check_eq(card.hasEmailAddress(kEmailValue), true);
-  do_check_eq(card.hasEmailAddress(kEmailValueLC), true);
-  do_check_eq(card.hasEmailAddress(kEmailValue2), true);
+  Assert.equal(card.hasEmailAddress(kEmailValue), true);
+  Assert.equal(card.hasEmailAddress(kEmailValueLC), true);
+  Assert.equal(card.hasEmailAddress(kEmailValue2), true);
 
   card.deleteProperty("PrimaryEmail");
 
-  do_check_eq(card.hasEmailAddress(kEmailValue), false);
-  do_check_eq(card.hasEmailAddress(kEmailValueLC), false);
-  do_check_eq(card.hasEmailAddress(kEmailValue2), true);
+  Assert.equal(card.hasEmailAddress(kEmailValue), false);
+  Assert.equal(card.hasEmailAddress(kEmailValueLC), false);
+  Assert.equal(card.hasEmailAddress(kEmailValue2), true);
 }

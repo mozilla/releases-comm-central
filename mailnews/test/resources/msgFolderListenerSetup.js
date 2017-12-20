@@ -164,8 +164,8 @@ var gMFListener =
   {
     // we currently require the third argument to be null, and the fourth to be
     // empty...
-    do_check_eq(aBetterBeNull, null);
-    do_check_eq(aBetterBeEmpty, "");
+    Assert.equal(aBetterBeNull, null);
+    Assert.equal(aBetterBeEmpty, "");
     verify([gMFNService.itemEvent, aFolder, aEvent]);
     if (gExpectedEvents.length == 0)
     {
@@ -194,7 +194,7 @@ var copyListener =
   OnStopCopy: function(aStatus)
   {
     // Check: message successfully copied.
-    do_check_eq(aStatus, 0);
+    Assert.equal(aStatus, 0);
     gCurrStatus |= kStatus.onStopCopyDone;
     if (gCurrStatus == kStatus.everythingDone)
       resetStatusAndProceed();
@@ -221,7 +221,7 @@ function hasExactlyElements(array, elements)
     var count = elements.length;
 
     // Check: array sizes should be equal.
-    do_check_eq(count, array.length);
+    Assert.equal(count, array.length);
 
     for (var i = 0; i < count; i++)
     {
@@ -238,18 +238,18 @@ function hasExactlyElements(array, elements)
         }
         catch (e) {}
       }
-      do_check_neq(currElement, undefined);
-      do_check_neq(mailTestUtils.non_strict_index_of(array, currElement), -1);
+      Assert.notEqual(currElement, undefined);
+      Assert.notEqual(mailTestUtils.non_strict_index_of(array, currElement), -1);
     }
   }
   // If a single header or a folder
   else if (elements instanceof nsIMsgDBHdr || elements instanceof nsIMsgFolder)
   {
     // Check: there should be only one element in the array.
-    do_check_eq(array.length, 1);
+    Assert.equal(array.length, 1);
 
     // Check: the element should be present
-    do_check_neq(mailTestUtils.non_strict_index_of(array, elements), -1);
+    Assert.notEqual(mailTestUtils.non_strict_index_of(array, elements), -1);
   }
   // This shouldn't happen
   else
@@ -260,12 +260,12 @@ function hasExactlyElements(array, elements)
 function verify(event)
 {
   // Check: make sure we actually have an item to process
-  do_check_true(gExpectedEvents.length >= 1);
+  Assert.ok(gExpectedEvents.length >= 1);
   var expected = gExpectedEvents.shift();
 
   // Check: events match.
   var eventType = expected[0];
-  do_check_eq(event[0], eventType);
+  Assert.equal(event[0], eventType);
 
   dump("..... Verifying event type " + eventType + "\n");
 
@@ -276,7 +276,7 @@ function verify(event)
     // Instead, we'll match up message ids as a (poor?) substitute.
     if (expected[1].expectedMessageId)
     {
-      do_check_eq(event[1].messageId, expected[1].expectedMessageId);
+      Assert.equal(event[1].messageId, expected[1].expectedMessageId);
       break;
     }
     // If we do have a header, fall through to the case below
@@ -301,30 +301,30 @@ function verify(event)
       for (let i = 0; i < expected[1].length; i++) {
         let eventHeader = event[1].queryElementAt(i + ignoreCount,
                                                   nsIMsgDBHdr);
-        do_check_eq(expected[1][i], eventHeader.messageId);
+        Assert.equal(expected[1][i], eventHeader.messageId);
       }
     }
     else { // actual headers
       hasExactlyElements(expected[1], event[1]);
     }
     // aJunkProcessed: was the message processed for junk?
-    do_check_eq(expected[2], event[2]);
+    Assert.equal(expected[2], event[2]);
     // aTraitProcessed: was the message processed for traits?
-    do_check_eq(expected[3], event[3]);
+    Assert.equal(expected[3], event[3]);
     break;
   case gMFNService.msgKeyChanged:
-    do_check_eq(expected[1].messageId, event[2].expectedMessageId);
+    Assert.equal(expected[1].messageId, event[2].expectedMessageId);
     break;
   case gMFNService.msgsMoveCopyCompleted:
   case gMFNService.folderMoveCopyCompleted:
     // Check: Move or copy as expected.
-    do_check_eq(expected[1], event[1]);
+    Assert.equal(expected[1], event[1]);
 
     // Check: headers match/folder matches.
     hasExactlyElements(expected[2], event[2]);
 
     // Check: destination folder matches.
-    do_check_eq(expected[3], event[3]);
+    Assert.equal(expected[3], event[3]);
 
     if (eventType == gMFNService.folderMoveCopyCompleted)
       break;
@@ -337,16 +337,16 @@ function verify(event)
     {
       let srcHdr = event[2].queryElementAt(iMsg, nsIMsgDBHdr);
       let destHdr = event[4].queryElementAt(iMsg, nsIMsgDBHdr);
-      do_check_eq(srcHdr.messageId, destHdr.messageId);
+      Assert.equal(srcHdr.messageId, destHdr.messageId);
     }
     break;
   case gMFNService.folderAdded:
     // Check: parent folder matches
-    do_check_eq(event[1].parent, expected[1]);
+    Assert.equal(event[1].parent, expected[1]);
 
     // Check: folder name matches
-    do_check_eq(event[1].prettyName, expected[2]);
-    do_check_eq(event[1].name, expected[2]);
+    Assert.equal(event[1].prettyName, expected[2]);
+    Assert.equal(event[1].name, expected[2]);
 
     // Not a check, but if we have to store this folder somewhere, do it
     if (expected[3])
@@ -357,13 +357,13 @@ function verify(event)
     hasExactlyElements(expected[1], event[1]);
 
     // Check: destination folder name matches
-    do_check_eq(expected[2], event[2].prettyName);
+    Assert.equal(expected[2], event[2].prettyName);
     break;
   case gMFNService.itemEvent:
     // the event string should match
-    do_check_eq(expected[2], event[2]);
+    Assert.equal(expected[2], event[2]);
     // and so should the folder we are talking about
-    do_check_eq(expected[1], event[1]);
+    Assert.equal(expected[1], event[1]);
     break;
   }
 }

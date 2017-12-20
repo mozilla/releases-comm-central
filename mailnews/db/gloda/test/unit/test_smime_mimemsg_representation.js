@@ -49,13 +49,13 @@ function* test_smime_mimemsg() {
   // Make sure by default, MimeMessages do not include encrypted parts
   MsgHdrToMimeMessage(msgHdr, null, function(aMsgHdr, aMimeMsg) {
     // First make sure the MIME structure is as we expect it to be.
-    do_check_eq(aMimeMsg.parts.length, 1);
+    Assert.equal(aMimeMsg.parts.length, 1);
     // Then, make sure the MimeUnknown part there has the encrypted flag
-    do_check_true(aMimeMsg.parts[0].isEncrypted);
+    Assert.ok(aMimeMsg.parts[0].isEncrypted);
     // And that we can't "see through" the MimeUnknown container
-    do_check_eq(aMimeMsg.parts[0].parts.length, 0);
+    Assert.equal(aMimeMsg.parts[0].parts.length, 0);
     // Make sure we can't see the attachment
-    do_check_eq(aMimeMsg.allUserAttachments.length, 0);
+    Assert.equal(aMimeMsg.allUserAttachments.length, 0);
     async_driver();
   }, true, {
   });
@@ -65,16 +65,16 @@ function* test_smime_mimemsg() {
   // Now what about we specifically ask to "see" the encrypted parts?
   MsgHdrToMimeMessage(msgHdr, null, function(aMsgHdr, aMimeMsg) {
     // First make sure the MIME structure is as we expect it to be.
-    do_check_eq(aMimeMsg.parts.length, 1);
+    Assert.equal(aMimeMsg.parts.length, 1);
     // Then, make sure the MimeUnknown part there has the encrypted flag
-    do_check_true(aMimeMsg.parts[0].isEncrypted);
+    Assert.ok(aMimeMsg.parts[0].isEncrypted);
     // And that we can "see through" the MimeUnknown container
-    do_check_eq(aMimeMsg.parts[0].parts.length, 1);
-    do_check_eq(aMimeMsg.parts[0].parts[0].parts.length, 1);
-    do_check_eq(aMimeMsg.parts[0].parts[0].parts[0].parts.length, 2);
+    Assert.equal(aMimeMsg.parts[0].parts.length, 1);
+    Assert.equal(aMimeMsg.parts[0].parts[0].parts.length, 1);
+    Assert.equal(aMimeMsg.parts[0].parts[0].parts[0].parts.length, 2);
     // Make sure we can see the attachment
-    do_check_eq(aMimeMsg.allUserAttachments.length, 1);
-    do_check_eq(aMimeMsg.allUserAttachments[0].contentType, "image/jpeg");
+    Assert.equal(aMimeMsg.allUserAttachments.length, 1);
+    Assert.equal(aMimeMsg.allUserAttachments[0].contentType, "image/jpeg");
     async_driver();
     // Extra little bit of testing
   }, true, {

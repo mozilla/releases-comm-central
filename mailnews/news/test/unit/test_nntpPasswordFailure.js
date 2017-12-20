@@ -35,7 +35,7 @@ function alert(aDialogText, aText)
 {
   // The first few attempts may prompt about the password problem, the last
   // attempt shouldn't.
-  do_check_true(attempt < 4);
+  Assert.ok(attempt < 4);
 
   // Log the fact we've got an alert, but we don't need to test anything here.
   dump("Alert Title: " + aDialogText + "\nAlert Text: " + aText + "\n");
@@ -88,8 +88,8 @@ var urlListener =
   OnStopRunningUrl: function (url, result) {
     try {
       // On the last attempt, we should have successfully got one mail.
-      do_check_eq(folder.getTotalMessages(false),
-                  attempt == 4 ? 1 : 0);
+      Assert.equal(folder.getTotalMessages(false),
+                   attempt == 4 ? 1 : 0);
 
       // If we've just cancelled, expect failure rather than success
       // because the server dropped the connection.
@@ -125,16 +125,16 @@ function* getMail1() {
   yield false;
   dump("\nGot Mail 1\n");
 
-  do_check_eq(attempt, 2);
+  Assert.equal(attempt, 2);
 
   // Check that we haven't forgotten the login even though we've retried and
   // canceled.
   logins = Services.logins.findLogins(count, "news://localhost", null,
                                       "news://localhost");
 
-  do_check_eq(count.value, 1);
-  do_check_eq(logins[0].username, kUserName);
-  do_check_eq(logins[0].password, kInvalidPassword);
+  Assert.equal(count.value, 1);
+  Assert.equal(logins[0].username, kUserName);
+  Assert.equal(logins[0].password, kInvalidPassword);
 
   server.resetTest();
   yield true;
@@ -154,9 +154,9 @@ function* endTest() {
   logins = Services.logins.findLogins(count, "news://localhost", null,
                                       "news://localhost");
 
-  do_check_eq(count.value, 1);
-  do_check_eq(logins[0].username, kUserName);
-  do_check_eq(logins[0].password, kValidPassword);
+  Assert.equal(count.value, 1);
+  Assert.equal(logins[0].username, kUserName);
+  Assert.equal(logins[0].password, kValidPassword);
   yield true;
 }
 
@@ -190,7 +190,7 @@ function run_test()
 
   // Check that we haven't got any messages in the folder, if we have its a test
   // setup issue.
-  do_check_eq(folder.getTotalMessages(false), 0);
+  Assert.equal(folder.getTotalMessages(false), 0);
 
   async_run_tests(tests);
 }

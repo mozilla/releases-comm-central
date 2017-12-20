@@ -41,7 +41,7 @@ var copyListener =
   OnStopCopy: function(aStatus)
   {
     // Check: message successfully copied.
-    do_check_eq(aStatus, 0);
+    Assert.equal(aStatus, 0);
     // Ugly hack: make sure we don't get stuck in a JS->C++->JS->C++... call stack
     // This can happen with a bunch of synchronous functions grouped together, and
     // can even cause tests to fail because they're still waiting for the listener
@@ -56,7 +56,7 @@ var urlListener =
   },
   OnStopRunningUrl: function (aUrl, aExitCode) {
     // Check: message successfully copied.
-    do_check_eq(aExitCode, 0);
+    Assert.equal(aExitCode, 0);
     // Ugly hack: make sure we don't get stuck in a JS->C++->JS->C++... call stack
     // This can happen with a bunch of synchronous functions grouped together, and
     // can even cause tests to fail because they're still waiting for the listener
@@ -113,10 +113,10 @@ var gTestArray =
     gLocalTrashFolder.emptyTrash(null, null);
     // check that the trash folder is 0 size, that the db has a 0 message count
     // and has no messages.
-    do_check_eq(0, gLocalTrashFolder.filePath.fileSize);
-    do_check_eq(0, gLocalTrashFolder.msgDatabase.dBFolderInfo.numMessages);
+    Assert.equal(0, gLocalTrashFolder.filePath.fileSize);
+    Assert.equal(0, gLocalTrashFolder.msgDatabase.dBFolderInfo.numMessages);
     let enumerator = gLocalTrashFolder.msgDatabase.EnumerateMessages();
-    do_check_eq(false, enumerator.hasMoreElements());
+    Assert.equal(false, enumerator.hasMoreElements());
     urlListener.OnStopRunningUrl(null, 0);
   }
 ];

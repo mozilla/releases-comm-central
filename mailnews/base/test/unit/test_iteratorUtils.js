@@ -36,15 +36,15 @@ function test_fixIterator() {
   let JSArray = [];
   let i = 1;
   for (let val of JSIteratorArray) {
-    do_check_eq(val, i++);
+    Assert.equal(val, i++);
     JSArray.push(val);
   }
 
   i = 0;
   for (let val of iteratorUtils.fixIterator(JSArray)) {
-    do_check_eq(val, JSArray[i++]);
+    Assert.equal(val, JSArray[i++]);
   }
-  do_check_true(i > 0);
+  Assert.ok(i > 0);
 
   let nsIArrayJSArray = [];
   for (let val of JSArray) {
@@ -55,26 +55,26 @@ function test_fixIterator() {
   }
 
   let nsIArray = iteratorUtils.toXPCOMArray(nsIArrayJSArray, Ci.nsIMutableArray);
-  do_check_eq(nsIArray.length, 5);
+  Assert.equal(nsIArray.length, 5);
 
   i = 0;
   for (let val of iteratorUtils.fixIterator(nsIArray)) {
-    do_check_eq(val, JSArray[i++]);
+    Assert.equal(val, JSArray[i++]);
   }
-  do_check_true(i > 0);
+  Assert.ok(i > 0);
 
   i = 0;
   for (let val of iteratorUtils.fixIterator(nsIArray.enumerate())) {
-    do_check_eq(val, JSArray[i++]);
+    Assert.equal(val, JSArray[i++]);
   }
-  do_check_true(i > 0);
+  Assert.ok(i > 0);
 
   i = 0;
   let JSIteratorArray2 = iteratorUtils.toArray(iteratorUtils.fixIterator(nsIArray));
   for (let val of JSIteratorArray2) {
-    do_check_eq(val, JSArray[i++]);
+    Assert.equal(val, JSArray[i++]);
   }
-  do_check_true(i > 0);
+  Assert.ok(i > 0);
 
   // Bug 1126509, test that fixIterator rejects unknown objects.
   let thrown = false;
@@ -86,7 +86,7 @@ function test_fixIterator() {
     if (e.message == "An unsupported object sent to fixIterator: [object Object]")
       thrown = true;
   }
-  do_check_true(thrown);
+  Assert.ok(thrown);
 
   thrown = false;
   try {
@@ -96,7 +96,7 @@ function test_fixIterator() {
     if (e.message == "An unsupported object sent to fixIterator: [object Object]")
       thrown = true;
   }
-  do_check_true(thrown);
+  Assert.ok(thrown);
 
   thrown = false;
   try {
@@ -106,7 +106,7 @@ function test_fixIterator() {
     if (e.message == "An unsupported interface requested from toXPCOMArray: nsIArray")
       thrown = true;
   }
-  do_check_true(thrown);
+  Assert.ok(thrown);
 }
 
 /**
@@ -116,15 +116,15 @@ function test_toArray_NodeList() {
   let xml = parse_xml_file("nodelist_test.xml");
   let rootNode = xml.firstChild;
   // Sanity check -- rootNode should have tag "rootnode"
-  do_check_eq(rootNode.tagName, "rootnode");
+  Assert.equal(rootNode.tagName, "rootnode");
   // childNodes is a NodeList
   let childNodes = rootNode.childNodes;
   // Make sure we have at least one child node
-  do_check_true(childNodes.length > 0);
+  Assert.ok(childNodes.length > 0);
   let childArray = iteratorUtils.toArray(childNodes);
-  do_check_eq(childNodes.length, childArray.length);
+  Assert.equal(childNodes.length, childArray.length);
   for (let [i, node] of childArray.entries())
-    do_check_eq(node, childArray[i]);
+    Assert.equal(node, childArray[i]);
 }
 
 /**
@@ -139,9 +139,9 @@ function test_toArray_builtin_generator() {
   }
   // The resulting array should be the same as 'arr'.
   let generatorArray = iteratorUtils.toArray(generator);
-  do_check_eq(arr.length, generatorArray.length);
+  Assert.equal(arr.length, generatorArray.length);
   for (let i in arr) {
-    do_check_eq(arr[i], generatorArray[i]);
+    Assert.equal(arr[i], generatorArray[i]);
   }
 
   // Bug 1126509, test that toArray rejects unknown objects.
@@ -154,7 +154,7 @@ function test_toArray_builtin_generator() {
     if (e.message == "An unsupported object sent to toArray: [object Object]")
       thrown = true;
   }
-  do_check_true(thrown);
+  Assert.ok(thrown);
 }
 
 var Symbol_iterator = typeof Symbol === "function" && Symbol.iterator ?
@@ -174,9 +174,9 @@ function test_toArray_custom_iterator() {
     },
   };
   let iteratorArray = iteratorUtils.toArray(iterator);
-  do_check_eq(arr.length, iteratorArray.length);
+  Assert.equal(arr.length, iteratorArray.length);
   for (let [i, val] of arr.entries())
-    do_check_eq(val, iteratorArray[i]);
+    Assert.equal(val, iteratorArray[i]);
 }
 
 var gTests = [

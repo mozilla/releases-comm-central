@@ -33,12 +33,12 @@ function run_test() {
       fullCard = tempCard;
   }
 
-  do_check_true(fullCard != null);
+  Assert.ok(fullCard != null);
 
   // Test - VCard.
 
-  do_check_eq(fullCard.translateTo("vcard"),
-              "begin%3Avcard%0D%0Afn%3ADisplayName1%0D%0An%3ALastName1%3BFirstName1%0D%0Aorg%3AOrganization1%3BDepartment1%0D%0Aadr%3AWorkAddress21%3B%3BWorkAddress1%3BWorkCity1%3BWorkState1%3BWorkZipCode1%3BWorkCountry1%0D%0Aemail%3Binternet%3APrimaryEmail1%40test.invalid%0D%0Atitle%3AJobTitle1%0D%0Atel%3Bwork%3AWorkPhone1%0D%0Atel%3Bfax%3AFaxNumber1%0D%0Atel%3Bpager%3APagerNumber1%0D%0Atel%3Bhome%3AHomePhone1%0D%0Atel%3Bcell%3ACellularNumber1%0D%0Anote%3ANotes1%0D%0Aurl%3Ahttp%3A//WebPage21%0D%0Aversion%3A2.1%0D%0Aend%3Avcard%0D%0A%0D%0A");
+  Assert.equal(fullCard.translateTo("vcard"),
+               "begin%3Avcard%0D%0Afn%3ADisplayName1%0D%0An%3ALastName1%3BFirstName1%0D%0Aorg%3AOrganization1%3BDepartment1%0D%0Aadr%3AWorkAddress21%3B%3BWorkAddress1%3BWorkCity1%3BWorkState1%3BWorkZipCode1%3BWorkCountry1%0D%0Aemail%3Binternet%3APrimaryEmail1%40test.invalid%0D%0Atitle%3AJobTitle1%0D%0Atel%3Bwork%3AWorkPhone1%0D%0Atel%3Bfax%3AFaxNumber1%0D%0Atel%3Bpager%3APagerNumber1%0D%0Atel%3Bhome%3AHomePhone1%0D%0Atel%3Bcell%3ACellularNumber1%0D%0Anote%3ANotes1%0D%0Aurl%3Ahttp%3A//WebPage21%0D%0Aversion%3A2.1%0D%0Aend%3Avcard%0D%0A%0D%0A");
 
   // Test - XML
 
@@ -54,7 +54,7 @@ function run_test() {
   let smXml = "<GeneratedName>\nDisplayName1</GeneratedName>\n<table><tr><td><section><labelrow><label>Display Name: </label><DisplayName>DisplayName1</DisplayName></labelrow><labelrow><label>Nickname: </label><NickName>NickName1</NickName></labelrow><PrimaryEmail>PrimaryEmail1@test.invalid</PrimaryEmail><SecondEmail>SecondEmail1\u00D0@test.invalid</SecondEmail><labelrow><label>Screen Name: </label><_AimScreenName>ScreenName1</_AimScreenName></labelrow></section></td></tr><tr><td><section><sectiontitle>Phone</sectiontitle><labelrow><label>Work: </label><WorkPhone>WorkPhone1</WorkPhone></labelrow><labelrow><label>Home: </label><HomePhone>HomePhone1</HomePhone></labelrow><labelrow><label>Fax: </label><FaxNumber>FaxNumber1</FaxNumber></labelrow><labelrow><label>Pager: </label><PagerNumber>PagerNumber1</PagerNumber></labelrow><labelrow><label>Mobile: </label><CellularNumber>CellularNumber1</CellularNumber></labelrow></section><section><sectiontitle>Other</sectiontitle><labelrow><label>Custom 1: </label><Custom1>Custom11</Custom1></labelrow><labelrow><label>Custom 2: </label><Custom2>Custom21</Custom2></labelrow><labelrow><label>Custom 3: </label><Custom3>Custom31</Custom3></labelrow><labelrow><label>Custom 4: </label><Custom4>Custom41</Custom4></labelrow><Notes>Notes1</Notes></section></td><td><section><sectiontitle>Home</sectiontitle><HomeAddress>HomeAddress11</HomeAddress><HomeAddress2>HomeAddress21</HomeAddress2><HomeCity>HomeCity1</HomeCity>, <HomeState>HomeState1</HomeState> <HomeZipCode>HomeZipCode1</HomeZipCode><HomeCountry>HomeCountry1</HomeCountry><WebPage2>http://WebPage11</WebPage2></section><section><sectiontitle>Work</sectiontitle><JobTitle>JobTitle1</JobTitle><Department>Department1</Department><Company>Organization1</Company><WorkAddress>WorkAddress1</WorkAddress><WorkAddress2>WorkAddress21</WorkAddress2><WorkCity>WorkCity1</WorkCity>, <WorkState>WorkState1</WorkState> <WorkZipCode>WorkZipCode1</WorkZipCode><WorkCountry>WorkCountry1</WorkCountry><WebPage1>http://WebPage21</WebPage1></section></td></tr></table>";
 
   let XmlTrans = fullCard.translateTo("xml");
-  do_check_true(XmlTrans == tbXml || XmlTrans == smXml);
+  Assert.ok(XmlTrans == tbXml || XmlTrans == smXml);
 
   // Test - base 64
 
@@ -71,5 +71,5 @@ function run_test() {
 
   let XmlBase64Trans = fullCard.translateTo("base64xml");
 
-  do_check_true(XmlBase64Trans == tbXmlBase64 || XmlBase64Trans == smXmlBase64);
+  Assert.ok(XmlBase64Trans == tbXmlBase64 || XmlBase64Trans == smXmlBase64);
 }

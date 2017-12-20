@@ -14,18 +14,18 @@ Components.utils.import("resource:///modules/iteratorUtils.jsm");
 function subtest_folder_deletion(root) {
   // Now we only have <root> and some default subfolders, like Trash.
   let trash = root.getChildNamed("Trash");
-  do_check_false(trash.hasSubFolders);
+  Assert.ok(!trash.hasSubFolders);
 
   // Create new "folder" in root.
   let folder = root.createLocalSubfolder("folder");
   let path = folder.filePath;
-  do_check_true(path.exists());
+  Assert.ok(path.exists());
 
   // Delete "folder" into Trash.
   let folderArray = toXPCOMArray([folder], Ci.nsIMutableArray);
   root.deleteSubFolders(folderArray, null);
-  do_check_false(path.exists());
-  do_check_eq(trash.numSubFolders, 1);
+  Assert.ok(!path.exists());
+  Assert.equal(trash.numSubFolders, 1);
   let folderDeleted = trash.getChildNamed("folder");
 
   // Create another "folder" in root.
@@ -33,7 +33,7 @@ function subtest_folder_deletion(root) {
   // Delete "folder" into Trash again.
   folderArray = toXPCOMArray([folder], Ci.nsIMutableArray);
   root.deleteSubFolders(folderArray, null);
-  do_check_eq(trash.numSubFolders, 2);
+  Assert.equal(trash.numSubFolders, 2);
   // The folder should be automatically renamed as the same name already is in Trash.
   let folderDeleted2 = trash.getChildNamed("folder(2)");
 
@@ -47,12 +47,12 @@ function subtest_folder_deletion(root) {
   // Delete folder into Trash again
   folderArray = toXPCOMArray([folder], Ci.nsIMutableArray);
   root.deleteSubFolders(folderArray, null);
-  do_check_eq(trash.numSubFolders, 3);
+  Assert.equal(trash.numSubFolders, 3);
   // The folder should be automatically renamed as the same name already is in Trash
   // but the subfolder should be untouched.
   let folderDeleted3 = trash.getChildNamed("folder(3)");
-  do_check_neq(folderDeleted3, null);
-  do_check_true(folderDeleted3.containsChildNamed("subfolder"));
+  Assert.notEqual(folderDeleted3, null);
+  Assert.ok(folderDeleted3.containsChildNamed("subfolder"));
   // Now we have <root>
   //               +--Trash
   //                    +--folder
@@ -61,9 +61,9 @@ function subtest_folder_deletion(root) {
   //                         +--subfolder
 
   // Create another "folder(3)" in root.
-  do_check_false(root.containsChildNamed("folder(3)"));
+  Assert.ok(!root.containsChildNamed("folder(3)"));
   folder = root.createLocalSubfolder("folder(3)");
-  do_check_true(root.containsChildNamed("folder(3)"));
+  Assert.ok(root.containsChildNamed("folder(3)"));
   // Now try to move "folder(3)" from Trash back to root.
   // That should fail, because the user gets a prompt about it and that does
   // not work in xpcshell.
@@ -90,16 +90,16 @@ function subtest_folder_operations(root) {
 
   var folder = root.createLocalSubfolder("folder1").QueryInterface(Ci.nsIMsgLocalMailFolder);
 
-  do_check_true(root.hasSubFolders);
-  do_check_eq(root.numSubFolders, numSubFolders + 1);
+  Assert.ok(root.hasSubFolders);
+  Assert.equal(root.numSubFolders, numSubFolders + 1);
 
-  do_check_false(folder.hasSubFolders);
-  do_check_eq(folder.numSubFolders, 0);
+  Assert.ok(!folder.hasSubFolders);
+  Assert.equal(folder.numSubFolders, 0);
 
   var folder2 = folder.createLocalSubfolder("folder2");
 
-  do_check_true(folder.hasSubFolders);
-  do_check_eq(folder.numSubFolders, 1);
+  Assert.ok(folder.hasSubFolders);
+  Assert.equal(folder.numSubFolders, 1);
 
   // Now we have <root>
   //               +--folder1
@@ -107,7 +107,7 @@ function subtest_folder_operations(root) {
 
   // Test - getChildNamed
 
-  do_check_eq(root.getChildNamed("folder1"), folder);
+  Assert.equal(root.getChildNamed("folder1"), folder);
 
   // Check for non match, this should throw
   var thrown = false;
@@ -118,44 +118,44 @@ function subtest_folder_operations(root) {
     thrown = true;
   }
 
-  do_check_true(thrown);
+  Assert.ok(thrown);
 
   // folder2 is a child of folder however.
   var folder2 = folder.getChildNamed("folder2");
 
   // Test - isAncestorOf
 
-  do_check_true(folder.isAncestorOf(folder2));
-  do_check_true(root.isAncestorOf(folder2));
-  do_check_false(folder.isAncestorOf(root));
+  Assert.ok(folder.isAncestorOf(folder2));
+  Assert.ok(root.isAncestorOf(folder2));
+  Assert.ok(!folder.isAncestorOf(root));
 
   // Test - FoldersWithFlag
 
   const nsMsgFolderFlags = Components.interfaces.nsMsgFolderFlags;
 
   folder.setFlag(nsMsgFolderFlags.CheckNew);
-  do_check_true(folder.getFlag(nsMsgFolderFlags.CheckNew));
-  do_check_false(folder.getFlag(nsMsgFolderFlags.Offline));
+  Assert.ok(folder.getFlag(nsMsgFolderFlags.CheckNew));
+  Assert.ok(!folder.getFlag(nsMsgFolderFlags.Offline));
 
   folder.setFlag(nsMsgFolderFlags.Offline);
-  do_check_true(folder.getFlag(nsMsgFolderFlags.CheckNew));
-  do_check_true(folder.getFlag(nsMsgFolderFlags.Offline));
+  Assert.ok(folder.getFlag(nsMsgFolderFlags.CheckNew));
+  Assert.ok(folder.getFlag(nsMsgFolderFlags.Offline));
 
   folder.toggleFlag(nsMsgFolderFlags.CheckNew);
-  do_check_false(folder.getFlag(nsMsgFolderFlags.CheckNew));
-  do_check_true(folder.getFlag(nsMsgFolderFlags.Offline));
+  Assert.ok(!folder.getFlag(nsMsgFolderFlags.CheckNew));
+  Assert.ok(folder.getFlag(nsMsgFolderFlags.Offline));
 
   folder.clearFlag(nsMsgFolderFlags.Offline);
-  do_check_false(folder.getFlag(nsMsgFolderFlags.CheckNew));
-  do_check_false(folder.getFlag(nsMsgFolderFlags.Offline));
+  Assert.ok(!folder.getFlag(nsMsgFolderFlags.CheckNew));
+  Assert.ok(!folder.getFlag(nsMsgFolderFlags.Offline));
 
   folder.setFlag(nsMsgFolderFlags.Favorite);
   folder2.setFlag(nsMsgFolderFlags.Favorite);
   folder.setFlag(nsMsgFolderFlags.CheckNew);
   folder2.setFlag(nsMsgFolderFlags.Offline);
 
-  do_check_eq(root.getFolderWithFlags(nsMsgFolderFlags.CheckNew),
-              folder);
+  Assert.equal(root.getFolderWithFlags(nsMsgFolderFlags.CheckNew),
+               folder);
 
   // Test - Move folders around
 
@@ -167,7 +167,7 @@ function subtest_folder_operations(root) {
   let messageGenerator = new MessageGenerator();
   let message = messageGenerator.makeMessage();
   let hdr = folder1Local.addMessage(message.toMboxString());
-  do_check_eq(message.messageId, hdr.messageId);
+  Assert.equal(message.messageId, hdr.messageId);
 
   folder3Local.copyFolderLocal(folder, true, null, null);
 
@@ -184,18 +184,18 @@ function subtest_folder_operations(root) {
     thrown = true;
   }
 
-  do_check_true(thrown);
+  Assert.ok(thrown);
 
   if (folder.filePath.exists())
     dump("shouldn't exist - folder file path " + folder.URI + "\n");
-  do_check_false(folder.filePath.exists());
+  Assert.ok(!folder.filePath.exists());
   if (folder2.filePath.exists())
     dump("shouldn't exist - folder2 file path " + folder2.URI + "\n");
-  do_check_false(folder2.filePath.exists());
+  Assert.ok(!folder2.filePath.exists());
 
   // make sure getting the db doesn't throw an exception
   let db = folder1Moved.msgDatabase;
-  do_check_true(db.summaryValid);
+  Assert.ok(db.summaryValid);
 
   // Move folders back, get them
   var rootLocal = root.QueryInterface(Components.interfaces.nsIMsgLocalMailFolder);
@@ -208,7 +208,7 @@ function subtest_folder_operations(root) {
   // make sure getting the db doesn't throw an exception, and is valid
   folder = rootLocal.getChildNamed("folder1-newname");
   db = folder.msgDatabase;
-  do_check_true(db.summaryValid);
+  Assert.ok(db.summaryValid);
 
   folder.rename("folder1", null);
   folder = rootLocal.getChildNamed("folder1");
@@ -220,58 +220,58 @@ function subtest_folder_operations(root) {
   var path2 = folder2.filePath;
   var path3 = folder3.filePath;
 
-  do_check_true(path1.exists());
-  do_check_true(path2.exists());
-  do_check_true(path3.exists());
+  Assert.ok(path1.exists());
+  Assert.ok(path2.exists());
+  Assert.ok(path3.exists());
 
   // First try deleting folder3 -- folder1 and folder2 paths should still exist
   root.propagateDelete(folder3, true, null);
 
-  do_check_true(path1.exists());
-  do_check_true(path2.exists());
-  do_check_false(path3.exists());
+  Assert.ok(path1.exists());
+  Assert.ok(path2.exists());
+  Assert.ok(!path3.exists());
 
   root.propagateDelete(folder, true, null);
 
-  do_check_false(path1.exists());
-  do_check_false(path2.exists());
+  Assert.ok(!path1.exists());
+  Assert.ok(!path2.exists());
 }
 
 function test_store_rename(root) {
   let folder1 = root.createLocalSubfolder("newfolder1")
                     .QueryInterface(Ci.nsIMsgLocalMailFolder);
-  do_check_true(root.hasSubFolders);
-  do_check_false(folder1.hasSubFolders);
+  Assert.ok(root.hasSubFolders);
+  Assert.ok(!folder1.hasSubFolders);
   let folder2 = folder1.createLocalSubfolder("newfolder1-sub");
   let folder3 = root.createLocalSubfolder("newfolder3")
                     .QueryInterface(Ci.nsIMsgLocalMailFolder);
   let folder3Subfolder = folder3.createLocalSubfolder("newfolder3-sub");
 
-  do_check_true(folder1.hasSubFolders);
-  do_check_false(folder2.hasSubFolders);
-  do_check_true(folder3.hasSubFolders);
+  Assert.ok(folder1.hasSubFolders);
+  Assert.ok(!folder2.hasSubFolders);
+  Assert.ok(folder3.hasSubFolders);
 
   folder1.rename("folder1", null);
-  do_check_true(root.containsChildNamed("folder1"));
+  Assert.ok(root.containsChildNamed("folder1"));
   folder1 = root.getChildNamed("folder1");
 
   folder1.rename("newfolder1", null);
-  do_check_true(root.containsChildNamed("newfolder1"));
+  Assert.ok(root.containsChildNamed("newfolder1"));
   folder1 = root.getChildNamed("newfolder1");
   folder2 = folder1.getChildNamed("newfolder1-sub");
 
-  do_check_true(folder1.containsChildNamed(folder2.name));
-  do_check_true(folder2.filePath.exists());
+  Assert.ok(folder1.containsChildNamed(folder2.name));
+  Assert.ok(folder2.filePath.exists());
 
   folder3 = root.getChildNamed("newfolder3");
   root.propagateDelete(folder3, true, null);
-  do_check_false(root.containsChildNamed("newfolder3"));
+  Assert.ok(!root.containsChildNamed("newfolder3"));
   folder3 = root.createLocalSubfolder("newfolder3");
   folder3SubFolder = folder3.createLocalSubfolder("newfolder3-sub");
   folder3.rename("folder3", null);
 
-  do_check_true(root.containsChildNamed("folder3"));
-  do_check_false(root.containsChildNamed("newfolder3"));
+  Assert.ok(root.containsChildNamed("folder3"));
+  Assert.ok(!root.containsChildNamed("newfolder3"));
 }
 
 var gPluggableStores = [

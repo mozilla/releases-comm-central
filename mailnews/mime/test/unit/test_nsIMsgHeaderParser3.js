@@ -59,15 +59,15 @@ function run_test() {
 
   // Test - empty strings
 
-  do_check_eq(MailServices.headerParser.removeDuplicateAddresses("", ""), "");
-  do_check_eq(MailServices.headerParser.removeDuplicateAddresses("", "test@foo.invalid"), "");
+  Assert.equal(MailServices.headerParser.removeDuplicateAddresses("", ""), "");
+  Assert.equal(MailServices.headerParser.removeDuplicateAddresses("", "test@foo.invalid"), "");
 
   // Test - removeDuplicateAddresses
 
   for (let i = 0; i < checks.length; ++i) {
     dump("Test " + i + "\n");
-    do_check_eq(MailServices.headerParser.removeDuplicateAddresses(checks[i].addrs,
-                checks[i].otherAddrs),
+    Assert.equal(MailServices.headerParser.removeDuplicateAddresses(checks[i].addrs,
+                 checks[i].otherAddrs),
     checks[i].expectedResult);
   }
 }

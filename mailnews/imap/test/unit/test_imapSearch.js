@@ -248,7 +248,7 @@ function* loadImapMessage()
   IMAPPump.inbox.updateFolderWithListener(null, asyncUrlListener);
   yield false;
 
-  do_check_eq(1, IMAPPump.inbox.getTotalMessages(false));
+  Assert.equal(1, IMAPPump.inbox.getTotalMessages(false));
   yield true;
 }
 
@@ -265,7 +265,7 @@ function* testSearch()
       dump("testing dbHeader " + test.dbHeader + "\n");
       let customValue = mailTestUtils.firstMsgHdr(IMAPPump.inbox)
                                      .getProperty(test.dbHeader);
-      do_check_eq(customValue, test.testString);
+      Assert.equal(customValue, test.testString);
     }
     else
     {

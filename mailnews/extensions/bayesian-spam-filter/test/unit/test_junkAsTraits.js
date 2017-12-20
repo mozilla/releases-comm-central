@@ -295,13 +295,13 @@ var junkListener =
     var command = gTest.command;
     var junkPercent = gTest.junkPercent;
     // file returned correctly
-    do_check_eq(getSpec(gTest.fileName), aMsgURI);
+    Assert.equal(getSpec(gTest.fileName), aMsgURI);
 
     // checks of aClassification
 
     // forget returns unclassified
     if (command == kForgetJ || command == kForgetT)
-      do_check_eq(aClassification, kUnclassified);
+      Assert.equal(aClassification, kUnclassified);
     // classification or train should return an actual classification
     else
     {
@@ -309,20 +309,20 @@ var junkListener =
       var isGood = Math.abs(junkPercent) < 90;
       if (junkPercent < 0)
         isGood = !isGood;
-      do_check_eq(aClassification, isGood ? kGood : kJunk);
+      Assert.equal(aClassification, isGood ? kGood : kJunk);
     }
 
     // checks of aJunkPercent
 
     if (command == kClassJ || command == kClassT)
       // classify returns the actual junk percents
-      do_check_eq(Math.abs(junkPercent), aJunkPercent);
+      Assert.equal(Math.abs(junkPercent), aJunkPercent);
     else if (command == kTrainJ || command == kTrainT)
       // train returns the ham and spam limits
-      do_check_eq(aJunkPercent, junkPercent < 90 ? kIsHamScore : kIsSpamScore);
+      Assert.equal(aJunkPercent, junkPercent < 90 ? kIsHamScore : kIsSpamScore);
     else
       // forget always returns 0
-      do_check_eq(aJunkPercent, 0);
+      Assert.equal(aJunkPercent, 0);
 
     // if the current test includes a trait listener, it will
     // run next, so we defer to it for starting the next command
@@ -345,23 +345,23 @@ var traitListener =
     var junkPercent = gTest.junkPercent;
     //print("command, junkPercent is " + command + " , " + junkPercent);
 
-    do_check_eq(getSpec(gTest.fileName), aMsgURI);
+    Assert.equal(getSpec(gTest.fileName), aMsgURI);
 
     // checks of aPercents
 
     if (command == kForgetJ || command == kForgetT)
       // "forgets" with null newClassifications does not return a percent
-      do_check_eq(aPercents.length, 0);
+      Assert.equal(aPercents.length, 0);
     else
     {
       var percent = aPercents[0];
       //print("Percent is " + percent);
       if (command == kClassJ || command == kClassT)
       // Classify returns actual percents
-        do_check_eq(percent, junkPercent);
+        Assert.equal(percent, junkPercent);
       else
       // Train simply returns 100
-        do_check_eq(percent, 100);
+        Assert.equal(percent, 100);
     }
 
     // checks of aTraits
@@ -369,18 +369,18 @@ var traitListener =
     if (command == kForgetJ || command == kForgetT)
       // "forgets" with null newClassifications does not return a
       // classification
-      do_check_eq(aTraits.length, 0);
+      Assert.equal(aTraits.length, 0);
     else if (command == kClassJ || command == kClassT)
     {
       // classification just returns the tested "Pro" trait (junk)
       var trait = aTraits[0];
-      do_check_eq(trait, kJunkTrait);
+      Assert.equal(trait, kJunkTrait);
     }
     else
     {
       // training returns the actual trait trained
       var trait = aTraits[0];
-      do_check_eq(trait, junkPercent < 90 ? kGoodTrait : kJunkTrait);
+      Assert.equal(trait, junkPercent < 90 ? kGoodTrait : kJunkTrait);
     }
 
     // All done, start the next test
@@ -493,9 +493,9 @@ function startCommand()
       nsIMsgCorpus.corpusCounts(kGoodTrait, msgCount);
       let goodCount = msgCount.value;
       print("tokenCount, junkCount, goodCount is " + tokenCount, junkCount, goodCount);
-      do_check_eq(tokenCount, gTest.tokenCount);
-      do_check_eq(junkCount, gTest.junkCount);
-      do_check_eq(goodCount, gTest.goodCount);
+      Assert.equal(tokenCount, gTest.tokenCount);
+      Assert.equal(junkCount, gTest.junkCount);
+      Assert.equal(goodCount, gTest.goodCount);
       do_timeout(0, startCommand);
       break;
   }

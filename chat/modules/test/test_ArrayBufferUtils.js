@@ -11,7 +11,7 @@ function do_check_arraybuffer_eq(a, b) {
   for (let i = 0; i < viewA.byteLength; ++i)
     res = res && viewA[i] == viewB[i];
 
-  do_check_true(res);
+  Assert.ok(res);
 }
 
 function do_check_array_eq(a, b) {
@@ -19,7 +19,7 @@ function do_check_array_eq(a, b) {
   for (let i = 0; i < a.length; ++i)
     res = res && a[i] == b[i];
 
-  do_check_true(res);
+  Assert.ok(res);
 }
 
 function test_ArrayBufferToBytes() {
@@ -70,7 +70,7 @@ function test_ArrayBufferToString() {
     view.setUint8(i, byteString[i]);
 
   let str = ArrayBufferToString(buf);
-  do_check_eq(str, testString);
+  Assert.equal(str, testString);
 
   run_next_test();
 }
@@ -84,7 +84,7 @@ function test_ArrayBufferToHexString() {
   view.setUint8(3, 0x11);
 
   let str = ArrayBufferToHexString(buf);
-  do_check_eq(str, "0x00 10 01 11");
+  Assert.equal(str, "0x00 10 01 11");
 
   run_next_test();
 }

@@ -80,34 +80,34 @@ function checkAttachment(expectedCD, expectedCT) {
   let msgData = mailTestUtils
     .loadMessageToString(gDraftFolder, mailTestUtils.firstMsgHdr(gDraftFolder));
   let pos = msgData.indexOf("Content-Disposition:");
-  do_check_neq(pos, -1);
+  Assert.notEqual(pos, -1);
   let contentDisposition = msgData.substr(pos);
   pos = 0;
   do {
     pos = contentDisposition.indexOf("\n", pos);
-    do_check_neq(pos, -1);
+    Assert.notEqual(pos, -1);
     pos++;
   } while (contentDisposition.startsWith(" ", pos));
   contentDisposition = contentDisposition.substr(0, pos);
-  do_check_eq(contentDisposition, expectedCD);
+  Assert.equal(contentDisposition, expectedCD);
 
   pos = msgData.indexOf("Content-Type:"); // multipart
-  do_check_neq(pos, -1);
+  Assert.notEqual(pos, -1);
   msgData = msgData.substr(pos + 13);
   pos = msgData.indexOf("Content-Type:"); // body
-  do_check_neq(pos, -1);
+  Assert.notEqual(pos, -1);
   msgData = msgData.substr(pos + 13);
   pos = msgData.indexOf("Content-Type:"); // first attachment
-  do_check_neq(pos, -1);
+  Assert.notEqual(pos, -1);
   var contentType = msgData.substr(pos);
   pos = 0;
   do {
     pos = contentType.indexOf("\n", pos);
-    do_check_neq(pos, -1);
+    Assert.notEqual(pos, -1);
     pos++;
   } while (contentType.startsWith(" ", pos));
   contentType = contentType.substr(0, pos);
-  do_check_eq(contentType, expectedCT);
+  Assert.equal(contentType, expectedCT);
 }
 
 function* testInput0() {

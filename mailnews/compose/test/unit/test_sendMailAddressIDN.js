@@ -30,8 +30,8 @@ function alert(aDialogText, aText)
     return;
 
   // we should only get here for the kToInvalid test case
-  do_check_eq(test, kToInvalid);
-  do_check_eq(aText, expectedAlertMessage);
+  Assert.equal(test, kToInvalid);
+  Assert.equal(aText, expectedAlertMessage);
 }
 
 
@@ -51,14 +51,14 @@ msgListener.prototype =
   {
     try
     {
-      do_check_eq(aStatus, 0);
+      Assert.equal(aStatus, 0);
       do_check_transaction(server.playTransaction(),
                            ["EHLO test",
                             "MAIL FROM:<" + kSender + "> BODY=8BITMIME SIZE=" + originalData.length,
                             "RCPT TO:<" + this.rcpt + ">",
                             "DATA"]);
       // Compare data file to what the server received
-      do_check_eq(originalData, server._daemon.post);
+      Assert.equal(originalData, server._daemon.post);
     }
     catch (e)
     {
@@ -82,7 +82,7 @@ msgListener.prototype =
   GetMessageId: function (aMessageId) {},
   OnStopCopy: function (aStatus)
   {
-    do_check_eq(aStatus, 0);
+    Assert.equal(aStatus, 0);
     try
     {
       // Now do a comparison of what is in the sent mail folder
@@ -90,9 +90,9 @@ msgListener.prototype =
         .loadMessageToString(sentFolder, mailTestUtils.firstMsgHdr(sentFolder));
       // Skip the headers etc that mailnews adds
       var pos = msgData.indexOf("From:");
-      do_check_neq(pos, -1);
+      Assert.notEqual(pos, -1);
       msgData = msgData.substr(pos);
-      do_check_eq(originalData, msgData);
+      Assert.equal(originalData, msgData);
     }
     catch (e)
     {
@@ -123,7 +123,7 @@ function DoSendTest(aRecipient, aRecipientExpected, aExceptionExpected)
   server.start();
   var smtpServer = getBasicSmtpServer(server.port);
   var identity = getSmtpIdentity(kSender, smtpServer);
-  do_check_eq(identity.doFcc, true);
+  Assert.equal(identity.doFcc, true);
 
   // Random test file with data we don't actually care about. ;-)
   var testFile = do_get_file("data/message1.eml");
@@ -163,7 +163,7 @@ function DoSendTest(aRecipient, aRecipientExpected, aExceptionExpected)
     while (thread.hasPendingEvents())
       thread.processNextEvent(true);
   }
-  do_check_eq(exceptionCaught, aExceptionExpected);
+  Assert.equal(exceptionCaught, aExceptionExpected);
 }
 
 

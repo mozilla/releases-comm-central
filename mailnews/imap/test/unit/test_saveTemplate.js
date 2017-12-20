@@ -77,7 +77,7 @@ function* saveAsTemplate() {
   identity.stationeryFolder = IMAPPump.incomingServer.rootFolder.URI + "/Templates";
   let templates = MailUtils.getFolderForURI(identity.stationeryFolder, false);
   // Verify that Templates folder doesn't exist, and then create it.
-  do_check_eq(templates.parent, null);
+  Assert.equal(templates.parent, null);
   templates.setFlag(Ci.nsMsgFolderFlags.Templates);
   templates.createStorageIfMissing(new saveAsUrlListener(uri, identity));
   yield false;
@@ -89,7 +89,7 @@ var mfnListener =
   msgAdded: function msgAdded(aMsg)
   {
     // Check this is the templates folder.
-    do_check_eq(aMsg.folder.prettyName, "Templates");
+    Assert.equal(aMsg.folder.prettyName, "Templates");
     async_driver();
   },
 };
