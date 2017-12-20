@@ -744,3 +744,41 @@ function MailSetCharacterSet(aEvent) {
   }
   messenger.setDocumentCharset(msgWindow.mailCharacterSet);
 }
+
+/**
+ * Called from the extensions manager to open an add-on options XUL document.
+ * Only the "open in tab" option is supported, so that's what we'll do here.
+ */
+function switchToTabHavingURI(aURI, aOpenNew, aOpenParams) {
+  let tabmail = document.getElementById("tabmail");
+  let matchingIndex = -1;
+  if (tabmail) {
+    let openURI = makeURI(aURI);
+    let tabInfo = tabmail.tabInfo;
+
+    // Check if we already have the same URL open in a content tab.
+    for (let tabIndex = 0; tabIndex < tabInfo.length; tabIndex++) {
+      if (tabInfo[tabIndex].mode.name == "contentTab") {
+        let browserFunc = tabInfo[tabIndex].mode.getBrowser ||
+                          tabInfo[tabIndex].mode.tabType.getBrowser;
+        if (browserFunc) {
+          let browser = browserFunc.call(tabInfo[tabIndex].mode.tabType, tabInfo[tabIndex]);
+          if (browser.currentURI.equals(openURI)) {
+            matchingIndex = tabIndex;
+            break;
+          }
+        }
+      }
+    }
+  }
+
+  // Open the found matching tab.
+  if (tabmail && matchingIndex > -1) {
+    tabmail.switchToTab(matchingIndex);
+    return true;
+  }
+
+  // Open a new tab.
+  openContentTab(aURI, "tab");
+  return false;
+}

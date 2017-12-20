@@ -459,6 +459,11 @@
 <!ENTITY addressBookCmd.key "B">
 <!ENTITY addons.label "Add-ons">
 <!ENTITY addons.accesskey "A">
+<!ENTITY addonPrefs.label "Add-on Options">
+<!ENTITY addonPrefs.accesskey "O">
+<!ENTITY addonPrefsUnix.label "Add-on Preferences">
+<!ENTITY addonPrefsUnix.accesskey "P">
+<!ENTITY addonNoPrefs.label "No Add-on settings found.">
 <!ENTITY activitymanager.label "Activity Manager">
 <!ENTITY activitymanager.accesskey "v">
 <!ENTITY imAccountsStatus.label "Chat status">

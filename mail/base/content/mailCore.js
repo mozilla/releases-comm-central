@@ -424,8 +424,8 @@ function openOptionsDialog(aPaneID, aTabID, aOtherArgs)
       let features = "chrome,titlebar,toolbar,centerscreen" +
                      (instantApply ? ",dialog=no" : ",modal");
 
-      openDialog("chrome://messenger/content/preferences/preferences.xul",
-                 "Preferences", features, aPaneID, aTabID, aOtherArgs);
+      window.openDialog("chrome://messenger/content/preferences/preferences.xul",
+                        "Preferences", features, aPaneID, aTabID, aOtherArgs);
     }
   }
 }
@@ -471,6 +471,24 @@ function openAddonsMgr(aView)
       Services.obs.removeObserver(loadViewOnLoad, aTopic);
       aSubject.loadView(aView);
     }, "EM-loaded");
+  }
+}
+
+/**
+ * Open a dialog with addon preferences.
+ *
+ * @option aURL  Chrome URL for the preferences XUL file of the addon.
+ */
+function openAddonPrefs(aURL, aOptionsType) {
+  if (aOptionsType == 3) {
+    switchToTabHavingURI(aURL);
+  } else {
+    let instantApply = Services.prefs
+                               .getBoolPref("browser.preferences.instantApply");
+    let features = "chrome,titlebar,toolbar,centerscreen" +
+                   (instantApply ? ",dialog=no" : ",modal");
+
+    window.openDialog(aURL, "addonPrefs", features);
   }
 }
 

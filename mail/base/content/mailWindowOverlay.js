@@ -3708,3 +3708,48 @@ function initAppMenuPopup(aMenuPopup, aEvent)
   if (aEvent.target.parentNode.parentNode.parentNode.parentNode == aMenuPopup)
     aMenuPopup._currentPopup = aEvent.target;
 }
+
+/**
+ *  Generates menu items for opening preferences dialog/tab for each installed addon.
+ *
+ *  @option aMenupopup  The menupopup element to populate.
+ */
+function initAddonPrefsMenu(aMenupopup) {
+  // Clear all but the first special menuitem.
+  while (aMenupopup.children.length > 1) {
+    aMenupopup.lastChild.remove();
+  }
+
+  // Enumerate all enabled addons with URL to XUL document with prefs.
+  AddonManager.getAddonsByTypes(["extension"], (addons) => {
+    let addonsFound = [];
+    for (let addon of addons) {
+      if (!addon.userDisabled && !addon.appDisabled && !addon.softDisabled &&
+          addon.optionsURL && (addon.optionsType === null || addon.optionsType == 3)) {
+        addonsFound.push(addon);
+      }
+    }
+
+    // Populate the menu with addon names and icons
+    if (addonsFound.length > 0) {
+      addonsFound.sort((a,b) => a.name.localeCompare(b.name));
+      for (let addon of addonsFound) {
+        let newItem = document.createElement("menuitem");
+        newItem.setAttribute("label", addon.name);
+        newItem.setAttribute("value", addon.optionsURL);
+        if (addon.optionsType)
+          newItem.setAttribute("optionsType", addon.optionsType);
+        let iconURL = addon.iconURL || addon.icon64URL;
+        if (iconURL) {
+          newItem.setAttribute("class", "menuitem-iconic");
+          newItem.setAttribute("image", iconURL);
+        }
+        aMenupopup.appendChild(newItem);
+      }
+      aMenupopup.firstChild.setAttribute("collapsed", "true");
+    } else {
+      // Only show message that there are no addons with prefs.
+      aMenupopup.firstChild.setAttribute("collapsed", "false");
+    }
+  });
+}
