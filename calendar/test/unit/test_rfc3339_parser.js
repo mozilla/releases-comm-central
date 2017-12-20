@@ -29,7 +29,7 @@ function really_run_test() {
             isDate: aExpectedDateTime[7]
         };
         for (let prop in expectedDateProps) {
-            do_print("Checking prop: " + prop);
+            info("Checking prop: " + prop);
             // Object comparison fails with ical.js, and we only want to check
             // that we have the right timezone.
             if (prop == "timezone") {

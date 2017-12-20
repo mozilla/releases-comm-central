@@ -74,7 +74,7 @@ function removeDirectory(directory) {
 function run_test() {
   gAbListener = new abListener();
   MailServices.ab.addAddressBookListener(gAbListener, Ci.nsIAbListener.all);
-  do_register_cleanup(function() {
+  registerCleanupFunction(function() {
     MailServices.ab.removeAddressBookListener(gAbListener);
   });
 

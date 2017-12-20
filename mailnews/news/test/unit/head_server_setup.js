@@ -250,7 +250,7 @@ var articleTextListener = {
   }
 };
 
-do_register_cleanup(function() {
+registerCleanupFunction(function() {
   load("../../../resources/mailShutdown.js");
 });
 

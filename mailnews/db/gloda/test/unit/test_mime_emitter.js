@@ -602,7 +602,7 @@ var tests = [
 var gInbox;
 
 function run_test() {
-  do_register_cleanup(function() {
+  registerCleanupFunction(function() {
     const Cu = Components.utils;
     Cu.import("resource:///modules/gloda/datastore.js");
     GlodaDatastore.shutdown();

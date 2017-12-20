@@ -71,7 +71,7 @@ function run_test()
     return;
   }
 
-  do_register_cleanup(finish_test);
+  registerCleanupFunction(finish_test);
 
   // Copy the xml file into place
   let file = do_get_file("data/" + kXMLFile);

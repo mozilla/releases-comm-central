@@ -148,6 +148,6 @@ function run_test()
 
 function exitTest()
 {
-  do_print("Exiting mail tests\n");
+  info("Exiting mail tests\n");
   gPOP3Pump = null;
 }

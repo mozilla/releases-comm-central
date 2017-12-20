@@ -12,6 +12,6 @@ var CC = Components.Constructor;
 do_get_profile();
 
 
-do_register_cleanup(function() {
+registerCleanupFunction(function() {
   load("../../../../../mailnews/resources/mailShutdown.js");
 });

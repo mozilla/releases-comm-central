@@ -344,7 +344,7 @@ function waitForImportAndSmartBookmarks(aCallback) {
   Services.obs.addObserver(function waitImport() {
     Services.obs.removeObserver(waitImport, "bookmarks-restore-success");
     // Delay to test eventual smart bookmarks creation.
-    do_execute_soon(function () {
+    executeSoon(function () {
       promiseAsyncUpdates().then(aCallback);
     });
   }, "bookmarks-restore-success");

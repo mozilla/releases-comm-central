@@ -70,7 +70,7 @@ function* check_messages() {
 }
 
 function run_test() {
-  do_register_cleanup(function() {
+  registerCleanupFunction(function() {
     // IMAPPump.server.performTest() brings this test to a halt,
     // so we need teardownIMAPPump() without IMAPPump.server.performTest().
     IMAPPump.inbox = null;

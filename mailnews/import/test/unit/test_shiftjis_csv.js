@@ -3,7 +3,7 @@ Components.utils.import("resource:///modules/mailServices.js");
 function run_test()
 {
   Services.prefs.setCharPref("intl.charset.detector", "ja_parallel_state_machine");
-  do_register_cleanup(function() {
+  registerCleanupFunction(function() {
       Services.prefs.clearUserPref("intl.charset.detector");
   });
 

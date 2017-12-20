@@ -142,8 +142,8 @@ function testReply(aHrdIdx, aTemplateHdrIdx = 0) {
   localAccountUtils.msgAccount.addIdentity(identity);
 
   let msgHdr = mailTestUtils.getMsgHdrN(localAccountUtils.inboxFolder, aHrdIdx);
-  do_print("Msg#" + aHrdIdx +  " author=" + msgHdr.author + ", recipients=" +
-           msgHdr.recipients);
+  info("Msg#" + aHrdIdx +  " author=" + msgHdr.author + ", recipients=" +
+       msgHdr.recipients);
   let templateHdr = mailTestUtils.getMsgHdrN(gTemplateFolder, aTemplateHdrIdx);
 
   // See <method name="getTemplates"> in searchWidgets.xml

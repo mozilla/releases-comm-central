@@ -40,7 +40,7 @@ function* addMessageToServer() {
 var msgFolderListener = {
   msgAdded: function(aMsgHdr) {
     gMsgHdr = aMsgHdr;
-    do_execute_soon(async_driver);
+    executeSoon(async_driver);
   },
 };
 

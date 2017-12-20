@@ -23,7 +23,7 @@ function run_test()
     do_throw("distribution.ini already exists in objdir/mozilla/dist/bin/distribution.");
   }
 
-  do_register_cleanup(function() {
+  registerCleanupFunction(function() {
     // Remove the distribution.ini file
     let iniFile = Services.dirsvc.get("XCurProcD", Ci.nsIFile);
     iniFile.append("distribution");

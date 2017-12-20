@@ -108,6 +108,6 @@ function addImapMessage()
   IMAPPump.mailbox.addMessage(imapMsg);
 }
 
-do_register_cleanup(function() {
+registerCleanupFunction(function() {
   load(gDEPTH + "mailnews/resources/mailShutdown.js");
 });

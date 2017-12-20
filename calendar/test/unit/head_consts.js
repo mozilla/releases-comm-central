@@ -236,7 +236,7 @@ function do_calendar_startup(callback) {
         observe: function() {
             Services.obs.removeObserver(this, "calendar-startup-done");
             do_test_finished();
-            do_execute_soon(callback);
+            executeSoon(callback);
         }
     };
 

@@ -13,6 +13,6 @@ do_get_profile();
 // Import the required setup scripts.
 load("../../../resources/abSetup.js");
 
-do_register_cleanup(function() {
+registerCleanupFunction(function() {
   load("../../../resources/mailShutdown.js");
 });

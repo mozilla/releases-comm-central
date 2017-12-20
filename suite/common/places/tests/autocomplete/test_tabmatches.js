@@ -6,7 +6,7 @@
 
 var gTabRestrictChar = "%";
 prefs.setCharPref("browser.urlbar.restrict.openpage", gTabRestrictChar);
-do_register_cleanup(() => {
+registerCleanupFunction(() => {
   prefs.clearUserPref("browser.urlbar.restrict.openpage");
 });
 

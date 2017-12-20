@@ -23,10 +23,10 @@ function run_test()
 
   let neededFreeSpace = 0x100000000;
   let freeDiskSpace = inboxFile.diskSpaceAvailable;
-  do_print("Free disk space = " + mailTestUtils.toMiBString(freeDiskSpace));
+  info("Free disk space = " + mailTestUtils.toMiBString(freeDiskSpace));
   if (freeDiskSpace < neededFreeSpace) {
-    do_print("This test needs " + mailTestUtils.toMiBString(neededFreeSpace) +
-             " free space to run. Aborting.");
+    info("This test needs " + mailTestUtils.toMiBString(neededFreeSpace) +
+         " free space to run. Aborting.");
     todo_check_true(false);
 
     endTest();
@@ -51,8 +51,8 @@ function run_test()
 
   // Save initial file size.
   gLocalInboxSize = localAccountUtils.inboxFolder.filePath.fileSize;
-  do_print("Local inbox size (before copyFileMessageInLocalFolder()) = " +
-           gLocalInboxSize);
+  info("Local inbox size (before copyFileMessageInLocalFolder()) = " +
+       gLocalInboxSize);
 
   // Append mail data to over 2 GiB position for over 2 GiB msgkey.
   copyFileMessageInLocalFolder(bugmail10, 0, "", null, copyMessages);
@@ -76,8 +76,8 @@ function copyMessages()
 {
   // Make sure inbox file grew (i.e., we were not writing over data).
   let localInboxSize = localAccountUtils.inboxFolder.filePath.fileSize;
-  do_print("Local inbox size (after copyFileMessageInLocalFolder()) = " +
-           localInboxSize);
+  info("Local inbox size (after copyFileMessageInLocalFolder()) = " +
+       localInboxSize);
   Assert.ok(localInboxSize > gLocalInboxSize);
 
   // Copy the message into the subfolder.

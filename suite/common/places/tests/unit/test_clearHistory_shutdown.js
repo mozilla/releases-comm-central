@@ -153,7 +153,7 @@ function storeCache(aURL, aContent) {
       }
       os.close();
       entry.close();
-      do_execute_soon(run_test_continue);
+      executeSoon(run_test_continue);
     }
   };
 

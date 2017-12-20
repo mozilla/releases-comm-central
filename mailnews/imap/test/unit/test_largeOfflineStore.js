@@ -42,10 +42,10 @@ function run_test() {
 
   let isFileSparse = mailTestUtils.mark_file_region_sparse(inboxFile, 0, 0x10000000f);
   let freeDiskSpace = inboxFile.diskSpaceAvailable;
-  do_print("Free disk space = " + mailTestUtils.toMiBString(freeDiskSpace));
+  info("Free disk space = " + mailTestUtils.toMiBString(freeDiskSpace));
   if (!isFileSparse && freeDiskSpace < neededFreeSpace) {
-    do_print("This test needs " + mailTestUtils.toMiBString(neededFreeSpace) +
-             " free space to run. Aborting.");
+    info("This test needs " + mailTestUtils.toMiBString(neededFreeSpace) +
+         " free space to run. Aborting.");
     todo_check_true(false);
 
     teardown();
@@ -86,8 +86,8 @@ function* setup() {
 
   // Save initial file size.
   gOfflineStoreSize = IMAPPump.inbox.filePath.fileSize;
-  do_print("Offline store size (before 1st downloadAllForOffline()) = " +
-           gOfflineStoreSize);
+  info("Offline store size (before 1st downloadAllForOffline()) = " +
+       gOfflineStoreSize);
 
   // Download for offline use, to append created messages to local IMAP inbox.
   IMAPPump.inbox.downloadAllForOffline(asyncUrlListener, null);
@@ -101,8 +101,8 @@ function* check_result() {
 
   // Make sure offline store grew (i.e., we were not writing over data).
   let offlineStoreSize = IMAPPump.inbox.filePath.fileSize;
-  do_print("Offline store size (after 2nd downloadAllForOffline()) = " +
-           offlineStoreSize + ". (Msg hdr offsets should be close to it.)");
+  info("Offline store size (after 2nd downloadAllForOffline()) = " +
+       offlineStoreSize + ". (Msg hdr offsets should be close to it.)");
   Assert.ok(offlineStoreSize > gOfflineStoreSize);
 
   // Verify that the message headers have the offline flag set.
@@ -117,7 +117,7 @@ function* check_result() {
       do_throw("Message not downloaded for offline use");
 
     IMAPPump.inbox.getOfflineFileStream(header.messageKey, offset, size).close();
-    do_print("Msg hdr offset = " + offset.value);
+    info("Msg hdr offset = " + offset.value);
   }
 };
 

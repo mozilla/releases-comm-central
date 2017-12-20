@@ -82,7 +82,7 @@ function createExpectedTemporaryFile() {
   }
 
   let dummyFile = createTemporaryFile();
-  do_register_cleanup(function() {
+  registerCleanupFunction(function() {
     dummyFile.remove(false);
   });
 

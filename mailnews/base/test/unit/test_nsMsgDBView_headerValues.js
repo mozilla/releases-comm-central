@@ -57,7 +57,7 @@ function* real_test() {
 
   // For each test, make sure that the display is correct.
   tests.forEach(function (data, i) {
-    do_print("Checking data for " + uneval(data));
+    info("Checking data for " + uneval(data));
     let expected = data[1];
     for (let column in expected) {
       Assert.equal(dbView.cellTextForColumn(i, column), expected[column]);

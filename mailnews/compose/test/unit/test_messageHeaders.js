@@ -238,13 +238,13 @@ function* testOtherHeaders() {
   // If we have clock skew within the test, then our results are going to be
   // meaningless. Hopefully, this is only rarely the case.
   if (before > after) {
-    do_print("Clock skew detected, skipping date check");
+    info("Clock skew detected, skipping date check");
   } else {
     // In case this all took place within one second, remove sub-millisecond
     // timing (Date headers only carry second-level precision).
     before = before - before % 1000;
     after = after - after % 1000;
-    do_print(before + " <= " + date + " <= " + after + "?");
+    info(before + " <= " + date + " <= " + after + "?");
     Assert.ok(before <= date && date <= after);
   }
 

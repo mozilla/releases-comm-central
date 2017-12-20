@@ -127,7 +127,7 @@ function run_test() {
   ];
 
   for (let test of testData) {
-    do_print("The following tests are with: " + test.desc);
+    info("The following tests are with: " + test.desc);
 
     // Check which commands are available in which context.
     let cmdlist = cmdserv.listCommandsForConversation(test.conv, {})
@@ -135,7 +135,7 @@ function run_test() {
     Assert.equal(cmdlist, test.cmdlist);
 
     for (let testCmd of testCmds) {
-      do_print("Testing command found for '" + testCmd + "'");
+      info("Testing command found for '" + testCmd + "'");
       let expectedResult = test.results.shift();
       let cmdArray = cmdserv._findCommands(test.conv, testCmd);
       // Check whether commands are only returned when appropriate.
@@ -175,7 +175,7 @@ function run_test() {
 
   // Test command execution.
   for (let executionTest of testMessages) {
-    do_print("Testing command execution for '" + executionTest.message + "'");
+    info("Testing command execution for '" + executionTest.message + "'");
     Assert.equal(cmdserv.executeCommand(executionTest.message, fakeConversation), executionTest.result);
   }
 

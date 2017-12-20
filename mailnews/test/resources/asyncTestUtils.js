@@ -134,7 +134,7 @@ function async_run(aArgs) {
  */
 function async_driver(val) {
   asyncGeneratorSendValue = val;
-  do_execute_soon(_async_driver);
+  executeSoon(_async_driver);
   return false;
 }
 

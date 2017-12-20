@@ -35,7 +35,7 @@ var mailnewsURL = {
 function run_test() {
   // First register the mock alerts service
   let uuid = MockFactory.register("@mozilla.org/alerts-service;1", mockAlertsService);
-  do_register_cleanup(function() {
+  registerCleanupFunction(function() {
     MockFactory.unregister(uuid);
   });
 

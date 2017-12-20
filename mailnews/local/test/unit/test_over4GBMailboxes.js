@@ -155,8 +155,8 @@ function growInbox(aWantedSize) {
   while (localSize < aWantedSize);
 
   Assert.equal(gInboxFile.clone().fileSize, aWantedSize);
-  do_print("Local inbox size = " + localSize + "bytes = " +
-           mailTestUtils.toMiBString(localSize));
+  info("Local inbox size = " + localSize + "bytes = " +
+       mailTestUtils.toMiBString(localSize));
   Assert.equal(localSize, aWantedSize);
   return msgsAdded;
 }
@@ -188,10 +188,10 @@ function run_test()
   }
 
   let freeDiskSpace = gInboxFile.diskSpaceAvailable;
-  do_print("Free disk space = " + mailTestUtils.toMiBString(freeDiskSpace));
+  info("Free disk space = " + mailTestUtils.toMiBString(freeDiskSpace));
   if (freeDiskSpace < neededFreeSpace) {
-    do_print("This test needs " + mailTestUtils.toMiBString(neededFreeSpace) +
-             " free space to run. Aborting.");
+    info("This test needs " + mailTestUtils.toMiBString(neededFreeSpace) +
+         " free space to run. Aborting.");
     todo_check_true(false);
 
     endTest();
@@ -337,8 +337,8 @@ function copyIntoOver4GiB_fail()
   allow4GBFolders(false);
   // Save initial file size.
   let localInboxSize = gInboxFile.clone().fileSize;
-  do_print("Local inbox size (before copyFileMessageInLocalFolder()) = " +
-           localInboxSize);
+  info("Local inbox size (before copyFileMessageInLocalFolder()) = " +
+       localInboxSize);
 
   // Use copyFileMessageInLocalFolder() to (try to) append another message
   // to local inbox.
@@ -355,8 +355,8 @@ function copyIntoOver4GiB_fail_check(aMessageHeadersKeys, aStatus)
 
   // Make sure inbox file did not grow (i.e., no data were appended).
   let newLocalInboxSize = gInboxFile.clone().fileSize;
-  do_print("Local inbox size (after copyFileMessageInLocalFolder()) = " +
-           newLocalInboxSize);
+  info("Local inbox size (after copyFileMessageInLocalFolder()) = " +
+       newLocalInboxSize);
   copyIntoOver4GiB_success();
 }
 
@@ -510,7 +510,7 @@ var CompactListener_compactOver4GiB =
     Assert.ok(gInbox.msgDatabase.summaryValid);
     // Check that folder size is still above max limit ...
     let localInboxSize = gInbox.filePath.clone().fileSize;
-    do_print("Local inbox size (after compact 1) = " + localInboxSize);
+    info("Local inbox size (after compact 1) = " + localInboxSize);
     Assert.ok(localInboxSize > kSizeLimit);
     // ... but it got smaller by removing 1 message.
     Assert.ok(gInboxSize > localInboxSize);
@@ -530,7 +530,7 @@ var CompactListener_compactUnder4GiB =
 
     // Check that folder size isn't much bigger than our sparse block size, ...
     let localInboxSize = gInbox.filePath.clone().fileSize;
-    do_print("Local inbox size (after compact 2) = " + localInboxSize);
+    info("Local inbox size (after compact 2) = " + localInboxSize);
     Assert.equal(gInbox.sizeOnDisk, localInboxSize);
     Assert.ok(localInboxSize < kSparseBlockSize + 1000);
     // ... i.e., that we just have one message.

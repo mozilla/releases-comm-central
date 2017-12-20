@@ -85,16 +85,16 @@ add_task(function* completeness_test() {
         if (comp != -1) {
             switch (comp) {
                 case 0:
-                    do_print("Test data and timezone service use the same timezone version.");
+                    info("Test data and timezone service use the same timezone version.");
                     break;
                 case 1:
-                    do_print("Test data use a newer timezone version than the timezone service.");
+                    info("Test data use a newer timezone version than the timezone service.");
                     break;
             }
-            do_print("test data: " + test.version);
-            do_print("tz service: " + tzs.version);
-            do_print("This indicates a problem in update-zones.py or manually additions to" +
-                     "zones.json or previous.json");
+            info("test data: " + test.version);
+            info("tz service: " + tzs.version);
+            info("This indicates a problem in update-zones.py or manually additions to" +
+                 "zones.json or previous.json");
         }
         equal(comp, -1, "timezone version of test data is older than the currently used version.");
         ok(test.aliases && test.aliases.length > 0, "test data have aliases.");

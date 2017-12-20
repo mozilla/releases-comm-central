@@ -15,6 +15,6 @@ var gDEPTH = "../../../../../";
 
 // glodaTestHelper.js does all the rest of the imports
 
-do_register_cleanup(function() {
+registerCleanupFunction(function() {
   load(gDEPTH + "mailnews/resources/mailShutdown.js");
 });

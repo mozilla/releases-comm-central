@@ -127,6 +127,6 @@ function run_test()
 function exitTest()
 {
   // Cleanup and exit the test.
-  do_print("Exiting mail tests\n");
+  info("Exiting mail tests\n");
   gPOP3Pump = null;
 }

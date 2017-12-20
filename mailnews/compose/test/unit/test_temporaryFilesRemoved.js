@@ -67,7 +67,7 @@ function check_result() {
 
 function run_test() {
   gExpectedFiles = collect_expected_temporary_files();
-  do_register_cleanup(function() {
+  registerCleanupFunction(function() {
     gExpectedFiles.forEach(function(file) {
       if (file.exists())
         file.remove(false);

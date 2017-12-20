@@ -86,11 +86,11 @@ var _errorConsoleTunnel = {
             if (logHelperAllowedErrors.some(e => e == matches[1]))
             {
               if (XPCOMresult)
-                do_print("Ignoring XPCOM error: " + message);
+                info("Ignoring XPCOM error: " + message);
               return;
             }
             else
-              do_print("Found XPCOM error: " + message);
+              info("Found XPCOM error: " + message);
           }
           mark_failure(["Error console says", aMessage]);
         }
