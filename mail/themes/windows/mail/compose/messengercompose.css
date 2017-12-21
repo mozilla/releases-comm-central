@@ -936,7 +936,7 @@ treechildren::-moz-tree-image(subscribed-news) {
 }
 
 #sidebar-splitter {
-  border-inline-end: none;
+  border-inline-end-width: 0;
   border-inline-start: 1px solid #a9b7c9;
   min-width: 0;
   width: 5px;

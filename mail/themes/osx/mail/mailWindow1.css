@@ -97,12 +97,6 @@ treechildren::-moz-tree-twisty {
   }
 }
 
-treecol,
-treecolpicker {
-  border: none;
-  background-color: #e1e1e1;
-}
-
 treechildren::-moz-tree-cell-text(imapdeleted) {
   text-decoration: line-through;
 }

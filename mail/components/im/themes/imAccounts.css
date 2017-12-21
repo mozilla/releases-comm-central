@@ -59,18 +59,10 @@ notification > hbox {
 }
 
 #accountlist {
-  margin: 0 0;
+  margin: 0;
   -moz-appearance: none;
-%ifdef WINCE
-  border: 2px solid;
-  -moz-border-top-colors: ThreeDShadow ThreeDDarkShadow;
-  -moz-border-right-colors: ThreeDHighlight ThreeDLightShadow;
-  -moz-border-bottom-colors: ThreeDHighlight ThreeDLightShadow;
-  -moz-border-left-colors: ThreeDShadow ThreeDDarkShadow;
-%else
 %ifndef XP_MACOSX
-  border-bottom: 2px solid;
-  -moz-border-bottom-colors: ThreeDHighlight ThreeDLightShadow;
+  border-bottom: 1px solid ThreeDLightShadow;
 %endif
 }
 
@@ -82,23 +74,15 @@ notification > hbox {
   -moz-appearance: statusbar;
   min-height: 28px;
 %else
-  margin: 0 0;
+  margin: 0;
 %endif
 }
 
-%ifdef XP_WIN
-#newaccount {
-  margin-left: 0;
-}
-
-#close {
-  margin-right: 0;
-}
-%else
+%ifndef XP_WIN
 %ifndef XP_MACOSX
 #newaccount,
 #close {
-  margin: 3px;
+  margin-top: 3px;
 }
 %endif
 %endif

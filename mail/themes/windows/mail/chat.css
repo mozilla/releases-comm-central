@@ -110,7 +110,7 @@
 
 #listSplitter,
 #contextSplitter {
-  border: none;
+  border-width: 0;
   background-color: transparent;
   min-width: 0;
   /* splitter grip area */
@@ -143,7 +143,7 @@
 
 .splitter,
 #logsSplitter {
-  border: none;
+  border-width: 0;
   border-bottom: 1px solid ThreeDShadow;
   min-height: 0;
   /* splitter grip area */
@@ -163,7 +163,7 @@
 
 @media (-moz-windows-default-theme) {
   .conv-status-container {
-    border-bottom-color: #A9B7C9;
+    border-bottom-color: #a9b7c9;
   }
 
   #statusTypeIcon > .toolbarbutton-menu-dropmarker {
@@ -186,16 +186,12 @@
   }
 
   #listSplitter {
-    border-inline-start: 1px solid #A9B7C9;
-  }
-
-  #contextSplitter {
-    border-inline-end: 1px solid #A9B7C9;
+    border-inline-start: 1px solid #a9b7c9;
   }
 
   .splitter,
   #logsSplitter {
-    border-bottom: 1px solid #A9B7C9;
+    border-bottom: 1px solid #a9b7c9;
   }
 
   :-moz-any(imconv, imcontact, imgroup) {

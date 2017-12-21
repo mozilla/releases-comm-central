@@ -37,8 +37,5 @@ menu.push[disabled="true"]:hover:active {
 
 textbox[readonly="true"] {
   -moz-appearance: none;
-  -moz-border-top-colors: transparent ThreeDShadow;
-  -moz-border-right-colors: transparent ThreeDShadow;
-  -moz-border-bottom-colors: transparent ThreeDShadow;
-  -moz-border-left-colors: transparent ThreeDShadow;
+  border: 1px solid ThreeDShadow;
 }

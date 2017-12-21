@@ -3,13 +3,13 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 .treecol-image image {
-  padding-inline-end: 4px;
+  padding-inline-start: 1px;
+  padding-inline-end: 2px;
   padding-bottom: 3px;
 }
 
 @media (-moz-windows-classic) {
   .treecol-image image {
-    padding-inline-end: 1px;
     padding-bottom: 2px;
   }
 }
@@ -163,33 +163,6 @@ treechildren::-moz-tree-image(subjectCol, imapdeleted) {
 
 treechildren::-moz-tree-image(news, threadCol, watch) {
   margin-inline-start: -2px;
-}
-
-#subjectCol {
-  padding-inline-start: 20px;
-}
-
-#subjectCol[primary="true"] {
-  padding-inline-start: 30px;
-}
-
-@media (-moz-windows-default-theme: 0) {
-  #subjectCol {
-    padding-inline-start: 17px;
-  }
-
-  #subjectCol[primary="true"] {
-    padding-inline-start: 27px;
-  }
-}
-
-.treecol-image image {
-  padding-inline-start: 1px;
-  padding-inline-end: 2px;
-}
-
-.junkStatusHeader {
-  padding-inline-end: 2px;
 }
 
 treechildren::-moz-tree-image(unreadButtonColHeader) {

@@ -17,13 +17,6 @@
 
 /* ::::: results pane ::::: */
 
-#abResultsTree {
-  -moz-appearance:  none;
-  background-color: -moz-Field;
-  color: -moz-FieldText;
-  border-inline-end: 1px solid ThreeDHighlight;
-}
-
 #GeneratedName {
   padding-inline-start: 30px;
 }
@@ -130,7 +123,7 @@ toolbox > toolbar:last-of-type {
 /* ::::: splitters ::::: */
 
 #dirTree-splitter {
-  border: none;
+  border-width: 0;
   border-inline-end: 1px solid #a9b7c9;
   min-width: 0;
   width: 3px;
@@ -141,7 +134,7 @@ toolbox > toolbar:last-of-type {
 }
 
 #results-splitter {
-  border: none;
+  border-width: 0;
   border-top: 1px solid #a9b7c9;
   min-height: 0;
   height: 3px;

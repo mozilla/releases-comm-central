@@ -37,14 +37,6 @@
   margin-bottom: 5px;
 }
 
-/* Don't use the listbox appearance as that gives us a blue-grey top border
-   that collides with the primary toolbar border */
-#threadTree, #folderTree {
-  -moz-appearance:  none;
-  background-color: -moz-Field;
-  color: -moz-FieldText;
-}
-
 #folderPane-toolbar {
   border-top-style: none;
   border-bottom: 1px solid ThreeDShadow;
@@ -53,13 +45,6 @@
 /* Give viewPickerPopup a menu look */
 #viewPickerPopup {
   background-color: menu;
-}
-
-#viewPickerPopup {
-  -moz-border-top-colors: ThreeDShadow;
-  -moz-border-left-colors: ThreeDShadow;
-  -moz-border-right-colors: ThreeDShadow;
-  -moz-border-bottom-colors: ThreeDShadow;
 }
 
 #viewPickerPopup > menu,
@@ -97,54 +82,7 @@ treechildren::-moz-tree-cell-text(imapdeleted) {
   padding-inline-start: 20px;
 }
 
-/* ..... splitter adjustments ..... */
-
-#mailContent[layout="standard"] #threadpane-splitter {
-  /* Overlap the folder pane splitter to make the splitters appear unified. */
-  margin-inline-start: -1px;
-}
-
-#mailContent[layout="standard"] #folderpane_splitter:-moz-locale-dir(rtl) {
-  /* Don't draw the splitter's border here... */
-  border-left: 0;
-}
-
-#mailContent[layout="standard"] #threadPaneBox:-moz-locale-dir(rtl),
-#mailContent[layout="standard"] #messagepanebox:-moz-locale-dir(rtl){
-  /* ... draw it here instead! (This removes the white highlight just to the
-     right of the thread pane splitter so everything looks pretty.) */
-  margin-right: -2px;
-  border-right: 2px solid;
-  -moz-border-right-colors: ThreeDHighlight ThreeDShadow;
-}
-
-#mailContent[layout="standard"] #threadPaneBox:-moz-locale-dir(rtl) {
-  /* Make sure we have a white dot in the top-left corner where the splitters
-     meet. */
-  margin-bottom: -2px;
-  padding-bottom: 2px;
-}
-
-#mailContent[layout="wide"] #folderpane_splitter {
-  /* Make this draw above the thread pane splitter so that we overlap its top
-     border. This will make the splitters appear unified. */
-  position: relative;
-  z-index: 2;
-  margin-bottom: -1px;
-}
-
-#mailContent[layout="wide"] #threadpane-splitter {
-  /* Don't draw the splitter's border here... */
-  border-top: 0;
-}
-
-#mailContent[layout="wide"] #folderPaneBox:-moz-locale-dir(ltr),
-#mailContent[layout="wide"] #threadPaneBox:-moz-locale-dir(rtl) {
-  /* Make sure we have a white dot in the top-left corner where the splitters
-     meet. */
-  margin-right: -2px;
-  padding-right: 2px;
-}
+/* ..... tabs ..... */
 
 .tabmail-tab[type="message"][IsFeedMessage] {
   list-style-image: url("chrome://messenger-newsblog/skin/icons/rss-feed.png");
@@ -152,8 +90,6 @@ treechildren::-moz-tree-cell-text(imapdeleted) {
   width: 16px;
   height: 16px;
 }
-
-/* ..... tabs ..... */
 
 #tabpanelcontainer {
   -moz-appearance: none;
@@ -502,7 +438,7 @@ treechildren::-moz-tree-cell-text(imapdeleted) {
 
 #folderpane_splitter,
 #threadpane-splitter:not([orient="vertical"]) {
-  border: none;
+  border-width: 0;
   min-width: 0;
   width: 5px;
   background-color: transparent;
@@ -532,14 +468,10 @@ treechildren::-moz-tree-cell-text(imapdeleted) {
   border-inline-end: 4px solid highlight;
 }
 
-#mailContent[layout="wide"] #folderpane_splitter {
-  margin-bottom: 0;
-}
-
 #threadpane-splitter,
 #attachment-splitter {
-  border: none;
-  border-bottom: 1px solid #A9B7C9;
+  border-width: 0;
+  border-bottom: 1px solid #a9b7c9;
   min-height: 0;
   height: 5px;
   background-color: transparent;
@@ -563,13 +495,8 @@ treechildren::-moz-tree-cell-text(imapdeleted) {
   border-bottom: 4px solid highlight;
 }
 
-#accountCentralBox,
-#threadTree {
-  border-inline-end: none;
-}
-
 #messagepanebox {
-  border-top-width: 0px;
+  border-top-width: 0;
   border-inline-start: none;
 }
 
@@ -585,9 +512,8 @@ treechildren::-moz-tree-cell-text(imapdeleted) {
     color: inherit;
     margin: 1px 4px;
     padding: 0 5px 1px !important;
-    border: 1px solid;
+    border: 1px solid var(--toolbarbutton-hover-bordercolor);
     background: var(--toolbarbutton-hover-background);
-    border-color: var(--toolbarbutton-hover-bordercolor);
     box-shadow: var(--toolbarbutton-hover-boxshadow);
     transition-property: background-color, border-color, box-shadow;
     transition-duration: 150ms;
@@ -628,8 +554,6 @@ treechildren::-moz-tree-cell-text(imapdeleted) {
 
   #folderTree {
     background-color: #fafafa;
-    border-bottom: none;
-    border-left: none;
   }
 
   #folderTree treechildren::-moz-tree-cell(dropOn) {
