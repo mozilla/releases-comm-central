@@ -21,7 +21,9 @@
 
 !define BrandShortName        "@MOZ_APP_DISPLAYNAME@"
 !define PreReleaseSuffix      "@PRE_RELEASE_SUFFIX@"
+!ifndef BrandFullName
 !define BrandFullName         "${BrandFullNameInternal}${PreReleaseSuffix}"
+!endif
 
 !define CERTIFICATE_NAME            "Mozilla Corporation"
 !define CERTIFICATE_ISSUER          "DigiCert SHA2 Assured ID Code Signing CA"
