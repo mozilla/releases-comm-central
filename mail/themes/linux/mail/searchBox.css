@@ -16,6 +16,10 @@
   -moz-box-ordinal-group: 2;
 }
 
+.gloda-search-icon {
+  margin-inline-end: 5px;
+}
+
 .gloda-search-icon,
 .textbox-search-icon[searchbutton],
 textbox:not([searchbutton]) > .textbox-input-box > .textbox-search-sign {

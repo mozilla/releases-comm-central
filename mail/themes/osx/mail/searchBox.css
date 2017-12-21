@@ -18,7 +18,8 @@
   box-shadow: 0 1px 4px rgba(0,0,0,.05);
   font: icon;
   height: 24px;
-  padding: 1px;
+  padding: 1px 4px;
+  -moz-box-align: center;
 }
 
 .searchBox:hover,
@@ -73,11 +74,6 @@
   background-color: var(--url-and-searchbar-background-color, white);
 }
 
-.searchBox[type="search"] {
-  padding-right: 4px;
-  padding-left: 4px;
-}
-
 .searchBox > .textbox-input-box:before {
   /* Because of bug 853415, we need to ordinal this to the first position: */
   -moz-box-ordinal-group: 0;
@@ -85,17 +81,13 @@
   display: block;
   -moz-box-align: center;
   width: 16px;
-  height: 20px;
+  height: 16px;
   margin-inline-end: 4px;
-  background-image: url("chrome://messenger/skin/icons/search-indicator.png");
-  background-size: 16px 20px;
-}
-
-@media (min-resolution: 2dppx) {
-  .searchBox > .textbox-input-box:before {
-    background-image: url("chrome://messenger/skin/icons/search-indicator@2x.png");
-    background-size: 16px 20px;
-  }
+  background-image: url(chrome://messenger/skin/icons/search-glass.svg);
+  background-size: 16px 16px;
+  -moz-context-properties: fill;
+  fill: currentColor;
+  opacity: 0.5;
 }
 
 .searchBox:-moz-locale-dir(rtl) > .textbox-input-box:before {

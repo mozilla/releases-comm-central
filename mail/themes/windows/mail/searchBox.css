@@ -20,9 +20,9 @@
 }
 
 #quick-search-button  {
-  margin-top: 0px;
-  margin-bottom: 0px;
-  margin-inline-start: 0px;
+  margin-top: 0;
+  margin-bottom: 0;
+  margin-inline-start: 0;
   margin-inline-end: 2px;
 }
 
@@ -32,6 +32,10 @@
 
 .searchBox > .textbox-input-box {
   -moz-box-ordinal-group: 2;
+}
+
+.gloda-search-icon {
+  margin-inline-end: 5px;
 }
 
 .gloda-search-icon,
