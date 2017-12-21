@@ -16,13 +16,6 @@
 @import url("chrome://messenger/skin/messageIcons.css");
 @import url("chrome://messenger/skin/shared/mailWindow1.css");
 
-/* give the toolbox a min-height of 42px for Australis theme */
-.mail-toolbox:not([mode="full"]) > toolbar:only-of-type,
-.mail-toolbox[mode="full"][labelalign="end"] > toolbar:only-of-type {
-  margin-top: 5px;
-  margin-bottom: 4px;
-}
-
 /* ::::::::: Global override :::::::::: */
 
 treechildren::-moz-tree-twisty {

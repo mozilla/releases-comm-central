@@ -190,7 +190,7 @@ toolbox[labelalign="end"] toolbarpaletteitem .toolbarbutton-1[type="menu"] {
 }
 
 .toolbarbutton-1 {
-  margin: 4px 2px;
+  margin: 5px 2px;
   -moz-context-properties: fill, fill-opacity;
   fill: currentColor;
   fill-opacity: var(--toolbarbutton-icon-fill-opacity);
@@ -320,6 +320,12 @@ toolbar:not([mode="icons"]) .toolbarbutton-1 > .toolbarbutton-menubutton-dropmar
 
 toolbar[mode="icons"] .toolbarbutton-1 > menupopup {
   margin-top: 1px;
+}
+
+#tabbar-toolbar .toolbarbutton-1,
+#tabbar-toolbar .toolbarbutton-1[type="menu-button"] {
+  margin-top: 3px;
+  margin-bottom: 3px;
 }
 
 /* :::::: throbber :::::::::: */

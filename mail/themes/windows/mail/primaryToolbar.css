@@ -389,6 +389,12 @@ toolbar[mode="text"] .button-appmenu .toolbarbutton-icon {
 
 /* ::::: toolbar buttons on tabbar toolbar ::::: */
 
+#tabbar-toolbar .toolbarbutton-1,
+#tabbar-toolbar .toolbarbutton-1[type="menu-button"] {
+  margin-top: 2px;
+  margin-bottom: 2px;
+}
+
 @media (-moz-windows-glass: 0) {
   #tabbar-toolbar .toolbarbutton-1,
   #tabbar-toolbar .toolbarbutton-menubutton-button {

@@ -14,29 +14,6 @@
 @import url("chrome://messenger/skin/messageIcons.css");
 @import url("chrome://messenger/skin/shared/mailWindow1.css");
 
-/* give the toolbox a min-height of 42px for Australis theme */
-@media (-moz-os-version: windows-win7),
-       (-moz-os-version: windows-win8) {
-  .mail-toolbox:not([mode="full"]) > toolbar:only-of-type,
-  .mail-toolbox[mode="full"][labelalign="end"] > toolbar:only-of-type {
-    margin-top: 7px;
-    margin-bottom: 7px;
-  }
-}
-
-@media (-moz-os-version: windows-win10) {
-  .mail-toolbox:not([mode="full"]) > toolbar:only-of-type,
-  .mail-toolbox[mode="full"][labelalign="end"] > toolbar:only-of-type {
-    margin-top: 6px;
-    margin-bottom: 6px;
-  }
-}
-
-.mail-toolbox[mode="text"]:not([mode="full"]) > toolbar:only-of-type {
-  margin-top: 5px;
-  margin-bottom: 5px;
-}
-
 #folderPane-toolbar {
   border-top-style: none;
   border-bottom: 1px solid ThreeDShadow;
@@ -510,7 +487,8 @@ treechildren::-moz-tree-cell-text(imapdeleted) {
     -moz-appearance: none;
     min-height: 24px;
     color: inherit;
-    margin: 1px 4px;
+    margin-top: 4px;
+    margin-bottom: 4px;
     padding: 0 5px 1px !important;
     border: 1px solid var(--toolbarbutton-hover-bordercolor);
     background: var(--toolbarbutton-hover-background);

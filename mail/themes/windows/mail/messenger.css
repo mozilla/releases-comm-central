@@ -356,7 +356,7 @@ toolbox[labelalign="end"] > toolbar[mode="full"] .toolbarbutton-1
 
 .toolbarbutton-1,
 .toolbarbutton-1[type="menu-button"] {
-  margin: 1px;
+  margin: 4px 1px;
 }
 
 toolbar[mode="icons"] .toolbarbutton-menubutton-button,

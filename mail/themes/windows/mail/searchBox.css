@@ -101,14 +101,6 @@ textbox:not([searchbutton]) > .textbox-input-box > .textbox-search-sign {
   margin-bottom: 3px;
 }
 
-/* Balance the margins from child's textbox */
-#gloda-search,
-#gloda-im-search,
-#search-container {
-  margin-top: -3px;
-  margin-bottom: -3px;
-}
-
 .searchBox:hover,
 #view-task-edit-field:hover,
 #unifinder-task-edit-field:hover {

@@ -235,7 +235,7 @@ toolbox[labelalign="end"] .toolbarbutton-1[type="menu"] {
   -moz-appearance: none;
   min-height: 24px;
   min-width: 32px;
-  margin: 1px;
+  margin: 4px 1px;
   padding: 1px 6px;
   border: 1px solid transparent;
   border-radius: var(--toolbarbutton-border-radius);
@@ -376,6 +376,12 @@ toolbar[mode="full"] .toolbarbutton-1 {
 
 sidebarheader .toolbarbutton-text:not([value]) {
   display: none;
+}
+
+#tabbar-toolbar .toolbarbutton-1,
+#tabbar-toolbar .toolbarbutton-1[type="menu-button"] {
+  margin-top: 3px;
+  margin-bottom: 3px;
 }
 
 /* Stock icons for the menu bar items */
