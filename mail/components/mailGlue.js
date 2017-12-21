@@ -29,7 +29,6 @@ function MailGlue() {
     });
 
   this._init();
-  extensionDefaults(); // extensionSupport.jsm
 }
 
 MailGlue.prototype = {
@@ -65,6 +64,9 @@ MailGlue.prototype = {
       break;
     case "handle-xul-text-link":
       this._handleLink(aSubject, aData);
+      break;
+    case "profile-after-change":
+      extensionDefaults(); // extensionSupport.jsm
       break;
     }
   },

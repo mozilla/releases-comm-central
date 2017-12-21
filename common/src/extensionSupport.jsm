@@ -11,7 +11,6 @@ var Cu = Components.utils;
 Cu.import("resource://gre/modules/Services.jsm");
 // Cu.import("resource://gre/modules/Deprecated.jsm") - needed for warning.
 Cu.import("resource://gre/modules/NetUtil.jsm");
-Cu.import("resource://gre/modules/FileUtils.jsm");
 
 Cu.import("resource:///modules/iteratorUtils.jsm");
 Cu.import("resource:///modules/IOUtils.js");
@@ -58,10 +57,8 @@ function extensionDefaults() {
     }
   }
 
-  function walkExtensionPrefs(addon) {
+  function walkExtensionPrefs(prefFile) {
     let foundPrefStrings = [];
-    let prefPath = addon.path;
-    let prefFile = new FileUtils.File(prefPath);
     if (!prefFile.exists())
       return [];
 
@@ -71,14 +68,14 @@ function extensionDefaults() {
       if (!prefFile.exists() || !prefFile.isDirectory())
         return [];
 
-      for (let file of fixIterator(prefFile.directoryEntries, Components.interfaces.nsIFile)) {
+      for (let file of fixIterator(prefFile.directoryEntries, Ci.nsIFile)) {
         if (file.isFile() && file.leafName.toLowerCase().endsWith(".js")) {
           foundPrefStrings.push(IOUtils.loadFileToString(file));
         }
       }
     } else if (prefFile.isFile() && prefFile.leafName.endsWith("xpi")) {
-      let zipReader = Components.classes["@mozilla.org/libjar/zip-reader;1"]
-                                .createInstance(Components.interfaces.nsIZipReader);
+      let zipReader = Cc["@mozilla.org/libjar/zip-reader;1"]
+                        .createInstance(Ci.nsIZipReader);
       zipReader.open(prefFile);
       let entries = zipReader.findEntries("defaults/preferences/*.js");
 
@@ -96,17 +93,17 @@ function extensionDefaults() {
     return foundPrefStrings;
   }
 
-  function loadAddonPrefs(addon) {
-    let sandbox = new Components.utils.Sandbox(null);
+  function loadAddonPrefs(addonFile) {
+    let sandbox = new Cu.Sandbox(null);
     sandbox.pref = setPref.bind(undefined, true);
     sandbox.user_pref = setPref.bind(undefined, false);
 
-    let prefDataStrings = walkExtensionPrefs(addon);
+    let prefDataStrings = walkExtensionPrefs(addonFile);
     for (let prefDataString of prefDataStrings) {
       try {
-        Components.utils.evalInSandbox(prefDataString, sandbox);
+        Cu.evalInSandbox(prefDataString, sandbox);
       } catch (e) {
-        Components.utils.reportError("Error reading default prefs of addon " + addon.defaultLocale.name + ": " + e);
+        Cu.reportError("Error reading default prefs of addon " + addonFile.leafName + ": " + e);
       }
     }
 
@@ -119,23 +116,9 @@ function extensionDefaults() {
     */
   }
 
-  let addonsFile = Services.dirsvc.get("ProfDS", Ci.nsIFile);
-  addonsFile.append("extensions.json");
-
-  if (addonsFile.exists() && addonsFile.isFile()) {
-    let fileData = IOUtils.loadFileToString(addonsFile);
-    let addonsData;
-    if (fileData) {
-      try {
-        addonsData = JSON.parse(fileData);
-      } catch (e) {
-        Components.utils.reportError("Parsing of extensions.json failed!");
-      }
-    }
-
-    for (let addon of addonsData.addons) {
-      if (addon.type == "extension" && addon.active && !addon.userDisabled && !addon.appDisabled && !addon.bootstrap)
-        loadAddonPrefs(addon);
-    }
+  // Fetch enabled non-bootstrapped add-ons.
+  let enabledAddons = Services.dirsvc.get("XREExtDL", Ci.nsISimpleEnumerator);
+  for (let addonFile of fixIterator(enabledAddons, Ci.nsIFile)) {
+    loadAddonPrefs(addonFile);
   }
 }
