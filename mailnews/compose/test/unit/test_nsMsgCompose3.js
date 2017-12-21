@@ -51,7 +51,7 @@ function checkPopulate(aTo, aCheckTo)
 
   msgCompose.initialize(params);
 
-  do_check_eq(msgCompose.expandMailingLists());
+  Assert.ok(!msgCompose.expandMailingLists());
 
   Assert.equal(fields.to, aCheckTo);
 }

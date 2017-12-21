@@ -29,8 +29,8 @@ var messages = [{
 var msgWindow = Cc["@mozilla.org/messenger/msgwindow;1"]
                   .createInstance(Ci.nsIMsgWindow);
 
-function* thunderbird_default(info) {
-  let synMsg = gMessageGenerator.makeMessage(info);
+function* thunderbird_default(messageInfo) {
+  let synMsg = gMessageGenerator.makeMessage(messageInfo);
   let synSet = new SyntheticMessageSet([synMsg]);
   yield add_sets_to_folder(gInbox, [synSet]);
 
@@ -49,8 +49,8 @@ function* thunderbird_default(info) {
   yield false;
 }
 
-function* set_preference_to_true(info) {
-  let synMsg = gMessageGenerator.makeMessage(info);
+function* set_preference_to_true(messageInfo) {
+  let synMsg = gMessageGenerator.makeMessage(messageInfo);
   let synSet = new SyntheticMessageSet([synMsg]);
   yield add_sets_to_folder(gInbox, [synSet]);
 
@@ -72,8 +72,8 @@ function* set_preference_to_true(info) {
   yield false;
 }
 
-function* set_preference_to_false(info) {
-  let synMsg = gMessageGenerator.makeMessage(info);
+function* set_preference_to_false(messageInfo) {
+  let synMsg = gMessageGenerator.makeMessage(messageInfo);
   let synSet = new SyntheticMessageSet([synMsg]);
   yield add_sets_to_folder(gInbox, [synSet]);
 
