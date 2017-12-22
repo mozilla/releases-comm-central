@@ -8,7 +8,6 @@
 # BrandFullNameInternal is used for some registry and file system values
 # instead of BrandFullName and typically should not be modified.
 !define BrandFullNameInternal "Daily"
-!define BrandFullName         "Thunderbird Daily"
 !define CompanyName           "mozilla.org"
 !define URLInfoAbout          "http://www.mozilla.org/"
 !define URLUpdateInfo         "http://www.mozilla.org/products/thunderbird/"
