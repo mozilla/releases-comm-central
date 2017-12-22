@@ -2214,7 +2214,7 @@
                   oncommand="safeModeRestart();"/>
               <menuseparator/>
               <menuitem id="appmenu_about"
-                  label="&aboutMenuCmd.label;"
+                  label="&aboutMenuCmd2.label;"
                   oncommand="openAboutDialog();"/>
             </menupopup>
         </splitmenu>

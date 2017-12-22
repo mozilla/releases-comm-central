@@ -32,7 +32,7 @@
     <menupopup id="menu_HelpPopup">
 #ifdef XP_MACOSX
       <menuitem id="menu_openHelp"
-                label="&openHelpMac.label;" key="key_openHelp"
+                label="&openHelpMac2.label;" key="key_openHelp"
                 oncommand="openSupportURL();"/>
 #else
       <menuitem id="menu_openHelp"
@@ -55,8 +55,8 @@
       <menuseparator id="aboutSeparator"/>
 #endif
       <menuitem id="aboutName"
-                label="&aboutMenuCmd.label;"
-                accesskey="&aboutMenuCmd.accesskey;"
+                label="&aboutMenuCmd2.label;"
+                accesskey="&aboutMenuCmd2.accesskey;"
                 oncommand="openAboutDialog();"/>
     </menupopup>
   </menu>
