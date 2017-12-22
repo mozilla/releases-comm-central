@@ -5,6 +5,7 @@ pymake
 client.py-args
 client.py-l10n-args
 configobj.py
+mozconfig.cache
 mozconfig.comm-support
 virtualenv_packages.txt
 
