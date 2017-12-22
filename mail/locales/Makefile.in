@@ -102,6 +102,7 @@ package-win32-installer: $(SUBMAKEFILES)
 	cp ../installer/windows/l10ngen/helper.exe $(STAGEDIST)/uninstall; \
 	$(RM) $(ABS_DIST)/l10n-stage/setup.exe; \
 	cp ../installer/windows/l10ngen/setup.exe $(ABS_DIST)/l10n-stage; \
+	$(NSINSTALL) -D '$(ABS_DIST)/$(PKG_INST_PATH)'
 	(cd $(DIST)/l10n-stage; \
 	  $(MAKE_PACKAGE))
 	mv -f '$(DIST)/l10n-stage/$(PACKAGE)' '$(WIN32_INSTALLER_OUT)'
