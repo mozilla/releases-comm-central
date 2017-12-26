@@ -9,8 +9,57 @@
 /* ::::: Main Window ::::: */
 
 prefwindow {
+  -moz-appearance: window;
+  background-color: -moz-Dialog;
+  color: -moz-DialogText;
   padding-top: 8px;
   padding-bottom: 0px;
   padding-inline-start: 8px;
   padding-inline-end: 10px;
+}
+
+prefpane {
+  padding: 8px;
+}
+
+prefwindow[type="child"] {
+  padding: 8px;
+}
+
+prefwindow[type="child"] > prefpane {
+  padding: 0px;
+}
+
+.prefWindow-dlgbuttons {
+  padding-bottom: 8px;
+  padding-inline-start: 8px;
+  padding-inline-end: 8px;
+}
+
+prefwindow[type="child"] .prefWindow-dlgbuttons {
+  padding: 0px;
+}
+
+radio[pane] {
+  -moz-appearance: none;
+  min-width: 4.5em;
+  margin: 0;
+  padding: 3px;
+  color: -moz-FieldText;
+}
+
+.paneSelector {
+  -moz-appearance: listbox;
+  margin: 8px 8px 0 8px;
+  padding: 0;
+}
+
+.paneButtonIcon {
+  width: 32px;
+  height: 32px;
+}
+
+radio[pane][selected="true"] {
+  background-color: Highlight;
+  color: HighlightText;
 }
