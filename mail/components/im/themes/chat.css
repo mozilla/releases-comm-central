@@ -602,18 +602,10 @@ imgroup[closed] .twisty {
 }
 
 #searchResultConv > .prplBuddyIcon > .protoIcon {
-%ifdef XP_MACOSX
-  list-style-image: url("chrome://global/skin/icons/search-textbox.png");
-%else
-%ifdef XP_WIN
-  list-style-image: url(chrome://global/skin/icons/Search-glass.png);
-  -moz-image-region: rect(0, 16px, 16px, 0);
-%else
-  list-style-image: url(moz-icon://stock/gtk-find?size=menu);
-  width: 16px;
-  height: 16px;
-%endif
-%endif
+  list-style-image: url(chrome://messenger/skin/icons/search-glass.svg);
+  -moz-context-properties: fill;
+  fill: currentColor;
+  opacity: 0.54;
 }
 
 #statusTypeIcon {
