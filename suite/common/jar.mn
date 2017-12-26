@@ -112,6 +112,7 @@ comm.jar:
    content/communicator/bindings/general.xml                        (bindings/general.xml)
    content/communicator/bindings/generalBindings.xml                (../../common/bindings/generalBindings.xml)
    content/communicator/bindings/notification.xml                   (bindings/notification.xml)
+*  content/communicator/bindings/preferences.xml                    (../../common/bindings/preferences.xml)
    content/communicator/bindings/toolbar.xml                        (bindings/toolbar.xml)
 *  content/communicator/bindings/prefwindow.xml                     (bindings/prefwindow.xml)
    content/communicator/bookmarks/bm-panel.js                       (bookmarks/bm-panel.js)

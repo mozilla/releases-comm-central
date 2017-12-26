@@ -67,7 +67,7 @@
           xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 
   <binding id="prefwindow"
-           extends="chrome://global/content/bindings/preferences.xml#prefwindow">
+           extends="chrome://communicator/content/bindings/preferences.xml#prefwindow">
     <resources>
       <stylesheet src="chrome://communicator/skin/preferences.css"/>
     </resources>
@@ -496,7 +496,7 @@
   </binding>
 
   <binding id="prefpane"
-           extends="chrome://global/content/bindings/preferences.xml#prefpane">
+           extends="chrome://communicator/content/bindings/preferences.xml#prefpane">
     <resources>
       <stylesheet src="chrome://communicator/skin/preferences.css"/>
     </resources>
