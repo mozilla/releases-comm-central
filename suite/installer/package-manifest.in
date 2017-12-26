@@ -101,6 +101,10 @@
 #endif
 #endif # MOZ_ANGLE_RENDERER
 
+#if defined(XP_WIN) && defined(MOZ_ENABLE_SKIA_PDF)
+@BINPATH@/pdfium.dll
+#endif
+
 #ifdef XP_WIN
 @BINPATH@/plugin-hang-ui@BIN_SUFFIX@
 #if MOZ_PACKAGE_MSVC_DLLS
