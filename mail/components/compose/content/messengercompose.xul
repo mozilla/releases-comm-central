@@ -937,7 +937,8 @@
                command="cmd_spelling">
       <!-- workaround for the bug that split menu doesn't take popup="popupID" -->
       <menupopup onpopupshowing="event.preventDefault();
-                                 showLanguagePopup('spellingButton');"/>
+                                 showPopupById('languageMenuList',
+                                               'spellingButton');"/>
     </toolbarbutton>
 
     <toolbarbutton class="toolbarbutton-1" type="menu-button"
@@ -1253,7 +1254,9 @@
     <statusbarpanel id="spellCheckStatusPanel">
       <toolbarbutton id="languageStatusButton"
                      tooltiptext="&languageStatusButton.tooltip;"
-                     oncommand="showLanguagePopup('languageStatusButton','before_start');">
+                     oncommand="showPopupById('languageMenuList',
+                                              'languageStatusButton',
+                                              'before_start');">
       </toolbarbutton>
     </statusbarpanel>
   </statusbar>

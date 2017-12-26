@@ -674,6 +674,24 @@ var defaultController = {
       }
     },
 
+    cmd_reorderAttachments: {
+      isEnabled: function() {
+        if (attachmentsCount() == 0) {
+          let reorderAttachmentsPanel =
+            document.getElementById("reorderAttachmentsPanel");
+          if (reorderAttachmentsPanel.state == "open") {
+            // When the panel is open and all attachments get deleted,
+            // we get notified here and want to close the panel.
+            reorderAttachmentsPanel.hidePopup();
+          }
+        }
+        return (attachmentsCount() > 1);
+      },
+      doCommand: function() {
+        showReorderAttachmentsPanel();
+      }
+    },
+
     cmd_close: {
       isEnabled: function() {
         return !gWindowLocked;
@@ -948,24 +966,6 @@ var attachmentBucketController = {
       },
       doCommand: function() {
         RenameSelectedAttachment();
-      }
-    },
-
-    cmd_reorderAttachments: {
-      isEnabled: function() {
-        if (attachmentsCount() == 0) {
-          let reorderAttachmentsPanel =
-            document.getElementById("reorderAttachmentsPanel");
-          if (reorderAttachmentsPanel.state == "open") {
-            // When the panel is open and all attachments get deleted,
-            // we get notified here and want to close the panel.
-            reorderAttachmentsPanel.hidePopup();
-          }
-        }
-        return (attachmentsCount() > 1);
-      },
-      doCommand: function() {
-        showReorderAttachmentsPanel();
       }
     },
 
@@ -3869,16 +3869,31 @@ function onRecipientsChanged(aAutomatic)
 }
 
 /**
- * Show the menu list of available spellcheck languages
+ * Show the popup identified by aPopupID
+ * at the anchor element identified by aAnchorID.
  *
- * aAnchorID  the ID of an element to which the popup should be anchored
- * aPosition  (optional) a single-word alignment value for the position attribute
- *            of openPopup() method, defaults to "after_start" if omitted.
+ * Note: All but the first 2 parameters are identical with the parameters of
+ * the openPopup() method of XUL popup element. For details, please consult docs.
+ * Except aPopupID, all parameters are optional.
+ * Example: showPopupById("aPopupID", "aAnchorID");
+ *
+ * @param aPopupID   the ID of the popup element to be shown
+ * @param aAnchorID  the ID of an element to which the popup should be anchored
+ * @param aPosition  a single-word alignment value for the position parameter
+ *                   of openPopup() method; defaults to "after_start" if omitted.
+ * @param x          x offset from default position
+ * @param y          y offset from default position
+ * @param isContextMenu {boolean} For details, see documentation.
+ * @param attributesOverride {boolean} whether the position attribute on the
+ *                                     popup node overrides the position parameter
+ * @param triggerEvent the event that triggered the popup
  */
-function showLanguagePopup(aAnchorID, aPosition = "after_start") {
-  let aAnchorNode = document.getElementById(aAnchorID);
-  let languageMenuList = document.getElementById("languageMenuList");
-  languageMenuList.openPopup(aAnchorNode, aPosition, 0, 0, false, false);
+function showPopupById(aPopupID, aAnchorID, aPosition = "after_start",
+                       x, y, isContextMenu, attributesOverride, triggerEvent) {
+  let popup = document.getElementById(aPopupID);
+  let anchor = document.getElementById(aAnchorID);
+  popup.openPopup(anchor, aPosition, x, y,
+                  isContextMenu, attributesOverride, triggerEvent);
 }
 
 function InitLanguageMenu()
@@ -4712,26 +4727,23 @@ function RemoveAllAttachments()
 }
 
 /**
- * Display/hide and update the content of the attachment bucket (specifically
- * the total file size of the attachments and the number of current attachments)
+ * Show or hide the attachment pane after updating its header bar information
+ * (number and total file size of attachments).
  *
- * @param aShowBucket true if the bucket should be shown, false otherwise
+ * @param aShowPane {boolean} true:  show the attachment pane
+ *                            false: hide the attachment pane
  */
-function UpdateAttachmentBucket(aShowBucket)
+function UpdateAttachmentBucket(aShowPane)
 {
-  if (aShowBucket) {
-    var count = document.getElementById("attachmentBucket").getRowCount();
+  let count = document.getElementById("attachmentBucket").getRowCount();
+  let words = getComposeBundle().getString("attachmentCount");
+  let countStr = PluralForm.get(count, words).replace("#1", count);
 
-    var words = getComposeBundle().getString("attachmentCount");
-    var countStr = PluralForm.get(count, words).replace("#1", count);
+  document.getElementById("attachmentBucketCount").value = countStr;
+  document.getElementById("attachmentBucketSize").value =
+    gMessenger.formatFileSize(gAttachmentsSize);
 
-    document.getElementById("attachmentBucketCount").value = countStr;
-    document.getElementById("attachmentBucketSize").value =
-      gMessenger.formatFileSize(gAttachmentsSize);
-  }
-
-  document.getElementById("attachments-box").collapsed = !aShowBucket;
-  document.getElementById("attachmentbucket-sizer").collapsed = !aShowBucket;
+  toggleAttachmentPane(aShowPane);
 }
 
 function RemoveSelectedAttachment()
@@ -5062,15 +5074,30 @@ function moveSelectedAttachments(aDirection)
   updateReorderAttachmentsItems();
 }
 
+/**
+ * Show or hide the attachment pane.
+ *
+ * @param aShow {boolean} true:  show the attachment pane
+ *                        false: hide the attachment pane
+ */
+function toggleAttachmentPane(aShow) {
+  document.getElementById("attachments-box").collapsed = !aShow;
+  document.getElementById("attachmentbucket-sizer").collapsed = !aShow;
+}
+
 function showReorderAttachmentsPanel() {
-    document.getElementById("reorderAttachmentsPanel")
-            .openPopup(document.getElementById("attachmentBucket"),
-                       "after_start", 15, 0, true);
-    // Focus attachmentBucket so that keyboard operation for
-    // selecting and moving attachment items works;
-    // the panel helpfully presents the keyboard shortcuts
-    // for moving things around.
-    document.getElementById("attachmentBucket").focus();
+  // Ensure attachment pane visibility as it might be collapsed.
+  toggleAttachmentPane(true);
+  showPopupById("reorderAttachmentsPanel", "attachmentBucket",
+                "after_start", 15, 0);
+  // After the panel is shown, focus attachmentBucket so that keyboard
+  // operation for selecting and moving attachment items works; the panel
+  // helpfully presents the keyboard shortcuts for moving things around.
+  // Bucket focus is also required because the panel will only close with ESC
+  // or attachmentBucketOnBlur(), and that's because we're using noautohide as
+  // event.preventDefault() of onpopuphiding event fails when the panel
+  // is auto-hiding, but we don't want panel to hide when focus goes to bucket.
+  document.getElementById("attachmentBucket").focus();
 }
 
 /**
@@ -5155,10 +5182,12 @@ function reorderAttachmentsPanelOnPopupShowing() {
       btn.setAttribute("prettykey", getPrettyKey(btn.getAttribute("key")));
     }
   })
-  // This depends on the fact that the command handlers of cmd_moveAttachment*
-  // and cmd_sortAttachmentsToggle do not require focus in attachmentBucket as
-  // they just check for selected attachments. Otherwise updating these commands
-  // would need to happen *after* the panel is shown.
+  // Focus attachment bucket to activate attachmentBucketController, which is
+  // required for updating the reorder commands.
+  document.getElementById("attachmentBucket").focus();
+  // We're updating commands before showing the panel so that button states
+  // don't change after the panel is shown, and also because focus is still
+  // in attachment bucket right now, which is required for updating them.
   updateReorderAttachmentsItems();
 }
 
