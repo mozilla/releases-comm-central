@@ -799,8 +799,10 @@ nsMsgMaildirStore::MoveNewlyDownloadedMessage(nsIMsgDBHdr *aHdr,
   if (NS_SUCCEEDED(rv) && !newHdr)
     rv = NS_ERROR_UNEXPECTED;
 
-  if (NS_FAILED(rv))
+  if (NS_FAILED(rv)) {
     aDestFolder->ThrowAlertMsg("filterFolderHdrAddFailed", nullptr);
+    return rv;
+  }
 
   nsCOMPtr<nsIFile> existingPath;
   toPath->Clone(getter_AddRefs(existingPath));
