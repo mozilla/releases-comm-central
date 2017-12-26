@@ -5,7 +5,7 @@
 <!ENTITY doNotDownloadPop3Movemail.label "To save disk space, do not download:">
 <!ENTITY doNotDownloadNntp.label "To save disk space, do not download for offline use:">
 <!ENTITY doNotDownloadImap.label "To save disk space, downloading messages from the server and keeping local copies for offline use can be restricted by age or size.">
-<!ENTITY allFoldersOffline2.label "Keep messages in all folders for this account on this computer.">
+<!ENTITY allFoldersOffline2.label "Keep messages in all folders for this account on this computer">
 <!ENTITY allFoldersOffline2.accesskey "o">
 <!ENTITY allFoldersOfflineNote.label "Note: Changing this affects all folders in this account. To set individual folders, use the Advanced… button.">
 <!ENTITY offlineNotDownload.label "Messages larger than">
