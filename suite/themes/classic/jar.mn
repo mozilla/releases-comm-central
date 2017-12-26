@@ -19,6 +19,7 @@ classic.jar:
   skin/classic/communicator/button.css                                  (mac/communicator/button.css)
   skin/classic/communicator/communicator.css                            (mac/communicator/communicator.css)
   skin/classic/communicator/config.css                                  (mac/communicator/config.css)
+  skin/classic/communicator/preferences.css                             (mac/communicator/preferences.css)
   skin/classic/communicator/toolbar.css                                 (mac/communicator/toolbar.css)
   skin/classic/communicator/viewSourceOverlay.css                       (mac/communicator/viewSourceOverlay.css)
   skin/classic/communicator/bookmarks/bookmarks.css                     (mac/communicator/bookmarks/bookmarks.css)
@@ -64,6 +65,11 @@ classic.jar:
   skin/classic/communicator/button.css                                  (communicator/button.css)
   skin/classic/communicator/communicator.css                            (communicator/communicator.css)
   skin/classic/communicator/config.css                                  (communicator/config.css)
+#ifdef MOZ_WIDGET_GTK
+  skin/classic/communicator/preferences.css                             (linux/communicator/preferences.css)
+#else
+  skin/classic/communicator/preferences.css                             (communicator/preferences.css)
+#endif
   skin/classic/communicator/toolbar.css                                 (communicator/toolbar.css)
   skin/classic/communicator/viewSourceOverlay.css                       (communicator/viewSourceOverlay.css)
   skin/classic/communicator/bookmarks/bookmark-folder-closed.png        (communicator/bookmarks/bookmark-folder-closed.png)
@@ -115,7 +121,6 @@ classic.jar:
   skin/classic/communicator/common.css                                  (communicator/common.css)
   skin/classic/communicator/dialogs.css                                 (communicator/dialogs.css)
   skin/classic/communicator/communicatorBindings.xml                    (communicator/communicatorBindings.xml)
-  skin/classic/communicator/preferences.css                             (communicator/preferences.css)
   skin/classic/communicator/prefpanels.css                              (communicator/prefpanels.css)
   skin/classic/communicator/smileys.css                                 (communicator/smileys.css)
   skin/classic/communicator/tasksOverlay.css                            (communicator/tasksOverlay.css)

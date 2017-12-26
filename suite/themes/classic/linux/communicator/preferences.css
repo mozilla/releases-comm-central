@@ -1,0 +1,16 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+/* Styles used by all preference windows and panes of SeaMonkey */
+
+@namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
+
+/* ::::: Main Window ::::: */
+
+prefwindow {
+  padding-top: 8px;
+  padding-bottom: 0px;
+  padding-inline-start: 8px;
+  padding-inline-end: 10px;
+}
