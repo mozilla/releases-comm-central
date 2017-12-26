@@ -92,6 +92,7 @@ classic.jar:
   skin/classic/communicator/helpviewer/Toolbar-rtl.png                  (communicator/helpviewer/Toolbar-rtl.png)
   skin/classic/communicator/helpviewer/help.css                         (communicator/helpviewer/help.css)
   skin/classic/communicator/search/mainwindow-dropdown-arrow.png        (communicator/search/mainwindow-dropdown-arrow.png)
+  skin/classic/communicator/search/search-glass.png                     (communicator/search/search-glass.png)
   skin/classic/communicator/search/searchbar.css                        (communicator/search/searchbar.css)
   skin/classic/communicator/sidebar/sidebar.css                         (communicator/sidebar/sidebar.css)
   skin/classic/communicator/sync/syncSetup.css                          (communicator/sync/syncSetup.css)

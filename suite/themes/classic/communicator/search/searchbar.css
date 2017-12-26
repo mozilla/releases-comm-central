@@ -47,7 +47,7 @@
 
 .search-go-button {
   padding: 3px;
-  list-style-image: url("chrome://global/skin/icons/Search-glass.png");
+  list-style-image: url("chrome://communicator/skin/search/search-glass.png");
   -moz-image-region: rect(0px 16px 16px 0px);
 }
 
