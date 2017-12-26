@@ -275,20 +275,6 @@
   <key keycode="&findPrevCmd.key2;"  command="cmd_findPrev" modifiers="shift"/>
 
   <!-- Reorder Attachments Panel -->
-#ifdef XP_MACOSX
-  <key id="key_moveAttachmentUp" keycode="VK_UP" modifiers="accel"
-       command="cmd_moveAttachmentUp"/>
-  <key id="key_moveAttachmentDown" keycode="VK_DOWN" modifiers="accel"
-       command="cmd_moveAttachmentDown"/>
-  <key id="key_moveAttachmentBundleUp" keycode="VK_LEFT" modifiers="accel alt"
-       command="cmd_moveAttachmentBundleUp"/>
-  <key id="key_moveAttachmentBundleDown" keycode="VK_RIGHT" modifiers="accel alt"
-       command="cmd_moveAttachmentBundleDown"/>
-  <key id="key_moveAttachmentTop" keycode="VK_UP" modifiers="accel alt"
-       command="cmd_moveAttachmentTop"/>
-  <key id="key_moveAttachmentBottom" keycode="VK_DOWN" modifiers="accel alt"
-       command="cmd_moveAttachmentBottom"/>
-#else
   <key id="key_moveAttachmentUp" keycode="VK_UP" modifiers="alt"
        command="cmd_moveAttachmentUp"/>
   <key id="key_moveAttachmentDown" keycode="VK_DOWN" modifiers="alt"
@@ -297,6 +283,16 @@
        command="cmd_moveAttachmentBundleUp"/>
   <key id="key_moveAttachmentBundleDown" keycode="VK_RIGHT" modifiers="alt"
        command="cmd_moveAttachmentBundleDown"/>
+#ifdef XP_MACOSX
+  <key id="key_moveAttachmentTop" keycode="VK_UP" modifiers="accel alt"
+       command="cmd_moveAttachmentTop"/>
+  <key id="key_moveAttachmentBottom" keycode="VK_DOWN" modifiers="accel alt"
+       command="cmd_moveAttachmentBottom"/>
+  <key id="key_moveAttachmentTop2" keycode="VK_Home" modifiers="alt"
+       command="cmd_moveAttachmentTop"/>
+  <key id="key_moveAttachmentBottom2" keycode="VK_End" modifiers="alt"
+       command="cmd_moveAttachmentBottom"/>
+#else
   <key id="key_moveAttachmentTop" keycode="VK_Home" modifiers="alt"
        command="cmd_moveAttachmentTop"/>
   <key id="key_moveAttachmentBottom" keycode="VK_End" modifiers="alt"
