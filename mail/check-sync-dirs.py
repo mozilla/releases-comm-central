@@ -10,7 +10,7 @@
 # copies of their counterparts in the directory tree ORIGINAL.  COPY
 # need not have all the files in ORIGINAL, but COPY may not have files
 # absent from ORIGINAL.
-# 
+#
 # Each directory in COPY may have a file named
 # 'check-sync-exceptions', which lists files in COPY that need not be
 # the same as the corresponding file in ORIGINAL, or exist at all in
@@ -32,6 +32,7 @@ if len(sys.argv) != 3:
 copy = os.path.abspath(sys.argv[1])
 original = os.path.abspath(sys.argv[2])
 
+
 # Return the contents of FILENAME, a 'check-sync-exceptions' file, as
 # a dictionary whose keys are exactly the list of filenames, along
 # with the basename of FILENAME itself.  If FILENAME does not exist,
@@ -44,11 +45,12 @@ def read_exceptions(filename):
             line = line.strip()
             if line != '' and line[0] != '#':
                 exceptions[line] = None
-        exceptions[os.path.basename (filename)] = None
+        exceptions[os.path.basename(filename)] = None
         f.close()
         return exceptions
     else:
         return {}
+
 
 # Return true if FILENAME matches any pattern in the list of filename
 # patterns PATTERNS.
@@ -58,9 +60,10 @@ def fnmatch_any(filename, patterns):
             return True
     return False
 
+
 # Check the contents of the directory tree COPY against ORIGINAL.  For each
 # file that differs, apply REPORT to COPY, ORIGINAL, and the file's
-# relative path.  COPY and ORIGINAL should be absolute.  Ignore files 
+# relative path.  COPY and ORIGINAL should be absolute.  Ignore files
 # that match patterns given in the list IGNORE.
 def check(copy, original):
     os.chdir(copy)
@@ -80,7 +83,9 @@ def check(copy, original):
                 continue
             report(copy, original, relative_name)
 
+
 differences_found = False
+
 
 # Print an error message for DIFFERING, which was found to differ
 # between COPY and ORIGINAL.  Set the global variable differences_found.
@@ -93,6 +98,7 @@ def report(copy, original, differing):
                              % (copy, original)
     print >> sys.stderr, 'TEST-INFO | check-sync-dirs.py | differing file:                 %s' % differing
     differences_found = True
+
 
 check(copy, original)
 
