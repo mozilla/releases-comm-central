@@ -3,18 +3,6 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 include $(moztopsrcdir)/config/config.mk
-
-ifdef ENABLE_TESTS
-
-check-sync-dirs::
-	@$(PYTHON) $(commtopsrcdir)/mail/check-sync-dirs.py \
-	   $(commtopsrcdir)/build $(moztopsrcdir)/build
-	@$(PYTHON) $(commtopsrcdir)/mail/check-sync-dirs.py \
-	   $(srcdir)/config/tooltool-manifests $(moztopsrcdir)/browser/config/tooltool-manifests
-
-check:: check-sync-dirs
-endif
-
 include $(moztopsrcdir)/config/rules.mk
 
 ifdef MAKENSISU

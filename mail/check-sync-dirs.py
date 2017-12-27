@@ -109,10 +109,19 @@ def check(logger, copy, original):
     return differences_found
 
 
+def test_build(logger):
+    return check(logger, "comm/build", "build")
+
+
+def test_tooltool(logger):
+    return check(
+        logger,
+        "comm/mail/config/tooltool-manifests/", "browser/config/tooltool-manifests/",
+    )
+
+
 def get_parser():
     parser = argparse.ArgumentParser()
-    parser.add_argument('copy')
-    parser.add_argument('original')
     return parser
 
 
@@ -124,8 +133,10 @@ def main():
 
     logger = commandline.setup_logging("check-sync-dirs", args, {"tbpl": sys.stdout})
 
+    result = False
     logger.suite_start(tests=[])
-    result = check(logger, args.copy, args.original)
+    result |= test_build(logger)
+    result |= test_tooltool(logger)
     logger.suite_end()
     return result
 
