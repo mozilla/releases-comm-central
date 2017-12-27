@@ -7,6 +7,9 @@ if [ "$MOZ_IS_COMM_TOPDIR" = "1" ]; then
   # Disable webrender on Linux buildbot builders to avoid the Rust requirement
   # of libX11 version > 1.4.99.1 (see bug 1350011).
   ac_add_options --disable-webrender
+
+  # Buildbot still uses gtk from tooltool
+  . "$commtopsrcdir/build/unix/mozconfig.gtk"
 fi
 
 ac_add_options --enable-debug
