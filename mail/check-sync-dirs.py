@@ -35,10 +35,9 @@ original = os.path.abspath(sys.argv[2])
 
 def read_exceptions(filename):
     """
-    Return the contents of FILENAME, a 'check-sync-exceptions' file, as
-    a dictionary whose keys are exactly the list of filenames, along
-    with the basename of FILENAME itself.  If FILENAME does not exist,
-    return the empty dictionary.
+    Return the contents of ``filename``, a 'check-sync-exceptions' file, as a
+    set of filenames, along with the basename of ``filename`` itself.  If
+    ``filename`` does not exist, return the empty set.
     """
     if (os.path.exists(filename)):
         f = file(filename)
@@ -54,20 +53,24 @@ def read_exceptions(filename):
         return set()
 
 
-# Return true if FILENAME matches any pattern in the list of filename
-# patterns PATTERNS.
 def fnmatch_any(filename, patterns):
+    """
+    Return ``True`` if ``filename`` matches any pattern in the list of filename
+    patterns ``patterns``.
+    """
     for pattern in patterns:
         if fnmatch.fnmatch(filename, pattern):
             return True
     return False
 
 
-# Check the contents of the directory tree COPY against ORIGINAL.  For each
-# file that differs, apply REPORT to COPY, ORIGINAL, and the file's
-# relative path.  COPY and ORIGINAL should be absolute.  Ignore files
-# that match patterns given in the list IGNORE.
 def check(copy, original):
+    """
+    Check the contents of the directory tree ``copy`` against ``original``.  For each
+    file that differs, apply REPORT to ``copy``, ``original``, and the file's
+    relative path.  ``copy`` and ``original`` should be absolute.  Ignore files
+    that match patterns given in files named ``check-sync-exceptions``.
+    """
     os.chdir(copy)
     for (dirpath, dirnames, filenames) in os.walk('.'):
         exceptions = read_exceptions(join(dirpath, 'check-sync-exceptions'))
@@ -89,9 +92,11 @@ def check(copy, original):
 differences_found = False
 
 
-# Print an error message for DIFFERING, which was found to differ
-# between COPY and ORIGINAL.  Set the global variable differences_found.
 def report(copy, original, differing):
+    """
+    Print an error message for ``differing``, which was found to differ between
+    ``copy`` and ``original``.  Set the global variable ``differences_found``.
+    """
     global differences_found
     if not differences_found:
         print >> sys.stderr, 'TEST-UNEXPECTED-FAIL | check-sync-dirs.py | build file copies are not in sync\n' \
