@@ -7,8 +7,6 @@ linux64/opt:
     worker:
         docker-image: {in-tree: "desktop-build"}
         max-run-time: 36000
-        env:
-            TOOLTOOL_MANIFEST: "comm/mail/config/tooltool-manifests/linux64/releng.manifest"
     run:
         using: mozharness
         comm-checkout: true
@@ -20,7 +18,6 @@ linux64/opt:
             - builds/releng_base_linux_64_builds.py
             - balrog/production.py
         script: "mozharness/scripts/fx_desktop_build.py"
-        tooltool-downloads: public
         need-xvfb: true
     toolchains:
         - linux64-clang
@@ -36,8 +33,6 @@ linux64/debug:
     worker-type: aws-provisioner-v1/gecko-{level}-b-linux
     worker:
         max-run-time: 36000
-        env:
-            TOOLTOOL_MANIFEST: "comm/mail/config/tooltool-manifests/linux64/releng.manifest"
     run:
         using: mozharness
         comm-checkout: true
@@ -50,7 +45,6 @@ linux64/debug:
             - balrog/production.py
         script: "mozharness/scripts/fx_desktop_build.py"
         custom-build-variant-cfg: debug
-        tooltool-downloads: public
         need-xvfb: true
     toolchains:
         - linux64-clang
@@ -67,8 +61,6 @@ linux/opt:
     worker:
         docker-image: {in-tree: "desktop-build"}
         max-run-time: 36000
-        env:
-            TOOLTOOL_MANIFEST: "comm/mail/config/tooltool-manifests/linux32/releng.manifest"
     run:
         using: mozharness
         comm-checkout: true
@@ -80,7 +72,6 @@ linux/opt:
             - builds/releng_base_linux_32_builds.py
             - balrog/production.py
         script: "mozharness/scripts/fx_desktop_build.py"
-        tooltool-downloads: public
         need-xvfb: true
     toolchains:
         - linux64-clang
@@ -96,8 +87,6 @@ linux/debug:
     worker-type: aws-provisioner-v1/gecko-{level}-b-linux
     worker:
         max-run-time: 36000
-        env:
-            TOOLTOOL_MANIFEST: "comm/mail/config/tooltool-manifests/linux32/releng.manifest"
     run:
         using: mozharness
         comm-checkout: true
@@ -110,7 +99,6 @@ linux/debug:
             - balrog/production.py
         script: "mozharness/scripts/fx_desktop_build.py"
         custom-build-variant-cfg: debug
-        tooltool-downloads: public
         need-xvfb: true
     toolchains:
         - linux64-clang
