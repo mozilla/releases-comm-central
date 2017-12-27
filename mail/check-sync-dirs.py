@@ -33,23 +33,25 @@ copy = os.path.abspath(sys.argv[1])
 original = os.path.abspath(sys.argv[2])
 
 
-# Return the contents of FILENAME, a 'check-sync-exceptions' file, as
-# a dictionary whose keys are exactly the list of filenames, along
-# with the basename of FILENAME itself.  If FILENAME does not exist,
-# return the empty dictionary.
 def read_exceptions(filename):
+    """
+    Return the contents of FILENAME, a 'check-sync-exceptions' file, as
+    a dictionary whose keys are exactly the list of filenames, along
+    with the basename of FILENAME itself.  If FILENAME does not exist,
+    return the empty dictionary.
+    """
     if (os.path.exists(filename)):
         f = file(filename)
-        exceptions = {}
+        exceptions = set()
         for line in f:
             line = line.strip()
             if line != '' and line[0] != '#':
-                exceptions[line] = None
-        exceptions[os.path.basename(filename)] = None
+                exceptions.add(line)
+        exceptions.add(os.path.basename(filename))
         f.close()
         return exceptions
     else:
-        return {}
+        return set()
 
 
 # Return true if FILENAME matches any pattern in the list of filename
