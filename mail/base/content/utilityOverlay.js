@@ -323,3 +323,11 @@ function openPrivacyPolicy(where) {
   let url = Services.prefs.getCharPref(kTelemetryInfoUrl);
   openContentTab(url, where, "^http://www.mozilla.org/");
 }
+
+/* Used by the Add-on manager's search box */
+function openLinkIn(aURL, aWhere, aOpenParams) {
+  if (!aURL)
+    return;
+  // Open a new tab.
+  switchToTabHavingURI(aURL, true);
+}

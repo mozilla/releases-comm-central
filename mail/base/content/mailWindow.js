@@ -778,7 +778,10 @@ function switchToTabHavingURI(aURI, aOpenNew, aOpenParams) {
     return true;
   }
 
-  // Open a new tab.
-  openContentTab(aURI, "tab");
+  if (aOpenNew) {
+    // Open a new tab.
+    openContentTab(aURI, "tab");
+  }
+
   return false;
 }
