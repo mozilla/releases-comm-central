@@ -93,6 +93,10 @@ toolbarpaletteitem #hdrDummyReplyButton {
   margin-inline-start: 0px !important;
 }
 
+#otherActionsBox {
+  margin-inline-start: 8px;
+}
+
 .headerValueBox[singleline="true"] > .headerValue[containsEmail="true"] {
   white-space: nowrap;
 }
