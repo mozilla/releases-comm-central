@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+Components.utils.import("resource://gre/modules/Preferences.jsm");
 Components.utils.import("resource://gre/modules/Services.jsm");
 Components.utils.import("resource://calendar/modules/calUtils.jsm");
 
@@ -15,9 +16,18 @@ Components.utils.import("resource://calendar/modules/calUtils.jsm");
  * @return          If true, pasting is currently possible.
  */
 function canPaste() {
-    let selectedCal = getSelectedCalendar();
-    if (!selectedCal || !cal.isCalendarWritable(selectedCal)) {
-        return false;
+    if (Preferences.get("calendar.paste.intoSelectedCalendar", false)) {
+        let selectedCal = getSelectedCalendar();
+        if (!selectedCal || !cal.isCalendarWritable(selectedCal)) {
+            return false;
+        }
+    } else {
+        let calendars = cal.getCalendarManager().getCalendars({})
+                           .filter(cal.isCalendarWritable)
+                           .filter(cal.userCanAddItemsToCalendar);
+        if (!calendars.length) {
+            return false;
+        }
     }
 
     const flavors = ["text/calendar", "text/unicode"];
@@ -127,7 +137,24 @@ function pasteFromClipboard() {
     switch (flavor.value) {
         case "text/calendar":
         case "text/unicode": {
-            let destCal = getSelectedCalendar();
+            let destCal = null;
+            if (Preferences.get("calendar.paste.intoSelectedCalendar", false)) {
+                destCal = getSelectedCalendar();
+            } else {
+                let calendars = cal.getCalendarManager().getCalendars({})
+                                   .filter(cal.isCalendarWritable)
+                                   .filter(cal.userCanAddItemsToCalendar);
+                if (calendars.length > 1) {
+                    let args = {};
+                    args.calendars = calendars;
+                    args.onOk = (aCal) => { destCal = aCal; };
+                    args.promptText = cal.calGetString("calendar", "pastePrompt");
+                    window.openDialog("chrome://calendar/content/chooseCalendarDialog.xul",
+                                      "_blank", "chrome,titlebar,modal,resizable", args);
+                } else if (calendars.length == 1) {
+                    destCal = calendars[0];
+                }
+            }
             if (!destCal) {
                 return;
             }

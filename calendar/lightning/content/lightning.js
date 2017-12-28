@@ -159,6 +159,9 @@ pref("calendar.item.editInTab", false);
 // Edit events and tasks in the new (HTML-based) UI for tabs and windows
 pref("calendar.item.useNewItemUI", false);
 
+// Always use the currently selected calendar as target for paste operations
+pref("calendar.paste.intoSelectedCalendar", false);
+
 // Backend to use. false: libical, true: ical.js
 #ifdef NIGHTLY_BUILD
 pref("calendar.icaljs", true);
