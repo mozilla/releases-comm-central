@@ -322,6 +322,7 @@ toolbar[mode="icons"] .toolbarbutton-1 > menupopup {
   margin-top: 1px;
 }
 
+#alltabs-button,
 #tabbar-toolbar .toolbarbutton-1,
 #tabbar-toolbar .toolbarbutton-1[type="menu-button"] {
   margin-top: 3px;

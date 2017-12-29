@@ -378,6 +378,7 @@ sidebarheader .toolbarbutton-text:not([value]) {
   display: none;
 }
 
+#alltabs-button,
 #tabbar-toolbar .toolbarbutton-1,
 #tabbar-toolbar .toolbarbutton-1[type="menu-button"] {
   margin-top: 3px;
