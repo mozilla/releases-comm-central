@@ -198,12 +198,12 @@
   opacity: 0.3;
 }
 
-/* Move the ::after pseudo-element on tabs 1px to the right
+/* Move the ::before pseudo-element on tabs 1px to the left
  * to avoid resizing the tab when the pseudo-element is removed again
  * (this currently happens when a tab is opened or closed).
  */
-.tabmail-tab::after {
-  margin-inline-end: -1px;
+.tabmail-tab::before {
+  margin-inline-start: -1px;
 }
 
 /* Show full height tab separators on hover. */
