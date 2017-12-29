@@ -1,12 +1,9 @@
 job-defaults:
-    platform: linux64/opt
     always-target: true
-    worker-type:
-        by-platform:
-            linux64.*: aws-provisioner-v1/gecko-t-linux-xlarge
+    worker-type: aws-provisioner-v1/gecko-t-linux-xlarge
     treeherder:
         kind: test
-        tier: 1
+        tier: 2
     run:
         using: mach
         comm-checkout: true
@@ -16,6 +13,7 @@ job-defaults:
             - 'python/mach_commands.py'
 
 check-sync:
+    platform: lint/opt
     description: check-sync
     treeherder:
         symbol: check-sync
