@@ -4489,11 +4489,16 @@ function AddAttachments(aAttachments, aCallback)
       // part.
       let url = Services.io.newURI(attachment.url);
       if (url instanceof Components.interfaces.nsIURL &&
-          url.fileName && !url.schemeIs("file"))
+          url.fileName && !url.schemeIs("file")) {
         item.image = "moz-icon://" + url.fileName;
-      else
+      } else if (/^mailbox-message:|^imap-message:|^news-message:/i.test(attachment.url)) {
+        // We're attaching a message, most likely via drag and drop. Pretend that is comes
+        // from a file, so we get the icon that matches .eml files.
+        item.image = "moz-icon://message.eml";
+      } else {
         item.image = "moz-icon:" + attachment.url;
       }
+    }
 
     items.push(item);
 
