@@ -11,17 +11,23 @@
  *   some of it duplicated.)
  */
 
-/* exported onMouseOverItem, showToolTip */
+/* exported onMouseOverItem, showToolTip, getPreviewForItem,
+             getEventStatusString, getToDoStatusString */
 
-/** PUBLIC
- *
- *  This changes the mouseover preview based on the start and end dates
- *  of an occurrence of a (one-time or recurring) calEvent or calToDo.
- *  Used by all grid views.
+/**
+ * PUBLIC: This changes the mouseover preview based on the start and end dates
+ * of an occurrence of a (one-time or recurring) calEvent or calToDo.
+ * Used by all grid views.
  */
 
 Components.utils.import("resource://calendar/modules/calUtils.jsm");
 
+/**
+ * PUBLIC: Displays a tooltip with details when hovering over an item in the views
+ *
+ * @param   {DOMEvent} occurrenceBoxMouseEvent  the triggering event
+ * @returns {boolean}                           true, if the tooltip is displayed
+ */
 function onMouseOverItem(occurrenceBoxMouseEvent) {
     if ("occurrence" in occurrenceBoxMouseEvent.currentTarget) {
         // occurrence of repeating event or todo
@@ -32,14 +38,16 @@ function onMouseOverItem(occurrenceBoxMouseEvent) {
     return false;
 }
 
+/**
+ * PUBLIC: Displays a tooltip for a given item
+ *
+ * @param  {Node}               aTooltip  the node to hold the tooltip
+ * @param  {CalIEvent|calIToDo} aItem     the item to create the tooltip for
+ * @returns {boolean}                     true, if the tooltip is displayed
+ */
 function showToolTip(aToolTip, aItem) {
     if (aItem) {
-        let holderBox;
-        if (cal.isEvent(aItem)) {
-            holderBox = getPreviewForEvent(aItem);
-        } else if (cal.isToDo(aItem)) {
-            holderBox = getPreviewForTask(aItem);
-        }
+        let holderBox = getPreviewForItem(aItem);
         if (holderBox) {
             removeChildren(aToolTip);
             aToolTip.appendChild(holderBox);
@@ -50,15 +58,84 @@ function showToolTip(aToolTip, aItem) {
 }
 
 /**
- *  Called when a user hovers over a todo element and the text for the mouse over is changed.
+ * PUBLIC:  Called when a user hovers over a todo element and the text for the
+ * mouse over is changed.
+ *
+ * @param {calIToDo} toDoItem    the item to create the preview for
+ * @param {boolean}  aIsTooltip  enabled if used for tooltip composition (default)
  */
-function getPreviewForTask(toDoItem) {
+function getPreviewForItem(aItem, aIsTooltip=true) {
+    if (cal.isEvent(aItem)) {
+        return getPreviewForEvent(aItem, aIsTooltip);
+    } else if (cal.isToDo(aItem)) {
+        return getPreviewForTask(aItem, aIsTooltip);
+    } else {
+        return null;
+    }
+}
+
+/**
+ * PUBLIC: Returns the string for status (none), Tentative, Confirmed, or
+ * Cancelled for a given event
+ *
+ * @param   {calIEvent} aEvent The event
+ * @returns {String}           The string for the status property of the event
+ */
+function getEventStatusString(aEvent) {
+    switch (aEvent.status) {
+        // Event status value keywords are specified in RFC2445sec4.8.1.11
+        case "TENTATIVE":
+            return cal.calGetString("calendar", "statusTentative");
+        case "CONFIRMED":
+            return cal.calGetString("calendar", "statusConfirmed");
+        case "CANCELLED":
+            return cal.calGetString("calendar", "eventStatusCancelled");
+        default:
+            return "";
+    }
+}
+
+/**
+ * PUBLIC: Returns the string for status (none), NeedsAction, InProcess,
+ * Cancelled, orCompleted for a given ToDo
+ *
+ * @param   {calIToDo} aToDo   The ToDo
+ * @returns {String}           The string for the status property of the event
+ */
+function getToDoStatusString(aToDo) {
+    switch (aToDo.status) {
+        // Todo status keywords are specified in RFC2445sec4.8.1.11
+        case "NEEDS-ACTION":
+            return cal.calGetString("calendar", "statusNeedsAction");
+        case "IN-PROCESS":
+            return cal.calGetString("calendar", "statusInProcess");
+        case "CANCELLED":
+            return cal.calGetString("calendar", "todoStatusCancelled");
+        case "COMPLETED":
+            return cal.calGetString("calendar", "statusCompleted");
+        default:
+            return "";
+    }
+}
+
+/**
+ * PRIVATE: Called when a user hovers over a todo element and the text for the
+ * mouse overis changed.
+ *
+ * @param {calIToDo} toDoItem    the item to create the preview for
+ * @param {boolean}  aIsTooltip  enabled if used for tooltip composition (default)
+ */
+function getPreviewForTask(toDoItem, aIsTooltip=true) {
     if (toDoItem) {
         const vbox = document.createElement("vbox");
         vbox.setAttribute("class", "tooltipBox");
-        // tooltip appears above or below pointer, so may have as little as
-        // one half the screen height available (avoid top going off screen).
-        vbox.maxHeight = Math.floor(screen.height / 2);
+        if (aIsTooltip) {
+            // tooltip appears above or below pointer, so may have as little as
+            // one half the screen height available (avoid top going off screen).
+            vbox.maxHeight = Math.floor(screen.height / 2);
+        } else {
+            vbox.setAttribute("flex", "1");
+        }
         boxInitializeHeaderGrid(vbox);
 
         let hasHeader = false;
@@ -130,7 +207,7 @@ function getPreviewForTask(toDoItem) {
             if (hasHeader) {
                 boxAppendBodySeparator(vbox);
             }
-            boxAppendBody(vbox, description);
+            boxAppendBody(vbox, description, aIsTooltip);
         }
 
         return vbox;
@@ -140,19 +217,25 @@ function getPreviewForTask(toDoItem) {
 }
 
 /**
- *  Called when mouse moves over a different, or
- *  when mouse moves over event in event list.
- *  The instStartDate is date of instance displayed at event box
- *  (recurring or multiday events may be displayed by more than one event box
- *  for different days), or null if should compute next instance from now.
+ * PRIVATE: Called when mouse moves over a different, or  when mouse moves over
+ * event in event list. The instStartDate is date of instance displayed at event
+ * box (recurring or multiday events may be displayed by more than one event box
+ * for different days), or null if should compute next instance from now.
+ *
+ * @param {calIEvent} aEvent       the item to create the preview for
+ * @param {boolean}   aIsTooltip   enabled if used for tooltip composition (default)
  */
-function getPreviewForEvent(aEvent) {
+function getPreviewForEvent(aEvent, aIsTooltip=true) {
     let event = aEvent;
     const vbox = document.createElement("vbox");
     vbox.setAttribute("class", "tooltipBox");
-    // tooltip appears above or below pointer, so may have as little as
-    // one half the screen height available (avoid top going off screen).
-    vbox.maxHeight = Math.floor(screen.height / 2);
+    if (aIsTooltip) {
+        // tooltip appears above or below pointer, so may have as little as
+        // one half the screen height available (avoid top going off screen).
+        vbox.maxHeight = Math.floor(screen.height / 2);
+    } else {
+        vbox.setAttribute("flex", "1");
+    }
     boxInitializeHeaderGrid(vbox);
 
     if (event) {
@@ -191,7 +274,7 @@ function getPreviewForEvent(aEvent) {
         if (description) {
             boxAppendBodySeparator(vbox);
             // display wrapped description lines, like body of message below headers
-            boxAppendBody(vbox, description);
+            boxAppendBody(vbox, description, aIsTooltip);
         }
         return vbox;
     } else {
@@ -199,43 +282,10 @@ function getPreviewForEvent(aEvent) {
     }
 }
 
-
-/** String for event status: (none), Tentative, Confirmed, or Cancelled **/
-function getEventStatusString(calendarEvent) {
-    switch (calendarEvent.status) {
-        // Event status value keywords are specified in RFC2445sec4.8.1.11
-        case "TENTATIVE":
-            return cal.calGetString("calendar", "statusTentative");
-        case "CONFIRMED":
-            return cal.calGetString("calendar", "statusConfirmed");
-        case "CANCELLED":
-            return cal.calGetString("calendar", "eventStatusCancelled");
-        default:
-            return "";
-    }
-}
-
-/** String for todo status: (none), NeedsAction, InProcess, Cancelled, or Completed **/
-function getToDoStatusString(iCalToDo) {
-    switch (iCalToDo.status) {
-        // Todo status keywords are specified in RFC2445sec4.8.1.11
-        case "NEEDS-ACTION":
-            return cal.calGetString("calendar", "statusNeedsAction");
-        case "IN-PROCESS":
-            return cal.calGetString("calendar", "statusInProcess");
-        case "CANCELLED":
-            return cal.calGetString("calendar", "todoStatusCancelled");
-        case "COMPLETED":
-            return cal.calGetString("calendar", "statusCompleted");
-        default:
-            return "";
-    }
-}
-
 /**
  * PRIVATE: Append a separator, a thin space between header and body.
  *
- * @param vbox      box to which to append separator.
+ * @param {Node}  vbox  box to which to append separator.
  */
 function boxAppendBodySeparator(vbox) {
     const separator = document.createElement("separator");
@@ -246,13 +296,19 @@ function boxAppendBodySeparator(vbox) {
 /**
  * PRIVATE: Append description to box for body text.  Text may contain
  * paragraphs; line indent and line breaks will be preserved by CSS.
+ *
  * @param box           box to which to append body
  * @param textString    text of body
+ * @param aIsTooltip    true for "tooltip" and false for "conflict-dialog" case
  */
-function boxAppendBody(box, textString) {
+function boxAppendBody(box, textString, aIsTooltip) {
+    let type = (aIsTooltip) ? "description": "vbox";
     let textNode = document.createTextNode(textString);
-    let xulDescription = document.createElement("description");
+    let xulDescription = document.createElement(type);
     xulDescription.setAttribute("class", "tooltipBody");
+    if (!aIsTooltip) {
+        xulDescription.setAttribute("flex", "1");
+    }
     xulDescription.appendChild(textNode);
     box.appendChild(xulDescription);
 }
@@ -260,6 +316,10 @@ function boxAppendBody(box, textString) {
 /**
  * PRIVATE: Use dateFormatter to format date and time,
  * and to header grid append a row containing localized Label: date.
+ *
+ * @param {Node}         box            The node to add the date label to
+ * @param {String}       labelProperty  The label
+ * @param {calIDateTime} date           The datetime object to format and add
  */
 function boxAppendLabeledDateTime(box, labelProperty, date) {
     date = date.getInTimezone(cal.calendarDefaultTimezone());
@@ -270,6 +330,7 @@ function boxAppendLabeledDateTime(box, labelProperty, date) {
 /**
  * PRIVATE: Use dateFormatter to format date and time interval,
  * and to header grid append a row containing localized Label: interval.
+ *
  * @param box               contains header grid.
  * @param labelProperty     name of property for localized field label.
  * @param item              the event or task
@@ -280,8 +341,9 @@ function boxAppendLabeledDateTimeInterval(box, labelProperty, item) {
 }
 
 /**
- * PRIVATE: create empty 2-column grid for header fields,
- * and append it to box.
+ * PRIVATE: create empty 2-column grid for header fields, and append it to box.
+ *
+ * @param  {Node}  box  The node to create a column grid for
  */
 function boxInitializeHeaderGrid(box) {
     let grid = document.createElement("grid");
@@ -305,8 +367,9 @@ function boxInitializeHeaderGrid(box) {
 }
 
 /**
- * PRIVATE: To headers grid, append a row containing Label: value,
- * where label is localized text for labelProperty.
+ * PRIVATE: To headers grid, append a row containing Label: value, where label
+ * is localized text for labelProperty.
+ *
  * @param box               box containing headers grid
  * @param labelProperty     name of property for localized name of header
  * @param textString        value of header field.
@@ -322,7 +385,12 @@ function boxAppendLabeledText(box, labelProperty, textString) {
     rows.appendChild(row);
 }
 
-/** PRIVATE: create element for field label (for header grid). **/
+/**
+ * PRIVATE: Creates an element for field label (for header grid)
+ *
+ * @param   {String} text  The text to display in the node
+ * @returns {Node}         The node
+ */
 function createTooltipHeaderLabel(text) {
     let label = document.createElement("label");
     label.setAttribute("class", "tooltipHeaderLabel");
@@ -330,7 +398,12 @@ function createTooltipHeaderLabel(text) {
     return label;
 }
 
-/** PRIVATE: create element for field value (for header grid). **/
+/**
+ * PRIVATE: Creates an element for field value (for header grid)
+ *
+ * @param   {String} text  The text to display in the node
+ * @returns {Node}         The node
+ */
 function createTooltipHeaderDescription(text) {
     let label = document.createElement("description");
     label.setAttribute("class", "tooltipHeaderDescription");
@@ -339,9 +412,14 @@ function createTooltipHeaderDescription(text) {
 }
 
 /**
- * If now is during an occurrence, return the occurrence.
- * Else if now is before an occurrence, return the next occurrence.
- * Otherwise return the previous occurrence.
+ * PRIVATE: If now is during an occurrence, return the occurrence. If now is
+ * before an occurrence, return the next occurrence or otherwise the previous
+ * occurrence.
+ *
+ * @param   {calIEvent}  calendarEvent   The text to display in the node
+ * @returns {mixed}                      Returns a calIDateTime for the detected
+ *                                        occurence or calIEvent, if this is a
+ *                                        non-recurring event
  */
 function getCurrentNextOrPreviousRecurrence(calendarEvent) {
     if (!calendarEvent.recurrenceInfo) {

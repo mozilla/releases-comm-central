@@ -792,6 +792,11 @@ calendar-event-box[gripBars="both"]:not([readonly="true"]):hover .calendar-event
     margin: 0pt;
 }
 
+#conflicts-vbox .tooltipBody {
+    overflow: auto;
+    min-height: 250px;
+}
+
 #calendar-view-context-menu[type="event"] .todo-only,
 #calendar-view-context-menu[type="todo"] .event-only,
 #calendar-view-context-menu[type="mixed"] .event-only,

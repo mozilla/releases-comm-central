@@ -19,9 +19,12 @@
     function onLoad() {
         let docEl = document.documentElement;
         let item = window.arguments[0].item;
-        let vbox = getPreviewForEvent(item);
+        let vbox = getPreviewForItem(item, false);
+        if (vbox) {
+            document.getElementById("item-box").replaceWith(vbox);
+        }
+
         let descr = document.getElementById("conflicts-description");
-        descr.parentNode.insertBefore(vbox, descr);
 
         // TODO These strings should move to DTD files, but we don't want to
         // disrupt string freeze right now. For that matter, this dialog
@@ -51,7 +54,8 @@
     }
   ]]></script>
 
-  <vbox id="conflicts-vbox">
+  <vbox id="conflicts-vbox" flex="1">
+    <vbox id="item-box" flex="1"/>
     <description id="conflicts-description"
                  style="max-width: 40em; margin-top: 1ex"/>
   </vbox>
