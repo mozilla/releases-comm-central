@@ -3715,8 +3715,11 @@ function initAppMenuPopup(aMenuPopup, aEvent)
  *  @option aMenupopup  The menupopup element to populate.
  */
 function initAddonPrefsMenu(aMenupopup) {
-  // Clear all but the first special menuitem.
-  while (aMenupopup.children.length > 1) {
+  // Starting at the bottom, clear all menu items until we hit
+  // "no add-on prefs", which is the only disabled element. Above this element
+  // there may be further items that we want to preserve.
+  let noPrefsElem = aMenupopup.querySelector('[disabled="true"]');
+  while (aMenupopup.lastChild != noPrefsElem) {
     aMenupopup.lastChild.remove();
   }
 
@@ -3746,10 +3749,10 @@ function initAddonPrefsMenu(aMenupopup) {
         }
         aMenupopup.appendChild(newItem);
       }
-      aMenupopup.firstChild.setAttribute("collapsed", "true");
+      noPrefsElem.setAttribute("collapsed", "true");
     } else {
       // Only show message that there are no addons with prefs.
-      aMenupopup.firstChild.setAttribute("collapsed", "false");
+      noPrefsElem.setAttribute("collapsed", "false");
     }
   });
 }
