@@ -31,6 +31,7 @@
   border-radius: 0;
   border-width: 0;
   margin: 0;
+  margin-inline-end: 1px;
   padding: 0;
 }
 
@@ -206,6 +207,10 @@
   margin-inline-start: -1px;
 }
 
+.tabmail-tab:last-child::after {
+  margin-inline-end: -1px;
+}
+
 /* Show full height tab separators on hover. */
 .tabmail-tab:not([selected=true]):last-child:hover::after,
 .tabmail-tab:not([selected]) + .tabmail-tab:not([selected]):hover::before,
@@ -218,7 +223,7 @@
 
 /* Show full height tab separators on selected tabs. */
 .tabmail-tab[visuallyselected]::before,
-.tabmail-tab[visuallyselected]:last-child::after,
+.tabmail-tab[visuallyselected]::after,
 .tabmail-tab[visuallyselected] + .tabmail-tab::before {
   border-color: var(--tabs-border-color);
   margin-top: 0;
