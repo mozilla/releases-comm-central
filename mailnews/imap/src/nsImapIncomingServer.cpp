@@ -44,11 +44,13 @@
 #include "nsComponentManagerUtils.h"
 #include "nsCRTGlue.h"
 #include "mozilla/Services.h"
+#include "nsNetUtil.h"
 
 using namespace mozilla;
 
-#define PREF_TRASH_FOLDER_NAME "trash_folder_name"
-#define DEFAULT_TRASH_FOLDER_NAME "Trash"
+// Despite its name, this contains a folder path, for example INBOX/Trash.
+#define PREF_TRASH_FOLDER_PATH "trash_folder_name"
+#define DEFAULT_TRASH_FOLDER_PATH "Trash"  // XXX Is this a useful default?
 
 static NS_DEFINE_CID(kImapProtocolCID, NS_IMAPPROTOCOL_CID);
 static NS_DEFINE_CID(kRDFServiceCID, NS_RDFSERVICE_CID);
@@ -352,6 +354,7 @@ nsImapIncomingServer::SetDeleteModel(int32_t ivalue)
     hostSession->SetDeleteIsMoveToTrashForHost(m_serverKey.get(), ivalue == nsMsgImapDeleteModels::MoveToTrash);
     hostSession->SetShowDeletedMessagesForHost(m_serverKey.get(), ivalue == nsMsgImapDeleteModels::IMAPDelete);
 
+    // Despite its name, this returns the trash folder path, for example INBOX/Trash.
     nsAutoString trashFolderName;
     nsresult rv = GetTrashFolderName(trashFolderName);
     if (NS_SUCCEEDED(rv))
@@ -361,8 +364,8 @@ nsImapIncomingServer::SetDeleteModel(int32_t ivalue)
       if (NS_SUCCEEDED(rv))
       {
         nsCOMPtr<nsIMsgFolder> trashFolder;
-        // XXX GetFolder only returns folders one level below root.
-        //     trashFolderName is a leaf name. So this will not find INBOX.Trash
+        // 'trashFolderName' being a path here works well since this is appended
+        // to the server's root folder in GetFolder().
         rv = GetFolder(trashFolderNameUtf7, getter_AddRefs(trashFolder));
         NS_ENSURE_SUCCESS(rv, rv);
         nsCString trashURI;
@@ -1557,14 +1560,17 @@ NS_IMETHODIMP nsImapIncomingServer::DiscoveryDone()
             }
             else
             {
-              // trashName is the leaf name on the folder URI, which will be
-              // different from the folder GetName if the trash name is
-              // localized.
+              // Store the trash folder path. We maintain the full path in the
+              // trash_folder_name preference since the full path is stored there
+              // when selecting a trash folder in the Account Manager.
               nsAutoCString trashURL;
               trashFolder->GetFolderURL(trashURL);
-              int32_t leafPos = trashURL.RFindChar('/');
+              nsCOMPtr<nsIURI> uri;
+              NS_NewURI(getter_AddRefs(uri), trashURL);
+              nsAutoCString trashPath;
+              uri->GetPathQueryRef(trashPath);
               nsAutoCString unescapedName;
-              MsgUnescapeString(Substring(trashURL, leafPos + 1),
+              MsgUnescapeString(Substring(trashPath, 1), // Skip leading slash.
                                 nsINetUtil::ESCAPE_URL_PATH, unescapedName);
               nsAutoString nameUnicode;
               if (NS_FAILED(CopyMUTF7toUTF16(unescapedName, nameUnicode)) ||
@@ -1576,7 +1582,7 @@ NS_IMETHODIMP nsImapIncomingServer::DiscoveryDone()
               {
                 // We got here because the preferred trash folder does not
                 // exist, but a folder got discovered to be the trash folder.
-                SetUnicharValue(PREF_TRASH_FOLDER_NAME, nameUnicode);
+                SetUnicharValue(PREF_TRASH_FOLDER_PATH, nameUnicode);
                 continue;
               }
             }
@@ -3205,17 +3211,19 @@ nsImapIncomingServer::GetUriWithNamespacePrefixIfNecessary(int32_t namespaceType
 
 NS_IMETHODIMP nsImapIncomingServer::GetTrashFolderName(nsAString& retval)
 {
-  nsresult rv = GetUnicharValue(PREF_TRASH_FOLDER_NAME, retval);
+  // Despite its name, this returns a path, for example INBOX/Trash.
+  nsresult rv = GetUnicharValue(PREF_TRASH_FOLDER_PATH, retval);
   if (NS_FAILED(rv))
     return rv;
   if (retval.IsEmpty())
-    retval = NS_LITERAL_STRING(DEFAULT_TRASH_FOLDER_NAME);
+    retval = NS_LITERAL_STRING(DEFAULT_TRASH_FOLDER_PATH);
   return NS_OK;
 }
 
 NS_IMETHODIMP nsImapIncomingServer::SetTrashFolderName(const nsAString& chvalue)
 {
-  // clear trash flag from the old pref
+  // Clear trash flag from the old pref.
+  // Despite its name, this returns the trash folder path, for example INBOX/Trash.
   nsAutoString oldTrashName;
   nsresult rv = GetTrashFolderName(oldTrashName);
   if (NS_SUCCEEDED(rv))
@@ -3225,12 +3233,14 @@ NS_IMETHODIMP nsImapIncomingServer::SetTrashFolderName(const nsAString& chvalue)
     if (NS_SUCCEEDED(rv))
     {
       nsCOMPtr<nsIMsgFolder> oldFolder;
+      // 'trashFolderName' being a path here works well since this is appended
+      // to the server's root folder in GetFolder().
       rv = GetFolder(oldTrashNameUtf7, getter_AddRefs(oldFolder));
       if (NS_SUCCEEDED(rv) && oldFolder)
         oldFolder->ClearFlag(nsMsgFolderFlags::Trash);
     }
   }
-  return SetUnicharValue(PREF_TRASH_FOLDER_NAME, chvalue);
+  return SetUnicharValue(PREF_TRASH_FOLDER_PATH, chvalue);
 }
 
 NS_IMETHODIMP

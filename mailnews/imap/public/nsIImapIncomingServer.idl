@@ -64,6 +64,11 @@ interface nsIImapIncomingServer : nsISupports {
    */
   attribute boolean useCompressDeflate;
 
+  /**
+   * This contains a folder path, for example INBOX/Trash. Note that the
+   * account manager sets this attribute to the path of the trash folder the
+   * user has chosen.
+   */
   attribute AString trashFolderName;
 
   attribute boolean downloadBodiesOnGetNewMail;

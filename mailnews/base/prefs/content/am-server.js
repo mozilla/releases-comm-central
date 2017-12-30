@@ -318,7 +318,7 @@ function setupImapDeleteUI(aServerId)
   var deleteModel = document.getElementById("imap.deleteModel").getAttribute("value");
   selectImapDeleteModel(deleteModel);
 
-  // read trash_folder_name preference
+  // read trash folder path preference
   var trashFolderName = getTrashFolderName();
 
   // set folderPicker menulist
@@ -391,13 +391,14 @@ function getFolderPathFromRoot(folder)
   return path.replace(/^Inbox/, "INBOX");
 }
 
-// Get trash_folder_name from prefs
+// Get trash_folder_name from prefs. Despite its name this returns
+// a folder path, for example INBOX/Trash.
 function getTrashFolderName()
 {
   var trashFolderName = document.getElementById("imap.trashFolderName").getAttribute("value");
   // if the preference hasn't been set, set it to a sane default
   if (!trashFolderName) {
-    trashFolderName = "Trash";
+    trashFolderName = "Trash";  // XXX Is this a useful default?
     document.getElementById("imap.trashFolderName").setAttribute("value",trashFolderName);
   }
   return trashFolderName;
