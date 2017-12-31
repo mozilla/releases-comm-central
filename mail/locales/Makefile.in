@@ -97,9 +97,6 @@ endif
 	@$(MAKE) -C $(DEPTH)/$(MOZ_BRANDING_DIRECTORY)/locales AB_CD=$* XPI_NAME=locale-$*
 
 
-# Note the funny extra '../' in SFX_HEADER is because the repackage-zip command
-# is actually run effectively from within the mozilla/ part of the objdir, so
-# topsrcdir points to the wrong place and we have to go one directory higher.
 package-win32-installer: WIN32_INSTALLER_OUT=$(ABS_DIST)/$(PKG_INST_PATH)$(PKG_INST_BASENAME).exe
 package-win32-installer: $(SUBMAKEFILES)
 	@echo 'Packaging $(WIN32_INSTALLER_OUT).'
