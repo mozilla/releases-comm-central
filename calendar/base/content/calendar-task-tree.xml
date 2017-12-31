@@ -748,16 +748,15 @@
             },
 
             onKeyPress: function(event) {
-                const kKE = Components.interfaces.nsIDOMKeyEvent;
-                switch (event.keyCode || event.which) {
-                    case kKE.DOM_VK_DELETE: {
+                switch (event.key) {
+                    case "Delete": {
                         document.popupNode = this.binding;
                         document.getElementById("calendar_delete_todo_command").doCommand();
                         event.preventDefault();
                         event.stopPropagation();
                         break;
                     }
-                    case kKE.DOM_VK_SPACE: {
+                    case " ": {
                         if (this.tree.currentIndex > -1) {
                             let col = document.getAnonymousElementByAttribute(
                                 this.binding, "itemproperty", "completed");
@@ -767,7 +766,7 @@
                         }
                         break;
                     }
-                    case kKE.DOM_VK_RETURN: {
+                    case "Enter": {
                         let index = this.tree.currentIndex;
                         if (index > -1) {
                             modifyEventWithDialog(this.binding.mTaskArray[index]);
