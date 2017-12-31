@@ -12,7 +12,6 @@
 # generation.
 
 
-##
 # Linux platforms (matching /linux.*/)
 
 linux64/opt:
@@ -35,8 +34,19 @@ linux32/debug:
     test-sets:
         - common-tests
 
+# Windows platforms (matching /windows.*/)
 
-##
+# win32
+windows7-32/opt:
+    build-platform: win32/opt
+    test-sets:
+        - common-tests
+
+windows7-32/debug:
+    build-platform: win32/debug
+    test-sets:
+        - common-tests
+
 # MacOS X platforms (matching /macosx.*/)
 
 macosx64/debug:

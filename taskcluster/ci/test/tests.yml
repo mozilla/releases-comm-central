@@ -67,7 +67,10 @@ xpcshell:
                     - unittests/thunderbird_extra.py
         extra-options:
             - "--xpcshell-suite=xpcshell"
-        requires-signed-builds: false
+        requires-signed-builds:
+            by-test-platform:
+                windows.*: true
+                default: false
 
 mozmill:
     description: "mozmill test run"
