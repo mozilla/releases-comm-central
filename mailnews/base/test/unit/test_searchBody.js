@@ -34,26 +34,49 @@ var Files =
   "../../../data/base64-1",
   "../../../data/basic1",
   "../../../data/multipart-base64-2",
-  "../../../data/bug132340"
+  "../../../data/bug132340",
+
+  "../../../data/01-plaintext.eml",
+  "../../../data/02-plaintext+attachment.eml",
+  "../../../data/03-HTML.eml",
+  "../../../data/04-HTML+attachment.eml",
+  "../../../data/05-HTML+embedded-image.eml",
+  "../../../data/06-plaintext+HMTL.eml",
+  "../../../data/07-plaintext+(HTML+embedded-image).eml",
+  "../../../data/08-plaintext+HTML+attachment.eml",
+  "../../../data/09-(HTML+embedded-image)+attachment.eml",
+  "../../../data/10-plaintext+(HTML+embedded-image)+attachment.eml"
 ]
 var Tests =
 [
   /* Translate Base64 messages */
-  { value: "World!",
-    op: Contains,
-    count: 2 },
+  // "World!" is contained in three messages, but in bug132340 it's not in a text
+  // part and should be found.
+  { value: "World!", op: Contains, count: 2 },
   /* Don't match the base64 text */
-  { value: "DQp",
-    op: Contains,
-    count: 0 },
+  { value: "DQp", op: Contains, count: 0 },
   /* Nested multipart/mixed, don't match */
-  { value: "PGh",
-    op: Contains,
-    count: 0 },
+  { value: "PGh", op: Contains, count: 0 },
   /* An encoded base-64 text/plain match */
-  { value: "base 64 text",
-    op: Contains,
-    count: 1 },
+  { value: "base 64 text", op: Contains, count: 1 },
+
+  // Comprehensive test of various MIME structures, messages 01 to 10.
+  // Messages 01 to 10 contain "huhu" once.
+  { value: "huhu", op: Contains, count: 10 },
+
+  // Messages 06, 07, 08, 10 contain "hihi" in the plaintext part.
+  { value: "hihi", op: Contains, count: 4 },
+
+  // The base64 of embedded images and attachments contains "iVBORw" and we don't
+  // want to find that.
+  { value: "iVBORw", op: Contains, count: 0 },
+
+  // The base64 of attachments contains "wMA005J0z" and we don't want to find that.
+  { value: "wMA005J0z", op: Contains, count: 0 },
+
+  // The base64 of the plaintext and HTML parts contains "U2VhcmNoIGZ"
+  // and we don't want to find that.
+  { value: "U2VhcmNoIGZ", op: Contains, count: 0 },
 ];
 
 function fixFile(file) {

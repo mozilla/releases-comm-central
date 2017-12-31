@@ -88,20 +88,21 @@ protected:
 
   // Transformations
   // With the exception of m_isMultipart, these all apply to the various parts
-  bool m_stripHeaders;   // true if we're supposed to strip of message headers
-  bool m_stripHtml;      // true if we're supposed to strip off HTML tags
-  bool m_pastHeaders;  // true if we've already skipped over the headers
-  bool m_partIsHtml;     // true if the Content-type header claims text/html
-  bool m_base64part;     // true if the current part is in base64
-  bool m_isMultipart;    // true if the message is a multipart/* message
-  bool m_partIsText;     // true if the current part is text/*
+  bool m_stripHeaders;    // true if we're supposed to strip of message headers
+  bool m_stripHtml;       // true if we're supposed to strip off HTML tags
+  bool m_pastMsgHeaders;  // true if we've already skipped over the message headers
+  bool m_pastPartHeaders; // true if we've already skipped over the part headers
+  bool m_partIsHtml;      // true if the Content-type header claims text/html
+  bool m_base64part;      // true if the current part is in base64
+  bool m_isMultipart;     // true if the message is a multipart/* message
+  bool m_partIsText;      // true if the current part is text/*
 
-  nsCString boundary;      // The boundary string to look for
+  nsTArray<nsCString> m_boundaries;  // The boundary strings to look for
 
   // See implementation for comments
   int32_t ApplyTransformations (const nsCString &line, int32_t length,
                                 bool &returnThisLine, nsCString &buf);
-  void SniffPossibleMIMEHeader (nsCString &line);
+  void SniffPossibleMIMEHeader (const nsCString &line);
   static void StripHtml (nsCString &buf);
   static void Base64Decode (nsCString &buf);
 };
