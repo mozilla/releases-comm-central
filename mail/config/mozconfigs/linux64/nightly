@@ -14,7 +14,6 @@ fi
 
 ac_add_options --enable-update-channel="${MOZ_UPDATE_CHANNEL}"
 ac_add_options --enable-profiling
-ac_add_options --disable-elf-hack # --enable-elf-hack conflicts with --enable-profiling
 
 # Needed to enable breakpad in application.ini
 export MOZILLA_OFFICIAL=1
