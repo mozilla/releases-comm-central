@@ -65,7 +65,8 @@ installer::
 # For building the uninstaller during the application build so it can be
 # included for mar file generation.
 uninstaller::
-	$(RM) -r $(CONFIG_DIR) && mkdir $(CONFIG_DIR)
+	$(RM) -r $(CONFIG_DIR)
+	$(MKDIR) $(CONFIG_DIR)
 	$(INSTALL) $(addprefix $(srcdir)/,$(INSTALLER_FILES)) $(CONFIG_DIR)
 	$(INSTALL) $(addprefix $(topsrcdir)/$(MOZ_BRANDING_DIRECTORY)/,$(BRANDING_FILES)) $(CONFIG_DIR)
 	$(call py_action,preprocessor,-Fsubstitution $(DEFINES) $(ACDEFINES) \
@@ -95,6 +96,8 @@ $(CONFIG_DIR)/setup.exe::
 	$(PYTHON) $(moztopsrcdir)/toolkit/mozapps/installer/windows/nsis/preprocess-locale.py \
 	  --preprocess-locale $(moztopsrcdir) \
 	  $(PPL_LOCALE_ARGS) $(AB_CD) $(CONFIG_DIR)
+
+GARBARGE_DIRS += instgen
 
 include $(moztopsrcdir)/config/rules.mk
 include $(moztopsrcdir)/toolkit/mozapps/installer/windows/nsis/makensis.mk
