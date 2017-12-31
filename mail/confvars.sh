@@ -8,7 +8,6 @@
 MOZ_APP_BASENAME=Thunderbird
 MOZ_APP_NAME=thunderbird
 MOZ_UPDATER=1
-MOZ_THUNDERBIRD=1
 
 if test "$OS_ARCH" = "WINNT" -o \
         "$OS_ARCH" = "Linux"; then
