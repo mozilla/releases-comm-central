@@ -10,8 +10,6 @@ include('/toolkit/toolkit.mozbuild')
 if CONFIG['MOZ_EXTENSIONS']:
     DIRS += ['/extensions']
 
-if CONFIG['MOZ_COMPOSER']:
-    DIRS += ['/%s/editor/ui' % CONFIG['commreltopsrcdir']]
 
 DIRS += ['/%s' % CONFIG['MOZ_BRANDING_DIRECTORY']]
 
@@ -22,5 +20,6 @@ if CONFIG['MOZ_CALENDAR']:
     ]
 
 DIRS += [
+    '/%s/editor/ui' % CONFIG['commreltopsrcdir'],
     '/%s/suite' % CONFIG['commreltopsrcdir'],
 ]

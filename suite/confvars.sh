@@ -10,7 +10,6 @@ MOZ_APP_VENDOR=Mozilla
 MOZ_APP_NAME=seamonkey
 MOZ_APP_DISPLAYNAME=SeaMonkey
 MOZ_LDAP_XPCOM=1
-MOZ_COMPOSER=1
 MOZ_SUITE=1
 MOZ_BRANDING_DIRECTORY=$commreltopsrcdir/suite/branding/nightly
 MOZ_OFFICIAL_BRANDING_DIRECTORY=$commreltopsrcdir/suite/branding/nightly

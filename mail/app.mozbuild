@@ -17,8 +17,6 @@ if CONFIG['MOZ_EXTENSIONS']:
 
 DIRS += ['/%s' % CONFIG['MOZ_BRANDING_DIRECTORY']]
 
-if CONFIG['MOZ_COMPOSER']:
-    DIRS += ['/%s/editor/ui' % CONFIG['commreltopsrcdir']]
 
 if CONFIG['MOZ_CALENDAR']:
     DIRS += [
@@ -28,5 +26,6 @@ if CONFIG['MOZ_CALENDAR']:
 
 DIRS += [
     '/%s/chat' % CONFIG['commreltopsrcdir'],
+    '/%s/editor/ui' % CONFIG['commreltopsrcdir'],
     '/%s/mail' % CONFIG['commreltopsrcdir'],
 ]
