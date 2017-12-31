@@ -18,14 +18,6 @@ AC_SUBST(mozreltopsrcdir)
 AC_SUBST(commreltopsrcdir)
 AC_SUBST(commtopobjdir)
 
-dnl Optional parts of the build.
-if test "$OS_ARCH" != "WINNT"; then
-  MOZ_MOVEMAIL=1
-  HAVE_MOVEMAIL=1
-  AC_DEFINE(HAVE_MOVEMAIL)
-fi
-AC_SUBST(MOZ_MOVEMAIL)
-
 dnl Get other versions (for the calendar plugin)
 SEAMONKEY_VERSION=`cat ${_topsrcdir}/../suite/config/version.txt`
 AC_SUBST(SEAMONKEY_VERSION)

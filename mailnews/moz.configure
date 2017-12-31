@@ -52,4 +52,7 @@ def mapi_support(arg):
 set_config('MOZ_MAPI_SUPPORT', mapi_support)
 set_define('MOZ_MAPI_SUPPORT', mapi_support)
 
+set_config('MOZ_MOVEMAIL', target_is_unix)
+set_define('HAVE_MOVEMAIL', target_is_unix)
+
 include('../db/moz.configure')

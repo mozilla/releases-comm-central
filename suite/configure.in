@@ -20,11 +20,3 @@ AC_SUBST(commtopsrcdir)
 AC_SUBST(mozreltopsrcdir)
 AC_SUBST(commreltopsrcdir)
 AC_SUBST(commtopobjdir)
-
-dnl Optional parts of the build.
-if test "$OS_ARCH" != "WINNT"; then
-  MOZ_MOVEMAIL=1
-  HAVE_MOVEMAIL=1
-  AC_DEFINE(HAVE_MOVEMAIL)
-fi
-AC_SUBST(MOZ_MOVEMAIL)
