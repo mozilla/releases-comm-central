@@ -51,7 +51,7 @@ var Tests =
 [
   /* Translate Base64 messages */
   // "World!" is contained in three messages, but in bug132340 it's not in a text
-  // part and should be found.
+  // part and should not be found.
   { value: "World!", op: Contains, count: 2 },
   /* Don't match the base64 text */
   { value: "DQp", op: Contains, count: 0 },
